@@ -4768,6 +4768,12 @@ static int parse(void)
 
     case CON_MIKESND:
         insptr++;
+        if (g_sp->yvel<0 || g_sp->yvel>=MAXSOUNDS)
+        {
+            OSD_Printf(CON_ERROR "CON_MIKESND: Invalid sound %d\n",line_num,g_sp->yvel);
+            insptr++;
+            break;
+        }
         if (!isspritemakingsound(g_i,g_sp->yvel))
             spritesound(g_sp->yvel,g_i);
         break;
@@ -5171,7 +5177,7 @@ static int parse(void)
                 operatesectors(var1, var2);
                 break;
             case CON_OPERATEACTIVATORS:
-                if (var1<0 || var1>=0xffff) {OSD_Printf(CON_ERROR "CON_OPERATEACTIVATORS: Invalid sector %d\n",line_num,var1);break;}
+                if (var2<0 || var2>=ud.multimode) {OSD_Printf(CON_ERROR "CON_OPERATEACTIVATORS: Invalid player %d\n",line_num,var2);break;}
                 operateactivators(var1, var2);
                 break;
             case CON_SETASPECT:
@@ -5342,15 +5348,15 @@ static int parse(void)
         break;
     }
 
-case CON_GETPNAME:
-case CON_QSTRCAT:
-case CON_QSTRCPY:
-case CON_QGETSYSSTR:
-case CON_CHANGESPRITESTAT:
-case CON_CHANGESPRITESECT:
-    insptr++;
-    {
-        int i = GetGameVarID(*insptr++, g_i, g_p), j;
+    case CON_GETPNAME:
+    case CON_QSTRCAT:
+    case CON_QSTRCPY:
+    case CON_QGETSYSSTR:
+    case CON_CHANGESPRITESTAT:
+    case CON_CHANGESPRITESECT:
+        insptr++;
+        {
+            int i = GetGameVarID(*insptr++, g_i, g_p), j;
             if (tw == CON_GETPNAME && *insptr == g_iThisActorID)
             {
                 j = g_p;
@@ -5778,8 +5784,10 @@ case CON_CHANGESPRITESECT:
         insptr++;
         {
             j=GetGameVarID(*insptr++, g_i, g_p);
-            if (j < MAXUNIQHUDID-1)
+            if (j >= 0 && j < MAXUNIQHUDID-1)
                 guniqhudid = j;
+            else
+                OSD_Printf(CON_ERROR "CON_GUNIQHUDID: Invalid ID %d\n",line_num,j);
             break;
         }
 
@@ -5826,7 +5834,15 @@ case CON_CHANGESPRITESECT:
             if (y1 > y2) swaplong(&y1,&y2);
 
             if (x1 < 0 || y1 < 0 || x2 > xdim-1 || y2 > ydim-1 || x2-x1 < 2 || y2-y1 < 2)
+            {
+                OSD_Printf(CON_ERROR "CON_SHOWVIEW: incorrect coordiantes\n",line_num);
                 break;
+            }
+            if (sect<0 || sect>=numsectors)
+            {
+                OSD_Printf(CON_ERROR "CON_SHOWVIEW: Invalid sector %d\n",line_num,sect);
+                break;
+            }
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
             j = glprojectionhacks;
@@ -5973,6 +5989,11 @@ case CON_CHANGESPRITESECT:
             int walldist=GetGameVarID(*insptr++,g_i,g_p), clipmask=GetGameVarID(*insptr++,g_i,g_p);
             int ceilz, ceilhit, florz, florhit;
 
+            if (sectnum<0 || sectnum>=numsectors)
+            {
+                OSD_Printf(CON_ERROR "CON_GETZRANGE: Invalid sector %d\n",line_num,sectnum);
+                break;
+            }
             getzrange(x, y, z, sectnum, &ceilz, &ceilhit, &florz, &florhit, walldist, clipmask);
             SetGameVarID(ceilzvar, ceilz, g_i, g_p);
             SetGameVarID(ceilhitvar, ceilhit, g_i, g_p);
@@ -5992,6 +6013,11 @@ case CON_CHANGESPRITESECT:
             short hitsect, hitwall, hitsprite;
             int hitx, hity, hitz;
 
+            if (sectnum<0 || sectnum>=numsectors)
+            {
+                OSD_Printf(CON_ERROR "CON_HITSCAN: Invalid sector %d\n",line_num,sectnum);
+                break;
+            }
             hitscan(xs, ys, zs, sectnum, vx, vy, vz, &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, cliptype);
             SetGameVarID(hitsectvar, hitsect, g_i, g_p);
             SetGameVarID(hitwallvar, hitwall, g_i, g_p);
@@ -6050,6 +6076,11 @@ case CON_CHANGESPRITESECT:
             int neartagsectorvar=*insptr++, neartagwallvar=*insptr++, neartagspritevar=*insptr++, neartaghitdistvar=*insptr++;
             int neartagrange=GetGameVarID(*insptr++,g_i,g_p), tagsearch=GetGameVarID(*insptr++,g_i,g_p);
 
+            if (sectnum<0 || sectnum>=numsectors)
+            {
+                OSD_Printf(CON_ERROR "CON_NEARTAG: Invalid sector %d\n",line_num,sectnum);
+                break;
+            }
             neartag(x, y, z, sectnum, ang, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, neartagrange, tagsearch);
 
             SetGameVarID(neartagsectorvar, neartagsector, g_i, g_p);
@@ -6068,13 +6099,22 @@ case CON_CHANGESPRITESECT:
 
             if (tw == CON_SETSPRITE)
             {
-                setsprite(spritenum, x, y, z);
+                if (spritenum >= 0 && spritenum < MAXSPRITES)
+                    setsprite(spritenum, x, y, z);
+                else
+                    OSD_Printf(CON_ERROR "CON_SETSPRITE: invalid sprite ID %d\n",line_num,spritenum);
                 break;
             }
 
             {
                 int cliptype = GetGameVarID(*insptr++,g_i,g_p);
 
+                if (spritenum < 0 && spritenum >= MAXSPRITES)
+                {
+                    OSD_Printf(CON_ERROR "CON_MOVESPRITE: invalid sprite ID %d\n",line_num,spritenum);
+                    insptr++;
+                    break;
+                }
                 SetGameVarID(*insptr++, movesprite(spritenum, x, y, z, cliptype), g_i, g_p);
                 break;
             }
@@ -6524,7 +6564,7 @@ case CON_CHANGESPRITESECT:
     case CON_CLEARMAPSTATE:
         insptr++;
         j = GetGameVarID(*insptr++,g_i,g_p);
-        if (j < 0 || j > MAXVOLUMES*MAXLEVELS)
+        if (j < 0 || j >= MAXVOLUMES*MAXLEVELS)
         {
             OSD_Printf(CON_ERROR "CON_CLEARMAPSTATE: Invalid map number: %d\n",line_num,j);
             return 0;
@@ -7010,7 +7050,10 @@ case CON_CHANGESPRITESECT:
 
             if (tw == CON_SETACTORVAR)
             {
-                SetGameVarID(lVar1, GetGameVarID(j, g_i, g_p), lSprite, g_p);
+                if (lSprite >= 0 && lSprite < MAXSPRITES)
+                    SetGameVarID(lVar1, GetGameVarID(j, g_i, g_p), lSprite, g_p);
+                else
+                    OSD_Printf(CON_ERROR "CON_SETACTORVAR: invalid sprite ID %d\n",line_num,lSprite);
                 break;
             }
             SetGameVarID(j, GetGameVarID(lVar1, lSprite, g_p), g_i, g_p);
@@ -7033,7 +7076,10 @@ case CON_CHANGESPRITESECT:
 
                 if (tw == CON_SETPLAYERVAR)
                 {
-                    SetGameVarID(lVar1, GetGameVarID(lVar2, g_i, g_p), g_i, iPlayer);
+                    if (iPlayer >= 0 && iPlayer < ud.multimode)
+                        SetGameVarID(lVar1, GetGameVarID(lVar2, g_i, g_p), g_i, iPlayer);
+                    else
+                        OSD_Printf(CON_ERROR "CON_SETPLAYERVAR: invalid player ID %d\n",line_num,iPlayer);
                     break;
                 }
                 SetGameVarID(lVar2, GetGameVarID(lVar1, g_i, iPlayer), g_i, g_p);
@@ -7243,6 +7289,12 @@ case CON_CHANGESPRITESECT:
     case CON_GMAXAMMO:
         insptr++;
         j=GetGameVarID(*insptr++, g_i, g_p);
+        if (j<0 || j>=MAX_WEAPONS)
+        {
+            OSD_Printf(CON_ERROR "CON_GMAXAMMO: Invalid weapon ID %d\n",line_num,j);
+            insptr++;
+            break;
+        }
         SetGameVarID(*insptr++, g_player[g_p].ps->max_ammo_amount[j], g_i, g_p);
         break;
 
@@ -7250,6 +7302,12 @@ case CON_CHANGESPRITESECT:
         insptr++;
         j=GetGameVarID(*insptr++, g_i, g_p);
         g_player[g_p].ps->max_ammo_amount[j]=GetGameVarID(*insptr++, g_i, g_p);
+        if (j<0 || j>=MAX_WEAPONS)
+        {
+            OSD_Printf(CON_ERROR "CON_SMAXAMMO: Invalid weapon ID %d\n",line_num,j);
+            insptr++;
+            break;
+        }
         break;
 
     case CON_MULVARVAR:
@@ -7545,6 +7603,8 @@ case CON_CHANGESPRITESECT:
         case GET_BOOTS:
             if (g_player[g_p].ps->boot_amount != *insptr) j = 1;
             break;
+        default:
+            OSD_Printf(CON_ERROR "CON_IFPINVENTORY: invalid inventory ID\n",line_num);
         }
 
         parseifelse(j);
