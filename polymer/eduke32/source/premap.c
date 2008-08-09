@@ -1888,3 +1888,4 @@ void FreeMapState(int mapnum)
     Bfree(map[mapnum].savedstate);
     map[mapnum].savedstate = NULL;
 }
+

@@ -798,18 +798,18 @@ enum keywords
     CON_DYNAMICREMAP,       // 285
     CON_SETINPUT,           // 286
     CON_GETINPUT,           // 287
-    CON_SAVE,				// 288
+    CON_SAVE,               // 288
     CON_CANSEE,             // 289
     CON_CANSEESPR,          // 290
     CON_FINDNEARACTORZ,     // 291
     CON_FINDNEARACTORZVAR,  // 292
     CON_FINDNEARSPRITEZ,    // 293
     CON_FINDNEARSPRITEZVAR, // 294
-    CON_ZSHOOTVAR,			// 295
-    CON_EZSHOOTVAR,			// 296
-    CON_GETCURRADDRESS,		// 297
-    CON_JUMP,				// 298
-    CON_QSTRLEN,			// 299
+    CON_ZSHOOTVAR,          // 295
+    CON_EZSHOOTVAR,         // 296
+    CON_GETCURRADDRESS,     // 297
+    CON_JUMP,               // 298
+    CON_QSTRLEN,            // 299
     CON_GETINCANGLE,        // 300
     CON_QUAKE,              // 301
     CON_SHOWVIEW,           // 302
@@ -831,9 +831,9 @@ enum keywords
     CON_RESIZEARRAY,        // 318
     CON_WRITEARRAYTOFILE,   // 319
     CON_READARRAYFROMFILE,  // 320
-    CON_STARTTRACKVAR,  	// 321
-    CON_QGETSYSSTR, 		// 322
-    CON_GETTICKS,			// 323
+    CON_STARTTRACKVAR,      // 321
+    CON_QGETSYSSTR,         // 322
+    CON_GETTICKS,           // 323
     CON_GETTSPR,            // 324
     CON_SETTSPR,            // 325
     CON_SAVEMAPSTATE,       // 326
@@ -842,4 +842,5 @@ enum keywords
     CON_SCRIPTSIZE,         // 329
     CON_DEFINEGAMENAME,     // 330
     CON_CMENU,              // 331
+    CON_GETDATE,            // 332 
 };

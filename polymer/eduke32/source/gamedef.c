@@ -421,18 +421,18 @@ static const char *keyw[] =
     "dynamicremap",             // 285
     "setinput",                 // 286
     "getinput",                 // 287
-    "save",					    // 288
+    "save",                     // 288
     "cansee",                   // 289
     "canseespr",                // 290
     "findnearactorz",           // 291
     "findnearactorzvar",        // 292
     "findnearspritez",          // 293
     "findnearspritezvar",       // 294
-    "zshootvar",				// 295
-    "ezshootvar",			    // 296
-    "getcurraddress",		    // 297
-    "jump",					    // 298
-    "qstrlen",				    // 299
+    "zshootvar",                // 295
+    "ezshootvar",               // 296
+    "getcurraddress",           // 297
+    "jump",                     // 298
+    "qstrlen",                  // 299
     "getincangle",              // 300
     "quake",                    // 301
     "showview",                 // 302
@@ -454,9 +454,9 @@ static const char *keyw[] =
     "resizearray",              // 318
     "writearraytofile",         // 319
     "readarrayfromfile",        // 320
-    "starttrackvar",			// 321
-    "qgetsysstr",   			// 322
-    "getticks", 				// 323
+    "starttrackvar",            // 321
+    "qgetsysstr",               // 322
+    "getticks",                 // 323
     "gettspr",                  // 324
     "settspr",                  // 325
     "savemapstate",             // 326
@@ -465,6 +465,7 @@ static const char *keyw[] =
     "scriptsize",               // 329
     "definegamename",           // 330
     "cmenu",                    // 331
+    "getdate",                  // 332
     "<null>"
 };
 
@@ -3860,6 +3861,10 @@ static int parsecommand(void)
             transmultvarstype(GAMEVAR_FLAG_READONLY,2);
             transmultvars(2);
         }
+        break;
+
+    case CON_GETDATE:
+        transmultvarstype(GAMEVAR_FLAG_READONLY,8);
         break;
 
     case CON_MOVESPRITE:
