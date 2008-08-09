@@ -6896,16 +6896,14 @@ int menuselect_pk(int direction) // 20080104: jump to next (direction!=0) or pre
 
 int menuselect(void)
 {
-    static int listsize;
+    int listsize = (ydim16-32)/8;
     int i;
-    char ch, buffer[78], /*PK*/ *chptr;
+    char ch, buffer[96], /*PK*/ *chptr;
     static char oldpath[BMAX_PATH];
     CACHE1D_FIND_REC *dir;
     int bakpathsearchmode = pathsearchmode;
 
     g_oldpath=oldpath; //PK: need it in menuselect_pk
-
-    listsize = (ydim16-32)/8;
 
     Bstrcpy(selectedboardfilename, oldpath);
     if (pathsearchmode)
@@ -6944,7 +6942,7 @@ int menuselect(void)
         }
         printext16(halfxdim16-(8*strlen(buffer)/2), 4, 12,0,buffer,0);
 
-        Bsnprintf(buffer,78,"(%d dirs, %d files) %s",numdirs,numfiles,selectedboardfilename);
+        Bsnprintf(buffer,sizeof(buffer)-1,"(%d dirs, %d files) %s",numdirs,numfiles,selectedboardfilename);
         buffer[sizeof(buffer)-1] = 0;
         printext16(1,ydim16-8-1,8,0,buffer,0);
 
