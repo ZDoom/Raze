@@ -6679,7 +6679,8 @@ case CON_CHANGESPRITESECT:
                     index=GetGameVarID(*insptr++,g_i,g_p);
                     if ((index < aGameArrays[lVarID].size)&&(index>=0))
                     {
-                        OSD_Printf(OSDTEXT_GREEN "CON_ADDLOGVAR: L=%d %s[%d] =%d\n",line_num, aGameArrays[lVarID].szLabel,index,m*aGameArrays[lVarID].plValues[index]);
+                        OSD_Printf(OSDTEXT_GREEN "CON_ADDLOGVAR: L=%d %s[%d] =%d\n",line_num,
+                            aGameArrays[lVarID].szLabel,index,m*aGameArrays[lVarID].plValues[index]);
                         break;
                     }
                     else
@@ -7096,14 +7097,15 @@ case CON_CHANGESPRITESECT:
 
         insptr++;
 
-        if (j >=0 && j < ud.multimode)
+        if (j < 0 || j >= ud.multimode)
         {
-            if (tw == CON_CHECKAVAILWEAPON)
-                checkavailweapon(g_player[j].ps);
-            else checkavailinven(g_player[j].ps);
-        }
-        else
             OSD_Printf(CON_ERROR "CON_CHECKAVAILWEAPON/CON_CHECKAVAILINVEN: Invalid player ID %d\n",line_num,j);
+            break;
+        }
+
+        if (tw == CON_CHECKAVAILWEAPON)
+            checkavailweapon(g_player[j].ps);
+        else checkavailinven(g_player[j].ps);
 
         break;
 
@@ -7181,7 +7183,11 @@ case CON_CHANGESPRITESECT:
     case CON_DIVVAR:
         insptr++;
         if (*(insptr+1) == 0)
-            gameexit("CON_DIVVAR: Divide by zero.");
+        {
+            OSD_Printf(CON_ERROR "CON_DIVVAR: Divide by zero.\n",line_num);
+            insptr += 2;
+            break;
+        }
         SetGameVarID(*insptr, GetGameVarID(*insptr, g_i, g_p) / *(insptr+1), g_i, g_p);
         insptr += 2;
         break;
@@ -7189,7 +7195,11 @@ case CON_CHANGESPRITESECT:
     case CON_MODVAR:
         insptr++;
         if (*(insptr+1) == 0)
-            gameexit("CON_MODVAR: Mod by zero.");
+        {
+            OSD_Printf(CON_ERROR "CON_MODVAR: Mod by zero.\n",line_num);
+            insptr += 2;
+            break;
+        }
         SetGameVarID(*insptr,GetGameVarID(*insptr, g_i, g_p)%*(insptr+1), g_i, g_p);
         insptr += 2;
         break;
@@ -7255,8 +7265,10 @@ case CON_CHANGESPRITESECT:
             int l2=GetGameVarID(*insptr++, g_i, g_p);
 
             if (l2==0)
-                gameexit("CON_DIVVARVAR: Divide by zero.");
-
+            {
+                OSD_Printf(CON_ERROR "CON_DIVVARVAR: Divide by zero.\n",line_num);
+                break;
+            }
             SetGameVarID(j, GetGameVarID(j, g_i, g_p)/l2 , g_i, g_p);
             break;
         }
@@ -7268,7 +7280,10 @@ case CON_CHANGESPRITESECT:
             int l2=GetGameVarID(*insptr++, g_i, g_p);
 
             if (l2==0)
-                gameexit("CON_MODVARVAR: Mod by zero.");
+            {
+                OSD_Printf(CON_ERROR "CON_MODVARVAR: Mod by zero.\n",line_num);
+                break;
+            }
 
             SetGameVarID(j, GetGameVarID(j, g_i, g_p) % l2, g_i, g_p);
             break;
@@ -7691,7 +7706,11 @@ case CON_CHANGESPRITESECT:
         break;
 
     default:
-        OSD_Printf("fatal error: default processing: previous five values: %d, %d, %d, %d, %d, currrent opcode: %d, next five values: %d, %d, %d, %d, %d\ncurrent actor: %d (%d)\n",*(insptr-5),*(insptr-4),*(insptr-3),*(insptr-2),*(insptr-1),*insptr,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5),g_i,g_sp->picnum);
+        OSD_Printf("fatal error: default processing: previous five values: %d, %d, %d, %d, %d, "
+                   "currrent opcode: %d, next five values: %d, %d, %d, %d, %d\ncurrent actor: %d (%d)\n",
+                   *(insptr-5),*(insptr-4),*(insptr-3),*(insptr-2),*(insptr-1),*insptr,*(insptr+1),
+                   *(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5),g_i,g_sp->picnum);
+
         gameexit("An error has occurred in the EDuke32 CON executor.\n\n"
                  "If you are an end user, please e-mail the file eduke32.log\n"
                  "along with links to any mods you're using to terminx@gmail.com.\n\n"

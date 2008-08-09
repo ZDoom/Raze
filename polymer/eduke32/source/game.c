@@ -3452,7 +3452,7 @@ void SetCrosshairColor(int r, int g, int b)
     hictinting[CROSSHAIR_PAL].r = crosshair_colors.r;
     hictinting[CROSSHAIR_PAL].g = crosshair_colors.g;
     hictinting[CROSSHAIR_PAL].b = crosshair_colors.b;
-    hictinting[CROSSHAIR_PAL].f = 1;
+    hictinting[CROSSHAIR_PAL].f = 17;
     invalidatetile(CROSSHAIR, -1, -1);
 }
 
@@ -5416,9 +5416,10 @@ int spawn(int j, int pn)
                     a = g_player[snum].ps->ang-(TRAND&63)+8;  //Fine tune
 
                     T1 = TRAND&1;
+                    sp->z = (3<<8)+g_player[snum].ps->pyoff+g_player[snum].ps->posz-
+                        ((g_player[snum].ps->horizoff+g_player[snum].ps->horiz-100)<<4);
                     if (sp->picnum == SHOTGUNSHELL)
-                        sp->z = (6<<8)+g_player[snum].ps->pyoff+g_player[snum].ps->posz-((g_player[snum].ps->horizoff+g_player[snum].ps->horiz-100)<<4);
-                    else sp->z = (3<<8)+g_player[snum].ps->pyoff+g_player[snum].ps->posz-((g_player[snum].ps->horizoff+g_player[snum].ps->horiz-100)<<4);
+                        sp->z += (3<<8);
                     sp->zvel = -(TRAND&255);
                 }
                 else

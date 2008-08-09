@@ -32,58 +32,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "types.h"
+#include "compat.h"
+#include "pragmas.h"
 
-#if 0
-// Ken's reverse-engineering job
-int32 FindDistance2D(int32 x, int32 y)
+// I wonder if it's faster to use Ken's functions here...
+
+int FindDistance2D(int x, int y)
 {
-    int32 i;
-    x = labs(x);
-    y = labs(y);
-    if (!x) return(y);
-    if (!y) return(x);
-    if (y < x) { i = x; x = y; y = i; } //swap x, y
-    x += (x>>1);
-    return ((x>>6)+(x>>2)+y-(y>>5)-(y>>7)); //handle 1 octant
-}
+    int t;
 
-// My abomination
-#define square(x) ((x)*(x))
-/*
-int32 FindDistance2D(int32 dx, int32 dy)
-{
-//	return (int32)floor(sqrt((double)(sqr(dx)+sqr(dy))));
-	return ksqrt(square(dx)+square(dy));
-}
-*/
-int32 FindDistance3D(int32 dx, int32 dy, int32 dz)
-{
-//	return (int32)floor(sqrt((double)(sqr(dx)+sqr(dy)+sqr(dz))));
-    return ksqrt(square(dx)+square(dy)+square(dz));
-}
-
-#else
-
-#include <stdlib.h>
-
-// This extracted from the Rise of the Triad source RT_UTIL.C :-|
-
-#define SWAP(a,b) \
-   {              \
-   a=(a)^(b);     \
-   b=(a)^(b);     \
-   a=(a)^(b);     \
-   }
-
-int32 FindDistance2D(int32 x, int32 y)
-{
-    int32 t;
-
-    x= abs(x);        /* absolute values */
-    y= abs(y);
+    x= klabs(x);        /* absolute values */
+    y= klabs(y);
 
     if (x<y)
-        SWAP(x,y);
+        swaplong(&x,&y);
 
     t = y + (y>>1);
 
@@ -91,22 +53,21 @@ int32 FindDistance2D(int32 x, int32 y)
 }
 
 
-int32 FindDistance3D(int32 x, int32 y, int32 z)
+int FindDistance3D(int x, int y, int z)
 {
-    int32 t;
+    int t;
 
-    x= abs(x);           /* absolute values */
-    y= abs(y);
-    z= abs(z);
+    x= klabs(x);           /* absolute values */
+    y= klabs(y);
+    z= klabs(z);
 
     if (x<y)
-        SWAP(x,y);
+        swaplong(&x,&y);
 
     if (x<z)
-        SWAP(x,z);
+        swaplong(&x,&z);
 
     t = y + z;
 
     return (x - (x>>4) + (t>>2) + (t>>3));
 }
-#endif

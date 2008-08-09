@@ -383,12 +383,13 @@ SKIPWALLCHECK:
 
                     if (s->picnum != SHRINKSPARK)
                     {
-                        if (d < r/3)
+                        k = (r/3);
+                        if (d < k)
                         {
                             if (hp4 == hp3) hp4++;
                             hittype[j].extra = hp3 + (TRAND%(hp4-hp3));
                         }
-                        else if (d < 2*r/3)
+                        else if (d < (k<<1))
                         {
                             if (hp3 == hp2) hp3++;
                             hittype[j].extra = hp2 + (TRAND%(hp3-hp2));
@@ -527,19 +528,17 @@ int movesprite(int spritenum, int xchange, int ychange, int zchange, unsigned in
     daz = sprite[spritenum].z + ((zchange*TICSPERFRAME)>>3);
     if ((daz > hittype[spritenum].ceilingz) && (daz <= hittype[spritenum].floorz))
         sprite[spritenum].z = daz;
-    else
-        if (retval == 0)
-            return(16384+dasectnum);
+    else if (retval == 0)
+        return(16384+dasectnum);
 
     return(retval);
 }
 
 inline int ssp(int i,unsigned int cliptype) //The set sprite function
 {
-    return (movesprite(i,
-                       (sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
-                       (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14,sprite[i].zvel,
-                       cliptype)==0);
+    return (movesprite(i,(sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
+                         (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14,sprite[i].zvel,
+                         cliptype)==0);
 }
 
 #undef deletesprite
@@ -547,8 +546,8 @@ void deletespriteEVENT(int s)
 {
     if (apScriptGameEvent[EVENT_KILLIT])
     {
-        int p;
-        int pl=findplayer(&sprite[s],&p);
+        static int p, pl;
+        pl=findplayer(&sprite[s],&p);
         SetGameVarID(g_iReturnVarID,0, -1, -1);
         OnEvent(EVENT_KILLIT, s, pl, p);
         if (GetGameVarID(g_iReturnVarID, -1, -1))
