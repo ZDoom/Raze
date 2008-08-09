@@ -4412,25 +4412,22 @@ static void Keys3d(void)
 
     //  DoWater(horiz);
 
-    i = totalclock;
-    if (i != clockval[clockcnt])
+    if (totalclock != clockval[clockcnt])
     {
-        rate=(120<<4)/(i-clockval[clockcnt])-1;
+        rate=(120*AVERAGEFRAMES)/(totalclock-clockval[clockcnt]);
+        clockval[clockcnt] = totalclock;
         if (framerateon)
         {
-            int p = 8*4;
+            int x = (xdimgame <= 640);
+            int p = 32>>x;
 
-            Bsprintf(tempbuf,"%4d",rate);
-            if (xdimgame <= 640) p >>= 1;
-
-            begindrawing();
-            printext256(xdimgame-p-1,2,0,-1,tempbuf,!(xdimgame > 640));
-            printext256(xdimgame-p-2,1,rate < 40?248:whitecol,-1,tempbuf,!(xdimgame > 640));
+            Bsprintf(tempbuf,"%4d",max(rate,0));
+            printext256(xdimgame-p-1+1,0+2,0,-1,tempbuf,x);
+            printext256(xdimgame-p-1,0+1,(rate < 40) ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
             enddrawing();
         }
     }
-    clockval[clockcnt] = i;
-    clockcnt = ((clockcnt+1)&15);
+    clockcnt = ((clockcnt+1)&(AVERAGEFRAMES-1));
 
     tempbuf[0] = 0;
     if (bstatus&4 && !(bstatus&(1|2)) && !unrealedlook)  //PK

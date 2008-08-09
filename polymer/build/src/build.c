@@ -7105,7 +7105,7 @@ int menuselect(void)
             if ((currentlist == 0 && findfiles) || (currentlist == 1 && finddirs))
                 currentlist = 1-currentlist;
         }
-        else if ((ch == 75) || (ch == 72))
+        else if (keystatus[0xc8] /*(ch == 75) || (ch == 72)*/)
         {
             if (currentlist == 0)
             {
@@ -7116,7 +7116,7 @@ int menuselect(void)
                 if (findfileshigh && findfileshigh->prev) findfileshigh = findfileshigh->prev;
             }
         }
-        else if ((ch == 77) || (ch == 80))
+        else if (keystatus[0xd0] /*(ch == 77) || (ch == 80)*/)
         {
             if (currentlist == 0)
             {

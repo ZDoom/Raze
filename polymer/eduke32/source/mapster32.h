@@ -47,7 +47,11 @@ extern short temppicnum, tempcstat, templotag, temphitag, tempextra;
 extern unsigned char temppal, tempvis, tempxrepeat, tempyrepeat, somethingintab;
 extern signed char tempshade;
 
-static int ototalclock = 0, clockval[16], clockcnt = 0;
+#define AVERAGEFRAMES 128
+#define COLOR_RED 248
+#define COLOR_WHITE 31
+
+static int ototalclock = 0, clockval[AVERAGEFRAMES], clockcnt = 0;
 
 #define NUMOPTIONS 9
 #define NUMKEYS 19
