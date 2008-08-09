@@ -6524,6 +6524,11 @@ case CON_CHANGESPRITESECT:
     case CON_CLEARMAPSTATE:
         insptr++;
         j = GetGameVarID(*insptr++,g_i,g_p);
+        if (j < 0 || j > MAXVOLUMES*MAXLEVELS)
+        {
+            OSD_Printf(CON_ERROR "CON_CLEARMAPSTATE: Invalid map number: %d\n",line_num,j);
+            return 0;
+        }
         if (map[j].savedstate)
             FreeMapState(j);
         return 0;
@@ -6641,7 +6646,7 @@ case CON_CHANGESPRITESECT:
     case CON_ADDLOG:
     {
         insptr++;
-        OSD_Printf(OSDTEXT_GREEN "CONLOG: L=%d\n",*insptr++);
+        OSD_Printf(OSDTEXT_GREEN "CONLOG: L=%d\n",line_num);
         break;
     }
 
@@ -6650,7 +6655,7 @@ case CON_CHANGESPRITESECT:
         {
             int m=1;
             char szBuf[256];
-            int l=*insptr++, lVarID = *insptr;
+            int lVarID = *insptr;
 
             if ((lVarID >= iGameVarCount) || lVarID < 0)
             {
@@ -6674,12 +6679,12 @@ case CON_CHANGESPRITESECT:
                     index=GetGameVarID(*insptr++,g_i,g_p);
                     if ((index < aGameArrays[lVarID].size)&&(index>=0))
                     {
-                        OSD_Printf(OSDTEXT_GREEN "CONLOGVAR: L=%d %s[%d] =%d\n",l, aGameArrays[lVarID].szLabel,index,m*aGameArrays[lVarID].plValues[index]);
+                        OSD_Printf(OSDTEXT_GREEN "CON_ADDLOGVAR: L=%d %s[%d] =%d\n",line_num, aGameArrays[lVarID].szLabel,index,m*aGameArrays[lVarID].plValues[index]);
                         break;
                     }
                     else
                     {
-                        OSD_Printf(CON_ERROR "CON_ADDLOGVAR: L=%d invalid array index\n",line_num,l);
+                        OSD_Printf(CON_ERROR "CON_ADDLOGVAR: invalid array index\n",line_num);
                         break;
                     }
                 }
@@ -6692,11 +6697,11 @@ case CON_CHANGESPRITESECT:
                 {
                     // invalid varID
                     insptr++;
-                    OSD_Printf(CON_ERROR "CON_ADDLOGVAR: L=%d invalid variable\n",line_num,l);
+                    OSD_Printf(CON_ERROR "CON_ADDLOGVAR: invalid variable\n",line_num);
                     break;  // out of switch
                 }
             }
-            Bsprintf(szBuf,"CONLOGVAR: L=%d %s ",l, aGameVars[lVarID].szLabel);
+            Bsprintf(szBuf,"CONLOGVAR: L=%d %s ",line_num, aGameVars[lVarID].szLabel);
             strcpy(g_szBuf,szBuf);
 
             if (aGameVars[lVarID].dwFlags & GAMEVAR_FLAG_READONLY)

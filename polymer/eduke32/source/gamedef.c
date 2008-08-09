@@ -3798,8 +3798,8 @@ static int parsecommand(void)
         // syntax: addlogvar <var>
 
         // prints the line number in the log file.
-        *scriptptr=line_number;
-        scriptptr++;
+/*        *scriptptr=line_number;
+        scriptptr++; */
 
         // get the ID of the DEF
         transvar();
@@ -4212,8 +4212,8 @@ repeatcase:
         // syntax: addlog
 
         // prints the line number in the log file.
-        *scriptptr=line_number;
-        scriptptr++;
+/*        *scriptptr=line_number;
+        scriptptr++; */
         return 0;
 
     case CON_IFPINVENTORY:
