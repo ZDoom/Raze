@@ -7050,12 +7050,15 @@ static int parse(void)
             int lSprite=GetGameVarID(*insptr++, g_i, g_p), lVar1=*insptr++;
             j=*insptr++;
 
+            if (lSprite < 0 || lSprite >= MAXSPRITES)
+            {
+                OSD_Printf(CON_ERROR "CON_GETACTORVAR/CON_SETACTORVAR: invalid sprite ID %d\n",line_num,lSprite);
+                break;
+            }
+
             if (tw == CON_SETACTORVAR)
             {
-                if (lSprite >= 0 && lSprite < MAXSPRITES)
-                    SetGameVarID(lVar1, GetGameVarID(j, g_i, g_p), lSprite, g_p);
-                else
-                    OSD_Printf(CON_ERROR "CON_SETACTORVAR: invalid sprite ID %d\n",line_num,lSprite);
+                SetGameVarID(lVar1, GetGameVarID(j, g_i, g_p), lSprite, g_p);
                 break;
             }
             SetGameVarID(j, GetGameVarID(lVar1, lSprite, g_p), g_i, g_p);
@@ -7076,12 +7079,15 @@ static int parse(void)
             {
                 int lVar1=*insptr++, lVar2=*insptr++;
 
+                if (iPlayer < 0 || iPlayer >= ud.multimode)
+                {
+                    OSD_Printf(CON_ERROR "CON_GETPLAYERVAR/CON_SETPLAYERVAR: invalid player ID %d\n",line_num,iPlayer);
+                    break;
+                }
+
                 if (tw == CON_SETPLAYERVAR)
                 {
-                    if (iPlayer >= 0 && iPlayer < ud.multimode)
-                        SetGameVarID(lVar1, GetGameVarID(lVar2, g_i, g_p), g_i, iPlayer);
-                    else
-                        OSD_Printf(CON_ERROR "CON_SETPLAYERVAR: invalid player ID %d\n",line_num,iPlayer);
+                    SetGameVarID(lVar1, GetGameVarID(lVar2, g_i, g_p), g_i, iPlayer);
                     break;
                 }
                 SetGameVarID(lVar2, GetGameVarID(lVar1, g_i, iPlayer), g_i, g_p);
@@ -7203,7 +7209,7 @@ static int parse(void)
             int asize = GetGameVarID(*insptr++, g_i, g_p);
             if (asize > 0)
             {
-                OSD_Printf(OSDTEXT_GREEN "resizing array %s, old size %d new size %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);
+                OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);
                 aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, sizeof(int) * asize);
                 aGameArrays[j].size = asize;
             }
@@ -7441,17 +7447,17 @@ static int parse(void)
         break;
 
     case CON_STARTTRACK:
-        insptr++;
-        music_select=(ud.volume_number*MAXLEVELS)+(*(insptr++));
-        if (map[(unsigned char)music_select].musicfn != NULL)
-            playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
-        break;
-
     case CON_STARTTRACKVAR:
         insptr++;
-        music_select=(ud.volume_number*MAXLEVELS)+(GetGameVarID(*(insptr++), g_i, g_p));
-        if (map[(unsigned char)music_select].musicfn != NULL)
-            playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
+        if (tw == CON_STARTTRACK) music_select=(ud.volume_number*MAXLEVELS)+(*(insptr++));
+        else music_select=(ud.volume_number*MAXLEVELS)+(GetGameVarID(*(insptr++), g_i, g_p));
+        if (map[(unsigned char)music_select].musicfn == NULL)
+        {
+            OSD_Printf(CON_ERROR "CON_STARTTRACK/CON_STARTTRACKVAR: null music for map %d\n",line_num,music_select);
+            insptr++;
+            break;
+        }
+        playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
         break;
 
     case CON_GETTEXTURECEILING:

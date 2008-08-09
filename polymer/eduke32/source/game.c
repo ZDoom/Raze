@@ -2025,7 +2025,7 @@ static void coolgaugetext(int snum)
 
             if (sprite[p->i].pal == 1 && p->last_extra < 2)
                 altdigitalnumber(40,-(200-22),1,-16,10+16);
-            else if (!althud_flashing || p->last_extra > 25 || totalclock&32)
+            else if (!althud_flashing || p->last_extra > (p->max_player_health>>2) || totalclock&32)
                 altdigitalnumber(40,-(200-22),p->last_extra,-16,10+16);
 
             if (althud_shadows)

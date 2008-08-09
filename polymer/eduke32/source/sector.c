@@ -196,18 +196,32 @@ inline int checkcursectnums(int sect)
     return -1;
 }
 
-inline int ldist(spritetype *s1,spritetype *s2)
+int ldist(spritetype *s1,spritetype *s2)
 {
-    int i = FindDistance2D(s1->x-s2->x, s1->y-s2->y);
-    if (!i) return 1;
-    return i;
+    int x= klabs(s1->x-s2->x);
+    int y= klabs(s1->y-s2->y);
+
+    if (x<y) swaplong(&x,&y);
+
+    {
+        int t = y + (y>>1);
+        return (x - (x>>5) - (x>>7)  + (t>>2) + (t>>6));
+    }
 }
 
-inline int dist(spritetype *s1,spritetype *s2)
+int dist(spritetype *s1,spritetype *s2)
 {
-    int i = FindDistance3D(s1->x-s2->x, s1->y-s2->y, (s1->z-s2->z)>>4);
-    if (!i) return 1;
-    return i;
+    int x= klabs(s1->x-s2->x);
+    int y= klabs(s1->y-s2->y);
+    int z= klabs((s1->z-s2->z)>>4);
+
+    if (x<y) swaplong(&x,&y);
+    if (x<z) swaplong(&x,&z);
+
+    {
+        int t = y + z;
+        return (x - (x>>4) + (t>>2) + (t>>3));
+    }
 }
 
 int findplayer(spritetype *s,int *d)
