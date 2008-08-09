@@ -149,6 +149,7 @@ extern void computergetinput(int snum, input_t *syn);
 int althud_numbertile = 2930;
 int althud_numberpal = 0;
 int althud_shadows = 1;
+int althud_flashing = 1;
 
 enum
 {
@@ -2024,7 +2025,8 @@ static void coolgaugetext(int snum)
 
             if (sprite[p->i].pal == 1 && p->last_extra < 2)
                 altdigitalnumber(40,-(200-22),1,-16,10+16);
-            else altdigitalnumber(40,-(200-22),p->last_extra,-16,10+16);
+            else if (!althud_flashing || p->last_extra > 25 || totalclock&32)
+                altdigitalnumber(40,-(200-22),p->last_extra,-16,10+16);
 
             if (althud_shadows)
                 rotatesprite(sbarx(62+1),sbary(200-25+1),sbarsc(49152L),0,SHIELD,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
@@ -2051,7 +2053,9 @@ static void coolgaugetext(int snum)
 
             if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
             else i = p->curr_weapon;
-            altdigitalnumber(-20,-(200-22),p->ammo_amount[i],-16,10+16);
+            if (p->curr_weapon != KNEE_WEAPON &&
+                (!althud_flashing || totalclock&32 || p->ammo_amount[i] > (p->max_ammo_amount[i]/10)))
+                altdigitalnumber(-20,-(200-22),p->ammo_amount[i],-16,10+16);
 
             o = 102;
             permbit = 0;

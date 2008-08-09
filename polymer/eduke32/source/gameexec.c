@@ -6099,10 +6099,12 @@ static int parse(void)
 
             if (tw == CON_SETSPRITE)
             {
-                if (spritenum >= 0 && spritenum < MAXSPRITES)
-                    setsprite(spritenum, x, y, z);
-                else
+                if (spritenum < 0 || spritenum >= MAXSPRITES)
+                {
                     OSD_Printf(CON_ERROR "CON_SETSPRITE: invalid sprite ID %d\n",line_num,spritenum);
+                    break;
+                }
+                setsprite(spritenum, x, y, z);
                 break;
             }
 
