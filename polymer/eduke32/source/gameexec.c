@@ -6671,7 +6671,13 @@ static int parse(void)
         insptr++;
         {
             int dq = *insptr++, sq = *insptr++;
-            if (fta_quotes[sq] != NULL && fta_quotes[dq] != NULL)
+            if (fta_quotes[sq] == NULL || fta_quotes[dq] == NULL)
+            {
+                OSD_Printf(CON_ERROR "CON_QSPRINTF: null quote %d\n",line_num,sq ? dq : sq);
+                insptr += 4;
+                break;
+            }
+
             {
                 int var1 = GetGameVarID(*insptr++, g_i, g_p), var2 = GetGameVarID(*insptr++, g_i, g_p);
                 int var3 = GetGameVarID(*insptr++, g_i, g_p), var4 = GetGameVarID(*insptr++, g_i, g_p);
@@ -6679,10 +6685,6 @@ static int parse(void)
                 Bsprintf(fta_quotes[dq],tempbuf,var1,var2,var3,var4);
                 break;
             }
-            if (fta_quotes[sq] == NULL) OSD_Printf(CON_ERROR "CON_QSPRINTF: null quote %d\n",line_num,sq);
-            if (fta_quotes[dq] == NULL) OSD_Printf(CON_ERROR "CON_QSPRINTF: null quote %d\n",line_num,dq);
-            insptr += 4;
-            break;
         }
 
     case CON_ADDLOG:
@@ -7309,13 +7311,13 @@ static int parse(void)
     case CON_SMAXAMMO:
         insptr++;
         j=GetGameVarID(*insptr++, g_i, g_p);
-        g_player[g_p].ps->max_ammo_amount[j]=GetGameVarID(*insptr++, g_i, g_p);
         if (j<0 || j>=MAX_WEAPONS)
         {
             OSD_Printf(CON_ERROR "CON_SMAXAMMO: Invalid weapon ID %d\n",line_num,j);
             insptr++;
             break;
         }
+        g_player[g_p].ps->max_ammo_amount[j]=GetGameVarID(*insptr++, g_i, g_p);
         break;
 
     case CON_MULVARVAR:
@@ -7612,7 +7614,7 @@ static int parse(void)
             if (g_player[g_p].ps->boot_amount != *insptr) j = 1;
             break;
         default:
-            OSD_Printf(CON_ERROR "CON_IFPINVENTORY: invalid inventory ID\n",line_num);
+            OSD_Printf(CON_ERROR "CON_IFPINVENTORY: invalid inventory ID: %d\n",line_num,*(insptr-1));
         }
 
         parseifelse(j);
