@@ -5278,7 +5278,7 @@ static int parse(void)
                     OSD_Printf(CON_ERROR "CON_NEXTSPRITESTAT: invalid sprite ID %d\n",line_num,j);
                 break;
             case CON_HEADSPRITESECT:
-                if (j >= 0 && j < MAXSECTORS+1)
+                if (j >= 0 && j < numsectors+1)
                     SetGameVarID(i,headspritesect[j],g_i,g_p);
                 else
                     OSD_Printf(CON_ERROR "CON_HEADSPRITESECT: invalid state %d\n",line_num,j);
@@ -5655,7 +5655,7 @@ static int parse(void)
         insptr++;
         {
             int lIn=GetGameVarID(*insptr++, g_i, g_p);
-            if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+            if (g_sp->sectnum < 0 || g_sp->sectnum >= numsectors)
             {
                 OSD_Printf(CON_ERROR "CON_E/Q/EQSPAWNVAR: Invalid sector %d\n",line_num,g_sp->sectnum);
                 break;
@@ -5682,7 +5682,7 @@ static int parse(void)
     case CON_QSPAWN:
         insptr++;
 
-        if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+        if (g_sp->sectnum < 0 || g_sp->sectnum >= numsectors)
         {
             OSD_Printf(CON_ERROR "CON_E/Q/EQSPAWN: Invalid sector %d\n",line_num,g_sp->sectnum);
             insptr++;
@@ -5718,7 +5718,7 @@ static int parse(void)
                 hittype[g_i].temp_data[9] = 1;
         }
 
-        if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+        if (g_sp->sectnum < 0 || g_sp->sectnum >= numsectors)
         {
             OSD_Printf(CON_ERROR "CON_E/Z/EZSHOOT: Invalid sector %d\n",line_num,g_sp->sectnum);
             insptr++;
@@ -5751,7 +5751,7 @@ static int parse(void)
         }
         j=GetGameVarID(*insptr++, g_i, g_p);
 
-        if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+        if (g_sp->sectnum < 0 || g_sp->sectnum >= numsectors)
         {
             OSD_Printf(CON_ERROR "CON_E/Z/EZ/SHOOTVAR: Invalid sector %d\n",line_num,g_sp->sectnum);
             hittype[g_i].temp_data[9]=0;
