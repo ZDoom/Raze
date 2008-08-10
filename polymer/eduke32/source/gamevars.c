@@ -33,41 +33,33 @@ extern void FreeMapState(int mapnum);
 static void FreeGameVars(void) /* called from ReadGameVars() and ResetGameVars() */
 {
     // call this function as many times as needed.
-    int i;
+    int i=(MAXGAMEVARS-1);
     //  AddLog("FreeGameVars");
-    for (i=0;i<MAXGAMEVARS;i++)
+    for (;i>=0;i--)
     {
-//  	  aGameVars[i].lValue=0;
-//  	  if (aGameVars[i].szLabel)
-        //Bfree(aGameVars[i].szLabel);
-//  	  aGameVars[i].szLabel=NULL;
-//  	  aGameVars[i].dwFlags=0;
-
         if (aGameVars[i].plValues)
             Bfree(aGameVars[i].plValues);
         aGameVars[i].plValues=NULL;
         aGameVars[i].bReset=1;
-    }
-    iGameVarCount=0;
-    for (i=0;i<MAXGAMEARRAYS;i++)
-    {
+        if (i >= MAXGAMEARRAYS)
+            continue;
         if (aGameArrays[i].plValues)
             Bfree(aGameArrays[i].plValues);
         aGameArrays[i].plValues=NULL;
         aGameArrays[i].bReset=1;
     }
-    iGameArrayCount=0;
+    iGameVarCount=iGameArrayCount=0;
     return;
 }
 
 static void ClearGameVars(void)
 {
     // only call this function ONCE...
-    int i;
+    int i=(MAXGAMEVARS-1);
 
     //AddLog("ClearGameVars");
 
-    for (i=0;i<MAXGAMEVARS;i++)
+    for (;i>=0;i--)
     {
         aGameVars[i].lValue=0;
         if (aGameVars[i].szLabel)
@@ -79,10 +71,8 @@ static void ClearGameVars(void)
             Bfree(aGameVars[i].plValues);
         aGameVars[i].plValues=NULL;
         aGameVars[i].bReset=1;
-    }
-    iGameVarCount=0;
-    for (i=0;i<MAXGAMEARRAYS;i++)
-    {
+        if (i >= MAXGAMEARRAYS)
+            continue;
         if (aGameArrays[i].szLabel)
             Bfree(aGameArrays[i].szLabel);
         aGameArrays[i].szLabel=NULL;
@@ -92,7 +82,7 @@ static void ClearGameVars(void)
         aGameArrays[i].plValues=NULL;
         aGameArrays[i].bReset=1;
     }
-    iGameArrayCount=0;
+    iGameVarCount=iGameArrayCount=0;
     return;
 }
 
@@ -564,9 +554,9 @@ int AddGameVar(const char *pszLabel, int lValue, unsigned int dwFlags)
 
 void ResetActorGameVars(int iActor)
 {
-    int i;
+    int i=(MAXGAMEVARS-1);
     //    OSD_Printf("resetting vars for actor %d\n",iActor);
-    for (i=0;i<MAXGAMEVARS;i++)
+    for (;i>=0;i--)
         if ((aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR) && !(aGameVars[i].dwFlags & GAMEVAR_FLAG_NODEFAULT))
         {
             //  		  OSD_Printf("reset %s (%d) to %s (%d)\n",aGameVars[i].szLabel,aGameVars[i].plValues[iActor],aDefaultGameVars[i].szLabel,aDefaultGameVars[i].lValue);
@@ -593,77 +583,81 @@ static int GetGameID(const char *szGameLabel)
 
 int GetGameVarID(int id, int iActor, int iPlayer)
 {
-    int m = 1;
-
     if (id == MAXGAMEVARS)
         return(*insptr++);
 
     if (id == g_iThisActorID)
         return iActor;
 
-    if (id >= iGameVarCount || id<0)
     {
-        if (id&(MAXGAMEVARS<<2))
+        int m = 1;
+
+        if (id >= iGameVarCount || id<0)
         {
-            int index=GetGameVarID(*insptr++,iActor,iPlayer);
-
-            id &= ~(MAXGAMEVARS<<2);
-
-            if (id&(MAXGAMEVARS<<1)) // negative array access
+            if (id&(MAXGAMEVARS<<2))
             {
-                m = -1;
-                id &= ~(MAXGAMEVARS<<1);
+                int index=GetGameVarID(*insptr++,iActor,iPlayer);
+
+                id &= ~(MAXGAMEVARS<<2);
+
+                if (id&(MAXGAMEVARS<<1)) // negative array access
+                {
+                    m = -m;
+                    id &= ~(MAXGAMEVARS<<1);
+                }
+
+                //  		  OSD_Printf("GetGameVarID(): reading from array\n");
+                if (index >= aGameArrays[id].size || index < 0)
+                {
+                    OSD_Printf(OSD_ERROR "GetGameVarID(): invalid array index (%s[%d])\n",aGameArrays[id].szLabel,index);
+                    return -1;
+                }
+                return(m * aGameArrays[id].plValues[index]);
             }
 
-//  		  OSD_Printf("GetGameVarID(): reading from array\n");
-            if ((index < aGameArrays[id].size)&&(index>=0))
-                return(m * aGameArrays[id].plValues[index]);
-            OSD_Printf(OSD_ERROR "GetGameVarID(): invalid array index (%s[%d])\n",aGameArrays[id].szLabel,index);
-            return -1;
+            if ((id&(MAXGAMEVARS<<1)) == 0)
+            {
+                OSD_Printf(OSD_ERROR "GetGameVarID(): invalid gamevar ID (%d)\n",id);
+                return -1;
+            }
+
+            m = -m;
+            id &= ~(MAXGAMEVARS<<1);
         }
 
-        if (!(id&(MAXGAMEVARS<<1)))
+        if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER)
         {
-            OSD_Printf(OSD_ERROR "GetGameVarID(): invalid gamevar ID (%d)\n",id);
-            return -1;
-        }
-
-        m = -1;
-        id &= ~(MAXGAMEVARS<<1);
-    }
-
-    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER)
-    {
-        // for the current player
-        if (iPlayer >= 0 && iPlayer < MAXPLAYERS)
-        {
-            //Bsprintf(g_szBuf,"GetGameVarID(%d, %d, %d) returns %d\n",id,iActor,iPlayer, aGameVars[id].plValues[iPlayer]);
-            //AddLog(g_szBuf);
+            // for the current player
+            if (iPlayer < 0 || iPlayer >= MAXPLAYERS)
+            {
+                OSD_Printf(OSD_ERROR "GetGameVarID(): invalid player ID (%d)\n",iPlayer);
+                return -1;
+            }
             return(m * aGameVars[id].plValues[iPlayer]);
         }
 
-        return(m * aGameVars[id].lValue);
-    }
-
-    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR)
-    {
-        // for the current actor
-        if (iActor >= 0 && iActor <= MAXSPRITES)
+        if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR)
+        {
+            // for the current actor
+            if (iActor < 0 || iActor >= MAXSPRITES)
+            {
+                OSD_Printf(OSD_ERROR "GetGameVarID(): invalid sprite ID (%d)\n",iActor);
+                return -1;
+            }
             return(m * aGameVars[id].plValues[iActor]);
+        }
+
+        if (aGameVars[id].dwFlags & GAMEVAR_FLAG_INTPTR)
+            return(m * (*((int*)aGameVars[id].lValue)));
+
+        if (aGameVars[id].dwFlags & GAMEVAR_FLAG_SHORTPTR)
+            return(m * (*((short*)aGameVars[id].lValue)));
+
+        if (aGameVars[id].dwFlags & GAMEVAR_FLAG_CHARPTR)
+            return(m * (*((char*)aGameVars[id].lValue)));
 
         return(m * aGameVars[id].lValue);
     }
-
-    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_INTPTR)
-        return(m * (*((int*)aGameVars[id].lValue)));
-
-    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_SHORTPTR)
-        return(m * (*((short*)aGameVars[id].lValue)));
-
-    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_CHARPTR)
-        return(m * (*((char*)aGameVars[id].lValue)));
-
-    return(m * aGameVars[id].lValue);
 }
 
 void SetGameArrayID(int id,int index, int lValue)
@@ -1401,7 +1395,7 @@ void InitGameVarPointers(void)
 
     //AddLog("InitGameVarPointers");
 
-    for (i=0;i<MAX_WEAPONS;i++)
+    for (i=(MAX_WEAPONS-1);i>=0;i--)
     {
         Bsprintf(aszBuf,"WEAPON%d_CLIP",i);
         aplWeaponClip[i]=GetGameValuePtr(aszBuf);

@@ -5596,19 +5596,13 @@ static int parse(void)
         {
             int distvar = *insptr++, xvar = GetGameVarID(*insptr++, g_i, g_p), yvar = GetGameVarID(*insptr++, g_i, g_p), distx=0;
 
-            if (xvar > -1 && xvar < MAXSPRITES && yvar > -1 && yvar < MAXSPRITES)
+            if (xvar < 0 || yvar < 0 || xvar >= MAXSPRITES || yvar >= MAXSPRITES)
             {
-                switch (tw)
-                {
-                case CON_DIST:
-                    distx = dist(&sprite[xvar],&sprite[yvar]);
-                    break;
-                case CON_LDIST:
-                    distx = ldist(&sprite[xvar],&sprite[yvar]);
-                    break;
-                }
+                OSD_Printf(CON_ERROR "CON_DIST/CON_LDIST: invalid sprite\n",line_num);
+                break;
             }
-            else OSD_Printf(CON_ERROR "CON_DIST/CON_LDIST: invalid sprite\n",line_num);
+            if (tw == CON_DIST) distx = dist(&sprite[xvar],&sprite[yvar]);
+            else distx = ldist(&sprite[xvar],&sprite[yvar]);
 
             SetGameVarID(distvar, distx, g_i, g_p);
             break;
@@ -5644,12 +5638,11 @@ static int parse(void)
     case CON_INITTIMER:
         insptr++;
         j = GetGameVarID(*insptr++, g_i, g_p);
-        if (timer != j)
-        {
-            uninittimer();
-            inittimer(j);
-            timer = j;
-        }
+        if (timer == j)
+            break;
+        uninittimer();
+        inittimer(j);
+        timer = j;
         break;
 
     case CON_TIME:
@@ -5662,9 +5655,12 @@ static int parse(void)
         insptr++;
         {
             int lIn=GetGameVarID(*insptr++, g_i, g_p);
-            j = -1;
-            if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
-                j = spawn(g_i, lIn);
+            if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+            {
+                OSD_Printf(CON_ERROR "CON_E/Q/EQSPAWNVAR: Invalid sector %d\n",line_num,g_sp->sectnum);
+                break;
+            }
+            j = spawn(g_i, lIn);
             switch (tw)
             {
             case CON_EQSPAWNVAR:
@@ -5686,11 +5682,14 @@ static int parse(void)
     case CON_QSPAWN:
         insptr++;
 
-        j=-1;
+        if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+        {
+            OSD_Printf(CON_ERROR "CON_E/Q/EQSPAWN: Invalid sector %d\n",line_num,g_sp->sectnum);
+            insptr++;
+            break;
+        }
 
-        if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
-            j = spawn(g_i,*insptr++);
-        else insptr++;
+        j = spawn(g_i,*insptr++);
 
         switch (tw)
         {
@@ -5718,13 +5717,19 @@ static int parse(void)
             if (hittype[g_i].temp_data[9] == 0)
                 hittype[g_i].temp_data[9] = 1;
         }
-        if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
+
+        if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
         {
-            if (tw == CON_EZSHOOT || tw == CON_ESHOOT)
-                SetGameVarID(g_iReturnVarID, shoot(g_i,*insptr++), g_i, g_p);
-            else shoot(g_i,*insptr++);
+            OSD_Printf(CON_ERROR "CON_E/Z/EZSHOOT: Invalid sector %d\n",line_num,g_sp->sectnum);
+            insptr++;
+            hittype[g_i].temp_data[9]=0;
+            break;
         }
-        else insptr++;
+
+        j = shoot(g_i,*insptr++);
+
+        if (tw == CON_EZSHOOT || tw == CON_ESHOOT)
+            SetGameVarID(g_iReturnVarID, j, g_i, g_p);
 
         hittype[g_i].temp_data[9]=0;
         break;
@@ -5745,12 +5750,17 @@ static int parse(void)
                 hittype[g_i].temp_data[9] = 1;
         }
         j=GetGameVarID(*insptr++, g_i, g_p);
-        if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
+
+        if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
         {
-            lReturn = shoot(g_i, j);
-            if (tw == CON_ESHOOTVAR || tw == CON_EZSHOOTVAR)
-                SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
+            OSD_Printf(CON_ERROR "CON_E/Z/EZ/SHOOTVAR: Invalid sector %d\n",line_num,g_sp->sectnum);
+            hittype[g_i].temp_data[9]=0;
+            break;
         }
+
+        lReturn = shoot(g_i, j);
+        if (tw == CON_ESHOOTVAR || tw == CON_EZSHOOTVAR)
+            SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
         hittype[g_i].temp_data[9]=0;
         break;
     }
@@ -5846,7 +5856,7 @@ static int parse(void)
 
             if (x1 < 0 || y1 < 0 || x2 > xdim-1 || y2 > ydim-1 || x2-x1 < 2 || y2-y1 < 2)
             {
-                OSD_Printf(CON_ERROR "CON_SHOWVIEW: incorrect coordiantes\n",line_num);
+                OSD_Printf(CON_ERROR "CON_SHOWVIEW: incorrect coordinates\n",line_num);
                 break;
             }
             if (sect<0 || sect>=numsectors)
@@ -5873,7 +5883,7 @@ static int parse(void)
             se40code(x,y,z,a,horiz,smoothratio);
 #endif
             if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#if defined(POLYMER) && defined(USE_OPENGL)
                     && (getrendermode() != 4)
 #endif
                )
@@ -6725,7 +6735,7 @@ static int parse(void)
 
                     if (lVarID&(MAXGAMEVARS<<1))
                     {
-                        m = -1;
+                        m = -m;
                         lVarID ^= (MAXGAMEVARS<<1);
                     }
 
@@ -6746,7 +6756,7 @@ static int parse(void)
                 }
                 else if (*insptr&(MAXGAMEVARS<<1))
                 {
-                    m = -1;
+                    m = -m;
                     lVarID ^= (MAXGAMEVARS<<1);
                 }
                 else
