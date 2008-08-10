@@ -843,4 +843,5 @@ enum keywords
     CON_DEFINEGAMENAME,     // 330
     CON_CMENU,              // 331
     CON_GETTIMEDATE,        // 332 
+    CON_ACTIVATECHEAT,      // 333
 };

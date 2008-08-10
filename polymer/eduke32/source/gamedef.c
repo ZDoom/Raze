@@ -466,6 +466,7 @@ static const char *keyw[] =
     "definegamename",           // 330
     "cmenu",                    // 331
     "gettimedate",              // 332
+    "activatecheat",            // 333
     "<null>"
 };
 
@@ -3435,6 +3436,7 @@ static int parsecommand(void)
     case CON_USERQUOTE:
     case CON_STARTTRACKVAR:
     case CON_CLEARMAPSTATE:
+    case CON_ACTIVATECHEAT:
         transvar();
         return 0;
 

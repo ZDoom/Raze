@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "gamedef.h"
 #include "scriplib.h"
+#include "osdcmds.h"
 
 #include "osd.h"
 
@@ -7503,6 +7504,17 @@ static int parse(void)
             break;
         }
         playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
+        break;
+
+    case CON_ACTIVATECHEAT:
+        insptr++;
+        j=GetGameVarID(*(insptr++), g_i, g_p);
+        if (numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
+        {
+            OSD_Printf(CON_ERROR "CON_ACTIVATECHEAT: Not in a single-player game.\n");
+            break;
+        }
+        osdcmd_cheatsinfo_stat.cheatnum = j;
         break;
 
     case CON_GETTEXTURECEILING:
