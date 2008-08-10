@@ -5343,11 +5343,11 @@ static int parse(void)
                 s1=fta_quotes[q1];
                 s2=fta_quotes[q2];
                 while (*s2&&st--)s2++;
-            while ((*s1=*s2)&&ln--) {s1++;s2++;}
-        *s1=0;
+                while ((*s1=*s2)&&ln--) {s1++;s2++;}
+                *s1=0;
+            }
+            break;
         }
-        break;
-    }
 
     case CON_GETPNAME:
     case CON_QSTRCAT:
@@ -6111,6 +6111,28 @@ static int parse(void)
             break;
         }
 
+    case CON_GETTIMEDATE:
+        insptr++;
+        {
+            int v1=*insptr++,v2=*insptr++,v3=*insptr++,v4=*insptr++,v5=*insptr++,v6=*insptr++,v7=*insptr++,v8=*insptr++;
+            time_t rawtime;
+            struct tm * ti;
+
+            time(&rawtime);
+            ti=localtime(&rawtime);
+            // initprintf("Time&date: %s\n",asctime (ti));
+
+            SetGameVarID(v1, ti->tm_sec,  g_i, g_p);
+            SetGameVarID(v2, ti->tm_min,  g_i, g_p);
+            SetGameVarID(v3, ti->tm_hour, g_i, g_p);
+            SetGameVarID(v4, ti->tm_mday, g_i, g_p);
+            SetGameVarID(v5, ti->tm_mon,  g_i, g_p);
+            SetGameVarID(v6, ti->tm_year+1900, g_i, g_p);
+            SetGameVarID(v7, ti->tm_wday, g_i, g_p);
+            SetGameVarID(v8, ti->tm_yday, g_i, g_p);
+            break;
+        }
+
     case CON_MOVESPRITE:
     case CON_SETSPRITE:
         insptr++;
@@ -6745,7 +6767,7 @@ static int parse(void)
                     if ((index < aGameArrays[lVarID].size)&&(index>=0))
                     {
                         OSD_Printf(OSDTEXT_GREEN "CON_ADDLOGVAR: L=%d %s[%d] =%d\n",line_num,
-                            aGameArrays[lVarID].szLabel,index,m*aGameArrays[lVarID].plValues[index]);
+                                   aGameArrays[lVarID].szLabel,index,m*aGameArrays[lVarID].plValues[index]);
                         break;
                     }
                     else

@@ -1010,7 +1010,7 @@ void CONFIG_WriteSetup(void)
 #endif
 
     if (crosshair_colors.r != default_crosshair_colors.r || crosshair_colors.g != default_crosshair_colors.g
-        || crosshair_colors.b != default_crosshair_colors.b)
+            || crosshair_colors.b != default_crosshair_colors.b)
     {
         Bsprintf(tempbuf,"%d,%d,%d",crosshair_colors.r,crosshair_colors.g,crosshair_colors.b);
         SCRIPT_PutString(ud.config.scripthandle, "Misc", "CrosshairColor",tempbuf);

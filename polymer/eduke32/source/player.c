@@ -3331,7 +3331,7 @@ void processinput(int snum)
     shrunk = (s->yrepeat < 32);
     getzrange(p->posx,p->posy,p->posz,psect,&cz,&hz,&fz,&lz,163L,CLIPMASK0);
 
-    /*    
+    /*
     j = getflorzofslope(psect,p->posx,p->posy);
 
     p->truefz = j;

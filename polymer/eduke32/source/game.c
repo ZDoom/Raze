@@ -1860,8 +1860,8 @@ static void altdigitalnumber(int x,int y,int n,char s,char cs)
     for (k=0;k<i;k++)
     {
         p = althud_numbertile+*(b+k)-'0';
-            if (shd)
-                rotatesprite(sbarx(c+j+1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|1|32,0,0,xdim-1,ydim-1);
+        if (shd)
+            rotatesprite(sbarx(c+j+1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|1|32,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs,0,0,xdim-1,ydim-1);
         j += tilesizx[p]+1;
     }
@@ -2054,7 +2054,7 @@ static void coolgaugetext(int snum)
             if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
             else i = p->curr_weapon;
             if (p->curr_weapon != KNEE_WEAPON &&
-                (!althud_flashing || totalclock&32 || p->ammo_amount[i] > (p->max_ammo_amount[i]/10)))
+                    (!althud_flashing || totalclock&32 || p->ammo_amount[i] > (p->max_ammo_amount[i]/10)))
                 altdigitalnumber(-20,-(200-22),p->ammo_amount[i],-16,10+16);
 
             o = 102;
@@ -5420,7 +5420,7 @@ int spawn(int j, int pn)
 
                     T1 = TRAND&1;
                     sp->z = (3<<8)+g_player[snum].ps->pyoff+g_player[snum].ps->posz-
-                        ((g_player[snum].ps->horizoff+g_player[snum].ps->horiz-100)<<4);
+                            ((g_player[snum].ps->horizoff+g_player[snum].ps->horiz-100)<<4);
                     if (sp->picnum == SHOTGUNSHELL)
                         sp->z += (3<<8);
                     sp->zvel = -(TRAND&255);
