@@ -5334,10 +5334,11 @@ static int parse(void)
             st = GetGameVarID(*insptr++, g_i, g_p);
             ln = GetGameVarID(*insptr++, g_i, g_p);
 
-            if (q1<0 || q1>=MAXQUOTES)  OSD_Printf(CON_ERROR "CON_QSUBSTR: invalid quote ID %d\n",line_num,q1);else
-            if (fta_quotes[q1] != NULL) OSD_Printf(CON_ERROR "CON_QSUBSTR: null quote %d\n",line_num,q1);else
-            if (q2<0 || q2>=MAXQUOTES)  OSD_Printf(CON_ERROR "CON_QSUBSTR: invalid quote ID %d\n",line_num,q2);else
-            if (fta_quotes[q2] != NULL) OSD_Printf(CON_ERROR "CON_QSUBSTR: null quote %d\n",line_num,q2);else
+            if (q1<0 || q1>=MAXQUOTES)  OSD_Printf(CON_ERROR "CON_QSUBSTR: invalid quote ID %d\n",line_num,q1);
+            else if (fta_quotes[q1] == NULL) OSD_Printf(CON_ERROR "CON_QSUBSTR: null quote %d\n",line_num,q1);
+            else if (q2<0 || q2>=MAXQUOTES)  OSD_Printf(CON_ERROR "CON_QSUBSTR: invalid quote ID %d\n",line_num,q2);
+            else if (fta_quotes[q2] == NULL) OSD_Printf(CON_ERROR "CON_QSUBSTR: null quote %d\n",line_num,q2);
+            else
             {
                 s1=fta_quotes[q1];
                 s2=fta_quotes[q2];
@@ -5367,47 +5368,57 @@ static int parse(void)
             switch (tw)
             {
             case CON_GETPNAME:
-                if (fta_quotes[i] != NULL)
+                if (fta_quotes[i] == NULL)
                 {
-                    if (g_player[j].user_name[0])
-                        Bstrcpy(fta_quotes[i],g_player[j].user_name);
-                    else Bsprintf(fta_quotes[i],"%d",j);
+                    OSD_Printf(CON_ERROR "CON_GETPNAME: null quote %d\n",line_num,i);
+                    break;
                 }
-                else OSD_Printf(CON_ERROR "CON_GETPNAME: null quote %d\n",line_num,i);
+                if (g_player[j].user_name[0])
+                    Bstrcpy(fta_quotes[i],g_player[j].user_name);
+                else Bsprintf(fta_quotes[i],"%d",j);
                 break;
             case CON_QGETSYSSTR:
-                if (fta_quotes[i] != NULL)
-                    switch (j)
-                    {
-                    case STR_MAPNAME:
-                        Bstrcpy(fta_quotes[i],map[ud.volume_number*MAXLEVELS + ud.level_number].name);
-                        break;
-                    case STR_MAPFILENAME:
-                        Bstrcpy(fta_quotes[i],map[ud.volume_number*MAXLEVELS + ud.level_number].filename);
-                        break;
-                    case STR_PLAYERNAME:
-                        Bstrcpy(fta_quotes[i],g_player[g_p].user_name);
-                        break;
-                    case STR_VERSION:
-                        Bstrcpy(fta_quotes[i],HEAD2);
-                        break;
-                    case STR_GAMETYPE:
-                        Bstrcpy(fta_quotes[i],gametype_names[ud.coop]);
-                        break;
-                    default:
-                        OSD_Printf(CON_ERROR "CON_QGETSYSSTR: unknown str ID %d %d\n",line_num,i,j);
-                    }
-                else OSD_Printf(CON_ERROR "CON_QGETSYSSTR: null quote %d %d\n",line_num,i,j);
+                if (fta_quotes[i] == NULL)
+                {
+                    OSD_Printf(CON_ERROR "CON_QGETSYSSTR: null quote %d %d\n",line_num,i,j);
+                    break;
+                }
+                switch (j)
+                {
+                case STR_MAPNAME:
+                    Bstrcpy(fta_quotes[i],map[ud.volume_number*MAXLEVELS + ud.level_number].name);
+                    break;
+                case STR_MAPFILENAME:
+                    Bstrcpy(fta_quotes[i],map[ud.volume_number*MAXLEVELS + ud.level_number].filename);
+                    break;
+                case STR_PLAYERNAME:
+                    Bstrcpy(fta_quotes[i],g_player[g_p].user_name);
+                    break;
+                case STR_VERSION:
+                    Bstrcpy(fta_quotes[i],HEAD2);
+                    break;
+                case STR_GAMETYPE:
+                    Bstrcpy(fta_quotes[i],gametype_names[ud.coop]);
+                    break;
+                default:
+                    OSD_Printf(CON_ERROR "CON_QGETSYSSTR: unknown str ID %d %d\n",line_num,i,j);
+                }
                 break;
             case CON_QSTRCAT:
-                if (fta_quotes[i] != NULL && fta_quotes[j] != NULL)
-                    Bstrncat(fta_quotes[i],fta_quotes[j],(MAXQUOTELEN-1)-Bstrlen(fta_quotes[i]));
-                else OSD_Printf(CON_ERROR "CON_QSTRCAT: null quote %d %d\n",line_num,i,j);
+                if (fta_quotes[i] == NULL || fta_quotes[j] == NULL)
+                {
+                    OSD_Printf(CON_ERROR "CON_QSTRCAT: null quote %d\n",line_num,fta_quotes[i] ? j : i);
+                    break;
+                }
+                Bstrncat(fta_quotes[i],fta_quotes[j],(MAXQUOTELEN-1)-Bstrlen(fta_quotes[i]));
                 break;
             case CON_QSTRCPY:
-                if (fta_quotes[i] != NULL && fta_quotes[j] != NULL)
-                    Bstrcpy(fta_quotes[i],fta_quotes[j]);
-                else OSD_Printf(CON_ERROR "CON_QSTRCPY: null quote %d %d\n",line_num,i,j);
+                if (fta_quotes[i] == NULL || fta_quotes[j] == NULL)
+                {
+                    OSD_Printf(CON_ERROR "CON_QSTRCAT: null quote %d\n",line_num,fta_quotes[i] ? j : i);
+                    break;
+                }
+                Bstrcpy(fta_quotes[i],fta_quotes[j]);
                 break;
             case CON_CHANGESPRITESTAT:
                 if (i<0 || i>=MAXSPRITES) {OSD_Printf(CON_ERROR "CON_CHANGESPRITESTAT: Invalid sprite %d\n",line_num,i);break;}
@@ -6090,28 +6101,6 @@ static int parse(void)
             break;
         }
 
-    case CON_GETTIMEDATE:
-        insptr++;
-        {
-            int v1=*insptr++,v2=*insptr++,v3=*insptr++,v4=*insptr++,v5=*insptr++,v6=*insptr++,v7=*insptr++,v8=*insptr++;
-            time_t rawtime;
-            struct tm * ti;
-
-            time(&rawtime);
-            ti=localtime(&rawtime);
-            // initprintf("Time&date: %s\n",asctime (ti));
-
-            SetGameVarID(v1, ti->tm_sec,  g_i, g_p);
-            SetGameVarID(v2, ti->tm_min,  g_i, g_p);
-            SetGameVarID(v3, ti->tm_hour, g_i, g_p);
-            SetGameVarID(v4, ti->tm_mday, g_i, g_p);
-            SetGameVarID(v5, ti->tm_mon,  g_i, g_p);
-            SetGameVarID(v6, ti->tm_year+1900, g_i, g_p);
-            SetGameVarID(v7, ti->tm_wday, g_i, g_p);
-            SetGameVarID(v8, ti->tm_yday, g_i, g_p);
-            break;
-        }
-
     case CON_MOVESPRITE:
     case CON_SETSPRITE:
         insptr++;
@@ -6695,7 +6684,7 @@ static int parse(void)
             int dq = *insptr++, sq = *insptr++;
             if (fta_quotes[sq] == NULL || fta_quotes[dq] == NULL)
             {
-                OSD_Printf(CON_ERROR "CON_QSPRINTF: null quote %d\n",line_num,sq ? dq : sq);
+                OSD_Printf(CON_ERROR "CON_QSPRINTF: null quote %d\n",line_num,fta_quotes[sq] ? dq : sq);
                 insptr += 4;
                 break;
             }

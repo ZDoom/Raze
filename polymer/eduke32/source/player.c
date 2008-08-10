@@ -908,6 +908,8 @@ DOSKIPBULLETHOLE:
                     sa = getangle(g_player[j].ps->oposx-sx,g_player[j].ps->oposy-sy);
 
                     l = ldist(&sprite[g_player[j].ps->i],s);
+                    if (l == 0)
+                        l++;
                     zvel = ((g_player[j].ps->oposz-sz)*vel) / l;
 
                     if (badguy(s) && (s->hitag&face_player_smart))
@@ -1555,6 +1557,8 @@ SKIPBULLETHOLE:
                 }
 
                 l = ldist(&sprite[g_player[j].ps->i],s);
+                if (l == 0)
+                    l++;
                 zvel = ((g_player[j].ps->oposz-sz)*vel) / l;
 
                 if (badguy(s) && (s->hitag&face_player_smart))
@@ -1844,6 +1848,8 @@ SKIPBULLETHOLE:
             {
                 j = findplayer(s,&x);
                 l = ldist(&sprite[g_player[j].ps->i],s);
+                if (l == 0)
+                    l++;
                 zvel = ((g_player[j].ps->oposz-sz)*512) / l ;
             }
             else zvel = 0;
