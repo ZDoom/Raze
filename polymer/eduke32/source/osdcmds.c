@@ -434,13 +434,13 @@ static int osdcmd_setstatusbarscale(const osdfuncparm_t *parm)
 {
     if (parm->numparms == 0)
     {
-        OSD_Printf("\"cl_statusbarscale\" is \"%d\"\n", ud.statusbarscale);
+        OSD_Printf("\"hud_scale\" is \"%d\"\n", ud.statusbarscale);
         return OSDCMD_SHOWHELP;
     }
     else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
     setstatusbarscale(Batol(parm->parms[0]));
-    OSD_Printf("cl_statusbarscale %d\n", ud.statusbarscale);
+    OSD_Printf("hud_scale %d\n", ud.statusbarscale);
     return OSDCMD_OK;
 }
 
@@ -1319,7 +1319,7 @@ static int osdcmd_setcrosshairscale(const osdfuncparm_t *parm)
     else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
     ud.crosshairscale = min(100,max(10,Batol(parm->parms[0])));
-    OSD_Printf("statusbarscale %d\n", ud.crosshairscale);
+    OSD_Printf("%s\n", parm->raw);
     return OSDCMD_OK;
 }
 
@@ -1339,6 +1339,7 @@ static int osdcmd_crosshaircolor(const osdfuncparm_t *parm)
     g = atol(parm->parms[1]);
     b = atol(parm->parms[2]);
     SetCrosshairColor(r,g,b);
+    OSD_Printf("%s\n", parm->raw);
     return OSDCMD_OK;
 }
 
@@ -1381,7 +1382,7 @@ int registerosdcommands(void)
 
     OSD_RegisterFunction("bind","bind <key> <string>: associates a keypress with a string of console input. Type \"bind showkeys\" for a list of keys and \"listsymbols\" for a list of valid console commands.", osdcmd_bind);
 
-    OSD_RegisterFunction("cl_statusbarscale","cl_statusbarscale: changes the status bar scale", osdcmd_setstatusbarscale);
+    OSD_RegisterFunction("hud_scale","hud_scale: changes the hud scale", osdcmd_setstatusbarscale);
     OSD_RegisterFunction("crosshairscale","crosshairscale: changes the crosshair scale", osdcmd_setcrosshairscale);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes crosshair color", osdcmd_crosshaircolor);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
