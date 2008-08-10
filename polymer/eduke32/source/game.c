@@ -11885,7 +11885,7 @@ static void fakedomovethings(void)
             }
         }
 
-        if (abs(myxvel) < 2048 && abs(myyvel) < 2048)
+        if (klabs(myxvel) < 2048 && klabs(myyvel) < 2048)
             myxvel = myyvel = 0;
 
         if (shrunk)

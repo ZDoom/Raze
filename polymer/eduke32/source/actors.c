@@ -5028,7 +5028,7 @@ static void moveexplosions(void)  // STATNUM 5
                 if (s->xvel > 0) s->xvel--;
                 else s->xvel = 0;
 
-                if ((t[5]++) == ((30*10)-1))
+                if (++t[5] == (30*10))
                     KILLIT(i);
 
                 if (s->zvel > 1024 && s->zvel < 1280)

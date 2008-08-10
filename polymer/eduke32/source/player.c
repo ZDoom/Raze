@@ -567,7 +567,9 @@ int shoot(int i,int atwith)
                         dal -= (8<<8);
                         return -1;
                     }
-                    zvel = ((sprite[j].z-sz-dal)<<8) / ldist(&sprite[g_player[p].ps->i], &sprite[j]) ;
+                    hitx = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    if (hitx == 0) hitx++;
+                    zvel = ((sprite[j].z-sz-dal)<<8) / hitx;
                     sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
                 }
 
@@ -885,7 +887,9 @@ DOSKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
-                    zvel = ((sprite[j].z-sz-dal)*vel) / ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    hitx = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    if (hitx == 0) hitx++;
+                    zvel = ((sprite[j].z-sz-dal)*vel) / hitx;
                     if (sprite[j].picnum != RECON)
                         sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
                 }
@@ -1133,7 +1137,9 @@ DOSKIPBULLETHOLE:
                         dal -= (8<<8);
 
                     }
-                    zvel = ((sprite[j].z-sz-dal)<<8) / ldist(&sprite[g_player[p].ps->i], &sprite[j]) ;
+                    hitx = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    if (hitx == 0) hitx++;
+                    zvel = ((sprite[j].z-sz-dal)<<8) / hitx;
                     sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
                 }
 
@@ -1416,7 +1422,9 @@ SKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)-(12<<8);
-                    zvel = ((sprite[j].z-sz-dal)*vel) / ldist(&sprite[g_player[p].ps->i], &sprite[j]) ;
+                    hitx = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    if (hitx == 0) hitx++;
+                    zvel = ((sprite[j].z-sz-dal)*vel) / hitx;
                     sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
                 }
                 else
@@ -1427,7 +1435,9 @@ SKIPBULLETHOLE:
                 j = findplayer(s,&x);
                 //                sa = getangle(g_player[j].ps->oposx-sx,g_player[j].ps->oposy-sy);
                 sa += 16-(TRAND&31);
-                zvel = (((g_player[j].ps->oposz - sz + (3<<8)))*vel) / ldist(&sprite[g_player[j].ps->i],s);
+                hitx = ldist(&sprite[g_player[j].ps->i],s);
+                if (hitx == 0) hitx++;
+                zvel = (((g_player[j].ps->oposz - sz + (3<<8)))*vel) / hitx;
             }
             if (hittype[i].temp_data[9]) zvel = hittype[i].temp_data[9];
             oldzvel = zvel;
@@ -1516,7 +1526,9 @@ SKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
-                    zvel = ((sprite[j].z-sz-dal)*vel) / ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    hitx = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    if (hitx == 0) hitx++;
+                    zvel = ((sprite[j].z-sz-dal)*vel) / hitx;
                     if (sprite[j].picnum != RECON)
                         sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
                 }
@@ -4376,7 +4388,7 @@ void processinput(int snum)
             }
         }
 
-        if (abs(p->posxv) < 2048 && abs(p->posyv) < 2048)
+        if (klabs(p->posxv) < 2048 && klabs(p->posyv) < 2048)
             p->posxv = p->posyv = 0;
 
         if (shrunk)
