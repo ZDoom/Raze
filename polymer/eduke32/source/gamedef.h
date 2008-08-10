@@ -842,5 +842,5 @@ enum keywords
     CON_SCRIPTSIZE,         // 329
     CON_DEFINEGAMENAME,     // 330
     CON_CMENU,              // 331
-    CON_GETDATE,            // 332 
+    CON_GETTIMEDATE,        // 332 
 };

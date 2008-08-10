@@ -6090,7 +6090,7 @@ static int parse(void)
             break;
         }
 
-    case CON_GETDATE:
+    case CON_GETTIMEDATE:
         insptr++;
         {
             int v1=*insptr++,v2=*insptr++,v3=*insptr++,v4=*insptr++,v5=*insptr++,v6=*insptr++,v7=*insptr++,v8=*insptr++;

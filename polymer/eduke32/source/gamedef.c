@@ -465,7 +465,7 @@ static const char *keyw[] =
     "scriptsize",               // 329
     "definegamename",           // 330
     "cmenu",                    // 331
-    "getdate",                  // 332
+    "gettimedate",              // 332
     "<null>"
 };
 
@@ -3863,7 +3863,7 @@ static int parsecommand(void)
         }
         break;
 
-    case CON_GETDATE:
+    case CON_GETTIMEDATE:
         transmultvarstype(GAMEVAR_FLAG_READONLY,8);
         break;
 
