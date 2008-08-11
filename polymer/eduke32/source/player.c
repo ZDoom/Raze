@@ -189,7 +189,7 @@ static int aim(spritetype *s,int aang,int atwith)
 {
     int gotshrinker,gotfreezer;
     int i, j, a, k, cans;
-    int aimstats[] = {10,13,1,2};
+    static int aimstats[] = {10,13,1,2};
     int dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
     int xv, yv;
 
@@ -4063,7 +4063,7 @@ void processinput(int snum)
                 }
 
                 if ((p->posz+p->poszv) >= (fz-(i<<8)) && p->cursectnum >= 0)   // hit the ground
-                    if (sector[p->cursectnum].lotag != 1)
+                    if (psectlotag != 1)
                     {
                         if (p->falling_counter > 62) quickkill(p);
 
