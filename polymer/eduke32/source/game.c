@@ -263,8 +263,14 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
     char centre, *oldt;
     int squishtext = ((small&2)!=0);
     int ht = usehightile;
+    int shift = 16, widthx = 320, ox, oy;
 
-    centre = (x == (320>>1));
+    if (orientation & 256)
+    {
+        widthx = 320<<16;
+        shift = 0;
+    }
+    centre = (x == (widthx>>1));
     newx = 0;
     oldt = (char *)t;
 
@@ -306,9 +312,11 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         }
 
         t = oldt;
-        x = (320>>1)-(newx>>1);
+        x = (widthx>>1)-((orientation & 256)?newx<<15:newx>>1);
     }
     usehightile = (ht && r_downsize < 2);
+    ox=x;
+    oy=y;
     while (*t)
     {
         if (*t == '^' && isdigit(*(t+1)))
@@ -344,7 +352,13 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         if (ac < starttile || ac > (starttile + 93))
             break;
 
-        rotatesprite(x<<16,(y<<16)+((small&4)?ud.config.ScreenHeight<<15:0),z,0,ac,s,p,(small&1)?(8|16):(2|orientation),x1,y1,x2,y2);
+        if (orientation&256)
+        {
+            x+=(x-ox)<<16;
+            y+=(y-oy)<<16;
+            ox=x;oy=y;
+        }
+        rotatesprite(x<<shift,(y<<shift)+((small&4)?ud.config.ScreenHeight<<15:0),z,0,ac,s,p,(small&1)?(8|16):(2|orientation),x1,y1,x2,y2);
 
         if ((*t >= '0' && *t <= '9'))
             x += (8)*z/65536;
@@ -352,6 +366,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
             x += (8-squishtext)*z/65536;//(tilesizx[ac]>>small);
         else x += (tilesizx[ac]-squishtext)*z/65536;//(tilesizx[ac]>>small);
 
+        if ((orientation&256) == 0) //  warpping long strings doesn't work for precise coordinates due to overflow
         if (x > (ud.config.ScreenWidth - 14)) oldt = (char *)t, x = oldx, y+=8*z/65536;
         t++;
     }
@@ -1539,7 +1554,7 @@ void myos(int x, int y, int tilenum, int shade, int orientation)
     if (orientation&4)
         a = 1024;
 
-    rotatesprite(x<<16,y<<16,65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+    rotatesprite((orientation&256)?x:(x<<16),(orientation&256)?y:(y<<16),65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
 void myospal(int x, int y, int tilenum, int shade, int orientation, int p)
@@ -1549,7 +1564,7 @@ void myospal(int x, int y, int tilenum, int shade, int orientation, int p)
     if (orientation&4)
         a = 1024;
 
-    rotatesprite(x<<16,y<<16,65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+    rotatesprite((orientation&256)?x:(x<<16),(orientation&256)?y:(y<<16),65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
 void myosx(int x, int y, int tilenum, int shade, int orientation)
@@ -1559,7 +1574,7 @@ void myosx(int x, int y, int tilenum, int shade, int orientation)
     if (orientation&4)
         a = 1024;
 
-    rotatesprite(x<<16,y<<16,32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+    rotatesprite((orientation&256)?x:(x<<16),(orientation&256)?y:(y<<16),32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
 void myospalx(int x, int y, int tilenum, int shade, int orientation, int p)
@@ -1569,7 +1584,7 @@ void myospalx(int x, int y, int tilenum, int shade, int orientation, int p)
     if (orientation&4)
         a = 1024;
 
-    rotatesprite(x<<16,y<<16,32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+    rotatesprite((orientation&256)?x:(x<<16),(orientation&256)?y:(y<<16),32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
 static void invennum(int x,int y,char num1,char ha,char sbits)
@@ -1800,6 +1815,7 @@ void txdigitalnumberz(int starttile, int x,int y,int n,int s,int pal,int cs,int 
 {
     int i, j = 0, k, p, c;
     char b[10];
+    int shift = (cs&256)?0:16;
 
     //ltoa(n,b,10);
     Bsnprintf(b,10,"%d",n);
@@ -1810,16 +1826,17 @@ void txdigitalnumberz(int starttile, int x,int y,int n,int s,int pal,int cs,int 
         p = starttile+*(b+k)-'0';
         j += (tilesizx[p]+1)*z/65536;
     }
+    if (cs&256) j<<=16;
     c = x-(j>>1);
 
     j = 0;
     for (k=0;k<i;k++)
     {
         p = starttile+*(b+k)-'0';
-        rotatesprite((c+j)<<16,y<<16,z,0,p,s,pal,2|cs,x1,y1,x2,y2);
+        rotatesprite((c+j)<<shift,y<<shift,z,0,p,s,pal,2|cs,x1,y1,x2,y2);
         /*        rotatesprite((c+j)<<16,y<<16,65536L,0,p,s,pal,cs,0,0,xdim-1,ydim-1);
                 rotatesprite(x<<16,y<<16,32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);*/
-        j += (tilesizx[p]+1)*z/65536;
+        j += ((tilesizx[p]+1)*z/65536)<<((cs&256)?16:0);
     }
 }
 
@@ -1974,7 +1991,7 @@ static void coolgaugetext(int snum)
         if ((current_menu >= 400  && current_menu <= 405))
             return;
 
-    if (getrendermode() >= 3) pus = NUMPAGES;	// JBF 20040101: always redraw in GL
+    if (getrendermode() >= 3) pus = NUMPAGES;   // JBF 20040101: always redraw in GL
 
     if (ud.multimode > 1 && (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR))
     {
@@ -2731,7 +2748,7 @@ static void showtwoscreens(void)
         setview(0,0,xdim-1,ydim-1);
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
-        setgamepalette(g_player[myconnectindex].ps, palette, 1);	// JBF 20040308
+        setgamepalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
         rotatesprite(0,0,65536L,0,3291,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
@@ -2760,7 +2777,7 @@ static void showtwoscreens(void)
         setview(0,0,xdim-1,ydim-1);
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
-        setgamepalette(g_player[myconnectindex].ps, palette, 1);	// JBF 20040308
+        setgamepalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
         rotatesprite(0,0,65536L,0,TENSCREEN,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
@@ -3476,7 +3493,7 @@ void palto(int r,int g,int b,int e)
 
     //setbrightness(ud.brightness>>2,temparray);
     setpalettefade(r,g,b,e&127);
-    if (getrendermode() >= 3) pus = pub = NUMPAGES;	// JBF 20040110: redraw the status bar next time
+    if (getrendermode() >= 3) pus = pub = NUMPAGES; // JBF 20040110: redraw the status bar next time
     if ((e&128) == 0)
     {
         nextpage();
@@ -3531,13 +3548,13 @@ void displayrest(int smoothratio)
     }
 #endif /* USE_OPENGL && POLYMOST */
     // this does pain tinting etc from the CON
-    if (pp->pals_time >= 0 && pp->loogcnt == 0)	// JBF 20040101: pals_time > 0 now >= 0
+    if (pp->pals_time >= 0 && pp->loogcnt == 0) // JBF 20040101: pals_time > 0 now >= 0
     {
         fader = pp->pals[0];
         fadeg = pp->pals[1];
         fadeb = pp->pals[2];
         fadef = pp->pals_time;
-        restorepalette = 1;		// JBF 20040101
+        restorepalette = 1;     // JBF 20040101
         dotint = 1;
     }
     // reset a normal palette
@@ -7443,7 +7460,7 @@ char cheatstrings[][MAXCHEATLEN] =
     "keys",         // 23
     "debug",        // 24
     "<RESERVED>",   // 25
-    "sfm",			// 26
+    "sfm",          // 26
 };
 
 enum cheats
@@ -9865,7 +9882,7 @@ static void Logo(void)
     nextpage();
 
     //g_player[myconnectindex].ps->palette = palette;
-    setgamepalette(g_player[myconnectindex].ps, palette, 0);	// JBF 20040308
+    setgamepalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
     sound(NITEVISION_ONOFF);
 
     //palto(0,0,0,0);
@@ -10661,7 +10678,7 @@ void app_main(int argc,const char **argv)
         for (fg = foundgrps; fg; fg=fg->next)
         {
             for (i = 0; i<numgrpfiles; i++) if (fg->crcval == grpfiles[i].crcval) break;
-            if (i == numgrpfiles) continue;	// unrecognised grp file
+            if (i == numgrpfiles) continue; // unrecognised grp file
             fg->game = grpfiles[i].game;
             if (!first) first = fg;
             if (!Bstrcasecmp(fg->name, defaultduke3dgrp))
@@ -11194,7 +11211,7 @@ static int opendemoread(int which_demo) // 0 = mine
         if (kread(recfilep,(char *)g_player[i].user_name,sizeof(g_player[i].user_name)) != sizeof(g_player[i].user_name)) goto corrupt;
         OSD_Printf("ud.user_name: %s\n",g_player[i].user_name);
         if (kread(recfilep,(int *)&g_player[i].ps->aim_mode,sizeof(int)) != sizeof(int)) goto corrupt;
-        if (kread(recfilep,(int *)&g_player[i].ps->auto_aim,sizeof(int)) != sizeof(int)) goto corrupt;	// JBF 20031126
+        if (kread(recfilep,(int *)&g_player[i].ps->auto_aim,sizeof(int)) != sizeof(int)) goto corrupt;  // JBF 20031126
         if (kread(recfilep,(int *)&g_player[i].ps->weaponswitch,sizeof(int)) != sizeof(int)) goto corrupt;
         if (kread(recfilep,(int *)&g_player[i].pcolor,sizeof(int)) != sizeof(int)) goto corrupt;
         g_player[i].ps->palookup = g_player[i].pcolor;
@@ -11247,7 +11264,7 @@ void opendemowrite(void)
     {
         fwrite((char *)&g_player[i].user_name,sizeof(g_player[i].user_name),1,frecfilep);
         fwrite((int *)&g_player[i].ps->aim_mode,sizeof(int),1,frecfilep);
-        fwrite((int *)&g_player[i].ps->auto_aim,sizeof(int),1,frecfilep);		// JBF 20031126
+        fwrite((int *)&g_player[i].ps->auto_aim,sizeof(int),1,frecfilep);       // JBF 20031126
         fwrite(&g_player[i].ps->weaponswitch,sizeof(int),1,frecfilep);
         fwrite(&g_player[i].pcolor,sizeof(int),1,frecfilep);
         fwrite(&g_player[i].pteam,sizeof(int),1,frecfilep);
@@ -12218,7 +12235,7 @@ static void doorders(void)
 
     fadepal(0,0,0, 0,63,7);
     //g_player[myconnectindex].ps->palette = palette;
-    setgamepalette(g_player[myconnectindex].ps, palette, 1);	// JBF 20040308
+    setgamepalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
     KB_FlushKeyboardQueue();
     rotatesprite(0,0,65536L,0,ORDERING,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
@@ -12318,7 +12335,7 @@ void dobonus(int bonusonly)
         case 0:
             if (ud.lockout == 0)
             {
-                setgamepalette(g_player[myconnectindex].ps, endingpal, 11);	// JBF 20040308
+                setgamepalette(g_player[myconnectindex].ps, endingpal, 11); // JBF 20040308
                 clearview(0L);
                 rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
                 nextpage();
@@ -12381,7 +12398,7 @@ void dobonus(int bonusonly)
 
             KB_FlushKeyboardQueue();
             //g_player[myconnectindex].ps->palette = palette;
-            setgamepalette(g_player[myconnectindex].ps, palette, 11);	// JBF 20040308
+            setgamepalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
 
             rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
             IFISSOFTMODE fadepal(0,0,0, 63,0,-1);
@@ -12415,7 +12432,7 @@ void dobonus(int bonusonly)
             setview(0,0,xdim-1,ydim-1);
             KB_FlushKeyboardQueue();
             //g_player[myconnectindex].ps->palette = palette;
-            setgamepalette(g_player[myconnectindex].ps, palette, 11);	// JBF 20040308
+            setgamepalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
             rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
             IFISSOFTMODE fadepal(0,0,0, 63,0,-1);
             else nextpage();
@@ -12456,7 +12473,7 @@ void dobonus(int bonusonly)
             KB_FlushKeyBoardQueue();
 
             //g_player[myconnectindex].ps->palette = palette;
-            setgamepalette(g_player[myconnectindex].ps, palette, 11);	// JBF 20040308
+            setgamepalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
             IFISSOFTMODE palto(0,0,0,63);
             clearview(0L);
             menutext(160,60,0,0,"THANKS TO ALL OUR");
@@ -12586,7 +12603,7 @@ ENDANM:
 FRAGBONUS:
 
     //g_player[myconnectindex].ps->palette = palette;
-    setgamepalette(g_player[myconnectindex].ps, palette, 11);	// JBF 20040308
+    setgamepalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
     IFISSOFTMODE palto(0,0,0,63);   // JBF 20031228
     KB_FlushKeyboardQueue();
     totalclock = 0;

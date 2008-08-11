@@ -5948,7 +5948,7 @@ static int parse(void)
             int x1=GetGameVarID(*insptr++,g_i,g_p),  y1=GetGameVarID(*insptr++,g_i,g_p);
             int x2=GetGameVarID(*insptr++,g_i,g_p),  y2=GetGameVarID(*insptr++,g_i,g_p);
 
-            if (tw == CON_ROTATESPRITE) {x<<=16;y<<=16;}
+            if (tw == CON_ROTATESPRITE && !(orientation & 256)) {x<<=16;y<<=16;}
             rotatesprite(x,y,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
             break;
         }
