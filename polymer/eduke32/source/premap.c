@@ -577,7 +577,7 @@ void pickrandomspot(int snum)
         {
             for (j=0;j<ud.multimode;j++)
             {
-                if (j != snum && g_player[j].ps->team == g_player[snum].ps->team && sprite[g_player[j].ps->i].extra > 0)
+                if (j != snum && g_player[j].ps->team == p->team && sprite[g_player[j].ps->i].extra > 0)
                 {
                     for (k=0;k<numplayersprites;k++)
                     {

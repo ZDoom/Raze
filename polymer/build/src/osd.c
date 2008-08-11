@@ -540,7 +540,7 @@ static int _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
     {
         int x = 0, count = 0;
         maxwidth += 3;
-        OSD_Printf(OSDTEXT_RED "\nSymbol listing:\n");
+        OSD_Printf(OSDTEXT_RED "Symbol listing:\n");
         for (i=symbols; i!=NULL; i=i->next)
         {
             if (i->func != (void *)OSD_UNALIASED)
@@ -892,7 +892,7 @@ int OSD_HandleChar(char ch)
                         if (!lastmatch->next) break;
                         symb=findsymbol(osdedittmp, lastmatch->next);
                     }
-                    OSD_Printf(OSDTEXT_RED "\nFound %d possible completions for '%s':\n",num,osdedittmp);
+                    OSD_Printf(OSDTEXT_RED "Found %d possible completions for '%s':\n",num,osdedittmp);
                     maxwidth += 3;
                     symb = tabc;
                     OSD_Printf("  ");
@@ -1804,7 +1804,7 @@ static symbol_t *findexactsymbol(const char *name)
     startingat = symbols;
 
     for (; startingat; startingat=startingat->next)
-        if (!Bstrcasecmp(name, startingat->name)) return startingat;
+        if (startingat->func != (void *)OSD_UNALIASED && !Bstrcasecmp(name, startingat->name)) return startingat;
 
     return NULL;
 }

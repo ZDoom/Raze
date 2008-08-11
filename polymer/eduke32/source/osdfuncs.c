@@ -81,7 +81,7 @@ int GAME_getrowheight(int w)
 #define BITSTH 1+32+8+16	// high translucency
 #define BITSTL 1+8+16	// low translucency
 #define BITS 8+16+64		// solid
-#define SHADE 16
+#define SHADE 0
 #define PALETTE 4
 
 void GAME_onshowosd(int shown)
@@ -125,17 +125,20 @@ void GAME_clearbackground(int c, int r)
     xsiz = tilesizx[BGTILE];
     tx2 = xdim/xsiz;
     ysiz = tilesizy[BGTILE];
+//    ty2 = ydim/ysiz;
     ty2 = daydim/ysiz;
 
-    for (x=0;x<=tx2;x++)
-        for (y=0;y<=ty2;y++)
+    for (x=tx2;x>=0;x--)
+        for (y=ty2;y>=0;y--)
+//        for (y=ty2+1;y>=1;y--)
+//            rotatesprite(x*xsiz<<16,((daydim-ydim)+(y*ysiz))<<16,65536L,0,BGTILE,SHADE,PALETTE,bits,0,0,xdim,daydim);
             rotatesprite(x*xsiz<<16,y*ysiz<<16,65536L,0,BGTILE,SHADE,PALETTE,bits,0,0,xdim,daydim);
 
     xsiz = tilesizy[BORDTILE];
     tx2 = xdim/xsiz;
     ysiz = tilesizx[BORDTILE];
 
-    for (x=0;x<=tx2;x++)
+    for (x=tx2;x>=0;x--)
         rotatesprite(x*xsiz<<16,(daydim+ysiz+1)<<16,65536L,1536,BORDTILE,SHADE-12,PALETTE,BITS,0,0,xdim,daydim+ysiz+1);
 }
 
