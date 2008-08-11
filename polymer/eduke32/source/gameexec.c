@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gamedef.h"
 #include "scriplib.h"
 
+#include "osdcmds.h"
 #include "osd.h"
 
 void restoremapstate(mapstate_t *save);
@@ -5265,40 +5266,52 @@ static int parse(void)
             switch (tw)
             {
             case CON_HEADSPRITESTAT:
-                if (j >= 0 && j < MAXSTATUS+1)
-                    SetGameVarID(i,headspritestat[j],g_i,g_p);
-                else
-                    OSD_Printf(CON_ERROR "invalid state %d\n",line_num,keyw[tw],j);
+                if (j < 0 || j > MAXSTATUS)
+                {
+                    OSD_Printf(CON_ERROR "invalid status list %d\n",line_num,keyw[tw],j);
+                    break;
+                }
+                SetGameVarID(i,headspritestat[j],g_i,g_p);
                 break;
             case CON_PREVSPRITESTAT:
-                if (j >= 0 && j < MAXSPRITES)
-                    SetGameVarID(i,prevspritestat[j],g_i,g_p);
-                else
+                if (j < 0 || j >= MAXSPRITES)
+                {
                     OSD_Printf(CON_ERROR "invalid sprite ID %d\n",line_num,keyw[tw],j);
+                    break;
+                }
+                SetGameVarID(i,prevspritestat[j],g_i,g_p);
                 break;
             case CON_NEXTSPRITESTAT:
-                if (j >= 0 && j < MAXSPRITES)
-                    SetGameVarID(i,nextspritestat[j],g_i,g_p);
-                else
+                if (j < 0 || j >= MAXSPRITES)
+                {
                     OSD_Printf(CON_ERROR "invalid sprite ID %d\n",line_num,keyw[tw],j);
+                    break;
+                }
+                SetGameVarID(i,nextspritestat[j],g_i,g_p);
                 break;
             case CON_HEADSPRITESECT:
-                if (j >= 0 && j < MAXSECTORS+1)
-                    SetGameVarID(i,headspritesect[j],g_i,g_p);
-                else
-                    OSD_Printf(CON_ERROR "invalid state %d\n",line_num,keyw[tw],j);
+                if (j < 0 || j > numsectors)
+                {
+                    OSD_Printf(CON_ERROR "invalid sector %d\n",line_num,keyw[tw],j);
+                    break;
+                }
+                SetGameVarID(i,headspritesect[j],g_i,g_p);
                 break;
             case CON_PREVSPRITESECT:
-                if (j >= 0 && j < MAXSPRITES)
-                    SetGameVarID(i,prevspritesect[j],g_i,g_p);
-                else
+                if (j < 0 || j >= MAXSPRITES)
+                {
                     OSD_Printf(CON_ERROR "invalid sprite ID %d\n",line_num,keyw[tw],j);
+                    break;
+                }
+                SetGameVarID(i,prevspritesect[j],g_i,g_p);
                 break;
             case CON_NEXTSPRITESECT:
-                if (j >= 0 || j < MAXSPRITES)
-                    SetGameVarID(i,nextspritesect[j],g_i,g_p);
-                else
+                if (j < 0 || j >= MAXSPRITES)
+                {
                     OSD_Printf(CON_ERROR "invalid sprite ID %d\n",line_num,keyw[tw],j);
+                    break;
+                }
+                SetGameVarID(i,nextspritesect[j],g_i,g_p);
                 break;
             }
             break;
@@ -5661,7 +5674,7 @@ static int parse(void)
         insptr++;
         {
             int lIn=GetGameVarID(*insptr++, g_i, g_p);
-            if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+            if (g_sp->sectnum < 0 || g_sp->sectnum >= numsectors)
             {
                 OSD_Printf(CON_ERROR "Invalid sector %d\n",line_num,keyw[tw],g_sp->sectnum);
                 break;
@@ -5688,7 +5701,7 @@ static int parse(void)
     case CON_QSPAWN:
         insptr++;
 
-        if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+        if (g_sp->sectnum < 0 || g_sp->sectnum >= numsectors)
         {
             OSD_Printf(CON_ERROR "Invalid sector %d\n",line_num,keyw[tw],g_sp->sectnum);
             insptr++;
@@ -5724,7 +5737,7 @@ static int parse(void)
                 hittype[g_i].temp_data[9] = 1;
         }
 
-        if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+        if (g_sp->sectnum < 0 || g_sp->sectnum >= numsectors)
         {
             OSD_Printf(CON_ERROR "Invalid sector %d\n",line_num,keyw[tw],g_sp->sectnum);
             insptr++;
@@ -5757,7 +5770,7 @@ static int parse(void)
         }
         j=GetGameVarID(*insptr++, g_i, g_p);
 
-        if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+        if (g_sp->sectnum < 0 || g_sp->sectnum >= numsectors)
         {
             OSD_Printf(CON_ERROR "Invalid sector %d\n",line_num,keyw[tw],g_sp->sectnum);
             hittype[g_i].temp_data[9]=0;
@@ -7509,6 +7522,17 @@ static int parse(void)
             break;
         }
         playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
+        break;
+
+    case CON_ACTIVATECHEAT:
+        insptr++;
+        j=GetGameVarID(*(insptr++), g_i, g_p);
+        if (numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
+        {
+            OSD_Printf(CON_ERROR "CON_ACTIVATECHEAT: Not in a single-player game.\n");
+            break;
+        }
+        osdcmd_cheatsinfo_stat.cheatnum = j;
         break;
 
     case CON_GETTEXTURECEILING:
