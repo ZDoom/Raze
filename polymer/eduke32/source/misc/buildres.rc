@@ -31,8 +31,8 @@ BEGIN
 	CONTROL "&Always show configuration on start", IDCALWAYSSHOW, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 118, 116, 140, 8
 END
 
-#define FILEVER        1,2,0,0
-#define PRODUCTVER     1,2,0,0
+#define FILEVER        1,1,9,9
+#define PRODUCTVER     1,1,9,9
 #define STRFILEVER     "1.2.0devel\0"
 #define STRPRODUCTVER  "1.2.0devel\0"
 

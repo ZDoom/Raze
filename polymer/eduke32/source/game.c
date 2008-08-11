@@ -367,7 +367,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         else x += (tilesizx[ac]-squishtext)*z/65536;//(tilesizx[ac]>>small);
 
         if ((orientation&256) == 0) //  warpping long strings doesn't work for precise coordinates due to overflow
-        if (x > (ud.config.ScreenWidth - 14)) oldt = (char *)t, x = oldx, y+=8*z/65536;
+            if (x > (ud.config.ScreenWidth - 14)) oldt = (char *)t, x = oldx, y+=8*z/65536;
         t++;
     }
     usehightile = ht;

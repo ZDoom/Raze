@@ -52,8 +52,8 @@ BEGIN
 	CONTROL "",                IDGDATA, "LISTBOX", LBS_NOINTEGRALHEIGHT | LBS_USETABSTOPS | LBS_STANDARD | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 15, 226, 70
 END
 
-#define FILEVER        1,5,0,0
-#define PRODUCTVER     1,5,0,0
+#define FILEVER        1,4,9,9
+#define PRODUCTVER     1,4,9,9
 #define STRFILEVER     "1.5.0devel\0"
 #define STRPRODUCTVER  "1.5.0devel\0"
 

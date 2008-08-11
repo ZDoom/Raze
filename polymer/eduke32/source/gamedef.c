@@ -131,7 +131,7 @@ static const char *translatelabeltype(int type)
 
 #define NUMKEYWORDS (signed int)(sizeof(keyw)/sizeof(keyw[0]))
 
-static const char *keyw[] =
+const char *keyw[] =
 {
     "definelevelname",          // 0  defines level name
     "actor",                    // 1  defines an actor
