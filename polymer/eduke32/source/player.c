@@ -2480,9 +2480,8 @@ void displayweapon(int snum)
 
                     if ((*kb) < *aplWeaponTotalTime[PISTOL_WEAPON]+1)
                     {
-                        short kb_frames[] = {0,1,2},l;
-
-                        l = 195-12+weapon_xoffset;
+                        static short kb_frames[] = {0,1,2};
+                        int l = 195-12+weapon_xoffset;
 
                         if ((*kb) == *aplWeaponFireDelay[PISTOL_WEAPON])
                             l -= 3;
@@ -4896,7 +4895,7 @@ SHOOTINCODE:
             }
         }
     }
-    else if ((*kb))
+    else if (*kb)
     {
         if (aplWeaponWorksLike[p->curr_weapon][snum] == HANDBOMB_WEAPON)
         {

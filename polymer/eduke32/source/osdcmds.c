@@ -815,58 +815,49 @@ static int osdcmd_give(const osdfuncparm_t *parm)
 {
     int i;
 
-    if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
+    if (numplayers != 1 || (g_player[myconnectindex].ps->gm & MODE_GAME) == 0 ||
+        g_player[myconnectindex].ps->dead_flag != 0)
     {
-        if (g_player[myconnectindex].ps->dead_flag != 0)
-        {
-            OSD_Printf("give: Cannot give while dead.\n");
-            return OSDCMD_OK;
-        }
-
-        if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-        if (!Bstrcasecmp(parm->parms[0], "all"))
-        {
-            osdcmd_cheatsinfo_stat.cheatnum = 1;
-            return OSDCMD_OK;
-        }
-        else if (!Bstrcasecmp(parm->parms[0], "health"))
-        {
-            sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health<<1;
-            return OSDCMD_OK;
-        }
-        else if (!Bstrcasecmp(parm->parms[0], "weapons"))
-        {
-            osdcmd_cheatsinfo_stat.cheatnum = 21;
-            return OSDCMD_OK;
-        }
-        else if (!Bstrcasecmp(parm->parms[0], "ammo"))
-        {
-            for (i=PISTOL_WEAPON;i<MAX_WEAPONS-(VOLUMEONE?6:1);i++)
-            {
-                addammo(i,g_player[myconnectindex].ps,g_player[myconnectindex].ps->max_ammo_amount[i]);
-            }
-            return OSDCMD_OK;
-        }
-        else if (!Bstrcasecmp(parm->parms[0], "armor"))
-        {
-            g_player[myconnectindex].ps->shield_amount = 100;
-            return OSDCMD_OK;
-        }
-        else if (!Bstrcasecmp(parm->parms[0], "keys"))
-        {
-            osdcmd_cheatsinfo_stat.cheatnum = 23;
-            return OSDCMD_OK;
-        }
-        else if (!Bstrcasecmp(parm->parms[0], "inventory"))
-        {
-            osdcmd_cheatsinfo_stat.cheatnum = 22;
-            return OSDCMD_OK;
-        }
+        OSD_Printf("give: Cannot give while dead or not in a single-player game.\n");
+        return OSDCMD_OK;
     }
-    else
+
+    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    if (!Bstrcasecmp(parm->parms[0], "all"))
     {
-        OSD_Printf("give: Not in a single-player game.\n");
+        osdcmd_cheatsinfo_stat.cheatnum = 1;
+        return OSDCMD_OK;
+    }
+    else if (!Bstrcasecmp(parm->parms[0], "health"))
+    {
+        sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health<<1;
+        return OSDCMD_OK;
+    }
+    else if (!Bstrcasecmp(parm->parms[0], "weapons"))
+    {
+        osdcmd_cheatsinfo_stat.cheatnum = 21;
+        return OSDCMD_OK;
+    }
+    else if (!Bstrcasecmp(parm->parms[0], "ammo"))
+    {
+        for (i=MAX_WEAPONS-(VOLUMEONE?6:1)-1;i>=PISTOL_WEAPON;i--)
+            addammo(i,g_player[myconnectindex].ps,g_player[myconnectindex].ps->max_ammo_amount[i]);
+        return OSDCMD_OK;
+    }
+    else if (!Bstrcasecmp(parm->parms[0], "armor"))
+    {
+        g_player[myconnectindex].ps->shield_amount = 100;
+        return OSDCMD_OK;
+    }
+    else if (!Bstrcasecmp(parm->parms[0], "keys"))
+    {
+        osdcmd_cheatsinfo_stat.cheatnum = 23;
+        return OSDCMD_OK;
+    }
+    else if (!Bstrcasecmp(parm->parms[0], "inventory"))
+    {
+        osdcmd_cheatsinfo_stat.cheatnum = 22;
         return OSDCMD_OK;
     }
     return OSDCMD_SHOWHELP;

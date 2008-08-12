@@ -10922,7 +10922,14 @@ void app_main(int argc,const char **argv)
     clearsoundlocks();
 
     OSD_Exec("autoexec.cfg");
-    OSD_Exec("binds.cfg");
+
+    {
+        char *ptr = Bstrdup(setupfilename);
+        Bsprintf(tempbuf,"%s_binds.cfg",strtok(ptr,"."));
+        Bfree(ptr);
+    }
+
+    OSD_Exec(tempbuf);
 
     if (ud.warp_on > 1 && ud.multimode < 2)
     {

@@ -597,7 +597,7 @@ extern palette_t default_crosshair_colors;
 
 int32 CONFIG_ReadSetup(void)
 {
-    int32 dummy, i;
+    int32 dummy, i = 0;
     char commmacro[] = "CommbatMacro# ";
     extern int32 CommandWeaponChoice;
 
@@ -609,6 +609,15 @@ int32 CONFIG_ReadSetup(void)
     pathsearchmode = 1;
     if (SafeFileExists(setupfilename) && ud.config.scripthandle < 0)  // JBF 20031211
         ud.config.scripthandle = SCRIPT_Load(setupfilename);
+    else if (SafeFileExists("duke3d.cfg") && ud.config.scripthandle < 0)
+    {
+        Bsprintf(tempbuf,"The configuration file \"%s\" was not found. "
+                         "Would you like to import configuration data "
+                         "from \"duke3d.cfg\"?",setupfilename);
+
+        i=wm_ynbox("Import Configuration Settings",tempbuf);
+        if (i) ud.config.scripthandle = SCRIPT_Load("duke3d.cfg");
+    }
     pathsearchmode = 0;
 
     if (ud.config.scripthandle < 0) return -1;
@@ -851,7 +860,11 @@ int32 CONFIG_ReadSetup(void)
 void CONFIG_WriteBinds(void) // save binds and aliases to disk
 {
     int i;
-    FILE *fp = fopen("binds.cfg", "wt");
+    FILE *fp;
+    char *ptr = Bstrdup(setupfilename);
+
+    Bsprintf(tempbuf,"%s_binds.cfg",strtok(ptr,"."));
+    fp = fopen(tempbuf, "wt");
 
     if (fp)
     {
@@ -874,10 +887,14 @@ void CONFIG_WriteBinds(void) // save binds and aliases to disk
                         fprintf(fp,"%s \"%d\"\n",cvar[i].name,*(int*)cvar[i].var);
                         */
         fclose(fp);
-        OSD_Printf("Wrote binds.cfg\n");
+        Bsprintf(tempbuf,"Wrote %s_binds.cfg\n",ptr);
+        OSD_Printf(tempbuf);
+        Bfree(ptr);
         return;
     }
-    OSD_Printf("Error writing binds.cfg: %s\n",strerror(errno));
+    Bsprintf(tempbuf,"Error writing %s_binds.cfg: %s\n",ptr,strerror(errno));
+    OSD_Printf(tempbuf);
+    Bfree(ptr);
 }
 
 void CONFIG_WriteSetup(void)

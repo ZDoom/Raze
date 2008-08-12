@@ -1591,9 +1591,9 @@ extern int voting, vote_map, vote_episode;
 
 void getlevelfromfilename(const char *fn, char *volume, char *level)
 {
-    for (*volume=0;*volume<MAXVOLUMES;(*volume)++)
+    for (*volume=MAXVOLUMES-1;*volume>=0;(*volume)--)
     {
-        for (*level=0;*level<MAXLEVELS;(*level)++)
+        for (*level=MAXLEVELS-1;*level>=0;(*level)--)
         {
             if (map[(*volume*MAXLEVELS)+*level].filename != NULL)
                 if (!Bstrcasecmp(fn, map[(*volume*MAXLEVELS)+*level].filename))
