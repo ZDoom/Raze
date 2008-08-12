@@ -425,9 +425,13 @@ int app_main(int argc, const char **argv)
 
     if (cursectnum == -1)
     {
+        double gamma = vid_gamma;
+        vid_gamma = 1.0;
         setbrightness(0,palette,0);
         overheadeditor();
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
+        vid_gamma = gamma;
+        setbrightness(brightness,palette,0);
     }
 CANCEL:
     quitflag = 0;
@@ -2580,9 +2584,13 @@ void editinput(void)
     }
     if (keystatus[buildkeys[BK_MODE2D_3D]])  // Enter
     {
+        double gamma = vid_gamma;
+        vid_gamma = 1.0;
         setbrightness(0,palette,0);
         overheadeditor();
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
+        vid_gamma = gamma;
+        setbrightness(brightness,palette,0);
     }
 }
 

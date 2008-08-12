@@ -5396,8 +5396,9 @@ static void Keys3d(void)
         keystatus[KEYSC_F11] = 0;
         brightness++;
         if (brightness >= 16) brightness = 0;
+        vid_gamma = 1.0 + ((float)brightness / 10.0);
         setbrightness(brightness,palette,0);
-        message("Brightness: %d/16",brightness);
+        message("Brightness: %d/16",brightness+1);
     }
 
     if (keystatus[KEYSC_TAB])  //TAB

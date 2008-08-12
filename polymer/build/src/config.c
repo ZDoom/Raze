@@ -133,7 +133,11 @@ int loadsetup(const char *fn)
     if (readconfig(fp, "bpp", val, VL) > 0) bppgame = Batoi(val);
     if (readconfig(fp, "editorgridextent", val, VL) > 0) editorgridextent = max(min(524288,Batoi(val)),65536);
     if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i); }
-    if (readconfig(fp, "brightness", val, VL) > 0) brightness = min(max(Batoi(val),0),15);
+    if (readconfig(fp, "brightness", val, VL) > 0)
+    {
+        brightness = min(max(Batoi(val),0),15);
+        vid_gamma = 1.0 + ((float)brightness / 10.0);
+    }
 
 #ifdef RENDERTYPEWIN
     if (readconfig(fp, "maxrefreshfreq", val, VL) > 0) maxrefreshfreq = Batoi(val);
