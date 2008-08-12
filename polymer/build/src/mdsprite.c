@@ -1478,6 +1478,25 @@ static int md3draw(md3model *m, spritetype *tspr)
 
     f = m->interpol; g = 1-f;
 
+    if (m->interpol < 0 || m->interpol > 1 ||
+        m->cframe < 0 || m->cframe >= m->numframes ||
+        m->nframe < 0 || m->nframe >= m->numframes)
+    {
+        OSD_Printf("Model frame out of bounds!\n");
+        if (m->interpol < 0)
+            m->interpol = 0;
+        if (m->interpol > 1)
+            m->interpol = 1;
+        if (m->cframe < 0)
+            m->cframe = 0;
+        if (m->cframe >= m->numframes)
+            m->cframe = m->numframes - 1;
+        if (m->nframe < 0)
+            m->nframe = 0;
+        if (m->nframe >= m->numframes)
+            m->nframe = m->numframes - 1;
+    }
+
     if (m->head.flags == 1337)
     {
         // md2

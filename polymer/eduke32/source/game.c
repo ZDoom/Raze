@@ -4628,6 +4628,7 @@ int EGS(int whatsect,int s_x,int s_y,int s_z,int s_pn,int s_s,int s_xr,int s_yr,
     else show2dsprite[i>>3] &= ~(1<<(i&7));
 
     clearbufbyte(&spriteext[i], sizeof(spriteexttype), 0);
+    clearbufbyte(&spritesmooth[i], sizeof(spritesmoothtype), 0);
 
     /*
         if(s->sectnum < 0)
