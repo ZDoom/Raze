@@ -4504,8 +4504,8 @@ static int parse(void)
     //      Bsprintf(g_szBuf,"Parsing: %d",*insptr);
     //      AddLog(g_szBuf);
 
-    line_num = tw>>12;
-    g_tw = tw &= 0xFFF;
+    line_num = insptr[g_ScriptSize];
+    g_tw = tw;
 
     switch (tw)
     {

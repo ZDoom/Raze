@@ -954,7 +954,7 @@ static int increasescriptsize(int size)
     //initprintf("offset: %d\n",(unsigned)(scriptptr-script));
     g_ScriptSize = size;
     initprintf("Increasing script buffer size to %d bytes...\n",g_ScriptSize);
-    newscript = (intptr_t *)Brealloc(script, g_ScriptSize * sizeof(intptr_t));
+    newscript = (intptr_t *)Brealloc(script, g_ScriptSize * sizeof(intptr_t) * 2);
 
     if (newscript == NULL)
     {
@@ -1419,7 +1419,8 @@ static int transword(void) //Returns its code #
     {
         if (Bstrcmp(tempbuf,keyw[i]) == 0)
         {
-            *scriptptr = i + (line_number<<12);
+            *scriptptr = i;
+            script[scriptptr-script+g_ScriptSize] = line_number;
             textptr += l;
             scriptptr++;
             if (!(error || warning) && g_ScriptDebug)
@@ -5273,7 +5274,8 @@ void loadefs(const char *filenam)
 //    clearbufbyte(script,sizeof(script),0l); // JBF 20040531: yes? no?
     if (script != NULL)
         Bfree(script);
-    script = Bcalloc(1,g_ScriptSize * sizeof(intptr_t));
+    script = Bcalloc(1,g_ScriptSize * sizeof(intptr_t) * 2);
+    clearbufbyte(&script[g_ScriptSize],g_ScriptSize * sizeof(intptr_t),0L);
 
     labelcnt = defaultlabelcnt = 0;
     scriptptr = script+1;
