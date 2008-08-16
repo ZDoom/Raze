@@ -844,4 +844,5 @@ enum keywords
     CON_CMENU,              // 331
     CON_GETTIMEDATE,        // 332 
     CON_ACTIVATECHEAT,      // 333
+    CON_SETGAMEPALETTE,     // 334
 };

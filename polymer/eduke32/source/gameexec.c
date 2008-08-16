@@ -7535,6 +7535,22 @@ static int parse(void)
         osdcmd_cheatsinfo_stat.cheatnum = j;
         break;
 
+    case CON_SETGAMEPALETTE:
+        insptr++;
+        j=GetGameVarID(*(insptr++), g_i, g_p);
+        switch(j)
+        {
+            default:
+            case 0:setgamepalette(g_player[g_p].ps,palette  ,0);break;
+            case 1:setgamepalette(g_player[g_p].ps,waterpal ,0);break;
+            case 2:setgamepalette(g_player[g_p].ps,slimepal ,0);break;
+            case 3:setgamepalette(g_player[g_p].ps,drealms  ,0);break;
+            case 4:setgamepalette(g_player[g_p].ps,titlepal ,0);break;
+            case 5:setgamepalette(g_player[g_p].ps,endingpal,0);break;
+            case 6:setgamepalette(g_player[g_p].ps,animpal  ,0);break;
+        }
+        break;
+
     case CON_GETTEXTURECEILING:
         insptr++;
         SetGameVarID(g_iTextureID, sector[g_sp->sectnum].ceilingpicnum, g_i, g_p);
@@ -7853,7 +7869,7 @@ static int parse(void)
                    "current opcode: %d, next five values: %d, %d, %d, %d, %d\ncurrent actor: %d (%d)\n",
                    *(insptr-5),*(insptr-4),*(insptr-3),*(insptr-2),*(insptr-1),*insptr,*(insptr+1),
                    *(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5),g_i,g_sp->picnum);
-		OSD_Printf("line_num: %d, g_tw: %d\n",line_num,g_tw);
+        OSD_Printf("line_num: %d, g_tw: %d\n",line_num,g_tw);
 
         gameexit("An error has occurred in the EDuke32 CON executor.\n\n"
                  "If you are an end user, please e-mail the file eduke32.log\n"

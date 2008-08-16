@@ -467,6 +467,7 @@ const char *keyw[] =
     "cmenu",                    // 331
     "gettimedate",              // 332
     "activatecheat",            // 333
+    "setgamepalette",           // 334
     "<null>"
 };
 
@@ -3499,6 +3500,7 @@ static int parsecommand(void)
     case CON_STARTTRACKVAR:
     case CON_CLEARMAPSTATE:
     case CON_ACTIVATECHEAT:
+    case CON_SETGAMEPALETTE:
         transvar();
         return 0;
 
