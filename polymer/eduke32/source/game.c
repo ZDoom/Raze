@@ -8601,16 +8601,23 @@ FAKE_F3:
 
 static void comlinehelp(void)
 {
-    char *s = "Usage: eduke32 [OPTIONS]\n"
+    char *s = "Usage: eduke32 [FILES] [OPTIONS]\n"
               "Example: eduke32 -q4 -a -m -tx -map nukeland.map\n\n"
+              "FILES\n"
+              "can be *.grp, *.zip, *.con, *.def\n"
+              ""
+              "OPTIONS\n"
               "-NUM\t\tLoad and run a game from slot NUM (0-9)\n"
               "-a\t\tUse fake player AI (fake multiplayer only)\n"
               "-cNUM\t\tUse MP mode NUM, 1 = DukeMatch(spawn), 2 = Coop, 3 = Dukematch(no spawn)\n"
-              "-cfg FILE\t\tUse configuration file FILE\n"
+              "-cfg FILE\tUse configuration file FILE\n"
               "-dFILE\t\tStart to play demo FILE\n"
               /*              "-fNUM\t\tSend fewer packets in multiplayer (1, 2, 4) (deprecated)\n" */
               "-game_dir DIR\tSee -j\n"
               "-gFILE, -grp FILE\tUse extra group file FILE\n"
+              "-gamegrp FILE\tUse FILE as a default GRP\n"
+              "-nam\t\tRun in Nam-compatible mode\n"
+              "-ww2gi\t\tRun in ww2gi-compatible mode\n"
               "-hFILE\t\tUse definitions file FILE\n"
               "-iNUM\t\tUse networking mode NUM (1/0) (multiplayer only) (default == 1)\n"
               "-jDIR\t\tAdds DIR to the file path stack\n"
@@ -8625,9 +8632,18 @@ static void comlinehelp(void)
               "-qNUM\t\tUse NUM players for fake multiplayer (2-8)\n"
               "-r\t\tRecord demo\n"
               "-rmnet FILE\tUse FILE for network play configuration (see documentation)\n"
+              "-keepaddr\n"
+              "-stun\n"
+              "-w\t\tShow coordinates"
+
+              "-noautoload\tDo not use the autoload directory\n"
+              "-nologo\t\tSkip the logo anim\n"
+              "-cachesize SIZE\tUse SIZE Kb for cache\n"
               "-sNUM\t\tUse skill level NUM (1-4)\n"
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
               "-setup\t\tDisplays the configuration dialog\n"
+
+              "-nosetup\t\t\n"
 #endif
               "-tNUM\t\tUse respawn mode NUM, 1 = Monsters, 2 = Items, 3 = Inventory, x = All\n"
               "-u#########\tUser's favorite weapon order (default: 3425689071)\n"
@@ -8637,7 +8653,7 @@ static void comlinehelp(void)
               "-vNUM\t\tWarp to volume NUM (1-4), see -l\n"
               "-xFILE\t\tLoad CON script FILE (default EDUKE.CON/GAME.CON)\n"
               "-zNUM,\n-condebug\tLine-by-line CON compilation debugging, NUM is verbosity\n"
-              "\n-?, -help\tDisplay this help message and exit"
+              "\n-?, -help, --help\tDisplay this help message and exit"
               ;
 #if defined RENDERTYPEWIN
     wm_msgbox(HEAD2,s);

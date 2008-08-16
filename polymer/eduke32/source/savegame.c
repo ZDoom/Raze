@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 
+extern char *bitptr;
+
 void readsavenames(void)
 {
     int dummy,j;
@@ -127,7 +129,6 @@ int loadplayer(int spot)
     int fil, bv, i, x;
     intptr_t j;
     int32 nump;
-    int codeextra=0;
 
     strcpy(fn, "egam0.sav");
     strcpy(mpfn, "egamA_00.sav");
@@ -276,9 +277,8 @@ int loadplayer(int spot)
     if (kdfread(&scriptptrs[0],sizeof(scriptptrs),g_ScriptSize,fil) != g_ScriptSize) goto corrupt;
     if (script != NULL)
         Bfree(script);
-    if (bv>=183)codeextra=g_ScriptSize;
     script = Bcalloc(1,g_ScriptSize * sizeof(intptr_t));
-    if (kdfread(&script[0],sizeof(script),g_ScriptSize+codeextra,fil) != g_ScriptSize) goto corrupt;
+    if (kdfread(&script[0],sizeof(script),g_ScriptSize,fil) != g_ScriptSize) goto corrupt;
     for (i=0;i<g_ScriptSize;i++)
         if (scriptptrs[i])
         {
@@ -532,7 +532,6 @@ int saveplayer(int spot)
     char *fnptr, *scriptptrs;
     FILE *fil;
     int bv = BYTEVERSION;
-    int codeextra=0;  
 
     strcpy(fn, "egam0.sav");
     strcpy(mpfn, "egamA_00.sav");
@@ -640,10 +639,10 @@ int saveplayer(int spot)
 
     dfwrite(&g_ScriptSize,sizeof(g_ScriptSize),1,fil);
     scriptptrs = Bcalloc(1, g_ScriptSize * sizeof(scriptptrs));
-    if (bv>=183)codeextra=g_ScriptSize;
     for (i=0;i<g_ScriptSize;i++)
     {
-        if ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))
+        if (bitptr[i])
+        // if ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))
         {
             scriptptrs[i] = 1;
             j = (intptr_t)script[i] - (intptr_t)&script[0];
@@ -653,7 +652,7 @@ int saveplayer(int spot)
     }
 
     dfwrite(&scriptptrs[0],sizeof(scriptptrs),g_ScriptSize,fil);
-    dfwrite(&script[0],sizeof(script),g_ScriptSize+codeextra,fil);
+    dfwrite(&script[0],sizeof(script),g_ScriptSize,fil);
 
     for (i=0;i<g_ScriptSize;i++)
         if (scriptptrs[i])
