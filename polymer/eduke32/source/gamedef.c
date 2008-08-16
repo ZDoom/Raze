@@ -929,10 +929,10 @@ static int increasescriptsize(int size)
     {
 //            initprintf("%d\n",i);
         if (bitptr[i] == BITPTR_POINTER && !((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize])))
-            initprintf("wtf %d\n",i);
+            initprintf("Internal compiler error at %d (0x%x)\n",i,i);
 //        if (bitptr[i] == 0 && ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize])))
 //            initprintf("oh no!\n");
-        if (bitptr[i] == BITPTR_POINTER && ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize])))
+        if (bitptr[i] == BITPTR_POINTER /*&& ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))*/)
         {
             scriptptrs[i] = 1;
             script[i] -= (intptr_t)&script[0];
@@ -979,7 +979,7 @@ static int increasescriptsize(int size)
     scriptptr = (intptr_t *)(script+oscriptptr);
     bitptr = (char *)Brealloc(bitptr, g_ScriptSize * sizeof(char));
     Bmemset(&bitptr[osize],0,size-osize);
-    initprintf("script: %d, bitptr: %d\n",script,bitptr);
+//    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
     //initprintf("offset: %d\n",(unsigned)(scriptptr-script));
     if (casescriptptr != NULL)
@@ -2619,6 +2619,7 @@ static int parsecommand(void)
 
         for (j=0;j<4;j++)
         {
+            bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
             *(parsing_actor+j) = 0;
             if (j == 3)
             {
@@ -5360,7 +5361,7 @@ void loadefs(const char *filenam)
 
     script = Bcalloc(1,g_ScriptSize * sizeof(intptr_t));
     bitptr = Bcalloc(1,g_ScriptSize * sizeof(char));
-    initprintf("script: %d, bitptr: %d\n",script,bitptr);
+//    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
     labelcnt = defaultlabelcnt = 0;
     scriptptr = script+1;
