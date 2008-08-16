@@ -1592,6 +1592,7 @@ static void transvartype(int type)
     if (!(error || warning) && g_ScriptDebug > 1)
         initprintf("%s:%d: debug: accepted gamevar `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
 
+    bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
     *scriptptr++=(i|f);
 }
 
@@ -1807,7 +1808,7 @@ static int parsecommand(void)
                         initprintf("%s:%d: debug: accepted state label `%s'.\n",compilefile,line_number,label+(j<<6));
                     *scriptptr = labelcode[j];
                     if (labelcode[j] >= (intptr_t)&script[0] && labelcode[j] < (intptr_t)&script[g_ScriptSize])
-                        bitptr[(scriptptr-script)] = 1;
+                        bitptr[(scriptptr-script)] = BITPTR_POINTER;
                     else bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
                     break;
                 }
