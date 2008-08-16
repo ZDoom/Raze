@@ -7529,7 +7529,7 @@ static int parse(void)
         j=GetGameVarID(*(insptr++), g_i, g_p);
         if (numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
         {
-            OSD_Printf(CON_ERROR "not in a single-player game.\n");
+            OSD_Printf(CON_ERROR "not in a single-player game.\n",line_num,keyw[g_tw]);
             break;
         }
         osdcmd_cheatsinfo_stat.cheatnum = j;
