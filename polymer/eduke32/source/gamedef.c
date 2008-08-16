@@ -969,9 +969,7 @@ static int increasescriptsize(int size)
         error++;
         return 1;
     }
-//    Bmemset(&newscript[size],0,size);
-//    Bmemcpy(&newscript[size],&newscript[osize],osize);
-//    Bmemset(&newscript[osize],0,osize);
+    Bmemset(&newscript[osize],0,(size-osize) * sizeof(intptr_t));
     script = newscript;
     scriptptr = (intptr_t *)(script+oscriptptr);
     bitptr = (char *)Brealloc(bitptr, g_ScriptSize * sizeof(char));
@@ -1432,6 +1430,7 @@ static int transword(void) //Returns its code #
         if (Bstrcmp(tempbuf,keyw[i]) == 0)
         {
             *scriptptr = i + (line_number<<12);
+            bitptr[(scriptptr-script)] = 2;
             textptr += l;
             scriptptr++;
             if (!(error || warning) && g_ScriptDebug)
@@ -1649,8 +1648,9 @@ static int transnum(int type)
                     initprintf("%s:%d: debug: accepted %s label `%s'.\n",compilefile,line_number,gl,label+(i<<6));
                     Bfree(gl);
                 }
-                if (labeltype[i] != LABEL_DEFINE && labelcode[i] != 0)
+                if (labeltype[i] != LABEL_DEFINE && labelcode[i] >= (intptr_t)&script[0] && labelcode[i] < (intptr_t)&script[g_ScriptSize])
                     bitptr[(scriptptr-script)] = 1;
+                else bitptr[(scriptptr-script)] = 2;
                 *(scriptptr++) = labelcode[i];
                 textptr += l;
                 return labeltype[i];
@@ -1795,7 +1795,8 @@ static int parsecommand(void)
                     if (!(error || warning) && g_ScriptDebug > 1)
                         initprintf("%s:%d: debug: accepted state label `%s'.\n",compilefile,line_number,label+(j<<6));
                     *scriptptr = labelcode[j];
-                    bitptr[(scriptptr-script)] = 1;
+                    if (labelcode[j] >= (intptr_t)&script[0] && labelcode[j] < (intptr_t)&script[g_ScriptSize])
+                        bitptr[(scriptptr-script)] = 1;
                     break;
                 }
                 else
