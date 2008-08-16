@@ -9906,6 +9906,7 @@ static void loadtmb(void)
 static void freeconmem(void)
 {
     int i;
+    extern char *bitptr;
 
     for (i=(MAXLEVELS*(MAXVOLUMES+1))-1;i>=0;i--) // +1 volume for "intro", "briefing" music
     {
@@ -9967,6 +9968,8 @@ static void freeconmem(void)
         Bfree(labelcode);
     if (script != NULL)
         Bfree(script);
+    if (bitptr != NULL)
+        Bfree(bitptr);
 }
 
 /*
