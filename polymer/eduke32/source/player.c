@@ -2753,7 +2753,7 @@ int jump_input = 0;
 void getinput(int snum)
 {
     int j, daang;
-    ControlInfo info;
+    static ControlInfo info;
     int32 tics;
     boolean running;
     int32 turnamount;

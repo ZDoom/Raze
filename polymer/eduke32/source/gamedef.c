@@ -898,6 +898,8 @@ const memberlabel_t inputlabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
+char *bitptr;
+
 static int increasescriptsize(int size)
 {
     intptr_t oscriptptr = (unsigned)(scriptptr-script);
@@ -909,7 +911,7 @@ static int increasescriptsize(int size)
     intptr_t i, j;
     int osize = g_ScriptSize;
 
-    for (i=0;i<MAXSECTORS;i++)
+    for (i=MAXSECTORS-1;i>=0;i--)
     {
         if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
         {
@@ -918,33 +920,36 @@ static int increasescriptsize(int size)
     }
 
     scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(char));
-    for (i=0;i<g_ScriptSize;i++)
+    for (i=g_ScriptSize-1;i>=0;i--)
     {
 //            initprintf("%d\n",i);
-        if ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))
+        if (bitptr[i] == 1 && !((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize])))
+            initprintf("wtf\n");
+        if (bitptr[i] == 0 && ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize])))
+            initprintf("oh no!\n");
+        if (bitptr[i] == 1 && ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize])))
         {
             scriptptrs[i] = 1;
-            j = (intptr_t)script[i] - (intptr_t)&script[0];
-            script[i] = j;
+            script[i] -= (intptr_t)&script[0];
         }
         else scriptptrs[i] = 0;
     }
 
-    for (i=0;i<MAXTILES;i++)
+    for (i=MAXTILES-1;i>=0;i--)
+    {
         if (actorscrptr[i])
         {
             j = (intptr_t)actorscrptr[i]-(intptr_t)&script[0];
             actorscrptr[i] = (intptr_t *)j;
         }
-
-    for (i=0;i<MAXTILES;i++)
         if (actorLoadEventScrptr[i])
         {
             j = (intptr_t)actorLoadEventScrptr[i]-(intptr_t)&script[0];
             actorLoadEventScrptr[i] = (intptr_t *)j;
         }
+    }
 
-    for (i=0;i<MAXGAMEEVENTS;i++)
+    for (i=MAXGAMEEVENTS-1;i>=0;i--)
         if (apScriptGameEvent[i])
         {
             j = (intptr_t)apScriptGameEvent[i]-(intptr_t)&script[0];
@@ -953,8 +958,8 @@ static int increasescriptsize(int size)
 
     //initprintf("offset: %d\n",(unsigned)(scriptptr-script));
     g_ScriptSize = size;
-    initprintf("Increasing script buffer size to %d bytes...\n",g_ScriptSize);
-    newscript = (intptr_t *)Brealloc(script, g_ScriptSize * sizeof(intptr_t) * 2);
+    initprintf("Increasing script buffer size to %d bytes...\n",g_ScriptSize * sizeof(intptr_t));
+    newscript = (intptr_t *)Brealloc(script, g_ScriptSize * sizeof(intptr_t));
 
     if (newscript == NULL)
     {
@@ -964,8 +969,15 @@ static int increasescriptsize(int size)
         error++;
         return 1;
     }
+//    Bmemset(&newscript[size],0,size);
+//    Bmemcpy(&newscript[size],&newscript[osize],osize);
+//    Bmemset(&newscript[osize],0,osize);
     script = newscript;
     scriptptr = (intptr_t *)(script+oscriptptr);
+    bitptr = (char *)Brealloc(bitptr, g_ScriptSize * sizeof(char));
+    Bmemset(&bitptr[osize],0,size-osize);
+    initprintf("script: %d, bitptr: %d\n",script,bitptr);
+
     //initprintf("offset: %d\n",(unsigned)(scriptptr-script));
     if (casescriptptr != NULL)
         casescriptptr = (intptr_t *)(script+ocasescriptptr);
@@ -974,7 +986,7 @@ static int increasescriptsize(int size)
     if (parsing_actor != NULL)
         parsing_actor = (intptr_t *)(script+oparsing_actor);
 
-    for (i=0;i<MAXSECTORS;i++)
+    for (i=MAXSECTORS-1;i>=0;i--)
     {
         if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
         {
@@ -982,28 +994,28 @@ static int increasescriptsize(int size)
         }
     }
 
-    for (i=0;i<g_ScriptSize-(size-osize);i++)
+    for (i=g_ScriptSize-(size-osize)-1;i>=0;i--)
         if (scriptptrs[i])
         {
             j = (intptr_t)script[i]+(intptr_t)&script[0];
             script[i] = j;
         }
 
-    for (i=0;i<MAXTILES;i++)
+    for (i=MAXTILES-1;i>=0;i--)
+    {
         if (actorscrptr[i])
         {
             j = (intptr_t)actorscrptr[i]+(intptr_t)&script[0];
             actorscrptr[i] = (intptr_t *)j;
         }
-
-    for (i=0;i<MAXTILES;i++)
         if (actorLoadEventScrptr[i])
         {
             j = (intptr_t)actorLoadEventScrptr[i]+(intptr_t)&script[0];
             actorLoadEventScrptr[i] = (intptr_t *)j;
         }
+    }
 
-    for (i=0;i<MAXGAMEEVENTS;i++)
+    for (i=MAXGAMEEVENTS-1;i>=0;i--)
         if (apScriptGameEvent[i])
         {
             j = (intptr_t)apScriptGameEvent[i]+(intptr_t)&script[0];
@@ -1419,8 +1431,7 @@ static int transword(void) //Returns its code #
     {
         if (Bstrcmp(tempbuf,keyw[i]) == 0)
         {
-            *scriptptr = i;
-            script[scriptptr-script+g_ScriptSize] = line_number;
+            *scriptptr = i + (line_number<<12);
             textptr += l;
             scriptptr++;
             if (!(error || warning) && g_ScriptDebug)
@@ -1638,6 +1649,8 @@ static int transnum(int type)
                     initprintf("%s:%d: debug: accepted %s label `%s'.\n",compilefile,line_number,gl,label+(i<<6));
                     Bfree(gl);
                 }
+                if (labeltype[i] != LABEL_DEFINE && labelcode[i] != 0)
+                    bitptr[(scriptptr-script)] = 1;
                 *(scriptptr++) = labelcode[i];
                 textptr += l;
                 return labeltype[i];
@@ -1782,6 +1795,7 @@ static int parsecommand(void)
                     if (!(error || warning) && g_ScriptDebug > 1)
                         initprintf("%s:%d: debug: accepted state label `%s'.\n",compilefile,line_number,label+(j<<6));
                     *scriptptr = labelcode[j];
+                    bitptr[(scriptptr-script)] = 1;
                     break;
                 }
                 else
@@ -1986,7 +2000,7 @@ static int parsecommand(void)
             ReportError(ERROR_SYNTAXERROR);
             transnum(LABEL_DEFINE);
             transnum(LABEL_DEFINE);
-            scriptptr -= 3; // we complete the process anyways just to skip past the fucked up section
+            scriptptr -= 2; // we complete the process anyways just to skip past the fucked up section
             return 0;
         }
         getlabel();
@@ -2355,14 +2369,14 @@ static int parsecommand(void)
             getlabel();
             // Check to see it's already defined
 
-            for (i=0;i<NUMKEYWORDS;i++)
+            for (i=NUMKEYWORDS-1;i>=0;i--)
                 if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
                 {
                     error++;
                     ReportError(ERROR_ISAKEYWORD);
                     return 0;
                 }
-            for (i=0;i<labelcnt;i++)
+            for (i=labelcnt-1;i>=0;i--)
                 if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 /* && (labeltype[i] & LABEL_ACTION) */)
                 {
                     warning++;
@@ -2370,7 +2384,7 @@ static int parsecommand(void)
                     break;
                 }
 
-            if (i == labelcnt)
+            if (i == -1)
             {
                 labeltype[labelcnt] = LABEL_ACTION;
                 labelcode[labelcnt] = (intptr_t) scriptptr;
@@ -2725,6 +2739,7 @@ static int parsecommand(void)
             parsecommand();
             tempscrptr = (intptr_t *)script+offset;
             *tempscrptr = (intptr_t) scriptptr;
+            bitptr[(tempscrptr-script)] = 1;
         }
         else
         {
@@ -3752,6 +3767,7 @@ static int parsecommand(void)
 
         tempscrptr = (intptr_t *)script+offset;
         *tempscrptr = (intptr_t) scriptptr;
+        bitptr[(tempscrptr-script)] = 1;
 
         if (tw != CON_WHILEVARVARN) checking_ifelse++;
         return 0;
@@ -3793,6 +3809,7 @@ static int parsecommand(void)
 
         tempscrptr = (intptr_t *)script+offset;
         *tempscrptr = (intptr_t) scriptptr;
+        bitptr[(tempscrptr-script)] = 1;
 
         if (tw != CON_WHILEVARN) checking_ifelse++;
         return 0;
@@ -4049,6 +4066,7 @@ static int parsecommand(void)
             }
 //            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
             tempscrptr[0]= (intptr_t)scriptptr - (intptr_t)&script[0];    // save 'end' location
+//            bitptr[(tempscrptr-script)] = 1;
         }
         else
         {
@@ -4157,6 +4175,7 @@ repeatcase:
         if (casescriptptr)
         {
             casescriptptr[0]=(intptr_t)(scriptptr-&script[0]);   // save offset
+//            bitptr[(casescriptptr-script)] = 1;
         }
         //Bsprintf(g_szBuf,"default: '%.22s'",textptr);
         //AddLog(g_szBuf);
@@ -4321,6 +4340,7 @@ repeatcase:
         parsecommand();
         tempscrptr = (intptr_t *)script+offset;
         *tempscrptr = (intptr_t) scriptptr;
+        bitptr[(tempscrptr-script)] = 1;
 
         checking_ifelse++;
         return 0;
@@ -4361,6 +4381,7 @@ repeatcase:
 
     case CON_DEFINEVOLUMENAME:
         scriptptr--;
+
         transnum(LABEL_DEFINE);
         scriptptr--;
         j = *scriptptr;
@@ -4434,6 +4455,7 @@ repeatcase:
 
     case CON_DEFINESKILLNAME:
         scriptptr--;
+
         transnum(LABEL_DEFINE);
         scriptptr--;
         j = *scriptptr;
@@ -4468,6 +4490,7 @@ repeatcase:
     {
         char gamename[32];
         scriptptr--;
+
         while (*textptr == ' ' || *textptr == '\t') textptr++;
 
         i = 0;
@@ -4492,14 +4515,14 @@ repeatcase:
     return 0;
 
     case CON_DEFINEGAMETYPE:
-        scriptptr--; //remove opcode from compiled code
-        transnum(LABEL_DEFINE); //translate number
-        scriptptr--; //remove it from compiled code
-        j = *scriptptr; //put it into j
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        scriptptr--;
+        j = *scriptptr;
 
-        transnum(LABEL_DEFINE); //translate number
-        scriptptr--; //remove it from compiled code
-        gametype_flags[j] = *scriptptr; //put it into the flags
+        transnum(LABEL_DEFINE);
+        scriptptr--;
+        gametype_flags[j] = *scriptptr;
 
         while (*textptr == ' ' || *textptr == '\t') textptr++;
 
@@ -4630,7 +4653,9 @@ repeatcase:
     case CON_DEFINEQUOTE:
     case CON_REDEFINEQUOTE:
         if (tw == CON_DEFINEQUOTE)
+        {
             scriptptr--;
+        }
 
         transnum(LABEL_DEFINE);
 
@@ -5274,8 +5299,10 @@ void loadefs(const char *filenam)
 //    clearbufbyte(script,sizeof(script),0l); // JBF 20040531: yes? no?
     if (script != NULL)
         Bfree(script);
-    script = Bcalloc(1,g_ScriptSize * sizeof(intptr_t) * 2);
-    clearbufbyte(&script[g_ScriptSize],g_ScriptSize * sizeof(intptr_t),0L);
+
+    script = Bcalloc(1,g_ScriptSize * sizeof(intptr_t));
+    bitptr = Bcalloc(1,g_ScriptSize * sizeof(char));
+    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
     labelcnt = defaultlabelcnt = 0;
     scriptptr = script+1;
@@ -5363,7 +5390,7 @@ void loadefs(const char *filenam)
                 k++;
         }
 
-        initprintf("Compiled code size: %ld bytes, version %s\n",(unsigned)(scriptptr-script),(g_ScriptVersion == 14?"1.4+":"1.3D"));
+        initprintf("Compiled code size: %ld bytes, version %s\n",(unsigned)(scriptptr-script) * sizeof(intptr_t),(g_ScriptVersion == 14?"1.4+":"1.3D"));
         initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((MAXSECTORS * sizeof(sectortype)/sizeof(int)),(MAXSPRITES * sizeof(spritetype)/(1<<6))),iGameVarCount,MAXGAMEVARS);
         initprintf("%ld event definitions, %ld defined actors\n",j,k);
 

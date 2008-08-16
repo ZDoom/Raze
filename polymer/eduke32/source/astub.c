@@ -1138,7 +1138,7 @@ int numhelppages=0;
 static int newpage(const char *start)
 {
     int i;
-    for (i=0; i<80; i++)
+    for (i=80-1; i>=0; i--)
     {
 //        if (start[i]=='\n' || !start[i]) break;
 //        if (start[i]!=' ' && start[i]!='\t' && start[i]!='\r')
@@ -5394,8 +5394,18 @@ static void Keys3d(void)
         extern short brightness;
 
         keystatus[KEYSC_F11] = 0;
-        brightness++;
-        if (brightness >= 16) brightness = 0;
+
+        if (eitherSHIFT)
+        {
+            brightness--;
+            if (brightness < 0) brightness = 15;
+        }
+        else
+        {
+            brightness++;
+            if (brightness >= 16) brightness = 0;
+        }
+        
         vid_gamma = 1.0 + ((float)brightness / 10.0);
         setbrightness(brightness,palette,0);
         message("Brightness: %d/16",brightness+1);
@@ -5472,7 +5482,8 @@ static void Keys3d(void)
     if (keystatus[KEYSC_ENTER])
     {
         extern char pskysearch[MAXSECTORS];
-        short daang;int dashade[2];
+        short daang;
+        int dashade[2];
         if (eitherSHIFT)
         {
             if (((searchstat == 0) || (searchstat == 4)) && eitherCTRL)  //Ctrl-shift Enter (auto-shade)

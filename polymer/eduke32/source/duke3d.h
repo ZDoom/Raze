@@ -143,8 +143,6 @@ enum gamemodes {
 
 #define MAXCYCLERS 1024
 
-#define MAXSCRIPTSIZE 131072
-
 #define MAXANIMATES 256
 
 #define SP  sprite[i].yvel

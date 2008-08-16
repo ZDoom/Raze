@@ -4504,8 +4504,8 @@ static int parse(void)
     //      Bsprintf(g_szBuf,"Parsing: %d",*insptr);
     //      AddLog(g_szBuf);
 
-    line_num = insptr[g_ScriptSize];
-    g_tw = tw;
+    line_num = tw>>12;
+    g_tw = tw &= 0xFFF;
 
     switch (tw)
     {
@@ -7529,7 +7529,7 @@ static int parse(void)
         j=GetGameVarID(*(insptr++), g_i, g_p);
         if (numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
         {
-            OSD_Printf(CON_ERROR "CON_ACTIVATECHEAT: Not in a single-player game.\n");
+            OSD_Printf(CON_ERROR "not in a single-player game.\n");
             break;
         }
         osdcmd_cheatsinfo_stat.cheatnum = j;
@@ -7699,12 +7699,12 @@ static int parse(void)
         if (g_player[g_p].ps->knee_incs == 0 && sprite[g_player[g_p].ps->i].xrepeat >= 40)
             if (cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,g_player[g_p].ps->posx,g_player[g_p].ps->posy,g_player[g_p].ps->posz+(16<<8),sprite[g_player[g_p].ps->i].sectnum))
             {
-                for (j=0;j<ud.multimode;j++)
+                for (j=ud.multimode-1;j>=0;j--)
                 {
                     if (g_player[j].ps->actorsqu == g_i)
                         break;
                 }
-                if (j == ud.multimode)
+                if (j == -1)
                 {
                     g_player[g_p].ps->knee_incs = 1;
                     if (g_player[g_p].ps->weapon_pos == 0)
@@ -7850,9 +7850,10 @@ static int parse(void)
 
     default:
         OSD_Printf("fatal error: default processing: previous five values: %d, %d, %d, %d, %d, "
-                   "currrent opcode: %d, next five values: %d, %d, %d, %d, %d\ncurrent actor: %d (%d)\n",
+                   "current opcode: %d, next five values: %d, %d, %d, %d, %d\ncurrent actor: %d (%d)\n",
                    *(insptr-5),*(insptr-4),*(insptr-3),*(insptr-2),*(insptr-1),*insptr,*(insptr+1),
                    *(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5),g_i,g_sp->picnum);
+		OSD_Printf("line_num: %d, g_tw: %d\n",line_num,g_tw);
 
         gameexit("An error has occurred in the EDuke32 CON executor.\n\n"
                  "If you are an end user, please e-mail the file eduke32.log\n"
