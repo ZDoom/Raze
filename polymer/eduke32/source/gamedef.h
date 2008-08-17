@@ -846,4 +846,5 @@ enum keywords
     CON_ACTIVATECHEAT,      // 333
     CON_SETGAMEPALETTE,     // 334
     CON_SETDEFNAME,         // 335
+    CON_SETCFGNAME,         // 336
 };

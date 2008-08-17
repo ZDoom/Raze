@@ -470,6 +470,7 @@ const char *keyw[] =
     "activatecheat",            // 333
     "setgamepalette",           // 334
     "setdefname",               // 335
+    "setcfgname",               // 336
     "<null>"
 };
 
@@ -4599,6 +4600,34 @@ repeatcase:
         tempbuf[j] = '\0';
         duke3ddef = Bstrdup(tempbuf);
         initprintf("Using DEF file: %s.\n",duke3ddef);
+    }
+    return 0;
+
+    case CON_SETCFGNAME:
+    {
+        scriptptr--;
+        while (isaltok(*textptr) == 0)
+        {
+            if (*textptr == 0x0a) line_number++;
+            textptr++;
+            if (*textptr == 0) break;
+        }
+        j = 0;
+        while (isaltok(*textptr))
+        {
+            tempbuf[j] = *(textptr++);
+            j++;
+        }
+        tempbuf[j] = '\0';
+        if (Bstrcmp(setupfilename,"duke3d.cfg") == 0) // not set to something else via -cfg
+        {
+            char temp[BMAX_PATH];
+            Bstrcpy(temp,tempbuf);
+            CONFIG_WriteSetup();
+            Bstrcpy(setupfilename,temp);
+            CONFIG_ReadSetup();
+        }
+        initprintf("Using config file '%s'.\n",setupfilename);
     }
     return 0;
 
