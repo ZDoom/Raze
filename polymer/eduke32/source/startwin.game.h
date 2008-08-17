@@ -24,4 +24,4 @@
 
 // game page
 #define IDGDATA		100
-
+#define IDGGAMEDIR  101

@@ -471,7 +471,7 @@ static int daskinloader(int filh, intptr_t *fptr, int *bpl, int *sizx, int *sizy
     int r, g, b;
 
     picfillen = kfilelength(filh);
-    picfil = (char *)malloc(picfillen); if (!picfil) { return -1; }
+    picfil = (char *)malloc(picfillen+1); if (!picfil) { return -1; }
     kread(filh, picfil, picfillen);
 
     // tsizx/y = replacement texture's natural size

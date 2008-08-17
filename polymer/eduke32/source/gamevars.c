@@ -683,7 +683,7 @@ void SetGameVarID(int id, int lValue, int iActor, int iPlayer)
     {
         if (iPlayer < 0 || iPlayer > MAXPLAYERS-1)
         {
-            OSD_Printf(OSD_ERROR "SetGameVarID(): invalid player (%d) for per-player gamevar %s from sprite %d (%d), player %d\n",iPlayer,aGameVars[id].szLabel,g_i,sprite[g_i].picnum,g_p);
+            OSD_Printf(OSD_ERROR "SetGameVarID(): invalid player (%d) for per-player gamevar %s from sprite %d, player %d\n",iPlayer,aGameVars[id].szLabel,g_i,g_p);
             return;
         }
         // for the current player

@@ -1798,7 +1798,8 @@ static int kpegrend(const char *kfilebuf, int kfilength,
                                     {
                                         while (curbits < 24) //Getbits
                                         {
-                                            ch = *kfileptr++; if (ch == 255) kfileptr++;
+                                            ch = *kfileptr++;
+                                            if (ch == 255) kfileptr++;
                                             num = (num<<8)+((int)ch); curbits += 8;
                                         }
                                         i = ((num>>(curbits-10))&1023);

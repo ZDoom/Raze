@@ -594,6 +594,7 @@ extern char *duke3dgrp;
 extern void check_valid_color(int *color,int prev_color);
 extern palette_t crosshair_colors;
 extern palette_t default_crosshair_colors;
+extern char mod_dir[BMAX_PATH];
 
 int32 CONFIG_ReadSetup(void)
 {
@@ -648,6 +649,8 @@ int32 CONFIG_ReadSetup(void)
             if (!Bstrcmp(defaultduke3dgrp,"duke3d.grp"))
                 SCRIPT_GetString(ud.config.scripthandle, "Misc","SelectedGRP",&duke3dgrp[0]);
         }
+
+        SCRIPT_GetString(ud.config.scripthandle, "Misc","ModDir",&mod_dir[0]);
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Shadows",&ud.shadows);
 
@@ -1110,6 +1113,7 @@ void CONFIG_WriteSetup(void)
 
 
     SCRIPT_PutString(ud.config.scripthandle, "Misc","SelectedGRP",&duke3dgrp[0]);
+    SCRIPT_PutString(ud.config.scripthandle, "Misc","ModDir",&mod_dir[0]);
     {
         char commmacro[] = "CommbatMacro# ";
 

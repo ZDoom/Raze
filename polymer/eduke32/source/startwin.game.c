@@ -35,6 +35,7 @@ static struct
     char selectedgrp[BMAX_PATH+1];
     int game;
     int crcval; // for finding the grp in the list again
+    char *gamedir;
 }
 settings;
 
@@ -45,9 +46,30 @@ static HWND pages[3] =
 };
 static int done = -1, mode = TAB_CONFIG;
 
+static CACHE1D_FIND_REC *finddirs=NULL;
+static int numdirs=0;
+
+void clearfilenames(void)
+{
+    klistfree(finddirs);
+    finddirs = NULL;
+    numdirs = 0;
+}
+
+int getfilenames(char *path)
+{
+    CACHE1D_FIND_REC *r;
+
+    clearfilenames();
+    finddirs = klistpath(path,"*",CACHE1D_FIND_DIR);
+    for (r = finddirs; r; r=r->next) numdirs++;
+    return(0);
+}
+
 #define POPULATE_VIDEO 1
 #define POPULATE_CONFIG 2
 #define POPULATE_GAME 4
+#define POPULATE_MODS 8
 
 static void PopulateForm(int pgs)
 {
@@ -148,6 +170,25 @@ static void PopulateForm(int pgs)
             if (!Bstrcasecmp(fg->name, settings.selectedgrp))(void)ListBox_SetCurSel(hwnd, j);
         }
     }
+
+    if (pgs & POPULATE_MODS)
+    {
+        CACHE1D_FIND_REC *dirs = NULL;
+
+        hwnd = GetDlgItem(pages[TAB_GAME], IDGGAMEDIR);
+
+        getfilenames("/");
+        (void)ComboBox_ResetContent(hwnd);
+        j = ComboBox_AddString(hwnd, "None");
+        (void)ComboBox_SetItemData(hwnd, j, 0);
+        for (dirs=finddirs,i=1; dirs != NULL; dirs=dirs->next,i++)
+        {
+            Bsprintf(buf, "%s", dirs->name);
+            j = ComboBox_AddString(hwnd, buf);
+            (void)ComboBox_SetItemData(hwnd, j, i);
+            if (Bstrcmp(dirs->name,settings.gamedir) == 0)(void)ComboBox_SetCurSel(hwnd, j);
+        }
+    }
 }
 
 static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -216,6 +257,25 @@ static INT_PTR CALLBACK GamePageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
             }
             return TRUE;
         }
+        case IDGGAMEDIR:
+            if (HIWORD(wParam) == CBN_SELCHANGE)
+            {
+                int i,j;
+                CACHE1D_FIND_REC *dir = NULL;
+                i = ComboBox_GetCurSel((HWND)lParam);
+                if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
+                if (i != CB_ERR)
+                {
+                    for (j=0,dir=finddirs;dir != NULL;dir=dir->next,j++)
+                        if (j == i)
+                        {
+                            if (i==0) settings.gamedir = NULL;
+                            else settings.gamedir = dir->prev->name;
+                            break;
+                        }
+                }
+            }
+            return TRUE;
         default:
             break;
         }
@@ -252,6 +312,7 @@ static void EnableConfig(int n)
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUTJOY), n);
 
     EnableWindow(GetDlgItem(pages[TAB_GAME], IDGDATA), n);
+    EnableWindow(GetDlgItem(pages[TAB_GAME], IDGGAMEDIR), n);
 }
 
 static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -567,6 +628,7 @@ int startwin_idle(void *v)
 }
 
 extern char *duke3dgrp, *duke3dgrpstring;
+extern char mod_dir[BMAX_PATH];
 
 int startwin_run(void)
 {
@@ -591,6 +653,7 @@ int startwin_run(void)
     settings.game = g_GameType;
 //    settings.crcval = 0;
     strncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
+    settings.gamedir = mod_dir;
     PopulateForm(-1);
 
     while (done < 0)
@@ -625,6 +688,11 @@ int startwin_run(void)
         ud.config.UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;
         g_GameType = settings.game;
+        if (settings.gamedir)
+        {
+            addsearchpath(settings.gamedir);
+            Bstrcpy(mod_dir,settings.gamedir);
+        }
 
         for (i = 0; i<numgrpfiles; i++) if (settings.crcval == grpfiles[i].crcval) break;
         if (i != numgrpfiles)

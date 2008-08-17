@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern char *bitptr;
 
+#define BITPTR_POINTER 1
+
 void readsavenames(void)
 {
     int dummy,j;
@@ -641,7 +643,7 @@ int saveplayer(int spot)
     scriptptrs = Bcalloc(1, g_ScriptSize * sizeof(scriptptrs));
     for (i=0;i<g_ScriptSize;i++)
     {
-        if (bitptr[i])
+        if (bitptr[i] == BITPTR_POINTER)
         // if ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))
         {
             scriptptrs[i] = 1;

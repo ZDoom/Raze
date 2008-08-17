@@ -92,6 +92,7 @@ char *textptr;
 int error,warning;
 
 extern char *duke3dgrpstring;
+extern char *duke3ddef;
 
 enum labeltypes
 {
@@ -468,6 +469,7 @@ const char *keyw[] =
     "gettimedate",              // 332
     "activatecheat",            // 333
     "setgamepalette",           // 334
+    "setdefname",               // 335
     "<null>"
 };
 
@@ -900,7 +902,6 @@ const memberlabel_t inputlabels[]=
 };
 
 char *bitptr;
-
 
 #define BITPTR_DONTFUCKWITHIT 0
 #define BITPTR_POINTER 1
@@ -1660,7 +1661,7 @@ static int transnum(int type)
                     Bfree(gl);
                 }
                 if (labeltype[i] != LABEL_DEFINE && labelcode[i] >= (intptr_t)&script[0] && labelcode[i] < (intptr_t)&script[g_ScriptSize])
-                    bitptr[(scriptptr-script)] = 1;
+                    bitptr[(scriptptr-script)] = BITPTR_POINTER;
                 else bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
                 *(scriptptr++) = labelcode[i];
                 textptr += l;
@@ -2455,6 +2456,7 @@ static int parsecommand(void)
 
         for (j=0;j<4;j++)
         {
+            bitptr[(parsing_actor+j-script)] = BITPTR_DONTFUCKWITHIT;
             *(parsing_actor+j) = 0;
             if (j == 3)
             {
@@ -2499,6 +2501,10 @@ static int parsecommand(void)
                     }
                     break;
                 }
+//                bitptr[(parsing_actor+j-script)] = BITPTR_DONTFUCKWITHIT;
+                if (*(scriptptr-1) >= (intptr_t)&script[0] && *(scriptptr-1) < (intptr_t)&script[g_ScriptSize])
+                    bitptr[(parsing_actor+j-script)] = BITPTR_POINTER;
+                else bitptr[(parsing_actor+j-script)] = BITPTR_DONTFUCKWITHIT;
                 *(parsing_actor+j) = *(scriptptr-1);
             }
         }
@@ -2664,7 +2670,10 @@ static int parsecommand(void)
                     }
                     break;
                 }
-                bitptr[(parsing_actor+j-script)] = BITPTR_DONTFUCKWITHIT;
+//                bitptr[(parsing_actor+j-script)] = BITPTR_DONTFUCKWITHIT;
+                if (*(scriptptr-1) >= (intptr_t)&script[0] && *(scriptptr-1) < (intptr_t)&script[g_ScriptSize])
+                    bitptr[(parsing_actor+j-script)] = BITPTR_POINTER;
+                else bitptr[(parsing_actor+j-script)] = BITPTR_DONTFUCKWITHIT;
                 *(parsing_actor+j) = *(scriptptr-1);
             }
         }
@@ -4569,6 +4578,27 @@ repeatcase:
         duke3dgrpstring = Bstrdup(gamename);
         Bsprintf(tempbuf,"%s - " APPNAME,duke3dgrpstring);
         wm_setapptitle(tempbuf);
+    }
+    return 0;
+
+    case CON_SETDEFNAME:
+    {
+        scriptptr--;
+        while (isaltok(*textptr) == 0)
+        {
+            if (*textptr == 0x0a) line_number++;
+            textptr++;
+            if (*textptr == 0) break;
+        }
+        j = 0;
+        while (isaltok(*textptr))
+        {
+            tempbuf[j] = *(textptr++);
+            j++;
+        }
+        tempbuf[j] = '\0';
+        duke3ddef = Bstrdup(tempbuf);
+        initprintf("Using DEF file: %s.\n",duke3ddef);
     }
     return 0;
 

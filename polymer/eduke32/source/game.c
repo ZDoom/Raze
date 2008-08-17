@@ -112,7 +112,8 @@ char *duke3dgrp = defaultduke3dgrp;
 char *duke3dgrpstring = NULL;
 static char defaultconfilename[BMAX_PATH] = {"EDUKE.CON"};
 static char *confilename = defaultconfilename;
-static char *duke3ddef = "duke3d.def";
+char *duke3ddef = "duke3d.def";
+char mod_dir[BMAX_PATH] = "";
 
 extern int lastvisinc;
 
