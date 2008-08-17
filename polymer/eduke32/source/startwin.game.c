@@ -69,7 +69,7 @@ int getfilenames(char *path)
 #define POPULATE_VIDEO 1
 #define POPULATE_CONFIG 2
 #define POPULATE_GAME 4
-#define POPULATE_MODS 8
+#define POPULATE_GAMEDIRS 8
 
 static void PopulateForm(int pgs)
 {
@@ -171,7 +171,7 @@ static void PopulateForm(int pgs)
         }
     }
 
-    if (pgs & POPULATE_MODS)
+    if (pgs & POPULATE_GAMEDIRS)
     {
         CACHE1D_FIND_REC *dirs = NULL;
 
@@ -181,12 +181,14 @@ static void PopulateForm(int pgs)
         (void)ComboBox_ResetContent(hwnd);
         j = ComboBox_AddString(hwnd, "None");
         (void)ComboBox_SetItemData(hwnd, j, 0);
+        (void)ComboBox_SetCurSel(hwnd, j);
         for (dirs=finddirs,i=1; dirs != NULL; dirs=dirs->next,i++)
         {
             Bsprintf(buf, "%s", dirs->name);
             j = ComboBox_AddString(hwnd, buf);
             (void)ComboBox_SetItemData(hwnd, j, i);
-            if (Bstrcmp(dirs->name,settings.gamedir) == 0)(void)ComboBox_SetCurSel(hwnd, j);
+            if (Bstrcmp(dirs->name,settings.gamedir) == 0)
+                (void)ComboBox_SetCurSel(hwnd, j);
         }
     }
 }
@@ -688,11 +690,13 @@ int startwin_run(void)
         ud.config.UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;
         g_GameType = settings.game;
-        if (settings.gamedir)
+        
+        if (settings.gamedir != NULL)
         {
             addsearchpath(settings.gamedir);
             Bstrcpy(mod_dir,settings.gamedir);
         }
+        else Bsprintf(mod_dir,"None");
 
         for (i = 0; i<numgrpfiles; i++) if (settings.crcval == grpfiles[i].crcval) break;
         if (i != numgrpfiles)
