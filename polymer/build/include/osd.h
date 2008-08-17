@@ -43,6 +43,8 @@ char *OSD_GetFmt(char *ptr);
 char *OSD_GetTextPtr(void);
 char *OSD_GetFmtPtr(void);
 
+int OSD_GetCols(void);
+
 // initializes things
 void OSD_Init(void);
 

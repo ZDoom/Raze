@@ -49,14 +49,14 @@ static int done = -1, mode = TAB_CONFIG;
 static CACHE1D_FIND_REC *finddirs=NULL;
 static int numdirs=0;
 
-void clearfilenames(void)
+static void clearfilenames(void)
 {
     klistfree(finddirs);
     finddirs = NULL;
     numdirs = 0;
 }
 
-int getfilenames(char *path)
+static int getfilenames(char *path)
 {
     CACHE1D_FIND_REC *r;
 

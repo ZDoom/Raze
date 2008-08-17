@@ -194,6 +194,11 @@ char *OSD_GetFmt(char *ptr)
     return (ptr - &osdtext[0] + &osdfmt[0]);
 }
 
+int OSD_GetCols(void)
+{
+    return osdcols;
+}
+
 int OSD_GetTextMode(void)
 {
     return osdtextmode;

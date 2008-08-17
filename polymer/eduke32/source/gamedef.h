@@ -840,7 +840,7 @@ enum keywords
     CON_LOADMAPSTATE,       // 327
     CON_CLEARMAPSTATE,      // 328
     CON_SCRIPTSIZE,         // 329
-    CON_DEFINEGAMENAME,     // 330
+    CON_SETGAMENAME,        // 330
     CON_CMENU,              // 331
     CON_GETTIMEDATE,        // 332 
     CON_ACTIVATECHEAT,      // 333

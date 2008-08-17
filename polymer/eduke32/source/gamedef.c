@@ -464,7 +464,7 @@ const char *keyw[] =
     "loadmapstate",             // 327
     "clearmapstate",            // 328
     "scriptsize",               // 329
-    "definegamename",           // 330
+    "setgamename",              // 330
     "cmenu",                    // 331
     "gettimedate",              // 332
     "activatecheat",            // 333
@@ -4554,7 +4554,7 @@ repeatcase:
         skill_names[j][i] = '\0';
         return 0;
 
-    case CON_DEFINEGAMENAME:
+    case CON_SETGAMENAME:
     {
         char gamename[32];
         scriptptr--;

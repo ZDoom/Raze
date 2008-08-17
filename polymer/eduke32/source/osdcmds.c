@@ -169,12 +169,63 @@ static int osdcmd_changelevel(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static CACHE1D_FIND_REC *findfiles = NULL;
+static int numfiles = 0;
+
+static void clearfilenames(void)
+{
+    klistfree(findfiles);
+    findfiles = NULL;
+    numfiles = 0;
+}
+
+static int getfilenames(char *path)
+{
+    CACHE1D_FIND_REC *r;
+
+    clearfilenames();
+    findfiles = klistpath(path,"*.MAP",CACHE1D_FIND_FILE);
+    for (r = findfiles; r; r=r->next) numfiles++;
+    return(0);
+}
+
 static int osdcmd_map(const osdfuncparm_t *parm)
 {
     int i;
+    CACHE1D_FIND_REC *r;
     char filename[256];
 
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    if (parm->numparms != 1)
+    {
+        int maxwidth = 0;
+
+        getfilenames("/");
+
+        for (r=findfiles; r!=NULL; r=r->next)
+            maxwidth = max((unsigned)maxwidth,Bstrlen(r->name));
+
+        if (maxwidth > 0)
+        {
+            int x = 0, count = 0;
+            maxwidth += 3;
+            OSD_Printf(OSDTEXT_RED "Map listing:\n");
+            for (r=findfiles; r!=NULL; r=r->next)
+            {
+                OSD_Printf("%-*s",maxwidth,r->name);
+                x += maxwidth;
+                count++;
+                if (x > OSD_GetCols() - maxwidth)
+                {
+                    x = 0;
+                    OSD_Printf("\n");
+                }
+            }
+            if (x) OSD_Printf("\n");
+            OSD_Printf(OSDTEXT_RED "Found %d maps\n",numfiles);
+        }
+
+        return OSDCMD_SHOWHELP;
+    }
 
 #if 0
     if (numplayers > 1)
@@ -1366,7 +1417,7 @@ int registerosdcommands(void)
     else
     {
         OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
-        OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
+        OSD_RegisterFunction("map","map <mapfile>: loads a map", osdcmd_map);
     }
 
     OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
