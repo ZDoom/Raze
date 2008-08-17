@@ -10770,6 +10770,16 @@ void app_main(int argc,const char **argv)
             autoloadgrps(duke3dgrp);
     }
 
+    Bsprintf(tempbuf,"%s/",mod_dir);
+    getfilenames(tempbuf,"*.grp");
+    while (findfiles) { Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+    Bsprintf(tempbuf,"%s/",mod_dir);
+    getfilenames(tempbuf,"*.zip");
+    while (findfiles) { Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+    Bsprintf(tempbuf,"%s/",mod_dir);
+    getfilenames(tempbuf,"*.pk3");
+    while (findfiles) { Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+
     loaddefinitions_game(duke3ddef, TRUE);
 
     {

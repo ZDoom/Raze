@@ -71,6 +71,8 @@ static int getfilenames(char *path)
 #define POPULATE_GAME 4
 #define POPULATE_GAMEDIRS 8
 
+extern char TEXCACHEDIR[];
+
 static void PopulateForm(int pgs)
 {
     HWND hwnd;
@@ -184,6 +186,7 @@ static void PopulateForm(int pgs)
         (void)ComboBox_SetCurSel(hwnd, j);
         for (dirs=finddirs,i=1; dirs != NULL; dirs=dirs->next,i++)
         {
+            if (Bstrcmp(TEXCACHEDIR,dirs->name) == 0) continue;
             Bsprintf(buf, "%s", dirs->name);
             j = ComboBox_AddString(hwnd, buf);
             (void)ComboBox_SetItemData(hwnd, j, i);
