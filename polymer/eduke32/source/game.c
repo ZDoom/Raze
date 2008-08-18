@@ -113,7 +113,7 @@ char *duke3dgrpstring = NULL;
 static char defaultconfilename[BMAX_PATH] = {"EDUKE.CON"};
 static char *confilename = defaultconfilename;
 char *duke3ddef = "duke3d.def";
-char mod_dir[BMAX_PATH] = "";
+char mod_dir[BMAX_PATH] = "/";
 
 extern int lastvisinc;
 
@@ -7432,8 +7432,6 @@ PALONLY:
 #pragma optimize("",on)
 #endif
 
-static char terminx[64] = { "Undead TC still sucks." };
-
 char cheatstrings[][MAXCHEATLEN] =
 {
     "cornholio",    // 0
@@ -7780,7 +7778,6 @@ FOUNDCHEAT:
                     hittype[g_player[myconnectindex].ps->i].extra = 0;
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
-                    Bstrcpy(terminx,terminx);
                     return;
 
                 case CHEAT_STUFF:
@@ -9272,6 +9269,7 @@ static void checkcommandline(int argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
+                        Bstrcpy(mod_dir,argv[i+1]);
                         addgamepath(argv[i+1]);
                         i++;
                     }
@@ -10770,15 +10768,18 @@ void app_main(int argc,const char **argv)
             autoloadgrps(duke3dgrp);
     }
 
-    Bsprintf(tempbuf,"%s/",mod_dir);
-    getfilenames(tempbuf,"*.grp");
-    while (findfiles) { Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
-    Bsprintf(tempbuf,"%s/",mod_dir);
-    getfilenames(tempbuf,"*.zip");
-    while (findfiles) { Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
-    Bsprintf(tempbuf,"%s/",mod_dir);
-    getfilenames(tempbuf,"*.pk3");
-    while (findfiles) { Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+    if (mod_dir[0] != '/')
+    {
+        Bsprintf(tempbuf,"%s/",mod_dir);
+        getfilenames(tempbuf,"*.grp");
+        while (findfiles) { Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+        Bsprintf(tempbuf,"%s/",mod_dir);
+        getfilenames(tempbuf,"*.zip");
+        while (findfiles) { Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+        Bsprintf(tempbuf,"%s/",mod_dir);
+        getfilenames(tempbuf,"*.pk3");
+        while (findfiles) { Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+    }
 
     loaddefinitions_game(duke3ddef, TRUE);
 

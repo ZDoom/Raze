@@ -597,7 +597,7 @@ static int _internal_osdfunc_history(const osdfuncparm_t *parm)
 {
     int i, j = 0;
     UNREFERENCED_PARAMETER(parm);
-    OSD_Printf("%s\n",parm->raw);
+    OSD_Printf(OSDTEXT_RED "Command history:\n");
     for (i=HISTORYDEPTH-1; i>=0;i--)
         if (osdhistorybuf[i][0])
             OSD_Printf("%4d \"%s\"\n",osdhistorytotal-osdhistorysize+(++j),osdhistorybuf[i]);

@@ -187,8 +187,7 @@ static void PopulateForm(int pgs)
         for (dirs=finddirs,i=1; dirs != NULL; dirs=dirs->next,i++)
         {
             if (Bstrcmp(TEXCACHEDIR,dirs->name) == 0) continue;
-            Bsprintf(buf, "%s", dirs->name);
-            j = ComboBox_AddString(hwnd, buf);
+            j = ComboBox_AddString(hwnd, dirs->name);
             (void)ComboBox_SetItemData(hwnd, j, i);
             if (Bstrcmp(dirs->name,settings.gamedir) == 0)
                 (void)ComboBox_SetCurSel(hwnd, j);
@@ -699,7 +698,7 @@ int startwin_run(void)
             addsearchpath(settings.gamedir);
             Bstrcpy(mod_dir,settings.gamedir);
         }
-        else Bsprintf(mod_dir,"None");
+        else Bsprintf(mod_dir,"/");
 
         for (i = 0; i<numgrpfiles; i++) if (settings.crcval == grpfiles[i].crcval) break;
         if (i != numgrpfiles)
