@@ -197,7 +197,7 @@ static inline int probesm(int x,int y,int i,int n)
 int menutext_(int x,int y,int s,int p,char *t)
 {
     short i, ac, centre;
-    int ht = usehightile;
+//    int ht = usehightile;
 
     y -= 12;
 
@@ -260,7 +260,7 @@ int menutext_(int x,int y,int s,int p,char *t)
     if (centre)
         x = (320-centre-10)>>1;
 
-    usehightile = (ht && r_downsize < 3);
+//    usehightile = (ht && r_downsize < 3);
     while (*t)
     {
         if (*t == ' ')
@@ -313,7 +313,7 @@ int menutext_(int x,int y,int s,int p,char *t)
         x += tilesizx[ac];
         t++;
     }
-    usehightile = ht;
+//    usehightile = ht;
     return (x);
 }
 

@@ -262,7 +262,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
     int ac,newx,oldx=x;
     char centre, *oldt;
     int squishtext = ((small&2)!=0);
-    int ht = usehightile;
+//    int ht = usehightile;
     int shift = 16, widthx = 320, ox, oy;
 
     if (orientation & 256)
@@ -314,7 +314,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         t = oldt;
         x = (widthx>>1)-((orientation & 256)?newx<<15:newx>>1);
     }
-    usehightile = (ht && r_downsize < 2);
+//    usehightile = (ht && r_downsize < 2);
     ox=x;
     oy=y;
     while (*t)
@@ -370,7 +370,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
             if (x > (ud.config.ScreenWidth - 14)) oldt = (char *)t, x = oldx, y+=8*z/65536;
         t++;
     }
-    usehightile = ht;
+//    usehightile = ht;
     return (x);
 }
 
@@ -414,12 +414,12 @@ int minitext_(int x,int y,const char *t,int s,int p,int sb)
 {
     int ac;
     char ch,cmode;
-    int ht = usehightile;
+//    int ht = usehightile;
 
     cmode = (sb&256)!=0;
     sb &= 255;
 
-    usehightile = (ht && !r_downsize);
+//    usehightile = (ht && !r_downsize);
     while (*t)
     {
         if (*t == '^' && isdigit(*(t+1)))
@@ -456,7 +456,7 @@ int minitext_(int x,int y,const char *t,int s,int p,int sb)
 
         t++;
     }
-    usehightile = ht;
+//    usehightile = ht;
     return (x);
 }
 
@@ -2577,7 +2577,7 @@ static void ShowFrameRate(void)
                 if ((totalclock - lastpackettime) > 1)
                 {
                     for (p = (totalclock - lastpackettime);p>0 && p<(xdim>>2);p--)
-                        printext256(4L*p,0,31,-1,".",0);
+                        printext256(4L*p,0,COLOR_WHITE,-1,".",0);
                 }
         }
     }
@@ -3706,14 +3706,14 @@ void displayrest(int smoothratio)
 
     SetGameVarID(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
     OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek, -1);
-    i = usehightile;
-    if (r_downsize > 1)
-        usehightile = 0;
+//    i = usehightile;
+//    if (r_downsize > 1)
+//        usehightile = 0;
     if (GetGameVarID(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
         coolgaugetext(screenpeek);
 
     operatefta();
-    usehightile = i;
+//    usehightile = i;
     if (KB_KeyPressed(sc_Escape) && ud.overhead_on == 0
             && ud.show_help == 0
             && g_player[myconnectindex].ps->newowner == -1)

@@ -21,8 +21,8 @@
 #include "startwin.game.h"
 
 #define TAB_CONFIG 0
-#define TAB_GAME 1
-#define TAB_MESSAGES 2
+// #define TAB_GAME 1
+#define TAB_MESSAGES 1
 
 static struct audioenumdrv *wavedevs = NULL;
 
@@ -160,7 +160,7 @@ static void PopulateForm(int pgs)
         int i, j;
         char buf[128+BMAX_PATH];
 
-        hwnd = GetDlgItem(pages[TAB_GAME], IDGDATA);
+        hwnd = GetDlgItem(pages[TAB_CONFIG], IDCDATA);
 
         for (fg = foundgrps; fg; fg=fg->next)
         {
@@ -177,7 +177,7 @@ static void PopulateForm(int pgs)
     {
         CACHE1D_FIND_REC *dirs = NULL;
 
-        hwnd = GetDlgItem(pages[TAB_GAME], IDGGAMEDIR);
+        hwnd = GetDlgItem(pages[TAB_CONFIG], IDCGAMEDIR);
 
         getfilenames("/");
         (void)ComboBox_ResetContent(hwnd);
@@ -229,39 +229,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
         case IDCINPUTJOY:
             settings.usejoy = IsDlgButtonChecked(hwndDlg, IDCINPUTJOY) == BST_CHECKED;
             return TRUE;
-        default:
-            break;
-        }
-        break;
-    default:
-        break;
-    }
-    return FALSE;
-}
-
-static INT_PTR CALLBACK GamePageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    UNREFERENCED_PARAMETER(hwndDlg);
-    switch (uMsg)
-    {
-    case WM_COMMAND:
-        switch (LOWORD(wParam))
-        {
-        case IDGDATA:
-        {
-            int i;
-            if (HIWORD(wParam) != LBN_SELCHANGE) break;
-            i = ListBox_GetCurSel((HWND)lParam);
-            if (i != CB_ERR) i = ListBox_GetItemData((HWND)lParam, i);
-            if (i != CB_ERR)
-            {
-                strcpy(settings.selectedgrp, ((struct grpfile*)i)->name);
-                settings.game = ((struct grpfile*)i)->game;
-                settings.crcval = ((struct grpfile*)i)->crcval;
-            }
-            return TRUE;
-        }
-        case IDGGAMEDIR:
+        case IDCGAMEDIR:
             if (HIWORD(wParam) == CBN_SELCHANGE)
             {
                 int i,j;
@@ -280,6 +248,20 @@ static INT_PTR CALLBACK GamePageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
                 }
             }
             return TRUE;
+        case IDCDATA:
+        {
+            int i;
+            if (HIWORD(wParam) != LBN_SELCHANGE) break;
+            i = ListBox_GetCurSel((HWND)lParam);
+            if (i != CB_ERR) i = ListBox_GetItemData((HWND)lParam, i);
+            if (i != CB_ERR)
+            {
+                strcpy(settings.selectedgrp, ((struct grpfile*)i)->name);
+                settings.game = ((struct grpfile*)i)->game;
+                settings.crcval = ((struct grpfile*)i)->crcval;
+            }
+            return TRUE;
+        }
         default:
             break;
         }
@@ -289,7 +271,6 @@ static INT_PTR CALLBACK GamePageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
     }
     return FALSE;
 }
-
 
 
 static void SetPage(int n)
@@ -315,8 +296,8 @@ static void EnableConfig(int n)
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUTMOUSE), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUTJOY), n);
 
-    EnableWindow(GetDlgItem(pages[TAB_GAME], IDGDATA), n);
-    EnableWindow(GetDlgItem(pages[TAB_GAME], IDGGAMEDIR), n);
+    EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCDATA), n);
+    EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCGAMEDIR), n);
 }
 
 static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -410,9 +391,6 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
             tab.pszText = TEXT("Configuration");
             SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
             tab.mask = TCIF_TEXT;
-            tab.pszText = TEXT("Game");
-            SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_GAME, (LPARAM)&tab);
-            tab.mask = TCIF_TEXT;
             tab.pszText = TEXT("Messages");
             SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_MESSAGES, (LPARAM)&tab);
 
@@ -428,11 +406,8 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
             // Create the pages and position them in the tab control, but hide them
             pages[TAB_CONFIG] = CreateDialog((HINSTANCE)win_gethinstance(),
                                              MAKEINTRESOURCE(WIN_STARTWINPAGE_CONFIG), hwndDlg, ConfigPageProc);
-            pages[TAB_GAME] = CreateDialog((HINSTANCE)win_gethinstance(),
-                                           MAKEINTRESOURCE(WIN_STARTWINPAGE_GAME), hwndDlg, GamePageProc);
             pages[TAB_MESSAGES] = GetDlgItem(hwndDlg, WIN_STARTWIN_MESSAGES);
             SetWindowPos(pages[TAB_CONFIG], hwnd,r.left,r.top,r.right,r.bottom,SWP_HIDEWINDOW);
-            SetWindowPos(pages[TAB_GAME], hwnd,r.left,r.top,r.right,r.bottom,SWP_HIDEWINDOW);
             SetWindowPos(pages[TAB_MESSAGES], hwnd,r.left,r.top,r.right,r.bottom,SWP_HIDEWINDOW);
 
             // Tell the editfield acting as the console to exclude the width of the scrollbar
@@ -444,7 +419,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
             // Set a tab stop in the game data listbox
             {
                 DWORD tabs[1] = { 150 };
-                (void)ListBox_SetTabStops(GetDlgItem(pages[TAB_GAME], IDGDATA), 1, tabs);
+                (void)ListBox_SetTabStops(GetDlgItem(pages[TAB_CONFIG], IDCDATA), 1, tabs);
             }
 
             SetFocus(GetDlgItem(hwndDlg, WIN_STARTWIN_START));
@@ -487,12 +462,6 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         {
             DeleteObject(hbmp);
             hbmp = NULL;
-        }
-
-        if (pages[TAB_GAME])
-        {
-            DestroyWindow(pages[TAB_GAME]);
-            pages[TAB_GAME] = NULL;
         }
 
         if (pages[TAB_CONFIG])
