@@ -84,7 +84,6 @@ static struct strllist
 char boardfilename[BMAX_PATH] = {0};
 char waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768], animpal[768];
 static char firstdemofile[80] = { '\0' };
-int display_bonus_screen = 1;
 static int userconfiles = 0;
 
 static int netparamcount = 0;
@@ -11073,7 +11072,7 @@ MAIN_LOOP_RESTART:
 
                 ready2send = 0;
 
-                if (display_bonus_screen == 1)
+                if (ud.display_bonus_screen == 1)
                 {
                     i = ud.screen_size;
                     ud.screen_size = 0;
@@ -11102,7 +11101,7 @@ MAIN_LOOP_RESTART:
                     }
                 }
             }
-            display_bonus_screen = 1;
+            ud.display_bonus_screen = 1;
             ready2send = 0;
             if (numplayers > 1) g_player[myconnectindex].ps->gm = MODE_GAME;
             if (enterlevel(g_player[myconnectindex].ps->gm))

@@ -186,10 +186,10 @@ static void PopulateForm(int pgs)
         (void)ComboBox_SetCurSel(hwnd, j);
         for (dirs=finddirs,i=1; dirs != NULL; dirs=dirs->next,i++)
         {
-            if (Bstrcmp(TEXCACHEDIR,dirs->name) == 0) continue;
+            if (Bstrcasecmp(TEXCACHEDIR,dirs->name) == 0) continue;
             j = ComboBox_AddString(hwnd, dirs->name);
             (void)ComboBox_SetItemData(hwnd, j, i);
-            if (Bstrcmp(dirs->name,settings.gamedir) == 0)
+            if (Bstrcasecmp(dirs->name,settings.gamedir) == 0)
                 (void)ComboBox_SetCurSel(hwnd, j);
         }
     }
@@ -692,7 +692,7 @@ int startwin_run(void)
         ud.config.UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;
         g_GameType = settings.game;
-        
+
         if (settings.gamedir != NULL)
         {
             addsearchpath(settings.gamedir);

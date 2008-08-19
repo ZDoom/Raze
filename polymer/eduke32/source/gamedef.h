@@ -50,7 +50,6 @@ extern int g_weapon_xoffset;
 extern int g_gs;
 extern int g_kb;
 extern int g_looking_angSR1;
-extern int display_bonus_screen;
 extern int lastvisinc;
 extern char cheatstrings[][MAXCHEATLEN];
 extern char compilefile[BMAX_PATH];
@@ -343,7 +342,8 @@ enum userdefslabels
     USERDEFS_OBITUARIES,
     USERDEFS_LEVELSTATS,
     USERDEFS_CROSSHAIRSCALE,
-    USERDEFS_ALTHUD
+    USERDEFS_ALTHUD,
+    USERDEFS_DISPLAY_BONUS_SCREEN
 };
 
 enum sectorlabels

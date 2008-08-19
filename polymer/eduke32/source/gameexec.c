@@ -886,6 +886,15 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
         SetGameVarID(lVar2, ud.althud, g_i, g_p);
         return;
 
+    case USERDEFS_DISPLAY_BONUS_SCREEN:
+        if (iSet)
+        {
+            ud.display_bonus_screen = lValue;
+            return;
+        }
+        SetGameVarID(lVar2, ud.display_bonus_screen, g_i, g_p);
+        return;
+
     default:
         return;
     }
@@ -5478,7 +5487,7 @@ static int parse(void)
             else
             {
                 g_player[myconnectindex].ps->gm |= MODE_EOL;
-                display_bonus_screen = 0;
+                ud.display_bonus_screen = 0;
             } // MODE_RESTART;
 
             break;
@@ -7538,16 +7547,16 @@ static int parse(void)
     case CON_SETGAMEPALETTE:
         insptr++;
         j=GetGameVarID(*(insptr++), g_i, g_p);
-        switch(j)
+        switch (j)
         {
-            default:
-            case 0:setgamepalette(g_player[g_p].ps,palette  ,0);break;
-            case 1:setgamepalette(g_player[g_p].ps,waterpal ,0);break;
-            case 2:setgamepalette(g_player[g_p].ps,slimepal ,0);break;
-            case 3:setgamepalette(g_player[g_p].ps,drealms  ,0);break;
-            case 4:setgamepalette(g_player[g_p].ps,titlepal ,0);break;
-            case 5:setgamepalette(g_player[g_p].ps,endingpal,0);break;
-            case 6:setgamepalette(g_player[g_p].ps,animpal  ,0);break;
+        default:
+        case 0:setgamepalette(g_player[g_p].ps,palette  ,0);break;
+        case 1:setgamepalette(g_player[g_p].ps,waterpal ,0);break;
+        case 2:setgamepalette(g_player[g_p].ps,slimepal ,0);break;
+        case 3:setgamepalette(g_player[g_p].ps,drealms  ,0);break;
+        case 4:setgamepalette(g_player[g_p].ps,titlepal ,0);break;
+        case 5:setgamepalette(g_player[g_p].ps,endingpal,0);break;
+        case 6:setgamepalette(g_player[g_p].ps,animpal  ,0);break;
         }
         break;
 

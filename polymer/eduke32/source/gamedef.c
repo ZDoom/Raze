@@ -888,6 +888,7 @@ const memberlabel_t userdefslabels[]=
     { "levelstats", USERDEFS_LEVELSTATS, 0, 0 },
     { "crosshairscale", USERDEFS_CROSSHAIRSCALE, 0, 0 },
     { "althud", USERDEFS_ALTHUD, 0, 0 },
+    { "display_bonus_screen", USERDEFS_DISPLAY_BONUS_SCREEN, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 

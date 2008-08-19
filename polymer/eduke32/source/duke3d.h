@@ -426,6 +426,7 @@ typedef struct {
     char ridecule[10][40];
     char savegame[10][22];
     char pwlockout[128],rtsname[128];
+    char display_bonus_screen;
 
 	config_t config;
 } user_defs;

@@ -5405,7 +5405,7 @@ static void Keys3d(void)
             brightness++;
             if (brightness >= 16) brightness = 0;
         }
-        
+
         vid_gamma = 1.0 + ((float)brightness / 10.0);
         setbrightness(brightness,palette,0);
         message("Brightness: %d/16",brightness+1);

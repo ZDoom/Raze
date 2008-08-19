@@ -255,6 +255,7 @@ void CONFIG_SetDefaults(void)
     ud.config.UseJoystick = 0;
     ud.config.UseMouse = 1;
     ud.config.VoiceToggle = 5; // bitfield, 1 = local, 2 = dummy, 4 = other players in DM
+    ud.display_bonus_screen = 1;
 
     Bstrcpy(ud.rtsname, "DUKE.RTS");
     Bstrcpy(myname, "Duke");
@@ -613,8 +614,8 @@ int32 CONFIG_ReadSetup(void)
     else if (SafeFileExists("duke3d.cfg") && ud.config.scripthandle < 0)
     {
         Bsprintf(tempbuf,"The configuration file \"%s\" was not found. "
-                         "Would you like to import configuration data "
-                         "from \"duke3d.cfg\"?",setupfilename);
+                 "Would you like to import configuration data "
+                 "from \"duke3d.cfg\"?",setupfilename);
 
         i=wm_ynbox("Import Configuration Settings",tempbuf);
         if (i) ud.config.scripthandle = SCRIPT_Load("duke3d.cfg");
@@ -650,7 +651,8 @@ int32 CONFIG_ReadSetup(void)
                 SCRIPT_GetString(ud.config.scripthandle, "Misc","SelectedGRP",&duke3dgrp[0]);
         }
 
-        SCRIPT_GetString(ud.config.scripthandle, "Misc","ModDir",&mod_dir[0]);
+        if (mod_dir[0] == '/')
+            SCRIPT_GetString(ud.config.scripthandle, "Misc","ModDir",&mod_dir[0]);
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Shadows",&ud.shadows);
 

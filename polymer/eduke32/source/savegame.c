@@ -644,7 +644,7 @@ int saveplayer(int spot)
     for (i=0;i<g_ScriptSize;i++)
     {
         if (bitptr[i] == BITPTR_POINTER)
-        // if ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))
+            // if ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))
         {
             scriptptrs[i] = 1;
             j = (intptr_t)script[i] - (intptr_t)&script[0];

@@ -867,7 +867,7 @@ static int osdcmd_give(const osdfuncparm_t *parm)
     int i;
 
     if (numplayers != 1 || (g_player[myconnectindex].ps->gm & MODE_GAME) == 0 ||
-        g_player[myconnectindex].ps->dead_flag != 0)
+            g_player[myconnectindex].ps->dead_flag != 0)
     {
         OSD_Printf("give: Cannot give while dead or not in a single-player game.\n");
         return OSDCMD_OK;
