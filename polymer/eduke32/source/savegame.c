@@ -83,7 +83,7 @@ int loadpheader(char spot,struct savehead *saveh)
     strcpy(fn, "egam0.sav");
     fn[4] = spot+'0';
 
-    if ((fil = kopen4load(fn,0)) == -1) return(-1);
+    if ((fil = kopen4loadfrommod(fn,0)) == -1) return(-1);
 
     walock[TILE_LOADSHOT] = 255;
 
@@ -161,7 +161,7 @@ int loadplayer(int spot)
         fn[4] = spot + '0';
     }
 
-    if ((fil = kopen4load(fnptr,0)) == -1) return(-1);
+    if ((fil = kopen4loadfrommod(fnptr,0)) == -1) return(-1);
 
     ready2send = 0;
 
@@ -566,7 +566,11 @@ int saveplayer(int spot)
         fn[4] = spot + '0';
     }
 
-    if ((fil = fopen(fnptr,"wb")) == 0) return(-1);
+    {
+        char temp[BMAX_PATH];
+        Bsprintf(temp,"%s/%s",mod_dir,fnptr);
+        if ((fil = fopen(temp,"wb")) == 0) return(-1);
+    }
 
     ready2send = 0;
 

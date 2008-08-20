@@ -600,9 +600,6 @@ int startwin_idle(void *v)
     return 0;
 }
 
-extern char *duke3dgrp, *duke3dgrpstring;
-extern char mod_dir[BMAX_PATH];
-
 int startwin_run(void)
 {
     MSG msg;

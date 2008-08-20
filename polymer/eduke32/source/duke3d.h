@@ -1057,6 +1057,9 @@ typedef struct {
 extern keydef keynames[];
 extern char *mousenames[];
 
+extern char *duke3dgrp, *duke3dgrpstring;
+extern char mod_dir[BMAX_PATH];
+
 #ifdef __cplusplus
 }
 #endif

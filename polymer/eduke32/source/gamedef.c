@@ -4623,7 +4623,6 @@ repeatcase:
         if (Bstrcmp(setupfilename,"duke3d.cfg") == 0) // not set to something else via -cfg
         {
             char temp[BMAX_PATH];
-            extern char mod_dir[];
             Bstrcpy(temp,tempbuf);
             CONFIG_WriteSetup();
             Bsprintf(setupfilename,"%s/",mod_dir);
