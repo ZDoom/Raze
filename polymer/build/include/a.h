@@ -95,7 +95,7 @@ extern int drawslab(int,int,int,int,int,int);
 
 #elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)	// __WATCOMC__
 
-#if defined(__linux) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__SYLLABLE__)
+#if defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__SYLLABLE__)
 #define __cdecl
 #endif
 

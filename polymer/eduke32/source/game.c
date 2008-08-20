@@ -10113,8 +10113,13 @@ static void genspriteremaps(void)
     if (fp != -1)
         kread(fp,(char *)&g_NumPalettes,1);
     else
-        gameexit("\nERROR: File 'LOOKUP.DAT' not found.");
+        gameexit("\nERROR: File 'lookup.dat' not found.");
 
+#if defined(__APPLE__) && B_BIG_ENDIAN != 0
+    // this is almost as bad as just setting the value to 25 :P
+    g_NumPalettes = (g_NumPalettes * (uint64)0x0202020202 & (uint64)0x010884422010) % 1023;
+#endif
+        
     for (j=0;j < g_NumPalettes;j++)
     {
         kread(fp,(signed char *)&look_pos,1);
@@ -10574,8 +10579,8 @@ void app_main(int argc,const char **argv)
     addsearchpath("/usr/share/games/eduke32");
     addsearchpath("/usr/local/share/games/eduke32");
 #elif defined(__APPLE__)
-    addsearchpath("/Library/Application Support/JFDuke3D");
     addsearchpath("/Library/Application Support/EDuke32");
+    addsearchpath("/Library/Application Support/JFDuke3D");
 #endif
 
     ud.multimode = 1;
@@ -10585,7 +10590,15 @@ void app_main(int argc,const char **argv)
     g_player[0].ps = (player_struct *) Bcalloc(1, sizeof(player_struct));
     g_player[0].sync = (input_t *) Bcalloc(1, sizeof(input_t));
 
-    if (getcwd(cwd,BMAX_PATH)) addsearchpath(cwd);
+    if (getcwd(cwd,BMAX_PATH)) {
+      addsearchpath(cwd);
+      #if defined(__APPLE__)
+        /* Dirty hack on OS X to also look for gamedata inside the application bundle - rhoenie 08/08 */
+        char seekinappcontainer[BMAX_PATH];
+        Bsnprintf(seekinappcontainer,sizeof(seekinappcontainer),"%s/EDuke32.app/", cwd);
+        addsearchpath(seekinappcontainer);
+      #endif
+    }
 
     if (CommandPaths)
     {

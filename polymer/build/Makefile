@@ -1,4 +1,6 @@
+#
 # Build Makefile for GNU Make
+#
 
 # Notes:
 #  As of 6 July 2005, the engine should handle optimisations being enabled.
@@ -22,34 +24,40 @@ NOASM ?= 0
 LINKED_GTK ?= 0
 BUILD32_ON_64 ?= 0
 
-# Debugging options
+# Debugging/Build options
 #  RELEASE - 1 = no debugging
 #  EFENCE  - 1 = compile with Electric Fence for malloc() debugging
+#  OPTLEVEL	- 0..3 = GCC optimization strategy 
+#
 RELEASE?=1
-OPTLEVEL?=2
 EFENCE?=0
+OPTLEVEL	?= 2
 
-# SDK locations - adjust to match your setup
+# SDK locations for Windows - adjust to match your setup
+#
 DXROOT=c:/sdks/directx/dx61
 FMODROOTWIN=c:/sdks/fmodapi374win/api
 
-# build locations - OBJ gets overridden to the game-specific objects dir
+# Build locations - OBJ gets overridden to the game-specific objects dir
+#
 OBJ?=obj.gnu
 SRC=src
 RSRC=rsrc
 INC=include
 
-# filename extensions - these won't need to change
+# Filename extensions - these won't need to change
+#
 o=o
 res=o
 asm=nasm
 
-# debugging and release
-ifneq (0,$(RELEASE))
-  # debugging disabled
+# Debugging and release
+#
+ifneq ($(RELEASE),0)
+  # Debugging disabled
   debug=-fomit-frame-pointer -O$(OPTLEVEL)
 else
-  # debugging enabled
+  # Debugging enabled
   debug=-ggdb -O0 -DDEBUGGINGAIDS -DNOSDLPARACHUTE
 endif
 
@@ -98,10 +106,17 @@ endif
 EDITOROBJS=$(OBJ)/build.$o \
 	$(OBJ)/config.$o
 
-# detect the platform
+# PLATFORM SPECIFIC SETTINGS
+
 ifeq ($(PLATFORM),LINUX)
 	ASFLAGS+= -f elf
 	LIBS+= -lm
+endif
+ifeq ($(PLATFORM),DARWIN)
+	ENGINEOBJS	+= $(OBJ)/StartupWinController.editor.$o \
+			$(OBJ)//osxbits.$o
+	ASFLAGS		+= -f Mach-O
+	TARGETOPTS	+= -DNOASM
 endif
 ifeq ($(PLATFORM),BSD)
 	ASFLAGS+= -f elf
@@ -153,18 +168,6 @@ OURCFLAGS+= $(BUILDCFLAGS)
 
 # TARGETS
 
-# Invoking Make from the terminal in OSX just chains the build on to xcode
-ifeq ($(PLATFORM),DARWIN)
-ifeq ($(RELEASE),0)
-style=Development
-else
-style=Deployment
-endif
-.PHONY: alldarwin
-alldarwin:
-	cd osx/engine && xcodebuild -target All -buildstyle $(style)
-endif
-
 UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX)
 
 all: $(OBJ)/$(ENGINELIB) $(OBJ)/$(EDITORLIB)
@@ -212,6 +215,9 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
 
+$(OBJ)/%.$o: $(SRC)/%.m
+	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
+
 $(OBJ)/%.$o: $(SRC)/%.cpp
 	$(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@
 
@@ -232,18 +238,12 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
 # PHONIES	
+
 clean:
-ifeq ($(PLATFORM),DARWIN)
-	cd osx/engine && xcodebuild -target All clean
-else
 	-rm -f $(OBJ)/*
-endif
 
 veryclean: clean
-ifeq ($(PLATFORM),DARWIN)
-else
 	-rm -f $(ENGINELIB) $(EDITORLIB) $(UTILS)
-endif
 
 .PHONY: fixlineends
 fixlineends:

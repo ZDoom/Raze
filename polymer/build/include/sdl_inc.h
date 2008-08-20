@@ -1,7 +1,7 @@
 #ifndef __SDL_INC_H
 #define __SDL_INC_H
 
-#if defined(__APPLE__)
+#if defined(SDL_FRAMEWORK)
 #  include <SDL/SDL.h>
 #else
 #  include "SDL.h"
@@ -27,8 +27,8 @@ Minimum required SDL versions:
 #endif
 
 #if defined(_NEED_SDLMIXER)
-# if defined(__APPLE__)
-#  include <SDL/SDL_mixer.h>
+# if defined(SDL_FRAMEWORK)
+#  include <SDL_mixer/SDL_mixer.h>
 # else
 #  include "SDL_mixer.h"
 # endif

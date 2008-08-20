@@ -4,9 +4,9 @@ ENGINELIB=libengine.a
 EDITORLIB=libbuild.a
 
 SDLCONFIG=sdl-config
-#SDLCONFIG=/usr/local/bin/sdl11-config
+SDL_FRAMEWORK	= 0
 
-# overridden for OSes that don't have the cutdown stdc++ that is supc++
+# Overridden for OSes that don't have the cutdown stdc++ that is supc++
 STDCPPLIB=-lsupc++
 
 BUILDCFLAGS=
@@ -14,6 +14,7 @@ BUILDCFLAGS=
 # Detect the platform if it wasn't explicitly given to us from
 # the outside world. This allows cross-compilation by overriding
 # CC and giving us PLATFORM specifically.
+#
 ifndef PLATFORM
 	uname=$(strip $(shell uname -s))
 	PLATFORM=UNKNOWN
@@ -49,19 +50,27 @@ endif
 ifeq ($(PLATFORM),LINUX)
 	RENDERTYPE=SDL
 	BUILDCFLAGS+= -DHAVE_INTTYPES
-
 	GTKCOMPAT32=0
+
 	ifeq ($(findstring x86_64,$(shell uname -m)),x86_64)
 		ifeq (1,$(BUILD32_ON_64))
-			# on my 64bit Gentoo these are the 32bit emulation libs
+			# On my 64bit Gentoo these are the 32bit emulation libs
 			LIBS+= -m32 -L/emul/linux/x86/usr/lib
 			BUILDCFLAGS+= -m32
-			#override WITHOUT_GTK=0
+			# Override WITHOUT_GTK=0
 			GTKCOMPAT32=1
 		else
 			override NOASM=1
 		endif
 	endif
+endif
+ifeq ($(PLATFORM),DARWIN)
+	RENDERTYPE	= SDL
+	BUILDCFLAGS	+= -DHAVE_INTTYPES
+	GTKCOMPAT32	= 0
+	SDL_FRAMEWORK	= 1
+	# ASM won't work on PowerPC and currently throws errors on i386 too :-/
+	override NOASM	= 1
 endif
 ifeq ($(PLATFORM),WINDOWS)
 	RENDERTYPE ?= WIN
@@ -107,9 +116,14 @@ ifeq ($(PLATFORM),SYLLABLE)
 endif
 
 ifeq ($(RENDERTYPE),SDL)
+	ifeq ($(SDL_FRAMEWORK),1)
+		LIBS		+= -Wl,-framework,SDL
+		SDLCONFIG_CFLAGS+= -I/Library/Frameworks/SDL.framework/Headers
+	else
 	ifneq ($(SDLCONFIG),)
 		LIBS+= $(shell $(SDLCONFIG) --libs)
 		SDLCONFIG_CFLAGS+=$(shell $(SDLCONFIG) --cflags)
+	endif
 	endif
 
 	ifeq (1,$(WITHOUT_GTK))
@@ -117,7 +131,7 @@ ifeq ($(RENDERTYPE),SDL)
 	else
 		ifneq (No,$(shell pkg-config --exists gtk+-2.0 || echo No))
 			HAVE_GTK2=1
-			# on my 64bit Gentoo box I have Cairo enabled which means the libs list includes
+			# On my 64bit Gentoo box I have Cairo enabled which means the libs list includes
 			# -lpangocairo-1.0 and -lcairo, however the 32bit compatibility libraries don't
 			# include cairo, so we need to filter out those -l switches in order to link
 			ifneq ($(LINKED_GTK),0)

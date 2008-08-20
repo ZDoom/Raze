@@ -28,8 +28,10 @@
 #include <sys/stat.h>
 
 #ifdef __APPLE__
+#if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_3
 # include <CoreFoundation/CoreFoundation.h>
 # include <CoreServices/CoreServices.h>
+#endif
 #endif
 
 #if defined(__WATCOMC__)
@@ -343,7 +345,7 @@ char *Bgethomedir(void)
         if (SUCCEEDED(aSHGetSpecialFolderPathA(NULL, appdata, CSIDL_APPDATA, FALSE)))
             return strdup(appdata);
     return NULL;
-#elif defined __APPLE__
+#elif defined(__APPLE__) && MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_3
     FSRef ref;
     CFStringRef str;
     CFURLRef base;
@@ -368,7 +370,7 @@ char *Bgethomedir(void)
 
 char *Bgetsupportdir(int global)
 {
-#ifndef __APPLE__
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3_
     UNREFERENCED_PARAMETER(global);
     return Bgethomedir();
 #else

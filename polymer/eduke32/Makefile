@@ -1,26 +1,31 @@
+#
 # EDuke32 Makefile for GNU Make
+#
+
+# DEFINES
 
 # SDK locations - adjust to match your setup
 DXROOT=../sdk/dx
-ALROOT=AL
+
+ALROOT		= AL
+SDLROOT		=
 
 # Engine options
 SUPERBUILD = 1
 POLYMOST = 1
-POLYMER = 1
+POLYMER = 0
 USE_OPENGL = 1
 NOASM = 0
 LINKED_GTK = 0
 BUILD32_ON_64 = 0
 
-# Debugging options
+# Debugging/Build options
 RELEASE?=1
 NOSOUND?=0
-USE_OPENAL?=1
+USE_OPENAL	?= 1
 OPTLEVEL?=2
 
-# build locations
-
+# Build locations
 SRC=source
 RSRC=rsrc
 EROOT=../build
@@ -30,10 +35,10 @@ INC=$(SRC)
 o=o
 
 ifneq (0,$(RELEASE))
-  # debugging disabled
+	# Debugging disabled
   debug=-fomit-frame-pointer -O$(OPTLEVEL)
 else
-  # debugging enabled
+	# Debugging enabled
   debug=-ggdb -O0 -DDEBUGGINGAIDS
 endif
 
@@ -41,31 +46,23 @@ CC=gcc
 CXX=g++
 
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
-	-fno-pic -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -DNOCOPYPROTECT \
+		-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -DNOCOPYPROTECT \
 	-I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib 
 OURCXXFLAGS=-fno-exceptions -fno-rtti
 LIBS=-lm
 
-NASMFLAGS=-s #-g
+NASMFLAGS	= -s
 EXESUFFIX=
 
 include $(EROOT)/Makefile.shared
 
-ifeq ($(PLATFORM),LINUX)
-	OBJ=obj
-	EOBJ=eobj
-	NASMFLAGS+= -f elf
-	LIBS+= -lvorbisfile -lvorbis -logg
-else
     ifeq ($(PLATFORM),WINDOWS)
 	    OBJ=obj_win
 	    EOBJ=eobj_win
-	    LIBS+= -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg
     else
     	OBJ=obj
     	EOBJ=eobj
     endif
-endif
 
 JMACTOBJ=$(OBJ)/util_lib.$o \
 	$(OBJ)/file_lib.$o \
@@ -135,19 +132,59 @@ GAMEOBJS=$(OBJ)/game.$o \
 
 EDITOROBJS=$(OBJ)/astub.$o
 
+# PLATFORM SPECIFIC SETTINGS
+
+ifeq ($(PLATFORM),LINUX)
+	OURCFLAGS	+= -fno-pic
+	NASMFLAGS	+= -f elf
+	LIBS		+= -lvorbisfile -lvorbis -logg
+endif
+
+ifeq ($(PLATFORM),DARWIN)
+	ALROOT = Apple
+	ifeq (1,$(SDL_FRAMEWORK))
+		OURCFLAGS	+= -I$(ALROOT)/include -I/Library/Frameworks/SDL.framework/Headers \
+				-I-I/Library/Frameworks/SDL_mixer.framework/Headers
+		LIBS		+= -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg -lm \
+				-Wl,-framework,SDL -Wl,-framework,SDL_mixer $(ALROOT)/lib/libSDLmain.a \
+				-Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
+				-Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
+				-Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
+				-Wl,-framework,QuickTime -lm
+
+	else
+		OURCFLAGS	+= -I$(ALROOT)/include -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
+		LIBS		+= -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg -lm -lSDL_mixer \
+				-Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
+				-Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
+				-Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
+				-Wl,-framework,QuickTime -lm
+	endif
+	NASMFLAGS	+= -f Mach-O
+	GAMEOBJS	+= $(OBJ)/startdummy.game.$o
+	EDITOROBJS	+= $(OBJ)/startdummy.game.$o
+endif
+
 ifeq ($(PLATFORM),WINDOWS)
-        OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(ALROOT)/include
+	OURCFLAGS	+= -fno-pic -DUNDERSCORES -I$(DXROOT)/include -I$(ALROOT)/include
 	NASMFLAGS+= -DUNDERSCORES -f win32
+	LIBS		+= -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg
 	GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o
 	EDITOROBJS+= $(OBJ)/buildres.$o
 endif
 
 ifeq ($(RENDERTYPE),SDL)
+	ifeq (0,$(SDL_FRAMEWORK))
 	 OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell sdl-config --cflags))
+	else
+		OURCFLAGS	+= -DSDL_FRAMEWORK
+	endif
 
 		ifneq ($(PLATFORM),WINDOWS)
 			AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_SDL) $(AUDIOLIB_FX_SDL) $(OBJ)/sounds.$o
+		ifeq (0,$(SDL_FRAMEWORK))
 			LIBS+= -lSDL_mixer
+		endif
 		else
 			AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_STUB) $(AUDIOLIB_FX_STUB) $(OBJ)/sounds.$o
 		endif
@@ -181,18 +218,6 @@ endif
 .PHONY: clean all engine $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB)
 
 # TARGETS
-
-# Invoking Make from the terminal in OSX just chains the build on to xcode
-ifeq ($(PLATFORM),DARWIN)
-ifeq ($(RELEASE),0)
-style=Development
-else
-style=Deployment
-endif
-.PHONY: alldarwin
-alldarwin:
-	cd osx && xcodebuild -target All -buildstyle $(style)
-endif
 
 ifeq ($(PLATFORM),WINDOWS) 
 all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) duke3d_w32$(EXESUFFIX) 
@@ -263,15 +288,9 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
 # PHONIES	
+
 clean:
-ifeq ($(PLATFORM),DARWIN)
-	cd osx && xcodebuild -target All clean
-else
 	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) eduke32.sym$(EXESUFFIX) mapster32$(EXESUFFIX) mapster32.sym$(EXESUFFIX) core* duke3d_w32$(EXESUFFIX)
-endif
 
 veryclean: clean
-ifeq ($(PLATFORM),DARWIN)
-else
 	-rm -f $(EOBJ)/*
-endif
