@@ -156,11 +156,9 @@ int kopen4loadfrommod(char *filename, char searchfirst)
     static char fn[BMAX_PATH];
     int r;
 
-    Bstrcpy(fn,mod_dir);
-    Bstrcat(fn,"/");
-    Bstrcat(fn,filename);
+    Bsprintf(fn,"%s/%s",mod_dir,filename);
     r = kopen4load(fn,searchfirst);
-    if (r == -1)
+    if (r < 0)
         r = kopen4load(filename,searchfirst);
     return r;
 }

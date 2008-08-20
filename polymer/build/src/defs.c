@@ -288,6 +288,7 @@ static int defsparser(scriptfile *script)
     char *cmdtokptr;
     while (1)
     {
+        if (quitevent) return 0;
         tokn = getatoken(script,basetokens,sizeof(basetokens)/sizeof(tokenlist));
         cmdtokptr = script->ltextptr;
         switch (tokn)
