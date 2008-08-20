@@ -257,5 +257,5 @@ extern void getlevelfromfilename(const char *fn, char *volume, char *level);
 
 extern void GetCrosshairColor(void);
 extern void SetCrosshairColor(int r, int g, int b);
-
+extern int kopen4loadfrommod(char *filename, char searchfirst);
 #endif // __funct_h__

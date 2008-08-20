@@ -414,6 +414,7 @@ typedef struct {
     int player_skill,level_number,volume_number,m_marker,marker,mouseflip;
 
     int camerax,cameray,cameraz;
+    int configversion;
 
     short cameraang, camerasect, camerahoriz;
     short pause_on,from_bonus;

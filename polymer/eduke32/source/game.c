@@ -151,6 +151,20 @@ int althud_numberpal = 0;
 int althud_shadows = 1;
 int althud_flashing = 1;
 
+int kopen4loadfrommod(char *filename, char searchfirst)
+{
+    static char fn[BMAX_PATH];
+    int r;
+
+    Bstrcpy(fn,mod_dir);
+    Bstrcat(fn,"/");
+    Bstrcat(fn,filename);
+    r = kopen4load(fn,searchfirst);
+    if (r == -1)
+        r = kopen4load(filename,searchfirst);
+    return r;
+}
+
 enum
 {
     T_EOF = -2,
@@ -909,7 +923,7 @@ void getpackets(void)
                 Bcorrectfilename(boardfilename,0);
                 if (boardfilename[0] != 0)
                 {
-                    if ((i = kopen4load(boardfilename,0)) < 0)
+                    if ((i = kopen4loadfrommod(boardfilename,0)) < 0)
                     {
                         Bmemset(boardfilename,0,sizeof(boardfilename));
                         sendboardname();
@@ -10026,7 +10040,7 @@ static void compilecons(void)
     pathsearchmode = 1;
     if (userconfiles == 0)
     {
-        i = kopen4load(confilename,0);
+        i = kopen4loadfrommod(confilename,0);
         if (i!=-1)
             kclose(i);
         else Bsprintf(confilename,"GAME.CON");
@@ -10037,7 +10051,7 @@ static void compilecons(void)
     {
         if (userconfiles == 0)
         {
-            i = kopen4load("EDUKE.CON",1);
+            i = kopen4loadfrommod("EDUKE.CON",1);
             if (i!=-1)
             {
                 Bsprintf(confilename,"EDUKE.CON");
@@ -10097,7 +10111,7 @@ static void genspriteremaps(void)
     signed char look_pos;
     char *lookfn = "lookup.dat";
 
-    fp = kopen4load(lookfn,0);
+    fp = kopen4loadfrommod(lookfn,0);
     if (fp != -1)
         kread(fp,(char *)&g_NumPalettes,1);
     else
@@ -10194,7 +10208,7 @@ static void Startup(void)
 
             Bcorrectfilename(boardfilename,0);
 
-            i = kopen4load(boardfilename,0);
+            i = kopen4loadfrommod(boardfilename,0);
             if (i!=-1)
             {
                 initprintf("Using level: '%s'.\n",boardfilename);
@@ -10270,8 +10284,24 @@ static void Startup(void)
 
     //initprintf("* Hold Esc to Abort. *\n");
 //    initprintf("Loading art header...\n");
-    if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
-        gameexit("Failed loading art.");
+
+    {
+        char cwd[BMAX_PATH];
+
+        if (getcwd(cwd,BMAX_PATH) && mod_dir[0] != '/')
+        {
+            chdir(mod_dir);
+            if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
+            {
+                chdir(cwd);
+                if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
+                    gameexit("Failed loading art.");
+            }
+            chdir(cwd);
+        }
+        else if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
+            gameexit("Failed loading art.");
+    }
 
 //    initprintf("Loading palette/lookups...\n");
     genspriteremaps();
@@ -10716,7 +10746,7 @@ void app_main(int argc,const char **argv)
     }
 
 #if (defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2))
-    if (i < 0 || (!g_NoSetup && ud.config.ForceSetup) || g_CommandSetup)
+    if (i < 0 || (!g_NoSetup && (ud.configversion != BYTEVERSION_JF || ud.config.ForceSetup)) || g_CommandSetup)
     {
         if (quitevent || !startwin_run())
         {
@@ -10746,6 +10776,9 @@ void app_main(int argc,const char **argv)
         Bsprintf(gametype_names[0],"GRUNTMATCH (SPAWN)");
         Bsprintf(gametype_names[2],"GRUNTMATCH (NO SPAWN)");
     }
+
+    if (mod_dir[0] != '/')
+        addsearchpath(mod_dir);
 
     i = initgroupfile(duke3dgrp);
 
@@ -11179,10 +11212,10 @@ static int opendemoread(int which_demo) // 0 = mine
 
     if (which_demo == 1 && firstdemofile[0] != 0)
     {
-        if ((recfilep = kopen4load(firstdemofile,loadfromgrouponly)) == -1) return(0);
+        if ((recfilep = kopen4loadfrommod(firstdemofile,loadfromgrouponly)) == -1) return(0);
     }
     else
-        if ((recfilep = kopen4load(d,loadfromgrouponly)) == -1) return(0);
+        if ((recfilep = kopen4loadfrommod(d,loadfromgrouponly)) == -1) return(0);
 
     if (kread(recfilep,&ud.reccnt,sizeof(int)) != sizeof(int)) goto corrupt;
     if (kread(recfilep,&ver,sizeof(char)) != sizeof(char)) goto corrupt;

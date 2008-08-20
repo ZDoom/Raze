@@ -239,7 +239,7 @@ static int osdcmd_map(const osdfuncparm_t *parm)
     if (strchr(filename,'.') == 0)
         strcat(filename,".map");
 
-    if ((i = kopen4load(filename,0)) < 0)
+    if ((i = kopen4loadfrommod(filename,0)) < 0)
     {
         OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
         return OSDCMD_OK;
@@ -353,7 +353,7 @@ static int osdcmd_fileinfo(const osdfuncparm_t *parm)
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
-    if ((i = kopen4load((char *)parm->parms[0],0)) < 0)
+    if ((i = kopen4loadfrommod((char *)parm->parms[0],0)) < 0)
     {
         OSD_Printf("fileinfo: File \"%s\" not found.\n", parm->parms[0]);
         return OSDCMD_OK;

@@ -256,6 +256,7 @@ void CONFIG_SetDefaults(void)
     ud.config.UseMouse = 1;
     ud.config.VoiceToggle = 5; // bitfield, 1 = local, 2 = dummy, 4 = other players in DM
     ud.display_bonus_screen = 1;
+    ud.configversion = 0;
 
     Bstrcpy(ud.rtsname, "DUKE.RTS");
     Bstrcpy(myname, "Duke");
@@ -648,11 +649,11 @@ int32 CONFIG_ReadSetup(void)
         {
             extern char defaultduke3dgrp[BMAX_PATH];
             if (!Bstrcmp(defaultduke3dgrp,"duke3d.grp"))
-                SCRIPT_GetString(ud.config.scripthandle, "Misc","SelectedGRP",&duke3dgrp[0]);
+                SCRIPT_GetString(ud.config.scripthandle, "Setup","SelectedGRP",&duke3dgrp[0]);
         }
 
         if (mod_dir[0] == '/')
-            SCRIPT_GetString(ud.config.scripthandle, "Misc","ModDir",&mod_dir[0]);
+            SCRIPT_GetString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Shadows",&ud.shadows);
 
@@ -784,6 +785,8 @@ int32 CONFIG_ReadSetup(void)
                 SCRIPT_GetNumber(ud.config.scripthandle, "Misc", buf, &dummy);
                 if (dummy >= 0) g_player[0].wchoice[i] = dummy;
             }
+
+        SCRIPT_GetNumber(ud.config.scripthandle, "Setup","ConfigVersion",&ud.configversion);
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Sound Setup", "FXDevice",&ud.config.FXDevice);
         SCRIPT_GetNumber(ud.config.scripthandle, "Sound Setup", "MusicDevice",&ud.config.MusicDevice);
@@ -1051,6 +1054,8 @@ void CONFIG_WriteSetup(void)
         SCRIPT_PutNumber(ud.config.scripthandle, "Misc",buf,g_player[myconnectindex].wchoice[dummy],false,false);
     }
 
+    SCRIPT_PutNumber(ud.config.scripthandle, "Setup","ConfigVersion",BYTEVERSION_JF,false,false);
+
     for (dummy=0;dummy<MAXMOUSEBUTTONS;dummy++)
     {
         Bsprintf(buf,"MouseButton%d",dummy);
@@ -1114,8 +1119,8 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Comm Setup", "Rate", packetrate, false, false);
 
 
-    SCRIPT_PutString(ud.config.scripthandle, "Misc","SelectedGRP",&duke3dgrp[0]);
-    SCRIPT_PutString(ud.config.scripthandle, "Misc","ModDir",&mod_dir[0]);
+    SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",&duke3dgrp[0]);
+    SCRIPT_PutString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
     {
         char commmacro[] = "CommbatMacro# ";
 

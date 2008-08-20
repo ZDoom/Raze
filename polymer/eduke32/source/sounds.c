@@ -206,7 +206,7 @@ void _playmusic(const char *fn)
     if (ud.config.MusicToggle == 0) return;
     if (ud.config.MusicDevice < 0) return;
 #if defined(_WIN32)
-    fp = kopen4load((char *)fn,0);
+    fp = kopen4loadfrommod((char *)fn,0);
 
     if (fp == -1) return;
 
@@ -254,8 +254,8 @@ int loadsound(unsigned int num)
         return 0;
     }
 
-    if (g_sounds[num].filename1)fp = kopen4load(g_sounds[num].filename1,loadfromgrouponly);
-    if (fp == -1)fp = kopen4load(g_sounds[num].filename,loadfromgrouponly);
+    if (g_sounds[num].filename1)fp = kopen4loadfrommod(g_sounds[num].filename1,loadfromgrouponly);
+    if (fp == -1)fp = kopen4loadfrommod(g_sounds[num].filename,loadfromgrouponly);
     if (fp == -1)
     {
 //        Bsprintf(fta_quotes[113],"g_sounds %s(#%d) not found.",sounds[num],num);

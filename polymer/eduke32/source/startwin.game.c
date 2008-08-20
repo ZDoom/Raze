@@ -663,10 +663,7 @@ int startwin_run(void)
         g_GameType = settings.game;
 
         if (settings.gamedir != NULL)
-        {
-            addsearchpath(settings.gamedir);
             Bstrcpy(mod_dir,settings.gamedir);
-        }
         else Bsprintf(mod_dir,"/");
 
         for (i = 0; i<numgrpfiles; i++) if (settings.crcval == grpfiles[i].crcval) break;

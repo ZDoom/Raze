@@ -2262,7 +2262,7 @@ static int parsecommand(void)
             char parentcompilefile[255];
             int fp;
 
-            fp = kopen4load(tempbuf,loadfromgrouponly);
+            fp = kopen4loadfrommod(tempbuf,loadfromgrouponly);
             if (fp < 0)
             {
                 error++;
@@ -5161,7 +5161,7 @@ void copydefaultcons(void)
 
     for (i=0;i<NUM_DEFAULT_CONS;i++)
     {
-        fpi = kopen4load((char *)defaultcons[i] , 1);
+        fpi = kopen4loadfrommod((char *)defaultcons[i] , 1);
         if (fpi < 0) continue;
 
         fpo = fopenfrompath((char *)defaultcons[i],"wb");
@@ -5381,7 +5381,7 @@ void loadefs(const char *filenam)
         }
     }
     */
-    fp = kopen4load((char *)filenam,loadfromgrouponly);
+    fp = kopen4loadfrommod((char *)filenam,loadfromgrouponly);
     if (fp == -1) // JBF: was 0
     {
         if (loadfromgrouponly == 1)
