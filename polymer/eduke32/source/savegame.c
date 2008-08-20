@@ -33,44 +33,44 @@ void readsavenames(void)
     int dummy,j;
     int i;
     char fn[13];
-    BFILE *fil;
+    int fil;
 
     Bstrcpy(fn,"egam_.sav");
 
     for (i=0;i<10;i++)
     {
         fn[4] = i+'0';
-        if ((fil = Bfopen(fn,"rb")) == NULL) continue;
-        if (dfread(&j,sizeof(int),1,fil) != 1)
+        if ((fil = kopen4loadfrommod(fn,0)) == -1) continue;
+        if (kdfread(&j,sizeof(int),1,fil) != 1)
         {
-            Bfclose(fil);
+            kclose(fil);
             continue;
         }
-        if (dfread(g_szBuf,j,1,fil) != 1)
+        if (kdfread(g_szBuf,j,1,fil) != 1)
         {
-            Bfclose(fil);
+            kclose(fil);
             continue;
         }
-        if (dfread(&dummy,4,1,fil) != 1)
+        if (kdfread(&dummy,4,1,fil) != 1)
         {
-            Bfclose(fil);
+            kclose(fil);
             continue;
         }
         if (dummy != BYTEVERSION)
         {
-            Bfclose(fil);
+            kclose(fil);
             continue;
         }
-        if (dfread(&dummy,4,1,fil) != 1)
+        if (kdfread(&dummy,4,1,fil) != 1)
         {
-            Bfclose(fil);
+            kclose(fil);
             continue;
         }
-        if (dfread(&ud.savegame[i][0],19,1,fil) != 1)
+        if (kdfread(&ud.savegame[i][0],19,1,fil) != 1)
         {
             ud.savegame[i][0] = 0;
         }
-        Bfclose(fil);
+        kclose(fil);
     }
 }
 
@@ -568,7 +568,9 @@ int saveplayer(int spot)
 
     {
         char temp[BMAX_PATH];
-        Bsprintf(temp,"%s/%s",mod_dir,fnptr);
+        if (mod_dir[0] != '/')
+            Bsprintf(temp,"%s/%s",mod_dir,fnptr);
+        else Bsprintf(temp,"%s",fnptr);
         if ((fil = fopen(temp,"wb")) == 0) return(-1);
     }
 
