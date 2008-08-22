@@ -171,6 +171,7 @@ int ScanGroups(void)
 
     if (usedgrpcache)
     {
+        int i = 0;
         FILE *fp;
         fp = fopen(GRPCACHEFILE, "wt");
         if (fp)
@@ -180,11 +181,14 @@ int ScanGroups(void)
                 fgg = fg->next;
                 fprintf(fp, "\"%s\" %d %d %d\n", fg->name, fg->size, fg->mtime, fg->crcval);
                 free(fg);
+                i++;
             }
             fclose(fp);
         }
+        initprintf("Found %d recognized GRP files.\n",i);
+        return 0;
     }
-
+    initprintf("Found no recognized GRP files!\n");
     return 0;
 }
 

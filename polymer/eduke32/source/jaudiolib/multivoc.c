@@ -2896,20 +2896,6 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
     {
         MV_SetErrorCode(MV_BlasterError);
     }
-#ifdef USE_OPENAL
-    else if (AL_Init())
-    {
-        int i;
-
-        // no AL support so shitcan the ogg definitions
-        for (i=(MAXLEVELS*(MAXVOLUMES+1))-1;i>=0;i--) // +1 volume for "intro", "briefing" music
-        {
-            if (map[i].musicfn1 != NULL)
-                Bfree(map[i].musicfn1);
-            map[i].musicfn1 = NULL;
-        }
-    }
-#endif
 #else
     status = DSL_Init();
     if (status != DSL_Ok)
@@ -3005,9 +2991,6 @@ int MV_Shutdown(void)
 
     // Shutdown the sound card
 #if defined(_WIN32)
-#ifdef USE_OPENAL
-    AL_Shutdown();
-#endif
     DSOUND_Shutdown();
 #else
     DSL_Shutdown();

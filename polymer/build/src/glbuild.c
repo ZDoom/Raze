@@ -232,7 +232,7 @@ int loadgldriver(const char *driver)
     if (!driver)
     {
 #ifdef _WIN32
-        driver = "OPENGL32.DLL";
+        driver = "opengl32.dll";
 #elif defined __APPLE__
         driver = "/System/Library/Frameworks/OpenGL.framework/OpenGL";
 #else
@@ -625,7 +625,7 @@ int loadglulibrary(const char *driver)
     if (!driver)
     {
 #ifdef _WIN32
-        driver = "GLU32.DLL";
+        driver = "glu32.dll";
 #elif defined __APPLE__
         driver = "/System/Library/Frameworks/OpenGL.framework/OpenGL"; // FIXME: like I know anything about Apple.  Hah.
 #else

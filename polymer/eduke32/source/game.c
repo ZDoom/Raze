@@ -10120,14 +10120,14 @@ static void genspriteremaps(void)
     g_NumPalettes = (g_NumPalettes * (uint64)0x0202020202 & (uint64)0x010884422010) % 1023;
 #endif
         
-    for (j=0;j < g_NumPalettes;j++)
+    for (j=g_NumPalettes-1;j>=0;j--)
     {
         kread(fp,(signed char *)&look_pos,1);
         kread(fp,tempbuf,256);
         makepalookup((int)look_pos,tempbuf,0,0,0,1);
     }
 
-    for (j = 0; j < 256; j++)
+    for (j = 255; j>=0; j--)
         tempbuf[j] = j;
     g_NumPalettes++;
     makepalookup(g_NumPalettes, tempbuf, 15, 15, 15, 1);

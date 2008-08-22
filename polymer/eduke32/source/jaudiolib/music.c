@@ -38,6 +38,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #ifdef USE_OPENAL
 #include "openal.h"
 #endif
+#include "duke3d.h"
 
 #ifndef TRUE
 #define TRUE  ( 1 == 1 )
@@ -149,6 +150,21 @@ int MUSIC_Init
 
     status = MUSIC_InitMidi(SoundCard, &MUSIC_MidiFunctions, Address);
 
+#ifdef USE_OPENAL
+    if (AL_Init())
+    {
+        int i;
+
+        // no AL support so shitcan the ogg definitions
+        for (i=(MAXLEVELS*(MAXVOLUMES+1))-1;i>=0;i--) // +1 volume for "intro", "briefing" music
+        {
+            if (map[i].musicfn1 != NULL)
+                Bfree(map[i].musicfn1);
+            map[i].musicfn1 = NULL;
+        }
+    }
+#endif
+
     return(status);
 }
 
@@ -172,6 +188,10 @@ int MUSIC_Shutdown
     MIDI_StopSong();
 
     //MPU_Reset();
+
+#ifdef USE_OPENAL
+    AL_Shutdown();
+#endif
 
     return(status);
 }
@@ -610,5 +630,8 @@ void MUSIC_RegisterTimbreBank
 void MUSIC_Update(void)
 {
     MIDI_UpdateMusic();
+#ifdef USE_OPENAL
+    AL_Update();
+#endif
 }
 
