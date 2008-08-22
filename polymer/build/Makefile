@@ -116,6 +116,7 @@ ifeq ($(PLATFORM),DARWIN)
 	ENGINEOBJS	+= $(OBJ)/StartupWinController.editor.$o \
 			$(OBJ)//osxbits.$o
 	ASFLAGS		+= -f Mach-O
+	OURCFLAGS	+= -fno-pic
 	TARGETOPTS	+= -DNOASM
 endif
 ifeq ($(PLATFORM),BSD)

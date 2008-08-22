@@ -143,9 +143,9 @@ endif
 ifeq ($(PLATFORM),DARWIN)
 	ALROOT = Apple
 	ifeq (1,$(SDL_FRAMEWORK))
-		OURCFLAGS	+= -I$(ALROOT)/include -I/Library/Frameworks/SDL.framework/Headers \
+		OURCFLAGS	+= -fno-pic -I$(ALROOT)/include -I/Library/Frameworks/SDL.framework/Headers \
 				-I-I/Library/Frameworks/SDL_mixer.framework/Headers
-		LIBS		+= -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg -lm \
+		LIBS		+= -read_only_relocs suppress -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg -lm \
 				-Wl,-framework,SDL -Wl,-framework,SDL_mixer $(ALROOT)/lib/libSDLmain.a \
 				-Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
 				-Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
@@ -153,16 +153,14 @@ ifeq ($(PLATFORM),DARWIN)
 				-Wl,-framework,QuickTime -lm
 
 	else
-		OURCFLAGS	+= -I$(ALROOT)/include -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
-		LIBS		+= -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg -lm -lSDL_mixer \
+		OURCFLAGS	+= -fno-pic -I$(ALROOT)/include -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
+		LIBS		+= -read_only_relocs suppress -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg -lm -lSDL_mixer \
 				-Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
 				-Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
 				-Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
 				-Wl,-framework,QuickTime -lm
 	endif
 	NASMFLAGS	+= -f Mach-O
-	GAMEOBJS	+= $(OBJ)/startdummy.game.$o
-	EDITOROBJS	+= $(OBJ)/startdummy.game.$o
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
