@@ -1293,6 +1293,7 @@ static int osdcmd_screenshot(const osdfuncparm_t *parm)
 extern void savemapstate(mapstate_t *save);
 extern void restoremapstate(mapstate_t *save);
 
+/*
 static int osdcmd_savestate(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
@@ -1309,6 +1310,7 @@ static int osdcmd_restorestate(const osdfuncparm_t *parm)
         restoremapstate(map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
     return OSDCMD_OK;
 }
+*/
 
 static int osdcmd_vid_gamma(const osdfuncparm_t *parm)
 {
@@ -1480,8 +1482,8 @@ int registerosdcommands(void)
     OSD_RegisterFunction("vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",osdcmd_vid_gamma);
     OSD_RegisterFunction("vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",osdcmd_vid_contrast);
     OSD_RegisterFunction("vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",osdcmd_vid_brightness);
-    OSD_RegisterFunction("savestate","",osdcmd_savestate);
-    OSD_RegisterFunction("restorestate","",osdcmd_restorestate);
+//    OSD_RegisterFunction("savestate","",osdcmd_savestate);
+//    OSD_RegisterFunction("restorestate","",osdcmd_restorestate);
     //baselayer_onvideomodechange = onvideomodechange;
 
     return 0;

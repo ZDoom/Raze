@@ -50,7 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20080809 // this is checked against http://eduke32.com/VERSION
+#define BUILDDATE 20080821 // this is checked against http://eduke32.com/VERSION
 #define UPDATEINTERVAL 604800 // 1w
 #else
 static int usecwd = 0;
@@ -10579,8 +10579,8 @@ void app_main(int argc,const char **argv)
     addsearchpath("/usr/share/games/eduke32");
     addsearchpath("/usr/local/share/games/eduke32");
 #elif defined(__APPLE__)
-    addsearchpath("/Library/Application Support/EDuke32");
     addsearchpath("/Library/Application Support/JFDuke3D");
+    addsearchpath("/Library/Application Support/EDuke32");
 #endif
 
     ud.multimode = 1;

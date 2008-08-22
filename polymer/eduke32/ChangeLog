@@ -1,373 +1,84 @@
-=EDuke32 ChangeLog=
+EDuke32:
 
-==1.4.0 beta 2=
- - Core: reworked/enhanced Polymost shading
- - Core: cleaned up code to properly build without Polymost/OpenGL support
- - Core: added widescreen support for Polymost
- - Core: added support for toggling correct HUD model rendering on/off
- - Core: removed broken support for linking OpenGL statically
- - Core: added support for DDS textures (JF)
- - Core: added support for dynamically loading GTK (JF)
+Added: activatecheat CON command to trick the game into thinking a specific cheat was typed in
+Added: addlogvar console command to print the value of a gamevar
+Added: althud to get/setuserdef to allow forcing the althud on or off
+Added: ambient light level slider in video setup and r_ambientlight cvar
+Added: a menu option and cvar to control crosshair size
+Added: animtilerange to .def format to allow assigning animation flags to dummytiles
+Added: basic Mac OSX support
+Added: cmenu CON command and current_menu special gamevar to jump to a different menu index when a menu is being drawn
+Added: code to automatically replace "SPACE" in quote 13 with "OPEN"
+Added: color code support to minitext
+Added: CON access to tsprite via new EVENT_ANIMATESPRITES event and gettspr/settspr commands
+Added: crosshairscale to get/setuserdef to allow manipulation of the crosshair size
+Added: display_bonus_screen to setuserdef to allow coders to force the bonus screen to display when using startlevel
+Added: drag-and-drop support for maps, CONs, GRPs, et cetera
+Added: experimental software-based 3D model visibility checking (r_modelocclusionchecking)
+Added: extended control over console text display via osdeditpal/osdeditshade/osdhightile/osdpromptpal/osdpromptshade/osdtextmode/osdtextshade/osdtextpal cvars and a new menu option to switch console text between "nice" sprite-based rendering and "fast" internal text rendering
+Added: gettimedate CON command to get the current month/day/year/time into gamevars
+Added: htflags member to get/setactor to control the spritenoshade/spritenvg/spriteshadow flags
+Added: line numbers to in-game CON errors thrown when attempting to operate on invalid data and improved error messages
+Added: map listing printout to "map" console command when no map name is given
+Added: menu option to control multiplayer death messages and cvar r_obituaries
+Added: mod directory selection to startup and unified "configuration" and "game" tabs of startup window
+Added: new alternate version of the small HUD (enabled by default) and a menu option to turn it off if so desired and several hud_* cvars to control it
+Added: new brightness/contrast/gamma controls and new cvars vid_brightness, vid_contrast and vid_gamma
+Added: new sound configuration menu which allows changing bitrate, sample size and voices in-game
+Added: obituaries to get/setuserdef to allow forcing the multiplayer obituaries on or off
+Added: r_downsize cvar and texture quality slider to video settings menu, defaults to medium and allows hightile textures without the nocompress flag to be scaled down to improve performance
+Added: r_fullbrights cvar to control rendering fullbright pixels for 8-bit tiles in OpenGL
+Added: savemapstate/loadmapstate/clearmapstate commands to manipulate map states and GAMEVAR_FLAG_NORESET (131072) to allow specific gamevars to be preserved when the map state is loaded
+Added: scriptsize CON command to set the CON script size manually to avoid resizing the chunk of memory several times at startup with large CONs
+Added: setdefname CON command to set the name of the definitions file to be loaded
+Added: setgamepalette CON command to change between normal/water/slime/nightvision palettes manually
+Added: support for changing the crosshair color via the crosshaircolor console command
+Added: support for changing the window title of a mod via the setgamename command
+Added: support for colored console text
+Added: support for importing configuration data from duke3d.cfg when a config specified by command line or CON isn't found
+Added: support for saving/loading the state of a map separately from savegames, enabling Hexen and Half-Life style map setups
+Added: vsync menu option and cvar (r_swapinterval)
+Changed: adjusted framerate counter averaging
+Changed: improved detection of external IP address for multiplayer
+Changed: improved multiplayer text line wrapping
+Changed: improved startup time on Windows
+Changed: increased max sound definitions to 2560
+Changed: modified ldist to return 0 instead of 1 when the points checked are the same, but changed CON divide-by-zero errors into soft errors
+Changed: renamed binds.cfg to cfgname_binds.cfg, where cfgname is the name of the main configuration file in use
+Changed: reworked HUD level stats display
+Changed: updated user map menu
+Changed: various fairly insignificant optimizations
+Changed: various improvements to many other menus
+Fixed: 8-bit fullscreen palette corruption bug
+Fixed: autoloading from directories other than ~/.eduke32/autoload on Linux
+Fixed: bounds checking for htg_t member used with getactor/setactor
+Fixed: bug where a projectile's extra_rand wasn't applied with certain weapon flags
+Fixed: bug where hitscan projectile trails would continue through walls after the projectile hit
+Fixed: bug with console command history and added new "history" command to print out the current history
+Fixed: console crash with TCs without tile 1141
+Fixed: gibs not assuming the palette of the actor which spawned them in all cases
+Fixed: occasional crash when spawning a sprite with no owner
+Fixed: out-of-sync bug with DeathMessages = 0 in cfg
+Fixed: problems with definemodelframe and nonexistent models
+Fixed: problem with devistator rocket timing which caused an unintentional nerf of the devistator's damage
+Fixed: problem with eshoot returning -1 when firing RPGs
+Fixed: problem with invalid gamearray definitions mangling further errors in the log
+Fixed: problem with model rendering when using animation blending and added option to toggle it to the video menu
+Fixed: problem with weapon up/down transition when using pipebombs with PIPEBOMB_CONTROL set to PIPEBOMB_TIMER
+Fixed: random CON value corruption issue which occurred dependent on the memory addresses and size of the compiled CON code
+Fixed: several situations in which invalid memory access occurred while using noclip
+Fixed: text spacing problem with gametext
 
- - Game: new startup window (JF)
- - Game: added support for using the mouse and a joystick simultaneously (JF)
- - Game: fixed an issue preventing skill selection, bonus screen and episode ending animation sounds from playing
- - Game: fixed a problem where the player was unable to exit some pools of water in some maps
- - Game: made further adjustments to the weapon properties in order to more closely emulate Duke 1.5
- - Game: fixed an issue where you could disable map exits in multiplayer, have all players quit, start a single player game and then have exits continue to kill you
+Mapster32:
 
- - Multiplayer: fixed numerous minor bugs in the voting system
- - Multiplayer: added a more noticeable message to indicate that the player hasn't voted yet in an active vote
- - Multiplayer: added support for /me in text chat
- - Multiplayer: increased size of player chat icon
- - Multiplayer: added "nat-free" support from Adam Fazakerley
- - Multiplayer: fixed inventory respawn bug
- - Multiplayer: minor fixes to DukesterX 1.5 compatibility wrapper
+Added: gradient background in tile selector info at bottom of screen to improve readability
+Added: drag-and-drop support for maps, GRPs, et cetera
+Changed: improved tile grouping support, tiles.cfg now controls the various Duke-specific actor and item related functions in 2D mode as well as 2D mode sprite colors
+Changed: use underwater palette when in an underwater sector
+Fixed: bug where wall coordinate editing didn't properly move both sides of a wall
+Fixed: crash with previous/next map in dir shortcut keys when a .map file in the current directory is invalid
+Fixed: issue in file selector where sometimes jumping to a map on the list by typing the first letter of its name would leave you at the wrong place in the map list
+Fixed: possible crashes due to invalid memory access associated with the file selector
+Fixed: problem where sometimes the tile selector would select the wrong tile
+Fixed: problem where the tile group list wouldn't refresh after alt-tab
 
- - CON: reworked movement_lock member of the player struct to use bit flags
- - CON: reworked findnearactor3d, findnearactor3dvar, findnearsprite3d, and findnearsprite3dvar
- - CON: added findnearactorz, findnearactorzvar, findnearspritez, and findnearspritezvar
- - CON: added WEAPON_FLAG_RESET (65536) to weapon system in order to properly emulate the chaingun and freezer
- - CON: fixed "eshoot" and added "ezshoot"
- - CON: reworked weapon system; note that your custom weapons may need adjustments to work again
- - CON: updated sample enhance.con
-
-==1.4.0 beta 1=
- - Core: added support for defining dummy tiles in the def files to eliminate the need for placeholders for hightile art
- - Core: added a temporary projection hack to reduce HOM at the top and bottom of the screen
- - Core: fixed P2P multiplayer with more than two players
- - Core: fixed a nasty memory corruption issue with screen tinting that resulted in crashes in the classic renderer
- - Core: fixed a palette issue with the in-game textured 2D map in Polymost
- - Core: fixed a mouse input bug in winlayer that resulted in loss of input precision
- - Core: modified the def loader to perform two passes; one to load GRPs early in game startup, and one to do the rest later on
- - Core: tweaks to caching system to leave more memory available for hightile art
- - Core: proper alpha sorting on md3 models
- - Core: removed usegoodalpha in favor of an alternate sprite sorting algorithm (note: rendering glitches may occur)
- - Core: attempt to correct display perspective in order to properly display HUD models
- - Core: netcode packet rate now 26 (was 40)
- - Core: don't use 100% CPU when waiting for players to join a multiplayer game
- - Core: reduce mouse wheel input lock time to 25ms (was 100ms)
-
- - Game: completely reworked mouse sensitivity and added an input filter slider
- - Game: changed the weapon switching to be less restrictive in order to assist weapon changes via mouse wheel
- - Game: added support for alt+enter to switch between fullscreen and windowed mode
- - Game: added an option to disable demo playback cameras
- - Game: added support for scaling the crosshair to 1/2 or 1/4 normal size
- - Game: added an option to enable autoaim only for hitscan weapons (bullets)
- - Game: changed the default video mode to 1024x768x32 and added several fallback choices
- - Game: reworked the quicksave and quickload functions such as to not prompt the player on use
- - Game: set the default controls to WSAD + mouse aiming
- - Game: restore the pause key behavior from Duke 1.5 wherein the "GAME PAUSED" message isn't displayed when shift is pressed while pausing
- - Game: fixed an infinite loop and a palette corruption bug regarding the video setup menu and switching to the classic renderer
- - Game: fixed an issue where the automap would scroll itself and/or jitter when the game was paused while moving
- - Game: fixed pistol timing to more closely match Duke 1.5
- - Game: fixed long-standing quick kick animation bug
- - Game: fixed kick attack speed to more closely match Duke 1.5
- - Game: fixed an issue with shift+F5 not allowing selection of music defined for episode 5 and up
- - Game: changed the default menu background to something more pleasing
- - Game: restructured the option menus to make more sense
- - Game: expanded the "HUD weapon" menu option to allow displaying a weapon's pickup sprite instead of the HUD art
-
- - Multiplayer: Duke Talk menu option can now be set to "all" to hear enemy pain sounds
- - Multiplayer: added an option to disable nuke button exits in deathmatch
- - Multiplayer: greatly improved the text chat by increasing the text buffer size and by implementing basic line wrapping
- - Multiplayer: added a voting system for map changes along with a menu option to automatically vote yes or no
- - Multiplayer: added an icon above the heads of other players for when they're chatting or using the menu
- - Multiplayer: added an option to automatically send messages to all players rather than prompting
- - Multiplayer: added an option to display the name of the opponent you're currently aiming at
- - Multiplayer: added a player setup menu to configure player name, color, macros, and weapon/aiming options mid-game
- - Multiplayer: added support for Rancidmeat network configuration files via -rmnet command line parameter
- - Multiplayer: detect and correct internal vs external IP address issues when using Rancidmeat configuration files
- - Multiplayer: added dummy duke3d_w32.exe to facilitate EDuke32 multiplayer via DukesterX 1.5
- - Multiplayer: added support for in-game selection and loading of different user maps
- - Multiplayer: added support for various player death messages which can be redefined in the CONs
- - Multiplayer: added support for Quake-style color codes in player names and text chat (code format is ^<palette>)
- - Multiplayer: limit player name to 10 characters (not counting color codes)
- - Multiplayer: fixed issue where multiple players trying to step on the same shrunken enemy would kill the game
- - Multiplayer: fixed issue where briefly tapping the jump key would produce a lag effect during the resulting jump
- - Multiplayer: fixed issue where using the jetpack + steroids would produce a lag effect in P2P mode
- - Multiplayer: fixed several out-of-sync issues
- - Multiplayer: fixed a long-standing bug wherein a player death could be counted as both a death and a suicide
- - Multiplayer: fixed screen resizing issue when typing - and = in chat
-
- - CON: added "save" command to allow the creation of automatic checkpoints
- - CON: added "cansee" and "canseespr" commands to easily determine whether two sprites or sets of coordinates have visibility
- - CON: added "definegamefuncname" command to change the key names used in the configuration file and in the control setup menus
- - CON: added additional safety checks to get/setuserdef/player/sector/sprite/wall/input
- - CON: added support for Quake-style color codes in quotes (code format is ^<palette>)
- - CON: added extra timing checks to the weapon system; note that weapons with strange TOTALTIME and FIREDELAY values may no longer fire
- - CON: save quotes, dynamic-to-static tile remapping information, extended sprite flags and sprite caching info to savegames
- - CON: reworked the quote system to use dynamically allocated memory and doubled the length of each individual quote
- - CON: fixed a savegame issue where some gamevar values may not have been restored properly and added more sanity checks to savegame loading
- - CON: fixed an issue with FRAMEEFFECT1 sprites ending up with the wrong tspr->picnum
- - CON: fixed a potential issue where custom projectiles that hit a player wouldn't knock the player back
- - CON: fixed a bug in the findnearactor3d command and further sped up findnearactor3d and findnearsprite3d
- - CON: fixed an issue where tab characters in CON files could screw up label names
- - CON: fixed a crash that occurred when hitscan type custom projectiles with trails were fired at a wall from a distance of 0
- - CON: removed the RENDERSIZE attribute for weapons
- - CON: made slight optimizations to various commands
-
- - Console: added the following cvars: "crosshair", "cl_autoaim", "cl_automsg", "cl_autovote", "cl_democams", "cl_drawweapon", "cl_idplayers",
-            "cl_messagetime", "cl_mousefilter", "cl_showcoords", "cl_showfps", "cl_smoothinput", "cl_statusbarmode", "cl_statusbarscale",
-            "cl_weaponswitch" and "r_precache"
- - Console: added "addpath" command to add a new directory to the game's virtual filesystem pool
-
- - Mapster32: better smoothing of mouse input when using 3D mode mouselook
- - Mapster32: add ' F key combo to replace nonexistent tiles with tile 0
-
-==1.3.1-1==
- - Game: fixed issue with multiplayer switches
-
-==1.3.1==
- - Core: sync with JFBuild SVN
- - Core: on-disk compressed texture cache for greatly improved level load times (JF)
- - Core: virtual game file system similar to Quake (JF)
- - Core: re-tooled screen tinting and gamma correction in OpenGL (JF)
-
- - Game: sync with JFDuke3D SVN
- - Game: added option to disable automatic weapon switching (JF)
- - Game: mouse input smoothing (JF)
- - Game: pre-caching of HUD sprites (JF)
- - Game: redesigned game settings menu with several new options
- - Game: menus are now drawn over the status bar rather than under it and have a tinted background in OpenGL
- - Game: FPS counter color now changes when frame rate is under 40
- - Game: added -z# command line parameter to set CON compiler verbosity level
- - Game: added parsing of autoexec.cfg on startup
- - Game: adjusted default tripbomb plant delay to match Duke3D 1.5
-
- - CON: added getinput/setinput commands to read/write to/from sync[] in conjunction with EVENT_PROCESSINPUT
- - CON: completely rewritten compiler error handling
- - CON: findnearactor/findnearsprite and variants now exponentially faster
- - CON: better handling of duplicate event errors
- - CON: improvements to switch/case commands, fixes several bugs
- - CON: added per-actor flags for controlling shade, shadow, NVG presence, et cetera
- - CON: added EVENT_USE and EVENT_PROCESSINPUT
-
- - Console: added "exec", "cmenu", "gamma", "give" and "sensitivity" console commands
-
- - Mapster32 changes:
-	- General: mouse input smoothing (JF)
-	- General: informational messages now logged to console and mapster32.log
-	- General: improved mass palette change function
-	- General: improved mass visibility change function
-
-	- 2D mode: improved search function
-	- 2D mode: added shift-G key combination to increase grid size
-	- 2D mode: added guide lines to the top and left side of the screen; hold shift for full guide
-
-	- 3D mode: added + and - shortcut keys for incrementing/decrementing tile number
-	- 3D mode: added mouse control for commonly used functions
-	- 3D mode: refined various status messages
-	- 3D mode: mouse cursor now fades from white to black to increase visibility
-
-==1.3.0==
- - Added EVENT_PRESSEDFIRE
- - Minor fixes to getwall/setwall
- - Engine updated to newest snapshot
-
-==1.3.0rc0==
- - Updated to current developmental JFDuke3D and engine, including precaching system.
- - New projectile definition syntax, uses labels like setprojectile
- - Cheat redefinition allowing both the "D" and "N" keys as well as the actual cheats to be changed.
- - Gametype customization via definegametype command
- - Logo and title screen customization via LOGO_FLAGS gamevar
- - All defined labels are now marked as a specific type, guaranteeing more stability and fixing some broken mods.
- - Potential multiplayer sync problems are now reported on startup
- - Con commenting system rewritten to be more error free and allow comments in the middle of commands
- - New quote manipulation abilities, allowing the user to:
-    - Redefine quotes mid-game
-    - Plug the values of gamevars into quotes
-    - Concatenate the contents of one quote onto the end of another
-    - Copy one quote to another quote position
- - All event names are now internally defined and no longer need definitions in the CONs.
- - Added EVENT_LOGO, EVENT_EGS and EVENT_DOFIRE.
- - Modified variable system to allow constants in place of read only gamevars and to allow prefixing a variable name with
-   a minus to use the negative of the var's value
- - Pitch and roll control for models, accessed via get/setactor[].pitch and .roll.  Also see .mdxoff, .mdyoff and .mdzoff.
- - All hard coded tile definitions are now changeable from defs.con (note: enable dynamic remapping via dynamicremap command)
- - The values of gamevars can be saved to and read from the .cfg
- - Weapon control enhancement: all weapons now have a WEAPONx_RELOADSOUND1 and a WEAPONx_RELOADSOUND2 which control which
-   sounds are played when the magazine is inserted or removed.
- - Added WEAPON_FLAG_RELOAD_TIMING (defined as 32768) hack for special reload sound timing on things like the pistol
- - Added the following primitives:
-    - definecheat
-    - cheatkeys
-    - userquote
-    - precache
-    - projectile
-    - redefinequote
-    - dynquote
-    - getpname
-    - qstrcat
-    - qstrcpy
-    - setsprite
-    - rotatepoint
-    - dragpoint
-    - getzrange
-    - changespritestat
-    - getceilzofslope
-    - getflorzofslope
-    - neartag
-    - definegametype
-    - changespritesect
-    - spriteflags
-    - savegamevar
-    - readgamevar
-    - findnearsprite
-    - findnearsprite3d
-    - findnearspritevar
-    - findnearsprite3dvar
-    - dynamicremap
- - Miscellaneous cleanups all over the code (the diff is 36,000+ lines!)
-
-==1.2.3==
- - Updated to current developmental JFDuke3D and engine
- - Added the following primitives:
-    - displayrandvar
-    - displayrandvarvar
-    - checkavailinven
-    - globalsoundvar
-    - guniqhudid
-    - getprojectile
-    - getthisprojectile
-    - setthisprojectile
- - Modified projectile system as follows:
-    - Each projectile in flight now has its own properties which can be set using
-      get/setthisprojectile in event 64
-    - setprojectile sets the default for all projectiles of that type, whereas
-      setthisprojectile only affects the specific projectile
- - Fixed range property not working on RPG type projectiles
- - Upped max sounds to 1500
- - Added support for more/less than 4 episodes.  The number of episodes is defined by
-   the last definevolumename instance found upon compilation.  Max is 8.
- - Added EVENT_GETMENUTILE: RETURN value sets background for main menu, set MENU_TILE
-   var to 1 for tiled, leave set to 0 for an image that fills the screen.
- - Added EVENT_SPAWN: called every time an actor is spawned, use this to set properties
-   on actors at spawn time.
- - Logo animation and splash screens disabled during multiplayer
- - Out of sync fix for event 64
- - Added support for setting the loogiex and loogiey members of the player struct
- - Minor internal changes, bug and compiler warning fixes
- - Added setvar console command for debugging
- - Modified WEAPKEY events; support weapon key remapping (set RETURN to desired weapon num)
- - Mapster32 changes:
-    - Fixed bug which disabled creating masked walls
-    - Added ' D 2D mode key combination to delete all sprites of a specific picnum
-    - Added ' N key combination to enable/disable noclip
-    - Fixed a few compiler warnings
-
-==1.2.2==
- - Updated to current JFDuke3D and engine, which brings the following:
-    - MD3 support
-    - fixed network sync issues
-    - minor renderer fixes
- - Player movement events now work in multiplayer (thanks JonoF)
- - Added sound_pitch member to player struct
- - Added EVENT_NEXTWEAPON, EVENT_PREVIOUSWEAPON, EVENT_SWIMUP and EVENT_SWIMDOWN
- - Added multi-purpose event "64" which runs on all sprites in the game, allowing for
-   manipulation of virtually everything in the game world
- - Added user-definable colored fog: simply add lines similar to the following to your duke3d.def:
-   fogpal <palette number> <red intensity> <green intensity> <blue intensity>
-   Intensities range from 0-63, and palettes 26, 27, 28 and 29 are pre-defined for you as
-   white, red, green and blue respectively.  Sector visibility controls fog density.
- - Added movement_lock[] member to player struct.  Functionality will be explained upon request
-   until the wiki is updated.  As can be guessed, this is used to lock player movement.
- - Fixed a couple of reload bugs
- - Projectile system internally optimized and improved (ripped out remnants of variable based
-   system as well as modified the system to restore projectile defaults on game restart)
- - Added the following primitives:
-    - movesprite 
-    - checkavailweapon
-    - updatesectorz
-    - ssp
-    - stopallsounds
-    - soundoncevar
-    - stopsoundvar 
-   Movesprite, checkavailweapon, updatesectorz and ssp work exactly as their
-   internal counterparts do.  The sound commands are self-explanatory.
- - Minor fixes to the error handling system -- it is now impossible to redefine internal
-   pointer gamevars.  Some error messages also made more descriptive.
- - Fixed handling of bad CON files
- - Added "-condebug" command line parameter which prints one line to the init window per line
-   compiled.  This is useful in cases where you've encountered a bug in the CON parser which
-   throws you into an infinite loop on compile, as you can see where the problem happened.
- - Fixed "DNITEMS" cheat not triggering item cheat events
- - CON commands "addlog" and "addlogvar" now print to console and log to eduke32.log
-   with all of the other log information rather than log.log
- - Fixed multiplayer menu problem
- - Added PROJECTILE_FLAG_RPG_IMPACT (defined as 32768) to projectile flags.  This flag causes
-   an RPG type projectile to directly damage whatever it hits rather than do radius damage.
- - By request, changed how Duke moves when submerging into and emerging from underwater sectors
- - Various minor code clean-ups and fixes
-
- - Mapster32 changes:
-    - Added ' 5 2D mode key combination for changing the shade of every parallaxed ceiling
-      on the map at once
-    - Added ' 6 2D mode key combination for changing the height of every parallaxed ceiling
-      on the map at once
-    - Added ' Z 2D mode key combination for offsetting an entire map on the Z plane.  This
-      is useful for merging sections of maps into other maps.
-    - Added Left ALT ' 7 2D mode key combination for scaling the entire map (multiply)
-    - Added Left ALT ' 8 2D mode key combination for scaling the entire map (divide)
-    - Added ' M key combination for setting .extra member (this is the SW middle tag)
-    - Help menus re-organized to be more useful
-    - Added ' P 3D mode key combination to set palette on all sectors selected in 2D mode
-    - Added ; V 3D mode key combination to set visibility on all sectors selected in 2D mode
-    - Added support for running without lookup.dat (obviously, this will disable alt pals)
-
-==1.2.1==
- - Updated to current JFDuke3D and JFBuild release, see releasenotes.html for details
- - Mapster32 updated to 1.0.1, hit F1 in 2D mode for new feature rundown
- - Added "spritenoshade" command.  This command works just like spritenvg and spriteshadow, and does
-   exactly what it claims to do.
- - Fixed 1.2.0 bug which made the player's APLAYER sprite's position shift across the map each time a
-   bullet hole was left on a wall.
-
-==1.2.0==
- - Updated to current JFDuke3D and JFBuild release, see releasenotes.html for details
- - Introduction of Mapster32, the enhanced Build editor version 1.0.0
- - Lots of miscellaneous code clean-ups and bug fixes
- - Fixed pre-placed tripbomb bug from EDuke32 1.0.0
- - Increased MAXCYCLERS to 1024
- - Renumbered EVENT_AIMDOWN to be event 63
- - Ripped out unused NAM and WW2GI-specific code
- - Ripped out unused code specific to foreign, demo and beta versions of Duke
- - Added several new primitives, as follows:
-    - whilevarn
-    - switch
-    - case
-    - default
-    - endswitch
-    - shootvar
-    - soundvar
-    - findplayer
-    - findotherplayer
-    - activatebysector
-    - operatesectors
-    - operateactivators
-    - operatemasterswitches
-    - checkactivatormotion
-    - zshoot
-    - dist
-    - ldist
-    - shiftvarl
-    - shitvarr
-    - spritenvg
-    - getangle
-    - whilevarvarn
-    - hitscan
-    - getplayervar
-    - setplayervar
-    - mulscale
-    - setaspect
-   Descriptions of these commands will be available soon on EDukeWiki
- - Added "reloading" member to player struct (1 when reloading, 0 when not, weapon changes blocked while 1)
- - Fixed setuserdef
- - Fixed eventloadactor
- - Added ud.statusbarscale to get/setuserdef
- - Restricted all screen drawing commands to events
- - Fixed issues with several events
- - SHOTSPARK1 now sets temp_data[6-8] to hitwall, hitsect and hitspr, in that order
- - Tweaked the operation of weapons to allow identical operation to Duke3D 1.5 (may cause issues with some existing mods)
- - All effector sprites now made non-blockable non-hitscan-sensitive on map start
- - Added "range" field to custom projectile system
