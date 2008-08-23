@@ -55,7 +55,7 @@ asm=nasm
 #
 ifneq ($(RELEASE),0)
   # Debugging disabled
-  debug=-fomit-frame-pointer -ftree-vectorize -finline-small-functions -O$(OPTLEVEL)
+  debug=-fomit-frame-pointer -ftree-vectorize -finline-small-functions -fpredictive-commoning -funswitch-loops -O$(OPTLEVEL)
 else
   # Debugging enabled
   debug=-ggdb -O0 -DDEBUGGINGAIDS -DNOSDLPARACHUTE

@@ -1823,9 +1823,9 @@ static int parsecommand(void)
             if (aGameVars[i].szLabel)
                 if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
                 {
-                    error++;
-                    ReportError(ERROR_NAMEMATCHESVAR);
-                    return 0;
+//                    warning++;
+                    ReportError(WARNING_NAMEMATCHESVAR);
+                    break;
                 }
         }
 
@@ -2067,9 +2067,9 @@ static int parsecommand(void)
             if (aGameVars[i].szLabel)
                 if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
                 {
-                    error++;
-                    ReportError(ERROR_NAMEMATCHESVAR);
-                    return 0;
+//                    warning++;
+                    ReportError(WARNING_NAMEMATCHESVAR);
+                    break;
                 }
         }
 
@@ -2100,9 +2100,9 @@ static int parsecommand(void)
             if (aGameVars[i].szLabel)
                 if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
                 {
-                    error++;
-                    ReportError(ERROR_NAMEMATCHESVAR);
-                    return 0;
+//                    warning++;
+                    ReportError(WARNING_NAMEMATCHESVAR);
+                    break;
                 }
         }
 
@@ -2196,9 +2196,9 @@ static int parsecommand(void)
                 if (aGameVars[i].szLabel)
                     if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
                     {
-                        error++;
-                        ReportError(ERROR_NAMEMATCHESVAR);
-                        return 0;
+//                        warning++;
+                        ReportError(WARNING_NAMEMATCHESVAR);
+                        break;
                     }
             }
 
@@ -2400,9 +2400,9 @@ static int parsecommand(void)
                 if (aGameVars[i].szLabel)
                     if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
                     {
-                        error++;
-                        ReportError(ERROR_NAMEMATCHESVAR);
-                        return 0;
+//                        warning++;
+                        ReportError(WARNING_NAMEMATCHESVAR);
+                        break;
                     }
             }
 
@@ -2482,9 +2482,9 @@ static int parsecommand(void)
                 if (aGameVars[i].szLabel)
                     if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
                     {
-                        error++;
-                        ReportError(ERROR_NAMEMATCHESVAR);
-                        return 0;
+//                        warning++;
+                        ReportError(WARNING_NAMEMATCHESVAR);
+                        break;
                     }
             }
 
@@ -4708,10 +4708,27 @@ repeatcase:
         if (Bstrcmp(setupfilename,"duke3d.cfg") == 0) // not set to something else via -cfg
         {
             char temp[BMAX_PATH];
-            j = Bmkdir(mod_dir, S_IRWXU);
-            if (j < 0 && errno != EEXIST)
+            struct stat st;
+            if (stat(mod_dir, &st) < 0)
             {
-                initprintf("Unable to create directory for configuration files...\n");
+                if (errno == ENOENT)     // path doesn't exist
+                {
+                    if (Bmkdir(mod_dir, S_IRWXU) < 0)
+                    {
+                        OSD_Printf("Failed to create configuration file directory %s\n", mod_dir);
+                        return 0;
+                    }
+                    else OSD_Printf("Created configuration file directory %s\n", mod_dir);
+                }
+                else
+                {
+                    // another type of failure
+                    return 0;
+                }
+            }
+            else if ((st.st_mode & S_IFDIR) != S_IFDIR)
+            {
+                // directory isn't a directory
                 return 0;
             }
             Bstrcpy(temp,tempbuf);
@@ -5718,9 +5735,6 @@ void ReportError(int iError)
     case ERROR_ISAKEYWORD:
         initprintf("%s:%d: error: symbol `%s' is a keyword.\n",compilefile,line_number,label+(labelcnt<<6));
         break;
-    case ERROR_NAMEMATCHESVAR:
-        initprintf("%s:%d: error: symbol `%s' is a game variable.\n",compilefile,line_number,label+(labelcnt<<6));
-        break;
     case ERROR_NOENDSWITCH:
         initprintf("%s:%d: error: did not find `endswitch' before `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
         break;
@@ -5760,6 +5774,12 @@ void ReportError(int iError)
     case ERROR_VARTYPEMISMATCH:
         initprintf("%s:%d: error: variable `%s' is of the wrong type.\n",compilefile,line_number,label+(labelcnt<<6));
         break;
+    case WARNING_BADGAMEVAR:
+        initprintf("%s:%ld: warning: variable `%s' should be either per-player OR per-actor, not both.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case WARNING_DUPLICATECASE:
+        initprintf("%s:%ld: warning: duplicate case ignored.\n",compilefile,line_number);
+        break;
     case WARNING_DUPLICATEDEFINITION:
         initprintf("%s:%d: warning: duplicate game definition `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
         break;
@@ -5769,11 +5789,8 @@ void ReportError(int iError)
     case WARNING_LABELSONLY:
         initprintf("%s:%d: warning: expected a label, found a constant.\n",compilefile,line_number);
         break;
-    case WARNING_BADGAMEVAR:
-        initprintf("%s:%ld: warning: variable `%s' should be either per-player OR per-actor, not both.\n",compilefile,line_number,label+(labelcnt<<6));
-        break;
-    case WARNING_DUPLICATECASE:
-        initprintf("%s:%ld: warning: duplicate case ignored.\n",compilefile,line_number);
+    case WARNING_NAMEMATCHESVAR:
+        initprintf("%s:%d: warning: symbol `%s' is a game variable.\n",compilefile,line_number,label+(labelcnt<<6));
         break;
     case WARNING_REVEVENTSYNC:
         initprintf("%s:%d: warning: found `%s' outside of a local event.\n",compilefile,line_number,tempbuf);

@@ -652,8 +652,10 @@ int32 CONFIG_ReadSetup(void)
                 SCRIPT_GetString(ud.config.scripthandle, "Setup","SelectedGRP",&duke3dgrp[0]);
         }
 
-//        if (mod_dir[0] == '/')
-//            SCRIPT_GetString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
+#ifdef _WIN32
+        if (mod_dir[0] == '/')
+            SCRIPT_GetString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
+#endif
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Shadows",&ud.shadows);
 
@@ -1120,7 +1122,11 @@ void CONFIG_WriteSetup(void)
 
 
     SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",&duke3dgrp[0]);
-//    SCRIPT_PutString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
+
+#ifdef _WIN32
+    SCRIPT_PutString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
+#endif
+
     {
         char commmacro[] = "CommbatMacro# ";
 

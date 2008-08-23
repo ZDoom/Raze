@@ -273,6 +273,7 @@ static void cachegoodsprites(void)
     for (i=GROWSPARK; i<GROWSPARK+4; i++) tloadtile(i,1);
     for (i=SHRINKEREXPLOSION; i<SHRINKEREXPLOSION+4; i++) tloadtile(i,1);
     for (i=MORTER; i<MORTER+4; i++) tloadtile(i,4);
+    for (i=0; i<=60; i++) tloadtile(i,1);
 }
 
 static int getsound(unsigned int num)

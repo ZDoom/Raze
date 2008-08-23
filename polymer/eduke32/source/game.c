@@ -50,7 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20080822 // this is checked against http://eduke32.com/VERSION
+#define BUILDDATE 20080823 // this is checked against http://eduke32.com/VERSION
 #define UPDATEINTERVAL 604800 // 1w
 #else
 static int usecwd = 0;
@@ -7430,10 +7430,14 @@ PALONLY:
         if (sector[t->sectnum].floorpicnum == MIRROR)
             t->xrepeat = t->yrepeat = 0;
     }
-    for (j=0;j < spritesortcnt; j++)
+    for (j=spritesortcnt-1;j>=0; j--)
     {
         if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
-        OnEvent(EVENT_ANIMATESPRITES, j, myconnectindex, -1);
+        if (tsprite[j].owner > 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS) 	         OnEvent(EVENT_ANIMATESPRITES, j, myconnectindex, -1);
+        { 	 
+            OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1); 	 
+            spriteext[tsprite[j].owner].tspr = NULL; 	 
+        }
     }
 }
 #ifdef _MSC_VER
