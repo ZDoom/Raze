@@ -2649,9 +2649,10 @@ void sharedkeys(int snum)
                 {
                     p->steroids_amount--;
                     spritesound(DUKE_TAKEPILLS,p->i);
-                    p->inven_icon = 2;
                     FTA(12,p);
                 }
+                if (p->steroids_amount > 0)
+                    p->inven_icon = 2;
             }
             return;		// is there significance to returning?
         }

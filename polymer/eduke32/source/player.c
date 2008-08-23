@@ -3330,18 +3330,15 @@ void processinput(int snum)
     shrunk = (s->yrepeat < 32);
     getzrange(p->posx,p->posy,p->posz,psect,&cz,&hz,&fz,&lz,163L,CLIPMASK0);
 
-    /*
-    j = getflorzofslope(psect,p->posx,p->posy);
-
-    p->truefz = j;
-    p->truecz = getceilzofslope(psect,p->posx,p->posy);
-    */
     getzsofslope(psect,p->posx,p->posy,&p->truecz,&p->truefz);
     j = p->truefz;
 
     truefdist = klabs(p->posz-j);
+
+    /* wtf is this supposed to do?
     if ((lz&49152) == 16384 && psectlotag == 1 && truefdist > PHEIGHT+(16<<8))
         psectlotag = 0;
+    */
 
     hittype[pi].floorz = fz;
     hittype[pi].ceilingz = cz;
