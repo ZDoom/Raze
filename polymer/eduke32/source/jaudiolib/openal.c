@@ -345,11 +345,13 @@ int AL_Init()
     return 0;
 }
 
+void AL_Stop();
 void AL_Shutdown()
 {
     if (openal_disabled)return;
 
     initprintf("Uninitializing OpenAL...\n");
+    AL_Stop();
     ALdoing="Shut";
     balcMakeContextCurrent(NULL);
     check(1);
@@ -364,7 +366,6 @@ int AL_MusicVolume;
 extern int Musicsize;
 
 
-void AL_Stop();
 int update();
 int stream(ALuint buffer);
 void open1(char *ptr,int sizef,char loop);

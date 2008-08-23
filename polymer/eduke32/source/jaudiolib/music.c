@@ -630,8 +630,5 @@ void MUSIC_RegisterTimbreBank
 void MUSIC_Update(void)
 {
     MIDI_UpdateMusic();
-#ifdef USE_OPENAL
-    AL_Update();
-#endif
 }
 

@@ -33,6 +33,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <string.h>
 #include "dsound.h"
+#ifdef USE_OPENAL
+#include "openal.h"
+#endif
 #include "compat.h"
 #include "winlayer.h"
 
@@ -424,6 +427,9 @@ static DWORD WINAPI isr(LPVOID parm)
 
     while (1)
     {
+#ifdef USE_OPENAL
+        AL_Update();
+#endif
         rv = WaitForMultipleObjects(1+_DSOUND_NumBuffers, handles, FALSE, INFINITE);
 
         if (!(rv >= WAIT_OBJECT_0 && rv <= WAIT_OBJECT_0+1+_DSOUND_NumBuffers)) return -1;

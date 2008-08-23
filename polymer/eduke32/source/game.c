@@ -54,8 +54,8 @@ extern int getversionfromwebsite(char *buffer);
 #define UPDATEINTERVAL 604800 // 1w
 #else
 static int usecwd = 0;
-int checkCON = 1;
 #endif /* _WIN32 */
+int checkCON = 1;
 
 #define IDFSIZE 479985668
 #define IDFILENAME "DUKE3D.IDF"
