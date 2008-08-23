@@ -1399,7 +1399,7 @@ static int keyword(void)
         i++;
     }
     tempbuf[i] = 0;
-    for (i=0;i<NUMKEYWORDS;i++)
+    for (i=NUMKEYWORDS-1;i>=0;i--)
         if (Bstrcmp(tempbuf,keyw[i]) == 0)
             return i;
 
@@ -1503,7 +1503,7 @@ static void transvartype(int type)
     getlabel();
 
     if (!nokeywordcheck)
-        for (i=0;i<NUMKEYWORDS;i++)
+        for (i=NUMKEYWORDS-1;i>=0;i--)
             if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
             {
                 error++;
@@ -1553,7 +1553,7 @@ static void transvartype(int type)
         {
             //try looking for a define instead
             Bstrcpy(tempbuf,label+(labelcnt<<6));
-            for (i=0;i<labelcnt;i++)
+            for (i=labelcnt-1;i>=0;i--)
             {
                 if (Bstrcmp(tempbuf,label+(i<<6)) == 0 && (labeltype[i] & LABEL_DEFINE))
                 {
@@ -1608,7 +1608,7 @@ static inline void transvar(void)
 static inline void transmultvarstype(int type, int num)
 {
     int i;
-    for (i=0;i<num;i++)
+    for (i=num-1;i>=0;i--)
         transvartype(type);
 }
 
@@ -1640,7 +1640,7 @@ static int transnum(int type)
     tempbuf[l] = 0;
 
     if (!nokeywordcheck)
-        for (i=0;i<NUMKEYWORDS;i++)
+        for (i=NUMKEYWORDS-1;i>=0;i--)
             if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
             {
                 error++;
@@ -1648,7 +1648,7 @@ static int transnum(int type)
                 textptr+=l;
             }
 
-    for (i=0;i<labelcnt;i++)
+    for (i=labelcnt-1;i>=0;i--)
     {
         if (!Bstrcmp(tempbuf,label+(i<<6)))
         {
@@ -1795,13 +1795,25 @@ static int parsecommand(void)
 
         getlabel();
 
-        for (i=0;i<NUMKEYWORDS;i++)
+        for (i=NUMKEYWORDS-1;i>=0;i--)
             if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
             {
                 error++;
                 ReportError(ERROR_ISAKEYWORD);
                 return 0;
             }
+
+        for (i=iGameVarCount-1;i>=0;i--)
+        {
+            if (aGameVars[i].szLabel)
+                if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
+                {
+                    error++;
+                    ReportError(ERROR_NAMEMATCHESVAR);
+                    return 0;
+                }
+        }
+
         for (j=0;j<labelcnt;j++)
         {
             if (Bstrcmp(label+(j<<6),label+(labelcnt<<6)) == 0)
@@ -1967,7 +1979,7 @@ static int parsecommand(void)
         //printf("Got Label '%.20s'\n",textptr);
         // Check to see it's already defined
 
-        for (i=0;i<NUMKEYWORDS;i++)
+        for (i=NUMKEYWORDS-1;i>=0;i--)
             if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
             {
                 error++;
@@ -2027,13 +2039,25 @@ static int parsecommand(void)
         //printf("Got Label '%.20s'\n",textptr);
         // Check to see it's already defined
 
-        for (i=0;i<NUMKEYWORDS;i++)
+        for (i=NUMKEYWORDS-1;i>=0;i--)
             if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
             {
                 error++;
                 ReportError(ERROR_ISAKEYWORD);
                 return 0;
             }
+
+        for (i=iGameVarCount-1;i>=0;i--)
+        {
+            if (aGameVars[i].szLabel)
+                if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
+                {
+                    error++;
+                    ReportError(ERROR_NAMEMATCHESVAR);
+                    return 0;
+                }
+        }
+
         transnum(LABEL_DEFINE);
         AddGameArray(label+(labelcnt<<6),*(scriptptr-1));
 
@@ -2048,7 +2072,7 @@ static int parsecommand(void)
         //printf("Got label. '%.20s'\n",textptr);
         // Check to see it's already defined
 
-        for (i=0;i<NUMKEYWORDS;i++)
+        for (i=NUMKEYWORDS-1;i>=0;i--)
             if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
             {
                 error++;
@@ -2056,7 +2080,18 @@ static int parsecommand(void)
                 return 0;
             }
 
-        for (i=0;i<labelcnt;i++)
+        for (i=iGameVarCount-1;i>=0;i--)
+        {
+            if (aGameVars[i].szLabel)
+                if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
+                {
+                    error++;
+                    ReportError(ERROR_NAMEMATCHESVAR);
+                    return 0;
+                }
+        }
+
+        for (i=labelcnt-1;i>=0;i--)
         {
             if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 /* && (labeltype[i] & LABEL_DEFINE) */)
             {
@@ -2068,35 +2103,36 @@ static int parsecommand(void)
                 break;
             }
         }
+
         //printf("Translating. '%.20s'\n",textptr);
         transnum(LABEL_DEFINE);
         //printf("Translated. '%.20s'\n",textptr);
-        if (i == labelcnt)
+        if (i == -1)
         {
             //              printf("Defining Definition '%s' to be '%d'\n",label+(labelcnt<<6),*(scriptptr-1));
             labeltype[labelcnt] = LABEL_DEFINE;
             labelcode[labelcnt++] = *(scriptptr-1);
             if (*(scriptptr-1) >= 0 && *(scriptptr-1) < MAXTILES && dynamicremap)
-                processnames(label+(i<<6),*(scriptptr-1));
+                processnames(label+(labelcnt<<6),*(scriptptr-1));
         }
         scriptptr -= 2;
         return 0;
     }
 
     case CON_PALFROM:
-        for (j=0;j<4;j++)
+        for (j=3;j>=0;j--)
         {
             if (keyword() == -1)
                 transnum(LABEL_DEFINE);
             else break;
         }
 
-        while (j<4)
+        while (j>-1)
         {
             bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
             *scriptptr = 0;
             scriptptr++;
-            j++;
+            j--;
         }
         return 0;
 
@@ -2132,7 +2168,7 @@ static int parsecommand(void)
             getlabel();
             // Check to see it's already defined
 
-            for (i=0;i<NUMKEYWORDS;i++)
+            for (i=NUMKEYWORDS-1;i>=0;i--)
                 if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
                 {
                     error++;
@@ -2140,24 +2176,35 @@ static int parsecommand(void)
                     return 0;
                 }
 
-            for (i=0;i<labelcnt;i++)
+            for (i=iGameVarCount-1;i>=0;i--)
+            {
+                if (aGameVars[i].szLabel)
+                    if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
+                    {
+                        error++;
+                        ReportError(ERROR_NAMEMATCHESVAR);
+                        return 0;
+                    }
+            }
+
+            for (i=labelcnt-1;i>=0;i--)
                 if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 /* && (labeltype[i] & LABEL_MOVE) */)
                 {
                     warning++;
                     initprintf("%s:%d: warning: duplicate move `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
                     break;
                 }
-            if (i == labelcnt)
+            if (i == -1)
             {
                 labeltype[labelcnt] = LABEL_MOVE;
                 labelcode[labelcnt++] = (intptr_t) scriptptr;
             }
-            for (j=0;j<2;j++)
+            for (j=1;j>=0;j--)
             {
                 if (keyword() >= 0) break;
                 transnum(LABEL_DEFINE);
             }
-            for (k=j;k<2;k++)
+            for (k=j;k>=0;k--)
             {
                 bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
                 *scriptptr = 0;
@@ -2325,7 +2372,7 @@ static int parsecommand(void)
             scriptptr--;
             getlabel();
 
-            for (i=0;i<NUMKEYWORDS;i++)
+            for (i=NUMKEYWORDS-1;i>=0;i--)
                 if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
                 {
                     error++;
@@ -2333,7 +2380,18 @@ static int parsecommand(void)
                     return 0;
                 }
 
-            for (i=0;i<labelcnt;i++)
+            for (i=iGameVarCount-1;i>=0;i--)
+            {
+                if (aGameVars[i].szLabel)
+                    if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
+                    {
+                        error++;
+                        ReportError(ERROR_NAMEMATCHESVAR);
+                        return 0;
+                    }
+            }
+
+            for (i=labelcnt-1;i>=0;i--)
                 if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 /* && (labeltype[i] & LABEL_AI) */)
                 {
                     warning++;
@@ -2341,7 +2399,7 @@ static int parsecommand(void)
                     break;
                 }
 
-            if (i == labelcnt)
+            if (i == -1)
             {
                 labeltype[labelcnt] = LABEL_AI;
                 labelcode[labelcnt++] = (intptr_t) scriptptr;
@@ -2403,6 +2461,18 @@ static int parsecommand(void)
                     ReportError(ERROR_ISAKEYWORD);
                     return 0;
                 }
+
+            for (i=iGameVarCount-1;i>=0;i--)
+            {
+                if (aGameVars[i].szLabel)
+                    if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
+                    {
+                        error++;
+                        ReportError(ERROR_NAMEMATCHESVAR);
+                        return 0;
+                    }
+            }
+
             for (i=labelcnt-1;i>=0;i--)
                 if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 /* && (labeltype[i] & LABEL_ACTION) */)
                 {
@@ -2418,12 +2488,12 @@ static int parsecommand(void)
                 labelcnt++;
             }
 
-            for (j=0;j<5;j++)
+            for (j=4;j>=0;j--)
             {
                 if (keyword() >= 0) break;
                 transnum(LABEL_DEFINE);
             }
-            for (k=j;k<5;k++)
+            for (k=j;k>=0;k--)
             {
                 bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
                 *scriptptr = 0;
@@ -2690,19 +2760,19 @@ static int parsecommand(void)
     case CON_QSPRINTF:
         transnum(LABEL_DEFINE);
         transnum(LABEL_DEFINE);
-        for (j = 0;j < 4;j++)
+        for (j=3;j>=0;j--)
         {
             if (keyword() == -1)
                 transvar();
             else break;
         }
 
-        while (j < 4)
+        while (j > -1)
         {
             bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
             *scriptptr = 0;
             scriptptr++;
-            j++;
+            j--;
         }
         return 0;
 
@@ -3257,7 +3327,7 @@ static int parsecommand(void)
         //printf("found label of '%s'\n",   label+(labelcnt<<6));
 
         // Check to see if it's a keyword
-        for (i=0;i<NUMKEYWORDS;i++)
+        for (i=NUMKEYWORDS-1;i>=0;i--)
             if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
             {
                 error++;
@@ -4181,7 +4251,7 @@ repeatcase:
         //AddLog(g_szBuf);
         if (casescriptptr)
         {
-            for (i=0;i<casecount/2;i++)
+            for (i=(casecount/2)-1;i>=0;i--)
                 if (casescriptptr[i*2+1]==j)
                 {
                     //warning++;
@@ -5323,7 +5393,7 @@ static void AddDefaultDefinitions(void)
 static void InitProjectiles(void)
 {
     int i;
-    for (i=0;i<MAXTILES;i++)
+    for (i=MAXTILES-1;i>=0;i--)
     {
         projectile[i].workslike = 1;
         projectile[i].spawns = SMALLSMOKE;
@@ -5499,12 +5569,12 @@ void loadefs(const char *filenam)
         int j=0, k=0;
 
         total_lines += line_number;
-        for (i=0;i<MAXGAMEEVENTS;i++)
+        for (i=MAXGAMEEVENTS-1;i>=0;i--)
         {
             if (apScriptGameEvent[i])
                 j++;
         }
-        for (i=0;i<MAXTILES;i++)
+        for (i=MAXTILES-1;i>=0;i--)
         {
             if (actorscrptr[i])
                 k++;
@@ -5514,14 +5584,14 @@ void loadefs(const char *filenam)
         initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((MAXSECTORS * sizeof(sectortype)/sizeof(int)),(MAXSPRITES * sizeof(spritetype)/(1<<6))),iGameVarCount,MAXGAMEVARS);
         initprintf("%ld event definitions, %ld defined actors\n",j,k);
 
-        for (i=0;i<128;i++)
+        for (i=127;i>=0;i--)
             if (fta_quotes[i] == NULL)
                 fta_quotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
 
 //        if (!Bstrcmp(fta_quotes[13],"PRESS SPACE TO RESTART LEVEL"))
 //            Bstrcpy(fta_quotes[13],"PRESS USE TO RESTART LEVEL");
 
-        for (i=0;i<MAXQUOTELEN-6;i++)
+        for (i=MAXQUOTELEN-7;i>=0;i--)
             if (Bstrncmp(&fta_quotes[13][i],"SPACE",5) == 0)
             {
                 Bmemset(tempbuf,0,sizeof(tempbuf));
@@ -5529,7 +5599,7 @@ void loadefs(const char *filenam)
                 Bstrcat(tempbuf,"OPEN");
                 Bstrcat(tempbuf,&fta_quotes[13][i+5]);
                 Bstrncpy(fta_quotes[13],tempbuf,MAXQUOTELEN-1);
-                i = 0;
+                i = MAXQUOTELEN-7;
             }
 
         {
@@ -5577,7 +5647,7 @@ void loadefs(const char *filenam)
                 "^2%s ^2SWITCHED TO TEAM %d"
             };
 
-            for (i=0;i<(signed int)(sizeof(ppdeathstrings)/sizeof(ppdeathstrings[0]));i++)
+            for (i=(sizeof(ppdeathstrings)/sizeof(ppdeathstrings[0]))-1;i>=0;i--)
             {
                 if (fta_quotes[i+PPDEATHSTRINGS] == NULL)
                 {
@@ -5586,7 +5656,7 @@ void loadefs(const char *filenam)
                 }
             }
 
-            for (i=0;i<(signed int)(sizeof(podeathstrings)/sizeof(podeathstrings[0]));i++)
+            for (i=(sizeof(podeathstrings)/sizeof(podeathstrings[0]))-1;i>=0;i--)
             {
                 if (fta_quotes[i+PSDEATHSTRINGS] == NULL)
                 {
@@ -5626,6 +5696,9 @@ void ReportError(int iError)
         break;
     case ERROR_ISAKEYWORD:
         initprintf("%s:%d: error: symbol `%s' is a keyword.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_NAMEMATCHESVAR:
+        initprintf("%s:%d: error: symbol `%s' is a game variable.\n",compilefile,line_number,label+(labelcnt<<6));
         break;
     case ERROR_NOENDSWITCH:
         initprintf("%s:%d: error: did not find `endswitch' before `%s'.\n",compilefile,line_number,label+(labelcnt<<6));

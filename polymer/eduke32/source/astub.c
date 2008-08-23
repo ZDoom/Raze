@@ -7427,13 +7427,14 @@ int ExtInit(void)
     addsearchpath("/Library/Application Support/EDuke32");
 #endif
 
-    if (getcwd(cwd,BMAX_PATH)) {
-      #if defined(__APPLE__)
+    if (getcwd(cwd,BMAX_PATH))
+    {
+#if defined(__APPLE__)
         /* Dirty hack on OS X to also look for gamedata inside the application bundle - rhoenie 08/08 */
         char seekinappcontainer[BMAX_PATH];
         Bsnprintf(seekinappcontainer,sizeof(seekinappcontainer),"%s/EDuke32.app/", cwd);
         addsearchpath(seekinappcontainer);
-      #endif
+#endif
         addsearchpath(cwd);
     }
 

@@ -10119,7 +10119,7 @@ static void genspriteremaps(void)
     // this is almost as bad as just setting the value to 25 :P
     g_NumPalettes = (g_NumPalettes * (uint64)0x0202020202 & (uint64)0x010884422010) % 1023;
 #endif
-        
+
     for (j=g_NumPalettes-1;j>=0;j--)
     {
         kread(fp,(signed char *)&look_pos,1);
@@ -10593,14 +10593,15 @@ void app_main(int argc,const char **argv)
     g_player[0].ps = (player_struct *) Bcalloc(1, sizeof(player_struct));
     g_player[0].sync = (input_t *) Bcalloc(1, sizeof(input_t));
 
-    if (getcwd(cwd,BMAX_PATH)) {
-      addsearchpath(cwd);
-      #if defined(__APPLE__)
+    if (getcwd(cwd,BMAX_PATH))
+    {
+        addsearchpath(cwd);
+#if defined(__APPLE__)
         /* Dirty hack on OS X to also look for gamedata inside the application bundle - rhoenie 08/08 */
         char seekinappcontainer[BMAX_PATH];
         Bsnprintf(seekinappcontainer,sizeof(seekinappcontainer),"%s/EDuke32.app/", cwd);
         addsearchpath(seekinappcontainer);
-      #endif
+#endif
     }
 
     if (CommandPaths)
