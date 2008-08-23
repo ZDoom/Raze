@@ -1398,6 +1398,11 @@ static void GetKeyNames(void)
 
         CharToOem(key.tszName, tbuf);
         strncpy((char *)keynames[i], tbuf, sizeof(keynames[i])-1);
+
+        tbuf[0] = 0;
+        GetKeyNameText((i>128?(i+128):i)<<16, tbuf, sizeof(keynames[i])-1);
+//        initprintf("%d %15s  %15s\n",i,keynames[i],tbuf);
+        if(*tbuf)strncpy((char *)keynames[i], tbuf, sizeof(keynames[i])-1);
     }
 }
 
