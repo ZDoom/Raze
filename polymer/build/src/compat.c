@@ -339,11 +339,29 @@ char *Bgethomedir(void)
 #ifdef _WIN32
     FARPROC aSHGetSpecialFolderPathA;
     TCHAR appdata[MAX_PATH];
+    int loaded = 0;
+    HMODULE hShell32 = GetModuleHandle("shell32.dll");
 
-    aSHGetSpecialFolderPathA = GetProcAddress(GetModuleHandle("shell32.dll"), "SHGetSpecialFolderPathA");
+    if (hShell32 == NULL)
+    {
+        hShell32 = LoadLibrary("shell32.dll");
+        loaded = 1;
+    }
+
+    if (hShell32 == NULL)
+        return NULL;
+
+    aSHGetSpecialFolderPathA = GetProcAddress(hShell32, "SHGetSpecialFolderPathA");
     if (aSHGetSpecialFolderPathA != NULL)
         if (SUCCEEDED(aSHGetSpecialFolderPathA(NULL, appdata, CSIDL_APPDATA, FALSE)))
+        {
+            if (loaded)
+                FreeLibrary(hShell32);
             return strdup(appdata);
+        }
+
+    if (loaded)
+        FreeLibrary(hShell32);
     return NULL;
 #elif defined(__APPLE__) && MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_3
     FSRef ref;

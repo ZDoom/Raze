@@ -50,7 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20080821 // this is checked against http://eduke32.com/VERSION
+#define BUILDDATE 20080822 // this is checked against http://eduke32.com/VERSION
 #define UPDATEINTERVAL 604800 // 1w
 #else
 static int usecwd = 0;
@@ -10643,7 +10643,7 @@ void app_main(int argc,const char **argv)
                 if (Bmkdir(cwd,S_IRWXU) == 0) asperr = addsearchpath(cwd);
                 else asperr = -1;
             }
-            if ((asperr == 0))
+            if (asperr == 0)
                 chdir(cwd);
             Bfree(homedir);
         }
