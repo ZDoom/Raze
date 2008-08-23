@@ -10534,6 +10534,7 @@ void app_main(int argc,const char **argv)
 {
     int i, j;
     char cwd[BMAX_PATH];
+    char root[BMAX_PATH];
     extern char datetimestring[];
 
 #ifdef RENDERTYPEWIN
@@ -10550,9 +10551,11 @@ void app_main(int argc,const char **argv)
 #endif
 
 #ifdef _WIN32
-    tempbuf[GetModuleFileName(NULL,tempbuf,BMAX_PATH)] = 0;
-    Bcorrectfilename(tempbuf,1);
-    chdir(tempbuf);
+    tempbuf[GetModuleFileName(NULL,root,BMAX_PATH)] = 0;
+    Bcorrectfilename(root,1);
+    chdir(root);
+#else
+    Bmemset(root,0,sizeof(root));
 #endif
 
     OSD_SetLogFile("eduke32.log");
@@ -10789,7 +10792,11 @@ void app_main(int argc,const char **argv)
     }
 
     if (mod_dir[0] != '/')
+    {
+        Bstrcat(root,mod_dir);
+        addsearchpath(root);
         addsearchpath(mod_dir);
+    }
 
     i = initgroupfile(duke3dgrp);
 

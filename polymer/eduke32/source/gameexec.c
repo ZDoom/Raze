@@ -3529,7 +3529,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
 
     switch (lLabelID)
     {
-    case ACTOR_X:
+    case ACTOR_TSPRX:
         if (iSet)
         {
             spriteext[iActor].tspr->x=lValue;
@@ -3538,7 +3538,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         SetGameVarID(lVar2, spriteext[iActor].tspr->x,g_i,g_p);
         return;
 
-    case ACTOR_Y:
+    case ACTOR_TSPRY:
         if (iSet)
         {
             spriteext[iActor].tspr->y=lValue;
@@ -3547,7 +3547,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         SetGameVarID(lVar2, spriteext[iActor].tspr->y,g_i,g_p);
         return;
 
-    case ACTOR_Z:
+    case ACTOR_TSPRZ:
         if (iSet)
         {
             spriteext[iActor].tspr->z=lValue;
@@ -3556,7 +3556,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         SetGameVarID(lVar2, spriteext[iActor].tspr->z,g_i,g_p);
         return;
 
-    case ACTOR_CSTAT:
+    case ACTOR_TSPRCSTAT:
         if (iSet)
         {
             spriteext[iActor].tspr->cstat=lValue;
@@ -3565,7 +3565,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         SetGameVarID(lVar2, spriteext[iActor].tspr->cstat,g_i,g_p);
         return;
 
-    case ACTOR_PICNUM:
+    case ACTOR_TSPRPICNUM:
         if (iSet)
         {
             spriteext[iActor].tspr->picnum=lValue;
@@ -3574,7 +3574,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         SetGameVarID(lVar2, spriteext[iActor].tspr->picnum,g_i,g_p);
         return;
 
-    case ACTOR_SHADE:
+    case ACTOR_TSPRSHADE:
         if (iSet)
         {
             spriteext[iActor].tspr->shade=lValue;
@@ -3583,7 +3583,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         SetGameVarID(lVar2, spriteext[iActor].tspr->shade,g_i,g_p);
         return;
 
-    case ACTOR_PAL:
+    case ACTOR_TSPRPAL:
         if (iSet)
         {
             spriteext[iActor].tspr->pal=lValue;
@@ -3592,25 +3592,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         SetGameVarID(lVar2, spriteext[iActor].tspr->pal,g_i,g_p);
         return;
 
-    case ACTOR_CLIPDIST:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->clipdist=lValue;
-            return;
-        }
-        SetGameVarID(lVar2, spriteext[iActor].tspr->clipdist,g_i,g_p);
-        return;
-
-    case ACTOR_DETAIL:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->filler=lValue;
-            return;
-        }
-        SetGameVarID(lVar2, spriteext[iActor].tspr->filler,g_i,g_p);
-        return;
-
-    case ACTOR_XREPEAT:
+    case ACTOR_TSPRXREPEAT:
         if (iSet)
         {
             spriteext[iActor].tspr->xrepeat=lValue;
@@ -3619,7 +3601,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         SetGameVarID(lVar2, spriteext[iActor].tspr->xrepeat,g_i,g_p);
         return;
 
-    case ACTOR_YREPEAT:
+    case ACTOR_TSPRYREPEAT:
         if (iSet)
         {
             spriteext[iActor].tspr->yrepeat=lValue;
@@ -3628,7 +3610,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         SetGameVarID(lVar2, spriteext[iActor].tspr->yrepeat,g_i,g_p);
         return;
 
-    case ACTOR_XOFFSET:
+    case ACTOR_TSPRXOFFSET:
         if (iSet)
         {
             spriteext[iActor].tspr->xoffset=lValue;
@@ -3637,7 +3619,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         SetGameVarID(lVar2, spriteext[iActor].tspr->xoffset,g_i,g_p);
         return;
 
-    case ACTOR_YOFFSET:
+    case ACTOR_TSPRYOFFSET:
         if (iSet)
         {
             spriteext[iActor].tspr->yoffset=lValue;
@@ -3646,7 +3628,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         SetGameVarID(lVar2, spriteext[iActor].tspr->yoffset,g_i,g_p);
         return;
 
-    case ACTOR_SECTNUM:
+    case ACTOR_TSPRSECTNUM:
         if (iSet)
         {
             spriteext[iActor].tspr->sectnum=lValue;
@@ -3655,85 +3637,13 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         SetGameVarID(lVar2, spriteext[iActor].tspr->sectnum,g_i,g_p);
         return;
 
-    case ACTOR_STATNUM:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->statnum=lValue;
-            return;
-        }
-        SetGameVarID(lVar2, spriteext[iActor].tspr->statnum,g_i,g_p);
-        return;
-
-    case ACTOR_ANG:
+    case ACTOR_TSPRANG:
         if (iSet)
         {
             spriteext[iActor].tspr->ang=lValue;
             return;
         }
         SetGameVarID(lVar2, spriteext[iActor].tspr->ang,g_i,g_p);
-        return;
-
-    case ACTOR_OWNER:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->owner=lValue;
-            return;
-        }
-        SetGameVarID(lVar2, spriteext[iActor].tspr->owner,g_i,g_p);
-        return;
-
-    case ACTOR_XVEL:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->xvel=lValue;
-            return;
-        }
-        SetGameVarID(lVar2, spriteext[iActor].tspr->xvel,g_i,g_p);
-        return;
-
-    case ACTOR_YVEL:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->yvel=lValue;
-            return;
-        }
-        SetGameVarID(lVar2, spriteext[iActor].tspr->yvel,g_i,g_p);
-        return;
-
-    case ACTOR_ZVEL:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->zvel=lValue;
-            return;
-        }
-        SetGameVarID(lVar2, spriteext[iActor].tspr->zvel,g_i,g_p);
-        return;
-
-    case ACTOR_LOTAG:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->lotag=lValue;
-            return;
-        }
-        SetGameVarID(lVar2, spriteext[iActor].tspr->lotag,g_i,g_p);
-        return;
-        
-    case ACTOR_HITAG:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->hitag=lValue;
-            return;
-        }
-        SetGameVarID(lVar2, spriteext[iActor].tspr->hitag,g_i,g_p);
-        return;
-
-    case ACTOR_EXTRA:
-        if (iSet)
-        {
-            spriteext[iActor].tspr->extra=lValue;
-            return;
-        }
-        SetGameVarID(lVar2, spriteext[iActor].tspr->extra,g_i,g_p);
         return;
 
     default:
