@@ -5918,7 +5918,7 @@ static int parse(void)
             {
                 int j, i = 0, k, dst = 0x7fffffff;
 
-                for (k=0;k<mirrorcnt;k++)
+                for (k=mirrorcnt-1;k>=0;k--)
                 {
                     j = klabs(wall[mirrorwall[k]].x-x);
                     j += klabs(wall[mirrorwall[k]].y-y);
@@ -6734,8 +6734,8 @@ static int parse(void)
     case CON_PALFROM:
         insptr++;
         g_player[g_p].ps->pals_time = *insptr++;
-        for (j=0;j<3;j++)
-            g_player[g_p].ps->pals[j] = *insptr++;
+        for (j=2;j>=0;j--)
+            g_player[g_p].ps->pals[2-j] = *insptr++;
         break;
 
     case CON_QSPRINTF:
@@ -6921,7 +6921,7 @@ static int parse(void)
             int lType=*insptr++, lMaxDist=GetGameVarID(*insptr++, g_i, g_p), lVarID=*insptr++;
             int lFound=-1, lTemp, j, k;
 
-            for (k=0;k<MAXSTATUS;k++)
+            for (k=MAXSTATUS-1;k>=0;k--)
             {
                 j=headspritestat[(tw==CON_FINDNEARACTORVAR||tw==CON_FINDNEARACTOR3DVAR)?1:k];    // all sprites
                 while (j>=0)
@@ -6959,7 +6959,7 @@ static int parse(void)
             int lType=*insptr++, lMaxDist=GetGameVarID(*insptr++, g_i, g_p), lMaxZDist=GetGameVarID(*insptr++, g_i, g_p);
             int lVarID=*insptr++, lFound=-1, lTemp, lTemp2, j, k;
 
-            for (k=0;k<MAXSTATUS;k++)
+            for (k=MAXSTATUS-1;k>=0;k--)
             {
                 j=headspritestat[tw==CON_FINDNEARACTORZVAR?1:k];    // all sprites
                 while (j>=0)
@@ -7000,7 +7000,7 @@ static int parse(void)
             int lType=*insptr++, lMaxDist=*insptr++, lMaxZDist=*insptr++, lVarID=*insptr++;
             int lTemp, lTemp2, lFound=-1, j, k;
 
-            for (k=0;k<MAXSTATUS;k++)
+            for (k=MAXSTATUS-1;k>=0;k--)
             {
                 j=headspritestat[tw==CON_FINDNEARACTORZ?1:k];    // all sprites
                 while (j>=0)
@@ -7126,6 +7126,8 @@ static int parse(void)
             if (lSprite < 0 || lSprite >= MAXSPRITES)
             {
                 OSD_Printf(CON_ERROR "invalid sprite ID %d\n",line_num,keyw[g_tw],lSprite);
+                if (lVar1 == MAXGAMEVARS) insptr++;
+                if (j == MAXGAMEVARS) insptr++;
                 break;
             }
 
@@ -7843,11 +7845,11 @@ static int parse(void)
         break;
 
     case CON_IFNOSOUNDS:
-        for (j=1;j<MAXSOUNDS;j++)
+        for (j=MAXSOUNDS-1;j>=0;j--)
             if (g_sounds[j].SoundOwner[0].i == g_i)
                 break;
 
-        parseifelse(j == MAXSOUNDS);
+        parseifelse(j < 0);
         break;
 
     case CON_SPRITEFLAGS:
@@ -8055,7 +8057,7 @@ void savemapstate(mapstate_t *save)
         Bmemcpy(&save->prevspritestat[0],&prevspritestat[0],sizeof(prevspritestat));
         Bmemcpy(&save->nextspritestat[0],&nextspritestat[0],sizeof(nextspritestat));
 
-        for (i=0;i<MAXSPRITES;i++)
+        for (i=MAXSPRITES-1;i>=0;i--)
         {
             save->scriptptrs[i] = 0;
 
@@ -8082,7 +8084,7 @@ void savemapstate(mapstate_t *save)
 
         Bmemcpy(&save->hittype[0],&hittype[0],sizeof(actordata_t)*MAXSPRITES);
 
-        for (i=0;i<MAXSPRITES;i++)
+        for (i=MAXSPRITES-1;i>=0;i--)
         {
             if (actorscrptr[PN] == 0) continue;
             j = (intptr_t)&script[0];
@@ -8127,7 +8129,7 @@ void savemapstate(mapstate_t *save)
         Bmemcpy(&save->randomseed,&randomseed,sizeof(randomseed));
         Bmemcpy(&save->global_random,&global_random,sizeof(global_random));
 
-        for (i = 0; i<iGameVarCount;i++)
+        for (i=iGameVarCount-1; i>=0;i--)
         {
             if (aGameVars[i].dwFlags & GAMEVAR_FLAG_NORESET) continue;
             if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
@@ -8180,7 +8182,7 @@ void restoremapstate(mapstate_t *save)
         Bmemcpy(&nextspritestat[0],&save->nextspritestat[0],sizeof(nextspritestat));
         Bmemcpy(&hittype[0],&save->hittype[0],sizeof(actordata_t)*MAXSPRITES);
 
-        for (i=0;i<MAXSPRITES;i++)
+        for (i=MAXSPRITES-1;i>=0;i--)
         {
             j = (intptr_t)(&script[0]);
             if (save->scriptptrs[i]&1) T2 += j;
@@ -8219,7 +8221,7 @@ void restoremapstate(mapstate_t *save)
         Bmemcpy(&randomseed,&save->randomseed,sizeof(randomseed));
         Bmemcpy(&global_random,&save->global_random,sizeof(global_random));
 
-        for (i = 0; i<iGameVarCount;i++)
+        for (i=iGameVarCount-1;i>=0;i--)
         {
             if (aGameVars[i].dwFlags & GAMEVAR_FLAG_NORESET) continue;
             if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
@@ -8245,13 +8247,13 @@ void restoremapstate(mapstate_t *save)
 
         if (ud.lockout == 0)
         {
-            for (x=0;x<numanimwalls;x++)
+            for (x=numanimwalls-1;x>=0;x--)
                 if (wall[animwall[x].wallnum].extra >= 0)
                     wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
         }
         else
         {
-            for (x=0;x<numanimwalls;x++)
+            for (x=numanimwalls-1;x>=0;x--)
                 switch (dynamictostatic[wall[animwall[x].wallnum].picnum])
                 {
                 case FEMPIC1__STATIC:

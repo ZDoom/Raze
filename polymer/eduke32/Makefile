@@ -36,7 +36,7 @@ o=o
 
 ifneq (0,$(RELEASE))
 	# Debugging disabled
-  debug=-fomit-frame-pointer -O$(OPTLEVEL)
+  debug=-fomit-frame-pointer -ftree-vectorize -finline-small-functions -O$(OPTLEVEL)
 else
 	# Debugging enabled
   debug=-ggdb -O0 -DDEBUGGINGAIDS
