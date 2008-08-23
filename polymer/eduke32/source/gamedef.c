@@ -4693,6 +4693,12 @@ repeatcase:
         if (Bstrcmp(setupfilename,"duke3d.cfg") == 0) // not set to something else via -cfg
         {
             char temp[BMAX_PATH];
+            j = Bmkdir(mod_dir, S_IRWXU);
+            if (j < 0 && errno != EEXIST)
+            {
+                initprintf("Unable to create directory for configuration files...\n");
+                return 0;
+            }
             Bstrcpy(temp,tempbuf);
             CONFIG_WriteSetup();
             Bsprintf(setupfilename,"%s/",mod_dir);

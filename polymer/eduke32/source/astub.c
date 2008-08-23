@@ -1248,6 +1248,7 @@ static void ReadHelpFile(const char *name)
     numhelppages = i;
 
     Bfclose(fp);
+    initprintf("Loaded %s\n",name);
     return;
 
 HELPFILE_ERROR:
@@ -6742,8 +6743,6 @@ int ExtPreInit(int argc,const char **argv)
 
     checkcommandline(argc,argv);
 
-    ReadHelpFile("m32help.hlp");
-
     return 0;
 }
 
@@ -7378,7 +7377,7 @@ int loadtilegroups(char *fn)
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
 
-    for (i = 0; i < MAX_TILE_GROUPS; i++)
+    for (i = MAX_TILE_GROUPS-1; i >= 0; i--)
     {
         Bmemcpy(&s_TileGroups[i],&blank,sizeof(blank));
     }
@@ -7398,7 +7397,7 @@ int loadtilegroups(char *fn)
         // If the colors were specified...
         if (s_TileGroups[i].color1 && s_TileGroups[i].color2)
         {
-            for (j = 0; j < s_TileGroups[i].nIds; j++)
+            for (j = s_TileGroups[i].nIds-1; j >= 0 ; j--)
             {
                 // Apply the colors to all tiles in the group.
                 spritecol2d[s_TileGroups[i].pIds[j]][0] = s_TileGroups[i].color1;
@@ -7606,6 +7605,8 @@ int ExtInit(void)
 
     loadtilegroups("tiles.cfg");
 
+    ReadHelpFile("m32help.hlp");
+
     return rv;
 }
 
@@ -7644,14 +7645,14 @@ void ExtUnInit(void)
     uninitgroupfile();
     writesetup(setupfilename);
 
-    for (i = 0; (unsigned)i < MAX_TILE_GROUPS; i++)
+    for (i = MAX_TILE_GROUPS-1; i >= 0; i--)
     {
         if (s_TileGroups[i].pIds != NULL)
             Bfree(s_TileGroups[i].pIds);
         if (s_TileGroups[i].szText != NULL)
             Bfree(s_TileGroups[i].szText);
     }
-    for (i = 0; i < numhelppages;i++) free(helppage[i]);
+    for (i = numhelppages-1; i >= 0;i--) free(helppage[i]);
     if (helppage) free(helppage);
 }
 
@@ -7670,7 +7671,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
         if (shadepreview)
         {
             int i = 0;
-            for (i=0;i<numsprites;i++)
+            for (i=numsprites-1;i>=0;i--)
                 if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || sprite[i].lotag == 3))
                 {
                     int w;
@@ -7967,9 +7968,9 @@ static void Keys2d3d(void)
 //  			  circlewall = -1;
 //  			  circlepoints = 7;
 
-                for (i=0;i<MAXSECTORS;i++) sector[i].extra = -1;
-                for (i=0;i<MAXWALLS;i++) wall[i].extra = -1;
-                for (i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;
+                for (i=MAXSECTORS-1;i>=0;i--) sector[i].extra = -1;
+                for (i=MAXWALLS-1;i>=0;i--) wall[i].extra = -1;
+                for (i=MAXSPRITES-1;i>=0;i--) sprite[i].extra = -1;
 
                 ExtPreLoadMap();
                 i = loadboard(f,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
@@ -8069,7 +8070,7 @@ void ExtCheckKeys(void)
         if (shadepreview)
         {
             int i = 0;
-            for (i=0;i<numsprites;i++)
+            for (i=numsprites-1;i>=0;i--)
                 if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || sprite[i].lotag == 3))
                 {
                     int w;
