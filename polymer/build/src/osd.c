@@ -22,7 +22,7 @@ static int _internal_osdfunc_alias(const osdfuncparm_t *);
 // static int _internal_osdfunc_dumpbuildinfo(const osdfuncparm_t *);
 // static int _internal_osdfunc_setrendermode(const osdfuncparm_t *);
 
-static int white=-1;			// colour of white (used by default display routines)
+static int white=-1;            // colour of white (used by default display routines)
 static void _internal_drawosdchar(int, int, char, int, int);
 static void _internal_drawosdstr(int, int, char*, int, int, int);
 static void _internal_drawosdcursor(int,int,int,int);
@@ -39,50 +39,51 @@ static char osdversionstring[32];
 static int  osdversionstringlen;
 static int  osdversionstringshade;
 static int  osdversionstringpal;
-static int  osdpos=0;			// position next character will be written at
-static int  osdlines=1;			// # lines of text in the buffer
-static int  osdrows=20;			// # lines of the buffer that are visible
+static int  osdpos=0;           // position next character will be written at
+static int  osdlines=1;         // # lines of text in the buffer
+static int  osdrows=20;         // # lines of the buffer that are visible
 static int  osdrowscur=-1;
 static int  osdscroll=0;
-static int  osdcols=60;			// width of onscreen display in text columns
-static int  osdmaxrows=20;		// maximum number of lines which can fit on the screen
-static int  osdmaxlines=TEXTSIZE/60;	// maximum lines which can fit in the buffer
-static char osdvisible=0;		// onscreen display visible?
+static int  osdcols=60;         // width of onscreen display in text columns
+static int  osdmaxrows=20;      // maximum number of lines which can fit on the screen
+static int  osdmaxlines=TEXTSIZE/60;    // maximum lines which can fit in the buffer
+static char osdvisible=0;       // onscreen display visible?
 static char osdinput=0;         // capture input?
-static int  osdhead=0; 			// topmost visible line number
-static BFILE *osdlog=NULL;		// log filehandle
-static char osdinited=0;		// text buffer initialized?
-static int  osdkey=0x29;		        // tilde shows the osd
+static int  osdhead=0;          // topmost visible line number
+static BFILE *osdlog=NULL;      // log filehandle
+static char osdinited=0;        // text buffer initialized?
+static int  osdkey=0x29;                // tilde shows the osd
 static int  keytime=0;
 static int osdscrtime = 0;
 
 // command prompt editing
 #define EDITLENGTH 511
-static int  osdovertype=0;		// insert (0) or overtype (1)
-static char osdeditbuf[EDITLENGTH+1];	// editing buffer
-static char osdedittmp[EDITLENGTH+1];	// editing buffer temporary workspace
-static int  osdeditlen=0;		// length of characters in edit buffer
-static int  osdeditcursor=0;		// position of cursor in edit buffer
-static int  osdeditshift=0;		// shift state
-static int  osdeditcontrol=0;		// control state
-static int  osdeditcaps=0;		// capslock
+static int  osdovertype=0;      // insert (0) or overtype (1)
+static char osdeditbuf[EDITLENGTH+1];   // editing buffer
+static char osdedittmp[EDITLENGTH+1];   // editing buffer temporary workspace
+static int  osdeditlen=0;       // length of characters in edit buffer
+static int  osdeditcursor=0;        // position of cursor in edit buffer
+static int  osdeditshift=0;     // shift state
+static int  osdeditcontrol=0;       // control state
+static int  osdeditcaps=0;      // capslock
 static int  osdeditwinstart=0;
 static int  osdeditwinend=60-1-3;
 #define editlinewidth (osdcols-1-3)
 
 // command processing
 #define HISTORYDEPTH 32
-static int  osdhistorypos=-1;		// position we are at in the history buffer
-static char osdhistorybuf[HISTORYDEPTH][EDITLENGTH+1];	// history strings
-static int  osdhistorysize=0;		// number of entries in history
+static int  osdhistorypos=-1;       // position we are at in the history buffer
+static char osdhistorybuf[HISTORYDEPTH][EDITLENGTH+1];  // history strings
+static int  osdhistorysize=0;       // number of entries in history
 static int  osdhistorytotal=0;      // number of total history entries
 
 // execution buffer
 // the execution buffer works from the command history
-static int  osdexeccount=0;		// number of lines from the head of the history buffer to execute
+static int  osdexeccount=0;     // number of lines from the head of the history buffer to execute
 
 // maximal log line count
 static int logcutoff=120000;
+int OSD_errors=0;
 static int linecnt;
 static int osdexecscript=0;
 #ifdef _WIN32
@@ -747,8 +748,8 @@ static int OSD_FindDiffPoint(const char *str1, const char *str2)
 
 //
 // OSD_HandleKey() -- Handles keyboard input when capturing input.
-// 	Returns 0 if the key was handled internally, or the scancode if it should
-// 	be passed on to the game.
+//  Returns 0 if the key was handled internally, or the scancode if it should
+//  be passed on to the game.
 //
 
 static void OSD_HistoryPrev(void)
@@ -813,18 +814,18 @@ int OSD_HandleChar(char ch)
 
     if (!osdinited || !osdinput) return ch;
 
-    if (ch != 9) lastmatch = NULL;		// tab
-    if (ch == 1)  	// control a. jump to beginning of line
+    if (ch != 9) lastmatch = NULL;      // tab
+    if (ch == 1)    // control a. jump to beginning of line
     {
         osdeditcursor=0;
         osdeditwinstart=0;
         osdeditwinend=editlinewidth;
     }
-    else if (ch == 2)  	// control b, move one character left
+    else if (ch == 2)   // control b, move one character left
     {
         if (osdeditcursor > 0) osdeditcursor--;
     }
-    else if (ch == 3)  	// control c
+    else if (ch == 3)   // control c
     {
         osdeditbuf[osdeditlen] = 0;
         OSD_Printf("%s\n",osdeditbuf);
@@ -834,7 +835,7 @@ int OSD_HandleChar(char ch)
         osdeditwinend=editlinewidth;
         osdeditbuf[0] = 0;
     }
-    else if (ch == 5)  	// control e, jump to end of line
+    else if (ch == 5)   // control e, jump to end of line
     {
         osdeditcursor = osdeditlen;
         osdeditwinend = osdeditcursor;
@@ -845,11 +846,11 @@ int OSD_HandleChar(char ch)
             osdeditwinend = editlinewidth;
         }
     }
-    else if (ch == 6)  	// control f, move one character right
+    else if (ch == 6)   // control f, move one character right
     {
         if (osdeditcursor < osdeditlen) osdeditcursor++;
     }
-    else if (ch == 8 || ch == 127)  	// control h, backspace
+    else if (ch == 8 || ch == 127)      // control h, backspace
     {
         if (!osdeditcursor || !osdeditlen) return 0;
         if (!osdovertype)
@@ -861,7 +862,7 @@ int OSD_HandleChar(char ch)
         osdeditcursor--;
         if (osdeditcursor<osdeditwinstart) osdeditwinstart--,osdeditwinend--;
     }
-    else if (ch == 9)  	// tab
+    else if (ch == 9)   // tab
     {
         int commonsize = 512;
 
@@ -925,7 +926,7 @@ int OSD_HandleChar(char ch)
         {
             tabc = findsymbol(osdedittmp, lastmatch->next);
             if (!tabc && lastmatch)
-                tabc = findsymbol(osdedittmp, NULL);	// wrap */
+                tabc = findsymbol(osdedittmp, NULL);    // wrap */
         }
 
         if (tabc)
@@ -947,17 +948,17 @@ int OSD_HandleChar(char ch)
             lastmatch = tabc;
         }
     }
-    else if (ch == 11)  	// control k, delete all to end of line
+    else if (ch == 11)      // control k, delete all to end of line
     {
         Bmemset(osdeditbuf+osdeditcursor,0,sizeof(osdeditbuf)-osdeditcursor);
     }
-    else if (ch == 12)  	// control l, clear screen
+    else if (ch == 12)      // control l, clear screen
     {
         Bmemset(osdtext,0,sizeof(osdtext));
         Bmemset(osdfmt,osdtextpal+(osdtextshade<<5),sizeof(osdfmt));
         osdlines = 1;
     }
-    else if (ch == 13)  	// control m, enter
+    else if (ch == 13)      // control m, enter
     {
         if (osdeditlen>0)
         {
@@ -990,18 +991,18 @@ int OSD_HandleChar(char ch)
         osdeditwinstart=0;
         osdeditwinend=editlinewidth;
     }
-    else if (ch == 14)  	// control n, next (ie. down arrow)
+    else if (ch == 14)      // control n, next (ie. down arrow)
     {
         OSD_HistoryNext();
     }
-    else if (ch == 16)  	// control p, previous (ie. up arrow)
+    else if (ch == 16)      // control p, previous (ie. up arrow)
     {
         OSD_HistoryPrev();
     }
-    else if (ch == 20)  	// control t, swap previous two chars
+    else if (ch == 20)      // control t, swap previous two chars
     {
     }
-    else if (ch == 21)  	// control u, delete all to beginning
+    else if (ch == 21)      // control u, delete all to beginning
     {
         if (osdeditcursor>0 && osdeditlen)
         {
@@ -1013,7 +1014,7 @@ int OSD_HandleChar(char ch)
             osdeditwinend = editlinewidth;
         }
     }
-    else if (ch == 23)  	// control w, delete one word back
+    else if (ch == 23)      // control w, delete one word back
     {
         if (osdeditcursor>0 && osdeditlen>0)
         {
@@ -1031,9 +1032,9 @@ int OSD_HandleChar(char ch)
             }
         }
     }
-    else if (ch >= 32)  	// text char
+    else if (ch >= 32)      // text char
     {
-        if (!osdovertype && osdeditlen == EDITLENGTH)	// buffer full, can't insert another char
+        if (!osdovertype && osdeditlen == EDITLENGTH)   // buffer full, can't insert another char
             return 0;
 
         if (!osdovertype)
@@ -1082,17 +1083,17 @@ int OSD_HandleScanCode(int sc, int press)
     {
         if (sc == 42 || sc == 54) // shift
             osdeditshift = 0;
-        if (sc == 29 || sc == 157)	// control
+        if (sc == 29 || sc == 157)  // control
             osdeditcontrol = 0;
         return 0;//sc;
     }
 
     keytime = gettime();
 
-    if (sc == 15)  		// tab
+    if (sc == 15)       // tab
     {
     }
-    else if (sc == 1)  		// escape
+    else if (sc == 1)       // escape
     {
         //        OSD_ShowDisplay(0);
         osdscroll = -1;
@@ -1100,17 +1101,17 @@ int OSD_HandleScanCode(int sc, int press)
         OSD_CaptureInput(0);
         osdscrtime = getticks();
     }
-    else if (sc == 201)  	// page up
+    else if (sc == 201)     // page up
     {
         if (osdhead < osdlines-1)
             osdhead++;
     }
-    else if (sc == 209)  	// page down
+    else if (sc == 209)     // page down
     {
         if (osdhead > 0)
             osdhead--;
     }
-    else if (sc == 199)  	// home
+    else if (sc == 199)     // home
     {
         if (osdeditcontrol)
         {
@@ -1123,7 +1124,7 @@ int OSD_HandleScanCode(int sc, int press)
             osdeditwinend = osdeditwinstart+editlinewidth;
         }
     }
-    else if (sc == 207)  	// end
+    else if (sc == 207)     // end
     {
         if (osdeditcontrol)
         {
@@ -1141,11 +1142,11 @@ int OSD_HandleScanCode(int sc, int press)
             }
         }
     }
-    else if (sc == 210)  	// insert
+    else if (sc == 210)     // insert
     {
         osdovertype ^= 1;
     }
-    else if (sc == 203)  	// left
+    else if (sc == 203)     // left
     {
         if (osdeditcursor>0)
         {
@@ -1168,7 +1169,7 @@ int OSD_HandleScanCode(int sc, int press)
             osdeditwinend-=(osdeditwinstart-osdeditcursor),
                            osdeditwinstart-=(osdeditwinstart-osdeditcursor);
     }
-    else if (sc == 205)  	// right
+    else if (sc == 205)     // right
     {
         if (osdeditcursor<osdeditlen)
         {
@@ -1191,33 +1192,33 @@ int OSD_HandleScanCode(int sc, int press)
             osdeditwinstart+=(osdeditcursor-osdeditwinend),
                              osdeditwinend+=(osdeditcursor-osdeditwinend);
     }
-    else if (sc == 200)  	// up
+    else if (sc == 200)     // up
     {
         OSD_HistoryPrev();
     }
-    else if (sc == 208)  	// down
+    else if (sc == 208)     // down
     {
         OSD_HistoryNext();
     }
-    else if (sc == 42 || sc == 54)  	// shift
+    else if (sc == 42 || sc == 54)      // shift
     {
         osdeditshift = 1;
     }
-    else if (sc == 29 || sc == 157)  	// control
+    else if (sc == 29 || sc == 157)     // control
     {
         osdeditcontrol = 1;
     }
-    else if (sc == 58)  	// capslock
+    else if (sc == 58)      // capslock
     {
         osdeditcaps ^= 1;
     }
-    else if (sc == 28 || sc == 156)  	// enter
+    else if (sc == 28 || sc == 156)     // enter
     {
     }
-    else if (sc == 14)  		// backspace
+    else if (sc == 14)          // backspace
     {
     }
-    else if (sc == 211)  	// delete
+    else if (sc == 211)     // delete
     {
         if (osdeditcursor == osdeditlen || !osdeditlen) return 0;
         if (osdeditcursor <= osdeditlen-1) Bmemmove(osdeditbuf+osdeditcursor, osdeditbuf+osdeditcursor+1, osdeditlen-osdeditcursor-1);
@@ -1230,7 +1231,7 @@ int OSD_HandleScanCode(int sc, int press)
 
 //
 // OSD_ResizeDisplay() -- Handles readjustment of the display when the screen resolution
-// 	changes on us.
+//  changes on us.
 //
 void OSD_ResizeDisplay(int w, int h)
 {
@@ -1385,7 +1386,7 @@ static inline void linefeed(void)
     Bmemset(osdfmt, osdtextpal, osdcols);
     if (osdlines < osdmaxlines) osdlines++;
 }
-
+#define MAX_ERRORS 4096
 void OSD_Printf(const char *fmt, ...)
 {
     static char tmpstr[1024];
@@ -1397,6 +1398,16 @@ void OSD_Printf(const char *fmt, ...)
     va_start(va, fmt);
     Bvsnprintf(tmpstr, 1024, fmt, va);
     va_end(va);
+
+    if (tmpstr[0]=='^' && tmpstr[1]=='1' && tmpstr[2]=='0' && ++OSD_errors > MAX_ERRORS)
+    {
+        if(OSD_errors == MAX_ERRORS+1) Bstrcpy(tmpstr,OSD_ERROR "\nToo many errors. Logging errors stopped.\n");
+            else
+            {
+                OSD_errors=MAX_ERRORS+2;
+                return;
+            }
+    }
 
     if (linecnt<logcutoff)
     {

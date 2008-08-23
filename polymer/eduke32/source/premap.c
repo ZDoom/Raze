@@ -286,7 +286,11 @@ static int getsound(unsigned int num)
     if (!g_sounds[num].filename) return 0;
     if (g_sounds[num].filename1)fp = kopen4loadfrommod(g_sounds[num].filename1,loadfromgrouponly);
     if (fp == -1)fp = kopen4loadfrommod(g_sounds[num].filename,loadfromgrouponly);
-    if (fp == -1) return 0;
+    if (fp == -1)
+    {
+//      initprintf("Sound '%s' not found\n",g_sounds[num].filename);
+        return 0;
+    }
 
     l = kfilelength(fp);
     g_sounds[num].soundsiz = l;
@@ -1558,7 +1562,7 @@ void clearfifo(void)
     clearbufbyte(&inputfifo,sizeof(input_t)*MOVEFIFOSIZ*MAXPLAYERS,0L);
     for (;i<MAXPLAYERS;i++)
     {
-//		Bmemset(g_player[i].inputfifo,0,sizeof(g_player[i].inputfifo));
+//      Bmemset(g_player[i].inputfifo,0,sizeof(g_player[i].inputfifo));
         if (g_player[i].sync != NULL)
             Bmemset(g_player[i].sync,0,sizeof(input_t));
         Bmemset(&g_player[i].movefifoend,0,sizeof(g_player[i].movefifoend));

@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osd.h"
 
 extern int g_i,g_p;
+extern int OSD_errors;
 
 void ResetPointerVars(void);
 extern void FreeMapState(int mapnum);
@@ -382,6 +383,7 @@ void ResetGameVars(void) /* this is called during a new game and nowhere else */
 
     //AddLog("Reset Game Vars");
     FreeGameVars();
+    OSD_errors=0;
 
     for (i=0;i<MAXGAMEVARS;i++)
     {

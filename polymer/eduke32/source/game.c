@@ -54,6 +54,7 @@ extern int getversionfromwebsite(char *buffer);
 #define UPDATEINTERVAL 604800 // 1w
 #else
 static int usecwd = 0;
+int checkCON = 1;
 #endif /* _WIN32 */
 
 #define IDFSIZE 479985668
@@ -82,6 +83,7 @@ static struct strllist
 *CommandPaths = NULL, *CommandGrps = NULL;
 
 char boardfilename[BMAX_PATH] = {0};
+char root[BMAX_PATH];
 char waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768], animpal[768];
 static char firstdemofile[80] = { '\0' };
 static int userconfiles = 0;
@@ -7431,11 +7433,7 @@ PALONLY:
     for (j=0;j < spritesortcnt; j++)
     {
         if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
-        if (tsprite[j].owner > 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
-        {
-            OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
-            spriteext[tsprite[j].owner].tspr = NULL;
-        }
+        OnEvent(EVENT_ANIMATESPRITES, j, myconnectindex, -1);
     }
 }
 #ifdef _MSC_VER
@@ -8659,6 +8657,7 @@ static void comlinehelp(void)
 #if !defined(_WIN32)
               "-usecwd\t\tRead game data and configuration file from working directory\n"
 #endif
+              "-sloppycmd\t\tAllows EDuke to execute unsafe commands. (for compatibility only)\n"
               "-vNUM\t\tWarp to volume NUM (1-4), see -l\n"
               "-xFILE\t\tLoad CON script FILE (default EDUKE.CON/GAME.CON)\n"
               "-zNUM,\n-condebug\tLine-by-line CON compilation debugging, NUM is verbosity\n"
@@ -9416,6 +9415,12 @@ static void checkcommandline(int argc, const char **argv)
                     continue;
                 }
 #endif
+                if (!Bstrcasecmp(c+1,"sloppycmd"))
+                {
+                    checkCON = 0;
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"cachesize"))
                 {
                     if (argc > i+1)
@@ -10294,6 +10299,7 @@ static void Startup(void)
         if (getcwd(cwd,BMAX_PATH) && mod_dir[0] != '/')
         {
             chdir(mod_dir);
+//            initprintf("root '%s'\nmod '%s'\ncwd '%s'\n",root,mod_dir,cwd);
             if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
             {
                 chdir(cwd);
@@ -10534,7 +10540,6 @@ void app_main(int argc,const char **argv)
 {
     int i, j;
     char cwd[BMAX_PATH];
-    char root[BMAX_PATH];
     extern char datetimestring[];
 
 #ifdef RENDERTYPEWIN
@@ -10555,7 +10560,8 @@ void app_main(int argc,const char **argv)
     Bcorrectfilename(root,1);
     chdir(root);
 #else
-    Bmemset(root,0,sizeof(root));
+    getcwd(root,BMAX_PATH);
+    strcat(root,"/");
 #endif
 
     OSD_SetLogFile("eduke32.log");
