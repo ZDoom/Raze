@@ -7432,7 +7432,7 @@ PALONLY:
             spriteext[tsprite[j].owner].tspr = NULL;
         }
     }
-    while (--j > 0);
+    while (j--);
 
     if (j < 0) return;
 

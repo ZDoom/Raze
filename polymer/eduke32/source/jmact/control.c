@@ -692,7 +692,7 @@ void CONTROL_AxisFunctionState(int32 *p1)
             if (j != AXISUNDEFINED)
                 p1[j] = 1;
         }
-        while (--i >= 0);
+        while (i--);
     }
 
     if (CONTROL_NumJoyAxes)
@@ -711,7 +711,7 @@ void CONTROL_AxisFunctionState(int32 *p1)
             if (j != AXISUNDEFINED)
                 p1[j] = 1;
         }
-        while (--i >= 0);
+        while (i--);
     }
 }
 
@@ -744,7 +744,7 @@ void CONTROL_ButtonFunctionState(int32 *p1)
             }
             mousebind[i].laststate = CONTROL_MouseButtonState[i];
         }
-        while (--i >= 0);
+        while (i--);
     }
 
     if (CONTROL_NumJoyButtons)
@@ -761,7 +761,7 @@ void CONTROL_ButtonFunctionState(int32 *p1)
             if (j != KEYUNDEFINED)
                 p1[j] |= CONTROL_JoyButtonState[i];
         }
-        while (--i >= 0);
+        while (i--);
     }
 }
 /*
