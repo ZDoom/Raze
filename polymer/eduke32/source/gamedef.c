@@ -495,7 +495,7 @@ const memberlabel_t sectorlabels[]=
     { "floorxpanning", SECTOR_FLOORXPANNING, 0, 0 },
     { "floorypanning", SECTOR_FLOORYPANNING, 0, 0 },
     { "visibility", SECTOR_VISIBILITY, 0, 0 },
-    { "filler", SECTOR_ALIGNTO, 0, 0 },
+//    { "filler", SECTOR_ALIGNTO, 0, 0 },
     { "alignto", SECTOR_ALIGNTO, 0, 0 }, // aka filler, not used
     { "lotag", SECTOR_LOTAG, 0, 0 },
     { "hitag", SECTOR_HITAG, 0, 0 },
@@ -535,7 +535,7 @@ const memberlabel_t actorlabels[]=
     { "shade", ACTOR_SHADE, 0, 0 },
     { "pal", ACTOR_PAL, 0, 0 },
     { "clipdist", ACTOR_CLIPDIST, 0, 0 },
-    { "filler", ACTOR_DETAIL, 0, 0 },
+//    { "filler", ACTOR_DETAIL, 0, 0 },
     { "detail", ACTOR_DETAIL, 0, 0 }, // aka filler, not used
     { "xrepeat", ACTOR_XREPEAT, 0, 0 },
     { "yrepeat", ACTOR_YREPEAT, 0, 0 },
@@ -601,7 +601,7 @@ const memberlabel_t tsprlabels[]=
     { "tsprshade", ACTOR_SHADE, 0, 0 },
     { "tsprpal", ACTOR_PAL, 0, 0 },
     { "tsprclipdist", ACTOR_CLIPDIST, 0, 0 },
-    { "tsprfiller", ACTOR_DETAIL, 0, 0 },
+//    { "tsprfiller", ACTOR_DETAIL, 0, 0 },
     { "tsprdetail", ACTOR_DETAIL, 0, 0 }, // aka filler, not used
     { "tsprxrepeat", ACTOR_XREPEAT, 0, 0 },
     { "tspryrepeat", ACTOR_YREPEAT, 0, 0 },
