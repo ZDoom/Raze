@@ -4998,12 +4998,11 @@ static int parse(void)
         else if (floorspace(g_sp->sectnum))
             j = 0;
 
-        if (hittype[g_i].cgg <= 0 || (sector[g_sp->sectnum].floorstat&2))
+        if (!hittype[g_i].cgg-- || (sector[g_sp->sectnum].floorstat&2))
         {
             getglobalz(g_i);
             hittype[g_i].cgg = 3;
         }
-        else hittype[g_i].cgg --;
 
         if (g_sp->z < (hittype[g_i].floorz-FOURSLEIGHT))
         {
@@ -5014,61 +5013,55 @@ static int parse(void)
 
             if (g_sp->z > (hittype[g_i].floorz - FOURSLEIGHT))
                 g_sp->z = (hittype[g_i].floorz - FOURSLEIGHT);
+            break;
         }
-        else
+        g_sp->z = hittype[g_i].floorz - FOURSLEIGHT;
+
+        if (badguy(g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
         {
-            g_sp->z = hittype[g_i].floorz - FOURSLEIGHT;
-
-            if (badguy(g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
+            if (g_sp->zvel > 3084 && g_sp->extra <= 1)
             {
-                if (g_sp->zvel > 3084 && g_sp->extra <= 1)
+                if (!(g_sp->picnum == APLAYER && g_sp->extra > 0) && g_sp->pal != 1 && g_sp->picnum != DRONE)
                 {
-                    if (g_sp->pal != 1 && g_sp->picnum != DRONE)
-                    {
-                        if (!(g_sp->picnum == APLAYER && g_sp->extra > 0))
-                        {
-                            guts(g_i,JIBS6,15);
-                            spritesound(SQUISHED,g_i);
-                            spawn(g_i,BLOODPOOL);
-                        }
-                    }
-
-                    hittype[g_i].picnum = SHOTSPARK1;
-                    hittype[g_i].extra = 1;
-                    g_sp->zvel = 0;
+                    guts(g_i,JIBS6,15);
+                    spritesound(SQUISHED,g_i);
+                    spawn(g_i,BLOODPOOL);
                 }
-                else if (g_sp->zvel > 2048 && sector[g_sp->sectnum].lotag != 1)
-                {
-                    j = g_sp->sectnum;
-                    pushmove(&g_sp->x,&g_sp->y,&g_sp->z,(short*)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
-                    if (j != g_sp->sectnum && j >= 0 && j < MAXSECTORS)
-                        changespritesect(g_i,j);
-
-                    spritesound(THUD,g_i);
-                }
+                hittype[g_i].picnum = SHOTSPARK1;
+                hittype[g_i].extra = 1;
+                g_sp->zvel = 0;
             }
-
-            if (g_sp->z > (hittype[g_i].floorz - FOURSLEIGHT))
+            else if (g_sp->zvel > 2048 && sector[g_sp->sectnum].lotag != 1)
             {
-                getglobalz(g_i);
-                if (hittype[g_i].floorz != sector[g_sp->sectnum].floorz)
-                    g_sp->z = (hittype[g_i].floorz - FOURSLEIGHT);
+                j = g_sp->sectnum;
+                pushmove(&g_sp->x,&g_sp->y,&g_sp->z,(short*)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
+                if (j != g_sp->sectnum && j >= 0 && j < MAXSECTORS)
+                    changespritesect(g_i,j);
+                spritesound(THUD,g_i);
             }
-            else if (sector[g_sp->sectnum].lotag == 1)
-            {
-                switch (dynamictostatic[g_sp->picnum])
-                {
-                case OCTABRAIN__STATIC:
-                case COMMANDER__STATIC:
-                case DRONE__STATIC:
-                    break;
-                default:
-                    g_sp->z += (24<<8);
-                    break;
-                }
-            }
-            else g_sp->zvel = 0;
         }
+
+        if (g_sp->z > (hittype[g_i].floorz - FOURSLEIGHT))
+        {
+            getglobalz(g_i);
+            if (hittype[g_i].floorz != sector[g_sp->sectnum].floorz)
+                g_sp->z = (hittype[g_i].floorz - FOURSLEIGHT);
+            break;
+        }
+        else if (sector[g_sp->sectnum].lotag == 1)
+        {
+            switch (dynamictostatic[g_sp->picnum])
+            {
+            default:
+                g_sp->z += (24<<8);
+            case OCTABRAIN__STATIC:
+            case COMMANDER__STATIC:
+            case DRONE__STATIC:
+                break;
+            }
+            break;
+        }
+        g_sp->zvel = 0;
         break;
 
     case CON_ENDA:
@@ -5091,12 +5084,11 @@ static int parse(void)
             break;
         }
         addammo(*insptr, g_player[g_p].ps, *(insptr+1));
-        if (g_player[g_p].ps->curr_weapon == KNEE_WEAPON)
-            if (g_player[g_p].ps->gotweapon[*insptr])
-            {
-                if (!(g_player[g_p].ps->weaponswitch & 1)) addweaponnoswitch(g_player[g_p].ps, *insptr);
-                else addweapon(g_player[g_p].ps, *insptr);
-            }
+        if (g_player[g_p].ps->curr_weapon == KNEE_WEAPON && g_player[g_p].ps->gotweapon[*insptr])
+        {
+            if (!(g_player[g_p].ps->weaponswitch & 1)) addweaponnoswitch(g_player[g_p].ps, *insptr);
+            else addweapon(g_player[g_p].ps, *insptr);
+        }
         insptr += 2;
         break;
 
@@ -5154,12 +5146,11 @@ static int parse(void)
             break;
         }
         addammo(*insptr, g_player[g_p].ps, *(insptr+1));
-        if (g_player[g_p].ps->curr_weapon == KNEE_WEAPON)
-            if (g_player[g_p].ps->gotweapon[*insptr])
-            {
-                if (!(g_player[g_p].ps->weaponswitch & 1)) addweaponnoswitch(g_player[g_p].ps, *insptr);
-                else addweapon(g_player[g_p].ps, *insptr);
-            }
+        if (g_player[g_p].ps->curr_weapon == KNEE_WEAPON && g_player[g_p].ps->gotweapon[*insptr])
+        {
+            if (!(g_player[g_p].ps->weaponswitch & 1)) addweaponnoswitch(g_player[g_p].ps, *insptr);
+            else addweapon(g_player[g_p].ps, *insptr);
+        }
         insptr+=2;
         break;
 
@@ -5278,12 +5269,11 @@ static int parse(void)
             break;
         }
         addammo(GetGameVarID(*(insptr),g_i,g_p), g_player[g_p].ps, GetGameVarID(*(insptr+1),g_i,g_p));
-        if (g_player[g_p].ps->curr_weapon == KNEE_WEAPON)
-            if (g_player[g_p].ps->gotweapon[GetGameVarID(*(insptr),g_i,g_p)])
-            {
-                if (!(g_player[g_p].ps->weaponswitch & 1)) addweaponnoswitch(g_player[g_p].ps, GetGameVarID(*(insptr),g_i,g_p));
-                else addweapon(g_player[g_p].ps, GetGameVarID(*(insptr),g_i,g_p));
-            }
+        if (g_player[g_p].ps->curr_weapon == KNEE_WEAPON && g_player[g_p].ps->gotweapon[GetGameVarID(*(insptr),g_i,g_p)])
+        {
+            if (!(g_player[g_p].ps->weaponswitch & 1)) addweaponnoswitch(g_player[g_p].ps, GetGameVarID(*(insptr),g_i,g_p));
+            else addweapon(g_player[g_p].ps, GetGameVarID(*(insptr),g_i,g_p));
+        }
         insptr+=2;
         break;
 
@@ -5456,9 +5446,12 @@ static int parse(void)
             int i = GetGameVarID(*insptr++, g_i, g_p),
                     f=GetGameVarID(*insptr++, g_i, g_p);
             j=GetGameVarID(*insptr++, g_i, g_p);
-            if ((i<0 || i>=MAXQUOTES) && checkCON)             OSD_Printf(CON_ERROR "invalid quote ID %d\n",line_num,keyw[g_tw],i);
-            else if ((fta_quotes[i] == NULL) && checkCON)      OSD_Printf(CON_ERROR "null quote %d\n",line_num,keyw[g_tw],i);
-            else if ((f<0 || f>=NUMGAMEFUNCTIONS) && checkCON) OSD_Printf(CON_ERROR "invalid function %d\n",line_num,keyw[g_tw],f);
+            if ((i<0 || i>=MAXQUOTES) && checkCON)             
+                OSD_Printf(CON_ERROR "invalid quote ID %d\n",line_num,keyw[g_tw],i);
+            else if ((fta_quotes[i] == NULL) && checkCON)      
+                OSD_Printf(CON_ERROR "null quote %d\n",line_num,keyw[g_tw],i);
+            else if ((f<0 || f>=NUMGAMEFUNCTIONS) && checkCON) 
+                OSD_Printf(CON_ERROR "invalid function %d\n",line_num,keyw[g_tw],f);
             else
             {
                 if (j<2)
@@ -5678,27 +5671,30 @@ static int parse(void)
                 //AddLog(g_szBuf);
                 lCheckCase=(left+right)/2;
 //                initprintf("(%2d..%2d..%2d) [%2d..%2d..%2d]==%2d\n",left,lCheckCase,right,lpCases[left*2],lpCases[lCheckCase*2],lpCases[right*2],lValue);
-                if (lpCases[lCheckCase*2] >  lValue) right=lCheckCase-1; else
-                        if (lpCases[lCheckCase*2] <  lValue) left =lCheckCase+1; else
-                        if (lpCases[lCheckCase*2] == lValue)
-                        {
-                            //AddLog("Found Case Match");
-                            //Bsprintf(g_szBuf,"insptr=%d. lCheckCase=%d, offset=%d, &script[0]=%d",
-                            //            (int)insptr,(int)lCheckCase,lpCases[lCheckCase*2+1],(int)&script[0]);
-                            //AddLog(g_szBuf);
-                            // fake a 2-d Array
-                            insptr=(intptr_t*)(lpCases[lCheckCase*2+1] + &script[0]);
-                            //Bsprintf(g_szBuf,"insptr=%d. ",     (int)insptr);
-                            //AddLog(g_szBuf);
-                            while (1)
-                            {
-                                if (parse())
-                                    break;
-                            }
-                            //AddLog("Done Executing Case");
-                            bMatched=1;
-                        }
-                if (right-left<0)break;
+                if (lpCases[lCheckCase*2] > lValue)
+                    right=lCheckCase-1;
+                else if (lpCases[lCheckCase*2] < lValue)
+                    left =lCheckCase+1;
+                else if (lpCases[lCheckCase*2] == lValue)
+                {
+                    //AddLog("Found Case Match");
+                    //Bsprintf(g_szBuf,"insptr=%d. lCheckCase=%d, offset=%d, &script[0]=%d",
+                    //            (int)insptr,(int)lCheckCase,lpCases[lCheckCase*2+1],(int)&script[0]);
+                    //AddLog(g_szBuf);
+                    // fake a 2-d Array
+                    insptr=(intptr_t*)(lpCases[lCheckCase*2+1] + &script[0]);
+                    //Bsprintf(g_szBuf,"insptr=%d. ",     (int)insptr);
+                    //AddLog(g_szBuf);
+                    while (1)
+                    {
+                        if (parse())
+                            break;
+                    }
+                    //AddLog("Done Executing Case");
+                    bMatched=1;
+                }
+                if (right-left < 0)
+                    break;
             }
             if (!bMatched)
             {
@@ -5737,7 +5733,11 @@ static int parse(void)
         {
             int wallnum = GetGameVarID(*insptr++, g_i, g_p), newx = GetGameVarID(*insptr++, g_i, g_p), newy = GetGameVarID(*insptr++, g_i, g_p);
 
-            if ((wallnum<0 || wallnum>=numwalls) && checkCON) {OSD_Printf(CON_ERROR "Invalid wall %d\n",line_num,keyw[g_tw],wallnum);break;}
+            if ((wallnum<0 || wallnum>=numwalls) && checkCON)
+            {
+                OSD_Printf(CON_ERROR "Invalid wall %d\n",line_num,keyw[g_tw],wallnum);
+                break;
+            }
             dragpoint(wallnum,newx,newy);
             break;
         }
@@ -6348,7 +6348,7 @@ static int parse(void)
             short w=sprite[g_i].sectnum;
 
             if (tw==CON_UPDATESECTOR) updatesector(x,y,&w);
-            else if (tw==CON_UPDATESECTORZ) updatesectorz(x,y,z,&w);
+            else updatesectorz(x,y,z,&w);
 
             SetGameVarID(var, w, g_i, g_p);
             break;
@@ -7199,7 +7199,7 @@ static int parse(void)
             int var1 = *insptr++, d;
 
             if (tw == CON_FINDPLAYER) j=findplayer(&sprite[g_i],&d);
-            else if (tw == CON_FINDOTHERPLAYER) j=findotherplayer(g_i,&d);
+            else j=findotherplayer(g_i,&d);
 
             SetGameVarID(g_iReturnVarID, j, g_i, g_p);
             SetGameVarID(var1, d, g_i, g_p);
@@ -7776,36 +7776,34 @@ static int parse(void)
 
     case CON_WHILEVARN:
     {
-        int i;
-        intptr_t *savedinsptr=insptr;
+        intptr_t *savedinsptr=insptr+2;
         j=1;
-        while (j)
+        do
         {
             insptr=savedinsptr;
-            insptr++;
-            i=*insptr++;
-            if (GetGameVarID(i, g_i, g_p) == *insptr)
+            if (GetGameVarID(*(insptr-1), g_i, g_p) == *insptr)
                 j=0;
             parseifelse(j);
         }
+        while (j);
         break;
     }
 
     case CON_WHILEVARVARN:
     {
         int i,k;
-        intptr_t *savedinsptr=insptr;
+        intptr_t *savedinsptr=insptr+2;
         j=1;
-        while (j)
+        do
         {
             insptr=savedinsptr;
-            insptr++;
-            i=*insptr++;
+            i = GetGameVarID(*(insptr-1), g_i, g_p);
             k=*(insptr);
-            if (GetGameVarID(i, g_i, g_p) == GetGameVarID(k, g_i, g_p))
+            if (i == GetGameVarID(k, g_i, g_p))
                 j=0;
             parseifelse(j);
         }
+        while (j);
         break;
     }
 
@@ -8083,15 +8081,7 @@ void LoadActor(int iActor)
     while (1) if (parse()) break;
 
     if (killit_flag == 1)
-    {
-        // if player was set to squish, first stop that...
-        if (g_p >= 0)
-        {
-            if (g_player[g_p].ps->actorsqu == g_i)
-                g_player[g_p].ps->actorsqu = -1;
-        }
         deletesprite(g_i);
-    }
 }
 
 void execute(int iActor,int iPlayer,int lDist)
@@ -8144,62 +8134,62 @@ void execute(int iActor,int iPlayer,int lDist)
         if (g_player[g_p].ps->actorsqu == g_i)
             g_player[g_p].ps->actorsqu = -1;
         deletesprite(g_i);
+        return;
     }
-    else
+
+    move();
+
+    if (ud.angleinterpolation)
     {
-        move();
-
-        if (ud.angleinterpolation)
+        temp = (g_sp->ang & 2047) - sprpos[g_i].ang;
+        sprpos[g_i].oldang = sprpos[g_i].ang;
+        if (temp)
         {
-            temp = (g_sp->ang & 2047) - sprpos[g_i].ang;
-            sprpos[g_i].oldang = sprpos[g_i].ang;
-            if (temp)
-            {
-                temp2 = temp/klabs(temp);
-                if (klabs(temp) > 1024) temp2 = -(temp2);
-                sprpos[g_i].angdir = temp2;
-                sprpos[g_i].angdif = min(ud.angleinterpolation,klabs(temp));
-                sprpos[g_i].ang += sprpos[g_i].angdif * sprpos[g_i].angdir;
-                sprpos[g_i].ang &= 2047;
-            }
+            temp2 = temp/klabs(temp);
+            if (klabs(temp) > 1024) temp2 = -(temp2);
+            sprpos[g_i].angdir = temp2;
+            sprpos[g_i].angdif = min(ud.angleinterpolation,klabs(temp));
+            sprpos[g_i].ang += sprpos[g_i].angdif * sprpos[g_i].angdir;
+            sprpos[g_i].ang &= 2047;
         }
+    }
 
-        if (g_sp->statnum == 1)
+    if (g_sp->statnum == 6)
+        switch (dynamictostatic[g_sp->picnum])
         {
-            if (badguy(g_sp))
-            {
-                if (g_sp->xrepeat > 60) return;
-                if (ud.respawn_monsters == 1 && g_sp->extra <= 0) return;
-            }
-            else if (ud.respawn_items == 1 && (g_sp->cstat&32768)) return;
-
+        case RUBBERCAN__STATIC:
+        case EXPLODINGBARREL__STATIC:
+        case WOODENHORSE__STATIC:
+        case HORSEONSIDE__STATIC:
+        case CANWITHSOMETHING__STATIC:
+        case FIREBARREL__STATIC:
+        case NUKEBARREL__STATIC:
+        case NUKEBARRELDENTED__STATIC:
+        case NUKEBARRELLEAKED__STATIC:
+        case TRIPBOMB__STATIC:
+        case EGG__STATIC:
             if (hittype[g_i].timetosleep > 1)
                 hittype[g_i].timetosleep--;
             else if (hittype[g_i].timetosleep == 1)
                 changespritestat(g_i,2);
+        default:
+            return;
         }
 
-        else if (g_sp->statnum == 6)
-            switch (dynamictostatic[g_sp->picnum])
-            {
-            case RUBBERCAN__STATIC:
-            case EXPLODINGBARREL__STATIC:
-            case WOODENHORSE__STATIC:
-            case HORSEONSIDE__STATIC:
-            case CANWITHSOMETHING__STATIC:
-            case FIREBARREL__STATIC:
-            case NUKEBARREL__STATIC:
-            case NUKEBARRELDENTED__STATIC:
-            case NUKEBARRELLEAKED__STATIC:
-            case TRIPBOMB__STATIC:
-            case EGG__STATIC:
-                if (hittype[g_i].timetosleep > 1)
-                    hittype[g_i].timetosleep--;
-                else if (hittype[g_i].timetosleep == 1)
-                    changespritestat(g_i,2);
-                break;
-            }
+    if (g_sp->statnum != 1)
+        return;
+
+    if (badguy(g_sp))
+    {
+        if (g_sp->xrepeat > 60) return;
+        if (ud.respawn_monsters == 1 && g_sp->extra <= 0) return;
     }
+    else if (ud.respawn_items == 1 && (g_sp->cstat&32768)) return;
+
+    if (hittype[g_i].timetosleep > 1)
+        hittype[g_i].timetosleep--;
+    else if (hittype[g_i].timetosleep == 1)
+        changespritestat(g_i,2);
 }
 
 void savemapstate(mapstate_t *save)
