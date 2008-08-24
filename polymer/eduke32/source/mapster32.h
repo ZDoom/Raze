@@ -141,7 +141,6 @@ extern int numsprites;
 extern int showfirstwall;
 extern char spritecol2d[MAXTILES][2];
 extern char custom2dcolors;
-extern char mlook;
 
 int intro=0;
 extern int ydim16, halfxdim16, midydim16, zoom;

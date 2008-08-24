@@ -2857,8 +2857,6 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
 
 }
 
-extern char unrealedlook; //PK
-
 int spriteonceilingz(int searchwall)
 {
     int z=sprite[searchwall].z;
@@ -6887,9 +6885,6 @@ static int osdcmd_noclip(const osdfuncparm_t *parm)
 }
 
 //PK vvv ------------
-extern int pk_turnaccel, pk_turndecel, pk_uedaccel;
-extern char quickmapcycling;
-
 static int osdcmd_vars_pk(const osdfuncparm_t *parm)
 {
     int showval = (parm->numparms < 1);

@@ -127,9 +127,9 @@ unsigned char temppal, tempvis, tempxrepeat, tempyrepeat;
 signed char tempshade;
 unsigned char somethingintab = 255;
 
-char mlook = 0,mskip=0;
+int mlook = 0,mskip=0;
 int revertCTRL=0,scrollamount=3;
-char unrealedlook=0, quickmapcycling=0; //PK
+int unrealedlook=1, quickmapcycling=1; //PK
 
 static char boardfilename[BMAX_PATH], selectedboardfilename[BMAX_PATH];
 

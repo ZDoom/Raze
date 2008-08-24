@@ -26,28 +26,48 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
     int ht = usehightile;
 
     usehightile = (osdhightile && ht);
+    x = (x<<3)+x;
 
-    for (x = (x<<3)+x; len>0; len--, ch++, x++)
+    if (ch > ptr && ch < (ptr + TEXTSIZE))
+    {
+        do
+        {
+            if (*ch == 32)
+            {
+                x += OSDCHAR_WIDTH+1;
+                ch++;
+                continue;
+            }
+            ac = *ch-'!'+STARTALPHANUM;
+            if (ac < STARTALPHANUM || ac > ENDALPHANUM) { usehightile = ht; return; }
+
+            // use the format byte if the text falls within the bounds of the console buffer
+            rotatesprite(x<<16, (y<<3)<<16, 65536, 0, ac, (*(ch-ptr+fmt)&~0x1F)>>4,
+                *(ch-ptr+fmt)&~0xE0, 8|16, 0, 0, xdim-1, ydim-1);
+            x += OSDCHAR_WIDTH+1;
+            ch++;
+        } while (--len);
+
+        usehightile = ht;
+        return;
+    }
+
+    do
     {
         if (*ch == 32)
         {
-            x += OSDCHAR_WIDTH;
+            x += OSDCHAR_WIDTH+1;
+            ch++;
             continue;
         }
         ac = *ch-'!'+STARTALPHANUM;
         if (ac < STARTALPHANUM || ac > ENDALPHANUM) { usehightile = ht; return; }
 
-        // use the format byte if the text falls within the bounds of the console buffer
-        if (ch > ptr && ch < (ptr + TEXTSIZE))
-        {
-            rotatesprite(x<<16, (y<<3)<<16, 65536, 0, ac, (*(ch-ptr+fmt)&~0x1F)>>4,
-                         *(ch-ptr+fmt)&~0xE0, 8|16, 0, 0, xdim-1, ydim-1);
-        }
-        else
-            rotatesprite(x<<16, (y<<3)<<16, 65536, 0, ac, shade,
-                         pal, 8|16, 0, 0, xdim-1, ydim-1);
-        x += OSDCHAR_WIDTH;
-    }
+        rotatesprite(x<<16, (y<<3)<<16, 65536, 0, ac, shade, pal, 8|16, 0, 0, xdim-1, ydim-1);
+        x += OSDCHAR_WIDTH+1;
+        ch++;
+    } while (--len);
+
     usehightile = ht;
 }
 

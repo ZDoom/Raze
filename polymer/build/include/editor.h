@@ -45,11 +45,11 @@ extern unsigned char somethingintab;
 extern unsigned char buildkeys[NUMBUILDKEYS];
 
 extern int ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
-extern char unrealedlook, quickmapcycling;
+extern int unrealedlook, quickmapcycling;
 extern int pk_turnaccel,pk_turndecel,pk_uedaccel;
 extern int revertCTRL,scrollamount;
 extern int autosave;
-
+extern int mlook;
 
 extern int ExtInit(void);
 extern int ExtPreInit(int argc,const char **argv);

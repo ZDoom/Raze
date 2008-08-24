@@ -392,7 +392,6 @@ void animatecamsprite(void)
 
         if (g_player[screenpeek].ps->newowner >= 0)
             OW = g_player[screenpeek].ps->newowner;
-
         else if (OW >= 0 && dist(&sprite[g_player[screenpeek].ps->i],&sprite[i]) < 2048)
         {
             if (waloff[TILE_VIEWSCR] == 0)
@@ -406,9 +405,9 @@ void animatecamsprite(void)
 
 void animatewalls(void)
 {
-    int i, j, p = 0, t;
+    int i, j, p = numanimwalls-1, t;
 
-    for (;p < numanimwalls ;p++)
+    for (;p>=0;p--)
         //    for(p=numanimwalls-1;p>=0;p--)
     {
         i = animwall[p].wallnum;
