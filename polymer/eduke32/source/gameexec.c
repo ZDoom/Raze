@@ -4988,8 +4988,7 @@ static int parse(void)
 
     case CON_FALL:
         insptr++;
-        g_sp->xoffset = 0;
-        g_sp->yoffset = 0;
+        g_sp->xoffset = g_sp->yoffset = 0;
 
         j = gc;
 
@@ -5006,8 +5005,7 @@ static int parse(void)
 
         if (g_sp->z < (hittype[g_i].floorz-FOURSLEIGHT))
         {
-            g_sp->zvel += j;
-            g_sp->z+=g_sp->zvel;
+            g_sp->z += g_sp->zvel += j;
 
             if (g_sp->zvel > 6144) g_sp->zvel = 6144;
 

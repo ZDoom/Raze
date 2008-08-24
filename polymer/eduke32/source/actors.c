@@ -7596,7 +7596,7 @@ void moveobjects(void)
             }
             while (i >= 0);
         }
-        while (--k);
+        while (k--);
     }
 
     doanimations();
