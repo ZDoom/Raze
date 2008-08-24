@@ -146,7 +146,8 @@ const char *stripcolorcodes(const char *in, char *out)
             continue;
         }
         *(out++) = *(in++);
-    } while (*in);
+    }
+    while (*in);
 
     *out = '\0';
     return(ptr);
@@ -1402,12 +1403,12 @@ void OSD_Printf(const char *fmt, ...)
 
     if (tmpstr[0]=='^' && tmpstr[1]=='1' && tmpstr[2]=='0' && ++OSD_errors > MAX_ERRORS)
     {
-        if(OSD_errors == MAX_ERRORS+1) Bstrcpy(tmpstr,OSD_ERROR "\nToo many errors. Logging errors stopped.\n");
-            else
-            {
-                OSD_errors=MAX_ERRORS+2;
-                return;
-            }
+        if (OSD_errors == MAX_ERRORS+1) Bstrcpy(tmpstr,OSD_ERROR "\nToo many errors. Logging errors stopped.\n");
+        else
+        {
+            OSD_errors=MAX_ERRORS+2;
+            return;
+        }
     }
 
     if (linecnt<logcutoff)
@@ -1483,7 +1484,8 @@ void OSD_Printf(const char *fmt, ...)
             osdpos = 0;
             linefeed();
         }
-    } while (*(++chp));
+    }
+    while (*(++chp));
 }
 
 

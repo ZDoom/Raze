@@ -4472,13 +4472,15 @@ RECHECK:
         updatesector(tspr->x+x,tspr->y+y,&datempsectnum);
     }
 
-    for (i=4;i>-1;i--)
+    i = 4;
+    do
     {
         cullcheckcnt++;
         if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
             tspr->x+x, tspr->y+y, tspr->z-(j*i)-512, datempsectnum))
             return 1;
     }
+    while (--i > -1);
 
     if (x != y && x == oldx)
     {

@@ -7438,17 +7438,18 @@ PALONLY:
     {
         if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
         if (spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS && tsprite[j].owner < MAXSPRITES && tsprite[j].owner > 0)
-        { 	 
+        {
             OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
             spriteext[tsprite[j].owner].tspr = NULL;
         }
-    } while (--j > 0);
+    }
+    while (--j > 0);
 
     if (j < 0) return;
 
     if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
     if (spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS && tsprite[j].owner < MAXSPRITES && tsprite[j].owner > 0)
-    { 	 
+    {
         OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
         spriteext[tsprite[j].owner].tspr = NULL;
     }

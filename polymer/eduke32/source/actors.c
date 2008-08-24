@@ -7593,8 +7593,10 @@ void moveobjects(void)
                 pl=findplayer(&sprite[i],&p);
                 OnEvent(EVENT_GAME,i, pl, p);
                 i = j;
-            } while (i >= 0);
-        } while (--k);
+            }
+            while (i >= 0);
+        }
+        while (--k);
     }
 
     doanimations();

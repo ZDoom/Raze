@@ -3686,7 +3686,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         SetGameVarID(lVar2, spriteext[iActor].tspr->owner,g_i,g_p);
         return;
 
-#if 1 
+#if 1
     case ACTOR_XVEL:
         if (iSet)
         {
@@ -3722,7 +3722,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         }
         SetGameVarID(lVar2, spriteext[iActor].tspr->lotag,g_i,g_p);
         return;
-        
+
     case ACTOR_HITAG:
         if (iSet)
         {
@@ -5313,7 +5313,7 @@ static int parse(void)
                 operatesectors(var1, var2);
                 break;
             case CON_OPERATEACTIVATORS:
-                if ((var2<0 || var2>=ud.multimode) && checkCON){OSD_Printf(CON_ERROR "Invalid player %d\n",line_num,keyw[g_tw],var2);break;}
+                if ((var2<0 || var2>=ud.multimode) && checkCON) {OSD_Printf(CON_ERROR "Invalid player %d\n",line_num,keyw[g_tw],var2);break;}
                 operateactivators(var1, var2);
                 break;
             case CON_SETASPECT:
@@ -5573,13 +5573,13 @@ static int parse(void)
                 Bstrcpy(fta_quotes[i],fta_quotes[j]);
                 break;
             case CON_CHANGESPRITESTAT:
-                if ((i<0 || i>=MAXSPRITES) && checkCON){OSD_Printf(CON_ERROR "Invalid sprite %d\n",line_num,keyw[g_tw],i);break;}
+                if ((i<0 || i>=MAXSPRITES) && checkCON) {OSD_Printf(CON_ERROR "Invalid sprite %d\n",line_num,keyw[g_tw],i);break;}
                 if ((j<0 || j>=MAXSTATUS) && checkCON) {OSD_Printf(CON_ERROR "Invalid status %d\n",line_num,keyw[g_tw],j);break;}
                 changespritestat(i,j);
                 break;
             case CON_CHANGESPRITESECT:
-                if ((i<0 || i>=MAXSPRITES) && checkCON){OSD_Printf(CON_ERROR "Invalid sprite %d\n",line_num,keyw[g_tw],i);break;}
-                if ((j<0 || j>=numsectors) && checkCON){OSD_Printf(CON_ERROR "Invalid sector %d\n",line_num,keyw[g_tw],j);break;}
+                if ((i<0 || i>=MAXSPRITES) && checkCON) {OSD_Printf(CON_ERROR "Invalid sprite %d\n",line_num,keyw[g_tw],i);break;}
+                if ((j<0 || j>=numsectors) && checkCON) {OSD_Printf(CON_ERROR "Invalid sector %d\n",line_num,keyw[g_tw],j);break;}
                 changespritesect(i,j);
                 break;
             }
@@ -7025,10 +7025,12 @@ static int parse(void)
                         }
                     }
                     j = nextspritestat[j];
-                } while (j>=0);
+                }
+                while (j>=0);
                 if ((tw==CON_FINDNEARACTOR||tw==CON_FINDNEARACTOR3D) || j == MAXSPRITES)
                     break;
-            } while (k--);
+            }
+            while (k--);
             SetGameVarID(lVarID, lFound, g_i, g_p);
             break;
         }
@@ -7067,10 +7069,12 @@ static int parse(void)
                         }
                     }
                     j = nextspritestat[j];
-                } while (j >= 0);
+                }
+                while (j >= 0);
                 if ((tw==CON_FINDNEARACTORVAR||tw==CON_FINDNEARACTOR3DVAR) || j == MAXSPRITES)
                     break;
-            } while (k--);
+            }
+            while (k--);
             SetGameVarID(lVarID, lFound, g_i, g_p);
             break;
         }
@@ -7109,10 +7113,12 @@ static int parse(void)
                         }
                     }
                     j = nextspritestat[j];
-                } while (j>=0);
+                }
+                while (j>=0);
                 if (tw==CON_FINDNEARACTORZVAR || j == MAXSPRITES)
                     break;
-            } while (k--);
+            }
+            while (k--);
             SetGameVarID(lVarID, lFound, g_i, g_p);
 
             break;
@@ -7152,10 +7158,12 @@ static int parse(void)
                         }
                     }
                     j = nextspritestat[j];
-                } while (j>=0);
+                }
+                while (j>=0);
                 if (tw==CON_FINDNEARACTORZ || j == MAXSPRITES)
                     break;
-            } while (k--);
+            }
+            while (k--);
             SetGameVarID(lVarID, lFound, g_i, g_p);
             break;
         }

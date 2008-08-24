@@ -666,7 +666,8 @@ void CONTROL_PollDevices(ControlInfo *info)
             CONTROL_ScaleAxis(i, controldevice_mouse);
             LIMITCONTROL(&CONTROL_MouseAxes[i].analog);
             CONTROL_ApplyAxis(i, info, controldevice_mouse);
-        } while (--i >= 0);
+        }
+        while (--i >= 0);
     }
 
     if (CONTROL_JoystickEnabled)
@@ -684,7 +685,8 @@ void CONTROL_PollDevices(ControlInfo *info)
             CONTROL_ScaleAxis(i, controldevice_joystick);
             LIMITCONTROL(&CONTROL_JoyAxes[i].analog);
             CONTROL_ApplyAxis(i, info, controldevice_joystick);
-        } while (--i >= 0);
+        }
+        while (--i >= 0);
     }
 
     CONTROL_GetDeviceButtons();
@@ -707,7 +709,8 @@ void CONTROL_AxisFunctionState(int32 *p1)
 
             if (j != AXISUNDEFINED)
                 p1[j] = 1;
-        } while (--i >= 0);
+        }
+        while (--i >= 0);
     }
 
     if (CONTROL_NumJoyAxes)
@@ -725,7 +728,8 @@ void CONTROL_AxisFunctionState(int32 *p1)
 
             if (j != AXISUNDEFINED)
                 p1[j] = 1;
-        } while (--i >= 0);
+        }
+        while (--i >= 0);
     }
 }
 
@@ -735,16 +739,6 @@ void CONTROL_ButtonFunctionState(int32 *p1)
 
     do
     {
-        if (bindsenabled)
-        {
-            if (mousebind[i].cmd[0] && CONTROL_MouseButtonState[i])
-            {
-                if (mousebind[i].repeat || (mousebind[i].laststate == 0))
-                    OSD_Dispatch(mousebind[i].cmd);
-            }
-            mousebind[i].laststate = CONTROL_MouseButtonState[i];
-        }
-
         if (!mousebind[i].cmd[0])
         {
             j = CONTROL_MouseButtonMapping[i].doubleclicked;
@@ -755,7 +749,18 @@ void CONTROL_ButtonFunctionState(int32 *p1)
             if (j != KEYUNDEFINED)
                 p1[j] |= CONTROL_MouseButtonState[i];
         }
-    } while (--i >= 0);
+
+        if (!bindsenabled)
+            continue;
+
+        if (mousebind[i].cmd[0] && CONTROL_MouseButtonState[i])
+        {
+            if (mousebind[i].repeat || (mousebind[i].laststate == 0))
+                OSD_Dispatch(mousebind[i].cmd);
+        }
+        mousebind[i].laststate = CONTROL_MouseButtonState[i];
+    }
+    while (--i >= 0);
 
     i=CONTROL_NumJoyButtons-1;
     do
@@ -767,7 +772,8 @@ void CONTROL_ButtonFunctionState(int32 *p1)
         j = CONTROL_JoyButtonMapping[i].singleclicked;
         if (j != KEYUNDEFINED)
             p1[j] |= CONTROL_JoyButtonState[i];
-    } while (--i >= 0);
+    }
+    while (--i >= 0);
 }
 /*
 void CONTROL_GetUserInput( UserInput *info )
@@ -876,7 +882,8 @@ void CONTROL_ProcessBinds(void)
                 OSD_Dispatch(boundkeys[i].cmd);
         }
         boundkeys[i].laststate = KB_KeyPressed(i);
-    } while (--i);
+    }
+    while (--i);
 
     if (boundkeys[0].cmd[0] && KB_KeyPressed(0))
     {
@@ -912,7 +919,8 @@ void CONTROL_GetInput(ControlInfo *info)
 
             if (CONTROL_Flags[i].cleared == false) BUTTONSET(i, CONTROL_Flags[i].active);
             else if (CONTROL_Flags[i].active == false) CONTROL_Flags[i].cleared = 0;
-        } while (--i);
+        }
+        while (--i);
 
         CONTROL_SetFlag(0, CONTROL_KeyboardFunctionPressed(0) | periphs[0] | extinput[0]);
         if (CONTROL_Flags[0].cleared == false) BUTTONSET(0, CONTROL_Flags[0].active);

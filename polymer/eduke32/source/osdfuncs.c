@@ -43,10 +43,11 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
 
             // use the format byte if the text falls within the bounds of the console buffer
             rotatesprite(x<<16, (y<<3)<<16, 65536, 0, ac, (*(ch-ptr+fmt)&~0x1F)>>4,
-                *(ch-ptr+fmt)&~0xE0, 8|16, 0, 0, xdim-1, ydim-1);
+                         *(ch-ptr+fmt)&~0xE0, 8|16, 0, 0, xdim-1, ydim-1);
             x += OSDCHAR_WIDTH+1;
             ch++;
-        } while (--len);
+        }
+        while (--len);
 
         usehightile = ht;
         return;
@@ -66,7 +67,8 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
         rotatesprite(x<<16, (y<<3)<<16, 65536, 0, ac, shade, pal, 8|16, 0, 0, xdim-1, ydim-1);
         x += OSDCHAR_WIDTH+1;
         ch++;
-    } while (--len);
+    }
+    while (--len);
 
     usehightile = ht;
 }
