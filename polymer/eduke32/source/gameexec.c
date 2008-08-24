@@ -7003,31 +7003,40 @@ static int parse(void)
             // -1 for none found
             // <type> <maxdist> <varid>
             int lType=*insptr++, lMaxDist=*insptr++, lVarID=*insptr++;
-            int lFound=-1, lTemp, j, k;
+            int lFound=-1, j, k = MAXSTATUS-1;
 
-            k = MAXSTATUS-1;
+            if (tw == CON_FINDNEARACTOR || tw == CON_FINDNEARACTOR3D)
+                k = 1;
             do
             {
-                j=headspritestat[(tw==CON_FINDNEARACTOR||tw==CON_FINDNEARACTOR3D)?1:k];    // all sprites
-                if (j == -1) continue;
-                do
+                j=headspritestat[k];    // all sprites
+                if (tw==CON_FINDNEARSPRITE3D || tw==CON_FINDNEARACTOR3D)
                 {
-                    if (sprite[j].picnum == lType && j != g_i)
+                    while (j>=0)
                     {
-                        if (tw==CON_FINDNEARACTOR3D || tw==CON_FINDNEARSPRITE3D)
-                            lTemp=dist(&sprite[g_i], &sprite[j]);
-                        else lTemp=ldist(&sprite[g_i], &sprite[j]);
-                        if (lTemp < lMaxDist)
+                        if (sprite[j].picnum == lType && j != g_i && dist(&sprite[g_i], &sprite[j]) < lMaxDist)
                         {
                             lFound=j;
                             j = MAXSPRITES;
                             break;
                         }
+                        j = nextspritestat[j];
                     }
-                    j = nextspritestat[j];
                 }
-                while (j>=0);
-                if ((tw==CON_FINDNEARACTOR||tw==CON_FINDNEARACTOR3D) || j == MAXSPRITES)
+                else
+                {
+                    while (j>=0)
+                    {
+                        if (sprite[j].picnum == lType && j != g_i && ldist(&sprite[g_i], &sprite[j]) < lMaxDist)
+                        {
+                            lFound=j;
+                            j = MAXSPRITES;
+                            break;
+                        }
+                        j = nextspritestat[j];
+                    }
+                }
+                if (j == MAXSPRITES || tw == CON_FINDNEARACTOR || tw == CON_FINDNEARACTOR3D)
                     break;
             }
             while (k--);
@@ -7047,31 +7056,41 @@ static int parse(void)
             // -1 for none found
             // <type> <maxdistvarid> <varid>
             int lType=*insptr++, lMaxDist=GetGameVarID(*insptr++, g_i, g_p), lVarID=*insptr++;
-            int lFound=-1, lTemp, j, k;
+            int lFound=-1, j, k = MAXSTATUS-1;
 
-            k=MAXSTATUS-1;
+            if (tw == CON_FINDNEARACTORVAR || tw == CON_FINDNEARACTOR3DVAR)
+                k = 1;
+
             do
             {
-                j=headspritestat[(tw==CON_FINDNEARACTORVAR||tw==CON_FINDNEARACTOR3DVAR)?1:k];    // all sprites
-                if (j == -1) continue;
-                do
+                j=headspritestat[k];    // all sprites
+                if (tw==CON_FINDNEARACTOR3DVAR || tw==CON_FINDNEARSPRITE3DVAR)
                 {
-                    if (sprite[j].picnum == lType && j != g_i)
+                    while (j >= 0)
                     {
-                        if (tw==CON_FINDNEARACTOR3DVAR || tw==CON_FINDNEARSPRITE3DVAR)
-                            lTemp=dist(&sprite[g_i], &sprite[j]);
-                        else lTemp=ldist(&sprite[g_i], &sprite[j]);
-                        if (lTemp < lMaxDist)
+                        if (sprite[j].picnum == lType && j != g_i && dist(&sprite[g_i], &sprite[j]) < lMaxDist)
                         {
                             lFound=j;
                             j = MAXSPRITES;
                             break;
                         }
+                        j = nextspritestat[j];
                     }
-                    j = nextspritestat[j];
                 }
-                while (j >= 0);
-                if ((tw==CON_FINDNEARACTORVAR||tw==CON_FINDNEARACTOR3DVAR) || j == MAXSPRITES)
+                else
+                {
+                    while (j >= 0)
+                    {
+                        if (sprite[j].picnum == lType && j != g_i && ldist(&sprite[g_i], &sprite[j]) < lMaxDist)
+                        {
+                            lFound=j;
+                            j = MAXSPRITES;
+                            break;
+                        }
+                        j = nextspritestat[j];
+                    }
+                }
+                if (j == MAXSPRITES || tw==CON_FINDNEARACTORVAR || tw==CON_FINDNEARACTOR3DVAR)
                     break;
             }
             while (k--);
