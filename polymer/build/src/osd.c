@@ -126,7 +126,7 @@ const char *stripcolorcodes(const char *in, char *out)
 {
     char *ptr = out;
 
-    while (*in)
+    do
     {
         if (*in == '^' && isdigit(*(in+1)))
         {
@@ -146,7 +146,8 @@ const char *stripcolorcodes(const char *in, char *out)
             continue;
         }
         *(out++) = *(in++);
-    }
+    } while (*in);
+
     *out = '\0';
     return(ptr);
 }
@@ -1248,7 +1249,7 @@ void OSD_ResizeDisplay(int w, int h)
     k = min(newcols, osdcols);
 
     memset(newtext, 32, TEXTSIZE);
-    for (i=0;i<j;i++)
+    for (i=j-1;i>=0;i--)
     {
         memcpy(newtext+newcols*i, osdtext+osdcols*i, k);
         memcpy(newfmt+newcols*i, osdfmt+osdcols*i, k);
@@ -1364,7 +1365,7 @@ void OSD_Draw(void)
     if (osdeditshift) drawosdchar(1,osdrowscur,'H',osdpromptshade,osdpromptpal);
 
     len = min(osdcols-1-3, osdeditlen-osdeditwinstart);
-    for (x=0; x<len; x++)
+    for (x=len-1; x>=0; x--)
         drawosdchar(3+x,osdrowscur,osdeditbuf[osdeditwinstart+x],osdeditshade<<1,osdeditpal);
 
     drawosdcursor(3+osdeditcursor-osdeditwinstart,osdrowscur,osdovertype,keytime);
@@ -1424,56 +1425,65 @@ void OSD_Printf(const char *fmt, ...)
         linecnt=logcutoff+1;
     }
 
-    for (chp = tmpstr; *chp; chp++)
+    chp = tmpstr;
+    do
     {
-        if (*chp == '^' && isdigit(*(chp+1)))
-        {
-            char smallbuf[4];
-            chp++;
-            if (isdigit(*(chp+1)))
-            {
-                smallbuf[0] = *(chp++);
-                smallbuf[1] = *(chp);
-                smallbuf[2] = '\0';
-                p = atol(smallbuf);
-            }
-            else
-            {
-                smallbuf[0] = *(chp);
-                smallbuf[1] = '\0';
-                p = atol(smallbuf);
-            }
-        }
-        else if (*chp == '^' && Btoupper(*(chp+1)) == 'S')
-        {
-            chp++;
-            if (isdigit(*(++chp)))
-                s = *chp;
-        }
-        else if (*chp == '^' && Btoupper(*(chp+1)) == 'O')
-        {
-            chp++;
-            p = osdtextpal;
-            s = osdtextshade;
-        }
-        else if (*chp == '\r') osdpos=0;
-        else if (*chp == '\n')
+        if (*chp == '\n')
         {
             osdpos=0;
             linecnt++;
             linefeed();
+            continue;
         }
-        else
+        if (*chp == '\r')
         {
-            osdtext[osdpos] = *chp;
-            osdfmt[osdpos++] = p+(s<<5);
-            if (osdpos == osdcols)
+            osdpos=0;
+            continue;
+        }
+        if (*chp == '^')
+        {
+            if (isdigit(*(chp+1)))
             {
-                osdpos = 0;
-                linefeed();
+                char smallbuf[4];
+                chp++;
+                if (isdigit(*(chp+1)))
+                {
+                    smallbuf[0] = *(chp++);
+                    smallbuf[1] = *(chp);
+                    smallbuf[2] = '\0';
+                    p = atol(smallbuf);
+                }
+                else
+                {
+                    smallbuf[0] = *(chp);
+                    smallbuf[1] = '\0';
+                    p = atol(smallbuf);
+                }
+                continue;
+            }
+            if (Btoupper(*(chp+1)) == 'S')
+            {
+                chp++;
+                if (isdigit(*(++chp)))
+                    s = *chp;
+                continue;
+            }
+            if (Btoupper(*(chp+1)) == 'O')
+            {
+                chp++;
+                p = osdtextpal;
+                s = osdtextshade;
+                continue;
             }
         }
-    }
+        osdtext[osdpos] = *chp;
+        osdfmt[osdpos++] = p+(s<<5);
+        if (osdpos == osdcols)
+        {
+            osdpos = 0;
+            linefeed();
+        }
+    } while (*(++chp));
 }
 
 

@@ -425,14 +425,6 @@ void CONTROL_MapDigitalAxis(int32 whichaxis, int32 whichfunction, int32 directio
     }
 }
 
-void CONTROL_ClearFlags(void)
-{
-    int32 i;
-
-    for (i=0;i<CONTROL_NUM_FLAGS;i++)
-        CONTROL_Flags[i].used = false;
-}
-
 void CONTROL_ClearAssignments(void)
 {
     int32 i;
@@ -462,9 +454,9 @@ static void DoGetDeviceButtons(
     byte  *ButtonClickedCount
 )
 {
-    int32 i, bs;
+    int32 i=NumButtons-1, bs;
 
-    for (i=0;i<NumButtons;i++)
+    for (;i>=0;i--)
     {
         bs = (buttons >> i) & 1;
 
@@ -493,14 +485,12 @@ static void DoGetDeviceButtons(
             {
                 ButtonClickedState[i] = true;
             }
+            continue;
         }
-        else
-        {
-            if (ButtonClickedCount[i] == 2)
-                ButtonClickedCount[i] = 0;
+        if (ButtonClickedCount[i] == 2)
+            ButtonClickedCount[i] = 0;
 
-            ButtonClicked[i] = false;
-        }
+        ButtonClicked[i] = false;
     }
 }
 
