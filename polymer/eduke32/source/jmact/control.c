@@ -692,36 +692,41 @@ void CONTROL_PollDevices(ControlInfo *info)
 
 void CONTROL_AxisFunctionState(int32 *p1)
 {
-    int32 i, j;
-
-    i = CONTROL_NumMouseAxes-1;
-    do
+    if (CONTROL_NumMouseAxes)
     {
-        if (!CONTROL_MouseAxes[i].digital) continue;
+        int32 j, i = CONTROL_NumMouseAxes-1;
 
-        if (CONTROL_MouseAxes[i].digital < 0)
-            j = CONTROL_MouseAxesMap[i].minmap;
-        else
-            j = CONTROL_MouseAxesMap[i].maxmap;
+        do
+        {
+            if (!CONTROL_MouseAxes[i].digital) continue;
 
-        if (j != AXISUNDEFINED)
-            p1[j] = 1;
-    } while (--i >= 0);
+            if (CONTROL_MouseAxes[i].digital < 0)
+                j = CONTROL_MouseAxesMap[i].minmap;
+            else
+                j = CONTROL_MouseAxesMap[i].maxmap;
 
-    i = CONTROL_NumJoyAxes-1;
+            if (j != AXISUNDEFINED)
+                p1[j] = 1;
+        } while (--i >= 0);
+    }
 
-    do
+    if (CONTROL_NumJoyAxes)
     {
-        if (!CONTROL_JoyAxes[i].digital) continue;
+        int32 j, i = CONTROL_NumJoyAxes-1;
 
-        if (CONTROL_JoyAxes[i].digital < 0)
-            j = CONTROL_JoyAxesMap[i].minmap;
-        else
-            j = CONTROL_JoyAxesMap[i].maxmap;
+        do
+        {
+            if (!CONTROL_JoyAxes[i].digital) continue;
 
-        if (j != AXISUNDEFINED)
-            p1[j] = 1;
-    } while (--i >= 0);
+            if (CONTROL_JoyAxes[i].digital < 0)
+                j = CONTROL_JoyAxesMap[i].minmap;
+            else
+                j = CONTROL_JoyAxesMap[i].maxmap;
+
+            if (j != AXISUNDEFINED)
+                p1[j] = 1;
+        } while (--i >= 0);
+    }
 }
 
 void CONTROL_ButtonFunctionState(int32 *p1)
