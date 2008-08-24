@@ -1446,20 +1446,17 @@ void OSD_Printf(const char *fmt, ...)
             if (isdigit(*(chp+1)))
             {
                 char smallbuf[4];
-                chp++;
-                if (isdigit(*(chp+1)))
-                {
-                    smallbuf[0] = *(chp++);
-                    smallbuf[1] = *(chp);
-                    smallbuf[2] = '\0';
-                    p = atol(smallbuf);
-                }
-                else
+                if (!isdigit(*(++chp+1)))
                 {
                     smallbuf[0] = *(chp);
                     smallbuf[1] = '\0';
                     p = atol(smallbuf);
+                    continue;
                 }
+                smallbuf[0] = *(chp++);
+                smallbuf[1] = *(chp);
+                smallbuf[2] = '\0';
+                p = atol(smallbuf);
                 continue;
             }
             if (Btoupper(*(chp+1)) == 'S')

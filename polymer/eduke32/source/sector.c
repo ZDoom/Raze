@@ -1341,7 +1341,7 @@ int checkhitswitch(int snum,int w,int switchtype)
         i = nextspritestat[i];
     }
 
-    for (i=0;i<numwalls;i++)
+    for (i=numwalls-1;i>=0;i--)
     {
         x = i;
         if (lotag == wall[x].lotag)
@@ -2094,7 +2094,7 @@ void checkhitsprite(int i,int sn)
     case CACTUS__STATIC:
     {
         if (rpg == 1)
-            for (k=0;k<64;k++)
+            for (k=64;k>0;k--)
             {
                 j = EGS(SECT,SX,SY,SZ-(TRAND%(48<<8)),SCRAP3+(TRAND&3),-8,48,48,TRAND&2047,(TRAND&63)+64,-(TRAND&4095)-(sprite[i].zvel>>2),i,5);
                 sprite[j].pal = 8;
@@ -2107,7 +2107,7 @@ void checkhitsprite(int i,int sn)
         case FIRELASER__STATIC:
         case HYDRENT__STATIC:
         case HEAVYHBOMB__STATIC:
-            for (k=0;k<64;k++)
+            for (k=64;k>0;k--)
             {
                 j = EGS(SECT,SX,SY,SZ-(TRAND%(48<<8)),SCRAP3+(TRAND&3),-8,48,48,TRAND&2047,(TRAND&63)+64,-(TRAND&4095)-(sprite[i].zvel>>2),i,5);
                 sprite[j].pal = 8;
@@ -2123,7 +2123,7 @@ void checkhitsprite(int i,int sn)
     }
     case HANGLIGHT__STATIC:
     case GENERICPOLE2__STATIC:
-        for (k=0;k<6;k++)
+        for (k=6;k>0;k--)
             EGS(SECT,SX,SY,SZ-(8<<8),SCRAP1+(TRAND&15),-8,48,48,TRAND&2047,(TRAND&63)+64,-(TRAND&4095)-(sprite[i].zvel>>2),i,5);
         spritesound(GLASS_HEAVYBREAK,i);
         deletesprite(i);
@@ -2138,7 +2138,7 @@ void checkhitsprite(int i,int sn)
 
         spritesound(GLASS_HEAVYBREAK,i);
         s = &sprite[i];
-        for (j=0;j<16;j++) RANDOMSCRAP;
+        for (j=16;j>0;j--) RANDOMSCRAP;
 
         break;
     case WATERFOUNTAIN__STATIC:
@@ -2154,7 +2154,7 @@ void checkhitsprite(int i,int sn)
     case ANTENNA__STATIC:
         if (sprite[sn].extra != *actorscrptr[SHOTSPARK1])
         {
-            for (j=0;j<15;j++)
+            for (j=15;j>0;j--)
                 EGS(SECT,SX,SY,sector[SECT].floorz-(12<<8)-(j<<9),SCRAP1+(TRAND&15),-8,64,64,
                     TRAND&2047,(TRAND&127)+64,-(TRAND&511)-256,i,5);
             spawn(i,EXPLOSION2);
@@ -2210,7 +2210,7 @@ void checkhitsprite(int i,int sn)
         lotsofglass(i,-1,10);
         break;
     case FETUSBROKE__STATIC:
-        for (j=0;j<48;j++)
+        for (j=48;j>0;j--)
         {
             shoot(i,BLOODSPLAT1);
             SA += 333;
@@ -2379,7 +2379,7 @@ void checkhitsprite(int i,int sn)
     case TRIPODCAMERA__STATIC:
         spritesound(GLASS_HEAVYBREAK,i);
         s = &sprite[i];
-        for (j=0;j<16;j++) RANDOMSCRAP;
+        for (j=16;j>0;j--) RANDOMSCRAP;
         deletesprite(i);
         break;
     case PLAYERONWATER__STATIC:

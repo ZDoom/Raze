@@ -293,11 +293,11 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
 
     if (centre)
     {
-        while (*t)
+        do
         {
             if (*t == '^' && isdigit(*(t+1)))
             {
-                t += 2;
+                t++;
                 if (isdigit(*t)) t++;
                 continue;
             }
@@ -307,7 +307,6 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
                     newx+=(8-squishtext)*z/65536;
                 else
                     newx+=(5-squishtext)*z/65536;
-                t++;
                 continue;
             }
             else ac = *t - '!' + starttile;
@@ -322,8 +321,8 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
                     newx += (8-squishtext)*z/65536;
                 else newx += (tilesizx[ac]-squishtext)*z/65536;
             }
-            t++;
         }
+        while (*(++t));
 
         t = oldt;
         x = (widthx>>1)-((orientation & 256)?newx<<15:newx>>1);
@@ -331,25 +330,22 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
 //    usehightile = (ht && r_downsize < 2);
     ox=x;
     oy=y;
-    while (*t)
+    do
     {
         if (*t == '^' && isdigit(*(t+1)))
         {
             char smallbuf[4];
-            t++;
-            if (isdigit(*(t+1)))
+            if (!isdigit(*(++t+1)))
             {
-                smallbuf[0] = *(t++);
-                smallbuf[1] = *(t++);
-                smallbuf[2] = '\0';
-                p = atol(smallbuf);
-            }
-            else
-            {
-                smallbuf[0] = *(t++);
+                smallbuf[0] = *(t);
                 smallbuf[1] = '\0';
                 p = atol(smallbuf);
+                continue;
             }
+            smallbuf[0] = *(t++);
+            smallbuf[1] = *(t);
+            smallbuf[2] = '\0';
+            p = atol(smallbuf);
             continue;
         }
         if (*t == 32)
@@ -358,7 +354,6 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
                 x+=(8-squishtext)*z/65536;
             else
                 x+=(5-squishtext)*z/65536;
-            t++;
             continue;
         }
         else ac = *t - '!' + starttile;
@@ -382,8 +377,8 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
 
         if ((orientation&256) == 0) //  warpping long strings doesn't work for precise coordinates due to overflow
             if (x > (ud.config.ScreenWidth - 14)) oldt = (char *)t, x = oldx, y+=8*z/65536;
-        t++;
     }
+    while (*(++t));
 //    usehightile = ht;
     return (x);
 }
@@ -395,12 +390,11 @@ int gametextlen(int x,const char *t)
     if (t == NULL)
         return -1;
 
-    while (*t)
+    do
     {
         if (*t == 32)
         {
             x+=5;
-            t++;
             continue;
         }
         else ac = *t - '!' + STARTALPHANUM;
@@ -411,9 +405,8 @@ int gametextlen(int x,const char *t)
         if ((*t >= '0' && *t <= '9'))
             x += 8;
         else x += tilesizx[ac];
-        t++;
     }
-
+    while (*(++t));
     return (x);
 }
 
@@ -434,32 +427,28 @@ int minitext_(int x,int y,const char *t,int s,int p,int sb)
     sb &= 255;
 
 //    usehightile = (ht && !r_downsize);
-    while (*t)
+    do
     {
         if (*t == '^' && isdigit(*(t+1)))
         {
             char smallbuf[4];
-            t++;
-            if (isdigit(*(t+1)))
+            if (!isdigit(*(++t+1)))
             {
-                smallbuf[0] = *(t++);
-                smallbuf[1] = *(t++);
-                smallbuf[2] = '\0';
-                p = atol(smallbuf);
-            }
-            else
-            {
-                smallbuf[0] = *(t++);
+                smallbuf[0] = *(t);
                 smallbuf[1] = '\0';
                 p = atol(smallbuf);
+                continue;
             }
+            smallbuf[0] = *(t++);
+            smallbuf[1] = *(t);
+            smallbuf[2] = '\0';
+            p = atol(smallbuf);
             continue;
         }
         ch = Btoupper(*t);
         if (ch == 32)
         {
             x+=5;
-            t++;
             continue;
         }
         else ac = ch - '!' + MINIFONT;
@@ -468,8 +457,8 @@ int minitext_(int x,int y,const char *t,int s,int p,int sb)
         else rotatesprite(x<<16,y<<16,65536L,0,ac,s,p,sb,0,0,xdim-1,ydim-1);
         x += 4; // tilesizx[ac]+1;
 
-        t++;
     }
+    while (*(++t));
 //    usehightile = ht;
     return (x);
 }
