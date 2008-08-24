@@ -7566,8 +7566,6 @@ BOLT:
 
 void moveobjects(void)
 {
-    int k = 0;
-
     movefta();              //ST 2
     moveweapons();          //ST 4
     movetransports();       //ST 9
@@ -7583,20 +7581,20 @@ void moveobjects(void)
 
     if (apScriptGameEvent[EVENT_GAME])
     {
-        int i, p, j;
+        int i, p, j, k = MAXSTATUS-1, pl;
 
-        for (;k<MAXSTATUS;k++)
+        do
         {
             i = headspritestat[k];
-            while (i >= 0)
+            if (i < 0) continue;
+            do
             {
-                int pl;
                 j = nextspritestat[i];
                 pl=findplayer(&sprite[i],&p);
                 OnEvent(EVENT_GAME,i, pl, p);
                 i = j;
-            }
-        }
+            } while (i >= 0);
+        } while (--k);
     }
 
     doanimations();

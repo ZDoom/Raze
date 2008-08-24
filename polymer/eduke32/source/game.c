@@ -198,7 +198,7 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
     tok = scriptfile_gettoken(sf);
     if (!tok) return T_EOF;
 
-    for (i=0;i<ntokens;i++)
+    for (i=ntokens-1;i>=0;i--)
     {
         if (!Bstrcasecmp(tok, tl[i].text))
             return tl[i].tokenid;
@@ -480,7 +480,7 @@ static void allowtimetocorrecterrorswhenquitting(void)
 
     ready2send = 0;
 
-    for (j=0;j<8;j++)
+    for (j=7;j>=0;j--)
     {
         oldtotalclock = totalclock;
 
@@ -633,7 +633,7 @@ void getpackets(void)
 
             for (i=connecthead;i>=0;i=connectpoint2[i])
                 if (i != myconnectindex)
-                    for (j=1;j<movesperpacket;j++)
+                    for (j=movesperpacket-1;j>=1;j--)
                     {
                         copybufbyte(&nsyn[i],&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t));
                         g_player[i].movefifoend++;
@@ -670,7 +670,7 @@ void getpackets(void)
                 g_player[other].syncvalhead++;
             }
 
-            for (i=1;i<movesperpacket;i++)
+            for (i=movesperpacket-1;i>=1;i--)
             {
                 copybufbyte(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input_t));
                 g_player[other].movefifoend++;
@@ -714,7 +714,7 @@ void getpackets(void)
             if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((int)packbuf[j++])<<24);
             g_player[other].movefifoend++;
 
-            for (i=1;i<movesperpacket;i++)
+            for (i=movesperpacket-1;i>=1;i--)
             {
                 copybufbyte(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input_t));
                 g_player[other].movefifoend++;
@@ -966,7 +966,7 @@ void getpackets(void)
                     adduserquote(tempbuf);
                     Bsprintf(tempbuf,"PRESS F1 TO VOTE YES, F2 TO VOTE NO");
                     adduserquote(tempbuf);
-                    for (i=0;i<MAXPLAYERS;i++)
+                    for (i=MAXPLAYERS-1;i>=0;i--)
                     {
                         g_player[i].vote = 0;
                         g_player[i].gotvote = 0;
@@ -979,13 +979,13 @@ void getpackets(void)
                     {
                         voting = -1;
                         i = 0;
-                        for (j=0;j<MAXPLAYERS;j++)
+                        for (j=MAXPLAYERS-1;j>=0;j--)
                             i += g_player[j].gotvote;
 
                         if (i != numplayers)
                             Bsprintf(tempbuf,"%s^00 HAS CANCELED THE VOTE",g_player[(unsigned char)packbuf[2]].user_name);
                         else Bsprintf(tempbuf,"VOTE FAILED");
-                        for (i=0;i<MAXPLAYERS;i++)
+                        for (i=MAXPLAYERS-1;i>=0;i--)
                         {
                             g_player[i].vote = 0;
                             g_player[i].gotvote = 0;
@@ -1353,7 +1353,7 @@ static void caches(void)
     short i,k;
 
     k = 0;
-    for (i=0;i<cacnum;i++)
+    for (i=cacnum-1;i>=0;i--)
         if ((*cac[i].lock) >= 200)
         {
             Bsprintf(tempbuf,"Locked- %d: Leng:%d, Lock:%d",i,cac[i].leng,*cac[i].lock);
@@ -1363,7 +1363,7 @@ static void caches(void)
 
     k += 6;
 
-    for (i=1;i<11;i++)
+    for (i=10;i>=0;i--)
         if (lumplockbyte[i] >= 200)
         {
             Bsprintf(tempbuf,"RTS Locked %d:",i);
@@ -1809,7 +1809,7 @@ static void digitalnumber(int x,int y,int n,char s,char cs)
     Bsnprintf(b,10,"%d",n);
     i = Bstrlen(b);
 
-    for (k=0;k<i;k++)
+    for (k=i-1;k>=0;k--)
     {
         p = DIGITALNUM+*(b+k)-'0';
         j += tilesizx[p]+1;
@@ -1835,7 +1835,7 @@ void txdigitalnumberz(int starttile, int x,int y,int n,int s,int pal,int cs,int 
     Bsnprintf(b,10,"%d",n);
     i = Bstrlen(b);
 
-    for (k=0;k<i;k++)
+    for (k=i-1;k>=0;k--)
     {
         p = starttile+*(b+k)-'0';
         j += (tilesizx[p]+1)*z/65536;
@@ -1867,7 +1867,7 @@ static void altdigitalnumber(int x,int y,int n,char s,char cs)
     Bsnprintf(b,10,"%d",n);
     i = Bstrlen(b);
 
-    for (k=0;k<i;k++)
+    for (k=i-1;k>=0;k--)
     {
         p = althud_numbertile+*(b+k)-'0';
         j += tilesizx[p]+1;
@@ -2908,7 +2908,7 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
         char b[91],ii;
         for (ii=0;ii<inputloc;ii++)
             b[(unsigned char)ii] = '*';
-        b[(unsigned char)ii] = 0;
+        b[(unsigned char)inputloc] = 0;
         if (g_player[myconnectindex].ps->gm&MODE_TYPE)
             x = mpgametext(y,b,c,2+8+16);
         else x = gametext(x,y,b,c,2+8+16);
@@ -3111,7 +3111,7 @@ static void moveclouds(void)
 
         cloudtotalclock = totalclock+6;
 
-        for (i=0;i<numclouds;i++)
+        for (i=numclouds-1;i>=0;i--)
         {
             cloudx[i] += (sintable[(g_player[screenpeek].ps->ang+512)&2047]>>9);
             cloudy[i] += (sintable[g_player[screenpeek].ps->ang&2047]>>9);
@@ -3139,7 +3139,7 @@ static void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
     yvect2 = mulscale16(yvect,yxaspect);
 
     //Draw red lines
-    for (i=0;i<numsectors;i++)
+    for (i=numsectors-1;i>=0;i--)
     {
         if (!(show2dsector[i>>3]&(1<<(i&7)))) continue;
 
@@ -3185,7 +3185,7 @@ static void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 
     //Draw sprites
     k = g_player[screenpeek].ps->i;
-    for (i=0;i<numsectors;i++)
+    for (i=numsectors-1;i>=0;i--)
     {
         if (!(show2dsector[i>>3]&(1<<(i&7)))) continue;
         for (j=headspritesect[i];j>=0;j=nextspritesect[j])
@@ -3331,7 +3331,7 @@ static void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
     }
 
     //Draw white lines
-    for (i=0;i<numsectors;i++)
+    for (i=numsectors-1;i>=0;i--)
     {
         if (!(show2dsector[i>>3]&(1<<(i&7)))) continue;
 
@@ -3479,7 +3479,7 @@ void SetCrosshairColor(int r, int g, int b)
         ptr++;
         ii--;
     }
-    for (i = 0; i < 256; i++)
+    for (i = 255; i >= 0; i--)
         tempbuf[i] = i;
     makepalookup(CROSSHAIR_PAL,tempbuf,crosshair_colors.r>>2, crosshair_colors.g>>2, crosshair_colors.b>>2,1);
 
@@ -4425,7 +4425,7 @@ void displayrooms(int snum,int smoothratio)
         {
             dst = 0x7fffffff;
             i = 0;
-            for (k=0;k<mirrorcnt;k++)
+            for (k=mirrorcnt-1;k>=0;k--)
             {
                 j = klabs(wall[mirrorwall[k]].x-ud.camerax);
                 j += klabs(wall[mirrorwall[k]].y-ud.cameray);
@@ -6357,7 +6357,7 @@ int spawn(int j, int pn)
                         sector[sect].hitag = i;
                     }
 
-                    for (j = 0;j < MAXSPRITES;j++)
+                    for (j = MAXSPRITES-1;j>=0;j--)
                     {
                         if (sprite[j].statnum < MAXSTATUS)
                             if (sprite[j].picnum == SECTOREFFECTOR &&
@@ -6372,7 +6372,7 @@ int spawn(int j, int pn)
                                 break;
                             }
                     }
-                    if (j == MAXSPRITES)
+                    if (j == -1)
                     {
                         Bsprintf(tempbuf,"Found lonely Sector Effector (lotag 0) at (%d,%d)\n",sp->x,sp->y);
                         gameexit(tempbuf);
@@ -6609,7 +6609,9 @@ void animatesprites(int x,int y,int a,int smoothratio)
     spritetype *s,*t;
     int switchpic;
 
-    for (j=0;j < spritesortcnt; j++)
+    if (!spritesortcnt) return;
+
+    for (j=spritesortcnt-1;j>=0; j--)
     {
         t = &tsprite[j];
         i = t->owner;
@@ -6703,7 +6705,7 @@ void animatesprites(int x,int y,int a,int smoothratio)
         t->shade = l;
     }
 
-    for (j=0;j < spritesortcnt; j++) //Between drawrooms() and drawmasks()
+    for (j=spritesortcnt-1;j>=0; j--) //Between drawrooms() and drawmasks()
     {
         //is the perfect time to animate sprites
         t = &tsprite[j];
@@ -7430,14 +7432,25 @@ PALONLY:
         if (sector[t->sectnum].floorpicnum == MIRROR)
             t->xrepeat = t->yrepeat = 0;
     }
-    for (j=spritesortcnt-1;j>=0; j--)
+
+    j = spritesortcnt-1;
+    do
     {
         if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
-        if (tsprite[j].owner > 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS) 	         OnEvent(EVENT_ANIMATESPRITES, j, myconnectindex, -1);
+        if (spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS && tsprite[j].owner < MAXSPRITES && tsprite[j].owner > 0)
         { 	 
-            OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1); 	 
-            spriteext[tsprite[j].owner].tspr = NULL; 	 
+            OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
+            spriteext[tsprite[j].owner].tspr = NULL;
         }
+    } while (--j > 0);
+
+    if (j < 0) return;
+
+    if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
+    if (spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS && tsprite[j].owner < MAXSPRITES && tsprite[j].owner > 0)
+    { 	 
+        OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
+        spriteext[tsprite[j].owner].tspr = NULL;
     }
 }
 #ifdef _MSC_VER

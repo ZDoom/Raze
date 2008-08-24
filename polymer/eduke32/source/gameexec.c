@@ -7005,10 +7005,12 @@ static int parse(void)
             int lType=*insptr++, lMaxDist=*insptr++, lVarID=*insptr++;
             int lFound=-1, lTemp, j, k;
 
-            for (k=0;k<MAXSTATUS;k++)
+            k = MAXSTATUS-1;
+            do
             {
                 j=headspritestat[(tw==CON_FINDNEARACTOR||tw==CON_FINDNEARACTOR3D)?1:k];    // all sprites
-                while (j>=0)
+                if (j == -1) continue;
+                do
                 {
                     if (sprite[j].picnum == lType && j != g_i)
                     {
@@ -7023,10 +7025,10 @@ static int parse(void)
                         }
                     }
                     j = nextspritestat[j];
-                }
+                } while (j>=0);
                 if ((tw==CON_FINDNEARACTOR||tw==CON_FINDNEARACTOR3D) || j == MAXSPRITES)
                     break;
-            }
+            } while (k--);
             SetGameVarID(lVarID, lFound, g_i, g_p);
             break;
         }
@@ -7045,10 +7047,12 @@ static int parse(void)
             int lType=*insptr++, lMaxDist=GetGameVarID(*insptr++, g_i, g_p), lVarID=*insptr++;
             int lFound=-1, lTemp, j, k;
 
-            for (k=MAXSTATUS-1;k>=0;k--)
+            k=MAXSTATUS-1;
+            do
             {
                 j=headspritestat[(tw==CON_FINDNEARACTORVAR||tw==CON_FINDNEARACTOR3DVAR)?1:k];    // all sprites
-                while (j>=0)
+                if (j == -1) continue;
+                do
                 {
                     if (sprite[j].picnum == lType && j != g_i)
                     {
@@ -7063,10 +7067,10 @@ static int parse(void)
                         }
                     }
                     j = nextspritestat[j];
-                }
+                } while (j >= 0);
                 if ((tw==CON_FINDNEARACTORVAR||tw==CON_FINDNEARACTOR3DVAR) || j == MAXSPRITES)
                     break;
-            }
+            } while (k--);
             SetGameVarID(lVarID, lFound, g_i, g_p);
             break;
         }
@@ -7083,10 +7087,12 @@ static int parse(void)
             int lType=*insptr++, lMaxDist=GetGameVarID(*insptr++, g_i, g_p), lMaxZDist=GetGameVarID(*insptr++, g_i, g_p);
             int lVarID=*insptr++, lFound=-1, lTemp, lTemp2, j, k;
 
-            for (k=MAXSTATUS-1;k>=0;k--)
+            k=MAXSTATUS-1;
+            do
             {
                 j=headspritestat[tw==CON_FINDNEARACTORZVAR?1:k];    // all sprites
-                while (j>=0)
+                if (j == -1) continue;
+                do
                 {
                     if (sprite[j].picnum == lType && j != g_i)
                     {
@@ -7103,10 +7109,10 @@ static int parse(void)
                         }
                     }
                     j = nextspritestat[j];
-                }
+                } while (j>=0);
                 if (tw==CON_FINDNEARACTORZVAR || j == MAXSPRITES)
                     break;
-            }
+            } while (k--);
             SetGameVarID(lVarID, lFound, g_i, g_p);
 
             break;
@@ -7124,10 +7130,12 @@ static int parse(void)
             int lType=*insptr++, lMaxDist=*insptr++, lMaxZDist=*insptr++, lVarID=*insptr++;
             int lTemp, lTemp2, lFound=-1, j, k;
 
-            for (k=MAXSTATUS-1;k>=0;k--)
+            k=MAXSTATUS-1;
+            do
             {
                 j=headspritestat[tw==CON_FINDNEARACTORZ?1:k];    // all sprites
-                while (j>=0)
+                if (j == -1) continue;
+                do
                 {
                     if (sprite[j].picnum == lType && j != g_i)
                     {
@@ -7144,10 +7152,10 @@ static int parse(void)
                         }
                     }
                     j = nextspritestat[j];
-                }
+                } while (j>=0);
                 if (tw==CON_FINDNEARACTORZ || j == MAXSPRITES)
                     break;
-            }
+            } while (k--);
             SetGameVarID(lVarID, lFound, g_i, g_p);
             break;
         }
@@ -7397,7 +7405,13 @@ static int parse(void)
             int index = GetGameVarID(*insptr++, g_i, g_p);
             int value = GetGameVarID(*insptr++, g_i, g_p);
 
-            SetGameArrayID(j,index,value);
+//            SetGameArrayID(j,index,value);
+            if (j<0 || j >= iGameArrayCount || index >= aGameArrays[j].size || index < 0)
+            {
+                OSD_Printf(OSD_ERROR "SetGameVarID(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",j,g_i,sprite[g_i].picnum,g_p);
+                return 0;
+            }
+            aGameArrays[j].plValues[index]=value;
             break;
         }
 

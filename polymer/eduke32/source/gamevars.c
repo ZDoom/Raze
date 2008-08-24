@@ -661,7 +661,7 @@ int GetGameVarID(int id, int iActor, int iPlayer)
         return(m * aGameVars[id].lValue);
     }
 }
-
+/*
 void SetGameArrayID(int id,int index, int lValue)
 {
     if (id<0 || id >= iGameArrayCount || !((index < aGameArrays[id].size)&&(index>=0)))
@@ -671,7 +671,7 @@ void SetGameArrayID(int id,int index, int lValue)
     }
     aGameArrays[id].plValues[index]=lValue;
 }
-
+*/
 void SetGameVarID(int id, int lValue, int iActor, int iPlayer)
 {
     if (id<0 || id >= iGameVarCount)
