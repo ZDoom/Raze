@@ -258,7 +258,7 @@ void    CONTROL_ShutJoy( int32 joy );
 void    CONTROL_SetFlag( int32 which, boolean active );
 void    CONTROL_ButtonFunctionState( boolean * state );
 boolean CONTROL_KeyboardFunctionPressed( int32 whichfunction );
-boolean CONTROL_CheckRange( int32 which );
+static inline boolean CONTROL_CheckRange( int32 which );
 int32   CONTROL_GetTime( void );
 void    CONTROL_AxisFunctionState( boolean * state );
 void    CONTROL_GetJoyMovement( ControlInfo * info );

@@ -766,7 +766,7 @@ int RESERVEDSLOT10 = 6141;
 int RESERVEDSLOT11 = 6142;
 int RESERVEDSLOT12 = 6143;
 
-int dynamictostatic[MAXTILES];
+short dynamictostatic[MAXTILES];
 
 void processnames(const char *szLabel, int lValue)
 {

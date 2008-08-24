@@ -2128,7 +2128,7 @@ static int parsecommand(void)
             labeltype[labelcnt] = LABEL_DEFINE;
             labelcode[labelcnt++] = *(scriptptr-1);
             if (*(scriptptr-1) >= 0 && *(scriptptr-1) < MAXTILES && dynamicremap)
-                processnames(label+(labelcnt<<6),*(scriptptr-1));
+                processnames(label+((labelcnt-1)<<6),*(scriptptr-1));
         }
         scriptptr -= 2;
         return 0;
@@ -3619,8 +3619,8 @@ static int parsecommand(void)
     case CON_DYNAMICREMAP:
     {
         scriptptr--;
-        initprintf("Dynamic tile remapping enabled.\n");
-        dynamicremap = 1;
+        if (dynamicremap++) initprintf("%s:%d: warning: duplicate dynamicremap statement\n",compilefile,line_number);
+        else initprintf("Using dynamic tile remapping\n");
         break;
     }
 

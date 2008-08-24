@@ -1496,4 +1496,4 @@ extern int RESERVEDSLOT11;
 #define RESERVEDSLOT11__STATIC 6142
 extern int RESERVEDSLOT12;
 #define RESERVEDSLOT12__STATIC 6143
-extern int dynamictostatic[MAXTILES];
+extern short dynamictostatic[MAXTILES];
