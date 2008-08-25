@@ -57,7 +57,7 @@ int32 CONFIG_FunctionNameToNum(char * func)
 {
     int32 i;
 
-    i = HASH_find(&gamefuncH,func);
+    i = HASH_findcase(&gamefuncH,func);
     if (i > -1)
         return i;
     return -1;

@@ -1843,7 +1843,7 @@ static symbol_t *findexactsymbol(const char *name)
     int i;
     if (!symbols) return NULL;
 
-    i = HASH_find(&osdsymbolsH,name);
+    i = HASH_findcase(&osdsymbolsH,name);
     if (i > -1)
     {
         symbol_t *symb = osdsymbptrs[i];

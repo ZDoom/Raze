@@ -10551,6 +10551,7 @@ void backtomenu(void)
 void app_crashhandler(void)
 {
     closedemowrite();
+    scriptinfo();
     sendquit();
 }
 #endif

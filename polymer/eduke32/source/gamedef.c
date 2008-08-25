@@ -958,6 +958,9 @@ struct HASH_table inputH      = { INPUT_END, NULL };
 struct HASH_table actorH      = { ACTOR_END, NULL };
 struct HASH_table tspriteH    = { ACTOR_END, NULL };
 
+void inithashnames();
+void freehashnames();
+
 void inithash()
 {
     int i;
@@ -965,6 +968,7 @@ void inithash()
     HASH_init(&gamevarH);
     HASH_init(&arrayH);
     HASH_init(&labelH);
+    inithashnames();
 
     HASH_init(&keywH);
     for (i=NUMKEYWORDS-1;i>=0;i--)
@@ -1003,6 +1007,7 @@ void freehash()
     HASH_free(&arrayH);
     HASH_free(&labelH);
     HASH_free(&keywH);
+    freehashnames();
 
     HASH_free(&sectorH);
     HASH_free(&wallH);

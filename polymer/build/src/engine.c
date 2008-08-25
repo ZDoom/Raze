@@ -12177,7 +12177,7 @@ void HASH_free(struct HASH_table *t)
     int num;
 
     if (t->items==NULL)return;
-//    initprintf("*free\n");
+//    initprintf("*free, num:%d\n",t->size);
     i=t->size-1;
     do
     {
@@ -12191,7 +12191,7 @@ void HASH_free(struct HASH_table *t)
             Bfree(tmp);
             num++;
         }
-//      initprintf("Bucket #%4d: %3d\n",i,num);
+//        initprintf("#%4d: %3d\t",i,num);
     }
     while (--i>=0);
     Bfree(t->items);
@@ -12287,15 +12287,13 @@ int HASH_find(struct HASH_table *t, const char *s)
 {
     struct HASH_item *cur;
 
-//    initprintf("{");
-    if (t->items==NULL) {initprintf("HASH_findyy: not initalized\n");return -1;}
+    if (t->items==NULL) {initprintf("HASH_find: not initalized\n");return -1;}
     cur=t->items[HASH_getcode(s)%t->size];
     while (cur)
     {
         if (Bstrcmp(s,cur->string)==0)return cur->key;
         cur=cur->next;
     }
-//    initprintf("}");
     return -1;
 }
 
@@ -12303,7 +12301,6 @@ int HASH_findcase(struct HASH_table *t, const char *s)
 {
     struct HASH_item *cur;
 
-//    initprintf("{");
     if (t->items==NULL) {initprintf("HASH_findcase: not initalized\n");return -1;}
     cur=t->items[HASH_getcode(s)%t->size];
     while (cur)
@@ -12311,7 +12308,6 @@ int HASH_findcase(struct HASH_table *t, const char *s)
         if (Bstrcasecmp(s,cur->string)==0)return cur->key;
         cur=cur->next;
     }
-//    initprintf("}");
     return -1;
 }
 
