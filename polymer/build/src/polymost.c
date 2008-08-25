@@ -325,7 +325,7 @@ static void uploadtexture(int doalloc, int xsiz, int ysiz, int intexfmt, int tex
 #	include "lzwnew.h"
 #endif
 
-char TEXCACHEDIR[] = "texcache";
+char TEXCACHEDIR[BMAX_PATH] = "texcache";
 typedef struct
 {
     char magic[8];	// 'Polymost'

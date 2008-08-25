@@ -115,7 +115,7 @@ static char defaultconfilename[BMAX_PATH] = {"EDUKE.CON"};
 static char *confilename = defaultconfilename;
 char *duke3ddef = "duke3d.def";
 char mod_dir[BMAX_PATH] = "/";
-
+extern char TEXCACHEDIR[BMAX_PATH];
 extern int lastvisinc;
 
 int g_Shareware = 0;
@@ -10818,6 +10818,8 @@ void app_main(int argc,const char **argv)
         Bstrcat(root,mod_dir);
         addsearchpath(root);
         addsearchpath(mod_dir);
+        Bsprintf(tempbuf,"%s/%s",mod_dir,TEXCACHEDIR);
+        Bstrcpy(TEXCACHEDIR,tempbuf);
     }
 
     i = initgroupfile(duke3dgrp);
