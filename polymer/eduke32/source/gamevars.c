@@ -423,7 +423,8 @@ int AddGameArray(const char *pszLabel, int asize)
         initprintf("%s:%d: error: array name `%s' exceeds limit of %d characters.\n",compilefile,line_number,pszLabel, MAXARRAYLABEL);
         return 0;
     }
-    if (HASH_find(&arrayH,pszLabel)>=0 && !aGameArrays[i].bReset)
+    i = HASH_find(&arrayH,pszLabel);
+    if (i >=0 && !aGameArrays[i].bReset)
     {
         // found it it's a duplicate in error
         warning++;
