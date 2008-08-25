@@ -101,6 +101,12 @@ static int  osdtextpal=0;
 /* static int  osdcursorshade=0;
 static int  osdcursorpal=0; */
 
+#define MAXSYMBOLS 256
+
+static symbol_t *osdsymbptrs[MAXSYMBOLS];
+static int osdnumsymbols = 0;
+static struct HASH_table osdsymbolsH    = { MAXSYMBOLS, NULL };
+
 // application callbacks
 static void (*drawosdchar)(int, int, char, int, int) = _internal_drawosdchar;
 static void (*drawosdstr)(int, int, char*, int, int, int) = _internal_drawosdstr;
@@ -617,6 +623,8 @@ void OSD_Cleanup(void)
 {
     symbol_t *s;
 
+    HASH_free(&osdsymbolsH);
+
     for (; symbols; symbols=s)
     {
         s=symbols->next;
@@ -637,6 +645,12 @@ void OSD_Init(void)
 {
     Bmemset(osdtext, 32, TEXTSIZE);
     Bmemset(osdfmt, osdtextpal+(osdtextshade<<5), TEXTSIZE);
+    Bmemset(osdsymbptrs, 0, sizeof(osdsymbptrs));
+
+    osdnumsymbols = 0;
+
+    HASH_init(&osdsymbolsH);
+
     osdlines=1;
 
     osdinited=1;
@@ -1764,10 +1778,12 @@ void OSD_SetVersionString(const char *version, int shade, int pal)
 // addnewsymbol() -- Allocates space for a new symbol and attaches it
 //   appropriately to the lists, sorted.
 //
+
 static symbol_t *addnewsymbol(const char *name)
 {
     symbol_t *newsymb, *s, *t;
 
+    if (osdnumsymbols >= MAXSYMBOLS) return NULL;
     newsymb = (symbol_t *)Bmalloc(sizeof(symbol_t));
     if (!newsymb) { return NULL; }
     Bmemset(newsymb, 0, sizeof(symbol_t));
@@ -1798,7 +1814,8 @@ static symbol_t *addnewsymbol(const char *name)
             newsymb->next = t;
         }
     }
-
+    HASH_add(&osdsymbolsH,name,osdnumsymbols);
+    osdsymbptrs[osdnumsymbols++] = newsymb;
     return newsymb;
 }
 
@@ -1823,14 +1840,12 @@ static symbol_t *findsymbol(const char *name, symbol_t *startingat)
 //
 static symbol_t *findexactsymbol(const char *name)
 {
-    symbol_t *startingat;
+    int symb;
     if (!symbols) return NULL;
 
-    startingat = symbols;
-
-    for (; startingat; startingat=startingat->next)
-        if (startingat->func != (void *)OSD_UNALIASED && !Bstrcasecmp(name, startingat->name)) return startingat;
-
+    symb = HASH_find(&osdsymbolsH,name);
+    if (symb > -1)
+        return osdsymbptrs[symb];
     return NULL;
 }
 

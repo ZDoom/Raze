@@ -588,6 +588,27 @@ int loaddefinitionsfile(char *fn);
 extern int mapversion;	// if loadboard() fails with -2 return, try loadoldboard(). if it fails with -2, board is dodgy
 int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
 
+// Hash functions
+struct HASH_item // size is 12/24 bits.
+{
+    const char *string;
+    int key;
+    struct HASH_item *next;
+};
+
+struct HASH_table
+{
+    int size;
+    struct HASH_item **items;
+};
+
+void HASH_init(struct HASH_table *t);
+void HASH_free(struct HASH_table *t);
+int  HASH_findcase(struct HASH_table *t, const char *s);
+int  HASH_find(struct HASH_table *t, const char *s);
+void HASH_replace(struct HASH_table *t, const char *s, int key);
+void HASH_add(struct HASH_table *t, const char *s, int key);
+
 #ifdef _MSC_VER
 #pragma pack()
 #endif

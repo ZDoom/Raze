@@ -248,7 +248,8 @@ enum playerlabels
     PLAYER_TEAM,
     PLAYER_MAX_PLAYER_HEALTH,
     PLAYER_MAX_SHIELD_AMOUNT,
-    PLAYER_MAX_AMMO_AMOUNT
+    PLAYER_MAX_AMMO_AMOUNT,
+    PLAYER_END
 };
 
 enum userdefslabels
@@ -344,7 +345,8 @@ enum userdefslabels
     USERDEFS_LEVELSTATS,
     USERDEFS_CROSSHAIRSCALE,
     USERDEFS_ALTHUD,
-    USERDEFS_DISPLAY_BONUS_SCREEN
+    USERDEFS_DISPLAY_BONUS_SCREEN,
+    USERDEFS_END
 };
 
 enum sectorlabels
@@ -371,7 +373,8 @@ enum sectorlabels
     SECTOR_ALIGNTO,
     SECTOR_LOTAG,
     SECTOR_HITAG,
-    SECTOR_EXTRA
+    SECTOR_EXTRA,
+    SECTOR_END
 };
 
 enum walllabels
@@ -392,7 +395,8 @@ enum walllabels
     WALL_YPANNING,
     WALL_LOTAG,
     WALL_HITAG,
-    WALL_EXTRA
+    WALL_EXTRA,
+    WALL_END
 };
 
 enum actorlabels
@@ -448,6 +452,7 @@ enum actorlabels
     ACTOR_XPANNING,
     ACTOR_YPANNING,
     ACTOR_HTFLAGS,
+    ACTOR_END
 };
 
 enum inputlabels
@@ -457,7 +462,8 @@ enum inputlabels
     INPUT_FVEL,
     INPUT_SVEL,
     INPUT_BITS,
-    INPUT_EXTBITS
+    INPUT_EXTBITS,
+    INPUT_END
 };
 
 enum projectilelabels
@@ -489,7 +495,8 @@ enum projectilelabels
     PROJ_OFFSET,
     PROJ_BOUNCES,
     PROJ_BSOUND,
-    PROJ_RANGE // 28
+    PROJ_RANGE, // 28
+    PROJ_END
 };
 
 enum keywords
@@ -831,4 +838,5 @@ enum keywords
     CON_SETGAMEPALETTE,     // 334
     CON_SETDEFNAME,         // 335
     CON_SETCFGNAME,         // 336
+    CON_END
 };

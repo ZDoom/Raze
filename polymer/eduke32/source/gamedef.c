@@ -942,172 +942,21 @@ int  HASH_find(struct HASH_table *t, const char *s);
 void HASH_replace(struct HASH_table *t, const char *s, int key);
 void HASH_add(struct HASH_table *t, const char *s, int key);
 */
-void HASH_init(struct HASH_table *t)
-{
-    HASH_free(t);
-    t->items=Bcalloc(1,t->size * sizeof(struct HASH_item));
-    Bmemset(t->items,0,t->size * sizeof(struct HASH_item));
-}
 
-void HASH_free(struct HASH_table *t)
-{
-    struct HASH_item *cur, *tmp;
-    int i;
-    int num;
+struct HASH_table gamevarH    = { MAXGAMEVARS, NULL };
+struct HASH_table arrayH      = { MAXGAMEARRAYS, NULL };
+struct HASH_table labelH      = { 11264, NULL };
+struct HASH_table keywH       = { CON_END, NULL };
 
-    if (t->items==NULL)return;
-    initprintf("*free\n");
-    i=t->size-1;
-    do
-    {
-        cur=t->items[i];
-        num=0;
-        while (cur)
-        {
-            tmp=cur;
-            cur=cur->next;
-//          initprintf("Free %4d '%s'\n",tmp->key,(tmp->string)?tmp->string:".");
-            Bfree(tmp);
-            num++;
-        }
-//      initprintf("Bucket #%4d: %3d\n",i,num);
-    }
-    while (--i>=0);
-    Bfree(t->items);
-    t->items=0;
-}
+struct HASH_table sectorH     = { SECTOR_END, NULL };
+struct HASH_table wallH       = { WALL_END, NULL };
+struct HASH_table userdefH    = { USERDEFS_END, NULL };
 
-inline int HASH_getcode(const char *s)
-{
-    int i=0, fact=1;
-    while (*s)
-    {
-        i+=*s;
-        i+=1<<fact;
-        s++;
-    }
-    return i;
-}
-
-void HASH_add(struct HASH_table *t, const char *s, int key)
-{
-    struct HASH_item *cur, *prev=NULL;
-    int code;
-
-    if (!s)return;
-    if (t->items==NULL) {initprintf("HASH_add: not initalized\n");return;}
-    code=HASH_getcode(s)%t->size;
-    cur=t->items[code];
-
-    if (!cur)
-    {
-        cur=Bcalloc(1,sizeof(struct HASH_item));
-        cur->string=s;
-        cur->key=key;
-        cur->next=NULL;
-        t->items[code]=cur;
-        return;
-    }
-
-    do
-    {
-        if (Bstrcmp(s,cur->string)==0)return;
-        prev=cur;
-        cur=cur->next;
-    }
-    while (cur);
-
-    cur=Bcalloc(1,sizeof(struct HASH_item));
-    cur->string=s;
-    cur->key=key;
-    cur->next=NULL;
-    prev->next=cur;
-}
-
-void HASH_replace(struct HASH_table *t, const char *s, int key)
-{
-    struct HASH_item *cur, *prev=NULL;
-    int code;
-
-    if (t->items==NULL) {initprintf("HASH_add: not initalized\n");return;}
-    code=HASH_getcode(s)%t->size;
-    cur=t->items[code];
-
-    if (!cur)
-    {
-        cur=Bcalloc(1,sizeof(struct HASH_item));
-        cur->string=s;
-        cur->key=key;
-        cur->next=NULL;
-        t->items[code]=cur;
-        return;
-    }
-
-    do
-    {
-        if (Bstrcmp(s,cur->string)==0)
-        {
-            cur->key=key;
-            return;
-        }
-        prev=cur;
-        cur=cur->next;
-    }
-    while (cur);
-
-    cur=Bcalloc(1,sizeof(struct HASH_item));
-    cur->string=s;
-    cur->key=key;
-    cur->next=NULL;
-    prev->next=cur;
-}
-
-int HASH_find(struct HASH_table *t, const char *s)
-{
-    struct HASH_item *cur;
-
-//    initprintf("{");
-    if (t->items==NULL) {initprintf("HASH_findyy: not initalized\n");return -1;}
-    cur=t->items[HASH_getcode(s)%t->size];
-    while (cur)
-    {
-        if (Bstrcmp(s,cur->string)==0)return cur->key;
-        cur=cur->next;
-    }
-//    initprintf("}");
-    return -1;
-}
-
-int HASH_findcase(struct HASH_table *t, const char *s)
-{
-    struct HASH_item *cur;
-
-//    initprintf("{");
-    if (t->items==NULL) {initprintf("HASH_findcase: not initalized\n");return -1;}
-    cur=t->items[HASH_getcode(s)%t->size];
-    while (cur)
-    {
-        if (Bstrcasecmp(s,cur->string)==0)return cur->key;
-        cur=cur->next;
-    }
-//    initprintf("}");
-    return -1;
-}
-
-struct HASH_table gamevarH    ={8096,NULL};
-struct HASH_table arrayH      ={2096,NULL};
-struct HASH_table labelH      ={8096,NULL};
-struct HASH_table keywH       ={ 800,NULL};
-
-struct HASH_table sectorH     ={ 200,NULL};
-struct HASH_table wallH       ={ 200,NULL};
-struct HASH_table userdefH    ={ 200,NULL};
-
-struct HASH_table projectileH ={ 500,NULL};
-struct HASH_table playerH     ={ 500,NULL};
-struct HASH_table inputH      ={ 100,NULL};
-struct HASH_table actorH      ={ 500,NULL};
-struct HASH_table tspriteH    ={ 400,NULL};
+struct HASH_table projectileH = { PROJ_END, NULL };
+struct HASH_table playerH     = { PLAYER_END, NULL };
+struct HASH_table inputH      = { INPUT_END, NULL };
+struct HASH_table actorH      = { ACTOR_END, NULL };
+struct HASH_table tspriteH    = { ACTOR_END, NULL };
 
 void inithash()
 {
@@ -1147,6 +996,7 @@ void inithash()
     for (i=0;tsprlabels[i].lId >=0 ; i++)
         HASH_add(&tspriteH,tsprlabels[i].name,i);
 }
+
 void freehash()
 {
     HASH_free(&gamevarH);

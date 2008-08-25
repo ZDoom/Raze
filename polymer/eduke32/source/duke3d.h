@@ -1060,26 +1060,6 @@ extern char *mousenames[];
 extern char *duke3dgrp, *duke3dgrpstring;
 extern char mod_dir[BMAX_PATH];
 
-// Hash functions
-struct HASH_item // size is 12/24 bits.
-{
-    const char *string;
-    int key;
-    struct HASH_item *next;
-};
-
-struct HASH_table
-{
-    int size;
-    struct HASH_item **items;
-};
-void HASH_init(struct HASH_table *t);
-void HASH_free(struct HASH_table *t);
-int  HASH_findcase(struct HASH_table *t, const char *s);
-int  HASH_find(struct HASH_table *t, const char *s);
-void HASH_replace(struct HASH_table *t, const char *s, int key);
-void HASH_add(struct HASH_table *t, const char *s, int key);
-
 struct HASH_table gamevarH;
 struct HASH_table arrayH;
 struct HASH_table keywH;
