@@ -1072,8 +1072,14 @@ static int increasescriptsize(int size)
         }
 
     //initprintf("offset: %d\n",(unsigned)(scriptptr-script));
-    g_ScriptSize = size;
-    initprintf("Increasing script buffer size to %d bytes...\n",g_ScriptSize * sizeof(intptr_t));
+    if (size <= g_ScriptSize)
+        initprintf("Shrinking bytecode buffer, final size: %d*%d bytes\n",g_ScriptSize, sizeof(intptr_t));
+    else
+    {
+        g_ScriptSize = size;
+        initprintf("Increasing bytecode buffer to %d*%d bytes...\n",g_ScriptSize, sizeof(intptr_t));
+    }
+
     newscript = (intptr_t *)Brealloc(script, g_ScriptSize * sizeof(intptr_t));
 
     if (newscript == NULL)
@@ -1084,11 +1090,17 @@ static int increasescriptsize(int size)
         error++;
         return 1;
     }
-    Bmemset(&newscript[osize],0,(size-osize) * sizeof(intptr_t));
+
+    bitptr = (char *)Brealloc(bitptr, g_ScriptSize * sizeof(char));
+
+    if (size > osize)
+    {
+        Bmemset(&newscript[osize],0,(size-osize) * sizeof(intptr_t));
+        Bmemset(&bitptr[osize],0,size-osize);
+    }
+
     script = newscript;
     scriptptr = (intptr_t *)(script+oscriptptr);
-    bitptr = (char *)Brealloc(bitptr, g_ScriptSize * sizeof(char));
-    Bmemset(&bitptr[osize],0,size-osize);
 //    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
     //initprintf("offset: %d\n",(unsigned)(scriptptr-script));
@@ -1107,12 +1119,24 @@ static int increasescriptsize(int size)
         }
     }
 
-    for (i=g_ScriptSize-(size-osize)-1;i>=0;i--)
-        if (scriptptrs[i])
-        {
-            j = (intptr_t)script[i]+(intptr_t)&script[0];
-            script[i] = j;
-        }
+    if (size > osize)
+    {
+        for (i=g_ScriptSize-(size-osize)-1;i>=0;i--)
+            if (scriptptrs[i])
+            {
+                j = (intptr_t)script[i]+(intptr_t)&script[0];
+                script[i] = j;
+            }
+    }
+    else
+    {
+        for (i=g_ScriptSize-1;i>=0;i--)
+            if (scriptptrs[i])
+            {
+                j = (intptr_t)script[i]+(intptr_t)&script[0];
+                script[i] = j;
+            }
+    }
 
     for (i=MAXTILES-1;i>=0;i--)
     {
@@ -1187,7 +1211,7 @@ static int skipcomments(void)
     }
 
     if ((unsigned)(scriptptr-script) > (unsigned)(g_ScriptSize-32))
-        return increasescriptsize(g_ScriptSize+16384);
+        return increasescriptsize(g_ScriptSize<<1);
 
     return 0;
 }
@@ -5618,20 +5642,29 @@ void loadefs(const char *filenam)
         int j=0, k=0;
 
         total_lines += line_number;
+
+        while ((g_ScriptSize-1024) > (scriptptr-script))
+            g_ScriptSize -= 1024;
+        increasescriptsize(g_ScriptSize);
+
+        initprintf("Compiled code size: %ld*%d bytes, version %s\n",(unsigned)(scriptptr-script),sizeof(intptr_t),(g_ScriptVersion == 14?"1.4+":"1.3D"));
+        initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((MAXSECTORS * sizeof(sectortype)/sizeof(int)),(MAXSPRITES * sizeof(spritetype)/(1<<6))),iGameVarCount,MAXGAMEVARS);
+
+        for (i=MAXQUOTES-1;i>=0;i--)
+            if (fta_quotes[i])
+                j++;
+
+        initprintf("%ld/%d quotes, %d quote redefinitions\n",j,MAXQUOTES,redefined_quote_count);
+
+        j = 0;
         for (i=MAXGAMEEVENTS-1;i>=0;i--)
-        {
             if (apScriptGameEvent[i])
                 j++;
-        }
         for (i=MAXTILES-1;i>=0;i--)
-        {
             if (actorscrptr[i])
                 k++;
-        }
 
-        initprintf("Compiled code size: %ld bytes, version %s\n",(unsigned)(scriptptr-script) * sizeof(intptr_t),(g_ScriptVersion == 14?"1.4+":"1.3D"));
-        initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((MAXSECTORS * sizeof(sectortype)/sizeof(int)),(MAXSPRITES * sizeof(spritetype)/(1<<6))),iGameVarCount,MAXGAMEVARS);
-        initprintf("%ld event definitions, %ld defined actors\n",j,k);
+        initprintf("%ld/%d event definitions, %ld defined actors\n",j,MAXEVENTS,k);
 
         for (i=127;i>=0;i--)
             if (fta_quotes[i] == NULL)

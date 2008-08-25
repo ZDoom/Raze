@@ -404,7 +404,7 @@ void CONFIG_MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scanco
         boundkeys[ii[k]].cmd[0] = 0;
         tempbuf[0] = 0;
 
-        for (i=0;i<NUMGAMEFUNCTIONS;i++)
+        for (i=NUMGAMEFUNCTIONS-1;i>=0;i--)
         {
             if (ud.config.KeyboardKeys[i][0] == ii[k] || ud.config.KeyboardKeys[i][1] == ii[k])
             {
@@ -594,6 +594,7 @@ int32 CONFIG_ReadSetup(void)
     int32 dummy, i = 0;
     char commmacro[] = "CommbatMacro# ";
     extern int32 CommandWeaponChoice;
+    char tempbuf[1024];
 
     CONTROL_ClearAssignments();
     CONFIG_SetDefaults();
@@ -863,6 +864,7 @@ void CONFIG_WriteBinds(void) // save binds and aliases to disk
     int i;
     FILE *fp;
     char *ptr = Bstrdup(setupfilename);
+    char tempbuf[128];
 
     Bsprintf(tempbuf,"%s_binds.cfg",strtok(ptr,"."));
     fp = fopen(tempbuf, "wt");
@@ -901,6 +903,7 @@ void CONFIG_WriteBinds(void) // save binds and aliases to disk
 void CONFIG_WriteSetup(void)
 {
     int32 dummy;
+    char tempbuf[1024];
 
     if (!ud.config.setupread) return;
 

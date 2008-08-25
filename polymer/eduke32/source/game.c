@@ -4643,10 +4643,10 @@ int EGS(int whatsect,int s_x,int s_y,int s_z,int s_pn,int s_s,int s_xr,int s_yr,
     ResetActorGameVars(i);
     hittype[i].flags = 0;
 
+    if (apScriptGameEvent[EVENT_EGS])
     {
         int pl=findplayer(&sprite[i],&p);
-        if (apScriptGameEvent[EVENT_EGS])
-            OnEvent(EVENT_EGS,i, pl, p);
+        OnEvent(EVENT_EGS,i, pl, p);
     }
 
     return(i);
@@ -6363,8 +6363,16 @@ int spawn(int j, int pn)
                     }
                     if (j == -1)
                     {
-                        Bsprintf(tempbuf,"Found lonely Sector Effector (lotag 0) at (%d,%d)\n",sp->x,sp->y);
-                        gameexit(tempbuf);
+//                        Bsprintf(tempbuf,"Found lonely Sector Effector (lotag 0) at (%d,%d)\n",sp->x,sp->y);
+//                        gameexit(tempbuf);
+                        OSD_Printf(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",sp->x,sp->y);
+                        changespritestat(i,1);
+                        if (apScriptGameEvent[EVENT_SPAWN])
+                        {
+                            int pl=findplayer(&sprite[i],&p);
+                            OnEvent(EVENT_SPAWN,i, pl, p);
+                        }
+                        return i;
                     }
                     sp->owner = j;
                 }
@@ -6576,10 +6584,10 @@ int spawn(int j, int pn)
             break;
         }
 
+    if (apScriptGameEvent[EVENT_SPAWN])
     {
         int pl=findplayer(&sprite[i],&p);
-        if (apScriptGameEvent[EVENT_SPAWN])
-            OnEvent(EVENT_SPAWN,i, pl, p);
+        OnEvent(EVENT_SPAWN,i, pl, p);
     }
 
     return i;
@@ -7437,7 +7445,7 @@ PALONLY:
     if (j < 0) return;
 
     if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
-    if (spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS && tsprite[j].owner < MAXSPRITES && tsprite[j].owner > 0)
+    if (tsprite[j].owner > 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
     {
         OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
         spriteext[tsprite[j].owner].tspr = NULL;
