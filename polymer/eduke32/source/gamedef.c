@@ -1077,7 +1077,7 @@ static int increasescriptsize(int size)
     else
     {
         g_ScriptSize = size;
-        initprintf("Increasing bytecode buffer to %d*%d bytes...\n",g_ScriptSize, sizeof(intptr_t));
+        initprintf("Increasing bytecode buffer size to %d*%d bytes...\n",g_ScriptSize, sizeof(intptr_t));
     }
 
     newscript = (intptr_t *)Brealloc(script, g_ScriptSize * sizeof(intptr_t));

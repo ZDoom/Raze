@@ -596,16 +596,14 @@ static int osdcmd_setvar(const osdfuncparm_t *parm)
 
     strcpy(varname,parm->parms[1]);
     varval = Batol(varname);
-    for (i=0;i<iGameVarCount;i++)
-        if (aGameVars[i].szLabel != NULL)
-            if (Bstrcmp(varname, aGameVars[i].szLabel) == 0)
-                varval=GetGameVarID(i, g_player[myconnectindex].ps->i, myconnectindex);
+    i = HASH_find(&gamevarH,varname);
+    if (i >= 0)
+        varval=GetGameVarID(i, g_player[myconnectindex].ps->i, myconnectindex);
 
     strcpy(varname,parm->parms[0]);
-    for (i=0;i<iGameVarCount;i++)
-        if (aGameVars[i].szLabel != NULL)
-            if (Bstrcmp(varname, aGameVars[i].szLabel) == 0)
-                SetGameVarID(i, varval, g_player[myconnectindex].ps->i, myconnectindex);
+    i = HASH_find(&gamevarH,varname);
+    if (i >= 0)
+        SetGameVarID(i, varval, g_player[myconnectindex].ps->i, myconnectindex);
     return OSDCMD_OK;
 }
 
@@ -623,10 +621,9 @@ static int osdcmd_addlogvar(const osdfuncparm_t *parm)
     }
 
     strcpy(varname,parm->parms[0]);
-    for (i=0;i<iGameVarCount;i++)
-        if (aGameVars[i].szLabel != NULL)
-            if (Bstrcmp(varname, aGameVars[i].szLabel) == 0)
-                OSD_Printf("%s = %d\n", varname, GetGameVarID(i, g_player[myconnectindex].ps->i, myconnectindex));
+    i = HASH_find(&gamevarH,varname);
+    if (i >= 0)
+        OSD_Printf("%s = %d\n", varname, GetGameVarID(i, g_player[myconnectindex].ps->i, myconnectindex));
     return OSDCMD_OK;
 }
 
@@ -653,16 +650,14 @@ static int osdcmd_setactorvar(const osdfuncparm_t *parm)
     varval = Batol(parm->parms[2]);
     strcpy(varname,parm->parms[2]);
     varval = Batol(varname);
-    for (i=0;i<iGameVarCount;i++)
-        if (aGameVars[i].szLabel != NULL)
-            if (Bstrcmp(varname, aGameVars[i].szLabel) == 0)
-                varval=GetGameVarID(i, g_player[myconnectindex].ps->i, myconnectindex);
+    i = HASH_find(&gamevarH,varname);
+    if (i >= 0)
+        varval=GetGameVarID(i, g_player[myconnectindex].ps->i, myconnectindex);
 
     strcpy(varname,parm->parms[1]);
-    for (i=0;i<iGameVarCount;i++)
-        if (aGameVars[i].szLabel != NULL)
-            if (Bstrcmp(varname, aGameVars[i].szLabel) == 0)
-                SetGameVarID(i, varval, ID, -1);
+    i = HASH_find(&gamevarH,varname);
+    if (i >= 0)
+        SetGameVarID(i, varval, ID, -1);
     return OSDCMD_OK;
 }
 
