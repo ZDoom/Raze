@@ -5444,11 +5444,11 @@ static int parse(void)
             int i = GetGameVarID(*insptr++, g_i, g_p),
                     f=GetGameVarID(*insptr++, g_i, g_p);
             j=GetGameVarID(*insptr++, g_i, g_p);
-            if ((i<0 || i>=MAXQUOTES) && checkCON)             
+            if ((i<0 || i>=MAXQUOTES) && checkCON)
                 OSD_Printf(CON_ERROR "invalid quote ID %d\n",line_num,keyw[g_tw],i);
-            else if ((fta_quotes[i] == NULL) && checkCON)      
+            else if ((fta_quotes[i] == NULL) && checkCON)
                 OSD_Printf(CON_ERROR "null quote %d\n",line_num,keyw[g_tw],i);
-            else if ((f<0 || f>=NUMGAMEFUNCTIONS) && checkCON) 
+            else if ((f<0 || f>=NUMGAMEFUNCTIONS) && checkCON)
                 OSD_Printf(CON_ERROR "invalid function %d\n",line_num,keyw[g_tw],f);
             else
             {

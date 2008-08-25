@@ -289,7 +289,7 @@ static int getsound(unsigned int num)
     if (fp == -1)fp = kopen4loadfrommod(g_sounds[num].filename,loadfromgrouponly);
     if (fp == -1)
     {
-//      initprintf("Sound '%s' not found\n",g_sounds[num].filename);
+        initprintf("Sound '%s' not found\n",g_sounds[num].filename);
         return 0;
     }
 

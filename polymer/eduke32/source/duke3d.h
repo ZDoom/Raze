@@ -333,65 +333,65 @@ struct savehead {
 };
 
 typedef struct {
-	int UseJoystick;
-	int UseMouse;
-	int RunMode;
-	int AutoAim;
-	int ShowOpponentWeapons;
-	int MouseFilter,MouseBias;
-	int SmoothInput;
+    int UseJoystick;
+    int UseMouse;
+    int RunMode;
+    int AutoAim;
+    int ShowOpponentWeapons;
+    int MouseFilter,MouseBias;
+    int SmoothInput;
 
-	// JBF 20031211: Store the input settings because
-	// (currently) jmact can't regurgitate them
-	int MouseFunctions[MAXMOUSEBUTTONS][2];
-	int MouseDigitalFunctions[MAXMOUSEAXES][2];
-	int MouseAnalogueAxes[MAXMOUSEAXES];
-	int MouseAnalogueScale[MAXMOUSEAXES];
-	int JoystickFunctions[MAXJOYBUTTONS][2];
-	int JoystickDigitalFunctions[MAXJOYAXES][2];
-	int JoystickAnalogueAxes[MAXJOYAXES];
-	int JoystickAnalogueScale[MAXJOYAXES];
-	int JoystickAnalogueDead[MAXJOYAXES];
-	int JoystickAnalogueSaturate[MAXJOYAXES];
-	byte KeyboardKeys[NUMGAMEFUNCTIONS][2];
+    // JBF 20031211: Store the input settings because
+    // (currently) jmact can't regurgitate them
+    int MouseFunctions[MAXMOUSEBUTTONS][2];
+    int MouseDigitalFunctions[MAXMOUSEAXES][2];
+    int MouseAnalogueAxes[MAXMOUSEAXES];
+    int MouseAnalogueScale[MAXMOUSEAXES];
+    int JoystickFunctions[MAXJOYBUTTONS][2];
+    int JoystickDigitalFunctions[MAXJOYAXES][2];
+    int JoystickAnalogueAxes[MAXJOYAXES];
+    int JoystickAnalogueScale[MAXJOYAXES];
+    int JoystickAnalogueDead[MAXJOYAXES];
+    int JoystickAnalogueSaturate[MAXJOYAXES];
+    byte KeyboardKeys[NUMGAMEFUNCTIONS][2];
 
-	//
-	// Sound variables
-	//
-	int FXDevice;
-	int MusicDevice;
-	int FXVolume;
-	int MusicVolume;
-	int SoundToggle;
-	int MusicToggle;
-	int VoiceToggle;
-	int AmbienceToggle;
+    //
+    // Sound variables
+    //
+    int FXDevice;
+    int MusicDevice;
+    int FXVolume;
+    int MusicVolume;
+    int SoundToggle;
+    int MusicToggle;
+    int VoiceToggle;
+    int AmbienceToggle;
 
-	int NumVoices;
-	int NumChannels;
-	int NumBits;
-	int MixRate;
-	
-	int ReverseStereo;
+    int NumVoices;
+    int NumChannels;
+    int NumBits;
+    int MixRate;
+    
+    int ReverseStereo;
 
-	//
-	// Screen variables
-	//
+    //
+    // Screen variables
+    //
 
-	int ScreenMode;
+    int ScreenMode;
 
-	int ScreenWidth;
-	int ScreenHeight;
-	int ScreenBPP;
+    int ScreenWidth;
+    int ScreenHeight;
+    int ScreenBPP;
 
-	int ForceSetup;
+    int ForceSetup;
 
-	int scripthandle;
-	int setupread;
+    int scripthandle;
+    int setupread;
 
-	int CheckForUpdates;
-	int LastUpdateCheck;
-	int useprecache;
+    int CheckForUpdates;
+    int LastUpdateCheck;
+    int useprecache;
 } config_t;
 
 typedef struct {
@@ -402,7 +402,7 @@ typedef struct {
     int runkey_mode,statusbarscale,mouseaiming,weaponswitch,drawweapon;   // JBF 20031125
     int democams,color,msgdisptime,statusbarmode;
     int m_noexits,noexits,autovote,automsg,idplayers;
-	int team, viewbob, weaponsway, althud;
+    int team, viewbob, weaponsway, althud;
 
     int entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
     int coords,tickrate,levelstats,m_coop,coop,screen_size,lockout,crosshair;
@@ -429,7 +429,7 @@ typedef struct {
     char pwlockout[128],rtsname[128];
     char display_bonus_screen;
 
-	config_t config;
+    config_t config;
 } user_defs;
 
 typedef struct {
@@ -627,8 +627,8 @@ enum gametypeflags {
     GAMETYPE_FLAG_FIXEDRESPAWN           = 8192,
     GAMETYPE_FLAG_ACCESSATSTART          = 16384,
     GAMETYPE_FLAG_PRESERVEINVENTORYDEATH = 32768,
-	GAMETYPE_FLAG_TDM					 = 65536,
-	GAMETYPE_FLAG_TDMSPAWN				 = 131072
+    GAMETYPE_FLAG_TDM                    = 65536,
+    GAMETYPE_FLAG_TDMSPAWN               = 131072
 };
 
 #define GTFLAGS(x) (gametype_flags[ud.coop] & x)
@@ -784,19 +784,19 @@ enum events {
     EVENT_FAKEDOMOVETHINGS,
     EVENT_DISPLAYROOMS,
     EVENT_KILLIT,
-	EVENT_LOADACTOR,
-	EVENT_DISPLAYBONUSSCREEN,
-	EVENT_DISPLAYMENU,
-	EVENT_DISPLAYMENUREST,
-	EVENT_DISPLAYLOADINGSCREEN,
+    EVENT_LOADACTOR,
+    EVENT_DISPLAYBONUSSCREEN,
+    EVENT_DISPLAYMENU,
+    EVENT_DISPLAYMENUREST,
+    EVENT_DISPLAYLOADINGSCREEN,
     EVENT_ANIMATESPRITES,
 };
 
 enum sysstrs {
-	STR_MAPNAME,
-	STR_MAPFILENAME,
-	STR_PLAYERNAME,
-	STR_VERSION,
+    STR_MAPNAME,
+    STR_MAPFILENAME,
+    STR_PLAYERNAME,
+    STR_VERSION,
     STR_GAMETYPE
 };
 
@@ -825,7 +825,7 @@ enum gamevarflags {
 
 enum gamearrayflags {
     MAXGAMEARRAYS           = (MAXGAMEVARS>>2), // must be lower than MAXGAMEVARS
-	MAXARRAYLABEL           = MAXVARLABEL,
+    MAXARRAYLABEL           = MAXVARLABEL,
     GAMEARRAY_FLAG_NORMAL   = 0,
     GAMEARRAY_FLAG_NORESET  = 1,
 };
@@ -842,7 +842,7 @@ typedef struct {
 typedef struct {
     char *szLabel;
     int *plValues;     // array of values
-	int size;
+    int size;
     char bReset;
 } gamearray_t;
 
@@ -966,8 +966,8 @@ enum logoflags {
     LOGO_FLAG_DUKENUKEM         = 32,
     LOGO_FLAG_THREEDEE          = 64,
     LOGO_FLAG_PLUTOPAKSPRITE    = 128,
-	LOGO_FLAG_SHAREWARESCREENS	= 256,
-	LOGO_FLAG_TENSCREEN			= 512
+    LOGO_FLAG_SHAREWARESCREENS  = 256,
+    LOGO_FLAG_TENSCREEN         = 512
 };
 
 extern int g_NumPalettes;
@@ -1025,22 +1025,22 @@ typedef struct {
 } mapstate_t;
 
 typedef struct {
-	int partime, designertime;
-	char *name, *filename, *musicfn, *musicfn1;
+    int partime, designertime;
+    char *name, *filename, *musicfn, *musicfn1;
     mapstate_t *savedstate;
 } map_t;
 
 extern map_t map[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
 
 typedef struct {
-	player_struct *ps;
-	input_t *sync;
+    player_struct *ps;
+    input_t *sync;
 
-	int movefifoend, syncvalhead, myminlag;
-	int pcolor, pteam, frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
+    int movefifoend, syncvalhead, myminlag;
+    int pcolor, pteam, frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
-	char vote, gotvote, playerreadyflag, playerquitflag;
-	char user_name[32], syncval[MOVEFIFOSIZ];
+    char vote, gotvote, playerreadyflag, playerquitflag;
+    char user_name[32], syncval[MOVEFIFOSIZ];
 } playerdata_t;
 
 extern input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
@@ -1059,6 +1059,30 @@ extern char *mousenames[];
 
 extern char *duke3dgrp, *duke3dgrpstring;
 extern char mod_dir[BMAX_PATH];
+
+// Hash functions
+struct HASH_item // size is 12/24 bits.
+{
+    const char *string;
+    int key;
+    struct HASH_item *next;
+};
+
+struct HASH_table
+{
+    int size;
+    struct HASH_item **items;
+};
+void HASH_init(struct HASH_table *t);
+void HASH_free(struct HASH_table *t);
+int  HASH_findcase(struct HASH_table *t, const char *s);
+int  HASH_find(struct HASH_table *t, const char *s);
+void HASH_replace(struct HASH_table *t, const char *s, int key);
+void HASH_add(struct HASH_table *t, const char *s, int key);
+
+struct HASH_table gamevarH;
+struct HASH_table arrayH;
+struct HASH_table keywH;
 
 #ifdef __cplusplus
 }

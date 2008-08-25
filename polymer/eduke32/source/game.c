@@ -9941,6 +9941,7 @@ static void loadtmb(void)
     kclose(fil);
 }
 
+void freehash();
 static void freeconmem(void)
 {
     int i;
@@ -10008,6 +10009,8 @@ static void freeconmem(void)
         Bfree(script);
     if (bitptr != NULL)
         Bfree(bitptr);
+
+    freehash();
 }
 
 /*

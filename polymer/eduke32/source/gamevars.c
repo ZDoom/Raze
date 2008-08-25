@@ -50,6 +50,8 @@ static void FreeGameVars(void) /* called from ReadGameVars() and ResetGameVars()
         aGameArrays[i].bReset=1;
     }
     iGameVarCount=iGameArrayCount=0;
+    HASH_init(&gamevarH);
+    HASH_init(&arrayH);
     return;
 }
 
@@ -84,6 +86,8 @@ static void ClearGameVars(void)
         aGameArrays[i].bReset=1;
     }
     iGameVarCount=iGameArrayCount=0;
+    HASH_init(&gamevarH);
+    HASH_init(&arrayH);
     return;
 }
 
@@ -107,6 +111,7 @@ int ReadGameVars(int fil)
         if (kdfread(&(aGameVars[i]),sizeof(gamevar_t),1,fil) != 1) goto corrupt;
         aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
         if (kdfread(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil) != 1) goto corrupt;
+        HASH_add(&gamevarH,aGameVars[i].szLabel,i);
     }
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
@@ -152,6 +157,7 @@ int ReadGameVars(int fil)
         if (kdfread(&(aGameArrays[i]),sizeof(gamearray_t),1,fil) != 1) goto corrupt;
         aGameArrays[i].szLabel=Bcalloc(MAXARRAYLABEL,sizeof(char));
         if (kdfread(aGameArrays[i].szLabel,sizeof(char) * MAXARRAYLABEL, 1, fil) != 1) goto corrupt;
+        HASH_add(&arrayH,aGameArrays[i].szLabel,i);
     }
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
@@ -417,20 +423,14 @@ int AddGameArray(const char *pszLabel, int asize)
         initprintf("%s:%d: error: array name `%s' exceeds limit of %d characters.\n",compilefile,line_number,pszLabel, MAXARRAYLABEL);
         return 0;
     }
-    for (i=0;i<iGameArrayCount;i++)
+    if (HASH_find(&arrayH,pszLabel)>=0 && !aGameArrays[i].bReset)
     {
-        if (aGameVars[i].szLabel != NULL && !aGameArrays[i].bReset)
-        {
-            if (Bstrcmp(pszLabel,aGameArrays[i].szLabel) == 0)
-            {
-                // found it it's a duplicate in error
-                warning++;
-                ReportError(WARNING_DUPLICATEDEFINITION);
-                return 0;
-
-            }
-        }
+        // found it it's a duplicate in error
+        warning++;
+        ReportError(WARNING_DUPLICATEDEFINITION);
+        return 0;
     }
+    i = iGameArrayCount;
     if (i < MAXGAMEARRAYS)
     {
         if (aGameArrays[i].szLabel == NULL)
@@ -441,6 +441,7 @@ int AddGameArray(const char *pszLabel, int asize)
         aGameArrays[i].size=asize;
         aGameVars[i].bReset=0;
         iGameArrayCount++;
+        HASH_add(&arrayH,aGameArrays[i].szLabel,i);
         return 1;
     }
     return 0;
@@ -523,6 +524,7 @@ int AddGameVar(const char *pszLabel, int lValue, unsigned int dwFlags)
         if (i==iGameVarCount)
         {
             // we're adding a new one.
+            HASH_replace(&gamevarH,aGameVars[i].szLabel,i);
             iGameVarCount++;
         }
         if (aGameVars[i].plValues && !(aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM))
@@ -566,21 +568,9 @@ void ResetActorGameVars(int iActor)
         }
 }
 
-static int GetGameID(const char *szGameLabel)
+inline static int GetGameID(const char *szGameLabel)
 {
-    int i;
-
-    for (i=0;i<iGameVarCount;i++)
-    {
-        if (aGameVars[i].szLabel != NULL)
-        {
-            if (Bstrcmp(szGameLabel, aGameVars[i].szLabel) == 0)
-            {
-                return i;
-            }
-        }
-    }
-    return -1;
+    return HASH_find(&gamevarH,szGameLabel);
 }
 
 int GetGameVarID(int id, int iActor, int iPlayer)
@@ -732,44 +722,27 @@ void SetGameVarID(int id, int lValue, int iActor, int iPlayer)
 int GetGameVar(const char *szGameLabel, int lDefault, int iActor, int iPlayer)
 {
     int i=0;
-    for (;i<iGameVarCount;i++)
-    {
-        if (aGameVars[i].szLabel != NULL)
-        {
-            if (Bstrcmp(szGameLabel, aGameVars[i].szLabel) == 0)
-            {
-                return GetGameVarID(i, iActor, iPlayer);
-            }
-        }
-    }
-    return lDefault;
+    i = HASH_find(&gamevarH,szGameLabel);
+    if (i<0)return lDefault;
+    return GetGameVarID(i, iActor, iPlayer);
 }
 
 static intptr_t *GetGameValuePtr(const char *szGameLabel)
 {
     int i=0;
 
-    for (;i<iGameVarCount;i++)
+    i = HASH_find(&gamevarH,szGameLabel);
+    if (i<0)return NULL;
+
+    if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERACTOR | GAMEVAR_FLAG_PERPLAYER))
     {
-        if (aGameVars[i].szLabel != NULL)
+        if (!aGameVars[i].plValues)
         {
-            if (Bstrcmp(szGameLabel, aGameVars[i].szLabel) == 0)
-            {
-                if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERACTOR | GAMEVAR_FLAG_PERPLAYER))
-                {
-                    if (!aGameVars[i].plValues)
-                    {
-                        OSD_Printf(OSD_ERROR "GetGameValuePtr(): INTERNAL ERROR: NULL array !!!\n");
-                    }
-                    return aGameVars[i].plValues;
-                }
-                return &(aGameVars[i].lValue);
-            }
+            OSD_Printf(OSD_ERROR "GetGameValuePtr(): INTERNAL ERROR: NULL array !!!\n");
         }
+        return aGameVars[i].plValues;
     }
-    //Bsprintf(g_szBuf,"Could not find value '%s'\n",szGameLabel);
-    //AddLog(g_szBuf);
-    return NULL;
+    return &(aGameVars[i].lValue);
 }
 
 void ResetSystemDefaults(void)
