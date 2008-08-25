@@ -1846,9 +1846,8 @@ static symbol_t *findexactsymbol(const char *name)
     i = HASH_findcase(&osdsymbolsH,name);
     if (i > -1)
     {
-        symbol_t *symb = osdsymbptrs[i];
-        if (symb->func == (void *)OSD_UNALIASED)
-            return NULL;
+//        if ((symbol_t *)osdsymbptrs[i]->func == (void *)OSD_UNALIASED)
+//            return NULL;
         return osdsymbptrs[i];
     }
     return NULL;

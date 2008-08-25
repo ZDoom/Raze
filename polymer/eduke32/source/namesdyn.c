@@ -1544,7 +1544,7 @@ void freehashnames()
 
 void setupdynamictostatic(void)
 {
-    int i;
+    int i = 0;
     clearbufbyte(dynamictostatic,MAXTILES,0);
     while (list[i].val)
     {

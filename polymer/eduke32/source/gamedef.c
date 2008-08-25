@@ -5648,8 +5648,8 @@ void loadefs(const char *filenam)
 
         total_lines += line_number;
 
-        while ((g_ScriptSize-1024) > (scriptptr-script))
-            g_ScriptSize -= 1024;
+        while ((g_ScriptSize-128) > (scriptptr-script))
+            g_ScriptSize -= 128;
         increasescriptsize(g_ScriptSize);
 
         initprintf("Compiled code size: %ld*%d bytes, version %s\n",(unsigned)(scriptptr-script),sizeof(intptr_t),(g_ScriptVersion == 14?"1.4+":"1.3D"));

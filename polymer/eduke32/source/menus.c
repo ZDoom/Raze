@@ -3544,7 +3544,7 @@ cheat_for_port_credits:
             KB_ClearKeyDown(sc_Delete);
         }
 
-        for (l=0; l < min(13,NUMGAMEFUNCTIONS); l++)
+        for (l=min(13,NUMGAMEFUNCTIONS)-1; l >= 0 ; l--)
         {
             p = CONFIG_FunctionNumToName(m+l);
             if (!p) continue;
