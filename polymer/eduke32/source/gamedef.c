@@ -4613,6 +4613,7 @@ repeatcase:
         }
         gamefunctions[j][i] = '\0';
         keydefaults[j*3][i] = '\0';
+        HASH_add(&gamefuncH,gamefunctions[j],j);
         return 0;
 
     case CON_DEFINESKILLNAME:

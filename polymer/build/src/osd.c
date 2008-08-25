@@ -1814,7 +1814,7 @@ static symbol_t *addnewsymbol(const char *name)
             newsymb->next = t;
         }
     }
-    HASH_add(&osdsymbolsH,name,osdnumsymbols);
+    HASH_add(&osdsymbolsH, name, osdnumsymbols);
     osdsymbptrs[osdnumsymbols++] = newsymb;
     return newsymb;
 }
@@ -1840,12 +1840,17 @@ static symbol_t *findsymbol(const char *name, symbol_t *startingat)
 //
 static symbol_t *findexactsymbol(const char *name)
 {
-    int symb;
+    int i;
     if (!symbols) return NULL;
 
-    symb = HASH_find(&osdsymbolsH,name);
-    if (symb > -1)
-        return osdsymbptrs[symb];
+    i = HASH_find(&osdsymbolsH,name);
+    if (i > -1)
+    {
+        symbol_t *symb = osdsymbptrs[i];
+        if (symb->func == (void *)OSD_UNALIASED)
+            return NULL;
+        return osdsymbptrs[i];
+    }
     return NULL;
 }
 

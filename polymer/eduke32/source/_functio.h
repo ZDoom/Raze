@@ -92,63 +92,6 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    "Show_Console"
    };
 
-const char defaultgamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
-   {
-   "Move_Forward",
-   "Move_Backward",
-   "Turn_Left",
-   "Turn_Right",
-   "Strafe",
-   "Fire",
-   "Open",
-   "Run",
-   "AutoRun",
-   "Jump",
-   "Crouch",
-   "Look_Up",
-   "Look_Down",
-   "Look_Left",
-   "Look_Right",
-   "Strafe_Left",
-   "Strafe_Right",
-   "Aim_Up",
-   "Aim_Down",
-   "Weapon_1",
-   "Weapon_2",
-   "Weapon_3",
-   "Weapon_4",
-   "Weapon_5",
-   "Weapon_6",
-   "Weapon_7",
-   "Weapon_8",
-   "Weapon_9",
-   "Weapon_10",
-   "Inventory",
-   "Inventory_Left",
-   "Inventory_Right",
-   "Holo_Duke",
-   "Jetpack",
-   "NightVision",
-   "MedKit",
-   "TurnAround",
-   "SendMessage",
-   "Map",
-   "Shrink_Screen",
-   "Enlarge_Screen",
-   "Center_View",
-   "Holster_Weapon",
-   "Show_Opponents_Weapon",
-   "Map_Follow_Mode",
-   "See_Coop_View",
-   "Mouse_Aiming",
-   "Toggle_Crosshair",
-   "Steroids",
-   "Quick_Kick",
-   "Next_Weapon",
-   "Previous_Weapon",
-   "Show_Console"
-   };
-
 #ifdef __SETUP__
 
 #define NUMKEYENTRIES 53

@@ -10011,6 +10011,7 @@ static void freeconmem(void)
         Bfree(bitptr);
 
     freehash();
+    HASH_free(&gamefuncH);
 }
 
 /*
@@ -10673,6 +10674,10 @@ void app_main(int argc,const char **argv)
 #ifdef _WIN32
     ud.config.CheckForUpdates = -1;
 #endif
+
+    HASH_init(&gamefuncH);
+    for (i=NUMGAMEFUNCTIONS-1;i>=0;i--)
+        HASH_add(&gamefuncH,gamefunctions[i],i);
 
     i = CONFIG_ReadSetup();
     if (getenv("DUKE3DGRP")) duke3dgrp = getenv("DUKE3DGRP");

@@ -1060,9 +1060,10 @@ extern char *mousenames[];
 extern char *duke3dgrp, *duke3dgrpstring;
 extern char mod_dir[BMAX_PATH];
 
-struct HASH_table gamevarH;
-struct HASH_table arrayH;
-struct HASH_table keywH;
+extern struct HASH_table gamevarH;
+extern struct HASH_table arrayH;
+extern struct HASH_table keywH;
+extern struct HASH_table gamefuncH;
 
 #ifdef __cplusplus
 }
