@@ -462,39 +462,30 @@ int AddGameVar(const char *pszLabel, int lValue, unsigned int dwFlags)
         initprintf("%s:%d: error: variable name `%s' exceeds limit of %d characters.\n",compilefile,line_number,pszLabel, MAXVARLABEL);
         return 0;
     }
-    for (i=0;i<iGameVarCount;i++)
+    i = HASH_find(&gamevarH,pszLabel);
+
+    if (i >= 0 && !aGameVars[i].bReset)
     {
-        if (aGameVars[i].szLabel != NULL && !aGameVars[i].bReset)
+        // found it...
+        if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_INTPTR|GAMEVAR_FLAG_SHORTPTR|GAMEVAR_FLAG_CHARPTR))
         {
-            if (Bstrcmp(pszLabel,aGameVars[i].szLabel) == 0)
-            {
-                // found it...
-                if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_INTPTR|GAMEVAR_FLAG_SHORTPTR|GAMEVAR_FLAG_CHARPTR))
-                {
-                    //  			   warning++;
-                    //  			   initprintf("%s:%d: warning: Internal gamevar '%s' cannot be redefined.\n",compilefile,line_number,label+(labelcnt<<6));
-                    ReportError(-1);
-                    initprintf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
-                    return 0;
-                }
-                else if ((aGameVars[i].dwFlags & GAMEVAR_FLAG_DEFAULT) || (aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM))
-                {
-                    //Bsprintf(g_szBuf,"Replacing %s at %d",pszLabel,i);
-                    //AddLog(g_szBuf);
-                    //b=1;
-                    // it's OK to replace
-                    break;
-                }
-                else
-                {
-                    // it's a duplicate in error
-                    warning++;
-                    ReportError(WARNING_DUPLICATEDEFINITION);
-                    return 0;
-                }
-            }
+            //  			   warning++;
+            //  			   initprintf("%s:%d: warning: Internal gamevar '%s' cannot be redefined.\n",compilefile,line_number,label+(labelcnt<<6));
+            ReportError(-1);
+            initprintf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
+            return 0;
+        }
+        else if (!(aGameVars[i].dwFlags & GAMEVAR_FLAG_DEFAULT) && !(aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM))
+        {
+            // it's a duplicate in error
+            warning++;
+            ReportError(WARNING_DUPLICATEDEFINITION);
+            return 0;
         }
     }
+    if (i == -1)
+        i = iGameVarCount;
+
     if (i < MAXGAMEVARS)
     {
         // Set values

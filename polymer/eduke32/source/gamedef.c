@@ -1006,18 +1006,6 @@ void freehash()
     HASH_free(&gamevarH);
     HASH_free(&arrayH);
     HASH_free(&labelH);
-    HASH_free(&keywH);
-    freehashnames();
-
-    HASH_free(&sectorH);
-    HASH_free(&wallH);
-    HASH_free(&userdefH);
-
-    HASH_free(&projectileH);
-    HASH_free(&playerH);
-    HASH_free(&inputH);
-    HASH_free(&actorH);
-    HASH_free(&tspriteH);
 }
 
 static int increasescriptsize(int size)
@@ -1469,7 +1457,7 @@ static void getlabel(void)
 
     i = 0;
     while (ispecial(*textptr) == 0 && *textptr!='['&& *textptr!=']' && *textptr!='\t' && *textptr!='\n' && *textptr!='\r')
-        label[(labelcnt<<6)+i++] = *(textptr++);
+        label[(labelcnt<<6)+(i++)] = *(textptr++);
 
     label[(labelcnt<<6)+i] = 0;
     if (!(error || warning) && g_ScriptDebug > 1)
@@ -1494,10 +1482,7 @@ static int keyword(void)
 
     i = 0;
     while (isaltok(*temptextptr))
-    {
-        tempbuf[i] = *(temptextptr++);
-        i++;
-    }
+        tempbuf[i++] = *(temptextptr++);
     tempbuf[i] = 0;
     return HASH_find(&keywH,tempbuf);
 }
@@ -1578,7 +1563,7 @@ static void transvartype(int type)
         getlabel();
         return;
     }
-    else if ((*textptr == '-') && !isdigit(*(textptr+1)))
+    else if ((*textptr == '-')/* && !isdigit(*(textptr+1))*/)
     {
         if (!type)
         {
@@ -2069,20 +2054,6 @@ static int parsecommand(void)
             ReportError(ERROR_ISAKEYWORD);
             return 0;
         }
-#if 0
-        for (i=0;i<iGameVarCount;i++)
-        {
-            if (aGameVars[i].szLabel != NULL)
-            {
-                if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
-                {
-                    warning++;
-                    initprintf("  * WARNING.(L%d) duplicate Game definition `%s' ignored.\n",line_number,label+(labelcnt<<6));
-                    break;
-                }
-            }
-        }
-#endif
 
         //printf("Translating number  '%.20s'\n",textptr);
         transnum(LABEL_DEFINE); // get initial value
@@ -5507,6 +5478,7 @@ void loadefs(const char *filenam)
     char *mptr;
     int i;
     int fs,fp;
+    int startcompiletime;
 
     clearbuf(apScriptGameEvent,MAXGAMEEVENTS,0L);
 
@@ -5550,6 +5522,8 @@ void loadefs(const char *filenam)
     fs = kfilelength(fp);
 
     initprintf("Compiling: %s (%d bytes)\n",filenam,fs);
+
+    startcompiletime = getticks();
 
     mptr = (char *)Bmalloc(fs+1);
     if (!mptr)
@@ -5649,9 +5623,24 @@ void loadefs(const char *filenam)
     {
         int j=0, k=0;
 
+        HASH_free(&keywH);
+        freehashnames();
+
+        HASH_free(&sectorH);
+        HASH_free(&wallH);
+        HASH_free(&userdefH);
+
+        HASH_free(&projectileH);
+        HASH_free(&playerH);
+        HASH_free(&inputH);
+        HASH_free(&actorH);
+        HASH_free(&tspriteH);
+
         total_lines += line_number;
 
         increasescriptsize(scriptptr-script+1);
+
+        initprintf("Compile completed in %dms\n",getticks()-startcompiletime);
 
         initprintf("Compiled code size: %ld*%d bytes, version %s\n",(unsigned)(scriptptr-script),sizeof(intptr_t),(g_ScriptVersion == 14?"1.4+":"1.3D"));
         initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((MAXSECTORS * sizeof(sectortype)/sizeof(int)),(MAXSPRITES * sizeof(spritetype)/(1<<6))),iGameVarCount,MAXGAMEVARS);

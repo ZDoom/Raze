@@ -455,7 +455,7 @@ static void modval(int min, int max,int *p,int dainc,int damodify)
 
 #define UNSELMENUSHADE 10
 #define DISABLEDMENUSHADE 20
-#define MENUHIGHLIGHT(x) probey==x?-(sintable[(totalclock<<4)&2047]>>12):UNSELMENUSHADE
+#define MENUHIGHLIGHT(x) probey==x?(sintable[(totalclock<<5)&2047]>>12):UNSELMENUSHADE
 // #define MENUHIGHLIGHT(x) probey==x?-(sintable[(totalclock<<4)&2047]>>12):probey-x>=0?(probey-x)<<2:-((probey-x)<<2)
 
 #define SHX(X) 0
