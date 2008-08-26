@@ -1077,8 +1077,11 @@ static int increasescriptsize(int size)
         }
 
     //initprintf("offset: %d\n",(unsigned)(scriptptr-script));
-    if (size <= g_ScriptSize)
+    if (size <= osize)
+    {
+        g_ScriptSize = size;
         initprintf("Shrinking bytecode buffer, final size: %d*%d bytes\n",g_ScriptSize, sizeof(intptr_t));
+    }
     else
     {
         g_ScriptSize = size;
@@ -5648,9 +5651,7 @@ void loadefs(const char *filenam)
 
         total_lines += line_number;
 
-        while ((g_ScriptSize-128) > (scriptptr-script))
-            g_ScriptSize -= 128;
-        increasescriptsize(g_ScriptSize);
+        increasescriptsize(scriptptr-script+1);
 
         initprintf("Compiled code size: %ld*%d bytes, version %s\n",(unsigned)(scriptptr-script),sizeof(intptr_t),(g_ScriptVersion == 14?"1.4+":"1.3D"));
         initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((MAXSECTORS * sizeof(sectortype)/sizeof(int)),(MAXSPRITES * sizeof(spritetype)/(1<<6))),iGameVarCount,MAXGAMEVARS);
@@ -5839,7 +5840,7 @@ void ReportError(int iError)
         initprintf("%s:%d: warning: expected a label, found a constant.\n",compilefile,line_number);
         break;
     case WARNING_NAMEMATCHESVAR:
-        initprintf("%s:%d: warning: symbol `%s' is a game variable.\n",compilefile,line_number,label+(labelcnt<<6));
+        initprintf("%s:%d: warning: symbol `%s' already used for game variable.\n",compilefile,line_number,label+(labelcnt<<6));
         break;
     case WARNING_REVEVENTSYNC:
         initprintf("%s:%d: warning: found `%s' outside of a local event.\n",compilefile,line_number,tempbuf);

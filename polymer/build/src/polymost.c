@@ -1659,7 +1659,7 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
             cachefil=0;
         }
         fixtransparency(pic,tsizx,tsizy,xsiz,ysiz,dameth);
-        uploadtexture(doalloc,xsiz,ysiz,intexfmt,texfmt,pic,-1,tsizy,dameth|8192|(hicr->flags & 1?4096:0));
+        uploadtexture(doalloc,xsiz,ysiz,intexfmt,texfmt,pic,-1,tsizy,dameth|8192|(hicr->flags & 16?4096:0));
     }
 
     // precalculate scaling parameters for replacement
@@ -1705,10 +1705,11 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
     pth->skyface = facen;
     pth->hicr = hicr;
 
+    if (glinfo.texcompr && glusetexcompr && !(hicr->flags & 1))
     if (cachefil < 0)
     {
         // save off the compressed version
-        if (hicr->flags & 1) cachead.quality = 0;
+        if (hicr->flags & 16) cachead.quality = 0;
         else cachead.quality = r_downsize;
         cachead.xdim = tsizx>>cachead.quality;
         cachead.ydim = tsizy>>cachead.quality;
@@ -1718,7 +1719,7 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
             if (xsiz == pow2long[j]) { x |= 1; }
             if (ysiz == pow2long[j]) { x |= 2; }
         }
-        cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0) | (hicr->flags & 1?8:0); // handle nocompress
+        cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0) | (hicr->flags & 16?8:0); // handle nocompress
         OSD_Printf("No cached tex for tile %d pal %d.\n",dapic,dapalnum);
         writexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
     }

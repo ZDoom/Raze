@@ -2405,12 +2405,15 @@ static void moveweapons(void)
                     j = movesprite(i,
                                    (k*(sintable[(s->ang+512)&2047]))>>14,
                                    (k*(sintable[s->ang&2047]))>>14,ll,qq);
-                    if (j)break;
+                    if (j)
+                        break;
                 }
 
                 if (!(hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS) && s->yvel >= 0 && sprite[s->yvel].sectnum < MAXSECTORS)
                     if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
                         j = 49152|s->yvel;
+
+                hittype[i].movflag = j;
 
                 if (s->sectnum < 0)
                 {
@@ -2872,6 +2875,8 @@ static void moveweapons(void)
                 if (s->picnum == RPG && s->yvel >= 0 && sprite[s->yvel].sectnum < MAXSECTORS)
                     if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
                         j = 49152|s->yvel;
+
+                hittype[i].movflag = j;
 
                 if (s->sectnum < 0)
                     KILLIT(i);
@@ -4384,6 +4389,8 @@ static void moveactors(void)
                            (s->xvel*(sintable[(s->ang+512)&2047]))>>14,
                            (s->xvel*(sintable[s->ang&2047]))>>14,
                            s->zvel,CLIPMASK0);
+
+            hittype[i].movflag = j;
 
             if (sector[SECT].lotag == 1 && s->zvel == 0 && hittype[i].floorz == sector[sect].floorz)
             {

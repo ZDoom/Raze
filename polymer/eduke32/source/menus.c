@@ -1852,9 +1852,9 @@ cheat_for_port_credits:
                     "This program is distributed under the terms of the",
                     "GNU General Public License version 2 as published by the",
                     "Free Software Foundation. See GNU.TXT for details.",
-                    "",
+                    " ",
                     "Thanks to the following people for their contributions:",
-                    "",
+                    " ",
                     "Adam Fazakerley",
                     "Charlie Honig",
                     "Ed Coolidge",
@@ -1872,16 +1872,16 @@ cheat_for_port_credits:
                     "Philipp Kutin",
                     "Ryan Gordon",
                     "Stephen Anthony",
-                    "",
+                    " ",
                     "EDuke originally by Matt Saettler",
-                    "",
+                    " ",
                     "--x--",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    ""
+                    " ",
+                    " ",
+                    " ",
+                    " ",
+                    " ",
+                    " "
                 };
                 const int numlines = sizeof(scroller)/sizeof(char *);
                 for (m=0,i=(totalclock/104)%numlines; m<6; m++,i++)
@@ -1895,7 +1895,7 @@ cheat_for_port_credits:
             p = "Visit www.eduke32.com for news and updates";
             minitext(161-(Bstrlen(p)<<1), 136+10+10+10+10+4-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 135+10+10+10+10+4-l, p, 8, 10+16+128);
-            p = "See wiki.eduke32.com/stuff for new beta snapshots";
+            p = "See wiki.eduke32.com/stuff for new releases";
             minitext(161-(Bstrlen(p)<<1), 143+10+10+10+10+4-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 142+10+10+10+10+4-l, p, 8, 10+16+128);
         }

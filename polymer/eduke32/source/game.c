@@ -50,8 +50,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-// this is checked against http://eduke32.com/VERSION
-#define BUILDDATE 20080825
 #define UPDATEINTERVAL 604800 // 1w
 #else
 static int usecwd = 0;
@@ -10561,7 +10559,7 @@ void app_main(int argc,const char **argv)
 {
     int i, j;
     char cwd[BMAX_PATH];
-    extern char datetimestring[];
+//    extern char datetimestring[];
 
 #ifdef RENDERTYPEWIN
     if (win_checkinstance())
@@ -10599,7 +10597,8 @@ void app_main(int argc,const char **argv)
     );
     wm_setapptitle(HEAD2);
 
-    initprintf("%s (%s)\n",apptitle,datetimestring);
+    initprintf("%s\n",apptitle);
+//    initprintf("Compiled %s\n",datetimestring);
     initprintf("Copyright (c) 1996, 2003 3D Realms Entertainment\n");
     initprintf("Copyright (c) 2008 EDuke32 team\n");
 
@@ -10723,7 +10722,7 @@ void app_main(int argc,const char **argv)
             {
                 ud.config.LastUpdateCheck = time(NULL);
 
-                if (atol(tempbuf) > BUILDDATE)
+                if (atol(tempbuf) > atol(BUILDDATE))
                 {
                     if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
                                  "Browse to http://eduke32.sourceforge.net now?"))

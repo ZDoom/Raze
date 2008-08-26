@@ -32,8 +32,8 @@ struct dynitem
 {
     char *s;
     int *v;
-    int vstat;
-    int val;
+    short vstat;
+    short val;
 };
 struct HASH_table dynnamesH = {4096, NULL};
 

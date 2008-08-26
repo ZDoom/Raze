@@ -62,7 +62,7 @@ enum
     T_SKYBOX,
     T_FRONT,T_RIGHT,T_BACK,T_LEFT,T_TOP,T_BOTTOM,
     T_TINT,T_RED,T_GREEN,T_BLUE,
-    T_TEXTURE,T_ALPHACUT,T_XSCALE,T_YSCALE,T_NOCOMPRESS,
+    T_TEXTURE,T_ALPHACUT,T_XSCALE,T_YSCALE,T_NOCOMPRESS,T_NODOWNSIZE,
     T_UNDEFMODEL,T_UNDEFMODELRANGE,T_UNDEFMODELOF,T_UNDEFTEXTURE,T_UNDEFTEXTURERANGE,
     T_ALPHAHACK,T_ALPHAHACKRANGE,
     T_SPRITECOL,T_2DCOL,
@@ -241,6 +241,7 @@ static tokenlist texturetokens_pal[] =
     { "detailscale",     T_XSCALE }, { "scale",  T_XSCALE }, { "xscale",  T_XSCALE }, { "intensity",  T_XSCALE },
     { "yscale",          T_YSCALE },
     { "nocompress",      T_NOCOMPRESS },
+    { "nodownsize",      T_NODOWNSIZE },
 };
 
 static tokenlist sound_musictokens[] =
@@ -1380,6 +1381,8 @@ static int defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&yscale); break;
                         case T_NOCOMPRESS:
                             flags |= 1; break;
+                        case T_NODOWNSIZE:
+                            flags |= 16; break;
                         default:
                             break;
                         }
@@ -1446,6 +1449,8 @@ static int defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&yscale); break;
                         case T_NOCOMPRESS:
                             flags |= 1; break;
+                        case T_NODOWNSIZE:
+                            flags |= 16; break;
                         default:
                             break;
                         }
