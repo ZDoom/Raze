@@ -486,66 +486,58 @@ int AddGameVar(const char *pszLabel, int lValue, unsigned int dwFlags)
     if (i == -1)
         i = iGameVarCount;
 
-    if (i < MAXGAMEVARS)
+    if (i >= MAXGAMEVARS)
     {
-        // Set values
-        if (aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM)
-        {
-            //if(b)
-            //{
-            //Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-            //AddLog(g_szBuf);
-            //}
-            // if existing is system, they only get to change default value....
-            aGameVars[i].lValue=lValue;
-            aGameVars[i].lDefault=lValue;
-            aGameVars[i].bReset=0;
-        }
-        else
-        {
-            if (aGameVars[i].szLabel == NULL)
-                aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
-            if (aGameVars[i].szLabel != pszLabel)
-                Bstrcpy(aGameVars[i].szLabel,pszLabel);
-            aGameVars[i].dwFlags=dwFlags;
-            aGameVars[i].lValue=lValue;
-            aGameVars[i].lDefault=lValue;
-            aGameVars[i].bReset=0;
-        }
+        error++;
+        ReportError(-1);
+        initprintf("%s:%d: error: too many gamevars!\n",compilefile,line_number);
+        return 0;
+    }
 
-        if (i==iGameVarCount)
-        {
-            // we're adding a new one.
-            HASH_replace(&gamevarH,aGameVars[i].szLabel,i);
-            iGameVarCount++;
-        }
-        if (aGameVars[i].plValues && !(aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM))
+    // Set values
+    if ((aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM) == 0)
+    {
+        if (aGameVars[i].szLabel == NULL)
+            aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
+        if (aGameVars[i].szLabel != pszLabel)
+            Bstrcpy(aGameVars[i].szLabel,pszLabel);
+        aGameVars[i].dwFlags=dwFlags;
+
+        if (aGameVars[i].plValues)
         {
             // only free if not system
             Bfree(aGameVars[i].plValues);
             aGameVars[i].plValues=NULL;
         }
-        if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
-        {
-            if (!aGameVars[i].plValues)
-                aGameVars[i].plValues=Bcalloc(MAXPLAYERS,sizeof(intptr_t));
-            for (j=0;j<MAXPLAYERS;j++)
-                aGameVars[i].plValues[j]=lValue;
-        }
-        else if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
-        {
-            if (!aGameVars[i].plValues)
-                aGameVars[i].plValues=Bcalloc(MAXSPRITES,sizeof(intptr_t));
-            for (j=0;j<MAXSPRITES;j++)
-                aGameVars[i].plValues[j]=lValue;
-        }
-        return 1;
     }
-    else
+
+    // if existing is system, they only get to change default value....
+    aGameVars[i].lValue=lValue;
+    aGameVars[i].lDefault=lValue;
+    aGameVars[i].bReset=0;
+
+    if (i==iGameVarCount)
     {
-        // no room to add...
-        return 0;
+        // we're adding a new one.
+        HASH_replace(&gamevarH,aGameVars[i].szLabel,i);
+        iGameVarCount++;
     }
+
+    if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
+    {
+        if (!aGameVars[i].plValues)
+            aGameVars[i].plValues=Bcalloc(MAXPLAYERS,sizeof(intptr_t));
+        for (j=MAXPLAYERS-1;j>=0;j--)
+            aGameVars[i].plValues[j]=lValue;
+    }
+    else if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
+    {
+        if (!aGameVars[i].plValues)
+            aGameVars[i].plValues=Bcalloc(MAXSPRITES,sizeof(intptr_t));
+        for (j=MAXSPRITES-1;j>=0;j--)
+            aGameVars[i].plValues[j]=lValue;
+    }
+    return 1;
 }
 
 void ResetActorGameVars(int iActor)
@@ -746,9 +738,9 @@ void ResetSystemDefaults(void)
 
     //AddLog("ResetWeaponDefaults");
 
-    for (j=0;j<MAXPLAYERS;j++)
+    for (j=MAXPLAYERS-1;j>=0;j--)
     {
-        for (i=0;i<MAX_WEAPONS;i++)
+        for (i=MAX_WEAPONS-1;i>=0;i--)
         {
             Bsprintf(aszBuf,"WEAPON%d_CLIP",i);
             aplWeaponClip[i][j]=GetGameVar(aszBuf,0, -1, j);
