@@ -10990,19 +10990,26 @@ void app_main(int argc,const char **argv)
 
     if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
     {
-        int i = 0;
-        int xres[] = {800,640,320};
-        int yres[] = {600,480,240};
+        int i = 0, j = 0;
+        int xres[] = {ud.config.ScreenWidth,800,640,320};
+        int yres[] = {ud.config.ScreenHeight,600,480,240};
         int bpp[] = {32,16,8};
 
         initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n",
                    ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.config.ScreenMode?"fullscreen":"windowed");
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        while (setgamemode(0,xres[i],yres[i],bpp[i]) < 0)
+        while (setgamemode(0,xres[i],yres[i],bpp[j]) < 0)
         {
             initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],bpp[i]);
-            i++;
+            j++;
+            if (j == 3)
+            {
+                i++;
+                j = 0;
+            }
+            if (i == 4)
+                gameexit("Unable to set failsafe video mode!");
         }
 #else
         while (setgamemode(0,xres[i],yres[i],8) < 0)

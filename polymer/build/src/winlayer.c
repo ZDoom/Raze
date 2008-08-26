@@ -67,7 +67,8 @@ extern int curbrightness, gammabrightness;
 // OpenGL stuff
 static HGLRC hGLRC = 0;
 char nofog=0;
-static char nogl=0;
+char nogl=0;
+char forcegl=0;
 #endif
 
 static LPTSTR GetWindowsErrorMsg(DWORD code);
@@ -382,6 +383,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 #if defined(USE_OPENGL) && defined(POLYMOST)
     if ((argp = Bgetenv("BUILD_NOFOG")) != NULL)
         nofog = Batol(argp);
+    if (Bgetenv("BUILD_FORCEGL") != NULL)
+        forcegl = 1;
 #endif
 
     // install signal handlers
@@ -1402,7 +1405,7 @@ static void GetKeyNames(void)
         tbuf[0] = 0;
         GetKeyNameText((i>128?(i+128):i)<<16, tbuf, sizeof(keynames[i])-1);
 //        initprintf("%d %15s  %15s\n",i,keynames[i],tbuf);
-        if(*tbuf)strncpy((char *)keynames[i], tbuf, sizeof(keynames[i])-1);
+        if(*tbuf)strncpy(&keynames[i][0], tbuf, sizeof(keynames[i])-1);
     }
 }
 
@@ -2248,7 +2251,8 @@ void getvalidmodes(void)
     HRESULT result;
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
-    if (desktopbpp > 8) cdepths[1] = desktopbpp;
+    if (desktopbpp > 8 && !nogl) cdepths[1] = desktopbpp;
+    else cdepths[1] = 0;
 #endif
 
     if (modeschecked) return;
@@ -3257,11 +3261,30 @@ static int SetupOpenGL(int width, int height, int bitspp)
 
     {
         GLubyte *p,*p2,*p3;
+        int err = 0;
 
         glinfo.vendor     = (char *)bglGetString(GL_VENDOR);
         glinfo.renderer   = (char *)bglGetString(GL_RENDERER);
         glinfo.version    = (char *)bglGetString(GL_VERSION);
         glinfo.extensions = (char *)bglGetString(GL_EXTENSIONS);
+
+        // GL driver blacklist
+        if (!forcegl)
+        {
+            if (!Bstrcmp(glinfo.vendor,"Microsoft Corporation")) err = 1;
+            else if (!Bstrcmp(glinfo.vendor,"SiS")) err = 1;
+            else if (!Bstrcmp(glinfo.vendor,"3Dfx Interactive Inc.")) err = 1;
+
+            if (err)
+            {
+                OSD_Printf("Unsupported OpenGL driver. GL modes will be unavailable.\n");
+                ReleaseOpenGL();
+                nogl = 1;
+                modeschecked = 0;
+                getvalidmodes();
+                return TRUE;
+            }
+        }
 
         glinfo.maxanisotropy = 1.0;
         glinfo.bgra = 0;

@@ -59,7 +59,7 @@ static unsigned short sysgamma[3][256];
 extern int curbrightness, gammabrightness;
 #ifdef USE_OPENGL
 // OpenGL stuff
-static char nogl=0;
+char nogl=0;
 #endif
 int vsync=0;
 

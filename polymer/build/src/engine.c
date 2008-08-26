@@ -7781,6 +7781,11 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 {
     int i, j;
 
+#if defined(USE_OPENGL) && defined(POLYMOST)
+    extern char nogl;
+
+    if (nogl) dabpp = 8;
+#endif
     if ((qsetmode == 200) && (videomodereset == 0) &&
             (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp))
         return(0);
@@ -7792,6 +7797,7 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
     //if (checkvideomode(&daxdim, &daydim, dabpp, davidoption)<0) return (-1);
 
     //bytesperline is set in this function
+
     j = bpp;
     if (setvideomode(daxdim,daydim,dabpp,davidoption) < 0) return(-1);
 
