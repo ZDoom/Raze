@@ -5652,7 +5652,7 @@ void loadefs(const char *filenam)
 
         total_lines += line_number;
 
-        increasescriptsize(scriptptr-script+1);
+        increasescriptsize(scriptptr-script+8);
 
         initprintf("Compile completed in %dms\n",getticks()-startcompiletime);
 

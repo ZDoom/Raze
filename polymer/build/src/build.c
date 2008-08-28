@@ -4903,10 +4903,11 @@ void overheadeditor(void)
                     }
                     dax = mulscale14(dax-posx,zoom);
                     day = mulscale14(day-posy,zoom);
-                    drawline16(halfxdim16+dax-2,midydim16+day-2,halfxdim16+dax+2,midydim16+day-2,14);
+/*                    drawline16(halfxdim16+dax-2,midydim16+day-2,halfxdim16+dax+2,midydim16+day-2,14);
                     drawline16(halfxdim16+dax+2,midydim16+day-2,halfxdim16+dax+2,midydim16+day+2,14);
                     drawline16(halfxdim16+dax+2,midydim16+day+2,halfxdim16+dax-2,midydim16+day+2,14);
-                    drawline16(halfxdim16+dax-2,midydim16+day+2,halfxdim16+dax-2,midydim16+day-2,14);
+                    drawline16(halfxdim16+dax-2,midydim16+day+2,halfxdim16+dax-2,midydim16+day-2,14); */
+                    drawcircle16(halfxdim16+dax, midydim16+day, 3, 14);
                 }
                 if (bad > 0)
                 {
@@ -5596,7 +5597,7 @@ void overheadeditor(void)
             keystatus[0xd3] = 0;
         }
 
-        if (keystatus[0xd2])  //InsertPoint
+        if (keystatus[0xd2] || keystatus[0x17])  //InsertPoint
         {
             if (highlightsectorcnt >= 0)
             {
@@ -5690,7 +5691,7 @@ void overheadeditor(void)
 
                 asksave = 1;
             }
-            keystatus[0xd2] = 0;
+            keystatus[0xd2] = keystatus[0x17] = 0;
         }
 
         /*j = 0;
@@ -7603,7 +7604,7 @@ void showsectordata(short sectnum)
     Bsprintf(snotbuf,"Pixel height: %d",(sector[sectnum].floorz-sector[sectnum].ceilingz)>>8);
     printext16(8,ydim-STATUS2DSIZ+104,11,-1,snotbuf,0);
 
-    printext16(200,ydim-STATUS2DSIZ+32,11,-1,"CEILINGS:",0);
+    printext16(200,ydim-STATUS2DSIZ+32,11,-1,"^10CEILINGS:^O",0);
     Bsprintf(snotbuf,"Flags (hex): %x",sector[sectnum].ceilingstat);
     printext16(200,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning);
@@ -7619,7 +7620,7 @@ void showsectordata(short sectnum)
     Bsprintf(snotbuf,"Palookup number: %d",sector[sectnum].ceilingpal);
     printext16(200,ydim-STATUS2DSIZ+96,11,-1,snotbuf,0);
 
-    printext16(400,ydim-STATUS2DSIZ+32,11,-1,"FLOORS:",0);
+    printext16(400,ydim-STATUS2DSIZ+32,11,-1,"^10FLOORS:^O",0);
     Bsprintf(snotbuf,"Flags (hex): %x",sector[sectnum].floorstat);
     printext16(400,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning);
@@ -7718,7 +7719,8 @@ void showspritedata(short spritenum)
     Bsprintf(snotbuf,"     (0x%x), (0x%x)",sprite[spritenum].hitag,sprite[spritenum].lotag);
     printext16(8,ydim-STATUS2DSIZ+104,11,-1,snotbuf,0);
 
-    printext16(200,ydim-STATUS2DSIZ+32,11,-1,names[sprite[spritenum].picnum],0);
+    Bsprintf(snotbuf,"^10%s^O",names[sprite[spritenum].picnum]);
+    printext16(200,ydim-STATUS2DSIZ+32,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Flags (hex): %x",sprite[spritenum].cstat);
     printext16(200,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Shade: %d",sprite[spritenum].shade);

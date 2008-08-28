@@ -43,6 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #endif
 
+#define BUILDDATE " 20080828"
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;
@@ -311,7 +312,7 @@ void ExtLoadMap(const char *mapname)
 
     pskybits=3;
     parallaxtype=0;
-    Bsprintf(tempbuf, "Mapster32"VERSION" - %s",mapname);
+    Bsprintf(tempbuf, "Mapster32 - %s",mapname);
     wm_setapptitle(tempbuf);
 }
 
@@ -1886,7 +1887,7 @@ static void ReadGamePalette()
         if ((fp=kopen4load("palette.dat",1)) == -1)
         {
             initprintf("!!! PALETTE.DAT NOT FOUND !!!\n");
-            Bstrcpy(tempbuf, "Mapster32"VERSION"");
+            Bstrcpy(tempbuf, "Mapster32"VERSION BUILDDATE);
             wm_msgbox(tempbuf,"palette.dat not found");
             exit(0);
         }
@@ -5917,7 +5918,7 @@ static void Keys2d(void)
     }}
     */
 
-    Bsprintf(tempbuf, "Mapster32"VERSION"");
+    Bsprintf(tempbuf, "Mapster32" VERSION);
     printext16(9L,ydim2d-STATUS2DSIZ+9L,4,-1,tempbuf,0);
     printext16(8L,ydim2d-STATUS2DSIZ+8L,12,-1,tempbuf,0);
 
@@ -6577,7 +6578,7 @@ static void comlinehelp(void)
 #endif
               "\n-?, -help, --help\tDisplay this help message and exit"
               ;
-    wm_msgbox("Mapster32"VERSION,s);
+    wm_msgbox("Mapster32"VERSION BUILDDATE,s);
 }
 
 static void addgamepath(const char *buffer)
@@ -6762,7 +6763,7 @@ static void checkcommandline(int argc, const char **argv)
 
 int ExtPreInit(int argc,const char **argv)
 {
-    wm_setapptitle("Mapster32"VERSION);
+    wm_setapptitle("Mapster32"VERSION BUILDDATE);
 
 #ifdef _WIN32
     tempbuf[GetModuleFileName(NULL,tempbuf,BMAX_PATH)] = 0;
@@ -6772,7 +6773,7 @@ int ExtPreInit(int argc,const char **argv)
 
     OSD_SetLogFile("mapster32.log");
     OSD_SetVersionString("Mapster32"VERSION,0,2);
-    initprintf("Mapster32"VERSION" ("__DATE__" "__TIME__")\n");
+    initprintf("Mapster32"VERSION BUILDDATE"\n");
     initprintf("Copyright (c) 2008 EDuke32 team\n");
 
     checkcommandline(argc,argv);
@@ -7624,7 +7625,7 @@ int ExtInit(void)
     getmessageleng = 0;
     getmessagetimeoff = 0;
 
-    Bstrcpy(apptitle, "Mapster32"VERSION"");
+    Bstrcpy(apptitle, "Mapster32"VERSION BUILDDATE);
     autosavetimer = totalclock+120*autosave;
 
 #if defined(_WIN32) && defined(DUKEOSD)

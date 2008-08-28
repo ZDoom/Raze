@@ -303,6 +303,8 @@ int loadplayer(int spot)
             actorLoadEventScrptr[i] = (intptr_t *)j;
         }
 
+    scriptptrs = Brealloc(scriptptrs, MAXSPRITES * sizeof(scriptptrs));
+
     if (kdfread(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
     if (kdfread(&hittype[0],sizeof(actordata_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
@@ -697,6 +699,7 @@ int saveplayer(int spot)
             actorLoadEventScrptr[i] = (intptr_t *)j;
         }
 
+    scriptptrs = Brealloc(scriptptrs, MAXSPRITES * sizeof(scriptptrs));
 
     for (i=0;i<MAXSPRITES;i++)
     {
