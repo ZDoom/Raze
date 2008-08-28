@@ -1420,6 +1420,20 @@ static inline int isaltok(char c)
     return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '*' || c == '-' || c == '_' || c == '.');
 }
 
+// strlower -- makes a string in memory lowercase and returns a pointer
+static char *strtolower(char *str, int len)
+{
+    int i = 0;
+    if (len <= 0) return str;
+    do
+    {
+        *(str+i) = Btolower(*(str+i));
+        i++;
+    }
+    while (--len);
+    return str;
+}
+
 inline static int getlabelid(const memberlabel_t *pLabel, struct HASH_table *tH, const char *psz)
 {
     // find the label psz in the table pLabel.
@@ -1996,7 +2010,7 @@ static int parsecommand(void)
         getlabel();
         //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
 
-        lLabelID=getlabeloffset(&projectileH,label+(labelcnt<<6));
+        lLabelID=getlabeloffset(&projectileH,strtolower(label+(labelcnt<<6),Bstrlen(label+(labelcnt<<6))));
         //printf("LabelID is %d\n",lLabelID);
         if (lLabelID == -1)
         {
@@ -2941,7 +2955,7 @@ static int parsecommand(void)
         getlabel();
         //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
 
-        lLabelID=getlabelid(sectorlabels,&sectorH,label+(labelcnt<<6));
+        lLabelID=getlabelid(sectorlabels,&sectorH,strtolower(label+(labelcnt<<6),Bstrlen(label+(labelcnt<<6))));
 
         if (lLabelID == -1)
         {
@@ -3073,7 +3087,7 @@ static int parsecommand(void)
         getlabel();
         //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
 
-        lLabelID=getlabelid(walllabels,&wallH,label+(labelcnt<<6));
+        lLabelID=getlabelid(walllabels,&wallH,strtolower(label+(labelcnt<<6),Bstrlen(label+(labelcnt<<6))));
 
         if (lLabelID == -1)
         {
@@ -3137,7 +3151,7 @@ static int parsecommand(void)
         getlabel();
         //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
 
-        lLabelID=getlabeloffset(&playerH,label+(labelcnt<<6));
+        lLabelID=getlabeloffset(&playerH,strtolower(label+(labelcnt<<6),Bstrlen(label+(labelcnt<<6))));
         //printf("LabelID is %d\n",lLabelID);
         if (lLabelID == -1)
         {
@@ -3215,7 +3229,7 @@ static int parsecommand(void)
         getlabel();
         //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
 
-        lLabelID=getlabeloffset(&inputH,label+(labelcnt<<6));
+        lLabelID=getlabeloffset(&inputH,strtolower(label+(labelcnt<<6),Bstrlen(label+(labelcnt<<6))));
         //printf("LabelID is %d\n",lLabelID);
         if (lLabelID == -1)
         {
@@ -3266,7 +3280,7 @@ static int parsecommand(void)
         getlabel();
         //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
 
-        lLabelID=getlabelid(userdefslabels,&userdefH,label+(labelcnt<<6));
+        lLabelID=getlabelid(userdefslabels,&userdefH,strtolower(label+(labelcnt<<6),Bstrlen(label+(labelcnt<<6))));
 
         if (lLabelID == -1)
         {
@@ -3465,7 +3479,7 @@ static int parsecommand(void)
         getlabel();
         //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
 
-        lLabelID=getlabeloffset(&actorH,label+(labelcnt<<6));
+        lLabelID=getlabeloffset(&actorH,strtolower(label+(labelcnt<<6),Bstrlen(label+(labelcnt<<6))));
         //printf("LabelID is %d\n",lLabelID);
         if (lLabelID == -1)
         {
@@ -3547,7 +3561,7 @@ static int parsecommand(void)
         getlabel();
         //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
 
-        lLabelID=getlabeloffset(&tspriteH,label+(labelcnt<<6));
+        lLabelID=getlabeloffset(&tspriteH,strtolower(label+(labelcnt<<6),Bstrlen(label+(labelcnt<<6))));
         //printf("LabelID is %d\n",lLabelID);
         if (lLabelID == -1)
         {
