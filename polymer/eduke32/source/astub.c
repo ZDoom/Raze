@@ -1160,6 +1160,8 @@ static void ReadHelpFile(const char *name)
     helppage_t *hp;
     char skip=0;
 
+    initprintf("Loading \"%s\"\n",name);
+
     if ((fp=fopenfrompath(name,"rb")) == NULL)
     {
         initprintf("Error initializing integrated help: file \"%s\" not found.\n", name);
@@ -1248,7 +1250,6 @@ static void ReadHelpFile(const char *name)
     numhelppages = i;
 
     Bfclose(fp);
-    initprintf("Loaded %s\n",name);
     return;
 
 HELPFILE_ERROR:
@@ -6031,7 +6032,7 @@ static void Keys2d(void)
     if (keystatus[KEYSC_F4])
     {
         showfirstwall = !showfirstwall;
-        message("Sector firstwall highlight ",showfirstwall?"enabled":"disabled");
+        message("Sector firstwall highlight %s",showfirstwall?"enabled":"disabled");
         keystatus[KEYSC_F4] = 0;
     }
 

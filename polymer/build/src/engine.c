@@ -10836,7 +10836,7 @@ void drawcircle16(int x1, int y1, int r, char col)
             drawpixel((char *)(p-(r*bytesperline)), col);   // d
     }
 
-    while (yp > xp)
+    do
     {
         if (d < 0)
         {
@@ -10876,6 +10876,7 @@ void drawcircle16(int x1, int y1, int r, char col)
                 drawpixel((char *)(p+yp-xpbpl), col);   // 8
         }
     }
+    while (yp > xp);
     enddrawing();
 #else
     // JonoF's rough approximation of a circle
@@ -11169,13 +11170,55 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
         }
 
         drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp2,midydim16+yp2,col);
+        {
+            int k = getangle(xp1-xp2, yp1-yp2);
+            int dax = ((wal->x+wall[wal->point2].x)>>1);
+            int day = ((wal->y+wall[wal->point2].y)>>1);
+            dax = mulscale14(dax-posxe,zoome);
+            day = mulscale14(day-posye,zoome);
+//            drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
+            if (wal->nextsector >= 0)
+            {
+                int ii = sector[sectorofwall(i)].floorz;
+                int jj = sector[wal->nextsector].floorz;
+                int dax2; 
+                int day2;
+
+                if (jj == ii)
+                {
+                    dax2 = mulscale11(sintable[(k+1024)&2047],zoome) / 2048;
+                    day2 = mulscale11(sintable[(k+512)&2047],zoome) / 2048;
+                    drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
+                    dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 1536;
+                    day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 1536;
+                    drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
+                }
+                else if (jj > ii)
+                {
+                    dax2 = mulscale11(sintable[(k+1024)&2047],zoome) / 2048;
+                    day2 = mulscale11(sintable[(k+512)&2047],zoome) / 2048;
+                    drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
+                }
+                else
+                {
+                    dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 1536;
+                    day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 1536;
+                    drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
+                }
+            }
+            else
+            {
+                int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 1536;
+                int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 1536;
+                drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
+            }
+        }
         if ((zoome >= 256) && (editstatus == 1))
             if (((halfxdim16+xp1) >= 2) && ((halfxdim16+xp1) <= xdim-3))
                 if (((midydim16+yp1) >= 2) && ((midydim16+yp1) <= ydim16-3))
                 {
-                    char pointsize;
+                    int pointsize = 2;
                     col = 6;
-                    pointsize=2;
                     if (i == pointhighlight || ((pointhighlight < MAXWALLS) && (pointhighlight >= 0) && (wall[i].x == wall[pointhighlight].x) && (wall[i].y == wall[pointhighlight].y)))
                     {
                         if (totalclock & 16)
@@ -11195,12 +11238,14 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                     }
 
                     tempint = ((midydim16+yp1)*bytesperline)+(halfxdim16+xp1)+frameplace;
-
+#if 0
                     drawline16(halfxdim16+xp1-pointsize,midydim16+yp1+pointsize,halfxdim16+xp1+pointsize,midydim16+yp1+pointsize,col);
                     drawline16(halfxdim16+xp1+pointsize,midydim16+yp1+pointsize,halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,col);
                     drawline16(halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,col);
                     drawline16(halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1+pointsize,col);
-
+#else
+                    drawcircle16(halfxdim16+xp1, midydim16+yp1, pointsize, col);
+#endif
                 }
     }
     faketimerhandler();
@@ -11237,31 +11282,9 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                     if (((halfxdim16+xp1) >= 4) && ((halfxdim16+xp1) <= xdim-6))
                         if (((midydim16+yp1) >= 4) && ((midydim16+yp1) <= ydim16-6))
                         {
-                            int temp;
                             tempint = ((midydim16+yp1)*bytesperline)+(halfxdim16+xp1)+frameplace;
 
-
-                            for (temp=0;temp<2;temp++)
-                            {
-                                drawpixel((char *)(tempint+3+(bytesperline*temp)), col);
-                                drawpixel((char *)(tempint-3-(bytesperline*temp)), col);
-                                drawpixel((char *)(tempint-3+(bytesperline*temp)), col);
-                                drawpixel((char *)(tempint+3-(bytesperline*temp)), col);
-                            }
-
-                            drawpixel((char *)(tempint+2+(bytesperline*2)), col);
-                            drawpixel((char *)(tempint-2-(bytesperline*2)), col);
-                            drawpixel((char *)(tempint-2+(bytesperline*2)), col);
-                            drawpixel((char *)(tempint+2-(bytesperline*2)), col);
-
-                            for (temp=0;temp<2;temp++)
-                            {
-                                drawpixel((char *)(tempint+temp+(bytesperline*3)), col);
-                                drawpixel((char *)(tempint-temp-(bytesperline*3)), col);
-                                drawpixel((char *)(tempint-temp+(bytesperline*3)), col);
-                                drawpixel((char *)(tempint+temp-(bytesperline*3)), col);
-                            }
-
+                            drawcircle16(halfxdim16+xp1, midydim16+yp1, 3, col);
 
                             xp2 = mulscale11(sintable[(sprite[j].ang+2560)&2047],zoome) / 768;
                             yp2 = mulscale11(sintable[(sprite[j].ang+2048)&2047],zoome) / 768;
@@ -11289,26 +11312,20 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 
                                 if ((sprite[j].cstat&32) > 0)
                                 {
-                                    int fx = mulscale6(tilesizx[sprite[j].picnum], sprite[j].xrepeat);
-                                    int fy = mulscale6(tilesizy[sprite[j].picnum], sprite[j].yrepeat);
+                                    int fx = mulscale10(mulscale6(tilesizx[sprite[j].picnum], sprite[j].xrepeat),zoome) >> 1;
+                                    int fy = mulscale10(mulscale6(tilesizy[sprite[j].picnum], sprite[j].yrepeat),zoome) >> 1;
                                     int co[4][2], ii;
                                     int sinang = sintable[(sprite[j].ang+512+1024)&2047];
                                     int cosang = sintable[(sprite[j].ang+1024)&2047];
                                     int r,s;
 
-                                    fx = mulscale10(fx,zoome) >> 1;
-                                    fy = mulscale10(fy,zoome) >> 1;
 
-                                    co[0][0] = -fx;
-                                    co[0][1] = -fy;
-                                    co[1][0] =  fx;
-                                    co[1][1] = -fy;
-                                    co[2][0] =  fx;
-                                    co[2][1] =  fy;
-                                    co[3][0] = -fx;
-                                    co[3][1] =  fy;
+                                    co[0][0] = co[3][0] = -fx;
+                                    co[0][1] = co[1][1] = -fy;
+                                    co[1][0] = co[2][0] = fx;
+                                    co[2][1] = co[3][1] = fy;
 
-                                    for (ii=0;ii<4;ii++)
+                                    for (ii=3;ii>=0;ii--)
                                     {
                                         r = mulscale14(cosang,co[ii][0]) - mulscale14(sinang,co[ii][1]);
                                         s = mulscale14(sinang,co[ii][0]) + mulscale14(cosang,co[ii][1]);
@@ -11316,7 +11333,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                                         co[ii][1] = s;
                                     }
                                     drawlinepat = 0xcfcfcfcf;
-                                    for (ii=0;ii<4;ii++)
+                                    for (ii=3;ii>=0;ii--)
                                     {
                                         drawline16(halfxdim16 + xp1 + co[ii][0], midydim16 + yp1 - co[ii][1],
                                                    halfxdim16 + xp1 + co[(ii+1)&3][0], midydim16 + yp1 - co[(ii+1)&3][1],
@@ -11426,26 +11443,19 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 
                             else if ((sprite[j].cstat&32) > 0)
                             {
-                                int fx = mulscale6(tilesizx[sprite[j].picnum], sprite[j].xrepeat);
-                                int fy = mulscale6(tilesizy[sprite[j].picnum], sprite[j].yrepeat);
+                                int fx = mulscale10(mulscale6(tilesizx[sprite[j].picnum], sprite[j].xrepeat),zoome) >> 1;
+                                int fy = mulscale10(mulscale6(tilesizy[sprite[j].picnum], sprite[j].yrepeat),zoome) >> 1;
                                 int co[4][2], ii;
                                 int sinang = sintable[(sprite[j].ang+512+1024)&2047];
                                 int cosang = sintable[(sprite[j].ang+1024)&2047];
                                 int r,s;
 
-                                fx = mulscale10(fx,zoome) >> 1;
-                                fy = mulscale10(fy,zoome) >> 1;
+                                co[0][0] = co[3][0] = -fx;
+                                co[0][1] = co[1][1] = -fy;
+                                co[1][0] = co[2][0] = fx;
+                                co[2][1] = co[3][1] = fy;
 
-                                co[0][0] = -fx;
-                                co[0][1] = -fy;
-                                co[1][0] =  fx;
-                                co[1][1] = -fy;
-                                co[2][0] =  fx;
-                                co[2][1] =  fy;
-                                co[3][0] = -fx;
-                                co[3][1] =  fy;
-
-                                for (ii=0;ii<4;ii++)
+                                for (ii=3;ii>=0;ii--)
                                 {
                                     r = mulscale14(cosang,co[ii][0]) - mulscale14(sinang,co[ii][1]);
                                     s = mulscale14(sinang,co[ii][0]) + mulscale14(cosang,co[ii][1]);
@@ -11454,7 +11464,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                                 }
 
                                 drawlinepat = 0xcfcfcfcf;
-                                for (ii=0;ii<4;ii++)
+                                for (ii=3;ii>=0;ii--)
                                 {
                                     drawline16(halfxdim16 + xp1 + co[ii][0], midydim16 + yp1 - co[ii][1],
                                                halfxdim16 + xp1 + co[(ii+1)&3][0], midydim16 + yp1 - co[(ii+1)&3][1],

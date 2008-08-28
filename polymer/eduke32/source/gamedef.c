@@ -1160,9 +1160,9 @@ static int increasescriptsize(int size)
 
 static int skipcomments(void)
 {
-    char c;
+    char c = *textptr;
 
-    while ((c = *textptr))
+    do
     {
         if (c == ' ' || c == '\t' || c == '\r')
             textptr++;
@@ -1204,7 +1204,7 @@ static int skipcomments(void)
             else textptr+=2;
         }
         else break;
-    }
+    } while ((c = *textptr));
 
     if ((unsigned)(scriptptr-script) > (unsigned)(g_ScriptSize-32))
         return increasescriptsize(g_ScriptSize<<1);
