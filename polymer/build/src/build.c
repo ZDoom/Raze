@@ -122,9 +122,9 @@ extern char textfont[128][8];
 
 char pskysearch[MAXSECTORS];
 
-short temppicnum, tempcstat, templotag, temphitag, tempextra;
-unsigned char temppal, tempvis, tempxrepeat, tempyrepeat;
-signed char tempshade;
+int temppicnum, tempcstat, templotag, temphitag, tempextra;
+unsigned int temppal, tempvis, tempxrepeat, tempyrepeat;
+int tempshade, tempxvel, tempyvel, tempzvel;
 unsigned char somethingintab = 255;
 
 int mlook = 0,mskip=0;
@@ -142,6 +142,7 @@ static int currentlist=0;
 static int fillist[640];
 
 int mousx, mousy;
+short prefixtiles[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 /*
 static char scantoasc[128] =
 {
@@ -4660,7 +4661,7 @@ void overheadeditor(void)
         for (i=0x02; i<=0x0b; i++)  // keys '1' to '0' on the upper row
             if (keystatus[i])
             {
-                prefixarg = i-1;
+                prefixarg = prefixtiles[i-2];
                 break;
             }
 
@@ -6793,6 +6794,12 @@ int getnumber256(char namestart[80], int num, int maxnumber, char sign)
         drawmasks();
 
         ch = bgetchar();
+
+        if (keystatus[0x1]) break;
+
+        clearkeys();
+
+        ExtCheckKeys();
 
         Bsprintf(buffer,"%s%d",namestart,danum);
         if (totalclock & 32) Bstrcat(buffer,"_ ");

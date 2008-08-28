@@ -37,9 +37,9 @@ extern short searchsector, searchwall, searchstat;
 extern int zmode, kensplayerheight;
 extern short defaultspritecstat;
 
-extern short temppicnum, tempcstat, templotag, temphitag, tempextra;
-extern unsigned char temppal, tempxrepeat, tempyrepeat;
-signed char tempshade;
+extern int temppicnum, tempcstat, templotag, temphitag, tempextra;
+extern unsigned int temppal, tempvis, tempxrepeat, tempyrepeat;
+extern int tempshade, tempxvel, tempyvel, tempzvel;
 extern unsigned char somethingintab;
 
 extern unsigned char buildkeys[NUMBUILDKEYS];
@@ -50,6 +50,7 @@ extern int pk_turnaccel,pk_turndecel,pk_uedaccel;
 extern int revertCTRL,scrollamount;
 extern int autosave;
 extern int mlook;
+extern short prefixtiles[16];
 
 extern int ExtInit(void);
 extern int ExtPreInit(int argc,const char **argv);

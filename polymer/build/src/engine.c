@@ -11172,37 +11172,32 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
         drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp2,midydim16+yp2,col);
         {
             int k = getangle(xp1-xp2, yp1-yp2);
-            int dax = ((wal->x+wall[wal->point2].x)>>1);
-            int day = ((wal->y+wall[wal->point2].y)>>1);
-            dax = mulscale14(dax-posxe,zoome);
-            day = mulscale14(day-posye,zoome);
-//            drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
+            int dax = mulscale14(((wal->x+wall[wal->point2].x)>>1)-posxe,zoome);
+            int day = mulscale14(((wal->y+wall[wal->point2].y)>>1)-posye,zoome);
+
             if (wal->nextsector >= 0)
             {
                 int ii = sector[sectorofwall(i)].floorz;
                 int jj = sector[wal->nextsector].floorz;
-                int dax2; 
-                int day2;
 
                 if (jj == ii)
                 {
-                    dax2 = mulscale11(sintable[(k+1024)&2047],zoome) / 2048;
-                    day2 = mulscale11(sintable[(k+512)&2047],zoome) / 2048;
-                    drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
-                    dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 1536;
-                    day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 1536;
-                    drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
+/*                    int dax3 = mulscale11(sintable[(k+1024)&2047],zoome) / 2048;
+                    int day3 = mulscale11(sintable[(k+512)&2047],zoome) / 2048;
+                    int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 1536;
+                    int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 1536;
+                    drawline16(halfxdim16+dax+dax3,midydim16+day+day3,halfxdim16+dax+dax2,midydim16+day+day2,col); */
                 }
                 else if (jj > ii)
                 {
-                    dax2 = mulscale11(sintable[(k+1024)&2047],zoome) / 2048;
-                    day2 = mulscale11(sintable[(k+512)&2047],zoome) / 2048;
+                    int dax2 = mulscale11(sintable[(k+1024)&2047],zoome) / 2048;
+                    int day2 = mulscale11(sintable[(k+512)&2047],zoome) / 2048;
                     drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
                 }
                 else
                 {
-                    dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 1536;
-                    day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 1536;
+                    int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 1536;
+                    int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 1536;
                     drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
                 }
             }
