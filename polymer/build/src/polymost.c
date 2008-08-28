@@ -728,19 +728,14 @@ void polymost_glinit()
         "MUL result.color, fragment.color, texsample;\n"
         "END\n";
 
-#if 1
-    if (!Bstrcmp(glinfo.vendor, "ATI Technologies Inc."))
-    {
-        initprintf("polymost_glinit(): ATI detected, GL_FOG_HINT = GL_DONT_CARE\n");
-        bglHint(GL_FOG_HINT,GL_DONT_CARE);
-    }
-    else
+    if (!Bstrcmp(glinfo.vendor, "NVIDIA Corporation"))
     {
         bglHint(GL_FOG_HINT,GL_NICEST);
     }
-#else
-    bglHint(GL_FOG_HINT,GL_DONT_CARE);
-#endif
+    else
+    {
+        bglHint(GL_FOG_HINT,GL_DONT_CARE);
+    }
 
     bglFogi(GL_FOG_MODE,GL_EXP2);
     bglFogf(GL_FOG_DENSITY,1.0); //must be > 0, default is 1

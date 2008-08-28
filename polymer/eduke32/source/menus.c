@@ -54,6 +54,9 @@ extern int voting;
 
 #define USERMAPENTRYLENGTH 25
 
+#define mgametext(x,y,t,s,dabits) gametext_z(2,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536)
+#define mgametextpal(x,y,t,s,p) gametext_z(2,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536)
+
 void cmenu(int cm)
 {
     current_menu = cm;
@@ -1855,23 +1858,25 @@ cheat_for_port_credits:
                     " ",
                     "Thanks to the following people for their contributions:",
                     " ",
-                    "Adam Fazakerley",
-                    "Charlie Honig",
-                    "Ed Coolidge",
-                    "Hunter_rus",
-                    "James Bentler",
-                    "Javier Martinez",
-                    "Jeff Hart",
-                    "Jonathan Smith",
-                    "Jose del Castillo",
-                    "Lachlan McDonald",
-                    "Matthew Palmer",
-                    "Ozkan Sezer",
-                    "Peter Green",
-                    "Peter Veenstra",
-                    "Philipp Kutin",
-                    "Ryan Gordon",
-                    "Stephen Anthony",
+                    "Adam Fazakerley",   // netcode stuff
+                    "Charlie Honig",     // showview command
+                    "Dan Gaskill",       // testing
+                    "Ed Coolidge",       // Mapster32 improvements
+                    "Hunter_rus",        // tons of shit
+                    "James Bentler",     // Mapster32 improvements
+                    "Javier Martinez",   // EDuke 2.1.1 stuff I think
+                    "Jeff Hart",         // website graphics
+                    "Jonathan Smith",    // testing
+                    "Jose del Castillo", // EDuke 2.1.1 stuff I think
+                    "Lachlan McDonald",  // official EDuke32 icon
+                    "Marcus Herbert",    // OSX compatibility work
+                    "Matthew Palmer",    // testing and eduke32.com domain
+                    "Ozkan Sezer",       // SDL/GTK version checking improvements
+                    "Peter Green",       // dynamic remapping, custom gametypes
+                    "Peter Veenstra",    // port to 64-bit
+                    "Philipp Kutin",     // Mapster32 improvements
+                    "Ryan Gordon",       // icculus.org Duke3D port sound code
+                    "Stephen Anthony",   // early 64-bit porting work
                     " ",
                     "EDuke originally by Matt Saettler",
                     " ",

@@ -3264,9 +3264,6 @@ static int SetupOpenGL(int width, int height, int bitspp)
         int err = 0;
 
         glinfo.vendor     = (char *)bglGetString(GL_VENDOR);
-        glinfo.renderer   = (char *)bglGetString(GL_RENDERER);
-        glinfo.version    = (char *)bglGetString(GL_VERSION);
-        glinfo.extensions = (char *)bglGetString(GL_EXTENSIONS);
 
         // GL driver blacklist
         if (!forcegl)
@@ -3274,17 +3271,23 @@ static int SetupOpenGL(int width, int height, int bitspp)
             if (!Bstrcmp(glinfo.vendor,"Microsoft Corporation")) err = 1;
             else if (!Bstrcmp(glinfo.vendor,"SiS")) err = 1;
             else if (!Bstrcmp(glinfo.vendor,"3Dfx Interactive Inc.")) err = 1;
+            else if (!Bstrcmp(glinfo.vendor,"Intel")) err = 1;
 
             if (err)
             {
                 OSD_Printf("Unsupported OpenGL driver. GL modes will be unavailable.\n");
                 ReleaseOpenGL();
+                unloadgldriver();
                 nogl = 1;
                 modeschecked = 0;
                 getvalidmodes();
                 return TRUE;
             }
         }
+
+        glinfo.renderer   = (char *)bglGetString(GL_RENDERER);
+        glinfo.version    = (char *)bglGetString(GL_VERSION);
+        glinfo.extensions = (char *)bglGetString(GL_EXTENSIONS);
 
         glinfo.maxanisotropy = 1.0;
         glinfo.bgra = 0;

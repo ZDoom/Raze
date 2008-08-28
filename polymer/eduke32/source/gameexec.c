@@ -58,7 +58,7 @@ void scriptinfo()
                 initprintf("\n%5d: %5d %s ",p-script,*p>>12,keyw[*p&0xFFF]);
             else
                 initprintf(" %d",*p);
-        }   
+        }
         initprintf("current actor: %d (%d)\n",g_i,g_sp->picnum);
         initprintf("line_num: %d, g_tw: %d\n",line_num,g_tw);
     }
@@ -8055,11 +8055,11 @@ static int parse(void)
         break;
 
     default:
-/*        OSD_Printf("fatal error: default processing: previous five values: %d, %d, %d, %d, %d, "
-                   "current opcode: %d, next five values: %d, %d, %d, %d, %d\ncurrent actor: %d (%d)\n",
-                   *(insptr-5),*(insptr-4),*(insptr-3),*(insptr-2),*(insptr-1),*insptr,*(insptr+1),
-                   *(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5),g_i,g_sp->picnum);
-        OSD_Printf("line_num: %d, g_tw: %d\n",line_num,g_tw);*/
+        /*        OSD_Printf("fatal error: default processing: previous five values: %d, %d, %d, %d, %d, "
+                           "current opcode: %d, next five values: %d, %d, %d, %d, %d\ncurrent actor: %d (%d)\n",
+                           *(insptr-5),*(insptr-4),*(insptr-3),*(insptr-2),*(insptr-1),*insptr,*(insptr+1),
+                           *(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5),g_i,g_sp->picnum);
+                OSD_Printf("line_num: %d, g_tw: %d\n",line_num,g_tw);*/
         scriptinfo();
 
         gameexit("An error has occurred in the EDuke32 CON executor.\n\n"

@@ -120,7 +120,7 @@ extern int lastvisinc;
 int g_Shareware = 0;
 int g_GameType = 0;
 
-#define MAXUSERQUOTES 4
+#define MAXUSERQUOTES 6
 static int quotebot, quotebotgoal;
 static int user_quote_time[MAXUSERQUOTES];
 static char user_quote[MAXUSERQUOTES][178];
@@ -366,7 +366,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
             y+=(y-oy)<<16;
             ox=x;oy=y;
         }
-        rotatesprite(x<<shift,(y<<shift)+((small&4)?ud.config.ScreenHeight<<15:0),z,0,ac,s,p,(small&1)?(8|16):(2|orientation),x1,y1,x2,y2);
+        rotatesprite(x<<shift,(y<<shift),z,0,ac,s,p,(small&1)?(8|16|(orientation&1)|(orientation&32)):(2|orientation),x1,y1,x2,y2);
 
         if ((*t >= '0' && *t <= '9'))
             x += (8)*z/65536;
@@ -411,9 +411,9 @@ int gametextlen(int x,const char *t)
 
 static inline int mpgametext(int y,const char *t,int s,int dabits)
 {
-    if (xdim >= 640 && ydim >= 480)
-        return(gametext_z(5,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
-    return(gametext_z(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
+    if (xdim < 640 || ydim < 480)
+        return(gametext_z(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
+    return(gametext_z(1,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
 }
 
 int minitext_(int x,int y,const char *t,int s,int p,int sb)
@@ -2625,30 +2625,55 @@ static void ShowCoordinates(int snum)
 
 static void operatefta(void)
 {
-    int i, j = 200-45, k, l;
+    int i, j, k, l;
 
-    if (ud.screen_size < 1) j = 200-8;
+    k = 1;
+    if (GTFLAGS(GAMETYPE_FLAG_FRAGBAR) && ud.screen_size > 0 && ud.multimode > 1)
+    {
+        j = 0;
+        k += 8;
+        for (i=connecthead;i>=0;i=connectpoint2[i])
+            if (i > j) j = i;
+
+        if (j >= 4 && j <= 8) k += 8;
+        else if (j > 8 && j <= 12) k += 16;
+        else if (j > 12) k += 24;
+    }
+
+    if (g_player[screenpeek].ps->fta > 1 && (g_player[screenpeek].ps->ftq < 115 || g_player[screenpeek].ps->ftq > 117))
+    {
+        if (g_player[screenpeek].ps->fta > 3)
+            k += 7;
+        else k += g_player[screenpeek].ps->fta<<1; /*if (g_player[screenpeek].ps->fta > 2)
+            k += 3;
+        else k += 1; */
+    }
+
+    if (xdim >= 640 && ydim >= 480)
+        k = scale(k,ydim,200);
+
+    j = k;
 
     quotebot = min(quotebot,j);
     quotebotgoal = min(quotebotgoal,j);
-    if (g_player[myconnectindex].ps->gm&MODE_TYPE) j -= 8;
+//    if (g_player[myconnectindex].ps->gm&MODE_TYPE) j -= 8;
     quotebotgoal = j;
     j = quotebot;
-    for (i=0;i<MAXUSERQUOTES;i++)
+    for (i=MAXUSERQUOTES-1;i>=0;i--)
     {
-        if (user_quote_time[i] <= 0) break;
+        if (user_quote_time[i] <= 0) continue;
         k = user_quote_time[i];
+        if (k > 4) { mpgametext(j,user_quote[i],0,2+8+16); j += 8; }
+        else if (k > 2) { mpgametext(j,user_quote[i],0,2+8+16+1); j += k<<1; }
+        else { mpgametext(j,user_quote[i],0,2+8+16+1+32); j += k<<1; }
         l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(user_quote[i],tempbuf));
         while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
         {
             l -= (ud.config.ScreenWidth-USERQUOTE_RIGHTOFFSET);
-            j -= 8;
+            if (k > 4) j += 8;
+            else j += k<<1;
+
         }
-        if (k > 4)
-            mpgametext(j,user_quote[i],0,2+8+16);
-        else if (k > 2) mpgametext(j,user_quote[i],0,2+8+16+1);
-        else mpgametext(j,user_quote[i],0,2+8+16+1+32);
-        j -= 8;
     }
 
     if ((klabs(quotebotgoal-quotebot) <= 16) && (ud.screen_size <= 8))
@@ -2665,7 +2690,12 @@ static void operatefta(void)
     }
 
     k = 0;
-    if (GTFLAGS(GAMETYPE_FLAG_FRAGBAR) && ud.screen_size > 0 && ud.multimode > 1)
+
+    if (g_player[screenpeek].ps->ftq == 115 || g_player[screenpeek].ps->ftq == 116 || g_player[screenpeek].ps->ftq == 117)
+    {
+        k = 140;//quotebot-8-4;
+    }
+    else if (GTFLAGS(GAMETYPE_FLAG_FRAGBAR) && ud.screen_size > 0 && ud.multimode > 1)
     {
         j = 0;
         k = 8;
@@ -2677,18 +2707,10 @@ static void operatefta(void)
         else if (j > 12) k += 24;
     }
 
-    if (g_player[screenpeek].ps->ftq == 115 || g_player[screenpeek].ps->ftq == 116 || g_player[screenpeek].ps->ftq == 117)
-    {
-        k = quotebot-8-4;
-    }
-
     j = g_player[screenpeek].ps->fta;
-    if (j > 4)
-        gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16);
-    else
-        if (j > 2) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16+1);
-        else
-            gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16+1+32);
+    if (j > 4) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16);
+    else if (j > 2) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16+1);
+    else gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16+1+32);
 }
 
 void FTA(int q, player_struct *p)
@@ -2905,7 +2927,7 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
     {
         if (g_player[myconnectindex].ps->gm&MODE_TYPE)
             x = mpgametext(y,t,c,2+8+16);
-        else x = mgametext(x,y,t,c,2+8+16);
+        else x = gametext(x,y,t,c,2+8+16);
     }
     c = 4-(sintable[(totalclock<<4)&2047]>>11);
 
@@ -2916,7 +2938,7 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
         y += 8;
     }
 
-    rotatesprite((x+((small&1)?4:8))<<16,((y+((small&1)?0:4))<<16)+((small&1)?ud.config.ScreenHeight<<15:0),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8,0,0,xdim-1,ydim-1);
+    rotatesprite((x+((small&1)?4:8))<<16,((y+((small&1)?0:4))<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8,0,0,xdim-1,ydim-1);
     return (0);
 }
 
@@ -2925,16 +2947,11 @@ inline int strget(int x,int y,char *t,int dalen,int c)
     return(strget_(0,x,y,t,dalen,c));
 }
 
-inline int strgetsm(int x,int y,char *t,int dalen,int c)
-{
-    return(strget_(1,x,y,t,dalen,c));
-}
-
 inline int mpstrget(int x,int y,char *t,int dalen,int c)
 {
-    if (xdim >= 640 && ydim >= 480)
-        return(strgetsm(x,y,t,dalen,c));
-    return(strget(x,y,t,dalen,c));
+    if (xdim < 640 || ydim < 480)
+        return(strget_(0,x,y,t,dalen,c));
+    return(strget_(1,x,y,t,dalen,c));
 }
 
 static void typemode(void)
@@ -3071,13 +3088,20 @@ static void typemode(void)
     }
     else
     {
-        if (ud.screen_size > 0) j = 200-45;
+        if (ud.screen_size > 1) j = 200-45;
         else j = 200-8;
+        if (xdim >= 640 && ydim >= 480)
+            j = scale(j,ydim,200);
         hitstate = mpstrget(320>>1,j,typebuf,120,1);
 
         if (hitstate == 1)
         {
             KB_ClearKeyDown(sc_Enter);
+            if (Bstrlen(typebuf) == 0)
+            {
+                g_player[myconnectindex].ps->gm &= ~(MODE_TYPE|MODE_SENDTOWHOM);
+                return;
+            }
             if (ud.automsg)
             {
                 if (SHIFTS_IS_PRESSED) sendmessagecommand = -1;
@@ -3780,11 +3804,6 @@ void displayrest(int smoothratio)
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
         menutext(160,100,0,0,"GAME PAUSED");
 
-    if (g_player[myconnectindex].ps->gm&MODE_TYPE)
-        typemode();
-    else
-        menus();
-
     if (ud.coords)
         ShowCoordinates(screenpeek);
 
@@ -3844,6 +3863,12 @@ void displayrest(int smoothratio)
         else Bsprintf(tempbuf,"S:^15%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
         gametext_z(9,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-7,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
     }
+
+    if (g_player[myconnectindex].ps->gm&MODE_TYPE)
+        typemode();
+    else
+        menus();
+
     if (tintf > 0 || dotint) palto(tintr,tintg,tintb,tintf|128);
 }
 
