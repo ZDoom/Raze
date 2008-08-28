@@ -1599,7 +1599,7 @@ static void invennum(int x,int y,char num1,char ha,char sbits)
     Bsprintf(dabuf,"%d",num1);
     if (num1 > 99)
     {
-        if (shd)
+        if (shd && althud_shadows)
         {
             rotatesprite(sbarx(x-4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
             rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
@@ -1612,7 +1612,7 @@ static void invennum(int x,int y,char num1,char ha,char sbits)
     }
     if (num1 > 9)
     {
-        if (shd)
+        if (shd && althud_shadows)
         {
             rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
             rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
@@ -1868,7 +1868,7 @@ static void altdigitalnumber(int x,int y,int n,char s,char cs)
         for (k=0;k<i;k++)
         {
             p = althud_numbertile+*(b+k)-'0';
-            if (shd)
+            if (shd && althud_shadows)
                 rotatesprite(sbarxr(c+j-1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|1|32,0,0,xdim-1,ydim-1);
             rotatesprite(sbarxr(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs,0,0,xdim-1,ydim-1);
             j -= tilesizx[p]+1;
@@ -1879,7 +1879,7 @@ static void altdigitalnumber(int x,int y,int n,char s,char cs)
     for (k=0;k<i;k++)
     {
         p = althud_numbertile+*(b+k)-'0';
-        if (shd)
+        if (shd && althud_shadows)
             rotatesprite(sbarx(c+j+1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|1|32,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs,0,0,xdim-1,ydim-1);
         j += tilesizx[p]+1;
