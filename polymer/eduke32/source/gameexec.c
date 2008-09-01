@@ -5590,20 +5590,48 @@ static int parse(void)
                 Bstrcpy(fta_quotes[i],fta_quotes[j]);
                 break;
             case CON_CHANGESPRITESTAT:
-                if ((i<0 || i>=MAXSPRITES) && checkCON) {OSD_Printf(CON_ERROR "Invalid sprite %d\n",line_num,keyw[g_tw],i);break;}
-                if ((j<0 || j>=MAXSTATUS) && checkCON) {OSD_Printf(CON_ERROR "Invalid status %d\n",line_num,keyw[g_tw],j);break;}
+                if ((i<0 || i>=MAXSPRITES) && checkCON)
+                {
+                    OSD_Printf(CON_ERROR "Invalid sprite: %d\n",line_num,keyw[g_tw],i);
+                    break;
+                }
+                if ((j<0 || j>=MAXSTATUS) && checkCON)
+                {
+                    OSD_Printf(CON_ERROR "Invalid statnum: %d\n",line_num,keyw[g_tw],j);
+                    break;
+                }
+                if (sprite[i].statnum == j) break;
                 /* initialize actor pointers when changing to an actor statnum because they usually
                    have garbage left over from being handled as a hard coded object */
+
                 if ((j == 1 || j == 2) && actorscrptr[sprite[i].picnum])
                 {
                     T5 = *(actorscrptr[sprite[i].picnum]+1);
                     T2 = *(actorscrptr[sprite[i].picnum]+2);
                     sprite[i].hitag = *(actorscrptr[sprite[i].picnum]+3);
+                    hittype[i].lastvx = 0;
+                    hittype[i].lastvy = 0;
+                    hittype[i].timetosleep = 0;
+                    hittype[i].cgg = 0;
+                    hittype[i].movflag = 0;
+                    hittype[i].tempang = 0;
+                    hittype[i].dispicnum = 0;
+                    T1=T3=T4=T6=T7=T8=T9=0;
+                    hittype[i].flags = 0;
                 }
                 else
                 {
                     T2=T5=0;
                     sprite[i].hitag = 0;
+                    hittype[i].lastvx = 0;
+                    hittype[i].lastvy = 0;
+                    hittype[i].timetosleep = 0;
+                    hittype[i].cgg = 0;
+                    hittype[i].movflag = 0;
+                    hittype[i].tempang = 0;
+                    hittype[i].dispicnum = 0;
+                    T1=T3=T4=T6=T7=T8=T9=0;
+                    hittype[i].flags = 0;
                 }
                 changespritestat(i,j);
                 break;
