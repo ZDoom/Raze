@@ -1268,7 +1268,7 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
     unsigned int padx=0, pady=0;
     GLuint gi;
 
-    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache) {OSD_Printf("\n");return;}
+    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache) return;
     if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
     {
         // lacking the necessary extensions to do this
@@ -1700,7 +1700,7 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
     pth->skyface = facen;
     pth->hicr = hicr;
 
-    if (glinfo.texcompr && glusetexcompr && !(hicr->flags & 1))
+    if (glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & 1))
     if (cachefil < 0)
     {
         // save off the compressed version

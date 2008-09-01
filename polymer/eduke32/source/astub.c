@@ -2960,7 +2960,7 @@ static void Keys3d(void)
         rotatesprite(160<<16,170<<16,65536,(100-horiz+1024)<<3,1153,0,0,2,0,0,0,0);
 
     }
-*/
+    */
 
     if (usedcount && !helpon)
     {
@@ -9463,6 +9463,7 @@ typedef struct
     short *headspritestat;
     short *prevspritestat;
     short *nextspritestat;
+    int revision;
 } mapundo_t;
 
 mapundo_t undoredo[UNDODEPTH];

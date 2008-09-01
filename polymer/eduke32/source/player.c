@@ -3339,7 +3339,7 @@ void processinput(int snum)
     /* wtf is this supposed to do? */
     if ((lz&49152) == 16384 && psectlotag == 1 && truefdist > PHEIGHT+(16<<8))
         psectlotag = 0;
-    
+
     hittype[pi].floorz = fz;
     hittype[pi].ceilingz = cz;
 

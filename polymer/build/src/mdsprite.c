@@ -846,6 +846,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
+    if (glinfo.texcompr && glusetexcompr && glusetexcache)
     if (cachefil < 0)
     {
         // save off the compressed version

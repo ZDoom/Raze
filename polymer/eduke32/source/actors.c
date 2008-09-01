@@ -502,10 +502,10 @@ int movesprite(int spritenum, int xchange, int ychange, int zchange, unsigned in
         {
             sprite[spritenum].x = oldx;
             sprite[spritenum].y = oldy;
-/*            if (dasectnum >= 0 && sector[dasectnum].lotag == 1 && sprite[spritenum].picnum == LIZMAN)
-                sprite[spritenum].ang = (TRAND&2047);
-            else if ((hittype[spritenum].temp_data[0]&3) == 1 && sprite[spritenum].picnum != COMMANDER)
-                sprite[spritenum].ang = (TRAND&2047); */
+            /*            if (dasectnum >= 0 && sector[dasectnum].lotag == 1 && sprite[spritenum].picnum == LIZMAN)
+                            sprite[spritenum].ang = (TRAND&2047);
+                        else if ((hittype[spritenum].temp_data[0]&3) == 1 && sprite[spritenum].picnum != COMMANDER)
+                            sprite[spritenum].ang = (TRAND&2047); */
             setsprite(spritenum,oldx,oldy,sprite[spritenum].z);
             if (dasectnum < 0) dasectnum = 0;
             return (16384+dasectnum);
@@ -2409,7 +2409,8 @@ static void moveweapons(void)
                         break;
                 }
 
-                if (!(hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS) && s->yvel >= 0 && sprite[s->yvel].sectnum < MAXSECTORS)
+                if (!(hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS) &&
+                        s->yvel >= 0 && sprite[s->yvel].sectnum < MAXSECTORS)
                     if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
                         j = 49152|s->yvel;
 
@@ -2438,8 +2439,10 @@ static void moveweapons(void)
                                 sprite[k].y = day;
                                 sprite[k].z = daz;
 
-                                if (hittype[i].projectile.sxrepeat > 4) sprite[k].xrepeat=hittype[i].projectile.sxrepeat;
-                                if (hittype[i].projectile.syrepeat > 4) sprite[k].yrepeat=hittype[i].projectile.syrepeat;
+                                if (hittype[i].projectile.sxrepeat > 4)
+                                    sprite[k].xrepeat=hittype[i].projectile.sxrepeat;
+                                if (hittype[i].projectile.syrepeat > 4)
+                                    sprite[k].yrepeat=hittype[i].projectile.syrepeat;
                             }
                             if (hittype[i].projectile.isound > -1)
                                 spritesound(hittype[i].projectile.isound,i);
@@ -2470,8 +2473,10 @@ static void moveweapons(void)
                             sprite[k].y = day;
                             sprite[k].z = daz;
 
-                            if (hittype[i].projectile.sxrepeat > 4) sprite[k].xrepeat=hittype[i].projectile.sxrepeat;
-                            if (hittype[i].projectile.syrepeat > 4) sprite[k].yrepeat=hittype[i].projectile.syrepeat;
+                            if (hittype[i].projectile.sxrepeat > 4)
+                                sprite[k].xrepeat=hittype[i].projectile.sxrepeat;
+                            if (hittype[i].projectile.syrepeat > 4)
+                                sprite[k].yrepeat=hittype[i].projectile.syrepeat;
                         }
                         if (hittype[i].projectile.isound > -1)
                             spritesound(hittype[i].projectile.isound,i);
@@ -2507,33 +2512,14 @@ static void moveweapons(void)
                             }
                     }
 
-                /*                if(hittype[i].projectile.workslike & 8192)
-                                {
-                                    for(k=-3;k<2;k++)
-                                    {
-
-                                        x = EGS(s->sectnum,
-                                                s->x+((k*sintable[(s->ang+512)&2047])>>9),
-                                                s->y+((k*sintable[s->ang&2047])>>9),
-                                                s->z+((k*ksgn(s->zvel))*klabs(s->zvel/24)),s->picnum,-40+(k<<2), // FIRELASER
-                                                s->xrepeat,s->yrepeat,0,0,0,s->owner,5);
-
-                                        sprite[x].cstat = 128;
-                                        sprite[x].pal = s->pal;
-
-                                    }
-                                }
-                                else */
-
-                if (hittype[i].projectile.workslike & PROJECTILE_FLAG_WATERBUBBLES && sector[s->sectnum].lotag == 2 && rnd(140))
+                if (hittype[i].projectile.workslike & PROJECTILE_FLAG_WATERBUBBLES &&
+                        sector[s->sectnum].lotag == 2 && rnd(140))
                     spawn(i,WATERBUBBLE);
 
                 if (j != 0)
                 {
                     if (hittype[i].projectile.workslike & PROJECTILE_FLAG_COOLEXPLOSION1)
                     {
-                        /*                        if( (j&49152) == 49152 && sprite[j&(MAXSPRITES-1)].picnum != APLAYER)
-                                                    goto BOLT; */
                         s->xvel = 0;
                         s->zvel = 0;
                     }
@@ -2541,17 +2527,6 @@ static void moveweapons(void)
                     if ((j&49152) == 49152)
                     {
                         j &= (MAXSPRITES-1);
-
-                        /*                        if(hittype[i].projectile.workslike & PROJECTILE_FLAG_FREEZEBLAST && sprite[j].pal == 1 )
-                                                    if( badguy(&sprite[j]) || sprite[j].picnum == APLAYER )
-                                                    {
-                                                        j = spawn(i,TRANSPORTERSTAR);
-                                                        sprite[j].pal = 1;
-                                                        sprite[j].xrepeat = 32;
-                                                        sprite[j].yrepeat = 32;
-
-                                                        KILLIT(i);
-                                                    }*/
 
                         if (hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFSPRITES)
                         {
@@ -2614,8 +2589,10 @@ static void moveweapons(void)
                                 sprite[k].y = day;
                                 sprite[k].z = daz;
 
-                                if (hittype[i].projectile.sxrepeat > 4) sprite[k].xrepeat=hittype[i].projectile.sxrepeat;
-                                if (hittype[i].projectile.syrepeat > 4) sprite[k].yrepeat=hittype[i].projectile.syrepeat;
+                                if (hittype[i].projectile.sxrepeat > 4)
+                                    sprite[k].xrepeat=hittype[i].projectile.sxrepeat;
+                                if (hittype[i].projectile.syrepeat > 4)
+                                    sprite[k].yrepeat=hittype[i].projectile.syrepeat;
                             }
 
                             if (hittype[i].projectile.isound > -1)
@@ -2631,7 +2608,8 @@ static void moveweapons(void)
                     {
                         j &= (MAXWALLS-1);
 
-                        if (hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFMIRRORS && (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
+                        if (hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFMIRRORS &&
+                                (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
                         {
                             k = getangle(
                                     wall[wall[j].point2].x-wall[j].x,
@@ -2674,9 +2652,8 @@ static void moveweapons(void)
 
                         if (s->zvel < 0)
                         {
-                            if (sector[s->sectnum].ceilingstat&1)
-                                if (sector[s->sectnum].ceilingpal == 0)
-                                    KILLIT(i);
+                            if (sector[s->sectnum].ceilingstat&1 && sector[s->sectnum].ceilingpal == 0)
+                                KILLIT(i);
 
                             checkhitceiling(s->sectnum);
                         }
@@ -2686,10 +2663,6 @@ static void moveweapons(void)
                             bounce(i);
                             ssp(i,qq);
 
-                            /*                            if(s->xrepeat > 8)
-                                                            s->xrepeat -= 2;
-                                                        if(s->yrepeat > 8)
-                                                            s->yrepeat -= 2;*/
                             s->yvel--;
 
                             if (hittype[i].projectile.bsound > -1)
@@ -2705,34 +2678,17 @@ static void moveweapons(void)
                         }
                     }
 
-                    if (hittype[i].projectile.workslike & PROJECTILE_FLAG_RPG)
+                    if (hittype[i].projectile.workslike & PROJECTILE_FLAG_RPG && hittype[i].projectile.spawns > 0)
                     {
-                        if (hittype[i].projectile.spawns > 0)
-                        {
-                            k = spawn(i,hittype[i].projectile.spawns);
-                            sprite[k].x = dax;
-                            sprite[k].y = day;
-                            sprite[k].z = daz;
+                        k = spawn(i,hittype[i].projectile.spawns);
+                        sprite[k].x = dax;
+                        sprite[k].y = day;
+                        sprite[k].z = daz;
 
-                            if (hittype[i].projectile.sxrepeat > 4) sprite[k].xrepeat=hittype[i].projectile.sxrepeat;
-                            if (hittype[i].projectile.syrepeat > 4) sprite[k].yrepeat=hittype[i].projectile.syrepeat;
-                        }
-                        /*                            if(s->xrepeat < 10)
-                                                    {
-                                                        sprite[k].xrepeat = 6;
-                                                        sprite[k].yrepeat = 6;
-                                                    }*/
-                        /*                        else if( (j&49152) == 16384)
-                                                {
-                                                    if( s->zvel > 0)
-                                                        spawn(i,EXPLOSION2BOT);
-                                                    else
-                                                    {
-                                                        sprite[k].cstat |= 8;
-                                                        sprite[k].z += (48<<8);
-                                                    }
-                                                }
-                        */
+                        if (hittype[i].projectile.sxrepeat > 4)
+                            sprite[k].xrepeat=hittype[i].projectile.sxrepeat;
+                        if (hittype[i].projectile.syrepeat > 4)
+                            sprite[k].yrepeat=hittype[i].projectile.syrepeat;
                     }
 
 
@@ -2752,33 +2708,19 @@ static void moveweapons(void)
                         if (hittype[i].projectile.isound > -1)
                             spritesound(hittype[i].projectile.isound,i);
 
-                        /*                            if(s->xrepeat >= 10)
-                                                    {*/
                         s->extra=hittype[i].projectile.extra;
                         if (hittype[i].projectile.extra_rand > 0)
                             s->extra += (TRAND&hittype[i].projectile.extra_rand);
 
-                        x = s->extra;
-                        hitradius(i,hittype[i].projectile.hitradius, x>>2,x>>1,x-(x>>2),x);
-                        /*                            }
-                                                    else
-                                                    {
-                                                        x = s->extra+(global_random&3);
-                                                        hitradius( i,(hittype[i].projectile.hitradius>>1),x>>2,x>>1,x-(x>>2),x);
-                                                    }*/
-                        //                        if (!(hittype[i].projectile.workslike & PROJECTILE_FLAG_COOLEXPLOSION1))
+                        hitradius(i,hittype[i].projectile.hitradius,
+                                  s->extra>>2,s->extra>>1,s->extra-(s->extra>>2),s->extra);
                         KILLIT(i);
                     }
                 }
-
-
                 goto BOLT;
-
-
             }
         }
         else
-
         {
 
             // here

@@ -1204,7 +1204,8 @@ static int skipcomments(void)
             else textptr+=2;
         }
         else break;
-    } while ((c = *textptr));
+    }
+    while ((c = *textptr));
 
     if ((unsigned)(scriptptr-script) > (unsigned)(g_ScriptSize-32))
         return increasescriptsize(g_ScriptSize<<1);
@@ -2155,11 +2156,11 @@ static int parsecommand(void)
         i = HASH_find(&labelH,label+(labelcnt<<6));
         if (i>=0)
         {
-/*            if (i >= defaultlabelcnt)
-            {
-                warning++;
-                ReportError(WARNING_DUPLICATEDEFINITION);
-            } */
+            /*            if (i >= defaultlabelcnt)
+                        {
+                            warning++;
+                            ReportError(WARNING_DUPLICATEDEFINITION);
+                        } */
         }
 
         //printf("Translating. '%.20s'\n",textptr);
@@ -5675,23 +5676,23 @@ void loadefs(const char *filenam)
     if (warning|error)
         initprintf("Found %d warning(s), %d error(s).\n",warning,error);
 
-/*    if (error == 0 && warning != 0)
-    {
-        if (groupfile != -1 && loadfromgrouponly == 0)
+    /*    if (error == 0 && warning != 0)
         {
-            initprintf("Warning(s) found in file `%s'.  Do you want to use the INTERNAL DEFAULTS (y/N)?",filenam);
-
-            i=wm_ynbox("CON File Compilation Warning", "Warning(s) found in file `%s'. Do you want to use the "
-                       "INTERNAL DEFAULTS?",filenam);
-            if (i) i = 'y';
-            if (i == 'y' || i == 'Y')
+            if (groupfile != -1 && loadfromgrouponly == 0)
             {
-                loadfromgrouponly = 1;
-                initprintf(" Yes\n");
-                return;
+                initprintf("Warning(s) found in file `%s'.  Do you want to use the INTERNAL DEFAULTS (y/N)?",filenam);
+
+                i=wm_ynbox("CON File Compilation Warning", "Warning(s) found in file `%s'. Do you want to use the "
+                           "INTERNAL DEFAULTS?",filenam);
+                if (i) i = 'y';
+                if (i == 'y' || i == 'Y')
+                {
+                    loadfromgrouponly = 1;
+                    initprintf(" Yes\n");
+                    return;
+                }
             }
-        }
-    } */
+        } */
 
     if (error)
     {
