@@ -42,6 +42,7 @@ int32 lastcontroltime; //MED
 void setpal(player_struct *p)
 {
     if (p->heat_on) p->palette = slimepal;
+    else if (p->cursectnum < 0) p->palette = palette;
     else if ((sector[p->cursectnum].ceilingpicnum >= FLOORSLIME)&&(sector[p->cursectnum].ceilingpicnum <=FLOORSLIME+2))
     {
         p->palette = slimepal;
@@ -50,7 +51,6 @@ void setpal(player_struct *p)
     {
         if (sector[p->cursectnum].lotag == 2) p->palette = waterpal;
         else p->palette = palette;
-
     }
     restorepalette = 1;
 }
@@ -502,7 +502,7 @@ int shoot(int i,int atwith)
                             hittype[k].temp_data[7] = hitsect;
                             hittype[k].temp_data[8] = hitspr;
                         }
-                        if (projectile[atwith].sound > -1) spritesound(projectile[atwith].sound,j);
+                        if (projectile[atwith].sound >= 0) spritesound(projectile[atwith].sound,j);
                     }
 
                     if (p >= 0 && g_player[p].ps->steroids_amount > 0 && g_player[p].ps->steroids_amount < 400)
@@ -650,7 +650,7 @@ int shoot(int i,int atwith)
 
             if ((projectile[atwith].range > 0) && ((klabs(sx-hitx)+klabs(sy-hity)) > projectile[atwith].range)) return -1;
 
-            if (projectile[atwith].trail > -1)
+            if (projectile[atwith].trail >= 0)
                 hitscantrail(sx,sy,sz,hitx,hity,hitz,sa,atwith);
 
             if (projectile[atwith].workslike & PROJECTILE_FLAG_WATERBUBBLES)
@@ -898,7 +898,7 @@ DOSKIPBULLETHOLE:
                 }
                 //                else zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*81;
                 else zvel = ((100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*(projectile[atwith].vel/8));
-                if (projectile[atwith].sound > -1) spritesound(projectile[atwith].sound,i);
+                if (projectile[atwith].sound >= 0) spritesound(projectile[atwith].sound,i);
             }
             else
             {
@@ -1908,8 +1908,9 @@ static int animatefist(int gs,int snum)
 
     if (sprite[g_player[snum].ps->i].pal == 1)
         fistpal = 1;
-    else
+    else if (g_player[snum].ps->cursectnum >= 0)
         fistpal = sector[g_player[snum].ps->cursectnum].floorpal;
+    else fistpal = 0;
 
     rotatesprite(
         (-fisti+222+(g_player[snum].sync->avel>>4))<<16,
@@ -1922,7 +1923,7 @@ static int animatefist(int gs,int snum)
 static int animateknee(int gs,int snum)
 {
     static signed char knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
-    int looking_arc, pal;
+    int looking_arc, pal = g_player[snum].ps->palookup;
 
     if (g_player[snum].ps->knee_incs > 11 || g_player[snum].ps->knee_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
 
@@ -1932,7 +1933,7 @@ static int animateknee(int gs,int snum)
 
     if (sprite[g_player[snum].ps->i].pal == 1)
         pal = 1;
-    else
+    else if (g_player[snum].ps->cursectnum >= 0)
     {
         pal = sector[g_player[snum].ps->cursectnum].floorpal;
         if (pal == 0)
@@ -1947,7 +1948,7 @@ static int animateknee(int gs,int snum)
 static int animateknuckles(int gs,int snum)
 {
     static char knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
-    int looking_arc, pal;
+    int looking_arc, pal = 0;
 
     if (g_player[snum].ps->knuckle_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
 
@@ -1957,7 +1958,7 @@ static int animateknuckles(int gs,int snum)
 
     if (sprite[g_player[snum].ps->i].pal == 1)
         pal = 1;
-    else
+    else if (g_player[snum].ps->cursectnum >= 0)
         pal = sector[g_player[snum].ps->cursectnum].floorpal;
 
     myospal(160+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),looking_arc+180-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),CRACKKNUCKLES+knuckle_frames[g_player[snum].ps->knuckle_incs>>1],gs,4,pal);
@@ -2053,7 +2054,7 @@ void displaymasks(int snum)
 
     if (sprite[g_player[snum].ps->i].pal == 1)
         p = 1;
-    else if (g_player[snum].ps->cursectnum > -1)
+    else if (g_player[snum].ps->cursectnum >= 0)
         p = sector[g_player[snum].ps->cursectnum].floorpal;
     else p = 0;
 
@@ -2205,7 +2206,7 @@ void displayweapon(int snum)
                 pal = 1;
             else
             {
-                if (p->cursectnum > -1)
+                if (p->cursectnum >= 0)
                     pal = sector[p->cursectnum].floorpal;
                 if (pal == 0)
                     pal = p->palookup;
@@ -2254,7 +2255,7 @@ void displayweapon(int snum)
                             pal = 1;
                         else
                         {
-                            if (p->cursectnum > -1)
+                            if (p->cursectnum >= 0)
                                 pal = sector[p->cursectnum].floorpal;
                             if (pal == 0)
                                 pal = p->palookup;
@@ -2278,7 +2279,7 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else if (p->cursectnum > -1)
+                    else if (p->cursectnum >= 0)
                         pal = sector[p->cursectnum].floorpal;
                     else pal = 0;
 
@@ -2308,7 +2309,7 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else if (p->cursectnum > -1)
+                    else if (p->cursectnum >= 0)
                         pal = sector[p->cursectnum].floorpal;
                     else pal = 0;
 
@@ -2337,7 +2338,7 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else if (p->cursectnum > -1)
+                    else if (p->cursectnum >= 0)
                         pal = sector[p->cursectnum].floorpal;
                     else pal = 0;
 
@@ -2423,7 +2424,7 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else if (p->cursectnum > -1)
+                    else if (p->cursectnum >= 0)
                         pal = sector[p->cursectnum].floorpal;
                     else pal = 0;
 
@@ -2474,7 +2475,7 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else if (p->cursectnum > -1)
+                    else if (p->cursectnum >= 0)
                         pal = sector[p->cursectnum].floorpal;
                     else pal = 0;
 
@@ -2529,7 +2530,7 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else if (p->cursectnum > -1)
+                    else if (p->cursectnum >= 0)
                         pal = sector[p->cursectnum].floorpal;
                     else pal = 0;
 
@@ -2566,7 +2567,7 @@ void displayweapon(int snum)
                     static char remote_frames[] = {0,1,1,2,1,1,0,0,0,0,0};
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else if (p->cursectnum > -1)
+                    else if (p->cursectnum >= 0)
                         pal = sector[p->cursectnum].floorpal;
                     else pal = 0;
 
@@ -2587,7 +2588,7 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else if (p->cursectnum > -1)
+                    else if (p->cursectnum >= 0)
                         pal = sector[p->cursectnum].floorpal;
                     else pal = 0;
 
@@ -2624,7 +2625,7 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else if (p->cursectnum > -1)
+                    else if (p->cursectnum >= 0)
                         pal = sector[p->cursectnum].floorpal;
                     else pal = 0;
 
@@ -2655,7 +2656,7 @@ void displayweapon(int snum)
                     looking_arc += 18;
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else if (p->cursectnum > -1)
+                    else if (p->cursectnum >= 0)
                         pal = sector[p->cursectnum].floorpal;
                     else pal = 0;
                     {
@@ -2698,7 +2699,7 @@ void displayweapon(int snum)
                     looking_arc += 18;
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else if (p->cursectnum > -1)
+                    else if (p->cursectnum >= 0)
                         pal = sector[p->cursectnum].floorpal;
                     else pal = 0;
                     if (((*kb) > 0) && ((*kb) < aplWeaponTotalTime[p->curr_weapon][snum]))
@@ -3207,7 +3208,7 @@ static int doincrements(player_struct *p)
         }
     }
 
-    if (p->cursectnum > -1 && p->scuba_on == 0 && sector[p->cursectnum].lotag == 2)
+    if (p->cursectnum >= 0 && p->scuba_on == 0 && sector[p->cursectnum].lotag == 2)
     {
         if (p->scuba_amount > 0)
         {
@@ -3335,11 +3336,10 @@ void processinput(int snum)
 
     truefdist = klabs(p->posz-j);
 
-    /* wtf is this supposed to do?
+    /* wtf is this supposed to do? */
     if ((lz&49152) == 16384 && psectlotag == 1 && truefdist > PHEIGHT+(16<<8))
         psectlotag = 0;
-    */
-
+    
     hittype[pi].floorz = fz;
     hittype[pi].ceilingz = cz;
 
@@ -4006,7 +4006,7 @@ void processinput(int snum)
         else
         {
             if (p->footprintcount > 0 && p->on_ground)
-                if (p->cursectnum > -1 && (sector[p->cursectnum].floorstat&2) != 2)
+                if (p->cursectnum >= 0 && (sector[p->cursectnum].floorstat&2) != 2)
                 {
                     for (j=headspritesect[psect];j>=0;j=nextspritesect[j])
                         if (sprite[j].picnum == FOOTPRINTS || sprite[j].picnum == FOOTPRINTS2 || sprite[j].picnum == FOOTPRINTS3 || sprite[j].picnum == FOOTPRINTS4)
@@ -4016,7 +4016,7 @@ void processinput(int snum)
                     if (j < 0)
                     {
                         p->footprintcount--;
-                        if (p->cursectnum > -1 && sector[p->cursectnum].lotag == 0 && sector[p->cursectnum].hitag == 0)
+                        if (p->cursectnum >= 0 && sector[p->cursectnum].lotag == 0 && sector[p->cursectnum].hitag == 0)
                         {
                             switch (TRAND&3)
                             {
@@ -4059,7 +4059,7 @@ void processinput(int snum)
                 }
 
                 if ((p->posz+p->poszv) >= (fz-(i<<8)) && p->cursectnum >= 0)   // hit the ground
-                    if (psectlotag != 1)
+                    if (sector[p->cursectnum].lotag != 1)
                     {
                         if (p->falling_counter > 62) quickkill(p);
 
@@ -4422,7 +4422,7 @@ HORIZONLY:
     if (psectlotag == 1 || p->spritebridge == 1) i = (4L<<8);
     else i = (20L<<8);
 
-    if (p->cursectnum > -1 && sector[p->cursectnum].lotag == 2) k = 0;
+    if (p->cursectnum >= 0 && sector[p->cursectnum].lotag == 2) k = 0;
     else k = 1;
 
     if (ud.clipping)
@@ -4476,7 +4476,7 @@ HORIZONLY:
         }
     }
 
-    if (p->cursectnum > -1 && truefdist < PHEIGHT && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
+    if (p->cursectnum >= 0 && truefdist < PHEIGHT && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
         if (!isspritemakingsound(pi,DUKE_ONWATER))
             spritesound(DUKE_ONWATER,pi);
 

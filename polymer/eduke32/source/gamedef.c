@@ -1684,6 +1684,7 @@ static void transvartype(int type)
     {
         ReportError(-1);
         initprintf("%s:%d: warning: found local gamevar `%s' used within %s; expect multiplayer synchronization issues.\n",compilefile,line_number,label+(labelcnt<<6),parsing_event?"a synced event":"an actor");
+        warning++;
     }
     if (!(error || warning) && g_ScriptDebug > 1)
         initprintf("%s:%d: debug: accepted gamevar `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
@@ -1765,6 +1766,7 @@ static int transnum(int type)
         gl = (char *)translatelabeltype(labeltype[i]);
         ReportError(-1);
         initprintf("%s:%d: warning: expected a %s, found a %s.\n",compilefile,line_number,el,gl);
+        warning++;
         Bfree(el);
         Bfree(gl);
         return -1;  // valid label name, but wrong type
@@ -1781,7 +1783,7 @@ static int transnum(int type)
     if (isdigit(*textptr) && labelsonly)
     {
         ReportError(WARNING_LABELSONLY);
-        //         warning++;
+        warning++;
     }
     if (!(error || warning) && g_ScriptDebug > 1)
         initprintf("%s:%d: debug: accepted constant %d.\n",compilefile,line_number,atol(textptr));
@@ -1845,7 +1847,7 @@ static int parsecommand(void)
         exit(0);
     }
 
-    if ((error+warning) > 63 || (*textptr == '\0') || (*(textptr+1) == '\0')) return 1;
+    if (error > 63 || (*textptr == '\0') || (*(textptr+1) == '\0')) return 1;
 
     if (g_ScriptDebug)
         ReportError(-1);
@@ -1894,7 +1896,7 @@ static int parsecommand(void)
         i = HASH_find(&gamevarH,label+(labelcnt<<6));
         if (i>=0)
         {
-//           warning++;
+            warning++;
             ReportError(WARNING_NAMEMATCHESVAR);
         }
 
@@ -1917,6 +1919,7 @@ static int parsecommand(void)
                 char *gl = (char *)translatelabeltype(labeltype[j]);
                 ReportError(-1);
                 initprintf("%s:%d: warning: expected a state, found a %s.\n",compilefile,line_number,gl);
+                warning++;
                 Bfree(gl);
                 *(scriptptr-1) = CON_NULLOP; // get rid of the state, leaving a nullop to satisfy if conditions
                 bitptr[(scriptptr-script-1)] = BITPTR_DONTFUCKWITHIT;
@@ -2117,7 +2120,7 @@ static int parsecommand(void)
         i = HASH_find(&gamevarH,label+(labelcnt<<6));
         if (i>=0)
         {
-//            warning++;
+            warning++;
             ReportError(WARNING_NAMEMATCHESVAR);
         }
 
@@ -2145,18 +2148,18 @@ static int parsecommand(void)
         i = HASH_find(&gamevarH,label+(labelcnt<<6));
         if (i>=0)
         {
-//            warning++;
+            warning++;
             ReportError(WARNING_NAMEMATCHESVAR);
         }
 
         i = HASH_find(&labelH,label+(labelcnt<<6));
         if (i>=0)
         {
-            if (i >= defaultlabelcnt)
+/*            if (i >= defaultlabelcnt)
             {
                 warning++;
                 ReportError(WARNING_DUPLICATEDEFINITION);
-            }
+            } */
         }
 
         //printf("Translating. '%.20s'\n",textptr);
@@ -2165,7 +2168,7 @@ static int parsecommand(void)
         if (i == -1)
         {
             //              printf("Defining Definition '%s' to be '%d'\n",label+(labelcnt<<6),*(scriptptr-1));
-            HASH_add(&labelH,label+(labelcnt<<6),labelcnt);
+            HASH_replace(&labelH,label+(labelcnt<<6),labelcnt);
             labeltype[labelcnt] = LABEL_DEFINE;
             labelcode[labelcnt++] = *(scriptptr-1);
             if (*(scriptptr-1) >= 0 && *(scriptptr-1) < MAXTILES && dynamicremap)
@@ -2196,7 +2199,10 @@ static int parsecommand(void)
         if (parsing_actor || parsing_state)
         {
             if (!CheckEventSync(current_event))
+            {
+                warning++;
                 ReportError(WARNING_EVENTSYNC);
+            }
 
             if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
             {
@@ -2204,6 +2210,7 @@ static int parsecommand(void)
                 bitptr[(scriptptr-script-1)] = BITPTR_DONTFUCKWITHIT;
                 *(scriptptr-1) = 0;
                 initprintf("%s:%d: warning: expected a move, found a constant.\n",compilefile,line_number);
+                warning++;
             }
 
             j = 0;
@@ -2234,7 +2241,7 @@ static int parsecommand(void)
             i = HASH_find(&gamevarH,label+(labelcnt<<6));
             if (i>=0)
             {
-//                warning++;
+                warning++;
                 ReportError(WARNING_NAMEMATCHESVAR);
             }
 
@@ -2415,7 +2422,10 @@ static int parsecommand(void)
         if (parsing_actor || parsing_state)
         {
             if (!CheckEventSync(current_event))
+            {
                 ReportError(WARNING_EVENTSYNC);
+                warning++;
+            }
             transnum(LABEL_AI);
         }
         else
@@ -2433,7 +2443,7 @@ static int parsecommand(void)
             i = HASH_find(&gamevarH,label+(labelcnt<<6));
             if (i>=0)
             {
-//                warning++;
+                warning++;
                 ReportError(WARNING_NAMEMATCHESVAR);
             }
 
@@ -2464,6 +2474,7 @@ static int parsecommand(void)
                         bitptr[(scriptptr-script-1)] = BITPTR_DONTFUCKWITHIT;
                         *(scriptptr-1) = 0;
                         initprintf("%s:%d: warning: expected a move, found a constant.\n",compilefile,line_number);
+                        warning++;
                     }
                     k = 0;
                     while (keyword() == -1)
@@ -2491,7 +2502,10 @@ static int parsecommand(void)
         if (parsing_actor || parsing_state)
         {
             if (!CheckEventSync(current_event))
+            {
                 ReportError(WARNING_EVENTSYNC);
+                warning++;
+            }
             transnum(LABEL_ACTION);
         }
         else
@@ -2510,7 +2524,7 @@ static int parsecommand(void)
             i = HASH_find(&gamevarH,label+(labelcnt<<6));
             if (i>=0)
             {
-//                warning++;
+                warning++;
                 ReportError(WARNING_NAMEMATCHESVAR);
             }
 
@@ -2611,6 +2625,7 @@ static int parsecommand(void)
                         bitptr[(scriptptr-script-1)] = BITPTR_DONTFUCKWITHIT;
                         *(scriptptr-1) = 0;
                         initprintf("%s:%d: warning: expected a move, found a constant.\n",compilefile,line_number);
+                        warning++;
                     }
                     break;
                 }
@@ -2666,6 +2681,7 @@ static int parsecommand(void)
             ReportError(-1);
             parsing_event = parsing_actor = tempscrptr;
             initprintf("%s:%d: warning: duplicate event `%s'.\n",compilefile,line_number,parsing_item_name);
+            warning++;
         }
         else apScriptGameEvent[j]=parsing_event;
 
@@ -2728,6 +2744,7 @@ static int parsecommand(void)
         {
             ReportError(-1);
             initprintf("%s:%d: warning: invalid useractor type.\n",compilefile,line_number);
+            warning++;
             j = 0;
         }
 
@@ -2780,6 +2797,7 @@ static int parsecommand(void)
                         bitptr[(scriptptr-script-1)] = BITPTR_DONTFUCKWITHIT;
                         *(scriptptr-1) = 0;
                         initprintf("%s:%d: warning: expected a move, found a constant.\n",compilefile,line_number);
+                        warning++;
                     }
                     break;
                 }
@@ -2795,7 +2813,10 @@ static int parsecommand(void)
 
     case CON_INSERTSPRITEQ:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
         return 0;
 
     case CON_QSPRINTF:
@@ -2842,7 +2863,10 @@ static int parsecommand(void)
     case CON_LOTSOFGLASS:
     case CON_SAVE:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
     case CON_ANGOFF:
     case CON_QUOTE:
     case CON_SOUND:
@@ -2857,6 +2881,7 @@ static int parsecommand(void)
                 *(scriptptr-1) = 32768;
                 ReportError(-1);
                 initprintf("%s:%d: warning: tried to set cstat 32767, using 32768 instead.\n",compilefile,line_number);
+                warning++;
             }
             else if ((*(scriptptr-1) & 32) && (*(scriptptr-1) & 16))
             {
@@ -2864,13 +2889,17 @@ static int parsecommand(void)
                 *(scriptptr-1) ^= 48;
                 ReportError(-1);
                 initprintf("%s:%d: warning: tried to set cstat %d, using %d instead.\n",compilefile,line_number,i,*(scriptptr-1));
+                warning++;
             }
         }
         return 0;
 
     case CON_HITRADIUSVAR:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
         transmultvars(5);
         break;
     case CON_HITRADIUS:
@@ -2885,7 +2914,10 @@ static int parsecommand(void)
     case CON_ADDINVENTORY:
     case CON_GUTS:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
         transnum(LABEL_DEFINE);
         transnum(LABEL_DEFINE);
         break;
@@ -2914,7 +2946,10 @@ static int parsecommand(void)
 
     case CON_SETSECTOR:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
     case CON_GETSECTOR:
     {
         int lLabelID;
@@ -3046,7 +3081,10 @@ static int parsecommand(void)
 
     case CON_SETWALL:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
     case CON_GETWALL:
     {
         int lLabelID;
@@ -3110,7 +3148,10 @@ static int parsecommand(void)
 
     case CON_SETPLAYER:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
     case CON_GETPLAYER:
     {
         int lLabelID;
@@ -3188,7 +3229,10 @@ static int parsecommand(void)
 
     case CON_SETINPUT:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
     case CON_GETINPUT:
     {
         int lLabelID;
@@ -3304,7 +3348,10 @@ static int parsecommand(void)
     case CON_SETACTORVAR:
     case CON_SETPLAYERVAR:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
     case CON_GETACTORVAR:
     case CON_GETPLAYERVAR:
     {
@@ -3438,7 +3485,10 @@ static int parsecommand(void)
 
     case CON_SETACTOR:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
     case CON_GETACTOR:
     {
         int lLabelID;
@@ -3523,6 +3573,7 @@ static int parsecommand(void)
         {
             ReportError(-1);
             initprintf("%s:%d: warning: found `%s' outside of EVENT_ANIMATESPRITES\n",compilefile,line_number,tempbuf);
+            warning++;
         }
 
         // syntax getwall[<var>].x <VAR>
@@ -3587,7 +3638,10 @@ static int parsecommand(void)
 
     case CON_GETTICKS:
         if (CheckEventSync(current_event))
+        {
             ReportError(WARNING_REVEVENTSYNC);
+            warning++;
+        }
     case CON_GETCURRADDRESS:
         transvartype(GAMEVAR_FLAG_READONLY);
         return 0;
@@ -3605,7 +3659,10 @@ static int parsecommand(void)
     case CON_SHOOTVAR:
     case CON_QUAKE:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
     case CON_JUMP:
     case CON_CMENU:
     case CON_SOUNDVAR:
@@ -3644,7 +3701,11 @@ static int parsecommand(void)
     case CON_DYNAMICREMAP:
     {
         scriptptr--;
-        if (dynamicremap++) initprintf("%s:%d: warning: duplicate dynamicremap statement\n",compilefile,line_number);
+        if (dynamicremap++)
+        {
+            initprintf("%s:%d: warning: duplicate dynamicremap statement\n",compilefile,line_number);
+            warning++;
+        }
         else initprintf("Using dynamic tile remapping\n");
         break;
     }
@@ -3653,7 +3714,10 @@ static int parsecommand(void)
     case CON_ZSHOOT:
     case CON_EZSHOOT:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
     case CON_SETVAR:
     case CON_ADDVAR:
     case CON_SUBVAR:
@@ -3723,7 +3787,10 @@ static int parsecommand(void)
         return 0;
     case CON_RANDVARVAR:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
     case CON_SETVARVAR:
     case CON_ADDVARVAR:
     case CON_SUBVARVAR:
@@ -3747,7 +3814,10 @@ static int parsecommand(void)
     case CON_OPERATEACTIVATORS:
     case CON_SSP:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
     case CON_GMAXAMMO:
     case CON_DIST:
     case CON_LDIST:
@@ -3859,7 +3929,10 @@ static int parsecommand(void)
             return 0;
         }
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
         transvar();
         return 0;
     }
@@ -4064,7 +4137,10 @@ static int parsecommand(void)
     case CON_MOVESPRITE:
     case CON_SETSPRITE:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
         transmultvars(4);
         if (tw == CON_MOVESPRITE)
         {
@@ -4294,7 +4370,7 @@ repeatcase:
             for (i=(casecount/2)-1;i>=0;i--)
                 if (casescriptptr[i*2+1]==j)
                 {
-                    //warning++;
+                    warning++;
                     ReportError(WARNING_DUPLICATECASE);
                     break;
                 }
@@ -4382,7 +4458,10 @@ repeatcase:
     case CON_ZSHOOTVAR:
     case CON_EZSHOOTVAR:
         if (!CheckEventSync(current_event))
+        {
+            warning++;
             ReportError(WARNING_EVENTSYNC);
+        }
     case CON_GETPNAME:
     case CON_STARTLEVEL:
     case CON_QSTRCAT:
@@ -4403,7 +4482,10 @@ repeatcase:
     case CON_SETACTORANGLE:
     case CON_SETPLAYERANGLE:
         if (!CheckEventSync(current_event))
+        {
+            warning++;
             ReportError(WARNING_EVENTSYNC);
+        }
     case CON_GETANGLETOTARGET:
     case CON_GETACTORANGLE:
     case CON_GETPLAYERANGLE:
@@ -4424,7 +4506,10 @@ repeatcase:
     case CON_IFPINVENTORY:
     case CON_IFRND:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
     case CON_IFPDISTL:
     case CON_IFPDISTG:
     case CON_IFWASWEAPON:
@@ -4459,6 +4544,7 @@ repeatcase:
                 ReportError(-1);
                 *(scriptptr-1) = 0;
                 initprintf("%s:%d: warning: expected a move, found a constant.\n",compilefile,line_number);
+                warning++;
             }
             break;
         case CON_IFPINVENTORY:
@@ -4467,7 +4553,10 @@ repeatcase:
             break;
         case CON_IFSOUND:
             if (CheckEventSync(current_event))
+            {
                 ReportError(WARNING_REVEVENTSYNC);
+                warning++;
+            }
         default:
             transnum(LABEL_DEFINE);
             break;
@@ -4617,13 +4706,14 @@ repeatcase:
             if (*textptr == '/' || *textptr == ' ')
             {
                 initprintf("%s:%d: warning: invalid character in function name.\n",compilefile,line_number);
+                warning++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
             }
             if (i >= MAXGAMEFUNCLEN-1)
             {
-                initprintf("%s:%d: warning: function name exceeds limit of %d characters.\n",compilefile,line_number,MAXGAMEFUNCLEN);
-//                error++;
+                initprintf("%s:%d: warning: function name exceeds limit of %d characters, truncating.\n",compilefile,line_number,MAXGAMEFUNCLEN);
+                warning++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
             }
@@ -5152,7 +5242,10 @@ repeatcase:
     case CON_MIKESND:
     case CON_TOSSWEAPON:
         if (!CheckEventSync(current_event))
+        {
             ReportError(WARNING_EVENTSYNC);
+            warning++;
+        }
     case CON_NULLOP:
     case CON_STOPALLSOUNDS:
         return 0;
@@ -5263,8 +5356,8 @@ static void passone(void)
 {
     while (parsecommand() == 0);
 
-    if ((error+warning) > 63)
-        initprintf("fatal error: too many warnings or errors: Aborted\n");
+    if (error > 63)
+        initprintf("fatal error: too many errors: Aborted\n");
 
 #ifdef DEBUG
     {
@@ -5582,7 +5675,7 @@ void loadefs(const char *filenam)
     if (warning|error)
         initprintf("Found %d warning(s), %d error(s).\n",warning,error);
 
-    if (error == 0 && warning != 0)
+/*    if (error == 0 && warning != 0)
     {
         if (groupfile != -1 && loadfromgrouponly == 0)
         {
@@ -5598,7 +5691,7 @@ void loadefs(const char *filenam)
                 return;
             }
         }
-    }
+    } */
 
     if (error)
     {

@@ -495,17 +495,17 @@ int movesprite(int spritenum, int xchange, int ychange, int zchange, unsigned in
         if (dasectnum < 0 || (dasectnum >= 0 &&
                               ((hittype[spritenum].actorstayput >= 0 && hittype[spritenum].actorstayput != dasectnum) ||
                                ((sprite[spritenum].picnum == BOSS2) && sprite[spritenum].pal == 0 && sector[dasectnum].lotag != 3) ||
-                               ((sprite[spritenum].picnum == BOSS1 || sprite[spritenum].picnum == BOSS2) && sector[dasectnum].lotag == 1) ||
-                               (sector[dasectnum].lotag == 1 && (sprite[spritenum].picnum == LIZMAN || (sprite[spritenum].picnum == LIZTROOP && sprite[spritenum].zvel == 0)))
+                               ((sprite[spritenum].picnum == BOSS1 || sprite[spritenum].picnum == BOSS2) && sector[dasectnum].lotag == 1) /*||
+                               (sector[dasectnum].lotag == 1 && (sprite[spritenum].picnum == LIZMAN || (sprite[spritenum].picnum == LIZTROOP && sprite[spritenum].zvel == 0)))*/
                               ))
            )
         {
             sprite[spritenum].x = oldx;
             sprite[spritenum].y = oldy;
-            if (dasectnum >= 0 && sector[dasectnum].lotag == 1 && sprite[spritenum].picnum == LIZMAN)
+/*            if (dasectnum >= 0 && sector[dasectnum].lotag == 1 && sprite[spritenum].picnum == LIZMAN)
                 sprite[spritenum].ang = (TRAND&2047);
             else if ((hittype[spritenum].temp_data[0]&3) == 1 && sprite[spritenum].picnum != COMMANDER)
-                sprite[spritenum].ang = (TRAND&2047);
+                sprite[spritenum].ang = (TRAND&2047); */
             setsprite(spritenum,oldx,oldy,sprite[spritenum].z);
             if (dasectnum < 0) dasectnum = 0;
             return (16384+dasectnum);

@@ -2945,7 +2945,7 @@ void overheadeditor(void)
     short splitstartwall=0, splitendwall, loopnum;
     int mousx, mousy, bstatus;
     int centerx, centery, circlerad;
-    short circlewall, circlepoints, circleang1, circleang2, circleangdir;
+    short circlepoints, circleang1, circleang2, circleangdir;
     int sectorhighlightx=0, sectorhighlighty=0;
     short cursectorhighlight, sectorhighlightstat;
     short hitsect, hitwall, hitsprite;
@@ -2971,17 +2971,17 @@ void overheadeditor(void)
 
     ydim16 = ydim;
     drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,1);
-    drawline16(0,ydim-1,xdim-1,ydim-1,1);
+/*    drawline16(0,ydim-1,xdim-1,ydim-1,1);
     drawline16(0,ydim-STATUS2DSIZ,0,ydim-1,1);
     drawline16(xdim-1,ydim-STATUS2DSIZ,xdim-1,ydim-1,1);
     drawline16(0,ydim-STATUS2DSIZ+24,xdim-1,ydim-STATUS2DSIZ+24,1);
-    drawline16(192-24,ydim-STATUS2DSIZ,192-24,ydim-STATUS2DSIZ+24,1);
+    drawline16(192-24,ydim-STATUS2DSIZ,192-24,ydim-STATUS2DSIZ+24,1); */
     if (totalclock < 120*5)
         printext16(8L,ydim-STATUS2DSIZ+32L,9,-1,kensig,0);
 
     //  printmessage16("Version: "VERSION);
     if (totalclock < 30) printmessage16("Press F1 for help");
-    drawline16(0,ydim-1-20,xdim-1,ydim-1-20,1);
+//    drawline16(0,ydim-1-20,xdim-1,ydim-1-20,1);
     drawline16(256,ydim-1-20,256,ydim-1,1);
     ydim16 = ydim-STATUS2DSIZ;
     enddrawing();	//}}}
@@ -3164,8 +3164,16 @@ void overheadeditor(void)
                     y1 = midydim16+day-4;
                     x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
                     y2 = y1 + 7;
-                    if ((x1 >= 0) && (x2 < xdim) && (y1 >= 0) && (y2 < ydim16))
+                    if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
+                    {
                         printext16(x1,y1,0,7,dabuffer,1);
+                        drawline16(x1-1,y1-1,x2-3,y1-1,7);
+                        drawline16(x1-1,y2+1,x2-3,y2+1,7);
+
+                        drawline16(x1-2,y1,x1-2,y2,7);
+                        drawline16(x2-2,y1,x2-2,y2,7);
+                        drawline16(x2-3,y1,x2-3,y2,7);
+                    }
                 }
             }
 
@@ -3190,8 +3198,16 @@ void overheadeditor(void)
                         y1 = midydim16+day-4;
                         x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
                         y2 = y1 + 7;
-                        if ((x1 >= 0) && (x2 < xdim) && (y1 >= 0) && (y2 < ydim16))
+                        if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
+                        {
                             printext16(x1,y1,0,4,dabuffer,1);
+                            drawline16(x1-1,y1-1,x2-3,y1-1,4);
+                            drawline16(x1-1,y2+1,x2-3,y2+1,4);
+
+                            drawline16(x1-2,y1,x1-2,y2,4);
+                            drawline16(x2-2,y1,x2-2,y2,4);
+                            drawline16(x2-3,y1,x2-3,y2,4);
+                        }
                     }
                 }
             }
@@ -3215,7 +3231,7 @@ void overheadeditor(void)
                         y1 = midydim16+day-4;
                         x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
                         y2 = y1 + 7;
-                        if ((x1 >= 0) && (x2 < xdim) && (y1 >= 0) && (y2 < ydim16))
+                        if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
                         {
                             col = 3;
                             if (spritecol2d[sprite[i].picnum][0])
@@ -3230,6 +3246,13 @@ void overheadeditor(void)
                             if ((i == pointhighlight-16384) && (totalclock & 32)) col += (2<<2);
 
                             printext16(x1,y1,0,col,dabuffer,1);
+
+                            drawline16(x1-1,y1-1,x2-3,y1-1,col);
+                            drawline16(x1-1,y2+1,x2-3,y2+1,col);
+
+                            drawline16(x1-2,y1,x1-2,y2,col);
+                            drawline16(x2-2,y1,x2-2,y2,col);
+                            drawline16(x2-3,y1,x2-3,y2,col);
                         }
                     }
                     j--;
@@ -4861,6 +4884,8 @@ void overheadeditor(void)
             tempint2 = dmulscale4(y1-y2,x1-x3,y1-y3,x2-x1);
             if (tempint2 != 0)
             {
+                int pointsize = 2;
+
                 centerx = (((x1+x2) + scale(y1-y2,tempint1,tempint2))>>1);
                 centery = (((y1+y2) + scale(x2-x1,tempint1,tempint2))>>1);
 
@@ -4903,11 +4928,11 @@ void overheadeditor(void)
                     }
                     dax = mulscale14(dax-posx,zoom);
                     day = mulscale14(day-posy,zoom);
-/*                    drawline16(halfxdim16+dax-2,midydim16+day-2,halfxdim16+dax+2,midydim16+day-2,14);
-                    drawline16(halfxdim16+dax+2,midydim16+day-2,halfxdim16+dax+2,midydim16+day+2,14);
-                    drawline16(halfxdim16+dax+2,midydim16+day+2,halfxdim16+dax-2,midydim16+day+2,14);
-                    drawline16(halfxdim16+dax-2,midydim16+day+2,halfxdim16+dax-2,midydim16+day-2,14); */
-                    drawcircle16(halfxdim16+dax, midydim16+day, 3, 14);
+                    drawline16(halfxdim16+dax-pointsize,midydim16+day-pointsize,halfxdim16+dax+pointsize,midydim16+day-pointsize,14);
+                    drawline16(halfxdim16+dax+pointsize,midydim16+day-pointsize,halfxdim16+dax+pointsize,midydim16+day+pointsize,14);
+                    drawline16(halfxdim16+dax+pointsize,midydim16+day+pointsize,halfxdim16+dax-pointsize,midydim16+day+pointsize,14);
+                    drawline16(halfxdim16+dax-pointsize,midydim16+day+pointsize,halfxdim16+dax-pointsize,midydim16+day-pointsize,14);
+//                    drawcircle16(halfxdim16+dax, midydim16+day, 3, 14);
                 }
                 if (bad > 0)
                 {
@@ -5786,7 +5811,8 @@ CANCEL:
         if (keystatus[1])
         {
             keystatus[1] = 0;
-            printmessage16("(N)ew, (L)oad, (S)ave, save (A)s, (Q)uit");
+            printmessage16("(N)ew, (L)oad, (S)ave, save (A)s, (Q)uit,");
+//            printext16(200L+248, ydim-STATUS2DSIZ+17L, 9, 0, "(U)ndo, (R)edo", 0);
             showframe(1);
             bflushchars();
             bad = 1;
@@ -7807,6 +7833,14 @@ void _printmessage16(const char *fmt, ...)
     snotbuf[54] = 0;
     begindrawing();
     printext16(200L-24, ydim-STATUS2DSIZ+8L, 9, 0, snotbuf, 0);
+    i = 0;
+    while (i < 54)
+    {
+        snotbuf[i] = 32;
+        i++;
+    }
+    snotbuf[54] = 0;
+    printext16(200L-24, ydim-STATUS2DSIZ+17L, 9, 0, snotbuf, 0);
     enddrawing();
 }
 

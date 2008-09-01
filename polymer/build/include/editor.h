@@ -76,6 +76,8 @@ extern void ExtEditSpriteData(short spritenum);
 extern char ExtCustomSpriteColor(short picnum);
 extern void ExtSetupSpecialSpriteCols(void);
 
+extern int circlewall;
+
 int loadsetup(const char *fn);	// from config.c
 int writesetup(const char *fn);	// from config.c
 

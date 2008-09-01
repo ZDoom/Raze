@@ -361,6 +361,7 @@ int tileInGroup(int group, int tilenum)
 const char *ExtGetSectorCaption(short sectnum)
 {
     static char tempbuf[1024];
+    Bmemset(tempbuf,0,sizeof(tempbuf));
     if (qsetmode != 200 && (!(onnames==1 || onnames==4 || onnames==7) || (onnames==8)))
     {
         tempbuf[0] = 0;
@@ -454,6 +455,7 @@ const char *ExtGetSectorCaption(short sectnum)
 const char *ExtGetWallCaption(short wallnum)
 {
     static char tempbuf[1024];
+    Bmemset(tempbuf,0,sizeof(tempbuf));
     if (!(onnames==2 || onnames==4))
     {
         tempbuf[0] = 0;
@@ -476,6 +478,7 @@ const char *ExtGetWallCaption(short wallnum)
 const char *SectorEffectorText(short spritenum)
 {
     static char tempbuf[1024];
+    Bmemset(tempbuf,0,sizeof(tempbuf));
     switch (sprite[spritenum].lotag)
     {
     case 0:
@@ -587,6 +590,8 @@ const char *SectorEffectorText(short spritenum)
 const char *ExtGetSpriteCaption(short spritenum)
 {
     static char tempbuf[1024];
+
+    Bmemset(tempbuf,0,sizeof(tempbuf));
     if ((onnames!=5 && onnames!=6 &&(!(onnames==3 || onnames==4 || onnames==7 || onnames==8))) || (onnames==7 && sprite[spritenum].picnum!=1))
     {
         tempbuf[0] = 0;
@@ -6362,7 +6367,9 @@ static void Keys2d(void)
         }
         if (autogrid)
         {
-            grid = scale(zoom,6,3072);
+            grid = zoom+512;
+            if (grid > 16384) grid = 16384;
+            grid = scale(grid,6,6144);
             if (grid > 7) grid = 7;
             if (grid < 0) grid = 0;
         }
@@ -6526,6 +6533,25 @@ static void InitCustomColors(void)
     vgapal16[32*4+0] = 60;
     vgapal16[32*4+1] = 50;
     vgapal16[32*4+2] = 21;
+
+    // grid color
+    vgapal16[25*4+0] = 19;
+    vgapal16[25*4+1] = 17;
+    vgapal16[25*4+2] = 17;
+
+    vgapal16[26*4+0] = 24;
+    vgapal16[26*4+1] = 24;
+    vgapal16[26*4+2] = 24;
+
+    vgapal16[33*4+0] = 15; // blue
+    vgapal16[33*4+1] = 30; // green
+    vgapal16[33*4+2] = 45; // red
+
+    vgapal16[41*4+0] = 24;
+    vgapal16[41*4+1] = 40;
+    vgapal16[41*4+2] = 48;
+
+
 }
 
 void ExtPreSaveMap(void)
@@ -9417,3 +9443,27 @@ static void FuncMenu(void)
     showframe(1);
     keystatus[KEYSC_ESC] = 0;
 }
+/*
+#define UNDODEPTH 96
+
+typedef struct
+{
+    int numsectors;
+    int numwalls;
+    int numsprites;
+
+    sectortype *sectors;
+    walltype *walls;
+    spritetype *sprites;
+
+    short *headspritesect;
+    short *prevspritesect;
+    short *nextspritesect;
+
+    short *headspritestat;
+    short *prevspritestat;
+    short *nextspritestat;
+} mapundo_t;
+
+mapundo_t undoredo[UNDODEPTH];
+*/

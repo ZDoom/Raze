@@ -5046,7 +5046,7 @@ static int parse(void)
                 hittype[g_i].extra = 1;
                 g_sp->zvel = 0;
             }
-            else if (g_sp->zvel > 2048 && sector[g_sp->sectnum].lotag != 1)
+            else if (g_sp->zvel > 2048 /* && sector[g_sp->sectnum].lotag != 1*/)
             {
                 j = g_sp->sectnum;
                 pushmove(&g_sp->x,&g_sp->y,&g_sp->z,(short*)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
@@ -5065,9 +5065,18 @@ static int parse(void)
         }
         else if (sector[g_sp->sectnum].lotag == 1)
         {
+            intptr_t *moveptr = (intptr_t *)g_t[1];
             switch (dynamictostatic[g_sp->picnum])
             {
             default:
+                // fix for flying/jumping monsters getting stuck in water
+                if (g_sp->statnum != MAXSTATUS && actorscrptr[g_sp->picnum] && 
+                    ((moveptr && *(moveptr+1)) || g_sp->hitag & jumptoplayer))
+                {
+//                    OSD_Printf("%d\n",*(moveptr+1));
+                    break;
+                }
+//                OSD_Printf("hitag: %d\n",g_sp->hitag);
                 g_sp->z += (24<<8);
             case OCTABRAIN__STATIC:
             case COMMANDER__STATIC:
@@ -5583,6 +5592,19 @@ static int parse(void)
             case CON_CHANGESPRITESTAT:
                 if ((i<0 || i>=MAXSPRITES) && checkCON) {OSD_Printf(CON_ERROR "Invalid sprite %d\n",line_num,keyw[g_tw],i);break;}
                 if ((j<0 || j>=MAXSTATUS) && checkCON) {OSD_Printf(CON_ERROR "Invalid status %d\n",line_num,keyw[g_tw],j);break;}
+                /* initialize actor pointers when changing to an actor statnum because they usually
+                   have garbage left over from being handled as a hard coded object */
+                if ((j == 1 || j == 2) && actorscrptr[sprite[i].picnum])
+                {
+                    T5 = *(actorscrptr[sprite[i].picnum]+1);
+                    T2 = *(actorscrptr[sprite[i].picnum]+2);
+                    sprite[i].hitag = *(actorscrptr[sprite[i].picnum]+3);
+                }
+                else
+                {
+                    T2=T5=0;
+                    sprite[i].hitag = 0;
+                }
                 changespritestat(i,j);
                 break;
             case CON_CHANGESPRITESECT:

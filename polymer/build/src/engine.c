@@ -11045,7 +11045,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
                 {
                     if (xp1 != xp2)
                     {
-                        drawline16(xp1,yp1,xp1,yp2,8);
+                        drawline16(xp1,yp1,xp1,yp2,25);
                     }
                 }
             }
@@ -11053,7 +11053,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
                 xp2 = xp1;
             if ((xp2 >= 0) && (xp2 < xdim))
             {
-                drawline16(xp2,yp1,xp2,yp2,8);
+                drawline16(xp2,yp1,xp2,yp2,25);
             }
         }
         xp1 = mulscale14(posxe+editorgridextent,zoome);
@@ -11066,7 +11066,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
             {
                 if ((yp1 > midydim16-ydim16) && (yp1 <= midydim16))
                 {
-                    drawline16(halfxdim16-xp1,midydim16-yp1,halfxdim16-xp2,midydim16-yp1,8);
+                    drawline16(halfxdim16-xp1,midydim16-yp1,halfxdim16-xp2,midydim16-yp1,25);
                     tempy = yp1;
                 }
             }
@@ -11082,6 +11082,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
 
 char spritecol2d[MAXTILES][2];
 int showfirstwall=0;
+int circlewall=-1;
 
 void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 {
@@ -11127,7 +11128,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
         }
         else
         {
-            col = 4;
+            col = 31;
             if ((wal->cstat&1) != 0) col = 5;
             if (wal->nextwall!=-1&&((wal->cstat^wall[wal->nextwall].cstat)&1)) col = 2;
             if ((i == linehighlight) || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
@@ -11138,6 +11139,9 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
             col = 14;
             if (i == linehighlight) if (totalclock & 16) col -= (2<<2);
         }
+
+        if (circlewall >= 0 && (i == circlewall || wal->nextwall == circlewall))
+            col = 14;
 
         xp1 = mulscale14(wal->x-posxe,zoome);
         yp1 = mulscale14(wal->y-posye,zoome);
@@ -11182,29 +11186,29 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 
                 if (jj == ii)
                 {
-                    int dax3 = mulscale11(sintable[(k+1024)&2047],zoome) / 4096;
-                    int day3 = mulscale11(sintable[(k+512)&2047],zoome) / 4096;
-                    int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 4096;
-                    int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 4096;
+                    int dax3 = mulscale11(sintable[(k+1024)&2047],zoome) / 2560;
+                    int day3 = mulscale11(sintable[(k+512)&2047],zoome) / 2560;
+                    int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 2560;
+                    int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 2560;
                     drawline16(halfxdim16+dax+dax3,midydim16+day+day3,halfxdim16+dax+dax2,midydim16+day+day2,col);
                 }
                 else if (jj > ii)
                 {
-                    int dax2 = mulscale11(sintable[(k+1024)&2047],zoome) / 3072;
-                    int day2 = mulscale11(sintable[(k+512)&2047],zoome) / 3072;
+                    int dax2 = mulscale11(sintable[(k+1024)&2047],zoome) / 2560;
+                    int day2 = mulscale11(sintable[(k+512)&2047],zoome) / 2560;
                     drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
                 }
                 else
                 {
-                    int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 3072;
-                    int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 3072;
+                    int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 2560;
+                    int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 2560;
                     drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
                 }
             }
             else
             {
-                int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 3072;
-                int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 3072;
+                int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 2560;
+                int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 2560;
                 drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
             }
         }
@@ -11212,13 +11216,13 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
             if (((halfxdim16+xp1) >= 2) && ((halfxdim16+xp1) <= xdim-3))
                 if (((midydim16+yp1) >= 2) && ((midydim16+yp1) <= ydim16-3))
                 {
-                    int pointsize = 3;
-                    col = 6;
+                    int pointsize = 1;
+                    col = 15;
                     if (i == pointhighlight || ((pointhighlight < MAXWALLS) && (pointhighlight >= 0) && (wall[i].x == wall[pointhighlight].x) && (wall[i].y == wall[pointhighlight].y)))
                     {
                         if (totalclock & 16)
                         {
-                            col += (2<<2);  // JBF 20040116: two braces is all this needed. man I'm a fool sometimes.
+                            //col += (2<<2);  // JBF 20040116: two braces is all this needed. man I'm a fool sometimes.
                             pointsize += 1;
                         }
                     }
@@ -11227,17 +11231,22 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                         if (show2dwall[i>>3]&pow2char[i&7])
                             if (totalclock & 16)
                             {
-                                col += (2<<2);  // JBF 20040116: two braces is all this needed. man I'm a fool sometimes.
+                              //  col += (2<<2);  // JBF 20040116: two braces is all this needed. man I'm a fool sometimes.
                                 pointsize += 1;
                             }
                     }
 
                     tempint = ((midydim16+yp1)*bytesperline)+(halfxdim16+xp1)+frameplace;
-#if 0
-                    drawline16(halfxdim16+xp1-pointsize,midydim16+yp1+pointsize,halfxdim16+xp1+pointsize,midydim16+yp1+pointsize,col);
-                    drawline16(halfxdim16+xp1+pointsize,midydim16+yp1+pointsize,halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,col);
-                    drawline16(halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,col);
-                    drawline16(halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1+pointsize,col);
+#if 1
+                    do
+                    {
+/*                        drawline16(halfxdim16+xp1-pointsize,midydim16+yp1+pointsize,halfxdim16+xp1+pointsize,midydim16+yp1+pointsize,col);
+                        drawline16(halfxdim16+xp1+pointsize,midydim16+yp1+pointsize,halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,col);
+                        drawline16(halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,col);
+                        drawline16(halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1+pointsize,col); */
+                        drawcircle16(halfxdim16+xp1, midydim16+yp1, pointsize, col);
+                    }
+                    while (pointsize--);
 #else
                     drawcircle16(halfxdim16+xp1, midydim16+yp1, pointsize, col);
 #endif
