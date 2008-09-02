@@ -455,7 +455,20 @@ const char *ExtGetSectorCaption(short sectnum)
 const char *ExtGetWallCaption(short wallnum)
 {
     static char tempbuf[1024];
+
     Bmemset(tempbuf,0,sizeof(tempbuf));
+
+    if (wall[wallnum].cstat & (1<<14))
+    {
+        int dax = wall[wallnum].x-wall[wall[wallnum].point2].x;
+        int day = wall[wallnum].y-wall[wall[wallnum].point2].y;
+        int dist = ksqrt(dax*dax+day*day);
+        Bsprintf(tempbuf,"%d",dist);
+        wall[wallnum].cstat &= ~(1<<14);
+        return(tempbuf);
+    }
+
+
     if (!(onnames==2 || onnames==4))
     {
         tempbuf[0] = 0;
@@ -5969,7 +5982,7 @@ static void Keys2d(void)
             clearmidstatbar16();
             showspritedata((short)i);
         }
-        else if ((linehighlight >= 0) && (sectorofwall(linehighlight) == cursectornum))
+        else if ((linehighlight >= 0) && (bstatus&1 || sectorofwall(linehighlight) == cursectornum))
         {
             clearmidstatbar16();
             showwalldata((short)linehighlight);
@@ -6031,7 +6044,7 @@ static void Keys2d(void)
     }
 
     getpoint(searchx,searchy,&mousxplc,&mousyplc);
-    ppointhighlight = getpointhighlight(mousxplc,mousyplc);
+    ppointhighlight = getpointhighlight(mousxplc,mousyplc, ppointhighlight);
 
     if ((ppointhighlight&0xc000) == 16384)
     {
@@ -9463,8 +9476,13 @@ typedef struct
     short *headspritestat;
     short *prevspritestat;
     short *nextspritestat;
+
     int revision;
+
+    mapundo_t *next; // 'redo' loads this
+    mapundo_t *prev; // 'undo' loads this
 } mapundo_t;
 
+mapundo_t *undopos = NULL; // pointer to current
 mapundo_t undoredo[UNDODEPTH];
 */

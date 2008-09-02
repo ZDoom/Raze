@@ -92,7 +92,7 @@ void _printmessage16(const char *fmt, ...);
 #define printmessage16(fmt, ...) lastpm16time = totalclock, _printmessage16(fmt, ## __VA_ARGS__)
 
 void getpoint(int searchxe, int searchye, int *x, int *y);
-int getpointhighlight(int xplc, int yplc);
+int getpointhighlight(int xplc, int yplc, int point);
 
 #ifdef __cplusplus
 }

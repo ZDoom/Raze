@@ -8949,6 +8949,9 @@ void dragpoint(short pointhighlight, int dax, int day)
 
     wall[pointhighlight].x = dax;
     wall[pointhighlight].y = day;
+    wall[pointhighlight].cstat |= (1<<14);
+    wall[linehighlight].cstat |= (1<<14);
+    wall[lastwall(pointhighlight)].cstat |= (1<<14);
 
     cnt = MAXWALLS;
     tempshort = pointhighlight;    //search points CCW
@@ -8959,6 +8962,7 @@ void dragpoint(short pointhighlight, int dax, int day)
             tempshort = wall[wall[tempshort].nextwall].point2;
             wall[tempshort].x = dax;
             wall[tempshort].y = day;
+            wall[tempshort].cstat |= (1<<14);
         }
         else
         {
@@ -8970,6 +8974,7 @@ void dragpoint(short pointhighlight, int dax, int day)
                     tempshort = wall[lastwall(tempshort)].nextwall;
                     wall[tempshort].x = dax;
                     wall[tempshort].y = day;
+                    wall[tempshort].cstat |= (1<<14);
                 }
                 else
                 {

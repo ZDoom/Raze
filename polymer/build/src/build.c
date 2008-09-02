@@ -192,7 +192,7 @@ void showwalldata(short wallnum);
 void showspritedata(short spritenum);
 int drawtilescreen(int pictopleft, int picbox);
 void overheadeditor(void);
-int getlinehighlight(int xplc, int yplc);
+int getlinehighlight(int xplc, int yplc, int line);
 void fixspritesectors(void);
 int movewalls(int start, int offs);
 int loadnames(void);
@@ -3098,7 +3098,7 @@ void overheadeditor(void)
         }
 
         getpoint(searchx,searchy,&mousxplc,&mousyplc);
-        linehighlight = getlinehighlight(mousxplc, mousyplc);
+        linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight);
 
         if (newnumwalls >= numwalls)
         {
@@ -3182,7 +3182,15 @@ void overheadeditor(void)
             x4 = divscale14(halfxdim16,zoom)+posx;
             y4 = divscale14(ydim16-(midydim16-4),zoom)+posy;
 
-            for (i=numwalls-1,wal=&wall[i];i>=0;i--,wal--)
+            if (newnumwalls >= 0)
+            {
+                for (i=newnumwalls;i>=tempint;i--)
+                    wall[i].cstat |= (1<<14);
+            }
+
+            i = numwalls-1;
+            if (newnumwalls >= 0) i = newnumwalls-1;
+            for (wal=&wall[i];i>=0;i--,wal--)
             {
                 //Get average point of wall
                 dax = ((wal->x+wall[wal->point2].x)>>1);
@@ -3200,13 +3208,13 @@ void overheadeditor(void)
                         y2 = y1 + 7;
                         if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
                         {
-                            printext16(x1,y1,0,4,dabuffer,1);
-                            drawline16(x1-1,y1-1,x2-3,y1-1,4);
-                            drawline16(x1-1,y2+1,x2-3,y2+1,4);
+                            printext16(x1,y1,0,31,dabuffer,1);
+                            drawline16(x1-1,y1-1,x2-3,y1-1,31);
+                            drawline16(x1-1,y2+1,x2-3,y2+1,31);
 
-                            drawline16(x1-2,y1,x1-2,y2,4);
-                            drawline16(x2-2,y1,x2-2,y2,4);
-                            drawline16(x2-3,y1,x2-3,y2,4);
+                            drawline16(x1-2,y1,x1-2,y2,31);
+                            drawline16(x2-2,y1,x2-2,y2,31);
+                            drawline16(x2-3,y1,x2-3,y2,31);
                         }
                     }
                 }
@@ -3580,8 +3588,8 @@ void overheadeditor(void)
         }
         if (keystatus[0x30])  // B (clip Blocking xor) (2D)
         {
-            pointhighlight = getpointhighlight(mousxplc, mousyplc);
-            linehighlight = getlinehighlight(mousxplc, mousyplc);
+            pointhighlight = getpointhighlight(mousxplc, mousyplc, pointhighlight);
+            linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight);
 
             if ((pointhighlight&0xc000) == 16384)
             {
@@ -3608,7 +3616,7 @@ void overheadeditor(void)
             keystatus[0x21] = 0;
             if (keystatus[0x38]|keystatus[0xb8])  //ALT-F (relative alignmment flip)
             {
-                linehighlight = getlinehighlight(mousxplc, mousyplc);
+                linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight);
                 if (linehighlight >= 0)
                 {
                     setfirstwall(sectorofwall(linehighlight),linehighlight);
@@ -3969,8 +3977,8 @@ void overheadeditor(void)
             keystatus[0x23] = 0;
             if (keystatus[0x1d]|keystatus[0x9d])  //Ctrl-H
             {
-                pointhighlight = getpointhighlight(mousxplc, mousyplc);
-                linehighlight = getlinehighlight(mousxplc, mousyplc);
+                pointhighlight = getpointhighlight(mousxplc, mousyplc, pointhighlight);
+                linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight);
 
                 if ((pointhighlight&0xc000) == 16384)
                 {
@@ -4422,7 +4430,7 @@ void overheadeditor(void)
             else
             {
                 if ((bstatus&1) > (oldmousebstatus&1))
-                    pointhighlight = getpointhighlight(mousxplc, mousyplc);
+                    pointhighlight = getpointhighlight(mousxplc, mousyplc, pointhighlight);
 
                 if (pointhighlight >= 0)
                 {
@@ -4493,7 +4501,7 @@ void overheadeditor(void)
         }
         else
         {
-            pointhighlight = getpointhighlight(mousxplc, mousyplc);
+            pointhighlight = getpointhighlight(mousxplc, mousyplc, pointhighlight);
             sectorhighlightstat = -1;
         }
 
@@ -6303,12 +6311,15 @@ void getpoint(int searchxe, int searchye, int *x, int *y)
     if (*y >= editorgridextent) *y = editorgridextent;
 }
 
-int getlinehighlight(int xplc, int yplc)
+int getlinehighlight(int xplc, int yplc, int line)
 {
     int i, dst, dist, closest, x1, y1, x2, y2, nx, ny;
 
     if (numwalls == 0)
         return(-1);
+
+    if (mouseb & 1) return line;
+
     dist = 1024;
     closest = -1;
     for (i=0;i<numwalls;i++)
@@ -6336,12 +6347,14 @@ int getlinehighlight(int xplc, int yplc)
     return(closest);
 }
 
-int getpointhighlight(int xplc, int yplc)
+int getpointhighlight(int xplc, int yplc, int point)
 {
     int i, dst, dist = 512, closest = -1;
 
     if (numwalls == 0)
         return(-1);
+
+    if (mouseb & 1) return point;
 
     if (grid < 1)
         dist = 0;
