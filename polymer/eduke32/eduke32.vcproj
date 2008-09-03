@@ -483,6 +483,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\source\gamestructures.c"
+					>
+				</File>
+				<File
 					RelativePath=".\source\gamevars.c"
 					>
 				</File>

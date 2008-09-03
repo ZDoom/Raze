@@ -1311,8 +1311,8 @@ HELPFILE_ERROR:
     return;
 }
 
-// this obviously sucks but it works
-#define IHELP_NUMDISPLINES ((overridepm16y>>4)+(overridepm16y>>5)+(overridepm16y>>7)-2)
+// why can't MSVC allocate an array of variable size?!
+#define IHELP_NUMDISPLINES 42 // ((overridepm16y>>4)+(overridepm16y>>5)+(overridepm16y>>7)-2)
 #define IHELP_PATLEN 45
 extern int overridepm16y;  // influences printmessage16() and clearmidstatbar16()
 
@@ -3025,6 +3025,143 @@ void drawtileinfo(char *title,int x,int y,int picnum,int shade,int pal,int cstat
 }
 int snap=0;int saveval1,saveval2,saveval3;
 
+void getnumber_dochar(char *ptr, int num)
+{
+    *ptr = (char) num;
+}
+
+void getnumber_doshort(short *ptr, int num)
+{
+    *ptr = (short) num;
+}
+
+void getnumber_doint32(int32 *ptr, int num)
+{
+    *ptr = (int32) num;
+}
+
+void getnumber_doint64(int64 *ptr, int num)
+{
+    *ptr = (int64) num;
+}
+
+
+void getnumberptr256(char namestart[80], void *num, int bits, int maxnumber, char sign, void *(func)(int))
+{
+    char buffer[80], ch;
+    int n, danum = 0, oldnum;
+
+    switch (bits)
+    {
+    case 1:
+        danum = *(char *)num;
+        break;
+    case 2:
+        danum = *(short *)num;
+        break;
+    case 4:
+        danum = *(int32 *)num;
+        break;
+    case 8:
+        danum = *(int64 *)num;
+        break;
+    }
+
+    oldnum = danum;
+    bflushchars();
+    while (keystatus[0x1] == 0)
+    {
+        if (handleevents())
+        {
+            if (quitevent) quitevent = 0;
+        }
+
+        drawrooms(posx,posy,posz,ang,horiz,cursectnum);
+#ifdef SUPERBUILD
+        ExtAnalyzeSprites();
+#endif
+        drawmasks();
+
+        ch = bgetchar();
+
+        if (keystatus[0x1]) break;
+
+        clearkeys();
+
+        ExtCheckKeys();
+
+        if (func != NULL)
+            Bsprintf(buffer,"%s%s",namestart,(char *)func((int)danum));
+        else Bsprintf(buffer,"%s%d",namestart,danum);
+
+        if (totalclock & 32) Bstrcat(buffer,"_ ");
+        printmessage256(buffer);
+        showframe(1);
+
+        if (ch >= '0' && ch <= '9')
+        {
+            if (danum >= 0)
+            {
+                n = (danum*10)+(ch-'0');
+                if (n <= maxnumber) danum = n;
+            }
+            else if (sign)
+            {
+                n = (danum*10)-(ch-'0');
+                if (n >= -maxnumber) danum = n;
+            }
+        }
+        else if (ch == 8 || ch == 127)  	// backspace
+        {
+            danum /= 10;
+        }
+        else if (ch == 13)
+        {
+            oldnum = danum;
+            asksave = 1;
+            break;
+        }
+        else if (ch == '-' && sign)  	// negate
+        {
+            danum = -danum;
+        }
+        switch (bits)
+        {
+        case 1:
+            getnumber_dochar(num, danum);
+            break;
+        case 2:
+            getnumber_doshort(num, danum);
+            break;
+        case 4:
+            getnumber_doint32(num, danum);
+            break;
+        case 8:
+            getnumber_doint64(num, danum);
+            break;
+        }
+    }
+    clearkeys();
+
+    lockclock = totalclock;  //Reset timing
+
+    switch (bits)
+    {
+    case 1:
+        getnumber_dochar(num, oldnum);
+        break;
+    case 2:
+        getnumber_doshort(num, oldnum);
+        break;
+    case 4:
+        getnumber_doint32(num, oldnum);
+        break;
+    case 8:
+        getnumber_doint64(num, oldnum);
+        break;
+    }
+}
+
 static void Keys3d(void)
 {
     int i,count,rate,nexti,changedir;
@@ -3203,8 +3340,7 @@ static void Keys3d(void)
         {
         case 1:
         case 2:
-            sector[searchsector].visibility =
-                getnumber256("Sector visibility: ",sector[searchsector].visibility,256L,0);
+            getnumberptr256("Sector visibility: ",&sector[searchsector].visibility,sizeof(sector[searchsector].visibility),256L,0,NULL);
             break;
         }
     }
@@ -4803,21 +4939,16 @@ static void Keys3d(void)
         {
         case 0:
         case 4:
-            wall[searchwall].shade =
-                getnumber256("Wall shade: ",wall[searchwall].shade,128L,1);
+            getnumberptr256("Wall shade: ",&wall[searchwall].shade,sizeof(wall[searchwall].shade),128L,1,NULL);
             break;
         case 1:
+            getnumberptr256("Ceiling shade: ",&sector[searchsector].ceilingshade,sizeof(sector[searchsector].ceilingshade),128L,1,NULL);
+            break;
         case 2:
-            if (searchstat==1)
-                sector[searchsector].ceilingshade =
-                    getnumber256("Ceiling shade: ",sector[searchsector].ceilingshade,128L,1);
-            if (searchstat==2)
-                sector[searchsector].floorshade =
-                    getnumber256("Floor shade: ",sector[searchsector].floorshade,128L,1);
+            getnumberptr256("Floor shade: ",&sector[searchsector].floorshade,sizeof(sector[searchsector].floorshade),128L,1,NULL);
             break;
         case 3:
-            sprite[searchwall].shade =
-                getnumber256("Sprite shade: ",sprite[searchwall].shade,128L,1);
+            getnumberptr256("Sprite shade: ",&sprite[searchwall].shade,sizeof(sprite[searchwall].shade),128L,1,NULL);
             break;
         }
     }
@@ -4875,29 +5006,19 @@ static void Keys3d(void)
         switch (searchstat)
         {
         case 0:
-            i = getnumber256("Wall picnum: ",wall[searchwall].picnum,MAXTILES-1,0);
-            if (tilesizx[i] != 0)
-                wall[searchwall].picnum = i;
+            getnumberptr256("Wall picnum: ",&wall[searchwall].picnum,sizeof(wall[searchwall].picnum),MAXTILES-1,0,NULL);
             break;
         case 1:
-            i = getnumber256("Sector ceiling picnum: ",sector[searchsector].ceilingpicnum,MAXTILES-1,0);
-            if (tilesizx[i] != 0)
-                sector[searchsector].ceilingpicnum = i;
+            getnumberptr256("Sector ceiling picnum: ",&sector[searchsector].ceilingpicnum,sizeof(sector[searchsector].ceilingpicnum),MAXTILES-1,0,NULL);
             break;
         case 2:
-            i = getnumber256("Sector floor picnum: ",sector[searchsector].floorpicnum,MAXTILES-1,0);
-            if (tilesizx[i] != 0)
-                sector[searchsector].floorpicnum = i;
+            getnumberptr256("Sector floor picnum: ",&sector[searchsector].floorpicnum,sizeof(sector[searchsector].floorpicnum),MAXTILES-1,0,NULL);
             break;
         case 3:
-            i = getnumber256("Sprite picnum: ",sprite[searchwall].picnum,MAXTILES-1,0);
-            if (tilesizx[i] != 0)
-                sprite[searchwall].picnum = i;
+            getnumberptr256("Sprite picnum: ",&sprite[searchwall].picnum,sizeof(sprite[searchwall].picnum),MAXTILES-1,0,NULL);
             break;
         case 4:
-            i = getnumber256("Masked wall picnum: ",wall[searchwall].overpicnum,MAXTILES-1,0);
-            if (tilesizx[i] != 0)
-                wall[searchwall].overpicnum = i;
+            getnumberptr256("Masked wall picnum: ",&wall[searchwall].overpicnum,sizeof(wall[searchwall].overpicnum),MAXTILES-1,0,NULL);
             break;
         }
         asksave = 1;
@@ -5931,19 +6052,19 @@ static void Keys3d(void)
             case 0:
             case 4:
                 Bstrcpy(buffer,"Wall pal: ");
-                wall[searchwall].pal = getnumber256(buffer,wall[searchwall].pal,256L,0);
+                getnumberptr256(buffer,&wall[searchwall].pal,sizeof(wall[searchwall].pal),256L,0,NULL);
                 break;
             case 1:
                 Bstrcpy(buffer,"Ceiling pal: ");
-                sector[searchsector].ceilingpal = getnumber256(buffer,sector[searchsector].ceilingpal,256L,0);
+                getnumberptr256(buffer,&sector[searchsector].ceilingpal,sizeof(sector[searchsector].ceilingpal),256L,0,NULL);
                 break;
             case 2:
                 Bstrcpy(buffer,"Floor pal: ");
-                sector[searchsector].floorpal = getnumber256(buffer,sector[searchsector].floorpal,256L,0);
+                getnumberptr256(buffer,&sector[searchsector].floorpal,sizeof(sector[searchsector].floorpal),256L,0,NULL);
                 break;
             case 3:
                 Bstrcpy(buffer,"Sprite pal: ");
-                sprite[searchwall].pal = getnumber256(buffer,sprite[searchwall].pal,256L,0);
+                getnumberptr256(buffer,&sprite[searchwall].pal,sizeof(sprite[searchwall].pal),256L,0,NULL);
                 break;
             }
         }
