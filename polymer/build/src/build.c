@@ -45,6 +45,7 @@ extern void ExtShowSpriteData(short spritenum);
 extern void ExtEditSectorData(short sectnum);
 extern void ExtEditWallData(short wallnum);
 extern void ExtEditSpriteData(short spritenum);
+extern const char *ExtGetSectorType(int lotag);
 
 extern char spritecol2d[MAXTILES][2];
 
@@ -259,13 +260,13 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 
         ydim16 = ydim;
         drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,1);
-        drawline16(0,ydim-1,xdim-1,ydim-1,1);
+/*        drawline16(0,ydim-1,xdim-1,ydim-1,1);
         drawline16(0,ydim-STATUS2DSIZ,0,ydim-1,1);
         drawline16(xdim-1,ydim-STATUS2DSIZ,xdim-1,ydim-1,1);
         drawline16(0,ydim-STATUS2DSIZ+24,xdim-1,ydim-STATUS2DSIZ+24,1);
         drawline16(192-24,ydim-STATUS2DSIZ,192-24,ydim-STATUS2DSIZ+24,1);
         drawline16(0,ydim-1-20,xdim-1,ydim-1-20,1);
-        drawline16(256,ydim-1-20,256,ydim-1,1);
+        drawline16(256,ydim-1-20,256,ydim-1,1); */
         ydim16 = ydim-STATUS2DSIZ;
         enddrawing();	//}}}
         return OSDCMD_OK;
@@ -3937,51 +3938,6 @@ void overheadeditor(void)
             }
         }
 
-        if (keystatus[0x14])  // T (tag)
-        {
-            keystatus[0x14] = 0;
-            if (keystatus[0x1d]|keystatus[0x9d])  //Ctrl-T
-            {
-                showtags ^= 1;
-                if (showtags == 0)
-                    printmessage16("Show tags OFF");
-                else
-                    printmessage16("Show tags ON");
-            }
-            else if (keystatus[0x38]|keystatus[0xb8])  //ALT
-            {
-                if (pointhighlight >= 16384)
-                {
-                    i = pointhighlight-16384;
-                    Bsprintf(buffer,"Sprite (%d) Lo-tag: ",i);
-                    sprite[i].lotag = getnumber16(buffer,sprite[i].lotag,65536L,0);
-                    clearmidstatbar16();
-                    showspritedata((short)i);
-                }
-                else if (linehighlight >= 0)
-                {
-                    i = linehighlight;
-                    Bsprintf(buffer,"Wall (%d) Lo-tag: ",i);
-                    wall[i].lotag = getnumber16(buffer,wall[i].lotag,65536L,0);
-                    clearmidstatbar16();
-                    showwalldata((short)i);
-                }
-                printmessage16("");
-            }
-            else
-            {
-                for (i=0;i<numsectors;i++)
-                    if (inside(mousxplc,mousyplc,i) == 1)
-                    {
-                        Bsprintf(buffer,"Sector (%d) Lo-tag: ",i);
-                        sector[i].lotag = getnumber16(buffer,sector[i].lotag,65536L,0);
-                        clearmidstatbar16();
-                        showsectordata((short)i);
-                        break;
-                    }
-                printmessage16("");
-            }
-        }
         if (keystatus[0x23])  //H (Hi 16 bits of tag)
         {
             keystatus[0x23] = 0;
@@ -6730,7 +6686,7 @@ void clearmidstatbar16(void)
     if (overridepm16y < 0)
 		clearbuf((char *)(frameplace + (bytesperline*(ydim-STATUS2DSIZ+25L))),(bytesperline*(STATUS2DSIZ+2-(25<<1))) >> 2, 0x00000000l);
 	else
-		clearbuf((char *)(frameplace + (bytesperline*(ydim-3*STATUS2DSIZ+25L))),(bytesperline*(3*STATUS2DSIZ+2-(25<<1))) >> 2, 0x00000000l);
+		clearbuf((char *)(frameplace + (bytesperline*(ydim-overridepm16y+25L))),(bytesperline*(overridepm16y+2-(25<<1))) >> 2, 0x00000000l);
     drawline16(0,ydim-STATUS2DSIZ,0,ydim-1,7);
     drawline16(xdim-1,ydim-STATUS2DSIZ,xdim-1,ydim-1,7);
     ydim16 = ydim-STATUS2DSIZ;
@@ -6777,7 +6733,7 @@ int numloopsofsector(short sectnum)
     return(numloops);
 }
 
-int getnumber16(char namestart[80], int num, int maxnumber, char sign)
+int _getnumber16(char namestart[80], int num, int maxnumber, char sign, void *(func)(int))
 {
     char buffer[80], ch;
     int n, danum, oldnum;
@@ -6795,7 +6751,9 @@ int getnumber16(char namestart[80], int num, int maxnumber, char sign)
 
         ch = bgetchar();
 
-        Bsprintf(buffer,"%s^011%d",namestart,danum);
+        if (func != NULL)
+            Bsprintf(buffer,"%s^011%s",namestart,(char *)func((int)danum));
+        else Bsprintf(buffer,"%s^011%d",namestart,danum);
         if (totalclock & 32) Bstrcat(buffer,"_ ");
         printmessage16(buffer);
         showframe(1);
@@ -6832,7 +6790,7 @@ int getnumber16(char namestart[80], int num, int maxnumber, char sign)
     return(oldnum);
 }
 
-int getnumber256(char namestart[80], int num, int maxnumber, char sign)
+int _getnumber256(char namestart[80], int num, int maxnumber, char sign, void *(func)(int))
 {
     char buffer[80], ch;
     int n, danum, oldnum;
@@ -6861,7 +6819,10 @@ int getnumber256(char namestart[80], int num, int maxnumber, char sign)
 
         ExtCheckKeys();
 
-        Bsprintf(buffer,"%s%d",namestart,danum);
+        if (func != NULL)
+            Bsprintf(buffer,"%s%s",namestart,(char *)func((int)danum));
+        else Bsprintf(buffer,"%s%d",namestart,danum);
+
         if (totalclock & 32) Bstrcat(buffer,"_ ");
         printmessage256(buffer);
         showframe(1);
@@ -7865,7 +7826,7 @@ void _printmessage16(const char *fmt, ...)
     }
     snotbuf[54] = 0;
     begindrawing();
-	ybase = (overridepm16y >= 0) ? overridepm16y : ydim-STATUS2DSIZ;
+	ybase = (overridepm16y >= 0) ? ydim-overridepm16y : ydim-STATUS2DSIZ;
     printext16(200L-24, ybase+8L, 9, 0, snotbuf, 0);
     i = 0;
     while (i < 54)
@@ -7880,21 +7841,21 @@ void _printmessage16(const char *fmt, ...)
 
 void printmessage256(char name[82])
 {
-    char snotbuf[40];
+    char snotbuf[64];
     int i;
 
     i = 0;
-    while ((name[i] != 0) && (i < 38))
+    while ((name[i] != 0) && (i < 62))
     {
         snotbuf[i] = name[i];
         i++;
     }
-    while (i < 38)
+    while (i < 62)
     {
         snotbuf[i] = 32;
         i++;
     }
-    snotbuf[38] = 0;
+    snotbuf[62] = 0;
     printext256(2L,2L,0,-1,snotbuf,0);
     printext256(0L,0L,whitecol,-1,snotbuf,0);
 }

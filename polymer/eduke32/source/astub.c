@@ -358,9 +358,87 @@ int tileInGroup(int group, int tilenum)
     return 0;
 }
 
+const char *ExtGetSectorType(int lotag)
+{
+    static char tempbuf[64];
+    Bmemset(tempbuf,0,sizeof(tempbuf));
+    switch (lotag)
+    {
+    case 1:
+        Bsprintf(tempbuf,"1 WATER (SE 7)");
+        break;
+    case 2:
+        Bsprintf(tempbuf,"2 UNDERWATER (SE 7)");
+        break;
+    case 9:
+        Bsprintf(tempbuf,"9 STAR TREK DOORS");
+        break;
+    case 15:
+        Bsprintf(tempbuf,"15 ELEVATOR TRANSPORT (SE 17)");
+        break;
+    case 16:
+        Bsprintf(tempbuf,"16 ELEVATOR PLATFORM DOWN");
+        break;
+    case 17:
+        Bsprintf(tempbuf,"17 ELEVATOR PLATFORM UP");
+        break;
+    case 18:
+        Bsprintf(tempbuf,"18 ELEVATOR DOWN");
+        break;
+    case 19:
+        Bsprintf(tempbuf,"19 ELEVATOR UP");
+        break;
+    case 20:
+        Bsprintf(tempbuf,"20 CEILING DOOR");
+        break;
+    case 21:
+        Bsprintf(tempbuf,"21 FLOOR DOOR");
+        break;
+    case 22:
+        Bsprintf(tempbuf,"22 SPLIT DOOR");
+        break;
+    case 23:
+        Bsprintf(tempbuf,"23 SWING DOOR (SE 11)");
+        break;
+    case 25:
+        Bsprintf(tempbuf,"25 SLIDE DOOR (SE 15)");
+        break;
+    case 26:
+        Bsprintf(tempbuf,"26 SPLIT STAR TREK DOOR");
+        break;
+    case 27:
+        Bsprintf(tempbuf,"27 BRIDGE (SE 20)");
+        break;
+    case 28:
+        Bsprintf(tempbuf,"28 DROP FLOOR (SE 21)");
+        break;
+    case 29:
+        Bsprintf(tempbuf,"29 TEETH DOOR (SE 22)");
+        break;
+    case 30:
+        Bsprintf(tempbuf,"30 ROTATE RISE BRIDGE");
+        break;
+    case 31:
+        Bsprintf(tempbuf,"31 2 WAY TRAIN (SE=30)");
+        break;
+    case 32767:
+        Bsprintf(tempbuf,"32767 SECRET ROOM");
+        break;
+    case -1:
+        Bsprintf(tempbuf,"65535 END OF LEVEL");
+        break;
+    default :
+        if (lotag > 10000 && lotag < 32767)
+            Bsprintf(tempbuf,"%d 1 TIME SOUND",lotag);
+        else  Bsprintf(tempbuf,"%hu",lotag);
+        break;
+    }
+    return(tempbuf);
+}
+
 const char *ExtGetSectorCaption(short sectnum)
 {
-    static char tempbuf[1024];
+    static char tempbuf[64];
     Bmemset(tempbuf,0,sizeof(tempbuf));
     if (qsetmode != 200 && (!(onnames==1 || onnames==4 || onnames==7) || (onnames==8)))
     {
@@ -374,77 +452,7 @@ const char *ExtGetSectorCaption(short sectnum)
     }
     else
     {
-        switch (sector[sectnum].lotag)
-        {
-        case 1:
-            Bsprintf(lo,"1 WATER (SE 7)");
-            break;
-        case 2:
-            Bsprintf(lo,"2 UNDERWATER (SE 7)");
-            break;
-        case 9:
-            Bsprintf(lo,"9 STAR TREK DOORS");
-            break;
-        case 15:
-            Bsprintf(lo,"15 ELEVATOR TRANSPORT (SE 17)");
-            break;
-        case 16:
-            Bsprintf(lo,"16 ELEVATOR PLATFORM DOWN");
-            break;
-        case 17:
-            Bsprintf(lo,"17 ELEVATOR PLATFORM UP");
-            break;
-        case 18:
-            Bsprintf(lo,"18 ELEVATOR DOWN");
-            break;
-        case 19:
-            Bsprintf(lo,"19 ELEVATOR UP");
-            break;
-        case 20:
-            Bsprintf(lo,"20 CEILING DOOR");
-            break;
-        case 21:
-            Bsprintf(lo,"21 FLOOR DOOR");
-            break;
-        case 22:
-            Bsprintf(lo,"22 SPLIT DOOR");
-            break;
-        case 23:
-            Bsprintf(lo,"23 SWING DOOR (SE 11)");
-            break;
-        case 25:
-            Bsprintf(lo,"25 SLIDE DOOR (SE 15)");
-            break;
-        case 26:
-            Bsprintf(lo,"26 SPLIT STAR TREK DOOR");
-            break;
-        case 27:
-            Bsprintf(lo,"27 BRIDGE (SE 20)");
-            break;
-        case 28:
-            Bsprintf(lo,"28 DROP FLOOR (SE 21)");
-            break;
-        case 29:
-            Bsprintf(lo,"29 TEETH DOOR (SE 22)");
-            break;
-        case 30:
-            Bsprintf(lo,"30 ROTATE RISE BRIDGE");
-            break;
-        case 31:
-            Bsprintf(lo,"31 2 WAY TRAIN (SE=30)");
-            break;
-        case 32767:
-            Bsprintf(lo,"32767 SECRET ROOM");
-            break;
-        case -1:
-            Bsprintf(lo,"65535 END OF LEVEL");
-            break;
-        default :
-            Bsprintf(lo,"%hu",sector[sectnum].lotag);
-            break;
-        }
-        if (sector[sectnum].lotag > 10000 && sector[sectnum].lotag < 32767)
-            Bsprintf(lo,"%d 1 TIME SOUND",sector[sectnum].lotag);
+        Bstrcpy(lo,ExtGetSectorType(sector[sectnum].lotag));
         if (qsetmode != 200)
             Bsprintf(tempbuf,"%hu,%s",sector[sectnum].hitag,lo);
         else Bstrcpy(tempbuf,lo);
@@ -454,7 +462,7 @@ const char *ExtGetSectorCaption(short sectnum)
 
 const char *ExtGetWallCaption(short wallnum)
 {
-    static char tempbuf[1024];
+    static char tempbuf[64];
 
     Bmemset(tempbuf,0,sizeof(tempbuf));
 
@@ -488,115 +496,127 @@ const char *ExtGetWallCaption(short wallnum)
     return(tempbuf);
 } //end
 
-const char *SectorEffectorText(short spritenum)
+const char *SectorEffectorTagText(int lotag)
 {
-    static char tempbuf[1024];
+    static char tempbuf[64];
     Bmemset(tempbuf,0,sizeof(tempbuf));
-    switch (sprite[spritenum].lotag)
+    switch (lotag)
     {
     case 0:
-        Bsprintf(tempbuf,"SE: ROTATED SECTOR");
+        Bsprintf(tempbuf,"%d: ROTATED SECTOR",lotag);
         break;
     case 1:
-        Bsprintf(tempbuf,"SE: PIVOT SPRITE FOR SE 0");
+        Bsprintf(tempbuf,"%d: PIVOT SPRITE FOR SE 0",lotag);
         break;
     case 2:
-        Bsprintf(tempbuf,"SE: EARTHQUAKE");
+        Bsprintf(tempbuf,"%d: EARTHQUAKE",lotag);
         break;
     case 3:
-        Bsprintf(tempbuf,"SE: RANDOM LIGHTS AFTER SHOT OUT");
+        Bsprintf(tempbuf,"%d: RANDOM LIGHTS AFTER SHOT OUT",lotag);
         break;
     case 4:
-        Bsprintf(tempbuf,"SE: RANDOM LIGHTS");
+        Bsprintf(tempbuf,"%d: RANDOM LIGHTS",lotag);
         break;
     case 6:
-        Bsprintf(tempbuf,"SE: SUBWAY");
+        Bsprintf(tempbuf,"%d: SUBWAY",lotag);
         break;
     case 7:
-        Bsprintf(tempbuf,"SE: TRANSPORT");
+        Bsprintf(tempbuf,"%d: TRANSPORT",lotag);
         break;
     case 8:
-        Bsprintf(tempbuf,"SE: UP OPEN DOOR LIGHTS");
+        Bsprintf(tempbuf,"%d: UP OPEN DOOR LIGHTS",lotag);
         break;
     case 9:
-        Bsprintf(tempbuf,"SE: DOWN OPEN DOOR LIGHTS");
+        Bsprintf(tempbuf,"%d: DOWN OPEN DOOR LIGHTS",lotag);
         break;
     case 10:
-        Bsprintf(tempbuf,"SE: DOOR AUTO CLOSE (H=DELAY)");
+        Bsprintf(tempbuf,"%d: DOOR AUTO CLOSE (H=DELAY)",lotag);
         break;
     case 11:
-        Bsprintf(tempbuf,"SE: ROTATE SECTOR DOOR");
+        Bsprintf(tempbuf,"%d: ROTATE SECTOR DOOR",lotag);
         break;
     case 12:
-        Bsprintf(tempbuf,"SE: LIGHT SWITCH");
+        Bsprintf(tempbuf,"%d: LIGHT SWITCH",lotag);
         break;
     case 13:
-        Bsprintf(tempbuf,"SE: EXPLOSIVE");
+        Bsprintf(tempbuf,"%d: EXPLOSIVE",lotag);
         break;
     case 14:
-        Bsprintf(tempbuf,"SE: SUBWAY CAR");
+        Bsprintf(tempbuf,"%d: SUBWAY CAR",lotag);
         break;
     case 15:
-        Bsprintf(tempbuf,"SE: SLIDE DOOR (ST 25)");
+        Bsprintf(tempbuf,"%d: SLIDE DOOR (ST 25)",lotag);
         break;
     case 16:
-        Bsprintf(tempbuf,"SE: ROTATE REACTOR SECTOR");
+        Bsprintf(tempbuf,"%d: ROTATE REACTOR SECTOR",lotag);
         break;
     case 17:
-        Bsprintf(tempbuf,"SE: ELEVATOR TRANSPORT (ST 15)");
+        Bsprintf(tempbuf,"%d: ELEVATOR TRANSPORT (ST 15)",lotag);
         break;
     case 18:
-        Bsprintf(tempbuf,"SE: INCREMENTAL SECTOR RISE/FALL");
+        Bsprintf(tempbuf,"%d: INCREMENTAL SECTOR RISE/FALL",lotag);
         break;
     case 19:
-        Bsprintf(tempbuf,"SE: CEILING FALL ON EXPLOSION");
+        Bsprintf(tempbuf,"%d: CEILING FALL ON EXPLOSION",lotag);
         break;
     case 20:
-        Bsprintf(tempbuf,"SE: BRIDGE (ST 27)");
+        Bsprintf(tempbuf,"%d: BRIDGE (ST 27)",lotag);
         break;
     case 21:
-        Bsprintf(tempbuf,"SE: DROP FLOOR (ST 28)");
+        Bsprintf(tempbuf,"%d: DROP FLOOR (ST 28)",lotag);
         break;
     case 22:
-        Bsprintf(tempbuf,"SE: TEETH DOOR (ST 29)");
+        Bsprintf(tempbuf,"%d: TEETH DOOR (ST 29)",lotag);
         break;
     case 23:
-        Bsprintf(tempbuf,"SE: 1-WAY SE7 DESTINATION (H=SE 7)");
+        Bsprintf(tempbuf,"%d: 1-WAY SE7 DESTINATION (H=SE 7)",lotag);
         break;
     case 24:
-        Bsprintf(tempbuf,"SE: CONVAYER BELT");
+        Bsprintf(tempbuf,"%d: CONVAYER BELT",lotag);
         break;
     case 25:
-        Bsprintf(tempbuf,"SE: ENGINE");
+        Bsprintf(tempbuf,"%d: ENGINE",lotag);
         break;
     case 28:
-        Bsprintf(tempbuf,"SE: LIGHTNING (H= TILE#4890)");
+        Bsprintf(tempbuf,"%d: LIGHTNING (H= TILE#4890)",lotag);
         break;
     case 27:
-        Bsprintf(tempbuf,"SE: CAMERA FOR PLAYBACK");
+        Bsprintf(tempbuf,"%d: CAMERA FOR PLAYBACK",lotag);
         break;
     case 29:
-        Bsprintf(tempbuf,"SE: FLOAT");
+        Bsprintf(tempbuf,"%d: FLOAT",lotag);
         break;
     case 30:
-        Bsprintf(tempbuf,"SE: 2 WAY TRAIN (ST=31)");
+        Bsprintf(tempbuf,"%d: 2 WAY TRAIN (ST=31)",lotag);
         break;
     case 31:
-        Bsprintf(tempbuf,"SE: FLOOR RISE");
+        Bsprintf(tempbuf,"%d: FLOOR RISE",lotag);
         break;
     case 32:
-        Bsprintf(tempbuf,"SE: CEILING FALL");
+        Bsprintf(tempbuf,"%d: CEILING FALL",lotag);
         break;
     case 33:
-        Bsprintf(tempbuf,"SE: SPAWN JIB W/QUAKE");
+        Bsprintf(tempbuf,"%d: SPAWN JIB W/QUAKE",lotag);
         break;
     case 36:
-        Bsprintf(tempbuf,"SE: SKRINK RAY SHOOTER");
+        Bsprintf(tempbuf,"%d: SKRINK RAY SHOOTER",lotag);
         break;
     default:
-        SpriteName(spritenum,tempbuf);
+        Bsprintf(tempbuf,"%d",lotag);
         break;
     }
+    return (tempbuf);
+}
+
+const char *SectorEffectorText(int spritenum)
+{
+    static char tempbuf[64];
+    Bmemset(tempbuf,0,sizeof(tempbuf));
+    Bmemset(lo,0,sizeof(lo));
+    Bstrcpy(lo,SectorEffectorTagText(sprite[spritenum].lotag));
+    if (!lo[5]) // tags are 5 chars or less
+        SpriteName(spritenum,tempbuf);
+    else Bsprintf(tempbuf,"SE: lo:%s",lo);
     return (tempbuf);
 }
 
@@ -643,7 +663,7 @@ const char *ExtGetSpriteCaption(short spritenum)
                 tempbuf[0] = 0;
             else
             {
-                Bsprintf(lo,"%s: %hu",SectorEffectorText(spritenum),sprite[spritenum].lotag);
+                Bsprintf(lo,"%s:",SectorEffectorText(spritenum));
                 Bsprintf(tempbuf,"%s, %hu",lo,sprite[spritenum].hitag);
             }
         }
@@ -1291,254 +1311,258 @@ HELPFILE_ERROR:
     return;
 }
 
-#define IHELP_NUMDISPLINES 42
+// this obviously sucks but it works
+#define IHELP_NUMDISPLINES ((overridepm16y>>4)+(overridepm16y>>5)+(overridepm16y>>7)-2)
 #define IHELP_PATLEN 45
 extern int overridepm16y;  // influences printmessage16() and clearmidstatbar16()
 
 static void IntegratedHelp()
 {
-    int i, j;
-    static int curhp=0, curline=0;
-    int highlighthp=-1, highlightline=-1, lasthighlighttime=0;
-    char disptext[IHELP_NUMDISPLINES][80];
-    char oldpattern[IHELP_PATLEN+1];
-
     if (!helppage) return;
 
-    begindrawing();
-    clearbuf((char *)(frameplace + (ydim-3*STATUS2DSIZ)*bytesperline), (bytesperline*(3*STATUS2DSIZ-25)) >> 2, 0L);
+    overridepm16y = 3*STATUS2DSIZ;
 
-    drawline16(0,ydim-3*STATUS2DSIZ,xdim-1,ydim-3*STATUS2DSIZ,1);
-    Bsprintf(tempbuf, "Mapster32" VERSION);
-    printext16(9L,ydim2d-3*STATUS2DSIZ+9L,4,-1,tempbuf,0);
-    printext16(8L,ydim2d-3*STATUS2DSIZ+8L,12,-1,tempbuf,0);
-    enddrawing();
+    {
+        int i, j;
+        static int curhp=0, curline=0;
+        int highlighthp=-1, highlightline=-1, lasthighlighttime=0;
+        char disptext[IHELP_NUMDISPLINES][80];
+        char oldpattern[IHELP_PATLEN+1];
 
-    memset(oldpattern, 0, sizeof(char));
-    overridepm16y = ydim-3*STATUS2DSIZ;
+        begindrawing();
+        clearbuf((char *)(frameplace + (ydim-overridepm16y)*bytesperline), (bytesperline*(overridepm16y-25)) >> 2, 0L);
+
+        drawline16(0,ydim-overridepm16y,xdim-1,ydim-overridepm16y,1);
+        Bsprintf(tempbuf, "Mapster32 Help Mode");
+        printext16(9L,ydim2d-overridepm16y+9L,4,-1,tempbuf,0);
+        printext16(8L,ydim2d-overridepm16y+8L,12,-1,tempbuf,0);
+        enddrawing();
+
+        memset(oldpattern, 0, sizeof(char));
 //    clearmidstatbar16();
 
-    while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0)
-    {
-        if (handleevents())
+        while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F1]==0)
         {
-            if (quitevent) quitevent = 0;
-        }
-        idle();
+            if (handleevents())
+            {
+                if (quitevent) quitevent = 0;
+            }
+            idle();
 //        printmessage16("Help mode, press <Esc> to exit");
 
-        if (keystatus[KEYSC_T])    // goto table of contents
-        {
-            keystatus[KEYSC_T]=0;
-            curhp=0;
-            curline=0;
-        }
-        else if (keystatus[KEYSC_G])    // goto arbitrary page
-        {
-            keystatus[KEYSC_G]=0;
-            Bsprintf(tempbuf, "Goto page: ");
-            curhp=getnumber16(tempbuf, 0, numhelppages-1, 0);
-            curline=0;
-        }
-        else if (keystatus[KEYSC_UP])    // scroll up
-        {
-            keystatus[KEYSC_UP]=0;
-            if (curline>0) curline--;
-        }
-        else if (keystatus[KEYSC_DOWN])    // scroll down
-        {
-            keystatus[KEYSC_DOWN]=0;
-            if (curline+IHELP_NUMDISPLINES < helppage[curhp]->numlines) curline++;
-        }
-        else if (keystatus[KEYSC_PGUP])    // scroll one page up
-        {
-            keystatus[KEYSC_PGUP]=0;
-            i=IHELP_NUMDISPLINES;
-            while (i>0 && curline>0) i--, curline--;
-        }
-        else if (keystatus[KEYSC_PGDN])    // scroll one page down
-        {
-            keystatus[KEYSC_PGDN]=0;
-            i=IHELP_NUMDISPLINES;
-            while (i>0 && curline+IHELP_NUMDISPLINES < helppage[curhp]->numlines) i--, curline++;
-        }
-        else if (keystatus[KEYSC_SPACE])   // goto next paragraph
-        {
-            keystatus[KEYSC_SPACE]=0;
-            for (i=curline, j=0; i < helppage[curhp]->numlines; i++)
+            if (keystatus[KEYSC_T])    // goto table of contents
             {
-                if (emptyline(helppage[curhp]->line[i])) { j=1; continue; }
-                if (j==1 && !emptyline(helppage[curhp]->line[i])) { j=2; break; }
-            }
-            if (j==2)
-            {
-                if (i+IHELP_NUMDISPLINES < helppage[curhp]->numlines)
-                    curline=i;
-                else if (helppage[curhp]->numlines-IHELP_NUMDISPLINES > curline)
-                    curline = helppage[curhp]->numlines-IHELP_NUMDISPLINES;
-            }
-        }
-        else if (keystatus[KEYSC_BS])   // goto prev paragraph
-        {
-            keystatus[KEYSC_BS]=0;
-            for (i=curline-1, j=0; i>=0; i--)
-            {
-                if (!emptyline(helppage[curhp]->line[i])) { j=1; continue; }
-                if (j==1 && emptyline(helppage[curhp]->line[i])) { j=2; break; }
-            }
-            if (j==2 || i==-1) curline=i+1;
-        }
-        else if (keystatus[KEYSC_HOME])    // goto beginning of page
-        {
-            keystatus[KEYSC_HOME]=0;
-            curline=0;
-        }
-        else if (keystatus[KEYSC_END])    // goto end of page
-        {
-            keystatus[KEYSC_END]=0;
-            if ((curline=helppage[curhp]->numlines-IHELP_NUMDISPLINES) >= 0) /**/;
-            else curline=0;
-        }
-        else if (keystatus[KEYSC_LEFT] || keystatus[KEYSC_LBRACK])    // prev page
-        {
-            keystatus[KEYSC_LEFT] = keystatus[KEYSC_LBRACK] = 0;
-            if (curhp>0)
-            {
-                curhp--;
+                keystatus[KEYSC_T]=0;
+                curhp=0;
                 curline=0;
             }
-        }
-        else if (keystatus[KEYSC_RIGHT] || keystatus[KEYSC_RBRACK])    // next page
-        {
-            keystatus[KEYSC_RIGHT] = keystatus[KEYSC_RBRACK] = 0;
-            if (curhp<numhelppages-1)
+            else if (keystatus[KEYSC_G])    // goto arbitrary page
             {
-                curhp++;
+                keystatus[KEYSC_G]=0;
+                Bsprintf(tempbuf, "Goto page: ");
+                curhp=getnumber16(tempbuf, 0, numhelppages-1, 0);
                 curline=0;
             }
-        }
-
-        // based on 'save as' dialog in overheadeditor()
-        else if (keystatus[KEYSC_S])    // text search
-        {
-
-            char ch, bad=0, pattern[IHELP_PATLEN+1];
-
-            for (i=0; i<IHELP_PATLEN+1; i++) pattern[i]=0;
-
-            i=0;
-            bflushchars();
-            while (bad == 0)
+            else if (keystatus[KEYSC_UP])    // scroll up
             {
-                Bsprintf(tempbuf,"Search: %s_", pattern);
-                printmessage16(tempbuf);
-                showframe(1);
-
-                if (handleevents())
+                keystatus[KEYSC_UP]=0;
+                if (curline>0) curline--;
+            }
+            else if (keystatus[KEYSC_DOWN])    // scroll down
+            {
+                keystatus[KEYSC_DOWN]=0;
+                if (curline+IHELP_NUMDISPLINES < helppage[curhp]->numlines) curline++;
+            }
+            else if (keystatus[KEYSC_PGUP])    // scroll one page up
+            {
+                keystatus[KEYSC_PGUP]=0;
+                i=IHELP_NUMDISPLINES;
+                while (i>0 && curline>0) i--, curline--;
+            }
+            else if (keystatus[KEYSC_PGDN])    // scroll one page down
+            {
+                keystatus[KEYSC_PGDN]=0;
+                i=IHELP_NUMDISPLINES;
+                while (i>0 && curline+IHELP_NUMDISPLINES < helppage[curhp]->numlines) i--, curline++;
+            }
+            else if (keystatus[KEYSC_SPACE])   // goto next paragraph
+            {
+                keystatus[KEYSC_SPACE]=0;
+                for (i=curline, j=0; i < helppage[curhp]->numlines; i++)
                 {
-                    if (quitevent) quitevent = 0;
+                    if (emptyline(helppage[curhp]->line[i])) { j=1; continue; }
+                    if (j==1 && !emptyline(helppage[curhp]->line[i])) { j=2; break; }
                 }
-                idle();
-
-                ch = bgetchar();
-
-                if (keystatus[1]) bad = 1;
-                else if (ch == 13) bad = 2;
-                else if (ch > 0)
+                if (j==2)
                 {
-                    if (i > 0 && (ch == 8 || ch == 127))
-                    {
-                        i--;
-                        pattern[i] = 0;
-                    }
-                    else if (i < IHELP_PATLEN && ch >= 32 && ch < 128)
-                    {
-                        pattern[i++] = ch;
-                        pattern[i] = 0;
-                    }
+                    if (i+IHELP_NUMDISPLINES < helppage[curhp]->numlines)
+                        curline=i;
+                    else if (helppage[curhp]->numlines-IHELP_NUMDISPLINES > curline)
+                        curline = helppage[curhp]->numlines-IHELP_NUMDISPLINES;
+                }
+            }
+            else if (keystatus[KEYSC_BS])   // goto prev paragraph
+            {
+                keystatus[KEYSC_BS]=0;
+                for (i=curline-1, j=0; i>=0; i--)
+                {
+                    if (!emptyline(helppage[curhp]->line[i])) { j=1; continue; }
+                    if (j==1 && emptyline(helppage[curhp]->line[i])) { j=2; break; }
+                }
+                if (j==2 || i==-1) curline=i+1;
+            }
+            else if (keystatus[KEYSC_HOME])    // goto beginning of page
+            {
+                keystatus[KEYSC_HOME]=0;
+                curline=0;
+            }
+            else if (keystatus[KEYSC_END])    // goto end of page
+            {
+                keystatus[KEYSC_END]=0;
+                if ((curline=helppage[curhp]->numlines-IHELP_NUMDISPLINES) >= 0) /**/;
+                else curline=0;
+            }
+            else if (keystatus[KEYSC_LEFT] || keystatus[KEYSC_LBRACK])    // prev page
+            {
+                keystatus[KEYSC_LEFT] = keystatus[KEYSC_LBRACK] = 0;
+                if (curhp>0)
+                {
+                    curhp--;
+                    curline=0;
+                }
+            }
+            else if (keystatus[KEYSC_RIGHT] || keystatus[KEYSC_RBRACK])    // next page
+            {
+                keystatus[KEYSC_RIGHT] = keystatus[KEYSC_RBRACK] = 0;
+                if (curhp<numhelppages-1)
+                {
+                    curhp++;
+                    curline=0;
                 }
             }
 
-            if (bad==1)
+            // based on 'save as' dialog in overheadeditor()
+            else if (keystatus[KEYSC_S])    // text search
             {
-                keystatus[KEYSC_ESC] = 0;
-            }
 
-            if (bad==2)
-            {
-                keystatus[KEYSC_ENTER] = 0;
+                char ch, bad=0, pattern[IHELP_PATLEN+1];
 
-                for (i=curhp; i<numhelppages; i++)
+                for (i=0; i<IHELP_PATLEN+1; i++) pattern[i]=0;
+
+                i=0;
+                bflushchars();
+                while (bad == 0)
                 {
-                    for (j = (i==curhp)?(curline+1):0; j<helppage[i]->numlines; j++)
+                    Bsprintf(tempbuf,"Search: %s_", pattern);
+                    printmessage16(tempbuf);
+                    showframe(1);
+
+                    if (handleevents())
                     {
-                        // entering an empty pattern will search with the last used pattern
-                        if (strstr(helppage[i]->line[j], pattern[0]?pattern:oldpattern))
+                        if (quitevent) quitevent = 0;
+                    }
+                    idle();
+
+                    ch = bgetchar();
+
+                    if (keystatus[1]) bad = 1;
+                    else if (ch == 13) bad = 2;
+                    else if (ch > 0)
+                    {
+                        if (i > 0 && (ch == 8 || ch == 127))
                         {
-                            curhp = i;
-
-                            if ((curline=j) <= helppage[i]->numlines-IHELP_NUMDISPLINES) /**/;
-                            else if ((curline=helppage[i]->numlines-IHELP_NUMDISPLINES) >= 0) /**/;
-                            else curline=0;
-
-                            highlighthp = i;
-                            highlightline = j;
-                            lasthighlighttime = totalclock;
-                            goto ENDFOR1;
+                            i--;
+                            pattern[i] = 0;
+                        }
+                        else if (i < IHELP_PATLEN && ch >= 32 && ch < 128)
+                        {
+                            pattern[i++] = ch;
+                            pattern[i] = 0;
                         }
                     }
                 }
+
+                if (bad==1)
+                {
+                    keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F1] = 0;
+                }
+
+                if (bad==2)
+                {
+                    keystatus[KEYSC_ENTER] = 0;
+
+                    for (i=curhp; i<numhelppages; i++)
+                    {
+                        for (j = (i==curhp)?(curline+1):0; j<helppage[i]->numlines; j++)
+                        {
+                            // entering an empty pattern will search with the last used pattern
+                            if (strstr(helppage[i]->line[j], pattern[0]?pattern:oldpattern))
+                            {
+                                curhp = i;
+
+                                if ((curline=j) <= helppage[i]->numlines-IHELP_NUMDISPLINES) /**/;
+                                else if ((curline=helppage[i]->numlines-IHELP_NUMDISPLINES) >= 0) /**/;
+                                else curline=0;
+
+                                highlighthp = i;
+                                highlightline = j;
+                                lasthighlighttime = totalclock;
+                                goto ENDFOR1;
+                            }
+                        }
+                    }
 ENDFOR1:
-                if (pattern[0])
-                    memcpy(oldpattern, pattern, IHELP_PATLEN+1);
+                    if (pattern[0])
+                        memcpy(oldpattern, pattern, IHELP_PATLEN+1);
+                }
             }
-        }
-        else    // '1'-'0' on the upper row
-        {
-            for (i=2; i<=11; i++)
-                if (keystatus[i]) break;
-            if (i--<12 && i<numhelppages)
+            else    // '1'-'0' on the upper row
             {
-                curhp=i;
-                curline=0;
+                for (i=2; i<=11; i++)
+                    if (keystatus[i]) break;
+                if (i--<12 && i<numhelppages)
+                {
+                    curhp=i;
+                    curline=0;
+                }
             }
+
+            clearmidstatbar16();
+            if (curhp < helppage[0]->numlines)
+            {
+                printmessage16(helppage[0]->line[curhp]);
+            }
+            else
+            {
+                for (i=Bsprintf(tempbuf, "%d. (Untitled page)", curhp); i<80; i++)
+                    tempbuf[i]=0;
+                printmessage16(tempbuf);
+            }
+
+            for (i=0; j=(curhp==0)?(i+curline+1):(i+curline),
+                    i<IHELP_NUMDISPLINES && j<helppage[curhp]->numlines; i++)
+            {
+                Bmemcpy(disptext[i], helppage[curhp]->line[j], 80);
+                printext16(8,ydim-overridepm16y+28+i*9,11,
+                           (j==highlightline && curhp==highlighthp
+                            && totalclock-lasthighlighttime<120*5)?1:-1,
+                           disptext[i],0);
+            }
+
+            showframe(1);
         }
 
         clearmidstatbar16();
-        if (curhp < helppage[0]->numlines)
-        {
-            printmessage16(helppage[0]->line[curhp]);
-        }
-        else
-        {
-            for (i=Bsprintf(tempbuf, "%d. (Untitled page)", curhp); i<80; i++)
-                tempbuf[i]=0;
-            printmessage16(tempbuf);
-        }
-
-        for (i=0; j=(curhp==0)?(i+curline+1):(i+curline),
-                i<IHELP_NUMDISPLINES && j<helppage[curhp]->numlines; i++)
-        {
-            Bmemcpy(disptext[i], helppage[curhp]->line[j], 80);
-            printext16(8,ydim-3*STATUS2DSIZ+28+i*9,11,
-                       (j==highlightline && curhp==highlighthp
-                        && totalclock-lasthighlighttime<120*5)?1:-1,
-                       disptext[i],0);
-        }
-
+        overridepm16y = -1;
+        i=ydim16;
+        ydim16=ydim;
+        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,1);
+        ydim16=i;
+        printmessage16("");
         showframe(1);
+
+        keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F1] = 0;
     }
-
-    clearmidstatbar16();
-    overridepm16y = -1;
-    i=ydim16;
-    ydim16=ydim;
-    drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,1);
-    ydim16=i;
-    printmessage16("");
-    showframe(1);
-
-    keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = 0;
 }
 // PK_ ^^^^
 
@@ -3008,6 +3032,7 @@ static void Keys3d(void)
     int hitx, hity, hitz, hihit, lohit;
     char smooshyalign=0, repeatpanalign=0, buffer[80];
     short startwall, endwall, dasector, hitsect, hitwall, hitsprite, statnum=0;
+    char tempbuf[128];
 
     /* start Mapster32 */
 
@@ -3178,9 +3203,8 @@ static void Keys3d(void)
         {
         case 1:
         case 2:
-            Bstrcpy(tempbuf,"Sector visibility: ");
             sector[searchsector].visibility =
-                getnumber256(tempbuf,sector[searchsector].visibility,256L,0);
+                getnumber256("Sector visibility: ",sector[searchsector].visibility,256L,0);
             break;
         }
     }
@@ -3442,31 +3466,22 @@ static void Keys3d(void)
         switch (searchstat)
         {
         case 1:
-            strcpy(tempbuf,"Sector ceilingz: ");
-            sector[searchsector].ceilingz = getnumber256(tempbuf,sector[searchsector].ceilingz,8388608,1);
+            sector[searchsector].ceilingz = getnumber256("Sector ceilingz: ",sector[searchsector].ceilingz,8388608,1);
             if (!(sector[searchsector].ceilingstat&2))
                 sector[searchsector].ceilingheinum = 0;
-
-            strcpy(tempbuf,"Sector ceiling slope: ");
-            sector[searchsector].ceilingheinum = getnumber256(tempbuf,sector[searchsector].ceilingheinum,65536,1);
+            sector[searchsector].ceilingheinum = getnumber256("Sector ceiling slope: ",sector[searchsector].ceilingheinum,65536,1);
             break;
         case 2:
-            strcpy(tempbuf,"Sector floorz: ");
-            sector[searchsector].floorz = getnumber256(tempbuf,sector[searchsector].floorz,8388608,1);
+            sector[searchsector].floorz = getnumber256("Sector floorz: ",sector[searchsector].floorz,8388608,1);
             if (!(sector[searchsector].floorstat&2))
                 sector[searchsector].floorheinum = 0;
-            strcpy(tempbuf,"Sector floor slope: ");
-            sector[searchsector].floorheinum = getnumber256(tempbuf,sector[searchsector].floorheinum,65536,1);
+            sector[searchsector].floorheinum = getnumber256("Sector floor slope: ",sector[searchsector].floorheinum,65536,1);
             break;
         case 3:
-            strcpy(tempbuf,"Sprite x: ");
-            sprite[searchwall].x = getnumber256(tempbuf,sprite[searchwall].x,131072,1);
-            strcpy(tempbuf,"Sprite y: ");
-            sprite[searchwall].y = getnumber256(tempbuf,sprite[searchwall].y,131072,1);
-            strcpy(tempbuf,"Sprite z: ");
-            sprite[searchwall].z = getnumber256(tempbuf,sprite[searchwall].z,8388608,1);
-            strcpy(tempbuf,"Sprite angle: ");
-            sprite[searchwall].ang = getnumber256(tempbuf,sprite[searchwall].ang,2048L,0);
+            sprite[searchwall].x = getnumber256("Sprite x: ",sprite[searchwall].x,131072,1);
+            sprite[searchwall].y = getnumber256("Sprite y: ",sprite[searchwall].y,131072,1);
+            sprite[searchwall].z = getnumber256("Sprite z: ",sprite[searchwall].z,8388608,1);
+            sprite[searchwall].ang = getnumber256("Sprite angle: ",sprite[searchwall].ang,2048L,0);
             break;
         }
         if (sector[searchsector].ceilingheinum == 0)
@@ -4740,20 +4755,21 @@ static void Keys3d(void)
         {
         case 0:
         case 4:
-            Bstrcpy(tempbuf,"Wall lotag: ");
             wall[searchwall].lotag =
-                getnumber256(tempbuf,wall[searchwall].lotag,65536L,0);
+                getnumber256("Wall lotag: ",wall[searchwall].lotag,65536L,0);
             break;
         case 1:
         case 2:
-            Bstrcpy(tempbuf,"Sector lotag: ");
             sector[searchsector].lotag =
-                getnumber256(tempbuf,sector[searchsector].lotag,65536L,0);
+                _getnumber256("Sector lotag: ",sector[searchsector].lotag,65536L,0,(void *)ExtGetSectorType);
             break;
         case 3:
-            Bstrcpy(tempbuf,"Sprite lotag: ");
-            sprite[searchwall].lotag =
-                getnumber256(tempbuf,sprite[searchwall].lotag,65536L,0);
+            if (sprite[searchwall].picnum == SECTOREFFECTOR)
+                sprite[searchwall].lotag =
+                    _getnumber256("Sprite lotag: ",sprite[searchwall].lotag,65536L,0,(void *)SectorEffectorTagText);
+            else
+                sprite[searchwall].lotag =
+                    getnumber256("Sprite lotag: ",sprite[searchwall].lotag,65536L,0);
             break;
         }
     }
@@ -4765,20 +4781,17 @@ static void Keys3d(void)
         {
         case 0:
         case 4:
-            Bstrcpy(tempbuf,"Wall hitag: ");
             wall[searchwall].hitag =
-                getnumber256(tempbuf,wall[searchwall].hitag,65536L,0);
+                getnumber256("Wall hitag: ",wall[searchwall].hitag,65536L,0);
             break;
         case 1:
         case 2:
-            Bstrcpy(tempbuf,"Sector hitag: ");
             sector[searchsector].hitag =
-                getnumber256(tempbuf,sector[searchsector].hitag,65536L,0);
+                getnumber256("Sector hitag: ",sector[searchsector].hitag,65536L,0);
             break;
         case 3:
-            Bstrcpy(tempbuf,"Sprite hitag: ");
             sprite[searchwall].hitag =
-                getnumber256(tempbuf,sprite[searchwall].hitag,65536L,0);
+                getnumber256("Sprite hitag: ",sprite[searchwall].hitag,65536L,0);
             break;
         }
     }
@@ -4790,24 +4803,21 @@ static void Keys3d(void)
         {
         case 0:
         case 4:
-            Bstrcpy(tempbuf,"Wall shade: ");
             wall[searchwall].shade =
-                getnumber256(tempbuf,wall[searchwall].shade,128L,1);
+                getnumber256("Wall shade: ",wall[searchwall].shade,128L,1);
             break;
         case 1:
         case 2:
-            Bstrcpy(tempbuf,"Sector shade: ");
             if (searchstat==1)
                 sector[searchsector].ceilingshade =
-                    getnumber256(tempbuf,sector[searchsector].ceilingshade,128L,1);
+                    getnumber256("Ceiling shade: ",sector[searchsector].ceilingshade,128L,1);
             if (searchstat==2)
                 sector[searchsector].floorshade =
-                    getnumber256(tempbuf,sector[searchsector].floorshade,128L,1);
+                    getnumber256("Floor shade: ",sector[searchsector].floorshade,128L,1);
             break;
         case 3:
-            Bstrcpy(tempbuf,"Sprite shade: ");
             sprite[searchwall].shade =
-                getnumber256(tempbuf,sprite[searchwall].shade,128L,1);
+                getnumber256("Sprite shade: ",sprite[searchwall].shade,128L,1);
             break;
         }
     }
@@ -4865,32 +4875,27 @@ static void Keys3d(void)
         switch (searchstat)
         {
         case 0:
-            strcpy(tempbuf,"Wall picnum: ");
-            i = getnumber256(tempbuf,wall[searchwall].picnum,MAXTILES-1,0);
+            i = getnumber256("Wall picnum: ",wall[searchwall].picnum,MAXTILES-1,0);
             if (tilesizx[i] != 0)
                 wall[searchwall].picnum = i;
             break;
         case 1:
-            strcpy(tempbuf,"Sector ceiling picnum: ");
-            i = getnumber256(tempbuf,sector[searchsector].ceilingpicnum,MAXTILES-1,0);
+            i = getnumber256("Sector ceiling picnum: ",sector[searchsector].ceilingpicnum,MAXTILES-1,0);
             if (tilesizx[i] != 0)
                 sector[searchsector].ceilingpicnum = i;
             break;
         case 2:
-            strcpy(tempbuf,"Sector floor picnum: ");
-            i = getnumber256(tempbuf,sector[searchsector].floorpicnum,MAXTILES-1,0);
+            i = getnumber256("Sector floor picnum: ",sector[searchsector].floorpicnum,MAXTILES-1,0);
             if (tilesizx[i] != 0)
                 sector[searchsector].floorpicnum = i;
             break;
         case 3:
-            strcpy(tempbuf,"Sprite picnum: ");
-            i = getnumber256(tempbuf,sprite[searchwall].picnum,MAXTILES-1,0);
+            i = getnumber256("Sprite picnum: ",sprite[searchwall].picnum,MAXTILES-1,0);
             if (tilesizx[i] != 0)
                 sprite[searchwall].picnum = i;
             break;
         case 4:
-            strcpy(tempbuf,"Masked wall picnum: ");
-            i = getnumber256(tempbuf,wall[searchwall].overpicnum,MAXTILES-1,0);
+            i = getnumber256("Masked wall picnum: ",wall[searchwall].overpicnum,MAXTILES-1,0);
             if (tilesizx[i] != 0)
                 wall[searchwall].overpicnum = i;
             break;
@@ -6004,7 +6009,7 @@ static void Keys2d(void)
             if (strlen(names[sprite[i].picnum]) > 0)
             {
                 if (sprite[i].picnum==SECTOREFFECTOR)
-                    Bsprintf(tmpbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",i,SectorEffectorText(i),sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
+                    Bsprintf(tmpbuf,"Sprite %d %s, hi:%d ex:%d",i,SectorEffectorText(i),sprite[i].hitag,sprite[i].extra);
                 else Bsprintf(tmpbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",i,names[sprite[i].picnum],sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
             }
             else Bsprintf(tmpbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",i,sprite[i].picnum,sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
@@ -6070,6 +6075,61 @@ static void Keys2d(void)
         }
     }
     enddrawing();
+
+    if (keystatus[0x14])  // T (tag)
+    {
+        char buffer[80];
+
+        keystatus[0x14] = 0;
+        if (keystatus[0x1d]|keystatus[0x9d])  //Ctrl-T
+        {
+            extern short showtags;
+
+            showtags ^= 1;
+            if (showtags == 0)
+                printmessage16("Show tags OFF");
+            else
+                printmessage16("Show tags ON");
+        }
+        else if (keystatus[0x38]|keystatus[0xb8])  //ALT
+        {
+            if (pointhighlight >= 16384)
+            {
+                i = pointhighlight-16384;
+                Bsprintf(buffer,"Sprite (%d) Lo-tag: ",i);
+                if (sprite[i].picnum == SECTOREFFECTOR)
+                    sprite[i].lotag = _getnumber16(buffer,sprite[i].lotag,65536L,0,(void *)SectorEffectorTagText);
+                else sprite[i].lotag = getnumber16(buffer,sprite[i].lotag,65536L,0);
+                clearmidstatbar16();
+                showspritedata((short)i);
+            }
+            else if (linehighlight >= 0)
+            {
+                i = linehighlight;
+                Bsprintf(buffer,"Wall (%d) Lo-tag: ",i);
+                wall[i].lotag = getnumber16(buffer,wall[i].lotag,65536L,0);
+                clearmidstatbar16();
+                showwalldata((short)i);
+            }
+            printmessage16("");
+        }
+        else
+        {
+            for (i=0;i<numsectors;i++)
+                if (inside(mousxplc,mousyplc,i) == 1)
+                {
+                    Bsprintf(buffer,"Sector (%d) Lo-tag: ",i);
+                    j = qsetmode;
+                    qsetmode = 200;
+                    sector[i].lotag = _getnumber16(buffer,sector[i].lotag,65536L,0,(void *)ExtGetSectorType);
+                    qsetmode = j;
+                    clearmidstatbar16();
+                    showsectordata((short)i);
+                    break;
+                }
+            printmessage16("");
+        }
+    }
 
     if (keystatus[KEYSC_F1] || (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_TILDE])) //F1 or ' ~
     {

@@ -73,6 +73,7 @@ extern void ExtShowSpriteData(short spritenum);
 extern void ExtEditSectorData(short sectnum);
 extern void ExtEditWallData(short wallnum);
 extern void ExtEditSpriteData(short spritenum);
+extern const char *ExtGetSectorType(int lotag);
 
 extern int circlewall;
 
@@ -82,8 +83,10 @@ int writesetup(const char *fn);	// from config.c
 void editinput(void);
 void clearmidstatbar16(void);
 
-int getnumber256(char namestart[80], int num, int maxnumber, char sign);
-int getnumber16(char namestart[80], int num, int maxnumber, char sign);
+int _getnumber256(char namestart[80], int num, int maxnumber, char sign, void *(func)(int));
+#define getnumber256(namestart, num, maxnumber, sign) _getnumber256(namestart, num, maxnumber, sign, NULL)
+int _getnumber16(char namestart[80], int num, int maxnumber, char sign, void *(func)(int));
+#define getnumber16(namestart, num, maxnumber, sign) _getnumber16(namestart, num, maxnumber, sign, NULL)
 void printmessage256(char name[82]);
 void _printmessage16(const char *fmt, ...);
 

@@ -964,7 +964,7 @@ void movedummyplayers(void)
 
         p = sprite[OW].yvel;
 
-        if (g_player[p].ps->on_crane >= 0 || (g_player[p].ps->cursectnum > -1 && sector[g_player[p].ps->cursectnum].lotag != 1) || sprite[g_player[p].ps->i].extra <= 0)
+        if (g_player[p].ps->on_crane >= 0 || (g_player[p].ps->cursectnum >= 0 && sector[g_player[p].ps->cursectnum].lotag != 1) || sprite[g_player[p].ps->i].extra <= 0)
         {
             g_player[p].ps->dummyplayersprite = -1;
             KILLIT(i);
@@ -2263,14 +2263,16 @@ CLEAR_THE_BOLT:
         case RUBBERCAN__STATIC:
         case STEAM__STATIC:
         case CEILINGSTEAM__STATIC:
+            if (!actorscrptr[sprite[i].picnum])
+                goto BOLT;
             p = findplayer(s, &x);
-            if (actorscrptr[sprite[i].picnum])
-                execute(i,p,x);
+            execute(i,p,x);
             goto BOLT;
         case WATERBUBBLEMAKER__STATIC:
+            if (!actorscrptr[sprite[i].picnum])
+                goto BOLT;
             p = findplayer(s, &x);
-            if (actorscrptr[sprite[i].picnum])
-                execute(i,p,x);
+            execute(i,p,x);
             goto BOLT;
         }
 
@@ -2383,7 +2385,7 @@ static void moveweapons(void)
                 getglobalz(i);
                 qq = CLIPMASK1;
 
-                if (hittype[i].projectile.trail > -1)
+                if (hittype[i].projectile.trail >= 0)
                 {
                     for (f=0;f<=hittype[i].projectile.tnum;f++)
                     {
@@ -2444,7 +2446,7 @@ static void moveweapons(void)
                                 if (hittype[i].projectile.syrepeat > 4)
                                     sprite[k].yrepeat=hittype[i].projectile.syrepeat;
                             }
-                            if (hittype[i].projectile.isound > -1)
+                            if (hittype[i].projectile.isound >= 0)
                                 spritesound(hittype[i].projectile.isound,i);
 
                             s->extra=hittype[i].projectile.extra;
@@ -2478,7 +2480,7 @@ static void moveweapons(void)
                             if (hittype[i].projectile.syrepeat > 4)
                                 sprite[k].yrepeat=hittype[i].projectile.syrepeat;
                         }
-                        if (hittype[i].projectile.isound > -1)
+                        if (hittype[i].projectile.isound >= 0)
                             spritesound(hittype[i].projectile.isound,i);
 
                         s->extra=hittype[i].projectile.extra;
@@ -2535,7 +2537,7 @@ static void moveweapons(void)
                             k = getangle(sprite[j].x-s->x,sprite[j].y-s->y)+(sprite[j].cstat&16?0:512);
                             s->ang = ((k<<1) - s->ang)&2047;
 
-                            if (hittype[i].projectile.bsound > -1)
+                            if (hittype[i].projectile.bsound >= 0)
                                 spritesound(hittype[i].projectile.bsound,i);
 
                             if (hittype[i].projectile.workslike & PROJECTILE_FLAG_LOSESVELOCITY)
@@ -2595,7 +2597,7 @@ static void moveweapons(void)
                                     sprite[k].yrepeat=hittype[i].projectile.syrepeat;
                             }
 
-                            if (hittype[i].projectile.isound > -1)
+                            if (hittype[i].projectile.isound >= 0)
                                 spritesound(hittype[i].projectile.isound,i);
 
                             if (!(hittype[i].projectile.workslike & PROJECTILE_FLAG_FORCEIMPACT))KILLIT(i);
@@ -2634,7 +2636,7 @@ static void moveweapons(void)
                                         wall[wall[j].point2].y-wall[j].y);
                                 s->ang = ((k<<1) - s->ang)&2047;
 
-                                if (hittype[i].projectile.bsound > -1)
+                                if (hittype[i].projectile.bsound >= 0)
                                     spritesound(hittype[i].projectile.bsound,i);
 
                                 if (hittype[i].projectile.workslike & PROJECTILE_FLAG_LOSESVELOCITY)
@@ -2665,7 +2667,7 @@ static void moveweapons(void)
 
                             s->yvel--;
 
-                            if (hittype[i].projectile.bsound > -1)
+                            if (hittype[i].projectile.bsound >= 0)
                                 spritesound(hittype[i].projectile.bsound,i);
 
                             if (hittype[i].projectile.workslike & PROJECTILE_FLAG_LOSESVELOCITY)
@@ -2694,18 +2696,16 @@ static void moveweapons(void)
 
                     if (hittype[i].projectile.workslike & PROJECTILE_FLAG_HITSCAN)
                     {
-                        if (actorscrptr[sprite[i].picnum])
-                        {
-                            p = findplayer(s,&x);
-                            execute(i,p,x);
-                        }
+                        if (!actorscrptr[sprite[i].picnum])
+                            goto BOLT;
+                        p = findplayer(s,&x);
+                        execute(i,p,x);
                         goto BOLT;
                     }
 
-
                     if (hittype[i].projectile.workslike & PROJECTILE_FLAG_RPG)
                     {
-                        if (hittype[i].projectile.isound > -1)
+                        if (hittype[i].projectile.isound >= 0)
                             spritesound(hittype[i].projectile.isound,i);
 
                         s->extra=hittype[i].projectile.extra;
@@ -3046,11 +3046,10 @@ static void moveweapons(void)
                 goto BOLT;
 
             case SHOTSPARK1__STATIC:
-                if (actorscrptr[sprite[i].picnum])
-                {
-                    p = findplayer(s,&x);
-                    execute(i,p,x);
-                }
+                if (!actorscrptr[sprite[i].picnum])
+                    goto BOLT;
+                p = findplayer(s,&x);
+                execute(i,p,x);
                 goto BOLT;
             }
         }
@@ -4712,12 +4711,10 @@ DETONATEB:
             }
         }
 
-        if (actorscrptr[sprite[i].picnum])
-        {
-            p = findplayer(s,&x);
-            execute(i,p,x);
-        }
-
+        if (!actorscrptr[sprite[i].picnum])
+            goto BOLT;
+        p = findplayer(s,&x);
+        execute(i,p,x);
 BOLT:
         i = nexti;
     }
@@ -5150,11 +5147,10 @@ static void moveexplosions(void)  // STATNUM 5
             case FORCERIPPLE__STATIC:
             case TRANSPORTERSTAR__STATIC:
             case TRANSPORTERBEAM__STATIC:
-                if (actorscrptr[sprite[i].picnum])
-                {
-                    p = findplayer(s,&x);
-                    execute(i,p,x);
-                }
+                if (!actorscrptr[sprite[i].picnum])
+                    goto BOLT;
+                p = findplayer(s,&x);
+                execute(i,p,x);
                 goto BOLT;
 
             case SHELL__STATIC:
