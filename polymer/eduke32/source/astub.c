@@ -3087,6 +3087,10 @@ void getnumberptr256(char namestart[80], void *num, int bytes, int maxnumber, ch
 
         clearkeys();
 
+        mouseb = 0;
+        searchx = osearchx;
+        searchy = osearchy;
+
         ExtCheckKeys();
 
         if (func != NULL)
@@ -3094,7 +3098,7 @@ void getnumberptr256(char namestart[80], void *num, int bytes, int maxnumber, ch
         else Bsprintf(buffer,"%s%d",namestart,danum);
 
         if (totalclock & 32) Bstrcat(buffer,"_ ");
-        printmessage256(buffer);
+        printmessage256(0, 0, buffer);
         showframe(1);
 
         if (ch >= '0' && ch <= '9')

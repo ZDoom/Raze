@@ -87,7 +87,7 @@ int _getnumber256(char namestart[80], int num, int maxnumber, char sign, void *(
 #define getnumber256(namestart, num, maxnumber, sign) _getnumber256(namestart, num, maxnumber, sign, NULL)
 int _getnumber16(char namestart[80], int num, int maxnumber, char sign, void *(func)(int));
 #define getnumber16(namestart, num, maxnumber, sign) _getnumber16(namestart, num, maxnumber, sign, NULL)
-void printmessage256(char name[82]);
+void printmessage256(int x, int y, char *name);
 void _printmessage16(const char *fmt, ...);
 
 #define printmessage16(fmt, ...) lastpm16time = totalclock, _printmessage16(fmt, ## __VA_ARGS__)

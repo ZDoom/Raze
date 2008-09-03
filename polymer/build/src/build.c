@@ -260,13 +260,13 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 
         ydim16 = ydim;
         drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,1);
-/*        drawline16(0,ydim-1,xdim-1,ydim-1,1);
-        drawline16(0,ydim-STATUS2DSIZ,0,ydim-1,1);
-        drawline16(xdim-1,ydim-STATUS2DSIZ,xdim-1,ydim-1,1);
-        drawline16(0,ydim-STATUS2DSIZ+24,xdim-1,ydim-STATUS2DSIZ+24,1);
-        drawline16(192-24,ydim-STATUS2DSIZ,192-24,ydim-STATUS2DSIZ+24,1);
-        drawline16(0,ydim-1-20,xdim-1,ydim-1-20,1);
-        drawline16(256,ydim-1-20,256,ydim-1,1); */
+        /*        drawline16(0,ydim-1,xdim-1,ydim-1,1);
+                drawline16(0,ydim-STATUS2DSIZ,0,ydim-1,1);
+                drawline16(xdim-1,ydim-STATUS2DSIZ,xdim-1,ydim-1,1);
+                drawline16(0,ydim-STATUS2DSIZ+24,xdim-1,ydim-STATUS2DSIZ+24,1);
+                drawline16(192-24,ydim-STATUS2DSIZ,192-24,ydim-STATUS2DSIZ+24,1);
+                drawline16(0,ydim-1-20,xdim-1,ydim-1-20,1);
+                drawline16(256,ydim-1-20,256,ydim-1,1); */
         ydim16 = ydim-STATUS2DSIZ;
         enddrawing();	//}}}
         return OSDCMD_OK;
@@ -689,40 +689,42 @@ void editinput(void)
         }
     }
 
-    if (mskip)mskip=0;else
+    if (mskip)
+        mskip=0;
+    else
     {
         if (mlook && !(unrealedlook && bstatus&(1|4)))
-{
-    ang += (mousx>>1)*msens;
-        horiz -= (mousy>>2)*msens;
-
-        if (mousy && !(mousy>>2))
-            horiz--;
-        if (mousx && !(mousx>>1))
-            ang++;
-        if (horiz > 299)
-            horiz = 299;
-        if (horiz < -99)
-            horiz = -99;
-        if (mlook == 1)
         {
-            searchx = xdim>>1;
-            searchy = ydim>>1;
+            ang += (mousx>>1)*msens;
+            horiz -= (mousy>>2)*msens;
+
+            if (mousy && !(mousy>>2))
+                horiz--;
+            if (mousx && !(mousx>>1))
+                ang++;
+            if (horiz > 299)
+                horiz = 299;
+            if (horiz < -99)
+                horiz = -99;
+            if (mlook == 1)
+            {
+                searchx = xdim>>1;
+                searchy = ydim>>1;
+            }
+            osearchx = searchx-mousx;
+            osearchy = searchy-mousy;
         }
-        osearchx = searchx-mousx;
-        osearchy = searchy-mousy;
-    }
-    else if (!(unrealedlook && (bstatus&(1|2|4))))
-{
-    osearchx = searchx;
-    osearchy = searchy;
-    searchx += mousx;
-    searchy += mousy;
-    if (searchx < 12) searchx = 12;
-        if (searchy < 12) searchy = 12;
-        if (searchx > xdim-13) searchx = xdim-13;
-        if (searchy > ydim-13) searchy = ydim-13;
-    }
+        else if (!(unrealedlook && (bstatus&(1|2|4))))
+        {
+            osearchx = searchx;
+            osearchy = searchy;
+            searchx += mousx;
+            searchy += mousy;
+            if (searchx < 12) searchx = 12;
+            if (searchy < 12) searchy = 12;
+            if (searchx > xdim-13) searchx = xdim-13;
+            if (searchy > ydim-13) searchy = ydim-13;
+        }
     }
 
 //    showmouse();
@@ -1447,15 +1449,15 @@ void overheadeditor(void)
 
     ydim16 = ydim;
     drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,1);
-/*    drawline16(0,ydim-1,xdim-1,ydim-1,1);
-    drawline16(0,ydim-STATUS2DSIZ,0,ydim-1,1);
-    drawline16(xdim-1,ydim-STATUS2DSIZ,xdim-1,ydim-1,1);
-    drawline16(0,ydim-STATUS2DSIZ+24,xdim-1,ydim-STATUS2DSIZ+24,1);
-    drawline16(192-24,ydim-STATUS2DSIZ,192-24,ydim-STATUS2DSIZ+24,1); */
+    /*    drawline16(0,ydim-1,xdim-1,ydim-1,1);
+        drawline16(0,ydim-STATUS2DSIZ,0,ydim-1,1);
+        drawline16(xdim-1,ydim-STATUS2DSIZ,xdim-1,ydim-1,1);
+        drawline16(0,ydim-STATUS2DSIZ+24,xdim-1,ydim-STATUS2DSIZ+24,1);
+        drawline16(192-24,ydim-STATUS2DSIZ,192-24,ydim-STATUS2DSIZ+24,1); */
     if (totalclock < 120*5)
     {
-         printmessage16("Press F1 for help");
-         printext16(8L,ydim-STATUS2DSIZ+32L,9,-1,kensig,0);
+        printmessage16("Press F1 for help");
+        printext16(8L,ydim-STATUS2DSIZ+32L,9,-1,kensig,0);
     }
 
     //  printmessage16("Version: "VERSION);
@@ -1616,45 +1618,45 @@ void overheadeditor(void)
         if (showtags == 1)
         {
             if (zoom >= 768)
-            for (i=0;i<numsectors;i++)
-            {
-                dabuffer = (char *)ExtGetSectorCaption(i);
-                if (dabuffer[0] != 0)
+                for (i=0;i<numsectors;i++)
                 {
-                    dax = 0;   //Get average point of sector
-                    day = 0;
-                    startwall = sector[i].wallptr;
-                    endwall = startwall + sector[i].wallnum - 1;
-                    for (j=startwall;j<=endwall;j++)
+                    dabuffer = (char *)ExtGetSectorCaption(i);
+                    if (dabuffer[0] != 0)
                     {
-                        dax += wall[j].x;
-                        day += wall[j].y;
-                    }
-                    if (endwall > startwall)
-                    {
-                        dax /= (endwall-startwall+1);
-                        day /= (endwall-startwall+1);
-                    }
+                        dax = 0;   //Get average point of sector
+                        day = 0;
+                        startwall = sector[i].wallptr;
+                        endwall = startwall + sector[i].wallnum - 1;
+                        for (j=startwall;j<=endwall;j++)
+                        {
+                            dax += wall[j].x;
+                            day += wall[j].y;
+                        }
+                        if (endwall > startwall)
+                        {
+                            dax /= (endwall-startwall+1);
+                            day /= (endwall-startwall+1);
+                        }
 
-                    dax = mulscale14(dax-posx,zoom);
-                    day = mulscale14(day-posy,zoom);
+                        dax = mulscale14(dax-posx,zoom);
+                        day = mulscale14(day-posy,zoom);
 
-                    x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
-                    y1 = midydim16+day-4;
-                    x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
-                    y2 = y1 + 7;
-                    if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
-                    {
-                        printext16(x1,y1,0,7,dabuffer,1);
-                        drawline16(x1-1,y1-1,x2-3,y1-1,7);
-                        drawline16(x1-1,y2+1,x2-3,y2+1,7);
+                        x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
+                        y1 = midydim16+day-4;
+                        x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
+                        y2 = y1 + 7;
+                        if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
+                        {
+                            printext16(x1,y1,0,7,dabuffer,1);
+                            drawline16(x1-1,y1-1,x2-3,y1-1,7);
+                            drawline16(x1-1,y2+1,x2-3,y2+1,7);
 
-                        drawline16(x1-2,y1,x1-2,y2,7);
-                        drawline16(x2-2,y1,x2-2,y2,7);
-                        drawline16(x2-3,y1,x2-3,y2,7);
+                            drawline16(x1-2,y1,x1-2,y2,7);
+                            drawline16(x2-2,y1,x2-2,y2,7);
+                            drawline16(x2-3,y1,x2-3,y2,7);
+                        }
                     }
                 }
-            }
 
             x3 = divscale14(-halfxdim16,zoom)+posx;
             y3 = divscale14(-(midydim16-4),zoom)+posy;
@@ -1702,52 +1704,52 @@ void overheadeditor(void)
 
             i = 0; j = numsprites;
             if (zoom >= 768)
-            while ((j > 0) && (i < MAXSPRITES))
-            {
-                if (sprite[i].statnum < MAXSTATUS)
+                while ((j > 0) && (i < MAXSPRITES))
                 {
-                    dabuffer = (char *)ExtGetSpriteCaption(i);
-                    if (dabuffer[0] != 0)
+                    if (sprite[i].statnum < MAXSTATUS)
                     {
-                        //Get average point of sprite
-                        dax = sprite[i].x;
-                        day = sprite[i].y;
-
-                        dax = mulscale14(dax-posx,zoom);
-                        day = mulscale14(day-posy,zoom);
-
-                        x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
-                        y1 = midydim16+day-4;
-                        x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
-                        y2 = y1 + 7;
-                        if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
+                        dabuffer = (char *)ExtGetSpriteCaption(i);
+                        if (dabuffer[0] != 0)
                         {
-                            col = 3;
-                            if (spritecol2d[sprite[i].picnum][0])
-                                col = spritecol2d[sprite[i].picnum][0];
-                            if ((sprite[i].cstat&1) > 0)
+                            //Get average point of sprite
+                            dax = sprite[i].x;
+                            day = sprite[i].y;
+
+                            dax = mulscale14(dax-posx,zoom);
+                            day = mulscale14(day-posy,zoom);
+
+                            x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
+                            y1 = midydim16+day-4;
+                            x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
+                            y2 = y1 + 7;
+                            if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
                             {
-                                col = 5;
-                                if (spritecol2d[sprite[i].picnum][1])
-                                    col = spritecol2d[sprite[i].picnum][1];
+                                col = 3;
+                                if (spritecol2d[sprite[i].picnum][0])
+                                    col = spritecol2d[sprite[i].picnum][0];
+                                if ((sprite[i].cstat&1) > 0)
+                                {
+                                    col = 5;
+                                    if (spritecol2d[sprite[i].picnum][1])
+                                        col = spritecol2d[sprite[i].picnum][1];
+                                }
+
+                                if ((i == pointhighlight-16384) && (totalclock & 32)) col += (2<<2);
+
+                                printext16(x1,y1,0,col,dabuffer,1);
+
+                                drawline16(x1-1,y1-1,x2-3,y1-1,col);
+                                drawline16(x1-1,y2+1,x2-3,y2+1,col);
+
+                                drawline16(x1-2,y1,x1-2,y2,col);
+                                drawline16(x2-2,y1,x2-2,y2,col);
+                                drawline16(x2-3,y1,x2-3,y2,col);
                             }
-
-                            if ((i == pointhighlight-16384) && (totalclock & 32)) col += (2<<2);
-
-                            printext16(x1,y1,0,col,dabuffer,1);
-
-                            drawline16(x1-1,y1-1,x2-3,y1-1,col);
-                            drawline16(x1-1,y2+1,x2-3,y2+1,col);
-
-                            drawline16(x1-2,y1,x1-2,y2,col);
-                            drawline16(x2-2,y1,x2-2,y2,col);
-                            drawline16(x2-3,y1,x2-3,y2,col);
                         }
+                        j--;
                     }
-                    j--;
+                    i++;
                 }
-                i++;
-            }
         }
 
         printcoords16(posx,posy,ang);
@@ -1922,7 +1924,8 @@ void overheadeditor(void)
                         j = nextspritesect[j];
                     }
                 }
-                /*if (k == 0)*/ keystatus[0x2d] = 0;
+                /*if (k == 0)*/
+                keystatus[0x2d] = 0;
                 printmessage16("Selected sector(s) flipped");
                 asksave = 1;
             }
@@ -2040,7 +2043,8 @@ void overheadeditor(void)
                         j = nextspritesect[j];
                     }
                 }
-                /*if (k == 0)*/ keystatus[0x15] = 0;
+                /*if (k == 0)*/
+                keystatus[0x15] = 0;
                 printmessage16("Selected sector(s) flipped");
                 asksave = 1;
             }
@@ -3117,10 +3121,10 @@ void overheadeditor(void)
                         printmessage16("Sectors joined.");
                     }
                 }
-				else
-				{
-					printmessage16("No sectors joined.");
-				}
+                else
+                {
+                    printmessage16("No sectors joined.");
+                }
                 joinsector[0] = -1;
             }
             else
@@ -5163,9 +5167,9 @@ void clearmidstatbar16(void)
     ydim16 = ydim;
     //  clearbuf((char *)(frameplace + (bytesperline*(ydim-STATUS2DSIZ+25L))),(bytesperline*(STATUS2DSIZ-1-(25<<1))) >> 2, 0x08080808l);
     if (overridepm16y < 0)
-		clearbuf((char *)(frameplace + (bytesperline*(ydim-STATUS2DSIZ+25L))),(bytesperline*(STATUS2DSIZ+2-(25<<1))) >> 2, 0x00000000l);
-	else
-		clearbuf((char *)(frameplace + (bytesperline*(ydim-overridepm16y+25L))),(bytesperline*(overridepm16y+2-(25<<1))) >> 2, 0x00000000l);
+        clearbuf((char *)(frameplace + (bytesperline*(ydim-STATUS2DSIZ+25L))),(bytesperline*(STATUS2DSIZ+2-(25<<1))) >> 2, 0x00000000l);
+    else
+        clearbuf((char *)(frameplace + (bytesperline*(ydim-overridepm16y+25L))),(bytesperline*(overridepm16y+2-(25<<1))) >> 2, 0x00000000l);
     drawline16(0,ydim-STATUS2DSIZ,0,ydim-1,7);
     drawline16(xdim-1,ydim-STATUS2DSIZ,xdim-1,ydim-1,7);
     ydim16 = ydim-STATUS2DSIZ;
@@ -5296,6 +5300,10 @@ int _getnumber256(char namestart[80], int num, int maxnumber, char sign, void *(
 
         clearkeys();
 
+        mouseb = 0;
+        searchx = osearchx;
+        searchy = osearchy;
+
         ExtCheckKeys();
 
         if (func != NULL)
@@ -5303,7 +5311,7 @@ int _getnumber256(char namestart[80], int num, int maxnumber, char sign, void *(
         else Bsprintf(buffer,"%s%d",namestart,danum);
 
         if (totalclock & 32) Bstrcat(buffer,"_ ");
-        printmessage256(buffer);
+        printmessage256(0, 0, buffer);
         showframe(1);
 
         if (ch >= '0' && ch <= '9')
@@ -5466,7 +5474,7 @@ int menuselect(void)
             dir = finddirshigh;
             for (i=(listsize/2)-1; i>=0; i--)
             {
-                if (!dir->prev) break; 
+                if (!dir->prev) break;
                 else dir=dir->prev;
             }
             for (i=0; ((i<listsize) && dir); i++, dir=dir->next)
@@ -6305,7 +6313,7 @@ void _printmessage16(const char *fmt, ...)
     }
     snotbuf[54] = 0;
     begindrawing();
-	ybase = (overridepm16y >= 0) ? ydim-overridepm16y : ydim-STATUS2DSIZ;
+    ybase = (overridepm16y >= 0) ? ydim-overridepm16y : ydim-STATUS2DSIZ;
     printext16(200L-24, ybase+8L, 9, 0, snotbuf, 0);
     i = 0;
     while (i < 54)
@@ -6318,7 +6326,7 @@ void _printmessage16(const char *fmt, ...)
     enddrawing();
 }
 
-void printmessage256(char name[82])
+void printmessage256(int x, int y, char *name)
 {
     char snotbuf[64];
     int i;
@@ -6335,8 +6343,8 @@ void printmessage256(char name[82])
         i++;
     }
     snotbuf[62] = 0;
-    printext256(2L,2L,0,-1,snotbuf,0);
-    printext256(0L,0L,whitecol,-1,snotbuf,0);
+    printext256(x+2,y+2,0,-1,snotbuf,0);
+    printext256(x,y,whitecol,-1,snotbuf,0);
 }
 
 //Find closest point (*dax, *day) on wall (dawall) to (x, y)
