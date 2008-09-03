@@ -585,7 +585,7 @@ int GetGameVarID(int id, int iActor, int iPlayer)
                 //  		  OSD_Printf("GetGameVarID(): reading from array\n");
                 if (index >= aGameArrays[id].size || index < 0)
                 {
-                    OSD_Printf(OSD_ERROR "GetGameVarID(): invalid array index (%s[%d])\n",aGameArrays[id].szLabel,index);
+                    OSD_Printf(CON_ERROR "GetGameVarID(): invalid array index (%s[%d])\n",line_num,keyw[g_tw],aGameArrays[id].szLabel,index);
                     return -1;
                 }
                 return(m * aGameArrays[id].plValues[index]);
@@ -593,7 +593,7 @@ int GetGameVarID(int id, int iActor, int iPlayer)
 
             if ((id&(MAXGAMEVARS<<1)) == 0)
             {
-                OSD_Printf(OSD_ERROR "GetGameVarID(): invalid gamevar ID (%d)\n",id);
+                OSD_Printf(CON_ERROR "GetGameVarID(): invalid gamevar ID (%d)\n",line_num,keyw[g_tw],id);
                 return -1;
             }
 
@@ -606,7 +606,7 @@ int GetGameVarID(int id, int iActor, int iPlayer)
             // for the current player
             if (iPlayer < 0 || iPlayer >= MAXPLAYERS)
             {
-                OSD_Printf(OSD_ERROR "GetGameVarID(): invalid player ID (%d)\n",iPlayer);
+                OSD_Printf(CON_ERROR "GetGameVarID(): invalid player ID (%d)\n",line_num,keyw[g_tw],iPlayer);
                 return -1;
             }
             return(m * aGameVars[id].plValues[iPlayer]);
@@ -617,7 +617,7 @@ int GetGameVarID(int id, int iActor, int iPlayer)
             // for the current actor
             if (iActor < 0 || iActor >= MAXSPRITES)
             {
-                OSD_Printf(OSD_ERROR "GetGameVarID(): invalid sprite ID (%d)\n",iActor);
+                OSD_Printf(CON_ERROR "GetGameVarID(): invalid sprite ID (%d)\n",line_num,keyw[g_tw],iActor);
                 return -1;
             }
             return(m * aGameVars[id].plValues[iActor]);
@@ -640,7 +640,7 @@ void SetGameArrayID(int id,int index, int lValue)
 {
     if (id<0 || id >= iGameArrayCount || !((index < aGameArrays[id].size)&&(index>=0)))
     {
-        OSD_Printf(OSD_ERROR "SetGameVarID(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",id,g_i,sprite[g_i].picnum,g_p);
+        OSD_Printf(CON_ERROR "SetGameVarID(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",line_num,keyw[g_tw],id,g_i,sprite[g_i].picnum,g_p);
         return;
     }
     aGameArrays[id].plValues[index]=lValue;
@@ -650,7 +650,7 @@ void SetGameVarID(int id, int lValue, int iActor, int iPlayer)
 {
     if (id<0 || id >= iGameVarCount)
     {
-        OSD_Printf(OSD_ERROR "SetGameVarID(): tried to set invalid gamevar ID (%d) from sprite %d (%d), player %d\n",id,g_i,sprite[g_i].picnum,g_p);
+        OSD_Printf(CON_ERROR "SetGameVarID(): tried to set invalid gamevar ID (%d) from sprite %d (%d), player %d\n",line_num,keyw[g_tw],id,g_i,sprite[g_i].picnum,g_p);
         return;
     }
     //Bsprintf(g_szBuf,"SGVI: %d ('%s') to %d for %d %d",id,aGameVars[id].szLabel,lValue,iActor,iPlayer);
@@ -659,7 +659,7 @@ void SetGameVarID(int id, int lValue, int iActor, int iPlayer)
     {
         if (iPlayer < 0 || iPlayer > MAXPLAYERS-1)
         {
-            OSD_Printf(OSD_ERROR "SetGameVarID(): invalid player (%d) for per-player gamevar %s from sprite %d, player %d\n",iPlayer,aGameVars[id].szLabel,g_i,g_p);
+            OSD_Printf(CON_ERROR "SetGameVarID(): invalid player (%d) for per-player gamevar %s from sprite %d, player %d\n",line_num,keyw[g_tw],iPlayer,aGameVars[id].szLabel,g_i,g_p);
             return;
         }
         // for the current player
@@ -671,7 +671,7 @@ void SetGameVarID(int id, int lValue, int iActor, int iPlayer)
     {
         if (iActor < 0 || iActor > MAXSPRITES-1)
         {
-            OSD_Printf(OSD_ERROR "SetGameVarID(): invalid sprite (%d) for per-actor gamevar %s from sprite %d (%d), player %d\n",iActor,aGameVars[id].szLabel,g_i,sprite[g_i].picnum,g_p);
+            OSD_Printf(CON_ERROR "SetGameVarID(): invalid sprite (%d) for per-actor gamevar %s from sprite %d (%d), player %d\n",line_num,keyw[g_tw],iActor,aGameVars[id].szLabel,g_i,sprite[g_i].picnum,g_p);
             return;
         }
         // for the current actor
@@ -722,7 +722,7 @@ static intptr_t *GetGameValuePtr(const char *szGameLabel)
     {
         if (!aGameVars[i].plValues)
         {
-            OSD_Printf(OSD_ERROR "GetGameValuePtr(): INTERNAL ERROR: NULL array !!!\n");
+            OSD_Printf(CON_ERROR "GetGameValuePtr(): INTERNAL ERROR: NULL array !!!\n",line_num,keyw[g_tw]);
         }
         return aGameVars[i].plValues;
     }
