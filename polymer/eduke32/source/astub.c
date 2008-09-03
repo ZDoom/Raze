@@ -616,7 +616,7 @@ const char *SectorEffectorText(int spritenum)
     Bstrcpy(lo,SectorEffectorTagText(sprite[spritenum].lotag));
     if (!lo[5]) // tags are 5 chars or less
         SpriteName(spritenum,tempbuf);
-    else Bsprintf(tempbuf,"SE: lo:%s",lo);
+    else Bsprintf(tempbuf,"SE %s",lo);
     return (tempbuf);
 }
 
@@ -663,7 +663,7 @@ const char *ExtGetSpriteCaption(short spritenum)
                 tempbuf[0] = 0;
             else
             {
-                Bsprintf(lo,"%s:",SectorEffectorText(spritenum));
+                Bsprintf(lo,"%s",SectorEffectorText(spritenum));
                 Bsprintf(tempbuf,"%s, %hu",lo,sprite[spritenum].hitag);
             }
         }
@@ -3276,7 +3276,7 @@ static void Keys3d(void)
                 lines[num++][0]=0;
                 if (getmessageleng)
                     break;
-                Bsprintf(lines[num++],"^251Sector %d^31 ceiling  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
+                Bsprintf(lines[num++],"^251Sector %d^31 ceiling, Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
                 Bsprintf(lines[num++],"Height: %d, Visibility:%d",height2,sector[searchsector].visibility);
                 break;
             case 2:
@@ -3290,7 +3290,7 @@ static void Keys3d(void)
                 lines[num++][0]=0;
                 if (getmessageleng)
                     break;
-                Bsprintf(lines[num++],"^251Sector %d^31 floor  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
+                Bsprintf(lines[num++],"^251Sector %d^31 floor, Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
                 Bsprintf(lines[num++],"Height:%d, Visibility:%d",height2,sector[searchsector].visibility);
                 break;
             case 3:
