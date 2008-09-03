@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #endif
 
-#define BUILDDATE " 20080828"
+#define BUILDDATE " 20080902"
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;
@@ -1158,14 +1158,23 @@ typedef struct helppage_
 helppage_t **helppage=NULL;
 int numhelppages=0;
 
+static int emptyline(const char *start)
+{
+    int i;
+    for (i=0; i<80; i++)
+    {
+        if (start[i]=='\n' || !start[i]) break;
+        if (start[i]!=' ' && start[i]!='\t' && start[i]!='\r')
+            return 0;
+    }
+    return 1;
+}
+
 static int newpage(const char *start)
 {
     int i;
     for (i=80-1; i>=0; i--)
     {
-//        if (start[i]=='\n' || !start[i]) break;
-//        if (start[i]!=' ' && start[i]!='\t' && start[i]!='\r')
-//            return 0;
         if (start[i] == '^' && start[i+1] == 'P')
             return 1;
     }
@@ -1282,21 +1291,32 @@ HELPFILE_ERROR:
     return;
 }
 
-#define IHELP_NUMDISPLINES 10
+#define IHELP_NUMDISPLINES 42
 #define IHELP_PATLEN 45
+extern int overridepm16y;  // influences printmessage16() and clearmidstatbar16()
 
 static void IntegratedHelp()
 {
     int i, j;
-    int curhp=0, curline=0;
+    static int curhp=0, curline=0;
     int highlighthp=-1, highlightline=-1, lasthighlighttime=0;
     char disptext[IHELP_NUMDISPLINES][80];
     char oldpattern[IHELP_PATLEN+1];
 
     if (!helppage) return;
 
+    begindrawing();
+    clearbuf((char *)(frameplace + (ydim-3*STATUS2DSIZ)*bytesperline), (bytesperline*(3*STATUS2DSIZ-25)) >> 2, 0L);
+
+    drawline16(0,ydim-3*STATUS2DSIZ,xdim-1,ydim-3*STATUS2DSIZ,1);
+    Bsprintf(tempbuf, "Mapster32" VERSION);
+    printext16(9L,ydim2d-3*STATUS2DSIZ+9L,4,-1,tempbuf,0);
+    printext16(8L,ydim2d-3*STATUS2DSIZ+8L,12,-1,tempbuf,0);
+    enddrawing();
+
     memset(oldpattern, 0, sizeof(char));
-    clearmidstatbar16();
+    overridepm16y = ydim-3*STATUS2DSIZ;
+//    clearmidstatbar16();
 
     while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0)
     {
@@ -1342,6 +1362,32 @@ static void IntegratedHelp()
             i=IHELP_NUMDISPLINES;
             while (i>0 && curline+IHELP_NUMDISPLINES < helppage[curhp]->numlines) i--, curline++;
         }
+        else if (keystatus[KEYSC_SPACE])   // goto next paragraph
+        {
+            keystatus[KEYSC_SPACE]=0;
+            for (i=curline, j=0; i < helppage[curhp]->numlines; i++)
+            {
+                if (emptyline(helppage[curhp]->line[i])) { j=1; continue; }
+                if (j==1 && !emptyline(helppage[curhp]->line[i])) { j=2; break; }
+            }
+            if (j==2)
+            {
+                if (i+IHELP_NUMDISPLINES < helppage[curhp]->numlines)
+                    curline=i;
+                else if (helppage[curhp]->numlines-IHELP_NUMDISPLINES > curline)
+                    curline = helppage[curhp]->numlines-IHELP_NUMDISPLINES;
+            }
+        }
+        else if (keystatus[KEYSC_BS])   // goto prev paragraph
+        {
+            keystatus[KEYSC_BS]=0;
+            for (i=curline-1, j=0; i>=0; i--)
+            {
+                if (!emptyline(helppage[curhp]->line[i])) { j=1; continue; }
+                if (j==1 && emptyline(helppage[curhp]->line[i])) { j=2; break; }
+            }
+            if (j==2 || i==-1) curline=i+1;
+        }
         else if (keystatus[KEYSC_HOME])    // goto beginning of page
         {
             keystatus[KEYSC_HOME]=0;
@@ -1353,18 +1399,18 @@ static void IntegratedHelp()
             if ((curline=helppage[curhp]->numlines-IHELP_NUMDISPLINES) >= 0) /**/;
             else curline=0;
         }
-        else if (keystatus[KEYSC_LEFT])    // prev page
+        else if (keystatus[KEYSC_LEFT] || keystatus[KEYSC_LBRACK])    // prev page
         {
-            keystatus[KEYSC_LEFT]=0;
+            keystatus[KEYSC_LEFT] = keystatus[KEYSC_LBRACK] = 0;
             if (curhp>0)
             {
                 curhp--;
                 curline=0;
             }
         }
-        else if (keystatus[KEYSC_RIGHT])    // next page
+        else if (keystatus[KEYSC_RIGHT] || keystatus[KEYSC_RBRACK])    // next page
         {
-            keystatus[KEYSC_RIGHT]=0;
+            keystatus[KEYSC_RIGHT] = keystatus[KEYSC_RBRACK] = 0;
             if (curhp<numhelppages-1)
             {
                 curhp++;
@@ -1454,6 +1500,7 @@ ENDFOR1:
             if (i--<12 && i<numhelppages)
             {
                 curhp=i;
+                curline=0;
             }
         }
 
@@ -1473,7 +1520,7 @@ ENDFOR1:
                 i<IHELP_NUMDISPLINES && j<helppage[curhp]->numlines; i++)
         {
             Bmemcpy(disptext[i], helppage[curhp]->line[j], 80);
-            printext16(8,ydim-STATUS2DSIZ+32+i*9,11,
+            printext16(8,ydim-3*STATUS2DSIZ+28+i*9,11,
                        (j==highlightline && curhp==highlighthp
                         && totalclock-lasthighlighttime<120*5)?1:-1,
                        disptext[i],0);
@@ -1482,6 +1529,12 @@ ENDFOR1:
         showframe(1);
     }
 
+    clearmidstatbar16();
+    overridepm16y = -1;
+    i=ydim16;
+    ydim16=ydim;
+    drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,1);
+    ydim16=i;
     printmessage16("");
     showframe(1);
 
@@ -5929,7 +5982,7 @@ static void Keys2d(void)
     char col;
 
     int repeatcountx=0,repeatcounty=0,smooshyalign,changedir;
-    static int opointhighlight=0, olinehighlight=0, ocursectornum=0;
+    static int opointhighlight=-1, olinehighlight=-1, ocursectornum=-1;
     /*
        for(i=0;i<0x50;i++)
        {if(keystatus[i]==1) {Bsprintf(tempbuf,"key %d",i); printmessage16(tempbuf);
@@ -6286,60 +6339,56 @@ static void Keys2d(void)
         {
             SearchSectorsForward();
         }
-        else
-
-            if (wallsprite==1)
+        else if (wallsprite==1)
+        {
+            if (curwallnum<MAXWALLS) curwallnum++;
+            for (i=curwallnum;i<=MAXWALLS;i++)
             {
-                if (curwallnum<MAXWALLS) curwallnum++;
-                for (i=curwallnum;i<=MAXWALLS;i++)
+                if (
+                    (wall[i].picnum==wall[curwall].picnum)
+                    &&((search_lotag==0)||
+                       (search_lotag!=0 && search_lotag==wall[i].lotag))
+                    &&((search_hitag==0)||
+                       (search_hitag!=0 && search_hitag==wall[i].hitag))
+                )
                 {
-                    if (
-                        (wall[i].picnum==wall[curwall].picnum)
-                        &&((search_lotag==0)||
-                           (search_lotag!=0 && search_lotag==wall[i].lotag))
-                        &&((search_hitag==0)||
-                           (search_hitag!=0 && search_hitag==wall[i].hitag))
-                    )
-                    {
-                        posx=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
-                        posy=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
-                        printmessage16("> Wall search: found");
-                        //                    curwallnum++;
-                        keystatus[KEYSC_RBRACK]=0;
-                        return;
-                    }
-                    curwallnum++;
+                    posx=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
+                    posy=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
+                    printmessage16("> Wall search: found");
+                    //                    curwallnum++;
+                    keystatus[KEYSC_RBRACK]=0;
+                    return;
                 }
-                printmessage16("> Wall search: none found");
+                curwallnum++;
             }
-            else
-
-                if (wallsprite==2)
+            printmessage16("> Wall search: none found");
+        }
+        else if (wallsprite==2)
+        {
+            if (cursearchspritenum<MAXSPRITES) cursearchspritenum++;
+            for (i=cursearchspritenum;i<=MAXSPRITES;i++)
+            {
+                if (
+                    (sprite[i].picnum==sprite[cursearchsprite].picnum &&
+                     sprite[i].statnum==0)
+                    &&((search_lotag==0)||
+                       (search_lotag!=0 && search_lotag==sprite[i].lotag))
+                    &&((search_hitag==0)||
+                       (search_hitag!=0 && search_hitag==sprite[i].hitag))
+                )
                 {
-                    if (cursearchspritenum<MAXSPRITES) cursearchspritenum++;
-                    for (i=cursearchspritenum;i<=MAXSPRITES;i++)
-                    {
-                        if (
-                            (sprite[i].picnum==sprite[cursearchsprite].picnum &&
-                             sprite[i].statnum==0)
-                            &&((search_lotag==0)||
-                               (search_lotag!=0 && search_lotag==sprite[i].lotag))
-                            &&((search_hitag==0)||
-                               (search_hitag!=0 && search_hitag==sprite[i].hitag))
-                        )
-                        {
-                            posx=sprite[i].x;
-                            posy=sprite[i].y;
-                            ang= sprite[i].ang;
-                            printmessage16("> Sprite search: found");
-                            //                    curspritenum++;
-                            keystatus[KEYSC_RBRACK]=0;
-                            return;
-                        }
-                        cursearchspritenum++;
-                    }
-                    printmessage16("> Sprite search: none found");
+                    posx=sprite[i].x;
+                    posy=sprite[i].y;
+                    ang= sprite[i].ang;
+                    printmessage16("> Sprite search: found");
+                    //                    curspritenum++;
+                    keystatus[KEYSC_RBRACK]=0;
+                    return;
                 }
+                cursearchspritenum++;
+            }
+            printmessage16("> Sprite search: none found");
+        }
     }
 
     {
@@ -6405,7 +6454,7 @@ static void Keys2d(void)
             printmessage16(tempbuf);
         }
 
-        else if (pointhighlight <= 16383)
+        else if (pointhighlight >= 0 /*<= 16383*/)
         {
             i = linehighlight;
             j = wall[i].x;
@@ -6506,10 +6555,6 @@ static void Keys2d(void)
     }
 
 }// end key2d
-
-void ExtSetupSpecialSpriteCols(void)
-{
-}
 
 static void InitCustomColors(void)
 {
@@ -9459,7 +9504,7 @@ static void FuncMenu(void)
 /*
 #define UNDODEPTH 96
 
-typedef struct
+typedef struct _mapundo
 {
     int numsectors;
     int numwalls;
@@ -9479,10 +9524,10 @@ typedef struct
 
     int revision;
 
-    mapundo_t *next; // 'redo' loads this
-    mapundo_t *prev; // 'undo' loads this
+    struct _mapundo *next; // 'redo' loads this
+    struct _mapundo *prev; // 'undo' loads this
 } mapundo_t;
 
-mapundo_t *undopos = NULL; // pointer to current
+mapundo_t *undopos = NULL;
 mapundo_t undoredo[UNDODEPTH];
 */

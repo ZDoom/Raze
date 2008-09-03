@@ -73,8 +73,6 @@ extern void ExtShowSpriteData(short spritenum);
 extern void ExtEditSectorData(short sectnum);
 extern void ExtEditWallData(short wallnum);
 extern void ExtEditSpriteData(short spritenum);
-extern char ExtCustomSpriteColor(short picnum);
-extern void ExtSetupSpecialSpriteCols(void);
 
 extern int circlewall;
 

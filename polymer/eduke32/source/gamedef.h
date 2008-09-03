@@ -55,6 +55,7 @@ extern char cheatstrings[][MAXCHEATLEN];
 extern char compilefile[BMAX_PATH];
 extern int total_lines,line_number;
 extern int error,warning;
+
 typedef struct
 {
     char *name;
@@ -71,6 +72,26 @@ extern const memberlabel_t projectilelabels[];
 extern const memberlabel_t userdeflabels[];
 extern const memberlabel_t inputlabels[];
 extern const memberlabel_t tsprlabels[];
+
+extern void DoUserDef(int iSet, int lLabelID, int lVar2);
+extern void DoThisProjectile(int iSet, int lVar1, int lLabelID, int lVar2);
+extern void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2);
+extern void DoInput(int iSet, int lVar1, int lLabelID, int lVar2);
+extern void DoWall(int iSet, int lVar1, int lLabelID, int lVar2);
+extern void DoSector(int iSet, int lVar1, int lLabelID, int lVar2);
+extern void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2);
+extern void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2);
+extern void DoProjectile(int iSet, int lVar1, int lLabelID, int lVar2);
+
+#define CON_ERROR OSD_ERROR "Line %d, %s: "
+
+extern int g_i,g_p;
+extern int checkCON;
+
+extern int line_num;
+extern int g_tw;
+extern const char *keyw[];
+extern spritetype *g_sp;
 
 enum errors
 {
