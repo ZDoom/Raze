@@ -3025,33 +3025,32 @@ void drawtileinfo(char *title,int x,int y,int picnum,int shade,int pal,int cstat
 }
 int snap=0;int saveval1,saveval2,saveval3;
 
-void getnumber_dochar(char *ptr, int num)
+static inline void getnumber_dochar(char *ptr, int num)
 {
     *ptr = (char) num;
 }
 
-void getnumber_doshort(short *ptr, int num)
+static inline void getnumber_doshort(short *ptr, int num)
 {
     *ptr = (short) num;
 }
 
-void getnumber_doint32(int32 *ptr, int num)
+static inline void getnumber_doint32(int32 *ptr, int num)
 {
     *ptr = (int32) num;
 }
 
-void getnumber_doint64(int64 *ptr, int num)
+static inline void getnumber_doint64(int64 *ptr, int num)
 {
     *ptr = (int64) num;
 }
 
-
-void getnumberptr256(char namestart[80], void *num, int bits, int maxnumber, char sign, void *(func)(int))
+void getnumberptr256(char namestart[80], void *num, int bytes, int maxnumber, char sign, void *(func)(int))
 {
     char buffer[80], ch;
     int n, danum = 0, oldnum;
 
-    switch (bits)
+    switch (bytes)
     {
     case 1:
         danum = *(char *)num;
@@ -3125,7 +3124,7 @@ void getnumberptr256(char namestart[80], void *num, int bits, int maxnumber, cha
         {
             danum = -danum;
         }
-        switch (bits)
+        switch (bytes)
         {
         case 1:
             getnumber_dochar(num, danum);
@@ -3145,7 +3144,7 @@ void getnumberptr256(char namestart[80], void *num, int bits, int maxnumber, cha
 
     lockclock = totalclock;  //Reset timing
 
-    switch (bits)
+    switch (bytes)
     {
     case 1:
         getnumber_dochar(num, oldnum);
@@ -3599,25 +3598,33 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_L]) // ' L
     {
+        i = noclip;
+        noclip = 1;
         switch (searchstat)
         {
         case 1:
-            sector[searchsector].ceilingz = getnumber256("Sector ceilingz: ",sector[searchsector].ceilingz,8388608,1);
+            getnumberptr256("Sector ceilingz: ",&sector[searchsector].ceilingz,sizeof(sector[searchsector].ceilingz),8388608,1,NULL);
             if (!(sector[searchsector].ceilingstat&2))
+            {
+                sector[searchsector].ceilingstat |= 2;
                 sector[searchsector].ceilingheinum = 0;
-            sector[searchsector].ceilingheinum = getnumber256("Sector ceiling slope: ",sector[searchsector].ceilingheinum,65536,1);
+            }
+            getnumberptr256("Sector ceiling slope: ",&sector[searchsector].ceilingheinum,sizeof(sector[searchsector].ceilingheinum),65536,1,NULL);
             break;
         case 2:
-            sector[searchsector].floorz = getnumber256("Sector floorz: ",sector[searchsector].floorz,8388608,1);
+            getnumberptr256("Sector floorz: ",&sector[searchsector].floorz,sizeof(sector[searchsector].floorz),8388608,1,NULL);
             if (!(sector[searchsector].floorstat&2))
+            {
                 sector[searchsector].floorheinum = 0;
-            sector[searchsector].floorheinum = getnumber256("Sector floor slope: ",sector[searchsector].floorheinum,65536,1);
+                sector[searchsector].floorstat |= 2;
+            }
+            getnumberptr256("Sector floor slope: ",&sector[searchsector].floorheinum,sizeof(sector[searchsector].floorheinum),65536,1,NULL);
             break;
         case 3:
-            sprite[searchwall].x = getnumber256("Sprite x: ",sprite[searchwall].x,131072,1);
-            sprite[searchwall].y = getnumber256("Sprite y: ",sprite[searchwall].y,131072,1);
-            sprite[searchwall].z = getnumber256("Sprite z: ",sprite[searchwall].z,8388608,1);
-            sprite[searchwall].ang = getnumber256("Sprite angle: ",sprite[searchwall].ang,2048L,0);
+            getnumberptr256("Sprite x: ",&sprite[searchwall].x,sizeof(sprite[searchwall].x),131072,1,NULL);
+            getnumberptr256("Sprite y: ",&sprite[searchwall].y,sizeof(sprite[searchwall].y),131072,1,NULL);
+            getnumberptr256("Sprite z: ",&sprite[searchwall].z,sizeof(sprite[searchwall].z),8388608,1,NULL);
+            getnumberptr256("Sprite angle: ",&sprite[searchwall].ang,sizeof(sprite[searchwall].ang),2048L,0,NULL);
             break;
         }
         if (sector[searchsector].ceilingheinum == 0)
@@ -3631,6 +3638,7 @@ static void Keys3d(void)
             sector[searchsector].floorstat |= 2;
         asksave = 1;
         keystatus[KEYSC_L] = 0;
+        noclip = i;
     }
 
     getzrange(posx,posy,posz,cursectnum,&hiz,&hihit,&loz,&lohit,128L,CLIPMASK0);
@@ -3659,9 +3667,6 @@ static void Keys3d(void)
             wall[searchwall].extra = getnumber256(buffer,(int)wall[searchwall].extra,65536L,1);
             break;
         case 1:
-            strcpy(buffer,"Sector extra: ");
-            sector[searchsector].extra = getnumber256(buffer,(int)sector[searchsector].extra,65536L,1);
-            break;
         case 2:
             strcpy(buffer,"Sector extra: ");
             sector[searchsector].extra = getnumber256(buffer,(int)sector[searchsector].extra,65536L,1);
