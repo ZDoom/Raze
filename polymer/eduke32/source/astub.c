@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #endif
 
-#define BUILDDATE " 20080902"
+#define BUILDDATE " 20080904"
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;
@@ -1528,6 +1528,9 @@ ENDFOR1:
             }
 
             clearmidstatbar16();
+
+
+
             if (curhp < helppage[0]->numlines)
             {
                 printmessage16(helppage[0]->line[curhp]);
@@ -1543,7 +1546,7 @@ ENDFOR1:
                     i<IHELP_NUMDISPLINES && j<helppage[curhp]->numlines; i++)
             {
                 Bmemcpy(disptext[i], helppage[curhp]->line[j], 80);
-                printext16(8,ydim-overridepm16y+28+i*9,11,
+                printext16(8,ydim-overridepm16y+28+i*9,15,
                            (j==highlightline && curhp==highlighthp
                             && totalclock-lasthighlighttime<120*5)?1:-1,
                            disptext[i],0);
@@ -3023,7 +3026,8 @@ void drawtileinfo(char *title,int x,int y,int picnum,int shade,int pal,int cstat
     printext256(x,y+i*7,whitecol,-1,buf,j);
     enddrawing();
 }
-int snap=0;int saveval1,saveval2,saveval3;
+int snap=0;
+int saveval1,saveval2,saveval3;
 
 static inline void getnumber_dochar(char *ptr, int num)
 {
@@ -3045,7 +3049,7 @@ static inline void getnumber_doint64(int64 *ptr, int num)
     *ptr = (int64) num;
 }
 
-void getnumberptr256(char namestart[80], void *num, int bytes, int maxnumber, char sign, void *(func)(int))
+void getnumberptr256(char *namestart, void *num, int bytes, int maxnumber, char sign, void *(func)(int))
 {
     char buffer[80], ch;
     int n, danum = 0, oldnum;

@@ -612,11 +612,27 @@ void editinput(void)
     getmousevalues(&mousx,&mousy,&bstatus);
     mousx = (mousx<<16)+mousexsurp;
     mousy = (mousy<<16)+mouseysurp;
+
+    if ((unrealedlook && !mskip) &&
+        (((!mlook && (bstatus&2) && !(bstatus&(1|4)))) || ((bstatus&1) && !(bstatus&(2|4)))))
+        mlook = 3;
+
     {
         ldiv_t ld;
-        ld = ldiv((int)(mousx), (1<<16)); mousx = ld.quot; mousexsurp = ld.rem;
-        ld = ldiv((int)(mousy), (1<<16)); mousy = ld.quot; mouseysurp = ld.rem;
+        if (mlook)
+        {
+            ld = ldiv((int)(mousx), (1<<16)/(msens*0.5f)); mousx = ld.quot; mousexsurp = ld.rem;
+            ld = ldiv((int)(mousy), (1<<16)/(msens*0.25f)); mousy = ld.quot; mouseysurp = ld.rem;
+        }
+        else
+        {
+            ld = ldiv((int)(mousx), (1<<16)/msens); mousx = ld.quot; mousexsurp = ld.rem;
+            ld = ldiv((int)(mousy), (1<<16)/msens); mousy = ld.quot; mouseysurp = ld.rem;
+        }
     }
+
+    if (mlook == 3)
+        mlook = 0;
 
     // UnrealEd:
     // rmb: mouselook
@@ -628,11 +644,9 @@ void editinput(void)
     {
         if ((bstatus&1) && !(bstatus&(2|4)))
         {
-            ang += (mousx>>1)*msens;
-            if (mousx && !(mousx>>1))
-                ang++;
-            xvect = -((mousy*(int)sintable[(ang+2560)&2047])<<pk_uedaccel);
-            yvect = -((mousy*(int)sintable[(ang+2048)&2047])<<pk_uedaccel);
+            ang += mousx;
+            xvect = -((mousy*(int)sintable[(ang+2560)&2047])<<(3+pk_uedaccel));
+            yvect = -((mousy*(int)sintable[(ang+2048)&2047])<<(3+pk_uedaccel));
 
             if (noclip)
             {
@@ -695,13 +709,13 @@ void editinput(void)
     {
         if (mlook && !(unrealedlook && bstatus&(1|4)))
         {
-            ang += (mousx>>1)*msens;
-            horiz -= (mousy>>2)*msens;
+            ang += mousx;
+            horiz -= mousy;
 
-            if (mousy && !(mousy>>2))
-                horiz--;
-            if (mousx && !(mousx>>1))
-                ang++;
+//            if (mousy && !(mousy/4))
+  //              horiz--;
+    //        if (mousx && !(mousx/2))
+      //          ang++;
             if (horiz > 299)
                 horiz = 299;
             if (horiz < -99)
@@ -1462,7 +1476,7 @@ void overheadeditor(void)
 
     //  printmessage16("Version: "VERSION);
 //    drawline16(0,ydim-1-20,xdim-1,ydim-1-20,1);
-    drawline16(256,ydim-1-20,256,ydim-1,1);
+//    drawline16(256,ydim-1-20,256,ydim-1,1);
     ydim16 = ydim-STATUS2DSIZ;
     enddrawing();	//}}}
 
@@ -1530,8 +1544,8 @@ void overheadeditor(void)
             ld = ldiv((int)(mousx), (1<<16)); mousx = ld.quot; mousexsurp = ld.rem;
             ld = ldiv((int)(mousy), (1<<16)); mousy = ld.quot; mouseysurp = ld.rem;
         }
-        searchx += mousx*msens;
-        searchy += mousy*msens;
+        searchx += mousx;
+        searchy += mousy;
         if (searchx < 8) searchx = 8;
         if (searchx > xdim-8-1) searchx = xdim-8-1;
         if (searchy < 8) searchy = 8;
@@ -5216,7 +5230,7 @@ int numloopsofsector(short sectnum)
     return(numloops);
 }
 
-int _getnumber16(char namestart[80], int num, int maxnumber, char sign, void *(func)(int))
+int _getnumber16(char *namestart, int num, int maxnumber, char sign, void *(func)(int))
 {
     char buffer[80], ch;
     int n, danum, oldnum;
@@ -5273,7 +5287,7 @@ int _getnumber16(char namestart[80], int num, int maxnumber, char sign, void *(f
     return(oldnum);
 }
 
-int _getnumber256(char namestart[80], int num, int maxnumber, char sign, void *(func)(int))
+int _getnumber256(char *namestart, int num, int maxnumber, char sign, void *(func)(int))
 {
     char buffer[80], ch;
     int n, danum, oldnum;
@@ -6021,7 +6035,7 @@ void printcoords16(int posxe, int posye, short ange)
     }
     snotbuf[46] = 0;
 
-    printext16(264, ydim-STATUS2DSIZ+128+2, 9+m, 0, snotbuf,0);
+    printext16(264, ydim-STATUS2DSIZ+128, 9+m, 0, snotbuf,0);
 }
 
 void updatenumsprites(void)
