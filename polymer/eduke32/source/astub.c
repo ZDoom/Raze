@@ -3169,6 +3169,314 @@ void getnumberptr256(char *namestart, void *num, int bytes, int maxnumber, char 
     }
 }
 
+int64 ldistsqr(spritetype *s1,spritetype *s2)
+{
+	return (((int64)(s2->x - s1->x))*((int64)(s2->x - s1->x)) +
+			((int64)(s2->y - s1->y))*((int64)(s2->y - s1->y)));
+}
+
+int bt2idx(short basetile)
+{
+	if (basetile==STARTALPHANUM) return 0;
+	if (basetile==BIGALPHANUM) return 1;
+	if (basetile==2966) return 2;
+	return 3;
+}
+
+void rendertext(short startspr)
+{
+	char ch, buffer[80], good;
+	short daang, t, basetile, linebegspr, curspr;
+	int i, k, dax, day;
+	static unsigned char hgap=0, vgap=4;
+	static unsigned char spcgap[4]=
+		{13, 15, 24, 5};
+//		{6, 6, 9, 2};
+//		{tilesizx[2830], tilesizx[3004], (tilesizx[2966]*3)/4, 2};
+	spritetype *sp;
+
+	if (startspr<0 || startspr>=MAXSPRITES ||
+		sprite[startspr].statnum >= MAXSTATUS)
+		return;
+
+	if ((sprite[startspr].cstat&16) == 0)
+	{
+		message("Must point at a wall-aligned text sprite.");
+		return;
+	}
+
+	t = sprite[startspr].picnum;
+	if (t >= STARTALPHANUM && t <= ENDALPHANUM)
+		basetile = STARTALPHANUM;  // blue font
+	else if ((t>=2929 && t<=2965) || (t>=3002 && t<=3009) || t==3022)
+		basetile = BIGALPHANUM;  // big red font
+	else if (t>=2966 && t<=3001)
+		basetile = 2966;  // silver font
+	else if ((t>=MINIFONT && t<=3135) || (t>=3162 && t<=3165))
+		basetile=MINIFONT;
+	else
+	{
+		message("Must point at a text sprite.");
+		return;
+	}
+
+	curspr = linebegspr = startspr;
+
+	daang = sprite[startspr].ang;
+	dax = sprite[startspr].x;
+	day = sprite[startspr].y;
+	sprite[startspr].xoffset = -(((picanm[sprite[startspr].picnum])>>8)&255);
+	sprite[startspr].yoffset = -(((picanm[sprite[startspr].picnum])>>16)&255);
+
+    bflushchars();
+    while (keystatus[0x1] == 0)
+    {
+        if (handleevents())
+        {
+            if (quitevent) quitevent = 0;
+        }
+
+		if (keystatus[KEYSC_UP])  // vertical gap in pixels (32 x-units)
+		{
+			keystatus[KEYSC_UP]=0;
+			if (vgap<255) vgap++;
+		}
+		if (keystatus[KEYSC_DOWN])
+		{
+			keystatus[KEYSC_DOWN]=0;
+			if (vgap>0) vgap--;
+		}
+
+		if (keystatus[KEYSC_RIGHT])  // horizontal gap in half pixels
+		{
+			keystatus[KEYSC_RIGHT]=0;
+			if (hgap<255) hgap++;
+		}
+		if (keystatus[KEYSC_LEFT])
+		{
+			keystatus[KEYSC_LEFT]=0;
+			if (hgap>0) hgap--;
+		}
+
+		if (keystatus[KEYSC_INSERT])  // space gap in half pixels
+		{
+			keystatus[KEYSC_INSERT]=0;
+			if (spcgap[bt2idx(basetile)]<255) spcgap[bt2idx(basetile)]++;
+		}
+		if (keystatus[KEYSC_DELETE])
+		{
+			keystatus[KEYSC_DELETE]=0;
+			if (spcgap[bt2idx(basetile)]>1) spcgap[bt2idx(basetile)]--;
+		}
+
+		if (keystatus[KEYSC_HOME])  // shade
+		{
+			keystatus[KEYSC_HOME]=0;
+			if (sprite[curspr].shade<127) sprite[curspr].shade++;
+		}
+		if (keystatus[KEYSC_END])
+		{
+			keystatus[KEYSC_END]=0;
+			if (sprite[curspr].shade>-128) sprite[curspr].shade--;
+		}
+
+		if (keystatus[KEYSC_PGUP])  // pal
+		{
+			keystatus[KEYSC_PGUP]=0;
+			if (sprite[curspr].pal<255) sprite[curspr].pal++;
+		}
+		if (keystatus[KEYSC_PGDN])
+		{
+			keystatus[KEYSC_PGDN]=0;
+			if (sprite[curspr].pal>0) sprite[curspr].pal--;
+		}
+
+        drawrooms(posx,posy,posz,ang,horiz,cursectnum);
+#ifdef SUPERBUILD
+        ExtAnalyzeSprites();
+#endif
+        drawmasks();
+
+        ch = bgetchar();
+
+        if (keystatus[0x1]) break;
+
+        clearkeys();
+
+        mouseb = 0;
+        searchx = osearchx;
+        searchy = osearchy;
+
+        ExtCheckKeys();
+
+		printmessage256(0,0,"^251Text entry mode.^31 Navigation keys change vars.");
+		Bsprintf(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
+				 hgap, vgap, spcgap[bt2idx(basetile)], sprite[curspr].shade, sprite[curspr].pal);
+        printmessage256(0, 9, buffer);
+        showframe(1);
+
+// ---
+		sp = &sprite[curspr];
+
+		// check for valid characters
+		good = 0;
+		if (basetile==STARTALPHANUM || basetile==MINIFONT)
+		{
+			if (ch >= 33 && ch <= 126) good=1;
+		}
+		else if (basetile==BIGALPHANUM || basetile==2966)
+		{
+			if (ch>='0' && ch<='9') good=1;
+			if (ch>='a' && ch<='z') good=1;
+			if (ch>='A' && ch<='Z') good=1;
+			if (basetile==BIGALPHANUM)
+				if (ch>=33 && ch<=126 && strchr("-.,!?;:/%'",ch))
+					good=1;
+		}
+
+        if (good)
+        {
+			// mapping char->tilenum
+			if (basetile==STARTALPHANUM)
+			{
+				t = STARTALPHANUM - 33 + ch;
+			}
+			else if (basetile==MINIFONT)
+			{
+				t = MINIFONT - 33 + ch;
+				if (ch>='a' && ch<='z') t -= 32;
+			}
+			else if (basetile==BIGALPHANUM)
+			{
+				if (ch>='0' && ch<='9') t = 2930 - '0' + ch;
+				else if (ch>='A' && ch<='Z') t = 2940 - 'A' + ch;
+				else if (ch>='a' && ch<='z') t = 2940 - 'a' + ch;
+				else
+				{
+					if (ch=='-') t=2929;
+					if (ch=='.') t=3002;
+					if (ch==',') t=3003;
+					if (ch=='!') t=3004;
+					if (ch=='?') t=3005;
+					if (ch==';') t=3006;
+					if (ch==':') t=3007;
+					if (ch=='/') t=3008;
+					if (ch=='%') t=3009;
+					if (ch=='\'') t=3022;
+				}
+			}
+			else if (basetile==2966)
+			{
+				if (ch>='0' && ch<='9') t = 2992 - '0' + ch;
+				else if (ch>='A' && ch<='Z') t = 2966 - 'A' + ch;
+				else if (ch>='a' && ch<='z') t = 2966 - 'a' + ch;				
+			}
+
+			// inside(...): too restricitve?
+			// if somebody wants to change this, keep BACKSPACE in mind,
+			// it iterates over sprites of only one sector
+			if (numsprites<MAXSPRITES && inside(dax,day,sprite[curspr].sectnum)==1)
+			{
+				dax += ((sp->xrepeat*(hgap+tilesizx[sp->picnum]+tilesizx[t])*sintable[daang])>>17);
+				day -= ((sp->xrepeat*(hgap+tilesizx[sp->picnum]+tilesizx[t])*sintable[(daang+512)&2047])>>17);
+
+				i = insertsprite(sprite[curspr].sectnum,0);
+                sprite[i].x = dax, sprite[i].y = day;
+				sprite[i].z = sprite[curspr].z;
+                sprite[i].cstat = (sprite[curspr].cstat | 16 ) & ~(32|128);
+				sprite[i].picnum = t;
+                sprite[i].shade = sprite[curspr].shade;
+                sprite[i].pal = sprite[curspr].pal;
+                sprite[i].xrepeat = sprite[curspr].xrepeat;
+				sprite[i].yrepeat = sprite[curspr].yrepeat;
+                sprite[i].xoffset = 0, sprite[i].yoffset = 0;
+                sprite[i].ang = daang;
+                sprite[i].xvel = 0; sprite[i].yvel = 0; sprite[i].zvel = 0;
+                sprite[i].owner = -1;
+                sprite[i].clipdist = 32;
+                sprite[i].lotag = 0;
+                sprite[i].hitag = 0;
+                sprite[i].extra = -1;
+
+				sprite[i].xoffset = -(((picanm[sprite[i].picnum])>>8)&255);
+				sprite[i].yoffset = -(((picanm[sprite[i].picnum])>>16)&255);
+
+				// TODO: tweaking the position of some letters that are still a bit off
+
+                for (k=0;k<MAXTILES;k++)
+                    localartfreq[k] = 0;
+                for (k=0;k<MAXSPRITES;k++)
+                    if (sprite[k].statnum < MAXSTATUS)
+                        localartfreq[sprite[k].picnum]++;
+
+				curspr = i;
+
+                updatenumsprites();
+                asksave = 1;
+			}
+        }
+		else if (ch == 32)
+		{
+            dax += ((sp->xrepeat*spcgap[bt2idx(basetile)]*sintable[daang])>>17);
+			day -= ((sp->xrepeat*spcgap[bt2idx(basetile)]*sintable[(daang+512)&2047])>>17);			
+		}
+        else if (ch == 8 || ch == 127)  	// backspace
+        {
+			int64 damindist=0x7fffffffffffffffULL, tdist;
+			short daspr = -1;
+			spritetype *ls, *ks;
+
+			for (k=headspritesect[sp->sectnum]; k>=0; k=nextspritesect[k])
+			{
+				if (k!=curspr && sprite[k].ang==daang && sprite[k].z==sp->z)
+				{
+					ls = &sprite[linebegspr];
+					ks = &sprite[k];
+
+					// true if k is inside the rectangular region defined by linebegspr,
+					// curspr and the coordinate system on the XY plane (good enough?)
+					if ((ks->x - ls->x)*(ks->x - sp->x) <= 0 &&
+						(ks->y - ls->y)*(ks->y - sp->y) <= 0)
+						if ((tdist=ldistsqr(sp, &sprite[k])) < damindist)
+						{
+							damindist = tdist;
+							daspr = k;
+						}
+				}
+			}
+
+			if (daspr >= 0)
+			{
+				if (curspr != linebegspr)
+				{
+//					message ("Deleted sprite %d.", curspr);
+					deletesprite(curspr);
+					curspr = daspr;
+					dax = sprite[curspr].x;
+					day = sprite[curspr].y;
+					updatenumsprites();
+					asksave=1;
+				}
+			}
+        }
+        else if (ch == 13)  // enter
+        {
+			sprite[linebegspr].z += ((sprite[linebegspr].yrepeat*(vgap+tilesizy[basetile]))<<2);
+			sprite[linebegspr].cstat = sprite[curspr].cstat;
+			sprite[linebegspr].shade = sprite[curspr].shade;
+			sprite[linebegspr].pal = sprite[curspr].pal;
+			curspr = linebegspr;
+			dax = sprite[curspr].x;
+			day = sprite[curspr].y;
+            asksave = 1;
+        }
+    }
+// ---
+    clearkeys();
+
+    lockclock = totalclock;  //Reset timing
+}
+
 static void Keys3d(void)
 {
     int i,count,rate,nexti,changedir;
@@ -5133,6 +5441,11 @@ static void Keys3d(void)
                 break;
             }
         }
+		else if (eitherCTRL)
+		{
+			if (searchstat == 3)
+				rendertext(searchwall);
+		}
         else
         {
             if (searchstat == 3)
