@@ -3175,18 +3175,10 @@ int64 ldistsqr(spritetype *s1,spritetype *s2)
 			((int64)(s2->y - s1->y))*((int64)(s2->y - s1->y)));
 }
 
-int bt2idx(short basetile)
-{
-	if (basetile==STARTALPHANUM) return 0;
-	if (basetile==BIGALPHANUM) return 1;
-	if (basetile==2966) return 2;
-	return 3;
-}
-
 void rendertext(short startspr)
 {
 	char ch, buffer[80], good;
-	short daang, t, basetile, linebegspr, curspr;
+	short daang, t, basetile, basetidx, linebegspr, curspr;
 	int i, k, dax, day;
 	static unsigned char hgap=0, vgap=4;
 	static unsigned char spcgap[4]=
@@ -3207,13 +3199,25 @@ void rendertext(short startspr)
 
 	t = sprite[startspr].picnum;
 	if (t >= STARTALPHANUM && t <= ENDALPHANUM)
+	{
 		basetile = STARTALPHANUM;  // blue font
+		basetidx = 0;
+	}
 	else if ((t>=2929 && t<=2965) || (t>=3002 && t<=3009) || t==3022)
+	{
 		basetile = BIGALPHANUM;  // big red font
+		basetidx = 1;
+	}
 	else if (t>=2966 && t<=3001)
+	{
 		basetile = 2966;  // silver font
+		basetidx = 2;
+	}
 	else if ((t>=MINIFONT && t<=3135) || (t>=3162 && t<=3165))
+	{
 		basetile=MINIFONT;
+		basetidx = 3;
+	}
 	else
 	{
 		message("Must point at a text sprite.");
@@ -3261,12 +3265,12 @@ void rendertext(short startspr)
 		if (keystatus[KEYSC_INSERT])  // space gap in half pixels
 		{
 			keystatus[KEYSC_INSERT]=0;
-			if (spcgap[bt2idx(basetile)]<255) spcgap[bt2idx(basetile)]++;
+			if (spcgap[basetidx]<255) spcgap[basetidx]++;
 		}
 		if (keystatus[KEYSC_DELETE])
 		{
 			keystatus[KEYSC_DELETE]=0;
-			if (spcgap[bt2idx(basetile)]>1) spcgap[bt2idx(basetile)]--;
+			if (spcgap[basetidx]>1) spcgap[basetidx]--;
 		}
 
 		if (keystatus[KEYSC_HOME])  // shade
@@ -3311,7 +3315,7 @@ void rendertext(short startspr)
 
 		printmessage256(0,0,"^251Text entry mode.^31 Navigation keys change vars.");
 		Bsprintf(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
-				 hgap, vgap, spcgap[bt2idx(basetile)], sprite[curspr].shade, sprite[curspr].pal);
+				 hgap, vgap, spcgap[basetidx], sprite[curspr].shade, sprite[curspr].pal);
         printmessage256(0, 9, buffer);
         showframe(1);
 
@@ -3417,8 +3421,8 @@ void rendertext(short startspr)
         }
 		else if (ch == 32)
 		{
-            dax += ((sp->xrepeat*spcgap[bt2idx(basetile)]*sintable[daang])>>17);
-			day -= ((sp->xrepeat*spcgap[bt2idx(basetile)]*sintable[(daang+512)&2047])>>17);			
+            dax += ((sp->xrepeat*spcgap[basetidx]*sintable[daang])>>17);
+			day -= ((sp->xrepeat*spcgap[basetidx]*sintable[(daang+512)&2047])>>17);			
 		}
         else if (ch == 8 || ch == 127)  	// backspace
         {
