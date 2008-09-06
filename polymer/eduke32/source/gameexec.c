@@ -1074,7 +1074,7 @@ static int parse(void)
                 hittype[g_i].extra = 1;
                 g_sp->zvel = 0;
             }
-            else if (g_sp->zvel > 2048 /* && sector[g_sp->sectnum].lotag != 1*/)
+            else if (g_sp->zvel > 2048  && sector[g_sp->sectnum].lotag != 1)
             {
                 j = g_sp->sectnum;
                 pushmove(&g_sp->x,&g_sp->y,&g_sp->z,(short*)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);

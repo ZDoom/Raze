@@ -4286,8 +4286,8 @@ CANCEL:
         if (keystatus[1])
         {
             keystatus[1] = 0;
-            printmessage16("(N)ew, (L)oad, (S)ave, save (A)s, (Q)uit,");
-//            printext16(200L+248, ydim-STATUS2DSIZ+17L, 9, 0, "(U)ndo, (R)edo", 0);
+            printmessage16("(N)ew, (L)oad, (S)ave, save (A)s, (Q)uit");
+//            printext16(200L+248, ydim-STATUS2DSIZ+20L, 9, 0, "(U)ndo, (R)edo", 0);
             showframe(1);
             bflushchars();
             bad = 1;
@@ -5248,11 +5248,15 @@ int _getnumber16(char *namestart, int num, int maxnumber, char sign, void *(func
 
         ch = bgetchar();
 
-        if (func != NULL)
-            Bsprintf(buffer,"%s^011%s",namestart,(char *)func((int)danum));
-        else Bsprintf(buffer,"%s^011%d",namestart,danum);
+        Bsprintf(buffer,"%s^011%d",namestart,danum);
         if (totalclock & 32) Bstrcat(buffer,"_ ");
         printmessage16(buffer);
+        if (func != NULL)
+        {
+            Bsprintf(buffer,"^011%s",(char *)func((int)danum));
+            printext16(200L-24, ydim-STATUS2DSIZ+20L, 9, 0, buffer, 0);
+        }
+
         showframe(1);
 
         if (ch >= '0' && ch <= '9')
@@ -5320,12 +5324,15 @@ int _getnumber256(char *namestart, int num, int maxnumber, char sign, void *(fun
 
         ExtCheckKeys();
 
-        if (func != NULL)
-            Bsprintf(buffer,"%s%s",namestart,(char *)func((int)danum));
-        else Bsprintf(buffer,"%s%d",namestart,danum);
-
+        Bsprintf(buffer,"%s%d",namestart,danum);
         if (totalclock & 32) Bstrcat(buffer,"_ ");
         printmessage256(0, 0, buffer);
+        if (func != NULL)
+        {
+            Bsprintf(buffer,"%s",(char *)func((int)danum));
+            printmessage256(0, 9, buffer);
+        }
+        
         showframe(1);
 
         if (ch >= '0' && ch <= '9')
@@ -6336,7 +6343,7 @@ void _printmessage16(const char *fmt, ...)
         i++;
     }
     snotbuf[54] = 0;
-    printext16(200L-24, ybase+17L, 9, 0, snotbuf, 0);
+    printext16(200L-24, ybase+20L, 9, 0, snotbuf, 0);
     enddrawing();
 }
 
