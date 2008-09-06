@@ -7458,7 +7458,7 @@ PALONLY:
     do
     {
         if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
-        if (spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS && tsprite[j].owner < MAXSPRITES && tsprite[j].owner > 0)
+        if (tsprite[j].owner < MAXSPRITES && tsprite[j].owner > 0 && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
         {
             OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
             spriteext[tsprite[j].owner].tspr = NULL;
