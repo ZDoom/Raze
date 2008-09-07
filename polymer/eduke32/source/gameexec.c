@@ -3821,6 +3821,24 @@ static int parse(void)
         parseifelse(GetGameVarID(j, g_i, g_p) & GetGameVarID(*(insptr), g_i, g_p));
         break;
 
+    case CON_IFVARVAROR:
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) | GetGameVarID(*(insptr), g_i, g_p));
+        break;
+
+    case CON_IFVARVARXOR:
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) ^ GetGameVarID(*(insptr), g_i, g_p));
+        break;
+
+    case CON_IFVARVAREITHER:
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) || GetGameVarID(*(insptr), g_i, g_p));
+        break;
+
     case CON_IFVARVARN:
         insptr++;
         j=*insptr++;
@@ -3894,6 +3912,24 @@ static int parse(void)
         insptr++;
         j=*insptr++;
         parseifelse(GetGameVarID(j, g_i, g_p) & *insptr);
+        break;
+
+    case CON_IFVAROR:
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) | *insptr);
+        break;
+
+    case CON_IFVARXOR:
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) ^ *insptr);
+        break;
+
+    case CON_IFVAREITHER:
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) || *insptr);
         break;
 
     case CON_IFVARG:

@@ -859,5 +859,11 @@ enum keywords
     CON_SETGAMEPALETTE,     // 334
     CON_SETDEFNAME,         // 335
     CON_SETCFGNAME,         // 336
+    CON_IFVAROR,            // 337
+    CON_IFVARVAROR,         // 338
+    CON_IFVARXOR,           // 339
+    CON_IFVARVARXOR,        // 340
+    CON_IFVAREITHER,        // 341
+    CON_IFVARVAREITHER,     // 342
     CON_END
 };

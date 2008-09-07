@@ -471,6 +471,12 @@ const char *keyw[] =
     "setgamepalette",           // 334
     "setdefname",               // 335
     "setcfgname",               // 336
+    "ifvaror",                  // 337
+    "ifvarvaror",               // 338
+    "ifvarxor",                 // 339
+    "ifvarvarxor",              // 340
+    "ifvareither",              // 341
+    "ifvarvareither",           // 342
     "<null>"
 };
 
@@ -4001,6 +4007,9 @@ static int parsecommand(void)
     case CON_IFVARVARE:
     case CON_IFVARVARN:
     case CON_IFVARVARAND:
+    case CON_IFVARVAROR:
+    case CON_IFVARVARXOR:
+    case CON_IFVARVAREITHER:
     case CON_WHILEVARVARN:
     {
         intptr_t offset;
@@ -4040,6 +4049,9 @@ static int parsecommand(void)
     case CON_IFVARE:
     case CON_IFVARN:
     case CON_IFVARAND:
+    case CON_IFVAROR:
+    case CON_IFVARXOR:
+    case CON_IFVAREITHER:
     case CON_WHILEVARN:
     {
         intptr_t offset;
