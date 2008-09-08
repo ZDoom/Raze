@@ -3270,7 +3270,8 @@ void rendertext(short startspr)
             if (quitevent) quitevent = 0;
         }
 
-        if (keystatus[KEYSC_UP])  // vertical gap in pixels (32 x-units)
+        // vertical gap in "relative" pixels (256 z-units for yrepeat=64)
+        if (keystatus[KEYSC_UP])
         {
             keystatus[KEYSC_UP]=0;
             if (vgap<255) vgap++;
@@ -3281,7 +3282,8 @@ void rendertext(short startspr)
             if (vgap>0) vgap--;
         }
 
-        if (keystatus[KEYSC_RIGHT])  // horizontal gap in half pixels
+        // horizontal gap in half "relative" pixels (16 x-units for xrepeat=64)
+        if (keystatus[KEYSC_RIGHT])
         {
             keystatus[KEYSC_RIGHT]=0;
             if (hgap<255) hgap++;
@@ -3292,7 +3294,7 @@ void rendertext(short startspr)
             if (hgap>0) hgap--;
         }
 
-        if (keystatus[KEYSC_INSERT])  // space gap in half pixels
+        if (keystatus[KEYSC_INSERT])  // space gap in half "relative" pixels
         {
             keystatus[KEYSC_INSERT]=0;
             if (spcgap[basetidx]<255) spcgap[basetidx]++;
@@ -3323,6 +3325,33 @@ void rendertext(short startspr)
         {
             keystatus[KEYSC_PGDN]=0;
             if (sprite[curspr].pal>0) sprite[curspr].pal--;
+        }
+
+        t=0;
+        if (keystatus[KEYSC_gUP])  // offsets
+        {
+            keystatus[KEYSC_gUP]=0; t=1;
+            if (sprite[curspr].yoffset<127) sprite[curspr].yoffset++;
+        }
+        if (keystatus[KEYSC_gDOWN])
+        {
+            keystatus[KEYSC_gDOWN]=0; t=1;
+            if (sprite[curspr].yoffset>-128) sprite[curspr].yoffset--;
+        }
+        if (keystatus[KEYSC_gLEFT])
+        {
+            keystatus[KEYSC_gLEFT]=0; t=1;
+            if (sprite[curspr].xoffset<127) sprite[curspr].xoffset++;
+        }
+        if (keystatus[KEYSC_gRIGHT])
+        {
+            keystatus[KEYSC_gRIGHT]=0; t=1;
+            if (sprite[curspr].xoffset>-128) sprite[curspr].xoffset--;
+        }
+        if (t==1)
+        {
+            Bsprintf(tempbuf,"Offset:  %d,%d",sprite[curspr].xoffset,sprite[curspr].yoffset);
+            message(tempbuf);
         }
 
         drawrooms(posx,posy,posz,ang,horiz,cursectnum);
@@ -3429,7 +3458,6 @@ void rendertext(short startspr)
                 sprite[i].pal = sprite[curspr].pal;
                 sprite[i].xrepeat = sprite[curspr].xrepeat;
                 sprite[i].yrepeat = sprite[curspr].yrepeat;
-                sprite[i].xoffset = 0, sprite[i].yoffset = 0;
                 sprite[i].ang = daang;
                 sprite[i].xvel = 0; sprite[i].yvel = 0; sprite[i].zvel = 0;
                 sprite[i].owner = -1;
@@ -3441,7 +3469,20 @@ void rendertext(short startspr)
                 sprite[i].xoffset = -(((picanm[sprite[i].picnum])>>8)&255);
                 sprite[i].yoffset = -(((picanm[sprite[i].picnum])>>16)&255);
 
-                // TODO: tweaking the position of some letters that are still a bit off
+                // Tweaking the position of some letters that are still a bit off
+                if (basetile == STARTALPHANUM)
+                {
+                    if (ch=='^') sprite[i].yoffset = 1;
+                    if (ch=='q' || ch=='Q') sprite[i].yoffset = -2;
+                    if (ch==';') sprite[i].yoffset = -3;
+                }
+                else if (basetile == MINIFONT)
+                {
+                    if (ch=='\'') sprite[i].yoffset = 3;
+                    if (ch=='q' || ch=='Q') sprite[i].yoffset = -1;
+                    if (ch==':') sprite[i].yoffset = 1;
+                    if (ch=='"') sprite[i].yoffset = 3;
+                }
 
                 DoSpriteOrnament(i);
 
