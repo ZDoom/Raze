@@ -193,6 +193,19 @@ int tilegroupActors;
 
 static unsigned int tile_groups = 0;
 
+#define NUMPRINTABLES 94
+#define MAX_ALPHABETS 32
+// alphabet definitions struct for the sprite text renderer
+typedef struct
+{
+    short pic[NUMPRINTABLES];  // maps printable ASCII chars to tilenums
+    signed char xofs[NUMPRINTABLES];  // additional offset
+    signed char yofs[NUMPRINTABLES];
+} alphabet_t;
+
+alphabet_t alphabets[MAX_ALPHABETS];
+static int numalphabets = 0;
+
 #define FIRST_USER_ART_TILE 3584
 // Some atomic tiles are sprinkled in the V1.3d's area but
 //   this is where the main atomic tiles start :-

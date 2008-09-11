@@ -3205,21 +3205,51 @@ int64 ldistsqr(spritetype *s1,spritetype *s2)
             ((int64)(s2->y - s1->y))*((int64)(s2->y - s1->y)));
 }
 
+#if 0
+void dumpalphabets()
+{
+    int i,j;
+
+    OSD_Printf("numalphabets=%d\n", numalphabets);
+
+    for (i=0; i<numalphabets; i++)
+    {
+        for (j=0; j<NUMPRINTABLES; j++)
+        {
+            OSD_Printf("%c:%d ", j+33, alphabets[i].pic[j]);
+            if ((j&15)==0) OSD_Printf("\n");
+        }
+        OSD_Printf("\n\n");
+    }
+}
+#endif
+
 void rendertext(short startspr)
 {
-    char ch, buffer[80], good;
-    short daang, t, basetile, basetidx, linebegspr, curspr;
-    int i, k, dax, day;
+    char ch, buffer[80];
+    short daang, t, alphidx, basetile, linebegspr, curspr;
+    int i, j, k, dax, day;
     static unsigned char hgap=0, vgap=4;
-    static unsigned char spcgap[4]=
-        {13, 15, 24, 5};
-//		{6, 6, 9, 2};
-//		{tilesizx[2830], tilesizx[3004], (tilesizx[2966]*3)/4, 2};
+    static unsigned char spcgap[MAX_ALPHABETS], firstrun=1;
     spritetype *sp;
+
+
+    if (firstrun)
+    {
+        firstrun=0;
+        for (i=0; i<numalphabets; i++)
+            spcgap[i] = 0;
+    }
 
     if (startspr<0 || startspr>=MAXSPRITES ||
             sprite[startspr].statnum == MAXSTATUS)
         return;
+
+    if (numalphabets == 0)
+    {
+        message("Alphabet configuration not read.");
+        return;
+    }
 
     if ((sprite[startspr].cstat&16) == 0)
     {
@@ -3228,39 +3258,34 @@ void rendertext(short startspr)
     }
 
     t = sprite[startspr].picnum;
-    if (t >= STARTALPHANUM && t <= ENDALPHANUM)
+    alphidx = -1;
+    for (i=0; i<numalphabets; i++)
     {
-        basetile = STARTALPHANUM;  // blue font
-        basetidx = 0;
+        for (j=0; j<NUMPRINTABLES; j++)
+            if (alphabets[i].pic[j] == t)
+            {
+                alphidx = i;
+                basetile = t;
+                if (spcgap[i] == 0)
+                    spcgap[i] = 3*tilesizx[t]/2;
+                break;
+            }
     }
-    else if ((t>=2929 && t<=2965) || (t>=3002 && t<=3009) || t==3022)
-    {
-        basetile = BIGALPHANUM;  // big red font
-        basetidx = 1;
-    }
-    else if (t>=2966 && t<=3001)
-    {
-        basetile = 2966;  // silver font
-        basetidx = 2;
-    }
-    else if ((t>=MINIFONT && t<=3135) || (t>=3162 && t<=3165))
-    {
-        basetile=MINIFONT;
-        basetidx = 3;
-    }
-    else
+    if (alphidx==-1)
     {
         message("Must point at a text sprite.");
+//        dumpalphabets();
         return;
     }
 
     curspr = linebegspr = startspr;
 
+    t = sprite[startspr].picnum;
     daang = sprite[startspr].ang;
     dax = sprite[startspr].x;
     day = sprite[startspr].y;
-    sprite[startspr].xoffset = -(((picanm[sprite[startspr].picnum])>>8)&255);
-    sprite[startspr].yoffset = -(((picanm[sprite[startspr].picnum])>>16)&255);
+    sprite[startspr].xoffset = -(((picanm[t])>>8)&255);
+    sprite[startspr].yoffset = -(((picanm[t])>>16)&255);
 
     bflushchars();
     while (keystatus[0x1] == 0)
@@ -3295,12 +3320,12 @@ void rendertext(short startspr)
         if (keystatus[KEYSC_INSERT])  // space gap in half pixels
         {
             keystatus[KEYSC_INSERT]=0;
-            if (spcgap[basetidx]<255) spcgap[basetidx]++;
+            if (spcgap[alphidx]<255) spcgap[alphidx]++;
         }
         if (keystatus[KEYSC_DELETE])
         {
             keystatus[KEYSC_DELETE]=0;
-            if (spcgap[basetidx]>1) spcgap[basetidx]--;
+            if (spcgap[alphidx]>1) spcgap[alphidx]--;
         }
 
         if (keystatus[KEYSC_HOME])  // shade
@@ -3345,68 +3370,19 @@ void rendertext(short startspr)
 
         printmessage256(0,0,"^251Text entry mode.^31 Navigation keys change vars.");
         Bsprintf(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
-                 hgap, vgap, spcgap[basetidx], sprite[curspr].shade, sprite[curspr].pal);
+                 hgap, vgap, spcgap[alphidx], sprite[curspr].shade, sprite[curspr].pal);
         printmessage256(0, 9, buffer);
         showframe(1);
 
 // ---
         sp = &sprite[curspr];
 
-        // check for valid characters
-        good = 0;
-        if (basetile==STARTALPHANUM || basetile==MINIFONT)
-        {
-            if (ch >= 33 && ch <= 126) good=1;
-        }
-        else if (basetile==BIGALPHANUM || basetile==2966)
-        {
-            if (ch>='0' && ch<='9') good=1;
-            if (ch>='a' && ch<='z') good=1;
-            if (ch>='A' && ch<='Z') good=1;
-            if (basetile==BIGALPHANUM)
-                if (ch>=33 && ch<=126 && strchr("-.,!?;:/%'",ch))
-                    good=1;
-        }
-
-        if (good)
+        if (ch>=33 && ch<=126 && alphabets[alphidx].pic[ch-33] >= 0)
         {
             short sect;
 
             // mapping char->tilenum
-            if (basetile==STARTALPHANUM)
-            {
-                t = STARTALPHANUM - 33 + ch;
-            }
-            else if (basetile==MINIFONT)
-            {
-                t = MINIFONT - 33 + ch;
-                if (ch>='a' && ch<='z') t -= 32;
-            }
-            else if (basetile==BIGALPHANUM)
-            {
-                if (ch>='0' && ch<='9') t = 2930 - '0' + ch;
-                else if (ch>='A' && ch<='Z') t = 2940 - 'A' + ch;
-                else if (ch>='a' && ch<='z') t = 2940 - 'a' + ch;
-                else
-                {
-                    if (ch=='-') t=2929;
-                    if (ch=='.') t=3002;
-                    if (ch==',') t=3003;
-                    if (ch=='!') t=3004;
-                    if (ch=='?') t=3005;
-                    if (ch==';') t=3006;
-                    if (ch==':') t=3007;
-                    if (ch=='/') t=3008;
-                    if (ch=='%') t=3009;
-                    if (ch=='\'') t=3022;
-                }
-            }
-            else if (basetile==2966)
-            {
-                if (ch>='0' && ch<='9') t = 2992 - '0' + ch;
-                else if (ch>='A' && ch<='Z') t = 2966 - 'A' + ch;
-                else if (ch>='a' && ch<='z') t = 2966 - 'a' + ch;
-            }
+            t = alphabets[alphidx].pic[ch-33];
 
             // inside(...): too restricitve?
             // if somebody wants to change this, keep BACKSPACE in mind,
@@ -3440,8 +3416,8 @@ void rendertext(short startspr)
 
                 sprite[i].xoffset = -(((picanm[sprite[i].picnum])>>8)&255);
                 sprite[i].yoffset = -(((picanm[sprite[i].picnum])>>16)&255);
-
-                // TODO: tweaking the position of some letters that are still a bit off
+                sprite[i].xoffset += alphabets[alphidx].xofs[(int)ch-33];
+                sprite[i].yoffset += alphabets[alphidx].yofs[(int)ch-33];
 
                 DoSpriteOrnament(i);
 
@@ -3459,8 +3435,8 @@ void rendertext(short startspr)
         }
         else if (ch == 32)
         {
-            dax += ((sp->xrepeat*spcgap[basetidx]*sintable[daang])>>17);
-            day -= ((sp->xrepeat*spcgap[basetidx]*sintable[(daang+512)&2047])>>17);
+            dax += ((sp->xrepeat*spcgap[alphidx]*sintable[daang])>>17);
+            day -= ((sp->xrepeat*spcgap[alphidx]*sintable[(daang+512)&2047])>>17);
         }
         else if (ch == 8 || ch == 127)  	// backspace
         {
@@ -7756,7 +7732,15 @@ enum
     T_HOTKEY,
     T_TILES,
     T_NOAUTOLOAD,
-    T_COLORS
+    T_COLORS,
+
+    T_ALPHABET,
+    T_MAP,
+    T_MAPA,
+    T_MAPRANGE,
+    T_MAPRANGEA,
+    T_OFFSET,
+    T_OFFSETA,
 };
 
 typedef struct
@@ -8087,6 +8071,197 @@ int loadtilegroups(char *fn)
     return 0;
 }
 
+int parsealphabets(scriptfile *script)
+{
+    int tokn;
+    char *cmdtokptr;
+
+    tokenlist alphtokens[] =
+    {
+        { "include",         T_INCLUDE          },
+        { "#include",        T_INCLUDE          },
+        { "define",          T_DEFINE           },
+        { "#define",         T_DEFINE           },
+        { "alphabet",        T_ALPHABET         },
+    };
+
+    while (1)
+    {
+        tokn = getatoken(script,alphtokens,sizeof(alphtokens)/sizeof(tokenlist));
+        cmdtokptr = script->ltextptr;
+        switch (tokn)
+        {
+        case T_INCLUDE:
+        {
+            char *fn;
+            if (!scriptfile_getstring(script,&fn))
+            {
+                scriptfile *included;
+
+                included = scriptfile_fromfile(fn);
+                if (!included)
+                {
+                    initprintf("Warning: Failed including %s on line %s:%d\n",
+                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                }
+                else
+                {
+                    parsealphabets(included);
+                    scriptfile_close(included);
+                }
+            }
+            break;
+        }
+        case T_DEFINE:
+        {
+            char *name;
+            int number;
+
+            if (scriptfile_getstring(script,&name)) break;
+            if (scriptfile_getsymbol(script,&number)) break;
+            if (scriptfile_addsymbolvalue(name,number) < 0)
+                initprintf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
+                           name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
+            break;
+        }
+        case T_ALPHABET:
+        {
+            char *end;
+            int i, j, k;
+
+            if (numalphabets >= MAX_ALPHABETS) break;
+            if (scriptfile_getbraces(script,&end)) break;
+
+            for (i=0; i<NUMPRINTABLES; i++)
+            {
+                alphabets[numalphabets].pic[i] = -1;
+                alphabets[numalphabets].xofs[i] = 0;
+                alphabets[numalphabets].yofs[i] = 0;
+            }
+
+            while (script->textptr < end)
+            {
+                tokenlist alphtokens2[] =
+                {
+                    { "map",        T_MAP         },
+                    { "mapa",       T_MAPA        },
+                    { "maprange",   T_MAPRANGE    },
+                    { "maprangea",  T_MAPRANGEA   },
+                    { "offset",     T_OFFSET      },
+                    { "offseta",    T_OFFSETA     },
+                };
+
+                int token = getatoken(script,alphtokens2,sizeof(alphtokens2)/sizeof(tokenlist));
+                switch (token)
+                {
+                case T_MAP:  // map <ascii num> <start tilenum>, e.g. map 46 3002
+                {
+                    if (scriptfile_getnumber(script,&i)) break;
+                    if (scriptfile_getsymbol(script,&j)) break;
+
+                    if (i>=33 && i<=126 && j>= 0 && j<MAXTILES)
+                        alphabets[numalphabets].pic[i-33] = j;
+
+                    break;
+                }
+                case T_MAPA:  // mapa <ascii string> <start tilenum>, e.g. map ".,!?" 3002
+                {
+                    char *s;
+                    if (scriptfile_getstring(script,&s)) break;
+                    if (scriptfile_getsymbol(script,&i)) break;
+
+                    for (;*s; s++, i++)
+                    {
+                        if (*s>=33 && *s<=126 && i>= 0 && i<MAXTILES)
+                            alphabets[numalphabets].pic[(*s)-33] = i;
+                    }
+                    break;
+                }
+                // maprange <start ascii num> <end ascii num> <start tilenum>, e.g. map 33 126 STARTALPHANUM
+                // maprangea <start char> <end char> <start tilenum>, e.g. map "!" "~" STARTALPHANUM
+                case T_MAPRANGE:
+                case T_MAPRANGEA:
+                {
+                    if (token==T_MAPRANGE)
+                    {
+                        if (scriptfile_getnumber(script,&i)) break;
+                        if (scriptfile_getnumber(script,&j)) break;
+                    }
+                    else
+                    {
+                        char *c1, *c2;
+                        if (scriptfile_getstring(script,&c1)) break;
+                        if (scriptfile_getstring(script,&c2)) break;
+                        i=*c1;
+                        j=*c2;
+                    }
+                    if (scriptfile_getsymbol(script,&k)) break;
+
+                    if (i>126 || j<33) break; 
+                    for (; i<=j && k<MAXTILES; i++, k++)
+                    {
+                        if (i>=33 && i<=126)
+                            alphabets[numalphabets].pic[i-33] = k;
+                    }
+                    break;
+                }
+                case T_OFFSET:  // offset <ascii num> <xoffset> <yoffset>
+                {
+                    if (scriptfile_getnumber(script, &i)) break;
+                    if (scriptfile_getnumber(script, &j)) break;
+                    if (scriptfile_getnumber(script, &k)) break;
+
+                    if (i >= 33 && i <= 126)
+                    {
+                        alphabets[numalphabets].xofs[i-33] = j;
+                        alphabets[numalphabets].yofs[i-33] = k;
+                    }
+                    break;
+                }
+                case T_OFFSETA:  // offseta <ascii string> <xoffset> <yoffset>
+                {
+                    char *s;
+                    if (scriptfile_getstring(script, &s)) break;
+                    if (scriptfile_getnumber(script, &i)) break;
+                    if (scriptfile_getnumber(script, &j)) break;
+
+                    for (;*s; s++)
+                        if (*s >= 33 && *s <= 126)
+                        {
+                            alphabets[numalphabets].xofs[(*s)-33] = i;
+                            alphabets[numalphabets].yofs[(*s)-33] = j;
+                        }
+                    break;
+                }
+                }
+            }
+            numalphabets++;
+            break;
+        }
+        case T_EOF:
+            return(0);
+        default:
+            break;
+        }
+    }
+    return 0;
+}
+
+int loadalphabets(char *fn)
+{
+    scriptfile *script;
+
+    script = scriptfile_fromfile(fn);
+    if (!script) return -1;
+
+    parsealphabets(script);
+
+    scriptfile_close(script);
+    scriptfile_clearsymbols();
+
+    return 0;
+}
+
 int ExtInit(void)
 {
     int rv = 0;
@@ -8281,6 +8456,7 @@ int ExtInit(void)
     registerosdcommands();
 
     loadtilegroups("tiles.cfg");
+    loadalphabets("alpha.cfg");
 
     ReadHelpFile("m32help.hlp");
 
