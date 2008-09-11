@@ -776,6 +776,7 @@ const memberlabel_t playerlabels[]=
     { "max_player_health", PLAYER_MAX_PLAYER_HEALTH, 0, 0 },
     { "max_shield_amount", PLAYER_MAX_SHIELD_AMOUNT, 0, 0 },
     { "max_ammo_amount", PLAYER_MAX_AMMO_AMOUNT, LABEL_HASPARM2, MAX_WEAPONS },
+    { "last_quick_kick", PLAYER_LAST_QUICK_KICK, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 

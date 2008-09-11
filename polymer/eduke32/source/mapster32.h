@@ -43,11 +43,10 @@ extern short editstatus, searchit;
 extern int searchx, searchy, osearchx, osearchy;      //search input
 extern short searchsector, searchwall, searchstat;     //search output
 
-#define AVERAGEFRAMES 128
 #define COLOR_RED 248
 #define COLOR_WHITE 31
 
-static int ototalclock = 0, clockval[AVERAGEFRAMES], clockcnt = 0;
+static int ototalclock = 0;
 
 #define NUMOPTIONS 9
 

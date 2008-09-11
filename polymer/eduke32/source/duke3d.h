@@ -477,7 +477,7 @@ typedef struct {
     short somethingonplayer,on_crane,i,one_parallax_sectnum;
     short over_shoulder_on,random_club_frame,fist_incs;
     short one_eighty_count,cheat_phase;
-    short dummyplayersprite,extra_extra8,quick_kick;
+    short dummyplayersprite,extra_extra8,quick_kick,last_quick_kick;
     short heat_amount,actorsqu,timebeforeexit,customexitsound;
 
     short weaprecs[16],weapreccnt;

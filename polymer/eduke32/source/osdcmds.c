@@ -748,7 +748,7 @@ cvarmappings cvar[] =
 #endif
     { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
     { "osdhightile", "osdhightile: enable/disable hires art replacements for console text", (void*)&osdhightile, CVAR_BOOL, 0, 0, 1 },
-    { "r_showfps", "r_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
+    { "r_showfps", "r_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_INT, 0, 0, 2 },
     { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void*)&ud.shadows, CVAR_BOOL, 0, 0, 1 },
     { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 0, 1 },
 

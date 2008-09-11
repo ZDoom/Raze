@@ -238,13 +238,17 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
                 if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
                 if (i != CB_ERR)
                 {
-                    for (j=0,dir=finddirs;dir != NULL;dir=dir->next,j++)
-                        if (j == i)
-                        {
-                            if (i==0) settings.gamedir = NULL;
-                            else settings.gamedir = dir->prev->name;
-                            break;
-                        }
+                    if (i==0)
+                        settings.gamedir = NULL;
+                    else
+                    {
+                        for (j=1,dir=finddirs;dir != NULL;dir=dir->next,j++)
+                            if (j == i)
+                            {
+                                settings.gamedir = dir->name;
+                                break;
+                            }
+                    }
                 }
             }
             return TRUE;

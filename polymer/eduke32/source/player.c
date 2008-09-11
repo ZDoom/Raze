@@ -2143,7 +2143,7 @@ static void myospalw(int x, int y, int tilenum, int shade, int orientation, int 
     }
 }
 
-static int fistsign, last_quick_kick[MAXPLAYERS];
+static int fistsign;
 
 void displayweapon(int snum)
 {
@@ -2200,7 +2200,7 @@ void displayweapon(int snum)
     if (GetGameVarID(g_iReturnVarID,p->i,snum) == 0)
     {
         j = 14-p->quick_kick;
-        if (j != 14 || last_quick_kick[snum])
+        if (j != 14 || p->last_quick_kick)
         {
             if (sprite[p->i].pal == 1)
                 pal = 1;
@@ -3151,12 +3151,12 @@ static int doincrements(player_struct *p)
 
     if (p->quick_kick > 0 && sprite[p->i].pal != 1)
     {
-        last_quick_kick[snum] = p->quick_kick+1;
+        p->last_quick_kick = p->quick_kick+1;
         p->quick_kick--;
         if (p->quick_kick == 8)
             shoot(p->i,KNEE);
     }
-    else if (last_quick_kick[snum] > 0) last_quick_kick[snum]--;
+    else if (p->last_quick_kick > 0) p->last_quick_kick--;
 
     if (p->access_incs && sprite[p->i].pal != 1)
     {

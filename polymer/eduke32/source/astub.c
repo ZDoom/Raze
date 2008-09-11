@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #endif
 
-#define BUILDDATE " 20080905"
+#define BUILDDATE " 20080907"
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;
@@ -3178,10 +3178,10 @@ static void DoSpriteOrnament(int i)
     short hitsect, hitwall, hitsprite;
 
     hitscan(sprite[i].x,sprite[i].y,sprite[i].z,sprite[i].sectnum,
-        sintable[(sprite[i].ang+2560+1024)&2047],
-        sintable[(sprite[i].ang+2048+1024)&2047],
-        0,
-        &hitsect,&hitwall,&hitsprite,&hitx,&hity,&hitz,CLIPMASK1);
+            sintable[(sprite[i].ang+2560+1024)&2047],
+            sintable[(sprite[i].ang+2048+1024)&2047],
+            0,
+            &hitsect,&hitwall,&hitsprite,&hitx,&hity,&hitz,CLIPMASK1);
 
     sprite[i].x = hitx;
     sprite[i].y = hity;
@@ -3270,8 +3270,7 @@ void rendertext(short startspr)
             if (quitevent) quitevent = 0;
         }
 
-        // vertical gap in "relative" pixels (256 z-units for yrepeat=64)
-        if (keystatus[KEYSC_UP])
+        if (keystatus[KEYSC_UP])  // vertical gap in pixels (32 x-units)
         {
             keystatus[KEYSC_UP]=0;
             if (vgap<255) vgap++;
@@ -3282,8 +3281,7 @@ void rendertext(short startspr)
             if (vgap>0) vgap--;
         }
 
-        // horizontal gap in half "relative" pixels (16 x-units for xrepeat=64)
-        if (keystatus[KEYSC_RIGHT])
+        if (keystatus[KEYSC_RIGHT])  // horizontal gap in half pixels
         {
             keystatus[KEYSC_RIGHT]=0;
             if (hgap<255) hgap++;
@@ -3294,7 +3292,7 @@ void rendertext(short startspr)
             if (hgap>0) hgap--;
         }
 
-        if (keystatus[KEYSC_INSERT])  // space gap in half "relative" pixels
+        if (keystatus[KEYSC_INSERT])  // space gap in half pixels
         {
             keystatus[KEYSC_INSERT]=0;
             if (spcgap[basetidx]<255) spcgap[basetidx]++;
@@ -3325,33 +3323,6 @@ void rendertext(short startspr)
         {
             keystatus[KEYSC_PGDN]=0;
             if (sprite[curspr].pal>0) sprite[curspr].pal--;
-        }
-
-        t=0;
-        if (keystatus[KEYSC_gUP])  // offsets
-        {
-            keystatus[KEYSC_gUP]=0; t=1;
-            if (sprite[curspr].yoffset<127) sprite[curspr].yoffset++;
-        }
-        if (keystatus[KEYSC_gDOWN])
-        {
-            keystatus[KEYSC_gDOWN]=0; t=1;
-            if (sprite[curspr].yoffset>-128) sprite[curspr].yoffset--;
-        }
-        if (keystatus[KEYSC_gLEFT])
-        {
-            keystatus[KEYSC_gLEFT]=0; t=1;
-            if (sprite[curspr].xoffset<127) sprite[curspr].xoffset++;
-        }
-        if (keystatus[KEYSC_gRIGHT])
-        {
-            keystatus[KEYSC_gRIGHT]=0; t=1;
-            if (sprite[curspr].xoffset>-128) sprite[curspr].xoffset--;
-        }
-        if (t==1)
-        {
-            Bsprintf(tempbuf,"Offset:  %d,%d",sprite[curspr].xoffset,sprite[curspr].yoffset);
-            message(tempbuf);
         }
 
         drawrooms(posx,posy,posz,ang,horiz,cursectnum);
@@ -3458,6 +3429,7 @@ void rendertext(short startspr)
                 sprite[i].pal = sprite[curspr].pal;
                 sprite[i].xrepeat = sprite[curspr].xrepeat;
                 sprite[i].yrepeat = sprite[curspr].yrepeat;
+                sprite[i].xoffset = 0, sprite[i].yoffset = 0;
                 sprite[i].ang = daang;
                 sprite[i].xvel = 0; sprite[i].yvel = 0; sprite[i].zvel = 0;
                 sprite[i].owner = -1;
@@ -3469,20 +3441,7 @@ void rendertext(short startspr)
                 sprite[i].xoffset = -(((picanm[sprite[i].picnum])>>8)&255);
                 sprite[i].yoffset = -(((picanm[sprite[i].picnum])>>16)&255);
 
-                // Tweaking the position of some letters that are still a bit off
-                if (basetile == STARTALPHANUM)
-                {
-                    if (ch=='^') sprite[i].yoffset = 1;
-                    if (ch=='q' || ch=='Q') sprite[i].yoffset = -2;
-                    if (ch==';') sprite[i].yoffset = -3;
-                }
-                else if (basetile == MINIFONT)
-                {
-                    if (ch=='\'') sprite[i].yoffset = 3;
-                    if (ch=='q' || ch=='Q') sprite[i].yoffset = -1;
-                    if (ch==':') sprite[i].yoffset = 1;
-                    if (ch=='"') sprite[i].yoffset = 3;
-                }
+                // TODO: tweaking the position of some letters that are still a bit off
 
                 DoSpriteOrnament(i);
 
@@ -3562,7 +3521,7 @@ void rendertext(short startspr)
 
 static void Keys3d(void)
 {
-    int i,count,rate,nexti,changedir;
+    int i,count,nexti,changedir;
     int j, k, tempint = 0, hiz, loz;
     int hihit, lohit;
     char smooshyalign=0, repeatpanalign=0, buffer[80];
@@ -5026,22 +4985,41 @@ static void Keys3d(void)
 
     //  DoWater(horiz);
 
-    if (totalclock != clockval[clockcnt])
+    if (framerateon)
     {
-        rate=(120*AVERAGEFRAMES)/(totalclock-clockval[clockcnt]);
-        clockval[clockcnt] = totalclock;
-        if (framerateon)
+        static int FrameCount = 0;
+        static int LastCount = 0;
+        static int LastSec = 0;
+        static int LastMS = 0;
+        int ms = getticks();
+        int howlong = ms - LastMS;
+        if (howlong >= 0)
         {
-            int x = (xdimgame <= 640);
-            int p = 32>>x;
+            int thisSec = ms/1000;
+            int x = (xdim <= 640);
+            int chars = Bsprintf(tempbuf, "%2u ms (%3u fps)", howlong, LastCount);
 
-            Bsprintf(tempbuf,"%4d",max(rate,0));
-            printext256(xdimgame-p-1+1,0+2,0,-1,tempbuf,x);
-            printext256(xdimgame-p-1,0+1,(rate < 40) ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
-            enddrawing();
+            if (!x)
+            {
+                printext256(windowx2-(chars<<3)+1,windowy1+2,0,-1,tempbuf,x);
+                printext256(windowx2-(chars<<3),windowy1+1,COLOR_WHITE,-1,tempbuf,x);
+            }
+            else
+            {
+                printext256(windowx2-(chars<<2)+1,windowy1+2,0,-1,tempbuf,x);
+                printext256(windowx2-(chars<<2),windowy1+1,COLOR_WHITE,-1,tempbuf,x);
+            }
+
+            if (LastSec < thisSec)
+            {
+                LastCount = FrameCount / (thisSec - LastSec);
+                LastSec = thisSec;
+                FrameCount = 0;
+            }
+            FrameCount++;
         }
+        LastMS = ms;
     }
-    clockcnt = ((clockcnt+1)&(AVERAGEFRAMES-1));
 
     tempbuf[0] = 0;
     if (bstatus&4 && !(bstatus&(1|2)) && !unrealedlook)  //PK
@@ -6576,13 +6554,15 @@ static void Keys2d(void)
 
         if (sprite[i].picnum == 5 /*&& zoom >= 256*/ && sprite[i].sectnum != MAXSECTORS)
         {
-            radius = mulscale15(sprite[i].hitag,zoom);
+            radius = mulscale14(sprite[i].hitag,zoom);
             col = 6;
             if (i+16384 == pointhighlight)
                 if (totalclock & 32) col += (2<<2);
-//            drawlinepat = 0xf0f0f0f0;
+            drawlinepat = 0xf0f0f0f0;
             drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
-//            drawlinepat = 0xffffffff;
+            drawlinepat = 0xffffffff;
+//            radius = mulscale15(sprite[i].hitag,zoom);
+            //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
         }
     }
     enddrawing();
@@ -9716,15 +9696,12 @@ static void FuncMenuOpts(void)
     printext16(8,ydim-STATUS2DSIZ+72,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Global Z coord shift");
     printext16(8,ydim-STATUS2DSIZ+80,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Up-size selected sectors");
+    Bsprintf(snotbuf,"Resize selection");
     printext16(8,ydim-STATUS2DSIZ+88,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Down-size selected sects");
-    printext16(8,ydim-STATUS2DSIZ+96,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Global shade divide");
-    printext16(8,ydim-STATUS2DSIZ+104,11,-1,snotbuf,0);
-
+    printext16(8,ydim-STATUS2DSIZ+96,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Global visibility divide");
-    printext16(200,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
+    printext16(8,ydim-STATUS2DSIZ+104,11,-1,snotbuf,0);
 }
 
 static void FuncMenu(void)
@@ -9765,6 +9742,7 @@ static void FuncMenu(void)
             }
             keystatus[KEYSC_UP] = 0;
         }
+#if 0
         if (keystatus[KEYSC_LEFT])
         {
             /*            if (col == 2)
@@ -9784,12 +9762,13 @@ static void FuncMenu(void)
                 col = 0;
                 xpos = 8;
                 rowmax = 7;
-                dispwidth = 23;
+                dispwidth = 24;
                 disptext[dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
             }
             keystatus[KEYSC_LEFT] = 0;
         }
+
         if (keystatus[KEYSC_RIGHT])
         {
             if (col == 0)
@@ -9814,6 +9793,7 @@ static void FuncMenu(void)
                         } */
             keystatus[KEYSC_RIGHT] = 0;
         }
+#endif
         if (keystatus[KEYSC_ENTER])
         {
             keystatus[KEYSC_ENTER] = 0;
@@ -9932,35 +9912,36 @@ static void FuncMenu(void)
             break;
             case 5:
             {
-                for (i=Bsprintf(disptext,"Up-size selected sectors"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"Resize selection"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    j=getnumber16("Size multiplier:    ",1,8,0);
-                    if (j!=1)
+                    j=getnumber16("Percentage of original:    ",100,1000,0);
+                    if (j!=100)
                     {
                         int w, currsector, start_wall, end_wall;
+                        double size = (j/100.f);
                         for (i = 0; i < highlightsectorcnt; i++)
                         {
                             currsector = highlightsector[i];
-                            sector[currsector].ceilingz *= j;
-                            sector[currsector].floorz *= j;
+                            sector[currsector].ceilingz *= size;
+                            sector[currsector].floorz *= size;
                             // Do all the walls in the sector
                             start_wall = sector[currsector].wallptr;
                             end_wall = start_wall + sector[currsector].wallnum;
                             for (w = start_wall; w < end_wall; w++)
                             {
-                                wall[w].x *= j;
-                                wall[w].y *= j;
-                                wall[w].yrepeat = min(wall[w].yrepeat/j,255);
+                                wall[w].x *= size;
+                                wall[w].y *= size;
+                                wall[w].yrepeat = min(wall[w].yrepeat/size,255);
                             }
                             w = headspritesect[highlightsector[i]];
                             while (w >= 0)
                             {
-                                sprite[w].x *= j;
-                                sprite[w].y *= j;
-                                sprite[w].z *= j;
-                                sprite[w].xrepeat = min(max(sprite[w].xrepeat*j,1),255);
-                                sprite[w].yrepeat = min(max(sprite[w].yrepeat*j,1),255);
+                                sprite[w].x *= size;
+                                sprite[w].y *= size;
+                                sprite[w].z *= size;
+                                sprite[w].xrepeat = min(max(sprite[w].xrepeat*size,1),255);
+                                sprite[w].yrepeat = min(max(sprite[w].yrepeat*size,1),255);
                                 w = nextspritesect[w];
                             }
                         }
@@ -9971,46 +9952,6 @@ static void FuncMenu(void)
             }
             break;
             case 6:
-            {
-                for (i=Bsprintf(disptext,"Down-size selected sects"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j=getnumber16("Size divisor:    ",1,8,0);
-                    if (j!=1)
-                    {
-                        int w, currsector, start_wall, end_wall;
-                        for (i = 0; i < highlightsectorcnt; i++)
-                        {
-                            currsector = highlightsector[i];
-                            sector[currsector].ceilingz /= j;
-                            sector[currsector].floorz /= j;
-                            // Do all the walls in the sector
-                            start_wall = sector[currsector].wallptr;
-                            end_wall = start_wall + sector[currsector].wallnum;
-                            for (w = start_wall; w < end_wall; w++)
-                            {
-                                wall[w].x /= j;
-                                wall[w].y /= j;
-                                wall[w].yrepeat = min(wall[w].yrepeat*j,255);
-                            }
-                            w = headspritesect[highlightsector[i]];
-                            while (w >= 0)
-                            {
-                                sprite[w].x /= j;
-                                sprite[w].y /= j;
-                                sprite[w].z /= j;
-                                sprite[w].xrepeat = min(max(sprite[w].xrepeat/j,1),255);
-                                sprite[w].yrepeat = min(max(sprite[w].yrepeat/j,1),255);
-                                w = nextspritesect[w];
-                            }
-                        }
-                        printmessage16("Map scaled");
-                    }
-                    else printmessage16("Aborted");
-                }
-            }
-            break;
-            case 7:
             {
                 for (i=Bsprintf(disptext,"Global shade divide"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
@@ -10033,12 +9974,7 @@ static void FuncMenu(void)
                 }
             }
             break;
-            }
-            break;
-        case 1:
-            switch (row)
-            {
-            case 0:
+            case 7:
             {
                 for (i=Bsprintf(disptext,"Global visibility divide"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)

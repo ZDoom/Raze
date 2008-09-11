@@ -2505,6 +2505,15 @@ void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         SetGameVarID(lVar2, g_player[iPlayer].ps->max_ammo_amount[lParm2], g_i, g_p);
         return;
 
+    case PLAYER_LAST_QUICK_KICK:
+        if (iSet)
+        {
+            g_player[iPlayer].ps->last_quick_kick=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, g_player[iPlayer].ps->last_quick_kick, g_i, g_p);
+        return;
+
     default:
         return;
     }

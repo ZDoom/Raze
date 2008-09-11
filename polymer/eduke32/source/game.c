@@ -2560,16 +2560,61 @@ static void coolgaugetext(int snum)
 
 static void ShowFrameRate(void)
 {
-    static int frameval[AVERAGEFRAMES], framecnt = 0;
-
-    if (totalclock != frameval[framecnt])
+    // adapted from ZDoom because I like it better than what we had
+    // applicable ZDoom code available under GPL from csDoom
+    if (ud.tickrate == 1)
     {
-        framerate=(timer*AVERAGEFRAMES)/(totalclock-frameval[framecnt]);
-        frameval[framecnt] = totalclock;
-        if (ud.tickrate)
+        static int FrameCount = 0;
+        static int LastCount = 0;
+        static int LastSec = 0;
+        static int LastMS = 0;
+        int ms = getticks();
+        int howlong = ms - LastMS;
+        if (howlong >= 0)
+        {
+            int thisSec = ms/1000;
+            int x = (xdim <= 640);
+            int chars = Bsprintf(tempbuf, "%2u ms (%3u fps)", howlong, LastCount);
+
+            if (!x)
+            {
+                printext256(windowx2-(chars<<3)+1,windowy1+2,0,-1,tempbuf,x);
+                printext256(windowx2-(chars<<3),windowy1+1,COLOR_WHITE,-1,tempbuf,x);
+            }
+            else
+            {
+                printext256(windowx2-(chars<<2)+1,windowy1+2,0,-1,tempbuf,x);
+                printext256(windowx2-(chars<<2),windowy1+1,COLOR_WHITE,-1,tempbuf,x);
+            }
+
+            if (numplayers > 1)
+                if ((totalclock - lastpackettime) > 1)
+                {
+                    for (howlong = (totalclock - lastpackettime);howlong>0 && howlong<(xdim>>2);howlong--)
+                        printext256(4L*howlong,0,COLOR_WHITE,-1,".",0);
+                }
+
+            if (LastSec < thisSec)
+            {
+                framerate = LastCount = FrameCount / (thisSec - LastSec);
+                LastSec = thisSec;
+                FrameCount = 0;
+            }
+            FrameCount++;
+        }
+        LastMS = ms;
+    }
+    else if (ud.tickrate == 2)
+    {
+        static int frameval[AVERAGEFRAMES], framecnt = 0;
+
+        if (totalclock != frameval[framecnt])
         {
             int x = (xdim <= 640);
             int p = 32>>x;
+
+            framerate=(timer*AVERAGEFRAMES)/(totalclock-frameval[framecnt]);
+            frameval[framecnt] = totalclock;
 
             Bsprintf(tempbuf,"%4d",max(framerate,0));
             printext256(windowx2-p+1,windowy1+2,0,-1,tempbuf,x);
@@ -2582,45 +2627,35 @@ static void ShowFrameRate(void)
                         printext256(4L*p,0,COLOR_WHITE,-1,".",0);
                 }
         }
+        framecnt = ((framecnt+1)&(AVERAGEFRAMES-1));
     }
-    framecnt = ((framecnt+1)&(AVERAGEFRAMES-1));
 }
 
 static void ShowCoordinates(int snum)
 {
-    int y = 8;
+    int y = 16;
 
     if ((gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR))
     {
         if (ud.multimode > 4)
-            y = 24;
+            y = 32;
         else if (ud.multimode > 1)
-            y = 16;
+            y = 24;
     }
-    sprintf(tempbuf,"X= %d",g_player[snum].ps->posx);
+    sprintf(tempbuf,"XYZ= (%d,%d,%d)",g_player[snum].ps->posx,g_player[snum].ps->posy,g_player[snum].ps->posz);
     printext256(250L,y,31,-1,tempbuf,0);
-    sprintf(tempbuf,"Y= %d",g_player[snum].ps->posy);
+    Bsprintf(tempbuf,"A/H= %d,%d",g_player[snum].ps->ang,g_player[snum].ps->horiz);
     printext256(250L,y+9L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"Z= %d",g_player[snum].ps->posz);
-    printext256(250L,y+18L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"A= %d",g_player[snum].ps->ang);
-    printext256(250L,y+27L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"H= %d",g_player[snum].ps->horiz);
-    printext256(250L,y+36L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"ZV= %d",g_player[snum].ps->poszv);
-    printext256(250L,y+45L,31,-1,tempbuf,0);
+    printext256(250L,y+18L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"OG= %d",g_player[snum].ps->on_ground);
-    printext256(250L,y+54L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"AM= %d",g_player[snum].ps->ammo_amount[GROW_WEAPON]);
-    printext256(250L,y+63L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"LFW= %d",g_player[snum].ps->last_full_weapon);
-    printext256(250L,y+72L,31,-1,tempbuf,0);
+    printext256(250L,y+27L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"SECTL= %d",sector[g_player[snum].ps->cursectnum].lotag);
-    printext256(250L,y+81L,31,-1,tempbuf,0);
+    printext256(250L,y+36L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"SEED= %d",randomseed);
-    printext256(250L,y+90L,31,-1,tempbuf,0);
+    printext256(250L,y+45L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"THOLD= %d",g_player[snum].ps->transporter_hold);
-    printext256(250L,y+99L+7,31,-1,tempbuf,0);
+    printext256(250L,y+54L+7,31,-1,tempbuf,0);
 }
 
 static void operatefta(void)
