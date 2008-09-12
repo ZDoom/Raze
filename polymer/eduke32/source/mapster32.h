@@ -217,3 +217,7 @@ extern short localartfreq[MAXTILES];
 extern short localartlookup[MAXTILES], localartlookupnum;
 extern int lockclock;
 extern void clearkeys(void);
+
+#ifdef _WIN32
+static char *testplay_addparam = 0;
+#endif

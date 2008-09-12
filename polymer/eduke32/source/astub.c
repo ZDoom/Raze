@@ -7532,6 +7532,45 @@ static int osdcmd_noclip(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+#ifdef _WIN32
+static int osdcmd_testplay_addparam(const osdfuncparm_t *parm)
+{
+    int slen;
+
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("additional parameters for test playing: %s%s%s\n",
+                   testplay_addparam ? "\"" : "",
+                   testplay_addparam ? testplay_addparam : "<empty>",
+                   testplay_addparam ? "\"" : "");
+        return OSDCMD_OK;
+    }
+
+    slen = Bstrlen(parm->parms[0]);
+
+    if (slen > 0)
+    {
+        if (!testplay_addparam)
+            testplay_addparam = Bmalloc(slen+1);
+        else
+            testplay_addparam = Brealloc(testplay_addparam, slen+1);
+
+        Bmemcpy(testplay_addparam, parm->parms[0], slen);
+        testplay_addparam[slen] = 0;
+    }
+    else
+    {
+        if (testplay_addparam)
+        {
+            Bfree(testplay_addparam);
+            testplay_addparam = NULL;
+        }
+    }
+
+    return OSDCMD_OK;
+}
+#endif
+
 //PK vvv ------------
 static int osdcmd_vars_pk(const osdfuncparm_t *parm)
 {
@@ -7602,6 +7641,9 @@ static int registerosdcommands(void)
     OSD_RegisterFunction("pk_turndecel", "pk_turndecel: sets turning deceleration", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_uedaccel", "pk_uedaccel: sets UnrealEd movement speed factor (0-5, exponentially)", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_quickmapcycling", "pk_quickmapcycling: allows cycling of maps with (Shift-)Ctrl-X", osdcmd_vars_pk);
+#ifdef _WIN32
+    OSD_RegisterFunction("testplay_addparam", "testplay_addparam \"string\": set additional parameters for test playing", osdcmd_testplay_addparam);
+#endif
     return 0;
 }
 #define DUKEOSD
@@ -8727,6 +8769,11 @@ void ExtAnalyzeSprites(void)
 #define MESSAGEX 3 // (xdimgame>>1)
 #define MESSAGEY 3 // ((i/charsperline)<<3)+(ydimgame-(ydimgame>>3))-(((getmessageleng-1)/charsperline)<<3)
 
+#ifdef _WIN32
+#include <windows.h>
+#include <shellapi.h>
+#endif
+
 static void Keys2d3d(void)
 {
     int i;
@@ -8788,6 +8835,50 @@ static void Keys2d3d(void)
             f = strrchr(levelname, '/');
             if (!f) f = levelname; else f++;
         }
+
+#ifdef _WIN32
+        if (keystatus[KEYSC_P]) // Ctrl-P: Map playtesting
+        {
+            keystatus[KEYSC_P] = 0;
+
+            updatesector(posx, posy, &cursectnum);
+            if (cursectnum >= 0)
+            {
+                SHELLEXECUTEINFOA sinfo;
+                char *prog = "eduke32";
+                char *param = " -map autosave.map";
+                char *fullparam;
+                int slen = testplay_addparam ? Bstrlen(testplay_addparam) : 0;
+
+                fullparam = Bmalloc(Bstrlen(param)+slen+1);
+                if (testplay_addparam)
+                    Bstrcpy(fullparam, testplay_addparam);
+                else
+                    fullparam[0]=0;
+                Bstrcat(fullparam, param);
+
+                fixspritesectors();   //Do this before saving!
+                ExtPreSaveMap();
+                saveboard("autosave.map",&posx,&posy,&posz,&ang,&cursectnum);
+                message("Board saved to AUTOSAVE.MAP for test playing");
+                
+                Bmemset(&sinfo, 0, sizeof(sinfo));
+                sinfo.cbSize = sizeof(sinfo);
+                sinfo.fMask = SEE_MASK_FLAG_NO_UI;
+                sinfo.lpVerb = "open";
+                sinfo.lpFile = prog;
+                sinfo.lpParameters = fullparam;
+                sinfo.nShow = SW_SHOWNORMAL;
+
+                if (!ShellExecuteExA(&sinfo))
+                    message("Error launching eduke32!");
+
+                Bfree(fullparam);
+            }
+            else
+                message("Must be in valid player space for test playing.");
+        }
+#endif
 
         if (keystatus[KEYSC_S]) // S
         {
