@@ -4624,7 +4624,8 @@ CANCEL:
                 }
                 else if (ch == 's' || ch == 'S')  //S
                 {
-                    char *f;int res;
+                    char *f;
+                    int res;
                     bad = 0;
                     printmessage16("Saving board...");
                     showframe(1);

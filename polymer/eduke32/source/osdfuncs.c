@@ -8,6 +8,9 @@ int osdhightile = 0;
 void GAME_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
     short ac;
+#if !defined(POLYMOST) || !defined(USE_OPENGL)
+    int usehightile = 0;
+#endif
     int ht = usehightile;
 
     if (ch == 32) return;
@@ -23,6 +26,9 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
     short ac;
     char *ptr = OSD_GetTextPtr();
     char *fmt = OSD_GetFmtPtr();
+#if !defined(POLYMOST) || !defined(USE_OPENGL)
+    int usehightile = 0;
+#endif
     int ht = usehightile;
 
     usehightile = (osdhightile && ht);

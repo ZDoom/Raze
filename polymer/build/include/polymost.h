@@ -19,7 +19,7 @@ typedef struct hicreplc_t {
 typedef struct pthtyp_t
 {
     struct pthtyp_t *next;
-    GLuint glpic;
+    unsigned int glpic;
     short picnum;
     char palnum;
     char effects;

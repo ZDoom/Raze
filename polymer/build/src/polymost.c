@@ -170,10 +170,6 @@ int r_vbocount = 64;
 // model animation smoothing cvar
 int r_animsmoothing = 1;
 
-// polymost ART sky control
-int r_parallaxskyclamping = 1;
-int r_parallaxskypanning = 0;
-
 // line of sight checks before mddraw()
 int r_modelocclusionchecking = 0;
 
@@ -198,6 +194,10 @@ static float fogresult, fogcol[4];
     fogcol[3] = 0; \
 }
 #endif
+
+// polymost ART sky control
+int r_parallaxskyclamping = 1;
+int r_parallaxskypanning = 0;
 
 #if defined(USE_MSC_PRAGMAS)
 static inline void ftol(float f, int *a)
@@ -915,7 +915,9 @@ void resizeglcheck()
         bglMatrixMode(GL_MODELVIEW);
         bglLoadIdentity();
 
+#ifdef USE_OPENGL
         if (!nofog) bglEnable(GL_FOG);
+#endif
 
         //bglEnable(GL_TEXTURE_2D);
     }
@@ -5095,9 +5097,13 @@ void polymost_dorotatesprite(int sx, int sy, int z, short a, short picnum,
                     }
                     mddraw(&tspr);
 #else
+#ifdef USE_OPENGL
             if (!nofog) bglDisable(GL_FOG);
             mddraw(&tspr);
             if (!nofog) bglEnable(GL_FOG);
+#else
+            mddraw(&tspr);
+#endif
 #endif
             viewingrange = oldviewingrange;
             gxyaspect = ogxyaspect;
@@ -5251,9 +5257,13 @@ void polymost_dorotatesprite(int sx, int sy, int z, short a, short picnum,
             z = zz;
         }
         while (z);
+#ifdef USE_OPENGL
         if (!nofog) bglDisable(GL_FOG);
         pow2xsplit = 0; drawpoly(px,py,n,method);
         if (!nofog) bglEnable(GL_FOG);
+#else
+        pow2xsplit = 0; drawpoly(px,py,n,method);
+#endif
     }
 
 #ifdef USE_OPENGL

@@ -276,13 +276,13 @@ int loadplayer(int spot)
     if (kdfread(&g_ScriptSize,sizeof(g_ScriptSize),1,fil) != 1) goto corrupt;
     if (!g_ScriptSize) goto corrupt;
     scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(scriptptrs));
-    if (kdfread(&scriptptrs[0],sizeof(scriptptrs),g_ScriptSize,fil) != g_ScriptSize) goto corrupt;
+    if (kdfread(&bitptr[0],sizeof(bitptr),(g_ScriptSize+7)>>3,fil) != ((g_ScriptSize+7)>>3)) goto corrupt;
     if (script != NULL)
         Bfree(script);
     script = Bcalloc(1,g_ScriptSize * sizeof(intptr_t));
     if (kdfread(&script[0],sizeof(script),g_ScriptSize,fil) != g_ScriptSize) goto corrupt;
     for (i=0;i<g_ScriptSize;i++)
-        if (scriptptrs[i])
+        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
         {
             j = (intptr_t)script[i]+(intptr_t)&script[0];
             script[i] = j;
@@ -651,21 +651,21 @@ int saveplayer(int spot)
     scriptptrs = Bcalloc(1, g_ScriptSize * sizeof(scriptptrs));
     for (i=0;i<g_ScriptSize;i++)
     {
-        if (bitptr[i] == BITPTR_POINTER)
-            // if ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))
+        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
         {
-            scriptptrs[i] = 1;
+//            scriptptrs[i] = 1;
             j = (intptr_t)script[i] - (intptr_t)&script[0];
             script[i] = j;
         }
-        else scriptptrs[i] = 0;
+        //      else scriptptrs[i] = 0;
     }
 
-    dfwrite(&scriptptrs[0],sizeof(scriptptrs),g_ScriptSize,fil);
+//    dfwrite(&scriptptrs[0],sizeof(scriptptrs),g_ScriptSize,fil);
+    dfwrite(&bitptr[0],sizeof(bitptr),(g_ScriptSize+7)>>3,fil);
     dfwrite(&script[0],sizeof(script),g_ScriptSize,fil);
 
     for (i=0;i<g_ScriptSize;i++)
-        if (scriptptrs[i])
+        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
         {
             j = script[i]+(intptr_t)&script[0];
             script[i] = j;

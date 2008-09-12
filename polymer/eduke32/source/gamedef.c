@@ -925,9 +925,7 @@ const memberlabel_t inputlabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
-char *bitptr;
-
-#define BITPTR_DONTFUCKWITHIT 0
+char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 #define BITPTR_POINTER 1
 
 /*struct HASH_item // size is 12/24 bits.
@@ -1025,6 +1023,7 @@ static int increasescriptsize(int size)
     intptr_t *newscript;
     intptr_t i, j;
     int osize = g_ScriptSize;
+    char *newbitptr;
 
     for (i=MAXSECTORS-1;i>=0;i--)
     {
@@ -1038,11 +1037,14 @@ static int increasescriptsize(int size)
     for (i=g_ScriptSize-1;i>=0;i--)
     {
 //            initprintf("%d\n",i);
-        if (bitptr[i] == BITPTR_POINTER && !((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize])))
+        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)) && !((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize])))
+        {
+            error++;
             initprintf("Internal compiler error at %d (0x%x)\n",i,i);
+        }
 //        if (bitptr[i] == 0 && ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize])))
 //            initprintf("oh no!\n");
-        if (bitptr[i] == BITPTR_POINTER /*&& ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))*/)
+        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)) /*&& ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))*/)
         {
             scriptptrs[i] = 1;
             script[i] -= (intptr_t)&script[0];
@@ -1094,14 +1096,22 @@ static int increasescriptsize(int size)
         return 1;
     }
 
-    bitptr = (char *)Brealloc(bitptr, g_ScriptSize * sizeof(char));
+//    bitptr = (char *)Brealloc(bitptr, g_ScriptSize * sizeof(char));
+    newbitptr = Bcalloc(1,((size+7)>>3) * sizeof(char));
 
     if (size > osize)
     {
         Bmemset(&newscript[osize],0,(size-osize) * sizeof(intptr_t));
-        Bmemset(&bitptr[osize],0,size-osize);
+//        Bmemset(&bitptr[osize],0,size-osize);
+        Bmemcpy(newbitptr,bitptr,sizeof(char) * ((osize+7)>>3));
+    }
+    else if (size < osize)
+    {
+        Bmemcpy(newbitptr,bitptr,sizeof(char) * ((size+7)>>3));
     }
 
+    Bfree(bitptr);
+    bitptr = newbitptr;
     script = newscript;
     scriptptr = (intptr_t *)(script+oscriptptr);
 //    initprintf("script: %d, bitptr: %d\n",script,bitptr);
@@ -1540,7 +1550,7 @@ static int transword(void) //Returns its code #
     if (i>=0)
     {
         *scriptptr = i + (line_number<<12);
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         textptr += l;
         scriptptr++;
         if (!(error || warning) && g_ScriptDebug)
@@ -1574,13 +1584,13 @@ static void transvartype(int type)
     {
         if (!(error || warning) && g_ScriptDebug)
             initprintf("%s:%d: debug: accepted constant %d in place of gamevar.\n",compilefile,line_number,atol(textptr));
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=MAXGAMEVARS;
         if (tolower(textptr[1])=='x')
             sscanf(textptr+2,"%" PRIxPTR "",scriptptr);
         else
             *scriptptr=atol(textptr);
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         scriptptr++;
         getlabel();
         return;
@@ -1624,7 +1634,7 @@ static void transvartype(int type)
             return;
         }
 
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=(i|f);
         transvartype(0);
         skipcomments(); //skip comments and whitespace
@@ -1659,9 +1669,9 @@ static void transvartype(int type)
                 {
                     if (!(error || warning) && g_ScriptDebug)
                         initprintf("%s:%d: debug: accepted defined label `%s' instead of gamevar.\n",compilefile,line_number,label+(i<<6));
-                    bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+                    bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
                     *scriptptr++=MAXGAMEVARS;
-                    bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+                    bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
                     *scriptptr++=labelcode[i];
                     return;
                 }
@@ -1697,7 +1707,7 @@ static void transvartype(int type)
     if (!(error || warning) && g_ScriptDebug > 1)
         initprintf("%s:%d: debug: accepted gamevar `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
 
-    bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+    bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
     *scriptptr++=(i|f);
 }
 
@@ -1761,13 +1771,13 @@ static int transnum(int type)
                 Bfree(gl);
             }
             if (labeltype[i] != LABEL_DEFINE && labelcode[i] >= (intptr_t)&script[0] && labelcode[i] < (intptr_t)&script[g_ScriptSize])
-                bitptr[(scriptptr-script)] = BITPTR_POINTER;
-            else bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+                bitptr[(scriptptr-script)>>3] |= (BITPTR_POINTER<<((scriptptr-script)&7));
+            else bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
             *(scriptptr++) = labelcode[i];
             textptr += l;
             return labeltype[i];
         }
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *(scriptptr++) = 0;
         textptr += l;
         el = (char *)translatelabeltype(type);
@@ -1795,7 +1805,7 @@ static int transnum(int type)
     }
     if (!(error || warning) && g_ScriptDebug > 1)
         initprintf("%s:%d: debug: accepted constant %d.\n",compilefile,line_number,atol(textptr));
-    bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+    bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
     if (tolower(textptr[1])=='x')sscanf(textptr+2,"%" PRIxPTR "",scriptptr);
     else
         *scriptptr = atol(textptr);
@@ -1917,8 +1927,8 @@ static int parsecommand(void)
                     initprintf("%s:%d: debug: accepted state label `%s'.\n",compilefile,line_number,label+(j<<6));
                 *scriptptr = labelcode[j];
                 if (labelcode[j] >= (intptr_t)&script[0] && labelcode[j] < (intptr_t)&script[g_ScriptSize])
-                    bitptr[(scriptptr-script)] = BITPTR_POINTER;
-                else bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+                    bitptr[(scriptptr-script)>>3] |= (BITPTR_POINTER<<((scriptptr-script)&7));
+                else bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
                 scriptptr++;
                 return 0;
             }
@@ -1930,7 +1940,7 @@ static int parsecommand(void)
                 warning++;
                 Bfree(gl);
                 *(scriptptr-1) = CON_NULLOP; // get rid of the state, leaving a nullop to satisfy if conditions
-                bitptr[(scriptptr-script-1)] = BITPTR_DONTFUCKWITHIT;
+                bitptr[(scriptptr-script-1)>>3] &= ~(1<<((scriptptr-script-1)&7));
                 return 0;  // valid label name, but wrong type
             }
         }
@@ -2030,7 +2040,7 @@ static int parsecommand(void)
             return 0;
         }
 
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=projectilelabels[lLabelID].lId;
 
         //printf("member's flags are: %02Xh\n",playerlabels[lLabelID].flags);
@@ -2196,7 +2206,7 @@ static int parsecommand(void)
 
         while (j>-1)
         {
-            bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+            bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
             *scriptptr = 0;
             scriptptr++;
             j--;
@@ -2215,7 +2225,7 @@ static int parsecommand(void)
             if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
             {
                 ReportError(-1);
-                bitptr[(scriptptr-script-1)] = BITPTR_DONTFUCKWITHIT;
+                bitptr[(scriptptr-script-1)>>3] &= ~(1<<((scriptptr-script-1)&7));
                 *(scriptptr-1) = 0;
                 initprintf("%s:%d: warning: expected a move, found a constant.\n",compilefile,line_number);
                 warning++;
@@ -2228,7 +2238,7 @@ static int parsecommand(void)
                 scriptptr--;
                 j |= *scriptptr;
             }
-            bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+            bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
             *scriptptr = j;
 
             scriptptr++;
@@ -2272,7 +2282,7 @@ static int parsecommand(void)
             }
             for (k=j;k>=0;k--)
             {
-                bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+                bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
                 *scriptptr = 0;
                 scriptptr++;
             }
@@ -2479,7 +2489,7 @@ static int parsecommand(void)
                     if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
                     {
                         ReportError(-1);
-                        bitptr[(scriptptr-script-1)] = BITPTR_DONTFUCKWITHIT;
+                        bitptr[(scriptptr-script-1)>>3] &= ~(1<<((scriptptr-script-1)&7));
                         *(scriptptr-1) = 0;
                         initprintf("%s:%d: warning: expected a move, found a constant.\n",compilefile,line_number);
                         warning++;
@@ -2491,7 +2501,7 @@ static int parsecommand(void)
                         scriptptr--;
                         k |= *scriptptr;
                     }
-                    bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+                    bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
                     *scriptptr = k;
                     scriptptr++;
                     return 0;
@@ -2499,7 +2509,7 @@ static int parsecommand(void)
             }
             for (k=j;k<3;k++)
             {
-                bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+                bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
                 *scriptptr = 0;
                 scriptptr++;
             }
@@ -2558,7 +2568,7 @@ static int parsecommand(void)
             }
             for (k=j;k>=0;k--)
             {
-                bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+                bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
                 *scriptptr = 0;
                 scriptptr++;
             }
@@ -2591,7 +2601,7 @@ static int parsecommand(void)
 
         for (j=0;j<4;j++)
         {
-            bitptr[(parsing_actor+j-script)] = BITPTR_DONTFUCKWITHIT;
+            bitptr[(parsing_actor+j-script)>>3] &= ~(1<<((parsing_actor+j-script)&7));
             *(parsing_actor+j) = 0;
             if (j == 3)
             {
@@ -2602,7 +2612,7 @@ static int parsecommand(void)
                     scriptptr--;
                     j |= *scriptptr;
                 }
-                bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+                bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
                 *scriptptr = j;
                 scriptptr++;
                 break;
@@ -2613,7 +2623,7 @@ static int parsecommand(void)
                 {
                     for (i=4-j; i; i--)
                     {
-                        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+                        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
                         *(scriptptr++) = 0;
                     }
                     break;
@@ -2630,17 +2640,16 @@ static int parsecommand(void)
                     if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
                     {
                         ReportError(-1);
-                        bitptr[(scriptptr-script-1)] = BITPTR_DONTFUCKWITHIT;
+                        bitptr[(scriptptr-script-1)>>3] &= ~(1<<((scriptptr-script-1)&7));
                         *(scriptptr-1) = 0;
                         initprintf("%s:%d: warning: expected a move, found a constant.\n",compilefile,line_number);
                         warning++;
                     }
                     break;
                 }
-//                bitptr[(parsing_actor+j-script)] = BITPTR_DONTFUCKWITHIT;
                 if (*(scriptptr-1) >= (intptr_t)&script[0] && *(scriptptr-1) < (intptr_t)&script[g_ScriptSize])
-                    bitptr[(parsing_actor+j-script)] = BITPTR_POINTER;
-                else bitptr[(parsing_actor+j-script)] = BITPTR_DONTFUCKWITHIT;
+                    bitptr[(parsing_actor+j-script)>>3] |= (BITPTR_POINTER<<((parsing_actor+j-script)&7));
+                else bitptr[(parsing_actor+j-script)>>3] &= ~(1<<((parsing_actor+j-script)&7));
                 *(parsing_actor+j) = *(scriptptr-1);
             }
         }
@@ -2763,7 +2772,7 @@ static int parsecommand(void)
 
         for (j=0;j<4;j++)
         {
-            bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+            bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
             *(parsing_actor+j) = 0;
             if (j == 3)
             {
@@ -2774,7 +2783,7 @@ static int parsecommand(void)
                     scriptptr--;
                     j |= *scriptptr;
                 }
-                bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+                bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
                 *scriptptr = j;
                 scriptptr++;
                 break;
@@ -2785,7 +2794,7 @@ static int parsecommand(void)
                 {
                     for (i=4-j; i; i--)
                     {
-                        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+                        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
                         *(scriptptr++) = 0;
                     }
                     break;
@@ -2802,17 +2811,16 @@ static int parsecommand(void)
                     if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
                     {
                         ReportError(-1);
-                        bitptr[(scriptptr-script-1)] = BITPTR_DONTFUCKWITHIT;
+                        bitptr[(scriptptr-script-1)>>3] &= ~(1<<((scriptptr-script-1)&7));
                         *(scriptptr-1) = 0;
                         initprintf("%s:%d: warning: expected a move, found a constant.\n",compilefile,line_number);
                         warning++;
                     }
                     break;
                 }
-//                bitptr[(parsing_actor+j-script)] = BITPTR_DONTFUCKWITHIT;
                 if (*(scriptptr-1) >= (intptr_t)&script[0] && *(scriptptr-1) < (intptr_t)&script[g_ScriptSize])
-                    bitptr[(parsing_actor+j-script)] = BITPTR_POINTER;
-                else bitptr[(parsing_actor+j-script)] = BITPTR_DONTFUCKWITHIT;
+                    bitptr[(parsing_actor+j-script)>>3] |= (BITPTR_POINTER<<((parsing_actor+j-script)&7));
+                else bitptr[(parsing_actor+j-script)>>3] &= ~(1<<((parsing_actor+j-script)&7));
                 *(parsing_actor+j) = *(scriptptr-1);
             }
         }
@@ -2839,7 +2847,7 @@ static int parsecommand(void)
 
         while (j > -1)
         {
-            bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+            bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
             *scriptptr = 0;
             scriptptr++;
             j--;
@@ -2941,7 +2949,7 @@ static int parsecommand(void)
             parsecommand();
             tempscrptr = (intptr_t *)script+offset;
             *tempscrptr = (intptr_t) scriptptr;
-            bitptr[(tempscrptr-script)] = 1;
+            bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
         }
         else
         {
@@ -3006,7 +3014,7 @@ static int parsecommand(void)
             ReportError(ERROR_SYMBOLNOTRECOGNIZED);
             return 0;
         }
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=lLabelID;
 
         // now at target VAR...
@@ -3141,7 +3149,7 @@ static int parsecommand(void)
             ReportError(ERROR_SYMBOLNOTRECOGNIZED);
             return 0;
         }
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=lLabelID;
 
         // now at target VAR...
@@ -3209,7 +3217,7 @@ static int parsecommand(void)
             return 0;
         }
 
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=playerlabels[lLabelID].lId;
 
         //printf("member's flags are: %02Xh\n",playerlabels[lLabelID].flags);
@@ -3290,7 +3298,7 @@ static int parsecommand(void)
             return 0;
         }
 
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=inputlabels[lLabelID].lId;
 
         // now at target VAR...
@@ -3340,7 +3348,7 @@ static int parsecommand(void)
             ReportError(ERROR_SYMBOLNOTRECOGNIZED);
             return 0;
         }
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=lLabelID;
 
         // now at target VAR...
@@ -3475,7 +3483,7 @@ static int parsecommand(void)
         }
         }
 
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=i; // the ID of the DEF (offset into array...)
 
         switch (tw)
@@ -3546,7 +3554,7 @@ static int parsecommand(void)
             return 0;
         }
 
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=actorlabels[lLabelID].lId;
 
         //printf("member's flags are: %02Xh\n",actorlabels[lLabelID].flags);
@@ -3629,7 +3637,7 @@ static int parsecommand(void)
             return 0;
         }
 
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=tsprlabels[lLabelID].lId;
 
         //printf("member's flags are: %02Xh\n",actorlabels[lLabelID].flags);
@@ -3756,7 +3764,7 @@ static int parsecommand(void)
         i=GetADefID(label+(labelcnt<<6));
         if (i > (-1))
         {
-            bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+            bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
             *scriptptr++=i;
         }
         else
@@ -3785,7 +3793,7 @@ static int parsecommand(void)
         i=GetADefID(label+(labelcnt<<6));
         if (i > (-1))
         {
-            bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+            bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
             *scriptptr++=i;
         }
         else
@@ -4025,7 +4033,7 @@ static int parsecommand(void)
 
         tempscrptr = (intptr_t *)script+offset;
         *tempscrptr = (intptr_t) scriptptr;
-        bitptr[(tempscrptr-script)] = 1;
+        bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
 
         if (tw != CON_WHILEVARVARN) checking_ifelse++;
         return 0;
@@ -4070,7 +4078,7 @@ static int parsecommand(void)
 
         tempscrptr = (intptr_t *)script+offset;
         *tempscrptr = (intptr_t) scriptptr;
-        bitptr[(tempscrptr-script)] = 1;
+        bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
 
         if (tw != CON_WHILEVARN) checking_ifelse++;
         return 0;
@@ -4247,12 +4255,12 @@ static int parsecommand(void)
 
         tempscrptr= scriptptr;
         tempoffset = (unsigned)(tempscrptr-script);
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=0; // leave spot for end location (for after processing)
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=0; // count of case statements
         casescriptptr=scriptptr;        // the first case's pointer.
-        bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
         *scriptptr++=0; // leave spot for 'default' location (null if none)
 
         j = keyword();
@@ -4291,9 +4299,9 @@ static int parsecommand(void)
         while (j--)
         {
             // leave room for statements
-            bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+            bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
             *scriptptr++=0; // value check
-            bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+            bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
             *scriptptr++=0; // code offset
             skipcomments();
         }
@@ -4334,7 +4342,7 @@ static int parsecommand(void)
             }
 //            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
             tempscrptr[0]= (intptr_t)scriptptr - (intptr_t)&script[0];    // save 'end' location
-//            bitptr[(tempscrptr-script)] = 1;
+//            bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
         }
         else
         {
@@ -4443,7 +4451,7 @@ repeatcase:
         if (casescriptptr)
         {
             casescriptptr[0]=(intptr_t)(scriptptr-&script[0]);   // save offset
-//            bitptr[(casescriptptr-script)] = 1;
+//            bitptr[(casescriptptr-script)>>3] |= (BITPTR_POINTER<<((casescriptptr-script)&7));
         }
         //Bsprintf(g_szBuf,"default: '%.22s'",textptr);
         //AddLog(g_szBuf);
@@ -4608,7 +4616,7 @@ repeatcase:
                 j |= *scriptptr;
             }
             while (keyword() == -1);
-            bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+            bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
             *scriptptr = j;
             scriptptr++;
         }
@@ -4622,7 +4630,7 @@ repeatcase:
         parsecommand();
         tempscrptr = (intptr_t *)script+offset;
         *tempscrptr = (intptr_t) scriptptr;
-        bitptr[(tempscrptr-script)] = 1;
+        bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
 
         checking_ifelse++;
         return 0;
@@ -5080,7 +5088,7 @@ repeatcase:
         else
         {
             *(redefined_quotes[redefined_quote_count]+i) = '\0';
-            bitptr[(scriptptr-script)] = BITPTR_DONTFUCKWITHIT;
+            bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
             *scriptptr++=redefined_quote_count;
             redefined_quote_count++;
         }
@@ -5667,7 +5675,7 @@ void loadefs(const char *filenam)
         Bfree(script);
 
     script = Bcalloc(1,g_ScriptSize * sizeof(intptr_t));
-    bitptr = Bcalloc(1,g_ScriptSize * sizeof(char));
+    bitptr = Bcalloc(1,((g_ScriptSize+7)>>3) * sizeof(char));
 //    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
     labelcnt = defaultlabelcnt = 0;
@@ -5764,6 +5772,7 @@ void loadefs(const char *filenam)
         initprintf("Compile completed in %dms\n",getticks()-startcompiletime);
 
         initprintf("Compiled code size: %ld*%d bytes, version %s\n",(unsigned)(scriptptr-script),sizeof(intptr_t),(g_ScriptVersion == 14?"1.4+":"1.3D"));
+        initprintf("Pointer bitmap size: %ld bytes\n",(g_ScriptSize+7)>>3);
         initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((MAXSECTORS * sizeof(sectortype)/sizeof(int)),(MAXSPRITES * sizeof(spritetype)/(1<<6))),iGameVarCount,MAXGAMEVARS);
 
         for (i=MAXQUOTES-1;i>=0;i--)

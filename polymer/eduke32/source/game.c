@@ -114,7 +114,9 @@ static char defaultconfilename[BMAX_PATH] = {"EDUKE.CON"};
 static char *confilename = defaultconfilename;
 char *duke3ddef = "duke3d.def";
 char mod_dir[BMAX_PATH] = "/";
+#if defined(POLYMOST)
 extern char TEXCACHEDIR[BMAX_PATH];
+#endif
 extern int lastvisinc;
 
 int g_Shareware = 0;
@@ -3530,10 +3532,12 @@ void SetCrosshairColor(int r, int g, int b)
         tempbuf[i] = i;
     makepalookup(CROSSHAIR_PAL,tempbuf,crosshair_colors.r>>2, crosshair_colors.g>>2, crosshair_colors.b>>2,1);
 
+#if defined(USE_OPENGL) && defined(POLYMOST)
     hictinting[CROSSHAIR_PAL].r = crosshair_colors.r;
     hictinting[CROSSHAIR_PAL].g = crosshair_colors.g;
     hictinting[CROSSHAIR_PAL].b = crosshair_colors.b;
     hictinting[CROSSHAIR_PAL].f = 17;
+#endif
     invalidatetile(CROSSHAIR, -1, -1);
 }
 
@@ -10887,8 +10891,10 @@ void app_main(int argc,const char **argv)
         Bstrcat(root,mod_dir);
         addsearchpath(root);
         addsearchpath(mod_dir);
+#if defined(POLYMOST) && defined(USE_OPENGL)
         Bsprintf(tempbuf,"%s/%s",mod_dir,TEXCACHEDIR);
         Bstrcpy(TEXCACHEDIR,tempbuf);
+#endif
     }
 
     i = initgroupfile(duke3dgrp);
@@ -11050,7 +11056,7 @@ void app_main(int argc,const char **argv)
 
     if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
     {
-        int i = 0, j = 0;
+        int i = 0;
         int xres[] = {ud.config.ScreenWidth,800,640,320};
         int yres[] = {ud.config.ScreenHeight,600,480,240};
         int bpp[] = {32,16,8};
@@ -11059,17 +11065,20 @@ void app_main(int argc,const char **argv)
                    ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.config.ScreenMode?"fullscreen":"windowed");
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        while (setgamemode(0,xres[i],yres[i],bpp[j]) < 0)
         {
-            initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],bpp[i]);
-            j++;
-            if (j == 3)
+            int j = 0;
+            while (setgamemode(0,xres[i],yres[i],bpp[j]) < 0)
             {
-                i++;
-                j = 0;
+                initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],bpp[i]);
+                j++;
+                if (j == 3)
+                {
+                    i++;
+                    j = 0;
+                }
+                if (i == 4)
+                    gameexit("Unable to set failsafe video mode!");
             }
-            if (i == 4)
-                gameexit("Unable to set failsafe video mode!");
         }
 #else
         while (setgamemode(0,xres[i],yres[i],8) < 0)
