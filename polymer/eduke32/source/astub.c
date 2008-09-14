@@ -3226,13 +3226,15 @@ void dumpalphabets()
 
 void rendertext(short startspr)
 {
-    char ch, buffer[80];
+    char ch, buffer[80], doingspace=0;
     short daang, t, alphidx, basetile, linebegspr, curspr;
     int i, j, k, dax, day;
     static unsigned char hgap=0, vgap=4;
     static unsigned char spcgap[MAX_ALPHABETS], firstrun=1;
     spritetype *sp;
 
+    short *spritenums;
+    int stackallocsize=32, numletters=0;
 
     if (firstrun)
     {
@@ -3268,9 +3270,10 @@ void rendertext(short startspr)
                 basetile = t;
                 if (spcgap[i] == 0)
                     spcgap[i] = 3*tilesizx[t]/2;
-                break;
+                goto ENDFOR1;
             }
     }
+ENDFOR1:
     if (alphidx==-1)
     {
         message("Must point at a text sprite.");
@@ -3281,11 +3284,11 @@ void rendertext(short startspr)
     curspr = linebegspr = startspr;
 
     t = sprite[startspr].picnum;
-    daang = sprite[startspr].ang;
-    dax = sprite[startspr].x;
-    day = sprite[startspr].y;
     sprite[startspr].xoffset = -(((picanm[t])>>8)&255);
     sprite[startspr].yoffset = -(((picanm[t])>>16)&255);
+
+    spritenums = Bmalloc(stackallocsize * sizeof(short));
+    if (!spritenums) goto ERROR1;
 
     bflushchars();
     while (keystatus[0x1] == 0)
@@ -3376,6 +3379,13 @@ void rendertext(short startspr)
 
 // ---
         sp = &sprite[curspr];
+        if (!doingspace)
+        {
+            dax = sp->x; day = sp->y;
+            daang = sp->ang;
+        }
+        sprite[linebegspr].shade = sprite[curspr].shade;
+        sprite[linebegspr].pal = sprite[curspr].pal;
 
         if (ch>=33 && ch<=126 && alphabets[alphidx].pic[ch-33] >= 0)
         {
@@ -3383,20 +3393,18 @@ void rendertext(short startspr)
 
             // mapping char->tilenum
             t = alphabets[alphidx].pic[ch-33];
+            j = sp->xrepeat*(hgap+tilesizx[sp->picnum]+tilesizx[t]);
 
-            // inside(...): too restricitve?
-            // if somebody wants to change this, keep BACKSPACE in mind,
-            // it iterates over sprites of only one sector
+            dax += (j*sintable[daang])>>17;
+            day -= (j*sintable[(daang+512)&2047])>>17;
+            dax += (j*sintable[(sprite[curspr].ang+2560)&2047])>>17;
+            day += (j*sintable[(sprite[curspr].ang+2048)&2047])>>17;
+
             sect = sprite[curspr].sectnum;
-            dax += ((sp->xrepeat*(hgap+tilesizx[sp->picnum]+tilesizx[t])*sintable[daang])>>17);
-            day -= ((sp->xrepeat*(hgap+tilesizx[sp->picnum]+tilesizx[t])*sintable[(daang+512)&2047])>>17);
-            dax += sintable[(sprite[curspr].ang+2560)&2047]>>17;
-            day += sintable[(sprite[curspr].ang+2048)&2047]>>17;
-
             updatesector(dax,day,&sect);
             if (numsprites < MAXSPRITES && sect >= 0)
             {
-                i = insertsprite(sprite[curspr].sectnum,0);
+                i = insertsprite(sect,0);
                 sprite[i].x = dax, sprite[i].y = day;
                 sprite[i].z = sprite[curspr].z;
                 sprite[i].cstat = (sprite[curspr].cstat | 16) & ~(32|128);
@@ -3428,68 +3436,59 @@ void rendertext(short startspr)
                         localartfreq[sprite[k].picnum]++;
 
                 curspr = i;
+                doingspace = 0;
 
                 updatenumsprites();
                 asksave = 1;
+
+                if (numletters >= stackallocsize)
+                {
+                    stackallocsize *= 2;
+                    spritenums = Brealloc(spritenums, stackallocsize*sizeof(short));
+                    if (!spritenums) goto ERROR1;
+                }
+                spritenums[numletters++] = i;
             }
         }
         else if (ch == 32)
         {
             dax += ((sp->xrepeat*spcgap[alphidx]*sintable[daang])>>17);
             day -= ((sp->xrepeat*spcgap[alphidx]*sintable[(daang+512)&2047])>>17);
+            doingspace = 1;
         }
         else if (ch == 8 || ch == 127)  	// backspace
         {
-            int64 damindist=0x7fffffffffffffffULL, tdist;
-            short daspr = -1;
-            spritetype *ls, *ks;
-
-            for (k=headspritesect[sp->sectnum]; k>=0; k=nextspritesect[k])
+            if (numletters > 0)
             {
-                if (k!=curspr && sprite[k].ang==daang && sprite[k].z==sp->z)
-                {
-                    ls = &sprite[linebegspr];
-                    ks = &sprite[k];
+                numletters--;
+//                message ("Deleted sprite %d.", spritenums[numletters]);
+                deletesprite(spritenums[numletters]);
 
-                    // true if k is inside the rectangular region defined by linebegspr,
-                    // curspr and the coordinate system on the XY plane (good enough?)
-                    if ((ks->x - ls->x)*(ks->x - sp->x) <= 0 &&
-                            (ks->y - ls->y)*(ks->y - sp->y) <= 0)
-                        if ((tdist=ldistsqr(sp, &sprite[k])) < damindist)
-                        {
-                            damindist = tdist;
-                            daspr = k;
-                        }
-                }
-            }
+                if (numletters > 0)
+                    curspr = spritenums[numletters-1];
+                else
+                    curspr = linebegspr;
+                doingspace = 0;
 
-            if (daspr >= 0)
-            {
-                if (curspr != linebegspr)
-                {
-//					message ("Deleted sprite %d.", curspr);
-                    deletesprite(curspr);
-                    curspr = daspr;
-                    dax = sprite[curspr].x;
-                    day = sprite[curspr].y;
-                    updatenumsprites();
-                    asksave=1;
-                }
+                sprite[linebegspr].z = sprite[curspr].z;
+                updatenumsprites();
+                asksave = 1;
             }
         }
         else if (ch == 13)  // enter
         {
             sprite[linebegspr].z += ((sprite[linebegspr].yrepeat*(vgap+tilesizy[basetile]))<<2);
-            sprite[linebegspr].cstat = sprite[curspr].cstat;
-            sprite[linebegspr].shade = sprite[curspr].shade;
-            sprite[linebegspr].pal = sprite[curspr].pal;
+//            sprite[linebegspr].cstat = sprite[curspr].cstat;
             curspr = linebegspr;
-            dax = sprite[curspr].x;
-            day = sprite[curspr].y;
+            doingspace = 0;
             asksave = 1;
         }
     }
 // ---
+ERROR1:
+    if (spritenums) Bfree(spritenums);
+    else message("Out of memory!");
+
     clearkeys();
 
     lockclock = totalclock;  //Reset timing
@@ -8839,41 +8838,51 @@ static void Keys2d3d(void)
 #ifdef _WIN32
         if (keystatus[KEYSC_P]) // Ctrl-P: Map playtesting
         {
+            static int tp_lastkeypresstime=0;
+
             keystatus[KEYSC_P] = 0;
 
             updatesector(posx, posy, &cursectnum);
             if (cursectnum >= 0)
             {
-                SHELLEXECUTEINFOA sinfo;
-                char *prog = "eduke32";
-                char *param = " -map autosave.map";
-                char *fullparam;
-                int slen = testplay_addparam ? Bstrlen(testplay_addparam) : 0;
-
-                fullparam = Bmalloc(Bstrlen(param)+slen+1);
-                if (testplay_addparam)
-                    Bstrcpy(fullparam, testplay_addparam);
+                if (tp_lastkeypresstime+120*4 >= totalclock)
+                    message("Please wait while starting Eduke32...");
                 else
-                    fullparam[0]=0;
-                Bstrcat(fullparam, param);
+                {
+                    SHELLEXECUTEINFOA sinfo;
+                    char *prog = "eduke32";
+                    char *param = " -map autosave.map";
+                    char *fullparam;
+                    int slen;
 
-                fixspritesectors();   //Do this before saving!
-                ExtPreSaveMap();
-                saveboard("autosave.map",&posx,&posy,&posz,&ang,&cursectnum);
-                message("Board saved to AUTOSAVE.MAP for test playing");
+                    tp_lastkeypresstime = totalclock;
+
+                    slen = testplay_addparam ? Bstrlen(testplay_addparam) : 0;
+                    fullparam = Bmalloc(Bstrlen(param)+slen+1);
+                    if (testplay_addparam)
+                        Bstrcpy(fullparam, testplay_addparam);
+                    else
+                        fullparam[0]=0;
+                    Bstrcat(fullparam, param);
+
+                    fixspritesectors();   //Do this before saving!
+                    ExtPreSaveMap();
+                    saveboard("autosave.map",&posx,&posy,&posz,&ang,&cursectnum);
+                    message("Board saved to AUTOSAVE.MAP. Starting Eduke32...");
                 
-                Bmemset(&sinfo, 0, sizeof(sinfo));
-                sinfo.cbSize = sizeof(sinfo);
-                sinfo.fMask = SEE_MASK_FLAG_NO_UI;
-                sinfo.lpVerb = "open";
-                sinfo.lpFile = prog;
-                sinfo.lpParameters = fullparam;
-                sinfo.nShow = SW_SHOWNORMAL;
+                    Bmemset(&sinfo, 0, sizeof(sinfo));
+                    sinfo.cbSize = sizeof(sinfo);
+                    sinfo.fMask = SEE_MASK_FLAG_NO_UI;
+                    sinfo.lpVerb = "open";
+                    sinfo.lpFile = prog;
+                    sinfo.lpParameters = fullparam;
+                    sinfo.nShow = SW_SHOWNORMAL;
 
-                if (!ShellExecuteExA(&sinfo))
-                    message("Error launching eduke32!");
+                    if (!ShellExecuteExA(&sinfo))
+                        message("Error launching eduke32!");
 
-                Bfree(fullparam);
+                    Bfree(fullparam);
+                }
             }
             else
                 message("Must be in valid player space for test playing.");
