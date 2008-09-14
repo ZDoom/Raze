@@ -11174,6 +11174,7 @@ MAIN_LOOP_RESTART:
 
     if (ud.warp_on == 0 && playback())
     {
+        ud.multimode = numplayers;  // fixes playback() infinite loop after watching demo
         FX_StopAllSounds();
         clearsoundlocks();
         g_NoLogoAnim = 1;
@@ -11431,14 +11432,23 @@ corrupt:
 
 void opendemowrite(void)
 {
-    char *d = "demo1.dmo";
-    int dummylong = 0;
+    char d[13];
+    int dummylong = 0, demonum=1;
     char ver;
     short i;
 
     if (ud.recstat == 2) kclose(recfilep);
 
     ver = BYTEVERSION;
+
+    while (1)
+    {
+        if (demonum == 10000) return;
+        Bsprintf(d, "demo%d.dmo", demonum++);
+        frecfilep = fopen(d, "rb");
+        if (frecfilep == NULL) break;
+        Bfclose(frecfilep);
+    }
 
     if ((frecfilep = fopen(d,"wb")) == NULL) return;
     fwrite(&dummylong,4,1,frecfilep);
