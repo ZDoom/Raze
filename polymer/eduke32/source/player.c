@@ -39,6 +39,8 @@ int g_weapon_xoffset;
 int32 turnheldtime; //MED
 int32 lastcontroltime; //MED
 
+extern int leveltexttime;
+
 void setpal(player_struct *p)
 {
     if (p->heat_on) p->palette = slimepal;
@@ -3522,6 +3524,9 @@ void processinput(int snum)
             p->ftq = 0;
         }
     }
+
+    if (leveltexttime > 0)
+        leveltexttime--;
 
     if (s->extra <= 0)
     {

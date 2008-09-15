@@ -11502,7 +11502,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 //
 // printext16
 //
-void printext16(int xpos, int ypos, short col, short backcol, char *name, char fontsize)
+int printext16(int xpos, int ypos, short col, short backcol, char *name, char fontsize)
 {
     int stx, i, x, y, charxsiz, ocol = col, obackcol = backcol;
     char *fontptr, *letptr, *ptr;
@@ -11593,6 +11593,8 @@ void printext16(int xpos, int ypos, short col, short backcol, char *name, char f
         stx += charxsiz;
     }
     enddrawing();   //}}}
+
+    return stx;
 }
 
 

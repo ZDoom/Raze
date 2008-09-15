@@ -107,8 +107,8 @@ extern void savetemp(const char *fn,int daptr,int dasiz);
 // extern int loadpheader(char spot,int32 *vn,int32 *ln,int32 *psk,int32 *numplr);
 extern int loadplayer(int spot);
 extern int saveplayer(int spot);
-extern int menutext_(int x,int y,int s,int p,char *t);
-#define menutext(x,y,s,p,t) menutext_(x,y,s,p,(char *)stripcolorcodes(t,menutextbuf))
+extern int menutext_(int x,int y,int s,int p,char *t,int bits);
+#define menutext(x,y,s,p,t) menutext_(x,y,s,p,(char *)stripcolorcodes(t,menutextbuf),10+16)
 extern void menus(void);
 extern void palto(int r,int g,int b,int e);
 extern void playanm(const char *fn,char);
@@ -205,6 +205,7 @@ extern int minitext_(int x,int y,const char *t,int s,int p,int sb);
 
 #define gametext(x,y,t,s,dabits) gametext_z(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536)
 #define gametextpal(x,y,t,s,p) gametext_z(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536)
+#define gametextpalbits(x,y,t,s,p,dabits) gametext_z(0,STARTALPHANUM, x,y,t,s,p,dabits,0, 0, xdim-1, ydim-1, 65536)
 
 extern void setupdynamictostatic();
 extern void processnames(const char *szLabel, int lValue);

@@ -197,7 +197,7 @@ static inline int probesm(int x,int y,int i,int n)
     return probe_(1,x,y,i,n);
 }
 
-int menutext_(int x,int y,int s,int p,char *t)
+int menutext_(int x,int y,int s,int p,char *t,int bits)
 {
     short i, ac, centre;
 //    int ht = usehightile;
@@ -311,7 +311,7 @@ int menutext_(int x,int y,int s,int p,char *t)
                 continue;
             }
 
-        rotatesprite(x<<16,y<<16,65536L,0,ac,s,p,10+16,0,0,xdim-1,ydim-1);
+        rotatesprite(x<<16,y<<16,65536L,0,ac,s,p,bits,0,0,xdim-1,ydim-1);
 
         x += tilesizx[ac];
         t++;
@@ -4720,7 +4720,7 @@ cheat_for_port_credits:
             sprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
             mgametext(160,168,tempbuf,0,2+8+16);
             if (ud.volume_number == 0 && ud.level_number == 7)
-                mgametext(160,180,boardfilename,0,2+8+16);
+                mgametext(160,180,currentboardfilename,0,2+8+16);
 
             x = strget((320>>1),184,&ud.savegame[current_menu-360][0],19, 999);
 
@@ -4806,7 +4806,7 @@ cheat_for_port_credits:
             sprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
             mgametext(160,168,tempbuf,0,2+8+16);
             if (ud.volume_number == 0 && ud.level_number == 7)
-                mgametext(160,180,boardfilename,0,2+8+16);
+                mgametext(160,180,currentboardfilename,0,2+8+16);
         }
 
         switch (x)

@@ -81,7 +81,7 @@ static struct strllist
 }
 *CommandPaths = NULL, *CommandGrps = NULL;
 
-char boardfilename[BMAX_PATH] = {0};
+char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
 char root[BMAX_PATH];
 char waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768], animpal[768];
 static char firstdemofile[80] = { '\0' };
@@ -153,6 +153,10 @@ int althud_numbertile = 2930;
 int althud_numberpal = 0;
 int althud_shadows = 1;
 int althud_flashing = 1;
+int hud_glowingquotes = 1;
+int hud_showmapname = 1;
+
+int leveltexttime = 0;
 
 int kopen4loadfrommod(char *filename, char searchfirst)
 {
@@ -2745,9 +2749,16 @@ static void operatefta(void)
     }
 
     j = g_player[screenpeek].ps->fta;
-    if (j > 4) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16);
-    else if (j > 2) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16+1);
-    else gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16+1+32);
+    if (!hud_glowingquotes)
+    {
+        if (j > 4) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16);
+        else if (j > 2) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16+1);
+        else gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16+1+32);
+        return;
+    }
+    if (j > 4) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>10),2+8+16);
+    else if (j > 2) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>10),2+8+16+1);
+    else gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>10),2+8+16+1+32);
 }
 
 void FTA(int q, player_struct *p)
@@ -3771,14 +3782,28 @@ void displayrest(int smoothratio)
 
     SetGameVarID(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
     OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek, -1);
-//    i = usehightile;
-//    if (r_downsize > 1)
-//        usehightile = 0;
     if (GetGameVarID(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
         coolgaugetext(screenpeek);
 
     operatefta();
-//    usehightile = i;
+
+    if (hud_showmapname && leveltexttime > 1)
+    {
+        int bits = 10+16;
+
+        if (leveltexttime > 4)
+            bits = bits;
+        else if (leveltexttime > 2)
+            bits |= 1;
+        else bits |= 1+32;
+        if (map[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
+        {
+            if (currentboardfilename[0] != 0)
+                menutext_(160,75,(sintable[(totalclock<<5)&2047]>>11),0,currentboardfilename,bits);
+            else menutext_(160,75,(sintable[(totalclock<<5)&2047]>>11),0,map[(ud.volume_number*MAXLEVELS) + ud.level_number].name,bits);
+        }
+    }
+
     if (KB_KeyPressed(sc_Escape) && ud.overhead_on == 0
             && ud.show_help == 0
             && g_player[myconnectindex].ps->newowner == -1)
@@ -9511,6 +9536,11 @@ static void checkcommandline(int argc, const char **argv)
                     i++;
                     continue;
                 }
+                if (!Bstrcasecmp(c+1,"noinstancechecking"))
+                {
+                    i++;
+                    continue;
+                }
             }
 
             if (firstnet > 0)
@@ -10621,12 +10651,20 @@ void app_crashhandler(void)
 
 void app_main(int argc,const char **argv)
 {
-    int i, j;
+    int i = 0, j;
     char cwd[BMAX_PATH];
 //    extern char datetimestring[];
 
 #ifdef RENDERTYPEWIN
-    if (win_checkinstance())
+    if (argc > 1)
+    {
+        for (;i<argc;i++)
+        {
+            if (Bstrcasecmp("-noinstancechecking",*(&argv[i])) == 0)
+                break;
+        }
+    }
+    if (i == argc && win_checkinstance())
     {
         if (!wm_ynbox("EDuke32","Another Build game is currently running. "
                       "Do you wish to continue starting this copy?"))

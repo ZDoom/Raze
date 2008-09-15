@@ -866,5 +866,7 @@ enum keywords
     CON_IFVARVARXOR,        // 340
     CON_IFVAREITHER,        // 341
     CON_IFVARVAREITHER,     // 342
+    CON_GETARRAYSIZE,       // 343
+    CON_SAVENN,             // 344
     CON_END
 };

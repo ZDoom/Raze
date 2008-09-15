@@ -1331,6 +1331,8 @@ static void AddSystemVars()
 
     AddGameVar("NUMWALLS",(intptr_t)&numwalls, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_READONLY);
     AddGameVar("NUMSECTORS",(intptr_t)&numsectors, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_READONLY);
+
+    AddGameVar("lastsavedpos",(intptr_t)&lastsavedpos, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
 }
 
 void InitGameVars(void)

@@ -35,7 +35,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern int voting, doquicksave;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
-extern int althud_numbertile, althud_numberpal, althud_shadows, althud_flashing;
+extern int althud_numbertile, althud_numberpal, althud_shadows, althud_flashing, hud_glowingquotes;
+extern int hud_showmapname;
 
 static inline int osdcmd_quit(const osdfuncparm_t *parm)
 {
@@ -708,6 +709,8 @@ cvarmappings cvar[] =
     { "hud_numberpal", "hud_numberpal: pal for alt hud numbers", (void*)&althud_numberpal, CVAR_INT, 0, 0, MAXPALOOKUPS },
     { "hud_shadows", "hud_shadows: enable/disable althud shadows", (void*)&althud_shadows, CVAR_BOOL, 0, 0, 1 },
     { "hud_flashing", "hud_flashing: enable/disable althud flashing", (void*)&althud_flashing, CVAR_BOOL, 0, 0, 1 },
+    { "hud_glowingquotes", "hud_glowingquotes: enable/disable \"glowing\" quote text", (void*)&hud_glowingquotes, CVAR_BOOL, 0, 0, 1 },
+    { "hud_showmapname", "hud_showmapname: enable/disable map name display on load", (void*)&hud_showmapname, CVAR_BOOL, 0, 0, 1 },
     { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&ud.config.AutoAim, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
     { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
     { "cl_autovote", "cl_autovote: enable/disable automatic voting", (void*)&ud.autovote, CVAR_INT|CVAR_MULTI, 0, 0, 2 },

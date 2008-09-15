@@ -2561,7 +2561,8 @@ void sharedkeys(int snum)
             if (GetGameVarID(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
             {
                 p->quick_kick = 14;
-                FTA(80,p);
+                if (p->fta == 0 || p->ftq == 80)
+                    FTA(80,p);
             }
         }
 

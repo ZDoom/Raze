@@ -220,6 +220,7 @@ int loadplayer(int spot)
     if (kdfread(&ud.level_number,sizeof(ud.level_number),1,fil) != 1) goto corrupt;
     if (kdfread(&ud.player_skill,sizeof(ud.player_skill),1,fil) != 1) goto corrupt;
     if (kdfread(&boardfilename[0],BMAX_PATH,1,fil) != 1) goto corrupt;
+    Bmemcpy(&currentboardfilename[0],&boardfilename[0],BMAX_PATH);
 
     ud.m_level_number = ud.level_number;
     ud.m_volume_number = ud.volume_number;
@@ -590,7 +591,7 @@ int saveplayer(int spot)
     dfwrite(&ud.volume_number,sizeof(ud.volume_number),1,fil);
     dfwrite(&ud.level_number,sizeof(ud.level_number),1,fil);
     dfwrite(&ud.player_skill,sizeof(ud.player_skill),1,fil);
-    dfwrite(&boardfilename[0],BMAX_PATH,1,fil);
+    dfwrite(&currentboardfilename[0],BMAX_PATH,1,fil);
     if (!waloff[TILE_SAVESHOT])
     {
         walock[TILE_SAVESHOT] = 254;

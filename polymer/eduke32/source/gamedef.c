@@ -477,6 +477,8 @@ const char *keyw[] =
     "ifvarvarxor",              // 340
     "ifvareither",              // 341
     "ifvarvareither",           // 342
+    "getarraysize",             // 343
+    "savenn",                   // 344
     "<null>"
 };
 
@@ -1087,7 +1089,10 @@ static int increasescriptsize(int size)
 
     newscript = (intptr_t *)Brealloc(script, g_ScriptSize * sizeof(intptr_t));
 
-    if (newscript == NULL)
+//    bitptr = (char *)Brealloc(bitptr, g_ScriptSize * sizeof(char));
+    newbitptr = Bcalloc(1,((size+7)>>3) * sizeof(char));
+
+    if (newscript == NULL || newbitptr == NULL)
     {
         ReportError(-1);
         initprintf("%s:%d: out of memory: Aborted (%ud)\n",compilefile,line_number,(unsigned)(scriptptr-script));
@@ -1096,19 +1101,14 @@ static int increasescriptsize(int size)
         return 1;
     }
 
-//    bitptr = (char *)Brealloc(bitptr, g_ScriptSize * sizeof(char));
-    newbitptr = Bcalloc(1,((size+7)>>3) * sizeof(char));
-
-    if (size > osize)
+    if (size >= osize)
     {
         Bmemset(&newscript[osize],0,(size-osize) * sizeof(intptr_t));
 //        Bmemset(&bitptr[osize],0,size-osize);
         Bmemcpy(newbitptr,bitptr,sizeof(char) * ((osize+7)>>3));
     }
     else if (size < osize)
-    {
         Bmemcpy(newbitptr,bitptr,sizeof(char) * ((size+7)>>3));
-    }
 
     Bfree(bitptr);
     bitptr = newbitptr;
@@ -2877,6 +2877,7 @@ static int parsecommand(void)
     case CON_SLEEPTIME:
     case CON_CLIPDIST:
     case CON_LOTSOFGLASS:
+    case CON_SAVENN:
     case CON_SAVE:
         if (!CheckEventSync(current_event))
         {
@@ -3788,6 +3789,7 @@ static int parsecommand(void)
         textptr++;
         transvar();
         return 0;
+    case CON_GETARRAYSIZE:
     case CON_RESIZEARRAY:
         getlabel();
         i=GetADefID(label+(labelcnt<<6));
@@ -5530,6 +5532,7 @@ static void AddDefaultDefinitions(void)
     AddDefinition("EVENT_WEAPKEY9",EVENT_WEAPKEY9,LABEL_DEFINE);
     AddDefinition("EVENT_KILLIT",EVENT_KILLIT,LABEL_DEFINE);
     AddDefinition("EVENT_LOADACTOR",EVENT_LOADACTOR,LABEL_DEFINE);
+    AddDefinition("EVENT_NEWGAME",EVENT_NEWGAME,LABEL_DEFINE);
 
     AddDefinition("STR_MAPNAME",STR_MAPNAME,LABEL_DEFINE);
     AddDefinition("STR_MAPFILENAME",STR_MAPFILENAME,LABEL_DEFINE);

@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 // this is checked against http://eduke32.com/VERSION
-#define BUILDDATE " 20080905"
+#define BUILDDATE " 20080912"
 #define APPNAME "EDuke32"
 #define VERSION " 1.5.0devel"
 #define HEAD2 APPNAME VERSION BUILDDATE
@@ -644,6 +644,7 @@ extern int packetrate;
 
 extern int cachecount;
 extern char boardfilename[BMAX_PATH],waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],animpal[768];
+extern char currentboardfilename[BMAX_PATH];
 extern char cachedebug,earthquaketime;
 extern int networkmode;
 extern char lumplockbyte[11];
@@ -793,6 +794,7 @@ enum events {
     EVENT_DISPLAYMENUREST,
     EVENT_DISPLAYLOADINGSCREEN,
     EVENT_ANIMATESPRITES,
+    EVENT_NEWGAME,
     MAXEVENTS
 };
 

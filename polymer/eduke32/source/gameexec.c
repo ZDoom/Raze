@@ -2513,7 +2513,7 @@ static int parse(void)
         insptr++;
         g_sp->cstat = (short) *insptr++;
         break;
-
+    case CON_SAVENN:
     case CON_SAVE:
         insptr++;
         {
@@ -2523,16 +2523,18 @@ static int parse(void)
 
             if ((movesperpacket == 4 && connecthead != myconnectindex) || lastsavedpos > 9)
                 break;
-
-            curtime = time(NULL);
-            Bstrcpy(tempbuf,asctime(localtime(&curtime)));
-            clearbuf(ud.savegame[lastsavedpos],sizeof(ud.savegame[lastsavedpos]),0);
-            Bsprintf(ud.savegame[lastsavedpos],"Auto");
+            if ((tw == CON_SAVE) || !(ud.savegame[lastsavedpos][0]))
+            {
+                curtime = time(NULL);
+                Bstrcpy(tempbuf,asctime(localtime(&curtime)));
+                clearbuf(ud.savegame[lastsavedpos],sizeof(ud.savegame[lastsavedpos]),0);
+                Bsprintf(ud.savegame[lastsavedpos],"Auto");
 //            for (j=0;j<13;j++)
 //                Bmemcpy(&ud.savegame[lastsavedpos][j+4],&tempbuf[j+3],sizeof(tempbuf[j+3]));
 //            ud.savegame[lastsavedpos][j+4] = '\0';
-            Bmemcpy(&ud.savegame[lastsavedpos][4],&tempbuf[3],sizeof(tempbuf[0])*13);
-            ud.savegame[lastsavedpos][17] = '\0';
+                Bmemcpy(&ud.savegame[lastsavedpos][4],&tempbuf[3],sizeof(tempbuf[0])*13);
+                ud.savegame[lastsavedpos][17] = '\0';
+            }
             OSD_Printf("Saving to slot %d\n",lastsavedpos);
 
             KB_FlushKeyboardQueue();
@@ -3524,6 +3526,11 @@ static int parse(void)
             aGameArrays[j].plValues[index]=value;
             break;
         }
+    case CON_GETARRAYSIZE:
+        insptr++;
+        j=*insptr++;
+        SetGameVarID(*insptr++,aGameArrays[j].size, g_i, g_p);
+        break;
 
     case CON_RESIZEARRAY:
         insptr++;

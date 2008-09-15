@@ -41,6 +41,7 @@ static char precachehightile[2][MAXTILES>>3];
 static int  precachecount;
 
 extern char *duke3dgrpstring;
+extern int leveltexttime;
 
 static void tloadtile(int tilenume, int type)
 {
@@ -356,12 +357,12 @@ static void dofrontscreens(char *statustext)
         }
         if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
         {
-            menutext(160,90,0,0,"ENTERING USER MAP");
+            menutext(160,90,0,0,"LOADING USER MAP");
             gametextpal(160,90+10,boardfilename,14,2);
         }
         else
         {
-            menutext(160,90,0,0,"ENTERING");
+            menutext(160,90,0,0,"LOADING");
             if (map[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
                 menutext(160,90+16+8,0,0,map[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
         }
@@ -1290,6 +1291,7 @@ void newgame(int vn,int ln,int sk)
         connecthead = 0;
         connectpoint2[0] = -1;
     }
+    OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek, -1);
 }
 
 int getteampal(int team)
@@ -1498,6 +1500,7 @@ void resettimevars(void)
     ototalclock = 0L;
     lockclock = 0L;
     ready2send = 1;
+    leveltexttime = 85;
 }
 
 void waitforeverybody()
@@ -1866,6 +1869,8 @@ int enterlevel(int g)
     //Bsprintf(g_szBuf,"ENTERLEVEL L=%d V=%d",ud.level_number, ud.volume_number);
     //AddLog(g_szBuf);
     // variables are set by pointer...
+
+    Bmemcpy(&currentboardfilename[0],&boardfilename[0],BMAX_PATH);
 
     OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
     OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,map[(ud.volume_number*MAXLEVELS)+ud.level_number].name);

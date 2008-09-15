@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #endif
 
-#define BUILDDATE " 20080907"
+#define BUILDDATE " 20080912"
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;
@@ -1546,7 +1546,7 @@ ENDFOR1:
                     i<IHELP_NUMDISPLINES && j<helppage[curhp]->numlines; i++)
             {
                 Bmemcpy(disptext[i], helppage[curhp]->line[j], 80);
-                printext16(8,ydim-overridepm16y+28+i*9,15,
+                printext16(8,ydim-overridepm16y+28+i*9,12,
                            (j==highlightline && curhp==highlighthp
                             && totalclock-lasthighlighttime<120*5)?1:-1,
                            disptext[i],0);
@@ -8238,7 +8238,7 @@ int parsealphabets(scriptfile *script)
                     }
                     if (scriptfile_getsymbol(script,&k)) break;
 
-                    if (i>126 || j<33) break; 
+                    if (i>126 || j<33) break;
                     for (; i<=j && k<MAXTILES; i++, k++)
                     {
                         if (i>=33 && i<=126)
@@ -8851,7 +8851,7 @@ static void Keys2d3d(void)
                 {
                     SHELLEXECUTEINFOA sinfo;
                     char *prog = "eduke32";
-                    char *param = " -map autosave.map";
+                    char *param = " -map autosave.map -noinstancechecking";
                     char *fullparam;
                     int slen;
 
@@ -8869,7 +8869,7 @@ static void Keys2d3d(void)
                     ExtPreSaveMap();
                     saveboard("autosave.map",&posx,&posy,&posz,&ang,&cursectnum);
                     message("Board saved to AUTOSAVE.MAP. Starting Eduke32...");
-                
+
                     Bmemset(&sinfo, 0, sizeof(sinfo));
                     sinfo.cbSize = sizeof(sinfo);
                     sinfo.fMask = SEE_MASK_FLAG_NO_UI;
@@ -9956,35 +9956,54 @@ static void EditSpriteData(short spritenum)
 
 // Build edit
 
+static char *FuncMenuStrings[] =
+{
+    " Replace invalid tiles",
+    " Delete all spr of tile #",
+    " Set map sky shade",
+    " Set map sky height",
+    " Global Z coord shift",
+    " Resize selection",
+    " Global shade divide",
+    " Global visibility divide "
+};
+
+#define MENU_Y_SPACING 8
+#define MENU_BASE_Y 16
+
 static void FuncMenuOpts(void)
 {
-    char snotbuf[80];
+    int x = 8;
+    int y = MENU_BASE_Y+16;
+    int i = 0;
+    //  int x2 = 0;
+//    static int x2_max = 0;
 
-    Bsprintf(snotbuf,"Special functions");
-    printext16(8,ydim-STATUS2DSIZ+32,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Replace invalid tiles");
-    printext16(8,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Delete all spr of tile #");
-    printext16(8,ydim-STATUS2DSIZ+56,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Global sky shade");
-    printext16(8,ydim-STATUS2DSIZ+64,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Global sky height");
-    printext16(8,ydim-STATUS2DSIZ+72,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Global Z coord shift");
-    printext16(8,ydim-STATUS2DSIZ+80,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Resize selection");
-    printext16(8,ydim-STATUS2DSIZ+88,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Global shade divide");
-    printext16(8,ydim-STATUS2DSIZ+96,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Global visibility divide");
-    printext16(8,ydim-STATUS2DSIZ+104,11,-1,snotbuf,0);
+    int numopts = (sizeof(FuncMenuStrings)/sizeof(FuncMenuStrings[0]));
+
+    do
+    {
+//        x2 =
+        printext16(x,y,11,2,FuncMenuStrings[i],0);
+        //    if (x2 > x2_max) x2_max = x2;
+        y += MENU_Y_SPACING;
+    }
+    while (++i < numopts);
+//    drawline16(x-1,y,x2_max+1,y,1);
+    //  drawline16(x-1,MENU_BASE_Y-4,x-1,y,1);
+
+//    x2 =
+    printext16(x,MENU_BASE_Y,11,1,"Special functions",0);
+//    drawline16(x-1,MENU_BASE_Y-4,x2+1,MENU_BASE_Y-4,1);
+    //  drawline16(x2_max+1,MENU_BASE_Y+16-4,x2_max+1,y-1,1);
+    //drawline16(x2+1,MENU_BASE_Y+16-1,x2_max+1,MENU_BASE_Y+16-1,1);
 }
 
 static void FuncMenu(void)
 {
     char disptext[80];
-    int col=0, row=0, rowmax=7, dispwidth = 24, editval = 0, i = -1, j;
-    int xpos = 8, ypos = ydim-STATUS2DSIZ+48;
+    int col=0, row=0, rowmax=7, dispwidth = 26, editval = 0, i = -1, j;
+    int xpos = 8, ypos = MENU_BASE_Y+16;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();
@@ -10004,7 +10023,7 @@ static void FuncMenu(void)
         {
             if (row < rowmax)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*MENU_Y_SPACING,11,0,disptext,0);
                 row++;
             }
             keystatus[KEYSC_DOWN] = 0;
@@ -10013,7 +10032,7 @@ static void FuncMenu(void)
         {
             if (row > 0)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*MENU_Y_SPACING,11,0,disptext,0);
                 row--;
             }
             keystatus[KEYSC_UP] = 0;
@@ -10082,7 +10101,7 @@ static void FuncMenu(void)
             {
             case 0:
             {
-                for (i=Bsprintf(disptext,"Replace invalid tiles"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j = 0;
@@ -10112,7 +10131,7 @@ static void FuncMenu(void)
             break;
             case 1:
             {
-                for (i=Bsprintf(disptext,"Delete all spr of tile #"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     Bsprintf(tempbuf,"Delete all sprites of tile #: ");
@@ -10132,26 +10151,26 @@ static void FuncMenu(void)
             break;
             case 2:
             {
-                for (i=Bsprintf(disptext,"Global sky shade"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    j=getnumber16("Global sky shade:    ",0,128,1);
+                    j=getnumber16("Set map sky shade:    ",0,128,1);
 
                     for (i=0;i<numsectors;i++)
                     {
                         if (sector[i].ceilingstat&1)
                             sector[i].ceilingshade = j;
                     }
-                    printmessage16("Parallaxed skies adjusted");
+                    printmessage16("All parallax skies adjusted");
                 }
             }
             break;
             case 3:
             {
-                for (i=Bsprintf(disptext,"Global sky height"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    j=getnumber16("Global sky height:    ",0,16777216,1);
+                    j=getnumber16("Set map sky height:    ",0,16777216,1);
                     if (j != 0)
                     {
                         for (i=0;i<numsectors;i++)
@@ -10159,7 +10178,7 @@ static void FuncMenu(void)
                             if (sector[i].ceilingstat&1)
                                 sector[i].ceilingz = j;
                         }
-                        printmessage16("Parallaxed skies adjusted");
+                        printmessage16("All parallax skies adjusted");
                     }
                     else printmessage16("Aborted");
                 }
@@ -10167,7 +10186,7 @@ static void FuncMenu(void)
             break;
             case 4:
             {
-                for (i=Bsprintf(disptext,"Global Z coord shift"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Z offset:    ",0,16777216,1);
@@ -10188,7 +10207,7 @@ static void FuncMenu(void)
             break;
             case 5:
             {
-                for (i=Bsprintf(disptext,"Resize selection"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Percentage of original:    ",100,1000,0);
@@ -10229,7 +10248,7 @@ static void FuncMenu(void)
             break;
             case 6:
             {
-                for (i=Bsprintf(disptext,"Global shade divide"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Shade divisor:    ",1,128,1);
@@ -10252,7 +10271,7 @@ static void FuncMenu(void)
             break;
             case 7:
             {
-                for (i=Bsprintf(disptext,"Global visibility divide"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Visibility divisor:    ",1,128,0);
@@ -10273,12 +10292,12 @@ static void FuncMenu(void)
             }
             break;
         }
-        printext16(xpos,ypos+row*8,11,1,disptext,0);
+        printext16(xpos,ypos+row*MENU_Y_SPACING,11,1,disptext,0);
         enddrawing();
         showframe(1);
     }
     begindrawing();
-    printext16(xpos,ypos+row*8,11,0,disptext,0);
+    printext16(xpos,ypos+row*MENU_Y_SPACING,11,0,disptext,0);
     enddrawing();
     clearmidstatbar16();
     showframe(1);

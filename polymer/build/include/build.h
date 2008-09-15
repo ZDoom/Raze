@@ -437,7 +437,7 @@ void   clearallviews(int dacol);
 void   drawmapview(int dax, int day, int zoome, short ang);
 void   rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2);
 void   drawline256(int x1, int y1, int x2, int y2, char col);
-void   printext16(int xpos, int ypos, short col, short backcol, char *name, char fontsize);
+int    printext16(int xpos, int ypos, short col, short backcol, char *name, char fontsize);
 void   printext256(int xpos, int ypos, short col, short backcol, char *name, char fontsize);
 
 int   clipmove(int *x, int *y, int *z, short *sectnum, int xvect, int yvect, int walldist, int ceildist, int flordist, unsigned int cliptype);
