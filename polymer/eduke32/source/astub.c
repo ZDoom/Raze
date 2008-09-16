@@ -8842,8 +8842,12 @@ static void Keys2d3d(void)
 
             keystatus[KEYSC_P] = 0;
 
-            updatesector(posx, posy, &cursectnum);
-            if (cursectnum >= 0)
+            if (!eitherALT)
+                updatesector(posx, posy, &cursectnum);
+            else
+                updatesector(startposx, startposy, &startsectnum);
+
+            if ((!eitherALT && cursectnum >= 0) || (eitherALT && startsectnum >= 0))
             {
                 if (tp_lastkeypresstime+120*4 >= totalclock)
                     message("Please wait while starting Eduke32...");
@@ -8867,7 +8871,10 @@ static void Keys2d3d(void)
 
                     fixspritesectors();   //Do this before saving!
                     ExtPreSaveMap();
-                    saveboard("autosave.map",&posx,&posy,&posz,&ang,&cursectnum);
+                    if (eitherALT)
+                        saveboard("autosave.map",&startposx,&startposy,&startposz,&startang,&startsectnum);
+                    else
+                        saveboard("autosave.map",&posx,&posy,&posz,&ang,&cursectnum);
                     message("Board saved to AUTOSAVE.MAP. Starting Eduke32...");
 
                     Bmemset(&sinfo, 0, sizeof(sinfo));
