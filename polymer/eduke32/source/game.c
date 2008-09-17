@@ -947,7 +947,7 @@ void getpackets(void)
                     {
                         g_player[(unsigned char)packbuf[2]].gotvote = 1;
                         g_player[(unsigned char)packbuf[2]].vote = packbuf[3];
-                        Bsprintf(tempbuf,"GOT VOTE FROM %s",g_player[(unsigned char)packbuf[2]].user_name);
+                        Bsprintf(tempbuf,"CONFIRMED VOTE FROM %s",g_player[(unsigned char)packbuf[2]].user_name);
                         adduserquote(tempbuf);
                     }
                     break;
@@ -958,7 +958,7 @@ void getpackets(void)
                     vote_map = packbuf[4];
                     Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",g_player[(unsigned char)packbuf[2]].user_name,map[(unsigned char)(packbuf[3]*MAXLEVELS + packbuf[4])].name,packbuf[3]+1,packbuf[4]+1);
                     adduserquote(tempbuf);
-                    Bsprintf(tempbuf,"PRESS F1 TO VOTE YES, F2 TO VOTE NO");
+                    Bsprintf(tempbuf,"PRESS F1 TO ACCEPT, F2 TO DECLINE");
                     adduserquote(tempbuf);
                     for (i=MAXPLAYERS-1;i>=0;i--)
                     {
@@ -11334,7 +11334,7 @@ MAIN_LOOP_RESTART:
             gametext(160,40,tempbuf,0,2+8+16);
             Bsprintf(tempbuf,"%s (E%dL%d)",map[vote_episode*MAXLEVELS + vote_map].name,vote_episode+1,vote_map+1);
             gametext(160,48,tempbuf,0,2+8+16);
-            gametext(160,70,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2+8+16);
+            gametext(160,70,"PRESS F1 TO ACCEPT, F2 TO DECLINE",0,2+8+16);
         }
 
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)
@@ -11657,7 +11657,7 @@ RECHECK:
                 getpackets();
 
             if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
-                gametext(160,60,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2+8+16);
+                gametext(160,60,"PRESS F1 TO ACCEPT, F2 TO DECLINE",0,2+8+16);
         }
 
         if ((g_player[myconnectindex].ps->gm&MODE_MENU) && (g_player[myconnectindex].ps->gm&MODE_EOL))

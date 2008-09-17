@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #endif
 
-#define BUILDDATE " 20080912"
+#define BUILDDATE " 20080917"
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;
@@ -1546,7 +1546,7 @@ ENDFOR1:
                     i<IHELP_NUMDISPLINES && j<helppage[curhp]->numlines; i++)
             {
                 Bmemcpy(disptext[i], helppage[curhp]->line[j], 80);
-                printext16(8,ydim-overridepm16y+28+i*9,12,
+                printext16(8,ydim-overridepm16y+28+i*9,10,
                            (j==highlightline && curhp==highlighthp
                             && totalclock-lasthighlighttime<120*5)?1:-1,
                            disptext[i],0);
@@ -3227,8 +3227,8 @@ void dumpalphabets()
 void rendertext(short startspr)
 {
     char ch, buffer[80], doingspace=0;
-    short daang, t, alphidx, basetile, linebegspr, curspr;
-    int i, j, k, dax, day;
+    short daang = 0, t, alphidx, basetile, linebegspr, curspr;
+    int i, j, k, dax = 0, day = 0;
     static unsigned char hgap=0, vgap=4;
     static unsigned char spcgap[MAX_ALPHABETS], firstrun=1;
     spritetype *sp;
@@ -3288,7 +3288,7 @@ ENDFOR1:
     sprite[startspr].yoffset = -(((picanm[t])>>16)&255);
 
     spritenums = Bmalloc(stackallocsize * sizeof(short));
-    if (!spritenums) goto ERROR1;
+    if (!spritenums) goto ERROR_NOMEMORY;
 
     bflushchars();
     while (keystatus[0x1] == 0)
@@ -3445,7 +3445,7 @@ ENDFOR1:
                 {
                     stackallocsize *= 2;
                     spritenums = Brealloc(spritenums, stackallocsize*sizeof(short));
-                    if (!spritenums) goto ERROR1;
+                    if (!spritenums) goto ERROR_NOMEMORY;
                 }
                 spritenums[numletters++] = i;
             }
@@ -3485,7 +3485,7 @@ ENDFOR1:
         }
     }
 // ---
-ERROR1:
+ERROR_NOMEMORY:
     if (spritenums) Bfree(spritenums);
     else message("Out of memory!");
 
@@ -8850,7 +8850,7 @@ static void Keys2d3d(void)
             if ((!eitherALT && cursectnum >= 0) || (eitherALT && startsectnum >= 0))
             {
                 if (tp_lastkeypresstime+120*4 >= totalclock)
-                    message("Please wait while starting Eduke32...");
+                    message("Please wait while starting EDuke32...");
                 else
                 {
                     SHELLEXECUTEINFOA sinfo;
@@ -8875,7 +8875,7 @@ static void Keys2d3d(void)
                         saveboard("autosave.map",&startposx,&startposy,&startposz,&startang,&startsectnum);
                     else
                         saveboard("autosave.map",&posx,&posy,&posz,&ang,&cursectnum);
-                    message("Board saved to AUTOSAVE.MAP. Starting Eduke32...");
+                    message("Board saved to AUTOSAVE.MAP. Starting EDuke32...");
 
                     Bmemset(&sinfo, 0, sizeof(sinfo));
                     sinfo.cbSize = sizeof(sinfo);
@@ -8886,7 +8886,7 @@ static void Keys2d3d(void)
                     sinfo.nShow = SW_SHOWNORMAL;
 
                     if (!ShellExecuteExA(&sinfo))
-                        message("Error launching eduke32!");
+                        message("Error launching EDuke32!");
 
                     Bfree(fullparam);
                 }
@@ -9154,13 +9154,14 @@ void faketimerhandler(void)
     horiz = ((horiz*7+(100-(daang>>1)))>>3);
     if (horiz < 100) horiz++;
     if (horiz > 100) horiz--;
-
+/*
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_5]) // ' 5
     {
         keystatus[KEYSC_5]=0;
         editstatus = 1;
         sidemode = 2;
     }
+    */
 }
 
 extern short brightness;
@@ -9965,18 +9966,19 @@ static void EditSpriteData(short spritenum)
 
 static char *FuncMenuStrings[] =
 {
-    " Replace invalid tiles",
-    " Delete all spr of tile #",
-    " Set map sky shade",
-    " Set map sky height",
-    " Global Z coord shift",
-    " Resize selection",
-    " Global shade divide",
-    " Global visibility divide "
+    "Replace invalid tiles",
+    "Delete all spr of tile #",
+    "Set map sky shade",
+    "Set map sky height",
+    "Global Z coord shift",
+    "Resize selection",
+    "Global shade divide",
+    "Global visibility divide"
 };
 
 #define MENU_Y_SPACING 8
-#define MENU_BASE_Y 16
+#define MENU_BASE_Y ydim-STATUS2DSIZ+32
+
 
 static void FuncMenuOpts(void)
 {
@@ -9991,7 +9993,7 @@ static void FuncMenuOpts(void)
     do
     {
 //        x2 =
-        printext16(x,y,11,2,FuncMenuStrings[i],0);
+        printext16(x,y,11,0,FuncMenuStrings[i],0);
         //    if (x2 > x2_max) x2_max = x2;
         y += MENU_Y_SPACING;
     }
@@ -10000,7 +10002,7 @@ static void FuncMenuOpts(void)
     //  drawline16(x-1,MENU_BASE_Y-4,x-1,y,1);
 
 //    x2 =
-    printext16(x,MENU_BASE_Y,11,1,"Special functions",0);
+    printext16(x,MENU_BASE_Y,11,0,"Special functions",0);
 //    drawline16(x-1,MENU_BASE_Y-4,x2+1,MENU_BASE_Y-4,1);
     //  drawline16(x2_max+1,MENU_BASE_Y+16-4,x2_max+1,y-1,1);
     //drawline16(x2+1,MENU_BASE_Y+16-1,x2_max+1,MENU_BASE_Y+16-1,1);
@@ -10009,7 +10011,7 @@ static void FuncMenuOpts(void)
 static void FuncMenu(void)
 {
     char disptext[80];
-    int col=0, row=0, rowmax=7, dispwidth = 26, editval = 0, i = -1, j;
+    int col=0, row=0, rowmax=7, dispwidth = 24, editval = 0, i = -1, j;
     int xpos = 8, ypos = MENU_BASE_Y+16;
 
     disptext[dispwidth] = 0;

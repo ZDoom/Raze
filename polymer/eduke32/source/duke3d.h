@@ -22,10 +22,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
-// this is checked against http://eduke32.com/VERSION
-#define BUILDDATE " 20080912"
 #define APPNAME "EDuke32"
 #define VERSION " 1.5.0devel"
+// this is checked against http://eduke32.com/VERSION
+#define BUILDDATE " 20080917"
 #define HEAD2 APPNAME VERSION BUILDDATE
 
 #ifdef __cplusplus
