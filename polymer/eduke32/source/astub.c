@@ -1904,11 +1904,15 @@ void ExtEditWallData(short wallnum)       //F8
     else EditWallData(wallnum);
 }
 
+static void GenSearchSprite(void);
+
 void ExtEditSpriteData(short spritenum)   //F8
 {
     if (qsetmode==200)
         return;
     if (eitherALT)  //ALT
+        GenSearchSprite();
+#if 0
     {
         wallsprite=2;
         cursearchsprite = spritenum;
@@ -1922,6 +1926,7 @@ void ExtEditSpriteData(short spritenum)   //F8
         Bsprintf(tempbuf,"Search sprite lo=%d hi=%d",search_lotag,search_hitag);
         printmessage16(tempbuf);
     }
+#endif
     else EditSpriteData(spritenum);
 }
 
@@ -6443,6 +6448,110 @@ static void Keys3d(void)
     }
 }// end 3d
 
+static void DoSpriteSearch(int dir)  // <0: backwards, >=0: forwards
+{
+    char did_wrap = 0;
+    int i, j, k;
+
+    for (dir<0 ? gs_cursprite-- : gs_cursprite++;; dir<0 ? gs_cursprite-- : gs_cursprite++)
+    {
+        if (gs_cursprite < 0)
+        {
+            if (!did_wrap)
+            {
+                did_wrap = 1;
+                gs_cursprite = MAXSPRITES-1;
+            }
+            else break;
+        }
+        if (gs_cursprite >= MAXSPRITES)
+        {
+            if (!did_wrap)
+            {
+                did_wrap = 1;
+                gs_cursprite = 0;
+            }
+            else break;
+        }
+
+        if (sprite[gs_cursprite].statnum == MAXSTATUS) continue;
+
+        for (i=0; i<3; i++)
+            for (j=0; i==1 ? j<6 : j<7; j++)
+            {
+                if (!gs_spritewhat[i][j]) continue;
+
+                if (i==0)
+                {
+                    switch (j)
+                    {
+                    case 0: k = sprite[gs_cursprite].x; break;
+                    case 1: k = sprite[gs_cursprite].y; break;
+                    case 2: k = sprite[gs_cursprite].z; break;
+                    case 3: k = sprite[gs_cursprite].sectnum; break;
+                    case 4: k = sprite[gs_cursprite].statnum; break;
+                    case 5: k = sprite[gs_cursprite].hitag; break;
+                    case 6: k = sprite[gs_cursprite].lotag; break;
+                    }
+                }
+                if (i==1)
+                {
+                    switch (j)
+                    {
+                    case 0:
+                        k = sprite[gs_cursprite].cstat;
+                        k &= gs_sprite[1][0];
+                        break;
+                    case 1: k = sprite[gs_cursprite].shade; break;
+                    case 2: k = sprite[gs_cursprite].pal; break;
+                    case 3:
+                        k = gs_sprite[1][3];
+                        if (k != sprite[gs_cursprite].xrepeat &&
+                            k != sprite[gs_cursprite].yrepeat)
+                            goto NEXTSPRITE;
+                        break;
+                    case 4:
+                        k = gs_sprite[1][4];
+                        if (k != sprite[gs_cursprite].xoffset &&
+                            k != sprite[gs_cursprite].yoffset)
+                            goto NEXTSPRITE;
+                        break;
+                    case 5: k = sprite[gs_cursprite].picnum; break;
+                    }
+                }
+                if (i==2)
+                {
+                    switch (j)
+                    {
+                    case 0: k = sprite[gs_cursprite].ang; break;
+                    case 1: k = sprite[gs_cursprite].xvel; break;
+                    case 2: k = sprite[gs_cursprite].yvel; break;
+                    case 3: k = sprite[gs_cursprite].zvel; break;
+                    case 4: k = sprite[gs_cursprite].owner; break;
+                    case 5: k = sprite[gs_cursprite].clipdist; break;
+                    case 6: k = sprite[gs_cursprite].extra; break;
+                    }
+                }
+
+                if (k != gs_sprite[i][j]) goto NEXTSPRITE;
+            }
+
+        // found matching sprite
+        posx = sprite[gs_cursprite].x;
+        posy = sprite[gs_cursprite].y;
+        ang = sprite[gs_cursprite].ang;
+
+        printmessage16("%s Sprite seach%s: found sprite %d", dir<0 ? "<" : ">",
+                       did_wrap ? " (wrap)" : "", gs_cursprite);
+        did_wrap = 0;
+        return;
+
+NEXTSPRITE:
+        ;
+    }
+    printmessage16("%s Sprite search: none found", dir<0 ? "<" : ">");
+}
+
 static void Keys2d(void)
 {
     short temp=0;
@@ -6829,6 +6938,8 @@ static void Keys2d(void)
             else
 
                 if (wallsprite==2)
+                    DoSpriteSearch(-1);
+#if 0
                 {
                     if (cursearchspritenum>0) cursearchspritenum--;
                     for (i=cursearchspritenum;i>=0;i--)
@@ -6855,6 +6966,7 @@ static void Keys2d(void)
                     }
                     printmessage16("< Sprite search: none found");
                 }
+#endif
     }
 
 
@@ -6890,6 +7002,8 @@ static void Keys2d(void)
             printmessage16("> Wall search: none found");
         }
         else if (wallsprite==2)
+            DoSpriteSearch(1);
+#if 0
         {
             if (cursearchspritenum<MAXSPRITES) cursearchspritenum++;
             for (i=cursearchspritenum;i<=MAXSPRITES;i++)
@@ -6915,6 +7029,7 @@ static void Keys2d(void)
             }
             printmessage16("> Sprite search: none found");
         }
+#endif
     }
 
     {
@@ -9958,6 +10073,168 @@ static void EditSpriteData(short spritenum)
     printext16(xpos,ypos+row*8,11,0,disptext,0);
     printmessage16("");
     enddrawing();
+    showframe(1);
+    keystatus[KEYSC_ESC] = 0;
+}
+
+static void GenSearchSprite()
+{
+    char disptext[80];
+    char edittext[80];
+    static int col=0, row=0;
+    int i, j, k;
+	int rowmax[3]={6,5,6}, dispwidth[3] = {24,24,28};
+    int xpos[3] = {8,200,400}, ypos = ydim-STATUS2DSIZ+48;
+
+    static char *labels[7][3] = {
+        {"X-coordinate", "Flags (hex)", "Angle (2048 degrees)"},
+        {"Y-coordinate", "Shade",       "X-Velocity"},
+        {"Z-coordinate", "Pal",         "Y-Velocity"},
+        {"Sectnum",      "(X/Y)repeat", "Z-Velocity"},
+        {"Statnum",      "(X/Y)offset", "Owner"},
+        {"Hitag",        "Tile number", "Clipdist"},
+        {"Lotag",        "",            "Extra"}
+    };
+
+    static int maxval[7][3] = {
+        { 524288      , 65536       , 2048 },
+        { 524288      , 128         , 65536 },
+        { 8388608     , MAXPALOOKUPS, 65536 },
+        { MAXSECTORS-1, 128         , 65536 },
+        { MAXSTATUS-1 , 128         , MAXSPRITES-1 },
+        { 65536       , MAXTILES    , 256 },
+        { 65536       , 0           , 65536 }
+    };
+
+    static char sign[7][3] = {
+        {1,0,1}, {1,1,1}, {1,0,1}, {0,0,1}, {0,1,0}, {0,0,0}, {0,0,1}
+    };
+
+    static char firstrun=1;
+
+    if (firstrun)
+    {
+        firstrun = 0;
+        Bmemset(&gs_spritewhat, 0, sizeof(gs_spritewhat));
+    }
+
+    clearmidstatbar16();
+
+    printext16(xpos[0], ypos-2*8, 10, 0, "Sprite search", 0);
+
+    for (i=0; i<3; i++)
+        for (j=0; j<=rowmax[i]; j++)
+        {
+            if (gs_spritewhat[i][j])
+                k=Bsprintf(disptext, "%s: ^O%d", labels[j][i], gs_sprite[i][j]);
+            else
+                k=Bsprintf(disptext, "%s: ^7any", labels[j][i]);
+            for (;k<dispwidth[i];k++) disptext[k] = 0;
+
+            printext16(xpos[i], ypos+j*8, 11, 0, disptext, 0);
+        }
+    for (k=0; k<80; k++) disptext[k] = 0;
+
+//    disptext[dispwidth[col]] = 0;
+//    showspritedata(spritenum);
+    wallsprite = 2;
+
+    while (keystatus[KEYSC_ESC] == 0)
+    {
+        begindrawing();
+        if (handleevents())
+        {
+            if (quitevent) quitevent = 0;
+        }
+        idle();
+        printmessage16("Sprite search, press <Esc> to exit");
+
+        if (keystatus[KEYSC_DOWN])
+        {
+            keystatus[KEYSC_DOWN] = 0;
+            if (row < rowmax[col])
+            {
+                printext16(xpos[col],ypos+row*8,11,0,disptext,0);
+                row++;
+            }
+        }
+        if (keystatus[KEYSC_UP])
+        {
+            keystatus[KEYSC_UP] = 0;
+            if (row > 0)
+            {
+                printext16(xpos[col],ypos+row*8,11,0,disptext,0);
+                row--;
+            }
+        }
+        if (keystatus[KEYSC_LEFT])
+        {
+            keystatus[KEYSC_LEFT] = 0;
+            if (col > 0) 
+            {
+                printext16(xpos[col],ypos+row*8,11,0,disptext,0);
+                col--;
+                disptext[dispwidth[col]] = 0;
+                if (row > rowmax[col]) row = rowmax[col];
+            }
+        }
+        if (keystatus[KEYSC_RIGHT])
+        {
+            keystatus[KEYSC_RIGHT] = 0;
+            if (col < 2)
+            {
+                printext16(xpos[col],ypos+row*8,11,0,disptext,0);
+                col++;
+                disptext[dispwidth[col]] = 0;
+                if (row > rowmax[col]) row = rowmax[col];
+            }
+        }
+        if (keystatus[KEYSC_ENTER])
+        {
+            keystatus[KEYSC_ENTER] = 0;
+            Bsprintf(edittext, "%s: ", labels[row][col]);
+            enddrawing();
+            printmessage16(edittext);
+            i = getnumber16(edittext, gs_spritewhat[col][row] ? gs_sprite[col][row] : 0,
+                            maxval[row][col], sign[row][col]);
+            if (col == 2 && row == 0) i = (i+2048)&2047;  // angle
+            gs_sprite[col][row] = i;
+            begindrawing();
+            gs_spritewhat[col][row] = 1;
+
+            if (col == 1 && row == 5)  // picnum
+                printext16(xpos[1], ypos-2*8, 14, 0, names[i], 0);
+        }
+        if (keystatus[KEYSC_BS] || keystatus[KEYSC_DELETE])
+        {
+            keystatus[KEYSC_BS] = keystatus[KEYSC_DELETE] = 0;
+            gs_spritewhat[col][row] = 0;
+
+			if (col == 1 && row == 5)  // picnum
+                printext16(xpos[1], ypos-2*8, 14, 0, "                         ", 0);
+        }
+
+        if (gs_spritewhat[col][row])
+        {
+            if (col == 1 && row == 0)  // flags
+                k = Bsprintf(disptext, "%s: ^O%x", labels[row][col], gs_sprite[col][row]);
+            else
+                k = Bsprintf(disptext, "%s: ^O%d", labels[row][col], gs_sprite[col][row]);
+        }
+        else
+            k = Bsprintf(disptext, "%s: ^7any", labels[row][col]);
+        for (;k<dispwidth[col];k++) disptext[k] = ' ';
+        disptext[k] = 0;
+
+        printext16(xpos[col],ypos+row*8,11,1,disptext,0);
+
+        enddrawing();
+        showframe(1);
+    }
+//    begindrawing();
+    printext16(xpos[col],ypos+row*8,11,0,disptext,0);
+    printmessage16("Search sprite");
+//    enddrawing();
     showframe(1);
     keystatus[KEYSC_ESC] = 0;
 }

@@ -221,3 +221,7 @@ extern void clearkeys(void);
 #ifdef _WIN32
 static char *testplay_addparam = 0;
 #endif
+
+int gs_sprite[3][7];
+char gs_spritewhat[3][7];
+short gs_cursprite=-1;
