@@ -10928,7 +10928,7 @@ void app_main(int argc,const char **argv)
     {
         Bstrcat(root,mod_dir);
         addsearchpath(root);
-        addsearchpath(mod_dir);
+//        addsearchpath(mod_dir);
 #if defined(POLYMOST) && defined(USE_OPENGL)
         Bsprintf(tempbuf,"%s/%s",mod_dir,TEXCACHEDIR);
         Bstrcpy(TEXCACHEDIR,tempbuf);
@@ -11083,6 +11083,14 @@ void app_main(int argc,const char **argv)
     }
 
     ud.last_level = -1;
+
+    if (Bstrcasecmp(ud.rtsname,"DUKE.RTS") == 0)
+    {
+        if (WW2GI)
+            Bstrcpy(ud.rtsname, "WW2GI.RTS");
+        else if (NAM)
+            Bstrcpy(ud.rtsname, "NAM.RTS");
+    }
 
     RTS_Init(ud.rtsname);
     if (numlumps) initprintf("Using .RTS file '%s'\n",ud.rtsname);

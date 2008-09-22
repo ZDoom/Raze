@@ -10618,4 +10618,6 @@ typedef struct _mapundo
 
 mapundo_t *undopos = NULL;
 mapundo_t undoredo[UNDODEPTH];
+
+int map_revision = 0;
 */

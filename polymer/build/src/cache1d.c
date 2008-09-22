@@ -399,7 +399,7 @@ BFILE* fopenfrompath(const char *fn, const char *mode)
 }
 
 
-#define MAXGROUPFILES 4     //Warning: Fix groupfil if this is changed
+#define MAXGROUPFILES 8     //Warning: Fix groupfil if this is changed
 #define MAXOPENFILES 64     //Warning: Fix filehan if this is changed
 
 static char toupperlookup[256] =
@@ -424,7 +424,7 @@ static char toupperlookup[256] =
 
 static int numgroupfiles = 0;
 static int gnumfiles[MAXGROUPFILES];
-static int groupfil[MAXGROUPFILES] = {-1,-1,-1,-1};
+static int groupfil[MAXGROUPFILES] = {-1,-1,-1,-1,-1,-1,-1,-1};
 static int groupfilpos[MAXGROUPFILES];
 static char *gfilelist[MAXGROUPFILES];
 static int *gfileoffs[MAXGROUPFILES];
