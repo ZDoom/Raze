@@ -11220,7 +11220,6 @@ MAIN_LOOP_RESTART:
 
     if (ud.warp_on == 0 && playback())
     {
-        ud.multimode = numplayers;  // fixes playback() infinite loop after watching demo
         FX_StopAllSounds();
         clearsoundlocks();
         g_NoLogoAnim = 1;
@@ -11730,6 +11729,7 @@ RECHECK:
             return 0;
         }
     }
+    ud.multimode = numplayers;  // fixes 2 infinite loops after watching demo
     kclose(recfilep);
 
 #if 0
