@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #endif
 
-#define BUILDDATE " 20080917"
+#define BUILDDATE " 20080924"
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;
@@ -6451,7 +6451,7 @@ static void Keys3d(void)
 static void DoSpriteSearch(int dir)  // <0: backwards, >=0: forwards
 {
     char did_wrap = 0;
-    int i, j, k;
+    int i, j, k = 0;
 
     for (dir<0 ? gs_cursprite-- : gs_cursprite++;; dir<0 ? gs_cursprite-- : gs_cursprite++)
     {
