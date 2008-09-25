@@ -3210,25 +3210,6 @@ int64 ldistsqr(spritetype *s1,spritetype *s2)
             ((int64)(s2->y - s1->y))*((int64)(s2->y - s1->y)));
 }
 
-#if 0
-void dumpalphabets()
-{
-    int i,j;
-
-    OSD_Printf("numalphabets=%d\n", numalphabets);
-
-    for (i=0; i<numalphabets; i++)
-    {
-        for (j=0; j<NUMPRINTABLES; j++)
-        {
-            OSD_Printf("%c:%d ", j+33, alphabets[i].pic[j]);
-            if ((j&15)==0) OSD_Printf("\n");
-        }
-        OSD_Printf("\n\n");
-    }
-}
-#endif
-
 void rendertext(short startspr)
 {
     char ch, buffer[80], doingspace=0;
@@ -3282,7 +3263,6 @@ ENDFOR1:
     if (alphidx==-1)
     {
         message("Must point at a text sprite.");
-//        dumpalphabets();
         return;
     }
 
@@ -3461,7 +3441,7 @@ ENDFOR1:
             day -= ((sp->xrepeat*spcgap[alphidx]*sintable[(daang+512)&2047])>>17);
             doingspace = 1;
         }
-        else if (ch == 8 || ch == 127)  	// backspace
+        else if (ch == 8 /*|| ch == 127*/)  	// backspace
         {
             if (numletters > 0)
             {
@@ -8039,6 +8019,7 @@ int parsetilegroups(scriptfile *script)
         { "#define",         T_DEFINE           },
         { "tilegroup",       T_TILEGROUP        },
         { "spritehotkey",    T_HOTKEY           },
+        { "alphabet",        T_ALPHABET         },
     };
 
     while (1)
@@ -8176,110 +8157,6 @@ int parsetilegroups(scriptfile *script)
             tile_groups++;
             break;
         }
-        case T_EOF:
-            return(0);
-        default:
-            break;
-        }
-    }
-    return 0;
-}
-
-int loadtilegroups(char *fn)
-{
-    int i, j;
-    scriptfile *script;
-    TileGroup blank = { NULL,     0,  NULL,     0, 0, 0, 0};
-
-    script = scriptfile_fromfile(fn);
-    if (!script) return -1;
-
-    for (i = MAX_TILE_GROUPS-1; i >= 0; i--)
-    {
-        Bmemcpy(&s_TileGroups[i],&blank,sizeof(blank));
-    }
-
-    parsetilegroups(script);
-
-    scriptfile_close(script);
-    scriptfile_clearsymbols();
-
-    tilegroupItems = getTileGroup("Items");
-    tilegroupActors = getTileGroup("Actors");
-
-    // Apply 2d sprite colors as specified in tiles.cfg.
-    for (i = 0; i < MAX_TILE_GROUPS; i++)
-    {
-        if (s_TileGroups[i].szText == NULL) break;
-        // If the colors were specified...
-        if (s_TileGroups[i].color1 && s_TileGroups[i].color2)
-        {
-            for (j = s_TileGroups[i].nIds-1; j >= 0 ; j--)
-            {
-                // Apply the colors to all tiles in the group.
-                spritecol2d[s_TileGroups[i].pIds[j]][0] = s_TileGroups[i].color1;
-                spritecol2d[s_TileGroups[i].pIds[j]][1] = s_TileGroups[i].color2;
-            }
-        }
-    }
-
-
-    return 0;
-}
-
-int parsealphabets(scriptfile *script)
-{
-    int tokn;
-    char *cmdtokptr;
-
-    tokenlist alphtokens[] =
-    {
-        { "include",         T_INCLUDE          },
-        { "#include",        T_INCLUDE          },
-        { "define",          T_DEFINE           },
-        { "#define",         T_DEFINE           },
-        { "alphabet",        T_ALPHABET         },
-    };
-
-    while (1)
-    {
-        tokn = getatoken(script,alphtokens,sizeof(alphtokens)/sizeof(tokenlist));
-        cmdtokptr = script->ltextptr;
-        switch (tokn)
-        {
-        case T_INCLUDE:
-        {
-            char *fn;
-            if (!scriptfile_getstring(script,&fn))
-            {
-                scriptfile *included;
-
-                included = scriptfile_fromfile(fn);
-                if (!included)
-                {
-                    initprintf("Warning: Failed including %s on line %s:%d\n",
-                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
-                }
-                else
-                {
-                    parsealphabets(included);
-                    scriptfile_close(included);
-                }
-            }
-            break;
-        }
-        case T_DEFINE:
-        {
-            char *name;
-            int number;
-
-            if (scriptfile_getstring(script,&name)) break;
-            if (scriptfile_getsymbol(script,&number)) break;
-            if (scriptfile_addsymbolvalue(name,number) < 0)
-                initprintf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
-                           name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
-            break;
-        }
         case T_ALPHABET:
         {
             char *end;
@@ -8403,17 +8280,44 @@ int parsealphabets(scriptfile *script)
     return 0;
 }
 
-int loadalphabets(char *fn)
+int loadtilegroups(char *fn)
 {
+    int i, j;
     scriptfile *script;
+    TileGroup blank = { NULL,     0,  NULL,     0, 0, 0, 0};
 
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
 
-    parsealphabets(script);
+    for (i = MAX_TILE_GROUPS-1; i >= 0; i--)
+    {
+        Bmemcpy(&s_TileGroups[i],&blank,sizeof(blank));
+    }
+
+    parsetilegroups(script);
 
     scriptfile_close(script);
     scriptfile_clearsymbols();
+
+    tilegroupItems = getTileGroup("Items");
+    tilegroupActors = getTileGroup("Actors");
+
+    // Apply 2d sprite colors as specified in tiles.cfg.
+    for (i = 0; i < MAX_TILE_GROUPS; i++)
+    {
+        if (s_TileGroups[i].szText == NULL) break;
+        // If the colors were specified...
+        if (s_TileGroups[i].color1 && s_TileGroups[i].color2)
+        {
+            for (j = s_TileGroups[i].nIds-1; j >= 0 ; j--)
+            {
+                // Apply the colors to all tiles in the group.
+                spritecol2d[s_TileGroups[i].pIds[j]][0] = s_TileGroups[i].color1;
+                spritecol2d[s_TileGroups[i].pIds[j]][1] = s_TileGroups[i].color2;
+            }
+        }
+    }
+
 
     return 0;
 }
@@ -8612,7 +8516,6 @@ int ExtInit(void)
     registerosdcommands();
 
     loadtilegroups("tiles.cfg");
-    loadalphabets("alpha.cfg");
 
     ReadHelpFile("m32help.hlp");
 
