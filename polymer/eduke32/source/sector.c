@@ -284,6 +284,14 @@ void doanimations(void)
         {
             stopinterpolation(animateptr[i]);
 
+			// This fixes a bug where wall or floor sprites contained in
+			// elevator sectors (ST 16-19) would jitter vertically after the
+			// elevator had stopped.
+            if (animateptr[i] == &sector[animatesect[i]].floorz)
+                for (j=headspritesect[dasect];j>=0;j=nextspritesect[j])
+                    if (sprite[j].statnum != 3)
+                        hittype[j].bposz = sprite[j].z;
+
             animatecnt--;
             animateptr[i] = animateptr[animatecnt];
             animategoal[i] = animategoal[animatecnt];
