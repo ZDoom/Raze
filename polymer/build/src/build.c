@@ -4489,7 +4489,7 @@ CANCEL:
                                         //tsprite[m].picnum = sprite[i].sectnum;
                                         //tsprite[m].owner = sprite[i].statnum;
 
-                                        j = insertsprite(tsprite[m].picnum+(numsectors-MAXSECTORS),tsprite[m].owner);
+                                        j = insertsprite(spriteext[m].mdanimcur+(numsectors-MAXSECTORS),spriteext[m].angoff);
                                         Bmemcpy(&sprite[j],&sprite[m],sizeof(spritetype));
                                         //sprite[j].sectnum = tsprite[m].picnum+(numsectors-MAXSECTORS);
                                         //sprite[j].statnum = tsprite[m].owner;

@@ -36,7 +36,7 @@ o=o
 
 ifneq (0,$(RELEASE))
 	# Debugging disabled
-  debug=-fomit-frame-pointer -ftree-vectorize -finline-small-functions -fpredictive-commoning -funswitch-loops -O$(OPTLEVEL)
+  debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL)
 else
 	# Debugging enabled
   debug=-ggdb -O0 -DDEBUGGINGAIDS
@@ -44,6 +44,20 @@ endif
 
 CC=gcc
 CXX=g++
+
+GCC_MAJOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f1)
+GCC_MINOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f2)
+
+ifeq (4,$(GCC_MAJOR))
+  debug += -ftree-vectorize
+  ifneq (0,$(GCC_MINOR))
+    ifneq (1,$(GCC_MINOR))
+      ifneq (2,$(GCC_MINOR))
+        debug += -finline-small-functions -fpredictive-commoning
+      endif
+    endif
+  endif
+endif
 
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 		-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -DNOCOPYPROTECT \
@@ -139,6 +153,7 @@ ifeq ($(PLATFORM),LINUX)
 	OURCFLAGS	+= -fno-pic
 	NASMFLAGS	+= -f elf
 	LIBS		+= -lvorbisfile -lvorbis -logg
+	USE_OPENAL	= 0
 endif
 
 ifeq ($(PLATFORM),DARWIN)

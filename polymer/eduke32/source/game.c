@@ -3799,8 +3799,8 @@ void displayrest(int smoothratio)
         if (map[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
         {
             if (currentboardfilename[0] != 0 && ud.volume_number == 0 && ud.level_number == 7)
-                menutext_(160,75,(sintable[(totalclock<<5)&2047]>>11),0,currentboardfilename,bits);
-            else menutext_(160,75,(sintable[(totalclock<<5)&2047]>>11),0,map[(ud.volume_number*MAXLEVELS) + ud.level_number].name,bits);
+                menutext_(160,75,-leveltexttime+22/*(sintable[(totalclock<<5)&2047]>>11)*/,0,currentboardfilename,bits);
+            else menutext_(160,75,-leveltexttime+22/*(sintable[(totalclock<<5)&2047]>>11)*/,0,map[(ud.volume_number*MAXLEVELS) + ud.level_number].name,bits);
         }
     }
 
@@ -4049,6 +4049,7 @@ void drawbackground(void)
         else rotatesprite(320<<15,200<<15,65536L,0,GetGameVarID(g_iReturnVarID, -1, -1),bpp==8?16:8,0,2+8+64,0,0,xdim-1,ydim-1);
         return;
     }
+
     y2 = scale(ydim,200-scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100),200);
 
     if (ud.screen_size > 8)
@@ -4072,6 +4073,18 @@ void drawbackground(void)
             for (x=0; x<xdim; x+=tilesizx[dapicnum])
                 rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,0,windowy2,xdim-1,y2-1);
     }
+
+    // this is better than the HOM
+    if (getrendermode() == 3 && (ud.camerahoriz > 230 || ud.camerahoriz < -50))
+    {
+        for (y=0; y<(ydim>>2); y+=tilesizy[dapicnum])
+            for (x=0; x<xdim; x+=tilesizx[dapicnum])
+            {
+                rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,0,0,xdim-1,ydim-1);
+                rotatesprite(x<<16,(ydim-y-tilesizy[dapicnum])<<16,65536L,0,dapicnum,8,0,8+16+64+128,0,0,xdim-1,ydim-1);
+            }
+    }
+
 
     // draw in the bits to the left and right of the non-fullsize status bar
     if (ud.statusbarscale < 100 && ud.screen_size >= 8 && ud.statusbarmode == 0)
@@ -4318,7 +4331,8 @@ void displayrooms(int snum,int smoothratio)
 
     if (pub > 0 || getrendermode() >= 3) // JBF 20040101: redraw background always
     {
-        if (ud.screen_size > 8 || (ud.screen_size == 8 && ud.statusbarscale<100)) drawbackground();
+        if (getrendermode() >= 3 || ud.screen_size > 8 || (ud.screen_size == 8 && ud.statusbarscale<100))
+            drawbackground();
         pub = 0;
     }
 
@@ -13013,6 +13027,7 @@ FRAGBONUS:
         }
         if (playerbest > 0) for (ii=playerbest/(26*60), ij=1; ii>9; ii/=10, ij++) ;
         clockpad = max(clockpad,ij);
+        clockpad += 2;
     }
 
     while (1)

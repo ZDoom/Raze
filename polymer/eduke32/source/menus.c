@@ -667,20 +667,21 @@ void menus(void)
 
     case 20000:
         x = probe(326,190,0,1);
-        mgametext(160,50-8,"YOU ARE PLAYING THE SHAREWARE",0,2+8+16);
-        mgametext(160,59-8,"VERSION OF DUKE NUKEM 3D.  WHILE",0,2+8+16);
-        mgametext(160,68-8,"THIS VERSION IS REALLY COOL, YOU",0,2+8+16);
-        mgametext(160,77-8,"ARE MISSING OVER 75%% OF THE TOTAL",0,2+8+16);
-        mgametext(160,86-8,"GAME, ALONG WITH OTHER GREAT EXTRAS",0,2+8+16);
-        mgametext(160,95-8,"AND GAMES, WHICH YOU'LL GET WHEN",0,2+8+16);
-        mgametext(160,104-8,"YOU ORDER THE COMPLETE VERSION AND",0,2+8+16);
-        mgametext(160,113-8,"GET THE FINAL TWO EPISODES.",0,2+8+16);
+        mgametext(160,41-8,"YOU ARE PLAYING THE SHAREWARE",0,2+8+16);
+        mgametext(160,50-8,"VERSION OF DUKE NUKEM 3D.  WHILE",0,2+8+16);
+        mgametext(160,59-8,"THIS VERSION IS REALLY COOL, YOU",0,2+8+16);
+        mgametext(160,68-8,"ARE MISSING OVER 75%% OF THE TOTAL",0,2+8+16);
+        mgametext(160,77-8,"GAME, ALONG WITH OTHER GREAT EXTRAS",0,2+8+16);
+        mgametext(160,86-8,"AND GAMES, WHICH YOU'LL GET WHEN",0,2+8+16);
+        mgametext(160,95-8,"YOU ORDER THE COMPLETE VERSION AND",0,2+8+16);
+        mgametext(160,104-8,"GET THE FINAL THREE EPISODES.",0,2+8+16);
 
-        mgametext(160,113+8,"PLEASE READ THE 'HOW TO ORDER' ITEM",0,2+8+16);
-        mgametext(160,122+8,"ON THE MAIN MENU IF YOU WISH TO",0,2+8+16);
-        mgametext(160,131+8,"UPGRADE TO THE FULL REGISTERED",0,2+8+16);
-        mgametext(160,140+8,"VERSION OF DUKE NUKEM 3D.",0,2+8+16);
-        mgametext(160,149+16,"PRESS ANY KEY...",0,2+8+16);
+        mgametext(160,104+8,"PLEASE READ THE 'HOW TO ORDER' ITEM",0,2+8+16);
+        mgametext(160,113+8,"ON THE MAIN MENU OR VISIT",0,2+8+16);
+        mgametext(160,122+8,"HTTP://WWW.BUY3DREALMS.COM",0,2+8+16);
+        mgametext(160,131+8,"TO UPGRADE TO THE FULL REGISTERED",0,2+8+16);
+        mgametext(160,139+8,"VERSION OF DUKE NUKEM 3D.",0,2+8+16);
+        mgametext(160,148+16,"PRESS ANY KEY...",0,2+8+16);
 
         if (x >= -1) cmenu(100);
         break;

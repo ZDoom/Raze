@@ -55,7 +55,7 @@ asm=nasm
 #
 ifneq ($(RELEASE),0)
   # Debugging disabled
-  debug=-fomit-frame-pointer -ftree-vectorize -finline-small-functions -fpredictive-commoning -funswitch-loops -O$(OPTLEVEL)
+  debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL)
 else
   # Debugging enabled
   debug=-ggdb -O0 -DDEBUGGINGAIDS -DNOSDLPARACHUTE
@@ -67,6 +67,22 @@ AS=nasm
 RC=windres
 AR=ar
 RANLIB=ranlib
+
+GCC_MAJOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f1)
+GCC_MINOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f2)
+
+ifeq (4,$(GCC_MAJOR))
+  debug += -ftree-vectorize
+  ifneq (0,$(GCC_MINOR))
+    ifneq (1,$(GCC_MINOR))
+      ifneq (2,$(GCC_MINOR))
+        # this should only enable for 4.3.0 and later
+        debug += -finline-small-functions -fpredictive-commoning
+      endif
+    endif
+  endif
+endif
+
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Wno-char-subscripts \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
 	-DKSFORBUILD -I$(INC)
