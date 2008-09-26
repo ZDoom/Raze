@@ -6487,13 +6487,13 @@ static void DoSpriteSearch(int dir)  // <0: backwards, >=0: forwards
                     case 3:
                         k = gs_sprite[1][3];
                         if (k != sprite[gs_cursprite].xrepeat &&
-                            k != sprite[gs_cursprite].yrepeat)
+                                k != sprite[gs_cursprite].yrepeat)
                             goto NEXTSPRITE;
                         break;
                     case 4:
                         k = gs_sprite[1][4];
                         if (k != sprite[gs_cursprite].xoffset &&
-                            k != sprite[gs_cursprite].yoffset)
+                                k != sprite[gs_cursprite].yoffset)
                             goto NEXTSPRITE;
                         break;
                     case 5: k = sprite[gs_cursprite].picnum; break;
@@ -6920,32 +6920,32 @@ static void Keys2d(void)
                 if (wallsprite==2)
                     DoSpriteSearch(-1);
 #if 0
-                {
-                    if (cursearchspritenum>0) cursearchspritenum--;
-                    for (i=cursearchspritenum;i>=0;i--)
-                    {
+        {
+            if (cursearchspritenum>0) cursearchspritenum--;
+            for (i=cursearchspritenum;i>=0;i--)
+            {
 
-                        if (
-                            (sprite[i].picnum==sprite[cursearchsprite].picnum &&
-                             sprite[i].statnum==0)
-                            &&((search_lotag==0)||
-                               (search_lotag!=0 && search_lotag==sprite[i].lotag))
-                            &&((search_hitag==0)||
-                               (search_hitag!=0 && search_hitag==sprite[i].hitag))
-                        )
-                        {
-                            posx=sprite[i].x;
-                            posy=sprite[i].y;
-                            ang= sprite[i].ang;
-                            printmessage16("< Sprite search: found");
-                            //                    curspritenum--;
-                            keystatus[KEYSC_LBRACK]=0;
-                            return;
-                        }
-                        cursearchspritenum--;
-                    }
-                    printmessage16("< Sprite search: none found");
+                if (
+                    (sprite[i].picnum==sprite[cursearchsprite].picnum &&
+                     sprite[i].statnum==0)
+                    &&((search_lotag==0)||
+                       (search_lotag!=0 && search_lotag==sprite[i].lotag))
+                    &&((search_hitag==0)||
+                       (search_hitag!=0 && search_hitag==sprite[i].hitag))
+                )
+                {
+                    posx=sprite[i].x;
+                    posy=sprite[i].y;
+                    ang= sprite[i].ang;
+                    printmessage16("< Sprite search: found");
+                    //                    curspritenum--;
+                    keystatus[KEYSC_LBRACK]=0;
+                    return;
                 }
+                cursearchspritenum--;
+            }
+            printmessage16("< Sprite search: none found");
+        }
 #endif
     }
 
@@ -9172,14 +9172,14 @@ void faketimerhandler(void)
     horiz = ((horiz*7+(100-(daang>>1)))>>3);
     if (horiz < 100) horiz++;
     if (horiz > 100) horiz--;
-/*
-    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_5]) // ' 5
-    {
-        keystatus[KEYSC_5]=0;
-        editstatus = 1;
-        sidemode = 2;
-    }
-    */
+    /*
+        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_5]) // ' 5
+        {
+            keystatus[KEYSC_5]=0;
+            editstatus = 1;
+            sidemode = 2;
+        }
+        */
 }
 
 extern short brightness;
@@ -9986,10 +9986,11 @@ static void GenSearchSprite()
     char edittext[80];
     static int col=0, row=0;
     int i, j, k;
-	int rowmax[3]={6,5,6}, dispwidth[3] = {24,24,28};
+    int rowmax[3]={6,5,6}, dispwidth[3] = {24,24,28};
     int xpos[3] = {8,200,400}, ypos = ydim-STATUS2DSIZ+48;
 
-    static char *labels[7][3] = {
+    static char *labels[7][3] =
+    {
         {"X-coordinate", "Flags (hex)", "Angle (2048 degrees)"},
         {"Y-coordinate", "Shade",       "X-Velocity"},
         {"Z-coordinate", "Pal",         "Y-Velocity"},
@@ -9999,7 +10000,8 @@ static void GenSearchSprite()
         {"Lotag",        "",            "Extra"}
     };
 
-    static int maxval[7][3] = {
+    static int maxval[7][3] =
+    {
         { 524288      , 65536       , 2048 },
         { 524288      , 128         , 65536 },
         { 8388608     , MAXPALOOKUPS, 65536 },
@@ -10009,7 +10011,8 @@ static void GenSearchSprite()
         { 65536       , 0           , 65536 }
     };
 
-    static char sign[7][3] = {
+    static char sign[7][3] =
+    {
         {1,0,1}, {1,1,1}, {1,0,1}, {0,0,1}, {0,1,0}, {0,0,0}, {0,0,1}
     };
 
@@ -10073,7 +10076,7 @@ static void GenSearchSprite()
         if (keystatus[KEYSC_LEFT])
         {
             keystatus[KEYSC_LEFT] = 0;
-            if (col > 0) 
+            if (col > 0)
             {
                 printext16(xpos[col],ypos+row*8,11,0,disptext,0);
                 col--;
@@ -10113,7 +10116,7 @@ static void GenSearchSprite()
             keystatus[KEYSC_BS] = keystatus[KEYSC_DELETE] = 0;
             gs_spritewhat[col][row] = 0;
 
-			if (col == 1 && row == 5)  // picnum
+            if (col == 1 && row == 5)  // picnum
                 printext16(xpos[1], ypos-2*8, 14, 0, "                         ", 0);
         }
 

@@ -179,7 +179,6 @@ extern void lotsofmoneymailpaper(int sp,int n,int pic);
 extern void guts(int sp,int gtype,int n);
 extern void setsectinterpolate(int i);
 extern void clearsectinterpolate(int i);
-extern int ifhitsectors(int sectnum);
 extern int ifhitbyweapon(int sn);
 extern void moveobjects(void);
 extern void movecyclers(void);

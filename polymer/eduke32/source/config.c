@@ -1149,10 +1149,14 @@ int32 CONFIG_GetMapBestTime(char *mapname)
     if (p) strcpy(m, p);
     for (p=m;*p;p++) *p = tolower(*p);
 
+    // cheap hack because SCRIPT_GetNumber doesn't like the slashes
+    p = m;
+    while (*p == '/') p++;
+
     if (!ud.config.setupread) return -1;
     if (ud.config.scripthandle < 0) return -1;
-    SCRIPT_GetNumber(ud.config.scripthandle, "MapTimes", m, &t);
 
+    SCRIPT_GetNumber(ud.config.scripthandle, "MapTimes", p, &t);
     return t;
 }
 
@@ -1166,10 +1170,14 @@ int32 CONFIG_SetMapBestTime(char *mapname, int32 tm)
     if (p) strcpy(m, p);
     for (p=m;*p;p++) *p = tolower(*p);
 
+    // cheap hack because SCRIPT_GetNumber doesn't like the slashes
+    p = m;
+    while (*p == '/') p++;
+
     if (ud.config.scripthandle < 0) ud.config.scripthandle = SCRIPT_Init(setupfilename);
     if (ud.config.scripthandle < 0) return -1;
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "MapTimes", mapname, tm, false, false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "MapTimes", p, tm, false, false);
     return 0;
 }
 

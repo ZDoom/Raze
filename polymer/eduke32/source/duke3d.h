@@ -264,14 +264,13 @@ enum weapon_indexes {
 
 #define IFWITHIN(B,E) if((PN)>=(B) && (PN)<=(E))
 
-#define deletesprite deletespriteEVENT
-void deletespriteEVENT(int s);
+#define deletesprite deletesprite_
+void deletesprite_(int s);
 #define KILLIT(KX) {deletesprite(KX);goto BOLT;}
 
 
 #define IFMOVING if(ssp(i,CLIPMASK0))
 #define IFHIT j=ifhitbyweapon(i);if(j >= 0)
-#define IFHITSECT j=ifhitsectors(s->sectnum);if(j >= 0)
 
 #define AFLAMABLE(X) (X==BOX||X==TREE1||X==TREE2||X==TIRE||X==CONE)
 

@@ -542,7 +542,7 @@ inline int ssp(int i,unsigned int cliptype) //The set sprite function
 }
 
 #undef deletesprite
-void deletespriteEVENT(int s)
+void deletesprite_(int s)
 {
     if (apScriptGameEvent[EVENT_KILLIT])
     {
@@ -555,7 +555,7 @@ void deletespriteEVENT(int s)
     }
     deletesprite(s);
 }
-#define deletesprite deletespriteEVENT
+#define deletesprite deletesprite_
 
 void insertspriteq(int i)
 {
@@ -586,13 +586,12 @@ void lotsofmoneymailpaper(int sp, int n, int pic)
 void guts(int sp, int gtype, int n)
 {
     int gutz,floorz;
-    int i,a,j,sx,sy;
+    int i,a,j,sx = 32,sy = 32;
 //    int pal;
     spritetype *s = &sprite[sp];
 
     if (badguy(s) && s->xrepeat < 16)
         sx = sy = 8;
-    else sx = sy = 32;
 
     gutz = s->z-(8<<8);
     floorz = getflorzofslope(s->sectnum,s->x,s->y);
@@ -625,12 +624,11 @@ void guts(int sp, int gtype, int n)
 void gutsdir(int sp, int gtype, int n)
 {
     int gutz,floorz;
-    int i,a,j,sx,sy;
+    int i,a,j,sx = 32,sy = 32;
     spritetype *s = &sprite[sp];
 
     if (badguy(s) && s->xrepeat < 16)
         sx = sy = 8;
-    else sx = sy = 32;
 
     gutz = s->z-(8<<8);
     floorz = getflorzofslope(s->sectnum,s->x,s->y);
@@ -800,7 +798,7 @@ static void movefta(void)
     }
 }
 
-int ifhitsectors(int sectnum)
+static inline int ifhitsectors(int sectnum)
 {
     int i = headspritestat[5];
     while (i >= 0)
@@ -811,6 +809,8 @@ int ifhitsectors(int sectnum)
     }
     return -1;
 }
+
+#define IFHITSECT j=ifhitsectors(s->sectnum);if(j >= 0)
 
 int ifhitbyweapon(int sn)
 {

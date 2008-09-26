@@ -3798,7 +3798,7 @@ void displayrest(int smoothratio)
         else bits |= 1+32;
         if (map[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
         {
-            if (currentboardfilename[0] != 0)
+            if (currentboardfilename[0] != 0 && ud.volume_number == 0 && ud.level_number == 7)
                 menutext_(160,75,(sintable[(totalclock<<5)&2047]>>11),0,currentboardfilename,bits);
             else menutext_(160,75,(sintable[(totalclock<<5)&2047]>>11),0,map[(ud.volume_number*MAXLEVELS) + ud.level_number].name,bits);
         }
@@ -3902,9 +3902,11 @@ void displayrest(int smoothratio)
             j = scale(2,ud.config.ScreenWidth,320);
         }
 
-        Bsprintf(tempbuf,"T:^15%d:%02d",
+        Bsprintf(tempbuf,"T:^15%d:%02d.%02d",
                  (g_player[myconnectindex].ps->player_par/(26*60)),
-                 (g_player[myconnectindex].ps->player_par/26)%60);
+                 (g_player[myconnectindex].ps->player_par/26)%60,
+                 ((g_player[myconnectindex].ps->player_par%26)*38)/10
+                );
         gametext_z(9,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-7-7-7,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
         if (ud.player_skill > 3 || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY)))
@@ -13115,9 +13117,11 @@ FRAGBONUS:
                         sound(PIPEBOMB_EXPLODE);
                     }
 
-                    Bsprintf(tempbuf,"%0*d:%02d",clockpad,
+                    Bsprintf(tempbuf,"%0*d:%02d.%02d",clockpad,
                              (g_player[myconnectindex].ps->player_par/(26*60)),
-                             (g_player[myconnectindex].ps->player_par/26)%60);
+                             (g_player[myconnectindex].ps->player_par/26)%60,
+                             ((g_player[myconnectindex].ps->player_par%26)*38)/10
+                            );
                     gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                     if (g_player[myconnectindex].ps->player_par < playerbest)
                         gametext((320>>2)+71+(clockpad*24),yy+9,"New record!",0,2+8+16);
@@ -13143,9 +13147,11 @@ FRAGBONUS:
 
                     if (playerbest > 0)
                     {
-                        sprintf(tempbuf,"%0*d:%02d",clockpad,
+                        sprintf(tempbuf,"%0*d:%02d.%02d",clockpad,
                                 (playerbest/(26*60)),
-                                (playerbest/26)%60);
+                                (playerbest/26)%60,
+                                ((playerbest%26)*38)/10
+                               );
                         gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                         yy+=10;
                     }
