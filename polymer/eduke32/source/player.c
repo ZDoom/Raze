@@ -3291,6 +3291,9 @@ void checkweapons(player_struct *p)
     }
 }
 
+int g_NumObituaries = 0;
+int g_NumSelfObituaries = 0;
+
 void processinput(int snum)
 {
     int j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y, shrunk;
@@ -3590,56 +3593,55 @@ void processinput(int snum)
 
                     if (ud.obituaries)
                     {
-                        char name1[32],name2[32];
-
-                        if (GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY) || (GTFLAGS(GAMETYPE_FLAG_TDM) && g_player[snum].ps->team == g_player[p->frag_ps].ps->team))
-                            i = 9;
-                        else
-                        {
-                            // temp_data[1] on a player's APLAYER actor means the player is frozen
-                            if (hittype[p->i].temp_data[1] == 1)
-                                i = 7;
-                            else switch (dynamictostatic[hittype[p->i].picnum])
-                                {
-                                case KNEE__STATIC:
-                                    i = 0;
-                                    break;
-                                case SHOTSPARK1__STATIC:
-                                    switch (g_player[p->frag_ps].ps->curr_weapon)
-                                    {
-                                    default:
-                                    case PISTOL_WEAPON:
-                                        i = 1;
-                                        break;
-                                    case SHOTGUN_WEAPON:
-                                        i = 2;
-                                        break;
-                                    case CHAINGUN_WEAPON:
-                                        i = 3;
-                                        break;
-                                    }
-                                    break;
-                                case RPG__STATIC:
-                                    i = 4;
-                                    break;
-                                case RADIUSEXPLOSION__STATIC:
-                                    i = 5;
-                                    break;
-                                case SHRINKSPARK__STATIC:
-                                    i = 6;
-                                    break;
-                                case GROWSPARK__STATIC:
-                                    i = 8;
-                                    break;
-                                default:
-                                    i = 0;
-                                    break;
-                                }
-                        }
-                        Bstrcpy(name1,&g_player[snum].user_name[0]);
-                        Bstrcpy(name2,&g_player[p->frag_ps].user_name[0]);
-
-                        Bsprintf(tempbuf,fta_quotes[PPDEATHSTRINGS+i+(mulscale(krand(), 3, 16)*10)],name1,name2);
+                        /*
+                                                if (GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY) || (GTFLAGS(GAMETYPE_FLAG_TDM) && g_player[snum].ps->team == g_player[p->frag_ps].ps->team))
+                                                    i = 9;
+                                                else
+                                                {
+                                                    // temp_data[1] on a player's APLAYER actor means the player is frozen
+                                                    if (hittype[p->i].temp_data[1] == 1)
+                                                        i = 7;
+                                                    else switch (dynamictostatic[hittype[p->i].picnum])
+                                                        {
+                                                        case KNEE__STATIC:
+                                                            i = 0;
+                                                            break;
+                                                        case SHOTSPARK1__STATIC:
+                                                            switch (g_player[p->frag_ps].ps->curr_weapon)
+                                                            {
+                                                            default:
+                                                            case PISTOL_WEAPON:
+                                                                i = 1;
+                                                                break;
+                                                            case SHOTGUN_WEAPON:
+                                                                i = 2;
+                                                                break;
+                                                            case CHAINGUN_WEAPON:
+                                                                i = 3;
+                                                                break;
+                                                            }
+                                                            break;
+                                                        case RPG__STATIC:
+                                                            i = 4;
+                                                            break;
+                                                        case RADIUSEXPLOSION__STATIC:
+                                                            i = 5;
+                                                            break;
+                                                        case SHRINKSPARK__STATIC:
+                                                            i = 6;
+                                                            break;
+                                                        case GROWSPARK__STATIC:
+                                                            i = 8;
+                                                            break;
+                                                        default:
+                                                            i = 0;
+                                                            break;
+                                                        }
+                                                }
+                                                */
+                        Bsprintf(tempbuf,fta_quotes[PPDEATHSTRINGS+(krand()%g_NumObituaries)],
+                                 &g_player[p->frag_ps].user_name[0],
+                                 &g_player[snum].user_name[0]);
                         if (ud.config.ScreenWidth >= 800)
                             adduserquote(tempbuf);
                         else OSD_Printf("%s\n",tempbuf);
@@ -3652,13 +3654,16 @@ void processinput(int snum)
                     {
                         p->fraggedself++;
                         if (badguypic(sprite[p->wackedbyactor].picnum))
-                            i = 2;
+                            Bsprintf(tempbuf,fta_quotes[PPDEATHSTRINGS+(krand()%g_NumObituaries)],"A monster",&g_player[snum].user_name[0]);
                         else if (hittype[p->i].picnum == NUKEBUTTON)
-                            i = 1;
-                        else i = 0;
-                        Bsprintf(tempbuf,fta_quotes[PSDEATHSTRINGS+i],&g_player[snum].user_name[0]);
+                            Bsprintf(tempbuf,"^02%s^02 tried to leave",&g_player[snum].user_name[0]);
+                        else
+                        {
+                            // random suicide death string
+                            Bsprintf(tempbuf,fta_quotes[PSDEATHSTRINGS+(krand()%g_NumSelfObituaries)],&g_player[snum].user_name[0]);
+                        }
                     }
-                    else Bsprintf(tempbuf,fta_quotes[PSDEATHSTRINGS+3],&g_player[snum].user_name[0],p->team+1);
+                    else Bsprintf(tempbuf,"^02%s^02 switched to team %d",&g_player[snum].user_name[0],p->team+1);
 
                     if (ud.obituaries)
                     {

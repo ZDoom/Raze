@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define APPNAME "EDuke32"
 #define VERSION " 1.5.0devel"
 // this is checked against http://eduke32.com/VERSION
-#define BUILDDATE " 20080924"
+#define BUILDDATE " 20080928"
 #define HEAD2 APPNAME VERSION BUILDDATE
 
 #ifdef __cplusplus

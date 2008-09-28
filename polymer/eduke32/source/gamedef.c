@@ -5605,6 +5605,9 @@ static void InitProjectiles(void)
     Bmemcpy(&defaultprojectile, &projectile, sizeof(projectile));
 }
 
+extern int g_NumObituaries;
+extern int g_NumSelfObituaries;
+
 void loadefs(const char *filenam)
 {
     char *mptr;
@@ -5813,6 +5816,7 @@ void loadefs(const char *filenam)
             }
 
         {
+            /*
             const char *ppdeathstrings[] =
             {
                 "^2%s ^2was kicked to the curb by %s",
@@ -5856,8 +5860,62 @@ void loadefs(const char *filenam)
                 "^2%s ^2got fragged by a monster.  It was probably a liztroop.",
                 "^2%s ^2switched to team %d"
             };
+            */
 
-            for (i=(sizeof(ppdeathstrings)/sizeof(ppdeathstrings[0]))-1;i>=0;i--)
+            const char *ppdeathstrings[] =
+            {
+                "^02%s^02 beat %s^02 like a cur",
+                "^02%s^02 broke %s",
+                "^02%s^02 body bagged %s",
+                "^02%s^02 boned %s^02 like a fish",
+                "^02%s^02 castrated %s",
+                "^02%s^02 creamed %s",
+                "^02%s^02 crushed %s",
+                "^02%s^02 destroyed %s",
+                "^02%s^02 diced %s",
+                "^02%s^02 disemboweled %s",
+                "^02%s^02 eviscerated %s",
+                "^02%s^02 flattened %s",
+                "^02%s^02 gave AnAl MaDnEsS to %s",
+                "^02%s^02 gave %s^02 Anal Justice",
+                "^02%s^02 hosed %s",
+                "^02%s^02 hurt %s^02 real bad",
+                "^02%s^02 killed %s",
+                "^02%s^02 made dog meat out of %s",
+                "^02%s^02 made mincemeat out of %s",
+                "^02%s^02 massacred %s",
+                "^02%s^02 mutilated %s",
+                "^02%s^02 murdered %s",
+                "^02%s^02 neutered %s",
+                "^02%s^02 reamed %s",
+                "^02%s^02 ripped %s^02 a new orifice",
+                "^02%s^02 rocked %s",
+                "^02%s^02 sent %s^02 to hell",
+                "^02%s^02 slaughtered %s",
+                "^02%s^02 sliced %s",
+                "^02%s^02 smashed %s",
+                "^02%s^02 snuffed %s",
+                "^02%s^02 sodomized %s",
+                "^02%s^02 splattered %s",
+                "^02%s^02 sprayed %s",
+                "^02%s^02 squashed %s",
+                "^02%s^02 throttled %s",
+                "^02%s^02 toasted %s",
+                "^02%s^02 ventilated %s",
+                "^02%s^02 wasted %s",
+            };
+
+            const char *psdeathstrings[] =
+            {
+                "^02%s^02 is excrement",
+                "^02%s^02 is hamburger",
+                "^02%s^02 suffered scrotum separation",
+                "^02%s^02 volunteered for population control",
+                "^02%s^02 has suicided",
+            };
+
+            g_NumObituaries = (sizeof(ppdeathstrings)/sizeof(ppdeathstrings[0]));
+            for (i=g_NumObituaries-1;i>=0;i--)
             {
                 if (fta_quotes[i+PPDEATHSTRINGS] == NULL)
                 {
@@ -5866,12 +5924,13 @@ void loadefs(const char *filenam)
                 }
             }
 
-            for (i=(sizeof(podeathstrings)/sizeof(podeathstrings[0]))-1;i>=0;i--)
+            g_NumSelfObituaries = (sizeof(psdeathstrings)/sizeof(psdeathstrings[0]));
+            for (i=g_NumSelfObituaries-1;i>=0;i--)
             {
                 if (fta_quotes[i+PSDEATHSTRINGS] == NULL)
                 {
                     fta_quotes[i+PSDEATHSTRINGS] = Bcalloc(MAXQUOTELEN,sizeof(char));
-                    Bstrcpy(fta_quotes[i+PSDEATHSTRINGS],podeathstrings[i]);
+                    Bstrcpy(fta_quotes[i+PSDEATHSTRINGS],psdeathstrings[i]);
                 }
             }
         }

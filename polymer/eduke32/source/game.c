@@ -13027,7 +13027,6 @@ FRAGBONUS:
         }
         if (playerbest > 0) for (ii=playerbest/(26*60), ij=1; ii>9; ii/=10, ij++) ;
         clockpad = max(clockpad,ij);
-        clockpad += 2;
     }
 
     while (1)
@@ -13139,7 +13138,7 @@ FRAGBONUS:
                             );
                     gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                     if (g_player[myconnectindex].ps->player_par < playerbest)
-                        gametext((320>>2)+71+(clockpad*24),yy+9,"New record!",0,2+8+16);
+                        gametext((320>>2)+89+(clockpad*24),yy+9,"New record!",0,2+8+16);
                     yy+=10;
 
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7))

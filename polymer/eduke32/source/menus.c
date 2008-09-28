@@ -2891,7 +2891,7 @@ cheat_for_port_credits:
                 "Show inv & pickup messages",
                 "HUD weapon display",
                 "Use alternate HUD",
-                "Demo playback cameras",
+                "Use camera view in demos",
                 "-",
                 "DM: Ignore map votes",
                 "DM: Use private messages",

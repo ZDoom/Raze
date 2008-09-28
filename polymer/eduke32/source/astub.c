@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #endif
 
-#define BUILDDATE " 20080924"
+#define BUILDDATE " 20080928"
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;

@@ -209,6 +209,7 @@ void playanm(const char *fn,char t)
     int ogltexfiltermode=gltexfiltermode;
 #endif
     int32 handle=-1;
+    int frametime = 0;
 
     //    return;
 
@@ -258,8 +259,16 @@ void playanm(const char *fn,char t)
 
     ototalclock = totalclock + 10;
 
+    frametime = totalclock;
+
     for (i=1;i<numframes;i++)
     {
+        if (totalclock > frametime + 45)
+        {
+            OSD_Printf("WARNING: slowdown in %s, skipping playback\n",fn);
+            goto ENDOFANIMLOOP;
+        }
+        frametime = totalclock;
         while (totalclock < ototalclock)
         {
             if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE)
