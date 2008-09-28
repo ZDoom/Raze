@@ -7320,13 +7320,24 @@ static void addgroup(const char *buffer)
     CommandGrps = s;
 }
 
+#define COPYARG(i) \
+    Bmemcpy(&testplay_addparam[j], argv[i], lengths[i]); \
+    j += lengths[i]; \
+    testplay_addparam[j++] = ' ';
+
 static void checkcommandline(int argc, const char **argv)
 {
-    int i = 1;
+    int i = 1, j, maxlen=0, *lengths;
     char *c, *k;
 
     if (argc > 1)
     {
+        lengths = Bmalloc(argc*sizeof(int));
+        for (j=1; j<argc; j++) maxlen += (lengths[j] = Bstrlen(argv[j]));
+        testplay_addparam = Bmalloc(maxlen+argc);
+        testplay_addparam[0] = 0;
+        j = 0;
+
         while (i < argc)
         {
             c = (char *)argv[i];
@@ -7343,6 +7354,8 @@ static void checkcommandline(int argc, const char **argv)
                     if (argc > i+1)
                     {
                         addgroup(argv[i+1]);
+                        COPYARG(i);
+                        COPYARG(i+1);
                         i++;
                     }
                     i++;
@@ -7354,6 +7367,8 @@ static void checkcommandline(int argc, const char **argv)
                     if (argc > i+1)
                     {
                         addgamepath(argv[i+1]);
+                        COPYARG(i);
+                        COPYARG(i+1);
                         i++;
                     }
                     i++;
@@ -7374,6 +7389,8 @@ static void checkcommandline(int argc, const char **argv)
                     if (argc > i+1)
                     {
                         Bstrcpy(defaultduke3dgrp,argv[i+1]);
+                        COPYARG(i);
+                        COPYARG(i+1);
                         i++;
                     }
                     i++;
@@ -7382,12 +7399,14 @@ static void checkcommandline(int argc, const char **argv)
                 if (!Bstrcasecmp(c+1,"nam"))
                 {
                     strcpy(duke3dgrp, "nam.grp");
+                    COPYARG(i);
                     i++;
                     continue;
                 }
                 if (!Bstrcasecmp(c+1,"ww2gi"))
                 {
                     strcpy(duke3dgrp, "ww2gi.grp");
+                    COPYARG(i);
                     i++;
                     continue;
                 }
@@ -7402,6 +7421,7 @@ static void checkcommandline(int argc, const char **argv)
                 {
                     initprintf("Autoload disabled\n");
                     NoAutoLoad = 1;
+                    COPYARG(i);
                     i++;
                     continue;
                 }
@@ -7409,6 +7429,7 @@ static void checkcommandline(int argc, const char **argv)
                 if (!Bstrcasecmp(c+1,"usecwd"))
                 {
                     usecwd = 1;
+                    COPYARG(i);
                     i++;
                     continue;
                 }
@@ -7426,6 +7447,7 @@ static void checkcommandline(int argc, const char **argv)
                     if (*c)
                     {
                         defsfilename = c;
+                        COPYARG(i);
                         initprintf("Using DEF file: %s.\n",defsfilename);
                     }
                     break;
@@ -7434,12 +7456,14 @@ static void checkcommandline(int argc, const char **argv)
                     c++;
                     if (!*c) break;
                     addgamepath(c);
+                    COPYARG(i);
                     break;
                 case 'g':
                 case 'G':
                     c++;
                     if (!*c) break;
                     addgroup(c);
+                    COPYARG(i);
                     break;
                 }
             }
@@ -7451,11 +7475,13 @@ static void checkcommandline(int argc, const char **argv)
                     if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
                     {
                         addgroup(argv[i++]);
+                        COPYARG(i);
                         continue;
                     }
                     if (!Bstrcasecmp(k,".def"))
                     {
                         defsfilename = (char *)argv[i++];
+                        COPYARG(i);
                         initprintf("Using DEF file: %s.\n",defsfilename);
                         continue;
                     }
@@ -7463,8 +7489,18 @@ static void checkcommandline(int argc, const char **argv)
             }
             i++;
         }
+
+        Bfree(lengths);
+        if (j > 0)
+        {
+            testplay_addparam[j-1] = 0;
+            Brealloc(testplay_addparam, j*sizeof(char));
+        }
+        else
+            Bfree(testplay_addparam);
     }
 }
+#undef COPYARG
 
 int ExtPreInit(int argc,const char **argv)
 {

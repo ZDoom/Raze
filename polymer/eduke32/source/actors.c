@@ -7231,6 +7231,10 @@ static void moveeffectors(void)   //STATNUM 3
                             t[0] = 0;
                             t[3] = s->hitag;
                             callsound(s->sectnum,i);
+
+                            for (j=headspritesect[s->sectnum]; j>=0; j=nextspritesect[j])
+                                if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                                    hittype[j].bposz = sprite[j].z;
                         }
                         else
                         {
@@ -7245,7 +7249,8 @@ static void moveeffectors(void)   //STATNUM 3
                                         g_player[sprite[j].yvel].ps->posz += l;
                                 if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
                                 {
-                                    hittype[j].bposz = sprite[j].z += l;
+                                    hittype[j].bposz = sprite[j].z;
+                                    sprite[j].z += l;
                                     hittype[j].floorz = sc->floorz;
                                 }
                                 j = nextspritesect[j];
@@ -7261,6 +7266,11 @@ static void moveeffectors(void)   //STATNUM 3
                             t[2] = 0;
                             t[0] = 0;
                             t[3] = s->hitag;
+
+                            for (j=headspritesect[s->sectnum]; j>=0; j=nextspritesect[j])
+                                if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                                    hittype[j].bposz = sprite[j].z;
+
                         }
                         else
                         {
@@ -7275,7 +7285,8 @@ static void moveeffectors(void)   //STATNUM 3
                                         g_player[sprite[j].yvel].ps->posz += l;
                                 if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
                                 {
-                                    hittype[j].bposz = sprite[j].z += l;
+                                    hittype[j].bposz = sprite[j].z;
+                                    sprite[j].z += l;
                                     hittype[j].floorz = sc->floorz;
                                 }
                                 j = nextspritesect[j];
@@ -7293,6 +7304,11 @@ static void moveeffectors(void)   //STATNUM 3
                         t[0] = 0;
                         t[2] = 1;
                         t[3] = s->hitag;
+
+                        for (j=headspritesect[s->sectnum]; j>=0; j=nextspritesect[j])
+                            if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                                hittype[j].bposz = sprite[j].z;
+
                     }
                     else
                     {
@@ -7307,7 +7323,8 @@ static void moveeffectors(void)   //STATNUM 3
                                     g_player[sprite[j].yvel].ps->posz += l;
                             if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
                             {
-                                hittype[j].bposz = sprite[j].z += l;
+                                hittype[j].bposz = sprite[j].z;
+                                sprite[j].z += l;
                                 hittype[j].floorz = sc->floorz;
                             }
                             j = nextspritesect[j];
@@ -7322,6 +7339,10 @@ static void moveeffectors(void)   //STATNUM 3
                         callsound(s->sectnum,i);
                         t[2] = 1;
                         t[3] = s->hitag;
+
+                        for (j=headspritesect[s->sectnum]; j>=0; j=nextspritesect[j])
+                            if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                                hittype[j].bposz = sprite[j].z;
                     }
                     else
                     {
@@ -7336,7 +7357,8 @@ static void moveeffectors(void)   //STATNUM 3
                                     g_player[sprite[j].yvel].ps->posz -= l;
                             if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
                             {
-                                hittype[j].bposz = sprite[j].z -= l;
+                                hittype[j].bposz = sprite[j].z;
+                                sprite[j].z -= l;
                                 hittype[j].floorz = sc->floorz;
                             }
                             j = nextspritesect[j];
