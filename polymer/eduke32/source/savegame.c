@@ -277,7 +277,9 @@ int loadplayer(int spot)
     if (kdfread(&g_ScriptSize,sizeof(g_ScriptSize),1,fil) != 1) goto corrupt;
     if (!g_ScriptSize) goto corrupt;
     scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(scriptptrs));
-    if (kdfread(&bitptr[0],sizeof(bitptr),(g_ScriptSize+7)>>3,fil) != ((g_ScriptSize+7)>>3)) goto corrupt;
+    Bfree(bitptr);
+    bitptr = Bcalloc(1,(((g_ScriptSize+7)>>3)+1) * sizeof(char));
+    if (kdfread(&bitptr[0],sizeof(char),(g_ScriptSize+7)>>3,fil) != ((g_ScriptSize+7)>>3)) goto corrupt;
     if (script != NULL)
         Bfree(script);
     script = Bcalloc(1,g_ScriptSize * sizeof(intptr_t));
@@ -662,7 +664,7 @@ int saveplayer(int spot)
     }
 
 //    dfwrite(&scriptptrs[0],sizeof(scriptptrs),g_ScriptSize,fil);
-    dfwrite(&bitptr[0],sizeof(bitptr),(g_ScriptSize+7)>>3,fil);
+    dfwrite(&bitptr[0],sizeof(char),(g_ScriptSize+7)>>3,fil);
     dfwrite(&script[0],sizeof(script),g_ScriptSize,fil);
 
     for (i=0;i<g_ScriptSize;i++)
@@ -700,7 +702,8 @@ int saveplayer(int spot)
             actorLoadEventScrptr[i] = (intptr_t *)j;
         }
 
-    scriptptrs = Brealloc(scriptptrs, MAXSPRITES * sizeof(scriptptrs));
+    Bfree(scriptptrs);
+    scriptptrs = Bcalloc(1, MAXSPRITES * sizeof(scriptptrs));
 
     for (i=0;i<MAXSPRITES;i++)
     {

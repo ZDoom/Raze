@@ -8950,7 +8950,8 @@ void dragpoint(short pointhighlight, int dax, int day)
     wall[pointhighlight].x = dax;
     wall[pointhighlight].y = day;
     wall[pointhighlight].cstat |= (1<<14);
-    wall[linehighlight].cstat |= (1<<14);
+    if (linehighlight >= 0 && linehighlight < MAXWALLS)
+        wall[linehighlight].cstat |= (1<<14);
     wall[lastwall(pointhighlight)].cstat |= (1<<14);
 
     cnt = MAXWALLS;

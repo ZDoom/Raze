@@ -3787,7 +3787,7 @@ void displayrest(int smoothratio)
 
     operatefta();
 
-    if (hud_showmapname && leveltexttime > 1)
+    if (ud.show_level_text && hud_showmapname && leveltexttime > 1)
     {
         int bits = 10+16;
 

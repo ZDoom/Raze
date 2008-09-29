@@ -913,6 +913,7 @@ const memberlabel_t userdefslabels[]=
     { "crosshairscale", USERDEFS_CROSSHAIRSCALE, 0, 0 },
     { "althud", USERDEFS_ALTHUD, 0, 0 },
     { "display_bonus_screen", USERDEFS_DISPLAY_BONUS_SCREEN, 0, 0 },
+    { "show_level_text", USERDEFS_SHOW_LEVEL_TEXT, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 
@@ -1090,7 +1091,7 @@ static int increasescriptsize(int size)
     newscript = (intptr_t *)Brealloc(script, g_ScriptSize * sizeof(intptr_t));
 
 //    bitptr = (char *)Brealloc(bitptr, g_ScriptSize * sizeof(char));
-    newbitptr = Bcalloc(1,((size+7)>>3) * sizeof(char));
+    newbitptr = Bcalloc(1,(((size+7)>>3)+1) * sizeof(char));
 
     if (newscript == NULL || newbitptr == NULL)
     {
@@ -5681,7 +5682,7 @@ void loadefs(const char *filenam)
         Bfree(script);
 
     script = Bcalloc(1,g_ScriptSize * sizeof(intptr_t));
-    bitptr = Bcalloc(1,((g_ScriptSize+7)>>3) * sizeof(char));
+    bitptr = Bcalloc(1,(((g_ScriptSize+7)>>3)+1) * sizeof(char));
 //    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
     labelcnt = defaultlabelcnt = 0;

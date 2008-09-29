@@ -429,6 +429,7 @@ typedef struct {
     char savegame[10][22];
     char pwlockout[128],rtsname[128];
     char display_bonus_screen;
+    char show_level_text;
 
     config_t config;
 } user_defs;

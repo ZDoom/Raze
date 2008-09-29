@@ -247,6 +247,7 @@ void CONFIG_SetDefaults(void)
     ud.config.UseMouse = 1;
     ud.config.VoiceToggle = 5; // bitfield, 1 = local, 2 = dummy, 4 = other players in DM
     ud.display_bonus_screen = 1;
+    ud.show_level_text = 1;
     ud.configversion = 0;
 
     Bstrcpy(ud.rtsname, "DUKE.RTS");

@@ -877,6 +877,15 @@ void DoUserDef(int iSet, int lLabelID, int lVar2)
         SetGameVarID(lVar2, ud.display_bonus_screen, g_i, g_p);
         return;
 
+    case USERDEFS_SHOW_LEVEL_TEXT:
+        if (iSet)
+        {
+            ud.show_level_text = lValue;
+            return;
+        }
+        SetGameVarID(lVar2, ud.show_level_text, g_i, g_p);
+        return;
+
     default:
         return;
     }
