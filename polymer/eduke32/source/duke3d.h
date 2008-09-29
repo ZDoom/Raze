@@ -526,9 +526,7 @@ extern char buf[1024]; //My own generic input buffer
 extern char *fta_quotes[MAXQUOTES],*redefined_quotes[MAXQUOTES];
 extern char ready2send;
 
-// JBF 20040531: adding 16 extra to the script so we have some leeway
-// to (hopefully) safely abort when hitting the limit
-void scriptinfo();
+void scriptinfo(void);
 extern intptr_t *script,*scriptptr,*insptr,*labelcode,*labeltype;
 extern int labelcnt,defaultlabelcnt;
 extern int g_ScriptSize;

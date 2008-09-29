@@ -44,7 +44,7 @@ int g_tw;
 
 static int parse(void);
 
-void scriptinfo()
+void scriptinfo(void)
 {
     if (script)
     {

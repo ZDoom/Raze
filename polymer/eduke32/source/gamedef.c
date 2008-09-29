@@ -5573,35 +5573,27 @@ static void AddDefaultDefinitions(void)
     AddDefinition("PROJ_YREPEAT",PROJ_YREPEAT,LABEL_DEFINE);
 }
 
-
 static void InitProjectiles(void)
 {
     int i;
+    struct
+    {
+        int workslike, extra, cstat, extra_rand, hitradius, range;
+        short spawns, sound, isound, vel, decal, trail, tnum, drop, clipdist, offset, bounces, bsound, toffset;
+        signed char sxrepeat, syrepeat, txrepeat, tyrepeat, shade, xrepeat, yrepeat, pal, velmult;
+    } DefaultProjectile =
+    {
+        1, 100, -1, -1, 2048, 0,
+        SMALLSMOKE, -1, -1, 600, BULLETHOLE, -1, 0, 0, 32, 448, numfreezebounces, PIPEBOMB_BOUNCE, 1,
+        -1, -1, -1, -1, -96, 18, 18, 0, 1
+    };
+
+    if (sizeof(projectile_t) != sizeof(DefaultProjectile))
+        gameexit("ERROR: InitProjectiles() doesn't match projectile_t");
+
     for (i=MAXTILES-1;i>=0;i--)
     {
-        projectile[i].workslike = 1;
-        projectile[i].spawns = SMALLSMOKE;
-        projectile[i].sxrepeat = projectile[i].syrepeat = -1;
-        projectile[i].sound = projectile[i].isound = -1;
-        projectile[i].vel = 600;
-        projectile[i].extra = 100;
-        projectile[i].decal = BULLETHOLE;
-        projectile[i].trail = -1;
-        projectile[i].tnum = 0;
-        projectile[i].toffset = 1;
-        projectile[i].txrepeat = projectile[i].tyrepeat = -1;
-        projectile[i].drop = projectile[i].range = 0;
-        projectile[i].cstat = -1;
-        projectile[i].shade = -96;
-        projectile[i].xrepeat = projectile[i].yrepeat = 18;
-        projectile[i].clipdist = 32;
-        projectile[i].pal = 0;
-        projectile[i].extra_rand = -1;
-        projectile[i].hitradius = 2048;
-        projectile[i].velmult = 1;
-        projectile[i].offset = 448;
-        projectile[i].bounces = numfreezebounces;
-        projectile[i].bsound = PIPEBOMB_BOUNCE;
+        Bmemcpy(&projectile[i],&DefaultProjectile,sizeof(projectile_t));
     }
     Bmemcpy(&defaultprojectile, &projectile, sizeof(projectile));
 }

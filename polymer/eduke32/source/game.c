@@ -10834,10 +10834,12 @@ void app_main(int argc,const char **argv)
 
     if (ud.config.CheckForUpdates == 1)
     {
+        initprintf("Checking for updates...\n");
         if (time(NULL) - ud.config.LastUpdateCheck > UPDATEINTERVAL)
         {
             if (getversionfromwebsite(tempbuf))
             {
+                initprintf("Current version is %d",atol(tempbuf));
                 ud.config.LastUpdateCheck = time(NULL);
 
                 if (atol(tempbuf) > atol(BUILDDATE))
@@ -10864,6 +10866,7 @@ void app_main(int argc,const char **argv)
                         gameexit(" ");
                     }
                 }
+                else initprintf("... no upgrade available\n");
             }
             else initprintf("update: failed to check for updates\n");
         }
