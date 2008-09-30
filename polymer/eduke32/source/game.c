@@ -9833,6 +9833,11 @@ static void checkcommandline(int argc, const char **argv)
                 k = Bstrchr(c,'.');
                 if (k)
                 {
+                    if (!Bstrcasecmp(k,".map"))
+                    {
+                        CommandMap = (char *)argv[i++];
+                        continue;
+                    }
                     if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
                     {
                         addgroup(argv[i++]);
@@ -11481,6 +11486,8 @@ static int opendemoread(int which_demo) // 0 = mine
         if (kread(recfilep,(int *)&g_player[i].pteam,sizeof(int)) != sizeof(int)) goto corrupt;
         g_player[i].ps->team = g_player[i].pteam;
     }
+	i = ud.reccnt/((TICRATE/TICSPERFRAME)*ud.multimode);
+	OSD_Printf("demo duration: %d min %d sec\n", i/60, i%60);
 
     ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
     ud.clipping = ud.scrollmode = ud.overhead_on = ud.pause_on = 0;
