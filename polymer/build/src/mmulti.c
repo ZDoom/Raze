@@ -959,7 +959,7 @@ int getversionfromwebsite(char *buffer) // FIXME: this probably belongs in game 
         initprintf("update: socket() error in getversionfromwebsite() (%d)\n",errno);
         return(0);
     }
-
+    initprintf("Connecting to \"http://%s\"\n",host);
     if (connect(mysock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR)
     {
         initprintf("update: connect() error in getversionfromwebsite() (%d)\n",errno);

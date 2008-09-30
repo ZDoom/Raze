@@ -7320,10 +7320,14 @@ static void addgroup(const char *buffer)
     CommandGrps = s;
 }
 
+#ifdef _WIN32
 #define COPYARG(i) \
     Bmemcpy(&testplay_addparam[j], argv[i], lengths[i]); \
     j += lengths[i]; \
     testplay_addparam[j++] = ' ';
+#else
+#define COPYARG(i)
+#endif
 
 static void checkcommandline(int argc, const char **argv)
 {
@@ -7334,8 +7338,10 @@ static void checkcommandline(int argc, const char **argv)
     {
         lengths = Bmalloc(argc*sizeof(int));
         for (j=1; j<argc; j++) maxlen += (lengths[j] = Bstrlen(argv[j]));
+#ifdef _WIN32
         testplay_addparam = Bmalloc(maxlen+argc);
         testplay_addparam[0] = 0;
+#endif
         j = 0;
 
         while (i < argc)
@@ -7491,6 +7497,7 @@ static void checkcommandline(int argc, const char **argv)
         }
 
         Bfree(lengths);
+#ifdef _WIN32
         if (j > 0)
         {
             testplay_addparam[j-1] = 0;
@@ -7498,6 +7505,7 @@ static void checkcommandline(int argc, const char **argv)
         }
         else
             Bfree(testplay_addparam);
+#endif
     }
 }
 #undef COPYARG

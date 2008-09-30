@@ -10839,9 +10839,9 @@ void app_main(int argc,const char **argv)
 
     if (ud.config.CheckForUpdates == 1)
     {
-        initprintf("Checking for updates...\n");
         if (time(NULL) - ud.config.LastUpdateCheck > UPDATEINTERVAL)
         {
+            initprintf("Checking for updates...\n");
             if (getversionfromwebsite(tempbuf))
             {
                 initprintf("Current version is %d",atol(tempbuf));

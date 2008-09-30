@@ -9,6 +9,7 @@ DXROOT=../sdk/dx
 
 ALROOT		= AL
 SDLROOT		=
+SDLCONFIG	= sdl-config
 
 # Engine options
 SUPERBUILD = 1
@@ -189,7 +190,7 @@ endif
 
 ifeq ($(RENDERTYPE),SDL)
 	ifeq (0,$(SDL_FRAMEWORK))
-	 OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell sdl-config --cflags))
+	 OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
 	else
 		OURCFLAGS	+= -DSDL_FRAMEWORK
 	endif
