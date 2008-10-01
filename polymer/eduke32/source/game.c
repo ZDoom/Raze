@@ -158,6 +158,9 @@ int hud_showmapname = 1;
 
 int leveltexttime = 0;
 
+int r_maxfps = 0;
+unsigned int g_FrameDelay = 0;
+
 int kopen4loadfrommod(char *filename, char searchfirst)
 {
     static char fn[BMAX_PATH];
@@ -11356,32 +11359,40 @@ MAIN_LOOP_RESTART:
             vscrn();
         }
 
-        displayrooms(screenpeek,i);
-        displayrest(i);
-
-        if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
         {
-            Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE FOR MAP",g_player[voting].user_name);
-            gametext(160,40,tempbuf,0,2+8+16);
-            Bsprintf(tempbuf,"%s (E%dL%d)",map[vote_episode*MAXLEVELS + vote_map].name,vote_episode+1,vote_map+1);
-            gametext(160,48,tempbuf,0,2+8+16);
-            gametext(160,70,"PRESS F1 TO ACCEPT, F2 TO DECLINE",0,2+8+16);
+            static unsigned int lastrender = 0;
+
+            if (r_maxfps == 0 || getticks() >= lastrender+g_FrameDelay)
+            {
+                lastrender = getticks();
+                displayrooms(screenpeek,i);
+                displayrest(i);
+
+                if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
+                {
+                    Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE FOR MAP",g_player[voting].user_name);
+                    gametext(160,40,tempbuf,0,2+8+16);
+                    Bsprintf(tempbuf,"%s (E%dL%d)",map[vote_episode*MAXLEVELS + vote_map].name,vote_episode+1,vote_map+1);
+                    gametext(160,48,tempbuf,0,2+8+16);
+                    gametext(160,70,"PRESS F1 TO ACCEPT, F2 TO DECLINE",0,2+8+16);
+                }
+
+                if (debug_on) caches();
+
+                checksync();
+
+                if (VOLUMEONE)
+                {
+                    if (ud.show_help == 0 && show_shareware > 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+                        rotatesprite((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128,0,0,xdim-1,ydim-1);
+                }
+
+                nextpage();
+            }
         }
 
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)
             goto MAIN_LOOP_RESTART;
-
-        if (debug_on) caches();
-
-        checksync();
-
-        if (VOLUMEONE)
-        {
-            if (ud.show_help == 0 && show_shareware > 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
-                rotatesprite((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128,0,0,xdim-1,ydim-1);
-        }
-
-        nextpage();
 
         while (!(g_player[myconnectindex].ps->gm&MODE_MENU) && ready2send && totalclock >= ototalclock+TICSPERFRAME)
             faketimerhandler();
@@ -11486,8 +11497,8 @@ static int opendemoread(int which_demo) // 0 = mine
         if (kread(recfilep,(int *)&g_player[i].pteam,sizeof(int)) != sizeof(int)) goto corrupt;
         g_player[i].ps->team = g_player[i].pteam;
     }
-	i = ud.reccnt/((TICRATE/TICSPERFRAME)*ud.multimode);
-	OSD_Printf("demo duration: %d min %d sec\n", i/60, i%60);
+    i = ud.reccnt/((TICRATE/TICSPERFRAME)*ud.multimode);
+    OSD_Printf("demo duration: %d min %d sec\n", i/60, i%60);
 
     ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
     ud.clipping = ud.scrollmode = ud.overhead_on = ud.pause_on = 0;

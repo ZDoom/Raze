@@ -37,6 +37,7 @@ struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
 extern int althud_numbertile, althud_numberpal, althud_shadows, althud_flashing, hud_glowingquotes;
 extern int hud_showmapname;
+extern int r_maxfps;
 
 static inline int osdcmd_quit(const osdfuncparm_t *parm)
 {
@@ -1401,6 +1402,23 @@ static int osdcmd_visibility(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int osdcmd_maxfps(const osdfuncparm_t *parm)
+{
+    int i;
+    extern int g_FrameDelay;
+
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("\"r_maxfps\" is \"%d\"\n",r_maxfps);
+        return OSDCMD_SHOWHELP;
+    }
+    r_maxfps = max(0,min(1000,atol(parm->parms[0])));
+    if (r_maxfps) g_FrameDelay = (1000/r_maxfps);
+    else g_FrameDelay = 0;
+    OSD_Printf("%s\n",parm->raw);
+    return OSDCMD_OK;
+}
+
 int registerosdcommands(void)
 {
     unsigned int i;
@@ -1463,6 +1481,7 @@ int registerosdcommands(void)
     OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
 
     OSD_RegisterFunction("r_ambientlight", "r_ambientlight: sets the global map light level",osdcmd_visibility);
+    OSD_RegisterFunction("r_maxfps", "r_maxfps: sets a fps cap",osdcmd_maxfps);
 
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
     OSD_RegisterFunction("addlogvar","addlogvar <gamevar>: prints the value of a gamevar", osdcmd_addlogvar);

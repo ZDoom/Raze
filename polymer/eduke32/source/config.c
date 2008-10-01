@@ -589,6 +589,7 @@ extern void check_valid_color(int *color,int prev_color);
 extern palette_t crosshair_colors;
 extern palette_t default_crosshair_colors;
 extern char mod_dir[BMAX_PATH];
+extern int r_maxfps;
 
 int32 CONFIG_ReadSetup(void)
 {
@@ -682,6 +683,16 @@ int32 CONFIG_ReadSetup(void)
         {
             r_ambientlight = atof(tempbuf);
             r_ambientlightrecip = 1.f/r_ambientlight;
+        }
+
+        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "MaxFPS",&r_maxfps);
+        r_maxfps = max(0,min(1000,r_maxfps));
+        {
+            extern int g_FrameDelay;
+
+            if (r_maxfps)
+                g_FrameDelay = (1000/r_maxfps);
+            else g_FrameDelay = 0;
         }
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
@@ -1023,6 +1034,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutString(ud.config.scripthandle, "Screen Setup", "VidContrast",tempbuf);
     Bsprintf(tempbuf,"%.2f",r_ambientlight);
     SCRIPT_PutString(ud.config.scripthandle, "Screen Setup", "AmbientLight",tempbuf);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "MaxFPS", r_maxfps, false, false);
 #ifdef _WIN32
     SCRIPT_PutNumber(ud.config.scripthandle, "Updates", "CheckForUpdates", ud.config.CheckForUpdates, false, false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Updates", "LastUpdateCheck", ud.config.LastUpdateCheck, false, false);

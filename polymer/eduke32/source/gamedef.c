@@ -5634,14 +5634,20 @@ void loadefs(const char *filenam)
     fp = kopen4loadfrommod((char *)filenam,loadfromgrouponly);
     if (fp == -1) // JBF: was 0
     {
+        extern int numgroupfiles;
+
         if (loadfromgrouponly == 1)
-            gameexit("Missing CON file(s); replace duke3d.grp with a known good copy.");
-        else
         {
-            Bsprintf(tempbuf,"CON file `%s' missing.", filenam);
-            gameexit(tempbuf);
-            return;
+            Bsprintf(tempbuf,"'%s' missing CON files, reinstall Duke Nukem 3D.",duke3dgrp);
         }
+        else if (numgroupfiles == 0)
+        {
+            Bsprintf(tempbuf,"Duke Nukem 3D was not found in this directory.  A copy of '%s' or its contents is needed to run EDuke32.\n"
+                     "You can find '%s' in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation CD-ROM.",
+                     duke3dgrp,duke3dgrp);
+        }
+        else Bsprintf(tempbuf,"CON file `%s' missing.", filenam);
+        gameexit(tempbuf);
 
         //loadfromgrouponly = 1;
         return; //Not there
