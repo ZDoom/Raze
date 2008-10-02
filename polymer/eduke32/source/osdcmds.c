@@ -1404,7 +1404,6 @@ static int osdcmd_visibility(const osdfuncparm_t *parm)
 
 static int osdcmd_maxfps(const osdfuncparm_t *parm)
 {
-    int i;
     extern int g_FrameDelay;
 
     if (parm->numparms != 1)

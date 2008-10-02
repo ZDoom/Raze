@@ -2750,13 +2750,13 @@ void displayweapon(int snum)
 
 int myaimmode = 0, myaimstat = 0, omyaimstat = 0;
 int32 mouseyaxismode = -1;
-static ControlInfo lastinfo = { 0,0,0,0,0,0 };
 int jump_input = 0;
 
 void getinput(int snum)
 {
     int j, daang;
     static ControlInfo info;
+    static ControlInfo lastinfo = { 0,0,0,0,0,0 };
     int32 tics;
     boolean running;
     int32 turnamount;

@@ -2646,7 +2646,7 @@ static int setgammaramp(WORD gt[3][256])
         ReleaseDC(hWindow, hDC);
         return i;
     }
-    else
+    else if (appactive)
     {
         // fullscreen uses DirectX
         LPDIRECTDRAWGAMMACONTROL gam;
@@ -2657,7 +2657,8 @@ static int setgammaramp(WORD gt[3][256])
         hr = IDirectDrawSurface_QueryInterface(lpDDSPrimary, &IID_IDirectDrawGammaControl, (LPVOID)&gam);
         if (hr != DD_OK)
         {
-            ShowDDrawErrorBox("Error querying gamma control", hr);
+//            ShowDDrawErrorBox("Error querying gamma control", hr);
+            initprintf("Error querying gamma control: %s\n",GetDDrawError(hr));
             return -1;
         }
 
@@ -2665,13 +2666,15 @@ static int setgammaramp(WORD gt[3][256])
         if (hr != DD_OK)
         {
             IDirectDrawGammaControl_Release(gam);
-            ShowDDrawErrorBox("Error setting gamma ramp", hr);
+            initprintf("Error setting gamma ramp: %s\n",GetDDrawError(hr));
+//            ShowDDrawErrorBox("Error setting gamma ramp", hr);
             return -1;
         }
 
         IDirectDrawGammaControl_Release(gam);
         return 0;
     }
+    else return 0;
 }
 
 int setgamma(void)

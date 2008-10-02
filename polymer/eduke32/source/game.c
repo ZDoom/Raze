@@ -347,13 +347,13 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
             {
                 smallbuf[0] = *(t);
                 smallbuf[1] = '\0';
-                p = atol(smallbuf);
+                p = atoi(smallbuf);
                 continue;
             }
             smallbuf[0] = *(t++);
             smallbuf[1] = *(t);
             smallbuf[2] = '\0';
-            p = atol(smallbuf);
+            p = atoi(smallbuf);
             continue;
         }
         if (*t == 32)
@@ -444,13 +444,13 @@ int minitext_(int x,int y,const char *t,int s,int p,int sb)
             {
                 smallbuf[0] = *(t);
                 smallbuf[1] = '\0';
-                p = atol(smallbuf);
+                p = atoi(smallbuf);
                 continue;
             }
             smallbuf[0] = *(t++);
             smallbuf[1] = *(t);
             smallbuf[2] = '\0';
-            p = atol(smallbuf);
+            p = atoi(smallbuf);
             continue;
         }
         ch = Btoupper(*t);
@@ -812,7 +812,7 @@ void getpackets(void)
                     for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
                         if (i != other) sendpacket(i,packbuf,packbufleng);
 
-                if (packbuf[2] != BYTEVERSION)
+                if (packbuf[2] != (char)atoi(BUILDDATE))
                     gameexit("\nYou cannot play Duke with different versions.");
 
                 other = packbuf[1];
@@ -9676,7 +9676,7 @@ static void checkcommandline(int argc, const char **argv)
                 case 'L':
                     ud.warp_on = 1;
                     c++;
-                    ud.m_level_number = ud.level_number = (atol(c)-1)%MAXLEVELS;
+                    ud.m_level_number = ud.level_number = (atoi(c)-1)%MAXLEVELS;
                     break;
                 case 'm':
                 case 'M':
@@ -9718,7 +9718,7 @@ static void checkcommandline(int argc, const char **argv)
                 case 'Q':
                     initprintf("Fake multiplayer mode.\n");
                     if (*(++c) == 0) ud.multimode = 1;
-                    else ud.multimode = atol(c)%17;
+                    else ud.multimode = atoi(c)%17;
                     ud.m_coop = ud.coop = 0;
                     ud.m_marker = ud.marker = 1;
                     ud.m_respawn_monsters = ud.respawn_monsters = 1;
@@ -9733,7 +9733,7 @@ static void checkcommandline(int argc, const char **argv)
                 case 's':
                 case 'S':
                     c++;
-                    ud.m_player_skill = ud.player_skill = (atol(c)%5);
+                    ud.m_player_skill = ud.player_skill = (atoi(c)%5);
                     if (ud.m_player_skill == 4)
                         ud.m_respawn_monsters = ud.respawn_monsters = 1;
                     break;
@@ -9794,7 +9794,7 @@ static void checkcommandline(int argc, const char **argv)
                 case 'V':
                     c++;
                     ud.warp_on = 1;
-                    ud.m_volume_number = ud.volume_number = atol(c)-1;
+                    ud.m_volume_number = ud.volume_number = atoi(c)-1;
                     break;
                 case 'w':
                 case 'W':
@@ -9825,7 +9825,7 @@ static void checkcommandline(int argc, const char **argv)
                 case 'z':
                 case 'Z':
                     c++;
-                    g_ScriptDebug = atol(c);
+                    g_ScriptDebug = atoi(c);
                     if (!g_ScriptDebug)
                         g_ScriptDebug = 1;
                     break;
@@ -10494,7 +10494,7 @@ static void sendplayerupdate(void)
 
     buf[0] = 6;
     buf[1] = myconnectindex;
-    buf[2] = BYTEVERSION;
+    buf[2] = (char)atoi(BUILDDATE);
     l = 3;
 
     //null terminated player name to send
@@ -10840,6 +10840,8 @@ void app_main(int argc,const char **argv)
         if (i) ud.config.CheckForUpdates = 1;
     }
 
+//    initprintf("build %d\n",(char)atoi(BUILDDATE));
+
     if (ud.config.CheckForUpdates == 1)
     {
         if (time(NULL) - ud.config.LastUpdateCheck > UPDATEINTERVAL)
@@ -10847,10 +10849,10 @@ void app_main(int argc,const char **argv)
             initprintf("Checking for updates...\n");
             if (getversionfromwebsite(tempbuf))
             {
-                initprintf("Current version is %d",atol(tempbuf));
+                initprintf("Current version is %d",atoi(tempbuf));
                 ud.config.LastUpdateCheck = time(NULL);
 
-                if (atol(tempbuf) > atol(BUILDDATE))
+                if (atoi(tempbuf) > atoi(BUILDDATE))
                 {
                     if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
                                  "Browse to http://eduke32.sourceforge.net now?"))
