@@ -1480,7 +1480,7 @@ int registerosdcommands(void)
     OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
 
     OSD_RegisterFunction("r_ambientlight", "r_ambientlight: sets the global map light level",osdcmd_visibility);
-    OSD_RegisterFunction("r_maxfps", "r_maxfps: sets a fps cap",osdcmd_maxfps);
+    OSD_RegisterFunction("r_maxfps", "r_maxfps: sets a framerate cap",osdcmd_maxfps);
 
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
     OSD_RegisterFunction("addlogvar","addlogvar <gamevar>: prints the value of a gamevar", osdcmd_addlogvar);

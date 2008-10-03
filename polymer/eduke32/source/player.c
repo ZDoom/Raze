@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 #include "osd.h"
+#include "gamedef.h"
 
 int g_currentweapon;
 int g_gun_pos;
@@ -3026,12 +3027,19 @@ void getinput(int snum)
     if (horiz < -MAXHORIZ) horiz = -MAXHORIZ;
     if (horiz > MAXHORIZ) horiz = MAXHORIZ;
 
-    loc.extbits = BUTTON(gamefunc_Move_Forward);
-    loc.extbits |= BUTTON(gamefunc_Move_Backward)<<1;
-    loc.extbits |= BUTTON(gamefunc_Strafe_Left)<<2;
-    loc.extbits |= BUTTON(gamefunc_Strafe_Right)<<3;
-    loc.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
-    loc.extbits |= BUTTON(gamefunc_Turn_Right)<<5;
+    if(apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEFORWARD])
+        loc.extbits = BUTTON(gamefunc_Move_Forward);
+    if(apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEBACKWARD])
+        loc.extbits |= BUTTON(gamefunc_Move_Backward)<<1;
+    if(apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_STRAFELEFT])
+        loc.extbits |= BUTTON(gamefunc_Strafe_Left)<<2;
+    if(apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_STRAFERIGHT])
+        loc.extbits |= BUTTON(gamefunc_Strafe_Right)<<3;
+    if(apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_TURNLEFT])
+        loc.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
+    if(apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_TURNRIGHT])
+        loc.extbits |= BUTTON(gamefunc_Turn_Right)<<5;
+    // used for changing team
     loc.extbits |= (g_player[snum].pteam != g_player[snum].ps->team)<<6;
 
     if (ud.scrollmode && ud.overhead_on)

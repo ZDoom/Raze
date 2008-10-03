@@ -285,9 +285,10 @@ enum USRHOOKS_Errors {
 };
 
 typedef struct {
-    unsigned int bits, extbits;
+    unsigned int bits;
     short fvel, svel;
     signed char avel, horz;
+    unsigned char extbits;
 } input_t;
 
 #define sync dsync  // JBF 20040604: sync is a function on some platforms
