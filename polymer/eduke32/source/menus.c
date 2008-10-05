@@ -2724,6 +2724,7 @@ cheat_for_port_credits:
                 "-",
                 "Screen size",
                 "Status bar size",
+                "Weapon size",
                 "Show level stats",
                 "-",
                 "Allow walk with autorun",
@@ -2733,8 +2734,6 @@ cheat_for_port_credits:
                 "-",
                 "Show framerate",
                 "Demo recording",
-                "-",
-                "-",
                 "-",
                 "More...",
                 NULL
@@ -2752,7 +2751,7 @@ cheat_for_port_credits:
                 io++;
             }
 
-            onbar = (probey == 2 || probey == 3 || probey == 4);
+            onbar = (probey >= 2 && probey <= 5);
             x = probesm(c,yy+5,0,io);
 
             if (x == -1)
@@ -2825,21 +2824,33 @@ cheat_for_port_credits:
                 }
                 break;
                 case 5:
+                {
+                    int sbs, sbsl;
+                    sbs = sbsl = ud.weaponscale-37;
+                    barsm(d+8,yy+7, &sbs,4,x==io,MENUHIGHLIGHT(io),0);
+                    if (x == io && sbs != sbsl)
+                    {
+                        sbs += 37;
+                        ud.weaponscale = min(100,max(10,sbs));
+                    }
+                }
+                break;
+                case 6:
                     if (x==io) ud.levelstats = 1-ud.levelstats;
                     modval(0,1,(int *)&ud.levelstats,1,probey==io);
                     mgametextpal(d,yy, ud.levelstats ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
-                case 6:
+                case 7:
                     if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
                     modval(0,1,(int *)&ud.runkey_mode,1,probey==io);
                     mgametextpal(d,yy, ud.runkey_mode ? "No" : "Yes", MENUHIGHLIGHT(io), 0);
                     break;
-                case 7:
+                case 8:
                     if (x==io) ud.shadows = 1-ud.shadows;
                     modval(0,1,(int *)&ud.shadows,1,probey==io);
                     mgametextpal(d,yy, ud.shadows ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-                case 8:
+                case 9:
                     if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
 #ifdef POLYMOST
                     if (!ud.screen_tilting) setrollangle(0);
@@ -2847,12 +2858,12 @@ cheat_for_port_credits:
                     modval(0,1,(int *)&ud.screen_tilting,1,probey==io);
                     mgametextpal(d,yy, ud.screen_tilting ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;  // original had a 'full' option
-                case 9:
+                case 10:
                     if (x==io) ud.tickrate = 1-ud.tickrate;
                     modval(0,1,(int *)&ud.tickrate,1,probey==io);
                     mgametextpal(d,yy, ud.tickrate ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
-                case 10:
+                case 11:
                     if (x==io)
                     {
                         enabled = !((g_player[myconnectindex].ps->gm&MODE_GAME) && ud.m_recstat != 1);
@@ -2863,7 +2874,7 @@ cheat_for_port_credits:
                         enabled = 0;
                     mgametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && g_player[myconnectindex].ps->gm&MODE_GAME)?"Running":"On"):"Off",enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE,enabled?0:1);
                     break;
-                case 11:
+                case 12:
                     if (x==io) cmenu(201);
                     break;
                 default:
@@ -2930,7 +2941,7 @@ cheat_for_port_credits:
             if (x == -1)
             {
                 cmenu(200);
-                probey = 11;
+                probey = 12;
                 break;
             }
 

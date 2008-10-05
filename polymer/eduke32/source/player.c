@@ -2119,12 +2119,30 @@ static int animateaccess(int gs,int snum)
     return 1;
 }
 
+#define weapsc(sc) scale(sc,ud.weaponscale,100)
+
+static void myospalscaled(int x, int y, int tilenum, int shade, int orientation, int p)
+{
+    int a = 0;
+    int xoff = 240;
+
+    if (orientation&4)
+    {
+        a = 1024;
+        xoff = 80;
+    }
+
+    rotatesprite(weapsc((orientation&256)?x:(x<<16))+((xoff-weapsc(xoff))<<16),
+                 weapsc((orientation&256)?y:(y<<16))+((200-weapsc(200))<<16),
+                 weapsc(65536L),a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+}
+
 static void myospalw(int x, int y, int tilenum, int shade, int orientation, int p)
 {
     if (!ud.drawweapon)
         return;
     else if (ud.drawweapon == 1)
-        myospal(x,y,tilenum,shade,orientation,p);
+        myospalscaled(x,y,tilenum,shade,orientation,p);
     else if (ud.drawweapon == 2)
     {
         switch (g_currentweapon)
@@ -3027,17 +3045,17 @@ void getinput(int snum)
     if (horiz < -MAXHORIZ) horiz = -MAXHORIZ;
     if (horiz > MAXHORIZ) horiz = MAXHORIZ;
 
-    if(apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEFORWARD])
+    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEFORWARD])
         loc.extbits = BUTTON(gamefunc_Move_Forward);
-    if(apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEBACKWARD])
+    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEBACKWARD])
         loc.extbits |= BUTTON(gamefunc_Move_Backward)<<1;
-    if(apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_STRAFELEFT])
+    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_STRAFELEFT])
         loc.extbits |= BUTTON(gamefunc_Strafe_Left)<<2;
-    if(apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_STRAFERIGHT])
+    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_STRAFERIGHT])
         loc.extbits |= BUTTON(gamefunc_Strafe_Right)<<3;
-    if(apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_TURNLEFT])
+    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_TURNLEFT])
         loc.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
-    if(apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_TURNRIGHT])
+    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_TURNRIGHT])
         loc.extbits |= BUTTON(gamefunc_Turn_Right)<<5;
     // used for changing team
     loc.extbits |= (g_player[snum].pteam != g_player[snum].ps->team)<<6;

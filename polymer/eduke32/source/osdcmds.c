@@ -497,6 +497,19 @@ static int osdcmd_setstatusbarscale(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int osdcmd_setweaponscale(const osdfuncparm_t *parm)
+{
+    if (parm->numparms == 0)
+    {
+        OSD_Printf("\"hud_weaponscale\" is \"%d\"\n", ud.weaponscale);
+        return OSDCMD_SHOWHELP;
+    }
+    else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    ud.weaponscale = min(100,max(10,Batol(parm->parms[0])));
+    OSD_Printf("hud_weaponscale %d\n", ud.weaponscale);
+    return OSDCMD_OK;
+}
+
 static int osdcmd_spawn(const osdfuncparm_t *parm)
 {
     int x=0,y=0,z=0;
@@ -1442,6 +1455,7 @@ int registerosdcommands(void)
     OSD_RegisterFunction("bind","bind <key> <string>: associates a keypress with a string of console input. Type \"bind showkeys\" for a list of keys and \"listsymbols\" for a list of valid console commands.", osdcmd_bind);
 
     OSD_RegisterFunction("hud_scale","hud_scale: changes the hud scale", osdcmd_setstatusbarscale);
+    OSD_RegisterFunction("hud_weaponscale","hud_weaponscale: changes the weapon scale", osdcmd_setweaponscale);
     OSD_RegisterFunction("crosshairscale","crosshairscale: changes the crosshair scale", osdcmd_setcrosshairscale);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes crosshair color", osdcmd_crosshaircolor);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
