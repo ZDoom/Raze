@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define APPNAME "EDuke32"
 #define VERSION " 1.5.0devel"
 // this is checked against http://eduke32.com/VERSION
-#define BUILDDATE " 20081002"
+#define BUILDDATE " 20081005"
 #define HEAD2 APPNAME VERSION BUILDDATE
 
 #ifdef __cplusplus
@@ -76,7 +76,7 @@ extern int g_ScriptVersion, g_Shareware, g_GameType;
 
 #define AUTO_AIM_ANGLE          48
 #define RECSYNCBUFSIZ 2520   //2520 is the (LCM of 1-8)*3
-#define MOVEFIFOSIZ 256
+#define MOVEFIFOSIZ 1024
 
 #define FOURSLEIGHT (1<<8)
 

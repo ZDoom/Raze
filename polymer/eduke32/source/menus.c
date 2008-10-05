@@ -47,8 +47,9 @@ static int changesmade, newvidmode, curvidmode, newfullscreen;
 static int vidsets[16] = { -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 };
 static int curvidset, newvidset = 0;
 static int soundbits, soundvoices, soundrate;
-
-static char *mousebuttonnames[] = { "Left", "Right", "Middle", "Thumb", "Wheel Up", "Wheel Down" };
+#undef MAXMOUSEBUTTONS
+#define MAXMOUSEBUTTONS 6 // FIXME: menu needs an update for extra buttons
+static char *mousebuttonnames[] = { "Mouse1", "Mouse2", "Mouse3", "Mouse4", "Wheel Up", "Wheel Down", "Mouse5", "Mouse6", "Mouse7", "Mouse8"};
 
 extern int voting;
 

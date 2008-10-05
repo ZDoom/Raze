@@ -222,7 +222,7 @@ typedef struct binding {
     char laststate;
 } keybind;
 
-#define MAXMOUSEBUTTONS 6
+#define MAXMOUSEBUTTONS 10
 
 extern keybind boundkeys[MAXBOUNDKEYS], mousebind[MAXMOUSEBUTTONS];
 extern int bindsenabled;

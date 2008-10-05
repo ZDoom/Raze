@@ -2061,7 +2061,12 @@ static void coolgaugetext(int snum)
             if (sprite[p->i].pal == 1 && p->last_extra < 2)
                 altdigitalnumber(40,-(200-22),1,-16,10+16);
             else if (!althud_flashing || p->last_extra > (p->max_player_health>>2) || totalclock&32)
-                altdigitalnumber(40,-(200-22),p->last_extra,-16,10+16);
+            {
+                int s = -8;
+                if (althud_flashing && p->last_extra > p->max_player_health)
+                    s += (sintable[(totalclock<<5)&2047]>>10);
+                altdigitalnumber(40,-(200-22),p->last_extra,s,10+16);
+            }
 
             if (althud_shadows)
                 rotatesprite(sbarx(62+1),sbary(200-25+1),sbarsc(49152L),0,SHIELD,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
@@ -2592,16 +2597,8 @@ static void ShowFrameRate(void)
             int x = (xdim <= 640);
             int chars = Bsprintf(tempbuf, "%2u ms (%3u fps)", howlong, LastCount);
 
-            if (!x)
-            {
-                printext256(windowx2-(chars<<3)+1,windowy1+2,0,-1,tempbuf,x);
-                printext256(windowx2-(chars<<3),windowy1+1,COLOR_WHITE,-1,tempbuf,x);
-            }
-            else
-            {
-                printext256(windowx2-(chars<<2)+1,windowy1+2,0,-1,tempbuf,x);
-                printext256(windowx2-(chars<<2),windowy1+1,COLOR_WHITE,-1,tempbuf,x);
-            }
+            printext256(windowx2-(chars<<(3-x))+1,windowy1+2,0,-1,tempbuf,x);
+            printext256(windowx2-(chars<<(3-x)),windowy1+1,COLOR_WHITE,-1,tempbuf,x);
 
             if (numplayers > 1)
                 if ((totalclock - lastpackettime) > 1)
@@ -2902,6 +2899,8 @@ void gameexit(const char *t)
         if (*t != 0 && *(t+1) != 'V' && *(t+1) != 'Y')
             showtwoscreens();
     }
+
+    if (*t != 0) initprintf("%s\n",t);
 
     if (qsetmode == 200)
         Shutdown();
@@ -10717,7 +10716,7 @@ void app_main(int argc,const char **argv)
 #endif
 
     OSD_SetLogFile("eduke32.log");
-    OSD_SetParameters(6,0, 0,12, 2,12);
+    OSD_SetParameters(0,0, 0,12, 2,12);
     OSD_SetFunctions(
         GAME_drawosdchar,
         GAME_drawosdstr,
@@ -10733,7 +10732,7 @@ void app_main(int argc,const char **argv)
     initprintf("%s\n",apptitle);
 //    initprintf("Compiled %s\n",datetimestring);
     initprintf("Copyright (c) 1996, 2003 3D Realms Entertainment\n");
-    initprintf("Copyright (c) 2008 EDuke32 team\n");
+    initprintf("Copyright (c) 2008 EDuke32 team and contributors\n");
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
     addsearchpath("/usr/share/games/jfduke3d");
@@ -11120,16 +11119,36 @@ void app_main(int argc,const char **argv)
 
     ud.last_level = -1;
 
-    if (Bstrcasecmp(ud.rtsname,"DUKE.RTS") == 0)
+    if (Bstrcasecmp(ud.rtsname,"DUKE.RTS") == 0 ||
+        Bstrcasecmp(ud.rtsname,"WW2GI.RTS") == 0 ||
+        Bstrcasecmp(ud.rtsname,"NAM.RTS") == 0)
     {
+        // ud.last_level is used as a flag here to reset the string to DUKE.RTS after load
         if (WW2GI)
+        {
+            ud.last_level = 1;
             Bstrcpy(ud.rtsname, "WW2GI.RTS");
+        }
         else if (NAM)
+        {
+            ud.last_level = 1;
             Bstrcpy(ud.rtsname, "NAM.RTS");
+        }
+        else
+        {
+            ud.last_level = 1;
+            Bstrcpy(ud.rtsname, "DUKE.RTS");
+        }
     }
 
     RTS_Init(ud.rtsname);
     if (numlumps) initprintf("Using .RTS file '%s'\n",ud.rtsname);
+
+    if (ud.last_level == 1)
+    {
+        ud.last_level = -1;
+        Bstrcpy(ud.rtsname, "DUKE.RTS");
+    }
 
     initprintf("Initializing OSD...\n");
 

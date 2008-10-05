@@ -1367,7 +1367,7 @@ void OSD_Draw(void)
     clearbackground(osdcols,osdrowscur+1);
 
     if (osdversionstring[0])
-        drawosdstr(osdcols-osdversionstringlen,osdrowscur,osdversionstring,osdversionstringlen,osdversionstringshade,osdversionstringpal);
+        drawosdstr(osdcols-osdversionstringlen,osdrowscur,osdversionstring,osdversionstringlen,(sintable[(totalclock<<4)&2047]>>11),osdversionstringpal);
 
     for (; lines>0; lines--, row--)
     {
@@ -1375,9 +1375,9 @@ void OSD_Draw(void)
         topoffs+=osdcols;
     }
 
-    drawosdchar(2,osdrowscur,'>',osdpromptshade,osdpromptpal);
-    if (osdeditcaps) drawosdchar(0,osdrowscur,'C',osdpromptshade,osdpromptpal);
-    if (osdeditshift) drawosdchar(1,osdrowscur,'H',osdpromptshade,osdpromptpal);
+    drawosdchar(2,osdrowscur,'>',osdpromptshade?osdpromptshade:(sintable[(totalclock<<4)&2047]>>11),osdpromptpal);
+    if (osdeditcaps) drawosdchar(0,osdrowscur,'C',osdpromptshade?osdpromptshade:(sintable[(totalclock<<4)&2047]>>11),osdpromptpal);
+    if (osdeditshift) drawosdchar(1,osdrowscur,'H',osdpromptshade?osdpromptshade:(sintable[(totalclock<<4)&2047]>>11),osdpromptpal);
 
     len = min(osdcols-1-3, osdeditlen-osdeditwinstart);
     for (x=len-1; x>=0; x--)

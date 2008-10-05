@@ -364,7 +364,7 @@ int app_main(int argc, const char **argv)
     loadpics("tiles000.art",1048576*16);
     loadnames();
 
-    Bstrcpy(kensig,"Based on BUILD by Ken Silverman");
+    Bstrcpy(kensig,"Uses BUILD technology by Ken Silverman");
     initcrc();
 
     if (!loaddefinitionsfile(defsfilename)) initprintf("Definitions file loaded.\n");

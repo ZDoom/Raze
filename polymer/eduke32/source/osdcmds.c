@@ -1113,7 +1113,7 @@ keydef keynames[]=
     {0,0}
 };
 
-char *mousenames[] = { "mouse1", "mouse2", "mouse3", "mouse4", "mouse5", "mouse6" };
+char *mousenames[] = { "mouse1", "mouse2", "mouse3", "mouse4", "mwheelup", "mwheeldn", "mouse5", "mouse6", "mouse7", "mouse8" };
 
 static int osdcmd_bind(const osdfuncparm_t *parm)
 {

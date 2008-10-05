@@ -10,7 +10,7 @@
 #error winlayer.c is for Windows only.
 #endif
 
-#define DIRECTINPUT_VERSION 0x0500
+#define DIRECTINPUT_VERSION 0x0700
 #define DIRECTDRAW_VERSION  0x0600
 
 #define WIN32_LEAN_AND_MEAN
@@ -674,8 +674,8 @@ inline void idle(void)
 #define NUM_INPUTS	3
 
 static HMODULE               hDInputDLL    = NULL;
-static LPDIRECTINPUTA        lpDI          = NULL;
-static LPDIRECTINPUTDEVICE2A lpDID[NUM_INPUTS] =  { NULL, NULL, NULL };
+static LPDIRECTINPUT7A        lpDI          = NULL;
+static LPDIRECTINPUTDEVICE7A lpDID[NUM_INPUTS] =  { NULL, NULL, NULL };
 static BOOL                  bDInputInited = FALSE;
 #define INPUT_BUFFER_SIZE	32
 static GUID                  guidDevs[NUM_INPUTS];
@@ -689,12 +689,12 @@ HANDLE  mousethread;
 static struct
 {
     char *name;
-    LPDIRECTINPUTDEVICE2A *did;
+    LPDIRECTINPUTDEVICE7A *did;
     const DIDATAFORMAT *df;
 } devicedef[NUM_INPUTS] =
 {
     { "keyboard", &lpDID[KEYBOARD], &c_dfDIKeyboard },
-    { "mouse",    &lpDID[MOUSE],    &c_dfDIMouse },
+    { "mouse",    &lpDID[MOUSE],    &c_dfDIMouse2 },
     { "joystick", &lpDID[JOYSTICK], &c_dfDIJoystick }
 };
 static struct _joydef
@@ -952,7 +952,7 @@ void setjoydeadzone(int axis, unsigned short dead, unsigned short satur)
     }
     dipdw.dwData = dead;
 
-    result = IDirectInputDevice2_SetProperty(lpDID[JOYSTICK], DIPROP_DEADZONE, &dipdw.diph);
+    result = IDirectInputDevice7_SetProperty(lpDID[JOYSTICK], DIPROP_DEADZONE, &dipdw.diph);
     if FAILED(result)
     {
         //ShowDInputErrorBox("Failed setting joystick dead zone", result);
@@ -962,7 +962,7 @@ void setjoydeadzone(int axis, unsigned short dead, unsigned short satur)
 
     dipdw.dwData = satur;
 
-    result = IDirectInputDevice2_SetProperty(lpDID[JOYSTICK], DIPROP_SATURATION, &dipdw.diph);
+    result = IDirectInputDevice7_SetProperty(lpDID[JOYSTICK], DIPROP_SATURATION, &dipdw.diph);
     if FAILED(result)
     {
         //ShowDInputErrorBox("Failed setting joystick saturation point", result);
@@ -998,7 +998,7 @@ void getjoydeadzone(int axis, unsigned short *dead, unsigned short *satur)
         dipdw.diph.dwHow = DIPH_BYOFFSET;
     }
 
-    result = IDirectInputDevice2_GetProperty(lpDID[JOYSTICK], DIPROP_DEADZONE, &dipdw.diph);
+    result = IDirectInputDevice7_GetProperty(lpDID[JOYSTICK], DIPROP_DEADZONE, &dipdw.diph);
     if FAILED(result)
     {
         //ShowDInputErrorBox("Failed getting joystick dead zone", result);
@@ -1008,7 +1008,7 @@ void getjoydeadzone(int axis, unsigned short *dead, unsigned short *satur)
 
     *dead = dipdw.dwData;
 
-    result = IDirectInputDevice2_GetProperty(lpDID[JOYSTICK], DIPROP_SATURATION, &dipdw.diph);
+    result = IDirectInputDevice7_GetProperty(lpDID[JOYSTICK], DIPROP_SATURATION, &dipdw.diph);
     if FAILED(result)
     {
         //ShowDInputErrorBox("Failed getting joystick saturation point", result);
@@ -1032,6 +1032,10 @@ void releaseallbuttons(void)
         if (mouseb & 8) mousepresscallback(4, 0);
         if (mousewheel[0]>0) mousepresscallback(5,0);
         if (mousewheel[1]>0) mousepresscallback(6,0);
+        if (mouseb & 64) mousepresscallback(7, 0);
+        if (mouseb & 128) mousepresscallback(8, 0);
+        if (mouseb & 256) mousepresscallback(9, 0);
+        if (mouseb & 512) mousepresscallback(10, 0);
     }
     mousewheel[0]=mousewheel[1]=0;
     mouseb = 0;
@@ -1182,10 +1186,10 @@ static BOOL CALLBACK InitDirectInput_enumobjects(LPCDIDEVICEOBJECTINSTANCE lpddo
 static BOOL InitDirectInput(void)
 {
     HRESULT result;
-    HRESULT(WINAPI *aDirectInputCreateA)(HINSTANCE, DWORD, LPDIRECTINPUTA *, LPUNKNOWN);
+    HRESULT(WINAPI *aDirectInputCreateA)(HINSTANCE, DWORD, LPDIRECTINPUT7A *, LPUNKNOWN);
     DIPROPDWORD dipdw;
-    LPDIRECTINPUTDEVICEA dev;
-    LPDIRECTINPUTDEVICE2A dev2;
+    LPDIRECTINPUTDEVICE7A dev;
+    LPDIRECTINPUTDEVICE7A dev2;
     DIDEVCAPS didc;
 
     int devn;
@@ -1219,7 +1223,7 @@ static BOOL InitDirectInput(void)
     // enumerate devices to make us look fancy
     initprintf("  - Enumerating attached input devices\n");
     inputdevices = 0;
-    result = IDirectInput_EnumDevices(lpDI, 0, InitDirectInput_enum, NULL, DIEDFL_ATTACHEDONLY);
+    result = IDirectInput7_EnumDevices(lpDI, 0, InitDirectInput_enum, NULL, DIEDFL_ATTACHEDONLY);
     if FAILED(result) { HorribleDInputDeath("Failed enumerating attached input devices", result); }
     else if (result != DI_OK) initprintf("    Enumerated input devices with warning: %s\n",GetDInputError(result));
     if (!(inputdevices & (1<<KEYBOARD)))
@@ -1238,33 +1242,33 @@ static BOOL InitDirectInput(void)
         *devicedef[devn].did = NULL;
 
 //        initprintf("  - Creating %s device\n", devicedef[devn].name);
-        result = IDirectInput_CreateDevice(lpDI, &guidDevs[devn], &dev, NULL);
+        result = IDirectInput7_CreateDevice(lpDI, &guidDevs[devn], &dev, NULL);
         if FAILED(result) { HorribleDInputDeath("Failed creating device", result); }
         else if (result != DI_OK) initprintf("    Created device with warning: %s\n",GetDInputError(result));
 
-        result = IDirectInputDevice_QueryInterface(dev, &IID_IDirectInputDevice2, (LPVOID *)&dev2);
-        IDirectInputDevice_Release(dev);
-        if FAILED(result) { HorribleDInputDeath("Failed querying DirectInput2 interface for device", result); }
-        else if (result != DI_OK) initprintf("    Queried IDirectInputDevice2 interface with warning: %s\n",GetDInputError(result));
+        result = IDirectInputDevice7_QueryInterface(dev, &IID_IDirectInputDevice7, (LPVOID *)&dev2);
+        IDirectInputDevice7_Release(dev);
+        if FAILED(result) { HorribleDInputDeath("Failed querying DirectInput7 interface for device", result); }
+        else if (result != DI_OK) initprintf("    Queried IDirectInputDevice7 interface with warning: %s\n",GetDInputError(result));
 
-        result = IDirectInputDevice2_SetDataFormat(dev2, devicedef[devn].df);
-        if FAILED(result) { IDirectInputDevice_Release(dev2); HorribleDInputDeath("Failed setting data format", result); }
+        result = IDirectInputDevice7_SetDataFormat(dev2, devicedef[devn].df);
+        if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed setting data format", result); }
         else if (result != DI_OK) initprintf("    Set data format with warning: %s\n",GetDInputError(result));
 
         inputevt[devn] = CreateEvent(NULL, FALSE, FALSE, NULL);
         if (inputevt[devn] == NULL)
         {
-            IDirectInputDevice_Release(dev2);
+            IDirectInputDevice7_Release(dev2);
             ShowErrorBox("Couldn't create event object");
             UninitDirectInput();
             return TRUE;
         }
 
-        result = IDirectInputDevice2_SetEventNotification(dev2, inputevt[devn]);
-        if FAILED(result) { IDirectInputDevice_Release(dev2); HorribleDInputDeath("Failed setting event object", result); }
+        result = IDirectInputDevice7_SetEventNotification(dev2, inputevt[devn]);
+        if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed setting event object", result); }
         else if (result != DI_OK) initprintf("    Set event object with warning: %s\n",GetDInputError(result));
 
-        IDirectInputDevice2_Unacquire(dev2);
+        IDirectInputDevice7_Unacquire(dev2);
 
         memset(&dipdw, 0, sizeof(dipdw));
         dipdw.diph.dwSize = sizeof(DIPROPDWORD);
@@ -1273,8 +1277,8 @@ static BOOL InitDirectInput(void)
         dipdw.diph.dwHow = DIPH_DEVICE;
         dipdw.dwData = INPUT_BUFFER_SIZE;
 
-        result = IDirectInputDevice2_SetProperty(dev2, DIPROP_BUFFERSIZE, &dipdw.diph);
-        if FAILED(result) { IDirectInputDevice_Release(dev2); HorribleDInputDeath("Failed setting buffering", result); }
+        result = IDirectInputDevice7_SetProperty(dev2, DIPROP_BUFFERSIZE, &dipdw.diph);
+        if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed setting buffering", result); }
         else if (result != DI_OK) initprintf("    Set buffering with warning: %s\n",GetDInputError(result));
 
         // set up device
@@ -1284,8 +1288,8 @@ static BOOL InitDirectInput(void)
 
             memset(&didc, 0, sizeof(didc));
             didc.dwSize = sizeof(didc);
-            result = IDirectInputDevice2_GetCapabilities(dev2, &didc);
-            if FAILED(result) { IDirectInputDevice_Release(dev2); HorribleDInputDeath("Failed getting joystick capabilities", result); }
+            result = IDirectInputDevice7_GetCapabilities(dev2, &didc);
+            if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting joystick capabilities", result); }
             else if (result != DI_OK) initprintf("    Fetched joystick capabilities with warning: %s\n",GetDInputError(result));
 
             joynumaxes    = (char)didc.dwAxes;
@@ -1300,8 +1304,8 @@ static BOOL InitDirectInput(void)
             joyaxis = (int *)Bcalloc(didc.dwAxes, sizeof(int));
             joyhat = (int *)Bcalloc(didc.dwPOVs, sizeof(int));
 
-            result = IDirectInputDevice2_EnumObjects(dev2, InitDirectInput_enumobjects, (LPVOID)typecounts, DIDFT_ALL);
-            if FAILED(result) { IDirectInputDevice_Release(dev2); HorribleDInputDeath("Failed getting joystick features", result); }
+            result = IDirectInputDevice7_EnumObjects(dev2, InitDirectInput_enumobjects, (LPVOID)typecounts, DIDFT_ALL);
+            if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting joystick features", result); }
             else if (result != DI_OK) initprintf("    Fetched joystick features with warning: %s\n",GetDInputError(result));
         }
 
@@ -1350,9 +1354,9 @@ static void UninitDirectInput(void)
         {
 //            initprintf("  - Releasing %s device\n", devicedef[devn].name);
 
-            if (devn != JOYSTICK) IDirectInputDevice2_SetEventNotification(*devicedef[devn].did, NULL);
+            if (devn != JOYSTICK) IDirectInputDevice7_SetEventNotification(*devicedef[devn].did, NULL);
 
-            IDirectInputDevice2_Release(*devicedef[devn].did);
+            IDirectInputDevice7_Release(*devicedef[devn].did);
             *devicedef[devn].did = NULL;
         }
         if (inputevt[devn])
@@ -1365,7 +1369,7 @@ static void UninitDirectInput(void)
     if (lpDI)
     {
 //        initprintf("  - Releasing DirectInput object\n");
-        IDirectInput_Release(lpDI);
+        IDirectInput7_Release(lpDI);
         lpDI = NULL;
     }
 
@@ -1396,7 +1400,7 @@ static void GetKeyNames(void)
         ZeroMemory(&key,sizeof(key));
         key.dwSize = sizeof(DIDEVICEOBJECTINSTANCE);
 
-        res = IDirectInputDevice_GetObjectInfo(*devicedef[KEYBOARD].did, &key, i, DIPH_BYOFFSET);
+        res = IDirectInputDevice7_GetObjectInfo(*devicedef[KEYBOARD].did, &key, i, DIPH_BYOFFSET);
         if (FAILED(res)) continue;
 
         CharToOem(key.tszName, tbuf);
@@ -1457,17 +1461,17 @@ static void AcquireInputDevices(char acquire, signed char device)
             if (device != -1 && i != device) continue;	// don't touch other devices if only the mouse is wanted
             else if (!mousegrab && i == MOUSE) continue;	// don't grab the mouse if we don't want it grabbed
 
-            IDirectInputDevice2_Unacquire(*devicedef[i].did);
+            IDirectInputDevice7_Unacquire(*devicedef[i].did);
 
             if (i == MOUSE/* && fullscreen*/) flags = DISCL_FOREGROUND|DISCL_EXCLUSIVE;
             else flags = DISCL_FOREGROUND|DISCL_NONEXCLUSIVE;
 
-            result = IDirectInputDevice2_SetCooperativeLevel(*devicedef[i].did, hWindow, flags);
+            result = IDirectInputDevice7_SetCooperativeLevel(*devicedef[i].did, hWindow, flags);
             if (FAILED(result))
-                initprintf("IDirectInputDevice2_SetCooperativeLevel(%s): %s\n",
+                initprintf("IDirectInputDevice7_SetCooperativeLevel(%s): %s\n",
                            devicedef[i].name, GetDInputError(result));
 
-            if (SUCCEEDED(IDirectInputDevice2_Acquire(*devicedef[i].did)))
+            if (SUCCEEDED(IDirectInputDevice7_Acquire(*devicedef[i].did)))
                 devacquired[i] = 1;
             else
                 devacquired[i] = 0;
@@ -1482,11 +1486,11 @@ static void AcquireInputDevices(char acquire, signed char device)
             if (! *devicedef[i].did) continue;
             if (device != -1 && i != device) continue;	// don't touch other devices if only the mouse is wanted
 
-            IDirectInputDevice2_Unacquire(*devicedef[i].did);
+            IDirectInputDevice7_Unacquire(*devicedef[i].did);
 
-            result = IDirectInputDevice2_SetCooperativeLevel(*devicedef[i].did, hWindow, DISCL_FOREGROUND|DISCL_NONEXCLUSIVE);
+            result = IDirectInputDevice7_SetCooperativeLevel(*devicedef[i].did, hWindow, DISCL_FOREGROUND|DISCL_NONEXCLUSIVE);
             if (FAILED(result))
-                initprintf("IDirectInputDevice2_SetCooperativeLevel(%s): %s\n",
+                initprintf("IDirectInputDevice7_SetCooperativeLevel(%s): %s\n",
                            devicedef[i].name, GetDInputError(result));
 
             devacquired[i] = 0;
@@ -1500,69 +1504,105 @@ static void ProcessMouse()
     DWORD i;
     unsigned t;
     int result;
-    DIDEVICEOBJECTDATA didod[INPUT_BUFFER_SIZE];
-    DWORD dwElements = INPUT_BUFFER_SIZE;
+    DIDEVICEOBJECTDATA didod;
+    DWORD dwElements = 1;
 
     while (1)
     {
         t = getticks();
         if (!mousegrab) break;
-        result = IDirectInputDevice2_GetDeviceData(lpDID[MOUSE], sizeof(DIDEVICEOBJECTDATA),
+        result = IDirectInputDevice7_GetDeviceData(lpDID[MOUSE], sizeof(DIDEVICEOBJECTDATA),
                  (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
 
         if (FAILED(result) || !dwElements)break;
-
-        if (result == DI_OK)
+        else if (result == DI_OK)
         {
             // process the mouse events
             //  			  mousex=0;
             //  			  mousey=0;
-            for (i=0; i<dwElements; i++)
+//            for (i=0; i<dwElements; i++)
             {
-                switch (didod[i].dwOfs)
+                if (didod.dwOfs == DIMOFS_X)
+                    mousex += (short)didod.dwData;
+                else if (didod.dwOfs == DIMOFS_Y)
+                    mousey += (short)didod.dwData;
+                else if (didod.dwOfs == DIMOFS_Z)
                 {
-                case DIMOFS_BUTTON0:
-                    if (didod[i].dwData & 0x80) mouseb |= 1;
-                    else mouseb &= ~1;
-                    if (mousepresscallback)
-                        mousepresscallback(1, (mouseb&1)==1);
-                    break;
-                case DIMOFS_BUTTON1:
-                    if (didod[i].dwData & 0x80) mouseb |= 2;
-                    else mouseb &= ~2;
-                    if (mousepresscallback)
-                        mousepresscallback(2, (mouseb&2)==2);
-                    break;
-                case DIMOFS_BUTTON2:
-                    if (didod[i].dwData & 0x80) mouseb |= 4;
-                    else mouseb &= ~4;
-                    if (mousepresscallback)
-                        mousepresscallback(3, (mouseb&4)==4);
-                    break;
-                case DIMOFS_BUTTON3:
-                    if (didod[i].dwData & 0x80) mouseb |= 8;
-                    else mouseb &= ~8;
-                    if (mousepresscallback)
-                        mousepresscallback(4, (mouseb&8)==8);
-                    break;
-                case DIMOFS_X:
-                    mousex += (short)didod[i].dwData; break;
-                case DIMOFS_Y:
-                    mousey += (short)didod[i].dwData; break;
-                case DIMOFS_Z:
-                    if ((int)didod[i].dwData > 0)   	// wheel up
+                    if ((int)didod.dwData > 0)   	// wheel up
                     {
                         if (mousewheel[0] > 0 && mousepresscallback) mousepresscallback(5,0);
                         mousewheel[0] = t;
                         mouseb |= 16; if (mousepresscallback) mousepresscallback(5, 1);
                     }
-                    else if ((int)didod[i].dwData < 0)  	// wheel down
+                    else if ((int)didod.dwData < 0)  	// wheel down
                     {
                         if (mousewheel[1] > 0 && mousepresscallback) mousepresscallback(6,0);
                         mousewheel[1] = t;
                         mouseb |= 32; if (mousepresscallback) mousepresscallback(6, 1);
                     }
-                    break;
+                }
+                else if (didod.dwOfs >= DIMOFS_BUTTON0 && didod.dwOfs <= DIMOFS_BUTTON7)
+                {
+                    if (didod.dwOfs == DIMOFS_BUTTON0)
+                    {
+                        if (didod.dwData & 0x80) mouseb |= 1;
+                        else mouseb &= ~1;
+                        if (mousepresscallback)
+                            mousepresscallback(1, (mouseb&1)==1);
+                    }
+                    else if (didod.dwOfs == DIMOFS_BUTTON1)
+                    {
+                        if (didod.dwData & 0x80) mouseb |= 2;
+                        else mouseb &= ~2;
+                        if (mousepresscallback)
+                            mousepresscallback(2, (mouseb&2)==2);
+                    }
+                    else if (didod.dwOfs == DIMOFS_BUTTON2)
+                    {
+                        if (didod.dwData & 0x80) mouseb |= 4;
+                        else mouseb &= ~4;
+                        if (mousepresscallback)
+                            mousepresscallback(3, (mouseb&4)==4);
+                    }
+                    else if (didod.dwOfs == DIMOFS_BUTTON3)
+                    {
+                        if (didod.dwData & 0x80) mouseb |= 8;
+                        else mouseb &= ~8;
+                        if (mousepresscallback)
+                            mousepresscallback(4, (mouseb&8)==8);
+                    }
+                    else if (didod.dwOfs == DIMOFS_BUTTON4)
+                    {
+                        OSD_Printf("got button4\n");
+                        if (didod.dwData & 0x80) mouseb |= 64;
+                        else mouseb &= ~64;
+                        if (mousepresscallback)
+                            mousepresscallback(7, (mouseb&64)==64);
+                    }
+                    else if (didod.dwOfs == DIMOFS_BUTTON5)
+                    {
+                        OSD_Printf("got button5\n");
+                        if (didod.dwData & 0x80) mouseb |= 128;
+                        else mouseb &= ~128;
+                        if (mousepresscallback)
+                            mousepresscallback(8, (mouseb&128)==128);
+                    }
+                    else if (didod.dwOfs == DIMOFS_BUTTON6)
+                    {
+                        OSD_Printf("got button6\n");
+                        if (didod.dwData & 0x80) mouseb |= 256;
+                        else mouseb &= ~256;
+                        if (mousepresscallback)
+                            mousepresscallback(9, (mouseb&256)==256);
+                    }
+                    else if (didod.dwOfs == DIMOFS_BUTTON7)
+                    {
+                        OSD_Printf("got button7\n");
+                        if (didod.dwData & 0x80) mouseb |= 512;
+                        else mouseb &= ~512;
+                        if (mousepresscallback)
+                            mousepresscallback(10, (mouseb&512)==512);
+                    }
                 }
             }
         }
@@ -1588,13 +1628,13 @@ static void ProcessInputDevices(void)
     {
         if (*devicedef[t].did&&t!=MOUSE)
         {
-            result = IDirectInputDevice2_Poll(*devicedef[t].did);
+            result = IDirectInputDevice7_Poll(*devicedef[t].did);
             if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
             {
-                if (SUCCEEDED(IDirectInputDevice2_Acquire(*devicedef[t].did)))
+                if (SUCCEEDED(IDirectInputDevice7_Acquire(*devicedef[t].did)))
                 {
                     devacquired[t] = 1;
-                    IDirectInputDevice2_Poll(*devicedef[t].did);
+                    IDirectInputDevice7_Poll(*devicedef[t].did);
                 }
                 else
                 {
@@ -1639,7 +1679,7 @@ static void ProcessInputDevices(void)
         {
         case KEYBOARD:		// keyboard
             if (!lpDID[KEYBOARD]) break;
-            result = IDirectInputDevice2_GetDeviceData(lpDID[KEYBOARD], sizeof(DIDEVICEOBJECTDATA),
+            result = IDirectInputDevice7_GetDeviceData(lpDID[KEYBOARD], sizeof(DIDEVICEOBJECTDATA),
                      (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
             if (result == DI_OK)
             {
@@ -1678,7 +1718,7 @@ static void ProcessInputDevices(void)
 
         case JOYSTICK:		// joystick
             if (!lpDID[JOYSTICK]) break;
-            result = IDirectInputDevice2_GetDeviceData(lpDID[JOYSTICK], sizeof(DIDEVICEOBJECTDATA),
+            result = IDirectInputDevice7_GetDeviceData(lpDID[JOYSTICK], sizeof(DIDEVICEOBJECTDATA),
                      (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
             if (result == DI_OK)
             {

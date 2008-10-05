@@ -265,7 +265,7 @@ static DIOBJECTDATAFORMAT c_dfDIKeyboard_odf[] = {
 const DIDATAFORMAT c_dfDIKeyboard = { 24, 16, 0x00000002, 256, 256, c_dfDIKeyboard_odf };
 
 // Mouse
-
+/*
 static DIOBJECTDATAFORMAT c_dfDIMouse_odf[] = {
 	{ &GUID_XAxis, 0, 0x00FFFF03, 0x00000000 },
 	{ &GUID_YAxis, 4, 0x00FFFF03, 0x00000000 },
@@ -277,6 +277,21 @@ static DIOBJECTDATAFORMAT c_dfDIMouse_odf[] = {
 };
 
 const DIDATAFORMAT c_dfDIMouse = { 24, 16, 0x00000002, 16, 7, c_dfDIMouse_odf };
+*/
+static DIOBJECTDATAFORMAT c_dfDIMouse2_odf[] = {
+    {&GUID_XAxis, 0, 16776963, 0},
+    {&GUID_YAxis, 4, 16776963, 0},
+    {&GUID_ZAxis, 8, -2130706685, 0},
+    {0, 12, 16776972, 0},
+    {0, 13, 16776972, 0},
+    {0, 14, -2130706676, 0},
+    {0, 15, -2130706676, 0},
+    {0, 16, -2130706676, 0},
+    {0, 17, -2130706676, 0},
+    {0, 18, -2130706676,0},
+    {0, 19, -2130706676, 0}
+};
+const DIDATAFORMAT c_dfDIMouse2 = {24, 16, 2, 20, 11, c_dfDIMouse2_odf};
 
 // Joystick
 

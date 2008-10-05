@@ -11051,7 +11051,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
                 {
                     if (xp1 != xp2)
                     {
-                        drawline16(xp1,yp1,xp1,yp2,25);
+                        drawline16(xp1,yp1,xp1,yp2,8);
                     }
                 }
             }
@@ -11059,7 +11059,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
                 xp2 = xp1;
             if ((xp2 >= 0) && (xp2 < xdim))
             {
-                drawline16(xp2,yp1,xp2,yp2,25);
+                drawline16(xp2,yp1,xp2,yp2,8);
             }
         }
         xp1 = mulscale14(posxe+editorgridextent,zoome);
@@ -11072,7 +11072,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
             {
                 if ((yp1 > midydim16-ydim16) && (yp1 <= midydim16))
                 {
-                    drawline16(halfxdim16-xp1,midydim16-yp1,halfxdim16-xp2,midydim16-yp1,25);
+                    drawline16(halfxdim16-xp1,midydim16-yp1,halfxdim16-xp2,midydim16-yp1,8);
                     tempy = yp1;
                 }
             }

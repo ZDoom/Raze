@@ -5433,7 +5433,7 @@ void copydefaultcons(void)
     }
 }
 
-/* Anything added with AddDefinition cannot be overwritten in the CONs */
+/* Anything added with AddDefinition() cannot be overwritten in the CONs */
 
 static void AddDefinition(const char *lLabel,int lValue,int lType)
 {
@@ -5588,14 +5588,14 @@ static void InitProjectiles(void)
         -1, -1, -1, -1, -96, 18, 18, 0, 1
     };
 
+    // this will only happen if I forget to update this function...
     if (sizeof(projectile_t) != sizeof(DefaultProjectile))
-        gameexit("ERROR: InitProjectiles() doesn't match projectile_t");
+        gameexit("ERROR: InitProjectiles() projectile_t mismatch!");
 
     for (i=MAXTILES-1;i>=0;i--)
-    {
         Bmemcpy(&projectile[i],&DefaultProjectile,sizeof(projectile_t));
-    }
-    Bmemcpy(&defaultprojectile, &projectile, sizeof(projectile));
+
+    Bmemcpy(&defaultprojectile[0], &projectile[0], sizeof(projectile));
 }
 
 extern int g_NumObituaries;
@@ -5642,8 +5642,9 @@ void loadefs(const char *filenam)
         }
         else if (numgroupfiles == 0)
         {
-            Bsprintf(tempbuf,"Duke Nukem 3D was not found in this directory.  A copy of '%s' or its contents is needed to run EDuke32.\n"
-                     "You can find '%s' in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation CD-ROM.",
+            Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A copy of '%s' or other compatible data is needed to run EDuke32.\n"
+                     "You can find '%s' in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation CD-ROM.\n\n"
+                     "EDuke32 will now close.",
                      duke3dgrp,duke3dgrp);
         }
         else Bsprintf(tempbuf,"CON file `%s' missing.", filenam);
