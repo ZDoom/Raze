@@ -1923,6 +1923,65 @@ static int animatefist(int gs,int snum)
     return 1;
 }
 
+#define weapsc(sc) scale(sc,ud.weaponscale,100)
+
+static void myospalscaled(int x, int y, int tilenum, int shade, int orientation, int p)
+{
+    int a = 0;
+    int xoff = 192;
+
+    switch (g_currentweapon)
+    {
+    case DEVISTATOR_WEAPON:
+    case TRIPBOMB_WEAPON:
+        xoff = 160;
+        break;
+    default:
+        if (orientation & 262144)
+        {
+            xoff = 160;
+            orientation &= ~262144;
+        }
+        break;
+    }
+
+    if (orientation&4)
+        a = 1024;
+
+    if (usemodels && md_tilehasmodel(tilenum,p) > 0)
+        y += (224-weapsc(224));
+    rotatesprite(weapsc((orientation&256)?x:(x<<16))+((xoff-weapsc(xoff))<<16),
+                 weapsc((orientation&256)?y:(y<<16))+((200-weapsc(200))<<16),
+                 weapsc(65536L),a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+}
+
+static void myospalw(int x, int y, int tilenum, int shade, int orientation, int p)
+{
+    if (!ud.drawweapon)
+        return;
+    else if (ud.drawweapon == 1)
+        myospalscaled(x,y,tilenum,shade,orientation,p);
+    else if (ud.drawweapon == 2)
+    {
+        switch (g_currentweapon)
+        {
+        case PISTOL_WEAPON:
+        case CHAINGUN_WEAPON:
+        case RPG_WEAPON:
+        case FREEZE_WEAPON:
+        case SHRINKER_WEAPON:
+        case GROW_WEAPON:
+        case DEVISTATOR_WEAPON:
+        case TRIPBOMB_WEAPON:
+        case HANDREMOTE_WEAPON:
+        case HANDBOMB_WEAPON:
+        case SHOTGUN_WEAPON:
+            rotatesprite(160<<16,(180+(g_player[screenpeek].ps->weapon_pos*g_player[screenpeek].ps->weapon_pos))<<16,scale(65536,ud.statusbarscale,100),0,g_currentweapon==GROW_WEAPON?GROWSPRITEICON:weapon_sprites[g_currentweapon],0,0,2,windowx1,windowy1,windowx2,windowy2);
+            break;
+        }
+    }
+}
+
 static int animateknee(int gs,int snum)
 {
     static signed char knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
@@ -1943,7 +2002,7 @@ static int animateknee(int gs,int snum)
             pal = g_player[snum].ps->palookup;
     }
 
-    myospal(105+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(knee_y[g_player[snum].ps->knee_incs]>>2),looking_arc+280-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),KNEE,gs,4,pal);
+    myospalscaled(105+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(knee_y[g_player[snum].ps->knee_incs]>>2),looking_arc+280-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),KNEE,gs,4+262144,pal);
 
     return 1;
 }
@@ -1964,7 +2023,7 @@ static int animateknuckles(int gs,int snum)
     else if (g_player[snum].ps->cursectnum >= 0)
         pal = sector[g_player[snum].ps->cursectnum].floorpal;
 
-    myospal(160+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),looking_arc+180-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),CRACKKNUCKLES+knuckle_frames[g_player[snum].ps->knuckle_incs>>1],gs,4,pal);
+    myospalscaled(160+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),looking_arc+180-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),CRACKKNUCKLES+knuckle_frames[g_player[snum].ps->knuckle_incs>>1],gs,4+262144,pal);
 
     return 1;
 }
@@ -2088,8 +2147,8 @@ static int animatetip(int gs,int snum)
         else
             p = wall[g_player[snum].ps->access_wallnum].pal;
       */
-    myospal(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),
-            (tip_y[g_player[snum].ps->tipincs]>>1)+looking_arc+240-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),TIP+((26-g_player[snum].ps->tipincs)>>4),gs,0,p);
+    myospalscaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),
+                  (tip_y[g_player[snum].ps->tipincs]>>1)+looking_arc+240-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),TIP+((26-g_player[snum].ps->tipincs)>>4),gs,262144,p);
 
     return 1;
 }
@@ -2112,57 +2171,13 @@ static int animateaccess(int gs,int snum)
     //        p = wall[g_player[snum].ps->access_wallnum].pal;
 
     if ((g_player[snum].ps->access_incs-3) > 0 && (g_player[snum].ps->access_incs-3)>>3)
-        myospal(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(access_y[g_player[snum].ps->access_incs]>>2),looking_arc+266-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),HANDHOLDINGLASER+(g_player[snum].ps->access_incs>>3),gs,0,p);
+        myospalscaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(access_y[g_player[snum].ps->access_incs]>>2),looking_arc+266-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),HANDHOLDINGLASER+(g_player[snum].ps->access_incs>>3),gs,262144,p);
     else
-        myospal(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(access_y[g_player[snum].ps->access_incs]>>2),looking_arc+266-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),HANDHOLDINGACCESS,gs,4,p);
+        myospalscaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(access_y[g_player[snum].ps->access_incs]>>2),looking_arc+266-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),HANDHOLDINGACCESS,gs,4+262144,p);
 
     return 1;
 }
 
-#define weapsc(sc) scale(sc,ud.weaponscale,100)
-
-static void myospalscaled(int x, int y, int tilenum, int shade, int orientation, int p)
-{
-    int a = 0;
-    int xoff = 240;
-
-    if (orientation&4)
-    {
-        a = 1024;
-        xoff = 80;
-    }
-
-    rotatesprite(weapsc((orientation&256)?x:(x<<16))+((xoff-weapsc(xoff))<<16),
-                 weapsc((orientation&256)?y:(y<<16))+((200-weapsc(200))<<16),
-                 weapsc(65536L),a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
-}
-
-static void myospalw(int x, int y, int tilenum, int shade, int orientation, int p)
-{
-    if (!ud.drawweapon)
-        return;
-    else if (ud.drawweapon == 1)
-        myospalscaled(x,y,tilenum,shade,orientation,p);
-    else if (ud.drawweapon == 2)
-    {
-        switch (g_currentweapon)
-        {
-        case PISTOL_WEAPON:
-        case CHAINGUN_WEAPON:
-        case RPG_WEAPON:
-        case FREEZE_WEAPON:
-        case SHRINKER_WEAPON:
-        case GROW_WEAPON:
-        case DEVISTATOR_WEAPON:
-        case TRIPBOMB_WEAPON:
-        case HANDREMOTE_WEAPON:
-        case HANDBOMB_WEAPON:
-        case SHOTGUN_WEAPON:
-            rotatesprite(160<<16,(180+(g_player[screenpeek].ps->weapon_pos*g_player[screenpeek].ps->weapon_pos))<<16,scale(65536,ud.statusbarscale,100),0,g_currentweapon==GROW_WEAPON?GROWSPRITEICON:weapon_sprites[g_currentweapon],0,0,2,windowx1,windowy1,windowx2,windowy2);
-            break;
-        }
-    }
-}
 
 static int fistsign;
 
@@ -2235,10 +2250,10 @@ void displayweapon(int snum)
 
 
             if (j < 6 || j > 12)
-                myospal(weapon_xoffset+80-(p->look_ang>>1),
-                        looking_arc+250-gun_pos,KNEE,gs,o|4,pal);
-            else myospal(weapon_xoffset+160-16-(p->look_ang>>1),
-                             looking_arc+214-gun_pos,KNEE+1,gs,o|4,pal);
+                myospalscaled(weapon_xoffset+80-(p->look_ang>>1),
+                              looking_arc+250-gun_pos,KNEE,gs,o|4|262144,pal);
+            else myospalscaled(weapon_xoffset+160-16-(p->look_ang>>1),
+                                   looking_arc+214-gun_pos,KNEE+1,gs,o|4|262144,pal);
         }
 
         if (sprite[p->i].xrepeat < 40)
@@ -2283,11 +2298,11 @@ void displayweapon(int snum)
                         }
 
                         if ((*kb) < 5 || (*kb) > 9)
-                            myospal(weapon_xoffset+220-(p->look_ang>>1),
-                                    looking_arc+250-gun_pos,KNEE,gs,o,pal);
+                            myospalscaled(weapon_xoffset+220-(p->look_ang>>1),
+                                          looking_arc+250-gun_pos,KNEE,gs,o,pal);
                         else
-                            myospal(weapon_xoffset+160-(p->look_ang>>1),
-                                    looking_arc+214-gun_pos,KNEE+1,gs,o,pal);
+                            myospalscaled(weapon_xoffset+160-(p->look_ang>>1),
+                                          looking_arc+214-gun_pos,KNEE+1,gs,o,pal);
                     }
                 }
                 break;
