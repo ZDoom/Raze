@@ -772,7 +772,7 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "StatusBarMode",&ud.statusbarmode);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "AutoVote",&ud.autovote);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "AutoMsg",&ud.automsg);
-        SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "IDPlayers",&ud.automsg);
+        SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "IDPlayers",&ud.idplayers);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "ViewBobbing",&ud.viewbob);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "WeaponSway",&ud.weaponsway);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "AltHud",&ud.althud);

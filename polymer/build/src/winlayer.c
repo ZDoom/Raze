@@ -100,8 +100,6 @@ static void DestroyAppWindow(void);
 static void SaveSystemColours(void);
 static void SetBWSystemColours(void);
 static void RestoreSystemColours(void);
-static void ProcessMouse(void);
-
 
 // video
 static int desktopxdim=0,desktopydim=0,desktopbpp=0,modesetusing=-1;
@@ -815,14 +813,127 @@ void setmousepresscallback(void (*callback)(int, int)) { mousepresscallback = ca
 void setjoypresscallback(void (*callback)(int, int)) { joypresscallback = callback; }
 
 
-DWORD WINAPI MouseFunc()
+DWORD WINAPI ProcessMouse()
 {
-    while (moustat&&lpDID[MOUSE])
+    while (moustat && lpDID[MOUSE])
     {
-        if (!appactive)Sleep(50);else
-        if ((WaitForSingleObject(inputevt[MOUSE], INFINITE)) == WAIT_OBJECT_0)
+        if (!appactive)
         {
-            ProcessMouse();
+            Sleep(100);
+            continue;
+        }
+        if ((WaitForSingleObject(inputevt[MOUSE], INFINITE)) != WAIT_OBJECT_0)
+            continue;
+        {
+            DWORD i;
+            unsigned t;
+            int result;
+            DIDEVICEOBJECTDATA didod;
+            DWORD dwElements = 1;
+
+            do
+            {
+                if (!mousegrab)
+                    break;
+
+                t = getticks();
+                result = IDirectInputDevice7_GetDeviceData(lpDID[MOUSE], sizeof(DIDEVICEOBJECTDATA),
+                    (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
+
+                if (!dwElements || result != DI_OK)
+                    break;
+                //        else if (result == DI_OK)
+                {
+                    // process the mouse events
+                    //  			  mousex=0;
+                    //  			  mousey=0;
+                    //            for (i=0; i<dwElements; i++)
+                    {
+                        if (didod.dwOfs == DIMOFS_X)
+                            mousex += (short)didod.dwData;
+                        else if (didod.dwOfs == DIMOFS_Y)
+                            mousey += (short)didod.dwData;
+                        else if (didod.dwOfs == DIMOFS_Z)
+                        {
+                            if ((int)didod.dwData > 0)   	// wheel up
+                            {
+                                if (mousewheel[0] > 0 && mousepresscallback) mousepresscallback(5,0);
+                                mousewheel[0] = t;
+                                mouseb |= 16; if (mousepresscallback) mousepresscallback(5, 1);
+                            }
+                            else if ((int)didod.dwData < 0)  	// wheel down
+                            {
+                                if (mousewheel[1] > 0 && mousepresscallback) mousepresscallback(6,0);
+                                mousewheel[1] = t;
+                                mouseb |= 32; if (mousepresscallback) mousepresscallback(6, 1);
+                            }
+                        }
+                        else if (didod.dwOfs >= DIMOFS_BUTTON0 && didod.dwOfs <= DIMOFS_BUTTON7)
+                        {
+                            if (didod.dwOfs == DIMOFS_BUTTON0)
+                            {
+                                if (didod.dwData & 0x80) mouseb |= 1;
+                                else mouseb &= ~1;
+                                if (mousepresscallback)
+                                    mousepresscallback(1, (mouseb&1)==1);
+                            }
+                            else if (didod.dwOfs == DIMOFS_BUTTON1)
+                            {
+                                if (didod.dwData & 0x80) mouseb |= 2;
+                                else mouseb &= ~2;
+                                if (mousepresscallback)
+                                    mousepresscallback(2, (mouseb&2)==2);
+                            }
+                            else if (didod.dwOfs == DIMOFS_BUTTON2)
+                            {
+                                if (didod.dwData & 0x80) mouseb |= 4;
+                                else mouseb &= ~4;
+                                if (mousepresscallback)
+                                    mousepresscallback(3, (mouseb&4)==4);
+                            }
+                            else if (didod.dwOfs == DIMOFS_BUTTON3)
+                            {
+                                if (didod.dwData & 0x80) mouseb |= 8;
+                                else mouseb &= ~8;
+                                if (mousepresscallback)
+                                    mousepresscallback(4, (mouseb&8)==8);
+                            }
+                            else if (didod.dwOfs == DIMOFS_BUTTON4)
+                            {
+                                OSD_Printf("got button4\n");
+                                if (didod.dwData & 0x80) mouseb |= 64;
+                                else mouseb &= ~64;
+                                if (mousepresscallback)
+                                    mousepresscallback(7, (mouseb&64)==64);
+                            }
+                            else if (didod.dwOfs == DIMOFS_BUTTON5)
+                            {
+                                OSD_Printf("got button5\n");
+                                if (didod.dwData & 0x80) mouseb |= 128;
+                                else mouseb &= ~128;
+                                if (mousepresscallback)
+                                    mousepresscallback(8, (mouseb&128)==128);
+                            }
+                            else if (didod.dwOfs == DIMOFS_BUTTON6)
+                            {
+                                OSD_Printf("got button6\n");
+                                if (didod.dwData & 0x80) mouseb |= 256;
+                                else mouseb &= ~256;
+                                if (mousepresscallback)
+                                    mousepresscallback(9, (mouseb&256)==256);
+                            }
+                            else if (didod.dwOfs == DIMOFS_BUTTON7)
+                            {
+                                OSD_Printf("got button7\n");
+                                if (didod.dwData & 0x80) mouseb |= 512;
+                                else mouseb &= ~512;
+                                if (mousepresscallback)
+                                    mousepresscallback(10, (mouseb&512)==512);
+                            }
+                        }
+                    }
+                }
+            } while (1);
         }
     }
     return 0;
@@ -843,7 +954,7 @@ int initmouse(void)
                   (
                       NULL,
                       0,
-                      MouseFunc,
+                      ProcessMouse,
                       NULL,
                       CREATE_SUSPENDED,
                       &threadid
@@ -1494,117 +1605,6 @@ static void AcquireInputDevices(char acquire, signed char device)
                            devicedef[i].name, GetDInputError(result));
 
             devacquired[i] = 0;
-        }
-    }
-}
-
-
-static void ProcessMouse()
-{
-    DWORD i;
-    unsigned t;
-    int result;
-    DIDEVICEOBJECTDATA didod;
-    DWORD dwElements = 1;
-
-    while (1)
-    {
-        t = getticks();
-        if (!mousegrab) break;
-        result = IDirectInputDevice7_GetDeviceData(lpDID[MOUSE], sizeof(DIDEVICEOBJECTDATA),
-                 (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
-
-        if (FAILED(result) || !dwElements)break;
-        else if (result == DI_OK)
-        {
-            // process the mouse events
-            //  			  mousex=0;
-            //  			  mousey=0;
-//            for (i=0; i<dwElements; i++)
-            {
-                if (didod.dwOfs == DIMOFS_X)
-                    mousex += (short)didod.dwData;
-                else if (didod.dwOfs == DIMOFS_Y)
-                    mousey += (short)didod.dwData;
-                else if (didod.dwOfs == DIMOFS_Z)
-                {
-                    if ((int)didod.dwData > 0)   	// wheel up
-                    {
-                        if (mousewheel[0] > 0 && mousepresscallback) mousepresscallback(5,0);
-                        mousewheel[0] = t;
-                        mouseb |= 16; if (mousepresscallback) mousepresscallback(5, 1);
-                    }
-                    else if ((int)didod.dwData < 0)  	// wheel down
-                    {
-                        if (mousewheel[1] > 0 && mousepresscallback) mousepresscallback(6,0);
-                        mousewheel[1] = t;
-                        mouseb |= 32; if (mousepresscallback) mousepresscallback(6, 1);
-                    }
-                }
-                else if (didod.dwOfs >= DIMOFS_BUTTON0 && didod.dwOfs <= DIMOFS_BUTTON7)
-                {
-                    if (didod.dwOfs == DIMOFS_BUTTON0)
-                    {
-                        if (didod.dwData & 0x80) mouseb |= 1;
-                        else mouseb &= ~1;
-                        if (mousepresscallback)
-                            mousepresscallback(1, (mouseb&1)==1);
-                    }
-                    else if (didod.dwOfs == DIMOFS_BUTTON1)
-                    {
-                        if (didod.dwData & 0x80) mouseb |= 2;
-                        else mouseb &= ~2;
-                        if (mousepresscallback)
-                            mousepresscallback(2, (mouseb&2)==2);
-                    }
-                    else if (didod.dwOfs == DIMOFS_BUTTON2)
-                    {
-                        if (didod.dwData & 0x80) mouseb |= 4;
-                        else mouseb &= ~4;
-                        if (mousepresscallback)
-                            mousepresscallback(3, (mouseb&4)==4);
-                    }
-                    else if (didod.dwOfs == DIMOFS_BUTTON3)
-                    {
-                        if (didod.dwData & 0x80) mouseb |= 8;
-                        else mouseb &= ~8;
-                        if (mousepresscallback)
-                            mousepresscallback(4, (mouseb&8)==8);
-                    }
-                    else if (didod.dwOfs == DIMOFS_BUTTON4)
-                    {
-                        OSD_Printf("got button4\n");
-                        if (didod.dwData & 0x80) mouseb |= 64;
-                        else mouseb &= ~64;
-                        if (mousepresscallback)
-                            mousepresscallback(7, (mouseb&64)==64);
-                    }
-                    else if (didod.dwOfs == DIMOFS_BUTTON5)
-                    {
-                        OSD_Printf("got button5\n");
-                        if (didod.dwData & 0x80) mouseb |= 128;
-                        else mouseb &= ~128;
-                        if (mousepresscallback)
-                            mousepresscallback(8, (mouseb&128)==128);
-                    }
-                    else if (didod.dwOfs == DIMOFS_BUTTON6)
-                    {
-                        OSD_Printf("got button6\n");
-                        if (didod.dwData & 0x80) mouseb |= 256;
-                        else mouseb &= ~256;
-                        if (mousepresscallback)
-                            mousepresscallback(9, (mouseb&256)==256);
-                    }
-                    else if (didod.dwOfs == DIMOFS_BUTTON7)
-                    {
-                        OSD_Printf("got button7\n");
-                        if (didod.dwData & 0x80) mouseb |= 512;
-                        else mouseb &= ~512;
-                        if (mousepresscallback)
-                            mousepresscallback(10, (mouseb&512)==512);
-                    }
-                }
-            }
         }
     }
 }

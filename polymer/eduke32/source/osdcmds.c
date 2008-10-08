@@ -725,16 +725,16 @@ cvarmappings cvar[] =
     { "hud_flashing", "hud_flashing: enable/disable althud flashing", (void*)&althud_flashing, CVAR_BOOL, 0, 0, 1 },
     { "hud_glowingquotes", "hud_glowingquotes: enable/disable \"glowing\" quote text", (void*)&hud_glowingquotes, CVAR_BOOL, 0, 0, 1 },
     { "hud_showmapname", "hud_showmapname: enable/disable map name display on load", (void*)&hud_showmapname, CVAR_BOOL, 0, 0, 1 },
+    { "hud_stats", "hud_stats: enable/disable level statistics display\n", (void*)&ud.levelstats, CVAR_BOOL, 0, 0, 1 },
+
     { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&ud.config.AutoAim, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
     { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
     { "cl_autovote", "cl_autovote: enable/disable automatic voting", (void*)&ud.autovote, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
-
 
     { "cl_obituaries", "cl_obituaries: enable/disable multiplayer death messages", (void*)&ud.obituaries, CVAR_BOOL, 0, 0, 1 },
     { "cl_democams", "cl_democams: enable/disable demo playback cameras", (void*)&ud.democams, CVAR_BOOL, 0, 0, 1 },
 
     { "cl_idplayers", "cl_idplayers: enable/disable name display when aiming at opponents", (void*)&ud.idplayers, CVAR_BOOL, 0, 0, 1 },
-    { "cl_levelstats", "cl_levelstats: enable/disable level statistics display\n", (void*)&ud.levelstats, CVAR_BOOL, 0, 0, 1 },
     { "cl_messagetime", "cl_messagetime: length of time to display multiplayer chat messages\n", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
 
     { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
