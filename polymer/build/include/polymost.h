@@ -46,6 +46,6 @@ extern float shadescale;
 extern int globalnoeffect;
 extern int drawingskybox;
 
-#define HICEFFECTMASK (1|2|4)
+#define HICEFFECTMASK (1|2|4|8)
 
 #endif // !_polymost_h_

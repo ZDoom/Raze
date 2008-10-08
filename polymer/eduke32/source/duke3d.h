@@ -76,7 +76,7 @@ extern int g_ScriptVersion, g_Shareware, g_GameType;
 
 #define AUTO_AIM_ANGLE          48
 #define RECSYNCBUFSIZ 2520   //2520 is the (LCM of 1-8)*3
-#define MOVEFIFOSIZ 1024
+#define MOVEFIFOSIZ 256
 
 #define FOURSLEIGHT (1<<8)
 

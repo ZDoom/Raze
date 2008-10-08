@@ -232,12 +232,12 @@ static inline int sbarxr(int x)
     return (((320l<<16) - scale(320l<<16,ud.statusbarscale,100)) >> 1) + scale(x<<16,ud.statusbarscale,100);
 }
 
-inline int sbary(int y)
+static inline int sbary(int y)
 {
     return ((200l<<16) - scale(200l<<16,ud.statusbarscale,100) + scale(y<<16,ud.statusbarscale,100));
 }
 
-inline int sbarsc(int sc)
+static inline int sbarsc(int sc)
 {
     return scale(sc,ud.statusbarscale,100);
 }
@@ -3477,7 +3477,7 @@ static void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
     }
 }
 
-#define CROSSHAIR_PAL (MAXPALOOKUPS>>1)
+#define CROSSHAIR_PAL (MAXPALOOKUPS-RESERVEDPALS-1)
 
 extern int getclosestcol(int r, int g, int b);
 palette_t crosshair_colors = { 255, 255, 255, 0 };
@@ -3501,7 +3501,9 @@ void GetCrosshairColor(void)
 
         ii = tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR];
 
-        while (ii > 0)
+        if (ii <= 0) return;
+
+        do
         {
             if (*ptr != 255)
             {
@@ -3510,12 +3512,12 @@ void GetCrosshairColor(void)
             }
             ptr++;
             ii--;
-        }
+        } while (ii > 0);
 
         default_crosshair_colors.r = crosshair_colors.r = curpalette[bri].r;
         default_crosshair_colors.g = crosshair_colors.g = curpalette[bri].g;
         default_crosshair_colors.b = crosshair_colors.b = curpalette[bri].b;
-        default_crosshair_colors.f = 1;
+        default_crosshair_colors.f = 1; // this flag signifies that the color has been detected
     }
 }
 
@@ -3525,6 +3527,7 @@ void SetCrosshairColor(int r, int g, int b)
     int i, ii;
 
     if (default_crosshair_colors.f == 0 || crosshair_sum == r+(g<<1)+(b<<2)) return;
+
     crosshair_sum = r+(g<<1)+(b<<2);
     crosshair_colors.r = r;
     crosshair_colors.g = g;
@@ -3536,27 +3539,32 @@ void SetCrosshairColor(int r, int g, int b)
         ptr = (char *)waloff[CROSSHAIR];
     }
 
+    ii = tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR];
+    if (ii <= 0) return;
+
     if (getrendermode() < 3)
         i = getclosestcol(crosshair_colors.r>>2, crosshair_colors.g>>2, crosshair_colors.b>>2);
     else i = getclosestcol(63, 63, 63); // use white in GL so we can tint it to the right color
 
-    ii = tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR];
-    while (ii > 0)
+    do
     {
         if (*ptr != 255)
             *ptr = i;
         ptr++;
         ii--;
     }
+    while (ii > 0);
+
     for (i = 255; i >= 0; i--)
         tempbuf[i] = i;
+
     makepalookup(CROSSHAIR_PAL,tempbuf,crosshair_colors.r>>2, crosshair_colors.g>>2, crosshair_colors.b>>2,1);
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
     hictinting[CROSSHAIR_PAL].r = crosshair_colors.r;
     hictinting[CROSSHAIR_PAL].g = crosshair_colors.g;
     hictinting[CROSSHAIR_PAL].b = crosshair_colors.b;
-    hictinting[CROSSHAIR_PAL].f = 17;
+    hictinting[CROSSHAIR_PAL].f = 9;
 #endif
     invalidatetile(CROSSHAIR, -1, -1);
 }
