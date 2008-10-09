@@ -63,6 +63,7 @@ extern unsigned char remap[256];
 extern int remapinit;
 extern double msens;
 extern int editorgridextent;
+extern int showheightindicators;
 
 /*
  * SETUP.DAT
@@ -220,6 +221,9 @@ int loadsetup(const char *fn)
     if (readconfig(fp, "autosave", val, VL) > 0) autosave = Batoi(val)*60;
     if (readconfig(fp, "autosavesec", val, VL) > 0) autosave = Batoi(val);
 
+    if (readconfig(fp, "showheightindicators", val, VL) > 0)
+        showheightindicators = min(max(Batoi(val),0),2);
+
     for (i=0;i<256;i++)remap[i]=i;
     remapinit=1;
     if (readconfig(fp, "remap", val, VL) > 0)
@@ -324,8 +328,8 @@ int writesetup(const char *fn)
              ";   0 - No\n"
              ";   1 - Yes\n"
              "mousenavigation = %d\n"
-             "; Mouse navigation acceleration\n"
              "\n"
+             "; Mouse navigation acceleration\n"
              "mousenavigationaccel = %d\n"
              "\n"
              "; Quick map cycling (SHIFT)+CTRL+X\n"
@@ -350,6 +354,8 @@ int writesetup(const char *fn)
              "; Autosave map interval (seconds)\n"
              "autosavesec = %d\n"
              "\n"
+             "; Height indicators (0:none, 1:only 2-sided&different, 2:all)\n"
+             "showheightindicators = %d\n\n"
 #if 1
              "; Key Settings\n"
              ";  Here's a map of all the keyboard scan codes: NOTE: values are listed in hex!\n"
@@ -411,6 +417,7 @@ int writesetup(const char *fn)
 #endif
              option[3], msens, unrealedlook, pk_uedaccel, quickmapcycling,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,
+             showheightindicators,
 #if 1
              keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
              keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],

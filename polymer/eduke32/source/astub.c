@@ -3213,7 +3213,7 @@ int64 ldistsqr(spritetype *s1,spritetype *s2)
 void rendertext(short startspr)
 {
     char ch, buffer[80], doingspace=0;
-    short daang = 0, t, alphidx, basetile, linebegspr, curspr;
+    short daang = 0, t, alphidx, basetile, linebegspr, curspr, cursor;
     int i, j, k, dax = 0, day = 0;
     static unsigned char hgap=0, vgap=4;
     static unsigned char spcgap[MAX_ALPHABETS], firstrun=1;
@@ -3275,6 +3275,18 @@ ENDFOR1:
     spritenums = Bmalloc(stackallocsize * sizeof(short));
     if (!spritenums) goto ERROR_NOMEMORY;
 
+    cursor = insertsprite(sprite[startspr].sectnum,0);
+    if (cursor < 0) goto ERROR_TOOMANYSPRITES;
+
+    sp = &sprite[cursor];
+    Bmemcpy(sp, &sprite[startspr], sizeof(spritetype));
+    sp->yoffset = 0;
+    sp->picnum = SMALLFNTCURSOR;
+    sp->xrepeat = min(max(sp->xrepeat/tilesizx[sp->picnum],2),255);
+    sp->yrepeat = min(max((sp->yrepeat*tilesizy[sprite[startspr].picnum])/tilesizy[sp->picnum],4),255);
+    sp->pal = 0;
+    sp->cstat = 18;
+
     bflushchars();
     while (keystatus[0x1] == 0)
     {
@@ -3319,23 +3331,23 @@ ENDFOR1:
         if (keystatus[KEYSC_HOME])  // shade
         {
             keystatus[KEYSC_HOME]=0;
-            if (sprite[curspr].shade<127) sprite[curspr].shade++;
+            if (sprite[linebegspr].shade<127) sprite[linebegspr].shade++;
         }
         if (keystatus[KEYSC_END])
         {
             keystatus[KEYSC_END]=0;
-            if (sprite[curspr].shade>-128) sprite[curspr].shade--;
+            if (sprite[linebegspr].shade>-128) sprite[linebegspr].shade--;
         }
 
         if (keystatus[KEYSC_PGUP])  // pal
         {
             keystatus[KEYSC_PGUP]=0;
-            if (sprite[curspr].pal<255) sprite[curspr].pal++;
+            if (sprite[linebegspr].pal<255) sprite[linebegspr].pal++;
         }
         if (keystatus[KEYSC_PGDN])
         {
             keystatus[KEYSC_PGDN]=0;
-            if (sprite[curspr].pal>0) sprite[curspr].pal--;
+            if (sprite[linebegspr].pal>0) sprite[linebegspr].pal--;
         }
 
         drawrooms(posx,posy,posz,ang,horiz,cursectnum);
@@ -3358,7 +3370,7 @@ ENDFOR1:
 
         printmessage256(0,0,"^251Text entry mode.^31 Navigation keys change vars.");
         Bsprintf(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
-                 hgap, vgap, spcgap[alphidx], sprite[curspr].shade, sprite[curspr].pal);
+                 hgap, vgap, spcgap[alphidx], sprite[linebegspr].shade, sprite[linebegspr].pal);
         printmessage256(0, 9, buffer);
         showframe(1);
 
@@ -3369,8 +3381,12 @@ ENDFOR1:
             dax = sp->x; day = sp->y;
             daang = sp->ang;
         }
-        sprite[linebegspr].shade = sprite[curspr].shade;
-        sprite[linebegspr].pal = sprite[curspr].pal;
+        
+        j = sp->xrepeat*(hgap+tilesizx[sp->picnum]+2);
+        setsprite(cursor,
+                  dax + ((j*sintable[daang])>>17),
+                  day - ((j*sintable[(daang+512)&2047])>>17),
+                  sp->z);
 
         if (ch>=33 && ch<=126 && alphabets[alphidx].pic[ch-33] >= 0)
         {
@@ -3390,22 +3406,10 @@ ENDFOR1:
             if (numsprites < MAXSPRITES && sect >= 0)
             {
                 i = insertsprite(sect,0);
+                Bmemcpy(&sprite[i], &sprite[linebegspr], sizeof(spritetype));
                 sprite[i].x = dax, sprite[i].y = day;
-                sprite[i].z = sprite[curspr].z;
-                sprite[i].cstat = (sprite[curspr].cstat | 16) & ~(32|128);
                 sprite[i].picnum = t;
-                sprite[i].shade = sprite[curspr].shade;
-                sprite[i].pal = sprite[curspr].pal;
-                sprite[i].xrepeat = sprite[curspr].xrepeat;
-                sprite[i].yrepeat = sprite[curspr].yrepeat;
-                sprite[i].xoffset = 0, sprite[i].yoffset = 0;
                 sprite[i].ang = daang;
-                sprite[i].xvel = 0; sprite[i].yvel = 0; sprite[i].zvel = 0;
-                sprite[i].owner = -1;
-                sprite[i].clipdist = 32;
-                sprite[i].lotag = 0;
-                sprite[i].hitag = 0;
-                sprite[i].extra = -1;
 
                 sprite[i].xoffset = -(((picanm[sprite[i].picnum])>>8)&255);
                 sprite[i].yoffset = -(((picanm[sprite[i].picnum])>>16)&255);
@@ -3441,35 +3445,62 @@ ENDFOR1:
             day -= ((sp->xrepeat*spcgap[alphidx]*sintable[(daang+512)&2047])>>17);
             doingspace = 1;
         }
-        else if (ch == 8 /*|| ch == 127*/)  	// backspace
+        else if (ch == 8)  	// backspace
         {
-            if (numletters > 0)
-            {
-                numletters--;
-//                message ("Deleted sprite %d.", spritenums[numletters]);
-                deletesprite(spritenums[numletters]);
-
-                if (numletters > 0)
-                    curspr = spritenums[numletters-1];
-                else
-                    curspr = linebegspr;
+            if (doingspace)
                 doingspace = 0;
+            else if (numletters > 0)
+            {
+                short last = spritenums[numletters-1];
 
-                sprite[linebegspr].z = sprite[curspr].z;
-                updatenumsprites();
+                if (sprite[last].z != sprite[linebegspr].z)  // only "delete" line break
+                {
+                    sprite[linebegspr].z = sprite[last].z;
+                    curspr = last;
+                }
+                else if (numletters > 1)
+                {
+                    short sectolast = spritenums[numletters-2];
+
+                    if (sprite[last].z == sprite[sectolast].z)
+                        curspr = sectolast;
+                    else  // if we delete the first letter on the line
+                        curspr = linebegspr;
+
+                    numletters--;
+                    deletesprite(last);
+
+                    updatenumsprites();                    
+                    asksave = 1;
+                }
+                else
+                {
+                    numletters--;
+                    deletesprite(last);
+                    curspr = linebegspr;
+                    updatenumsprites();
+                    asksave = 1;
+                }
+            }
+            else
+            {
+                sprite[linebegspr].z -= ((sprite[linebegspr].yrepeat*(vgap+tilesizy[basetile]))<<2);
                 asksave = 1;
             }
         }
         else if (ch == 13)  // enter
         {
             sprite[linebegspr].z += ((sprite[linebegspr].yrepeat*(vgap+tilesizy[basetile]))<<2);
-//            sprite[linebegspr].cstat = sprite[curspr].cstat;
             curspr = linebegspr;
             doingspace = 0;
             asksave = 1;
         }
     }
-// ---
+
+ERROR_TOOMANYSPRITES:
+    if (cursor < 0) message("Too many sprites in map!");
+    else deletesprite(cursor);
+
 ERROR_NOMEMORY:
     if (spritenums) Bfree(spritenums);
     else message("Out of memory!");
@@ -7504,7 +7535,10 @@ static void checkcommandline(int argc, const char **argv)
             Brealloc(testplay_addparam, j*sizeof(char));
         }
         else
+        {
             Bfree(testplay_addparam);
+            testplay_addparam = NULL;
+        }
 #endif
     }
 }
@@ -7709,6 +7743,20 @@ static int osdcmd_testplay_addparam(const osdfuncparm_t *parm)
 }
 #endif
 
+static int osdcmd_showheightindicators(const osdfuncparm_t *parm)
+{
+    extern int showheightindicators;
+
+    if (parm->numparms == 1)
+        showheightindicators = min(max(atoi(parm->parms[0]),0),2);
+
+    OSD_Printf("height indicators: %s\n",
+               showheightindicators==0 ? "none" :
+               (showheightindicators==1 ? "two-sided walls only" : "all"));
+
+    return OSDCMD_OK;
+}
+
 //PK vvv ------------
 static int osdcmd_vars_pk(const osdfuncparm_t *parm)
 {
@@ -7782,6 +7830,7 @@ static int registerosdcommands(void)
 #ifdef _WIN32
     OSD_RegisterFunction("testplay_addparam", "testplay_addparam \"string\": set additional parameters for test playing", osdcmd_testplay_addparam);
 #endif
+    OSD_RegisterFunction("showheightindicators", "showheightindicators [012]: toggles height indicators in 2D mode", osdcmd_showheightindicators);
     return 0;
 }
 #define DUKEOSD

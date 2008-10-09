@@ -11088,6 +11088,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
 
 char spritecol2d[MAXTILES][2];
 int showfirstwall=0;
+int showheightindicators=2;
 int circlewall=-1;
 
 void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
@@ -11185,12 +11186,12 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
             int dax = mulscale14(((wal->x+wall[wal->point2].x)>>1)-posxe,zoome);
             int day = mulscale14(((wal->y+wall[wal->point2].y)>>1)-posye,zoome);
 
-            if (wal->nextsector >= 0)
+            if (wal->nextsector >= 0 && showheightindicators)
             {
                 int ii = sector[sectorofwall(i)].floorz;
                 int jj = sector[wal->nextsector].floorz;
 
-                if (jj == ii)
+                if (jj == ii && showheightindicators > 1)
                 {
                     int dax3 = mulscale11(sintable[(k+1024)&2047],zoome) / 2560;
                     int day3 = mulscale11(sintable[(k+512)&2047],zoome) / 2560;
@@ -11204,14 +11205,14 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                     int day2 = mulscale11(sintable[(k+512)&2047],zoome) / 2560;
                     drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
                 }
-                else
+                else if (jj < ii)
                 {
                     int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 2560;
                     int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 2560;
                     drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
                 }
             }
-            else
+            else if (showheightindicators > 1)
             {
                 int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 2560;
                 int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 2560;

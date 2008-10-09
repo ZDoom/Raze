@@ -4838,7 +4838,9 @@ int getpointhighlight(int xplc, int yplc, int point)
             if (sprite[i].statnum < MAXSTATUS)
             {
                 dst = klabs(xplc-sprite[i].x) + klabs(yplc-sprite[i].y);
-                if (dst <= dist)
+                // was (dst <= dist), but this way, when duplicating sprites,
+                // the selected ones are dragged first
+                if (dst < dist)
                     dist = dst, closest = i+16384;
             }
     return(closest);
