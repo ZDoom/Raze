@@ -3060,8 +3060,9 @@ void getinput(int snum)
     if (horiz < -MAXHORIZ) horiz = -MAXHORIZ;
     if (horiz > MAXHORIZ) horiz = MAXHORIZ;
 
+    loc.extbits = 0;
     if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEFORWARD])
-        loc.extbits = BUTTON(gamefunc_Move_Forward);
+        loc.extbits |= BUTTON(gamefunc_Move_Forward);
     if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEBACKWARD])
         loc.extbits |= BUTTON(gamefunc_Move_Backward)<<1;
     if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_STRAFELEFT])
