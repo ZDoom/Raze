@@ -915,6 +915,7 @@ const memberlabel_t userdefslabels[]=
     { "display_bonus_screen", USERDEFS_DISPLAY_BONUS_SCREEN, 0, 0 },
     { "show_level_text", USERDEFS_SHOW_LEVEL_TEXT, 0, 0 },
     { "weaponscale", USERDEFS_WEAPONSCALE, 0, 0 },
+    { "textscale", USERDEFS_TEXTSCALE, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 

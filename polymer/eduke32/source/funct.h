@@ -203,6 +203,7 @@ extern int minitext_(int x,int y,const char *t,int s,int p,int sb);
 #define minitext(x, y, t, p, sb) minitext_(x,y,t,0,p,sb)
 
 #define gametext(x,y,t,s,dabits) gametext_z(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536)
+#define gametextscaled(x,y,t,s,dabits) gametext_z(1,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536)
 #define gametextpal(x,y,t,s,p) gametext_z(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536)
 #define gametextpalbits(x,y,t,s,p,dabits) gametext_z(0,STARTALPHANUM, x,y,t,s,p,dabits,0, 0, xdim-1, ydim-1, 65536)
 

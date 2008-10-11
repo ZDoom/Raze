@@ -1626,15 +1626,19 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
     int j, i, darkestwall;
     walltype *wal = &wall[dawallnum];
 
-    if (wal->overpicnum == MIRROR && checkspriteflagsp(atwith,SPRITE_FLAG_PROJECTILE) && (hittype[spr].projectile.workslike & PROJECTILE_FLAG_RPG))
+    if (wal->overpicnum == MIRROR && wal->pal != 4 && checkspriteflagsp(atwith,SPRITE_FLAG_PROJECTILE) && (hittype[spr].projectile.workslike & PROJECTILE_FLAG_RPG))
     {
-        lotsofglass(spr,dawallnum,70);
-        wal->cstat &= ~16;
-        wal->overpicnum = MIRRORBROKE;
-        spritesound(GLASS_HEAVYBREAK,spr);
+        if (wal->nextwall == -1 || wall[wal->nextwall].pal != 4)
+        {
+            lotsofglass(spr,dawallnum,70);
+            wal->cstat &= ~16;
+            wal->overpicnum = MIRRORBROKE;
+            spritesound(GLASS_HEAVYBREAK,spr);
+            return;
+        }
     }
 
-    if (wal->overpicnum == MIRROR)
+    if (wal->overpicnum == MIRROR && wal->pal != 4)
     {
         switch (dynamictostatic[atwith])
         {
@@ -1645,11 +1649,14 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
         case SEENINE__STATIC:
         case OOZFILTER__STATIC:
         case EXPLODINGBARREL__STATIC:
-            lotsofglass(spr,dawallnum,70);
-            wal->cstat &= ~16;
-            wal->overpicnum = MIRRORBROKE;
-            spritesound(GLASS_HEAVYBREAK,spr);
-            return;
+             if (wal->nextwall == -1 || wall[wal->nextwall].pal != 4)
+             {
+                 lotsofglass(spr,dawallnum,70);
+                 wal->cstat &= ~16;
+                 wal->overpicnum = MIRRORBROKE;
+                 spritesound(GLASS_HEAVYBREAK,spr);
+                 return;
+             }
         }
     }
 

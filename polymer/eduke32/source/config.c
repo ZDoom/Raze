@@ -250,6 +250,7 @@ void CONFIG_SetDefaults(void)
     ud.show_level_text = 1;
     ud.configversion = 0;
     ud.weaponscale = 100;
+    ud.textscale = 100;
 
     Bstrcpy(ud.rtsname, "DUKE.RTS");
     Bstrcpy(myname, "Duke");
@@ -784,6 +785,7 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc","AngleInterpolation",&ud.angleinterpolation);
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "WeaponScale",&ud.weaponscale);
+        SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "TextScale",&ud.textscale);
 
         // weapon choices are defaulted in checkcommandline, which may override them
         if (!CommandWeaponChoice)
@@ -964,6 +966,7 @@ void CONFIG_WriteSetup(void)
 //    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "AngleInterpolation",ud.angleinterpolation,false,false);
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "WeaponScale",ud.weaponscale,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "TextScale",ud.textscale,false,false);
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Detail",ud.detail,false,false);
 #if defined(POLYMOST) && defined(USE_OPENGL)

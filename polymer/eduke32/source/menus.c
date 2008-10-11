@@ -2724,7 +2724,7 @@ cheat_for_port_credits:
                 "-",
                 "Screen size",
                 "Status bar size",
-                "Weapon size",
+                "Multiplayer chat text size",
                 "Show level stats",
                 "-",
                 "Allow walk with autorun",
@@ -2825,14 +2825,7 @@ cheat_for_port_credits:
                 break;
                 case 5:
                 {
-                    int sbs, sbsl;
-                    sbs = sbsl = ud.weaponscale-37;
-                    barsm(d+8,yy+7, &sbs,4,x==io,MENUHIGHLIGHT(io),0);
-                    if (x == io && sbs != sbsl)
-                    {
-                        sbs += 37;
-                        ud.weaponscale = min(100,max(10,sbs));
-                    }
+                    _bar(1,d+8,yy+7, &ud.textscale,50,enabled && x==io,MENUHIGHLIGHT(io),0,100,400);
                 }
                 break;
                 case 6:

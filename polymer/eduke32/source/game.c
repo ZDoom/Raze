@@ -242,6 +242,11 @@ static inline int sbarsc(int sc)
     return scale(sc,ud.statusbarscale,100);
 }
 
+static inline int textsc(int sc)
+{
+    return scale(sc,ud.textscale,100);
+}
+
 static void patchstatusbar(int x1, int y1, int x2, int y2)
 {
     int scl, tx, ty;
@@ -286,6 +291,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
     int squishtext = ((small&2)!=0);
 //    int ht = usehightile;
     int shift = 16, widthx = 320, ox, oy;
+    int origy = y;
 
     if (orientation & 256)
     {
@@ -333,7 +339,9 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         while (*(++t));
 
         t = oldt;
-        x = (widthx>>1)-((orientation & 256)?newx<<15:newx>>1);
+        if (small&4)
+            x = (xres>>1)-textsc(newx>>1);
+        else x = (widthx>>1)-((orientation & 256)?newx<<15:newx>>1);
     }
 //    usehightile = (ht && r_downsize < 2);
     ox=x;
@@ -375,7 +383,15 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
             y+=(y-oy)<<16;
             ox=x;oy=y;
         }
-        rotatesprite(x<<shift,(y<<shift),z,0,ac,s,p,(small&1)?(8|16|(orientation&1)|(orientation&32)):(2|orientation),x1,y1,x2,y2);
+
+        if (small&4)
+        {
+            rotatesprite(textsc(x<<shift),(origy<<shift)+textsc((y-origy)<<shift),textsc(z),0,ac,s,p,(8|16|(orientation&1)|(orientation&32)),x1,y1,x2,y2);
+        }
+        else
+        {
+            rotatesprite(x<<shift,(y<<shift),z,0,ac,s,p,(small&1)?(8|16|(orientation&1)|(orientation&32)):(2|orientation),x1,y1,x2,y2);
+        }
 
         if ((*t >= '0' && *t <= '9'))
             x += (8)*z/65536;
@@ -384,7 +400,15 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         else x += (tilesizx[ac]-squishtext)*z/65536;//(tilesizx[ac]>>small);
 
         if ((orientation&256) == 0) //  warpping long strings doesn't work for precise coordinates due to overflow
-            if (x > (ud.config.ScreenWidth - 14)) oldt = (char *)t, x = oldx, y+=8*z/65536;
+        {
+            if (small&4)
+            {
+                if (textsc(x) > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
+                    oldt = (char *)t, x = oldx, y+=8*z/65536;
+            }
+            else if (x > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
+                oldt = (char *)t, x = oldx, y+=8*z/65536;
+        }
     }
     while (*(++t));
 //    usehightile = ht;
@@ -415,14 +439,14 @@ int gametextlen(int x,const char *t)
         else x += tilesizx[ac];
     }
     while (*(++t));
-    return (x);
+    return (textsc(x));
 }
 
 static inline int mpgametext(int y,const char *t,int s,int dabits)
 {
-    if (xdim < 640 || ydim < 480)
-        return(gametext_z(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
-    return(gametext_z(1,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
+//    if (xdim < 640 || ydim < 480)
+  //      return(gametext_z(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
+    return(gametext_z(4,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
 }
 
 int minitext_(int x,int y,const char *t,int s,int p,int sb)
@@ -2690,36 +2714,37 @@ static void operatefta(void)
 
     if (g_player[screenpeek].ps->fta > 1 && (g_player[screenpeek].ps->ftq < 115 || g_player[screenpeek].ps->ftq > 117))
     {
-        if (g_player[screenpeek].ps->fta > 3)
-            k += 7;
-        else k += g_player[screenpeek].ps->fta<<1; /*if (g_player[screenpeek].ps->fta > 2)
+        if (g_player[screenpeek].ps->fta > 5)
+            k += 6;
+        else k += g_player[screenpeek].ps->fta; /*if (g_player[screenpeek].ps->fta > 2)
             k += 3;
         else k += 1; */
     }
 
-    if (xdim >= 640 && ydim >= 480)
-        k = scale(k,ydim,200);
+/*    if (xdim >= 640 && ydim >= 480)
+        k = scale(k,ydim,200); */
 
     j = k;
 
-    quotebot = min(quotebot,j);
-    quotebotgoal = min(quotebotgoal,j);
+//    quotebot = min(quotebot,j);
+  //  quotebotgoal = min(quotebotgoal,j);
 //    if (g_player[myconnectindex].ps->gm&MODE_TYPE) j -= 8;
-    quotebotgoal = j;
-    j = quotebot;
+    //quotebotgoal = j;
+    //j = quotebot;
+    j = scale(j,ydim,200);
     for (i=MAXUSERQUOTES-1;i>=0;i--)
     {
         if (user_quote_time[i] <= 0) continue;
         k = user_quote_time[i];
-        if (k > 4) { mpgametext(j,user_quote[i],0,2+8+16); j += 8; }
-        else if (k > 2) { mpgametext(j,user_quote[i],0,2+8+16+1); j += k<<1; }
-        else { mpgametext(j,user_quote[i],0,2+8+16+1+32); j += k<<1; }
+        if (k > 4) { mpgametext(j,user_quote[i],0,2+8+16); j += textsc(8); }
+        else if (k > 2) { mpgametext(j,user_quote[i],0,2+8+16+1); j += textsc(k<<1); }
+        else { mpgametext(j,user_quote[i],0,2+8+16+1+32); j += textsc(k<<1); }
         l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(user_quote[i],tempbuf));
         while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
         {
             l -= (ud.config.ScreenWidth-USERQUOTE_RIGHTOFFSET);
-            if (k > 4) j += 8;
-            else j += k<<1;
+            if (k > 4) j += textsc(8);
+            else j += textsc(k<<1);
 
         }
     }
@@ -2992,10 +3017,14 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
     while (i > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
     {
         i -= (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET);
+        if (small&1)
+            y += textsc(6);
         y += 8;
     }
 
-    rotatesprite((x+((small&1)?4:8))<<16,((y+((small&1)?0:4))<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8,0,0,xdim-1,ydim-1);
+    if (small&1)
+        rotatesprite(textsc(x)<<16,(y<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8,0,0,xdim-1,ydim-1);
+    else rotatesprite((x+((small&1)?4:8))<<16,((y+((small&1)?0:4))<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8,0,0,xdim-1,ydim-1);
     return (0);
 }
 
@@ -3006,8 +3035,6 @@ inline int strget(int x,int y,char *t,int dalen,int c)
 
 inline int mpstrget(int x,int y,char *t,int dalen,int c)
 {
-    if (xdim < 640 || ydim < 480)
-        return(strget_(0,x,y,t,dalen,c));
     return(strget_(1,x,y,t,dalen,c));
 }
 
@@ -12386,6 +12413,8 @@ static int domovethings(void)
         if (user_quote_time[i])
         {
             user_quote_time[i]--;
+            if (user_quote_time[i] > ud.msgdisptime)
+                user_quote_time[i] = ud.msgdisptime;
             if (!user_quote_time[i]) pub = NUMPAGES;
         }
 

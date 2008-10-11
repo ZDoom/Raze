@@ -895,6 +895,15 @@ void DoUserDef(int iSet, int lLabelID, int lVar2)
         SetGameVarID(lVar2, ud.weaponscale, g_i, g_p);
         return;
 
+    case USERDEFS_TEXTSCALE:
+        if (iSet)
+        {
+            ud.textscale = lValue;
+            return;
+        }
+        SetGameVarID(lVar2, ud.textscale, g_i, g_p);
+        return;
+
     default:
         return;
     }

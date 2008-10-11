@@ -1375,15 +1375,23 @@ void OSD_Draw(void)
         topoffs+=osdcols;
     }
 
-    drawosdchar(2,osdrowscur,'>',osdpromptshade?osdpromptshade:(sintable[(totalclock<<4)&2047]>>11),osdpromptpal);
-    if (osdeditcaps) drawosdchar(0,osdrowscur,'C',osdpromptshade?osdpromptshade:(sintable[(totalclock<<4)&2047]>>11),osdpromptpal);
-    if (osdeditshift) drawosdchar(1,osdrowscur,'H',osdpromptshade?osdpromptshade:(sintable[(totalclock<<4)&2047]>>11),osdpromptpal);
+    {
+        int offset = (osdeditcaps && osdeditshift && osdhead > 0);
+        int shade = osdpromptshade?osdpromptshade:(sintable[(totalclock<<4)&2047]>>11);
 
-    len = min(osdcols-1-3, osdeditlen-osdeditwinstart);
-    for (x=len-1; x>=0; x--)
-        drawosdchar(3+x,osdrowscur,osdeditbuf[osdeditwinstart+x],osdeditshade<<1,osdeditpal);
+        if (osdhead == osdlines-1) drawosdchar(0,osdrowscur,'~',shade,osdpromptpal);
+        else if (osdhead > 0) drawosdchar(0,osdrowscur,'^',shade,osdpromptpal);
+        if (osdeditcaps) drawosdchar(0+(osdhead > 0),osdrowscur,'C',shade,osdpromptpal);
+        if (osdeditshift) drawosdchar(1+(osdeditcaps && osdhead > 0),osdrowscur,'H',shade,osdpromptpal);
 
-    drawosdcursor(3+osdeditcursor-osdeditwinstart,osdrowscur,osdovertype,keytime);
+        drawosdchar(2+offset,osdrowscur,'>',shade,osdpromptpal);
+
+        len = min(osdcols-1-3-offset, osdeditlen-osdeditwinstart);
+        for (x=len-1; x>=0; x--)
+            drawosdchar(3+x+offset,osdrowscur,osdeditbuf[osdeditwinstart+x],osdeditshade<<1,osdeditpal);
+
+        drawosdcursor(3+osdeditcursor-osdeditwinstart+offset,osdrowscur,osdovertype,keytime);
+    }
 
     enddrawing();
 }
