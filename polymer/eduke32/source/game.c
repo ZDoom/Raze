@@ -65,7 +65,7 @@ int cameradist = 0, cameraclock = 0;
 static int playerswhenstarted;
 static int qe,cp;
 static int g_CommandSetup = 0;
-static int g_NoSetup = 0;
+int g_NoSetup = 0;
 static int g_NoAutoLoad = 0;
 static int g_NoSound = 0;
 static int g_NoMusic = 0;
@@ -244,6 +244,9 @@ static inline int sbarsc(int sc)
 
 static inline int textsc(int sc)
 {
+    // prevent ridiculousness to a degree
+    if (xdim <= 640) return sc;
+    if (xdim <= 800) return scale(sc,min(300,ud.textscale),100);
     return scale(sc,ud.textscale,100);
 }
 
@@ -2714,8 +2717,8 @@ static void operatefta(void)
 
     if (g_player[screenpeek].ps->fta > 1 && (g_player[screenpeek].ps->ftq < 115 || g_player[screenpeek].ps->ftq > 117))
     {
-        if (g_player[screenpeek].ps->fta > 5)
-            k += 6;
+        if (g_player[screenpeek].ps->fta > 6)
+            k += 7;
         else k += g_player[screenpeek].ps->fta; /*if (g_player[screenpeek].ps->fta > 2)
             k += 3;
         else k += 1; */
@@ -2739,7 +2742,7 @@ static void operatefta(void)
         if (k > 4) { mpgametext(j,user_quote[i],0,2+8+16); j += textsc(8); }
         else if (k > 2) { mpgametext(j,user_quote[i],0,2+8+16+1); j += textsc(k<<1); }
         else { mpgametext(j,user_quote[i],0,2+8+16+1+32); j += textsc(k<<1); }
-        l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(user_quote[i],tempbuf));
+        l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(tempbuf,user_quote[i]));
         while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
         {
             l -= (ud.config.ScreenWidth-USERQUOTE_RIGHTOFFSET);
@@ -3013,7 +3016,7 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
     }
     c = 4-(sintable[(totalclock<<4)&2047]>>11);
 
-    i = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(t,tempbuf));
+    i = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(tempbuf,t));
     while (i > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
     {
         i -= (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET);
@@ -3088,7 +3091,7 @@ static void typemode(void)
                 }
                 adduserquote(recbuf);
                 quotebot += 8;
-                l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(recbuf,tempbuf));
+                l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(tempbuf,recbuf));
                 while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
                 {
                     l -= (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET);

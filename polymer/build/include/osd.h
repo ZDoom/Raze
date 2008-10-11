@@ -23,7 +23,7 @@ typedef struct _symbol
 } symbol_t;
 
 symbol_t *symbols;
-const char *stripcolorcodes(const char *in, char *out);
+const char *stripcolorcodes(char *out, const char *in);
 
 #define OSD_ALIAS 1337
 #define OSD_UNALIASED 1338

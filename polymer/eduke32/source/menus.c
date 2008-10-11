@@ -878,7 +878,7 @@ void menus(void)
             {
                 x = strget(d-50,37,buf,30,0);
 
-                while (Bstrlen(stripcolorcodes(buf,tempbuf)) > 10)
+                while (Bstrlen(stripcolorcodes(tempbuf,buf)) > 10)
                 {
                     buf[Bstrlen(buf)-1] = '\0';
                     inputloc--;

@@ -75,6 +75,8 @@ static int getfilenames(char *path)
 extern char TEXCACHEDIR[];
 #endif
 
+extern int g_NoSetup;
+
 static void PopulateForm(int pgs)
 {
     HWND hwnd;
@@ -667,7 +669,7 @@ int startwin_run(void)
         duke3dgrp = settings.selectedgrp;
         g_GameType = settings.game;
 
-        if (settings.gamedir != NULL)
+        if (g_NoSetup == 0 && settings.gamedir != NULL)
             Bstrcpy(mod_dir,settings.gamedir);
         else Bsprintf(mod_dir,"/");
 

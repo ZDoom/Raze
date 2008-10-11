@@ -1179,7 +1179,8 @@ static void prelevel(char g)
         {
             wall[j].picnum = MIRROR;
             wall[j].overpicnum = MIRROR;
-            wall[j].pal = 4;
+            if (wall[mirrorwall[i]].pal == 4)
+                wall[j].pal = 4;
         }
     }
 }

@@ -128,7 +128,7 @@ static int (*_getrowheight)(int) = _internal_getrowheight;
 // ^S# sets a shade, range is 0-7 equiv to shades 0-14
 // ^O resets formatting to defaults
 
-const char *stripcolorcodes(const char *in, char *out)
+const char *stripcolorcodes(char *out, const char *in)
 {
     char *ptr = out;
 
@@ -1438,7 +1438,7 @@ void OSD_Printf(const char *fmt, ...)
         if (osdlog&&(!logcutoff||linecnt<logcutoff))
         {
             chp = Bstrdup(tmpstr);
-            Bfputs(stripcolorcodes(tmpstr,chp), osdlog);
+            Bfputs(stripcolorcodes(chp,tmpstr), osdlog);
             Bfree(chp);
         }
     }

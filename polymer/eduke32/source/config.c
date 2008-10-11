@@ -592,6 +592,7 @@ extern palette_t crosshair_colors;
 extern palette_t default_crosshair_colors;
 extern char mod_dir[BMAX_PATH];
 extern int r_maxfps;
+extern int g_NoSetup;
 
 int32 CONFIG_ReadSetup(void)
 {
@@ -649,7 +650,7 @@ int32 CONFIG_ReadSetup(void)
         }
 
 #ifdef _WIN32
-        if (mod_dir[0] == '/')
+        if (g_NoSetup == 0 && mod_dir[0] == '/')
             SCRIPT_GetString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
 #endif
 
@@ -1139,7 +1140,8 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",&duke3dgrp[0]);
 
 #ifdef _WIN32
-    SCRIPT_PutString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
+    if (g_NoSetup == 0)
+        SCRIPT_PutString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
 #endif
 
     {

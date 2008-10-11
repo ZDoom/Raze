@@ -727,6 +727,7 @@ cvarmappings cvar[] =
     { "hud_glowingquotes", "hud_glowingquotes: enable/disable \"glowing\" quote text", (void*)&hud_glowingquotes, CVAR_BOOL, 0, 0, 1 },
     { "hud_showmapname", "hud_showmapname: enable/disable map name display on load", (void*)&hud_showmapname, CVAR_BOOL, 0, 0, 1 },
     { "hud_stats", "hud_stats: enable/disable level statistics display\n", (void*)&ud.levelstats, CVAR_BOOL, 0, 0, 1 },
+    { "hud_textscale", "hud_textscale: sets multiplayer chat message size\n", (void*)&ud.textscale, CVAR_INT, 0, 100, 400 },
 
     { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&ud.config.AutoAim, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
     { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
@@ -998,7 +999,7 @@ static int osdcmd_name(const osdfuncparm_t *parm)
 
     Bstrcpy(tempbuf,parm->parms[0]);
 
-    while (Bstrlen(stripcolorcodes(tempbuf,namebuf)) > 10)
+    while (Bstrlen(stripcolorcodes(namebuf,tempbuf)) > 10)
         tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
     Bstrncpy(myname,tempbuf,sizeof(myname)-1);
