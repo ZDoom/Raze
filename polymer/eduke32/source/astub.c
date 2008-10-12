@@ -602,7 +602,7 @@ const char *SectorEffectorTagText(int lotag)
         Bsprintf(tempbuf,"%d: SKRINK RAY SHOOTER",lotag);
         break;
     default:
-        Bsprintf(tempbuf,"%d",lotag);
+        Bsprintf(tempbuf,"%d: (UNKNOWN)",lotag);
         break;
     }
     return (tempbuf);
@@ -3277,6 +3277,8 @@ ENDFOR1:
 
     cursor = insertsprite(sprite[startspr].sectnum,0);
     if (cursor < 0) goto ERROR_TOOMANYSPRITES;
+
+    updatenumsprites();
 
     sp = &sprite[cursor];
     Bmemcpy(sp, &sprite[startspr], sizeof(spritetype));
