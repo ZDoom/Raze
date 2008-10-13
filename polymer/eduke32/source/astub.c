@@ -3383,7 +3383,7 @@ ENDFOR1:
             dax = sp->x; day = sp->y;
             daang = sp->ang;
         }
-        
+
         j = sp->xrepeat*(hgap+tilesizx[sp->picnum]+2);
         setsprite(cursor,
                   dax + ((j*sintable[daang])>>17),
@@ -3472,7 +3472,7 @@ ENDFOR1:
                     numletters--;
                     deletesprite(last);
 
-                    updatenumsprites();                    
+                    updatenumsprites();
                     asksave = 1;
                 }
                 else

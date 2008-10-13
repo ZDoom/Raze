@@ -895,10 +895,6 @@
 		<Filter
 			Name="Misc"
 			>
-			<File
-				RelativePath=".\m32help.hlp"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

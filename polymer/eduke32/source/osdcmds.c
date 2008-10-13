@@ -747,8 +747,8 @@ cvarmappings cvar[] =
     { "cl_angleinterpolation", "cl_angleinterpolation: enable/disable angle interpolation", (void*)&ud.angleinterpolation, CVAR_INT, 0, 0, 256 },
 
     { "in_mousebias", "in_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time\n", (void*)&ud.config.MouseBias, CVAR_INT, 0, 0, 32 },
-    { "in_mousefilter", "in_mousefilter: amount of mouse movement to filter out\n", (void*)&ud.config.MouseFilter, CVAR_INT, 0, 0, 512 },
-    { "in_smoothinput", "in_smoothinput: enable/disable input smoothing\n", (void*)&ud.config.SmoothInput, CVAR_BOOL, 0, 0, 1 },
+    { "in_mousedeadzone", "in_mousedeadzone: amount of mouse movement to filter out\n", (void*)&ud.config.MouseDeadZone, CVAR_INT, 0, 0, 512 },
+    { "in_mousesmoothing", "in_mousesmoothing: enable/disable mouse input smoothing\n", (void*)&ud.config.SmoothInput, CVAR_BOOL, 0, 0, 1 },
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },

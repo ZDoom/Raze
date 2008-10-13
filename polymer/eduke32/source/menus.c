@@ -2433,7 +2433,7 @@ cheat_for_port_credits:
     case 230:
 #if defined(POLYMOST) && defined(USE_OPENGL)
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(320>>1,24,0,0,"VIDEO SETUP");
+        menutext(320>>1,24,0,0,"RENDERER SETUP");
 
         c = (320>>1)-120;
 
@@ -3020,7 +3020,7 @@ cheat_for_port_credits:
                     int osdmode = OSD_GetTextMode();
                     if (x==io) osdmode = !osdmode;
                     modval(0,1,(int *)&osdmode,1,probey==io);
-                    mgametextpal(d,yy, osdmode? "Fast" : "Nice", MENUHIGHLIGHT(io), 0);
+                    mgametextpal(d,yy, osdmode? "Plain" : "Sprites", MENUHIGHLIGHT(io), 0);
                     if (OSD_GetTextMode() != osdmode)
                         OSD_SetTextMode(osdmode);
                     break;
@@ -3482,7 +3482,7 @@ cheat_for_port_credits:
             if (gltexfiltermode != filter)
                 gltexapplyprops();
             mgametextpal(c+168,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),!getrendermode());
-            menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"MORE SETTINGS");
+            menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"RENDERER SETUP");
         }
 #endif
         break;
@@ -3664,6 +3664,7 @@ cheat_for_port_credits:
         {
             //input smoothing
             ud.config.SmoothInput = !ud.config.SmoothInput;
+            control_smoothmouse = ud.config.SmoothInput;
         }
         else if (x == (MAXMOUSEBUTTONS-2)*2+2+2+2)
         {
@@ -3720,7 +3721,7 @@ cheat_for_port_credits:
         mgametextpal(40,118,"Base mouse sensitivity",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),10);
         mgametextpal(40,118+9,"Use mouse aiming",!ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):DISABLEDMENUSHADE,10);
         mgametextpal(40,118+9+9,"Invert mouse",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2),10);
-        mgametextpal(40,118+9+9+9,"Use mouse input smoothing",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1),10);
+        mgametextpal(40,118+9+9+9,"Smooth mouse movement",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1),10);
         mgametextpal(40,118+9+9+9+9,"Advanced mouse setup",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+2),10);
 
         {
@@ -3739,6 +3740,11 @@ cheat_for_port_credits:
 
         modval(0,1,(int *)&ud.mouseflip,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2);
         modval(0,1,(int *)&ud.config.SmoothInput,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2+1);
+        if (probey == (MAXMOUSEBUTTONS-2)*2+2+2+1)
+        {
+            mgametext(160,160+9,"THIS OPTION INCURS A MOVEMENT DELAY",0,2+8+16);
+            control_smoothmouse = ud.config.SmoothInput;
+        }
 
         mgametextpal(240,118+9, myaimmode && !ud.mouseaiming ? "Yes" : "No", !ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):DISABLEDMENUSHADE, 0);
         mgametextpal(240,118+9+9, !ud.mouseflip ? "Yes" : "No", MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2), 0);
@@ -4004,19 +4010,19 @@ cheat_for_port_credits:
         mgametext(c+160-16,46+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
 
         menutext(c,46+16+16,MENUHIGHLIGHT(2),0,"DEAD ZONE");
-        l = ud.config.MouseFilter>>1;
+        l = ud.config.MouseDeadZone>>1;
         bar(c+160+40,46+16+16,&l,2,x==2,MENUHIGHLIGHT(2),0);
-        ud.config.MouseFilter = l<<1;
+        ud.config.MouseDeadZone = l<<1;
         rotatesprite(320<<15,94<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(320>>1,43+16+16+16+8,0,0,"DIGITAL AXES SETUP");
 
-        if (ud.config.MouseFilter == 0)
+        if (ud.config.MouseDeadZone == 0)
             Bsprintf(tempbuf," OFF");
-        else if (ud.config.MouseFilter < 48)
+        else if (ud.config.MouseDeadZone < 48)
             Bsprintf(tempbuf," LOW");
-        else if (ud.config.MouseFilter < 96)
+        else if (ud.config.MouseDeadZone < 96)
             Bsprintf(tempbuf," MED");
-        else if (ud.config.MouseFilter < 128)
+        else if (ud.config.MouseDeadZone < 128)
             Bsprintf(tempbuf,"HIGH");
 
         mgametext(c+160-16,46+16+16-8,tempbuf,MENUHIGHLIGHT(2),2+8+16);
@@ -4444,7 +4450,7 @@ cheat_for_port_credits:
                 "Restart sound system",
                 "-",
                 "Duke talk",
-                "Other player sounds in DM",
+                "Dukematch player sounds",
                 "Ambient sounds",
                 "Reverse stereo channels",
                 NULL

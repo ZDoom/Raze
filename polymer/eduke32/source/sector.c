@@ -1649,14 +1649,14 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
         case SEENINE__STATIC:
         case OOZFILTER__STATIC:
         case EXPLODINGBARREL__STATIC:
-             if (wal->nextwall == -1 || wall[wal->nextwall].pal != 4)
-             {
-                 lotsofglass(spr,dawallnum,70);
-                 wal->cstat &= ~16;
-                 wal->overpicnum = MIRRORBROKE;
-                 spritesound(GLASS_HEAVYBREAK,spr);
-                 return;
-             }
+            if (wal->nextwall == -1 || wall[wal->nextwall].pal != 4)
+            {
+                lotsofglass(spr,dawallnum,70);
+                wal->cstat &= ~16;
+                wal->overpicnum = MIRRORBROKE;
+                spritesound(GLASS_HEAVYBREAK,spr);
+                return;
+            }
         }
     }
 

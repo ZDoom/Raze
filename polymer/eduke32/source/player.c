@@ -2789,8 +2789,7 @@ int jump_input = 0;
 void getinput(int snum)
 {
     int j, daang;
-    static ControlInfo info;
-    static ControlInfo lastinfo = { 0,0,0,0,0,0 };
+    static ControlInfo info[2];
     int32 tics;
     boolean running;
     int32 turnamount;
@@ -2801,8 +2800,8 @@ void getinput(int snum)
     if ((p->gm&MODE_MENU) || (p->gm&MODE_TYPE) || (ud.pause_on && !KB_KeyPressed(sc_Pause)) || (numplayers > 1 && totalclock < 10)) // HACK: kill getinput() for the first 10 tics of a new map in multi
     {
         if (!(p->gm&MODE_MENU))
-            CONTROL_GetInput(&info);
-        memset(&lastinfo, 0, sizeof(lastinfo));
+            CONTROL_GetInput(&info[0]);
+        memset(&info[1], 0, sizeof(info[1]));
         loc.fvel = vel = 0;
         loc.svel = svel = 0;
         loc.avel = angvel = 0;
@@ -2838,41 +2837,41 @@ void getinput(int snum)
         }
     }
 
-    CONTROL_GetInput(&info);
+    CONTROL_GetInput(&info[0]);
 
-    if (ud.config.MouseFilter)
+    if (ud.config.MouseDeadZone)
     {
-        if (info.dpitch > 0)
+        if (info[0].dpitch > 0)
         {
-            if (info.dpitch > ud.config.MouseFilter)
-                info.dpitch -= ud.config.MouseFilter;
-            else info.dpitch = 0;
+            if (info[0].dpitch > ud.config.MouseDeadZone)
+                info[0].dpitch -= ud.config.MouseDeadZone;
+            else info[0].dpitch = 0;
         }
-        else if (info.dpitch < 0)
+        else if (info[0].dpitch < 0)
         {
-            if (info.dpitch < -ud.config.MouseFilter)
-                info.dpitch += ud.config.MouseFilter;
-            else info.dpitch = 0;
+            if (info[0].dpitch < -ud.config.MouseDeadZone)
+                info[0].dpitch += ud.config.MouseDeadZone;
+            else info[0].dpitch = 0;
         }
-        if (info.dyaw > 0)
+        if (info[0].dyaw > 0)
         {
-            if (info.dyaw > ud.config.MouseFilter)
-                info.dyaw -= ud.config.MouseFilter;
-            else info.dyaw = 0;
+            if (info[0].dyaw > ud.config.MouseDeadZone)
+                info[0].dyaw -= ud.config.MouseDeadZone;
+            else info[0].dyaw = 0;
         }
-        else if (info.dyaw < 0)
+        else if (info[0].dyaw < 0)
         {
-            if (info.dyaw < -ud.config.MouseFilter)
-                info.dyaw += ud.config.MouseFilter;
-            else info.dyaw = 0;
+            if (info[0].dyaw < -ud.config.MouseDeadZone)
+                info[0].dyaw += ud.config.MouseDeadZone;
+            else info[0].dyaw = 0;
         }
     }
 
     if (ud.config.MouseBias)
     {
-        if (klabs(info.dyaw) > klabs(info.dpitch))
-            info.dpitch /= ud.config.MouseBias;
-        else info.dyaw /= ud.config.MouseBias;
+        if (klabs(info[0].dyaw) > klabs(info[0].dpitch))
+            info[0].dpitch /= ud.config.MouseBias;
+        else info[0].dyaw /= ud.config.MouseBias;
     }
 
     tics = totalclock-lastcontroltime;
@@ -2963,44 +2962,26 @@ void getinput(int snum)
 
     svel = vel = angvel = horiz = 0;
 
-    if (ud.config.SmoothInput)
+    if (BUTTON(gamefunc_Strafe))
     {
-        if (BUTTON(gamefunc_Strafe))
-        {
-            svel = -(info.dyaw+lastinfo.dyaw)/8;
-            lastinfo.dyaw = (lastinfo.dyaw+info.dyaw) % 8;
-        }
-        else
-        {
-            angvel = (info.dyaw+lastinfo.dyaw)/64;
-            lastinfo.dyaw = (lastinfo.dyaw+info.dyaw) % 64;
-        }
-
-        if (ud.mouseflip)
-            horiz = -(info.dpitch+lastinfo.dpitch)/(314-128);
-        else horiz = (info.dpitch+lastinfo.dpitch)/(314-128);
-
-        lastinfo.dpitch = (lastinfo.dpitch+info.dpitch) % (314-128);
+        svel = -(info[0].dyaw+info[1].dyaw)/8;
+        info[1].dyaw = (info[1].dyaw+info[0].dyaw) % 8;
     }
     else
     {
-        if (BUTTON(gamefunc_Strafe))
-        {
-            svel = -info.dyaw/8;
-        }
-        else
-        {
-            angvel = info.dyaw/64;
-        }
-
-        if (ud.mouseflip)
-            horiz -= info.dpitch/(314-128);
-        else horiz += info.dpitch/(314-128);
+        angvel = (info[0].dyaw+info[1].dyaw)/64;
+        info[1].dyaw = (info[1].dyaw+info[0].dyaw) % 64;
     }
 
-    svel -= info.dx;
-    lastinfo.dz = info.dz % (1<<6);
-    vel = -info.dz>>6;
+    if (ud.mouseflip)
+        horiz = -(info[0].dpitch+info[1].dpitch)/(314-128);
+    else horiz = (info[0].dpitch+info[1].dpitch)/(314-128);
+
+    info[1].dpitch = (info[1].dpitch+info[0].dpitch) % (314-128);
+
+    svel -= info[0].dx;
+    info[1].dz = info[0].dz % (1<<6);
+    vel = -info[0].dz>>6;
 
     if (running)
     {

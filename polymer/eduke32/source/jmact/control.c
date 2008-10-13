@@ -59,6 +59,7 @@ static int32 CONTROL_DoubleClickSpeed;
 int extinput[CONTROL_NUM_FLAGS];
 keybind boundkeys[MAXBOUNDKEYS], mousebind[MAXMOUSEBUTTONS];
 int bindsenabled = 0;
+int control_smoothmouse = 0;
 
 void CONTROL_GetMouseDelta(void)
 {
@@ -66,15 +67,16 @@ void CONTROL_GetMouseDelta(void)
 
     MOUSE_GetDelta(&x, &y);
 
-    /* What in the name of all things sacred is this?
-    if (labs(*x) > labs(*y)) {
-    	*x /= 3;
-    } else {
-    	*y /= 3;
+    if (control_smoothmouse)
+    {
+        static int32 lastx = 0, lasty = 0;
+
+        CONTROL_MouseAxes[0].analog = (((x + lastx) / 2) * (CONTROL_MouseSensitivity<<1));
+        CONTROL_MouseAxes[1].analog = (((y + lasty) / 2) * (CONTROL_MouseSensitivity<<1))<<1;
+        lastx = x;
+        lasty = y;
+        return;
     }
-    *y = *y * 96;
-    *x = (*x * 32 * CONTROL_MouseSensitivity) >> 15;
-    */
 
     CONTROL_MouseAxes[0].analog = (x * (CONTROL_MouseSensitivity<<1));
     CONTROL_MouseAxes[1].analog = (y * (CONTROL_MouseSensitivity<<1))<<1;

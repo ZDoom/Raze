@@ -198,7 +198,7 @@ void CONFIG_SetDefaults(void)
     ud.config.MixRate = 48000;
 #endif
     ud.config.MouseBias = 0;
-    ud.config.MouseFilter = 0;
+    ud.config.MouseDeadZone = 0;
     ud.config.MusicDevice = 0;
     ud.config.MusicToggle = 1;
     ud.config.MusicVolume = 200;
@@ -819,8 +819,9 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","MouseAiming",&ud.mouseaiming);		// 1=momentary/0=toggle
         g_player[0].ps->aim_mode = ud.mouseaiming;
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","MouseBias",&ud.config.MouseBias);
-        SCRIPT_GetNumber(ud.config.scripthandle, "Controls","MouseFilter",&ud.config.MouseFilter);
+        SCRIPT_GetNumber(ud.config.scripthandle, "Controls","MouseDeadZone",&ud.config.MouseDeadZone);
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","SmoothInput",&ud.config.SmoothInput);
+        control_smoothmouse = ud.config.SmoothInput;
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","UseJoystick",&ud.config.UseJoystick);
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","UseMouse",&ud.config.UseMouse);
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","AimingFlag",(int32 *)&myaimmode);    // (if toggle mode) gives state
@@ -933,7 +934,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseAimingFlipped",ud.mouseflip,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseBias",ud.config.MouseBias,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseFilter",ud.config.MouseFilter,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseDeadZone",ud.config.MouseDeadZone,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Controls","SmoothInput",ud.config.SmoothInput,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Controls","RunKeyBehaviour",ud.runkey_mode,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Controls","UseJoystick",ud.config.UseJoystick,false,false);

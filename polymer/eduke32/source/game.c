@@ -245,8 +245,10 @@ static inline int sbarsc(int sc)
 static inline int textsc(int sc)
 {
     // prevent ridiculousness to a degree
-    if (xdim <= 640) return sc;
-    if (xdim <= 800) return scale(sc,min(300,ud.textscale),100);
+    if (xdim <= 320) return sc;
+    else if (xdim <= 640) return scale(sc,min(200,ud.textscale),100);
+    else if (xdim <= 800) return scale(sc,min(300,ud.textscale),100);
+    else if (xdim <= 1024) return scale(sc,min(350,ud.textscale),100);
     return scale(sc,ud.textscale,100);
 }
 
@@ -448,7 +450,7 @@ int gametextlen(int x,const char *t)
 static inline int mpgametext(int y,const char *t,int s,int dabits)
 {
 //    if (xdim < 640 || ydim < 480)
-  //      return(gametext_z(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
+    //      return(gametext_z(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
     return(gametext_z(4,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
 }
 
@@ -2724,13 +2726,13 @@ static void operatefta(void)
         else k += 1; */
     }
 
-/*    if (xdim >= 640 && ydim >= 480)
-        k = scale(k,ydim,200); */
+    /*    if (xdim >= 640 && ydim >= 480)
+            k = scale(k,ydim,200); */
 
     j = k;
 
 //    quotebot = min(quotebot,j);
-  //  quotebotgoal = min(quotebotgoal,j);
+    //  quotebotgoal = min(quotebotgoal,j);
 //    if (g_player[myconnectindex].ps->gm&MODE_TYPE) j -= 8;
     //quotebotgoal = j;
     //j = quotebot;
@@ -2739,9 +2741,18 @@ static void operatefta(void)
     {
         if (user_quote_time[i] <= 0) continue;
         k = user_quote_time[i];
-        if (k > 4) { mpgametext(j,user_quote[i],0,2+8+16); j += textsc(8); }
-        else if (k > 2) { mpgametext(j,user_quote[i],0,2+8+16+1); j += textsc(k<<1); }
-        else { mpgametext(j,user_quote[i],0,2+8+16+1+32); j += textsc(k<<1); }
+        if (hud_glowingquotes)
+        {
+            if (k > 4) { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16); j += textsc(8); }
+            else if (k > 2) { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1); j += textsc(k<<1); }
+            else { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+32); j += textsc(k<<1); }
+        }
+        else
+        {
+            if (k > 4) { mpgametext(j,user_quote[i],0,2+8+16); j += textsc(8); }
+            else if (k > 2) { mpgametext(j,user_quote[i],0,2+8+16+1); j += textsc(k<<1); }
+            else { mpgametext(j,user_quote[i],0,2+8+16+1+32); j += textsc(k<<1); }
+        }
         l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(tempbuf,user_quote[i]));
         while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
         {
@@ -2791,9 +2802,9 @@ static void operatefta(void)
         else gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16+1+32);
         return;
     }
-    if (j > 4) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>10),2+8+16);
-    else if (j > 2) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>10),2+8+16+1);
-    else gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>10),2+8+16+1+32);
+    if (j > 4) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16);
+    else if (j > 2) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1);
+    else gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+32);
 }
 
 void FTA(int q, player_struct *p)
@@ -3542,7 +3553,8 @@ void GetCrosshairColor(void)
             }
             ptr++;
             ii--;
-        } while (ii > 0);
+        }
+        while (ii > 0);
 
         default_crosshair_colors.r = crosshair_colors.r = curpalette[bri].r;
         default_crosshair_colors.g = crosshair_colors.g = curpalette[bri].g;
@@ -11427,10 +11439,11 @@ MAIN_LOOP_RESTART:
 
         {
             static unsigned int lastrender = 0;
+            unsigned int j = getticks();
 
-            if (r_maxfps == 0 || getticks() >= lastrender+g_FrameDelay)
+            if (r_maxfps == 0 || j >= lastrender+g_FrameDelay)
             {
-                lastrender = getticks();
+                lastrender = j;
                 displayrooms(screenpeek,i);
                 displayrest(i);
 

@@ -340,7 +340,7 @@ typedef struct {
     int RunMode;
     int AutoAim;
     int ShowOpponentWeapons;
-    int MouseFilter,MouseBias;
+    int MouseDeadZone,MouseBias;
     int SmoothInput;
 
     // JBF 20031211: Store the input settings because
