@@ -91,6 +91,7 @@ extern int cachesize, artsize;
 
 static short oldmousebstatus = 0;
 short brightness = 0;
+char game_executable[BMAX_PATH] = DEFAULT_GAME_LOCAL_EXEC;
 int zlock = 0x7fffffff, zmode = 0, whitecol, kensplayerheight = 32;
 short defaultspritecstat = 0;
 

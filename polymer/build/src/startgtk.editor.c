@@ -155,6 +155,7 @@ static void on_vmode3dcombo_changed(GtkComboBox *combobox, gpointer user_data)
     gtk_tree_model_get(data, &iter, 1, &val, -1);
     settings.xdim3d = validmode[val].xdim;
     settings.ydim3d = validmode[val].ydim;
+    settings.bpp3d = validmode[val].bpp;
 }
 
 static void on_fullscreencheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)

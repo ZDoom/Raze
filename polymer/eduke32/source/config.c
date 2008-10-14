@@ -624,6 +624,8 @@ int32 CONFIG_ReadSetup(void)
 
     if (ud.config.scripthandle >= 0)
     {
+        char dummybuf[64];
+
         for (dummy = 0;dummy < 10;dummy++)
         {
             commmacro[13] = dummy+'0';
@@ -632,7 +634,7 @@ int32 CONFIG_ReadSetup(void)
 
         SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","PlayerName",&tempbuf[0]);
 
-        while (Bstrlen(stripcolorcodes(tempbuf,tempbuf)) > 10)
+        while (Bstrlen(stripcolorcodes(dummybuf,tempbuf)) > 10)
             tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
         Bstrncpy(myname,tempbuf,sizeof(myname)-1);

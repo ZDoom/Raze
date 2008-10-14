@@ -41,6 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <shellapi.h>
 #endif
 
 #define BUILDDATE " 20081011"
@@ -175,6 +176,7 @@ static int infobox=3; // bit0: current window, bit1: mouse pointer, the variable
 extern char mskip;
 extern short capturecount;
 extern int editorgridextent;	// in engine.c
+extern char game_executable[BMAX_PATH];
 
 static void clearfilenames(void)
 {
@@ -7353,28 +7355,26 @@ static void addgroup(const char *buffer)
     CommandGrps = s;
 }
 
-#ifdef _WIN32
 #define COPYARG(i) \
     Bmemcpy(&testplay_addparam[j], argv[i], lengths[i]); \
     j += lengths[i]; \
     testplay_addparam[j++] = ' ';
-#else
-#define COPYARG(i)
-#endif
 
 static void checkcommandline(int argc, const char **argv)
 {
     int i = 1, j, maxlen=0, *lengths;
     char *c, *k;
 
+    mapster32_fullpath = (char*)argv[0];
+
     if (argc > 1)
     {
         lengths = Bmalloc(argc*sizeof(int));
         for (j=1; j<argc; j++) maxlen += (lengths[j] = Bstrlen(argv[j]));
-#ifdef _WIN32
+
         testplay_addparam = Bmalloc(maxlen+argc);
         testplay_addparam[0] = 0;
-#endif
+
         j = 0;
 
         while (i < argc)
@@ -7530,7 +7530,7 @@ static void checkcommandline(int argc, const char **argv)
         }
 
         Bfree(lengths);
-#ifdef _WIN32
+
         if (j > 0)
         {
             testplay_addparam[j-1] = 0;
@@ -7541,7 +7541,6 @@ static void checkcommandline(int argc, const char **argv)
             Bfree(testplay_addparam);
             testplay_addparam = NULL;
         }
-#endif
     }
 }
 #undef COPYARG
@@ -7706,7 +7705,6 @@ static int osdcmd_noclip(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-#ifdef _WIN32
 static int osdcmd_testplay_addparam(const osdfuncparm_t *parm)
 {
     int slen;
@@ -7743,7 +7741,6 @@ static int osdcmd_testplay_addparam(const osdfuncparm_t *parm)
 
     return OSDCMD_OK;
 }
-#endif
 
 static int osdcmd_showheightindicators(const osdfuncparm_t *parm)
 {
@@ -7829,9 +7826,7 @@ static int registerosdcommands(void)
     OSD_RegisterFunction("pk_turndecel", "pk_turndecel: sets turning deceleration", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_uedaccel", "pk_uedaccel: sets UnrealEd movement speed factor (0-5, exponentially)", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_quickmapcycling", "pk_quickmapcycling: allows cycling of maps with (Shift-)Ctrl-X", osdcmd_vars_pk);
-#ifdef _WIN32
     OSD_RegisterFunction("testplay_addparam", "testplay_addparam \"string\": set additional parameters for test playing", osdcmd_testplay_addparam);
-#endif
     OSD_RegisterFunction("showheightindicators", "showheightindicators [012]: toggles height indicators in 2D mode", osdcmd_showheightindicators);
     return 0;
 }
@@ -8442,7 +8437,10 @@ int ExtInit(void)
         addsearchpath(seekinappcontainer);
 #endif
         addsearchpath(cwd);
+        Bstrcpy(program_origcwd, cwd);
     }
+    else
+        program_origcwd[0] = '\0';
 
     if (CommandPaths)
     {
@@ -8881,11 +8879,6 @@ void ExtAnalyzeSprites(void)
 #define MESSAGEX 3 // (xdimgame>>1)
 #define MESSAGEY 3 // ((i/charsperline)<<3)+(ydimgame-(ydimgame>>3))-(((getmessageleng-1)/charsperline)<<3)
 
-#ifdef _WIN32
-#include <windows.h>
-#include <shellapi.h>
-#endif
-
 static void Keys2d3d(void)
 {
     int i;
@@ -8900,7 +8893,10 @@ static void Keys2d3d(void)
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_A]) // ' a
     {
         keystatus[KEYSC_A] = 0;
-        autosave=autosave?0:180; // 3 minutes
+
+        if (qsetmode == 200) autosave=autosave?0:getnumber256("Autosave interval, in seconds: ",180,3600,0);
+        else autosave=autosave?0:getnumber16("Autosave interval, in seconds: ",180,3600,0);
+
         if (autosave) message("Autosave enabled, interval: %d seconds",autosave);
         else message("Autosave disabled");
     }
@@ -8948,11 +8944,8 @@ static void Keys2d3d(void)
             if (!f) f = levelname; else f++;
         }
 
-#ifdef _WIN32
         if (keystatus[KEYSC_P]) // Ctrl-P: Map playtesting
         {
-            static int tp_lastkeypresstime=0;
-
             keystatus[KEYSC_P] = 0;
 
             if (!eitherALT)
@@ -8962,24 +8955,56 @@ static void Keys2d3d(void)
 
             if ((!eitherALT && cursectnum >= 0) || (eitherALT && startsectnum >= 0))
             {
-                if (tp_lastkeypresstime+120*4 >= totalclock)
-                    message("Please wait while starting EDuke32...");
-                else
-                {
-                    SHELLEXECUTEINFOA sinfo;
-                    char *prog = "eduke32";
                     char *param = " -map autosave.map -noinstancechecking";
                     char *fullparam;
-                    int slen;
+                    char current_cwd[BMAX_PATH];
+                    int slen = 0;
+                    BFILE *fp;
 
-                    tp_lastkeypresstime = totalclock;
+                    if ((program_origcwd[0] == '\0') || !getcwd(current_cwd, BMAX_PATH))
+                        current_cwd[0] = '\0';
+                    else // Before we check if file exists, for the case there's no absolute path.
+                        chdir(program_origcwd);
 
-                    slen = testplay_addparam ? Bstrlen(testplay_addparam) : 0;
-                    fullparam = Bmalloc(Bstrlen(param)+slen+1);
-                    if (testplay_addparam)
-                        Bstrcpy(fullparam, testplay_addparam);
+                    fp = fopen(game_executable, "rb"); // File exists?
+                    if (fp != NULL)
+                        fclose(fp);
                     else
-                        fullparam[0]=0;
+                    {
+#ifdef _WIN32
+                        fullparam = Bstrrchr(mapster32_fullpath, '\\');
+#else
+                        fullparam = Bstrrchr(mapster32_fullpath, '/');
+#endif
+                        if (fullparam)
+                        {
+                            slen = fullparam-mapster32_fullpath+1;
+                            Bstrncpy(game_executable, mapster32_fullpath, slen);
+                            // game_executable is now expected to not be NULL-terminated!
+                            Bstrcpy(game_executable+slen, DEFAULT_GAME_EXEC);
+                        }
+                        else
+                            Bstrcpy(game_executable, DEFAULT_GAME_LOCAL_EXEC);
+                    }
+
+                    if (current_cwd[0] != '\0') // Temporarily changing back,
+                        chdir(current_cwd);       // after checking if file exists.
+
+                    if (testplay_addparam)
+                        slen = Bstrlen(testplay_addparam);
+
+                    // Considering the NULL character, quatation marks
+                    // and a possible extra space not in testplay_addparam,
+                    // the length should be Bstrlen(game_executable)+Bstrlen(param)+(slen+1)+2+1.
+
+                    fullparam = Bmalloc(Bstrlen(game_executable)+Bstrlen(param)+slen+4);
+                    Bsprintf(fullparam,"\"%s\"",game_executable);
+
+                    if (testplay_addparam)
+                    {
+                        Bstrcat(fullparam, " ");
+                        Bstrcat(fullparam, testplay_addparam);
+                    }
                     Bstrcat(fullparam, param);
 
                     fixspritesectors();   //Do this before saving!
@@ -8988,26 +9013,41 @@ static void Keys2d3d(void)
                         saveboard("autosave.map",&startposx,&startposy,&startposz,&startang,&startsectnum);
                     else
                         saveboard("autosave.map",&posx,&posy,&posz,&ang,&cursectnum);
-                    message("Board saved to AUTOSAVE.MAP. Starting EDuke32...");
+                    message("Board saved to AUTOSAVE.MAP. Starting the game...");
 
-                    Bmemset(&sinfo, 0, sizeof(sinfo));
-                    sinfo.cbSize = sizeof(sinfo);
-                    sinfo.fMask = SEE_MASK_FLAG_NO_UI;
-                    sinfo.lpVerb = "open";
-                    sinfo.lpFile = prog;
-                    sinfo.lpParameters = fullparam;
-                    sinfo.nShow = SW_SHOWNORMAL;
+                    uninitmouse();
+#ifdef _WIN32
+                    {
+                        STARTUPINFO si;
+                        PROCESS_INFORMATION pi;
 
-                    if (!ShellExecuteExA(&sinfo))
-                        message("Error launching EDuke32!");
+                        ZeroMemory(&si,sizeof(si));
+                        ZeroMemory(&pi,sizeof(pi));
+                        si.cb = sizeof(si);
+
+                        if (!CreateProcess(NULL,fullparam,NULL,NULL,0,0,NULL,NULL,&si,&pi))
+                            message("Error launching the game!");
+                        else WaitForSingleObject(pi.hProcess,INFINITE);
+                    }
+#else
+                    if (current_cwd[0] != '\0')
+                    {
+                        chdir(program_origcwd);
+                        system(fullparam);
+                        //  message("Error launching the game!");
+                        chdir(current_cwd);
+                    }
+                    else system(fullparam);
+#endif
+                    //  message("Error launching the game!");
+                    message("Game process exited");
+                    initmouse();
 
                     Bfree(fullparam);
-                }
             }
             else
-                message("Must be in valid player space for test playing.");
+                message("Position must be in valid player space to test map!");
         }
-#endif
 
         if (keystatus[KEYSC_S]) // S
         {
@@ -9135,6 +9175,8 @@ static void Keys2d3d(void)
     }
 
 }
+#undef EDUKE32_EXEC
+#undef EDUKE32_LOCALEXEC
 
 void ExtCheckKeys(void)
 {

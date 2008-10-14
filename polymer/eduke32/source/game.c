@@ -10466,22 +10466,6 @@ static void Startup(void)
     if (numplayers > 1)
         initprintf("Multiplayer initialized.\n");
 
-    if (CONTROL_Startup(1, &GetTime, TICRATE))
-    {
-        uninitengine();
-        exit(1);
-    }
-    SetupGameButtons();
-    CONFIG_SetupMouse();
-    CONFIG_SetupJoystick();
-
-    CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
-    CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
-
-    // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-    for (i=0;i<joynumaxes;i++)
-        setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
-
     //initprintf("* Hold Esc to Abort. *\n");
 //    initprintf("Loading art header...\n");
 
@@ -11249,11 +11233,27 @@ void app_main(int argc,const char **argv)
     SoundStartup();
     loadtmb();
 
-    if (VOLUMEONE)
+    /*    if (VOLUMEONE)
+        {
+            if (numplayers > 4 || ud.multimode > 4)
+                gameexit(" The full version of Duke Nukem 3D supports 5 or more players.");
+        } */
+
+    if (CONTROL_Startup(1, &GetTime, TICRATE))
     {
-        if (numplayers > 4 || ud.multimode > 4)
-            gameexit(" The full version of Duke Nukem 3D supports 5 or more players.");
+        uninitengine();
+        exit(1);
     }
+    SetupGameButtons();
+    CONFIG_SetupMouse();
+    CONFIG_SetupJoystick();
+
+    CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
+    CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
+
+    // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
+    for (i=0;i<joynumaxes;i++)
+        setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
 
     setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
 

@@ -693,7 +693,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
         if ((int)sk->palette == pal && sk->skinnum == number && sk->surfnum == surf)
         {
             skinfile = sk->fn;
-            texidx = &sk->texid[(globalnoeffect)?0:hictinting[pal].f ];
+            texidx = &sk->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK) ];
             strcpy(fn,skinfile);
             //OSD_Printf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
             break;
@@ -713,7 +713,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
         if (skzero)
         {
             skinfile = skzero->fn;
-            texidx = &skzero->texid[(globalnoeffect)?0:hictinting[pal].f ];
+            texidx = &skzero->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK) ];
             strcpy(fn,skinfile);
             //OSD_Printf("Using def skin 0,0 as fallback, pal=%d\n", pal);
         }
@@ -721,7 +721,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
         {
             if ((unsigned)number >= (unsigned)m->numskins) number = 0;
             skinfile = m->skinfn + number*64;
-            texidx = &m->texid[ number * (HICEFFECTMASK+1) + (globalnoeffect)?0:hictinting[pal].f ];
+            texidx = &m->texid[ number * (HICEFFECTMASK+1) + (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK) ];
             strcpy(fn,m->basepath); strcat(fn,skinfile);
             //OSD_Printf("Using MD2/MD3 skin (%d) %s, pal=%d\n",number,skinfile,pal);
         }
@@ -735,10 +735,10 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
     if (pal >= (MAXPALOOKUPS - RESERVEDPALS))
         for (i=0;i<nextmodelid;i++)
             for (skzero = ((md2model *)models[i])->skinmap; skzero; skzero = skzero->next)
-                if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[(globalnoeffect)?0:hictinting[pal].f])
+                if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)])
                 {
-                    sk->texid[(globalnoeffect)?0:hictinting[pal].f] = skzero->texid[(globalnoeffect)?0:hictinting[pal].f];
-                    return sk->texid[(globalnoeffect)?0:hictinting[pal].f];
+                    sk->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)] = skzero->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
+                    return sk->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
                 }
 
     *texidx = 0;
@@ -753,7 +753,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
     picfillen = kfilelength(filh);
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
-    cachefil = mdloadskin_trytexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:hictinting[pal].f, &cachead);
+    cachefil = mdloadskin_trytexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), &cachead);
     if (cachefil >= 0 && !mdloadskin_cached(cachefil, &cachead, &doalloc, texidx, &xsiz, &ysiz, pal))
     {
         osizx = cachead.xdim;
@@ -770,7 +770,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
         cachefil = -1;	// the compressed version will be saved to disk
 
         if ((filh = kopen4load(fn, 0)) < 0) return -1;
-        if (daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,pal,(globalnoeffect)?0:hictinting[pal].f,m,number,surf))
+        if (daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,pal,(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK),m,number,surf))
         {
             kclose(filh);
             OSD_Printf("Failed loading skin file \"%s\"\n", fn);
@@ -862,7 +862,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
         }
         cachead.flags = (i!=3) | (hasalpha ? 2 : 0);
         OSD_Printf("No cached tex for %s.\n",fn);
-        writexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:hictinting[pal].f, &cachead);
+        writexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), &cachead);
     }
 
     return(*texidx);

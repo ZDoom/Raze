@@ -876,9 +876,11 @@ void menus(void)
             }
             else
             {
+                // because stripcolorcodes needs a valid target and tempbuf is used in strget()
+                char dummybuf[64];
                 x = strget(d-50,37,buf,30,0);
 
-                while (Bstrlen(stripcolorcodes(tempbuf,buf)) > 10)
+                while (Bstrlen(stripcolorcodes(dummybuf,buf)) > 10)
                 {
                     buf[Bstrlen(buf)-1] = '\0';
                     inputloc--;
@@ -3742,7 +3744,7 @@ cheat_for_port_credits:
         modval(0,1,(int *)&ud.config.SmoothInput,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2+1);
         if (probey == (MAXMOUSEBUTTONS-2)*2+2+2+1)
         {
-            mgametext(160,160+9,"THIS OPTION INCURS A MOVEMENT DELAY",0,2+8+16);
+//            mgametext(160,160+9,"THIS OPTION INCURS A MOVEMENT DELAY",0,2+8+16);
             control_smoothmouse = ud.config.SmoothInput;
         }
 

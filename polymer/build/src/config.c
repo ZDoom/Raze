@@ -56,6 +56,7 @@ static int readconfig(BFILE *fp, const char *key, char *value, unsigned len)
 }
 
 extern short brightness;
+extern char game_executable[BMAX_PATH];
 extern int fullscreen;
 extern char option[8];
 extern char keys[NUMBUILDKEYS];
@@ -164,6 +165,9 @@ int loadsetup(const char *fn)
         glanisotropy = Batoi(val);
     }
 #endif
+
+    if (readconfig(fp, "gameexecutable", val, VL) > 0)
+        Bstrcpy(game_executable, val);
 
     option[0] = 1;	// vesa all the way...
     option[1] = 1;	// sound all the way...
@@ -299,6 +303,9 @@ int writesetup(const char *fn)
              ";   15 - highest\n"
              "brightness = %d\n"
              "\n"
+             "; Game executable used for map testing\n"
+             "gameexecutable = %s\n"
+             "\n"
 #if 0
              "; Sound sample frequency\n"
              ";   0 - 6 KHz\n"
@@ -411,7 +418,7 @@ int writesetup(const char *fn)
 #ifdef RENDERTYPEWIN
              maxrefreshfreq, windowpos, windowx, windowy,
 #endif
-             brightness,
+             brightness, game_executable,
 #if 0
              option[7]>>4, option[2],
 #endif

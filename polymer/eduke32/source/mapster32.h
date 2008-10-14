@@ -218,9 +218,9 @@ extern short localartlookup[MAXTILES], localartlookupnum;
 extern int lockclock;
 extern void clearkeys(void);
 
-#ifdef _WIN32
+static char program_origcwd[BMAX_PATH];
+static char *mapster32_fullpath;
 static char *testplay_addparam = 0;
-#endif
 
 int gs_sprite[3][7];
 char gs_spritewhat[3][7];

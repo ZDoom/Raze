@@ -95,6 +95,14 @@ void _printmessage16(const char *fmt, ...);
 void getpoint(int searchxe, int searchye, int *x, int *y);
 int getpointhighlight(int xplc, int yplc, int point);
 
+#ifdef _WIN32
+#define DEFAULT_GAME_EXEC "eduke32.exe"
+#define DEFAULT_GAME_LOCAL_EXEC "eduke32.exe"
+#else
+#define DEFAULT_GAME_EXEC "eduke32"
+#define DEFAULT_GAME_LOCAL_EXEC "./eduke32"
+#endif
+
 #ifdef __cplusplus
 }
 #endif
