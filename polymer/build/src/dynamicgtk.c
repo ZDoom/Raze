@@ -20,7 +20,7 @@ int dynamicgtk_init(void)
 
     if (handle) return 1;
 
-    handle = dlopen("libgtk-x11-2.0.so", RTLD_NOW|RTLD_GLOBAL);
+    handle = dlopen("libgtk-x11-2.0.so.0", RTLD_NOW|RTLD_GLOBAL);
     if (!handle) return -1;
 
     memset(&dynamicgtksyms, 0, sizeof(dynamicgtksyms));

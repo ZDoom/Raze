@@ -230,31 +230,55 @@ ifeq ($(USE_OPENAL),1)
     OURCFLAGS+= -DUSE_OPENAL
 endif
 
+.SILENT:
 .PHONY: clean all engine $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB)
 
 # TARGETS
 
 ifeq ($(PLATFORM),WINDOWS) 
-all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) duke3d_w32$(EXESUFFIX) 
+all: notice eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) duke3d_w32$(EXESUFFIX)
 else
-all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
+all: notice eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
 endif
 
+all:
+	${BUILD_FINISHED}
+
+notice:
+	${BUILD_STARTED}
+	
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB)
-	$(CC) -o $@ $^ $(LIBS) $(STDCPPLIB) # -Wl,-Map=$@.map
-	-rm -f eduke32.sym$(EXESUFFIX)
-	cp eduke32$(EXESUFFIX) eduke32.sym$(EXESUFFIX)
+	${LINK_STATUS}
+	if $(CC) -o $@ $^ $(LIBS) $(STDCPPLIB); then \
+                ${LINK_OK}; \
+        else \
+                ${LINK_FAILED}; \
+        fi
+ifeq (1,$(RELEASE))
 	strip eduke32$(EXESUFFIX)
+endif
 	
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB)
-	$(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) # -Wl,-Map=$@.map
-	-rm -f mapster32.sym$(EXESUFFIX)
-	cp mapster32$(EXESUFFIX) mapster32.sym$(EXESUFFIX)
+	${LINK_STATUS}
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS); then \
+                ${LINK_OK}; \
+        else \
+                ${LINK_FAILED}; \
+        fi
+ifeq (1,$(RELEASE))	
 	strip mapster32$(EXESUFFIX)
+endif	
 
 duke3d_w32$(EXESUFFIX): $(OBJ)/wrapper.$o
-	$(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ -Wl
+	${LINK_STATUS}
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ -Wl; then \
+                ${LINK_OK}; \
+        else \
+                ${LINK_FAILED}; \
+        fi
+ifeq (1,$(RELEASE))	
 	strip duke3d_w32$(EXESUFFIX)
+endif	
 
 include Makefile.deps
 
@@ -271,27 +295,66 @@ $(EOBJ)/$(EDITORLIB): editorlib
 
 # RULES
 $(OBJ)/%.$o: $(SRC)/%.nasm
+	${COMPILE_STATUS}
 	nasm $(NASMFLAGS) $< -o $@
 $(OBJ)/%.$o: $(SRC)/jaudiolib/%.nasm
+	${COMPILE_STATUS}
 	nasm $(NASMFLAGS) $< -o $@
  
 $(OBJ)/%.$o: $(SRC)/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
+	${COMPILE_STATUS}
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
+                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
+
 $(OBJ)/%.$o: $(SRC)/%.cpp
-	$(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@
+	${COMPILE_STATUS}
+	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then \
+	                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
+
 $(OBJ)/%.$o: $(SRC)/jmact/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
+	${COMPILE_STATUS}
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
+                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
 $(OBJ)/%.$o: $(SRC)/jaudiolib/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
+	${COMPILE_STATUS}
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
+                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
 
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
-	windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC)
+	${COMPILE_STATUS}
+	if windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC); then \
+                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
 
 $(OBJ)/%.$o: $(SRC)/util/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
+	${COMPILE_STATUS}
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
+                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
  
 $(OBJ)/%.$o: $(RSRC)/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
+	${COMPILE_STATUS}
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
+                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
  
 $(OBJ)/game_banner.$o: $(RSRC)/game_banner.c
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
@@ -305,7 +368,7 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 # PHONIES	
 
 clean:
-	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) eduke32.sym$(EXESUFFIX) mapster32$(EXESUFFIX) mapster32.sym$(EXESUFFIX) core* duke3d_w32$(EXESUFFIX)
+	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) core* duke3d_w32$(EXESUFFIX)
 
 veryclean: clean
 	-rm -f $(EOBJ)/*

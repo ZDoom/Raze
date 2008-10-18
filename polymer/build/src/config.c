@@ -228,7 +228,17 @@ int loadsetup(const char *fn)
     if (readconfig(fp, "showheightindicators", val, VL) > 0)
         showheightindicators = min(max(Batoi(val),0),2);
 
-    for (i=0;i<256;i++)remap[i]=i;
+#ifdef _WIN32
+    {
+        extern char map_dik_code(int);
+        for (i=0;i<256;i++)
+            remap[i]=map_dik_code(i);
+    }
+#else
+    for (i=0;i<256;i++)
+        remap[i]=i;
+#endif
+
     remapinit=1;
     if (readconfig(fp, "remap", val, VL) > 0)
     {
@@ -434,8 +444,8 @@ int writesetup(const char *fn)
              keys[19]
             );
 
-
-    for (i=0;i<256;i++)if (remap[i]!=i)
+    for (i=0;i<256;i++)
+        if (remap[i]!=i)
         {
             Bfprintf(fp,first?"%02X-%02X":",%02X-%02X",i,remap[i]);
             first=0;

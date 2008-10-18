@@ -227,25 +227,60 @@ include Makefile.deps
 
 # RULES
 $(OBJ)/%.$o: $(SRC)/%.nasm
-	$(AS) $(ASFLAGS) $< -o $@
+	${COMPILE_STATUS}
+	if $(AS) $(ASFLAGS) $< -o $@; then \
+                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
 
 $(OBJ)/%.$o: $(SRC)/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
+	${COMPILE_STATUS}
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
+                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
 
 $(OBJ)/%.$o: $(SRC)/%.m
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
+	${COMPILE_STATUS}
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
+                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
 
 $(OBJ)/%.$o: $(SRC)/%.cpp
-	$(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@
+	${COMPILE_STATUS}
+	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then \
+                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
 
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
-	$(RC) -i $< -o $@ --include-dir=$(INC) --include-dir=$(SRC)
+	${COMPILE_STATUS}
+	if $(RC) -i $< -o $@ --include-dir=$(INC) --include-dir=$(SRC); then \
+                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
 
 $(OBJ)/%.$o: $(SRC)/util/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
+	${COMPILE_STATUS}
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
+                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
 
 $(OBJ)/%.$o: $(RSRC)/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
+	${COMPILE_STATUS}
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
+                ${COMPILE_OK}; \
+        else \
+                ${COMPILE_FAILED}; \
+        fi
 
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@

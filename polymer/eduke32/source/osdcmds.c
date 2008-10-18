@@ -1468,8 +1468,12 @@ int registerosdcommands(void)
     for (i=0;i<NUMGAMEFUNCTIONS-1;i++)
     {
         char *t;
+        int j;
+
         Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);
         t = Bstrdup(tempbuf);
+        for (j=Bstrlen(t);j>=0;j--)
+            t[j] = Btolower(t[j]);
         Bstrcat(tempbuf,": game button");
         OSD_RegisterFunction(t,Bstrdup(tempbuf),osdcmd_button);
     }

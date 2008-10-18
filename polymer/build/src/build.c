@@ -24,7 +24,7 @@
 
 #define updatecrc16(crc,dat) (crc = (((crc<<8)&65535)^crctable[((((unsigned short)crc)>>8)&65535)^dat]))
 static int crctable[256];
-static char kensig[32];
+static char kensig[64];
 
 extern int ExtInit(void);
 extern int ExtPreInit(int argc,const char **argv);

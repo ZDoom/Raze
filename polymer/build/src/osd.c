@@ -1849,15 +1849,21 @@ static symbol_t *findsymbol(const char *name, symbol_t *startingat)
 static symbol_t *findexactsymbol(const char *name)
 {
     int i;
+    char *lname = Bstrdup(name);
     if (!symbols) return NULL;
 
-    i = HASH_findcase(&osdsymbolsH,name);
+    for (i=Bstrlen(lname);i>=0;i--)
+        lname[i] = Btolower(lname[i]);
+
+    i = HASH_findcase(&osdsymbolsH,lname);
     if (i > -1)
     {
 //        if ((symbol_t *)osdsymbptrs[i]->func == (void *)OSD_UNALIASED)
 //            return NULL;
+        Bfree(lname);
         return osdsymbptrs[i];
     }
+    Bfree(lname);
     return NULL;
 }
 

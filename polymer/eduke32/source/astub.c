@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20081011"
+#define BUILDDATE " 20081017"
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;
@@ -1942,7 +1942,7 @@ static void PrintStatus(char *string,int num,char x,char y,char color)
 
 static inline void SpriteName(short spritenum, char *lo2)
 {
-    Bsprintf(lo2,names[sprite[spritenum].picnum]);
+    Bstrcpy(lo2,names[sprite[spritenum].picnum]);
 }// end SpriteName
 
 static void ReadPaletteTable()
@@ -7534,7 +7534,7 @@ static void checkcommandline(int argc, const char **argv)
         if (j > 0)
         {
             testplay_addparam[j-1] = 0;
-            Brealloc(testplay_addparam, j*sizeof(char));
+            testplay_addparam = Brealloc(testplay_addparam, j*sizeof(char));
         }
         else
         {
@@ -8955,95 +8955,95 @@ static void Keys2d3d(void)
 
             if ((!eitherALT && cursectnum >= 0) || (eitherALT && startsectnum >= 0))
             {
-                    char *param = " -map autosave.map -noinstancechecking";
-                    char *fullparam;
-                    char current_cwd[BMAX_PATH];
-                    int slen = 0;
-                    BFILE *fp;
+                char *param = " -map autosave.map -noinstancechecking";
+                char *fullparam;
+                char current_cwd[BMAX_PATH];
+                int slen = 0;
+                BFILE *fp;
 
-                    if ((program_origcwd[0] == '\0') || !getcwd(current_cwd, BMAX_PATH))
-                        current_cwd[0] = '\0';
-                    else // Before we check if file exists, for the case there's no absolute path.
-                        chdir(program_origcwd);
+                if ((program_origcwd[0] == '\0') || !getcwd(current_cwd, BMAX_PATH))
+                    current_cwd[0] = '\0';
+                else // Before we check if file exists, for the case there's no absolute path.
+                    chdir(program_origcwd);
 
-                    fp = fopen(game_executable, "rb"); // File exists?
-                    if (fp != NULL)
-                        fclose(fp);
-                    else
-                    {
+                fp = fopen(game_executable, "rb"); // File exists?
+                if (fp != NULL)
+                    fclose(fp);
+                else
+                {
 #ifdef _WIN32
-                        fullparam = Bstrrchr(mapster32_fullpath, '\\');
+                    fullparam = Bstrrchr(mapster32_fullpath, '\\');
 #else
-                        fullparam = Bstrrchr(mapster32_fullpath, '/');
+                    fullparam = Bstrrchr(mapster32_fullpath, '/');
 #endif
-                        if (fullparam)
-                        {
-                            slen = fullparam-mapster32_fullpath+1;
-                            Bstrncpy(game_executable, mapster32_fullpath, slen);
-                            // game_executable is now expected to not be NULL-terminated!
-                            Bstrcpy(game_executable+slen, DEFAULT_GAME_EXEC);
-                        }
-                        else
-                            Bstrcpy(game_executable, DEFAULT_GAME_LOCAL_EXEC);
-                    }
-
-                    if (current_cwd[0] != '\0') // Temporarily changing back,
-                        chdir(current_cwd);       // after checking if file exists.
-
-                    if (testplay_addparam)
-                        slen = Bstrlen(testplay_addparam);
-
-                    // Considering the NULL character, quatation marks
-                    // and a possible extra space not in testplay_addparam,
-                    // the length should be Bstrlen(game_executable)+Bstrlen(param)+(slen+1)+2+1.
-
-                    fullparam = Bmalloc(Bstrlen(game_executable)+Bstrlen(param)+slen+4);
-                    Bsprintf(fullparam,"\"%s\"",game_executable);
-
-                    if (testplay_addparam)
+                    if (fullparam)
                     {
-                        Bstrcat(fullparam, " ");
-                        Bstrcat(fullparam, testplay_addparam);
+                        slen = fullparam-mapster32_fullpath+1;
+                        Bstrncpy(game_executable, mapster32_fullpath, slen);
+                        // game_executable is now expected to not be NULL-terminated!
+                        Bstrcpy(game_executable+slen, DEFAULT_GAME_EXEC);
                     }
-                    Bstrcat(fullparam, param);
-
-                    fixspritesectors();   //Do this before saving!
-                    ExtPreSaveMap();
-                    if (eitherALT)
-                        saveboard("autosave.map",&startposx,&startposy,&startposz,&startang,&startsectnum);
                     else
-                        saveboard("autosave.map",&posx,&posy,&posz,&ang,&cursectnum);
-                    message("Board saved to AUTOSAVE.MAP. Starting the game...");
+                        Bstrcpy(game_executable, DEFAULT_GAME_LOCAL_EXEC);
+                }
 
-                    uninitmouse();
+                if (current_cwd[0] != '\0') // Temporarily changing back,
+                    chdir(current_cwd);       // after checking if file exists.
+
+                if (testplay_addparam)
+                    slen = Bstrlen(testplay_addparam);
+
+                // Considering the NULL character, quatation marks
+                // and a possible extra space not in testplay_addparam,
+                // the length should be Bstrlen(game_executable)+Bstrlen(param)+(slen+1)+2+1.
+
+                fullparam = Bmalloc(Bstrlen(game_executable)+Bstrlen(param)+slen+4);
+                Bsprintf(fullparam,"\"%s\"",game_executable);
+
+                if (testplay_addparam)
+                {
+                    Bstrcat(fullparam, " ");
+                    Bstrcat(fullparam, testplay_addparam);
+                }
+                Bstrcat(fullparam, param);
+
+                fixspritesectors();   //Do this before saving!
+                ExtPreSaveMap();
+                if (eitherALT)
+                    saveboard("autosave.map",&startposx,&startposy,&startposz,&startang,&startsectnum);
+                else
+                    saveboard("autosave.map",&posx,&posy,&posz,&ang,&cursectnum);
+                message("Board saved to AUTOSAVE.MAP. Starting the game...");
+
+                uninitmouse();
 #ifdef _WIN32
-                    {
-                        STARTUPINFO si;
-                        PROCESS_INFORMATION pi;
+                {
+                    STARTUPINFO si;
+                    PROCESS_INFORMATION pi;
 
-                        ZeroMemory(&si,sizeof(si));
-                        ZeroMemory(&pi,sizeof(pi));
-                        si.cb = sizeof(si);
+                    ZeroMemory(&si,sizeof(si));
+                    ZeroMemory(&pi,sizeof(pi));
+                    si.cb = sizeof(si);
 
-                        if (!CreateProcess(NULL,fullparam,NULL,NULL,0,0,NULL,NULL,&si,&pi))
-                            message("Error launching the game!");
-                        else WaitForSingleObject(pi.hProcess,INFINITE);
-                    }
+                    if (!CreateProcess(NULL,fullparam,NULL,NULL,0,0,NULL,NULL,&si,&pi))
+                        message("Error launching the game!");
+                    else WaitForSingleObject(pi.hProcess,INFINITE);
+                }
 #else
-                    if (current_cwd[0] != '\0')
-                    {
-                        chdir(program_origcwd);
-                        system(fullparam);
-                        //  message("Error launching the game!");
-                        chdir(current_cwd);
-                    }
-                    else system(fullparam);
-#endif
+                if (current_cwd[0] != '\0')
+                {
+                    chdir(program_origcwd);
+                    system(fullparam);
                     //  message("Error launching the game!");
-                    message("Game process exited");
-                    initmouse();
+                    chdir(current_cwd);
+                }
+                else system(fullparam);
+#endif
+                //  message("Error launching the game!");
+                message("Game process exited");
+                initmouse();
 
-                    Bfree(fullparam);
+                Bfree(fullparam);
             }
             else
                 message("Position must be in valid player space to test map!");
@@ -10430,7 +10430,7 @@ static void FuncMenu(void)
             {
             case 0:
             {
-                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j = 0;
@@ -10460,7 +10460,7 @@ static void FuncMenu(void)
             break;
             case 1:
             {
-                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     Bsprintf(tempbuf,"Delete all sprites of tile #: ");
@@ -10480,7 +10480,7 @@ static void FuncMenu(void)
             break;
             case 2:
             {
-                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Set map sky shade:    ",0,128,1);
@@ -10496,7 +10496,7 @@ static void FuncMenu(void)
             break;
             case 3:
             {
-                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Set map sky height:    ",0,16777216,1);
@@ -10515,7 +10515,7 @@ static void FuncMenu(void)
             break;
             case 4:
             {
-                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Z offset:    ",0,16777216,1);
@@ -10536,7 +10536,7 @@ static void FuncMenu(void)
             break;
             case 5:
             {
-                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Percentage of original:    ",100,1000,0);
@@ -10577,7 +10577,7 @@ static void FuncMenu(void)
             break;
             case 6:
             {
-                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Shade divisor:    ",1,128,1);
@@ -10600,7 +10600,7 @@ static void FuncMenu(void)
             break;
             case 7:
             {
-                for (i=Bsprintf(disptext,FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Visibility divisor:    ",1,128,0);

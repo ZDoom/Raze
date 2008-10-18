@@ -844,7 +844,7 @@ void getpackets(void)
                     for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
                         if (i != other) sendpacket(i,packbuf,packbufleng);
 
-                if (packbuf[2] != (char)atoi(BUILDDATE))
+                if (packbuf[2] != (char)atoi(s_builddate))
                     gameexit("\nYou cannot play Duke with different versions.");
 
                 other = packbuf[1];
@@ -2952,7 +2952,8 @@ void gameexit(const char *t)
         //printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         if (!(t[0] == ' ' && t[1] == 0))
         {
-            wm_msgbox(HEAD2, (char *)t);
+            Bsprintf(tempbuf,HEAD2 " %s",s_builddate);
+            wm_msgbox(tempbuf, (char *)t);
         }
     }
 
@@ -7600,7 +7601,7 @@ PALONLY:
         if (tsprite[j].owner < MAXSPRITES && tsprite[j].owner > 0 && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
         {
             OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
-            spriteext[tsprite[j].owner].tspr = NULL;
+//            spriteext[tsprite[j].owner].tspr = NULL;
         }
     }
     while (j--);
@@ -7611,7 +7612,7 @@ PALONLY:
     if (tsprite[j].owner > 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
     {
         OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
-        spriteext[tsprite[j].owner].tspr = NULL;
+//        spriteext[tsprite[j].owner].tspr = NULL;
     }
 }
 #ifdef _MSC_VER
@@ -8842,7 +8843,8 @@ static void comlinehelp(void)
               "\n-?, -help, --help\tDisplay this help message and exit"
               ;
 #if defined RENDERTYPEWIN
-    wm_msgbox(HEAD2,s);
+    Bsprintf(tempbuf,HEAD2 " %s",s_builddate);
+    wm_msgbox(tempbuf,s);
 #else
     initprintf("%s\n",s);
 #endif
@@ -10534,7 +10536,7 @@ static void sendplayerupdate(void)
 
     buf[0] = 6;
     buf[1] = myconnectindex;
-    buf[2] = (char)atoi(BUILDDATE);
+    buf[2] = (char)atoi(s_builddate);
     l = 3;
 
     //null terminated player name to send
@@ -10761,7 +10763,8 @@ void app_main(int argc,const char **argv)
         (int(*)(void))GetTime,
         GAME_onshowosd
     );
-    wm_setapptitle(HEAD2);
+    Bsprintf(tempbuf,HEAD2 " %s",s_builddate);
+    wm_setapptitle(tempbuf);
 
     initprintf("%s\n",apptitle);
 //    initprintf("Compiled %s\n",datetimestring);
@@ -10892,7 +10895,7 @@ void app_main(int argc,const char **argv)
                 initprintf("Current version is %d",atoi(tempbuf));
                 ud.config.LastUpdateCheck = time(NULL);
 
-                if (atoi(tempbuf) > atoi(BUILDDATE))
+                if (atoi(tempbuf) > atoi(s_builddate))
                 {
                     if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
                                  "Browse to http://eduke32.sourceforge.net now?"))
@@ -11186,8 +11189,25 @@ void app_main(int argc,const char **argv)
 
     initprintf("Initializing OSD...\n");
 
-    OSD_SetVersionString(HEAD2, 10,0);
+    Bsprintf(tempbuf,HEAD2 " %s",s_builddate);
+    OSD_SetVersionString(tempbuf, 10,0);
     registerosdcommands();
+
+    if (CONTROL_Startup(1, &GetTime, TICRATE))
+    {
+        uninitengine();
+        exit(1);
+    }
+    SetupGameButtons();
+    CONFIG_SetupMouse();
+    CONFIG_SetupJoystick();
+
+    CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
+    CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
+
+    // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
+    for (i=0;i<joynumaxes;i++)
+        setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
 
     if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
     {
@@ -11238,22 +11258,6 @@ void app_main(int argc,const char **argv)
             if (numplayers > 4 || ud.multimode > 4)
                 gameexit(" The full version of Duke Nukem 3D supports 5 or more players.");
         } */
-
-    if (CONTROL_Startup(1, &GetTime, TICRATE))
-    {
-        uninitengine();
-        exit(1);
-    }
-    SetupGameButtons();
-    CONFIG_SetupMouse();
-    CONFIG_SetupJoystick();
-
-    CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
-    CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
-
-    // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-    for (i=0;i<joynumaxes;i++)
-        setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
 
     setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
 

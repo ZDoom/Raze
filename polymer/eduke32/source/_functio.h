@@ -217,12 +217,20 @@ static char * mousedefaults[] =
    "Jetpack",
    "",
    "Previous_Weapon",
-   "Next_Weapon"
+   "Next_Weapon",
+   "",
+   "",
+   "",
+   ""
    };
 
 
 static char * mouseclickeddefaults[] =
    {
+   "",
+   "",
+   "",
+   "",
    "",
    "",
    "",

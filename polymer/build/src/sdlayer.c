@@ -1477,14 +1477,14 @@ int handleevents(void)
                 {
                     SetKey(code, 1);
                     if (keypresscallback)
-                        keypresscallback(code, 1);
+                        keypresscallback(remap[code], 1);
                 }
             }
             else
             {
                 SetKey(code, 0);
                 if (keypresscallback)
-                    keypresscallback(code, 0);
+                    keypresscallback(remap[code], 0);
             }
             break;
 
@@ -1515,13 +1515,19 @@ int handleevents(void)
         case SDL_MOUSEBUTTONUP:
             switch (ev.button.button)
             {
+            // some of these get reordered to match winlayer
             case SDL_BUTTON_LEFT:
                 j = 0; break;
             case SDL_BUTTON_RIGHT:
                 j = 1; break;
             case SDL_BUTTON_MIDDLE:
                 j = 2; break;
-            default:
+            case SDL_BUTTON_X1:
+                j = 3; break;
+            case SDL_BUTTON_X2:
+                j = 6; break;
+            case SDL_BUTTON_WHEELUP:
+            case SDL_BUTTON_WHEELDOWN:
                 j = ev.button.button; break;
             }
             if (j<0) break;
@@ -1540,7 +1546,8 @@ int handleevents(void)
             }
             else
             {
-                if (j < 4) mouseb &= ~(1<<j);
+                if (j != SDL_BUTTON_WHEELUP && j != SDL_BUTTON_WHEELDOWN)
+                    mouseb &= ~(1<<j);
             }
 
             if (mousepresscallback)

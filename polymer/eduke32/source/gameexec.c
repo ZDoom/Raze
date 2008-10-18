@@ -1592,7 +1592,8 @@ static int parse(void)
                     Bstrcpy(fta_quotes[i],g_player[g_p].user_name);
                     break;
                 case STR_VERSION:
-                    Bstrcpy(fta_quotes[i],HEAD2);
+                    Bsprintf(tempbuf,HEAD2 " %s",s_builddate);
+                    Bstrcpy(fta_quotes[i],tempbuf);
                     break;
                 case STR_GAMETYPE:
                     Bstrcpy(fta_quotes[i],gametype_names[ud.coop]);

@@ -747,6 +747,12 @@ static struct _joydevicedefn *thisjoydef = NULL, joyfeatures[] =
 		} \
 }
 
+char map_dik_code(int scanCode)
+{
+    // ugly table for remapping out of range DIK_ entries will go here
+    // if I can't figure out the layout problem
+    return scanCode;
+} 
 
 //
 // initinput() -- init input system
@@ -756,12 +762,24 @@ int initinput(void)
     int i;
     moustat=0;
     memset(keystatus, 0, sizeof(keystatus));
-    if (!remapinit)for (i=0;i<256;i++)remap[i]=i;remapinit=1;
+    if (!remapinit)
+        for (i=0;i<256;i++)
+            remap[i]=map_dik_code(i);
+    remapinit=1;
     keyfifoplc = keyfifoend = 0;
     keyasciififoplc = keyasciififoend = 0;
 
     inputdevices = 0;
     joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
+
+    {
+        TCHAR layoutname[KL_NAMELENGTH];
+//        GetKeyboardLayoutName(layoutname);
+//        initprintf("    * Keyboard layout: %s\n",layoutname);
+        LoadKeyboardLayout("00000409", KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
+        GetKeyboardLayoutName(layoutname);
+        initprintf("Using keyboard layout %s\n",layoutname);
+    }
 
     if (InitDirectInput())
         return -1;
@@ -1165,7 +1183,7 @@ void releaseallbuttons(void)
         //if (OSD_HandleKey(i, 0) != 0) {
         OSD_HandleScanCode(i, 0);
         SetKey(i, 0);
-        if (keypresscallback) keypresscallback(i, 0);
+        if (keypresscallback) keypresscallback(remap[i], 0);
         //}
     }
     lastKeyDown = lastKeyTime = 0;
@@ -1703,7 +1721,7 @@ static void ProcessInputDevices(void)
                         SetKey(k, (didod[i].dwData & 0x80) == 0x80);
 
                         if (keypresscallback)
-                            keypresscallback(k, (didod[i].dwData & 0x80) == 0x80);
+                            keypresscallback(remap[k], (didod[i].dwData & 0x80) == 0x80);
                     }
 
                     if (((lastKeyDown & 0x7fffffffl) == k) && !(didod[i].dwData & 0x80))
@@ -4219,7 +4237,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
             SetKey(0x59, 1);
 
             if (keypresscallback)
-                keypresscallback(0x59, 1);
+                keypresscallback(remap[0x59], 1);
         }
         break;
 
