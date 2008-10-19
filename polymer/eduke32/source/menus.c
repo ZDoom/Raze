@@ -2532,6 +2532,8 @@ cheat_for_port_credits:
                     int i = (float)r_ambientlight*1024.f;
                     int j = i;
                     _bar(1,d+8,yy+7, &i,128,x==io,MENUHIGHLIGHT(io),0,128,4096);
+                    Bsprintf(tempbuf,"%.2f",r_ambientlight);
+                    mgametextpal(d-35,yy, tempbuf, MENUHIGHLIGHT(io), 0);
                     if (i != j)
                     {
                         r_ambientlight = (float)i/1024.f;
@@ -3445,6 +3447,9 @@ cheat_for_port_credits:
             modval(0,1,(int *)&ud.detail,1,probey==5);
             menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),PHX(-6),"AMBIENT LIGHT");
             _bar(0,c+185,50+62+16+16+16,&i,128,x==6,MENUHIGHLIGHT(6),numplayers>1,128,4096);
+            Bsprintf(tempbuf,"%.2f",r_ambientlight);
+            mgametextpal(c+185+9,50+62+16+16+16+4, tempbuf, MENUHIGHLIGHT(6), 0);
+
             if (i != j)
             {
                 r_ambientlight = (float)i/1024.f;

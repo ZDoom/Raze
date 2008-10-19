@@ -1232,7 +1232,7 @@ static void ReadHelpFile(const char *name)
         while (!Bfeof(fp))    // skip empty lines
         {
             pos = ftell(fp);
-            Bfgets(tempbuf, 80, fp);
+            if (Bfgets(tempbuf, 80, fp) == NULL) break;
             charsread = ftell(fp)-pos;
             if (!newpage(tempbuf))
             {
@@ -1276,7 +1276,7 @@ static void ReadHelpFile(const char *name)
             }
 
             pos = ftell(fp);
-            Bfgets(tempbuf, 80, fp);
+            if (Bfgets(tempbuf, 80, fp) == NULL) break;
             charsread = ftell(fp)-pos;
             if (charsread == 79 && tempbuf[78]!='\n') skip=1;
 

@@ -4,6 +4,9 @@
 
 # DEFINES
 
+# Use colored output
+PRETTY_OUTPUT = 1
+
 # SDK locations - adjust to match your setup
 DXROOT=../sdk/dx
 
@@ -230,7 +233,9 @@ ifeq ($(USE_OPENAL),1)
     OURCFLAGS+= -DUSE_OPENAL
 endif
 
+ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:
+endif
 .PHONY: clean all engine $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB)
 
 # TARGETS
@@ -251,33 +256,21 @@ notice:
 	
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB)
 	$(LINK_STATUS)
-	if $(CC) -o $@ $^ $(LIBS) $(STDCPPLIB); then \
-                $(LINK_OK); \
-        else \
-                $(LINK_FAILED); \
-        fi
+	if $(CC) -o $@ $^ $(LIBS) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
 	strip eduke32$(EXESUFFIX)
 endif
 	
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB)
 	$(LINK_STATUS)
-	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS); then \
-                $(LINK_OK); \
-        else \
-                $(LINK_FAILED); \
-        fi
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
 	strip mapster32$(EXESUFFIX)
 endif	
 
 duke3d_w32$(EXESUFFIX): $(OBJ)/wrapper.$o
 	$(LINK_STATUS)
-	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ -Wl; then \
-                $(LINK_OK); \
-        else \
-                $(LINK_FAILED); \
-        fi
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ -Wl; then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
 	strip duke3d_w32$(EXESUFFIX)
 endif	
@@ -305,58 +298,30 @@ $(OBJ)/%.$o: $(SRC)/jaudiolib/%.nasm
  
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
-                $(COMPILE_OK); \
-        else \
-                $(COMPILE_FAILED); \
-        fi
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.cpp
 	$(COMPILE_STATUS)
-	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then \
-	                $(COMPILE_OK); \
-        else \
-                $(COMPILE_FAILED); \
-        fi
+	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/jmact/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
-                $(COMPILE_OK); \
-        else \
-                $(COMPILE_FAILED); \
-        fi
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 $(OBJ)/%.$o: $(SRC)/jaudiolib/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
-                $(COMPILE_OK); \
-        else \
-                $(COMPILE_FAILED); \
-        fi
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
 	$(COMPILE_STATUS)
-	if windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC); then \
-                $(COMPILE_OK); \
-        else \
-                $(COMPILE_FAILED); \
-        fi
+	if windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC); then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/util/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
-                $(COMPILE_OK); \
-        else \
-                $(COMPILE_FAILED); \
-        fi
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
  
 $(OBJ)/%.$o: $(RSRC)/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then \
-                $(COMPILE_OK); \
-        else \
-                $(COMPILE_FAILED); \
-        fi
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
  
 $(OBJ)/game_banner.$o: $(RSRC)/game_banner.c
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
