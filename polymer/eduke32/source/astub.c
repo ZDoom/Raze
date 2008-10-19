@@ -3504,6 +3504,7 @@ ENDFOR1:
 ERROR_TOOMANYSPRITES:
     if (cursor < 0) message("Too many sprites in map!");
     else deletesprite(cursor);
+    updatenumsprites();
 
 ERROR_NOMEMORY:
     if (spritenums) Bfree(spritenums);
