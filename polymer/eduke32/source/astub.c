@@ -9094,8 +9094,8 @@ static void Keys2d3d(void)
                 else
                 {
                     ExtLoadMap(f);
-                    if (mapversion < 7) printmessage16("Map %s loaded successfully and autoconverted to V7!",f);
-                    else printmessage16("Map %s loaded successfully",f);
+                    if (mapversion < 7) message("Map %s loaded successfully and autoconverted to V7!",f);
+                    else message("Map %s loaded successfully",f);
                 }
                 updatenumsprites();
                 startposx = posx;

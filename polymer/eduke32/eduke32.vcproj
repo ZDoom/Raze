@@ -191,115 +191,115 @@
 				Name="Header Files"
 				>
 				<File
-					RelativePath="..\build\include\a.h"
+					RelativePath=".\build\include\a.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\baselayer.h"
+					RelativePath=".\build\include\baselayer.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\build.h"
+					RelativePath=".\build\include\build.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\cache1d.h"
+					RelativePath=".\build\include\cache1d.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\compat.h"
+					RelativePath=".\build\include\compat.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\crc32.h"
+					RelativePath=".\build\include\crc32.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\dxdidf.h"
+					RelativePath=".\build\include\dxdidf.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\dynamicgtk.h"
+					RelativePath=".\build\include\dynamicgtk.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\editor.h"
+					RelativePath=".\build\include\editor.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\glbuild.h"
+					RelativePath=".\build\include\glbuild.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\glext.h"
+					RelativePath=".\build\include\glext.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\gtkbits.h"
+					RelativePath=".\build\include\gtkbits.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\kplib.h"
+					RelativePath=".\build\include\kplib.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\lzf.h"
+					RelativePath=".\build\include\lzf.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\lzwnew.h"
+					RelativePath=".\build\include\lzwnew.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\md4.h"
+					RelativePath=".\build\include\md4.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\mmulti.h"
+					RelativePath=".\build\include\mmulti.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\mmultimsgs.h"
+					RelativePath=".\build\include\mmultimsgs.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\osd.h"
+					RelativePath=".\build\include\osd.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\osxbits.h"
+					RelativePath=".\build\include\osxbits.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\osxmain.h"
+					RelativePath=".\build\include\osxmain.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\polymer.h"
+					RelativePath=".\build\include\polymer.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\polymost.h"
+					RelativePath=".\build\include\polymost.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\pragmas.h"
+					RelativePath=".\build\include\pragmas.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\scriptfile.h"
+					RelativePath=".\build\include\scriptfile.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\sdlayer.h"
+					RelativePath=".\build\include\sdlayer.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\startwin.editor.h"
+					RelativePath=".\build\include\startwin.editor.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\include\winlayer.h"
+					RelativePath=".\build\include\winlayer.h"
 					>
 				</File>
 			</Filter>
@@ -307,143 +307,143 @@
 				Name="Source Files"
 				>
 				<File
-					RelativePath="..\build\src\a-c.c"
+					RelativePath=".\build\src\a-c.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\baselayer.c"
+					RelativePath=".\build\src\baselayer.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\build.c"
+					RelativePath=".\build\src\build.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\cache1d.c"
+					RelativePath=".\build\src\cache1d.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\compat.c"
+					RelativePath=".\build\src\compat.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\config.c"
+					RelativePath=".\build\src\config.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\crc32.c"
+					RelativePath=".\build\src\crc32.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\defs.c"
+					RelativePath=".\build\src\defs.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\dynamicgtk.c"
+					RelativePath=".\build\src\dynamicgtk.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\engine.c"
+					RelativePath=".\build\src\engine.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\glbuild.c"
+					RelativePath=".\build\src\glbuild.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\gtkbits.c"
+					RelativePath=".\build\src\gtkbits.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\hightile.c"
+					RelativePath=".\build\src\hightile.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\kplib.c"
+					RelativePath=".\build\src\kplib.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\lzf_c.c"
+					RelativePath=".\build\src\lzf_c.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\lzf_d.c"
+					RelativePath=".\build\src\lzf_d.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\lzfP.h"
+					RelativePath=".\build\src\lzfP.h"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\lzwnew.c"
+					RelativePath=".\build\src\lzwnew.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\md4.c"
+					RelativePath=".\build\src\md4.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\mdsprite.c"
+					RelativePath=".\build\src\mdsprite.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\mmulti.c"
+					RelativePath=".\build\src\mmulti.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\mmulti_null.c"
+					RelativePath=".\build\src\mmulti_null.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\osd.c"
+					RelativePath=".\build\src\osd.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\polymer.c"
+					RelativePath=".\build\src\polymer.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\polymost.c"
+					RelativePath=".\build\src\polymost.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\pragmas.c"
+					RelativePath=".\build\src\pragmas.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\scriptfile.c"
+					RelativePath=".\build\src\scriptfile.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\sdlayer.c"
+					RelativePath=".\build\src\sdlayer.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\smalltextfont.c"
+					RelativePath=".\build\src\smalltextfont.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\sound.c"
+					RelativePath=".\build\src\sound.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\sound_stub.c"
+					RelativePath=".\build\src\sound_stub.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\startgtk.editor.c"
+					RelativePath=".\build\src\startgtk.editor.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\startwin.editor.c"
+					RelativePath=".\build\src\startwin.editor.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\textfont.c"
+					RelativePath=".\build\src\textfont.c"
 					>
 				</File>
 				<File
-					RelativePath="..\build\src\winlayer.c"
+					RelativePath=".\build\src\winlayer.c"
 					>
 				</File>
 			</Filter>
