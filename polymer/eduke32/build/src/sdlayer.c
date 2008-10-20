@@ -80,7 +80,11 @@ void(*keypresscallback)(int,int) = 0;
 void(*mousepresscallback)(int,int) = 0;
 void(*joypresscallback)(int,int) = 0;
 
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
 static unsigned char keytranslation[SDLK_LAST];
+#else
+static unsigned char keytranslation[SDL_NUM_SCANCODES];
+#endif
 static int buildkeytranslationtable(void);
 
 //static SDL_Surface * loadtarga(const char *fn);		// for loading the icon
@@ -395,11 +399,19 @@ int initinput(void)
     SDL_EnableUNICODE(1);	// let's hope this doesn't hit us too hard
 
     memset(keynames,0,sizeof(keynames));
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
     for (i=0; i<SDLK_LAST; i++)
     {
         if (!keytranslation[i]) continue;
         strncpy((char *)keynames[ keytranslation[i] ], SDL_GetKeyName(i), sizeof(keynames[i])-1);
     }
+#else
+    for (i=0; i<SDL_NUM_SCANCODES; i++)
+    {
+        if (!keytranslation[i]) continue;
+        strncpy((char *)keynames[ keytranslation[i] ], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(keynames[i])-1);
+    }
+#endif
 
     if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK))
     {
@@ -741,7 +753,11 @@ void getvalidmodes(void)
         {640,400},{512,384},{480,360},{400,300},{320,240},{320,200},{0,0}
     };
     SDL_Rect **modes;
+#if (SDL_MAJOR_VERSION > 1 || SDL_MINOR_VERSION > 2)
+    SDL_PixelFormat pf = { NULL, 8, 1, 0,0,0,0, 0,0,0,0, 0,0,0,0 };
+#else
     SDL_PixelFormat pf = { NULL, 8, 1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0 };
+#endif
     int i, j, maxx=0, maxy=0;
 
     if (modeschecked) return;
@@ -775,7 +791,11 @@ void getvalidmodes(void)
         pf.BitsPerPixel = cdepths[j];
         pf.BytesPerPixel = cdepths[j] >> 3;
 
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
         modes = SDL_ListModes(&pf, SURFACE_FLAGS | SDL_FULLSCREEN);
+#else
+        modes = SDL_ListModes(&pf, SURFACE_FLAGS);
+#endif
         if (modes == (SDL_Rect **)0)
         {
             if (cdepths[j] > 8) cdepths[j] = -1;
@@ -958,7 +978,9 @@ int setvideomode(int x, int y, int c, int fs)
             { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
             { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
             { SDL_GL_STENCIL_SIZE, 1 },
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
             { SDL_GL_SWAP_CONTROL, vsync },
+#endif
         };
 
         if (nogl) return -1;
@@ -983,7 +1005,7 @@ int setvideomode(int x, int y, int c, int fs)
             /* HACK: changing SDL GL attribs only works before surface creation,
                so we have to create a new surface in a different format first
                to force the surface we WANT to be recreated instead of reused. */
-
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
             if (vsync != ovsync)
             {
                 if (sdl_surface)
@@ -994,6 +1016,7 @@ int setvideomode(int x, int y, int c, int fs)
                 }
                 ovsync = vsync;
             }
+#endif
             sdl_surface = SDL_SetVideoMode(x, y, c, SDL_OPENGL | ((fs&1)?SDL_FULLSCREEN:0));
             if (!sdl_surface)
             {
@@ -1452,6 +1475,95 @@ int handleevents(void)
     {
         switch (ev.type)
         {
+#if (SDL_MAJOR_VERSION > 1 || SDL_MINOR_VERSION > 2)
+        case SDL_TEXTINPUT:
+            j = 0;
+            do
+            {
+                code = ev.text.text[j];
+
+                if (code != scantoasc[OSD_OSDKey()] && ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
+                {
+                    if (OSD_HandleChar(code))
+                    {
+                        keyasciififo[keyasciififoend] = code;
+                        keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
+                    }
+                }
+            }
+            while (j < SDL_TEXTINPUTEVENT_TEXT_SIZE && ev.text.text[++j]);
+            break;
+
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+            code = keytranslation[ev.key.keysym.scancode];
+//            initprintf("got key %d, %d\n",ev.key.keysym.scancode,code);
+
+            // hook in the osd
+            if (OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN)) == 0)
+                break;
+
+            if (ev.key.type == SDL_KEYDOWN)
+            {
+                if (!keystatus[code])
+                {
+                    SetKey(code, 1);
+                    if (keypresscallback)
+                        keypresscallback(remap[code], 1);
+                }
+            }
+            else
+            {
+                SetKey(code, 0);
+                if (keypresscallback)
+                    keypresscallback(remap[code], 0);
+            }
+            break;
+        case SDL_WINDOWEVENT:
+            switch (ev.window.event)
+            {
+            case SDL_WINDOWEVENT_FOCUS_GAINED:
+                appactive = 1;
+#ifndef DEBUGGINGAIDS
+                if (mouseacquired && moustat)
+                {
+                    SDL_WM_GrabInput(SDL_GRAB_ON);
+                    SDL_ShowCursor(SDL_DISABLE);
+                }
+#endif
+                break;
+            case SDL_WINDOWEVENT_FOCUS_LOST:
+                appactive = 0;
+#ifndef DEBUGGINGAIDS
+                if (mouseacquired && moustat)
+                {
+                    SDL_WM_GrabInput(SDL_GRAB_OFF);
+                    SDL_ShowCursor(SDL_ENABLE);
+                }
+#endif
+                break;
+            }
+            break;
+/*
+        case SDL_MOUSEWHEEL:
+            initprintf("wheel y %d\n",ev.wheel.y);
+            if (ev.wheel.y > 0)
+            {
+                mwheelup = totalclock;
+                mouseb |= 16;
+                if (mousepresscallback)
+                    mousepresscallback(5, 1);
+            }
+            if (ev.button.y < 0)
+            {
+                mwheeldown = totalclock;
+                mouseb |= 32;
+                if (mousepresscallback)
+                    mousepresscallback(6, 1);
+            }
+            break;
+            */
+#else
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.sym];
@@ -1510,6 +1622,7 @@ int handleevents(void)
                 rv=-1;
             }
             break;
+#endif
 
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
@@ -1517,16 +1630,13 @@ int handleevents(void)
             {
                 // some of these get reordered to match winlayer
             default:
+                j = -1; break;
             case SDL_BUTTON_LEFT:
                 j = 0; break;
             case SDL_BUTTON_RIGHT:
                 j = 1; break;
             case SDL_BUTTON_MIDDLE:
                 j = 2; break;
-            case SDL_BUTTON_X1:
-                j = 3; break;
-            case SDL_BUTTON_X2:
-                j = 6; break;
             case SDL_BUTTON_WHEELUP:
             case SDL_BUTTON_WHEELDOWN:
                 j = ev.button.button; break;
@@ -1644,6 +1754,7 @@ inline void idle(void)
     usleep(1);
 }
 
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
 static int buildkeytranslationtable(void)
 {
     memset(keytranslation,0,sizeof(keytranslation));
@@ -1777,7 +1888,124 @@ static int buildkeytranslationtable(void)
 
     return 0;
 }
+#else // SDL 1.3
+static int buildkeytranslationtable(void)
+{
+    memset(keytranslation,0,sizeof(keytranslation));
 
+#define MAP(x,y) keytranslation[x] = y
+    printf("%d\n",SDL_SCANCODE_BACKSPACE);
+    MAP(SDL_SCANCODE_BACKSPACE,	0xe);
+    MAP(SDL_SCANCODE_TAB,		0xf);
+    MAP(SDL_SCANCODE_RETURN,	0x1c);
+    MAP(SDL_SCANCODE_PAUSE,		0x59);	// 0x1d + 0x45 + 0x9d + 0xc5
+    MAP(SDL_SCANCODE_ESCAPE,	0x1);
+    MAP(SDL_SCANCODE_SPACE,		0x39);
+    MAP(SDL_SCANCODE_COMMA,		0x33);
+    MAP(SDL_SCANCODE_MINUS,		0xc);
+    MAP(SDL_SCANCODE_PERIOD,	0x34);
+    MAP(SDL_SCANCODE_SLASH,		0x35);
+    MAP(SDL_SCANCODE_0,		0xb);
+    MAP(SDL_SCANCODE_1,		0x2);
+    MAP(SDL_SCANCODE_2,		0x3);
+    MAP(SDL_SCANCODE_3,		0x4);
+    MAP(SDL_SCANCODE_4,		0x5);
+    MAP(SDL_SCANCODE_5,		0x6);
+    MAP(SDL_SCANCODE_6,		0x7);
+    MAP(SDL_SCANCODE_7,		0x8);
+    MAP(SDL_SCANCODE_8,		0x9);
+    MAP(SDL_SCANCODE_9,		0xa);
+    MAP(SDL_SCANCODE_SEMICOLON,	0x27);
+    MAP(SDL_SCANCODE_EQUALS,	0xd);
+    MAP(SDL_SCANCODE_LEFTBRACKET,	0x1a);
+    MAP(SDL_SCANCODE_BACKSLASH,	0x2b);
+    MAP(SDL_SCANCODE_RIGHTBRACKET,	0x1b);
+    MAP(SDL_SCANCODE_A,		0x1e);
+    MAP(SDL_SCANCODE_B,		0x30);
+    MAP(SDL_SCANCODE_C,		0x2e);
+    MAP(SDL_SCANCODE_D,		0x20);
+    MAP(SDL_SCANCODE_E,		0x12);
+    MAP(SDL_SCANCODE_F,		0x21);
+    MAP(SDL_SCANCODE_G,		0x22);
+    MAP(SDL_SCANCODE_H,		0x23);
+    MAP(SDL_SCANCODE_I,		0x17);
+    MAP(SDL_SCANCODE_J,		0x24);
+    MAP(SDL_SCANCODE_K,		0x25);
+    MAP(SDL_SCANCODE_L,		0x26);
+    MAP(SDL_SCANCODE_M,		0x32);
+    MAP(SDL_SCANCODE_N,		0x31);
+    MAP(SDL_SCANCODE_O,		0x18);
+    MAP(SDL_SCANCODE_P,		0x19);
+    MAP(SDL_SCANCODE_Q,		0x10);
+    MAP(SDL_SCANCODE_R,		0x13);
+    MAP(SDL_SCANCODE_S,		0x1f);
+    MAP(SDL_SCANCODE_T,		0x14);
+    MAP(SDL_SCANCODE_U,		0x16);
+    MAP(SDL_SCANCODE_V,		0x2f);
+    MAP(SDL_SCANCODE_W,		0x11);
+    MAP(SDL_SCANCODE_X,		0x2d);
+    MAP(SDL_SCANCODE_Y,		0x15);
+    MAP(SDL_SCANCODE_Z,		0x2c);
+    MAP(SDL_SCANCODE_DELETE,	0xd3);
+    MAP(SDL_SCANCODE_KP_0,		0x52);
+    MAP(SDL_SCANCODE_KP_1,		0x4f);
+    MAP(SDL_SCANCODE_KP_2,		0x50);
+    MAP(SDL_SCANCODE_KP_3,		0x51);
+    MAP(SDL_SCANCODE_KP_4,		0x4b);
+    MAP(SDL_SCANCODE_KP_5,		0x4c);
+    MAP(SDL_SCANCODE_KP_6,		0x4d);
+    MAP(SDL_SCANCODE_KP_7,		0x47);
+    MAP(SDL_SCANCODE_KP_8,		0x48);
+    MAP(SDL_SCANCODE_KP_9,		0x49);
+    MAP(SDL_SCANCODE_KP_PERIOD,	0x53);
+    MAP(SDL_SCANCODE_KP_DIVIDE,	0xb5);
+    MAP(SDL_SCANCODE_KP_MULTIPLY,	0x37);
+    MAP(SDL_SCANCODE_KP_MINUS,	0x4a);
+    MAP(SDL_SCANCODE_KP_PLUS,	0x4e);
+    MAP(SDL_SCANCODE_KP_ENTER,	0x9c);
+    //MAP(SDL_SCANCODE_KP_EQUALS,	);
+    MAP(SDL_SCANCODE_UP,		0xc8);
+    MAP(SDL_SCANCODE_DOWN,		0xd0);
+    MAP(SDL_SCANCODE_RIGHT,		0xcd);
+    MAP(SDL_SCANCODE_LEFT,		0xcb);
+    MAP(SDL_SCANCODE_INSERT,	0xd2);
+    MAP(SDL_SCANCODE_HOME,		0xc7);
+    MAP(SDL_SCANCODE_END,		0xcf);
+    MAP(SDL_SCANCODE_PAGEUP,	0xc9);
+    MAP(SDL_SCANCODE_PAGEDOWN,	0xd1);
+    MAP(SDL_SCANCODE_F1,		0x3b);
+    MAP(SDL_SCANCODE_F2,		0x3c);
+    MAP(SDL_SCANCODE_F3,		0x3d);
+    MAP(SDL_SCANCODE_F4,		0x3e);
+    MAP(SDL_SCANCODE_F5,		0x3f);
+    MAP(SDL_SCANCODE_F6,		0x40);
+    MAP(SDL_SCANCODE_F7,		0x41);
+    MAP(SDL_SCANCODE_F8,		0x42);
+    MAP(SDL_SCANCODE_F9,		0x43);
+    MAP(SDL_SCANCODE_F10,		0x44);
+    MAP(SDL_SCANCODE_F11,		0x57);
+    MAP(SDL_SCANCODE_F12,		0x58);
+    MAP(SDL_SCANCODE_NUMLOCKCLEAR,	0x45);
+    MAP(SDL_SCANCODE_CAPSLOCK,	0x3a);
+    MAP(SDL_SCANCODE_SCROLLLOCK,	0x46);
+    MAP(SDL_SCANCODE_RSHIFT,	0x36);
+    MAP(SDL_SCANCODE_LSHIFT,	0x2a);
+    MAP(SDL_SCANCODE_RCTRL,		0x9d);
+    MAP(SDL_SCANCODE_LCTRL,		0x1d);
+    MAP(SDL_SCANCODE_RALT,		0xb8);
+    MAP(SDL_SCANCODE_LALT,		0x38);
+    MAP(SDL_SCANCODE_LGUI,	0xdb);	// win l
+    MAP(SDL_SCANCODE_RGUI,	0xdc);	// win r
+    MAP(SDL_SCANCODE_PRINTSCREEN,		-2);	// 0xaa + 0xb7
+    MAP(SDL_SCANCODE_SYSREQ,	0x54);	// alt+printscr
+    MAP(SDL_SCANCODE_PAUSE,		0xb7);	// ctrl+pause
+    MAP(SDL_SCANCODE_MENU,		0xdd);	// win menu?
+    MAP(SDL_SCANCODE_GRAVE,     0x29);  // tilde
+#undef MAP
+
+    return 0;
+}
+#endif
 #if defined _WIN32
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>

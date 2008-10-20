@@ -3,7 +3,8 @@
 ENGINELIB=libengine.a
 EDITORLIB=libbuild.a
 
-SDLCONFIG=sdl-config
+SDLCONFIG=/usr/local/bin/sdl-config
+# SDLCONFIG=sdl-config
 SDL_FRAMEWORK	= 0
 
 # Overridden for OSes that don't have the cutdown stdc++ that is supc++

@@ -11,8 +11,9 @@ PRETTY_OUTPUT = 1
 DXROOT=../sdk/dx
 
 ALROOT		= AL
-SDLROOT		=
-SDLCONFIG	= sdl-config
+SDLROOT		= /usr/local
+SDLCONFIG	= /usr/local/bin/sdl-config
+# SDLCONFIG 	= sdl-config
 
 # Engine options
 SUPERBUILD = 1
@@ -53,8 +54,8 @@ GCC_MAJOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f1)
 GCC_MINOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f2)
 
 ifeq (4,$(GCC_MAJOR))
-  debug += -ftree-vectorize
   ifneq (0,$(GCC_MINOR))
+    debug += -ftree-vectorize
     ifneq (1,$(GCC_MINOR))
       ifneq (2,$(GCC_MINOR))
         debug += -finline-small-functions -fpredictive-commoning
@@ -280,12 +281,16 @@ include Makefile.deps
 .PHONY: enginelib editorlib
 enginelib editorlib:
 	-mkdir -p $(EOBJ)
+ifeq ($(PRETTY_OUTPUT),1)	
 	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)/$(EROOT)\033[0;35m.\033[0m\n"
+endif	
 	$(MAKE) -C $(EROOT)/ "OBJ=../$(EOBJ)" \
 		SUPERBUILD=$(SUPERBUILD) POLYMOST=$(POLYMOST) \
 		USE_OPENGL=$(USE_OPENGL) BUILD32_ON_64=$(BUILD32_ON_64) \
 		NOASM=$(NOASM) RELEASE=$(RELEASE) OPTLEVEL=$(OPTLEVEL) $@
+ifeq ($(PRETTY_OUTPUT),1)		
 	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)\033[0;35m.\033[0m\n"
+endif	
 	
 $(EOBJ)/$(ENGINELIB): enginelib
 $(EOBJ)/$(EDITORLIB): editorlib
