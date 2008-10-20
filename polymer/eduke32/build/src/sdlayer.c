@@ -1516,6 +1516,7 @@ int handleevents(void)
             switch (ev.button.button)
             {
             // some of these get reordered to match winlayer
+            default:
             case SDL_BUTTON_LEFT:
                 j = 0; break;
             case SDL_BUTTON_RIGHT:

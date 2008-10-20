@@ -32,7 +32,7 @@ OPTLEVEL?=2
 # Build locations
 SRC=source
 RSRC=rsrc
-EROOT=../build
+EROOT=build
 ESRC=$(EROOT)/src
 EINC=$(EROOT)/include
 INC=$(SRC)
@@ -88,7 +88,8 @@ JMACTOBJ=$(OBJ)/util_lib.$o \
 	$(OBJ)/keyboard.$o \
 	$(OBJ)/mouse.$o \
 	$(OBJ)/mathutil.$o \
-	$(OBJ)/scriplib.$o
+	$(OBJ)/scriplib.$o \
+	$(OBJ)/animlib.$o
 
 AUDIOLIB_FX_STUB=$(OBJ)/audiolib_fxstub.$o
 AUDIOLIB_MUSIC_STUB=$(OBJ)/audiolib_musicstub.$o
@@ -129,7 +130,6 @@ endif
 GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/actors.$o \
 	$(OBJ)/anim.$o \
-	$(OBJ)/animlib.$o \
 	$(OBJ)/config.$o \
 	$(OBJ)/gamedef.$o \
 	$(OBJ)/gameexec.$o \

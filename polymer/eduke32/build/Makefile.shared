@@ -178,21 +178,21 @@ ifneq (0,$(POLYMER))
 endif
 
 ifeq ($(PRETTY_OUTPUT),1)
-BUILD_STARTED = printf "\033[K\033[1;36mBuild started using $(CC) $(OURCFLAGS)\033[0m\n"
+BUILD_STARTED = printf "\033[K\033[1;36mBuild started using \"$(CC) $(OURCFLAGS)\"\033[0m\n"
 BUILD_FINISHED = printf "\033[K\033[1;36mBuild successful:\033[0m\n"
-COMPILE_STATUS = printf "\033[K\033[0;37mCompiling \033[1;37m$<\033[0;37m...\033[0m\r"
-COMPILE_OK = printf "\033[K\033[0;32mCompiled \033[1;32m$<\033[0;32m.\033[0m\n"
-COMPILE_FAILED = printf "\033[K\033[0;31mFailed compiling \033[1;31m$<\033[0;31m!\033[0m\n"; exit 1
-LINK_STATUS = printf "\033[K\033[0;37mLinking \033[1;37m$@\033[0;37m...\033[0m\r"
-LINK_OK = printf "\033[K\033[0;32mLinked \033[1;32m$@\033[0;32m.\033[0m\n"
-LINK_FAILED = printf "\033[K\033[0;31mFailed linking \033[1;31m$@\033[0;31m!\033[0m\n"; exit 1
+COMPILE_STATUS = printf "\033[K\033[0;37mBuilding object \033[1;37m$@\033[0;37m...\033[0m\r"
+COMPILE_OK = printf "\033[K\033[0;32mBuilt object \033[1;32m$@\033[0;32m.\033[0m\n"
+COMPILE_FAILED = printf "\033[K\033[0;31mFailed building \033[1;31m$@\033[0;31m from\033[0m \033[1;31m$<\033[0;31m!\033[0m\n"; exit 1
+LINK_STATUS = printf "\033[K\033[0;37mLinking executable \033[1;37m$@\033[0;37m...\033[0m\r"
+LINK_OK = printf "\033[K\033[0;32mLinked executable \033[1;32m$@\033[0;32m.\033[0m\n"
+LINK_FAILED = printf "\033[K\033[0;31mFailed linking executable \033[1;31m$@\033[0;31m!\033[0m\n"; exit 1
 else
 BUILD_STARTED = 
 BUILD_FINISHED = 
 COMPILE_STATUS = 
-COMPILE_OK = echo
-COMPILE_FAILED = echo; exit 1
+COMPILE_OK = true
+COMPILE_FAILED = false; exit 1
 LINK_STATUS = 
-LINK_OK = echo
-LINK_FAILED = echo; exit 1
+LINK_OK = true
+LINK_FAILED = false; exit 1
 endif

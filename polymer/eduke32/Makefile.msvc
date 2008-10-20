@@ -2,7 +2,7 @@
 
 SRC=source
 OBJ=obj_win
-EROOT=..\build
+EROOT=build
 EINC=$(EROOT)\include
 EOBJ=eobj_win
 INC=$(SRC)
