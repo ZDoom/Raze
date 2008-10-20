@@ -1703,23 +1703,23 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
     pth->hicr = hicr;
 
     if (glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & 1))
-    if (cachefil < 0)
-    {
-        // save off the compressed version
-        if (hicr->flags & 16) cachead.quality = 0;
-        else cachead.quality = r_downsize;
-        cachead.xdim = tsizx>>cachead.quality;
-        cachead.ydim = tsizy>>cachead.quality;
-        x = 0;
-        for (j=0;j<31;j++)
+        if (cachefil < 0)
         {
-            if (xsiz == pow2long[j]) { x |= 1; }
-            if (ysiz == pow2long[j]) { x |= 2; }
+            // save off the compressed version
+            if (hicr->flags & 16) cachead.quality = 0;
+            else cachead.quality = r_downsize;
+            cachead.xdim = tsizx>>cachead.quality;
+            cachead.ydim = tsizy>>cachead.quality;
+            x = 0;
+            for (j=0;j<31;j++)
+            {
+                if (xsiz == pow2long[j]) { x |= 1; }
+                if (ysiz == pow2long[j]) { x |= 2; }
+            }
+            cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0) | (hicr->flags & 16?8:0); // handle nocompress
+            OSD_Printf("No cached tex for tile %d pal %d.\n",dapic,dapalnum);
+            writexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
         }
-        cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0) | (hicr->flags & 16?8:0); // handle nocompress
-        OSD_Printf("No cached tex for tile %d pal %d.\n",dapic,dapalnum);
-        writexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
-    }
 
     return 0;
 }
@@ -4475,7 +4475,7 @@ RECHECK:
     {
         cullcheckcnt++;
         if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-            tspr->x+x, tspr->y+y, tspr->z-(j*i)-512, datempsectnum))
+                   tspr->x+x, tspr->y+y, tspr->z-(j*i)-512, datempsectnum))
             return 1;
     }
     while (--i > -1);
@@ -4563,24 +4563,24 @@ void polymost_drawsprite(int snum)
                         cullcheckcnt++;
 
                         if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                            tspr->x, tspr->y, tspr->z,tspr->sectnum))
-                        { cullmodel[tspr->owner] = 0; break; }
+                                   tspr->x, tspr->y, tspr->z,tspr->sectnum))
+                            { cullmodel[tspr->owner] = 0; break; }
 
                         if (polymost_checkcoordinates(-CULL_OFFSET, 0, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                        { cullmodel[tspr->owner] = 0; break; }
+                            { cullmodel[tspr->owner] = 0; break; }
                         if (polymost_checkcoordinates(-CULL_OFFSET, -CULL_OFFSET, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                        { cullmodel[tspr->owner] = 0; break; }
+                            { cullmodel[tspr->owner] = 0; break; }
 
                         if (polymost_checkcoordinates(CULL_OFFSET, 0, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                        { cullmodel[tspr->owner] = 0; break; }
+                            { cullmodel[tspr->owner] = 0; break; }
                         if (polymost_checkcoordinates(CULL_OFFSET, CULL_OFFSET, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                        { cullmodel[tspr->owner] = 0; break; }
+                            { cullmodel[tspr->owner] = 0; break; }
 
                         if (polymost_checkcoordinates(-CULL_OFFSET, CULL_OFFSET, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                        { cullmodel[tspr->owner] = 0; break; }
+                            { cullmodel[tspr->owner] = 0; break; }
 
                         if (polymost_checkcoordinates(0, 0, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
-                        { cullmodel[tspr->owner] = 0; break; }
+                            { cullmodel[tspr->owner] = 0; break; }
 
                         break;
                     }

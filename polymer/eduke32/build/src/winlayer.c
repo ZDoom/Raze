@@ -752,7 +752,7 @@ char map_dik_code(int scanCode)
     // ugly table for remapping out of range DIK_ entries will go here
     // if I can't figure out the layout problem
     return scanCode;
-} 
+}
 
 //
 // initinput() -- init input system
@@ -856,7 +856,7 @@ DWORD WINAPI ProcessMouse()
 
                 t = getticks();
                 result = IDirectInputDevice7_GetDeviceData(lpDID[MOUSE], sizeof(DIDEVICEOBJECTDATA),
-                    (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
+                         (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
 
                 if (!dwElements || result != DI_OK)
                     break;
@@ -1539,7 +1539,7 @@ static void GetKeyNames(void)
         tbuf[0] = 0;
         GetKeyNameText((i>128?(i+128):i)<<16, tbuf, sizeof(keynames[i])-1);
 //        initprintf("%d %15s  %15s\n",i,keynames[i],tbuf);
-        if(*tbuf)strncpy(&keynames[i][0], tbuf, sizeof(keynames[i])-1);
+        if (*tbuf)strncpy(&keynames[i][0], tbuf, sizeof(keynames[i])-1);
     }
 }
 
@@ -4179,14 +4179,14 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         // someone stole the palette so try and steal it back
         if (bDDrawInited && bpp == 8 && fullscreen)
         {
-                int result = IDirectDrawSurface_SetPalette(lpDDSPrimary, lpDDPalette);
-                if (result != DD_OK)
-                {
-                    initprintf("Palette set failed: %s\n", GetDDrawError(result));
-                    break;
-                }
-                setpalette(0,256);
+            int result = IDirectDrawSurface_SetPalette(lpDDSPrimary, lpDDPalette);
+            if (result != DD_OK)
+            {
+                initprintf("Palette set failed: %s\n", GetDDrawError(result));
                 break;
+            }
+            setpalette(0,256);
+            break;
         }
         if (appactive && (HWND)wParam != hWindow) setpalette(0,256);
         break;

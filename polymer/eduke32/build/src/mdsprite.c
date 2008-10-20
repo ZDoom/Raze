@@ -693,7 +693,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
         if ((int)sk->palette == pal && sk->skinnum == number && sk->surfnum == surf)
         {
             skinfile = sk->fn;
-            texidx = &sk->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK) ];
+            texidx = &sk->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
             strcpy(fn,skinfile);
             //OSD_Printf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
             break;
@@ -713,7 +713,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
         if (skzero)
         {
             skinfile = skzero->fn;
-            texidx = &skzero->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK) ];
+            texidx = &skzero->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
             strcpy(fn,skinfile);
             //OSD_Printf("Using def skin 0,0 as fallback, pal=%d\n", pal);
         }
@@ -721,7 +721,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
         {
             if ((unsigned)number >= (unsigned)m->numskins) number = 0;
             skinfile = m->skinfn + number*64;
-            texidx = &m->texid[ number * (HICEFFECTMASK+1) + (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK) ];
+            texidx = &m->texid[ number * (HICEFFECTMASK+1) + (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
             strcpy(fn,m->basepath); strcat(fn,skinfile);
             //OSD_Printf("Using MD2/MD3 skin (%d) %s, pal=%d\n",number,skinfile,pal);
         }
@@ -847,23 +847,23 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
     if (glinfo.texcompr && glusetexcompr && glusetexcache)
-    if (cachefil < 0)
-    {
-        // save off the compressed version
-        cachead.quality = r_downsize;
-        cachead.xdim = osizx>>cachead.quality;
-        cachead.ydim = osizy>>cachead.quality;
-
-        i = 0;
-        for (j=0;j<31;j++)
+        if (cachefil < 0)
         {
-            if (xsiz == pow2long[j]) { i |= 1; }
-            if (ysiz == pow2long[j]) { i |= 2; }
+            // save off the compressed version
+            cachead.quality = r_downsize;
+            cachead.xdim = osizx>>cachead.quality;
+            cachead.ydim = osizy>>cachead.quality;
+
+            i = 0;
+            for (j=0;j<31;j++)
+            {
+                if (xsiz == pow2long[j]) { i |= 1; }
+                if (ysiz == pow2long[j]) { i |= 2; }
+            }
+            cachead.flags = (i!=3) | (hasalpha ? 2 : 0);
+            OSD_Printf("No cached tex for %s.\n",fn);
+            writexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), &cachead);
         }
-        cachead.flags = (i!=3) | (hasalpha ? 2 : 0);
-        OSD_Printf("No cached tex for %s.\n",fn);
-        writexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), &cachead);
-    }
 
     return(*texidx);
 }
@@ -1480,8 +1480,8 @@ static int md3draw(md3model *m, spritetype *tspr)
     f = m->interpol; g = 1-f;
 
     if (m->interpol < 0 || m->interpol > 1 ||
-        m->cframe < 0 || m->cframe >= m->numframes ||
-        m->nframe < 0 || m->nframe >= m->numframes)
+            m->cframe < 0 || m->cframe >= m->numframes ||
+            m->nframe < 0 || m->nframe >= m->numframes)
     {
         OSD_Printf("Model frame out of bounds!\n");
         if (m->interpol < 0)

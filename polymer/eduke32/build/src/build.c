@@ -615,7 +615,7 @@ void editinput(void)
     mousy = (mousy<<16)+mouseysurp;
 
     if ((unrealedlook && !mskip) &&
-        (((!mlook && (bstatus&2) && !(bstatus&(1|4)))) || ((bstatus&1) && !(bstatus&(2|4)))))
+            (((!mlook && (bstatus&2) && !(bstatus&(1|4)))) || ((bstatus&1) && !(bstatus&(2|4)))))
         mlook = 3;
 
     {
@@ -714,9 +714,9 @@ void editinput(void)
             horiz -= mousy;
 
 //            if (mousy && !(mousy/4))
-  //              horiz--;
-    //        if (mousx && !(mousx/2))
-      //          ang++;
+            //              horiz--;
+            //        if (mousx && !(mousx/2))
+            //          ang++;
             if (horiz > 299)
                 horiz = 299;
             if (horiz < -99)
@@ -5336,7 +5336,7 @@ int _getnumber256(char *namestart, int num, int maxnumber, char sign, void *(fun
             Bsprintf(buffer,"%s",(char *)func((int)danum));
             printmessage256(0, 9, buffer);
         }
-        
+
         showframe(1);
 
         if (ch >= '0' && ch <= '9')

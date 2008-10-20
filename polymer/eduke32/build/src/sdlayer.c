@@ -1515,7 +1515,7 @@ int handleevents(void)
         case SDL_MOUSEBUTTONUP:
             switch (ev.button.button)
             {
-            // some of these get reordered to match winlayer
+                // some of these get reordered to match winlayer
             default:
             case SDL_BUTTON_LEFT:
                 j = 0; break;

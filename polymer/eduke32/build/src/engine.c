@@ -10092,11 +10092,11 @@ void setpalettefade(char r, char g, char b, char offset)
         }
 
         curpalettefaded[i].b =
-                 p.b + (((palfadergb.b - p.b) * offset) >> 6);
+            p.b + (((palfadergb.b - p.b) * offset) >> 6);
         curpalettefaded[i].g =
-                 p.g + (((palfadergb.g - p.g) * offset) >> 6);
+            p.g + (((palfadergb.g - p.g) * offset) >> 6);
         curpalettefaded[i].r =
-                 p.r + (((palfadergb.r - p.r) * offset) >> 6);
+            p.r + (((palfadergb.r - p.r) * offset) >> 6);
         curpalettefaded[i].f = 0;
     }
 
@@ -11238,7 +11238,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                         if (show2dwall[i>>3]&pow2char[i&7])
                             if (totalclock & 16)
                             {
-                              //  col += (2<<2);  // JBF 20040116: two braces is all this needed. man I'm a fool sometimes.
+                                //  col += (2<<2);  // JBF 20040116: two braces is all this needed. man I'm a fool sometimes.
                                 pointsize += 1;
                             }
                     }
@@ -11247,10 +11247,10 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 #if 1
                     do
                     {
-/*                        drawline16(halfxdim16+xp1-pointsize,midydim16+yp1+pointsize,halfxdim16+xp1+pointsize,midydim16+yp1+pointsize,col);
-                        drawline16(halfxdim16+xp1+pointsize,midydim16+yp1+pointsize,halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,col);
-                        drawline16(halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,col);
-                        drawline16(halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1+pointsize,col); */
+                        /*                        drawline16(halfxdim16+xp1-pointsize,midydim16+yp1+pointsize,halfxdim16+xp1+pointsize,midydim16+yp1+pointsize,col);
+                                                drawline16(halfxdim16+xp1+pointsize,midydim16+yp1+pointsize,halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,col);
+                                                drawline16(halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,col);
+                                                drawline16(halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1+pointsize,col); */
                         drawcircle16(halfxdim16+xp1, midydim16+yp1, pointsize, col);
                     }
                     while (pointsize--);

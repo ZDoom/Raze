@@ -2283,17 +2283,17 @@ BOLT:
 
 static void bounce(int i)
 {
-    int daang, dax, day, daz, xvect, yvect, zvect;
+    int dax, day, daz = 4096;
     spritetype *s = &sprite[i];
     int hitsect = s->sectnum;
     int k = sector[hitsect].wallptr;
     int l = wall[k].point2;
 
-    xvect = mulscale10(s->xvel,sintable[(s->ang+512)&2047]);
-    yvect = mulscale10(s->xvel,sintable[s->ang&2047]);
-    zvect = s->zvel;
+    int xvect = mulscale10(s->xvel,sintable[(s->ang+512)&2047]);
+    int yvect = mulscale10(s->xvel,sintable[s->ang&2047]);
+    int zvect = s->zvel;
 
-    daang = getangle(wall[l].x-wall[k].x,wall[l].y-wall[k].y);
+    int daang = getangle(wall[l].x-wall[k].x,wall[l].y-wall[k].y);
 
     if (s->z < (hittype[i].floorz+hittype[i].ceilingz)>>1)
         k = sector[hitsect].ceilingheinum;
@@ -2302,7 +2302,6 @@ static void bounce(int i)
 
     dax = mulscale14(k,sintable[(daang)&2047]);
     day = mulscale14(k,sintable[(daang+1536)&2047]);
-    daz = 4096;
 
     k = xvect*dax+yvect*day+zvect*daz;
     l = dax*dax+day*day+daz*daz;
