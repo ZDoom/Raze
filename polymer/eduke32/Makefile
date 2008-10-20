@@ -280,10 +280,12 @@ include Makefile.deps
 .PHONY: enginelib editorlib
 enginelib editorlib:
 	-mkdir -p $(EOBJ)
-	$(MAKE) -C $(EROOT)/ "OBJ=$(CURDIR)/$(EOBJ)" \
+	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)/$(EROOT)\033[0;35m.\033[0m\n"
+	$(MAKE) -C $(EROOT)/ "OBJ=../$(EOBJ)" \
 		SUPERBUILD=$(SUPERBUILD) POLYMOST=$(POLYMOST) \
 		USE_OPENGL=$(USE_OPENGL) BUILD32_ON_64=$(BUILD32_ON_64) \
 		NOASM=$(NOASM) RELEASE=$(RELEASE) OPTLEVEL=$(OPTLEVEL) $@
+	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)\033[0;35m.\033[0m\n"
 	
 $(EOBJ)/$(ENGINELIB): enginelib
 $(EOBJ)/$(EDITORLIB): editorlib
