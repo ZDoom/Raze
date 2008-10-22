@@ -11442,12 +11442,15 @@ MAIN_LOOP_RESTART:
         }
 
         {
-            static unsigned int lastrender = 0;
+            static unsigned int nextrender = 0;
             unsigned int j = getticks();
 
-            if (r_maxfps == 0 || j >= lastrender+g_FrameDelay)
+            if (j > nextrender+g_FrameDelay)
+                nextrender = j;
+
+            if (r_maxfps == 0 || j >= nextrender)
             {
-                lastrender = j;
+                nextrender += g_FrameDelay;
                 displayrooms(screenpeek,i);
                 displayrest(i);
 

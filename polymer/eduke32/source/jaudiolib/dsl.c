@@ -25,6 +25,7 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 
 #include "dsl.h"
 #include "compat.h"
+#include "pragmas.h"
 
 #define _NEED_SDLMIXER	1
 #include "sdl_inc.h"
@@ -190,10 +191,10 @@ int   DSL_BeginBufferedPlayback(char *BufferStart,
        46ms isn't bad
     */
 
-    chunksize = 512;
+    chunksize = scale(512, SampleRate, 11025);
 
-    if (SampleRate >= 16000) chunksize *= 2;
-    if (SampleRate >= 32000) chunksize *= 2;
+//    if (SampleRate >= 16000) chunksize *= 2;
+//    if (SampleRate >= 32000) chunksize *= 2;
 
     /*
     // SDL mixer does this already

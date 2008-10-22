@@ -184,13 +184,14 @@ endif
 
 OURCFLAGS+= $(BUILDCFLAGS)
 
+.SILENT:
 .PHONY: clean veryclean all utils enginelib editorlib
 
 # TARGETS
 
 UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX)
 
-all: $(OBJ)/$(ENGINELIB) $(OBJ)/$(EDITORLIB)
+# all: $(OBJ)/$(ENGINELIB) $(OBJ)/$(EDITORLIB)
 utils: $(UTILS)
 
 enginelib: $(OBJ)/$(ENGINELIB)

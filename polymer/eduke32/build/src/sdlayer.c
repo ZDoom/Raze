@@ -1544,25 +1544,25 @@ int handleevents(void)
                 break;
             }
             break;
-/*
-        case SDL_MOUSEWHEEL:
-            initprintf("wheel y %d\n",ev.wheel.y);
-            if (ev.wheel.y > 0)
-            {
-                mwheelup = totalclock;
-                mouseb |= 16;
-                if (mousepresscallback)
-                    mousepresscallback(5, 1);
-            }
-            if (ev.button.y < 0)
-            {
-                mwheeldown = totalclock;
-                mouseb |= 32;
-                if (mousepresscallback)
-                    mousepresscallback(6, 1);
-            }
-            break;
-            */
+            /*
+                    case SDL_MOUSEWHEEL:
+                        initprintf("wheel y %d\n",ev.wheel.y);
+                        if (ev.wheel.y > 0)
+                        {
+                            mwheelup = totalclock;
+                            mouseb |= 16;
+                            if (mousepresscallback)
+                                mousepresscallback(5, 1);
+                        }
+                        if (ev.wheel.y < 0)
+                        {
+                            mwheeldown = totalclock;
+                            mouseb |= 32;
+                            if (mousepresscallback)
+                                mousepresscallback(6, 1);
+                        }
+                        break;
+                        */
 #else
         case SDL_KEYDOWN:
         case SDL_KEYUP:
