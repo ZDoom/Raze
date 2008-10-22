@@ -2,7 +2,7 @@
 // for the Build Engine
 // by Jonathon Fowler (jonof@edgenetwk.com)
 //
-// Use SDL1.2 from http://www.libsdl.org
+// Use SDL 1.2 or 1.3 from http://www.libsdl.org
 
 #include <stdlib.h>
 #include <math.h>

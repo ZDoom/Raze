@@ -43,12 +43,10 @@ char *DSL_ErrorString( int ErrorNumber );
 int DisableInterrupts(void);	// simulated using critical sections
 int RestoreInterrupts(int);
 
-int   DSL_Init( void );
+int   DSL_Init(int soundcard, int mixrate, int numchannels, int samplebits, int buffersize);
 void  DSL_StopPlayback( void );
 unsigned DSL_GetPlaybackRate( void );
-int   DSL_BeginBufferedPlayback( char *BufferStart,
-      int BufferSize, int NumDivisions, unsigned SampleRate,
-      int MixMode, void ( *CallBackFunc )( void ) );
+int   DSL_BeginBufferedPlayback(char *BufferStart, int (*CallBackFunc)(int), int buffersize, int numdivisions);
 void  DSL_Shutdown( void );
 
 #endif

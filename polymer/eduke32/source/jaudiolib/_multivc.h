@@ -74,7 +74,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #if defined(_WIN32)
 #define MixBufferSize     (MV_GetBufferSize(MV_RequestedMixRate))
 #else
-#define MixBufferSize     (scale(512, MV_RequestedMixRate, 11025))
+#define MixBufferSize     (512)
 #endif
 
 #define NumberOfBuffers   16

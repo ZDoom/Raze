@@ -1715,11 +1715,11 @@ int MV_SetMixMode(int numchannels, int samplebits)
         mode |= SIXTEEN_BIT;
     }
 
-#if defined(_WIN32)
-    MV_MixMode = DSOUND_SetMixMode(mode);
-#else
+//#if defined(_WIN32)
+//    MV_MixMode = DSOUND_SetMixMode(mode);
+//#else
     MV_MixMode = mode;
-#endif
+//#endif
 
     MV_Channels = 1;
     if (MV_MixMode & STEREO)
@@ -1836,30 +1836,22 @@ int MV_StartPlayback(void)
 
     // Set the mix buffer variables
     MV_MixPage = 1;
-
     MV_MixFunction = MV_Mix;
-
-#if defined(_WIN32)
     MV_MixRate = MV_RequestedMixRate;
 
     // Start playback
+#if defined(_WIN32)
     status = DSOUND_BeginBufferedPlayback(MV_MixBuffer[ 0 ], MV_ServiceVoc, TotalBufferSize, MV_NumberOfBuffers);
-    if (status != DSOUND_Ok)
-    {
-        MV_SetErrorCode(MV_BlasterError);
-        return(MV_Error);
-    }
 #else
-    status = DSL_BeginBufferedPlayback(MV_MixBuffer[ 0 ], TotalBufferSize, MV_NumberOfBuffers, MV_RequestedMixRate, MV_MixMode, (void *)MV_ServiceVoc);
+    status = DSL_BeginBufferedPlayback(MV_MixBuffer[ 0 ], MV_ServiceVoc, TotalBufferSize, MV_NumberOfBuffers);
+#endif
 
-    if (status != DSL_Ok)
+    if (status != 0)
     {
         MV_SetErrorCode(MV_BlasterError);
         return(MV_Error);
     }
 
-    MV_MixRate = DSL_GetPlaybackRate();
-#endif
     return(MV_Ok);
 }
 
@@ -2869,7 +2861,6 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
     // Set the sampling rate
     MV_RequestedMixRate = MixRate;
 
-//    initprintf("  - Using %d byte mixing buffers\n", MixBufferSize);
     initprintf("  - %d voices, %d byte mixing buffers\n", MV_MaxVoices, MixBufferSize);
 
     // Allocate mix buffer within 1st megabyte
@@ -2892,17 +2883,14 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
     // Initialize the sound card
 #if defined(_WIN32)
     status = DSOUND_Init(soundcard, MixRate, numchannels, samplebits, TotalBufferSize);
-    if (status != DSOUND_Ok)
-    {
-        MV_SetErrorCode(MV_BlasterError);
-    }
 #else
-    status = DSL_Init();
-    if (status != DSL_Ok)
+    status = DSL_Init(soundcard, MixRate, numchannels, samplebits, TotalBufferSize);
+#endif
+    if (status != 0)
     {
         MV_SetErrorCode(MV_BlasterError);
     }
-#endif
+
     if (MV_ErrorCode != MV_Ok)
     {
         status = MV_ErrorCode;
