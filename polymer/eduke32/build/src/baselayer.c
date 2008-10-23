@@ -226,8 +226,8 @@ int baselayer_init(void)
 #endif
     OSD_RegisterFunction("r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars);
 #ifdef SUPERBUILD
-    OSD_RegisterFunction("r_novoxmips","novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",osdcmd_vars);
-    OSD_RegisterFunction("r_voxels","usevoxels: enable/disable automatic sprite->voxel rendering",osdcmd_vars);
+    OSD_RegisterFunction("r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",osdcmd_vars);
+    OSD_RegisterFunction("r_voxels","r_voxels: enable/disable automatic sprite->voxel rendering",osdcmd_vars);
 #endif
 #if defined(POLYMOST) && defined(USE_OPENGL)
 #ifdef DEBUGGINGAIDS
