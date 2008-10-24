@@ -4173,8 +4173,26 @@ void polymost_drawrooms()
         short hitsect, hitwall, hitsprite;
         int vx, vy, vz, hitx, hity, hitz;
         int cz, fz;
+        double ratio = 1.0;
 
-        ox2 = (searchx-ghalfx)/1.2; oy2 = (searchy-ghoriz)/ 1.2; oz2 = ghalfx;
+        if (glwidescreen == 1)
+            ratio = 1.2f;
+        else if (glprojectionhacks == 1)
+        {
+            if (gshang > 0)
+                ratio += gshang*0.33f;
+            if (gshang < 0)
+                ratio += -gshang*0.33f;
+        }
+        else if (glprojectionhacks == 2)
+        {
+            if (gshang > 0.7f)
+                ratio += 4.f*(gshang-0.7f);
+            if (gshang < -0.7f)
+                ratio += 4.f*(-gshang-0.7f);
+        }
+
+        ox2 = (searchx-ghalfx)/ratio; oy2 = (searchy-ghoriz)/ ratio; oz2 = ghalfx;
 
         //Tilt rotation
         ox = ox2*gctang + oy2*gstang;
