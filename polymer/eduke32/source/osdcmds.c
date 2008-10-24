@@ -752,7 +752,7 @@ cvarmappings cvar[] =
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
-    { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_BOOL, 0, 0, 1 },
+    { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_INT, 0, 0, 2 },
 # ifdef POLYMER
     // polymer cvars
     { "pr_occlusionculling", "pr_occlusionculling: insert description that noone will ever read", (void*)&pr_occlusionculling, CVAR_INT, 0, 0, 512 },

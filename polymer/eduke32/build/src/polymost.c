@@ -896,18 +896,37 @@ void resizeglcheck()
 
     if ((glox1 != windowx1) || (gloy1 != windowy1) || (glox2 != windowx2) || (gloy2 != windowy2))
     {
+        double ratio = 1.0;
+
+        if (glwidescreen == 1)
+            ratio = 1.2f;
+        else if (glprojectionhacks == 1)
+        {
+            if (gshang > 0)
+                ratio += gshang*0.33f;
+            if (gshang < 0)
+                ratio += -gshang*0.33f;
+        }
+        else if (glprojectionhacks == 2)
+        {
+            if (gshang > 0.7f)
+                ratio += 4.f*(gshang-0.7f);
+            if (gshang < -0.7f)
+                ratio += 4.f*(-gshang-0.7f);
+        }
+
         glox1 = windowx1; gloy1 = windowy1;
         glox2 = windowx2; gloy2 = windowy2;
 
-        fovcorrect = glprojectionhacks?(glwidescreen?0:(((windowx2-windowx1+1) * 1.2) - (windowx2-windowx1+1))):0;
+        fovcorrect = glprojectionhacks?(glwidescreen?0:(((windowx2-windowx1+1) * ratio) - (windowx2-windowx1+1))):0;
 
         bglViewport(windowx1 - (fovcorrect / 2), yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect, windowy2-windowy1+1);
 
         bglMatrixMode(GL_PROJECTION);
         memset(m,0,sizeof(m));
-        m[0][0] = (float)ydimen / (glprojectionhacks?1.2:1); m[0][2] = 1.0;
+        m[0][0] = (float)ydimen / (glprojectionhacks?ratio:1.f); m[0][2] = 1.0;
         m[1][1] = (float)xdimen; m[1][2] = 1.0;
-        m[2][2] = 1.0; m[2][3] = (float)ydimen / (glprojectionhacks?1.2:1);
+        m[2][2] = 1.0; m[2][3] = (float)ydimen / (glprojectionhacks?ratio:1.f);
         m[3][2] =-1.0;
         bglLoadMatrixf(&m[0][0]);
         //bglLoadIdentity();

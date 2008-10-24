@@ -390,9 +390,13 @@ int initinput(void)
     // force OS X to operate in >1 button mouse mode so that LMB isn't adulterated
     if (!getenv("SDL_HAS3BUTTONMOUSE")) putenv("SDL_HAS3BUTTONMOUSE=1");
 #endif
-    if (!remapinit)for (i=0;i<256;i++)remap[i]=i;remapinit=1;
+    if (!remapinit)
+        for (i=0;i<256;i++)
+            remap[i]=i;
+    remapinit=1;
 
-    if (SDL_EnableKeyRepeat(250, 30)) initprintf("Error enabling keyboard repeat.\n");
+    if (SDL_EnableKeyRepeat(250, 30)) // doesn't do anything in 1.3
+        initprintf("Error enabling keyboard repeat.\n");
     inputdevices = 1|2;	// keyboard (1) and mouse (2)
     mouseacquired = 0;
 
@@ -791,11 +795,12 @@ void getvalidmodes(void)
         pf.BitsPerPixel = cdepths[j];
         pf.BytesPerPixel = cdepths[j] >> 3;
 
+        modes = SDL_ListModes(&pf, SURFACE_FLAGS 
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
-        modes = SDL_ListModes(&pf, SURFACE_FLAGS | SDL_FULLSCREEN);
-#else
-        modes = SDL_ListModes(&pf, SURFACE_FLAGS);
+            | SDL_FULLSCREEN // not implemented/working in SDL 1.3 SDL_compat.c
 #endif
+            );
+
         if (modes == (SDL_Rect **)0)
         {
             if (cdepths[j] > 8) cdepths[j] = -1;
@@ -806,7 +811,7 @@ void getvalidmodes(void)
         {
             for (i=0; defaultres[i][0]; i++)
                 ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],1)
-            }
+        }
         else
         {
             for (i=0; modes[i]; i++)
@@ -872,7 +877,7 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
     if (*y < 200) *y = 200;
     if (*x > MAXXDIM) *x = MAXXDIM;
     if (*y > MAXYDIM) *y = MAXYDIM;
-    *x &= 0xfffffff8l;
+//    *x &= 0xfffffff8l;
 
     for (i=0; i<validmodecnt; i++)
     {
@@ -1509,14 +1514,14 @@ int handleevents(void)
                 {
                     SetKey(code, 1);
                     if (keypresscallback)
-                        keypresscallback(remap[code], 1);
+                        keypresscallback(code, 1);
                 }
             }
             else
             {
                 SetKey(code, 0);
                 if (keypresscallback)
-                    keypresscallback(remap[code], 0);
+                    keypresscallback(code, 0);
             }
             break;
         case SDL_WINDOWEVENT:
@@ -1589,14 +1594,14 @@ int handleevents(void)
                 {
                     SetKey(code, 1);
                     if (keypresscallback)
-                        keypresscallback(remap[code], 1);
+                        keypresscallback(code, 1);
                 }
             }
             else
             {
                 SetKey(code, 0);
                 if (keypresscallback)
-                    keypresscallback(remap[code], 0);
+                    keypresscallback(code, 0);
             }
             break;
 

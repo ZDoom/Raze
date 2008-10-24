@@ -1183,7 +1183,7 @@ void releaseallbuttons(void)
         //if (OSD_HandleKey(i, 0) != 0) {
         OSD_HandleScanCode(i, 0);
         SetKey(i, 0);
-        if (keypresscallback) keypresscallback(remap[i], 0);
+        if (keypresscallback) keypresscallback(i, 0);
         //}
     }
     lastKeyDown = lastKeyTime = 0;
@@ -1721,7 +1721,7 @@ static void ProcessInputDevices(void)
                         SetKey(k, (didod[i].dwData & 0x80) == 0x80);
 
                         if (keypresscallback)
-                            keypresscallback(remap[k], (didod[i].dwData & 0x80) == 0x80);
+                            keypresscallback(k, (didod[i].dwData & 0x80) == 0x80);
                     }
 
                     if (((lastKeyDown & 0x7fffffffl) == k) && !(didod[i].dwData & 0x80))
@@ -2085,7 +2085,7 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
     if (*y < 200) *y = 200;
     if (*x > MAXXDIM) *x = MAXXDIM;
     if (*y > MAXYDIM) *y = MAXYDIM;
-    *x &= 0xfffffff8l;
+//    *x &= 0xfffffff8l;
 
     for (i=0; i<validmodecnt; i++)
     {
@@ -4237,7 +4237,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
             SetKey(0x59, 1);
 
             if (keypresscallback)
-                keypresscallback(remap[0x59], 1);
+                keypresscallback(0x59, 1);
         }
         break;
 

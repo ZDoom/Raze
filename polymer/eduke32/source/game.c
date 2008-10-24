@@ -4134,18 +4134,6 @@ void drawbackground(void)
                 rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,0,windowy2,xdim-1,y2-1);
     }
 
-    // this is better than the HOM
-    if (getrendermode() == 3 && (ud.camerahoriz > 230 || ud.camerahoriz < -50))
-    {
-        for (y=0; y<(ydim>>2); y+=tilesizy[dapicnum])
-            for (x=0; x<xdim; x+=tilesizx[dapicnum])
-            {
-                rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,0,0,xdim-1,ydim-1);
-                rotatesprite(x<<16,(ydim-y-tilesizy[dapicnum])<<16,65536L,0,dapicnum,8,0,8+16+64+128,0,0,xdim-1,ydim-1);
-            }
-    }
-
-
     // draw in the bits to the left and right of the non-fullsize status bar
     if (ud.statusbarscale < 100 && ud.screen_size >= 8 && ud.statusbarmode == 0)
     {
