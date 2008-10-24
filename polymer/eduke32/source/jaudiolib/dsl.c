@@ -40,7 +40,6 @@ static int interrupts_disabled = 0;
 static int(*_DSL_CallBackFunc)(int);
 static volatile char *_DSL_BufferStart;
 static int _DSL_BufferSize;
-static int _DSL_NumDivisions;
 static int _DSL_SampleRate;
 static int _DSL_remainder;
 static Uint16 _DSL_format;
@@ -184,8 +183,7 @@ int DSL_BeginBufferedPlayback(char *BufferStart, int(*CallBackFunc)(int), int Bu
     _DSL_CallBackFunc = CallBackFunc;
     _DSL_BufferStart = BufferStart;
     _DSL_BufferSize = (BufferSize / NumDivisions);
-    _DSL_NumDivisions = NumDivisions;
-
+    
     _DSL_remainder = 0;
 
     /*
@@ -197,12 +195,6 @@ int DSL_BeginBufferedPlayback(char *BufferStart, int(*CallBackFunc)(int), int Bu
 
     if (_DSL_SampleRate >= 16000) chunksize *= 2;
     if (_DSL_SampleRate >= 32000) chunksize *= 2;
-
-    /*
-    // SDL mixer does this already
-       if (MixMode & SIXTEEN_BIT) chunksize *= 2;
-       if (MixMode & STEREO) chunksize *= 2;
-    */
 
     if (Mix_OpenAudio(_DSL_SampleRate, _DSL_format, _DSL_channels, chunksize) < 0)
     {

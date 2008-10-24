@@ -11,9 +11,14 @@ PRETTY_OUTPUT = 1
 DXROOT=../sdk/dx
 
 ALROOT		= AL
-SDLROOT		= /usr/local
+
 SDLCONFIG	= /usr/local/bin/sdl-config
-# SDLCONFIG 	= sdl-config
+
+ifeq ($(wildcard $(SDLCONFIG)),$(SDLCONFIG))
+    SDLROOT		= /usr/local
+else
+    SDLCONFIG	= sdl-config
+endif
 
 # Engine options
 SUPERBUILD = 1
