@@ -761,17 +761,17 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
 
         if (voice->LoopEnd != NULL)
         {
-            if (blocklength > (unsigned int)voice->LoopEnd)
+            if (blocklength > (uintptr_t)voice->LoopEnd)
             {
-                blocklength = (unsigned int)voice->LoopEnd;
+                blocklength = (uintptr_t)voice->LoopEnd;
             }
             else
             {
                 voice->LoopEnd = (char *)blocklength;
             }
 
-            voice->LoopStart = voice->sound + (unsigned int)voice->LoopStart;
-            voice->LoopEnd   = voice->sound + (unsigned int)voice->LoopEnd;
+            voice->LoopStart = voice->sound + (uintptr_t)voice->LoopStart;
+            voice->LoopEnd   = voice->sound + (uintptr_t)voice->LoopEnd;
             voice->LoopSize  = voice->LoopEnd - voice->LoopStart;
         }
 
@@ -2830,7 +2830,7 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
         MV_Shutdown();
     }
 
-    initprintf("Initializing MultiVoc...\n");
+    initprintf("Initializing MultiVoc... \n");
 
     MV_SetErrorCode(MV_Ok);
 

@@ -156,15 +156,10 @@ typedef struct
     char right;
 } Pan;
 
-typedef signed short MONO16;
-typedef signed char  MONO8;
-
 typedef struct
 {
     MONO16 left;
     MONO16 right;
-//   unsigned short left;
-//   unsigned short right;
 } STEREO16;
 
 typedef struct
@@ -175,8 +170,6 @@ typedef struct
 
 typedef struct
 {
-//   MONO8 left;
-//   MONO8 right;
     char left;
     char right;
 } STEREO8;
@@ -205,9 +198,6 @@ typedef struct
     unsigned char DATA[ 4 ];
     unsigned int size;
 } data_header;
-
-typedef MONO8  VOLUME8[ 256 ];
-typedef MONO16 VOLUME16[ 256 ];
 
 typedef char HARSH_CLIP_TABLE_8[ MV_NumVoices * 256 ];
 

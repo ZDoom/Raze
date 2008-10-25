@@ -5428,7 +5428,7 @@ void copydefaultcons(void)
         fs = kfilelength(fpi);
 
         kread(fpi,&hittype[0],fs);
-        fwrite(&hittype[0],fs,1,fpo);
+        if (fwrite(&hittype[0],fs,1,fpo)==0)initprintf("Failed to restore default CONs.\n");
 
         kclose(fpi);
         fclose(fpo);

@@ -880,10 +880,13 @@ skipitaddwall:
 //
 static void maskwallscan(int x1, int x2, short *uwal, short *dwal, int *swal, int *lwal)
 {
-    int i, x,/* startx,*/ xnice, ynice, fpalookup;
+    int x,/* startx,*/ xnice, ynice, fpalookup;
     intptr_t startx, p;
-    int y1ve[4], y2ve[4], u4, d4, dax, z,/* p,*/ tsizx, tsizy;
+    int y1ve[4], y2ve[4], /* p,*/ tsizx, tsizy;
+#ifndef ENGINE_USING_A_C
     char bad;
+	int i, u4, d4, dax, z;
+#endif
 
     tsizx = tilesizx[globalpicnum];
     tsizy = tilesizy[globalpicnum];
@@ -1905,9 +1908,12 @@ static void florscan(int x1, int x2, int sectnum)
 //
 static void wallscan(int x1, int x2, short *uwal, short *dwal, int *swal, int *lwal)
 {
-    int i, x, xnice, ynice, fpalookup;
-    int y1ve[4], y2ve[4], u4, d4, z, tsizx, tsizy;
+    int x, xnice, ynice, fpalookup;
+    int y1ve[4], y2ve[4], tsizx, tsizy;
+#ifndef ENGINE_USING_A_C
     char bad;
+	int i, u4, d4, z;
+#endif
 
     if (x2 >= xdim) x2 = xdim-1;
 
@@ -4631,12 +4637,16 @@ static int clippoly4(int cx1, int cy1, int cx2, int cy2)
 //JBF 20031206: Thanks to Ken's hunting, s/(rx1|ry1|rx2|ry2)/n\1/ in this function
 static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2, int uniqid)
 {
-    int cosang, sinang, v, nextv, dax1, dax2, oy, bx, by, ny1, ny2;
+    int cosang, sinang, v, nextv, dax1, dax2, oy, bx, by;
     int i, x, y, x1, y1, x2, y2, gx1, gy1 ;
     intptr_t p, bufplc, palookupoffs;
-    int xsiz, ysiz, xoff, yoff, npoints, yplc, yinc, lx, rx, xx, xend;
-    int xv, yv, xv2, yv2, qlinemode=0, y1ve[4], y2ve[4], u4, d4;
+    int xsiz, ysiz, xoff, yoff, npoints, yplc, yinc, lx, rx;
+    int xv, yv, xv2, yv2;
+#ifndef ENGINE_USING_A_C
     char bad;
+	int ny1, ny2, xx, xend;
+	int qlinemode=0, y1ve[4], y2ve[4], u4, d4;
+#endif
 
     UNREFERENCED_PARAMETER(uniqid);
     //============================================================================= //POLYMOST BEGINS

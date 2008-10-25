@@ -58,6 +58,12 @@ enum MV_Errors
    MV_NullRecordFunction
    };
 
+typedef signed short MONO16;
+typedef signed char  MONO8;
+
+typedef MONO8  VOLUME8[ 256 ];
+typedef MONO16 VOLUME16[ 256 ];
+
 char *MV_ErrorString( int ErrorNumber );
 int   MV_VoicePlaying( int handle );
 int   MV_KillAllVoices( void );
