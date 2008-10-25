@@ -50,6 +50,9 @@ extern "C" {
 
 #include "function.h"
 
+#define HORIZ_MIN -99
+#define HORIZ_MAX 299
+
 extern int g_ScriptVersion, g_Shareware, g_GameType;
 
 #define GAMEDUKE 0

@@ -902,10 +902,7 @@ void resizeglcheck()
             ratio = 1.2f;
         else if (glprojectionhacks == 1)
         {
-            if (gshang > 0)
-                ratio += gshang*0.33f;
-            if (gshang < 0)
-                ratio += -gshang*0.33f;
+            ratio += (gshang*gshang)*0.36f;
         }
         else if (glprojectionhacks == 2)
         {
@@ -4179,10 +4176,7 @@ void polymost_drawrooms()
             ratio = 1.2f;
         else if (glprojectionhacks == 1)
         {
-            if (gshang > 0)
-                ratio += gshang*0.33f;
-            if (gshang < 0)
-                ratio += -gshang*0.33f;
+            ratio += (gshang*gshang)*0.36f;
         }
         else if (glprojectionhacks == 2)
         {

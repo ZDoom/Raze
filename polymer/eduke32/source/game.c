@@ -391,7 +391,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
 
         if (small&4)
         {
-            rotatesprite(textsc(x<<shift),(origy<<shift)+textsc((y-origy)<<shift),textsc(z),0,ac,s,p,(8|16|(orientation&1)|(orientation&32)),x1,y1,x2,y2);
+            rotatesprite(textsc(x<<shift),(origy<<shift)+textsc((y-origy)<<shift),textsc(z),0,ac,s,p,(8|16|(orientation&1)|(orientation&32))|128,x1,y1,x2,y2);
         }
         else
         {
@@ -2743,15 +2743,15 @@ static void operatefta(void)
         k = user_quote_time[i];
         if (hud_glowingquotes)
         {
-            if (k > 4) { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16); j += textsc(8); }
-            else if (k > 2) { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1); j += textsc(k<<1); }
-            else { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+32); j += textsc(k<<1); }
+            if (k > 4) { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+128); j += textsc(8); }
+            else if (k > 2) { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+128); j += textsc(k<<1); }
+            else { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+32+128); j += textsc(k<<1); }
         }
         else
         {
-            if (k > 4) { mpgametext(j,user_quote[i],0,2+8+16); j += textsc(8); }
-            else if (k > 2) { mpgametext(j,user_quote[i],0,2+8+16+1); j += textsc(k<<1); }
-            else { mpgametext(j,user_quote[i],0,2+8+16+1+32); j += textsc(k<<1); }
+            if (k > 4) { mpgametext(j,user_quote[i],0,2+8+16+128); j += textsc(8); }
+            else if (k > 2) { mpgametext(j,user_quote[i],0,2+8+16+1+128); j += textsc(k<<1); }
+            else { mpgametext(j,user_quote[i],0,2+8+16+1+32+128); j += textsc(k<<1); }
         }
         l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(tempbuf,user_quote[i]));
         while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
@@ -2802,9 +2802,9 @@ static void operatefta(void)
         else gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16+1+32);
         return;
     }
-    if (j > 4) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16);
-    else if (j > 2) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1);
-    else gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+32);
+    if (j > 4) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16+128);
+    else if (j > 2) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+128);
+    else gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+32+128);
 }
 
 void FTA(int q, player_struct *p)
@@ -4377,7 +4377,7 @@ void displayrooms(int snum,int smoothratio)
     short tang;
     int tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
 
-    if (pub > 0) // JBF 20040101: redraw background always
+    if (pub > 0 || getrendermode() >= 3) // JBF 20040101: redraw background always
     {
         if (getrendermode() >= 3 || ud.screen_size > 8 || (ud.screen_size == 8 && ud.statusbarscale<100))
             drawbackground();
@@ -4419,9 +4419,6 @@ void displayrooms(int snum,int smoothratio)
         drawrooms(s->x,s->y,s->z-(4<<8),ud.cameraang,s->yvel,s->sectnum);
         animatesprites(s->x,s->y,ud.cameraang,smoothratio);
         drawmasks();
-
-        if (getrendermode() >= 3)
-            drawbackground();
     }
     else
     {
@@ -4553,8 +4550,8 @@ void displayrooms(int snum,int smoothratio)
             if (ud.cameraz > fz-(4<<8)) ud.cameraz = fz-(4<<8);
         }
 
-        if (ud.camerahoriz > 299) ud.camerahoriz = 299;
-        else if (ud.camerahoriz < -99) ud.camerahoriz = -99;
+        if (ud.camerahoriz > HORIZ_MAX) ud.camerahoriz = HORIZ_MAX;
+        else if (ud.camerahoriz < HORIZ_MIN) ud.camerahoriz = HORIZ_MIN;
 
         OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1);
 
@@ -4603,9 +4600,6 @@ void displayrooms(int snum,int smoothratio)
         drawrooms(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,ud.camerasect);
         animatesprites(ud.camerax,ud.cameray,ud.cameraang,smoothratio);
         drawmasks();
-
-        if (getrendermode() >= 3)
-            drawbackground();
 
         if (screencapt == 1)
         {
@@ -11445,7 +11439,10 @@ MAIN_LOOP_RESTART:
             if (r_maxfps == 0 || j >= nextrender)
             {
                 nextrender += g_FrameDelay;
+
                 displayrooms(screenpeek,i);
+                if (getrendermode() >= 3)
+                    drawbackground();
                 displayrest(i);
 
                 if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
@@ -12342,8 +12339,8 @@ FAKEHORIZONLY:
         myhoriz -= (myhardlanding<<4);
     }
 
-    if (myhoriz > 299) myhoriz = 299;
-    else if (myhoriz < -99) myhoriz = -99;
+    if (myhoriz > HORIZ_MAX) myhoriz = HORIZ_MAX;
+    else if (myhoriz < HORIZ_MIN) myhoriz = HORIZ_MIN;
 
     if (p->knee_incs > 0)
     {

@@ -4625,8 +4625,8 @@ HORIZONLY:
     }
     p->horiz += g_player[snum].sync->horz;
 
-    if (p->horiz > 299) p->horiz = 299;
-    else if (p->horiz < -99) p->horiz = -99;
+    if (p->horiz > HORIZ_MAX) p->horiz = HORIZ_MAX;
+    else if (p->horiz < HORIZ_MIN) p->horiz = HORIZ_MIN;
 
     //Shooting code/changes
 
