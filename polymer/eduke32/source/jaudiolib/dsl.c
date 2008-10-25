@@ -98,6 +98,10 @@ int DSL_Init(int soundcard, int mixrate, int numchannels, int samplebits, int bu
     /* FIXME: Do I need an SDL_mixer version check
      * like that in sdlmusic.h here, too???
      */
+
+    UNREFERENCED_PARAMETER(soundcard);
+    UNREFERENCED_PARAMETER(buffersize);
+
     DSL_SetErrorCode(DSL_Ok);
 
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
