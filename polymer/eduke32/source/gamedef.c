@@ -1797,6 +1797,9 @@ static int transnum(int type)
     {
         ReportError(ERROR_PARAMUNDEFINED);
         error++;
+        bitptr[(scriptptr-script)>>3] &= ~(1<<((scriptptr-script)&7));
+        *scriptptr = 0;
+        scriptptr++;
         textptr+=l;
         return -1; // error!
     }

@@ -1709,6 +1709,7 @@ int enterlevel(int g)
 
             {
                 char *p;
+
                 strcpy(levname, boardfilename);
                 p = Bstrrchr(levname,'.');
                 if (!p) strcat(levname,".mhk");
@@ -1720,6 +1721,48 @@ int enterlevel(int g)
                     p[4]=0;
                 }
                 if (!loadmaphack(levname)) initprintf("Loaded map hack file '%s'\n",levname);
+
+                // usermap music based on map filename
+                Bcorrectfilename(levname,0);
+                p = Bstrrchr(levname,'.');
+                if (p)
+                {
+                    int fil;
+
+                    p[1]='o';
+                    p[2]='g';
+                    p[3]='g';
+                    p[4]=0;
+                    fil = kopen4loadfrommod(levname,0);
+                    if (fil > -1)
+                    {
+                        kclose(fil);
+                        if (map[ud.m_level_number].musicfn1 == NULL)
+                            map[ud.m_level_number].musicfn1 = Bcalloc(Bstrlen(levname)+1,sizeof(char));
+                        else if ((Bstrlen(levname)+1) > sizeof(map[ud.m_level_number].musicfn1))
+                            map[ud.m_level_number].musicfn1 = Brealloc(map[ud.m_level_number].musicfn1,(Bstrlen(levname)+1));
+                        Bstrcpy(map[ud.m_level_number].musicfn1,levname);
+                    }
+                    else if (map[ud.m_level_number].musicfn1 != NULL)
+                    {
+                        Bfree(map[ud.m_level_number].musicfn1);
+                        map[ud.m_level_number].musicfn1 = NULL;
+                    }
+                    p[1]='m';
+                    p[2]='i';
+                    p[3]='d';
+                    p[4]=0;
+                    fil = kopen4loadfrommod(levname,0);
+                    if (fil == -1)
+                        Bsprintf(levname,"dethtoll.mid");
+                    else kclose(fil);
+
+                    if (map[ud.m_level_number].musicfn == NULL)
+                        map[ud.m_level_number].musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(char));
+                    else if ((Bstrlen(levname)+1) > sizeof(map[ud.m_level_number].musicfn))
+                        map[ud.m_level_number].musicfn = Brealloc(map[ud.m_level_number].musicfn,(Bstrlen(levname)+1));
+                    Bstrcpy(map[ud.m_level_number].musicfn,levname);
+                }
             }
         }
         else if (loadboard(map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,0,&g_player[0].ps->posx, &g_player[0].ps->posy, &g_player[0].ps->posz, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)

@@ -3337,7 +3337,7 @@ static int SetupOpenGL(int width, int height, int bitspp)
 
             if (err)
             {
-                OSD_Printf("Unsupported OpenGL driver. GL modes will be unavailable.\n");
+                OSD_Printf("Blacklisted OpenGL driver detected. GL modes will be unavailable.\n");
                 ReleaseOpenGL();
                 unloadgldriver();
                 nogl = 1;

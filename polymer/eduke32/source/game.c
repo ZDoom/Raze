@@ -391,7 +391,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
 
         if (small&4)
         {
-            rotatesprite(textsc(x<<shift),(origy<<shift)+textsc((y-origy)<<shift),textsc(z),0,ac,s,p,(8|16|(orientation&1)|(orientation&32))|128,x1,y1,x2,y2);
+            rotatesprite(textsc(x<<shift),(origy<<shift)+textsc((y-origy)<<shift),textsc(z),0,ac,s,p,(8|16|(orientation&1)|(orientation&32)),x1,y1,x2,y2);
         }
         else
         {
@@ -2743,15 +2743,15 @@ static void operatefta(void)
         k = user_quote_time[i];
         if (hud_glowingquotes)
         {
-            if (k > 4) { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+128); j += textsc(8); }
-            else if (k > 2) { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+128); j += textsc(k<<1); }
-            else { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+32+128); j += textsc(k<<1); }
+            if (k > 4) { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16); j += textsc(8); }
+            else if (k > 2) { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1); j += textsc(k<<1); }
+            else { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+32); j += textsc(k<<1); }
         }
         else
         {
-            if (k > 4) { mpgametext(j,user_quote[i],0,2+8+16+128); j += textsc(8); }
-            else if (k > 2) { mpgametext(j,user_quote[i],0,2+8+16+1+128); j += textsc(k<<1); }
-            else { mpgametext(j,user_quote[i],0,2+8+16+1+32+128); j += textsc(k<<1); }
+            if (k > 4) { mpgametext(j,user_quote[i],0,2+8+16); j += textsc(8); }
+            else if (k > 2) { mpgametext(j,user_quote[i],0,2+8+16+1); j += textsc(k<<1); }
+            else { mpgametext(j,user_quote[i],0,2+8+16+1+32); j += textsc(k<<1); }
         }
         l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(tempbuf,user_quote[i]));
         while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
@@ -2802,9 +2802,9 @@ static void operatefta(void)
         else gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16+1+32);
         return;
     }
-    if (j > 4) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16+128);
-    else if (j > 2) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+128);
-    else gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+32+128);
+    if (j > 4) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16);
+    else if (j > 2) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1);
+    else gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+32);
 }
 
 void FTA(int q, player_struct *p)
@@ -2952,8 +2952,9 @@ void gameexit(const char *t)
         //printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         if (!(t[0] == ' ' && t[1] == 0))
         {
-            Bsprintf(tempbuf,HEAD2 " %s",s_builddate);
-            wm_msgbox(tempbuf, (char *)t);
+            char titlebuf[256];
+            Bsprintf(titlebuf,HEAD2 " %s",s_builddate);
+            wm_msgbox(titlebuf, (char *)t);
         }
     }
 
@@ -4104,7 +4105,7 @@ void drawbackground(void)
         {
             for (y=y1;y<y2;y+=tilesizy[GetGameVarID(g_iReturnVarID, -1, -1)])
                 for (x=0;x<xdim;x+=tilesizx[GetGameVarID(g_iReturnVarID, -1, -1)])
-                    rotatesprite(x<<16,y<<16,65536L,0,GetGameVarID(g_iReturnVarID, -1, -1),bpp==8?16:8,0,8+16+64+128,0,0,xdim-1,ydim-1);
+                    rotatesprite(x<<16,y<<16,65536L,0,GetGameVarID(g_iReturnVarID, -1, -1),bpp==8?16:8,0,8+16+64,0,0,xdim-1,ydim-1);
         }
         else rotatesprite(320<<15,200<<15,65536L,0,GetGameVarID(g_iReturnVarID, -1, -1),bpp==8?16:8,0,2+8+64,0,0,xdim-1,ydim-1);
         return;
@@ -4117,21 +4118,21 @@ void drawbackground(void)
         // across top
         for (y=0; y<windowy1; y+=tilesizy[dapicnum])
             for (x=0; x<xdim; x+=tilesizx[dapicnum])
-                rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,0,y1,xdim-1,windowy1-1);
+                rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,y1,xdim-1,windowy1-1);
 
         // sides
         rx = windowx2-windowx2%tilesizx[dapicnum];
         for (y=windowy1-windowy1%tilesizy[dapicnum]; y<windowy2; y+=tilesizy[dapicnum])
             for (x=0; x<windowx1 || x+rx<xdim; x+=tilesizx[dapicnum])
             {
-                rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,0,windowy1,windowx1-1,windowy2-1);
-                rotatesprite((x+rx)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,windowx2,windowy1,xdim-1,windowy2-1);
+                rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,windowy1,windowx1-1,windowy2-1);
+                rotatesprite((x+rx)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,windowx2,windowy1,xdim-1,windowy2-1);
             }
 
         // along bottom
         for (y=windowy2-(windowy2%tilesizy[dapicnum]); y<y2; y+=tilesizy[dapicnum])
             for (x=0; x<xdim; x+=tilesizx[dapicnum])
-                rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,0,windowy2,xdim-1,y2-1);
+                rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,windowy2,xdim-1,y2-1);
     }
 
     // draw in the bits to the left and right of the non-fullsize status bar
@@ -4144,8 +4145,8 @@ void drawbackground(void)
         for (y=y1-y1%tilesizy[dapicnum]; y<y2; y+=tilesizy[dapicnum])
             for (x=0;x<x2 || x1+x<xdim; x+=tilesizx[dapicnum])
             {
-                rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,0,y1,x2-1,ydim-1);
-                rotatesprite((x+x1)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,xdim-x2,y1,xdim-1,ydim-1);
+                rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,y1,x2-1,ydim-1);
+                rotatesprite((x+x1)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,xdim-x2,y1,xdim-1,ydim-1);
             }
     }
 
@@ -4165,20 +4166,20 @@ void drawbackground(void)
 
         for (y=y1+4;y<y2-4;y+=64)
         {
-            rotatesprite(x1<<16,y<<16,65536L,0,VIEWBORDER,0,0,8+16+64+128,x1,y1,x2,y2);
-            rotatesprite((x2+1)<<16,(y+64)<<16,65536L,1024,VIEWBORDER,0,0,8+16+64+128,x1,y1,x2,y2);
+            rotatesprite(x1<<16,y<<16,65536L,0,VIEWBORDER,0,0,8+16+64,x1,y1,x2,y2);
+            rotatesprite((x2+1)<<16,(y+64)<<16,65536L,1024,VIEWBORDER,0,0,8+16+64,x1,y1,x2,y2);
         }
 
         for (x=x1+4;x<x2-4;x+=64)
         {
-            rotatesprite((x+64)<<16,y1<<16,65536L,512,VIEWBORDER,0,0,8+16+64+128,x1,y1,x2,y2);
-            rotatesprite(x<<16,(y2+1)<<16,65536L,1536,VIEWBORDER,0,0,8+16+64+128,x1,y1,x2,y2);
+            rotatesprite((x+64)<<16,y1<<16,65536L,512,VIEWBORDER,0,0,8+16+64,x1,y1,x2,y2);
+            rotatesprite(x<<16,(y2+1)<<16,65536L,1536,VIEWBORDER,0,0,8+16+64,x1,y1,x2,y2);
         }
 
-        rotatesprite(x1<<16,y1<<16,65536L,0,VIEWBORDER+1,0,0,8+16+64+128,x1,y1,x2,y2);
-        rotatesprite((x2+1)<<16,y1<<16,65536L,512,VIEWBORDER+1,0,0,8+16+64+128,x1,y1,x2,y2);
-        rotatesprite((x2+1)<<16,(y2+1)<<16,65536L,1024,VIEWBORDER+1,0,0,8+16+64+128,x1,y1,x2,y2);
-        rotatesprite(x1<<16,(y2+1)<<16,65536L,1536,VIEWBORDER+1,0,0,8+16+64+128,x1,y1,x2,y2);
+        rotatesprite(x1<<16,y1<<16,65536L,0,VIEWBORDER+1,0,0,8+16+64,x1,y1,x2,y2);
+        rotatesprite((x2+1)<<16,y1<<16,65536L,512,VIEWBORDER+1,0,0,8+16+64,x1,y1,x2,y2);
+        rotatesprite((x2+1)<<16,(y2+1)<<16,65536L,1024,VIEWBORDER+1,0,0,8+16+64,x1,y1,x2,y2);
+        rotatesprite(x1<<16,(y2+1)<<16,65536L,1536,VIEWBORDER+1,0,0,8+16+64,x1,y1,x2,y2);
     }
 
     pus = pub = NUMPAGES;
@@ -7588,8 +7589,8 @@ PALONLY:
         if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
         if (tsprite[j].owner < MAXSPRITES && tsprite[j].owner > 0 && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
         {
+            spriteext[tsprite[j].owner].tspr = (spritetype *)&tsprite[j];
             OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
-//            spriteext[tsprite[j].owner].tspr = NULL;
         }
     }
     while (j--);
@@ -7599,8 +7600,8 @@ PALONLY:
     if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
     if (tsprite[j].owner > 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
     {
+        spriteext[tsprite[j].owner].tspr = (spritetype *)&tsprite[j];
         OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
-//        spriteext[tsprite[j].owner].tspr = NULL;
     }
 }
 #ifdef _MSC_VER
@@ -10198,11 +10199,11 @@ void Shutdown(void)
     SoundShutdown();
     MusicShutdown();
     uninittimer();
-    uninitengine();
     CONTROL_Shutdown();
     CONFIG_WriteSetup();
     KB_Shutdown();
     freeconmem();
+    uninitengine();
 }
 
 /*
