@@ -8003,11 +8003,10 @@ int loadpics(char *filename, int askedsize)
                 artsize += ((dasiz+15)&0xfffffff0);
             }
             kclose(fil);
-
-            numtilefiles++;
         }
+        numtilefiles++;
     }
-    while (k != numtilefiles);
+    while (k != numtilefiles && k < 64);
 
     clearbuf(&gotpic[0],(int)((MAXTILES+31)>>5),0L);
 
@@ -11140,8 +11139,8 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 
         if (j < 0)
         {
-            col = 7;
-            if (i == linehighlight) if (totalclock & 16) col += (2<<2);
+            col = 15;
+            if (i == linehighlight) if (totalclock & 16) col -= (2<<2);
         }
         else
         {

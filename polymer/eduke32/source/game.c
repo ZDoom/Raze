@@ -161,6 +161,10 @@ int leveltexttime = 0;
 int r_maxfps = 0;
 unsigned int g_FrameDelay = 0;
 
+#ifdef RENDERTYPEWIN
+extern char forcegl;
+#endif
+
 int kopen4loadfrommod(char *filename, char searchfirst)
 {
     static char fn[BMAX_PATH];
@@ -2604,73 +2608,47 @@ static void coolgaugetext(int snum)
     }
 }
 
-#define AVERAGEFRAMES 128
 #define COLOR_RED 248
 #define COLOR_WHITE 31
+#define LOW_FPS 30
 
 static void ShowFrameRate(void)
 {
     // adapted from ZDoom because I like it better than what we had
     // applicable ZDoom code available under GPL from csDoom
-    if (ud.tickrate == 1)
+    static int FrameCount = 0;
+    static int LastCount = 0;
+    static int LastSec = 0;
+    static int LastMS = 0;
+    int ms = getticks();
+    int howlong = ms - LastMS;
+    if (howlong >= 0)
     {
-        static int FrameCount = 0;
-        static int LastCount = 0;
-        static int LastSec = 0;
-        static int LastMS = 0;
-        int ms = getticks();
-        int howlong = ms - LastMS;
-        if (howlong >= 0)
+        int thisSec = ms/1000;
+        int x = (xdim <= 640);
+        if (ud.tickrate)
         {
-            int thisSec = ms/1000;
-            int x = (xdim <= 640);
             int chars = Bsprintf(tempbuf, "%2u ms (%3u fps)", howlong, LastCount);
 
             printext256(windowx2-(chars<<(3-x))+1,windowy1+2,0,-1,tempbuf,x);
-            printext256(windowx2-(chars<<(3-x)),windowy1+1,COLOR_WHITE,-1,tempbuf,x);
+            printext256(windowx2-(chars<<(3-x)),windowy1+1,(LastCount < LOW_FPS) ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
 
-            if (numplayers > 1)
-                if ((totalclock - lastpackettime) > 1)
-                {
-                    for (howlong = (totalclock - lastpackettime);howlong>0 && howlong<(xdim>>2);howlong--)
-                        printext256(4L*howlong,0,COLOR_WHITE,-1,".",0);
-                }
-
-            if (LastSec < thisSec)
+            if (numplayers > 1 && (totalclock - lastpackettime) > 1)
             {
-                framerate = LastCount = FrameCount / (thisSec - LastSec);
-                LastSec = thisSec;
-                FrameCount = 0;
+                for (howlong = (totalclock - lastpackettime);howlong>0 && howlong<(xdim>>2);howlong--)
+                    printext256(4L*howlong,0,COLOR_WHITE,-1,".",0);
             }
-            FrameCount++;
         }
-        LastMS = ms;
-    }
-    else if (ud.tickrate == 2)
-    {
-        static int frameval[AVERAGEFRAMES], framecnt = 0;
 
-        if (totalclock != frameval[framecnt])
+        if (LastSec < thisSec)
         {
-            int x = (xdim <= 640);
-            int p = 32>>x;
-
-            framerate=(timer*AVERAGEFRAMES)/(totalclock-frameval[framecnt]);
-            frameval[framecnt] = totalclock;
-
-            Bsprintf(tempbuf,"%4d",max(framerate,0));
-            printext256(windowx2-p+1,windowy1+2,0,-1,tempbuf,x);
-            printext256(windowx2-p,windowy1+1,(framerate < 40) ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
-
-            if (numplayers > 1)
-                if ((totalclock - lastpackettime) > 1)
-                {
-                    for (p = (totalclock - lastpackettime);p>0 && p<(xdim>>2);p--)
-                        printext256(4L*p,0,COLOR_WHITE,-1,".",0);
-                }
+            framerate = LastCount = FrameCount / (thisSec - LastSec);
+            LastSec = thisSec;
+            FrameCount = 0;
         }
-        framecnt = ((framecnt+1)&(AVERAGEFRAMES-1));
+        FrameCount++;
     }
+    LastMS = ms;
 }
 
 static void ShowCoordinates(int snum)
@@ -3949,26 +3927,27 @@ void displayrest(int smoothratio)
     {
         if (ud.screen_size == 4)
         {
-            i = scale(tilesizy[ud.althud ? SHIELD : INVENTORYBOX]+2,ud.statusbarscale,100);
-            j = scale(scale(6,ud.config.ScreenWidth,320),ud.statusbarscale,100);
+            i = scale(ud.althud?tilesizy[BIGALPHANUM]+10:tilesizy[INVENTORYBOX]+2,ud.statusbarscale,100);
+//            j = scale(scale(6,ud.config.ScreenWidth,320),ud.statusbarscale,100);
         }
         else if (ud.screen_size > 2)
         {
             i = scale(tilesizy[BOTTOMSTATUSBAR]+1,ud.statusbarscale,100);
-            j = scale(2,ud.config.ScreenWidth,320);
+  //          j = scale(2,ud.config.ScreenWidth,320);
         }
         else
         {
             i = 2;
-            j = scale(2,ud.config.ScreenWidth,320);
+    //        j = scale(2,ud.config.ScreenWidth,320);
         }
+        j = scale(2,ud.config.ScreenWidth,320);
 
         Bsprintf(tempbuf,"T:^15%d:%02d.%02d",
                  (g_player[myconnectindex].ps->player_par/(26*60)),
                  (g_player[myconnectindex].ps->player_par/26)%60,
                  ((g_player[myconnectindex].ps->player_par%26)*38)/10
                 );
-        gametext_z(9,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-7-7-7,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+        gametext_z(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(21),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
         if (ud.player_skill > 3 || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY)))
             Bsprintf(tempbuf,"K:^15%d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?g_player[myconnectindex].ps->frag-g_player[myconnectindex].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
@@ -3983,12 +3962,12 @@ void displayrest(int smoothratio)
                          g_player[myconnectindex].ps->max_actors_killed>g_player[myconnectindex].ps->actors_killed?
                          g_player[myconnectindex].ps->max_actors_killed:g_player[myconnectindex].ps->actors_killed);
         }
-        gametext_z(9,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-7-7,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+        gametext_z(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(14),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
         if (g_player[myconnectindex].ps->secret_rooms == g_player[myconnectindex].ps->max_secret_rooms)
             Bsprintf(tempbuf,"S:%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
         else Bsprintf(tempbuf,"S:^15%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
-        gametext_z(9,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-7,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+        gametext_z(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(7),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
     }
 
     if (g_player[myconnectindex].ps->gm&MODE_TYPE)
@@ -9607,6 +9586,14 @@ static void checkcommandline(int argc, const char **argv)
                     i++;
                     continue;
                 }
+#ifdef RENDERTYPEWIN
+                if (!Bstrcasecmp(c+1,"forcegl"))
+                {
+                    forcegl = 1;
+                    i++;
+                    continue;
+                }
+#endif
             }
 
             if (firstnet > 0)
@@ -10773,6 +10760,10 @@ void app_main(int argc,const char **argv)
     ud.multimode = 1;
 
     checkcommandline(argc,argv);
+
+#ifdef RENDERTYPEWIN
+    if (forcegl) initprintf("GL driver blacklist disabled.\n");
+#endif
 
     g_player[0].ps = (player_struct *) Bcalloc(1, sizeof(player_struct));
     g_player[0].sync = (input_t *) Bcalloc(1, sizeof(input_t));

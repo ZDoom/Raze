@@ -2743,6 +2743,15 @@ void overheadeditor(void)
 
         if (((bstatus&1) < (oldmousebstatus&1)) && (highlightsectorcnt < 0))  //after dragging
         {
+            int wallsdrawn = newnumwalls-numwalls;
+
+            if (newnumwalls != -1)
+            {
+                newnumwalls = -1;
+                Bmemcpy(&wall[MAXWALLS-wallsdrawn],&wall[numwalls],sizeof(walltype) * wallsdrawn);
+            }
+            else wallsdrawn = -1;
+
             j = 1;
             if (highlightcnt > 0)
                 for (i=0;i<highlightcnt;i++)
@@ -2795,12 +2804,33 @@ void overheadeditor(void)
             {
                 if (wall[i].x == wall[wall[i].point2].x)
                     if (wall[i].y == wall[wall[i].point2].y)
-                    {
-                        deletepoint((short)i);
-                        printmessage16("Point deleted.");
-                        asksave = 1;
-                    }
+                        if (sector[sectorofwall((short)i)].wallnum > 3)
+                            if (sector[sectorofwall(wall[i].point2)].wallnum > 3)
+                                if (!(wall[i].nextwall == -1 ||
+                                        (sector[sectorofwall(wall[i].nextwall)].wallnum > 3 &&
+                                         sector[sectorofwall(wall[wall[i].nextwall].point2)].wallnum > 3)))
+                                {
+                                    printmessage16("Invalid operation, delete or join sector instead.");
+                                    goto SKIP;
+                                }
             }
+
+            for (i=numwalls-1;i>=0;i--)    //delete points
+            {
+                if (wall[i].x == wall[wall[i].point2].x)
+                    if (wall[i].y == wall[wall[i].point2].y)
+                        if (sector[sectorofwall((short)i)].wallnum > 3)
+                            if (sector[sectorofwall(wall[i].point2)].wallnum > 3)
+                                if (wall[i].nextwall == -1 ||
+                                        (sector[sectorofwall(wall[i].nextwall)].wallnum > 3 &&
+                                         sector[sectorofwall(wall[wall[i].nextwall].point2)].wallnum > 3))
+                                {
+                                    deletepoint((short)i);
+                                    printmessage16("Point deleted.");
+                                    asksave = 1;
+                                }
+            }
+
             for (i=0;i<numwalls;i++)       //make new red lines?
             {
                 if ((wall[i].x == dax) && (wall[i].y == day))
@@ -2817,8 +2847,16 @@ void overheadeditor(void)
                 }
             }
 
+            if (wallsdrawn != -1)
+            {
+                Bmemcpy(&wall[numwalls],&wall[MAXWALLS-wallsdrawn],sizeof(walltype) * wallsdrawn);
+                newnumwalls = numwalls + wallsdrawn;
+                for (i=numwalls;i<newnumwalls;i++)
+                    wall[i].point2 = i+1;
+            }
         }
 
+SKIP:
         if ((bstatus&1) > 0)                //drag points
         {
             if (highlightsectorcnt > 0)
@@ -3030,9 +3068,9 @@ void overheadeditor(void)
         {
             gridlock = 1-gridlock, keystatus[0x26] = 0;
             if (gridlock == 0)
-                printmessage16("Grid locking OFF");
+                printmessage16("Grid locking off");
             else
-                printmessage16("Grid locking ON");
+                printmessage16("Grid locking on");
         }
 
         if (keystatus[0x24])  // J (join sectors)
@@ -3040,12 +3078,58 @@ void overheadeditor(void)
             if (joinsector[0] >= 0)
             {
                 joinsector[1] = -1;
+
                 for (i=0;i<numsectors;i++)
+                {
                     if (inside(mousxplc,mousyplc,i) == 1)
                     {
-                        joinsector[1] = i;
-                        break;
+                        startwall = sector[i].wallptr;
+                        endwall = startwall + sector[i].wallnum - 1;
+                        for (j=startwall;j<=endwall;j++)
+                        {
+                            if (wall[j].nextsector == joinsector[0])
+                                break;
+                        }
+
+                        if (j >= endwall)
+                        {
+                            printmessage16("Join non-adjacent sectors? (Y/N)");
+                            showframe(1);
+                            bflushchars(); ch = 0;
+                            while (keystatus[1] == 0)
+                            {
+                                if (handleevents())
+                                {
+                                    if (quitevent)
+                                    {
+                                        quitevent = 0;
+                                    }
+                                }
+                                idle();
+
+                                ch = bgetchar();
+
+                                if (ch == 'Y' || ch == 'y')
+                                {
+                                    joinsector[1] = i;
+                                    break;
+                                }
+                                else if (ch == 'N' || ch == 'n' || ch == 13 || ch == ' ')
+                                {
+                                    joinsector[1] = joinsector[0];
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                        else
+                        {
+                            joinsector[1] = i;
+                            break;
+                        }
                     }
+                }
+
                 if ((joinsector[1] >= 0) && (joinsector[0] != joinsector[1]))
                 {
                     newnumwalls = numwalls;
@@ -4151,6 +4235,15 @@ void overheadeditor(void)
             }
             else if (linehighlight >= 0)
             {
+                int wallsdrawn = newnumwalls-numwalls;
+
+                if (newnumwalls != -1)
+                {
+                    newnumwalls = -1;
+                    Bmemcpy(&wall[MAXWALLS-wallsdrawn],&wall[numwalls],sizeof(walltype) * wallsdrawn);
+                }
+                else wallsdrawn = -1;
+
                 getclosestpointonwall(mousxplc,mousyplc,(int)linehighlight,&dax,&day);
                 adjustmark(&dax,&day,newnumwalls);
                 insertpoint(linehighlight,dax,day);
@@ -4189,6 +4282,14 @@ void overheadeditor(void)
                 //         printmessage16("Point inserted at midpoint.");
                 //      }
                 //}
+
+                if (wallsdrawn != -1)
+                {
+                    Bmemcpy(&wall[numwalls],&wall[MAXWALLS-wallsdrawn],sizeof(walltype) * wallsdrawn);
+                    newnumwalls = numwalls + wallsdrawn;
+                    for (i=numwalls;i<newnumwalls;i++)
+                        wall[i].point2 = i+1;
+                }
 
                 asksave = 1;
             }
@@ -6017,7 +6118,7 @@ void printcoords16(int posxe, int posye, short ange)
     char snotbuf[80];
     int i,m;
 
-    Bsprintf(snotbuf,"x=%d y=%d ang=%d",posxe,posye,ange);
+    Bsprintf(snotbuf,"x:%d y:%d ang:%d",posxe,posye,ange);
     i = 0;
     while ((snotbuf[i] != 0) && (i < 30))
         i++;
@@ -6028,14 +6129,15 @@ void printcoords16(int posxe, int posye, short ange)
     }
     snotbuf[30] = 0;
 
+    printext16(8, ydim-STATUS2DSIZ+128, 9, 0, snotbuf,0);
+
     m = (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 || numsprites > MAXSPRITESV7);
 
-    printext16(8, ydim-STATUS2DSIZ+128+2, 9, 0, snotbuf,0);
-
     Bsprintf(snotbuf,"%d/%d sect. %d/%d walls %d/%d spri.",
-             numsectors,m?MAXSECTORSV8:MAXSECTORSV7,
-             numwalls,m?MAXWALLSV8:MAXWALLSV7,
-             numsprites,m?MAXSPRITESV8:MAXSPRITESV7);
+                 numsectors,m?MAXSECTORSV8:MAXSECTORSV7,
+                 numwalls,m?MAXWALLSV8:MAXWALLSV7,
+                 numsprites,m?MAXSPRITESV8:MAXSPRITESV7);
+
     i = 0;
     while ((snotbuf[i] != 0) && (i < 46))
         i++;

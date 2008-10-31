@@ -187,10 +187,10 @@ endif
 ifeq ($(PRETTY_OUTPUT),1)
 BUILD_STARTED = printf "\033[K\033[1;36mBuild started using \"$(CC) $(OURCFLAGS)\"\033[0m\n"
 BUILD_FINISHED = printf "\033[K\033[1;36mBuild successful:\033[0m\n"
-COMPILE_STATUS = printf "\033[K\033[0;37mBuilding object \033[1;37m$@\033[0;37m...\033[0m\r"
+COMPILE_STATUS = printf "\033[K\033[0mBuilding object \033[1m$@\033[0m...\033[0m\r"
 COMPILE_OK = printf "\033[K\033[0;32mBuilt object \033[1;32m$@\033[0;32m.\033[0m\n"
 COMPILE_FAILED = printf "\033[K\033[0;31mFailed building \033[1;31m$@\033[0;31m from\033[0m \033[1;31m$<\033[0;31m!\033[0m\n"; exit 1
-LINK_STATUS = printf "\033[K\033[0;37mLinking executable \033[1;37m$@\033[0;37m...\033[0m\r"
+LINK_STATUS = printf "\033[K\033[0;0mLinking executable \033[1m$@\033[0;0m...\033[0m\r"
 LINK_OK = printf "\033[K\033[0;32mLinked executable \033[1;32m$@\033[0;32m.\033[0m\n"
 LINK_FAILED = printf "\033[K\033[0;31mFailed linking executable \033[1;31m$@\033[0;31m!\033[0m\n"; exit 1
 else

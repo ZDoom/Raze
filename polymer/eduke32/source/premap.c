@@ -1733,7 +1733,9 @@ int enterlevel(int g)
                     p[2]='g';
                     p[3]='g';
                     p[4]=0;
+
                     fil = kopen4loadfrommod(levname,0);
+
                     if (fil > -1)
                     {
                         kclose(fil);
@@ -1748,11 +1750,14 @@ int enterlevel(int g)
                         Bfree(map[ud.m_level_number].musicfn1);
                         map[ud.m_level_number].musicfn1 = NULL;
                     }
+
                     p[1]='m';
                     p[2]='i';
                     p[3]='d';
                     p[4]=0;
+
                     fil = kopen4loadfrommod(levname,0);
+
                     if (fil == -1)
                         Bsprintf(levname,"dethtoll.mid");
                     else kclose(fil);
