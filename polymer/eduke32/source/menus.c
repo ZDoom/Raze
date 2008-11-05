@@ -2504,13 +2504,13 @@ cheat_for_port_credits:
                 case 1:
                 {
                     int dummy = glanisotropy;
-                    modval(0,glinfo.maxanisotropy+1,(int *)&dummy,1,probey==io);
+                    modval(0,(int)glinfo.maxanisotropy+1,(int *)&dummy,1,probey==io);
                     if (dummy > glanisotropy) glanisotropy *= 2;
                     else if (dummy < glanisotropy) glanisotropy /= 2;
                     if (x==io)
                         glanisotropy *= 2;
                     if (glanisotropy > glinfo.maxanisotropy) glanisotropy = 1;
-                    else if (glanisotropy < 1) glanisotropy = glinfo.maxanisotropy;
+                    else if (glanisotropy < 1) glanisotropy = (int)glinfo.maxanisotropy;
                     gltexapplyprops();
                     if (glanisotropy == 1) strcpy(tempbuf,"NONE");
                     else sprintf(tempbuf,"%dx",glanisotropy);
@@ -2529,7 +2529,7 @@ cheat_for_port_credits:
                 }
                 case 3:
                 {
-                    int i = (float)r_ambientlight*1024.f;
+                    int i = (int)(r_ambientlight*1024.f);
                     int j = i;
                     _bar(1,d+8,yy+7, &i,128,x==io,MENUHIGHLIGHT(io),0,128,4096);
                     Bsprintf(tempbuf,"%.2f",r_ambientlight);
@@ -2670,18 +2670,18 @@ cheat_for_port_credits:
         rotatesprite(160<<16,27<<16,24576,0,3290,0,0,2+8+16,0,scale(ydim,35,200),xdim-1,scale(ydim,80,200)-1);
 
         {
-            int b = (double)(vid_gamma*40960.f);
+            int b = (int)(vid_gamma*40960.f);
             _bar(0,c+177,98,&b,4096,x==0,MENUHIGHLIGHT(0),0,8192,163840);
 
             if (b != (double)(vid_gamma*40960.f))
             {
                 vid_gamma = (double)b/40960.f;
-                ud.brightness = min(max((double)((vid_gamma-1.0)*10.0),0),15);
+                ud.brightness = (int)(min(max((double)((vid_gamma-1.0)*10.0),0),15));
                 ud.brightness <<= 2;
                 setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
             }
 
-            b = (vid_contrast*40960.f);
+            b = (int)(vid_contrast*40960.f);
             _bar(0,c+177,98+16,&b,2048,x==1,MENUHIGHLIGHT(1),0,4096,110592);
 
             if (b != (vid_contrast*40960.f))
@@ -2690,7 +2690,7 @@ cheat_for_port_credits:
                 setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
             }
 
-            b = (vid_brightness*40960.f);
+            b = (int)(vid_brightness*40960.f);
             _bar(0,c+177,98+16+16,&b,2048,x==2,MENUHIGHLIGHT(2),0,-32768,32768);
 
             if (b != (vid_brightness*40960.f))
@@ -3440,7 +3440,7 @@ cheat_for_port_credits:
         */
         if (!getrendermode())
         {
-            int i = (float)r_ambientlight*1024.f;
+            int i = (int)(r_ambientlight*1024.f);
             int j = i;
             menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"PIXEL DOUBLING");
             menutext(c+168,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"OFF":"ON");

@@ -47,6 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
+#undef UNREFERENCED_PARAMETER
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
@@ -4369,7 +4370,7 @@ void displayrooms(int snum,int smoothratio)
 
     smoothratio = min(max(smoothratio,0),65536);
 
-    visibility = p->visibility*(numplayers>1?1:r_ambientlightrecip);
+    visibility = (int)(p->visibility*(numplayers>1?1.f:r_ambientlightrecip));
 
     if (ud.pause_on || g_player[snum].ps->on_crane > -1) smoothratio = 65536;
 

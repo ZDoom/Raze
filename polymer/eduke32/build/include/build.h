@@ -297,6 +297,8 @@ EXTERN signed char h_xoffs[MAXTILES], h_yoffs[MAXTILES];
 extern char *engineerrstr;
 extern char noclip;
 
+EXTERN int editorzrange[2];
+
 /*************************************************************************
 POSITION VARIABLES:
 
@@ -484,7 +486,7 @@ typedef struct  s_equation {
 typedef struct  s_point2d {
     float       x, y;
 }               _point2d;
-_equation       equation(int x1, int y1, int x2, int y2);
+_equation       equation(float x1, float y1, float x2, float y2);
 int             sameside(_equation* eq, _point2d* p1, _point2d* p2);
 int             wallvisible(short wallnum);
 

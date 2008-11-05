@@ -3000,12 +3000,12 @@ void drawtileinfo(char *title,int x,int y,int picnum,int shade,int pal,int cstat
 
     x1=x+80;
     if (j)x1/=2;
-    x1*=320./xdimgame;
-    scale/=max(tilesizx[picnum],tilesizy[picnum])/24.;
+    x1=(int)(x1*(320./xdimgame));
+    scale=(int)(scale/(max(tilesizx[picnum],tilesizy[picnum])/24.));
     rotatesprite((x1+13)<<16,(y+11)<<16,scale,0,picnum,shade,pal,2,0L,0L,xdim-1L,ydim-1L);
 
-    x*=xdimgame/320.;
-    y*=ydimgame/200.;
+    x=(int)(x*(xdimgame/320.));
+    y=(int)(y*(ydimgame/200.));
     begindrawing();
     printext256(x+2,y+2,0,-1,title,j);
     printext256(x,y,255-13,-1,title,j);
@@ -3667,8 +3667,8 @@ static void Keys3d(void)
             }
         }
         x=WIND1X;y=WIND1Y;
-        x*=xdimgame/320.;
-        y*=ydimgame/200.;
+        x=(int)(x*(xdimgame/320.));
+        y=(int)(y*(ydimgame/200.));
         y+=(ydimgame>>6)*8;
         if (getmessageleng)
         {
@@ -5761,7 +5761,7 @@ static void Keys3d(void)
             {
                 mouseaction=1;
                 mouseax+=mousex;
-                updownunits=klabs(mouseax/2.);
+                updownunits=klabs((int)(mouseax/2.));
                 if (updownunits) {mouseax=0;}
             }
         }
@@ -5869,7 +5869,7 @@ static void Keys3d(void)
                 updownunits=klabs(mousey);
                 if (searchstat != 3)
                 {
-                    updownunits=klabs(mousey*128./tilesizy[wall[searchwall].picnum]);
+                    updownunits=klabs((int)(mousey*128./tilesizy[wall[searchwall].picnum]));
                 }
             }
         }
@@ -6666,6 +6666,15 @@ static void Keys2d(void)
         }
     }
     enddrawing();
+
+    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_Z]) // ' z
+    {
+        keystatus[KEYSC_Z] = 0;
+
+        editorzrange[0]=getnumber16("Upper Z range: ",editorzrange[0],INT32_MAX,1);
+        editorzrange[1]=getnumber16("Lower Z range: ",editorzrange[1],INT32_MAX,1);
+        printmessage16("");
+    }
 
     if (keystatus[0x14])  // T (tag)
     {
@@ -10548,25 +10557,25 @@ static void FuncMenu(void)
                         for (i = 0; i < highlightsectorcnt; i++)
                         {
                             currsector = highlightsector[i];
-                            sector[currsector].ceilingz *= size;
-                            sector[currsector].floorz *= size;
+                            sector[currsector].ceilingz = (int)(sector[currsector].ceilingz*size);
+                            sector[currsector].floorz = (int)(sector[currsector].floorz*size);
                             // Do all the walls in the sector
                             start_wall = sector[currsector].wallptr;
                             end_wall = start_wall + sector[currsector].wallnum;
                             for (w = start_wall; w < end_wall; w++)
                             {
-                                wall[w].x *= size;
-                                wall[w].y *= size;
-                                wall[w].yrepeat = min(wall[w].yrepeat/size,255);
+                                wall[w].x = (int)(wall[w].x*size);
+                                wall[w].y = (int)(wall[w].y*size);
+                                wall[w].yrepeat = min((int)(wall[w].yrepeat/size),255);
                             }
                             w = headspritesect[highlightsector[i]];
                             while (w >= 0)
                             {
-                                sprite[w].x *= size;
-                                sprite[w].y *= size;
-                                sprite[w].z *= size;
-                                sprite[w].xrepeat = min(max(sprite[w].xrepeat*size,1),255);
-                                sprite[w].yrepeat = min(max(sprite[w].yrepeat*size,1),255);
+                                sprite[w].x = (int)(sprite[w].x*size);
+                                sprite[w].y = (int)(sprite[w].y*size);
+                                sprite[w].z = (int)(sprite[w].z*size);
+                                sprite[w].xrepeat = min(max((int)(sprite[w].xrepeat*size),1),255);
+                                sprite[w].yrepeat = min(max((int)(sprite[w].yrepeat*size),1),255);
                                 w = nextspritesect[w];
                             }
                         }

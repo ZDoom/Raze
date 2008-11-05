@@ -57,6 +57,7 @@ typedef double                  float64;
 //typedef int double             float128;
 typedef float64                 appfloat;
 
+#ifndef _MSC_VER
 #define MAXINT32                0x7fffffff
 #define MININT32                -0x80000000
 #define MAXUINT32               0xffffffff
@@ -66,6 +67,7 @@ typedef float64                 appfloat;
 #define MININT16                -0x8000
 #define MAXUINT16               0xffff
 #define MINUINT16               0
+#endif
 
 //***************************************************************************
 //

@@ -1333,7 +1333,7 @@ static int osdcmd_vid_gamma(const osdfuncparm_t *parm)
         return OSDCMD_SHOWHELP;
     }
     vid_gamma = atof(parm->parms[0]);
-    ud.brightness = min(max((float)((vid_gamma-1.0)*10.0),0),15);
+    ud.brightness = (int)(min(max((float)((vid_gamma-1.0)*10.0),0),15));
     ud.brightness <<= 2;
     OSD_Printf("%s\n",parm->raw);
     setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
@@ -1432,6 +1432,28 @@ static int osdcmd_maxfps(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int osdcmd_inittimer(const osdfuncparm_t *parm)
+{
+    int j;
+
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("%dHz timer\n",timer);
+        return OSDCMD_SHOWHELP;
+    }
+
+    j = atol(parm->parms[0]);
+    if (timer == j)
+        return OSDCMD_OK;
+    uninittimer();
+    inittimer(j);
+    timer = j;
+
+    OSD_Printf("%s\n",parm->raw);
+    return OSDCMD_OK;
+}
+
+
 int registerosdcommands(void)
 {
     unsigned int i;
@@ -1485,6 +1507,7 @@ int registerosdcommands(void)
     OSD_RegisterFunction("in_joystick","in_joystick: enables input from the joystick if it is present",osdcmd_usemousejoy);
     OSD_RegisterFunction("in_mouse","in_mouse: enables input from the mouse if it is present",osdcmd_usemousejoy);
     OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
+    OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
 
     OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);

@@ -35,7 +35,7 @@ LINK=link /opt:nowin98 /nologo /opt:ref
 MT=mt
 CFLAGS= /MD /J /nologo $(flags_cl)  \
 	/I$(INC) /I$(EINC)\ /I$(SRC)\jmact /I$(SRC)\jaudiolib /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" \
- 	/DNOCOPYPROTECT  /D "_CRT_SECURE_NO_DEPRECATE" -W0 $(ENGINEOPTS) \
+ 	/DNOCOPYPROTECT  /D "_CRT_SECURE_NO_DEPRECATE" -W2 $(ENGINEOPTS) \
  	/I$(DXROOT)\include /DRENDERTYPEWIN=1
 LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib wsock32.lib comctl32.lib \
         /NODEFAULTLIB:libFLAC.lib /NODEFAULTLIB:glu32.lib /NODEFAULTLIB:LIBCMT.lib /NODEFAULTLIB:LIBCMTD.lib

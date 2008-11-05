@@ -5,6 +5,11 @@
 #ifndef __compat_h__
 #define __compat_h__
 
+# ifdef _WIN32
+#  define WIN32_LEAN_AND_MEAN
+#  include <windows.h>
+# endif
+
 #ifndef UNREFERENCED_PARAMETER
     #define UNREFERENCED_PARAMETER(x) x=x
 #endif

@@ -622,13 +622,13 @@ void editinput(void)
         ldiv_t ld;
         if (mlook)
         {
-            ld = ldiv((int)(mousx), (1<<16)/(msens*0.5f)); mousx = ld.quot; mousexsurp = ld.rem;
-            ld = ldiv((int)(mousy), (1<<16)/(msens*0.25f)); mousy = ld.quot; mouseysurp = ld.rem;
+            ld = ldiv((int)(mousx), (int)((1<<16)/(msens*0.5f))); mousx = ld.quot; mousexsurp = ld.rem;
+            ld = ldiv((int)(mousy), (int)((1<<16)/(msens*0.25f))); mousy = ld.quot; mouseysurp = ld.rem;
         }
         else
         {
-            ld = ldiv((int)(mousx), (1<<16)/msens); mousx = ld.quot; mousexsurp = ld.rem;
-            ld = ldiv((int)(mousy), (1<<16)/msens); mousy = ld.quot; mouseysurp = ld.rem;
+            ld = ldiv((int)(mousx), (int)((1<<16)/msens)); mousx = ld.quot; mousexsurp = ld.rem;
+            ld = ldiv((int)(mousy), (int)((1<<16)/msens)); mousy = ld.quot; mouseysurp = ld.rem;
         }
     }
 

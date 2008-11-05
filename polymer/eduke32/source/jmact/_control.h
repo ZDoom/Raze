@@ -111,21 +111,21 @@ extern "C" {
     (\
     ((x)>31) ?\
     (CONTROL_ButtonState2 |= (value<<((x)-32)))  :\
-    (CONTROL_ButtonState1 |= (value<<(x)))\
+    (CONTROL_ButtonState1 |= (value<<((x)&31)))\
     )
 
 #define BUTTONCLEAR(x) \
     (\
     ((x)>31) ?\
     (CONTROL_ButtonState2 &= (~(1<<((x)-32)))) :\
-    (CONTROL_ButtonState1 &= (~(1<<(x))))\
+    (CONTROL_ButtonState1 &= (~(1<<((x)&31))))\
     )
 
 #define BUTTONHELDSET(x,value)\
     (\
     ((x)>31) ?\
     (CONTROL_ButtonHeldState2 |= value<<((x)-32)) :\
-    (CONTROL_ButtonHeldState1 |= value<<(x))\
+    (CONTROL_ButtonHeldState1 |= value<<((x)&31))\
     )
 
 #define LIMITCONTROL(x)\

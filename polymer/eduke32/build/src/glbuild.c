@@ -69,6 +69,7 @@ void (APIENTRY * bglColor4f)(GLfloat red, GLfloat green, GLfloat blue, GLfloat a
 void (APIENTRY * bglColor4ub)(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha);
 void (APIENTRY * bglTexCoord2d)(GLdouble s, GLdouble t);
 void (APIENTRY * bglTexCoord2f)(GLfloat s, GLfloat t);
+void (APIENTRY * bglTexCoord2i)(GLint s, GLint t);
 
 // Lighting
 void (APIENTRY * bglShadeModel)(GLenum mode);
@@ -321,6 +322,7 @@ int loadgldriver(const char *driver)
     bglColor4ub		=       GETPROC("glColor4ub");
     bglTexCoord2d		=   GETPROC("glTexCoord2d");
     bglTexCoord2f		=   GETPROC("glTexCoord2f");
+    bglTexCoord2i		=   GETPROC("glTexCoord2i");
 
     // Lighting
     bglShadeModel		= GETPROC("glShadeModel");
@@ -503,6 +505,7 @@ int unloadgldriver(void)
     bglColor4ub		= NULL;
     bglTexCoord2d	= NULL;
     bglTexCoord2f	= NULL;
+    bglTexCoord2i	= NULL;
 
     // Lighting
     bglShadeModel		= NULL;

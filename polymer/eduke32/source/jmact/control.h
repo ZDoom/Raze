@@ -50,13 +50,13 @@ extern "C" {
     ( \
     ((x)>31) ? \
     ((CONTROL_ButtonState2>>( (x) - 32) ) & 1) :\
-    ((CONTROL_ButtonState1>> (x) ) & 1)          \
+    ((CONTROL_ButtonState1>> ((x) & 31) ) & 1)          \
     )
 #define BUTTONHELD(x) \
     ( \
     ((x)>31) ? \
     ((CONTROL_ButtonHeldState2>>((x)-32)) & 1) :\
-    ((CONTROL_ButtonHeldState1>>(x)) & 1)\
+    ((CONTROL_ButtonHeldState1>>((x) & 31)) & 1)\
     )
 #define BUTTONJUSTPRESSED(x) \
     ( BUTTON( x ) && !BUTTONHELD( x ) )

@@ -6029,7 +6029,7 @@ typedef struct          s_maskleaf
 _maskleaf               maskleaves[MAXWALLSB];
 
 // returns equation of a line given two points
-_equation       equation(int x1, int y1, int x2, int y2)
+_equation       equation(float x1, float y1, float x2, float y2)
 {
     _equation   ret;
 
@@ -6160,11 +6160,11 @@ void    drawpeel(int peel)
     bglBegin(GL_QUADS);
     bglTexCoord2f(0.0f, 0.0f);
     bglVertex2f(-1.0f, -1.0f);
-    bglTexCoord2f(xdim, 0.0f);
+    bglTexCoord2i(xdim, 0);
     bglVertex2f(1.0f, -1.0f);
-    bglTexCoord2f(xdim, ydim);
+    bglTexCoord2i(xdim, ydim);
     bglVertex2f(1.0f, 1.0f);
-    bglTexCoord2f(0.0f, ydim);
+    bglTexCoord2i(0, ydim);
     bglVertex2f(-1.0f, 1.0f);
     bglEnd();
 }

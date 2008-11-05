@@ -1450,7 +1450,7 @@ static void invdct8x8(int *dc, unsigned char dcflag)
 
 static void yrbrend(int x, int y)
 {
-    int i, j, ox, oy, xx, yy, xxx, yyy, xxxend, yyyend, yv, cr, cb, *odc, *dc, *dc2;
+    int i, j, ox, oy, xx, yy, xxx, yyy, xxxend, yyyend, yv, cr = 0, cb = 0, *odc, *dc, *dc2;
     intptr_t p,pp;
 
     odc = dct[0]; dc2 = dct[10];

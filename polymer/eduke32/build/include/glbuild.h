@@ -102,6 +102,7 @@ extern void (APIENTRY * bglColor4f)( GLfloat red, GLfloat green, GLfloat blue, G
 extern void (APIENTRY * bglColor4ub)( GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha );
 extern void (APIENTRY * bglTexCoord2d)( GLdouble s, GLdouble t );
 extern void (APIENTRY * bglTexCoord2f)( GLfloat s, GLfloat t );
+extern void (APIENTRY * bglTexCoord2i)( GLint s, GLint t );
 
 // Lighting
 extern void (APIENTRY * bglShadeModel)( GLenum mode );

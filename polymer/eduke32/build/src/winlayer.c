@@ -831,7 +831,7 @@ void setmousepresscallback(void (*callback)(int, int)) { mousepresscallback = ca
 void setjoypresscallback(void (*callback)(int, int)) { joypresscallback = callback; }
 
 
-DWORD WINAPI ProcessMouse()
+DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
 {
     while (moustat && lpDID[MOUSE])
     {
@@ -1372,7 +1372,7 @@ static BOOL InitDirectInput(void)
         *devicedef[devn].did = NULL;
 
 //        initprintf("  - Creating %s device\n", devicedef[devn].name);
-        result = IDirectInput7_CreateDevice(lpDI, &guidDevs[devn], &dev, NULL);
+        result = IDirectInput7_CreateDeviceEx(lpDI, &guidDevs[devn], &IID_IDirectInputDevice7, &dev, NULL);
         if FAILED(result) { HorribleDInputDeath("Failed creating device", result); }
         else if (result != DI_OK) initprintf("    Created device with warning: %s\n",GetDInputError(result));
 
@@ -2739,7 +2739,7 @@ static int setgammaramp(WORD gt[3][256])
 int setgamma(void)
 {
     int i;
-    WORD gammaTable[768];
+    WORD gammaTable[3][256];
     float gamma = max(0.1f,min(4.f,vid_gamma));
     float contrast = max(0.1f,min(3.f,vid_contrast));
     float bright = max(-0.8f,min(0.8f,vid_brightness));
@@ -2757,7 +2757,7 @@ int setgamma(void)
         if (gamma != 1) val = pow(val, invgamma) / norm;
         val += bright * 128;
 
-        gammaTable[i] = gammaTable[i + 256] = gammaTable[i + 512] = (WORD)max(0.f,(double)min(0xffff,val*256));
+        gammaTable[0][i] = gammaTable[1][i] = gammaTable[2][i] = (WORD)max(0.f,(double)min(0xffff,val*256));
     }
     return setgammaramp(gammaTable);
 }

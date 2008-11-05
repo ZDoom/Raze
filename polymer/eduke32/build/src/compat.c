@@ -183,7 +183,7 @@ int Bstrncmp(const char *s1, const char *s2, bsize_t n)
 int Bstrcasecmp(const char *s1, const char *s2)
 {
 #ifdef _MSC_VER
-    return stricmp(s1,s2);
+    return _stricmp(s1,s2);
 #else
     return strcasecmp(s1,s2);
 #endif
@@ -192,7 +192,7 @@ int Bstrcasecmp(const char *s1, const char *s2)
 int Bstrncasecmp(const char *s1, const char *s2, bsize_t n)
 {
 #ifdef _MSC_VER
-    return strnicmp(s1,s2,n);
+    return _strnicmp(s1,s2,n);
 #else
     return strncasecmp(s1,s2,n);
 #endif

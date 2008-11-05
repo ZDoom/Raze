@@ -642,8 +642,8 @@ void testcallback(unsigned int num)
 
     if ((int)num < 0)
     {
-        if (lumplockbyte[-num] >= 200)
-            lumplockbyte[-num]--;
+        if (lumplockbyte[num] >= 200)
+            lumplockbyte[num]--;
         return;
     }
 

@@ -4419,7 +4419,7 @@ void processinput(int snum)
         p->posxv += ((g_player[snum].sync->fvel*doubvel)<<6);
         p->posyv += ((g_player[snum].sync->svel*doubvel)<<6);
 
-        if ((aplWeaponWorksLike[p->curr_weapon] == KNEE_WEAPON && *kb > 10 && p->on_ground) || (p->on_ground && (sb_snum&2)))
+        if ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON && *kb > 10 && p->on_ground) || (p->on_ground && (sb_snum&2)))
         {
             p->posxv = mulscale(p->posxv,p->runspeed-0x2000,16);
             p->posyv = mulscale(p->posyv,p->runspeed-0x2000,16);

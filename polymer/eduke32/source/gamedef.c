@@ -1862,7 +1862,7 @@ static int parsecommand(void)
 {
     int i, j=0, k=0, done, tw;
     char *temptextptr;
-    intptr_t *tempscrptr;
+    intptr_t *tempscrptr = NULL;
 
     if (quitevent)
     {
@@ -4372,7 +4372,7 @@ static int parsecommand(void)
 
     case CON_CASE:
     {
-        intptr_t tempoffset;
+        intptr_t tempoffset = 0;
         //AddLog("Found Case");
 repeatcase:
         scriptptr--; // don't save in code
