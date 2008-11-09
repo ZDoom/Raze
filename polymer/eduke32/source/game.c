@@ -2722,9 +2722,9 @@ static void operatefta(void)
         k = user_quote_time[i];
         if (hud_glowingquotes)
         {
-            if (k > 4) { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16); j += textsc(8); }
-            else if (k > 2) { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1); j += textsc(k<<1); }
-            else { mpgametext(j,user_quote[i],(sintable[(totalclock<<5)&2047]>>11),2+8+16+1+32); j += textsc(k<<1); }
+            if (k > 4) { mpgametext(j,user_quote[i],(sintable[((totalclock+(i<<2))<<5)&2047]>>11),2+8+16); j += textsc(8); }
+            else if (k > 2) { mpgametext(j,user_quote[i],(sintable[((totalclock+(i<<2))<<5)&2047]>>11),2+8+16+1); j += textsc(k<<1); }
+            else { mpgametext(j,user_quote[i],(sintable[((totalclock+(i<<2))<<5)&2047]>>11),2+8+16+1+32); j += textsc(k<<1); }
         }
         else
         {

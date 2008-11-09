@@ -568,7 +568,7 @@ int shoot(int i,int atwith)
                     if (((sprite[j].picnum >= GREENSLIME)&&(sprite[j].picnum <= GREENSLIME+7))||(sprite[j].picnum ==ROTATEGUN))
                     {
                         dal -= (8<<8);
-                        return -1;
+//                        return -1;
                     }
                     hitx = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
                     if (hitx == 0) hitx++;

@@ -288,7 +288,7 @@ enum USRHOOKS_Errors {
 };
 
 typedef struct {
-    unsigned int bits;
+    uint32 bits;
     short fvel, svel;
     signed char avel, horz;
     unsigned char extbits;

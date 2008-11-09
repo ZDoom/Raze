@@ -42,8 +42,7 @@ LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib wsock32.lib comctl32.
 
 LIBS=vorbisfile_static.lib vorbis_static.lib ogg_static.lib $(LIBS)
 
-ASFLAGS=/nologo /coff
-ASFLAGS=/nologo /coff
+ASFLAGS=/nologo /coff /c
 EXESUFFIX=.exe
 
 JMACTOBJ=$(OBJ)\util_lib.$o \

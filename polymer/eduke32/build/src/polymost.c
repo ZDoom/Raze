@@ -896,7 +896,7 @@ void resizeglcheck()
 
     if ((glox1 != windowx1) || (gloy1 != windowy1) || (glox2 != windowx2) || (gloy2 != windowy2))
     {
-        double ratio = 1.025;
+        double ratio = 1.05;
 
         if (glwidescreen == 1)
             ratio = 1.2f;
@@ -4171,7 +4171,7 @@ void polymost_drawrooms()
         short hitsect, hitwall, hitsprite;
         int vx, vy, vz, hitx, hity, hitz;
         int cz, fz;
-        double ratio = 1.025;
+        double ratio = 1.05;
 
         if (glwidescreen == 1)
             ratio = 1.2f;

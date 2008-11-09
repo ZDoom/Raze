@@ -17,27 +17,7 @@
 	</ToolFiles>
 	<Configurations>
 		<Configuration
-			Name="HRP SD|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="nmake /f Makefile.msvc DEBUG=1"
-				ReBuildCommandLine="nmake /f Makefile.msvc veryclean all DEBUG=1"
-				CleanCommandLine="nmake /f Makefile.msvc veryclean"
-				Output="eduke32.exe"
-				PreprocessorDefinitions="WIN32;_DEBUG;SUPERBUILD;POLYMOST;USE_OPENGL;NOCOPYPROTECT;RENDERTYPEWIN"
-				IncludeSearchPath=""
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
-			/>
-		</Configuration>
-		<Configuration
-			Name="Classic|Win32"
+			Name="Debug|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="0"
@@ -58,27 +38,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="HRP SD Release|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="nmake /f Makefile.msvc"
-				ReBuildCommandLine="nmake /f Makefile.msvc veryclean all"
-				CleanCommandLine="nmake /f Makefile.msvc veryclean"
-				Output="eduke32.exe"
-				PreprocessorDefinitions="WIN32;_DEBUG;SUPERBUILD;POLYMOST;USE_OPENGL;NOCOPYPROTECT;RENDERTYPEWIN"
-				IncludeSearchPath=""
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
-			/>
-		</Configuration>
-		<Configuration
-			Name="Classic Release|Win32"
+			Name="Release|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="0"
@@ -88,88 +48,6 @@
 				Name="VCNMakeTool"
 				BuildCommandLine="nmake /f Makefile.msvc"
 				ReBuildCommandLine="nmake /f Makefile.msvc veryclean all"
-				CleanCommandLine="nmake /f Makefile.msvc veryclean"
-				Output="eduke32.exe"
-				PreprocessorDefinitions="WIN32;_DEBUG;SUPERBUILD;POLYMOST;USE_OPENGL;NOCOPYPROTECT;RENDERTYPEWIN"
-				IncludeSearchPath=""
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
-			/>
-		</Configuration>
-		<Configuration
-			Name="Classic JFAud|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			BuildLogFile=""
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="nmake /f Makefile.msvc DEBUG=1 JFAUD=1"
-				ReBuildCommandLine="nmake /f Makefile.msvc veryclean all DEBUG=1 JFAUD=1"
-				CleanCommandLine="nmake /f Makefile.msvc veryclean"
-				Output="eduke32.exe"
-				PreprocessorDefinitions="WIN32;_DEBUG;SUPERBUILD;POLYMOST;USE_OPENGL;NOCOPYPROTECT;RENDERTYPEWIN"
-				IncludeSearchPath=""
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
-			/>
-		</Configuration>
-		<Configuration
-			Name="HRP SD JFAud|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="nmake /f Makefile.msvc DEBUG=1 JFAUD=1"
-				ReBuildCommandLine="nmake /f Makefile.msvc veryclean all DEBUG=1 JFAUD=1"
-				CleanCommandLine="nmake /f Makefile.msvc veryclean"
-				Output="eduke32.exe"
-				PreprocessorDefinitions="WIN32;_DEBUG;SUPERBUILD;POLYMOST;USE_OPENGL;NOCOPYPROTECT;RENDERTYPEWIN"
-				IncludeSearchPath=""
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
-			/>
-		</Configuration>
-		<Configuration
-			Name="Classic Release JFAud|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			BuildLogFile=""
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="nmake /f Makefile.msvc JFAUD=1"
-				ReBuildCommandLine="nmake /f Makefile.msvc veryclean all JFAUD=1"
-				CleanCommandLine="nmake /f Makefile.msvc veryclean"
-				Output="eduke32.exe"
-				PreprocessorDefinitions="WIN32;_DEBUG;SUPERBUILD;POLYMOST;USE_OPENGL;NOCOPYPROTECT;RENDERTYPEWIN"
-				IncludeSearchPath=""
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
-			/>
-		</Configuration>
-		<Configuration
-			Name="HRP SD Release JFAud|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="nmake /f Makefile.msvc JFAUD=1"
-				ReBuildCommandLine="nmake /f Makefile.msvc veryclean all JFAUD=1"
 				CleanCommandLine="nmake /f Makefile.msvc veryclean"
 				Output="eduke32.exe"
 				PreprocessorDefinitions="WIN32;_DEBUG;SUPERBUILD;POLYMOST;USE_OPENGL;NOCOPYPROTECT;RENDERTYPEWIN"
@@ -302,6 +180,18 @@
 					RelativePath=".\build\include\winlayer.h"
 					>
 				</File>
+				<Filter
+					Name="MSVC"
+					>
+					<File
+						RelativePath=".\build\include\msvc\inttypes.h"
+						>
+					</File>
+					<File
+						RelativePath=".\build\include\msvc\stdint.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="Source Files"
