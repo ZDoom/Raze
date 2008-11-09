@@ -3091,7 +3091,7 @@ SKIP:
                                 break;
                         }
 
-                        if (j >= endwall)
+                        if (j >= endwall && i != joinsector[0])
                         {
                             printmessage16("Join non-adjacent sectors? (Y/N)");
                             showframe(1);
