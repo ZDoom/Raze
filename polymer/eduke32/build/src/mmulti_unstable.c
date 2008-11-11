@@ -15,6 +15,7 @@
 #include "mmulti_unstable.h"
 #include "enet/enet.h"
 #include "compat.h"
+#include "baselayer.h"
 
 
 //STL
@@ -168,6 +169,11 @@ long getcrc(char *buffer, short bufleng)
 void initmultiplayers(int argc, char **argv, char damultioption, char dacomrateoption, char dapriority)
 {
 	long i;
+
+    UNREFERENCED_PARAMETER(argc);
+    UNREFERENCED_PARAMETER(damultioption);
+    UNREFERENCED_PARAMETER(dacomrateoption);
+    UNREFERENCED_PARAMETER(dapriority);
 
 	initcrc();
 	for(i=0;i<MAXPLAYERS;i++)
@@ -331,6 +337,8 @@ void sendpacket(long other, char *bufptr, long messleng)
 
 void setpackettimeout(long datimeoutcount, long daresendagaincount)
 {
+    UNREFERENCED_PARAMETER(datimeoutcount);
+    UNREFERENCED_PARAMETER(daresendagaincount);
 	// Don't do this it keeps '/f4' from working
 	// Though /f4 feels weird on my mouse.... slugish is the word...
 	/*
@@ -372,6 +380,7 @@ int getoutputcirclesize(void)
 
 void setsocket(short newsocket)
 {
+    UNREFERENCED_PARAMETER(newsocket);
 }
 
 
@@ -604,7 +613,6 @@ void deinit_network_transport(gcomtype *gcom)
 
 #if PLATFORM_WIN32
 #  include <winsock.h>
-#  define EAGAIN WSAEWOULDBLOCK
 #  define EWOULDBLOCK WSAEWOULDBLOCK
 #  define ECONNREFUSED WSAECONNRESET
 #  define socklen_t size_t
@@ -637,7 +645,6 @@ void deinit_network_transport(gcomtype *gcom)
 
 #include <signal.h>
 #include "cache1d.h"  /* kopen4load for cfg file. */
-#include "baselayer.h"  /* getticks */
 
 #define IPSEG1(ip) ((((unsigned int) ip) & 0xFF000000) >> 24)
 #define IPSEG2(ip) ((((unsigned int) ip) & 0x00FF0000) >> 16)
@@ -660,6 +667,7 @@ static struct {
 volatile int ctrlc_pressed = 0;
 static void siginthandler(int sigint)
 {
+    UNREFERENCED_PARAMETER(sigint);
     ctrlc_pressed = 1;
 }
 
@@ -766,7 +774,7 @@ static int get_udp_packet(int *ip, short *_port, void *pkt, size_t pktsize)
 
     /* FIXME: Will this ever receive a partial packet? */
     int rc = recvfrom(udpsocket, pkt, pktsize, 0,
-                      (struct sockaddr *) &addr, (int *)&fromlen);
+                      (struct sockaddr *) &addr, (unsigned int *)&fromlen);
 	
 	if (rc == -1)
         err = neterrno();
@@ -887,7 +895,7 @@ static char *read_whole_file(const char *cfgfile)
     if (cfgfile == NULL)
         return(NULL);
 
-    handle = kopen4load(cfgfile, 0);
+    handle = kopen4load((char *)cfgfile, 0);
     if (handle == -1)
     {
         initprintf("ERROR: Failed to open config file [%s].\n", cfgfile);
@@ -951,7 +959,7 @@ static int set_socket_blockmode(int onOrOff)
     rc = (ioctlsocket(udpsocket, FIONBIO, &flags) == 0);
 #else
     flags = fcntl(udpsocket, F_GETFL, 0);
-    if (flags != -1)
+    if ((signed)flags != -1)
     {
         if (onOrOff)
             flags &= ~O_NONBLOCK;
@@ -996,7 +1004,7 @@ static int open_udp_socket(int ip, int port)
 	initprintf("Stun is currently %s\n", (natfree) ? "Enabled":"Disabled");
 
     udpsocket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (udpsocket == -1)
+    if ((signed)udpsocket == -1)
     {
         initprintf("socket creation failed: %s\n", netstrerror());
         return(0);
@@ -1029,6 +1037,9 @@ static int open_udp_socket(int ip, int port)
 /* server init. */
 static int wait_for_other_players(gcomtype *gcom, int myip)
 {
+    UNREFERENCED_PARAMETER(gcom);
+    UNREFERENCED_PARAMETER(myip);
+
     initprintf("Server code NOT implemented!\n");
     return(0);
 }
@@ -1036,6 +1047,9 @@ static int wait_for_other_players(gcomtype *gcom, int myip)
 /* client init. */
 static int connect_to_server(gcomtype *gcom, int myip)
 {
+    UNREFERENCED_PARAMETER(gcom);
+    UNREFERENCED_PARAMETER(myip);
+
     initprintf("Client code NOT implemented!\n");
     return(0);
 }
@@ -1581,7 +1595,7 @@ void deinit_network_transport(gcomtype *gcom)
         free(gcom);
     }
 
-    if (udpsocket != -1)
+    if ((signed)udpsocket != -1)
     {
         initprintf("  ...closing socket...\n");
         set_socket_blockmode(1);  /* block while socket drains. */
@@ -1601,7 +1615,7 @@ void callcommit(void)
     int ip, i, rc;
     short port;
 
-    if (udpsocket == -1)
+    if ((signed)udpsocket == -1)
         return;
 
     process_udp_send_queue();
