@@ -348,7 +348,7 @@ int AL_Init()
 void AL_Stop();
 void AL_Shutdown()
 {
-    if (openal_disabled)return;
+    if (openal_disabled || !device) return;
 
     initprintf("Uninitializing OpenAL...\n");
     AL_Stop();

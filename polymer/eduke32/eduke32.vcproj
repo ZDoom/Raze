@@ -105,6 +105,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\build\include\enet_mmulti.h"
+					>
+				</File>
+				<File
 					RelativePath=".\build\include\glbuild.h"
 					>
 				</File>
@@ -134,6 +138,10 @@
 				</File>
 				<File
 					RelativePath=".\build\include\mmulti.h"
+					>
+				</File>
+				<File
+					RelativePath=".\build\include\mmulti_unstable.h"
 					>
 				</File>
 				<File
@@ -233,6 +241,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\build\src\enet_mmulti.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\build\src\engine.c"
 					>
 				</File>
@@ -282,6 +294,10 @@
 				</File>
 				<File
 					RelativePath=".\build\src\mmulti_null.c"
+					>
+				</File>
+				<File
+					RelativePath=".\build\src\mmulti_unstable.c"
 					>
 				</File>
 				<File

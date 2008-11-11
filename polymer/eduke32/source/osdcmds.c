@@ -403,6 +403,7 @@ static int osdcmd_rate(const osdfuncparm_t *parm)
     }
     else OSD_Printf("rate: value out of range\n");
 #endif
+    UNREFERENCED_PARAMETER(parm);
     return OSDCMD_OK;
 }
 

@@ -1,11 +1,4 @@
 duke3d_h=$(EINC)/build.h $(EINC)/polymer.h $(EINC)/pragmas.h $(EINC)/compat.h $(EINC)/cache1d.h $(EINC)/baselayer.h $(SRC)/jmact/types.h $(SRC)/jmact/file_lib.h $(SRC)/jmact/util_lib.h $(SRC)/jmact/keyboard.h $(SRC)/jmact/control.h $(INC)/gamedefs.h $(INC)/function.h $(INC)/config.h $(INC)/sounds.h $(INC)/rts.h $(INC)/_rts.h $(INC)/soundefs.h $(SRC)/jaudiolib/fx_man.h $(SRC)/jaudiolib/music.h $(INC)/namesdyn.h $(INC)/funct.h $(INC)/duke3d.h
-
-ifneq (0,$(ENET_NETWORKING))
-	duke3d_h+=$(EINC)/enet_mmulti.h
-else
-	duke3d_h+=$(EINC)/mmulti.h
-endif
-
 gamedef_h=$(SRC)/gamedef.h
 
 $(OBJ)/game.$o: $(SRC)/game.c $(SRC)/jmact/scriplib.h $(duke3d_h) $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h

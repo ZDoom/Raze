@@ -13,7 +13,7 @@ extern int natfree; //Addfaz NatFree
 int initmultiplayersparms(int argc, char **argv);
 int initmultiplayerscycle(void);
 
-void initmultiplayers(int argc, char **argv, char damultioption, char dacomrateoption, char dapriority);
+void initmultiplayers(int argc, char **argv);
 void setpackettimeout(int datimeoutcount, int daresendagaincount);
 void uninitmultiplayers(void);
 void sendlogon(void);

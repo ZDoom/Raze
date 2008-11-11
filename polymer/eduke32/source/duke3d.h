@@ -583,14 +583,8 @@ extern input_t loc;
 extern input_t recsync[RECSYNCBUFSIZ];
 extern int avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;
 
-#ifdef ENET_NETWORKING
-// HACK: should be changed in the enet network backend
-extern short numplayers, myconnectindex;
-extern short connecthead, connectpoint2[MAXPLAYERS];   //Player linked list variables (indeces, not connection numbers)
-#else
 extern int numplayers, myconnectindex;
 extern int connecthead, connectpoint2[MAXPLAYERS];   //Player linked list variables (indeces, not connection numbers)
-#endif
 extern int screenpeek;
 
 extern int current_menu;

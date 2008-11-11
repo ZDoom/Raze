@@ -13,7 +13,7 @@
 #include <time.h>
 
 #include "mmulti_unstable.h"
-#include "enet/enet.h"
+#include <enet/enet.h>
 #include "compat.h"
 #include "baselayer.h"
 
@@ -43,7 +43,7 @@
 
 #define updatecrc16(crc,dat) crc = (((crc<<8)&65535)^crctable[((((unsigned short)crc)>>8)&65535)^dat])
 
-static long incnt[MAXPLAYERS], outcntplc[MAXPLAYERS], outcntend[MAXPLAYERS];
+static int incnt[MAXPLAYERS], outcntplc[MAXPLAYERS], outcntend[MAXPLAYERS];
 static char errorgotnum[MAXPLAYERS];
 static char errorfixnum[MAXPLAYERS];
 static char errorresendnum[MAXPLAYERS];
@@ -51,24 +51,24 @@ static char errorresendnum[MAXPLAYERS];
 	static char lasterrorgotnum[MAXPLAYERS];
 #endif
 
-long crctable[256];
+int crctable[256];
 int tmpmax[8]; //addfaz variable addition (you could probs think of something better)
 int itmp = 0; //addfaz router fix STUN
 
 static char lastpacket[576], inlastpacket = 0;
-static short lastpacketfrom, lastpacketleng;
+static int lastpacketfrom, lastpacketleng;
 
-extern long totalclock;  /* MUST EXTERN 1 ANNOYING VARIABLE FROM GAME */
-static long timeoutcount = 60, resendagaincount = 4, lastsendtime[MAXPLAYERS];
+extern int totalclock;  /* MUST EXTERN 1 ANNOYING VARIABLE FROM GAME */
+static int timeoutcount = 60, resendagaincount = 4, lastsendtime[MAXPLAYERS];
 
 int natfree; //NatFree mode flag
 
 static short bakpacketptr[MAXPLAYERS][256], bakpacketlen[MAXPLAYERS][256];
 static char bakpacketbuf[BAKSIZ];
-static long bakpacketplc = 0;
+static int bakpacketplc = 0;
 
-short myconnectindex, numplayers;
-short connecthead, connectpoint2[MAXPLAYERS];
+int myconnectindex, numplayers;
+int connecthead, connectpoint2[MAXPLAYERS];
 char syncstate = 0;
 
 #define MAXPACKETSIZE 2048
@@ -83,7 +83,7 @@ typedef struct
 	short gametype;              /* gametype: 1-serial,2-modem,3-net */
 	short filler;
 	char buffer[MAXPACKETSIZE];
-	long longcalladdress;
+	intptr_t longcalladdress;
 } gcomtype;
 static gcomtype *gcom;
 
@@ -134,12 +134,12 @@ enum ECommitCMDs
 gcomtype *init_network_transport(char **ARGV, int argpos);
 void deinit_network_transport(gcomtype *gcom);
 //void callcommit(void);
-void dosendpackets(long other);
+void dosendpackets(int other);
 
 
 void initcrc(void)
 {
-	long i, j, k, a;
+	int i, j, k, a;
 
 	for(j=0;j<256;j++)      /* Calculate CRC table */
 	{
@@ -157,23 +157,20 @@ void initcrc(void)
 }
 
 
-long getcrc(char *buffer, short bufleng)
+int getcrc(char *buffer, int bufleng)
 {
-	long i, j;
+	int i, j;
 
 	j = 0;
 	for(i=bufleng-1;i>=0;i--) updatecrc16(j,buffer[i]);
 	return(j&65535);
 }
 
-void initmultiplayers(int argc, char **argv, char damultioption, char dacomrateoption, char dapriority)
+void initmultiplayers(int argc, char **argv)
 {
-	long i;
+	int i;
 
     UNREFERENCED_PARAMETER(argc);
-    UNREFERENCED_PARAMETER(damultioption);
-    UNREFERENCED_PARAMETER(dacomrateoption);
-    UNREFERENCED_PARAMETER(dapriority);
 
 	initcrc();
 	for(i=0;i<MAXPLAYERS;i++)
@@ -226,9 +223,9 @@ void initmultiplayers(int argc, char **argv, char damultioption, char dacomrateo
 }
 
 
-void dosendpackets(long other)
+void dosendpackets(int other)
 {
-	long i, j, k, messleng;
+	int i, j, k, messleng;
 	unsigned short dacrc;
 
 	if (outcntplc[other] == outcntend[other]) return;
@@ -303,10 +300,10 @@ void dosendpackets(long other)
 }
 
 
-void sendpacket(long other, char *bufptr, long messleng)
+void sendpacket(int other, char *bufptr, int messleng)
 {
-	long i = 0;
-    long j = 0;
+	int i = 0;
+    int j = 0;
 
 	if (numplayers < 2) return;
 
@@ -335,14 +332,14 @@ void sendpacket(long other, char *bufptr, long messleng)
 }
 
 
-void setpackettimeout(long datimeoutcount, long daresendagaincount)
+void setpackettimeout(int datimeoutcount, int daresendagaincount)
 {
     UNREFERENCED_PARAMETER(datimeoutcount);
     UNREFERENCED_PARAMETER(daresendagaincount);
 	// Don't do this it keeps '/f4' from working
 	// Though /f4 feels weird on my mouse.... slugish is the word...
 	/*
-	long i;
+	int i;
 
 	timeoutcount = datimeoutcount;
 	resendagaincount = daresendagaincount;
@@ -363,7 +360,7 @@ void sendlogon(void)
 
 void sendlogoff(void)
 {
-	long i;
+	int i;
 	char tempbuf[2];
 
 	tempbuf[0] = 255;
@@ -378,15 +375,15 @@ int getoutputcirclesize(void)
 	return(0);
 }
 
-void setsocket(short newsocket)
+void setsocket(int newsocket)
 {
     UNREFERENCED_PARAMETER(newsocket);
 }
 
 
-short getpacket (short *other, char *bufptr)
+int getpacket (int *other, char *bufptr)
 {
-	long i, messleng;
+	int i, messleng;
 	unsigned short dacrc;
 
 	if (numplayers < 2) return(0);
@@ -480,7 +477,7 @@ short getpacket (short *other, char *bufptr)
 #if (PRINTERRORS)
 					initprintf("\n%ld-%ld .û ",gcom->buffer[0],(gcom->buffer[0]+1)&255);
 #endif
-					messleng = ((long)gcom->buffer[3]) + (((long)gcom->buffer[4])<<8);
+					messleng = ((int)gcom->buffer[3]) + (((int)gcom->buffer[4])<<8);
 					lastpacketleng = gcom->numbytes-7-messleng;
 					memcpy(bufptr,&gcom->buffer[messleng+5],lastpacketleng);
 					incnt[*other]++;
@@ -514,7 +511,7 @@ short getpacket (short *other, char *bufptr)
 	initprintf("\n%ld-%ld ûû ",gcom->buffer[0],(gcom->buffer[0]+1)&255);
 #endif
 
-	messleng = ((long)gcom->buffer[3]) + (((long)gcom->buffer[4])<<8);
+	messleng = ((int)gcom->buffer[3]) + (((int)gcom->buffer[4])<<8);
 	lastpacketleng = gcom->numbytes-7-messleng;
 	inlastpacket = 1; lastpacketfrom = *other;
 
@@ -528,7 +525,7 @@ short getpacket (short *other, char *bufptr)
 void flushpackets()
 {
 #if 0
-	long i;
+	int i;
 
 	if (numplayers < 2) return;
 
@@ -551,7 +548,7 @@ void flushpackets()
 #endif
 }
 
-void genericmultifunction(long other, char *bufptr, long messleng, long command)
+void genericmultifunction(int other, char *bufptr, int messleng, int command)
 {
 	if (numplayers < 2) return;
 
@@ -563,53 +560,7 @@ void genericmultifunction(long other, char *bufptr, long messleng, long command)
 	
 }
 
-
-#if STUB_NETWORKING
-gcomtype *init_network_transport(char **ARGV, int argpos)
-{
-    initprintf("No networking support built in.\n");
-    return NULL;
-} /* init_network_transport */
-
-void deinit_network_transport(gcomtype *gcom)
-{
-}
-
-void callcommit(void)
-{
-}
-
-#elif (defined PLATFORM_DOS)
-gcomtype *init_network_transport(char **ARGV, int argpos)
-{
-    /*
-     * How to talk to COMMIT is passed as a pointer to a block of memory
-     *  that COMMIT.EXE configures...
-     */
-	return((gcomtype *)atol(ARGV[argpos]));  /* UGH!  --ryan. */
-} /* init_network_transport */
-
-static union REGS regs;
-
-#pragma aux longcall =\
-	"call eax",\
-	parm [eax]
-
-void callcommit(void)
-{
-	if (gcom->intnum&0xff00)
-		longcall(gcom->longcalladdress);
-	else
-		int386(gcom->intnum,&regs,&regs);
-}
-
-void deinit_network_transport(gcomtype *gcom)
-{
-    /* no-op, apparently. */
-}
-
-
-#elif UDP_NETWORKING
+#if UDP_NETWORKING
 
 #if PLATFORM_WIN32
 #  include <winsock.h>
@@ -773,8 +724,12 @@ static int get_udp_packet(int *ip, short *_port, void *pkt, size_t pktsize)
     int i;
 
     /* FIXME: Will this ever receive a partial packet? */
-    int rc = recvfrom(udpsocket, pkt, pktsize, 0,
-                      (struct sockaddr *) &addr, (unsigned int *)&fromlen);
+    int rc = recvfrom(udpsocket, pkt, pktsize, 0, (struct sockaddr *) &addr,
+#ifdef _WIN32
+        (int *)&fromlen);
+#else
+        (unsigned int *)&fromlen);
+#endif
 	
 	if (rc == -1)
         err = neterrno();
@@ -889,8 +844,8 @@ static int get_udp_packet(int *ip, short *_port, void *pkt, size_t pktsize)
 static char *read_whole_file(const char *cfgfile)
 {
     char *buf;
-    long len, rc;
-    long handle;
+    int len, rc;
+    int handle;
 
     if (cfgfile == NULL)
         return(NULL);
@@ -949,14 +904,14 @@ static char *get_token(char **ptr)
 
 static int set_socket_blockmode(int onOrOff)
 {
-    unsigned long flags;
+    unsigned int flags;
     int rc = 0;
 
     /* set socket to be (non-)blocking. */
 
 #if PLATFORM_WIN32
     flags = (onOrOff) ? 0 : 1;
-    rc = (ioctlsocket(udpsocket, FIONBIO, &flags) == 0);
+    rc = (ioctlsocket(udpsocket, FIONBIO, (void *) &flags) == 0);
 #else
     flags = fcntl(udpsocket, F_GETFL, 0);
     if ((signed)flags != -1)
@@ -1085,7 +1040,7 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
     short port;
     int first_send = 1;
     unsigned short heard_from[MAX_PLAYERS];
-    unsigned long resendat;
+    unsigned int resendat;
     int max;
     int remaining;
 
@@ -1124,6 +1079,9 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
 
     while ((remaining) && (!ctrlc_pressed))
     {
+            handleevents();
+            if (quitevent) ctrlc_pressed = 1;
+
         if (resendat <= getticks())
         {
             if (bcast)

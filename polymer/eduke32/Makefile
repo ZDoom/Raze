@@ -285,6 +285,12 @@ endif
 
 include Makefile.deps
 
+ifneq (0,$(ENET_NETWORKING))
+	duke3d_h+=$(EINC)/enet_mmulti.h
+else
+	duke3d_h+=$(EINC)/mmulti.h
+endif
+
 .PHONY: enginelib editorlib
 enginelib editorlib:
 	-mkdir -p $(EOBJ)

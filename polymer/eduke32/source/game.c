@@ -651,12 +651,7 @@ int lastpackettime = 0;
 void getpackets(void)
 {
     int i, j, k, l;
-#ifdef ENET_NETWORKING
-    // HACK, type should be changed in the enet network backend
-    short other;
-#else
     int other;
-#endif
     int packbufleng;
     
     input_t *osyn, *nsyn;
@@ -8896,9 +8891,7 @@ static void comlinehelp(void)
               "-r\t\tRecord demo\n"
               "-rmnet FILE\tUse FILE for network play configuration (see documentation)\n"
               "-keepaddr\n"
-#ifndef ENET_NETWORKING
               "-stun\n"
-#endif
               "-w\t\tShow coordinates"
               "-noautoload\tDo not use the autoload directory\n"
               "-nologo\t\tSkip the logo anim\n"
@@ -9610,13 +9603,13 @@ static void checkcommandline(int argc, const char **argv)
                     i++;
                     continue;
                 }
-#ifndef ENET_NETWORKING
                 if (!Bstrcasecmp(c+1,"stun"))
                 {
                     natfree = 1; //Addfaz NatFree
                     i++;
                     continue;
                 }
+#ifndef ENET_NETWORKING
                 if (!Bstrcasecmp(c+1,"rmnet"))
                 {
                     if (argc > i+1)
@@ -9630,7 +9623,11 @@ static void checkcommandline(int argc, const char **argv)
                     continue;
                 }
 #endif
-                if (!Bstrcasecmp(c+1,"net"))
+                if (!Bstrcasecmp(c+1,"net")
+#ifdef ENET_NETWORKING
+                    || !Bstrcasecmp(c+1,"rmnet")
+#endif
+                    )
                 {
                     g_NoSetup = TRUE;
                     firstnet = i;
@@ -10544,7 +10541,14 @@ static void Startup(void)
     #ifdef ENET_NETWORKING
     // TODO: split this up in the same fine-grained manner as eduke32 network backend, to
     // allow for event handling
-    initmultiplayers(netparamcount,netparam, 0,0,0);
+    initmultiplayers(netparamcount,netparam);
+
+    if (quitevent)
+    {
+        Shutdown();
+        return;
+    }
+
     #else
     if (initmultiplayersparms(netparamcount,netparam))
     {
@@ -10978,7 +10982,6 @@ void app_main(int argc,const char **argv)
 #endif
 
 #ifdef _WIN32
-#ifndef ENET_NETWORKING
     if (ud.config.CheckForUpdates == -1)
     {
         i=wm_ynbox("Automatic Release Notification",
@@ -11029,7 +11032,6 @@ void app_main(int argc,const char **argv)
             else initprintf("update: failed to check for updates\n");
         }
     }
-#endif
 #endif
     if (preinitengine())
     {

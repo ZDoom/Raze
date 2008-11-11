@@ -14,7 +14,7 @@ endif
 SDL_FRAMEWORK	= 0
 
 # Overridden for OSes that don't have the cutdown stdc++ that is supc++
-STDCPPLIB=-lstdc++
+STDCPPLIB=-lsupc++
 
 BUILDCFLAGS=
 
@@ -84,7 +84,7 @@ ifeq ($(PLATFORM),WINDOWS)
 	BUILDCFLAGS+= -DHAVE_INTTYPES
 	EXESUFFIX=.exe
 	LIBS+= -lmingwex -lwinmm -L$(DXROOT)/lib -lwsock32 -lcomctl32 #-lshfolder
-	STDCPPLIB=-lstdc++
+#	STDCPPLIB=-lstdc++
 endif
 ifeq ($(PLATFORM),BSD)
 	RENDERTYPE=SDL
