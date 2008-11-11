@@ -43,7 +43,7 @@ extern "C" {
 extern char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN];
 extern char keydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN];
 
-enum
+enum gamefuncs
    {
    gamefunc_Move_Forward,
    gamefunc_Move_Backward,

@@ -17,6 +17,7 @@ PRETTY_OUTPUT = 1
 #  USE_OPENGL     - enables OpenGL support in Polymost
 #  NOASM          - disables the use of inline assembly pragmas
 #  LINKED_GTK     - enables compile-time linkage to GTK
+#  ENET_NETWORKING - enable enet-based network backend from rancidmeat/xDuke ports
 #
 
 SUPERBUILD ?= 1
@@ -26,6 +27,7 @@ USE_OPENGL ?= 1
 NOASM ?= 0
 LINKED_GTK ?= 0
 BUILD32_ON_64 ?= 0
+ENET_NETWORKING ?= 0
 
 # Debugging/Build options
 #  RELEASE - 1 = no debugging
@@ -47,6 +49,8 @@ OBJ?=obj.gnu
 SRC=src
 RSRC=rsrc
 INC=include
+
+ENETROOT=$(SRC)/enet
 
 # Filename extensions - these won't need to change
 #
@@ -114,12 +118,18 @@ ENGINEOBJS+= \
 	$(OBJ)/lzf_c.$o \
 	$(OBJ)/lzf_d.$o \
 	$(OBJ)/md4.$o \
-    $(OBJ)/mmulti.$o \
 	$(OBJ)/osd.$o \
 	$(OBJ)/pragmas.$o \
 	$(OBJ)/scriptfile.$o
+
 ifeq (1,$(POLYMER))
 	ENGINEOBJS+=  $(OBJ)/polymer.$o
+endif
+
+ifneq (0,$(ENET_NETWORKING))
+	ENGINEOBJS+= $(OBJ)/mmulti_unstable.$o
+else
+	ENGINEOBJS+= $(OBJ)/mmulti.$o
 endif
 
 EDITOROBJS=$(OBJ)/build.$o \
@@ -144,8 +154,8 @@ ifeq ($(PLATFORM),BSD)
 	LIBS+= -lm
 endif
 ifeq ($(PLATFORM),WINDOWS)
-	OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(FMODROOTWIN)/inc
-	LIBS+= -lm
+	OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(FMODROOTWIN)/inc -I$(ENETROOT)/include
+	LIBS+= -lm -L$(ENETROOT) -lwsock32 -lws2_32 -lwinmm
 	ASFLAGS+= -DUNDERSCORES -f win32
 endif
 ifeq ($(PLATFORM),BEOS)
@@ -246,6 +256,9 @@ $(OBJ)/%.$o: $(SRC)/%.cpp
 	$(COMPILE_STATUS)
 	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
+$(OBJ)/%.$o: $(SRC)/%.cxx
+	$(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@
+
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
 	$(COMPILE_STATUS)
 	if $(RC) -i $< -o $@ --include-dir=$(INC) --include-dir=$(SRC); then $(COMPILE_OK); else $(COMPILE_FAILED); fi
@@ -278,3 +291,7 @@ fixlineends:
 	for a in `find . -type f \( -name '*.c' -o -name '*.h' -o -name 'Makefile*' \) \! -path '*/.svn/*'`; do \
 		echo Fixing $$a && tr -d "\015" < $$a > $$a.fix && mv $$a.fix $$a; \
 	done
+
+# DO NOT DELETE
+
+

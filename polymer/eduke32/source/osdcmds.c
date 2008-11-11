@@ -384,6 +384,7 @@ static int osdcmd_fileinfo(const osdfuncparm_t *parm)
 
 static int osdcmd_rate(const osdfuncparm_t *parm)
 {
+#ifndef ENET_NETWORKING
     int i;
 
     if (parm->numparms == 0)
@@ -401,6 +402,7 @@ static int osdcmd_rate(const osdfuncparm_t *parm)
         OSD_Printf("rate %d\n", packetrate);
     }
     else OSD_Printf("rate: value out of range\n");
+#endif
     return OSDCMD_OK;
 }
 

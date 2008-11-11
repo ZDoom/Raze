@@ -44,7 +44,12 @@ extern "C" {
 #endif
 #include "cache1d.h"
 #include "pragmas.h"
+
+#ifdef ENET_NETWORKING
+#include "enet_mmulti.h"
+#else
 #include "mmulti.h"
+#endif
 
 #include "baselayer.h"
 
@@ -578,8 +583,14 @@ extern input_t loc;
 extern input_t recsync[RECSYNCBUFSIZ];
 extern int avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;
 
+#ifdef ENET_NETWORKING
+// HACK: should be changed in the enet network backend
+extern short numplayers, myconnectindex;
+extern short connecthead, connectpoint2[MAXPLAYERS];   //Player linked list variables (indeces, not connection numbers)
+#else
 extern int numplayers, myconnectindex;
 extern int connecthead, connectpoint2[MAXPLAYERS];   //Player linked list variables (indeces, not connection numbers)
+#endif
 extern int screenpeek;
 
 extern int current_menu;
@@ -642,7 +653,9 @@ extern char num_volumes;
 
 extern int lastsavedpos;
 extern int restorepalette;
+#ifndef ENET_NETWORKING
 extern int packetrate;
+#endif
 
 extern int cachecount;
 extern char boardfilename[BMAX_PATH],waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],animpal[768];
@@ -1044,8 +1057,8 @@ typedef struct {
     player_struct *ps;
     input_t *sync;
 
-    int movefifoend, syncvalhead, myminlag;
-    int pcolor, pteam, frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
+    int32 movefifoend, syncvalhead, myminlag;
+    int32 pcolor, pteam, frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
     char vote, gotvote, playerreadyflag, playerquitflag;
     char user_name[32], syncval[MOVEFIFOSIZ];

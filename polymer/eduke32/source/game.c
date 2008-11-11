@@ -48,10 +48,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #undef UNREFERENCED_PARAMETER
+#ifndef ENET_NETWORKING
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
 #define UPDATEINTERVAL 604800 // 1w
+#endif
 #else
 static int usecwd = 0;
 #endif /* _WIN32 */
@@ -98,7 +100,7 @@ int recfilep,totalreccnt;
 int debug_on = 0,actor_tog = 0;
 static char *rtsptr;
 
-extern char syncstate;
+//extern char syncstate; 
 extern int numlumps;
 
 static FILE *frecfilep = (FILE *)NULL;
@@ -552,7 +554,14 @@ int lastpackettime = 0;
 void getpackets(void)
 {
     int i, j, k, l;
-    int other, packbufleng;
+#ifdef ENET_NETWORKING
+    // HACK, type should be changed in the enet network backend
+    short other;
+#else
+    int other;
+#endif
+    int packbufleng;
+    
     input_t *osyn, *nsyn;
 
     sampletimer();
@@ -1439,11 +1448,13 @@ static void checksync(void)
         printext256(4L,130L,31,0,"Out Of Sync - Please restart game",0);
         printext256(4L,138L,31,0,"RUN DN3DHELP.EXE for information.",0);
     }
+    #if 0
     if (syncstate)
     {
         printext256(4L,160L,31,0,"Missed Network packet!",0);
         printext256(4L,138L,31,0,"RUN DN3DHELP.EXE for information.",0);
     }
+    #endif
 }
 
 void check_fta_sounds(int i)
@@ -8788,9 +8799,10 @@ static void comlinehelp(void)
               "-r\t\tRecord demo\n"
               "-rmnet FILE\tUse FILE for network play configuration (see documentation)\n"
               "-keepaddr\n"
+#ifndef ENET_NETWORKING
               "-stun\n"
+#endif
               "-w\t\tShow coordinates"
-
               "-noautoload\tDo not use the autoload directory\n"
               "-nologo\t\tSkip the logo anim\n"
               "-cachesize SIZE\tUse SIZE Kb for cache\n"
@@ -8899,6 +8911,8 @@ static inline int stringsort(const char *p1, const char *p2)
     return Bstrcmp(&p1[0],&p2[0]);
 }
 
+#ifndef ENET_NETWORKING
+// Not supported with the enet network backend currently
 static void setup_rancid_net(const char *fn)
 {
     int i;
@@ -9001,6 +9015,8 @@ static void setup_rancid_net(const char *fn)
             netparam[i] = (char *)&rancid_local_port_string;
     }
 }
+#endif
+
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
 static int numdirs=0, numfiles=0;
@@ -9497,6 +9513,7 @@ static void checkcommandline(int argc, const char **argv)
                     i++;
                     continue;
                 }
+#ifndef ENET_NETWORKING
                 if (!Bstrcasecmp(c+1,"stun"))
                 {
                     natfree = 1; //Addfaz NatFree
@@ -9515,6 +9532,7 @@ static void checkcommandline(int argc, const char **argv)
                     i++;
                     continue;
                 }
+#endif
                 if (!Bstrcasecmp(c+1,"net"))
                 {
                     g_NoSetup = TRUE;
@@ -10412,6 +10430,8 @@ static void Startup(void)
     for (i=0;i<MAXPLAYERS;i++)
         g_player[i].playerreadyflag = 0;
 
+    #ifndef ENET_NETWORKING
+    // enet regression
     if (CommandNet)
     {
         setup_rancid_net(CommandNet);
@@ -10422,8 +10442,13 @@ static void Startup(void)
         }
         CommandNet = NULL;
     }
+    #endif
 
-    //initmultiplayers(netparamcount,netparam, 0,0,0);
+    #ifdef ENET_NETWORKING
+    // TODO: split this up in the same fine-grained manner as eduke32 network backend, to
+    // allow for event handling
+    initmultiplayers(netparamcount,netparam, 0,0,0);
+    #else
     if (initmultiplayersparms(netparamcount,netparam))
     {
         initprintf("Waiting for players...\n");
@@ -10437,6 +10462,7 @@ static void Startup(void)
             }
         }
     }
+    #endif
 
     if (netparam) Bfree(netparam);
     netparam = NULL;
@@ -10855,6 +10881,7 @@ void app_main(int argc,const char **argv)
 #endif
 
 #ifdef _WIN32
+#ifndef ENET_NETWORKING
     if (ud.config.CheckForUpdates == -1)
     {
         i=wm_ynbox("Automatic Release Notification",
@@ -10906,7 +10933,7 @@ void app_main(int argc,const char **argv)
         }
     }
 #endif
-
+#endif
     if (preinitengine())
     {
         wm_msgbox("Build Engine Initialization Error",
@@ -12443,7 +12470,7 @@ static int domovethings(void)
             if (g_player[i].ps->holoduke_on != -1)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
-        if (!(g_player[myconnectindex].ps->gm & MODE_MENU) && sprite[hs].picnum == APLAYER && sprite[hs].yvel != screenpeek && g_player[sprite[hs].yvel].ps->dead_flag == 0)
+        if ((hs >= 0) && !(g_player[myconnectindex].ps->gm & MODE_MENU) && sprite[hs].picnum == APLAYER && sprite[hs].yvel != screenpeek && g_player[sprite[hs].yvel].ps->dead_flag == 0)
         {
             if (g_player[screenpeek].ps->fta == 0 || g_player[screenpeek].ps->ftq == 117)
             {

@@ -856,11 +856,13 @@ void menus(void)
                             updateplayer();
                         }
                         break;
+#ifndef ENET_NETWORKING
                     case 7:
                         if (x == io)
                             packetrate = min(max(((packetrate/50)*50)+50,50),1000);
                         modval(50,1000,(int *)&packetrate,10,probey==7?2:0);
                         break;
+#endif
                     case 8:
                         if (x == io)
                         {
@@ -958,10 +960,17 @@ void menus(void)
                     case 6:
                         mgametext(d+70,yy,ud.weaponswitch&2?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
                         break;
+
                     case 7:
+#ifdef ENET_NETWORKING
+                        // enet network backend doesn't have a packet rate mechanism
+                        mgametext(d+70,yy,"n/a", MENUHIGHLIGHT(io),2+8+16);
+#else
                         Bsprintf(tempbuf,"%d",packetrate);
                         mgametext(d+70,yy,tempbuf,MENUHIGHLIGHT(io),2+8+16);
+#endif
                         break;
+
                     default:
                         break;
                     }

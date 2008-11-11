@@ -7370,6 +7370,10 @@ static void addgroup(const char *buffer)
     j += lengths[i]; \
     testplay_addparam[j++] = ' ';
 
+#ifdef RENDERTYPEWIN
+extern char forcegl;
+#endif
+
 static void checkcommandline(int argc, const char **argv)
 {
     int i = 1, j, maxlen=0, *lengths;
@@ -7479,6 +7483,14 @@ static void checkcommandline(int argc, const char **argv)
                 {
                     usecwd = 1;
                     COPYARG(i);
+                    i++;
+                    continue;
+                }
+#endif
+#ifdef RENDERTYPEWIN
+                if (!Bstrcasecmp(c+1,"forcegl"))
+                {
+                    forcegl = 1;
                     i++;
                     continue;
                 }

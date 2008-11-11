@@ -28,6 +28,7 @@ USE_OPENGL = 1
 NOASM = 0
 LINKED_GTK = 0
 BUILD32_ON_64 = 0
+ENET_NETWORKING = 1
 
 # Debugging/Build options
 RELEASE?=1
@@ -43,6 +44,7 @@ ESRC=$(EROOT)/src
 EINC=$(EROOT)/include
 INC=$(SRC)
 o=o
+ENETROOT=$(ESRC)/enet
 
 ifneq (0,$(RELEASE))
 	# Debugging disabled
@@ -190,9 +192,9 @@ ifeq ($(PLATFORM),DARWIN)
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
-	OURCFLAGS	+= -fno-pic -DUNDERSCORES -I$(DXROOT)/include -I$(ALROOT)/include
+	OURCFLAGS	+= -fno-pic -DUNDERSCORES -I$(DXROOT)/include -I$(ALROOT)/include -I$(ENETROOT)/include
 	NASMFLAGS+= -DUNDERSCORES -f win32
-	LIBS		+= -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg
+	LIBS		+= -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg -L$(ENETROOT) -lwsock32 -lws2_32 -lwinmm
 	GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o
 	EDITOROBJS+= $(OBJ)/buildres.$o
 endif
@@ -269,7 +271,7 @@ endif
 	
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB)
 	$(LINK_STATUS)
-	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
 	strip mapster32$(EXESUFFIX)
 endif	
@@ -292,7 +294,7 @@ endif
 	$(MAKE) -C $(EROOT)/ "OBJ=../$(EOBJ)" \
 		SUPERBUILD=$(SUPERBUILD) POLYMOST=$(POLYMOST) \
 		USE_OPENGL=$(USE_OPENGL) BUILD32_ON_64=$(BUILD32_ON_64) \
-		NOASM=$(NOASM) RELEASE=$(RELEASE) OPTLEVEL=$(OPTLEVEL) $@
+		NOASM=$(NOASM) RELEASE=$(RELEASE) OPTLEVEL=$(OPTLEVEL) ENET_NETWORKING=$(ENET_NETWORKING) $@
 ifeq ($(PRETTY_OUTPUT),1)		
 	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)\033[0;35m.\033[0m\n"
 endif	

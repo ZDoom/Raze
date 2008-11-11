@@ -180,7 +180,7 @@ typedef unsigned long long uint64;
 #ifdef __cplusplus
 
 # ifndef SCREWED_UP_CPP
-   using namespace std;
+//   using namespace std;
 # endif
 
 extern "C" {
