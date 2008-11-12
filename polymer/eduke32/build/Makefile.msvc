@@ -22,7 +22,7 @@ EDITORLIB=build.lib
 DXROOT=c:\sdks\dx6
 MSSDKROOT="C:\Program Files\Microsoft Visual Studio 8\VC
 PLATFORMSDK="C:\Program Files\Microsoft Visual Studio 8\VC\PlatformSDK
-ENETROOT=$(SRC)\enet
+# ENETROOT=$(SRC)\enet
 
 # /D these to enable certain features of the port's compile process
 # NOASM     When defined, uses C instead of assembly code
@@ -45,7 +45,7 @@ CC=cl
 AS=ml
 RC=rc
 LINK=link /opt:nowin98 /opt:ref /nologo
-CFLAGS=$(CFLAGS) /nologo /MD /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(DXROOT)\include /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include /I$(ENETROOT)\include"
+CFLAGS=$(CFLAGS) /nologo /MD /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(DXROOT)\include /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" # /I$(ENETROOT)\include"
 ASFLAGS=/nologo /coff /c
 EXESUFFIX=.exe
 

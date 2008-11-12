@@ -28,7 +28,7 @@ USE_OPENGL = 1
 NOASM = 0
 LINKED_GTK = 0
 BUILD32_ON_64 = 0
-ENET_NETWORKING = 1
+RANCID_NETWORKING = 1
 
 # Debugging/Build options
 RELEASE?=1
@@ -44,7 +44,7 @@ ESRC=$(EROOT)/src
 EINC=$(EROOT)/include
 INC=$(SRC)
 o=o
-ENETROOT=$(ESRC)/enet
+# ENETROOT=$(ESRC)/enet
 
 ifneq (0,$(RELEASE))
 	# Debugging disabled
@@ -192,9 +192,9 @@ ifeq ($(PLATFORM),DARWIN)
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
-	OURCFLAGS	+= -fno-pic -DUNDERSCORES -I$(DXROOT)/include -I$(ALROOT)/include -I$(ENETROOT)/include
+	OURCFLAGS	+= -fno-pic -DUNDERSCORES -I$(DXROOT)/include -I$(ALROOT)/include # -I$(ENETROOT)/include
 	NASMFLAGS+= -DUNDERSCORES -f win32
-	LIBS		+= -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg -L$(ENETROOT) -lwsock32 -lws2_32 -lwinmm
+	LIBS		+= -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg -lwsock32 -lws2_32 -lwinmm #-L$(ENETROOT)
 	GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o
 	EDITOROBJS+= $(OBJ)/buildres.$o
 endif
@@ -285,8 +285,8 @@ endif
 
 include Makefile.deps
 
-ifneq (0,$(ENET_NETWORKING))
-	duke3d_h+=$(EINC)/enet_mmulti.h
+ifneq (0,$(RANCID_NETWORKING))
+	duke3d_h+=$(EINC)/mmulti_unstable.h
 else
 	duke3d_h+=$(EINC)/mmulti.h
 endif
@@ -300,7 +300,7 @@ endif
 	$(MAKE) -C $(EROOT)/ "OBJ=../$(EOBJ)" \
 		SUPERBUILD=$(SUPERBUILD) POLYMOST=$(POLYMOST) \
 		USE_OPENGL=$(USE_OPENGL) BUILD32_ON_64=$(BUILD32_ON_64) \
-		NOASM=$(NOASM) RELEASE=$(RELEASE) OPTLEVEL=$(OPTLEVEL) ENET_NETWORKING=$(ENET_NETWORKING) $@
+		NOASM=$(NOASM) RELEASE=$(RELEASE) OPTLEVEL=$(OPTLEVEL) RANCID_NETWORKING=$(RANCID_NETWORKING) $@
 ifeq ($(PRETTY_OUTPUT),1)		
 	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)\033[0;35m.\033[0m\n"
 endif	

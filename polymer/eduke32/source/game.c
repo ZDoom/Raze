@@ -74,7 +74,7 @@ static int g_NoSound = 0;
 static int g_NoMusic = 0;
 static char *CommandMap = NULL;
 static char *CommandName = NULL;
-#ifndef ENET_NETWORKING
+#ifndef RANCID_NETWORKING
 static char *CommandNet = NULL;
 #endif
 static int g_KeepAddr = 0;
@@ -8921,7 +8921,7 @@ static void comlinehelp(void)
 #endif
 }
 
-#ifndef ENET_NETWORKING
+#ifndef RANCID_NETWORKING
 static signed int rancid_players = 0;
 static char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
 
@@ -9609,7 +9609,7 @@ static void checkcommandline(int argc, const char **argv)
                     i++;
                     continue;
                 }
-#ifndef ENET_NETWORKING
+#ifndef RANCID_NETWORKING
                 if (!Bstrcasecmp(c+1,"rmnet"))
                 {
                     if (argc > i+1)
@@ -9624,7 +9624,7 @@ static void checkcommandline(int argc, const char **argv)
                 }
 #endif
                 if (!Bstrcasecmp(c+1,"net")
-#ifdef ENET_NETWORKING
+#ifdef RANCID_NETWORKING
                     || !Bstrcasecmp(c+1,"rmnet")
 #endif
                     )
@@ -10524,7 +10524,7 @@ static void Startup(void)
     for (i=0;i<MAXPLAYERS;i++)
         g_player[i].playerreadyflag = 0;
 
-    #ifndef ENET_NETWORKING
+    #ifndef RANCID_NETWORKING
     // enet regression
     if (CommandNet)
     {
@@ -10538,7 +10538,7 @@ static void Startup(void)
     }
     #endif
 
-    #ifdef ENET_NETWORKING
+    #ifdef RANCID_NETWORKING
     // TODO: split this up in the same fine-grained manner as eduke32 network backend, to
     // allow for event handling
     initmultiplayers(netparamcount,netparam);

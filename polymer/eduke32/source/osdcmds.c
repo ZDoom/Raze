@@ -384,7 +384,7 @@ static int osdcmd_fileinfo(const osdfuncparm_t *parm)
 
 static int osdcmd_rate(const osdfuncparm_t *parm)
 {
-#ifndef ENET_NETWORKING
+#ifndef RANCID_NETWORKING
     int i;
 
     if (parm->numparms == 0)

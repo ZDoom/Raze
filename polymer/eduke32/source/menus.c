@@ -856,7 +856,7 @@ void menus(void)
                             updateplayer();
                         }
                         break;
-#ifndef ENET_NETWORKING
+#ifndef RANCID_NETWORKING
                     case 7:
                         if (x == io)
                             packetrate = min(max(((packetrate/50)*50)+50,50),1000);
@@ -962,7 +962,7 @@ void menus(void)
                         break;
 
                     case 7:
-#ifdef ENET_NETWORKING
+#ifdef RANCID_NETWORKING
                         // enet network backend doesn't have a packet rate mechanism
                         mgametext(d+70,yy,"n/a", MENUHIGHLIGHT(io),2+8+16);
 #else

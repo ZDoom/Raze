@@ -45,8 +45,8 @@ extern "C" {
 #include "cache1d.h"
 #include "pragmas.h"
 
-#ifdef ENET_NETWORKING
-#include "enet_mmulti.h"
+#ifdef RANCID_NETWORKING
+#include "mmulti_unstable.h"
 #else
 #include "mmulti.h"
 #endif
@@ -647,7 +647,7 @@ extern char num_volumes;
 
 extern int lastsavedpos;
 extern int restorepalette;
-#ifndef ENET_NETWORKING
+#ifndef RANCID_NETWORKING
 extern int packetrate;
 #endif
 

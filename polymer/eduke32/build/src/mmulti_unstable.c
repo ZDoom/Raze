@@ -13,7 +13,7 @@
 #include <time.h>
 
 #include "mmulti_unstable.h"
-#include <enet/enet.h>
+// #include <enet/enet.h>
 #include "compat.h"
 #include "baselayer.h"
 
@@ -48,7 +48,7 @@ static char errorgotnum[MAXPLAYERS];
 static char errorfixnum[MAXPLAYERS];
 static char errorresendnum[MAXPLAYERS];
 #if (PRINTERRORS)
-	static char lasterrorgotnum[MAXPLAYERS];
+static char lasterrorgotnum[MAXPLAYERS];
 #endif
 
 int crctable[256];
@@ -74,16 +74,16 @@ char syncstate = 0;
 #define MAXPACKETSIZE 2048
 typedef struct
 {
-	short intnum;                /* communication between Game and the driver */
-	short command;               /* 1-send, 2-get */
-	short other;                 /* dest for send, set by get (-1 = no packet) */
-	short numbytes;
-	short myconnectindex;
-	short numplayers;
-	short gametype;              /* gametype: 1-serial,2-modem,3-net */
-	short filler;
-	char buffer[MAXPACKETSIZE];
-	intptr_t longcalladdress;
+    short intnum;                /* communication between Game and the driver */
+    short command;               /* 1-send, 2-get */
+    short other;                 /* dest for send, set by get (-1 = no packet) */
+    short numbytes;
+    short myconnectindex;
+    short numplayers;
+    short gametype;              /* gametype: 1-serial,2-modem,3-net */
+    short filler;
+    char buffer[MAXPACKETSIZE];
+    intptr_t longcalladdress;
 } gcomtype;
 static gcomtype *gcom;
 
@@ -109,7 +109,7 @@ packet_buffer pBuff[256];
 
 
 /*
-typedef struct 
+typedef struct
 {
 	unsigned char buffer[MAXPACKETSIZE];
 }PACKET;
@@ -119,11 +119,11 @@ typedef struct
 
 enum ECommitCMDs
 {
-	COMMIT_CMD_SEND				= 1,
-	COMMIT_CMD_GET              = 2,
-	COMMIT_CMD_SENDTOALL        = 3,
-	COMMIT_CMD_SENDTOALLOTHERS  = 4,
-	COMMIT_CMD_SCORE            = 5,
+    COMMIT_CMD_SEND				= 1,
+    COMMIT_CMD_GET              = 2,
+    COMMIT_CMD_SENDTOALL        = 3,
+    COMMIT_CMD_SENDTOALLOTHERS  = 4,
+    COMMIT_CMD_SCORE            = 5,
 };
 
 
@@ -139,196 +139,196 @@ void dosendpackets(int other);
 
 void initcrc(void)
 {
-	int i, j, k, a;
+    int i, j, k, a;
 
-	for(j=0;j<256;j++)      /* Calculate CRC table */
-	{
-		k = (j<<8); a = 0;
-		for(i=7;i>=0;i--)
-		{
-			if (((k^a)&0x8000) > 0)
-				a = ((a<<1)&65535) ^ 0x1021;   /* 0x1021 = genpoly */
-			else
-				a = ((a<<1)&65535);
-			k = ((k<<1)&65535);
-		}
-		crctable[j] = (a&65535);
-	}
+    for (j=0;j<256;j++)     /* Calculate CRC table */
+    {
+        k = (j<<8); a = 0;
+        for (i=7;i>=0;i--)
+        {
+            if (((k^a)&0x8000) > 0)
+                a = ((a<<1)&65535) ^ 0x1021;   /* 0x1021 = genpoly */
+            else
+                a = ((a<<1)&65535);
+            k = ((k<<1)&65535);
+        }
+        crctable[j] = (a&65535);
+    }
 }
 
 
 int getcrc(char *buffer, int bufleng)
 {
-	int i, j;
+    int i, j;
 
-	j = 0;
-	for(i=bufleng-1;i>=0;i--) updatecrc16(j,buffer[i]);
-	return(j&65535);
+    j = 0;
+    for (i=bufleng-1;i>=0;i--) updatecrc16(j,buffer[i]);
+    return(j&65535);
 }
 
 void initmultiplayers(int argc, char **argv)
 {
-	int i;
+    int i;
 
     UNREFERENCED_PARAMETER(argc);
 
-	initcrc();
-	for(i=0;i<MAXPLAYERS;i++)
-	{
-		incnt[i] = 0L;
-		outcntplc[i] = 0L;
-		outcntend[i] = 0L;
-		bakpacketlen[i][255] = -1;
-	}
+    initcrc();
+    for (i=0;i<MAXPLAYERS;i++)
+    {
+        incnt[i] = 0L;
+        outcntplc[i] = 0L;
+        outcntend[i] = 0L;
+        bakpacketlen[i][255] = -1;
+    }
 
-	// clear out the packet ordering
+    // clear out the packet ordering
 //	memset(&currentpacketnumber, 0, sizeof(unsigned long) * MAXPLAYERS);
 #if 0
-	for (i = argc - 1; i > 0; i--)
+    for (i = argc - 1; i > 0; i--)
     {
         const char *arg = argv[i];
         char ch = *arg;
         if ((ch == '-') || (ch == '/'))
         {
-			if (Bstrcasecmp(arg + 1, "net") == 0)
+            if (Bstrcasecmp(arg + 1, "net") == 0)
                 break;
         }
     }
 
-	if ((i == 0) || (i+1 == argc))
-	{
-		numplayers = 1; myconnectindex = 0;
-		connecthead = 0; connectpoint2[0] = -1;
-		return;
-	}
+    if ((i == 0) || (i+1 == argc))
+    {
+        numplayers = 1; myconnectindex = 0;
+        connecthead = 0; connectpoint2[0] = -1;
+        return;
+    }
 #endif
 
     gcom = init_network_transport(argv, 0);
     if (gcom == NULL)
-	{
+    {
         initprintf("Network transport initialization failed. Aborting...\n");
         exit(1);
-	}
+    }
 
-	numplayers = gcom->numplayers;
-	myconnectindex = gcom->myconnectindex-1;
+    numplayers = gcom->numplayers;
+    myconnectindex = gcom->myconnectindex-1;
 #if (SIMULATEERRORS != 0)
-	srand(myconnectindex*24572457+345356);
+    srand(myconnectindex*24572457+345356);
 #endif
-	connecthead = 0;
-	for(i=0;i<numplayers-1;i++) connectpoint2[i] = i+1;
-	connectpoint2[numplayers-1] = -1;
+    connecthead = 0;
+    for (i=0;i<numplayers-1;i++) connectpoint2[i] = i+1;
+    connectpoint2[numplayers-1] = -1;
 
-	for(i=0;i<numplayers;i++) lastsendtime[i] = totalclock;
+    for (i=0;i<numplayers;i++) lastsendtime[i] = totalclock;
 }
 
 
 void dosendpackets(int other)
 {
-	int i, j, k, messleng;
-	unsigned short dacrc;
+    int i, j, k, messleng;
+    unsigned short dacrc;
 
-	if (outcntplc[other] == outcntend[other]) return;
+    if (outcntplc[other] == outcntend[other]) return;
 
 #if (PRINTERRORS)
-	if (errorgotnum[other] > lasterrorgotnum[other])
-	{
-		lasterrorgotnum[other]++;
-		initprintf(" MeWant %ld",incnt[other]&255);
-	}
+    if (errorgotnum[other] > lasterrorgotnum[other])
+    {
+        lasterrorgotnum[other]++;
+        initprintf(" MeWant %ld",incnt[other]&255);
+    }
 #endif
 
-	if (outcntplc[other]+1 == outcntend[other])
-	{     /* Send 1 sub-packet */
-		k = 0;
-		gcom->buffer[k++] = (outcntplc[other]&255);
-		gcom->buffer[k++] = (errorgotnum[other]&7)+((errorresendnum[other]&7)<<3);
-		gcom->buffer[k++] = (incnt[other]&255);
+    if (outcntplc[other]+1 == outcntend[other])
+    {     /* Send 1 sub-packet */
+        k = 0;
+        gcom->buffer[k++] = (outcntplc[other]&255);
+        gcom->buffer[k++] = (errorgotnum[other]&7)+((errorresendnum[other]&7)<<3);
+        gcom->buffer[k++] = (incnt[other]&255);
 
-		j = bakpacketptr[other][outcntplc[other]&255];
-		messleng = bakpacketlen[other][outcntplc[other]&255];
-		for(i=0;i<messleng;i++)
-			gcom->buffer[k++] = bakpacketbuf[(i+j)&(BAKSIZ-1)];
-		outcntplc[other]++;
-	}
-	else
-	{     /* Send 2 sub-packets */
-		k = 0;
-		gcom->buffer[k++] = (outcntplc[other]&255);
-		gcom->buffer[k++] = (errorgotnum[other]&7)+((errorresendnum[other]&7)<<3)+128;
-		gcom->buffer[k++] = (incnt[other]&255);
+        j = bakpacketptr[other][outcntplc[other]&255];
+        messleng = bakpacketlen[other][outcntplc[other]&255];
+        for (i=0;i<messleng;i++)
+            gcom->buffer[k++] = bakpacketbuf[(i+j)&(BAKSIZ-1)];
+        outcntplc[other]++;
+    }
+    else
+    {     /* Send 2 sub-packets */
+        k = 0;
+        gcom->buffer[k++] = (outcntplc[other]&255);
+        gcom->buffer[k++] = (errorgotnum[other]&7)+((errorresendnum[other]&7)<<3)+128;
+        gcom->buffer[k++] = (incnt[other]&255);
 
-			/* First half-packet */
-		j = bakpacketptr[other][outcntplc[other]&255];
-		messleng = bakpacketlen[other][outcntplc[other]&255];
-		gcom->buffer[k++] = (char)(messleng&255);
-		gcom->buffer[k++] = (char)(messleng>>8);
-		for(i=0;i<messleng;i++)
-			gcom->buffer[k++] = bakpacketbuf[(i+j)&(BAKSIZ-1)];
-		outcntplc[other]++;
+        /* First half-packet */
+        j = bakpacketptr[other][outcntplc[other]&255];
+        messleng = bakpacketlen[other][outcntplc[other]&255];
+        gcom->buffer[k++] = (char)(messleng&255);
+        gcom->buffer[k++] = (char)(messleng>>8);
+        for (i=0;i<messleng;i++)
+            gcom->buffer[k++] = bakpacketbuf[(i+j)&(BAKSIZ-1)];
+        outcntplc[other]++;
 
-			/* Second half-packet */
-		j = bakpacketptr[other][outcntplc[other]&255];
-		messleng = bakpacketlen[other][outcntplc[other]&255];
-		for(i=0;i<messleng;i++)
-			gcom->buffer[k++] = bakpacketbuf[(i+j)&(BAKSIZ-1)];
-		outcntplc[other]++;
+        /* Second half-packet */
+        j = bakpacketptr[other][outcntplc[other]&255];
+        messleng = bakpacketlen[other][outcntplc[other]&255];
+        for (i=0;i<messleng;i++)
+            gcom->buffer[k++] = bakpacketbuf[(i+j)&(BAKSIZ-1)];
+        outcntplc[other]++;
 
-	}
+    }
 
-	dacrc = getcrc(gcom->buffer,(short)k);
-	gcom->buffer[k++] = (dacrc&255);
-	gcom->buffer[k++] = (dacrc>>8);
+    dacrc = getcrc(gcom->buffer,(short)k);
+    gcom->buffer[k++] = (dacrc&255);
+    gcom->buffer[k++] = (dacrc>>8);
 
-	gcom->other = other+1;
-	gcom->numbytes = k;
+    gcom->other = other+1;
+    gcom->numbytes = k;
 
 #if (SHOWSENDPACKETS)
-	initprintf("Send(%ld): ",gcom->other);
-	for(i=0;i<gcom->numbytes;i++) initprintf("%2x ",gcom->buffer[i]);
-	initprintf("\n");
+    initprintf("Send(%ld): ",gcom->other);
+    for (i=0;i<gcom->numbytes;i++) initprintf("%2x ",gcom->buffer[i]);
+    initprintf("\n");
 #endif
 
 #if (SIMULATEERRORS != 0)
-	if (!(rand()&SIMULATEERRORS)) gcom->buffer[rand()%gcom->numbytes] = (rand()&255);
-	if (rand()&SIMULATEERRORS)
+    if (!(rand()&SIMULATEERRORS)) gcom->buffer[rand()%gcom->numbytes] = (rand()&255);
+    if (rand()&SIMULATEERRORS)
 #endif
-		{ 
-			gcom->command = COMMIT_CMD_SEND; 
-			callcommit(); 
-		}
+    {
+        gcom->command = COMMIT_CMD_SEND;
+        callcommit();
+    }
 }
 
 
 void sendpacket(int other, char *bufptr, int messleng)
 {
-	int i = 0;
+    int i = 0;
     int j = 0;
 
-	if (numplayers < 2) return;
+    if (numplayers < 2) return;
 
-	i = 0;
-	if (bakpacketlen[other][(outcntend[other]-1)&255] == messleng)
-	{
-		j = bakpacketptr[other][(outcntend[other]-1)&255];
-		for(i=messleng-1;i>=0;i--)
-			if (bakpacketbuf[(i+j)&(BAKSIZ-1)] != bufptr[i]) break;
-	}
-	bakpacketlen[other][outcntend[other]&255] = messleng;
+    i = 0;
+    if (bakpacketlen[other][(outcntend[other]-1)&255] == messleng)
+    {
+        j = bakpacketptr[other][(outcntend[other]-1)&255];
+        for (i=messleng-1;i>=0;i--)
+            if (bakpacketbuf[(i+j)&(BAKSIZ-1)] != bufptr[i]) break;
+    }
+    bakpacketlen[other][outcntend[other]&255] = messleng;
 
-	if (i < 0)   /* Point to last packet to save space on bakpacketbuf */
-		bakpacketptr[other][outcntend[other]&255] = j;
-	else
-	{
-		bakpacketptr[other][outcntend[other]&255] = bakpacketplc;
-		for(i=0;i<messleng;i++)
-			bakpacketbuf[(bakpacketplc+i)&(BAKSIZ-1)] = bufptr[i];
-		bakpacketplc = ((bakpacketplc+messleng)&(BAKSIZ-1));
-	}
-	outcntend[other]++;
+    if (i < 0)   /* Point to last packet to save space on bakpacketbuf */
+        bakpacketptr[other][outcntend[other]&255] = j;
+    else
+    {
+        bakpacketptr[other][outcntend[other]&255] = bakpacketplc;
+        for (i=0;i<messleng;i++)
+            bakpacketbuf[(bakpacketplc+i)&(BAKSIZ-1)] = bufptr[i];
+        bakpacketplc = ((bakpacketplc+messleng)&(BAKSIZ-1));
+    }
+    outcntend[other]++;
 
-	lastsendtime[other] = totalclock;
-	dosendpackets(other);
+    lastsendtime[other] = totalclock;
+    dosendpackets(other);
 }
 
 
@@ -336,15 +336,15 @@ void setpackettimeout(int datimeoutcount, int daresendagaincount)
 {
     UNREFERENCED_PARAMETER(datimeoutcount);
     UNREFERENCED_PARAMETER(daresendagaincount);
-	// Don't do this it keeps '/f4' from working
-	// Though /f4 feels weird on my mouse.... slugish is the word...
-	/*
-	int i;
+    // Don't do this it keeps '/f4' from working
+    // Though /f4 feels weird on my mouse.... slugish is the word...
+    /*
+    int i;
 
-	timeoutcount = datimeoutcount;
-	resendagaincount = daresendagaincount;
-	for(i=0;i<numplayers;i++) lastsendtime[i] = totalclock;
-	*/
+    timeoutcount = datimeoutcount;
+    resendagaincount = daresendagaincount;
+    for(i=0;i<numplayers;i++) lastsendtime[i] = totalclock;
+    */
 }
 
 
@@ -360,19 +360,19 @@ void sendlogon(void)
 
 void sendlogoff(void)
 {
-	int i;
-	char tempbuf[2];
+    int i;
+    char tempbuf[2];
 
-	tempbuf[0] = 255;
-	tempbuf[1] = myconnectindex;
-	for(i=connecthead;i>=0;i=connectpoint2[i])
-		if (i != myconnectindex)
-			sendpacket(i,tempbuf,2L);
+    tempbuf[0] = 255;
+    tempbuf[1] = myconnectindex;
+    for (i=connecthead;i>=0;i=connectpoint2[i])
+        if (i != myconnectindex)
+            sendpacket(i,tempbuf,2L);
 }
 
 int getoutputcirclesize(void)
 {
-	return(0);
+    return(0);
 }
 
 void setsocket(int newsocket)
@@ -381,183 +381,184 @@ void setsocket(int newsocket)
 }
 
 
-int getpacket (int *other, char *bufptr)
+int getpacket(int *other, char *bufptr)
 {
-	int i, messleng;
-	unsigned short dacrc;
+    int i, messleng;
+    unsigned short dacrc;
 
-	if (numplayers < 2) return(0);
+    if (numplayers < 2) return(0);
 
-	for(i=connecthead;i>=0;i=connectpoint2[i])
-		if (i != myconnectindex)
-		{
-			if (totalclock < lastsendtime[i]) lastsendtime[i] = totalclock;
-			if (totalclock > lastsendtime[i]+timeoutcount)
-			{
+    for (i=connecthead;i>=0;i=connectpoint2[i])
+        if (i != myconnectindex)
+        {
+            if (totalclock < lastsendtime[i]) lastsendtime[i] = totalclock;
+            if (totalclock > lastsendtime[i]+timeoutcount)
+            {
 #if (PRINTERRORS)
-					initprintf(" TimeOut!");
+                initprintf(" TimeOut!");
 #endif
-					errorgotnum[i] = errorfixnum[i]+1;
+                errorgotnum[i] = errorfixnum[i]+1;
 
-					if ((outcntplc[i] == outcntend[i]) && (outcntplc[i] > 0))
-						{ outcntplc[i]--; lastsendtime[i] = totalclock; }
-					else
-						lastsendtime[i] += resendagaincount;
-					dosendpackets(i);
-				/* } */
-			}
-		}
+                if ((outcntplc[i] == outcntend[i]) && (outcntplc[i] > 0))
+                    { outcntplc[i]--; lastsendtime[i] = totalclock; }
+                else
+                    lastsendtime[i] += resendagaincount;
+                dosendpackets(i);
+                /* } */
+            }
+        }
 
-	if (inlastpacket != 0)
-	{
-			/* 2ND half of good double-packet */
-		inlastpacket = 0;
-		*other = lastpacketfrom;
-		memcpy(bufptr,lastpacket,lastpacketleng);
-		return(lastpacketleng);
-	}
+    if (inlastpacket != 0)
+    {
+        /* 2ND half of good double-packet */
+        inlastpacket = 0;
+        *other = lastpacketfrom;
+        memcpy(bufptr,lastpacket,lastpacketleng);
+        return(lastpacketleng);
+    }
 
-	gcom->command = COMMIT_CMD_GET;
-	callcommit();
+    gcom->command = COMMIT_CMD_GET;
+    callcommit();
 
 #if (SHOWGETPACKETS)
-	if (gcom->other != -1)
-	{
-		initprintf(" Get(%ld): ",gcom->other);
-		for(i=0;i<gcom->numbytes;i++) initprintf("%2x ",gcom->buffer[i]);
-		initprintf("\n");
-	}
+    if (gcom->other != -1)
+    {
+        initprintf(" Get(%ld): ",gcom->other);
+        for (i=0;i<gcom->numbytes;i++) initprintf("%2x ",gcom->buffer[i]);
+        initprintf("\n");
+    }
 #endif
 
-	if (gcom->other < 0) return(0);
-	*other = gcom->other-1;
+    if (gcom->other < 0) return(0);
+    *other = gcom->other-1;
 
-	messleng = gcom->numbytes;
+    messleng = gcom->numbytes;
 
-	dacrc = ((unsigned short)gcom->buffer[messleng-2]);
-	dacrc += (((unsigned short)gcom->buffer[messleng-1])<<8);
-	if (dacrc != getcrc(gcom->buffer,(short)(messleng-2)))        /* CRC check */
-	{
+    dacrc = ((unsigned short)gcom->buffer[messleng-2]);
+    dacrc += (((unsigned short)gcom->buffer[messleng-1])<<8);
+    if (dacrc != getcrc(gcom->buffer,(short)(messleng-2)))        /* CRC check */
+    {
 #if (PRINTERRORS)
-		initprintf("\n%ld CRC",gcom->buffer[0]);
+        initprintf("\n%ld CRC",gcom->buffer[0]);
 #endif
-		errorgotnum[*other] = errorfixnum[*other]+1;
-		return(0);
-	}
+        errorgotnum[*other] = errorfixnum[*other]+1;
+        return(0);
+    }
 
-	while ((errorfixnum[*other]&7) != ((gcom->buffer[1]>>3)&7))
-		errorfixnum[*other]++;
+    while ((errorfixnum[*other]&7) != ((gcom->buffer[1]>>3)&7))
+        errorfixnum[*other]++;
 
-	if ((gcom->buffer[1]&7) != (errorresendnum[*other]&7))
-	{
-		errorresendnum[*other]++;
-		outcntplc[*other] = (outcntend[*other]&0xffffff00)+gcom->buffer[2];
-		if (outcntplc[*other] > outcntend[*other]) outcntplc[*other] -= 256;
-	}
+    if ((gcom->buffer[1]&7) != (errorresendnum[*other]&7))
+    {
+        errorresendnum[*other]++;
+        outcntplc[*other] = (outcntend[*other]&0xffffff00)+gcom->buffer[2];
+        if (outcntplc[*other] > outcntend[*other]) outcntplc[*other] -= 256;
+    }
 
-	if (gcom->buffer[0] != (incnt[*other]&255))   /* CNT check */
-	{
-		if (((incnt[*other]-gcom->buffer[0])&255) > 32)
-		{
-			errorgotnum[*other] = errorfixnum[*other]+1;
+    if (gcom->buffer[0] != (incnt[*other]&255))   /* CNT check */
+    {
+        if (((incnt[*other]-gcom->buffer[0])&255) > 32)
+        {
+            errorgotnum[*other] = errorfixnum[*other]+1;
 #if (PRINTERRORS)
-			initprintf("\n%ld CNT",gcom->buffer[0]);
+            initprintf("\n%ld CNT",gcom->buffer[0]);
 #endif
-		}
+        }
 #if (PRINTERRORS)
-		else
-		{
-			if (!(gcom->buffer[1]&128))           /* single else double packet */
-				initprintf("\n%ld cnt",gcom->buffer[0]);
-			else
-			{
-				if (((gcom->buffer[0]+1)&255) == (incnt[*other]&255))
-				{
-								 /* GOOD! Take second half of double packet */
+        else
+        {
+            if (!(gcom->buffer[1]&128))           /* single else double packet */
+                initprintf("\n%ld cnt",gcom->buffer[0]);
+            else
+            {
+                if (((gcom->buffer[0]+1)&255) == (incnt[*other]&255))
+                {
+                    /* GOOD! Take second half of double packet */
 #if (PRINTERRORS)
-					initprintf("\n%ld-%ld .û ",gcom->buffer[0],(gcom->buffer[0]+1)&255);
+                    initprintf("\n%ld-%ld .û ",gcom->buffer[0],(gcom->buffer[0]+1)&255);
 #endif
-					messleng = ((int)gcom->buffer[3]) + (((int)gcom->buffer[4])<<8);
-					lastpacketleng = gcom->numbytes-7-messleng;
-					memcpy(bufptr,&gcom->buffer[messleng+5],lastpacketleng);
-					incnt[*other]++;
-					return(lastpacketleng);
-				}
-				else
-					initprintf("\n%ld-%ld cnt ",gcom->buffer[0],(gcom->buffer[0]+1)&255);
-			}
-		}
+                    messleng = ((int)gcom->buffer[3]) + (((int)gcom->buffer[4])<<8);
+                    lastpacketleng = gcom->numbytes-7-messleng;
+                    memcpy(bufptr,&gcom->buffer[messleng+5],lastpacketleng);
+                    incnt[*other]++;
+                    return(lastpacketleng);
+                }
+                else
+                    initprintf("\n%ld-%ld cnt ",gcom->buffer[0],(gcom->buffer[0]+1)&255);
+            }
+        }
 #endif
-		return(0);
-	}
+        return(0);
+    }
 
-		/* PACKET WAS GOOD! */
-	if ((gcom->buffer[1]&128) == 0)           /* Single packet */
-	{
+    /* PACKET WAS GOOD! */
+    if ((gcom->buffer[1]&128) == 0)           /* Single packet */
+    {
 #if (PRINTERRORS)
-		initprintf("\n%ld û  ",gcom->buffer[0]);
+        initprintf("\n%ld û  ",gcom->buffer[0]);
 #endif
 
-		messleng = gcom->numbytes-5;
+        messleng = gcom->numbytes-5;
 
-		memcpy(bufptr,&gcom->buffer[3],messleng);
+        memcpy(bufptr,&gcom->buffer[3],messleng);
 
-		incnt[*other]++;
-		return(messleng);
-	}
+        incnt[*other]++;
+        return(messleng);
+    }
 
-														 /* Double packet */
+    /* Double packet */
 #if (PRINTERRORS)
-	initprintf("\n%ld-%ld ûû ",gcom->buffer[0],(gcom->buffer[0]+1)&255);
+    initprintf("\n%ld-%ld ûû ",gcom->buffer[0],(gcom->buffer[0]+1)&255);
 #endif
 
-	messleng = ((int)gcom->buffer[3]) + (((int)gcom->buffer[4])<<8);
-	lastpacketleng = gcom->numbytes-7-messleng;
-	inlastpacket = 1; lastpacketfrom = *other;
+    messleng = ((int)gcom->buffer[3]) + (((int)gcom->buffer[4])<<8);
+    lastpacketleng = gcom->numbytes-7-messleng;
+    inlastpacket = 1; lastpacketfrom = *other;
 
-	memcpy(bufptr,&gcom->buffer[5],messleng);
-	memcpy(lastpacket,&gcom->buffer[messleng+5],lastpacketleng);
+    memcpy(bufptr,&gcom->buffer[5],messleng);
+    memcpy(lastpacket,&gcom->buffer[messleng+5],lastpacketleng);
 
-	incnt[*other] += 2;
-	return(messleng);
+    incnt[*other] += 2;
+    return(messleng);
 }
 
 void flushpackets()
 {
 #if 0
-	int i;
+    int i;
 
-	if (numplayers < 2) return;
+    if (numplayers < 2) return;
 
-	do
-	{
-		gcom->command = COMMIT_CMD_GET;
-		callcommit();
-	} while (gcom->other >= 0);
+    do
+    {
+        gcom->command = COMMIT_CMD_GET;
+        callcommit();
+    }
+    while (gcom->other >= 0);
 
-	for(i=connecthead;i>=0;i=connectpoint2[i])
-	{
-		incnt[i] = 0L;
-		outcntplc[i] = 0L;
-		outcntend[i] = 0L;
-		errorgotnum[i] = 0;
-		errorfixnum[i] = 0;
-		errorresendnum[i] = 0;
-		lastsendtime[i] = totalclock;
-	}
+    for (i=connecthead;i>=0;i=connectpoint2[i])
+    {
+        incnt[i] = 0L;
+        outcntplc[i] = 0L;
+        outcntend[i] = 0L;
+        errorgotnum[i] = 0;
+        errorfixnum[i] = 0;
+        errorresendnum[i] = 0;
+        lastsendtime[i] = totalclock;
+    }
 #endif
 }
 
 void genericmultifunction(int other, char *bufptr, int messleng, int command)
 {
-	if (numplayers < 2) return;
+    if (numplayers < 2) return;
 
-	gcom->command = command;
-	gcom->numbytes = min(messleng,MAXPACKETSIZE);
-	copybuf(bufptr,gcom->buffer,(gcom->numbytes+3)>>2);
-	gcom->other = other+1;
-	callcommit();
-	
+    gcom->command = command;
+    gcom->numbytes = min(messleng,MAXPACKETSIZE);
+    copybuf(bufptr,gcom->buffer,(gcom->numbytes+3)>>2);
+    gcom->other = other+1;
+    callcommit();
+
 }
 
 #if UDP_NETWORKING
@@ -594,7 +595,6 @@ void genericmultifunction(int other, char *bufptr, int messleng, int command)
 
 #define SOCKET_SHUTDOWN_BOTH 2
 
-#include <signal.h>
 #include "cache1d.h"  /* kopen4load for cfg file. */
 
 #define IPSEG1(ip) ((((unsigned int) ip) & 0xFF000000) >> 24)
@@ -603,24 +603,20 @@ void genericmultifunction(int other, char *bufptr, int messleng, int command)
 #define IPSEG4(ip) ((((unsigned int) ip) & 0x000000FF)      )
 
 #define MAX_PLAYERS 16
-#define BUILD_DEFAULT_UDP_PORT 1635  /* eh...why not? */
-#define CLIENT_POLL_DELAY 3000  /* ms between pings at peer-to-peer startup. */
+#define BUILD_DEFAULT_UDP_PORT 23513  /* eh...why not? */
+#define CLIENT_POLL_DELAY 5000  /* ms between pings at peer-to-peer startup. */
 #define HEADER_PEER_GREETING 245
 
 static sockettype udpsocket = -1;
 static short udpport = BUILD_DEFAULT_UDP_PORT;
 
-static struct {
-  int host;
-  short port;
+static struct
+{
+    int host;
+    short port;
 } allowed_addresses[MAX_PLAYERS];  /* only respond to these IPs. */
 
 volatile int ctrlc_pressed = 0;
-static void siginthandler(int sigint)
-{
-    UNREFERENCED_PARAMETER(sigint);
-    ctrlc_pressed = 1;
-}
 
 #if PLATFORM_WIN32
 /*
@@ -644,11 +640,11 @@ static const char *win32netstrerror(void)
         WSAGetLastError(), /*GetLastError(),*/
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), /* Default language */
         msgbuf,
-        sizeof (msgbuf) / sizeof (TCHAR),
-        NULL 
+        sizeof(msgbuf) / sizeof(TCHAR),
+        NULL
     );
 
-        /* chop off newlines. */
+    /* chop off newlines. */
     for (ptr = msgbuf; *ptr; ptr++)
     {
         if ((*ptr == '\n') || (*ptr == '\r'))
@@ -687,22 +683,22 @@ static int send_udp_packet(int ip, short port, void *pkt, size_t pktsize)
     struct sockaddr_in addr;
     int rc;
 
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = htonl(ip);
-	addr.sin_port = htons(port);
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = htonl(ip);
+    addr.sin_port = htons(port);
 
     rc = sendto(udpsocket, pkt, pktsize, 0,
-                (struct sockaddr *) &addr, sizeof (addr));
+                (struct sockaddr *) &addr, sizeof(addr));
 
     if (rc != (int) pktsize)
     {
         initprintf("sendto err rc==%d when sending %d to %s:%d [%s].\n",
-                rc, (int) pktsize, static_ipstring(ip), (int) port,
-                netstrerror());
+                   rc, (int) pktsize, static_ipstring(ip), (int) port,
+                   netstrerror());
         return(0);
     }
 
-/*initprintf("Sent %d byte packet to %s:%d\n", (int) pktsize, static_ipstring(ip), (int) port);*/
+    /*initprintf("Sent %d byte packet to %s:%d\n", (int) pktsize, static_ipstring(ip), (int) port);*/
 
     return(1);
 }
@@ -719,26 +715,26 @@ static int get_udp_packet(int *ip, short *_port, void *pkt, size_t pktsize)
     int err = 0;
     struct sockaddr_in addr;
     short port;
-    socklen_t fromlen = sizeof (addr);
+    socklen_t fromlen = sizeof(addr);
     int valid = 0;
     int i;
 
     /* FIXME: Will this ever receive a partial packet? */
     int rc = recvfrom(udpsocket, pkt, pktsize, 0, (struct sockaddr *) &addr,
 #ifdef _WIN32
-        (int *)&fromlen);
+                      (int *)&fromlen);
 #else
-        (unsigned int *)&fromlen);
+                      (unsigned int *)&fromlen);
 #endif
-	
-	if (rc == -1)
+
+    if (rc == -1)
         err = neterrno();
 
 #if !PLATFORM_WIN32
-	/* !!! FIXME: Linux specific? */
+    /* !!! FIXME: Linux specific? */
     if (rc == -1)  /* fill in the addr structure on error... */
     {
-        socklen_t l = sizeof (addr);
+        socklen_t l = sizeof(addr);
         recvfrom(udpsocket, NULL, 0, MSG_ERRQUEUE,
                  (struct sockaddr *) &addr, &l);
     }
@@ -754,45 +750,45 @@ static int get_udp_packet(int *ip, short *_port, void *pkt, size_t pktsize)
      *  other confusion...
      */
     if (gcom == NULL)
-	{
-		if(natfree) //if stun is enabled
-		{
-			if ((allowed_addresses[itmp].host == *ip)
-			&& (allowed_addresses[itmp].port == port))
-			{
-				valid = 1; //only accept packets from the current player (itmp) and no one else
-			}
-			else
-			{
-				return 0; //reject packets from other players
-			}
-		}
-		else
+    {
+        if (natfree) //if stun is enabled
         {
-			valid = 1;
-		}
-	}
+            if ((allowed_addresses[itmp].host == *ip)
+                    && (allowed_addresses[itmp].port == port))
+            {
+                valid = 1; //only accept packets from the current player (itmp) and no one else
+            }
+            else
+            {
+                return 0; //reject packets from other players
+            }
+        }
+        else
+        {
+            valid = 1;
+        }
+    }
     else
     {
         for (i = 1; i <= gcom->numplayers; i++)
         {
             if ((allowed_addresses[i].host == *ip)
-				&& (allowed_addresses[i].port == port))
+                    && (allowed_addresses[i].port == port))
 
             {
-				valid = i;
+                valid = i;
 
-				//initprintf ("Packet received from %s:%d\n",static_ipstring(*ip), (int) port);
-				
+                //initprintf ("Packet received from %s:%d\n",static_ipstring(*ip), (int) port);
+
                 break;
             }
 
-		}
+        }
     }
 
     /*if (!valid)
     {
-        
+
         static int unallowed_ip_spam = 0;
         if (unallowed_ip_spam <= 100)
         {
@@ -802,7 +798,7 @@ static int get_udp_packet(int *ip, short *_port, void *pkt, size_t pktsize)
                 initprintf("(Disabling further unallowed IP spam.)\n");
             unallowed_ip_spam++;
         }
-        
+
         return(0);
     } */
 
@@ -811,32 +807,32 @@ static int get_udp_packet(int *ip, short *_port, void *pkt, size_t pktsize)
         if ((err == EAGAIN) || (err == EWOULDBLOCK))
             rc = 0;
 
-        else if (err == ECONNREFUSED)   //"connection reset by peer" in winsock 
+        else if (err == ECONNREFUSED)   //"connection reset by peer" in winsock
         {
-            
-             //  This means that we sent a packet to an unopened port, and
-             //  it responded by telling us to piss off. Take them out of the
-             //  allowed list. We check gcom so that we don't worry about this
-             //  during detection when game might still be loading elsewhere.
-              
+
+            //  This means that we sent a packet to an unopened port, and
+            //  it responded by telling us to piss off. Take them out of the
+            //  allowed list. We check gcom so that we don't worry about this
+            //  during detection when game might still be loading elsewhere.
+
             if (gcom != NULL)
             {
                 allowed_addresses[valid].host = 0;
                 initprintf("%s:%d refused packets. Removed from game.\n",
-                        static_ipstring(*ip), (int) port);
+                           static_ipstring(*ip), (int) port);
             }
-            // !!! FIXME: Actually boot player, too. 
+            // !!! FIXME: Actually boot player, too.
         }
 
         else
         {
             initprintf("recvfrom err rc==%d when getting %d from %s:%d [%s].\n",
-                    rc, (int) pktsize, static_ipstring(*ip), (int) port,
-                    netstrerror());
+                       rc, (int) pktsize, static_ipstring(*ip), (int) port,
+                       netstrerror());
         }
-    } 
+    }
 //else initprintf("Got %d byte packet from %s:%d\n", (int) rc, static_ipstring(*ip), (int) port);
-	//initprintf( "IP from client %d", *ip);
+    //initprintf( "IP from client %d", *ip);
     return(rc);
 }
 
@@ -919,15 +915,15 @@ static int set_socket_blockmode(int onOrOff)
         if (onOrOff)
             flags &= ~O_NONBLOCK;
         else
-    	    flags |= O_NONBLOCK;
-	    rc = (fcntl(udpsocket, F_SETFL, flags) == 0);
+            flags |= O_NONBLOCK;
+        rc = (fcntl(udpsocket, F_SETFL, flags) == 0);
     }
 #endif
 
     if (!rc)
     {
         initprintf("set socket %sblocking failed: %s\n",
-            ((onOrOff) ? "" : "non-"), netstrerror());
+                   ((onOrOff) ? "" : "non-"), netstrerror());
     }
 
     return(rc);
@@ -940,11 +936,11 @@ static int set_socket_broadcast(int onOrOff)
     int rc;
 
     /* give socket clearance to broadcast. */
-    rc = setsockopt(udpsocket, SOL_SOCKET, SO_BROADCAST, (char *)(&f), sizeof (f)) == 0;
+    rc = setsockopt(udpsocket, SOL_SOCKET, SO_BROADCAST, (char *)(&f), sizeof(f)) == 0;
     if (!rc)
     {
         initprintf("%sset SO_BROADCAST failed: %s\n",
-            ((onOrOff) ? "" : "un"), netstrerror());
+                   ((onOrOff) ? "" : "un"), netstrerror());
     }
 
     return(rc);
@@ -955,8 +951,12 @@ static int open_udp_socket(int ip, int port)
 {
     struct sockaddr_in addr;
 
-    initprintf("Setting up UDP interface %s:%d...\n", static_ipstring(ip), port);
-	initprintf("Stun is currently %s\n", (natfree) ? "Enabled":"Disabled");
+//    initprintf("Setting up UDP interface %s:%d...\n", static_ipstring(ip), port);
+    if (natfree)
+    {
+    //initprintf("Stun is currently %s\n", (natfree) ? "Enabled":"Disabled");
+        initprintf("mmulti_unstable: Stun enabled\n");
+    }
 
     udpsocket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if ((signed)udpsocket == -1)
@@ -968,19 +968,19 @@ static int open_udp_socket(int ip, int port)
     if (!set_socket_blockmode(0))
         return(0);
 
-    #if !PLATFORM_WIN32
+#if !PLATFORM_WIN32
     {
         /* !!! FIXME: Might be Linux (not Unix, not BSD, not WinSock) specific. */
         int flags = 1;
-        setsockopt(udpsocket, SOL_IP, IP_RECVERR, &flags, sizeof (flags));
+        setsockopt(udpsocket, SOL_IP, IP_RECVERR, &flags, sizeof(flags));
     }
-    #endif
+#endif
 
-    memset(&addr, '\0', sizeof (addr));
+    memset(&addr, '\0', sizeof(addr));
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = htonl(ip);
     addr.sin_port = htons((unsigned short)port);
-    if (bind(udpsocket, (struct sockaddr *) &addr, sizeof (addr)) == -1)
+    if (bind(udpsocket, (struct sockaddr *) &addr, sizeof(addr)) == -1)
     {
         initprintf("socket binding failed: %s\n", netstrerror());
         return(0);
@@ -1022,10 +1022,10 @@ typedef struct
 static void send_peer_greeting(int ip, short port, short myid)
 {
     PacketPeerGreeting packet;
-	memset(&packet, '\0', sizeof (packet));
+    memset(&packet, '\0', sizeof(packet));
     packet.header = HEADER_PEER_GREETING;
     packet.id = B_SWAP16(myid);
-    send_udp_packet(ip, port, &packet, sizeof (packet));
+    send_udp_packet(ip, port, &packet, sizeof(packet));
 }
 
 
@@ -1044,13 +1044,11 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
     int max;
     int remaining;
 
-    initprintf("peer-to-peer init. CTRL-C to abort...\n");
-
     if (bcast)
     {
         if (gcom->numplayers > 1)
         {
-            initprintf("ERROR: Can't do both 'broadcast' and 'allow'.\n");
+            initprintf("mmulti_unstable: Error: can't do both 'broadcast' and 'allow'.\n");
             return(0);
         }
 
@@ -1060,12 +1058,12 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
         gcom->numplayers = bcast + 1;
     }
 
-    memset(heard_from, '\0', sizeof (heard_from));
+    memset(heard_from, '\0', sizeof(heard_from));
 
     while (my_id == 0)  /* player number is based on id, low to high. */
         my_id = (unsigned short) rand();
 
-    initprintf("(This client's ID for this round is 0x%X.)\n\n", my_id);
+    initprintf("mmulti_unstable: Using 0x%X as client ID\n", my_id);
 
     resendat = getticks();
     remaining = max = gcom->numplayers - 1;
@@ -1073,14 +1071,14 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
     initprintf("Waiting for %d player%s...\n", remaining, remaining==1 ? "":"s");
     if (remaining == 0)
     {
-        initprintf("Hmmm...don't have time to play with myself.\n");
+        initprintf("Hmmm... don't have time to play with myself!\n");
         return(0);
     }
 
     while ((remaining) && (!ctrlc_pressed))
     {
-            handleevents();
-            if (quitevent) ctrlc_pressed = 1;
+        handleevents();
+        if (quitevent) ctrlc_pressed = 1;
 
         if (resendat <= getticks())
         {
@@ -1094,31 +1092,29 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
             {
                 for (i = 0; (i < max) || natfree ; i++)
                 {
-				
-					//only checking one player at a time works
-					//this is where special formatting of allow lines comes in    
-					if(natfree)
-					{
-						i = itmp; //addfaz router fix
-					}
-	
-					if (!heard_from[i])
-					{
-	                   initprintf("%sending greeting to %s:%d...\n",
-                                first_send ? "S" : "Res",
-                                static_ipstring(allowed_addresses[i].host),
-                                allowed_addresses[i].port);
-    
-					   send_peer_greeting(allowed_addresses[i].host,
+
+                    //only checking one player at a time works
+                    //this is where special formatting of allow lines comes in
+                    if (natfree)
+                    {
+                        i = itmp; //addfaz router fix
+                    }
+
+                    if (!heard_from[i])
+                    {
+                        initprintf("%s %s:%d...\n",first_send?"Connecting to":"Retrying",
+                            static_ipstring(allowed_addresses[i].host),allowed_addresses[i].port);
+
+                        send_peer_greeting(allowed_addresses[i].host,
                                            allowed_addresses[i].port,
                                            my_id);
                     }
 
-					// If this is stun-enabled then don't loop.
-					if(natfree)
-					{
-						break;
-					}
+                    // If this is stun-enabled then don't loop.
+                    if (natfree)
+                    {
+                        break;
+                    }
                 }
             }
             first_send = 0;
@@ -1128,30 +1124,30 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
         idle();
         process_udp_send_queue();
 
-        rc = get_udp_packet(&ip, &port, &packet, sizeof (packet));
+        rc = get_udp_packet(&ip, &port, &packet, sizeof(packet));
 
-		//this is so we don't get unexpected packet errors from players already heard from
-		
-		if(natfree)	
-		{
-			//addfaz router/stun addition *Start*
-			//this is so we are not dealing with players already heard from.
-			for (i = 0; i < max; i++)
-			{
-				if (ip == allowed_addresses[i].host &&
-				port == allowed_addresses[i].port)
-				{
-					if (heard_from[i] != 0) //if we've heard from player already.
-					{
-						rc = 0;
-					}	     
-				}
-			}
-			//addfaz router/stun addition *End*
-		}
+        //this is so we don't get unexpected packet errors from players already heard from
+
+        if (natfree)
+        {
+            //addfaz router/stun addition *Start*
+            //this is so we are not dealing with players already heard from.
+            for (i = 0; i < max; i++)
+            {
+                if (ip == allowed_addresses[i].host &&
+                        port == allowed_addresses[i].port)
+                {
+                    if (heard_from[i] != 0) //if we've heard from player already.
+                    {
+                        rc = 0;
+                    }
+                }
+            }
+            //addfaz router/stun addition *End*
+        }
 
 
-        if ( (rc > 0) && (ip) && ((ip != myip) || (port != udpport)) )
+        if ((rc > 0) && (ip) && ((ip != myip) || (port != udpport)))
         {
             char *ipstr = static_ipstring(ip);
 
@@ -1159,44 +1155,45 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
             {
 
                 ////addfaz NAT addition *START*////
-				if(!natfree)
-				{
-					if(tmpmax[i] != 1)
-					{					
-						if (allowed_addresses[i].host == ip)
-						{
-							if(allowed_addresses[i].port != port)
-							{	
-								initprintf("Different player Port Number detected. %s:%i\n",ipstr,
-								allowed_addresses[i].port);
-								initprintf("Changed to %s:%i, player may be behind a firewall.\n", ipstr, port); //addfaz NAT addition
-								allowed_addresses[i].port = port;
-							}					
-						}
-					}
-				}
-				////addfaz NAT addition *END*////
+                if (!natfree)
+                {
+                    if (tmpmax[i] != 1)
+                    {
+                        if (allowed_addresses[i].host == ip)
+                        {
+                            if (allowed_addresses[i].port != port)
+                            {
+                                initprintf("mmulti_unstable: Port number for player %d changed from %d to %d.\n",i,allowed_addresses[i].port,port);
+                                /*                                initprintf("Different player Port Number detected. %s:%i\n",ipstr,
+                                                                           allowed_addresses[i].port);
+                                                                initprintf("Changed to %s:%i, player may be behind a firewall.\n", ipstr, port); //addfaz NAT addition */
+                                allowed_addresses[i].port = port;
+                            }
+                        }
+                    }
+                }
+                ////addfaz NAT addition *END*////
 
-				if ((ip == allowed_addresses[i].host) &&
-                    (port == allowed_addresses[i].port))  //addfaz NAT line addition
+                if ((ip == allowed_addresses[i].host) &&
+                        (port == allowed_addresses[i].port))  //addfaz NAT line addition
                 {
                     break;
                 }
 
                 if ((bcast) && (allowed_addresses[i].host == 0))
                     break;  /* select this slot. */
-				
+
             }
 
             if (i == max)
-                initprintf("%s:%d is not an allowed player.\n", ipstr, port);
+                initprintf("mmulti_unstable: Disallowed player %s:%d ?!\n", ipstr, port);
 
-            else if (rc != sizeof (packet))
-                initprintf("Missized packet/packet fragment from %s:%i\n", ipstr, port);
+            else if (rc != sizeof(packet))
+                initprintf("mmulti_unstable: Missized packet or fragment from %s:%i ?!\n", ipstr, port);
 
             else if (packet.header != HEADER_PEER_GREETING)
-                initprintf("Unexpected packet type from %s:%i\n", ipstr, port);
-			
+                initprintf("mmulti_unstable: Unexpected packet type from %s:%i ?!\n", ipstr, port);
+
             else if (heard_from[i] == 0)
             {
                 packet.id = B_SWAP16(packet.id);
@@ -1205,28 +1202,28 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
                 allowed_addresses[i].port = port;
                 remaining--;
 
-                initprintf("Heard from %s:%i (id 0x%X). %d player%s to go.\n",
-                        ipstr, port ,(int) packet.id,
-                        remaining, remaining == 1 ? "" : "s");
+                initprintf("Connected to %s:%i (id 0x%X). %d player%s to go.\n",
+                           ipstr, port ,(int) packet.id,
+                           remaining, remaining == 1 ? "" : "s");
 
                 /* make sure they've heard from us at all... */
                 /* !!! FIXME: Could be fatal if packet is dropped... */
                 send_peer_greeting(allowed_addresses[i].host,
                                    allowed_addresses[i].port,
                                    my_id);
-		
-				if(natfree)
-				{
-					itmp++; //addfaz router/stun addition (goto next player)
-				}
-				else
-				{
-					tmpmax[i] = 1; //addfaz line addition
-				}
+
+                if (natfree)
+                {
+                    itmp++; //addfaz router/stun addition (goto next player)
+                }
+                else
+                {
+                    tmpmax[i] = 1; //addfaz line addition
+                }
             }
         }
     }
-	
+
     if (ctrlc_pressed)
     {
         initprintf("Connection attempt aborted.\n");
@@ -1246,8 +1243,8 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
         {
             if (heard_from[i] == heard_from[i+1])  /* blah. */
             {
-                initprintf("ERROR: Two players have the same random ID!\n");
-                initprintf("ERROR: Please restart the game to generate new IDs.\n");
+                initprintf("mmulti_unstable: ERROR: Two players have the same random ID!\n");
+                initprintf("mmulti_unstable: ERROR: Please restart the game to generate new IDs.\n");
                 return(0);
             }
 
@@ -1271,7 +1268,8 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
                 remaining = 1;  /* yay for bubble sorting! */
             }
         }
-    } while (remaining);
+    }
+    while (remaining);
 
     /*
      * Now we're sorted. But, the local player is referred to by both his
@@ -1280,7 +1278,7 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
      */
 
     memmove(&allowed_addresses[1], &allowed_addresses[0],
-            sizeof (allowed_addresses) - sizeof (allowed_addresses[0]));
+            sizeof(allowed_addresses) - sizeof(allowed_addresses[0]));
     allowed_addresses[0].host = myip;
 
     gcom->myconnectindex = 0;
@@ -1290,16 +1288,16 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
 
 
         if (ip == myip)
-		{
+        {
             if (udpport == allowed_addresses[i].port)
-				gcom->myconnectindex = i;
-		}
+                gcom->myconnectindex = i;
+        }
 
-        initprintf("%s:%i is player #%i.\n", static_ipstring(ip),allowed_addresses[i].port,i);
+        initprintf("mmulti_unstable: player #%i at %s:%i\n", i,static_ipstring(ip),allowed_addresses[i].port);
     }
 //    assert(gcom->myconnectindex);
 
-    initprintf("Everyone ready! We are player #%i\n", gcom->myconnectindex);
+    initprintf("mmulti_unstable: We are player #%i\n", gcom->myconnectindex);
 
     /*
      * Ok, we should have specific IPs and ports for all players, and
@@ -1329,10 +1327,10 @@ static int parse_ip(const char *str, int *ip)
 
     /* we _should_ check that 0 <= ip? <= 255, but it'll fail later anyhow. */
 
-    *ip = ( ((ip1 & 0xFF) << 24) |
-            ((ip2 & 0xFF) << 16) |
-            ((ip3 & 0xFF) <<  8) |
-            ((ip4 & 0xFF)      ) );
+    *ip = (((ip1 & 0xFF) << 24) |
+           ((ip2 & 0xFF) << 16) |
+           ((ip3 & 0xFF) <<  8) |
+           ((ip4 & 0xFF)));
 
     return(1);
 }
@@ -1364,7 +1362,7 @@ static int initialize_sockets(void)
 #if PLATFORM_WIN32
     int rc;
     WSADATA data;
-    initprintf("initializing WinSock...\n");
+//    initprintf("initializing WinSock...\n");
     rc = WSAStartup(0x0101, &data);
     if (rc != 0)
     {
@@ -1373,14 +1371,14 @@ static int initialize_sockets(void)
     }
     else
     {
-        initprintf("WinSock initialized.\n");
+/*        initprintf("WinSock initialized.\n");
         initprintf("  - Caller uses version %d.%d, highest supported is %d.%d.\n",
-                data.wVersion >> 8, data.wVersion & 0xFF,
-                data.wHighVersion >> 8, data.wHighVersion & 0xFF);
+                   data.wVersion >> 8, data.wVersion & 0xFF,
+                   data.wHighVersion >> 8, data.wHighVersion & 0xFF);
         initprintf("  - Implementation description: [%s].\n", data.szDescription);
         initprintf("  - System status: [%s].\n", data.szSystemStatus);
         initprintf("  - Max sockets: %d.\n", data.iMaxSockets);
-        initprintf("  - Max UDP datagram size: %d.\n", data.iMaxUdpDg);
+        initprintf("  - Max UDP datagram size: %d.\n", data.iMaxUdpDg); */
     }
 #endif
 
@@ -1413,13 +1411,13 @@ static int parse_udp_config(const char *cfgfile, gcomtype *gcom)
 
         if (Bstrcasecmp(tok, "interface") == 0)
         {
-            if ( (tok = get_token(&ptr)) &&
-                 (parse_interface(tok, &ip, &udpport)) )
+            if ((tok = get_token(&ptr)) &&
+                    (parse_interface(tok, &ip, &udpport)))
             {
                 bogus = 0;
             }
-            initprintf("Interface %s:%d chosen.\n",
-                    static_ipstring(ip), (int) udpport);
+            initprintf("mmulti_unstable: Using interface %s:%d\n",
+                       static_ipstring(ip), (int) udpport);
         }
 
         else if (Bstrcasecmp(tok, "mode") == 0)
@@ -1503,7 +1501,7 @@ gcomtype *init_network_transport(char **ARGV, int argpos)
 {
     gcomtype *retval;
 
-    initprintf("\n\nUDP NETWORK TRANSPORT INITIALIZING...\n");
+//    initprintf("\n\nUDP NETWORK TRANSPORT INITIALIZING...\n");
 
     ctrlc_pressed = 0;
 
@@ -1512,23 +1510,20 @@ gcomtype *init_network_transport(char **ARGV, int argpos)
 
     srand(time(NULL));
 
-    retval = (gcomtype *)malloc(sizeof (gcomtype));
+    retval = (gcomtype *)malloc(sizeof(gcomtype));
     if (retval != NULL)
     {
         int rc;
         char *cfgfile = ARGV[argpos];
-        void (*oldsigint)(int);
 
-        memset(retval, '\0', sizeof (gcomtype));
-        memset(allowed_addresses, '\0', sizeof (allowed_addresses));
+        memset(retval, '\0', sizeof(gcomtype));
+        memset(allowed_addresses, '\0', sizeof(allowed_addresses));
         udpsocket = -1;
         udpport = BUILD_DEFAULT_UDP_PORT;
         udpmode = udpmode_peer;
 
-        oldsigint = signal(SIGINT, siginthandler);
-        initprintf("Parsing udp config %s\n", cfgfile);
+        initprintf("mmulti_unstable: Using '%s' as configuration file\n", cfgfile);
         rc = parse_udp_config(cfgfile, retval);
-        signal(SIGINT, oldsigint);
 
         if (!rc)
         {
@@ -1545,7 +1540,7 @@ gcomtype *init_network_transport(char **ARGV, int argpos)
 
 void deinit_network_transport(gcomtype *gcom)
 {
-    initprintf("\n\nUDP NETWORK TRANSPORT DEINITIALIZING...\n");
+//    initprintf("\n\nUDP NETWORK TRANSPORT DEINITIALIZING...\n");
 
     if (gcom != NULL)
     {
@@ -1580,95 +1575,95 @@ void callcommit(void)
 
     switch (gcom->command)
     {
-        case COMMIT_CMD_GET:
-            rc = get_udp_packet(&ip, &port, gcom->buffer, sizeof(gcom->buffer));
-            if (rc > 0)
+    case COMMIT_CMD_GET:
+        rc = get_udp_packet(&ip, &port, gcom->buffer, sizeof(gcom->buffer));
+        if (rc > 0)
+        {
+            gcom->numbytes = rc;  /* size of new packet. */
+            for (i = 1; i <= gcom->numplayers; i++)
             {
-                gcom->numbytes = rc;  /* size of new packet. */
-                for (i = 1; i <= gcom->numplayers; i++)
+                if ((allowed_addresses[i].host == ip) &&
+                        (allowed_addresses[i].port == port))
                 {
-                    if ( (allowed_addresses[i].host == ip) &&
-                         (allowed_addresses[i].port == port) )
-                    {
-                        gcom->other = i;
-                        return;
-                    }
+                    gcom->other = i;
+                    return;
                 }
-                /* if you manage to hit this, it'll report no packet avail. */
             }
+            /* if you manage to hit this, it'll report no packet avail. */
+        }
 
-            gcom->numbytes = 0;
-            gcom->other = -1;  /* no packet available. */
-            break;
+        gcom->numbytes = 0;
+        gcom->other = -1;  /* no packet available. */
+        break;
 
-        case COMMIT_CMD_SEND:
-            if ((gcom->other < 0) || (gcom->other > gcom->numplayers))
-            {
-                initprintf("NET TRANSPORT ERROR: send to player out of range\n");
-                return;
-            }
+    case COMMIT_CMD_SEND:
+        if ((gcom->other < 0) || (gcom->other > gcom->numplayers))
+        {
+            initprintf("NET TRANSPORT ERROR: send to player out of range\n");
+            return;
+        }
 
-            ip = allowed_addresses[gcom->other].host;
+        ip = allowed_addresses[gcom->other].host;
+        if (ip == 0)  /* dropped player? */
+            return;
+
+        port = allowed_addresses[gcom->other].port;
+
+        if (!send_udp_packet(ip, port, gcom->buffer, gcom->numbytes))
+        {
+            initprintf("NET TRANSPORT ERROR: send failed to %s:%d\n",
+                       static_ipstring(ip), (int) port);
+        }
+        break;
+
+    case COMMIT_CMD_SENDTOALL:
+        /* skip player zero, 'cause that's a duplicate of local IP. */
+        for (i = 1; i <= gcom->numplayers; i++)
+        {
+            ip = allowed_addresses[i].host;
             if (ip == 0)  /* dropped player? */
-                return;
+                continue;
 
-            port = allowed_addresses[gcom->other].port;
+            port = allowed_addresses[i].port;
 
             if (!send_udp_packet(ip, port, gcom->buffer, gcom->numbytes))
             {
                 initprintf("NET TRANSPORT ERROR: send failed to %s:%d\n",
-                        static_ipstring(ip), (int) port);
+                           static_ipstring(ip), (int) port);
             }
-            break;
+        }
+        break;
 
-        case COMMIT_CMD_SENDTOALL:
-            /* skip player zero, 'cause that's a duplicate of local IP. */
-            for (i = 1; i <= gcom->numplayers; i++)
+    case COMMIT_CMD_SENDTOALLOTHERS:
+        /* skip player zero, 'cause that's a duplicate of local IP. */
+        for (i = 1; i <= gcom->numplayers; i++)
+        {
+            if (i == gcom->myconnectindex)  /* local player. */
+                continue;
+
+            ip = allowed_addresses[i].host;
+            if (ip == 0)  /* dropped player? */
+                continue;
+
+            port = allowed_addresses[i].port;
+
+            if (!send_udp_packet(ip, port, gcom->buffer, gcom->numbytes))
             {
-                ip = allowed_addresses[i].host;
-                if (ip == 0)  /* dropped player? */
-                    continue;
-
-                port = allowed_addresses[i].port;
-
-                if (!send_udp_packet(ip, port, gcom->buffer, gcom->numbytes))
-                {
-                    initprintf("NET TRANSPORT ERROR: send failed to %s:%d\n",
-                            static_ipstring(ip), (int) port);
-                }
+                initprintf("NET TRANSPORT ERROR: send failed to %s:%d\n",
+                           static_ipstring(ip), (int) port);
             }
-            break;
-
-        case COMMIT_CMD_SENDTOALLOTHERS:
-            /* skip player zero, 'cause that's a duplicate of local IP. */
-            for (i = 1; i <= gcom->numplayers; i++)
-            {
-                if (i == gcom->myconnectindex)  /* local player. */
-                    continue;
-
-                ip = allowed_addresses[i].host;
-                if (ip == 0)  /* dropped player? */
-                    continue;
-
-                port = allowed_addresses[i].port;
-
-                if (!send_udp_packet(ip, port, gcom->buffer, gcom->numbytes))
-                {
-                    initprintf("NET TRANSPORT ERROR: send failed to %s:%d\n",
-                            static_ipstring(ip), (int) port);
-                }
-            }
-            break;
+        }
+        break;
 
         /* ?!
         case COMMIT_CMD_SCORE:
             break;
         */
 
-        default:
-            initprintf("NET TRANSPORT ERROR: Unknown command %d\n", gcom->command);
-            gcom->other = -1;  /* oh well. */
-            break;
+    default:
+        initprintf("NET TRANSPORT ERROR: Unknown command %d\n", gcom->command);
+        gcom->other = -1;  /* oh well. */
+        break;
     }
 }
 

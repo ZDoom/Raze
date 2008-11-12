@@ -642,7 +642,7 @@ int32 CONFIG_ReadSetup(void)
 
         SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
-#ifndef ENET_NETWORKING
+#ifndef RANCID_NETWORKING
         // The packetrate mechanism is specific to the eduke32 networking code
         SCRIPT_GetNumber(ud.config.scripthandle, "Comm Setup", "Rate",(int32 *)&packetrate);
         packetrate = min(max(packetrate,50),1000);
@@ -1140,7 +1140,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutString(ud.config.scripthandle, "Comm Setup","PlayerName",&myname[0]);
     SCRIPT_PutString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
-#ifndef ENET_NETWORKING
+#ifndef RANCID_NETWORKING
     // The packetrate mechanism is specific to the eduke32 networking code
     SCRIPT_PutNumber(ud.config.scripthandle, "Comm Setup", "Rate", packetrate, false, false);
 #endif

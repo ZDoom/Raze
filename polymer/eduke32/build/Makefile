@@ -17,7 +17,7 @@ PRETTY_OUTPUT = 1
 #  USE_OPENGL     - enables OpenGL support in Polymost
 #  NOASM          - disables the use of inline assembly pragmas
 #  LINKED_GTK     - enables compile-time linkage to GTK
-#  ENET_NETWORKING - enable enet-based network backend from rancidmeat/xDuke ports
+#  RANCID_NETWORKING - enable network backend from rancidmeat port
 #
 
 SUPERBUILD ?= 1
@@ -27,7 +27,7 @@ USE_OPENGL ?= 1
 NOASM ?= 0
 LINKED_GTK ?= 0
 BUILD32_ON_64 ?= 0
-ENET_NETWORKING ?= 0
+RANCID_NETWORKING ?= 0
 
 # Debugging/Build options
 #  RELEASE - 1 = no debugging
@@ -50,7 +50,7 @@ SRC=src
 RSRC=rsrc
 INC=include
 
-ENETROOT=$(SRC)/enet
+# ENETROOT=$(SRC)/enet
 
 # Filename extensions - these won't need to change
 #
@@ -126,7 +126,7 @@ ifeq (1,$(POLYMER))
 	ENGINEOBJS+=  $(OBJ)/polymer.$o
 endif
 
-ifneq (0,$(ENET_NETWORKING))
+ifneq (0,$(RANCID_NETWORKING))
 	ENGINEOBJS+= $(OBJ)/mmulti_unstable.$o
 else
 	ENGINEOBJS+= $(OBJ)/mmulti.$o
@@ -154,8 +154,8 @@ ifeq ($(PLATFORM),BSD)
 	LIBS+= -lm
 endif
 ifeq ($(PLATFORM),WINDOWS)
-	OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(FMODROOTWIN)/inc -I$(ENETROOT)/include
-	LIBS+= -lm -L$(ENETROOT) -lwsock32 -lws2_32 -lwinmm
+	OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(FMODROOTWIN)/inc # -I$(ENETROOT)/include
+	LIBS+= -lm -lwsock32 -lws2_32 -lwinmm #-L$(ENETROOT)
 	ASFLAGS+= -DUNDERSCORES -f win32
 endif
 ifeq ($(PLATFORM),BEOS)

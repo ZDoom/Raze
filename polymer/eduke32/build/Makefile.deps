@@ -18,7 +18,7 @@ $(OBJ)/lzwnew.$o: $(SRC)/lzwnew.c
 $(OBJ)/md4.$o: $(SRC)/md4.c $(INC)/md4.h $(INC)/compat.h
 $(OBJ)/mmulti_null.$o: $(SRC)/mmulti_null.c $(INC)/mmulti.h
 $(OBJ)/mmulti.$o: $(SRC)/mmulti.c $(INC)/mmulti.h
-$(OBJ)/enet_mmulti.$o: $(SRC)/enet_mmulti.cpp $(INC)/enet_mmulti.h
+# $(OBJ)/enet_mmulti.$o: $(SRC)/enet_mmulti.cpp $(INC)/enet_mmulti.h
 $(OBJ)/mmulti_unstable.$o: $(SRC)/mmulti_unstable.c $(INC)/mmulti_unstable.h
 $(OBJ)/osd.$o: $(SRC)/osd.c $(INC)/build.h $(INC)/osd.h $(INC)/compat.h $(INC)/baselayer.h
 $(OBJ)/pragmas.$o: $(SRC)/pragmas.c $(INC)/compat.h
