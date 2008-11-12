@@ -47,7 +47,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
-#undef UNREFERENCED_PARAMETER
 #include <windows.h>
 #include <shellapi.h>
 #include <winsock2.h>
@@ -10609,8 +10608,9 @@ static void Startup(void)
 
 void sendscore(const char *s)
 {
-    if (numplayers > 1)
-        genericmultifunction(-1,(char *)s,strlen(s)+1,5);
+    UNREFERENCED_PARAMETER(s);
+//    if (numplayers > 1)
+//        genericmultifunction(-1,(char *)s,strlen(s)+1,5);
 }
 
 static void sendwchoice(void)

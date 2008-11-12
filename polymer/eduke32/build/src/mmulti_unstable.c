@@ -11,6 +11,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 #include <time.h>
+#include <sys/time.h> //HACK, for id generation
 
 #include "mmulti_unstable.h"
 // #include <enet/enet.h>
@@ -194,14 +195,15 @@ void initmultiplayers(int argc, char **argv)
                 break;
         }
     }
+#endif
 
-    if ((i == 0) || (i+1 == argc))
+    if (!argc)
     {
+        initprintf("mmulti_unstable: No configuration file specified!\n");
         numplayers = 1; myconnectindex = 0;
         connecthead = 0; connectpoint2[0] = -1;
         return;
     }
-#endif
 
     gcom = init_network_transport(argv, 0);
     if (gcom == NULL)
@@ -354,6 +356,14 @@ void uninitmultiplayers(void)
     gcom = NULL;
 }
 
+typedef enum
+{
+    udpmode_peer,
+    udpmode_server,
+    udpmode_client
+} udpmodes;
+static udpmodes udpmode = udpmode_peer;
+
 void sendlogon(void)
 {
 }
@@ -366,8 +376,11 @@ void sendlogoff(void)
     tempbuf[0] = 255;
     tempbuf[1] = myconnectindex;
     for (i=connecthead;i>=0;i=connectpoint2[i])
+    {
         if (i != myconnectindex)
             sendpacket(i,tempbuf,2L);
+        if ((udpmode == udpmode_client) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+    }
 }
 
 int getoutputcirclesize(void)
@@ -386,9 +399,10 @@ int getpacket(int *other, char *bufptr)
     int i, messleng;
     unsigned short dacrc;
 
-    if (numplayers < 2) return(0);
+    if (numplayers < 2 || gcom == NULL) return(0);
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
+    {
         if (i != myconnectindex)
         {
             if (totalclock < lastsendtime[i]) lastsendtime[i] = totalclock;
@@ -407,6 +421,8 @@ int getpacket(int *other, char *bufptr)
                 /* } */
             }
         }
+        if ((udpmode == udpmode_client) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+    }
 
     if (inlastpacket != 0)
     {
@@ -616,8 +632,6 @@ static struct
     short port;
 } allowed_addresses[MAX_PLAYERS];  /* only respond to these IPs. */
 
-volatile int ctrlc_pressed = 0;
-
 #if PLATFORM_WIN32
 /*
  * Figure out what the last failing Win32 API call was, and
@@ -657,16 +671,6 @@ static const char *win32netstrerror(void)
     return((const char *) msgbuf);
 } /* win32strerror */
 #endif
-
-
-typedef enum
-{
-    udpmode_peer,
-    udpmode_server,
-    udpmode_client
-} udpmodes;
-static udpmodes udpmode = udpmode_peer;
-
 
 static char *static_ipstring(int ip)
 {
@@ -989,26 +993,6 @@ static int open_udp_socket(int ip, int port)
     return(1);
 }
 
-/* server init. */
-static int wait_for_other_players(gcomtype *gcom, int myip)
-{
-    UNREFERENCED_PARAMETER(gcom);
-    UNREFERENCED_PARAMETER(myip);
-
-    initprintf("Server code NOT implemented!\n");
-    return(0);
-}
-
-/* client init. */
-static int connect_to_server(gcomtype *gcom, int myip)
-{
-    UNREFERENCED_PARAMETER(gcom);
-    UNREFERENCED_PARAMETER(myip);
-
-    initprintf("Client code NOT implemented!\n");
-    return(0);
-}
-
 typedef struct
 {
     unsigned char dummy1;   /* so these don't confuse game after load. */
@@ -1027,6 +1011,378 @@ static void send_peer_greeting(int ip, short port, short myid)
     packet.id = B_SWAP16(myid);
     send_udp_packet(ip, port, &packet, sizeof(packet));
 }
+
+/* server init. */
+static int wait_for_other_players(gcomtype *gcom, int myip)
+{
+#if 1
+    PacketPeerGreeting packet;
+    unsigned short my_id = 0;
+    int i, j;
+    int rc;
+    int ip;
+    short port;
+    unsigned short heard_from[MAX_PLAYERS];
+    int max;
+    int remaining;
+
+    memset(heard_from, '\0', sizeof(heard_from));
+
+    remaining = max = gcom->numplayers - 1;
+
+    initprintf("Waiting for %d player%s...\n", remaining, remaining==1 ? "":"s");
+    if (remaining == 0)
+    {
+        initprintf("Hmmm... don't have time to play with myself!\n");
+        return(0);
+    }
+
+    while (remaining && !quitevent)
+    {
+        handleevents();
+
+        idle();
+
+        process_udp_send_queue();
+
+        rc = get_udp_packet(&ip, &port, &packet, sizeof(packet));
+
+        //this is so we don't get unexpected packet errors from players already heard from
+
+        if ((rc > 0) && (ip) && ((ip != myip) || (port != udpport)))
+        {
+            char *ipstr = static_ipstring(ip);
+
+            for (i = 0; i < max; i++)
+            {
+                if (!allowed_addresses[i].host)
+                    break;
+            }
+
+            if (i == max)
+                initprintf("mmulti_unstable: Disallowed player %s:%d ?!\n", ipstr, port);
+
+            else if (rc != sizeof(packet))
+                initprintf("mmulti_unstable: Missized packet or fragment from %s:%i ?!\n", ipstr, port);
+
+            else if (packet.header != HEADER_PEER_GREETING)
+                initprintf("mmulti_unstable: Unexpected packet type from %s:%i ?!\n", ipstr, port);
+
+            else if (heard_from[i] == 0)
+            {
+                packet.id = B_SWAP16(packet.id);
+                heard_from[i] = packet.id;
+                allowed_addresses[i].host = ip;   /* bcast needs this. */
+                allowed_addresses[i].port = port;
+                remaining--;
+
+                initprintf("Connected to %s:%i (id 0x%X). %d player%s to go.\n",
+                           ipstr, port ,(int) packet.id,
+                           remaining, remaining == 1 ? "" : "s");
+
+                /* make sure they've heard from us at all... */
+                /* !!! FIXME: Could be fatal if packet is dropped... */
+                /*
+                send_peer_greeting(allowed_addresses[i].host,
+                                   allowed_addresses[i].port,
+                                   my_id);
+                */
+                for (j=i;j>0;j--)
+                    send_peer_greeting(allowed_addresses[j].host,
+                    allowed_addresses[j].port,
+                    heard_from[i]);
+
+                tmpmax[i] = 1; //addfaz line addition
+            }
+        }
+    }
+
+    if (quitevent)
+    {
+        initprintf("Connection attempt aborted.\n");
+        return(0);
+    }
+    else
+    {
+        for (j=max;j>0;j--)
+            if (allowed_addresses[j].host)
+            {
+                send_peer_greeting(allowed_addresses[j].host,
+                    allowed_addresses[j].port,
+                    my_id);
+            }
+    }
+
+    /* ok, now everyone is talking to you. Sort them into player numbers... */
+
+    heard_from[max] = my_id; /* so we sort, too... */
+    allowed_addresses[max].host = myip;
+    allowed_addresses[max].port = udpport;
+
+    do
+    {
+        remaining = 0;
+        for (i = 0; i < max; i++)
+        {
+            if (heard_from[i] == heard_from[i+1])  /* blah. */
+            {
+                initprintf("mmulti_unstable: ERROR: Two players have the same random ID!\n");
+                initprintf("mmulti_unstable: ERROR: Please restart the game to generate new IDs.\n");
+                return(0);
+            }
+
+            else if (heard_from[i] > heard_from[i+1])
+            {
+                int tmpi;
+                short tmps;
+
+                tmps = heard_from[i];
+                heard_from[i] = heard_from[i+1];
+                heard_from[i+1] = tmps;
+
+                tmpi = allowed_addresses[i].host;
+                allowed_addresses[i].host = allowed_addresses[i+1].host;
+                allowed_addresses[i+1].host = tmpi;
+
+                tmps = allowed_addresses[i].port;
+                allowed_addresses[i].port = allowed_addresses[i+1].port;
+                allowed_addresses[i+1].port = tmps;
+
+                remaining = 1;  /* yay for bubble sorting! */
+            }
+        }
+    }
+    while (remaining);
+
+    /*
+     * Now we're sorted. But, the local player is referred to by both his
+     *  player number and player index ZERO, so bump everyone up one to
+     *  their actual index and fill in local player as item zero.
+     */
+
+    memmove(&allowed_addresses[1], &allowed_addresses[0],
+            sizeof(allowed_addresses) - sizeof(allowed_addresses[0]));
+    allowed_addresses[0].host = myip;
+
+    gcom->myconnectindex = 0;
+    for (i = 1; i <= gcom->numplayers; i++)
+    {
+        ip = (allowed_addresses[i].host);
+
+
+        if (ip == myip)
+        {
+            if (udpport == allowed_addresses[i].port)
+                gcom->myconnectindex = i;
+        }
+
+        initprintf("mmulti_unstable: player #%i at %s:%i\n", i,static_ipstring(ip),allowed_addresses[i].port);
+    }
+//    assert(gcom->myconnectindex);
+
+    initprintf("mmulti_unstable: We are player #%i\n", gcom->myconnectindex);
+
+    return(1);
+#endif
+}
+
+/* client init. */
+static int connect_to_server(gcomtype *gcom, int myip)
+{
+#if 1
+    PacketPeerGreeting packet;
+    unsigned short my_id = 0;
+    int i;
+    int rc;
+    int ip;
+    short port;
+    int first_send = 1;
+    unsigned short heard_from[MAX_PLAYERS];
+    unsigned int resendat;
+    int max;
+    int remaining;
+
+    memset(heard_from, '\0', sizeof(heard_from));
+
+    while (my_id == 0)  /* player number is based on id, low to high. */
+    {
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        my_id = (unsigned short)tv.tv_usec; //HACK
+    }
+
+    initprintf("mmulti_unstable: Using 0x%X as client ID\n", my_id);
+
+    resendat = getticks();
+    remaining = max = gcom->numplayers - 1;
+
+    initprintf("Waiting for %d player%s...\n", remaining, remaining==1 ? "":"s");
+    if (remaining == 0)
+    {
+        initprintf("Hmmm... don't have time to play with myself!\n");
+        return(0);
+    }
+
+    while (remaining && !quitevent)
+    {
+        handleevents();
+
+        if (resendat <= getticks())
+        {
+                for (i = 0; (i < max) || natfree ; i++)
+                {
+
+                    //only checking one player at a time works
+                    //this is where special formatting of allow lines comes in
+                    if (!heard_from[i])
+                    {
+                        initprintf("%s %s:%d...\n",first_send?"Connecting to":"Retrying",
+                            static_ipstring(allowed_addresses[i].host),allowed_addresses[i].port);
+
+                        send_peer_greeting(allowed_addresses[i].host,
+                                           allowed_addresses[i].port,
+                                           my_id);
+                    }
+                }
+            first_send = 0;
+            resendat += CLIENT_POLL_DELAY;
+        }
+
+        idle();
+        process_udp_send_queue();
+
+        rc = get_udp_packet(&ip, &port, &packet, sizeof(packet));
+
+        //this is so we don't get unexpected packet errors from players already heard from
+
+        if ((rc > 0) && (ip) && ((ip != myip) || (port != udpport)))
+        {
+            char *ipstr = static_ipstring(ip);
+
+            for (i = 0; i < max; i++)
+            {
+                if (!allowed_addresses[i].host)
+                    break;
+            }
+
+            if (i == max)
+                initprintf("mmulti_unstable: Disallowed player %s:%d ?!\n", ipstr, port);
+
+            else if (rc != sizeof(packet))
+                initprintf("mmulti_unstable: Missized packet or fragment from %s:%i ?!\n", ipstr, port);
+
+            else if (packet.header != HEADER_PEER_GREETING)
+                initprintf("mmulti_unstable: Unexpected packet type from %s:%i ?!\n", ipstr, port);
+
+            else if (heard_from[i] == 0 && B_SWAP16(packet.id) == 0)
+            {
+                packet.id = B_SWAP16(packet.id);
+                heard_from[i] = packet.id;
+                allowed_addresses[i].host = ip;   /* bcast needs this. */
+                allowed_addresses[i].port = port;
+                remaining--;
+
+                initprintf("Connected to %s:%i (id 0x%X). %d player%s to go.\n",
+                           ipstr, port ,(int) packet.id,
+                           remaining, remaining == 1 ? "" : "s");
+
+                tmpmax[i] = 1; //addfaz line addition
+            }
+            else if (heard_from[i] == 0 && B_SWAP16(packet.id) != 0)
+            {
+                packet.id = B_SWAP16(packet.id);
+                heard_from[i] = packet.id;
+
+                initprintf("Connected to %s:%i (id 0x%X). %d player%s to go.\n",
+                           ipstr, port ,(int) packet.id,
+                           remaining, remaining == 1 ? "" : "s");
+                gcom->numplayers++;
+                max++;
+                tmpmax[i] = 1; //addfaz line addition
+            }
+
+        }
+    }
+
+    if (quitevent)
+    {
+        initprintf("Connection attempt aborted.\n");
+        return(0);
+    }
+
+    /* ok, now everyone is talking to you. Sort them into player numbers... */
+
+    heard_from[max] = my_id; /* so we sort, too... */
+    allowed_addresses[max].host = myip;
+    allowed_addresses[max].port = udpport;
+
+    do
+    {
+        remaining = 0;
+        for (i = 0; i < max; i++)
+        {
+            if (heard_from[i] == heard_from[i+1])  /* blah. */
+            {
+                initprintf("mmulti_unstable: ERROR: Two players have the same random ID!\n");
+                initprintf("mmulti_unstable: ERROR: Please restart the game to generate new IDs.\n");
+                return(0);
+            }
+
+            else if (heard_from[i] > heard_from[i+1])
+            {
+                int tmpi;
+                short tmps;
+
+                tmps = heard_from[i];
+                heard_from[i] = heard_from[i+1];
+                heard_from[i+1] = tmps;
+
+                tmpi = allowed_addresses[i].host;
+                allowed_addresses[i].host = allowed_addresses[i+1].host;
+                allowed_addresses[i+1].host = tmpi;
+
+                tmps = allowed_addresses[i].port;
+                allowed_addresses[i].port = allowed_addresses[i+1].port;
+                allowed_addresses[i+1].port = tmps;
+
+                remaining = 1;  /* yay for bubble sorting! */
+            }
+        }
+    }
+    while (remaining);
+
+    /*
+     * Now we're sorted. But, the local player is referred to by both his
+     *  player number and player index ZERO, so bump everyone up one to
+     *  their actual index and fill in local player as item zero.
+     */
+
+    memmove(&allowed_addresses[1], &allowed_addresses[0],
+            sizeof(allowed_addresses) - sizeof(allowed_addresses[0]));
+    allowed_addresses[0].host = myip;
+
+    gcom->myconnectindex = 0;
+    for (i = 1; i <= gcom->numplayers; i++)
+    {
+        ip = (allowed_addresses[i].host);
+
+
+        if (ip == myip)
+        {
+            if (udpport == allowed_addresses[i].port)
+                gcom->myconnectindex = i;
+        }
+
+        initprintf("mmulti_unstable: player #%i at %s:%i\n", i,static_ipstring(ip),allowed_addresses[i].port);
+    }
+//    assert(gcom->myconnectindex);
+
+    initprintf("mmulti_unstable: We are player #%i\n", gcom->myconnectindex);
+
+    return(1);
+#endif
+}
+
 
 
 /* peer to peer init. */
@@ -1061,7 +1417,12 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
     memset(heard_from, '\0', sizeof(heard_from));
 
     while (my_id == 0)  /* player number is based on id, low to high. */
-        my_id = (unsigned short) rand();
+    {
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        my_id = (unsigned short)tv.tv_usec; //HACK
+    }
+
 
     initprintf("mmulti_unstable: Using 0x%X as client ID\n", my_id);
 
@@ -1075,10 +1436,9 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
         return(0);
     }
 
-    while ((remaining) && (!ctrlc_pressed))
+    while (remaining && !quitevent)
     {
         handleevents();
-        if (quitevent) ctrlc_pressed = 1;
 
         if (resendat <= getticks())
         {
@@ -1155,7 +1515,7 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
             {
 
                 ////addfaz NAT addition *START*////
-                if (!natfree)
+                if (natfree)
                 {
                     if (tmpmax[i] != 1)
                     {
@@ -1224,7 +1584,7 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
         }
     }
 
-    if (ctrlc_pressed)
+    if (quitevent)
     {
         initprintf("Connection attempt aborted.\n");
         return(0);
@@ -1502,8 +1862,6 @@ gcomtype *init_network_transport(char **ARGV, int argpos)
     gcomtype *retval;
 
 //    initprintf("\n\nUDP NETWORK TRANSPORT INITIALIZING...\n");
-
-    ctrlc_pressed = 0;
 
     if (!initialize_sockets())
         return(NULL);
