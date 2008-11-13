@@ -405,6 +405,8 @@ int getpacket(int *other, char *bufptr)
     {
         if (i != myconnectindex)
         {
+            // FIXME: this is probably not so great
+            if (udpmode != udpmode_peer) dosendpackets(i);
             if (totalclock < lastsendtime[i]) lastsendtime[i] = totalclock;
             if (totalclock > lastsendtime[i]+timeoutcount)
             {

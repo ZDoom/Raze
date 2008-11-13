@@ -81,7 +81,7 @@ ifeq ($(PLATFORM),DARWIN)
 endif
 ifeq ($(PLATFORM),WINDOWS)
 	RENDERTYPE ?= WIN
-	BUILDCFLAGS+= -DHAVE_INTTYPES -march=i686
+	BUILDCFLAGS+= -DHAVE_INTTYPES
 	EXESUFFIX=.exe
 	LIBS+= -lmingwex -lwinmm -L$(DXROOT)/lib -lwsock32 -lcomctl32 #-lshfolder
 #	STDCPPLIB=-lstdc++
