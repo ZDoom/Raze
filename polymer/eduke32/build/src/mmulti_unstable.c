@@ -958,7 +958,7 @@ static int open_udp_socket(int ip, int port)
 //    initprintf("Setting up UDP interface %s:%d...\n", static_ipstring(ip), port);
     if (natfree)
     {
-    //initprintf("Stun is currently %s\n", (natfree) ? "Enabled":"Disabled");
+        //initprintf("Stun is currently %s\n", (natfree) ? "Enabled":"Disabled");
         initprintf("mmulti_unstable: Stun enabled\n");
     }
 
@@ -1015,9 +1015,8 @@ static void send_peer_greeting(int ip, short port, short myid)
 /* server init. */
 static int wait_for_other_players(gcomtype *gcom, int myip)
 {
-#if 1
     PacketPeerGreeting packet;
-    unsigned short my_id = 0;
+    unsigned short my_id = 1;
     int i, j;
     int rc;
     int ip;
@@ -1053,21 +1052,25 @@ static int wait_for_other_players(gcomtype *gcom, int myip)
         {
             char *ipstr = static_ipstring(ip);
 
+            if (rc != sizeof(packet))
+            {
+                initprintf("mmulti_unstable: Missized packet or fragment from %s:%i ?!\n", ipstr, port);
+                continue;
+            }
+            else if (packet.header != HEADER_PEER_GREETING)
+            {
+                initprintf("mmulti_unstable: Unexpected packet type from %s:%i ?!\n", ipstr, port);
+                continue;
+            }
+
             for (i = 0; i < max; i++)
             {
-                if (!allowed_addresses[i].host)
+                if (!heard_from[i] || heard_from[i] == B_SWAP16(packet.id))
                     break;
             }
 
             if (i == max)
                 initprintf("mmulti_unstable: Disallowed player %s:%d ?!\n", ipstr, port);
-
-            else if (rc != sizeof(packet))
-                initprintf("mmulti_unstable: Missized packet or fragment from %s:%i ?!\n", ipstr, port);
-
-            else if (packet.header != HEADER_PEER_GREETING)
-                initprintf("mmulti_unstable: Unexpected packet type from %s:%i ?!\n", ipstr, port);
-
             else if (heard_from[i] == 0)
             {
                 packet.id = B_SWAP16(packet.id);
@@ -1076,23 +1079,30 @@ static int wait_for_other_players(gcomtype *gcom, int myip)
                 allowed_addresses[i].port = port;
                 remaining--;
 
-                initprintf("Connected to %s:%i (id 0x%X). %d player%s to go.\n",
+                initprintf("%s:%i (id 0x%X) connected, %d player%s left.\n",
                            ipstr, port ,(int) packet.id,
                            remaining, remaining == 1 ? "" : "s");
 
                 /* make sure they've heard from us at all... */
                 /* !!! FIXME: Could be fatal if packet is dropped... */
-                /*
+
                 send_peer_greeting(allowed_addresses[i].host,
                                    allowed_addresses[i].port,
                                    my_id);
-                */
-                for (j=i;j>0;j--)
-                    send_peer_greeting(allowed_addresses[j].host,
-                    allowed_addresses[j].port,
-                    heard_from[i]);
 
-                tmpmax[i] = 1; //addfaz line addition
+                // resend greeting to other clients so they get ID for sorting
+                /*                for (j=i;j>=0;j--)
+                                {
+                                    int ii;
+                                    for (ii = 1; ii < max; ii++)
+                                        send_peer_greeting(allowed_addresses[j].host,
+                                        allowed_addresses[j].port,
+                                        heard_from[ii]);
+
+                                    send_peer_greeting(allowed_addresses[j].host,
+                                        allowed_addresses[j].port,
+                                        heard_from[i]);
+                                }*/
             }
         }
     }
@@ -1102,16 +1112,21 @@ static int wait_for_other_players(gcomtype *gcom, int myip)
         initprintf("Connection attempt aborted.\n");
         return(0);
     }
-    else
-    {
-        for (j=max;j>0;j--)
-            if (allowed_addresses[j].host)
-            {
+
+    // found all the clients expected so send them our greeting
+    for (j=max;j>=0;j--)
+        if (allowed_addresses[j].host)
+        {
+            int ii;
+            for (ii = 0; ii < max; ii++)
                 send_peer_greeting(allowed_addresses[j].host,
-                    allowed_addresses[j].port,
-                    my_id);
-            }
-    }
+                                   allowed_addresses[j].port,
+                                   heard_from[ii]);
+
+            send_peer_greeting(allowed_addresses[j].host,
+                               allowed_addresses[j].port,
+                               1337);
+        }
 
     /* ok, now everyone is talking to you. Sort them into player numbers... */
 
@@ -1183,13 +1198,11 @@ static int wait_for_other_players(gcomtype *gcom, int myip)
     initprintf("mmulti_unstable: We are player #%i\n", gcom->myconnectindex);
 
     return(1);
-#endif
 }
 
 /* client init. */
 static int connect_to_server(gcomtype *gcom, int myip)
 {
-#if 1
     PacketPeerGreeting packet;
     unsigned short my_id = 0;
     int i;
@@ -1203,6 +1216,8 @@ static int connect_to_server(gcomtype *gcom, int myip)
     int remaining;
 
     memset(heard_from, '\0', sizeof(heard_from));
+
+    gcom->numplayers = 2;
 
     while (my_id == 0)  /* player number is based on id, low to high. */
     {
@@ -1229,21 +1244,21 @@ static int connect_to_server(gcomtype *gcom, int myip)
 
         if (resendat <= getticks())
         {
-                for (i = 0; (i < max) || natfree ; i++)
+            for (i = 0; (i < max) || natfree ; i++)
+            {
+
+                //only checking one player at a time works
+                //this is where special formatting of allow lines comes in
+                if (!heard_from[i])
                 {
+                    initprintf("%s %s:%d...\n",first_send?"Connecting to":"Retrying",
+                               static_ipstring(allowed_addresses[i].host),allowed_addresses[i].port);
 
-                    //only checking one player at a time works
-                    //this is where special formatting of allow lines comes in
-                    if (!heard_from[i])
-                    {
-                        initprintf("%s %s:%d...\n",first_send?"Connecting to":"Retrying",
-                            static_ipstring(allowed_addresses[i].host),allowed_addresses[i].port);
-
-                        send_peer_greeting(allowed_addresses[i].host,
-                                           allowed_addresses[i].port,
-                                           my_id);
-                    }
+                    send_peer_greeting(allowed_addresses[i].host,
+                                       allowed_addresses[i].port,
+                                       my_id);
                 }
+            }
             first_send = 0;
             resendat += CLIENT_POLL_DELAY;
         }
@@ -1259,48 +1274,53 @@ static int connect_to_server(gcomtype *gcom, int myip)
         {
             char *ipstr = static_ipstring(ip);
 
-            for (i = 0; i < max; i++)
+            if (rc != sizeof(packet))
             {
-                if (!allowed_addresses[i].host)
-                    break;
-            }
-
-            if (i == max)
-                initprintf("mmulti_unstable: Disallowed player %s:%d ?!\n", ipstr, port);
-
-            else if (rc != sizeof(packet))
                 initprintf("mmulti_unstable: Missized packet or fragment from %s:%i ?!\n", ipstr, port);
-
+                continue;
+            }
             else if (packet.header != HEADER_PEER_GREETING)
+            {
                 initprintf("mmulti_unstable: Unexpected packet type from %s:%i ?!\n", ipstr, port);
+                continue;
+            }
 
-            else if (heard_from[i] == 0 && B_SWAP16(packet.id) == 0)
+            for (i=0;i<MAX_PLAYERS;i++)
+                if (!heard_from[i] || heard_from[i] == B_SWAP16(packet.id)) break; // only increase once
+
+            if (B_SWAP16(packet.id) == 1337)
+            {
+                remaining = 0;
+                continue;
+            }
+            else if (heard_from[i] == 0 && B_SWAP16(packet.id) == 1)
             {
                 packet.id = B_SWAP16(packet.id);
                 heard_from[i] = packet.id;
-                allowed_addresses[i].host = ip;   /* bcast needs this. */
-                allowed_addresses[i].port = port;
-                remaining--;
+//                allowed_addresses[i].host = ip;   /* bcast needs this. */
+//                allowed_addresses[i].port = port;
 
-                initprintf("Connected to %s:%i (id 0x%X). %d player%s to go.\n",
-                           ipstr, port ,(int) packet.id,
-                           remaining, remaining == 1 ? "" : "s");
-
-                tmpmax[i] = 1; //addfaz line addition
+                initprintf("Connected to %s:%i\n",
+                           ipstr, port);
+                initprintf("Waiting for server to launch game\n");
             }
-            else if (heard_from[i] == 0 && B_SWAP16(packet.id) != 0)
+            else
             {
-                packet.id = B_SWAP16(packet.id);
-                heard_from[i] = packet.id;
+//                for (i=0;i<MAX_PLAYERS;i++)
+                {
+                    if (heard_from[i] == 0 && B_SWAP16(packet.id) != my_id)
+                    {
+                        packet.id = B_SWAP16(packet.id);
+                        heard_from[i] = packet.id;
 
-                initprintf("Connected to %s:%i (id 0x%X). %d player%s to go.\n",
-                           ipstr, port ,(int) packet.id,
-                           remaining, remaining == 1 ? "" : "s");
-                gcom->numplayers++;
-                max++;
-                tmpmax[i] = 1; //addfaz line addition
+                        initprintf("New player with id 0x%X\n",
+                                   (int) packet.id);
+                        gcom->numplayers++;
+                        max++;
+//                        initprintf("max %d np %d\n",max,gcom->numplayers);
+                    }
+                }
             }
-
         }
     }
 
@@ -1366,23 +1386,20 @@ static int connect_to_server(gcomtype *gcom, int myip)
     {
         ip = (allowed_addresses[i].host);
 
-
         if (ip == myip)
         {
             if (udpport == allowed_addresses[i].port)
                 gcom->myconnectindex = i;
         }
 
-        initprintf("mmulti_unstable: player #%i at %s:%i\n", i,static_ipstring(ip),allowed_addresses[i].port);
+        initprintf("mmulti_unstable: player #%i with id %d\n", i,heard_from[i]);
     }
 //    assert(gcom->myconnectindex);
 
     initprintf("mmulti_unstable: We are player #%i\n", gcom->myconnectindex);
 
     return(1);
-#endif
 }
-
 
 
 /* peer to peer init. */
@@ -1463,7 +1480,7 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
                     if (!heard_from[i])
                     {
                         initprintf("%s %s:%d...\n",first_send?"Connecting to":"Retrying",
-                            static_ipstring(allowed_addresses[i].host),allowed_addresses[i].port);
+                                   static_ipstring(allowed_addresses[i].host),allowed_addresses[i].port);
 
                         send_peer_greeting(allowed_addresses[i].host,
                                            allowed_addresses[i].port,
@@ -1731,14 +1748,14 @@ static int initialize_sockets(void)
     }
     else
     {
-/*        initprintf("WinSock initialized.\n");
-        initprintf("  - Caller uses version %d.%d, highest supported is %d.%d.\n",
-                   data.wVersion >> 8, data.wVersion & 0xFF,
-                   data.wHighVersion >> 8, data.wHighVersion & 0xFF);
-        initprintf("  - Implementation description: [%s].\n", data.szDescription);
-        initprintf("  - System status: [%s].\n", data.szSystemStatus);
-        initprintf("  - Max sockets: %d.\n", data.iMaxSockets);
-        initprintf("  - Max UDP datagram size: %d.\n", data.iMaxUdpDg); */
+        /*        initprintf("WinSock initialized.\n");
+                initprintf("  - Caller uses version %d.%d, highest supported is %d.%d.\n",
+                           data.wVersion >> 8, data.wVersion & 0xFF,
+                           data.wHighVersion >> 8, data.wHighVersion & 0xFF);
+                initprintf("  - Implementation description: [%s].\n", data.szDescription);
+                initprintf("  - System status: [%s].\n", data.szSystemStatus);
+                initprintf("  - Max sockets: %d.\n", data.iMaxSockets);
+                initprintf("  - Max UDP datagram size: %d.\n", data.iMaxUdpDg); */
     }
 #endif
 
@@ -1830,6 +1847,18 @@ static int parse_udp_config(const char *cfgfile, gcomtype *gcom)
                     gcom->numplayers++;
                     bogus = 0;
                 }
+            }
+        }
+
+        else if (Bstrcasecmp(tok, "players") == 0)
+        {
+            if ((tok = get_token(&ptr)) != NULL)
+            {
+                bogus = 0;
+                if (udpmode == udpmode_server)
+                    gcom->numplayers = atoi(tok)-1;
+                else
+                    bogus = 1;
             }
         }
 
