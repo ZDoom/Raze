@@ -3043,13 +3043,13 @@ void getinput(int snum)
 
     loc.extbits = 0;
     if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEFORWARD])
-        loc.extbits |= BUTTON(gamefunc_Move_Forward);
+        loc.extbits |= BUTTON(gamefunc_Move_Forward) || (vel > 0);
     if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEBACKWARD])
-        loc.extbits |= BUTTON(gamefunc_Move_Backward)<<1;
+        loc.extbits |= (BUTTON(gamefunc_Move_Backward) || (vel < 0))<<1;
     if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_STRAFELEFT])
-        loc.extbits |= BUTTON(gamefunc_Strafe_Left)<<2;
+        loc.extbits |= (BUTTON(gamefunc_Strafe_Left) || (svel > 0))<<2;
     if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_STRAFERIGHT])
-        loc.extbits |= BUTTON(gamefunc_Strafe_Right)<<3;
+        loc.extbits |= (BUTTON(gamefunc_Strafe_Right) || (svel < 0))<<3;
     if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_TURNLEFT])
         loc.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
     if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_TURNRIGHT])

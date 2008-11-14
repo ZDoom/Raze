@@ -12652,7 +12652,7 @@ static int domovethings(void)
         g_player[myconnectindex].ps->ftq = 116, g_player[myconnectindex].ps->fta = 180;
 
         if (j < 0 && networkmode == 0)
-            gameexit("The server/master player just quit the game; disconnected.");
+            gameexit("Server terminated");
     }
 
     if ((numplayers >= 2) && ((movefifoplc&7) == 7))

@@ -132,7 +132,7 @@ enum ECommitCMDs
 //PacketQueue outgoingPacketQueue;
 //outgoingPacketQueue.reserve(128);
 
-gcomtype *init_network_transport(char **ARGV, int argpos);
+gcomtype *init_network_transport(int argc, char **argv);
 void deinit_network_transport(gcomtype *gcom);
 //void callcommit(void);
 void dosendpackets(int other);
@@ -205,11 +205,13 @@ void initmultiplayers(int argc, char **argv)
         return;
     }
 
-    gcom = init_network_transport(argv, 0);
+    gcom = init_network_transport(argc, argv);
     if (gcom == NULL)
     {
         initprintf("Network transport initialization failed. Aborting...\n");
-        exit(1);
+        numplayers = 1; myconnectindex = 0;
+        connecthead = 0; connectpoint2[0] = -1;
+        return;
     }
 
     numplayers = gcom->numplayers;
@@ -855,7 +857,7 @@ static char *read_whole_file(const char *cfgfile)
     handle = kopen4load((char *)cfgfile, 0);
     if (handle == -1)
     {
-        initprintf("ERROR: Failed to open config file [%s].\n", cfgfile);
+//        initprintf("ERROR: Failed to open config file [%s].\n", cfgfile);
         return(NULL);
     }
 
@@ -1771,7 +1773,34 @@ static void deinitialize_sockets(void)
 #endif
 }
 
-static int parse_udp_config(const char *cfgfile, gcomtype *gcom)
+int isvalidipaddress(char *st)
+{
+    int i, bcnt, num;
+
+    bcnt = 0; num = 0;
+    for (i=0;st[i];i++)
+    {
+        if (st[i] == '.') { bcnt++; num = 0; continue; }
+        if (st[i] == ':')
+        {
+            if (bcnt != 3) return(0);
+            num = 0;
+            for (i++;st[i];i++)
+            {
+                if ((st[i] >= '0') && (st[i] <= '9'))
+                    { num = num*10+st[i]-'0'; if (num >= 65536) return(0); }
+                else return(0);
+            }
+            return(1);
+        }
+        if ((st[i] >= '0') && (st[i] <= '9'))
+            { num = num*10+st[i]-'0'; if (num >= 256) return(0); }
+
+    }
+    return(bcnt == 3);
+}
+
+static int parse_udp_config(int argc, char **argv, gcomtype *gcom)
 {
     char *buf;
     char *tok;
@@ -1779,96 +1808,203 @@ static int parse_udp_config(const char *cfgfile, gcomtype *gcom)
     int ip = 0;  /* interface */
     int bcast = 0;
 
-    buf = read_whole_file(cfgfile);  /* we must free this. */
+    buf = read_whole_file(argv[0]);  /* we must free this. */
     if (buf == NULL)
-        return(0);
-
-    ptr = buf;
-    while ((tok = get_token(&ptr)) != NULL)
     {
-        int bogus = 1;
+        // do JF-style argv parsing here
+        int i, j, daindex;
+        int danetmode = 255;
+        char *st;
 
-        if (Bstrcasecmp(tok, "interface") == 0)
+        daindex = 0;
+
+        //    if (!argv) return 0;
+        // go looking for the port, if specified
+        for (i=0;i<argc;i++)
         {
-            if ((tok = get_token(&ptr)) &&
-                    (parse_interface(tok, &ip, &udpport)))
+            if (argv[i][0] != '-' && argv[i][0] != '/') continue;
+            if ((argv[i][1] == 'p' || argv[i][1] == 'P') && argv[i][2])
             {
-                bogus = 0;
-            }
-            initprintf("mmulti_unstable: Using interface %s:%d\n",
-                       static_ipstring(ip), (int) udpport);
-        }
+                char *p;
+                j = strtol(argv[i]+2, &p, 10);
+                if (!(*p) && j > 1024 && j<65535) udpport = j;
 
-        else if (Bstrcasecmp(tok, "mode") == 0)
-        {
-            if ((tok = get_token(&ptr)) != NULL)
-            {
-                bogus = 0;
-                if (Bstrcasecmp(tok, "server") == 0)
-                    udpmode = udpmode_server;
-                else if (Bstrcasecmp(tok, "client") == 0)
-                    udpmode = udpmode_client;
-                else if (Bstrcasecmp(tok, "peer") == 0)
-                    udpmode = udpmode_peer;
-                else
-                    bogus = 1;
-
-                if (!bogus)
-                    initprintf("You want to be in [%s] mode\n", tok);
+                initprintf("mmulti_unstable: Using port %d\n", udpport);
             }
         }
 
-        else if (Bstrcasecmp(tok, "broadcast") == 0)
+        for (i=0;i<argc;i++)
         {
-            if ((tok = get_token(&ptr)) != NULL)
+            //if (((argv[i][0] == '/') || (argv[i][0] == '-')) &&
+            //    ((argv[i][1] == 'N') || (argv[i][1] == 'n')) &&
+            //    ((argv[i][2] == 'E') || (argv[i][2] == 'e')) &&
+            //    ((argv[i][3] == 'T') || (argv[i][3] == 't')) &&
+            //     (!argv[i][4]))
+            //   { foundnet = 1; continue; }
+            //if (!foundnet) continue;
+
+            if ((argv[i][0] == '-') || (argv[i][0] == '/'))
             {
-                bcast = atoi(tok);
-                if (bcast > MAX_PLAYERS - 1)
+                if ((argv[i][1] == 'N') || (argv[i][1] == 'n') || (argv[i][1] == 'I') || (argv[i][1] == 'i'))
                 {
-                    initprintf("WARNING: Too many broadcast players.\n");
-                    bcast = MAX_PLAYERS - 1;
+                    gcom->numplayers = 1;
+                    if (argv[i][2] == '0')
+                    {
+                        danetmode = 0;
+                        udpmode = udpmode_client;
+                        if ((argv[i][3] == ':') && (argv[i][4] >= '0') && (argv[i][4] <= '9'))
+                        {
+                            udpmode = udpmode_server;
+                            gcom->numplayers = (argv[i][4]-'0');
+                            if ((argv[i][5] >= '0') && (argv[i][5] <= '9')) gcom->numplayers = gcom->numplayers*10+(argv[i][5]-'0');
+                            gcom->numplayers--;
+                            initprintf("mmulti_unstable: %d-player game server\n", gcom->numplayers);
+                        }
+                        initprintf("mmulti_unstable: Master-slave mode\n");
+                    }
+                    else if (argv[i][2] == '1')
+                    {
+                        danetmode = 1;
+                        udpmode = udpmode_peer;
+                        myconnectindex = daindex;
+//                        daindex++;
+                        initprintf("mmulti_unstable: Peer-to-peer mode\n");
+                    }
+                    continue;
                 }
-
-                bogus = 0;
+                else if ((argv[i][1] == 'P') || (argv[i][1] == 'p')) continue;
             }
-        }
 
-        else if (Bstrcasecmp(tok, "allow") == 0)
-        {
-            int host;
-            short port=BUILD_DEFAULT_UDP_PORT;
-            if ((tok = get_token(&ptr)) != NULL)
+            st = strdup(argv[i]); if (!st) break;
+            if (isvalidipaddress(st))
             {
-                if (gcom->numplayers >= MAX_PLAYERS - 1)
-                    initprintf("WARNING: Too many allowed IP addresses.\n");
-
-                else if (parse_interface(tok, &host, &port))
+//                if ((danetmode == 1) && (daindex == myconnectindex)) daindex++;
+/*                for (j=0;st[j];j++)
                 {
-                    allowed_addresses[gcom->numplayers].host = host;
-                    allowed_addresses[gcom->numplayers].port = port;
-                    gcom->numplayers++;
+                    if (st[j] == ':')
+                    { allowed_addresses[daindex].port = htons((unsigned short)atol(&st[j+1])); st[j] = 0; break; }
+                }
+                allowed_addresses[daindex].host = inet_addr(st); */
+                parse_interface(st, &allowed_addresses[daindex].host, &allowed_addresses[daindex].port);
+                initprintf("mmulti_unstable: Player %d at %s:%d\n",daindex,st,allowed_addresses[daindex].port);
+                daindex++;
+            }
+/*            else
+            {
+                struct hostent * lph;
+                unsigned short pt = BUILD_DEFAULT_UDP_PORT;
+
+                for (j=0;st[j];j++)
+                    if (st[j] == ':')
+                    { pt = (unsigned short)atol(&st[j+1]); st[j] = 0; break; }
+                    if ((lph = gethostbyname(st)))
+                    {
+                        if ((danetmode == 1) && (daindex == myconnectindex)) daindex++;
+                        allowed_addresses[daindex].host = *(int *)lph->h_addr;
+                        allowed_addresses[daindex].port = pt;
+                        initprintf("mmulti: Player %d at %s:%d (%s)\n",daindex,
+                            inet_ntoa(*(struct in_addr *)lph->h_addr),ntohs(pt),argv[i]);
+                        daindex++;
+                    }
+                    else initprintf("mmulti: Failed resolving %s\n",argv[i]);
+            } */
+            free(st);
+        }
+        if ((danetmode == 255) && (daindex)) { gcom->numplayers = 2; udpmode = udpmode_client; } //an IP w/o /n# defaults to /n0
+        //        if ((numplayers >= 2) && (daindex) && (!danetmode)) myconnectindex = 1;
+        if (daindex > gcom->numplayers) gcom->numplayers = daindex;
+    }
+    else
+    {
+        initprintf("mmulti_unstable: Using '%s' as configuration file\n", argv[0]);
+
+        ptr = buf;
+        while ((tok = get_token(&ptr)) != NULL)
+        {
+            int bogus = 1;
+
+            if (Bstrcasecmp(tok, "interface") == 0)
+            {
+                if ((tok = get_token(&ptr)) &&
+                    (parse_interface(tok, &ip, &udpport)))
+                {
+                    bogus = 0;
+                }
+                initprintf("mmulti_unstable: Using interface %s:%d\n",
+                    static_ipstring(ip), (int) udpport);
+            }
+
+            else if (Bstrcasecmp(tok, "mode") == 0)
+            {
+                if ((tok = get_token(&ptr)) != NULL)
+                {
+                    bogus = 0;
+                    if (Bstrcasecmp(tok, "server") == 0)
+                        udpmode = udpmode_server;
+                    else if (Bstrcasecmp(tok, "client") == 0)
+                        udpmode = udpmode_client;
+                    else if (Bstrcasecmp(tok, "peer") == 0)
+                        udpmode = udpmode_peer;
+                    else
+                        bogus = 1;
+
+                    if (!bogus)
+                        initprintf("You want to be in [%s] mode\n", tok);
+                }
+            }
+
+            else if (Bstrcasecmp(tok, "broadcast") == 0)
+            {
+                if ((tok = get_token(&ptr)) != NULL)
+                {
+                    bcast = atoi(tok);
+                    if (bcast > MAX_PLAYERS - 1)
+                    {
+                        initprintf("WARNING: Too many broadcast players.\n");
+                        bcast = MAX_PLAYERS - 1;
+                    }
+
                     bogus = 0;
                 }
             }
-        }
 
-        else if (Bstrcasecmp(tok, "players") == 0)
-        {
-            if ((tok = get_token(&ptr)) != NULL)
+            else if (Bstrcasecmp(tok, "allow") == 0)
             {
-                bogus = 0;
-                if (udpmode == udpmode_server)
-                    gcom->numplayers = atoi(tok)-1;
-                else
-                    bogus = 1;
+                int host;
+                short port=BUILD_DEFAULT_UDP_PORT;
+                if ((tok = get_token(&ptr)) != NULL)
+                {
+                    if (gcom->numplayers >= MAX_PLAYERS - 1)
+                        initprintf("WARNING: Too many allowed IP addresses.\n");
+
+                    else if (parse_interface(tok, &host, &port))
+                    {
+                        allowed_addresses[gcom->numplayers].host = host;
+                        allowed_addresses[gcom->numplayers].port = port;
+                        gcom->numplayers++;
+                        bogus = 0;
+                    }
+                }
             }
+
+            else if (Bstrcasecmp(tok, "players") == 0)
+            {
+                if ((tok = get_token(&ptr)) != NULL)
+                {
+                    bogus = 0;
+                    if (udpmode == udpmode_server)
+                        gcom->numplayers = atoi(tok)-1;
+                    else
+                        bogus = 1;
+                }
+            }
+
+            if (bogus)
+                initprintf("bogus token! [%s]\n", tok);
         }
 
-        if (bogus)
-            initprintf("bogus token! [%s]\n", tok);
-    }
-
-    free(buf);
+        free(buf);
+   } 
 
     if (open_udp_socket(ip, udpport))
     {
@@ -1888,7 +2024,7 @@ static int parse_udp_config(const char *cfgfile, gcomtype *gcom)
 }
 
 
-gcomtype *init_network_transport(char **ARGV, int argpos)
+gcomtype *init_network_transport(int argc, char **argv)
 {
     gcomtype *retval;
 
@@ -1903,7 +2039,7 @@ gcomtype *init_network_transport(char **ARGV, int argpos)
     if (retval != NULL)
     {
         int rc;
-        char *cfgfile = ARGV[argpos];
+//        char *cfgfile = ARGV[argpos];
 
         memset(retval, '\0', sizeof(gcomtype));
         memset(allowed_addresses, '\0', sizeof(allowed_addresses));
@@ -1911,8 +2047,7 @@ gcomtype *init_network_transport(char **ARGV, int argpos)
         udpport = BUILD_DEFAULT_UDP_PORT;
         udpmode = udpmode_peer;
 
-        initprintf("mmulti_unstable: Using '%s' as configuration file\n", cfgfile);
-        rc = parse_udp_config(cfgfile, retval);
+        rc = parse_udp_config(argc, argv, retval);
 
         if (!rc)
         {
