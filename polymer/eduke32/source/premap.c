@@ -1511,12 +1511,15 @@ void waitforeverybody()
 
     if (numplayers < 2) return;
     packbuf[0] = 250;
-    for (i=connecthead;i>=0;i=connectpoint2[i])
-    {
-        if (i != myconnectindex) sendpacket(i,packbuf,1);
-        if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-    }
+
     g_player[myconnectindex].playerreadyflag++;
+
+    if ((networkmode == 1) || (!networkmode && (myconnectindex != connecthead)))
+        for (i=connecthead;i>=0;i=connectpoint2[i])
+        {
+            if (i != myconnectindex) sendpacket(i,packbuf,1);
+            if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+        }
 
     if (ud.multimode > 1)
     {
@@ -1549,10 +1552,23 @@ void waitforeverybody()
         {
             if (g_player[i].playerreadyflag < g_player[myconnectindex].playerreadyflag) break;
             if ((!networkmode) && (myconnectindex != connecthead))
-                return;
+            {
+                i = -1; break;
+            }
             //slaves in M/S mode only wait for master
         }
-        if (i < 0) return;
+        if (i < 0)
+        {
+            if (!networkmode && myconnectindex == connecthead)
+                for (i=connecthead;i>=0;i=connectpoint2[i])
+                {
+                    packbuf[0] = 250;
+                    if (i != myconnectindex) sendpacket(i,packbuf,1);
+                }
+
+            setgamepalette(g_player[myconnectindex].ps, palette, 11);
+            return;
+        }
     }
 }
 
