@@ -101,7 +101,7 @@ int recfilep,totalreccnt;
 int debug_on = 0,actor_tog = 0;
 static char *rtsptr;
 
-//extern char syncstate; 
+//extern char syncstate;
 extern int numlumps;
 
 static FILE *frecfilep = (FILE *)NULL;
@@ -652,7 +652,7 @@ void getpackets(void)
     int i, j, k, l;
     int other;
     int packbufleng;
-    
+
     input_t *osyn, *nsyn;
 
     sampletimer();
@@ -1539,13 +1539,13 @@ static void checksync(void)
         printext256(4L,130L,31,0,"Out Of Sync - Please restart game",0);
         printext256(4L,138L,31,0,"RUN DN3DHELP.EXE for information.",0);
     }
-    #if 0
+#if 0
     if (syncstate)
     {
         printext256(4L,160L,31,0,"Missed Network packet!",0);
         printext256(4L,138L,31,0,"RUN DN3DHELP.EXE for information.",0);
     }
-    #endif
+#endif
 }
 
 void check_fta_sounds(int i)
@@ -4036,12 +4036,12 @@ void displayrest(int smoothratio)
         else if (ud.screen_size > 2)
         {
             i = scale(tilesizy[BOTTOMSTATUSBAR]+1,ud.statusbarscale,100);
-  //          j = scale(2,ud.config.ScreenWidth,320);
+            //          j = scale(2,ud.config.ScreenWidth,320);
         }
         else
         {
             i = 2;
-    //        j = scale(2,ud.config.ScreenWidth,320);
+            //        j = scale(2,ud.config.ScreenWidth,320);
         }
         j = scale(2,ud.config.ScreenWidth,320);
 
@@ -9624,9 +9624,9 @@ static void checkcommandline(int argc, const char **argv)
 #endif
                 if (!Bstrcasecmp(c+1,"net")
 #ifdef RANCID_NETWORKING
-                    || !Bstrcasecmp(c+1,"rmnet")
+                        || !Bstrcasecmp(c+1,"rmnet")
 #endif
-                    )
+                   )
                 {
                     g_NoSetup = TRUE;
                     firstnet = i;
@@ -10523,7 +10523,7 @@ static void Startup(void)
     for (i=0;i<MAXPLAYERS;i++)
         g_player[i].playerreadyflag = 0;
 
-    #ifndef RANCID_NETWORKING
+#ifndef RANCID_NETWORKING
     // enet regression
     if (CommandNet)
     {
@@ -10535,9 +10535,9 @@ static void Startup(void)
         }
         CommandNet = NULL;
     }
-    #endif
+#endif
 
-    #ifdef RANCID_NETWORKING
+#ifdef RANCID_NETWORKING
     // TODO: split this up in the same fine-grained manner as eduke32 network backend, to
     // allow for event handling
     initmultiplayers(netparamcount,netparam);
@@ -10548,7 +10548,7 @@ static void Startup(void)
         return;
     }
 
-    #else
+#else
     if (initmultiplayersparms(netparamcount,netparam))
     {
         initprintf("Waiting for players...\n");
@@ -10562,7 +10562,7 @@ static void Startup(void)
             }
         }
     }
-    #endif
+#endif
 
     if (netparam) Bfree(netparam);
     netparam = NULL;
@@ -13180,10 +13180,15 @@ FRAGBONUS:
         fadepal(0,0,0, 63,0,-7);
 
         KB_FlushKeyboardQueue();
-        while (KB_KeyWaiting()==0)
+
         {
-            handleevents();
-            getpackets();
+            int tc = totalclock;
+            while (KB_KeyWaiting()==0)
+            {
+                if (totalclock > tc + 600) break;
+                handleevents();
+                getpackets();
+            }
         }
 
         if (bonusonly || ud.multimode > 1) return;

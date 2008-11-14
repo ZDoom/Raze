@@ -1878,35 +1878,35 @@ static int parse_udp_config(int argc, char **argv, gcomtype *gcom)
             if (isvalidipaddress(st))
             {
 //                if ((danetmode == 1) && (daindex == myconnectindex)) daindex++;
-/*                for (j=0;st[j];j++)
-                {
-                    if (st[j] == ':')
-                    { allowed_addresses[daindex].port = htons((unsigned short)atol(&st[j+1])); st[j] = 0; break; }
-                }
-                allowed_addresses[daindex].host = inet_addr(st); */
+                /*                for (j=0;st[j];j++)
+                                {
+                                    if (st[j] == ':')
+                                    { allowed_addresses[daindex].port = htons((unsigned short)atol(&st[j+1])); st[j] = 0; break; }
+                                }
+                                allowed_addresses[daindex].host = inet_addr(st); */
                 parse_interface(st, &allowed_addresses[daindex].host, &allowed_addresses[daindex].port);
                 initprintf("mmulti_unstable: Player %d at %s:%d\n",daindex,st,allowed_addresses[daindex].port);
                 daindex++;
             }
-/*            else
+            else
             {
                 struct hostent * lph;
                 unsigned short pt = BUILD_DEFAULT_UDP_PORT;
 
                 for (j=0;st[j];j++)
                     if (st[j] == ':')
-                    { pt = (unsigned short)atol(&st[j+1]); st[j] = 0; break; }
-                    if ((lph = gethostbyname(st)))
-                    {
-                        if ((danetmode == 1) && (daindex == myconnectindex)) daindex++;
-                        allowed_addresses[daindex].host = *(int *)lph->h_addr;
-                        allowed_addresses[daindex].port = pt;
-                        initprintf("mmulti: Player %d at %s:%d (%s)\n",daindex,
-                            inet_ntoa(*(struct in_addr *)lph->h_addr),ntohs(pt),argv[i]);
-                        daindex++;
-                    }
-                    else initprintf("mmulti: Failed resolving %s\n",argv[i]);
-            } */
+                        { pt = (unsigned short)atol(&st[j+1]); st[j] = 0; break; }
+                if ((lph = gethostbyname(st)))
+                {
+//                        if ((danetmode == 1) && (daindex == myconnectindex)) daindex++;
+                    allowed_addresses[daindex].host = ntohl(*(int *)lph->h_addr);
+                    allowed_addresses[daindex].port = pt;
+                    initprintf("mmulti_unstable: Player %d at %s:%d (%s)\n",daindex,
+                               inet_ntoa(*(struct in_addr *)lph->h_addr),pt,argv[i]);
+                    daindex++;
+                }
+                else initprintf("mmulti_unstable: Failed resolving %s\n",argv[i]);
+            }
             free(st);
         }
         if ((danetmode == 255) && (daindex)) { gcom->numplayers = 2; udpmode = udpmode_client; } //an IP w/o /n# defaults to /n0
@@ -1925,12 +1925,12 @@ static int parse_udp_config(int argc, char **argv, gcomtype *gcom)
             if (Bstrcasecmp(tok, "interface") == 0)
             {
                 if ((tok = get_token(&ptr)) &&
-                    (parse_interface(tok, &ip, &udpport)))
+                        (parse_interface(tok, &ip, &udpport)))
                 {
                     bogus = 0;
                 }
                 initprintf("mmulti_unstable: Using interface %s:%d\n",
-                    static_ipstring(ip), (int) udpport);
+                           static_ipstring(ip), (int) udpport);
             }
 
             else if (Bstrcasecmp(tok, "mode") == 0)
@@ -2003,7 +2003,7 @@ static int parse_udp_config(int argc, char **argv, gcomtype *gcom)
         }
 
         free(buf);
-   } 
+    }
 
     if (open_udp_socket(ip, udpport))
     {

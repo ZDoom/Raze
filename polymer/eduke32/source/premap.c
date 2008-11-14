@@ -1538,11 +1538,11 @@ void waitforeverybody()
     while (1)
     {
         idle();
-/*       
-        sampletimer();
-        handleevents();
-        AudioUpdate();
-*/
+        /*
+                sampletimer();
+                handleevents();
+                AudioUpdate();
+        */
 
         if (quitevent || keystatus[1]) gameexit("");
 
