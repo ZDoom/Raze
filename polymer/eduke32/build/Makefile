@@ -79,12 +79,12 @@ GCC_MAJOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f1)
 GCC_MINOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f2)
 
 ifeq (4,$(GCC_MAJOR))
-  debug += -ftree-vectorize
+#  debug += -ftree-vectorize
   ifneq (0,$(GCC_MINOR))
     ifneq (1,$(GCC_MINOR))
       ifneq (2,$(GCC_MINOR))
         # this should only enable for 4.3.0 and later
-        debug += -finline-small-functions -fpredictive-commoning
+#        debug += -finline-small-functions -fpredictive-commoning
       endif
     endif
   endif

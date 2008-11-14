@@ -1520,14 +1520,12 @@ void waitforeverybody()
 
     while (1)
     {
-#ifdef _WIN32
-        Sleep(10);
-#else
-        usleep(10);
-#endif
+        idle();
+/*       
         sampletimer();
         handleevents();
         AudioUpdate();
+*/
 
         if (quitevent || keystatus[1]) gameexit("");
 
@@ -1537,11 +1535,8 @@ void waitforeverybody()
         {
             if (g_player[i].playerreadyflag < g_player[myconnectindex].playerreadyflag) break;
             if ((!networkmode) && (myconnectindex != connecthead))
-            {
-                i = -1;
-                break;
-            } //slaves in M/S mode only wait for master
-
+                return;
+            //slaves in M/S mode only wait for master
         }
         if (i < 0) return;
     }

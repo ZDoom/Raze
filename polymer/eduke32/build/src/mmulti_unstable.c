@@ -628,12 +628,12 @@ void genericmultifunction(int other, char *bufptr, int messleng, int command)
 #define HEADER_PEER_GREETING 245
 
 static sockettype udpsocket = -1;
-static short udpport = BUILD_DEFAULT_UDP_PORT;
+static unsigned short udpport = BUILD_DEFAULT_UDP_PORT;
 
 static struct
 {
     int host;
-    short port;
+    unsigned short port;
 } allowed_addresses[MAX_PLAYERS];  /* only respond to these IPs. */
 
 #if PLATFORM_WIN32
@@ -684,7 +684,7 @@ static char *static_ipstring(int ip)
 }
 
 
-static int send_udp_packet(int ip, short port, void *pkt, size_t pktsize)
+static int send_udp_packet(int ip, unsigned short port, void *pkt, size_t pktsize)
 {
     /* !!! FIXME: See if this would ever block. */
     /* !!! FIXME: See if this would send a partial packet. */
@@ -718,11 +718,11 @@ static void process_udp_send_queue(void)
 }
 
 
-static int get_udp_packet(int *ip, short *_port, void *pkt, size_t pktsize)
+static int get_udp_packet(int *ip, unsigned short *_port, void *pkt, size_t pktsize)
 {
     int err = 0;
     struct sockaddr_in addr;
-    short port;
+    unsigned short port;
     socklen_t fromlen = sizeof(addr);
     int valid = 0;
     int i;
@@ -1007,7 +1007,7 @@ typedef struct
 } PacketPeerGreeting;
 
 
-static void send_peer_greeting(int ip, short port, short myid)
+static void send_peer_greeting(int ip, unsigned short port, short myid)
 {
     PacketPeerGreeting packet;
     memset(&packet, '\0', sizeof(packet));
@@ -1024,7 +1024,7 @@ static int wait_for_other_players(gcomtype *gcom, int myip)
     int i, j;
     int rc;
     int ip;
-    short port;
+    unsigned short port;
     unsigned short heard_from[MAX_PLAYERS];
     int max;
     int remaining;
@@ -1084,7 +1084,7 @@ static int wait_for_other_players(gcomtype *gcom, int myip)
                 remaining--;
 
                 initprintf("%s:%i (id 0x%X) connected, %d player%s left.\n",
-                           ipstr, port ,(int) packet.id,
+                           ipstr, (unsigned)port ,(int) packet.id,
                            remaining, remaining == 1 ? "" : "s");
 
                 /* make sure they've heard from us at all... */
@@ -1212,7 +1212,7 @@ static int connect_to_server(gcomtype *gcom, int myip)
     int i;
     int rc;
     int ip;
-    short port;
+    unsigned short port;
     int first_send = 1;
     unsigned short heard_from[MAX_PLAYERS];
     unsigned int resendat;
@@ -1305,7 +1305,7 @@ static int connect_to_server(gcomtype *gcom, int myip)
 //                allowed_addresses[i].port = port;
 
                 initprintf("Connected to %s:%i\n",
-                           ipstr, port);
+                           ipstr, (unsigned)port);
                 initprintf("Waiting for server to launch game\n");
             }
             else
@@ -1414,7 +1414,7 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
     int i;
     int rc;
     int ip;
-    short port;
+    unsigned short port;
     int first_send = 1;
     unsigned short heard_from[MAX_PLAYERS];
     unsigned int resendat;
@@ -1583,7 +1583,7 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
                 allowed_addresses[i].port = port;
                 remaining--;
 
-                initprintf("Connected to %s:%i (id 0x%X). %d player%s to go.\n",
+                initprintf("Connected to %s:%i (id 0x%X). %d player%s left.\n",
                            ipstr, port ,(int) packet.id,
                            remaining, remaining == 1 ? "" : "s");
 
@@ -1716,7 +1716,7 @@ static int parse_ip(const char *str, int *ip)
     return(1);
 }
 
-static int parse_interface(char *str, int *ip, short *udpport)
+static int parse_interface(char *str, int *ip, unsigned short *udpport)
 {
     char *ptr = strchr(str, ':');
     if (ptr) /* portnum specified? */
@@ -1857,8 +1857,7 @@ static int parse_udp_config(int argc, char **argv, gcomtype *gcom)
                             udpmode = udpmode_server;
                             gcom->numplayers = (argv[i][4]-'0');
                             if ((argv[i][5] >= '0') && (argv[i][5] <= '9')) gcom->numplayers = gcom->numplayers*10+(argv[i][5]-'0');
-                            gcom->numplayers--;
-                            initprintf("mmulti_unstable: %d-player game server\n", gcom->numplayers);
+                            initprintf("mmulti_unstable: %d-player game server\n", gcom->numplayers--);
                         }
                         initprintf("mmulti_unstable: Master-slave mode\n");
                     }
@@ -1971,7 +1970,7 @@ static int parse_udp_config(int argc, char **argv, gcomtype *gcom)
             else if (Bstrcasecmp(tok, "allow") == 0)
             {
                 int host;
-                short port=BUILD_DEFAULT_UDP_PORT;
+                unsigned short port=BUILD_DEFAULT_UDP_PORT;
                 if ((tok = get_token(&ptr)) != NULL)
                 {
                     if (gcom->numplayers >= MAX_PLAYERS - 1)
@@ -2090,7 +2089,7 @@ void deinit_network_transport(gcomtype *gcom)
 void callcommit(void)
 {
     int ip, i, rc;
-    short port;
+    unsigned short port;
 
     if ((signed)udpsocket == -1)
         return;

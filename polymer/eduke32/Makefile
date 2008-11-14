@@ -62,10 +62,10 @@ GCC_MINOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f2)
 
 ifeq (4,$(GCC_MAJOR))
   ifneq (0,$(GCC_MINOR))
-    debug += -ftree-vectorize
+#    debug += -ftree-vectorize
     ifneq (1,$(GCC_MINOR))
       ifneq (2,$(GCC_MINOR))
-        debug += -finline-small-functions -fpredictive-commoning
+#        debug += -finline-small-functions -fpredictive-commoning
       endif
     endif
   endif
