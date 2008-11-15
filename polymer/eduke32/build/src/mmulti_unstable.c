@@ -969,7 +969,7 @@ static int open_udp_socket(int ip, int port)
     udpsocket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if ((signed)udpsocket == -1)
     {
-        initprintf("socket creation failed: %s\n", netstrerror());
+        initprintf("mmulti_unstable: socket creation failed: %s\n", netstrerror());
         return(0);
     }
 
@@ -990,7 +990,7 @@ static int open_udp_socket(int ip, int port)
     addr.sin_port = htons((unsigned short)port);
     if (bind(udpsocket, (struct sockaddr *) &addr, sizeof(addr)) == -1)
     {
-        initprintf("socket binding failed: %s\n", netstrerror());
+        initprintf("mmulti_unstable: socket binding failed: %s\n", netstrerror());
         return(0);
     }
 
@@ -1020,7 +1020,7 @@ static void send_peer_greeting(int ip, unsigned short port, short myid)
 static int wait_for_other_players(gcomtype *gcom, int myip)
 {
     PacketPeerGreeting packet;
-    unsigned short my_id = 1;
+    unsigned short my_id = 1; // we're always 1 so we sort as the first player
     int i, j;
     int rc;
     int ip;
@@ -1093,20 +1093,6 @@ static int wait_for_other_players(gcomtype *gcom, int myip)
                 send_peer_greeting(allowed_addresses[i].host,
                                    allowed_addresses[i].port,
                                    my_id);
-
-                // resend greeting to other clients so they get ID for sorting
-                /*                for (j=i;j>=0;j--)
-                                {
-                                    int ii;
-                                    for (ii = 1; ii < max; ii++)
-                                        send_peer_greeting(allowed_addresses[j].host,
-                                        allowed_addresses[j].port,
-                                        heard_from[ii]);
-
-                                    send_peer_greeting(allowed_addresses[j].host,
-                                        allowed_addresses[j].port,
-                                        heard_from[i]);
-                                }*/
             }
         }
     }
@@ -1117,19 +1103,26 @@ static int wait_for_other_players(gcomtype *gcom, int myip)
         return(0);
     }
 
-    // found all the clients expected so send them our greeting
+    // found all the clients expected so relay all greetings
     for (j=max;j>=0;j--)
         if (allowed_addresses[j].host)
         {
             int ii;
+
+            // send another copy of our greeting just in case they missed it
+            send_peer_greeting(allowed_addresses[j].host,
+                allowed_addresses[j].port,
+                my_id);
+
             for (ii = 0; ii < max; ii++)
                 send_peer_greeting(allowed_addresses[j].host,
                                    allowed_addresses[j].port,
                                    heard_from[ii]);
 
+            // greeting with 0x1337 id starts the game for clients
             send_peer_greeting(allowed_addresses[j].host,
                                allowed_addresses[j].port,
-                               1337);
+                               0x1337);
         }
 
     /* ok, now everyone is talking to you. Sort them into player numbers... */
@@ -1292,17 +1285,17 @@ static int connect_to_server(gcomtype *gcom, int myip)
             for (i=0;i<MAX_PLAYERS;i++)
                 if (!heard_from[i] || heard_from[i] == B_SWAP16(packet.id)) break; // only increase once
 
-            if (B_SWAP16(packet.id) == 1337)
+            // greeting with 0x1337 id starts the game
+            if (B_SWAP16(packet.id) == 0x1337)
             {
                 remaining = 0;
                 continue;
             }
+            // packet.id == 1 is always the server
             else if (heard_from[i] == 0 && B_SWAP16(packet.id) == 1)
             {
                 packet.id = B_SWAP16(packet.id);
                 heard_from[i] = packet.id;
-//                allowed_addresses[i].host = ip;   /* bcast needs this. */
-//                allowed_addresses[i].port = port;
 
                 initprintf("Connected to %s:%i\n",
                            ipstr, (unsigned)port);
@@ -1310,19 +1303,15 @@ static int connect_to_server(gcomtype *gcom, int myip)
             }
             else
             {
-//                for (i=0;i<MAX_PLAYERS;i++)
+                if (heard_from[i] == 0 && B_SWAP16(packet.id) != my_id)
                 {
-                    if (heard_from[i] == 0 && B_SWAP16(packet.id) != my_id)
-                    {
-                        packet.id = B_SWAP16(packet.id);
-                        heard_from[i] = packet.id;
+                    packet.id = B_SWAP16(packet.id);
+                    heard_from[i] = packet.id;
 
-                        initprintf("New player with id 0x%X\n",
-                                   (int) packet.id);
-                        gcom->numplayers++;
-                        max++;
-//                        initprintf("max %d np %d\n",max,gcom->numplayers);
-                    }
+                    initprintf("New player with id 0x%X\n",
+                        (int) packet.id);
+                    gcom->numplayers++;
+                    max++;
                 }
             }
         }
@@ -1396,11 +1385,11 @@ static int connect_to_server(gcomtype *gcom, int myip)
                 gcom->myconnectindex = i;
         }
 
-        initprintf("mmulti_unstable: player #%i with id %d\n", i,heard_from[i]);
+//        initprintf("mmulti_unstable: player #%i with id %d\n",i,heard_from[i]);
     }
 //    assert(gcom->myconnectindex);
 
-    initprintf("mmulti_unstable: We are player #%i\n", gcom->myconnectindex);
+//    initprintf("mmulti_unstable: We are player #%i\n", gcom->myconnectindex);
 
     return(1);
 }
@@ -1835,14 +1824,6 @@ static int parse_udp_config(int argc, char **argv, gcomtype *gcom)
 
         for (i=0;i<argc;i++)
         {
-            //if (((argv[i][0] == '/') || (argv[i][0] == '-')) &&
-            //    ((argv[i][1] == 'N') || (argv[i][1] == 'n')) &&
-            //    ((argv[i][2] == 'E') || (argv[i][2] == 'e')) &&
-            //    ((argv[i][3] == 'T') || (argv[i][3] == 't')) &&
-            //     (!argv[i][4]))
-            //   { foundnet = 1; continue; }
-            //if (!foundnet) continue;
-
             if ((argv[i][0] == '-') || (argv[i][0] == '/'))
             {
                 if ((argv[i][1] == 'N') || (argv[i][1] == 'n') || (argv[i][1] == 'I') || (argv[i][1] == 'i'))
@@ -1874,16 +1855,11 @@ static int parse_udp_config(int argc, char **argv, gcomtype *gcom)
                 else if ((argv[i][1] == 'P') || (argv[i][1] == 'p')) continue;
             }
 
-            st = strdup(argv[i]); if (!st) break;
+            st = strdup(argv[i]);
+            if (!st) break;
             if (isvalidipaddress(st))
             {
 //                if ((danetmode == 1) && (daindex == myconnectindex)) daindex++;
-                /*                for (j=0;st[j];j++)
-                                {
-                                    if (st[j] == ':')
-                                    { allowed_addresses[daindex].port = htons((unsigned short)atol(&st[j+1])); st[j] = 0; break; }
-                                }
-                                allowed_addresses[daindex].host = inet_addr(st); */
                 parse_interface(st, &allowed_addresses[daindex].host, &allowed_addresses[daindex].port);
                 initprintf("mmulti_unstable: Player %d at %s:%d\n",daindex,st,allowed_addresses[daindex].port);
                 daindex++;

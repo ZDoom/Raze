@@ -10170,7 +10170,7 @@ static void Logo(void)
         KB_ClearKeysDown(); // JBF
         MOUSE_ClearButton(LEFT_MOUSE);
     }
-
+/*
     if (ud.multimode > 1)
     {
         setgamepalette(g_player[myconnectindex].ps, titlepal, 11);
@@ -10184,7 +10184,7 @@ static void Logo(void)
         gametext(160,190,"WAITING FOR PLAYERS",14,2);
         nextpage();
     }
-
+*/
     waitforeverybody();
 
     flushperms();
