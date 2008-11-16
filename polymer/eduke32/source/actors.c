@@ -542,8 +542,16 @@ inline int ssp(int i,unsigned int cliptype) //The set sprite function
 }
 
 #undef deletesprite
+
+int block_deletesprite = 0;
+
 void deletesprite_(int s)
 {
+    if (block_deletesprite)
+    {
+        OSD_Printf(OSD_ERROR "deletesprite_(): tried to remove sprite %d in EVENT_EGS\n",s);
+        return;
+    }
     if (apScriptGameEvent[EVENT_KILLIT])
     {
         static int p, pl;

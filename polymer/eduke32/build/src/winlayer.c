@@ -242,6 +242,8 @@ void wm_setapptitle(char *name)
     startwin_settitle(apptitle);
 }
 
+static int setgammaramp(WORD gt[3][256]);
+
 //
 // SignalHandler() -- called when we've sprung a leak
 //
@@ -251,6 +253,9 @@ static void SignalHandler(int signum)
     {
     case SIGSEGV:
         printOSD("Fatal Signal caught: SIGSEGV. Bailing out.\n");
+        if (gammabrightness)
+            setgammaramp(sysgamma);
+        gammabrightness = 0;
         app_crashhandler();
         uninitsystem();
         if (stdout) fclose(stdout);
@@ -3654,7 +3659,7 @@ static BOOL CreateAppWindow(int modenum)
 #endif
         {
             // set exclusive cooperative level
-            result = IDirectDraw_SetCooperativeLevel(lpDD, hWindow, DDSCL_EXCLUSIVE|DDSCL_FULLSCREEN);
+            result = IDirectDraw_SetCooperativeLevel(lpDD, hWindow, DDSCL_ALLOWMODEX|DDSCL_EXCLUSIVE|DDSCL_FULLSCREEN);
             if (result != DD_OK)
             {
                 ShowDDrawErrorBox("Error setting cooperative level", result);

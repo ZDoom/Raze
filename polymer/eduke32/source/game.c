@@ -4169,9 +4169,10 @@ void drawbackground(void)
     if (g_player[myconnectindex].ps->gm & MODE_GAME || ud.recstat == 2)
         //if (ud.recstat == 0 || ud.recstat == 1 || (ud.recstat == 2 && ud.reccnt > 0)) // JBF 20040717
     {
-        if (ud.screen_size == 8 && ud.statusbarmode == 0)
-            y1 = scale(ydim,200-scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100),200);
-        else if (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR)
+//        if (ud.screen_size == 8 && ud.statusbarmode == 0)
+  //          y1 = scale(ydim,200-scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100),200);
+        //else
+            if (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR)
         {
             if (ud.multimode > 1) y1 += scale(ydim,8,200);
             if (ud.multimode > 4) y1 += scale(ydim,8,200);
@@ -4220,6 +4221,7 @@ void drawbackground(void)
     // draw in the bits to the left and right of the non-fullsize status bar
     if (ud.statusbarscale < 100 && ud.screen_size >= 8 && ud.statusbarmode == 0)
     {
+        /*
         y1 = y2;
         x2 = (xdim - scale(xdim,ud.statusbarscale,100)) >> 1;
         x1 = xdim-x2;
@@ -4230,6 +4232,16 @@ void drawbackground(void)
                 rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,y1,x2-1,ydim-1);
                 rotatesprite((x+x1)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,xdim-x2,y1,xdim-1,ydim-1);
             }
+            */
+        // when not rendering a game, fullscreen wipe
+        x2 = (xdim - scale(xdim,ud.statusbarscale,100)) >> 1;
+            for (y=y2-y2%tilesizy[dapicnum];y<ydim;y+=tilesizy[dapicnum])
+                for (x=0;x<xdim>>1;x+=tilesizx[dapicnum])
+                {
+                    rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,y2,x2,ydim-1);
+                    rotatesprite((xdim-x)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,xdim-x2-1,y2,xdim-1,ydim-1);
+                }
+
     }
 
     if (ud.screen_size > 8)
@@ -4880,8 +4892,12 @@ int EGS(int whatsect,int s_x,int s_y,int s_z,int s_pn,int s_s,int s_xr,int s_yr,
 
     if (apScriptGameEvent[EVENT_EGS])
     {
+        extern int block_deletesprite;
         int pl=findplayer(&sprite[i],&p);
+
+        block_deletesprite++;
         OnEvent(EVENT_EGS,i, pl, p);
+        block_deletesprite--;
     }
 
     return(i);
