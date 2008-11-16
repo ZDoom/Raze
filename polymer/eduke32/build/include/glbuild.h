@@ -191,6 +191,47 @@ extern void (APIENTRY * bglGetQueryivARB)(GLenum target, GLenum pname, GLint *pa
 extern void (APIENTRY * bglGetQueryObjectivARB)(GLuint id, GLenum pname, GLint *params);
 extern void (APIENTRY * bglGetQueryObjectuivARB)(GLuint id, GLenum pname, GLuint *params);
 
+// Shader Objects
+extern void (APIENTRY * bglDeleteObjectARB)(GLhandleARB);
+extern GLhandleARB (APIENTRY * bglGetHandleARB)(GLenum);
+extern void (APIENTRY * bglDetachObjectARB)(GLhandleARB, GLhandleARB);
+extern GLhandleARB (APIENTRY * bglCreateShaderObjectARB)(GLenum);
+extern void (APIENTRY * bglShaderSourceARB)(GLhandleARB, GLsizei, const GLcharARB* *, const GLint *);
+extern void (APIENTRY * bglCompileShaderARB)(GLhandleARB);
+extern GLhandleARB (APIENTRY * bglCreateProgramObjectARB)(void);
+extern void (APIENTRY * bglAttachObjectARB)(GLhandleARB, GLhandleARB);
+extern void (APIENTRY * bglLinkProgramARB)(GLhandleARB);
+extern void (APIENTRY * bglUseProgramObjectARB)(GLhandleARB);
+extern void (APIENTRY * bglValidateProgramARB)(GLhandleARB);
+extern void (APIENTRY * bglUniform1fARB)(GLint, GLfloat);
+extern void (APIENTRY * bglUniform2fARB)(GLint, GLfloat, GLfloat);
+extern void (APIENTRY * bglUniform3fARB)(GLint, GLfloat, GLfloat, GLfloat);
+extern void (APIENTRY * bglUniform4fARB)(GLint, GLfloat, GLfloat, GLfloat, GLfloat);
+extern void (APIENTRY * bglUniform1iARB)(GLint, GLint);
+extern void (APIENTRY * bglUniform2iARB)(GLint, GLint, GLint);
+extern void (APIENTRY * bglUniform3iARB)(GLint, GLint, GLint, GLint);
+extern void (APIENTRY * bglUniform4iARB)(GLint, GLint, GLint, GLint, GLint);
+extern void (APIENTRY * bglUniform1fvARB)(GLint, GLsizei, const GLfloat *);
+extern void (APIENTRY * bglUniform2fvARB)(GLint, GLsizei, const GLfloat *);
+extern void (APIENTRY * bglUniform3fvARB)(GLint, GLsizei, const GLfloat *);
+extern void (APIENTRY * bglUniform4fvARB)(GLint, GLsizei, const GLfloat *);
+extern void (APIENTRY * bglUniform1ivARB)(GLint, GLsizei, const GLint *);
+extern void (APIENTRY * bglUniform2ivARB)(GLint, GLsizei, const GLint *);
+extern void (APIENTRY * bglUniform3ivARB)(GLint, GLsizei, const GLint *);
+extern void (APIENTRY * bglUniform4ivARB)(GLint, GLsizei, const GLint *);
+extern void (APIENTRY * bglUniformMatrix2fvARB)(GLint, GLsizei, GLboolean, const GLfloat *);
+extern void (APIENTRY * bglUniformMatrix3fvARB)(GLint, GLsizei, GLboolean, const GLfloat *);
+extern void (APIENTRY * bglUniformMatrix4fvARB)(GLint, GLsizei, GLboolean, const GLfloat *);
+extern void (APIENTRY * bglGetObjectParameterfvARB)(GLhandleARB, GLenum, GLfloat *);
+extern void (APIENTRY * bglGetObjectParameterivARB)(GLhandleARB, GLenum, GLint *);
+extern void (APIENTRY * bglGetInfoLogARB)(GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
+extern void (APIENTRY * bglGetAttachedObjectsARB)(GLhandleARB, GLsizei, GLsizei *, GLhandleARB *);
+extern GLint (APIENTRY * bglGetUniformLocationARB)(GLhandleARB, const GLcharARB *);
+extern void (APIENTRY * bglGetActiveUniformARB)(GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *);
+extern void (APIENTRY * bglGetUniformfvARB)(GLhandleARB, GLint, GLfloat *);
+extern void (APIENTRY * bglGetUniformivARB)(GLhandleARB, GLint, GLint *);
+extern void (APIENTRY * bglGetShaderSourceARB)(GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
+
 // GLU
 extern void             (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
 extern void             (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);

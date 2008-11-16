@@ -158,6 +158,47 @@ void (APIENTRY * bglGetQueryivARB)(GLenum target, GLenum pname, GLint *params);
 void (APIENTRY * bglGetQueryObjectivARB)(GLuint id, GLenum pname, GLint *params);
 void (APIENTRY * bglGetQueryObjectuivARB)(GLuint id, GLenum pname, GLuint *params);
 
+// Shader Objects
+void (APIENTRY * bglDeleteObjectARB)(GLhandleARB);
+GLhandleARB (APIENTRY * bglGetHandleARB)(GLenum);
+void (APIENTRY * bglDetachObjectARB)(GLhandleARB, GLhandleARB);
+GLhandleARB (APIENTRY * bglCreateShaderObjectARB)(GLenum);
+void (APIENTRY * bglShaderSourceARB)(GLhandleARB, GLsizei, const GLcharARB* *, const GLint *);
+void (APIENTRY * bglCompileShaderARB)(GLhandleARB);
+GLhandleARB (APIENTRY * bglCreateProgramObjectARB)(void);
+void (APIENTRY * bglAttachObjectARB)(GLhandleARB, GLhandleARB);
+void (APIENTRY * bglLinkProgramARB)(GLhandleARB);
+void (APIENTRY * bglUseProgramObjectARB)(GLhandleARB);
+void (APIENTRY * bglValidateProgramARB)(GLhandleARB);
+void (APIENTRY * bglUniform1fARB)(GLint, GLfloat);
+void (APIENTRY * bglUniform2fARB)(GLint, GLfloat, GLfloat);
+void (APIENTRY * bglUniform3fARB)(GLint, GLfloat, GLfloat, GLfloat);
+void (APIENTRY * bglUniform4fARB)(GLint, GLfloat, GLfloat, GLfloat, GLfloat);
+void (APIENTRY * bglUniform1iARB)(GLint, GLint);
+void (APIENTRY * bglUniform2iARB)(GLint, GLint, GLint);
+void (APIENTRY * bglUniform3iARB)(GLint, GLint, GLint, GLint);
+void (APIENTRY * bglUniform4iARB)(GLint, GLint, GLint, GLint, GLint);
+void (APIENTRY * bglUniform1fvARB)(GLint, GLsizei, const GLfloat *);
+void (APIENTRY * bglUniform2fvARB)(GLint, GLsizei, const GLfloat *);
+void (APIENTRY * bglUniform3fvARB)(GLint, GLsizei, const GLfloat *);
+void (APIENTRY * bglUniform4fvARB)(GLint, GLsizei, const GLfloat *);
+void (APIENTRY * bglUniform1ivARB)(GLint, GLsizei, const GLint *);
+void (APIENTRY * bglUniform2ivARB)(GLint, GLsizei, const GLint *);
+void (APIENTRY * bglUniform3ivARB)(GLint, GLsizei, const GLint *);
+void (APIENTRY * bglUniform4ivARB)(GLint, GLsizei, const GLint *);
+void (APIENTRY * bglUniformMatrix2fvARB)(GLint, GLsizei, GLboolean, const GLfloat *);
+void (APIENTRY * bglUniformMatrix3fvARB)(GLint, GLsizei, GLboolean, const GLfloat *);
+void (APIENTRY * bglUniformMatrix4fvARB)(GLint, GLsizei, GLboolean, const GLfloat *);
+void (APIENTRY * bglGetObjectParameterfvARB)(GLhandleARB, GLenum, GLfloat *);
+void (APIENTRY * bglGetObjectParameterivARB)(GLhandleARB, GLenum, GLint *);
+void (APIENTRY * bglGetInfoLogARB)(GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
+void (APIENTRY * bglGetAttachedObjectsARB)(GLhandleARB, GLsizei, GLsizei *, GLhandleARB *);
+GLint (APIENTRY * bglGetUniformLocationARB)(GLhandleARB, const GLcharARB *);
+void (APIENTRY * bglGetActiveUniformARB)(GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *);
+void (APIENTRY * bglGetUniformfvARB)(GLhandleARB, GLint, GLfloat *);
+void (APIENTRY * bglGetUniformivARB)(GLhandleARB, GLint, GLint *);
+void (APIENTRY * bglGetShaderSourceARB)(GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
+
 // GLU
 void (APIENTRY * bgluTessBeginContour)(GLUtesselator* tess);
 void (APIENTRY * bgluTessBeginPolygon)(GLUtesselator* tess, GLvoid* data);
@@ -426,6 +467,47 @@ int loadglextensions(void)
     bglGetQueryObjectivARB  = GETPROCEXTSOFT("glGetQueryObjectivARB");
     bglGetQueryObjectuivARB = GETPROCEXTSOFT("glGetQueryObjectuivARB");
 
+    // Shader Objects
+    bglDeleteObjectARB          = GETPROCEXTSOFT("glDeleteObjectARB");
+    bglGetHandleARB             = GETPROCEXTSOFT("glGetHandleARB");
+    bglDetachObjectARB          = GETPROCEXTSOFT("glDetachObjectARB");
+    bglCreateShaderObjectARB    = GETPROCEXTSOFT("glCreateShaderObjectARB");
+    bglShaderSourceARB          = GETPROCEXTSOFT("glShaderSourceARB");
+    bglCompileShaderARB         = GETPROCEXTSOFT("glCompileShaderARB");
+    bglCreateProgramObjectARB   = GETPROCEXTSOFT("glCreateProgramObjectARB");
+    bglAttachObjectARB          = GETPROCEXTSOFT("glAttachObjectARB");
+    bglLinkProgramARB           = GETPROCEXTSOFT("glLinkProgramARB");
+    bglUseProgramObjectARB      = GETPROCEXTSOFT("glUseProgramObjectARB");
+    bglValidateProgramARB       = GETPROCEXTSOFT("glValidateProgramARB");
+    bglUniform1fARB             = GETPROCEXTSOFT("glUniform1fARB");
+    bglUniform2fARB             = GETPROCEXTSOFT("glUniform2fARB");
+    bglUniform3fARB             = GETPROCEXTSOFT("glUniform3fARB");
+    bglUniform4fARB             = GETPROCEXTSOFT("glUniform4fARB");
+    bglUniform1iARB             = GETPROCEXTSOFT("glUniform1iARB");
+    bglUniform2iARB             = GETPROCEXTSOFT("glUniform2iARB");
+    bglUniform3iARB             = GETPROCEXTSOFT("glUniform3iARB");
+    bglUniform4iARB             = GETPROCEXTSOFT("glUniform4iARB");
+    bglUniform1fvARB            = GETPROCEXTSOFT("glUniform1fvARB");
+    bglUniform2fvARB            = GETPROCEXTSOFT("glUniform2fvARB");
+    bglUniform3fvARB            = GETPROCEXTSOFT("glUniform3fvARB");
+    bglUniform4fvARB            = GETPROCEXTSOFT("glUniform4fvARB");
+    bglUniform1ivARB            = GETPROCEXTSOFT("glUniform1ivARB");
+    bglUniform2ivARB            = GETPROCEXTSOFT("glUniform2ivARB");
+    bglUniform3ivARB            = GETPROCEXTSOFT("glUniform3ivARB");
+    bglUniform4ivARB            = GETPROCEXTSOFT("glUniform4ivARB");
+    bglUniformMatrix2fvARB      = GETPROCEXTSOFT("glUniformMatrix2fvARB");
+    bglUniformMatrix3fvARB      = GETPROCEXTSOFT("glUniformMatrix3fvARB");
+    bglUniformMatrix4fvARB      = GETPROCEXTSOFT("glUniformMatrix4fvARB");
+    bglGetObjectParameterfvARB  = GETPROCEXTSOFT("glGetObjectParameterfvARB");
+    bglGetObjectParameterivARB  = GETPROCEXTSOFT("glGetObjectParameterivARB");
+    bglGetInfoLogARB            = GETPROCEXTSOFT("glGetInfoLogARB");
+    bglGetAttachedObjectsARB    = GETPROCEXTSOFT("glGetAttachedObjectsARB");
+    bglGetUniformLocationARB    = GETPROCEXTSOFT("glGetUniformLocationARB");
+    bglGetActiveUniformARB      = GETPROCEXTSOFT("glGetActiveUniformARB");
+    bglGetUniformfvARB          = GETPROCEXTSOFT("glGetUniformfvARB");
+    bglGetUniformivARB          = GETPROCEXTSOFT("glGetUniformivARB");
+    bglGetShaderSourceARB       = GETPROCEXTSOFT("glGetShaderSourceARB");
+
 #ifdef RENDERTYPEWIN
     bwglSwapIntervalEXT	    = GETPROCEXTSOFT("wglSwapIntervalEXT");
 #endif
@@ -581,6 +663,57 @@ int unloadgldriver(void)
     bglBufferSubDataARB = NULL;
     bglMapBufferARB     = NULL;
     bglUnmapBufferARB   = NULL;
+
+    // Occlusion queries
+    bglGenQueriesARB        = NULL;
+    bglDeleteQueriesARB     = NULL;
+    bglIsQueryARB           = NULL;
+    bglBeginQueryARB        = NULL;
+    bglEndQueryARB          = NULL;
+    bglGetQueryivARB        = NULL;
+    bglGetQueryObjectivARB  = NULL;
+    bglGetQueryObjectuivARB = NULL;
+
+    // Shader Objects
+    bglDeleteObjectARB          = NULL;
+    bglGetHandleARB             = NULL;
+    bglDetachObjectARB          = NULL;
+    bglCreateShaderObjectARB    = NULL;
+    bglShaderSourceARB          = NULL;
+    bglCompileShaderARB         = NULL;
+    bglCreateProgramObjectARB   = NULL;
+    bglAttachObjectARB          = NULL;
+    bglLinkProgramARB           = NULL;
+    bglUseProgramObjectARB      = NULL;
+    bglValidateProgramARB       = NULL;
+    bglUniform1fARB             = NULL;
+    bglUniform2fARB             = NULL;
+    bglUniform3fARB             = NULL;
+    bglUniform4fARB             = NULL;
+    bglUniform1iARB             = NULL;
+    bglUniform2iARB             = NULL;
+    bglUniform3iARB             = NULL;
+    bglUniform4iARB             = NULL;
+    bglUniform1fvARB            = NULL;
+    bglUniform2fvARB            = NULL;
+    bglUniform3fvARB            = NULL;
+    bglUniform4fvARB            = NULL;
+    bglUniform1ivARB            = NULL;
+    bglUniform2ivARB            = NULL;
+    bglUniform3ivARB            = NULL;
+    bglUniform4ivARB            = NULL;
+    bglUniformMatrix2fvARB      = NULL;
+    bglUniformMatrix3fvARB      = NULL;
+    bglUniformMatrix4fvARB      = NULL;
+    bglGetObjectParameterfvARB  = NULL;
+    bglGetObjectParameterivARB  = NULL;
+    bglGetInfoLogARB            = NULL;
+    bglGetAttachedObjectsARB    = NULL;
+    bglGetUniformLocationARB    = NULL;
+    bglGetActiveUniformARB      = NULL;
+    bglGetUniformfvARB          = NULL;
+    bglGetUniformivARB          = NULL;
+    bglGetShaderSourceARB       = NULL;
 
 #ifdef RENDERTYPEWIN
     bwglCreateContext	= NULL;
