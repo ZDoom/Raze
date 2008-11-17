@@ -975,7 +975,7 @@ void getpackets(void)
                         if (i != other) sendpacket(i,packbuf,packbufleng);
 
                 if (packbuf[2] != (char)atoi(s_builddate))
-                    gameexit("\nYou cannot play Duke with different versions.");
+                    gameexit("You cannot play with different versions of EDuke32!");
 
                 other = packbuf[1];
 
