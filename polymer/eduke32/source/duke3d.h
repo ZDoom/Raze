@@ -687,7 +687,13 @@ extern int gamequit;
 
 extern char pus,pub;
 extern int camerashitable,freezerhurtowner,lasermode;
-extern char syncstat;
+
+// TENSW: on really bad network connections, the sync FIFO queue can overflow if it is the
+// same size as the move fifo.
+#define MAXSYNCBYTES 16
+#define SYNCFIFOSIZ 1024
+
+extern char syncstat[MAXSYNCBYTES];
 extern signed char multiwho, multipos, multiwhat, multiflag;
 extern int syncvaltail, syncvaltottail;
 extern int numfreezebounces,rpgblastradius,pipebombblastradius,tripbombblastradius,shrinkerblastradius,morterblastradius,bouncemineblastradius,seenineblastradius;
@@ -705,6 +711,8 @@ extern int cloudtotalclock,totalmemory;
 extern int stereomode, stereowidth, stereopixelwidth;
 
 extern int myaimmode, myaimstat, omyaimstat;
+
+extern unsigned int MoveThingsCount;
 
 #define IFISGLMODE if (getrendermode() >= 3)
 #define IFISSOFTMODE if (getrendermode() < 3)
@@ -1055,7 +1063,8 @@ typedef struct {
     int32 pcolor, pteam, frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
     char vote, gotvote, playerreadyflag, playerquitflag;
-    char user_name[32], syncval[MOVEFIFOSIZ];
+    char user_name[32];
+    char syncval[SYNCFIFOSIZ][MAXSYNCBYTES];
 } playerdata_t;
 
 extern input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];

@@ -1503,6 +1503,7 @@ void resettimevars(void)
     lockclock = 0L;
     ready2send = 1;
     leveltexttime = 85;
+    MoveThingsCount = 0;
 }
 
 void waitforeverybody()
@@ -1580,7 +1581,7 @@ void clearfifo(void)
 
     syncvaltail = 0L;
     syncvaltottail = 0L;
-    syncstat = 0;
+    memset(&syncstat, 0, sizeof(syncstat));
     bufferjitter = 1;
     mymaxlag = otherminlag = 0;
     jump_input = 0;

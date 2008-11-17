@@ -75,16 +75,16 @@ char syncstate = 0;
 #define MAXPACKETSIZE 2048
 typedef struct
 {
-    short intnum;                /* communication between Game and the driver */
+//    short intnum;                /* communication between Game and the driver */
     short command;               /* 1-send, 2-get */
     short other;                 /* dest for send, set by get (-1 = no packet) */
     short numbytes;
     short myconnectindex;
     short numplayers;
-    short gametype;              /* gametype: 1-serial,2-modem,3-net */
+//    short gametype;              /* gametype: 1-serial,2-modem,3-net */
     short filler;
     char buffer[MAXPACKETSIZE];
-    intptr_t longcalladdress;
+//    intptr_t longcalladdress;
 } gcomtype;
 static gcomtype *gcom;
 
@@ -622,7 +622,6 @@ void genericmultifunction(int other, char *bufptr, int messleng, int command)
 #define IPSEG3(ip) ((((unsigned int) ip) & 0x0000FF00) >>  8)
 #define IPSEG4(ip) ((((unsigned int) ip) & 0x000000FF)      )
 
-#define MAX_PLAYERS 16
 #define BUILD_DEFAULT_UDP_PORT 23513  /* eh...why not? */
 #define CLIENT_POLL_DELAY 5000  /* ms between pings at peer-to-peer startup. */
 #define HEADER_PEER_GREETING 245
@@ -634,7 +633,7 @@ static struct
 {
     int host;
     unsigned short port;
-} allowed_addresses[MAX_PLAYERS];  /* only respond to these IPs. */
+} allowed_addresses[MAXPLAYERS];  /* only respond to these IPs. */
 
 #if PLATFORM_WIN32
 /*
@@ -1025,7 +1024,7 @@ static int wait_for_other_players(gcomtype *gcom, int myip)
     int rc;
     int ip;
     unsigned short port;
-    unsigned short heard_from[MAX_PLAYERS];
+    unsigned short heard_from[MAXPLAYERS];
     int max;
     int remaining;
 
@@ -1207,7 +1206,7 @@ static int connect_to_server(gcomtype *gcom, int myip)
     int ip;
     unsigned short port;
     int first_send = 1;
-    unsigned short heard_from[MAX_PLAYERS];
+    unsigned short heard_from[MAXPLAYERS];
     unsigned int resendat;
     int max;
     int remaining;
@@ -1282,7 +1281,7 @@ static int connect_to_server(gcomtype *gcom, int myip)
                 continue;
             }
 
-            for (i=0;i<MAX_PLAYERS;i++)
+            for (i=0;i<MAXPLAYERS;i++)
                 if (!heard_from[i] || heard_from[i] == B_SWAP16(packet.id)) break; // only increase once
 
             // greeting with 0x1337 id starts the game
@@ -1405,7 +1404,7 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
     int ip;
     unsigned short port;
     int first_send = 1;
-    unsigned short heard_from[MAX_PLAYERS];
+    unsigned short heard_from[MAXPLAYERS];
     unsigned int resendat;
     int max;
     int remaining;
@@ -1933,10 +1932,10 @@ static int parse_udp_config(int argc, char **argv, gcomtype *gcom)
                 if ((tok = get_token(&ptr)) != NULL)
                 {
                     bcast = atoi(tok);
-                    if (bcast > MAX_PLAYERS - 1)
+                    if (bcast > MAXPLAYERS - 1)
                     {
                         initprintf("WARNING: Too many broadcast players.\n");
-                        bcast = MAX_PLAYERS - 1;
+                        bcast = MAXPLAYERS - 1;
                     }
 
                     bogus = 0;
@@ -1949,7 +1948,7 @@ static int parse_udp_config(int argc, char **argv, gcomtype *gcom)
                 unsigned short port=BUILD_DEFAULT_UDP_PORT;
                 if ((tok = get_token(&ptr)) != NULL)
                 {
-                    if (gcom->numplayers >= MAX_PLAYERS - 1)
+                    if (gcom->numplayers >= MAXPLAYERS - 1)
                         initprintf("WARNING: Too many allowed IP addresses.\n");
 
                     else if (parse_interface(tok, &host, &port))
@@ -2030,7 +2029,7 @@ gcomtype *init_network_transport(int argc, char **argv)
             deinit_network_transport(NULL);
             return(NULL);
         }
-        retval->gametype = 3;  /* gametype: 1-serial,2-modem,3-net */
+//        retval->gametype = 3;  /* gametype: 1-serial,2-modem,3-net */
     }
 
     return(retval);

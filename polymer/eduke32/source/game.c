@@ -647,11 +647,14 @@ void adduserquote(const char *daquote)
 
 int lastpackettime = 0;
 
+#include "sync.c"
+
 void getpackets(void)
 {
     int i, j, k, l;
     int other;
     int packbufleng;
+    int sb;
 
     input_t *osyn, *nsyn;
 
@@ -752,25 +755,44 @@ void getpackets(void)
                 g_player[i].movefifoend++;
             }
 
+            /*            while (j != packbufleng)
+                        {
+                            for (i=connecthead;i>=0;i=connectpoint2[i])
+                                if (i != myconnectindex)
+                                {
+                                    g_player[i].syncval[g_player[i].syncvalhead&(MOVEFIFOSIZ-1)] = packbuf[j];
+                                    g_player[i].syncvalhead++;
+                                }
+                            j++;
+                        } */
             while (j != packbufleng)
             {
-                for (i=connecthead;i>=0;i=connectpoint2[i])
+                for (i = connecthead; i >= 0; i = connectpoint2[i])
+                {
                     if (i != myconnectindex)
                     {
-                        g_player[i].syncval[g_player[i].syncvalhead&(MOVEFIFOSIZ-1)] = packbuf[j];
+                        for (sb = 0; sb < NumSyncBytes; sb++)
+                        {
+                            g_player[i].syncval[g_player[i].syncvalhead & (SYNCFIFOSIZ - 1)][sb] = packbuf[j + sb];
+                        }
+
                         g_player[i].syncvalhead++;
                     }
-                j++;
+                }
+
+                j += NumSyncBytes;
             }
 
-            for (i=connecthead;i>=0;i=connectpoint2[i])
-                if (i != myconnectindex)
-                    for (j=movesperpacket-1;j>=1;j--)
-                    {
-                        copybufbyte(&nsyn[i],&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t));
-                        g_player[i].movefifoend++;
-                    }
+            GetSyncInfoFromPacket(packbuf, packbufleng, &j, other);
 
+            /*            for (i=connecthead;i>=0;i=connectpoint2[i])
+                            if (i != myconnectindex)
+                                for (j=movesperpacket-1;j>=1;j--)
+                                {
+                                    copybufbyte(&nsyn[i],&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t));
+                                    g_player[i].movefifoend++;
+                                }
+            */
             movefifosendplc += movesperpacket;
 
             break;
@@ -797,11 +819,12 @@ void getpackets(void)
                         if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((int)packbuf[j++])<<24); */
             g_player[other].movefifoend++;
 
-            while (j != packbufleng)
-            {
-                g_player[other].syncval[g_player[other].syncvalhead&(MOVEFIFOSIZ-1)] = packbuf[j++];
-                g_player[other].syncvalhead++;
-            }
+            /*            while (j != packbufleng)
+                        {
+                            g_player[other].syncval[g_player[other].syncvalhead&(MOVEFIFOSIZ-1)] = packbuf[j++];
+                            g_player[other].syncvalhead++;
+                        } */
+            GetSyncInfoFromPacket(packbuf, packbufleng, &j, other);
 
             for (i=movesperpacket-1;i>=1;i--)
             {
@@ -856,12 +879,14 @@ void getpackets(void)
 
             if (j > packbufleng)
                 initprintf("INVALID GAME PACKET!!! (packet %d, %d too many bytes (%d %d))\n",packbuf[0],j-packbufleng,packbufleng,k);
-
-            while (j < packbufleng)
-            {
-                g_player[other].syncval[g_player[other].syncvalhead&(MOVEFIFOSIZ-1)] = packbuf[j++];
-                g_player[other].syncvalhead++;
-            }
+            /*
+                        while (j < packbufleng)
+                        {
+                            g_player[other].syncval[g_player[other].syncvalhead&(MOVEFIFOSIZ-1)] = packbuf[j++];
+                            g_player[other].syncvalhead++;
+                        }
+                        */
+            GetSyncInfoFromPacket(packbuf, packbufleng, &j, other);
 
             break;
         case 127:
@@ -871,7 +896,7 @@ void getpackets(void)
             if (g_player[other].playerreadyflag == 0)
                 initprintf("Player %d is ready\n", other);
             g_player[other].playerreadyflag++;
-            break;
+            return;
         case 255:
             gameexit(" ");
             break;
@@ -1170,9 +1195,12 @@ void faketimerhandler(void)
     getpackets();
     if (getoutputcirclesize() >= 16) return;
 
-    for (i=connecthead;i>=0;i=connectpoint2[i])
-        if (i != myconnectindex)
-            if (g_player[i].movefifoend < g_player[myconnectindex].movefifoend-200) return;
+//    for (i=connecthead;i>=0;i=connectpoint2[i])
+//        if (i != myconnectindex)
+//            if (g_player[i].movefifoend < g_player[myconnectindex].movefifoend-200) return;
+
+    if (g_player[myconnectindex].movefifoend - movefifoplc >= 100)
+        return;
 
     getinput(myconnectindex);
 
@@ -1222,12 +1250,14 @@ void faketimerhandler(void)
             mymaxlag = max(mymaxlag,k);
         }
 
-    if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
+    if (((g_player[myconnectindex].movefifoend - 1) & (TIMERUPDATESIZ - 1)) == 0)
     {
-        i = mymaxlag-bufferjitter;
+        i = mymaxlag - bufferjitter;
         mymaxlag = 0;
-        if (i > 0) bufferjitter += ((3+i)>>2);
-        else if (i < 0) bufferjitter -= ((1-i)>>2);
+        if (i > 0)
+            bufferjitter += ((2 + i) >> 2);
+        else if (i < 0)
+            bufferjitter -= ((2 - i) >> 2);
     }
 
     if (networkmode == 1)
@@ -1239,23 +1269,38 @@ void faketimerhandler(void)
         //Fix timers and buffer/jitter value
         if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
         {
-            if (myconnectindex != connecthead)
+            if (myconnectindex == connecthead)
             {
-                i = g_player[connecthead].myminlag-otherminlag;
-                if (klabs(i) > 8) i >>= 1;
-                else if (klabs(i) > 2) i = ksgn(i);
-                else i = 0;
+                for (i = connectpoint2[connecthead]; i >= 0; i = connectpoint2[i])
+                    packbuf[j++] = min(max(g_player[i].myminlag, -128), 127);
+            }
+            else
+            {
+                i = g_player[connecthead].myminlag - otherminlag;
+                if (klabs(i) > 2)
+                {
+                    ////DSPRINTF(ds,"lag correction: %d,%d,%d",i,Player[connecthead].myminlag,otherminlag);
+                    //MONO_PRINT(ds);
 
-                totalclock -= TICSPERFRAME*i;
-                g_player[connecthead].myminlag -= i;
-                otherminlag += i;
+                    if (klabs(i) > 8)
+                    {
+                        if (i < 0)
+                            i++;
+                        i >>= 1;
+                    }
+                    else
+                    {
+                        if (i < 0)
+                            i = -1;
+                        if (i > 0)
+                            i = 1;
+                    }
+                    totalclock -= TICSPERFRAME * i;
+                    otherminlag += i;
+                }
             }
 
-            if (myconnectindex == connecthead)
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    packbuf[j++] = min(max(g_player[i].myminlag,-128),127);
-
-            for (i=connecthead;i>=0;i=connectpoint2[i])
+            for (i = connecthead; i >= 0; i = connectpoint2[i])
                 g_player[i].myminlag = 0x7fffffff;
         }
 
@@ -1300,11 +1345,13 @@ void faketimerhandler(void)
                 if ((nsyn[0].extbits^osyn[0].extbits)&0x00ff0000) packbuf[j++] = ((nsyn[0].extbits>>16)&255), packbuf[k] |= 4;
                 if ((nsyn[0].extbits^osyn[0].extbits)&0xff000000) packbuf[j++] = ((nsyn[0].extbits>>24)&255), packbuf[k] |= 8; */
 
-        while (g_player[myconnectindex].syncvalhead != syncvaltail)
-        {
-            packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
-            syncvaltail++;
-        }
+        /*        while (g_player[myconnectindex].syncvalhead != syncvaltail)
+                {
+                    packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
+                    syncvaltail++;
+                } */
+
+        AddSyncInfoToPacket(&j);
 
         for (i=connecthead;i>=0;i=connectpoint2[i])
             if (i != myconnectindex)
@@ -1317,17 +1364,30 @@ void faketimerhandler(void)
         //Fix timers and buffer/jitter value
         if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
         {
-            i = g_player[connecthead].myminlag-otherminlag;
-            if (klabs(i) > 8) i >>= 1;
-            else if (klabs(i) > 2) i = ksgn(i);
-            else i = 0;
+            i = g_player[connecthead].myminlag - otherminlag;
+            if (klabs(i) > 2)
+            {
+                if (klabs(i) > 8)
+                {
+                    if (i < 0)
+                        i++;
+                    i >>= 1;
+                }
+                else
+                {
+                    if (i < 0)
+                        i = -1;
+                    if (i > 0)
+                        i = 1;
+                }
+                totalclock -= TICSPERFRAME * i;
+                otherminlag += i;
+            }
 
-            totalclock -= TICSPERFRAME*i;
-            g_player[connecthead].myminlag -= i;
-            otherminlag += i;
-
-            for (i=connecthead;i>=0;i=connectpoint2[i])
+            for (i = connecthead; i >= 0; i = connectpoint2[i])
+            {
                 g_player[i].myminlag = 0x7fffffff;
+            }
         }
 
         packbuf[0] = 1;
@@ -1371,11 +1431,12 @@ void faketimerhandler(void)
                 if ((nsyn[0].extbits^osyn[0].extbits)&0x00ff0000) packbuf[j++] = ((nsyn[0].extbits>>16)&255), packbuf[2] |= 4;
                 if ((nsyn[0].extbits^osyn[0].extbits)&0xff000000) packbuf[j++] = ((nsyn[0].extbits>>24)&255), packbuf[2] |= 8; */
 
-        while (g_player[myconnectindex].syncvalhead != syncvaltail)
-        {
-            packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
-            syncvaltail++;
-        }
+        /*        while (g_player[myconnectindex].syncvalhead != syncvaltail)
+                {
+                    packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
+                    syncvaltail++;
+                } */
+        AddSyncInfoToPacket(&j);
 
         sendpacket(connecthead,packbuf,j);
         return;
@@ -1459,11 +1520,12 @@ void faketimerhandler(void)
             k++;
         }
 
-        while (g_player[myconnectindex].syncvalhead != syncvaltail)
-        {
-            packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
-            syncvaltail++;
-        }
+        /*        while (g_player[myconnectindex].syncvalhead != syncvaltail)
+                {
+                    packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
+                    syncvaltail++;
+                } */
+        AddSyncInfoToPacket(&j);
 
         for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
             if (g_player[i].playerquitflag)
@@ -1509,7 +1571,7 @@ static void caches(void)
             k += 6;
         }
 }
-
+/*
 static void checksync(void)
 {
     int i;
@@ -1547,7 +1609,7 @@ static void checksync(void)
     }
 #endif
 }
-
+*/
 void check_fta_sounds(int i)
 {
     if (sprite[i].extra > 0)
@@ -3862,7 +3924,8 @@ void displayrest(int smoothratio)
 
         if (ud.overhead_on > 0)
         {
-            smoothratio = min(max(smoothratio,0),65536);
+            // smoothratio = min(max(smoothratio,0),65536);
+            smoothratio = min(max((totalclock - ototalclock) * (65536 / TICSPERFRAME),0),65536);
             dointerpolations(smoothratio);
             if (ud.scrollmode == 0)
             {
@@ -4170,9 +4233,9 @@ void drawbackground(void)
         //if (ud.recstat == 0 || ud.recstat == 1 || (ud.recstat == 2 && ud.reccnt > 0)) // JBF 20040717
     {
 //        if (ud.screen_size == 8 && ud.statusbarmode == 0)
-  //          y1 = scale(ydim,200-scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100),200);
+        //          y1 = scale(ydim,200-scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100),200);
         //else
-            if (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR)
+        if (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR)
         {
             if (ud.multimode > 1) y1 += scale(ydim,8,200);
             if (ud.multimode > 4) y1 += scale(ydim,8,200);
@@ -4235,12 +4298,12 @@ void drawbackground(void)
             */
         // when not rendering a game, fullscreen wipe
         x2 = (xdim - scale(xdim,ud.statusbarscale,100)) >> 1;
-            for (y=y2-y2%tilesizy[dapicnum];y<ydim;y+=tilesizy[dapicnum])
-                for (x=0;x<xdim>>1;x+=tilesizx[dapicnum])
-                {
-                    rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,y2,x2,ydim-1);
-                    rotatesprite((xdim-x)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,xdim-x2-1,y2,xdim-1,ydim-1);
-                }
+        for (y=y2-y2%tilesizy[dapicnum];y<ydim;y+=tilesizy[dapicnum])
+            for (x=0;x<xdim>>1;x+=tilesizx[dapicnum])
+            {
+                rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,y2,x2,ydim-1);
+                rotatesprite((xdim-x)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,xdim-x2-1,y2,xdim-1,ydim-1);
+            }
 
     }
 
@@ -4482,7 +4545,8 @@ void displayrooms(int snum,int smoothratio)
     if (ud.overhead_on == 2 || ud.show_help || (p->cursectnum == -1 && getrendermode() < 3))
         return;
 
-    smoothratio = min(max(smoothratio,0),65536);
+//    smoothratio = min(max(smoothratio,0),65536);
+    smoothratio = min(max((totalclock - ototalclock) * (65536 / TICSPERFRAME),0),65536);
 
     visibility = (int)(p->visibility*(numplayers>1?1.f:r_ambientlightrecip));
 
@@ -10186,21 +10250,21 @@ static void Logo(void)
         KB_ClearKeysDown(); // JBF
         MOUSE_ClearButton(LEFT_MOUSE);
     }
-/*
-    if (ud.multimode > 1)
-    {
-        setgamepalette(g_player[myconnectindex].ps, titlepal, 11);
-        rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
+    /*
+        if (ud.multimode > 1)
+        {
+            setgamepalette(g_player[myconnectindex].ps, titlepal, 11);
+            rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
 
-        rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-        rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
-        if (PLUTOPAK)   // JBF 20030804
-            rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+            rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
+            rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+            if (PLUTOPAK)   // JBF 20030804
+                rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
 
-        gametext(160,190,"WAITING FOR PLAYERS",14,2);
-        nextpage();
-    }
-*/
+            gametext(160,190,"WAITING FOR PLAYERS",14,2);
+            nextpage();
+        }
+    */
     waitforeverybody();
 
     flushperms();
@@ -10903,6 +10967,8 @@ void app_main(int argc,const char **argv)
 
     ud.multimode = 1;
 
+    initsynccrc();
+
     checkcommandline(argc,argv);
 
 #ifdef RENDERTYPEWIN
@@ -11591,7 +11657,8 @@ MAIN_LOOP_RESTART:
 
                 if (debug_on) caches();
 
-                checksync();
+//                checksync();
+                SyncStatMessage();
 
                 if (VOLUMEONE)
                 {
@@ -12500,7 +12567,7 @@ ENDFAKEPROCESSINPUT:
 static int domovethings(void)
 {
     int i, j;
-    char ch;
+//    char ch;
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
         if (g_player[i].sync->bits&(1<<17))
@@ -12670,15 +12737,20 @@ static int domovethings(void)
         if (j < 0 && networkmode == 0)
             gameexit("Server terminated");
     }
+    /*
+        if ((numplayers >= 2) && ((movefifoplc&7) == 7))
+        {
+            ch = (char)(randomseed&255);
+            for (i=connecthead;i>=0;i=connectpoint2[i])
+                ch += ((g_player[i].ps->posx+g_player[i].ps->posy+g_player[i].ps->posz+g_player[i].ps->ang+g_player[i].ps->horiz)&255);
+            g_player[myconnectindex].syncval[g_player[myconnectindex].syncvalhead&(MOVEFIFOSIZ-1)] = ch;
+            g_player[myconnectindex].syncvalhead++;
+        }
+    */
 
-    if ((numplayers >= 2) && ((movefifoplc&7) == 7))
-    {
-        ch = (char)(randomseed&255);
-        for (i=connecthead;i>=0;i=connectpoint2[i])
-            ch += ((g_player[i].ps->posx+g_player[i].ps->posy+g_player[i].ps->posz+g_player[i].ps->ang+g_player[i].ps->horiz)&255);
-        g_player[myconnectindex].syncval[g_player[myconnectindex].syncvalhead&(MOVEFIFOSIZ-1)] = ch;
-        g_player[myconnectindex].syncvalhead++;
-    }
+    getsyncstat();
+
+    MoveThingsCount++;
 
     if (ud.recstat == 1) record();
 

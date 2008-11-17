@@ -248,11 +248,7 @@ endif
 
 # TARGETS
 
-ifeq ($(PLATFORM),WINDOWS) 
-all: notice eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) duke3d_w32$(EXESUFFIX)
-else
 all: notice eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
-endif
 
 all:
 	$(BUILD_FINISHED)

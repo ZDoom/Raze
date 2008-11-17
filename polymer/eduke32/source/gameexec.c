@@ -2088,7 +2088,7 @@ static int parse(void)
             int y1=scale(GetGameVarID(*insptr++,g_i,g_p),ydim,200);
             int x2=scale(GetGameVarID(*insptr++,g_i,g_p),xdim,320);
             int y2=scale(GetGameVarID(*insptr++,g_i,g_p),ydim,200);
-            int smoothratio = 65536;
+            int smoothratio = min(max((totalclock - ototalclock) * (65536 / TICSPERFRAME),0),65536);
 
             if (x1 > x2) swaplong(&x1,&x2);
             if (y1 > y2) swaplong(&y1,&y2);

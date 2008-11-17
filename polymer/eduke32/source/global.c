@@ -87,7 +87,7 @@ playerspawn_t g_PlayerSpawnPoints[MAXPLAYERS];
 user_defs ud;
 
 char pus, pub;
-char syncstat;
+char syncstat[MAXSYNCBYTES];
 int syncvaltail, syncvaltottail;
 
 input_t loc;
@@ -181,4 +181,5 @@ char setupfilename[BMAX_PATH]= "duke3d.cfg";
 // char datetimestring[] = ""__DATE__" "__TIME__"";
 
 int doquicksave = 0;
+unsigned int MoveThingsCount = 0;
 
