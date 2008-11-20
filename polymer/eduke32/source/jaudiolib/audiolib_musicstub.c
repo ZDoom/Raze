@@ -490,5 +490,5 @@ void MUSIC_RegisterTimbreBank
 void MUSIC_Update(void)
 {}
 
-void PlayMusic(char *_filename, int loopflag)
+void MUSIC_PlayMusic(char *_filename, int loopflag)
 {}

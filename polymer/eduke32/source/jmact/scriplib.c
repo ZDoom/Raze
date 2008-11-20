@@ -306,7 +306,7 @@ int32 SCRIPT_ParseBuffer(int32 scripthandle, char *data, int32 length)
                     if (!(expect & ExpectingEntry))
                     {
                         // Unexpected name start
-                        printf("Unexpected entry label on line %d.\n", linenum);
+                        printf("Unexpected entry LabelText on line %d.\n", linenum);
                         SETRV(-1);
                         EATLINE(sp);
                         continue;

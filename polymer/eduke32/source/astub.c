@@ -7331,7 +7331,7 @@ static void comlinehelp(void)
     wm_msgbox("Mapster32"VERSION BUILDDATE,s);
 }
 
-static void addgamepath(const char *buffer)
+static void AddGamePath(const char *buffer)
 {
     struct strllist *s;
     s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
@@ -7347,7 +7347,7 @@ static void addgamepath(const char *buffer)
     CommandPaths = s;
 }
 
-static void addgroup(const char *buffer)
+static void G_AddGroup(const char *buffer)
 {
     struct strllist *s;
     s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
@@ -7374,7 +7374,7 @@ static void addgroup(const char *buffer)
 extern char forcegl;
 #endif
 
-static void checkcommandline(int argc, const char **argv)
+static void G_CheckCommandLine(int argc, const char **argv)
 {
     int i = 1, j, maxlen=0, *lengths;
     char *c, *k;
@@ -7406,7 +7406,7 @@ static void checkcommandline(int argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        addgroup(argv[i+1]);
+                        G_AddGroup(argv[i+1]);
                         COPYARG(i);
                         COPYARG(i+1);
                         i++;
@@ -7419,7 +7419,7 @@ static void checkcommandline(int argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        addgamepath(argv[i+1]);
+                        AddGamePath(argv[i+1]);
                         COPYARG(i);
                         COPYARG(i+1);
                         i++;
@@ -7516,14 +7516,14 @@ static void checkcommandline(int argc, const char **argv)
                 case 'J':
                     c++;
                     if (!*c) break;
-                    addgamepath(c);
+                    AddGamePath(c);
                     COPYARG(i);
                     break;
                 case 'g':
                 case 'G':
                     c++;
                     if (!*c) break;
-                    addgroup(c);
+                    G_AddGroup(c);
                     COPYARG(i);
                     break;
                 }
@@ -7535,7 +7535,7 @@ static void checkcommandline(int argc, const char **argv)
                 {
                     if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
                     {
-                        addgroup(argv[i++]);
+                        G_AddGroup(argv[i++]);
                         COPYARG(i);
                         continue;
                     }
@@ -7582,7 +7582,7 @@ int ExtPreInit(int argc,const char **argv)
     initprintf("Mapster32"VERSION BUILDDATE"\n");
     initprintf("Copyright (c) 2008 EDuke32 team\n");
 
-    checkcommandline(argc,argv);
+    G_CheckCommandLine(argc,argv);
 
     return 0;
 }
@@ -8015,7 +8015,7 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
     return T_ERROR;
 }
 
-static void autoloadgrps(const char *fn)
+static void DoAutoload(const char *fn)
 {
     Bsprintf(tempbuf,"autoload/%s",fn);
     getfilenames(tempbuf,"*.grp");
@@ -8062,7 +8062,7 @@ int parsegroupfiles(scriptfile *script)
                 {
                     initprintf("Using group file '%s'.\n",fn);
                     if (!NoAutoLoad)
-                        autoloadgrps(fn);
+                        DoAutoload(fn);
                 }
 
             }
@@ -8529,7 +8529,7 @@ int ExtInit(void)
         while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
 
         if (i != -1)
-            autoloadgrps(duke3dgrp);
+            DoAutoload(duke3dgrp);
     }
 
     if (getenv("DUKE3DDEF"))
@@ -8553,7 +8553,7 @@ int ExtInit(void)
             {
                 initprintf("Using group file '%s'.\n",CommandGrps->str);
                 if (!NoAutoLoad)
-                    autoloadgrps(CommandGrps->str);
+                    DoAutoload(CommandGrps->str);
             }
 
             free(CommandGrps->str);

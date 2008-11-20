@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define LOUDESTVOLUME 150
 
-int backflag,numenvsnds;
+int backflag,g_numEnvSoundsPlaying;
 
 /*
 ===================
@@ -50,7 +50,7 @@ int backflag,numenvsnds;
 ===================
 */
 
-void SoundStartup(void)
+void S_SoundStartup(void)
 {
     int status;
 
@@ -65,13 +65,13 @@ void SoundStartup(void)
         {
             FX_SetReverseStereo(!FX_GetReverseStereo());
         }
-        status = FX_SetCallBack(testcallback);
+        status = FX_SetCallBack(S_TestSoundCallback);
     }
 
     if (status != FX_Ok)
     {
         sprintf(tempbuf, "Sound startup error: %s", FX_ErrorString(FX_Error));
-        gameexit(tempbuf);
+        G_GameExit(tempbuf);
     }
 }
 
@@ -83,7 +83,7 @@ void SoundStartup(void)
 ===================
 */
 
-void SoundShutdown(void)
+void S_SoundShutdown(void)
 {
     int status;
 
@@ -95,7 +95,7 @@ void SoundShutdown(void)
     if (status != FX_Ok)
     {
         sprintf(tempbuf, "Sound shutdown error: %s", FX_ErrorString(FX_Error));
-        gameexit(tempbuf);
+        G_GameExit(tempbuf);
     }
 }
 
@@ -107,7 +107,7 @@ void SoundShutdown(void)
 ===================
 */
 
-void MusicStartup(void)
+void S_MusicStartup(void)
 {
     int status;
 
@@ -125,7 +125,7 @@ void MusicStartup(void)
     {
         initprintf("Couldn't find selected sound card, or, error w/ sound card itself.\n");
 
-        SoundShutdown();
+        S_SoundShutdown();
         uninittimer();
         uninitengine();
         CONTROL_Shutdown();
@@ -145,7 +145,7 @@ void MusicStartup(void)
 ===================
 */
 
-void MusicShutdown(void)
+void S_MusicShutdown(void)
 {
     int status;
 
@@ -165,11 +165,10 @@ void MusicUpdate(void)
     MUSIC_Update();
 }
 
-unsigned char menunum=0;
-
-void intomenusounds(void)
+void S_MenuSound(void)
 {
-    short menusnds[] =
+    static int SoundNum=0;
+    static short menusnds[] =
     {
         LASERTRIP_EXPLODE,
         DUKE_GRUNT,
@@ -189,8 +188,8 @@ void intomenusounds(void)
         RPG_SHOOT,
         SELECT_WEAPON
     };
-    sound(menusnds[menunum++]);
-    menunum %= 17;
+    S_PlaySound(menusnds[SoundNum++]);
+    SoundNum %= 17;
 }
 
 void _playmusic(const char *fn)
@@ -198,7 +197,7 @@ void _playmusic(const char *fn)
 #if defined(_WIN32)
     int        fp, l;
 #else
-    extern void PlayMusic(char *_filename);
+    extern void MUSIC_PlayMusic(char *_filename);
 #endif
 
     if (fn == NULL) return;
@@ -224,15 +223,15 @@ void _playmusic(const char *fn)
 #else
     // FIXME: I need this to get the music volume initialized (not sure why) -- Jim Bentler
     MUSIC_SetVolume(ud.config.MusicVolume);
-    PlayMusic((char *)fn);
+    MUSIC_PlayMusic((char *)fn);
 #endif
 }
 
-int playmusic(const char *fn, const int sel)
+int S_PlayMusic(const char *fn, const int sel)
 {
     Musicsize=0;
-    if (map[sel].musicfn1 != NULL)
-        _playmusic(map[sel].musicfn1);
+    if (MapInfo[sel].musicfn1 != NULL)
+        _playmusic(MapInfo[sel].musicfn1);
     if (!Musicsize)
     {
         _playmusic(fn);
@@ -241,7 +240,7 @@ int playmusic(const char *fn, const int sel)
     return 1;
 }
 
-int loadsound(unsigned int num)
+int S_LoadSound(unsigned int num)
 {
     int   fp = -1, l;
 
@@ -254,13 +253,13 @@ int loadsound(unsigned int num)
         return 0;
     }
 
-    if (g_sounds[num].filename1)fp = kopen4loadfrommod(g_sounds[num].filename1,loadfromgrouponly);
-    if (fp == -1)fp = kopen4loadfrommod(g_sounds[num].filename,loadfromgrouponly);
+    if (g_sounds[num].filename1)fp = kopen4loadfrommod(g_sounds[num].filename1,g_loadFromGroupOnly);
+    if (fp == -1)fp = kopen4loadfrommod(g_sounds[num].filename,g_loadFromGroupOnly);
     if (fp == -1)
     {
-//        Bsprintf(fta_quotes[113],"g_sounds %s(#%d) not found.",sounds[num],num);
-//        FTA(113,g_player[myconnectindex].ps);
-        OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found.\n",g_sounds[num].filename,num);
+//        Bsprintf(ScriptQuotes[113],"g_sounds %s(#%d) not found.",sounds[num],num);
+//        P_DoQuote(113,g_player[myconnectindex].ps);
+        OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
         return 0;
     }
 
@@ -275,7 +274,7 @@ int loadsound(unsigned int num)
     return 1;
 }
 
-int xyzsound(int num,int i,int x,int y,int z)
+int S_PlaySoundXYZ(int num,int i,int x,int y,int z)
 {
     int sndist, cx, cy, cz, j,k;
     int pitche,pitchs,cs;
@@ -294,7 +293,7 @@ int xyzsound(int num,int i,int x,int y,int z)
 
     if (g_sounds[num].m&128)
     {
-        sound(num);
+        S_PlaySound(num);
         return 0;
     }
 
@@ -363,9 +362,9 @@ int xyzsound(int num,int i,int x,int y,int z)
 
     if (g_sounds[num].num > 0 && PN != MUSICANDSFX)
     {
-        if (g_sounds[num].SoundOwner[0].i == i) stopsound(num);
-        else if (g_sounds[num].num > 1) stopsound(num);
-        else if (badguy(&sprite[i]) && sprite[i].extra <= 0) stopsound(num);
+        if (g_sounds[num].SoundOwner[0].i == i) S_StopSound(num);
+        else if (g_sounds[num].num > 1) S_StopSound(num);
+        else if (A_CheckEnemySprite(&sprite[i]) && sprite[i].extra <= 0) S_StopSound(num);
     }
 
     if (PN == APLAYER && sprite[i].yvel == screenpeek)
@@ -381,7 +380,7 @@ int xyzsound(int num,int i,int x,int y,int z)
 
     if (g_sounds[num].ptr == 0)
     {
-        if (loadsound(num) == 0) return 0;
+        if (S_LoadSound(num) == 0) return 0;
     }
     else
     {
@@ -435,7 +434,7 @@ int xyzsound(int num,int i,int x,int y,int z)
     return (voice);
 }
 
-void sound(int num)
+void S_PlaySound(int num)
 {
     int pitch,pitche,pitchs,cx;
     int voice;
@@ -466,7 +465,7 @@ void sound(int num)
 
     if (g_sounds[num].ptr == 0)
     {
-        if (loadsound(num) == 0) return;
+        if (S_LoadSound(num) == 0) return;
     }
     else
     {
@@ -512,34 +511,34 @@ void sound(int num)
     g_sounds[num].lock--;
 }
 
-int spritesound(unsigned int num, int i)
+int A_PlaySound(unsigned int num, int i)
 {
     if (num >= MAXSOUNDS) return -1;
     if (i < 0)
     {
-        sound(num);
+        S_PlaySound(num);
         return 0;
     }
-    return xyzsound(num,i,SX,SY,SZ);
+    return S_PlaySoundXYZ(num,i,SX,SY,SZ);
 }
 
-void stopspritesound(int num, int i)
+void A_StopSound(int num, int i)
 {
     UNREFERENCED_PARAMETER(i);
-    if (num >= 0 && num < MAXSOUNDS) stopsound(num);
+    if (num >= 0 && num < MAXSOUNDS) S_StopSound(num);
 }
 
-void stopsound(int num)
+void S_StopSound(int num)
 {
     if (num >= 0 && num < MAXSOUNDS)
         if (g_sounds[num].num > 0)
         {
             FX_StopSound(g_sounds[num].SoundOwner[g_sounds[num].num-1].voice);
-            testcallback(num);
+            S_TestSoundCallback(num);
         }
 }
 
-void stopenvsound(int num,int i)
+void S_StopEnvSound(int num,int i)
 {
     int j, k;
 
@@ -561,7 +560,7 @@ void pan3dsound(void)
     int sndist, sx, sy, sz, cx, cy, cz;
     int sndang,ca,j,k,i,cs;
 
-    numenvsnds = 0;
+    g_numEnvSoundsPlaying = 0;
 
     if (ud.camerasprite == -1)
     {
@@ -609,7 +608,7 @@ void pan3dsound(void)
                 sndist += sndist>>5;
 
             if (PN == MUSICANDSFX && SLT < 999)
-                numenvsnds++;
+                g_numEnvSoundsPlaying++;
 
             switch (j)
             {
@@ -621,12 +620,12 @@ void pan3dsound(void)
             default:
                 if (sndist > 31444 && PN != MUSICANDSFX)
                 {
-                    stopsound(j);
+                    S_StopSound(j);
                     continue;
                 }
             }
 
-            if (g_sounds[j].ptr == 0 && loadsound(j) == 0) continue;
+            if (g_sounds[j].ptr == 0 && S_LoadSound(j) == 0) continue;
             if (g_sounds[j].m&16) sndist = 0;
 
             if (sndist < ((255-LOUDESTVOLUME)<<6))
@@ -636,7 +635,7 @@ void pan3dsound(void)
         }
 }
 
-void testcallback(unsigned int num)
+void S_TestSoundCallback(unsigned int num)
 {
     int tempi,tempj,tempk;
 
@@ -657,7 +656,7 @@ void testcallback(unsigned int num)
                 tempi = g_sounds[num].SoundOwner[tempj].i;
                 if (sprite[tempi].picnum == MUSICANDSFX && sector[sprite[tempi].sectnum].lotag < 3 && sprite[tempi].lotag < 999)
                 {
-                    hittype[tempi].temp_data[0] = 0;
+                    ActorExtra[tempi].temp_data[0] = 0;
                     if ((tempj + 1) < tempk)
                     {
                         g_sounds[num].SoundOwner[tempj].voice = g_sounds[num].SoundOwner[tempk-1].voice;
@@ -674,7 +673,7 @@ void testcallback(unsigned int num)
     g_sounds[num].lock--;
 }
 
-void clearsoundlocks(void)
+void S_ClearSoundLocks(void)
 {
     int i;
 
@@ -687,14 +686,14 @@ void clearsoundlocks(void)
             lumplockbyte[i] = 199;
 }
 
-int isspritemakingsound(int i, int num)
+int A_CheckSoundPlaying(int i, int num)
 {
     UNREFERENCED_PARAMETER(i);
     if (num < 0) num=0;	// FIXME
     return (g_sounds[num].num > 0);
 }
 
-int issoundplaying(int i, int num)
+int S_CheckSoundPlaying(int i, int num)
 {
     if (i == -1)
     {

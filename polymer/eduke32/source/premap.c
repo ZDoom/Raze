@@ -33,21 +33,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern char pow2char[];
 
 extern int everyothertime;
-static int which_palookup = 9;
-int g_NumPalettes;
-short spritecache[MAXTILES][3];
+static int g_whichPalForPlayer = 9;
+int g_numPalettes;
+short SpriteCacheList[MAXTILES][3];
 
 static char precachehightile[2][MAXTILES>>3];
-static int  precachecount;
+static int  g_precacheCount;
 
 extern char *duke3dgrpstring;
-extern int leveltexttime;
+extern int g_levelTextTime;
 
 static void tloadtile(int tilenume, int type)
 {
     if ((picanm[tilenume]&63) < 1)
     {
-        if (!(gotpic[tilenume>>3] & pow2char[tilenume&7])) precachecount++;
+        if (!(gotpic[tilenume>>3] & pow2char[tilenume&7])) g_precacheCount++;
         gotpic[tilenume>>3] |= pow2char[tilenume&7];
         precachehightile[(unsigned char)type][tilenume>>3] |= pow2char[tilenume&7];
         return;
@@ -68,27 +68,27 @@ static void tloadtile(int tilenume, int type)
         }
         for (;i<=j;i++)
         {
-            if (!(gotpic[i>>3] & pow2char[i&7])) precachecount++;
+            if (!(gotpic[i>>3] & pow2char[i&7])) g_precacheCount++;
             gotpic[i>>3] |= pow2char[i&7];
             precachehightile[(unsigned char)type][i>>3] |= pow2char[i&7];
         }
     }
 }
 
-static void cachespritenum(int i)
+static void G_CacheSpriteNum(int i)
 {
     char maxc;
     int j;
 
-    if (ud.monsters_off && badguy(&sprite[i])) return;
+    if (ud.monsters_off && A_CheckEnemySprite(&sprite[i])) return;
 
     maxc = 1;
 
-    if (spritecache[PN][0] == PN)
-        for (j = PN; j <= spritecache[PN][1]; j++)
+    if (SpriteCacheList[PN][0] == PN)
+        for (j = PN; j <= SpriteCacheList[PN][1]; j++)
             tloadtile(j,1);
 
-    switch (dynamictostatic[PN])
+    switch (DynamicTileMap[PN])
     {
     case HYDRENT__STATIC:
         tloadtile(BROKEFIREHYDRENT,1);
@@ -214,16 +214,16 @@ static void cachespritenum(int i)
     for (j = PN; j < (PN+maxc); j++) tloadtile(j,1);
 }
 
-static void cachegoodsprites(void)
+static void G_PrecacheSprites(void)
 {
     int i,j;
 
     for (i=0;i<MAXTILES;i++)
     {
-        if (spriteflags[i] & SPRITE_FLAG_PROJECTILE)
+        if (SpriteFlags[i] & SPRITE_PROJECTILE)
             tloadtile(i,1);
-        if (spritecache[i][0] == i && spritecache[i][2])
-            for (j = i; j <= spritecache[i][1]; j++)
+        if (SpriteCacheList[i][0] == i && SpriteCacheList[i][2])
+            for (j = i; j <= SpriteCacheList[i][1]; j++)
                 tloadtile(j,1);
     }
     tloadtile(BOTTOMSTATUSBAR,1);
@@ -277,7 +277,8 @@ static void cachegoodsprites(void)
     for (i=0; i<=60; i++) tloadtile(i,1);
 }
 
-static int getsound(unsigned int num)
+// FIXME: this function is a piece of shit, needs specific sounds listed
+static int CacheSound(unsigned int num)
 {
     short fp = -1;
     int   l;
@@ -286,11 +287,11 @@ static int getsound(unsigned int num)
     if (ud.config.FXDevice < 0) return 0;
 
     if (!g_sounds[num].filename && !g_sounds[num].filename1) return 0;
-    if (g_sounds[num].filename1) fp = kopen4loadfrommod(g_sounds[num].filename1,loadfromgrouponly);
-    if (fp == -1) fp = kopen4loadfrommod(g_sounds[num].filename,loadfromgrouponly);
+    if (g_sounds[num].filename1) fp = kopen4loadfrommod(g_sounds[num].filename1,g_loadFromGroupOnly);
+    if (fp == -1) fp = kopen4loadfrommod(g_sounds[num].filename,g_loadFromGroupOnly);
     if (fp == -1)
     {
-        initprintf("Sound '%s' not found\n",g_sounds[num].filename);
+//        OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
         return 0;
     }
 
@@ -309,14 +310,14 @@ static int getsound(unsigned int num)
     return 1;
 }
 
-static void precachenecessarysounds(void)
+static void G_PrecacheSounds(void)
 {
     int i, j;
 
     if (ud.config.FXDevice < 0) return;
     j = 0;
 
-    for (i=0;i<MAXSOUNDS;i++)
+    for (i=MAXSOUNDS;i>=0;i--)
         if (g_sounds[i].ptr == 0)
         {
             j++;
@@ -325,11 +326,11 @@ static void precachenecessarysounds(void)
                 handleevents();
                 getpackets();
             }
-            getsound(i);
+            CacheSound(i);
         }
 }
 
-static void dofrontscreens(char *statustext)
+static void G_DoLoadScreen(char *statustext)
 {
     int i=0,j;
 
@@ -338,17 +339,17 @@ static void dofrontscreens(char *statustext)
         if (!statustext)
         {
             //g_player[myconnectindex].ps->palette = palette;
-            setgamepalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
+            SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
             fadepal(0,0,0, 0,64,7);
             i = ud.screen_size;
             ud.screen_size = 0;
-            vscrn();
+            G_UpdateScreenArea();
             clearview(0L);
         }
 
-        SetGameVarID(g_iReturnVarID,LOADSCREEN, -1, -1);
-        OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
-        j = GetGameVarID(g_iReturnVarID, -1, -1);
+        Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);
+        X_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
+        j = Gv_GetVar(g_iReturnVarID, -1, -1);
         rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
         if (j > MAXTILES-1)
         {
@@ -363,13 +364,13 @@ static void dofrontscreens(char *statustext)
         else
         {
             menutext(160,90,0,0,"LOADING");
-            if (map[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
-                menutext(160,90+16+8,0,0,map[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
+            if (MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
+                menutext(160,90+16+8,0,0,MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
         }
 
         if (statustext) gametext(160,180,statustext,0,2+8+16);
 
-        OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
+        X_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
         nextpage();
 
         if (!statustext)
@@ -386,12 +387,12 @@ static void dofrontscreens(char *statustext)
         {
             clearview(0L);
             //g_player[myconnectindex].ps->palette = palette;
-            //palto(0,0,0,0);
-            setgamepalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
+            //G_FadePalette(0,0,0,0);
+            SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
         }
-        SetGameVarID(g_iReturnVarID,LOADSCREEN, -1, -1);
-        OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
-        j = GetGameVarID(g_iReturnVarID, -1, -1);
+        Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);
+        X_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
+        j = Gv_GetVar(g_iReturnVarID, -1, -1);
         rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
         if (j > MAXTILES-1)
         {
@@ -400,15 +401,15 @@ static void dofrontscreens(char *statustext)
         }
         menutext(160,105,0,0,"LOADING...");
         if (statustext) gametext(160,180,statustext,0,2+8+16);
-        OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
+        X_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
         nextpage();
     }
 }
 
-extern void SetCrosshairColor(int r, int g, int b);
-extern palette_t crosshair_colors;
+extern void G_SetCrosshairColor(int r, int g, int b);
+extern palette_t CrosshairColors;
 
-void cacheit(void)
+void G_CacheMapData(void)
 {
     int i,j,pc=0;
     int tc;
@@ -418,17 +419,17 @@ void cacheit(void)
         return;
 
     MUSIC_Pause();
-    if (map[MAXVOLUMES*MAXLEVELS+2].musicfn1)
+    if (MapInfo[MAXVOLUMES*MAXLEVELS+2].musicfn1)
     {
         MUSIC_StopSong();
-        playmusic(&env_music_fn[2][0],MAXVOLUMES*MAXLEVELS+2); // loadmus
+        S_PlayMusic(&EnvMusicFilename[2][0],MAXVOLUMES*MAXLEVELS+2); // loadmus
     }
 
     starttime = getticks();
 
-    precachenecessarysounds();
+    G_PrecacheSounds();
 
-    cachegoodsprites();
+    G_PrecacheSprites();
 
     for (i=0;i<numwalls;i++)
     {
@@ -454,7 +455,7 @@ void cacheit(void)
         while (j >= 0)
         {
             if (sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat&32768) == 0)
-                cachespritenum(j);
+                G_CacheSpriteNum(j);
             j = nextspritesect[j];
         }
     }
@@ -500,8 +501,8 @@ void cacheit(void)
         }
         if (totalclock - tc > TICRATE/4)
         {
-            sprintf(tempbuf,"Loading resources... %d%%\n",min(100,100*pc/precachecount));
-            dofrontscreens(tempbuf);
+            sprintf(tempbuf,"Loading resources... %d%%\n",min(100,100*pc/g_precacheCount));
+            G_DoLoadScreen(tempbuf);
             tc = totalclock;
         }
     }
@@ -519,7 +520,7 @@ void xyzmirror(int i,int wn)
 
     drawrooms(SX,SY,SZ,SA,100+sprite[i].shade,SECT);
     display_mirror = 1;
-    animatesprites(SX,SY,SA,65536L);
+    G_DoSpriteAnimations(SX,SY,SA,65536L);
     display_mirror = 0;
     drawmasks();
 
@@ -528,7 +529,7 @@ void xyzmirror(int i,int wn)
     invalidatetile(wn,-1,255);
 }
 
-void vscrn(void)
+void G_UpdateScreenArea(void)
 {
     int i, j, ss, x1, x2, y1, y2;
 
@@ -543,11 +544,11 @@ void vscrn(void)
 
     y1 = ss;
     y2 = 200;
-    if (ud.screen_size > 0 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_FRAGBAR) && ud.multimode > 1)
+    if (ud.screen_size > 0 && (GametypeFlags[ud.coop]&GAMETYPE_FRAGBAR) && ud.multimode > 1)
     {
         j = 0;
-        for (i=connecthead;i>=0;i=connectpoint2[i])
-            if (i > j) j = i;
+        TRAVERSE_CONNECT(i)
+        if (i > j) j = i;
 
         if (j >= 1) y1 += 8;
         if (j >= 4) y1 += 8;
@@ -563,31 +564,31 @@ void vscrn(void)
 
     setview(x1,y1,x2-1,y2-1);
 
-    GetCrosshairColor();
-    SetCrosshairColor(crosshair_colors.r, crosshair_colors.g, crosshair_colors.b);
+    G_GetCrosshairColor();
+    G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
 
     pub = NUMPAGES;
     pus = NUMPAGES;
 }
 
-void pickrandomspot(int snum)
+void P_RandomSpawnPoint(int snum)
 {
-    player_struct *p = g_player[snum].ps;
+    DukePlayer_t *p = g_player[snum].ps;
     int i=snum,j,k;
     unsigned int dist,pdist = -1;
 
-    if (ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_FIXEDRESPAWN))
+    if (ud.multimode > 1 && !(GametypeFlags[ud.coop] & GAMETYPE_FIXEDRESPAWN))
     {
-        i = TRAND%numplayersprites;
-        if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDMSPAWN)
+        i = krand()%g_numPlayerSprites;
+        if (GametypeFlags[ud.coop] & GAMETYPE_TDMSPAWN)
         {
             for (j=0;j<ud.multimode;j++)
             {
                 if (j != snum && g_player[j].ps->team == p->team && sprite[g_player[j].ps->i].extra > 0)
                 {
-                    for (k=0;k<numplayersprites;k++)
+                    for (k=0;k<g_numPlayerSprites;k++)
                     {
-                        dist = FindDistance2D(g_player[j].ps->posx-g_PlayerSpawnPoints[k].ox,g_player[j].ps->posy-g_PlayerSpawnPoints[k].oy);
+                        dist = FindDistance2D(g_player[j].ps->posx-g_playerSpawnPoints[k].ox,g_player[j].ps->posy-g_playerSpawnPoints[k].oy);
                         if (dist < pdist)
                             i = k, pdist = dist;
                     }
@@ -597,16 +598,16 @@ void pickrandomspot(int snum)
         }
     }
 
-    p->bobposx = p->oposx = p->posx = g_PlayerSpawnPoints[i].ox;
-    p->bobposy = p->oposy = p->posy = g_PlayerSpawnPoints[i].oy;
-    p->oposz = p->posz = g_PlayerSpawnPoints[i].oz;
-    p->ang = g_PlayerSpawnPoints[i].oa;
-    p->cursectnum = g_PlayerSpawnPoints[i].os;
+    p->bobposx = p->oposx = p->posx = g_playerSpawnPoints[i].ox;
+    p->bobposy = p->oposy = p->posy = g_playerSpawnPoints[i].oy;
+    p->oposz = p->posz = g_playerSpawnPoints[i].oz;
+    p->ang = g_playerSpawnPoints[i].oa;
+    p->cursectnum = g_playerSpawnPoints[i].os;
 }
 
-static void resetplayerstats(int snum)
+static void P_ResetStatus(int snum)
 {
-    player_struct *p = g_player[snum].ps;
+    DukePlayer_t *p = g_player[snum].ps;
 
     ud.show_help        = 0;
     ud.showallmap       = 0;
@@ -654,7 +655,7 @@ static void resetplayerstats(int snum)
     p->rapid_fire_hold  = 0;
     p->toggle_key_flag  = 0;
     p->access_spritenum = -1;
-    if (ud.multimode > 1 && (gametype_flags[ud.coop] & GAMETYPE_FLAG_ACCESSATSTART))
+    if (ud.multimode > 1 && (GametypeFlags[ud.coop] & GAMETYPE_ACCESSATSTART))
         p->got_access = 7;
     else p->got_access      = 0;
     p->random_club_frame= 0;
@@ -708,14 +709,14 @@ static void resetplayerstats(int snum)
 
     p->movement_lock     = 0;
 
-    setpal(p);
-    OnEvent(EVENT_RESETPLAYER, p->i, snum, -1);
+    P_UpdateScreenPal(p);
+    X_OnEvent(EVENT_RESETPLAYER, p->i, snum, -1);
 }
 
-void resetweapons(int snum)
+void P_ResetWeapons(int snum)
 {
     int weapon;
-    player_struct *p = g_player[snum].ps;
+    DukePlayer_t *p = g_player[snum].ps;
 
     for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
         p->gotweapon[weapon] = 0;
@@ -734,12 +735,12 @@ void resetweapons(int snum)
     p->show_empty_weapon= 0;
     p->last_pissed_time = 0;
     p->holster_weapon = 0;
-    OnEvent(EVENT_RESETWEAPONS, p->i, snum, -1);
+    X_OnEvent(EVENT_RESETWEAPONS, p->i, snum, -1);
 }
 
-void resetinventory(int snum)
+void P_ResetInventory(int snum)
 {
-    player_struct *p = g_player[snum].ps;
+    DukePlayer_t *p = g_player[snum].ps;
 
     p->inven_icon       = 0;
     p->boot_amount = 0;
@@ -749,22 +750,22 @@ void resetinventory(int snum)
     p->heat_on = 0;
     p->jetpack_on =         0;
     p->jetpack_amount =       0;
-    p->shield_amount =      start_armour_amount;
+    p->shield_amount =      g_startArmorAmount;
     p->holoduke_on = -1;
     p->holoduke_amount =    0;
     p->firstaid_amount = 0;
     p->steroids_amount = 0;
     p->inven_icon = 0;
-    OnEvent(EVENT_RESETINVENTORY, p->i, snum, -1);
+    X_OnEvent(EVENT_RESETINVENTORY, p->i, snum, -1);
 }
 
 static void resetprestat(int snum,int g)
 {
-    player_struct *p = g_player[snum].ps;
+    DukePlayer_t *p = g_player[snum].ps;
     int i;
 
-    spriteqloc = 0;
-    for (i=0;i<spriteqamount;i++) spriteq[i] = -1;
+    g_spriteDeleteQueuePos = 0;
+    for (i=0;i<g_spriteDeleteQueueSize;i++) SpriteDeletionQueue[i] = -1;
 
     p->hbomb_on          = 0;
     p->cheat_phase       = 0;
@@ -788,25 +789,25 @@ static void resetprestat(int snum,int g)
     p->visibility = ud.const_visibility;
 
     screenpeek              = myconnectindex;
-    numanimwalls            = 0;
-    numcyclers              = 0;
-    animatecnt              = 0;
+    g_numAnimWalls            = 0;
+    g_numCyclers              = 0;
+    g_animateCount              = 0;
     parallaxtype            = 0;
-    randomseed              = 17L;
+    randomseed              = 1996;
     ud.pause_on             = 0;
     ud.camerasprite         =-1;
     ud.eog                  = 0;
     tempwallptr             = 0;
     camsprite               =-1;
-    earthquaketime          = 0;
+    g_earthquakeTime          = 0;
 
-    numinterpolations = 0;
+    g_numInterpolations = 0;
     startofdynamicinterpolations = 0;
 
-    if (((g&MODE_EOL) != MODE_EOL && numplayers < 2) || (!(gametype_flags[ud.coop]&GAMETYPE_FLAG_PRESERVEINVENTORYDEATH) && numplayers > 1))
+    if (((g&MODE_EOL) != MODE_EOL && numplayers < 2) || (!(GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && numplayers > 1))
     {
-        resetweapons(snum);
-        resetinventory(snum);
+        P_ResetWeapons(snum);
+        P_ResetInventory(snum);
     }
     else if (p->curr_weapon == HANDREMOTE_WEAPON)
     {
@@ -828,7 +829,7 @@ static void setupbackdrop(short sky)
     if (parallaxyscale != 65536L)
         parallaxyscale = 32768;
 
-    switch (dynamictostatic[sky])
+    switch (DynamicTileMap[sky])
     {
     case CLOUDYOCEAN__STATIC:
         parallaxyscale = 65536L;
@@ -873,7 +874,7 @@ static void prelevel(char g)
     clearbufbyte(show2dsprite,sizeof(show2dsprite),0L);
 
     resetprestat(0,g);
-    numclouds = 0;
+    g_numClouds = 0;
 
     for (i=0;i<numsectors;i++)
     {
@@ -898,8 +899,8 @@ static void prelevel(char g)
             }
             setupbackdrop(sector[i].ceilingpicnum);
 
-            if (sector[i].ceilingpicnum == CLOUDYSKIES && numclouds < 127)
-                clouds[numclouds++] = i;
+            if (sector[i].ceilingpicnum == CLOUDYSKIES && g_numClouds < 127)
+                clouds[g_numClouds++] = i;
 
             if (g_player[0].ps->one_parallax_sectnum == -1)
                 g_player[0].ps->one_parallax_sectnum = i;
@@ -919,19 +920,19 @@ static void prelevel(char g)
         }
     }
 
-    i = headspritestat[0];
+    i = headspritestat[STAT_DEFAULT];
     while (i >= 0)
     {
         nexti = nextspritestat[i];
-        ResetActorGameVars(i);
-        LoadActor(i);
-        OnEvent(EVENT_LOADACTOR, i, -1, -1);
+        A_ResetGameVars(i);
+        A_LoadActor(i);
+        X_OnEvent(EVENT_LOADACTOR, i, -1, -1);
         if (sprite[i].lotag == -1 && (sprite[i].cstat&16))
         {
             g_player[0].ps->exitx = SX;
             g_player[0].ps->exity = SY;
         }
-        else switch (dynamictostatic[PN])
+        else switch (DynamicTileMap[PN])
             {
             case GPSPEED__STATIC:
                 sector[SECT].extra = SLT;
@@ -939,18 +940,18 @@ static void prelevel(char g)
                 break;
 
             case CYCLER__STATIC:
-                if (numcyclers >= MAXCYCLERS)
+                if (g_numCyclers >= MAXCYCLERS)
                 {
                     Bsprintf(tempbuf,"\nToo many cycling sectors (%d max).",MAXCYCLERS);
-                    gameexit(tempbuf);
+                    G_GameExit(tempbuf);
                 }
-                cyclers[numcyclers][0] = SECT;
-                cyclers[numcyclers][1] = SLT;
-                cyclers[numcyclers][2] = SS;
-                cyclers[numcyclers][3] = sector[SECT].floorshade;
-                cyclers[numcyclers][4] = SHT;
-                cyclers[numcyclers][5] = (SA == 1536);
-                numcyclers++;
+                cyclers[g_numCyclers][0] = SECT;
+                cyclers[g_numCyclers][1] = SLT;
+                cyclers[g_numCyclers][2] = SS;
+                cyclers[g_numCyclers][3] = sector[SECT].floorshade;
+                cyclers[g_numCyclers][4] = SHT;
+                cyclers[g_numCyclers][5] = (SA == 1536);
+                g_numCyclers++;
                 deletesprite(i);
                 break;
 
@@ -974,7 +975,7 @@ static void prelevel(char g)
         {
             if (PN == SECTOREFFECTOR && SLT == 14)
                 continue;
-            spawn(-1,i);
+            A_Spawn(-1,i);
         }
     }
 
@@ -982,15 +983,15 @@ static void prelevel(char g)
         if (sprite[i].statnum < MAXSTATUS)
         {
             if (PN == SECTOREFFECTOR && SLT == 14)
-                spawn(-1,i);
+                A_Spawn(-1,i);
         }
 
     lotaglist = 0;
 
-    i = headspritestat[0];
+    i = headspritestat[STAT_DEFAULT];
     while (i >= 0)
     {
-        switch (dynamictostatic[PN-1])
+        switch (DynamicTileMap[PN-1])
         {
         case DIPSWITCH__STATIC:
         case DIPSWITCH2__STATIC:
@@ -1014,13 +1015,13 @@ static void prelevel(char g)
                 lotags[lotaglist] = SLT;
                 lotaglist++;
                 if (lotaglist > MAXSPRITES-1)
-                    gameexit("\nToo many switches.");
+                    G_GameExit("\nToo many switches.");
 
-                j = headspritestat[3];
+                j = headspritestat[STAT_EFFECTOR];
                 while (j >= 0)
                 {
                     if (sprite[j].lotag == 12 && sprite[j].hitag == SLT)
-                        hittype[j].temp_data[0] = 1;
+                        ActorExtra[j].temp_data[0] = 1;
                     j = nextspritestat[j];
                 }
             }
@@ -1029,7 +1030,7 @@ static void prelevel(char g)
         i = nextspritestat[i];
     }
 
-    mirrorcnt = 0;
+    g_mirrorCount = 0;
 
     for (i = 0; i < numwalls; i++)
     {
@@ -1040,39 +1041,39 @@ static void prelevel(char g)
         {
             j = wal->nextsector;
 
-            if (mirrorcnt > 63)
-                gameexit("\nToo many mirrors (64 max.)");
+            if (g_mirrorCount > 63)
+                G_GameExit("\nToo many mirrors (64 max.)");
             if ((j >= 0) && sector[j].ceilingpicnum != MIRROR)
             {
                 sector[j].ceilingpicnum = MIRROR;
                 sector[j].floorpicnum = MIRROR;
-                mirrorwall[mirrorcnt] = i;
-                mirrorsector[mirrorcnt] = j;
-                mirrorcnt++;
+                g_mirrorWall[g_mirrorCount] = i;
+                g_mirrorSector[g_mirrorCount] = j;
+                g_mirrorCount++;
                 continue;
             }
         }
 
-        if (numanimwalls >= MAXANIMWALLS)
+        if (g_numAnimWalls >= MAXANIMWALLS)
         {
             Bsprintf(tempbuf,"\nToo many 'anim' walls (%d max).",MAXANIMWALLS);
-            gameexit(tempbuf);
+            G_GameExit(tempbuf);
         }
 
-        animwall[numanimwalls].tag = 0;
-        animwall[numanimwalls].wallnum = 0;
+        animwall[g_numAnimWalls].tag = 0;
+        animwall[g_numAnimWalls].wallnum = 0;
         switchpicnum = wal->overpicnum;
         if ((wal->overpicnum > W_FORCEFIELD)&&(wal->overpicnum <= W_FORCEFIELD+2))
         {
             switchpicnum = W_FORCEFIELD;
         }
-        switch (dynamictostatic[switchpicnum])
+        switch (DynamicTileMap[switchpicnum])
         {
         case FANSHADOW__STATIC:
         case FANSPRITE__STATIC:
             wall->cstat |= 65;
-            animwall[numanimwalls].wallnum = i;
-            numanimwalls++;
+            animwall[g_numAnimWalls].wallnum = i;
+            g_numAnimWalls++;
             break;
 
         case W_FORCEFIELD__STATIC:
@@ -1090,15 +1091,15 @@ static void prelevel(char g)
 
         case BIGFORCE__STATIC:
 
-            animwall[numanimwalls].wallnum = i;
-            numanimwalls++;
+            animwall[g_numAnimWalls].wallnum = i;
+            g_numAnimWalls++;
 
             continue;
         }
 
         wal->extra = -1;
 
-        switch (dynamictostatic[wal->picnum])
+        switch (DynamicTileMap[wal->picnum])
         {
         case WATERTILE2__STATIC:
             for (j=0;j<3;j++)
@@ -1113,18 +1114,18 @@ static void prelevel(char g)
         case W_TECHWALL2__STATIC:
         case W_TECHWALL3__STATIC:
         case W_TECHWALL4__STATIC:
-            animwall[numanimwalls].wallnum = i;
-            //                animwall[numanimwalls].tag = -1;
-            numanimwalls++;
+            animwall[g_numAnimWalls].wallnum = i;
+            //                animwall[g_numAnimWalls].tag = -1;
+            g_numAnimWalls++;
             break;
         case SCREENBREAK6__STATIC:
         case SCREENBREAK7__STATIC:
         case SCREENBREAK8__STATIC:
             for (j=SCREENBREAK6;j<SCREENBREAK9;j++)
                 tloadtile(j, 0);
-            animwall[numanimwalls].wallnum = i;
-            animwall[numanimwalls].tag = -1;
-            numanimwalls++;
+            animwall[g_numAnimWalls].wallnum = i;
+            animwall[g_numAnimWalls].tag = -1;
+            g_numAnimWalls++;
             break;
 
         case FEMPIC1__STATIC:
@@ -1132,7 +1133,7 @@ static void prelevel(char g)
         case FEMPIC3__STATIC:
 
             wal->extra = wal->picnum;
-            animwall[numanimwalls].tag = -1;
+            animwall[g_numAnimWalls].tag = -1;
             if (ud.lockout)
             {
                 if (wal->picnum == FEMPIC1)
@@ -1140,9 +1141,9 @@ static void prelevel(char g)
                 else wal->picnum = SCREENBREAK6;
             }
 
-            animwall[numanimwalls].wallnum = i;
-            animwall[numanimwalls].tag = wal->picnum;
-            numanimwalls++;
+            animwall[g_numAnimWalls].wallnum = i;
+            animwall[g_numAnimWalls].tag = wal->picnum;
+            g_numAnimWalls++;
             break;
 
         case SCREENBREAK1__STATIC:
@@ -1163,75 +1164,75 @@ static void prelevel(char g)
         case SCREENBREAK18__STATIC:
         case SCREENBREAK19__STATIC:
 
-            animwall[numanimwalls].wallnum = i;
-            animwall[numanimwalls].tag = wal->picnum;
-            numanimwalls++;
+            animwall[g_numAnimWalls].wallnum = i;
+            animwall[g_numAnimWalls].tag = wal->picnum;
+            g_numAnimWalls++;
             break;
         }
     }
 
     //Invalidate textures in sector behind mirror
-    for (i=0;i<mirrorcnt;i++)
+    for (i=0;i<g_mirrorCount;i++)
     {
-        startwall = sector[mirrorsector[i]].wallptr;
-        endwall = startwall + sector[mirrorsector[i]].wallnum;
+        startwall = sector[g_mirrorSector[i]].wallptr;
+        endwall = startwall + sector[g_mirrorSector[i]].wallnum;
         for (j=startwall;j<endwall;j++)
         {
             wall[j].picnum = MIRROR;
             wall[j].overpicnum = MIRROR;
-            if (wall[mirrorwall[i]].pal == 4)
+            if (wall[g_mirrorWall[i]].pal == 4)
                 wall[j].pal = 4;
         }
     }
 }
 
-void newgame(int vn,int ln,int sk)
+void G_NewGame(int vn,int ln,int sk)
 {
-    player_struct *p = g_player[0].ps;
+    DukePlayer_t *p = g_player[0].ps;
     int i;
 
     handleevents();
     getpackets();
 
-    if (globalskillsound >= 0 && ud.config.FXDevice >= 0 && ud.config.SoundToggle)
+    if (g_skillSoundID >= 0 && ud.config.FXDevice >= 0 && ud.config.SoundToggle)
     {
-        while (issoundplaying(-1,globalskillsound))
+        while (S_CheckSoundPlaying(-1,g_skillSoundID))
         {
             handleevents();
             getpackets();
         }
     }
 
-    globalskillsound = -1;
+    g_skillSoundID = -1;
 
     waitforeverybody();
     ready2send = 0;
 
-    if (ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && (ud.coop&GAMETYPE_FLAG_SCORESHEET))
-        dobonus(1);
+    if (ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && (ud.coop&GAMETYPE_SCORESHEET))
+        G_BonusScreen(1);
 
     if (ln == 0 && vn == 3 && ud.multimode < 2 && ud.lockout == 0)
     {
-        playmusic(&env_music_fn[1][0],MAXVOLUMES*MAXLEVELS+1);
+        S_PlayMusic(&EnvMusicFilename[1][0],MAXVOLUMES*MAXLEVELS+1);
 
         flushperms();
         setview(0,0,xdim-1,ydim-1);
         clearview(0L);
         nextpage();
 
-        playanm("vol41a.anm",6);
+        G_PlayAnim("vol41a.anm",6);
         clearview(0L);
         nextpage();
 
-        playanm("vol42a.anm",7);
-        playanm("vol43a.anm",9);
+        G_PlayAnim("vol42a.anm",7);
+        G_PlayAnim("vol43a.anm",9);
         clearview(0L);
         nextpage();
 
         FX_StopAllSounds();
     }
 
-    show_shareware = 26*34;
+    g_showShareware = 26*34;
 
     ud.level_number =   ln;
     ud.volume_number =  vn;
@@ -1241,22 +1242,22 @@ void newgame(int vn,int ln,int sk)
     parallaxyscale = 0;
 
     ud.last_level = -1;
-    lastsavedpos = -1;
+    g_lastSaveSlot = -1;
     p->zoom            = 768;
     p->gm              = 0;
 
     //AddLog("Newgame");
-    ResetGameVars();
+    Gv_ResetVarsToDefault();
 
-    InitGameVarPointers();
+    Gv_InitWeaponPointers();
 
-    ResetSystemDefaults();
+    Gv_ResetSystemDefaults();
 
     for (i=0;i<(MAXVOLUMES*MAXLEVELS);i++)
-        if (map[i].savedstate)
+        if (MapInfo[i].savedstate)
         {
-            Bfree(map[i].savedstate);
-            map[i].savedstate = NULL;
+            Bfree(MapInfo[i].savedstate);
+            MapInfo[i].savedstate = NULL;
         }
 
     if (ud.m_coop != 1)
@@ -1293,10 +1294,10 @@ void newgame(int vn,int ln,int sk)
         connecthead = 0;
         connectpoint2[0] = -1;
     }
-    OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek, -1);
+    X_OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek, -1);
 }
 
-int getteampal(int team)
+int G_GetTeamPalette(int team)
 {
     switch (team)
     {
@@ -1320,15 +1321,15 @@ static void resetpspritevars(char g)
     char aimmode[MAXPLAYERS],autoaim[MAXPLAYERS],weaponswitch[MAXPLAYERS];
     STATUSBARTYPE tsbar[MAXPLAYERS];
 
-    EGS(g_player[0].ps->cursectnum,g_player[0].ps->posx,g_player[0].ps->posy,g_player[0].ps->posz,
-        APLAYER,0,0,0,g_player[0].ps->ang,0,0,0,10);
+    A_InsertSprite(g_player[0].ps->cursectnum,g_player[0].ps->posx,g_player[0].ps->posy,g_player[0].ps->posz,
+                   APLAYER,0,0,0,g_player[0].ps->ang,0,0,0,10);
 
     if (ud.recstat != 2) for (i=0;i<ud.multimode;i++)
         {
             aimmode[i] = g_player[i].ps->aim_mode;
             autoaim[i] = g_player[i].ps->auto_aim;
             weaponswitch[i] = g_player[i].ps->weaponswitch;
-            if (ud.multimode > 1 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
+            if (ud.multimode > 1 && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
             {
                 for (j=0;j<MAX_WEAPONS;j++)
                 {
@@ -1350,10 +1351,10 @@ static void resetpspritevars(char g)
             }
         }
 
-    resetplayerstats(0);
+    P_ResetStatus(0);
 
     for (i=1;i<ud.multimode;i++)
-        memcpy(g_player[i].ps,g_player[0].ps,sizeof(player_struct));
+        memcpy(g_player[i].ps,g_player[0].ps,sizeof(DukePlayer_t));
 
     if (ud.recstat != 2)
         for (i=0;i<ud.multimode;i++)
@@ -1361,7 +1362,7 @@ static void resetpspritevars(char g)
             g_player[i].ps->aim_mode = aimmode[i];
             g_player[i].ps->auto_aim = autoaim[i];
             g_player[i].ps->weaponswitch = weaponswitch[i];
-            if (ud.multimode > 1 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
+            if (ud.multimode > 1 && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
             {
                 for (j=0;j<MAX_WEAPONS;j++)
                 {
@@ -1382,33 +1383,33 @@ static void resetpspritevars(char g)
             }
         }
 
-    numplayersprites = 0;
+    g_numPlayerSprites = 0;
     circ = 2048/ud.multimode;
 
-    which_palookup = 9;
+    g_whichPalForPlayer = 9;
     j = connecthead;
-    i = headspritestat[10];
+    i = headspritestat[STAT_PLAYER];
     while (i >= 0)
     {
         nexti = nextspritestat[i];
         s = &sprite[i];
 
-        if (numplayersprites == MAXPLAYERS)
-            gameexit("\nToo many player sprites (max 16.)");
+        if (g_numPlayerSprites == MAXPLAYERS)
+            G_GameExit("\nToo many player sprites (max 16.)");
 
-        /*        if (numplayersprites == 0)
+        /*        if (g_numPlayerSprites == 0)
                 {
                     firstx = g_player[0].ps->posx;
                     firsty = g_player[0].ps->posy;
                 }*/
 
-        g_PlayerSpawnPoints[(unsigned char)numplayersprites].ox = s->x;
-        g_PlayerSpawnPoints[(unsigned char)numplayersprites].oy = s->y;
-        g_PlayerSpawnPoints[(unsigned char)numplayersprites].oz = s->z;
-        g_PlayerSpawnPoints[(unsigned char)numplayersprites].oa = s->ang;
-        g_PlayerSpawnPoints[(unsigned char)numplayersprites].os = s->sectnum;
+        g_playerSpawnPoints[(unsigned char)g_numPlayerSprites].ox = s->x;
+        g_playerSpawnPoints[(unsigned char)g_numPlayerSprites].oy = s->y;
+        g_playerSpawnPoints[(unsigned char)g_numPlayerSprites].oz = s->z;
+        g_playerSpawnPoints[(unsigned char)g_numPlayerSprites].oa = s->ang;
+        g_playerSpawnPoints[(unsigned char)g_numPlayerSprites].os = s->sectnum;
 
-        numplayersprites++;
+        g_numPlayerSprites++;
         if (j >= 0)
         {
             s->owner = i;
@@ -1423,13 +1424,13 @@ static void resetpspritevars(char g)
             {
                 g_player[j].ps->last_extra = g_player[j].ps->max_player_health;
                 s->extra = g_player[j].ps->max_player_health;
-                g_player[j].ps->runspeed = dukefriction;
+                g_player[j].ps->runspeed = g_playerFriction;
             }
             else s->extra = g_player[j].ps->last_extra;
 
             s->yvel = j;
 
-            if (!g_player[j].pcolor && ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM))
+            if (!g_player[j].pcolor && ud.multimode > 1 && !(GametypeFlags[ud.coop] & GAMETYPE_TDM))
             {
                 if (s->pal == 0)
                 {
@@ -1437,17 +1438,17 @@ static void resetpspritevars(char g)
 
                     for (;k<ud.multimode;k++)
                     {
-                        if (which_palookup == g_player[k].ps->palookup)
+                        if (g_whichPalForPlayer == g_player[k].ps->palookup)
                         {
-                            which_palookup++;
-                            if (which_palookup >= 17)
-                                which_palookup = 9;
+                            g_whichPalForPlayer++;
+                            if (g_whichPalForPlayer >= 17)
+                                g_whichPalForPlayer = 9;
                             k=0;
                         }
                     }
-                    g_player[j].pcolor = s->pal = g_player[j].ps->palookup = which_palookup++;
-                    if (which_palookup >= 17)
-                        which_palookup = 9;
+                    g_player[j].pcolor = s->pal = g_player[j].ps->palookup = g_whichPalForPlayer++;
+                    if (g_whichPalForPlayer >= 17)
+                        g_whichPalForPlayer = 9;
                 }
                 else g_player[j].pcolor = g_player[j].ps->palookup = s->pal;
             }
@@ -1455,9 +1456,9 @@ static void resetpspritevars(char g)
             {
                 int k = g_player[j].pcolor;
 
-                if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
+                if (GametypeFlags[ud.coop] & GAMETYPE_TDM)
                 {
-                    k = getteampal(g_player[j].pteam);
+                    k = G_GetTeamPalette(g_player[j].pteam);
                     g_player[j].ps->team = g_player[j].pteam;
                 }
                 s->pal = g_player[j].ps->palookup = k;
@@ -1465,11 +1466,11 @@ static void resetpspritevars(char g)
 
             g_player[j].ps->i = i;
             g_player[j].ps->frag_ps = j;
-            hittype[i].owner = i;
+            ActorExtra[i].owner = i;
 
-            hittype[i].bposx = g_player[j].ps->bobposx = g_player[j].ps->oposx = g_player[j].ps->posx =        s->x;
-            hittype[i].bposy = g_player[j].ps->bobposy = g_player[j].ps->oposy = g_player[j].ps->posy =        s->y;
-            hittype[i].bposz = g_player[j].ps->oposz = g_player[j].ps->posz =        s->z;
+            ActorExtra[i].bposx = g_player[j].ps->bobposx = g_player[j].ps->oposx = g_player[j].ps->posx =        s->x;
+            ActorExtra[i].bposy = g_player[j].ps->bobposy = g_player[j].ps->oposy = g_player[j].ps->posy =        s->y;
+            ActorExtra[i].bposz = g_player[j].ps->oposz = g_player[j].ps->posz =        s->z;
             g_player[j].ps->oang  = g_player[j].ps->ang  =        s->ang;
 
             updatesector(s->x,s->y,&g_player[j].ps->cursectnum);
@@ -1493,7 +1494,7 @@ static inline void clearfrags(void)
     }
 }
 
-void resettimevars(void)
+void G_ResetTimers(void)
 {
     vel = svel = angvel = horiz = 0;
 
@@ -1502,8 +1503,8 @@ void resettimevars(void)
     ototalclock = 0L;
     lockclock = 0L;
     ready2send = 1;
-    leveltexttime = 85;
-    MoveThingsCount = 0;
+    g_levelTextTime = 85;
+    g_moveThingsCount = 0;
 }
 
 void waitforeverybody()
@@ -1511,20 +1512,21 @@ void waitforeverybody()
     int i;
 
     if (numplayers < 2) return;
-    packbuf[0] = 250;
+    packbuf[0] = PACKET_TYPE_PLAYER_READY;
 
     g_player[myconnectindex].playerreadyflag++;
 
-    if ((networkmode == 1) || (!networkmode && (myconnectindex != connecthead)))
-        for (i=connecthead;i>=0;i=connectpoint2[i])
-        {
-            if (i != myconnectindex) sendpacket(i,packbuf,1);
-            if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-        }
+    // if we're a peer or slave, not a master
+    if ((g_networkBroadcastMode == 1) || (!g_networkBroadcastMode && (myconnectindex != connecthead)))
+        TRAVERSE_CONNECT(i)
+    {
+        if (i != myconnectindex) sendpacket(i,packbuf,1);
+        if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+    }
 
     if (ud.multimode > 1)
     {
-        setgamepalette(g_player[myconnectindex].ps, titlepal, 11);
+        SetGamePalette(g_player[myconnectindex].ps, titlepal, 11);
         rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
 
         rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
@@ -1538,42 +1540,39 @@ void waitforeverybody()
 
     while (1)
     {
-        idle();
-        /*
-                sampletimer();
-                handleevents();
-                AudioUpdate();
-        */
-
-        if (quitevent || keystatus[1]) gameexit("");
+        if (quitevent || keystatus[1]) G_GameExit("");
 
         getpackets();
 
-        for (i=connecthead;i>=0;i=connectpoint2[i])
+        TRAVERSE_CONNECT(i)
         {
             if (g_player[i].playerreadyflag < g_player[myconnectindex].playerreadyflag) break;
-            if ((!networkmode) && (myconnectindex != connecthead))
+            if ((!g_networkBroadcastMode) && (myconnectindex != connecthead))
             {
+                // we're a slave
                 i = -1; break;
             }
             //slaves in M/S mode only wait for master
         }
         if (i < 0)
         {
-            if (!networkmode && myconnectindex == connecthead)
-                for (i=connecthead;i>=0;i=connectpoint2[i])
-                {
-                    packbuf[0] = 250;
-                    if (i != myconnectindex) sendpacket(i,packbuf,1);
-                }
+            // master sends ready packet once it hears from all slaves
+            if (!g_networkBroadcastMode && myconnectindex == connecthead)
+                TRAVERSE_CONNECT(i)
+            {
+                packbuf[0] = PACKET_TYPE_PLAYER_READY;
+                if (i != myconnectindex) sendpacket(i,packbuf,1);
+            }
 
-            setgamepalette(g_player[myconnectindex].ps, palette, 11);
+            SetGamePalette(g_player[myconnectindex].ps, palette, 11);
             return;
         }
     }
 }
 
 extern int jump_input;
+extern char sync_first[MAXSYNCBYTES][60];
+extern int sync_found;
 
 void clearfifo(void)
 {
@@ -1582,16 +1581,19 @@ void clearfifo(void)
     syncvaltail = 0L;
     syncvaltottail = 0L;
     memset(&syncstat, 0, sizeof(syncstat));
+    memset(&sync_first, 0, sizeof(sync_first));
+    sync_found = 0;
     bufferjitter = 1;
     mymaxlag = otherminlag = 0;
     jump_input = 0;
 
-    movefifoplc = movefifosendplc = fakemovefifoplc = 0;
+    movefifoplc = movefifosendplc = predictfifoplc = 0;
     avgfvel = avgsvel = avgavel = avghorz = avgbits = avgextbits = 0;
     otherminlag = mymaxlag = 0;
 
     clearbufbyte(&loc,sizeof(input_t),0L);
     clearbufbyte(&inputfifo,sizeof(input_t)*MOVEFIFOSIZ*MAXPLAYERS,0L);
+
     for (;i<MAXPLAYERS;i++)
     {
 //      Bmemset(g_player[i].inputfifo,0,sizeof(g_player[i].inputfifo));
@@ -1606,7 +1608,7 @@ void clearfifo(void)
     //    clearbufbyte(playerquitflag,MAXPLAYERS,0x01);
 }
 
-void resetmys(void)
+void Net_ResetPrediction(void)
 {
     myx = omyx = g_player[myconnectindex].ps->posx;
     myy = omyy = g_player[myconnectindex].ps->posy;
@@ -1625,14 +1627,14 @@ void resetmys(void)
 
 extern int voting, vote_map, vote_episode;
 
-void getlevelfromfilename(const char *fn, char *volume, char *level)
+void G_FindLevelForFilename(const char *fn, char *volume, char *level)
 {
     for (*volume=0;*volume<MAXVOLUMES;(*volume)++)
     {
         for (*level=0;*level<MAXLEVELS;(*level)++)
         {
-            if (map[(*volume*MAXLEVELS)+*level].filename != NULL)
-                if (!Bstrcasecmp(fn, map[(*volume*MAXLEVELS)+*level].filename))
+            if (MapInfo[(*volume*MAXLEVELS)+*level].filename != NULL)
+                if (!Bstrcasecmp(fn, MapInfo[(*volume*MAXLEVELS)+*level].filename))
                     break;
         }
         if (*level != MAXLEVELS)
@@ -1640,17 +1642,13 @@ void getlevelfromfilename(const char *fn, char *volume, char *level)
     }
 }
 
-int enterlevel(int g)
+int G_EnterLevel(int g)
 {
     int i;
     char levname[BMAX_PATH];
 
-    ready2send = 1; // HACK: fetch any leftover p2p sync packets
-    KB_ClearKeysDown();
-    handleevents();
-    getpackets();
-    waitforeverybody();
-    ready2send = 0;
+//    flushpackets();
+//    waitforeverybody();
 
     vote_map = vote_episode = voting = -1;
 
@@ -1668,7 +1666,7 @@ int enterlevel(int g)
         ud.recstat = 0;
 
     FX_StopAllSounds();
-    clearsoundlocks();
+    S_ClearSoundLocks();
     FX_SetReverb(0);
 
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
@@ -1677,7 +1675,7 @@ int enterlevel(int g)
 
         Bcorrectfilename(boardfilename,0);
 
-        getlevelfromfilename(boardfilename,&volume,&level);
+        G_FindLevelForFilename(boardfilename,&volume,&level);
 
         if (level != MAXLEVELS)
         {
@@ -1687,16 +1685,16 @@ int enterlevel(int g)
         }
     }
 
-    if (map[(ud.volume_number*MAXLEVELS)+ud.level_number].name == NULL || map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename == NULL)
+    if (MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name == NULL || MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename == NULL)
     {
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
         {
-            if (map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename == NULL)
-                map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename = Bcalloc(BMAX_PATH,sizeof(char));
-            if (map[(ud.volume_number*MAXLEVELS)+ud.level_number].name == NULL)
+            if (MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename == NULL)
+                MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename = Bcalloc(BMAX_PATH,sizeof(char));
+            if (MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name == NULL)
             {
-                map[(ud.volume_number*MAXLEVELS)+ud.level_number].name = Bcalloc(16,sizeof(char));
-                Bsprintf(map[(ud.volume_number*MAXLEVELS)+ud.level_number].name,"USER MAP");
+                MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name = Bcalloc(16,sizeof(char));
+                Bsprintf(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name,"USER MAP");
             }
         }
         else
@@ -1708,8 +1706,8 @@ int enterlevel(int g)
 
     i = ud.screen_size;
     ud.screen_size = 0;
-    dofrontscreens(NULL);
-    vscrn();
+    G_DoLoadScreen(NULL);
+    G_UpdateScreenArea();
     ud.screen_size = i;
 
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
@@ -1717,7 +1715,7 @@ int enterlevel(int g)
         Bstrcpy(levname, boardfilename);
         Bsprintf(apptitle,"%s - %s - " APPNAME,levname,duke3dgrpstring);
     }
-    else Bsprintf(apptitle,"%s - %s - " APPNAME,map[(ud.volume_number*MAXLEVELS)+ud.level_number].name,duke3dgrpstring);
+    else Bsprintf(apptitle,"%s - %s - " APPNAME,MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name,duke3dgrpstring);
 
     Bstrcpy(tempbuf,apptitle);
     wm_setapptitle(tempbuf);
@@ -1729,7 +1727,7 @@ int enterlevel(int g)
             if (loadboard(boardfilename,0,&g_player[0].ps->posx, &g_player[0].ps->posy, &g_player[0].ps->posz, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
             {
                 OSD_Printf(OSD_ERROR "Map '%s' not found!\n",boardfilename);
-                //gameexit(tempbuf);
+                //G_GameExit(tempbuf);
                 return 1;
             }
 
@@ -1765,16 +1763,16 @@ int enterlevel(int g)
                     if (fil > -1)
                     {
                         kclose(fil);
-                        if (map[ud.m_level_number].musicfn1 == NULL)
-                            map[ud.m_level_number].musicfn1 = Bcalloc(Bstrlen(levname)+1,sizeof(char));
-                        else if ((Bstrlen(levname)+1) > sizeof(map[ud.m_level_number].musicfn1))
-                            map[ud.m_level_number].musicfn1 = Brealloc(map[ud.m_level_number].musicfn1,(Bstrlen(levname)+1));
-                        Bstrcpy(map[ud.m_level_number].musicfn1,levname);
+                        if (MapInfo[ud.m_level_number].musicfn1 == NULL)
+                            MapInfo[ud.m_level_number].musicfn1 = Bcalloc(Bstrlen(levname)+1,sizeof(char));
+                        else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.m_level_number].musicfn1))
+                            MapInfo[ud.m_level_number].musicfn1 = Brealloc(MapInfo[ud.m_level_number].musicfn1,(Bstrlen(levname)+1));
+                        Bstrcpy(MapInfo[ud.m_level_number].musicfn1,levname);
                     }
-                    else if (map[ud.m_level_number].musicfn1 != NULL)
+                    else if (MapInfo[ud.m_level_number].musicfn1 != NULL)
                     {
-                        Bfree(map[ud.m_level_number].musicfn1);
-                        map[ud.m_level_number].musicfn1 = NULL;
+                        Bfree(MapInfo[ud.m_level_number].musicfn1);
+                        MapInfo[ud.m_level_number].musicfn1 = NULL;
                     }
 
                     p[1]='m';
@@ -1788,24 +1786,24 @@ int enterlevel(int g)
                         Bsprintf(levname,"dethtoll.mid");
                     else kclose(fil);
 
-                    if (map[ud.m_level_number].musicfn == NULL)
-                        map[ud.m_level_number].musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(char));
-                    else if ((Bstrlen(levname)+1) > sizeof(map[ud.m_level_number].musicfn))
-                        map[ud.m_level_number].musicfn = Brealloc(map[ud.m_level_number].musicfn,(Bstrlen(levname)+1));
-                    Bstrcpy(map[ud.m_level_number].musicfn,levname);
+                    if (MapInfo[ud.m_level_number].musicfn == NULL)
+                        MapInfo[ud.m_level_number].musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(char));
+                    else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.m_level_number].musicfn))
+                        MapInfo[ud.m_level_number].musicfn = Brealloc(MapInfo[ud.m_level_number].musicfn,(Bstrlen(levname)+1));
+                    Bstrcpy(MapInfo[ud.m_level_number].musicfn,levname);
                 }
             }
         }
-        else if (loadboard(map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,0,&g_player[0].ps->posx, &g_player[0].ps->posy, &g_player[0].ps->posz, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
+        else if (loadboard(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,0,&g_player[0].ps->posx, &g_player[0].ps->posy, &g_player[0].ps->posz, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
         {
-            OSD_Printf(OSD_ERROR "Map %s not found!\n",map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
-            //gameexit(tempbuf);
+            OSD_Printf(OSD_ERROR "Map %s not found!\n",MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
+            //G_GameExit(tempbuf);
             return 1;
         }
         else
         {
             char *p;
-            strcpy(levname, map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
+            strcpy(levname, MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
             p = Bstrrchr(levname,'.');
             if (!p) strcat(levname,".mhk");
             else
@@ -1822,15 +1820,15 @@ int enterlevel(int g)
     else
     {
 
-        i = strlen(map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
-        copybufbyte(map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,&levname[0],i);
+        i = strlen(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
+        copybufbyte(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,&levname[0],i);
         levname[i] = 255;
         levname[i+1] = 0;
 
         if (loadboard(levname,1,&g_player[0].ps->posx, &g_player[0].ps->posy, &g_player[0].ps->posz, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
         {
-            OSD_Printf(OSD_ERROR "Map '%s' not found!\n",map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
-            //gameexit(tempbuf);
+            OSD_Printf(OSD_ERROR "Map '%s' not found!\n",MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
+            //G_GameExit(tempbuf);
             return 1;
         }
         else
@@ -1849,10 +1847,10 @@ int enterlevel(int g)
         }
     }
 
-    precachecount = 0;
+    g_precacheCount = 0;
     clearbufbyte(gotpic,sizeof(gotpic),0L);
     clearbufbyte(precachehightile, sizeof(precachehightile), 0l);
-    //clearbufbyte(hittype,sizeof(hittype),0l); // JBF 20040531: yes? no?
+    //clearbufbyte(ActorExtra,sizeof(ActorExtra),0l); // JBF 20040531: yes? no?
 
     prelevel(g);
 
@@ -1862,13 +1860,13 @@ int enterlevel(int g)
     cachedebug = 0;
     automapping = 0;
 
-    cacheit();
+    G_CacheMapData();
 
     if (ud.recstat != 2)
     {
-        music_select = (ud.volume_number*MAXLEVELS) + ud.level_number;
-        if (map[(unsigned char)music_select].musicfn != NULL)
-            playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
+        g_musicIndex = (ud.volume_number*MAXLEVELS) + ud.level_number;
+        if (MapInfo[(unsigned char)g_musicIndex].musicfn != NULL)
+            S_PlayMusic(&MapInfo[(unsigned char)g_musicIndex].musicfn[0],g_musicIndex);
     }
 
     if ((g&MODE_GAME) || (g&MODE_EOL))
@@ -1881,58 +1879,58 @@ int enterlevel(int g)
     }
 
     if ((ud.recstat == 1) && (g&MODE_RESTART) != MODE_RESTART)
-        opendemowrite();
+        G_OpenDemoWrite();
 
     if (VOLUMEONE)
     {
-        if (ud.level_number == 0 && ud.recstat != 2) FTA(40,g_player[myconnectindex].ps);
+        if (ud.level_number == 0 && ud.recstat != 2) P_DoQuote(40,g_player[myconnectindex].ps);
     }
 
-    for (i=connecthead;i>=0;i=connectpoint2[i])
-        switch (dynamictostatic[sector[sprite[g_player[i].ps->i].sectnum].floorpicnum])
-        {
-        case HURTRAIL__STATIC:
-        case FLOORSLIME__STATIC:
-        case FLOORPLASMA__STATIC:
-            resetweapons(i);
-            resetinventory(i);
-            g_player[i].ps->gotweapon[PISTOL_WEAPON] = 0;
-            g_player[i].ps->ammo_amount[PISTOL_WEAPON] = 0;
-            g_player[i].ps->curr_weapon = KNEE_WEAPON;
-            g_player[i].ps->kickback_pic = 0;
-            break;
-        }
+    TRAVERSE_CONNECT(i)
+    switch (DynamicTileMap[sector[sprite[g_player[i].ps->i].sectnum].floorpicnum])
+    {
+    case HURTRAIL__STATIC:
+    case FLOORSLIME__STATIC:
+    case FLOORPLASMA__STATIC:
+        P_ResetWeapons(i);
+        P_ResetInventory(i);
+        g_player[i].ps->gotweapon[PISTOL_WEAPON] = 0;
+        g_player[i].ps->ammo_amount[PISTOL_WEAPON] = 0;
+        g_player[i].ps->curr_weapon = KNEE_WEAPON;
+        g_player[i].ps->kickback_pic = 0;
+        break;
+    }
 
     //PREMAP.C - replace near the my's at the end of the file
 
-    resetmys();
+    Net_ResetPrediction();
 
     //g_player[myconnectindex].ps->palette = palette;
-    //palto(0,0,0,0);
-    setgamepalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
+    //G_FadePalette(0,0,0,0);
+    SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
 
-    setpal(g_player[myconnectindex].ps);
+    P_UpdateScreenPal(g_player[myconnectindex].ps);
     flushperms();
 
     everyothertime = 0;
-    global_random = 0;
+    g_globalRandom = 0;
 
     ud.last_level = ud.level_number+1;
 
     clearfifo();
 
-    for (i=numinterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
+    for (i=g_numInterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
 
-    restorepalette = 1;
+    g_restorePalette = 1;
 
-    flushpackets();
     waitforeverybody();
+    flushpackets();
 
-    palto(0,0,0,0);
-    vscrn();
+    G_FadePalette(0,0,0,0);
+    G_UpdateScreenArea();
     clearview(0L);
-    drawbackground();
-    displayrooms(myconnectindex,65536);
+    G_DrawBackground();
+    G_DrawRooms(myconnectindex,65536);
 
     for (i=0;i<ud.multimode;i++)
         clearbufbyte(&g_player[i].playerquitflag,1,0x01010101);
@@ -1940,38 +1938,38 @@ int enterlevel(int g)
 
     clearfrags();
 
-    resettimevars();  // Here we go
+    G_ResetTimers();  // Here we go
 
-    //Bsprintf(g_szBuf,"ENTERLEVEL L=%d V=%d",ud.level_number, ud.volume_number);
+    //Bsprintf(g_szBuf,"G_EnterLevel L=%d V=%d",ud.level_number, ud.volume_number);
     //AddLog(g_szBuf);
     // variables are set by pointer...
 
     Bmemcpy(&currentboardfilename[0],&boardfilename[0],BMAX_PATH);
 
-    OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
-    OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,map[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
+    X_OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
+    OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
     return 0;
 }
 
-void FreeMapState(int mapnum)
+void G_FreeMapState(int mapnum)
 {
     int j;
 
-    for (j=0;j<iGameVarCount;j++)
+    for (j=0;j<g_gameVarCount;j++)
     {
-        if (aGameVars[j].dwFlags & GAMEVAR_FLAG_NORESET) continue;
-        if (aGameVars[j].dwFlags & GAMEVAR_FLAG_PERPLAYER)
+        if (aGameVars[j].dwFlags & GAMEVAR_NORESET) continue;
+        if (aGameVars[j].dwFlags & GAMEVAR_PERPLAYER)
         {
-            if (map[mapnum].savedstate->vars[j])
-                Bfree(map[mapnum].savedstate->vars[j]);
+            if (MapInfo[mapnum].savedstate->vars[j])
+                Bfree(MapInfo[mapnum].savedstate->vars[j]);
         }
-        else if (aGameVars[j].dwFlags & GAMEVAR_FLAG_PERACTOR)
+        else if (aGameVars[j].dwFlags & GAMEVAR_PERACTOR)
         {
-            if (map[mapnum].savedstate->vars[j])
-                Bfree(map[mapnum].savedstate->vars[j]);
+            if (MapInfo[mapnum].savedstate->vars[j])
+                Bfree(MapInfo[mapnum].savedstate->vars[j]);
         }
     }
-    Bfree(map[mapnum].savedstate);
-    map[mapnum].savedstate = NULL;
+    Bfree(MapInfo[mapnum].savedstate);
+    MapInfo[mapnum].savedstate = NULL;
 }
 

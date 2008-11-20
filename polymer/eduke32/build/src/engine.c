@@ -9611,7 +9611,8 @@ void getmousevalues(int *mousx, int *mousy, int *bstatus)
 //
 int krand(void)
 {
-    randomseed = (randomseed*27584621)+1;
+//    randomseed = (randomseed*27584621)+1;
+    randomseed = (randomseed * 1664525ul) + 221297ul;
     return(((unsigned int)randomseed)>>16);
 }
 

@@ -55,20 +55,22 @@ extern "C" {
 
 #include "function.h"
 
+#include "swmacros.h"
+
 #define HORIZ_MIN -99
 #define HORIZ_MAX 299
 
-extern int g_ScriptVersion, g_Shareware, g_GameType;
+extern int g_scriptVersion, g_Shareware, g_gameType;
 
 #define GAMEDUKE 0
 #define GAMENAM 1
 #define GAMEWW2 3
 
 #define VOLUMEALL (g_Shareware==0)
-#define PLUTOPAK (g_ScriptVersion==14)
+#define PLUTOPAK (g_scriptVersion==14)
 #define VOLUMEONE (g_Shareware==1)
-#define NAM (g_GameType&1)
-#define WW2GI (g_GameType&2)
+#define NAM (g_gameType&1)
+#define WW2GI (g_gameType&2)
 
 #define MAXSLEEPDIST  16384
 #define SLEEPTIME 24*64
@@ -110,7 +112,7 @@ extern int g_ScriptVersion, g_Shareware, g_GameType;
 
 #include "namesdyn.h"
 
-#define TICRATE (120)
+#define TICRATE g_timerTicsPerSecond
 #define TICSPERFRAME (TICRATE/26)
 
 // #define GC (TICSPERFRAME*44)
@@ -126,13 +128,28 @@ extern int g_ScriptVersion, g_Shareware, g_GameType;
         parm [ebx]\
 */
 
+#define STAT_DEFAULT        0
+#define STAT_ACTOR          1
+#define STAT_ZOMBIEACTOR    2
+#define STAT_EFFECTOR       3
+#define STAT_PROJECTILE     4
+#define STAT_MISC           5
+#define STAT_STANDABLE      6
+#define STAT_LOCATOR        7
+#define STAT_ACTIVATOR      8
+#define STAT_TRANSPORT      9
+#define STAT_PLAYER         10
+#define STAT_FX             11
+#define STAT_FALLER         12
+#define STAT_DUMMYPLAYER    13
+
 #define    ALT_IS_PRESSED ( KB_KeyPressed( sc_RightAlt ) || KB_KeyPressed( sc_LeftAlt ) )
 #define    SHIFTS_IS_PRESSED ( KB_KeyPressed( sc_RightShift ) || KB_KeyPressed( sc_LeftShift ) )
-#define    RANDOMSCRAP EGS(s->sectnum,s->x+(TRAND&255)-128,s->y+(TRAND&255)-128,s->z-(8<<8)-(TRAND&8191),SCRAP6+(TRAND&15),-8,48,48,TRAND&2047,(TRAND&63)+64,-512-(TRAND&2047),i,5)
+#define    RANDOMSCRAP A_InsertSprite(s->sectnum,s->x+(krand()&255)-128,s->y+(krand()&255)-128,s->z-(8<<8)-(krand()&8191),SCRAP6+(krand()&15),-8,48,48,krand()&2047,(krand()&63)+64,-512-(krand()&2047),i,5)
 
 #define    PHEIGHT (38<<8)
 
-enum gamemodes {
+enum GameMode_t {
     MODE_MENU       = 1,
     MODE_DEMO       = 2,
     MODE_GAME       = 4,
@@ -148,38 +165,16 @@ enum gamemodes {
 
 #define MAXQUOTES 16384
 
-#define PPDEATHSTRINGS MAXQUOTES-128
-#define PSDEATHSTRINGS MAXQUOTES-32
+#define FIRST_OBITUARY_QUOTE MAXQUOTES-128
+#define FIRST_SUICIDE_QUOTE MAXQUOTES-32
 
 #define MAXCYCLERS 1024
 
 #define MAXANIMATES 256
 
-#define SP  sprite[i].yvel
-#define SX  sprite[i].x
-#define SY  sprite[i].y
-#define SZ  sprite[i].z
-#define SS  sprite[i].shade
-#define PN  sprite[i].picnum
-#define SA  sprite[i].ang
-#define SV  sprite[i].xvel
-#define ZV  sprite[i].zvel
-#define RX  sprite[i].xrepeat
-#define RY  sprite[i].yrepeat
-#define OW  sprite[i].owner
-#define CS  sprite[i].cstat
-#define SH  sprite[i].extra
-#define CX  sprite[i].xoffset
-#define CY  sprite[i].yoffset
-#define CD  sprite[i].clipdist
-#define PL  sprite[i].pal
-#define SLT  sprite[i].lotag
-#define SHT  sprite[i].hitag
-#define SECT sprite[i].sectnum
-
 // Defines the motion characteristics of an actor
 
-enum actormotion_flags {
+enum ActorMoveFlags_t {
     face_player         = 1,
     geth                = 2,
     getv                = 4,
@@ -200,7 +195,7 @@ enum actormotion_flags {
 
 // Defines for 'useractor' keyword
 
-enum useractor_types {
+enum UserActorTypes_t {
     notenemy,
     enemy,
     enemystayput
@@ -208,7 +203,7 @@ enum useractor_types {
 
 // Player Actions.
 
-enum player_action_flags {
+enum PlayerActionFlags_t {
     pstanding       = 1,
     pwalking        = 2,
     prunning        = 4,
@@ -228,7 +223,7 @@ enum player_action_flags {
     pfacing         = 65536
 };
 
-enum inventory_indexes {
+enum InventoryItem_t {
     GET_STEROIDS,
     GET_SHIELD,
     GET_SCUBA,
@@ -240,9 +235,7 @@ enum inventory_indexes {
     GET_BOOTS
 };
 
-#define TRAND krand()
-
-enum weapon_indexes {
+enum DukeWeapon_t {
     KNEE_WEAPON,
     PISTOL_WEAPON,
     SHOTGUN_WEAPON,
@@ -258,31 +251,8 @@ enum weapon_indexes {
     MAX_WEAPONS
 };
 
-#define T1  hittype[i].temp_data[0]
-#define T2  hittype[i].temp_data[1]
-#define T3  hittype[i].temp_data[2]
-#define T4  hittype[i].temp_data[3]
-#define T5  hittype[i].temp_data[4]
-#define T6  hittype[i].temp_data[5]
-#define T7  hittype[i].temp_data[6]
-#define T8  hittype[i].temp_data[7]
-#define T9  hittype[i].temp_data[8]
-
-#define ESCESCAPE if(KB_KeyPressed( sc_Escape ) ) gameexit(" ");
-
-#define IFWITHIN(B,E) if((PN)>=(B) && (PN)<=(E))
-
-#define deletesprite deletesprite_
-void deletesprite_(int s);
-#define KILLIT(KX) {deletesprite(KX);goto BOLT;}
-
-
-#define IFMOVING if(ssp(i,CLIPMASK0))
-#define IFHIT j=ifhitbyweapon(i);if(j >= 0)
-
-#define AFLAMABLE(X) (X==BOX||X==TREE1||X==TREE2||X==TIRE||X==CONE)
-
-#define rnd(X) ((TRAND>>8)>=(255-(X)))
+#define deletesprite A_DeleteSprite
+void A_DeleteSprite(int s);
 
 #define __USRHOOKS_H
 
@@ -326,15 +296,15 @@ typedef struct {
 
 extern animwalltype animwall[MAXANIMWALLS];
 
-extern short numanimwalls;
+extern short g_numAnimWalls;
 extern int probey;
 
 extern char typebuflen,typebuf[141];
 extern char *MusicPtr;
 extern int Musicsize;
 extern int msx[2048],msy[2048];
-extern short cyclers[MAXCYCLERS][6],numcyclers;
-extern char myname[32];
+extern short cyclers[MAXCYCLERS][6],g_numCyclers;
+extern char szPlayerName[32];
 
 struct savehead {
     char name[19];
@@ -446,11 +416,15 @@ typedef struct {
 typedef struct {
     int ox,oy,oz;
     short oa,os;
-} playerspawn_t;
+} PlayerSpawn_t;
 
-extern char numplayersprites;
+extern char g_numPlayerSprites;
 
 extern int fricxv,fricyv;
+
+// TODO: make a dummy player struct for interpolation and sort the first members
+// of this struct into the same order so we can just memcpy it and get rid of the
+// mywhatever type globals
 
 typedef struct {
     int zoom,exitx,exity;
@@ -513,40 +487,38 @@ typedef struct {
     char walking_snd_toggle, palookup, hard_landing;
     char /*fire_flag,*/pals[3];
     char return_to_center, reloading, name[32];
-} player_struct;
+} DukePlayer_t;
 
 extern char tempbuf[2048], packbuf[576], menutextbuf[128];
 
-extern int gc;
+extern int SpriteGravity;
 
-extern int impact_damage,respawnactortime,respawnitemtime;
-extern int start_armour_amount;
+extern int g_impactDamage,g_actorRespawnTime,g_itemRespawnTime;
+extern int g_startArmorAmount;
 
 #define MOVFIFOSIZ 256
 
-extern short spriteq[1024],spriteqloc,spriteqamount;
+extern short SpriteDeletionQueue[1024],g_spriteDeleteQueuePos,g_spriteDeleteQueueSize;
 extern user_defs ud;
-extern short int moustat;
-extern short int global_random;
+extern short int g_globalRandom;
 extern char buf[1024]; //My own generic input buffer
 
 #define MAXQUOTELEN 128
 
-extern char *fta_quotes[MAXQUOTES],*redefined_quotes[MAXQUOTES];
+extern char *ScriptQuotes[MAXQUOTES],*ScriptQuoteRedefinitions[MAXQUOTES];
 extern char ready2send;
 
-void scriptinfo(void);
-extern intptr_t *script,*scriptptr,*insptr,*labelcode,*labeltype;
-extern int labelcnt,defaultlabelcnt;
-extern int g_ScriptSize;
+void X_ScriptInfo(void);
+extern intptr_t *script,*insptr,*labelcode,*labeltype;
+extern int g_numLabels,g_numDefaultLabels;
+extern int g_scriptSize;
 extern char *label;
-extern intptr_t *actorscrptr[MAXTILES],*parsing_actor;
+extern intptr_t *actorscrptr[MAXTILES],*g_parsingActorPtr;
 extern intptr_t *actorLoadEventScrptr[MAXTILES];
-extern char actortype[MAXTILES];
-extern char *music_pointer;
+extern char ActorType[MAXTILES];
 
-extern char music_select;
-extern char env_music_fn[MAXVOLUMES+1][BMAX_PATH];
+extern char g_musicIndex;
+extern char EnvMusicFilename[MAXVOLUMES+1][BMAX_PATH];
 extern short camsprite;
 
 typedef struct {
@@ -577,7 +549,7 @@ typedef struct {
     projectile_t projectile;
 } actordata_t;
 
-extern actordata_t hittype[MAXSPRITES];
+extern actordata_t ActorExtra[MAXSPRITES];
 
 extern input_t loc;
 extern input_t recsync[RECSYNCBUFSIZ];
@@ -587,13 +559,13 @@ extern int numplayers, myconnectindex;
 extern int connecthead, connectpoint2[MAXPLAYERS];   //Player linked list variables (indeces, not connection numbers)
 extern int screenpeek;
 
-extern int current_menu;
-extern int tempwallptr,animatecnt;
+extern int g_currentMenu;
+extern int tempwallptr,g_animateCount;
 extern int lockclock;
 extern intptr_t frameplace;
-extern char display_mirror,loadfromgrouponly,rtsplaying;
+extern char display_mirror,g_loadFromGroupOnly,g_RTSPlaying;
 
-extern int groupfile;
+extern int g_groupFileHandle;
 extern int ototalclock;
 
 extern int *animateptr[MAXANIMATES];
@@ -605,48 +577,48 @@ extern int neartaghitdist;
 extern short animatesect[MAXANIMATES];
 extern int movefifoplc, vel,svel,angvel,horiz;
 
-extern short mirrorwall[64], mirrorsector[64], mirrorcnt;
+extern short g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
 
 #include "funct.h"
 
-extern int screencapt;
-extern char volume_names[MAXVOLUMES][33];
-extern char skill_names[5][33];
+extern int g_screenCapture;
+extern char EpisodeNames[MAXVOLUMES][33];
+extern char SkillNames[5][33];
 
-extern int framerate;
+extern int g_currentFrameRate;
 
 #define MAXGAMETYPES 16
-extern char gametype_names[MAXGAMETYPES][33];
-extern int gametype_flags[MAXGAMETYPES];
-extern char num_gametypes;
+extern char GametypeNames[MAXGAMETYPES][33];
+extern int GametypeFlags[MAXGAMETYPES];
+extern char g_numGametypes;
 
-enum gametypeflags {
-    GAMETYPE_FLAG_COOP                   = 1,
-    GAMETYPE_FLAG_WEAPSTAY               = 2,
-    GAMETYPE_FLAG_FRAGBAR                = 4,
-    GAMETYPE_FLAG_SCORESHEET             = 8,
-    GAMETYPE_FLAG_DMSWITCHES             = 16,
-    GAMETYPE_FLAG_COOPSPAWN              = 32,
-    GAMETYPE_FLAG_ACCESSCARDSPRITES      = 64,
-    GAMETYPE_FLAG_COOPVIEW               = 128,
-    GAMETYPE_FLAG_COOPSOUND              = 256,
-    GAMETYPE_FLAG_OTHERPLAYERSINMAP      = 512,
-    GAMETYPE_FLAG_ITEMRESPAWN            = 1024,
-    GAMETYPE_FLAG_MARKEROPTION           = 2048,
-    GAMETYPE_FLAG_PLAYERSFRIENDLY        = 4096,
-    GAMETYPE_FLAG_FIXEDRESPAWN           = 8192,
-    GAMETYPE_FLAG_ACCESSATSTART          = 16384,
-    GAMETYPE_FLAG_PRESERVEINVENTORYDEATH = 32768,
-    GAMETYPE_FLAG_TDM                    = 65536,
-    GAMETYPE_FLAG_TDMSPAWN               = 131072
+enum GametypeFlags_t {
+    GAMETYPE_COOP                   = 1,
+    GAMETYPE_WEAPSTAY               = 2,
+    GAMETYPE_FRAGBAR                = 4,
+    GAMETYPE_SCORESHEET             = 8,
+    GAMETYPE_DMSWITCHES             = 16,
+    GAMETYPE_COOPSPAWN              = 32,
+    GAMETYPE_ACCESSCARDSPRITES      = 64,
+    GAMETYPE_COOPVIEW               = 128,
+    GAMETYPE_COOPSOUND              = 256,
+    GAMETYPE_OTHERPLAYERSINMAP      = 512,
+    GAMETYPE_ITEMRESPAWN            = 1024,
+    GAMETYPE_MARKEROPTION           = 2048,
+    GAMETYPE_PLAYERSFRIENDLY        = 4096,
+    GAMETYPE_FIXEDRESPAWN           = 8192,
+    GAMETYPE_ACCESSATSTART          = 16384,
+    GAMETYPE_PRESERVEINVENTORYDEATH = 32768,
+    GAMETYPE_TDM                    = 65536,
+    GAMETYPE_TDMSPAWN               = 131072
 };
 
-#define GTFLAGS(x) (gametype_flags[ud.coop] & x)
+#define GTFLAGS(x) (GametypeFlags[ud.coop] & x)
 
-extern char num_volumes;
+extern char g_numVolumes;
 
-extern int lastsavedpos;
-extern int restorepalette;
+extern int g_lastSaveSlot;
+extern int g_restorePalette;
 #ifndef RANCID_NETWORKING
 extern int packetrate;
 #endif
@@ -654,21 +626,22 @@ extern int packetrate;
 extern int cachecount;
 extern char boardfilename[BMAX_PATH],waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],animpal[768];
 extern char currentboardfilename[BMAX_PATH];
-extern char cachedebug,earthquaketime;
-extern int networkmode;
+extern char cachedebug,g_earthquakeTime;
+// 0: master/slave, 1: peer-to-peer
+extern int g_networkBroadcastMode;
 extern char lumplockbyte[11];
 
 //DUKE3D.H - replace the end "my's" with this
 extern int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
-extern short myhoriz, omyhoriz, myhorizoff, omyhorizoff, globalskillsound;
+extern short myhoriz, omyhoriz, myhorizoff, omyhorizoff, g_skillSoundID;
 extern short myang, omyang, mycursectnum, myjumpingcounter;
 extern char myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
-extern int fakemovefifoplc;
+extern int predictfifoplc;
 extern int myxbak[MOVEFIFOSIZ], myybak[MOVEFIFOSIZ], myzbak[MOVEFIFOSIZ];
 extern int myhorizbak[MOVEFIFOSIZ];
 extern short myangbak[MOVEFIFOSIZ];
 
-extern short weaponsandammosprites[15];
+extern short BlimpSpawnSprites[15];
 
 //DUKE3D.H:
 typedef struct {
@@ -681,12 +654,12 @@ typedef struct {
 } STATUSBARTYPE;
 
 extern STATUSBARTYPE sbar;
-extern int cameradist, cameraclock, dukefriction,show_shareware;
-extern int networkmode, movesperpacket;
-extern int gamequit;
+extern int g_cameraDistance, g_cameraClock, g_playerFriction,g_showShareware;
+extern int g_networkBroadcastMode, g_movesPerPacket;
+extern int g_gameQuit;
 
 extern char pus,pub;
-extern int camerashitable,freezerhurtowner,lasermode;
+extern int g_damageCameras,g_freezerSelfDamage,g_tripbombLaserMode;
 
 // TENSW: on really bad network connections, the sync FIFO queue can overflow if it is the
 // same size as the move fifo.
@@ -696,23 +669,24 @@ extern int camerashitable,freezerhurtowner,lasermode;
 extern char syncstat[MAXSYNCBYTES];
 extern signed char multiwho, multipos, multiwhat, multiflag;
 extern int syncvaltail, syncvaltottail;
-extern int numfreezebounces,rpgblastradius,pipebombblastradius,tripbombblastradius,shrinkerblastradius,morterblastradius,bouncemineblastradius,seenineblastradius;
+extern int g_numFreezeBounces,g_rpgBlastRadius,g_pipebombBlastRadius,g_tripbombBlastRadius;
+extern int g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
 extern int everyothertime;
 extern int mymaxlag, otherminlag, bufferjitter;
 
-extern int numinterpolations, startofdynamicinterpolations;
+extern int g_numInterpolations, startofdynamicinterpolations;
 extern int oldipos[MAXINTERPOLATIONS];
 extern int bakipos[MAXINTERPOLATIONS];
 extern int *curipos[MAXINTERPOLATIONS];
 
-extern short numclouds,clouds[128],cloudx[128],cloudy[128];
+extern short g_numClouds,clouds[128],cloudx[128],cloudy[128];
 extern int cloudtotalclock,totalmemory;
 
 extern int stereomode, stereowidth, stereopixelwidth;
 
-extern int myaimmode, myaimstat, omyaimstat;
+extern int g_myAimMode, g_myAimStat, g_oldAimStat;
 
-extern unsigned int MoveThingsCount;
+extern unsigned int g_moveThingsCount;
 
 #define IFISGLMODE if (getrendermode() >= 3)
 #define IFISSOFTMODE if (getrendermode() < 3)
@@ -723,7 +697,7 @@ extern unsigned int MoveThingsCount;
 #define TILE_ANIM     (MAXTILES-4)
 #define TILE_VIEWSCR  (MAXTILES-5)
 
-enum events {
+enum GameEvent_t {
     EVENT_INIT,
     EVENT_ENTERLEVEL,
     EVENT_RESETWEAPONS,
@@ -815,7 +789,7 @@ enum events {
     MAXEVENTS
 };
 
-enum sysstrs {
+enum SystemString_t {
     STR_MAPNAME,
     STR_MAPFILENAME,
     STR_PLAYERNAME,
@@ -827,30 +801,30 @@ enum sysstrs {
 
 
 
-enum gamevarflags {
+enum GamevarFlags_t {
     MAXGAMEVARS             = 2048,  // must be a power of two
     MAXVARLABEL             = 26,
-    GAMEVAR_FLAG_NORMAL     = 0,     // normal
-    GAMEVAR_FLAG_PERPLAYER  = 1,     // per-player variable
-    GAMEVAR_FLAG_PERACTOR   = 2,     // per-actor variable
-    GAMEVAR_FLAG_USER_MASK  = 3,
-    GAMEVAR_FLAG_DEFAULT    = 256,   // allow override
-    GAMEVAR_FLAG_SECRET     = 512,   // don't dump...
-    GAMEVAR_FLAG_NODEFAULT  = 1024,  // don't reset on actor spawn
-    GAMEVAR_FLAG_SYSTEM     = 2048,  // cannot change mode flags...(only default value)
-    GAMEVAR_FLAG_READONLY   = 4096,  // values are read-only (no setvar allowed)
-    GAMEVAR_FLAG_INTPTR     = 8192,  // plValue is a pointer to an int
-    GAMEVAR_FLAG_SYNCCHECK  = 16384, // check event sync when translating
-    GAMEVAR_FLAG_SHORTPTR   = 32768, // plValue is a pointer to a short
-    GAMEVAR_FLAG_CHARPTR    = 65536, // plValue is a pointer to a char
-    GAMEVAR_FLAG_NORESET    = 131072, // var values are not reset when restoring map state
+    GAMEVAR_NORMAL     = 0,     // normal
+    GAMEVAR_PERPLAYER  = 1,     // per-player variable
+    GAMEVAR_PERACTOR   = 2,     // per-actor variable
+    GAMEVAR_USER_MASK  = 3,
+    GAMEVAR_DEFAULT    = 256,   // allow override
+    GAMEVAR_SECRET     = 512,   // don't dump...
+    GAMEVAR_NODEFAULT  = 1024,  // don't reset on actor spawn
+    GAMEVAR_SYSTEM     = 2048,  // cannot change mode flags...(only default value)
+    GAMEVAR_READONLY   = 4096,  // values are read-only (no setvar allowed)
+    GAMEVAR_INTPTR     = 8192,  // plValue is a pointer to an int
+    GAMEVAR_SYNCCHECK  = 16384, // check event sync when translating
+    GAMEVAR_SHORTPTR   = 32768, // plValue is a pointer to a short
+    GAMEVAR_CHARPTR    = 65536, // plValue is a pointer to a char
+    GAMEVAR_NORESET    = 131072, // var values are not reset when restoring map state
 };
 
-enum gamearrayflags {
+enum GamearrayFlags_t {
     MAXGAMEARRAYS           = (MAXGAMEVARS>>2), // must be lower than MAXGAMEVARS
     MAXARRAYLABEL           = MAXVARLABEL,
-    GAMEARRAY_FLAG_NORMAL   = 0,
-    GAMEARRAY_FLAG_NORESET  = 1,
+    GAMEARRAY_NORMAL   = 0,
+    GAMEARRAY_NORESET  = 1,
 };
 
 typedef struct {
@@ -871,22 +845,22 @@ typedef struct {
 
 extern gamevar_t aGameVars[MAXGAMEVARS];
 extern gamearray_t aGameArrays[MAXGAMEARRAYS];
-extern int iGameVarCount;
-extern int iGameArrayCount;
+extern int g_gameVarCount;
+extern int g_gameArrayCount;
 
-extern int spriteflags[MAXTILES];
+extern int SpriteFlags[MAXTILES];
 
-enum spriteflags {
-    SPRITE_FLAG_SHADOW       = 1,
-    SPRITE_FLAG_NVG          = 2,
-    SPRITE_FLAG_NOSHADE      = 4,
-    SPRITE_FLAG_PROJECTILE   = 8,
-    SPRITE_FLAG_DECAL        = 16,
-    SPRITE_FLAG_BADGUY       = 32,
-    SPRITE_FLAG_NOPAL        = 64
+enum SpriteFlags_t {
+    SPRITE_SHADOW       = 1,
+    SPRITE_NVG          = 2,
+    SPRITE_NOSHADE      = 4,
+    SPRITE_PROJECTILE   = 8,
+    SPRITE_DECAL        = 16,
+    SPRITE_BADGUY       = 32,
+    SPRITE_NOPAL        = 64
 };
 
-extern short spritecache[MAXTILES][3];
+extern short SpriteCacheList[MAXTILES][3];
 
 extern int g_iReturnVarID;
 extern int g_iWeaponVarID;
@@ -922,28 +896,29 @@ extern intptr_t *aplWeaponSound2Time[MAX_WEAPONS];      // Alternate sound time
 extern intptr_t *aplWeaponSound2Sound[MAX_WEAPONS];     // Alternate sound sound ID
 extern intptr_t *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being removed
 extern intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
+extern intptr_t *aplWeaponSelectSound[MAX_WEAPONS];     // Sound for weapon selection
 
-extern short timer;
+extern short g_timerTicsPerSecond;
 
-enum weaponflags {
-    WEAPON_FLAG_HOLSTER_CLEARS_CLIP = 1,     // 'holstering' clears the current clip
-    WEAPON_FLAG_GLOWS               = 2,     // weapon 'glows' (shrinker and grower)
-    WEAPON_FLAG_AUTOMATIC           = 4,     // automatic fire (continues while 'fire' is held down
-    WEAPON_FLAG_FIREEVERYOTHER      = 8,     // during 'hold time' fire every frame
-    WEAPON_FLAG_FIREEVERYTHIRD      = 16,    // during 'hold time' fire every third frame
-    WEAPON_FLAG_RANDOMRESTART       = 32,    // restart for automatic is 'randomized' by RND 3
-    WEAPON_FLAG_AMMOPERSHOT         = 64,    // uses ammo for each shot (for automatic)
-    WEAPON_FLAG_BOMB_TRIGGER        = 128,   // weapon is the 'bomb' trigger
-    WEAPON_FLAG_NOVISIBLE           = 256,   // weapon use does not cause user to become 'visible'
-    WEAPON_FLAG_THROWIT             = 512,   // weapon 'throws' the 'shoots' item...
-    WEAPON_FLAG_CHECKATRELOAD       = 1024,  // check weapon availability at 'reload' time
-    WEAPON_FLAG_STANDSTILL          = 2048,  // player stops jumping before actual fire (like tripbomb in duke)
-    WEAPON_FLAG_SPAWNTYPE1          = 0,     // just spawn
-    WEAPON_FLAG_SPAWNTYPE2          = 4096,  // spawn like shotgun shells
-    WEAPON_FLAG_SPAWNTYPE3          = 8192,  // spawn like chaingun shells
-    WEAPON_FLAG_SEMIAUTO            = 16384, // cancel button press after each shot
-    WEAPON_FLAG_RELOAD_TIMING       = 32768, // special casing for pistol reload sounds
-    WEAPON_FLAG_RESET               = 65536  // cycle weapon back to frame 1 if fire is held, 0 if not
+enum WeaponFlags_t {
+    WEAPON_HOLSTER_CLEARS_CLIP = 1,     // 'holstering' clears the current clip
+    WEAPON_GLOWS               = 2,     // weapon 'glows' (shrinker and grower)
+    WEAPON_AUTOMATIC           = 4,     // automatic fire (continues while 'fire' is held down
+    WEAPON_FIREEVERYOTHER      = 8,     // during 'hold time' fire every frame
+    WEAPON_FIREEVERYTHIRD      = 16,    // during 'hold time' fire every third frame
+    WEAPON_RANDOMRESTART       = 32,    // restart for automatic is 'randomized' by RND 3
+    WEAPON_AMMOPERSHOT         = 64,    // uses ammo for each shot (for automatic)
+    WEAPON_BOMB_TRIGGER        = 128,   // weapon is the 'bomb' trigger
+    WEAPON_NOVISIBLE           = 256,   // weapon use does not cause user to become 'visible'
+    WEAPON_THROWIT             = 512,   // weapon 'throws' the 'shoots' item...
+    WEAPON_CHECKATRELOAD       = 1024,  // check weapon availability at 'reload' time
+    WEAPON_STANDSTILL          = 2048,  // player stops jumping before actual fire (like tripbomb in duke)
+    WEAPON_SPAWNTYPE1          = 0,     // just spawn
+    WEAPON_SPAWNTYPE2          = 4096,  // spawn like shotgun shells
+    WEAPON_SPAWNTYPE3          = 8192,  // spawn like chaingun shells
+    WEAPON_SEMIAUTO            = 16384, // cancel button press after each shot
+    WEAPON_RELOAD_TIMING       = 32768, // special casing for pistol reload sounds
+    WEAPON_RESET               = 65536  // cycle weapon back to frame 1 if fire is held, 0 if not
 };
 
 #define TRIPBOMB_TRIPWIRE           1
@@ -954,57 +929,57 @@ enum weaponflags {
 
 // custom projectiles
 
-enum projectileflags {
-    PROJECTILE_FLAG_HITSCAN             = 1,
-    PROJECTILE_FLAG_RPG                 = 2,
-    PROJECTILE_FLAG_BOUNCESOFFWALLS     = 4,
-    PROJECTILE_FLAG_BOUNCESOFFMIRRORS   = 8,
-    PROJECTILE_FLAG_KNEE                = 16,
-    PROJECTILE_FLAG_WATERBUBBLES        = 32,
-    PROJECTILE_FLAG_TIMED               = 64,
-    PROJECTILE_FLAG_BOUNCESOFFSPRITES   = 128,
-    PROJECTILE_FLAG_SPIT                = 256,
-    PROJECTILE_FLAG_COOLEXPLOSION1      = 512,
-    PROJECTILE_FLAG_BLOOD               = 1024,
-    PROJECTILE_FLAG_LOSESVELOCITY       = 2048,
-    PROJECTILE_FLAG_NOAIM               = 4096,
-    PROJECTILE_FLAG_RANDDECALSIZE       = 8192,
-    PROJECTILE_FLAG_EXPLODEONTIMER      = 16384,
-    PROJECTILE_FLAG_RPG_IMPACT          = 32768,
-    PROJECTILE_FLAG_RADIUS_PICNUM       = 65536,
-    PROJECTILE_FLAG_ACCURATE_AUTOAIM    = 131072,
-    PROJECTILE_FLAG_FORCEIMPACT         = 262144
+enum ProjectileFlags_t {
+    PROJECTILE_HITSCAN             = 1,
+    PROJECTILE_RPG                 = 2,
+    PROJECTILE_BOUNCESOFFWALLS     = 4,
+    PROJECTILE_BOUNCESOFFMIRRORS   = 8,
+    PROJECTILE_KNEE                = 16,
+    PROJECTILE_WATERBUBBLES        = 32,
+    PROJECTILE_TIMED               = 64,
+    PROJECTILE_BOUNCESOFFSPRITES   = 128,
+    PROJECTILE_SPIT                = 256,
+    PROJECTILE_COOLEXPLOSION1      = 512,
+    PROJECTILE_BLOOD               = 1024,
+    PROJECTILE_LOSESVELOCITY       = 2048,
+    PROJECTILE_NOAIM               = 4096,
+    PROJECTILE_RANDDECALSIZE       = 8192,
+    PROJECTILE_EXPLODEONTIMER      = 16384,
+    PROJECTILE_RPG_IMPACT          = 32768,
+    PROJECTILE_RADIUS_PICNUM       = 65536,
+    PROJECTILE_ACCURATE_AUTOAIM    = 131072,
+    PROJECTILE_FORCEIMPACT         = 262144
 };
 
-extern projectile_t projectile[MAXTILES], defaultprojectile[MAXTILES];
+extern projectile_t ProjectileData[MAXTILES], DefaultProjectileData[MAXTILES];
 
 // logo control
 
-enum logoflags {
-    LOGO_FLAG_ENABLED           = 1,
-    LOGO_FLAG_PLAYANIM          = 2,
-    LOGO_FLAG_PLAYMUSIC         = 4,
-    LOGO_FLAG_3DRSCREEN         = 8,
-    LOGO_FLAG_TITLESCREEN       = 16,
-    LOGO_FLAG_DUKENUKEM         = 32,
-    LOGO_FLAG_THREEDEE          = 64,
-    LOGO_FLAG_PLUTOPAKSPRITE    = 128,
-    LOGO_FLAG_SHAREWARESCREENS  = 256,
-    LOGO_FLAG_TENSCREEN         = 512
+enum LogoFlags_t {
+    LOGO_ENABLED           = 1,
+    LOGO_PLAYANIM          = 2,
+    LOGO_PLAYMUSIC         = 4,
+    LOGO_3DRSCREEN         = 8,
+    LOGO_TITLESCREEN       = 16,
+    LOGO_DUKENUKEM         = 32,
+    LOGO_THREEDEE          = 64,
+    LOGO_PLUTOPAKSPRITE    = 128,
+    LOGO_SHAREWARESCREENS  = 256,
+    LOGO_TENSCREEN         = 512
 };
 
-extern int g_NumPalettes;
-extern int g_ScriptDebug;
+extern int g_numPalettes;
+extern int g_scriptDebug;
 
 #define MAXCHEATLEN 20
-#define NUMCHEATCODES (signed int)(sizeof(cheatstrings)/sizeof(cheatstrings[0]))
+#define NUMCHEATCODES (signed int)(sizeof(CheatStrings)/sizeof(CheatStrings[0]))
 
-extern char cheatkey[2];
-extern char cheatstrings[][MAXCHEATLEN];
+extern char CheatKeys[2];
+extern char CheatStrings[][MAXCHEATLEN];
 
-extern short weapon_sprites[MAX_WEAPONS];
+extern short WeaponPickupSprites[MAX_WEAPONS];
 
-extern int redefined_quote_count;
+extern int g_numQuoteRedefinitions;
 
 extern char setupfilename[BMAX_PATH];
 
@@ -1023,26 +998,26 @@ typedef struct {
     short headspritestat[MAXSTATUS+1];
     short prevspritestat[MAXSPRITES];
     short nextspritestat[MAXSPRITES];
-    short numcyclers;
+    short g_numCyclers;
     short cyclers[MAXCYCLERS][6];
-    playerspawn_t g_PlayerSpawnPoints[MAXPLAYERS];
-    short numanimwalls;
-    short spriteq[1024],spriteqloc;
+    PlayerSpawn_t g_playerSpawnPoints[MAXPLAYERS];
+    short g_numAnimWalls;
+    short SpriteDeletionQueue[1024],g_spriteDeleteQueuePos;
     animwalltype animwall[MAXANIMWALLS];
     int msx[2048], msy[2048];
-    short mirrorwall[64], mirrorsector[64], mirrorcnt;
+    short g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
     char show2dsector[(MAXSECTORS+7)>>3];
-    short numclouds,clouds[128],cloudx[128],cloudy[128];
-    actordata_t hittype[MAXSPRITES];
+    short g_numClouds,clouds[128],cloudx[128],cloudy[128];
+    actordata_t ActorExtra[MAXSPRITES];
     short pskyoff[MAXPSKYTILES], pskybits;
 
-    int animategoal[MAXANIMATES], animatevel[MAXANIMATES], animatecnt;
+    int animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;
     short animatesect[MAXANIMATES];
     int animateptr[MAXANIMATES];
-    char numplayersprites;
-    char earthquaketime;
+    char g_numPlayerSprites;
+    char g_earthquakeTime;
     int lockclock;
-    int randomseed, global_random;
+    int randomseed, g_globalRandom;
     char scriptptrs[MAXSPRITES];
     intptr_t *vars[MAXGAMEVARS];
 } mapstate_t;
@@ -1053,10 +1028,10 @@ typedef struct {
     mapstate_t *savedstate;
 } map_t;
 
-extern map_t map[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
+extern map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
 
 typedef struct {
-    player_struct *ps;
+    DukePlayer_t *ps;
     input_t *sync;
 
     int32 movefifoend, syncvalhead, myminlag;
@@ -1068,7 +1043,7 @@ typedef struct {
 } playerdata_t;
 
 extern input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
-extern playerspawn_t g_PlayerSpawnPoints[MAXPLAYERS];
+extern PlayerSpawn_t g_playerSpawnPoints[MAXPLAYERS];
 extern playerdata_t g_player[MAXPLAYERS];
 #include "funct.h"
 
@@ -1088,6 +1063,37 @@ extern struct HASH_table gamevarH;
 extern struct HASH_table arrayH;
 extern struct HASH_table keywH;
 extern struct HASH_table gamefuncH;
+
+enum DukePacket_t
+{
+    PACKET_TYPE_MASTER_TO_SLAVE,
+    PACKET_TYPE_SLAVE_TO_MASTER,
+    PACKET_TYPE_BROADCAST,
+    SERVER_GENERATED_BROADCAST,
+    PACKET_TYPE_VERSION,
+
+    /* don't change anything above this line */
+
+    PACKET_TYPE_MESSAGE,
+
+    PACKET_TYPE_NEW_GAME,
+    PACKET_TYPE_RTS,
+    PACKET_TYPE_MENU_LEVEL_QUIT,
+    PACKET_TYPE_WEAPON_CHOICE,
+    PACKET_TYPE_PLAYER_OPTIONS,
+    PACKET_TYPE_PLAYER_NAME,
+
+    PACKET_TYPE_USER_MAP,
+
+    PACKET_TYPE_MAP_VOTE,
+    PACKET_TYPE_MAP_VOTE_INITIATE,
+    PACKET_TYPE_MAP_VOTE_CANCEL,
+
+    PACKET_TYPE_LOAD_GAME,
+    PACKET_TYPE_NULL_PACKET,
+    PACKET_TYPE_PLAYER_READY,
+    PACKET_TYPE_QUIT = 255 // should match mmulti I think
+};
 
 #ifdef __cplusplus
 }

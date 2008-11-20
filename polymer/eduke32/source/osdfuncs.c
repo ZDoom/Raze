@@ -132,7 +132,7 @@ void GAME_onshowosd(int shown)
         picsiz[BGTILE] += ((char)(j<<4));
     }
 
-    vscrn();
+    G_UpdateScreenArea();
     if (numplayers == 1)
         if ((shown && !ud.pause_on) || (!shown && ud.pause_on))
             KB_KeyDown[sc_Pause] = 1;

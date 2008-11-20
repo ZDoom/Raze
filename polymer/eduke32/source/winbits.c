@@ -65,13 +65,13 @@ int Win_MsgBox(char *name, char *fmt, ...)
 
 
 // this replaces the Error() function in jmact/util_lib.c
-extern void Shutdown(void);	// game.c
+extern void G_Shutdown(void);	// game.c
 void Error(char *error, ...)
 {
     char buf[1000];
     va_list va;
 
-    Shutdown();
+    G_Shutdown();
 
     if (error)
     {

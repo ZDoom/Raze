@@ -27,63 +27,61 @@ char *s_builddate = "20081116";
 char *MusicPtr = NULL;
 int Musicsize;
 
-short global_random;
+short g_globalRandom;
 short neartagsector, neartagwall, neartagsprite;
 
-int neartaghitdist,lockclock,start_armour_amount;
-// JBF: gc modified to default to Atomic ed. default when using 1.3d CONs
-int gc=176;
+int neartaghitdist,lockclock,g_startArmorAmount;
+// JBF: SpriteGravity modified to default to Atomic ed. default when using 1.3d CONs
+int SpriteGravity=176;
 
 // int temp_data[MAXSPRITES][6];
-actordata_t hittype[MAXSPRITES];
+actordata_t ActorExtra[MAXSPRITES];
 
-short spriteq[1024],spriteqloc,spriteqamount=64;
+short SpriteDeletionQueue[1024],g_spriteDeleteQueuePos,g_spriteDeleteQueueSize=64;
 animwalltype animwall[MAXANIMWALLS];
-short numanimwalls;
+short g_numAnimWalls;
 int *animateptr[MAXANIMATES];
-int animategoal[MAXANIMATES], animatevel[MAXANIMATES], animatecnt;
+int animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;
 // int oanimateval[MAXANIMATES];
 short animatesect[MAXANIMATES];
 int msx[2048],msy[2048];
-short cyclers[MAXCYCLERS][6],numcyclers;
+short cyclers[MAXCYCLERS][6],g_numCyclers;
 
-char *fta_quotes[MAXQUOTES],*redefined_quotes[MAXQUOTES];
+char *ScriptQuotes[MAXQUOTES], *ScriptQuoteRedefinitions[MAXQUOTES];
 
 char tempbuf[2048], packbuf[576], menutextbuf[128];
 
 char buf[1024];
 
 short camsprite;
-short mirrorwall[64], mirrorsector[64], mirrorcnt;
+short g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
 
-int current_menu;
+int g_currentMenu;
 
-map_t map[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
+map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
 
-char volume_names[MAXVOLUMES][33] = { "L.A. MELTDOWN", "LUNAR APOCALYPSE", "SHRAPNEL CITY" };
-char skill_names[5][33] = { "PIECE OF CAKE", "LET'S ROCK", "COME GET SOME", "DAMN I'M GOOD" };
+char EpisodeNames[MAXVOLUMES][33] = { "L.A. MELTDOWN", "LUNAR APOCALYPSE", "SHRAPNEL CITY" };
+char SkillNames[5][33] = { "PIECE OF CAKE", "LET'S ROCK", "COME GET SOME", "DAMN I'M GOOD" };
 
-char gametype_names[MAXGAMETYPES][33] = { "DUKEMATCH (SPAWN)","COOPERATIVE PLAY","DUKEMATCH (NO SPAWN)","TEAM DM (SPAWN)","TEAM DM (NO SPAWN)"};
-int gametype_flags[MAXGAMETYPES] = {4+8+16+1024+2048+16384,1+2+32+64+128+256+512+4096+8192+32768,2+4+8+16+16384,4+8+16+1024+2048+16384+65536+131072,2+4+8+16+16384+65536+131072};
-char num_gametypes = 5;
+char GametypeNames[MAXGAMETYPES][33] = { "DUKEMATCH (SPAWN)","COOPERATIVE PLAY","DUKEMATCH (NO SPAWN)","TEAM DM (SPAWN)","TEAM DM (NO SPAWN)"};
+int GametypeFlags[MAXGAMETYPES] = {4+8+16+1024+2048+16384,1+2+32+64+128+256+512+4096+8192+32768,2+4+8+16+16384,4+8+16+1024+2048+16384+65536+131072,2+4+8+16+16384+65536+131072};
+char g_numGametypes = 5;
 
-short title_zoom;
+int g_currentFrameRate;
 
-int framerate;
+char g_numVolumes = 3;
 
-char num_volumes = 3;
-
-short timer=120;
+short g_timerTicsPerSecond=120;
 //fx_device device;
 
 sound_t g_sounds[ MAXSOUNDS ];
 
-char numplayersprites,loadfromgrouponly=0,earthquaketime;
+char g_numPlayerSprites,g_loadFromGroupOnly=0,g_earthquakeTime;
 
 int fricxv,fricyv;
 playerdata_t g_player[MAXPLAYERS];
 input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
-playerspawn_t g_PlayerSpawnPoints[MAXPLAYERS];
+PlayerSpawn_t g_playerSpawnPoints[MAXPLAYERS];
 user_defs ud;
 
 char pus, pub;
@@ -102,26 +100,25 @@ int screenpeek;
 //Game recording variables
 
 char ready2send;
-int vel, svel, angvel, horiz, ototalclock, respawnactortime=768, respawnitemtime=768, groupfile;
+int vel, svel, angvel, horiz, ototalclock, g_actorRespawnTime=768, g_itemRespawnTime=768, g_groupFileHandle;
 
-intptr_t *scriptptr,*insptr,*labelcode,*labeltype;
-int labelcnt,defaultlabelcnt;
-intptr_t *actorscrptr[MAXTILES],*parsing_actor;
+intptr_t *g_scriptPtr,*insptr,*labelcode,*labeltype;
+int g_numLabels,g_numDefaultLabels;
+intptr_t *actorscrptr[MAXTILES],*g_parsingActorPtr;
 char *label;
-char *music_pointer;
-char actortype[MAXTILES];
+char ActorType[MAXTILES];
 intptr_t *script = NULL;
 
-int g_ScriptSize = 16384;
+int g_scriptSize = 16384;
 
 char typebuflen,typebuf[141];
 
-char *music_fn[MAXVOLUMES+1][MAXLEVELS],music_select;
-char env_music_fn[MAXVOLUMES+1][BMAX_PATH];
-char rtsplaying;
+char g_musicIndex;
+char EnvMusicFilename[MAXVOLUMES+1][BMAX_PATH];
+char g_RTSPlaying;
 
 
-short weaponsandammosprites[15] =
+short BlimpSpawnSprites[15] =
 {
     RPGSPRITE__STATIC,
     CHAINGUNSPRITE__STATIC,
@@ -140,8 +137,8 @@ short weaponsandammosprites[15] =
     FREEZEAMMO__STATIC
 };
 
-int impact_damage;
-int g_ScriptDebug;
+int g_impactDamage;
+int g_scriptDebug;
 
 //GLOBAL.C - replace the end "my's" with this
 int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
@@ -151,35 +148,36 @@ short myang, omyang, mycursectnum, myjumpingcounter;
 char myjumpingtoggle, myonground, myhardlanding, myreturntocenter;
 signed char multiwho, multipos, multiwhat, multiflag;
 
-int fakemovefifoplc,movefifoplc;
+int predictfifoplc,movefifoplc;
 int myxbak[MOVEFIFOSIZ], myybak[MOVEFIFOSIZ], myzbak[MOVEFIFOSIZ];
-int myhorizbak[MOVEFIFOSIZ],dukefriction = 0xcc00, show_shareware;
+int myhorizbak[MOVEFIFOSIZ],g_playerFriction = 0xcc00, g_showShareware;
 
 short myangbak[MOVEFIFOSIZ];
-char myname[32];
-int camerashitable,freezerhurtowner=0,lasermode=0;
-int networkmode = 255, movesperpacket = 1,gamequit = 0,everyothertime;
-int numfreezebounces=3,rpgblastradius,pipebombblastradius,tripbombblastradius,shrinkerblastradius,morterblastradius,bouncemineblastradius,seenineblastradius;
+char szPlayerName[32];
+int g_damageCameras,g_freezerSelfDamage=0,g_tripbombLaserMode=0;
+int g_networkBroadcastMode = 255, g_movesPerPacket = 1,g_gameQuit = 0,everyothertime;
+int g_numFreezeBounces=3,g_rpgBlastRadius,g_pipebombBlastRadius,g_tripbombBlastRadius,
+    g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
 STATUSBARTYPE sbar;
 
 int mymaxlag, otherminlag, bufferjitter = 1;
-short numclouds,clouds[128],cloudx[128],cloudy[128];
+short g_numClouds,clouds[128],cloudx[128],cloudy[128];
 int cloudtotalclock = 0,totalmemory = 0;
-int numinterpolations = 0, startofdynamicinterpolations = 0;
+int g_numInterpolations = 0, startofdynamicinterpolations = 0;
 int oldipos[MAXINTERPOLATIONS];
 int bakipos[MAXINTERPOLATIONS];
 int *curipos[MAXINTERPOLATIONS];
 
 int nextvoxid = 0;
 
-int spriteflags[MAXTILES];
+int SpriteFlags[MAXTILES];
 
-projectile_t projectile[MAXTILES], thisprojectile[MAXSPRITES], defaultprojectile[MAXTILES];
+projectile_t ProjectileData[MAXTILES], DefaultProjectileData[MAXTILES];
 
-char cheatkey[2] = { sc_D, sc_N };
+char CheatKeys[2] = { sc_D, sc_N };
 char setupfilename[BMAX_PATH]= "duke3d.cfg";
 // char datetimestring[] = ""__DATE__" "__TIME__"";
 
-int doquicksave = 0;
-unsigned int MoveThingsCount = 0;
+int g_doQuickSave = 0;
+unsigned int g_moveThingsCount = 0;
 

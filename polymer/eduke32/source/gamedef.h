@@ -51,10 +51,10 @@ extern int g_gs;
 extern int g_kb;
 extern int g_looking_angSR1;
 extern int lastvisinc;
-extern char cheatstrings[][MAXCHEATLEN];
-extern char compilefile[BMAX_PATH];
-extern int total_lines,line_number;
-extern int error,warning;
+extern char CheatStrings[][MAXCHEATLEN];
+extern char g_szScriptFileName[BMAX_PATH];
+extern int g_totalLines,g_lineNumber;
+extern int g_numCompilerErrors,g_numCompilerWarnings;
 
 typedef struct
 {
@@ -64,36 +64,36 @@ typedef struct
     int maxParm2;
 } memberlabel_t;
 
-extern const memberlabel_t sectorlabels[];
-extern const memberlabel_t walllabels[];
-extern const memberlabel_t actorlabels[];
-extern const memberlabel_t playerlabels[];
-extern const memberlabel_t projectilelabels[];
+extern const memberlabel_t SectorLabels[];
+extern const memberlabel_t WallLabels[];
+extern const memberlabel_t ActorLabels[];
+extern const memberlabel_t PlayerLabels[];
+extern const memberlabel_t ProjectileLabels[];
 extern const memberlabel_t userdeflabels[];
-extern const memberlabel_t inputlabels[];
-extern const memberlabel_t tsprlabels[];
+extern const memberlabel_t InputLabels[];
+extern const memberlabel_t TsprLabels[];
 
-extern void DoUserDef(int iSet, int lLabelID, int lVar2);
-extern void DoThisProjectile(int iSet, int lVar1, int lLabelID, int lVar2);
-extern void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2);
-extern void DoInput(int iSet, int lVar1, int lLabelID, int lVar2);
-extern void DoWall(int iSet, int lVar1, int lLabelID, int lVar2);
-extern void DoSector(int iSet, int lVar1, int lLabelID, int lVar2);
-extern void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2);
-extern void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2);
-extern void DoProjectile(int iSet, int lVar1, int lLabelID, int lVar2);
+extern void X_AccessUserdef(int iSet, int lLabelID, int lVar2);
+extern void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2);
+extern void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2);
+extern void X_AccessPlayerInput(int iSet, int lVar1, int lLabelID, int lVar2);
+extern void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2);
+extern void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2);
+extern void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2);
+extern void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2);
+extern void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2);
 
 #define CON_ERROR OSD_ERROR "Line %d, %s: "
 
 extern int g_i,g_p;
-extern int checkCON;
+extern int g_scriptSanityChecks;
 
-extern int line_num;
+extern int g_errorLineNum;
 extern int g_tw;
 extern const char *keyw[];
 extern spritetype *g_sp;
 
-enum errors
+enum ScriptError_t
 {
     ERROR_CLOSEBRACKET,
     ERROR_EVENTONLY,
@@ -123,7 +123,7 @@ enum errors
     WARNING_REVEVENTSYNC
 };
 
-enum playerlabels
+enum PlayerLabel_t
 {
     PLAYER_ZOOM,
     PLAYER_EXITX,
@@ -274,7 +274,7 @@ enum playerlabels
     PLAYER_END
 };
 
-enum userdefslabels
+enum UserdefsLabel_t
 {
     USERDEFS_GOD,
     USERDEFS_WARP_ON,
@@ -374,7 +374,7 @@ enum userdefslabels
     USERDEFS_END
 };
 
-enum sectorlabels
+enum SectorLabel_t
 {
     SECTOR_WALLPTR,
     SECTOR_WALLNUM,
@@ -402,7 +402,7 @@ enum sectorlabels
     SECTOR_END
 };
 
-enum walllabels
+enum WallLabel_t
 {
     WALL_X,
     WALL_Y,
@@ -424,7 +424,7 @@ enum walllabels
     WALL_END
 };
 
-enum actorlabels
+enum ActorLabel_t
 {
     ACTOR_X,
     ACTOR_Y,
@@ -480,7 +480,7 @@ enum actorlabels
     ACTOR_END
 };
 
-enum inputlabels
+enum InputLabel_t
 {
     INPUT_AVEL,
     INPUT_HORZ,
@@ -491,7 +491,7 @@ enum inputlabels
     INPUT_END
 };
 
-enum projectilelabels
+enum ProjectileLabel_t
 {
     PROJ_WORKSLIKE,
     PROJ_SPAWNS,
@@ -524,7 +524,7 @@ enum projectilelabels
     PROJ_END
 };
 
-enum keywords
+enum ScriptKeywords_t
 {
     CON_DEFINELEVELNAME,    // 0
     CON_ACTOR,              // 1

@@ -351,7 +351,7 @@ static GtkWidget *create_window(void)
                                GDK_F, GDK_MOD1_MASK,
                                GTK_ACCEL_VISIBLE);
 
-    // 3D video mode label
+    // 3D video mode LabelText
     vmode3dlabel = gtk_label_new_with_mnemonic("_Video mode:");
     gtk_widget_show(vmode3dlabel);
     gtk_fixed_put(GTK_FIXED(configlayout), vmode3dlabel, 0, 0);
@@ -432,7 +432,7 @@ static GtkWidget *create_window(void)
     gtk_container_add(GTK_CONTAINER(tabs), gamevlayout);
     gtk_container_set_border_width(GTK_CONTAINER(gamevlayout), 4);
 
-    // Game data field label
+    // Game data field LabelText
     gamelabel = gtk_label_new_with_mnemonic("_Game or addon:");
     gtk_widget_show(gamelabel);
     gtk_box_pack_start(GTK_BOX(gamevlayout), gamelabel, FALSE, FALSE, 0);
@@ -759,7 +759,7 @@ int startwin_run(void)
     settings.forcesetup = ud.config.ForceSetup;
     settings.usemouse = ud.config.UseMouse;
     settings.usejoy = ud.config.UseJoystick;
-    settings.game = g_GameType;
+    settings.game = g_gameType;
     strncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
     PopulateForm(-1);
 
@@ -778,7 +778,7 @@ int startwin_run(void)
         ud.config.UseMouse = settings.usemouse;
         ud.config.UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;
-        g_GameType = settings.game;
+        g_gameType = settings.game;
 
         for (i = 0; i<numgrpfiles; i++) if (settings.crcval == grpfiles[i].crcval) break;
         if (i != numgrpfiles)

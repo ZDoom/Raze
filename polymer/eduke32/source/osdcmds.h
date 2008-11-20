@@ -2,7 +2,7 @@
 #define __osdcmds_h__
 
 struct osdcmd_cheatsinfo {
-	int cheatnum;	// -1 = none, else = see cheats()
+	int cheatnum;	// -1 = none, else = see DoCheats()
 	int volume,level;
 };
 

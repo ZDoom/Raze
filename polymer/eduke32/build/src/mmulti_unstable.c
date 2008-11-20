@@ -11,7 +11,6 @@
 #include <stdarg.h>
 #include <ctype.h>
 #include <time.h>
-#include <sys/time.h> //HACK, for id generation
 
 #include "mmulti_unstable.h"
 // #include <enet/enet.h>
@@ -73,6 +72,8 @@ int connecthead, connectpoint2[MAXPLAYERS];
 char syncstate = 0;
 
 #define MAXPACKETSIZE 2048
+#define PACKET_START_GAME 0x1337
+
 typedef struct
 {
 //    short intnum;                /* communication between Game and the driver */
@@ -127,6 +128,11 @@ enum ECommitCMDs
     COMMIT_CMD_SCORE            = 5,
 };
 
+static struct
+{
+    int host;
+    unsigned short port;
+} allowed_addresses[MAXPLAYERS];  /* only respond to these IPs. */
 
 // Queue of out going packets.
 //PacketQueue outgoingPacketQueue;
@@ -180,6 +186,8 @@ void initmultiplayers(int argc, char **argv)
         outcntplc[i] = 0L;
         outcntend[i] = 0L;
         bakpacketlen[i][255] = -1;
+        allowed_addresses[i].host = 0;
+        allowed_addresses[i].port = 0;
     }
 
     // clear out the packet ordering
@@ -544,7 +552,7 @@ int getpacket(int *other, char *bufptr)
 
 void flushpackets()
 {
-#if 0
+#if 1
     int i;
 
     if (numplayers < 2) return;
@@ -628,12 +636,6 @@ void genericmultifunction(int other, char *bufptr, int messleng, int command)
 
 static sockettype udpsocket = -1;
 static unsigned short udpport = BUILD_DEFAULT_UDP_PORT;
-
-static struct
-{
-    int host;
-    unsigned short port;
-} allowed_addresses[MAXPLAYERS];  /* only respond to these IPs. */
 
 #if PLATFORM_WIN32
 /*
@@ -1121,7 +1123,7 @@ static int wait_for_other_players(gcomtype *gcom, int myip)
             // greeting with 0x1337 id starts the game for clients
             send_peer_greeting(allowed_addresses[j].host,
                                allowed_addresses[j].port,
-                               0x1337);
+                               PACKET_START_GAME);
         }
 
     /* ok, now everyone is talking to you. Sort them into player numbers... */
@@ -1217,9 +1219,10 @@ static int connect_to_server(gcomtype *gcom, int myip)
 
     while (my_id == 0)  /* player number is based on id, low to high. */
     {
-        struct timeval tv;
+/*        struct timeval tv;
         gettimeofday(&tv, NULL);
-        my_id = (unsigned short)tv.tv_usec; //HACK
+        my_id = (unsigned short)tv.tv_usec; //HACK */
+        my_id = (unsigned short) rand();
     }
 
     initprintf("mmulti_unstable: Using 0x%X as client ID\n", my_id);
@@ -1285,7 +1288,7 @@ static int connect_to_server(gcomtype *gcom, int myip)
                 if (!heard_from[i] || heard_from[i] == B_SWAP16(packet.id)) break; // only increase once
 
             // greeting with 0x1337 id starts the game
-            if (B_SWAP16(packet.id) == 0x1337)
+            if (B_SWAP16(packet.id) == PACKET_START_GAME)
             {
                 remaining = 0;
                 continue;
@@ -1427,9 +1430,10 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
 
     while (my_id == 0)  /* player number is based on id, low to high. */
     {
-        struct timeval tv;
+/*        struct timeval tv;
         gettimeofday(&tv, NULL);
-        my_id = (unsigned short)tv.tv_usec; //HACK
+        my_id = (unsigned short)tv.tv_usec; //HACK */
+        my_id = (unsigned short) rand();
     }
 
 

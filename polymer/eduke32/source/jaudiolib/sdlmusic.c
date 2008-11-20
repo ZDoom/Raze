@@ -304,7 +304,7 @@ int MUSIC_StopSong(void)
 } // MUSIC_StopSong
 
 // Duke3D-specific.  --ryan.
-void PlayMusic(char *_filename)
+void MUSIC_PlayMusic(char *_filename)
 {
     int handle;
     int size;

@@ -37,31 +37,31 @@ void endanimsounds(int fr)
         switch (fr)
         {
         case 1:
-            sound(WIND_AMBIENCE);
+            S_PlaySound(WIND_AMBIENCE);
             break;
         case 26:
-            sound(ENDSEQVOL2SND1);
+            S_PlaySound(ENDSEQVOL2SND1);
             break;
         case 36:
-            sound(ENDSEQVOL2SND2);
+            S_PlaySound(ENDSEQVOL2SND2);
             break;
         case 54:
-            sound(THUD);
+            S_PlaySound(THUD);
             break;
         case 62:
-            sound(ENDSEQVOL2SND3);
+            S_PlaySound(ENDSEQVOL2SND3);
             break;
         case 75:
-            sound(ENDSEQVOL2SND4);
+            S_PlaySound(ENDSEQVOL2SND4);
             break;
         case 81:
-            sound(ENDSEQVOL2SND5);
+            S_PlaySound(ENDSEQVOL2SND5);
             break;
         case 115:
-            sound(ENDSEQVOL2SND6);
+            S_PlaySound(ENDSEQVOL2SND6);
             break;
         case 124:
-            sound(ENDSEQVOL2SND7);
+            S_PlaySound(ENDSEQVOL2SND7);
             break;
         }
         break;
@@ -69,23 +69,23 @@ void endanimsounds(int fr)
         switch (fr)
         {
         case 1:
-            sound(WIND_REPEAT);
+            S_PlaySound(WIND_REPEAT);
             break;
         case 98:
-            sound(DUKE_GRUNT);
+            S_PlaySound(DUKE_GRUNT);
             break;
         case 82+20:
-            sound(THUD);
-            sound(SQUISHED);
+            S_PlaySound(THUD);
+            S_PlaySound(SQUISHED);
             break;
         case 104+20:
-            sound(ENDSEQVOL3SND3);
+            S_PlaySound(ENDSEQVOL3SND3);
             break;
         case 114+20:
-            sound(ENDSEQVOL3SND2);
+            S_PlaySound(ENDSEQVOL3SND2);
             break;
         case 158:
-            sound(PIPEBOMB_EXPLODE);
+            S_PlaySound(PIPEBOMB_EXPLODE);
             break;
         }
         break;
@@ -97,10 +97,10 @@ void logoanimsounds(int fr)
     switch (fr)
     {
     case 1:
-        sound(FLY_BY);
+        S_PlaySound(FLY_BY);
         break;
     case 19:
-        sound(PIPEBOMB_EXPLODE);
+        S_PlaySound(PIPEBOMB_EXPLODE);
         break;
     }
 }
@@ -110,14 +110,14 @@ void intro4animsounds(int fr)
     switch (fr)
     {
     case 1:
-        sound(INTRO4_B);
+        S_PlaySound(INTRO4_B);
         break;
     case 12:
     case 34:
-        sound(SHORT_CIRCUIT);
+        S_PlaySound(SHORT_CIRCUIT);
         break;
     case 18:
-        sound(INTRO4_5);
+        S_PlaySound(INTRO4_5);
         break;
     }
 }
@@ -127,16 +127,16 @@ void first4animsounds(int fr)
     switch (fr)
     {
     case 1:
-        sound(INTRO4_1);
+        S_PlaySound(INTRO4_1);
         break;
     case 12:
-        sound(INTRO4_2);
+        S_PlaySound(INTRO4_2);
         break;
     case 7:
-        sound(INTRO4_3);
+        S_PlaySound(INTRO4_3);
         break;
     case 26:
-        sound(INTRO4_4);
+        S_PlaySound(INTRO4_4);
         break;
     }
 }
@@ -146,7 +146,7 @@ void intro42animsounds(int fr)
     switch (fr)
     {
     case 10:
-        sound(INTRO4_6);
+        S_PlaySound(INTRO4_6);
         break;
     }
 }
@@ -156,10 +156,10 @@ void endanimvol41(int fr)
     switch (fr)
     {
     case 3:
-        sound(DUKE_UNDERWATER);
+        S_PlaySound(DUKE_UNDERWATER);
         break;
     case 35:
-        sound(VOL4ENDSND1);
+        S_PlaySound(VOL4ENDSND1);
         break;
     }
 }
@@ -169,13 +169,13 @@ void endanimvol42(int fr)
     switch (fr)
     {
     case 11:
-        sound(DUKE_UNDERWATER);
+        S_PlaySound(DUKE_UNDERWATER);
         break;
     case 20:
-        sound(VOL4ENDSND1);
+        S_PlaySound(VOL4ENDSND1);
         break;
     case 39:
-        sound(VOL4ENDSND2);
+        S_PlaySound(VOL4ENDSND2);
         break;
     case 50:
         FX_StopAllSounds();
@@ -188,19 +188,19 @@ void endanimvol43(int fr)
     switch (fr)
     {
     case 1:
-        sound(BOSS4_DEADSPEECH);
+        S_PlaySound(BOSS4_DEADSPEECH);
         break;
     case 40:
-        sound(VOL4ENDSND1);
-        sound(DUKE_UNDERWATER);
+        S_PlaySound(VOL4ENDSND1);
+        S_PlaySound(DUKE_UNDERWATER);
         break;
     case 50:
-        sound(BIGBANG);
+        S_PlaySound(BIGBANG);
         break;
     }
 }
 
-void playanm(const char *fn,char t)
+void G_PlayAnim(const char *fn,char t)
 {
     char *animbuf;
     unsigned char *palptr;
@@ -250,7 +250,7 @@ void playanm(const char *fn,char t)
 
     //setpalette(0L,256L,tempbuf);
     //setbrightness(ud.brightness>>2,tempbuf,2);
-    setgamepalette(g_player[myconnectindex].ps,animpal,10);
+    SetGamePalette(g_player[myconnectindex].ps,animpal,10);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     gltexfiltermode = 0;
@@ -275,10 +275,10 @@ void playanm(const char *fn,char t)
                 goto ENDOFANIMLOOP;
             handleevents();
             getpackets();
-            if (restorepalette == 1)
+            if (g_restorePalette == 1)
             {
-                setgamepalette(g_player[myconnectindex].ps,animpal,0);
-                restorepalette = 0;
+                SetGamePalette(g_player[myconnectindex].ps,animpal,0);
+                g_restorePalette = 0;
             }
             idle();
         }

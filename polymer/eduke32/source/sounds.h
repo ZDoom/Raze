@@ -31,10 +31,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _sounds_public_
 #define _sounds_public_
 
-void SoundStartup( void );
-void SoundShutdown( void );
-void MusicStartup( void );
-void MusicShutdown( void );
+void S_SoundStartup( void );
+void S_SoundShutdown( void );
+void S_MusicStartup( void );
+void S_MusicShutdown( void );
 void AudioUpdate(void);
 
 struct audioenumdev {

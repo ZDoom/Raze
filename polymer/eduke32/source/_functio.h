@@ -89,12 +89,13 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    "Quick_Kick",
    "Next_Weapon",
    "Previous_Weapon",
-   "Show_Console"
+   "Show_Console",
+   "Show_DukeMatch_Scores"
    };
 
 #ifdef __SETUP__
 
-#define NUMKEYENTRIES 53
+#define NUMKEYENTRIES 54
 
 char keydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN] =
    {
@@ -150,7 +151,8 @@ char keydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN] =
    "Quick_Kick", "Q", "",
    "Next_Weapon", "'", "",
    "Previous_Weapon", ";", "",
-   "Show_Console", "`", ""
+   "Show_Console", "`", "",
+   "Show_DukeMatch_Scores," "", ""
    };
 
 const char oldkeydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN] =
@@ -207,7 +209,8 @@ const char oldkeydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN] =
    "Quick_Kick", "`", "",
    "Next_Weapon", "'", "",
    "Previous_Weapon", ";", "",
-   "Show_Console", "`", ""
+   "Show_Console", "`", "",
+   "Show_DukeMatch_Scores", "", ""
    };
 
 static char * mousedefaults[] =

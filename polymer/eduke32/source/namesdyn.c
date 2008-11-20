@@ -1517,9 +1517,9 @@ int RESERVEDSLOT10 = 6141;
 int RESERVEDSLOT11 = 6142;
 int RESERVEDSLOT12 = 6143;
 
-short dynamictostatic[MAXTILES];
+short DynamicTileMap[MAXTILES];
 
-void processnames(const char *szLabel, int lValue)
+void G_ProcessDynamicTileMapping(const char *szLabel, int lValue)
 {
     int i;
     if (lValue >= MAXTILES || !szLabel)
@@ -1542,42 +1542,42 @@ void freehashnames()
     HASH_free(&dynnamesH);
 }
 
-void setupdynamictostatic(void)
+void G_InitDynamicTiles(void)
 {
     int i = 0;
-    clearbufbyte(dynamictostatic,MAXTILES,0);
+    clearbufbyte(DynamicTileMap,MAXTILES,0);
     while (list[i].val)
     {
-        dynamictostatic[list[i].val]=list[i].vstat;
+        DynamicTileMap[list[i].val]=list[i].vstat;
         i++;
     }
 
-    weaponsandammosprites[0] = RPGSPRITE;
-    weaponsandammosprites[1] = CHAINGUNSPRITE;
-    weaponsandammosprites[2] = DEVISTATORAMMO;
-    weaponsandammosprites[3] = RPGAMMO;
-    weaponsandammosprites[4] = RPGAMMO;
-    weaponsandammosprites[5] = JETPACK;
-    weaponsandammosprites[6] = SHIELD;
-    weaponsandammosprites[7] = FIRSTAID;
-    weaponsandammosprites[8] = STEROIDS;
-    weaponsandammosprites[9] = RPGAMMO;
-    weaponsandammosprites[10] = RPGAMMO;
-    weaponsandammosprites[11] = RPGSPRITE;
-    weaponsandammosprites[12] = RPGAMMO;
-    weaponsandammosprites[13] = FREEZESPRITE;
-    weaponsandammosprites[14] = FREEZEAMMO;
+    BlimpSpawnSprites[0] = RPGSPRITE;
+    BlimpSpawnSprites[1] = CHAINGUNSPRITE;
+    BlimpSpawnSprites[2] = DEVISTATORAMMO;
+    BlimpSpawnSprites[3] = RPGAMMO;
+    BlimpSpawnSprites[4] = RPGAMMO;
+    BlimpSpawnSprites[5] = JETPACK;
+    BlimpSpawnSprites[6] = SHIELD;
+    BlimpSpawnSprites[7] = FIRSTAID;
+    BlimpSpawnSprites[8] = STEROIDS;
+    BlimpSpawnSprites[9] = RPGAMMO;
+    BlimpSpawnSprites[10] = RPGAMMO;
+    BlimpSpawnSprites[11] = RPGSPRITE;
+    BlimpSpawnSprites[12] = RPGAMMO;
+    BlimpSpawnSprites[13] = FREEZESPRITE;
+    BlimpSpawnSprites[14] = FREEZEAMMO;
 
-    weapon_sprites[0] = KNEE;
-    weapon_sprites[1] = FIRSTGUNSPRITE;
-    weapon_sprites[2] = SHOTGUNSPRITE;
-    weapon_sprites[3] = CHAINGUNSPRITE;
-    weapon_sprites[4] = RPGSPRITE;
-    weapon_sprites[5] = HEAVYHBOMB;
-    weapon_sprites[6] = SHRINKERSPRITE;
-    weapon_sprites[7] = DEVISTATORSPRITE;
-    weapon_sprites[8] = TRIPBOMBSPRITE;
-    weapon_sprites[9] = FREEZESPRITE;
-    weapon_sprites[10] = HEAVYHBOMB;
-    weapon_sprites[11] = SHRINKERSPRITE;
+    WeaponPickupSprites[0] = KNEE;
+    WeaponPickupSprites[1] = FIRSTGUNSPRITE;
+    WeaponPickupSprites[2] = SHOTGUNSPRITE;
+    WeaponPickupSprites[3] = CHAINGUNSPRITE;
+    WeaponPickupSprites[4] = RPGSPRITE;
+    WeaponPickupSprites[5] = HEAVYHBOMB;
+    WeaponPickupSprites[6] = SHRINKERSPRITE;
+    WeaponPickupSprites[7] = DEVISTATORSPRITE;
+    WeaponPickupSprites[8] = TRIPBOMBSPRITE;
+    WeaponPickupSprites[9] = FREEZESPRITE;
+    WeaponPickupSprites[10] = HEAVYHBOMB;
+    WeaponPickupSprites[11] = SHRINKERSPRITE;
 }

@@ -291,14 +291,14 @@ endif
 enginelib editorlib:
 	-mkdir -p $(EOBJ)
 ifeq ($(PRETTY_OUTPUT),1)	
-	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)/$(EROOT)\033[0;35m.\033[0m\n"
+	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)/$(EROOT)\033[0;35m \033[0m\n"
 endif	
 	$(MAKE) -C $(EROOT)/ "OBJ=../$(EOBJ)" \
 		SUPERBUILD=$(SUPERBUILD) POLYMOST=$(POLYMOST) \
 		USE_OPENGL=$(USE_OPENGL) BUILD32_ON_64=$(BUILD32_ON_64) \
 		NOASM=$(NOASM) RELEASE=$(RELEASE) OPTLEVEL=$(OPTLEVEL) RANCID_NETWORKING=$(RANCID_NETWORKING) $@
 ifeq ($(PRETTY_OUTPUT),1)		
-	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)\033[0;35m.\033[0m\n"
+	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)\033[0;35m \033[0m\n"
 endif	
 	
 $(EOBJ)/$(ENGINELIB): enginelib

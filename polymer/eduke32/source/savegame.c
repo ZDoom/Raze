@@ -28,7 +28,7 @@ extern char *bitptr;
 
 #define BITPTR_POINTER 1
 
-void readsavenames(void)
+void ReadSaveGameHeaders(void)
 {
     int dummy,j;
     int i;
@@ -74,7 +74,7 @@ void readsavenames(void)
     }
 }
 
-int loadpheader(char spot,struct savehead *saveh)
+int G_LoadSaveHeader(char spot,struct savehead *saveh)
 {
     char fn[13];
     int fil;
@@ -95,7 +95,7 @@ int loadpheader(char spot,struct savehead *saveh)
     if (kdfread(&bv,4,1,fil) != 1) goto corrupt;
     /*    if (bv != BYTEVERSION)
         {
-            FTA(114,g_player[myconnectindex].ps);
+            P_DoQuote(114,g_player[myconnectindex].ps);
             kclose(fil);
             return 1;
         }*/
@@ -122,7 +122,7 @@ corrupt:
     return 1;
 }
 
-int loadplayer(int spot)
+int G_LoadPlayer(int spot)
 {
     int k;
     char fn[13];
@@ -173,7 +173,7 @@ int loadplayer(int spot)
     if (kdfread(&bv,4,1,fil) != 1) return -1;
     if (bv != BYTEVERSION)
     {
-        FTA(114,g_player[myconnectindex].ps);
+        P_DoQuote(114,g_player[myconnectindex].ps);
         kclose(fil);
         ototalclock = totalclock;
         ready2send = 1;
@@ -186,7 +186,7 @@ int loadplayer(int spot)
         kclose(fil);
         ototalclock = totalclock;
         ready2send = 1;
-        FTA(124,g_player[myconnectindex].ps);
+        P_DoQuote(124,g_player[myconnectindex].ps);
         return 1;
     }
     else ud.multimode = nump;
@@ -195,8 +195,8 @@ int loadplayer(int spot)
     {
         pub = NUMPAGES;
         pus = NUMPAGES;
-        vscrn();
-        drawbackground();
+        G_UpdateScreenArea();
+        G_DrawBackground();
         menutext(160,100,0,0,"LOADING...");
         nextpage();
     }
@@ -204,7 +204,7 @@ int loadplayer(int spot)
     waitforeverybody();
 
     FX_StopAllSounds();
-    clearsoundlocks();
+    S_ClearSoundLocks();
 
     if (numplayers > 1)
     {
@@ -248,43 +248,43 @@ int loadplayer(int spot)
     if (kdfread(&headspritesect[0],2,MAXSECTORS+1,fil) != MAXSECTORS+1) goto corrupt;
     if (kdfread(&prevspritesect[0],2,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
     if (kdfread(&nextspritesect[0],2,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
-    if (kdfread(&headspritestat[0],2,MAXSTATUS+1,fil) != MAXSTATUS+1) goto corrupt;
-    if (kdfread(&prevspritestat[0],2,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
-    if (kdfread(&nextspritestat[0],2,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
-    if (kdfread(&numcyclers,sizeof(numcyclers),1,fil) != 1) goto corrupt;
+    if (kdfread(&headspritestat[STAT_DEFAULT],2,MAXSTATUS+1,fil) != MAXSTATUS+1) goto corrupt;
+    if (kdfread(&prevspritestat[STAT_DEFAULT],2,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+    if (kdfread(&nextspritestat[STAT_DEFAULT],2,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+    if (kdfread(&g_numCyclers,sizeof(g_numCyclers),1,fil) != 1) goto corrupt;
     if (kdfread(&cyclers[0][0],12,MAXCYCLERS,fil) != MAXCYCLERS) goto corrupt;
     for (i=0;i<nump;i++)
-        if (kdfread(g_player[i].ps,sizeof(player_struct),1,fil) != 1) goto corrupt;
-    if (kdfread(&g_PlayerSpawnPoints,sizeof(g_PlayerSpawnPoints),1,fil) != 1) goto corrupt;
-    if (kdfread(&numanimwalls,sizeof(numanimwalls),1,fil) != 1) goto corrupt;
+        if (kdfread(g_player[i].ps,sizeof(DukePlayer_t),1,fil) != 1) goto corrupt;
+    if (kdfread(&g_playerSpawnPoints,sizeof(g_playerSpawnPoints),1,fil) != 1) goto corrupt;
+    if (kdfread(&g_numAnimWalls,sizeof(g_numAnimWalls),1,fil) != 1) goto corrupt;
     if (kdfread(&animwall,sizeof(animwall),1,fil) != 1) goto corrupt;
     if (kdfread(&msx[0],sizeof(int),sizeof(msx)/sizeof(int),fil) != sizeof(msx)/sizeof(int)) goto corrupt;
     if (kdfread(&msy[0],sizeof(int),sizeof(msy)/sizeof(int),fil) != sizeof(msy)/sizeof(int)) goto corrupt;
-    if (kdfread((short *)&spriteqloc,sizeof(short),1,fil) != 1) goto corrupt;
-    if (kdfread((short *)&spriteqamount,sizeof(short),1,fil) != 1) goto corrupt;
-    if (kdfread((short *)&spriteq[0],sizeof(short),spriteqamount,fil) != spriteqamount) goto corrupt;
-    if (kdfread(&mirrorcnt,sizeof(short),1,fil) != 1) goto corrupt;
-    if (kdfread(&mirrorwall[0],sizeof(short),64,fil) != 64) goto corrupt;
-    if (kdfread(&mirrorsector[0],sizeof(short),64,fil) != 64) goto corrupt;
+    if (kdfread((short *)&g_spriteDeleteQueuePos,sizeof(short),1,fil) != 1) goto corrupt;
+    if (kdfread((short *)&g_spriteDeleteQueueSize,sizeof(short),1,fil) != 1) goto corrupt;
+    if (kdfread((short *)&SpriteDeletionQueue[0],sizeof(short),g_spriteDeleteQueueSize,fil) != g_spriteDeleteQueueSize) goto corrupt;
+    if (kdfread(&g_mirrorCount,sizeof(short),1,fil) != 1) goto corrupt;
+    if (kdfread(&g_mirrorWall[0],sizeof(short),64,fil) != 64) goto corrupt;
+    if (kdfread(&g_mirrorSector[0],sizeof(short),64,fil) != 64) goto corrupt;
     if (kdfread(&show2dsector[0],sizeof(char),MAXSECTORS>>3,fil) != (MAXSECTORS>>3)) goto corrupt;
-    if (kdfread(&actortype[0],sizeof(char),MAXTILES,fil) != MAXTILES) goto corrupt;
+    if (kdfread(&ActorType[0],sizeof(char),MAXTILES,fil) != MAXTILES) goto corrupt;
 
-    if (kdfread(&numclouds,sizeof(numclouds),1,fil) != 1) goto corrupt;
+    if (kdfread(&g_numClouds,sizeof(g_numClouds),1,fil) != 1) goto corrupt;
     if (kdfread(&clouds[0],sizeof(short)<<7,1,fil) != 1) goto corrupt;
     if (kdfread(&cloudx[0],sizeof(short)<<7,1,fil) != 1) goto corrupt;
     if (kdfread(&cloudy[0],sizeof(short)<<7,1,fil) != 1) goto corrupt;
 
-    if (kdfread(&g_ScriptSize,sizeof(g_ScriptSize),1,fil) != 1) goto corrupt;
-    if (!g_ScriptSize) goto corrupt;
-    scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(scriptptrs));
+    if (kdfread(&g_scriptSize,sizeof(g_scriptSize),1,fil) != 1) goto corrupt;
+    if (!g_scriptSize) goto corrupt;
+    scriptptrs = Bcalloc(1,g_scriptSize * sizeof(scriptptrs));
     Bfree(bitptr);
-    bitptr = Bcalloc(1,(((g_ScriptSize+7)>>3)+1) * sizeof(char));
-    if (kdfread(&bitptr[0],sizeof(char),(g_ScriptSize+7)>>3,fil) != ((g_ScriptSize+7)>>3)) goto corrupt;
+    bitptr = Bcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(char));
+    if (kdfread(&bitptr[0],sizeof(char),(g_scriptSize+7)>>3,fil) != ((g_scriptSize+7)>>3)) goto corrupt;
     if (script != NULL)
         Bfree(script);
-    script = Bcalloc(1,g_ScriptSize * sizeof(intptr_t));
-    if (kdfread(&script[0],sizeof(script),g_ScriptSize,fil) != g_ScriptSize) goto corrupt;
-    for (i=0;i<g_ScriptSize;i++)
+    script = Bcalloc(1,g_scriptSize * sizeof(intptr_t));
+    if (kdfread(&script[0],sizeof(script),g_scriptSize,fil) != g_scriptSize) goto corrupt;
+    for (i=0;i<g_scriptSize;i++)
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
         {
             j = (intptr_t)script[i]+(intptr_t)&script[0];
@@ -309,7 +309,7 @@ int loadplayer(int spot)
     scriptptrs = Brealloc(scriptptrs, MAXSPRITES * sizeof(scriptptrs));
 
     if (kdfread(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
-    if (kdfread(&hittype[0],sizeof(actordata_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+    if (kdfread(&ActorExtra[0],sizeof(actordata_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
     for (i=0;i<MAXSPRITES;i++)
     {
@@ -323,14 +323,14 @@ int loadplayer(int spot)
     if (kdfread(&pskybits,sizeof(pskybits),1,fil) != 1) goto corrupt;
     if (kdfread(&pskyoff[0],sizeof(pskyoff[0]),MAXPSKYTILES,fil) != MAXPSKYTILES) goto corrupt;
 
-    if (kdfread(&animatecnt,sizeof(animatecnt),1,fil) != 1) goto corrupt;
+    if (kdfread(&g_animateCount,sizeof(g_animateCount),1,fil) != 1) goto corrupt;
     if (kdfread(&animatesect[0],2,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
     if (kdfread(&animateptr[0],sizeof(int),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
-    for (i = animatecnt-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+    for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
     if (kdfread(&animategoal[0],4,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
     if (kdfread(&animatevel[0],4,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
 
-    if (kdfread(&earthquaketime,sizeof(earthquaketime),1,fil) != 1) goto corrupt;
+    if (kdfread(&g_earthquakeTime,sizeof(g_earthquakeTime),1,fil) != 1) goto corrupt;
     if (kdfread(&ud.from_bonus,sizeof(ud.from_bonus),1,fil) != 1) goto corrupt;
     if (kdfread(&ud.secretlevel,sizeof(ud.secretlevel),1,fil) != 1) goto corrupt;
     if (kdfread(&ud.respawn_monsters,sizeof(ud.respawn_monsters),1,fil) != 1) goto corrupt;
@@ -358,75 +358,75 @@ int loadplayer(int spot)
     if (kdfread(&camsprite,sizeof(camsprite),1,fil) != 1) goto corrupt;
     if (kdfread(&connecthead,sizeof(connecthead),1,fil) != 1) goto corrupt;
     if (kdfread(connectpoint2,sizeof(connectpoint2),1,fil) != 1) goto corrupt;
-    if (kdfread(&numplayersprites,sizeof(numplayersprites),1,fil) != 1) goto corrupt;
+    if (kdfread(&g_numPlayerSprites,sizeof(g_numPlayerSprites),1,fil) != 1) goto corrupt;
     for (i=0;i<MAXPLAYERS;i++)
         if (kdfread((short *)&g_player[i].frags[0],sizeof(g_player[i].frags),1,fil) != 1) goto corrupt;
 
     if (kdfread(&randomseed,sizeof(randomseed),1,fil) != 1) goto corrupt;
-    if (kdfread(&global_random,sizeof(global_random),1,fil) != 1) goto corrupt;
+    if (kdfread(&g_globalRandom,sizeof(g_globalRandom),1,fil) != 1) goto corrupt;
     if (kdfread(&parallaxyscale,sizeof(parallaxyscale),1,fil) != 1) goto corrupt;
 
-    if (kdfread(&projectile[0],sizeof(projectile_t),MAXTILES,fil) != MAXTILES) goto corrupt;
-    if (kdfread(&defaultprojectile[0],sizeof(projectile_t),MAXTILES,fil) != MAXTILES) goto corrupt;
+    if (kdfread(&ProjectileData[0],sizeof(projectile_t),MAXTILES,fil) != MAXTILES) goto corrupt;
+    if (kdfread(&DefaultProjectileData[0],sizeof(projectile_t),MAXTILES,fil) != MAXTILES) goto corrupt;
 
-    if (kdfread(&spriteflags[0],sizeof(spriteflags[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
+    if (kdfread(&SpriteFlags[0],sizeof(SpriteFlags[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
 
-    if (kdfread(&spritecache[0],sizeof(spritecache[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
+    if (kdfread(&SpriteCacheList[0],sizeof(SpriteCacheList[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
 
     if (kdfread(&i,sizeof(int),1,fil) != 1) goto corrupt;
 
     while (i != MAXQUOTES)
     {
-        if (fta_quotes[i] != NULL)
-            Bfree(fta_quotes[i]);
+        if (ScriptQuotes[i] != NULL)
+            Bfree(ScriptQuotes[i]);
 
-        fta_quotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
+        ScriptQuotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
 
-        if (kdfread((char *)fta_quotes[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
+        if (kdfread((char *)ScriptQuotes[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
         if (kdfread(&i,sizeof(int),1,fil) != 1) goto corrupt;
     }
 
-    if (kdfread(&redefined_quote_count,sizeof(redefined_quote_count),1,fil) != 1) goto corrupt;
+    if (kdfread(&g_numQuoteRedefinitions,sizeof(g_numQuoteRedefinitions),1,fil) != 1) goto corrupt;
 
-    for (i=0;i<redefined_quote_count;i++)
+    for (i=0;i<g_numQuoteRedefinitions;i++)
     {
-        if (redefined_quotes[i] != NULL)
-            Bfree(redefined_quotes[i]);
+        if (ScriptQuoteRedefinitions[i] != NULL)
+            Bfree(ScriptQuoteRedefinitions[i]);
 
-        redefined_quotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
+        ScriptQuoteRedefinitions[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
 
-        if (kdfread((char *)redefined_quotes[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
+        if (kdfread((char *)ScriptQuoteRedefinitions[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
     }
 
-    if (kdfread(&dynamictostatic[0],sizeof(dynamictostatic[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
+    if (kdfread(&DynamicTileMap[0],sizeof(DynamicTileMap[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
 
     if (kdfread(&ud.noexits,sizeof(ud.noexits),1,fil) != 1) goto corrupt;
     ud.m_noexits = ud.noexits;
 
 
-    if (ReadGameVars(fil)) goto corrupt;
+    if (Gv_ReadSave(fil)) goto corrupt;
 
     kclose(fil);
 
     if (g_player[myconnectindex].ps->over_shoulder_on != 0)
     {
-        cameradist = 0;
-        cameraclock = 0;
+        g_cameraDistance = 0;
+        g_cameraClock = 0;
         g_player[myconnectindex].ps->over_shoulder_on = 1;
     }
 
     screenpeek = myconnectindex;
 
     clearbufbyte(gotpic,sizeof(gotpic),0L);
-    clearsoundlocks();
-    cacheit();
+    S_ClearSoundLocks();
+    G_CacheMapData();
 
-    i = music_select;
-    music_select = (ud.volume_number*MAXLEVELS) + ud.level_number;
-    if (map[(unsigned char)music_select].musicfn != NULL && (i != music_select || map[MAXVOLUMES*MAXLEVELS+2].musicfn1))
+    i = g_musicIndex;
+    g_musicIndex = (ud.volume_number*MAXLEVELS) + ud.level_number;
+    if (MapInfo[(unsigned char)g_musicIndex].musicfn != NULL && (i != g_musicIndex || MapInfo[MAXVOLUMES*MAXLEVELS+2].musicfn1))
     {
         MUSIC_StopSong();
-        playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
+        S_PlayMusic(&MapInfo[(unsigned char)g_musicIndex].musicfn[0],g_musicIndex);
     }
     MUSIC_Continue();
 
@@ -434,24 +434,24 @@ int loadplayer(int spot)
     ud.recstat = 0;
 
     if (g_player[myconnectindex].ps->jetpack_on)
-        spritesound(DUKE_JETPACK_IDLE,g_player[myconnectindex].ps->i);
+        A_PlaySound(DUKE_JETPACK_IDLE,g_player[myconnectindex].ps->i);
 
-    restorepalette = 1;
-    setpal(g_player[myconnectindex].ps);
-    vscrn();
+    g_restorePalette = 1;
+    P_UpdateScreenPal(g_player[myconnectindex].ps);
+    G_UpdateScreenArea();
 
     FX_SetReverb(0);
 
     if (ud.lockout == 0)
     {
-        for (x=0;x<numanimwalls;x++)
+        for (x=0;x<g_numAnimWalls;x++)
             if (wall[animwall[x].wallnum].extra >= 0)
                 wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
     }
     else
     {
-        for (x=0;x<numanimwalls;x++)
-            switch (dynamictostatic[wall[animwall[x].wallnum].picnum])
+        for (x=0;x<g_numAnimWalls;x++)
+            switch (DynamicTileMap[wall[animwall[x].wallnum].picnum])
             {
             case FEMPIC1__STATIC:
                 wall[animwall[x].wallnum].picnum = BLANKSCREEN;
@@ -463,27 +463,27 @@ int loadplayer(int spot)
             }
     }
 
-    numinterpolations = 0;
+    g_numInterpolations = 0;
     startofdynamicinterpolations = 0;
 
-    k = headspritestat[3];
+    k = headspritestat[STAT_EFFECTOR];
     while (k >= 0)
     {
         switch (sprite[k].lotag)
         {
         case 31:
-            setinterpolation(&sector[sprite[k].sectnum].floorz);
+            G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
             break;
         case 32:
-            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+            G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
             break;
         case 25:
-            setinterpolation(&sector[sprite[k].sectnum].floorz);
-            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+            G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
+            G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
             break;
         case 17:
-            setinterpolation(&sector[sprite[k].sectnum].floorz);
-            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+            G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
+            G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
             break;
         case 0:
         case 5:
@@ -494,18 +494,18 @@ int loadplayer(int spot)
         case 16:
         case 26:
         case 30:
-            setsectinterpolate(k);
+            Sect_SetInterpolation(k);
             break;
         }
 
         k = nextspritestat[k];
     }
 
-    for (i=numinterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
-    for (i = animatecnt-1;i>=0;i--)
-        setinterpolation(animateptr[i]);
+    for (i=g_numInterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
+    for (i = g_animateCount-1;i>=0;i--)
+        G_SetInterpolation(animateptr[i]);
 
-    show_shareware = 0;
+    g_showShareware = 0;
     everyothertime = 0;
 
 //    clearbufbyte(playerquitflag,MAXPLAYERS,0x01010101);
@@ -513,7 +513,7 @@ int loadplayer(int spot)
     for (i=0;i<MAXPLAYERS;i++)
         clearbufbyte(&g_player[i].playerquitflag,1,0x01010101);
 
-    resetmys();
+    Net_ResetPrediction();
 
     ready2send = 1;
 
@@ -521,16 +521,16 @@ int loadplayer(int spot)
     clearfifo();
     waitforeverybody();
 
-    resettimevars();
+    G_ResetTimers();
 
     return(0);
 corrupt:
     Bsprintf(tempbuf,"Save game file \"%s\" is corrupt or of the wrong version.",fnptr);
-    gameexit(tempbuf);
+    G_GameExit(tempbuf);
     return -1;
 }
 
-int saveplayer(int spot)
+int G_SavePlayer(int spot)
 {
     int i;
     intptr_t j;
@@ -624,35 +624,35 @@ int saveplayer(int spot)
     dfwrite(&headspritesect[0],2,MAXSECTORS+1,fil);
     dfwrite(&prevspritesect[0],2,MAXSPRITES,fil);
     dfwrite(&nextspritesect[0],2,MAXSPRITES,fil);
-    dfwrite(&headspritestat[0],2,MAXSTATUS+1,fil);
-    dfwrite(&prevspritestat[0],2,MAXSPRITES,fil);
-    dfwrite(&nextspritestat[0],2,MAXSPRITES,fil);
-    dfwrite(&numcyclers,sizeof(numcyclers),1,fil);
+    dfwrite(&headspritestat[STAT_DEFAULT],2,MAXSTATUS+1,fil);
+    dfwrite(&prevspritestat[STAT_DEFAULT],2,MAXSPRITES,fil);
+    dfwrite(&nextspritestat[STAT_DEFAULT],2,MAXSPRITES,fil);
+    dfwrite(&g_numCyclers,sizeof(g_numCyclers),1,fil);
     dfwrite(&cyclers[0][0],12,MAXCYCLERS,fil);
     for (i=0;i<ud.multimode;i++)
-        dfwrite(g_player[i].ps,sizeof(player_struct),1,fil);
-    dfwrite(&g_PlayerSpawnPoints,sizeof(g_PlayerSpawnPoints),1,fil);
-    dfwrite(&numanimwalls,sizeof(numanimwalls),1,fil);
+        dfwrite(g_player[i].ps,sizeof(DukePlayer_t),1,fil);
+    dfwrite(&g_playerSpawnPoints,sizeof(g_playerSpawnPoints),1,fil);
+    dfwrite(&g_numAnimWalls,sizeof(g_numAnimWalls),1,fil);
     dfwrite(&animwall,sizeof(animwall),1,fil);
     dfwrite(&msx[0],sizeof(int),sizeof(msx)/sizeof(int),fil);
     dfwrite(&msy[0],sizeof(int),sizeof(msy)/sizeof(int),fil);
-    dfwrite(&spriteqloc,sizeof(short),1,fil);
-    dfwrite(&spriteqamount,sizeof(short),1,fil);
-    dfwrite(&spriteq[0],sizeof(short),spriteqamount,fil);
-    dfwrite(&mirrorcnt,sizeof(short),1,fil);
-    dfwrite(&mirrorwall[0],sizeof(short),64,fil);
-    dfwrite(&mirrorsector[0],sizeof(short),64,fil);
+    dfwrite(&g_spriteDeleteQueuePos,sizeof(short),1,fil);
+    dfwrite(&g_spriteDeleteQueueSize,sizeof(short),1,fil);
+    dfwrite(&SpriteDeletionQueue[0],sizeof(short),g_spriteDeleteQueueSize,fil);
+    dfwrite(&g_mirrorCount,sizeof(short),1,fil);
+    dfwrite(&g_mirrorWall[0],sizeof(short),64,fil);
+    dfwrite(&g_mirrorSector[0],sizeof(short),64,fil);
     dfwrite(&show2dsector[0],sizeof(char),MAXSECTORS>>3,fil);
-    dfwrite(&actortype[0],sizeof(char),MAXTILES,fil);
+    dfwrite(&ActorType[0],sizeof(char),MAXTILES,fil);
 
-    dfwrite(&numclouds,sizeof(numclouds),1,fil);
+    dfwrite(&g_numClouds,sizeof(g_numClouds),1,fil);
     dfwrite(&clouds[0],sizeof(short)<<7,1,fil);
     dfwrite(&cloudx[0],sizeof(short)<<7,1,fil);
     dfwrite(&cloudy[0],sizeof(short)<<7,1,fil);
 
-    dfwrite(&g_ScriptSize,sizeof(g_ScriptSize),1,fil);
-    scriptptrs = Bcalloc(1, g_ScriptSize * sizeof(scriptptrs));
-    for (i=0;i<g_ScriptSize;i++)
+    dfwrite(&g_scriptSize,sizeof(g_scriptSize),1,fil);
+    scriptptrs = Bcalloc(1, g_scriptSize * sizeof(scriptptrs));
+    for (i=0;i<g_scriptSize;i++)
     {
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
         {
@@ -663,11 +663,11 @@ int saveplayer(int spot)
         //      else scriptptrs[i] = 0;
     }
 
-//    dfwrite(&scriptptrs[0],sizeof(scriptptrs),g_ScriptSize,fil);
-    dfwrite(&bitptr[0],sizeof(char),(g_ScriptSize+7)>>3,fil);
-    dfwrite(&script[0],sizeof(script),g_ScriptSize,fil);
+//    dfwrite(&scriptptrs[0],sizeof(scriptptrs),g_scriptSize,fil);
+    dfwrite(&bitptr[0],sizeof(char),(g_scriptSize+7)>>3,fil);
+    dfwrite(&script[0],sizeof(script),g_scriptSize,fil);
 
-    for (i=0;i<g_ScriptSize;i++)
+    for (i=0;i<g_scriptSize;i++)
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
         {
             j = script[i]+(intptr_t)&script[0];
@@ -713,17 +713,17 @@ int saveplayer(int spot)
 
         j = (intptr_t)&script[0];
 
-        if (T2 >= j && T2 < (intptr_t)(&script[g_ScriptSize]))
+        if (T2 >= j && T2 < (intptr_t)(&script[g_scriptSize]))
         {
             scriptptrs[i] |= 1;
             T2 -= j;
         }
-        if (T5 >= j && T5 < (intptr_t)(&script[g_ScriptSize]))
+        if (T5 >= j && T5 < (intptr_t)(&script[g_scriptSize]))
         {
             scriptptrs[i] |= 2;
             T5 -= j;
         }
-        if (T6 >= j && T6 < (intptr_t)(&script[g_ScriptSize]))
+        if (T6 >= j && T6 < (intptr_t)(&script[g_scriptSize]))
         {
             scriptptrs[i] |= 4;
             T6 -= j;
@@ -731,7 +731,7 @@ int saveplayer(int spot)
     }
 
     dfwrite(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil);
-    dfwrite(&hittype[0],sizeof(actordata_t),MAXSPRITES,fil);
+    dfwrite(&ActorExtra[0],sizeof(actordata_t),MAXSPRITES,fil);
 
     for (i=0;i<MAXSPRITES;i++)
     {
@@ -749,15 +749,15 @@ int saveplayer(int spot)
     dfwrite(&lockclock,sizeof(lockclock),1,fil);
     dfwrite(&pskybits,sizeof(pskybits),1,fil);
     dfwrite(&pskyoff[0],sizeof(pskyoff[0]),MAXPSKYTILES,fil);
-    dfwrite(&animatecnt,sizeof(animatecnt),1,fil);
+    dfwrite(&g_animateCount,sizeof(g_animateCount),1,fil);
     dfwrite(&animatesect[0],2,MAXANIMATES,fil);
-    for (i = animatecnt-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]-(intptr_t)(&sector[0]));
+    for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]-(intptr_t)(&sector[0]));
     dfwrite(&animateptr[0],4,MAXANIMATES,fil);
-    for (i = animatecnt-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+    for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
     dfwrite(&animategoal[0],4,MAXANIMATES,fil);
     dfwrite(&animatevel[0],4,MAXANIMATES,fil);
 
-    dfwrite(&earthquaketime,sizeof(earthquaketime),1,fil);
+    dfwrite(&g_earthquakeTime,sizeof(g_earthquakeTime),1,fil);
     dfwrite(&ud.from_bonus,sizeof(ud.from_bonus),1,fil);
     dfwrite(&ud.secretlevel,sizeof(ud.secretlevel),1,fil);
     dfwrite(&ud.respawn_monsters,sizeof(ud.respawn_monsters),1,fil);
@@ -775,50 +775,50 @@ int saveplayer(int spot)
     dfwrite(&camsprite,sizeof(camsprite),1,fil);
     dfwrite(&connecthead,sizeof(connecthead),1,fil);
     dfwrite(connectpoint2,sizeof(connectpoint2),1,fil);
-    dfwrite(&numplayersprites,sizeof(numplayersprites),1,fil);
+    dfwrite(&g_numPlayerSprites,sizeof(g_numPlayerSprites),1,fil);
     for (i=0;i<MAXPLAYERS;i++)
         dfwrite((short *)&g_player[i].frags[0],sizeof(g_player[i].frags),1,fil);
 
     dfwrite(&randomseed,sizeof(randomseed),1,fil);
-    dfwrite(&global_random,sizeof(global_random),1,fil);
+    dfwrite(&g_globalRandom,sizeof(g_globalRandom),1,fil);
     dfwrite(&parallaxyscale,sizeof(parallaxyscale),1,fil);
 
-    dfwrite(&projectile[0],sizeof(projectile_t),MAXTILES,fil);
-    dfwrite(&defaultprojectile[0],sizeof(projectile_t),MAXTILES,fil);
+    dfwrite(&ProjectileData[0],sizeof(projectile_t),MAXTILES,fil);
+    dfwrite(&DefaultProjectileData[0],sizeof(projectile_t),MAXTILES,fil);
 
-    dfwrite(&spriteflags[0],sizeof(spriteflags[0]),MAXTILES,fil);
+    dfwrite(&SpriteFlags[0],sizeof(SpriteFlags[0]),MAXTILES,fil);
 
-    dfwrite(&spritecache[0],sizeof(spritecache[0]),MAXTILES,fil);
+    dfwrite(&SpriteCacheList[0],sizeof(SpriteCacheList[0]),MAXTILES,fil);
 
     for (i=0;i<MAXQUOTES;i++)
     {
-        if (fta_quotes[i] != NULL)
+        if (ScriptQuotes[i] != NULL)
         {
             dfwrite(&i,sizeof(int),1,fil);
-            dfwrite(fta_quotes[i],MAXQUOTELEN, 1, fil);
+            dfwrite(ScriptQuotes[i],MAXQUOTELEN, 1, fil);
         }
     }
     dfwrite(&i,sizeof(int),1,fil);
 
-    dfwrite(&redefined_quote_count,sizeof(redefined_quote_count),1,fil);
-    for (i=0;i<redefined_quote_count;i++)
+    dfwrite(&g_numQuoteRedefinitions,sizeof(g_numQuoteRedefinitions),1,fil);
+    for (i=0;i<g_numQuoteRedefinitions;i++)
     {
-        if (redefined_quotes[i] != NULL)
-            dfwrite(redefined_quotes[i],MAXQUOTELEN, 1, fil);
+        if (ScriptQuoteRedefinitions[i] != NULL)
+            dfwrite(ScriptQuoteRedefinitions[i],MAXQUOTELEN, 1, fil);
     }
 
-    dfwrite(&dynamictostatic[0],sizeof(dynamictostatic[0]),MAXTILES,fil);
+    dfwrite(&DynamicTileMap[0],sizeof(DynamicTileMap[0]),MAXTILES,fil);
 
     dfwrite(&ud.noexits,sizeof(ud.noexits),1,fil);
 
-    SaveGameVars(fil);
+    Gv_WriteSave(fil);
 
     fclose(fil);
 
     if (ud.multimode < 2)
     {
-        strcpy(fta_quotes[122],"GAME SAVED");
-        FTA(122,g_player[myconnectindex].ps);
+        strcpy(ScriptQuotes[122],"GAME SAVED");
+        P_DoQuote(122,g_player[myconnectindex].ps);
     }
 
     ready2send = 1;

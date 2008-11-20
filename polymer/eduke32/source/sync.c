@@ -24,7 +24,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
-int NumSyncBytes = 1;
+int NumSyncBytes = 6;
 char sync_first[MAXSYNCBYTES][60];
 int sync_found = 0;
 
@@ -54,9 +54,9 @@ char PlayerSync(void)
 {
     short i;
     unsigned short crc = 0;
-    player_struct *pp;
+    DukePlayer_t *pp;
 
-    for (i = connecthead; i >= 0; i = connectpoint2[i])
+    TRAVERSE_CONNECT(i)
     {
         pp = g_player[i].ps;
         updatecrc(crc, pp->posx & 255);
@@ -70,11 +70,13 @@ char PlayerSync(void)
 
 char PlayerSync2(void)
 {
-    short i;
+    int i;
+    int j, nextj;
     unsigned short crc = 0;
-    player_struct *pp;
+    DukePlayer_t *pp;
+    spritetype *spr;
 
-    for (i = connecthead; i >= 0; i = connectpoint2[i])
+    TRAVERSE_CONNECT(i)
     {
         pp = g_player[i].ps;
 
@@ -83,40 +85,7 @@ char PlayerSync2(void)
         updatecrc(crc, pp->bobcounter & 255);
     }
 
-    return ((char) crc & 255);
-}
-/*
-char SOSync(void)
-{
-    unsigned short crc = 0;
-    SECTOR_OBJECTp sop;
-
-    for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
-    {
-        // if (sop->xmid == MAXLONG)
-        // continue;
-
-        updatecrc(crc, (sop->xmid) & 255);
-        updatecrc(crc, (sop->ymid) & 255);
-        updatecrc(crc, (sop->zmid) & 255);
-        updatecrc(crc, (sop->vel) & 255);
-        updatecrc(crc, (sop->ang) & 255);
-        updatecrc(crc, (sop->ang_moving) & 255);
-        updatecrc(crc, (sop->spin_ang) & 255);
-    }
-
-    return ((char) crc & 255);
-}
-
-
-char EnemySync(void)
-{
-    unsigned short crc = 0;
-    short j, nextj;
-    spritetype *spr;
-    extern char DemoTmpName[];
-
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], j, nextj)
+    TRAVERSE_SPRITE_STAT(headspritestat[STAT_PLAYER], j, nextj)
     {
         spr = &sprite[j];
         updatecrc(crc, (spr->x) & 255);
@@ -128,13 +97,44 @@ char EnemySync(void)
     return ((char) crc & 255);
 }
 
-char MissileSync(void)
+char ActorSync(void)
 {
     unsigned short crc = 0;
-    short j, nextj;
+    int j, nextj;
     spritetype *spr;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_MISSILE], j, nextj)
+    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ACTOR], j, nextj)
+    {
+        spr = &sprite[j];
+        updatecrc(crc, (spr->x) & 255);
+        updatecrc(crc, (spr->y) & 255);
+        updatecrc(crc, (spr->z) & 255);
+        updatecrc(crc, (spr->lotag) & 255);
+        updatecrc(crc, (spr->hitag) & 255);
+        updatecrc(crc, (spr->ang) & 255);
+    }
+
+    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ZOMBIEACTOR], j, nextj)
+    {
+        spr = &sprite[j];
+        updatecrc(crc, (spr->x) & 255);
+        updatecrc(crc, (spr->y) & 255);
+        updatecrc(crc, (spr->z) & 255);
+        updatecrc(crc, (spr->lotag) & 255);
+        updatecrc(crc, (spr->hitag) & 255);
+        updatecrc(crc, (spr->ang) & 255);
+    }
+
+    return ((char) crc & 255);
+}
+
+char WeaponSync(void)
+{
+    unsigned short crc = 0;
+    int j, nextj;
+    spritetype *spr;
+
+    TRAVERSE_SPRITE_STAT(headspritestat[STAT_PROJECTILE], j, nextj)
     {
         spr = &sprite[j];
         updatecrc(crc, (spr->x) & 255);
@@ -146,107 +146,70 @@ char MissileSync(void)
     return ((char) crc & 255);
 }
 
-char MissileSkip4Sync(void)
+char MapSync(void)
 {
     unsigned short crc = 0;
-    short j, nextj;
+    int j, nextj;
     spritetype *spr;
+    walltype *wal;
+    sectortype *sect;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_MISSILE_SKIP4], j, nextj)
+    TRAVERSE_SPRITE_STAT(headspritestat[STAT_EFFECTOR], j, nextj)
     {
         spr = &sprite[j];
         updatecrc(crc, (spr->x) & 255);
         updatecrc(crc, (spr->y) & 255);
         updatecrc(crc, (spr->z) & 255);
         updatecrc(crc, (spr->ang) & 255);
+        updatecrc(crc, (spr->lotag) & 255);
+        updatecrc(crc, (spr->hitag) & 255);
     }
 
-    return ((char) crc & 255);
-}
-
-char ShrapSync(void)
-{
-    unsigned short crc = 0;
-    short j, nextj;
-    spritetype *spr;
-
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SHRAP], j, nextj)
+    for (j=numwalls;j>=0;j--)
     {
-        spr = &sprite[j];
-        updatecrc(crc, (spr->x) & 255);
-        updatecrc(crc, (spr->y) & 255);
-        updatecrc(crc, (spr->z) & 255);
-        updatecrc(crc, (spr->ang) & 255);
+        wal = &wall[j];
+        updatecrc(crc, (wal->x) & 255);
+        updatecrc(crc, (wal->y) & 255);
     }
 
-    return ((char) crc & 255);
-}
-
-char MiscSync(void)
-{
-    unsigned short crc = 0;
-    short j, nextj;
-    spritetype *spr;
-
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_MISC], j, nextj)
+    for (j=numsectors;j>=0;j--)
     {
-        spr = &sprite[j];
-        updatecrc(crc, (spr->x) & 255);
-        updatecrc(crc, (spr->y) & 255);
-        updatecrc(crc, (spr->z) & 255);
-        updatecrc(crc, (spr->ang) & 255);
+        sect = &sector[j];
+        updatecrc(crc, (sect->floorz) & 255);
+        updatecrc(crc, (sect->ceilingz) & 255);
     }
 
     return ((char) crc & 255);
 }
-*/
+
 char RandomSync(void)
 {
     unsigned short crc = 0;
 
     updatecrc(crc, randomseed & 255);
     updatecrc(crc, (randomseed >> 8) & 255);
+    updatecrc(crc, g_globalRandom & 255);
+    updatecrc(crc, (g_globalRandom >> 8) & 255);
 
     if (NumSyncBytes == 1)
     {
         updatecrc(crc,PlayerSync() & 255);
         updatecrc(crc,PlayerSync2() & 255);
-//        updatecrc(crc,WeaponSync() & 255);
+        updatecrc(crc,WeaponSync() & 255);
+        updatecrc(crc,ActorSync() & 255);
     }
 
     return ((char) crc & 255);
 }
 
-/*
-    movefta();              //ST 2
-    moveweapons();          //ST 4
-    movetransports();       //ST 9
-
-    moveplayers();          //ST 10
-    movefallers();          //ST 12
-    moveexplosions();       //ST 5
-
-    moveactors();           //ST 1
-    moveeffectors();        //ST 3
-
-    movestandables();       //ST 6
-    movefx();               //ST 11
-*/
-
 char *SyncNames[] =
 {
-    "RandomSync",
-    "PlayerSync",
-    "PlayerSync2",
-    /*    "FTASync",
-        "WeaponSync",
-        "TransportSync",
-        "FallerSync",
-        "ExplosionSync",
-        "ActorSync",
-        "EffectorSync",
-        "StandableSync",
-        "FXSync", */
+    "Net_CheckRandomSync",
+    "Net_CheckPlayerSync",
+    "Net_CheckPlayerSync2",
+    "Net_CheckWeaponSync",
+    "Net_CheckActorSync",
+    "Net_CheckMapSync",
     NULL
 };
 
@@ -255,15 +218,9 @@ static char(*SyncFunc[MAXSYNCBYTES + 1])(void) =
     RandomSync,
     PlayerSync,
     PlayerSync2,
-    /*    FTASync,
-        WeaponSync,
-        TransportSync,
-        FallerSync,
-        ExplosionSync,
-        ActorSync,
-        EffectorSync,
-        StandableSync,
-        FXSync, */
+    WeaponSync,
+    ActorSync,
+    MapSync,
     NULL
 };
 
@@ -299,7 +256,7 @@ void SyncStatMessage(void)
 {
     int i, j;
     static unsigned int MoveCount = 0;
-    extern unsigned int MoveThingsCount;
+    extern unsigned int g_moveThingsCount;
 
 //    if (!SyncPrintMode)
 //        return;
@@ -314,8 +271,8 @@ void SyncStatMessage(void)
         {
             if (NumSyncBytes > 1)
             {
-                sprintf(tempbuf, "GAME OUT OF SYNC - %s", SyncNames[i]);
-                printext256(68L, 68L + (i * 8), 1, 31, tempbuf, 0);
+                sprintf(tempbuf, "Out Of Sync - %s", SyncNames[i]);
+                printext256(4L, 100L + (i * 8), 31, 1, tempbuf, 0);
             }
 
             if (!sync_found && sync_first[i][0] == '\0')
@@ -324,13 +281,13 @@ void SyncStatMessage(void)
                 sync_found = TRUE;
 
                 // save off loop count
-                MoveCount = MoveThingsCount;
+                MoveCount = g_moveThingsCount;
 
                 for (j = 0; j < NumSyncBytes; j++)
                 {
                     if (syncstat[j] != 0 && sync_first[j][0] == '\0')
                     {
-                        sprintf(tempbuf, "OUT OF SYNC - %s", SyncNames[j]);
+                        sprintf(tempbuf, "Out Of Sync - %s", SyncNames[j]);
                         strcpy(sync_first[j], tempbuf);
                     }
                 }
@@ -346,24 +303,13 @@ void SyncStatMessage(void)
             if (NumSyncBytes > 1)
             {
                 sprintf(tempbuf, "FIRST %s", sync_first[i]);
-                printext256(50L, 0L, 1, 31, tempbuf, 0);
+                printext256(4L, 44L + (i * 8), 31, 1, tempbuf, 0);
                 sprintf(tempbuf, "MoveCount %d",MoveCount);
-                printext256(50L, 10L, 1, 31, tempbuf, 0);
+                printext256(4L, 52L + (i * 8), 31, 1, tempbuf, 0);
             }
             else
             {
-//                short w,h;
-                // production out of sync error
-
-//                sprintf(tempbuf,"GAME OUT OF SYNC!");
-//                MNU_MeasureString(tempbuf, &w, &h);
-                //              MNU_DrawString(TEXT_TEST_COL(w), 20, tempbuf, 0, 19);
-
-//                sprintf(tempbuf,"Restart the game.");
-                //            MNU_MeasureString(tempbuf, &w, &h);
-                //          MNU_DrawString(TEXT_TEST_COL(w), 30, tempbuf, 0, 19);
-                printext256(4L,130L,31,0,"Out Of Sync - Please restart game",0);
-                printext256(4L,138L,31,0,"RUN DN3DHELP.EXE for information.",0);
+                printext256(4L,100L,31,0,"Out Of Sync - Please restart game",0);
             }
         }
     }
@@ -406,7 +352,7 @@ void GetSyncInfoFromPacket(char *packbuf, int packbufleng, int *j, int otherconn
     // Suspect that its trying to traverse the connect list
     // for a player that does not exist.  This tries to take care of that
 
-    for (i=connecthead;i>=0;i=connectpoint2[i])
+    TRAVERSE_CONNECT(i)
     {
         if (otherconnectindex == i)
             found = 1;
@@ -428,7 +374,7 @@ void GetSyncInfoFromPacket(char *packbuf, int packbufleng, int *j, int otherconn
 
     // update syncstat
     // if any of the syncstat vars is non-0 then there is a problem
-    for (i=connecthead;i>=0;i=connectpoint2[i])
+    TRAVERSE_CONNECT(i)
     {
         if (g_player[i].syncvalhead == syncvaltottail)
             return;
@@ -452,7 +398,7 @@ void GetSyncInfoFromPacket(char *packbuf, int packbufleng, int *j, int otherconn
 
         syncvaltottail++;
 
-        for (i=connecthead;i>=0;i=connectpoint2[i])
+        TRAVERSE_CONNECT(i)
         {
             if (g_player[i].syncvalhead == syncvaltottail)
                 return;

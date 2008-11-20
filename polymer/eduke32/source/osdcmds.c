@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <ctype.h>
 #include <limits.h>
 
-extern int voting, doquicksave;
+extern int voting, g_doQuickSave;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
 extern int althud_numbertile, althud_numberpal, althud_shadows, althud_flashing, hud_glowingquotes;
@@ -42,7 +42,7 @@ extern int r_maxfps;
 static inline int osdcmd_quit(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
-    sendquit();
+    Net_SendQuit();
     return OSDCMD_OK;
 }
 
@@ -86,14 +86,14 @@ static int osdcmd_changelevel(const osdfuncparm_t *parm)
 
     if (!VOLUMEONE)
     {
-        if (volume > num_volumes)
+        if (volume > g_numVolumes)
         {
-            OSD_Printf("changelevel: invalid volume number (range 1-%d)\n",num_volumes);
+            OSD_Printf("changelevel: invalid volume number (range 1-%d)\n",g_numVolumes);
             return OSDCMD_OK;
         }
     }
 
-    if (level > MAXLEVELS || map[volume*MAXLEVELS+level].filename == NULL)
+    if (level > MAXLEVELS || MapInfo[volume*MAXLEVELS+level].filename == NULL)
     {
         OSD_Printf("changelevel: invalid level number\n");
         return OSDCMD_SHOWHELP;
@@ -101,8 +101,8 @@ static int osdcmd_changelevel(const osdfuncparm_t *parm)
 
     if (numplayers > 1)
     {
-        if (myconnectindex == connecthead && networkmode == 0)
-            mpchangemap(volume,level);
+        if (myconnectindex == connecthead && g_networkBroadcastMode == 0)
+            Net_NewGame(volume,level);
         else if (voting == -1)
         {
             ud.m_volume_number = volume;
@@ -122,23 +122,22 @@ static int osdcmd_changelevel(const osdfuncparm_t *parm)
 
                 voting = myconnectindex;
 
-                tempbuf[0] = 18;
-                tempbuf[1] = 1;
-                tempbuf[2] = myconnectindex;
-                tempbuf[3] = ud.m_volume_number;
-                tempbuf[4] = ud.m_level_number;
+                tempbuf[0] = PACKET_TYPE_MAP_VOTE_INITIATE;
+                tempbuf[1] = myconnectindex;
+                tempbuf[2] = ud.m_volume_number;
+                tempbuf[3] = ud.m_level_number;
 
-                for (i=connecthead;i>=0;i=connectpoint2[i])
+                TRAVERSE_CONNECT(i)
                 {
-                    if (i != myconnectindex) sendpacket(i,tempbuf,5);
-                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                    if (i != myconnectindex) sendpacket(i,tempbuf,4);
+                    if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                 }
             }
-            if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) && !(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_TDM))
+            if ((GametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(GametypeFlags[ud.m_coop] & GAMETYPE_TDM))
                 ud.m_noexits = 0;
 
             g_player[myconnectindex].ps->gm |= MODE_MENU;
-            cmenu(603);
+            ChangeToMenu(603);
         }
         return OSDCMD_OK;
     }
@@ -164,8 +163,8 @@ static int osdcmd_changelevel(const osdfuncparm_t *parm)
 
         ud.multimode = 1;
 
-        newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
-        if (enterlevel(MODE_GAME)) backtomenu();
+        G_NewGame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
+        if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
     }
 
     return OSDCMD_OK;
@@ -254,14 +253,16 @@ static int osdcmd_map(const osdfuncparm_t *parm)
 
     if (numplayers > 1)
     {
-        if (myconnectindex == connecthead && networkmode == 0)
+        if (myconnectindex == connecthead && g_networkBroadcastMode == 0)
         {
-            sendboardname();
-            mpchangemap(0,7);
+            Net_SendUserMapName();
+            ud.m_volume_number = 0;
+            ud.m_level_number = 7;
+            Net_NewGame(ud.m_volume_number, ud.m_level_number);
         }
         else if (voting == -1)
         {
-            sendboardname();
+            Net_SendUserMapName();
 
             ud.m_volume_number = 0;
             ud.m_level_number = 7;
@@ -279,23 +280,22 @@ static int osdcmd_map(const osdfuncparm_t *parm)
                 g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
                 voting = myconnectindex;
 
-                tempbuf[0] = 18;
-                tempbuf[1] = 1;
-                tempbuf[2] = myconnectindex;
-                tempbuf[3] = ud.m_volume_number;
-                tempbuf[4] = ud.m_level_number;
+                tempbuf[0] = PACKET_TYPE_MAP_VOTE_INITIATE;
+                tempbuf[1] = myconnectindex;
+                tempbuf[2] = ud.m_volume_number;
+                tempbuf[3] = ud.m_level_number;
 
-                for (i=connecthead;i>=0;i=connectpoint2[i])
+                TRAVERSE_CONNECT(i)
                 {
-                    if (i != myconnectindex) sendpacket(i,tempbuf,5);
-                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                    if (i != myconnectindex) sendpacket(i,tempbuf,4);
+                    if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                 }
             }
-            if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) && !(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_TDM))
+            if ((GametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(GametypeFlags[ud.m_coop] & GAMETYPE_TDM))
                 ud.m_noexits = 0;
 
             g_player[myconnectindex].ps->gm |= MODE_MENU;
-            cmenu(603);
+            ChangeToMenu(603);
         }
         return OSDCMD_OK;
     }
@@ -311,8 +311,8 @@ static int osdcmd_map(const osdfuncparm_t *parm)
 
     ud.multimode = 1;
 
-    newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
-    if (enterlevel(MODE_GAME)) backtomenu();
+    G_NewGame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
+    if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
 
     return OSDCMD_OK;
 }
@@ -410,25 +410,25 @@ static int osdcmd_rate(const osdfuncparm_t *parm)
 static int osdcmd_restartsound(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
-    SoundShutdown();
-    MusicShutdown();
+    S_SoundShutdown();
+    S_MusicShutdown();
 
     initprintf("Initializing music...\n");
-    MusicStartup();
+    S_MusicStartup();
     initprintf("Initializing sound...\n");
-    SoundStartup();
+    S_SoundStartup();
 
     FX_StopAllSounds();
-    clearsoundlocks();
+    S_ClearSoundLocks();
 
     if (ud.config.MusicToggle == 1)
     {
         if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
         {
-            if (map[(unsigned char)music_select].musicfn != NULL)
-                playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
+            if (MapInfo[(unsigned char)g_musicIndex].musicfn != NULL)
+                S_PlayMusic(&MapInfo[(unsigned char)g_musicIndex].musicfn[0],g_musicIndex);
         }
-        else playmusic(&env_music_fn[0][0],MAXVOLUMES*MAXLEVELS);
+        else S_PlayMusic(&EnvMusicFilename[0][0],MAXVOLUMES*MAXLEVELS);
     }
 
     return OSDCMD_OK;
@@ -439,9 +439,9 @@ static int osdcmd_restartvid(const osdfuncparm_t *parm)
     UNREFERENCED_PARAMETER(parm);
     resetvideomode();
     if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
-        gameexit("restartvid: Reset failed...\n");
+        G_GameExit("restartvid: Reset failed...\n");
     onvideomodechange(ud.config.ScreenBPP>8);
-    vscrn();
+    G_UpdateScreenArea();
 
     return OSDCMD_OK;
 }
@@ -475,14 +475,14 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
     {
         initprintf("vidmode: Mode change failed!\n");
         if (setgamemode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP))
-            gameexit("vidmode: Reset failed!\n");
+            G_GameExit("vidmode: Reset failed!\n");
     }
     ud.config.ScreenBPP = newbpp;
     ud.config.ScreenWidth = newwidth;
     ud.config.ScreenHeight = newheight;
     ud.config.ScreenMode = newfs;
     onvideomodechange(ud.config.ScreenBPP>8);
-    vscrn();
+    G_UpdateScreenArea();
     return OSDCMD_OK;
 }
 
@@ -495,7 +495,7 @@ static int osdcmd_setstatusbarscale(const osdfuncparm_t *parm)
     }
     else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
-    setstatusbarscale(Batol(parm->parms[0]));
+    G_SetStatusBarScale(Batol(parm->parms[0]));
     OSD_Printf("hud_scale %d\n", ud.statusbarscale);
     return OSDCMD_OK;
 }
@@ -553,7 +553,7 @@ static int osdcmd_spawn(const osdfuncparm_t *parm)
             int i,j;
             for (j=0; j<2; j++)
             {
-                for (i=0; i<labelcnt; i++)
+                for (i=0; i<g_numLabels; i++)
                 {
                     if (
                         (j == 0 && !Bstrcmp(label+(i<<6),     parm->parms[0])) ||
@@ -564,9 +564,9 @@ static int osdcmd_spawn(const osdfuncparm_t *parm)
                         break;
                     }
                 }
-                if (i<labelcnt) break;
+                if (i<g_numLabels) break;
             }
-            if (i==labelcnt)
+            if (i==g_numLabels)
             {
                 OSD_Printf("spawn: Invalid tile label given\n");
                 return OSDCMD_OK;
@@ -583,7 +583,7 @@ static int osdcmd_spawn(const osdfuncparm_t *parm)
         return OSDCMD_SHOWHELP;
     }
 
-    idx = spawn(g_player[myconnectindex].ps->i, (short)picnum);
+    idx = A_Spawn(g_player[myconnectindex].ps->i, (short)picnum);
     if (set & 1) sprite[idx].pal = (char)pal;
     if (set & 2) sprite[idx].cstat = (short)cstat;
     if (set & 4) sprite[idx].ang = ang;
@@ -616,12 +616,12 @@ static int osdcmd_setvar(const osdfuncparm_t *parm)
     varval = Batol(varname);
     i = HASH_find(&gamevarH,varname);
     if (i >= 0)
-        varval=GetGameVarID(i, g_player[myconnectindex].ps->i, myconnectindex);
+        varval=Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex);
 
     strcpy(varname,parm->parms[0]);
     i = HASH_find(&gamevarH,varname);
     if (i >= 0)
-        SetGameVarID(i, varval, g_player[myconnectindex].ps->i, myconnectindex);
+        Gv_SetVar(i, varval, g_player[myconnectindex].ps->i, myconnectindex);
     return OSDCMD_OK;
 }
 
@@ -641,7 +641,7 @@ static int osdcmd_addlogvar(const osdfuncparm_t *parm)
     strcpy(varname,parm->parms[0]);
     i = HASH_find(&gamevarH,varname);
     if (i >= 0)
-        OSD_Printf("%s = %d\n", varname, GetGameVarID(i, g_player[myconnectindex].ps->i, myconnectindex));
+        OSD_Printf("%s = %d\n", varname, Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex));
     return OSDCMD_OK;
 }
 
@@ -670,12 +670,12 @@ static int osdcmd_setactorvar(const osdfuncparm_t *parm)
     varval = Batol(varname);
     i = HASH_find(&gamevarH,varname);
     if (i >= 0)
-        varval=GetGameVarID(i, g_player[myconnectindex].ps->i, myconnectindex);
+        varval=Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex);
 
     strcpy(varname,parm->parms[1]);
     i = HASH_find(&gamevarH,varname);
     if (i >= 0)
-        SetGameVarID(i, varval, ID, -1);
+        Gv_SetVar(i, varval, ID, -1);
     return OSDCMD_OK;
 }
 
@@ -711,7 +711,7 @@ static int osdcmd_cmenu(const osdfuncparm_t *parm)
     }
     else
     {
-        cmenu(Batol(parm->parms[0]));
+        ChangeToMenu(Batol(parm->parms[0]));
     }
 
     return OSDCMD_OK;
@@ -844,7 +844,7 @@ static int osdcmd_cvar_set(const osdfuncparm_t *parm)
                     break;
                 }
             if (cvar[i].type&CVAR_MULTI)
-                updateplayer();
+                G_UpdatePlayerFromMenu();
         }
     }
     OSD_Printf("\n");
@@ -909,7 +909,7 @@ static int osdcmd_give(const osdfuncparm_t *parm)
     else if (!Bstrcasecmp(parm->parms[0], "ammo"))
     {
         for (i=MAX_WEAPONS-(VOLUMEONE?6:1)-1;i>=PISTOL_WEAPON;i--)
-            addammo(i,g_player[myconnectindex].ps,g_player[myconnectindex].ps->max_ammo_amount[i]);
+            P_AddAmmo(i,g_player[myconnectindex].ps,g_player[myconnectindex].ps->max_ammo_amount[i]);
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "armor"))
@@ -954,7 +954,7 @@ void onvideomodechange(int newmode)
     }
 
     setbrightness(ud.brightness>>2, pal, 0);
-    restorepalette = 1;
+    g_restorePalette = 1;
     crosshair_sum = 0;
 }
 
@@ -996,7 +996,7 @@ static int osdcmd_name(const osdfuncparm_t *parm)
 
     if (parm->numparms != 1)
     {
-        OSD_Printf("\"name\" is \"%s\"\n",myname);
+        OSD_Printf("\"name\" is \"%s\"\n",szPlayerName);
         return OSDCMD_SHOWHELP;
     }
 
@@ -1005,12 +1005,12 @@ static int osdcmd_name(const osdfuncparm_t *parm)
     while (Bstrlen(stripcolorcodes(namebuf,tempbuf)) > 10)
         tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
-    Bstrncpy(myname,tempbuf,sizeof(myname)-1);
-    myname[sizeof(myname)-1] = '\0';
+    Bstrncpy(szPlayerName,tempbuf,sizeof(szPlayerName)-1);
+    szPlayerName[sizeof(szPlayerName)-1] = '\0';
 
-    OSD_Printf("name %s\n",myname);
+    OSD_Printf("name %s\n",szPlayerName);
 
-    updateplayer();
+    Net_SendPlayerName();
 
     return OSDCMD_OK;
 }
@@ -1285,7 +1285,7 @@ static int osdcmd_quicksave(const osdfuncparm_t *parm)
     UNREFERENCED_PARAMETER(parm);
     if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
         OSD_Printf("quicksave: not in a game.\n");
-    else doquicksave = 1;
+    else g_doQuickSave = 1;
     return OSDCMD_OK;
 }
 
@@ -1294,7 +1294,7 @@ static int osdcmd_quickload(const osdfuncparm_t *parm)
     UNREFERENCED_PARAMETER(parm);
     if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
         OSD_Printf("quickload: not in a game.\n");
-    else doquicksave = 2;
+    else g_doQuickSave = 2;
     return OSDCMD_OK;
 }
 
@@ -1306,24 +1306,24 @@ static int osdcmd_screenshot(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-extern void savemapstate(mapstate_t *save);
-extern void restoremapstate(mapstate_t *save);
+extern void G_SaveMapState(mapstate_t *save);
+extern void G_RestoreMapState(mapstate_t *save);
 
 /*
 static int osdcmd_savestate(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
-    if (map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate == NULL)
-        map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate = Bcalloc(1,sizeof(mapstate_t));
-    savemapstate(map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
+    if (MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate == NULL)
+        MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate = Bcalloc(1,sizeof(mapstate_t));
+    G_SaveMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
     return OSDCMD_OK;
 }
 
 static int osdcmd_restorestate(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
-    if (map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate)
-        restoremapstate(map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
+    if (MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate)
+        G_RestoreMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
     return OSDCMD_OK;
 }
 */
@@ -1383,8 +1383,8 @@ static int osdcmd_setcrosshairscale(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-extern void SetCrosshairColor(int r, int g, int b);
-extern palette_t crosshair_colors;
+extern void G_SetCrosshairColor(int r, int g, int b);
+extern palette_t CrosshairColors;
 
 static int osdcmd_crosshaircolor(const osdfuncparm_t *parm)
 {
@@ -1392,13 +1392,13 @@ static int osdcmd_crosshaircolor(const osdfuncparm_t *parm)
 
     if (parm->numparms != 3)
     {
-        OSD_Printf("crosshaircolor: r:%d g:%d b:%d\n",crosshair_colors.r,crosshair_colors.g,crosshair_colors.b);
+        OSD_Printf("crosshaircolor: r:%d g:%d b:%d\n",CrosshairColors.r,CrosshairColors.g,CrosshairColors.b);
         return OSDCMD_SHOWHELP;
     }
     r = atol(parm->parms[0]);
     g = atol(parm->parms[1]);
     b = atol(parm->parms[2]);
-    SetCrosshairColor(r,g,b);
+    G_SetCrosshairColor(r,g,b);
     OSD_Printf("%s\n", parm->raw);
     return OSDCMD_OK;
 }
@@ -1421,7 +1421,7 @@ static int osdcmd_visibility(const osdfuncparm_t *parm)
 
 static int osdcmd_maxfps(const osdfuncparm_t *parm)
 {
-    extern int g_FrameDelay;
+    extern int g_frameDelay;
 
     if (parm->numparms != 1)
     {
@@ -1429,8 +1429,8 @@ static int osdcmd_maxfps(const osdfuncparm_t *parm)
         return OSDCMD_SHOWHELP;
     }
     r_maxfps = max(0,min(1000,atol(parm->parms[0])));
-    if (r_maxfps) g_FrameDelay = (1000/r_maxfps);
-    else g_FrameDelay = 0;
+    if (r_maxfps) g_frameDelay = (1000/r_maxfps);
+    else g_frameDelay = 0;
     OSD_Printf("%s\n",parm->raw);
     return OSDCMD_OK;
 }
@@ -1441,16 +1441,16 @@ static int osdcmd_inittimer(const osdfuncparm_t *parm)
 
     if (parm->numparms != 1)
     {
-        OSD_Printf("%dHz timer\n",timer);
+        OSD_Printf("%dHz timer\n",g_timerTicsPerSecond);
         return OSDCMD_SHOWHELP;
     }
 
     j = atol(parm->parms[0]);
-    if (timer == j)
+    if (g_timerTicsPerSecond == j)
         return OSDCMD_OK;
     uninittimer();
     inittimer(j);
-    timer = j;
+    g_timerTicsPerSecond = j;
 
     OSD_Printf("%s\n",parm->raw);
     return OSDCMD_OK;
@@ -1490,10 +1490,12 @@ int registerosdcommands(void)
 
     OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
 
-    for (i=0;i<NUMGAMEFUNCTIONS-1;i++)
+    for (i=0;i<NUMGAMEFUNCTIONS;i++)
     {
         char *t;
         int j;
+
+        if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
 
         Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);
         t = Bstrdup(tempbuf);

@@ -2977,7 +2977,7 @@ int MV_Shutdown(void)
     // Stop the sound playback engine
     MV_StopPlayback();
 
-    // Shutdown the sound card
+    // G_Shutdown the sound card
 #if defined(_WIN32)
     DSOUND_Shutdown();
 #else

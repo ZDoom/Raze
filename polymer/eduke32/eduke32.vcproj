@@ -457,6 +457,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\source\sync.c"
+					>
+				</File>
+				<File
 					RelativePath=".\source\testcd.c"
 					>
 				</File>
@@ -550,6 +554,10 @@
 				</File>
 				<File
 					RelativePath=".\source\startwin.game.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\swmacros.h"
 					>
 				</File>
 			</Filter>

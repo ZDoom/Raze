@@ -158,9 +158,9 @@ int MUSIC_Init
         // no AL support so shitcan the ogg definitions
         for (i=(MAXLEVELS*(MAXVOLUMES+1))-1;i>=0;i--) // +1 volume for "intro", "briefing" music
         {
-            if (map[i].musicfn1 != NULL)
-                Bfree(map[i].musicfn1);
-            map[i].musicfn1 = NULL;
+            if (MapInfo[i].musicfn1 != NULL)
+                Bfree(MapInfo[i].musicfn1);
+            MapInfo[i].musicfn1 = NULL;
         }
     }
 #endif

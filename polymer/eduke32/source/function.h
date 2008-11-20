@@ -36,14 +36,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern "C" {
 #endif
 
-#define NUMKEYENTRIES 53
-#define NUMGAMEFUNCTIONS 53
+#define NUMKEYENTRIES 54
+#define NUMGAMEFUNCTIONS 54
 #define MAXGAMEFUNCLEN 32
 
 extern char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN];
 extern char keydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN];
 
-enum gamefuncs
+enum GameFunction_t
    {
    gamefunc_Move_Forward,
    gamefunc_Move_Backward,
@@ -97,7 +97,8 @@ enum gamefuncs
    gamefunc_Quick_Kick,
    gamefunc_Next_Weapon,
    gamefunc_Previous_Weapon,
-   gamefunc_Show_Console
+   gamefunc_Show_Console,
+   gamefunc_Show_DukeMatch_Scores
    };
 #ifdef __cplusplus
 };

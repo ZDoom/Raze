@@ -29,7 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static int haltsoundhack;
 
-int callsound(int sn,int whatsprite)
+// this function activates a sector's MUSICANDSFX sprite
+int A_CallSound(int sn,int whatsprite)
 {
     int i;
     if (haltsoundhack)
@@ -50,9 +51,9 @@ int callsound(int sn,int whatsprite)
                 {
                     if (SLT)
                     {
-                        spritesound(SLT,whatsprite);
+                        A_PlaySound(SLT,whatsprite);
                         if (SHT && SLT != SHT && SHT < MAXSOUNDS)
-                            stopspritesound(SHT,T6);
+                            A_StopSound(SHT,T6);
                         T6 = whatsprite;
                     }
 
@@ -62,9 +63,9 @@ int callsound(int sn,int whatsprite)
             }
             else if (SHT < MAXSOUNDS)
             {
-                if (SHT) spritesound(SHT,whatsprite);
+                if (SHT) A_PlaySound(SHT,whatsprite);
                 if ((g_sounds[SLT].m&1) || (SHT && SHT != SLT))
-                    stopspritesound(SLT,T6);
+                    A_StopSound(SLT,T6);
                 T6 = whatsprite;
                 T1 = 0;
             }
@@ -80,18 +81,18 @@ int check_activator_motion(int lotag)
     int i, j;
     spritetype *s;
 
-    i = headspritestat[8];
+    i = headspritestat[STAT_ACTIVATOR];
     while (i >= 0)
     {
         if (sprite[i].lotag == lotag)
         {
             s = &sprite[i];
 
-            for (j = animatecnt-1; j >= 0; j--)
+            for (j = g_animateCount-1; j >= 0; j--)
                 if (s->sectnum == animatesect[j])
                     return(1);
 
-            j = headspritestat[3];
+            j = headspritestat[STAT_EFFECTOR];
             while (j >= 0)
             {
                 if (s->sectnum == sprite[j].sectnum)
@@ -99,14 +100,14 @@ int check_activator_motion(int lotag)
                     {
                     case 11:
                     case 30:
-                        if (hittype[j].temp_data[4])
+                        if (ActorExtra[j].temp_data[4])
                             return(1);
                         break;
                     case 20:
                     case 31:
                     case 32:
                     case 18:
-                        if (hittype[j].temp_data[0])
+                        if (ActorExtra[j].temp_data[0])
                             return(1);
                         break;
                     }
@@ -119,9 +120,9 @@ int check_activator_motion(int lotag)
     return(0);
 }
 
-int isadoorwall(int dapic)
+int CheckDoorTile(int dapic)
 {
-    switch (dynamictostatic[dapic])
+    switch (DynamicTileMap[dapic])
     {
     case DOORTILE1__STATIC:
     case DOORTILE2__STATIC:
@@ -188,7 +189,7 @@ int isanearoperator(int lotag)
     return 0;
 }
 
-inline int checkcursectnums(int sect)
+inline int CheckPlayerInSector(int sect)
 {
     int i = connecthead;
     for (;i>=0;i=connectpoint2[i])
@@ -224,7 +225,7 @@ int dist(spritetype *s1,spritetype *s2)
     }
 }
 
-int findplayer(spritetype *s,int *d)
+int A_FindPlayer(spritetype *s,int *d)
 {
     int j, closest_player = 0;
     int x, closest = 0x7fffffff;
@@ -235,7 +236,7 @@ int findplayer(spritetype *s,int *d)
         return myconnectindex;
     }
 
-    for (j=connecthead;j>=0;j=connectpoint2[j])
+    TRAVERSE_CONNECT(j)
     {
         x = klabs(g_player[j].ps->oposx-s->x) + klabs(g_player[j].ps->oposy-s->y) + ((klabs(g_player[j].ps->oposz-s->z+(28<<8)))>>4);
         if (x < closest && sprite[g_player[j].ps->i].extra > 0)
@@ -249,32 +250,32 @@ int findplayer(spritetype *s,int *d)
     return closest_player;
 }
 
-int findotherplayer(int p,int *d)
+int P_FindOtherPlayer(int p,int *d)
 {
     int j, closest_player = p;
     int x, closest = 0x7fffffff;
 
-    for (j=connecthead;j>=0;j=connectpoint2[j])
-        if (p != j && sprite[g_player[j].ps->i].extra > 0)
-        {
-            x = klabs(g_player[j].ps->oposx-g_player[p].ps->posx) + klabs(g_player[j].ps->oposy-g_player[p].ps->posy) + (klabs(g_player[j].ps->oposz-g_player[p].ps->posz)>>4);
+    TRAVERSE_CONNECT(j)
+    if (p != j && sprite[g_player[j].ps->i].extra > 0)
+    {
+        x = klabs(g_player[j].ps->oposx-g_player[p].ps->posx) + klabs(g_player[j].ps->oposy-g_player[p].ps->posy) + (klabs(g_player[j].ps->oposz-g_player[p].ps->posz)>>4);
 
-            if (x < closest)
-            {
-                closest_player = j;
-                closest = x;
-            }
+        if (x < closest)
+        {
+            closest_player = j;
+            closest = x;
         }
+    }
 
     *d = closest;
     return closest_player;
 }
 
-void doanimations(void)
+void G_DoSectorAnimations(void)
 {
     int i, j, a, p, v, dasect;
 
-    for (i=animatecnt-1;i>=0;i--)
+    for (i=g_animateCount-1;i>=0;i--)
     {
         a = *animateptr[i];
         v = animatevel[i]*TICSPERFRAME;
@@ -282,7 +283,7 @@ void doanimations(void)
 
         if (a == animategoal[i])
         {
-            stopinterpolation(animateptr[i]);
+            G_StopInterpolation(animateptr[i]);
 
             // This fixes a bug where wall or floor sprites contained in
             // elevator sectors (ST 16-19) would jitter vertically after the
@@ -290,19 +291,19 @@ void doanimations(void)
             if (animateptr[i] == &sector[animatesect[i]].floorz)
                 for (j=headspritesect[dasect];j>=0;j=nextspritesect[j])
                     if (sprite[j].statnum != 3)
-                        hittype[j].bposz = sprite[j].z;
+                        ActorExtra[j].bposz = sprite[j].z;
 
-            animatecnt--;
-            animateptr[i] = animateptr[animatecnt];
-            animategoal[i] = animategoal[animatecnt];
-            animatevel[i] = animatevel[animatecnt];
-            animatesect[i] = animatesect[animatecnt];
+            g_animateCount--;
+            animateptr[i] = animateptr[g_animateCount];
+            animategoal[i] = animategoal[g_animateCount];
+            animatevel[i] = animatevel[g_animateCount];
+            animatesect[i] = animatesect[g_animateCount];
             if (sector[animatesect[i]].lotag == 18 || sector[animatesect[i]].lotag == 19)
                 if (animateptr[i] == &sector[animatesect[i]].ceilingz)
                     continue;
 
             if ((sector[dasect].lotag&0xff) != 22)
-                callsound(dasect,-1);
+                A_CallSound(dasect,-1);
 
             continue;
         }
@@ -318,27 +319,27 @@ void doanimations(void)
 
         if (animateptr[i] == &sector[animatesect[i]].floorz)
         {
-            for (p=connecthead;p>=0;p=connectpoint2[p])
-                if (g_player[p].ps->cursectnum == dasect)
-                    if ((sector[dasect].floorz-g_player[p].ps->posz) < (64<<8))
-                        if (sprite[g_player[p].ps->i].owner >= 0)
+            TRAVERSE_CONNECT(p)
+            if (g_player[p].ps->cursectnum == dasect)
+                if ((sector[dasect].floorz-g_player[p].ps->posz) < (64<<8))
+                    if (sprite[g_player[p].ps->i].owner >= 0)
+                    {
+                        g_player[p].ps->posz += v;
+                        g_player[p].ps->poszv = 0;
+                        if (p == myconnectindex)
                         {
-                            g_player[p].ps->posz += v;
-                            g_player[p].ps->poszv = 0;
-                            if (p == myconnectindex)
-                            {
-                                myz += v;
-                                myzvel = 0;
-                                myzbak[((movefifoplc-1)&(MOVEFIFOSIZ-1))] = g_player[p].ps->posz;
-                            }
+                            myz += v;
+                            myzvel = 0;
+                            myzbak[((movefifoplc-1)&(MOVEFIFOSIZ-1))] = g_player[p].ps->posz;
                         }
+                    }
 
             for (j=headspritesect[dasect];j>=0;j=nextspritesect[j])
                 if (sprite[j].statnum != 3)
                 {
-                    hittype[j].bposz = sprite[j].z;
+                    ActorExtra[j].bposz = sprite[j].z;
                     sprite[j].z += v;
-                    hittype[j].floorz = sector[dasect].floorz+v;
+                    ActorExtra[j].floorz = sector[dasect].floorz+v;
                 }
         }
 
@@ -346,9 +347,9 @@ void doanimations(void)
     }
 }
 
-int getanimationgoal(int *animptr)
+int GetAnimationGoal(int *animptr)
 {
-    int i = animatecnt-1, j = -1;
+    int i = g_animateCount-1, j = -1;
 
     for (;i>=0;i--)
         if (animptr == (int *)animateptr[i])
@@ -359,14 +360,14 @@ int getanimationgoal(int *animptr)
     return(j);
 }
 
-int setanimation(int animsect,int *animptr, int thegoal, int thevel)
+int SetAnimation(int animsect,int *animptr, int thegoal, int thevel)
 {
-    int i = 0, j = animatecnt;
+    int i = 0, j = g_animateCount;
 
-    if (animatecnt >= MAXANIMATES-1)
+    if (g_animateCount >= MAXANIMATES-1)
         return(-1);
 
-    for (;i<animatecnt;i++)
+    for (;i<g_animateCount;i++)
         if (animptr == animateptr[i])
         {
             j = i;
@@ -381,14 +382,14 @@ int setanimation(int animsect,int *animptr, int thegoal, int thevel)
     else
         animatevel[j] = -thevel;
 
-    if (j == animatecnt) animatecnt++;
+    if (j == g_animateCount) g_animateCount++;
 
-    setinterpolation(animptr);
+    G_SetInterpolation(animptr);
 
     return(j);
 }
 
-void animatecamsprite(void)
+void G_AnimateCamSprite(void)
 {
     int i = camsprite;
 
@@ -411,17 +412,17 @@ void animatecamsprite(void)
     else T1++;
 }
 
-void animatewalls(void)
+void G_AnimateWalls(void)
 {
-    int i, j, p = numanimwalls-1, t;
+    int i, j, p = g_numAnimWalls-1, t;
 
     for (;p>=0;p--)
-        //    for(p=numanimwalls-1;p>=0;p--)
+        //    for(p=g_numAnimWalls-1;p>=0;p--)
     {
         i = animwall[p].wallnum;
         j = wall[i].picnum;
 
-        switch (dynamictostatic[j])
+        switch (DynamicTileMap[j])
         {
         case SCREENBREAK1__STATIC:
         case SCREENBREAK2__STATIC:
@@ -441,7 +442,7 @@ void animatewalls(void)
         case SCREENBREAK18__STATIC:
         case SCREENBREAK19__STATIC:
 
-            if ((TRAND&255) < 16)
+            if ((krand()&255) < 16)
             {
                 animwall[p].tag = wall[i].picnum;
                 wall[i].picnum = SCREENBREAK6;
@@ -492,8 +493,8 @@ void animatewalls(void)
                     }
                     else
                     {
-                        if ((TRAND&255) < 32)
-                            animwall[p].tag = 128<<(TRAND&3);
+                        if ((krand()&255) < 32)
+                            animwall[p].tag = 128<<(krand()&3);
                         else wall[i].overpicnum = W_FORCEFIELD+1;
                     }
                 }
@@ -502,15 +503,15 @@ void animatewalls(void)
     }
 }
 
-int activatewarpelevators(int s,int d) //Parm = sectoreffectornum
+int G_ActivateWarpElevators(int s,int d) //Parm = sectoreffectornum
 {
-    int i = headspritestat[3], sn = sprite[s].sectnum;
+    int i = headspritestat[STAT_EFFECTOR], sn = sprite[s].sectnum;
 
     while (i >= 0)
     {
         if (SLT == 17)
             if (SHT == sprite[s].hitag)
-                if ((klabs(sector[sn].floorz-hittype[s].temp_data[2]) > SP) ||
+                if ((klabs(sector[sn].floorz-ActorExtra[s].temp_data[2]) > SP) ||
                         (sector[SECT].hitag == (sector[sn].hitag-d)))
                     break;
         i = nextspritestat[i];
@@ -524,12 +525,12 @@ int activatewarpelevators(int s,int d) //Parm = sectoreffectornum
     else
     {
         if (d == 0)
-            spritesound(ELEVATOR_OFF,s);
-        else spritesound(ELEVATOR_ON,s);
+            A_PlaySound(ELEVATOR_OFF,s);
+        else A_PlaySound(ELEVATOR_ON,s);
     }
 
 
-    i = headspritestat[3];
+    i = headspritestat[STAT_EFFECTOR];
     while (i >= 0)
     {
         if (SLT == 17)
@@ -543,7 +544,7 @@ int activatewarpelevators(int s,int d) //Parm = sectoreffectornum
     return 0;
 }
 
-void operatesectors(int sn,int ii)
+void G_OperateSectors(int sn,int ii)
 {
     int j=0, l, q, startwall, endwall;
     int i;
@@ -554,9 +555,9 @@ void operatesectors(int sn,int ii)
 
     case 30:
         j = sector[sn].hitag;
-        if (hittype[j].tempang == 0 ||
-                hittype[j].tempang == 256)
-            callsound(sn,ii);
+        if (ActorExtra[j].tempang == 0 ||
+                ActorExtra[j].tempang == 256)
+            A_CallSound(sn,ii);
         if (sprite[j].extra == 1)
             sprite[j].extra = 3;
         else sprite[j].extra = 1;
@@ -565,23 +566,23 @@ void operatesectors(int sn,int ii)
     case 31:
 
         j = sector[sn].hitag;
-        if (hittype[j].temp_data[4] == 0)
-            hittype[j].temp_data[4] = 1;
+        if (ActorExtra[j].temp_data[4] == 0)
+            ActorExtra[j].temp_data[4] = 1;
 
-        callsound(sn,ii);
+        A_CallSound(sn,ii);
         break;
 
     case 26: //The split doors
-        i = getanimationgoal(&sptr->ceilingz);
+        i = GetAnimationGoal(&sptr->ceilingz);
         if (i == -1) //if the door has stopped
         {
             haltsoundhack = 1;
             sptr->lotag &= 0xff00;
             sptr->lotag |= 22;
-            operatesectors(sn,ii);
+            G_OperateSectors(sn,ii);
             sptr->lotag &= 0xff00;
             sptr->lotag |= 9;
-            operatesectors(sn,ii);
+            G_OperateSectors(sn,ii);
             sptr->lotag &= 0xff00;
             sptr->lotag |= 26;
         }
@@ -633,19 +634,19 @@ void operatesectors(int sn,int ii)
                 {
                     dax2 = wall[wall[wall[wallfind[j]].point2].point2].x;
                     dax2 -= wall[wall[wallfind[j]].point2].x;
-                    setanimation(sn,&wall[wallfind[j]].x,wall[wallfind[j]].x+dax2,sp);
-                    setanimation(sn,&wall[i].x,wall[i].x+dax2,sp);
-                    setanimation(sn,&wall[wall[wallfind[j]].point2].x,wall[wall[wallfind[j]].point2].x+dax2,sp);
-                    callsound(sn,ii);
+                    SetAnimation(sn,&wall[wallfind[j]].x,wall[wallfind[j]].x+dax2,sp);
+                    SetAnimation(sn,&wall[i].x,wall[i].x+dax2,sp);
+                    SetAnimation(sn,&wall[wall[wallfind[j]].point2].x,wall[wall[wallfind[j]].point2].x+dax2,sp);
+                    A_CallSound(sn,ii);
                 }
                 else if (day2 != 0)
                 {
                     day2 = wall[wall[wall[wallfind[j]].point2].point2].y;
                     day2 -= wall[wall[wallfind[j]].point2].y;
-                    setanimation(sn,&wall[wallfind[j]].y,wall[wallfind[j]].y+day2,sp);
-                    setanimation(sn,&wall[i].y,wall[i].y+day2,sp);
-                    setanimation(sn,&wall[wall[wallfind[j]].point2].y,wall[wall[wallfind[j]].point2].y+day2,sp);
-                    callsound(sn,ii);
+                    SetAnimation(sn,&wall[wallfind[j]].y,wall[wallfind[j]].y+day2,sp);
+                    SetAnimation(sn,&wall[i].y,wall[i].y+day2,sp);
+                    SetAnimation(sn,&wall[wall[wallfind[j]].point2].y,wall[wall[wallfind[j]].point2].y+day2,sp);
+                    A_CallSound(sn,ii);
                 }
             }
             else
@@ -656,17 +657,17 @@ void operatesectors(int sn,int ii)
                 day2 = ((wall[i].y+wall[wall[wallfind[j]].point2].y)>>1)-wall[wallfind[j]].y;
                 if (dax2 != 0)
                 {
-                    setanimation(sn,&wall[wallfind[j]].x,dax,sp);
-                    setanimation(sn,&wall[i].x,dax+dax2,sp);
-                    setanimation(sn,&wall[wall[wallfind[j]].point2].x,dax+dax2,sp);
-                    callsound(sn,ii);
+                    SetAnimation(sn,&wall[wallfind[j]].x,dax,sp);
+                    SetAnimation(sn,&wall[i].x,dax+dax2,sp);
+                    SetAnimation(sn,&wall[wall[wallfind[j]].point2].x,dax+dax2,sp);
+                    A_CallSound(sn,ii);
                 }
                 else if (day2 != 0)
                 {
-                    setanimation(sn,&wall[wallfind[j]].y,day,sp);
-                    setanimation(sn,&wall[i].y,day+day2,sp);
-                    setanimation(sn,&wall[wall[wallfind[j]].point2].y,day+day2,sp);
-                    callsound(sn,ii);
+                    SetAnimation(sn,&wall[wallfind[j]].y,day,sp);
+                    SetAnimation(sn,&wall[i].y,day+day2,sp);
+                    SetAnimation(sn,&wall[wall[wallfind[j]].point2].y,day+day2,sp);
+                    A_CallSound(sn,ii);
                 }
             }
         }
@@ -688,18 +689,18 @@ void operatesectors(int sn,int ii)
 
         if (sprite[ii].sectnum == sn)
         {
-            if (activatewarpelevators(i,-1))
-                activatewarpelevators(i,1);
-            else if (activatewarpelevators(i,1))
-                activatewarpelevators(i,-1);
+            if (G_ActivateWarpElevators(i,-1))
+                G_ActivateWarpElevators(i,1);
+            else if (G_ActivateWarpElevators(i,1))
+                G_ActivateWarpElevators(i,-1);
             return;
         }
         else
         {
             if (sptr->floorz > SZ)
-                activatewarpelevators(i,-1);
+                G_ActivateWarpElevators(i,-1);
             else
-                activatewarpelevators(i,1);
+                G_ActivateWarpElevators(i,1);
         }
 
         return;
@@ -707,7 +708,7 @@ void operatesectors(int sn,int ii)
     case 16:
     case 17:
 
-        i = getanimationgoal(&sptr->floorz);
+        i = GetAnimationGoal(&sptr->floorz);
 
         if (i == -1)
         {
@@ -717,14 +718,14 @@ void operatesectors(int sn,int ii)
                 i = nextsectorneighborz(sn,sptr->floorz,1,-1);
                 if (i == -1) return;
                 j = sector[i].floorz;
-                setanimation(sn,&sptr->floorz,j,sptr->extra);
+                SetAnimation(sn,&sptr->floorz,j,sptr->extra);
             }
             else
             {
                 j = sector[i].floorz;
-                setanimation(sn,&sptr->floorz,j,sptr->extra);
+                SetAnimation(sn,&sptr->floorz,j,sptr->extra);
             }
-            callsound(sn,ii);
+            A_CallSound(sn,ii);
         }
 
         return;
@@ -732,7 +733,7 @@ void operatesectors(int sn,int ii)
     case 18:
     case 19:
 
-        i = getanimationgoal(&sptr->floorz);
+        i = GetAnimationGoal(&sptr->floorz);
 
         if (i==-1)
         {
@@ -742,9 +743,9 @@ void operatesectors(int sn,int ii)
             j = sector[i].floorz;
             q = sptr->extra;
             l = sptr->ceilingz-sptr->floorz;
-            setanimation(sn,&sptr->floorz,j,q);
-            setanimation(sn,&sptr->ceilingz,j+l,q);
-            callsound(sn,ii);
+            SetAnimation(sn,&sptr->floorz,j,q);
+            SetAnimation(sn,&sptr->ceilingz,j+l,q);
+            A_CallSound(sn,ii);
         }
         return;
 
@@ -755,7 +756,7 @@ void operatesectors(int sn,int ii)
         else
             j = sector[nextsectorneighborz(sn,sptr->ceilingz,-1,-1)].ceilingz;
 
-        i = headspritestat[3]; //Effectors
+        i = headspritestat[STAT_EFFECTOR]; //Effectors
         while (i >= 0)
         {
             if ((SLT == 22) &&
@@ -771,9 +772,9 @@ void operatesectors(int sn,int ii)
 
         sptr->lotag ^= 0x8000;
 
-        setanimation(sn,&sptr->ceilingz,j,sptr->extra);
+        SetAnimation(sn,&sptr->ceilingz,j,sptr->extra);
 
-        callsound(sn,ii);
+        A_CallSound(sn,ii);
 
         return;
 
@@ -810,13 +811,13 @@ REDODOOR:
 
         sptr->lotag ^= 0x8000;
 
-        setanimation(sn,&sptr->ceilingz,j,sptr->extra);
-        callsound(sn,ii);
+        SetAnimation(sn,&sptr->ceilingz,j,sptr->extra);
+        A_CallSound(sn,ii);
 
         return;
 
     case 21:
-        i = getanimationgoal(&sptr->floorz);
+        i = GetAnimationGoal(&sptr->floorz);
         if (i >= 0)
         {
             if (animategoal[sn] == sptr->ceilingz)
@@ -832,8 +833,8 @@ REDODOOR:
 
             sptr->lotag ^= 0x8000;
 
-            if (setanimation(sn,&sptr->floorz,j,sptr->extra) >= 0)
-                callsound(sn,ii);
+            if (SetAnimation(sn,&sptr->floorz,j,sptr->extra) >= 0)
+                A_CallSound(sn,ii);
         }
         return;
 
@@ -844,20 +845,20 @@ REDODOOR:
         if ((sptr->lotag&0x8000))
         {
             q = (sptr->ceilingz+sptr->floorz)>>1;
-            j = setanimation(sn,&sptr->floorz,q,sptr->extra);
-            j = setanimation(sn,&sptr->ceilingz,q,sptr->extra);
+            j = SetAnimation(sn,&sptr->floorz,q,sptr->extra);
+            j = SetAnimation(sn,&sptr->ceilingz,q,sptr->extra);
         }
         else
         {
             q = sector[nextsectorneighborz(sn,sptr->floorz,1,1)].floorz;
-            j = setanimation(sn,&sptr->floorz,q,sptr->extra);
+            j = SetAnimation(sn,&sptr->floorz,q,sptr->extra);
             q = sector[nextsectorneighborz(sn,sptr->ceilingz,-1,-1)].ceilingz;
-            j = setanimation(sn,&sptr->ceilingz,q,sptr->extra);
+            j = SetAnimation(sn,&sptr->ceilingz,q,sptr->extra);
         }
 
         sptr->lotag ^= 0x8000;
 
-        callsound(sn,ii);
+        A_CallSound(sn,ii);
 
         return;
 
@@ -866,7 +867,7 @@ REDODOOR:
         j = -1;
         q = 0;
 
-        i = headspritestat[3];
+        i = headspritestat[STAT_EFFECTOR];
         while (i >= 0)
         {
             if (SLT == 11 && SECT == sn && !T5)
@@ -885,7 +886,7 @@ REDODOOR:
 
         if (j >= 0)
         {
-            i = headspritestat[3];
+            i = headspritestat[STAT_EFFECTOR];
             while (i >= 0)
             {
                 if (l == (sector[SECT].lotag&0x8000) && SLT == 11 && sprite[j].hitag == SHT && !T5)
@@ -896,7 +897,7 @@ REDODOOR:
                     T4 = -T4;
                     if (q == 0)
                     {
-                        callsound(sn,i);
+                        A_CallSound(sn,i);
                         q = 1;
                     }
                 }
@@ -907,7 +908,7 @@ REDODOOR:
 
     case 25: //Subway type sliding doors
 
-        j = headspritestat[3];
+        j = headspritestat[STAT_EFFECTOR];
         while (j >= 0)//Find the sprite
         {
             if ((sprite[j].lotag) == 15 && sprite[j].sectnum == sn)
@@ -918,7 +919,7 @@ REDODOOR:
         if (j < 0)
             return;
 
-        i = headspritestat[3];
+        i = headspritestat[STAT_EFFECTOR];
         while (i >= 0)
         {
             if (SHT==sprite[j].hitag)
@@ -927,8 +928,8 @@ REDODOOR:
                 {
                     sector[SECT].lotag ^= 0x8000; // Toggle the open or close
                     SA += 1024;
-                    if (T5) callsound(SECT,i);
-                    callsound(SECT,i);
+                    if (T5) A_CallSound(SECT,i);
+                    A_CallSound(SECT,i);
                     if (sector[SECT].lotag&0x8000) T5 = 1;
                     else T5 = 2;
                 }
@@ -939,7 +940,7 @@ REDODOOR:
 
     case 27:  //Extended bridge
 
-        j = headspritestat[3];
+        j = headspritestat[STAT_EFFECTOR];
         while (j >= 0)
         {
             if ((sprite[j].lotag&0xff)==20 && sprite[j].sectnum == sn)  //Bridge
@@ -947,9 +948,9 @@ REDODOOR:
 
                 sector[sn].lotag ^= 0x8000;
                 if (sector[sn].lotag&0x8000) //OPENING
-                    hittype[j].temp_data[0] = 1;
-                else hittype[j].temp_data[0] = 2;
-                callsound(sn,ii);
+                    ActorExtra[j].temp_data[0] = 1;
+                else ActorExtra[j].temp_data[0] = 2;
+                A_CallSound(sn,ii);
                 break;
             }
             j = nextspritestat[j];
@@ -970,32 +971,32 @@ REDODOOR:
 
         j = sprite[j].hitag;
 
-        l = headspritestat[3];
+        l = headspritestat[STAT_EFFECTOR];
         while (l >= 0)
         {
-            if ((sprite[l].lotag&0xff)==21 && !hittype[l].temp_data[0] &&
+            if ((sprite[l].lotag&0xff)==21 && !ActorExtra[l].temp_data[0] &&
                     (sprite[l].hitag) == j)
-                hittype[l].temp_data[0] = 1;
+                ActorExtra[l].temp_data[0] = 1;
             l = nextspritestat[l];
         }
-        callsound(sn,ii);
+        A_CallSound(sn,ii);
 
         return;
     }
 }
 
-void operaterespawns(int low)
+void G_OperateRespawns(int low)
 {
-    int j, nexti, i = headspritestat[11];
+    int j, nexti, i = headspritestat[STAT_FX];
 
     while (i >= 0)
     {
         nexti = nextspritestat[i];
         if ((SLT == low) && (PN == RESPAWN))
         {
-            if (badguypic(SHT) && ud.monsters_off) break;
+            if (A_CheckEnemyTile(SHT) && ud.monsters_off) break;
 
-            j = spawn(i,TRANSPORTERSTAR);
+            j = A_Spawn(i,TRANSPORTERSTAR);
             sprite[j].z -= (32<<8);
 
             sprite[i].extra = 66-12;   // Just a way to killit
@@ -1004,13 +1005,13 @@ void operaterespawns(int low)
     }
 }
 
-void operateactivators(int low,int snum)
+void G_OperateActivators(int low,int snum)
 {
     int i, j, k;
     short *p;
     walltype *wal;
 
-    for (i=numcyclers-1;i>=0;i--)
+    for (i=g_numCyclers-1;i>=0;i--)
     {
         p = &cyclers[i][0];
 
@@ -1025,7 +1026,7 @@ void operateactivators(int low,int snum)
         }
     }
 
-    i = headspritestat[8];
+    i = headspritestat[STAT_ACTIVATOR];
     k = -1;
     while (i >= 0)
     {
@@ -1041,8 +1042,8 @@ void operateactivators(int low,int snum)
                 if (snum >= 0 && snum < ud.multimode)
                 {
                     if (sector[SECT].lotag&16384)
-                        FTA(4,g_player[snum].ps);
-                    else FTA(8,g_player[snum].ps);
+                        P_DoQuote(4,g_player[snum].ps);
+                    else P_DoQuote(8,g_player[snum].ps);
                 }
             }
             else
@@ -1078,8 +1079,8 @@ void operateactivators(int low,int snum)
                             case 31:
                             case 32:
                             case 18:
-                                hittype[j].temp_data[0] = 1-hittype[j].temp_data[0];
-                                callsound(SECT,j);
+                                ActorExtra[j].temp_data[0] = 1-ActorExtra[j].temp_data[0];
+                                A_CallSound(SECT,j);
                                 break;
                             }
                         j = nextspritesect[j];
@@ -1087,20 +1088,20 @@ void operateactivators(int low,int snum)
                 }
 
                 if (k == -1 && (sector[SECT].lotag&0xff) == 22)
-                    k = callsound(SECT,i);
+                    k = A_CallSound(SECT,i);
 
-                operatesectors(SECT,i);
+                G_OperateSectors(SECT,i);
             }
         }
         i = nextspritestat[i];
     }
 
-    operaterespawns(low);
+    G_OperateRespawns(low);
 }
 
-void operatemasterswitches(int low)
+void G_OperateMasterSwitches(int low)
 {
-    int i = headspritestat[6];
+    int i = headspritestat[STAT_STANDABLE];
     while (i >= 0)
     {
         if (PN == MASTERSWITCH && SLT == low && SP == 0)
@@ -1109,9 +1110,9 @@ void operatemasterswitches(int low)
     }
 }
 
-void operateforcefields(int s, int low)
+void G_OperateForceFields(int s, int low)
 {
-    int i, p=numanimwalls;
+    int i, p=g_numAnimWalls;
 
     for (;p>=0;p--)
     {
@@ -1138,7 +1139,7 @@ void operateforcefields(int s, int low)
     }
 }
 
-int checkhitswitch(int snum,int w,int switchtype)
+int P_ActivateSwitch(int snum,int w,int switchtype)
 {
     int switchpal, switchpicnum;
     int i, x, lotag,hitag,picnum,correctdips = 1, numdips = 0;
@@ -1166,7 +1167,7 @@ int checkhitswitch(int snum,int w,int switchtype)
         picnum = wall[w].picnum;
         switchpal = wall[w].pal;
     }
-    //     initprintf("checkhitswitch called picnum=%i switchtype=%i\n",picnum,switchtype);
+    //     initprintf("P_ActivateSwitch called picnum=%i switchtype=%i\n",picnum,switchtype);
     switchpicnum = picnum;
     if ((picnum==DIPSWITCH+1)
             || (picnum==TECHSWITCH+1)
@@ -1194,7 +1195,7 @@ int checkhitswitch(int snum,int w,int switchtype)
         switchpicnum = MULTISWITCH;
     }
 
-    switch (dynamictostatic[switchpicnum])
+    switch (DynamicTileMap[switchpicnum])
     {
     case DIPSWITCH__STATIC:
         //    case DIPSWITCH+1:
@@ -1211,21 +1212,21 @@ int checkhitswitch(int snum,int w,int switchtype)
             {
                 if ((g_player[snum].ps->got_access&1))
                     g_player[snum].ps->access_incs = 1;
-                else FTA(70,g_player[snum].ps);
+                else P_DoQuote(70,g_player[snum].ps);
             }
 
             else if (switchpal == 21)
             {
                 if (g_player[snum].ps->got_access&2)
                     g_player[snum].ps->access_incs = 1;
-                else FTA(71,g_player[snum].ps);
+                else P_DoQuote(71,g_player[snum].ps);
             }
 
             else if (switchpal == 23)
             {
                 if (g_player[snum].ps->got_access&4)
                     g_player[snum].ps->access_incs = 1;
-                else FTA(72,g_player[snum].ps);
+                else P_DoQuote(72,g_player[snum].ps);
             }
 
             if (g_player[snum].ps->access_incs == 1)
@@ -1271,11 +1272,11 @@ int checkhitswitch(int snum,int w,int switchtype)
         if (check_activator_motion(lotag)) return 0;
         break;
     default:
-        if (isadoorwall(picnum) == 0) return 0;
+        if (CheckDoorTile(picnum) == 0) return 0;
         break;
     }
 
-    i = headspritestat[0];
+    i = headspritestat[STAT_DEFAULT];
     while (i >= 0)
     {
 
@@ -1289,7 +1290,7 @@ int checkhitswitch(int snum,int w,int switchtype)
                     sprite[i].picnum = MULTISWITCH;
 
             }
-            switch (dynamictostatic[switchpicnum])
+            switch (DynamicTileMap[switchpicnum])
             {
 
             case DIPSWITCH__STATIC:
@@ -1317,7 +1318,7 @@ int checkhitswitch(int snum,int w,int switchtype)
                 sprite[i].picnum++;
                 break;
             default:
-                switch (dynamictostatic[switchpicnum-1])
+                switch (DynamicTileMap[switchpicnum-1])
                 {
 
                 case TECHSWITCH__STATIC:
@@ -1361,7 +1362,7 @@ int checkhitswitch(int snum,int w,int switchtype)
                     wall[x].picnum = MULTISWITCH;
 
             }
-            switch (dynamictostatic[wall[x].picnum])
+            switch (DynamicTileMap[wall[x].picnum])
             {
 
             case DIPSWITCH__STATIC:
@@ -1389,7 +1390,7 @@ int checkhitswitch(int snum,int w,int switchtype)
                 wall[x].picnum++;
                 break;
             default:
-                switch (dynamictostatic[wall[x].picnum-1])
+                switch (DynamicTileMap[wall[x].picnum-1])
                 {
 
                 case TECHSWITCH__STATIC:
@@ -1469,10 +1470,10 @@ int checkhitswitch(int snum,int w,int switchtype)
         switchpicnum = MULTISWITCH;
     }
 
-    switch (dynamictostatic[switchpicnum])
+    switch (DynamicTileMap[switchpicnum])
     {
     default:
-        if (isadoorwall(picnum) == 0) break;
+        if (CheckDoorTile(picnum) == 0) break;
     case DIPSWITCH__STATIC:
         //case DIPSWITCH+1:
     case TECHSWITCH__STATIC:
@@ -1486,17 +1487,17 @@ int checkhitswitch(int snum,int w,int switchtype)
             if (picnum == ALIENSWITCH || picnum == ALIENSWITCH+1)
             {
                 if (switchtype == 1)
-                    xyzsound(ALIEN_SWITCH1,w,sx,sy,g_player[snum].ps->posz);
-                else xyzsound(ALIEN_SWITCH1,g_player[snum].ps->i,sx,sy,g_player[snum].ps->posz);
+                    S_PlaySoundXYZ(ALIEN_SWITCH1,w,sx,sy,g_player[snum].ps->posz);
+                else S_PlaySoundXYZ(ALIEN_SWITCH1,g_player[snum].ps->i,sx,sy,g_player[snum].ps->posz);
             }
             else
             {
                 if (switchtype == 1)
-                    xyzsound(SWITCH_ON,w,sx,sy,g_player[snum].ps->posz);
-                else xyzsound(SWITCH_ON,g_player[snum].ps->i,sx,sy,g_player[snum].ps->posz);
+                    S_PlaySoundXYZ(SWITCH_ON,w,sx,sy,g_player[snum].ps->posz);
+                else S_PlaySoundXYZ(SWITCH_ON,g_player[snum].ps->i,sx,sy,g_player[snum].ps->posz);
             }
             if (numdips != correctdips) break;
-            xyzsound(END_OF_LEVEL_WARN,g_player[snum].ps->i,sx,sy,g_player[snum].ps->posz);
+            S_PlaySoundXYZ(END_OF_LEVEL_WARN,g_player[snum].ps->i,sx,sy,g_player[snum].ps->posz);
         }
     case DIPSWITCH2__STATIC:
         //case DIPSWITCH2+1:
@@ -1535,7 +1536,7 @@ int checkhitswitch(int snum,int w,int switchtype)
                 picnum == (MULTISWITCH+2) || picnum == (MULTISWITCH+3))
             lotag += picnum-MULTISWITCH;
 
-        x = headspritestat[3];
+        x = headspritestat[STAT_EFFECTOR];
         while (x >= 0)
         {
             if (((sprite[x].hitag) == lotag))
@@ -1544,46 +1545,46 @@ int checkhitswitch(int snum,int w,int switchtype)
                 {
                 case 12:
                     sector[sprite[x].sectnum].floorpal = 0;
-                    hittype[x].temp_data[0]++;
-                    if (hittype[x].temp_data[0] == 2)
-                        hittype[x].temp_data[0]++;
+                    ActorExtra[x].temp_data[0]++;
+                    if (ActorExtra[x].temp_data[0] == 2)
+                        ActorExtra[x].temp_data[0]++;
 
                     break;
                 case 24:
                 case 34:
                 case 25:
-                    hittype[x].temp_data[4] = !hittype[x].temp_data[4];
-                    if (hittype[x].temp_data[4])
-                        FTA(15,g_player[snum].ps);
-                    else FTA(2,g_player[snum].ps);
+                    ActorExtra[x].temp_data[4] = !ActorExtra[x].temp_data[4];
+                    if (ActorExtra[x].temp_data[4])
+                        P_DoQuote(15,g_player[snum].ps);
+                    else P_DoQuote(2,g_player[snum].ps);
                     break;
                 case 21:
-                    FTA(2,g_player[screenpeek].ps);
+                    P_DoQuote(2,g_player[screenpeek].ps);
                     break;
                 }
             }
             x = nextspritestat[x];
         }
 
-        operateactivators(lotag,snum);
-        operateforcefields(g_player[snum].ps->i,lotag);
-        operatemasterswitches(lotag);
+        G_OperateActivators(lotag,snum);
+        G_OperateForceFields(g_player[snum].ps->i,lotag);
+        G_OperateMasterSwitches(lotag);
 
         if (picnum == DIPSWITCH || picnum == DIPSWITCH+1 ||
                 picnum == ALIENSWITCH || picnum == ALIENSWITCH+1 ||
                 picnum == TECHSWITCH || picnum == TECHSWITCH+1) return 1;
 
-        if (hitag == 0 && isadoorwall(picnum) == 0)
+        if (hitag == 0 && CheckDoorTile(picnum) == 0)
         {
             if (switchtype == 1)
-                xyzsound(SWITCH_ON,w,sx,sy,g_player[snum].ps->posz);
-            else xyzsound(SWITCH_ON,g_player[snum].ps->i,sx,sy,g_player[snum].ps->posz);
+                S_PlaySoundXYZ(SWITCH_ON,w,sx,sy,g_player[snum].ps->posz);
+            else S_PlaySoundXYZ(SWITCH_ON,g_player[snum].ps->i,sx,sy,g_player[snum].ps->posz);
         }
         else if (hitag != 0)
         {
             if (switchtype == 1 && (g_sounds[hitag].m&4) == 0)
-                xyzsound(hitag,w,sx,sy,g_player[snum].ps->posz);
-            else spritesound(hitag,g_player[snum].ps->i);
+                S_PlaySoundXYZ(hitag,w,sx,sy,g_player[snum].ps->posz);
+            else A_PlaySound(hitag,g_player[snum].ps->i);
         }
 
         return 1;
@@ -1601,7 +1602,7 @@ void activatebysector(int sect,int j)
     {
         if (PN == ACTIVATOR)
         {
-            operateactivators(SLT,-1);
+            G_OperateActivators(SLT,-1);
             didit = 1;
             //            return;
         }
@@ -1609,38 +1610,38 @@ void activatebysector(int sect,int j)
     }
 
     if (didit == 0)
-        operatesectors(sect,j);
+        G_OperateSectors(sect,j);
 }
 
-static void breakwall(int newpn,int spr,int dawallnum)
+static void BreakWall(int newpn,int spr,int dawallnum)
 {
     wall[dawallnum].picnum = newpn;
-    spritesound(VENT_BUST,spr);
-    spritesound(GLASS_HEAVYBREAK,spr);
-    lotsofglass(spr,dawallnum,10);
+    A_PlaySound(VENT_BUST,spr);
+    A_PlaySound(GLASS_HEAVYBREAK,spr);
+    A_SpawnWallGlass(spr,dawallnum,10);
 }
 
-void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
+void A_DamageWall(int spr,int dawallnum,int x,int y,int z,int atwith)
 {
     short sn = -1;
     int j, i, darkestwall;
     walltype *wal = &wall[dawallnum];
 
-    if (wal->overpicnum == MIRROR && wal->pal != 4 && checkspriteflagsp(atwith,SPRITE_FLAG_PROJECTILE) && (hittype[spr].projectile.workslike & PROJECTILE_FLAG_RPG))
+    if (wal->overpicnum == MIRROR && wal->pal != 4 && A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) && (ActorExtra[spr].projectile.workslike & PROJECTILE_RPG))
     {
         if (wal->nextwall == -1 || wall[wal->nextwall].pal != 4)
         {
-            lotsofglass(spr,dawallnum,70);
+            A_SpawnWallGlass(spr,dawallnum,70);
             wal->cstat &= ~16;
             wal->overpicnum = MIRRORBROKE;
-            spritesound(GLASS_HEAVYBREAK,spr);
+            A_PlaySound(GLASS_HEAVYBREAK,spr);
             return;
         }
     }
 
     if (wal->overpicnum == MIRROR && wal->pal != 4)
     {
-        switch (dynamictostatic[atwith])
+        switch (DynamicTileMap[atwith])
         {
         case HEAVYHBOMB__STATIC:
         case RADIUSEXPLOSION__STATIC:
@@ -1651,10 +1652,10 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
         case EXPLODINGBARREL__STATIC:
             if (wal->nextwall == -1 || wall[wal->nextwall].pal != 4)
             {
-                lotsofglass(spr,dawallnum,70);
+                A_SpawnWallGlass(spr,dawallnum,70);
                 wal->cstat &= ~16;
                 wal->overpicnum = MIRRORBROKE;
-                spritesound(GLASS_HEAVYBREAK,spr);
+                A_PlaySound(GLASS_HEAVYBREAK,spr);
                 return;
             }
         }
@@ -1667,7 +1668,7 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
                 int switchpicnum = wal->overpicnum;
                 if ((switchpicnum > W_FORCEFIELD)&&(switchpicnum <= W_FORCEFIELD+2))
                     switchpicnum = W_FORCEFIELD;
-                switch (dynamictostatic[switchpicnum])
+                switch (DynamicTileMap[switchpicnum])
                 {
                 case W_FORCEFIELD__STATIC:
                     //case W_FORCEFIELD+1:
@@ -1678,19 +1679,19 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
                     if (sn < 0) return;
 
                     if (atwith == -1)
-                        i = EGS(sn,x,y,z,FORCERIPPLE,-127,8,8,0,0,0,spr,5);
+                        i = A_InsertSprite(sn,x,y,z,FORCERIPPLE,-127,8,8,0,0,0,spr,5);
                     else
                     {
                         if (atwith == CHAINGUN)
-                            i = EGS(sn,x,y,z,FORCERIPPLE,-127,16+sprite[spr].xrepeat,16+sprite[spr].yrepeat,0,0,0,spr,5);
-                        else i = EGS(sn,x,y,z,FORCERIPPLE,-127,32,32,0,0,0,spr,5);
+                            i = A_InsertSprite(sn,x,y,z,FORCERIPPLE,-127,16+sprite[spr].xrepeat,16+sprite[spr].yrepeat,0,0,0,spr,5);
+                        else i = A_InsertSprite(sn,x,y,z,FORCERIPPLE,-127,32,32,0,0,0,spr,5);
                     }
 
                     CS |= 18+128;
                     SA = getangle(wal->x-wall[wal->point2].x,
                                   wal->y-wall[wal->point2].y)-512;
 
-                    spritesound(SOMETHINGHITFORCE,i);
+                    A_PlaySound(SOMETHINGHITFORCE,i);
 
                     return;
 
@@ -1702,45 +1703,45 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
                         wall[wal->nextwall].overpicnum = FANSPRITEBROKE;
                         wall[wal->nextwall].cstat &= 65535-65;
                     }
-                    spritesound(VENT_BUST,spr);
-                    spritesound(GLASS_BREAKING,spr);
+                    A_PlaySound(VENT_BUST,spr);
+                    A_PlaySound(GLASS_BREAKING,spr);
                     return;
 
                 case GLASS__STATIC:
                     updatesector(x,y,&sn);
                     if (sn < 0) return;
                     wal->overpicnum=GLASS2;
-                    lotsofglass(spr,dawallnum,10);
+                    A_SpawnWallGlass(spr,dawallnum,10);
                     wal->cstat = 0;
 
                     if (wal->nextwall >= 0)
                         wall[wal->nextwall].cstat = 0;
 
-                    i = EGS(sn,x,y,z,SECTOREFFECTOR,0,0,0,g_player[0].ps->ang,0,0,spr,3);
+                    i = A_InsertSprite(sn,x,y,z,SECTOREFFECTOR,0,0,0,g_player[0].ps->ang,0,0,spr,3);
                     SLT = 128;
                     T2 = 5;
                     T3 = dawallnum;
-                    spritesound(GLASS_BREAKING,i);
+                    A_PlaySound(GLASS_BREAKING,i);
                     return;
                 case STAINGLASS1__STATIC:
                     updatesector(x,y,&sn);
                     if (sn < 0) return;
-                    lotsofcolourglass(spr,dawallnum,80);
+                    A_SpawnRandomGlass(spr,dawallnum,80);
                     wal->cstat = 0;
                     if (wal->nextwall >= 0)
                         wall[wal->nextwall].cstat = 0;
-                    spritesound(VENT_BUST,spr);
-                    spritesound(GLASS_BREAKING,spr);
+                    A_PlaySound(VENT_BUST,spr);
+                    A_PlaySound(GLASS_BREAKING,spr);
                     return;
                 }
             }
 
-    switch (dynamictostatic[wal->picnum])
+    switch (DynamicTileMap[wal->picnum])
     {
     case COLAMACHINE__STATIC:
     case VENDMACHINE__STATIC:
-        breakwall(wal->picnum+2,spr,dawallnum);
-        spritesound(VENT_BUST,spr);
+        BreakWall(wal->picnum+2,spr,dawallnum);
+        A_PlaySound(VENT_BUST,spr);
         return;
 
     case OJ__STATIC:
@@ -1770,9 +1771,9 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
     case SCREENBREAK19__STATIC:
     case BORNTOBEWILDSCREEN__STATIC:
 
-        lotsofglass(spr,dawallnum,30);
-        wal->picnum=W_SCREENBREAK+(TRAND%3);
-        spritesound(GLASS_HEAVYBREAK,spr);
+        A_SpawnWallGlass(spr,dawallnum,30);
+        wal->picnum=W_SCREENBREAK+(krand()%3);
+        A_PlaySound(GLASS_HEAVYBREAK,spr);
         return;
 
     case W_TECHWALL5__STATIC:
@@ -1780,14 +1781,14 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
     case W_TECHWALL7__STATIC:
     case W_TECHWALL8__STATIC:
     case W_TECHWALL9__STATIC:
-        breakwall(wal->picnum+1,spr,dawallnum);
+        BreakWall(wal->picnum+1,spr,dawallnum);
         return;
     case W_MILKSHELF__STATIC:
-        breakwall(W_MILKSHELFBROKE,spr,dawallnum);
+        BreakWall(W_MILKSHELFBROKE,spr,dawallnum);
         return;
 
     case W_TECHWALL10__STATIC:
-        breakwall(W_HITTECHWALL10,spr,dawallnum);
+        BreakWall(W_HITTECHWALL10,spr,dawallnum);
         return;
 
     case W_TECHWALL1__STATIC:
@@ -1795,33 +1796,33 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
     case W_TECHWALL12__STATIC:
     case W_TECHWALL13__STATIC:
     case W_TECHWALL14__STATIC:
-        breakwall(W_HITTECHWALL1,spr,dawallnum);
+        BreakWall(W_HITTECHWALL1,spr,dawallnum);
         return;
 
     case W_TECHWALL15__STATIC:
-        breakwall(W_HITTECHWALL15,spr,dawallnum);
+        BreakWall(W_HITTECHWALL15,spr,dawallnum);
         return;
 
     case W_TECHWALL16__STATIC:
-        breakwall(W_HITTECHWALL16,spr,dawallnum);
+        BreakWall(W_HITTECHWALL16,spr,dawallnum);
         return;
 
     case W_TECHWALL2__STATIC:
-        breakwall(W_HITTECHWALL2,spr,dawallnum);
+        BreakWall(W_HITTECHWALL2,spr,dawallnum);
         return;
 
     case W_TECHWALL3__STATIC:
-        breakwall(W_HITTECHWALL3,spr,dawallnum);
+        BreakWall(W_HITTECHWALL3,spr,dawallnum);
         return;
 
     case W_TECHWALL4__STATIC:
-        breakwall(W_HITTECHWALL4,spr,dawallnum);
+        BreakWall(W_HITTECHWALL4,spr,dawallnum);
         return;
 
     case ATM__STATIC:
         wal->picnum = ATMBROKE;
-        lotsofmoneymailpaper(spr,1+(TRAND&7),MONEY);
-        spritesound(GLASS_HEAVYBREAK,spr);
+        A_SpawnMultiple(spr, MONEY, 1+(krand()&7));
+        A_PlaySound(GLASS_HEAVYBREAK,spr);
         break;
 
     case WALLLIGHT1__STATIC:
@@ -1832,9 +1833,9 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
     case TECHLIGHT4__STATIC:
 
         if (rnd(128))
-            spritesound(GLASS_HEAVYBREAK,spr);
-        else spritesound(GLASS_BREAKING,spr);
-        lotsofglass(spr,dawallnum,30);
+            A_PlaySound(GLASS_HEAVYBREAK,spr);
+        else A_PlaySound(GLASS_BREAKING,spr);
+        A_SpawnWallGlass(spr,dawallnum,30);
 
         if (wal->picnum == WALLLIGHT1)
             wal->picnum = WALLLIGHTBUST1;
@@ -1865,8 +1866,8 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
             if (wal->shade > darkestwall)
                 darkestwall=wal->shade;
 
-        j = TRAND&1;
-        i= headspritestat[3];
+        j = krand()&1;
+        i= headspritestat[STAT_EFFECTOR];
         while (i >= 0)
         {
             if (SHT == wall[dawallnum].lotag && SLT == 3)
@@ -1881,7 +1882,7 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
     }
 }
 
-void checkplayerhurt(player_struct *p,int j)
+void P_CheckTouchDamage(DukePlayer_t *p,int j)
 {
     if ((j&49152) == 49152)
     {
@@ -1899,7 +1900,7 @@ void checkplayerhurt(player_struct *p,int j)
                 p->pals[0] = 32;
                 p->pals[1] = 0;
                 p->pals[2] = 0;
-                spritesound(DUKE_LONGTERM_PAIN,p->i);
+                A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
             }
 
         }
@@ -1916,7 +1917,7 @@ void checkplayerhurt(player_struct *p,int j)
         if ((switchpicnum>W_FORCEFIELD)&&(switchpicnum<=W_FORCEFIELD+2))
             switchpicnum=W_FORCEFIELD;
 
-        switch (dynamictostatic[switchpicnum])
+        switch (DynamicTileMap[switchpicnum])
         {
         case W_FORCEFIELD__STATIC:
             //        case W_FORCEFIELD+1:
@@ -1931,9 +1932,9 @@ void checkplayerhurt(player_struct *p,int j)
 
             p->posxv = -(sintable[(p->ang+512)&2047]<<8);
             p->posyv = -(sintable[(p->ang)&2047]<<8);
-            spritesound(DUKE_LONGTERM_PAIN,p->i);
+            A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
 
-            checkhitwall(p->i,j,
+            A_DamageWall(p->i,j,
                          p->posx+(sintable[(p->ang+512)&2047]>>9),
                          p->posy+(sintable[p->ang&2047]>>9),
                          p->posz,-1);
@@ -1942,7 +1943,7 @@ void checkplayerhurt(player_struct *p,int j)
 
         case BIGFORCE__STATIC:
             p->hurt_delay = 26;
-            checkhitwall(p->i,j,
+            A_DamageWall(p->i,j,
                          p->posx+(sintable[(p->ang+512)&2047]>>9),
                          p->posy+(sintable[p->ang&2047]>>9),
                          p->posz,-1);
@@ -1952,11 +1953,11 @@ void checkplayerhurt(player_struct *p,int j)
     }
 }
 
-int checkhitceiling(int sn)
+int Sect_DamageCeiling(int sn)
 {
     int i, j;
 
-    switch (dynamictostatic[sector[sn].ceilingpicnum])
+    switch (DynamicTileMap[sector[sn].ceilingpicnum])
     {
     case WALLLIGHT1__STATIC:
     case WALLLIGHT2__STATIC:
@@ -1965,8 +1966,8 @@ int checkhitceiling(int sn)
     case TECHLIGHT2__STATIC:
     case TECHLIGHT4__STATIC:
 
-        ceilingglass(g_player[myconnectindex].ps->i,sn,10);
-        spritesound(GLASS_BREAKING,g_player[screenpeek].ps->i);
+        A_SpawnCeilingGlass(g_player[myconnectindex].ps->i,sn,10);
+        A_PlaySound(GLASS_BREAKING,g_player[screenpeek].ps->i);
 
         if (sector[sn].ceilingpicnum == WALLLIGHT1)
             sector[sn].ceilingpicnum = WALLLIGHTBUST1;
@@ -1994,11 +1995,11 @@ int checkhitceiling(int sn)
             {
                 if (PN == SECTOREFFECTOR && SLT == 12)
                 {
-                    j = headspritestat[3];
+                    j = headspritestat[STAT_EFFECTOR];
                     while (j >= 0)
                     {
                         if (sprite[j].hitag == SHT)
-                            hittype[j].temp_data[3] = 1;
+                            ActorExtra[j].temp_data[3] = 1;
                         j = nextspritestat[j];
                     }
                     break;
@@ -2007,8 +2008,8 @@ int checkhitceiling(int sn)
             }
         }
 
-        i = headspritestat[3];
-        j = TRAND&1;
+        i = headspritestat[STAT_EFFECTOR];
+        j = krand()&1;
         while (i >= 0)
         {
             if (SHT == (sector[sn].hitag) && SLT == 3)
@@ -2025,7 +2026,8 @@ int checkhitceiling(int sn)
     return 0;
 }
 
-void checkhitsprite(int i,int sn)
+// hard coded props... :(
+void A_DamageObject(int i,int sn)
 {
     short j;
     int k, p, rpg=0;
@@ -2034,22 +2036,22 @@ void checkhitsprite(int i,int sn)
 
     i &= (MAXSPRITES-1);
 
-    if (checkspriteflags(sn,SPRITE_FLAG_PROJECTILE))
-        if (hittype[sn].projectile.workslike & PROJECTILE_FLAG_RPG)
+    if (A_CheckSpriteFlags(sn,SPRITE_PROJECTILE))
+        if (ActorExtra[sn].projectile.workslike & PROJECTILE_RPG)
             rpg = 1;
     switchpicnum = PN;
     if ((PN > WATERFOUNTAIN)&&(PN < WATERFOUNTAIN+3))
     {
         switchpicnum = WATERFOUNTAIN;
     }
-    switch (dynamictostatic[PN])
+    switch (DynamicTileMap[PN])
     {
     case OCEANSPRITE1__STATIC:
     case OCEANSPRITE2__STATIC:
     case OCEANSPRITE3__STATIC:
     case OCEANSPRITE4__STATIC:
     case OCEANSPRITE5__STATIC:
-        spawn(i,SMALLSMOKE);
+        A_Spawn(i,SMALLSMOKE);
         deletesprite(i);
         break;
     case QUEBALL__STATIC:
@@ -2059,19 +2061,19 @@ void checkhitsprite(int i,int sn)
             sprite[sn].xvel = (sprite[i].xvel>>1)+(sprite[i].xvel>>2);
             sprite[sn].ang -= (SA<<1)+1024;
             SA = getangle(SX-sprite[sn].x,SY-sprite[sn].y)-512;
-            if (issoundplaying(i,POOLBALLHIT) < 2)
-                spritesound(POOLBALLHIT,i);
+            if (S_CheckSoundPlaying(i,POOLBALLHIT) < 2)
+                A_PlaySound(POOLBALLHIT,i);
         }
         else
         {
-            if (TRAND&3)
+            if (krand()&3)
             {
                 sprite[i].xvel = 164;
                 sprite[i].ang = sprite[sn].ang;
             }
             else
             {
-                lotsofglass(i,-1,3);
+                A_SpawnWallGlass(i,-1,3);
                 deletesprite(i);
             }
         }
@@ -2087,9 +2089,9 @@ void checkhitsprite(int i,int sn)
             {
                 CS &= ~257;
                 T1 = 1;
-                spawn(i,BURNING);
+                A_Spawn(i,BURNING);
             }
-        switch (dynamictostatic[sprite[sn].picnum])
+        switch (DynamicTileMap[sprite[sn].picnum])
         {
         case RADIUSEXPLOSION__STATIC:
         case RPG__STATIC:
@@ -2100,7 +2102,7 @@ void checkhitsprite(int i,int sn)
             {
                 CS &= ~257;
                 T1 = 1;
-                spawn(i,BURNING);
+                A_Spawn(i,BURNING);
             }
             break;
         }
@@ -2111,11 +2113,11 @@ void checkhitsprite(int i,int sn)
         if (rpg == 1)
             for (k=64;k>0;k--)
             {
-                j = EGS(SECT,SX,SY,SZ-(TRAND%(48<<8)),SCRAP3+(TRAND&3),-8,48,48,TRAND&2047,(TRAND&63)+64,-(TRAND&4095)-(sprite[i].zvel>>2),i,5);
+                j = A_InsertSprite(SECT,SX,SY,SZ-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
                 sprite[j].pal = 8;
             }
         //        case CACTUSBROKE:
-        switch (dynamictostatic[sprite[sn].picnum])
+        switch (DynamicTileMap[sprite[sn].picnum])
         {
         case RADIUSEXPLOSION__STATIC:
         case RPG__STATIC:
@@ -2124,7 +2126,7 @@ void checkhitsprite(int i,int sn)
         case HEAVYHBOMB__STATIC:
             for (k=64;k>0;k--)
             {
-                j = EGS(SECT,SX,SY,SZ-(TRAND%(48<<8)),SCRAP3+(TRAND&3),-8,48,48,TRAND&2047,(TRAND&63)+64,-(TRAND&4095)-(sprite[i].zvel>>2),i,5);
+                j = A_InsertSprite(SECT,SX,SY,SZ-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
                 sprite[j].pal = 8;
             }
 
@@ -2139,8 +2141,8 @@ void checkhitsprite(int i,int sn)
     case HANGLIGHT__STATIC:
     case GENERICPOLE2__STATIC:
         for (k=6;k>0;k--)
-            EGS(SECT,SX,SY,SZ-(8<<8),SCRAP1+(TRAND&15),-8,48,48,TRAND&2047,(TRAND&63)+64,-(TRAND&4095)-(sprite[i].zvel>>2),i,5);
-        spritesound(GLASS_HEAVYBREAK,i);
+            A_InsertSprite(SECT,SX,SY,SZ-(8<<8),SCRAP1+(krand()&15),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
+        A_PlaySound(GLASS_HEAVYBREAK,i);
         deletesprite(i);
         break;
 
@@ -2151,7 +2153,7 @@ void checkhitsprite(int i,int sn)
         if (sector[SECT].floorpicnum == FANSHADOW)
             sector[SECT].floorpicnum = FANSHADOWBROKE;
 
-        spritesound(GLASS_HEAVYBREAK,i);
+        A_PlaySound(GLASS_HEAVYBREAK,i);
         s = &sprite[i];
         for (j=16;j>0;j--) RANDOMSCRAP;
 
@@ -2161,7 +2163,7 @@ void checkhitsprite(int i,int sn)
         //    case WATERFOUNTAIN+2:
         //    case __STATIC:
         PN = WATERFOUNTAINBROKE;
-        spawn(i,TOILETWATER);
+        A_Spawn(i,TOILETWATER);
         break;
     case SATELITE__STATIC:
     case FUELPOD__STATIC:
@@ -2170,9 +2172,9 @@ void checkhitsprite(int i,int sn)
         if (sprite[sn].extra != *actorscrptr[SHOTSPARK1])
         {
             for (j=15;j>0;j--)
-                EGS(SECT,SX,SY,sector[SECT].floorz-(12<<8)-(j<<9),SCRAP1+(TRAND&15),-8,64,64,
-                    TRAND&2047,(TRAND&127)+64,-(TRAND&511)-256,i,5);
-            spawn(i,EXPLOSION2);
+                A_InsertSprite(SECT,SX,SY,sector[SECT].floorz-(12<<8)-(j<<9),SCRAP1+(krand()&15),-8,64,64,
+                               krand()&2047,(krand()&127)+64,-(krand()&511)-256,i,5);
+            A_Spawn(i,EXPLOSION2);
             deletesprite(i);
         }
         break;
@@ -2205,111 +2207,111 @@ void checkhitsprite(int i,int sn)
     case STATUEFLASH__STATIC:
     case STATUE__STATIC:
         if (PN == BOTTLE10)
-            lotsofmoneymailpaper(i,4+(TRAND&3),MONEY);
+            A_SpawnMultiple(i, MONEY, 4+(krand()&3));
         else if (PN == STATUE || PN == STATUEFLASH)
         {
-            lotsofcolourglass(i,-1,40);
-            spritesound(GLASS_HEAVYBREAK,i);
+            A_SpawnRandomGlass(i,-1,40);
+            A_PlaySound(GLASS_HEAVYBREAK,i);
         }
         else if (PN == VASE)
-            lotsofglass(i,-1,40);
+            A_SpawnWallGlass(i,-1,40);
 
-        spritesound(GLASS_BREAKING,i);
-        SA = TRAND&2047;
-        lotsofglass(i,-1,8);
+        A_PlaySound(GLASS_BREAKING,i);
+        SA = krand()&2047;
+        A_SpawnWallGlass(i,-1,8);
         deletesprite(i);
         break;
     case FETUS__STATIC:
         PN = FETUSBROKE;
-        spritesound(GLASS_BREAKING,i);
-        lotsofglass(i,-1,10);
+        A_PlaySound(GLASS_BREAKING,i);
+        A_SpawnWallGlass(i,-1,10);
         break;
     case FETUSBROKE__STATIC:
         for (j=48;j>0;j--)
         {
-            shoot(i,BLOODSPLAT1);
+            A_Shoot(i,BLOODSPLAT1);
             SA += 333;
         }
-        spritesound(GLASS_HEAVYBREAK,i);
-        spritesound(SQUISHED,i);
+        A_PlaySound(GLASS_HEAVYBREAK,i);
+        A_PlaySound(SQUISHED,i);
     case BOTTLE7__STATIC:
-        spritesound(GLASS_BREAKING,i);
-        lotsofglass(i,-1,10);
+        A_PlaySound(GLASS_BREAKING,i);
+        A_SpawnWallGlass(i,-1,10);
         deletesprite(i);
         break;
     case HYDROPLANT__STATIC:
         PN = BROKEHYDROPLANT;
-        spritesound(GLASS_BREAKING,i);
-        lotsofglass(i,-1,10);
+        A_PlaySound(GLASS_BREAKING,i);
+        A_SpawnWallGlass(i,-1,10);
         break;
 
     case FORCESPHERE__STATIC:
         sprite[i].xrepeat = 0;
-        hittype[OW].temp_data[0] = 32;
-        hittype[OW].temp_data[1] = !hittype[OW].temp_data[1];
-        hittype[OW].temp_data[2] ++;
-        spawn(i,EXPLOSION2);
+        ActorExtra[OW].temp_data[0] = 32;
+        ActorExtra[OW].temp_data[1] = !ActorExtra[OW].temp_data[1];
+        ActorExtra[OW].temp_data[2] ++;
+        A_Spawn(i,EXPLOSION2);
         break;
 
     case BROKEHYDROPLANT__STATIC:
         if (CS&1)
         {
-            spritesound(GLASS_BREAKING,i);
+            A_PlaySound(GLASS_BREAKING,i);
             SZ += 16<<8;
             CS = 0;
-            lotsofglass(i,-1,5);
+            A_SpawnWallGlass(i,-1,5);
         }
         break;
 
     case TOILET__STATIC:
         PN = TOILETBROKE;
-        CS |= (TRAND&1)<<2;
+        CS |= (krand()&1)<<2;
         CS &= ~257;
-        spawn(i,TOILETWATER);
-        spritesound(GLASS_BREAKING,i);
+        A_Spawn(i,TOILETWATER);
+        A_PlaySound(GLASS_BREAKING,i);
         break;
 
     case STALL__STATIC:
         PN = STALLBROKE;
-        CS |= (TRAND&1)<<2;
+        CS |= (krand()&1)<<2;
         CS &= ~257;
-        spawn(i,TOILETWATER);
-        spritesound(GLASS_HEAVYBREAK,i);
+        A_Spawn(i,TOILETWATER);
+        A_PlaySound(GLASS_HEAVYBREAK,i);
         break;
 
     case HYDRENT__STATIC:
         PN = BROKEFIREHYDRENT;
-        spawn(i,TOILETWATER);
+        A_Spawn(i,TOILETWATER);
 
         //            for(k=0;k<5;k++)
         //          {
-        //            j = EGS(SECT,SX,SY,SZ-(TRAND%(48<<8)),SCRAP3+(TRAND&3),-8,48,48,TRAND&2047,(TRAND&63)+64,-(TRAND&4095)-(sprite[i].zvel>>2),i,5);
+        //            j = A_InsertSprite(SECT,SX,SY,SZ-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
         //          sprite[j].pal = 2;
         //    }
-        spritesound(GLASS_HEAVYBREAK,i);
+        A_PlaySound(GLASS_HEAVYBREAK,i);
         break;
 
     case GRATE1__STATIC:
         PN = BGRATE1;
         CS &= (65535-256-1);
-        spritesound(VENT_BUST,i);
+        A_PlaySound(VENT_BUST,i);
         break;
 
     case CIRCLEPANNEL__STATIC:
         PN = CIRCLEPANNELBROKE;
         CS &= (65535-256-1);
-        spritesound(VENT_BUST,i);
+        A_PlaySound(VENT_BUST,i);
         break;
     case PANNEL1__STATIC:
     case PANNEL2__STATIC:
         PN = BPANNEL1;
         CS &= (65535-256-1);
-        spritesound(VENT_BUST,i);
+        A_PlaySound(VENT_BUST,i);
         break;
     case PANNEL3__STATIC:
         PN = BPANNEL3;
         CS &= (65535-256-1);
-        spritesound(VENT_BUST,i);
+        A_PlaySound(VENT_BUST,i);
         break;
     case PIPE1__STATIC:
     case PIPE2__STATIC:
@@ -2317,7 +2319,7 @@ void checkhitsprite(int i,int sn)
     case PIPE4__STATIC:
     case PIPE5__STATIC:
     case PIPE6__STATIC:
-        switch (dynamictostatic[PN])
+        switch (DynamicTileMap[PN])
         {
         case PIPE1__STATIC:
             PN=PIPE1B;
@@ -2339,7 +2341,7 @@ void checkhitsprite(int i,int sn)
             break;
         }
 
-        j = spawn(i,STEAM);
+        j = A_Spawn(i,STEAM);
         sprite[j].z = sector[SECT].floorz-(32<<8);
         break;
 
@@ -2347,34 +2349,34 @@ void checkhitsprite(int i,int sn)
     case LUKE__STATIC:
     case INDY__STATIC:
     case JURYGUY__STATIC:
-        spritesound(SLT,i);
-        spawn(i,SHT);
+        A_PlaySound(SLT,i);
+        A_Spawn(i,SHT);
     case SPACEMARINE__STATIC:
         sprite[i].extra -= sprite[sn].extra;
         if (sprite[i].extra > 0) break;
-        SA = TRAND&2047;
-        shoot(i,BLOODSPLAT1);
-        SA = TRAND&2047;
-        shoot(i,BLOODSPLAT2);
-        SA = TRAND&2047;
-        shoot(i,BLOODSPLAT3);
-        SA = TRAND&2047;
-        shoot(i,BLOODSPLAT4);
-        SA = TRAND&2047;
-        shoot(i,BLOODSPLAT1);
-        SA = TRAND&2047;
-        shoot(i,BLOODSPLAT2);
-        SA = TRAND&2047;
-        shoot(i,BLOODSPLAT3);
-        SA = TRAND&2047;
-        shoot(i,BLOODSPLAT4);
-        guts(i,JIBS1,1);
-        guts(i,JIBS2,2);
-        guts(i,JIBS3,3);
-        guts(i,JIBS4,4);
-        guts(i,JIBS5,1);
-        guts(i,JIBS3,6);
-        sound(SQUISHED);
+        SA = krand()&2047;
+        A_Shoot(i,BLOODSPLAT1);
+        SA = krand()&2047;
+        A_Shoot(i,BLOODSPLAT2);
+        SA = krand()&2047;
+        A_Shoot(i,BLOODSPLAT3);
+        SA = krand()&2047;
+        A_Shoot(i,BLOODSPLAT4);
+        SA = krand()&2047;
+        A_Shoot(i,BLOODSPLAT1);
+        SA = krand()&2047;
+        A_Shoot(i,BLOODSPLAT2);
+        SA = krand()&2047;
+        A_Shoot(i,BLOODSPLAT3);
+        SA = krand()&2047;
+        A_Shoot(i,BLOODSPLAT4);
+        A_DoGuts(i,JIBS1,1);
+        A_DoGuts(i,JIBS2,2);
+        A_DoGuts(i,JIBS3,3);
+        A_DoGuts(i,JIBS4,4);
+        A_DoGuts(i,JIBS5,1);
+        A_DoGuts(i,JIBS3,6);
+        S_PlaySound(SQUISHED);
         deletesprite(i);
         break;
     case CHAIR1__STATIC:
@@ -2392,7 +2394,7 @@ void checkhitsprite(int i,int sn)
     case POT2__STATIC:
     case POT3__STATIC:
     case TRIPODCAMERA__STATIC:
-        spritesound(GLASS_HEAVYBREAK,i);
+        A_PlaySound(GLASS_HEAVYBREAK,i);
         s = &sprite[i];
         for (j=16;j>0;j--) RANDOMSCRAP;
         deletesprite(i);
@@ -2405,21 +2407,21 @@ void checkhitsprite(int i,int sn)
 
         if ((sprite[sn].picnum == FREEZEBLAST || sprite[sn].owner != i) && sprite[i].statnum != 4)
         {
-            if (badguy(&sprite[i]) == 1)
+            if (A_CheckEnemySprite(&sprite[i]) == 1)
             {
                 if (sprite[sn].picnum == RPG) sprite[sn].extra <<= 1;
 
                 if ((PN != DRONE) && (PN != ROTATEGUN) && (PN != COMMANDER) && (PN < GREENSLIME || PN > GREENSLIME+7))
                     if (sprite[sn].picnum != FREEZEBLAST)
-                        if (actortype[PN] == 0)
+                        if (ActorType[PN] == 0)
                         {
-                            j = spawn(sn,JIBS6);
+                            j = A_Spawn(sn,JIBS6);
                             if (sprite[sn].pal == 6)
                                 sprite[j].pal = 6;
                             sprite[j].z += (4<<8);
                             sprite[j].xvel = 16;
                             sprite[j].xrepeat = sprite[j].yrepeat = 24;
-                            sprite[j].ang += 32-(TRAND&63);
+                            sprite[j].ang += 32-(krand()&63);
                         }
 
                 j = sprite[sn].owner;
@@ -2427,10 +2429,10 @@ void checkhitsprite(int i,int sn)
                 if (j >= 0 && sprite[j].picnum == APLAYER && PN != ROTATEGUN && PN != DRONE)
                     if (g_player[sprite[j].yvel].ps->curr_weapon == SHOTGUN_WEAPON)
                     {
-                        shoot(i,BLOODSPLAT3);
-                        shoot(i,BLOODSPLAT1);
-                        shoot(i,BLOODSPLAT2);
-                        shoot(i,BLOODSPLAT4);
+                        A_Shoot(i,BLOODSPLAT3);
+                        A_Shoot(i,BLOODSPLAT1);
+                        A_Shoot(i,BLOODSPLAT2);
+                        A_Shoot(i,BLOODSPLAT4);
                     }
 
                 if (PN != TANK && PN != BOSS1 && PN != BOSS4 && PN != BOSS2 && PN != BOSS3 && PN != RECON && PN != ROTATEGUN)
@@ -2447,20 +2449,20 @@ void checkhitsprite(int i,int sn)
                 if (sprite[i].statnum == 2)
                 {
                     changespritestat(i,1);
-                    hittype[i].timetosleep = SLEEPTIME;
+                    ActorExtra[i].timetosleep = SLEEPTIME;
                 }
                 if ((RX < 24 || PN == SHARK) && sprite[sn].picnum == SHRINKSPARK) return;
             }
 
             if (sprite[i].statnum != 2)
             {
-                if (sprite[sn].picnum == FREEZEBLAST && ((PN == APLAYER && sprite[i].pal == 1) || (freezerhurtowner == 0 && sprite[sn].owner == i)))
+                if (sprite[sn].picnum == FREEZEBLAST && ((PN == APLAYER && sprite[i].pal == 1) || (g_freezerSelfDamage == 0 && sprite[sn].owner == i)))
                     return;
 
-                hittype[i].picnum = sprite[sn].picnum;
-                hittype[i].extra += sprite[sn].extra;
-                hittype[i].ang = sprite[sn].ang;
-                hittype[i].owner = sprite[sn].owner;
+                ActorExtra[i].picnum = sprite[sn].picnum;
+                ActorExtra[i].extra += sprite[sn].extra;
+                ActorExtra[i].ang = sprite[sn].ang;
+                ActorExtra[i].owner = sprite[sn].owner;
             }
 
             if (sprite[i].statnum == 10)
@@ -2475,9 +2477,9 @@ void checkhitsprite(int i,int sn)
                     g_player[p].ps->ang = g_player[p].ps->oang;
 
                     updatesector(g_player[p].ps->posx,g_player[p].ps->posy,&g_player[p].ps->cursectnum);
-                    setpal(g_player[p].ps);
+                    P_UpdateScreenPal(g_player[p].ps);
 
-                    j = headspritestat[1];
+                    j = headspritestat[STAT_ACTOR];
                     while (j >= 0)
                     {
                         if (sprite[j].picnum==CAMERA1) sprite[j].yvel = 0;
@@ -2488,7 +2490,7 @@ void checkhitsprite(int i,int sn)
                 if (RX < 24 && sprite[sn].picnum == SHRINKSPARK)
                     return;
 
-                if (sprite[hittype[i].owner].picnum != APLAYER)
+                if (sprite[ActorExtra[i].owner].picnum != APLAYER)
                     if (ud.player_skill >= 3)
                         sprite[sn].extra += (sprite[sn].extra>>1);
             }
@@ -2500,13 +2502,13 @@ void checkhitsprite(int i,int sn)
 
 void allignwarpelevators(void)
 {
-    int j, i = headspritestat[3];
+    int j, i = headspritestat[STAT_EFFECTOR];
 
     while (i >= 0)
     {
         if (SLT == 17 && SS > 16)
         {
-            j = headspritestat[3];
+            j = headspritestat[STAT_EFFECTOR];
             while (j >= 0)
             {
                 if ((sprite[j].lotag) == 17 && i != j &&
@@ -2525,11 +2527,11 @@ void allignwarpelevators(void)
     }
 }
 
-void sharedkeys(int snum)
+void G_HandleSharedKeys(int snum)
 {
     int i, k, dainv;
     unsigned int sb_snum = g_player[snum].sync->bits, j;
-    player_struct *p = g_player[snum].ps;
+    DukePlayer_t *p = g_player[snum].ps;
 
     if (p->cheat_phase == 1) return;
 
@@ -2556,7 +2558,7 @@ void sharedkeys(int snum)
     // 1<<23 =  aim mode
     // 1<<24 = !holoduke
     // 1<<25 = !jetpack
-    // 1<<26 =  gamequit
+    // 1<<26 =  g_gameQuit
     // 1<<27 = !inventory right
     // 1<<28 = !turn around
     // 1<<29 = !open
@@ -2564,31 +2566,34 @@ void sharedkeys(int snum)
     // 1<<31 = !escape
 
     i = p->aim_mode;
-    p->aim_mode = (sb_snum>>23)&1;
+    p->aim_mode = (sb_snum>>SK_AIMMODE)&1;
     if (p->aim_mode < i)
         p->return_to_center = 9;
 
-    if ((sb_snum&(1<<22)) && p->quick_kick == 0)
+    if (TEST_SYNC_KEY(sb_snum, SK_QUICK_KICK) && p->quick_kick == 0)
         if (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0)
         {
-            SetGameVarID(g_iReturnVarID,0,g_player[snum].ps->i,snum);
-            OnEvent(EVENT_QUICKKICK,g_player[snum].ps->i,snum, -1);
-            if (GetGameVarID(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+            Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+            X_OnEvent(EVENT_QUICKKICK,g_player[snum].ps->i,snum, -1);
+            if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
             {
                 p->quick_kick = 14;
                 if (p->fta == 0 || p->ftq == 80)
-                    FTA(80,p);
+                    P_DoQuote(80,p);
             }
         }
 
-    j = sb_snum & ((15<<8)|(1<<12)|(1<<15)|(1<<16)|(1<<22)|(1<<19)|(1<<20)|(1<<21)|(1<<24)|(1<<25)|(1<<27)|(1<<28)|(1<<29)|(1<<30)|(1<<31));
+    // j = sb_snum & ((15<<8)|(1<<12)|(1<<15)|(1<<16)|(1<<22)|(1<<19)|(1<<20)|(1<<21)|(1<<24)|(1<<25)|(1<<27)|(1<<28)|(1<<29)|(1<<30)|(1<<31));
+    j = sb_snum & ((15<<8)|BIT(SK_STEROIDS)|BIT(SK_NIGHTVISION)|BIT(SK_MEDKIT)|BIT(SK_QUICK_KICK)| \
+                   BIT(SK_HOLSTER)|BIT(SK_INV_LEFT)|BIT(SK_PAUSE)|BIT(SK_HOLODUKE)|BIT(SK_JETPACK)|BIT(SK_INV_RIGHT)| \
+                   BIT(SK_TURNAROUND)|BIT(SK_OPEN)|BIT(SK_INVENTORY)|BIT(SK_ESCAPE));
     sb_snum = j & ~p->interface_toggle_flag;
     p->interface_toggle_flag |= sb_snum | ((sb_snum&0xf00)?0xf00:0);
     p->interface_toggle_flag &= j | ((j&0xf00)?0xf00:0);
 
-    if (sb_snum && (sb_snum&(1<<17)) == 0)
+    if (sb_snum && TEST_SYNC_KEY(sb_snum, SK_MULTIFLAG) == 0)
     {
-        if (sb_snum&(1<<21))
+        if (TEST_SYNC_KEY(sb_snum, SK_PAUSE))
         {
             KB_ClearKeyDown(sc_Pause);
             if (ud.pause_on)
@@ -2598,7 +2603,7 @@ void sharedkeys(int snum)
             {
                 MUSIC_Pause();
                 FX_StopAllSounds();
-                clearsoundlocks();
+                S_ClearSoundLocks();
             }
             else
             {
@@ -2612,59 +2617,59 @@ void sharedkeys(int snum)
 
         if (sprite[p->i].extra <= 0) return;		// if dead...
 
-        if (sb_snum&(1<<30) && p->newowner == -1)	// inventory button generates event for selected item
+        if (TEST_SYNC_KEY(sb_snum, SK_INVENTORY) && p->newowner == -1)	// inventory button generates event for selected item
         {
-            SetGameVarID(g_iReturnVarID,0,g_player[snum].ps->i,snum);
-            OnEvent(EVENT_INVENTORY,g_player[snum].ps->i,snum, -1);
-            if (GetGameVarID(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+            Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+            X_OnEvent(EVENT_INVENTORY,g_player[snum].ps->i,snum, -1);
+            if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
             {
                 switch (p->inven_icon)
                 {
                 case 4:
-                    sb_snum |= (1<<25);
+                    sb_snum |= BIT(SK_JETPACK);
                     break;
                 case 3:
-                    sb_snum |= (1<<24);
+                    sb_snum |= BIT(SK_HOLODUKE);
                     break;
                 case 5:
-                    sb_snum |= (1<<15);
+                    sb_snum |= BIT(SK_NIGHTVISION);
                     break;
                 case 1:
-                    sb_snum |= (1<<16);
+                    sb_snum |= BIT(SK_MEDKIT);
                     break;
                 case 2:
-                    sb_snum |= (1<<12);
+                    sb_snum |= BIT(SK_STEROIDS);
                     break;
                 }
             }
         }
 
-        if (sb_snum&(1<<15))
+        if (TEST_SYNC_KEY(sb_snum, SK_NIGHTVISION))
         {
-            SetGameVarID(g_iReturnVarID,0,g_player[snum].ps->i,snum);
-            OnEvent(EVENT_USENIGHTVISION,g_player[snum].ps->i,snum, -1);
-            if (GetGameVarID(g_iReturnVarID,g_player[snum].ps->i,snum) == 0
+            Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+            X_OnEvent(EVENT_USENIGHTVISION,g_player[snum].ps->i,snum, -1);
+            if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0
                     &&  p->heat_amount > 0)
             {
                 p->heat_on = !p->heat_on;
-                setpal(p);
+                P_UpdateScreenPal(p);
                 p->inven_icon = 5;
-                spritesound(NITEVISION_ONOFF,p->i);
-                FTA(106+(!p->heat_on),p);
+                A_PlaySound(NITEVISION_ONOFF,p->i);
+                P_DoQuote(106+(!p->heat_on),p);
             }
         }
 
-        if ((sb_snum&(1<<12)))
+        if (TEST_SYNC_KEY(sb_snum, SK_STEROIDS))
         {
-            SetGameVarID(g_iReturnVarID,0,g_player[snum].ps->i,snum);
-            OnEvent(EVENT_USESTEROIDS,g_player[snum].ps->i,snum, -1);
-            if (GetGameVarID(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+            Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+            X_OnEvent(EVENT_USESTEROIDS,g_player[snum].ps->i,snum, -1);
+            if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
             {
                 if (p->steroids_amount == 400)
                 {
                     p->steroids_amount--;
-                    spritesound(DUKE_TAKEPILLS,p->i);
-                    FTA(12,p);
+                    A_PlaySound(DUKE_TAKEPILLS,p->i);
+                    P_DoQuote(12,p);
                 }
                 if (p->steroids_amount > 0)
                     p->inven_icon = 2;
@@ -2673,14 +2678,14 @@ void sharedkeys(int snum)
         }
         if (p->refresh_inventory)
         {
-            sb_snum|=(1<<20);   // emulate move left...
+            sb_snum |= BIT(SK_INV_LEFT);   // emulate move left...
         }
         if (p->newowner == -1)
-            if (sb_snum&(1<<20) || sb_snum&(1<<27))
+            if (TEST_SYNC_KEY(sb_snum, SK_INV_LEFT|SK_INV_RIGHT))
             {
                 p->invdisptime = 26*2;
 
-                if (sb_snum&(1<<27)) k = 1;
+                if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT)) k = 1;
                 else k = 0;
 
                 if (p->refresh_inventory) p->refresh_inventory = 0;
@@ -2742,17 +2747,17 @@ CHECKINV1:
                 }
                 else dainv = 0;
 
-                if (sb_snum&(1<<20))   // Inventory_Left
+                if (TEST_SYNC_KEY(sb_snum, SK_INV_LEFT))   // Inventory_Left
                 {
-                    SetGameVarID(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);
-                    OnEvent(EVENT_INVENTORYLEFT,g_player[snum].ps->i,snum, -1);
-                    dainv=GetGameVarID(g_iReturnVarID,g_player[snum].ps->i,snum);
+                    Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);
+                    X_OnEvent(EVENT_INVENTORYLEFT,g_player[snum].ps->i,snum, -1);
+                    dainv=Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum);
                 }
-                if (sb_snum&(1<<27))   // Inventory_Right
+                if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT))   // Inventory_Right
                 {
-                    SetGameVarID(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);
-                    OnEvent(EVENT_INVENTORYRIGHT,g_player[snum].ps->i,snum, -1);
-                    dainv=GetGameVarID(g_iReturnVarID,g_player[snum].ps->i,snum);
+                    Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);
+                    X_OnEvent(EVENT_INVENTORYRIGHT,g_player[snum].ps->i,snum, -1);
+                    dainv=Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum);
                 }
 
                 p->inven_icon = dainv;
@@ -2760,75 +2765,75 @@ CHECKINV1:
                 switch (dainv)
                 {
                 case 1:
-                    FTA(3,p);
+                    P_DoQuote(3,p);
                     break;
                 case 2:
-                    FTA(90,p);
+                    P_DoQuote(90,p);
                     break;
                 case 3:
-                    FTA(91,p);
+                    P_DoQuote(91,p);
                     break;
                 case 4:
-                    FTA(88,p);
+                    P_DoQuote(88,p);
                     break;
                 case 5:
-                    FTA(101,p);
+                    P_DoQuote(101,p);
                     break;
                 case 6:
-                    FTA(89,p);
+                    P_DoQuote(89,p);
                     break;
                 case 7:
-                    FTA(6,p);
+                    P_DoQuote(6,p);
                     break;
                 }
             }
 
-        j = ((sb_snum&(15<<8))>>8) - 1;
+        j = ((sb_snum&(15<<SK_WEAPON_BITS))>>SK_WEAPON_BITS) - 1;
 
-        SetGameVarID(g_iReturnVarID,j,p->i,snum);
+        Gv_SetVar(g_iReturnVarID,j,p->i,snum);
 
         switch (j)
         {
         case 0:
-            OnEvent(EVENT_WEAPKEY1,p->i,snum, -1);
+            X_OnEvent(EVENT_WEAPKEY1,p->i,snum, -1);
             break;
         case 1:
-            OnEvent(EVENT_WEAPKEY2,p->i,snum, -1);
+            X_OnEvent(EVENT_WEAPKEY2,p->i,snum, -1);
             break;
         case 2:
-            OnEvent(EVENT_WEAPKEY3,p->i,snum, -1);
+            X_OnEvent(EVENT_WEAPKEY3,p->i,snum, -1);
             break;
         case 3:
-            OnEvent(EVENT_WEAPKEY4,p->i,snum, -1);
+            X_OnEvent(EVENT_WEAPKEY4,p->i,snum, -1);
             break;
         case 4:
-            OnEvent(EVENT_WEAPKEY5,p->i,snum, -1);
+            X_OnEvent(EVENT_WEAPKEY5,p->i,snum, -1);
             break;
         case 5:
-            OnEvent(EVENT_WEAPKEY6,p->i,snum, -1);
+            X_OnEvent(EVENT_WEAPKEY6,p->i,snum, -1);
             break;
         case 6:
-            OnEvent(EVENT_WEAPKEY7,p->i,snum, -1);
+            X_OnEvent(EVENT_WEAPKEY7,p->i,snum, -1);
             break;
         case 7:
-            OnEvent(EVENT_WEAPKEY8,p->i,snum, -1);
+            X_OnEvent(EVENT_WEAPKEY8,p->i,snum, -1);
             break;
         case 8:
-            OnEvent(EVENT_WEAPKEY9,p->i,snum, -1);
+            X_OnEvent(EVENT_WEAPKEY9,p->i,snum, -1);
             break;
         case 9:
-            OnEvent(EVENT_WEAPKEY10,p->i,snum, -1);
+            X_OnEvent(EVENT_WEAPKEY10,p->i,snum, -1);
             break;
         case 10:
-            OnEvent(EVENT_PREVIOUSWEAPON,p->i,snum, -1);
+            X_OnEvent(EVENT_PREVIOUSWEAPON,p->i,snum, -1);
             break;
         case 11:
-            OnEvent(EVENT_NEXTWEAPON,p->i,snum, -1);
+            X_OnEvent(EVENT_NEXTWEAPON,p->i,snum, -1);
             break;
         }
 
-        if ((unsigned int) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-            j = (unsigned int) GetGameVarID(g_iReturnVarID,p->i,snum);
+        if ((unsigned int) Gv_GetVar(g_iReturnVarID,p->i,snum) != j)
+            j = (unsigned int) Gv_GetVar(g_iReturnVarID,p->i,snum);
 
         if (p->reloading == 1)
             j = -1;
@@ -2893,7 +2898,7 @@ CHECKINV1:
                         i++;    // absolutely no weapons, so use foot
                         if (i == 10)
                         {
-                            addweapon(p, KNEE_WEAPON);
+                            P_AddWeapon(p, KNEE_WEAPON);
                             break;
                         }
                     }
@@ -2901,14 +2906,14 @@ CHECKINV1:
 
                 k = -1;
 
-                SetGameVarID(g_iWeaponVarID,j, p->i, snum);
-                SetGameVarID(g_iReturnVarID,0,p->i,snum);
-                OnEvent(EVENT_SELECTWEAPON,p->i,snum, -1);
-                if (GetGameVarID(g_iReturnVarID,p->i,snum) == 0)
+                Gv_SetVar(g_iWeaponVarID,j, p->i, snum);
+                Gv_SetVar(g_iReturnVarID,0,p->i,snum);
+                X_OnEvent(EVENT_SELECTWEAPON,p->i,snum, -1);
+                if (Gv_GetVar(g_iReturnVarID,p->i,snum) == 0)
                 {
                     if (j == HANDBOMB_WEAPON && p->ammo_amount[HANDBOMB_WEAPON] == 0)
                     {
-                        k = headspritestat[1];
+                        k = headspritestat[STAT_ACTOR];
                         while (k >= 0)
                         {
                             if (sprite[k].picnum == HEAVYHBOMB && sprite[k].owner == p->i)
@@ -2951,14 +2956,14 @@ CHECKINV1:
 
                     if (p->holster_weapon)
                     {
-                        sb_snum |= 1<<19;
+                        sb_snum |= BIT(SK_HOLSTER);
                         p->weapon_pos = -9;
                     }
                     else if ((int)j >= 0 && p->gotweapon[j] && (unsigned int)p->curr_weapon != j)
                         switch (j)
                         {
                         case KNEE_WEAPON:
-                            addweapon(p, KNEE_WEAPON);
+                            P_AddWeapon(p, KNEE_WEAPON);
                             break;
                         case PISTOL_WEAPON:
                             if (p->ammo_amount[PISTOL_WEAPON] == 0)
@@ -2967,7 +2972,7 @@ CHECKINV1:
                                     p->last_full_weapon = p->curr_weapon;
                                     p->show_empty_weapon = 32;
                                 }
-                            addweapon(p, PISTOL_WEAPON);
+                            P_AddWeapon(p, PISTOL_WEAPON);
                             break;
                         case SHOTGUN_WEAPON:
                             if (p->ammo_amount[SHOTGUN_WEAPON] == 0 && p->show_empty_weapon == 0)
@@ -2975,7 +2980,7 @@ CHECKINV1:
                                 p->last_full_weapon = p->curr_weapon;
                                 p->show_empty_weapon = 32;
                             }
-                            addweapon(p, SHOTGUN_WEAPON);
+                            P_AddWeapon(p, SHOTGUN_WEAPON);
                             break;
                         case CHAINGUN_WEAPON:
                             if (p->ammo_amount[CHAINGUN_WEAPON] == 0 && p->show_empty_weapon == 0)
@@ -2983,7 +2988,7 @@ CHECKINV1:
                                 p->last_full_weapon = p->curr_weapon;
                                 p->show_empty_weapon = 32;
                             }
-                            addweapon(p, CHAINGUN_WEAPON);
+                            P_AddWeapon(p, CHAINGUN_WEAPON);
                             break;
                         case RPG_WEAPON:
                             if (p->ammo_amount[RPG_WEAPON] == 0)
@@ -2992,7 +2997,7 @@ CHECKINV1:
                                     p->last_full_weapon = p->curr_weapon;
                                     p->show_empty_weapon = 32;
                                 }
-                            addweapon(p, RPG_WEAPON);
+                            P_AddWeapon(p, RPG_WEAPON);
                             break;
                         case DEVISTATOR_WEAPON:
                             if (p->ammo_amount[DEVISTATOR_WEAPON] == 0 && p->show_empty_weapon == 0)
@@ -3000,7 +3005,7 @@ CHECKINV1:
                                 p->last_full_weapon = p->curr_weapon;
                                 p->show_empty_weapon = 32;
                             }
-                            addweapon(p, DEVISTATOR_WEAPON);
+                            P_AddWeapon(p, DEVISTATOR_WEAPON);
                             break;
                         case FREEZE_WEAPON:
                             if (p->ammo_amount[FREEZE_WEAPON] == 0 && p->show_empty_weapon == 0)
@@ -3008,7 +3013,7 @@ CHECKINV1:
                                 p->last_full_weapon = p->curr_weapon;
                                 p->show_empty_weapon = 32;
                             }
-                            addweapon(p, FREEZE_WEAPON);
+                            P_AddWeapon(p, FREEZE_WEAPON);
                             break;
                         case GROW_WEAPON:
                         case SHRINKER_WEAPON:
@@ -3019,7 +3024,7 @@ CHECKINV1:
                                 p->last_full_weapon = p->curr_weapon;
                             }
 
-                            addweapon(p, j);
+                            P_AddWeapon(p, j);
                             break;
                         case HANDREMOTE_WEAPON:
                             if (k >= 0) // Found in list of [1]'s
@@ -3031,17 +3036,17 @@ CHECKINV1:
                             break;
                         case HANDBOMB_WEAPON:
                             if (p->ammo_amount[HANDBOMB_WEAPON] > 0 && p->gotweapon[HANDBOMB_WEAPON])
-                                addweapon(p, HANDBOMB_WEAPON);
+                                P_AddWeapon(p, HANDBOMB_WEAPON);
                             break;
                         case TRIPBOMB_WEAPON:
                             if (p->ammo_amount[TRIPBOMB_WEAPON] > 0 && p->gotweapon[TRIPBOMB_WEAPON])
-                                addweapon(p, TRIPBOMB_WEAPON);
+                                P_AddWeapon(p, TRIPBOMB_WEAPON);
                             break;
                         }
                 }
 
             }
-            if (sb_snum&(1<<19))
+            if (TEST_SYNC_KEY(sb_snum, SK_HOLSTER))
             {
                 if (p->curr_weapon > KNEE_WEAPON)
                 {
@@ -3049,26 +3054,26 @@ CHECKINV1:
                     {
                         p->holster_weapon = 1;
                         p->weapon_pos = -1;
-                        FTA(73,p);
+                        P_DoQuote(73,p);
                     }
                     else if (p->holster_weapon == 1 && p->weapon_pos == -9)
                     {
                         p->holster_weapon = 0;
                         p->weapon_pos = 10;
-                        FTA(74,p);
+                        P_DoQuote(74,p);
                     }
                 }
             }
         }
 
-        if (sb_snum&(1<<24) && p->newowner == -1)
+        if (TEST_SYNC_KEY(sb_snum, SK_HOLODUKE) && p->newowner == -1)
         {
 
             if (p->holoduke_on == -1)
             {
-                SetGameVarID(g_iReturnVarID,0,g_player[snum].ps->i,snum);
-                OnEvent(EVENT_HOLODUKEON,g_player[snum].ps->i,snum, -1);
-                if (GetGameVarID(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+                Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+                X_OnEvent(EVENT_HOLODUKEON,g_player[snum].ps->i,snum, -1);
+                if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
                 {
                     if (p->holoduke_amount > 0)
                     {
@@ -3077,38 +3082,38 @@ CHECKINV1:
                         if (p->cursectnum > -1)
                         {
                             p->holoduke_on = i =
-                                                 EGS(p->cursectnum,
-                                                     p->posx,
-                                                     p->posy,
-                                                     p->posz+(30<<8),APLAYER,-64,0,0,p->ang,0,0,-1,10);
+                                                 A_InsertSprite(p->cursectnum,
+                                                                p->posx,
+                                                                p->posy,
+                                                                p->posz+(30<<8),APLAYER,-64,0,0,p->ang,0,0,-1,10);
                             T4 = T5 = 0;
                             SP = snum;
                             sprite[i].extra = 0;
-                            FTA(47,p);
-                            spritesound(TELEPORTER,p->holoduke_on);
+                            P_DoQuote(47,p);
+                            A_PlaySound(TELEPORTER,p->holoduke_on);
                         }
                     }
-                    else FTA(49,p);
+                    else P_DoQuote(49,p);
                 }
             }
             else
             {
-                SetGameVarID(g_iReturnVarID,0,g_player[snum].ps->i,snum);
-                OnEvent(EVENT_HOLODUKEOFF,g_player[snum].ps->i,snum, -1);
-                if (GetGameVarID(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+                Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+                X_OnEvent(EVENT_HOLODUKEOFF,g_player[snum].ps->i,snum, -1);
+                if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
                 {
-                    spritesound(TELEPORTER,p->holoduke_on);
+                    A_PlaySound(TELEPORTER,p->holoduke_on);
                     p->holoduke_on = -1;
-                    FTA(48,p);
+                    P_DoQuote(48,p);
                 }
             }
         }
 
-        if (sb_snum&(1<<16))
+        if (TEST_SYNC_KEY(sb_snum, SK_MEDKIT))
         {
-            SetGameVarID(g_iReturnVarID,0,g_player[snum].ps->i,snum);
-            OnEvent(EVENT_USEMEDKIT,g_player[snum].ps->i,snum, -1);
-            if (GetGameVarID(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+            Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+            X_OnEvent(EVENT_USEMEDKIT,g_player[snum].ps->i,snum, -1);
+            if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
             {
                 if (p->firstaid_amount > 0 && sprite[p->i].extra < p->max_player_health)
                 {
@@ -3124,18 +3129,18 @@ CHECKINV1:
                     {
                         sprite[p->i].extra += p->firstaid_amount;
                         p->firstaid_amount = 0;
-                        checkavailinven(p);
+                        P_SelectNextInventoryItem(p);
                     }
-                    spritesound(DUKE_USEMEDKIT,p->i);
+                    A_PlaySound(DUKE_USEMEDKIT,p->i);
                 }
             }
         }
 
-        if (sb_snum&(1<<25) && p->newowner == -1)
+        if (TEST_SYNC_KEY(sb_snum, SK_JETPACK) && p->newowner == -1)
         {
-            SetGameVarID(g_iReturnVarID,0,g_player[snum].ps->i,snum);
-            OnEvent(EVENT_USEJETPACK,g_player[snum].ps->i,snum, -1);
-            if (GetGameVarID(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+            Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+            X_OnEvent(EVENT_USEJETPACK,g_player[snum].ps->i,snum, -1);
+            if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
             {
                 if (p->jetpack_amount > 0)
                 {
@@ -3146,33 +3151,33 @@ CHECKINV1:
                         if (p->scream_voice > FX_Ok)
                         {
                             FX_StopSound(p->scream_voice);
-                            testcallback(DUKE_SCREAM);
+                            S_TestSoundCallback(DUKE_SCREAM);
                             p->scream_voice = FX_Ok;
                         }
 
-                        spritesound(DUKE_JETPACK_ON,p->i);
+                        A_PlaySound(DUKE_JETPACK_ON,p->i);
 
-                        FTA(52,p);
+                        P_DoQuote(52,p);
                     }
                     else
                     {
                         p->hard_landing = 0;
                         p->poszv = 0;
-                        spritesound(DUKE_JETPACK_OFF,p->i);
-                        stopspritesound(DUKE_JETPACK_IDLE,p->i);
-                        stopspritesound(DUKE_JETPACK_ON,p->i);
-                        FTA(53,p);
+                        A_PlaySound(DUKE_JETPACK_OFF,p->i);
+                        A_StopSound(DUKE_JETPACK_IDLE,p->i);
+                        A_StopSound(DUKE_JETPACK_ON,p->i);
+                        P_DoQuote(53,p);
                     }
                 }
-                else FTA(50,p);
+                else P_DoQuote(50,p);
             }
         }
 
-        if (sb_snum&(1<<28) && p->one_eighty_count == 0)
+        if (TEST_SYNC_KEY(sb_snum, SK_TURNAROUND) && p->one_eighty_count == 0)
         {
-            SetGameVarID(g_iReturnVarID,0,p->i,snum);
-            OnEvent(EVENT_TURNAROUND,p->i,snum, -1);
-            if (GetGameVarID(g_iReturnVarID,p->i,snum) == 0)
+            Gv_SetVar(g_iReturnVarID,0,p->i,snum);
+            X_OnEvent(EVENT_TURNAROUND,p->i,snum, -1);
+            if (Gv_GetVar(g_iReturnVarID,p->i,snum) == 0)
             {
                 p->one_eighty_count = -1024;
             }
@@ -3180,12 +3185,12 @@ CHECKINV1:
     }
 }
 
-int hitasprite(int i,short *hitsp)
+int A_CheckHitSprite(int i,short *hitsp)
 {
     int sx,sy,sz,zoff;
     short sect,hw;
 
-    if (badguy(&sprite[i]))
+    if (A_CheckEnemySprite(&sprite[i]))
         zoff = (42<<8);
     else if (PN == APLAYER) zoff = (39<<8);
     else zoff = 0;
@@ -3195,13 +3200,13 @@ int hitasprite(int i,short *hitsp)
             sintable[SA&2047],
             0,&sect,&hw,hitsp,&sx,&sy,&sz,CLIPMASK1);
 
-    if (hw >= 0 && (wall[hw].cstat&16) && badguy(&sprite[i]))
+    if (hw >= 0 && (wall[hw].cstat&16) && A_CheckEnemySprite(&sprite[i]))
         return((1<<30));
 
     return (FindDistance2D(sx-SX,sy-SY));
 }
 
-static int hitawall(player_struct *p,short *hitw)
+static int hitawall(DukePlayer_t *p,short *hitw)
 {
     int sx,sy,sz;
     short sect,hs;
@@ -3218,7 +3223,7 @@ static int hitawall(player_struct *p,short *hitw)
 void checksectors(int snum)
 {
     int i = -1,oldz;
-    player_struct *p = g_player[snum].ps;
+    DukePlayer_t *p = g_player[snum].ps;
     short j,hitscanwall;
 
     if (p->cursectnum > -1)
@@ -3227,12 +3232,12 @@ void checksectors(int snum)
 
         case 32767:
             sector[p->cursectnum].lotag = 0;
-            FTA(9,p);
+            P_DoQuote(9,p);
             p->secret_rooms++;
             return;
         case -1:
-            for (i=connecthead;i>=0;i=connectpoint2[i])
-                g_player[i].ps->gm = MODE_EOL;
+            TRAVERSE_CONNECT(i)
+            g_player[i].ps->gm = MODE_EOL;
             sector[p->cursectnum].lotag = 0;
             if (ud.from_bonus)
             {
@@ -3256,8 +3261,8 @@ void checksectors(int snum)
         default:
             if (sector[p->cursectnum].lotag >= 10000 && sector[p->cursectnum].lotag < 16383)
             {
-                if (snum == screenpeek || (gametype_flags[ud.coop]&GAMETYPE_FLAG_COOPSOUND))
-                    spritesound(sector[p->cursectnum].lotag-10000,p->i);
+                if (snum == screenpeek || (GametypeFlags[ud.coop]&GAMETYPE_COOPSOUND))
+                    A_PlaySound(sector[p->cursectnum].lotag-10000,p->i);
                 sector[p->cursectnum].lotag = 0;
             }
             break;
@@ -3268,16 +3273,16 @@ void checksectors(int snum)
 
     if (p->gm&MODE_TYPE || sprite[p->i].extra <= 0) return;
 
-    if ((g_player[snum].sync->bits&(1<<29)))
+    if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_OPEN))
     {
-        SetGameVarID(g_iReturnVarID,0,p->i,snum);
-        OnEvent(EVENT_USE, p->i, snum, -1);
-        if (GetGameVarID(g_iReturnVarID,p->i,snum) != 0)
-            g_player[snum].sync->bits &= ~(1<<29);
+        Gv_SetVar(g_iReturnVarID,0,p->i,snum);
+        X_OnEvent(EVENT_USE, p->i, snum, -1);
+        if (Gv_GetVar(g_iReturnVarID,p->i,snum) != 0)
+            g_player[snum].sync->bits &= ~BIT(SK_OPEN);
     }
 
-    if (ud.cashman && g_player[snum].sync->bits&(1<<29))
-        lotsofmoneymailpaper(p->i,2,MONEY);
+    if (ud.cashman && TEST_SYNC_KEY(g_player[snum].sync->bits, SK_OPEN))
+        A_SpawnMultiple(p->i, MONEY, 2);
 
     if (p->newowner >= 0)
     {
@@ -3288,13 +3293,13 @@ void checksectors(int snum)
         }
     }
 
-    if (!(g_player[snum].sync->bits&(1<<29)) && !(g_player[snum].sync->bits&(1<<31)))
+    if (!TEST_SYNC_KEY(g_player[snum].sync->bits, SK_OPEN) && !TEST_SYNC_KEY(g_player[snum].sync->bits, SK_ESCAPE))
         p->toggle_key_flag = 0;
 
     else if (!p->toggle_key_flag)
     {
 
-        if ((g_player[snum].sync->bits&(1<<31)))
+        if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_ESCAPE))
         {
             if (p->newowner >= 0)
             {
@@ -3311,9 +3316,9 @@ void checksectors(int snum)
         i = hitawall(p,&hitscanwall);
 
         if (i < 1280 && hitscanwall >= 0 && wall[hitscanwall].overpicnum == MIRROR)
-            if (wall[hitscanwall].lotag > 0 && !isspritemakingsound(p->i,wall[hitscanwall].lotag) && snum == screenpeek)
+            if (wall[hitscanwall].lotag > 0 && !A_CheckSoundPlaying(p->i,wall[hitscanwall].lotag) && snum == screenpeek)
             {
-                spritesound(wall[hitscanwall].lotag,p->i);
+                A_PlaySound(wall[hitscanwall].lotag,p->i);
                 return;
             }
 
@@ -3339,7 +3344,7 @@ void checksectors(int snum)
                 neartag(p->posx,p->posy,p->posz+(16<<8),sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,3);
                 if (neartagsprite >= 0)
                 {
-                    switch (dynamictostatic[sprite[neartagsprite].picnum])
+                    switch (DynamicTileMap[sprite[neartagsprite].picnum])
                     {
                     case FEM1__STATIC:
                     case FEM2__STATIC:
@@ -3375,21 +3380,21 @@ void checksectors(int snum)
         if (neartagsprite == -1 && neartagwall == -1)
             if (sector[p->cursectnum].lotag == 2)
             {
-                oldz = hitasprite(p->i,&neartagsprite);
+                oldz = A_CheckHitSprite(p->i,&neartagsprite);
                 if (oldz > 1280) neartagsprite = -1;
             }
 
         if (neartagsprite >= 0)
         {
-            if (checkhitswitch(snum,neartagsprite,1)) return;
+            if (P_ActivateSwitch(snum,neartagsprite,1)) return;
 
-            switch (dynamictostatic[sprite[neartagsprite].picnum])
+            switch (DynamicTileMap[sprite[neartagsprite].picnum])
             {
             case TOILET__STATIC:
             case STALL__STATIC:
                 if (p->last_pissed_time == 0)
                 {
-                    if (ud.lockout == 0) spritesound(DUKE_URINATE,p->i);
+                    if (ud.lockout == 0) A_PlaySound(DUKE_URINATE,p->i);
 
                     p->last_pissed_time = 26*220;
                     p->transporter_hold = 29*2;
@@ -3406,24 +3411,24 @@ void checksectors(int snum)
                     else if (sprite[p->i].extra < p->max_player_health)
                         sprite[p->i].extra = p->max_player_health;
                 }
-                else if (!isspritemakingsound(neartagsprite,FLUSH_TOILET))
-                    spritesound(FLUSH_TOILET,neartagsprite);
+                else if (!A_CheckSoundPlaying(neartagsprite,FLUSH_TOILET))
+                    A_PlaySound(FLUSH_TOILET,neartagsprite);
                 return;
 
             case NUKEBUTTON__STATIC:
 
                 hitawall(p,&j);
                 if (j >= 0 && wall[j].overpicnum == 0)
-                    if (hittype[neartagsprite].temp_data[0] == 0)
+                    if (ActorExtra[neartagsprite].temp_data[0] == 0)
                     {
                         if (ud.noexits && ud.multimode > 1)
                         {
-                            hittype[p->i].picnum = NUKEBUTTON;
-                            hittype[p->i].extra = 250;
+                            ActorExtra[p->i].picnum = NUKEBUTTON;
+                            ActorExtra[p->i].extra = 250;
                         }
                         else
                         {
-                            hittype[neartagsprite].temp_data[0] = 1;
+                            ActorExtra[neartagsprite].temp_data[0] = 1;
                             sprite[neartagsprite].owner = p->i;
                             p->buttonpalette = sprite[neartagsprite].pal;
                             if (p->buttonpalette)
@@ -3433,21 +3438,21 @@ void checksectors(int snum)
                     }
                 return;
             case WATERFOUNTAIN__STATIC:
-                if (hittype[neartagsprite].temp_data[0] != 1)
+                if (ActorExtra[neartagsprite].temp_data[0] != 1)
                 {
-                    hittype[neartagsprite].temp_data[0] = 1;
+                    ActorExtra[neartagsprite].temp_data[0] = 1;
                     sprite[neartagsprite].owner = p->i;
 
                     if (sprite[p->i].extra < p->max_player_health)
                     {
                         sprite[p->i].extra++;
-                        spritesound(DUKE_DRINKING,p->i);
+                        A_PlaySound(DUKE_DRINKING,p->i);
                     }
                 }
                 return;
             case PLUG__STATIC:
-                spritesound(SHORT_CIRCUIT,p->i);
-                sprite[p->i].extra -= 2+(TRAND&3);
+                A_PlaySound(SHORT_CIRCUIT,p->i);
+                sprite[p->i].extra -= 2+(krand()&3);
                 p->pals[0] = 48;
                 p->pals[1] = 48;
                 p->pals[2] = 64;
@@ -3456,14 +3461,14 @@ void checksectors(int snum)
             case VIEWSCREEN__STATIC:
             case VIEWSCREEN2__STATIC:
             {
-                i = headspritestat[1];
+                i = headspritestat[STAT_ACTOR];
 
                 while (i >= 0)
                 {
                     if (PN == CAMERA1 && SP == 0 && sprite[neartagsprite].hitag == SLT)
                     {
                         SP = 1; //Using this camera
-                        spritesound(MONITOR_ACTIVE,neartagsprite);
+                        A_PlaySound(MONITOR_ACTIVE,neartagsprite);
 
                         sprite[neartagsprite].owner = i;
                         sprite[neartagsprite].yvel = 1;
@@ -3471,7 +3476,7 @@ void checksectors(int snum)
 
                         j = p->cursectnum;
                         p->cursectnum = SECT;
-                        setpal(p);
+                        P_UpdateScreenPal(p);
                         p->cursectnum = j;
 
                         // parallaxtype = 2;
@@ -3493,10 +3498,10 @@ CLEARCAMERAS:
                 p->newowner = -1;
 
                 updatesector(p->posx,p->posy,&p->cursectnum);
-                setpal(p);
+                P_UpdateScreenPal(p);
 
 
-                i = headspritestat[1];
+                i = headspritestat[STAT_ACTOR];
                 while (i >= 0)
                 {
                     if (PN==CAMERA1) SP = 0;
@@ -3513,7 +3518,7 @@ CLEARCAMERAS:
             }
         }
 
-        if ((g_player[snum].sync->bits&(1<<29)) == 0) return;
+        if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_OPEN) == 0) return;
         else if (p->newowner >= 0)
         {
             i = -1;
@@ -3521,20 +3526,20 @@ CLEARCAMERAS:
         }
 
         if (neartagwall == -1 && neartagsector == -1 && neartagsprite == -1)
-            if (klabs(hits(p->i)) < 512)
+            if (klabs(A_GetHitscanRange(p->i)) < 512)
             {
-                if ((TRAND&255) < 16)
-                    spritesound(DUKE_SEARCH2,p->i);
-                else spritesound(DUKE_SEARCH,p->i);
+                if ((krand()&255) < 16)
+                    A_PlaySound(DUKE_SEARCH2,p->i);
+                else A_PlaySound(DUKE_SEARCH,p->i);
                 return;
             }
 
         if (neartagwall >= 0)
         {
-            if (wall[neartagwall].lotag > 0 && isadoorwall(wall[neartagwall].picnum))
+            if (wall[neartagwall].lotag > 0 && CheckDoorTile(wall[neartagwall].picnum))
             {
                 if (hitscanwall == neartagwall || hitscanwall == -1)
-                    checkhitswitch(snum,neartagwall,0);
+                    P_ActivateSwitch(snum,neartagwall,0);
                 return;
             }
             else if (p->newowner >= 0)
@@ -3553,7 +3558,7 @@ CLEARCAMERAS:
                     return;
                 i = nextspritesect[i];
             }
-            operatesectors(neartagsector,p->i);
+            G_OperateSectors(neartagsector,p->i);
         }
         else if ((sector[sprite[p->i].sectnum].lotag&16384) == 0)
         {
@@ -3565,9 +3570,9 @@ CLEARCAMERAS:
                     if (PN == ACTIVATOR || PN == MASTERSWITCH) return;
                     i = nextspritesect[i];
                 }
-                operatesectors(sprite[p->i].sectnum,p->i);
+                G_OperateSectors(sprite[p->i].sectnum,p->i);
             }
-            else checkhitswitch(snum,neartagwall,0);
+            else P_ActivateSwitch(snum,neartagwall,0);
         }
     }
 }

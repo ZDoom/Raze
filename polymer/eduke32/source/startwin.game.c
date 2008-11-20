@@ -77,7 +77,7 @@ static int getfilenames(char *path)
 extern char TEXCACHEDIR[];
 #endif
 
-extern int g_NoSetup;
+extern int g_noSetup;
 
 static void PopulateForm(int pgs)
 {
@@ -632,7 +632,7 @@ int startwin_run(void)
     settings.forcesetup = ud.config.ForceSetup;
     settings.usemouse = ud.config.UseMouse;
     settings.usejoy = ud.config.UseJoystick;
-    settings.game = g_GameType;
+    settings.game = g_gameType;
 //    settings.crcval = 0;
     strncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
     settings.gamedir = mod_dir;
@@ -669,9 +669,9 @@ int startwin_run(void)
         ud.config.UseMouse = settings.usemouse;
         ud.config.UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;
-        g_GameType = settings.game;
+        g_gameType = settings.game;
 
-        if (g_NoSetup == 0 && settings.gamedir != NULL)
+        if (g_noSetup == 0 && settings.gamedir != NULL)
             Bstrcpy(mod_dir,settings.gamedir);
         else Bsprintf(mod_dir,"/");
 
