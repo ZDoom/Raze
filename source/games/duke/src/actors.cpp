@@ -1781,9 +1781,11 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		actor->temp_data[3] = getincangle(actor->spr.ang, a);
 		actor->spr.ang += actor->temp_data[3] >> 3;
 
-		if (actor->spr.pos.Z < Owner->spr.pos.Z)
-			actor->spr.pos.Z += 1024;
-		else actor->spr.pos.Z -= 1024;
+        if (actor->spr.pos.Z < Owner->spr.pos.Z - 512)
+            actor->spr.pos.Z += 512;
+        else if (actor->spr.pos.Z > Owner->spr.pos.Z + 512)
+            actor->spr.pos.Z -= 512;
+        else actor->spr.pos.Z = Owner->spr.pos.Z;
 	}
 
 	if (roamsnd >= 0 && S_CheckActorSoundPlaying(actor, roamsnd) < 1)
