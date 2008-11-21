@@ -46,18 +46,9 @@ extern "C" {
 
 #define MAXGAMEBUTTONS      64
 
-#define BUTTON(x) \
-    ( \
-    ((x)>31) ? \
-    ((CONTROL_ButtonState2>>( (x) - 32) ) & 1) :\
-    ((CONTROL_ButtonState1>> ((x) & 31) ) & 1)          \
-    )
-#define BUTTONHELD(x) \
-    ( \
-    ((x)>31) ? \
-    ((CONTROL_ButtonHeldState2>>((x)-32)) & 1) :\
-    ((CONTROL_ButtonHeldState1>>((x) & 31)) & 1)\
-    )
+#define BUTTON(x) ((CONTROL_ButtonState>> ((uint64)(x)) ) & 1)
+#define BUTTONHELD(x) ((CONTROL_ButtonHeldState>> ((uint64)(x)) ) & 1)
+
 #define BUTTONJUSTPRESSED(x) \
     ( BUTTON( x ) && !BUTTONHELD( x ) )
 #define BUTTONRELEASED(x) \
@@ -145,10 +136,8 @@ extern boolean  CONTROL_MousePresent;
 extern boolean  CONTROL_JoyPresent;
 extern boolean  CONTROL_MouseEnabled;
 extern boolean  CONTROL_JoystickEnabled;
-extern uint32   CONTROL_ButtonState1;
-extern uint32   CONTROL_ButtonHeldState1;
-extern uint32   CONTROL_ButtonState2;
-extern uint32   CONTROL_ButtonHeldState2;
+extern uint64   CONTROL_ButtonState;
+extern uint64   CONTROL_ButtonHeldState;
 
 
 //***************************************************************************

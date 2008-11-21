@@ -108,26 +108,10 @@ extern "C" {
 
 #define NORMALAXISSCALE (65536)
 
-#define BUTTONSET(x,value) \
-    (\
-    ((x)>31) ?\
-    (CONTROL_ButtonState2 |= (value<<((x)-32)))  :\
-    (CONTROL_ButtonState1 |= (value<<((x)&31)))\
-    )
+#define BUTTONSET(x,value) (CONTROL_ButtonState |= ((uint64)value<<((uint64)(x))))
+#define BUTTONCLEAR(x) (CONTROL_ButtonState &= ~((uint64)1<<((uint64)(x))))
 
-#define BUTTONCLEAR(x) \
-    (\
-    ((x)>31) ?\
-    (CONTROL_ButtonState2 &= (~(1<<((x)-32)))) :\
-    (CONTROL_ButtonState1 &= (~(1<<((x)&31))))\
-    )
-
-#define BUTTONHELDSET(x,value)\
-    (\
-    ((x)>31) ?\
-    (CONTROL_ButtonHeldState2 |= value<<((x)-32)) :\
-    (CONTROL_ButtonHeldState1 |= value<<((x)&31))\
-    )
+#define BUTTONHELDSET(x,value) (CONTROL_ButtonHeldState |= (uint64)(value<<((uint64)(x))))
 
 #define LIMITCONTROL(x)\
     {\

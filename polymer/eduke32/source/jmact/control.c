@@ -23,10 +23,8 @@ boolean CONTROL_JoyPresent = false;
 boolean CONTROL_JoystickEnabled = false;
 boolean CONTROL_MousePresent = false;
 boolean CONTROL_MouseEnabled = false;
-uint32  CONTROL_ButtonState1 = 0;
-uint32  CONTROL_ButtonHeldState1 = 0;
-uint32  CONTROL_ButtonState2 = 0;
-uint32  CONTROL_ButtonHeldState2 = 0;
+uint64  CONTROL_ButtonState = 0;
+uint64  CONTROL_ButtonHeldState = 0;
 
 // static int32 CONTROL_UserInputDelay = -1;
 static int32 CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
@@ -898,9 +896,8 @@ void CONTROL_GetInput(ControlInfo *info)
     CONTROL_ButtonFunctionState(periphs);
     CONTROL_AxisFunctionState(periphs);
 
-    CONTROL_ButtonHeldState1 = CONTROL_ButtonState1;
-    CONTROL_ButtonHeldState2 = CONTROL_ButtonState2;
-    CONTROL_ButtonState1 = CONTROL_ButtonState2 = 0;
+    CONTROL_ButtonHeldState = CONTROL_ButtonState;
+    CONTROL_ButtonState = 0;
 
     CONTROL_ProcessBinds();
 
@@ -983,10 +980,8 @@ boolean CONTROL_Startup(controltype which, int32(*TimeFunction)(void), int32 tic
         initprintf("CONTROL_Startup: Joystick Present\n");
     */
 
-    CONTROL_ButtonState1     = 0;
-    CONTROL_ButtonState2     = 0;
-    CONTROL_ButtonHeldState1 = 0;
-    CONTROL_ButtonHeldState2 = 0;
+    CONTROL_ButtonState     = 0;
+    CONTROL_ButtonHeldState = 0;
 
     memset(CONTROL_UserInputCleared, 0, sizeof(CONTROL_UserInputCleared));
 

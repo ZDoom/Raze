@@ -3810,13 +3810,13 @@ static int X_DoExecute(void)
         switch (j)
         {
         default:
-        case 0:SetGamePalette(g_player[g_p].ps,palette  ,0);break;
-        case 1:SetGamePalette(g_player[g_p].ps,waterpal ,0);break;
-        case 2:SetGamePalette(g_player[g_p].ps,slimepal ,0);break;
-        case 3:SetGamePalette(g_player[g_p].ps,drealms  ,0);break;
-        case 4:SetGamePalette(g_player[g_p].ps,titlepal ,0);break;
-        case 5:SetGamePalette(g_player[g_p].ps,endingpal,0);break;
-        case 6:SetGamePalette(g_player[g_p].ps,animpal  ,0);break;
+        case 0:P_SetGamePalette(g_player[g_p].ps,palette  ,0);break;
+        case 1:P_SetGamePalette(g_player[g_p].ps,waterpal ,0);break;
+        case 2:P_SetGamePalette(g_player[g_p].ps,slimepal ,0);break;
+        case 3:P_SetGamePalette(g_player[g_p].ps,drealms  ,0);break;
+        case 4:P_SetGamePalette(g_player[g_p].ps,titlepal ,0);break;
+        case 5:P_SetGamePalette(g_player[g_p].ps,endingpal,0);break;
+        case 6:P_SetGamePalette(g_player[g_p].ps,animpal  ,0);break;
         }
         break;
 

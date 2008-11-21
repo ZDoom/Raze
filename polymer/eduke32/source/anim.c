@@ -250,7 +250,7 @@ void G_PlayAnim(const char *fn,char t)
 
     //setpalette(0L,256L,tempbuf);
     //setbrightness(ud.brightness>>2,tempbuf,2);
-    SetGamePalette(g_player[myconnectindex].ps,animpal,10);
+    P_SetGamePalette(g_player[myconnectindex].ps,animpal,10);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     gltexfiltermode = 0;
@@ -277,7 +277,7 @@ void G_PlayAnim(const char *fn,char t)
             getpackets();
             if (g_restorePalette == 1)
             {
-                SetGamePalette(g_player[myconnectindex].ps,animpal,0);
+                P_SetGamePalette(g_player[myconnectindex].ps,animpal,0);
                 g_restorePalette = 0;
             }
             idle();

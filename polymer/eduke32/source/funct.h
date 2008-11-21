@@ -97,7 +97,7 @@ extern int A_GetHitscanRange(int i);
 extern int A_CheckHitSprite(int i,short *hitsp);
 extern int A_Shoot(int i,int atwith);
 extern void P_DisplayScubaMask(int snum);
-extern void P_DisplayWeapons(int snum);
+extern void P_DisplayWeapon(int snum);
 extern void getinput(int snum);
 extern void P_DropWeapon(DukePlayer_t *p);
 extern void P_ProcessInput(int snum);
@@ -186,7 +186,7 @@ extern void A_MoveDummyPlayers(void);
 // game.c
 extern inline void G_SetStatusBarScale(int sc);
 
-extern void SetGamePalette(DukePlayer_t *player, char *pal, int set);
+extern void P_SetGamePalette(DukePlayer_t *player, char *pal, int set);
 extern void fadepal(int r, int g, int b, int start, int end, int step);
 
 extern inline int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,int x1, int y1, int x2, int y2,int z);

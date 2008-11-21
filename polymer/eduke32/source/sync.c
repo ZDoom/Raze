@@ -24,9 +24,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
-int NumSyncBytes = 6;
-char sync_first[MAXSYNCBYTES][60];
-int sync_found = 0;
+int g_numSyncBytes = 1;
+char g_szfirstSyncMsg[MAXSYNCBYTES][60];
+int g_foundSyncError = 0;
 
 static int crctable[256];
 #define updatecrc(dcrc,xz) (dcrc = (crctable[((dcrc)>>8)^((xz)&255)]^((dcrc)<<8)))
@@ -50,7 +50,7 @@ void initsynccrc(void)
     }
 }
 
-char PlayerSync(void)
+char Net_PlayerSync(void)
 {
     short i;
     unsigned short crc = 0;
@@ -68,7 +68,7 @@ char PlayerSync(void)
     return ((char) crc & 255);
 }
 
-char PlayerSync2(void)
+char Net_PlayerSync2(void)
 {
     int i;
     int j, nextj;
@@ -97,7 +97,7 @@ char PlayerSync2(void)
     return ((char) crc & 255);
 }
 
-char ActorSync(void)
+char Net_ActorSync(void)
 {
     unsigned short crc = 0;
     int j, nextj;
@@ -128,7 +128,7 @@ char ActorSync(void)
     return ((char) crc & 255);
 }
 
-char WeaponSync(void)
+char Net_WeaponSync(void)
 {
     unsigned short crc = 0;
     int j, nextj;
@@ -146,7 +146,7 @@ char WeaponSync(void)
     return ((char) crc & 255);
 }
 
-char MapSync(void)
+char Net_MapSync(void)
 {
     unsigned short crc = 0;
     int j, nextj;
@@ -182,7 +182,7 @@ char MapSync(void)
     return ((char) crc & 255);
 }
 
-char RandomSync(void)
+char Net_RandomSync(void)
 {
     unsigned short crc = 0;
 
@@ -191,12 +191,12 @@ char RandomSync(void)
     updatecrc(crc, g_globalRandom & 255);
     updatecrc(crc, (g_globalRandom >> 8) & 255);
 
-    if (NumSyncBytes == 1)
+    if (g_numSyncBytes == 1)
     {
-        updatecrc(crc,PlayerSync() & 255);
-        updatecrc(crc,PlayerSync2() & 255);
-        updatecrc(crc,WeaponSync() & 255);
-        updatecrc(crc,ActorSync() & 255);
+        updatecrc(crc,Net_PlayerSync() & 255);
+        updatecrc(crc,Net_PlayerSync2() & 255);
+        updatecrc(crc,Net_WeaponSync() & 255);
+        updatecrc(crc,Net_ActorSync() & 255);
     }
 
     return ((char) crc & 255);
@@ -215,16 +215,16 @@ char *SyncNames[] =
 
 static char(*SyncFunc[MAXSYNCBYTES + 1])(void) =
 {
-    RandomSync,
-    PlayerSync,
-    PlayerSync2,
-    WeaponSync,
-    ActorSync,
-    MapSync,
+    Net_RandomSync,
+    Net_PlayerSync,
+    Net_PlayerSync2,
+    Net_WeaponSync,
+    Net_ActorSync,
+    Net_MapSync,
     NULL
 };
 
-void getsyncstat(void)
+void Net_GetSyncStat(void)
 {
     int i;
     playerdata_t *pp = &g_player[myconnectindex];
@@ -252,59 +252,59 @@ void getsyncstat(void)
 ////////////////////////////////////////////////////////////////////////
 
 
-void SyncStatMessage(void)
+void Net_DisplaySyncMsg(void)
 {
     int i, j;
-    static unsigned int MoveCount = 0;
+    static unsigned int moveCount = 0;
     extern unsigned int g_moveThingsCount;
 
 //    if (!SyncPrintMode)
 //        return;
 
-    if (numplayers <= 1)
+    if (numplayers < 2)
         return;
 
-    for (i = 0; i < NumSyncBytes; i++)
+    for (i = 0; i < g_numSyncBytes; i++)
     {
         // syncstat is NON 0 - out of sync
         if (syncstat[i] != 0)
         {
-            if (NumSyncBytes > 1)
+            if (g_numSyncBytes > 1)
             {
                 sprintf(tempbuf, "Out Of Sync - %s", SyncNames[i]);
                 printext256(4L, 100L + (i * 8), 31, 1, tempbuf, 0);
             }
 
-            if (!sync_found && sync_first[i][0] == '\0')
+            if (!g_foundSyncError && g_szfirstSyncMsg[i][0] == '\0')
             {
-                // sync_found one so test all of them and then never test again
-                sync_found = TRUE;
+                // g_foundSyncError one so test all of them and then never test again
+                g_foundSyncError = TRUE;
 
                 // save off loop count
-                MoveCount = g_moveThingsCount;
+                moveCount = g_moveThingsCount;
 
-                for (j = 0; j < NumSyncBytes; j++)
+                for (j = 0; j < g_numSyncBytes; j++)
                 {
-                    if (syncstat[j] != 0 && sync_first[j][0] == '\0')
+                    if (syncstat[j] != 0 && g_szfirstSyncMsg[j][0] == '\0')
                     {
                         sprintf(tempbuf, "Out Of Sync - %s", SyncNames[j]);
-                        strcpy(sync_first[j], tempbuf);
+                        strcpy(g_szfirstSyncMsg[j], tempbuf);
                     }
                 }
             }
         }
     }
 
-    // print out the sync_first message you got
-    for (i = 0; i < NumSyncBytes; i++)
+    // print out the g_szfirstSyncMsg message you got
+    for (i = 0; i < g_numSyncBytes; i++)
     {
-        if (sync_first[i][0] != '\0')
+        if (g_szfirstSyncMsg[i][0] != '\0')
         {
-            if (NumSyncBytes > 1)
+            if (g_numSyncBytes > 1)
             {
-                sprintf(tempbuf, "FIRST %s", sync_first[i]);
+                sprintf(tempbuf, "FIRST %s", g_szfirstSyncMsg[i]);
                 printext256(4L, 44L + (i * 8), 31, 1, tempbuf, 0);
-                sprintf(tempbuf, "MoveCount %d",MoveCount);
+                sprintf(tempbuf, "moveCount %d",moveCount);
                 printext256(4L, 52L + (i * 8), 31, 1, tempbuf, 0);
             }
             else
@@ -319,7 +319,7 @@ void SyncStatMessage(void)
 }
 
 
-void  AddSyncInfoToPacket(int *j)
+void  Net_AddSyncInfoToPacket(int *j)
 {
     int sb;
     int count = 0;
@@ -327,14 +327,14 @@ void  AddSyncInfoToPacket(int *j)
     // sync testing
     while (g_player[myconnectindex].syncvalhead != syncvaltail && count++ < 4)
     {
-        for (sb = 0; sb < NumSyncBytes; sb++)
+        for (sb = 0; sb < g_numSyncBytes; sb++)
             packbuf[(*j)++] = g_player[myconnectindex].syncval[syncvaltail & (SYNCFIFOSIZ - 1)][sb];
 
         syncvaltail++;
     }
 }
 
-void GetSyncInfoFromPacket(char *packbuf, int packbufleng, int *j, int otherconnectindex)
+void Net_GetSyncInfoFromPacket(char *packbuf, int packbufleng, int *j, int otherconnectindex)
 {
     int sb, i;
     extern int syncvaltail, syncvaltottail;
@@ -365,7 +365,7 @@ void GetSyncInfoFromPacket(char *packbuf, int packbufleng, int *j, int otherconn
     //while ((*j) != packbufleng) // changed this on Kens suggestion
     while ((*j) < packbufleng)
     {
-        for (sb = 0; sb < NumSyncBytes; sb++)
+        for (sb = 0; sb < g_numSyncBytes; sb++)
         {
             ppo->syncval[ppo->syncvalhead & (SYNCFIFOSIZ - 1)][sb] = packbuf[(*j)++];
         }
@@ -380,14 +380,14 @@ void GetSyncInfoFromPacket(char *packbuf, int packbufleng, int *j, int otherconn
             return;
     }
 
-    //for (sb = 0; sb < NumSyncBytes; sb++)
+    //for (sb = 0; sb < g_numSyncBytes; sb++)
     //    syncstat[sb] = 0;
 
     while (1)
     {
         for (i = connectpoint2[connecthead]; i >= 0; i = connectpoint2[i])
         {
-            for (sb = 0; sb < NumSyncBytes; sb++)
+            for (sb = 0; sb < g_numSyncBytes; sb++)
             {
                 if (g_player[i].syncval[syncvaltottail & (SYNCFIFOSIZ - 1)][sb] != g_player[connecthead].syncval[syncvaltottail & (SYNCFIFOSIZ - 1)][sb])
                 {

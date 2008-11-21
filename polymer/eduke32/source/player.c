@@ -1876,7 +1876,7 @@ SKIPBULLETHOLE:
     return -1;
 }
 
-static void displayloogie(int snum)
+static void P_DisplaySpitAnim(int snum)
 {
     int i, a, x, y, z;
 
@@ -1895,7 +1895,7 @@ static void displayloogie(int snum)
     }
 }
 
-static int animatefist(int gs,int snum)
+static int P_DisplayFistAnim(int gs,int snum)
 {
     int looking_arc,fisti,fistpal;
     int fistzoom, fistz;
@@ -1929,7 +1929,7 @@ static int animatefist(int gs,int snum)
 
 #define weapsc(sc) scale(sc,ud.weaponscale,100)
 
-static void myospalscaled(int x, int y, int tilenum, int shade, int orientation, int p)
+static void G_DrawTileScaled(int x, int y, int tilenum, int shade, int orientation, int p)
 {
     int a = 0;
     int xoff = 192;
@@ -1959,12 +1959,12 @@ static void myospalscaled(int x, int y, int tilenum, int shade, int orientation,
                  weapsc(65536L),a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
-static void myospalw(int x, int y, int tilenum, int shade, int orientation, int p)
+static void G_DrawWeaponTile(int x, int y, int tilenum, int shade, int orientation, int p)
 {
     if (!ud.drawweapon)
         return;
     else if (ud.drawweapon == 1)
-        myospalscaled(x,y,tilenum,shade,orientation,p);
+        G_DrawTileScaled(x,y,tilenum,shade,orientation,p);
     else if (ud.drawweapon == 2)
     {
         switch (g_currentweapon)
@@ -1986,7 +1986,7 @@ static void myospalw(int x, int y, int tilenum, int shade, int orientation, int 
     }
 }
 
-static int animateknee(int gs,int snum)
+static int P_DisplayKneeAnim(int gs,int snum)
 {
     static signed char knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
     int looking_arc, pal = g_player[snum].ps->palookup;
@@ -2006,12 +2006,12 @@ static int animateknee(int gs,int snum)
             pal = g_player[snum].ps->palookup;
     }
 
-    myospalscaled(105+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(knee_y[g_player[snum].ps->knee_incs]>>2),looking_arc+280-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),KNEE,gs,4+262144,pal);
+    G_DrawTileScaled(105+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(knee_y[g_player[snum].ps->knee_incs]>>2),looking_arc+280-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),KNEE,gs,4+262144,pal);
 
     return 1;
 }
 
-static int animateknuckles(int gs,int snum)
+static int P_DisplayKnuckleAnim(int gs,int snum)
 {
     static char knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
     int looking_arc, pal = 0;
@@ -2027,14 +2027,14 @@ static int animateknuckles(int gs,int snum)
     else if (g_player[snum].ps->cursectnum >= 0)
         pal = sector[g_player[snum].ps->cursectnum].floorpal;
 
-    myospalscaled(160+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),looking_arc+180-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),CRACKKNUCKLES+knuckle_frames[g_player[snum].ps->knuckle_incs>>1],gs,4+262144,pal);
+    G_DrawTileScaled(160+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),looking_arc+180-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),CRACKKNUCKLES+knuckle_frames[g_player[snum].ps->knuckle_incs>>1],gs,4+262144,pal);
 
     return 1;
 }
 
 int lastvisinc;
 
-void DoFire(DukePlayer_t *p)
+void P_FireWeapon(DukePlayer_t *p)
 {
     int i, snum = sprite[p->i].yvel;
 
@@ -2092,7 +2092,7 @@ void DoFire(DukePlayer_t *p)
     }
 }
 
-void DoSpawn(DukePlayer_t *p)
+void P_DoWeaponSpawn(DukePlayer_t *p)
 {
     int j, snum = sprite[p->i].yvel;
 
@@ -2131,7 +2131,7 @@ void P_DisplayScubaMask(int snum)
     }
 }
 
-static int DisplayTipAnimation(int gs,int snum)
+static int P_DisplayTipAnim(int gs,int snum)
 {
     int p,looking_arc;
     static short tip_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
@@ -2151,13 +2151,13 @@ static int DisplayTipAnimation(int gs,int snum)
         else
             p = wall[g_player[snum].ps->access_wallnum].pal;
       */
-    myospalscaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),
+    G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),
                   (tip_y[g_player[snum].ps->tipincs]>>1)+looking_arc+240-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),TIP+((26-g_player[snum].ps->tipincs)>>4),gs,262144,p);
 
     return 1;
 }
 
-static int DisplayAccessAnimation(int gs,int snum)
+static int P_DisplayAccessAnim(int gs,int snum)
 {
     static short access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
     int looking_arc;
@@ -2175,9 +2175,9 @@ static int DisplayAccessAnimation(int gs,int snum)
     //        p = wall[g_player[snum].ps->access_wallnum].pal;
 
     if ((g_player[snum].ps->access_incs-3) > 0 && (g_player[snum].ps->access_incs-3)>>3)
-        myospalscaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(access_y[g_player[snum].ps->access_incs]>>2),looking_arc+266-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),HANDHOLDINGLASER+(g_player[snum].ps->access_incs>>3),gs,262144,p);
+        G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(access_y[g_player[snum].ps->access_incs]>>2),looking_arc+266-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),HANDHOLDINGLASER+(g_player[snum].ps->access_incs>>3),gs,262144,p);
     else
-        myospalscaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(access_y[g_player[snum].ps->access_incs]>>2),looking_arc+266-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),HANDHOLDINGACCESS,gs,4+262144,p);
+        G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(access_y[g_player[snum].ps->access_incs]>>2),looking_arc+266-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),HANDHOLDINGACCESS,gs,4+262144,p);
 
     return 1;
 }
@@ -2185,7 +2185,7 @@ static int DisplayAccessAnimation(int gs,int snum)
 
 static int fistsign;
 
-void P_DisplayWeapons(int snum)
+void P_DisplayWeapon(int snum)
 {
     int gun_pos, looking_arc, cw;
     int weapon_xoffset, i, j;
@@ -2199,10 +2199,10 @@ void P_DisplayWeapons(int snum)
     gs = sprite[p->i].shade;
     if (gs > 24) gs = 24;
 
-    if (p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0) || animatefist(gs,snum) || animateknuckles(gs,snum) || DisplayTipAnimation(gs,snum) || DisplayAccessAnimation(gs,snum))
+    if (p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0) || P_DisplayFistAnim(gs,snum) || P_DisplayKnuckleAnim(gs,snum) || P_DisplayTipAnim(gs,snum) || P_DisplayAccessAnim(gs,snum))
         return;
 
-    animateknee(gs,snum);
+    P_DisplayKneeAnim(gs,snum);
 
     gun_pos = 80-(p->weapon_pos*p->weapon_pos);
 
@@ -2254,9 +2254,9 @@ void P_DisplayWeapons(int snum)
 
 
             if (j < 6 || j > 12)
-                myospalscaled(weapon_xoffset+80-(p->look_ang>>1),
+                G_DrawTileScaled(weapon_xoffset+80-(p->look_ang>>1),
                               looking_arc+250-gun_pos,KNEE,gs,o|4|262144,pal);
-            else myospalscaled(weapon_xoffset+160-16-(p->look_ang>>1),
+            else G_DrawTileScaled(weapon_xoffset+160-16-(p->look_ang>>1),
                                    looking_arc+214-gun_pos,KNEE+1,gs,o|4|262144,pal);
         }
 
@@ -2302,10 +2302,10 @@ void P_DisplayWeapons(int snum)
                         }
 
                         if ((*kb) < 5 || (*kb) > 9)
-                            myospalscaled(weapon_xoffset+220-(p->look_ang>>1),
+                            G_DrawTileScaled(weapon_xoffset+220-(p->look_ang>>1),
                                           looking_arc+250-gun_pos,KNEE,gs,o,pal);
                         else
-                            myospalscaled(weapon_xoffset+160-(p->look_ang>>1),
+                            G_DrawTileScaled(weapon_xoffset+160-(p->look_ang>>1),
                                           looking_arc+214-gun_pos,KNEE+1,gs,o,pal);
                     }
                 }
@@ -2329,13 +2329,13 @@ void P_DisplayWeapons(int snum)
                     if ((*kb) > 6)
                         looking_arc += ((*kb)<<3);
                     else if ((*kb) < 4)
-                        myospalw(weapon_xoffset+142-(p->look_ang>>1),
+                        G_DrawWeaponTile(weapon_xoffset+142-(p->look_ang>>1),
                                  looking_arc+234-gun_pos,HANDHOLDINGLASER+3,gs,o,pal);
 
-                    myospalw(weapon_xoffset+130-(p->look_ang>>1),
+                    G_DrawWeaponTile(weapon_xoffset+130-(p->look_ang>>1),
                              looking_arc+249-gun_pos,
                              HANDHOLDINGLASER+((*kb)>>2),gs,o,pal);
-                    myospalw(weapon_xoffset+152-(p->look_ang>>1),
+                    G_DrawWeaponTile(weapon_xoffset+152-(p->look_ang>>1),
                              looking_arc+249-gun_pos,
                              HANDHOLDINGLASER+((*kb)>>2),gs,o|4,pal);
                 }
@@ -2360,12 +2360,12 @@ void P_DisplayWeapons(int snum)
                     {
                         if (*kb < 8)
                         {
-                            myospalw(weapon_xoffset+164,(looking_arc<<1)+176-gun_pos,
+                            G_DrawWeaponTile(weapon_xoffset+164,(looking_arc<<1)+176-gun_pos,
                                      RPGGUN+((*kb)>>1),gs,o,pal);
                         }
                     }
 
-                    myospalw(weapon_xoffset+164,(looking_arc<<1)+176-gun_pos,
+                    G_DrawWeaponTile(weapon_xoffset+164,(looking_arc<<1)+176-gun_pos,
                              RPGGUN,gs,o,pal);
                 }
                 break;
@@ -2389,13 +2389,13 @@ void P_DisplayWeapons(int snum)
                     {
                     case 1:
                     case 2:
-                        myospalw(weapon_xoffset+168-(p->look_ang>>1),looking_arc+201-gun_pos,
+                        G_DrawWeaponTile(weapon_xoffset+168-(p->look_ang>>1),looking_arc+201-gun_pos,
                                  SHOTGUN+2,-128,o,pal);
                     case 0:
                     case 6:
                     case 7:
                     case 8:
-                        myospalw(weapon_xoffset+146-(p->look_ang>>1),looking_arc+202-gun_pos,
+                        G_DrawWeaponTile(weapon_xoffset+146-(p->look_ang>>1),looking_arc+202-gun_pos,
                                  SHOTGUN,gs,o,pal);
                         break;
                     case 3:
@@ -2410,45 +2410,45 @@ void P_DisplayWeapons(int snum)
                             gun_pos -= 40;
                             weapon_xoffset += 20;
 
-                            myospalw(weapon_xoffset+178-(p->look_ang>>1),looking_arc+194-gun_pos,
+                            G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+194-gun_pos,
                                      SHOTGUN+1+((*(kb)-1)>>1),-128,o,pal);
                         }
 
-                        myospalw(weapon_xoffset+158-(p->look_ang>>1),looking_arc+220-gun_pos,
+                        G_DrawWeaponTile(weapon_xoffset+158-(p->look_ang>>1),looking_arc+220-gun_pos,
                                  SHOTGUN+3,gs,o,pal);
 
                         break;
                     case 13:
                     case 14:
                     case 15:
-                        myospalw(32+weapon_xoffset+166-(p->look_ang>>1),looking_arc+210-gun_pos,
+                        G_DrawWeaponTile(32+weapon_xoffset+166-(p->look_ang>>1),looking_arc+210-gun_pos,
                                  SHOTGUN+4,gs,o,pal);
                         break;
                     case 16:
                     case 17:
                     case 18:
                     case 19:
-                        myospalw(64+weapon_xoffset+170-(p->look_ang>>1),looking_arc+196-gun_pos,
+                        G_DrawWeaponTile(64+weapon_xoffset+170-(p->look_ang>>1),looking_arc+196-gun_pos,
                                  SHOTGUN+5,gs,o,pal);
                         break;
                     case 20:
                     case 21:
                     case 22:
                     case 23:
-                        myospalw(64+weapon_xoffset+176-(p->look_ang>>1),looking_arc+196-gun_pos,
+                        G_DrawWeaponTile(64+weapon_xoffset+176-(p->look_ang>>1),looking_arc+196-gun_pos,
                                  SHOTGUN+6,gs,o,pal);
                         break;
                     case 24:
                     case 25:
                     case 26:
                     case 27:
-                        myospalw(64+weapon_xoffset+170-(p->look_ang>>1),looking_arc+196-gun_pos,
+                        G_DrawWeaponTile(64+weapon_xoffset+170-(p->look_ang>>1),looking_arc+196-gun_pos,
                                  SHOTGUN+5,gs,o,pal);
                         break;
                     case 28:
                     case 29:
                     case 30:
-                        myospalw(32+weapon_xoffset+156-(p->look_ang>>1),looking_arc+206-gun_pos,
+                        G_DrawWeaponTile(32+weapon_xoffset+156-(p->look_ang>>1),looking_arc+206-gun_pos,
                                  SHOTGUN+4,gs,o,pal);
                         break;
                     }
@@ -2473,12 +2473,12 @@ void P_DisplayWeapons(int snum)
 
                     if (*kb > 0 && sprite[p->i].pal != 1) weapon_xoffset += 1-(rand()&3);
 
-                    myospalw(weapon_xoffset+168-(p->look_ang>>1),looking_arc+260-gun_pos,
+                    G_DrawWeaponTile(weapon_xoffset+168-(p->look_ang>>1),looking_arc+260-gun_pos,
                              CHAINGUN,gs,o,pal);
                     switch (*kb)
                     {
                     case 0:
-                        myospalw(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
+                        G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
                                  CHAINGUN+1,gs,o,pal);
                         break;
                     default:
@@ -2486,21 +2486,21 @@ void P_DisplayWeapons(int snum)
                         {
                             i = 0;
                             if (sprite[p->i].pal != 1) i = rand()&7;
-                            myospalw(i+weapon_xoffset-4+140-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
+                            G_DrawWeaponTile(i+weapon_xoffset-4+140-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
                                      CHAINGUN+5+((*kb-4)/5),gs,o,pal);
                             if (sprite[p->i].pal != 1) i = rand()&7;
-                            myospalw(i+weapon_xoffset-4+184-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
+                            G_DrawWeaponTile(i+weapon_xoffset-4+184-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
                                      CHAINGUN+5+((*kb-4)/5),gs,o,pal);
                         }
                         if (*kb < *aplWeaponTotalTime[CHAINGUN_WEAPON]-4)
                         {
                             i = rand()&7;
-                            myospalw(i+weapon_xoffset-4+162-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
+                            G_DrawWeaponTile(i+weapon_xoffset-4+162-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
                                      CHAINGUN+5+((*kb-2)/5),gs,o,pal);
-                            myospalw(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
+                            G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
                                      CHAINGUN+1+((*kb)>>1),gs,o,pal);
                         }
-                        else myospalw(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
+                        else G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
                                           CHAINGUN+1,gs,o,pal);
                         break;
                     }
@@ -2527,36 +2527,36 @@ void P_DisplayWeapons(int snum)
                         if ((*kb) == *aplWeaponFireDelay[PISTOL_WEAPON])
                             l -= 3;
 
-                        myospalw((l-(p->look_ang>>1)),(looking_arc+244-gun_pos),FIRSTGUN+kb_frames[*kb>2?0:*kb],gs,2,pal);
+                        G_DrawWeaponTile((l-(p->look_ang>>1)),(looking_arc+244-gun_pos),FIRSTGUN+kb_frames[*kb>2?0:*kb],gs,2,pal);
                     }
                     else
                     {
 
                         if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-17)
-                            myospalw(194-(p->look_ang>>1),looking_arc+230-gun_pos,FIRSTGUN+4,gs,o,pal);
+                            G_DrawWeaponTile(194-(p->look_ang>>1),looking_arc+230-gun_pos,FIRSTGUN+4,gs,o,pal);
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-12)
                         {
-                            myospalw(244-((*kb)<<3)-(p->look_ang>>1),looking_arc+130-gun_pos+((*kb)<<4),FIRSTGUN+6,gs,o,pal);
-                            myospalw(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            G_DrawWeaponTile(244-((*kb)<<3)-(p->look_ang>>1),looking_arc+130-gun_pos+((*kb)<<4),FIRSTGUN+6,gs,o,pal);
+                            G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o,pal);
                         }
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-7)
                         {
-                            myospalw(124+((*kb)<<1)-(p->look_ang>>1),looking_arc+430-gun_pos-((*kb)<<3),FIRSTGUN+6,gs,o,pal);
-                            myospalw(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            G_DrawWeaponTile(124+((*kb)<<1)-(p->look_ang>>1),looking_arc+430-gun_pos-((*kb)<<3),FIRSTGUN+6,gs,o,pal);
+                            G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o,pal);
                         }
 
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-4)
                         {
-                            myospalw(184-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+8,gs,o,pal);
-                            myospalw(224-(p->look_ang>>1),looking_arc+210-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            G_DrawWeaponTile(184-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+8,gs,o,pal);
+                            G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+210-gun_pos,FIRSTGUN+5,gs,o,pal);
                         }
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-2)
                         {
-                            myospalw(164-(p->look_ang>>1),looking_arc+245-gun_pos,FIRSTGUN+8,gs,o,pal);
-                            myospalw(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            G_DrawWeaponTile(164-(p->look_ang>>1),looking_arc+245-gun_pos,FIRSTGUN+8,gs,o,pal);
+                            G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o,pal);
                         }
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON])
-                            myospalw(194-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            G_DrawWeaponTile(194-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+5,gs,o,pal);
 
                     }
                 }
@@ -2589,11 +2589,11 @@ void P_DisplayWeapons(int snum)
                             else if ((*kb) < 20)
                                 gun_pos -= 9*((*kb)-14);  //D
 
-                            myospalw(weapon_xoffset+190-(p->look_ang>>1),looking_arc+250-gun_pos,HANDTHROW+throw_frames[(*kb)],gs,o,pal);
+                            G_DrawWeaponTile(weapon_xoffset+190-(p->look_ang>>1),looking_arc+250-gun_pos,HANDTHROW+throw_frames[(*kb)],gs,o,pal);
                         }
                     }
                     else
-                        myospalw(weapon_xoffset+190-(p->look_ang>>1),looking_arc+260-gun_pos,HANDTHROW,gs,o,pal);
+                        G_DrawWeaponTile(weapon_xoffset+190-(p->look_ang>>1),looking_arc+260-gun_pos,HANDTHROW,gs,o,pal);
                 }
             }
             break;
@@ -2613,9 +2613,9 @@ void P_DisplayWeapons(int snum)
 
                     weapon_xoffset = -48;
                     if ((*kb))
-                        myospalw(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE+remote_frames[(*kb)],gs,o,pal);
+                        G_DrawWeaponTile(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE+remote_frames[(*kb)],gs,o,pal);
                     else
-                        myospalw(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE,gs,o,pal);
+                        G_DrawWeaponTile(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE,gs,o,pal);
                 }
             }
             break;
@@ -2640,19 +2640,19 @@ void P_DisplayWeapons(int snum)
 
                         if (p->hbomb_hold_delay)
                         {
-                            myospalw((cycloidy[*kb]>>1)+weapon_xoffset+268-(p->look_ang>>1),cycloidy[*kb]+looking_arc+238-gun_pos,DEVISTATOR+i,-32,o,pal);
-                            myospalw(weapon_xoffset+30-(p->look_ang>>1),looking_arc+240-gun_pos,DEVISTATOR,gs,o|4,pal);
+                            G_DrawWeaponTile((cycloidy[*kb]>>1)+weapon_xoffset+268-(p->look_ang>>1),cycloidy[*kb]+looking_arc+238-gun_pos,DEVISTATOR+i,-32,o,pal);
+                            G_DrawWeaponTile(weapon_xoffset+30-(p->look_ang>>1),looking_arc+240-gun_pos,DEVISTATOR,gs,o|4,pal);
                         }
                         else
                         {
-                            myospalw(-(cycloidy[*kb]>>1)+weapon_xoffset+30-(p->look_ang>>1),cycloidy[*kb]+looking_arc+240-gun_pos,DEVISTATOR+i,-32,o|4,pal);
-                            myospalw(weapon_xoffset+268-(p->look_ang>>1),looking_arc+238-gun_pos,DEVISTATOR,gs,o,pal);
+                            G_DrawWeaponTile(-(cycloidy[*kb]>>1)+weapon_xoffset+30-(p->look_ang>>1),cycloidy[*kb]+looking_arc+240-gun_pos,DEVISTATOR+i,-32,o|4,pal);
+                            G_DrawWeaponTile(weapon_xoffset+268-(p->look_ang>>1),looking_arc+238-gun_pos,DEVISTATOR,gs,o,pal);
                         }
                     }
                     else
                     {
-                        myospalw(weapon_xoffset+268-(p->look_ang>>1),looking_arc+238-gun_pos,DEVISTATOR,gs,o,pal);
-                        myospalw(weapon_xoffset+30-(p->look_ang>>1),looking_arc+240-gun_pos,DEVISTATOR,gs,o|4,pal);
+                        G_DrawWeaponTile(weapon_xoffset+268-(p->look_ang>>1),looking_arc+238-gun_pos,DEVISTATOR,gs,o,pal);
+                        G_DrawWeaponTile(weapon_xoffset+30-(p->look_ang>>1),looking_arc+240-gun_pos,DEVISTATOR,gs,o|4,pal);
                     }
                 }
                 break;
@@ -2679,10 +2679,10 @@ void P_DisplayWeapons(int snum)
                             looking_arc += rand()&3;
                         }
                         gun_pos -= 16;
-                        myospalw(weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE+2,-32,o,pal);
-                        myospalw(weapon_xoffset+210-(p->look_ang>>1),looking_arc+235-gun_pos,FREEZE+3+cat_frames[*kb%6],-32,o,pal);
+                        G_DrawWeaponTile(weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE+2,-32,o,pal);
+                        G_DrawWeaponTile(weapon_xoffset+210-(p->look_ang>>1),looking_arc+235-gun_pos,FREEZE+3+cat_frames[*kb%6],-32,o,pal);
                     }
-                    else myospalw(weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE,gs,o,pal);
+                    else G_DrawWeaponTile(weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE,gs,o,pal);
                 }
                 break;
 
@@ -2708,21 +2708,21 @@ void P_DisplayWeapons(int snum)
                                 gun_pos += (rand()&3);
                             }
 
-                            myospalw(weapon_xoffset+184-(p->look_ang>>1),
+                            G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
                                      looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
                                      o,2);
 
-                            myospalw(weapon_xoffset+188-(p->look_ang>>1),
+                            G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
                                      looking_arc+240-gun_pos,SHRINKER-1,gs,o,pal);
                         }
                         else
                         {
-                            myospalw(weapon_xoffset+184-(p->look_ang>>1),
+                            G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
                                      looking_arc+240-gun_pos,SHRINKER+2,
                                      16-(sintable[p->random_club_frame&2047]>>10),
                                      o,2);
 
-                            myospalw(weapon_xoffset+188-(p->look_ang>>1),
+                            G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
                                      looking_arc+240-gun_pos,SHRINKER-2,gs,o,pal);
                         }
                     }
@@ -2750,22 +2750,22 @@ void P_DisplayWeapons(int snum)
                             gun_pos += (rand()&3);
                         }
 
-                        myospalw(weapon_xoffset+184-(p->look_ang>>1),
+                        G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
                                  looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
                                  o,0);
 
-                        myospalw(weapon_xoffset+188-(p->look_ang>>1),
+                        G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
                                  looking_arc+240-gun_pos,SHRINKER+1,gs,o,pal);
 
                     }
                     else
                     {
-                        myospalw(weapon_xoffset+184-(p->look_ang>>1),
+                        G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
                                  looking_arc+240-gun_pos,SHRINKER+2,
                                  16-(sintable[p->random_club_frame&2047]>>10),
                                  o,0);
 
-                        myospalw(weapon_xoffset+188-(p->look_ang>>1),
+                        G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
                                  looking_arc+240-gun_pos,SHRINKER,gs,o,pal);
                     }
                 }
@@ -2773,7 +2773,7 @@ void P_DisplayWeapons(int snum)
 
             }
     }
-    displayloogie(snum);
+    P_DisplaySpitAnim(snum);
 
 }
 
@@ -3298,7 +3298,7 @@ short WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATIC,
         CHAINGUNSPRITE__STATIC, RPGSPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC, DEVISTATORSPRITE__STATIC,
         TRIPBOMBSPRITE__STATIC, FREEZESPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC
                                          };
-
+// this is used for player deaths
 void P_DropWeapon(DukePlayer_t *p)
 {
     int snum = sprite[p->i].yvel, cw = aplWeaponWorksLike[p->curr_weapon][snum];
@@ -5081,7 +5081,7 @@ SHOOTINCODE:
                 }
             }
             if (*kb == aplWeaponSpawnTime[p->curr_weapon][snum])
-                DoSpawn(p);
+                P_DoWeaponSpawn(p);
 
             if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
             {
@@ -5149,21 +5149,21 @@ SHOOTINCODE:
                         {
                             if (((*(kb))%3) == 0)
                             {
-                                DoFire(p);
-                                DoSpawn(p);
+                                P_FireWeapon(p);
+                                P_DoWeaponSpawn(p);
                             }
                         }
                         else if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FIREEVERYOTHER)
                         {
-                            DoFire(p);
-                            DoSpawn(p);
+                            P_FireWeapon(p);
+                            P_DoWeaponSpawn(p);
                         }
                         else
                         {
                             if (*kb == aplWeaponFireDelay[p->curr_weapon][snum])
                             {
-                                DoFire(p);
-//                                DoSpawn(p);
+                                P_FireWeapon(p);
+//                                P_DoWeaponSpawn(p);
                             }
                         }
                         if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_RESET &&
@@ -5178,21 +5178,21 @@ SHOOTINCODE:
                     {
                         if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FIREEVERYOTHER)
                         {
-                            DoFire(p);
-                            DoSpawn(p);
+                            P_FireWeapon(p);
+                            P_DoWeaponSpawn(p);
                         }
                         else
                         {
                             if (*kb == aplWeaponFireDelay[p->curr_weapon][snum])
                             {
-                                DoFire(p);
-//                                DoSpawn(p);
+                                P_FireWeapon(p);
+//                                P_DoWeaponSpawn(p);
                             }
                         }
                     }
                 }
                 else if (*kb == aplWeaponFireDelay[p->curr_weapon][snum])
-                    DoFire(p);
+                    P_FireWeapon(p);
             }
         }
     }

@@ -339,7 +339,7 @@ static void G_DoLoadScreen(char *statustext)
         if (!statustext)
         {
             //g_player[myconnectindex].ps->palette = palette;
-            SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
             fadepal(0,0,0, 0,64,7);
             i = ud.screen_size;
             ud.screen_size = 0;
@@ -388,7 +388,7 @@ static void G_DoLoadScreen(char *statustext)
             clearview(0L);
             //g_player[myconnectindex].ps->palette = palette;
             //G_FadePalette(0,0,0,0);
-            SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
         }
         Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);
         X_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
@@ -1526,7 +1526,7 @@ void waitforeverybody()
 
     if (ud.multimode > 1)
     {
-        SetGamePalette(g_player[myconnectindex].ps, titlepal, 11);
+        P_SetGamePalette(g_player[myconnectindex].ps, titlepal, 11);
         rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
 
         rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
@@ -1564,15 +1564,15 @@ void waitforeverybody()
                 if (i != myconnectindex) sendpacket(i,packbuf,1);
             }
 
-            SetGamePalette(g_player[myconnectindex].ps, palette, 11);
+            P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);
             return;
         }
     }
 }
 
 extern int jump_input;
-extern char sync_first[MAXSYNCBYTES][60];
-extern int sync_found;
+extern char g_szfirstSyncMsg[MAXSYNCBYTES][60];
+extern int g_foundSyncError;
 
 void clearfifo(void)
 {
@@ -1581,8 +1581,8 @@ void clearfifo(void)
     syncvaltail = 0L;
     syncvaltottail = 0L;
     memset(&syncstat, 0, sizeof(syncstat));
-    memset(&sync_first, 0, sizeof(sync_first));
-    sync_found = 0;
+    memset(&g_szfirstSyncMsg, 0, sizeof(g_szfirstSyncMsg));
+    g_foundSyncError = 0;
     bufferjitter = 1;
     mymaxlag = otherminlag = 0;
     jump_input = 0;
@@ -1907,7 +1907,7 @@ int G_EnterLevel(int g)
 
     //g_player[myconnectindex].ps->palette = palette;
     //G_FadePalette(0,0,0,0);
-    SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
 
     P_UpdateScreenPal(g_player[myconnectindex].ps);
     flushperms();

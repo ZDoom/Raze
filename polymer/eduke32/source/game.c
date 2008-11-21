@@ -215,7 +215,7 @@ int G_GetVersionFromWebsite(char *buffer) // FIXME: this probably belongs in gam
         initprintf("update: socket() error in G_GetVersionFromWebsite() (%d)\n",errno);
         return(0);
     }
-    initprintf("Connecting to \"http://%s\"\n",host);
+    initprintf("Connecting to http://%s\n",host);
     if (connect(mysock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR)
     {
         initprintf("update: connect() error in G_GetVersionFromWebsite() (%d)\n",errno);
@@ -355,7 +355,7 @@ static inline int textsc(int sc)
     return scale(sc,ud.textscale,100);
 }
 
-static void patchstatusbar(int x1, int y1, int x2, int y2)
+static void G_PatchStatusBar(int x1, int y1, int x2, int y2)
 {
     int scl, tx, ty;
     int clx1,cly1,clx2,cly2,clofx,clofy;
@@ -376,7 +376,7 @@ static void patchstatusbar(int x1, int y1, int x2, int y2)
 //    else rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1,cly1,clx2+clofx-1,cly2+clofy-1);
 }
 
-void SetGamePalette(DukePlayer_t *player, char *pal, int set)
+void P_SetGamePalette(DukePlayer_t *player, char *pal, int set)
 {
     if (player != g_player[screenpeek].ps)
     {
@@ -775,7 +775,7 @@ void getpackets(void)
                             {
                                 if (i != myconnectindex)
                                 {
-                                    for (sb = 0; sb < NumSyncBytes; sb++)
+                                    for (sb = 0; sb < g_numSyncBytes; sb++)
                                     {
                                         g_player[i].syncval[g_player[i].syncvalhead & (SYNCFIFOSIZ - 1)][sb] = packbuf[j + sb];
                                     }
@@ -784,10 +784,10 @@ void getpackets(void)
                                 }
                             }
 
-                            j += NumSyncBytes;
+                            j += g_numSyncBytes;
                         } */
 
-            GetSyncInfoFromPacket(packbuf, packbufleng, &j, other);
+            Net_GetSyncInfoFromPacket(packbuf, packbufleng, &j, other);
 
             TRAVERSE_CONNECT(i)
             if (i != myconnectindex)
@@ -828,7 +828,7 @@ void getpackets(void)
                             g_player[other].syncval[g_player[other].syncvalhead&(MOVEFIFOSIZ-1)] = packbuf[j++];
                             g_player[other].syncvalhead++;
                         } */
-            GetSyncInfoFromPacket(packbuf, packbufleng, &j, other);
+            Net_GetSyncInfoFromPacket(packbuf, packbufleng, &j, other);
 
             for (i=g_movesPerPacket-1;i>=1;i--)
             {
@@ -888,7 +888,7 @@ void getpackets(void)
                             g_player[other].syncvalhead++;
                         }
                         */
-            GetSyncInfoFromPacket(packbuf, packbufleng, &j, other);
+            Net_GetSyncInfoFromPacket(packbuf, packbufleng, &j, other);
 
             if (j > packbufleng)
                 initprintf("INVALID GAME PACKET!!! (packet %d, %d too many bytes (%d %d))\n",packbuf[0],j-packbufleng,packbufleng,k);
@@ -1392,7 +1392,7 @@ void faketimerhandler(void)
                     syncvaltail++;
                 } */
 
-        AddSyncInfoToPacket(&j);
+        Net_AddSyncInfoToPacket(&j);
 
         TRAVERSE_CONNECT(i)
         if (i != myconnectindex)
@@ -1477,7 +1477,7 @@ void faketimerhandler(void)
                     packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
                     syncvaltail++;
                 } */
-        AddSyncInfoToPacket(&j);
+        Net_AddSyncInfoToPacket(&j);
 
         sendpacket(connecthead,packbuf,j);
         return;
@@ -1566,7 +1566,7 @@ void faketimerhandler(void)
                     packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
                     syncvaltail++;
                 } */
-        AddSyncInfoToPacket(&j);
+        Net_AddSyncInfoToPacket(&j);
 
         for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
             if (g_player[i].playerquitflag)
@@ -1787,14 +1787,14 @@ static void G_DrawWeapAmounts(DukePlayer_t *p,int x,int y,int u)
 
     if (u&4)
     {
-        if (u != -1) patchstatusbar(88,178,88+37,178+6); //original code: (96,178,96+12,178+6);
+        if (u != -1) G_PatchStatusBar(88,178,88+37,178+6); //original code: (96,178,96+12,178+6);
         G_DrawWeapNum2(PISTOL_WEAPON,x,y,
                        p->ammo_amount[PISTOL_WEAPON],p->max_ammo_amount[PISTOL_WEAPON],
                        12-20*(cw == PISTOL_WEAPON));
     }
     if (u&8)
     {
-        if (u != -1) patchstatusbar(88,184,88+37,184+6); //original code: (96,184,96+12,184+6);
+        if (u != -1) G_PatchStatusBar(88,184,88+37,184+6); //original code: (96,184,96+12,184+6);
         G_DrawWeapNum2(SHOTGUN_WEAPON,x,y+6,
                        p->ammo_amount[SHOTGUN_WEAPON],p->max_ammo_amount[SHOTGUN_WEAPON],
                        (!p->gotweapon[SHOTGUN_WEAPON]*9)+12-18*
@@ -1802,7 +1802,7 @@ static void G_DrawWeapAmounts(DukePlayer_t *p,int x,int y,int u)
     }
     if (u&16)
     {
-        if (u != -1) patchstatusbar(88,190,88+37,190+6); //original code: (96,190,96+12,190+6);
+        if (u != -1) G_PatchStatusBar(88,190,88+37,190+6); //original code: (96,190,96+12,190+6);
         G_DrawWeapNum2(CHAINGUN_WEAPON,x,y+12,
                        p->ammo_amount[CHAINGUN_WEAPON],p->max_ammo_amount[CHAINGUN_WEAPON],
                        (!p->gotweapon[CHAINGUN_WEAPON]*9)+12-18*
@@ -1810,7 +1810,7 @@ static void G_DrawWeapAmounts(DukePlayer_t *p,int x,int y,int u)
     }
     if (u&32)
     {
-        if (u != -1) patchstatusbar(127,178,127+29,178+6); //original code: (135,178,135+8,178+6);
+        if (u != -1) G_PatchStatusBar(127,178,127+29,178+6); //original code: (135,178,135+8,178+6);
         G_DrawWeapNum(RPG_WEAPON,x+39,y,
                       p->ammo_amount[RPG_WEAPON],p->max_ammo_amount[RPG_WEAPON],
                       (!p->gotweapon[RPG_WEAPON]*9)+12-19*
@@ -1818,7 +1818,7 @@ static void G_DrawWeapAmounts(DukePlayer_t *p,int x,int y,int u)
     }
     if (u&64)
     {
-        if (u != -1) patchstatusbar(127,184,127+29,184+6); //original code: (135,184,135+8,184+6);
+        if (u != -1) G_PatchStatusBar(127,184,127+29,184+6); //original code: (135,184,135+8,184+6);
         G_DrawWeapNum(HANDBOMB_WEAPON,x+39,y+6,
                       p->ammo_amount[HANDBOMB_WEAPON],p->max_ammo_amount[HANDBOMB_WEAPON],
                       (((!p->ammo_amount[HANDBOMB_WEAPON])|(!p->gotweapon[HANDBOMB_WEAPON]))*9)+12-19*
@@ -1826,7 +1826,7 @@ static void G_DrawWeapAmounts(DukePlayer_t *p,int x,int y,int u)
     }
     if (u&128)
     {
-        if (u != -1) patchstatusbar(127,190,127+29,190+6); //original code: (135,190,135+8,190+6);
+        if (u != -1) G_PatchStatusBar(127,190,127+29,190+6); //original code: (135,190,135+8,190+6);
 
         if (p->subweapon&(1<<GROW_WEAPON))
             G_DrawWeapNum(SHRINKER_WEAPON,x+39,y+12,
@@ -1841,7 +1841,7 @@ static void G_DrawWeapAmounts(DukePlayer_t *p,int x,int y,int u)
     }
     if (u&256)
     {
-        if (u != -1) patchstatusbar(158,178,162+29,178+6); //original code: (166,178,166+8,178+6);
+        if (u != -1) G_PatchStatusBar(158,178,162+29,178+6); //original code: (166,178,166+8,178+6);
 
         G_DrawWeapNum(DEVISTATOR_WEAPON,x+70,y,
                       p->ammo_amount[DEVISTATOR_WEAPON],p->max_ammo_amount[DEVISTATOR_WEAPON],
@@ -1850,7 +1850,7 @@ static void G_DrawWeapAmounts(DukePlayer_t *p,int x,int y,int u)
     }
     if (u&512)
     {
-        if (u != -1) patchstatusbar(158,184,162+29,184+6); //original code: (166,184,166+8,184+6);
+        if (u != -1) G_PatchStatusBar(158,184,162+29,184+6); //original code: (166,184,166+8,184+6);
 
         G_DrawWeapNum(TRIPBOMB_WEAPON,x+70,y+6,
                       p->ammo_amount[TRIPBOMB_WEAPON],p->max_ammo_amount[TRIPBOMB_WEAPON],
@@ -1860,7 +1860,7 @@ static void G_DrawWeapAmounts(DukePlayer_t *p,int x,int y,int u)
 
     if (u&65536L)
     {
-        if (u != -1) patchstatusbar(158,190,162+29,190+6); //original code: (166,190,166+8,190+6);
+        if (u != -1) G_PatchStatusBar(158,190,162+29,190+6); //original code: (166,190,166+8,190+6);
 
         G_DrawWeapNum(-1,x+70,y+12,
                       p->ammo_amount[FREEZE_WEAPON],p->max_ammo_amount[FREEZE_WEAPON],
@@ -2487,7 +2487,7 @@ static void G_DrawStatusBar(int snum)
 
     if (u == -1)
     {
-        patchstatusbar(0,0,320,200);
+        G_PatchStatusBar(0,0,320,200);
         if (ud.multimode > 1 && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
             rotatesprite(sbarx(277+1),sbary(SBY+7-1),sbarsc(65536L),0,KILLSICON,0,0,10+16,0,0,xdim-1,ydim-1);
     }
@@ -2495,7 +2495,7 @@ static void G_DrawStatusBar(int snum)
     {
         if (u&32768)
         {
-            if (u != -1) patchstatusbar(276,SBY+17,299,SBY+17+10);
+            if (u != -1) G_PatchStatusBar(276,SBY+17,299,SBY+17+10);
             G_DrawDigiNum(287,SBY+17,max(p->frag-p->fraggedself,0),-16,10+16);
         }
     }
@@ -2503,7 +2503,7 @@ static void G_DrawStatusBar(int snum)
     {
         if (u&16384)
         {
-            if (u != -1) patchstatusbar(275,SBY+18,299,SBY+18+12);
+            if (u != -1) G_PatchStatusBar(275,SBY+18,299,SBY+18+12);
             if (p->got_access&4) rotatesprite(sbarx(275),sbary(SBY+16),sbarsc(65536L),0,ACCESS_ICON,0,23,10+16,0,0,xdim-1,ydim-1);
             if (p->got_access&2) rotatesprite(sbarx(288),sbary(SBY+16),sbarsc(65536L),0,ACCESS_ICON,0,21,10+16,0,0,xdim-1,ydim-1);
             if (p->got_access&1) rotatesprite(sbarx(281),sbary(SBY+23),sbarsc(65536L),0,ACCESS_ICON,0,0,10+16,0,0,xdim-1,ydim-1);
@@ -2513,7 +2513,7 @@ static void G_DrawStatusBar(int snum)
 
     if (u&1)
     {
-        if (u != -1) patchstatusbar(20,SBY+17,43,SBY+17+11);
+        if (u != -1) G_PatchStatusBar(20,SBY+17,43,SBY+17+11);
         if (sprite[p->i].pal == 1 && p->last_extra < 2)
             G_DrawDigiNum(32,SBY+17,1,-16,10+16);
         else G_DrawDigiNum(32,SBY+17,p->last_extra,-16,10+16);
@@ -2521,7 +2521,7 @@ static void G_DrawStatusBar(int snum)
     if (u&2)
     {
         int lAmount=Gv_GetVarByLabel("PLR_MORALE",-1, p->i, snum);
-        if (u != -1) patchstatusbar(52,SBY+17,75,SBY+17+11);
+        if (u != -1) G_PatchStatusBar(52,SBY+17,75,SBY+17+11);
         if (lAmount == -1)
             G_DrawDigiNum(64,SBY+17,p->shield_amount,-16,10+16);
         else
@@ -2530,7 +2530,7 @@ static void G_DrawStatusBar(int snum)
 
     if (u&1024)
     {
-        if (u != -1) patchstatusbar(196,SBY+17,219,SBY+17+11);
+        if (u != -1) G_PatchStatusBar(196,SBY+17,219,SBY+17+11);
         if (p->curr_weapon != KNEE_WEAPON)
         {
             if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
@@ -2545,11 +2545,11 @@ static void G_DrawStatusBar(int snum)
         {
             if (u&(2048+4096))
             {
-                patchstatusbar(231,SBY+13,265,SBY+13+18);
+                G_PatchStatusBar(231,SBY+13,265,SBY+13+18);
             }
             else
             {
-                patchstatusbar(250,SBY+24,261,SBY+24+6);
+                G_PatchStatusBar(250,SBY+24,261,SBY+24+6);
             }
 
         }
@@ -2878,7 +2878,7 @@ static void G_DisplayExtraScreens(void)
         setview(0,0,xdim-1,ydim-1);
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
-        SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
+        P_SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
         rotatesprite(0,0,65536L,0,3291,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
@@ -2907,7 +2907,7 @@ static void G_DisplayExtraScreens(void)
         setview(0,0,xdim-1,ydim-1);
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
-        SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
+        P_SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
         rotatesprite(0,0,65536L,0,TENSCREEN,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
@@ -3537,7 +3537,7 @@ static void G_DrawOverheadMap(int cposx, int cposy, int czoom, short cang)
 extern int getclosestcol(int r, int g, int b);
 palette_t CrosshairColors = { 255, 255, 255, 0 };
 palette_t DefaultCrosshairColors = { 0, 0, 0, 0 };
-int crosshair_sum;
+int g_crosshairSum = 0;
 
 void G_GetCrosshairColor(void)
 {
@@ -3582,9 +3582,9 @@ void G_SetCrosshairColor(int r, int g, int b)
     char *ptr = (char *)waloff[CROSSHAIR];
     int i, ii;
 
-    if (DefaultCrosshairColors.f == 0 || crosshair_sum == r+(g<<1)+(b<<2)) return;
+    if (DefaultCrosshairColors.f == 0 || g_crosshairSum == r+(g<<1)+(b<<2)) return;
 
-    crosshair_sum = r+(g<<1)+(b<<2);
+    g_crosshairSum = r+(g<<1)+(b<<2);
     CrosshairColors.r = r;
     CrosshairColors.g = g;
     CrosshairColors.b = b;
@@ -3653,9 +3653,9 @@ void G_FadePalette(int r,int g,int b,int e)
 void G_DisplayRest(int smoothratio)
 {
     int a, i, j;
-    int dotint=0;
-    palette_t FadeTemp = { 0, 0, 0, 0 };
-    palette_t TintTemp = { 0, 0, 0, 0 };
+    int applyTint=0;
+    palette_t tempFade = { 0, 0, 0, 0 };
+    palette_t tempTint = { 0, 0, 0, 0 };
 
     DukePlayer_t *pp = g_player[screenpeek].ps;
     walltype *wal;
@@ -3701,36 +3701,36 @@ void G_DisplayRest(int smoothratio)
     // this does pain tinting etc from the CON
     if (pp->pals_time >= 0 && pp->loogcnt == 0) // JBF 20040101: pals_time > 0 now >= 0
     {
-        FadeTemp.r = pp->pals[0];
-        FadeTemp.g = pp->pals[1];
-        FadeTemp.b = pp->pals[2];
-        FadeTemp.f = pp->pals_time;
+        tempFade.r = pp->pals[0];
+        tempFade.g = pp->pals[1];
+        tempFade.b = pp->pals[2];
+        tempFade.f = pp->pals_time;
         g_restorePalette = 1;     // JBF 20040101
-        dotint = 1;
+        applyTint = 1;
     }
     // reset a normal palette
     else if (g_restorePalette)
     {
         //setbrightness(ud.brightness>>2,&pp->palette[0],0);
-        SetGamePalette(pp,pp->palette,2);
+        P_SetGamePalette(pp,pp->palette,2);
         g_restorePalette = 0;
     }
     // loogies courtesy of being snotted on
     else if (pp->loogcnt > 0)
     {
         //G_FadePalette(0,64,0,(pp->loogcnt>>1)+128);
-        FadeTemp.r = 0;
-        FadeTemp.g = 64;
-        FadeTemp.b = 0;
-        FadeTemp.f = pp->loogcnt>>1;
-        dotint = 1;
+        tempFade.r = 0;
+        tempFade.g = 64;
+        tempFade.b = 0;
+        tempFade.f = pp->loogcnt>>1;
+        applyTint = 1;
     }
-    if (FadeTemp.f > TintTemp.f)
+    if (tempFade.f > tempTint.f)
     {
-        TintTemp.r = FadeTemp.r;
-        TintTemp.g = FadeTemp.g;
-        TintTemp.b = FadeTemp.b;
-        TintTemp.f = FadeTemp.f;
+        tempTint.r = tempFade.r;
+        tempTint.g = tempFade.g;
+        tempTint.b = tempFade.b;
+        tempTint.f = tempFade.f;
     }
 
     if (ud.show_help)
@@ -3757,7 +3757,7 @@ void G_DisplayRest(int smoothratio)
             }
             G_UpdateScreenArea();
         }
-        if (TintTemp.f > 0 || dotint) G_FadePalette(TintTemp.r,TintTemp.g,TintTemp.b,TintTemp.f|128);
+        if (tempTint.f > 0 || applyTint) G_FadePalette(tempTint.r,tempTint.g,tempTint.b,tempTint.f|128);
         return;
     }
 
@@ -3786,7 +3786,7 @@ void G_DisplayRest(int smoothratio)
                 G_DrawCameraText(pp->newowner);
             else
             {
-                P_DisplayWeapons(screenpeek);
+                P_DisplayWeapon(screenpeek);
                 if (pp->over_shoulder_on == 0)
                     P_DisplayScubaMask(screenpeek);
             }
@@ -4012,8 +4012,8 @@ void G_DisplayRest(int smoothratio)
     else
         M_DisplayMenus();
 
-    if (TintTemp.f > 0 || dotint)
-        G_FadePalette(TintTemp.r,TintTemp.g,TintTemp.b,TintTemp.f|128);
+    if (tempTint.f > 0 || applyTint)
+        G_FadePalette(tempTint.r,tempTint.g,tempTint.b,tempTint.f|128);
 }
 
 static void G_DoThirdPerson(DukePlayer_t *pp, int *vx, int *vy,int *vz,short *vsectnum, int ang, int horiz)
@@ -10035,7 +10035,7 @@ static void G_DisplayLogo(void)
             //G_FadePalette(0,0,0,63);
             if (logoflags & LOGO_3DRSCREEN)
             {
-                SetGamePalette(g_player[myconnectindex].ps, drealms, 11);    // JBF 20040308
+                P_SetGamePalette(g_player[myconnectindex].ps, drealms, 11);    // JBF 20040308
                 rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
                 nextpage();
                 fadepal(0,0,0, 63,0,-7);
@@ -10046,7 +10046,7 @@ static void G_DisplayLogo(void)
                     getpackets();
                     if (g_restorePalette)
                     {
-                        SetGamePalette(g_player[myconnectindex].ps,g_player[myconnectindex].ps->palette,0);
+                        P_SetGamePalette(g_player[myconnectindex].ps,g_player[myconnectindex].ps->palette,0);
                         g_restorePalette = 0;
                     }
                 }
@@ -10061,7 +10061,7 @@ static void G_DisplayLogo(void)
         if (logoflags & LOGO_TITLESCREEN)
         {
             //g_player[myconnectindex].ps->palette = titlepal;
-            SetGamePalette(g_player[myconnectindex].ps, titlepal, 11);   // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, titlepal, 11);   // JBF 20040308
             flushperms();
             rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
             KB_FlushKeyboardQueue();
@@ -10130,7 +10130,7 @@ static void G_DisplayLogo(void)
                 getpackets();
                 if (g_restorePalette)
                 {
-                    SetGamePalette(g_player[myconnectindex].ps,g_player[myconnectindex].ps->palette,0);
+                    P_SetGamePalette(g_player[myconnectindex].ps,g_player[myconnectindex].ps->palette,0);
                     g_restorePalette = 0;
                 }
                 nextpage();
@@ -10147,7 +10147,7 @@ static void G_DisplayLogo(void)
     nextpage();
 
     //g_player[myconnectindex].ps->palette = palette;
-    SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
     S_PlaySound(NITEVISION_ONOFF);
 
     //G_FadePalette(0,0,0,0);
@@ -11421,7 +11421,7 @@ void app_main(int argc,const char **argv)
         clearview(0L);
         //g_player[myconnectindex].ps->palette = palette;
         //G_FadePalette(0,0,0,0);
-        SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
+        P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
         rotatesprite(320<<15,200<<15,65536L,0,LOADSCREEN,0,0,2+8+64,0,0,xdim-1,ydim-1);
         menutext(160,105,0,0,"LOADING SAVED GAME...");
         nextpage();
@@ -11518,7 +11518,7 @@ MAIN_LOOP_RESTART:
 
         if (g_player[myconnectindex].ps->gm&MODE_EOL || g_player[myconnectindex].ps->gm&MODE_RESTART)
         {
-            SetGamePalette(g_player[myconnectindex].ps, palette, 0);
+            P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);
             P_UpdateScreenPal(g_player[myconnectindex].ps);
 
             if (g_player[myconnectindex].ps->gm&MODE_EOL)
@@ -11613,7 +11613,7 @@ MAIN_LOOP_RESTART:
                 if (debug_on) G_ShowCacheLocks();
 
 //                checksync();
-                SyncStatMessage();
+                Net_DisplaySyncMsg();
 
                 if (VOLUMEONE)
                 {
@@ -11861,7 +11861,7 @@ RECHECK:
             goto RECHECK;
         }
         fadepal(0,0,0, 0,63,7);
-        SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
+        P_SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
         G_DrawBackground();
         M_DisplayMenus();
         //g_player[myconnectindex].ps->palette = palette;
@@ -12703,7 +12703,7 @@ static int G_DoMoveThings(void)
         }
     */
 
-    getsyncstat();
+    Net_GetSyncStat();
 
     g_moveThingsCount++;
 
@@ -12767,7 +12767,7 @@ static void G_DoOrderScreen(void)
 
     fadepal(0,0,0, 0,63,7);
     //g_player[myconnectindex].ps->palette = palette;
-    SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
     KB_FlushKeyboardQueue();
     rotatesprite(0,0,65536L,0,ORDERING,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
@@ -12867,7 +12867,7 @@ void G_BonusScreen(int bonusonly)
         case 0:
             if (ud.lockout == 0)
             {
-                SetGamePalette(g_player[myconnectindex].ps, endingpal, 11); // JBF 20040308
+                P_SetGamePalette(g_player[myconnectindex].ps, endingpal, 11); // JBF 20040308
                 clearview(0L);
                 rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
                 nextpage();
@@ -12930,7 +12930,7 @@ void G_BonusScreen(int bonusonly)
 
             KB_FlushKeyboardQueue();
             //g_player[myconnectindex].ps->palette = palette;
-            SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
 
             rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
             IFISSOFTMODE fadepal(0,0,0, 63,0,-1);
@@ -12964,7 +12964,7 @@ void G_BonusScreen(int bonusonly)
             setview(0,0,xdim-1,ydim-1);
             KB_FlushKeyboardQueue();
             //g_player[myconnectindex].ps->palette = palette;
-            SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
             rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
             IFISSOFTMODE fadepal(0,0,0, 63,0,-1);
             else nextpage();
@@ -13005,7 +13005,7 @@ void G_BonusScreen(int bonusonly)
             KB_FlushKeyBoardQueue();
 
             //g_player[myconnectindex].ps->palette = palette;
-            SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
             IFISSOFTMODE G_FadePalette(0,0,0,63);
             clearview(0L);
             menutext(160,60,0,0,"THANKS TO ALL OUR");
@@ -13135,7 +13135,7 @@ ENDANM:
 FRAGBONUS:
 
     //g_player[myconnectindex].ps->palette = palette;
-    SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
     IFISSOFTMODE G_FadePalette(0,0,0,63);   // JBF 20031228
     KB_FlushKeyboardQueue();
     totalclock = 0;
