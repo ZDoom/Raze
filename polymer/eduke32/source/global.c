@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 char *s_builddate = "20081121";
 char *MusicPtr = NULL;
-int Musicsize;
+int g_musicSize;
 
 short g_globalRandom;
 short neartagsector, neartagwall, neartagsprite;

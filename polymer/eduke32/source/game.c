@@ -1675,6 +1675,9 @@ void G_DrawTilePalSmall(int x, int y, int tilenum, int shade, int orientation, i
     rotatesprite((orientation&256)?x:(x<<16),(orientation&256)?y:(y<<16),32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
+#define POLYMOSTTRANS (1)
+#define POLYMOSTTRANS2 (1|32)
+
 static void G_DrawInvNum(int x,int y,char num1,char ha,char sbits)
 {
     char dabuf[80] = {0};
@@ -1685,11 +1688,11 @@ static void G_DrawInvNum(int x,int y,char num1,char ha,char sbits)
     Bsprintf(dabuf,"%d",num1);
     if (num1 > 99)
     {
-        if (shd && althud_shadows)
+        if (shd && getrendermode() >= 3 && althud_shadows)
         {
-            rotatesprite(sbarx(x-4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(x-4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
         }
         rotatesprite(sbarx(x-4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
@@ -1698,10 +1701,10 @@ static void G_DrawInvNum(int x,int y,char num1,char ha,char sbits)
     }
     if (num1 > 9)
     {
-        if (shd && althud_shadows)
+        if (shd && getrendermode() >= 3 && althud_shadows)
         {
-            rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
         }
 
         rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
@@ -1954,8 +1957,8 @@ static void G_DrawAltDigiNum(int x,int y,int n,char s,char cs)
         for (k=0;k<i;k++)
         {
             p = althud_numbertile+*(b+k)-'0';
-            if (shd && althud_shadows)
-                rotatesprite(sbarxr(c+j-1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|1|32,0,0,xdim-1,ydim-1);
+            if (shd && getrendermode() >= 3 && althud_shadows)
+                rotatesprite(sbarxr(c+j-1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
             rotatesprite(sbarxr(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs,0,0,xdim-1,ydim-1);
             j -= tilesizx[p]+1;
         }
@@ -1965,8 +1968,8 @@ static void G_DrawAltDigiNum(int x,int y,int n,char s,char cs)
     for (k=0;k<i;k++)
     {
         p = althud_numbertile+*(b+k)-'0';
-        if (shd && althud_shadows)
-            rotatesprite(sbarx(c+j+1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|1|32,0,0,xdim-1,ydim-1);
+        if (shd && getrendermode() >= 3 && althud_shadows)
+            rotatesprite(sbarx(c+j+1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs,0,0,xdim-1,ydim-1);
         j += tilesizx[p]+1;
     }
@@ -2124,8 +2127,8 @@ static void G_DrawStatusBar(int snum)
 
 //            rotatesprite(sbarx(5+1),sbary(200-25+1),sbarsc(49152L),0,SIXPAK,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
 //            rotatesprite(sbarx(5),sbary(200-25),sbarsc(49152L),0,SIXPAK,0,0,10+16,0,0,xdim-1,ydim-1);
-            if (althud_shadows)
-                rotatesprite(sbarx(2+1),sbary(200-21+1),sbarsc(49152L),0,COLA,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
+            if (getrendermode() >= 3 && althud_shadows)
+                rotatesprite(sbarx(2+1),sbary(200-21+1),sbarsc(49152L),0,COLA,0,4,10+16+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
             rotatesprite(sbarx(2),sbary(200-21),sbarsc(49152L),0,COLA,0,0,10+16,0,0,xdim-1,ydim-1);
 
             if (sprite[p->i].pal == 1 && p->last_extra < 2)
@@ -2138,17 +2141,17 @@ static void G_DrawStatusBar(int snum)
                 G_DrawAltDigiNum(40,-(200-22),p->last_extra,s,10+16);
             }
 
-            if (althud_shadows)
-                rotatesprite(sbarx(62+1),sbary(200-25+1),sbarsc(49152L),0,SHIELD,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
+            if (getrendermode() >= 3 && althud_shadows)
+                rotatesprite(sbarx(62+1),sbary(200-25+1),sbarsc(49152L),0,SHIELD,0,4,10+16+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
             rotatesprite(sbarx(62),sbary(200-25),sbarsc(49152L),0,SHIELD,0,0,10+16,0,0,xdim-1,ydim-1);
 
             G_DrawAltDigiNum(105,-(200-22),p->shield_amount,-16,10+16);
 
-            if (althud_shadows)
+            if (getrendermode() >= 3 && althud_shadows)
             {
-                if (p->got_access&1) rotatesprite(sbarxr(39-1),sbary(200-43+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
-                if (p->got_access&4) rotatesprite(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
-                if (p->got_access&2) rotatesprite(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
+                if (p->got_access&1) rotatesprite(sbarxr(39-1),sbary(200-43+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
+                if (p->got_access&4) rotatesprite(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
+                if (p->got_access&2) rotatesprite(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
             }
 
             if (p->got_access&1) rotatesprite(sbarxr(39),sbary(200-43),sbarsc(32768),0,ACCESSCARD,0,0,10+16,0,0,xdim-1,ydim-1);
@@ -2157,8 +2160,8 @@ static void G_DrawStatusBar(int snum)
 
             i = 32768;
             if (p->curr_weapon == PISTOL_WEAPON) i = 16384;
-            if (althud_shadows)
-                rotatesprite(sbarxr(57-1),sbary(200-15+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,4,2+1+32,0,0,xdim-1,ydim-1);
+            if (getrendermode() >= 3 && althud_shadows)
+                rotatesprite(sbarxr(57-1),sbary(200-15+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,4,2+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
             rotatesprite(sbarxr(57),sbary(200-15),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,2,0,0,xdim-1,ydim-1);
 
             if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
@@ -2200,13 +2203,13 @@ static void G_DrawStatusBar(int snum)
                 }
                 if (i >= 0)
                 {
-                    if (althud_shadows)
-                        rotatesprite(sbarx(231-o+1),sbary(200-21-2+1),sbarsc(65536L),0,i,0,4,10+16+permbit+1+32,0,0,xdim-1,ydim-1);
+                    if (getrendermode() >= 3 && althud_shadows)
+                        rotatesprite(sbarx(231-o+1),sbary(200-21-2+1),sbarsc(65536L),0,i,0,4,10+16+permbit+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
                     rotatesprite(sbarx(231-o),sbary(200-21-2),sbarsc(65536L),0,i,0,0,10+16+permbit,0,0,xdim-1,ydim-1);
                 }
 
-                if (althud_shadows)
-                    minitext(292-30-o+1,190-3+1,"%",4,1+10+16+permbit + 256);
+                if (getrendermode() >= 3 && althud_shadows)
+                    minitext(292-30-o+1,190-3+1,"%",4,POLYMOSTTRANS+10+16+permbit + 256);
                 minitext(292-30-o,190-3,"%",6,10+16+permbit + 256);
 
                 j = 0x80000000;
@@ -2240,20 +2243,20 @@ static void G_DrawStatusBar(int snum)
                 G_DrawInvNum(-(284-30-o),200-6-3,(char)i,0,10+permbit);
                 if (j > 0)
                 {
-                    if (althud_shadows)
-                        minitext(288-30-o+1,180-3+1,"ON",4,1+10+16+permbit + 256);
+                    if (getrendermode() >= 3 && althud_shadows)
+                        minitext(288-30-o+1,180-3+1,"ON",4,POLYMOSTTRANS+10+16+permbit + 256);
                     minitext(288-30-o,180-3,"ON",0,10+16+permbit + 256);
                 }
                 else if ((unsigned int)j != 0x80000000)
                 {
-                    if (althud_shadows)
-                        minitext(284-30-o+1,180-3+1,"OFF",4,1+10+16+permbit + 256);
+                    if (getrendermode() >= 3 && althud_shadows)
+                        minitext(284-30-o+1,180-3+1,"OFF",4,POLYMOSTTRANS+10+16+permbit + 256);
                     minitext(284-30-o,180-3,"OFF",2,10+16+permbit + 256);
                 }
                 if (p->inven_icon >= 6)
                 {
-                    if (althud_shadows)
-                        minitext(284-35-o+1,180-3+1,"AUTO",4,1+10+16+permbit + 256);
+                    if (getrendermode() >= 3 && althud_shadows)
+                        minitext(284-35-o+1,180-3+1,"AUTO",4,POLYMOSTTRANS+10+16+permbit + 256);
                     minitext(284-35-o,180-3,"AUTO",2,10+16+permbit + 256);
                 }
 
@@ -8831,61 +8834,71 @@ FAKE_F3:
     }
 }
 
-static void comlinehelp(void)
+static void G_ShowParameterHelp(void)
 {
-    char *s = "Usage: eduke32 [FILES] [OPTIONS]\n"
+    char *s = "Usage: eduke32 [files] [options]\n"
               "Example: eduke32 -q4 -a -m -tx -map nukeland.map\n\n"
-              "FILES\n"
-              "can be *.grp, *.zip, *.con, *.def\n"
-              ""
-              "OPTIONS\n"
-              "-NUM\t\tLoad and run a game from slot NUM (0-9)\n"
+              "Files can be *.grp/zip/con/def\n"
+              "\n"
+              "-#\t\tLoad and run a game from slot # (0-9)\n"
               "-a\t\tUse fake player AI (fake multiplayer only)\n"
-              "-cNUM\t\tUse MP mode NUM, 1 = DukeMatch(spawn), 2 = Coop, 3 = Dukematch(no spawn)\n"
-              "-cfg FILE\tUse configuration file FILE\n"
-              "-dFILE\t\tStart to play demo FILE\n"
-              /*              "-fNUM\t\tSend fewer packets in multiplayer (1, 2, 4) (deprecated)\n" */
-              "-game_dir DIR\tSee -j\n"
-              "-gFILE, -grp FILE\tUse extra group file FILE\n"
-              "-gamegrp FILE\tUse FILE as a default GRP\n"
-              "-nam\t\tRun in Nam-compatible mode\n"
-              "-ww2gi\t\tRun in ww2gi-compatible mode\n"
-              "-hFILE\t\tUse definitions file FILE\n"
-              "-iNUM\t\tUse networking mode NUM (1/0) (multiplayer only) (default == 1)\n"
-              "-jDIR\t\tAdds DIR to the file path stack\n"
-              "-lNUM\t\tWarp to level NUM (1-11), see -v\n"
+              "-c#\t\tUse MP mode #, 1 = Dukematch, 2 = Coop, 3 = Dukematch(no spawn)\n"
+              "-cfg [file.cfg]\tUse an alternate configuration file\n"
+              "-d[file.dmo]\tPlay a demo\n"
+              "-g[file.grp]\tUse an extra group file\n"
+              "-nam/-ww2gi\tRun in NAM or WW2GI-compatible mode\n"
+              "-h[file.def]\tUse an alternate def\n"
+              "-j[dir]\t\tAdds a directory to EDuke32's search list\n"
+              "-l#\t\tWarp to level #, see -v\n"
               "-m\t\tDisable monsters\n"
-              "-map FILE\tUse user map FILE\n"
-              "-name NAME\tUse NAME as multiplayer name\n"
-              "-nD\t\tDump default gamevars to gamevars.txt\n"
-              "-net PARAMETERS\tEnable network play (see documentation for parameters)\n"
-              "-nm\t\tDisable music\n"
-              "-ns\t\tDisable sound\n"
-              "-qNUM\t\tUse NUM players for fake multiplayer (2-8)\n"
+              "-map [file.map]\tLoads a map\n"
+              "-net\t\tEnable multiplayer (see documentation)\n"
+              "-ns/-nm\t\tDisable sound or music\n"
               "-r\t\tRecord demo\n"
-              "-rmnet FILE\tUse FILE for network play configuration (see documentation)\n"
-              "-keepaddr\n"
-              "-stun\n"
-              "-w\t\tShow coordinates"
-              "-noautoload\tDo not use the autoload directory\n"
-              "-nologo\t\tSkip the logo anim\n"
-              "-cachesize SIZE\tUse SIZE Kb for cache\n"
-              "-sNUM\t\tUse skill level NUM (1-4)\n"
+              "-noautoload\tDisable loading content from autoload\n"
+              "-s#\t\tSet skill level (1-4)\n"
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
-              "-setup\t\tDisplays the configuration dialog\n"
-
-              "-nosetup\t\t\n"
+              "-setup/nosetup\tEnables/disables startup window\n"
 #endif
-              "-tNUM\t\tUse respawn mode NUM, 1 = Monsters, 2 = Items, 3 = Inventory, x = All\n"
+              "-t#\t\tSet respawn mode: 1 = Monsters, 2 = Items, 3 = Inventory, x = All\n"
               "-u#########\tUser's favorite weapon order (default: 3425689071)\n"
 #if !defined(_WIN32)
               "-usecwd\t\tRead game data and configuration file from working directory\n"
 #endif
-              "-sloppycmd\t\tAllows EDuke to execute unsafe commands. (for compatibility only)\n"
-              "-vNUM\t\tWarp to volume NUM (1-4), see -l\n"
-              "-xFILE\t\tLoad CON script FILE (default EDUKE.CON/GAME.CON)\n"
-              "-zNUM,\n-condebug\tLine-by-line CON compilation debugging, NUM is verbosity\n"
-              "\n-?, -help, --help\tDisplay this help message and exit"
+              "-v#\t\tWarp to volume #, see -l\n"
+              "-x[game.con]\tLoad custom CON script\n"
+              "\n-?/--help\tDisplay this help message and exit\n"
+              "\nSee eduke32 -debughelp for debug parameters"
+              ;
+#if defined RENDERTYPEWIN
+    Bsprintf(tempbuf,HEAD2 " %s",s_builddate);
+    wm_msgbox(tempbuf,s);
+#else
+    initprintf("%s\n",s);
+#endif
+}
+
+static void G_ShowDebugHelp(void)
+{
+    char *s = "Usage: eduke32 [files] [options]\n"
+              "\n"
+              "-fNUM\t\tSend fewer packets in multiplayer (1, 2, 4) (deprecated)\n"
+              "-game_dir [dir]\tDuke3d_w32 compatibility option, see -j\n"
+              "-gamegrp   \tSelects which file to use as main grp\n"
+              "-i#\t\tUse networking mode (1/0)\n"
+              "-name [name]\tPlayer name in multiplay\n"
+              "-nD\t\tDump default gamevars to gamevars.txt\n"
+              "-q#\t\tFake multiplayer with (2-8) players\n"
+              "-rmnet\t\tUse network config file (OBSOLETE, see -net)\n"
+#ifndef RANCID_NETWORKING
+              "-keepaddr\n"
+#endif
+              "-stun\t\tUse UDP hole punching in multiplayer\n"
+              "-w\t\tShow coordinates\n"
+              "-nologo\t\tSkip the logo anim\n"
+              "-cachesize #\tSets cache size, in Kb\n"
+              "-unstable   \tAllow EDuke32 to execute unsafe CON commands\n"
+              "-z#/-condebug\tEnable line-by-line CON compile debugging at level #\n"
               ;
 #if defined RENDERTYPEWIN
     Bsprintf(tempbuf,HEAD2 " %s",s_builddate);
@@ -9490,10 +9503,14 @@ static void G_CheckCommandLine(int argc, const char **argv)
             {
                 if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
                 {
-                    comlinehelp();
+                    G_ShowParameterHelp();
                     exit(0);
                 }
-
+                if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"debughelp") || !Bstrcasecmp(c+1,"-debughelp"))
+                {
+                    G_ShowDebugHelp();
+                    exit(0);
+                }
                 if (!Bstrcasecmp(c+1,"grp") || !Bstrcasecmp(c+1,"g"))
                 {
                     if (argc > i+1)
@@ -9837,7 +9854,7 @@ static void G_CheckCommandLine(int argc, const char **argv)
                     }
                     else
                     {
-                        comlinehelp();
+                        G_ShowParameterHelp();
                         exit(-1);
                     }
                     break;

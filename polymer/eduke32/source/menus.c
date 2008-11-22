@@ -2706,7 +2706,7 @@ cheat_for_port_credits:
                 "-",
                 "Screen size",
                 "Status bar size",
-                "Multiplayer chat text size",
+                "Stats and chat text size",
                 "Show level stats",
                 "-",
                 "Allow walk with autorun",

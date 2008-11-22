@@ -211,11 +211,11 @@ void _playmusic(const char *fn)
 
     l = kfilelength(fp);
     MUSIC_StopSong();
-    Musicsize=0;
+    g_musicSize=0;
     if (!MusicPtr)
         MusicPtr=Bcalloc(1,l * sizeof(char));
     else MusicPtr=Brealloc(MusicPtr,l * sizeof(char));
-    Musicsize=l;
+    g_musicSize=l;
 
     kread(fp, (unsigned char *)MusicPtr, l);
     kclose(fp);
@@ -229,10 +229,10 @@ void _playmusic(const char *fn)
 
 int S_PlayMusic(const char *fn, const int sel)
 {
-    Musicsize=0;
+    g_musicSize=0;
     if (MapInfo[sel].musicfn1 != NULL)
         _playmusic(MapInfo[sel].musicfn1);
-    if (!Musicsize)
+    if (!g_musicSize)
     {
         _playmusic(fn);
         return 0;

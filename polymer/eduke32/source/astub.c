@@ -7313,7 +7313,7 @@ void ExtPreSaveMap(void)
 void ExtPreLoadMap(void)
 {}
 
-static void comlinehelp(void)
+static void G_ShowParameterHelp(void)
 {
     char *s = "Usage: mapster32 [OPTIONS] [FILE]\n\n"
               "-gFILE, -grp FILE\tUse extra group file FILE\n"
@@ -7398,7 +7398,7 @@ static void G_CheckCommandLine(int argc, const char **argv)
             {
                 if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
                 {
-                    comlinehelp();
+                    G_ShowParameterHelp();
                     exit(0);
                 }
 

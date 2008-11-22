@@ -344,7 +344,7 @@ void MUSIC_PlayMusic(char *_filename)
     if (music_musicchunk != NULL)
     {
         // !!! FIXME: I set the music to loop. Hope that's okay. --ryan.
-        Musicsize = size;
+        g_musicSize = size;
         Mix_PlayMusic(music_musicchunk, -1);
     } // if
 }

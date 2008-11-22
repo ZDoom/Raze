@@ -52,7 +52,7 @@ typedef struct SD
     int rate;
     sounddef def;
     int ready;
-}sounddef1;
+} sounddef1;
 
 sounddef1 music;
 
@@ -363,7 +363,7 @@ void AL_Shutdown()
 
 #define BUFFER_SIZE 65536 // (4096 * 4*8*8)
 int AL_MusicVolume;
-extern int Musicsize;
+extern int g_musicSize;
 
 
 int update();
@@ -483,7 +483,7 @@ void AL_PlaySong(char *ptr,int loop)
     default:
         return;
     }
-    music.def.size=Musicsize;
+    music.def.size=g_musicSize;
     music.loop=loop;
     music.def.ptrsnd=ptr;
 

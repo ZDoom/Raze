@@ -301,7 +301,7 @@ extern int probey;
 
 extern char typebuflen,typebuf[141];
 extern char *MusicPtr;
-extern int Musicsize;
+extern int g_musicSize;
 extern int msx[2048],msy[2048];
 extern short cyclers[MAXCYCLERS][6],g_numCyclers;
 extern char szPlayerName[32];
