@@ -1023,7 +1023,7 @@ static int osdcmd_button(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-keydef keynames[]=
+keydef_t keynames[]=
 {
     { "Escape", 0x1 },
     { "1", 0x2 },

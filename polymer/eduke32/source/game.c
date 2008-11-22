@@ -109,7 +109,7 @@ static FILE *frecfilep = (FILE *)NULL;
 int g_restorePalette,g_screenCapture;
 static int g_noLogoAnim = 0;
 static int g_noLogo = 0;
-static int sendmessagecommand = -1;
+static int g_chatPlayer = -1;
 
 char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 char *duke3dgrp = defaultduke3dgrp;
@@ -3078,14 +3078,14 @@ static void Net_EnterMessage(void)
 
     if (g_player[myconnectindex].ps->gm&MODE_SENDTOWHOM)
     {
-        if (sendmessagecommand != -1 || ud.multimode < 3 || g_movesPerPacket == 4)
+        if (g_chatPlayer != -1 || ud.multimode < 3 || g_movesPerPacket == 4)
         {
             tempbuf[0] = PACKET_TYPE_MESSAGE;
             tempbuf[2] = 0;
             recbuf[0]  = 0;
 
             if (ud.multimode < 3)
-                sendmessagecommand = 2;
+                g_chatPlayer = 2;
 
             if (typebuf[0] == '/' && Btoupper(typebuf[1]) == 'M' && Btoupper(typebuf[2]) == 'E')
             {
@@ -3112,7 +3112,7 @@ static void Net_EnterMessage(void)
             recbuf[j] = 0;
             Bstrcat(tempbuf+2,recbuf);
 
-            if (sendmessagecommand >= ud.multimode || g_movesPerPacket == 4)
+            if (g_chatPlayer >= ud.multimode || g_movesPerPacket == 4)
             {
                 tempbuf[1] = 255;
                 TRAVERSE_CONNECT(ch)
@@ -3130,18 +3130,18 @@ static void Net_EnterMessage(void)
                 }
                 quotebotgoal = quotebot;
             }
-            else if (sendmessagecommand >= 0)
+            else if (g_chatPlayer >= 0)
             {
-                tempbuf[1] = (char)sendmessagecommand;
+                tempbuf[1] = (char)g_chatPlayer;
                 if ((!g_networkBroadcastMode) && (myconnectindex != connecthead))
-                    sendmessagecommand = connecthead;
-                sendpacket(sendmessagecommand,tempbuf,j+2);
+                    g_chatPlayer = connecthead;
+                sendpacket(g_chatPlayer,tempbuf,j+2);
             }
 
-            sendmessagecommand = -1;
+            g_chatPlayer = -1;
             g_player[myconnectindex].ps->gm &= ~(MODE_TYPE|MODE_SENDTOWHOM);
         }
-        else if (sendmessagecommand == -1)
+        else if (g_chatPlayer == -1)
         {
             j = 50;
             gametext(320>>1,j,"SEND MESSAGE TO...",0,2+8+16);
@@ -3175,16 +3175,16 @@ static void Net_EnterMessage(void)
                 i = KB_GetCh();
 
                 if (i == 'A' || i == 'a' || i == 13)
-                    sendmessagecommand = ud.multimode;
+                    g_chatPlayer = ud.multimode;
                 else if (i >= '1' || i <= (ud.multimode + '1'))
-                    sendmessagecommand = i - '1';
+                    g_chatPlayer = i - '1';
                 else
                 {
-                    sendmessagecommand = ud.multimode;
+                    g_chatPlayer = ud.multimode;
                     if (i == 27)
                     {
                         g_player[myconnectindex].ps->gm &= ~(MODE_TYPE|MODE_SENDTOWHOM);
-                        sendmessagecommand = -1;
+                        g_chatPlayer = -1;
                     }
                     else
                         typebuf[0] = 0;
@@ -3222,8 +3222,8 @@ static void Net_EnterMessage(void)
             }
             if (ud.automsg)
             {
-                if (SHIFTS_IS_PRESSED) sendmessagecommand = -1;
-                else sendmessagecommand = ud.multimode;
+                if (SHIFTS_IS_PRESSED) g_chatPlayer = -1;
+                else g_chatPlayer = ud.multimode;
             }
             g_player[myconnectindex].ps->gm |= MODE_SENDTOWHOM;
         }

@@ -1051,9 +1051,9 @@ extern playerdata_t g_player[MAXPLAYERS];
 typedef struct {
     char *name;
     int id;
-} keydef;
+} keydef_t;
 
-extern keydef keynames[];
+extern keydef_t keynames[];
 extern char *mousenames[];
 
 extern char *duke3dgrp, *duke3dgrpstring;
