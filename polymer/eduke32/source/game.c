@@ -990,6 +990,12 @@ void getpackets(void)
                     initprintf("Player %d has version %d, expecting %d\n",packbuf[3],BYTEVERSION);
                     G_GameExit("You cannot play Duke with different versions!");
                 }
+                if (packbuf[4] > g_numSyncBytes)
+                {
+                    initprintf("Sync debugging enabled\n");
+                    g_numSyncBytes = packbuf[4];
+                }
+
                 break;
 
             case PACKET_TYPE_PLAYER_OPTIONS:
@@ -9577,6 +9583,12 @@ static void G_CheckCommandLine(int argc, const char **argv)
                     i++;
                     continue;
                 }
+                if (!Bstrcasecmp(c+1,"debugsync"))
+                {
+                    g_numSyncBytes = 6;
+                    i++;
+                    continue;
+                }
 #ifndef RANCID_NETWORKING
                 if (!Bstrcasecmp(c+1,"rmnet"))
                 {
@@ -10629,10 +10641,11 @@ static void Net_SendVersion(void)
     buf[1] = myconnectindex;
     buf[2] = (char)atoi(s_builddate);
     buf[3] = BYTEVERSION;
+    buf[4] = g_numSyncBytes;
 
     TRAVERSE_CONNECT(i)
     {
-        if (i != myconnectindex) sendpacket(i,&buf[0],4);
+        if (i != myconnectindex) sendpacket(i,&buf[0],5);
         if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
     }
     waitforeverybody();
