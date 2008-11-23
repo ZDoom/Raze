@@ -1162,9 +1162,9 @@ void getpackets(void)
                     vote_map = packbuf[3];
 
                     Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",
-                        g_player[(unsigned char)packbuf[1]].user_name,
-                        MapInfo[(unsigned char)(packbuf[2]*MAXLEVELS + packbuf[3])].name,
-                        packbuf[2]+1,packbuf[3]+1);
+                             g_player[(unsigned char)packbuf[1]].user_name,
+                             MapInfo[(unsigned char)(packbuf[2]*MAXLEVELS + packbuf[3])].name,
+                             packbuf[2]+1,packbuf[3]+1);
                     G_AddUserQuote(tempbuf);
 
                     Bsprintf(tempbuf,"PRESS F1 TO ACCEPT, F2 TO DECLINE");
@@ -12311,7 +12311,8 @@ static void Net_DoPrediction(void)
         }
         if (myz < (fz-(i<<8)) && (G_CheckForSpaceFloor(psect)|G_CheckForSpaceCeiling(psect)) == 0) //falling
         {
-            if (TEST_SYNC_KEY(sb_snum, SK_JUMP|SK_CROUCH) == 0 && myonground && (sector[psect].floorstat&2) && myz >= (fz-(i<<8)-(16<<8)))
+            if (!TEST_SYNC_KEY(sb_snum, SK_JUMP) && !TEST_SYNC_KEY(sb_snum, SK_CROUCH) &&
+                    myonground && (sector[psect].floorstat&2) && myz >= (fz-(i<<8)-(16<<8)))
                 myz = fz-(i<<8);
             else
             {

@@ -2584,7 +2584,7 @@ void G_HandleSharedKeys(int snum)
         }
 
     // j = sb_snum & ((15<<8)|(1<<12)|(1<<15)|(1<<16)|(1<<22)|(1<<19)|(1<<20)|(1<<21)|(1<<24)|(1<<25)|(1<<27)|(1<<28)|(1<<29)|(1<<30)|(1<<31));
-    j = sb_snum & ((15<<8)|BIT(SK_STEROIDS)|BIT(SK_NIGHTVISION)|BIT(SK_MEDKIT)|BIT(SK_QUICK_KICK)| \
+    j = sb_snum & ((15<<SK_WEAPON_BITS)|BIT(SK_STEROIDS)|BIT(SK_NIGHTVISION)|BIT(SK_MEDKIT)|BIT(SK_QUICK_KICK)| \
                    BIT(SK_HOLSTER)|BIT(SK_INV_LEFT)|BIT(SK_PAUSE)|BIT(SK_HOLODUKE)|BIT(SK_JETPACK)|BIT(SK_INV_RIGHT)| \
                    BIT(SK_TURNAROUND)|BIT(SK_OPEN)|BIT(SK_INVENTORY)|BIT(SK_ESCAPE));
     sb_snum = j & ~p->interface_toggle_flag;
@@ -2681,7 +2681,7 @@ void G_HandleSharedKeys(int snum)
             sb_snum |= BIT(SK_INV_LEFT);   // emulate move left...
         }
         if (p->newowner == -1)
-            if (TEST_SYNC_KEY(sb_snum, SK_INV_LEFT|SK_INV_RIGHT))
+            if (TEST_SYNC_KEY(sb_snum, SK_INV_LEFT) || TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT))
             {
                 p->invdisptime = 26*2;
 

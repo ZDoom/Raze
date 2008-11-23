@@ -70,7 +70,7 @@ static int music_initialized = 0;
 static int music_context = 0;
 static int music_loopflag = MUSIC_PlayOnce;
 static Mix_Music *music_musicchunk = NULL;
-static char *music_songdata = NULL;
+// static char *music_songdata = NULL;
 
 // This gets called all over the place for information and debugging messages.
 //  If the user set the DUKESND_DEBUG environment variable, the messages
@@ -294,59 +294,28 @@ int MUSIC_StopSong(void)
 
     if (music_musicchunk)
         Mix_FreeMusic(music_musicchunk);
-    if (music_songdata)
-        Bfree(music_songdata);
+//    if (music_songdata)
+//        Bfree(music_songdata);
 
     music_musicchunk = NULL;
-    music_songdata = NULL;
+//    music_songdata = NULL;
 
     return(MUSIC_Ok);
 } // MUSIC_StopSong
 
 // Duke3D-specific.  --ryan.
-void MUSIC_PlayMusic(char *_filename)
+// void MUSIC_PlayMusic(char *_filename)
+int MUSIC_PlaySong(unsigned char *song, int loopflag)
 {
-    int handle;
-    int size;
-    int rc;
-
     MUSIC_StopSong();
-
-    handle = kopen4load(_filename, 0);
-    if (handle == -1)
-        return;
-
-    size = kfilelength(handle);
-    if (size == -1)
-    {
-        kclose(handle);
-        return;
-    } // if
-
-    music_songdata = Bcalloc(size,sizeof(char));
-    if (music_songdata == NULL)
-    {
-        kclose(handle);
-        return;
-    } // if
-
-    rc = kread(handle, music_songdata, size);
-    kclose(handle);
-    if (rc != size)
-    {
-        Bfree(music_songdata);
-        music_songdata = NULL;
-        return;
-    } // if
-
-    music_musicchunk = Mix_LoadMUS_RW(SDL_RWFromMem((char *) music_songdata, size));
+    music_musicchunk = Mix_LoadMUS_RW(SDL_RWFromMem((char *) song, g_musicSize));
 
     if (music_musicchunk != NULL)
     {
         // !!! FIXME: I set the music to loop. Hope that's okay. --ryan.
-        g_musicSize = size;
         Mix_PlayMusic(music_musicchunk, -1);
     } // if
+    return MUSIC_Ok;
 }
 
 

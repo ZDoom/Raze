@@ -194,37 +194,28 @@ void S_MenuSound(void)
 
 void _playmusic(const char *fn)
 {
-#if defined(_WIN32)
     int        fp, l;
-#else
-    extern void MUSIC_PlayMusic(char *_filename);
-#endif
 
     if (fn == NULL) return;
 
     if (ud.config.MusicToggle == 0) return;
     if (ud.config.MusicDevice < 0) return;
-#if defined(_WIN32)
+
     fp = kopen4loadfrommod((char *)fn,0);
 
     if (fp == -1) return;
 
     l = kfilelength(fp);
     MUSIC_StopSong();
-    g_musicSize=0;
-    if (!MusicPtr)
-        MusicPtr=Bcalloc(1,l * sizeof(char));
+    if (!MusicPtr) MusicPtr=Bcalloc(1,l * sizeof(char));
     else MusicPtr=Brealloc(MusicPtr,l * sizeof(char));
     g_musicSize=l;
 
     kread(fp, (unsigned char *)MusicPtr, l);
     kclose(fp);
-    MUSIC_PlaySong((unsigned char *)MusicPtr, MUSIC_LoopSong);
-#else
     // FIXME: I need this to get the music volume initialized (not sure why) -- Jim Bentler
     MUSIC_SetVolume(ud.config.MusicVolume);
-    MUSIC_PlayMusic((char *)fn);
-#endif
+    MUSIC_PlaySong((unsigned char *)MusicPtr, MUSIC_LoopSong);
 }
 
 int S_PlayMusic(const char *fn, const int sel)

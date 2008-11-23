@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 #include "duke3d.h"
 
-char *s_builddate = "20081121";
+char *s_builddate = "20081122";
 char *MusicPtr = NULL;
 int g_musicSize;
 
@@ -157,7 +157,7 @@ char szPlayerName[32];
 int g_damageCameras,g_freezerSelfDamage=0,g_tripbombLaserMode=0;
 int g_networkBroadcastMode = 255, g_movesPerPacket = 1,g_gameQuit = 0,everyothertime;
 int g_numFreezeBounces=3,g_rpgBlastRadius,g_pipebombBlastRadius,g_tripbombBlastRadius,
-    g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
+                       g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
 STATUSBARTYPE sbar;
 
 int mymaxlag, otherminlag, bufferjitter = 1;

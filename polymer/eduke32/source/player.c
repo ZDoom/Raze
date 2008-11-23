@@ -2152,7 +2152,7 @@ static int P_DisplayTipAnim(int gs,int snum)
             p = wall[g_player[snum].ps->access_wallnum].pal;
       */
     G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),
-                  (tip_y[g_player[snum].ps->tipincs]>>1)+looking_arc+240-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),TIP+((26-g_player[snum].ps->tipincs)>>4),gs,262144,p);
+                     (tip_y[g_player[snum].ps->tipincs]>>1)+looking_arc+240-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),TIP+((26-g_player[snum].ps->tipincs)>>4),gs,262144,p);
 
     return 1;
 }
@@ -2255,9 +2255,9 @@ void P_DisplayWeapon(int snum)
 
             if (j < 6 || j > 12)
                 G_DrawTileScaled(weapon_xoffset+80-(p->look_ang>>1),
-                              looking_arc+250-gun_pos,KNEE,gs,o|4|262144,pal);
+                                 looking_arc+250-gun_pos,KNEE,gs,o|4|262144,pal);
             else G_DrawTileScaled(weapon_xoffset+160-16-(p->look_ang>>1),
-                                   looking_arc+214-gun_pos,KNEE+1,gs,o|4|262144,pal);
+                                      looking_arc+214-gun_pos,KNEE+1,gs,o|4|262144,pal);
         }
 
         if (sprite[p->i].xrepeat < 40)
@@ -2271,13 +2271,13 @@ void P_DisplayWeapon(int snum)
             cw = weapon_xoffset;
             weapon_xoffset += sintable[(fistsign)&2047]>>10;
             G_DrawTile(weapon_xoffset+250-(p->look_ang>>1),
-                 looking_arc+258-(klabs(sintable[(fistsign)&2047]>>8)),
-                 FIST,gs,o);
+                       looking_arc+258-(klabs(sintable[(fistsign)&2047]>>8)),
+                       FIST,gs,o);
             weapon_xoffset = cw;
             weapon_xoffset -= sintable[(fistsign)&2047]>>10;
             G_DrawTile(weapon_xoffset+40-(p->look_ang>>1),
-                 looking_arc+200+(klabs(sintable[(fistsign)&2047]>>8)),
-                 FIST,gs,o|4);
+                       looking_arc+200+(klabs(sintable[(fistsign)&2047]>>8)),
+                       FIST,gs,o|4);
         }
         else switch (cw)
 
@@ -2303,10 +2303,10 @@ void P_DisplayWeapon(int snum)
 
                         if ((*kb) < 5 || (*kb) > 9)
                             G_DrawTileScaled(weapon_xoffset+220-(p->look_ang>>1),
-                                          looking_arc+250-gun_pos,KNEE,gs,o,pal);
+                                             looking_arc+250-gun_pos,KNEE,gs,o,pal);
                         else
                             G_DrawTileScaled(weapon_xoffset+160-(p->look_ang>>1),
-                                          looking_arc+214-gun_pos,KNEE+1,gs,o,pal);
+                                             looking_arc+214-gun_pos,KNEE+1,gs,o,pal);
                     }
                 }
                 break;
@@ -2330,14 +2330,14 @@ void P_DisplayWeapon(int snum)
                         looking_arc += ((*kb)<<3);
                     else if ((*kb) < 4)
                         G_DrawWeaponTile(weapon_xoffset+142-(p->look_ang>>1),
-                                 looking_arc+234-gun_pos,HANDHOLDINGLASER+3,gs,o,pal);
+                                         looking_arc+234-gun_pos,HANDHOLDINGLASER+3,gs,o,pal);
 
                     G_DrawWeaponTile(weapon_xoffset+130-(p->look_ang>>1),
-                             looking_arc+249-gun_pos,
-                             HANDHOLDINGLASER+((*kb)>>2),gs,o,pal);
+                                     looking_arc+249-gun_pos,
+                                     HANDHOLDINGLASER+((*kb)>>2),gs,o,pal);
                     G_DrawWeaponTile(weapon_xoffset+152-(p->look_ang>>1),
-                             looking_arc+249-gun_pos,
-                             HANDHOLDINGLASER+((*kb)>>2),gs,o|4,pal);
+                                     looking_arc+249-gun_pos,
+                                     HANDHOLDINGLASER+((*kb)>>2),gs,o|4,pal);
                 }
                 break;
 
@@ -2361,12 +2361,12 @@ void P_DisplayWeapon(int snum)
                         if (*kb < 8)
                         {
                             G_DrawWeaponTile(weapon_xoffset+164,(looking_arc<<1)+176-gun_pos,
-                                     RPGGUN+((*kb)>>1),gs,o,pal);
+                                             RPGGUN+((*kb)>>1),gs,o,pal);
                         }
                     }
 
                     G_DrawWeaponTile(weapon_xoffset+164,(looking_arc<<1)+176-gun_pos,
-                             RPGGUN,gs,o,pal);
+                                     RPGGUN,gs,o,pal);
                 }
                 break;
 
@@ -2390,13 +2390,13 @@ void P_DisplayWeapon(int snum)
                     case 1:
                     case 2:
                         G_DrawWeaponTile(weapon_xoffset+168-(p->look_ang>>1),looking_arc+201-gun_pos,
-                                 SHOTGUN+2,-128,o,pal);
+                                         SHOTGUN+2,-128,o,pal);
                     case 0:
                     case 6:
                     case 7:
                     case 8:
                         G_DrawWeaponTile(weapon_xoffset+146-(p->look_ang>>1),looking_arc+202-gun_pos,
-                                 SHOTGUN,gs,o,pal);
+                                         SHOTGUN,gs,o,pal);
                         break;
                     case 3:
                     case 4:
@@ -2411,45 +2411,45 @@ void P_DisplayWeapon(int snum)
                             weapon_xoffset += 20;
 
                             G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+194-gun_pos,
-                                     SHOTGUN+1+((*(kb)-1)>>1),-128,o,pal);
+                                             SHOTGUN+1+((*(kb)-1)>>1),-128,o,pal);
                         }
 
                         G_DrawWeaponTile(weapon_xoffset+158-(p->look_ang>>1),looking_arc+220-gun_pos,
-                                 SHOTGUN+3,gs,o,pal);
+                                         SHOTGUN+3,gs,o,pal);
 
                         break;
                     case 13:
                     case 14:
                     case 15:
                         G_DrawWeaponTile(32+weapon_xoffset+166-(p->look_ang>>1),looking_arc+210-gun_pos,
-                                 SHOTGUN+4,gs,o,pal);
+                                         SHOTGUN+4,gs,o,pal);
                         break;
                     case 16:
                     case 17:
                     case 18:
                     case 19:
                         G_DrawWeaponTile(64+weapon_xoffset+170-(p->look_ang>>1),looking_arc+196-gun_pos,
-                                 SHOTGUN+5,gs,o,pal);
+                                         SHOTGUN+5,gs,o,pal);
                         break;
                     case 20:
                     case 21:
                     case 22:
                     case 23:
                         G_DrawWeaponTile(64+weapon_xoffset+176-(p->look_ang>>1),looking_arc+196-gun_pos,
-                                 SHOTGUN+6,gs,o,pal);
+                                         SHOTGUN+6,gs,o,pal);
                         break;
                     case 24:
                     case 25:
                     case 26:
                     case 27:
                         G_DrawWeaponTile(64+weapon_xoffset+170-(p->look_ang>>1),looking_arc+196-gun_pos,
-                                 SHOTGUN+5,gs,o,pal);
+                                         SHOTGUN+5,gs,o,pal);
                         break;
                     case 28:
                     case 29:
                     case 30:
                         G_DrawWeaponTile(32+weapon_xoffset+156-(p->look_ang>>1),looking_arc+206-gun_pos,
-                                 SHOTGUN+4,gs,o,pal);
+                                         SHOTGUN+4,gs,o,pal);
                         break;
                     }
                 }
@@ -2474,12 +2474,12 @@ void P_DisplayWeapon(int snum)
                     if (*kb > 0 && sprite[p->i].pal != 1) weapon_xoffset += 1-(rand()&3);
 
                     G_DrawWeaponTile(weapon_xoffset+168-(p->look_ang>>1),looking_arc+260-gun_pos,
-                             CHAINGUN,gs,o,pal);
+                                     CHAINGUN,gs,o,pal);
                     switch (*kb)
                     {
                     case 0:
                         G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
-                                 CHAINGUN+1,gs,o,pal);
+                                         CHAINGUN+1,gs,o,pal);
                         break;
                     default:
                         if (*kb > *aplWeaponFireDelay[CHAINGUN_WEAPON] && *kb < *aplWeaponTotalTime[CHAINGUN_WEAPON])
@@ -2487,21 +2487,21 @@ void P_DisplayWeapon(int snum)
                             i = 0;
                             if (sprite[p->i].pal != 1) i = rand()&7;
                             G_DrawWeaponTile(i+weapon_xoffset-4+140-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
-                                     CHAINGUN+5+((*kb-4)/5),gs,o,pal);
+                                             CHAINGUN+5+((*kb-4)/5),gs,o,pal);
                             if (sprite[p->i].pal != 1) i = rand()&7;
                             G_DrawWeaponTile(i+weapon_xoffset-4+184-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
-                                     CHAINGUN+5+((*kb-4)/5),gs,o,pal);
+                                             CHAINGUN+5+((*kb-4)/5),gs,o,pal);
                         }
                         if (*kb < *aplWeaponTotalTime[CHAINGUN_WEAPON]-4)
                         {
                             i = rand()&7;
                             G_DrawWeaponTile(i+weapon_xoffset-4+162-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
-                                     CHAINGUN+5+((*kb-2)/5),gs,o,pal);
+                                             CHAINGUN+5+((*kb-2)/5),gs,o,pal);
                             G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
-                                     CHAINGUN+1+((*kb)>>1),gs,o,pal);
+                                             CHAINGUN+1+((*kb)>>1),gs,o,pal);
                         }
                         else G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
-                                          CHAINGUN+1,gs,o,pal);
+                                                  CHAINGUN+1,gs,o,pal);
                         break;
                     }
                 }
@@ -2709,21 +2709,21 @@ void P_DisplayWeapon(int snum)
                             }
 
                             G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
-                                     looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
-                                     o,2);
+                                             looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
+                                             o,2);
 
                             G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
-                                     looking_arc+240-gun_pos,SHRINKER-1,gs,o,pal);
+                                             looking_arc+240-gun_pos,SHRINKER-1,gs,o,pal);
                         }
                         else
                         {
                             G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
-                                     looking_arc+240-gun_pos,SHRINKER+2,
-                                     16-(sintable[p->random_club_frame&2047]>>10),
-                                     o,2);
+                                             looking_arc+240-gun_pos,SHRINKER+2,
+                                             16-(sintable[p->random_club_frame&2047]>>10),
+                                             o,2);
 
                             G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
-                                     looking_arc+240-gun_pos,SHRINKER-2,gs,o,pal);
+                                             looking_arc+240-gun_pos,SHRINKER-2,gs,o,pal);
                         }
                     }
                 }
@@ -2751,22 +2751,22 @@ void P_DisplayWeapon(int snum)
                         }
 
                         G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
-                                 looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
-                                 o,0);
+                                         looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
+                                         o,0);
 
                         G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
-                                 looking_arc+240-gun_pos,SHRINKER+1,gs,o,pal);
+                                         looking_arc+240-gun_pos,SHRINKER+1,gs,o,pal);
 
                     }
                     else
                     {
                         G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
-                                 looking_arc+240-gun_pos,SHRINKER+2,
-                                 16-(sintable[p->random_club_frame&2047]>>10),
-                                 o,0);
+                                         looking_arc+240-gun_pos,SHRINKER+2,
+                                         16-(sintable[p->random_club_frame&2047]>>10),
+                                         o,0);
 
                         G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
-                                 looking_arc+240-gun_pos,SHRINKER,gs,o,pal);
+                                         looking_arc+240-gun_pos,SHRINKER,gs,o,pal);
                     }
                 }
                 break;
@@ -4080,7 +4080,7 @@ void P_ProcessInput(int snum)
 
             // not jumping or crouching
 
-            if (!TEST_SYNC_KEY(sb_snum, SK_JUMP|SK_CROUCH) && p->on_ground && (sector[psect].floorstat&2) && p->posz >= (fz-(i<<8)-(16<<8)))
+            if (!TEST_SYNC_KEY(sb_snum, SK_JUMP) && !TEST_SYNC_KEY(sb_snum, SK_CROUCH) && p->on_ground && (sector[psect].floorstat&2) && p->posz >= (fz-(i<<8)-(16<<8)))
                 p->posz = fz-(i<<8);
             else
             {
