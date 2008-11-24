@@ -74,7 +74,8 @@ enum
     T_CACHESIZE,
     T_IMPORTTILE,
     T_MUSIC,T_ID,T_SOUND,
-    T_REDPAL,T_BLUEPAL,T_BROWNPAL,T_GREYPAL,T_GREENPAL,T_SPECPAL
+    T_REDPAL,T_BLUEPAL,T_BROWNPAL,T_GREYPAL,T_GREENPAL,T_SPECPAL,
+    T_TILEFROMTEXTURE,
 };
 
 typedef struct { char *text; int tokenid; } tokenlist;
@@ -127,7 +128,8 @@ static tokenlist basetokens[] =
     { "setuptilerange",  T_SETUPTILERANGE   },
     { "animtilerange",   T_ANIMTILERANGE    },
     { "cachesize",       T_CACHESIZE        },
-    { "importtile",      T_IMPORTTILE       },
+    { "dummytilefrompic",T_IMPORTTILE       },
+    { "tilefromtexture", T_TILEFROMTEXTURE  },
 };
 
 static tokenlist modeltokens[] =
@@ -236,6 +238,7 @@ static tokenlist texturetokens[] =
     { "greenpal",T_GREENPAL},
     { "specpal", T_SPECPAL },
 };
+
 static tokenlist texturetokens_pal[] =
 {
     { "file",            T_FILE },{ "name", T_FILE },
@@ -250,6 +253,13 @@ static tokenlist sound_musictokens[] =
 {
     { "id",   T_ID  },
     { "file", T_FILE },
+};
+
+static tokenlist tilefromtexturetokens[] =
+{
+    { "file",            T_FILE },
+    { "name",            T_FILE },
+    { "alphacut",        T_ALPHACUT },
 };
 
 static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
@@ -272,6 +282,10 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
 
 static int lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
 extern int nextvoxid;
+
+extern char faketile[MAXTILES];
+extern char *faketiledata[MAXTILES];
+extern int getclosestcol(int r, int g, int b);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
 extern float alphahackarray[MAXTILES];
@@ -591,31 +605,128 @@ static int defsparser(scriptfile *script)
             picanm[tile1]=(spd<<24)+(type<<6)+tile2-tile1;
             break;
         }
+        case T_TILEFROMTEXTURE:
+        {
+            char *texturetokptr = script->ltextptr, *textureend, *fn, *tfn = NULL;
+            int tile=-1, token, i;
+            int alphacut = 255;
+
+            if (scriptfile_getsymbol(script,&tile)) break;
+            if (scriptfile_getbraces(script,&textureend)) break;
+            while (script->textptr < textureend)
+            {
+                token = getatoken(script,tilefromtexturetokens,sizeof(tilefromtexturetokens)/sizeof(tokenlist));
+                switch (token)
+                {
+                case T_FILE:
+                    scriptfile_getstring(script,&fn); break;
+                case T_ALPHACUT:
+                    scriptfile_getsymbol(script,&alphacut); break;
+                default:
+                    break;
+                }
+
+                if ((unsigned)tile > (unsigned)MAXTILES) break;	// message is printed later
+                if (!fn)
+                {
+                    initprintf("Error: missing 'file name' for tilefromtexture definition near line %s:%d\n",
+                               script->filename, scriptfile_getlinum(script,texturetokptr));
+                    break;
+                }
+                if (alphacut > 255) alphacut = 255;
+                if (alphacut < 0) alphacut = 0;
+
+                i = pathsearchmode;
+                pathsearchmode = 1;
+                if (findfrompath(fn,&tfn) < 0)
+                {
+                    char buf[BMAX_PATH];
+
+                    Bstrcpy(buf,fn);
+                    kzfindfilestart(buf);
+                    if (!kzfindfile(buf))
+                    {
+                        initprintf("Error: file '%s' does not exist\n",fn);
+                        pathsearchmode = i;
+                        break;
+                    }
+                }
+                else Bfree(tfn);
+                pathsearchmode = i;
+            }
+
+            if ((unsigned)tile >= (unsigned)MAXTILES)
+            {
+                initprintf("Error: missing or invalid 'tile number' for texture definition near line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,texturetokptr));
+                break;
+            }
+
+            {
+                int xsiz, ysiz, j;
+                int *picptr = NULL;
+                palette_t *col;
+
+                kpzload(fn, (intptr_t *)&picptr, &j, &xsiz, &ysiz);
+
+                //            initprintf("got bpl %d xsiz %d ysiz %d\n",bpl,xsiz,ysiz);
+
+                faketiledata[tile] = Bmalloc(xsiz*ysiz);
+
+                for (i=xsiz-1;i>=0;i--)
+                {
+                    for (j=ysiz-1;j>=0;j--)
+                    {
+                        col = (palette_t *)&picptr[j*xsiz+i];
+                        if (col->f != 255) { faketiledata[tile][i*ysiz+j] = 255; continue; }
+                        faketiledata[tile][i*ysiz+j] = getclosestcol(col->b>>2,col->g>>2,col->r>>2);
+                    }
+                    //                initprintf(" %d %d %d %d\n",col->r,col->g,col->b,col->f);
+                }
+
+                if (xsiz > 0 && ysiz > 0)
+                {
+                    tilesizx[tile] = xsiz;
+                    tilesizy[tile] = ysiz;
+                    faketile[tile] = 2;
+                    picanm[tile] = 0;
+
+                    j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
+                    picsiz[tile] = ((char)j);
+                    j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
+                    picsiz[tile] += ((char)(j<<4));
+                }
+
+                Bfree(picptr);
+            }
+
+        }
+        break;
         case T_IMPORTTILE:
         {
-            int tile, xsiz, ysiz, j;
-            extern char faketile[MAXTILES];
-            extern char *faketiledata[MAXTILES];
+            int tile, xsiz, ysiz, j, i;
             int *picptr = NULL;
             int bpl;
             char *fn;
             palette_t *col;
-            extern int getclosestcol(int r, int g, int b);
-            int i;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getstring(script,&fn))  break;
 
             kpzload(fn, (intptr_t *)&picptr, &bpl, &xsiz, &ysiz);
 
-            initprintf("got bpl %d xsiz %d ysiz %d\n",bpl,xsiz,ysiz);
+//            initprintf("got bpl %d xsiz %d ysiz %d\n",bpl,xsiz,ysiz);
 
             faketiledata[tile] = Bmalloc(xsiz*ysiz);
 
-            for (i=0;i<(xsiz*ysiz);i++)
+            for (i=xsiz-1;i>=0;i--)
             {
-                col = (palette_t *)&picptr[i];
-                faketiledata[tile][i] = getclosestcol(col->b>>2,col->g>>2,col->r>>2);
+                for (j=ysiz-1;j>=0;j--)
+                {
+                    col = (palette_t *)&picptr[j*xsiz+i];
+                    if (col->f != 255) { faketiledata[tile][i*ysiz+j] = 255; continue; }
+                    faketiledata[tile][i*ysiz+j] = getclosestcol(col->b>>2,col->g>>2,col->r>>2);
+                }
 //                initprintf(" %d %d %d %d\n",col->r,col->g,col->b,col->f);
             }
 
@@ -632,6 +743,7 @@ static int defsparser(scriptfile *script)
                 picsiz[tile] += ((char)(j<<4));
             }
 
+            Bfree(picptr);
             break;
         }
         case T_DUMMYTILE:
