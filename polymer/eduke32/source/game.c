@@ -49,8 +49,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shellapi.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
 extern int G_GetVersionFromWebsite(char *buffer);
 #define UPDATEINTERVAL 604800 // 1w
 #else
@@ -167,101 +165,6 @@ unsigned int g_frameDelay = 0;
 
 #ifdef RENDERTYPEWIN
 extern char forcegl;
-#endif
-
-#ifdef _WIN32
-int G_GetVersionFromWebsite(char *buffer) // FIXME: this probably belongs in game land
-{
-    int wsainitialized = 0;
-    int bytes_sent, i=0, j=0;
-    struct sockaddr_in dest_addr;
-    struct hostent *h;
-    char *host = "eduke32.sourceforge.net";
-    char *req = "GET http://eduke32.sourceforge.net/VERSION HTTP/1.0\r\n\r\n";
-    char tempbuf[2048],otherbuf[16],ver[16];
-    SOCKET mysock;
-
-#ifdef _WIN32
-    if (wsainitialized == 0)
-    {
-        WSADATA ws;
-
-        if (WSAStartup(0x101,&ws) == SOCKET_ERROR)
-        {
-            initprintf("update: Winsock error in G_GetVersionFromWebsite() (%d)\n",errno);
-            return(0);
-        }
-        wsainitialized = 1;
-    }
-#endif
-
-    if ((h=gethostbyname(host)) == NULL)
-    {
-        initprintf("update: gethostbyname() error in G_GetVersionFromWebsite() (%d)\n",h_errno);
-        return(0);
-    }
-
-    dest_addr.sin_addr.s_addr = ((struct in_addr *)(h->h_addr))->s_addr;
-    dest_addr.sin_family = AF_INET;
-    dest_addr.sin_port = htons(80);
-
-    memset(&(dest_addr.sin_zero), '\0', 8);
-
-
-    mysock = socket(PF_INET, SOCK_STREAM, 0);
-
-    if (mysock == INVALID_SOCKET)
-    {
-        initprintf("update: socket() error in G_GetVersionFromWebsite() (%d)\n",errno);
-        return(0);
-    }
-    initprintf("Connecting to http://%s\n",host);
-    if (connect(mysock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR)
-    {
-        initprintf("update: connect() error in G_GetVersionFromWebsite() (%d)\n",errno);
-        return(0);
-    }
-
-    bytes_sent = send(mysock, req, strlen(req), 0);
-    if (bytes_sent == SOCKET_ERROR)
-    {
-        initprintf("update: send() error in G_GetVersionFromWebsite() (%d)\n",errno);
-        return(0);
-    }
-
-    //    initprintf("sent %d bytes\n",bytes_sent);
-    recv(mysock, (char *)&tempbuf, sizeof(tempbuf), 0);
-    closesocket(mysock);
-
-    memcpy(&otherbuf,&tempbuf,sizeof(otherbuf));
-
-    strtok(otherbuf," ");
-    if (atol(strtok(NULL," ")) == 200)
-    {
-        for (i=0;(unsigned)i<strlen(tempbuf);i++) // HACK: all of this needs to die a fiery death; we just skip to the content
-        {
-            // instead of actually parsing any of the http headers
-            if (i > 4)
-                if (tempbuf[i-1] == '\n' && tempbuf[i-2] == '\r' && tempbuf[i-3] == '\n' && tempbuf[i-4] == '\r')
-                {
-                    while (j < 9)
-                    {
-                        ver[j] = tempbuf[i];
-                        i++, j++;
-                    }
-                    ver[j] = '\0';
-                    break;
-                }
-        }
-
-        if (j)
-        {
-            strcpy(buffer,ver);
-            return(1);
-        }
-    }
-    return(0);
-}
 #endif
 
 int kopen4loadfrommod(char *filename, char searchfirst)
@@ -980,9 +883,9 @@ void getpackets(void)
                     for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
                         if (i != other) sendpacket(i,packbuf,packbufleng);
 
-                if (packbuf[2] != (char)atoi(s_builddate))
+                if (packbuf[2] != (char)atoi(s_buildDate))
                 {
-                    initprintf("Player %d has version %d, expecting %d\n",packbuf[2],(char)atoi(s_builddate));
+                    initprintf("Player %d has version %d, expecting %d\n",packbuf[2],(char)atoi(s_buildDate));
                     G_GameExit("You cannot play with different versions of EDuke32!");
                 }
                 if (packbuf[3] != BYTEVERSION)
@@ -1162,9 +1065,9 @@ void getpackets(void)
                     vote_map = packbuf[3];
 
                     Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",
-                             g_player[(unsigned char)packbuf[1]].user_name,
-                             MapInfo[(unsigned char)(packbuf[2]*MAXLEVELS + packbuf[3])].name,
-                             packbuf[2]+1,packbuf[3]+1);
+                        g_player[(unsigned char)packbuf[1]].user_name,
+                        MapInfo[(unsigned char)(packbuf[2]*MAXLEVELS + packbuf[3])].name,
+                        packbuf[2]+1,packbuf[3]+1);
                     G_AddUserQuote(tempbuf);
 
                     Bsprintf(tempbuf,"PRESS F1 TO ACCEPT, F2 TO DECLINE");
@@ -2974,7 +2877,7 @@ void G_GameExit(const char *t)
         if (!(t[0] == ' ' && t[1] == 0))
         {
             char titlebuf[256];
-            Bsprintf(titlebuf,HEAD2 " %s",s_builddate);
+            Bsprintf(titlebuf,HEAD2 " %s",s_buildDate);
             wm_msgbox(titlebuf, (char *)t);
         }
     }
@@ -8871,7 +8774,7 @@ static void G_ShowParameterHelp(void)
               "\nSee eduke32 -debughelp for debug parameters"
               ;
 #if defined RENDERTYPEWIN
-    Bsprintf(tempbuf,HEAD2 " %s",s_builddate);
+    Bsprintf(tempbuf,HEAD2 " %s",s_buildDate);
     wm_msgbox(tempbuf,s);
 #else
     initprintf("%s\n",s);
@@ -8901,7 +8804,7 @@ static void G_ShowDebugHelp(void)
               "-z#/-condebug\tEnable line-by-line CON compile debugging at level #\n"
               ;
 #if defined RENDERTYPEWIN
-    Bsprintf(tempbuf,HEAD2 " %s",s_builddate);
+    Bsprintf(tempbuf,HEAD2 " %s",s_buildDate);
     wm_msgbox(tempbuf,s);
 #else
     initprintf("%s\n",s);
@@ -10656,7 +10559,7 @@ static void Net_SendVersion(void)
 
     buf[0] = PACKET_TYPE_VERSION;
     buf[1] = myconnectindex;
-    buf[2] = (char)atoi(s_builddate);
+    buf[2] = (char)atoi(s_buildDate);
     buf[3] = BYTEVERSION;
     buf[4] = g_numSyncBytes;
 
@@ -10920,7 +10823,7 @@ void app_main(int argc,const char **argv)
         (int(*)(void))GetTime,
         GAME_onshowosd
     );
-    Bsprintf(tempbuf,HEAD2 " %s",s_builddate);
+    Bsprintf(tempbuf,HEAD2 " %s",s_buildDate);
     wm_setapptitle(tempbuf);
 
     initprintf("%s\n",apptitle);
@@ -11058,7 +10961,7 @@ void app_main(int argc,const char **argv)
                 initprintf("Current version is %d",atoi(tempbuf));
                 ud.config.LastUpdateCheck = time(NULL);
 
-                if (atoi(tempbuf) > atoi(s_builddate))
+                if (atoi(tempbuf) > atoi(s_buildDate))
                 {
                     if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
                                  "Browse to http://eduke32.sourceforge.net now?"))
@@ -11359,7 +11262,7 @@ void app_main(int argc,const char **argv)
 
     initprintf("Initializing OSD...\n");
 
-    Bsprintf(tempbuf,HEAD2 " %s",s_builddate);
+    Bsprintf(tempbuf,HEAD2 " %s",s_buildDate);
     OSD_SetVersionString(tempbuf, 10,0);
     registerosdcommands();
 
@@ -12312,13 +12215,13 @@ static void Net_DoPrediction(void)
         if (myz < (fz-(i<<8)) && (G_CheckForSpaceFloor(psect)|G_CheckForSpaceCeiling(psect)) == 0) //falling
         {
             if (!TEST_SYNC_KEY(sb_snum, SK_JUMP) && !TEST_SYNC_KEY(sb_snum, SK_CROUCH) &&
-                    myonground && (sector[psect].floorstat&2) && myz >= (fz-(i<<8)-(16<<8)))
+                myonground && (sector[psect].floorstat&2) && myz >= (fz-(i<<8)-(16<<8)))
                 myz = fz-(i<<8);
             else
             {
                 myonground = 0;
 
-                myzvel += (SpriteGravity+80);
+                myzvel += (g_spriteGravity+80);
 
                 if (myzvel >= (4096+2048)) myzvel = (4096+2048);
             }

@@ -1324,13 +1324,14 @@ static void G_MoveFallers(void)
                     A_SetSprite(i,CLIPMASK0);
                 }
 
-                if (G_CheckForSpaceFloor(s->sectnum)) x = 0;
+                if (G_CheckForSpaceFloor(s->sectnum))
+                    x = 0;
                 else
                 {
                     if (G_CheckForSpaceCeiling(s->sectnum))
-                        x = SpriteGravity/6;
+                        x = g_spriteGravity/6;
                     else
-                        x = SpriteGravity;
+                        x = g_spriteGravity;
                 }
 
                 if (s->z < (sector[sect].floorz-FOURSLEIGHT))
@@ -2389,7 +2390,7 @@ static void G_MoveWeapons(void)
 
                 if (ActorExtra[i].projectile.workslike & PROJECTILE_SPIT)
                     if (s->zvel < 6144)
-                        s->zvel += SpriteGravity-112;
+                        s->zvel += g_spriteGravity-112;
 
                 k = s->xvel;
                 ll = s->zvel;
@@ -2878,7 +2879,7 @@ static void G_MoveWeapons(void)
                     }
                 }
                 else if (s->picnum == SPIT) if (s->zvel < 6144)
-                        s->zvel += SpriteGravity-112;
+                        s->zvel += g_spriteGravity-112;
 
                 if (j != 0)
                 {
@@ -4944,11 +4945,11 @@ static void G_MoveMisc(void)  // STATNUM 5
                     if (sector[sect].lotag == 2)
                     {
                         if (s->zvel < 64)
-                            s->zvel += (SpriteGravity>>5)+(krand()&7);
+                            s->zvel += (g_spriteGravity>>5)+(krand()&7);
                     }
                     else
                         if (s->zvel < 144)
-                            s->zvel += (SpriteGravity>>5)+(krand()&7);
+                            s->zvel += (g_spriteGravity>>5)+(krand()&7);
                 }
 
                 A_SetSprite(i,CLIPMASK0);
@@ -5039,7 +5040,7 @@ static void G_MoveMisc(void)  // STATNUM 5
                                 s->zvel += 48;
                             else s->zvel = 1024;
                         }
-                        else s->zvel += SpriteGravity-50;
+                        else s->zvel += g_spriteGravity-50;
                     }
 
                     s->x += (s->xvel*sintable[(s->ang+512)&2047])>>14;
@@ -5195,7 +5196,7 @@ static void G_MoveMisc(void)  // STATNUM 5
                         t[0]++;
                         t[0] &= 3;
                     }
-                    if (s->zvel < 128) s->zvel += (SpriteGravity/13); // 8
+                    if (s->zvel < 128) s->zvel += (g_spriteGravity/13); // 8
                     else s->zvel -= 64;
                     if (s->xvel > 0)
                         s->xvel -= 4;
@@ -5210,7 +5211,7 @@ static void G_MoveMisc(void)  // STATNUM 5
                         t[0]++;
                         t[0] &= 3;
                     }
-                    if (s->zvel < 512) s->zvel += (SpriteGravity/3); // 52;
+                    if (s->zvel < 512) s->zvel += (g_spriteGravity/3); // 52;
                     if (s->xvel > 0)
                         s->xvel --;
                     //                else KILLIT(i);
@@ -5284,7 +5285,7 @@ static void G_MoveMisc(void)  // STATNUM 5
                         else t[0]++;
                     }
                 }
-                if (s->zvel < 4096) s->zvel += SpriteGravity-50;
+                if (s->zvel < 4096) s->zvel += g_spriteGravity-50;
                 s->x += (s->xvel*sintable[(s->ang+512)&2047])>>14;
                 s->y += (s->xvel*sintable[s->ang&2047])>>14;
                 s->z += s->zvel;

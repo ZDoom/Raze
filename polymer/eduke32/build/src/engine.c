@@ -8047,6 +8047,7 @@ int loadpics(char *filename, int askedsize)
 //
 char cachedebug = 0;
 char faketile[MAXTILES];
+char *faketiledata[MAXTILES];
 int h_xsize[MAXTILES], h_ysize[MAXTILES];
 signed char h_xoffs[MAXTILES], h_yoffs[MAXTILES];
 
@@ -8093,7 +8094,14 @@ void loadtile(short tilenume)
         faketimerhandler();
         artfilplc = tilefileoffs[tilenume]+dasiz;
     }
-    else { Bmemset((char *)waloff[tilenume],0,dasiz); faketimerhandler(); }
+    else
+    { 
+        if (faketile[tilenume] == 1 || (faketile[tilenume] == 2 && faketiledata[tilenume] == NULL))
+            Bmemset((char *)waloff[tilenume],0,dasiz);
+        else if (faketile[tilenume] == 2)
+            Bmemcpy((char *)waloff[tilenume],faketiledata[tilenume],dasiz);
+        faketimerhandler();
+    }
 }
 
 void checktile(short tilenume)

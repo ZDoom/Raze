@@ -72,6 +72,7 @@ enum
     T_SETUPTILE,T_SETUPTILERANGE,
     T_ANIMTILERANGE,
     T_CACHESIZE,
+    T_IMPORTTILE,
     T_MUSIC,T_ID,T_SOUND,
     T_REDPAL,T_BLUEPAL,T_BROWNPAL,T_GREYPAL,T_GREENPAL,T_SPECPAL
 };
@@ -126,6 +127,7 @@ static tokenlist basetokens[] =
     { "setuptilerange",  T_SETUPTILERANGE   },
     { "animtilerange",   T_ANIMTILERANGE    },
     { "cachesize",       T_CACHESIZE        },
+    { "importtile",      T_IMPORTTILE       },
 };
 
 static tokenlist modeltokens[] =
@@ -587,6 +589,49 @@ static int defsparser(scriptfile *script)
                 tile1 = i;
             }
             picanm[tile1]=(spd<<24)+(type<<6)+tile2-tile1;
+            break;
+        }
+        case T_IMPORTTILE:
+        {
+            int tile, xsiz, ysiz, j;
+            extern char faketile[MAXTILES];
+            extern char *faketiledata[MAXTILES];
+            int *picptr = NULL;
+            int bpl;
+            char *fn;
+            palette_t *col;
+            extern int getclosestcol(int r, int g, int b);
+            int i;
+
+            if (scriptfile_getsymbol(script,&tile)) break;
+            if (scriptfile_getstring(script,&fn))  break;
+
+            kpzload(fn, (intptr_t *)&picptr, &bpl, &xsiz, &ysiz);
+
+            initprintf("got bpl %d xsiz %d ysiz %d\n",bpl,xsiz,ysiz);
+
+            faketiledata[tile] = Bmalloc(xsiz*ysiz);
+
+            for (i=0;i<(xsiz*ysiz);i++)
+            {
+                col = (palette_t *)&picptr[i];
+                faketiledata[tile][i] = getclosestcol(col->b>>2,col->g>>2,col->r>>2);
+//                initprintf(" %d %d %d %d\n",col->r,col->g,col->b,col->f);
+            }
+
+            if (xsiz > 0 && ysiz > 0)
+            {
+                tilesizx[tile] = xsiz;
+                tilesizy[tile] = ysiz;
+                faketile[tile] = 2;
+                picanm[tile] = 0;
+
+                j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
+                picsiz[tile] = ((char)j);
+                j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
+                picsiz[tile] += ((char)(j<<4));
+            }
+
             break;
         }
         case T_DUMMYTILE:

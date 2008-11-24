@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define APPNAME "EDuke32"
 #define VERSION " 1.5.0devel"
 // this is checked against http://eduke32.com/VERSION
-extern char *s_builddate;
+extern const char *s_buildDate;
 #define HEAD2 APPNAME VERSION
 
 #ifdef __cplusplus
@@ -55,7 +55,7 @@ extern "C" {
 
 #include "function.h"
 
-#include "swmacros.h"
+#include "macros.h"
 
 #define HORIZ_MIN -99
 #define HORIZ_MAX 299
@@ -427,71 +427,71 @@ extern int fricxv,fricyv;
 // mywhatever type globals
 
 typedef struct {
-    int zoom,exitx,exity;
+    int zoom, exitx, exity;
     int posx, posy, posz, horiz, ohoriz, ohorizoff, invdisptime;
-    int bobposx,bobposy,oposx,oposy,oposz,pyoff,opyoff;
-    int posxv,posyv,poszv,last_pissed_time,truefz,truecz;
-    int player_par,visibility;
-    int bobcounter,weapon_sway;
-    int pals_time,randomflamex,crack_time;
+    int bobposx, bobposy, oposx, oposy, oposz, pyoff, opyoff;
+    int posxv, posyv, poszv, last_pissed_time, truefz, truecz;
+    int player_par, visibility;
+    int bobcounter, weapon_sway;
+    int pals_time, randomflamex, crack_time;
 
     unsigned int interface_toggle_flag;
 
-    int max_secret_rooms,secret_rooms,max_actors_killed,actors_killed;
+    int max_secret_rooms, secret_rooms, max_actors_killed, actors_killed;
     int runspeed, movement_lock, team;
     int max_player_health, max_shield_amount, max_ammo_amount[MAX_WEAPONS];
 
     int scream_voice;
 
-    int loogiex[64],loogiey[64],numloogs,loogcnt;
+    int loogiex[64], loogiey[64], numloogs, loogcnt;
 
     char *palette;
 
     short sbs, sound_pitch;
 
-    short ang,oang,angvel,cursectnum,look_ang,last_extra,subweapon;
-    short ammo_amount[MAX_WEAPONS],wackedbyactor,frag,fraggedself;
+    short ang, oang, angvel, cursectnum, look_ang, last_extra, subweapon;
+    short ammo_amount[MAX_WEAPONS], wackedbyactor, frag, fraggedself;
 
     short curr_weapon, last_weapon, tipincs, horizoff, wantweaponfire;
-    short holoduke_amount,newowner,hurt_delay,hbomb_hold_delay;
-    short jumping_counter,airleft,knee_incs,access_incs;
-    short fta,ftq,access_wallnum,access_spritenum;
-    short kickback_pic,got_access,weapon_ang,firstaid_amount;
-    short somethingonplayer,on_crane,i,one_parallax_sectnum;
-    short over_shoulder_on,random_club_frame,fist_incs;
-    short one_eighty_count,cheat_phase;
-    short dummyplayersprite,extra_extra8,quick_kick,last_quick_kick;
-    short heat_amount,actorsqu,timebeforeexit,customexitsound;
+    short holoduke_amount, newowner, hurt_delay, hbomb_hold_delay;
+    short jumping_counter, airleft, knee_incs, access_incs;
+    short fta, ftq, access_wallnum, access_spritenum;
+    short kickback_pic, got_access, weapon_ang, firstaid_amount;
+    short somethingonplayer, on_crane, i, one_parallax_sectnum;
+    short over_shoulder_on, random_club_frame, fist_incs;
+    short one_eighty_count, cheat_phase;
+    short dummyplayersprite, extra_extra8, quick_kick, last_quick_kick;
+    short heat_amount, actorsqu, timebeforeexit, customexitsound;
 
-    short weaprecs[16],weapreccnt;
+    short weaprecs[16], weapreccnt;
 
 
-    short orotscrnang,rotscrnang,dead_flag,show_empty_weapon;   // JBF 20031220: added orotscrnang
-    short scuba_amount,jetpack_amount,steroids_amount,shield_amount;
-    short holoduke_on,pycount,weapon_pos,frag_ps;
-    short transporter_hold,last_full_weapon,footprintshade,boot_amount;
+    short orotscrnang, rotscrnang, dead_flag, show_empty_weapon;   // JBF 20031220: added orotscrnang
+    short scuba_amount, jetpack_amount, steroids_amount, shield_amount;
+    short holoduke_on, pycount, weapon_pos, frag_ps;
+    short transporter_hold, last_full_weapon, footprintshade, boot_amount;
 
-    char aim_mode,auto_aim,weaponswitch;
+    char aim_mode, auto_aim, weaponswitch;
 
-    char gm,on_warping_sector,footprintcount;
-    char hbomb_on,jumping_toggle,rapid_fire_hold,on_ground;
-    char inven_icon,buttonpalette;
+    char gm, on_warping_sector, footprintcount;
+    char hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
+    char inven_icon, buttonpalette;
 
-    char jetpack_on,spritebridge,lastrandomspot;
-    char scuba_on,footprintpal,heat_on;
+    char jetpack_on, spritebridge, lastrandomspot;
+    char scuba_on, footprintpal, heat_on;
 
-    char  holster_weapon,falling_counter;
-    char  gotweapon[MAX_WEAPONS],refresh_inventory;
+    char  holster_weapon, falling_counter;
+    char  gotweapon[MAX_WEAPONS], refresh_inventory;
 
-    char toggle_key_flag,knuckle_incs; // ,select_dir;
+    char toggle_key_flag, knuckle_incs; // , select_dir;
     char walking_snd_toggle, palookup, hard_landing;
-    char /*fire_flag,*/pals[3];
+    char /*fire_flag, */pals[3];
     char return_to_center, reloading, name[32];
 } DukePlayer_t;
 
 extern char tempbuf[2048], packbuf[576], menutextbuf[128];
 
-extern int SpriteGravity;
+extern int g_spriteGravity;
 
 extern int g_impactDamage,g_actorRespawnTime,g_itemRespawnTime;
 extern int g_startArmorAmount;
@@ -546,6 +546,7 @@ typedef struct {
     short tempang,actorstayput,dispicnum;
     short timetosleep;
     char cgg;
+    char filler;
     projectile_t projectile;
 } actordata_t;
 

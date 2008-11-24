@@ -1321,7 +1321,7 @@ static void Gv_AddSystemVars(void)
     Gv_SetupVar("numplayers",(intptr_t)&numplayers, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
     Gv_SetupVar("viewingrange",(intptr_t)&viewingrange, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY | GAMEVAR_SYNCCHECK);
     Gv_SetupVar("yxaspect",(intptr_t)&yxaspect, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY | GAMEVAR_SYNCCHECK);
-    Gv_SetupVar("gravitationalconstant",(intptr_t)&SpriteGravity, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_SetupVar("gravitationalconstant",(intptr_t)&g_spriteGravity, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
     Gv_SetupVar("gametype_flags",(intptr_t)&GametypeFlags[ud.coop], GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
     Gv_SetupVar("framerate",(intptr_t)&g_currentFrameRate, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY | GAMEVAR_SYNCCHECK);
     Gv_SetupVar("CLIPMASK0", CLIPMASK0, GAMEVAR_SYSTEM|GAMEVAR_READONLY);
@@ -1473,7 +1473,7 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("g_currentMenu")].lValue = (intptr_t)&g_currentMenu;
     aGameVars[Gv_GetVarIndex("viewingrange")].lValue = (intptr_t)&viewingrange;
     aGameVars[Gv_GetVarIndex("yxaspect")].lValue = (intptr_t)&yxaspect;
-    aGameVars[Gv_GetVarIndex("gravitationalconstant")].lValue = (intptr_t)&SpriteGravity;
+    aGameVars[Gv_GetVarIndex("gravitationalconstant")].lValue = (intptr_t)&g_spriteGravity;
     aGameVars[Gv_GetVarIndex("GametypeFlags")].lValue = (intptr_t)&GametypeFlags[ud.coop];
     aGameVars[Gv_GetVarIndex("framerate")].lValue = (intptr_t)&g_currentFrameRate;
 

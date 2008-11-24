@@ -312,14 +312,14 @@ void A_GetZLimits(int iActor)
 void A_Fall(int iActor)
 {
     spritetype *s = &sprite[iActor];
-    int hz,lz,c = SpriteGravity;
+    int hz,lz,c = g_spriteGravity;
 
     if (G_CheckForSpaceFloor(s->sectnum))
         c = 0;
     else
     {
         if (G_CheckForSpaceCeiling(s->sectnum) || sector[s->sectnum].lotag == 2)
-            c = SpriteGravity/6;
+            c = g_spriteGravity/6;
     }
 
     if ((s->statnum == 1 || s->statnum == 10 || s->statnum == 2 || s->statnum == 6))
@@ -641,15 +641,12 @@ static inline void X_DoConditional(int condition)
     }
 }
 
-// int *it = 0x00589a04;
-
 static int X_DoExecute(void)
 {
     int j, l, s, tw = *insptr;
 
     if (g_killitFlag) return 1;
 
-    //    if(*it == 1668249134L) G_GameExit("\nERR");
     //      Bsprintf(g_szBuf,"Parsing: %d",*insptr);
     //      AddLog(g_szBuf);
 
@@ -1034,10 +1031,10 @@ static int X_DoExecute(void)
         insptr++;
         g_sp->xoffset = g_sp->yoffset = 0;
 
-        j = SpriteGravity;
+        j = g_spriteGravity;
 
         if (G_CheckForSpaceCeiling(g_sp->sectnum) || sector[g_sp->sectnum].lotag == 2)
-            j = SpriteGravity/6;
+            j = g_spriteGravity/6;
         else if (G_CheckForSpaceFloor(g_sp->sectnum))
             j = 0;
 
@@ -1591,7 +1588,7 @@ static int X_DoExecute(void)
                     Bstrcpy(ScriptQuotes[i],g_player[g_p].user_name);
                     break;
                 case STR_VERSION:
-                    Bsprintf(tempbuf,HEAD2 " %s",s_builddate);
+                    Bsprintf(tempbuf,HEAD2 " %s",s_buildDate);
                     Bstrcpy(ScriptQuotes[i],tempbuf);
                     break;
                 case STR_GAMETYPE:

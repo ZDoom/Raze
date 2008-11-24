@@ -4085,7 +4085,7 @@ void P_ProcessInput(int snum)
             else
             {
                 p->on_ground = 0;
-                p->poszv += (SpriteGravity+80); // (TICSPERFRAME<<6);
+                p->poszv += (g_spriteGravity+80); // (TICSPERFRAME<<6);
                 if (p->poszv >= (4096+2048)) p->poszv = (4096+2048);
                 if (p->poszv > 2400 && p->falling_counter < 255)
                 {

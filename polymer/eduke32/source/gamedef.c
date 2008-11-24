@@ -5330,7 +5330,7 @@ repeatcase:
         g_actorRespawnTime = params[j++];
         g_itemRespawnTime = params[j++];
         g_playerFriction = params[j++];
-        if (g_scriptVersion == 14) SpriteGravity = params[j++];
+        if (g_scriptVersion == 14) g_spriteGravity = params[j++];
         g_rpgBlastRadius = params[j++];
         g_pipebombBlastRadius = params[j++];
         g_shrinkerBlastRadius = params[j++];

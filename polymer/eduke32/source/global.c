@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 #include "duke3d.h"
 
-char *s_builddate = "20081122";
+const char *s_buildDate = "20081122";
 char *MusicPtr = NULL;
 int g_musicSize;
 
@@ -31,8 +31,8 @@ short g_globalRandom;
 short neartagsector, neartagwall, neartagsprite;
 
 int neartaghitdist,lockclock,g_startArmorAmount;
-// JBF: SpriteGravity modified to default to Atomic ed. default when using 1.3d CONs
-int SpriteGravity=176;
+// JBF: g_spriteGravity modified to default to Atomic ed. default when using 1.3d CONs
+int g_spriteGravity=176;
 
 // int temp_data[MAXSPRITES][6];
 actordata_t ActorExtra[MAXSPRITES];
@@ -157,7 +157,7 @@ char szPlayerName[32];
 int g_damageCameras,g_freezerSelfDamage=0,g_tripbombLaserMode=0;
 int g_networkBroadcastMode = 255, g_movesPerPacket = 1,g_gameQuit = 0,everyothertime;
 int g_numFreezeBounces=3,g_rpgBlastRadius,g_pipebombBlastRadius,g_tripbombBlastRadius,
-                       g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
+    g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
 STATUSBARTYPE sbar;
 
 int mymaxlag, otherminlag, bufferjitter = 1;

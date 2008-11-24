@@ -139,7 +139,7 @@ EDITOROBJS=$(OBJ)/build.$o \
 
 ifeq ($(PLATFORM),LINUX)
 	ASFLAGS+= -f elf
-	LIBS+= -lm
+	LIBS+= -lm -lprofiler
 endif
 ifeq ($(PLATFORM),DARWIN)
 	ENGINEOBJS	+= $(OBJ)/StartupWinController.editor.$o \

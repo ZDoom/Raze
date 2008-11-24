@@ -517,6 +517,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\source\macros.h"
+					>
+				</File>
+				<File
 					RelativePath=".\source\mapster32.h"
 					>
 				</File>
@@ -554,10 +558,6 @@
 				</File>
 				<File
 					RelativePath=".\source\startwin.game.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\swmacros.h"
 					>
 				</File>
 			</Filter>
