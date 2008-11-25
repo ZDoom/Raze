@@ -132,6 +132,7 @@ typedef struct      s_prlight {
 #define             PR_INFO_LOG_BUFFER_SIZE 512
 
 typedef enum {
+                    PR_BIT_DIFFUSE_MODULATION,
                     PR_BIT_DEFAULT, // must be just before last
                     PR_BIT_COUNT    // must be last
 }                   prbittype;
@@ -196,6 +197,7 @@ static void         polymer_drawskybox(short tilenum);
 static void         polymer_drawmdsprite(spritetype *tspr);
 static void         polymer_loadmodelvbos(md3model* m);
 // GPU PROGRAMS
+static void         polymer_bindmaterial(_prmaterial material);
 static void         polymer_compileprogram(int programbits);
 
 # endif // !POLYMER_C

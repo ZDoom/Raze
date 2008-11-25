@@ -125,6 +125,19 @@ int             lightcount;
 // PROGRAMS
 _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
     {
+        .bit = 1 << PR_BIT_DIFFUSE_MODULATION,
+        .vert_def =
+                "",
+        .vert_prog =
+                "gl_FrontColor = gl_Color;\n"
+                "\n",
+        .frag_def =
+                "",
+        .frag_prog =
+                "  result *= vec4(gl_Color);\n"
+                "\n",
+    },
+    {
         .bit = 1 << PR_BIT_DEFAULT,
         .vert_def =
                 "\n"
@@ -134,10 +147,10 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
                 "  gl_Position = ftransform();\n"
                 "}\n",
         .frag_def =
-                "\n"
                 "void main(void)\n"
                 "{\n"
-                "  vec4 result = vec4(1.0, 1.0, 1.0, 1.0);\n",
+                "  vec4 result = vec4(1.0, 1.0, 1.0, 1.0);\n"
+                "\n",
         .frag_prog =
                 "  gl_FragColor = result;\n"
                 "}\n",
@@ -895,125 +908,128 @@ static void         polymer_displayrooms(short dacursectnum)
 static void         polymer_drawplane(short sectnum, short wallnum, _prplane* plane, int indicecount)
 {
 
-    if ((depth < 1) && (plane != NULL) &&
-            (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
-    {
-        int             gx, gy, gz, px, py, pz;
-        float           coeff;
+//     if ((depth < 1) && (plane != NULL) &&
+//             (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
+//     {
+//         int             gx, gy, gz, px, py, pz;
+//         float           coeff;
+// 
+//         // set the stencil to 1 and clear the area to black where the sector floor is
+//         bglDisable(GL_TEXTURE_2D);
+//         bglDisable(GL_FOG);
+//         bglColor4f(0.0f, 1.0f, 0.0f, 1.0f);
+//         bglDepthMask(GL_FALSE);
+// 
+//         bglEnable(GL_STENCIL_TEST);
+//         bglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+//         bglStencilFunc(GL_EQUAL, 0, 0xffffffff);
+// 
+//         if (plane->vbo && (pr_vbos > 0))
+//         {
+//             OMGDRAWSHITVBO;
+//         }
+//         else
+//         {
+//             OMGDRAWSHIT;
+//         }
+// 
+//         bglDepthMask(GL_TRUE);
+// 
+//         // set the depth to 1 where we put the stencil by drawing a screen aligned quad
+//         bglStencilFunc(GL_EQUAL, 1, 0xffffffff);
+//         bglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+//         bglDepthFunc(GL_ALWAYS);
+//         bglMatrixMode(GL_PROJECTION);
+//         bglPushMatrix();
+//         bglLoadIdentity();
+//         bglMatrixMode(GL_MODELVIEW);
+//         bglPushMatrix();
+//         bglLoadIdentity();
+// 
+//         bglColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+//         bglBegin(GL_QUADS);
+//         bglVertex3f(-1.0f, -1.0f, 1.0f);
+//         bglVertex3f(1.0f, -1.0f, 1.0f);
+//         bglVertex3f(1.0f, 1.0f, 1.0f);
+//         bglVertex3f(-1.0f, 1.0f, 1.0f);
+//         bglEnd();
+// 
+//         bglMatrixMode(GL_PROJECTION);
+//         bglPopMatrix();
+//         bglMatrixMode(GL_MODELVIEW);
+//         bglPopMatrix();
+//         bglDepthFunc(GL_LEQUAL);
+//         bglEnable(GL_TEXTURE_2D);
+//         bglEnable(GL_FOG);
+//         // finally draw the shit
+//         bglPushMatrix();
+//         bglClipPlane(GL_CLIP_PLANE0, plane->plane);
+//         polymer_inb4mirror(plane->buffer, plane->plane);
+//         bglCullFace(GL_FRONT);
+//         bglEnable(GL_CLIP_PLANE0);
+// 
+//         if (wallnum >= 0)
+//             preparemirror(globalposx, globalposy, 0, globalang,
+//                           0, wallnum, 0, &gx, &gy, &viewangle);
+// 
+//         gx = globalposx;
+//         gy = globalposy;
+//         gz = globalposz;
+// 
+//         // map the player pos from build to polymer
+//         px = globalposy;
+//         py = -globalposz / 16;
+//         pz = -globalposx;
+// 
+//         // calculate new player position on the other side of the mirror
+//         // this way the basic build visibility shit can be used (wallvisible)
+//         coeff = -plane->plane[0] * px +
+//                 -plane->plane[1] * py +
+//                 -plane->plane[2] * pz +
+//                 -plane->plane[3];
+// 
+//         coeff /= (float)(plane->plane[0] * plane->plane[0] +
+//                          plane->plane[1] * plane->plane[1] +
+//                          plane->plane[2] * plane->plane[2]);
+// 
+//         px = coeff*plane->plane[0]*2 + px;
+//         py = coeff*plane->plane[1]*2 + py;
+//         pz = coeff*plane->plane[2]*2 + pz;
+// 
+//         // map back from polymer to build
+//         globalposx = -pz;
+//         globalposy = px;
+//         globalposz = -py * 16;
+// 
+//         depth++;
+//         mirrorfrom[depth] = wallnum;
+//         polymer_displayrooms(sectnum);
+//         depth--;
+// 
+//         globalposx = gx;
+//         globalposy = gy;
+//         globalposz = gz;
+// 
+//         bglDisable(GL_CLIP_PLANE0);
+//         bglCullFace(GL_BACK);
+//         bglMatrixMode(GL_MODELVIEW);
+//         bglPopMatrix();
+// 
+//         bglColor4f(plane->material.diffusemodulation[0],
+//                    plane->material.diffusemodulation[1],
+//                    plane->material.diffusemodulation[2],
+//                    0.0f);
+//     }
+//     else
+//         bglColor4f(plane->material.diffusemodulation[0],
+//                    plane->material.diffusemodulation[1],
+//                    plane->material.diffusemodulation[2],
+//                    plane->material.diffusemodulation[3]);
 
-        // set the stencil to 1 and clear the area to black where the sector floor is
-        bglDisable(GL_TEXTURE_2D);
-        bglDisable(GL_FOG);
-        bglColor4f(0.0f, 1.0f, 0.0f, 1.0f);
-        bglDepthMask(GL_FALSE);
+//     bglBindTexture(GL_TEXTURE_2D, plane->material.diffusemap);
 
-        bglEnable(GL_STENCIL_TEST);
-        bglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-        bglStencilFunc(GL_EQUAL, 0, 0xffffffff);
+    polymer_bindmaterial(plane->material);
 
-        if (plane->vbo && (pr_vbos > 0))
-        {
-            OMGDRAWSHITVBO;
-        }
-        else
-        {
-            OMGDRAWSHIT;
-        }
-
-        bglDepthMask(GL_TRUE);
-
-        // set the depth to 1 where we put the stencil by drawing a screen aligned quad
-        bglStencilFunc(GL_EQUAL, 1, 0xffffffff);
-        bglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-        bglDepthFunc(GL_ALWAYS);
-        bglMatrixMode(GL_PROJECTION);
-        bglPushMatrix();
-        bglLoadIdentity();
-        bglMatrixMode(GL_MODELVIEW);
-        bglPushMatrix();
-        bglLoadIdentity();
-
-        bglColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-        bglBegin(GL_QUADS);
-        bglVertex3f(-1.0f, -1.0f, 1.0f);
-        bglVertex3f(1.0f, -1.0f, 1.0f);
-        bglVertex3f(1.0f, 1.0f, 1.0f);
-        bglVertex3f(-1.0f, 1.0f, 1.0f);
-        bglEnd();
-
-        bglMatrixMode(GL_PROJECTION);
-        bglPopMatrix();
-        bglMatrixMode(GL_MODELVIEW);
-        bglPopMatrix();
-        bglDepthFunc(GL_LEQUAL);
-        bglEnable(GL_TEXTURE_2D);
-        bglEnable(GL_FOG);
-        // finally draw the shit
-        bglPushMatrix();
-        bglClipPlane(GL_CLIP_PLANE0, plane->plane);
-        polymer_inb4mirror(plane->buffer, plane->plane);
-        bglCullFace(GL_FRONT);
-        bglEnable(GL_CLIP_PLANE0);
-
-        if (wallnum >= 0)
-            preparemirror(globalposx, globalposy, 0, globalang,
-                          0, wallnum, 0, &gx, &gy, &viewangle);
-
-        gx = globalposx;
-        gy = globalposy;
-        gz = globalposz;
-
-        // map the player pos from build to polymer
-        px = globalposy;
-        py = -globalposz / 16;
-        pz = -globalposx;
-
-        // calculate new player position on the other side of the mirror
-        // this way the basic build visibility shit can be used (wallvisible)
-        coeff = -plane->plane[0] * px +
-                -plane->plane[1] * py +
-                -plane->plane[2] * pz +
-                -plane->plane[3];
-
-        coeff /= (float)(plane->plane[0] * plane->plane[0] +
-                         plane->plane[1] * plane->plane[1] +
-                         plane->plane[2] * plane->plane[2]);
-
-        px = coeff*plane->plane[0]*2 + px;
-        py = coeff*plane->plane[1]*2 + py;
-        pz = coeff*plane->plane[2]*2 + pz;
-
-        // map back from polymer to build
-        globalposx = -pz;
-        globalposy = px;
-        globalposz = -py * 16;
-
-        depth++;
-        mirrorfrom[depth] = wallnum;
-        polymer_displayrooms(sectnum);
-        depth--;
-
-        globalposx = gx;
-        globalposy = gy;
-        globalposz = gz;
-
-        bglDisable(GL_CLIP_PLANE0);
-        bglCullFace(GL_BACK);
-        bglMatrixMode(GL_MODELVIEW);
-        bglPopMatrix();
-
-        bglColor4f(plane->material.diffusemodulation[0],
-                   plane->material.diffusemodulation[1],
-                   plane->material.diffusemodulation[2],
-                   0.0f);
-    }
-    else
-        bglColor4f(plane->material.diffusemodulation[0],
-                   plane->material.diffusemodulation[1],
-                   plane->material.diffusemodulation[2],
-                   plane->material.diffusemodulation[3]);
-
-    bglBindTexture(GL_TEXTURE_2D, plane->material.diffusemap);
     if (plane->vbo && (pr_vbos > 0))
     {
         OMGDRAWSHITVBO;
@@ -1023,12 +1039,12 @@ static void         polymer_drawplane(short sectnum, short wallnum, _prplane* pl
         OMGDRAWSHIT;
     }
 
-    if ((depth < 1) && (plane->plane != NULL) &&
-            (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
-    {
-        bglDisable(GL_STENCIL_TEST);
-        bglClear(GL_STENCIL_BUFFER_BIT);
-    }
+//     if ((depth < 1) && (plane->plane != NULL) &&
+//             (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
+//     {
+//         bglDisable(GL_STENCIL_TEST);
+//         bglClear(GL_STENCIL_BUFFER_BIT);
+//     }
 }
 
 static void         polymer_inb4mirror(GLfloat* buffer, GLdouble* plane)
@@ -2567,6 +2583,37 @@ static void         polymer_loadmodelvbos(md3model* m)
 }
 
 // GPU PROGRAMS
+static void         polymer_bindmaterial(_prmaterial material)
+{
+    int             programbits;
+
+    programbits = prprogrambits[PR_BIT_DEFAULT].bit;
+
+    // --------- bit validation
+
+    // PR_BIT_DIFFUSE_MODULATION
+    if ((material.diffusemodulation[0] != 1.0f) || (material.diffusemodulation[1] != 1.0f) ||
+        (material.diffusemodulation[2] != 1.0f) || (material.diffusemodulation[3] != 1.0f))
+        programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
+
+    // --------- program compiling
+    if (!prprograms[programbits])
+        polymer_compileprogram(programbits);
+
+    // --------- bit setup
+
+    // PR_BIT_DIFFUSE_MODULATION
+    if (programbits & prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit)
+    {
+        bglColor4f(material.diffusemodulation[0],
+                   material.diffusemodulation[1],
+                   material.diffusemodulation[2],
+                   material.diffusemodulation[3]);
+    }
+
+    bglUseProgramObjectARB(prprograms[programbits]);
+}
+
 static void         polymer_compileprogram(int programbits)
 {
     int             i, enabledbits;
@@ -2574,57 +2621,51 @@ static void         polymer_compileprogram(int programbits)
     GLcharARB*      source[PR_BIT_COUNT * 2];
     GLcharARB       infobuffer[PR_INFO_LOG_BUFFER_SIZE];
 
-    // ========= VERTEX
+    // --------- VERTEX
     vert = bglCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
 
-    enabledbits = 0;
+    enabledbits = i = 0;
     while (i < PR_BIT_COUNT)
     {
         if (programbits & prprogrambits[i].bit)
-        {
-            source[i] = prprogrambits[i].vert_def;
-            enabledbits++;
-        }
+            source[enabledbits++] = prprogrambits[i].vert_def;
         i++;
     }
     i = 0;
     while (i < PR_BIT_COUNT)
     {
         if (programbits & prprogrambits[i].bit)
-            source[enabledbits + i] = prprogrambits[i].vert_prog;
+            source[enabledbits++] = prprogrambits[i].vert_prog;
         i++;
     }
 
-    bglShaderSourceARB(vert, enabledbits * 2, (const GLcharARB**)source, NULL);
+    bglShaderSourceARB(vert, enabledbits, (const GLcharARB**)source, NULL);
 
     bglCompileShaderARB(vert);
 
-    // ========= FRAGMENT
+    // --------- FRAGMENT
     frag = bglCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 
     enabledbits = i = 0;
     while (i < PR_BIT_COUNT)
     {
         if (programbits & prprogrambits[i].bit)
-        {
-            source[i] = prprogrambits[i].frag_def;
-            enabledbits++;
-        }
+            source[enabledbits++] = prprogrambits[i].frag_def;
         i++;
     }
     i = 0;
     while (i < PR_BIT_COUNT)
     {
         if (programbits & prprogrambits[i].bit)
-            source[enabledbits + i] = prprogrambits[i].frag_prog;
+            source[enabledbits++] = prprogrambits[i].frag_prog;
         i++;
     }
 
-    bglShaderSourceARB(frag, enabledbits * 2, (const GLcharARB**)source, NULL);
+    bglShaderSourceARB(frag, enabledbits, (const GLcharARB**)source, NULL);
 
     bglCompileShaderARB(frag);
 
-    // ========= PROGRAM
+    // --------- PROGRAM
     program = bglCreateProgramObjectARB();
 
     bglAttachObjectARB(program, vert);
@@ -2636,7 +2677,9 @@ static void         polymer_compileprogram(int programbits)
 
     prprograms[programbits] = program;
 
-    OSD_Printf("Shader log info:\n%s\n", infobuffer);
+    if (pr_verbosity >= 1) OSD_Printf("Compiling GPU program with bits %i...\n", programbits);
+    if (infobuffer[0])
+        if (pr_verbosity >= 1) OSD_Printf("Info log:\n%s\n", infobuffer);
 }
 
 #endif
