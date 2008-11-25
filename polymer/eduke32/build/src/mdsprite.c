@@ -564,7 +564,7 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
     char cachefn[BMAX_PATH], *cp;
     unsigned char mdsum[16];
 
-    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache || !g_indexfil || g_cachefil < 0) return -1;
+    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache || !cacheindexptr || cachefilehandle < 0) return -1;
     if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
     {
         // lacking the necessary extensions to do this
@@ -583,14 +583,15 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
 //    fil = kopen4load(cachefn, 0);
 //    if (fil < 0) return -1;
 
-    if (firsttexture.next == NULL)
+    if (firstcacheindex.next == NULL)
         return -1;
     else
     {
         int offset = 0;
         int len = 0;
-
-        texcacheindex *cacheindexptr = &firsttexture;
+        int i;
+/*
+        texcacheindex *cacheindexptr = &firstcacheindex;
 
         do
         {
@@ -605,13 +606,22 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
             cacheindexptr = cacheindexptr->next;
         }
         while (cacheindexptr->next);
+        */
+        i = HASH_findcase(&cacheH,cachefn);
+        if (i != -1)
+        {
+            texcacheindex *cacheindexptr = cacheptrs[i];
+            len = cacheindexptr->len;
+            offset = cacheindexptr->offset;
+//            initprintf("got a match for %s offset %d\n",cachefn,offset);
+        }
         if (len == 0) return -1; // didn't find it
-        Blseek(g_cachefil, offset, BSEEK_SET);
+        Blseek(cachefilehandle, offset, BSEEK_SET);
     }
 
 //    initprintf("Loading cached skin: %s\n", cachefn);
 
-    if (Bread(g_cachefil, head, sizeof(texcacheheader)) < (int)sizeof(texcacheheader)) goto failure;
+    if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int)sizeof(texcacheheader)) goto failure;
     if (memcmp(head->magic, "Polymost", 8)) goto failure;
 
     head->xdim = B_LITTLE32(head->xdim);
@@ -625,7 +635,7 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
     if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
     if (!glinfo.texnpot && (head->flags & 1)) goto failure;
 
-    return g_cachefil;
+    return cachefilehandle;
 failure:
 //    kclose(fil);
     initprintf("cache miss\n");

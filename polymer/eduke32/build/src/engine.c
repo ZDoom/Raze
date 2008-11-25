@@ -5783,11 +5783,22 @@ void uninitengine(void)
     //OSD_Printf("cacheresets = %d, cacheinvalidates = %d\n", cacheresets, cacheinvalidates);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
+    texcacheindex *index;
+
     polymost_glreset();
     hicinit();
     freeallmodels();
-    if (g_cachefil > -1) Bclose(g_cachefil);
-    if (g_indexfil != NULL) Bfclose(g_indexfil);
+    if (cachefilehandle > -1) Bclose(cachefilehandle);
+    if (cacheindexptr != NULL) Bfclose(cacheindexptr);
+    datextures = &firstcacheindex;
+    do
+    {
+        index = datextures;
+        datextures = datextures->next;
+        Bfree(index);
+    }
+    while (datextures->next);
+
 #endif
 
     uninitsystem();
