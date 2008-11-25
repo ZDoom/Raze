@@ -108,8 +108,34 @@ typedef struct      s_pranimatespritesinfo {
     int             x, y, a, smoothratio;
 }                   _pranimatespritesinfo;
 
-extern _prsector*   prsectors[MAXSECTORS];
-extern _prwall*     prwalls[MAXWALLS];
+#define             PR_MAXLIGHTS 128
+
+typedef enum {
+                    PR_LIGHT_POINT,
+                    PR_LIGHT_SPOT,
+                    PR_LIGHT_DIRECTIONAL
+}                   prlighttype;
+
+typedef struct      s_prlight {
+    int             x, y, z, horiz, range, faderange;
+    short           angle, sector;
+    prlighttype     type;
+}                   _prlight;
+
+#define             PR_INFO_LOG_BUFFER_SIZE 512
+
+typedef enum {
+                    PR_BIT_DEFAULT, // must be just before last
+                    PR_BIT_COUNT    // must be last
+}                   prbittype;
+
+typedef struct      s_prprogrambit {
+    int             bit;
+    char*           vert_def;
+    char*           vert_prog;
+    char*           frag_def;
+    char*           frag_prog;
+}                   _prprogrambit;
 
 // CONTROL
 extern int          updatesectors;
@@ -123,6 +149,8 @@ void                polymer_drawmasks(void);
 void                polymer_rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2);
 void                polymer_drawmaskwall(int damaskwallcnt);
 void                polymer_drawsprite(int snum);
+void                polymer_resetlights(void);
+void                polymer_addlight(_prlight light);
 
 # ifdef POLYMER_C
 
@@ -160,6 +188,8 @@ static void         polymer_drawskybox(short tilenum);
 // MDSPRITES
 static void         polymer_drawmdsprite(spritetype *tspr);
 static void         polymer_loadmodelvbos(md3model* m);
+// GPU PROGRAMS
+static void         polymer_compileprogram(int programbits);
 
 # endif // !POLYMER_C
 

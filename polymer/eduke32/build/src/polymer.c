@@ -118,6 +118,32 @@ GLuint          skyboxdatavbo;
 
 GLfloat         artskydata[16];
 
+_prlight        prlights[PR_MAXLIGHTS];
+int             lightcount;
+
+_prprogrambit   prprogrambits[PR_BIT_COUNT] = {
+    {
+        .bit = 1 << PR_BIT_DEFAULT,
+        .vert_def =
+                "\n"
+                "void main(void)\n"
+                "{\n",
+        .vert_prog =
+                "  gl_Position = ftransform();\n"
+                "}\n",
+        .frag_def =
+                "\n"
+                "void main(void)\n"
+                "{\n"
+                "  vec4 result = vec4(1.0, 1.0, 1.0, 1.0);\n",
+        .frag_prog =
+                "  gl_FragColor = result;\n"
+                "}\n",
+    }
+};
+
+GLhandleARB     prprograms[1 << PR_BIT_COUNT];
+
 // CONTROL
 GLdouble        spritemodelview[16];
 GLdouble        rootmodelviewmatrix[16];
@@ -617,6 +643,17 @@ void                polymer_setanimatesprites(animatespritesptr animatesprites, 
     asi.y = y;
     asi.a = a;
     asi.smoothratio = smoothratio;
+}
+
+void                polymer_resetlights(void)
+{
+    lightcount = 0;
+}
+
+void                polymer_addlight(_prlight light)
+{
+    if (lightcount < PR_MAXLIGHTS)
+        prlights[lightcount++] = light;
 }
 
 // CORE
@@ -2509,6 +2546,79 @@ static void         polymer_loadmodelvbos(md3model* m)
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
         i++;
     }
+}
+
+// GPU PROGRAMS
+static void         polymer_compileprogram(int programbits)
+{
+    int             i, enabledbits;
+    GLhandleARB     vert, frag, program;
+    GLcharARB*      source[PR_BIT_COUNT * 2];
+    GLcharARB       infobuffer[PR_INFO_LOG_BUFFER_SIZE];
+
+    // ========= VERTEX
+    vert = bglCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
+
+    enabledbits = 0;
+    while (i < PR_BIT_COUNT)
+    {
+        if (programbits & prprogrambits[i].bit)
+        {
+            source[i] = prprogrambits[i].vert_def;
+            enabledbits++;
+        }
+        i++;
+    }
+    i = 0;
+    while (i < PR_BIT_COUNT)
+    {
+        if (programbits & prprogrambits[i].bit)
+            source[enabledbits + i] = prprogrambits[i].vert_prog;
+        i++;
+    }
+
+    bglShaderSourceARB(vert, enabledbits * 2, (const GLcharARB**)source, NULL);
+
+    bglCompileShaderARB(vert);
+
+    // ========= FRAGMENT
+    frag = bglCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+
+    enabledbits = i = 0;
+    while (i < PR_BIT_COUNT)
+    {
+        if (programbits & prprogrambits[i].bit)
+        {
+            source[i] = prprogrambits[i].frag_def;
+            enabledbits++;
+        }
+        i++;
+    }
+    i = 0;
+    while (i < PR_BIT_COUNT)
+    {
+        if (programbits & prprogrambits[i].bit)
+            source[enabledbits + i] = prprogrambits[i].frag_prog;
+        i++;
+    }
+
+    bglShaderSourceARB(frag, enabledbits * 2, (const GLcharARB**)source, NULL);
+
+    bglCompileShaderARB(frag);
+
+    // ========= PROGRAM
+    program = bglCreateProgramObjectARB();
+
+    bglAttachObjectARB(program, vert);
+    bglAttachObjectARB(program, frag);
+
+    bglLinkProgramARB(program);
+
+    bglGetInfoLogARB(program, PR_INFO_LOG_BUFFER_SIZE, NULL, infobuffer);
+
+    prprograms[programbits] = program;
+
+    OSD_Printf("Shader log info:\n%s\n", infobuffer);
 }
 
 #endif
