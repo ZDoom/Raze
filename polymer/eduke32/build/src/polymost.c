@@ -740,20 +740,23 @@ void polymost_glreset()
     cachefilehandle = openfrompath(TEXCACHEDIR,BO_BINARY|BO_APPEND|BO_CREAT|BO_RDWR,BS_IREAD|BS_IWRITE);
 
     if (cachefilehandle < 0)
+    {
+        glusetexcache = 0;
         initprintf("Unable to open cache file!\n");
+    }
 
 #if 0
     i = 0;
 
     datextures = &firstcacheindex;
-    do
+    while (datextures->next)
     {
         i += datextures->len;
         datextures = datextures->next;
     }
-    while (datextures->next);
     datextures = &firstcacheindex;
     initprintf("Cache contains %d bytes of garbage data\n",Blseek(cachefilehandle, 0, BSEEK_END)-i);
+    Blseek(cachefilehandle, 0, BSEEK_SET);
 #endif
 }
 
@@ -940,19 +943,24 @@ void polymost_glinit()
     cachefilehandle = Bopen(TEXCACHEDIR,BO_BINARY|BO_APPEND|BO_CREAT|BO_RDWR,BS_IREAD|BS_IWRITE);
 
     if (cachefilehandle < 0)
+    {
         initprintf("Unable to open cache file!\n");
+        glusetexcache = 0;
+        return;
+    }
 
     i = 0;
 
     datextures = &firstcacheindex;
-    do
+    while (datextures->next)
     {
         i += datextures->len;
         datextures = datextures->next;
     }
-    while (datextures->next);
+
     datextures = &firstcacheindex;
     initprintf("Cache contains %d bytes of garbage data\n",Blseek(cachefilehandle, 0, BSEEK_END)-i);
+    Blseek(cachefilehandle, 0, BSEEK_SET);
 }
 
 void invalidatecache(void)

@@ -5791,14 +5791,14 @@ void uninitengine(void)
     if (cachefilehandle > -1) Bclose(cachefilehandle);
     if (cacheindexptr != NULL) Bfclose(cacheindexptr);
     datextures = &firstcacheindex;
-    do
+    while (datextures->next)
     {
         index = datextures;
         datextures = datextures->next;
-        Bfree(index);
+        if (index != &firstcacheindex)
+            Bfree(index);
     }
-    while (datextures->next);
-
+    
 #endif
 
     uninitsystem();
