@@ -1470,11 +1470,11 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("lastvisinc")].lValue = (intptr_t)&lastvisinc;
     aGameVars[Gv_GetVarIndex("numsectors")].lValue = (intptr_t)&numsectors;
     aGameVars[Gv_GetVarIndex("numplayers")].lValue = (intptr_t)&numplayers;
-    aGameVars[Gv_GetVarIndex("g_currentMenu")].lValue = (intptr_t)&g_currentMenu;
+    aGameVars[Gv_GetVarIndex("cenu")].lValue = (intptr_t)&g_currentMenu;
     aGameVars[Gv_GetVarIndex("viewingrange")].lValue = (intptr_t)&viewingrange;
     aGameVars[Gv_GetVarIndex("yxaspect")].lValue = (intptr_t)&yxaspect;
     aGameVars[Gv_GetVarIndex("gravitationalconstant")].lValue = (intptr_t)&g_spriteGravity;
-    aGameVars[Gv_GetVarIndex("GametypeFlags")].lValue = (intptr_t)&GametypeFlags[ud.coop];
+    aGameVars[Gv_GetVarIndex("gametypeflags")].lValue = (intptr_t)&GametypeFlags[ud.coop];
     aGameVars[Gv_GetVarIndex("framerate")].lValue = (intptr_t)&g_currentFrameRate;
 
     aGameVars[Gv_GetVarIndex("camerax")].lValue = (intptr_t)&ud.camerax;
@@ -1483,8 +1483,8 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("cameraang")].lValue = (intptr_t)&ud.cameraang;
     aGameVars[Gv_GetVarIndex("camerahoriz")].lValue = (intptr_t)&ud.camerahoriz;
     aGameVars[Gv_GetVarIndex("camerasect")].lValue = (intptr_t)&ud.camerasect;
-    aGameVars[Gv_GetVarIndex("g_cameraDistance")].lValue = (intptr_t)&g_cameraDistance;
-    aGameVars[Gv_GetVarIndex("g_cameraClock")].lValue = (intptr_t)&g_cameraClock;
+    aGameVars[Gv_GetVarIndex("cameradist")].lValue = (intptr_t)&g_cameraDistance;
+    aGameVars[Gv_GetVarIndex("cameraclock")].lValue = (intptr_t)&g_cameraClock;
 
     aGameVars[Gv_GetVarIndex("myx")].lValue = (intptr_t)&myx;
     aGameVars[Gv_GetVarIndex("myy")].lValue = (intptr_t)&myy;

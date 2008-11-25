@@ -560,11 +560,11 @@ static int daskinloader(int filh, intptr_t *fptr, int *bpl, int *sizx, int *sizy
 // JONOF'S COMPRESSED TEXTURE CACHE STUFF ---------------------------------------------------
 int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcacheheader *head)
 {
-    int fil, fp;
+    int fp;
     char cachefn[BMAX_PATH], *cp;
     unsigned char mdsum[16];
 
-    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache) return -1;
+    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache || !g_indexfil || g_cachefil < 0) return -1;
     if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
     {
         // lacking the necessary extensions to do this
@@ -574,17 +574,44 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
     }
 
     md4once((unsigned char *)fn, strlen(fn), mdsum);
-    for (cp = cachefn, fp = 0; (*cp = TEXCACHEDIR[fp]); cp++,fp++);
-    *(cp++) = '/';
+//    for (cp = cachefn, fp = 0; (*cp = TEXCACHEDIR[fp]); cp++,fp++);
+//    *(cp++) = '/';
+    cp = cachefn;
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
     sprintf(cp, "-%x-%x%x", len, pal, effect);
 
-    fil = kopen4load(cachefn, 0);
-    if (fil < 0) return -1;
+//    fil = kopen4load(cachefn, 0);
+//    if (fil < 0) return -1;
 
-    /* initprintf("Loading cached skin: %s\n", cachefn); */
+    if (firsttexture.next == NULL)
+        return -1;
+    else
+    {
+        int offset = 0;
+        int len = 0;
 
-    if (kread(fil, head, sizeof(texcacheheader)) < (int)sizeof(texcacheheader)) goto failure;
+        texcacheindex *cacheindexptr = &firsttexture;
+
+        do
+        {
+//            initprintf("checking %s against %s\n",cachefn,cacheindexptr->name);
+            if (!Bstrcmp(cachefn,cacheindexptr->name))
+            {
+                offset = cacheindexptr->offset;
+                len = cacheindexptr->len;
+//                initprintf("got a match for %s offset %d\n",cachefn,offset);
+                break;
+            }
+            cacheindexptr = cacheindexptr->next;
+        }
+        while (cacheindexptr->next);
+        if (len == 0) return -1; // didn't find it
+        Blseek(g_cachefil, offset, BSEEK_SET);
+    }
+
+//    initprintf("Loading cached skin: %s\n", cachefn);
+
+    if (Bread(g_cachefil, head, sizeof(texcacheheader)) < (int)sizeof(texcacheheader)) goto failure;
     if (memcmp(head->magic, "Polymost", 8)) goto failure;
 
     head->xdim = B_LITTLE32(head->xdim);
@@ -598,9 +625,10 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
     if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
     if (!glinfo.texnpot && (head->flags & 1)) goto failure;
 
-    return fil;
+    return g_cachefil;
 failure:
-    kclose(fil);
+//    kclose(fil);
+    initprintf("cache miss\n");
     return -1;
 }
 
@@ -626,7 +654,7 @@ static int mdloadskin_cached(int fil, texcacheheader *head, int *doalloc, GLuint
     // load the mipmaps
     for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
     {
-        r = kread(fil, &pict, sizeof(texcachepicture));
+        r = Bread(fil, &pict, sizeof(texcachepicture));
         if (r < (int)sizeof(texcachepicture)) goto failure;
 
         pict.size = B_LITTLE32(pict.size);
@@ -760,13 +788,13 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
         osizy = cachead.ydim;
         hasalpha = (cachead.flags & 2) ? 1 : 0;
         if (pal < (MAXPALOOKUPS - RESERVEDPALS))m->usesalpha = hasalpha;
-        kclose(cachefil);
+//        kclose(cachefil);
         //kclose(filh);	// FIXME: uncomment when cache1d.c is fixed
         // cachefil >= 0, so it won't be rewritten
     }
     else
     {
-        if (cachefil >= 0) kclose(cachefil);
+//        if (cachefil >= 0) kclose(cachefil);
         cachefil = -1;	// the compressed version will be saved to disk
 
         if ((filh = kopen4load(fn, 0)) < 0) return -1;

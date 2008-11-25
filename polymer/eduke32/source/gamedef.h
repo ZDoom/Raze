@@ -56,6 +56,8 @@ extern char g_szScriptFileName[BMAX_PATH];
 extern int g_totalLines,g_lineNumber;
 extern int g_numCompilerErrors,g_numCompilerWarnings;
 
+extern intptr_t *g_scriptPtr;
+
 typedef struct
 {
     char *name;

@@ -102,6 +102,8 @@ void P_AddAmmo(int weapon,DukePlayer_t *p,int amount)
 
 void P_AddWeaponNoSwitch(DukePlayer_t *p, int weapon)
 {
+    int snum = sprite[p->i].yvel;
+
     if (p->gotweapon[weapon] == 0)
     {
         p->gotweapon[weapon] = 1;
@@ -110,10 +112,10 @@ void P_AddWeaponNoSwitch(DukePlayer_t *p, int weapon)
     }
 
 #if 1
-    if (aplWeaponSelectSound[p->curr_weapon][sprite[p->i].yvel])
-        A_StopSound(aplWeaponSelectSound[p->curr_weapon][sprite[p->i].yvel],p->i);
-    if (aplWeaponSelectSound[weapon][sprite[p->i].yvel])
-        A_PlaySound(aplWeaponSelectSound[weapon][sprite[p->i].yvel],p->i);
+    if (aplWeaponSelectSound[p->curr_weapon][snum])
+        A_StopSound(aplWeaponSelectSound[p->curr_weapon][snum],p->i);
+    if (aplWeaponSelectSound[weapon][snum])
+        A_PlaySound(aplWeaponSelectSound[weapon][snum],p->i);
 #else
     switch (p->curr_weapon)
     {

@@ -833,7 +833,7 @@ static int X_DoExecute(void)
         //Following changed to use pointersizes
         g_t[5] = *insptr++; // Ai
         g_t[4] = *(intptr_t *)(g_t[5]);       // Action
-        g_t[1] = *(((intptr_t *)g_t[5])+1);       // move
+        if (g_t[5]) g_t[1] = *(((intptr_t *)g_t[5])+1);       // move
         g_sp->hitag = *(((intptr_t *)g_t[5])+2);    // move flags
         g_t[0] = g_t[2] = g_t[3] = 0; // count, actioncount... g_t[3] = ???
         if (g_sp->hitag&random_angle)
@@ -1095,7 +1095,9 @@ static int X_DoExecute(void)
             default:
                 // fix for flying/jumping monsters getting stuck in water
                 if (g_sp->statnum != MAXSTATUS && actorscrptr[g_sp->picnum] &&
-                        ((moveptr && *(moveptr+1)) || g_sp->hitag & jumptoplayer))
+                        (g_sp->hitag & jumptoplayer ||
+                        (moveptr >= g_scriptPtr && moveptr <= (g_scriptPtr+g_scriptSize) && *(moveptr+1)))
+                        )
                 {
 //                    OSD_Printf("%d\n",*(moveptr+1));
                     break;

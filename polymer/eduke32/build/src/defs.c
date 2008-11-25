@@ -678,7 +678,7 @@ static int defsparser(scriptfile *script)
                     for (j=ysiz-1;j>=0;j--)
                     {
                         col = (palette_t *)&picptr[j*xsiz+i];
-                        if (col->f != 255) { faketiledata[tile][i*ysiz+j] = 255; continue; }
+                        if (col->f < alphacut) { faketiledata[tile][i*ysiz+j] = 255; continue; }
                         faketiledata[tile][i*ysiz+j] = getclosestcol(col->b>>2,col->g>>2,col->r>>2);
                     }
                     //                initprintf(" %d %d %d %d\n",col->r,col->g,col->b,col->f);
@@ -699,7 +699,6 @@ static int defsparser(scriptfile *script)
 
                 Bfree(picptr);
             }
-
         }
         break;
         case T_IMPORTTILE:

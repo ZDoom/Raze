@@ -19,6 +19,7 @@
 #include "crc32.h"
 
 #include "baselayer.h"
+#include "scriptfile.h"
 
 #ifdef POLYMOST
 # ifdef _WIN32
@@ -87,7 +88,7 @@ double vid_brightness = DEFAULT_BRIGHTNESS;
 static char globalpolytype;
 static short *dotp1[MAXYDIM], *dotp2[MAXYDIM];
 
-static unsigned char tempbuf[MAXWALLS];
+static char tempbuf[MAXWALLS];
 
 int ebpbak, espbak;
 int slopalookup[16384];    // was 2048
@@ -5785,6 +5786,8 @@ void uninitengine(void)
     polymost_glreset();
     hicinit();
     freeallmodels();
+    if (g_cachefil > -1) Bclose(g_cachefil);
+    if (g_indexfil != NULL) Bfclose(g_indexfil);
 #endif
 
     uninitsystem();
@@ -7392,7 +7395,6 @@ int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *
 // loadmaphack
 //
 #if defined(POLYMOST) && defined(USE_OPENGL)
-#include "scriptfile.h"
 int loadmaphack(char *filename)
 {
     enum

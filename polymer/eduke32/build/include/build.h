@@ -543,6 +543,7 @@ extern int glusetexcache, glusetexcachecompression;
 extern int glmultisample, glnvmultisamplehint;
 extern int glwidescreen, glprojectionhacks;
 void gltexapplyprops (void);
+void invalidatecache(void);
 
 extern int r_depthpeeling, r_peelscount;
 extern int r_detailmapping;

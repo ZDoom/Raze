@@ -325,7 +325,11 @@ static void uploadtexture(int doalloc, int xsiz, int ysiz, int intexfmt, int tex
 #	include "lzwnew.h"
 #endif
 
-char TEXCACHEDIR[BMAX_PATH] = "texcache";
+int g_cachefil = -1; // texture cache file handle
+FILE *g_indexfil = NULL;
+
+char TEXCACHEDIR[BMAX_PATH] = "textures";
+
 typedef struct
 {
     char magic[8];	// 'Polymost'
@@ -349,6 +353,20 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
 
 int mdtims, omdtims;
 float alphahackarray[MAXTILES];
+
+struct cache_list
+{
+    char name[BMAX_PATH];
+    int offset;
+    int len;
+    struct cache_list *next;
+};
+
+typedef struct cache_list texcacheindex;
+
+texcacheindex firsttexture;
+texcacheindex *datextures = NULL;
+
 #include "mdsprite.c"
 
 //--------------------------------------------------------------------------------------------------
@@ -631,7 +649,7 @@ void gltexapplyprops(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-
+static int LoadCacheOffsets(void);
 static float glox1, gloy1, glox2, gloy2;
 
 //Use this for both initialization and uninitialization of OpenGL.
@@ -693,6 +711,29 @@ void polymost_glreset()
 
         peels = NULL;
     }
+
+    if (g_cachefil != -1)
+        Bclose(g_cachefil);
+
+    if (g_indexfil)
+        Bfclose(g_indexfil);
+
+    datextures = &firsttexture;
+    LoadCacheOffsets();
+
+    Bstrcpy(tempbuf,TEXCACHEDIR);
+    Bstrcat(tempbuf,".cache");
+    g_indexfil = Bfopen(tempbuf, "at");
+    if (!g_indexfil)
+    {
+        initprintf("Unable to open cache index!\n");
+        return;
+    }
+
+    g_cachefil = openfrompath(TEXCACHEDIR,BO_BINARY|BO_APPEND|BO_CREAT|BO_RDWR,BS_IREAD|BS_IWRITE);
+
+    if (g_cachefil < 0)
+        initprintf("Unable to open cache file!\n");
 }
 
 // one-time initialization of OpenGL for polymost
@@ -854,6 +895,52 @@ void polymost_glinit()
 
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    if (g_cachefil != -1)
+        Bclose(g_cachefil);
+
+    if (g_indexfil)
+        Bfclose(g_indexfil);
+
+    datextures = &firsttexture;
+    LoadCacheOffsets();
+
+    Bstrcpy(tempbuf,TEXCACHEDIR);
+    Bstrcat(tempbuf,".cache");
+    g_indexfil = Bfopen(tempbuf, "at");
+    if (!g_indexfil)
+    {
+        initprintf("Unable to open cache index!\n");
+        return;
+    }
+    g_cachefil = Bopen(TEXCACHEDIR,BO_BINARY|BO_APPEND|BO_CREAT|BO_RDWR,BS_IREAD|BS_IWRITE);
+
+    if (g_cachefil < 0)
+        initprintf("Unable to open cache file!\n");
+}
+
+void invalidatecache(void)
+{
+    if (g_cachefil != -1)
+        Bclose(g_cachefil);
+
+    if (g_indexfil)
+        Bfclose(g_indexfil);
+
+    datextures = &firsttexture;
+
+    Bstrcpy(tempbuf,TEXCACHEDIR);
+    Bstrcat(tempbuf,".cache");
+    g_indexfil = Bfopen(tempbuf, "wt");
+    if (!g_indexfil)
+    {
+        initprintf("Unable to open cache index!\n");
+        return;
+    }
+    g_cachefil = Bopen(TEXCACHEDIR,BO_BINARY|BO_TRUNC|BO_CREAT|BO_RDWR,BS_IREAD|BS_IWRITE);
+
+    if (g_cachefil < 0)
+        initprintf("Unable to open cache file!\n");
 }
 
 void resizeglcheck()
@@ -1219,6 +1306,37 @@ int gloadtile_art(int dapic, int dapal, int dameth, pthtyp *pth, int doalloc)
 }
 
 // JONOF'S COMPRESSED TEXTURE CACHE STUFF ---------------------------------------------------
+
+static int LoadCacheOffsets(void)
+{
+    int foffset, fsize;
+    char *fname;
+
+    scriptfile *script;
+
+    Bstrcpy(tempbuf,TEXCACHEDIR);
+    Bstrcat(tempbuf,".cache");
+    script = scriptfile_fromfile(tempbuf);
+
+    if (!script) return -1;
+
+    while (!scriptfile_eof(script))
+    {
+        if (scriptfile_getstring(script, &fname)) break;	// filename
+        if (scriptfile_getnumber(script, &foffset)) break;	// offset in cache
+        if (scriptfile_getnumber(script, &fsize)) break;	// size
+
+        strncpy(datextures->name, fname, BMAX_PATH);
+        datextures->offset = foffset;
+        datextures->len = fsize;
+        datextures->next = Bcalloc(1, sizeof(texcacheindex));
+        datextures = datextures->next;
+    }
+
+    scriptfile_close(script);
+    return 0;
+}
+
 static inline void phex(unsigned char v, char *s)
 {
     int x;
@@ -1230,11 +1348,11 @@ static inline void phex(unsigned char v, char *s)
 
 int trytexcache(char *fn, int len, int dameth, char effect, texcacheheader *head)
 {
-    int fil, fp;
+    int fp;
     char cachefn[BMAX_PATH], *cp;
     unsigned char mdsum[16];
 
-    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache) return -1;
+    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache || !g_indexfil || g_cachefil < 0) return -1;
     if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
     {
         // lacking the necessary extensions to do this
@@ -1244,19 +1362,45 @@ int trytexcache(char *fn, int len, int dameth, char effect, texcacheheader *head
     }
 
     md4once((unsigned char *)fn, strlen(fn), mdsum);
-    for (cp = cachefn, fp = 0; (*cp = TEXCACHEDIR[fp]); cp++,fp++);
-    *(cp++) = '/';
+//    for (cp = cachefn, fp = 0; (*cp = TEXCACHEDIR[fp]); cp++,fp++);
+//    *(cp++) = '/';
+    cp = cachefn;
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
     sprintf(cp, "-%x-%x%x", len, dameth, effect);
 
-    fil = kopen4load(cachefn, 0);
-    if (fil < 0) return -1;
+//    fil = kopen4load(cachefn, 0);
+//    if (fil < 0) return -1;
 
-    /* initprintf("Loading cached tex: %s\n", cachefn); */
+    if (firsttexture.next == NULL)
+        return -1;
+    else
+    {
+        int offset = 0;
+        int len = 0;
 
-    if (kread(fil, head, sizeof(texcacheheader)) < (int)sizeof(texcacheheader)) goto failure;
+        texcacheindex *cacheindexptr = &firsttexture;
+
+        do
+        {
+//            initprintf("checking %s against %s\n",cachefn,cacheindexptr->name);
+            if (!Bstrcmp(cachefn,cacheindexptr->name))
+            {
+                offset = cacheindexptr->offset;
+                len = cacheindexptr->len;
+//                initprintf("got a match for %s offset %d\n",cachefn,offset);
+//                break;
+            }
+            cacheindexptr = cacheindexptr->next;
+        }
+        while (cacheindexptr->next);
+        if (len == 0) return -1; // didn't find it
+        Blseek(g_cachefil, offset, BSEEK_SET);
+    }
+
+//    initprintf("Loading cached tex: %s\n", cachefn);
+
+    if (Bread(g_cachefil, head, sizeof(texcacheheader)) < (int)sizeof(texcacheheader)) goto failure;
     if (memcmp(head->magic, "Polymost", 8)) goto failure;
-
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
@@ -1269,15 +1413,17 @@ int trytexcache(char *fn, int len, int dameth, char effect, texcacheheader *head
     if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
     if (!glinfo.texnpot && (head->flags & 1)) goto failure;
 
-    return fil;
+    return g_cachefil;
 failure:
-    kclose(fil);
+    initprintf("cache miss\n");
+//    kclose(g_cachefil);
     return -1;
 }
 
 void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *head)
 {
-    int fil=-1, fp;
+//    int fil=-1;
+    int fp;
     char cachefn[BMAX_PATH], *cp;
     unsigned char mdsum[16];
     texcachepicture pict;
@@ -1287,7 +1433,7 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
     unsigned int padx=0, pady=0;
     GLuint gi;
 
-    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache) return;
+    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache || !g_indexfil || g_cachefil < 0) return;
     if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
     {
         // lacking the necessary extensions to do this
@@ -1295,7 +1441,7 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
         glusetexcache = 0;
         return;
     }
-
+/*
     {
         struct stat st;
         if (stat(TEXCACHEDIR, &st) < 0)
@@ -1325,21 +1471,22 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
             return;
         }
     }
-
+*/
     gi = GL_FALSE;
     bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, (GLint *)&gi);
     if (gi != GL_TRUE) return;
 
     md4once((unsigned char *)fn, strlen(fn), mdsum);
-    for (cp = cachefn, fp = 0; (*cp = TEXCACHEDIR[fp]); cp++,fp++);
-    *(cp++) = '/';
+//    for (cp = cachefn, fp = 0; (*cp = TEXCACHEDIR[fp]); cp++,fp++);
+//    *(cp++) = '/';
+    cp = cachefn;
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
     sprintf(cp, "-%x-%x%x", len, dameth, effect);
 
-    OSD_Printf("Writing cached tex: %s\n", cachefn);
+    OSD_Printf("Writing cached tex: %s ", cachefn);
 
-    fil = Bopen(cachefn,BO_BINARY|BO_CREAT|BO_TRUNC|BO_RDWR,BS_IREAD|BS_IWRITE);
-    if (fil < 0) return;
+//    fil = Bopen(cachefn,BO_BINARY|BO_CREAT|BO_TRUNC|BO_RDWR,BS_IREAD|BS_IWRITE);
+//    if (fil < 0) return;
 
     memcpy(head->magic, "Polymost", 8);   // sizes are set by caller
 
@@ -1350,7 +1497,12 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
     head->flags = B_LITTLE32(head->flags);
     head->quality = B_LITTLE32(head->quality);
 
-    if (Bwrite(fil, head, sizeof(texcacheheader)) != sizeof(texcacheheader)) goto failure;
+    Bstrcpy(datextures->name, cachefn);
+    Blseek(g_cachefil, 0, BSEEK_END);
+    datextures->offset = Blseek(g_cachefil, 0, BSEEK_CUR);
+    initprintf("offset: %d\n",datextures->offset);
+
+    if (Bwrite(g_cachefil, head, sizeof(texcacheheader)) != sizeof(texcacheheader)) goto failure;
 
     bglGetError();
     for (level = 0; level==0 || (padx > 1 || pady > 1); level++)
@@ -1393,12 +1545,25 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
         bglGetCompressedTexImageARB(GL_TEXTURE_2D, level, pic);
         if (bglGetError() != GL_NO_ERROR) goto failure;
 
-        if (Bwrite(fil, &pict, sizeof(texcachepicture)) != sizeof(texcachepicture)) goto failure;
-        if (dxtfilter(fil, &pict, pic, midbuf, packbuf, miplen)) goto failure;
+        if (Bwrite(g_cachefil, &pict, sizeof(texcachepicture)) != sizeof(texcachepicture)) goto failure;
+        if (dxtfilter(g_cachefil, &pict, pic, midbuf, packbuf, miplen)) goto failure;
     }
+   datextures->len = Blseek(g_cachefil, 0, BSEEK_CUR) - datextures->offset;
+   datextures->next = (texcacheindex *)Bcalloc(1,sizeof(texcacheindex));
+
+    if (g_indexfil)
+        fprintf(g_indexfil, "\"%s\" %d %d\n", datextures->name, datextures->offset, datextures->len);
+
+   datextures = datextures->next;
+
+   goto success;
 
 failure:
-    if (fil>=0) Bclose(fil);
+    initprintf("failure!\n");
+    datextures->offset = 0;
+    Bmemset(datextures->name,0,sizeof(datextures->name));
+success:
+//    if (fil>=0) Bclose(fil);
     if (midbuf) free(midbuf);
     if (pic) free(pic);
     if (packbuf) free(packbuf);
@@ -1429,7 +1594,7 @@ int gloadtile_cached(int fil, texcacheheader *head, int *doalloc, pthtyp *pth,in
     // load the mipmaps
     for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
     {
-        r = kread(fil, &pict, sizeof(texcachepicture));
+        r = Bread(fil, &pict, sizeof(texcachepicture));
         if (r < (int)sizeof(texcachepicture)) goto failure;
 
         pict.size = B_LITTLE32(pict.size);
@@ -1477,6 +1642,7 @@ int gloadtile_cached(int fil, texcacheheader *head, int *doalloc, pthtyp *pth,in
     if (packbuf) free(packbuf);
     return 0;
 failure:
+    initprintf("failure!!!\n");
     if (midbuf) free(midbuf);
     if (pic) free(pic);
     if (packbuf) free(packbuf);
@@ -1552,13 +1718,13 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
         tsizx = cachead.xdim;
         tsizy = cachead.ydim;
         hasalpha = (cachead.flags & 2) ? 0 : 255;
-        kclose(cachefil);
+//        kclose(cachefil);
         //kclose(filh);	// FIXME: uncomment when cache1d.c is fixed
         // cachefil >= 0, so it won't be rewritten
     }
     else
     {
-        if (cachefil >= 0) kclose(cachefil);
+//        if (cachefil >= 0) kclose(cachefil);
         cachefil = -1;	// the compressed version will be saved to disk
 
         if ((filh = kopen4load(fn, 0)) < 0) return -1;
@@ -6396,15 +6562,15 @@ int dedxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *p
     if (stride == 16) //If DXT3...
     {
         //alpha_4x4
-        if (kread(fil,&cleng,4) < 4) return -1; cleng = B_LITTLE32(cleng);
+        if (Bread(fil,&cleng,4) < 4) return -1; cleng = B_LITTLE32(cleng);
         j = (pict->size/stride)*8;
 #ifdef USELZF
         if (ispacked && cleng < j) inbuf = packbuf; else inbuf = midbuf;
-        if (kread(fil,inbuf,cleng) < cleng) return -1;
+        if (Bread(fil,inbuf,cleng) < cleng) return -1;
         if (ispacked && cleng < j)
             if (lzf_decompress(packbuf,cleng,midbuf,j) == 0) return -1;
 #else
-        if (kread(fil,inbuf,cleng) < cleng) return -1;
+        if (Bread(fil,inbuf,cleng) < cleng) return -1;
         if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
 #endif
         cptr = midbuf;
@@ -6414,15 +6580,15 @@ int dedxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *p
     }
 
     //rgb0,rgb1
-    if (kread(fil,&cleng,4) < 4) return -1; cleng = B_LITTLE32(cleng);
+    if (Bread(fil,&cleng,4) < 4) return -1; cleng = B_LITTLE32(cleng);
     j = (pict->size/stride)*4;
 #ifdef USELZF
     if (ispacked && cleng < j) inbuf = packbuf; else inbuf = midbuf;
-    if (kread(fil,inbuf,cleng) < cleng) return -1;
+    if (Bread(fil,inbuf,cleng) < cleng) return -1;
     if (ispacked && cleng < j)
         if (lzf_decompress(packbuf,cleng,midbuf,j) == 0) return -1;
 #else
-    if (kread(fil,inbuf,cleng) < cleng) return -1;
+    if (Bread(fil,inbuf,cleng) < cleng) return -1;
     if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
 #endif
     cptr = midbuf;
@@ -6434,15 +6600,15 @@ int dedxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *p
         }
 
     //index_4x4:
-    if (kread(fil,&cleng,4) < 4) return -1; cleng = B_LITTLE32(cleng);
+    if (Bread(fil,&cleng,4) < 4) return -1; cleng = B_LITTLE32(cleng);
     j = (pict->size/stride)*4;
 #ifdef USELZF
     if (ispacked && cleng < j) inbuf = packbuf; else inbuf = midbuf;
-    if (kread(fil,inbuf,cleng) < cleng) return -1;
+    if (Bread(fil,inbuf,cleng) < cleng) return -1;
     if (ispacked && cleng < j)
         if (lzf_decompress(packbuf,cleng,midbuf,j) == 0) return -1;
 #else
-    if (kread(fil,inbuf,cleng) < cleng) return -1;
+    if (Bread(fil,inbuf,cleng) < cleng) return -1;
     if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
 #endif
     cptr = midbuf;

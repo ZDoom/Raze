@@ -27,8 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "osd.h"
 
-intptr_t *g_scriptPtr;
-
 int g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
