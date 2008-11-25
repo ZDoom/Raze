@@ -42,16 +42,21 @@ extern int          pr_gpusmoothing;
 
 extern int          glerror;
 
-// DATA
+// MATERIAL
+typedef struct      s_prmaterial {
+    GLuint          diffusemap;
+    GLfloat         diffusemodulation[4];
+    GLuint          glowmap;
+}                   _prmaterial;
+
+// BUILD DATA
 typedef struct      s_prplane {
     // geometry
     GLfloat*        buffer;
     GLuint          vbo;
     // attributes
     GLdouble        plane[4];
-    GLfloat         color[4];
-    GLuint          glpic;
-    GLuint          fbglpic;
+    _prmaterial     material;
     // elements
     GLushort*       indices;
     GLuint          ivbo;
@@ -108,6 +113,7 @@ typedef struct      s_pranimatespritesinfo {
     int             x, y, a, smoothratio;
 }                   _pranimatespritesinfo;
 
+// LIGHTS
 #define             PR_MAXLIGHTS 128
 
 typedef enum {
@@ -122,6 +128,7 @@ typedef struct      s_prlight {
     prlighttype     type;
 }                   _prlight;
 
+// PROGRAMS
 #define             PR_INFO_LOG_BUFFER_SIZE 512
 
 typedef enum {
