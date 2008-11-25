@@ -733,16 +733,17 @@ void polymost_glreset()
     cacheindexptr = Bfopen(tempbuf, "at");
     if (!cacheindexptr)
     {
+        glusetexcache = 0;
         initprintf("Unable to open cache index!\n");
         return;
     }
 
-    cachefilehandle = openfrompath(TEXCACHEDIR,BO_BINARY|BO_APPEND|BO_CREAT|BO_RDWR,BS_IREAD|BS_IWRITE);
+    cachefilehandle = Bopen(TEXCACHEDIR,BO_BINARY|BO_CREAT|BO_APPEND|BO_RDWR,BS_IREAD|BS_IWRITE);
 
     if (cachefilehandle < 0)
     {
         glusetexcache = 0;
-        initprintf("Unable to open cache file!\n");
+        initprintf("Unable to open cache file! %s\n",strerror(errno));
     }
 
 #if 0
@@ -920,7 +921,7 @@ void polymost_glinit()
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    if (cachefilehandle != -1)
+    if (cachefilehandle > -1)
         Bclose(cachefilehandle);
 
     if (cacheindexptr)
@@ -937,14 +938,15 @@ void polymost_glinit()
     cacheindexptr = Bfopen(tempbuf, "at");
     if (!cacheindexptr)
     {
+        glusetexcache = 0;
         initprintf("Unable to open cache index!\n");
         return;
     }
-    cachefilehandle = Bopen(TEXCACHEDIR,BO_BINARY|BO_APPEND|BO_CREAT|BO_RDWR,BS_IREAD|BS_IWRITE);
+    cachefilehandle = Bopen(TEXCACHEDIR,BO_BINARY|BO_CREAT|BO_APPEND|BO_RDWR,BS_IREAD|BS_IWRITE);
 
     if (cachefilehandle < 0)
     {
-        initprintf("Unable to open cache file!\n");
+        initprintf("Unable to open cache file! %s\n",strerror(errno));
         glusetexcache = 0;
         return;
     }
@@ -980,13 +982,17 @@ void invalidatecache(void)
     cacheindexptr = Bfopen(tempbuf, "wt");
     if (!cacheindexptr)
     {
+        glusetexcache = 0;
         initprintf("Unable to open cache index!\n");
         return;
     }
-    cachefilehandle = Bopen(TEXCACHEDIR,BO_BINARY|BO_TRUNC|BO_CREAT|BO_RDWR,BS_IREAD|BS_IWRITE);
+    cachefilehandle = Bopen(TEXCACHEDIR,BO_BINARY|BO_CREAT|BO_TRUNC|BO_RDWR,BS_IREAD|BS_IWRITE);
 
     if (cachefilehandle < 0)
-        initprintf("Unable to open cache file!\n");
+    {
+        glusetexcache = 0;
+        initprintf("Unable to open cache file! %s\n",strerror(errno));
+    }
     HASH_init(&cacheH);
 }
 
