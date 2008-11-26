@@ -607,7 +607,7 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
         }
         while (cacheindexptr->next);
         */
-        i = HASH_findcase(&cacheH,cachefn);
+        i = HASH_find(&cacheH,cachefn);
         if (i != -1)
         {
             texcacheindex *cacheindexptr = cacheptrs[i];
@@ -622,7 +622,7 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
 //    initprintf("Loading cached skin: %s\n", cachefn);
 
     if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int)sizeof(texcacheheader)) goto failure;
-    if (memcmp(head->magic, "Polymost", 8)) goto failure;
+    if (memcmp(head->magic, "PMST", 4)) goto failure;
 
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
