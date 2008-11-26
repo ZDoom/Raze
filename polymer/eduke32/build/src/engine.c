@@ -5788,8 +5788,10 @@ void uninitengine(void)
     polymost_glreset();
     hicinit();
     freeallmodels();
-    if (cachefilehandle > -1) Bclose(cachefilehandle);
-    if (cacheindexptr != NULL) Bfclose(cacheindexptr);
+/*    if (cachefilehandle > -1)
+        Bclose(cachefilehandle);
+    if (cacheindexptr != NULL)
+        Bfclose(cacheindexptr); */
     datextures = &firstcacheindex;
     while (datextures->next)
     {
@@ -10461,7 +10463,7 @@ int getceilzofslope(short sectnum, int dax, int day)
     dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
     i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return(sector[sectnum].ceilingz);
     j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
-    return(sector[sectnum].ceilingz+scale(sector[sectnum].ceilingheinum,j,i));
+    return(sector[sectnum].ceilingz+(scale(sector[sectnum].ceilingheinum,j>>1,i)<<1));
 }
 
 
@@ -10478,7 +10480,7 @@ int getflorzofslope(short sectnum, int dax, int day)
     dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
     i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return(sector[sectnum].floorz);
     j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
-    return(sector[sectnum].floorz+scale(sector[sectnum].floorheinum,j,i));
+    return(sector[sectnum].floorz+(scale(sector[sectnum].floorheinum,j>>1,i)<<1));
 }
 
 
@@ -10499,8 +10501,8 @@ void getzsofslope(short sectnum, int dax, int day, int *ceilz, int *florz)
         dx = wal2->x-wal->x; dy = wal2->y-wal->y;
         i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return;
         j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
-        if (sec->ceilingstat&2) *ceilz = (*ceilz)+scale(sec->ceilingheinum,j,i);
-        if (sec->floorstat&2) *florz = (*florz)+scale(sec->floorheinum,j,i);
+        if (sec->ceilingstat&2) *ceilz = (*ceilz)+(scale(sec->ceilingheinum,j>>1,i)<<1);
+        if (sec->floorstat&2) *florz = (*florz)+(scale(sec->floorheinum,j>>1,i)<<1);
     }
 }
 

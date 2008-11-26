@@ -583,9 +583,6 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
 //    fil = kopen4load(cachefn, 0);
 //    if (fil < 0) return -1;
 
-    if (firstcacheindex.next == NULL)
-        return -1;
-    else
     {
         int offset = 0;
         int len = 0;

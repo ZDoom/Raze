@@ -717,10 +717,16 @@ void polymost_glreset()
     }
 
     if (cachefilehandle != -1)
+    {
         Bclose(cachefilehandle);
+        cachefilehandle = -1;
+    }
 
     if (cacheindexptr)
+    {
         Bfclose(cacheindexptr);
+        cacheindexptr = NULL;
+    }
 
     datextures = &firstcacheindex;
     numcacheentries = 0;
@@ -922,10 +928,16 @@ void polymost_glinit()
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
     if (cachefilehandle > -1)
+    {
         Bclose(cachefilehandle);
+        cachefilehandle = -1;
+    }
 
     if (cacheindexptr)
+    {
         Bfclose(cacheindexptr);
+        cacheindexptr = NULL;
+    }
 
     datextures = &firstcacheindex;
     numcacheentries = 0;
@@ -976,11 +988,17 @@ void polymost_glinit()
 
 void invalidatecache(void)
 {
-    if (cachefilehandle != -1)
+    if (cachefilehandle > -1)
+    {
         Bclose(cachefilehandle);
+        cachefilehandle = -1;
+    }
 
     if (cacheindexptr)
+    {
         Bfclose(cacheindexptr);
+        cacheindexptr = NULL;
+    }
 
     datextures = &firstcacheindex;
     numcacheentries = 0;
@@ -1456,9 +1474,6 @@ int trytexcache(char *fn, int len, int dameth, char effect, texcacheheader *head
 //    fil = kopen4load(cachefn, 0);
 //    if (fil < 0) return -1;
 
-    if (firstcacheindex.next == NULL)
-        return -1;
-    else
     {
         int offset = 0;
         int len = 0;
