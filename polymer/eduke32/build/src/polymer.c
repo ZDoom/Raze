@@ -125,35 +125,35 @@ int             lightcount;
 // PROGRAMS
 _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
     {
-        .bit = 1 << PR_BIT_DIFFUSE_MODULATION,
-        .vert_def =
-                "",
-        .vert_prog =
-                "gl_FrontColor = gl_Color;\n"
-                "\n",
-        .frag_def =
-                "",
-        .frag_prog =
-                "  result *= vec4(gl_Color);\n"
-                "\n",
+        1 << PR_BIT_DIFFUSE_MODULATION,
+        // vert_def
+        "",
+        // vert_prog
+        "gl_FrontColor = gl_Color;\n"
+        "\n",
+        // frag_def
+        "",
+        // frag_prog
+        "  result *= vec4(gl_Color);\n"
+        "\n",
     },
     {
-        .bit = 1 << PR_BIT_DEFAULT,
-        .vert_def =
-                "\n"
-                "void main(void)\n"
-                "{\n",
-        .vert_prog =
-                "  gl_Position = ftransform();\n"
-                "}\n",
-        .frag_def =
-                "void main(void)\n"
-                "{\n"
-                "  vec4 result = vec4(1.0, 1.0, 1.0, 1.0);\n"
-                "\n",
-        .frag_prog =
-                "  gl_FragColor = result;\n"
-                "}\n",
+        1 << PR_BIT_DEFAULT,
+        // vert_def
+        "\n"
+        "void main(void)\n"
+        "{\n",
+        // vert_prog
+        "  gl_Position = ftransform();\n"
+        "}\n",
+        // frag_def
+        "void main(void)\n"
+        "{\n"
+        "  vec4 result = vec4(1.0, 1.0, 1.0, 1.0);\n"
+        "\n",
+        // frag_prog
+        "  gl_FragColor = result;\n"
+        "}\n",
     }
 };
 
