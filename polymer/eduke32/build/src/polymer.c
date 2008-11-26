@@ -12,7 +12,7 @@ int             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2
 int             pr_wireframe = 0;
 int             pr_vbos = 2;
 int             pr_mirrordepth = 1;
-int             pr_gpusmoothing = 1;
+int             pr_gpusmoothing = 0;
 
 int             glerror;
 
@@ -26,6 +26,7 @@ _prsector       *prsectors[MAXSECTORS];
 _prwall         *prwalls[MAXWALLS];
 
 _prplane        spriteplane;
+_prmaterial     mdspritematerial;
 
 GLfloat         vertsprite[4 * 5] =
 {
@@ -2235,11 +2236,10 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     float           spos[3];
     float           ang;
     float           scale;
-    GLfloat         color[4];
     int             surfi;
+    GLfloat*        color;
     md3xyzn_t       *v0, *v1;
     md3surf_t       *s;
-    GLuint          i;
 
     m = (md3model*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
     updateanimation((md2model *)m,tspr);
@@ -2286,6 +2286,10 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     bglScalef(scale * tspr->xrepeat, scale * tspr->xrepeat, scale * tspr->yrepeat);
     bglTranslatef(0.0f, 0.0, m->zadd * 64);
 
+    mdspritematerial.diffusescalex = mdspritematerial.diffusescaley = 1.0f;
+
+    color = mdspritematerial.diffusemodulation;
+
     color[0] = color[1] = color[2] =
         ((float)(numpalookups-min(max((tspr->shade*shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups);
 
@@ -2293,9 +2297,9 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     {
         if (!(m->flags&1) || (!(tspr->owner >= MAXSPRITES) && sector[sprite[tspr->owner].sectnum].floorpal!=0))
         {
-            color[0] *= (float)hictinting[globalpal].r / 255.0;
-            color[1] *= (float)hictinting[globalpal].g / 255.0;
-            color[2] *= (float)hictinting[globalpal].b / 255.0;
+            color[0] *= (float)hictinting[tspr->pal].r / 255.0;
+            color[1] *= (float)hictinting[tspr->pal].g / 255.0;
+            color[2] *= (float)hictinting[tspr->pal].b / 255.0;
             if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
             {
                 color[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
@@ -2303,7 +2307,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 color[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
             }
         }
-        else globalnoeffect=1;
+        else globalnoeffect=1; //mdloadskin reads this
     }
 
     if (tspr->cstat & 2)
@@ -2314,8 +2318,6 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             color[3] = 0.33;
     } else
         color[3] = 1.0;
-
-    bglColor4f(color[0], color[1], color[2], color[3]);
 
     if (pr_gpusmoothing)
     {
@@ -2333,11 +2335,11 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         v0 = &s->xyzn[m->cframe*s->numverts];
         v1 = &s->xyzn[m->nframe*s->numverts];
 
-        i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
-        if (!i)
+        mdspritematerial.diffusemap = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
+        if (!mdspritematerial.diffusemap)
             continue;
 
-        bglBindTexture(GL_TEXTURE_2D, i);
+        polymer_bindmaterial(mdspritematerial);
 
         if (pr_vbos > 1)
         {
