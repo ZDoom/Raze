@@ -132,6 +132,7 @@ typedef struct      s_prlight {
 #define             PR_INFO_LOG_BUFFER_SIZE 512
 
 typedef enum {
+                    PR_BIT_DIFFUSE_MAP,
                     PR_BIT_DIFFUSE_MODULATION,
                     PR_BIT_DEFAULT, // must be just before last
                     PR_BIT_COUNT    // must be last
@@ -144,6 +145,10 @@ typedef struct      s_prprogrambit {
     char*           frag_def;
     char*           frag_prog;
 }                   _prprogrambit;
+
+typedef struct      s_prrograminfo {
+    GLhandleARB     handle;
+}                   _prprograminfo;
 
 // CONTROL
 extern int          updatesectors;

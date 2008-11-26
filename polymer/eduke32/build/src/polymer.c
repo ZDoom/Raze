@@ -125,6 +125,20 @@ int             lightcount;
 // PROGRAMS
 _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
     {
+        1 << PR_BIT_DIFFUSE_MAP,
+        // vert_def
+        "",
+        // vert_prog
+        "gl_TexCoord[0] = gl_MultiTexCoord0;\n"
+        "\n",
+        // frag_def
+        "uniform sampler2D diffuseMap;\n"
+        "\n",
+        // frag_prog
+        "  result *= texture2D(diffuseMap, gl_TexCoord[0].st);\n"
+        "\n",
+    },
+    {
         1 << PR_BIT_DIFFUSE_MODULATION,
         // vert_def
         "",
@@ -157,7 +171,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
     }
 };
 
-GLhandleARB     prprograms[1 << PR_BIT_COUNT];
+_prprograminfo  prprograms[1 << PR_BIT_COUNT];
 
 // CONTROL
 GLdouble        spritemodelview[16];
@@ -1038,6 +1052,8 @@ static void         polymer_drawplane(short sectnum, short wallnum, _prplane* pl
     {
         OMGDRAWSHIT;
     }
+
+    bglUseProgramObjectARB(0);
 
 //     if ((depth < 1) && (plane->plane != NULL) &&
 //             (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
@@ -2591,16 +2607,26 @@ static void         polymer_bindmaterial(_prmaterial material)
 
     // --------- bit validation
 
+    // PR_BIT_DIFFUSE_MAP
+    if (material.diffusemap)
+        programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP].bit;
+
     // PR_BIT_DIFFUSE_MODULATION
     if ((material.diffusemodulation[0] != 1.0f) || (material.diffusemodulation[1] != 1.0f) ||
         (material.diffusemodulation[2] != 1.0f) || (material.diffusemodulation[3] != 1.0f))
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
 
     // --------- program compiling
-    if (!prprograms[programbits])
+    if (!prprograms[programbits].handle)
         polymer_compileprogram(programbits);
 
     // --------- bit setup
+
+    // PR_BIT_DIFFUSE_MAP
+    if (programbits & prprogrambits[PR_BIT_DIFFUSE_MAP].bit)
+    {
+        bglBindTexture(GL_TEXTURE_2D, material.diffusemap);
+    }
 
     // PR_BIT_DIFFUSE_MODULATION
     if (programbits & prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit)
@@ -2611,7 +2637,7 @@ static void         polymer_bindmaterial(_prmaterial material)
                    material.diffusemodulation[3]);
     }
 
-    bglUseProgramObjectARB(prprograms[programbits]);
+    bglUseProgramObjectARB(prprograms[programbits].handle);
 }
 
 static void         polymer_compileprogram(int programbits)
@@ -2675,7 +2701,7 @@ static void         polymer_compileprogram(int programbits)
 
     bglGetInfoLogARB(program, PR_INFO_LOG_BUFFER_SIZE, NULL, infobuffer);
 
-    prprograms[programbits] = program;
+    prprograms[programbits].handle = program;
 
     if (pr_verbosity >= 1) OSD_Printf("Compiling GPU program with bits %i...\n", programbits);
     if (infobuffer[0])
