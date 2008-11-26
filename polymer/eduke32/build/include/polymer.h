@@ -45,6 +45,7 @@ extern int          glerror;
 // MATERIAL
 typedef struct      s_prmaterial {
     GLuint          diffusemap;
+    GLfloat         diffusescalex, diffusescaley;
     GLfloat         diffusemodulation[4];
     GLuint          glowmap;
 }                   _prmaterial;

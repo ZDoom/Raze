@@ -129,7 +129,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // vert_def
         "",
         // vert_prog
-        "gl_TexCoord[0] = gl_MultiTexCoord0;\n"
+        "gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
         "\n",
         // frag_def
         "uniform sampler2D diffuseMap;\n"
@@ -621,23 +621,20 @@ void                polymer_drawsprite(int snum)
         break;
     }
 
-    bglMatrixMode(GL_TEXTURE);
-    bglLoadIdentity();
-
     if ((tspr->cstat & 4) || (((tspr->cstat>>4) & 3) == 2))
-        bglScalef(-1.0f, 1.0f, 1.0f);
+        spriteplane.material.diffusescalex = -spriteplane.material.diffusescalex;
 
     if (tspr->cstat & 8)
-        bglScalef(1.0f, -1.0f, 1.0f);
+        spriteplane.material.diffusescaley = -spriteplane.material.diffusescaley;
 
     if ((tspr->cstat & 64) && (((tspr->cstat>>4) & 3) == 1))
         bglEnable(GL_CULL_FACE);
 
-    bglEnable(GL_POLYGON_OFFSET_FILL);
+//     bglEnable(GL_POLYGON_OFFSET_FILL);
 
     polymer_drawplane(-1, -3, &spriteplane, 0);
 
-    bglDisable(GL_POLYGON_OFFSET_FILL);
+//     bglDisable(GL_POLYGON_OFFSET_FILL);
 
     if ((tspr->cstat & 64) && (((tspr->cstat>>4) & 3) == 1))
         bglDisable(GL_CULL_FACE);
@@ -1529,7 +1526,6 @@ static void         polymer_updatewall(short wallnum)
     sectortype      *sec, *nsec;
     _prwall         *w;
     _prsector       *s, *ns;
-    pthtyp*         pth;
     int             xref, yref;
     float           ypancoef, dist;
     int             i;
@@ -2451,6 +2447,15 @@ static void         polymer_getmaterial(_prmaterial* material, short tilenum, ch
 
     pth = gltexcache(tilenum, pal, 0);
 
+    material->diffusemap = (pth) ? pth->glpic : 0;
+
+    if (pth->hicr)
+    {
+        material->diffusescalex = pth->hicr->xscale;
+        material->diffusescaley = pth->hicr->yscale;
+    } else
+        material->diffusescalex = material->diffusescaley = 1.0f;
+
     material->diffusemodulation[0] =
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
@@ -2463,8 +2468,6 @@ static void         polymer_getmaterial(_prmaterial* material, short tilenum, ch
         material->diffusemodulation[1] *= (float)hictinting[pal].g / 255.0;
         material->diffusemodulation[2] *= (float)hictinting[pal].b / 255.0;
     }
-
-    material->diffusemap = (pth) ? pth->glpic : 0;
 }
 
 static void         polymer_bindmaterial(_prmaterial material)
@@ -2494,6 +2497,11 @@ static void         polymer_bindmaterial(_prmaterial material)
     if (programbits & prprogrambits[PR_BIT_DIFFUSE_MAP].bit)
     {
         bglBindTexture(GL_TEXTURE_2D, material.diffusemap);
+
+        bglMatrixMode(GL_TEXTURE);
+        bglLoadIdentity();
+        bglScalef(material.diffusescalex, material.diffusescaley, 1.0f);
+        bglMatrixMode(GL_MODELVIEW);
     }
 
     // PR_BIT_DIFFUSE_MODULATION
