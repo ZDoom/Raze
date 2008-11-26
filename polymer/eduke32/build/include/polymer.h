@@ -201,7 +201,8 @@ static void         polymer_drawskybox(short tilenum);
 // MDSPRITES
 static void         polymer_drawmdsprite(spritetype *tspr);
 static void         polymer_loadmodelvbos(md3model* m);
-// GPU PROGRAMS
+// MATERIALS
+static void         polymer_getmaterial(_prmaterial* material, short tilenum, char pal, signed char shade);
 static void         polymer_bindmaterial(_prmaterial material);
 static void         polymer_compileprogram(int programbits);
 

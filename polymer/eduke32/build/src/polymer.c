@@ -122,7 +122,7 @@ GLfloat         artskydata[16];
 _prlight        prlights[PR_MAXLIGHTS];
 int             lightcount;
 
-// PROGRAMS
+// MATERIALS
 _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
     {
         1 << PR_BIT_DIFFUSE_MAP,
@@ -501,7 +501,6 @@ void                polymer_drawsprite(int snum)
 {
     int             curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff;
     spritetype      *tspr;
-    pthtyp*         pth;
     float           xratio, yratio, ang;
     float           spos[3];
 
@@ -518,22 +517,7 @@ void                polymer_drawsprite(int snum)
     curpicnum = tspr->picnum;
     if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,tspr->owner+32768);
 
-    if (!waloff[curpicnum])
-        loadtile(curpicnum);
-
-    pth = gltexcache(curpicnum, tspr->pal, 0);
-
-    spriteplane.material.diffusemodulation[0] =
-            spriteplane.material.diffusemodulation[1] =
-            spriteplane.material.diffusemodulation[2] =
-            ((float)(numpalookups-min(max(tspr->shade*shadescale,0),numpalookups)))/((float)numpalookups);
-
-    if (pth && (pth->flags & 2) && (pth->palnum != tspr->pal))
-    {
-        spriteplane.material.diffusemodulation[0] *= (float)hictinting[tspr->pal].r / 255.0;
-        spriteplane.material.diffusemodulation[1] *= (float)hictinting[tspr->pal].g / 255.0;
-        spriteplane.material.diffusemodulation[2] *= (float)hictinting[tspr->pal].b / 255.0;
-    }
+    polymer_getmaterial(&spriteplane.material, curpicnum, tspr->pal, tspr->shade);
 
     if (tspr->cstat & 2)
     {
@@ -542,10 +526,6 @@ void                polymer_drawsprite(int snum)
         else
             spriteplane.material.diffusemodulation[3] = 0.66f;
     }
-    else
-        spriteplane.material.diffusemodulation[3] = 1.0f;
-
-    spriteplane.material.diffusemap = (pth) ? pth->glpic : 0;
 
     if (((tspr->cstat>>4) & 3) == 0)
         xratio = (float)(tspr->xrepeat) * 32.0f / 160.0f;
@@ -1160,8 +1140,6 @@ static int          polymer_updatesector(short sectnum)
     short           curstat, curpicnum, floorpicnum, ceilingpicnum;
     char            curxpanning, curypanning;
     GLfloat*        curbuffer;
-    GLuint          *curglpic, *curfbglpic;
-    pthtyp*         pth;
 
     s = prsectors[sectnum];
     sec = &sector[sectnum];
@@ -1340,58 +1318,8 @@ attributes:
             (ceilingpicnum == s->ceilingpicnum))
         goto finish;
 
-    i = 0;
-    while (i < sec->wallnum)
-    {
-        //attributes
-        j = 2;
-        curbuffer = s->floor.material.diffusemodulation;
-        curstat = sec->floorshade;
-        curxpanning = sec->floorpal;
-        curpicnum = floorpicnum;
-        curglpic = &s->floor.material.diffusemap;
-        curfbglpic = &s->floor.material.glowmap;
-
-        while (j > 0)
-        {
-            if (j == 1)
-            {
-                curbuffer = s->ceil.material.diffusemodulation;
-                curstat = sec->ceilingshade;
-                curxpanning = sec->ceilingpal;
-                curpicnum = ceilingpicnum;
-                curglpic = &s->ceil.material.diffusemap;
-                curfbglpic = &s->ceil.material.glowmap;
-            }
-
-            if (!waloff[curpicnum])
-                loadtile(curpicnum);
-
-            curbuffer[0] = curbuffer[1] = curbuffer[2] =
-                ((float)(numpalookups-min(max(curstat*shadescale,0),numpalookups)))/((float)numpalookups);
-            curbuffer[3] = 1.0f;
-
-            pth = gltexcache(curpicnum,curxpanning,0);
-
-            if (pth && (pth->flags & 2) && (pth->palnum != curxpanning))
-            {
-                curbuffer[0] *= (float)hictinting[curxpanning].r / 255.0;
-                curbuffer[1] *= (float)hictinting[curxpanning].g / 255.0;
-                curbuffer[2] *= (float)hictinting[curxpanning].b / 255.0;
-            }
-
-            *curglpic = (pth) ? pth->glpic : 0;
-
-            if (pth && (pth->flags & 16))
-                *curfbglpic = pth->ofb->glpic;
-            else
-                *curfbglpic = 0;
-
-            j--;
-        }
-
-        i++;
-    }
+    polymer_getmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade);
+    polymer_getmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade);
 
     s->floorshade = sec->floorshade;
     s->floorpal = sec->floorpal;
@@ -1699,29 +1627,7 @@ static void         polymer_updatewall(short wallnum)
 
         curpicnum = wallpicnum;
 
-        if (!waloff[curpicnum])
-            loadtile(curpicnum);
-
-        pth = gltexcache(curpicnum, wal->pal, 0);
-        w->wall.material.diffusemap = pth ? pth->glpic : 0;
-
-        if (pth && (pth->flags & 16))
-            w->wall.material.glowmap = pth->ofb->glpic;
-        else
-            w->wall.material.glowmap = 0;
-
-        w->wall.material.diffusemodulation[0] =
-                w->wall.material.diffusemodulation[1] =
-                w->wall.material.diffusemodulation[2] =
-            ((float)(numpalookups-min(max(wal->shade*shadescale,0),numpalookups)))/((float)numpalookups);
-        w->wall.material.diffusemodulation[3] = 1.0f;
-
-        if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
-        {
-            w->wall.material.diffusemodulation[0] *= (float)hictinting[wal->pal].r / 255.0;
-            w->wall.material.diffusemodulation[1] *= (float)hictinting[wal->pal].g / 255.0;
-            w->wall.material.diffusemodulation[2] *= (float)hictinting[wal->pal].b / 255.0;
-        }
+        polymer_getmaterial(&w->wall.material, curpicnum, wal->pal, wal->shade);
 
         if (wal->cstat & 4)
             yref = sec->floorz;
@@ -1798,29 +1704,7 @@ static void         polymer_updatewall(short wallnum)
                 curypanning = wal->ypanning;
             }
 
-            if (!waloff[curpicnum])
-                loadtile(curpicnum);
-
-            pth = gltexcache(curpicnum, curpal, 0);
-            w->wall.material.diffusemap = pth ? pth->glpic : 0;
-
-            if (pth && (pth->flags & 16))
-                w->wall.material.glowmap = pth->ofb->glpic;
-            else
-                w->wall.material.glowmap = 0;
-
-            w->wall.material.diffusemodulation[0] =
-                    w->wall.material.diffusemodulation[1] =
-                    w->wall.material.diffusemodulation[2] =
-                ((float)(numpalookups-min(max(curshade*shadescale,0),numpalookups)))/((float)numpalookups);
-            w->wall.material.diffusemodulation[3] = 1.0f;
-
-            if (pth && (pth->flags & 2) && (pth->palnum != curpal))
-            {
-                w->wall.material.diffusemodulation[0] *= (float)hictinting[curpal].r / 255.0;
-                w->wall.material.diffusemodulation[1] *= (float)hictinting[curpal].g / 255.0;
-                w->wall.material.diffusemodulation[2] *= (float)hictinting[curpal].b / 255.0;
-            }
+            polymer_getmaterial(&w->wall.material, curpicnum, curpal, curshade);
 
             if ((!(wal->cstat & 2) && (wal->cstat & 4)) || ((wal->cstat & 2) && (wall[nwallnum].cstat & 4)))
                 yref = sec->ceilingz;
@@ -1889,30 +1773,12 @@ static void         polymer_updatewall(short wallnum)
             else
                 curpicnum = wallpicnum;
 
-            if (!waloff[curpicnum])
-                loadtile(curpicnum);
+            polymer_getmaterial(&w->over.material, curpicnum, wal->pal, wal->shade);
 
             if (wal->cstat & 16)
             {
-                // mask glpic and color
-                if (!waloff[wal->overpicnum])
-                    loadtile(wal->overpicnum);
-
-                pth = gltexcache(wal->overpicnum, wal->pal, 0);
-                w->mask.material.diffusemap = pth ? pth->glpic : 0;
-
-                w->mask.material.diffusemodulation[0] =
-                        w->mask.material.diffusemodulation[1] =
-                        w->mask.material.diffusemodulation[2] =
-                    ((float)(numpalookups-min(max(wal->shade*shadescale,0),numpalookups)))/((float)numpalookups);
-                w->mask.material.diffusemodulation[3] = 1.0f;
-
-                if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
-                {
-                    w->mask.material.diffusemodulation[0] *= (float)hictinting[wal->pal].r / 255.0;
-                    w->mask.material.diffusemodulation[1] *= (float)hictinting[wal->pal].g / 255.0;
-                    w->mask.material.diffusemodulation[2] *= (float)hictinting[wal->pal].b / 255.0;
-                }
+                // mask
+                polymer_getmaterial(&w->mask.material, wal->overpicnum, wal->pal, wal->shade);
                 if (wal->cstat & 128)
                 {
                     if (wal->cstat & 512)
@@ -1920,29 +1786,6 @@ static void         polymer_updatewall(short wallnum)
                     else
                         w->mask.material.diffusemodulation[3] = 0.66f;
                 }
-                else
-                    w->mask.material.diffusemodulation[3] = 1.0f;
-            }
-
-            pth = gltexcache(curpicnum, wal->pal, 0);
-            w->over.material.diffusemap = pth ? pth->glpic : 0;
-
-            if (pth && (pth->flags & 16))
-                w->over.material.glowmap = pth->ofb->glpic;
-            else
-                w->over.material.glowmap = 0;
-
-            w->over.material.diffusemodulation[0] =
-                    w->over.material.diffusemodulation[1] =
-                    w->over.material.diffusemodulation[2] =
-                ((float)(numpalookups-min(max(wal->shade*shadescale,0),numpalookups)))/((float)numpalookups);
-            w->over.material.diffusemodulation[3] = 1.0f;
-
-            if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
-            {
-                w->over.material.diffusemodulation[0] *= (float)hictinting[wal->pal].r / 255.0;
-                w->over.material.diffusemodulation[1] *= (float)hictinting[wal->pal].g / 255.0;
-                w->over.material.diffusemodulation[2] *= (float)hictinting[wal->pal].b / 255.0;
             }
 
             if (wal->cstat & 4)
@@ -2598,7 +2441,32 @@ static void         polymer_loadmodelvbos(md3model* m)
     }
 }
 
-// GPU PROGRAMS
+// MATERIALS
+static void         polymer_getmaterial(_prmaterial* material, short tilenum, char pal, signed char shade)
+{
+    pthtyp*         pth;
+
+    if (!waloff[tilenum])
+        loadtile(tilenum);
+
+    pth = gltexcache(tilenum, pal, 0);
+
+    material->diffusemodulation[0] =
+            material->diffusemodulation[1] =
+            material->diffusemodulation[2] =
+            ((float)(numpalookups-min(max(shade*shadescale,0),numpalookups)))/((float)numpalookups);
+    material->diffusemodulation[3] = 1.0f;
+
+    if (pth && (pth->flags & 2) && (pth->palnum != pal))
+    {
+        material->diffusemodulation[0] *= (float)hictinting[pal].r / 255.0;
+        material->diffusemodulation[1] *= (float)hictinting[pal].g / 255.0;
+        material->diffusemodulation[2] *= (float)hictinting[pal].b / 255.0;
+    }
+
+    material->diffusemap = (pth) ? pth->glpic : 0;
+}
+
 static void         polymer_bindmaterial(_prmaterial material)
 {
     int             programbits;
