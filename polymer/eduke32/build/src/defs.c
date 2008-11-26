@@ -1399,7 +1399,7 @@ static int defsparser(scriptfile *script)
                     double scale=1.0;
                     scriptfile_getdouble(script,&scale);
 #ifdef SUPERBUILD
-                    voxscale[lastvoxid] = 65536*scale;
+                    voxscale[lastvoxid] = (int)(65536*scale);
 #endif
                     break;
                 }

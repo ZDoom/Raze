@@ -117,7 +117,7 @@ static char *confilename = defaultconfilename;
 char *duke3ddef = "duke3d.def";
 char mod_dir[BMAX_PATH] = "/";
 #if defined(POLYMOST)
-extern char TEXCACHEDIR[BMAX_PATH];
+extern char TEXCACHEFILE[BMAX_PATH];
 #endif
 extern int lastvisinc;
 
@@ -11067,8 +11067,8 @@ void app_main(int argc,const char **argv)
         addsearchpath(root);
 //        addsearchpath(mod_dir);
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        Bsprintf(tempbuf,"%s/%s",mod_dir,TEXCACHEDIR);
-        Bstrcpy(TEXCACHEDIR,tempbuf);
+        Bsprintf(tempbuf,"%s/%s",mod_dir,TEXCACHEFILE);
+        Bstrcpy(TEXCACHEFILE,tempbuf);
 #endif
     }
 

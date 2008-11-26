@@ -574,7 +574,7 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
     }
 
     md4once((unsigned char *)fn, strlen(fn), mdsum);
-//    for (cp = cachefn, fp = 0; (*cp = TEXCACHEDIR[fp]); cp++,fp++);
+//    for (cp = cachefn, fp = 0; (*cp = TEXCACHEFILE[fp]); cp++,fp++);
 //    *(cp++) = '/';
     cp = cachefn;
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
@@ -1049,7 +1049,7 @@ static md2model *md2load(int fil, const char *filnam)
     int i, j, k;
 
     m = (md2model *)calloc(1,sizeof(md2model)); if (!m) return(0);
-    m->mdnum = 2; m->scale = .01;
+    m->mdnum = 2; m->scale = .01f;
 
     kread(fil,(char *)&head,sizeof(md2head_t));
     head.id = B_LITTLE32(head.id);                 head.vers = B_LITTLE32(head.vers);

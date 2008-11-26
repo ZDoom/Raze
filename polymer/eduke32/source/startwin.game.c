@@ -74,7 +74,7 @@ static int getfilenames(char *path)
 #define POPULATE_GAMEDIRS 8
 
 #if defined(POLYMOST)
-extern char TEXCACHEDIR[];
+extern char TEXCACHEFILE[];
 #endif
 
 extern int g_noSetup;
@@ -193,7 +193,7 @@ static void PopulateForm(int pgs)
         for (dirs=finddirs,i=1; dirs != NULL; dirs=dirs->next,i++)
         {
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (Bstrcasecmp(TEXCACHEDIR,dirs->name) == 0) continue;
+            if (Bstrcasecmp(TEXCACHEFILE,dirs->name) == 0) continue;
 #endif
             j = ComboBox_AddString(hwnd, dirs->name);
             (void)ComboBox_SetItemData(hwnd, j, i);

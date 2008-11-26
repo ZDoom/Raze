@@ -7419,7 +7419,13 @@ static void G_CheckCommandLine(int argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
+#if defined(POLYMOST) && defined(USE_OPENGL)
+                        extern char TEXCACHEFILE[BMAX_PATH];
+                        Bsprintf(tempbuf,"%s/%s",argv[i+1],TEXCACHEFILE);
+                        Bstrcpy(TEXCACHEFILE,tempbuf);
+#endif
                         AddGamePath(argv[i+1]);
+
                         COPYARG(i);
                         COPYARG(i+1);
                         i++;

@@ -5783,8 +5783,6 @@ void uninitengine(void)
     //OSD_Printf("cacheresets = %d, cacheinvalidates = %d\n", cacheresets, cacheinvalidates);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    texcacheindex *index;
-
     polymost_glreset();
     hicinit();
     freeallmodels();
@@ -5792,15 +5790,6 @@ void uninitengine(void)
         Bclose(cachefilehandle);
     if (cacheindexptr != NULL)
         Bfclose(cacheindexptr); */
-    datextures = &firstcacheindex;
-    while (datextures->next)
-    {
-        index = datextures;
-        datextures = datextures->next;
-        if (index != &firstcacheindex)
-            Bfree(index);
-    }
-    
 #endif
 
     uninitsystem();
@@ -12228,8 +12217,9 @@ void setpolymost2dview(void)
 void HASH_init(struct HASH_table *t)
 {
     HASH_free(t);
-    t->items=Bcalloc(1,t->size * sizeof(struct HASH_item));
-    Bmemset(t->items,0,t->size * sizeof(struct HASH_item));
+    t->items=Bcalloc(1, t->size * sizeof(struct HASH_item));
+    // memset commented because it's redundant with calloc
+    //    Bmemset(t->items,0,t->size * sizeof(struct HASH_item));
 }
 
 void HASH_free(struct HASH_table *t)
@@ -12238,26 +12228,27 @@ void HASH_free(struct HASH_table *t)
     int i;
     int num;
 
-    if (t->items==NULL)return;
+    if (t->items == NULL)
+        return;
 //    initprintf("*free, num:%d\n",t->size);
-    i=t->size-1;
+    i= t->size-1;
     do
     {
-        cur=t->items[i];
-        num=0;
+        cur = t->items[i];
+        num = 0;
         while (cur)
         {
-            tmp=cur;
-            cur=cur->next;
+            tmp = cur;
+            cur = cur->next;
 //          initprintf("Free %4d '%s'\n",tmp->key,(tmp->string)?tmp->string:".");
             Bfree(tmp);
             num++;
         }
 //        initprintf("#%4d: %3d\t",i,num);
     }
-    while (--i>=0);
+    while (--i > -1);
     Bfree(t->items);
-    t->items=0;
+    t->items = 0;
 }
 
 inline int HASH_getcode(const char *s)
@@ -12277,10 +12268,15 @@ void HASH_add(struct HASH_table *t, const char *s, int key)
     struct HASH_item *cur, *prev=NULL;
     int code;
 
-    if (!s)return;
-    if (t->items==NULL) {initprintf("HASH_add: not initalized\n");return;}
-    code=HASH_getcode(s)%t->size;
-    cur=t->items[code];
+    if (!s)
+        return;
+    if (t->items == NULL)
+    {
+        initprintf("HASH_add: not initalized\n");
+        return;
+    }
+    code = HASH_getcode(s)%t->size;
+    cur = t->items[code];
 
     if (!cur)
     {
@@ -12294,7 +12290,8 @@ void HASH_add(struct HASH_table *t, const char *s, int key)
 
     do
     {
-        if (Bstrcmp(s,cur->string)==0)return;
+        if (Bstrcmp(s,cur->string)==0)
+            return;
         prev=cur;
         cur=cur->next;
     }
