@@ -134,6 +134,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // vert_prog
         "  vec4 currentFramePosition;\n"
         "  vec4 nextFramePosition;\n"
+        "\n"
         "  currentFramePosition = gl_Vertex * (1.0 - frameProgress);\n"
         "  nextFramePosition = nextFrameData * frameProgress;\n"
         "  currentFramePosition = currentFramePosition + nextFramePosition;\n"
@@ -186,6 +187,23 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "",
         // frag_prog
         "  result *= vec4(gl_Color);\n"
+        "\n",
+    },
+    {
+        1 << PR_BIT_DIFFUSE_GLOW_MAP,
+        // vert_def
+        "",
+        // vert_prog
+        "gl_TexCoord[2] = gl_MultiTexCoord0;\n"
+        "\n",
+        // frag_def
+        "uniform sampler2D glowMap;\n"
+        "\n",
+        // frag_prog
+        "  vec4 glowTexel;\n"
+        "\n"
+        "  glowTexel = texture2D(glowMap, gl_TexCoord[2].st);\n"
+        "  result = vec4((result.rgb * (1.0 - glowTexel.a)) + (glowTexel.rgb * glowTexel.a), result.a);\n"
         "\n",
     },
     {
@@ -2343,14 +2361,23 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         if (!mdspritematerial.diffusemap)
             continue;
 
-        mdspritematerial.detailmap =
-                mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
+        if (r_detailmapping && !(tspr->cstat&1024))
+        {
+            mdspritematerial.detailmap =
+                    mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
 
-        for (sk = m->skinmap; sk; sk = sk->next)
-            if ((int)sk->palette == DETAILPAL &&
-                 sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum &&
-                 sk->surfnum == surfi)
-                mdspritematerial.detailscale[0] = mdspritematerial.detailscale[1] = sk->param;
+            for (sk = m->skinmap; sk; sk = sk->next)
+                if ((int)sk->palette == DETAILPAL &&
+                    sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum &&
+                    sk->surfnum == surfi)
+                    mdspritematerial.detailscale[0] = mdspritematerial.detailscale[1] = sk->param;
+        }
+
+        if (r_glowmapping && !(tspr->cstat&1024))
+        {
+            mdspritematerial.glowmap =
+                    mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);
+        }
 
         if (pr_vbos > 1)
         {
@@ -2455,12 +2482,15 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
             material->diffusemodulation[3] = 1.0f;
+    // PR_BIT_DIFFUSE_GLOW_MAP
+    material->glowmap = 0;
 }
 
 static void         polymer_getbuildmaterial(_prmaterial* material, short tilenum, char pal, signed char shade)
 {
     pthtyp*         pth;
     pthtyp*         detailpth;
+    pthtyp*         glowpth;
 
     polymer_getscratchmaterial(material);
 
@@ -2514,6 +2544,19 @@ static void         polymer_getbuildmaterial(_prmaterial* material, short tilenu
         material->diffusemodulation[1] *= (float)hictinting[pal].g / 255.0;
         material->diffusemodulation[2] *= (float)hictinting[pal].b / 255.0;
     }
+
+    // PR_BIT_DIFFUSE_GLOW_MAP
+    if (r_fullbrights && pth && pth->flags & 16)
+        material->glowmap = pth->ofb->glpic;
+
+    if (r_glowmapping && hicfindsubst(tilenum, GLOWPAL, 0))
+    {
+        glowpth = NULL;
+        glowpth = gltexcache(tilenum, GLOWPAL, 0);
+
+        if (glowpth && (glowpth->hicr->palnum == GLOWPAL))
+            material->glowmap = glowpth->glpic;
+    }
 }
 
 static int          polymer_bindmaterial(_prmaterial material)
@@ -2541,6 +2584,10 @@ static int          polymer_bindmaterial(_prmaterial material)
     if ((material.diffusemodulation[0] != 1.0f) || (material.diffusemodulation[1] != 1.0f) ||
         (material.diffusemodulation[2] != 1.0f) || (material.diffusemodulation[3] != 1.0f))
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
+
+    // PR_BIT_DIFFUSE_GLOW_MAP
+    if (material.glowmap)
+        programbits |= prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit;
 
     // --------- program compiling
     if (!prprograms[programbits].handle)
@@ -2595,6 +2642,17 @@ static int          polymer_bindmaterial(_prmaterial material)
                    material.diffusemodulation[1],
                    material.diffusemodulation[2],
                    material.diffusemodulation[3]);
+    }
+
+    // PR_BIT_DIFFUSE_GLOW_MAP
+    if (programbits & prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit)
+    {
+        bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
+        bglBindTexture(GL_TEXTURE_2D, material.glowmap);
+
+        bglUniform1iARB(prprograms[programbits].uniform_glowMap, texunit);
+
+        texunit++;
     }
 
     bglActiveTextureARB(GL_TEXTURE0_ARB);
@@ -2701,6 +2759,12 @@ static void         polymer_compileprogram(int programbits)
     {
         prprograms[programbits].uniform_detailMap = bglGetUniformLocationARB(program, "detailMap");
         prprograms[programbits].uniform_detailScale = bglGetUniformLocationARB(program, "detailScale");
+    }
+
+    // PR_BIT_DIFFUSE_GLOW_MAP
+    if (programbits & prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit)
+    {
+        prprograms[programbits].uniform_glowMap = bglGetUniformLocationARB(program, "glowMap");
     }
 }
 

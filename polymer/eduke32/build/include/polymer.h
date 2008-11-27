@@ -48,6 +48,7 @@ typedef enum {
                     PR_BIT_DIFFUSE_MAP,
                     PR_BIT_DIFFUSE_DETAIL_MAP,
                     PR_BIT_DIFFUSE_MODULATION,
+                    PR_BIT_DIFFUSE_GLOW_MAP,
                     PR_BIT_DEFAULT, // must be just before last
                     PR_BIT_COUNT    // must be last
 }                   prbittype;
@@ -65,6 +66,8 @@ typedef struct      s_prmaterial {
     GLfloat         detailscale[2];
     // PR_BIT_DIFFUSE_MODULATION
     GLfloat         diffusemodulation[4];
+    // PR_BIT_DIFFUSE_GLOW_MAP
+    GLuint          glowmap;
 }                   _prmaterial;
 
 typedef struct      s_prrograminfo {
@@ -78,6 +81,8 @@ typedef struct      s_prrograminfo {
     // PR_BIT_DIFFUSE_DETAIL_MAP
     GLint           uniform_detailMap;
     GLint           uniform_detailScale;
+    // PR_BIT_DIFFUSE_GLOW_MAP
+    GLint           uniform_glowMap;
 }                   _prprograminfo;
 
 #define             PR_INFO_LOG_BUFFER_SIZE 512
