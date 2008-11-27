@@ -12,7 +12,7 @@ int             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2
 int             pr_wireframe = 0;
 int             pr_vbos = 2;
 int             pr_mirrordepth = 1;
-int             pr_gpusmoothing = 0;
+int             pr_gpusmoothing = 1;
 
 int             glerror;
 
@@ -147,15 +147,32 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
     {
         1 << PR_BIT_DIFFUSE_MAP,
         // vert_def
-        "",
+        "uniform vec2 diffuseScale;\n"
+        "\n",
         // vert_prog
-        "gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
+        "gl_TexCoord[0] = vec4(diffuseScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
         "\n",
         // frag_def
         "uniform sampler2D diffuseMap;\n"
         "\n",
         // frag_prog
         "  result *= texture2D(diffuseMap, gl_TexCoord[0].st);\n"
+        "\n",
+    },
+    {
+        1 << PR_BIT_DIFFUSE_DETAIL_MAP,
+        // vert_def
+        "uniform vec2 detailScale;\n"
+        "\n",
+        // vert_prog
+        "gl_TexCoord[1] = vec4(detailScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
+        "\n",
+        // frag_def
+        "uniform sampler2D detailMap;\n"
+        "\n",
+        // frag_prog
+        "  result *= texture2D(detailMap, gl_TexCoord[1].st);\n"
+        "  result.rgb *= 2.0;\n"
         "\n",
     },
     {
@@ -610,10 +627,10 @@ void                polymer_drawsprite(int snum)
     }
 
     if ((tspr->cstat & 4) || (((tspr->cstat>>4) & 3) == 2))
-        spriteplane.material.diffusescalex = -spriteplane.material.diffusescalex;
+        spriteplane.material.diffusescale[0] = -spriteplane.material.diffusescale[0];
 
     if (tspr->cstat & 8)
-        spriteplane.material.diffusescaley = -spriteplane.material.diffusescaley;
+        spriteplane.material.diffusescale[1] = -spriteplane.material.diffusescale[1];
 
     if ((tspr->cstat & 64) && (((tspr->cstat>>4) & 3) == 1))
         bglEnable(GL_CULL_FACE);
@@ -2221,17 +2238,21 @@ static void         polymer_drawskybox(short tilenum)
 static void         polymer_drawmdsprite(spritetype *tspr)
 {
     md3model*       m;
+    mdskinmap_t*    sk;
+    md3xyzn_t       *v0, *v1;
+    md3surf_t       *s;
+    char            lpal;
     float           spos[3];
     float           ang;
     float           scale;
     int             surfi;
     GLfloat*        color;
-    md3xyzn_t       *v0, *v1;
-    md3surf_t       *s;
     int             materialbits;
 
     m = (md3model*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
     updateanimation((md2model *)m,tspr);
+
+    lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
 
     if ((pr_vbos > 1) && (m->indices == NULL))
         polymer_loadmodelvbos(m);
@@ -2321,6 +2342,15 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
         if (!mdspritematerial.diffusemap)
             continue;
+
+        mdspritematerial.detailmap =
+                mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
+
+        for (sk = m->skinmap; sk; sk = sk->next)
+            if ((int)sk->palette == DETAILPAL &&
+                 sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum &&
+                 sk->surfnum == surfi)
+                mdspritematerial.detailscale[0] = mdspritematerial.detailscale[1] = sk->param;
 
         if (pr_vbos > 1)
         {
@@ -2416,7 +2446,10 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     material->nextframedatastride = 0;
     // PR_BIT_DIFFUSE_MAP
     material->diffusemap = 0;
-    material->diffusescalex = material->diffusescaley = 1.0f;
+    material->diffusescale[0] = material->diffusescale[1] = 1.0f;
+    // PR_BIT_DIFFUSE_DETAIL_MAP
+    material->detailmap = 0;
+    material->detailscale[0] = material->detailscale[1] = 1.0f;
     // PR_BIT_DIFFUSE_MODULATION
     material->diffusemodulation[0] =
             material->diffusemodulation[1] =
@@ -2427,12 +2460,15 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
 static void         polymer_getbuildmaterial(_prmaterial* material, short tilenum, char pal, signed char shade)
 {
     pthtyp*         pth;
+    pthtyp*         detailpth;
 
     polymer_getscratchmaterial(material);
 
+    // PR_BIT_DIFFUSE_MAP
     if (!waloff[tilenum])
         loadtile(tilenum);
 
+    pth = NULL;
     pth = gltexcache(tilenum, pal, 0);
 
     if (pth)
@@ -2440,10 +2476,33 @@ static void         polymer_getbuildmaterial(_prmaterial* material, short tilenu
 
     if (pth->hicr)
     {
-        material->diffusescalex = pth->hicr->xscale;
-        material->diffusescaley = pth->hicr->yscale;
+        material->diffusescale[0] = pth->hicr->xscale;
+        material->diffusescale[1] = pth->hicr->yscale;
     }
 
+    // PR_BIT_DIFFUSE_DETAIL_MAP
+    if (r_detailmapping && hicfindsubst(tilenum, DETAILPAL, 0))
+    {
+        detailpth = NULL;
+        detailpth = gltexcache(tilenum, DETAILPAL, 0);
+
+        if (detailpth && (detailpth->hicr->palnum == DETAILPAL))
+        {
+            material->detailmap = detailpth->glpic;
+
+            material->detailscale[0] = detailpth->hicr->xscale;
+            material->detailscale[1] = detailpth->hicr->yscale;
+
+            // scale by the diffuse map scale if there's one defined
+            if (pth->hicr)
+            {
+                material->detailscale[0] *= material->diffusescale[0];
+                material->detailscale[1] *= material->diffusescale[1];
+            }
+        }
+    }
+
+    // PR_BIT_DIFFUSE_MODULATION
     material->diffusemodulation[0] =
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
@@ -2460,6 +2519,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, short tilenu
 static int          polymer_bindmaterial(_prmaterial material)
 {
     int             programbits;
+    int             texunit;
 
     programbits = prprogrambits[PR_BIT_DEFAULT].bit;
 
@@ -2473,6 +2533,10 @@ static int          polymer_bindmaterial(_prmaterial material)
     if (material.diffusemap)
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP].bit;
 
+    // PR_BIT_DIFFUSE_DETAIL_MAP
+    if (material.detailmap)
+        programbits |= prprogrambits[PR_BIT_DIFFUSE_DETAIL_MAP].bit;
+
     // PR_BIT_DIFFUSE_MODULATION
     if ((material.diffusemodulation[0] != 1.0f) || (material.diffusemodulation[1] != 1.0f) ||
         (material.diffusemodulation[2] != 1.0f) || (material.diffusemodulation[3] != 1.0f))
@@ -2485,6 +2549,8 @@ static int          polymer_bindmaterial(_prmaterial material)
     bglUseProgramObjectARB(prprograms[programbits].handle);
 
     // --------- bit setup
+
+    texunit = 0;
 
     // PR_BIT_ANIM_INTERPOLATION
     if (programbits & prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit)
@@ -2501,12 +2567,25 @@ static int          polymer_bindmaterial(_prmaterial material)
     // PR_BIT_DIFFUSE_MAP
     if (programbits & prprogrambits[PR_BIT_DIFFUSE_MAP].bit)
     {
+        bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
         bglBindTexture(GL_TEXTURE_2D, material.diffusemap);
 
-        bglMatrixMode(GL_TEXTURE);
-        bglLoadIdentity();
-        bglScalef(material.diffusescalex, material.diffusescaley, 1.0f);
-        bglMatrixMode(GL_MODELVIEW);
+        bglUniform1iARB(prprograms[programbits].uniform_diffuseMap, texunit);
+        bglUniform2fvARB(prprograms[programbits].uniform_diffuseScale, 1, material.diffusescale);
+
+        texunit++;
+    }
+
+    // PR_BIT_DIFFUSE_DETAIL_MAP
+    if (programbits & prprogrambits[PR_BIT_DIFFUSE_DETAIL_MAP].bit)
+    {
+        bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
+        bglBindTexture(GL_TEXTURE_2D, material.detailmap);
+
+        bglUniform1iARB(prprograms[programbits].uniform_detailMap, texunit);
+        bglUniform2fvARB(prprograms[programbits].uniform_detailScale, 1, material.detailscale);
+
+        texunit++;
     }
 
     // PR_BIT_DIFFUSE_MODULATION
@@ -2517,6 +2596,8 @@ static int          polymer_bindmaterial(_prmaterial material)
                    material.diffusemodulation[2],
                    material.diffusemodulation[3]);
     }
+
+    bglActiveTextureARB(GL_TEXTURE0_ARB);
 
     return (programbits);
 }
@@ -2606,6 +2687,20 @@ static void         polymer_compileprogram(int programbits)
     {
         prprograms[programbits].attrib_nextFrameData = bglGetAttribLocationARB(program, "nextFrameData");
         prprograms[programbits].uniform_frameProgress = bglGetUniformLocationARB(program, "frameProgress");
+    }
+
+    // PR_BIT_DIFFUSE_MAP
+    if (programbits & prprogrambits[PR_BIT_DIFFUSE_MAP].bit)
+    {
+        prprograms[programbits].uniform_diffuseMap = bglGetUniformLocationARB(program, "diffuseMap");
+        prprograms[programbits].uniform_diffuseScale = bglGetUniformLocationARB(program, "diffuseScale");
+    }
+
+    // PR_BIT_DIFFUSE_DETAIL_MAP
+    if (programbits & prprogrambits[PR_BIT_DIFFUSE_DETAIL_MAP].bit)
+    {
+        prprograms[programbits].uniform_detailMap = bglGetUniformLocationARB(program, "detailMap");
+        prprograms[programbits].uniform_detailScale = bglGetUniformLocationARB(program, "detailScale");
     }
 }
 

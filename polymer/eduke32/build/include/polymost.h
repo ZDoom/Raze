@@ -34,6 +34,7 @@ typedef struct pthtyp_t
     char *palmap;int size;
 } pthtyp;
 
+hicreplctyp * hicfindsubst(int picnum, int palnum, int skybox);
 pthtyp * gltexcache (int dapicnum, int dapalnum, int dameth);
 
 extern palette_t hictinting[MAXPALOOKUPS];

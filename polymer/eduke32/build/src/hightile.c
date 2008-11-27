@@ -28,7 +28,7 @@ static char hicfirstinit = 0;
 //
 // find the index into hicreplc[] which contains the replacement tile particulars
 //
-static hicreplctyp * hicfindsubst(int picnum, int palnum, int skybox)
+hicreplctyp * hicfindsubst(int picnum, int palnum, int skybox)
 {
     hicreplctyp *hr;
 

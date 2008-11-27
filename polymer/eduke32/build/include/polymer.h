@@ -43,6 +43,15 @@ extern int          pr_gpusmoothing;
 extern int          glerror;
 
 // MATERIAL
+typedef enum {
+                    PR_BIT_ANIM_INTERPOLATION,
+                    PR_BIT_DIFFUSE_MAP,
+                    PR_BIT_DIFFUSE_DETAIL_MAP,
+                    PR_BIT_DIFFUSE_MODULATION,
+                    PR_BIT_DEFAULT, // must be just before last
+                    PR_BIT_COUNT    // must be last
+}                   prbittype;
+
 typedef struct      s_prmaterial {
     // PR_BIT_ANIM_INTERPOLATION
     GLfloat         frameprogress;
@@ -50,10 +59,36 @@ typedef struct      s_prmaterial {
     GLsizei         nextframedatastride;
     // PR_BIT_DIFFUSE_MAP
     GLuint          diffusemap;
-    GLfloat         diffusescalex, diffusescaley;
+    GLfloat         diffusescale[2];
+    // PR_BIT_DIFFUSE_DETAIL_MAP
+    GLuint          detailmap;
+    GLfloat         detailscale[2];
     // PR_BIT_DIFFUSE_MODULATION
     GLfloat         diffusemodulation[4];
 }                   _prmaterial;
+
+typedef struct      s_prrograminfo {
+    GLhandleARB     handle;
+    // PR_BIT_ANIM_INTERPOLATION
+    GLint           attrib_nextFrameData;
+    GLint           uniform_frameProgress;
+    // PR_BIT_DIFFUSE_MAP
+    GLint           uniform_diffuseMap;
+    GLint           uniform_diffuseScale;
+    // PR_BIT_DIFFUSE_DETAIL_MAP
+    GLint           uniform_detailMap;
+    GLint           uniform_detailScale;
+}                   _prprograminfo;
+
+#define             PR_INFO_LOG_BUFFER_SIZE 512
+
+typedef struct      s_prprogrambit {
+    int             bit;
+    char*           vert_def;
+    char*           vert_prog;
+    char*           frag_def;
+    char*           frag_prog;
+}                   _prprogrambit;
 
 // BUILD DATA
 typedef struct      s_prplane {
@@ -135,30 +170,6 @@ typedef struct      s_prlight {
 }                   _prlight;
 
 // PROGRAMS
-#define             PR_INFO_LOG_BUFFER_SIZE 512
-
-typedef enum {
-                    PR_BIT_ANIM_INTERPOLATION,
-                    PR_BIT_DIFFUSE_MAP,
-                    PR_BIT_DIFFUSE_MODULATION,
-                    PR_BIT_DEFAULT, // must be just before last
-                    PR_BIT_COUNT    // must be last
-}                   prbittype;
-
-typedef struct      s_prprogrambit {
-    int             bit;
-    char*           vert_def;
-    char*           vert_prog;
-    char*           frag_def;
-    char*           frag_prog;
-}                   _prprogrambit;
-
-typedef struct      s_prrograminfo {
-    GLhandleARB     handle;
-    // PR_BIT_ANIM_INTERPOLATION
-    GLint           attrib_nextFrameData;
-    GLint           uniform_frameProgress;
-}                   _prprograminfo;
 
 // CONTROL
 extern int          updatesectors;
