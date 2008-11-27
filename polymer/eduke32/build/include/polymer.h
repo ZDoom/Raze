@@ -44,10 +44,15 @@ extern int          glerror;
 
 // MATERIAL
 typedef struct      s_prmaterial {
+    // PR_BIT_ANIM_INTERPOLATION
+    GLfloat         frameprogress;
+    GLfloat*        nextframedata;
+    GLsizei         nextframedatastride;
+    // PR_BIT_DIFFUSE_MAP
     GLuint          diffusemap;
     GLfloat         diffusescalex, diffusescaley;
+    // PR_BIT_DIFFUSE_MODULATION
     GLfloat         diffusemodulation[4];
-    GLuint          glowmap;
 }                   _prmaterial;
 
 // BUILD DATA
@@ -133,6 +138,7 @@ typedef struct      s_prlight {
 #define             PR_INFO_LOG_BUFFER_SIZE 512
 
 typedef enum {
+                    PR_BIT_ANIM_INTERPOLATION,
                     PR_BIT_DIFFUSE_MAP,
                     PR_BIT_DIFFUSE_MODULATION,
                     PR_BIT_DEFAULT, // must be just before last
@@ -149,6 +155,9 @@ typedef struct      s_prprogrambit {
 
 typedef struct      s_prrograminfo {
     GLhandleARB     handle;
+    // PR_BIT_ANIM_INTERPOLATION
+    GLint           attrib_nextFrameData;
+    GLint           uniform_frameProgress;
 }                   _prprograminfo;
 
 // CONTROL
@@ -203,8 +212,10 @@ static void         polymer_drawskybox(short tilenum);
 static void         polymer_drawmdsprite(spritetype *tspr);
 static void         polymer_loadmodelvbos(md3model* m);
 // MATERIALS
-static void         polymer_getmaterial(_prmaterial* material, short tilenum, char pal, signed char shade);
-static void         polymer_bindmaterial(_prmaterial material);
+static void         polymer_getscratchmaterial(_prmaterial* material);
+static void         polymer_getbuildmaterial(_prmaterial* material, short tilenum, char pal, signed char shade);
+static int          polymer_bindmaterial(_prmaterial material);
+static void         polymer_unbindmaterial(int programbits);
 static void         polymer_compileprogram(int programbits);
 
 # endif // !POLYMER_C

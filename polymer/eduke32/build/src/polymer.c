@@ -126,6 +126,25 @@ int             lightcount;
 // MATERIALS
 _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
     {
+        1 << PR_BIT_ANIM_INTERPOLATION,
+        // vert_def
+        "attribute vec4 nextFrameData;\n"
+        "uniform float frameProgress;\n"
+        "\n",
+        // vert_prog
+        "  vec4 currentFramePosition;\n"
+        "  vec4 nextFramePosition;\n"
+        "  currentFramePosition = gl_Vertex * (1.0 - frameProgress);\n"
+        "  nextFramePosition = nextFrameData * frameProgress;\n"
+        "  currentFramePosition = currentFramePosition + nextFramePosition;\n"
+        "  result = gl_ModelViewProjectionMatrix * currentFramePosition;\n"
+        "\n",
+        // frag_def
+        "",
+        // frag_prog
+        "",
+    },
+    {
         1 << PR_BIT_DIFFUSE_MAP,
         // vert_def
         "",
@@ -155,11 +174,12 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
     {
         1 << PR_BIT_DEFAULT,
         // vert_def
-        "\n"
         "void main(void)\n"
-        "{\n",
+        "{\n"
+        "  vec4 result = ftransform();\n"
+        "\n",
         // vert_prog
-        "  gl_Position = ftransform();\n"
+        "  gl_Position = result;\n"
         "}\n",
         // frag_def
         "void main(void)\n"
@@ -199,32 +219,6 @@ _pranimatespritesinfo asi;
 int                 polymer_init(void)
 {
     int             i, j;
-    char            modelvpstring[] =
-                    "!!ARBvp1.0\n"
-                    "ATTRIB in_pos = vertex.position;\n"
-                    "ATTRIB in_pos2 = vertex.texcoord[1];\n"
-                    "ATTRIB in_col = vertex.color;\n"
-                    "ATTRIB in_tex = vertex.texcoord;\n"
-                    "OUTPUT out_pos = result.position;\n"
-                    "OUTPUT out_col = result.color;\n"
-                    "OUTPUT out_tex = result.texcoord;\n"
-                    "OUTPUT out_fog = result.fogcoord;\n"
-                    "PARAM mvp[4] = { state.matrix.mvp };\n"
-                    "PARAM bld[2] = { state.matrix.texture[0].row[0..1] };\n"
-                    "TEMP a;\n"
-                    "TEMP b;\n"
-                    "MUL a, in_pos2, bld[0].x;\n"
-                    "MUL b, in_pos, bld[1].y;\n"
-                    "ADD a, a, b;\n"
-                    "DP4 b.x, mvp[0], a;\n"
-                    "DP4 b.y, mvp[1], a;\n"
-                    "DP4 b.z, mvp[2], a;\n"
-                    "DP4 b.w, mvp[3], a;\n"
-                    "MOV out_pos, b;\n"
-                    "MOV out_col, in_col;\n"
-                    "MOV out_tex, in_tex;\n"
-                    "MOV out_fog, b.z;\n"
-                    "END\n";
 
     if (pr_verbosity >= 1) OSD_Printf("Initalizing Polymer subsystem...\n");
 
@@ -267,13 +261,6 @@ int                 polymer_init(void)
             j++;
         }
         i++;
-    }
-
-    if (pr_gpusmoothing)
-    {
-        bglGenProgramsARB(1, &modelvp);
-        bglBindProgramARB(GL_VERTEX_PROGRAM_ARB, modelvp);
-        bglProgramStringARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(modelvpstring), modelvpstring);
     }
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete.\n");
@@ -518,7 +505,7 @@ void                polymer_drawsprite(int snum)
     curpicnum = tspr->picnum;
     if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,tspr->owner+32768);
 
-    polymer_getmaterial(&spriteplane.material, curpicnum, tspr->pal, tspr->shade);
+    polymer_getbuildmaterial(&spriteplane.material, curpicnum, tspr->pal, tspr->shade);
 
     if (tspr->cstat & 2)
     {
@@ -899,6 +886,7 @@ static void         polymer_displayrooms(short dacursectnum)
 
 static void         polymer_drawplane(short sectnum, short wallnum, _prplane* plane, int indicecount)
 {
+    int             materialbits;
 
 //     if ((depth < 1) && (plane != NULL) &&
 //             (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
@@ -1020,7 +1008,7 @@ static void         polymer_drawplane(short sectnum, short wallnum, _prplane* pl
 
 //     bglBindTexture(GL_TEXTURE_2D, plane->material.diffusemap);
 
-    polymer_bindmaterial(plane->material);
+    materialbits = polymer_bindmaterial(plane->material);
 
     if (plane->vbo && (pr_vbos > 0))
     {
@@ -1031,7 +1019,7 @@ static void         polymer_drawplane(short sectnum, short wallnum, _prplane* pl
         OMGDRAWSHIT;
     }
 
-    bglUseProgramObjectARB(0);
+    polymer_unbindmaterial(materialbits);
 
 //     if ((depth < 1) && (plane->plane != NULL) &&
 //             (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
@@ -1316,8 +1304,8 @@ attributes:
             (ceilingpicnum == s->ceilingpicnum))
         goto finish;
 
-    polymer_getmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade);
-    polymer_getmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade);
+    polymer_getbuildmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade);
+    polymer_getbuildmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade);
 
     s->floorshade = sec->floorshade;
     s->floorpal = sec->floorpal;
@@ -1624,7 +1612,7 @@ static void         polymer_updatewall(short wallnum)
 
         curpicnum = wallpicnum;
 
-        polymer_getmaterial(&w->wall.material, curpicnum, wal->pal, wal->shade);
+        polymer_getbuildmaterial(&w->wall.material, curpicnum, wal->pal, wal->shade);
 
         if (wal->cstat & 4)
             yref = sec->floorz;
@@ -1701,7 +1689,7 @@ static void         polymer_updatewall(short wallnum)
                 curypanning = wal->ypanning;
             }
 
-            polymer_getmaterial(&w->wall.material, curpicnum, curpal, curshade);
+            polymer_getbuildmaterial(&w->wall.material, curpicnum, curpal, curshade);
 
             if ((!(wal->cstat & 2) && (wal->cstat & 4)) || ((wal->cstat & 2) && (wall[nwallnum].cstat & 4)))
                 yref = sec->ceilingz;
@@ -1770,12 +1758,12 @@ static void         polymer_updatewall(short wallnum)
             else
                 curpicnum = wallpicnum;
 
-            polymer_getmaterial(&w->over.material, curpicnum, wal->pal, wal->shade);
+            polymer_getbuildmaterial(&w->over.material, curpicnum, wal->pal, wal->shade);
 
             if (wal->cstat & 16)
             {
                 // mask
-                polymer_getmaterial(&w->mask.material, wal->overpicnum, wal->pal, wal->shade);
+                polymer_getbuildmaterial(&w->mask.material, wal->overpicnum, wal->pal, wal->shade);
                 if (wal->cstat & 128)
                 {
                     if (wal->cstat & 512)
@@ -2240,6 +2228,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     GLfloat*        color;
     md3xyzn_t       *v0, *v1;
     md3surf_t       *s;
+    int             materialbits;
 
     m = (md3model*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
     updateanimation((md2model *)m,tspr);
@@ -2286,7 +2275,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     bglScalef(scale * tspr->xrepeat, scale * tspr->xrepeat, scale * tspr->yrepeat);
     bglTranslatef(0.0f, 0.0, m->zadd * 64);
 
-    mdspritematerial.diffusescalex = mdspritematerial.diffusescaley = 1.0f;
+    polymer_getscratchmaterial(&mdspritematerial);
 
     color = mdspritematerial.diffusemodulation;
 
@@ -2320,14 +2309,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         color[3] = 1.0;
 
     if (pr_gpusmoothing)
-    {
-        bglEnable(GL_VERTEX_PROGRAM_ARB);
-
-        bglMatrixMode(GL_TEXTURE);
-        bglLoadIdentity();
-        bglScalef(m->interpol, 1 - m->interpol, 1.0);
-        bglMatrixMode(GL_MODELVIEW);
-    }
+        mdspritematerial.frameprogress = m->interpol;
 
     for (surfi=0;surfi<m->head.numsurfs;surfi++)
     {
@@ -2335,39 +2317,34 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         v0 = &s->xyzn[m->cframe*s->numverts];
         v1 = &s->xyzn[m->nframe*s->numverts];
 
-        mdspritematerial.diffusemap = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
+        mdspritematerial.diffusemap =
+                mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
         if (!mdspritematerial.diffusemap)
             continue;
-
-        polymer_bindmaterial(mdspritematerial);
 
         if (pr_vbos > 1)
         {
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->texcoords[surfi]);
             bglTexCoordPointer(2, GL_FLOAT, 0, 0);
 
-            if (pr_gpusmoothing)
-            {
-                bglClientActiveTextureARB(GL_TEXTURE1_ARB);
-                bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            }
-
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->geometry[surfi]);
             bglVertexPointer(3, GL_SHORT, sizeof(md3xyzn_t), (GLfloat*)(m->cframe * s->numverts * sizeof(md3xyzn_t)));
+
             if (pr_gpusmoothing)
-                bglTexCoordPointer(3, GL_SHORT, sizeof(md3xyzn_t), (GLfloat*)(m->nframe * s->numverts * sizeof(md3xyzn_t)));
+            {
+                mdspritematerial.nextframedata = (GLfloat*)(m->nframe * s->numverts * sizeof(md3xyzn_t));
+                mdspritematerial.nextframedatastride = sizeof(md3xyzn_t);
+            }
+
+            materialbits = polymer_bindmaterial(mdspritematerial);
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[surfi]);
             bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
 
+            polymer_unbindmaterial(materialbits);
+
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-
-            if (pr_gpusmoothing)
-            {
-                bglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                bglClientActiveTextureARB(GL_TEXTURE0_ARB);
-            }
         }
         else
         {
@@ -2376,31 +2353,19 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
             if (pr_gpusmoothing)
             {
-                bglClientActiveTextureARB(GL_TEXTURE1_ARB);
-                bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                bglTexCoordPointer(3, GL_SHORT, sizeof(md3xyzn_t), v1);
+                mdspritematerial.nextframedata = (GLfloat*)(v1);
+                mdspritematerial.nextframedatastride = sizeof(md3xyzn_t);
             }
+
+            materialbits = polymer_bindmaterial(mdspritematerial);
 
             bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
 
-            if (pr_gpusmoothing)
-            {
-                bglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                bglClientActiveTextureARB(GL_TEXTURE0_ARB);
-            }
+            polymer_unbindmaterial(materialbits);
         }
     }
 
     bglPopMatrix();
-
-    if (pr_gpusmoothing)
-    {
-        bglDisable(GL_VERTEX_PROGRAM_ARB);
-
-        bglMatrixMode(GL_TEXTURE);
-        bglLoadIdentity();
-        bglMatrixMode(GL_MODELVIEW);
-    }
 
     globalnoeffect=0;
 }
@@ -2440,29 +2405,49 @@ static void         polymer_loadmodelvbos(md3model* m)
 }
 
 // MATERIALS
-static void         polymer_getmaterial(_prmaterial* material, short tilenum, char pal, signed char shade)
+static void         polymer_getscratchmaterial(_prmaterial* material)
+{
+    // this function returns a material that won't validate any bits
+    // make sure to keep it up to date with the validation logic in bindmaterial
+
+    // PR_BIT_ANIM_INTERPOLATION
+    material->frameprogress = 0.0f;
+    material->nextframedata = NULL;
+    material->nextframedatastride = 0;
+    // PR_BIT_DIFFUSE_MAP
+    material->diffusemap = 0;
+    material->diffusescalex = material->diffusescaley = 1.0f;
+    // PR_BIT_DIFFUSE_MODULATION
+    material->diffusemodulation[0] =
+            material->diffusemodulation[1] =
+            material->diffusemodulation[2] =
+            material->diffusemodulation[3] = 1.0f;
+}
+
+static void         polymer_getbuildmaterial(_prmaterial* material, short tilenum, char pal, signed char shade)
 {
     pthtyp*         pth;
+
+    polymer_getscratchmaterial(material);
 
     if (!waloff[tilenum])
         loadtile(tilenum);
 
     pth = gltexcache(tilenum, pal, 0);
 
-    material->diffusemap = (pth) ? pth->glpic : 0;
+    if (pth)
+        material->diffusemap = pth->glpic;
 
     if (pth->hicr)
     {
         material->diffusescalex = pth->hicr->xscale;
         material->diffusescaley = pth->hicr->yscale;
-    } else
-        material->diffusescalex = material->diffusescaley = 1.0f;
+    }
 
     material->diffusemodulation[0] =
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
             ((float)(numpalookups-min(max(shade*shadescale,0),numpalookups)))/((float)numpalookups);
-    material->diffusemodulation[3] = 1.0f;
 
     if (pth && (pth->flags & 2) && (pth->palnum != pal))
     {
@@ -2472,13 +2457,17 @@ static void         polymer_getmaterial(_prmaterial* material, short tilenum, ch
     }
 }
 
-static void         polymer_bindmaterial(_prmaterial material)
+static int          polymer_bindmaterial(_prmaterial material)
 {
     int             programbits;
 
     programbits = prprogrambits[PR_BIT_DEFAULT].bit;
 
     // --------- bit validation
+
+    // PR_BIT_ANIM_INTERPOLATION
+    if (material.nextframedata)
+        programbits |= prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit;
 
     // PR_BIT_DIFFUSE_MAP
     if (material.diffusemap)
@@ -2493,7 +2482,21 @@ static void         polymer_bindmaterial(_prmaterial material)
     if (!prprograms[programbits].handle)
         polymer_compileprogram(programbits);
 
+    bglUseProgramObjectARB(prprograms[programbits].handle);
+
     // --------- bit setup
+
+    // PR_BIT_ANIM_INTERPOLATION
+    if (programbits & prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit)
+    {
+        bglEnableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameData);
+        bglVertexAttribPointerARB(prprograms[programbits].attrib_nextFrameData,
+                                  3, GL_SHORT, GL_FALSE,
+                                  material.nextframedatastride,
+                                  material.nextframedata);
+
+        bglUniform1fARB(prprograms[programbits].uniform_frameProgress, material.frameprogress);
+    }
 
     // PR_BIT_DIFFUSE_MAP
     if (programbits & prprogrambits[PR_BIT_DIFFUSE_MAP].bit)
@@ -2515,7 +2518,18 @@ static void         polymer_bindmaterial(_prmaterial material)
                    material.diffusemodulation[3]);
     }
 
-    bglUseProgramObjectARB(prprograms[programbits].handle);
+    return (programbits);
+}
+
+static void         polymer_unbindmaterial(int programbits)
+{
+    // PR_BIT_ANIM_INTERPOLATION
+    if (programbits & prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit)
+    {
+        bglDisableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameData);
+    }
+
+    bglUseProgramObjectARB(0);
 }
 
 static void         polymer_compileprogram(int programbits)
@@ -2584,6 +2598,15 @@ static void         polymer_compileprogram(int programbits)
     if (pr_verbosity >= 1) OSD_Printf("Compiling GPU program with bits %i...\n", programbits);
     if (infobuffer[0])
         if (pr_verbosity >= 1) OSD_Printf("Info log:\n%s\n", infobuffer);
+
+    // --------- ATTRIBUTE/UNIFORM LOCATIONS
+
+    // PR_BIT_ANIM_INTERPOLATION
+    if (programbits & prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit)
+    {
+        prprograms[programbits].attrib_nextFrameData = bglGetAttribLocationARB(program, "nextFrameData");
+        prprograms[programbits].uniform_frameProgress = bglGetUniformLocationARB(program, "frameProgress");
+    }
 }
 
 #endif
