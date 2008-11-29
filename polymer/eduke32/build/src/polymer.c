@@ -151,7 +151,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "uniform vec2 diffuseScale;\n"
         "\n",
         // vert_prog
-        "gl_TexCoord[0] = vec4(diffuseScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
+        "  gl_TexCoord[0] = vec4(diffuseScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
         "\n",
         // frag_def
         "uniform sampler2D diffuseMap;\n"
@@ -166,7 +166,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "uniform vec2 detailScale;\n"
         "\n",
         // vert_prog
-        "gl_TexCoord[1] = vec4(detailScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
+        "  gl_TexCoord[1] = vec4(detailScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
         "\n",
         // frag_def
         "uniform sampler2D detailMap;\n"
@@ -181,7 +181,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // vert_def
         "",
         // vert_prog
-        "gl_FrontColor = gl_Color;\n"
+        "  gl_FrontColor = gl_Color;\n"
         "\n",
         // frag_def
         "",
@@ -190,11 +190,62 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
     },
     {
+        1 << PR_BIT_POINT_LIGHT,
+        // vert_def
+        "uniform vec3 pointLightPosition;\n"
+        "uniform vec2 pointLightRange;\n"
+        "varying vec3 vertexNormal;\n"
+        "varying vec3 lightVector;\n"
+        "varying vec2 eyeSpaceRange;\n"
+        "\n",
+        // vert_prog
+        "  vec3 vertexPos;\n"
+        "  vec3 lightPos;\n"
+        "\n"
+        "  vertexNormal = normalize(gl_NormalMatrix * gl_Normal);\n"
+        "  vertexPos = vec3(result);\n"
+        "  lightPos = vec3(gl_ModelViewProjectionMatrix * vec4(pointLightPosition, 1.0));\n"
+        "  lightVector = lightPos - vertexPos;\n"
+        "  eyeSpaceRange.x = length(gl_ModelViewProjectionMatrix * vec4(pointLightRange.x, 0.0, 0.0, 0.0));\n"
+        "  eyeSpaceRange.y = length(gl_ModelViewProjectionMatrix * vec4(pointLightRange.y, 0.0, 0.0, 0.0));\n"
+        "  eyeSpaceRange.x = 0.5;\n"
+        "  eyeSpaceRange.y = 1.0;\n"
+/*        "  pointLightDirection = normalize(lightVector);\n"
+        "  pointLightHalfVector = normalize(lightVector) + normalize(vec3(-result));\n"*/
+        "\n",
+        // frag_def
+        "uniform vec3 pointLightColor;\n"
+        "varying vec3 vertexNormal;\n"
+        "varying vec3 lightVector;\n"
+        "varying vec2 eyeSpaceRange;\n"
+        "\n",
+        // frag_prog
+        "  vec3 fragmentNormal;\n"
+        "  float dotNormalLightDir;\n"
+        "  float lightAttenuation;\n"
+        "  float pointLightDistance;\n"
+        "\n"
+        "  fragmentNormal = normalize(vertexNormal);\n"
+        "  pointLightDistance = length(lightVector);\n"
+//         "  dotNormalLightDir = max(dot(fragmentNormal, normalize(pointLightDirection)), 0.0);\n"
+        "  if (pointLightDistance < eyeSpaceRange.y)\n"
+        "  {\n"
+        "    if (pointLightDistance < eyeSpaceRange.x)\n"
+        "      lightAttenuation = 1.0;\n"
+        "    else {\n"
+        "      lightAttenuation = 1.0 - (pointLightDistance - eyeSpaceRange.x)  /\n"
+        "                                (eyeSpaceRange.y - eyeSpaceRange.x);\n"
+        "    }\n"
+        "    result += vec4(lightAttenuation * 1.0 * pointLightColor, 0.0);\n"
+        "  }\n"
+        "\n",
+    },
+    {
         1 << PR_BIT_DIFFUSE_GLOW_MAP,
         // vert_def
         "",
         // vert_prog
-        "gl_TexCoord[2] = gl_MultiTexCoord0;\n"
+        "  gl_TexCoord[2] = gl_MultiTexCoord0;\n"
         "\n",
         // frag_def
         "uniform sampler2D glowMap;\n"
@@ -326,7 +377,7 @@ void                polymer_glinit(void)
 
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
-    bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 0.01f, 100.0f);
+    bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 0.1f, 100.0f);
 
     // get the new projection matrix
     bglGetDoublev(GL_PROJECTION_MATRIX, projectionmatrix);
@@ -1042,6 +1093,8 @@ static void         polymer_drawplane(short sectnum, short wallnum, _prplane* pl
 //                    plane->material.diffusemodulation[3]);
 
 //     bglBindTexture(GL_TEXTURE_2D, plane->material.diffusemap);
+
+    bglNormal3f((float)(plane->plane[0]), (float)(plane->plane[1]), (float)(plane->plane[2]));
 
     materialbits = polymer_bindmaterial(plane->material);
 
@@ -2585,6 +2638,7 @@ static int          polymer_bindmaterial(_prmaterial material)
         (material.diffusemodulation[2] != 1.0f) || (material.diffusemodulation[3] != 1.0f))
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
 
+    programbits |= prprogrambits[PR_BIT_POINT_LIGHT].bit;
     // PR_BIT_DIFFUSE_GLOW_MAP
     if (material.glowmap)
         programbits |= prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit;
@@ -2642,6 +2696,14 @@ static int          polymer_bindmaterial(_prmaterial material)
                    material.diffusemodulation[1],
                    material.diffusemodulation[2],
                    material.diffusemodulation[3]);
+    }
+
+    // PR_BIT_POINT_LIGHT
+    if (programbits & prprogrambits[PR_BIT_POINT_LIGHT].bit)
+    {
+        bglUniform3fARB(prprograms[programbits].uniform_pointLightPosition, 62208, 36864 / 16.0, -6656);
+        bglUniform3fARB(prprograms[programbits].uniform_pointLightColor, 0.1f, 0.1f, 0.5f);
+        bglUniform2fARB(prprograms[programbits].uniform_pointLightRange, 1024.0f, 2048.0f);
     }
 
     // PR_BIT_DIFFUSE_GLOW_MAP
@@ -2735,8 +2797,13 @@ static void         polymer_compileprogram(int programbits)
     prprograms[programbits].handle = program;
 
     if (pr_verbosity >= 1) OSD_Printf("Compiling GPU program with bits %i...\n", programbits);
-    if (infobuffer[0])
+    if (infobuffer[0]) {
         if (pr_verbosity >= 1) OSD_Printf("Info log:\n%s\n", infobuffer);
+        bglGetShaderSourceARB(vert, PR_INFO_LOG_BUFFER_SIZE, NULL, infobuffer);
+        if (pr_verbosity >= 1) OSD_Printf("Vertex source dump:\n%s\n", infobuffer);
+        bglGetShaderSourceARB(frag, PR_INFO_LOG_BUFFER_SIZE, NULL, infobuffer);
+        if (pr_verbosity >= 1) OSD_Printf("Shader source dump:\n%s\n", infobuffer);
+    }
 
     // --------- ATTRIBUTE/UNIFORM LOCATIONS
 
@@ -2759,6 +2826,13 @@ static void         polymer_compileprogram(int programbits)
     {
         prprograms[programbits].uniform_detailMap = bglGetUniformLocationARB(program, "detailMap");
         prprograms[programbits].uniform_detailScale = bglGetUniformLocationARB(program, "detailScale");
+    }
+    // PR_BIT_POINT_LIGHT
+    if (programbits & prprogrambits[PR_BIT_POINT_LIGHT].bit)
+    {
+        prprograms[programbits].uniform_pointLightPosition = bglGetUniformLocationARB(program, "pointLightPosition");
+        prprograms[programbits].uniform_pointLightColor = bglGetUniformLocationARB(program, "pointLightColor");
+        prprograms[programbits].uniform_pointLightRange = bglGetUniformLocationARB(program, "pointLightRange");
     }
 
     // PR_BIT_DIFFUSE_GLOW_MAP

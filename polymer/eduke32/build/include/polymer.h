@@ -48,6 +48,7 @@ typedef enum {
                     PR_BIT_DIFFUSE_MAP,
                     PR_BIT_DIFFUSE_DETAIL_MAP,
                     PR_BIT_DIFFUSE_MODULATION,
+                    PR_BIT_POINT_LIGHT,
                     PR_BIT_DIFFUSE_GLOW_MAP,
                     PR_BIT_DEFAULT, // must be just before last
                     PR_BIT_COUNT    // must be last
@@ -81,11 +82,15 @@ typedef struct      s_prrograminfo {
     // PR_BIT_DIFFUSE_DETAIL_MAP
     GLint           uniform_detailMap;
     GLint           uniform_detailScale;
+    // PR_BIT_POINT_LIGHT
+    GLint           uniform_pointLightPosition;
+    GLint           uniform_pointLightColor;
+    GLint           uniform_pointLightRange;
     // PR_BIT_DIFFUSE_GLOW_MAP
     GLint           uniform_glowMap;
 }                   _prprograminfo;
 
-#define             PR_INFO_LOG_BUFFER_SIZE 512
+#define             PR_INFO_LOG_BUFFER_SIZE 16384
 
 typedef struct      s_prprogrambit {
     int             bit;
@@ -169,7 +174,7 @@ typedef enum {
 }                   prlighttype;
 
 typedef struct      s_prlight {
-    int             x, y, z, horiz, range, faderange;
+    int             x, y, z, horiz, faderange, range;
     short           angle, sector;
     prlighttype     type;
 }                   _prlight;
