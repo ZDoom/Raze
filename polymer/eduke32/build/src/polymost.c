@@ -1925,7 +1925,7 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
         free(picfil); picfil = 0;
 
         if (glinfo.texcompr && glusetexcompr && !(hicr->flags & 1))
-            intexfmt = (hasalpha == 255) ? GL_COMPRESSED_RGB_ARB : GL_COMPRESSED_RGBA_ARB;
+            intexfmt = (hasalpha == 255) ? GL_COMPRESSED_RGBA_S3TC_DXT3_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
         else if (hasalpha == 255) intexfmt = GL_RGB;
 
         if ((doalloc&3)==1) bglGenTextures(1,(GLuint*)&pth->glpic);  //# of textures (make OpenGL allocate structure)

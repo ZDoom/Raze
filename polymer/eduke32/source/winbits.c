@@ -140,14 +140,14 @@ int G_GetVersionFromWebsite(char *buffer)
     initprintf("Connecting to http://%s\n",host);
     if (connect(mysock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR)
     {
-  //      initprintf("update: connect() error in G_GetVersionFromWebsite() (%d)\n",errno);
+        //      initprintf("update: connect() error in G_GetVersionFromWebsite() (%d)\n",errno);
         return(0);
     }
 
     bytes_sent = send(mysock, req, strlen(req), 0);
     if (bytes_sent == SOCKET_ERROR)
     {
-    //    initprintf("update: send() error in G_GetVersionFromWebsite() (%d)\n",errno);
+        //    initprintf("update: send() error in G_GetVersionFromWebsite() (%d)\n",errno);
         return(0);
     }
 

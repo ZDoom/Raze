@@ -94,7 +94,7 @@ void X_OnEvent(int iEventID, int iActor, int iPlayer, int lDist)
 
         g_killitFlag = 0;
 
-        while (1) if (X_DoExecute()) break;
+        while (!X_DoExecute());
 
         if (g_killitFlag == 1)
         {
@@ -170,6 +170,9 @@ static char A_Dodge(spritetype *s)
     int mx = s->x, my = s->y;
     int mxvect = sintable[(s->ang+512)&2047];
     int myvect = sintable[s->ang&2047];
+
+    if (A_CheckEnemySprite(s) && s->extra <= 0) // hack
+        return 0;
 
     for (i=headspritestat[STAT_PROJECTILE];i>=0;i=nextspritestat[i]) //weapons list
     {
@@ -374,6 +377,9 @@ static void X_AlterAng(int a)
     g_sp->xvel += (*moveptr-g_sp->xvel)/5;
     if (g_sp->zvel < 648) g_sp->zvel += ((*(moveptr+1)<<4)-g_sp->zvel)/5;
 
+    if (A_CheckEnemySprite(g_sp) && g_sp->extra <= 0) // hack
+        return;
+
     if (a&seekplayer)
     {
         int aang = g_sp->ang, angdif, goalang;
@@ -440,6 +446,17 @@ static void X_Move(void)
 
     g_t[0]++;
 
+    if (g_t[1] == 0 || a == 0 || (A_CheckEnemySprite(g_sp) && g_sp->extra <= 0))
+    {
+        if ((A_CheckEnemySprite(g_sp) && g_sp->extra <= 0) || (ActorExtra[g_i].bposx != g_sp->x) || (ActorExtra[g_i].bposy != g_sp->y))
+        {
+            ActorExtra[g_i].bposx = g_sp->x;
+            ActorExtra[g_i].bposy = g_sp->y;
+            setsprite(g_i,g_sp->x,g_sp->y,g_sp->z);
+        }
+        return;
+    }
+
     if (a&face_player)
     {
         if (g_player[g_p].ps->newowner >= 0)
@@ -481,17 +498,6 @@ static void X_Move(void)
         if ((angdif > -8 && angdif < 0) || (angdif < 8 && angdif > 0))
             angdif *= 2;
         g_sp->ang += angdif;
-    }
-
-    if (g_t[1] == 0 || a == 0)
-    {
-        if ((A_CheckEnemySprite(g_sp) && g_sp->extra <= 0) || (ActorExtra[g_i].bposx != g_sp->x) || (ActorExtra[g_i].bposy != g_sp->y))
-        {
-            ActorExtra[g_i].bposx = g_sp->x;
-            ActorExtra[g_i].bposy = g_sp->y;
-            setsprite(g_i,g_sp->x,g_sp->y,g_sp->z);
-        }
-        return;
     }
 
     moveptr = (intptr_t *)g_t[1];
@@ -836,6 +842,8 @@ static int X_DoExecute(void)
         if (g_t[5]) g_t[1] = *(((intptr_t *)g_t[5])+1);       // move
         g_sp->hitag = *(((intptr_t *)g_t[5])+2);    // move flags
         g_t[0] = g_t[2] = g_t[3] = 0; // count, actioncount... g_t[3] = ???
+        if (A_CheckEnemySprite(g_sp) && g_sp->extra <= 0) // hack
+            break;
         if (g_sp->hitag&random_angle)
             g_sp->ang = krand()&2047;
         break;
@@ -1096,8 +1104,8 @@ static int X_DoExecute(void)
                 // fix for flying/jumping monsters getting stuck in water
                 if (g_sp->statnum != MAXSTATUS && actorscrptr[g_sp->picnum] &&
                         (g_sp->hitag & jumptoplayer ||
-                        (moveptr >= g_scriptPtr && moveptr <= (g_scriptPtr+g_scriptSize) && *(moveptr+1)))
-                        )
+                         (moveptr >= g_scriptPtr && moveptr <= (g_scriptPtr+g_scriptSize) && *(moveptr+1)))
+                   )
                 {
 //                    OSD_Printf("%d\n",*(moveptr+1));
                     break;
@@ -1287,14 +1295,14 @@ static int X_DoExecute(void)
         intptr_t *tempscrptr=insptr+2;
 
         insptr = (intptr_t *) *(insptr+1);
-        while (1) if (X_DoExecute()) break;
+        while (!X_DoExecute());
         insptr = tempscrptr;
     }
     break;
 
     case CON_LEFTBRACE:
         insptr++;
-        while (1) if (X_DoExecute()) break;
+        while (!X_DoExecute());
         break;
 
     case CON_MOVE:
@@ -1302,6 +1310,8 @@ static int X_DoExecute(void)
         g_t[0]=0;
         g_t[1] = *insptr++;
         g_sp->hitag = *insptr++;
+        if (A_CheckEnemySprite(g_sp) && g_sp->extra <= 0) // hack
+            break;
         if (g_sp->hitag&random_angle)
             g_sp->ang = krand()&2047;
         break;
@@ -1770,11 +1780,7 @@ static int X_DoExecute(void)
                     insptr=(intptr_t*)(lpCases[lCheckCase*2+1] + &script[0]);
                     //Bsprintf(g_szBuf,"insptr=%d. ",     (int)insptr);
                     //AddLog(g_szBuf);
-                    while (1)
-                    {
-                        if (X_DoExecute())
-                            break;
-                    }
+                    while (!X_DoExecute());
                     //AddLog("Done Executing Case");
                     bMatched=1;
                 }
@@ -1787,7 +1793,7 @@ static int X_DoExecute(void)
                 {
                     //AddLog("No Matching Case: Using Default");
                     insptr=(intptr_t*)(*lpDefault + &script[0]);
-                    while (1) if (X_DoExecute()) break;
+                    while (!X_DoExecute());
                 }
                 else
                 {
@@ -3480,7 +3486,7 @@ static int X_DoExecute(void)
 
         if (tw == CON_CHECKAVAILWEAPON)
             P_CheckWeapon(g_player[j].ps);
-        else P_SelectNextInventoryItem(g_player[j].ps);
+        else P_SelectNextInvItem(g_player[j].ps);
 
         break;
 
@@ -4207,7 +4213,7 @@ void A_LoadActor(int iActor)
         return;
     }
 
-    while (1) if (X_DoExecute()) break;
+    while (!X_DoExecute());
 
     if (g_killitFlag == 1)
         deletesprite(g_i);
@@ -4255,7 +4261,7 @@ void A_Execute(int iActor,int iPlayer,int lDist)
             g_t[3] = 0;
     }
 
-    while (1) if (X_DoExecute()) break;
+    while (!X_DoExecute());
 
     if (g_killitFlag == 1)
     {

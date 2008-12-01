@@ -7421,6 +7421,7 @@ static void G_CheckCommandLine(int argc, const char **argv)
                     {
 #if defined(POLYMOST) && defined(USE_OPENGL)
                         extern char TEXCACHEFILE[BMAX_PATH];
+
                         Bsprintf(tempbuf,"%s/%s",argv[i+1],TEXCACHEFILE);
                         Bstrcpy(TEXCACHEFILE,tempbuf);
 #endif

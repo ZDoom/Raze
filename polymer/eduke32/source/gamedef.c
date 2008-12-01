@@ -47,6 +47,7 @@ static int C_IncreaseScriptSize(int size);
 
 int g_numQuoteRedefinitions = 0;
 
+// pointers to weapon gamevar data
 intptr_t *aplWeaponClip[MAX_WEAPONS];       // number of items in magazine
 intptr_t *aplWeaponReload[MAX_WEAPONS];     // delay to reload (include fire)
 intptr_t *aplWeaponFireDelay[MAX_WEAPONS];      // delay to fire

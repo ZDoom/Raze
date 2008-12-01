@@ -168,7 +168,7 @@ extern inline int G_CheckForSpaceFloor(int sectnum);
 extern void P_AddAmmo(int weapon,DukePlayer_t *p,int amount);
 extern void P_AddWeaponNoSwitch(DukePlayer_t *p,int weapon);
 extern void P_AddWeapon(DukePlayer_t *p,int weapon);
-extern void P_SelectNextInventoryItem(DukePlayer_t *p);
+extern void P_SelectNextInvItem(DukePlayer_t *p);
 extern void P_CheckWeapon(DukePlayer_t *p);
 extern void A_RadiusDamage(int i,int r,int hp1,int hp2,int hp3,int hp4);
 extern int A_MoveSprite(int spritenum,int xchange,int ychange,int zchange,unsigned int cliptype);

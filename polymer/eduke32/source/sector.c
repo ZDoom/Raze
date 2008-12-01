@@ -2437,13 +2437,16 @@ void A_DamageObject(int i,int sn)
 
                 if (PN != TANK && PN != BOSS1 && PN != BOSS4 && PN != BOSS2 && PN != BOSS3 && PN != RECON && PN != ROTATEGUN)
                 {
-                    if ((sprite[i].cstat&48) == 0)
-                        SA = (sprite[sn].ang+1024)&2047;
-                    sprite[i].xvel = -(sprite[sn].extra<<2);
-                    j = SECT;
-                    pushmove(&SX,&SY,&SZ,&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
-                    if (j != SECT && j >= 0 && j < MAXSECTORS)
-                        changespritesect(i,j);
+                    if (sprite[i].extra > 0)
+                    {
+                        if ((sprite[i].cstat&48) == 0)
+                            SA = (sprite[sn].ang+1024)&2047;
+                        sprite[i].xvel = -(sprite[sn].extra<<2);
+                        j = SECT;
+                        pushmove(&SX,&SY,&SZ,&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
+                        if (j != SECT && j >= 0 && j < MAXSECTORS)
+                            changespritesect(i,j);
+                    }
                 }
 
                 if (sprite[i].statnum == 2)
@@ -3129,7 +3132,7 @@ CHECKINV1:
                     {
                         sprite[p->i].extra += p->firstaid_amount;
                         p->firstaid_amount = 0;
-                        P_SelectNextInventoryItem(p);
+                        P_SelectNextInvItem(p);
                     }
                     A_PlaySound(DUKE_USEMEDKIT,p->i);
                 }

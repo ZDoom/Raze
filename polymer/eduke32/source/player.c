@@ -427,7 +427,7 @@ int A_Shoot(int i,int atwith)
                                                                     A_AddToDeleteQueue(k);
                                             */
 
-                                            if (!SpriteFlags[ProjectileData[atwith].decal] & SPRITE_DECAL)
+                                            if (!(SpriteFlags[ProjectileData[atwith].decal] & SPRITE_DECAL))
                                                 SpriteFlags[ProjectileData[atwith].decal] |= SPRITE_DECAL;
 
                                             k = A_Spawn(i,ProjectileData[atwith].decal);
@@ -3137,7 +3137,7 @@ static int P_DoCounters(DukePlayer_t *p)
     {
         p->steroids_amount--;
         if (p->steroids_amount == 0)
-            P_SelectNextInventoryItem(p);
+            P_SelectNextInvItem(p);
         if (!(p->steroids_amount&7))
             if (snum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
                 A_PlaySound(DUKE_HARTBEAT,p->i);
@@ -3149,7 +3149,7 @@ static int P_DoCounters(DukePlayer_t *p)
         if (p->heat_amount == 0)
         {
             p->heat_on = 0;
-            P_SelectNextInventoryItem(p);
+            P_SelectNextInvItem(p);
             A_PlaySound(NITEVISION_ONOFF,p->i);
             P_UpdateScreenPal(p);
         }
@@ -3162,7 +3162,7 @@ static int P_DoCounters(DukePlayer_t *p)
         {
             A_PlaySound(TELEPORTER,p->i);
             p->holoduke_on = -1;
-            P_SelectNextInventoryItem(p);
+            P_SelectNextInvItem(p);
         }
     }
 
@@ -3172,7 +3172,7 @@ static int P_DoCounters(DukePlayer_t *p)
         if (p->jetpack_amount <= 0)
         {
             p->jetpack_on = 0;
-            P_SelectNextInventoryItem(p);
+            P_SelectNextInvItem(p);
             A_PlaySound(DUKE_JETPACK_OFF,p->i);
             A_StopSound(DUKE_JETPACK_IDLE,p->i);
             A_StopSound(DUKE_JETPACK_ON,p->i);
@@ -3264,7 +3264,7 @@ static int P_DoCounters(DukePlayer_t *p)
         if (p->scuba_amount == 0)
         {
             p->scuba_on = 0;
-            P_SelectNextInventoryItem(p);
+            P_SelectNextInvItem(p);
         }
     }
 
@@ -4274,7 +4274,7 @@ void P_ProcessInput(int snum)
                 p->boot_amount--;
                 p->inven_icon = 7;
                 if (p->boot_amount <= 0)
-                    P_SelectNextInventoryItem(p);
+                    P_SelectNextInvItem(p);
             }
             else
             {
@@ -4355,7 +4355,7 @@ void P_ProcessInput(int snum)
             P_DoQuote(75,p);
             p->boot_amount -= 2;
             if (p->boot_amount <= 0)
-                P_SelectNextInventoryItem(p);
+                P_SelectNextInvItem(p);
         }
     }
 
@@ -4747,7 +4747,7 @@ SHOOTINCODE:
     if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_GLOWS)
         p->random_club_frame += 64; // Glowing
 
-    // this is for WEAPON_FIREEVERYOTHER
+    // this is a hack for WEAPON_FIREEVERYOTHER
     if (ActorExtra[p->i].temp_data[7])
     {
         ActorExtra[p->i].temp_data[7]--;

@@ -923,7 +923,9 @@ int setvideomode(int x, int y, int c, int fs)
 {
     int regrab = 0;
     static int warnonce = 0;
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
     static int ovsync = 1;
+#endif
 
     if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) &&
             !videomodereset)
@@ -1759,7 +1761,7 @@ inline void idle(void)
     usleep(1);
 }
 
-#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
 static int buildkeytranslationtable(void)
 {
     memset(keytranslation,0,sizeof(keytranslation));

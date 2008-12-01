@@ -1065,9 +1065,9 @@ void getpackets(void)
                     vote_map = packbuf[3];
 
                     Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",
-                        g_player[(unsigned char)packbuf[1]].user_name,
-                        MapInfo[(unsigned char)(packbuf[2]*MAXLEVELS + packbuf[3])].name,
-                        packbuf[2]+1,packbuf[3]+1);
+                             g_player[(unsigned char)packbuf[1]].user_name,
+                             MapInfo[(unsigned char)(packbuf[2]*MAXLEVELS + packbuf[3])].name,
+                             packbuf[2]+1,packbuf[3]+1);
                     G_AddUserQuote(tempbuf);
 
                     Bsprintf(tempbuf,"PRESS F1 TO ACCEPT, F2 TO DECLINE");
@@ -1581,6 +1581,7 @@ void G_DrawTilePalSmall(int x, int y, int tilenum, int shade, int orientation, i
 #define POLYMOSTTRANS (1)
 #define POLYMOSTTRANS2 (1|32)
 
+// draws inventory numbers in the HUD for both the full and mini status bars
 static void G_DrawInvNum(int x,int y,char num1,char ha,char sbits)
 {
     char dabuf[80] = {0};
@@ -1591,7 +1592,7 @@ static void G_DrawInvNum(int x,int y,char num1,char ha,char sbits)
     Bsprintf(dabuf,"%d",num1);
     if (num1 > 99)
     {
-        if (shd && getrendermode() >= 3 && althud_shadows)
+        if (shd && ud.screen_size == 4 && getrendermode() >= 3 && althud_shadows)
         {
             rotatesprite(sbarx(x-4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
             rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
@@ -1604,7 +1605,7 @@ static void G_DrawInvNum(int x,int y,char num1,char ha,char sbits)
     }
     if (num1 > 9)
     {
-        if (shd && getrendermode() >= 3 && althud_shadows)
+        if (shd && ud.screen_size == 4 && getrendermode() >= 3 && althud_shadows)
         {
             rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
             rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
@@ -12215,7 +12216,7 @@ static void Net_DoPrediction(void)
         if (myz < (fz-(i<<8)) && (G_CheckForSpaceFloor(psect)|G_CheckForSpaceCeiling(psect)) == 0) //falling
         {
             if (!TEST_SYNC_KEY(sb_snum, SK_JUMP) && !TEST_SYNC_KEY(sb_snum, SK_CROUCH) &&
-                myonground && (sector[psect].floorstat&2) && myz >= (fz-(i<<8)-(16<<8)))
+                    myonground && (sector[psect].floorstat&2) && myz >= (fz-(i<<8)-(16<<8)))
                 myz = fz-(i<<8);
             else
             {

@@ -196,7 +196,7 @@ void P_AddWeapon(DukePlayer_t *p,int weapon)
     }
 }
 
-void P_SelectNextInventoryItem(DukePlayer_t *p)
+void P_SelectNextInvItem(DukePlayer_t *p)
 {
     if (p->firstaid_amount > 0)
         p->inven_icon = 1;
