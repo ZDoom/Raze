@@ -911,6 +911,12 @@ void updateanimation(md2model *m, spritetype *tspr)
     int fps;
     char lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
 
+    if (m->numframes < 2) 
+    {
+        m->interpol = 0;
+        return;
+    }
+
     m->cframe = m->nframe = tile2model[Ptile2tile(tspr->picnum,lpal)].framenum;
 
     for (anim = m->animations;

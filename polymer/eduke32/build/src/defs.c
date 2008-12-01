@@ -1104,6 +1104,8 @@ static int defsparser(scriptfile *script)
                         ltilenume = tilex;
                     }
 
+                    smoothduration = 0.1f;
+
                     if (lastmodelid < 0)
                     {
                         initprintf("Warning: Ignoring frame definition.\n");

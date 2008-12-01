@@ -2329,15 +2329,22 @@ void P_DisplayWeapon(int snum)
                     if ((*kb) > 6)
                         looking_arc += ((*kb)<<3);
                     else if ((*kb) < 4)
+                    {
+                        guniqhudid = cw<<2;
                         G_DrawWeaponTile(weapon_xoffset+142-(p->look_ang>>1),
                                          looking_arc+234-gun_pos,HANDHOLDINGLASER+3,gs,o,pal);
+                    }
 
+                    guniqhudid = cw;
                     G_DrawWeaponTile(weapon_xoffset+130-(p->look_ang>>1),
                                      looking_arc+249-gun_pos,
                                      HANDHOLDINGLASER+((*kb)>>2),gs,o,pal);
+
+                    guniqhudid = cw<<1;
                     G_DrawWeaponTile(weapon_xoffset+152-(p->look_ang>>1),
                                      looking_arc+249-gun_pos,
                                      HANDHOLDINGLASER+((*kb)>>2),gs,o|4,pal);
+                    guniqhudid = 0;
                 }
                 break;
 
@@ -2389,14 +2396,17 @@ void P_DisplayWeapon(int snum)
                     {
                     case 1:
                     case 2:
+                        guniqhudid = cw<<1;
                         G_DrawWeaponTile(weapon_xoffset+168-(p->look_ang>>1),looking_arc+201-gun_pos,
                                          SHOTGUN+2,-128,o,pal);
                     case 0:
                     case 6:
                     case 7:
                     case 8:
+                        guniqhudid = cw;
                         G_DrawWeaponTile(weapon_xoffset+146-(p->look_ang>>1),looking_arc+202-gun_pos,
                                          SHOTGUN,gs,o,pal);
+                        guniqhudid = 0;
                         break;
                     case 3:
                     case 4:
@@ -2410,46 +2420,57 @@ void P_DisplayWeapon(int snum)
                             gun_pos -= 40;
                             weapon_xoffset += 20;
 
+                            guniqhudid = cw<<1;
                             G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+194-gun_pos,
                                              SHOTGUN+1+((*(kb)-1)>>1),-128,o,pal);
                         }
-
+                        guniqhudid = cw;
                         G_DrawWeaponTile(weapon_xoffset+158-(p->look_ang>>1),looking_arc+220-gun_pos,
                                          SHOTGUN+3,gs,o,pal);
-
+                        guniqhudid = 0;
                         break;
                     case 13:
                     case 14:
                     case 15:
+                        guniqhudid = cw;
                         G_DrawWeaponTile(32+weapon_xoffset+166-(p->look_ang>>1),looking_arc+210-gun_pos,
                                          SHOTGUN+4,gs,o,pal);
+                        guniqhudid = 0;
                         break;
                     case 16:
                     case 17:
                     case 18:
                     case 19:
+                        guniqhudid = cw;
                         G_DrawWeaponTile(64+weapon_xoffset+170-(p->look_ang>>1),looking_arc+196-gun_pos,
                                          SHOTGUN+5,gs,o,pal);
+                        guniqhudid = 0;
                         break;
                     case 20:
                     case 21:
                     case 22:
                     case 23:
+                        guniqhudid = cw;
                         G_DrawWeaponTile(64+weapon_xoffset+176-(p->look_ang>>1),looking_arc+196-gun_pos,
                                          SHOTGUN+6,gs,o,pal);
+                        guniqhudid = 0;
                         break;
                     case 24:
                     case 25:
                     case 26:
                     case 27:
+                        guniqhudid = cw;
                         G_DrawWeaponTile(64+weapon_xoffset+170-(p->look_ang>>1),looking_arc+196-gun_pos,
                                          SHOTGUN+5,gs,o,pal);
+                        guniqhudid = 0;
                         break;
                     case 28:
                     case 29:
                     case 30:
+                        guniqhudid = cw;
                         G_DrawWeaponTile(32+weapon_xoffset+156-(p->look_ang>>1),looking_arc+206-gun_pos,
                                          SHOTGUN+4,gs,o,pal);
+                        guniqhudid = 0;
                         break;
                     }
                 }
@@ -2527,36 +2548,54 @@ void P_DisplayWeapon(int snum)
                         if ((*kb) == *aplWeaponFireDelay[PISTOL_WEAPON])
                             l -= 3;
 
+                        guniqhudid = cw;
                         G_DrawWeaponTile((l-(p->look_ang>>1)),(looking_arc+244-gun_pos),FIRSTGUN+kb_frames[*kb>2?0:*kb],gs,2,pal);
+                        guniqhudid = 0;
                     }
                     else
                     {
 
                         if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-17)
+                        {
+                            guniqhudid = cw;
                             G_DrawWeaponTile(194-(p->look_ang>>1),looking_arc+230-gun_pos,FIRSTGUN+4,gs,o,pal);
+                            guniqhudid = 0;
+                        }
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-12)
                         {
                             G_DrawWeaponTile(244-((*kb)<<3)-(p->look_ang>>1),looking_arc+130-gun_pos+((*kb)<<4),FIRSTGUN+6,gs,o,pal);
+                            guniqhudid = cw;
                             G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            guniqhudid = 0;
                         }
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-7)
                         {
                             G_DrawWeaponTile(124+((*kb)<<1)-(p->look_ang>>1),looking_arc+430-gun_pos-((*kb)<<3),FIRSTGUN+6,gs,o,pal);
+                            guniqhudid = cw;
                             G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            guniqhudid = 0;
                         }
 
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-4)
                         {
                             G_DrawWeaponTile(184-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+8,gs,o,pal);
+                            guniqhudid = cw;
                             G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+210-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            guniqhudid = 0;
                         }
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-2)
                         {
                             G_DrawWeaponTile(164-(p->look_ang>>1),looking_arc+245-gun_pos,FIRSTGUN+8,gs,o,pal);
+                            guniqhudid = cw;
                             G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            guniqhudid = 0;
                         }
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON])
+                        {
+                            guniqhudid = cw;
                             G_DrawWeaponTile(194-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            guniqhudid = 0;
+                        }
 
                     }
                 }
@@ -2640,19 +2679,28 @@ void P_DisplayWeapon(int snum)
 
                         if (p->hbomb_hold_delay)
                         {
+                            guniqhudid = cw;
                             G_DrawWeaponTile((cycloidy[*kb]>>1)+weapon_xoffset+268-(p->look_ang>>1),cycloidy[*kb]+looking_arc+238-gun_pos,DEVISTATOR+i,-32,o,pal);
+                            guniqhudid = cw<<1;
                             G_DrawWeaponTile(weapon_xoffset+30-(p->look_ang>>1),looking_arc+240-gun_pos,DEVISTATOR,gs,o|4,pal);
+                            guniqhudid = 0;
                         }
                         else
                         {
+                            guniqhudid = cw<<1;
                             G_DrawWeaponTile(-(cycloidy[*kb]>>1)+weapon_xoffset+30-(p->look_ang>>1),cycloidy[*kb]+looking_arc+240-gun_pos,DEVISTATOR+i,-32,o|4,pal);
+                            guniqhudid = cw;
                             G_DrawWeaponTile(weapon_xoffset+268-(p->look_ang>>1),looking_arc+238-gun_pos,DEVISTATOR,gs,o,pal);
+                            guniqhudid = 0;
                         }
                     }
                     else
                     {
+                        guniqhudid = cw;
                         G_DrawWeaponTile(weapon_xoffset+268-(p->look_ang>>1),looking_arc+238-gun_pos,DEVISTATOR,gs,o,pal);
+                        guniqhudid = cw<<1;
                         G_DrawWeaponTile(weapon_xoffset+30-(p->look_ang>>1),looking_arc+240-gun_pos,DEVISTATOR,gs,o|4,pal);
+                        guniqhudid = 0;
                     }
                 }
                 break;
@@ -2668,7 +2716,6 @@ void P_DisplayWeapon(int snum)
                     else if (p->cursectnum >= 0)
                         pal = sector[p->cursectnum].floorpal;
                     else pal = 0;
-
                     if ((*kb) < (aplWeaponTotalTime[p->curr_weapon][snum]+1) && (*kb) > 0)
                     {
                         static char cat_frames[] = { 0,0,1,1,2,2 };
@@ -2679,10 +2726,18 @@ void P_DisplayWeapon(int snum)
                             looking_arc += rand()&3;
                         }
                         gun_pos -= 16;
+                        guniqhudid = 0;
                         G_DrawWeaponTile(weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE+2,-32,o,pal);
+                        guniqhudid = cw;
                         G_DrawWeaponTile(weapon_xoffset+210-(p->look_ang>>1),looking_arc+235-gun_pos,FREEZE+3+cat_frames[*kb%6],-32,o,pal);
+                        guniqhudid = 0;
                     }
-                    else G_DrawWeaponTile(weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE,gs,o,pal);
+                    else
+                    {
+                        guniqhudid = cw;
+                        G_DrawWeaponTile(weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE,gs,o,pal);
+                        guniqhudid = 0;
+                    }
                 }
                 break;
 
@@ -2708,22 +2763,28 @@ void P_DisplayWeapon(int snum)
                                 gun_pos += (rand()&3);
                             }
 
+                            guniqhudid = cw<<1;
                             G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
                                              looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
                                              o,2);
 
+                            guniqhudid = cw;
                             G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
                                              looking_arc+240-gun_pos,SHRINKER-1,gs,o,pal);
+                            guniqhudid = 0;
                         }
                         else
                         {
+                            guniqhudid = cw<<1;
                             G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
                                              looking_arc+240-gun_pos,SHRINKER+2,
                                              16-(sintable[p->random_club_frame&2047]>>10),
                                              o,2);
 
+                            guniqhudid = cw;
                             G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
                                              looking_arc+240-gun_pos,SHRINKER-2,gs,o,pal);
+                            guniqhudid = 0;
                         }
                     }
                 }
@@ -2749,24 +2810,27 @@ void P_DisplayWeapon(int snum)
                             weapon_xoffset += rand()&3;
                             gun_pos += (rand()&3);
                         }
-
+                        guniqhudid = cw<<1;
                         G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
                                          looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
                                          o,0);
-
+                        guniqhudid = cw;
                         G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
                                          looking_arc+240-gun_pos,SHRINKER+1,gs,o,pal);
+                        guniqhudid = 0;
 
                     }
                     else
                     {
+                        guniqhudid = cw<<1;
                         G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
                                          looking_arc+240-gun_pos,SHRINKER+2,
                                          16-(sintable[p->random_club_frame&2047]>>10),
                                          o,0);
-
+                        guniqhudid = cw;
                         G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
                                          looking_arc+240-gun_pos,SHRINKER,gs,o,pal);
+                        guniqhudid = 0;
                     }
                 }
                 break;
