@@ -1,7 +1,19 @@
 //------------------------------------- MD2/MD3 LIBRARY BEGINS -------------------------------------
 
+#include "compat.h"
+#include "build.h"
+#include "glbuild.h"
+#include "pragmas.h"
+#include "baselayer.h"
+#include "engine_priv.h"
+#include "hightile.h"
+#include "polymost.h"
 #include "mdsprite.h"
-static voxmodel *voxmodels[MAXVOXELS];
+#include "cache1d.h"
+#include "kplib.h"
+#include "md4.h"
+
+voxmodel *voxmodels[MAXVOXELS];
 int curextra=MAXTILES;
 
 int addtileP(int model,int tile,int pallet)
@@ -29,15 +41,11 @@ int Ptile2tile(int tile,int pallet)
     return t;
 }
 
-//Move this to appropriate place!
-typedef struct { float xadd, yadd, zadd; short angadd, flags; } hudtyp;
-hudtyp hudmem[2][MAXTILES]; //~320KB ... ok for now ... could replace with dynamic alloc
-
-static char mdinited=0;
+int mdinited=0;
 int mdpause=0;
 
 #define MODELALLOCGROUP 256
-static int nummodelsalloced = 0, nextmodelid = 0;
+int nummodelsalloced = 0, nextmodelid = 0;
 
 static int maxmodelverts = 0, allocmodelverts = 0;
 static int maxmodeltris = 0, allocmodeltris = 0;
@@ -54,7 +62,7 @@ int globalnoeffect=0;
 
 extern int timerticspersec;
 
-static void freeallmodels()
+void freeallmodels()
 {
     int i;
 
@@ -87,7 +95,7 @@ static void freeallmodels()
     }
 }
 
-static void clearskins()
+void clearskins()
 {
     mdmodel *m;
     int i, j;
@@ -134,7 +142,7 @@ static void clearskins()
     }
 }
 
-static void mdinit()
+void mdinit()
 {
     memset(hudmem,0,sizeof(hudmem));
     freeallmodels();
@@ -2701,7 +2709,7 @@ static int loadvxl(const char *filnam)
 }
 #endif
 
-static void voxfree(voxmodel *m)
+void voxfree(voxmodel *m)
 {
     if (!m) return;
     if (m->mytex) free(m->mytex);
@@ -2710,7 +2718,7 @@ static void voxfree(voxmodel *m)
     free(m);
 }
 
-static voxmodel *voxload(const char *filnam)
+voxmodel *voxload(const char *filnam)
 {
     int i, is8bit, ret;
     voxmodel *vm;
@@ -2741,7 +2749,7 @@ static voxmodel *voxload(const char *filnam)
 }
 
 //Draw voxel model as perfect cubes
-static int voxdraw(voxmodel *m, spritetype *tspr)
+int voxdraw(voxmodel *m, spritetype *tspr)
 {
     point3d fp, m0, a0;
     int i, j, fi, xx, yy, zz;

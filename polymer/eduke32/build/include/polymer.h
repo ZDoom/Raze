@@ -26,8 +26,9 @@
 # include "build.h"
 # include "glbuild.h"
 # include "osd.h"
-# include "polymost.h"
+# include "hightile.h"
 # include "mdsprite.h"
+# include "polymost.h"
 # include "pragmas.h"
 # include <math.h>
 

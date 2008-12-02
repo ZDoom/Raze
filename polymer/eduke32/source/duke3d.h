@@ -36,9 +36,6 @@ extern "C" {
 #include "compat.h"
 #include "a.h"
 #include "build.h"
-#if defined(POLYMOST) && defined(USE_OPENGL)
-# include "polymost.h"
-#endif
 #ifdef POLYMER
 # include "polymer.h"
 #endif

@@ -542,6 +542,7 @@ extern int glredbluemode;
 extern int glusetexcache, glusetexcachecompression;
 extern int glmultisample, glnvmultisamplehint;
 extern int glwidescreen, glprojectionhacks;
+extern int gltexmaxsize;
 void gltexapplyprops (void);
 void invalidatecache(void);
 

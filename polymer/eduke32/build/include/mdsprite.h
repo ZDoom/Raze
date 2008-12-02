@@ -221,5 +221,23 @@ EXTERN mdmodel **models;
 
 void updateanimation(md2model *m, spritetype *tspr);
 int mdloadskin(md2model *m, int number, int pal, int surf);
+void mdinit(void);
+void freeallmodels(void);
+void clearskins(void);
+int mddraw(spritetype *tspr);
+
+typedef struct { float xadd, yadd, zadd; short angadd, flags; } hudtyp;
+
+EXTERN hudtyp hudmem[2][MAXTILES]; //~320KB ... ok for now ... could replace with dynamic alloc
+
+EXTERN int mdinited;
+EXTERN int mdpause;
+EXTERN int nummodelsalloced, nextmodelid;
+EXTERN voxmodel *voxmodels[MAXVOXELS];
+
+void voxfree(voxmodel *m);
+voxmodel *voxload(const char *filnam);
+int voxdraw(voxmodel *m, spritetype *tspr);
+
 
 #endif // !_mdsprite_h_

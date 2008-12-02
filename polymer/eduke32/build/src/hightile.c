@@ -4,26 +4,18 @@
  * See the included license file "BUILDLIC.TXT" for license info.
  */
 
+#ifdef POLYMOST
+
+#include "build.h"
+#include "compat.h"
 #include "kplib.h"
+#include "hightile.h"
+
 
 palette_t hictinting[MAXPALOOKUPS];
 
-//moved into polymost.h
-//#define HICEFFECTMASK (1|2|4)
-/*struct hicskybox_t {
-    int ignore;
-    char *face[6];
-};
-
-typedef struct hicreplc_t {
-    struct hicreplc_t *next;
-    char palnum, ignore, flags, filler;
-    char *filename;
-    float alphacut;
-    struct hicskybox_t *skybox;
-} hicreplctyp;*/
-static hicreplctyp *hicreplc[MAXTILES];
-static char hicfirstinit = 0;
+hicreplctyp *hicreplc[MAXTILES];
+char hicfirstinit = 0;
 
 //
 // find the index into hicreplc[] which contains the replacement tile particulars
@@ -290,3 +282,13 @@ int hicclearsubst(int picnum, int palnum)
 
     return 0;
 }
+
+#else /* POLYMOST */
+
+void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect) { }
+int hicsetsubsttex(int picnum, int palnum, char *filen, float alphacut) { return 0; }
+int hicsetskybox(int picnum, int palnum, char *faces[6]) { return 0; }
+int hicclearsubst(int picnum, int palnum) { return 0; }
+
+#endif
+

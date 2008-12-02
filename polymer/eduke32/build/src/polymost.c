@@ -65,7 +65,25 @@ Low priority:
 
 **************************************************************************************************/
 
-int animateoffs(short tilenum, short fakevar);
+
+#ifdef POLYMOST
+
+#include "compat.h"
+#include "build.h"
+#include "glbuild.h"
+#include "pragmas.h"
+#include "baselayer.h"
+#include "osd.h"
+#include "engine_priv.h"
+#include "hightile.h"
+#include "mdsprite.h"
+#include "polymost.h"
+#include "scriptfile.h"
+#include "cache1d.h"
+#include "kplib.h"
+
+extern char textfont[2048], smalltextfont[2048];
+
 int rendmode=0;
 int usemodels=1, usehightile=1;
 
@@ -82,13 +100,12 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
 #define FOGSCALE 0.0000640
-#define PI 3.14159265358979323
 
 float shadescale = 1.050;
 
-static double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
-static double gcosang, gsinang, gcosang2, gsinang2;
-static double gchang, gshang, gctang, gstang, gvisibility;
+double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
+double gcosang, gsinang, gcosang2, gsinang2;
+double gchang, gshang, gctang, gstang, gvisibility;
 float gtang = 0.0;
 double guo, gux, guy; //Screen-based texture mapping parameters
 double gvo, gvx, gvy;
@@ -105,11 +122,7 @@ static int srepeat = 0, trepeat = 0;
 int glredbluemode = 0;
 static int lastglredbluemode = 0, redblueclearcnt = 0;
 
-static struct glfiltermodes
-{
-    char *name;
-    int min,mag;
-} glfiltermodes[] =
+struct glfiltermodes glfiltermodes[numglfiltermodes] =
 {
     {"GL_NEAREST",GL_NEAREST,GL_NEAREST},
     {"GL_LINEAR",GL_LINEAR,GL_LINEAR},
@@ -118,7 +131,6 @@ static struct glfiltermodes
     {"GL_NEAREST_MIPMAP_LINEAR",GL_NEAREST_MIPMAP_LINEAR,GL_NEAREST},
     {"GL_LINEAR_MIPMAP_LINEAR",GL_LINEAR_MIPMAP_LINEAR,GL_LINEAR}
 };
-#define numglfiltermodes (sizeof(glfiltermodes)/sizeof(glfiltermodes[0]))
 
 int glanisotropy = 1;            // 0 = maximum supported by card
 int glusetexcompr = 1;
@@ -144,15 +156,15 @@ static int shadeforfullbrightpass;
 int r_depthpeeling = 0;    // cvar toggling general depth peeling usage
 int r_peelscount = 5;      // cvar controlling the number of peeling layers
 int r_curpeel = -1;        // cvar controlling the display of independant peeling layers
-static float curpolygonoffset;     // internal polygon offset stack for drawing flat sprites to avoid depth fighting
-static int peelcompiling = 0;     // internal control var to disable blending when compiling the peeling display list
-static int newpeelscount = 0;     // temporary var for peels count changing during the game
+float curpolygonoffset;    // internal polygon offset stack for drawing flat sprites to avoid depth fighting
+int peelcompiling = 0;     // internal control var to disable blending when compiling the peeling display list
+int newpeelscount = 0;     // temporary var for peels count changing during the game
 
 // Depth peeling data
-static GLuint ztexture[3];         // secondary Z-buffers identifier
-static GLuint *peels;              // peels identifiers
-static GLuint *peelfbos;           // peels FBOs identifiers
-static GLuint peelprogram[2];      // ARBfp peeling fragment program
+GLuint ztexture[3];         // secondary Z-buffers identifier
+GLuint *peels;              // peels identifiers
+GLuint *peelfbos;           // peels FBOs identifiers
+GLuint peelprogram[2];      // ARBfp peeling fragment program
 
 // Detail mapping cvar
 int r_detailmapping = 1;
@@ -194,6 +206,8 @@ static float fogresult, fogcol[4];
     fogcol[3] = 0; \
 }
 #endif
+
+static char tempbuf[MAXWALLSB<<1];
 
 // polymost ART sky control
 int r_parallaxskyclamping = 1;
@@ -310,9 +324,6 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
 }
 
 #ifdef USE_OPENGL
-typedef struct { unsigned char r, g, b, a; } coltype;
-
-static void uploadtexture(int doalloc, int xsiz, int ysiz, int intexfmt, int texfmt, coltype *pic, int tsizx, int tsizy, int dameth);
 
 #include "md4.h"
 
@@ -328,50 +339,17 @@ static void uploadtexture(int doalloc, int xsiz, int ysiz, int intexfmt, int tex
 int cachefilehandle = -1; // texture cache file handle
 FILE *cacheindexptr = NULL;
 
-static struct HASH_table cacheH    = { MAXTILES<<2, NULL };
+struct HASH_table cacheH    = { MAXTILES<<2, NULL };
 
 char TEXCACHEFILE[BMAX_PATH] = "textures";
 
-typedef struct
-{
-    char magic[4];	// 'PMST', was 'Polymost'
-    int xdim, ydim;	// of image, unpadded
-    int flags;		// 1 = !2^x, 2 = has alpha, 4 = lzw compressed
-    int quality;    // r_downsize at the time the cache was written
-} texcacheheader;
-typedef struct
-{
-    int size;
-    int format;
-    int xdim, ydim;	// of mipmap (possibly padded)
-    int border, depth;
-} texcachepicture;
-
-int dxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, unsigned int miplen);
-int dedxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int ispacked);
-
-static inline void phex(unsigned char v, char *s);
-void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *head);
-
 int mdtims, omdtims;
 float alphahackarray[MAXTILES];
-
-struct cache_entry
-{
-    char name[BMAX_PATH];
-    int offset;
-    int len;
-    struct cache_entry *next;
-};
-
-typedef struct cache_entry texcacheindex;
 
 texcacheindex firstcacheindex;
 texcacheindex *datextures = NULL;
 texcacheindex *cacheptrs[MAXTILES<<2];
 int numcacheentries = 0;
-
-#include "mdsprite.c"
 
 //--------------------------------------------------------------------------------------------------
 //TEXTURE MANAGEMENT: treats same texture with different .PAL as a separate texture. This makes the
@@ -398,7 +376,7 @@ int numcacheentries = 0;
 } pthtyp;*/
 
 #define GLTEXCACHEADSIZ 8192
-static pthtyp *gltexcachead[GLTEXCACHEADSIZ];
+pthtyp *gltexcachead[GLTEXCACHEADSIZ];
 
 int drawingskybox = 0;
 
@@ -654,7 +632,7 @@ void gltexapplyprops(void)
 
 //--------------------------------------------------------------------------------------------------
 static int LoadCacheOffsets(void);
-static float glox1, gloy1, glox2, gloy2;
+float glox1, gloy1, glox2, gloy2;
 
 //Use this for both initialization and uninitialization of OpenGL.
 static int gltexcacnum = -1;
@@ -1140,7 +1118,7 @@ void fixtransparency(coltype *dapic, int daxsiz, int daysiz, int daxsiz2, int da
     }
 }
 
-static void uploadtexture(int doalloc, int xsiz, int ysiz, int intexfmt, int texfmt, coltype *pic, int tsizx, int tsizy, int dameth)
+void uploadtexture(int doalloc, int xsiz, int ysiz, int intexfmt, int texfmt, coltype *pic, int tsizx, int tsizy, int dameth)
 {
     coltype *wpptr, *rpptr;
     int x2, y2, j, js=0, x3, y3, y, x, r, g, b, a, k;
@@ -1423,7 +1401,7 @@ static int LoadCacheOffsets(void)
     return 0;
 }
 
-static inline void phex(unsigned char v, char *s)
+void phex(unsigned char v, char *s)
 {
     int x;
     x = v>>4;
@@ -1513,7 +1491,7 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
     void *midbuf = NULL;
     unsigned int alloclen=0, level, miplen;
     unsigned int padx=0, pady=0;
-    GLuint gi;
+    GLint gi;
     int offset = 0;
 
     if (!glinfo.texcompr || !glusetexcompr || !glusetexcache || !cacheindexptr || cachefilehandle < 0) return;
@@ -4198,7 +4176,6 @@ static void polymost_drawalls(int bunch)
     }
 }
 
-static int wallfront(int, int);
 static int polymost_bunchfront(int b1, int b2)
 {
     double x1b1, x1b2, x2b1, x2b2;
@@ -4748,10 +4725,6 @@ void polymost_drawmaskwall(int damaskwallcnt)
 
     drawpoly(dpx,dpy,n,method);
 }
-
-#define CULL_OFFSET 384
-#define CULL_DELAY 2
-#define MAXCULLCHECKS 1024
 
 int lastcullcheck = 0;
 char cullmodel[MAXSPRITES];
@@ -6729,4 +6702,11 @@ int dedxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *p
     return 0;
 }
 #endif
+
+#else /* POLYMOST */
+
+int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen) { return -1; }
+
+#endif
+
 // vim:ts=4:sw=4:

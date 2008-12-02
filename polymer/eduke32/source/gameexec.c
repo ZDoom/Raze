@@ -910,7 +910,12 @@ static int X_DoExecute(void)
         insptr++;
         if (g_sp->picnum == APLAYER)
             g_sp->pal = g_player[g_sp->yvel].ps->palookup;
-        else g_sp->pal = ActorExtra[g_i].tempang;
+        else
+        {
+            if (g_sp->pal == 1 && g_sp->extra == 0) // hack for frozen
+                g_sp->extra++;
+            g_sp->pal = ActorExtra[g_i].tempang;
+        }
         ActorExtra[g_i].tempang = 0;
         break;
 

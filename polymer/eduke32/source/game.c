@@ -44,6 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "kplib.h"
 //#include "crc32.h"
 #include "util_lib.h"
+#include "hightile.h"
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN

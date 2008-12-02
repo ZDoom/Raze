@@ -22,27 +22,24 @@
 #include "scriptfile.h"
 
 #ifdef POLYMOST
+# ifdef USE_OPENGL
+#  include "glbuild.h"
+#  ifdef POLYMER
+#   include "polymer.h"
+#  endif
+# endif
+# include "hightile.h"
+# include "mdsprite.h"
+# include "polymost.h"
 # ifdef _WIN32
 #  define WIN32_LEAN_AND_MEAN
 #  include <windows.h>
 # endif
-# ifdef USE_OPENGL
-#  include "glbuild.h"
-#  ifdef POLYMER
-#  include "polymer.h"
-# endif
-#endif
 #endif
 
 #include <math.h>
 
-#define MAXCLIPNUM 1024
-#define MAXPERMS 512
-#define MAXTILEFILES 256
-#define MAXYSAVES ((MAXXDIM*MAXSPRITES)>>7)
-#define MAXNODESPERLINE 42   //Warning: This depends on MAXYSAVES & MAXYDIM!
-#define MAXCLIPDIST 1024
-
+#include "engine_priv.h"
 
 void *kmalloc(bsize_t size) { return(Bmalloc(size)); }
 #define kkmalloc kmalloc
@@ -93,7 +90,7 @@ static char tempbuf[MAXWALLS];
 int ebpbak, espbak;
 int slopalookup[16384];    // was 2048
 #if defined(USE_OPENGL)
-static palette_t palookupfog[MAXPALOOKUPS];
+palette_t palookupfog[MAXPALOOKUPS];
 #endif
 
 static char permanentlock = 255;
@@ -122,9 +119,8 @@ int pow2long[32] =
 int reciptable[2048], fpuasm;
 
 char britable[16][256]; // JBF 20040207: full 8bit precision
-//char textfont[1024], smalltextfont[1024];
-#include "textfont.c"
-#include "smalltextfont.c"
+
+extern char textfont[2048], smalltextfont[2048];
 
 static char kensmessage[128];
 char *engineerrstr = "No error";
@@ -190,21 +186,6 @@ int msqrtasm(unsigned int);
     parm [eax]\
     modify exact [eax ebx ecx]
 int krecipasm(int);
-
-#pragma aux setgotpic =\
-    "mov ebx, eax",\
-    "cmp byte ptr walock[eax], 200",\
-    "jae skipit",\
-    "mov byte ptr walock[eax], 199",\
-    "skipit: shr eax, 3",\
-    "and ebx, 7",\
-    "mov dl, byte ptr gotpic[eax]",\
-    "mov bl, byte ptr pow2char[ebx]",\
-    "or dl, bl",\
-    "mov byte ptr gotpic[eax], dl",\
-    parm [eax]\
-    modify exact [eax ebx ecx edx]
-void setgotpic(int);
 
 #pragma aux getclipmask =\
     "sar eax, 31",\
@@ -314,27 +295,6 @@ static inline int krecipasm(int a)
     }
 }
 
-static inline void setgotpic(int a)
-{
-    _asm
-    {
-        push ebx
-        mov eax, a
-        mov ebx, eax
-        cmp byte ptr walock[eax], 200
-        jae skipit
-        mov byte ptr walock[eax], 199
-skipit:
-        shr eax, 3
-        and ebx, 7
-        mov dl, byte ptr gotpic[eax]
-        mov bl, byte ptr pow2char[ebx]
-        or dl, bl
-        mov byte ptr gotpic[eax], dl
-        pop ebx
-    }
-}
-
 static inline int getclipmask(int a, int b, int c, int d)
 {
     _asm
@@ -425,24 +385,6 @@ beg:
         : "=a" (__r) : "c" (__c) : "edx","ebx", "cc"); \
      __r; })
 
-#define setgotpic(a) \
-    ({ int __a=(a); \
-       __asm__ __volatile__ ( \
-        "movl %%eax, %%ebx\n\t" \
-        "cmpb $200, "ASMSYM("walock")"(%%eax)\n\t" \
-        "jae 0f\n\t" \
-        "movb $199, "ASMSYM("walock")"(%%eax)\n\t" \
-        "0:\n\t" \
-        "shrl $3, %%eax\n\t" \
-        "andl $7, %%ebx\n\t" \
-        "movb "ASMSYM("gotpic")"(%%eax), %%dl\n\t" \
-        "movb "ASMSYM("pow2char")"(%%ebx), %%bl\n\t" \
-        "orb %%bl, %%dl\n\t" \
-        "movb %%dl, "ASMSYM("gotpic")"(%%eax)" \
-        : "=a" (__a) : "a" (__a) \
-        : "ebx", "edx", "memory", "cc"); \
-     __a; })
-
 #define krecipasm(a) \
     ({ int __a=(a); \
        __asm__ __volatile__ ( \
@@ -532,12 +474,6 @@ static inline int msqrtasm(unsigned int c)
     return a;
 }
 
-static inline void setgotpic(int tilenume)
-{
-    if (walock[tilenume] < 200) walock[tilenume] = 199;
-    gotpic[tilenume>>3] |= pow2char[tilenume&7];
-}
-
 static inline int krecipasm(int i)
 {
     // Ken did this
@@ -562,12 +498,12 @@ inline int getkensmessagecrc(int b)
 #endif
 
 
-static int xb1[MAXWALLSB], yb1[MAXWALLSB], xb2[MAXWALLSB], yb2[MAXWALLSB];
-static int rx1[MAXWALLSB], ry1[MAXWALLSB], rx2[MAXWALLSB], ry2[MAXWALLSB];
-static short p2[MAXWALLSB], thesector[MAXWALLSB];
+int xb1[MAXWALLSB], yb1[MAXWALLSB], xb2[MAXWALLSB], yb2[MAXWALLSB];
+int rx1[MAXWALLSB], ry1[MAXWALLSB], rx2[MAXWALLSB], ry2[MAXWALLSB];
+short p2[MAXWALLSB], thesector[MAXWALLSB];
 short thewall[MAXWALLSB];
 
-static short bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
+short bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 
 static short smost[MAXYSAVES], smostcnt;
 static short smoststart[MAXWALLSB];
@@ -617,13 +553,13 @@ intptr_t globalbufplc;
 int globalx1, globaly1, globalx2, globaly2, globalx3, globaly3, globalzx;
 int globalx, globaly, globalz;
 
-static short sectorborder[256], sectorbordercnt;
+short sectorborder[256], sectorbordercnt;
 static char tablesloaded = 0;
 int pageoffset, ydim16, qsetmode = 0;
 int startposx, startposy, startposz;
 short startang, startsectnum;
 short pointhighlight, linehighlight, highlightcnt;
-static int lastx[MAXYDIM];
+int lastx[MAXYDIM];
 char *transluc = NULL, paletteloaded = 0;
 
 int halfxdim16, midydim16;
@@ -639,7 +575,7 @@ static int colscan[27];
 static short clipnum, hitwalls[4];
 int hitscangoalx = (1<<29)-1, hitscangoaly = (1<<29)-1;
 #ifdef POLYMOST
-static int hitallsprites = 0;
+int hitallsprites = 0;
 #endif
 
 typedef struct { int x1, y1, x2, y2; } linetype;
@@ -679,7 +615,7 @@ double msens = 1.0;
 static char artfilename[20];
 static int numtilefiles, artfil = -1, artfilnum, artfilplc;
 
-static char inpreparemirror = 0;
+char inpreparemirror = 0;
 static int mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
 
 static int setviewcnt = 0; // interface layers use this now
@@ -705,26 +641,6 @@ char palfadedelta = 0;
 //
 //int cacheresets = 0,cacheinvalidates = 0;
 
-
-//============================================================================= //POLYMOST BEGINS
-#ifdef POLYMOST
-static void scansector(short sectnum);
-#include "polymost.h"
-#include "hightile.c"
-#include "polymost.c"
-#else
-void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect)
-{ UNREFERENCED_PARAMETER(palnum); UNREFERENCED_PARAMETER(r); UNREFERENCED_PARAMETER(g); UNREFERENCED_PARAMETER(b); UNREFERENCED_PARAMETER(effect);}
-int hicsetsubsttex(int picnum, int palnum, char *filen, float alphacut, float xscale, float yscale, char flags)
-{ UNREFERENCED_PARAMETER(picnum); UNREFERENCED_PARAMETER(palnum); UNREFERENCED_PARAMETER(filen); UNREFERENCED_PARAMETER(alphacut); UNREFERENCED_PARAMETER(xscale); UNREFERENCED_PARAMETER(yscale); UNREFERENCED_PARAMETER(flags); return 0;}
-int hicsetskybox(int picnum, int palnum, char *faces[6])
-{ UNREFERENCED_PARAMETER(picnum); UNREFERENCED_PARAMETER(palnum); UNREFERENCED_PARAMETER(faces); return 0;}
-int hicclearsubst(int picnum, int palnum)
-{ UNREFERENCED_PARAMETER(picnum); UNREFERENCED_PARAMETER(palnum);return 0;}
-int polymost_drawtilescreen(int tilex, int tiley, int wallnum, int dimen, int tilezoom)
-{ UNREFERENCED_PARAMETER(tilex); UNREFERENCED_PARAMETER(tiley); UNREFERENCED_PARAMETER(wallnum); UNREFERENCED_PARAMETER(dimen); UNREFERENCED_PARAMETER(tilezoom);return -1;}
-#endif
-//============================================================================= //POLYMOST ENDS
 
 //
 // getpalookup (internal)
@@ -1042,7 +958,7 @@ static void maskwallscan(int x1, int x2, short *uwal, short *dwal, int *swal, in
 //
 // wallfront (internal)
 //
-static int wallfront(int l1, int l2)
+int wallfront(int l1, int l2)
 {
     walltype *wal;
     int x11, y11, x21, y21, x12, y12, x22, y22, dx, dy, t1, t2;
@@ -1407,7 +1323,7 @@ static int owallmost(short *mostbuf, int w, int z)
 //
 // wallmost (internal)
 //
-static int wallmost(short *mostbuf, int w, int sectnum, char dastat)
+int wallmost(short *mostbuf, int w, int sectnum, char dastat)
 {
     int bad, i, j, t, y, z, inty, intz, xcross, yinc, fw;
     int x1, y1, z1, x2, y2, z2, xv, yv, dx, dy, dasqr, oz1, oz2;
