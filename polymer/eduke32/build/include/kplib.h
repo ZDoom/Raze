@@ -1,5 +1,5 @@
 	//High-level (easy) picture loading function:
-extern void kpzload (const char *, int *, intptr_t *, int *, int *);
+extern void kpzload (const char *, intptr_t *, int *, int *, int *);
 	//Low-level PNG/JPG functions:
 extern void kpgetdim (const char *, int, int *, int *);
 extern int kprender (const char *, int, intptr_t, int, int, int, int, int);

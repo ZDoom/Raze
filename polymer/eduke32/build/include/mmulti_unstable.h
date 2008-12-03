@@ -19,3 +19,4 @@ void genericmultifunction(int other, char *bufptr, int messleng, int command);
 extern int natfree;
 
 #endif
+
