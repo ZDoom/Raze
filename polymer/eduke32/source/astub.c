@@ -7370,7 +7370,7 @@ static void G_AddGroup(const char *buffer)
     j += lengths[i]; \
     testplay_addparam[j++] = ' ';
 
-#ifdef RENDERTYPEWIN
+#if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
 extern char forcegl;
 #endif
 
@@ -7494,7 +7494,7 @@ static void G_CheckCommandLine(int argc, const char **argv)
                     continue;
                 }
 #endif
-#ifdef RENDERTYPEWIN
+#if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
                 if (!Bstrcasecmp(c+1,"forcegl"))
                 {
                     forcegl = 1;

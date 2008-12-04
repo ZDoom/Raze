@@ -1,5 +1,7 @@
 //------------------------------------- MD2/MD3 LIBRARY BEGINS -------------------------------------
 
+#ifdef POLYMOST
+
 #include "compat.h"
 #include "build.h"
 #include "glbuild.h"
@@ -2974,5 +2976,7 @@ void mdfree(mdmodel *vm)
     if (vm->mdnum == 1) { voxfree((voxmodel *)vm); return; }
     if (vm->mdnum == 3) { md3free((md3model *)vm); return; }
 }
+
+#endif
 
 //---------------------------------------- MD LIBRARY ENDS  ----------------------------------------

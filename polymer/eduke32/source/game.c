@@ -164,7 +164,7 @@ int g_levelTextTime = 0;
 int r_maxfps = 0;
 unsigned int g_frameDelay = 0;
 
-#ifdef RENDERTYPEWIN
+#if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
 extern char forcegl;
 #endif
 
@@ -9601,7 +9601,7 @@ static void G_CheckCommandLine(int argc, const char **argv)
                     i++;
                     continue;
                 }
-#ifdef RENDERTYPEWIN
+#if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
                 if (!Bstrcasecmp(c+1,"forcegl"))
                 {
                     forcegl = 1;
@@ -10849,7 +10849,7 @@ void app_main(int argc,const char **argv)
 
     G_CheckCommandLine(argc,argv);
 
-#ifdef RENDERTYPEWIN
+#if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
     if (forcegl) initprintf("GL driver blacklist disabled.\n");
 #endif
 

@@ -1952,8 +1952,10 @@ static void G_DrawTileScaled(int x, int y, int tilenum, int shade, int orientati
     if (orientation&4)
         a = 1024;
 
-    if (usemodels && md_tilehasmodel(tilenum,p) > 0)
+#if defined(POLYMOST) && defined(USE_OPENGL)
+    if (getrendermode() >= 3 && usemodels && md_tilehasmodel(tilenum,p) > 0)
         y += (224-weapsc(224));
+#endif
     rotatesprite(weapsc((orientation&256)?x:(x<<16))+((xoff-weapsc(xoff))<<16),
                  weapsc((orientation&256)?y:(y<<16))+((200-weapsc(200))<<16),
                  weapsc(65536L),a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);

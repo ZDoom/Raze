@@ -164,7 +164,7 @@ EDITOROBJS=$(OBJ)/astub.$o
 ifeq ($(PLATFORM),LINUX)
 	OURCFLAGS	+= -fno-pic
 	NASMFLAGS	+= -f elf
-	LIBS		+= -lvorbisfile -lvorbis -logg -lprofiler
+	LIBS		+= -lvorbisfile -lvorbis -logg 
 	USE_OPENAL	= 0
 endif
 
