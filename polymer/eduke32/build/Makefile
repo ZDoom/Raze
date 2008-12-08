@@ -145,6 +145,9 @@ EDITOROBJS=$(OBJ)/build.$o \
 ifeq ($(PLATFORM),LINUX)
 	ASFLAGS+= -f elf
 	LIBS+= -lm 
+        ifeq ($(RELEASE),0)
+                OURCFLAGS += -D_FORTIFY_SOURCE=2
+        endif
 endif
 ifeq ($(PLATFORM),DARWIN)
 	ENGINEOBJS	+= $(OBJ)/StartupWinController.editor.$o \

@@ -896,7 +896,7 @@ extern intptr_t *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine bei
 extern intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
 extern intptr_t *aplWeaponSelectSound[MAX_WEAPONS];     // Sound for weapon selection
 
-extern short g_timerTicsPerSecond;
+extern int g_timerTicsPerSecond;
 
 enum WeaponFlags_t {
     WEAPON_HOLSTER_CLEARS_CLIP = 1,     // 'holstering' clears the current clip

@@ -2576,8 +2576,10 @@ static void G_PrintFrameRate(void)
             int chars = Bsprintf(tempbuf, "%2u ms (%3u fps)", howlong, LastCount);
 
             printext256(windowx2-(chars<<(3-x))+1,windowy1+2,0,-1,tempbuf,x);
-            printext256(windowx2-(chars<<(3-x)),windowy1+1,(LastCount < LOW_FPS) ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
+            printext256(windowx2-(chars<<(3-x)),windowy1+1,
+                (LastCount < LOW_FPS) ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
 
+            // lag meter
             if (numplayers > 1 && (totalclock - lastpackettime) > 1)
             {
                 for (howlong = (totalclock - lastpackettime);howlong>0 && howlong<(xdim>>2);howlong--)
@@ -7562,7 +7564,7 @@ enum cheats
     CHEAT_SCREAMFORME,
 };
 
-void CheatGetInventory(void)
+void G_CheatGetInv(void)
 {
     Gv_SetVar(g_iReturnVarID, 400, g_player[myconnectindex].ps->i, myconnectindex);
     X_OnEvent(EVENT_CHEATGETSTEROIDS, g_player[myconnectindex].ps->i, myconnectindex, -1);
@@ -7631,7 +7633,7 @@ void CheatGetInventory(void)
 
 signed char cheatbuf[MAXCHEATLEN],cheatbuflen;
 
-static void DoCheats(void)
+static void G_DoCheats(void)
 {
     short ch, i, j, k=0, weapon;
     static int z=0;
@@ -7722,7 +7724,7 @@ FOUNDCHEAT:
                 case CHEAT_INVENTORY:
                     KB_FlushKeyBoardQueue();
                     g_player[myconnectindex].ps->cheat_phase = 0;
-                    CheatGetInventory();
+                    G_CheatGetInv();
                     P_DoQuote(120,g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     return;
@@ -7824,7 +7826,7 @@ FOUNDCHEAT:
                         sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].ps->palookup;
                         Bstrcpy(ScriptQuotes[122],"Scream for me, Long Beach!");
                         P_DoQuote(122,g_player[myconnectindex].ps);
-                        CheatGetInventory();
+                        G_CheatGetInv();
                         for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS;weapon++)
                             g_player[myconnectindex].ps->gotweapon[weapon]  = 1;
 
@@ -7862,7 +7864,7 @@ FOUNDCHEAT:
                             weapon < (MAX_WEAPONS-j);
                             weapon++)
                         P_AddAmmo(weapon, g_player[myconnectindex].ps, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
-                    CheatGetInventory();
+                    G_CheatGetInv();
                     g_player[myconnectindex].ps->got_access =              7;
                     P_DoQuote(5,g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->cheat_phase = 0;
@@ -7982,7 +7984,7 @@ FOUNDCHEAT:
                     return;
 
                 case CHEAT_ITEMS:
-                    CheatGetInventory();
+                    G_CheatGetInv();
                     g_player[myconnectindex].ps->got_access =              7;
                     P_DoQuote(5,g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->cheat_phase = 0;
@@ -8099,7 +8101,7 @@ FOUNDCHEAT:
     }
 }
 
-static void ShowScores(void)
+static void G_ShowScores(void)
 {
     int t, i, y,xfragtotal,yfragtotal;
 
@@ -8174,7 +8176,7 @@ static void ShowScores(void)
     }
 }
 
-static void HandleLocalKeys(void)
+static void G_HandleLocalKeys(void)
 {
     int i,ch;
     int j;
@@ -11504,8 +11506,8 @@ MAIN_LOOP_RESTART:
             continue;
         }
 
-        DoCheats();
-        HandleLocalKeys();
+        G_DoCheats();
+        G_HandleLocalKeys();
 
         if ((ud.show_help == 0 && ud.multimode < 2 && !(g_player[myconnectindex].ps->gm&MODE_MENU)) || ud.multimode > 1 || ud.recstat == 2)
             i = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
@@ -11543,7 +11545,7 @@ MAIN_LOOP_RESTART:
                     gametext(160,70,"PRESS F1 TO ACCEPT, F2 TO DECLINE",0,2+8+16);
                 }
 
-                if (BUTTON(gamefunc_Show_DukeMatch_Scores)) ShowScores();
+                if (BUTTON(gamefunc_Show_DukeMatch_Scores)) G_ShowScores();
 
                 if (debug_on) G_ShowCacheLocks();
 
@@ -11860,7 +11862,7 @@ RECHECK:
             G_DrawBackground();
         else
         {
-            HandleLocalKeys();
+            G_HandleLocalKeys();
 
             j = min(max((totalclock-lockclock)*(65536/TICSPERFRAME),0),65536);
             G_DrawRooms(screenpeek,j);

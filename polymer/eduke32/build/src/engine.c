@@ -12167,7 +12167,20 @@ void HASH_free(struct HASH_table *t)
     t->items = 0;
 }
 
-inline int HASH_getcode(const char *s)
+#if 1
+// djb3 algorithm
+inline unsigned int HASH_getcode(const char *s)
+{
+    unsigned int h = 5381;
+    int ch;
+
+    while ((ch = *s++) != '\0')
+        h = ((h << 5) + h) ^ ch;
+
+    return h;
+}
+#else
+inline unsigned int HASH_getcode(const char *s)
 {
     int i=0, fact=1;
     while (*s)
@@ -12178,6 +12191,7 @@ inline int HASH_getcode(const char *s)
     }
     return i;
 }
+#endif
 
 void HASH_add(struct HASH_table *t, const char *s, int key)
 {
@@ -12262,11 +12276,16 @@ int HASH_find(struct HASH_table *t, const char *s)
 {
     struct HASH_item *cur;
 
-    if (t->items==NULL) {initprintf("HASH_find: not initalized\n");return -1;}
+    if (t->items==NULL)
+    {
+        initprintf("HASH_find: not initalized\n");
+        return -1;
+    }
     cur=t->items[HASH_getcode(s)%t->size];
     while (cur)
     {
-        if (Bstrcmp(s,cur->string)==0)return cur->key;
+        if (Bstrcmp(s,cur->string) == 0)
+            return cur->key;
         cur=cur->next;
     }
     return -1;
@@ -12276,11 +12295,16 @@ int HASH_findcase(struct HASH_table *t, const char *s)
 {
     struct HASH_item *cur;
 
-    if (t->items==NULL) {initprintf("HASH_findcase: not initalized\n");return -1;}
+    if (t->items==NULL)
+    {
+        initprintf("HASH_findcase: not initalized\n");
+        return -1;
+    }
     cur=t->items[HASH_getcode(s)%t->size];
     while (cur)
     {
-        if (Bstrcasecmp(s,cur->string)==0)return cur->key;
+        if (Bstrcasecmp(s,cur->string) == 0)
+            return cur->key;
         cur=cur->next;
     }
     return -1;

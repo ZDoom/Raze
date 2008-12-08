@@ -1855,7 +1855,7 @@ static symbol_t *findexactsymbol(const char *name)
     for (i=Bstrlen(lname);i>=0;i--)
         lname[i] = Btolower(lname[i]);
 
-    i = HASH_findcase(&osdsymbolsH,lname);
+    i = HASH_find(&osdsymbolsH,lname);
     if (i > -1)
     {
 //        if ((symbol_t *)osdsymbptrs[i]->func == (void *)OSD_UNALIASED)

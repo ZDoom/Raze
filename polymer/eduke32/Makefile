@@ -166,6 +166,9 @@ ifeq ($(PLATFORM),LINUX)
 	NASMFLAGS	+= -f elf
 	LIBS		+= -lvorbisfile -lvorbis -logg 
 	USE_OPENAL	= 0
+	ifeq ($(RELEASE),0)
+		OURCFLAGS += -D_FORTIFY_SOURCE=2
+	endif
 endif
 
 ifeq ($(PLATFORM),DARWIN)

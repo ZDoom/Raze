@@ -71,7 +71,7 @@ int g_currentFrameRate;
 
 char g_numVolumes = 3;
 
-short g_timerTicsPerSecond=120;
+int g_timerTicsPerSecond=120;
 //fx_device device;
 
 sound_t g_sounds[ MAXSOUNDS ];
