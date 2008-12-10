@@ -12134,8 +12134,6 @@ void HASH_init(struct HASH_table *t)
 {
     HASH_free(t);
     t->items=Bcalloc(1, t->size * sizeof(struct HASH_item));
-    // memset commented because it's redundant with calloc
-    //    Bmemset(t->items,0,t->size * sizeof(struct HASH_item));
 }
 
 void HASH_free(struct HASH_table *t)
@@ -12157,6 +12155,8 @@ void HASH_free(struct HASH_table *t)
             tmp = cur;
             cur = cur->next;
 //          initprintf("Free %4d '%s'\n",tmp->key,(tmp->string)?tmp->string:".");
+            if (tmp->string)
+                Bfree(tmp->string);
             Bfree(tmp);
             num++;
         }
@@ -12202,7 +12202,7 @@ void HASH_add(struct HASH_table *t, const char *s, int key)
         return;
     if (t->items == NULL)
     {
-        initprintf("HASH_add: not initalized\n");
+        initprintf("HASH_add(): table not initialized!\n");
         return;
     }
     code = HASH_getcode(s)%t->size;
@@ -12211,7 +12211,7 @@ void HASH_add(struct HASH_table *t, const char *s, int key)
     if (!cur)
     {
         cur=Bcalloc(1,sizeof(struct HASH_item));
-        cur->string=s;
+        cur->string=Bstrdup(s);
         cur->key=key;
         cur->next=NULL;
         t->items[code]=cur;
@@ -12228,7 +12228,7 @@ void HASH_add(struct HASH_table *t, const char *s, int key)
     while (cur);
 
     cur=Bcalloc(1,sizeof(struct HASH_item));
-    cur->string=s;
+    cur->string=Bstrdup(s);
     cur->key=key;
     cur->next=NULL;
     prev->next=cur;
@@ -12239,14 +12239,18 @@ void HASH_replace(struct HASH_table *t, const char *s, int key)
     struct HASH_item *cur, *prev=NULL;
     int code;
 
-    if (t->items==NULL) {initprintf("HASH_add: not initalized\n");return;}
+    if (t->items==NULL)
+    {
+        initprintf("HASH_replace(): table not initialized!\n");
+        return;
+    }
     code=HASH_getcode(s)%t->size;
     cur=t->items[code];
 
     if (!cur)
     {
         cur=Bcalloc(1,sizeof(struct HASH_item));
-        cur->string=s;
+        cur->string=Bstrdup(s);
         cur->key=key;
         cur->next=NULL;
         t->items[code]=cur;
@@ -12266,7 +12270,7 @@ void HASH_replace(struct HASH_table *t, const char *s, int key)
     while (cur);
 
     cur=Bcalloc(1,sizeof(struct HASH_item));
-    cur->string=s;
+    cur->string=Bstrdup(s);
     cur->key=key;
     cur->next=NULL;
     prev->next=cur;
@@ -12278,7 +12282,7 @@ int HASH_find(struct HASH_table *t, const char *s)
 
     if (t->items==NULL)
     {
-        initprintf("HASH_find: not initalized\n");
+        initprintf("HASH_find(): table not initialized!\n");
         return -1;
     }
     cur=t->items[HASH_getcode(s)%t->size];
@@ -12297,7 +12301,7 @@ int HASH_findcase(struct HASH_table *t, const char *s)
 
     if (t->items==NULL)
     {
-        initprintf("HASH_findcase: not initalized\n");
+        initprintf("HASH_findcase(): table not initialized!\n");
         return -1;
     }
     cur=t->items[HASH_getcode(s)%t->size];

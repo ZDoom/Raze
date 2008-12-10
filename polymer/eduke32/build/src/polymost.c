@@ -339,7 +339,7 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
 int cachefilehandle = -1; // texture cache file handle
 FILE *cacheindexptr = NULL;
 
-struct HASH_table cacheH    = { MAXTILES<<2, NULL };
+struct HASH_table cacheH    = { MAXTILES<<3, NULL };
 
 char TEXCACHEFILE[BMAX_PATH] = "textures";
 
@@ -1999,7 +1999,6 @@ static int pow2xsplit = 0, skyclamphack = 0;
 
 void drawpoly(double *dpx, double *dpy, int n, int method)
 {
-#define PI 3.14159265358979323
     double ngdx = 0.0, ngdy = 0.0, ngdo = 0.0, ngux = 0.0, nguy = 0.0, nguo = 0.0;
     double ngvx = 0.0, ngvy = 0.0, ngvo = 0.0, dp, up, vp, rdp, du0 = 0.0, du1 = 0.0, dui, duj;
     double ngdx2, ngux2, ngvx2;

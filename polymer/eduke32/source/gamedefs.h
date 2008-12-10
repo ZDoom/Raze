@@ -45,7 +45,7 @@ extern "C" {
 //
 // Setup program defines
 //
-#define SETUPFILENAME "duke3d.cfg"
+#define SETUPFILENAME "eduke32.cfg"
 
 
 // Max number of players

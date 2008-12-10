@@ -1,4 +1,3 @@
-//-------------------------------------------------------------------------
 /*
 Duke Nukem Copyright (C) 1996, 2003 3D Realms Entertainment
 
@@ -37,36 +36,6 @@ Windows-specific hooks for JonoF's Duke3D port.
 
 #include "winlayer.h"
 
-
-int Win_YesNoBox(char *name, char *fmt, ...)
-{
-    char buf[1000];
-    va_list va;
-    int r;
-
-    va_start(va,fmt);
-    vsprintf(buf,fmt,va);
-    va_end(va);
-
-    r = MessageBox((HWND)win_gethwnd(),buf,name,MB_YESNO|MB_TASKMODAL);
-    if (r==IDYES) return 'y';
-    return 'n';
-}
-
-int Win_MsgBox(char *name, char *fmt, ...)
-{
-    char buf[1000];
-    va_list va;
-
-    va_start(va,fmt);
-    vsprintf(buf,fmt,va);
-    va_end(va);
-
-    MessageBox((HWND)win_gethwnd(),buf,name,MB_OK|MB_TASKMODAL);
-    return 'y';
-}
-
-
 // this replaces the Error() function in jmact/util_lib.c
 extern void G_Shutdown(void);	// game.c
 void Error(char *error, ...)
@@ -82,16 +51,12 @@ void Error(char *error, ...)
         vsprintf(buf, error, va);
         va_end(va);
 
-        MessageBox((HWND)win_gethwnd(),buf,"Fatal Error",MB_OK|MB_TASKMODAL);
+        MessageBox((HWND)win_gethwnd(),buf,"Fatal Error",MB_OK|MB_ICONERROR|MB_TASKMODAL);
     }
 
     exit((error != NULL));
 }
 
-
-#endif
-
-#ifdef _WIN32
 int G_GetVersionFromWebsite(char *buffer)
 {
     int wsainitialized = 0;

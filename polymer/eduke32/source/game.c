@@ -10832,8 +10832,8 @@ void app_main(int argc,const char **argv)
 
     initprintf("%s\n",apptitle);
 //    initprintf("Compiled %s\n",datetimestring);
-    initprintf("Copyright (c) 1996, 2003 3D Realms Entertainment\n");
-    initprintf("Copyright (c) 2008 EDuke32 team and contributors\n");
+//    initprintf("Copyright (c) 1996, 2003 3D Realms Entertainment\n");
+//    initprintf("Copyright (c) 2008 EDuke32 team and contributors\n");
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
     addsearchpath("/usr/share/games/jfduke3d");
@@ -10934,9 +10934,7 @@ void app_main(int argc,const char **argv)
     if (glusetexcache == -1 || glusetexcachecompression == -1)
     {
         i=wm_ynbox("Texture Caching",
-                   "Would you like to enable the on-disk texture cache? This feature will use an undetermined amount of space "
-                   "on your hard disk to store textures in your video card's native format, enabling them to load dramatically "
-                   "faster after the first time they are loaded.\n\n"
+                   "Would you like to enable the on-disk texture cache?\n\n"
                    "You will generally want to say 'yes' here, especially if using the HRP.");
         if (i) ud.config.useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
@@ -10946,9 +10944,8 @@ void app_main(int argc,const char **argv)
 #ifdef _WIN32
     if (ud.config.CheckForUpdates == -1)
     {
-        i=wm_ynbox("Automatic Release Notification",
-                   "Would you like EDuke32 to automatically check for new releases "
-                   "at startup?");
+        i=wm_ynbox("Automatic Update Notifications",
+                   "Would you like to check for new versions of EDuke32 at startup?");
         ud.config.CheckForUpdates = 0;
         if (i) ud.config.CheckForUpdates = 1;
     }

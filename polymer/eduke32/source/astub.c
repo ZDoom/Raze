@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20081125"
+#define BUILDDATE " 20081210"
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;
@@ -7587,7 +7587,7 @@ int ExtPreInit(int argc,const char **argv)
     OSD_SetLogFile("mapster32.log");
     OSD_SetVersionString("Mapster32"VERSION,0,2);
     initprintf("Mapster32"VERSION BUILDDATE"\n");
-    initprintf("Copyright (c) 2008 EDuke32 team\n");
+//    initprintf("Copyright (c) 2008 EDuke32 team\n");
 
     G_CheckCommandLine(argc,argv);
 
@@ -8583,9 +8583,7 @@ int ExtInit(void)
         int i;
 #if 1
         i=wm_ynbox("Texture Caching",
-                   "Would you like to enable the on-disk texture cache? This feature will use an undetermined amount of space "
-                   "on your hard disk to store textures in your video card's native format, enabling them to load dramatically "
-                   "faster after the first time they are loaded.\n\n"
+                   "Would you like to enable the on-disk texture cache?\n\n"
                    "You will generally want to say 'yes' here, especially if using the HRP.");
 #else
         i = 1;

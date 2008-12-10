@@ -1070,7 +1070,7 @@ static int defsparser(scriptfile *script)
                     char *frametokptr = script->ltextptr;
                     char *frameend, *framename = 0, happy=1;
                     int ftilenume = -1, ltilenume = -1, tilex = 0;
-                    double smoothduration = 0.0f;
+                    double smoothduration = 0.1f;
 
                     if (scriptfile_getbraces(script,&frameend)) break;
                     while (script->textptr < frameend)
@@ -1103,8 +1103,6 @@ static int defsparser(scriptfile *script)
                         ftilenume = ltilenume;
                         ltilenume = tilex;
                     }
-
-                    smoothduration = 0.1f;
 
                     if (lastmodelid < 0)
                     {

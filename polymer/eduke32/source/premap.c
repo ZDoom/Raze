@@ -330,7 +330,7 @@ static void G_PrecacheSounds(void)
         }
 }
 
-static void G_DoLoadScreen(char *statustext)
+static void G_DoLoadScreen(char *statustext, int percent)
 {
     int i=0,j;
 
@@ -369,7 +369,11 @@ static void G_DoLoadScreen(char *statustext)
         }
 
         if (statustext) gametext(160,180,statustext,0,2+8+16);
-
+        j = usehightile;
+        usehightile = 0;
+        rotatesprite(33<<16,140<<16,65536,0,LASERLINE,0,0,2+8+16,0,0,scale(xdim-1,percent,100),ydim-1);
+        rotatesprite(153<<16,140<<16,65536,0,LASERLINE,0,0,2+8+16,0,0,scale(xdim-1,percent,100),ydim-1);
+        usehightile = j;
         X_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
         nextpage();
 
@@ -501,8 +505,8 @@ void G_CacheMapData(void)
         }
         if (totalclock - tc > TICRATE/4)
         {
-            sprintf(tempbuf,"Loading resources... %d%%\n",min(100,100*pc/g_precacheCount));
-            G_DoLoadScreen(tempbuf);
+            sprintf(tempbuf,"%d resources remaining\n",g_precacheCount-pc);
+            G_DoLoadScreen(tempbuf, min(100,100*pc/g_precacheCount));
             tc = totalclock;
         }
     }
@@ -562,7 +566,9 @@ void G_UpdateScreenArea(void)
     y1 = scale(y1,ydim,200);
     y2 = scale(y2,ydim,200);
 
-    setview(x1,y1,x2-1,y2-1);
+    if (getrendermode() >= 3)
+        setview(x1,y1,x2-1,y2);
+    else setview(x1,y1,x2-1,y2-1);
 
     G_GetCrosshairColor();
     G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
@@ -1706,7 +1712,7 @@ int G_EnterLevel(int g)
 
     i = ud.screen_size;
     ud.screen_size = 0;
-    G_DoLoadScreen(NULL);
+    G_DoLoadScreen(NULL, -1);
     G_UpdateScreenArea();
     ud.screen_size = i;
 

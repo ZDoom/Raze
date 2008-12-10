@@ -787,21 +787,20 @@ static int X_DoExecute(void)
 
             // Huh?.  This does nothing....
             // (the result is always j==0....)
-            if ((klabs(ActorExtra[g_i].lastvx-g_sp->x)+klabs(ActorExtra[g_i].lastvy-g_sp->y)) <
-                    (klabs(ActorExtra[g_i].lastvx-s->x)+klabs(ActorExtra[g_i].lastvy-s->y)))
-                j = 0;
+//            if ((klabs(ActorExtra[g_i].lastvx-g_sp->x)+klabs(ActorExtra[g_i].lastvy-g_sp->y)) <
+//                    (klabs(ActorExtra[g_i].lastvx-s->x)+klabs(ActorExtra[g_i].lastvy-s->y)))
+  //              j = 0;
 
             // um yeah, this if() will always fire....
-            if (j == 0)
+    //        if (j == 0)
             {
                 // search around for target player
 
                 // also modifies 'target' x&y if found..
 
-                j = A_FurthestVisiblePoint(g_i,s,&ActorExtra[g_i].lastvx,&ActorExtra[g_i].lastvy);
-
-                if (j == -1) j = 0;
-                else j = 1;
+                j = 1;
+                if (A_FurthestVisiblePoint(g_i,s,&ActorExtra[g_i].lastvx,&ActorExtra[g_i].lastvy) == -1)
+                    j = 0;
             }
         }
         else
@@ -812,10 +811,10 @@ static int X_DoExecute(void)
             ActorExtra[g_i].lastvy = s->y;
         }
 
-        if (j == 1 && (g_sp->statnum == 1 || g_sp->statnum == 6))
+        if (j && (g_sp->statnum == 1 || g_sp->statnum == 6))
             ActorExtra[g_i].timetosleep = SLEEPTIME;
 
-        X_DoConditional(j == 1);
+        X_DoConditional(j);
         break;
     }
 
@@ -824,14 +823,14 @@ static int X_DoExecute(void)
         break;
 
     case CON_IFSQUISHED:
-        X_DoConditional(A_CheckSquished(g_i, g_p) == 1);
+        X_DoConditional(A_CheckSquished(g_i, g_p));
         break;
 
     case CON_IFDEAD:
-        j = g_sp->extra;
-        if (g_sp->picnum == APLAYER)
-            j--;
-        X_DoConditional(j < 0);
+//        j = g_sp->extra;
+//        if (g_sp->picnum == APLAYER)
+//            j--;
+        X_DoConditional(g_sp->extra <= 0);
         break;
 
     case CON_AI:
@@ -3206,9 +3205,7 @@ static int X_DoExecute(void)
             // -1 for none found
             // <type> <maxdistvarid> <varid>
             int lType=*insptr++, lMaxDist=Gv_GetVar(*insptr++, g_i, g_p), lMaxZDist=Gv_GetVar(*insptr++, g_i, g_p);
-            int lVarID=*insptr++, lFound=-1, lTemp, lTemp2, j, k;
-
-            k=MAXSTATUS-1;
+            int lVarID=*insptr++, lFound=-1, lTemp, lTemp2, j, k=MAXSTATUS-1;
             do
             {
                 j=headspritestat[tw==CON_FINDNEARACTORZVAR?1:k];    // all sprites
@@ -3251,9 +3248,7 @@ static int X_DoExecute(void)
             // -1 for none found
             // <type> <maxdist> <varid>
             int lType=*insptr++, lMaxDist=*insptr++, lMaxZDist=*insptr++, lVarID=*insptr++;
-            int lTemp, lTemp2, lFound=-1, j, k;
-
-            k=MAXSTATUS-1;
+            int lTemp, lTemp2, lFound=-1, j, k=MAXSTATUS-1;
             do
             {
                 j=headspritestat[tw==CON_FINDNEARACTORZ?1:k];    // all sprites
@@ -3286,24 +3281,16 @@ static int X_DoExecute(void)
         }
 
     case CON_FINDPLAYER:
+        insptr++;
+        Gv_SetVar(g_iReturnVarID, A_FindPlayer(&sprite[g_i],&j), g_i, g_p);
+        Gv_SetVar(*insptr++, j, g_i, g_p);
+        break;
+
     case CON_FINDOTHERPLAYER:
         insptr++;
-        {
-            // syntax findnearactorvar <type> <maxdistvar> <getvar>
-            // gets the sprite ID of the nearest actor within max dist
-            // that is of <type> into <getvar>
-            // -1 for none found
-            // <type> <maxdistvarid> <varid>
-            int var1 = *insptr++, d;
-
-            if (tw == CON_FINDPLAYER) j=A_FindPlayer(&sprite[g_i],&d);
-            else j=P_FindOtherPlayer(g_i,&d);
-
-            Gv_SetVar(g_iReturnVarID, j, g_i, g_p);
-            Gv_SetVar(var1, d, g_i, g_p);
-
-            break;
-        }
+        Gv_SetVar(g_iReturnVarID, P_FindOtherPlayer(g_p,&j), g_i, g_p);
+        Gv_SetVar(*insptr++, j, g_i, g_p);
+        break;
 
     case CON_SETPLAYER:
     case CON_GETPLAYER:

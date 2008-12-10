@@ -51,7 +51,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ===================
 */
 
-struct HASH_table gamefuncH    = { NUMGAMEFUNCTIONS, NULL };
+struct HASH_table gamefuncH    = { NUMGAMEFUNCTIONS<<2, NULL };
 
 int32 CONFIG_FunctionNameToNum(char * func)
 {
@@ -609,11 +609,18 @@ int32 CONFIG_ReadSetup(void)
     pathsearchmode = 1;
     if (SafeFileExists(setupfilename) && ud.config.scripthandle < 0)  // JBF 20031211
         ud.config.scripthandle = SCRIPT_Load(setupfilename);
+    else if (SafeFileExists(SETUPFILENAME) && ud.config.scripthandle < 0)
+    {
+        Bsprintf(tempbuf,"The configuration file \"%s\" was not found. "
+                 "Import configuration data from \"%s\"?",setupfilename,SETUPFILENAME);
+
+        i=wm_ynbox("Import Configuration Settings",tempbuf);
+        if (i) ud.config.scripthandle = SCRIPT_Load(SETUPFILENAME);
+    }
     else if (SafeFileExists("duke3d.cfg") && ud.config.scripthandle < 0)
     {
         Bsprintf(tempbuf,"The configuration file \"%s\" was not found. "
-                 "Would you like to import configuration data "
-                 "from \"duke3d.cfg\"?",setupfilename);
+                 "Import configuration data from \"duke3d.cfg\"?",setupfilename);
 
         i=wm_ynbox("Import Configuration Settings",tempbuf);
         if (i) ud.config.scripthandle = SCRIPT_Load("duke3d.cfg");

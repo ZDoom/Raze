@@ -251,14 +251,6 @@ enum DukeWeapon_t {
 #define deletesprite A_DeleteSprite
 void A_DeleteSprite(int s);
 
-#define __USRHOOKS_H
-
-enum USRHOOKS_Errors {
-    USRHOOKS_Warning = -2,
-    USRHOOKS_Error   = -1,
-    USRHOOKS_Ok      = 0
-};
-
 typedef struct {
     uint32 bits;
     short fvel, svel;

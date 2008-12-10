@@ -2254,12 +2254,13 @@ void P_DisplayWeapon(int snum)
                     pal = p->palookup;
             }
 
-
+            guniqhudid = 100;
             if (j < 6 || j > 12)
                 G_DrawTileScaled(weapon_xoffset+80-(p->look_ang>>1),
                                  looking_arc+250-gun_pos,KNEE,gs,o|4|262144,pal);
             else G_DrawTileScaled(weapon_xoffset+160-16-(p->look_ang>>1),
                                       looking_arc+214-gun_pos,KNEE+1,gs,o|4|262144,pal);
+            guniqhudid = 0;
         }
 
         if (sprite[p->i].xrepeat < 40)
@@ -2302,13 +2303,14 @@ void P_DisplayWeapon(int snum)
                             if (pal == 0)
                                 pal = p->palookup;
                         }
-
+                        guniqhudid = cw;
                         if ((*kb) < 5 || (*kb) > 9)
                             G_DrawTileScaled(weapon_xoffset+220-(p->look_ang>>1),
                                              looking_arc+250-gun_pos,KNEE,gs,o,pal);
                         else
                             G_DrawTileScaled(weapon_xoffset+160-(p->look_ang>>1),
                                              looking_arc+214-gun_pos,KNEE+1,gs,o,pal);
+                        guniqhudid = 0;
                     }
                 }
                 break;
@@ -2614,7 +2616,7 @@ void P_DisplayWeapon(int snum)
                     else if (p->cursectnum >= 0)
                         pal = sector[p->cursectnum].floorpal;
                     else pal = 0;
-
+                    guniqhudid = cw;
                     if ((*kb))
                     {
                         if ((*kb) < (*aplWeaponTotalTime[p->curr_weapon]))
@@ -2635,6 +2637,7 @@ void P_DisplayWeapon(int snum)
                     }
                     else
                         G_DrawWeaponTile(weapon_xoffset+190-(p->look_ang>>1),looking_arc+260-gun_pos,HANDTHROW,gs,o,pal);
+                    guniqhudid = 0;
                 }
             }
             break;
@@ -2653,10 +2656,12 @@ void P_DisplayWeapon(int snum)
                     else pal = 0;
 
                     weapon_xoffset = -48;
+                    guniqhudid = cw;
                     if ((*kb))
                         G_DrawWeaponTile(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE+remote_frames[(*kb)],gs,o,pal);
                     else
                         G_DrawWeaponTile(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE,gs,o,pal);
+                    guniqhudid = 0;
                 }
             }
             break;

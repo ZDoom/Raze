@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 #include "duke3d.h"
 
-const char *s_buildDate = "20081125";
+const char *s_buildDate = "20081210";
 char *MusicPtr = NULL;
 int g_musicSize;
 
@@ -175,7 +175,7 @@ int SpriteFlags[MAXTILES];
 projectile_t ProjectileData[MAXTILES], DefaultProjectileData[MAXTILES];
 
 char CheatKeys[2] = { sc_D, sc_N };
-char setupfilename[BMAX_PATH]= "duke3d.cfg";
+char setupfilename[BMAX_PATH]= SETUPFILENAME;
 // char datetimestring[] = ""__DATE__" "__TIME__"";
 
 int g_doQuickSave = 0;

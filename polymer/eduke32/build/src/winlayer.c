@@ -222,7 +222,7 @@ int wm_ynbox(char *name, char *fmt, ...)
     vsprintf(buf,fmt,va);
     va_end(va);
 
-    r = MessageBox((HWND)win_gethwnd(),buf,name,MB_YESNO|MB_TASKMODAL);
+    r = MessageBox((HWND)win_gethwnd(),buf,name,MB_YESNO|MB_ICONQUESTION|MB_TASKMODAL);
     if (r==IDYES) return 1;
     return 0;
 }
@@ -3343,13 +3343,17 @@ static int SetupOpenGL(int width, int height, int bitspp)
             else if (!Bstrcmp(glinfo.vendor,"3Dfx Interactive Inc.")) err = 1;
             else if (!Bstrcmp(glinfo.vendor,"Intel"))
             {
-                if (Bstrcmp(glinfo.vendor,"Intel 865G"))
-                    err = 1;
+                if (!Bstrcmp(glinfo.renderer,"Intel 865G"))
+                    err = 0;
+                if (!Bstrcmp(glinfo.renderer,"Intel 945GM"))
+                    err = 0;
+                else err = 1;
             }
 
             if (err)
             {
-                OSD_Printf("Blacklisted OpenGL driver detected. GL modes will be unavailable. Use -forcegl to override.\n");
+                OSD_Printf("Unsupported OpenGL driver detected. GL modes will be unavailable. Use -forcegl to override.\n");
+                wm_msgbox("Unsupported OpenGL driver", "Unsupported OpenGL driver detected.  GL modes will be unavailable.");
                 ReleaseOpenGL();
                 unloadgldriver();
                 nogl = 1;

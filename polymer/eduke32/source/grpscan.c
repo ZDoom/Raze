@@ -185,7 +185,7 @@ int ScanGroups(void)
             }
             fclose(fp);
         }
-        initprintf("Found %d recognized GRP %s.\n",i,i>1?"files":"file");
+//        initprintf("Found %d recognized GRP %s.\n",i,i>1?"files":"file");
         return 0;
     }
     initprintf("Found no recognized GRP files!\n");

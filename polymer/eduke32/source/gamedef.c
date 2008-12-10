@@ -935,20 +935,20 @@ const memberlabel_t InputLabels[]=
 char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 #define BITPTR_POINTER 1
 
-struct HASH_table gamevarH    = { MAXGAMEVARS, NULL };
-struct HASH_table arrayH      = { MAXGAMEARRAYS, NULL };
-struct HASH_table labelH      = { 11264, NULL };
-struct HASH_table keywH       = { CON_END, NULL };
+struct HASH_table gamevarH    = { MAXGAMEVARS<<2, NULL };
+struct HASH_table arrayH      = { MAXGAMEARRAYS<<2, NULL };
+struct HASH_table labelH      = { 11264<<2, NULL };
+struct HASH_table keywH       = { CON_END<<2, NULL };
 
-struct HASH_table sectorH     = { SECTOR_END, NULL };
-struct HASH_table wallH       = { WALL_END, NULL };
-struct HASH_table userdefH    = { USERDEFS_END, NULL };
+struct HASH_table sectorH     = { SECTOR_END<<2, NULL };
+struct HASH_table wallH       = { WALL_END<<2, NULL };
+struct HASH_table userdefH    = { USERDEFS_END<<2, NULL };
 
-struct HASH_table projectileH = { PROJ_END, NULL };
-struct HASH_table playerH     = { PLAYER_END, NULL };
-struct HASH_table inputH      = { INPUT_END, NULL };
-struct HASH_table actorH      = { ACTOR_END, NULL };
-struct HASH_table tspriteH    = { ACTOR_END, NULL };
+struct HASH_table projectileH = { PROJ_END<<2, NULL };
+struct HASH_table playerH     = { PLAYER_END<<2, NULL };
+struct HASH_table inputH      = { INPUT_END<<2, NULL };
+struct HASH_table actorH      = { ACTOR_END<<2, NULL };
+struct HASH_table tspriteH    = { ACTOR_END<<2, NULL };
 
 void inithashnames();
 void freehashnames();
@@ -1061,16 +1061,8 @@ static int C_IncreaseScriptSize(int size)
         }
 
     //initprintf("offset: %d\n",(unsigned)(g_scriptPtr-script));
-    if (size <= osize)
-    {
-        g_scriptSize = size;
-        initprintf("Shrinking bytecode buffer, final size: %d*%d bytes\n",g_scriptSize, sizeof(intptr_t));
-    }
-    else
-    {
-        g_scriptSize = size;
-        initprintf("Increasing bytecode buffer size to %d*%d bytes...\n",g_scriptSize, sizeof(intptr_t));
-    }
+    g_scriptSize = size;
+    initprintf("Resizing code buffer to %d*%d bytes\n",g_scriptSize, sizeof(intptr_t));
 
     newscript = (intptr_t *)Brealloc(script, g_scriptSize * sizeof(intptr_t));
 
@@ -2174,7 +2166,7 @@ static int C_ParseCommand(void)
         if (i == -1)
         {
             //              printf("Defining Definition '%s' to be '%d'\n",label+(g_numLabels<<6),*(g_scriptPtr-1));
-            HASH_replace(&labelH,label+(g_numLabels<<6),g_numLabels);
+            HASH_add(&labelH,label+(g_numLabels<<6),g_numLabels);
             labeltype[g_numLabels] = LABEL_DEFINE;
             labelcode[g_numLabels++] = *(g_scriptPtr-1);
             if (*(g_scriptPtr-1) >= 0 && *(g_scriptPtr-1) < MAXTILES && g_dynamicTileMapping)
@@ -4833,7 +4825,7 @@ repeatcase:
             j++;
         }
         tempbuf[j] = '\0';
-        if (Bstrcmp(setupfilename,"duke3d.cfg") == 0) // not set to something else via -cfg
+        if (Bstrcmp(setupfilename,SETUPFILENAME) == 0) // not set to something else via -cfg
         {
             char temp[BMAX_PATH];
             struct stat st;

@@ -595,7 +595,7 @@ int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *
 // Hash functions
 struct HASH_item // size is 12/24 bits.
 {
-    const char *string;
+    char *string;
     int key;
     struct HASH_item *next;
 };

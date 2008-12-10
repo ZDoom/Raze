@@ -519,7 +519,7 @@ int Gv_SetupVar(const char *pszLabel, int lValue, unsigned int dwFlags)
     if (i==g_gameVarCount)
     {
         // we're adding a new one.
-        HASH_replace(&gamevarH,aGameVars[i].szLabel,i);
+        HASH_add(&gamevarH,aGameVars[i].szLabel,i);
         g_gameVarCount++;
     }
 

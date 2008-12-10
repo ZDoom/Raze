@@ -32,11 +32,11 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #include <stdlib.h>
 #include <string.h>
 #include "standard.h"
-#include "usrhooks.h"
 #include "music.h"
 #include "_midi.h"
 #include "midi.h"
 #include "mpu401.h"
+#include "compat.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -1169,7 +1169,7 @@ void MIDI_StopSong
             _MIDI_Funcs->ReleasePatches();
         }
 
-        USRHOOKS_FreeMem(_MIDI_TrackPtr);
+        Bfree(_MIDI_TrackPtr);
 
         _MIDI_TrackPtr     = NULL;
         _MIDI_NumTracks    = 0;
@@ -1204,7 +1204,6 @@ int MIDI_PlaySong
     int   tracklength;
     track *CurrentTrack;
     unsigned char *ptr;
-    int    status;
 
     if (_MIDI_SongLoaded)
     {
@@ -1251,8 +1250,8 @@ int MIDI_PlaySong
     }
 
     _MIDI_TrackMemSize = _MIDI_NumTracks  * sizeof(track);
-    status = USRHOOKS_GetMem((void**)&_MIDI_TrackPtr, _MIDI_TrackMemSize);
-    if (status != USRHOOKS_Ok)
+    _MIDI_TrackPtr = Bmalloc(_MIDI_TrackMemSize);
+    if (_MIDI_TrackPtr == NULL)
     {
         return(MIDI_NoMemory);
     }
@@ -1263,7 +1262,7 @@ int MIDI_PlaySong
     {
         if (*(unsigned int *)ptr != MIDI_TRACK_SIGNATURE)
         {
-            USRHOOKS_FreeMem(_MIDI_TrackPtr);
+            Bfree(_MIDI_TrackPtr);
 
             _MIDI_TrackPtr = NULL;
             _MIDI_TrackMemSize = 0;

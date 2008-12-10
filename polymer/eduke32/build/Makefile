@@ -92,7 +92,8 @@ endif
 
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Wno-char-subscripts \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
-	-DKSFORBUILD -I$(INC)
+	-DKSFORBUILD -I$(INC) \
+#    -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
 LIBS=
 ASFLAGS=-s #-g

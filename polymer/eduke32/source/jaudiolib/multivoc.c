@@ -47,7 +47,6 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #endif
 #include "compat.h"
 #include "baselayer.h"
-#include "usrhooks.h"
 #include "linklist.h"
 #include "pitch.h"
 #include "multivoc.h"
@@ -2794,23 +2793,6 @@ int MV_TestPlayback(void)
 }
 #endif
 
-int USRHOOKS_GetMem(void **ptr, unsigned int size)
-{
-    *ptr = malloc(size);
-
-    if (*ptr == NULL)
-        return(USRHOOKS_Error);
-
-    return(USRHOOKS_Ok);
-
-}
-
-int USRHOOKS_FreeMem(void *ptr)
-{
-    free(ptr);
-    return(USRHOOKS_Ok);
-}
-
 /*---------------------------------------------------------------------
    Function: MV_Init
 
@@ -2835,8 +2817,8 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
     MV_SetErrorCode(MV_Ok);
 
     MV_TotalMemory = Voices * sizeof(VoiceNode) + sizeof(HARSH_CLIP_TABLE_8);
-    status = USRHOOKS_GetMem((void **)&ptr, MV_TotalMemory);
-    if (status != USRHOOKS_Ok)
+    ptr = Bmalloc(MV_TotalMemory);
+    if (ptr == NULL)
     {
         MV_SetErrorCode(MV_NoMem);
         return(MV_Error);
@@ -2868,7 +2850,7 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
     ptr = (char *)Bcalloc(1,TotalBufferSize + 8);	// FIXME: temporarily fixes bounds error somewhere...
     if (!ptr)
     {
-        USRHOOKS_FreeMem(MV_Voices);
+        Bfree(MV_Voices);
         MV_Voices      = NULL;
         MV_TotalMemory = 0;
 
@@ -2895,7 +2877,7 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
     {
         status = MV_ErrorCode;
 
-        USRHOOKS_FreeMem(MV_Voices);
+        Bfree(MV_Voices);
         MV_Voices      = NULL;
         MV_TotalMemory = 0;
 
@@ -2987,7 +2969,7 @@ int MV_Shutdown(void)
     RestoreInterrupts(flags);
 
     // Free any voices we allocated
-    USRHOOKS_FreeMem(MV_Voices);
+    Bfree(MV_Voices);
     MV_Voices      = NULL;
     MV_TotalMemory = 0;
 
