@@ -207,7 +207,7 @@ void initmultiplayers(int argc, char **argv)
 
     if (!argc)
     {
-        initprintf("mmulti_unstable: No configuration file specified!\n");
+//        initprintf("mmulti_unstable: No configuration file specified!\n");
         numplayers = 1; myconnectindex = 0;
         connecthead = 0; connectpoint2[0] = -1;
         return;

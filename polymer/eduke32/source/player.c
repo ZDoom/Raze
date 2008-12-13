@@ -341,7 +341,6 @@ int A_Shoot(int i,int atwith)
 
         if (ProjectileData[atwith].offset == 0) ProjectileData[atwith].offset = 1;
 
-        //            writestring(sx,sy,sz,sect,sintable[(sa+512)&2047],sintable[sa&2047],zvel<<6);
         if (ProjectileData[atwith].workslike & PROJECTILE_BLOOD || ProjectileData[atwith].workslike & PROJECTILE_KNEE)
         {
 
@@ -1013,7 +1012,6 @@ DOSKIPBULLETHOLE:
                 }
             }
 
-            //            writestring(sx,sy,sz,sect,sintable[(sa+512)&2047],sintable[sa&2047],zvel<<6);
             if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
             hitscan(sx,sy,sz,sect,
                     sintable[(sa+512)&2047],

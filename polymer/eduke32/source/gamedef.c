@@ -2084,7 +2084,7 @@ static int C_ParseCommand(void)
             *(g_scriptPtr-1)^=GAMEVAR_PERPLAYER;
             C_ReportError(WARNING_BADGAMEVAR);
         }
-        Gv_SetupVar(label+(g_numLabels<<6),*(g_scriptPtr-2),
+        Gv_NewVar(label+(g_numLabels<<6),*(g_scriptPtr-2),
                     (*(g_scriptPtr-1))
                     // can't define default or secret
                     & (~(GAMEVAR_DEFAULT | GAMEVAR_SECRET))
@@ -2123,7 +2123,7 @@ static int C_ParseCommand(void)
         }
 
         C_GetNextValue(LABEL_DEFINE);
-        Gv_AddArray(label+(g_numLabels<<6),*(g_scriptPtr-1));
+        Gv_NewArray(label+(g_numLabels<<6),*(g_scriptPtr-1));
 
         g_scriptPtr -= 2; // no need to save in script...
         return 0;

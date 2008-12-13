@@ -30,8 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
 {
-    int lValue=0;
-
     if (g_p != myconnectindex)
     {
 //        if (lVar2 == MAXGAMEVARS)
@@ -40,15 +38,12 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
         return;
     }
 
-    if (iSet)
-        lValue=Gv_GetVar(lVar2, g_i, g_p);
-
     switch (lLabelID)
     {
     case USERDEFS_GOD:
         if (iSet)
         {
-            ud.god = lValue;
+            ud.god = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.god, g_i, g_p);
@@ -57,7 +52,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_WARP_ON:
         if (iSet)
         {
-            ud.warp_on = lValue;
+            ud.warp_on = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.warp_on, g_i, g_p);
@@ -66,7 +61,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_CASHMAN:
         if (iSet)
         {
-            ud.cashman = lValue;
+            ud.cashman = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.cashman, g_i, g_p);
@@ -75,7 +70,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_EOG:
         if (iSet)
         {
-            ud.eog = lValue;
+            ud.eog = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.eog, g_i, g_p);
@@ -84,7 +79,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_SHOWALLMAP:
         if (iSet)
         {
-            ud.showallmap = lValue;
+            ud.showallmap = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.showallmap, g_i, g_p);
@@ -93,7 +88,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_SHOW_HELP:
         if (iSet)
         {
-            ud.show_help = lValue;
+            ud.show_help = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.show_help, g_i, g_p);
@@ -102,7 +97,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_SCROLLMODE:
         if (iSet)
         {
-            ud.scrollmode = lValue;
+            ud.scrollmode = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.scrollmode, g_i, g_p);
@@ -111,7 +106,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_CLIPPING:
         if (iSet)
         {
-            ud.clipping = lValue;
+            ud.clipping = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.clipping, g_i, g_p);
@@ -120,7 +115,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
         //  case USERDEFS_USER_NAME:
         //      if(iSet)
         //      {
-        //          ud.user_name[MAXPLAYERS][32] = lValue;
+        //          ud.user_name[MAXPLAYERS][32] = Gv_GetVar(lVar2, g_i, g_p);
         //          return;
         //      }
         //      Gv_SetVar(lVar2, ud.user_name[MAXPLAYERS][32], g_i, g_p);
@@ -129,7 +124,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
         //  case USERDEFS_RIDECULE:
         //      if(iSet)
         //      {
-        //          ud.ridecule = lValue;
+        //          ud.ridecule = Gv_GetVar(lVar2, g_i, g_p);
         //          return;
         //      }
         //      Gv_SetVar(lVar2, ud.ridecule, g_i, g_p);
@@ -138,7 +133,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
         //  case USERDEFS_SAVEGAME:
         //      if(iSet)
         //      {
-        //          ud.savegame = lValue;
+        //          ud.savegame = Gv_GetVar(lVar2, g_i, g_p);
         //          return;
         //      }
         //      Gv_SetVar(lVar2, ud.savegame, g_i, g_p);
@@ -147,7 +142,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
         //  case USERDEFS_PWLOCKOUT:
         //      if(iSet)
         //      {
-        //          ud.pwlockout = lValue;
+        //          ud.pwlockout = Gv_GetVar(lVar2, g_i, g_p);
         //          return;
         //      }
         //      Gv_SetVar(lVar2, ud.pwlockout, g_i, g_p);
@@ -156,7 +151,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
         //  case USERDEFS_RTSNAME:
         //      if(iSet)
         //      {
-        //          ud.rtsname = lValue;
+        //          ud.rtsname = Gv_GetVar(lVar2, g_i, g_p);
         //          return;
         //      }
         //      Gv_SetVar(lVar2, ud.rtsname, g_i, g_p);
@@ -165,7 +160,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_OVERHEAD_ON:
         if (iSet)
         {
-            ud.overhead_on = lValue;
+            ud.overhead_on = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.overhead_on, g_i, g_p);
@@ -174,7 +169,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_LAST_OVERHEAD:
         if (iSet)
         {
-            ud.last_overhead = lValue;
+            ud.last_overhead = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.last_overhead, g_i, g_p);
@@ -183,7 +178,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_SHOWWEAPONS:
         if (iSet)
         {
-            ud.showweapons = lValue;
+            ud.showweapons = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.showweapons, g_i, g_p);
@@ -192,7 +187,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_PAUSE_ON:
         if (iSet)
         {
-            ud.pause_on = lValue;
+            ud.pause_on = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.pause_on, g_i, g_p);
@@ -201,7 +196,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_FROM_BONUS:
         if (iSet)
         {
-            ud.from_bonus = lValue;
+            ud.from_bonus = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.from_bonus, g_i, g_p);
@@ -210,7 +205,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_CAMERASPRITE:
         if (iSet)
         {
-            ud.camerasprite = lValue;
+            ud.camerasprite = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.camerasprite, g_i, g_p);
@@ -219,7 +214,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_LAST_CAMSPRITE:
         if (iSet)
         {
-            ud.last_camsprite = lValue;
+            ud.last_camsprite = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.last_camsprite, g_i, g_p);
@@ -228,7 +223,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_LAST_LEVEL:
         if (iSet)
         {
-            ud.last_level = lValue;
+            ud.last_level = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.last_level, g_i, g_p);
@@ -237,7 +232,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_SECRETLEVEL:
         if (iSet)
         {
-            ud.secretlevel = lValue;
+            ud.secretlevel = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.secretlevel, g_i, g_p);
@@ -246,7 +241,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_CONST_VISIBILITY:
         if (iSet)
         {
-            ud.const_visibility = lValue;
+            ud.const_visibility = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.const_visibility, g_i, g_p);
@@ -255,7 +250,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_UW_FRAMERATE:
         if (iSet)
         {
-            ud.uw_framerate = lValue;
+            ud.uw_framerate = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.uw_framerate, g_i, g_p);
@@ -264,7 +259,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_CAMERA_TIME:
         if (iSet)
         {
-            ud.camera_time = lValue;
+            ud.camera_time = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.camera_time, g_i, g_p);
@@ -273,7 +268,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_FOLFVEL:
         if (iSet)
         {
-            ud.folfvel = lValue;
+            ud.folfvel = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.folfvel, g_i, g_p);
@@ -282,7 +277,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_FOLAVEL:
         if (iSet)
         {
-            ud.folavel = lValue;
+            ud.folavel = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.folavel, g_i, g_p);
@@ -291,7 +286,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_FOLX:
         if (iSet)
         {
-            ud.folx = lValue;
+            ud.folx = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.folx, g_i, g_p);
@@ -300,7 +295,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_FOLY:
         if (iSet)
         {
-            ud.foly = lValue;
+            ud.foly = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.foly, g_i, g_p);
@@ -309,7 +304,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_FOLA:
         if (iSet)
         {
-            ud.fola = lValue;
+            ud.fola = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.fola, g_i, g_p);
@@ -318,7 +313,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_RECCNT:
         if (iSet)
         {
-            ud.reccnt = lValue;
+            ud.reccnt = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.reccnt, g_i, g_p);
@@ -327,7 +322,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_ENTERED_NAME:
         if (iSet)
         {
-            ud.entered_name = lValue;
+            ud.entered_name = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.entered_name, g_i, g_p);
@@ -336,7 +331,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_SCREEN_TILTING:
         if (iSet)
         {
-            ud.screen_tilting = lValue;
+            ud.screen_tilting = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.screen_tilting, g_i, g_p);
@@ -345,7 +340,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_SHADOWS:
         if (iSet)
         {
-            ud.shadows = lValue;
+            ud.shadows = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.shadows, g_i, g_p);
@@ -354,7 +349,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_FTA_ON:
         if (iSet)
         {
-            ud.fta_on = lValue;
+            ud.fta_on = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.fta_on, g_i, g_p);
@@ -363,7 +358,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_EXECUTIONS:
         if (iSet)
         {
-            ud.executions = lValue;
+            ud.executions = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.executions, g_i, g_p);
@@ -372,7 +367,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_AUTO_RUN:
         if (iSet)
         {
-            ud.auto_run = lValue;
+            ud.auto_run = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.auto_run, g_i, g_p);
@@ -381,7 +376,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_COORDS:
         if (iSet)
         {
-            ud.coords = lValue;
+            ud.coords = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.coords, g_i, g_p);
@@ -390,7 +385,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_TICKRATE:
         if (iSet)
         {
-            ud.tickrate = lValue;
+            ud.tickrate = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.tickrate, g_i, g_p);
@@ -399,7 +394,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_M_COOP:
         if (iSet)
         {
-            ud.m_coop = lValue;
+            ud.m_coop = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.m_coop, g_i, g_p);
@@ -408,7 +403,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_COOP:
         if (iSet)
         {
-            ud.coop = lValue;
+            ud.coop = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.coop, g_i, g_p);
@@ -417,6 +412,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_SCREEN_SIZE:
         if (iSet)
         {
+            int lValue = Gv_GetVar(lVar2, g_i, g_p);
             if (ud.screen_size != lValue)
             {
                 ud.screen_size = lValue;
@@ -430,7 +426,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_LOCKOUT:
         if (iSet)
         {
-            ud.lockout = lValue;
+            ud.lockout = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.lockout, g_i, g_p);
@@ -439,7 +435,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_CROSSHAIR:
         if (iSet)
         {
-            ud.crosshair = lValue;
+            ud.crosshair = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.crosshair, g_i, g_p);
@@ -448,7 +444,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
         //  case USERDEFS_WCHOICE:
         //      if(iSet)
         //      {
-        //          ud.wchoice = lValue;
+        //          ud.wchoice = Gv_GetVar(lVar2, g_i, g_p);
         //          return;
         //      }
         //      Gv_SetVar(lVar2, ud.wchoice, g_i, g_p);
@@ -457,7 +453,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_PLAYERAI:
         if (iSet)
         {
-            ud.playerai = lValue;
+            ud.playerai = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.playerai, g_i, g_p);
@@ -466,7 +462,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_RESPAWN_MONSTERS:
         if (iSet)
         {
-            ud.respawn_monsters = lValue;
+            ud.respawn_monsters = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.respawn_monsters, g_i, g_p);
@@ -475,7 +471,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_RESPAWN_ITEMS:
         if (iSet)
         {
-            ud.respawn_items = lValue;
+            ud.respawn_items = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.respawn_items, g_i, g_p);
@@ -484,7 +480,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_RESPAWN_INVENTORY:
         if (iSet)
         {
-            ud.respawn_inventory = lValue;
+            ud.respawn_inventory = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.respawn_inventory, g_i, g_p);
@@ -493,7 +489,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_RECSTAT:
         if (iSet)
         {
-            ud.recstat = lValue;
+            ud.recstat = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.recstat, g_i, g_p);
@@ -502,7 +498,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_MONSTERS_OFF:
         if (iSet)
         {
-            ud.monsters_off = lValue;
+            ud.monsters_off = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.monsters_off, g_i, g_p);
@@ -511,7 +507,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_BRIGHTNESS:
         if (iSet)
         {
-            ud.brightness = lValue;
+            ud.brightness = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.brightness, g_i, g_p);
@@ -520,7 +516,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_M_RESPAWN_ITEMS:
         if (iSet)
         {
-            ud.m_respawn_items = lValue;
+            ud.m_respawn_items = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.m_respawn_items, g_i, g_p);
@@ -529,7 +525,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_M_RESPAWN_MONSTERS:
         if (iSet)
         {
-            ud.m_respawn_monsters = lValue;
+            ud.m_respawn_monsters = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.m_respawn_monsters, g_i, g_p);
@@ -538,7 +534,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_M_RESPAWN_INVENTORY:
         if (iSet)
         {
-            ud.m_respawn_inventory = lValue;
+            ud.m_respawn_inventory = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.m_respawn_inventory, g_i, g_p);
@@ -547,7 +543,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_M_RECSTAT:
         if (iSet)
         {
-            ud.m_recstat = lValue;
+            ud.m_recstat = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.m_recstat, g_i, g_p);
@@ -556,7 +552,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_M_MONSTERS_OFF:
         if (iSet)
         {
-            ud.m_monsters_off = lValue;
+            ud.m_monsters_off = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.m_monsters_off, g_i, g_p);
@@ -565,7 +561,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_DETAIL:
         if (iSet)
         {
-            ud.detail = lValue;
+            ud.detail = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.detail, g_i, g_p);
@@ -574,7 +570,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_M_FFIRE:
         if (iSet)
         {
-            ud.m_ffire = lValue;
+            ud.m_ffire = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.m_ffire, g_i, g_p);
@@ -583,7 +579,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_FFIRE:
         if (iSet)
         {
-            ud.ffire = lValue;
+            ud.ffire = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.ffire, g_i, g_p);
@@ -592,7 +588,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_M_PLAYER_SKILL:
         if (iSet)
         {
-            ud.m_player_skill = lValue;
+            ud.m_player_skill = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.m_player_skill, g_i, g_p);
@@ -601,7 +597,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_M_LEVEL_NUMBER:
         if (iSet)
         {
-            ud.m_level_number = lValue;
+            ud.m_level_number = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.m_level_number, g_i, g_p);
@@ -610,7 +606,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_M_VOLUME_NUMBER:
         if (iSet)
         {
-            ud.m_volume_number = lValue;
+            ud.m_volume_number = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.m_volume_number, g_i, g_p);
@@ -619,7 +615,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_MULTIMODE:
         if (iSet)
         {
-            ud.multimode = lValue;
+            ud.multimode = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.multimode, g_i, g_p);
@@ -628,7 +624,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_PLAYER_SKILL:
         if (iSet)
         {
-            ud.player_skill = lValue;
+            ud.player_skill = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.player_skill, g_i, g_p);
@@ -637,7 +633,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_LEVEL_NUMBER:
         if (iSet)
         {
-            ud.level_number = lValue;
+            ud.level_number = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.level_number, g_i, g_p);
@@ -646,7 +642,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_VOLUME_NUMBER:
         if (iSet)
         {
-            ud.volume_number = lValue;
+            ud.volume_number = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.volume_number, g_i, g_p);
@@ -655,7 +651,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_M_MARKER:
         if (iSet)
         {
-            ud.m_marker = lValue;
+            ud.m_marker = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.m_marker, g_i, g_p);
@@ -664,7 +660,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_MARKER:
         if (iSet)
         {
-            ud.marker = lValue;
+            ud.marker = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.marker, g_i, g_p);
@@ -673,7 +669,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_MOUSEFLIP:
         if (iSet)
         {
-            ud.mouseflip = lValue;
+            ud.mouseflip = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.mouseflip, g_i, g_p);
@@ -682,7 +678,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_STATUSBARSCALE:
         if (iSet)
         {
-            ud.statusbarscale = lValue;
+            ud.statusbarscale = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.statusbarscale, g_i, g_p);
@@ -691,7 +687,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_DRAWWEAPON:
         if (iSet)
         {
-            ud.drawweapon = lValue;
+            ud.drawweapon = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.drawweapon, g_i, g_p);
@@ -700,7 +696,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_MOUSEAIMING:
         if (iSet)
         {
-            ud.mouseaiming = lValue;
+            ud.mouseaiming = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.mouseaiming, g_i, g_p);
@@ -709,7 +705,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_WEAPONSWITCH:
         if (iSet)
         {
-            ud.weaponswitch = lValue;
+            ud.weaponswitch = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.weaponswitch, g_i, g_p);
@@ -718,7 +714,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_DEMOCAMS:
         if (iSet)
         {
-            ud.democams = lValue;
+            ud.democams = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.democams, g_i, g_p);
@@ -727,7 +723,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_COLOR:
         if (iSet)
         {
-            ud.color = lValue;
+            ud.color = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.color, g_i, g_p);
@@ -736,7 +732,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_MSGDISPTIME:
         if (iSet)
         {
-            ud.msgdisptime = lValue;
+            ud.msgdisptime = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.msgdisptime, g_i, g_p);
@@ -745,7 +741,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_STATUSBARMODE:
         if (iSet)
         {
-            ud.statusbarmode = lValue;
+            ud.statusbarmode = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.statusbarmode, g_i, g_p);
@@ -754,7 +750,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_M_NOEXITS:
         if (iSet)
         {
-            ud.m_noexits = lValue;
+            ud.m_noexits = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.m_noexits, g_i, g_p);
@@ -763,7 +759,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_NOEXITS:
         if (iSet)
         {
-            ud.noexits = lValue;
+            ud.noexits = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.noexits, g_i, g_p);
@@ -772,7 +768,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_AUTOVOTE:
         if (iSet)
         {
-            ud.autovote = lValue;
+            ud.autovote = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.autovote, g_i, g_p);
@@ -781,7 +777,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_AUTOMSG:
         if (iSet)
         {
-            ud.automsg = lValue;
+            ud.automsg = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.automsg, g_i, g_p);
@@ -790,7 +786,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_IDPLAYERS:
         if (iSet)
         {
-            ud.idplayers = lValue;
+            ud.idplayers = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.idplayers, g_i, g_p);
@@ -799,7 +795,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_TEAM:
         if (iSet)
         {
-            ud.team = lValue;
+            ud.team = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.team, g_i, g_p);
@@ -808,7 +804,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_VIEWBOB:
         if (iSet)
         {
-            ud.viewbob = lValue;
+            ud.viewbob = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.viewbob, g_i, g_p);
@@ -817,7 +813,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_WEAPONSWAY:
         if (iSet)
         {
-            ud.weaponsway = lValue;
+            ud.weaponsway = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.weaponsway, g_i, g_p);
@@ -826,7 +822,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_ANGLEINTERPOLATION:
         if (iSet)
         {
-            ud.angleinterpolation = lValue;
+            ud.angleinterpolation = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.angleinterpolation, g_i, g_p);
@@ -835,7 +831,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_OBITUARIES:
         if (iSet)
         {
-            ud.obituaries = lValue;
+            ud.obituaries = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.obituaries, g_i, g_p);
@@ -844,7 +840,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_LEVELSTATS:
         if (iSet)
         {
-            ud.levelstats = lValue;
+            ud.levelstats = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.levelstats, g_i, g_p);
@@ -853,7 +849,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_CROSSHAIRSCALE:
         if (iSet)
         {
-            ud.crosshairscale = lValue;
+            ud.crosshairscale = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.crosshairscale, g_i, g_p);
@@ -862,7 +858,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_ALTHUD:
         if (iSet)
         {
-            ud.althud = lValue;
+            ud.althud = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.althud, g_i, g_p);
@@ -871,7 +867,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_DISPLAY_BONUS_SCREEN:
         if (iSet)
         {
-            ud.display_bonus_screen = lValue;
+            ud.display_bonus_screen = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.display_bonus_screen, g_i, g_p);
@@ -880,7 +876,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_SHOW_LEVEL_TEXT:
         if (iSet)
         {
-            ud.show_level_text = lValue;
+            ud.show_level_text = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.show_level_text, g_i, g_p);
@@ -889,7 +885,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_WEAPONSCALE:
         if (iSet)
         {
-            ud.weaponscale = lValue;
+            ud.weaponscale = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.weaponscale, g_i, g_p);
@@ -898,7 +894,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_TEXTSCALE:
         if (iSet)
         {
-            ud.textscale = lValue;
+            ud.textscale = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ud.textscale, g_i, g_p);
@@ -911,7 +907,7 @@ void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
 
 void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    int lValue=0,proj=g_i;
+    int proj=g_i;
 
     if (lVar1 != g_iThisActorID)
         proj=Gv_GetVar(lVar1, g_i, g_p);
@@ -926,15 +922,12 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
     }
 
-    if (iSet)
-        lValue=Gv_GetVar(lVar2, g_i, g_p);
-
     switch (lLabelID)
     {
     case PROJ_WORKSLIKE:
         if (iSet)
         {
-            ActorExtra[proj].projectile.workslike=lValue;
+            ActorExtra[proj].projectile.workslike= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.workslike, g_i, g_p);
@@ -943,7 +936,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_SPAWNS:
         if (iSet)
         {
-            ActorExtra[proj].projectile.spawns=lValue;
+            ActorExtra[proj].projectile.spawns= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.spawns, g_i, g_p);
@@ -952,7 +945,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_SXREPEAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.sxrepeat=lValue;
+            ActorExtra[proj].projectile.sxrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.sxrepeat, g_i, g_p);
@@ -961,7 +954,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_SYREPEAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.syrepeat=lValue;
+            ActorExtra[proj].projectile.syrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.syrepeat, g_i, g_p);
@@ -970,7 +963,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_SOUND:
         if (iSet)
         {
-            ActorExtra[proj].projectile.sound=lValue;
+            ActorExtra[proj].projectile.sound= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.sound, g_i, g_p);
@@ -979,7 +972,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_ISOUND:
         if (iSet)
         {
-            ActorExtra[proj].projectile.isound=lValue;
+            ActorExtra[proj].projectile.isound= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.isound, g_i, g_p);
@@ -988,7 +981,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_VEL:
         if (iSet)
         {
-            ActorExtra[proj].projectile.vel=lValue;
+            ActorExtra[proj].projectile.vel= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.vel, g_i, g_p);
@@ -997,7 +990,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_EXTRA:
         if (iSet)
         {
-            ActorExtra[proj].projectile.extra=lValue;
+            ActorExtra[proj].projectile.extra= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.extra, g_i, g_p);
@@ -1006,7 +999,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_DECAL:
         if (iSet)
         {
-            ActorExtra[proj].projectile.decal=lValue;
+            ActorExtra[proj].projectile.decal= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.decal, g_i, g_p);
@@ -1015,7 +1008,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_TRAIL:
         if (iSet)
         {
-            ActorExtra[proj].projectile.trail=lValue;
+            ActorExtra[proj].projectile.trail= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.trail, g_i, g_p);
@@ -1024,7 +1017,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_TXREPEAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.txrepeat=lValue;
+            ActorExtra[proj].projectile.txrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.txrepeat, g_i, g_p);
@@ -1033,7 +1026,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_TYREPEAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.tyrepeat=lValue;
+            ActorExtra[proj].projectile.tyrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.tyrepeat, g_i, g_p);
@@ -1042,7 +1035,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_TOFFSET:
         if (iSet)
         {
-            ActorExtra[proj].projectile.toffset=lValue;
+            ActorExtra[proj].projectile.toffset= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.toffset, g_i, g_p);
@@ -1051,7 +1044,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_TNUM:
         if (iSet)
         {
-            ActorExtra[proj].projectile.tnum=lValue;
+            ActorExtra[proj].projectile.tnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.tnum, g_i, g_p);
@@ -1060,7 +1053,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_DROP:
         if (iSet)
         {
-            ActorExtra[proj].projectile.drop=lValue;
+            ActorExtra[proj].projectile.drop= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.drop, g_i, g_p);
@@ -1069,7 +1062,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_CSTAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.cstat=lValue;
+            ActorExtra[proj].projectile.cstat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.cstat, g_i, g_p);
@@ -1078,7 +1071,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_CLIPDIST:
         if (iSet)
         {
-            ActorExtra[proj].projectile.clipdist=lValue;
+            ActorExtra[proj].projectile.clipdist= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.clipdist, g_i, g_p);
@@ -1087,7 +1080,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_SHADE:
         if (iSet)
         {
-            ActorExtra[proj].projectile.shade=lValue;
+            ActorExtra[proj].projectile.shade= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.shade, g_i, g_p);
@@ -1096,7 +1089,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_XREPEAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.xrepeat=lValue;
+            ActorExtra[proj].projectile.xrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.xrepeat, g_i, g_p);
@@ -1105,7 +1098,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_YREPEAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.yrepeat=lValue;
+            ActorExtra[proj].projectile.yrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.yrepeat, g_i, g_p);
@@ -1114,7 +1107,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_PAL:
         if (iSet)
         {
-            ActorExtra[proj].projectile.pal=lValue;
+            ActorExtra[proj].projectile.pal= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.pal, g_i, g_p);
@@ -1123,7 +1116,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_EXTRA_RAND:
         if (iSet)
         {
-            ActorExtra[proj].projectile.extra_rand=lValue;
+            ActorExtra[proj].projectile.extra_rand= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.extra_rand, g_i, g_p);
@@ -1132,7 +1125,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_HITRADIUS:
         if (iSet)
         {
-            ActorExtra[proj].projectile.hitradius=lValue;
+            ActorExtra[proj].projectile.hitradius= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.hitradius, g_i, g_p);
@@ -1141,7 +1134,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_VEL_MULT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.velmult=lValue;
+            ActorExtra[proj].projectile.velmult= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.velmult, g_i, g_p);
@@ -1150,7 +1143,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_OFFSET:
         if (iSet)
         {
-            ActorExtra[proj].projectile.offset=lValue;
+            ActorExtra[proj].projectile.offset= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.offset, g_i, g_p);
@@ -1159,7 +1152,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_BOUNCES:
         if (iSet)
         {
-            ActorExtra[proj].projectile.bounces=lValue;
+            ActorExtra[proj].projectile.bounces= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.bounces, g_i, g_p);
@@ -1168,7 +1161,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_BSOUND:
         if (iSet)
         {
-            ActorExtra[proj].projectile.bsound=lValue;
+            ActorExtra[proj].projectile.bsound= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.bsound, g_i, g_p);
@@ -1177,7 +1170,7 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_RANGE:
         if (iSet)
         {
-            ActorExtra[proj].projectile.range=lValue;
+            ActorExtra[proj].projectile.range= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.range, g_i, g_p);
@@ -1190,7 +1183,6 @@ void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 
 void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 {
-    int lValue=0;
     int iPlayer=g_p;
 
     if (lVar1 != g_iThisActorID)
@@ -1214,15 +1206,12 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         return;
     }
 
-    if (iSet)
-        lValue=Gv_GetVar(lVar2, g_i, g_p);
-
     switch (lLabelID)
     {
     case PLAYER_ZOOM:
         if (iSet)
         {
-            g_player[iPlayer].ps->zoom=lValue;
+            g_player[iPlayer].ps->zoom= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->zoom, g_i, g_p);
@@ -1231,7 +1220,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_EXITX:
         if (iSet)
         {
-            g_player[iPlayer].ps->exitx=lValue;
+            g_player[iPlayer].ps->exitx= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->exitx, g_i, g_p);
@@ -1240,7 +1229,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_EXITY:
         if (iSet)
         {
-            g_player[iPlayer].ps->exity=lValue;
+            g_player[iPlayer].ps->exity= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->exity, g_i, g_p);
@@ -1249,7 +1238,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_LOOGIEX:
         if (iSet)
         {
-            g_player[iPlayer].ps->loogiex[lParm2]=lValue;
+            g_player[iPlayer].ps->loogiex[lParm2]= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->loogiex[lParm2], g_i, g_p);
@@ -1258,7 +1247,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_LOOGIEY:
         if (iSet)
         {
-            g_player[iPlayer].ps->loogiey[lParm2]=lValue;
+            g_player[iPlayer].ps->loogiey[lParm2]= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->loogiey[lParm2], g_i, g_p);
@@ -1267,7 +1256,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_NUMLOOGS:
         if (iSet)
         {
-            g_player[iPlayer].ps->numloogs=lValue;
+            g_player[iPlayer].ps->numloogs= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->numloogs, g_i, g_p);
@@ -1276,7 +1265,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_LOOGCNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->loogcnt=lValue;
+            g_player[iPlayer].ps->loogcnt= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->loogcnt, g_i, g_p);
@@ -1285,7 +1274,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_POSX:
         if (iSet)
         {
-            g_player[iPlayer].ps->posx=lValue;
+            g_player[iPlayer].ps->posx= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->posx, g_i, g_p);
@@ -1294,7 +1283,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_POSY:
         if (iSet)
         {
-            g_player[iPlayer].ps->posy=lValue;
+            g_player[iPlayer].ps->posy= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->posy, g_i, g_p);
@@ -1303,7 +1292,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_POSZ:
         if (iSet)
         {
-            g_player[iPlayer].ps->posz=lValue;
+            g_player[iPlayer].ps->posz= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->posz, g_i, g_p);
@@ -1312,7 +1301,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_HORIZ:
         if (iSet)
         {
-            g_player[iPlayer].ps->horiz=lValue;
+            g_player[iPlayer].ps->horiz= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->horiz, g_i, g_p);
@@ -1321,7 +1310,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_OHORIZ:
         if (iSet)
         {
-            g_player[iPlayer].ps->ohoriz=lValue;
+            g_player[iPlayer].ps->ohoriz= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->ohoriz, g_i, g_p);
@@ -1330,7 +1319,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_OHORIZOFF:
         if (iSet)
         {
-            g_player[iPlayer].ps->ohorizoff=lValue;
+            g_player[iPlayer].ps->ohorizoff= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->ohorizoff, g_i, g_p);
@@ -1339,7 +1328,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_INVDISPTIME:
         if (iSet)
         {
-            g_player[iPlayer].ps->invdisptime=lValue;
+            g_player[iPlayer].ps->invdisptime= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->invdisptime, g_i, g_p);
@@ -1348,7 +1337,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_BOBPOSX:
         if (iSet)
         {
-            g_player[iPlayer].ps->bobposx=lValue;
+            g_player[iPlayer].ps->bobposx= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->bobposx, g_i, g_p);
@@ -1357,7 +1346,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_BOBPOSY:
         if (iSet)
         {
-            g_player[iPlayer].ps->bobposy=lValue;
+            g_player[iPlayer].ps->bobposy= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->bobposy, g_i, g_p);
@@ -1366,7 +1355,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_OPOSX:
         if (iSet)
         {
-            g_player[iPlayer].ps->oposx=lValue;
+            g_player[iPlayer].ps->oposx= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->oposx, g_i, g_p);
@@ -1375,7 +1364,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_OPOSY:
         if (iSet)
         {
-            g_player[iPlayer].ps->oposy=lValue;
+            g_player[iPlayer].ps->oposy= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->oposy, g_i, g_p);
@@ -1384,7 +1373,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_OPOSZ:
         if (iSet)
         {
-            g_player[iPlayer].ps->oposz=lValue;
+            g_player[iPlayer].ps->oposz= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->oposz, g_i, g_p);
@@ -1393,7 +1382,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_PYOFF:
         if (iSet)
         {
-            g_player[iPlayer].ps->pyoff=lValue;
+            g_player[iPlayer].ps->pyoff= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->pyoff, g_i, g_p);
@@ -1402,7 +1391,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_OPYOFF:
         if (iSet)
         {
-            g_player[iPlayer].ps->opyoff=lValue;
+            g_player[iPlayer].ps->opyoff= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->opyoff, g_i, g_p);
@@ -1411,7 +1400,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_POSXV:
         if (iSet)
         {
-            g_player[iPlayer].ps->posxv=lValue;
+            g_player[iPlayer].ps->posxv= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->posxv, g_i, g_p);
@@ -1420,7 +1409,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_POSYV:
         if (iSet)
         {
-            g_player[iPlayer].ps->posyv=lValue;
+            g_player[iPlayer].ps->posyv= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->posyv, g_i, g_p);
@@ -1429,7 +1418,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_POSZV:
         if (iSet)
         {
-            g_player[iPlayer].ps->poszv=lValue;
+            g_player[iPlayer].ps->poszv= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->poszv, g_i, g_p);
@@ -1438,7 +1427,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_LAST_PISSED_TIME:
         if (iSet)
         {
-            g_player[iPlayer].ps->last_pissed_time=lValue;
+            g_player[iPlayer].ps->last_pissed_time= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->last_pissed_time, g_i, g_p);
@@ -1447,7 +1436,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_TRUEFZ:
         if (iSet)
         {
-            g_player[iPlayer].ps->truefz=lValue;
+            g_player[iPlayer].ps->truefz= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->truefz, g_i, g_p);
@@ -1456,7 +1445,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_TRUECZ:
         if (iSet)
         {
-            g_player[iPlayer].ps->truecz=lValue;
+            g_player[iPlayer].ps->truecz= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->truecz, g_i, g_p);
@@ -1465,7 +1454,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_PLAYER_PAR:
         if (iSet)
         {
-            g_player[iPlayer].ps->player_par=lValue;
+            g_player[iPlayer].ps->player_par= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->player_par, g_i, g_p);
@@ -1474,7 +1463,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_VISIBILITY:
         if (iSet)
         {
-            g_player[iPlayer].ps->visibility=lValue;
+            g_player[iPlayer].ps->visibility= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->visibility, g_i, g_p);
@@ -1483,7 +1472,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_BOBCOUNTER:
         if (iSet)
         {
-            g_player[iPlayer].ps->bobcounter=lValue;
+            g_player[iPlayer].ps->bobcounter= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->bobcounter, g_i, g_p);
@@ -1492,7 +1481,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_WEAPON_SWAY:
         if (iSet)
         {
-            g_player[iPlayer].ps->weapon_sway=lValue;
+            g_player[iPlayer].ps->weapon_sway= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_sway, g_i, g_p);
@@ -1501,7 +1490,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_PALS_TIME:
         if (iSet)
         {
-            g_player[iPlayer].ps->pals_time=lValue;
+            g_player[iPlayer].ps->pals_time= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->pals_time, g_i, g_p);
@@ -1510,7 +1499,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_RANDOMFLAMEX:
         if (iSet)
         {
-            g_player[iPlayer].ps->randomflamex=lValue;
+            g_player[iPlayer].ps->randomflamex= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->randomflamex, g_i, g_p);
@@ -1519,7 +1508,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_CRACK_TIME:
         if (iSet)
         {
-            g_player[iPlayer].ps->crack_time=lValue;
+            g_player[iPlayer].ps->crack_time= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->crack_time, g_i, g_p);
@@ -1528,7 +1517,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_AIM_MODE:
         if (iSet)
         {
-            g_player[iPlayer].ps->aim_mode=lValue;
+            g_player[iPlayer].ps->aim_mode= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->aim_mode, g_i, g_p);
@@ -1537,7 +1526,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_ANG:
         if (iSet)
         {
-            g_player[iPlayer].ps->ang=lValue;
+            g_player[iPlayer].ps->ang= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->ang, g_i, g_p);
@@ -1546,7 +1535,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_OANG:
         if (iSet)
         {
-            g_player[iPlayer].ps->oang=lValue;
+            g_player[iPlayer].ps->oang= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->oang, g_i, g_p);
@@ -1555,7 +1544,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_ANGVEL:
         if (iSet)
         {
-            g_player[iPlayer].ps->angvel=lValue;
+            g_player[iPlayer].ps->angvel= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->angvel, g_i, g_p);
@@ -1564,7 +1553,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_CURSECTNUM:
         if (iSet)
         {
-            g_player[iPlayer].ps->cursectnum=lValue;
+            g_player[iPlayer].ps->cursectnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->cursectnum, g_i, g_p);
@@ -1573,7 +1562,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_LOOK_ANG:
         if (iSet)
         {
-            g_player[iPlayer].ps->look_ang=lValue;
+            g_player[iPlayer].ps->look_ang= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->look_ang, g_i, g_p);
@@ -1582,7 +1571,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_LAST_EXTRA:
         if (iSet)
         {
-            g_player[iPlayer].ps->last_extra=lValue;
+            g_player[iPlayer].ps->last_extra= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->last_extra, g_i, g_p);
@@ -1591,7 +1580,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_SUBWEAPON:
         if (iSet)
         {
-            g_player[iPlayer].ps->subweapon=lValue;
+            g_player[iPlayer].ps->subweapon= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->subweapon, g_i, g_p);
@@ -1600,7 +1589,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_AMMO_AMOUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->ammo_amount[lParm2]=lValue;
+            g_player[iPlayer].ps->ammo_amount[lParm2]= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->ammo_amount[lParm2], g_i, g_p);
@@ -1609,7 +1598,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_WACKEDBYACTOR:
         if (iSet)
         {
-            g_player[iPlayer].ps->wackedbyactor=lValue;
+            g_player[iPlayer].ps->wackedbyactor= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->wackedbyactor, g_i, g_p);
@@ -1618,7 +1607,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_FRAG:
         if (iSet)
         {
-            g_player[iPlayer].ps->frag=lValue;
+            g_player[iPlayer].ps->frag= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->frag, g_i, g_p);
@@ -1627,7 +1616,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_FRAGGEDSELF:
         if (iSet)
         {
-            g_player[iPlayer].ps->fraggedself=lValue;
+            g_player[iPlayer].ps->fraggedself= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->fraggedself, g_i, g_p);
@@ -1636,7 +1625,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_CURR_WEAPON:
         if (iSet)
         {
-            g_player[iPlayer].ps->curr_weapon=lValue;
+            g_player[iPlayer].ps->curr_weapon= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->curr_weapon, g_i, g_p);
@@ -1645,7 +1634,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_LAST_WEAPON:
         if (iSet)
         {
-            g_player[iPlayer].ps->last_weapon=lValue;
+            g_player[iPlayer].ps->last_weapon= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->last_weapon, g_i, g_p);
@@ -1654,7 +1643,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_TIPINCS:
         if (iSet)
         {
-            g_player[iPlayer].ps->tipincs=lValue;
+            g_player[iPlayer].ps->tipincs= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->tipincs, g_i, g_p);
@@ -1663,7 +1652,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_HORIZOFF:
         if (iSet)
         {
-            g_player[iPlayer].ps->horizoff=lValue;
+            g_player[iPlayer].ps->horizoff= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->horizoff, g_i, g_p);
@@ -1672,7 +1661,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_WANTWEAPONFIRE:
         if (iSet)
         {
-            g_player[iPlayer].ps->wantweaponfire=lValue;
+            g_player[iPlayer].ps->wantweaponfire= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->wantweaponfire, g_i, g_p);
@@ -1681,7 +1670,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_HOLODUKE_AMOUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->holoduke_amount=lValue;
+            g_player[iPlayer].ps->holoduke_amount= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->holoduke_amount, g_i, g_p);
@@ -1690,7 +1679,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_NEWOWNER:
         if (iSet)
         {
-            g_player[iPlayer].ps->newowner=lValue;
+            g_player[iPlayer].ps->newowner= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->newowner, g_i, g_p);
@@ -1699,7 +1688,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_HURT_DELAY:
         if (iSet)
         {
-            g_player[iPlayer].ps->hurt_delay=lValue;
+            g_player[iPlayer].ps->hurt_delay= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->hurt_delay, g_i, g_p);
@@ -1708,7 +1697,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_HBOMB_HOLD_DELAY:
         if (iSet)
         {
-            g_player[iPlayer].ps->hbomb_hold_delay=lValue;
+            g_player[iPlayer].ps->hbomb_hold_delay= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->hbomb_hold_delay, g_i, g_p);
@@ -1717,7 +1706,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_JUMPING_COUNTER:
         if (iSet)
         {
-            g_player[iPlayer].ps->jumping_counter=lValue;
+            g_player[iPlayer].ps->jumping_counter= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->jumping_counter, g_i, g_p);
@@ -1726,7 +1715,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_AIRLEFT:
         if (iSet)
         {
-            g_player[iPlayer].ps->airleft=lValue;
+            g_player[iPlayer].ps->airleft= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->airleft, g_i, g_p);
@@ -1735,7 +1724,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_KNEE_INCS:
         if (iSet)
         {
-            g_player[iPlayer].ps->knee_incs=lValue;
+            g_player[iPlayer].ps->knee_incs= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->knee_incs, g_i, g_p);
@@ -1744,7 +1733,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_ACCESS_INCS:
         if (iSet)
         {
-            g_player[iPlayer].ps->access_incs=lValue;
+            g_player[iPlayer].ps->access_incs= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->access_incs, g_i, g_p);
@@ -1753,7 +1742,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_FTA:
         if (iSet)
         {
-            g_player[iPlayer].ps->fta=lValue;
+            g_player[iPlayer].ps->fta= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->fta, g_i, g_p);
@@ -1762,7 +1751,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_FTQ:
         if (iSet)
         {
-            g_player[iPlayer].ps->ftq=lValue;
+            g_player[iPlayer].ps->ftq= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->ftq, g_i, g_p);
@@ -1771,7 +1760,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_ACCESS_WALLNUM:
         if (iSet)
         {
-            g_player[iPlayer].ps->access_wallnum=lValue;
+            g_player[iPlayer].ps->access_wallnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->access_wallnum, g_i, g_p);
@@ -1780,7 +1769,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_ACCESS_SPRITENUM:
         if (iSet)
         {
-            g_player[iPlayer].ps->access_spritenum=lValue;
+            g_player[iPlayer].ps->access_spritenum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->access_spritenum, g_i, g_p);
@@ -1789,7 +1778,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_KICKBACK_PIC:
         if (iSet)
         {
-            g_player[iPlayer].ps->kickback_pic=lValue;
+            g_player[iPlayer].ps->kickback_pic= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->kickback_pic, g_i, g_p);
@@ -1798,7 +1787,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_GOT_ACCESS:
         if (iSet)
         {
-            g_player[iPlayer].ps->got_access=lValue;
+            g_player[iPlayer].ps->got_access= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->got_access, g_i, g_p);
@@ -1807,7 +1796,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_WEAPON_ANG:
         if (iSet)
         {
-            g_player[iPlayer].ps->weapon_ang=lValue;
+            g_player[iPlayer].ps->weapon_ang= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_ang, g_i, g_p);
@@ -1816,7 +1805,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_FIRSTAID_AMOUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->firstaid_amount=lValue;
+            g_player[iPlayer].ps->firstaid_amount= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->firstaid_amount, g_i, g_p);
@@ -1825,7 +1814,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_SOMETHINGONPLAYER:
         if (iSet)
         {
-            g_player[iPlayer].ps->somethingonplayer=lValue;
+            g_player[iPlayer].ps->somethingonplayer= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->somethingonplayer, g_i, g_p);
@@ -1834,7 +1823,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_ON_CRANE:
         if (iSet)
         {
-            g_player[iPlayer].ps->on_crane=lValue;
+            g_player[iPlayer].ps->on_crane= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->on_crane, g_i, g_p);
@@ -1843,7 +1832,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_I:
         if (iSet)
         {
-            g_player[iPlayer].ps->i=lValue;
+            g_player[iPlayer].ps->i= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->i, g_i, g_p);
@@ -1852,7 +1841,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_ONE_PARALLAX_SECTNUM:
         if (iSet)
         {
-            g_player[iPlayer].ps->one_parallax_sectnum=lValue;
+            g_player[iPlayer].ps->one_parallax_sectnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->one_parallax_sectnum, g_i, g_p);
@@ -1861,7 +1850,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_OVER_SHOULDER_ON:
         if (iSet)
         {
-            g_player[iPlayer].ps->over_shoulder_on=lValue;
+            g_player[iPlayer].ps->over_shoulder_on= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->over_shoulder_on, g_i, g_p);
@@ -1870,7 +1859,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_RANDOM_CLUB_FRAME:
         if (iSet)
         {
-            g_player[iPlayer].ps->random_club_frame=lValue;
+            g_player[iPlayer].ps->random_club_frame= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->random_club_frame, g_i, g_p);
@@ -1879,7 +1868,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_FIST_INCS:
         if (iSet)
         {
-            g_player[iPlayer].ps->fist_incs=lValue;
+            g_player[iPlayer].ps->fist_incs= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->fist_incs, g_i, g_p);
@@ -1888,7 +1877,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_ONE_EIGHTY_COUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->one_eighty_count=lValue;
+            g_player[iPlayer].ps->one_eighty_count= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->one_eighty_count, g_i, g_p);
@@ -1897,7 +1886,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_CHEAT_PHASE:
         if (iSet)
         {
-            g_player[iPlayer].ps->cheat_phase=lValue;
+            g_player[iPlayer].ps->cheat_phase= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->cheat_phase, g_i, g_p);
@@ -1906,7 +1895,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_DUMMYPLAYERSPRITE:
         if (iSet)
         {
-            g_player[iPlayer].ps->dummyplayersprite=lValue;
+            g_player[iPlayer].ps->dummyplayersprite= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->dummyplayersprite, g_i, g_p);
@@ -1915,7 +1904,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_EXTRA_EXTRA8:
         if (iSet)
         {
-            g_player[iPlayer].ps->extra_extra8=lValue;
+            g_player[iPlayer].ps->extra_extra8= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->extra_extra8, g_i, g_p);
@@ -1924,7 +1913,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_QUICK_KICK:
         if (iSet)
         {
-            g_player[iPlayer].ps->quick_kick=lValue;
+            g_player[iPlayer].ps->quick_kick= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->quick_kick, g_i, g_p);
@@ -1933,7 +1922,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_HEAT_AMOUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->heat_amount=lValue;
+            g_player[iPlayer].ps->heat_amount= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->heat_amount, g_i, g_p);
@@ -1942,7 +1931,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_ACTORSQU:
         if (iSet)
         {
-            g_player[iPlayer].ps->actorsqu=lValue;
+            g_player[iPlayer].ps->actorsqu= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->actorsqu, g_i, g_p);
@@ -1951,7 +1940,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_TIMEBEFOREEXIT:
         if (iSet)
         {
-            g_player[iPlayer].ps->timebeforeexit=lValue;
+            g_player[iPlayer].ps->timebeforeexit= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->timebeforeexit, g_i, g_p);
@@ -1960,7 +1949,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_CUSTOMEXITSOUND:
         if (iSet)
         {
-            g_player[iPlayer].ps->customexitsound=lValue;
+            g_player[iPlayer].ps->customexitsound= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->customexitsound, g_i, g_p);
@@ -1969,7 +1958,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_WEAPRECS:
         if (iSet)
         {
-            g_player[iPlayer].ps->weaprecs[15]=lValue;
+            g_player[iPlayer].ps->weaprecs[15]= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->weaprecs[15], g_i, g_p);
@@ -1978,7 +1967,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_WEAPRECCNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->weapreccnt=lValue;
+            g_player[iPlayer].ps->weapreccnt= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->weapreccnt, g_i, g_p);
@@ -1987,7 +1976,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_INTERFACE_TOGGLE_FLAG:
         if (iSet)
         {
-            g_player[iPlayer].ps->interface_toggle_flag=lValue;
+            g_player[iPlayer].ps->interface_toggle_flag= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->interface_toggle_flag, g_i, g_p);
@@ -1996,7 +1985,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_ROTSCRNANG:
         if (iSet)
         {
-            g_player[iPlayer].ps->rotscrnang=lValue;
+            g_player[iPlayer].ps->rotscrnang= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->rotscrnang, g_i, g_p);
@@ -2005,7 +1994,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_DEAD_FLAG:
         if (iSet)
         {
-            g_player[iPlayer].ps->dead_flag=lValue;
+            g_player[iPlayer].ps->dead_flag= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->dead_flag, g_i, g_p);
@@ -2014,7 +2003,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_SHOW_EMPTY_WEAPON:
         if (iSet)
         {
-            g_player[iPlayer].ps->show_empty_weapon=lValue;
+            g_player[iPlayer].ps->show_empty_weapon= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->show_empty_weapon, g_i, g_p);
@@ -2023,7 +2012,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_SCUBA_AMOUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->scuba_amount=lValue;
+            g_player[iPlayer].ps->scuba_amount= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->scuba_amount, g_i, g_p);
@@ -2032,7 +2021,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_JETPACK_AMOUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->jetpack_amount=lValue;
+            g_player[iPlayer].ps->jetpack_amount= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->jetpack_amount, g_i, g_p);
@@ -2041,7 +2030,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_STEROIDS_AMOUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->steroids_amount=lValue;
+            g_player[iPlayer].ps->steroids_amount= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->steroids_amount, g_i, g_p);
@@ -2050,7 +2039,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_SHIELD_AMOUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->shield_amount=lValue;
+            g_player[iPlayer].ps->shield_amount= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->shield_amount, g_i, g_p);
@@ -2059,7 +2048,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_HOLODUKE_ON:
         if (iSet)
         {
-            g_player[iPlayer].ps->holoduke_on=lValue;
+            g_player[iPlayer].ps->holoduke_on= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->holoduke_on, g_i, g_p);
@@ -2068,7 +2057,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_PYCOUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->pycount=lValue;
+            g_player[iPlayer].ps->pycount= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->pycount, g_i, g_p);
@@ -2077,7 +2066,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_WEAPON_POS:
         if (iSet)
         {
-            g_player[iPlayer].ps->weapon_pos=lValue;
+            g_player[iPlayer].ps->weapon_pos= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_pos, g_i, g_p);
@@ -2086,7 +2075,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_FRAG_PS:
         if (iSet)
         {
-            g_player[iPlayer].ps->frag_ps=lValue;
+            g_player[iPlayer].ps->frag_ps= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->frag_ps, g_i, g_p);
@@ -2095,7 +2084,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_TRANSPORTER_HOLD:
         if (iSet)
         {
-            g_player[iPlayer].ps->transporter_hold=lValue;
+            g_player[iPlayer].ps->transporter_hold= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->transporter_hold, g_i, g_p);
@@ -2104,7 +2093,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_LAST_FULL_WEAPON:
         if (iSet)
         {
-            g_player[iPlayer].ps->last_full_weapon=lValue;
+            g_player[iPlayer].ps->last_full_weapon= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->last_full_weapon, g_i, g_p);
@@ -2113,7 +2102,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_FOOTPRINTSHADE:
         if (iSet)
         {
-            g_player[iPlayer].ps->footprintshade=lValue;
+            g_player[iPlayer].ps->footprintshade= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->footprintshade, g_i, g_p);
@@ -2122,7 +2111,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_BOOT_AMOUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->boot_amount=lValue;
+            g_player[iPlayer].ps->boot_amount= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->boot_amount, g_i, g_p);
@@ -2131,7 +2120,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_SCREAM_VOICE:
         if (iSet)
         {
-            g_player[iPlayer].ps->scream_voice=lValue;
+            g_player[iPlayer].ps->scream_voice= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->scream_voice, g_i, g_p);
@@ -2140,7 +2129,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_GM:
         if (iSet)
         {
-            g_player[iPlayer].ps->gm=lValue;
+            g_player[iPlayer].ps->gm= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->gm, g_i, g_p);
@@ -2149,7 +2138,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_ON_WARPING_SECTOR:
         if (iSet)
         {
-            g_player[iPlayer].ps->on_warping_sector=lValue;
+            g_player[iPlayer].ps->on_warping_sector= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->on_warping_sector, g_i, g_p);
@@ -2158,7 +2147,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_FOOTPRINTCOUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->footprintcount=lValue;
+            g_player[iPlayer].ps->footprintcount= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->footprintcount, g_i, g_p);
@@ -2167,7 +2156,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_HBOMB_ON:
         if (iSet)
         {
-            g_player[iPlayer].ps->hbomb_on=lValue;
+            g_player[iPlayer].ps->hbomb_on= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->hbomb_on, g_i, g_p);
@@ -2176,7 +2165,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_JUMPING_TOGGLE:
         if (iSet)
         {
-            g_player[iPlayer].ps->jumping_toggle=lValue;
+            g_player[iPlayer].ps->jumping_toggle= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->jumping_toggle, g_i, g_p);
@@ -2185,7 +2174,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_RAPID_FIRE_HOLD:
         if (iSet)
         {
-            g_player[iPlayer].ps->rapid_fire_hold=lValue;
+            g_player[iPlayer].ps->rapid_fire_hold= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->rapid_fire_hold, g_i, g_p);
@@ -2194,7 +2183,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_ON_GROUND:
         if (iSet)
         {
-            g_player[iPlayer].ps->on_ground=lValue;
+            g_player[iPlayer].ps->on_ground= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->on_ground, g_i, g_p);
@@ -2203,7 +2192,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         /*    case PLAYER_NAME:
                 if (iSet)
                 {
-                    g_player[iPlayer].ps->name[32]=lValue;
+                    g_player[iPlayer].ps->name[32]= Gv_GetVar(lVar2, g_i, g_p);
                     return;
                 }
                 Gv_SetVar(lVar2, g_player[iPlayer].ps->name[32], g_i, g_p);
@@ -2212,7 +2201,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_INVEN_ICON:
         if (iSet)
         {
-            g_player[iPlayer].ps->inven_icon=lValue;
+            g_player[iPlayer].ps->inven_icon= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->inven_icon, g_i, g_p);
@@ -2221,7 +2210,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_BUTTONPALETTE:
         if (iSet)
         {
-            g_player[iPlayer].ps->buttonpalette=lValue;
+            g_player[iPlayer].ps->buttonpalette= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->buttonpalette, g_i, g_p);
@@ -2230,7 +2219,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_JETPACK_ON:
         if (iSet)
         {
-            g_player[iPlayer].ps->jetpack_on=lValue;
+            g_player[iPlayer].ps->jetpack_on= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->jetpack_on, g_i, g_p);
@@ -2239,7 +2228,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_SPRITEBRIDGE:
         if (iSet)
         {
-            g_player[iPlayer].ps->spritebridge=lValue;
+            g_player[iPlayer].ps->spritebridge= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->spritebridge, g_i, g_p);
@@ -2248,7 +2237,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_LASTRANDOMSPOT:
         if (iSet)
         {
-            g_player[iPlayer].ps->lastrandomspot=lValue;
+            g_player[iPlayer].ps->lastrandomspot= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->lastrandomspot, g_i, g_p);
@@ -2257,7 +2246,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_SCUBA_ON:
         if (iSet)
         {
-            g_player[iPlayer].ps->scuba_on=lValue;
+            g_player[iPlayer].ps->scuba_on= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->scuba_on, g_i, g_p);
@@ -2266,7 +2255,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_FOOTPRINTPAL:
         if (iSet)
         {
-            g_player[iPlayer].ps->footprintpal=lValue;
+            g_player[iPlayer].ps->footprintpal= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->footprintpal, g_i, g_p);
@@ -2275,12 +2264,11 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_HEAT_ON:
         if (iSet)
         {
+            int lValue = Gv_GetVar(lVar2, g_i, g_p);
+            if (g_player[iPlayer].ps->heat_on != lValue)
             {
-                if (g_player[iPlayer].ps->heat_on != lValue)
-                {
-                    g_player[iPlayer].ps->heat_on=lValue;
-                    P_UpdateScreenPal(g_player[iPlayer].ps);
-                }
+                g_player[iPlayer].ps->heat_on= lValue;
+                P_UpdateScreenPal(g_player[iPlayer].ps);
             }
             return;
         }
@@ -2290,7 +2278,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_HOLSTER_WEAPON:
         if (iSet)
         {
-            g_player[iPlayer].ps->holster_weapon=lValue;
+            g_player[iPlayer].ps->holster_weapon= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->holster_weapon, g_i, g_p);
@@ -2299,7 +2287,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_FALLING_COUNTER:
         if (iSet)
         {
-            g_player[iPlayer].ps->falling_counter=lValue;
+            g_player[iPlayer].ps->falling_counter= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->falling_counter, g_i, g_p);
@@ -2308,7 +2296,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_GOTWEAPON:
         if (iSet)
         {
-            g_player[iPlayer].ps->gotweapon[lParm2]=lValue;
+            g_player[iPlayer].ps->gotweapon[lParm2]= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->gotweapon[lParm2], g_i, g_p);
@@ -2317,7 +2305,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_REFRESH_INVENTORY:
         if (iSet)
         {
-            g_player[iPlayer].ps->refresh_inventory=lValue;
+            g_player[iPlayer].ps->refresh_inventory= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->refresh_inventory, g_i, g_p);
@@ -2326,7 +2314,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         //      case PLAYER_PALETTE:
         //          if(iSet)
         //          {
-        //              g_player[iPlayer].ps->palette=lValue;
+        //              g_player[iPlayer].ps->palette= Gv_GetVar(lVar2, g_i, g_p);
         //          }
         //          return; }
         //          {
@@ -2337,7 +2325,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_TOGGLE_KEY_FLAG:
         if (iSet)
         {
-            g_player[iPlayer].ps->toggle_key_flag=lValue;
+            g_player[iPlayer].ps->toggle_key_flag= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->toggle_key_flag, g_i, g_p);
@@ -2346,7 +2334,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_KNUCKLE_INCS:
         if (iSet)
         {
-            g_player[iPlayer].ps->knuckle_incs=lValue;
+            g_player[iPlayer].ps->knuckle_incs= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->knuckle_incs, g_i, g_p);
@@ -2355,7 +2343,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_WALKING_SND_TOGGLE:
         if (iSet)
         {
-            g_player[iPlayer].ps->walking_snd_toggle=lValue;
+            g_player[iPlayer].ps->walking_snd_toggle= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->walking_snd_toggle, g_i, g_p);
@@ -2364,7 +2352,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_PALOOKUP:
         if (iSet)
         {
-            g_player[iPlayer].ps->palookup=lValue;
+            g_player[iPlayer].ps->palookup= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->palookup, g_i, g_p);
@@ -2373,7 +2361,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_HARD_LANDING:
         if (iSet)
         {
-            g_player[iPlayer].ps->hard_landing=lValue;
+            g_player[iPlayer].ps->hard_landing= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->hard_landing, g_i, g_p);
@@ -2382,7 +2370,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_MAX_SECRET_ROOMS:
         if (iSet)
         {
-            g_player[iPlayer].ps->max_secret_rooms=lValue;
+            g_player[iPlayer].ps->max_secret_rooms= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->max_secret_rooms, g_i, g_p);
@@ -2391,7 +2379,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_SECRET_ROOMS:
         if (iSet)
         {
-            g_player[iPlayer].ps->secret_rooms=lValue;
+            g_player[iPlayer].ps->secret_rooms= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->secret_rooms, g_i, g_p);
@@ -2400,7 +2388,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_PALS:
         if (iSet)
         {
-            g_player[iPlayer].ps->pals[lParm2]=lValue;
+            g_player[iPlayer].ps->pals[lParm2]= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->pals[lParm2], g_i, g_p);
@@ -2409,7 +2397,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_MAX_ACTORS_KILLED:
         if (iSet)
         {
-            g_player[iPlayer].ps->max_actors_killed=lValue;
+            g_player[iPlayer].ps->max_actors_killed= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->max_actors_killed, g_i, g_p);
@@ -2418,7 +2406,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_ACTORS_KILLED:
         if (iSet)
         {
-            g_player[iPlayer].ps->actors_killed=lValue;
+            g_player[iPlayer].ps->actors_killed= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->actors_killed, g_i, g_p);
@@ -2427,7 +2415,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_RETURN_TO_CENTER:
         if (iSet)
         {
-            g_player[iPlayer].ps->return_to_center=lValue;
+            g_player[iPlayer].ps->return_to_center= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->return_to_center, g_i, g_p);
@@ -2436,7 +2424,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_RUNSPEED:
         if (iSet)
         {
-            g_player[iPlayer].ps->runspeed=lValue;
+            g_player[iPlayer].ps->runspeed= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->runspeed, g_i, g_p);
@@ -2445,7 +2433,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_SBS:
         if (iSet)
         {
-            g_player[iPlayer].ps->sbs=lValue;
+            g_player[iPlayer].ps->sbs= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->sbs, g_i, g_p);
@@ -2454,7 +2442,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_RELOADING:
         if (iSet)
         {
-            g_player[iPlayer].ps->reloading=lValue;
+            g_player[iPlayer].ps->reloading= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->reloading, g_i, g_p);
@@ -2463,7 +2451,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_AUTO_AIM:
         if (iSet)
         {
-            g_player[iPlayer].ps->auto_aim=lValue;
+            g_player[iPlayer].ps->auto_aim= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->auto_aim, g_i, g_p);
@@ -2472,7 +2460,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_MOVEMENT_LOCK:
         if (iSet)
         {
-            g_player[iPlayer].ps->movement_lock=lValue;
+            g_player[iPlayer].ps->movement_lock= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->movement_lock, g_i, g_p);
@@ -2481,7 +2469,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_SOUND_PITCH:
         if (iSet)
         {
-            g_player[iPlayer].ps->sound_pitch=lValue;
+            g_player[iPlayer].ps->sound_pitch= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->sound_pitch, g_i, g_p);
@@ -2490,7 +2478,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_WEAPONSWITCH:
         if (iSet)
         {
-            g_player[iPlayer].ps->weaponswitch=lValue;
+            g_player[iPlayer].ps->weaponswitch= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->weaponswitch, g_i, g_p);
@@ -2499,7 +2487,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_TEAM:
         if (iSet)
         {
-            g_player[iPlayer].ps->team=lValue;
+            g_player[iPlayer].ps->team= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->team, g_i, g_p);
@@ -2508,7 +2496,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_MAX_PLAYER_HEALTH:
         if (iSet)
         {
-            g_player[iPlayer].ps->max_player_health = lValue;
+            g_player[iPlayer].ps->max_player_health = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->max_player_health, g_i, g_p);
@@ -2517,7 +2505,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_MAX_SHIELD_AMOUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->max_shield_amount = lValue;
+            g_player[iPlayer].ps->max_shield_amount = Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->max_shield_amount, g_i, g_p);
@@ -2526,7 +2514,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_MAX_AMMO_AMOUNT:
         if (iSet)
         {
-            g_player[iPlayer].ps->max_ammo_amount[lParm2]=lValue;
+            g_player[iPlayer].ps->max_ammo_amount[lParm2]= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->max_ammo_amount[lParm2], g_i, g_p);
@@ -2535,7 +2523,7 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case PLAYER_LAST_QUICK_KICK:
         if (iSet)
         {
-            g_player[iPlayer].ps->last_quick_kick=lValue;
+            g_player[iPlayer].ps->last_quick_kick= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->last_quick_kick, g_i, g_p);
@@ -2548,7 +2536,6 @@ void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
 void X_AccessPlayerInput(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    int lValue=0;
     int iPlayer=g_p;
 
     if (lVar1 != g_iThisActorID)
@@ -2561,15 +2548,12 @@ void X_AccessPlayerInput(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
     }
 
-    if (iSet)
-        lValue=Gv_GetVar(lVar2, g_i, g_p);
-
     switch (lLabelID)
     {
     case INPUT_AVEL:
         if (iSet)
         {
-            g_player[iPlayer].sync->avel=lValue;
+            g_player[iPlayer].sync->avel= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].sync->avel, g_i, g_p);
@@ -2578,7 +2562,7 @@ void X_AccessPlayerInput(int iSet, int lVar1, int lLabelID, int lVar2)
     case INPUT_HORZ:
         if (iSet)
         {
-            g_player[iPlayer].sync->horz=lValue;
+            g_player[iPlayer].sync->horz= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].sync->horz, g_i, g_p);
@@ -2587,7 +2571,7 @@ void X_AccessPlayerInput(int iSet, int lVar1, int lLabelID, int lVar2)
     case INPUT_FVEL:
         if (iSet)
         {
-            g_player[iPlayer].sync->fvel=lValue;
+            g_player[iPlayer].sync->fvel= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].sync->fvel, g_i, g_p);
@@ -2596,7 +2580,7 @@ void X_AccessPlayerInput(int iSet, int lVar1, int lLabelID, int lVar2)
     case INPUT_SVEL:
         if (iSet)
         {
-            g_player[iPlayer].sync->svel=lValue;
+            g_player[iPlayer].sync->svel= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].sync->svel, g_i, g_p);
@@ -2605,7 +2589,7 @@ void X_AccessPlayerInput(int iSet, int lVar1, int lLabelID, int lVar2)
     case INPUT_BITS:
         if (iSet)
         {
-            g_player[iPlayer].sync->bits=lValue;
+            g_player[iPlayer].sync->bits= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].sync->bits, g_i, g_p);
@@ -2614,7 +2598,7 @@ void X_AccessPlayerInput(int iSet, int lVar1, int lLabelID, int lVar2)
     case INPUT_EXTBITS:
         if (iSet)
         {
-            g_player[iPlayer].sync->extbits=lValue;
+            g_player[iPlayer].sync->extbits= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, g_player[iPlayer].sync->extbits, g_i, g_p);
@@ -2626,7 +2610,6 @@ void X_AccessPlayerInput(int iSet, int lVar1, int lLabelID, int lVar2)
 
 void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    int lValue=0;
     int iWall = Gv_GetVar(lVar1, g_i, g_p);
 
     if ((iWall<0 || iWall >= numwalls) && g_scriptSanityChecks)
@@ -2636,15 +2619,12 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
     }
 
-    if (iSet)
-        lValue=Gv_GetVar(lVar2, g_i, g_p);
-
     switch (lLabelID)
     {
     case WALL_X:
         if (iSet)
         {
-            wall[iWall].x=lValue;
+            wall[iWall].x= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].x, g_i, g_p);
@@ -2653,7 +2633,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_Y:
         if (iSet)
         {
-            wall[iWall].y=lValue;
+            wall[iWall].y= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].y, g_i, g_p);
@@ -2662,7 +2642,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_POINT2:
         if (iSet)
         {
-            wall[iWall].point2=lValue;
+            wall[iWall].point2= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].point2, g_i, g_p);
@@ -2671,7 +2651,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_NEXTWALL:
         if (iSet)
         {
-            wall[iWall].nextwall=lValue;
+            wall[iWall].nextwall= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].nextwall, g_i, g_p);
@@ -2680,7 +2660,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_NEXTSECTOR:
         if (iSet)
         {
-            wall[iWall].nextsector=lValue;
+            wall[iWall].nextsector= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].nextsector, g_i, g_p);
@@ -2689,7 +2669,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_CSTAT:
         if (iSet)
         {
-            wall[iWall].cstat=lValue;
+            wall[iWall].cstat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].cstat, g_i, g_p);
@@ -2698,7 +2678,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_PICNUM:
         if (iSet)
         {
-            wall[iWall].picnum=lValue;
+            wall[iWall].picnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].picnum, g_i, g_p);
@@ -2707,7 +2687,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_OVERPICNUM:
         if (iSet)
         {
-            wall[iWall].overpicnum=lValue;
+            wall[iWall].overpicnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].overpicnum, g_i, g_p);
@@ -2716,7 +2696,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_SHADE:
         if (iSet)
         {
-            wall[iWall].shade=lValue;
+            wall[iWall].shade= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].shade, g_i, g_p);
@@ -2725,7 +2705,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_PAL:
         if (iSet)
         {
-            wall[iWall].pal=lValue;
+            wall[iWall].pal= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].pal, g_i, g_p);
@@ -2734,7 +2714,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_XREPEAT:
         if (iSet)
         {
-            wall[iWall].xrepeat=lValue;
+            wall[iWall].xrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].xrepeat, g_i, g_p);
@@ -2743,7 +2723,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_YREPEAT:
         if (iSet)
         {
-            wall[iWall].yrepeat=lValue;
+            wall[iWall].yrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].yrepeat, g_i, g_p);
@@ -2752,7 +2732,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_XPANNING:
         if (iSet)
         {
-            wall[iWall].xpanning=lValue;
+            wall[iWall].xpanning= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].xpanning, g_i, g_p);
@@ -2761,7 +2741,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_YPANNING:
         if (iSet)
         {
-            wall[iWall].ypanning=lValue;
+            wall[iWall].ypanning= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].ypanning, g_i, g_p);
@@ -2770,7 +2750,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_LOTAG:
         if (iSet)
         {
-            wall[iWall].lotag=lValue;
+            wall[iWall].lotag= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].lotag, g_i, g_p);
@@ -2779,7 +2759,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_HITAG:
         if (iSet)
         {
-            wall[iWall].hitag=lValue;
+            wall[iWall].hitag= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].hitag, g_i, g_p);
@@ -2788,7 +2768,7 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     case WALL_EXTRA:
         if (iSet)
         {
-            wall[iWall].extra=lValue;
+            wall[iWall].extra= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, wall[iWall].extra, g_i, g_p);
@@ -2800,7 +2780,6 @@ void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
 
 void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    int lValue=0;
     int iSector=sprite[g_i].sectnum;
 
     if (lVar1 != g_iThisActorID)
@@ -2813,15 +2792,12 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
     }
 
-    if (iSet)
-        lValue=Gv_GetVar(lVar2, g_i, g_p);
-
     switch (lLabelID)
     {
     case SECTOR_WALLPTR:
         if (iSet)
         {
-            sector[iSector].wallptr=lValue;
+            sector[iSector].wallptr= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].wallptr,g_i,g_p);
@@ -2830,7 +2806,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_WALLNUM:
         if (iSet)
         {
-            sector[iSector].wallnum=lValue;
+            sector[iSector].wallnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].wallnum,g_i,g_p);
@@ -2839,7 +2815,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_CEILINGZ:
         if (iSet)
         {
-            sector[iSector].ceilingz=lValue;
+            sector[iSector].ceilingz= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].ceilingz,g_i,g_p);
@@ -2848,7 +2824,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_FLOORZ:
         if (iSet)
         {
-            sector[iSector].floorz=lValue;
+            sector[iSector].floorz= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].floorz,g_i,g_p);
@@ -2857,7 +2833,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_CEILINGSTAT:
         if (iSet)
         {
-            sector[iSector].ceilingstat=lValue;
+            sector[iSector].ceilingstat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].ceilingstat,g_i,g_p);
@@ -2866,7 +2842,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_FLOORSTAT:
         if (iSet)
         {
-            sector[iSector].floorstat=lValue;
+            sector[iSector].floorstat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].floorstat,g_i,g_p);
@@ -2875,7 +2851,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_CEILINGPICNUM:
         if (iSet)
         {
-            sector[iSector].ceilingpicnum=lValue;
+            sector[iSector].ceilingpicnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].ceilingpicnum,g_i,g_p);
@@ -2884,7 +2860,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_CEILINGSLOPE:
         if (iSet)
         {
-            sector[iSector].ceilingheinum=lValue;
+            sector[iSector].ceilingheinum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].ceilingheinum,g_i,g_p);
@@ -2893,7 +2869,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_CEILINGSHADE:
         if (iSet)
         {
-            sector[iSector].ceilingshade=lValue;
+            sector[iSector].ceilingshade= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].ceilingshade,g_i,g_p);
@@ -2902,7 +2878,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_CEILINGPAL:
         if (iSet)
         {
-            sector[iSector].ceilingpal=lValue;
+            sector[iSector].ceilingpal= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].ceilingpal,g_i,g_p);
@@ -2911,7 +2887,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_CEILINGXPANNING:
         if (iSet)
         {
-            sector[iSector].ceilingxpanning=lValue;
+            sector[iSector].ceilingxpanning= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].ceilingxpanning,g_i,g_p);
@@ -2920,7 +2896,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_CEILINGYPANNING:
         if (iSet)
         {
-            sector[iSector].ceilingypanning=lValue;
+            sector[iSector].ceilingypanning= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].ceilingypanning,g_i,g_p);
@@ -2929,7 +2905,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_FLOORPICNUM:
         if (iSet)
         {
-            sector[iSector].floorpicnum=lValue;
+            sector[iSector].floorpicnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].floorpicnum,g_i,g_p);
@@ -2938,7 +2914,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_FLOORSLOPE:
         if (iSet)
         {
-            sector[iSector].floorheinum=lValue;
+            sector[iSector].floorheinum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].floorheinum,g_i,g_p);
@@ -2947,7 +2923,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_FLOORSHADE:
         if (iSet)
         {
-            sector[iSector].floorshade=lValue;
+            sector[iSector].floorshade= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].floorshade,g_i,g_p);
@@ -2956,7 +2932,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_FLOORPAL:
         if (iSet)
         {
-            sector[iSector].floorpal=lValue;
+            sector[iSector].floorpal= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].floorpal,g_i,g_p);
@@ -2965,7 +2941,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_FLOORXPANNING:
         if (iSet)
         {
-            sector[iSector].floorxpanning=lValue;
+            sector[iSector].floorxpanning= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].floorxpanning,g_i,g_p);
@@ -2974,7 +2950,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_FLOORYPANNING:
         if (iSet)
         {
-            sector[iSector].floorypanning=lValue;
+            sector[iSector].floorypanning= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].floorypanning,g_i,g_p);
@@ -2983,7 +2959,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_VISIBILITY:
         if (iSet)
         {
-            sector[iSector].visibility=lValue;
+            sector[iSector].visibility= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].visibility,g_i,g_p);
@@ -2992,7 +2968,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_ALIGNTO:
         if (iSet)
         {
-            sector[iSector].filler=lValue;
+            sector[iSector].filler= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].filler,g_i,g_p);
@@ -3001,7 +2977,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_LOTAG:
         if (iSet)
         {
-            sector[iSector].lotag=lValue;
+            sector[iSector].lotag= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].lotag,g_i,g_p);
@@ -3010,7 +2986,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_HITAG:
         if (iSet)
         {
-            sector[iSector].hitag=lValue;
+            sector[iSector].hitag= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].hitag,g_i,g_p);
@@ -3019,7 +2995,7 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     case SECTOR_EXTRA:
         if (iSet)
         {
-            sector[iSector].extra=lValue;
+            sector[iSector].extra= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sector[iSector].extra,g_i,g_p);
@@ -3032,7 +3008,6 @@ void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
 
 void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 {
-    int lValue=0;
     int iActor=g_i;
 
     if (lVar1 != g_iThisActorID)
@@ -3055,15 +3030,12 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         return;
     }
 
-    if (iSet)
-        lValue=Gv_GetVar(lVar2, g_i, g_p);
-
     switch (lLabelID)
     {
     case ACTOR_X:
         if (iSet)
         {
-            sprite[iActor].x=lValue;
+            sprite[iActor].x= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].x,g_i,g_p);
@@ -3072,7 +3044,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_Y:
         if (iSet)
         {
-            sprite[iActor].y=lValue;
+            sprite[iActor].y= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].y,g_i,g_p);
@@ -3081,7 +3053,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_Z:
         if (iSet)
         {
-            sprite[iActor].z=lValue;
+            sprite[iActor].z= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].z,g_i,g_p);
@@ -3090,7 +3062,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_CSTAT:
         if (iSet)
         {
-            sprite[iActor].cstat=lValue;
+            sprite[iActor].cstat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].cstat,g_i,g_p);
@@ -3099,7 +3071,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_PICNUM:
         if (iSet)
         {
-            sprite[iActor].picnum=lValue;
+            sprite[iActor].picnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].picnum,g_i,g_p);
@@ -3108,7 +3080,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_SHADE:
         if (iSet)
         {
-            sprite[iActor].shade=lValue;
+            sprite[iActor].shade= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].shade,g_i,g_p);
@@ -3117,7 +3089,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_PAL:
         if (iSet)
         {
-            sprite[iActor].pal=lValue;
+            sprite[iActor].pal= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].pal,g_i,g_p);
@@ -3126,7 +3098,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_CLIPDIST:
         if (iSet)
         {
-            sprite[iActor].clipdist=lValue;
+            sprite[iActor].clipdist= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].clipdist,g_i,g_p);
@@ -3135,7 +3107,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_DETAIL:
         if (iSet)
         {
-            sprite[iActor].filler=lValue;
+            sprite[iActor].filler= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].filler,g_i,g_p);
@@ -3144,7 +3116,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_XREPEAT:
         if (iSet)
         {
-            sprite[iActor].xrepeat=lValue;
+            sprite[iActor].xrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].xrepeat,g_i,g_p);
@@ -3153,7 +3125,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_YREPEAT:
         if (iSet)
         {
-            sprite[iActor].yrepeat=lValue;
+            sprite[iActor].yrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].yrepeat,g_i,g_p);
@@ -3162,7 +3134,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_XOFFSET:
         if (iSet)
         {
-            sprite[iActor].xoffset=lValue;
+            sprite[iActor].xoffset= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].xoffset,g_i,g_p);
@@ -3171,7 +3143,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_YOFFSET:
         if (iSet)
         {
-            sprite[iActor].yoffset=lValue;
+            sprite[iActor].yoffset= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].yoffset,g_i,g_p);
@@ -3180,7 +3152,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_SECTNUM:
         if (iSet)
         {
-            changespritesect(iActor,lValue);
+            changespritesect(iActor,Gv_GetVar(lVar2, g_i, g_p));
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].sectnum,g_i,g_p);
@@ -3189,7 +3161,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_STATNUM:
         if (iSet)
         {
-            changespritestat(iActor,lValue);
+            changespritestat(iActor,Gv_GetVar(lVar2, g_i, g_p));
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].statnum,g_i,g_p);
@@ -3198,7 +3170,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_ANG:
         if (iSet)
         {
-            sprite[iActor].ang=lValue;
+            sprite[iActor].ang= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].ang,g_i,g_p);
@@ -3207,7 +3179,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_OWNER:
         if (iSet)
         {
-            sprite[iActor].owner=lValue;
+            sprite[iActor].owner= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].owner,g_i,g_p);
@@ -3216,7 +3188,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_XVEL:
         if (iSet)
         {
-            sprite[iActor].xvel=lValue;
+            sprite[iActor].xvel= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].xvel,g_i,g_p);
@@ -3225,7 +3197,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_YVEL:
         if (iSet)
         {
-            sprite[iActor].yvel=lValue;
+            sprite[iActor].yvel= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].yvel,g_i,g_p);
@@ -3234,7 +3206,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_ZVEL:
         if (iSet)
         {
-            sprite[iActor].zvel=lValue;
+            sprite[iActor].zvel= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].zvel,g_i,g_p);
@@ -3243,7 +3215,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_LOTAG:
         if (iSet)
         {
-            sprite[iActor].lotag=lValue;
+            sprite[iActor].lotag= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].lotag,g_i,g_p);
@@ -3252,7 +3224,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HITAG:
         if (iSet)
         {
-            sprite[iActor].hitag=lValue;
+            sprite[iActor].hitag= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].hitag,g_i,g_p);
@@ -3261,7 +3233,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_EXTRA:
         if (iSet)
         {
-            sprite[iActor].extra=lValue;
+            sprite[iActor].extra= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, sprite[iActor].extra,g_i,g_p);
@@ -3270,7 +3242,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTCGG:
         if (iSet)
         {
-            ActorExtra[iActor].cgg=lValue;
+            ActorExtra[iActor].cgg= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[iActor].cgg, g_i, g_p);
@@ -3279,7 +3251,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTPICNUM :
         if (iSet)
         {
-            ActorExtra[iActor].picnum=lValue;
+            ActorExtra[iActor].picnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[iActor].picnum, g_i, g_p);
@@ -3288,7 +3260,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTANG:
         if (iSet)
         {
-            ActorExtra[iActor].ang=lValue;
+            ActorExtra[iActor].ang= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[iActor].ang, g_i, g_p);
@@ -3297,7 +3269,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTEXTRA:
         if (iSet)
         {
-            ActorExtra[iActor].extra=lValue;
+            ActorExtra[iActor].extra= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].extra, g_i, g_p);
@@ -3306,7 +3278,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTOWNER:
         if (iSet)
         {
-            ActorExtra[iActor].owner=lValue;
+            ActorExtra[iActor].owner= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].owner, g_i, g_p);
@@ -3315,7 +3287,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTMOVFLAG:
         if (iSet)
         {
-            ActorExtra[iActor].movflag=lValue;
+            ActorExtra[iActor].movflag= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].movflag, g_i, g_p);
@@ -3324,7 +3296,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTTEMPANG:
         if (iSet)
         {
-            ActorExtra[iActor].tempang=lValue;
+            ActorExtra[iActor].tempang= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].tempang, g_i, g_p);
@@ -3333,7 +3305,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTACTORSTAYPUT:
         if (iSet)
         {
-            ActorExtra[iActor].actorstayput=lValue;
+            ActorExtra[iActor].actorstayput= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].actorstayput, g_i, g_p);
@@ -3342,7 +3314,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTDISPICNUM:
         if (iSet)
         {
-            ActorExtra[iActor].dispicnum=lValue;
+            ActorExtra[iActor].dispicnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].dispicnum, g_i, g_p);
@@ -3351,7 +3323,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTTIMETOSLEEP:
         if (iSet)
         {
-            ActorExtra[iActor].timetosleep=lValue;
+            ActorExtra[iActor].timetosleep= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].timetosleep, g_i, g_p);
@@ -3360,7 +3332,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTFLOORZ:
         if (iSet)
         {
-            ActorExtra[iActor].floorz=lValue;
+            ActorExtra[iActor].floorz= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].floorz, g_i, g_p);
@@ -3369,7 +3341,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTCEILINGZ:
         if (iSet)
         {
-            ActorExtra[iActor].ceilingz=lValue;
+            ActorExtra[iActor].ceilingz= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].ceilingz, g_i, g_p);
@@ -3378,7 +3350,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTLASTVX:
         if (iSet)
         {
-            ActorExtra[iActor].lastvx=lValue;
+            ActorExtra[iActor].lastvx= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].lastvx, g_i, g_p);
@@ -3387,7 +3359,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTLASTVY:
         if (iSet)
         {
-            ActorExtra[iActor].lastvy=lValue;
+            ActorExtra[iActor].lastvy= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].lastvy, g_i, g_p);
@@ -3396,7 +3368,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTBPOSX:
         if (iSet)
         {
-            ActorExtra[iActor].bposx=lValue;
+            ActorExtra[iActor].bposx= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].bposx, g_i, g_p);
@@ -3405,7 +3377,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTBPOSY:
         if (iSet)
         {
-            ActorExtra[iActor].bposy=lValue;
+            ActorExtra[iActor].bposy= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].bposy, g_i, g_p);
@@ -3414,7 +3386,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTBPOSZ:
         if (iSet)
         {
-            ActorExtra[iActor].bposz=lValue;
+            ActorExtra[iActor].bposz= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].bposz, g_i, g_p);
@@ -3423,7 +3395,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTG_T:
         if (iSet)
         {
-            ActorExtra[iActor].temp_data[lParm2]=lValue;
+            ActorExtra[iActor].temp_data[lParm2]= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ActorExtra[iActor].temp_data[lParm2], g_i, g_p);
@@ -3432,7 +3404,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_ANGOFF:
         if (iSet)
         {
-            spriteext[iActor].angoff=lValue;
+            spriteext[iActor].angoff= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,spriteext[iActor].angoff, g_i, g_p);
@@ -3441,7 +3413,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_PITCH:
         if (iSet)
         {
-            spriteext[iActor].pitch=lValue;
+            spriteext[iActor].pitch= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,spriteext[iActor].pitch, g_i, g_p);
@@ -3450,7 +3422,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_ROLL:
         if (iSet)
         {
-            spriteext[iActor].roll=lValue;
+            spriteext[iActor].roll= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,spriteext[iActor].roll, g_i, g_p);
@@ -3459,7 +3431,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_MDXOFF:
         if (iSet)
         {
-            spriteext[iActor].xoff=lValue;
+            spriteext[iActor].xoff= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,spriteext[iActor].xoff, g_i, g_p);
@@ -3468,7 +3440,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_MDYOFF:
         if (iSet)
         {
-            spriteext[iActor].yoff=lValue;
+            spriteext[iActor].yoff= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,spriteext[iActor].yoff, g_i, g_p);
@@ -3477,7 +3449,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_MDZOFF:
         if (iSet)
         {
-            spriteext[iActor].zoff=lValue;
+            spriteext[iActor].zoff= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,spriteext[iActor].zoff, g_i, g_p);
@@ -3486,7 +3458,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_MDFLAGS:
         if (iSet)
         {
-            spriteext[iActor].flags=lValue;
+            spriteext[iActor].flags= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,spriteext[iActor].flags, g_i, g_p);
@@ -3495,7 +3467,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_XPANNING:
         if (iSet)
         {
-            spriteext[iActor].xpanning=lValue;
+            spriteext[iActor].xpanning= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].xpanning,g_i,g_p);
@@ -3504,7 +3476,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_YPANNING:
         if (iSet)
         {
-            spriteext[iActor].ypanning=lValue;
+            spriteext[iActor].ypanning= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].ypanning,g_i,g_p);
@@ -3513,7 +3485,7 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     case ACTOR_HTFLAGS:
         if (iSet)
         {
-            ActorExtra[iActor].flags=lValue;
+            ActorExtra[iActor].flags= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2,ActorExtra[iActor].flags, g_i, g_p);
@@ -3526,7 +3498,6 @@ void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
 void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    int lValue=0;
     int iActor=g_i;
 
     if (lVar1 != g_iThisActorID)
@@ -3539,9 +3510,6 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
     }
 
-    if (iSet)
-        lValue=Gv_GetVar(lVar2, g_i, g_p);
-
     if ((!spriteext[iActor].tspr) && g_scriptSanityChecks)
     {
         OSD_Printf(CON_ERROR "Internal bug, tsprite is unavailable\n",g_errorLineNum,keyw[g_tw]);
@@ -3553,7 +3521,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_X:
         if (iSet)
         {
-            spriteext[iActor].tspr->x=lValue;
+            spriteext[iActor].tspr->x= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->x,g_i,g_p);
@@ -3562,7 +3530,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_Y:
         if (iSet)
         {
-            spriteext[iActor].tspr->y=lValue;
+            spriteext[iActor].tspr->y= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->y,g_i,g_p);
@@ -3571,7 +3539,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_Z:
         if (iSet)
         {
-            spriteext[iActor].tspr->z=lValue;
+            spriteext[iActor].tspr->z= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->z,g_i,g_p);
@@ -3580,7 +3548,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_CSTAT:
         if (iSet)
         {
-            spriteext[iActor].tspr->cstat=lValue;
+            spriteext[iActor].tspr->cstat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->cstat,g_i,g_p);
@@ -3589,7 +3557,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_PICNUM:
         if (iSet)
         {
-            spriteext[iActor].tspr->picnum=lValue;
+            spriteext[iActor].tspr->picnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->picnum,g_i,g_p);
@@ -3598,7 +3566,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_SHADE:
         if (iSet)
         {
-            spriteext[iActor].tspr->shade=lValue;
+            spriteext[iActor].tspr->shade= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->shade,g_i,g_p);
@@ -3607,7 +3575,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_PAL:
         if (iSet)
         {
-            spriteext[iActor].tspr->pal=lValue;
+            spriteext[iActor].tspr->pal= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->pal,g_i,g_p);
@@ -3616,7 +3584,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_CLIPDIST:
         if (iSet)
         {
-            spriteext[iActor].tspr->clipdist=lValue;
+            spriteext[iActor].tspr->clipdist= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->clipdist,g_i,g_p);
@@ -3625,7 +3593,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_DETAIL:
         if (iSet)
         {
-            spriteext[iActor].tspr->filler=lValue;
+            spriteext[iActor].tspr->filler= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->filler,g_i,g_p);
@@ -3634,7 +3602,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_XREPEAT:
         if (iSet)
         {
-            spriteext[iActor].tspr->xrepeat=lValue;
+            spriteext[iActor].tspr->xrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->xrepeat,g_i,g_p);
@@ -3643,7 +3611,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_YREPEAT:
         if (iSet)
         {
-            spriteext[iActor].tspr->yrepeat=lValue;
+            spriteext[iActor].tspr->yrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->yrepeat,g_i,g_p);
@@ -3652,7 +3620,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_XOFFSET:
         if (iSet)
         {
-            spriteext[iActor].tspr->xoffset=lValue;
+            spriteext[iActor].tspr->xoffset= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->xoffset,g_i,g_p);
@@ -3661,7 +3629,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_YOFFSET:
         if (iSet)
         {
-            spriteext[iActor].tspr->yoffset=lValue;
+            spriteext[iActor].tspr->yoffset= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->yoffset,g_i,g_p);
@@ -3670,7 +3638,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_SECTNUM:
         if (iSet)
         {
-            spriteext[iActor].tspr->sectnum=lValue;
+            spriteext[iActor].tspr->sectnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->sectnum,g_i,g_p);
@@ -3679,7 +3647,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_STATNUM:
         if (iSet)
         {
-            spriteext[iActor].tspr->statnum=lValue;
+            spriteext[iActor].tspr->statnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->statnum,g_i,g_p);
@@ -3688,7 +3656,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_ANG:
         if (iSet)
         {
-            spriteext[iActor].tspr->ang=lValue;
+            spriteext[iActor].tspr->ang= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->ang,g_i,g_p);
@@ -3697,7 +3665,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_OWNER:
         if (iSet)
         {
-            spriteext[iActor].tspr->owner=lValue;
+            spriteext[iActor].tspr->owner= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->owner,g_i,g_p);
@@ -3707,7 +3675,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_XVEL:
         if (iSet)
         {
-            spriteext[iActor].tspr->xvel=lValue;
+            spriteext[iActor].tspr->xvel= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->xvel,g_i,g_p);
@@ -3716,7 +3684,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_YVEL:
         if (iSet)
         {
-            spriteext[iActor].tspr->yvel=lValue;
+            spriteext[iActor].tspr->yvel= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->yvel,g_i,g_p);
@@ -3725,7 +3693,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_ZVEL:
         if (iSet)
         {
-            spriteext[iActor].tspr->zvel=lValue;
+            spriteext[iActor].tspr->zvel= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->zvel,g_i,g_p);
@@ -3734,7 +3702,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_LOTAG:
         if (iSet)
         {
-            spriteext[iActor].tspr->lotag=lValue;
+            spriteext[iActor].tspr->lotag= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->lotag,g_i,g_p);
@@ -3743,7 +3711,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_HITAG:
         if (iSet)
         {
-            spriteext[iActor].tspr->hitag=lValue;
+            spriteext[iActor].tspr->hitag= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->hitag,g_i,g_p);
@@ -3752,7 +3720,7 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     case ACTOR_EXTRA:
         if (iSet)
         {
-            spriteext[iActor].tspr->extra=lValue;
+            spriteext[iActor].tspr->extra= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, spriteext[iActor].tspr->extra,g_i,g_p);
@@ -3766,8 +3734,6 @@ void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
 
 void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    int lValue=0;
-
     if ((lVar1 < 0 || lVar1 >= MAXTILES) && g_scriptSanityChecks)
     {
         OSD_Printf(CON_ERROR "invalid tile (%d)\n",g_errorLineNum,keyw[g_tw],lVar1);
@@ -3775,15 +3741,12 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
     }
 
-    if (iSet)
-        lValue=Gv_GetVar(lVar2, g_i, g_p);
-
     switch (lLabelID)
     {
     case PROJ_WORKSLIKE:
         if (iSet)
         {
-            ProjectileData[lVar1].workslike=lValue;
+            ProjectileData[lVar1].workslike= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].workslike, g_i, g_p);
@@ -3792,7 +3755,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_SPAWNS:
         if (iSet)
         {
-            ProjectileData[lVar1].spawns=lValue;
+            ProjectileData[lVar1].spawns= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].spawns, g_i, g_p);
@@ -3801,7 +3764,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_SXREPEAT:
         if (iSet)
         {
-            ProjectileData[lVar1].sxrepeat=lValue;
+            ProjectileData[lVar1].sxrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].sxrepeat, g_i, g_p);
@@ -3810,7 +3773,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_SYREPEAT:
         if (iSet)
         {
-            ProjectileData[lVar1].syrepeat=lValue;
+            ProjectileData[lVar1].syrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].syrepeat, g_i, g_p);
@@ -3819,7 +3782,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_SOUND:
         if (iSet)
         {
-            ProjectileData[lVar1].sound=lValue;
+            ProjectileData[lVar1].sound= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].sound, g_i, g_p);
@@ -3828,7 +3791,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_ISOUND:
         if (iSet)
         {
-            ProjectileData[lVar1].isound=lValue;
+            ProjectileData[lVar1].isound= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].isound, g_i, g_p);
@@ -3837,7 +3800,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_VEL:
         if (iSet)
         {
-            ProjectileData[lVar1].vel=lValue;
+            ProjectileData[lVar1].vel= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].vel, g_i, g_p);
@@ -3846,7 +3809,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_EXTRA:
         if (iSet)
         {
-            ProjectileData[lVar1].extra=lValue;
+            ProjectileData[lVar1].extra= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].extra, g_i, g_p);
@@ -3855,7 +3818,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_DECAL:
         if (iSet)
         {
-            ProjectileData[lVar1].decal=lValue;
+            ProjectileData[lVar1].decal= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].decal, g_i, g_p);
@@ -3864,7 +3827,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_TRAIL:
         if (iSet)
         {
-            ProjectileData[lVar1].trail=lValue;
+            ProjectileData[lVar1].trail= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].trail, g_i, g_p);
@@ -3873,7 +3836,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_TXREPEAT:
         if (iSet)
         {
-            ProjectileData[lVar1].txrepeat=lValue;
+            ProjectileData[lVar1].txrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].txrepeat, g_i, g_p);
@@ -3882,7 +3845,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_TYREPEAT:
         if (iSet)
         {
-            ProjectileData[lVar1].tyrepeat=lValue;
+            ProjectileData[lVar1].tyrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].tyrepeat, g_i, g_p);
@@ -3891,7 +3854,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_TOFFSET:
         if (iSet)
         {
-            ProjectileData[lVar1].toffset=lValue;
+            ProjectileData[lVar1].toffset= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].toffset, g_i, g_p);
@@ -3900,7 +3863,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_TNUM:
         if (iSet)
         {
-            ProjectileData[lVar1].tnum=lValue;
+            ProjectileData[lVar1].tnum= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].tnum, g_i, g_p);
@@ -3909,7 +3872,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_DROP:
         if (iSet)
         {
-            ProjectileData[lVar1].drop=lValue;
+            ProjectileData[lVar1].drop= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].drop, g_i, g_p);
@@ -3918,7 +3881,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_CSTAT:
         if (iSet)
         {
-            ProjectileData[lVar1].cstat=lValue;
+            ProjectileData[lVar1].cstat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].cstat, g_i, g_p);
@@ -3927,7 +3890,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_CLIPDIST:
         if (iSet)
         {
-            ProjectileData[lVar1].clipdist=lValue;
+            ProjectileData[lVar1].clipdist= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].clipdist, g_i, g_p);
@@ -3936,7 +3899,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_SHADE:
         if (iSet)
         {
-            ProjectileData[lVar1].shade=lValue;
+            ProjectileData[lVar1].shade= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].shade, g_i, g_p);
@@ -3945,7 +3908,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_XREPEAT:
         if (iSet)
         {
-            ProjectileData[lVar1].xrepeat=lValue;
+            ProjectileData[lVar1].xrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].xrepeat, g_i, g_p);
@@ -3954,7 +3917,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_YREPEAT:
         if (iSet)
         {
-            ProjectileData[lVar1].yrepeat=lValue;
+            ProjectileData[lVar1].yrepeat= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].yrepeat, g_i, g_p);
@@ -3963,7 +3926,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_PAL:
         if (iSet)
         {
-            ProjectileData[lVar1].pal=lValue;
+            ProjectileData[lVar1].pal= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].pal, g_i, g_p);
@@ -3972,7 +3935,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_EXTRA_RAND:
         if (iSet)
         {
-            ProjectileData[lVar1].extra_rand=lValue;
+            ProjectileData[lVar1].extra_rand= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].extra_rand, g_i, g_p);
@@ -3981,7 +3944,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_HITRADIUS:
         if (iSet)
         {
-            ProjectileData[lVar1].hitradius=lValue;
+            ProjectileData[lVar1].hitradius= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].hitradius, g_i, g_p);
@@ -3990,7 +3953,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_VEL_MULT:
         if (iSet)
         {
-            ProjectileData[lVar1].velmult=lValue;
+            ProjectileData[lVar1].velmult= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].velmult, g_i, g_p);
@@ -3999,7 +3962,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_OFFSET:
         if (iSet)
         {
-            ProjectileData[lVar1].offset=lValue;
+            ProjectileData[lVar1].offset= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].offset, g_i, g_p);
@@ -4008,7 +3971,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_BOUNCES:
         if (iSet)
         {
-            ProjectileData[lVar1].bounces=lValue;
+            ProjectileData[lVar1].bounces= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].bounces, g_i, g_p);
@@ -4017,7 +3980,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_BSOUND:
         if (iSet)
         {
-            ProjectileData[lVar1].bsound=lValue;
+            ProjectileData[lVar1].bsound= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].bsound, g_i, g_p);
@@ -4026,7 +3989,7 @@ void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     case PROJ_RANGE:
         if (iSet)
         {
-            ProjectileData[lVar1].range=lValue;
+            ProjectileData[lVar1].range= Gv_GetVar(lVar2, g_i, g_p);
             return;
         }
         Gv_SetVar(lVar2, ProjectileData[lVar1].range, g_i, g_p);

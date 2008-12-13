@@ -371,8 +371,8 @@ static void G_DoLoadScreen(char *statustext, int percent)
         if (statustext) gametext(160,180,statustext,0,2+8+16);
         j = usehightile;
         usehightile = 0;
-        rotatesprite(33<<16,140<<16,65536,0,LASERLINE,0,0,2+8+16,0,0,scale(xdim-1,percent,100),ydim-1);
-        rotatesprite(153<<16,140<<16,65536,0,LASERLINE,0,0,2+8+16,0,0,scale(xdim-1,percent,100),ydim-1);
+        rotatesprite(33<<16,144<<16,65536,0,LASERLINE,0,0,2+8+16,0,0,scale(xdim-1,percent,100),ydim-1);
+        rotatesprite(153<<16,144<<16,65536,0,LASERLINE,0,0,2+8+16,0,0,scale(xdim-1,percent,100),ydim-1);
         usehightile = j;
         X_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
         nextpage();
@@ -505,7 +505,7 @@ void G_CacheMapData(void)
         }
         if (totalclock - tc > TICRATE/4)
         {
-            sprintf(tempbuf,"%d resources remaining\n",g_precacheCount-pc);
+            sprintf(tempbuf,"%d resources remaining\n",g_precacheCount-pc+1);
             G_DoLoadScreen(tempbuf, min(100,100*pc/g_precacheCount));
             tc = totalclock;
         }
@@ -930,7 +930,7 @@ static void prelevel(char g)
     while (i >= 0)
     {
         nexti = nextspritestat[i];
-        A_ResetGameVars(i);
+        A_ResetVars(i);
         A_LoadActor(i);
         X_OnEvent(EVENT_LOADACTOR, i, -1, -1);
         if (sprite[i].lotag == -1 && (sprite[i].cstat&16))
@@ -1253,7 +1253,7 @@ void G_NewGame(int vn,int ln,int sk)
     p->gm              = 0;
 
     //AddLog("Newgame");
-    Gv_ResetVarsToDefault();
+    Gv_ResetVars();
 
     Gv_InitWeaponPointers();
 

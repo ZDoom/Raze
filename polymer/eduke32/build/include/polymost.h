@@ -63,18 +63,18 @@ extern int cachefilehandle;
 extern FILE *cacheindexptr;
 extern struct HASH_table cacheH;
 
-struct cache_entry
+struct cacheitem_t
 {
     char name[BMAX_PATH];
     int offset;
     int len;
-    struct cache_entry *next;
+    struct cacheitem_t *next;
 };
 
-typedef struct cache_entry texcacheindex;
+typedef struct cacheitem_t texcacheindex;
 
 extern texcacheindex firstcacheindex;
-extern texcacheindex *datextures;
+extern texcacheindex *curcacheindex;
 extern texcacheindex *cacheptrs[MAXTILES<<2];
 extern int numcacheentries;
 

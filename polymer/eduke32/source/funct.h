@@ -193,8 +193,8 @@ extern inline int gametext_z(int small, int starttile, int x,int y,const char *t
 extern void G_DrawTXDigiNumZ(int starttile, int x,int y,int n,int s,int pal,int cs,int x1, int y1, int x2, int y2, int z);
 extern void G_DrawTileSmall(int x,int y,int tilenum,int shade,int orientation);
 extern void G_DrawTilePalSmall(int x,int y,int tilenum,int shade,int orientation,int p);
-extern void Gv_ResetVarsToDefault(void);
-extern void A_ResetGameVars(int iActor);
+extern void Gv_ResetVars(void);
+extern void A_ResetVars(int iActor);
 
 extern int minitext_(int x,int y,const char *t,int s,int p,int sb);
 
@@ -225,8 +225,8 @@ extern int Gv_GetVar(int id, int iActor, int iPlayer);
 extern void Gv_SetVar(int id, int lValue, int iActor, int iPlayer);
 // extern void SetGameArrayID(int id,int index, int lValue);
 
-extern int Gv_SetupVar(const char *pszLabel, int lValue, unsigned int dwFlags);
-extern int Gv_AddArray(const char *pszLabel, int asize);
+extern int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags);
+extern int Gv_NewArray(const char *pszLabel, int asize);
 extern void C_ReportError(int iError);
 
 extern void onvideomodechange(int newmode);

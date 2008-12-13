@@ -2172,7 +2172,7 @@ static void G_DrawStatusBar(int snum)
         if (p->inven_icon)
             rotatesprite(sbarx(69),sbary(200-30),sbarsc(65536L),0,INVENTORYBOX,0,21,10+16,0,0,xdim-1,ydim-1);
 
-        if (sprite[p->i].pal == 1 && p->last_extra < 2)
+        if (sprite[p->i].pal == 1 && p->last_extra < 2) // frozen
             G_DrawDigiNum(20,200-17,1,-16,10+16);
         else G_DrawDigiNum(20,200-17,p->last_extra,-16,10+16);
 
@@ -2557,7 +2557,7 @@ static void G_DrawStatusBar(int snum)
 #define COLOR_WHITE 31
 #define LOW_FPS 30
 
-static void G_PrintFrameRate(void)
+static void G_PrintFPS(void)
 {
     // adapted from ZDoom because I like it better than what we had
     // applicable ZDoom code available under GPL from csDoom
@@ -2577,7 +2577,7 @@ static void G_PrintFrameRate(void)
 
             printext256(windowx2-(chars<<(3-x))+1,windowy1+2,0,-1,tempbuf,x);
             printext256(windowx2-(chars<<(3-x)),windowy1+1,
-                (LastCount < LOW_FPS) ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
+                        (LastCount < LOW_FPS) ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
 
             // lag meter
             if (numplayers > 1 && (totalclock - lastpackettime) > 1)
@@ -3873,7 +3873,7 @@ void G_DisplayRest(int smoothratio)
     }
 #endif
 
-    G_PrintFrameRate();
+    G_PrintFPS();
 
     // JBF 20040124: display level stats in screen corner
     if ((ud.overhead_on != 2 && ud.levelstats) && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
@@ -4740,7 +4740,7 @@ int A_InsertSprite(int whatsect,int s_x,int s_y,int s_z,int s_pn,int s_s,int s_x
             changespritestat(i,5);
         }
     */
-    A_ResetGameVars(i);
+    A_ResetVars(i);
     ActorExtra[i].flags = 0;
 
     if (apScriptGameEvent[EVENT_EGS])
@@ -9032,17 +9032,25 @@ static int getfilenames(const char *path, char kind[])
     return(0);
 }
 
-static void DoAutoload(const char *fn)
+static char *autoloadmasks[] = { "*.grp", "*.zip", "*.pk3" };
+#define NUMAUTOLOADMASKS 3
+
+static void G_DoAutoload(const char *fn)
 {
-    Bsprintf(tempbuf,"autoload/%s",fn);
-    getfilenames(tempbuf,"*.grp");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
-    Bsprintf(tempbuf,"autoload/%s",fn);
-    getfilenames(tempbuf,"*.zip");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
-    Bsprintf(tempbuf,"autoload/%s",fn);
-    getfilenames(tempbuf,"*.pk3");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+    int i;
+
+    for (i=0;i<NUMAUTOLOADMASKS;i++)
+    {
+        Bsprintf(tempbuf,"autoload/%s",fn);
+        getfilenames(tempbuf,autoloadmasks[i]);
+        while (findfiles)
+        {
+            Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name);
+            initprintf("Using group file '%s'.\n",tempbuf);
+            initgroupfile(tempbuf);
+            findfiles = findfiles->next;
+        }
+    }
 }
 
 static char *makename(char *destname, char *OGGname, char *origname)
@@ -9052,7 +9060,7 @@ static char *makename(char *destname, char *OGGname, char *origname)
 
     if (destname)
         Bfree(destname);
-    destname=Bcalloc(Bstrlen(OGGname)+Bstrlen(origname)+1,sizeof(char));
+    destname = Bcalloc(Bstrlen(OGGname) + Bstrlen(origname) + 1, sizeof(char));
     if (!destname)
         return NULL;
 
@@ -9164,7 +9172,7 @@ static int parsedefinitions_game(scriptfile *script, const int preload)
                 {
                     initprintf("Using group file '%s'.\n",fn);
                     if (!g_noAutoLoad)
-                        DoAutoload(fn);
+                        G_DoAutoload(fn);
                 }
 
             }
@@ -9892,7 +9900,7 @@ static void G_CheckCommandLine(int argc, const char **argv)
                         CommandMap = (char *)argv[i++];
                         continue;
                     }
-                    if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
+                    if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip") || !Bstrcasecmp(k,".pk3"))
                     {
                         G_AddGroup(argv[i++]);
                         continue;
@@ -10104,73 +10112,54 @@ static void loadtmb(void)
 }
 
 void freehash();
-static void CON_FreeMem(void)
+static void G_FreeCONMem(void)
 {
     int i;
     extern char *bitptr;
 
     for (i=(MAXLEVELS*(MAXVOLUMES+1))-1;i>=0;i--) // +1 volume for "intro", "briefing" music
     {
-        if (MapInfo[i].name != NULL)
-            Bfree(MapInfo[i].name);
-        if (MapInfo[i].filename != NULL)
-            Bfree(MapInfo[i].filename);
-        if (MapInfo[i].musicfn != NULL)
-            Bfree(MapInfo[i].musicfn);
-        if (MapInfo[i].musicfn1 != NULL)
-            Bfree(MapInfo[i].musicfn1);
-        if (MapInfo[i].savedstate != NULL)
-            G_FreeMapState(i);
+        if (MapInfo[i].name != NULL) Bfree(MapInfo[i].name);
+        if (MapInfo[i].filename != NULL) Bfree(MapInfo[i].filename);
+        if (MapInfo[i].musicfn != NULL) Bfree(MapInfo[i].musicfn);
+        if (MapInfo[i].musicfn1 != NULL) Bfree(MapInfo[i].musicfn1);
+        if (MapInfo[i].savedstate != NULL) G_FreeMapState(i);
     }
 
     for (i=MAXQUOTES-1;i>=0;i--)
     {
-        if (ScriptQuotes[i] != NULL)
-            Bfree(ScriptQuotes[i]);
-        if (ScriptQuoteRedefinitions[i] != NULL)
-            Bfree(ScriptQuoteRedefinitions[i]);
+        if (ScriptQuotes[i] != NULL) Bfree(ScriptQuotes[i]);
+        if (ScriptQuoteRedefinitions[i] != NULL) Bfree(ScriptQuoteRedefinitions[i]);
     }
 
     for (i=g_gameVarCount-1;i>=0;i--)
     {
-        if (aGameVars[i].szLabel != NULL)
-            Bfree(aGameVars[i].szLabel);
-        if (aGameVars[i].plValues != NULL)
-            Bfree(aGameVars[i].plValues);
+        if (aGameVars[i].szLabel != NULL) Bfree(aGameVars[i].szLabel);
+        if (aGameVars[i].plValues != NULL) Bfree(aGameVars[i].plValues);
     }
 
     for (i=g_gameArrayCount-1;i>=0;i--)
     {
-        if (aGameArrays[i].szLabel != NULL)
-            Bfree(aGameArrays[i].szLabel);
-        if (aGameArrays[i].plValues != NULL)
-            Bfree(aGameArrays[i].plValues);
+        if (aGameArrays[i].szLabel != NULL) Bfree(aGameArrays[i].szLabel);
+        if (aGameArrays[i].plValues != NULL) Bfree(aGameArrays[i].plValues);
     }
 
     for (i=MAXPLAYERS-1;i>=0;i--)
     {
-        if (g_player[i].ps != NULL)
-            Bfree(g_player[i].ps);
-        if (g_player[i].sync != NULL)
-            Bfree(g_player[i].sync);
+        if (g_player[i].ps != NULL) Bfree(g_player[i].ps);
+        if (g_player[i].sync != NULL) Bfree(g_player[i].sync);
     }
 
     for (i=MAXSOUNDS-1;i>=0;i--)
     {
-        if (g_sounds[i].filename != NULL)
-            Bfree(g_sounds[i].filename);
-        if (g_sounds[i].filename1 != NULL)
-            Bfree(g_sounds[i].filename1);
+        if (g_sounds[i].filename != NULL) Bfree(g_sounds[i].filename);
+        if (g_sounds[i].filename1 != NULL) Bfree(g_sounds[i].filename1);
     }
 
-    if (label != NULL)
-        Bfree(label);
-    if (labelcode != NULL)
-        Bfree(labelcode);
-    if (script != NULL)
-        Bfree(script);
-    if (bitptr != NULL)
-        Bfree(bitptr);
+    if (label != NULL) Bfree(label);
+    if (labelcode != NULL) Bfree(labelcode);
+    if (script != NULL) Bfree(script);
+    if (bitptr != NULL) Bfree(bitptr);
 
     freehash();
     HASH_free(&gamefuncH);
@@ -10192,7 +10181,7 @@ void G_Shutdown(void)
     CONTROL_Shutdown();
     CONFIG_WriteSetup();
     KB_Shutdown();
-    CON_FreeMem();
+    G_FreeCONMem();
     uninitengine();
 }
 
@@ -10340,7 +10329,7 @@ static void G_Startup(void)
     {
         wm_msgbox("Build Engine Initialization Error",
                   "There was a problem initializing the Build engine: %s", engineerrstr);
-        CON_FreeMem();
+        G_FreeCONMem();
         exit(1);
     }
 
@@ -10412,7 +10401,6 @@ static void G_Startup(void)
         g_player[i].playerreadyflag = 0;
 
 #ifndef RANCID_NETWORKING
-    // enet regression
     if (CommandNet)
     {
         setup_rancid_net(CommandNet);
@@ -10720,19 +10708,6 @@ void G_UpdatePlayerFromMenu(void)
             sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].pcolor;
     }
 }
-
-#if 0
-void writestring(int a1,int a2,int a3,short a4,int vx,int vy,int vz)
-{
-
-    FILE *fp;
-
-    fp = (FILE *)fopen("debug.txt","rt+");
-
-    fprintf(fp,"%d %d %d %d %d %d %d\n",a1,a2,a3,a4,vx,vy,vz);
-    fclose(fp);
-}
-#endif
 
 #if 0
 char testcd(char *fn, int testsiz);
@@ -11043,21 +11018,21 @@ void app_main(int argc,const char **argv)
 
     FreeGroups();
 
-    if (WW2GI)
+    if (WW2GI || NAM)
     {
         // overwrite the default GRP and CON so that if the user chooses
         // something different, they get what they asked for
-        Bsprintf(defaultduke3dgrp,"ww2gi.grp");
-        Bsprintf(defaultconfilename, "ww2gi.con");
-        Bsprintf(GametypeNames[0],"GRUNTMATCH (SPAWN)");
-        Bsprintf(GametypeNames[2],"GRUNTMATCH (NO SPAWN)");
-    }
-    else if (NAM)
-    {
-        // overwrite the default GRP and CON so that if the user chooses
-        // something different, they get what they asked for
-        Bsprintf(defaultduke3dgrp,"nam.grp");
-        Bsprintf(defaultconfilename, "nam.con");
+        if (WW2GI)
+        {
+            Bsprintf(defaultduke3dgrp,"ww2gi.grp");
+            Bsprintf(defaultconfilename, "ww2gi.con");
+        }
+        else
+        {
+            Bsprintf(defaultduke3dgrp,"nam.grp");
+            Bsprintf(defaultconfilename, "nam.con");
+        }
+
         Bsprintf(GametypeNames[0],"GRUNTMATCH (SPAWN)");
         Bsprintf(GametypeNames[2],"GRUNTMATCH (NO SPAWN)");
     }
@@ -11076,34 +11051,46 @@ void app_main(int argc,const char **argv)
     i = initgroupfile(duke3dgrp);
 
     if (i == -1)
-        initprintf("Warning: could not find group file '%s'.\n",duke3dgrp);
+        initprintf("Warning: could not find group file '%s'!\n",duke3dgrp);
     else
         initprintf("Using group file '%s' as main group file.\n", duke3dgrp);
 
     if (!g_noAutoLoad)
     {
-        getfilenames("autoload","*.grp");
-        while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
-        getfilenames("autoload","*.zip");
-        while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
-        getfilenames("autoload","*.pk3");
-        while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+        int ii;
+
+        for (ii=0;ii<NUMAUTOLOADMASKS;ii++)
+        {
+            getfilenames("autoload",autoloadmasks[ii]);
+            while (findfiles)
+            {
+                Bsprintf(tempbuf,"autoload/%s",findfiles->name);
+                initprintf("Using group file '%s'.\n",tempbuf);
+                initgroupfile(tempbuf);
+                findfiles = findfiles->next;
+            }
+        }
 
         if (i != -1)
-            DoAutoload(duke3dgrp);
+            G_DoAutoload(duke3dgrp);
     }
 
     if (mod_dir[0] != '/')
     {
-        Bsprintf(tempbuf,"%s/",mod_dir);
-        getfilenames(tempbuf,"*.grp");
-        while (findfiles) { Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
-        Bsprintf(tempbuf,"%s/",mod_dir);
-        getfilenames(tempbuf,"*.zip");
-        while (findfiles) { Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
-        Bsprintf(tempbuf,"%s/",mod_dir);
-        getfilenames(tempbuf,"*.pk3");
-        while (findfiles) { Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+        int ii;
+
+        for (ii=0;ii<NUMAUTOLOADMASKS;ii++)
+        {
+            Bsprintf(tempbuf,"%s/",mod_dir);
+            getfilenames(tempbuf,autoloadmasks[ii]);
+            while (findfiles)
+            {
+                Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name);
+                initprintf("Using group file '%s'.\n",tempbuf);
+                initgroupfile(tempbuf);
+                findfiles = findfiles->next;
+            }
+        }
     }
 
     loaddefinitions_game(duke3ddef, TRUE);
@@ -11122,7 +11109,7 @@ void app_main(int argc,const char **argv)
                 g_groupFileHandle = j;
                 initprintf("Using group file '%s'.\n",CommandGrps->str);
                 if (!g_noAutoLoad)
-                    DoAutoload(CommandGrps->str);
+                    G_DoAutoload(CommandGrps->str);
             }
 
             free(CommandGrps->str);

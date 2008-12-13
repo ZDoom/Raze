@@ -88,9 +88,7 @@ void X_OnEvent(int iEventID, int iActor, int iPlayer, int lDist)
         g_sp = &sprite[g_i];
         g_t = &ActorExtra[g_i].temp_data[0];
 
-        insptr = (apScriptGameEvent[iEventID]);
-        //Bsprintf(g_szBuf,"Executing event for %d at %lX",iEventID, insptr);
-        //AddLog(g_szBuf);
+        insptr = apScriptGameEvent[iEventID];
 
         g_killitFlag = 0;
 
@@ -757,7 +755,7 @@ static int X_DoExecute(void)
 
     case CON_IFCANSEE:
     {
-        spritetype *s;
+        spritetype *s = &sprite[g_player[g_p].ps->i];
 
         // select sprite for monster to target
         // if holoduke is on, let them target holoduke first.
@@ -775,7 +773,6 @@ static int X_DoExecute(void)
                 s = &sprite[g_player[g_p].ps->i];
             }
         }
-        else s = &sprite[g_player[g_p].ps->i];    // holoduke not on. look for player
 
         // can they see player, (or player's holoduke)
         j = cansee(g_sp->x,g_sp->y,g_sp->z-(krand()&((47<<8))),g_sp->sectnum,
@@ -789,10 +786,10 @@ static int X_DoExecute(void)
             // (the result is always j==0....)
 //            if ((klabs(ActorExtra[g_i].lastvx-g_sp->x)+klabs(ActorExtra[g_i].lastvy-g_sp->y)) <
 //                    (klabs(ActorExtra[g_i].lastvx-s->x)+klabs(ActorExtra[g_i].lastvy-s->y)))
-  //              j = 0;
+            //              j = 0;
 
             // um yeah, this if() will always fire....
-    //        if (j == 0)
+            //        if (j == 0)
             {
                 // search around for target player
 
@@ -841,16 +838,15 @@ static int X_DoExecute(void)
         if (g_t[5]) g_t[1] = *(((intptr_t *)g_t[5])+1);       // move
         g_sp->hitag = *(((intptr_t *)g_t[5])+2);    // move flags
         g_t[0] = g_t[2] = g_t[3] = 0; // count, actioncount... g_t[3] = ???
-        if (A_CheckEnemySprite(g_sp) && g_sp->extra <= 0) // hack
-            break;
+//        if (A_CheckEnemySprite(g_sp) && g_sp->extra <= 0) // hack
+//            break;
         if (g_sp->hitag&random_angle)
             g_sp->ang = krand()&2047;
         break;
 
     case CON_ACTION:
         insptr++;
-        g_t[2] = 0;
-        g_t[3] = 0;
+        g_t[2] = g_t[3] = 0;
         g_t[4] = *insptr++;
         break;
 
@@ -974,19 +970,18 @@ static int X_DoExecute(void)
 
     case CON_SHOOT:
         insptr++;
-        A_Shoot(g_i,(short)*insptr++);
+        A_Shoot(g_i,*insptr++);
         break;
 
     case CON_SOUNDONCE:
         insptr++;
         if ((*insptr<0 || *insptr>=MAXSOUNDS) && g_scriptSanityChecks)
         {
-            OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr);
-            insptr++;break;
+            OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr++);
+            break;
         }
-        if (!A_CheckSoundPlaying(g_i,*insptr))
-            A_PlaySound((short) *insptr,g_i);
-        insptr++;
+        if (!A_CheckSoundPlaying(g_i,*insptr++))
+            A_PlaySound(*(insptr-1),g_i);
         break;
 
     case CON_IFSOUND:
@@ -1050,7 +1045,7 @@ static int X_DoExecute(void)
         else if (G_CheckForSpaceFloor(g_sp->sectnum))
             j = 0;
 
-        if (!ActorExtra[g_i].cgg-- || (sector[g_sp->sectnum].floorstat&2))
+        if (--ActorExtra[g_i].cgg == 0 || (sector[g_sp->sectnum].floorstat&2))
         {
             A_GetZLimits(g_i);
             ActorExtra[g_i].cgg = 3;
@@ -1058,9 +1053,7 @@ static int X_DoExecute(void)
 
         if (g_sp->z < (ActorExtra[g_i].floorz-FOURSLEIGHT))
         {
-            g_sp->z += g_sp->zvel += j;
-
-            if (g_sp->zvel > 6144) g_sp->zvel = 6144;
+            g_sp->z += g_sp->zvel = min(6144, g_sp->zvel+j);
 
             if (g_sp->z > (ActorExtra[g_i].floorz - FOURSLEIGHT))
                 g_sp->z = (ActorExtra[g_i].floorz - FOURSLEIGHT);
@@ -1441,66 +1434,86 @@ static int X_DoExecute(void)
         }
 
     case CON_HEADSPRITESTAT:
+        insptr++;
+        {
+            int i=*insptr++;
+            j=Gv_GetVar(*insptr++, g_i, g_p);
+            if ((j < 0 || j > MAXSTATUS) && g_scriptSanityChecks)
+            {
+                OSD_Printf(CON_ERROR "invalid status list %d\n",g_errorLineNum,keyw[g_tw],j);
+                break;
+            }
+            Gv_SetVar(i,headspritestat[j],g_i,g_p);
+            break;
+        }
+
     case CON_PREVSPRITESTAT:
+        insptr++;
+        {
+            int i=*insptr++;
+            j=Gv_GetVar(*insptr++, g_i, g_p);
+            if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
+            {
+                OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
+                break;
+            }
+            Gv_SetVar(i,prevspritestat[j],g_i,g_p);
+            break;
+        }
+
     case CON_NEXTSPRITESTAT:
+        insptr++;
+        {
+            int i=*insptr++;
+            j=Gv_GetVar(*insptr++, g_i, g_p);
+            if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
+            {
+                OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
+                break;
+            }
+            Gv_SetVar(i,nextspritestat[j],g_i,g_p);
+            break;
+        }
+
     case CON_HEADSPRITESECT:
+        insptr++;
+        {
+            int i=*insptr++;
+            j=Gv_GetVar(*insptr++, g_i, g_p);
+            if ((j < 0 || j > numsectors) && g_scriptSanityChecks)
+            {
+                OSD_Printf(CON_ERROR "invalid sector %d\n",g_errorLineNum,keyw[g_tw],j);
+                break;
+            }
+            Gv_SetVar(i,headspritesect[j],g_i,g_p);
+            break;
+        }
+
     case CON_PREVSPRITESECT:
+        insptr++;
+        {
+            int i=*insptr++;
+            j=Gv_GetVar(*insptr++, g_i, g_p);
+            if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
+            {
+                OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
+                break;
+            }
+            Gv_SetVar(i,prevspritesect[j],g_i,g_p);
+            break;
+        }
+
     case CON_NEXTSPRITESECT:
         insptr++;
         {
             int i=*insptr++;
             j=Gv_GetVar(*insptr++, g_i, g_p);
-            switch (tw)
+            if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
             {
-            case CON_HEADSPRITESTAT:
-                if ((j < 0 || j > MAXSTATUS) && g_scriptSanityChecks)
-                {
-                    OSD_Printf(CON_ERROR "invalid status list %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
-                }
-                Gv_SetVar(i,headspritestat[j],g_i,g_p);
-                break;
-            case CON_PREVSPRITESTAT:
-                if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
-                {
-                    OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
-                }
-                Gv_SetVar(i,prevspritestat[j],g_i,g_p);
-                break;
-            case CON_NEXTSPRITESTAT:
-                if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
-                {
-                    OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
-                }
-                Gv_SetVar(i,nextspritestat[j],g_i,g_p);
-                break;
-            case CON_HEADSPRITESECT:
-                if ((j < 0 || j > numsectors) && g_scriptSanityChecks)
-                {
-                    OSD_Printf(CON_ERROR "invalid sector %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
-                }
-                Gv_SetVar(i,headspritesect[j],g_i,g_p);
-                break;
-            case CON_PREVSPRITESECT:
-                if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
-                {
-                    OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
-                }
-                Gv_SetVar(i,prevspritesect[j],g_i,g_p);
-                break;
-            case CON_NEXTSPRITESECT:
-                if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
-                {
-                    OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
-                }
-                Gv_SetVar(i,nextspritesect[j],g_i,g_p);
+                OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
                 break;
             }
+            Gv_SetVar(i,nextspritesect[j],g_i,g_p);
             break;
         }
 
@@ -3421,13 +3434,16 @@ static int X_DoExecute(void)
             // syntax [gs]etactor[<var>].x <VAR>
             // <varid> <xxxid> <varid>
 
-            int lVar1=*insptr++, lLabelID=*insptr++, lParm2 = 0, lVar2;
+            int lVar1=*insptr++, lLabelID=*insptr++, lParm2 = 0;
 
             if (ActorLabels[lLabelID].flags & LABEL_HASPARM2)
                 lParm2=Gv_GetVar(*insptr++, g_i, g_p);
-            lVar2=*insptr++;
 
-            X_AccessSprite(tw==CON_SETACTOR, lVar1, lLabelID, lVar2, lParm2);
+            {
+                int lVar2=*insptr++;
+
+                X_AccessSprite(tw==CON_SETACTOR, lVar1, lLabelID, lVar2, lParm2);
+            }
             break;
         }
 
@@ -3548,13 +3564,13 @@ static int X_DoExecute(void)
 
     case CON_RANDVAR:
         insptr++;
-        Gv_SetVar(*insptr, mulscale(krand(), *(insptr+1)+1, 16), g_i, g_p);
+        Gv_SetVar(*insptr, mulscale16(krand(), *(insptr+1)+1), g_i, g_p);
         insptr += 2;
         break;
 
     case CON_DISPLAYRANDVAR:
         insptr++;
-        Gv_SetVar(*insptr, mulscale(rand(), *(insptr+1)+1, 15), g_i, g_p);
+        Gv_SetVar(*insptr, mulscale15(rand(), *(insptr+1)+1), g_i, g_p);
         insptr += 2;
         break;
 
