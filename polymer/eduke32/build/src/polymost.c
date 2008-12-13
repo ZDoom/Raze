@@ -4750,12 +4750,21 @@ RECHECK:
     i = 4;
     do
     {
-        cullcheckcnt++;
+        cullcheckcnt += 2;
         if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
                    tspr->x+x, tspr->y+y, tspr->z-(j*i)-512, datempsectnum))
             return 1;
+        if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                   tspr->x+x, tspr->y+y, tspr->z-(j*(i-1))-512, datempsectnum))
+            return 1;
+        i -= 2;
     }
-    while (--i > -1);
+    while (i);
+
+    cullcheckcnt++;
+    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+        tspr->x+x, tspr->y+y, tspr->z-512, datempsectnum))
+        return 1;
 
     if (x != y && x == oldx)
     {

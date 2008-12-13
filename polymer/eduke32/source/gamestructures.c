@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osd.h"
 */
 // this is all the crap for accessing the game's structs through the CON VM
+// I got a 3-4 fps gain by inlining these...
 
 static inline void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
 {

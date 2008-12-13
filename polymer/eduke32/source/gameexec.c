@@ -337,10 +337,11 @@ void A_Fall(int iActor)
     {
         if (sector[s->sectnum].lotag == 2 && s->zvel > 3122)
             s->zvel = 3144;
-        if (s->zvel < 6144)
+/*        if (s->zvel < 6144)
             s->zvel += c;
         else s->zvel = 6144;
-        s->z += s->zvel;
+        s->z += s->zvel; */
+        s->z += s->zvel = min(6144, s->zvel+c);
     }
     if (s->z >= ActorExtra[iActor].floorz-(FOURSLEIGHT))
     {
@@ -369,7 +370,7 @@ int G_GetAngleDelta(int a,int na)
     return (na-a);
 }
 
-static void X_AlterAng(int a)
+static inline void X_AlterAng(int a)
 {
     intptr_t *moveptr = (intptr_t *)g_t[1];
     int ticselapsed = (g_t[0])&31;
@@ -687,8 +688,7 @@ static int X_DoExecute(void)
         }
 
     case CON_IFRND:
-        insptr++;
-        X_DoConditional(rnd(*insptr));
+        X_DoConditional(rnd(*(++insptr)));
         break;
 
     case CON_IFCANSHOOTTARGET:
@@ -840,8 +840,8 @@ static int X_DoExecute(void)
         if (g_t[5]) g_t[1] = *(((intptr_t *)g_t[5])+1);       // move
         g_sp->hitag = *(((intptr_t *)g_t[5])+2);    // move flags
         g_t[0] = g_t[2] = g_t[3] = 0; // count, actioncount... g_t[3] = ???
-//        if (A_CheckEnemySprite(g_sp) && g_sp->extra <= 0) // hack
-//            break;
+        if (A_CheckEnemySprite(g_sp) && g_sp->extra <= 0) // hack
+            break;
         if (g_sp->hitag&random_angle)
             g_sp->ang = krand()&2047;
         break;
@@ -1047,7 +1047,7 @@ static int X_DoExecute(void)
         else if (G_CheckForSpaceFloor(g_sp->sectnum))
             j = 0;
 
-        if (--ActorExtra[g_i].cgg == 0 || (sector[g_sp->sectnum].floorstat&2))
+        if (!ActorExtra[g_i].cgg-- || (sector[g_sp->sectnum].floorstat&2))
         {
             A_GetZLimits(g_i);
             ActorExtra[g_i].cgg = 3;
@@ -4231,7 +4231,7 @@ void A_LoadActor(int iActor)
 
 void A_Execute(int iActor,int iPlayer,int lDist)
 {
-    int temp, temp2;
+//    int temp, temp2;
 
 //    if (actorscrptr[sprite[iActor].picnum] == 0) return;
 
@@ -4283,7 +4283,7 @@ void A_Execute(int iActor,int iPlayer,int lDist)
     }
 
     X_Move();
-
+/*
     if (ud.angleinterpolation)
     {
         temp = (g_sp->ang & 2047) - sprpos[g_i].ang;
@@ -4298,7 +4298,7 @@ void A_Execute(int iActor,int iPlayer,int lDist)
             sprpos[g_i].ang &= 2047;
         }
     }
-
+*/
     if (g_sp->statnum == 6)
         switch (DynamicTileMap[g_sp->picnum])
         {
