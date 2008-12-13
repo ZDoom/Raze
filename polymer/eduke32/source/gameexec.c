@@ -44,6 +44,8 @@ int g_tw;
 
 static int X_DoExecute(void);
 
+#include "gamestructures.c"
+
 void X_ScriptInfo(void)
 {
     if (script)

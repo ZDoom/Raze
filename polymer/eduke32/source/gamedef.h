@@ -75,6 +75,7 @@ extern const memberlabel_t userdeflabels[];
 extern const memberlabel_t InputLabels[];
 extern const memberlabel_t TsprLabels[];
 
+/*
 extern void X_AccessUserdef(int iSet, int lLabelID, int lVar2);
 extern void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2);
 extern void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2);
@@ -84,6 +85,7 @@ extern void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2);
 extern void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2);
 extern void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2);
 extern void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2);
+*/
 
 #define CON_ERROR OSD_ERROR "Line %d, %s: "
 

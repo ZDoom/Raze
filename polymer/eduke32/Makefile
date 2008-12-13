@@ -142,7 +142,6 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/config.$o \
 	$(OBJ)/gamedef.$o \
 	$(OBJ)/gameexec.$o \
-	$(OBJ)/gamestructures.$o \
 	$(OBJ)/gamevars.$o \
 	$(OBJ)/global.$o \
 	$(OBJ)/menus.$o \

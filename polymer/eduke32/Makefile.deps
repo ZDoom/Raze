@@ -5,7 +5,7 @@ $(OBJ)/game.$o: $(SRC)/game.c $(SRC)/sync.c $(SRC)/jmact/scriplib.h $(duke3d_h) 
 $(OBJ)/actors.$o: $(SRC)/actors.c $(duke3d_h)
 $(OBJ)/anim.$o: $(SRC)/anim.c $(duke3d_h) $(SRC)/jmact/animlib.h
 $(OBJ)/gamedef.$o: $(SRC)/gamedef.c $(duke3d_h) $(gamedef_h)
-$(OBJ)/gameexec.$o: $(SRC)/gameexec.c $(duke3d_h) $(gamedef_h)
+$(OBJ)/gameexec.$o: $(SRC)/gameexec.c $(SRC)/gamestructures.c $(duke3d_h) $(gamedef_h)
 $(OBJ)/gamestructures.$o: $(SRC)/gamestructures.c $(duke3d_h) $(gamedef_h)
 $(OBJ)/gamevars.$o: $(SRC)/gamevars.c $(duke3d_h) $(gamedef_h)
 $(OBJ)/global.$o: $(SRC)/*.c $(SRC)/global.c $(duke3d_h)
