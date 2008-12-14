@@ -3143,7 +3143,7 @@ static void Net_EnterMessage(void)
     }
 }
 
-static void G_MoveClouds(void)
+static inline void G_MoveClouds(void)
 {
     if (totalclock > cloudtotalclock || totalclock < (cloudtotalclock-7))
     {

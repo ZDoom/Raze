@@ -128,10 +128,6 @@ int Gv_ReadSave(int fil)
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
-    Gv_InitWeaponPointers();
-
-    //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-    //  AddLog(g_szBuf);
     for (i=0;i<g_gameVarCount;i++)
     {
         if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
@@ -149,6 +145,9 @@ int Gv_ReadSave(int fil)
         // else nothing 'extra...'
     }
 
+    //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
+    //  AddLog(g_szBuf);
+    Gv_InitWeaponPointers();
     Gv_RefreshPointers();
 
     if (kdfread(&g_gameArrayCount,sizeof(g_gameArrayCount),1,fil) != 1) goto corrupt;
