@@ -25,8 +25,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __funct_h__
 #define __funct_h__
 
-#ifndef __fastcall
-#define __fastcall __attribute__((fastcall))
+#ifndef _MSC_VER
+  #ifdef __GNUC__
+    #ifndef __fastcall
+      #define __fastcall __attribute__((fastcall))
+    #endif
+  #else
+    #define __fastcall
+  #endif
 #endif
 
 extern void sendscore(const char *s);
@@ -119,7 +125,7 @@ extern int G_GetAngleDelta(int a,int na);
 extern void A_GetZLimits(int iActor);
 extern void A_Fall(int iActor);
 extern void C_Compile(const char *fn);
-extern __fastcall int A_GetFurthestAngle(int iActor,int angs);
+extern int __fastcall A_GetFurthestAngle(int iActor,int angs);
 extern void A_Execute(int iActor,int iPlayer,int lDist);
 extern void overwritesprite(int thex,int they,int tilenum,int shade,int stat,int dapalnum);
 extern void gamenumber(int x,int y,int n,int s);
