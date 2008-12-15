@@ -337,10 +337,10 @@ void A_Fall(int iActor)
     {
         if (sector[s->sectnum].lotag == 2 && s->zvel > 3122)
             s->zvel = 3144;
-/*        if (s->zvel < 6144)
-            s->zvel += c;
-        else s->zvel = 6144;
-        s->z += s->zvel; */
+        /*        if (s->zvel < 6144)
+                    s->zvel += c;
+                else s->zvel = 6144;
+                s->z += s->zvel; */
         s->z += s->zvel = min(6144, s->zvel+c);
     }
     if (s->z >= ActorExtra[iActor].floorz-(FOURSLEIGHT))
@@ -4283,22 +4283,22 @@ void A_Execute(int iActor,int iPlayer,int lDist)
     }
 
     X_Move();
-/*
-    if (ud.angleinterpolation)
-    {
-        temp = (g_sp->ang & 2047) - sprpos[g_i].ang;
-        sprpos[g_i].oldang = sprpos[g_i].ang;
-        if (temp)
+    /*
+        if (ud.angleinterpolation)
         {
-            temp2 = temp/klabs(temp);
-            if (klabs(temp) > 1024) temp2 = -(temp2);
-            sprpos[g_i].angdir = temp2;
-            sprpos[g_i].angdif = min(ud.angleinterpolation,klabs(temp));
-            sprpos[g_i].ang += sprpos[g_i].angdif * sprpos[g_i].angdir;
-            sprpos[g_i].ang &= 2047;
+            temp = (g_sp->ang & 2047) - sprpos[g_i].ang;
+            sprpos[g_i].oldang = sprpos[g_i].ang;
+            if (temp)
+            {
+                temp2 = temp/klabs(temp);
+                if (klabs(temp) > 1024) temp2 = -(temp2);
+                sprpos[g_i].angdir = temp2;
+                sprpos[g_i].angdif = min(ud.angleinterpolation,klabs(temp));
+                sprpos[g_i].ang += sprpos[g_i].angdif * sprpos[g_i].angdir;
+                sprpos[g_i].ang &= 2047;
+            }
         }
-    }
-*/
+    */
     if (g_sp->statnum == 6)
         switch (DynamicTileMap[g_sp->picnum])
         {

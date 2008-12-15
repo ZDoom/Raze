@@ -102,7 +102,7 @@ int Gv_ReadSave(int fil)
     //     AddLog("Reading gamevars from savegame");
 
     Gv_Free(); // nuke 'em from orbit, it's the only way to be sure...
-    HASH_init(&gamevarH);
+
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
 
@@ -527,8 +527,7 @@ int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags)
     if (i == g_gameVarCount)
     {
         // we're adding a new one.
-        HASH_add(&gamevarH, aGameVars[i].szLabel, i);
-        g_gameVarCount++;
+        HASH_add(&gamevarH, aGameVars[i].szLabel, g_gameVarCount++);
     }
 
     if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
@@ -548,7 +547,7 @@ int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags)
     return 1;
 }
 
-void A_ResetVars(int iActor)
+inline void A_ResetVars(int iActor)
 {
     int i=(MAXGAMEVARS-1);
     //    OSD_Printf("resetting vars for actor %d\n",iActor);
@@ -562,7 +561,13 @@ void A_ResetVars(int iActor)
 
 static inline int Gv_GetVarIndex(const char *szGameLabel)
 {
-    return HASH_find(&gamevarH,szGameLabel);
+    int i = HASH_find(&gamevarH,szGameLabel);
+    if (i == -1)
+    {
+        OSD_Printf(OSD_ERROR "Gv_GetVarDataPtr(): INTERNAL ERROR: couldn't find gamevar %s!\n",szGameLabel);
+        return 0;
+    }
+    return i;
 }
 
 int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
@@ -718,7 +723,7 @@ int Gv_GetVarByLabel(const char *szGameLabel, int lDefault, int iActor, int iPla
 
 static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 {
-    int i = HASH_find(&gamevarH, szGameLabel);
+    int i = HASH_find(&gamevarH,szGameLabel);
 
     if (i < 0)
         return NULL;
@@ -1466,11 +1471,11 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("lastvisinc")].lValue = (intptr_t)&lastvisinc;
     aGameVars[Gv_GetVarIndex("numsectors")].lValue = (intptr_t)&numsectors;
     aGameVars[Gv_GetVarIndex("numplayers")].lValue = (intptr_t)&numplayers;
-    aGameVars[Gv_GetVarIndex("cenu")].lValue = (intptr_t)&g_currentMenu;
+    aGameVars[Gv_GetVarIndex("current_menu")].lValue = (intptr_t)&g_currentMenu;
     aGameVars[Gv_GetVarIndex("viewingrange")].lValue = (intptr_t)&viewingrange;
     aGameVars[Gv_GetVarIndex("yxaspect")].lValue = (intptr_t)&yxaspect;
     aGameVars[Gv_GetVarIndex("gravitationalconstant")].lValue = (intptr_t)&g_spriteGravity;
-    aGameVars[Gv_GetVarIndex("gametypeflags")].lValue = (intptr_t)&GametypeFlags[ud.coop];
+    aGameVars[Gv_GetVarIndex("gametype_flags")].lValue = (intptr_t)&GametypeFlags[ud.coop];
     aGameVars[Gv_GetVarIndex("framerate")].lValue = (intptr_t)&g_currentFrameRate;
 
     aGameVars[Gv_GetVarIndex("camerax")].lValue = (intptr_t)&ud.camerax;

@@ -204,7 +204,7 @@ extern void G_DrawTXDigiNumZ(int starttile, int x,int y,int n,int s,int pal,int 
 extern void G_DrawTileSmall(int x,int y,int tilenum,int shade,int orientation);
 extern void G_DrawTilePalSmall(int x,int y,int tilenum,int shade,int orientation,int p);
 extern void Gv_ResetVars(void);
-extern void A_ResetVars(int iActor);
+extern inline void A_ResetVars(int iActor);
 
 extern int minitext_(int x,int y,const char *t,int s,int p,int sb);
 
