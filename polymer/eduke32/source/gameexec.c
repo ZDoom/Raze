@@ -198,7 +198,7 @@ static char A_Dodge(spritetype *s)
     return 0;
 }
 
-int A_GetFurthestAngle(int iActor,int angs)
+int __fastcall A_GetFurthestAngle(int iActor,int angs)
 {
     spritetype *s = &sprite[iActor];
 

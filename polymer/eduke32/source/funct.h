@@ -25,6 +25,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __funct_h__
 #define __funct_h__
 
+#ifndef __fastcall
+#define __fastcall __attribute__((fastcall))
+#endif
+
 extern void sendscore(const char *s);
 extern void S_SoundStartup(void);
 extern void S_SoundShutdown(void);
@@ -115,7 +119,7 @@ extern int G_GetAngleDelta(int a,int na);
 extern void A_GetZLimits(int iActor);
 extern void A_Fall(int iActor);
 extern void C_Compile(const char *fn);
-extern int A_GetFurthestAngle(int iActor,int angs);
+extern __fastcall int A_GetFurthestAngle(int iActor,int angs);
 extern void A_Execute(int iActor,int iPlayer,int lDist);
 extern void overwritesprite(int thex,int they,int tilenum,int shade,int stat,int dapalnum);
 extern void gamenumber(int x,int y,int n,int s);
@@ -221,8 +225,8 @@ extern void Gv_Init(void);
 extern void Gv_WriteSave(FILE *fil);
 extern int Gv_ReadSave(int fil);
 
-extern int Gv_GetVar(int id, int iActor, int iPlayer);
-extern void Gv_SetVar(int id, int lValue, int iActor, int iPlayer);
+extern int __fastcall Gv_GetVar(int id, int iActor, int iPlayer);
+extern void __fastcall Gv_SetVar(int id, int lValue, int iActor, int iPlayer);
 // extern void SetGameArrayID(int id,int index, int lValue);
 
 extern int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags);

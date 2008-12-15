@@ -102,6 +102,7 @@ int Gv_ReadSave(int fil)
     //     AddLog("Reading gamevars from savegame");
 
     Gv_Free(); // nuke 'em from orbit, it's the only way to be sure...
+    HASH_init(&gamevarH);
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
 
@@ -111,7 +112,7 @@ int Gv_ReadSave(int fil)
         if (kdfread(&(aGameVars[i]),sizeof(gamevar_t),1,fil) != 1) goto corrupt;
         aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
         if (kdfread(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil) != 1) goto corrupt;
-        HASH_add(&gamevarH,aGameVars[i].szLabel,i);
+        HASH_replace(&gamevarH,aGameVars[i].szLabel,i);
     }
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
@@ -125,6 +126,8 @@ int Gv_ReadSave(int fil)
             // else nothing 'extra...'
             aGameVars[i].plValues=NULL;
     }
+
+    Gv_InitWeaponPointers();
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
@@ -147,7 +150,6 @@ int Gv_ReadSave(int fil)
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
-    Gv_InitWeaponPointers();
     Gv_RefreshPointers();
 
     if (kdfread(&g_gameArrayCount,sizeof(g_gameArrayCount),1,fil) != 1) goto corrupt;
@@ -156,7 +158,7 @@ int Gv_ReadSave(int fil)
         if (kdfread(&(aGameArrays[i]),sizeof(gamearray_t),1,fil) != 1) goto corrupt;
         aGameArrays[i].szLabel=Bcalloc(MAXARRAYLABEL,sizeof(char));
         if (kdfread(aGameArrays[i].szLabel,sizeof(char) * MAXARRAYLABEL, 1, fil) != 1) goto corrupt;
-        HASH_add(&arrayH,aGameArrays[i].szLabel,i);
+        HASH_replace(&arrayH,aGameArrays[i].szLabel,i);
     }
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
@@ -449,7 +451,7 @@ int Gv_NewArray(const char *pszLabel, int asize)
     aGameArrays[i].size=asize;
     aGameVars[i].bReset=0;
     g_gameArrayCount++;
-    HASH_add(&arrayH,aGameArrays[i].szLabel,i);
+    HASH_replace(&arrayH,aGameArrays[i].szLabel,i);
     return 1;
 }
 
@@ -525,7 +527,8 @@ int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags)
     if (i == g_gameVarCount)
     {
         // we're adding a new one.
-        HASH_add(&gamevarH, aGameVars[i].szLabel, g_gameVarCount++);
+        HASH_add(&gamevarH, aGameVars[i].szLabel, i);
+        g_gameVarCount++;
     }
 
     if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
@@ -557,12 +560,12 @@ void A_ResetVars(int iActor)
         }
 }
 
-inline static int Gv_GetVarIndex(const char *szGameLabel)
+static inline int Gv_GetVarIndex(const char *szGameLabel)
 {
     return HASH_find(&gamevarH,szGameLabel);
 }
 
-int Gv_GetVar(int id, int iActor, int iPlayer)
+int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
 {
     if (id == MAXGAMEVARS)
         return(*insptr++);
@@ -642,7 +645,7 @@ int Gv_GetVar(int id, int iActor, int iPlayer)
     }
 }
 
-void Gv_SetVar(int id, int lValue, int iActor, int iPlayer)
+void __fastcall Gv_SetVar(int id, int lValue, int iActor, int iPlayer)
 {
     if (id<0 || id >= g_gameVarCount)
     {
@@ -715,7 +718,7 @@ int Gv_GetVarByLabel(const char *szGameLabel, int lDefault, int iActor, int iPla
 
 static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 {
-    int i = HASH_find(&gamevarH,szGameLabel);
+    int i = HASH_find(&gamevarH, szGameLabel);
 
     if (i < 0)
         return NULL;
