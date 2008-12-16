@@ -2055,7 +2055,7 @@ void P_FireWeapon(DukePlayer_t *p)
 
         Gv_SetVar(g_iWeaponVarID,p->curr_weapon,p->i,snum);
         Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-        OSD_Printf("doing %d %d %d\n",aplWeaponShoots[p->curr_weapon][snum],p->curr_weapon,snum);
+//        OSD_Printf("doing %d %d %d\n",aplWeaponShoots[p->curr_weapon][snum],p->curr_weapon,snum);
         A_Shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
         for (i=1;i<aplWeaponShotsPerBurst[p->curr_weapon][snum];i++)
         {
