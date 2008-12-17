@@ -164,7 +164,7 @@ static void P_ForceAngle(DukePlayer_t *p)
     p->rotscrnang = n>>1;
 }
 
-static char A_Dodge(spritetype *s)
+static int A_Dodge(spritetype *s)
 {
     int bx,by,bxvect,byvect,d,i;
     int mx = s->x, my = s->y;
@@ -198,7 +198,7 @@ static char A_Dodge(spritetype *s)
     return 0;
 }
 
-int __fastcall A_GetFurthestAngle(int iActor,int angs)
+int A_GetFurthestAngle(int iActor,int angs)
 {
     spritetype *s = &sprite[iActor];
 
@@ -4231,7 +4231,7 @@ void A_LoadActor(int iActor)
 
 void A_Execute(int iActor,int iPlayer,int lDist)
 {
-//    int temp, temp2;
+    int temp, temp2;
 
 //    if (actorscrptr[sprite[iActor].picnum] == 0) return;
 
@@ -4283,22 +4283,22 @@ void A_Execute(int iActor,int iPlayer,int lDist)
     }
 
     X_Move();
-    /*
-        if (ud.angleinterpolation)
-        {
-            temp = (g_sp->ang & 2047) - sprpos[g_i].ang;
-            sprpos[g_i].oldang = sprpos[g_i].ang;
-            if (temp)
+
+    /*        if (ud.angleinterpolation)
             {
-                temp2 = temp/klabs(temp);
-                if (klabs(temp) > 1024) temp2 = -(temp2);
-                sprpos[g_i].angdir = temp2;
-                sprpos[g_i].angdif = min(ud.angleinterpolation,klabs(temp));
-                sprpos[g_i].ang += sprpos[g_i].angdif * sprpos[g_i].angdir;
-                sprpos[g_i].ang &= 2047;
+                temp = (g_sp->ang & 2047) - sprpos[g_i].ang;
+                sprpos[g_i].oldang = sprpos[g_i].ang;
+                if (temp)
+                {
+                    temp2 = temp/klabs(temp);
+                    if (klabs(temp) > 1024) temp2 = -(temp2);
+                    sprpos[g_i].angdir = temp2;
+                    sprpos[g_i].angdif = min(ud.angleinterpolation,klabs(temp));
+                    sprpos[g_i].ang += sprpos[g_i].angdif * sprpos[g_i].angdir;
+                    sprpos[g_i].ang &= 2047;
+                }
             }
-        }
-    */
+      */
     if (g_sp->statnum == 6)
         switch (DynamicTileMap[g_sp->picnum])
         {

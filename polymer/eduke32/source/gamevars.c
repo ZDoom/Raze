@@ -547,7 +547,7 @@ int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags)
     return 1;
 }
 
-inline void A_ResetVars(int iActor)
+void A_ResetVars(int iActor)
 {
     int i=(MAXGAMEVARS-1);
     //    OSD_Printf("resetting vars for actor %d\n",iActor);
@@ -559,7 +559,7 @@ inline void A_ResetVars(int iActor)
         }
 }
 
-static inline int Gv_GetVarIndex(const char *szGameLabel)
+static int Gv_GetVarIndex(const char *szGameLabel)
 {
     int i = HASH_find(&gamevarH,szGameLabel);
     if (i == -1)

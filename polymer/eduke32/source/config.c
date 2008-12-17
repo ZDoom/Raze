@@ -660,7 +660,19 @@ int32 CONFIG_ReadSetup(void)
 
 #ifdef _WIN32
         if (g_noSetup == 0 && mod_dir[0] == '/')
+        {
+            struct stat st;
             SCRIPT_GetString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
+
+            if (stat(mod_dir, &st) >= 0)
+            {
+                if ((st.st_mode & S_IFDIR) != S_IFDIR)
+                {
+                    initprintf("Invalid mod dir in cfg!\n");
+                    Bsprintf(mod_dir,"/");
+                }
+            }
+        }
 #endif
 
         {

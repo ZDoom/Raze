@@ -125,7 +125,7 @@ extern int G_GetAngleDelta(int a,int na);
 extern void A_GetZLimits(int iActor);
 extern void A_Fall(int iActor);
 extern void C_Compile(const char *fn);
-extern int __fastcall A_GetFurthestAngle(int iActor,int angs);
+extern int A_GetFurthestAngle(int iActor,int angs);
 extern void A_Execute(int iActor,int iPlayer,int lDist);
 extern void overwritesprite(int thex,int they,int tilenum,int shade,int stat,int dapalnum);
 extern void gamenumber(int x,int y,int n,int s);
@@ -204,7 +204,7 @@ extern void G_DrawTXDigiNumZ(int starttile, int x,int y,int n,int s,int pal,int 
 extern void G_DrawTileSmall(int x,int y,int tilenum,int shade,int orientation);
 extern void G_DrawTilePalSmall(int x,int y,int tilenum,int shade,int orientation,int p);
 extern void Gv_ResetVars(void);
-extern inline void A_ResetVars(int iActor);
+extern void A_ResetVars(int iActor);
 
 extern int minitext_(int x,int y,const char *t,int s,int p,int sb);
 

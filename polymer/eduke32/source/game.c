@@ -11048,6 +11048,86 @@ void app_main(int argc,const char **argv)
 #endif
     }
 
+    // shitcan the old cache directory
+#if defined(POLYMOST) && defined(USE_OPENGL)
+    {
+        struct stat st;
+        char dir[BMAX_PATH];
+
+        if (mod_dir[0] != '/')
+            Bsprintf(dir,"%s/",mod_dir);
+        else dir[0] = '\0';
+
+        Bsprintf(tempbuf,"%stexcache",dir);
+        if (stat(tempbuf, &st) >= 0)
+        {
+            if ((st.st_mode & S_IFDIR) == S_IFDIR)
+            {
+                Bsprintf(tempbuf,"EDuke32 has located an obsolete texture cache in the \"%stexcache\" directory.\n\n"
+                         "Would you like EDuke32 to purge the contents of this directory?",dir);
+
+                if (wm_ynbox("Obsolete Texture Cache Detected",tempbuf))
+                {
+                    int ii = 0;
+
+                    Bsprintf(tempbuf,"%stexcache",dir);
+                    getfilenames(tempbuf,"*");
+RECURSE:
+                    // initprintf("Cleaning %s\n",tempbuf);
+                    while (findfiles)
+                    {
+                        Bsprintf(g_szBuf,"%s/%s",tempbuf,findfiles->name);
+                        if (unlink(g_szBuf))
+                            initprintf("ERROR: couldn't remove '%s': %s\n",g_szBuf,strerror(errno));
+                        findfiles = findfiles->next;
+                    }
+                    while (finddirs)
+                    {
+                        if (!Bstrcmp(finddirs->name, ".") || !Bstrcmp(finddirs->name, ".."))
+                        {
+                            finddirs = finddirs->next;
+                            continue;
+                        }
+                        Bsprintf(g_szBuf,"%s/%s",tempbuf,finddirs->name);
+                        if (rmdir(g_szBuf))
+                        {
+                            if (errno == EEXIST || errno == ENOTEMPTY)
+                            {
+                                ii = 1;
+                                Bstrcpy(tempbuf,g_szBuf);
+                                getfilenames(tempbuf,"*");
+                                goto RECURSE;
+                            }
+                            else
+                            {
+                                initprintf("ERROR: couldn't remove '%s': %s\n",g_szBuf,strerror(errno));
+                            }
+                        }
+                        else
+                        {
+                            initprintf("Removed '%s'\n",g_szBuf);
+                            finddirs = finddirs->next;
+                        }
+                    }
+
+                    if (ii)
+                    {
+                        Bsprintf(tempbuf,"%stexcache",dir);
+                        getfilenames(tempbuf,"*");
+                        ii = 0;
+                        goto RECURSE;
+                    }
+
+                    Bsprintf(tempbuf,"%stexcache",dir);
+                    if (rmdir(tempbuf))
+                        initprintf("ERROR: couldn't remove '%s': %s\n",tempbuf,strerror(errno));
+                    else initprintf("Removed '%s'\n",tempbuf);
+                }
+            }
+        }
+    }
+#endif
+
     i = initgroupfile(duke3dgrp);
 
     if (i == -1)
