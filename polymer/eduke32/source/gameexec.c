@@ -1577,7 +1577,6 @@ static int X_DoExecute(void)
     case CON_QSTRCAT:
     case CON_QSTRCPY:
     case CON_QGETSYSSTR:
-    case CON_CHANGESPRITESTAT:
     case CON_CHANGESPRITESECT:
         insptr++;
         {
@@ -1645,7 +1644,21 @@ static int X_DoExecute(void)
                 }
                 Bstrcpy(ScriptQuotes[i],ScriptQuotes[j]);
                 break;
-            case CON_CHANGESPRITESTAT:
+            case CON_CHANGESPRITESECT:
+                if ((i<0 || i>=MAXSPRITES) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],i);break;}
+                if ((j<0 || j>=numsectors) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],j);break;}
+                changespritesect(i,j);
+                break;
+            }
+            break;
+        }
+
+    case CON_CHANGESPRITESTAT:
+        insptr++;
+        {
+            int i = Gv_GetVar(*insptr++, g_i, g_p);
+            j = Gv_GetVar(*insptr++, g_i, g_p);
+
                 if ((i<0 || i>=MAXSPRITES) && g_scriptSanityChecks)
                 {
                     OSD_Printf(CON_ERROR "Invalid sprite: %d\n",g_errorLineNum,keyw[g_tw],i);
@@ -1661,7 +1674,7 @@ static int X_DoExecute(void)
                 /* initialize actor data when changing to an actor statnum because there's usually
                    garbage left over from being handled as a hard coded object */
 
-                if (j == 1 || j == 2)
+                if (sprite[i].statnum > STAT_ZOMBIEACTOR && (j == STAT_ACTOR || j == STAT_ZOMBIEACTOR))
                 {
                     ActorExtra[i].lastvx = 0;
                     ActorExtra[i].lastvy = 0;
@@ -1684,13 +1697,6 @@ static int X_DoExecute(void)
                 }
                 changespritestat(i,j);
                 break;
-            case CON_CHANGESPRITESECT:
-                if ((i<0 || i>=MAXSPRITES) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],i);break;}
-                if ((j<0 || j>=numsectors) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],j);break;}
-                changespritesect(i,j);
-                break;
-            }
-            break;
         }
 
     case CON_STARTLEVEL:
@@ -3134,21 +3140,23 @@ static int X_DoExecute(void)
                         }
                         j = nextspritestat[j];
                     }
+                    if (j == MAXSPRITES || tw == CON_FINDNEARACTOR3D)
+                        break;
+                    continue;
                 }
-                else
+
+                while (j>=0)
                 {
-                    while (j>=0)
+                    if (sprite[j].picnum == lType && j != g_i && ldist(&sprite[g_i], &sprite[j]) < lMaxDist)
                     {
-                        if (sprite[j].picnum == lType && j != g_i && ldist(&sprite[g_i], &sprite[j]) < lMaxDist)
-                        {
-                            lFound=j;
-                            j = MAXSPRITES;
-                            break;
-                        }
-                        j = nextspritestat[j];
+                        lFound=j;
+                        j = MAXSPRITES;
+                        break;
                     }
+                    j = nextspritestat[j];
                 }
-                if (j == MAXSPRITES || tw == CON_FINDNEARACTOR || tw == CON_FINDNEARACTOR3D)
+
+                if (j == MAXSPRITES || tw == CON_FINDNEARACTOR)
                     break;
             }
             while (k--);
@@ -3168,10 +3176,10 @@ static int X_DoExecute(void)
             // -1 for none found
             // <type> <maxdistvarid> <varid>
             int lType=*insptr++, lMaxDist=Gv_GetVar(*insptr++, g_i, g_p), lVarID=*insptr++;
-            int lFound=-1, j, k = MAXSTATUS-1;
+            int lFound=-1, j, k = 1;
 
-            if (tw == CON_FINDNEARACTORVAR || tw == CON_FINDNEARACTOR3DVAR)
-                k = 1;
+            if (tw == CON_FINDNEARSPRITEVAR || tw == CON_FINDNEARSPRITE3DVAR)
+                k = MAXSTATUS-1;
 
             do
             {
@@ -3188,21 +3196,23 @@ static int X_DoExecute(void)
                         }
                         j = nextspritestat[j];
                     }
+                    if (j == MAXSPRITES || tw==CON_FINDNEARACTOR3DVAR)
+                        break;
+                    continue;
                 }
-                else
+
+                while (j >= 0)
                 {
-                    while (j >= 0)
+                    if (sprite[j].picnum == lType && j != g_i && ldist(&sprite[g_i], &sprite[j]) < lMaxDist)
                     {
-                        if (sprite[j].picnum == lType && j != g_i && ldist(&sprite[g_i], &sprite[j]) < lMaxDist)
-                        {
-                            lFound=j;
-                            j = MAXSPRITES;
-                            break;
-                        }
-                        j = nextspritestat[j];
+                        lFound=j;
+                        j = MAXSPRITES;
+                        break;
                     }
+                    j = nextspritestat[j];
                 }
-                if (j == MAXSPRITES || tw==CON_FINDNEARACTORVAR || tw==CON_FINDNEARACTOR3DVAR)
+
+                if (j == MAXSPRITES || tw==CON_FINDNEARACTORVAR)
                     break;
             }
             while (k--);
@@ -3219,7 +3229,8 @@ static int X_DoExecute(void)
             // that is of <type> into <getvar>
             // -1 for none found
             // <type> <maxdistvarid> <varid>
-            int lType=*insptr++, lMaxDist=Gv_GetVar(*insptr++, g_i, g_p), lMaxZDist=Gv_GetVar(*insptr++, g_i, g_p);
+            int lType=*insptr++, lMaxDist=Gv_GetVar(*insptr++, g_i, g_p);
+            int lMaxZDist=Gv_GetVar(*insptr++, g_i, g_p);
             int lVarID=*insptr++, lFound=-1, lTemp, lTemp2, j, k=MAXSTATUS-1;
             do
             {
@@ -4231,7 +4242,7 @@ void A_LoadActor(int iActor)
 
 void A_Execute(int iActor,int iPlayer,int lDist)
 {
-    int temp, temp2;
+//    int temp, temp2;
 
 //    if (actorscrptr[sprite[iActor].picnum] == 0) return;
 

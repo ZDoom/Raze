@@ -178,6 +178,8 @@ extern short capturecount;
 extern int editorgridextent;	// in engine.c
 extern char game_executable[BMAX_PATH];
 
+extern int fillsector(short sectnum, char fillcolor);
+
 static void clearfilenames(void)
 {
     klistfree(finddirs);
@@ -6572,9 +6574,6 @@ static void Keys2d(void)
 {
     short temp=0;
     int i=0, j,k;
-    int radius, xp1, yp1;
-    char col;
-
     int repeatcountx=0,repeatcounty=0,smooshyalign,changedir;
     static int opointhighlight=-1, olinehighlight=-1, ocursectornum=-1;
     /*
@@ -6644,28 +6643,6 @@ static void Keys2d(void)
         olinehighlight = linehighlight;
         ocursectornum = cursectornum;
     }
-
-    begindrawing();
-
-    for (i=0;i<numsprites;i++) // Game specific 2D sprite stuff goes here.  Drawn on top of everything else.
-    {
-        xp1 = mulscale14(sprite[i].x-posx,zoom);
-        yp1 = mulscale14(sprite[i].y-posy,zoom);
-
-        if (sprite[i].picnum == 5 /*&& zoom >= 256*/ && sprite[i].sectnum != MAXSECTORS)
-        {
-            radius = mulscale14(sprite[i].hitag,zoom);
-            col = 6;
-            if (i+16384 == pointhighlight)
-                if (totalclock & 32) col += (2<<2);
-            drawlinepat = 0xf0f0f0f0;
-            drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
-            drawlinepat = 0xffffffff;
-//            radius = mulscale15(sprite[i].hitag,zoom);
-            //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
-        }
-    }
-    enddrawing();
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_Z]) // ' z
     {
@@ -8698,6 +8675,10 @@ static char wallflag[MAXWALLS];
 
 void ExtPreCheckKeys(void) // just before drawrooms
 {
+    int i = 0;
+    int radius, xp1, yp1;
+    char col;
+
     if (qsetmode == 200)    //In 3D mode
     {
         if (shadepreview)
@@ -8765,7 +8746,33 @@ void ExtPreCheckKeys(void) // just before drawrooms
             searchx ^= searchy;
             searchx = ydim-1-searchx;
         }
+        return;
     }
+    begindrawing();
+
+//    if (cursectornum >= 0)
+//        fillsector(cursectornum, 31);
+
+    for (i=0;i<numsprites;i++) // Game specific 2D sprite stuff goes here.  Drawn below everything else.
+    {
+        xp1 = mulscale14(sprite[i].x-posx,zoom);
+        yp1 = mulscale14(sprite[i].y-posy,zoom);
+
+        if (sprite[i].picnum == 5 /*&& zoom >= 256*/ && sprite[i].sectnum != MAXSECTORS)
+        {
+            radius = mulscale14(sprite[i].hitag,zoom);
+            col = 6;
+            if (i+16384 == pointhighlight)
+                if (totalclock & 32) col += (2<<2);
+            drawlinepat = 0xf0f0f0f0;
+            drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
+            drawlinepat = 0xffffffff;
+//            radius = mulscale15(sprite[i].hitag,zoom);
+            //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
+        }
+    }
+
+    enddrawing();
 }
 
 void ExtAnalyzeSprites(void)

@@ -1611,7 +1611,10 @@ void overheadeditor(void)
         if (numwalls < 0) numwalls = tempint;
 
         clear2dscreen();
+
         draw2dgrid(posx,posy,ang,zoom,grid);
+
+        ExtPreCheckKeys();
 
         x2 = mulscale14(startposx-posx,zoom);          //Draw brown arrow (start)
         y2 = mulscale14(startposy-posy,zoom);

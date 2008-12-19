@@ -22,6 +22,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
+#ifndef _gamedef_h_
+#define _gamedef_h_
+
 #define MAXGAMEEVENTS   128
 #define LABEL_HASPARM2  1
 #define LABEL_ISSTRING  2
@@ -877,3 +880,4 @@ enum ScriptKeywords_t
     CON_SAVENN,             // 344
     CON_END
 };
+#endif

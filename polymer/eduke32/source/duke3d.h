@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
+#ifndef _duke3d_h_
+# define _duke3d_h_
 #define APPNAME "EDuke32"
 #define VERSION " 1.5.0devel"
 // this is checked against http://eduke32.com/VERSION
@@ -1087,4 +1089,5 @@ enum DukePacket_t
 
 #ifdef __cplusplus
 }
+#endif
 #endif

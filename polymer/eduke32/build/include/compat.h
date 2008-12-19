@@ -14,6 +14,8 @@
     #define UNREFERENCED_PARAMETER(x) x=x
 #endif
 
+#define clamp(in, min, max) ((in) <= (min) ? (min) : (in) >= (max) ? (max) : (in))
+
 // This gives us access to 'intptr_t' and 'uintptr_t', which are
 // abstractions to the size of a pointer on a given platform
 // (ie, they're guaranteed to be the same size as a pointer)

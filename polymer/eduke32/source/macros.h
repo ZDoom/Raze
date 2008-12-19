@@ -21,8 +21,6 @@
 #define AFLAMABLE(X) (X==BOX||X==TREE1||X==TREE2||X==TIRE||X==CONE)
 #define rnd(X) ((krand()>>8)>=(255-(X)))
 
-#define clamp(in, min, max) ((in) <= (min) ? (min) : (in) >= (max) ? (max) : (in))
-
 //
 // NETWORK - REDEFINABLE SHARED (SYNC) KEYS BIT POSITIONS
 //

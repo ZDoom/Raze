@@ -140,7 +140,6 @@ extern void G_DrawTilePal(int x,int y,int tilenum,int shade,int orientation,int 
 extern void G_DrawFrags(void);
 extern void P_DoQuote(int q,DukePlayer_t *p);
 extern void G_GameExit(const char *t);
-extern inline int G_EnterText(int x,int y,char *t,int dalen,int c);
 extern void G_DisplayRest(int smoothratio);
 extern void updatesectorz(int x,int y,int z,short *sectnum);
 extern void G_DrawBackground(void);
@@ -199,7 +198,7 @@ extern inline void G_SetStatusBarScale(int sc);
 extern void P_SetGamePalette(DukePlayer_t *player, char *pal, int set);
 extern void fadepal(int r, int g, int b, int start, int end, int step);
 
-extern inline int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,int x1, int y1, int x2, int y2,int z);
+extern int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,int x1, int y1, int x2, int y2,int z);
 extern void G_DrawTXDigiNumZ(int starttile, int x,int y,int n,int s,int pal,int cs,int x1, int y1, int x2, int y2, int z);
 extern void G_DrawTileSmall(int x,int y,int tilenum,int shade,int orientation);
 extern void G_DrawTilePalSmall(int x,int y,int tilenum,int shade,int orientation,int p);
@@ -267,4 +266,10 @@ extern void G_FindLevelForFilename(const char *fn, char *volume, char *level);
 extern void G_GetCrosshairColor(void);
 extern void G_SetCrosshairColor(int r, int g, int b);
 extern int kopen4loadfrommod(char *filename, char searchfirst);
+
+extern int _EnterText(int small,int x,int y,char *t,int dalen,int c);
+
+#define G_EnterText(x, y, t, dalen, c) _EnterText(0,x,y,t,dalen,c)
+#define Net_EnterText(x, y, t, dalen, c) _EnterText(1,x,y,t,dalen,c)
+
 #endif // __funct_h__

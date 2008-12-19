@@ -75,7 +75,7 @@ enum
     T_IMPORTTILE,
     T_MUSIC,T_ID,T_SOUND,
     T_REDPAL,T_BLUEPAL,T_BROWNPAL,T_GREYPAL,T_GREENPAL,T_SPECPAL,
-    T_TILEFROMTEXTURE,
+    T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET
 };
 
 typedef struct { char *text; int tokenid; } tokenlist;
@@ -260,6 +260,10 @@ static tokenlist tilefromtexturetokens[] =
     { "file",            T_FILE },
     { "name",            T_FILE },
     { "alphacut",        T_ALPHACUT },
+    { "xoffset",         T_XOFFSET },
+    { "xoff",            T_XOFFSET },
+    { "yoffset",         T_YOFFSET },
+    { "yoff",            T_YOFFSET },
 };
 
 static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
@@ -602,7 +606,7 @@ static int defsparser(scriptfile *script)
                 tile2 = tile1;
                 tile1 = i;
             }
-            picanm[tile1]=(spd<<24)+(type<<6)+tile2-tile1;
+            picanm[tile1]=(picanm[tile1]&0xffffff3f)+(spd<<24)+(type<<6)+tile2-tile1;
             break;
         }
         case T_TILEFROMTEXTURE:
@@ -610,6 +614,7 @@ static int defsparser(scriptfile *script)
             char *texturetokptr = script->ltextptr, *textureend, *fn, *tfn = NULL;
             int tile=-1, token, i;
             int alphacut = 255;
+            int xoffset = 0, yoffset = 0;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
@@ -622,6 +627,10 @@ static int defsparser(scriptfile *script)
                     scriptfile_getstring(script,&fn); break;
                 case T_ALPHACUT:
                     scriptfile_getsymbol(script,&alphacut); break;
+                case T_XOFFSET:
+                    scriptfile_getsymbol(script,&xoffset); break;
+                case T_YOFFSET:
+                    scriptfile_getsymbol(script,&yoffset); break;
                 default:
                     break;
                 }
@@ -689,7 +698,11 @@ static int defsparser(scriptfile *script)
                     tilesizx[tile] = xsiz;
                     tilesizy[tile] = ysiz;
                     faketile[tile] = 2;
-                    picanm[tile] = 0;
+
+                    xoffset = clamp(xoffset, -128, 127);
+                    picanm[tile] = (picanm[tile]&0xffff00ff)+((xoffset&255)<<8);
+                    yoffset = clamp(yoffset, -128, 127);
+                    picanm[tile] = (picanm[tile]&0xff00ffff)+((yoffset&255)<<16);
 
                     j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
                     picsiz[tile] = ((char)j);

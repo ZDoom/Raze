@@ -92,7 +92,7 @@ endif
 
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Wno-char-subscripts \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
-	-DKSFORBUILD -I$(INC) \
+	-DKSFORBUILD -I$(INC) -D_FORTIFY_SOURCE=2 \
 #    -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
 LIBS=
@@ -146,9 +146,6 @@ EDITOROBJS=$(OBJ)/build.$o \
 ifeq ($(PLATFORM),LINUX)
 	ASFLAGS+= -f elf
 	LIBS+= -lm 
-        ifeq ($(RELEASE),0)
-                OURCFLAGS += -D_FORTIFY_SOURCE=2
-        endif
 endif
 ifeq ($(PLATFORM),DARWIN)
 	ENGINEOBJS	+= $(OBJ)/StartupWinController.editor.$o \

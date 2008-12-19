@@ -2895,7 +2895,7 @@ void G_GameExit(const char *t)
 
 char inputloc = 0;
 
-static int _EnterText(int small,int x,int y,char *t,int dalen,int c)
+int _EnterText(int small,int x,int y,char *t,int dalen,int c)
 {
     char ch;
     int i;
@@ -2970,16 +2970,6 @@ static int _EnterText(int small,int x,int y,char *t,int dalen,int c)
         rotatesprite(textsc(x)<<16,(y<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8,0,0,xdim-1,ydim-1);
     else rotatesprite((x+((small&1)?4:8))<<16,((y+((small&1)?0:4))<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8,0,0,xdim-1,ydim-1);
     return (0);
-}
-
-inline int G_EnterText(int x,int y,char *t,int dalen,int c)
-{
-    return(_EnterText(0,x,y,t,dalen,c));
-}
-
-inline int Net_EnterText(int x,int y,char *t,int dalen,int c)
-{
-    return(_EnterText(1,x,y,t,dalen,c));
 }
 
 static void Net_EnterMessage(void)
@@ -8117,13 +8107,13 @@ static void G_ShowScores(void)
 
         t = 0;
         minitext(23,80,"   NAME                                           KILLS",8,2+8+16+128);
-        for (i=0;i<playerswhenstarted;i++)
+        for (i=playerswhenstarted-1;i>=0;i--)
         {
             Bsprintf(tempbuf,"%-4d",i+1);
             minitext(92+(i*23),80,tempbuf,3,2+8+16+128);
         }
 
-        for (i=0;i<playerswhenstarted;i++)
+        for (i=playerswhenstarted-1;i>=0;i--)
         {
             xfragtotal = 0;
             Bsprintf(tempbuf,"%d",i+1);
@@ -8131,7 +8121,7 @@ static void G_ShowScores(void)
             minitext(30,90+t,tempbuf,0,2+8+16+128);
             minitext(38,90+t,g_player[i].user_name,g_player[i].ps->palookup,2+8+16+128);
 
-            for (y=0;y<playerswhenstarted;y++)
+            for (y=playerswhenstarted-1;y>=0;y--)
             {
                 if (i == y)
                 {
@@ -8159,10 +8149,10 @@ static void G_ShowScores(void)
             t += 7;
         }
 
-        for (y=0;y<playerswhenstarted;y++)
+        for (y=playerswhenstarted-1;y>=0;y--)
         {
             yfragtotal = 0;
-            for (i=0;i<playerswhenstarted;i++)
+            for (i=playerswhenstarted-1;i>=0;i--)
             {
                 if (i == y)
                     yfragtotal += g_player[i].ps->fraggedself;
@@ -8747,34 +8737,31 @@ static void G_ShowParameterHelp(void)
               "Example: eduke32 -q4 -a -m -tx -map nukeland.map\n\n"
               "Files can be *.grp/zip/con/def\n"
               "\n"
-              "-#\t\tLoad and run a game from slot # (0-9)\n"
-              "-a\t\tUse fake player AI (fake multiplayer only)\n"
-              "-c#\t\tUse MP mode #, 1 = Dukematch, 2 = Coop, 3 = Dukematch(no spawn)\n"
               "-cfg [file.cfg]\tUse an alternate configuration file\n"
+              "-c#\t\tUse MP mode #, 1 = Dukematch, 2 = Coop, 3 = Dukematch(no spawn)\n"
               "-d[file.dmo]\tPlay a demo\n"
               "-g[file.grp]\tUse an extra group file\n"
-              "-nam/-ww2gi\tRun in NAM or WW2GI-compatible mode\n"
               "-h[file.def]\tUse an alternate def\n"
               "-j[dir]\t\tAdds a directory to EDuke32's search list\n"
               "-l#\t\tWarp to level #, see -v\n"
-              "-m\t\tDisable monsters\n"
               "-map [file.map]\tLoads a map\n"
+              "-m\t\tDisable monsters\n"
+              "-nam/-ww2gi\tRun in NAM or WW2GI-compatible mode\n"
               "-net\t\tEnable multiplayer (see documentation)\n"
-              "-ns/-nm\t\tDisable sound or music\n"
               "-r\t\tRecord demo\n"
-              "-noautoload\tDisable loading content from autoload\n"
               "-s#\t\tSet skill level (1-4)\n"
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
               "-setup/nosetup\tEnables/disables startup window\n"
 #endif
               "-t#\t\tSet respawn mode: 1 = Monsters, 2 = Items, 3 = Inventory, x = All\n"
-              "-u#########\tUser's favorite weapon order (default: 3425689071)\n"
 #if !defined(_WIN32)
               "-usecwd\t\tRead game data and configuration file from working directory\n"
 #endif
+              "-u#########\tUser's favorite weapon order (default: 3425689071)\n"
               "-v#\t\tWarp to volume #, see -l\n"
               "-x[game.con]\tLoad custom CON script\n"
-              "\n-?/--help\tDisplay this help message and exit\n"
+              "-#\t\tLoad and run a game from slot # (0-9)\n"
+//              "\n-?/--help\tDisplay this help message and exit\n"
               "\nSee eduke32 -debughelp for debug parameters"
               ;
 #if defined RENDERTYPEWIN
@@ -8789,22 +8776,22 @@ static void G_ShowDebugHelp(void)
 {
     char *s = "Usage: eduke32 [files] [options]\n"
               "\n"
+              "-a\t\tUse fake player AI (fake multiplayer only)\n"
+              "-cachesize #\tSets cache size, in Kb\n"
               "-fNUM\t\tSend fewer packets in multiplayer (1, 2, 4) (deprecated)\n"
               "-game_dir [dir]\tDuke3d_w32 compatibility option, see -j\n"
               "-gamegrp   \tSelects which file to use as main grp\n"
               "-i#\t\tUse networking mode (1/0)\n"
               "-name [name]\tPlayer name in multiplay\n"
               "-nD\t\tDump default gamevars to gamevars.txt\n"
-              "-q#\t\tFake multiplayer with (2-8) players\n"
-              "-rmnet\t\tUse network config file (OBSOLETE, see -net)\n"
-#ifndef RANCID_NETWORKING
-              "-keepaddr\n"
-#endif
-              "-stun\t\tUse UDP hole punching in multiplayer\n"
-              "-w\t\tShow coordinates\n"
+              "-noautoload\tDisable loading content from autoload dir\n"
               "-nologo\t\tSkip the logo anim\n"
-              "-cachesize #\tSets cache size, in Kb\n"
-              "-unstable   \tAllow EDuke32 to execute unsafe CON commands\n"
+              "-ns/-nm\t\tDisable sound or music\n"
+              "-q#\t\tFake multiplayer with # (2-8) players\n"
+              "-rmnet\t\tUse network config file (OBSOLETE, see -net)\n"
+              "-stun\t\tUse UDP hole punching for multiplayer connections\n"
+              "-unstable   \tForce EDuke32 to execute unsafe CON commands (and crash)\n"
+              "-w\t\tShow coordinates\n"
               "-z#/-condebug\tEnable line-by-line CON compile debugging at level #\n"
               ;
 #if defined RENDERTYPEWIN
@@ -9588,8 +9575,14 @@ static void G_CheckCommandLine(int argc, const char **argv)
                     continue;
                 }
 #endif
-                if (!Bstrcasecmp(c+1,"sloppycmd"))
+                if (!Bstrcasecmp(c+1,"unstable"))
                 {
+                    initprintf("WARNING WARNING WARNING WARNING\n"
+                               "EDuke32's runtime script error detection has been disabled via "
+                               "the '-unstable' command line parameter.  Bug reports from this "
+                               "mode are NOT welcome and you should expect crashes in certain "
+                               "mods.  Please run EDuke32 without '-unstable' before sending "
+                               "any bug reports.\n");
                     g_scriptSanityChecks = 0;
                     i++;
                     continue;
@@ -11068,12 +11061,12 @@ void app_main(int argc,const char **argv)
 
                 if (wm_ynbox("Obsolete Texture Cache Detected",tempbuf))
                 {
-                    int ii = 0;
+                    int recursion = 0;
 
                     Bsprintf(tempbuf,"%stexcache",dir);
                     getfilenames(tempbuf,"*");
-RECURSE:
-                    // initprintf("Cleaning %s\n",tempbuf);
+CLEAN_DIRECTORY:
+                    // initprintf("Cleaning '%s'\n",tempbuf);
                     while (findfiles)
                     {
                         Bsprintf(g_szBuf,"%s/%s",tempbuf,findfiles->name);
@@ -11093,10 +11086,10 @@ RECURSE:
                         {
                             if (errno == EEXIST || errno == ENOTEMPTY)
                             {
-                                ii = 1;
+                                recursion = 1;
                                 Bstrcpy(tempbuf,g_szBuf);
                                 getfilenames(tempbuf,"*");
-                                goto RECURSE;
+                                goto CLEAN_DIRECTORY;
                             }
                             else
                             {
@@ -11110,12 +11103,12 @@ RECURSE:
                         }
                     }
 
-                    if (ii)
+                    if (recursion)
                     {
                         Bsprintf(tempbuf,"%stexcache",dir);
                         getfilenames(tempbuf,"*");
-                        ii = 0;
-                        goto RECURSE;
+                        recursion = 0;
+                        goto CLEAN_DIRECTORY;
                     }
 
                     Bsprintf(tempbuf,"%stexcache",dir);

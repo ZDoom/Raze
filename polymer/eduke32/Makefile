@@ -73,7 +73,7 @@ endif
 
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 		-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -DNOCOPYPROTECT \
-	    -I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib \
+	    -I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib -D_FORTIFY_SOURCE=2 \
 #        -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
 LIBS=-lm
@@ -166,9 +166,6 @@ ifeq ($(PLATFORM),LINUX)
 	NASMFLAGS	+= -f elf
 	LIBS		+= -lvorbisfile -lvorbis -logg 
 	USE_OPENAL	= 0
-	ifeq ($(RELEASE),0)
-		OURCFLAGS += -D_FORTIFY_SOURCE=2
-	endif
 endif
 
 ifeq ($(PLATFORM),DARWIN)
