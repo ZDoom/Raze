@@ -442,14 +442,15 @@ static void X_Move(void)
     intptr_t *moveptr;
     int a = g_sp->hitag, goalang, angdif;
     int daxvel;
+    int dead = (A_CheckEnemySprite(g_sp) && g_sp->extra <= 0);
 
     if (a == -1) a = 0;
 
     g_t[0]++;
 
-    if (g_t[1] == 0 || a == 0 || (A_CheckEnemySprite(g_sp) && g_sp->extra <= 0))
+    if (g_t[1] == 0 || a == 0)
     {
-        if ((A_CheckEnemySprite(g_sp) && g_sp->extra <= 0) || (ActorExtra[g_i].bposx != g_sp->x) || (ActorExtra[g_i].bposy != g_sp->y))
+        if ((ActorExtra[g_i].bposx != g_sp->x) || (ActorExtra[g_i].bposy != g_sp->y))
         {
             ActorExtra[g_i].bposx = g_sp->x;
             ActorExtra[g_i].bposy = g_sp->y;
@@ -458,7 +459,7 @@ static void X_Move(void)
         return;
     }
 
-    if (a&face_player)
+    if (a&face_player && !dead)
     {
         if (g_player[g_p].ps->newowner >= 0)
             goalang = getangle(g_player[g_p].ps->oposx-g_sp->x,g_player[g_p].ps->oposy-g_sp->y);
@@ -469,10 +470,10 @@ static void X_Move(void)
         g_sp->ang += angdif;
     }
 
-    if (a&spin)
+    if (a&spin && !dead)
         g_sp->ang += sintable[((g_t[0]<<3)&2047)]>>6;
 
-    if (a&face_player_slow)
+    if (a&face_player_slow && !dead)
     {
         if (g_player[g_p].ps->newowner >= 0)
             goalang = getangle(g_player[g_p].ps->oposx-g_sp->x,g_player[g_p].ps->oposy-g_sp->y);
@@ -483,13 +484,13 @@ static void X_Move(void)
         g_sp->ang += angdif;
     }
 
-    if ((a&jumptoplayer) == jumptoplayer)
+    if (((a&jumptoplayer) == jumptoplayer) && !dead)
     {
         if (g_t[0] < 16)
             g_sp->zvel -= (sintable[(512+(g_t[0]<<4))&2047]>>5);
     }
 
-    if (a&face_player_smart)
+    if (a&face_player_smart && !dead)
     {
         int newx = g_player[g_p].ps->posx+(g_player[g_p].ps->posxv/768);
         int newy = g_player[g_p].ps->posy+(g_player[g_p].ps->posyv/768);
@@ -506,10 +507,10 @@ static void X_Move(void)
     if (a&geth) g_sp->xvel += (*moveptr-g_sp->xvel)>>1;
     if (a&getv) g_sp->zvel += ((*(moveptr+1)<<4)-g_sp->zvel)>>1;
 
-    if (a&dodgebullet)
+    if (a&dodgebullet && !dead)
         A_Dodge(g_sp);
 
-    if (g_sp->picnum != APLAYER)
+    if (g_sp->picnum != APLAYER && !dead)
         X_AlterAng(a);
 
     if (g_sp->xvel > -6 && g_sp->xvel < 6) g_sp->xvel = 0;
@@ -1317,21 +1318,21 @@ static int X_DoExecute(void)
 
     case CON_ADDWEAPONVAR:
         insptr++;
-        if (g_player[g_p].ps->gotweapon[Gv_GetVar(*(insptr),g_i,g_p)] == 0)
+        if (g_player[g_p].ps->gotweapon[Gv_GetVarX(*(insptr))] == 0)
         {
-            if (!(g_player[g_p].ps->weaponswitch & 1)) P_AddWeaponNoSwitch(g_player[g_p].ps, Gv_GetVar(*(insptr),g_i,g_p));
-            else P_AddWeapon(g_player[g_p].ps, Gv_GetVar(*(insptr),g_i,g_p));
+            if (!(g_player[g_p].ps->weaponswitch & 1)) P_AddWeaponNoSwitch(g_player[g_p].ps, Gv_GetVarX(*(insptr)));
+            else P_AddWeapon(g_player[g_p].ps, Gv_GetVarX(*(insptr)));
         }
-        else if (g_player[g_p].ps->ammo_amount[Gv_GetVar(*(insptr),g_i,g_p)] >= g_player[g_p].ps->max_ammo_amount[Gv_GetVar(*(insptr),g_i,g_p)])
+        else if (g_player[g_p].ps->ammo_amount[Gv_GetVarX(*(insptr))] >= g_player[g_p].ps->max_ammo_amount[Gv_GetVarX(*(insptr))])
         {
             g_killitFlag = 2;
             break;
         }
-        P_AddAmmo(Gv_GetVar(*(insptr),g_i,g_p), g_player[g_p].ps, Gv_GetVar(*(insptr+1),g_i,g_p));
-        if (g_player[g_p].ps->curr_weapon == KNEE_WEAPON && g_player[g_p].ps->gotweapon[Gv_GetVar(*(insptr),g_i,g_p)])
+        P_AddAmmo(Gv_GetVarX(*(insptr)), g_player[g_p].ps, Gv_GetVarX(*(insptr+1)));
+        if (g_player[g_p].ps->curr_weapon == KNEE_WEAPON && g_player[g_p].ps->gotweapon[Gv_GetVarX(*(insptr))])
         {
-            if (!(g_player[g_p].ps->weaponswitch & 1)) P_AddWeaponNoSwitch(g_player[g_p].ps, Gv_GetVar(*(insptr),g_i,g_p));
-            else P_AddWeapon(g_player[g_p].ps, Gv_GetVar(*(insptr),g_i,g_p));
+            if (!(g_player[g_p].ps->weaponswitch & 1)) P_AddWeaponNoSwitch(g_player[g_p].ps, Gv_GetVarX(*(insptr)));
+            else P_AddWeapon(g_player[g_p].ps, Gv_GetVarX(*(insptr)));
         }
         insptr+=2;
         break;
@@ -1343,13 +1344,13 @@ static int X_DoExecute(void)
     case CON_SSP:
         insptr++;
         {
-            int var1 = Gv_GetVar(*insptr++,g_i,g_p), var2;
+            int var1 = Gv_GetVarX(*insptr++), var2;
             if (tw == CON_OPERATEACTIVATORS && *insptr == g_iThisActorID)
             {
                 var2 = g_p;
                 insptr++;
             }
-            else var2 = Gv_GetVar(*insptr++,g_i,g_p);
+            else var2 = Gv_GetVarX(*insptr++);
 
             switch (tw)
             {
@@ -1379,7 +1380,7 @@ static int X_DoExecute(void)
     case CON_CANSEESPR:
         insptr++;
         {
-            int lVar1 = Gv_GetVar(*insptr++,g_i,g_p), lVar2 = Gv_GetVar(*insptr++,g_i,g_p), res;
+            int lVar1 = Gv_GetVarX(*insptr++), lVar2 = Gv_GetVarX(*insptr++), res;
 
             if ((lVar1<0 || lVar1>=MAXSPRITES || lVar2<0 || lVar2>=MAXSPRITES) && g_scriptSanityChecks)
             {
@@ -1389,7 +1390,7 @@ static int X_DoExecute(void)
             else res=cansee(sprite[lVar1].x,sprite[lVar1].y,sprite[lVar1].z,sprite[lVar1].sectnum,
                                 sprite[lVar2].x,sprite[lVar2].y,sprite[lVar2].z,sprite[lVar2].sectnum);
 
-            Gv_SetVar(*insptr++, res, g_i, g_p);
+            Gv_SetVarX(*insptr++, res);
             break;
         }
 
@@ -1398,7 +1399,7 @@ static int X_DoExecute(void)
     case CON_CHECKACTIVATORMOTION:
         insptr++;
         {
-            int var1 = Gv_GetVar(*insptr++,g_i,g_p);
+            int var1 = Gv_GetVarX(*insptr++);
 
             switch (tw)
             {
@@ -1409,7 +1410,7 @@ static int X_DoExecute(void)
                 G_OperateMasterSwitches(var1);
                 break;
             case CON_CHECKACTIVATORMOTION:
-                Gv_SetVar(g_iReturnVarID, check_activator_motion(var1), g_i, g_p);
+                Gv_SetVarX(g_iReturnVarID, check_activator_motion(var1));
                 break;
             }
             break;
@@ -1424,14 +1425,14 @@ static int X_DoExecute(void)
         insptr++;
         {
             int i=*insptr++;
-            j=Gv_GetVar(*insptr++, g_i, g_p);
+            j=Gv_GetVarX(*insptr++);
             if ((ScriptQuotes[j] == NULL) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],j);
-                Gv_SetVar(i,-1,g_i,g_p);
+                Gv_SetVarX(i,-1);
                 break;
             }
-            Gv_SetVar(i,Bstrlen(ScriptQuotes[j]),g_i,g_p);
+            Gv_SetVarX(i,Bstrlen(ScriptQuotes[j]));
             break;
         }
 
@@ -1439,13 +1440,13 @@ static int X_DoExecute(void)
         insptr++;
         {
             int i=*insptr++;
-            j=Gv_GetVar(*insptr++, g_i, g_p);
+            j=Gv_GetVarX(*insptr++);
             if ((j < 0 || j > MAXSTATUS) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "invalid status list %d\n",g_errorLineNum,keyw[g_tw],j);
                 break;
             }
-            Gv_SetVar(i,headspritestat[j],g_i,g_p);
+            Gv_SetVarX(i,headspritestat[j]);
             break;
         }
 
@@ -1453,13 +1454,13 @@ static int X_DoExecute(void)
         insptr++;
         {
             int i=*insptr++;
-            j=Gv_GetVar(*insptr++, g_i, g_p);
+            j=Gv_GetVarX(*insptr++);
             if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
                 break;
             }
-            Gv_SetVar(i,prevspritestat[j],g_i,g_p);
+            Gv_SetVarX(i,prevspritestat[j]);
             break;
         }
 
@@ -1467,13 +1468,13 @@ static int X_DoExecute(void)
         insptr++;
         {
             int i=*insptr++;
-            j=Gv_GetVar(*insptr++, g_i, g_p);
+            j=Gv_GetVarX(*insptr++);
             if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
                 break;
             }
-            Gv_SetVar(i,nextspritestat[j],g_i,g_p);
+            Gv_SetVarX(i,nextspritestat[j]);
             break;
         }
 
@@ -1481,13 +1482,13 @@ static int X_DoExecute(void)
         insptr++;
         {
             int i=*insptr++;
-            j=Gv_GetVar(*insptr++, g_i, g_p);
+            j=Gv_GetVarX(*insptr++);
             if ((j < 0 || j > numsectors) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "invalid sector %d\n",g_errorLineNum,keyw[g_tw],j);
                 break;
             }
-            Gv_SetVar(i,headspritesect[j],g_i,g_p);
+            Gv_SetVarX(i,headspritesect[j]);
             break;
         }
 
@@ -1495,13 +1496,13 @@ static int X_DoExecute(void)
         insptr++;
         {
             int i=*insptr++;
-            j=Gv_GetVar(*insptr++, g_i, g_p);
+            j=Gv_GetVarX(*insptr++);
             if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
                 break;
             }
-            Gv_SetVar(i,prevspritesect[j],g_i,g_p);
+            Gv_SetVarX(i,prevspritesect[j]);
             break;
         }
 
@@ -1509,22 +1510,22 @@ static int X_DoExecute(void)
         insptr++;
         {
             int i=*insptr++;
-            j=Gv_GetVar(*insptr++, g_i, g_p);
+            j=Gv_GetVarX(*insptr++);
             if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
                 break;
             }
-            Gv_SetVar(i,nextspritesect[j],g_i,g_p);
+            Gv_SetVarX(i,nextspritesect[j]);
             break;
         }
 
     case CON_GETKEYNAME:
         insptr++;
         {
-            int i = Gv_GetVar(*insptr++, g_i, g_p),
-                    f=Gv_GetVar(*insptr++, g_i, g_p);
-            j=Gv_GetVar(*insptr++, g_i, g_p);
+            int i = Gv_GetVarX(*insptr++),
+                    f=Gv_GetVarX(*insptr++);
+            j=Gv_GetVarX(*insptr++);
             if ((i<0 || i>=MAXQUOTES) && g_scriptSanityChecks)
                 OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],i);
             else if ((ScriptQuotes[i] == NULL) && g_scriptSanityChecks)
@@ -1553,10 +1554,10 @@ static int X_DoExecute(void)
             char *s1,*s2;
             int q1,q2,st,ln;
 
-            q1 = Gv_GetVar(*insptr++, g_i, g_p),
-                 q2 = Gv_GetVar(*insptr++, g_i, g_p);
-            st = Gv_GetVar(*insptr++, g_i, g_p);
-            ln = Gv_GetVar(*insptr++, g_i, g_p);
+            q1 = Gv_GetVarX(*insptr++),
+                 q2 = Gv_GetVarX(*insptr++);
+            st = Gv_GetVarX(*insptr++);
+            ln = Gv_GetVarX(*insptr++);
 
             if ((q1<0 || q1>=MAXQUOTES) && g_scriptSanityChecks)       OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],q1);
             else if ((ScriptQuotes[q1] == NULL) && g_scriptSanityChecks) OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q1);
@@ -1580,13 +1581,13 @@ static int X_DoExecute(void)
     case CON_CHANGESPRITESECT:
         insptr++;
         {
-            int i = Gv_GetVar(*insptr++, g_i, g_p), j;
+            int i = Gv_GetVarX(*insptr++), j;
             if (tw == CON_GETPNAME && *insptr == g_iThisActorID)
             {
                 j = g_p;
                 insptr++;
             }
-            else j = Gv_GetVar(*insptr++, g_i, g_p);
+            else j = Gv_GetVarX(*insptr++);
 
             switch (tw)
             {
@@ -1656,8 +1657,8 @@ static int X_DoExecute(void)
     case CON_CHANGESPRITESTAT:
         insptr++;
         {
-            int i = Gv_GetVar(*insptr++, g_i, g_p);
-            j = Gv_GetVar(*insptr++, g_i, g_p);
+            int i = Gv_GetVarX(*insptr++);
+            j = Gv_GetVarX(*insptr++);
 
                 if ((i<0 || i>=MAXSPRITES) && g_scriptSanityChecks)
                 {
@@ -1703,7 +1704,7 @@ static int X_DoExecute(void)
         insptr++; // skip command
         {
             // from 'level' cheat in game.c (about line 6250)
-            int volnume=Gv_GetVar(*insptr++,g_i,g_p), levnume=Gv_GetVar(*insptr++,g_i,g_p);
+            int volnume=Gv_GetVarX(*insptr++), levnume=Gv_GetVarX(*insptr++);
 
             if ((volnume > MAXVOLUMES-1 || volnume < 0) && g_scriptSanityChecks)
             {
@@ -1736,8 +1737,8 @@ static int X_DoExecute(void)
     case CON_MYOSPAL:
         insptr++;
         {
-            int x=Gv_GetVar(*insptr++,g_i,g_p), y=Gv_GetVar(*insptr++,g_i,g_p), tilenum=Gv_GetVar(*insptr++,g_i,g_p);
-            int shade=Gv_GetVar(*insptr++,g_i,g_p), orientation=Gv_GetVar(*insptr++,g_i,g_p);
+            int x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), tilenum=Gv_GetVarX(*insptr++);
+            int shade=Gv_GetVarX(*insptr++), orientation=Gv_GetVarX(*insptr++);
 
             switch (tw)
             {
@@ -1746,7 +1747,7 @@ static int X_DoExecute(void)
                 break;
             case CON_MYOSPAL:
             {
-                int pal=Gv_GetVar(*insptr++,g_i,g_p);
+                int pal=Gv_GetVarX(*insptr++);
                 G_DrawTilePal(x,y,tilenum,shade,orientation,pal);
                 break;
             }
@@ -1755,7 +1756,7 @@ static int X_DoExecute(void)
                 break;
             case CON_MYOSPALX:
             {
-                int pal=Gv_GetVar(*insptr++,g_i,g_p);
+                int pal=Gv_GetVarX(*insptr++);
                 G_DrawTilePalSmall(x,y,tilenum,shade,orientation,pal);
                 break;
             }
@@ -1773,7 +1774,7 @@ static int X_DoExecute(void)
             // script offset to default case (null if none)
             // For each case: value, ptr to code
             //AddLog("Processing Switch...");
-            int lValue=Gv_GetVar(*insptr++, g_i, g_p), lEnd=*insptr++, lCases=*insptr++;
+            int lValue=Gv_GetVarX(*insptr++), lEnd=*insptr++, lCases=*insptr++;
             intptr_t *lpDefault=insptr++, *lpCases=insptr, *lTempInsPtr;
             int bMatched=0, lCheckCase;
             int left,right;
@@ -1840,13 +1841,13 @@ static int X_DoExecute(void)
 
     case CON_DISPLAYRAND:
         insptr++;
-        Gv_SetVar(*insptr++, rand(), g_i, g_p);
+        Gv_SetVarX(*insptr++, rand());
         break;
 
     case CON_DRAGPOINT:
         insptr++;
         {
-            int wallnum = Gv_GetVar(*insptr++, g_i, g_p), newx = Gv_GetVar(*insptr++, g_i, g_p), newy = Gv_GetVar(*insptr++, g_i, g_p);
+            int wallnum = Gv_GetVarX(*insptr++), newx = Gv_GetVarX(*insptr++), newy = Gv_GetVarX(*insptr++);
 
             if ((wallnum<0 || wallnum>=numwalls) && g_scriptSanityChecks)
             {
@@ -1861,7 +1862,7 @@ static int X_DoExecute(void)
     case CON_LDIST:
         insptr++;
         {
-            int distvar = *insptr++, xvar = Gv_GetVar(*insptr++, g_i, g_p), yvar = Gv_GetVar(*insptr++, g_i, g_p), distx=0;
+            int distvar = *insptr++, xvar = Gv_GetVarX(*insptr++), yvar = Gv_GetVarX(*insptr++), distx=0;
 
             if ((xvar < 0 || yvar < 0 || xvar >= MAXSPRITES || yvar >= MAXSPRITES) && g_scriptSanityChecks)
             {
@@ -1871,7 +1872,7 @@ static int X_DoExecute(void)
             if (tw == CON_DIST) distx = dist(&sprite[xvar],&sprite[yvar]);
             else distx = ldist(&sprite[xvar],&sprite[yvar]);
 
-            Gv_SetVar(distvar, distx, g_i, g_p);
+            Gv_SetVarX(distvar, distx);
             break;
         }
 
@@ -1880,31 +1881,31 @@ static int X_DoExecute(void)
         insptr++;
         {
             int angvar = *insptr++;
-            int xvar = Gv_GetVar(*insptr++, g_i, g_p);
-            int yvar = Gv_GetVar(*insptr++, g_i, g_p);
+            int xvar = Gv_GetVarX(*insptr++);
+            int yvar = Gv_GetVarX(*insptr++);
 
             if (tw==CON_GETANGLE)
             {
-                Gv_SetVar(angvar, getangle(xvar,yvar), g_i, g_p);
+                Gv_SetVarX(angvar, getangle(xvar,yvar));
                 break;
             }
-            Gv_SetVar(angvar, G_GetAngleDelta(xvar,yvar), g_i, g_p);
+            Gv_SetVarX(angvar, G_GetAngleDelta(xvar,yvar));
             break;
         }
 
     case CON_MULSCALE:
         insptr++;
         {
-            int var1 = *insptr++, var2 = Gv_GetVar(*insptr++, g_i, g_p);
-            int var3 = Gv_GetVar(*insptr++, g_i, g_p), var4 = Gv_GetVar(*insptr++, g_i, g_p);
+            int var1 = *insptr++, var2 = Gv_GetVarX(*insptr++);
+            int var3 = Gv_GetVarX(*insptr++), var4 = Gv_GetVarX(*insptr++);
 
-            Gv_SetVar(var1, mulscale(var2, var3, var4), g_i, g_p);
+            Gv_SetVarX(var1, mulscale(var2, var3, var4));
             break;
         }
 
     case CON_INITTIMER:
         insptr++;
-        j = Gv_GetVar(*insptr++, g_i, g_p);
+        j = Gv_GetVarX(*insptr++);
         if (g_timerTicsPerSecond == j)
             break;
         uninittimer();
@@ -1921,7 +1922,7 @@ static int X_DoExecute(void)
     case CON_QSPAWNVAR:
         insptr++;
         {
-            int lIn=Gv_GetVar(*insptr++, g_i, g_p);
+            int lIn=Gv_GetVarX(*insptr++);
             if ((g_sp->sectnum < 0 || g_sp->sectnum >= numsectors) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],g_sp->sectnum);
@@ -1934,7 +1935,7 @@ static int X_DoExecute(void)
                 if (j != -1)
                     A_AddToDeleteQueue(j);
             case CON_ESPAWNVAR:
-                Gv_SetVar(g_iReturnVarID, j, g_i, g_p);
+                Gv_SetVarX(g_iReturnVarID, j);
                 break;
             case CON_QSPAWNVAR:
                 if (j != -1)
@@ -1964,7 +1965,7 @@ static int X_DoExecute(void)
             if (j != -1)
                 A_AddToDeleteQueue(j);
         case CON_ESPAWN:
-            Gv_SetVar(g_iReturnVarID, j, g_i, g_p);
+            Gv_SetVarX(g_iReturnVarID, j);
             break;
         case CON_QSPAWN:
             if (j != -1)
@@ -1980,7 +1981,7 @@ static int X_DoExecute(void)
 
         if (tw == CON_ZSHOOT || tw == CON_EZSHOOT)
         {
-            ActorExtra[g_i].temp_data[9] = Gv_GetVar(*insptr++, g_i, g_p);
+            ActorExtra[g_i].temp_data[9] = Gv_GetVarX(*insptr++);
             if (ActorExtra[g_i].temp_data[9] == 0)
                 ActorExtra[g_i].temp_data[9] = 1;
         }
@@ -1996,7 +1997,7 @@ static int X_DoExecute(void)
         j = A_Shoot(g_i,*insptr++);
 
         if (tw == CON_EZSHOOT || tw == CON_ESHOOT)
-            Gv_SetVar(g_iReturnVarID, j, g_i, g_p);
+            Gv_SetVarX(g_iReturnVarID, j);
 
         ActorExtra[g_i].temp_data[9]=0;
         break;
@@ -2012,11 +2013,11 @@ static int X_DoExecute(void)
 
         if (tw == CON_ZSHOOTVAR || tw == CON_EZSHOOTVAR)
         {
-            ActorExtra[g_i].temp_data[9] = Gv_GetVar(*insptr++, g_i, g_p);
+            ActorExtra[g_i].temp_data[9] = Gv_GetVarX(*insptr++);
             if (ActorExtra[g_i].temp_data[9] == 0)
                 ActorExtra[g_i].temp_data[9] = 1;
         }
-        j=Gv_GetVar(*insptr++, g_i, g_p);
+        j=Gv_GetVarX(*insptr++);
 
         if ((g_sp->sectnum < 0 || g_sp->sectnum >= numsectors) && g_scriptSanityChecks)
         {
@@ -2027,14 +2028,14 @@ static int X_DoExecute(void)
 
         lReturn = A_Shoot(g_i, j);
         if (tw == CON_ESHOOTVAR || tw == CON_EZSHOOTVAR)
-            Gv_SetVar(g_iReturnVarID, lReturn, g_i, g_p);
+            Gv_SetVarX(g_iReturnVarID, lReturn);
         ActorExtra[g_i].temp_data[9]=0;
         break;
     }
 
     case CON_CMENU:
         insptr++;
-        j=Gv_GetVar(*insptr++, g_i, g_p);
+        j=Gv_GetVarX(*insptr++);
         ChangeToMenu(j);
         break;
 
@@ -2043,7 +2044,7 @@ static int X_DoExecute(void)
     case CON_SOUNDONCEVAR:
     case CON_GLOBALSOUNDVAR:
         insptr++;
-        j=Gv_GetVar(*insptr++, g_i, g_p);
+        j=Gv_GetVarX(*insptr++);
 
         switch (tw)
         {
@@ -2071,7 +2072,7 @@ static int X_DoExecute(void)
     case CON_GUNIQHUDID:
         insptr++;
         {
-            j=Gv_GetVar(*insptr++, g_i, g_p);
+            j=Gv_GetVarX(*insptr++);
             if (j >= 0 && j < MAXUNIQHUDID-1)
                 guniqhudid = j;
             else
@@ -2092,12 +2093,12 @@ static int X_DoExecute(void)
         switch (tw)
         {
         case CON_SAVEGAMEVAR:
-            i=Gv_GetVar(*insptr, g_i, g_p);
+            i=Gv_GetVarX(*insptr);
             SCRIPT_PutNumber(ud.config.scripthandle, "Gamevars",aGameVars[*insptr++].szLabel,i,false,false);
             break;
         case CON_READGAMEVAR:
             SCRIPT_GetNumber(ud.config.scripthandle, "Gamevars",aGameVars[*insptr].szLabel,&i);
-            Gv_SetVar(*insptr++, i, g_i, g_p);
+            Gv_SetVarX(*insptr++, i);
             break;
         }
         break;
@@ -2106,16 +2107,16 @@ static int X_DoExecute(void)
     case CON_SHOWVIEW:
         insptr++;
         {
-            int x=Gv_GetVar(*insptr++,g_i,g_p);
-            int y=Gv_GetVar(*insptr++,g_i,g_p);
-            int z=Gv_GetVar(*insptr++,g_i,g_p);
-            int a=Gv_GetVar(*insptr++,g_i,g_p);
-            int horiz=Gv_GetVar(*insptr++,g_i,g_p);
-            int sect=Gv_GetVar(*insptr++,g_i,g_p);
-            int x1=scale(Gv_GetVar(*insptr++,g_i,g_p),xdim,320);
-            int y1=scale(Gv_GetVar(*insptr++,g_i,g_p),ydim,200);
-            int x2=scale(Gv_GetVar(*insptr++,g_i,g_p),xdim,320);
-            int y2=scale(Gv_GetVar(*insptr++,g_i,g_p),ydim,200);
+            int x=Gv_GetVarX(*insptr++);
+            int y=Gv_GetVarX(*insptr++);
+            int z=Gv_GetVarX(*insptr++);
+            int a=Gv_GetVarX(*insptr++);
+            int horiz=Gv_GetVarX(*insptr++);
+            int sect=Gv_GetVarX(*insptr++);
+            int x1=scale(Gv_GetVarX(*insptr++),xdim,320);
+            int y1=scale(Gv_GetVarX(*insptr++),ydim,200);
+            int x2=scale(Gv_GetVarX(*insptr++),xdim,320);
+            int y2=scale(Gv_GetVarX(*insptr++),ydim,200);
             int smoothratio = min(max((totalclock - ototalclock) * (65536 / TICSPERFRAME),0),65536);
 
             if (x1 > x2) swaplong(&x1,&x2);
@@ -2208,11 +2209,11 @@ static int X_DoExecute(void)
     case CON_ROTATESPRITE:
         insptr++;
         {
-            int x=Gv_GetVar(*insptr++,g_i,g_p),   y=Gv_GetVar(*insptr++,g_i,g_p),           z=Gv_GetVar(*insptr++,g_i,g_p);
-            int a=Gv_GetVar(*insptr++,g_i,g_p),   tilenum=Gv_GetVar(*insptr++,g_i,g_p),     shade=Gv_GetVar(*insptr++,g_i,g_p);
-            int pal=Gv_GetVar(*insptr++,g_i,g_p), orientation=Gv_GetVar(*insptr++,g_i,g_p);
-            int x1=Gv_GetVar(*insptr++,g_i,g_p),  y1=Gv_GetVar(*insptr++,g_i,g_p);
-            int x2=Gv_GetVar(*insptr++,g_i,g_p),  y2=Gv_GetVar(*insptr++,g_i,g_p);
+            int x=Gv_GetVarX(*insptr++),   y=Gv_GetVarX(*insptr++),           z=Gv_GetVarX(*insptr++);
+            int a=Gv_GetVarX(*insptr++),   tilenum=Gv_GetVarX(*insptr++),     shade=Gv_GetVarX(*insptr++);
+            int pal=Gv_GetVarX(*insptr++), orientation=Gv_GetVarX(*insptr++);
+            int x1=Gv_GetVarX(*insptr++),  y1=Gv_GetVarX(*insptr++);
+            int x2=Gv_GetVarX(*insptr++),  y2=Gv_GetVarX(*insptr++);
 
             if (tw == CON_ROTATESPRITE && !(orientation & 256)) {x<<=16;y<<=16;}
             rotatesprite(x,y,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
@@ -2226,15 +2227,15 @@ static int X_DoExecute(void)
     case CON_DIGITALNUMBERZ:
         insptr++;
         {
-            int tilenum = (tw == CON_GAMETEXT || tw == CON_GAMETEXTZ || tw == CON_DIGITALNUMBER || tw == CON_DIGITALNUMBERZ)?Gv_GetVar(*insptr++,g_i,g_p):0;
-            int x=Gv_GetVar(*insptr++,g_i,g_p), y=Gv_GetVar(*insptr++,g_i,g_p), q=Gv_GetVar(*insptr++,g_i,g_p);
-            int shade=Gv_GetVar(*insptr++,g_i,g_p), pal=Gv_GetVar(*insptr++,g_i,g_p);
+            int tilenum = (tw == CON_GAMETEXT || tw == CON_GAMETEXTZ || tw == CON_DIGITALNUMBER || tw == CON_DIGITALNUMBERZ)?Gv_GetVarX(*insptr++):0;
+            int x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), q=Gv_GetVarX(*insptr++);
+            int shade=Gv_GetVarX(*insptr++), pal=Gv_GetVarX(*insptr++);
 
             if (tw == CON_GAMETEXT || tw == CON_GAMETEXTZ || tw == CON_DIGITALNUMBER || tw == CON_DIGITALNUMBERZ)
             {
-                int orientation=Gv_GetVar(*insptr++,g_i,g_p);
-                int x1=Gv_GetVar(*insptr++,g_i,g_p), y1=Gv_GetVar(*insptr++,g_i,g_p);
-                int x2=Gv_GetVar(*insptr++,g_i,g_p), y2=Gv_GetVar(*insptr++,g_i,g_p);
+                int orientation=Gv_GetVarX(*insptr++);
+                int x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++);
+                int x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++);
                 int z=65536;
 
                 if (tw == CON_GAMETEXT || tw == CON_GAMETEXTZ)
@@ -2243,13 +2244,17 @@ static int X_DoExecute(void)
                     if ((ScriptQuotes[q] == NULL) && g_scriptSanityChecks)
                     {
                         OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q);
+                        if (tw == CON_GAMETEXTZ)
+                            insptr++;
                         break;
                     }
-                    if (tw == CON_GAMETEXTZ)z=Gv_GetVar(*insptr++,g_i,g_p);
+                    if (tw == CON_GAMETEXTZ)
+                        z = Gv_GetVarX(*insptr++);
                     gametext_z(0,tilenum,x>>1,y,ScriptQuotes[q],shade,pal,orientation,x1,y1,x2,y2,z);
                     break;
                 }
-                if (tw == CON_DIGITALNUMBERZ)z=Gv_GetVar(*insptr++,g_i,g_p);
+                if (tw == CON_DIGITALNUMBERZ)
+                    z= Gv_GetVarX(*insptr++);
                 G_DrawTXDigiNumZ(tilenum,x,y,q,shade,pal,orientation,x1,y1,x2,y2,z);
                 break;
             }
@@ -2271,10 +2276,10 @@ static int X_DoExecute(void)
     case CON_GETZRANGE:
         insptr++;
         {
-            int x=Gv_GetVar(*insptr++,g_i,g_p), y=Gv_GetVar(*insptr++,g_i,g_p), z=Gv_GetVar(*insptr++,g_i,g_p);
-            int sectnum=Gv_GetVar(*insptr++,g_i,g_p);
+            int x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), z=Gv_GetVarX(*insptr++);
+            int sectnum=Gv_GetVarX(*insptr++);
             int ceilzvar=*insptr++, ceilhitvar=*insptr++, florzvar=*insptr++, florhitvar=*insptr++;
-            int walldist=Gv_GetVar(*insptr++,g_i,g_p), clipmask=Gv_GetVar(*insptr++,g_i,g_p);
+            int walldist=Gv_GetVarX(*insptr++), clipmask=Gv_GetVarX(*insptr++);
             int ceilz, ceilhit, florz, florhit;
 
             if ((sectnum<0 || sectnum>=numsectors) && g_scriptSanityChecks)
@@ -2283,21 +2288,21 @@ static int X_DoExecute(void)
                 break;
             }
             getzrange(x, y, z, sectnum, &ceilz, &ceilhit, &florz, &florhit, walldist, clipmask);
-            Gv_SetVar(ceilzvar, ceilz, g_i, g_p);
-            Gv_SetVar(ceilhitvar, ceilhit, g_i, g_p);
-            Gv_SetVar(florzvar, florz, g_i, g_p);
-            Gv_SetVar(florhitvar, florhit, g_i, g_p);
+            Gv_SetVarX(ceilzvar, ceilz);
+            Gv_SetVarX(ceilhitvar, ceilhit);
+            Gv_SetVarX(florzvar, florz);
+            Gv_SetVarX(florhitvar, florhit);
             break;
         }
 
     case CON_HITSCAN:
         insptr++;
         {
-            int xs=Gv_GetVar(*insptr++,g_i,g_p), ys=Gv_GetVar(*insptr++,g_i,g_p), zs=Gv_GetVar(*insptr++,g_i,g_p);
-            int sectnum=Gv_GetVar(*insptr++,g_i,g_p);
-            int vx=Gv_GetVar(*insptr++,g_i,g_p), vy=Gv_GetVar(*insptr++,g_i,g_p), vz=Gv_GetVar(*insptr++,g_i,g_p);
+            int xs=Gv_GetVarX(*insptr++), ys=Gv_GetVarX(*insptr++), zs=Gv_GetVarX(*insptr++);
+            int sectnum=Gv_GetVarX(*insptr++);
+            int vx=Gv_GetVarX(*insptr++), vy=Gv_GetVarX(*insptr++), vz=Gv_GetVarX(*insptr++);
             int hitsectvar=*insptr++, hitwallvar=*insptr++, hitspritevar=*insptr++;
-            int hitxvar=*insptr++, hityvar=*insptr++, hitzvar=*insptr++, cliptype=Gv_GetVar(*insptr++,g_i,g_p);
+            int hitxvar=*insptr++, hityvar=*insptr++, hitzvar=*insptr++, cliptype=Gv_GetVarX(*insptr++);
             short hitsect, hitwall, hitsprite;
             int hitx, hity, hitz;
 
@@ -2307,44 +2312,44 @@ static int X_DoExecute(void)
                 break;
             }
             hitscan(xs, ys, zs, sectnum, vx, vy, vz, &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, cliptype);
-            Gv_SetVar(hitsectvar, hitsect, g_i, g_p);
-            Gv_SetVar(hitwallvar, hitwall, g_i, g_p);
-            Gv_SetVar(hitspritevar, hitsprite, g_i, g_p);
-            Gv_SetVar(hitxvar, hitx, g_i, g_p);
-            Gv_SetVar(hityvar, hity, g_i, g_p);
-            Gv_SetVar(hitzvar, hitz, g_i, g_p);
+            Gv_SetVarX(hitsectvar, hitsect);
+            Gv_SetVarX(hitwallvar, hitwall);
+            Gv_SetVarX(hitspritevar, hitsprite);
+            Gv_SetVarX(hitxvar, hitx);
+            Gv_SetVarX(hityvar, hity);
+            Gv_SetVarX(hitzvar, hitz);
             break;
         }
 
     case CON_CANSEE:
         insptr++;
         {
-            int x1=Gv_GetVar(*insptr++,g_i,g_p), y1=Gv_GetVar(*insptr++,g_i,g_p), z1=Gv_GetVar(*insptr++,g_i,g_p);
-            int sect1=Gv_GetVar(*insptr++,g_i,g_p);
-            int x2=Gv_GetVar(*insptr++,g_i,g_p), y2=Gv_GetVar(*insptr++,g_i,g_p), z2=Gv_GetVar(*insptr++,g_i,g_p);
-            int sect2=Gv_GetVar(*insptr++,g_i,g_p), rvar=*insptr++;
+            int x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++), z1=Gv_GetVarX(*insptr++);
+            int sect1=Gv_GetVarX(*insptr++);
+            int x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++), z2=Gv_GetVarX(*insptr++);
+            int sect2=Gv_GetVarX(*insptr++), rvar=*insptr++;
 
             if ((sect1<0 || sect1>=numsectors || sect2<0 || sect2>=numsectors) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "Invalid sector\n",g_errorLineNum,keyw[g_tw]);
-                Gv_SetVar(rvar, 0, g_i, g_p);
+                Gv_SetVarX(rvar, 0);
             }
 
-            Gv_SetVar(rvar, cansee(x1,y1,z1,sect1,x2,y2,z2,sect2), g_i, g_p);
+            Gv_SetVarX(rvar, cansee(x1,y1,z1,sect1,x2,y2,z2,sect2));
             break;
         }
 
     case CON_ROTATEPOINT:
         insptr++;
         {
-            int xpivot=Gv_GetVar(*insptr++,g_i,g_p), ypivot=Gv_GetVar(*insptr++,g_i,g_p);
-            int x=Gv_GetVar(*insptr++,g_i,g_p), y=Gv_GetVar(*insptr++,g_i,g_p), daang=Gv_GetVar(*insptr++,g_i,g_p);
+            int xpivot=Gv_GetVarX(*insptr++), ypivot=Gv_GetVarX(*insptr++);
+            int x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), daang=Gv_GetVarX(*insptr++);
             int x2var=*insptr++, y2var=*insptr++;
             int x2, y2;
 
             rotatepoint(xpivot,ypivot,x,y,daang,&x2,&y2);
-            Gv_SetVar(x2var, x2, g_i, g_p);
-            Gv_SetVar(y2var, y2, g_i, g_p);
+            Gv_SetVarX(x2var, x2);
+            Gv_SetVarX(y2var, y2);
             break;
         }
 
@@ -2359,10 +2364,10 @@ static int X_DoExecute(void)
             //                     int neartagrange,      //Choose maximum distance to scan (scale: 1024=largest grid size)
             //                     char tagsearch)         //1-lotag only, 2-hitag only, 3-lotag&hitag
 
-            int x=Gv_GetVar(*insptr++,g_i,g_p), y=Gv_GetVar(*insptr++,g_i,g_p), z=Gv_GetVar(*insptr++,g_i,g_p);
-            int sectnum=Gv_GetVar(*insptr++,g_i,g_p), ang=Gv_GetVar(*insptr++,g_i,g_p);
+            int x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), z=Gv_GetVarX(*insptr++);
+            int sectnum=Gv_GetVarX(*insptr++), ang=Gv_GetVarX(*insptr++);
             int neartagsectorvar=*insptr++, neartagwallvar=*insptr++, neartagspritevar=*insptr++, neartaghitdistvar=*insptr++;
-            int neartagrange=Gv_GetVar(*insptr++,g_i,g_p), tagsearch=Gv_GetVar(*insptr++,g_i,g_p);
+            int neartagrange=Gv_GetVarX(*insptr++), tagsearch=Gv_GetVarX(*insptr++);
 
             if ((sectnum<0 || sectnum>=numsectors) && g_scriptSanityChecks)
             {
@@ -2371,10 +2376,10 @@ static int X_DoExecute(void)
             }
             neartag(x, y, z, sectnum, ang, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, neartagrange, tagsearch);
 
-            Gv_SetVar(neartagsectorvar, neartagsector, g_i, g_p);
-            Gv_SetVar(neartagwallvar, neartagwall, g_i, g_p);
-            Gv_SetVar(neartagspritevar, neartagsprite, g_i, g_p);
-            Gv_SetVar(neartaghitdistvar, neartaghitdist, g_i, g_p);
+            Gv_SetVarX(neartagsectorvar, neartagsector);
+            Gv_SetVarX(neartagwallvar, neartagwall);
+            Gv_SetVarX(neartagspritevar, neartagsprite);
+            Gv_SetVarX(neartaghitdistvar, neartaghitdist);
             break;
         }
 
@@ -2389,14 +2394,14 @@ static int X_DoExecute(void)
             ti=localtime(&rawtime);
             // initprintf("Time&date: %s\n",asctime (ti));
 
-            Gv_SetVar(v1, ti->tm_sec,  g_i, g_p);
-            Gv_SetVar(v2, ti->tm_min,  g_i, g_p);
-            Gv_SetVar(v3, ti->tm_hour, g_i, g_p);
-            Gv_SetVar(v4, ti->tm_mday, g_i, g_p);
-            Gv_SetVar(v5, ti->tm_mon,  g_i, g_p);
-            Gv_SetVar(v6, ti->tm_year+1900, g_i, g_p);
-            Gv_SetVar(v7, ti->tm_wday, g_i, g_p);
-            Gv_SetVar(v8, ti->tm_yday, g_i, g_p);
+            Gv_SetVarX(v1, ti->tm_sec);
+            Gv_SetVarX(v2, ti->tm_min);
+            Gv_SetVarX(v3, ti->tm_hour);
+            Gv_SetVarX(v4, ti->tm_mday);
+            Gv_SetVarX(v5, ti->tm_mon);
+            Gv_SetVarX(v6, ti->tm_year+1900);
+            Gv_SetVarX(v7, ti->tm_wday);
+            Gv_SetVarX(v8, ti->tm_yday);
             break;
         }
 
@@ -2404,8 +2409,8 @@ static int X_DoExecute(void)
     case CON_SETSPRITE:
         insptr++;
         {
-            int spritenum = Gv_GetVar(*insptr++,g_i,g_p);
-            int x = Gv_GetVar(*insptr++,g_i,g_p), y = Gv_GetVar(*insptr++,g_i,g_p), z = Gv_GetVar(*insptr++,g_i,g_p);
+            int spritenum = Gv_GetVarX(*insptr++);
+            int x = Gv_GetVarX(*insptr++), y = Gv_GetVarX(*insptr++), z = Gv_GetVarX(*insptr++);
 
             if (tw == CON_SETSPRITE)
             {
@@ -2419,7 +2424,7 @@ static int X_DoExecute(void)
             }
 
             {
-                int cliptype = Gv_GetVar(*insptr++,g_i,g_p);
+                int cliptype = Gv_GetVarX(*insptr++);
 
                 if ((spritenum < 0 && spritenum >= MAXSPRITES) && g_scriptSanityChecks)
                 {
@@ -2427,7 +2432,7 @@ static int X_DoExecute(void)
                     insptr++;
                     break;
                 }
-                Gv_SetVar(*insptr++, A_MoveSprite(spritenum, x, y, z, cliptype), g_i, g_p);
+                Gv_SetVarX(*insptr++, A_MoveSprite(spritenum, x, y, z, cliptype));
                 break;
             }
         }
@@ -2436,7 +2441,7 @@ static int X_DoExecute(void)
     case CON_GETCEILZOFSLOPE:
         insptr++;
         {
-            int sectnum = Gv_GetVar(*insptr++,g_i,g_p), x = Gv_GetVar(*insptr++,g_i,g_p), y = Gv_GetVar(*insptr++,g_i,g_p);
+            int sectnum = Gv_GetVarX(*insptr++), x = Gv_GetVarX(*insptr++), y = Gv_GetVarX(*insptr++);
             if ((sectnum<0 || sectnum>=numsectors) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
@@ -2446,10 +2451,10 @@ static int X_DoExecute(void)
 
             if (tw == CON_GETFLORZOFSLOPE)
             {
-                Gv_SetVar(*insptr++, getflorzofslope(sectnum,x,y), g_i, g_p);
+                Gv_SetVarX(*insptr++, getflorzofslope(sectnum,x,y));
                 break;
             }
-            Gv_SetVar(*insptr++, getceilzofslope(sectnum,x,y), g_i, g_p);
+            Gv_SetVarX(*insptr++, getceilzofslope(sectnum,x,y));
             break;
         }
 
@@ -2457,15 +2462,15 @@ static int X_DoExecute(void)
     case CON_UPDATESECTORZ:
         insptr++;
         {
-            int x=Gv_GetVar(*insptr++,g_i,g_p), y=Gv_GetVar(*insptr++,g_i,g_p);
-            int z=(tw==CON_UPDATESECTORZ)?Gv_GetVar(*insptr++,g_i,g_p):0;
+            int x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++);
+            int z=(tw==CON_UPDATESECTORZ)?Gv_GetVarX(*insptr++):0;
             int var=*insptr++;
             short w=sprite[g_i].sectnum;
 
             if (tw==CON_UPDATESECTOR) updatesector(x,y,&w);
             else updatesectorz(x,y,z,&w);
 
-            Gv_SetVar(var, w, g_i, g_p);
+            Gv_SetVarX(var, w);
             break;
         }
 
@@ -2584,7 +2589,7 @@ static int X_DoExecute(void)
 
     case CON_QUAKE:
         insptr++;
-        g_earthquakeTime = (char)Gv_GetVar(*insptr++,g_i,g_p);
+        g_earthquakeTime = (char)Gv_GetVarX(*insptr++);
         A_PlaySound(EARTHQUAKE,g_player[screenpeek].ps->i);
         break;
 
@@ -2765,8 +2770,8 @@ static int X_DoExecute(void)
     case CON_HITRADIUSVAR:
         insptr++;
         {
-            int v1=Gv_GetVar(*insptr++,g_i,g_p),v2=Gv_GetVar(*insptr++,g_i,g_p),v3=Gv_GetVar(*insptr++,g_i,g_p);
-            int v4=Gv_GetVar(*insptr++,g_i,g_p),v5=Gv_GetVar(*insptr++,g_i,g_p);
+            int v1=Gv_GetVarX(*insptr++),v2=Gv_GetVarX(*insptr++),v3=Gv_GetVarX(*insptr++);
+            int v4=Gv_GetVarX(*insptr++),v5=Gv_GetVarX(*insptr++);
             A_RadiusDamage(g_i,v1,v2,v3,v4,v5);
         }
         break;
@@ -2877,7 +2882,7 @@ static int X_DoExecute(void)
 
     case CON_CLEARMAPSTATE:
         insptr++;
-        j = Gv_GetVar(*insptr++,g_i,g_p);
+        j = Gv_GetVarX(*insptr++);
         if ((j < 0 || j >= MAXVOLUMES*MAXLEVELS) && g_scriptSanityChecks)
         {
             OSD_Printf(CON_ERROR "Invalid map number: %d\n",g_errorLineNum,keyw[g_tw],j);
@@ -2991,8 +2996,8 @@ static int X_DoExecute(void)
             }
 
             {
-                int var1 = Gv_GetVar(*insptr++, g_i, g_p), var2 = Gv_GetVar(*insptr++, g_i, g_p);
-                int var3 = Gv_GetVar(*insptr++, g_i, g_p), var4 = Gv_GetVar(*insptr++, g_i, g_p);
+                int var1 = Gv_GetVarX(*insptr++), var2 = Gv_GetVarX(*insptr++);
+                int var3 = Gv_GetVarX(*insptr++), var4 = Gv_GetVarX(*insptr++);
                 Bstrcpy(tempbuf,ScriptQuotes[sq]);
                 Bsprintf(ScriptQuotes[dq],tempbuf,var1,var2,var3,var4);
                 break;
@@ -3033,7 +3038,7 @@ static int X_DoExecute(void)
 
                     insptr++;
 
-                    index=Gv_GetVar(*insptr++,g_i,g_p);
+                    index=Gv_GetVarX(*insptr++);
                     if ((index < aGameArrays[lVarID].size)&&(index>=0))
                     {
                         OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n",g_errorLineNum,keyw[g_tw],
@@ -3080,7 +3085,7 @@ static int X_DoExecute(void)
                 Bsprintf(szBuf," (Global)");
             }
             Bstrcat(g_szBuf,szBuf);
-            Bsprintf(szBuf," =%d\n", Gv_GetVar(lVarID, g_i, g_p)*m);
+            Bsprintf(szBuf," =%d\n", Gv_GetVarX(lVarID)*m);
             Bstrcat(g_szBuf,szBuf);
             OSD_Printf(OSDTEXT_GREEN "%s",g_szBuf);
             insptr++;
@@ -3105,7 +3110,7 @@ static int X_DoExecute(void)
             // syntax sqrt <invar> <outvar>
             int lInVarID=*insptr++, lOutVarID=*insptr++;
 
-            Gv_SetVar(lOutVarID, ksqrt(Gv_GetVar(lInVarID, g_i, g_p)), g_i, g_p);
+            Gv_SetVarX(lOutVarID, ksqrt(Gv_GetVarX(lInVarID)));
             break;
         }
 
@@ -3160,7 +3165,7 @@ static int X_DoExecute(void)
                     break;
             }
             while (k--);
-            Gv_SetVar(lVarID, lFound, g_i, g_p);
+            Gv_SetVarX(lVarID, lFound);
             break;
         }
 
@@ -3175,7 +3180,7 @@ static int X_DoExecute(void)
             // that is of <type> into <getvar>
             // -1 for none found
             // <type> <maxdistvarid> <varid>
-            int lType=*insptr++, lMaxDist=Gv_GetVar(*insptr++, g_i, g_p), lVarID=*insptr++;
+            int lType=*insptr++, lMaxDist=Gv_GetVarX(*insptr++), lVarID=*insptr++;
             int lFound=-1, j, k = 1;
 
             if (tw == CON_FINDNEARSPRITEVAR || tw == CON_FINDNEARSPRITE3DVAR)
@@ -3216,7 +3221,7 @@ static int X_DoExecute(void)
                     break;
             }
             while (k--);
-            Gv_SetVar(lVarID, lFound, g_i, g_p);
+            Gv_SetVarX(lVarID, lFound);
             break;
         }
 
@@ -3229,8 +3234,8 @@ static int X_DoExecute(void)
             // that is of <type> into <getvar>
             // -1 for none found
             // <type> <maxdistvarid> <varid>
-            int lType=*insptr++, lMaxDist=Gv_GetVar(*insptr++, g_i, g_p);
-            int lMaxZDist=Gv_GetVar(*insptr++, g_i, g_p);
+            int lType=*insptr++, lMaxDist=Gv_GetVarX(*insptr++);
+            int lMaxZDist=Gv_GetVarX(*insptr++);
             int lVarID=*insptr++, lFound=-1, lTemp, lTemp2, j, k=MAXSTATUS-1;
             do
             {
@@ -3259,7 +3264,7 @@ static int X_DoExecute(void)
                     break;
             }
             while (k--);
-            Gv_SetVar(lVarID, lFound, g_i, g_p);
+            Gv_SetVarX(lVarID, lFound);
 
             break;
         }
@@ -3302,20 +3307,20 @@ static int X_DoExecute(void)
                     break;
             }
             while (k--);
-            Gv_SetVar(lVarID, lFound, g_i, g_p);
+            Gv_SetVarX(lVarID, lFound);
             break;
         }
 
     case CON_FINDPLAYER:
         insptr++;
-        Gv_SetVar(g_iReturnVarID, A_FindPlayer(&sprite[g_i],&j), g_i, g_p);
-        Gv_SetVar(*insptr++, j, g_i, g_p);
+        Gv_SetVarX(g_iReturnVarID, A_FindPlayer(&sprite[g_i],&j));
+        Gv_SetVarX(*insptr++, j);
         break;
 
     case CON_FINDOTHERPLAYER:
         insptr++;
-        Gv_SetVar(g_iReturnVarID, P_FindOtherPlayer(g_p,&j), g_i, g_p);
-        Gv_SetVar(*insptr++, j, g_i, g_p);
+        Gv_SetVarX(g_iReturnVarID, P_FindOtherPlayer(g_p,&j));
+        Gv_SetVarX(*insptr++, j);
         break;
 
     case CON_SETPLAYER:
@@ -3328,7 +3333,7 @@ static int X_DoExecute(void)
             // HACK: need to have access to labels structure at run-time...
 
             if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2)
-                lParm2=Gv_GetVar(*insptr++, g_i, g_p);
+                lParm2=Gv_GetVarX(*insptr++);
             lVar2=*insptr++;
 
             X_AccessPlayer(tw==CON_SETPLAYER, lVar1, lLabelID, lVar2, lParm2);
@@ -3365,7 +3370,7 @@ static int X_DoExecute(void)
         {
             // syntax [gs]etplayer[<var>].x <VAR>
             // <varid> <xxxid> <varid>
-            int lVar1=Gv_GetVar(*insptr++, g_i, g_p), lLabelID=*insptr++, lVar2=*insptr++;
+            int lVar1=Gv_GetVarX(*insptr++), lLabelID=*insptr++, lVar2=*insptr++;
 
             X_AccessProjectile(tw==CON_SETPROJECTILE,lVar1,lLabelID,lVar2);
             break;
@@ -3390,7 +3395,7 @@ static int X_DoExecute(void)
             // syntax [gs]etactorvar[<var>].<varx> <VAR>
             // gets the value of the per-actor variable varx into VAR
             // <var> <varx> <VAR>
-            int lSprite=Gv_GetVar(*insptr++, g_i, g_p), lVar1=*insptr++;
+            int lSprite=Gv_GetVarX(*insptr++), lVar1=*insptr++;
             j=*insptr++;
 
             if ((lSprite < 0 || lSprite >= MAXSPRITES) && g_scriptSanityChecks)
@@ -3403,10 +3408,10 @@ static int X_DoExecute(void)
 
             if (tw == CON_SETACTORVAR)
             {
-                Gv_SetVar(lVar1, Gv_GetVar(j, g_i, g_p), lSprite, g_p);
+                Gv_SetVar(lVar1, Gv_GetVarX(j), lSprite, g_p);
                 break;
             }
-            Gv_SetVar(j, Gv_GetVar(lVar1, lSprite, g_p), g_i, g_p);
+            Gv_SetVarX(j, Gv_GetVar(lVar1, lSprite, g_p));
             break;
         }
 
@@ -3417,7 +3422,7 @@ static int X_DoExecute(void)
             int iPlayer;
 
             if (*insptr != g_iThisActorID)
-                iPlayer=Gv_GetVar(*insptr, g_i, g_p);
+                iPlayer=Gv_GetVarX(*insptr);
             else iPlayer = g_p;
 
             insptr++;
@@ -3432,10 +3437,10 @@ static int X_DoExecute(void)
 
                 if (tw == CON_SETPLAYERVAR)
                 {
-                    Gv_SetVar(lVar1, Gv_GetVar(lVar2, g_i, g_p), g_i, iPlayer);
+                    Gv_SetVar(lVar1, Gv_GetVarX(lVar2), g_i, iPlayer);
                     break;
                 }
-                Gv_SetVar(lVar2, Gv_GetVar(lVar1, g_i, iPlayer), g_i, g_p);
+                Gv_SetVarX(lVar2, Gv_GetVar(lVar1, g_i, iPlayer));
                 break;
             }
         }
@@ -3450,7 +3455,7 @@ static int X_DoExecute(void)
             int lVar1=*insptr++, lLabelID=*insptr++, lParm2 = 0;
 
             if (ActorLabels[lLabelID].flags & LABEL_HASPARM2)
-                lParm2=Gv_GetVar(*insptr++, g_i, g_p);
+                lParm2=Gv_GetVarX(*insptr++);
 
             {
                 int lVar2=*insptr++;
@@ -3476,17 +3481,17 @@ static int X_DoExecute(void)
     case CON_GETANGLETOTARGET:
         insptr++;
         // ActorExtra[g_i].lastvx and lastvy are last known location of target.
-        Gv_SetVar(*insptr++, getangle(ActorExtra[g_i].lastvx-g_sp->x,ActorExtra[g_i].lastvy-g_sp->y), g_i, g_p);
+        Gv_SetVarX(*insptr++, getangle(ActorExtra[g_i].lastvx-g_sp->x,ActorExtra[g_i].lastvy-g_sp->y));
         break;
 
     case CON_ANGOFFVAR:
         insptr++;
-        spriteext[g_i].angoff=Gv_GetVar(*insptr++, g_i, g_p);
+        spriteext[g_i].angoff=Gv_GetVarX(*insptr++);
         break;
 
     case CON_LOCKPLAYER:
         insptr++;
-        g_player[g_p].ps->transporter_hold=Gv_GetVar(*insptr++, g_i, g_p);
+        g_player[g_p].ps->transporter_hold=Gv_GetVarX(*insptr++);
         break;
 
     case CON_CHECKAVAILWEAPON:
@@ -3495,7 +3500,7 @@ static int X_DoExecute(void)
         j = g_p;
 
         if (*insptr != g_iThisActorID)
-            j=Gv_GetVar(*insptr, g_i, g_p);
+            j=Gv_GetVarX(*insptr);
 
         insptr++;
 
@@ -3513,29 +3518,29 @@ static int X_DoExecute(void)
 
     case CON_GETPLAYERANGLE:
         insptr++;
-        Gv_SetVar(*insptr++, g_player[g_p].ps->ang, g_i, g_p);
+        Gv_SetVarX(*insptr++, g_player[g_p].ps->ang);
         break;
 
     case CON_SETPLAYERANGLE:
         insptr++;
-        g_player[g_p].ps->ang=Gv_GetVar(*insptr++, g_i, g_p);
+        g_player[g_p].ps->ang=Gv_GetVarX(*insptr++);
         g_player[g_p].ps->ang &= 2047;
         break;
 
     case CON_GETACTORANGLE:
         insptr++;
-        Gv_SetVar(*insptr++, g_sp->ang, g_i, g_p);
+        Gv_SetVarX(*insptr++, g_sp->ang);
         break;
 
     case CON_SETACTORANGLE:
         insptr++;
-        g_sp->ang=Gv_GetVar(*insptr++, g_i, g_p);
+        g_sp->ang=Gv_GetVarX(*insptr++);
         g_sp->ang &= 2047;
         break;
 
     case CON_SETVAR:
         insptr++;
-        Gv_SetVar(*insptr, *(insptr+1), g_i, g_p);
+        Gv_SetVarX(*insptr, *(insptr+1));
         insptr += 2;
         break;
 
@@ -3543,8 +3548,8 @@ static int X_DoExecute(void)
         insptr++;
         j=*insptr++;
         {
-            int index = Gv_GetVar(*insptr++, g_i, g_p);
-            int value = Gv_GetVar(*insptr++, g_i, g_p);
+            int index = Gv_GetVarX(*insptr++);
+            int value = Gv_GetVarX(*insptr++);
 
 //            SetGameArrayID(j,index,value);
             if (j<0 || j >= g_gameArrayCount || index >= aGameArrays[j].size || index < 0)
@@ -3558,14 +3563,14 @@ static int X_DoExecute(void)
     case CON_GETARRAYSIZE:
         insptr++;
         j=*insptr++;
-        Gv_SetVar(*insptr++,aGameArrays[j].size, g_i, g_p);
+        Gv_SetVarX(*insptr++,aGameArrays[j].size);
         break;
 
     case CON_RESIZEARRAY:
         insptr++;
         j=*insptr++;
         {
-            int asize = Gv_GetVar(*insptr++, g_i, g_p);
+            int asize = Gv_GetVarX(*insptr++);
             if (asize > 0)
             {
                 OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);
@@ -3577,19 +3582,19 @@ static int X_DoExecute(void)
 
     case CON_RANDVAR:
         insptr++;
-        Gv_SetVar(*insptr, mulscale16(krand(), *(insptr+1)+1), g_i, g_p);
+        Gv_SetVarX(*insptr, mulscale16(krand(), *(insptr+1)+1));
         insptr += 2;
         break;
 
     case CON_DISPLAYRANDVAR:
         insptr++;
-        Gv_SetVar(*insptr, mulscale15(rand(), *(insptr+1)+1), g_i, g_p);
+        Gv_SetVarX(*insptr, mulscale15(rand(), *(insptr+1)+1));
         insptr += 2;
         break;
 
     case CON_MULVAR:
         insptr++;
-        Gv_SetVar(*insptr, Gv_GetVar(*insptr, g_i, g_p) * *(insptr+1), g_i, g_p);
+        Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) * *(insptr+1));
         insptr += 2;
         break;
 
@@ -3601,7 +3606,7 @@ static int X_DoExecute(void)
             insptr += 2;
             break;
         }
-        Gv_SetVar(*insptr, Gv_GetVar(*insptr, g_i, g_p) / *(insptr+1), g_i, g_p);
+        Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) / *(insptr+1));
         insptr += 2;
         break;
 
@@ -3613,88 +3618,88 @@ static int X_DoExecute(void)
             insptr += 2;
             break;
         }
-        Gv_SetVar(*insptr,Gv_GetVar(*insptr, g_i, g_p)%*(insptr+1), g_i, g_p);
+        Gv_SetVarX(*insptr,Gv_GetVarX(*insptr)%*(insptr+1));
         insptr += 2;
         break;
 
     case CON_ANDVAR:
         insptr++;
-        Gv_SetVar(*insptr,Gv_GetVar(*insptr, g_i, g_p) & *(insptr+1), g_i, g_p);
+        Gv_SetVarX(*insptr,Gv_GetVarX(*insptr) & *(insptr+1));
         insptr += 2;
         break;
 
     case CON_ORVAR:
         insptr++;
-        Gv_SetVar(*insptr,Gv_GetVar(*insptr, g_i, g_p) | *(insptr+1), g_i, g_p);
+        Gv_SetVarX(*insptr,Gv_GetVarX(*insptr) | *(insptr+1));
         insptr += 2;
         break;
 
     case CON_XORVAR:
         insptr++;
-        Gv_SetVar(*insptr,Gv_GetVar(*insptr, g_i, g_p) ^ *(insptr+1), g_i, g_p);
+        Gv_SetVarX(*insptr,Gv_GetVarX(*insptr) ^ *(insptr+1));
         insptr += 2;
         break;
 
     case CON_SETVARVAR:
         insptr++;
         j=*insptr++;
-        Gv_SetVar(j, Gv_GetVar(*insptr++, g_i, g_p), g_i, g_p);
+        Gv_SetVarX(j, Gv_GetVarX(*insptr++));
         break;
 
     case CON_RANDVARVAR:
         insptr++;
         j=*insptr++;
-        Gv_SetVar(j,mulscale(krand(), Gv_GetVar(*insptr++, g_i, g_p)+1, 16), g_i, g_p);
+        Gv_SetVarX(j,mulscale(krand(), Gv_GetVarX(*insptr++)+1, 16));
         break;
 
     case CON_DISPLAYRANDVARVAR:
         insptr++;
         j=*insptr++;
-        Gv_SetVar(j,mulscale(rand(), Gv_GetVar(*insptr++, g_i, g_p)+1, 15), g_i, g_p);
+        Gv_SetVarX(j,mulscale(rand(), Gv_GetVarX(*insptr++)+1, 15));
         break;
 
     case CON_GMAXAMMO:
         insptr++;
-        j=Gv_GetVar(*insptr++, g_i, g_p);
+        j=Gv_GetVarX(*insptr++);
         if ((j<0 || j>=MAX_WEAPONS) && g_scriptSanityChecks)
         {
             OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],j);
             insptr++;
             break;
         }
-        Gv_SetVar(*insptr++, g_player[g_p].ps->max_ammo_amount[j], g_i, g_p);
+        Gv_SetVarX(*insptr++, g_player[g_p].ps->max_ammo_amount[j]);
         break;
 
     case CON_SMAXAMMO:
         insptr++;
-        j=Gv_GetVar(*insptr++, g_i, g_p);
+        j=Gv_GetVarX(*insptr++);
         if ((j<0 || j>=MAX_WEAPONS) && g_scriptSanityChecks)
         {
             OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],j);
             insptr++;
             break;
         }
-        g_player[g_p].ps->max_ammo_amount[j]=Gv_GetVar(*insptr++, g_i, g_p);
+        g_player[g_p].ps->max_ammo_amount[j]=Gv_GetVarX(*insptr++);
         break;
 
     case CON_MULVARVAR:
         insptr++;
         j=*insptr++;
-        Gv_SetVar(j, Gv_GetVar(j, g_i, g_p)*Gv_GetVar(*insptr++, g_i, g_p), g_i, g_p);
+        Gv_SetVarX(j, Gv_GetVarX(j)*Gv_GetVarX(*insptr++));
         break;
 
     case CON_DIVVARVAR:
         insptr++;
         j=*insptr++;
         {
-            int l2=Gv_GetVar(*insptr++, g_i, g_p);
+            int l2=Gv_GetVarX(*insptr++);
 
             if (l2==0)
             {
                 OSD_Printf(CON_ERROR "Divide by zero.\n",g_errorLineNum,keyw[g_tw]);
                 break;
             }
-            Gv_SetVar(j, Gv_GetVar(j, g_i, g_p)/l2 , g_i, g_p);
+            Gv_SetVarX(j, Gv_GetVarX(j)/l2);
             break;
         }
 
@@ -3702,7 +3707,7 @@ static int X_DoExecute(void)
         insptr++;
         j=*insptr++;
         {
-            int l2=Gv_GetVar(*insptr++, g_i, g_p);
+            int l2=Gv_GetVarX(*insptr++);
 
             if (l2==0)
             {
@@ -3710,106 +3715,106 @@ static int X_DoExecute(void)
                 break;
             }
 
-            Gv_SetVar(j, Gv_GetVar(j, g_i, g_p) % l2, g_i, g_p);
+            Gv_SetVarX(j, Gv_GetVarX(j) % l2);
             break;
         }
 
     case CON_ANDVARVAR:
         insptr++;
         j=*insptr++;
-        Gv_SetVar(j, Gv_GetVar(j, g_i, g_p) & Gv_GetVar(*insptr++, g_i, g_p), g_i, g_p);
+        Gv_SetVarX(j, Gv_GetVarX(j) & Gv_GetVarX(*insptr++));
         break;
 
     case CON_XORVARVAR:
         insptr++;
         j=*insptr++;
-        Gv_SetVar(j, Gv_GetVar(j, g_i, g_p) ^ Gv_GetVar(*insptr++, g_i, g_p) , g_i, g_p);
+        Gv_SetVarX(j, Gv_GetVarX(j) ^ Gv_GetVarX(*insptr++));
         break;
 
     case CON_ORVARVAR:
         insptr++;
         j=*insptr++;
-        Gv_SetVar(j, Gv_GetVar(j, g_i, g_p) | Gv_GetVar(*insptr++, g_i, g_p) , g_i, g_p);
+        Gv_SetVarX(j, Gv_GetVarX(j) | Gv_GetVarX(*insptr++));
         break;
 
     case CON_SUBVAR:
         insptr++;
-        Gv_SetVar(*insptr, Gv_GetVar(*insptr, g_i, g_p) - *(insptr+1), g_i, g_p);
+        Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) - *(insptr+1));
         insptr += 2;
         break;
 
     case CON_SUBVARVAR:
         insptr++;
         j=*insptr++;
-        Gv_SetVar(j, Gv_GetVar(j, g_i, g_p) - Gv_GetVar(*insptr++, g_i, g_p), g_i, g_p);
+        Gv_SetVarX(j, Gv_GetVarX(j) - Gv_GetVarX(*insptr++));
         break;
 
     case CON_ADDVAR:
         insptr++;
-        Gv_SetVar(*insptr, Gv_GetVar(*insptr, g_i, g_p) + *(insptr+1), g_i, g_p);
+        Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) + *(insptr+1));
         insptr += 2;
         break;
 
     case CON_SHIFTVARL:
         insptr++;
-        Gv_SetVar(*insptr, Gv_GetVar(*insptr, g_i, g_p) << *(insptr+1), g_i, g_p);
+        Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) << *(insptr+1));
         insptr += 2;
         break;
 
     case CON_SHIFTVARR:
         insptr++;
-        Gv_SetVar(*insptr, Gv_GetVar(*insptr, g_i, g_p) >> *(insptr+1), g_i, g_p);
+        Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) >> *(insptr+1));
         insptr += 2;
         break;
 
     case CON_SIN:
         insptr++;
-        Gv_SetVar(*insptr, sintable[Gv_GetVar(*(insptr+1), g_i, g_p)&2047], g_i, g_p);
+        Gv_SetVarX(*insptr, sintable[Gv_GetVarX(*(insptr+1))&2047]);
         insptr += 2;
         break;
 
     case CON_COS:
         insptr++;
-        Gv_SetVar(*insptr, sintable[(Gv_GetVar(*(insptr+1), g_i, g_p)+512)&2047], g_i, g_p);
+        Gv_SetVarX(*insptr, sintable[(Gv_GetVarX(*(insptr+1))+512)&2047]);
         insptr += 2;
         break;
 
     case CON_ADDVARVAR:
         insptr++;
         j=*insptr++;
-        Gv_SetVar(j, Gv_GetVar(j, g_i, g_p) + Gv_GetVar(*insptr++, g_i, g_p), g_i, g_p);
+        Gv_SetVarX(j, Gv_GetVarX(j) + Gv_GetVarX(*insptr++));
         break;
 
     case CON_SPGETLOTAG:
         insptr++;
-        Gv_SetVar(g_iLoTagID, g_sp->lotag, g_i, g_p);
+        Gv_SetVarX(g_iLoTagID, g_sp->lotag);
         break;
 
     case CON_SPGETHITAG:
         insptr++;
-        Gv_SetVar(g_iHiTagID, g_sp->hitag, g_i, g_p);
+        Gv_SetVarX(g_iHiTagID, g_sp->hitag);
         break;
 
     case CON_SECTGETLOTAG:
         insptr++;
-        Gv_SetVar(g_iLoTagID, sector[g_sp->sectnum].lotag, g_i, g_p);
+        Gv_SetVarX(g_iLoTagID, sector[g_sp->sectnum].lotag);
         break;
 
     case CON_SECTGETHITAG:
         insptr++;
-        Gv_SetVar(g_iHiTagID, sector[g_sp->sectnum].hitag, g_i, g_p);
+        Gv_SetVarX(g_iHiTagID, sector[g_sp->sectnum].hitag);
         break;
 
     case CON_GETTEXTUREFLOOR:
         insptr++;
-        Gv_SetVar(g_iTextureID, sector[g_sp->sectnum].floorpicnum, g_i, g_p);
+        Gv_SetVarX(g_iTextureID, sector[g_sp->sectnum].floorpicnum);
         break;
 
     case CON_STARTTRACK:
     case CON_STARTTRACKVAR:
         insptr++;
         if (tw == CON_STARTTRACK) g_musicIndex=(ud.volume_number*MAXLEVELS)+(*(insptr++));
-        else g_musicIndex=(ud.volume_number*MAXLEVELS)+(Gv_GetVar(*(insptr++), g_i, g_p));
+        else g_musicIndex=(ud.volume_number*MAXLEVELS)+(Gv_GetVarX(*(insptr++)));
         if (MapInfo[(unsigned char)g_musicIndex].musicfn == NULL)
         {
             OSD_Printf(CON_ERROR "null music for map %d\n",g_errorLineNum,keyw[g_tw],g_musicIndex);
@@ -3821,7 +3826,7 @@ static int X_DoExecute(void)
 
     case CON_ACTIVATECHEAT:
         insptr++;
-        j=Gv_GetVar(*(insptr++), g_i, g_p);
+        j=Gv_GetVarX(*(insptr++));
         if (numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
         {
             OSD_Printf(CON_ERROR "not in a single-player game.\n",g_errorLineNum,keyw[g_tw]);
@@ -3832,7 +3837,7 @@ static int X_DoExecute(void)
 
     case CON_SETGAMEPALETTE:
         insptr++;
-        j=Gv_GetVar(*(insptr++), g_i, g_p);
+        j=Gv_GetVarX(*(insptr++));
         switch (j)
         {
         default:
@@ -3848,67 +3853,67 @@ static int X_DoExecute(void)
 
     case CON_GETTEXTURECEILING:
         insptr++;
-        Gv_SetVar(g_iTextureID, sector[g_sp->sectnum].ceilingpicnum, g_i, g_p);
+        Gv_SetVarX(g_iTextureID, sector[g_sp->sectnum].ceilingpicnum);
         break;
 
     case CON_IFVARVARAND:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) & Gv_GetVar(*(insptr), g_i, g_p));
+        X_DoConditional(Gv_GetVarX(j) & Gv_GetVarX(*(insptr)));
         break;
 
     case CON_IFVARVAROR:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) | Gv_GetVar(*(insptr), g_i, g_p));
+        X_DoConditional(Gv_GetVarX(j) | Gv_GetVarX(*(insptr)));
         break;
 
     case CON_IFVARVARXOR:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) ^ Gv_GetVar(*(insptr), g_i, g_p));
+        X_DoConditional(Gv_GetVarX(j) ^ Gv_GetVarX(*(insptr)));
         break;
 
     case CON_IFVARVAREITHER:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) || Gv_GetVar(*(insptr), g_i, g_p));
+        X_DoConditional(Gv_GetVarX(j) || Gv_GetVarX(*(insptr)));
         break;
 
     case CON_IFVARVARN:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) != Gv_GetVar(*(insptr), g_i, g_p));
+        X_DoConditional(Gv_GetVarX(j) != Gv_GetVarX(*(insptr)));
         break;
 
     case CON_IFVARVARE:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) == Gv_GetVar(*(insptr), g_i, g_p));
+        X_DoConditional(Gv_GetVarX(j) == Gv_GetVarX(*(insptr)));
         break;
 
     case CON_IFVARVARG:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) > Gv_GetVar(*(insptr), g_i, g_p));
+        X_DoConditional(Gv_GetVarX(j) > Gv_GetVarX(*(insptr)));
         break;
 
     case CON_IFVARVARL:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) < Gv_GetVar(*(insptr), g_i, g_p));
+        X_DoConditional(Gv_GetVarX(j) < Gv_GetVarX(*(insptr)));
         break;
 
     case CON_IFVARE:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) == *insptr);
+        X_DoConditional(Gv_GetVarX(j) == *insptr);
         break;
 
     case CON_IFVARN:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) != *insptr);
+        X_DoConditional(Gv_GetVarX(j) != *insptr);
         break;
 
     case CON_WHILEVARN:
@@ -3918,7 +3923,7 @@ static int X_DoExecute(void)
         do
         {
             insptr=savedinsptr;
-            if (Gv_GetVar(*(insptr-1), g_i, g_p) == *insptr)
+            if (Gv_GetVarX(*(insptr-1)) == *insptr)
                 j=0;
             X_DoConditional(j);
         }
@@ -3934,9 +3939,9 @@ static int X_DoExecute(void)
         do
         {
             insptr=savedinsptr;
-            i = Gv_GetVar(*(insptr-1), g_i, g_p);
+            i = Gv_GetVarX(*(insptr-1));
             k=*(insptr);
-            if (i == Gv_GetVar(k, g_i, g_p))
+            if (i == Gv_GetVarX(k))
                 j=0;
             X_DoConditional(j);
         }
@@ -3947,37 +3952,37 @@ static int X_DoExecute(void)
     case CON_IFVARAND:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) & *insptr);
+        X_DoConditional(Gv_GetVarX(j) & *insptr);
         break;
 
     case CON_IFVAROR:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) | *insptr);
+        X_DoConditional(Gv_GetVarX(j) | *insptr);
         break;
 
     case CON_IFVARXOR:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) ^ *insptr);
+        X_DoConditional(Gv_GetVarX(j) ^ *insptr);
         break;
 
     case CON_IFVAREITHER:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) || *insptr);
+        X_DoConditional(Gv_GetVarX(j) || *insptr);
         break;
 
     case CON_IFVARG:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) > *insptr);
+        X_DoConditional(Gv_GetVarX(j) > *insptr);
         break;
 
     case CON_IFVARL:
         insptr++;
         j=*insptr++;
-        X_DoConditional(Gv_GetVar(j, g_i, g_p) < *insptr);
+        X_DoConditional(Gv_GetVarX(j) < *insptr);
         break;
 
     case CON_IFPHEALTHL:
@@ -4107,7 +4112,7 @@ static int X_DoExecute(void)
     case CON_USERQUOTE:
         insptr++;
         {
-            int i=Gv_GetVar(*insptr++, g_i, g_p);
+            int i=Gv_GetVarX(*insptr++);
 
             if ((ScriptQuotes[i] == NULL) && g_scriptSanityChecks)
             {
@@ -4172,24 +4177,24 @@ static int X_DoExecute(void)
 
     case CON_SPRITEFLAGS:
         insptr++;
-        ActorExtra[g_i].flags = Gv_GetVar(*insptr++, g_i, g_p);
+        ActorExtra[g_i].flags = Gv_GetVarX(*insptr++);
         break;
 
     case CON_GETTICKS:
         insptr++;
         j=*insptr++;
-        Gv_SetVar(j, getticks(), g_i, g_p);
+        Gv_SetVarX(j, getticks());
         break;
 
     case CON_GETCURRADDRESS:
         insptr++;
         j=*insptr++;
-        Gv_SetVar(j, (intptr_t)(insptr-script), g_i, g_p);
+        Gv_SetVarX(j, (intptr_t)(insptr-script));
         break;
 
     case CON_JUMP:
         insptr++;
-        j = Gv_GetVar(*insptr++, g_i, g_p);
+        j = Gv_GetVarX(*insptr++);
         insptr = (intptr_t *)(j+script);
         break;
 
@@ -4393,7 +4398,7 @@ void G_SaveMapState(mapstate_t *save)
             }
         }
 
-        Bmemcpy(&save->ActorExtra[0],&ActorExtra[0],sizeof(actordata_t)*MAXSPRITES);
+        Bmemcpy(&save->ActorExtra[0],&ActorExtra[0],sizeof(ActorData_t)*MAXSPRITES);
 
         for (i=MAXSPRITES-1;i>=0;i--)
         {
@@ -4447,15 +4452,15 @@ void G_SaveMapState(mapstate_t *save)
             {
                 if (!save->vars[i])
                     save->vars[i] = Bcalloc(MAXPLAYERS,sizeof(intptr_t));
-                Bmemcpy(&save->vars[i][0],&aGameVars[i].plValues[0],sizeof(intptr_t) * MAXPLAYERS);
+                Bmemcpy(&save->vars[i][0],&aGameVars[i].val.plValues[0],sizeof(intptr_t) * MAXPLAYERS);
             }
             else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
             {
                 if (!save->vars[i])
                     save->vars[i] = Bcalloc(MAXSPRITES,sizeof(intptr_t));
-                Bmemcpy(&save->vars[i][0],&aGameVars[i].plValues[0],sizeof(intptr_t) * MAXSPRITES);
+                Bmemcpy(&save->vars[i][0],&aGameVars[i].val.plValues[0],sizeof(intptr_t) * MAXSPRITES);
             }
-            else save->vars[i] = (intptr_t *)aGameVars[i].lValue;
+            else save->vars[i] = (intptr_t *)aGameVars[i].val.lValue;
         }
 
         ototalclock = totalclock;
@@ -4491,7 +4496,7 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(&headspritestat[STAT_DEFAULT],&save->headspritestat[STAT_DEFAULT],sizeof(headspritestat));
         Bmemcpy(&prevspritestat[STAT_DEFAULT],&save->prevspritestat[STAT_DEFAULT],sizeof(prevspritestat));
         Bmemcpy(&nextspritestat[STAT_DEFAULT],&save->nextspritestat[STAT_DEFAULT],sizeof(nextspritestat));
-        Bmemcpy(&ActorExtra[0],&save->ActorExtra[0],sizeof(actordata_t)*MAXSPRITES);
+        Bmemcpy(&ActorExtra[0],&save->ActorExtra[0],sizeof(ActorData_t)*MAXSPRITES);
 
         for (i=MAXSPRITES-1;i>=0;i--)
         {
@@ -4536,10 +4541,10 @@ void G_RestoreMapState(mapstate_t *save)
         {
             if (aGameVars[i].dwFlags & GAMEVAR_NORESET) continue;
             if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
-                Bmemcpy(&aGameVars[i].plValues[0],&save->vars[i][0],sizeof(intptr_t) * MAXPLAYERS);
+                Bmemcpy(&aGameVars[i].val.plValues[0],&save->vars[i][0],sizeof(intptr_t) * MAXPLAYERS);
             else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
-                Bmemcpy(&aGameVars[i].plValues[0],&save->vars[i][0],sizeof(intptr_t) * MAXSPRITES);
-            else aGameVars[i].lValue = (intptr_t)save->vars[i];
+                Bmemcpy(&aGameVars[i].val.plValues[0],&save->vars[i][0],sizeof(intptr_t) * MAXSPRITES);
+            else aGameVars[i].val.lValue = (intptr_t)save->vars[i];
         }
 
         Gv_RefreshPointers();

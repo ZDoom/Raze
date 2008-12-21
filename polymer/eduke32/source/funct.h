@@ -232,6 +232,9 @@ extern int Gv_ReadSave(int fil);
 
 extern int __fastcall Gv_GetVar(int id, int iActor, int iPlayer);
 extern void __fastcall Gv_SetVar(int id, int lValue, int iActor, int iPlayer);
+extern int __fastcall Gv_GetVarX(int id);
+extern void __fastcall Gv_SetVarX(int id, int lValue);
+
 // extern void SetGameArrayID(int id,int index, int lValue);
 
 extern int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags);

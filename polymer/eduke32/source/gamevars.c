@@ -38,10 +38,12 @@ static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
     //  AddLog("Gv_Free");
     for (;i>=0;i--)
     {
-        if (aGameVars[i].plValues)
-            Bfree(aGameVars[i].plValues);
-        aGameVars[i].plValues=NULL;
-        aGameVars[i].bReset=1;
+        if (aGameVars[i].dwFlags & (GAMEVAR_USER_MASK) && aGameVars[i].val.plValues)
+        {
+            Bfree(aGameVars[i].val.plValues);
+            aGameVars[i].val.plValues=NULL;
+        }
+        aGameVars[i].dwFlags |= GAMEVAR_RESET;
         if (i >= MAXGAMEARRAYS)
             continue;
         if (aGameArrays[i].plValues)
@@ -64,16 +66,18 @@ static void Gv_Clear(void)
 
     for (;i>=0;i--)
     {
-        aGameVars[i].lValue=0;
+        aGameVars[i].val.lValue=0;
         if (aGameVars[i].szLabel)
             Bfree(aGameVars[i].szLabel);
         aGameVars[i].szLabel=NULL;
         aGameVars[i].dwFlags=0;
 
-        if (aGameVars[i].plValues)
-            Bfree(aGameVars[i].plValues);
-        aGameVars[i].plValues=NULL;
-        aGameVars[i].bReset=1;
+        if (aGameVars[i].val.plValues)
+        {
+            Bfree(aGameVars[i].val.plValues);
+            aGameVars[i].val.plValues=NULL;
+        }
+        aGameVars[i].dwFlags |= GAMEVAR_RESET;
         if (i >= MAXGAMEARRAYS)
             continue;
         if (aGameArrays[i].szLabel)
@@ -113,40 +117,22 @@ int Gv_ReadSave(int fil)
         aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
         if (kdfread(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil) != 1) goto corrupt;
         HASH_replace(&gamevarH,aGameVars[i].szLabel,i);
+
+        if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
+        {
+            aGameVars[i].val.plValues=Bcalloc(MAXPLAYERS,sizeof(intptr_t));
+            if (kdfread(aGameVars[i].val.plValues,sizeof(intptr_t) * MAXPLAYERS, 1, fil) != 1) goto corrupt;
+        }
+        else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
+        {
+            aGameVars[i].val.plValues=Bcalloc(MAXSPRITES,sizeof(intptr_t));
+            if (kdfread(&aGameVars[i].val.plValues[0],sizeof(intptr_t), MAXSPRITES, fil) != MAXSPRITES) goto corrupt;
+        }
     }
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
-    for (i=0;i<g_gameVarCount;i++)
-    {
-        if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
-            aGameVars[i].plValues=Bcalloc(MAXPLAYERS,sizeof(intptr_t));
-        else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
-            aGameVars[i].plValues=Bcalloc(MAXSPRITES,sizeof(intptr_t));
-        else
-            // else nothing 'extra...'
-            aGameVars[i].plValues=NULL;
-    }
 
     Gv_InitWeaponPointers();
-
-    //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-    //  AddLog(g_szBuf);
-    for (i=0;i<g_gameVarCount;i++)
-    {
-        if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
-        {
-            //Bsprintf(g_szBuf,"Reading value array for %s (%d)",aGameVars[i].szLabel,sizeof(int) * MAXPLAYERS);
-            //AddLog(g_szBuf);
-            if (kdfread(aGameVars[i].plValues,sizeof(intptr_t) * MAXPLAYERS, 1, fil) != 1) goto corrupt;
-        }
-        else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
-        {
-            //Bsprintf(g_szBuf,"Reading value array for %s (%d)",aGameVars[i].szLabel,sizeof(int) * MAXSPRITES);
-            //AddLog(g_szBuf);
-            if (kdfread(&aGameVars[i].plValues[0],sizeof(intptr_t), MAXSPRITES, fil) != MAXSPRITES) goto corrupt;
-        }
-        // else nothing 'extra...'
-    }
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
@@ -159,20 +145,8 @@ int Gv_ReadSave(int fil)
         aGameArrays[i].szLabel=Bcalloc(MAXARRAYLABEL,sizeof(char));
         if (kdfread(aGameArrays[i].szLabel,sizeof(char) * MAXARRAYLABEL, 1, fil) != 1) goto corrupt;
         HASH_replace(&arrayH,aGameArrays[i].szLabel,i);
-    }
-    //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-    //  AddLog(g_szBuf);
-    for (i=0;i<g_gameArrayCount;i++)
-    {
-        aGameArrays[i].plValues=Bcalloc(aGameArrays[i].size,sizeof(intptr_t));
-    }
 
-    //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-    //  AddLog(g_szBuf);
-    for (i=0;i<g_gameArrayCount;i++)
-    {
-        //Bsprintf(g_szBuf,"Reading value array for %s (%d)",aGameVars[i].szLabel,sizeof(int) * MAXPLAYERS);
-        //AddLog(g_szBuf);
+        aGameArrays[i].plValues=Bcalloc(aGameArrays[i].size,sizeof(intptr_t));
         if (kdfread(aGameArrays[i].plValues,sizeof(intptr_t) * aGameArrays[i].size, 1, fil) < 1) goto corrupt;
     }
 
@@ -259,25 +233,19 @@ void Gv_WriteSave(FILE *fil)
     {
         dfwrite(&(aGameVars[i]),sizeof(gamevar_t),1,fil);
         dfwrite(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil);
-    }
 
-    //     dfwrite(&aGameVars,sizeof(aGameVars),1,fil);
-
-    for (i=0;i<g_gameVarCount;i++)
-    {
         if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
         {
             //Bsprintf(g_szBuf,"Writing value array for %s (%d)",aGameVars[i].szLabel,sizeof(int) * MAXPLAYERS);
             //AddLog(g_szBuf);
-            dfwrite(aGameVars[i].plValues,sizeof(intptr_t) * MAXPLAYERS, 1, fil);
+            dfwrite(aGameVars[i].val.plValues,sizeof(intptr_t) * MAXPLAYERS, 1, fil);
         }
         else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
         {
             //Bsprintf(g_szBuf,"Writing value array for %s (%d)",aGameVars[i].szLabel,sizeof(int) * MAXSPRITES);
             //AddLog(g_szBuf);
-            dfwrite(&aGameVars[i].plValues[0],sizeof(intptr_t), MAXSPRITES, fil);
+            dfwrite(&aGameVars[i].val.plValues[0],sizeof(intptr_t), MAXSPRITES, fil);
         }
-        // else nothing 'extra...'
     }
 
     dfwrite(&g_gameArrayCount,sizeof(g_gameArrayCount),1,fil);
@@ -286,12 +254,6 @@ void Gv_WriteSave(FILE *fil)
     {
         dfwrite(&(aGameArrays[i]),sizeof(gamearray_t),1,fil);
         dfwrite(aGameArrays[i].szLabel,sizeof(char) * MAXARRAYLABEL, 1, fil);
-    }
-
-    //     dfwrite(&aGameVars,sizeof(aGameVars),1,fil);
-
-    for (i=0;i<g_gameArrayCount;i++)
-    {
         dfwrite(aGameArrays[i].plValues,sizeof(intptr_t) * aGameArrays[i].size, 1, fil);
     }
 
@@ -358,13 +320,13 @@ void Gv_DumpValues(FILE *fp)
             fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
 
             if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR))
-                fprintf(fp,"%d",*((int*)aGameVars[i].lValue));
+                fprintf(fp,"%d",*((int*)aGameVars[i].val.lValue));
             else if (aGameVars[i].dwFlags & (GAMEVAR_SHORTPTR))
-                fprintf(fp,"%d",*((short*)aGameVars[i].lValue));
+                fprintf(fp,"%d",*((short*)aGameVars[i].val.lValue));
             else if (aGameVars[i].dwFlags & (GAMEVAR_CHARPTR))
-                fprintf(fp,"%d",*((char*)aGameVars[i].lValue));
+                fprintf(fp,"%d",*((char*)aGameVars[i].val.lValue));
             else
-                fprintf(fp,"%" PRIdPTR "",aGameVars[i].lValue);
+                fprintf(fp,"%" PRIdPTR "",aGameVars[i].val.lValue);
             if (aGameVars[i].dwFlags & (GAMEVAR_PERPLAYER))
                 fprintf(fp," GAMEVAR_PERPLAYER");
             else if (aGameVars[i].dwFlags & (GAMEVAR_PERACTOR))
@@ -388,26 +350,17 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
 {
     int i;
 
-    //AddLog("Reset Game Vars");
     Gv_Free();
     OSD_errors=0;
 
     for (i=0;i<MAXGAMEVARS;i++)
     {
-        //Bsprintf(g_szBuf,"Resetting %d: '%s' to %d",i,aDefaultGameVars[i].szLabel,
-        //  	aDefaultGameVars[i].lValue
-        //     );
-        //AddLog(g_szBuf);
-        if (aGameVars[i].szLabel != NULL && aGameVars[i].bReset)
+        if (aGameVars[i].szLabel != NULL && aGameVars[i].dwFlags & GAMEVAR_RESET)
             Gv_NewVar(aGameVars[i].szLabel,aGameVars[i].lDefault,aGameVars[i].dwFlags);
     }
 
     for (i=0;i<MAXGAMEARRAYS;i++)
     {
-        //Bsprintf(g_szBuf,"Resetting %d: '%s' to %d",i,aDefaultGameVars[i].szLabel,
-        //  	aDefaultGameVars[i].lValue
-        //     );
-        //AddLog(g_szBuf);
         if (aGameArrays[i].szLabel != NULL && aGameArrays[i].bReset)
             Gv_NewArray(aGameArrays[i].szLabel,aGameArrays[i].size);
     }
@@ -449,7 +402,7 @@ int Gv_NewArray(const char *pszLabel, int asize)
         Bstrcpy(aGameArrays[i].szLabel,pszLabel);
     aGameArrays[i].plValues=Bcalloc(asize,sizeof(intptr_t));
     aGameArrays[i].size=asize;
-    aGameVars[i].bReset=0;
+    aGameArrays[i].bReset=0;
     g_gameArrayCount++;
     HASH_replace(&arrayH,aGameArrays[i].szLabel,i);
     return 1;
@@ -480,7 +433,7 @@ int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags)
 
     i = HASH_find(&gamevarH,pszLabel);
 
-    if (i >= 0 && !aGameVars[i].bReset)
+    if (i >= 0 && !(aGameVars[i].dwFlags & GAMEVAR_RESET))
     {
         // found it...
         if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
@@ -512,17 +465,17 @@ int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags)
             Bstrcpy(aGameVars[i].szLabel,pszLabel);
         aGameVars[i].dwFlags=dwFlags;
 
-        if (aGameVars[i].plValues)
+        if (aGameVars[i].val.plValues)
         {
             // only free if not system
-            Bfree(aGameVars[i].plValues);
-            aGameVars[i].plValues=NULL;
+            Bfree(aGameVars[i].val.plValues);
+            aGameVars[i].val.plValues=NULL;
         }
     }
 
     // if existing is system, they only get to change default value....
-    aGameVars[i].lValue = aGameVars[i].lDefault = lValue;
-    aGameVars[i].bReset = 0;
+    aGameVars[i].lDefault = lValue;
+    aGameVars[i].dwFlags &= ~GAMEVAR_RESET;
 
     if (i == g_gameVarCount)
     {
@@ -532,31 +485,29 @@ int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags)
 
     if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
     {
-        if (!aGameVars[i].plValues)
-            aGameVars[i].plValues=Bcalloc(MAXPLAYERS,sizeof(intptr_t));
+        if (!aGameVars[i].val.plValues)
+            aGameVars[i].val.plValues=Bcalloc(MAXPLAYERS,sizeof(intptr_t));
         for (j=MAXPLAYERS-1;j>=0;j--)
-            aGameVars[i].plValues[j]=lValue;
+            aGameVars[i].val.plValues[j]=lValue;
     }
     else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
     {
-        if (!aGameVars[i].plValues)
-            aGameVars[i].plValues=Bcalloc(MAXSPRITES,sizeof(intptr_t));
+        if (!aGameVars[i].val.plValues)
+            aGameVars[i].val.plValues=Bcalloc(MAXSPRITES,sizeof(intptr_t));
         for (j=MAXSPRITES-1;j>=0;j--)
-            aGameVars[i].plValues[j]=lValue;
+            aGameVars[i].val.plValues[j]=lValue;
     }
+    else aGameVars[i].val.lValue = lValue;
+
     return 1;
 }
 
 void A_ResetVars(int iActor)
 {
     int i=(MAXGAMEVARS-1);
-    //    OSD_Printf("resetting vars for actor %d\n",iActor);
     for (;i>=0;i--)
         if ((aGameVars[i].dwFlags & GAMEVAR_PERACTOR) && !(aGameVars[i].dwFlags & GAMEVAR_NODEFAULT))
-        {
-            //  		  OSD_Printf("reset %s (%d) to %s (%d)\n",aGameVars[i].szLabel,aGameVars[i].plValues[iActor],aDefaultGameVars[i].szLabel,aDefaultGameVars[i].lValue);
-            aGameVars[i].plValues[iActor]=aGameVars[i].lDefault;
-        }
+            aGameVars[i].val.plValues[iActor]=aGameVars[i].lDefault;
 }
 
 static int Gv_GetVarIndex(const char *szGameLabel)
@@ -610,43 +561,39 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
             id &= ~(MAXGAMEVARS<<1);
         }
 
-        if (aGameVars[id].dwFlags & GAMEVAR_PERPLAYER)
+        switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|
+            GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
         {
-            // for the current player
+        default:
+            if (neg) return (-aGameVars[id].val.lValue);
+            return (aGameVars[id].val.lValue);
+        case GAMEVAR_PERPLAYER:
             if (iPlayer < 0 || iPlayer >= MAXPLAYERS)
             {
                 OSD_Printf(CON_ERROR "Gv_GetVar(): invalid player ID (%d)\n",g_errorLineNum,keyw[g_tw],iPlayer);
                 return -1;
             }
-            return(neg?-aGameVars[id].plValues[iPlayer]:aGameVars[id].plValues[iPlayer]);
-        }
-
-        if (aGameVars[id].dwFlags & GAMEVAR_PERACTOR)
-        {
-            // for the current actor
+            if (neg) return (-aGameVars[id].val.plValues[iPlayer]);
+            return (aGameVars[id].val.plValues[iPlayer]);
+        case GAMEVAR_PERACTOR:
             if (iActor < 0 || iActor >= MAXSPRITES)
             {
                 OSD_Printf(CON_ERROR "Gv_GetVar(): invalid sprite ID (%d)\n",g_errorLineNum,keyw[g_tw],iActor);
                 return -1;
             }
-            return(neg?-aGameVars[id].plValues[iActor]:aGameVars[id].plValues[iActor]);
+            if (neg) return (-aGameVars[id].val.plValues[iActor]);
+            return (aGameVars[id].val.plValues[iActor]);
+        case GAMEVAR_INTPTR:
+            if (neg) return (-(*((int*)aGameVars[id].val.lValue)));
+            return ((*((int*)aGameVars[id].val.lValue)));
+        case GAMEVAR_SHORTPTR:
+            if (neg) return (-(*((short*)aGameVars[id].val.lValue)));
+            return ((*((short*)aGameVars[id].val.lValue)));
+        case GAMEVAR_CHARPTR:
+            if (neg) return (-(*((char*)aGameVars[id].val.lValue)));
+            return ((*((char*)aGameVars[id].val.lValue)));
         }
 
-        if (!(aGameVars[id].dwFlags & (GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR)))
-            return(neg?-aGameVars[id].lValue:aGameVars[id].lValue);
-
-        if (aGameVars[id].dwFlags & GAMEVAR_INTPTR)
-            return(neg?-(*((int*)aGameVars[id].lValue)):(*((int*)aGameVars[id].lValue)));
-
-        if (aGameVars[id].dwFlags & GAMEVAR_SHORTPTR)
-            return(neg?-(*((short*)aGameVars[id].lValue)):(*((short*)aGameVars[id].lValue)));
-
-        if (aGameVars[id].dwFlags & GAMEVAR_CHARPTR)
-            return(neg?-(*((char*)aGameVars[id].lValue)):(*((char*)aGameVars[id].lValue)));
-
-        // this should be impossible
-        OSD_Printf(CON_ERROR "Gv_GetVar(): unknown variable type (%d)\n",g_errorLineNum,keyw[g_tw],aGameVars[id].dwFlags);
-        return -1;
     }
 }
 
@@ -659,54 +606,131 @@ void __fastcall Gv_SetVar(int id, int lValue, int iActor, int iPlayer)
     }
     //Bsprintf(g_szBuf,"SGVI: %d ('%s') to %d for %d %d",id,aGameVars[id].szLabel,lValue,iActor,iPlayer);
     //AddLog(g_szBuf);
-    if (aGameVars[id].dwFlags & GAMEVAR_PERPLAYER)
+
+    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|
+        GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
     {
+    default:
+        aGameVars[id].val.lValue=lValue;
+        return;
+    case GAMEVAR_PERPLAYER:
         if (iPlayer < 0 || iPlayer > MAXPLAYERS-1)
         {
             OSD_Printf(CON_ERROR "Gv_SetVar(): invalid player (%d) for per-player gamevar %s from sprite %d, player %d\n",g_errorLineNum,keyw[g_tw],iPlayer,aGameVars[id].szLabel,g_i,g_p);
             return;
         }
         // for the current player
-        aGameVars[id].plValues[iPlayer]=lValue;
+        aGameVars[id].val.plValues[iPlayer]=lValue;
         return;
-    }
-
-    if (aGameVars[id].dwFlags & GAMEVAR_PERACTOR)
-    {
+    case GAMEVAR_PERACTOR:
         if (iActor < 0 || iActor > MAXSPRITES-1)
         {
             OSD_Printf(CON_ERROR "Gv_SetVar(): invalid sprite (%d) for per-actor gamevar %s from sprite %d (%d), player %d\n",g_errorLineNum,keyw[g_tw],iActor,aGameVars[id].szLabel,g_i,sprite[g_i].picnum,g_p);
             return;
         }
         // for the current actor
-        aGameVars[id].plValues[iActor]=lValue;
+        aGameVars[id].val.plValues[iActor]=lValue;
+        return;
+    case GAMEVAR_INTPTR:
+        *((int*)aGameVars[id].val.lValue)=(int)lValue;
+        return;
+    case GAMEVAR_SHORTPTR:
+        *((short*)aGameVars[id].val.lValue)=(short)lValue;
+        return;
+    case GAMEVAR_CHARPTR:
+        *((char*)aGameVars[id].val.lValue)=(char)lValue;
         return;
     }
+}
 
-    if (!(aGameVars[id].dwFlags & (GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR)))
+int __fastcall Gv_GetVarX(int id)
+{
+    if (id == MAXGAMEVARS)
+        return(*insptr++);
+
+    if (id == g_iThisActorID)
+        return g_i;
+
     {
-        aGameVars[id].lValue=lValue;
-        return;
+        int neg = 0;
+
+        if (id >= g_gameVarCount || id < 0)
+        {
+            if (id&(MAXGAMEVARS<<2)) // array
+            {
+                int index=Gv_GetVarX(*insptr++);
+
+                if (id&(MAXGAMEVARS<<1)) // negative array access
+                    neg = 1;
+
+                id &= ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
+
+                if (index >= aGameArrays[id].size || index < 0)
+                {
+                    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,index);
+                    return -1;
+                }
+                if (neg) return (-aGameArrays[id].plValues[index]);
+                return (aGameArrays[id].plValues[index]);
+            }
+
+            if ((id&(MAXGAMEVARS<<1)) == 0)
+            {
+                OSD_Printf(CON_ERROR "Gv_GetVar(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
+                return -1;
+            }
+
+            neg = 1;
+            id &= ~(MAXGAMEVARS<<1);
+        }
+
+        switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|
+            GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+        {
+        default:
+            if (neg) return (-aGameVars[id].val.lValue);
+            return (aGameVars[id].val.lValue);
+        case GAMEVAR_PERPLAYER:
+            if (neg) return (-aGameVars[id].val.plValues[g_p]);
+            return (aGameVars[id].val.plValues[g_p]);
+        case GAMEVAR_PERACTOR:
+            if (neg) return (-aGameVars[id].val.plValues[g_i]);
+            return (aGameVars[id].val.plValues[g_i]);
+        case GAMEVAR_INTPTR:
+            if (neg) return (-(*((int*)aGameVars[id].val.lValue)));
+            return (*((int*)aGameVars[id].val.lValue));
+        case GAMEVAR_SHORTPTR:
+            if (neg) return (-(*((short*)aGameVars[id].val.lValue)));
+            return (*((short*)aGameVars[id].val.lValue));
+        case GAMEVAR_CHARPTR:
+            if (neg) return (-(*((char*)aGameVars[id].val.lValue)));
+            return (*((char*)aGameVars[id].val.lValue));
+        }
     }
+}
 
-    if (aGameVars[id].dwFlags & GAMEVAR_INTPTR)
+void __fastcall Gv_SetVarX(int id, int lValue)
+{
+    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|
+        GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
     {
-        // set the value at pointer
-        *((int*)aGameVars[id].lValue)=(int)lValue;
+    default:
+        aGameVars[id].val.lValue=lValue;
         return;
-    }
-
-    if (aGameVars[id].dwFlags & GAMEVAR_SHORTPTR)
-    {
-        // set the value at pointer
-        *((short*)aGameVars[id].lValue)=(short)lValue;
+    case GAMEVAR_PERPLAYER:
+        aGameVars[id].val.plValues[g_p]=lValue;
         return;
-    }
-
-    if (aGameVars[id].dwFlags & GAMEVAR_CHARPTR)
-    {
-        // set the value at pointer
-        *((char*)aGameVars[id].lValue)=(char)lValue;
+    case GAMEVAR_PERACTOR:
+        aGameVars[id].val.plValues[g_i]=lValue;
+        return;
+    case GAMEVAR_INTPTR:
+        *((int*)aGameVars[id].val.lValue)=(int)lValue;
+        return;
+    case GAMEVAR_SHORTPTR:
+        *((short*)aGameVars[id].val.lValue)=(short)lValue;
+        return;
+    case GAMEVAR_CHARPTR:
+        *((char*)aGameVars[id].val.lValue)=(char)lValue;
         return;
     }
 }
@@ -730,12 +754,12 @@ static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 
     if (aGameVars[i].dwFlags & (GAMEVAR_PERACTOR | GAMEVAR_PERPLAYER))
     {
-        if (!aGameVars[i].plValues)
+        if (!aGameVars[i].val.plValues)
             OSD_Printf(CON_ERROR "Gv_GetVarDataPtr(): INTERNAL ERROR: NULL array !!!\n",g_errorLineNum,keyw[g_tw]);
-        return aGameVars[i].plValues;
+        return aGameVars[i].val.plValues;
     }
 
-    return &(aGameVars[i].lValue);
+    return &(aGameVars[i].val.lValue);
 }
 
 void Gv_ResetSystemDefaults(void)
@@ -1440,82 +1464,82 @@ void Gv_InitWeaponPointers(void)
 
 void Gv_RefreshPointers(void)
 {
-    aGameVars[Gv_GetVarIndex("RESPAWN_MONSTERS")].lValue = (intptr_t)&ud.respawn_monsters;
-    aGameVars[Gv_GetVarIndex("RESPAWN_ITEMS")].lValue = (intptr_t)&ud.respawn_items;
-    aGameVars[Gv_GetVarIndex("RESPAWN_INVENTORY")].lValue = (intptr_t)&ud.respawn_inventory;
-    aGameVars[Gv_GetVarIndex("MONSTERS_OFF")].lValue = (intptr_t)&ud.monsters_off;
-    aGameVars[Gv_GetVarIndex("MARKER")].lValue = (intptr_t)&ud.marker;
-    aGameVars[Gv_GetVarIndex("FFIRE")].lValue = (intptr_t)&ud.ffire;
-    aGameVars[Gv_GetVarIndex("LEVEL")].lValue = (intptr_t)&ud.level_number;
-    aGameVars[Gv_GetVarIndex("VOLUME")].lValue = (intptr_t)&ud.volume_number;
+    aGameVars[Gv_GetVarIndex("RESPAWN_MONSTERS")].val.lValue = (intptr_t)&ud.respawn_monsters;
+    aGameVars[Gv_GetVarIndex("RESPAWN_ITEMS")].val.lValue = (intptr_t)&ud.respawn_items;
+    aGameVars[Gv_GetVarIndex("RESPAWN_INVENTORY")].val.lValue = (intptr_t)&ud.respawn_inventory;
+    aGameVars[Gv_GetVarIndex("MONSTERS_OFF")].val.lValue = (intptr_t)&ud.monsters_off;
+    aGameVars[Gv_GetVarIndex("MARKER")].val.lValue = (intptr_t)&ud.marker;
+    aGameVars[Gv_GetVarIndex("FFIRE")].val.lValue = (intptr_t)&ud.ffire;
+    aGameVars[Gv_GetVarIndex("LEVEL")].val.lValue = (intptr_t)&ud.level_number;
+    aGameVars[Gv_GetVarIndex("VOLUME")].val.lValue = (intptr_t)&ud.volume_number;
 
-    aGameVars[Gv_GetVarIndex("COOP")].lValue = (intptr_t)&ud.coop;
-    aGameVars[Gv_GetVarIndex("MULTIMODE")].lValue = (intptr_t)&ud.multimode;
+    aGameVars[Gv_GetVarIndex("COOP")].val.lValue = (intptr_t)&ud.coop;
+    aGameVars[Gv_GetVarIndex("MULTIMODE")].val.lValue = (intptr_t)&ud.multimode;
 
-    aGameVars[Gv_GetVarIndex("myconnectindex")].lValue = (intptr_t)&myconnectindex;
-    aGameVars[Gv_GetVarIndex("screenpeek")].lValue = (intptr_t)&screenpeek;
-    aGameVars[Gv_GetVarIndex("currentweapon")].lValue = (intptr_t)&g_currentweapon;
-    aGameVars[Gv_GetVarIndex("gs")].lValue = (intptr_t)&g_gs;
-    aGameVars[Gv_GetVarIndex("looking_arc")].lValue = (intptr_t)&g_looking_arc;
-    aGameVars[Gv_GetVarIndex("gun_pos")].lValue = (intptr_t)&g_gun_pos;
-    aGameVars[Gv_GetVarIndex("weapon_xoffset")].lValue = (intptr_t)&g_weapon_xoffset;
-    aGameVars[Gv_GetVarIndex("weaponcount")].lValue = (intptr_t)&g_kb;
-    aGameVars[Gv_GetVarIndex("looking_angSR1")].lValue = (intptr_t)&g_looking_angSR1;
-    aGameVars[Gv_GetVarIndex("xdim")].lValue = (intptr_t)&xdim;
-    aGameVars[Gv_GetVarIndex("ydim")].lValue = (intptr_t)&ydim;
-    aGameVars[Gv_GetVarIndex("windowx1")].lValue = (intptr_t)&windowx1;
-    aGameVars[Gv_GetVarIndex("windowx2")].lValue = (intptr_t)&windowx2;
-    aGameVars[Gv_GetVarIndex("windowy1")].lValue = (intptr_t)&windowy1;
-    aGameVars[Gv_GetVarIndex("windowy2")].lValue = (intptr_t)&windowy2;
-    aGameVars[Gv_GetVarIndex("totalclock")].lValue = (intptr_t)&totalclock;
-    aGameVars[Gv_GetVarIndex("lastvisinc")].lValue = (intptr_t)&lastvisinc;
-    aGameVars[Gv_GetVarIndex("numsectors")].lValue = (intptr_t)&numsectors;
-    aGameVars[Gv_GetVarIndex("numplayers")].lValue = (intptr_t)&numplayers;
-    aGameVars[Gv_GetVarIndex("current_menu")].lValue = (intptr_t)&g_currentMenu;
-    aGameVars[Gv_GetVarIndex("viewingrange")].lValue = (intptr_t)&viewingrange;
-    aGameVars[Gv_GetVarIndex("yxaspect")].lValue = (intptr_t)&yxaspect;
-    aGameVars[Gv_GetVarIndex("gravitationalconstant")].lValue = (intptr_t)&g_spriteGravity;
-    aGameVars[Gv_GetVarIndex("gametype_flags")].lValue = (intptr_t)&GametypeFlags[ud.coop];
-    aGameVars[Gv_GetVarIndex("framerate")].lValue = (intptr_t)&g_currentFrameRate;
+    aGameVars[Gv_GetVarIndex("myconnectindex")].val.lValue = (intptr_t)&myconnectindex;
+    aGameVars[Gv_GetVarIndex("screenpeek")].val.lValue = (intptr_t)&screenpeek;
+    aGameVars[Gv_GetVarIndex("currentweapon")].val.lValue = (intptr_t)&g_currentweapon;
+    aGameVars[Gv_GetVarIndex("gs")].val.lValue = (intptr_t)&g_gs;
+    aGameVars[Gv_GetVarIndex("looking_arc")].val.lValue = (intptr_t)&g_looking_arc;
+    aGameVars[Gv_GetVarIndex("gun_pos")].val.lValue = (intptr_t)&g_gun_pos;
+    aGameVars[Gv_GetVarIndex("weapon_xoffset")].val.lValue = (intptr_t)&g_weapon_xoffset;
+    aGameVars[Gv_GetVarIndex("weaponcount")].val.lValue = (intptr_t)&g_kb;
+    aGameVars[Gv_GetVarIndex("looking_angSR1")].val.lValue = (intptr_t)&g_looking_angSR1;
+    aGameVars[Gv_GetVarIndex("xdim")].val.lValue = (intptr_t)&xdim;
+    aGameVars[Gv_GetVarIndex("ydim")].val.lValue = (intptr_t)&ydim;
+    aGameVars[Gv_GetVarIndex("windowx1")].val.lValue = (intptr_t)&windowx1;
+    aGameVars[Gv_GetVarIndex("windowx2")].val.lValue = (intptr_t)&windowx2;
+    aGameVars[Gv_GetVarIndex("windowy1")].val.lValue = (intptr_t)&windowy1;
+    aGameVars[Gv_GetVarIndex("windowy2")].val.lValue = (intptr_t)&windowy2;
+    aGameVars[Gv_GetVarIndex("totalclock")].val.lValue = (intptr_t)&totalclock;
+    aGameVars[Gv_GetVarIndex("lastvisinc")].val.lValue = (intptr_t)&lastvisinc;
+    aGameVars[Gv_GetVarIndex("numsectors")].val.lValue = (intptr_t)&numsectors;
+    aGameVars[Gv_GetVarIndex("numplayers")].val.lValue = (intptr_t)&numplayers;
+    aGameVars[Gv_GetVarIndex("current_menu")].val.lValue = (intptr_t)&g_currentMenu;
+    aGameVars[Gv_GetVarIndex("viewingrange")].val.lValue = (intptr_t)&viewingrange;
+    aGameVars[Gv_GetVarIndex("yxaspect")].val.lValue = (intptr_t)&yxaspect;
+    aGameVars[Gv_GetVarIndex("gravitationalconstant")].val.lValue = (intptr_t)&g_spriteGravity;
+    aGameVars[Gv_GetVarIndex("gametype_flags")].val.lValue = (intptr_t)&GametypeFlags[ud.coop];
+    aGameVars[Gv_GetVarIndex("framerate")].val.lValue = (intptr_t)&g_currentFrameRate;
 
-    aGameVars[Gv_GetVarIndex("camerax")].lValue = (intptr_t)&ud.camerax;
-    aGameVars[Gv_GetVarIndex("cameray")].lValue = (intptr_t)&ud.cameray;
-    aGameVars[Gv_GetVarIndex("cameraz")].lValue = (intptr_t)&ud.cameraz;
-    aGameVars[Gv_GetVarIndex("cameraang")].lValue = (intptr_t)&ud.cameraang;
-    aGameVars[Gv_GetVarIndex("camerahoriz")].lValue = (intptr_t)&ud.camerahoriz;
-    aGameVars[Gv_GetVarIndex("camerasect")].lValue = (intptr_t)&ud.camerasect;
-    aGameVars[Gv_GetVarIndex("cameradist")].lValue = (intptr_t)&g_cameraDistance;
-    aGameVars[Gv_GetVarIndex("cameraclock")].lValue = (intptr_t)&g_cameraClock;
+    aGameVars[Gv_GetVarIndex("camerax")].val.lValue = (intptr_t)&ud.camerax;
+    aGameVars[Gv_GetVarIndex("cameray")].val.lValue = (intptr_t)&ud.cameray;
+    aGameVars[Gv_GetVarIndex("cameraz")].val.lValue = (intptr_t)&ud.cameraz;
+    aGameVars[Gv_GetVarIndex("cameraang")].val.lValue = (intptr_t)&ud.cameraang;
+    aGameVars[Gv_GetVarIndex("camerahoriz")].val.lValue = (intptr_t)&ud.camerahoriz;
+    aGameVars[Gv_GetVarIndex("camerasect")].val.lValue = (intptr_t)&ud.camerasect;
+    aGameVars[Gv_GetVarIndex("cameradist")].val.lValue = (intptr_t)&g_cameraDistance;
+    aGameVars[Gv_GetVarIndex("cameraclock")].val.lValue = (intptr_t)&g_cameraClock;
 
-    aGameVars[Gv_GetVarIndex("myx")].lValue = (intptr_t)&myx;
-    aGameVars[Gv_GetVarIndex("myy")].lValue = (intptr_t)&myy;
-    aGameVars[Gv_GetVarIndex("myz")].lValue = (intptr_t)&myz;
-    aGameVars[Gv_GetVarIndex("omyx")].lValue = (intptr_t)&omyx;
-    aGameVars[Gv_GetVarIndex("omyy")].lValue = (intptr_t)&omyy;
-    aGameVars[Gv_GetVarIndex("omyz")].lValue = (intptr_t)&omyz;
-    aGameVars[Gv_GetVarIndex("myxvel")].lValue = (intptr_t)&myxvel;
-    aGameVars[Gv_GetVarIndex("myyvel")].lValue = (intptr_t)&myyvel;
-    aGameVars[Gv_GetVarIndex("myzvel")].lValue = (intptr_t)&myzvel;
+    aGameVars[Gv_GetVarIndex("myx")].val.lValue = (intptr_t)&myx;
+    aGameVars[Gv_GetVarIndex("myy")].val.lValue = (intptr_t)&myy;
+    aGameVars[Gv_GetVarIndex("myz")].val.lValue = (intptr_t)&myz;
+    aGameVars[Gv_GetVarIndex("omyx")].val.lValue = (intptr_t)&omyx;
+    aGameVars[Gv_GetVarIndex("omyy")].val.lValue = (intptr_t)&omyy;
+    aGameVars[Gv_GetVarIndex("omyz")].val.lValue = (intptr_t)&omyz;
+    aGameVars[Gv_GetVarIndex("myxvel")].val.lValue = (intptr_t)&myxvel;
+    aGameVars[Gv_GetVarIndex("myyvel")].val.lValue = (intptr_t)&myyvel;
+    aGameVars[Gv_GetVarIndex("myzvel")].val.lValue = (intptr_t)&myzvel;
 
-    aGameVars[Gv_GetVarIndex("myhoriz")].lValue = (intptr_t)&myhoriz;
-    aGameVars[Gv_GetVarIndex("myhorizoff")].lValue = (intptr_t)&myhorizoff;
-    aGameVars[Gv_GetVarIndex("omyhoriz")].lValue = (intptr_t)&omyhoriz;
-    aGameVars[Gv_GetVarIndex("omyhorizoff")].lValue = (intptr_t)&omyhorizoff;
-    aGameVars[Gv_GetVarIndex("myang")].lValue = (intptr_t)&myang;
-    aGameVars[Gv_GetVarIndex("omyang")].lValue = (intptr_t)&omyang;
-    aGameVars[Gv_GetVarIndex("mycursectnum")].lValue = (intptr_t)&mycursectnum;
-    aGameVars[Gv_GetVarIndex("myjumpingcounter")].lValue = (intptr_t)&myjumpingcounter;
+    aGameVars[Gv_GetVarIndex("myhoriz")].val.lValue = (intptr_t)&myhoriz;
+    aGameVars[Gv_GetVarIndex("myhorizoff")].val.lValue = (intptr_t)&myhorizoff;
+    aGameVars[Gv_GetVarIndex("omyhoriz")].val.lValue = (intptr_t)&omyhoriz;
+    aGameVars[Gv_GetVarIndex("omyhorizoff")].val.lValue = (intptr_t)&omyhorizoff;
+    aGameVars[Gv_GetVarIndex("myang")].val.lValue = (intptr_t)&myang;
+    aGameVars[Gv_GetVarIndex("omyang")].val.lValue = (intptr_t)&omyang;
+    aGameVars[Gv_GetVarIndex("mycursectnum")].val.lValue = (intptr_t)&mycursectnum;
+    aGameVars[Gv_GetVarIndex("myjumpingcounter")].val.lValue = (intptr_t)&myjumpingcounter;
 
-    aGameVars[Gv_GetVarIndex("myjumpingtoggle")].lValue = (intptr_t)&myjumpingtoggle;
-    aGameVars[Gv_GetVarIndex("myonground")].lValue = (intptr_t)&myonground;
-    aGameVars[Gv_GetVarIndex("myhardlanding")].lValue = (intptr_t)&myhardlanding;
-    aGameVars[Gv_GetVarIndex("myreturntocenter")].lValue = (intptr_t)&myreturntocenter;
+    aGameVars[Gv_GetVarIndex("myjumpingtoggle")].val.lValue = (intptr_t)&myjumpingtoggle;
+    aGameVars[Gv_GetVarIndex("myonground")].val.lValue = (intptr_t)&myonground;
+    aGameVars[Gv_GetVarIndex("myhardlanding")].val.lValue = (intptr_t)&myhardlanding;
+    aGameVars[Gv_GetVarIndex("myreturntocenter")].val.lValue = (intptr_t)&myreturntocenter;
 
-    aGameVars[Gv_GetVarIndex("display_mirror")].lValue = (intptr_t)&display_mirror;
-    aGameVars[Gv_GetVarIndex("randomseed")].lValue = (intptr_t)&randomseed;
+    aGameVars[Gv_GetVarIndex("display_mirror")].val.lValue = (intptr_t)&display_mirror;
+    aGameVars[Gv_GetVarIndex("randomseed")].val.lValue = (intptr_t)&randomseed;
 
-    aGameVars[Gv_GetVarIndex("NUMWALLS")].lValue = (intptr_t)&numwalls;
-    aGameVars[Gv_GetVarIndex("NUMSECTORS")].lValue = (intptr_t)&numsectors;
+    aGameVars[Gv_GetVarIndex("NUMWALLS")].val.lValue = (intptr_t)&numwalls;
+    aGameVars[Gv_GetVarIndex("NUMSECTORS")].val.lValue = (intptr_t)&numsectors;
 
-    aGameVars[Gv_GetVarIndex("lastsavepos")].lValue = (intptr_t)&g_lastSaveSlot;
+    aGameVars[Gv_GetVarIndex("lastsavepos")].val.lValue = (intptr_t)&g_lastSaveSlot;
 }

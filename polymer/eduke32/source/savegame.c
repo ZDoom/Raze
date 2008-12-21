@@ -309,7 +309,7 @@ int G_LoadPlayer(int spot)
     scriptptrs = Brealloc(scriptptrs, MAXSPRITES * sizeof(scriptptrs));
 
     if (kdfread(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
-    if (kdfread(&ActorExtra[0],sizeof(actordata_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+    if (kdfread(&ActorExtra[0],sizeof(ActorData_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
     for (i=0;i<MAXSPRITES;i++)
     {
@@ -731,7 +731,7 @@ int G_SavePlayer(int spot)
     }
 
     dfwrite(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil);
-    dfwrite(&ActorExtra[0],sizeof(actordata_t),MAXSPRITES,fil);
+    dfwrite(&ActorExtra[0],sizeof(ActorData_t),MAXSPRITES,fil);
 
     for (i=0;i<MAXSPRITES;i++)
     {

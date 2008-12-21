@@ -77,7 +77,7 @@ extern int g_scriptVersion, g_Shareware, g_gameType;
 #define BYTEVERSION_13  27
 #define BYTEVERSION_14  116
 #define BYTEVERSION_15  117
-#define BYTEVERSION_JF  186 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
+#define BYTEVERSION_JF  189 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
 
 #define BYTEVERSION (BYTEVERSION_JF+(PLUTOPAK?1:(VOLUMEONE<<1)))    // JBF 20040116: different data files give different versions
 
@@ -539,9 +539,9 @@ typedef struct {
     char cgg;
     char filler;
     projectile_t projectile;
-} actordata_t;
+} ActorData_t;
 
-extern actordata_t ActorExtra[MAXSPRITES];
+extern ActorData_t ActorExtra[MAXSPRITES];
 
 extern input_t loc;
 extern input_t recsync[RECSYNCBUFSIZ];
@@ -794,38 +794,39 @@ enum SystemString_t {
 
 
 enum GamevarFlags_t {
-    MAXGAMEVARS             = 2048,  // must be a power of two
-    MAXVARLABEL             = 26,
-    GAMEVAR_NORMAL     = 0,     // normal
-    GAMEVAR_PERPLAYER  = 1,     // per-player variable
-    GAMEVAR_PERACTOR   = 2,     // per-actor variable
-    GAMEVAR_USER_MASK  = 3,
-    GAMEVAR_DEFAULT    = 256,   // allow override
-    GAMEVAR_SECRET     = 512,   // don't dump...
-    GAMEVAR_NODEFAULT  = 1024,  // don't reset on actor spawn
-    GAMEVAR_SYSTEM     = 2048,  // cannot change mode flags...(only default value)
-    GAMEVAR_READONLY   = 4096,  // values are read-only (no setvar allowed)
-    GAMEVAR_INTPTR     = 8192,  // plValue is a pointer to an int
-    GAMEVAR_SYNCCHECK  = 16384, // check event sync when translating
-    GAMEVAR_SHORTPTR   = 32768, // plValue is a pointer to a short
-    GAMEVAR_CHARPTR    = 65536, // plValue is a pointer to a char
-    GAMEVAR_NORESET    = 131072, // var values are not reset when restoring map state
+    MAXGAMEVARS        = 2048,       // must be a power of two
+    MAXVARLABEL        = 26,
+    GAMEVAR_PERPLAYER  = 0x00000001, // per-player variable
+    GAMEVAR_PERACTOR   = 0x00000002, // per-actor variable
+    GAMEVAR_USER_MASK  = (0x00000001|0x00000002),
+    GAMEVAR_RESET      = 0x00000008, // marks var for to default
+    GAMEVAR_DEFAULT    = 0x00000100, // allow override
+    GAMEVAR_SECRET     = 0x00000200, // don't dump...
+    GAMEVAR_NODEFAULT  = 0x00000400, // don't reset on actor spawn
+    GAMEVAR_SYSTEM     = 0x00000800, // cannot change mode flags...(only default value)
+    GAMEVAR_READONLY   = 0x00001000, // values are read-only (no setvar allowed)
+    GAMEVAR_INTPTR     = 0x00002000, // plValues is a pointer to an int
+    GAMEVAR_SYNCCHECK  = 0x00004000, // throw warnings during compile if used in local event
+    GAMEVAR_SHORTPTR   = 0x00008000, // plValues is a pointer to a short
+    GAMEVAR_CHARPTR    = 0x00010000, // plValues is a pointer to a char
+    GAMEVAR_NORESET    = 0x00020000, // var values are not reset when restoring map state
 };
 
 enum GamearrayFlags_t {
-    MAXGAMEARRAYS           = (MAXGAMEVARS>>2), // must be lower than MAXGAMEVARS
-    MAXARRAYLABEL           = MAXVARLABEL,
+    MAXGAMEARRAYS      = (MAXGAMEVARS>>2), // must be lower than MAXGAMEVARS
+    MAXARRAYLABEL      = MAXVARLABEL,
     GAMEARRAY_NORMAL   = 0,
-    GAMEARRAY_NORESET  = 1,
+    GAMEARRAY_NORESET  = 0x00000001,
 };
 
 typedef struct {
-    intptr_t lValue;
+    union {
+        intptr_t lValue;
+        intptr_t *plValues;     // array of values when 'per-player', or 'per-actor'
+    } val;
     intptr_t lDefault;
-    intptr_t *plValues;     // array of values when 'per-player', or 'per-actor'
     unsigned int dwFlags;
     char *szLabel;
-    char bReset;
 } gamevar_t;
 
 typedef struct {
@@ -1000,7 +1001,7 @@ typedef struct {
     short g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
     char show2dsector[(MAXSECTORS+7)>>3];
     short g_numClouds,clouds[128],cloudx[128],cloudy[128];
-    actordata_t ActorExtra[MAXSPRITES];
+    ActorData_t ActorExtra[MAXSPRITES];
     short pskyoff[MAXPSKYTILES], pskybits;
 
     int animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;

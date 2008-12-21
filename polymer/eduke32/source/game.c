@@ -1200,7 +1200,7 @@ void faketimerhandler(void)
         g_player[i].myminlag = min(g_player[i].myminlag,k);
         mymaxlag = max(mymaxlag,k);
     }
-
+#if 0
     if (((g_player[myconnectindex].movefifoend - 1) & (TIMERUPDATESIZ - 1)) == 0)
     {
         i = mymaxlag - bufferjitter;
@@ -1210,6 +1210,14 @@ void faketimerhandler(void)
         else if (i < 0)
             bufferjitter -= ((2 - i) >> 2);
     }
+#else
+    if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
+    {
+        i = mymaxlag-bufferjitter; mymaxlag = 0;
+        if (i > 0) bufferjitter += ((3+i)>>2);
+        else if (i < 0) bufferjitter -= ((1-i)>>2);
+    }
+#endif
 
     if (g_networkBroadcastMode == 1)
     {
@@ -1218,6 +1226,7 @@ void faketimerhandler(void)
         j = 1;
 
         //Fix timers and buffer/jitter value
+#if 0
         if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
         {
             if (myconnectindex == connecthead)
@@ -1254,7 +1263,28 @@ void faketimerhandler(void)
             TRAVERSE_CONNECT(i)
             g_player[i].myminlag = 0x7fffffff;
         }
+#else
+        if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
+        {
+            if (myconnectindex != connecthead)
+            {
+                i = g_player[connecthead].myminlag-otherminlag;
+                if (klabs(i) > 8) i >>= 1;
+                else if (klabs(i) > 2) i = ksgn(i);
+                else i = 0;
 
+                totalclock -= TICSPERFRAME*i;
+                g_player[connecthead].myminlag -= i; otherminlag += i;
+            }
+
+            if (myconnectindex == connecthead)
+                for(i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    packbuf[j++] = min(max(g_player[i].myminlag,-128),127);
+
+            for(i=connecthead;i>=0;i=connectpoint2[i])
+                g_player[i].myminlag = 0x7fffffff;
+        }
+#endif
         osyn = (input_t *)&inputfifo[(g_player[myconnectindex].movefifoend-2)&(MOVEFIFOSIZ-1)][myconnectindex];
         nsyn = (input_t *)&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex];
 
@@ -4614,10 +4644,10 @@ static void G_DumpDebugInfo(void)
             {
                 if (aGameVars[i].dwFlags & (GAMEVAR_PERACTOR))
                 {
-                    if (aGameVars[i].plValues[j] != aGameVars[i].lDefault)
+                    if (aGameVars[i].val.plValues[j] != aGameVars[i].lDefault)
                     {
                         fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
-                        fprintf(fp,"%" PRIdPTR "",aGameVars[i].plValues[j]);
+                        fprintf(fp,"%" PRIdPTR "",aGameVars[i].val.plValues[j]);
                         fprintf(fp," GAMEVAR_PERACTOR");
                         if (aGameVars[i].dwFlags != GAMEVAR_PERACTOR)
                         {
@@ -7192,6 +7222,7 @@ PALONLY:
 
         if (actorscrptr[s->picnum])
         {
+            /*
             if (ud.angleinterpolation)
             {
                 if (sprpos[i].ang != sprpos[i].oldang)
@@ -7199,6 +7230,7 @@ PALONLY:
                 else
                     t->ang = sprpos[i].ang;
             }
+            */
 
             if (t4)
             {
@@ -10128,7 +10160,8 @@ static void G_FreeCONMem(void)
     for (i=g_gameVarCount-1;i>=0;i--)
     {
         if (aGameVars[i].szLabel != NULL) Bfree(aGameVars[i].szLabel);
-        if (aGameVars[i].plValues != NULL) Bfree(aGameVars[i].plValues);
+        if (aGameVars[i].dwFlags & (GAMEVAR_USER_MASK) && aGameVars[i].val.plValues != NULL)
+            Bfree(aGameVars[i].val.plValues);
     }
 
     for (i=g_gameArrayCount-1;i>=0;i--)

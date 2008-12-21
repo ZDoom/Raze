@@ -1388,15 +1388,10 @@ void AddLog(const char *psz, ...)
 }
 #endif
 
-inline static int GetDefID(const char *szGameLabel)
-{
-    return HASH_find(&gamevarH,szGameLabel);
-}
-inline static int GetADefID(const char *szGameLabel)
-{
-    return HASH_find(&arrayH,szGameLabel);
-}
-static int ispecial(char c)
+#define GetDefID(szGameLabel) HASH_find(&gamevarH,szGameLabel)
+#define GetADefID(szGameLabel) HASH_find(&arrayH,szGameLabel)
+
+static inline int ispecial(char c)
 {
     if (c == 0x0a)
     {
@@ -1429,7 +1424,7 @@ static char *strtolower(char *str, int len)
     return str;
 }
 
-inline static int GetLabelNameid(const memberlabel_t *pLabel, struct HASH_table *tH, const char *psz)
+static inline int GetLabelNameid(const memberlabel_t *pLabel, struct HASH_table *tH, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the ID for the label, or -1
@@ -1442,7 +1437,7 @@ inline static int GetLabelNameid(const memberlabel_t *pLabel, struct HASH_table 
     return l;
 }
 
-inline static int C_GetLabelNameOffset(struct HASH_table *tH, const char *psz)
+static inline int C_GetLabelNameOffset(struct HASH_table *tH, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the offset in the array for the label, or -1
@@ -1783,12 +1778,29 @@ static int C_GetNextValue(int type)
         C_ReportError(WARNING_LABELSONLY);
         g_numCompilerWarnings++;
     }
+
+    i = l-1;
+    do
+    {
+        if (!isdigit(textptr[i--]))
+        {
+            C_ReportError(-1);
+            initprintf("%s:%d: warning: invalid definition!\n",g_szScriptFileName,g_lineNumber);
+            g_numCompilerWarnings++;
+            break;
+        }
+    }
+    while (i > 0);
+
     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
         initprintf("%s:%d: debug: accepted constant %d.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
     bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
-    if (tolower(textptr[1])=='x')sscanf(textptr+2,"%" PRIxPTR "",g_scriptPtr);
+
+    if (tolower(textptr[1])=='x')
+        sscanf(textptr+2,"%" PRIxPTR "",g_scriptPtr);
     else
         *g_scriptPtr = atol(textptr);
+
     g_scriptPtr++;
 
     textptr += l;
@@ -2549,8 +2561,7 @@ static int C_ParseCommand(void)
             for (k=j;k>=0;k--)
             {
                 bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
-                *g_scriptPtr = 0;
-                g_scriptPtr++;
+                *(g_scriptPtr++) = 0;
             }
         }
         return 0;
