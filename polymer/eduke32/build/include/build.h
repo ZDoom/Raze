@@ -269,6 +269,8 @@ EXTERN char gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
 EXTERN char captureformat;
+EXTERN char editorcolors[256];
+
 extern char vgapalette[5*256];
 extern unsigned int drawlinepat;
 

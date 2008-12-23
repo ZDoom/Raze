@@ -170,7 +170,7 @@ boolean CONTROL_KeyboardFunctionPressed(int32 which)
     if (CONTROL_KeyMapping[which].key1 != KEYUNDEFINED && !boundkeys[CONTROL_KeyMapping[which].key1].cmd[0])
         key1 = KB_KeyDown[ CONTROL_KeyMapping[which].key1 ] ? true : false;
 
-    if (CONTROL_KeyMapping[which].key2 != KEYUNDEFINED && !boundkeys[CONTROL_KeyMapping[which].key1].cmd[0])
+    if (CONTROL_KeyMapping[which].key2 != KEYUNDEFINED && !boundkeys[CONTROL_KeyMapping[which].key2].cmd[0])
         key2 = KB_KeyDown[ CONTROL_KeyMapping[which].key2 ] ? true : false;
 
     return (key1 | key2);

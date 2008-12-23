@@ -4568,9 +4568,9 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
     UNREFERENCED_PARAMETER(uniqid);
     //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
-    if (rendmode >= 3) { polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2,uniqid); return; }
+    if (rendmode >= 3 && qsetmode == 200) { polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2,uniqid); return; }
 # ifdef POLYMER
-    if (rendmode == 4) { polymer_rotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2); return; }
+    if (rendmode == 4 && qsetmode == 200) { polymer_rotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2); return; }
 #endif
 #endif
     //============================================================================= //POLYMOST ENDS
@@ -10861,7 +10861,7 @@ void qsetmode640350(void)
         xdim = xres;
         ydim = yres;
 
-        setvgapalette();
+//        setvgapalette();
 
         ydim16 = 350;
         halfxdim16 = 320;
@@ -10892,7 +10892,7 @@ void qsetmode640480(void)
         xdim = xres;
         ydim = yres;
 
-        setvgapalette();
+//        setvgapalette();
 
         ydim16 = 336;
         halfxdim16 = 320;
@@ -10924,7 +10924,7 @@ void qsetmodeany(int daxdim, int daydim)
         xdim = xres;
         ydim = yres;
 
-        setvgapalette();
+//        setvgapalette();
 
         ydim16 = yres - STATUS2DSIZ;
         halfxdim16 = xres >> 1;
@@ -10958,7 +10958,6 @@ void clear2dscreen(void)
     enddrawing();   //}}}
 }
 
-
 //
 // draw2dgrid
 //
@@ -10989,7 +10988,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
                 {
                     if (xp1 != xp2)
                     {
-                        drawline16(xp1,yp1,xp1,yp2,8);
+                        drawline16(xp1,yp1,xp1,yp2,editorcolors[8]);
                     }
                 }
             }
@@ -10997,7 +10996,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
                 xp2 = xp1;
             if ((xp2 >= 0) && (xp2 < xdim))
             {
-                drawline16(xp2,yp1,xp2,yp2,8);
+                drawline16(xp2,yp1,xp2,yp2,editorcolors[8]);
             }
         }
         xp1 = mulscale14(posxe+editorgridextent,zoome);
@@ -11010,7 +11009,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
             {
                 if ((yp1 > midydim16-ydim16) && (yp1 <= midydim16))
                 {
-                    drawline16(halfxdim16-xp1,midydim16-yp1,halfxdim16-xp2,midydim16-yp1,8);
+                    drawline16(halfxdim16-xp1,midydim16-yp1,halfxdim16-xp2,midydim16-yp1,editorcolors[8]);
                     tempy = yp1;
                 }
             }
@@ -11107,18 +11106,18 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
         {
             if (klabs(xp2-xp1) >= klabs(yp2-yp1))
             {
-                drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp2,midydim16+yp2+1,col);
-                drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp2,midydim16+yp2-1,col);
+                drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp2,midydim16+yp2+1,editorcolors[col]);
+                drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp2,midydim16+yp2-1,editorcolors[col]);
             }
             else
             {
-                drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp2+1,midydim16+yp2,col);
-                drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp2-1,midydim16+yp2,col);
+                drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp2+1,midydim16+yp2,editorcolors[col]);
+                drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp2-1,midydim16+yp2,editorcolors[col]);
             }
             col += 8;
         }
 
-        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp2,midydim16+yp2,col);
+        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp2,midydim16+yp2,editorcolors[col]);
         {
             int k = getangle(xp1-xp2, yp1-yp2);
             int dax = mulscale14(((wal->x+wall[wal->point2].x)>>1)-posxe,zoome);
@@ -11135,26 +11134,26 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                     int day3 = mulscale11(sintable[(k+512)&2047],zoome) / 2560;
                     int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 2560;
                     int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 2560;
-                    drawline16(halfxdim16+dax+dax3,midydim16+day+day3,halfxdim16+dax+dax2,midydim16+day+day2,col);
+                    drawline16(halfxdim16+dax+dax3,midydim16+day+day3,halfxdim16+dax+dax2,midydim16+day+day2,editorcolors[col]);
                 }
                 else if (jj > ii)
                 {
                     int dax2 = mulscale11(sintable[(k+1024)&2047],zoome) / 2560;
                     int day2 = mulscale11(sintable[(k+512)&2047],zoome) / 2560;
-                    drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
+                    drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,editorcolors[col]);
                 }
                 else if (jj < ii)
                 {
                     int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 2560;
                     int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 2560;
-                    drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
+                    drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,editorcolors[col]);
                 }
             }
             else if (showheightindicators > 1)
             {
                 int dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 2560;
                 int day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 2560;
-                drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,col);
+                drawline16(halfxdim16+dax,midydim16+day,halfxdim16+dax+dax2,midydim16+day+day2,editorcolors[col]);
             }
         }
         if ((zoome >= 256) && (editstatus == 1))
@@ -11189,7 +11188,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                                                 drawline16(halfxdim16+xp1+pointsize,midydim16+yp1+pointsize,halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,col);
                                                 drawline16(halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,col);
                                                 drawline16(halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1+pointsize,col); */
-                        drawcircle16(halfxdim16+xp1, midydim16+yp1, pointsize, col);
+                        drawcircle16(halfxdim16+xp1, midydim16+yp1, pointsize, editorcolors[col]);
                     }
                     while (pointsize--);
 #else
@@ -11233,29 +11232,29 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                         {
                             tempint = ((midydim16+yp1)*bytesperline)+(halfxdim16+xp1)+frameplace;
 
-                            drawcircle16(halfxdim16+xp1, midydim16+yp1, 4, col);
+                            drawcircle16(halfxdim16+xp1, midydim16+yp1, 4, editorcolors[col]);
 
                             xp2 = mulscale11(sintable[(sprite[j].ang+2560)&2047],zoome) / 768;
                             yp2 = mulscale11(sintable[(sprite[j].ang+2048)&2047],zoome) / 768;
 
-                            drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,col);
+                            drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,editorcolors[col]);
 
                             if ((sprite[j].cstat&256) > 0)
                             {
                                 if (((sprite[j].ang+256)&512) == 0)
                                 {
-                                    drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1+xp2,midydim16+yp1+yp2+1,col);
-                                    drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1+xp2,midydim16+yp1+yp2-1,col);
-                                    drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1+xp2-1,midydim16+yp1+yp2,col);
-                                    drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1+xp2+1,midydim16+yp1+yp2,col);
+                                    drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1+xp2,midydim16+yp1+yp2+1,editorcolors[col]);
+                                    drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1+xp2,midydim16+yp1+yp2-1,editorcolors[col]);
+                                    drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1+xp2-1,midydim16+yp1+yp2,editorcolors[col]);
+                                    drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1+xp2+1,midydim16+yp1+yp2,editorcolors[col]);
 
                                 }
                                 else
                                 {
-                                    drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1+xp2,midydim16+yp1+yp2+1,col);
-                                    drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1+xp2,midydim16+yp1+yp2-1,col);
-                                    drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1+xp2-1,midydim16+yp1+yp2,col);
-                                    drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1+xp2+1,midydim16+yp1+yp2,col);
+                                    drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1+xp2,midydim16+yp1+yp2+1,editorcolors[col]);
+                                    drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1+xp2,midydim16+yp1+yp2-1,editorcolors[col]);
+                                    drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1+xp2-1,midydim16+yp1+yp2,editorcolors[col]);
+                                    drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1+xp2+1,midydim16+yp1+yp2,editorcolors[col]);
 
                                 }
 
@@ -11286,22 +11285,22 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                                     {
                                         drawline16(halfxdim16 + xp1 + co[ii][0], midydim16 + yp1 - co[ii][1],
                                                    halfxdim16 + xp1 + co[(ii+1)&3][0], midydim16 + yp1 - co[(ii+1)&3][1],
-                                                   col);
+                                                   editorcolors[col]);
                                         drawline16(halfxdim16 + xp1 + co[ii][0], midydim16 + yp1 - co[ii][1] + 1,
                                                    halfxdim16 + xp1 + co[(ii+1)&3][0], midydim16 + yp1 - co[(ii+1)&3][1] + 1,
-                                                   col);
+                                                   editorcolors[col]);
                                         drawline16(halfxdim16 + xp1 + co[ii][0], midydim16 + yp1 - co[ii][1] - 1,
                                                    halfxdim16 + xp1 + co[(ii+1)&3][0], midydim16 + yp1 - co[(ii+1)&3][1] - 1,
-                                                   col);
+                                                   editorcolors[col]);
                                         drawline16(halfxdim16 + xp1 + co[ii][0] + 1, midydim16 + yp1 - co[ii][1],
                                                    halfxdim16 + xp1 + co[(ii+1)&3][0] + 1, midydim16 + yp1 - co[(ii+1)&3][1],
-                                                   col);
+                                                   editorcolors[col]);
                                         drawline16(halfxdim16 + xp1 + co[ii][0] - 1, midydim16 + yp1 - co[ii][1],
                                                    halfxdim16 + xp1 + co[(ii+1)&3][0] - 1, midydim16 + yp1 - co[(ii+1)&3][1],
-                                                   col);
+                                                   editorcolors[col]);
                                         drawline16(halfxdim16 + xp1, midydim16 + yp1,
                                                    halfxdim16 + xp1 + co[(ii+1)&3][0], midydim16 + yp1 - co[(ii+1)&3][1],
-                                                   col);
+                                                   editorcolors[col]);
                                     }
                                     drawlinepat = 0xffffffff;
                                 }
@@ -11317,53 +11316,53 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                                     {
                                         if (!(sprite[j].cstat&64))
                                         {
-                                            drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1-xp2,midydim16+yp1-yp2-1,col);
-                                            drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,col);
-                                            drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1-xp2,midydim16+yp1-yp2+1,col);
+                                            drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1-xp2,midydim16+yp1-yp2-1,editorcolors[col]);
+                                            drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,editorcolors[col]);
+                                            drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1-xp2,midydim16+yp1-yp2+1,editorcolors[col]);
                                         }
-                                        drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1+xp2,midydim16+yp1+yp2-1,col);
-                                        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,col);
-                                        drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1+xp2,midydim16+yp1+yp2+1,col);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1+xp2,midydim16+yp1+yp2-1,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1+xp2,midydim16+yp1+yp2+1,editorcolors[col]);
                                         xp2 = mulscale13(sintable[(sprite[j].ang+1024)&2047],zoome) * fx / 4096;
                                         yp2 = mulscale13(sintable[(sprite[j].ang+512)&2047],zoome) * fx / 4096;
-                                        drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1+xp2+1,midydim16+yp1+yp2,col);
-                                        drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1-xp2-1,midydim16+yp1-yp2,col);
-                                        drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1+xp2-1,midydim16+yp1+yp2,col);
-                                        drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1-xp2+1,midydim16+yp1-yp2,col);
+                                        drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1+xp2+1,midydim16+yp1+yp2,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1-xp2-1,midydim16+yp1-yp2,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1+xp2-1,midydim16+yp1+yp2,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1-xp2+1,midydim16+yp1-yp2,editorcolors[col]);
 
-                                        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,col);
-                                        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,col);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,editorcolors[col]);
 
-                                        drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1+xp2,midydim16+yp1+yp2-1,col);
-                                        drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1-xp2,midydim16+yp1-yp2+1,col);
-                                        drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1+xp2,midydim16+yp1+yp2+1,col);
-                                        drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1-xp2,midydim16+yp1-yp2-1,col);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1+xp2,midydim16+yp1+yp2-1,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1-xp2,midydim16+yp1-yp2+1,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1+xp2,midydim16+yp1+yp2+1,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1-xp2,midydim16+yp1-yp2-1,editorcolors[col]);
                                     }
                                     else
                                     {
                                         if (!(sprite[j].cstat&64))
                                         {
-                                            drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1-xp2-1,midydim16+yp1-yp2,col);
-                                            drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,col);
-                                            drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1-xp2+1,midydim16+yp1-yp2,col);
+                                            drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1-xp2-1,midydim16+yp1-yp2,editorcolors[col]);
+                                            drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,editorcolors[col]);
+                                            drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1-xp2+1,midydim16+yp1-yp2,editorcolors[col]);
                                         }
-                                        drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1+xp2-1,midydim16+yp1+yp2,col);
-                                        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,col);
-                                        drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1+xp2+1,midydim16+yp1+yp2,col);
+                                        drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1+xp2-1,midydim16+yp1+yp2,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1+xp2+1,midydim16+yp1+yp2,editorcolors[col]);
                                         xp2 = mulscale13(sintable[(sprite[j].ang+1024)&2047],zoome) * fx / 4096;
                                         yp2 = mulscale13(sintable[(sprite[j].ang+512)&2047],zoome) * fx / 4096;
-                                        drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1+xp2+1,midydim16+yp1+yp2,col);
-                                        drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1-xp2-1,midydim16+yp1-yp2,col);
-                                        drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1+xp2-1,midydim16+yp1+yp2,col);
-                                        drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1-xp2+1,midydim16+yp1-yp2,col);
+                                        drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1+xp2+1,midydim16+yp1+yp2,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1-xp2-1,midydim16+yp1-yp2,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1+xp2-1,midydim16+yp1+yp2,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1-xp2+1,midydim16+yp1-yp2,editorcolors[col]);
 
-                                        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,col);
-                                        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,col);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,editorcolors[col]);
 
-                                        drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1+xp2,midydim16+yp1+yp2-1,col);
-                                        drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1-xp2,midydim16+yp1-yp2+1,col);
-                                        drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1+xp2,midydim16+yp1+yp2+1,col);
-                                        drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1-xp2,midydim16+yp1-yp2-1,col);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1+xp2,midydim16+yp1+yp2-1,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1-xp2,midydim16+yp1-yp2+1,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1+xp2,midydim16+yp1+yp2+1,editorcolors[col]);
+                                        drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1-xp2,midydim16+yp1-yp2-1,editorcolors[col]);
                                     }
 
                                 }
@@ -11378,13 +11377,13 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                                 xp2 = mulscale11(sintable[(sprite[j].ang+2560)&2047],zoome) / 6144;
                                 yp2 = mulscale11(sintable[(sprite[j].ang+2048)&2047],zoome) / 6144;
 
-                                drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,col);
-                                if (!(sprite[j].cstat&64)) drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,col);
+                                drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,editorcolors[col]);
+                                if (!(sprite[j].cstat&64)) drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,editorcolors[col]);
                                 xp2 = mulscale13(sintable[(sprite[j].ang+1024)&2047],zoome) * fx / 4096;
                                 yp2 = mulscale13(sintable[(sprite[j].ang+512)&2047],zoome) * fx / 4096;
 
-                                drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,col);
-                                drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,col);
+                                drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,editorcolors[col]);
+                                drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,editorcolors[col]);
 
 
                                 col += 8;
@@ -11417,10 +11416,10 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
                                 {
                                     drawline16(halfxdim16 + xp1 + co[ii][0], midydim16 + yp1 - co[ii][1],
                                                halfxdim16 + xp1 + co[(ii+1)&3][0], midydim16 + yp1 - co[(ii+1)&3][1],
-                                               col);
+                                               editorcolors[col]);
                                     drawline16(halfxdim16 + xp1, midydim16 + yp1,
                                                halfxdim16 + xp1 + co[(ii+1)&3][0], midydim16 + yp1 - co[(ii+1)&3][1],
-                                               col);
+                                               editorcolors[col]);
                                 }
                                 drawlinepat = 0xffffffff;
                             }
@@ -11430,9 +11429,9 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
     faketimerhandler();
     xp1 = mulscale11(sintable[(ange+2560)&2047],zoome) / 768; //Draw white arrow
     yp1 = mulscale11(sintable[(ange+2048)&2047],zoome) / 768;
-    drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16-xp1,midydim16-yp1,15);
-    drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+yp1,midydim16-xp1,15);
-    drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16-yp1,midydim16+xp1,15);
+    drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16-xp1,midydim16-yp1,editorcolors[15]);
+    drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+yp1,midydim16-xp1,editorcolors[15]);
+    drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16-yp1,midydim16+xp1,editorcolors[15]);
 
 
     enddrawing();   //}}}
@@ -11486,7 +11485,7 @@ int printext16(int xpos, int ypos, short col, short backcol, char *name, char fo
                     smallbuf[0] = name[i];
                     smallbuf[1] = '\0';
                 }
-                col = atol(smallbuf);
+                col = editorcolors[atol(smallbuf)];
 
                 if (name[i+1] == ',' && isdigit(name[i+2]))
                 {
@@ -11511,7 +11510,7 @@ int printext16(int xpos, int ypos, short col, short backcol, char *name, char fo
                         smallbuf[0] = name[i];
                         smallbuf[1] = '\0';
                     }
-                    backcol = atol(smallbuf);
+                    backcol = editorcolors[atol(smallbuf)];
                 }
                 continue;
             }

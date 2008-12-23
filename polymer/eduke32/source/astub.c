@@ -753,7 +753,7 @@ void ExtShowSectorData(short sectnum)   //F5
     x2=14;
     y=4;
     begindrawing();
-    printext16(x*8,ydim16+y*8,11,-1,"Item Count",0);
+    printext16(x*8,ydim16+y*8,editorcolors[11],-1,"Item Count",0);
     enddrawing();
     PrintStatus("10%health=",numsprite[COLA],x,y+2,11);
     PrintStatus("",multisprite[COLA],x2,y+2,9);
@@ -770,7 +770,7 @@ void ExtShowSectorData(short sectnum)   //F5
     x2=30;
     y=4;
     begindrawing();
-    printext16(x*8,ydim16+y*8,11,-1,"Inventory",0);
+    printext16(x*8,ydim16+y*8,editorcolors[11],-1,"Inventory",0);
     enddrawing();
     PrintStatus("Steroids =",numsprite[STEROIDS],x,y+2,11);
     PrintStatus("",multisprite[STEROIDS],x2,y+2,9);
@@ -790,7 +790,7 @@ void ExtShowSectorData(short sectnum)   //F5
     x2=46;
     y=4;
     begindrawing();
-    printext16(x*8,ydim16+y*8,11,-1,"Weapon Count",0);
+    printext16(x*8,ydim16+y*8,editorcolors[11],-1,"Weapon Count",0);
     enddrawing();
     PrintStatus("Pistol   =",numsprite[FIRSTGUNSPRITE],x,y+2,11);
     PrintStatus("",multisprite[FIRSTGUNSPRITE],x2,y+2,9);
@@ -815,7 +815,7 @@ void ExtShowSectorData(short sectnum)   //F5
     x2=62;
     y=4;
     begindrawing();
-    printext16(x*8,ydim16+y*8,11,-1,"Ammo Count",0);
+    printext16(x*8,ydim16+y*8,editorcolors[11],-1,"Ammo Count",0);
     enddrawing();
     PrintStatus("Pistol   =",numsprite[AMMO],x,y+2,11);
     PrintStatus("",multisprite[AMMO],x2,y+2,9);
@@ -837,11 +837,11 @@ void ExtShowSectorData(short sectnum)   //F5
     PrintStatus("",multisprite[FREEZEAMMO],x2,y+10,9);
 
     begindrawing();
-    printext16(65*8,ydim16+4*8,11,-1,"MISC",0);
+    printext16(65*8,ydim16+4*8,editorcolors[11],-1,"MISC",0);
     enddrawing();
     PrintStatus("Secrets =",secrets,65,6,11);
     begindrawing();
-    printext16(65*8,ydim16+8*8,11,-1,"ACTORS",0);
+    printext16(65*8,ydim16+8*8,editorcolors[11],-1,"ACTORS",0);
     enddrawing();
     PrintStatus("Skill 1 =",totalactors1,65,10,11);
     PrintStatus("Skill 2 =",totalactors2,65,11,11);
@@ -1134,7 +1134,7 @@ static void Show2dText(char *name)
     if ((fp=kopen4load(name,0)) == -1)
     {
         begindrawing();
-        printext16(1*4,ydim16+4*8,11,-1,"ERROR: file not found.",0);
+        printext16(1*4,ydim16+4*8,editorcolors[11],-1,"ERROR: file not found.",0);
         enddrawing();
         return;
     }
@@ -1155,7 +1155,7 @@ static void Show2dText(char *name)
             if (x>xmax) xmax=x;
         }
         tempbuf[x]=0;
-        printext16(xx*4,ydim16+(y*6)+2,11,-1,tempbuf,1);
+        printext16(xx*4,ydim16+(y*6)+2,editorcolors[11],-1,tempbuf,1);
         x=0;
         y++;
         if (y>18)
@@ -1336,10 +1336,10 @@ static void IntegratedHelp()
         begindrawing();
         clearbuf((char *)(frameplace + (ydim-overridepm16y)*bytesperline), (bytesperline*(overridepm16y-25)) >> 2, 0L);
 
-        drawline16(0,ydim-overridepm16y,xdim-1,ydim-overridepm16y,1);
+        drawline16(0,ydim-overridepm16y,xdim-1,ydim-overridepm16y,editorcolors[1]);
         Bsprintf(tempbuf, "Mapster32 Help Mode");
-        printext16(9L,ydim2d-overridepm16y+9L,4,-1,tempbuf,0);
-        printext16(8L,ydim2d-overridepm16y+8L,12,-1,tempbuf,0);
+        printext16(9L,ydim2d-overridepm16y+9L,editorcolors[4],-1,tempbuf,0);
+        printext16(8L,ydim2d-overridepm16y+8L,editorcolors[12],-1,tempbuf,0);
         enddrawing();
 
         memset(oldpattern, 0, sizeof(char));
@@ -1550,9 +1550,9 @@ ENDFOR1:
                     i<IHELP_NUMDISPLINES && j<helppage[curhp]->numlines; i++)
             {
                 Bmemcpy(disptext[i], helppage[curhp]->line[j], 80);
-                printext16(8,ydim-overridepm16y+28+i*9,10,
+                printext16(8,ydim-overridepm16y+28+i*9,editorcolors[10],
                            (j==highlightline && curhp==highlighthp
-                            && totalclock-lasthighlighttime<120*5)?1:-1,
+                            && totalclock-lasthighlighttime<120*5)?editorcolors[1]:-1,
                            disptext[i],0);
             }
 
@@ -1563,7 +1563,7 @@ ENDFOR1:
         overridepm16y = -1;
         i=ydim16;
         ydim16=ydim;
-        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,1);
+        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
         ydim16=i;
         printmessage16("");
         showframe(1);
@@ -1938,7 +1938,7 @@ static void PrintStatus(char *string,int num,char x,char y,char color)
 {
     Bsprintf(tempbuf,"%s %d",string,num);
     begindrawing();
-    printext16(x*8,ydim16+y*8,color,-1,tempbuf,0);
+    printext16(x*8,ydim16+y*8,editorcolors[(int)color],-1,tempbuf,0);
     enddrawing();
 }
 
@@ -1989,7 +1989,7 @@ static void ReadPaletteTable()
 
 static void ReadGamePalette()
 {
-    int i,fp;
+    int fp;
     if ((fp=kopen4load("palette.dat",0)) == -1)
         if ((fp=kopen4load("palette.dat",1)) == -1)
         {
@@ -2000,7 +2000,6 @@ static void ReadGamePalette()
         }
 //    initprintf("Loading game palette... ");
     kread(fp,GAMEpalette,768);
-    for (i=0;i<768;++i) GAMEpalette[i]=GAMEpalette[i];
     kclose(fp);
 //    initprintf("success.\n");
     ReadPaletteTable();
@@ -6583,8 +6582,8 @@ static void Keys2d(void)
     */
 
     Bsprintf(tempbuf, "Mapster32" VERSION);
-    printext16(9L,ydim2d-STATUS2DSIZ+9L,4,-1,tempbuf,0);
-    printext16(8L,ydim2d-STATUS2DSIZ+8L,12,-1,tempbuf,0);
+    printext16(9L,ydim2d-STATUS2DSIZ+9L,editorcolors[4],-1,tempbuf,0);
+    printext16(8L,ydim2d-STATUS2DSIZ+8L,editorcolors[12],-1,tempbuf,0);
 
     updatesector(mousxplc,mousyplc,&cursectornum);
     searchsector=cursectornum;
@@ -6727,7 +6726,7 @@ static void Keys2d(void)
                     j = 256;
                     k = 90;
                 }
-                printext16(j,ydim16+32+(i*9)-k,11,-1,Help2d[i],0);
+                printext16(j,ydim16+32+(i*9)-k,editorcolors[11],-1,Help2d[i],0);
             }
             enddrawing();
         }
@@ -7205,6 +7204,26 @@ static void InitCustomColors(void)
     /*    vgapal16[9*4+0] = 63;
         vgapal16[9*4+1] = 31;
         vgapal16[9*4+2] = 7; */
+    int i;
+    palette_t *edcol;
+/*
+
+char vgapal16[4*256] =
+{
+    00,00,00,00, 42,00,00,00, 00,42,00,00, 42,42,00,00, 00,00,42,00,
+    42,00,42,00, 00,21,42,00, 42,42,42,00, 21,21,21,00, 63,21,21,00,
+    21,63,21,00, 63,63,21,00, 21,21,63,00, 63,21,63,00, 21,63,63,00,
+    63,63,63,00
+};
+*/
+/*    editorcolors[0] = getclosestcol(0,0,0);
+    editorcolors[1] = getclosestcol(0,0,42);
+    editorcolors[2] = getclosestcol(0,42,0);
+    editorcolors[3] = getclosestcol(0,42,42);
+    editorcolors[4] = getclosestcol(42,0,0);
+    editorcolors[5] = getclosestcol(0,0,0);
+*/
+    extern int getclosestcol(int r, int g, int b);
 
     /* orange */
     vgapal16[31*4+0] = 20; // blue
@@ -7252,7 +7271,11 @@ static void InitCustomColors(void)
     vgapal16[41*4+1] = 40;
     vgapal16[41*4+2] = 48;
 
-
+    for (i = 0; i<256; i++)
+    {
+        edcol = (palette_t *)&vgapal16[4*i];
+        editorcolors[i] = getclosestcol(edcol->b,edcol->g,edcol->r);
+    }
 }
 
 void ExtPreSaveMap(void)
@@ -8758,6 +8781,10 @@ void ExtPreCheckKeys(void) // just before drawrooms
         xp1 = mulscale14(sprite[i].x-posx,zoom);
         yp1 = mulscale14(sprite[i].y-posy,zoom);
 
+        if (zoom >= 256 && (sprite[i].cstat & 48) == 0)
+            rotatesprite((halfxdim16+xp1)<<16,(midydim16+yp1)<<16,zoom<<5,0,sprite[i].picnum,
+            (i+16384 == pointhighlight && totalclock&32)?8:0,sprite[i].pal,0,0,0,xdim-1,ydim16-1);
+
         if (sprite[i].picnum == 5 /*&& zoom >= 256*/ && sprite[i].sectnum != MAXSECTORS)
         {
             radius = mulscale14(sprite[i].hitag,zoom);
@@ -8765,7 +8792,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
             if (i+16384 == pointhighlight)
                 if (totalclock & 32) col += (2<<2);
             drawlinepat = 0xf0f0f0f0;
-            drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
+            drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, editorcolors[col]);
             drawlinepat = 0xffffffff;
 //            radius = mulscale15(sprite[i].hitag,zoom);
             //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
@@ -9454,7 +9481,7 @@ static void EditSectorData(short sectnum)
         {
             if (row < rowmax)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                 row++;
             }
             keystatus[KEYSC_DOWN] = 0;
@@ -9463,7 +9490,7 @@ static void EditSectorData(short sectnum)
         {
             if (row > 0)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                 row--;
             }
             keystatus[KEYSC_UP] = 0;
@@ -9472,7 +9499,7 @@ static void EditSectorData(short sectnum)
         {
             if (col == 2)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                 col = 1;
                 xpos = 200;
                 rowmax = 6;
@@ -9486,7 +9513,7 @@ static void EditSectorData(short sectnum)
         {
             if (col == 1)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                 col = 2;
                 xpos = 400;
                 rowmax = 6;
@@ -9654,14 +9681,14 @@ static void EditSectorData(short sectnum)
                 break;
             }
         }
-        printext16(xpos,ypos+row*8,11,1,disptext,0);
+        printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
         if (editval)
         {
             editval = 0;
         }
         showframe(1);
     }
-    printext16(xpos,ypos+row*8,11,0,disptext,0);
+    printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
     printmessage16("");
     enddrawing();
     showframe(1);
@@ -9691,7 +9718,7 @@ static void EditWallData(short wallnum)
         {
             if (row < 6)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 row++;
             }
             keystatus[KEYSC_DOWN] = 0;
@@ -9700,7 +9727,7 @@ static void EditWallData(short wallnum)
         {
             if (row > 0)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 row--;
             }
             keystatus[KEYSC_UP] = 0;
@@ -9783,7 +9810,7 @@ static void EditWallData(short wallnum)
             }
             break;
         }
-        printext16(xpos,ypos+row*8,11,1,disptext,0);
+        printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
         if (editval)
         {
             editval = 0;
@@ -9794,7 +9821,7 @@ static void EditWallData(short wallnum)
         showframe(1);
     }
     //begindrawing();
-    printext16(xpos,ypos+row*8,11,0,disptext,0);
+    printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
     printmessage16("");
     enddrawing();
     showframe(1);
@@ -9825,7 +9852,7 @@ static void EditSpriteData(short spritenum)
         {
             if (row < rowmax)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 row++;
             }
             keystatus[KEYSC_DOWN] = 0;
@@ -9834,7 +9861,7 @@ static void EditSpriteData(short spritenum)
         {
             if (row > 0)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 row--;
             }
             keystatus[KEYSC_UP] = 0;
@@ -9845,7 +9872,7 @@ static void EditSpriteData(short spritenum)
             {
             case 1:
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                 col = 0;
                 xpos = 8;
                 rowmax = 4;
@@ -9856,7 +9883,7 @@ static void EditSpriteData(short spritenum)
             break;
             case 2:
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                 col = 1;
                 xpos = 200;
                 rowmax = 5;
@@ -9874,7 +9901,7 @@ static void EditSpriteData(short spritenum)
             {
             case 0:
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                 col = 1;
                 xpos = 200;
                 rowmax = 5;
@@ -9885,7 +9912,7 @@ static void EditSpriteData(short spritenum)
             break;
             case 1:
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                 col = 2;
                 xpos = 400;
                 rowmax = 6;
@@ -10144,7 +10171,7 @@ static void EditSpriteData(short spritenum)
         showframe(1);
     }
     begindrawing();
-    printext16(xpos,ypos+row*8,11,0,disptext,0);
+    printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
     printmessage16("");
     enddrawing();
     showframe(1);
@@ -10231,7 +10258,7 @@ static void GenSearchSprite()
             keystatus[KEYSC_DOWN] = 0;
             if (row < rowmax[col])
             {
-                printext16(xpos[col],ypos+row*8,11,0,disptext,0);
+                printext16(xpos[col],ypos+row*8,editorcolors[11],0,disptext,0);
                 row++;
             }
         }
@@ -10240,7 +10267,7 @@ static void GenSearchSprite()
             keystatus[KEYSC_UP] = 0;
             if (row > 0)
             {
-                printext16(xpos[col],ypos+row*8,11,0,disptext,0);
+                printext16(xpos[col],ypos+row*8,editorcolors[11],0,disptext,0);
                 row--;
             }
         }
@@ -10249,7 +10276,7 @@ static void GenSearchSprite()
             keystatus[KEYSC_LEFT] = 0;
             if (col > 0)
             {
-                printext16(xpos[col],ypos+row*8,11,0,disptext,0);
+                printext16(xpos[col],ypos+row*8,editorcolors[11],0,disptext,0);
                 col--;
                 disptext[dispwidth[col]] = 0;
                 if (row > rowmax[col]) row = rowmax[col];
@@ -10260,7 +10287,7 @@ static void GenSearchSprite()
             keystatus[KEYSC_RIGHT] = 0;
             if (col < 2)
             {
-                printext16(xpos[col],ypos+row*8,11,0,disptext,0);
+                printext16(xpos[col],ypos+row*8,editorcolors[11],0,disptext,0);
                 col++;
                 disptext[dispwidth[col]] = 0;
                 if (row > rowmax[col]) row = rowmax[col];
@@ -10309,7 +10336,7 @@ static void GenSearchSprite()
         showframe(1);
     }
 //    begindrawing();
-    printext16(xpos[col],ypos+row*8,11,0,disptext,0);
+    printext16(xpos[col],ypos+row*8,editorcolors[11],0,disptext,0);
     printmessage16("Search sprite");
 //    enddrawing();
     showframe(1);
@@ -10347,7 +10374,7 @@ static void FuncMenuOpts(void)
     do
     {
 //        x2 =
-        printext16(x,y,11,0,FuncMenuStrings[i],0);
+        printext16(x,y,editorcolors[11],0,FuncMenuStrings[i],0);
         //    if (x2 > x2_max) x2_max = x2;
         y += MENU_Y_SPACING;
     }
@@ -10356,7 +10383,7 @@ static void FuncMenuOpts(void)
     //  drawline16(x-1,MENU_BASE_Y-4,x-1,y,1);
 
 //    x2 =
-    printext16(x,MENU_BASE_Y,11,0,"Special functions",0);
+    printext16(x,MENU_BASE_Y,editorcolors[11],0,"Special functions",0);
 //    drawline16(x-1,MENU_BASE_Y-4,x2+1,MENU_BASE_Y-4,1);
     //  drawline16(x2_max+1,MENU_BASE_Y+16-4,x2_max+1,y-1,1);
     //drawline16(x2+1,MENU_BASE_Y+16-1,x2_max+1,MENU_BASE_Y+16-1,1);
@@ -10386,7 +10413,7 @@ static void FuncMenu(void)
         {
             if (row < rowmax)
             {
-                printext16(xpos,ypos+row*MENU_Y_SPACING,11,0,disptext,0);
+                printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],0,disptext,0);
                 row++;
             }
             keystatus[KEYSC_DOWN] = 0;
@@ -10395,7 +10422,7 @@ static void FuncMenu(void)
         {
             if (row > 0)
             {
-                printext16(xpos,ypos+row*MENU_Y_SPACING,11,0,disptext,0);
+                printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],0,disptext,0);
                 row--;
             }
             keystatus[KEYSC_UP] = 0;
@@ -10405,7 +10432,7 @@ static void FuncMenu(void)
         {
             /*            if (col == 2)
                         {
-                            printext16(xpos,ypos+row*8,11,0,disptext,0);
+                            printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                             col = 1;
                             xpos = 200;
                             rowmax = 6;
@@ -10416,7 +10443,7 @@ static void FuncMenu(void)
                         else */
             if (col == 1)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                 col = 0;
                 xpos = 8;
                 rowmax = 7;
@@ -10431,7 +10458,7 @@ static void FuncMenu(void)
         {
             if (col == 0)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                 col = 1;
                 xpos = 200;
                 rowmax = 0;
@@ -10441,7 +10468,7 @@ static void FuncMenu(void)
             }
             /*            else if (col == 1)
                         {
-                            printext16(xpos,ypos+row*8,11,0,disptext,0);
+                            printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
                             col = 2;
                             xpos = 400;
                             rowmax = 6;
@@ -10660,7 +10687,7 @@ static void FuncMenu(void)
         showframe(1);
     }
     begindrawing();
-    printext16(xpos,ypos+row*MENU_Y_SPACING,11,0,disptext,0);
+    printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],0,disptext,0);
     enddrawing();
     clearmidstatbar16();
     showframe(1);

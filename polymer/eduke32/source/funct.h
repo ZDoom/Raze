@@ -156,7 +156,7 @@ extern void A_SpawnWallGlass(int i,int wallnum,int n);
 extern void A_SpawnGlass(int i,int n);
 extern void A_SpawnCeilingGlass(int i,int sectnum,int n);
 extern void A_SpawnRandomGlass(int i,int wallnum,int n);
-extern inline int GetTime(void);
+extern int GetTime(void);
 extern void CONFIG_GetSetupFilename(void);
 extern int32 CONFIG_FunctionNameToNum(char *func);
 extern char *CONFIG_FunctionNumToName(int32 func);

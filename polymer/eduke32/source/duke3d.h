@@ -111,7 +111,7 @@ extern int g_scriptVersion, g_Shareware, g_gameType;
 
 #include "namesdyn.h"
 
-#define TICRATE g_timerTicsPerSecond
+#define TICRATE (120)
 #define TICSPERFRAME (TICRATE/26)
 
 // #define GC (TICSPERFRAME*44)
