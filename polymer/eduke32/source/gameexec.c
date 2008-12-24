@@ -337,10 +337,6 @@ void A_Fall(int iActor)
     {
         if (sector[s->sectnum].lotag == 2 && s->zvel > 3122)
             s->zvel = 3144;
-        /*        if (s->zvel < 6144)
-                    s->zvel += c;
-                else s->zvel = 6144;
-                s->z += s->zvel; */
         s->z += s->zvel = min(6144, s->zvel+c);
     }
     if (s->z >= ActorExtra[iActor].floorz-(FOURSLEIGHT))
@@ -1102,10 +1098,8 @@ static int X_DoExecute(void)
             {
             default:
                 // fix for flying/jumping monsters getting stuck in water
-                if (g_sp->statnum != MAXSTATUS && actorscrptr[g_sp->picnum] &&
-                        (g_sp->hitag & jumptoplayer ||
-                         (moveptr >= g_scriptPtr && moveptr <= (g_scriptPtr+g_scriptSize) && *(moveptr+1)))
-                   )
+                if (g_sp->hitag & jumptoplayer || (actorscrptr[g_sp->picnum] &&
+                    moveptr >= &script[0] && moveptr <= (&script[0]+g_scriptSize) && *(moveptr+1)))
                 {
 //                    OSD_Printf("%d\n",*(moveptr+1));
                     break;

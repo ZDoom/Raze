@@ -4176,7 +4176,7 @@ static void fillpolygon(int npoints)
     intptr_t p;
 
 #if defined POLYMOST && defined USE_OPENGL
-    if (rendmode >= 3) { polymost_fillpolygon(npoints); return; }
+    if (rendmode >= 3 && qsetmode == 200) { polymost_fillpolygon(npoints); return; }
 #endif
 
     miny = 0x7fffffff; maxy = 0x80000000;

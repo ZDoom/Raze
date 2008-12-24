@@ -8700,7 +8700,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
 {
     int i = 0;
     int radius, xp1, yp1;
-    char col;
+    int col;
 
     if (qsetmode == 200)    //In 3D mode
     {
@@ -8792,7 +8792,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
             if (i+16384 == pointhighlight)
                 if (totalclock & 32) col += (2<<2);
             drawlinepat = 0xf0f0f0f0;
-            drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, editorcolors[col]);
+            drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, editorcolors[(int)col]);
             drawlinepat = 0xffffffff;
 //            radius = mulscale15(sprite[i].hitag,zoom);
             //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);

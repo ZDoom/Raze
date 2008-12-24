@@ -1612,6 +1612,21 @@ void overheadeditor(void)
 
         clear2dscreen();
 
+        for (i=0;i<(MAXSECTORS>>3);i++)
+            show2dsector[i] = 255;
+        for (i=0;i<(MAXWALLS>>3);i++)
+            show2dwall[i] = 255;
+        for (i=0;i<(MAXSPRITES>>3);i++)
+            show2dsprite[i] = 255;
+
+        setview(0,0,xdim-1,ydim16-1);
+        i = yxaspect;
+        yxaspect = 65536;
+        j = ydim;
+        ydim = ydim16;
+        drawmapview(posx, posy, zoom, 1536);
+        yxaspect = i;
+        ydim = j;
         draw2dgrid(posx,posy,ang,zoom,grid);
 
         ExtPreCheckKeys();
