@@ -8702,6 +8702,8 @@ void ExtPreCheckKeys(void) // just before drawrooms
     int i = 0;
     int radius, xp1, yp1;
     int col;
+    int picnum, frames;
+    int ang = 0, flags, shade;
 
     if (qsetmode == 200)    //In 3D mode
     {
@@ -8777,17 +8779,116 @@ void ExtPreCheckKeys(void) // just before drawrooms
 //    if (cursectornum >= 0)
 //        fillsector(cursectornum, 31);
 
-    for (i=0;i<numsprites;i++) // Game specific 2D sprite stuff goes here.  Drawn below everything else.
+    if (graphicsmode && zoom >= 256)
     {
-        xp1 = mulscale14(sprite[i].x-posx,zoom);
-        yp1 = mulscale14(sprite[i].y-posy,zoom);
+        for (i=0;i<numsprites;i++)
+        {
+            if ((sprite[i].cstat & 48) != 0) continue;
+            picnum = sprite[i].picnum;
+            ang = flags = frames = shade = 0;
 
-        if (graphicsmode && zoom >= 256 && (sprite[i].cstat & 48) == 0)
-            rotatesprite((halfxdim16+xp1)<<16,(midydim16+yp1)<<16,zoom<<5,0,sprite[i].picnum,
-            (i+16384 == pointhighlight && totalclock&32)?8:0,sprite[i].pal,0,0,0,xdim-1,ydim16-1);
+            switch (picnum)
+            {
+                // 5-frame walk
+            case 1550 :             // Shark
+                frames=5;
+                // 2-frame walk
+            case 1445 :             // duke kick
+            case LIZTROOPDUCKING :
+            case 2030 :            // pig shot
+            case OCTABRAIN :
+            case PIGCOPDIVE :
+            case 2190 :            // liz capt shot
+            case BOSS1SHOOT :
+            case BOSS1LOB :
+            case LIZTROOPSHOOT :
+                if (frames==0) frames=2;
 
+                // 4-frame walk
+            case 1491 :             // duke crawl
+            case LIZTROOP :
+            case LIZTROOPRUNNING :
+            case PIGCOP :
+            case LIZMAN :
+            case BOSS1 :
+            case BOSS2 :
+            case BOSS3 :
+            case BOSS4 :
+            case NEWBEAST:
+                if (frames==0) frames=4;
+            case LIZTROOPJETPACK :
+            case DRONE :
+            case COMMANDER :
+            case TANK :
+            case RECON :
+                if (frames==0) frames = 10;
+            case CAMERA1:
+            case APLAYER :
+                if (frames==0) frames=1;
+            case GREENSLIME :
+            case EGG :
+            case PIGCOPSTAYPUT :
+            case LIZMANSTAYPUT:
+            case LIZTROOPSTAYPUT :
+            case LIZMANSPITTING :
+            case LIZMANFEEDING :
+            case LIZMANJUMP :
+
+                {
+                    int k;
+                    if (frames!=0)
+                    {
+                        if (frames==10) frames=0;
+                        k = 1536;//getangle(tspr->x-posx,tspr->y-posy);
+                        k = (((sprite[i].ang+3072+128-k)&2047)>>8)&7;
+                        //This guy has only 5 pictures for 8 angles (3 are x-flipped)
+                        if (k <= 4)
+                        {
+                            picnum += k;
+                            ang = 0;
+                            flags &= ~4;
+                        }
+                        else
+                        {
+                            picnum += 8-k;
+                            ang = 1024;
+                            flags |= 4;
+                        }
+                    }
+
+                    if (frames==2) picnum+=((((4-(totalclock>>5)))&1)*5);
+                    if (frames==4) picnum+=((((4-(totalclock>>5)))&3)*5);
+                    if (frames==5) picnum+=(((totalclock>>5)%5))*5;
+
+                    if (tilesizx[picnum] == 0)
+                        picnum -= 5;       //Hack, for actors
+                }
+                break;
+            default:
+                break;
+
+            }
+
+            xp1 = mulscale14(sprite[i].x-posx,zoom);
+            yp1 = mulscale14(sprite[i].y-posy-(tilesizy[picnum]<<2),zoom);
+            if (i+16384 != pointhighlight || !(totalclock&32))
+            {
+                shade = sprite[i].shade;
+                if (shade < 6)
+                    shade = 6;
+            }
+
+            rotatesprite((halfxdim16+xp1)<<16,(midydim16+yp1)<<16,zoom<<5,ang,picnum,
+            shade,sprite[i].pal,flags,0,0,xdim-1,ydim16-1);
+        }
+    }
+
+    for (i=0;i<numsprites;i++)
         if (sprite[i].picnum == 5 /*&& zoom >= 256*/ && sprite[i].sectnum != MAXSECTORS)
         {
+            xp1 = mulscale14(sprite[i].x-posx,zoom);
+            yp1 = mulscale14(sprite[i].y-posy,zoom);
+
             radius = mulscale14(sprite[i].hitag,zoom);
             col = 6;
             if (i+16384 == pointhighlight)
@@ -8798,7 +8899,6 @@ void ExtPreCheckKeys(void) // just before drawrooms
 //            radius = mulscale15(sprite[i].hitag,zoom);
             //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
         }
-    }
 
     enddrawing();
 }
@@ -9482,7 +9582,7 @@ static void EditSectorData(short sectnum)
         {
             if (row < rowmax)
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 row++;
             }
             keystatus[KEYSC_DOWN] = 0;
@@ -9491,7 +9591,7 @@ static void EditSectorData(short sectnum)
         {
             if (row > 0)
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 row--;
             }
             keystatus[KEYSC_UP] = 0;
@@ -9500,7 +9600,7 @@ static void EditSectorData(short sectnum)
         {
             if (col == 2)
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 col = 1;
                 xpos = 200;
                 rowmax = 6;
@@ -9514,7 +9614,7 @@ static void EditSectorData(short sectnum)
         {
             if (col == 1)
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 col = 2;
                 xpos = 400;
                 rowmax = 6;
@@ -9873,7 +9973,7 @@ static void EditSpriteData(short spritenum)
             {
             case 1:
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 col = 0;
                 xpos = 8;
                 rowmax = 4;
@@ -9884,7 +9984,7 @@ static void EditSpriteData(short spritenum)
             break;
             case 2:
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 col = 1;
                 xpos = 200;
                 rowmax = 5;
@@ -9902,7 +10002,7 @@ static void EditSpriteData(short spritenum)
             {
             case 0:
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 col = 1;
                 xpos = 200;
                 rowmax = 5;
@@ -9913,7 +10013,7 @@ static void EditSpriteData(short spritenum)
             break;
             case 1:
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
+                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 col = 2;
                 xpos = 400;
                 rowmax = 6;
@@ -10163,7 +10263,7 @@ static void EditSpriteData(short spritenum)
         break;
         }
 
-        printext16(xpos,ypos+row*8,11,1,disptext,0);
+        printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
         if (editval)
         {
             editval = 0;
@@ -10172,7 +10272,7 @@ static void EditSpriteData(short spritenum)
         showframe(1);
     }
     begindrawing();
-    printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
+    printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
     printmessage16("");
     enddrawing();
     showframe(1);
@@ -10225,7 +10325,7 @@ static void GenSearchSprite()
 
     clearmidstatbar16();
 
-    printext16(xpos[0], ypos-2*8, 10, 0, "Sprite search", 0);
+    printext16(xpos[0], ypos-2*8, editorcolors[10], editorcolors[0], "Sprite search", 0);
 
     for (i=0; i<3; i++)
         for (j=0; j<=rowmax[i]; j++)
@@ -10236,7 +10336,7 @@ static void GenSearchSprite()
                 k=Bsprintf(disptext, "%s: ^7any", labels[j][i]);
             for (;k<dispwidth[i];k++) disptext[k] = 0;
 
-            printext16(xpos[i], ypos+j*8, 11, 0, disptext, 0);
+            printext16(xpos[i], ypos+j*8, editorcolors[11], editorcolors[0], disptext, 0);
         }
     for (k=0; k<80; k++) disptext[k] = 0;
 
@@ -10259,7 +10359,7 @@ static void GenSearchSprite()
             keystatus[KEYSC_DOWN] = 0;
             if (row < rowmax[col])
             {
-                printext16(xpos[col],ypos+row*8,editorcolors[11],0,disptext,0);
+                printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 row++;
             }
         }
@@ -10268,7 +10368,7 @@ static void GenSearchSprite()
             keystatus[KEYSC_UP] = 0;
             if (row > 0)
             {
-                printext16(xpos[col],ypos+row*8,editorcolors[11],0,disptext,0);
+                printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 row--;
             }
         }
@@ -10277,7 +10377,7 @@ static void GenSearchSprite()
             keystatus[KEYSC_LEFT] = 0;
             if (col > 0)
             {
-                printext16(xpos[col],ypos+row*8,editorcolors[11],0,disptext,0);
+                printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 col--;
                 disptext[dispwidth[col]] = 0;
                 if (row > rowmax[col]) row = rowmax[col];
@@ -10288,7 +10388,7 @@ static void GenSearchSprite()
             keystatus[KEYSC_RIGHT] = 0;
             if (col < 2)
             {
-                printext16(xpos[col],ypos+row*8,editorcolors[11],0,disptext,0);
+                printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 col++;
                 disptext[dispwidth[col]] = 0;
                 if (row > rowmax[col]) row = rowmax[col];
@@ -10308,7 +10408,7 @@ static void GenSearchSprite()
             gs_spritewhat[col][row] = 1;
 
             if (col == 1 && row == 5)  // picnum
-                printext16(xpos[1], ypos-2*8, 14, 0, names[i], 0);
+                printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], names[i], 0);
         }
         if (keystatus[KEYSC_BS] || keystatus[KEYSC_DELETE])
         {
@@ -10316,7 +10416,7 @@ static void GenSearchSprite()
             gs_spritewhat[col][row] = 0;
 
             if (col == 1 && row == 5)  // picnum
-                printext16(xpos[1], ypos-2*8, 14, 0, "                         ", 0);
+                printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], "                         ", 0);
         }
 
         if (gs_spritewhat[col][row])
@@ -10331,13 +10431,13 @@ static void GenSearchSprite()
         for (;k<dispwidth[col];k++) disptext[k] = ' ';
         disptext[k] = 0;
 
-        printext16(xpos[col],ypos+row*8,11,1,disptext,0);
+        printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
 
         enddrawing();
         showframe(1);
     }
 //    begindrawing();
-    printext16(xpos[col],ypos+row*8,editorcolors[11],0,disptext,0);
+    printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
     printmessage16("Search sprite");
 //    enddrawing();
     showframe(1);
@@ -10375,7 +10475,7 @@ static void FuncMenuOpts(void)
     do
     {
 //        x2 =
-        printext16(x,y,editorcolors[11],0,FuncMenuStrings[i],0);
+        printext16(x,y,editorcolors[11],editorcolors[0],FuncMenuStrings[i],0);
         //    if (x2 > x2_max) x2_max = x2;
         y += MENU_Y_SPACING;
     }
@@ -10384,7 +10484,7 @@ static void FuncMenuOpts(void)
     //  drawline16(x-1,MENU_BASE_Y-4,x-1,y,1);
 
 //    x2 =
-    printext16(x,MENU_BASE_Y,editorcolors[11],0,"Special functions",0);
+    printext16(x,MENU_BASE_Y,editorcolors[11],editorcolors[0],"Special functions",0);
 //    drawline16(x-1,MENU_BASE_Y-4,x2+1,MENU_BASE_Y-4,1);
     //  drawline16(x2_max+1,MENU_BASE_Y+16-4,x2_max+1,y-1,1);
     //drawline16(x2+1,MENU_BASE_Y+16-1,x2_max+1,MENU_BASE_Y+16-1,1);
@@ -10414,7 +10514,7 @@ static void FuncMenu(void)
         {
             if (row < rowmax)
             {
-                printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],0,disptext,0);
+                printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],editorcolors[0],disptext,0);
                 row++;
             }
             keystatus[KEYSC_DOWN] = 0;
@@ -10423,7 +10523,7 @@ static void FuncMenu(void)
         {
             if (row > 0)
             {
-                printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],0,disptext,0);
+                printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],editorcolors[0],disptext,0);
                 row--;
             }
             keystatus[KEYSC_UP] = 0;
@@ -10683,12 +10783,12 @@ static void FuncMenu(void)
             }
             break;
         }
-        printext16(xpos,ypos+row*MENU_Y_SPACING,11,1,disptext,0);
+        printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],editorcolors[1],disptext,0);
         enddrawing();
         showframe(1);
     }
     begindrawing();
-    printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],0,disptext,0);
+    printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],editorcolors[0],disptext,0);
     enddrawing();
     clearmidstatbar16();
     showframe(1);

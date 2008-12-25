@@ -1617,20 +1617,22 @@ void overheadeditor(void)
 
         if (graphicsmode)
         {
-            int ii;
+            int ii = xyaspect;
+
+            i = yxaspect;
 
             Bmemset(show2dsector, 255, sizeof(show2dsector));
             Bmemset(show2dwall, 255, sizeof(show2dwall));
             Bmemset(show2dsprite, 255, sizeof(show2dsprite));
 
-            setview(0,0,xdim-1,ydim16-1);
-            i = yxaspect;
-            yxaspect = 65536;
+            setview(0, 0, xdim-1, ydim16-1);
+            yxaspect = xyaspect = 65536;
+
             j = ydim;
-            ydim -= scale(128,ydim,768);
-            ii = xyaspect;
-            xyaspect = 65536;
+            ydim -= scale(128, ydim, 768);
+
             drawmapview(posx, posy, zoom, 1536);
+
             yxaspect = i;
             ydim = j;
             xyaspect = ii;
