@@ -8695,6 +8695,7 @@ static char wallpals[MAXWALLS];
 static char sectorpals[MAXSECTORS][2];
 static char spritepals[MAXSPRITES];
 static char wallflag[MAXWALLS];
+extern int graphicsmode;
 
 void ExtPreCheckKeys(void) // just before drawrooms
 {
@@ -8781,7 +8782,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
         xp1 = mulscale14(sprite[i].x-posx,zoom);
         yp1 = mulscale14(sprite[i].y-posy,zoom);
 
-        if (zoom >= 256 && (sprite[i].cstat & 48) == 0)
+        if (graphicsmode && zoom >= 256 && (sprite[i].cstat & 48) == 0)
             rotatesprite((halfxdim16+xp1)<<16,(midydim16+yp1)<<16,zoom<<5,0,sprite[i].picnum,
             (i+16384 == pointhighlight && totalclock&32)?8:0,sprite[i].pal,0,0,0,xdim-1,ydim16-1);
 

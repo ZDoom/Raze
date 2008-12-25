@@ -74,6 +74,8 @@ int hvel;
 int grponlymode = 0;
 extern int editorgridextent;	// in engine.c
 extern double msens;
+int graphicsmode = 0;
+extern int xyaspect;
 
 int synctics = 0, lockclock = 0;
 
@@ -1533,7 +1535,8 @@ void overheadeditor(void)
             }
         }
 
-        idle();
+        if (!graphicsmode)
+            idle();
         OSD_DispatchQueued();
 
         oldmousebstatus = bstatus;
@@ -1612,21 +1615,27 @@ void overheadeditor(void)
 
         clear2dscreen();
 
-        for (i=0;i<(MAXSECTORS>>3);i++)
-            show2dsector[i] = 255;
-        for (i=0;i<(MAXWALLS>>3);i++)
-            show2dwall[i] = 255;
-        for (i=0;i<(MAXSPRITES>>3);i++)
-            show2dsprite[i] = 255;
+        if (graphicsmode)
+        {
+            int ii;
 
-        setview(0,0,xdim-1,ydim16-1);
-        i = yxaspect;
-        yxaspect = 65536;
-        j = ydim;
-        ydim = ydim16;
-        drawmapview(posx, posy, zoom, 1536);
-        yxaspect = i;
-        ydim = j;
+            Bmemset(show2dsector, 255, sizeof(show2dsector));
+            Bmemset(show2dwall, 255, sizeof(show2dwall));
+            Bmemset(show2dsprite, 255, sizeof(show2dsprite));
+
+            setview(0,0,xdim-1,ydim16-1);
+            i = yxaspect;
+            yxaspect = 65536;
+            j = ydim;
+            ydim -= scale(128,ydim,768);
+            ii = xyaspect;
+            xyaspect = 65536;
+            drawmapview(posx, posy, zoom, 1536);
+            yxaspect = i;
+            ydim = j;
+            xyaspect = ii;
+        }
+
         draw2dgrid(posx,posy,ang,zoom,grid);
 
         ExtPreCheckKeys();
@@ -4132,18 +4141,27 @@ SKIP:
             }
         }
 
-        if (keystatus[0x0e] && (newnumwalls >= numwalls)) //Backspace
+        if (keystatus[0x0e]) //Backspace
         {
-            if (newnumwalls > numwalls)
+            if (newnumwalls >= numwalls)
             {
-                newnumwalls--;
-                asksave = 1;
-                keystatus[0x0e] = 0;
+                if (newnumwalls > numwalls)
+                {
+                    newnumwalls--;
+                    asksave = 1;
+                    keystatus[0x0e] = 0;
+                }
+                if (newnumwalls == numwalls)
+                {
+                    newnumwalls = -1;
+                    asksave = 1;
+                    keystatus[0x0e] = 0;
+                }
             }
-            if (newnumwalls == numwalls)
+            else
             {
-                newnumwalls = -1;
-                asksave = 1;
+                graphicsmode = !graphicsmode;
+                printmessage16("2D mode textures %s",graphicsmode?"enabled":"disabled");
                 keystatus[0x0e] = 0;
             }
         }
