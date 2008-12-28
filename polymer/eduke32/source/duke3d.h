@@ -850,7 +850,8 @@ enum SpriteFlags_t {
     SPRITE_PROJECTILE   = 8,
     SPRITE_DECAL        = 16,
     SPRITE_BADGUY       = 32,
-    SPRITE_NOPAL        = 64
+    SPRITE_NOPAL        = 64,
+    SPRITE_NOEVENTCODE  = 128,
 };
 
 extern short SpriteCacheList[MAXTILES][3];

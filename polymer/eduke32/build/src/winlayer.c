@@ -391,7 +391,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 #endif
 
     // install signal handlers
+#if !defined(_MSC_VER) || !defined(DEBUGGINGAIDS)
     signal(SIGSEGV, SignalHandler);
+#endif
 
     if (RegisterWindowClass()) return -1;
 
@@ -3345,7 +3347,9 @@ static int SetupOpenGL(int width, int height, int bitspp)
             {
                 if (!Bstrcmp(glinfo.renderer,"Intel 865G"))
                     err = 0;
-                if (!Bstrcmp(glinfo.renderer,"Intel 945GM"))
+                else if (!Bstrcmp(glinfo.renderer,"Intel 945GM"))
+                    err = 0;
+                else if (!Bstrcmp(glinfo.renderer,"Intel 965/963 Graphics Media Accelerator"))
                     err = 0;
                 else err = 1;
             }

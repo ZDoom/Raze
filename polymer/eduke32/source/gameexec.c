@@ -51,6 +51,7 @@ void X_ScriptInfo(void)
     if (script)
     {
         intptr_t *p;
+        if (insptr)
         for (p=insptr-20;p<insptr+20;p++)
         {
             if (*p>>12&&(*p&0xFFF)<CON_END)
@@ -58,14 +59,15 @@ void X_ScriptInfo(void)
             else
                 initprintf(" %d",*p);
         }
-        initprintf("current actor: %d (%d)\n",g_i,g_sp->picnum);
+        if (g_i)
+            initprintf("current actor: %d (%d)\n",g_i,g_sp->picnum);
         initprintf("g_errorLineNum: %d, g_tw: %d\n",g_errorLineNum,g_tw);
     }
 }
 
 void X_OnEvent(int iEventID, int iActor, int iPlayer, int lDist)
 {
-    if ((iEventID<0 || iEventID >= MAXGAMEEVENTS) && g_scriptSanityChecks)
+    if (iEventID<0 || iEventID >= MAXGAMEEVENTS)
     {
         OSD_Printf(CON_ERROR "invalid event ID",g_errorLineNum,keyw[g_tw]);
         return;

@@ -7684,7 +7684,7 @@ int A_CheckSwitchTile(int i)
     // ACCESSSWITCH and ACCESSSWITCH2 are only active in 1 state so deal with them separately
     if ((PN == ACCESSSWITCH) || (PN == ACCESSSWITCH2)) return 1;
     //loop to catch both states of switches
-    for (j=0;j<=1;j++)
+    for (j=1;j>=0;j--)
     {
         switch (DynamicTileMap[PN-j])
         {
@@ -7756,15 +7756,18 @@ void G_MoveWorld(void)
         do
         {
             i = headspritestat[k];
-            if (i < 0) continue;
-            do
+            while (i > 0)
             {
+                if (A_CheckSpriteFlags(i,SPRITE_NOEVENTCODE))
+                {
+                    i = nextspritestat[i];
+                    continue;
+                }
                 j = nextspritestat[i];
                 pl=A_FindPlayer(&sprite[i],&p);
                 X_OnEvent(EVENT_GAME,i, pl, p);
                 i = j;
             }
-            while (i >= 0);
         }
         while (k--);
     }

@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20081219"
+#define BUILDDATE " 20081226"
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;
@@ -5908,12 +5908,14 @@ static void Keys3d(void)
             {
                 if (repeatpanalign == 0)
                 {
-                    while (updownunits--)wall[searchwall].yrepeat = changechar(wall[searchwall].yrepeat,changedir,smooshyalign,1);
+                    while (updownunits--)
+                        wall[searchwall].yrepeat = changechar(wall[searchwall].yrepeat,changedir,smooshyalign,1);
                     message("Wall %d repeat: %d, %d",searchwall,wall[searchwall].xrepeat,wall[searchwall].yrepeat);
                 }
                 else
                 {
-                    while (updownunits--)wall[searchwall].ypanning = changechar(wall[searchwall].ypanning,changedir,smooshyalign,0);
+                    while (updownunits--)
+                        wall[searchwall].ypanning = changechar(wall[searchwall].ypanning,changedir,smooshyalign,0);
                     message("Wall %d panning: %d, %d",searchwall,wall[searchwall].xpanning,wall[searchwall].ypanning);
                 }
             }
@@ -5921,12 +5923,14 @@ static void Keys3d(void)
             {
                 if (searchstat == 1)
                 {
-                    while (updownunits--)sector[searchsector].ceilingypanning = changechar(sector[searchsector].ceilingypanning,changedir,smooshyalign,0);
+                    while (updownunits--)
+                        sector[searchsector].ceilingypanning = changechar(sector[searchsector].ceilingypanning,changedir,smooshyalign,0);
                     message("Sector %d ceiling panning: %d, %d",searchsector,sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
                 }
                 else
                 {
-                    while (updownunits--)sector[searchsector].floorypanning = changechar(sector[searchsector].floorypanning,changedir,smooshyalign,0);
+                    while (updownunits--)
+                        sector[searchsector].floorypanning = changechar(sector[searchsector].floorypanning,changedir,smooshyalign,0);
                     message("Sector %d floor panning: %d, %d",searchsector,sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
                 }
             }
@@ -7224,6 +7228,11 @@ char vgapal16[4*256] =
     editorcolors[5] = getclosestcol(0,0,0);
 */
     extern int getclosestcol(int r, int g, int b);
+
+
+    vgapal16[9*4+0] = 63;
+    vgapal16[9*4+1] = 31;
+    vgapal16[9*4+2] = 7;
 
     /* orange */
     vgapal16[31*4+0] = 20; // blue
@@ -8783,7 +8792,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
     {
         for (i=0;i<numsprites;i++)
         {
-            if ((sprite[i].cstat & 48) != 0) continue;
+            if ((sprite[i].cstat & 48) != 0 || sprite[i].statnum == MAXSTATUS) continue;
             picnum = sprite[i].picnum;
             ang = flags = frames = shade = 0;
 
@@ -8856,9 +8865,12 @@ void ExtPreCheckKeys(void) // just before drawrooms
                         }
                     }
 
-                    if (frames==2) picnum+=((((4-(totalclock>>5)))&1)*5);
-                    if (frames==4) picnum+=((((4-(totalclock>>5)))&3)*5);
-                    if (frames==5) picnum+=(((totalclock>>5)%5))*5;
+                    if (graphicsmode == 2)
+                    {
+                        if (frames==2) picnum+=((((4-(totalclock>>5)))&1)*5);
+                        if (frames==4) picnum+=((((4-(totalclock>>5)))&3)*5);
+                        if (frames==5) picnum+=(((totalclock>>5)%5))*5;
+                    }
 
                     if (tilesizx[picnum] == 0)
                         picnum -= 5;       //Hack, for actors
@@ -8878,7 +8890,12 @@ void ExtPreCheckKeys(void) // just before drawrooms
                     shade = 6;
             }
 
-            rotatesprite((halfxdim16+xp1)<<16,(midydim16+yp1)<<16,zoom<<5,ang,picnum,
+            xp1 += halfxdim16;
+            yp1 += midydim16;
+
+            if (xp1 < 4 || xp1 > xdim-6 || yp1 < 4 || yp1 > ydim16-6)
+                continue;
+            rotatesprite(xp1<<16,yp1<<16,zoom<<5,ang,picnum,
             shade,sprite[i].pal,flags,0,0,xdim-1,ydim16-1);
         }
     }

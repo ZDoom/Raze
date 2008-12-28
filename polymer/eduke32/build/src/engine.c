@@ -4204,12 +4204,12 @@ static void fillpolygon(int npoints)
             if (day2 > day1)
             {
                 x1 += mulscale12((day1<<12)+4095-y1,xinc);
-                for (y=day1;y<day2;y++) { *dotp2[y]++ = (x1>>12); x1 += xinc; }
+                for (y=day1;y<day2;y++) { if (!dotp2[y]) { x1 += xinc; continue; } *dotp2[y]++ = (x1>>12); x1 += xinc; }
             }
             else
             {
                 x2 += mulscale12((day2<<12)+4095-y2,xinc);
-                for (y=day2;y<day1;y++) { *dotp1[y]++ = (x2>>12); x2 += xinc; }
+                for (y=day2;y<day1;y++) { if (!dotp1[y]) { x2 += xinc; continue; } *dotp1[y]++ = (x2>>12); x2 += xinc; }
             }
         }
     }
@@ -11459,8 +11459,8 @@ int printext16(int xpos, int ypos, short col, short backcol, char *name, char fo
             i++;
             if (name[i] == 'O') // ^O resets formatting
             {
-                col = ocol;
-                backcol = obackcol;
+                col = editorcolors[ocol];
+                backcol = editorcolors[obackcol];
                 continue;
             }
             if (isdigit(name[i]))

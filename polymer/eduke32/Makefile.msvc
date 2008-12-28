@@ -44,6 +44,9 @@ LIBS=vorbisfile_static.lib vorbis_static.lib ogg_static.lib $(LIBS)
 
 ASFLAGS=/nologo /coff /c
 EXESUFFIX=.exe
+!ifdef DEBUG
+CFLAGS=$(CFLAGS) /DDEBUGGINGAIDS
+!endif
 
 JMACTOBJ=$(OBJ)\util_lib.$o \
 	$(OBJ)\file_lib.$o \

@@ -76,6 +76,7 @@ extern int editorgridextent;	// in engine.c
 extern double msens;
 int graphicsmode = 0;
 extern int xyaspect;
+extern int totalclocklock;
 
 int synctics = 0, lockclock = 0;
 
@@ -1622,15 +1623,15 @@ void overheadeditor(void)
             i = yxaspect;
 
             Bmemset(show2dsector, 255, sizeof(show2dsector));
-            Bmemset(show2dwall, 255, sizeof(show2dwall));
-            Bmemset(show2dsprite, 255, sizeof(show2dsprite));
 
             setview(0, 0, xdim-1, ydim16-1);
             yxaspect = xyaspect = 65536;
 
             j = ydim;
-            ydim -= scale(128, ydim, 768);
+            ydim -= scale((MAXYDIM/6), ydim, MAXYDIM);
 
+            if (graphicsmode == 2)
+                totalclocklock = totalclock;
             drawmapview(posx, posy, zoom, 1536);
 
             yxaspect = i;
@@ -3071,6 +3072,7 @@ SKIP:
                 posx = mousxplc;
                 posy = mousyplc;
             }
+            _printmessage16("Zoom: %d",zoom);
         }
         if ((keystatus[buildkeys[BK_MOVEDOWN]] || (bstatus&32)) && (zoom > 8))
         {
@@ -3082,6 +3084,7 @@ SKIP:
                 posx = mousxplc;
                 posy = mousyplc;
             }
+            _printmessage16("Zoom: %d",zoom);
         }
         if (zoom < 8) zoom = 8;
         if (zoom > 16384) zoom = 16384;
@@ -4162,8 +4165,18 @@ SKIP:
             }
             else
             {
-                graphicsmode = !graphicsmode;
-                printmessage16("2D mode textures %s",graphicsmode?"enabled":"disabled");
+                if (keystatus[buildkeys[BK_RUN]])
+                {
+                    if (--graphicsmode < 0)
+                        graphicsmode = 2;
+                }
+                else
+                {
+                    if (++graphicsmode > 2)
+                        graphicsmode = 0;
+                }
+                printmessage16("2D mode textures %s",
+                    (graphicsmode == 2)?"enabled w/ animation":graphicsmode?"enabled":"disabled");
                 keystatus[0x0e] = 0;
             }
         }

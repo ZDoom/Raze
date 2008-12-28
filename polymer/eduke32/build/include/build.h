@@ -77,7 +77,6 @@ extern "C" {
 #pragma pack(push,1);
 #endif
 
-
 //ceilingstat/floorstat:
 //   bit 0: 1 = parallaxing, 0 = not                                 "P"
 //   bit 1: 1 = groudraw, 0 = not

@@ -304,44 +304,41 @@ void Gv_WriteSave(FILE *fil)
 void Gv_DumpValues(FILE *fp)
 {
     int i;
+
     if (!fp)
-    {
         return;
-    }
+
     fprintf(fp,"// Current Game Definitions\n\n");
+
     for (i=0;i<g_gameVarCount;i++)
     {
         if (aGameVars[i].dwFlags & (GAMEVAR_SECRET))
-        {
             continue; // do nothing...
-        }
-        else
-        {
-            fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
 
-            if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR))
-                fprintf(fp,"%d",*((int*)aGameVars[i].val.lValue));
-            else if (aGameVars[i].dwFlags & (GAMEVAR_SHORTPTR))
-                fprintf(fp,"%d",*((short*)aGameVars[i].val.lValue));
-            else if (aGameVars[i].dwFlags & (GAMEVAR_CHARPTR))
-                fprintf(fp,"%d",*((char*)aGameVars[i].val.lValue));
-            else
-                fprintf(fp,"%" PRIdPTR "",aGameVars[i].val.lValue);
-            if (aGameVars[i].dwFlags & (GAMEVAR_PERPLAYER))
-                fprintf(fp," GAMEVAR_PERPLAYER");
-            else if (aGameVars[i].dwFlags & (GAMEVAR_PERACTOR))
-                fprintf(fp," GAMEVAR_PERACTOR");
-            else
-                fprintf(fp," %d",aGameVars[i].dwFlags & (GAMEVAR_USER_MASK));
-            fprintf(fp," // ");
-            if (aGameVars[i].dwFlags & (GAMEVAR_SYSTEM))
-                fprintf(fp," (system)");
-            if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
-                fprintf(fp," (pointer)");
-            if (aGameVars[i].dwFlags & (GAMEVAR_READONLY))
-                fprintf(fp," (read only)");
-            fprintf(fp,"\n");
-        }
+        fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
+
+        if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR))
+            fprintf(fp,"%d",*((int*)aGameVars[i].val.lValue));
+        else if (aGameVars[i].dwFlags & (GAMEVAR_SHORTPTR))
+            fprintf(fp,"%d",*((short*)aGameVars[i].val.lValue));
+        else if (aGameVars[i].dwFlags & (GAMEVAR_CHARPTR))
+            fprintf(fp,"%d",*((char*)aGameVars[i].val.lValue));
+        else
+            fprintf(fp,"%" PRIdPTR "",aGameVars[i].val.lValue);
+        if (aGameVars[i].dwFlags & (GAMEVAR_PERPLAYER))
+            fprintf(fp," GAMEVAR_PERPLAYER");
+        else if (aGameVars[i].dwFlags & (GAMEVAR_PERACTOR))
+            fprintf(fp," GAMEVAR_PERACTOR");
+        else
+            fprintf(fp," %d",aGameVars[i].dwFlags & (GAMEVAR_USER_MASK));
+        fprintf(fp," // ");
+        if (aGameVars[i].dwFlags & (GAMEVAR_SYSTEM))
+            fprintf(fp," (system)");
+        if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+            fprintf(fp," (pointer)");
+        if (aGameVars[i].dwFlags & (GAMEVAR_READONLY))
+            fprintf(fp," (read only)");
+        fprintf(fp,"\n");
     }
     fprintf(fp,"\n// end of game definitions\n");
 }
@@ -465,10 +462,11 @@ int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags)
             Bstrcpy(aGameVars[i].szLabel,pszLabel);
         aGameVars[i].dwFlags=dwFlags;
 
-        if (aGameVars[i].val.plValues)
+        if (aGameVars[i].dwFlags & GAMEVAR_USER_MASK)
         {
             // only free if not system
-            Bfree(aGameVars[i].val.plValues);
+            if (aGameVars[i].val.plValues)
+                Bfree(aGameVars[i].val.plValues);
             aGameVars[i].val.plValues=NULL;
         }
     }
