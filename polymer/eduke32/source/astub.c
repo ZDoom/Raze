@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20081226"
+#define BUILDDATE " 20081228"
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;
@@ -6798,6 +6798,19 @@ static void Keys2d(void)
         }
     }
 
+    if (keystatus[KEYSC_E])  // E (expand)
+    {
+        for (i=0;i<numsectors;i++)
+            if (inside(mousxplc,mousyplc,i) == 1)
+            {
+                sector[i].floorstat ^= 8;
+                message("Sector %d floor texture expansion bit %s",i,sector[i].floorstat&8?"ON":"OFF");
+                asksave = 1;
+            }
+
+        keystatus[KEYSC_E] = 0;
+    }
+
     if (keystatus[KEYSC_SLASH])  // /?     Reset panning&repeat to 0
     {
         if ((ppointhighlight&0xc000) == 16384)
@@ -6816,46 +6829,65 @@ static void Keys2d(void)
         asksave = 1;
     }
 
-    if (keystatus[KEYSC_gLEFT] || keystatus[KEYSC_gRIGHT])  // 4 & 6 (keypad)
+    if (keystatus[KEYSC_gLEFT] || keystatus[KEYSC_gRIGHT])  // 4 & 6 (keypad 2D)
     {
         smooshyalign = keystatus[KEYSC_gKP5];
-        if ((repeatcountx == 0) || (repeatcountx > 16))
+        if ((repeatcountx == 0) || (repeatcountx > 32))
         {
             changedir = 0;
             if (keystatus[KEYSC_gLEFT])  changedir = -1;
             if (keystatus[KEYSC_gRIGHT]) changedir = 1;
 
-            if ((ppointhighlight&0xc000) == 16384)
+            if ((ppointhighlight&0xc000) == 16384 && (sprite[cursprite].cstat & 48))
             {
                 sprite[cursprite].xrepeat = changechar(sprite[cursprite].xrepeat,changedir,smooshyalign,1);
                 if (sprite[cursprite].xrepeat < 4)
                     sprite[cursprite].xrepeat = 4;
             }
+            else
+            {
+                for (i=0;i<numsectors;i++)
+                    if (inside(mousxplc,mousyplc,i) == 1)
+                    {
+                        sector[i].floorxpanning = changechar(sector[i].floorxpanning,changedir,smooshyalign,0);
+                        message("Sector %d floor panning: %d, %d",searchsector,sector[i].floorxpanning,sector[i].floorypanning);
+                    }
+            }
+
             asksave = 1;
-            repeatcountx = max(1,repeatcountx);
+            repeatcountx = max(1,repeatcountx-2);
         }
         repeatcountx += synctics;
     }
     else
         repeatcountx = 0;
 
-    if (keystatus[KEYSC_gUP] || keystatus[KEYSC_gDOWN])  // 2 & 8 (keypad)
+    if (keystatus[KEYSC_gUP] || keystatus[KEYSC_gDOWN])  // 2 & 8 (keypad 2D)
     {
         smooshyalign = keystatus[KEYSC_gKP5];
-        if ((repeatcounty == 0) || (repeatcounty > 16))
+        if ((repeatcounty == 0) || (repeatcounty > 32))
         {
             changedir = 0;
             if (keystatus[KEYSC_gUP])   changedir = -1;
             if (keystatus[KEYSC_gDOWN]) changedir = 1;
 
-            if ((ppointhighlight&0xc000) == 16384)
+            if ((ppointhighlight&0xc000) == 16384 && (sprite[cursprite].cstat & 48))
             {
                 sprite[cursprite].yrepeat = changechar(sprite[cursprite].yrepeat,changedir,smooshyalign,1);
                 if (sprite[cursprite].yrepeat < 4)
                     sprite[cursprite].yrepeat = 4;
             }
+            else
+            {
+                for (i=0;i<numsectors;i++)
+                    if (inside(mousxplc,mousyplc,i) == 1)
+                    {
+                        sector[i].floorypanning = changechar(sector[i].floorypanning,changedir,smooshyalign,0);
+                        message("Sector %d floor panning: %d, %d",searchsector,sector[i].floorxpanning,sector[i].floorypanning);
+                    }
+            }
             asksave = 1;
-            repeatcounty = max(1,repeatcounty);
+            repeatcounty = max(1,repeatcounty-2);
         }
         repeatcounty += synctics;
         //}

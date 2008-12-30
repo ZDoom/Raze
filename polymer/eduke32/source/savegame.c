@@ -423,6 +423,61 @@ int G_LoadPlayer(int spot)
 
     i = g_musicIndex;
     g_musicIndex = (ud.volume_number*MAXLEVELS) + ud.level_number;
+
+    if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
+    {
+        char *p;
+        char levname[BMAX_PATH];
+        int fil;
+
+        strcpy(levname, boardfilename);
+        // usermap music based on map filename
+        Bcorrectfilename(levname,0);
+        p = Bstrrchr(levname,'.');
+        if (!p) strcat(levname,".ogg");
+        else
+        {
+            p[1]='o';
+            p[2]='g';
+            p[3]='g';
+            p[4]=0;
+        }
+
+        fil = kopen4loadfrommod(levname,0);
+
+        if (fil > -1)
+        {
+            kclose(fil);
+            if (MapInfo[ud.level_number].musicfn1 == NULL)
+                MapInfo[ud.level_number].musicfn1 = Bcalloc(Bstrlen(levname)+1,sizeof(char));
+            else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.level_number].musicfn1))
+                MapInfo[ud.level_number].musicfn1 = Brealloc(MapInfo[ud.level_number].musicfn1,(Bstrlen(levname)+1));
+            Bstrcpy(MapInfo[ud.level_number].musicfn1,levname);
+        }
+        else if (MapInfo[ud.level_number].musicfn1 != NULL)
+        {
+            Bfree(MapInfo[ud.level_number].musicfn1);
+            MapInfo[ud.level_number].musicfn1 = NULL;
+        }
+
+        p[1]='m';
+        p[2]='i';
+        p[3]='d';
+        p[4]=0;
+
+        fil = kopen4loadfrommod(levname,0);
+
+        if (fil == -1)
+            Bsprintf(levname,"dethtoll.mid");
+        else kclose(fil);
+
+        if (MapInfo[ud.level_number].musicfn == NULL)
+            MapInfo[ud.level_number].musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(char));
+        else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.level_number].musicfn))
+            MapInfo[ud.level_number].musicfn = Brealloc(MapInfo[ud.level_number].musicfn,(Bstrlen(levname)+1));
+        Bstrcpy(MapInfo[ud.level_number].musicfn,levname);
+    }
+
     if (MapInfo[(unsigned char)g_musicIndex].musicfn != NULL && (i != g_musicIndex || MapInfo[MAXVOLUMES*MAXLEVELS+2].musicfn1))
     {
         MUSIC_StopSong();

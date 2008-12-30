@@ -4165,7 +4165,7 @@ SKIP:
             }
             else
             {
-                if (keystatus[buildkeys[BK_RUN]])
+                if (keystatus[buildkeys[BK_RUN]] || keystatus[0x36])
                 {
                     if (--graphicsmode < 0)
                         graphicsmode = 2;
