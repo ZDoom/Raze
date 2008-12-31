@@ -440,7 +440,7 @@ static void X_Move(void)
     intptr_t *moveptr;
     int a = g_sp->hitag, goalang, angdif;
     int daxvel;
-    int dead = (A_CheckEnemySprite(g_sp) && g_sp->extra <= 0);
+    int deadflag = (A_CheckEnemySprite(g_sp) && g_sp->extra <= 0);
 
     if (a == -1) a = 0;
 
@@ -448,7 +448,7 @@ static void X_Move(void)
 
     if (g_t[1] == 0 || a == 0)
     {
-        if ((ActorExtra[g_i].bposx != g_sp->x) || (ActorExtra[g_i].bposy != g_sp->y))
+        if (deadflag || (ActorExtra[g_i].bposx != g_sp->x) || (ActorExtra[g_i].bposy != g_sp->y))
         {
             ActorExtra[g_i].bposx = g_sp->x;
             ActorExtra[g_i].bposy = g_sp->y;
@@ -457,7 +457,7 @@ static void X_Move(void)
         return;
     }
 
-    if (a&face_player && !dead)
+    if (a&face_player && !deadflag)
     {
         if (g_player[g_p].ps->newowner >= 0)
             goalang = getangle(g_player[g_p].ps->oposx-g_sp->x,g_player[g_p].ps->oposy-g_sp->y);
@@ -468,10 +468,10 @@ static void X_Move(void)
         g_sp->ang += angdif;
     }
 
-    if (a&spin && !dead)
+    if (a&spin && !deadflag)
         g_sp->ang += sintable[((g_t[0]<<3)&2047)]>>6;
 
-    if (a&face_player_slow && !dead)
+    if (a&face_player_slow && !deadflag)
     {
         if (g_player[g_p].ps->newowner >= 0)
             goalang = getangle(g_player[g_p].ps->oposx-g_sp->x,g_player[g_p].ps->oposy-g_sp->y);
@@ -482,13 +482,13 @@ static void X_Move(void)
         g_sp->ang += angdif;
     }
 
-    if (((a&jumptoplayer) == jumptoplayer) && !dead)
+    if (((a&jumptoplayer) == jumptoplayer) && !deadflag)
     {
         if (g_t[0] < 16)
             g_sp->zvel -= (sintable[(512+(g_t[0]<<4))&2047]>>5);
     }
 
-    if (a&face_player_smart && !dead)
+    if (a&face_player_smart && !deadflag)
     {
         int newx = g_player[g_p].ps->posx+(g_player[g_p].ps->posxv/768);
         int newy = g_player[g_p].ps->posy+(g_player[g_p].ps->posyv/768);
@@ -505,10 +505,10 @@ static void X_Move(void)
     if (a&geth) g_sp->xvel += (*moveptr-g_sp->xvel)>>1;
     if (a&getv) g_sp->zvel += ((*(moveptr+1)<<4)-g_sp->zvel)>>1;
 
-    if (a&dodgebullet && !dead)
+    if (a&dodgebullet && !deadflag)
         A_Dodge(g_sp);
 
-    if (g_sp->picnum != APLAYER && !dead)
+    if (g_sp->picnum != APLAYER)
         X_AlterAng(a);
 
     if (g_sp->xvel > -6 && g_sp->xvel < 6) g_sp->xvel = 0;

@@ -105,7 +105,7 @@ static int  osdcursorpal=0; */
 
 static symbol_t *osdsymbptrs[MAXSYMBOLS];
 static int osdnumsymbols = 0;
-static struct HASH_table osdsymbolsH    = { MAXSYMBOLS<<1, NULL };
+static struct HASH_table osdsymbolsH      = { MAXSYMBOLS<<1, NULL };
 
 // application callbacks
 static void (*drawosdchar)(int, int, char, int, int) = _internal_drawosdchar;
@@ -1790,6 +1790,7 @@ void OSD_SetVersionString(const char *version, int shade, int pal)
 static symbol_t *addnewsymbol(const char *name)
 {
     symbol_t *newsymb, *s, *t;
+    char *lname;
 
     if (osdnumsymbols >= MAXSYMBOLS) return NULL;
     newsymb = (symbol_t *)Bmalloc(sizeof(symbol_t));
@@ -1823,6 +1824,9 @@ static symbol_t *addnewsymbol(const char *name)
         }
     }
     HASH_add(&osdsymbolsH, name, osdnumsymbols);
+    lname = strtolower(Bstrdup(name),Bstrlen(name));
+    HASH_add(&osdsymbolsH, lname, osdnumsymbols);
+    Bfree(lname);
     osdsymbptrs[osdnumsymbols++] = newsymb;
     return newsymb;
 }
@@ -1842,7 +1846,6 @@ static symbol_t *findsymbol(const char *name, symbol_t *startingat)
     return NULL;
 }
 
-
 //
 // findexactsymbol() -- Finds a symbol, complete named
 //
@@ -1852,9 +1855,6 @@ static symbol_t *findexactsymbol(const char *name)
     char *lname = Bstrdup(name);
     if (!symbols) return NULL;
 
-    for (i=Bstrlen(lname);i>=0;i--)
-        lname[i] = Btolower(lname[i]);
-
     i = HASH_find(&osdsymbolsH,lname);
     if (i > -1)
     {
@@ -1863,7 +1863,14 @@ static symbol_t *findexactsymbol(const char *name)
         Bfree(lname);
         return osdsymbptrs[i];
     }
+
+    // try it again
+    lname = strtolower(lname, Bstrlen(name));
+    i = HASH_find(&osdsymbolsH,lname);
     Bfree(lname);
+
+    if (i > -1)
+        return osdsymbptrs[i];
     return NULL;
 }
 

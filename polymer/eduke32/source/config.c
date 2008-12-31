@@ -57,10 +57,18 @@ int32 CONFIG_FunctionNameToNum(char * func)
 {
     int32 i;
 
-    i = HASH_findcase(&gamefuncH,func);
-    if (i > -1)
+    i = HASH_find(&gamefuncH,func);
+
+    if (i < 0)
+    {
+        char *str = strtolower(Bstrdup(func),Bstrlen(func));
+        i = HASH_find(&gamefuncH,str);
+        Bfree(str);
+
         return i;
-    return -1;
+    }
+
+    return i;
 }
 
 /*

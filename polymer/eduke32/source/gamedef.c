@@ -1410,20 +1410,6 @@ static inline int isaltok(char c)
     return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '*' || c == '-' || c == '_' || c == '.');
 }
 
-// strlower -- makes a string in memory lowercase and returns a pointer
-static char *strtolower(char *str, int len)
-{
-    int i = 0;
-    if (len <= 0) return str;
-    do
-    {
-        *(str+i) = Btolower(*(str+i));
-        i++;
-    }
-    while (--len);
-    return str;
-}
-
 static inline int GetLabelNameid(const memberlabel_t *pLabel, struct HASH_table *tH, const char *psz)
 {
     // find the label psz in the table pLabel.
@@ -4736,6 +4722,12 @@ repeatcase:
         gamefunctions[j][i] = '\0';
         keydefaults[j*3][i] = '\0';
         HASH_add(&gamefuncH,gamefunctions[j],j);
+        {
+            char *str = strtolower(Bstrdup(gamefunctions[j]),Bstrlen(gamefunctions[j]));
+            HASH_add(&gamefuncH,str,j);
+            Bfree(str);
+        }
+
         return 0;
 
     case CON_DEFINESKILLNAME:

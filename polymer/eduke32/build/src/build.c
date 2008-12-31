@@ -3072,7 +3072,8 @@ SKIP:
                 posx = mousxplc;
                 posy = mousyplc;
             }
-            _printmessage16("Zoom: %d",zoom);
+            if (zoom > 16384) zoom = 16384;
+            printmessage16("Zoom: %d",zoom);
         }
         if ((keystatus[buildkeys[BK_MOVEDOWN]] || (bstatus&32)) && (zoom > 8))
         {
@@ -3084,11 +3085,10 @@ SKIP:
                 posx = mousxplc;
                 posy = mousyplc;
             }
-            _printmessage16("Zoom: %d",zoom);
+            if (zoom < 8) zoom = 8;
+            printmessage16("Zoom: %d",zoom);
         }
-        if (zoom < 8) zoom = 8;
-        if (zoom > 16384) zoom = 16384;
-
+        
         if (keystatus[0x22])  // G (grid on/off)
         {
             grid++;

@@ -47,6 +47,19 @@ struct glinfo glinfo =
 };
 #endif
 
+char *strtolower(char *str, int len)
+{
+    int i = 0;
+    if (len <= 0) return str;
+    do
+    {
+        *(str+i) = Btolower(*(str+i));
+        i++;
+    }
+    while (--len);
+    return str;
+}
+
 static void onvideomodechange(int newmode) { UNREFERENCED_PARAMETER(newmode); }
 void (*baselayer_onvideomodechange)(int) = onvideomodechange;
 

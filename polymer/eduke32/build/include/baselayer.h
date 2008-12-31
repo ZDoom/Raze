@@ -102,6 +102,7 @@ void setmousepresscallback(void (*callback)(int,int));
 void setjoypresscallback(void (*callback)(int,int));
 const unsigned char *getkeyname(int num);
 const unsigned char *getjoyname(int what, int num); // what: 0=axis, 1=button, 2=hat
+char *strtolower(char *str, int len);
 
 unsigned char bgetchar(void);
 int bkbhit(void);

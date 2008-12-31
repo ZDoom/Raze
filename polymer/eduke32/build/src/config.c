@@ -65,6 +65,7 @@ extern int remapinit;
 extern double msens;
 extern int editorgridextent;
 extern int showheightindicators;
+extern int graphicsmode;
 
 /*
  * SETUP.DAT
@@ -228,6 +229,9 @@ int loadsetup(const char *fn)
     if (readconfig(fp, "showheightindicators", val, VL) > 0)
         showheightindicators = min(max(Batoi(val),0),2);
 
+    if (readconfig(fp, "graphicsmode", val, VL) > 0)
+        graphicsmode = min(max(Batoi(val),0),2);
+
 #ifdef _WIN32
     {
         extern char map_dik_code(int);
@@ -373,6 +377,9 @@ int writesetup(const char *fn)
              "\n"
              "; Height indicators (0:none, 1:only 2-sided&different, 2:all)\n"
              "showheightindicators = %d\n\n"
+             "\n"
+             "; 2D mode display type (0:classic, 1:textured, 2:textured/animated)\n"
+             "graphicsmode = %d\n\n"
 #if 1
              "; Key Settings\n"
              ";  Here's a map of all the keyboard scan codes: NOTE: values are listed in hex!\n"
@@ -434,7 +441,7 @@ int writesetup(const char *fn)
 #endif
              option[3], msens, unrealedlook, pk_uedaccel, quickmapcycling,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,
-             showheightindicators,
+             showheightindicators,graphicsmode,
 #if 1
              keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
              keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],

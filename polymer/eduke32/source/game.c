@@ -10926,7 +10926,12 @@ void app_main(int argc,const char **argv)
 
     HASH_init(&gamefuncH);
     for (i=NUMGAMEFUNCTIONS-1;i>=0;i--)
+    {
+        char *str = strtolower(Bstrdup(gamefunctions[i]),Bstrlen(gamefunctions[i]));
         HASH_add(&gamefuncH,gamefunctions[i],i);
+        HASH_add(&gamefuncH,str,i);
+        Bfree(str);
+    }
 
     i = CONFIG_ReadSetup();
     if (getenv("DUKE3DGRP")) duke3dgrp = getenv("DUKE3DGRP");

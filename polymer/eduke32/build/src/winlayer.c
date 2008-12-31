@@ -4152,7 +4152,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
                     grabmouse(1);
                     regrabmouse = 0;
                 }
-                ShowWindow(hWindow, SW_SHOWNORMAL);
+                ShowWindow(hWindow, SW_RESTORE);
                 SetForegroundWindow(hWindow);
                 SetFocus(hWindow);
                 setgamemode(realfs,xdim,ydim,bpp);
