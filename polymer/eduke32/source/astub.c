@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20081230"
+#define BUILDDATE " 20090101"
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;
@@ -1951,14 +1951,18 @@ static void ReadPaletteTable()
 {
     int i,j,fp;
     char lookup_num;
+
+    for (j = 0; j < 256; j++)
+        tempbuf[j] = j;
+
+    for (i=1;i<MAXPALOOKUPS;i++)
+        makepalookup(i,tempbuf,0,0,0,1);
+
     if ((fp=kopen4load("lookup.dat",0)) == -1)
     {
         if ((fp=kopen4load("lookup.dat",1)) == -1)
         {
-            initprintf("LOOKUP.DAT not found, creating dummy palette lookups\n");
-            for (i=0;i<256;i++)
-                tempbuf[i] = ((i+32)&255);  //remap colors for screwy palette sectors
-            makepalookup(MAXPALOOKUPS,tempbuf,0,0,0,1);
+            initprintf("LOOKUP.DAT not found\n");
             return;
         }
     }

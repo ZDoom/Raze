@@ -962,7 +962,7 @@ enum LogoFlags_t {
     LOGO_TENSCREEN         = 512
 };
 
-extern int g_numPalettes;
+extern int g_numRealPalettes;
 extern int g_scriptDebug;
 
 #define MAXCHEATLEN 20

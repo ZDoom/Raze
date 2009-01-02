@@ -1768,10 +1768,11 @@ static int C_GetNextValue(int type)
     i = l-1;
     do
     {
+        if (textptr[0] == '0' && textptr[1] == 'x') break; // kill the warning for hex
         if (!isdigit(textptr[i--]))
         {
             C_ReportError(-1);
-            initprintf("%s:%d: warning: invalid definition!\n",g_szScriptFileName,g_lineNumber);
+            initprintf("%s:%d: warning: invalid character in definition: '%c'!\n",g_szScriptFileName,g_lineNumber,textptr[i+1]);
             g_numCompilerWarnings++;
             break;
         }
@@ -4619,6 +4620,14 @@ repeatcase:
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_SYNTAXERROR);
+        }
+        if (C_GetKeyword() == CON_RIGHTBRACE) // optimize "{ }" into "nullop"
+        {
+//            initprintf("%s:%d: optimizing \"{ }\" -> nullop\n",g_szScriptFileName,g_lineNumber);
+            *(--g_scriptPtr) = CON_NULLOP;
+            C_GetNextKeyword();
+            g_scriptPtr--;
+            return 0;
         }
         g_numBraces++;
         do

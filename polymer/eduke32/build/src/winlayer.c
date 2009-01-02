@@ -494,10 +494,20 @@ static void print_os_version(void)
             }
             break;
         }
-        if (osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0)
+
+        if (osv.dwMajorVersion == 6)
         {
-            ver = "Vista";
             is_vista = 1;
+            switch (osv.dwMinorVersion)
+            {
+            case 0:
+                ver = "Vista";
+                break;
+            case 1:
+                ver = "7";
+                break;
+            }
+            break;
         }
         break;
 

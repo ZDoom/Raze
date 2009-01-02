@@ -225,29 +225,31 @@ int dist(spritetype *s1,spritetype *s2)
     }
 }
 
-int A_FindPlayer(spritetype *s,int *d)
+int __fastcall A_FindPlayer(spritetype *s, int *d)
 {
-    int j, closest_player = 0;
-    int x, closest = 0x7fffffff;
-
     if (ud.multimode < 2)
     {
         *d = klabs(g_player[myconnectindex].ps->oposx-s->x) + klabs(g_player[myconnectindex].ps->oposy-s->y) + ((klabs(g_player[myconnectindex].ps->oposz-s->z+(28<<8)))>>4);
         return myconnectindex;
     }
 
-    TRAVERSE_CONNECT(j)
     {
-        x = klabs(g_player[j].ps->oposx-s->x) + klabs(g_player[j].ps->oposy-s->y) + ((klabs(g_player[j].ps->oposz-s->z+(28<<8)))>>4);
-        if (x < closest && sprite[g_player[j].ps->i].extra > 0)
-        {
-            closest_player = j;
-            closest = x;
-        }
-    }
+        int j, closest_player = 0;
+        int x, closest = 0x7fffffff;
 
-    *d = closest;
-    return closest_player;
+        TRAVERSE_CONNECT(j)
+        {
+            x = klabs(g_player[j].ps->oposx-s->x) + klabs(g_player[j].ps->oposy-s->y) + ((klabs(g_player[j].ps->oposz-s->z+(28<<8)))>>4);
+            if (x < closest && sprite[g_player[j].ps->i].extra > 0)
+            {
+                closest_player = j;
+                closest = x;
+            }
+        }
+
+        *d = closest;
+        return closest_player;
+    }
 }
 
 int P_FindOtherPlayer(int p,int *d)

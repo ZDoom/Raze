@@ -7163,7 +7163,7 @@ void G_DoSpriteAnimations(int x,int y,int a,int smoothratio)
 
 PALONLY:
 
-            if (sector[sect].floorpal && sector[sect].floorpal < g_numPalettes && !A_CheckSpriteFlags(t->owner,SPRITE_NOPAL))
+            if (sector[sect].floorpal && sector[sect].floorpal < g_numRealPalettes && !A_CheckSpriteFlags(t->owner,SPRITE_NOPAL))
                 t->pal = sector[sect].floorpal;
 
             if (s->owner == -1) continue;
@@ -7204,7 +7204,7 @@ PALONLY:
             else t->picnum += T1;
             t->shade -= 6;
 
-            if (sector[sect].floorpal && sector[sect].floorpal < g_numPalettes && !A_CheckSpriteFlags(t->owner,SPRITE_NOPAL))
+            if (sector[sect].floorpal && sector[sect].floorpal < g_numRealPalettes && !A_CheckSpriteFlags(t->owner,SPRITE_NOPAL))
                 t->pal = sector[sect].floorpal;
             break;
 
@@ -7215,7 +7215,7 @@ PALONLY:
                 break;
             }
         default:
-            if (sector[sect].floorpal && sector[sect].floorpal < g_numPalettes && !A_CheckSpriteFlags(t->owner,SPRITE_NOPAL))
+            if (sector[sect].floorpal && sector[sect].floorpal < g_numRealPalettes && !A_CheckSpriteFlags(t->owner,SPRITE_NOPAL))
                 t->pal = sector[sect].floorpal;
             break;
         }
@@ -10301,16 +10301,22 @@ static void G_LoadExtraPalettes(void)
 
     fp = kopen4loadfrommod(lookfn,0);
     if (fp != -1)
-        kread(fp,(char *)&g_numPalettes,1);
+        kread(fp,(char *)&g_numRealPalettes,1);
     else
         G_GameExit("\nERROR: File 'lookup.dat' not found.");
 
 #if defined(__APPLE__) && B_BIG_ENDIAN != 0
     // this is almost as bad as just setting the value to 25 :P
-    g_numPalettes = (g_numPalettes * (uint64)0x0202020202 & (uint64)0x010884422010) % 1023;
+    g_numRealPalettes = (g_numRealPalettes * (uint64)0x0202020202 & (uint64)0x010884422010) % 1023;
 #endif
 
-    for (j=g_numPalettes-1;j>=0;j--)
+    for (j = 0; j < 256; j++)
+        tempbuf[j] = j;
+
+    for (j=g_numRealPalettes+1;j<MAXPALOOKUPS;j++)
+        makepalookup(j,tempbuf,0,0,0,1);
+
+    for (j=g_numRealPalettes-1;j>=0;j--)
     {
         kread(fp,(signed char *)&look_pos,1);
         kread(fp,tempbuf,256);
@@ -10319,11 +10325,11 @@ static void G_LoadExtraPalettes(void)
 
     for (j = 255; j>=0; j--)
         tempbuf[j] = j;
-    g_numPalettes++;
-    makepalookup(g_numPalettes, tempbuf, 15, 15, 15, 1);
-    makepalookup(g_numPalettes + 1, tempbuf, 15, 0, 0, 1);
-    makepalookup(g_numPalettes + 2, tempbuf, 0, 15, 0, 1);
-    makepalookup(g_numPalettes + 3, tempbuf, 0, 0, 15, 1);
+    g_numRealPalettes++;
+    makepalookup(g_numRealPalettes, tempbuf, 15, 15, 15, 1);
+    makepalookup(g_numRealPalettes + 1, tempbuf, 15, 0, 0, 1);
+    makepalookup(g_numRealPalettes + 2, tempbuf, 0, 15, 0, 1);
+    makepalookup(g_numRealPalettes + 3, tempbuf, 0, 0, 15, 1);
 
     kread(fp,&waterpal[0],768);
     kread(fp,&slimepal[0],768);

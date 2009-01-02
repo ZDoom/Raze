@@ -568,8 +568,8 @@ void A_DeleteSprite(int s)
     }
     if (apScriptGameEvent[EVENT_KILLIT])
     {
-        static int p, pl;
-        pl=A_FindPlayer(&sprite[s],&p);
+        int p, pl=A_FindPlayer(&sprite[s],&p);
+
         Gv_SetVar(g_iReturnVarID,0, -1, -1);
         X_OnEvent(EVENT_KILLIT, s, pl, p);
         if (Gv_GetVar(g_iReturnVarID, -1, -1))
@@ -7756,15 +7756,18 @@ void G_MoveWorld(void)
         do
         {
             i = headspritestat[k];
-            while (i > 0)
+
+            while (i >= 0)
             {
-                if (A_CheckSpriteFlags(i,SPRITE_NOEVENTCODE))
+                j = nextspritestat[i];
+
+                if (A_CheckSpriteFlags(i, SPRITE_NOEVENTCODE))
                 {
-                    i = nextspritestat[i];
+                    i = j;
                     continue;
                 }
-                j = nextspritestat[i];
-                pl=A_FindPlayer(&sprite[i],&p);
+
+                pl = A_FindPlayer(&sprite[i],&p);
                 X_OnEvent(EVENT_GAME,i, pl, p);
                 i = j;
             }

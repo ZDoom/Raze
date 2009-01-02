@@ -34,7 +34,7 @@ extern char pow2char[];
 
 extern int everyothertime;
 static int g_whichPalForPlayer = 9;
-int g_numPalettes;
+int g_numRealPalettes;
 short SpriteCacheList[MAXTILES][3];
 
 static char precachehightile[2][MAXTILES>>3];
