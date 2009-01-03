@@ -176,7 +176,7 @@ int r_glowmapping = 1;
 int r_vertexarrays = 1;
 
 // Vertex Buffer Objects model drawing cvars
-int r_vbos = 0;
+int r_vbos = 1;
 int r_vbocount = 64;
 
 // model animation smoothing cvar
@@ -339,7 +339,7 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
 int cachefilehandle = -1; // texture cache file handle
 FILE *cacheindexptr = NULL;
 
-struct HASH_table cacheH    = { MAXTILES<<2, NULL };
+struct HASH_table cacheH    = { 1024, NULL };
 
 char TEXCACHEFILE[BMAX_PATH] = "textures";
 

@@ -935,20 +935,20 @@ const memberlabel_t InputLabels[]=
 char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 #define BITPTR_POINTER 1
 
-struct HASH_table gamevarH    = { MAXGAMEVARS<<2, NULL };
-struct HASH_table arrayH      = { MAXGAMEARRAYS<<2, NULL };
-struct HASH_table labelH      = { 11264<<2, NULL };
-struct HASH_table keywH       = { CON_END<<2, NULL };
+struct HASH_table gamevarH    = { MAXGAMEVARS>>1, NULL };
+struct HASH_table arrayH      = { MAXGAMEARRAYS>>1, NULL };
+struct HASH_table labelH      = { 11264>>1, NULL };
+struct HASH_table keywH       = { CON_END>>1, NULL };
 
-struct HASH_table sectorH     = { SECTOR_END<<2, NULL };
-struct HASH_table wallH       = { WALL_END<<2, NULL };
-struct HASH_table userdefH    = { USERDEFS_END<<2, NULL };
+struct HASH_table sectorH     = { SECTOR_END>>1, NULL };
+struct HASH_table wallH       = { WALL_END>>1, NULL };
+struct HASH_table userdefH    = { USERDEFS_END>>1, NULL };
 
-struct HASH_table projectileH = { PROJ_END<<2, NULL };
-struct HASH_table playerH     = { PLAYER_END<<2, NULL };
-struct HASH_table inputH      = { INPUT_END<<2, NULL };
-struct HASH_table actorH      = { ACTOR_END<<2, NULL };
-struct HASH_table tspriteH    = { ACTOR_END<<2, NULL };
+struct HASH_table projectileH = { PROJ_END>>1, NULL };
+struct HASH_table playerH     = { PLAYER_END>>1, NULL };
+struct HASH_table inputH      = { INPUT_END>>1, NULL };
+struct HASH_table actorH      = { ACTOR_END>>1, NULL };
+struct HASH_table tspriteH    = { ACTOR_END>>1, NULL };
 
 void inithashnames();
 void freehashnames();
@@ -4621,9 +4621,16 @@ repeatcase:
             g_numCompilerErrors++;
             C_ReportError(ERROR_SYNTAXERROR);
         }
+        if (C_GetKeyword() == CON_NULLOP)
+        {
+            initprintf("%s:%d: warning: 'nullop' statement has no effect\n",g_szScriptFileName,g_lineNumber);
+            C_GetNextKeyword();
+            g_scriptPtr--;
+        }
         if (C_GetKeyword() == CON_RIGHTBRACE) // optimize "{ }" into "nullop"
         {
-//            initprintf("%s:%d: optimizing \"{ }\" -> nullop\n",g_szScriptFileName,g_lineNumber);
+            if (g_scriptDebug)
+                initprintf("%s:%d: rewriting empty braces '{ }' as 'nullop'\n",g_szScriptFileName,g_lineNumber);
             *(--g_scriptPtr) = CON_NULLOP;
             C_GetNextKeyword();
             g_scriptPtr--;
@@ -5263,6 +5270,11 @@ repeatcase:
             g_numCompilerWarnings++;
         }
     case CON_NULLOP:
+        if (tw == CON_NULLOP)
+        {
+            if (C_GetKeyword() != CON_ELSE)
+                initprintf("%s:%d: warning: found 'nullop' without 'else'\n",g_szScriptFileName,g_lineNumber);
+        }
     case CON_STOPALLSOUNDS:
         return 0;
     case CON_GAMESTARTUP:
