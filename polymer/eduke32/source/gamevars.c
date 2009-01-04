@@ -560,7 +560,7 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
         }
 
         switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|
-            GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+                                         GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
         {
         default:
             if (neg) return (-aGameVars[id].val.lValue);
@@ -606,7 +606,7 @@ void __fastcall Gv_SetVar(int id, int lValue, int iActor, int iPlayer)
     //AddLog(g_szBuf);
 
     switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|
-        GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+                                     GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
     {
     default:
         aGameVars[id].val.lValue=lValue;
@@ -683,7 +683,7 @@ int __fastcall Gv_GetVarX(int id)
         }
 
         switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|
-            GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+                                         GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
         {
         default:
             if (neg) return (-aGameVars[id].val.lValue);
@@ -710,7 +710,7 @@ int __fastcall Gv_GetVarX(int id)
 void __fastcall Gv_SetVarX(int id, int lValue)
 {
     switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|
-        GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+                                     GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
     {
     default:
         aGameVars[id].val.lValue=lValue;

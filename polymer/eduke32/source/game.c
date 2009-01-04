@@ -1278,10 +1278,10 @@ void faketimerhandler(void)
             }
 
             if (myconnectindex == connecthead)
-                for(i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
                     packbuf[j++] = min(max(g_player[i].myminlag,-128),127);
 
-            for(i=connecthead;i>=0;i=connectpoint2[i])
+            for (i=connecthead;i>=0;i=connectpoint2[i])
                 g_player[i].myminlag = 0x7fffffff;
         }
 #endif

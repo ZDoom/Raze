@@ -97,6 +97,36 @@ void freeallmodels()
     }
 }
 
+void freevbos()
+{
+    int i;
+
+    for (i=0;i<nextmodelid;i++)
+    if (models[i]->mdnum == 3)
+    {
+        md3model *m = (md3model *)models[i];
+        if (m->vbos)
+        {
+//            OSD_Printf("freeing model %d vbo\n",i);
+            bglDeleteBuffersARB(m->head.numsurfs, m->vbos);
+            free(m->vbos);
+            m->vbos = NULL;
+        }
+    }
+
+    if (allocvbos)
+    {
+        bglDeleteBuffersARB(allocvbos, indexvbos);
+        bglDeleteBuffersARB(allocvbos, vertvbos);
+        /*
+        free(indexvbos);
+        free(vertvbos);
+        indexvbos = vertvbos = NULL;
+        */
+        allocvbos = 0;
+    }
+}
+
 void clearskins()
 {
     mdmodel *m;
@@ -2074,10 +2104,11 @@ static void md3free(md3model *m)
     if (m->vindexes) free(m->vindexes);
     if (m->maxdepths) free(m->maxdepths);
 
-    if (r_vbos && m->vbos)
+    if (m->vbos)
     {
         bglDeleteBuffersARB(m->head.numsurfs, m->vbos);
         free(m->vbos);
+        m->vbos = NULL;
     }
 
     free(m);

@@ -81,7 +81,7 @@ int g_iThisActorID=-1;      // var ID of "THISACTOR"
 intptr_t *actorLoadEventScrptr[MAXTILES];
 
 intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
-intptr_t *g_parsingEventPtr=NULL;
+static intptr_t *g_parsingEventPtr=NULL;
 
 gamevar_t aGameVars[MAXGAMEVARS];
 gamearray_t aGameArrays[MAXGAMEARRAYS];
@@ -1000,6 +1000,8 @@ void freehash()
     HASH_free(&labelH);
 }
 
+static int g_ifElseAborted;
+
 static int C_IncreaseScriptSize(int size)
 {
     intptr_t oscriptPtr = (unsigned)(g_scriptPtr-script);
@@ -1024,11 +1026,11 @@ static int C_IncreaseScriptSize(int size)
     for (i=g_scriptSize-1;i>=0;i--)
     {
 //            initprintf("%d\n",i);
-        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)) && !((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_scriptSize])))
-        {
-            g_numCompilerErrors++;
-            initprintf("Internal compiler error at %d (0x%x)\n",i,i);
-        }
+        /*        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)) && !((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_scriptSize])))
+                {
+                    g_numCompilerErrors++;
+                    initprintf("Internal compiler error at %d (0x%x)\n",i,i);
+                } */
 //        if (bitptr[i] == 0 && ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_scriptSize])))
 //            initprintf("oh no!\n");
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)) /*&& ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_scriptSize]))*/)
@@ -1148,6 +1150,7 @@ static int C_IncreaseScriptSize(int size)
             j = (intptr_t)apScriptGameEvent[i]+(intptr_t)&script[0];
             apScriptGameEvent[i] = (intptr_t *)j;
         }
+
     Bfree(scriptptrs);
     return 0;
 }
@@ -1507,7 +1510,9 @@ static int C_GetNextKeyword(void) //Returns its code #
     i = HASH_find(&keywH,tempbuf);
     if (i>=0)
     {
-        *g_scriptPtr = i + (g_lineNumber<<12);
+        if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
+            *g_scriptPtr = i + (31337<<12);
+        else *g_scriptPtr = i + (g_lineNumber<<12);
         bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
         textptr += l;
         g_scriptPtr++;
@@ -1795,6 +1800,30 @@ static int C_GetNextValue(int type)
     return 0;   // literal value
 }
 
+static int C_CheckEmptyBranch(int tw, intptr_t lastScriptPtr)
+{
+    if (Bstrncmp(keyw[tw],"if",2) && tw != CON_ELSE)
+    {
+        g_ifElseAborted = 0;
+        return 0;
+    }
+
+    if ((*(g_scriptPtr) & 0xFFF) != CON_NULLOP || *(g_scriptPtr)>>12 != 31337)
+        g_ifElseAborted = 0;
+
+    if (g_ifElseAborted)
+    {
+//        C_ReportError(-1);
+        g_scriptPtr = lastScriptPtr + &script[0];
+        initprintf("%s:%d: removing empty '%s' branch\n",g_szScriptFileName,g_lineNumber,
+                   keyw[*(g_scriptPtr) & 0xFFF]);
+        if (g_ifElseAborted)
+            *(g_scriptPtr) = (CON_NULLOP + (31337<<12));
+        return 1;
+    }
+    return 0;
+}
+
 static int C_ParseCommand(void);
 
 static int C_CountCaseStatements()
@@ -1844,7 +1873,8 @@ static int C_ParseCommand(void)
         exit(0);
     }
 
-    if (g_numCompilerErrors > 63 || (*textptr == '\0') || (*(textptr+1) == '\0')) return 1;
+    if (g_numCompilerErrors > 63 || (*textptr == '\0') || (*(textptr+1) == '\0'))
+        return 1;
 
     if (g_scriptDebug)
         C_ReportError(-1);
@@ -2921,11 +2951,20 @@ static int C_ParseCommand(void)
         if (g_checkingIfElse)
         {
             intptr_t offset;
+            intptr_t lastScriptPtr = g_scriptPtr - &script[0] - 1;
+            g_ifElseAborted = 0;
             g_checkingIfElse--;
             tempscrptr = g_scriptPtr;
             offset = (unsigned)(tempscrptr-script);
             g_scriptPtr++; //Leave a spot for the fail location
             C_ParseCommand();
+
+            if (C_CheckEmptyBranch(tw, lastScriptPtr))
+            {
+//                g_scriptPtr;
+                return 0;
+            }
+
             tempscrptr = (intptr_t *)script+offset;
             *tempscrptr = (intptr_t) g_scriptPtr;
             bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
@@ -4002,14 +4041,19 @@ static int C_ParseCommand(void)
     case CON_WHILEVARVARN:
     {
         intptr_t offset;
+        intptr_t lastScriptPtr = g_scriptPtr - &script[0] - 1;
+
+        g_ifElseAborted = 0;
 
         C_GetManyVars(2);
         tempscrptr = g_scriptPtr;
         offset = (unsigned)(g_scriptPtr-script);
         g_scriptPtr++; // Leave a spot for the fail location
 
-        j = C_GetKeyword();
         C_ParseCommand();
+
+        if (C_CheckEmptyBranch(tw, lastScriptPtr))
+            return 0;
 
         tempscrptr = (intptr_t *)script+offset;
         *tempscrptr = (intptr_t) g_scriptPtr;
@@ -4044,7 +4088,9 @@ static int C_ParseCommand(void)
     case CON_WHILEVARN:
     {
         intptr_t offset;
+        intptr_t lastScriptPtr = (g_scriptPtr-script-1);
 
+        g_ifElseAborted = 0;
         // get the ID of the DEF
         C_GetNextVar();
         C_GetNextValue(LABEL_DEFINE); // the number to check against...
@@ -4053,8 +4099,10 @@ static int C_ParseCommand(void)
         offset = (unsigned)(tempscrptr-script);
         g_scriptPtr++; //Leave a spot for the fail location
 
-        j = C_GetKeyword();
         C_ParseCommand();
+
+        if (C_CheckEmptyBranch(tw, lastScriptPtr))
+            return 0;
 
         tempscrptr = (intptr_t *)script+offset;
         *tempscrptr = (intptr_t) g_scriptPtr;
@@ -4243,7 +4291,6 @@ static int C_ParseCommand(void)
         bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
         *g_scriptPtr++=0; // leave spot for 'default' location (null if none)
 
-        j = C_GetKeyword();
         temptextptr=textptr;
         // probably does not allow nesting...
 
@@ -4532,6 +4579,13 @@ repeatcase:
     case CON_IFAI:
     case CON_IFACTION:
     case CON_IFMOVE:
+    case CON_IFP:
+    {
+        intptr_t offset;
+        intptr_t lastScriptPtr = (g_scriptPtr-&script[0]-1);
+
+        g_ifElseAborted = 0;
+
         switch (tw)
         {
         case CON_IFAI:
@@ -4553,6 +4607,19 @@ repeatcase:
             C_GetNextValue(LABEL_DEFINE);
             C_GetNextValue(LABEL_DEFINE);
             break;
+        case CON_IFP:
+            j = 0;
+            do
+            {
+                C_GetNextValue(LABEL_DEFINE);
+                g_scriptPtr--;
+                j |= *g_scriptPtr;
+            }
+            while (C_GetKeyword() == -1);
+            bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
+            *g_scriptPtr = j;
+            g_scriptPtr++;
+            break;
         case CON_IFSOUND:
             if (C_CheckEventSync(g_currentEvent))
             {
@@ -4564,6 +4631,24 @@ repeatcase:
             break;
         }
 
+        tempscrptr = g_scriptPtr;
+        offset = (unsigned)(tempscrptr-script);
+
+        g_scriptPtr++; //Leave a spot for the fail location
+
+        C_ParseCommand();
+
+        if (C_CheckEmptyBranch(tw, lastScriptPtr))
+            return 0;
+
+        tempscrptr = (intptr_t *)script+offset;
+        *tempscrptr = (intptr_t) g_scriptPtr;
+        bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
+
+        g_checkingIfElse++;
+        return 0;
+    }
+
     case CON_IFONWATER:
     case CON_IFINWATER:
     case CON_IFACTORNOTSTAYPUT:
@@ -4572,7 +4657,6 @@ repeatcase:
     case CON_IFSQUISHED:
     case CON_IFDEAD:
     case CON_IFCANSHOOTTARGET:
-    case CON_IFP:
     case CON_IFHITSPACE:
     case CON_IFOUTSIDE:
     case CON_IFMULTIPLAYER:
@@ -4586,28 +4670,20 @@ repeatcase:
     case CON_IFNOSOUNDS:
     {
         intptr_t offset;
-        if (tw == CON_IFP)
-        {
-            j = 0;
-            do
-            {
-                C_GetNextValue(LABEL_DEFINE);
-                g_scriptPtr--;
-                j |= *g_scriptPtr;
-            }
-            while (C_GetKeyword() == -1);
-            bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
-            *g_scriptPtr = j;
-            g_scriptPtr++;
-        }
+        intptr_t lastScriptPtr = (g_scriptPtr-&script[0]-1);
+
+        g_ifElseAborted = 0;
 
         tempscrptr = g_scriptPtr;
         offset = (unsigned)(tempscrptr-script);
 
         g_scriptPtr++; //Leave a spot for the fail location
 
-        j = C_GetKeyword();
         C_ParseCommand();
+
+        if (C_CheckEmptyBranch(tw, lastScriptPtr))
+            return 0;
+
         tempscrptr = (intptr_t *)script+offset;
         *tempscrptr = (intptr_t) g_scriptPtr;
         bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
@@ -4615,28 +4691,32 @@ repeatcase:
         g_checkingIfElse++;
         return 0;
     }
+
     case CON_LEFTBRACE:
         if (!(g_processingState || g_parsingActorPtr || g_parsingEventPtr))
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_SYNTAXERROR);
         }
-        if (C_GetKeyword() == CON_NULLOP)
+        /*        if (C_GetKeyword() == CON_NULLOP)
+                {
+        //            initprintf("%s:%d: warning: 'nullop' statement has no effect\n",g_szScriptFileName,g_lineNumber);
+                    C_GetNextKeyword();
+                    g_scriptPtr--;
+                }
+                */
+#if 0
+        if (C_GetKeyword() == CON_RIGHTBRACE) // rewrite "{ }" into "nullop"
         {
-            initprintf("%s:%d: warning: 'nullop' statement has no effect\n",g_szScriptFileName,g_lineNumber);
-            C_GetNextKeyword();
-            g_scriptPtr--;
-        }
-        if (C_GetKeyword() == CON_RIGHTBRACE) // optimize "{ }" into "nullop"
-        {
-            if (g_scriptDebug)
-                initprintf("%s:%d: rewriting empty braces '{ }' as 'nullop'\n",g_szScriptFileName,g_lineNumber);
+//            initprintf("%s:%d: rewriting empty braces '{ }' as 'nullop' from left\n",g_szScriptFileName,g_lineNumber);
             *(--g_scriptPtr) = CON_NULLOP;
             C_GetNextKeyword();
             g_scriptPtr--;
             return 0;
         }
+#endif
         g_numBraces++;
+
         do
             done = C_ParseCommand();
         while (done == 0);
@@ -4644,6 +4724,21 @@ repeatcase:
 
     case CON_RIGHTBRACE:
         g_numBraces--;
+
+        if ((*(g_scriptPtr-2)>>12) == (31337) &&
+                ((*(g_scriptPtr-2) & 0xFFF) == CON_LEFTBRACE)) // rewrite "{ }" into "nullop"
+        {
+//            initprintf("%s:%d: rewriting empty braces '{ }' as 'nullop' from right\n",g_szScriptFileName,g_lineNumber);
+            *(g_scriptPtr-2) = CON_NULLOP + (31337<<12);
+            g_scriptPtr -= 2;
+
+            if (C_GetKeyword() != CON_ELSE && (*(g_scriptPtr-2)&0xFFF) != CON_ELSE)
+                g_ifElseAborted = 1;
+            else g_ifElseAborted = 0;
+
+            return 1;
+        }
+
         if (g_numBraces < 0)
         {
             if (g_checkingSwitch)
@@ -5273,7 +5368,12 @@ repeatcase:
         if (tw == CON_NULLOP)
         {
             if (C_GetKeyword() != CON_ELSE)
-                initprintf("%s:%d: warning: found 'nullop' without 'else'\n",g_szScriptFileName,g_lineNumber);
+            {
+                C_ReportError(-1);
+                initprintf("%s:%d: removing 'nullop' found without 'else'\n",g_szScriptFileName,g_lineNumber);
+                g_scriptPtr--;
+                g_ifElseAborted = 1;
+            }
         }
     case CON_STOPALLSOUNDS:
         return 0;

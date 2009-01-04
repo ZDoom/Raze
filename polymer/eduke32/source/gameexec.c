@@ -52,13 +52,13 @@ void X_ScriptInfo(void)
     {
         intptr_t *p;
         if (insptr)
-        for (p=insptr-20;p<insptr+20;p++)
-        {
-            if (*p>>12&&(*p&0xFFF)<CON_END)
-                initprintf("\n%5d: %5d %s ",p-script,*p>>12,keyw[*p&0xFFF]);
-            else
-                initprintf(" %d",*p);
-        }
+            for (p=insptr-20;p<insptr+20;p++)
+            {
+                if (*p>>12&&(*p&0xFFF)<CON_END)
+                    initprintf("\n%5d: %5d %s ",p-script,*p>>12,keyw[*p&0xFFF]);
+                else
+                    initprintf(" %d",*p);
+            }
         if (g_i)
             initprintf("current actor: %d (%d)\n",g_i,g_sp->picnum);
         initprintf("g_errorLineNum: %d, g_tw: %d\n",g_errorLineNum,g_tw);
@@ -1101,7 +1101,7 @@ static int X_DoExecute(void)
             default:
                 // fix for flying/jumping monsters getting stuck in water
                 if (g_sp->hitag & jumptoplayer || (actorscrptr[g_sp->picnum] &&
-                    moveptr >= &script[0] && moveptr <= (&script[0]+g_scriptSize) && *(moveptr+1)))
+                                                   moveptr >= &script[0] && moveptr <= (&script[0]+g_scriptSize) && *(moveptr+1)))
                 {
 //                    OSD_Printf("%d\n",*(moveptr+1));
                     break;
@@ -1656,44 +1656,44 @@ static int X_DoExecute(void)
             int i = Gv_GetVarX(*insptr++);
             j = Gv_GetVarX(*insptr++);
 
-                if ((i<0 || i>=MAXSPRITES) && g_scriptSanityChecks)
-                {
-                    OSD_Printf(CON_ERROR "Invalid sprite: %d\n",g_errorLineNum,keyw[g_tw],i);
-                    break;
-                }
-                if ((j<0 || j>=MAXSTATUS) && g_scriptSanityChecks)
-                {
-                    OSD_Printf(CON_ERROR "Invalid statnum: %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
-                }
-                if (sprite[i].statnum == j) break;
-
-                /* initialize actor data when changing to an actor statnum because there's usually
-                   garbage left over from being handled as a hard coded object */
-
-                if (sprite[i].statnum > STAT_ZOMBIEACTOR && (j == STAT_ACTOR || j == STAT_ZOMBIEACTOR))
-                {
-                    ActorExtra[i].lastvx = 0;
-                    ActorExtra[i].lastvy = 0;
-                    ActorExtra[i].timetosleep = 0;
-                    ActorExtra[i].cgg = 0;
-                    ActorExtra[i].movflag = 0;
-                    ActorExtra[i].tempang = 0;
-                    ActorExtra[i].dispicnum = 0;
-                    T1=T2=T3=T4=T5=T6=T7=T8=T9=0;
-                    ActorExtra[i].flags = 0;
-                    sprite[i].hitag = 0;
-
-                    // pointers
-                    if (actorscrptr[sprite[i].picnum])
-                    {
-                        T5 = *(actorscrptr[sprite[i].picnum]+1);
-                        T2 = *(actorscrptr[sprite[i].picnum]+2);
-                        sprite[i].hitag = *(actorscrptr[sprite[i].picnum]+3);
-                    }
-                }
-                changespritestat(i,j);
+            if ((i<0 || i>=MAXSPRITES) && g_scriptSanityChecks)
+            {
+                OSD_Printf(CON_ERROR "Invalid sprite: %d\n",g_errorLineNum,keyw[g_tw],i);
                 break;
+            }
+            if ((j<0 || j>=MAXSTATUS) && g_scriptSanityChecks)
+            {
+                OSD_Printf(CON_ERROR "Invalid statnum: %d\n",g_errorLineNum,keyw[g_tw],j);
+                break;
+            }
+            if (sprite[i].statnum == j) break;
+
+            /* initialize actor data when changing to an actor statnum because there's usually
+               garbage left over from being handled as a hard coded object */
+
+            if (sprite[i].statnum > STAT_ZOMBIEACTOR && (j == STAT_ACTOR || j == STAT_ZOMBIEACTOR))
+            {
+                ActorExtra[i].lastvx = 0;
+                ActorExtra[i].lastvy = 0;
+                ActorExtra[i].timetosleep = 0;
+                ActorExtra[i].cgg = 0;
+                ActorExtra[i].movflag = 0;
+                ActorExtra[i].tempang = 0;
+                ActorExtra[i].dispicnum = 0;
+                T1=T2=T3=T4=T5=T6=T7=T8=T9=0;
+                ActorExtra[i].flags = 0;
+                sprite[i].hitag = 0;
+
+                // pointers
+                if (actorscrptr[sprite[i].picnum])
+                {
+                    T5 = *(actorscrptr[sprite[i].picnum]+1);
+                    T2 = *(actorscrptr[sprite[i].picnum]+2);
+                    sprite[i].hitag = *(actorscrptr[sprite[i].picnum]+3);
+                }
+            }
+            changespritestat(i,j);
+            break;
         }
 
     case CON_STARTLEVEL:

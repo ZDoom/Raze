@@ -369,11 +369,11 @@ static void G_DoLoadScreen(char *statustext, int percent)
         }
 
         if (statustext) gametext(160,180,statustext,0,2+8+16);
-/*        j = usehightile;
-        usehightile = 0;
-        rotatesprite(34<<16,144<<16,65536,0,LASERLINE,0,0,2+8+16,0,0,scale(scale(xdim-1,288,320),percent,100),ydim-1);
-        rotatesprite(154<<16,144<<16,65536,0,LASERLINE,0,0,2+8+16,0,0,scale(scale(xdim-1,288,320),percent,100),ydim-1);
-        usehightile = j; */
+        /*        j = usehightile;
+                usehightile = 0;
+                rotatesprite(34<<16,144<<16,65536,0,LASERLINE,0,0,2+8+16,0,0,scale(scale(xdim-1,288,320),percent,100),ydim-1);
+                rotatesprite(154<<16,144<<16,65536,0,LASERLINE,0,0,2+8+16,0,0,scale(scale(xdim-1,288,320),percent,100),ydim-1);
+                usehightile = j; */
         {
             int ii = scale(288,percent,100);
             int x = 32;
@@ -381,9 +381,10 @@ static void G_DoLoadScreen(char *statustext, int percent)
             usehightile = 0;
             do
             {
-                rotatesprite(x<<16,140<<16,49152,0,NOTCHON,0,2,2+8+16,0,0,xdim-1,ydim-1);  
+                rotatesprite(x<<16,140<<16,49152,0,NOTCHON,0,2,2+8+16,0,0,xdim-1,ydim-1);
                 x++;
-            } while (x < ii);
+            }
+            while (x < ii);
             usehightile = j;
         }
         X_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);

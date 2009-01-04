@@ -636,6 +636,7 @@ float glox1, gloy1, glox2, gloy2;
 
 //Use this for both initialization and uninitialization of OpenGL.
 static int gltexcacnum = -1;
+extern void freevbos(void);
 void polymost_glreset()
 {
     int i;
@@ -717,6 +718,7 @@ void polymost_glreset()
         }
         firstcacheindex.next = NULL;
     }
+    freevbos();
 }
 
 // one-time initialization of OpenGL for polymost

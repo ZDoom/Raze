@@ -7246,23 +7246,23 @@ static void InitCustomColors(void)
         vgapal16[9*4+2] = 7; */
     int i;
     palette_t *edcol;
-/*
+    /*
 
-char vgapal16[4*256] =
-{
-    00,00,00,00, 42,00,00,00, 00,42,00,00, 42,42,00,00, 00,00,42,00,
-    42,00,42,00, 00,21,42,00, 42,42,42,00, 21,21,21,00, 63,21,21,00,
-    21,63,21,00, 63,63,21,00, 21,21,63,00, 63,21,63,00, 21,63,63,00,
-    63,63,63,00
-};
-*/
-/*    editorcolors[0] = getclosestcol(0,0,0);
-    editorcolors[1] = getclosestcol(0,0,42);
-    editorcolors[2] = getclosestcol(0,42,0);
-    editorcolors[3] = getclosestcol(0,42,42);
-    editorcolors[4] = getclosestcol(42,0,0);
-    editorcolors[5] = getclosestcol(0,0,0);
-*/
+    char vgapal16[4*256] =
+    {
+        00,00,00,00, 42,00,00,00, 00,42,00,00, 42,42,00,00, 00,00,42,00,
+        42,00,42,00, 00,21,42,00, 42,42,42,00, 21,21,21,00, 63,21,21,00,
+        21,63,21,00, 63,63,21,00, 21,21,63,00, 63,21,63,00, 21,63,63,00,
+        63,63,63,00
+    };
+    */
+    /*    editorcolors[0] = getclosestcol(0,0,0);
+        editorcolors[1] = getclosestcol(0,0,42);
+        editorcolors[2] = getclosestcol(0,42,0);
+        editorcolors[3] = getclosestcol(0,42,42);
+        editorcolors[4] = getclosestcol(42,0,0);
+        editorcolors[5] = getclosestcol(0,0,0);
+    */
     extern int getclosestcol(int r, int g, int b);
 
 
@@ -8879,39 +8879,39 @@ void ExtPreCheckKeys(void) // just before drawrooms
             case LIZMANFEEDING :
             case LIZMANJUMP :
 
+            {
+                int k;
+                if (frames!=0)
                 {
-                    int k;
-                    if (frames!=0)
+                    if (frames==10) frames=0;
+                    k = 1536;//getangle(tspr->x-posx,tspr->y-posy);
+                    k = (((sprite[i].ang+3072+128-k)&2047)>>8)&7;
+                    //This guy has only 5 pictures for 8 angles (3 are x-flipped)
+                    if (k <= 4)
                     {
-                        if (frames==10) frames=0;
-                        k = 1536;//getangle(tspr->x-posx,tspr->y-posy);
-                        k = (((sprite[i].ang+3072+128-k)&2047)>>8)&7;
-                        //This guy has only 5 pictures for 8 angles (3 are x-flipped)
-                        if (k <= 4)
-                        {
-                            picnum += k;
-                            ang = 0;
-                            flags &= ~4;
-                        }
-                        else
-                        {
-                            picnum += 8-k;
-                            ang = 1024;
-                            flags |= 4;
-                        }
+                        picnum += k;
+                        ang = 0;
+                        flags &= ~4;
                     }
-
-                    if (graphicsmode == 2)
+                    else
                     {
-                        if (frames==2) picnum+=((((4-(totalclock>>5)))&1)*5);
-                        if (frames==4) picnum+=((((4-(totalclock>>5)))&3)*5);
-                        if (frames==5) picnum+=(((totalclock>>5)%5))*5;
+                        picnum += 8-k;
+                        ang = 1024;
+                        flags |= 4;
                     }
-
-                    if (tilesizx[picnum] == 0)
-                        picnum -= 5;       //Hack, for actors
                 }
-                break;
+
+                if (graphicsmode == 2)
+                {
+                    if (frames==2) picnum+=((((4-(totalclock>>5)))&1)*5);
+                    if (frames==4) picnum+=((((4-(totalclock>>5)))&3)*5);
+                    if (frames==5) picnum+=(((totalclock>>5)%5))*5;
+                }
+
+                if (tilesizx[picnum] == 0)
+                    picnum -= 5;       //Hack, for actors
+            }
+            break;
             default:
                 break;
 
@@ -8932,7 +8932,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
             if (xp1 < 4 || xp1 > xdim-6 || yp1 < 4 || yp1 > ydim16-6)
                 continue;
             rotatesprite(xp1<<16,yp1<<16,zoom<<5,ang,picnum,
-            shade,sprite[i].pal,flags,0,0,xdim-1,ydim16-1);
+                         shade,sprite[i].pal,flags,0,0,xdim-1,ydim16-1);
         }
     }
 
