@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 int g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
-static char g_szCurrentBlockName[MAXVARLABEL] = "(none)", g_szLastBlockName[MAXVARLABEL] = "NULL";
+static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
 
 int g_totalLines,g_lineNumber;
 static int g_checkingIfElse,g_processingState;
@@ -935,25 +935,25 @@ const memberlabel_t InputLabels[]=
 char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 #define BITPTR_POINTER 1
 
-struct HASH_table gamevarH    = { MAXGAMEVARS>>1, NULL };
-struct HASH_table arrayH      = { MAXGAMEARRAYS>>1, NULL };
-struct HASH_table labelH      = { 11264>>1, NULL };
-struct HASH_table keywH       = { CON_END>>1, NULL };
+HASH_table gamevarH    = { MAXGAMEVARS>>1, NULL };
+HASH_table arrayH      = { MAXGAMEARRAYS>>1, NULL };
+HASH_table labelH      = { 11264>>1, NULL };
+HASH_table keywH       = { CON_END>>1, NULL };
 
-struct HASH_table sectorH     = { SECTOR_END>>1, NULL };
-struct HASH_table wallH       = { WALL_END>>1, NULL };
-struct HASH_table userdefH    = { USERDEFS_END>>1, NULL };
+HASH_table sectorH     = { SECTOR_END>>1, NULL };
+HASH_table wallH       = { WALL_END>>1, NULL };
+HASH_table userdefH    = { USERDEFS_END>>1, NULL };
 
-struct HASH_table projectileH = { PROJ_END>>1, NULL };
-struct HASH_table playerH     = { PLAYER_END>>1, NULL };
-struct HASH_table inputH      = { INPUT_END>>1, NULL };
-struct HASH_table actorH      = { ACTOR_END>>1, NULL };
-struct HASH_table tspriteH    = { ACTOR_END>>1, NULL };
+HASH_table projectileH = { PROJ_END>>1, NULL };
+HASH_table playerH     = { PLAYER_END>>1, NULL };
+HASH_table inputH      = { INPUT_END>>1, NULL };
+HASH_table actorH      = { ACTOR_END>>1, NULL };
+HASH_table tspriteH    = { ACTOR_END>>1, NULL };
 
 void inithashnames();
 void freehashnames();
 
-void inithash()
+void C_InitHashes()
 {
     int i;
 
@@ -993,13 +993,14 @@ void inithash()
         HASH_add(&tspriteH,TsprLabels[i].name,i);
 }
 
-void freehash()
+void C_FreeHashes(void)
 {
     HASH_free(&gamevarH);
     HASH_free(&arrayH);
     HASH_free(&labelH);
 }
 
+#define IFELSE_MAGIC 31337
 static int g_ifElseAborted;
 
 static int C_IncreaseScriptSize(int size)
@@ -1413,7 +1414,7 @@ static inline int isaltok(char c)
     return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '*' || c == '-' || c == '_' || c == '.');
 }
 
-static inline int GetLabelNameid(const memberlabel_t *pLabel, struct HASH_table *tH, const char *psz)
+static inline int GetLabelNameid(const memberlabel_t *pLabel, HASH_table *tH, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the ID for the label, or -1
@@ -1426,7 +1427,7 @@ static inline int GetLabelNameid(const memberlabel_t *pLabel, struct HASH_table 
     return l;
 }
 
-static inline int C_GetLabelNameOffset(struct HASH_table *tH, const char *psz)
+static inline int C_GetLabelNameOffset(HASH_table *tH, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the offset in the array for the label, or -1
@@ -1511,7 +1512,7 @@ static int C_GetNextKeyword(void) //Returns its code #
     if (i>=0)
     {
         if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
-            *g_scriptPtr = i + (31337<<12);
+            *g_scriptPtr = i + (IFELSE_MAGIC<<12);
         else *g_scriptPtr = i + (g_lineNumber<<12);
         bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
         textptr += l;
@@ -1802,23 +1803,24 @@ static int C_GetNextValue(int type)
 
 static int C_CheckEmptyBranch(int tw, intptr_t lastScriptPtr)
 {
-    if (Bstrncmp(keyw[tw],"if",2) && tw != CON_ELSE)
+    if (Bstrncmp(keyw[tw], "if", 2) && tw != CON_ELSE)
     {
         g_ifElseAborted = 0;
         return 0;
     }
 
-    if ((*(g_scriptPtr) & 0xFFF) != CON_NULLOP || *(g_scriptPtr)>>12 != 31337)
+    if ((*(g_scriptPtr) & 0xFFF) != CON_NULLOP || *(g_scriptPtr)>>12 != IFELSE_MAGIC)
         g_ifElseAborted = 0;
 
     if (g_ifElseAborted)
     {
-//        C_ReportError(-1);
+        C_ReportError(-1);
+        g_numCompilerWarnings++;
         g_scriptPtr = lastScriptPtr + &script[0];
-        initprintf("%s:%d: removing empty '%s' branch\n",g_szScriptFileName,g_lineNumber,
+        initprintf("%s:%d: warning: empty `%s' branch\n",g_szScriptFileName,g_lineNumber,
                    keyw[*(g_scriptPtr) & 0xFFF]);
         if (g_ifElseAborted)
-            *(g_scriptPtr) = (CON_NULLOP + (31337<<12));
+            *(g_scriptPtr) = (CON_NULLOP + (IFELSE_MAGIC<<12));
         return 1;
     }
     return 0;
@@ -2960,10 +2962,7 @@ static int C_ParseCommand(void)
             C_ParseCommand();
 
             if (C_CheckEmptyBranch(tw, lastScriptPtr))
-            {
-//                g_scriptPtr;
                 return 0;
-            }
 
             tempscrptr = (intptr_t *)script+offset;
             *tempscrptr = (intptr_t) g_scriptPtr;
@@ -2972,9 +2971,24 @@ static int C_ParseCommand(void)
         else
         {
             g_scriptPtr--;
-            g_numCompilerErrors++;
+            tempscrptr = g_scriptPtr;
+            g_numCompilerWarnings++;
             C_ReportError(-1);
-            initprintf("%s:%d: error: found `else' with no `if'.\n",g_szScriptFileName,g_lineNumber);
+
+            initprintf("%s:%d: warning: found `else' with no `if'.\n",g_szScriptFileName,g_lineNumber);
+
+            if (C_GetKeyword() == CON_LEFTBRACE)
+            {
+                C_GetNextKeyword();
+                g_numBraces++;
+
+                do
+                    done = C_ParseCommand();
+                while (done == 0);
+            }
+            else C_ParseCommand();
+
+            g_scriptPtr = tempscrptr;
         }
         return 0;
 
@@ -4059,7 +4073,13 @@ static int C_ParseCommand(void)
         *tempscrptr = (intptr_t) g_scriptPtr;
         bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
 
-        if (tw != CON_WHILEVARVARN) g_checkingIfElse++;
+        if (tw != CON_WHILEVARVARN)
+        {
+            j = C_GetKeyword();
+
+            if (j == CON_ELSE || j == CON_LEFTBRACE)
+                g_checkingIfElse++;
+        }
         return 0;
     }
 
@@ -4108,7 +4128,14 @@ static int C_ParseCommand(void)
         *tempscrptr = (intptr_t) g_scriptPtr;
         bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
 
-        if (tw != CON_WHILEVARN) g_checkingIfElse++;
+        if (tw != CON_WHILEVARN)
+        {
+            j = C_GetKeyword();
+
+            if (j == CON_ELSE || j == CON_LEFTBRACE)
+                g_checkingIfElse++;
+        }
+
         return 0;
     }
     case CON_ADDLOGVAR:
@@ -4645,7 +4672,11 @@ repeatcase:
         *tempscrptr = (intptr_t) g_scriptPtr;
         bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
 
-        g_checkingIfElse++;
+        j = C_GetKeyword();
+
+        if (j == CON_ELSE || j == CON_LEFTBRACE)
+            g_checkingIfElse++;
+
         return 0;
     }
 
@@ -4688,7 +4719,11 @@ repeatcase:
         *tempscrptr = (intptr_t) g_scriptPtr;
         bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
 
-        g_checkingIfElse++;
+        j = C_GetKeyword();
+
+        if (j == CON_ELSE || j == CON_LEFTBRACE)
+            g_checkingIfElse++;
+
         return 0;
     }
 
@@ -4725,16 +4760,21 @@ repeatcase:
     case CON_RIGHTBRACE:
         g_numBraces--;
 
-        if ((*(g_scriptPtr-2)>>12) == (31337) &&
+        if ((*(g_scriptPtr-2)>>12) == (IFELSE_MAGIC) &&
                 ((*(g_scriptPtr-2) & 0xFFF) == CON_LEFTBRACE)) // rewrite "{ }" into "nullop"
         {
 //            initprintf("%s:%d: rewriting empty braces '{ }' as 'nullop' from right\n",g_szScriptFileName,g_lineNumber);
-            *(g_scriptPtr-2) = CON_NULLOP + (31337<<12);
+            *(g_scriptPtr-2) = CON_NULLOP + (IFELSE_MAGIC<<12);
             g_scriptPtr -= 2;
 
             if (C_GetKeyword() != CON_ELSE && (*(g_scriptPtr-2)&0xFFF) != CON_ELSE)
                 g_ifElseAborted = 1;
             else g_ifElseAborted = 0;
+
+            j = C_GetKeyword();
+
+            if (g_checkingIfElse && j != CON_ELSE)
+                g_checkingIfElse--;
 
             return 1;
         }
@@ -4750,6 +4790,9 @@ repeatcase:
             initprintf("%s:%d: error: found more `}' than `{'.\n",g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
         }
+        if (g_checkingIfElse && j != CON_ELSE)
+            g_checkingIfElse--;
+
         return 1;
 
     case CON_BETANAME:
@@ -5370,7 +5413,8 @@ repeatcase:
             if (C_GetKeyword() != CON_ELSE)
             {
                 C_ReportError(-1);
-                initprintf("%s:%d: removing 'nullop' found without 'else'\n",g_szScriptFileName,g_lineNumber);
+                g_numCompilerWarnings++;
+                initprintf("%s:%d: warning: `nullop' found without `else'\n",g_szScriptFileName,g_lineNumber);
                 g_scriptPtr--;
                 g_ifElseAborted = 1;
             }
@@ -5694,7 +5738,7 @@ void C_Compile(const char *filenam)
 
     clearbuf(apScriptGameEvent,MAXGAMEEVENTS,0L);
 
-    inithash();
+    C_InitHashes();
     Gv_Init();
     C_InitProjectiles();
 

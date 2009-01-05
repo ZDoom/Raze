@@ -12129,15 +12129,15 @@ void setpolymost2dview(void)
 #endif
 }
 
-void HASH_init(struct HASH_table *t)
+void HASH_init(HASH_table *t)
 {
     HASH_free(t);
-    t->items=Bcalloc(1, t->size * sizeof(struct HASH_item));
+    t->items=Bcalloc(1, t->size * sizeof(HASH_item));
 }
 
-void HASH_free(struct HASH_table *t)
+void HASH_free(HASH_table *t)
 {
-    struct HASH_item *cur, *tmp;
+    HASH_item *cur, *tmp;
     int i;
     int num;
 
@@ -12192,9 +12192,9 @@ inline unsigned int HASH_getcode(const char *s)
 }
 #endif
 
-void HASH_add(struct HASH_table *t, const char *s, int key)
+void HASH_add(HASH_table *t, const char *s, int key)
 {
-    struct HASH_item *cur, *prev=NULL;
+    HASH_item *cur, *prev=NULL;
     int code;
 
     if (!s)
@@ -12209,7 +12209,7 @@ void HASH_add(struct HASH_table *t, const char *s, int key)
 
     if (!cur)
     {
-        cur=Bcalloc(1,sizeof(struct HASH_item));
+        cur=Bcalloc(1,sizeof(HASH_item));
         cur->string=Bstrdup(s);
         cur->key=key;
         cur->next=NULL;
@@ -12226,16 +12226,16 @@ void HASH_add(struct HASH_table *t, const char *s, int key)
     }
     while (cur);
 
-    cur=Bcalloc(1,sizeof(struct HASH_item));
+    cur=Bcalloc(1,sizeof(HASH_item));
     cur->string=Bstrdup(s);
     cur->key=key;
     cur->next=NULL;
     prev->next=cur;
 }
 
-void HASH_replace(struct HASH_table *t, const char *s, int key)
+void HASH_replace(HASH_table *t, const char *s, int key)
 {
-    struct HASH_item *cur, *prev=NULL;
+    HASH_item *cur, *prev=NULL;
     int code;
 
     if (t->items==NULL)
@@ -12248,7 +12248,7 @@ void HASH_replace(struct HASH_table *t, const char *s, int key)
 
     if (!cur)
     {
-        cur=Bcalloc(1,sizeof(struct HASH_item));
+        cur=Bcalloc(1,sizeof(HASH_item));
         cur->string=Bstrdup(s);
         cur->key=key;
         cur->next=NULL;
@@ -12268,16 +12268,16 @@ void HASH_replace(struct HASH_table *t, const char *s, int key)
     }
     while (cur);
 
-    cur=Bcalloc(1,sizeof(struct HASH_item));
+    cur=Bcalloc(1,sizeof(HASH_item));
     cur->string=Bstrdup(s);
     cur->key=key;
     cur->next=NULL;
     prev->next=cur;
 }
 
-int HASH_find(struct HASH_table *t, const char *s)
+int HASH_find(HASH_table *t, const char *s)
 {
-    struct HASH_item *cur;
+    HASH_item *cur;
 
     if (t->items==NULL)
     {
@@ -12294,9 +12294,9 @@ int HASH_find(struct HASH_table *t, const char *s)
     return -1;
 }
 
-int HASH_findcase(struct HASH_table *t, const char *s)
+int HASH_findcase(HASH_table *t, const char *s)
 {
-    struct HASH_item *cur;
+    HASH_item *cur;
 
     if (t->items==NULL)
     {

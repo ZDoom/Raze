@@ -1621,19 +1621,16 @@ void overheadeditor(void)
             int ii = xyaspect;
 
             i = yxaspect;
-
             Bmemset(show2dsector, 255, sizeof(show2dsector));
-
             setview(0, 0, xdim-1, ydim16-1);
             yxaspect = xyaspect = 65536;
-
             j = ydim;
             ydim -= scale((MAXYDIM/6), ydim, MAXYDIM);
 
             if (graphicsmode == 2)
                 totalclocklock = totalclock;
-            drawmapview(posx, posy, zoom, 1536);
 
+            drawmapview(posx, posy, zoom, 1536);
             yxaspect = i;
             ydim = j;
             xyaspect = ii;

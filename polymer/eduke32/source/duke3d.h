@@ -1053,10 +1053,10 @@ extern char *mousenames[];
 extern char *duke3dgrp, *duke3dgrpstring;
 extern char mod_dir[BMAX_PATH];
 
-extern struct HASH_table gamevarH;
-extern struct HASH_table arrayH;
-extern struct HASH_table keywH;
-extern struct HASH_table gamefuncH;
+extern HASH_table gamevarH;
+extern HASH_table arrayH;
+extern HASH_table keywH;
+extern HASH_table gamefuncH;
 
 enum DukePacket_t
 {

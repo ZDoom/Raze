@@ -105,7 +105,7 @@ static int  osdcursorpal=0; */
 
 static symbol_t *osdsymbptrs[MAXSYMBOLS];
 static int osdnumsymbols = 0;
-static struct HASH_table osdsymbolsH      = { MAXSYMBOLS<<1, NULL };
+static HASH_table osdsymbolsH      = { MAXSYMBOLS<<1, NULL };
 
 // application callbacks
 static void (*drawosdchar)(int, int, char, int, int) = _internal_drawosdchar;

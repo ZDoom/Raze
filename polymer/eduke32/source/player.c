@@ -4483,7 +4483,7 @@ void P_ProcessInput(int snum)
             }
         }
         else if (p->walking_snd_toggle > 0)
-            p->walking_snd_toggle --;
+            p->walking_snd_toggle--;
 
         if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
             doubvel <<= 1;

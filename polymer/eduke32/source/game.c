@@ -10136,8 +10136,9 @@ static void loadtmb(void)
     kclose(fil);
 }
 
-void freehash();
-static void G_FreeCONMem(void)
+extern void C_FreeHashes();
+
+static void G_FreeMemory(void)
 {
     int i;
     extern char *bitptr;
@@ -10157,19 +10158,6 @@ static void G_FreeCONMem(void)
         if (ScriptQuoteRedefinitions[i] != NULL) Bfree(ScriptQuoteRedefinitions[i]);
     }
 
-    for (i=g_gameVarCount-1;i>=0;i--)
-    {
-        if (aGameVars[i].szLabel != NULL) Bfree(aGameVars[i].szLabel);
-        if (aGameVars[i].dwFlags & (GAMEVAR_USER_MASK) && aGameVars[i].val.plValues != NULL)
-            Bfree(aGameVars[i].val.plValues);
-    }
-
-    for (i=g_gameArrayCount-1;i>=0;i--)
-    {
-        if (aGameArrays[i].szLabel != NULL) Bfree(aGameArrays[i].szLabel);
-        if (aGameArrays[i].plValues != NULL) Bfree(aGameArrays[i].plValues);
-    }
-
     for (i=MAXPLAYERS-1;i>=0;i--)
     {
         if (g_player[i].ps != NULL) Bfree(g_player[i].ps);
@@ -10187,7 +10175,9 @@ static void G_FreeCONMem(void)
     if (script != NULL) Bfree(script);
     if (bitptr != NULL) Bfree(bitptr);
 
-    freehash();
+//    if (MusicPtr != NULL) Bfree(MusicPtr);
+
+    // C_FreeHashes();
     HASH_free(&gamefuncH);
 }
 
@@ -10207,7 +10197,7 @@ void G_Shutdown(void)
     CONTROL_Shutdown();
     CONFIG_WriteSetup();
     KB_Shutdown();
-    G_FreeCONMem();
+    G_FreeMemory();
     uninitengine();
 }
 
@@ -10361,7 +10351,7 @@ static void G_Startup(void)
     {
         wm_msgbox("Build Engine Initialization Error",
                   "There was a problem initializing the Build engine: %s", engineerrstr);
-        G_FreeCONMem();
+        G_FreeMemory();
         exit(1);
     }
 

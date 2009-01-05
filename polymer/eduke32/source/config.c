@@ -51,7 +51,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ===================
 */
 
-struct HASH_table gamefuncH    = { NUMGAMEFUNCTIONS<<1, NULL };
+HASH_table gamefuncH    = { NUMGAMEFUNCTIONS<<1, NULL };
 
 int32 CONFIG_FunctionNameToNum(char * func)
 {

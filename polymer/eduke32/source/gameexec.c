@@ -4195,14 +4195,9 @@ static int X_DoExecute(void)
         break;
 
     default:
-        /*        OSD_Printf("fatal error: default processing: previous five values: %d, %d, %d, %d, %d, "
-                           "current opcode: %d, next five values: %d, %d, %d, %d, %d\ncurrent actor: %d (%d)\n",
-                           *(insptr-5),*(insptr-4),*(insptr-3),*(insptr-2),*(insptr-1),*insptr,*(insptr+1),
-                           *(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5),g_i,g_sp->picnum);
-                OSD_Printf("g_errorLineNum: %d, g_tw: %d\n",g_errorLineNum,g_tw);*/
         X_ScriptInfo();
 
-        G_GameExit("An error has occurred in the EDuke32 CON executor.\n\n"
+        G_GameExit("An error has occurred in the EDuke32 virtual machine.\n\n"
                    "If you are an end user, please e-mail the file eduke32.log\n"
                    "along with links to any mods you're using to terminx@gmail.com.\n\n"
                    "If you are a mod developer, please attach all of your CON files\n"

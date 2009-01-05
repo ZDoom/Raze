@@ -339,7 +339,7 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
 int cachefilehandle = -1; // texture cache file handle
 FILE *cacheindexptr = NULL;
 
-struct HASH_table cacheH    = { 1024, NULL };
+HASH_table cacheH    = { 1024, NULL };
 
 char TEXCACHEFILE[BMAX_PATH] = "textures";
 

@@ -207,8 +207,10 @@ void _playmusic(const char *fn)
 
     l = kfilelength(fp);
     MUSIC_StopSong();
-    if (!MusicPtr) MusicPtr=Bcalloc(1,l * sizeof(char));
-    else MusicPtr=Brealloc(MusicPtr,l * sizeof(char));
+
+    if (!MusicPtr) MusicPtr = Bcalloc(1, l);
+    else MusicPtr = Brealloc(MusicPtr, l);
+
     g_musicSize=l;
 
     kread(fp, (unsigned char *)MusicPtr, l);

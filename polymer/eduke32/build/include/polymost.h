@@ -61,7 +61,7 @@ extern GLuint peelprogram[2];
 
 extern int cachefilehandle;
 extern FILE *cacheindexptr;
-extern struct HASH_table cacheH;
+extern HASH_table cacheH;
 
 struct cacheitem_t
 {
