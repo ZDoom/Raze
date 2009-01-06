@@ -41,6 +41,7 @@ spritetype *g_sp;
 static int g_killitFlag;
 int g_errorLineNum;
 int g_tw;
+int g_return;
 
 static int X_DoExecute(void);
 
@@ -85,12 +86,14 @@ void X_OnEvent(int iEventID, int iActor, int iPlayer, int lDist)
         int og_x=g_x;// *og_t=g_t;
         intptr_t *oinsptr=insptr, *og_t=g_t;
         spritetype *og_sp=g_sp;
+        int oreturn=g_return;
 
         g_i = iActor;    // current sprite ID
         g_p = iPlayer;    // current player ID
         g_x = lDist;    // ?
         g_sp = &sprite[g_i];
         g_t = &ActorExtra[g_i].temp_data[0];
+        g_return = 0;
 
         insptr = apScriptGameEvent[iEventID];
 
@@ -116,6 +119,7 @@ void X_OnEvent(int iEventID, int iActor, int iPlayer, int lDist)
         g_sp=og_sp;
         g_t=og_t;
         g_killitFlag=okillit_flag;
+        g_return=oreturn;
         insptr=oinsptr;
 
         //AddLog("End of Execution");
@@ -652,6 +656,7 @@ static int X_DoExecute(void)
     int j, l, s, tw = *insptr;
 
     if (g_killitFlag) return 1;
+    if (g_return) return 1;
 
     //      Bsprintf(g_szBuf,"Parsing: %d",*insptr);
     //      AddLog(g_szBuf);
@@ -1118,6 +1123,8 @@ static int X_DoExecute(void)
         g_sp->zvel = 0;
         break;
 
+    case CON_RETURN:
+        g_return = 1;
     case CON_ENDA:
     case CON_BREAK:
     case CON_ENDS:
@@ -4215,6 +4222,7 @@ void A_LoadActor(int iActor)
     g_x = -1; // lDist;    // ??
     g_sp = &sprite[g_i];    // Pointer to sprite structure
     g_t = &ActorExtra[g_i].temp_data[0];   // Sprite's 'extra' data
+    g_return = 0;
 
     if (actorLoadEventScrptr[g_sp->picnum] == 0) return;
 
@@ -4247,6 +4255,7 @@ void A_Execute(int iActor,int iPlayer,int lDist)
     g_x = lDist;     // ??
     g_sp = &sprite[g_i];    // Pointer to sprite structure
     g_t = &ActorExtra[g_i].temp_data[0];   // Sprite's 'extra' data
+    g_return = 0;
 
     insptr = 4 + (actorscrptr[g_sp->picnum]);
 

@@ -10988,7 +10988,7 @@ void app_main(int argc,const char **argv)
                         G_GameExit(" ");
                     }
                 }
-                else initprintf("... no upgrade available\n");
+                else initprintf("... no updates available\n");
             }
             else initprintf("update: failed to check for updates\n");
         }

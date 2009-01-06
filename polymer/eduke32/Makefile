@@ -12,7 +12,8 @@ DXROOT=../sdk/dx
 
 ALROOT		= AL
 
-SDLCONFIG	= /usr/local/bin/sdl-config
+SDLCONFIG = sdl-config
+# SDLCONFIG	= /usr/local/bin/sdl-config
 
 ifeq ($(wildcard $(SDLCONFIG)),$(SDLCONFIG))
     SDLROOT		= /usr/local

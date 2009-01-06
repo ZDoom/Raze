@@ -156,7 +156,7 @@ const char *keyw[] =
     "state",                    // 17 begins defining a state if used outside a state or actor, otherwise calls a state
     "ends",                     // 18 ends defining a state
     "define",                   // 19 defines a value
-    "<null>",                   // 20 was previously used to define a comment
+    "return",                   // 20
     "ifai",                     // 21 checks if actor is currently performing a specific ai function
     "killit",                   // 22 kills an actor
     "addweapon",                // 23 adds a weapon to the closest player
@@ -4581,7 +4581,6 @@ repeatcase:
                 g_scriptPtr++; */
         return 0;
 
-    case CON_IFPINVENTORY:
     case CON_IFRND:
         if (!C_CheckEventSync(g_currentEvent))
         {
@@ -4609,6 +4608,7 @@ repeatcase:
     case CON_IFACTION:
     case CON_IFMOVE:
     case CON_IFP:
+    case CON_IFPINVENTORY:
     {
         intptr_t offset;
         intptr_t lastScriptPtr = (g_scriptPtr-&script[0]-1);
@@ -5372,6 +5372,7 @@ repeatcase:
         Bsprintf(g_szCurrentBlockName,"(none)");
         return 0;
 
+    case CON_RETURN:
     case CON_BREAK:
         if (g_checkingSwitch)
         {
@@ -5827,6 +5828,8 @@ void C_Compile(const char *filenam)
 
     while (C_ParseCommand() == 0);
 
+    flushlogwindow = 1;
+
     if (g_numCompilerErrors > 63)
         initprintf("fatal error: too many errors: Aborted\n");
 
@@ -5909,6 +5912,8 @@ void C_Compile(const char *filenam)
         g_totalLines += g_lineNumber;
 
         C_IncreaseScriptSize(g_scriptPtr-script+8);
+
+        flushlogwindow = 0;
 
         initprintf("Script compiled in %dms\n",getticks()-startcompiletime);
 

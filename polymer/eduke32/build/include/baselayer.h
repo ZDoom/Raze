@@ -85,6 +85,7 @@ extern int qsetmode;
 int initsystem(void);
 void uninitsystem(void);
 
+extern int flushlogwindow;
 void initprintf(const char *, ...);
 void debugprintf(const char *,...);
 

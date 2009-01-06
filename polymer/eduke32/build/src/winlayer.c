@@ -609,13 +609,29 @@ void initprintf(const char *f, ...)
 {
     va_list va;
     char buf[1024];
+    static char dabuf[1024];
+    static int cnt = 0;
 
     va_start(va, f);
     Bvsnprintf(buf, 1024, f, va);
     va_end(va);
+
     OSD_Printf(buf);
-    startwin_puts(buf);
-    handleevents();
+
+    if (Bstrlen(dabuf) + Bstrlen(buf) > 1022)
+    {
+        startwin_puts(dabuf);
+        Bmemset(dabuf, 0, sizeof(dabuf));
+    }
+
+    Bstrcat(dabuf,buf);
+
+    if (++cnt < 16 || flushlogwindow || Bstrlen(dabuf) > 768)
+    {
+        startwin_puts(dabuf);
+        handleevents();
+        Bmemset(dabuf, 0, sizeof(dabuf));
+    }
 }
 
 

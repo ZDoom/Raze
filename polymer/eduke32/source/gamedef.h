@@ -553,7 +553,7 @@ enum ScriptKeywords_t
     CON_STATE,              // 17
     CON_ENDS,               // 18
     CON_DEFINE,             // 19
-    CON_COMMENT,            // 20 deprecated
+    CON_RETURN,             // 20
     CON_IFAI,               // 21
     CON_KILLIT,             // 22
     CON_ADDWEAPON,          // 23
