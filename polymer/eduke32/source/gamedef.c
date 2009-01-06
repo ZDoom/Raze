@@ -1803,7 +1803,9 @@ static int C_GetNextValue(int type)
 
 static int C_CheckEmptyBranch(int tw, intptr_t lastScriptPtr)
 {
-    if (Bstrncmp(keyw[tw], "if", 2) && tw != CON_ELSE)
+    // ifrnd and ifhitweapon actually do something when the condition is executed
+    if ((Bstrncmp(keyw[tw], "if", 2) && tw != CON_ELSE) ||
+        tw == CON_IFRND || tw == CON_IFHITWEAPON)
     {
         g_ifElseAborted = 0;
         return 0;
@@ -2983,7 +2985,7 @@ static int C_ParseCommand(void)
                 g_numBraces++;
 
                 do
-                    done = C_ParseCommand();
+                done = C_ParseCommand();
                 while (done == 0);
             }
             else C_ParseCommand();
