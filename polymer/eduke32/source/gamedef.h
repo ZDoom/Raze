@@ -39,6 +39,11 @@ extern int g_iLoTagID;          // var ID of "LOTAG"
 extern int g_iHiTagID;          // var ID of "HITAG"
 extern int g_iTextureID;        // var ID of "TEXTURE"
 extern int g_iThisActorID;      // var ID of "THISACTOR"
+extern int g_iSpriteVarID;
+extern int g_iSectorVarID;
+extern int g_iWallVarID;
+extern int g_iPlayerVarID;
+extern int g_iActorVarID;
 
 extern intptr_t *actorLoadEventScrptr[MAXTILES];
 
@@ -92,13 +97,21 @@ extern void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2);
 
 #define CON_ERROR OSD_ERROR "Line %d, %s: "
 
-extern int g_i,g_p;
+typedef struct {
+    int g_i, g_p, g_x;
+    intptr_t *g_t;
+    spritetype *g_sp;
+    int g_killitFlag, g_returnFlag;
+    int filler;
+} vmstate_t;
+
+extern vmstate_t vm;
+
 extern int g_scriptSanityChecks;
 
 extern int g_errorLineNum;
 extern int g_tw;
 extern const char *keyw[];
-extern spritetype *g_sp;
 
 enum ScriptError_t
 {

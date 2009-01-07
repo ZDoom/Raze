@@ -26,7 +26,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gamedef.h"
 #include "osd.h"
 
-extern int g_i,g_p;
+#define _gamevars_c_
+#include "gamestructures.c"
+
 extern int OSD_errors;
 
 void Gv_RefreshPointers(void);
@@ -528,7 +530,7 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
         return iActor;
 
     {
-        int neg = 0;
+        int negateResult = 0;
 
         if (id >= g_gameVarCount || id < 0)
         {
@@ -537,7 +539,7 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
                 int index=Gv_GetVar(*insptr++,iActor,iPlayer);
 
                 if (id&(MAXGAMEVARS<<1)) // negative array access
-                    neg = 1;
+                    negateResult = 1;
 
                 id &= ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
 
@@ -546,7 +548,70 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
                     OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,index);
                     return -1;
                 }
-                return(neg?-aGameArrays[id].plValues[index]:aGameArrays[id].plValues[index]);
+                return(negateResult?-aGameArrays[id].plValues[index]:aGameArrays[id].plValues[index]);
+            }
+
+            if (id&(MAXGAMEVARS<<3)) // struct shortcut vars
+            {
+                int index=Gv_GetVar(*insptr++, iActor, iPlayer), label=*insptr++;
+
+                if (id&(MAXGAMEVARS<<1)) // negative array access
+                    negateResult = 1;
+
+                id &= ~((MAXGAMEVARS<<3)|(MAXGAMEVARS<<1));
+
+                if (id == g_iSpriteVarID)
+                {
+                    int parm2 = 0;
+
+                    if (ActorLabels[label].flags & LABEL_HASPARM2)
+                        parm2 = Gv_GetVar(*insptr++, iActor, iPlayer);
+
+                    if (index >= MAXSPRITES || index < 0)
+                    {
+                        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index\n",g_errorLineNum,keyw[g_tw]);
+                        return -1;
+                    }
+                    if (negateResult) return (-X_AccessSpriteX(index, label, parm2));
+                    return (X_AccessSpriteX(index, label, parm2));
+                }
+                if (id == g_iPlayerVarID)
+                {
+                    int parm2 = 0;
+
+                    if (PlayerLabels[label].flags & LABEL_HASPARM2)
+                        parm2 = Gv_GetVar(*insptr++, iActor, iPlayer);
+
+                    if (index == vm.g_i) index = vm.g_p;
+                    if (index >= MAXPLAYERS || index < 0)
+                    {
+                        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index\n",g_errorLineNum,keyw[g_tw]);
+                        return -1;
+                    }
+                    if (negateResult) return (-X_AccessPlayerX(index, label, parm2));
+                    return (X_AccessPlayerX(index, label, parm2));
+                }
+                if (id == g_iSectorVarID)
+                {
+                    if (index == vm.g_i) index = sprite[vm.g_i].sectnum;
+                    if (index >= MAXSECTORS || index < 0)
+                    {
+                        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index\n",g_errorLineNum,keyw[g_tw]);
+                        return -1;
+                    }
+                    if (negateResult) return (-X_AccessSectorX(index, label));
+                    return (X_AccessSectorX(index, label));
+                }
+                if (id == g_iWallVarID)
+                {
+                    if (index >= MAXWALLS || index < 0)
+                    {
+                        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index\n",g_errorLineNum,keyw[g_tw]);
+                        return -1;
+                    }
+                    if (negateResult) return (-X_AccessWallX(index, label));
+                    return (X_AccessWallX(index, label));
+                }
             }
 
             if ((id&(MAXGAMEVARS<<1)) == 0)
@@ -555,7 +620,7 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
                 return -1;
             }
 
-            neg = 1;
+            negateResult = 1;
             id &= ~(MAXGAMEVARS<<1);
         }
 
@@ -563,7 +628,7 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
                                          GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
         {
         default:
-            if (neg) return (-aGameVars[id].val.lValue);
+            if (negateResult) return (-aGameVars[id].val.lValue);
             return (aGameVars[id].val.lValue);
         case GAMEVAR_PERPLAYER:
             if (iPlayer < 0 || iPlayer >= MAXPLAYERS)
@@ -571,7 +636,7 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
                 OSD_Printf(CON_ERROR "Gv_GetVar(): invalid player ID (%d)\n",g_errorLineNum,keyw[g_tw],iPlayer);
                 return -1;
             }
-            if (neg) return (-aGameVars[id].val.plValues[iPlayer]);
+            if (negateResult) return (-aGameVars[id].val.plValues[iPlayer]);
             return (aGameVars[id].val.plValues[iPlayer]);
         case GAMEVAR_PERACTOR:
             if (iActor < 0 || iActor >= MAXSPRITES)
@@ -579,16 +644,16 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
                 OSD_Printf(CON_ERROR "Gv_GetVar(): invalid sprite ID (%d)\n",g_errorLineNum,keyw[g_tw],iActor);
                 return -1;
             }
-            if (neg) return (-aGameVars[id].val.plValues[iActor]);
+            if (negateResult) return (-aGameVars[id].val.plValues[iActor]);
             return (aGameVars[id].val.plValues[iActor]);
         case GAMEVAR_INTPTR:
-            if (neg) return (-(*((int*)aGameVars[id].val.lValue)));
+            if (negateResult) return (-(*((int*)aGameVars[id].val.lValue)));
             return ((*((int*)aGameVars[id].val.lValue)));
         case GAMEVAR_SHORTPTR:
-            if (neg) return (-(*((short*)aGameVars[id].val.lValue)));
+            if (negateResult) return (-(*((short*)aGameVars[id].val.lValue)));
             return ((*((short*)aGameVars[id].val.lValue)));
         case GAMEVAR_CHARPTR:
-            if (neg) return (-(*((char*)aGameVars[id].val.lValue)));
+            if (negateResult) return (-(*((char*)aGameVars[id].val.lValue)));
             return ((*((char*)aGameVars[id].val.lValue)));
         }
 
@@ -599,7 +664,7 @@ void __fastcall Gv_SetVar(int id, int lValue, int iActor, int iPlayer)
 {
     if (id<0 || id >= g_gameVarCount)
     {
-        OSD_Printf(CON_ERROR "Gv_SetVar(): tried to set invalid gamevar ID (%d) from sprite %d (%d), player %d\n",g_errorLineNum,keyw[g_tw],id,g_i,sprite[g_i].picnum,g_p);
+        OSD_Printf(CON_ERROR "Gv_SetVar(): tried to set invalid gamevar ID (%d) from sprite %d (%d), player %d\n",g_errorLineNum,keyw[g_tw],id,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
         return;
     }
     //Bsprintf(g_szBuf,"SGVI: %d ('%s') to %d for %d %d",id,aGameVars[id].szLabel,lValue,iActor,iPlayer);
@@ -614,7 +679,7 @@ void __fastcall Gv_SetVar(int id, int lValue, int iActor, int iPlayer)
     case GAMEVAR_PERPLAYER:
         if (iPlayer < 0 || iPlayer > MAXPLAYERS-1)
         {
-            OSD_Printf(CON_ERROR "Gv_SetVar(): invalid player (%d) for per-player gamevar %s from sprite %d, player %d\n",g_errorLineNum,keyw[g_tw],iPlayer,aGameVars[id].szLabel,g_i,g_p);
+            OSD_Printf(CON_ERROR "Gv_SetVar(): invalid player (%d) for per-player gamevar %s from sprite %d, player %d\n",g_errorLineNum,keyw[g_tw],iPlayer,aGameVars[id].szLabel,vm.g_i,vm.g_p);
             return;
         }
         // for the current player
@@ -623,7 +688,7 @@ void __fastcall Gv_SetVar(int id, int lValue, int iActor, int iPlayer)
     case GAMEVAR_PERACTOR:
         if (iActor < 0 || iActor > MAXSPRITES-1)
         {
-            OSD_Printf(CON_ERROR "Gv_SetVar(): invalid sprite (%d) for per-actor gamevar %s from sprite %d (%d), player %d\n",g_errorLineNum,keyw[g_tw],iActor,aGameVars[id].szLabel,g_i,sprite[g_i].picnum,g_p);
+            OSD_Printf(CON_ERROR "Gv_SetVar(): invalid sprite (%d) for per-actor gamevar %s from sprite %d (%d), player %d\n",g_errorLineNum,keyw[g_tw],iActor,aGameVars[id].szLabel,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
             return;
         }
         // for the current actor
@@ -647,10 +712,10 @@ int __fastcall Gv_GetVarX(int id)
         return(*insptr++);
 
     if (id == g_iThisActorID)
-        return g_i;
+        return vm.g_i;
 
     {
-        int neg = 0;
+        int negateResult = 0;
 
         if (id >= g_gameVarCount || id < 0)
         {
@@ -659,7 +724,7 @@ int __fastcall Gv_GetVarX(int id)
                 int index=Gv_GetVarX(*insptr++);
 
                 if (id&(MAXGAMEVARS<<1)) // negative array access
-                    neg = 1;
+                    negateResult = 1;
 
                 id &= ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
 
@@ -668,8 +733,71 @@ int __fastcall Gv_GetVarX(int id)
                     OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,index);
                     return -1;
                 }
-                if (neg) return (-aGameArrays[id].plValues[index]);
+                if (negateResult) return (-aGameArrays[id].plValues[index]);
                 return (aGameArrays[id].plValues[index]);
+            }
+
+            if (id&(MAXGAMEVARS<<3)) // struct shortcut vars
+            {
+                int index=Gv_GetVarX(*insptr++), label=*insptr++;
+
+                if (id&(MAXGAMEVARS<<1)) // negative array access
+                    negateResult = 1;
+
+                id &= ~((MAXGAMEVARS<<3)|(MAXGAMEVARS<<1));
+
+                if (id == g_iSpriteVarID)
+                {
+                    int parm2 = 0;
+
+                    if (ActorLabels[label].flags & LABEL_HASPARM2)
+                        parm2 = Gv_GetVarX(*insptr++);
+
+                    if (index >= MAXSPRITES || index < 0)
+                    {
+                        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index\n",g_errorLineNum,keyw[g_tw]);
+                        return -1;
+                    }
+                    if (negateResult) return (-X_AccessSpriteX(index, label, parm2));
+                    return (X_AccessSpriteX(index, label, parm2));
+                }
+                if (id == g_iPlayerVarID)
+                {
+                    int parm2 = 0;
+
+                    if (PlayerLabels[label].flags & LABEL_HASPARM2)
+                        parm2 = Gv_GetVarX(*insptr++);
+
+                    if (index == vm.g_i) index = vm.g_p;
+                    if (index >= MAXPLAYERS || index < 0)
+                    {
+                        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index\n",g_errorLineNum,keyw[g_tw]);
+                        return -1;
+                    }
+                    if (negateResult) return (-X_AccessPlayerX(index, label, parm2));
+                    return (X_AccessPlayerX(index, label, parm2));
+                }
+                if (id == g_iSectorVarID)
+                {
+                    if (index == vm.g_i) index = sprite[vm.g_i].sectnum;
+                    if (index >= MAXSECTORS || index < 0)
+                    {
+                        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index\n",g_errorLineNum,keyw[g_tw]);
+                        return -1;
+                    }
+                    if (negateResult) return (-X_AccessSectorX(index, label));
+                    return (X_AccessSectorX(index, label));
+                }
+                if (id == g_iWallVarID)
+                {
+                    if (index >= MAXWALLS || index < 0)
+                    {
+                        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index\n",g_errorLineNum,keyw[g_tw]);
+                        return -1;
+                    }
+                    if (negateResult) return (-X_AccessWallX(index, label));
+                    return (X_AccessWallX(index, label));
+                }
             }
 
             if ((id&(MAXGAMEVARS<<1)) == 0)
@@ -678,7 +806,7 @@ int __fastcall Gv_GetVarX(int id)
                 return -1;
             }
 
-            neg = 1;
+            negateResult = 1;
             id &= ~(MAXGAMEVARS<<1);
         }
 
@@ -686,22 +814,22 @@ int __fastcall Gv_GetVarX(int id)
                                          GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
         {
         default:
-            if (neg) return (-aGameVars[id].val.lValue);
+            if (negateResult) return (-aGameVars[id].val.lValue);
             return (aGameVars[id].val.lValue);
         case GAMEVAR_PERPLAYER:
-            if (neg) return (-aGameVars[id].val.plValues[g_p]);
-            return (aGameVars[id].val.plValues[g_p]);
+            if (negateResult) return (-aGameVars[id].val.plValues[vm.g_p]);
+            return (aGameVars[id].val.plValues[vm.g_p]);
         case GAMEVAR_PERACTOR:
-            if (neg) return (-aGameVars[id].val.plValues[g_i]);
-            return (aGameVars[id].val.plValues[g_i]);
+            if (negateResult) return (-aGameVars[id].val.plValues[vm.g_i]);
+            return (aGameVars[id].val.plValues[vm.g_i]);
         case GAMEVAR_INTPTR:
-            if (neg) return (-(*((int*)aGameVars[id].val.lValue)));
+            if (negateResult) return (-(*((int*)aGameVars[id].val.lValue)));
             return (*((int*)aGameVars[id].val.lValue));
         case GAMEVAR_SHORTPTR:
-            if (neg) return (-(*((short*)aGameVars[id].val.lValue)));
+            if (negateResult) return (-(*((short*)aGameVars[id].val.lValue)));
             return (*((short*)aGameVars[id].val.lValue));
         case GAMEVAR_CHARPTR:
-            if (neg) return (-(*((char*)aGameVars[id].val.lValue)));
+            if (negateResult) return (-(*((char*)aGameVars[id].val.lValue)));
             return (*((char*)aGameVars[id].val.lValue));
         }
     }
@@ -716,10 +844,10 @@ void __fastcall Gv_SetVarX(int id, int lValue)
         aGameVars[id].val.lValue=lValue;
         return;
     case GAMEVAR_PERPLAYER:
-        aGameVars[id].val.plValues[g_p]=lValue;
+        aGameVars[id].val.plValues[vm.g_p]=lValue;
         return;
     case GAMEVAR_PERACTOR:
-        aGameVars[id].val.plValues[g_i]=lValue;
+        aGameVars[id].val.plValues[vm.g_i]=lValue;
         return;
     case GAMEVAR_INTPTR:
         *((int*)aGameVars[id].val.lValue)=(int)lValue;
@@ -822,6 +950,12 @@ void Gv_ResetSystemDefaults(void)
     g_iHiTagID=Gv_GetVarIndex("HITAG");
     g_iTextureID=Gv_GetVarIndex("TEXTURE");
     g_iThisActorID=Gv_GetVarIndex("THISACTOR");
+
+    g_iSpriteVarID=Gv_GetVarIndex("sprite");
+    g_iSectorVarID=Gv_GetVarIndex("sector");
+    g_iWallVarID=Gv_GetVarIndex("wall");
+    g_iPlayerVarID=Gv_GetVarIndex("player");
+    g_iActorVarID=Gv_GetVarIndex("actorvar");
 
     Bmemcpy(&ProjectileData,&DefaultProjectileData,sizeof(ProjectileData));
 
@@ -1321,6 +1455,14 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("HITAG", 0, GAMEVAR_SYSTEM);
     Gv_NewVar("TEXTURE", 0, GAMEVAR_SYSTEM);
     Gv_NewVar("THISACTOR", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
+
+    // special vars for struct access
+    Gv_NewVar("sprite", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
+    Gv_NewVar("sector", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
+    Gv_NewVar("wall", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
+    Gv_NewVar("player", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
+    Gv_NewVar("actorvar", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
+
     Gv_NewVar("myconnectindex", (intptr_t)&myconnectindex, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
     Gv_NewVar("screenpeek", (intptr_t)&screenpeek, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
     Gv_NewVar("currentweapon",(intptr_t)&g_currentweapon, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);

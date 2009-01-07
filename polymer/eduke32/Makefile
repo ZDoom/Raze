@@ -12,15 +12,6 @@ DXROOT=../sdk/dx
 
 ALROOT		= AL
 
-SDLCONFIG = sdl-config
-# SDLCONFIG	= /usr/local/bin/sdl-config
-
-ifeq ($(wildcard $(SDLCONFIG)),$(SDLCONFIG))
-    SDLROOT		= /usr/local
-else
-    SDLCONFIG	= sdl-config
-endif
-
 # Engine options
 SUPERBUILD = 1
 POLYMOST = 1

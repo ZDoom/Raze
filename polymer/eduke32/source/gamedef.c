@@ -77,6 +77,11 @@ int g_iLoTagID=-1;          // var ID of "LOTAG"
 int g_iHiTagID=-1;          // var ID of "HITAG"
 int g_iTextureID=-1;        // var ID of "TEXTURE"
 int g_iThisActorID=-1;      // var ID of "THISACTOR"
+int g_iSpriteVarID=-1;
+int g_iSectorVarID=-1;
+int g_iWallVarID=-1;
+int g_iPlayerVarID=-1;
+int g_iActorVarID=-1;
 
 intptr_t *actorLoadEventScrptr[MAXTILES];
 
@@ -1587,15 +1592,26 @@ static void C_GetNextVarType(int type)
     C_SkipComments(); //skip comments and whitespace
     if ((*textptr == '['))     //read of array as a gamevar
     {
+        int lLabelID = -1;
+
         f |= (MAXGAMEVARS<<2);
 //        initprintf("got an array");
         textptr++;
         i=GetADefID(label+(g_numLabels<<6));
         if (i < 0)
         {
-            g_numCompilerErrors++;
-            C_ReportError(ERROR_NOTAGAMEARRAY);
-            return;
+            i=GetDefID(label+(g_numLabels<<6));
+            if (i < g_iSpriteVarID || i > g_iPlayerVarID)
+                i = -1;
+
+            if (i < 0)
+            {
+                g_numCompilerErrors++;
+                C_ReportError(ERROR_NOTAGAMEARRAY);
+                return;
+            }
+            f &= ~(MAXGAMEVARS<<2); // not an array
+            f |= (MAXGAMEVARS<<3);
         }
 
         bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
@@ -1615,6 +1631,76 @@ static void C_GetNextVarType(int type)
             g_numCompilerErrors++;
             C_ReportError(ERROR_INVALIDARRAYWRITE);
             return;
+        }
+
+        if (f & (MAXGAMEVARS<<3))
+        {
+            while (*textptr != '.')
+            {
+                if (*textptr == 0xa)
+                    break;
+                if (!*textptr)
+                    break;
+
+                textptr++;
+            }
+
+            if (*textptr!='.')
+            {
+                g_numCompilerErrors++;
+                C_ReportError(ERROR_SYNTAXERROR);
+                return;
+            }
+            textptr++;
+            /// now pointing at 'xxx'
+            C_GetNextLabelName();
+            //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
+
+            if (i == g_iSpriteVarID)
+                lLabelID=C_GetLabelNameOffset(&actorH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+            else if (i == g_iSectorVarID)
+                lLabelID=C_GetLabelNameOffset(&sectorH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+            else if (i == g_iWallVarID)
+                lLabelID=C_GetLabelNameOffset(&wallH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+            else if (i == g_iPlayerVarID)
+                lLabelID=C_GetLabelNameOffset(&playerH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+            
+            //printf("LabelID is %d\n",lLabelID);
+            if (lLabelID == -1)
+            {
+                g_numCompilerErrors++;
+                C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+                return;
+            }
+
+            bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
+
+            if (i == g_iSpriteVarID)
+            {
+                *g_scriptPtr++=ActorLabels[lLabelID].lId;
+
+                //printf("member's flags are: %02Xh\n",ActorLabels[lLabelID].flags);
+                if (ActorLabels[lLabelID].flags & LABEL_HASPARM2)
+                {
+                    //printf("Member has PARM2\n");
+                    // get parm2
+                    // get the ID of the DEF
+                    C_GetNextVarType(0);
+                }
+            }
+            else if (i == g_iPlayerVarID)
+            {
+                *g_scriptPtr++=PlayerLabels[lLabelID].lId;
+
+                //printf("member's flags are: %02Xh\n",ActorLabels[lLabelID].flags);
+                if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2)
+                {
+                    //printf("Member has PARM2\n");
+                    // get parm2
+                    // get the ID of the DEF
+                    C_GetNextVarType(0);
+                }
+            }
         }
         return;
     }
@@ -1805,7 +1891,7 @@ static int C_CheckEmptyBranch(int tw, intptr_t lastScriptPtr)
 {
     // ifrnd and ifhitweapon actually do something when the condition is executed
     if ((Bstrncmp(keyw[tw], "if", 2) && tw != CON_ELSE) ||
-        tw == CON_IFRND || tw == CON_IFHITWEAPON)
+            tw == CON_IFRND || tw == CON_IFHITWEAPON)
     {
         g_ifElseAborted = 0;
         return 0;
@@ -2985,7 +3071,7 @@ static int C_ParseCommand(void)
                 g_numBraces++;
 
                 do
-                done = C_ParseCommand();
+                    done = C_ParseCommand();
                 while (done == 0);
             }
             else C_ParseCommand();
