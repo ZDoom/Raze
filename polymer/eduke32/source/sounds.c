@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define LOUDESTVOLUME 150
 
-int backflag,g_numEnvSoundsPlaying;
+int32_t backflag,g_numEnvSoundsPlaying;
 
 /*
 ===================
@@ -52,7 +52,7 @@ int backflag,g_numEnvSoundsPlaying;
 
 void S_SoundStartup(void)
 {
-    int status;
+    int32_t status;
 
     // if they chose None lets return
     if (ud.config.FXDevice < 0) return;
@@ -85,7 +85,7 @@ void S_SoundStartup(void)
 
 void S_SoundShutdown(void)
 {
-    int status;
+    int32_t status;
 
     // if they chose None lets return
     if (ud.config.FXDevice < 0)
@@ -109,7 +109,7 @@ void S_SoundShutdown(void)
 
 void S_MusicStartup(void)
 {
-    int status;
+    int32_t status;
 
     // if they chose None lets return
     if (ud.config.MusicDevice < 0)
@@ -147,7 +147,7 @@ void S_MusicStartup(void)
 
 void S_MusicShutdown(void)
 {
-    int status;
+    int32_t status;
 
     // if they chose None lets return
     if (ud.config.MusicDevice < 0)
@@ -167,8 +167,8 @@ void MusicUpdate(void)
 
 void S_MenuSound(void)
 {
-    static int SoundNum=0;
-    static short menusnds[] =
+    static int32_t SoundNum=0;
+    static int16_t menusnds[] =
     {
         LASERTRIP_EXPLODE,
         DUKE_GRUNT,
@@ -194,7 +194,7 @@ void S_MenuSound(void)
 
 void _playmusic(const char *fn)
 {
-    int        fp, l;
+    int32_t        fp, l;
 
     if (fn == NULL) return;
 
@@ -213,14 +213,14 @@ void _playmusic(const char *fn)
 
     g_musicSize=l;
 
-    kread(fp, (unsigned char *)MusicPtr, l);
+    kread(fp, (char *)MusicPtr, l);
     kclose(fp);
     // FIXME: I need this to get the music volume initialized (not sure why) -- Jim Bentler
     MUSIC_SetVolume(ud.config.MusicVolume);
-    MUSIC_PlaySong((unsigned char *)MusicPtr, MUSIC_LoopSong);
+    MUSIC_PlaySong((char *)MusicPtr, MUSIC_LoopSong);
 }
 
-int S_PlayMusic(const char *fn, const int sel)
+int32_t S_PlayMusic(const char *fn, const int32_t sel)
 {
     g_musicSize=0;
     if (MapInfo[sel].musicfn1 != NULL)
@@ -233,9 +233,9 @@ int S_PlayMusic(const char *fn, const int sel)
     return 1;
 }
 
-int S_LoadSound(unsigned int num)
+int32_t S_LoadSound(uint32_t num)
 {
-    int   fp = -1, l;
+    int32_t   fp = -1, l;
 
     if (num >= MAXSOUNDS || ud.config.SoundToggle == 0) return 0;
     if (ud.config.FXDevice < 0) return 0;
@@ -267,11 +267,11 @@ int S_LoadSound(unsigned int num)
     return 1;
 }
 
-int S_PlaySoundXYZ(int num,int i,int x,int y,int z)
+int32_t S_PlaySoundXYZ(int32_t num,int32_t i,int32_t x,int32_t y,int32_t z)
 {
-    int sndist, cx, cy, cz, j,k;
-    int pitche,pitchs,cs;
-    int voice, sndang, ca, pitch;
+    int32_t sndist, cx, cy, cz, j,k;
+    int32_t pitche,pitchs,cs;
+    int32_t voice, sndang, ca, pitch;
 
     //    if(num != 358) return 0;
 
@@ -389,11 +389,11 @@ int S_PlaySoundXYZ(int num,int i,int x,int y,int z)
 
     if (g_sounds[num].m&1)
     {
-        unsigned short start;
+        uint16_t start;
 
         if (g_sounds[num].num > 0) return -1;
 
-        start = *(unsigned short *)(g_sounds[num].ptr + 0x14);
+        start = *(uint16_t *)(g_sounds[num].ptr + 0x14);
 
         if (*g_sounds[num].ptr == 'C')
             voice = FX_PlayLoopedVOC(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
@@ -427,11 +427,11 @@ int S_PlaySoundXYZ(int num,int i,int x,int y,int z)
     return (voice);
 }
 
-void S_PlaySound(int num)
+void S_PlaySound(int32_t num)
 {
-    int pitch,pitche,pitchs,cx;
-    int voice;
-    int start;
+    int32_t pitch,pitche,pitchs,cx;
+    int32_t voice;
+    int32_t start;
 
     if (ud.config.FXDevice < 0) return;
     if (ud.config.SoundToggle==0) return;
@@ -471,20 +471,20 @@ void S_PlaySound(int num)
     {
         if (*g_sounds[num].ptr == 'C')
         {
-            start = (int)*(unsigned short *)(g_sounds[num].ptr + 0x14);
+            start = (int32_t)*(uint16_t *)(g_sounds[num].ptr + 0x14);
             voice = FX_PlayLoopedVOC(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
                                      pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
         }
         else
             if (*g_sounds[num].ptr == 'O')
             {
-                start = (int)*(unsigned short *)(g_sounds[num].ptr + 0x14);
+                start = (int32_t)*(uint16_t *)(g_sounds[num].ptr + 0x14);
                 voice = FX_PlayLoopedOGG(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
                                          pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
             }
             else
             {
-                start = (int)*(unsigned short *)(g_sounds[num].ptr + 0x14);
+                start = (int32_t)*(uint16_t *)(g_sounds[num].ptr + 0x14);
                 voice = FX_PlayLoopedWAV(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
                                          pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
             }
@@ -504,7 +504,7 @@ void S_PlaySound(int num)
     g_sounds[num].lock--;
 }
 
-int A_PlaySound(unsigned int num, int i)
+int32_t A_PlaySound(uint32_t num, int32_t i)
 {
     if (num >= MAXSOUNDS) return -1;
     if (i < 0)
@@ -515,13 +515,13 @@ int A_PlaySound(unsigned int num, int i)
     return S_PlaySoundXYZ(num,i,SX,SY,SZ);
 }
 
-void A_StopSound(int num, int i)
+void A_StopSound(int32_t num, int32_t i)
 {
     UNREFERENCED_PARAMETER(i);
     if (num >= 0 && num < MAXSOUNDS) S_StopSound(num);
 }
 
-void S_StopSound(int num)
+void S_StopSound(int32_t num)
 {
     if (num >= 0 && num < MAXSOUNDS)
         if (g_sounds[num].num > 0)
@@ -531,9 +531,9 @@ void S_StopSound(int num)
         }
 }
 
-void S_StopEnvSound(int num,int i)
+void S_StopEnvSound(int32_t num,int32_t i)
 {
-    int j, k;
+    int32_t j, k;
 
     if (num >= 0 && num < MAXSOUNDS)
         if (g_sounds[num].num > 0)
@@ -550,8 +550,8 @@ void S_StopEnvSound(int num,int i)
 
 void pan3dsound(void)
 {
-    int sndist, sx, sy, sz, cx, cy, cz;
-    int sndang,ca,j,k,i,cs;
+    int32_t sndist, sx, sy, sz, cx, cy, cz;
+    int32_t sndang,ca,j,k,i,cs;
 
     g_numEnvSoundsPlaying = 0;
 
@@ -628,11 +628,11 @@ void pan3dsound(void)
         }
 }
 
-void S_TestSoundCallback(unsigned int num)
+void S_TestSoundCallback(uint32_t num)
 {
-    int tempi,tempj,tempk;
+    int32_t tempi,tempj,tempk;
 
-    if ((int)num < 0)
+    if ((int32_t)num < 0)
     {
         if (lumplockbyte[num] >= 200)
             lumplockbyte[num]--;
@@ -668,7 +668,7 @@ void S_TestSoundCallback(unsigned int num)
 
 void S_ClearSoundLocks(void)
 {
-    int i;
+    int32_t i;
 
     for (i=0;i<MAXSOUNDS;i++)
         if (g_sounds[i].lock >= 200)
@@ -679,14 +679,14 @@ void S_ClearSoundLocks(void)
             lumplockbyte[i] = 199;
 }
 
-int A_CheckSoundPlaying(int i, int num)
+int32_t A_CheckSoundPlaying(int32_t i, int32_t num)
 {
     UNREFERENCED_PARAMETER(i);
     if (num < 0) num=0;	// FIXME
     return (g_sounds[num].num > 0);
 }
 
-int S_CheckSoundPlaying(int i, int num)
+int32_t S_CheckSoundPlaying(int32_t i, int32_t num)
 {
     if (i == -1)
     {

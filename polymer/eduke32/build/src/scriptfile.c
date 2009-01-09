@@ -29,7 +29,7 @@ char *scriptfile_gettoken(scriptfile *sf)
     return start;
 }
 
-int scriptfile_getstring(scriptfile *sf, char **retst)
+int32_t scriptfile_getstring(scriptfile *sf, char **retst)
 {
     (*retst) = scriptfile_gettoken(sf);
     if (*retst == NULL)
@@ -40,7 +40,7 @@ int scriptfile_getstring(scriptfile *sf, char **retst)
     return(0);
 }
 
-int scriptfile_getnumber(scriptfile *sf, int *num)
+int32_t scriptfile_getnumber(scriptfile *sf, int32_t *num)
 {
     skipoverws(sf);
     if (sf->textptr >= sf->eof)
@@ -58,7 +58,7 @@ int scriptfile_getnumber(scriptfile *sf, int *num)
     {
         char *p = sf->textptr;
         skipovertoken(sf);
-        initprintf("Error on line %s:%d: expecting int, got \"%s\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
+        initprintf("Error on line %s:%d: expecting int32_t, got \"%s\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
         return -2;
     }
     return 0;
@@ -66,8 +66,8 @@ int scriptfile_getnumber(scriptfile *sf, int *num)
 
 static double parsedouble(char *ptr, char **end)
 {
-    int beforedecimal = 1, negative = 0, dig;
-    int exposgn = 0, expo = 0;
+    int32_t beforedecimal = 1, negative = 0, dig;
+    int32_t exposgn = 0, expo = 0;
     double num = 0.0, decpl = 0.1;
     char *p;
 
@@ -106,7 +106,7 @@ static double parsedouble(char *ptr, char **end)
     return negative ? -num : num;
 }
 
-int scriptfile_getdouble(scriptfile *sf, double *num)
+int32_t scriptfile_getdouble(scriptfile *sf, double *num)
 {
     skipoverws(sf);
     if (sf->textptr >= sf->eof)
@@ -131,10 +131,10 @@ int scriptfile_getdouble(scriptfile *sf, double *num)
     return 0;
 }
 
-int scriptfile_getsymbol(scriptfile *sf, int *num)
+int32_t scriptfile_getsymbol(scriptfile *sf, int32_t *num)
 {
     char *t, *e;
-    int v;
+    int32_t v;
 
     t = scriptfile_gettoken(sf);
     if (!t) return -1;
@@ -152,9 +152,9 @@ int scriptfile_getsymbol(scriptfile *sf, int *num)
     return 0;
 }
 
-int scriptfile_getbraces(scriptfile *sf, char **braceend)
+int32_t scriptfile_getbraces(scriptfile *sf, char **braceend)
 {
-    int bracecnt;
+    int32_t bracecnt;
     char *bracestart;
 
     skipoverws(sf);
@@ -183,9 +183,9 @@ int scriptfile_getbraces(scriptfile *sf, char **braceend)
 }
 
 
-int scriptfile_getlinum(scriptfile *sf, char *ptr)
+int32_t scriptfile_getlinum(scriptfile *sf, char *ptr)
 {
-    int i, stp;
+    int32_t i, stp;
     intptr_t ind;
 
     //for(i=0;i<sf->linenum;i++) if (sf->lineoffs[i] >= ind) return(i+1); //brute force algo
@@ -198,9 +198,9 @@ int scriptfile_getlinum(scriptfile *sf, char *ptr)
     return(i+1); //i = index to highest lineoffs which is less than ind; convert to 1-based line numbers
 }
 
-void scriptfile_preparse(scriptfile *sf, char *tx, int flen)
+void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
 {
-    int i, cr, numcr, nflen, ws, cs, inquote;
+    int32_t i, cr, numcr, nflen, ws, cs, inquote;
 
     //Count number of lines
     numcr = 1;
@@ -213,7 +213,7 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int flen)
     }
 
     sf->linenum = numcr;
-    sf->lineoffs = (int *)malloc(sf->linenum*sizeof(int));
+    sf->lineoffs = (int32_t *)malloc(sf->linenum*sizeof(int32_t));
 
     //Preprocess file for comments (// and /*...*/, and convert all whitespace to single spaces)
     nflen = 0; ws = 0; cs = 0; numcr = 0; inquote = 0;
@@ -263,10 +263,10 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int flen)
 
 scriptfile *scriptfile_fromfile(char *fn)
 {
-    int fp;
+    int32_t fp;
     scriptfile *sf;
     char *tx;
-    unsigned int flen;
+    uint32_t flen;
 
     fp = kopen4load(fn,0);
     if (fp<0) return NULL;
@@ -302,7 +302,7 @@ scriptfile *scriptfile_fromstring(char *string)
 {
     scriptfile *sf;
     char *tx;
-    unsigned int flen;
+    uint32_t flen;
 
     if (!string) return NULL;
 
@@ -338,7 +338,7 @@ void scriptfile_close(scriptfile *sf)
     free(sf);
 }
 
-int scriptfile_eof(scriptfile *sf)
+int32_t scriptfile_eof(scriptfile *sf)
 {
     skipoverws(sf);
     if (sf->textptr >= sf->eof) return 1;
@@ -346,13 +346,13 @@ int scriptfile_eof(scriptfile *sf)
 }
 
 #define SYMBTABSTARTSIZE 256
-static int symbtablength=0, symbtaballoclength=0;
+static int32_t symbtablength=0, symbtaballoclength=0;
 static char *symbtab = NULL;
 
-static char * getsymbtabspace(int reqd)
+static char * getsymbtabspace(int32_t reqd)
 {
     char *pos,*np;
-    int i;
+    int32_t i;
 
     if (symbtablength + reqd > symbtaballoclength)
     {
@@ -366,7 +366,7 @@ static char * getsymbtabspace(int reqd)
     return pos;
 }
 
-int scriptfile_getsymbolvalue(char *name, int *val)
+int32_t scriptfile_getsymbolvalue(char *name, int32_t *val)
 {
     char *scanner = symbtab;
 
@@ -375,17 +375,17 @@ int scriptfile_getsymbolvalue(char *name, int *val)
     {
         if (!Bstrcasecmp(name, scanner))
         {
-            *val = *(int*)(scanner + strlen(scanner) + 1);
+            *val = *(int32_t*)(scanner + strlen(scanner) + 1);
             return 1;
         }
 
-        scanner += strlen(scanner) + 1 + sizeof(int);
+        scanner += strlen(scanner) + 1 + sizeof(int32_t);
     }
 
     return 0;
 }
 
-int scriptfile_addsymbolvalue(char *name, int val)
+int32_t scriptfile_addsymbolvalue(char *name, int32_t val)
 {
     char *sp;
     //	if (scriptfile_getsymbolvalue(name, &x)) return -1;   // already exists
@@ -397,19 +397,19 @@ int scriptfile_addsymbolvalue(char *name, int val)
         {
             if (!Bstrcasecmp(name, scanner))
             {
-                *(int*)(scanner + strlen(scanner) + 1) = val;
+                *(int32_t*)(scanner + strlen(scanner) + 1) = val;
                 return 1;
             }
 
-            scanner += strlen(scanner) + 1 + sizeof(int);
+            scanner += strlen(scanner) + 1 + sizeof(int32_t);
         }
     }
 
-    sp = getsymbtabspace(strlen(name) + 1 + sizeof(int));
+    sp = getsymbtabspace(strlen(name) + 1 + sizeof(int32_t));
     if (!sp) return 0;
     strcpy(sp, name);
     sp += strlen(name)+1;
-    *(int*)sp = val;
+    *(int32_t*)sp = val;
     return 1;   // added
 }
 

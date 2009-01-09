@@ -246,7 +246,7 @@ void *RTS_GetSound(int32 lump)
     if (lumpcache[lump] == NULL)
     {
         lumplockbyte[lump] = 200;
-        allocache((intptr_t *)&lumpcache[lump],(int)RTS_SoundLength(lump-1),&lumplockbyte[lump]);	// JBF 20030910: char * => int *
+        allocache((intptr_t *)&lumpcache[lump],(int32_t)RTS_SoundLength(lump-1),&lumplockbyte[lump]);	// JBF 20030910: char * => int32_t *
         RTS_ReadLump(lump, lumpcache[lump]);
     }
     else

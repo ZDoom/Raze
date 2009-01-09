@@ -30,30 +30,30 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #define _NEED_SDLMIXER	1
 #include "sdl_inc.h"
 
-extern int MV_MixPage;
+extern int32_t MV_MixPage;
 
-int DSL_ErrorCode = DSL_Ok;
+int32_t DSL_ErrorCode = DSL_Ok;
 
-static int mixer_initialized;
-static int interrupts_disabled = 0;
+static int32_t mixer_initialized;
+static int32_t interrupts_disabled = 0;
 
-static int(*_DSL_CallBackFunc)(int);
+static int32_t(*_DSL_CallBackFunc)(int32_t);
 static volatile char *_DSL_BufferStart;
-static int _DSL_BufferSize;
-static int _DSL_SampleRate;
-static int _DSL_remainder;
+static int32_t _DSL_BufferSize;
+static int32_t _DSL_SampleRate;
+static int32_t _DSL_remainder;
 static Uint16 _DSL_format;
-static int _DSL_channels;
+static int32_t _DSL_channels;
 
 
 static Mix_Chunk *blank;
-static unsigned char *blank_buf;
+static uint8_t *blank_buf;
 
 /*
 possible todo ideas: cache sdl/sdl mixer error messages.
 */
 
-char *DSL_ErrorString(int ErrorNumber)
+char *DSL_ErrorString(int32_t ErrorNumber)
 {
     char *ErrorString;
 
@@ -88,12 +88,12 @@ char *DSL_ErrorString(int ErrorNumber)
     return ErrorString;
 }
 
-static void DSL_SetErrorCode(int ErrorCode)
+static void DSL_SetErrorCode(int32_t ErrorCode)
 {
     DSL_ErrorCode = ErrorCode;
 }
 
-int DSL_Init(int soundcard, int mixrate, int numchannels, int samplebits, int buffersize)
+int32_t DSL_Init(int32_t soundcard, int32_t mixrate, int32_t numchannels, int32_t samplebits, int32_t buffersize)
 {
     /* FIXME: Do I need an SDL_mixer version check
      * like that in sdlmusic.h here, too???
@@ -123,11 +123,11 @@ void DSL_Shutdown(void)
     DSL_StopPlayback();
 }
 
-static void mixer_callback(int chan, void *stream, int len, void *udata)
+static void mixer_callback(int32_t chan, void *stream, int32_t len, void *udata)
 {
     Uint8 *stptr;
     Uint8 *fxptr;
-    int copysize;
+    int32_t copysize;
     UNREFERENCED_PARAMETER(chan);
     UNREFERENCED_PARAMETER(udata);
     /* len should equal _DSL_BufferSize, else this is screwed up */
@@ -170,12 +170,12 @@ static void mixer_callback(int chan, void *stream, int len, void *udata)
     _DSL_remainder = len;
 }
 
-//int   DSL_BeginBufferedPlayback(char *BufferStart,
-  //                              int BufferSize, int NumDivisions, unsigned SampleRate,
-    //                            int MixMode, void(*CallBackFunc)(void))
-int DSL_BeginBufferedPlayback(char *BufferStart, int(*CallBackFunc)(int), int BufferSize, int NumDivisions)
+//int32_t   DSL_BeginBufferedPlayback(char *BufferStart,
+  //                              int32_t BufferSize, int32_t NumDivisions, unsigned SampleRate,
+    //                            int32_t MixMode, void(*CallBackFunc)(void))
+int32_t DSL_BeginBufferedPlayback(char *BufferStart, int32_t(*CallBackFunc)(int32_t), int32_t BufferSize, int32_t NumDivisions)
 {
-    int chunksize;
+    int32_t chunksize;
 
     if (mixer_initialized)
     {
@@ -260,7 +260,7 @@ unsigned DSL_GetPlaybackRate(void)
     return _DSL_SampleRate;
 }
 
-int DisableInterrupts(void)
+int32_t DisableInterrupts(void)
 {
     if (interrupts_disabled++)
         return 0;
@@ -269,7 +269,7 @@ int DisableInterrupts(void)
     return(0);
 }
 
-int RestoreInterrupts(int flags)
+int32_t RestoreInterrupts(int32_t flags)
 {
     UNREFERENCED_PARAMETER(flags);
     if (--interrupts_disabled)

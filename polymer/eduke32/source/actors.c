@@ -27,18 +27,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define KILLIT(KX) {deletesprite(KX);goto BOLT;}
 
-extern int g_numEnvSoundsPlaying;
-extern int g_noEnemies;
+extern int32_t g_numEnvSoundsPlaying;
+extern int32_t g_noEnemies;
 
 inline void G_UpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
 {
-    int i=g_numInterpolations-1;
+    int32_t i=g_numInterpolations-1;
     for (;i>=0;i--) oldipos[i] = *curipos[i];
 }
 
-void G_SetInterpolation(int *posptr)
+void G_SetInterpolation(int32_t *posptr)
 {
-    int i=g_numInterpolations-1;
+    int32_t i=g_numInterpolations-1;
 
     if (g_numInterpolations >= MAXINTERPOLATIONS) return;
     for (;i>=0;i--)
@@ -48,9 +48,9 @@ void G_SetInterpolation(int *posptr)
     g_numInterpolations++;
 }
 
-void G_StopInterpolation(int *posptr)
+void G_StopInterpolation(int32_t *posptr)
 {
-    int i=g_numInterpolations-1;
+    int32_t i=g_numInterpolations-1;
 
     for (;i>=startofdynamicinterpolations;i--)
         if (curipos[i] == posptr)
@@ -62,9 +62,9 @@ void G_StopInterpolation(int *posptr)
         }
 }
 
-void G_DoInterpolations(int smoothratio)       //Stick at beginning of drawscreen
+void G_DoInterpolations(int32_t smoothratio)       //Stick at beginning of drawscreen
 {
-    int i=g_numInterpolations-1, j = 0, odelta, ndelta = 0;
+    int32_t i=g_numInterpolations-1, j = 0, odelta, ndelta = 0;
 
     for (;i>=0;i--)
     {
@@ -78,21 +78,21 @@ void G_DoInterpolations(int smoothratio)       //Stick at beginning of drawscree
 
 inline void G_RestoreInterpolations(void)  //Stick at end of drawscreen
 {
-    int i=g_numInterpolations-1;
+    int32_t i=g_numInterpolations-1;
     for (;i>=0;i--) *curipos[i] = bakipos[i];
 }
 
-inline int G_CheckForSpaceCeiling(int sectnum)
+inline int32_t G_CheckForSpaceCeiling(int32_t sectnum)
 {
     return ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 && (sector[sectnum].ceilingpicnum==MOONSKY1 || sector[sectnum].ceilingpicnum==BIGORBIT1)?1:0);
 }
 
-inline int G_CheckForSpaceFloor(int sectnum)
+inline int32_t G_CheckForSpaceFloor(int32_t sectnum)
 {
     return ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0 && ((sector[sectnum].floorpicnum==MOONSKY1)||(sector[sectnum].floorpicnum==BIGORBIT1))?1:0);
 }
 
-void P_AddAmmo(int weapon,DukePlayer_t *p,int amount)
+void P_AddAmmo(int32_t weapon,DukePlayer_t *p,int32_t amount)
 {
     p->ammo_amount[weapon] += amount;
 
@@ -100,9 +100,9 @@ void P_AddAmmo(int weapon,DukePlayer_t *p,int amount)
         p->ammo_amount[weapon] = p->max_ammo_amount[weapon];
 }
 
-void P_AddWeaponNoSwitch(DukePlayer_t *p, int weapon)
+void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
 {
-    int snum = sprite[p->i].yvel;
+    int32_t snum = sprite[p->i].yvel;
 
     if (p->gotweapon[weapon] == 0)
     {
@@ -154,9 +154,9 @@ void P_AddWeaponNoSwitch(DukePlayer_t *p, int weapon)
 #endif
 }
 
-void P_AddWeapon(DukePlayer_t *p,int weapon)
+void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
 {
-    int snum = sprite[p->i].yvel;
+    int32_t snum = sprite[p->i].yvel;
 
     P_AddWeaponNoSwitch(p,weapon);
 
@@ -217,7 +217,7 @@ void P_SelectNextInvItem(DukePlayer_t *p)
 
 void P_CheckWeapon(DukePlayer_t *p)
 {
-    short i,snum;
+    int16_t i,snum;
     int32 weap;
 
     if (p->reloading) return;
@@ -281,18 +281,18 @@ void P_CheckWeapon(DukePlayer_t *p)
     else p->weapon_pos   = -1;
 }
 
-void A_RadiusDamage(int i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
+void A_RadiusDamage(int32_t i, int32_t  r, int32_t  hp1, int32_t  hp2, int32_t  hp3, int32_t  hp4)
 {
     spritetype *s=&sprite[i],*sj;
     walltype *wal;
-    int d, q, x1, y1;
-    int sectcnt, sectend, dasect, startwall, endwall, nextsect;
-    int j,k,p,x,nextj;
-    short sect=-1;
+    int32_t d, q, x1, y1;
+    int32_t sectcnt, sectend, dasect, startwall, endwall, nextsect;
+    int32_t j,k,p,x,nextj;
+    int16_t sect=-1;
     char statlist[] = {STAT_DEFAULT,STAT_ACTOR,STAT_STANDABLE,
                        STAT_PLAYER,STAT_FALLER,STAT_ZOMBIEACTOR,STAT_MISC
                       };
-    short *tempshort = (short *)tempbuf;
+    int16_t *tempshort = (int16_t *)tempbuf;
 
     if (s->picnum == RPG && s->xrepeat < 11) goto SKIPWALLCHECK;
 
@@ -347,7 +347,7 @@ SKIPWALLCHECK:
 
     for (x = 0;x<7;x++)
     {
-        j = headspritestat[(unsigned char)statlist[x]];
+        j = headspritestat[(uint8_t)statlist[x]];
         while (j >= 0)
         {
             nextj = nextspritestat[j];
@@ -466,12 +466,12 @@ BOLT:
     }
 }
 
-int A_MoveSprite(int spritenum, int xchange, int ychange, int zchange, unsigned int cliptype)
+int32_t A_MoveSprite(int32_t spritenum, int32_t xchange, int32_t ychange, int32_t zchange, uint32_t cliptype)
 {
-    int daz, oldx, oldy;
-    int retval;
-    short dasectnum, cd;
-    int bg = A_CheckEnemySprite(&sprite[spritenum]);
+    int32_t daz, oldx, oldy;
+    int32_t retval;
+    int16_t dasectnum, cd;
+    int32_t bg = A_CheckEnemySprite(&sprite[spritenum]);
 
     if (sprite[spritenum].statnum == 5 || (bg && sprite[spritenum].xrepeat < 4))
     {
@@ -533,7 +533,7 @@ int A_MoveSprite(int spritenum, int xchange, int ychange, int zchange, unsigned 
                 clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((xchange*TICSPERFRAME)<<11),((ychange*TICSPERFRAME)<<11),8L,(4<<8),(4<<8),cliptype);
         else
             retval =
-                clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((xchange*TICSPERFRAME)<<11),((ychange*TICSPERFRAME)<<11),(int)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
+                clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((xchange*TICSPERFRAME)<<11),((ychange*TICSPERFRAME)<<11),(int32_t)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
     }
 
     if (dasectnum >= 0)
@@ -548,7 +548,7 @@ int A_MoveSprite(int spritenum, int xchange, int ychange, int zchange, unsigned 
     return(retval);
 }
 
-inline int A_SetSprite(int i,unsigned int cliptype) //The set sprite function
+inline int32_t A_SetSprite(int32_t i,uint32_t cliptype) //The set sprite function
 {
     return (A_MoveSprite(i,(sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
                          (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14,sprite[i].zvel,
@@ -557,9 +557,9 @@ inline int A_SetSprite(int i,unsigned int cliptype) //The set sprite function
 
 #undef deletesprite
 
-int block_deletesprite = 0;
+int32_t block_deletesprite = 0;
 
-void A_DeleteSprite(int s)
+void A_DeleteSprite(int32_t s)
 {
     if (block_deletesprite)
     {
@@ -568,7 +568,7 @@ void A_DeleteSprite(int s)
     }
     if (apScriptGameEvent[EVENT_KILLIT])
     {
-        int p, pl=A_FindPlayer(&sprite[s],&p);
+        int32_t p, pl=A_FindPlayer(&sprite[s],&p);
 
         Gv_SetVar(g_iReturnVarID,0, -1, -1);
         X_OnEvent(EVENT_KILLIT, s, pl, p);
@@ -579,7 +579,7 @@ void A_DeleteSprite(int s)
 }
 #define deletesprite A_DeleteSprite
 
-void A_AddToDeleteQueue(int i)
+void A_AddToDeleteQueue(int32_t i)
 {
     if (g_spriteDeleteQueueSize == 0)
     {
@@ -593,9 +593,9 @@ void A_AddToDeleteQueue(int i)
     g_spriteDeleteQueuePos = (g_spriteDeleteQueuePos+1)%g_spriteDeleteQueueSize;
 }
 
-void A_SpawnMultiple(int sp, int pic, int n)
+void A_SpawnMultiple(int32_t sp, int32_t pic, int32_t n)
 {
-    int j;
+    int32_t j;
     spritetype *s = &sprite[sp];
 
     for (;n>0;n--)
@@ -606,11 +606,11 @@ void A_SpawnMultiple(int sp, int pic, int n)
     }
 }
 
-void A_DoGuts(int sp, int gtype, int n)
+void A_DoGuts(int32_t sp, int32_t gtype, int32_t n)
 {
-    int gutz,floorz;
-    int i,a,j,sx = 32,sy = 32;
-//    int pal;
+    int32_t gutz,floorz;
+    int32_t i,a,j,sx = 32,sy = 32;
+//    int32_t pal;
     spritetype *s = &sprite[sp];
 
     if (A_CheckEnemySprite(s) && s->xrepeat < 16)
@@ -644,10 +644,10 @@ void A_DoGuts(int sp, int gtype, int n)
     }
 }
 
-void A_DoGutsDir(int sp, int gtype, int n)
+void A_DoGutsDir(int32_t sp, int32_t gtype, int32_t n)
 {
-    int gutz,floorz;
-    int i,a,j,sx = 32,sy = 32;
+    int32_t gutz,floorz;
+    int32_t i,a,j,sx = 32,sy = 32;
     spritetype *s = &sprite[sp];
 
     if (A_CheckEnemySprite(s) && s->xrepeat < 16)
@@ -670,9 +670,9 @@ void A_DoGutsDir(int sp, int gtype, int n)
     }
 }
 
-void Sect_SetInterpolation(int i)
+void Sect_SetInterpolation(int32_t i)
 {
-    int k, j = sector[SECT].wallptr,endwall = j+sector[SECT].wallnum;
+    int32_t k, j = sector[SECT].wallptr,endwall = j+sector[SECT].wallnum;
 
     for (;j<endwall;j++)
     {
@@ -690,9 +690,9 @@ void Sect_SetInterpolation(int i)
     }
 }
 
-void Sect_ClearInterpolation(int i)
+void Sect_ClearInterpolation(int32_t i)
 {
-    int j = sector[SECT].wallptr,endwall = j+sector[SECT].wallnum;
+    int32_t j = sector[SECT].wallptr,endwall = j+sector[SECT].wallnum;
 
     for (;j<endwall;j++)
     {
@@ -706,19 +706,19 @@ void Sect_ClearInterpolation(int i)
     }
 }
 
-static void ms(int i)
+static void ms(int32_t i)
 {
     //T1,T2 and T3 are used for all the sector moving stuff!!!
 
-    int tx,ty;
+    int32_t tx,ty;
     spritetype *s = &sprite[i];
-    int j = T2, k = T3;
+    int32_t j = T2, k = T3;
 
     s->x += (s->xvel*(sintable[(s->ang+512)&2047]))>>14;
     s->y += (s->xvel*(sintable[s->ang&2047]))>>14;
 
     {
-        int x = sector[s->sectnum].wallptr, endwall = x+sector[s->sectnum].wallnum;
+        int32_t x = sector[s->sectnum].wallptr, endwall = x+sector[s->sectnum].wallnum;
 
         for (;x<endwall;x++)
         {
@@ -733,9 +733,9 @@ static void ms(int i)
 // sleeping monsters, etc
 static void G_MoveZombieActors(void)
 {
-    int x, px, py, sx, sy;
-    int i = headspritestat[STAT_ZOMBIEACTOR], j, p, nexti;
-    short psect, ssect;
+    int32_t x, px, py, sx, sy;
+    int32_t i = headspritestat[STAT_ZOMBIEACTOR], j, p, nexti;
+    int16_t psect, ssect;
     spritetype *s;
 
     while (i >= 0)
@@ -822,9 +822,9 @@ static void G_MoveZombieActors(void)
     }
 }
 
-static inline int ifhitsectors(int sectnum)
+static inline int32_t ifhitsectors(int32_t sectnum)
 {
-    int i = headspritestat[STAT_MISC];
+    int32_t i = headspritestat[STAT_MISC];
     while (i >= 0)
     {
         if (PN == EXPLOSION2 && sectnum == SECT)
@@ -836,9 +836,9 @@ static inline int ifhitsectors(int sectnum)
 
 #define IFHITSECT j=ifhitsectors(s->sectnum);if(j >= 0)
 
-int A_IncurDamage(int sn)
+int32_t A_IncurDamage(int32_t sn)
 {
-    int j,p;
+    int32_t j,p;
     spritetype *npc;
 
     if (ActorExtra[sn].extra >= 0)
@@ -943,8 +943,8 @@ int A_IncurDamage(int sn)
 
 void A_MoveCyclers(void)
 {
-    int q, j, x, t, s, cshade;
-    short *c;
+    int32_t q, j, x, t, s, cshade;
+    int16_t *c;
     walltype *wal;
 
     for (q=g_numCyclers-1;q>=0;q--)
@@ -980,7 +980,7 @@ void A_MoveCyclers(void)
 
 void A_MoveDummyPlayers(void)
 {
-    int i = headspritestat[STAT_DUMMYPLAYER], p, nexti;
+    int32_t i = headspritestat[STAT_DUMMYPLAYER], p, nexti;
 
     while (i >= 0)
     {
@@ -1007,7 +1007,7 @@ void A_MoveDummyPlayers(void)
             else
             {
                 if (sector[SECT].lotag != 2) SZ = sector[SECT].floorz;
-                CS = (short) 32768;
+                CS = (int16_t) 32768;
             }
         }
 
@@ -1021,12 +1021,12 @@ BOLT:
     }
 }
 
-int otherp;
+int32_t otherp;
 
 static void G_MovePlayers(void) //Players
 {
-    int i = headspritestat[STAT_PLAYER], nexti;
-    int otherx;
+    int32_t i = headspritestat[STAT_PLAYER], nexti;
+    int32_t otherx;
     spritetype *s;
     DukePlayer_t *p;
 
@@ -1161,8 +1161,8 @@ BOLT:
 
 static void G_MoveFX(void)
 {
-    int i = headspritestat[STAT_FX], j, nexti, p;
-    int x, ht;
+    int32_t i = headspritestat[STAT_FX], j, nexti, p;
+    int32_t x, ht;
     spritetype *s;
 
     while (i >= 0)
@@ -1261,9 +1261,9 @@ BOLT:
 
 static void G_MoveFallers(void)
 {
-    int i = headspritestat[STAT_FALLER], nexti, sect, j;
+    int32_t i = headspritestat[STAT_FALLER], nexti, sect, j;
     spritetype *s;
-    int x;
+    int32_t x;
 
     while (i >= 0)
     {
@@ -1359,11 +1359,11 @@ BOLT:
 
 static void G_MoveStandables(void)
 {
-    int i = headspritestat[STAT_STANDABLE], j, k, nexti, nextj, p=0, sect, switchpicnum;
-    int l=0, x;
+    int32_t i = headspritestat[STAT_STANDABLE], j, k, nexti, nextj, p=0, sect, switchpicnum;
+    int32_t l=0, x;
     intptr_t *t;
     spritetype *s;
-    short m;
+    int16_t m;
 
     while (i >= 0)
     {
@@ -1628,7 +1628,7 @@ static void G_MoveStandables(void)
 
         if (s->picnum == TRIPBOMB)
         {
-            //            int lTripBombControl=Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
+            //            int32_t lTripBombControl=Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
             //            if(lTripBombControl & TRIPBOMB_TIMER)
             if (ActorExtra[i].temp_data[6] == 1)
             {
@@ -2307,19 +2307,19 @@ BOLT:
     }
 }
 
-static void A_DoProjectileBounce(int i)
+static void A_DoProjectileBounce(int32_t i)
 {
-    int dax, day, daz = 4096;
+    int32_t dax, day, daz = 4096;
     spritetype *s = &sprite[i];
-    int hitsect = s->sectnum;
-    int k = sector[hitsect].wallptr;
-    int l = wall[k].point2;
+    int32_t hitsect = s->sectnum;
+    int32_t k = sector[hitsect].wallptr;
+    int32_t l = wall[k].point2;
 
-    int xvect = mulscale10(s->xvel,sintable[(s->ang+512)&2047]);
-    int yvect = mulscale10(s->xvel,sintable[s->ang&2047]);
-    int zvect = s->zvel;
+    int32_t xvect = mulscale10(s->xvel,sintable[(s->ang+512)&2047]);
+    int32_t yvect = mulscale10(s->xvel,sintable[s->ang&2047]);
+    int32_t zvect = s->zvel;
 
-    int daang = getangle(wall[l].x-wall[k].x,wall[l].y-wall[k].y);
+    int32_t daang = getangle(wall[l].x-wall[k].x,wall[l].y-wall[k].y);
 
     if (s->z < (ActorExtra[i].floorz+ActorExtra[i].ceilingz)>>1)
         k = sector[hitsect].ceilingheinum;
@@ -2346,9 +2346,9 @@ static void A_DoProjectileBounce(int i)
 
 static void G_MoveWeapons(void)
 {
-    int i = headspritestat[STAT_PROJECTILE], j=0, k, f, nexti, p, q;
-    int dax,day,daz, x, ll;
-    unsigned int qq;
+    int32_t i = headspritestat[STAT_PROJECTILE], j=0, k, f, nexti, p, q;
+    int32_t dax,day,daz, x, ll;
+    uint32_t qq;
     spritetype *s;
 
     while (i >= 0)
@@ -3085,9 +3085,9 @@ BOLT:
 
 static void G_MoveTransports(void)
 {
-    int warpspriteto;
-    int i = headspritestat[STAT_TRANSPORT], j, k, l, p, sect, sectlotag, nexti, nextj;
-    int ll,onfloorz,q;
+    int32_t warpspriteto;
+    int32_t i = headspritestat[STAT_TRANSPORT], j, k, l, p, sect, sectlotag, nexti, nextj;
+    int32_t ll,onfloorz,q;
 
     while (i >= 0)
     {
@@ -3416,9 +3416,9 @@ BOLT:
     }
 }
 
-static short A_FindLocator(int n,int sn)
+static int16_t A_FindLocator(int32_t n,int32_t sn)
 {
-    int i = headspritestat[STAT_LOCATOR];
+    int32_t i = headspritestat[STAT_LOCATOR];
 
     while (i >= 0)
     {
@@ -3431,11 +3431,11 @@ static short A_FindLocator(int n,int sn)
 
 static void G_MoveActors(void)
 {
-    int x, m, l;
+    int32_t x, m, l;
     intptr_t *t;
-    int a, j, nexti, nextj, sect, p, switchpicnum, k;
+    int32_t a, j, nexti, nextj, sect, p, switchpicnum, k;
     spritetype *s;
-    int i = headspritestat[STAT_ACTOR];
+    int32_t i = headspritestat[STAT_ACTOR];
 
     while (i >= 0)
     {
@@ -3709,7 +3709,7 @@ static void G_MoveActors(void)
             {
                 if (g_noEnemies == 1)
                 {
-                    s->cstat = (short)32768;
+                    s->cstat = (int16_t)32768;
                     goto BOLT;
                 }
                 else if (g_noEnemies == 2) s->cstat = 257;
@@ -3912,7 +3912,7 @@ static void G_MoveActors(void)
             {
                 if (g_noEnemies == 1)
                 {
-                    s->cstat = (short)32768;
+                    s->cstat = (int16_t)32768;
                     goto BOLT;
                 }
                 else if (g_noEnemies == 2) s->cstat = 257;
@@ -4411,7 +4411,7 @@ static void G_MoveActors(void)
                 s->xvel >>= 1;
             }
 
-            //      int lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, -1);
+            //      int32_t lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, -1);
 
 DETONATEB:
 
@@ -4486,7 +4486,7 @@ DETONATEB:
                     {
                         t[2] = g_itemRespawnTime;
                         A_Spawn(i,RESPAWNMARKERRED);
-                        s->cstat = (short) 32768;
+                        s->cstat = (int16_t) 32768;
                         s->yrepeat = 9;
                         goto BOLT;
                     }
@@ -4535,7 +4535,7 @@ DETONATEB:
                         {
                             t[2] = g_itemRespawnTime;
                             A_Spawn(i,RESPAWNMARKERRED);
-                            s->cstat = (short) 32768;
+                            s->cstat = (int16_t) 32768;
                         }
                     }
 
@@ -4559,8 +4559,8 @@ DETONATEB:
                     case SECTOREFFECTOR__STATIC:
                         if (sprite[j].lotag == 1)
                         {
-                            sprite[j].lotag = (short) 65535;
-                            sprite[j].hitag = (short) 65535;
+                            sprite[j].lotag = (int16_t) 65535;
+                            sprite[j].hitag = (int16_t) 65535;
                         }
                         break;
                     case REACTOR__STATIC:
@@ -4571,7 +4571,7 @@ DETONATEB:
                         break;
                     case REACTORSPARK__STATIC:
                     case REACTOR2SPARK__STATIC:
-                        sprite[j].cstat = (short) 32768;
+                        sprite[j].cstat = (int16_t) 32768;
                         break;
                     }
                     j = nextspritesect[j];
@@ -4701,7 +4701,7 @@ DETONATEB:
                     IFHIT
                     {
                         t[0] = 1; // static
-                        s->cstat = (short)32768;
+                        s->cstat = (int16_t)32768;
                         for (x=0;x<5;x++) RANDOMSCRAP;
                         goto BOLT;
                     }
@@ -4729,7 +4729,7 @@ DETONATEB:
         {
             if (g_noEnemies == 1)
             {
-                s->cstat = (short)32768;
+                s->cstat = (int16_t)32768;
                 goto BOLT;
             }
             else if (g_noEnemies == 2)
@@ -4752,11 +4752,11 @@ BOLT:
 
 static void G_MoveMisc(void)  // STATNUM 5
 {
-    short i, j, nexti, sect, p;
-    int l, x;
+    int16_t i, j, nexti, sect, p;
+    int32_t l, x;
     intptr_t *t;
     spritetype *s;
-    int switchpicnum;
+    int32_t switchpicnum;
 
     i = headspritestat[STAT_MISC];
     while (i >= 0)
@@ -5313,10 +5313,10 @@ BOLT:
 
 static void G_MoveEffectors(void)   //STATNUM 3
 {
-    int q=0,  m, x, st, j;
+    int32_t q=0,  m, x, st, j;
     intptr_t *t,l;
-    int i = headspritestat[STAT_EFFECTOR], nexti, nextk, p, sh, nextj;
-    short k;
+    int32_t i = headspritestat[STAT_EFFECTOR], nexti, nextk, p, sh, nextj;
+    int16_t k;
     spritetype *s;
     sectortype *sc;
     walltype *wal;
@@ -5338,13 +5338,13 @@ static void G_MoveEffectors(void)   //STATNUM 3
         {
         case 0:
         {
-            int zchange = 0;
+            int32_t zchange = 0;
 
             zchange = 0;
 
             j = s->owner;
 
-            if (sprite[j].lotag == (short) 65535)
+            if (sprite[j].lotag == (int16_t) 65535)
                 KILLIT(i);
 
             q = sc->extra>>3;
@@ -5549,7 +5549,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
         case 14:
             if (s->owner==-1)
-                s->owner = A_FindLocator((short)t[3],(short)t[0]);
+                s->owner = A_FindLocator((int16_t)t[3],(int16_t)t[0]);
 
             if (s->owner == -1)
             {
@@ -5758,7 +5758,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     else
                     {
                         s->xvel = 0;
-                        G_OperateActivators(s->hitag+(short)t[3],-1);
+                        G_OperateActivators(s->hitag+(int16_t)t[3],-1);
                         s->owner = -1;
                         s->ang += 1024;
                         t[4] = 0;
@@ -6083,7 +6083,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 l = 0x7fffffff;
                 while (1) //Find the shortest dist
                 {
-                    s->owner = A_FindLocator((short)t[4],-1); //t[0] hold sectnum
+                    s->owner = A_FindLocator((int16_t)t[4],-1); //t[0] hold sectnum
 
                     if (s->owner==-1) break;
 
@@ -6104,7 +6104,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
             if (ldist(&sprite[s->owner],s) < 1024)
             {
-                short ta;
+                int16_t ta;
                 ta = s->ang;
                 s->ang = getangle(g_player[p].ps->posx-s->x,g_player[p].ps->posy-s->y);
                 s->ang = ta;
@@ -6164,7 +6164,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
             if (j >= 0)
             {
-                short sn;
+                int16_t sn;
 
                 if ((sc->lotag&0x8000) || ActorExtra[i].temp_data[4])
                     x = -t[3];
@@ -6220,7 +6220,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
             break;
         case 10:
 
-            if ((sc->lotag&0xff) == 27 || (sc->floorz > sc->ceilingz && (sc->lotag&0xff) != 23) || sc->lotag == (short) 32791)
+            if ((sc->lotag&0xff) == 27 || (sc->floorz > sc->ceilingz && (sc->lotag&0xff) != 23) || sc->lotag == (int16_t) 32791)
             {
                 j = 1;
 
@@ -6261,7 +6261,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
             if (t[4])
             {
-                int endwall = sc->wallptr+sc->wallnum;
+                int32_t endwall = sc->wallptr+sc->wallnum;
 
                 for (j=sc->wallptr;j<endwall;j++)
                 {
@@ -6837,8 +6837,8 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     j = nextj;
                 }
 
-                dragpoint((short)t[1],wall[t[1]].x+x,wall[t[1]].y+l);
-                dragpoint((short)t[2],wall[t[2]].x+x,wall[t[2]].y+l);
+                dragpoint((int16_t)t[1],wall[t[1]].x+x,wall[t[1]].y+l);
+                dragpoint((int16_t)t[2],wall[t[2]].x+x,wall[t[2]].y+l);
 
                 TRAVERSE_CONNECT(p)
                 if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground)
@@ -6872,17 +6872,17 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
             if (t[0] == 1)   //Decide if the s->sectnum should go up or down
             {
-                s->zvel = ksgn(s->z-*(int *)l) * (SP<<4);
+                s->zvel = ksgn(s->z-*(int32_t *)l) * (SP<<4);
                 t[0]++;
             }
 
             if (sc->extra == 0)
             {
-                *(int *)l += s->zvel;
+                *(int32_t *)l += s->zvel;
 
-                if (klabs(*(int *)l-s->z) < 1024)
+                if (klabs(*(int32_t *)l-s->z) < 1024)
                 {
-                    *(int *)l = s->z;
+                    *(int32_t *)l = s->z;
                     KILLIT(i); //All done
                 }
             }
@@ -7115,7 +7115,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 {
                     if (cansee(s->x,s->y,s->z,SECT,g_player[p].ps->posx,g_player[p].ps->posy,g_player[p].ps->posz,g_player[p].ps->cursectnum))
                     {
-                        if (x < (int)((unsigned)sh))
+                        if (x < (int32_t)((unsigned)sh))
                         {
                             ud.camerasprite = i;
                             t[0] = 999;
@@ -7235,7 +7235,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
             break;
         case 29:
             s->hitag += 64;
-            l = mulscale12((int)s->yvel,sintable[s->hitag&2047]);
+            l = mulscale12((int32_t)s->yvel,sintable[s->hitag&2047]);
             sc->floorz = s->z + l;
             break;
         case 31: // True Drop Floor
@@ -7538,7 +7538,7 @@ BOLT:
     }
 }
 
-void A_PlayAlertSound(int i)
+void A_PlayAlertSound(int32_t i)
 {
     if (sprite[i].extra > 0)
         switch (DynamicTileMap[PN])
@@ -7605,19 +7605,19 @@ void A_PlayAlertSound(int i)
 }
 
 
-inline int A_CheckSpriteFlags(int iActor, int iType)
+inline int32_t A_CheckSpriteFlags(int32_t iActor, int32_t iType)
 {
     if ((SpriteFlags[sprite[iActor].picnum]^ActorExtra[iActor].flags) & iType) return 1;
     return 0;
 }
 
-inline int A_CheckSpriteTileFlags(int iPicnum, int iType)
+inline int32_t A_CheckSpriteTileFlags(int32_t iPicnum, int32_t iType)
 {
     if (SpriteFlags[iPicnum] & iType) return 1;
     return 0;
 }
 
-int A_CheckEnemyTile(int pn)
+int32_t A_CheckEnemyTile(int32_t pn)
 {
     //this case can't be handled by the dynamictostatic system because it adds
     //stuff to the value from names.h so handling separately
@@ -7671,14 +7671,14 @@ int A_CheckEnemyTile(int pn)
     return 0;
 }
 
-inline int A_CheckEnemySprite(spritetype *s)
+inline int32_t A_CheckEnemySprite(spritetype *s)
 {
     return(A_CheckEnemyTile(s->picnum));
 }
 
-int A_CheckSwitchTile(int i)
+int32_t A_CheckSwitchTile(int32_t i)
 {
-    int j;
+    int32_t j;
     //MULTISWITCH has 4 states so deal with it separately
     if ((PN >= MULTISWITCH) && (PN <=MULTISWITCH+3)) return 1;
     // ACCESSSWITCH and ACCESSSWITCH2 are only active in 1 state so deal with them separately
@@ -7751,7 +7751,7 @@ void G_MoveWorld(void)
 
     if (apScriptGameEvent[EVENT_GAME])
     {
-        int i, p, j, k = MAXSTATUS-1, pl;
+        int32_t i, p, j, k = MAXSTATUS-1, pl;
 
         do
         {

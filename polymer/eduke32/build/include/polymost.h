@@ -7,15 +7,15 @@
 #define CULL_DELAY 2
 #define MAXCULLCHECKS 1024
 
-extern int lastcullcheck;
+extern int32_t lastcullcheck;
 extern char cullmodel[MAXSPRITES];
-extern int cullcheckcnt;
+extern int32_t cullcheckcnt;
 
 #define PI 3.14159265358979323
 
-typedef struct { unsigned char r, g, b, a; } coltype;
+typedef struct { char r, g, b, a; } coltype;
 
-extern int rendmode;
+extern int32_t rendmode;
 extern float gtang;
 extern float glox1, gloy1;
 extern double gxyaspect, grhalfxdown10x;
@@ -24,34 +24,34 @@ extern double gchang, gshang, gctang, gstang;
 
 struct glfiltermodes {
 	char *name;
-	int min,mag;
+	int32_t min,mag;
 };
 #define numglfiltermodes 6
 extern struct glfiltermodes glfiltermodes[numglfiltermodes];
 
 extern const char *TEXCACHEDIR;
-void phex(unsigned char v, char *s);
-void uploadtexture(int doalloc, int xsiz, int ysiz, int intexfmt, int texfmt, coltype *pic, int tsizx, int tsizy, int dameth);
-void polymost_drawsprite(int snum);
-void polymost_drawmaskwall(int damaskwallcnt);
-void polymost_dorotatesprite(int sx, int sy, int z, short a, short picnum,
-                             signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2, int uniqid);
-void polymost_fillpolygon(int npoints);
+void phex(char v, char *s);
+void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt, int32_t texfmt, coltype *pic, int32_t tsizx, int32_t tsizy, int32_t dameth);
+void polymost_drawsprite(int32_t snum);
+void polymost_drawmaskwall(int32_t damaskwallcnt);
+void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+                             int8_t dashade, char dapalnum, char dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid);
+void polymost_fillpolygon(int32_t npoints);
 void polymost_initosdfuncs(void);
 void polymost_drawrooms(void);
 
 void polymost_glinit(void);
 void polymost_glreset(void);
 
-void gltexinvalidate(int dapicnum, int dapalnum, int dameth);
+void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth);
 void gltexinvalidateall(void);
 void gltexinvalidate8(void);
-int polymost_printext256(int xpos, int ypos, short col, short backcol, char *name, char fontsize);
+int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char *name, char fontsize);
 
 // Depth peeling control
-extern int r_curpeel;
+extern int32_t r_curpeel;
 extern float curpolygonoffset;
-extern int peelcompiling;
+extern int32_t peelcompiling;
 
 // Depth peeling data
 extern GLuint ztexture[3];
@@ -59,15 +59,15 @@ extern GLuint *peels;
 extern GLuint *peelfbos;
 extern GLuint peelprogram[2];
 
-extern int cachefilehandle;
+extern int32_t cachefilehandle;
 extern FILE *cacheindexptr;
 extern HASH_table cacheH;
 
 struct cacheitem_t
 {
     char name[BMAX_PATH];
-    int offset;
-    int len;
+    int32_t offset;
+    int32_t len;
     struct cacheitem_t *next;
 };
 
@@ -76,12 +76,12 @@ typedef struct cacheitem_t texcacheindex;
 extern texcacheindex firstcacheindex;
 extern texcacheindex *curcacheindex;
 extern texcacheindex *cacheptrs[MAXTILES<<2];
-extern int numcacheentries;
+extern int32_t numcacheentries;
 
-int dxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, unsigned int miplen);
-int dedxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int ispacked);
+int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, uint32_t miplen);
+int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int32_t ispacked);
 
-void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *head);
+void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head);
 
 extern float shadescale;
 extern float alphahackarray[MAXTILES];
@@ -89,32 +89,32 @@ extern float alphahackarray[MAXTILES];
 typedef struct pthtyp_t
 {
     struct pthtyp_t *next;
-    unsigned int glpic;
-    short picnum;
+    uint32_t glpic;
+    int16_t picnum;
     char palnum;
     char effects;
     char flags;      // 1 = clamped (dameth&4), 2 = hightile, 4 = skybox face, 8 = hasalpha, 16 = hasfullbright, 128 = invalidated
     char skyface;
     hicreplctyp *hicr;
 
-    unsigned short sizx, sizy;
+    uint16_t sizx, sizy;
     float scalex, scaley;
     struct pthtyp_t *ofb; // only fullbright
 
-    char *palmap;int size;
+    char *palmap;int32_t size;
 } pthtyp;
 
-pthtyp * gltexcache (int dapicnum, int dapalnum, int dameth);
+pthtyp * gltexcache (int32_t dapicnum, int32_t dapalnum, int32_t dameth);
 
 extern palette_t hictinting[MAXPALOOKUPS];
 extern float     gtang;
-extern int globalposx, globalposy, globalposz, globalhoriz;
-extern short globalang, globalcursectnum;
-extern int globalpal, cosglobalang, singlobalang;
-extern int cosviewingrangeglobalang, sinviewingrangeglobalang;
+extern int32_t globalposx, globalposy, globalposz, globalhoriz;
+extern int16_t globalang, globalcursectnum;
+extern int32_t globalpal, cosglobalang, singlobalang;
+extern int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 extern float shadescale;
-extern int globalnoeffect;
-extern int drawingskybox;
+extern int32_t globalnoeffect;
+extern int32_t drawingskybox;
 
 #endif
 

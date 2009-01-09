@@ -53,12 +53,12 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 # define max(a,b) ( ((a) > (b)) ? (a) : (b) )
 #endif
 
-int MUSIC_SoundDevice = -1;
-int MUSIC_ErrorCode = MUSIC_Ok;
+int32_t MUSIC_SoundDevice = -1;
+int32_t MUSIC_ErrorCode = MUSIC_Ok;
 
 static midifuncs MUSIC_MidiFunctions;
 
-int MUSIC_InitMidi(int card, midifuncs *Funcs, int Address);
+int32_t MUSIC_InitMidi(int32_t card, midifuncs *Funcs, int32_t Address);
 
 #define MUSIC_SetErrorCode( status ) \
    MUSIC_ErrorCode = ( status );
@@ -72,7 +72,7 @@ int MUSIC_InitMidi(int card, midifuncs *Funcs, int Address);
 
 char *MUSIC_ErrorString
 (
-    int ErrorNumber
+    int32_t ErrorNumber
 )
 
 {
@@ -131,15 +131,15 @@ char *MUSIC_ErrorString
    Selects which sound device to use.
 ---------------------------------------------------------------------*/
 
-int MUSIC_Init
+int32_t MUSIC_Init
 (
-    int SoundCard,
-    int Address
+    int32_t SoundCard,
+    int32_t Address
 )
 
 {
-    int i;
-    int status;
+    int32_t i;
+    int32_t status;
 
     for (i = 0; i < 128; i++)
     {
@@ -153,7 +153,7 @@ int MUSIC_Init
 #ifdef USE_OPENAL
     if (AL_Init())
     {
-        int i;
+        int32_t i;
 
         // no AL support so shitcan the ogg definitions
         for (i=(MAXLEVELS*(MAXVOLUMES+1))-1;i>=0;i--) // +1 volume for "intro", "briefing" music
@@ -175,13 +175,13 @@ int MUSIC_Init
    Terminates use of sound device.
 ---------------------------------------------------------------------*/
 
-int MUSIC_Shutdown
+int32_t MUSIC_Shutdown
 (
     void
 )
 
 {
-    int status;
+    int32_t status;
 
     status = MUSIC_Ok;
 
@@ -205,7 +205,7 @@ int MUSIC_Shutdown
 
 void MUSIC_SetVolume
 (
-    int volume
+    int32_t volume
 )
 
 {
@@ -229,8 +229,8 @@ void MUSIC_SetVolume
 
 void MUSIC_SetMidiChannelVolume
 (
-    int channel,
-    int volume
+    int32_t channel,
+    int32_t volume
 )
 
 {
@@ -260,7 +260,7 @@ void MUSIC_ResetMidiChannelVolumes
    Returns the volume of music playback.
 ---------------------------------------------------------------------*/
 
-int MUSIC_GetVolume
+int32_t MUSIC_GetVolume
 (
     void
 )
@@ -283,7 +283,7 @@ int MUSIC_GetVolume
 
 void MUSIC_SetLoopFlag
 (
-    int loopflag
+    int32_t loopflag
 )
 
 {
@@ -297,7 +297,7 @@ void MUSIC_SetLoopFlag
    Returns whether there is a song playing.
 ---------------------------------------------------------------------*/
 
-int MUSIC_SongPlaying
+int32_t MUSIC_SongPlaying
 (
     void
 )
@@ -351,7 +351,7 @@ void MUSIC_Pause
    Stops playback of current song.
 ---------------------------------------------------------------------*/
 
-int MUSIC_StopSong
+int32_t MUSIC_StopSong
 (
     void
 )
@@ -373,14 +373,14 @@ int MUSIC_StopSong
    Begins playback of MIDI song.
 ---------------------------------------------------------------------*/
 
-int MUSIC_PlaySong
+int32_t MUSIC_PlaySong
 (
-    unsigned char *song,
-    int loopflag
+    char *song,
+    int32_t loopflag
 )
 
 {
-    int status;
+    int32_t status;
 
 #ifdef USE_OPENAL
     AL_PlaySong((char *)song,loopflag);
@@ -409,7 +409,7 @@ int MUSIC_PlaySong
 
 void MUSIC_SetContext
 (
-    int context
+    int32_t context
 )
 
 {
@@ -423,7 +423,7 @@ void MUSIC_SetContext
    Returns the current song context.
 ---------------------------------------------------------------------*/
 
-int MUSIC_GetContext
+int32_t MUSIC_GetContext
 (
     void
 )
@@ -441,7 +441,7 @@ int MUSIC_GetContext
 
 void MUSIC_SetSongTick
 (
-    unsigned int PositionInTicks
+    uint32_t PositionInTicks
 )
 
 {
@@ -457,7 +457,7 @@ void MUSIC_SetSongTick
 
 void MUSIC_SetSongTime
 (
-    unsigned int milliseconds
+    uint32_t milliseconds
 )
 
 {
@@ -473,9 +473,9 @@ void MUSIC_SetSongTime
 
 void MUSIC_SetSongPosition
 (
-    int measure,
-    int beat,
-    int tick
+    int32_t measure,
+    int32_t beat,
+    int32_t tick
 )
 
 {
@@ -515,11 +515,11 @@ void MUSIC_GetSongLength
 }
 
 
-int MUSIC_InitMidi
+int32_t MUSIC_InitMidi
 (
-    int        card,
+    int32_t        card,
     midifuncs *Funcs,
-    int        Address
+    int32_t        Address
 )
 
 {
@@ -550,10 +550,10 @@ int MUSIC_InitMidi
    period of time.
 ---------------------------------------------------------------------*/
 
-int MUSIC_FadeVolume
+int32_t MUSIC_FadeVolume
 (
-    int tovolume,
-    int milliseconds
+    int32_t tovolume,
+    int32_t milliseconds
 )
 
 {
@@ -569,7 +569,7 @@ int MUSIC_FadeVolume
    Returns whether the fade routine is active.
 ---------------------------------------------------------------------*/
 
-int MUSIC_FadeActive
+int32_t MUSIC_FadeActive
 (
     void
 )
@@ -602,8 +602,8 @@ void MUSIC_StopFade
 
 void MUSIC_RerouteMidiChannel
 (
-    int channel,
-    int(*function)(int event, int c1, int c2)
+    int32_t channel,
+    int32_t(*function)(int32_t event, int32_t c1, int32_t c2)
 )
 
 {
@@ -619,7 +619,7 @@ void MUSIC_RerouteMidiChannel
 
 void MUSIC_RegisterTimbreBank
 (
-    unsigned char *timbres
+    char *timbres
 )
 
 {

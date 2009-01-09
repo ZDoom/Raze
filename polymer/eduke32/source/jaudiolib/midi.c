@@ -41,18 +41,18 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-extern int MUSIC_SoundDevice;
+extern int32_t MUSIC_SoundDevice;
 
-static const int _MIDI_CommandLengths[ NUM_MIDI_CHANNELS ] =
+static const int32_t _MIDI_CommandLengths[ NUM_MIDI_CHANNELS ] =
 {
     0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 1, 2, 0
 };
 
-static int(*_MIDI_RerouteFunctions[ NUM_MIDI_CHANNELS ])
+static int32_t(*_MIDI_RerouteFunctions[ NUM_MIDI_CHANNELS ])
 (
-    int event,
-    int c1,
-    int c2
+    int32_t event,
+    int32_t c1,
+    int32_t c2
 ) =
 {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -60,37 +60,37 @@ static int(*_MIDI_RerouteFunctions[ NUM_MIDI_CHANNELS ])
 };
 
 static track *_MIDI_TrackPtr = NULL;
-static int    _MIDI_TrackMemSize;
-static int    _MIDI_NumTracks;
+static int32_t    _MIDI_TrackMemSize;
+static int32_t    _MIDI_NumTracks;
 
-static int _MIDI_SongActive = FALSE;
-static int _MIDI_SongLoaded = FALSE;
-static int _MIDI_Loop = FALSE;
+static int32_t _MIDI_SongActive = FALSE;
+static int32_t _MIDI_SongLoaded = FALSE;
+static int32_t _MIDI_Loop = FALSE;
 
-static int  _MIDI_Division;
-static int  _MIDI_Tick    = 0;
-static int  _MIDI_Beat    = 1;
-static int  _MIDI_Measure = 1;
+static int32_t  _MIDI_Division;
+static int32_t  _MIDI_Tick    = 0;
+static int32_t  _MIDI_Beat    = 1;
+static int32_t  _MIDI_Measure = 1;
 static unsigned _MIDI_Time;
-static int  _MIDI_BeatsPerMeasure;
-static int  _MIDI_TicksPerBeat;
-static int  _MIDI_TimeBase;
-static int _MIDI_FPSecondsPerTick;
+static int32_t  _MIDI_BeatsPerMeasure;
+static int32_t  _MIDI_TicksPerBeat;
+static int32_t  _MIDI_TimeBase;
+static int32_t _MIDI_FPSecondsPerTick;
 static unsigned _MIDI_TotalTime;
-static int  _MIDI_TotalTicks;
-static int  _MIDI_TotalBeats;
-static int  _MIDI_TotalMeasures;
+static int32_t  _MIDI_TotalTicks;
+static int32_t  _MIDI_TotalBeats;
+static int32_t  _MIDI_TotalMeasures;
 
-unsigned int _MIDI_PositionInTicks;
-unsigned int _MIDI_GlobalPositionInTicks;
+uint32_t _MIDI_PositionInTicks;
+uint32_t _MIDI_GlobalPositionInTicks;
 
-static int  _MIDI_Context;
+static int32_t  _MIDI_Context;
 
-static int _MIDI_ActiveTracks;
-static int _MIDI_TotalVolume = MIDI_MaxVolume;
+static int32_t _MIDI_ActiveTracks;
+static int32_t _MIDI_TotalVolume = MIDI_MaxVolume;
 
-static int _MIDI_ChannelVolume[ NUM_MIDI_CHANNELS ];
-static int _MIDI_UserChannelVolume[ NUM_MIDI_CHANNELS ] =
+static int32_t _MIDI_ChannelVolume[ NUM_MIDI_CHANNELS ];
+static int32_t _MIDI_UserChannelVolume[ NUM_MIDI_CHANNELS ] =
 {
     256, 256, 256, 256, 256, 256, 256, 256,
     256, 256, 256, 256, 256, 256, 256, 256
@@ -98,9 +98,9 @@ static int _MIDI_UserChannelVolume[ NUM_MIDI_CHANNELS ] =
 
 static midifuncs *_MIDI_Funcs = NULL;
 
-static int Reset = FALSE;
+static int32_t Reset = FALSE;
 
-int MIDI_Tempo = 120;
+int32_t MIDI_Tempo = 120;
 
 char MIDI_PatchMap[ 128 ];
 
@@ -118,22 +118,22 @@ char MIDI_PatchMap[ 128 ];
    Reads a variable length number from a MIDI track.
 ---------------------------------------------------------------------*/
 
-static int _MIDI_ReadNumber
+static int32_t _MIDI_ReadNumber
 (
     void *from,
     size_t size
 )
 
 {
-    unsigned char *FromPtr;
-    int          value;
+    char *FromPtr;
+    int32_t          value;
 
     if (size > 4)
     {
         size = 4;
     }
 
-    FromPtr = (unsigned char *)from;
+    FromPtr = (char *)from;
 
     value = 0;
     while (size--)
@@ -152,14 +152,14 @@ static int _MIDI_ReadNumber
    Reads a variable length encoded delta delay time from the MIDI data.
 ---------------------------------------------------------------------*/
 
-static int _MIDI_ReadDelta
+static int32_t _MIDI_ReadDelta
 (
     track *ptr
 )
 
 {
-    int          value;
-    unsigned char c;
+    int32_t          value;
+    char c;
 
     GET_NEXT_EVENT(ptr, value);
 
@@ -190,7 +190,7 @@ static void _MIDI_ResetTracks
 )
 
 {
-    int    i;
+    int32_t    i;
     track *ptr;
 
     _MIDI_Tick = 0;
@@ -268,7 +268,7 @@ static void _MIDI_SysEx
 )
 
 {
-    int length;
+    int32_t length;
 
     length = _MIDI_ReadDelta(Track);
     Track->pos += length;
@@ -287,10 +287,10 @@ static void _MIDI_MetaEvent
 )
 
 {
-    int   command;
-    int   length;
-    int   denominator;
-    int  tempo;
+    int32_t   command;
+    int32_t   length;
+    int32_t   denominator;
+    int32_t  tempo;
 
     GET_NEXT_EVENT(Track, command);
     GET_NEXT_EVENT(Track, length);
@@ -317,8 +317,8 @@ static void _MIDI_MetaEvent
         _MIDI_Tick = 0;
         _MIDI_Beat = 1;
 
-        _MIDI_BeatsPerMeasure = (int)*Track->pos;
-        denominator = (int)*(Track->pos + 1);
+        _MIDI_BeatsPerMeasure = (int32_t)*Track->pos;
+        denominator = (int32_t)*(Track->pos + 1);
         _MIDI_TimeBase = 1;
         while (denominator > 0)
         {
@@ -339,19 +339,19 @@ static void _MIDI_MetaEvent
    Interprets the MIDI controller info.
 ---------------------------------------------------------------------*/
 
-static int _MIDI_InterpretControllerInfo
+static int32_t _MIDI_InterpretControllerInfo
 (
     track *Track,
-    int   TimeSet,
-    int   channel,
-    int   c1,
-    int   c2
+    int32_t   TimeSet,
+    int32_t   channel,
+    int32_t   c1,
+    int32_t   c2
 )
 
 {
     track *trackptr;
-    int tracknum;
-    int loopcount;
+    int32_t tracknum;
+    int32_t loopcount;
 
     switch (c1)
     {
@@ -533,17 +533,17 @@ static int _MIDI_InterpretControllerInfo
    Task that interperates the MIDI data.
 ---------------------------------------------------------------------*/
 
-static int _MIDI_ServiceRoutine(void)
+static int32_t _MIDI_ServiceRoutine(void)
 {
-    int   event;
-    int   channel;
-    int   command;
+    int32_t   event;
+    int32_t   channel;
+    int32_t   command;
     track *Track;
-    int   tracknum;
-    int   status;
-    int   c1 = 0;
-    int   c2 = 0;
-    int   TimeSet = FALSE;
+    int32_t   tracknum;
+    int32_t   status;
+    int32_t   c1 = 0;
+    int32_t   c2 = 0;
+    int32_t   TimeSet = FALSE;
 
     if (_MIDI_SongActive)
     {
@@ -697,15 +697,15 @@ static int _MIDI_ServiceRoutine(void)
    Sends a control change to the proper device
 ---------------------------------------------------------------------*/
 
-static int _MIDI_SendControlChange
+static int32_t _MIDI_SendControlChange
 (
-    int channel,
-    int c1,
-    int c2
+    int32_t channel,
+    int32_t c1,
+    int32_t c2
 )
 
 {
-    int status;
+    int32_t status;
 
     if (_MIDI_RerouteFunctions[ channel ] != NULL)
     {
@@ -742,8 +742,8 @@ static int _MIDI_SendControlChange
 
 void MIDI_RerouteMidiChannel
 (
-    int channel,
-    int(*function)(int event, int c1, int c2)
+    int32_t channel,
+    int32_t(*function)(int32_t event, int32_t c1, int32_t c2)
 )
 
 {
@@ -760,13 +760,13 @@ void MIDI_RerouteMidiChannel
    Sends all notes off commands on all midi channels.
 ---------------------------------------------------------------------*/
 
-int MIDI_AllNotesOff
+int32_t MIDI_AllNotesOff
 (
     void
 )
 
 {
-    int channel;
+    int32_t channel;
 
     for (channel = 0; channel < NUM_MIDI_CHANNELS; channel++)
     {
@@ -787,13 +787,13 @@ int MIDI_AllNotesOff
 
 static void _MIDI_SetChannelVolume
 (
-    int channel,
-    int volume
+    int32_t channel,
+    int32_t volume
 )
 
 {
-    int status;
-    int remotevolume;
+    int32_t status;
+    int32_t remotevolume;
 
     _MIDI_ChannelVolume[ channel ] = volume;
 
@@ -846,8 +846,8 @@ static void _MIDI_SetChannelVolume
 
 void MIDI_SetUserChannelVolume
 (
-    int channel,
-    int volume
+    int32_t channel,
+    int32_t volume
 )
 
 {
@@ -877,7 +877,7 @@ void MIDI_ResetUserChannelVolume
 )
 
 {
-    int channel;
+    int32_t channel;
 
     for (channel = 0; channel < NUM_MIDI_CHANNELS; channel++)
     {
@@ -900,7 +900,7 @@ static void _MIDI_SendChannelVolumes
 )
 
 {
-    int channel;
+    int32_t channel;
 
     for (channel = 0; channel < NUM_MIDI_CHANNELS; channel++)
     {
@@ -915,13 +915,13 @@ static void _MIDI_SendChannelVolumes
    Resets the MIDI device to General Midi defaults.
 ---------------------------------------------------------------------*/
 
-int MIDI_Reset
+int32_t MIDI_Reset
 (
     void
 )
 
 {
-    int channel;
+    int32_t channel;
 
     MIDI_AllNotesOff();
 
@@ -949,13 +949,13 @@ int MIDI_Reset
    Sets the total volume of the music.
 ---------------------------------------------------------------------*/
 
-int MIDI_SetVolume
+int32_t MIDI_SetVolume
 (
-    int volume
+    int32_t volume
 )
 
 {
-    int i;
+    int32_t i;
 
     if (_MIDI_Funcs == NULL)
     {
@@ -994,13 +994,13 @@ int MIDI_SetVolume
    Returns the total volume of the music.
 ---------------------------------------------------------------------*/
 
-int MIDI_GetVolume
+int32_t MIDI_GetVolume
 (
     void
 )
 
 {
-    int volume;
+    int32_t volume;
 
     if (_MIDI_Funcs == NULL)
     {
@@ -1028,7 +1028,7 @@ int MIDI_GetVolume
 
 void MIDI_SetContext
 (
-    int context
+    int32_t context
 )
 
 {
@@ -1045,7 +1045,7 @@ void MIDI_SetContext
    Returns the current song context.
 ---------------------------------------------------------------------*/
 
-int MIDI_GetContext
+int32_t MIDI_GetContext
 (
     void
 )
@@ -1063,7 +1063,7 @@ int MIDI_GetContext
 
 void MIDI_SetLoopFlag
 (
-    int loopflag
+    int32_t loopflag
 )
 
 {
@@ -1118,7 +1118,7 @@ void MIDI_PauseSong
    Returns whether a song is playing or not.
 ---------------------------------------------------------------------*/
 
-int MIDI_SongPlaying
+int32_t MIDI_SongPlaying
 (
     void
 )
@@ -1191,19 +1191,19 @@ void MIDI_StopSong
    Begins playback of a MIDI song.
 ---------------------------------------------------------------------*/
 
-int MIDI_PlaySong
+int32_t MIDI_PlaySong
 (
-    unsigned char *song,
-    int loopflag
+    char *song,
+    int32_t loopflag
 )
 
 {
-    int    numtracks;
-    int    format;
-    int   headersize;
-    int   tracklength;
+    int32_t    numtracks;
+    int32_t    format;
+    int32_t   headersize;
+    int32_t   tracklength;
     track *CurrentTrack;
-    unsigned char *ptr;
+    char *ptr;
 
     if (_MIDI_SongLoaded)
     {
@@ -1219,7 +1219,7 @@ int MIDI_PlaySong
         return(MIDI_NullMidiModule);
     }
 
-    if (*(unsigned int *)song != MIDI_HEADER_SIGNATURE)
+    if (*(uint32_t *)song != MIDI_HEADER_SIGNATURE)
     {
         return(MIDI_InvalidMidiFile);
     }
@@ -1260,7 +1260,7 @@ int MIDI_PlaySong
     numtracks    = _MIDI_NumTracks;
     while (numtracks--)
     {
-        if (*(unsigned int *)ptr != MIDI_TRACK_SIGNATURE)
+        if (*(uint32_t *)ptr != MIDI_TRACK_SIGNATURE)
         {
             Bfree(_MIDI_TrackPtr);
 
@@ -1319,11 +1319,11 @@ int MIDI_PlaySong
 
 void MIDI_SetTempo
 (
-    int tempo
+    int32_t tempo
 )
 
 {
-    int tickspersecond;
+    int32_t tickspersecond;
 
     MIDI_Tempo = tempo;
     tickspersecond = ((tempo) * _MIDI_Division) / 60;
@@ -1331,7 +1331,7 @@ void MIDI_SetTempo
     MPU_SetTempo(tempo);
 }
 
-void MIDI_SetDivision(int division)
+void MIDI_SetDivision(int32_t division)
 {
     MPU_SetDivision(division);
 }
@@ -1343,7 +1343,7 @@ void MIDI_SetDivision(int division)
    Returns the song tempo.
 ---------------------------------------------------------------------*/
 
-int MIDI_GetTempo
+int32_t MIDI_GetTempo
 (
     void
 )
@@ -1359,21 +1359,21 @@ int MIDI_GetTempo
    Sets the position of the song pointer.
 ---------------------------------------------------------------------*/
 
-static int _MIDI_ProcessNextTick
+static int32_t _MIDI_ProcessNextTick
 (
     void
 )
 
 {
-    int   event;
-    int   channel;
-    int   command;
+    int32_t   event;
+    int32_t   channel;
+    int32_t   command;
     track *Track;
-    int   tracknum;
-    int   status;
-    int   c1 = 0;
-    int   c2 = 0;
-    int   TimeSet = FALSE;
+    int32_t   tracknum;
+    int32_t   status;
+    int32_t   c1 = 0;
+    int32_t   c2 = 0;
+    int32_t   TimeSet = FALSE;
 
     Track = _MIDI_TrackPtr;
     tracknum = 0;
@@ -1511,7 +1511,7 @@ static int _MIDI_ProcessNextTick
 
 void MIDI_SetSongTick
 (
-    unsigned int PositionInTicks
+    uint32_t PositionInTicks
 )
 
 {
@@ -1558,13 +1558,13 @@ void MIDI_SetSongTick
 
 void MIDI_SetSongTime
 (
-    unsigned int milliseconds
+    uint32_t milliseconds
 )
 
 {
-    unsigned int mil;
-    unsigned int sec;
-    unsigned int newtime;
+    uint32_t mil;
+    uint32_t sec;
+    uint32_t newtime;
 
     if (!_MIDI_SongLoaded)
     {
@@ -1613,13 +1613,13 @@ void MIDI_SetSongTime
 
 void MIDI_SetSongPosition
 (
-    int measure,
-    int beat,
-    int tick
+    int32_t measure,
+    int32_t beat,
+    int32_t tick
 )
 
 {
-    unsigned int pos;
+    uint32_t pos;
 
     if (!_MIDI_SongLoaded)
     {
@@ -1630,13 +1630,13 @@ void MIDI_SetSongPosition
 
     pos = RELATIVE_BEAT(measure, beat, tick);
 
-    if (pos < (unsigned int)RELATIVE_BEAT(_MIDI_Measure, _MIDI_Beat, _MIDI_Tick))
+    if (pos < (uint32_t)RELATIVE_BEAT(_MIDI_Measure, _MIDI_Beat, _MIDI_Tick))
     {
         _MIDI_ResetTracks();
         MIDI_Reset();
     }
 
-    while ((unsigned int)RELATIVE_BEAT(_MIDI_Measure, _MIDI_Beat, _MIDI_Tick) < pos)
+    while ((uint32_t)RELATIVE_BEAT(_MIDI_Measure, _MIDI_Beat, _MIDI_Tick) < pos)
     {
         if (_MIDI_ProcessNextTick())
         {
@@ -1670,8 +1670,8 @@ void MIDI_GetSongPosition
 )
 
 {
-    unsigned int mil;
-    unsigned int sec;
+    uint32_t mil;
+    uint32_t sec;
 
     mil = (_MIDI_Time & ((1 << TIME_PRECISION) - 1)) * 1000;
     sec = _MIDI_Time >> TIME_PRECISION;
@@ -1695,8 +1695,8 @@ void MIDI_GetSongLength
 )
 
 {
-    unsigned int mil;
-    unsigned int sec;
+    uint32_t mil;
+    uint32_t sec;
 
     mil = (_MIDI_TotalTime & ((1 << TIME_PRECISION) - 1)) * 1000;
     sec = _MIDI_TotalTime >> TIME_PRECISION;
@@ -1721,16 +1721,16 @@ static void _MIDI_InitEMIDI
 )
 
 {
-    int    event;
-    int    command;
-    int    channel;
-    int    length;
-    int    IncludeFound;
+    int32_t    event;
+    int32_t    command;
+    int32_t    channel;
+    int32_t    length;
+    int32_t    IncludeFound;
     track *Track;
-    int    tracknum;
-    int    type;
-    int    c1;
-    int    c2;
+    int32_t    tracknum;
+    int32_t    type;
+    int32_t    c1;
+    int32_t    c2;
 
     type = EMIDI_GeneralMIDI;
 
@@ -1961,13 +1961,13 @@ void MIDI_LoadTimbres
 )
 
 {
-    int    event;
-    int    command;
-    int    channel;
-    int    length;
-    int    Finished;
+    int32_t    event;
+    int32_t    command;
+    int32_t    channel;
+    int32_t    length;
+    int32_t    Finished;
     track *Track;
-    int    tracknum;
+    int32_t    tracknum;
 
     Track = _MIDI_TrackPtr;
     tracknum = 0;

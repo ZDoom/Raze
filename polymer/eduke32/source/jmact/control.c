@@ -54,10 +54,10 @@ static boolean CONTROL_Started = false;
 static int32 ticrate;
 static int32 CONTROL_DoubleClickSpeed;
 
-int extinput[CONTROL_NUM_FLAGS];
+int32_t extinput[CONTROL_NUM_FLAGS];
 keybind boundkeys[MAXBOUNDKEYS], mousebind[MAXMOUSEBUTTONS];
-int bindsenabled = 0;
-int control_smoothmouse = 0;
+int32_t bindsenabled = 0;
+int32_t control_smoothmouse = 0;
 
 void CONTROL_GetMouseDelta(void)
 {
@@ -517,7 +517,7 @@ void CONTROL_GetDeviceButtons(void)
         if (joynumhats > 0 && joyhat[0] != -1)
         {
             static int32 hatstate[] = { 1, 1|2, 2, 2|4, 4, 4|8, 8, 8|1 };
-            int val;
+            int32_t val;
 
             // thanks SDL for this much more sensible method
             val = ((joyhat[0] + 4500 / 2) % 36000) / 4500;
@@ -863,7 +863,7 @@ void CONTROL_ProcessBinds(void)
     if (!bindsenabled) return;
 
     {
-        int i=MAXBOUNDKEYS-1;
+        int32_t i=MAXBOUNDKEYS-1;
 
         do
         {

@@ -29,14 +29,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define _gamevars_c_
 #include "gamestructures.c"
 
-extern int OSD_errors;
+extern int32_t OSD_errors;
 
 void Gv_RefreshPointers(void);
-extern void G_FreeMapState(int mapnum);
+extern void G_FreeMapState(int32_t mapnum);
 static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
 {
     // call this function as many times as needed.
-    int i=(MAXGAMEVARS-1);
+    int32_t i=(MAXGAMEVARS-1);
     //  AddLog("Gv_Free");
     for (;i>=0;i--)
     {
@@ -62,7 +62,7 @@ static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
 static void Gv_Clear(void)
 {
     // only call this function ONCE...
-    int i=(MAXGAMEVARS-1);
+    int32_t i=(MAXGAMEVARS-1);
 
     //AddLog("Gv_Clear");
 
@@ -97,9 +97,9 @@ static void Gv_Clear(void)
     return;
 }
 
-int Gv_ReadSave(int fil)
+int32_t Gv_ReadSave(int32_t fil)
 {
-    int i, j;
+    int32_t i, j;
     intptr_t l;
     char savedstate[MAXVOLUMES*MAXLEVELS];
 
@@ -116,8 +116,8 @@ int Gv_ReadSave(int fil)
     for (i=0;i<g_gameVarCount;i++)
     {
         if (kdfread(&(aGameVars[i]),sizeof(gamevar_t),1,fil) != 1) goto corrupt;
-        aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
-        if (kdfread(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil) != 1) goto corrupt;
+        aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(uint8_t));
+        if (kdfread(aGameVars[i].szLabel,sizeof(uint8_t) * MAXVARLABEL, 1, fil) != 1) goto corrupt;
         HASH_replace(&gamevarH,aGameVars[i].szLabel,i);
 
         if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
@@ -144,8 +144,8 @@ int Gv_ReadSave(int fil)
     for (i=0;i<g_gameArrayCount;i++)
     {
         if (kdfread(&(aGameArrays[i]),sizeof(gamearray_t),1,fil) != 1) goto corrupt;
-        aGameArrays[i].szLabel=Bcalloc(MAXARRAYLABEL,sizeof(char));
-        if (kdfread(aGameArrays[i].szLabel,sizeof(char) * MAXARRAYLABEL, 1, fil) != 1) goto corrupt;
+        aGameArrays[i].szLabel=Bcalloc(MAXARRAYLABEL,sizeof(uint8_t));
+        if (kdfread(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil) != 1) goto corrupt;
         HASH_replace(&arrayH,aGameArrays[i].szLabel,i);
 
         aGameArrays[i].plValues=Bcalloc(aGameArrays[i].size,sizeof(intptr_t));
@@ -222,7 +222,7 @@ corrupt:
 
 void Gv_WriteSave(FILE *fil)
 {
-    int i, j;
+    int32_t i, j;
     intptr_t l;
     char savedstate[MAXVOLUMES*MAXLEVELS];
 
@@ -234,17 +234,17 @@ void Gv_WriteSave(FILE *fil)
     for (i=0;i<g_gameVarCount;i++)
     {
         dfwrite(&(aGameVars[i]),sizeof(gamevar_t),1,fil);
-        dfwrite(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil);
+        dfwrite(aGameVars[i].szLabel,sizeof(uint8_t) * MAXVARLABEL, 1, fil);
 
         if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
         {
-            //Bsprintf(g_szBuf,"Writing value array for %s (%d)",aGameVars[i].szLabel,sizeof(int) * MAXPLAYERS);
+            //Bsprintf(g_szBuf,"Writing value array for %s (%d)",aGameVars[i].szLabel,sizeof(int32_t) * MAXPLAYERS);
             //AddLog(g_szBuf);
             dfwrite(aGameVars[i].val.plValues,sizeof(intptr_t) * MAXPLAYERS, 1, fil);
         }
         else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
         {
-            //Bsprintf(g_szBuf,"Writing value array for %s (%d)",aGameVars[i].szLabel,sizeof(int) * MAXSPRITES);
+            //Bsprintf(g_szBuf,"Writing value array for %s (%d)",aGameVars[i].szLabel,sizeof(int32_t) * MAXSPRITES);
             //AddLog(g_szBuf);
             dfwrite(&aGameVars[i].val.plValues[0],sizeof(intptr_t), MAXSPRITES, fil);
         }
@@ -255,7 +255,7 @@ void Gv_WriteSave(FILE *fil)
     for (i=0;i<g_gameArrayCount;i++)
     {
         dfwrite(&(aGameArrays[i]),sizeof(gamearray_t),1,fil);
-        dfwrite(aGameArrays[i].szLabel,sizeof(char) * MAXARRAYLABEL, 1, fil);
+        dfwrite(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil);
         dfwrite(aGameArrays[i].plValues,sizeof(intptr_t) * aGameArrays[i].size, 1, fil);
     }
 
@@ -305,7 +305,7 @@ void Gv_WriteSave(FILE *fil)
 
 void Gv_DumpValues(FILE *fp)
 {
-    int i;
+    int32_t i;
 
     if (!fp)
         return;
@@ -320,9 +320,9 @@ void Gv_DumpValues(FILE *fp)
         fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
 
         if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR))
-            fprintf(fp,"%d",*((int*)aGameVars[i].val.lValue));
+            fprintf(fp,"%d",*((int32_t*)aGameVars[i].val.lValue));
         else if (aGameVars[i].dwFlags & (GAMEVAR_SHORTPTR))
-            fprintf(fp,"%d",*((short*)aGameVars[i].val.lValue));
+            fprintf(fp,"%d",*((int16_t*)aGameVars[i].val.lValue));
         else if (aGameVars[i].dwFlags & (GAMEVAR_CHARPTR))
             fprintf(fp,"%d",*((char*)aGameVars[i].val.lValue));
         else
@@ -347,7 +347,7 @@ void Gv_DumpValues(FILE *fp)
 
 void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
 {
-    int i;
+    int32_t i;
 
     Gv_Free();
     OSD_errors=0;
@@ -365,9 +365,9 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
     }
 }
 
-int Gv_NewArray(const char *pszLabel, int asize)
+int32_t Gv_NewArray(const char *pszLabel, int32_t asize)
 {
-    int i;
+    int32_t i;
 
     if (g_gameArrayCount >= MAXGAMEARRAYS)
     {
@@ -396,7 +396,7 @@ int Gv_NewArray(const char *pszLabel, int asize)
     i = g_gameArrayCount;
 
     if (aGameArrays[i].szLabel == NULL)
-        aGameArrays[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
+        aGameArrays[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(uint8_t));
     if (aGameArrays[i].szLabel != pszLabel)
         Bstrcpy(aGameArrays[i].szLabel,pszLabel);
     aGameArrays[i].plValues=Bcalloc(asize,sizeof(intptr_t));
@@ -407,9 +407,9 @@ int Gv_NewArray(const char *pszLabel, int asize)
     return 1;
 }
 
-int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags)
+int32_t Gv_NewVar(const char *pszLabel, int32_t lValue, uint32_t dwFlags)
 {
-    int i, j;
+    int32_t i, j;
 
     //Bsprintf(g_szBuf,"Gv_NewVar(%s, %d, %X)",pszLabel, lValue, dwFlags);
     //AddLog(g_szBuf);
@@ -459,7 +459,7 @@ int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags)
     if ((aGameVars[i].dwFlags & GAMEVAR_SYSTEM) == 0)
     {
         if (aGameVars[i].szLabel == NULL)
-            aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
+            aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(uint8_t));
         if (aGameVars[i].szLabel != pszLabel)
             Bstrcpy(aGameVars[i].szLabel,pszLabel);
         aGameVars[i].dwFlags=dwFlags;
@@ -502,17 +502,17 @@ int Gv_NewVar(const char *pszLabel, int lValue, unsigned int dwFlags)
     return 1;
 }
 
-void A_ResetVars(int iActor)
+void A_ResetVars(int32_t iActor)
 {
-    int i=(MAXGAMEVARS-1);
+    int32_t i=(MAXGAMEVARS-1);
     for (;i>=0;i--)
         if ((aGameVars[i].dwFlags & GAMEVAR_PERACTOR) && !(aGameVars[i].dwFlags & GAMEVAR_NODEFAULT))
             aGameVars[i].val.plValues[iActor]=aGameVars[i].lDefault;
 }
 
-static int Gv_GetVarIndex(const char *szGameLabel)
+static int32_t Gv_GetVarIndex(const char *szGameLabel)
 {
-    int i = HASH_find(&gamevarH,szGameLabel);
+    int32_t i = HASH_find(&gamevarH,szGameLabel);
     if (i == -1)
     {
         OSD_Printf(OSD_ERROR "Gv_GetVarDataPtr(): INTERNAL ERROR: couldn't find gamevar %s!\n",szGameLabel);
@@ -521,7 +521,7 @@ static int Gv_GetVarIndex(const char *szGameLabel)
     return i;
 }
 
-int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
+int32_t __fastcall Gv_GetVar(int32_t id, int32_t iActor, int32_t iPlayer)
 {
     if (id == MAXGAMEVARS)
         return(*insptr++);
@@ -530,13 +530,13 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
         return iActor;
 
     {
-        int negateResult = 0;
+        int32_t negateResult = 0;
 
         if (id >= g_gameVarCount || id < 0)
         {
             if (id&(MAXGAMEVARS<<2)) // array
             {
-                int index=Gv_GetVar(*insptr++,iActor,iPlayer);
+                int32_t index=Gv_GetVar(*insptr++,iActor,iPlayer);
 
                 if (id&(MAXGAMEVARS<<1)) // negative array access
                     negateResult = 1;
@@ -553,7 +553,7 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
 
             if (id&(MAXGAMEVARS<<3)) // struct shortcut vars
             {
-                int index=Gv_GetVar(*insptr++, iActor, iPlayer), label=*insptr++;
+                int32_t index=Gv_GetVar(*insptr++, iActor, iPlayer), label=*insptr++;
 
                 if (id&(MAXGAMEVARS<<1)) // negative array access
                     negateResult = 1;
@@ -562,7 +562,7 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
 
                 if (id == g_iSpriteVarID)
                 {
-                    int parm2 = 0;
+                    int32_t parm2 = 0;
 
                     if (ActorLabels[label].flags & LABEL_HASPARM2)
                         parm2 = Gv_GetVar(*insptr++, iActor, iPlayer);
@@ -577,7 +577,7 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
                 }
                 if (id == g_iPlayerVarID)
                 {
-                    int parm2 = 0;
+                    int32_t parm2 = 0;
 
                     if (PlayerLabels[label].flags & LABEL_HASPARM2)
                         parm2 = Gv_GetVar(*insptr++, iActor, iPlayer);
@@ -647,11 +647,11 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
             if (negateResult) return (-aGameVars[id].val.plValues[iActor]);
             return (aGameVars[id].val.plValues[iActor]);
         case GAMEVAR_INTPTR:
-            if (negateResult) return (-(*((int*)aGameVars[id].val.lValue)));
-            return ((*((int*)aGameVars[id].val.lValue)));
+            if (negateResult) return (-(*((int32_t*)aGameVars[id].val.lValue)));
+            return ((*((int32_t*)aGameVars[id].val.lValue)));
         case GAMEVAR_SHORTPTR:
-            if (negateResult) return (-(*((short*)aGameVars[id].val.lValue)));
-            return ((*((short*)aGameVars[id].val.lValue)));
+            if (negateResult) return (-(*((int16_t*)aGameVars[id].val.lValue)));
+            return ((*((int16_t*)aGameVars[id].val.lValue)));
         case GAMEVAR_CHARPTR:
             if (negateResult) return (-(*((char*)aGameVars[id].val.lValue)));
             return ((*((char*)aGameVars[id].val.lValue)));
@@ -660,7 +660,7 @@ int __fastcall Gv_GetVar(int id, int iActor, int iPlayer)
     }
 }
 
-void __fastcall Gv_SetVar(int id, int lValue, int iActor, int iPlayer)
+void __fastcall Gv_SetVar(int32_t id, int32_t lValue, int32_t iActor, int32_t iPlayer)
 {
     if (id<0 || id >= g_gameVarCount)
     {
@@ -695,18 +695,18 @@ void __fastcall Gv_SetVar(int id, int lValue, int iActor, int iPlayer)
         aGameVars[id].val.plValues[iActor]=lValue;
         return;
     case GAMEVAR_INTPTR:
-        *((int*)aGameVars[id].val.lValue)=(int)lValue;
+        *((int32_t*)aGameVars[id].val.lValue)=(int32_t)lValue;
         return;
     case GAMEVAR_SHORTPTR:
-        *((short*)aGameVars[id].val.lValue)=(short)lValue;
+        *((int16_t*)aGameVars[id].val.lValue)=(int16_t)lValue;
         return;
     case GAMEVAR_CHARPTR:
-        *((char*)aGameVars[id].val.lValue)=(char)lValue;
+        *((char*)aGameVars[id].val.lValue)=(uint8_t)lValue;
         return;
     }
 }
 
-int __fastcall Gv_GetVarX(int id)
+int32_t __fastcall Gv_GetVarX(int32_t id)
 {
     if (id == MAXGAMEVARS)
         return(*insptr++);
@@ -715,13 +715,13 @@ int __fastcall Gv_GetVarX(int id)
         return vm.g_i;
 
     {
-        int negateResult = 0;
+        int32_t negateResult = 0;
 
         if (id >= g_gameVarCount || id < 0)
         {
             if (id&(MAXGAMEVARS<<2)) // array
             {
-                int index=Gv_GetVarX(*insptr++);
+                int32_t index=Gv_GetVarX(*insptr++);
 
                 if (id&(MAXGAMEVARS<<1)) // negative array access
                     negateResult = 1;
@@ -739,7 +739,7 @@ int __fastcall Gv_GetVarX(int id)
 
             if (id&(MAXGAMEVARS<<3)) // struct shortcut vars
             {
-                int index=Gv_GetVarX(*insptr++), label=*insptr++;
+                int32_t index=Gv_GetVarX(*insptr++), label=*insptr++;
 
                 if (id&(MAXGAMEVARS<<1)) // negative array access
                     negateResult = 1;
@@ -748,7 +748,7 @@ int __fastcall Gv_GetVarX(int id)
 
                 if (id == g_iSpriteVarID)
                 {
-                    int parm2 = 0;
+                    int32_t parm2 = 0;
 
                     if (ActorLabels[label].flags & LABEL_HASPARM2)
                         parm2 = Gv_GetVarX(*insptr++);
@@ -763,7 +763,7 @@ int __fastcall Gv_GetVarX(int id)
                 }
                 if (id == g_iPlayerVarID)
                 {
-                    int parm2 = 0;
+                    int32_t parm2 = 0;
 
                     if (PlayerLabels[label].flags & LABEL_HASPARM2)
                         parm2 = Gv_GetVarX(*insptr++);
@@ -823,11 +823,11 @@ int __fastcall Gv_GetVarX(int id)
             if (negateResult) return (-aGameVars[id].val.plValues[vm.g_i]);
             return (aGameVars[id].val.plValues[vm.g_i]);
         case GAMEVAR_INTPTR:
-            if (negateResult) return (-(*((int*)aGameVars[id].val.lValue)));
-            return (*((int*)aGameVars[id].val.lValue));
+            if (negateResult) return (-(*((int32_t*)aGameVars[id].val.lValue)));
+            return (*((int32_t*)aGameVars[id].val.lValue));
         case GAMEVAR_SHORTPTR:
-            if (negateResult) return (-(*((short*)aGameVars[id].val.lValue)));
-            return (*((short*)aGameVars[id].val.lValue));
+            if (negateResult) return (-(*((int16_t*)aGameVars[id].val.lValue)));
+            return (*((int16_t*)aGameVars[id].val.lValue));
         case GAMEVAR_CHARPTR:
             if (negateResult) return (-(*((char*)aGameVars[id].val.lValue)));
             return (*((char*)aGameVars[id].val.lValue));
@@ -835,7 +835,7 @@ int __fastcall Gv_GetVarX(int id)
     }
 }
 
-void __fastcall Gv_SetVarX(int id, int lValue)
+void __fastcall Gv_SetVarX(int32_t id, int32_t lValue)
 {
     switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|
                                      GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
@@ -850,20 +850,20 @@ void __fastcall Gv_SetVarX(int id, int lValue)
         aGameVars[id].val.plValues[vm.g_i]=lValue;
         return;
     case GAMEVAR_INTPTR:
-        *((int*)aGameVars[id].val.lValue)=(int)lValue;
+        *((int32_t*)aGameVars[id].val.lValue)=(int32_t)lValue;
         return;
     case GAMEVAR_SHORTPTR:
-        *((short*)aGameVars[id].val.lValue)=(short)lValue;
+        *((int16_t*)aGameVars[id].val.lValue)=(int16_t)lValue;
         return;
     case GAMEVAR_CHARPTR:
-        *((char*)aGameVars[id].val.lValue)=(char)lValue;
+        *((char*)aGameVars[id].val.lValue)=(uint8_t)lValue;
         return;
     }
 }
 
-int Gv_GetVarByLabel(const char *szGameLabel, int lDefault, int iActor, int iPlayer)
+int32_t Gv_GetVarByLabel(const char *szGameLabel, int32_t lDefault, int32_t iActor, int32_t iPlayer)
 {
-    int i = HASH_find(&gamevarH,szGameLabel);
+    int32_t i = HASH_find(&gamevarH,szGameLabel);
 
     if (i < 0)
         return lDefault;
@@ -873,7 +873,7 @@ int Gv_GetVarByLabel(const char *szGameLabel, int lDefault, int iActor, int iPla
 
 static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 {
-    int i = HASH_find(&gamevarH,szGameLabel);
+    int32_t i = HASH_find(&gamevarH,szGameLabel);
 
     if (i < 0)
         return NULL;
@@ -892,7 +892,7 @@ void Gv_ResetSystemDefaults(void)
 {
     // call many times...
 
-    int i,j;
+    int32_t i,j;
     char aszBuf[64];
 
     //AddLog("ResetWeaponDefaults");
@@ -1549,7 +1549,7 @@ void Gv_Init(void)
 
 void Gv_InitWeaponPointers(void)
 {
-    int i;
+    int32_t i;
     char aszBuf[64];
     // called from game Init AND when level is loaded...
 

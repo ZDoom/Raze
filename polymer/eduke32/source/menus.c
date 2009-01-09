@@ -29,36 +29,36 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/stat.h>
 
 extern char inputloc;
-extern int recfilep;
+extern int32_t recfilep;
 //extern char vgacompatible;
-short g_skillSoundID=-1;
-int probey=0;
-static int lastsavehead=0,last_menu_pos=0,last_menu,sh,onbar,buttonstat;
-static int last_zero,last_fifty,last_onehundred,last_twoohtwo,last_threehundred = 0;
+int16_t g_skillSoundID=-1;
+int32_t probey=0;
+static int32_t lastsavehead=0,last_menu_pos=0,last_menu,sh,onbar,buttonstat;
+static int32_t last_zero,last_fifty,last_onehundred,last_twoohtwo,last_threehundred = 0;
 
 static char menunamecnt;
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
-static int numdirs=0, numfiles=0;
-static int currentlist=0;
+static int32_t numdirs=0, numfiles=0;
+static int32_t currentlist=0;
 
-static int function, whichkey;
-static int changesmade, newvidmode, curvidmode, newfullscreen;
-static int vidsets[16] = { -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 };
-static int curvidset, newvidset = 0;
-static int soundbits, soundvoices, soundrate;
+static int32_t function, whichkey;
+static int32_t changesmade, newvidmode, curvidmode, newfullscreen;
+static int32_t vidsets[16] = { -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 };
+static int32_t curvidset, newvidset = 0;
+static int32_t soundbits, soundvoices, soundrate;
 #undef MAXMOUSEBUTTONS
 #define MAXMOUSEBUTTONS 6 // FIXME: menu needs an update for extra buttons
 static char *mousebuttonnames[] = { "Mouse1", "Mouse2", "Mouse3", "Mouse4", "Wheel Up", "Wheel Down", "Mouse5", "Mouse6", "Mouse7", "Mouse8"};
 
-extern int voting;
+extern int32_t voting;
 
 #define USERMAPENTRYLENGTH 25
 
 #define mgametext(x,y,t,s,dabits) gametext_z(2,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536)
 #define mgametextpal(x,y,t,s,p) gametext_z(2,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536)
 
-void ChangeToMenu(int cm)
+void ChangeToMenu(int32_t cm)
 {
     g_currentMenu = cm;
 
@@ -82,7 +82,7 @@ void ChangeToMenu(int cm)
 }
 
 #if 0
-void savetemp(char *fn,int daptr,int dasiz)
+void savetemp(char *fn,int32_t daptr,int32_t dasiz)
 {
     FILE *fp;
 
@@ -102,11 +102,11 @@ void savetemp(char *fn,int daptr,int dasiz)
 
 static ControlInfo minfo;
 
-static short mi, mii;
+static int16_t mi, mii;
 
-static int probe_(int type,int x,int y,int i,int n)
+static int32_t probe_(int32_t type,int32_t x,int32_t y,int32_t i,int32_t n)
 {
-    short centre, s;
+    int16_t centre, s;
 
     s = 1+(CONTROL_GetMouseSensitivity()>>4);
 
@@ -188,20 +188,20 @@ static int probe_(int type,int x,int y,int i,int n)
         return(-probey-2);
     }
 }
-static inline int M_Probe(int x,int y,int i,int n)
+static inline int32_t M_Probe(int32_t x,int32_t y,int32_t i,int32_t n)
 {
     return probe_(0,x,y,i,n);
 }
 
-static inline int probesm(int x,int y,int i,int n)
+static inline int32_t probesm(int32_t x,int32_t y,int32_t i,int32_t n)
 {
     return probe_(1,x,y,i,n);
 }
 
-int menutext_(int x,int y,int s,int p,char *t,int bits)
+int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits)
 {
-    short i, ac, centre;
-//    int ht = usehightile;
+    int16_t i, ac, centre;
+//    int32_t ht = usehightile;
 
     y -= 12;
 
@@ -321,9 +321,9 @@ int menutext_(int x,int y,int s,int p,char *t,int bits)
     return (x);
 }
 
-static void _bar(int type, int x,int y,int *p,int dainc,int damodify,int s, int pa, int min, int max)
+static void _bar(int32_t type, int32_t x,int32_t y,int32_t *p,int32_t dainc,int32_t damodify,int32_t s, int32_t pa, int32_t min, int32_t max)
 {
-    int xloc;
+    int32_t xloc;
     char rev;
 
     if (dainc < 0)
@@ -379,7 +379,7 @@ static void _bar(int type, int x,int y,int *p,int dainc,int damodify,int s, int 
 #define bar(x,y,p,dainc,damodify,s,pa) _bar(0,x,y,p,dainc,damodify,s,pa,0,63);
 #define barsm(x,y,p,dainc,damodify,s,pa) _bar(1,x,y,p,dainc,damodify,s,pa,0,63);
 
-static void modval(int min, int max,int *p,int dainc,int damodify)
+static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t damodify)
 {
     char rev;
 
@@ -469,16 +469,16 @@ static void modval(int min, int max,int *p,int dainc,int damodify)
 #define MWIN(X) rotatesprite( 320<<15,200<<15,X,0,MENUSCREEN,-16,0,10+64,0,0,xdim-1,ydim-1)
 #define MWINXY(X,OX,OY) rotatesprite( ( 320+(OX) )<<15, ( 200+(OY) )<<15,X,0,MENUSCREEN,-16,0,10+64,0,0,xdim-1,ydim-1)
 
-extern int G_LoadSaveHeader(char spot,struct savehead *saveh);
+extern int32_t G_LoadSaveHeader(char spot,struct savehead *saveh);
 
 static struct savehead savehead;
 //static int32 volnum,levnum,plrskl,numplr;
 //static char brdfn[BMAX_PATH];
-int g_lastSaveSlot = -1;
+int32_t g_lastSaveSlot = -1;
 
 static void M_DisplaySaveGameList(void)
 {
-    int x, c = 160;
+    int32_t x, c = 160;
 
     c += 64;
     for (x = 0;x <= 108;x += 12)
@@ -501,7 +501,7 @@ static void clearfilenames(void)
     numfiles = numdirs = 0;
 }
 
-static int getfilenames(const char *path, char kind[])
+static int32_t getfilenames(const char *path, char kind[])
 {
     CACHE1D_FIND_REC *r;
 
@@ -519,11 +519,11 @@ static int getfilenames(const char *path, char kind[])
     return(0);
 }
 
-extern int quittimer;
+extern int32_t quittimer;
 
-void G_CheckPlayerColor(int *color, int prev_color)
+void G_CheckPlayerColor(int32_t *color, int32_t prev_color)
 {
-    int i, disallowed[] = { 1, 2, 3, 4, 5, 6, 7, 8, 17, 18, 19, 20, 22 };
+    int32_t i, disallowed[] = { 1, 2, 3, 4, 5, 6, 7, 8, 17, 18, 19, 20, 22 };
 
     for (i=0;i<(signed)(sizeof(disallowed)/sizeof(disallowed[0]));i++)
     {
@@ -540,11 +540,11 @@ void G_CheckPlayerColor(int *color, int prev_color)
 void M_DisplayMenus(void)
 {
     CACHE1D_FIND_REC *dir;
-    int c,x,i;
-    int l,m;
+    int32_t c,x,i;
+    int32_t l,m;
     char *p = NULL;
 
-    getpackets();
+    Net_GetPackets();
 
     {
         if (buttonstat != 0 && !onbar)
@@ -573,7 +573,7 @@ void M_DisplayMenus(void)
 
     if (getrendermode() >= 3)
     {
-        int x,y=0;
+        int32_t x,y=0;
         for (;y<ydim;y+=tilesizy[MENUSCREEN])
             for (x=0;x<xdim;x+=tilesizx[MENUSCREEN])
                 rotatesprite(x<<16,y<<16,65536L,0,MENUSCREEN,80,0,1+8+16,0,0,xdim-1,ydim-1);
@@ -678,7 +678,7 @@ void M_DisplayMenus(void)
         menutext(160,24,0,0,"PLAYER SETUP");
         c = (320>>1)-120;
         {
-            int io, ii, yy = 37, d=c+140, enabled;
+            int32_t io, ii, yy = 37, d=c+140, enabled;
             char *opts[] =
             {
                 "Name",
@@ -760,10 +760,10 @@ void M_DisplayMenus(void)
                             ud.color++;
                             if (ud.color > 23)
                                 ud.color = 0;
-                            G_CheckPlayerColor((int *)&ud.color,-1);
+                            G_CheckPlayerColor((int32_t *)&ud.color,-1);
                         }
-                        modval(0,23,(int *)&ud.color,1,probey==1);
-                        G_CheckPlayerColor((int *)&ud.color,i);
+                        modval(0,23,(int32_t *)&ud.color,1,probey==1);
+                        G_CheckPlayerColor((int32_t *)&ud.color,i);
                         if (ud.color != i)
                             G_UpdatePlayerFromMenu();
                         break;
@@ -776,7 +776,7 @@ void M_DisplayMenus(void)
                             if (ud.team == 4)
                                 ud.team = 0;
                         }
-                        modval(0,3,(int *)&ud.team,1,probey==2);
+                        modval(0,3,(int32_t *)&ud.team,1,probey==2);
                         if (ud.team != i)
                             G_UpdatePlayerFromMenu();
                         break;
@@ -785,7 +785,7 @@ void M_DisplayMenus(void)
                         i = ud.config.AutoAim;
                         if (x == io)
                             ud.config.AutoAim = (ud.config.AutoAim == 2) ? 0 : ud.config.AutoAim+1;
-                        modval(0,2,(int *)&ud.config.AutoAim,1,probey==3);
+                        modval(0,2,(int32_t *)&ud.config.AutoAim,1,probey==3);
                         if (ud.config.AutoAim != i)
                             G_UpdatePlayerFromMenu();
                         break;
@@ -794,7 +794,7 @@ void M_DisplayMenus(void)
                         i = ud.mouseaiming;
                         if (x == io)
                             ud.mouseaiming = !ud.mouseaiming;
-                        modval(0,1,(int *)&ud.mouseaiming,1,probey==4);
+                        modval(0,1,(int32_t *)&ud.mouseaiming,1,probey==4);
                         if (ud.mouseaiming != i)
                             G_UpdatePlayerFromMenu();
                         break;
@@ -805,7 +805,7 @@ void M_DisplayMenus(void)
                             i = 1;
                         if (x == io)
                             i = 1-i;
-                        modval(0,1,(int *)&i,1,probey==5);
+                        modval(0,1,(int32_t *)&i,1,probey==5);
                         if ((ud.weaponswitch & 1 && !i) || (!(ud.weaponswitch & 1) && i))
                         {
                             ud.weaponswitch ^= 1;
@@ -818,7 +818,7 @@ void M_DisplayMenus(void)
                             i = 1;
                         if (x == io)
                             i = 1-i;
-                        modval(0,1,(int *)&i,1,probey==6);
+                        modval(0,1,(int32_t *)&i,1,probey==6);
                         if ((ud.weaponswitch & 2 && !i) || (!(ud.weaponswitch & 2) && i))
                         {
                             ud.weaponswitch ^= 2;
@@ -829,7 +829,7 @@ void M_DisplayMenus(void)
                     case 7:
                         if (x == io)
                             packetrate = min(max(((packetrate/50)*50)+50,50),1000);
-                        modval(50,1000,(int *)&packetrate,10,probey==7?2:0);
+                        modval(50,1000,(int32_t *)&packetrate,10,probey==7?2:0);
                         break;
 #endif
                     case 8:
@@ -1482,10 +1482,10 @@ void M_DisplayMenus(void)
                     tempbuf[2] = myconnectindex;
                     TRAVERSE_CONNECT(x)
                     {
-                        if (x != myconnectindex) sendpacket(x,tempbuf,3);
+                        if (x != myconnectindex) mmulti_sendpacket(x,tempbuf,3);
                         if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                     }
-                    getpackets();
+                    Net_GetPackets();
 
                     G_LoadPlayer(g_lastSaveSlot);
 
@@ -1870,7 +1870,7 @@ cheat_for_port_credits:
                     " ",
                     " "
                 };
-                const int numlines = sizeof(scroller)/sizeof(char *);
+                const int32_t numlines = sizeof(scroller)/sizeof(char *);
                 for (m=0,i=(totalclock/104)%numlines; m<6; m++,i++)
                 {
                     if (i==numlines) i=0;
@@ -2216,7 +2216,7 @@ cheat_for_port_credits:
 
         if (finddirshigh)
         {
-            int len;
+            int32_t len;
 
             dir = finddirshigh;
             for (i=0; i<5; i++) if (!dir->prev) break;
@@ -2243,7 +2243,7 @@ cheat_for_port_credits:
 
         if (findfileshigh)
         {
-            int len;
+            int32_t len;
 
             dir = findfileshigh;
             for (i=0; i<6; i++) if (!dir->prev) break;
@@ -2418,7 +2418,7 @@ cheat_for_port_credits:
         c = (320>>1)-120;
 
         {
-            int io, ii, yy, d=c+160+40, enabled;
+            int32_t io, ii, yy, d=c+160+40, enabled;
             char *opts[] =
             {
                 "Widescreen",
@@ -2476,19 +2476,19 @@ cheat_for_port_credits:
                 {
                 case 0:
                     if (x==io) glwidescreen = 1-glwidescreen;
-                    modval(0,1,(int *)&glwidescreen,1,probey==io);
+                    modval(0,1,(int32_t *)&glwidescreen,1,probey==io);
                     mgametextpal(d,yy, glwidescreen ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 1:
                 {
-                    int dummy = glanisotropy;
-                    modval(0,(int)glinfo.maxanisotropy+1,(int *)&dummy,1,probey==io);
+                    int32_t dummy = glanisotropy;
+                    modval(0,(int32_t)glinfo.maxanisotropy+1,(int32_t *)&dummy,1,probey==io);
                     if (dummy > glanisotropy) glanisotropy *= 2;
                     else if (dummy < glanisotropy) glanisotropy /= 2;
                     if (x==io)
                         glanisotropy *= 2;
                     if (glanisotropy > glinfo.maxanisotropy) glanisotropy = 1;
-                    else if (glanisotropy < 1) glanisotropy = (int)glinfo.maxanisotropy;
+                    else if (glanisotropy < 1) glanisotropy = (int32_t)glinfo.maxanisotropy;
                     gltexapplyprops();
                     if (glanisotropy == 1) strcpy(tempbuf,"NONE");
                     else sprintf(tempbuf,"%dx",glanisotropy);
@@ -2497,9 +2497,9 @@ cheat_for_port_credits:
                 }
                 case 2:
                 {
-                    int ovsync = vsync;
+                    int32_t ovsync = vsync;
                     if (x==io) vsync = !vsync;
-                    modval(0,1,(int *)&vsync,1,probey==io);
+                    modval(0,1,(int32_t *)&vsync,1,probey==io);
                     mgametextpal(d,yy, vsync? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     if (vsync != ovsync)
                         setvsync(vsync);
@@ -2507,8 +2507,8 @@ cheat_for_port_credits:
                 }
                 case 3:
                 {
-                    int i = (int)(r_ambientlight*1024.f);
-                    int j = i;
+                    int32_t i = (int32_t)(r_ambientlight*1024.f);
+                    int32_t j = i;
                     _bar(1,d+8,yy+7, &i,128,x==io,MENUHIGHLIGHT(io),0,128,4096);
                     Bsprintf(tempbuf,"%.2f",r_ambientlight);
                     mgametextpal(d-35,yy, tempbuf, MENUHIGHLIGHT(io), 0);
@@ -2521,7 +2521,7 @@ cheat_for_port_credits:
                 }
                 case 4:
                     if (x==io) usehightile = 1-usehightile;
-                    modval(0,1,(int *)&usehightile,1,probey==io);
+                    modval(0,1,(int32_t *)&usehightile,1,probey==io);
                     mgametextpal(d,yy, usehightile ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 5:
@@ -2542,54 +2542,54 @@ cheat_for_port_credits:
                 case 6:
                     enabled = usehightile;
                     if (enabled && x==io) ud.config.useprecache = !ud.config.useprecache;
-                    if (enabled) modval(0,1,(int *)&ud.config.useprecache,1,probey==io);
+                    if (enabled) modval(0,1,(int32_t *)&ud.config.useprecache,1,probey==io);
                     mgametextpal(d,yy, ud.config.useprecache ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 7:
                     enabled = usehightile;
                     if (enabled && x==io) glusetexcompr = !glusetexcompr;
-                    if (enabled) modval(0,1,(int *)&glusetexcompr,1,probey==io);
+                    if (enabled) modval(0,1,(int32_t *)&glusetexcompr,1,probey==io);
                     mgametextpal(d,yy, glusetexcompr ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 8:
                     enabled = (glusetexcompr && usehightile);
                     if (enabled && x==io) glusetexcache = !glusetexcache;
-                    if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==io);
+                    if (enabled) modval(0,1,(int32_t *)&glusetexcache,1,probey==io);
                     mgametextpal(d,yy, glusetexcache ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 9:
                     enabled = (glusetexcompr && usehightile && glusetexcache);
                     if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
-                    if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==io);
+                    if (enabled) modval(0,1,(int32_t *)&glusetexcachecompression,1,probey==io);
                     mgametextpal(d,yy, glusetexcachecompression ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 10:
                     enabled = usehightile;
                     if (enabled && x==io) r_detailmapping = !r_detailmapping;
-                    if (enabled) modval(0,1,(int *)&r_detailmapping,1,probey==io);
+                    if (enabled) modval(0,1,(int32_t *)&r_detailmapping,1,probey==io);
                     mgametextpal(d,yy, r_detailmapping ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 11:
                     enabled = usehightile;
                     if (enabled && x==io) r_glowmapping = !r_glowmapping;
-                    if (enabled) modval(0,1,(int *)&r_glowmapping,1,probey==io);
+                    if (enabled) modval(0,1,(int32_t *)&r_glowmapping,1,probey==io);
                     mgametextpal(d,yy, r_glowmapping ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 12:
                     if (x==io) usemodels = 1-usemodels;
-                    modval(0,1,(int *)&usemodels,1,probey==io);
+                    modval(0,1,(int32_t *)&usemodels,1,probey==io);
                     mgametextpal(d,yy, usemodels ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 13:
                     enabled = usemodels;
                     if (enabled && x==io) r_animsmoothing = !r_animsmoothing;
-                    if (enabled) modval(0,1,(int *)&r_animsmoothing,1,probey==io);
+                    if (enabled) modval(0,1,(int32_t *)&r_animsmoothing,1,probey==io);
                     mgametextpal(d,yy, r_animsmoothing ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 14:
                     enabled = usemodels;
                     if (enabled && x==io) r_modelocclusionchecking = !r_modelocclusionchecking;
-                    if (enabled) modval(0,1,(int *)&r_modelocclusionchecking,1,probey==io);
+                    if (enabled) modval(0,1,(int32_t *)&r_modelocclusionchecking,1,probey==io);
                     mgametextpal(d,yy, r_modelocclusionchecking ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 default:
@@ -2649,18 +2649,18 @@ cheat_for_port_credits:
         rotatesprite(160<<16,27<<16,24576,0,3290,0,0,2+8+16,0,scale(ydim,35,200),xdim-1,scale(ydim,80,200)-1);
 
         {
-            int b = (int)(vid_gamma*40960.f);
+            int32_t b = (int32_t)(vid_gamma*40960.f);
             _bar(0,c+177,98,&b,4096,x==0,MENUHIGHLIGHT(0),0,8192,163840);
 
             if (b != (double)(vid_gamma*40960.f))
             {
                 vid_gamma = (double)b/40960.f;
-                ud.brightness = (int)(min(max((double)((vid_gamma-1.0)*10.0),0),15));
+                ud.brightness = (int32_t)(min(max((double)((vid_gamma-1.0)*10.0),0),15));
                 ud.brightness <<= 2;
                 setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
             }
 
-            b = (int)(vid_contrast*40960.f);
+            b = (int32_t)(vid_contrast*40960.f);
             _bar(0,c+177,98+16,&b,2048,x==1,MENUHIGHLIGHT(1),0,4096,110592);
 
             if (b != (vid_contrast*40960.f))
@@ -2669,7 +2669,7 @@ cheat_for_port_credits:
                 setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
             }
 
-            b = (int)(vid_brightness*40960.f);
+            b = (int32_t)(vid_brightness*40960.f);
             _bar(0,c+177,98+16+16,&b,2048,x==2,MENUHIGHLIGHT(2),0,-32768,32768);
 
             if (b != (vid_brightness*40960.f))
@@ -2698,7 +2698,7 @@ cheat_for_port_credits:
         c = (320>>1)-120;
 
         {
-            int io, ii, yy, d=c+160+40, enabled;
+            int32_t io, ii, yy, d=c+160+40, enabled;
             char *opts[] =
             {
                 "Show setup window at start",
@@ -2756,26 +2756,26 @@ cheat_for_port_credits:
                 {
                 case 0:
                     if (x==io) ud.config.ForceSetup = 1-ud.config.ForceSetup;
-                    modval(0,1,(int *)&ud.config.ForceSetup,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.config.ForceSetup,1,probey==io);
                     mgametextpal(d,yy, ud.config.ForceSetup ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 1:
                     if (x==io) ud.crosshair = !ud.crosshair;
-                    modval(0,1,(int *)&ud.crosshair,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.crosshair,1,probey==io);
                     {
                         mgametextpal(d,yy,ud.crosshair?"Yes":"No", MENUHIGHLIGHT(io), 0);
                         break;
                     }
                 case 2:
                 {
-                    int sbs = ud.crosshairscale;
+                    int32_t sbs = ud.crosshairscale;
                     _bar(1,d+8,yy+7, &sbs,5,x==io,MENUHIGHLIGHT(io),0,25,100);
                     ud.crosshairscale = min(100,max(10,sbs));
                 }
                 break;
                 case 3:
                 {
-                    int i;
+                    int32_t i;
                     i = ud.screen_size;
                     barsm(d+8,yy+7, &ud.screen_size,-4,x==io,MENUHIGHLIGHT(io),PHX(-5));
                     if (getrendermode() >= 3 && i < ud.screen_size && i == 8 && ud.statusbarmode == 1)
@@ -2796,7 +2796,7 @@ cheat_for_port_credits:
                 break;
                 case 4:
                 {
-                    int sbs, sbsl;
+                    int32_t sbs, sbsl;
                     sbs = sbsl = ud.statusbarscale-37;
                     barsm(d+8,yy+7, &sbs,4,x==io,MENUHIGHLIGHT(io),0);
                     if (x == io && sbs != sbsl)
@@ -2813,17 +2813,17 @@ cheat_for_port_credits:
                 break;
                 case 6:
                     if (x==io) ud.levelstats = 1-ud.levelstats;
-                    modval(0,1,(int *)&ud.levelstats,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.levelstats,1,probey==io);
                     mgametextpal(d,yy, ud.levelstats ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 7:
                     if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
-                    modval(0,1,(int *)&ud.runkey_mode,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.runkey_mode,1,probey==io);
                     mgametextpal(d,yy, ud.runkey_mode ? "No" : "Yes", MENUHIGHLIGHT(io), 0);
                     break;
                 case 8:
                     if (x==io) ud.shadows = 1-ud.shadows;
-                    modval(0,1,(int *)&ud.shadows,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.shadows,1,probey==io);
                     mgametextpal(d,yy, ud.shadows ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
                 case 9:
@@ -2831,12 +2831,12 @@ cheat_for_port_credits:
 #ifdef POLYMOST
                     if (!ud.screen_tilting) setrollangle(0);
 #endif
-                    modval(0,1,(int *)&ud.screen_tilting,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.screen_tilting,1,probey==io);
                     mgametextpal(d,yy, ud.screen_tilting ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;  // original had a 'full' option
                 case 10:
                     if (x==io) ud.tickrate = 1-ud.tickrate;
-                    modval(0,1,(int *)&ud.tickrate,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.tickrate,1,probey==io);
                     mgametextpal(d,yy, ud.tickrate ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 11:
@@ -2871,7 +2871,7 @@ cheat_for_port_credits:
         c = (320>>1)-120;
 
         {
-            int io, ii, yy, d=c+160+40, enabled;
+            int32_t io, ii, yy, d=c+160+40, enabled;
             char *opts[] =
             {
                 "Parental lock",
@@ -2942,7 +2942,7 @@ cheat_for_port_credits:
                 case 1:
                     if (x==io)
                         ud.fta_on = 1-ud.fta_on;
-                    modval(0,1,(int *)&ud.fta_on,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.fta_on,1,probey==io);
                     mgametextpal(d,yy, ud.fta_on ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 2:
@@ -2950,7 +2950,7 @@ cheat_for_port_credits:
                     {
                         ud.drawweapon = (ud.drawweapon == 2) ? 0 : ud.drawweapon+1;
                     }
-                    modval(0,2,(int *)&ud.drawweapon,1,probey==io);
+                    modval(0,2,(int32_t *)&ud.drawweapon,1,probey==io);
                     {
                         char *s[] = { "Off", "Normal", "Icon only" };
                         mgametextpal(d,yy, s[ud.drawweapon], MENUHIGHLIGHT(io), 0);
@@ -2958,12 +2958,12 @@ cheat_for_port_credits:
                     }
                 case 3:
                     if (x==io) ud.althud = 1-ud.althud;
-                    modval(0,1,(int *)&ud.althud,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.althud,1,probey==io);
                     mgametextpal(d,yy, ud.althud ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 4:
                     if (x==io) ud.democams = 1-ud.democams;
-                    modval(0,1,(int *)&ud.democams,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.democams,1,probey==io);
                     mgametextpal(d,yy, ud.democams ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
                 case 5:
@@ -2971,7 +2971,7 @@ cheat_for_port_credits:
                     {
                         ud.autovote = (ud.autovote == 2) ? 0 : ud.autovote+1;
                     }
-                    modval(0,2,(int *)&ud.autovote,1,probey==io);
+                    modval(0,2,(int32_t *)&ud.autovote,1,probey==io);
                     {
                         char *s[] = { "Off", "Vote No", "Vote Yes" };
                         mgametextpal(d,yy, s[ud.autovote], MENUHIGHLIGHT(io), 0);
@@ -2979,30 +2979,30 @@ cheat_for_port_credits:
                     }
                 case 6:
                     if (x==io) ud.automsg = 1-ud.automsg;
-                    modval(0,1,(int *)&ud.automsg,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.automsg,1,probey==io);
                     mgametextpal(d,yy, ud.automsg ? "Off" : "On", MENUHIGHLIGHT(io), 0);
                     break;
                 case 7:
                     if (x==io) ud.idplayers = 1-ud.idplayers;
-                    modval(0,1,(int *)&ud.idplayers,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.idplayers,1,probey==io);
                     mgametextpal(d,yy, ud.idplayers ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 8:
                     if (x==io) ud.showweapons = 1-ud.showweapons;
-                    modval(0,1,(int *)&ud.showweapons,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.showweapons,1,probey==io);
                     ud.config.ShowOpponentWeapons = ud.showweapons;
                     mgametextpal(d,yy, ud.config.ShowOpponentWeapons ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 9:
                     if (x==io) ud.obituaries = 1-ud.obituaries;
-                    modval(0,1,(int *)&ud.obituaries,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.obituaries,1,probey==io);
                     mgametextpal(d,yy, ud.obituaries ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 10:
                 {
-                    int osdmode = OSD_GetTextMode();
+                    int32_t osdmode = OSD_GetTextMode();
                     if (x==io) osdmode = !osdmode;
-                    modval(0,1,(int *)&osdmode,1,probey==io);
+                    modval(0,1,(int32_t *)&osdmode,1,probey==io);
                     mgametextpal(d,yy, osdmode? "Plain" : "Sprites", MENUHIGHLIGHT(io), 0);
                     if (OSD_GetTextMode() != osdmode)
                         OSD_SetTextMode(osdmode);
@@ -3012,7 +3012,7 @@ cheat_for_port_credits:
                 case 11:
                     i = ud.config.CheckForUpdates;
                     if (x==io) ud.config.CheckForUpdates = 1-ud.config.CheckForUpdates;
-                    modval(0,1,(int *)&ud.config.CheckForUpdates,1,probey==io);
+                    modval(0,1,(int32_t *)&ud.config.CheckForUpdates,1,probey==io);
                     if (ud.config.CheckForUpdates != i)
                         ud.config.LastUpdateCheck = 0;
                     mgametextpal(d,yy, ud.config.CheckForUpdates ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
@@ -3063,7 +3063,7 @@ cheat_for_port_credits:
 
         case 2:
         {
-            int dax = xdim, day = ydim, daz;
+            int32_t dax = xdim, day = ydim, daz;
             curvidmode = newvidmode = checkvideomode(&dax,&day,bpp,fullscreen,0);
             if (newvidmode == 0x7fffffffl) newvidmode = validmodecnt;
             newfullscreen = fullscreen;
@@ -3085,9 +3085,9 @@ cheat_for_port_credits:
                 else
                     vidsets[dax++] = 0x20000|validmode[day].bpp|((validmode[day].fs&1)<<16);
             }
-            for (dax = 0; dax < (int)(sizeof(vidsets)/sizeof(vidsets[1])) && vidsets[dax] != -1; dax++)
+            for (dax = 0; dax < (int32_t)(sizeof(vidsets)/sizeof(vidsets[1])) && vidsets[dax] != -1; dax++)
                 if (vidsets[dax] == (((getrendermode()>=2)<<17)|(fullscreen<<16)|bpp)) break;
-            if (dax < (int)(sizeof(vidsets)/sizeof(vidsets[1]))) newvidset = dax;
+            if (dax < (int32_t)(sizeof(vidsets)/sizeof(vidsets[1]))) newvidset = dax;
             curvidset = newvidset;
 
             ChangeToMenu(203);
@@ -3174,7 +3174,7 @@ cheat_for_port_credits:
 
         case 1:
         {
-            int lastvidset, lastvidmode, safevidmode = -1;
+            int32_t lastvidset, lastvidmode, safevidmode = -1;
             lastvidset = newvidset;
             lastvidmode = newvidmode;
             // find the next vidset compatible with the current fullscreen setting
@@ -3237,7 +3237,7 @@ cheat_for_port_credits:
         case 2:
             newfullscreen = !newfullscreen;
             {
-                int lastvidset, lastvidmode, safevidmode = -1, safevidset = -1;
+                int32_t lastvidset, lastvidmode, safevidmode = -1, safevidset = -1;
                 lastvidset = newvidset;
                 lastvidmode = newvidmode;
                 // find the next vidset compatible with the current fullscreen setting
@@ -3313,8 +3313,8 @@ cheat_for_port_credits:
         case 3:
             if (!changesmade) break;
             {
-                int pxdim, pydim, pfs, pbpp, prend;
-                int nxdim, nydim, nfs, nbpp, nrend;
+                int32_t pxdim, pydim, pfs, pbpp, prend;
+                int32_t nxdim, nydim, nfs, nbpp, nrend;
 
                 pxdim = xdim;
                 pydim = ydim;
@@ -3419,11 +3419,11 @@ cheat_for_port_credits:
         */
         if (!getrendermode())
         {
-            int i = (int)(r_ambientlight*1024.f);
-            int j = i;
+            int32_t i = (int32_t)(r_ambientlight*1024.f);
+            int32_t j = i;
             menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"PIXEL DOUBLING");
             menutext(c+168,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"OFF":"ON");
-            modval(0,1,(int *)&ud.detail,1,probey==5);
+            modval(0,1,(int32_t *)&ud.detail,1,probey==5);
             menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),PHX(-6),"AMBIENT LIGHT");
             _bar(0,c+185,50+62+16+16+16,&i,128,x==6,MENUHIGHLIGHT(6),numplayers>1,128,4096);
             Bsprintf(tempbuf,"%.2f",r_ambientlight);
@@ -3438,7 +3438,7 @@ cheat_for_port_credits:
 #if defined(POLYMOST) && defined(USE_OPENGL)
         else
         {
-            int filter = gltexfiltermode;
+            int32_t filter = gltexfiltermode;
             menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"TEXTURE FILTER");
             switch (gltexfiltermode)
             {
@@ -3464,7 +3464,7 @@ cheat_for_port_credits:
                 strcpy(tempbuf,"OTHER");
                 break;
             }
-            modval(0,5,(int *)&gltexfiltermode,1,probey==5);
+            modval(0,5,(int32_t *)&gltexfiltermode,1,probey==5);
             if (gltexfiltermode != filter)
                 gltexapplyprops();
             mgametextpal(c+168,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),!getrendermode());
@@ -3711,21 +3711,21 @@ cheat_for_port_credits:
         mgametextpal(40,118+9+9+9+9,"Advanced mouse setup",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+2),10);
 
         {
-            int sense;
+            int32_t sense;
             sense = CONTROL_GetMouseSensitivity()-1;
             barsm(248,126,&sense,2,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
             CONTROL_SetMouseSensitivity(sense+1);
         }
 
-        if (!ud.mouseaiming) modval(0,1,(int *)&g_myAimMode,1,probey == (MAXMOUSEBUTTONS-2)*2+2+1);
+        if (!ud.mouseaiming) modval(0,1,(int32_t *)&g_myAimMode,1,probey == (MAXMOUSEBUTTONS-2)*2+2+1);
         else if (probey == (MAXMOUSEBUTTONS-2)*2+2+1)
         {
             mgametext(160,140+9+9+9,"SET MOUSE AIM TYPE TO TOGGLE ON/OFF",0,2+8+16);
             mgametext(160,140+9+9+9+9,"IN THE PLAYER SETUP MENU TO ENABLE",0,2+8+16);
         }
 
-        modval(0,1,(int *)&ud.mouseflip,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2);
-        modval(0,1,(int *)&ud.config.SmoothInput,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2+1);
+        modval(0,1,(int32_t *)&ud.mouseflip,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2);
+        modval(0,1,(int32_t *)&ud.config.SmoothInput,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2+1);
         if (probey == (MAXMOUSEBUTTONS-2)*2+2+2+1)
         {
 //            mgametext(160,160+9,"THIS OPTION INCURS A MOVEMENT DELAY",0,2+8+16);
@@ -4159,7 +4159,7 @@ cheat_for_port_credits:
     case 221:
     case 222:
     {
-        int thispage, twothispage;
+        int32_t thispage, twothispage;
 
         rotatesprite(320<<15,10<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(320>>1,15,0,0,"JOYSTICK AXES");
@@ -4347,7 +4347,7 @@ cheat_for_port_credits:
     case 216:
     {
         // Pray this is enough pages for now :-|
-        int first,last;
+        int32_t first,last;
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(320>>1,24,0,0,"JOY DEAD ZONES");
 
@@ -4372,7 +4372,7 @@ cheat_for_port_credits:
 
         for (m=first;m<last-1;m++)
         {
-            int odx,dx,ody,dy;
+            int32_t odx,dx,ody,dy;
             Bstrcpy(tempbuf,(char *)getjoyname(0,m));
             menutext(32,48+30*(m-first),0,0,tempbuf);
 
@@ -4420,7 +4420,7 @@ cheat_for_port_credits:
         }
 
         {
-            int io, ii, yy, d=c+160+40, enabled, j;
+            int32_t io, ii, yy, d=c+160+40, enabled, j;
             char *opts[] =
             {
                 "Sound",
@@ -4493,7 +4493,7 @@ cheat_for_port_credits:
                     if (ud.config.FXDevice >= 0)
                     {
                         i = ud.config.SoundToggle;
-                        modval(0,1,(int *)&ud.config.SoundToggle,1,probey==io);
+                        modval(0,1,(int32_t *)&ud.config.SoundToggle,1,probey==io);
                         if (x==io)
                             ud.config.SoundToggle = 1-ud.config.SoundToggle;
                         if (i != ud.config.SoundToggle)
@@ -4515,14 +4515,14 @@ cheat_for_port_credits:
                     _bar(1,d+8,yy+7, &ud.config.FXVolume,4,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,64);
                     ud.config.FXVolume <<= 2;
                     if (l != ud.config.FXVolume)
-                        FX_SetVolume((short) ud.config.FXVolume);
+                        FX_SetVolume((int16_t) ud.config.FXVolume);
                 }
                 break;
                 case 2:
                     if (ud.config.MusicDevice >= 0 && (numplayers < 2 || ud.config.MusicToggle))
                     {
                         i = ud.config.MusicToggle;
-                        modval(0,1,(int *)&ud.config.MusicToggle,1,probey==io);
+                        modval(0,1,(int32_t *)&ud.config.MusicToggle,1,probey==io);
                         if (x==io)
                             ud.config.MusicToggle = 1-ud.config.MusicToggle;
                         if (i != ud.config.MusicToggle)
@@ -4532,8 +4532,8 @@ cheat_for_port_credits:
                             {
                                 if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
                                 {
-                                    if (MapInfo[(unsigned char)g_musicIndex].musicfn != NULL)
-                                        S_PlayMusic(&MapInfo[(unsigned char)g_musicIndex].musicfn[0],g_musicIndex);
+                                    if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
+                                        S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);
                                 }
                                 else S_PlayMusic(&EnvMusicFilename[0][0],MAXVOLUMES*MAXLEVELS);
 
@@ -4551,19 +4551,19 @@ cheat_for_port_credits:
                     _bar(1,d+8,yy+7, &ud.config.MusicVolume,4,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,64);
                     ud.config.MusicVolume <<= 2;
                     if (l != ud.config.MusicVolume)
-                        MUSIC_SetVolume((short) ud.config.MusicVolume);
+                        MUSIC_SetVolume((int16_t) ud.config.MusicVolume);
                 }
                 break;
                 case 4:
                 {
-                    int rates[] = { 8000, 11025, 16000, 22050, 32000, 44100, 48000 };
-                    int j = (sizeof(rates)/sizeof(rates[0]));
+                    int32_t rates[] = { 8000, 11025, 16000, 22050, 32000, 44100, 48000 };
+                    int32_t j = (sizeof(rates)/sizeof(rates[0]));
 
                     for (i = 0;i<j;i++)
                         if (rates[i] == ud.config.MixRate)
                             break;
 
-                    modval(0,j-1,(int *)&i,1,enabled && probey==io);
+                    modval(0,j-1,(int32_t *)&i,1,enabled && probey==io);
                     if (x == io)
                     {
                         i++;
@@ -4593,7 +4593,7 @@ cheat_for_port_credits:
                         else if (ud.config.NumBits == 16)
                             ud.config.NumBits = 8;
                     }
-                    modval(8,16,(int *)&ud.config.NumBits,8,probey==io);
+                    modval(8,16,(int32_t *)&ud.config.NumBits,8,probey==io);
                     if (ud.config.NumBits != i)
                         changesmade |= 8;
                     Bsprintf(tempbuf,"%d-bit",ud.config.NumBits);
@@ -4607,7 +4607,7 @@ cheat_for_port_credits:
                         if (ud.config.NumVoices > 32)
                             ud.config.NumVoices = 4;
                     }
-                    modval(4,32,(int *)&ud.config.NumVoices,1,probey==io);
+                    modval(4,32,(int32_t *)&ud.config.NumVoices,1,probey==io);
                     if (ud.config.NumVoices != i)
                         changesmade |= 8;
                     Bsprintf(tempbuf,"%d",ud.config.NumVoices);
@@ -4633,8 +4633,8 @@ cheat_for_port_credits:
                         {
                             if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
                             {
-                                if (MapInfo[(unsigned char)g_musicIndex].musicfn != NULL)
-                                    S_PlayMusic(&MapInfo[(unsigned char)g_musicIndex].musicfn[0],g_musicIndex);
+                                if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
+                                    S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);
                             }
                             else S_PlayMusic(&EnvMusicFilename[0][0],MAXVOLUMES*MAXLEVELS);
                         }
@@ -4644,7 +4644,7 @@ cheat_for_port_credits:
                 case 8:
                     enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
                     i = j = (ud.config.VoiceToggle&1);
-                    modval(0,1,(int *)&i,1,enabled && probey==io);
+                    modval(0,1,(int32_t *)&i,1,enabled && probey==io);
                     if (x == io || j != i)
                         ud.config.VoiceToggle ^= 1;
                     mgametextpal(d,yy, ud.config.VoiceToggle&1? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, enabled?0:1);
@@ -4652,21 +4652,21 @@ cheat_for_port_credits:
                 case 9:
                     enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
                     i = j = (ud.config.VoiceToggle&4);
-                    modval(0,1,(int *)&i,1,enabled && probey==io);
+                    modval(0,1,(int32_t *)&i,1,enabled && probey==io);
                     if (x == io || j != i)
                         ud.config.VoiceToggle ^= 4;
                     mgametextpal(d,yy, ud.config.VoiceToggle&4? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, enabled?0:1);
                     break;
                 case 10:
                     enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
-                    modval(0,1,(int *)&ud.config.AmbienceToggle,1,enabled && probey==io);
+                    modval(0,1,(int32_t *)&ud.config.AmbienceToggle,1,enabled && probey==io);
                     if (enabled && x == io)
                         ud.config.AmbienceToggle = 1-ud.config.AmbienceToggle;
                     mgametextpal(d,yy, ud.config.AmbienceToggle? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, enabled?0:1);
                     break;
                 case 11:
                     enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
-                    modval(0,1,(int *)&ud.config.ReverseStereo,1,enabled && probey==io);
+                    modval(0,1,(int32_t *)&ud.config.ReverseStereo,1,enabled && probey==io);
                     if (enabled && x == io)
                         ud.config.ReverseStereo = 1-ud.config.ReverseStereo;
                     mgametextpal(d,yy, ud.config.ReverseStereo? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, enabled?0:1);
@@ -5090,7 +5090,7 @@ VOLUME_ALL_40x:
 
     case 603:
     {
-        int plrvotes = 0, j = 0;
+        int32_t plrvotes = 0, j = 0;
 
         x = M_Probe(186,124,0,0);
 
@@ -5112,7 +5112,7 @@ VOLUME_ALL_40x:
 
                 TRAVERSE_CONNECT(c)
                 {
-                    if (c != myconnectindex) sendpacket(c,tempbuf,2);
+                    if (c != myconnectindex) mmulti_sendpacket(c,tempbuf,2);
                     if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                 }
                 voting = -1;
@@ -5170,7 +5170,7 @@ VOLUME_ALL_40x:
 
                 TRAVERSE_CONNECT(c)
                 {
-                    if (c != myconnectindex) sendpacket(c,tempbuf,3);
+                    if (c != myconnectindex) mmulti_sendpacket(c,tempbuf,3);
                     if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                 }
 
@@ -5194,19 +5194,19 @@ VOLUME_ALL_40x:
 
         x = M_Probe(c,57-8,16,8);
 
-        modval(0,g_numGametypes-1,(int *)&ud.m_coop,1,probey==0);
+        modval(0,g_numGametypes-1,(int32_t *)&ud.m_coop,1,probey==0);
         if (!VOLUMEONE)
-            modval(0,g_numVolumes-1,(int *)&ud.m_volume_number,1,probey==1);
+            modval(0,g_numVolumes-1,(int32_t *)&ud.m_volume_number,1,probey==1);
 
         i = ud.m_level_number;
 
-        modval(0,ud.m_volume_number == 0?6+(boardfilename[0]!=0):MAXLEVELS-1,(int *)&ud.m_level_number,1,probey==2);
+        modval(0,ud.m_volume_number == 0?6+(boardfilename[0]!=0):MAXLEVELS-1,(int32_t *)&ud.m_level_number,1,probey==2);
 
         if ((GametypeFlags[ud.m_coop] & GAMETYPE_MARKEROPTION))
-            modval(0,1,(int *)&ud.m_marker,1,probey==4);
+            modval(0,1,(int32_t *)&ud.m_marker,1,probey==4);
         if ((GametypeFlags[ud.m_coop] & (GAMETYPE_PLAYERSFRIENDLY|GAMETYPE_TDM)))
-            modval(0,1,(int *)&ud.m_ffire,1,probey==5);
-        else modval(0,1,(int *)&ud.m_noexits,1,probey==5);
+            modval(0,1,(int32_t *)&ud.m_ffire,1,probey==5);
+        else modval(0,1,(int32_t *)&ud.m_noexits,1,probey==5);
 
         if (probey == 1)
             if (ud.m_volume_number == 0 && ud.m_level_number > 6+(boardfilename[0]!=0))
@@ -5322,7 +5322,7 @@ VOLUME_ALL_40x:
 
                     TRAVERSE_CONNECT(c)
                     {
-                        if (c != myconnectindex) sendpacket(c,tempbuf,4);
+                        if (c != myconnectindex) mmulti_sendpacket(c,tempbuf,4);
                         if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                     }
                 }

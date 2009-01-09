@@ -41,25 +41,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #error The SDL output module for AudioLib only works with the SDL interface.
 #endif
 
-static int(*_SDLSOUND_CallBack)(int) = NULL;
-static int _SDLSOUND_BufferLength = 0;
-static int _SDLSOUND_NumBuffers   = 0;
+static int32_t(*_SDLSOUND_CallBack)(int32_t) = NULL;
+static int32_t _SDLSOUND_BufferLength = 0;
+static int32_t _SDLSOUND_NumBuffers   = 0;
 static char *_SDLSOUND_MixBuffer  = NULL;
 
-static int SDLSOUND_Installed = FALSE;
+static int32_t SDLSOUND_Installed = FALSE;
 
-int SDLSOUND_ErrorCode = SDLSOUND_Ok;
+int32_t SDLSOUND_ErrorCode = SDLSOUND_Ok;
 
 #define SDLSOUND_SetErrorCode( status ) \
    SDLSOUND_ErrorCode   = ( status );
 
-static void isr(void *userdata, unsigned char *stream, int len);
+static void isr(void *userdata, char *stream, int32_t len);
 
 /*
  * DisableInterrupts
  * Enter the critical section.
  */
-int DisableInterrupts(void)
+int32_t DisableInterrupts(void)
 {
     SDL_LockAudio();
 
@@ -71,7 +71,7 @@ int DisableInterrupts(void)
  * RestoreInterrupts
  * Leave the critical section.
  */
-int RestoreInterrupts(int a)
+int32_t RestoreInterrupts(int32_t a)
 {
     SDL_UnlockAudio();
 
@@ -84,7 +84,7 @@ int RestoreInterrupts(int a)
  * SDLSOUND_ErrorString
  * Returns a description of an error code.
  */
-char *SDLSOUND_ErrorString(int errorcode)
+char *SDLSOUND_ErrorString(int32_t errorcode)
 {
     switch (errorcode)
     {
@@ -105,7 +105,7 @@ char *SDLSOUND_ErrorString(int errorcode)
  * SDLSOUND_Init
  * Initializes the SDL sound objects.
  */
-int SDLSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int buffersize)
+int32_t SDLSOUND_Init(int32_t soundcard, int32_t mixrate, int32_t numchannels, int32_t samplebits, int32_t buffersize)
 {
     SDL_AudioSpec spec,got;
 
@@ -141,9 +141,9 @@ int SDLSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, i
  * SDLSOUND_Shutdown
  * Shuts down SDL sound and it's associates.
  */
-int SDLSOUND_Shutdown(void)
+int32_t SDLSOUND_Shutdown(void)
 {
-    int i;
+    int32_t i;
 
     if (SDLSOUND_Installed) initprintf("Uninitializing SDL sound...\n");
 
@@ -161,13 +161,13 @@ int SDLSOUND_Shutdown(void)
  * SDLSOUND_SetMixMode
  * Bit of filler for the future.
  */
-int SDLSOUND_SetMixMode(int mode)
+int32_t SDLSOUND_SetMixMode(int32_t mode)
 {
     return mode;
 }
 
 
-static void isr(void *userdata, unsigned char *stream, int len)
+static void isr(void *userdata, char *stream, int32_t len)
 {
     // otherwise we just service the interrupt
     if (_DSOUND_CallBack)
@@ -185,7 +185,7 @@ static void isr(void *userdata, unsigned char *stream, int len)
         {
             /*
             #define copybuf(S,D,c) \
-            ({ void *__S=(S), *__D=(D); int __c=(c); \
+            ({ void *__S=(S), *__D=(D); int32_t __c=(c); \
             __asm__ __volatile__ ("rep; movsl" \
             : "+S" (__S), "+D" (__D), "+c" (__c) : : "memory", "cc"); \
             0; })
@@ -204,7 +204,7 @@ static void isr(void *userdata, unsigned char *stream, int len)
  * SDLSOUND_BeginBufferedPlayback
  * Unpause SDL sound playback.
  */
-int DSOUND_BeginBufferedPlayback(char *BufferStart, int(*CallBackFunc)(int), int buffersize, int numdivisions)
+int32_t DSOUND_BeginBufferedPlayback(char *BufferStart, int32_t(*CallBackFunc)(int32_t), int32_t buffersize, int32_t numdivisions)
 {
     _SDLSOUND_CallBack = CallBackFunc;
     _SDLSOUND_MixBuffer = BufferStart;
@@ -220,11 +220,11 @@ int DSOUND_BeginBufferedPlayback(char *BufferStart, int(*CallBackFunc)(int), int
  * DSOUND_StopPlayback
  * Halts the playback thread.
  */
-int DSOUND_StopPlayback(void)
+int32_t DSOUND_StopPlayback(void)
 {
 //	DWORD exitcode;
     BOOL t;
-    int i;
+    int32_t i;
 
     if (isrthread)
     {

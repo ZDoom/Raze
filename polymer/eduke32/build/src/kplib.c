@@ -42,24 +42,24 @@ credits.
 #endif
 
 #ifdef BIGENDIAN
-static unsigned int LSWAPIB(unsigned int a) { return(((a>>8)&0xff00)+((a&0xff00)<<8)+(a<<24)+(a>>24)); }
-static unsigned short SSWAPIB(unsigned short a) { return((a>>8)+(a<<8)); }
+static uint32_t LSWAPIB(uint32_t a) { return(((a>>8)&0xff00)+((a&0xff00)<<8)+(a<<24)+(a>>24)); }
+static uint16_t SSWAPIB(uint16_t a) { return((a>>8)+(a<<8)); }
 #define LSWAPIL(a) (a)
 #define SSWAPIL(a) (a)
 #else
 #define LSWAPIB(a) (a)
 #define SSWAPIB(a) (a)
-static unsigned int LSWAPIL(unsigned int a) { return(((a>>8)&0xff00)+((a&0xff00)<<8)+(a<<24)+(a>>24)); }
-static unsigned short SSWAPIL(unsigned short a) { return((a>>8)+(a<<8)); }
+static uint32_t LSWAPIL(uint32_t a) { return(((a>>8)&0xff00)+((a&0xff00)<<8)+(a<<24)+(a>>24)); }
+static uint16_t SSWAPIL(uint16_t a) { return((a>>8)+(a<<8)); }
 #endif
 
 #if !defined(_WIN32) && !defined(__DOS__)
 #include <unistd.h>
 #include <dirent.h>
 typedef long long __int64;
-static __inline int _lrotl(int i, int sh)
+static __inline int32_t _lrotl(int32_t i, int32_t sh)
 { return((i>>(-sh))|(i<<sh)); }
-static __inline int filelength(int h)
+static __inline int32_t filelength(int32_t h)
 {
     struct stat st;
     if (fstat(h,&st) < 0) return(-1);
@@ -98,10 +98,10 @@ static __inline int filelength(int h)
 #define ASMNAME(x)
 #endif
 
-static int bytesperline, xres, yres, globxoffs, globyoffs;
+static int32_t bytesperline, xres, yres, globxoffs, globyoffs;
 static intptr_t frameplace;
 
-static const int pow2mask[32] =
+static const int32_t pow2mask[32] =
 {
     0x00000000,0x00000001,0x00000003,0x00000007,
     0x0000000f,0x0000001f,0x0000003f,0x0000007f,
@@ -112,7 +112,7 @@ static const int pow2mask[32] =
     0x00ffffff,0x01ffffff,0x03ffffff,0x07ffffff,
     0x0fffffff,0x1fffffff,0x3fffffff,0x7fffffff,
 };
-static const int pow2long[32] =
+static const int32_t pow2long[32] =
 {
     0x00000001,0x00000002,0x00000004,0x00000008,
     0x00000010,0x00000020,0x00000040,0x00000080,
@@ -127,21 +127,21 @@ static const int pow2long[32] =
 //Hack for peekbits,getbits,suckbits (to prevent lots of duplicate code)
 //   0: PNG: do 12-byte chunk_header removal hack
 // !=0: ZIP: use 64K buffer (olinbuf)
-static int zipfilmode;
+static int32_t zipfilmode;
 typedef struct
 {
     FILE *fil;    //0:no file open, !=0:open file (either stand-alone or zip)
-    int comptyp; //0:raw data (can be ZIP or stand-alone), 8:PKZIP LZ77 *flate
-    int seek0;   //0:stand-alone file, !=0: start of zip compressed stream data
-    int compleng;//Global variable for compression FIFO
-    int comptell;//Global variable for compression FIFO
-    int leng;    //Uncompressed file size (bytes)
-    int pos;     //Current uncompressed relative file position (0<=pos<=leng)
-    int endpos;  //Temp global variable for kzread
-    int jmpplc;  //Store place where decompression paused
-    int i;       //For stand-alone/ZIP comptyp#0, this is like "uncomptell"
+    int32_t comptyp; //0:raw data (can be ZIP or stand-alone), 8:PKZIP LZ77 *flate
+    int32_t seek0;   //0:stand-alone file, !=0: start of zip compressed stream data
+    int32_t compleng;//Global variable for compression FIFO
+    int32_t comptell;//Global variable for compression FIFO
+    int32_t leng;    //Uncompressed file size (bytes)
+    int32_t pos;     //Current uncompressed relative file position (0<=pos<=leng)
+    int32_t endpos;  //Temp global variable for kzread
+    int32_t jmpplc;  //Store place where decompression paused
+    int32_t i;       //For stand-alone/ZIP comptyp#0, this is like "uncomptell"
     //For ZIP comptyp#8&btype==0 "<64K store", this saves i state
-    int bfinal;  //LZ77 decompression state (for later calls)
+    int32_t bfinal;  //LZ77 decompression state (for later calls)
 } kzfilestate;
 static kzfilestate kzfs;
 
@@ -157,8 +157,8 @@ static kzfilestate kzfs;
 //   pow2mask     128*
 //   dcflagor      64
 
-int palcol[256] ASMNAME("palcol"), paleng, bakcol, numhufblocks, zlibcompflags;
-signed char coltype, filtype, bitdepth;
+int32_t palcol[256] ASMNAME("palcol"), paleng, bakcol, numhufblocks, zlibcompflags;
+int8_t coltype, filtype, bitdepth;
 
 //============================ KPNGILIB begins ===============================
 
@@ -173,27 +173,27 @@ signed char coltype, filtype, bitdepth;
 //   * Some useless ancillary chunks, like: gAMA(gamma) & pHYs(aspect ratio)
 
 //.PNG specific variables:
-static int bakr = 0x80, bakg = 0x80, bakb = 0x80; //this used to be public...
-static int gslidew = 0, gslider = 0, xm, xmn[4], xr0, xr1, xplc, yplc;
+static int32_t bakr = 0x80, bakg = 0x80, bakb = 0x80; //this used to be public...
+static int32_t gslidew = 0, gslider = 0, xm, xmn[4], xr0, xr1, xplc, yplc;
 static intptr_t nfplace;
-static int clen[320], cclen[19], bitpos, filt, xsiz, ysiz;
-static int xsizbpl, ixsiz, ixoff, iyoff, ixstp, iystp, intlac, nbpl, trnsrgb ASMNAME("trnsrgb");
-static int ccind[19] = {16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15};
-static int hxbit[59][2], ibuf0[288], nbuf0[32], ibuf1[32], nbuf1[32];
-static const unsigned char *filptr;
-static unsigned char slidebuf[32768], opixbuf0[4], opixbuf1[4];
-static unsigned char pnginited = 0, olinbuf[65536] ASMNAME("olinbuf"); //WARNING:max xres is: 65536/bpp-1
-static int gotcmov = -2, abstab10[1024] ASMNAME("abstab10");
+static int32_t clen[320], cclen[19], bitpos, filt, xsiz, ysiz;
+static int32_t xsizbpl, ixsiz, ixoff, iyoff, ixstp, iystp, intlac, nbpl, trnsrgb ASMNAME("trnsrgb");
+static int32_t ccind[19] = {16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15};
+static int32_t hxbit[59][2], ibuf0[288], nbuf0[32], ibuf1[32], nbuf1[32];
+static const char *filptr;
+static char slidebuf[32768], opixbuf0[4], opixbuf1[4];
+static char pnginited = 0, olinbuf[65536] ASMNAME("olinbuf"); //WARNING:max xres is: 65536/bpp-1
+static int32_t gotcmov = -2, abstab10[1024] ASMNAME("abstab10");
 
 //Variables to speed up dynamic Huffman decoding:
 #define LOGQHUFSIZ0 9
 #define LOGQHUFSIZ1 6
-static int qhufval0[1<<LOGQHUFSIZ0], qhufval1[1<<LOGQHUFSIZ1];
-static unsigned char qhufbit0[1<<LOGQHUFSIZ0], qhufbit1[1<<LOGQHUFSIZ1];
+static int32_t qhufval0[1<<LOGQHUFSIZ0], qhufval1[1<<LOGQHUFSIZ1];
+static char qhufbit0[1<<LOGQHUFSIZ0], qhufbit1[1<<LOGQHUFSIZ1];
 
 #if defined(__WATCOMC__) && !defined(NOASM)
 
-int bswap(int);
+int32_t bswap(int32_t);
 #pragma aux bswap =\
 	".586"\
 	"bswap eax"\
@@ -201,7 +201,7 @@ int bswap(int);
 	modify nomemory exact [eax]\
 	value [eax]
 
-int bitrev(int, int);
+int32_t bitrev(int32_t, int32_t);
 #pragma aux bitrev =\
 	"xor eax, eax"\
 	"beg: shr ebx, 1"\
@@ -212,7 +212,7 @@ int bitrev(int, int);
 	modify nomemory exact [eax ebx ecx]\
 	value [eax]
 
-int testflag(int);
+int32_t testflag(int32_t);
 #pragma aux testflag =\
 	"pushfd"\
 	"pop eax"\
@@ -231,7 +231,7 @@ int testflag(int);
 	modify exact [eax ebx]\
 	value [eax]
 
-void cpuid(int, int *);
+void cpuid(int32_t, int32_t *);
 #pragma aux cpuid =\
 	".586"\
 	"cpuid"\
@@ -245,7 +245,7 @@ void cpuid(int, int *);
 
 #elif defined(_MSC_VER) && !defined(NOASM)
 
-static _inline unsigned int bswap(unsigned int a)
+static _inline uint32_t bswap(uint32_t a)
 {
     _asm
     {
@@ -254,7 +254,7 @@ static _inline unsigned int bswap(unsigned int a)
     }
 }
 
-static _inline int bitrev(int b, int c)
+static _inline int32_t bitrev(int32_t b, int32_t c)
 {
     _asm
     {
@@ -265,11 +265,11 @@ beg:
         shr edx, 1
         adc eax, eax
         sub ecx, 1
-        jnz short beg
+        jnz int16_t beg
     }
 }
 
-static _inline int testflag(int c)
+static _inline int32_t testflag(int32_t c)
 {
     _asm
     {
@@ -290,7 +290,7 @@ menostinx:
     }
 }
 
-static _inline void cpuid(int a, int *s)
+static _inline void cpuid(int32_t a, int32_t *s)
 {
     _asm
     {
@@ -310,24 +310,24 @@ static _inline void cpuid(int a, int *s)
 
 #elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 
-static inline unsigned int bswap(unsigned int a)
+static inline uint32_t bswap(uint32_t a)
 {
 __asm__ __volatile__("bswap %0" : "+r"(a) : : "cc");
     return a;
 }
 
-static inline int bitrev(int b, int c)
+static inline int32_t bitrev(int32_t b, int32_t c)
 {
-    int a = 0;
+    int32_t a = 0;
     __asm__ __volatile__(
         "xorl %%eax, %%eax\n\t0:\n\tshrl $1, %%ebx\n\tadcl %%eax, %%eax\n\tsubl $1, %%ecx\n\tjnz 0b"
     : "+a"(a), "+b"(b), "+c"(c) : : "cc");
     return a;
 }
 
-static inline int testflag(int c)
+static inline int32_t testflag(int32_t c)
 {
-    int a;
+    int32_t a;
     __asm__ __volatile__(
         "pushf\n\tpopl %%eax\n\tmovl %%eax, %%ebx\n\txorl %%ecx, %%eax\n\tpushl %%eax\n\t"
         "popf\n\tpushf\n\tpopl %%eax\n\txorl %%ebx, %%eax\n\tmovl $1, %%eax\n\tjne 0f\n\t"
@@ -336,7 +336,7 @@ static inline int testflag(int c)
     return a;
 }
 
-static inline void cpuid(int a, int *s)
+static inline void cpuid(int32_t a, int32_t *s)
 {
     __asm__ __volatile__(
         "cpuid\n\tmovl %%eax, (%%esi)\n\tmovl %%ebx, 4(%%esi)\n\t"
@@ -346,34 +346,34 @@ static inline void cpuid(int a, int *s)
 
 #else
 
-static inline unsigned int bswap(unsigned int a)
+static inline uint32_t bswap(uint32_t a)
 {
     return(((a&0xff0000)>>8) + ((a&0xff00)<<8) + (a<<24) + (a>>24));
 }
 
-static inline int bitrev(int b, int c)
+static inline int32_t bitrev(int32_t b, int32_t c)
 {
-    int i, j;
+    int32_t i, j;
     for (i=1,j=0,c=(1<<c);i<c;i+=i) { j += j; if (b&i) j++; }
     return(j);
 }
 
-static inline int testflag(int c) { return(0); }
+static inline int32_t testflag(int32_t c) { return(0); }
 
-static inline void cpuid(int a, int *s) {}
+static inline void cpuid(int32_t a, int32_t *s) {}
 
 #endif
 
 //Bit numbers of return value:
 //0:FPU, 4:RDTSC, 15:CMOV, 22:MMX+, 23:MMX, 25:SSE, 26:SSE2, 30:3DNow!+, 31:3DNow!
-static int getcputype()
+static int32_t getcputype()
 {
-    int i, cpb[4], cpid[4];
+    int32_t i, cpb[4], cpid[4];
     if (!testflag(0x200000)) return(0);
     cpuid(0,cpid); if (!cpid[0]) return(0);
     cpuid(1,cpb); i = (cpb[3]&~((1<<22)|(1<<30)|(1<<31)));
     cpuid(0x80000000,cpb);
-    if (((unsigned int)cpb[0]) > 0x8000000)
+    if (((uint32_t)cpb[0]) > 0x8000000)
     {
         cpuid(0x80000001,cpb);
         i |= (cpb[3]&(1<<31));
@@ -384,11 +384,11 @@ static int getcputype()
     return(i);
 }
 
-static unsigned char fakebuf[8], *nfilptr;
-static int nbitpos;
+static char fakebuf[8], *nfilptr;
+static int32_t nbitpos;
 static void suckbitsnextblock()
 {
-    int n;
+    int32_t n;
 
     if (!zipfilmode)
     {
@@ -398,11 +398,11 @@ static void suckbitsnextblock()
             //        \  fakebuf: /
             //          |===|===|
             //----x     O---x     O--------
-            nbitpos = LSWAPIL(*(int *)&filptr[8]);
-            nfilptr = (unsigned char *)&filptr[nbitpos+12];
-            *(int *)&fakebuf[0] = *(int *)&filptr[0]; //Copy last dword of IDAT chunk
-            if (*(int *)&filptr[12] == LSWAPIB(0x54414449)) //Copy 1st dword of next IDAT chunk
-                *(int *)&fakebuf[4] = *(int *)&filptr[16];
+            nbitpos = LSWAPIL(*(int32_t *)&filptr[8]);
+            nfilptr = (char *)&filptr[nbitpos+12];
+            *(int32_t *)&fakebuf[0] = *(int32_t *)&filptr[0]; //Copy last dword of IDAT chunk
+            if (*(int32_t *)&filptr[12] == LSWAPIB(0x54414449)) //Copy 1st dword of next IDAT chunk
+                *(int32_t *)&fakebuf[4] = *(int32_t *)&filptr[16];
             filptr = &fakebuf[4]; bitpos -= 32;
         }
         else
@@ -415,7 +415,7 @@ static void suckbitsnextblock()
     else
     {
         //NOTE: should only read bytes inside compsize, not 64K!!! :/
-        *(int *)&olinbuf[0] = *(int *)&olinbuf[sizeof(olinbuf)-4];
+        *(int32_t *)&olinbuf[0] = *(int32_t *)&olinbuf[sizeof(olinbuf)-4];
         n = min((unsigned)(kzfs.compleng-kzfs.comptell),sizeof(olinbuf)-4);
         fread(&olinbuf[4],n,1,kzfs.fil);
         kzfs.comptell += n;
@@ -423,13 +423,13 @@ static void suckbitsnextblock()
     }
 }
 
-static _inline int peekbits(int n) { return((LSWAPIB(*(int *)&filptr[bitpos>>3])>>(bitpos&7))&pow2mask[n]); }
-static _inline void suckbits(int n) { bitpos += n; if (bitpos >= 0) suckbitsnextblock(); }
-static _inline int getbits(int n) { int i = peekbits(n); suckbits(n); return(i); }
+static _inline int32_t peekbits(int32_t n) { return((LSWAPIB(*(int32_t *)&filptr[bitpos>>3])>>(bitpos&7))&pow2mask[n]); }
+static _inline void suckbits(int32_t n) { bitpos += n; if (bitpos >= 0) suckbitsnextblock(); }
+static _inline int32_t getbits(int32_t n) { int32_t i = peekbits(n); suckbits(n); return(i); }
 
-static int hufgetsym(int *hitab, int *hbmax)
+static int32_t hufgetsym(int32_t *hitab, int32_t *hbmax)
 {
-    int v, n;
+    int32_t v, n;
 
     v = n = 0;
     do { v = (v<<1)+getbits(1)+hbmax[n]-hbmax[n+1]; n++; }
@@ -438,18 +438,18 @@ static int hufgetsym(int *hitab, int *hbmax)
 }
 
 //This did not result in a speed-up on P4-3.6Ghz (02/22/2005)
-//static int hufgetsym_skipb (int *hitab, int *hbmax, int n, int addit)
+//static int32_t hufgetsym_skipb (int32_t *hitab, int32_t *hbmax, int32_t n, int32_t addit)
 //{
-//   int v;
+//   int32_t v;
 //
 //   v = bitrev(getbits(n),n)+addit;
 //   do { v = (v<<1)+getbits(1)+hbmax[n]-hbmax[n+1]; n++; } while (v >= 0);
 //   return(hitab[hbmax[n]+v]);
 //}
 
-static void qhufgencode(int *hitab, int *hbmax, int *qhval, unsigned char *qhbit, int numbits)
+static void qhufgencode(int32_t *hitab, int32_t *hbmax, int32_t *qhval, char *qhbit, int32_t numbits)
 {
-    int i, j, k, n, r;
+    int32_t i, j, k, n, r;
 
     //r is the bit reverse of i. Ex: if: i = 1011100111, r = 1110011101
     i = r = 0;
@@ -459,7 +459,7 @@ static void qhufgencode(int *hitab, int *hbmax, int *qhval, unsigned char *qhbit
             {
                 r = bitrev(i,numbits);
                 qhval[r] = hitab[k];
-                qhbit[r] = (char)n;
+                qhbit[r] = (uint8_t)n;
             }
     for (j=pow2mask[numbits];i<=j;i++)
     {
@@ -494,9 +494,9 @@ static void qhufgencode(int *hitab, int *hbmax, int *qhval, unsigned char *qhbit
 //inum        : Number of indices
 //hitab[inum] : Indices from size-ordered list to original symbol
 //hbmax[0-31] : Highest index (+1) of n-bit symbol
-static void hufgencode(int *inbuf, int inum, int *hitab, int *hbmax)
+static void hufgencode(int32_t *inbuf, int32_t inum, int32_t *hitab, int32_t *hbmax)
 {
-    int i, tbuf[31];
+    int32_t i, tbuf[31];
 
     for (i=30;i;i--) tbuf[i] = 0;
     for (i=inum-1;i>=0;i--) tbuf[inbuf[i]]++;
@@ -505,9 +505,9 @@ static void hufgencode(int *inbuf, int inum, int *hitab, int *hbmax)
     for (i=0;i<inum;i++) if (inbuf[i]) hitab[hbmax[inbuf[i]]++] = i;
 }
 
-static int initpass()  //Interlaced images have 7 "passes", non-interlaced have 1
+static int32_t initpass()  //Interlaced images have 7 "passes", non-interlaced have 1
 {
-    int i, j, k;
+    int32_t i, j, k;
 
     do
     {
@@ -541,7 +541,7 @@ static int initpass()  //Interlaced images have 7 "passes", non-interlaced have 
     }
 
     memset(olinbuf,0,(xsizbpl+1)*sizeof(olinbuf[0]));
-    *(int *)&opixbuf0[0] = *(int *)&opixbuf1[0] = 0;
+    *(int32_t *)&opixbuf0[0] = *(int32_t *)&opixbuf1[0] = 0;
     xplc = xsizbpl; yplc = globyoffs+iyoff; xm = 0; filt = -1;
 
     i = globxoffs+ixoff; i = (((-(i>=0))|(ixstp-1))&i);
@@ -577,9 +577,9 @@ static int initpass()  //Interlaced images have 7 "passes", non-interlaced have 
     return(0);
 }
 
-static int Paeth(int a, int b, int c)
+static int32_t Paeth(int32_t a, int32_t b, int32_t c)
 {
-    int pa, pb, pc;
+    int32_t pa, pb, pc;
 
     pa = b-c; pb = a-c; pc = labs(pa+pb); pa = labs(pa); pb = labs(pb);
     if ((pa <= pb) && (pa <= pc)) return(a);
@@ -589,7 +589,7 @@ static int Paeth(int a, int b, int c)
 #if defined(__WATCOMC__) && !defined(NOASM)
 
 //NOTE: cmov now has correctly ordered registers (thx to bug fix in 11.0c!)
-int Paeth686(int, int, int);
+int32_t Paeth686(int32_t, int32_t, int32_t);
 #pragma aux Paeth686 =\
 	".686"\
 	"mov edx, ecx"\
@@ -608,7 +608,7 @@ int Paeth686(int, int, int);
 	value [ecx]
 
 //Note: "cmove eax,?" may be faster than "jne ?:and eax,?" but who cares
-void rgbhlineasm(int, int, int, int);
+void rgbhlineasm(int32_t, int32_t, int32_t, int32_t);
 #pragma aux rgbhlineasm =\
 	"sub ecx, edx"\
 	"jle short endit"\
@@ -636,7 +636,7 @@ void rgbhlineasm(int, int, int, int);
 	modify exact [eax ecx edi]\
 	value
 
-void pal8hlineasm(int, int, int, int);
+void pal8hlineasm(int32_t, int32_t, int32_t, int32_t);
 #pragma aux pal8hlineasm =\
 	"sub ecx, edx"\
 	"jle short endit"\
@@ -654,7 +654,7 @@ void pal8hlineasm(int, int, int, int);
 
 #elif defined(_MSC_VER) && !defined(NOASM)
 
-static _inline int Paeth686(int a, int b, int c)
+static _inline int32_t Paeth686(int32_t a, int32_t b, int32_t c)
 {
     _asm
     {
@@ -675,7 +675,7 @@ static _inline int Paeth686(int a, int b, int c)
     }
 }
 
-static _inline void rgbhlineasm(int c, int d, int t, int b)
+static _inline void rgbhlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
 {
     _asm
     {
@@ -684,34 +684,34 @@ static _inline void rgbhlineasm(int c, int d, int t, int b)
         mov edi, t
         mov ebx, b
         sub ecx, edx
-        jle short endit
+        jle int16_t endit
         add edx, offset olinbuf
         cmp dword ptr trnsrgb, 0
-        jz short begit2
+        jz int16_t begit2
 begit:
         mov eax, dword ptr [ecx+edx]
         or eax, 0xff000000
         cmp eax, dword ptr trnsrgb
-        jne short skipit
+        jne int16_t skipit
         and eax, 0xffffff
 skipit:
         sub ecx, 3
         mov [edi], eax
         lea edi, [edi+ebx]
-        jnz short begit
-        jmp short endit
+        jnz int16_t begit
+        jmp int16_t endit
 begit2:
         mov eax, dword ptr [ecx+edx]
         or eax, 0xff000000
         sub ecx, 3
         mov [edi], eax
         lea edi, [edi+ebx]
-        jnz short begit2
+        jnz int16_t begit2
 endit:
     }
 }
 
-static _inline void pal8hlineasm(int c, int d, int t, int b)
+static _inline void pal8hlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
 {
     _asm
     {
@@ -720,7 +720,7 @@ static _inline void pal8hlineasm(int c, int d, int t, int b)
         mov edi, t
         mov ebx, b
         sub ecx, edx
-        jle short endit
+        jle int16_t endit
         add edx, offset olinbuf
 begit:
         movzx eax, byte ptr [ecx+edx]
@@ -728,14 +728,14 @@ begit:
         sub ecx, 1
         mov [edi], eax
         lea edi, [edi+ebx]
-        jnz short begit
+        jnz int16_t begit
 endit:
     }
 }
 
 #elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 
-static inline int Paeth686(int a, int b, int c)
+static inline int32_t Paeth686(int32_t a, int32_t b, int32_t c)
 {
     __asm__ __volatile__(
         "movl %%ecx, %%edx\n\tsubl %%eax, %%edx\n\tsubl %%ebx, %%edx\n\t"
@@ -749,7 +749,7 @@ static inline int Paeth686(int a, int b, int c)
 }
 
 //Note: "cmove eax,?" may be faster than "jne ?:and eax,?" but who cares
-static inline void rgbhlineasm(int c, int d, int t, int b)
+static inline void rgbhlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
 {
     __asm__ __volatile__(
         "subl %%edx, %%ecx\n\tjle 3f\n\taddl $olinbuf, %%edx\n\t"
@@ -765,7 +765,7 @@ static inline void rgbhlineasm(int c, int d, int t, int b)
             );
 }
 
-static inline void pal8hlineasm(int c, int d, int t, int b)
+static inline void pal8hlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
 {
     __asm__ __volatile__(
         "subl %%edx, %%ecx\n\tjle 1f\n\taddl $olinbuf, %%edx\n\t"
@@ -778,30 +778,30 @@ static inline void pal8hlineasm(int c, int d, int t, int b)
 
 #else
 
-static inline int Paeth686(int a, int b, int c)
+static inline int32_t Paeth686(int32_t a, int32_t b, int32_t c)
 {
     return(Paeth(a,b,c));
 }
 
-static inline void rgbhlineasm(int x, int xr1, intptr_t p, int ixstp)
+static inline void rgbhlineasm(int32_t x, int32_t xr1, intptr_t p, int32_t ixstp)
 {
-    int i;
+    int32_t i;
     if (!trnsrgb)
     {
-        for (;x>xr1;p+=ixstp,x-=3) *(int *)p = (*(int *)&olinbuf[x])|LSWAPIB(0xff000000);
+        for (;x>xr1;p+=ixstp,x-=3) *(int32_t *)p = (*(int32_t *)&olinbuf[x])|LSWAPIB(0xff000000);
         return;
     }
     for (;x>xr1;p+=ixstp,x-=3)
     {
-        i = (*(int *)&olinbuf[x])|LSWAPIB(0xff000000);
+        i = (*(int32_t *)&olinbuf[x])|LSWAPIB(0xff000000);
         if (i == trnsrgb) i &= LSWAPIB(0xffffff);
-        *(int *)p = i;
+        *(int32_t *)p = i;
     }
 }
 
-static inline void pal8hlineasm(int x, int xr1, intptr_t p, int ixstp)
+static inline void pal8hlineasm(int32_t x, int32_t xr1, intptr_t p, int32_t ixstp)
 {
-    for (;x>xr1;p+=ixstp,x--) *(int *)p = palcol[olinbuf[x]];
+    for (;x>xr1;p+=ixstp,x--) *(int32_t *)p = palcol[olinbuf[x]];
 }
 
 #endif
@@ -814,10 +814,10 @@ static inline void pal8hlineasm(int x, int xr1, intptr_t p, int ixstp)
 //    /f3: 3333333...
 //    /f4: 4444444...
 //    /f5: 0142321...
-static int filter1st, filterest;
-static void putbuf(const unsigned char *buf, int leng)
+static int32_t filter1st, filterest;
+static void putbuf(const char *buf, int32_t leng)
 {
-    int i, x;
+    int32_t i, x;
     intptr_t p;
 
     if (filt < 0)
@@ -858,7 +858,7 @@ static void putbuf(const unsigned char *buf, int leng)
         case 4:
             while (i < x)
             {
-                opixbuf1[xm] = (char)(Paeth(opixbuf1[xm],olinbuf[xplc],opixbuf0[xm])+buf[i]);
+                opixbuf1[xm] = (uint8_t)(Paeth(opixbuf1[xm],olinbuf[xplc],opixbuf0[xm])+buf[i]);
                 opixbuf0[xm] = olinbuf[xplc];
                 olinbuf[xplc] = opixbuf1[xm];
                 xm = xmn[xm]; xplc--; i++;
@@ -867,7 +867,7 @@ static void putbuf(const unsigned char *buf, int leng)
         case 5: //Special hack for Paeth686 (Doesn't have to be case 5)
             while (i < x)
             {
-                opixbuf1[xm] = (char)(Paeth686(opixbuf1[xm],olinbuf[xplc],opixbuf0[xm])+buf[i]);
+                opixbuf1[xm] = (uint8_t)(Paeth686(opixbuf1[xm],olinbuf[xplc],opixbuf0[xm])+buf[i]);
                 opixbuf0[xm] = olinbuf[xplc];
                 olinbuf[xplc] = opixbuf1[xm];
                 xm = xmn[xm]; xplc--; i++;
@@ -878,7 +878,7 @@ static void putbuf(const unsigned char *buf, int leng)
         if (xplc > 0) return;
 
         //Draw line!
-        if ((unsigned int)yplc < (unsigned int)yres)
+        if ((uint32_t)yplc < (uint32_t)yres)
         {
             x = xr0; p = nfplace;
             switch (coltype)
@@ -891,13 +891,13 @@ static void putbuf(const unsigned char *buf, int leng)
                 {
 #if (PROCESSALPHAHERE == 1)
                     //Enable this code to process alpha right here!
-                    if (olinbuf[x-1] == 255) { *(int *)p = palcol[olinbuf[x]]; continue; }
-                    if (!olinbuf[x-1]) { *(int *)p = bakcol; continue; }
+                    if (olinbuf[x-1] == 255) { *(int32_t *)p = palcol[olinbuf[x]]; continue; }
+                    if (!olinbuf[x-1]) { *(int32_t *)p = bakcol; continue; }
                     //I do >>8, but theoretically should be: /255
                     *(char *)(p) = *(char *)(p+1) = *(char *)(p+2) = *(char *)(p+3) =
-                                                        (((((int)olinbuf[x])-bakr)*(int)olinbuf[x-1])>>8) + bakr;
+                                                        (((((int32_t)olinbuf[x])-bakr)*(int32_t)olinbuf[x-1])>>8) + bakr;
 #else
-                    *(int *)p = (palcol[olinbuf[x]]&LSWAPIB(0xffffff))|LSWAPIL((int)olinbuf[x-1]);
+                    *(int32_t *)p = (palcol[olinbuf[x]]&LSWAPIB(0xffffff))|LSWAPIL((int32_t)olinbuf[x-1]);
 #endif
                 }
                 break;
@@ -906,12 +906,12 @@ static void putbuf(const unsigned char *buf, int leng)
                 {
 #if (PROCESSALPHAHERE == 1)
                     //Enable this code to process alpha right here!
-                    if (olinbuf[x-1] == 255) { *(int *)p = *(int *)&olinbuf[x]; continue; }
-                    if (!olinbuf[x-1]) { *(int *)p = bakcol; continue; }
+                    if (olinbuf[x-1] == 255) { *(int32_t *)p = *(int32_t *)&olinbuf[x]; continue; }
+                    if (!olinbuf[x-1]) { *(int32_t *)p = bakcol; continue; }
                     //I do >>8, but theoretically should be: /255
-                    *(char *)(p) = (((((int)olinbuf[x  ])-bakr)*(int)olinbuf[x-1])>>8) + bakr;
-                    *(char *)(p+1) = (((((int)olinbuf[x+1])-bakg)*(int)olinbuf[x-1])>>8) + bakg;
-                    *(char *)(p+2) = (((((int)olinbuf[x+2])-bakb)*(int)olinbuf[x-1])>>8) + bakb;
+                    *(char *)(p) = (((((int32_t)olinbuf[x  ])-bakr)*(int32_t)olinbuf[x-1])>>8) + bakr;
+                    *(char *)(p+1) = (((((int32_t)olinbuf[x+1])-bakg)*(int32_t)olinbuf[x-1])>>8) + bakg;
+                    *(char *)(p+2) = (((((int32_t)olinbuf[x+2])-bakb)*(int32_t)olinbuf[x-1])>>8) + bakb;
 #else
                     *(char *)(p) = olinbuf[x  ];   //R
                     *(char *)(p+1) = olinbuf[x+1]; //G
@@ -924,20 +924,20 @@ static void putbuf(const unsigned char *buf, int leng)
                 switch (bitdepth)
                 {
                 case 1:
-                    for (;x>xr1;p+=ixstp,x--) *(int *)p = palcol[olinbuf[x>>3]>>(x&7)]; break;
+                    for (;x>xr1;p+=ixstp,x--) *(int32_t *)p = palcol[olinbuf[x>>3]>>(x&7)]; break;
                 case 2:
-                    for (;x>xr1;p+=ixstp,x-=2) *(int *)p = palcol[olinbuf[x>>3]>>(x&6)]; break;
+                    for (;x>xr1;p+=ixstp,x-=2) *(int32_t *)p = palcol[olinbuf[x>>3]>>(x&6)]; break;
                 case 4:
-                    for (;x>xr1;p+=ixstp,x-=4) *(int *)p = palcol[olinbuf[x>>3]>>(x&4)]; break;
+                    for (;x>xr1;p+=ixstp,x-=4) *(int32_t *)p = palcol[olinbuf[x>>3]>>(x&4)]; break;
                 case 8:
-                    pal8hlineasm(x,xr1,p,ixstp); break; //for(;x>xr1;p+=ixstp,x--) *(int *)p = palcol[olinbuf[x]]; break;
+                    pal8hlineasm(x,xr1,p,ixstp); break; //for(;x>xr1;p+=ixstp,x--) *(int32_t *)p = palcol[olinbuf[x]]; break;
                 }
                 break;
             }
             nfplace += nbpl;
         }
 
-        *(int *)&opixbuf0[0] = *(int *)&opixbuf1[0] = 0;
+        *(int32_t *)&opixbuf0[0] = *(int32_t *)&opixbuf1[0] = 0;
         xplc = xsizbpl; yplc += iystp;
         if ((intlac) && (yplc >= globyoffs+ysiz)) { intlac--; initpass(); }
         if (i < leng)
@@ -952,7 +952,7 @@ static void putbuf(const unsigned char *buf, int leng)
 
 static void initpngtables()
 {
-    int i, j, k;
+    int32_t i, j, k;
 
     //hxbit[0-58][0-1] is a combination of 4 different tables:
     //   1st parameter: [0-29] are distances, [30-58] are lengths
@@ -980,33 +980,33 @@ static void initpngtables()
     }
 }
 
-static int kpngrend(const char *kfilebuf, int kfilength,
-                    intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
-                    int daglobxoffs, int daglobyoffs)
+static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
+                    intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres,
+                    int32_t daglobxoffs, int32_t daglobyoffs)
 {
-    int i, j, k, bfinal, btype, hlit, hdist, leng;
-    int slidew, slider;
-    //int qhuf0v, qhuf1v;
+    int32_t i, j, k, bfinal, btype, hlit, hdist, leng;
+    int32_t slidew, slider;
+    //int32_t qhuf0v, qhuf1v;
 
     UNREFERENCED_PARAMETER(kfilength);
 
     if (!pnginited) { pnginited = 1; initpngtables(); }
 
-    if ((*(int *)&kfilebuf[0] != LSWAPIB(0x474e5089)) || (*(int *)&kfilebuf[4] != LSWAPIB(0x0a1a0a0d)))
+    if ((*(int32_t *)&kfilebuf[0] != LSWAPIB(0x474e5089)) || (*(int32_t *)&kfilebuf[4] != LSWAPIB(0x0a1a0a0d)))
         return(-1); //"Invalid PNG file signature"
-    filptr = (unsigned char *)&kfilebuf[8];
+    filptr = (char *)&kfilebuf[8];
 
     trnsrgb = 0; filter1st = -1; filterest = 0;
 
     while (1)
     {
-        leng = LSWAPIL(*(int *)&filptr[0]); i = *(int *)&filptr[4];
+        leng = LSWAPIL(*(int32_t *)&filptr[0]); i = *(int32_t *)&filptr[4];
         filptr = &filptr[8];
 
         if (i == LSWAPIB(0x52444849)) //IHDR (must be first)
         {
-            xsiz = LSWAPIL(*(int *)&filptr[0]); if (xsiz <= 0) return(-1);
-            ysiz = LSWAPIL(*(int *)&filptr[4]); if (ysiz <= 0) return(-1);
+            xsiz = LSWAPIL(*(int32_t *)&filptr[0]); if (xsiz <= 0) return(-1);
+            ysiz = LSWAPIL(*(int32_t *)&filptr[4]); if (ysiz <= 0) return(-1);
             bitdepth = filptr[8]; if (!((1<<bitdepth)&0x116)) return(-1); //"Bit depth not supported"
             coltype = filptr[9]; if (!((1<<coltype)&0x5d)) return(-1); //"Color type not supported"
             if (filptr[10]) return(-1); //"Only *flate is supported"
@@ -1025,7 +1025,7 @@ static int kpngrend(const char *kfilebuf, int kfilength,
         else if (i == LSWAPIB(0x45544c50)) //PLTE (must be before IDAT)
         {
             paleng = leng/3;
-            for (i=paleng-1;i>=0;i--) palcol[i] = LSWAPIB((LSWAPIL(*(int *)&filptr[i*3])>>8)|0xff000000);
+            for (i=paleng-1;i>=0;i--) palcol[i] = LSWAPIB((LSWAPIL(*(int32_t *)&filptr[i*3])>>8)|0xff000000);
         }
         else if (i == LSWAPIB(0x44474b62)) //bKGD (must be after PLTE and before IDAT)
         {
@@ -1033,16 +1033,16 @@ static int kpngrend(const char *kfilebuf, int kfilength,
             {
             case 0:
             case 4:
-                bakcol = (((int)filptr[0]<<8)+(int)filptr[1])*255/((1<<bitdepth)-1);
+                bakcol = (((int32_t)filptr[0]<<8)+(int32_t)filptr[1])*255/((1<<bitdepth)-1);
                 bakcol = bakcol*0x10101+0xff000000; break;
             case 2:
             case 6:
                 if (bitdepth == 8)
-                    { bakcol = (((int)filptr[1])<<16)+(((int)filptr[3])<<8)+((int)filptr[5])+0xff000000; }
+                    { bakcol = (((int32_t)filptr[1])<<16)+(((int32_t)filptr[3])<<8)+((int32_t)filptr[5])+0xff000000; }
                 else
                 {
                     for (i=0,bakcol=0xff000000;i<3;i++)
-                        bakcol += ((((((int)filptr[i<<1])<<8)+((int)filptr[(i<<1)+1]))/257)<<(16-(i<<3)));
+                        bakcol += ((((((int32_t)filptr[i<<1])<<8)+((int32_t)filptr[(i<<1)+1]))/257)<<(16-(i<<3)));
                 }
                 break;
             case 3:
@@ -1059,17 +1059,17 @@ static int kpngrend(const char *kfilebuf, int kfilength,
             {
             case 0:
                 if (bitdepth <= 8)
-                    palcol[(int)filptr[1]] &= LSWAPIB(0xffffff);
+                    palcol[(int32_t)filptr[1]] &= LSWAPIB(0xffffff);
                 //else {} // /c0 /d16 not yet supported
                 break;
             case 2:
                 if (bitdepth == 8)
-                    { trnsrgb = LSWAPIB((((int)filptr[1])<<16)+(((int)filptr[3])<<8)+((int)filptr[5])+0xff000000); }
+                    { trnsrgb = LSWAPIB((((int32_t)filptr[1])<<16)+(((int32_t)filptr[3])<<8)+((int32_t)filptr[5])+0xff000000); }
                 //else {} //WARNING: PNG docs say: MUST compare all 48 bits :(
                 break;
             case 3:
                 for (i=min(leng,paleng)-1;i>=0;i--)
-                    palcol[i] &= LSWAPIB((((int)filptr[i])<<24)|0xffffff);
+                    palcol[i] &= LSWAPIB((((int32_t)filptr[i])<<24)|0xffffff);
                 break;
             default:
                 ;
@@ -1077,7 +1077,7 @@ static int kpngrend(const char *kfilebuf, int kfilength,
         }
         else if (i == LSWAPIB(0x54414449)) { break; }  //IDAT
 
-        filptr = &filptr[leng+4]; //crc = LSWAPIL(*(int *)&filptr[-4]);
+        filptr = &filptr[leng+4]; //crc = LSWAPIL(*(int32_t *)&filptr[-4]);
     }
 
     //Initialize this for the getbits() function
@@ -1153,7 +1153,7 @@ static int kpngrend(const char *kfilebuf, int kfilength,
                     putbuf(&slidebuf[(slider-16384)&32767],16384); slider += 16384;
                     if ((yplc >= yres) && (intlac < 2)) goto kpngrend_goodret;
                 }
-                slidebuf[(slidew++)&32767] = (char)getbits(8);
+                slidebuf[(slidew++)&32767] = (uint8_t)getbits(8);
             }
             continue;
         }
@@ -1207,16 +1207,16 @@ static int kpngrend(const char *kfilebuf, int kfilength,
             }
 
             k = peekbits(LOGQHUFSIZ0);
-            if (qhufbit0[k]) { i = qhufval0[k]; suckbits((int)qhufbit0[k]); }
+            if (qhufbit0[k]) { i = qhufval0[k]; suckbits((int32_t)qhufbit0[k]); }
             else i = hufgetsym(ibuf0,nbuf0);
             //else i = hufgetsym_skipb(ibuf0,nbuf0,LOGQHUFSIZ0,qhuf0v); //hufgetsym_skipb related code
 
-            if (i < 256) { slidebuf[(slidew++)&32767] = (char)i; continue; }
+            if (i < 256) { slidebuf[(slidew++)&32767] = (uint8_t)i; continue; }
             if (i == 256) break;
             i = getbits(hxbit[i+30-257][0]) + hxbit[i+30-257][1];
 
             k = peekbits(LOGQHUFSIZ1);
-            if (qhufbit1[k]) { j = qhufval1[k]; suckbits((int)qhufbit1[k]); }
+            if (qhufbit1[k]) { j = qhufval1[k]; suckbits((int32_t)qhufbit1[k]); }
             else j = hufgetsym(ibuf1,nbuf1);
             //else j = hufgetsym_skipb(ibuf1,nbuf1,LOGQHUFSIZ1,qhuf1v); //hufgetsym_skipb related code
 
@@ -1252,30 +1252,30 @@ kpngrend_goodret:
 //   All non 32-bit color drawing was removed
 //   "Motion" JPG code was removed
 //   A lot of parameters were added to kpeg() for library usage
-static int kpeginited = 0;
-static int clipxdim, clipydim;
+static int32_t kpeginited = 0;
+static int32_t clipxdim, clipydim;
 
-static int hufmaxatbit[8][20], hufvalatbit[8][20], hufcnt[8];
-static unsigned char hufnumatbit[8][20], huftable[8][256];
-static int hufquickval[8][1024], hufquickbits[8][1024], hufquickcnt[8];
-static int quantab[4][64], dct[12][64], lastdc[4], unzig[64], zigit[64]; //dct:10=MAX (says spec);+2 for hacks
-static unsigned char gnumcomponents, dcflagor[64];
-static int gcompid[4], gcomphsamp[4], gcompvsamp[4], gcompquantab[4], gcomphsampshift[4], gcompvsampshift[4];
-static int lnumcomponents, lcompid[4], lcompdc[4], lcompac[4], lcomphsamp[4], lcompvsamp[4], lcompquantab[4];
-static int lcomphvsamp0, lcomphsampshift0, lcompvsampshift0;
-static int colclip[1024], colclipup8[1024], colclipup16[1024];
-// static unsigned char pow2char[8] = {1,2,4,8,16,32,64,128};
+static int32_t hufmaxatbit[8][20], hufvalatbit[8][20], hufcnt[8];
+static char hufnumatbit[8][20], huftable[8][256];
+static int32_t hufquickval[8][1024], hufquickbits[8][1024], hufquickcnt[8];
+static int32_t quantab[4][64], dct[12][64], lastdc[4], unzig[64], zigit[64]; //dct:10=MAX (says spec);+2 for hacks
+static char gnumcomponents, dcflagor[64];
+static int32_t gcompid[4], gcomphsamp[4], gcompvsamp[4], gcompquantab[4], gcomphsampshift[4], gcompvsampshift[4];
+static int32_t lnumcomponents, lcompid[4], lcompdc[4], lcompac[4], lcomphsamp[4], lcompvsamp[4], lcompquantab[4];
+static int32_t lcomphvsamp0, lcomphsampshift0, lcompvsampshift0;
+static int32_t colclip[1024], colclipup8[1024], colclipup16[1024];
+// static char pow2char[8] = {1,2,4,8,16,32,64,128};
 
 #if defined(__WATCOMC__) && !defined(NOASM)
 
-int mulshr24(int, int);
+int32_t mulshr24(int32_t, int32_t);
 #pragma aux mulshr24 =\
 	"imul edx"\
 	"shrd eax, edx, 24"\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulshr32(int, int);
+int32_t mulshr32(int32_t, int32_t);
 #pragma aux mulshr32 =\
 	"imul edx"\
 	parm nomemory [eax][edx]\
@@ -1284,7 +1284,7 @@ int mulshr32(int, int);
 
 #elif defined(_MSC_VER) && !defined(NOASM)
 
-static _inline int mulshr24(int a, int d)
+static _inline int32_t mulshr24(int32_t a, int32_t d)
 {
     _asm
     {
@@ -1294,7 +1294,7 @@ static _inline int mulshr24(int a, int d)
     }
 }
 
-static _inline int mulshr32(int a, int d)
+static _inline int32_t mulshr32(int32_t a, int32_t d)
 {
     _asm
     {
@@ -1307,38 +1307,38 @@ static _inline int mulshr32(int a, int d)
 #elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 
 #define mulshr24(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 		__asm__ __volatile__ ("imull %%edx; shrdl $24, %%edx, %%eax" \
 		: "+a" (__a), "+d" (__d) : : "cc"); \
 	 __a; })
 
 #define mulshr32(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 		__asm__ __volatile__ ("imull %%edx" \
 		: "+a" (__a), "+d" (__d) : : "cc"); \
 	 __d; })
 
 #else
 
-static inline int mulshr24(int a, int b)
+static inline int32_t mulshr24(int32_t a, int32_t b)
 {
-    return((int)((((__int64)a)*((__int64)b))>>24));
+    return((int32_t)((((__int64)a)*((__int64)b))>>24));
 }
 
-static inline int mulshr32(int a, int b)
+static inline int32_t mulshr32(int32_t a, int32_t b)
 {
-    return((int)((((__int64)a)*((__int64)b))>>32));
+    return((int32_t)((((__int64)a)*((__int64)b))>>32));
 }
 
 #endif
 
-static int cosqr16[8] =    //cosqr16[i] = ((cos(PI*i/16)*sqrt(2))<<24);
+static int32_t cosqr16[8] =    //cosqr16[i] = ((cos(PI*i/16)*sqrt(2))<<24);
     {23726566,23270667,21920489,19727919,16777216,13181774,9079764,4628823};
-static int crmul[4096], cbmul[4096];
+static int32_t crmul[4096], cbmul[4096];
 
 static void initkpeg()
 {
-    int i, x, y;
+    int32_t i, x, y;
 
     x = 0;  //Back & forth diagonal pattern (aligning bytes for best compression)
     for (i=0;i<16;i+=2)
@@ -1349,7 +1349,7 @@ static void initkpeg()
             if ((unsigned)(i+1-y) < (unsigned)8) unzig[x++] = (y<<3)+i+1-y;
     }
     for (i=64-1;i>=0;i--) zigit[unzig[i]] = i;
-    for (i=64-1;i>=0;i--) dcflagor[i] = (unsigned char)(1<<(unzig[i]>>3));
+    for (i=64-1;i>=0;i--) dcflagor[i] = (uint8_t)(1<<(unzig[i]>>3));
 
     for (i=0;i<128;i++) colclip[i] = i+128;
     for (i=128;i<512;i++) colclip[i] = 255;
@@ -1380,9 +1380,9 @@ static void initkpeg()
     memset((void *)&dct[10][0],0,64*2*sizeof(dct[0][0]));
 }
 
-static void huffgetval(int index, int curbits, int num, int *daval, int *dabits)
+static void huffgetval(int32_t index, int32_t curbits, int32_t num, int32_t *daval, int32_t *dabits)
 {
-    int b, v, pow2, *hmax;
+    int32_t b, v, pow2, *hmax;
 
     hmax = &hufmaxatbit[index][0];
     pow2 = pow2long[curbits-1];
@@ -1401,13 +1401,13 @@ static void huffgetval(int index, int curbits, int num, int *daval, int *dabits)
     *dabits = 16; *daval = 0;
 }
 
-static void invdct8x8(int *dc, unsigned char dcflag)
+static void invdct8x8(int32_t *dc, char dcflag)
 {
 #define SQRT2 23726566   //(sqrt(2))<<24
 #define C182 31000253    //(cos(PI/8)*2)<<24
 #define C18S22 43840978  //(cos(PI/8)*sqrt(2)*2)<<24
 #define C38S22 18159528  //(cos(PI*3/8)*sqrt(2)*2)<<24
-    int *edc, t0, t1, t2, t3, t4, t5, t6, t7;
+    int32_t *edc, t0, t1, t2, t3, t4, t5, t6, t7;
 
     edc = dc+64;
     do
@@ -1448,9 +1448,9 @@ static void invdct8x8(int *dc, unsigned char dcflag)
     while (dc < edc);
 }
 
-static void yrbrend(int x, int y)
+static void yrbrend(int32_t x, int32_t y)
 {
-    int i, j, ox, oy, xx, yy, xxx, yyy, xxxend, yyyend, yv, cr = 0, cb = 0, *odc, *dc, *dc2;
+    int32_t i, j, ox, oy, xx, yy, xxx, yyy, xxxend, yyyend, yv, cr = 0, cb = 0, *odc, *dc, *dc2;
     intptr_t p,pp;
 
     odc = dct[0]; dc2 = dct[10];
@@ -1475,7 +1475,7 @@ static void yrbrend(int x, int y)
                         yv = dc[xxx];
                         cr = (dc2[xxx+64]>>13)&~1;
                         cb = (dc2[xxx   ]>>13)&~1;
-                        ((int *)p)[xxx] = colclipup16[(unsigned)(yv+crmul[cr+2048])>>22]+
+                        ((int32_t *)p)[xxx] = colclipup16[(unsigned)(yv+crmul[cr+2048])>>22]+
                                           colclipup8[(unsigned)(yv+crmul[cr+2049]+cbmul[cb+2048])>>22]+
                                           colclip[(unsigned)(yv+cbmul[cb+2049])>>22];
                     }
@@ -1496,11 +1496,11 @@ static void yrbrend(int x, int y)
                         i = crmul[cr+2049]+cbmul[cb+2048];
                         cr = crmul[cr+2048];
                         cb = cbmul[cb+2049];
-                        ((int *)p)[xxx] = colclipup16[(unsigned)(yv+cr)>>22]+
+                        ((int32_t *)p)[xxx] = colclipup16[(unsigned)(yv+cr)>>22]+
                                           colclipup8[(unsigned)(yv+ i)>>22]+
                                           colclip[(unsigned)(yv+cb)>>22];
                         yv = dc[xxx+1];
-                        ((int *)p)[xxx+1] = colclipup16[(unsigned)(yv+cr)>>22]+
+                        ((int32_t *)p)[xxx+1] = colclipup16[(unsigned)(yv+cr)>>22]+
                                             colclipup8[(unsigned)(yv+ i)>>22]+
                                             colclip[(unsigned)(yv+cb)>>22];
                     }
@@ -1525,7 +1525,7 @@ static void yrbrend(int x, int y)
                             cb = (dc2[i   ]>>13)&~1;
                             i++;
                         }
-                        ((int *)p)[xxx] = colclipup16[(unsigned)(yv+crmul[cr+2048])>>22]+
+                        ((int32_t *)p)[xxx] = colclipup16[(unsigned)(yv+crmul[cr+2048])>>22]+
                                           colclipup8[(unsigned)(yv+crmul[cr+2049]+cbmul[cb+2048])>>22]+
                                           colclip[(unsigned)(yv+cbmul[cb+2049])>>22];
                     }
@@ -1538,23 +1538,23 @@ static void yrbrend(int x, int y)
     }
 }
 
-static int kpegrend(const char *kfilebuf, int kfilength,
-                    intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
-                    int daglobxoffs, int daglobyoffs)
+static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
+                    intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres,
+                    int32_t daglobxoffs, int32_t daglobyoffs)
 {
-    int i, j, v, leng, xdim = 0, ydim = 0, index, prec, restartcnt, restartinterval;
-    int x, y, z, xx, yy, zz, *dc = 0, num, curbits, c, daval, dabits, *hqval, *hqbits, hqcnt, *quanptr = 0;
-    int passcnt = 0, ghsampmax = 0, gvsampmax = 0, glhsampmax = 0, glvsampmax = 0, glhstep, glvstep;
-    int eobrun, Ss, Se, Ah, Al, Alut[2], dctx[12], dcty[12], ldctx[12], ldcty[12], lshx[4], lshy[4];
-    short *dctbuf = 0, *dctptr[12], *ldctptr[12], *dcs = 0;
-    unsigned char ch, marker, dcflag;
-    const unsigned char *kfileptr;
+    int32_t i, j, v, leng, xdim = 0, ydim = 0, index, prec, restartcnt, restartinterval;
+    int32_t x, y, z, xx, yy, zz, *dc = 0, num, curbits, c, daval, dabits, *hqval, *hqbits, hqcnt, *quanptr = 0;
+    int32_t passcnt = 0, ghsampmax = 0, gvsampmax = 0, glhsampmax = 0, glvsampmax = 0, glhstep, glvstep;
+    int32_t eobrun, Ss, Se, Ah, Al, Alut[2], dctx[12], dcty[12], ldctx[12], ldcty[12], lshx[4], lshy[4];
+    int16_t *dctbuf = 0, *dctptr[12], *ldctptr[12], *dcs = 0;
+    char ch, marker, dcflag;
+    const char *kfileptr;
 
     if (!kpeginited) { kpeginited = 1; initkpeg(); }
 
-    kfileptr = (unsigned char *)kfilebuf;
+    kfileptr = (char *)kfilebuf;
 
-    if (*(unsigned short *)kfileptr == SSWAPIB(0xd8ff)) kfileptr += 2;
+    if (*(uint16_t *)kfileptr == SSWAPIB(0xd8ff)) kfileptr += 2;
     else return(-1); //"%s is not a JPEG file\n",filename
 
     restartinterval = 0;
@@ -1572,7 +1572,7 @@ static int kpegrend(const char *kfilebuf, int kfilength,
             leng = ((intptr_t)kfileptr[0]<<8)+(intptr_t)kfileptr[1]-2;
             kfileptr += 2;
         }
-        //printf("fileoffs=%08x, marker=%02x,leng=%d",((int)kfileptr)-((int)kfilebuf)-2,marker,leng);
+        //printf("fileoffs=%08x, marker=%02x,leng=%d",((int32_t)kfileptr)-((int32_t)kfilebuf)-2,marker,leng);
         switch (marker)
         {
         case 0xc0:
@@ -1581,8 +1581,8 @@ static int kpegrend(const char *kfilebuf, int kfilength,
             //processit!
             kfileptr++; //numbits = *kfileptr++;
 
-            ydim = SSWAPIL(*(unsigned short *)&kfileptr[0]);
-            xdim = SSWAPIL(*(unsigned short *)&kfileptr[2]);
+            ydim = SSWAPIL(*(uint16_t *)&kfileptr[0]);
+            xdim = SSWAPIL(*(uint16_t *)&kfileptr[2]);
             //printf("%s: %d / %d = %d\n",filename,xdim*ydim*3,kfilength,(xdim*ydim*3)/kfilength);
 
             frameplace = daframeplace;
@@ -1624,7 +1624,7 @@ static int kpegrend(const char *kfilebuf, int kfilength,
                 {
                     hufmaxatbit[index][i] = v+hufnumatbit[index][i];
                     hufvalatbit[index][i] = hufcnt[index]-v;
-                    memcpy((void *)&huftable[index][hufcnt[index]],(void *)kfileptr,(int)hufnumatbit[index][i]);
+                    memcpy((void *)&huftable[index][hufcnt[index]],(void *)kfileptr,(int32_t)hufnumatbit[index][i]);
                     if (i <= 10)
                         for (c=0;c<hufnumatbit[index][i];c++)
                             for (j=(1<<(10-i));j>0;j--)
@@ -1650,8 +1650,8 @@ static int kpegrend(const char *kfilebuf, int kfilength,
                 prec = (ch>>4);
                 for (z=0;z<64;z++)
                 {
-                    v = (int)(*kfileptr++);
-                    if (prec) v = (v<<8)+((int)(*kfileptr++));
+                    v = (int32_t)(*kfileptr++);
+                    if (prec) v = (v<<8)+((int32_t)(*kfileptr++));
                     v <<= 19;
                     if (unzig[z]&7) v = mulshr24(v,cosqr16[unzig[z]&7 ]);
                     if (unzig[z]>>3) v = mulshr24(v,cosqr16[unzig[z]>>3]);
@@ -1664,13 +1664,13 @@ static int kpegrend(const char *kfilebuf, int kfilength,
             while (leng > 0);
             break;
         case 0xdd:
-            restartinterval = SSWAPIL(*(unsigned short *)&kfileptr[0]);
+            restartinterval = SSWAPIL(*(uint16_t *)&kfileptr[0]);
             kfileptr += leng;
             break;
         case 0xda:
             if ((xdim <= 0) || (ydim <= 0)) { if (dctbuf) free(dctbuf); return(-1); }
 
-            lnumcomponents = (int)(*kfileptr++); if (!lnumcomponents) { if (dctbuf) free(dctbuf); return(-1); }
+            lnumcomponents = (int32_t)(*kfileptr++); if (!lnumcomponents) { if (dctbuf) free(dctbuf); return(-1); }
             if (lnumcomponents > 1) coltype = 2;
             for (z=0;z<lnumcomponents;z++)
             {
@@ -1695,8 +1695,8 @@ static int kpegrend(const char *kfilebuf, int kfilength,
                     dcty[z] = ((ydim+(gvsampmax<<3)-1)>>(glvsampmax+3)) << gcompvsampshift[z];
                     zz += dctx[z]*dcty[z];
                 }
-                z = zz*64*sizeof(short);
-                dctbuf = (short *)malloc(z); if (!dctbuf) return(-1);
+                z = zz*64*sizeof(int16_t);
+                dctbuf = (int16_t *)malloc(z); if (!dctbuf) return(-1);
                 memset(dctbuf,0,z);
                 for (z=zz=0;z<gnumcomponents;z++) { dctptr[z] = &dctbuf[zz*64]; zz += dctx[z]*dcty[z]; }
             }
@@ -1740,7 +1740,7 @@ static int kpegrend(const char *kfilebuf, int kfilength,
             for (y=0;y<ydim;y+=glvstep)
                 for (x=0;x<xdim;x+=glhstep)
                 {
-                    if (kfileptr-4-(unsigned char *)kfilebuf >= kfilength) goto kpegrend_break2; //rest of file is missing!
+                    if (kfileptr-4-(char *)kfilebuf >= kfilength) goto kpegrend_break2; //rest of file is missing!
 
                     if (!dctbuf) dc = dct[0];
                     for (c=0;c<lnumcomponents;c++)
@@ -1762,7 +1762,7 @@ static int kpegrend(const char *kfilebuf, int kfilength,
                                     while (curbits < 24) //Getbits
                                     {
                                         ch = *kfileptr++; if (ch == 255) kfileptr++;
-                                        num = (num<<8)+((int)ch); curbits += 8;
+                                        num = (num<<8)+((int32_t)ch); curbits += 8;
                                     }
 
                                     if (!Ah)
@@ -1777,16 +1777,16 @@ static int kpegrend(const char *kfilebuf, int kfilength,
                                             while (curbits < 24) //Getbits
                                             {
                                                 ch = *kfileptr++; if (ch == 255) kfileptr++;
-                                                num = (num<<8)+((int)ch); curbits += 8;
+                                                num = (num<<8)+((int32_t)ch); curbits += 8;
                                             }
 
                                             curbits -= daval; v = ((unsigned)num >> curbits) & pow2mask[daval];
                                             if (v <= pow2mask[daval-1]) v -= pow2mask[daval];
                                             lastdc[c] += v;
                                         }
-                                        if (!dctbuf) dc[0] = lastdc[c]; else dcs[0] = (short)(lastdc[c]<<Al);
+                                        if (!dctbuf) dc[0] = lastdc[c]; else dcs[0] = (int16_t)(lastdc[c]<<Al);
                                     }
-                                    else if (num&(pow2long[--curbits])) dcs[0] |= ((short)Alut[0]);
+                                    else if (num&(pow2long[--curbits])) dcs[0] |= ((int16_t)Alut[0]);
                                 }
 
                                 //Get AC
@@ -1800,7 +1800,7 @@ static int kpegrend(const char *kfilebuf, int kfilength,
                                         {
                                             ch = *kfileptr++;
                                             if (ch == 255) kfileptr++;
-                                            num = (num<<8)+((int)ch); curbits += 8;
+                                            num = (num<<8)+((int32_t)ch); curbits += 8;
                                         }
                                         i = ((num>>(curbits-10))&1023);
                                         if (i < hqcnt)
@@ -1824,7 +1824,7 @@ static int kpegrend(const char *kfilebuf, int kfilength,
                                                 while (curbits < 24) //Getbits
                                                 {
                                                     ch = *kfileptr++; if (ch == 255) kfileptr++;
-                                                    num = (num<<8)+((int)ch); curbits += 8;
+                                                    num = (num<<8)+((int32_t)ch); curbits += 8;
                                                 }
                                                 curbits -= zz; eobrun += ((unsigned)num >> curbits) & pow2mask[zz];
                                             }
@@ -1840,9 +1840,9 @@ static int kpegrend(const char *kfilebuf, int kfilength,
                                                     while (curbits < 24) //Getbits
                                                     {
                                                         ch = *kfileptr++; if (ch == 255) kfileptr++;
-                                                        num = (num<<8)+((int)ch); curbits += 8;
+                                                        num = (num<<8)+((int32_t)ch); curbits += 8;
                                                     }
-                                                    if (num&(pow2long[--curbits])) dcs[z] += ((short)Alut[dcs[z] < 0]);
+                                                    if (num&(pow2long[--curbits])) dcs[z] += ((int16_t)Alut[dcs[z] < 0]);
                                                 }
                                                 else if (--zz < 0) break;
                                                 z++;
@@ -1857,12 +1857,12 @@ static int kpegrend(const char *kfilebuf, int kfilength,
                                             while (curbits < 24) //Getbits
                                             {
                                                 ch = *kfileptr++; if (ch == 255) kfileptr++;
-                                                num = (num<<8)+((int)ch); curbits += 8;
+                                                num = (num<<8)+((int32_t)ch); curbits += 8;
                                             }
                                             curbits -= daval; v = ((unsigned)num >> curbits) & pow2mask[daval];
                                             if (v <= pow2mask[daval-1]) v -= pow2mask[daval];
                                             dcflag |= dcflagor[z];
-                                            if (!dctbuf) dc[unzig[z]] = v; else dcs[z] = (short)(v<<Al);
+                                            if (!dctbuf) dc[unzig[z]] = v; else dcs[z] = (int16_t)(v<<Al);
                                         }
                                     }
                                 }
@@ -1876,9 +1876,9 @@ static int kpegrend(const char *kfilebuf, int kfilength,
                                         while (curbits < 24) //Getbits
                                         {
                                             ch = *kfileptr++; if (ch == 255) kfileptr++;
-                                            num = (num<<8)+((int)ch); curbits += 8;
+                                            num = (num<<8)+((int32_t)ch); curbits += 8;
                                         }
-                                        if (num&(pow2long[--curbits])) dcs[z] += ((short)Alut[dcs[z] < 0]);
+                                        if (num&(pow2long[--curbits])) dcs[z] += ((int16_t)Alut[dcs[z] < 0]);
                                     }
                                 }
 
@@ -1913,7 +1913,7 @@ kpegrend_break2:
             kfileptr += leng; break;
         }
     }
-    while (kfileptr-(unsigned char *)kfilebuf < kfilength);
+    while (kfileptr-(char *)kfilebuf < kfilength);
 
     if (!dctbuf) return(0);
 
@@ -1938,7 +1938,7 @@ kpegrend_break2:
                     {
                         dcs = &dctptr[c][(((y+yy)>>lshy[c])*dctx[c] + ((x+xx)>>lshx[c]))<<6];
                         quanptr = &quantab[gcompquantab[c]][0];
-                        for (z=0;z<64;z++) dc[z] = ((int)dcs[zigit[z]])*quanptr[z];
+                        for (z=0;z<64;z++) dc[z] = ((int32_t)dcs[zigit[z]])*quanptr[z];
                         invdct8x8(dc,-1);
                     }
             yrbrend(x,y);
@@ -1950,17 +1950,17 @@ kpegrend_break2:
 //==============================  KPEGILIB ends ==============================
 //================================ GIF begins ================================
 
-static unsigned char suffix[4100], filbuffer[768], tempstack[4096];
-static int prefix[4100];
+static char suffix[4100], filbuffer[768], tempstack[4096];
+static int32_t prefix[4100];
 
-static int kgifrend(const char *kfilebuf, int kfilelength,
-                    intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
-                    int daglobxoffs, int daglobyoffs)
+static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
+                    intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres,
+                    int32_t daglobxoffs, int32_t daglobyoffs)
 {
-    int i, x, y, xsiz, ysiz, yinc, xend, xspan, yspan, currstr, numbitgoal;
-    int lzcols, dat, blocklen, bitcnt, xoff, transcol, backcol, *lptr;
+    int32_t i, x, y, xsiz, ysiz, yinc, xend, xspan, yspan, currstr, numbitgoal;
+    int32_t lzcols, dat, blocklen, bitcnt, xoff, transcol, backcol, *lptr;
     char numbits, startnumbits, chunkind, ilacefirst;
-    const unsigned char *ptr, *cptr = 0;
+    const char *ptr, *cptr = 0;
     intptr_t yoff;
     UNREFERENCED_PARAMETER(kfilelength);
 
@@ -1969,23 +1969,23 @@ static int kgifrend(const char *kfilebuf, int kfilelength,
     if ((kfilebuf[0] != 'G') || (kfilebuf[1] != 'I') ||
             (kfilebuf[2] != 'F') || (kfilebuf[12])) return(-1);
     paleng = (1<<((kfilebuf[10]&7)+1));
-    ptr = (unsigned char *)&kfilebuf[13];
+    ptr = (char *)&kfilebuf[13];
     if (kfilebuf[10]&128) { cptr = ptr; ptr += paleng*3; }
     transcol = -1;
     while ((chunkind = *ptr++) == '!')
     {
         //! 0xf9 leng flags ?? ?? transcol
-        if (ptr[0] == 0xf9) { if (ptr[2]&1) transcol = (int)(((unsigned char)ptr[5])); }
+        if (ptr[0] == 0xf9) { if (ptr[2]&1) transcol = (int32_t)(((uint8_t)ptr[5])); }
         ptr++;
         do { i = *ptr++; ptr += i; }
         while (i);
     }
     if (chunkind != ',') return(-1);
 
-    xoff = SSWAPIB(*(unsigned short *)&ptr[0]);
-    yoff = SSWAPIB(*(unsigned short *)&ptr[2]);
-    xspan = SSWAPIB(*(unsigned short *)&ptr[4]);
-    yspan = SSWAPIB(*(unsigned short *)&ptr[6]); ptr += 9;
+    xoff = SSWAPIB(*(uint16_t *)&ptr[0]);
+    yoff = SSWAPIB(*(uint16_t *)&ptr[2]);
+    xspan = SSWAPIB(*(uint16_t *)&ptr[4]);
+    yspan = SSWAPIB(*(uint16_t *)&ptr[6]); ptr += 9;
     if (ptr[-1]&64) { yinc = 8; ilacefirst = 1; }
     else { yinc = 1; ilacefirst = 0; }
     if (ptr[-1]&128)
@@ -1995,17 +1995,17 @@ static int kgifrend(const char *kfilebuf, int kfilelength,
     }
 
     for (i=0;i<paleng;i++)
-        palcol[i] = LSWAPIB((((int)cptr[i*3])<<16) + (((int)cptr[i*3+1])<<8) + ((int)cptr[i*3+2]) + 0xff000000);
+        palcol[i] = LSWAPIB((((int32_t)cptr[i*3])<<16) + (((int32_t)cptr[i*3+1])<<8) + ((int32_t)cptr[i*3+2]) + 0xff000000);
     for (;i<256;i++) palcol[i] = LSWAPIB(0xff000000);
     if (transcol >= 0) palcol[transcol] &= LSWAPIB(~0xff000000);
 
     //Handle GIF files with different logical&image sizes or non-0 offsets (added 05/15/2004)
-    xsiz = SSWAPIB(*(unsigned short *)&kfilebuf[6]);
-    ysiz = SSWAPIB(*(unsigned short *)&kfilebuf[8]);
+    xsiz = SSWAPIB(*(uint16_t *)&kfilebuf[6]);
+    ysiz = SSWAPIB(*(uint16_t *)&kfilebuf[8]);
     if ((xoff != 0) || (yoff != 0) || (xsiz != xspan) || (ysiz != yspan))
     {
-        int xx[4], yy[4];
-        if (kfilebuf[10]&128) backcol = palcol[(unsigned char)kfilebuf[11]]; else backcol = 0;
+        int32_t xx[4], yy[4];
+        if (kfilebuf[10]&128) backcol = palcol[(uint8_t)kfilebuf[11]]; else backcol = 0;
 
         //Fill border to backcol
         xx[0] = max(daglobxoffs           ,     0); yy[0] = max(daglobyoffs           ,     0);
@@ -2013,15 +2013,15 @@ static int kgifrend(const char *kfilebuf, int kfilelength,
         xx[2] = max(daglobxoffs+xoff+xspan,     0); yy[2] = min(daglobyoffs+yoff+yspan,dayres);
         xx[3] = min(daglobxoffs+xsiz      ,daxres); yy[3] = min(daglobyoffs+ysiz      ,dayres);
 
-        lptr = (int *)(yy[0]*dabytesperline+daframeplace);
-        for (y=yy[0];y<yy[1];y++,lptr=(int *)(((intptr_t)lptr)+dabytesperline))
+        lptr = (int32_t *)(yy[0]*dabytesperline+daframeplace);
+        for (y=yy[0];y<yy[1];y++,lptr=(int32_t *)(((intptr_t)lptr)+dabytesperline))
             for (x=xx[0];x<xx[3];x++) lptr[x] = backcol;
-        for (;y<yy[2];y++,lptr=(int *)(((intptr_t)lptr)+dabytesperline))
+        for (;y<yy[2];y++,lptr=(int32_t *)(((intptr_t)lptr)+dabytesperline))
         {
             for (x=xx[0];x<xx[1];x++) lptr[x] = backcol;
             for (x=xx[2];x<xx[3];x++) lptr[x] = backcol;
         }
-        for (;y<yy[3];y++,lptr=(int *)(((intptr_t)lptr)+dabytesperline))
+        for (;y<yy[3];y++,lptr=(int32_t *)(((intptr_t)lptr)+dabytesperline))
             for (x=xx[0];x<xx[3];x++) lptr[x] = backcol;
 
         daglobxoffs += xoff; //Offset bitmap image by extra amount
@@ -2031,26 +2031,26 @@ static int kgifrend(const char *kfilebuf, int kfilelength,
     xspan += daglobxoffs;
     yspan += daglobyoffs;  //UGLY HACK
     y = daglobyoffs;
-    if ((unsigned int)y < (unsigned int)dayres)
+    if ((uint32_t)y < (uint32_t)dayres)
         { yoff = y*dabytesperline+daframeplace; x = daglobxoffs; xend = xspan; }
     else
         { x = daglobxoffs+0x80000000; xend = xspan+0x80000000; }
 
-    lzcols = (1<<(*ptr)); startnumbits = (char)((*ptr)+1); ptr++;
-    for (i=lzcols-1;i>=0;i--) { suffix[i] = (char)(prefix[i] = i); }
+    lzcols = (1<<(*ptr)); startnumbits = (uint8_t)((*ptr)+1); ptr++;
+    for (i=lzcols-1;i>=0;i--) { suffix[i] = (uint8_t)(prefix[i] = i); }
     currstr = lzcols+2; numbits = startnumbits; numbitgoal = (lzcols<<1);
     blocklen = *ptr++;
     memcpy(filbuffer,ptr,blocklen); ptr += blocklen;
     bitcnt = 0;
     while (1)
     {
-        dat = (LSWAPIB(*(int *)&filbuffer[bitcnt>>3])>>(bitcnt&7)) & (numbitgoal-1);
+        dat = (LSWAPIB(*(int32_t *)&filbuffer[bitcnt>>3])>>(bitcnt&7)) & (numbitgoal-1);
         bitcnt += numbits;
         if ((bitcnt>>3) > blocklen-3)
         {
-            *(short *)filbuffer = *(short *)&filbuffer[bitcnt>>3];
+            *(int16_t *)filbuffer = *(int16_t *)&filbuffer[bitcnt>>3];
             i = blocklen-(bitcnt>>3);
-            blocklen = (int)*ptr++;
+            blocklen = (int32_t)*ptr++;
             memcpy(&filbuffer[i],ptr,blocklen); ptr += blocklen;
             bitcnt &= 7; blocklen += i;
         }
@@ -2064,13 +2064,13 @@ static int kgifrend(const char *kfilebuf, int kfilelength,
 
         prefix[currstr] = dat;
         for (i=0;dat>=lzcols;dat=prefix[dat]) tempstack[i++] = suffix[dat];
-        tempstack[i] = (char)prefix[dat];
-        suffix[currstr-1] = suffix[currstr] = (char)dat;
+        tempstack[i] = (uint8_t)prefix[dat];
+        suffix[currstr-1] = suffix[currstr] = (uint8_t)dat;
 
         for (;i>=0;i--)
         {
-            if ((unsigned int)x < (unsigned int)daxres)
-                *(int *)(yoff+(x<<2)) = palcol[(int)tempstack[i]];
+            if ((uint32_t)x < (uint32_t)daxres)
+                *(int32_t *)(yoff+(x<<2)) = palcol[(int32_t)tempstack[i]];
             x++;
             if (x == xend)
             {
@@ -2087,7 +2087,7 @@ static int kgifrend(const char *kfilebuf, int kfilelength,
                     case 1:
                         return(0);
                     }
-                if ((unsigned int)y < (unsigned int)dayres)
+                if ((uint32_t)y < (uint32_t)dayres)
                     { yoff = y*dabytesperline+daframeplace; x = daglobxoffs; xend = xspan; }
                 else
                     { x = daglobxoffs+0x80000000; xend = xspan+0x80000000; }
@@ -2102,13 +2102,13 @@ static int kgifrend(const char *kfilebuf, int kfilelength,
 
 //   //old .CEL format:
 //short id = 0x9119, xdim, ydim, xoff, yoff, id = 0x0008;
-//int imagebytes, filler[4];
+//int32_t imagebytes, filler[4];
 //char pal6bit[256][3], image[ydim][xdim];
-static int kcelrend(const char *buf, int fleng,
-                    intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
-                    int daglobxoffs, int daglobyoffs)
+static int32_t kcelrend(const char *buf, int32_t fleng,
+                    intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres,
+                    int32_t daglobxoffs, int32_t daglobyoffs)
 {
-    int i, x, y, x0, x1, y0, y1, xsiz, ysiz;
+    int32_t i, x, y, x0, x1, y0, y1, xsiz, ysiz;
     const char *cptr;
 
     UNREFERENCED_PARAMETER(fleng);
@@ -2120,15 +2120,15 @@ static int kcelrend(const char *buf, int fleng,
 
     coltype = 3; bitdepth = 8; paleng = 256; //For PNGOUT
 
-    xsiz = (int)SSWAPIB(*(unsigned short *)&buf[2]); if (xsiz <= 0) return(-1);
-    ysiz = (int)SSWAPIB(*(unsigned short *)&buf[4]); if (ysiz <= 0) return(-1);
+    xsiz = (int32_t)SSWAPIB(*(uint16_t *)&buf[2]); if (xsiz <= 0) return(-1);
+    ysiz = (int32_t)SSWAPIB(*(uint16_t *)&buf[4]); if (ysiz <= 0) return(-1);
 
     cptr = &buf[32];
     for (i=0;i<256;i++)
     {
-        palcol[i] = (((int)cptr[0])<<18) +
-                    (((int)cptr[1])<<10) +
-                    (((int)cptr[2])<< 2) + LSWAPIB(0xff000000);
+        palcol[i] = (((int32_t)cptr[0])<<18) +
+                    (((int32_t)cptr[1])<<10) +
+                    (((int32_t)cptr[2])<< 2) + LSWAPIB(0xff000000);
         cptr += 3;
     }
 
@@ -2137,8 +2137,8 @@ static int kcelrend(const char *buf, int fleng,
     for (y=y0;y<y1;y++)
         for (x=x0;x<x1;x++)
         {
-            if (((unsigned int)x < (unsigned int)daxres) && ((unsigned int)y < (unsigned int)dayres))
-                *(int *)(y*dabytesperline+x*4+daframeplace) = palcol[cptr[0]];
+            if (((uint32_t)x < (uint32_t)daxres) && ((uint32_t)y < (uint32_t)dayres))
+                *(int32_t *)(y*dabytesperline+x*4+daframeplace) = palcol[cptr[0]];
             cptr++;
         }
     return(0);
@@ -2147,12 +2147,12 @@ static int kcelrend(const char *buf, int fleng,
 //===============================  CEL ends ==================================
 //=============================  TARGA begins ================================
 
-static int ktgarend(const char *header, int fleng,
-                    intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
-                    int daglobxoffs, int daglobyoffs)
+static int32_t ktgarend(const char *header, int32_t fleng,
+                    intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres,
+                    int32_t daglobxoffs, int32_t daglobyoffs)
 {
-    int i = 0, x, y, pi, xi, yi, x0, x1, y0, y1, xsiz, ysiz, rlestat, colbyte, pixbyte;
-    const unsigned char *fptr = 0, *cptr = 0, *nptr = 0;
+    int32_t i = 0, x, y, pi, xi, yi, x0, x1, y0, y1, xsiz, ysiz, rlestat, colbyte, pixbyte;
+    const char *fptr = 0, *cptr = 0, *nptr = 0;
     intptr_t p;
 
     //Ugly and unreliable identification for .TGA!
@@ -2161,16 +2161,16 @@ static int ktgarend(const char *header, int fleng,
     if ((header[16]&7) || (header[16] == 0) || (header[16] > 32)) return(-1);
     if (header[17]&0xc0) return(-1);
 
-    fptr = (unsigned char *)&header[header[0]+18];
-    xsiz = (int)SSWAPIB(*(unsigned short *)&header[12]); if (xsiz <= 0) return(-1);
-    ysiz = (int)SSWAPIB(*(unsigned short *)&header[14]); if (ysiz <= 0) return(-1);
-    colbyte = ((((int)header[16])+7)>>3);
+    fptr = (char *)&header[header[0]+18];
+    xsiz = (int32_t)SSWAPIB(*(uint16_t *)&header[12]); if (xsiz <= 0) return(-1);
+    ysiz = (int32_t)SSWAPIB(*(uint16_t *)&header[14]); if (ysiz <= 0) return(-1);
+    colbyte = ((((int32_t)header[16])+7)>>3);
 
     if (header[1] == 1)
     {
-        pixbyte = ((((int)header[7])+7)>>3);
-        cptr = &fptr[-SSWAPIB(*(unsigned short *)&header[3])*pixbyte];
-        fptr += SSWAPIB(*(unsigned short *)&header[5])*pixbyte;
+        pixbyte = ((((int32_t)header[7])+7)>>3);
+        cptr = &fptr[-SSWAPIB(*(uint16_t *)&header[3])*pixbyte];
+        fptr += SSWAPIB(*(uint16_t *)&header[5])*pixbyte;
     }
     else pixbyte = colbyte;
 
@@ -2200,11 +2200,11 @@ static int ktgarend(const char *header, int fleng,
         {
             if (rlestat < 128)
             {
-                if ((rlestat&127) == 127) { rlestat = (int)fptr[0]; fptr++; }
+                if ((rlestat&127) == 127) { rlestat = (int32_t)fptr[0]; fptr++; }
                 if (header[1] == 1)
                 {
                     if (colbyte == 1) i = fptr[0];
-                    else i = (int)SSWAPIB(*(unsigned short *)&fptr[0]);
+                    else i = (int32_t)SSWAPIB(*(uint16_t *)&fptr[0]);
                     nptr = &cptr[i*pixbyte];
                 }
                 else nptr = fptr;
@@ -2212,22 +2212,22 @@ static int ktgarend(const char *header, int fleng,
                 switch (pixbyte)
                 {
                 case 1:
-                    i = palcol[(int)nptr[0]]; break;
+                    i = palcol[(int32_t)nptr[0]]; break;
                 case 2:
-                    i = (int)SSWAPIB(*(unsigned short *)&nptr[0]);
+                    i = (int32_t)SSWAPIB(*(uint16_t *)&nptr[0]);
                     i = LSWAPIB(((i&0x7c00)<<9) + ((i&0x03e0)<<6) + ((i&0x001f)<<3) + 0xff000000);
                     break;
                 case 3:
-                    i = (*(int *)&nptr[0]) | LSWAPIB(0xff000000); break;
+                    i = (*(int32_t *)&nptr[0]) | LSWAPIB(0xff000000); break;
                 case 4:
-                    i = (*(int *)&nptr[0]); break;
+                    i = (*(int32_t *)&nptr[0]); break;
                 }
                 fptr += colbyte;
             }
             if (rlestat >= 0) rlestat--;
 
-            if (((unsigned int)x < (unsigned int)daxres) && ((unsigned int)y < (unsigned int)dayres))
-                *(int *)(x*4+p) = i;
+            if (((uint32_t)x < (uint32_t)daxres) && ((uint32_t)y < (uint32_t)dayres))
+                *(int32_t *)(x*4+p) = i;
         }
     return(0);
 }
@@ -2252,45 +2252,45 @@ static int ktgarend(const char *header, int fleng,
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 //                      ³ rastoff(?): bitmap data ³
 //                      ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-static int kbmprend(const char *buf, int fleng,
-                    intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
-                    int daglobxoffs, int daglobyoffs)
+static int32_t kbmprend(const char *buf, int32_t fleng,
+                    intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres,
+                    int32_t daglobxoffs, int32_t daglobyoffs)
 {
-    int i, j, x, y, x0, x1, y0, y1, rastoff, headsiz, xsiz, ysiz, cdim, comp, cptrinc, *lptr;
+    int32_t i, j, x, y, x0, x1, y0, y1, rastoff, headsiz, xsiz, ysiz, cdim, comp, cptrinc, *lptr;
     const char *cptr;
 
     UNREFERENCED_PARAMETER(fleng);
 
-    headsiz = *(int *)&buf[14];
+    headsiz = *(int32_t *)&buf[14];
     if (headsiz == LSWAPIB(12)) //OS/2 1.x (old format)
     {
-        if (*(short *)(&buf[22]) != SSWAPIB(1)) return(-1);
-        xsiz = (int)SSWAPIB(*(unsigned short *)&buf[18]);
-        ysiz = (int)SSWAPIB(*(unsigned short *)&buf[20]);
-        cdim = (int)SSWAPIB(*(unsigned short *)&buf[24]);
+        if (*(int16_t *)(&buf[22]) != SSWAPIB(1)) return(-1);
+        xsiz = (int32_t)SSWAPIB(*(uint16_t *)&buf[18]);
+        ysiz = (int32_t)SSWAPIB(*(uint16_t *)&buf[20]);
+        cdim = (int32_t)SSWAPIB(*(uint16_t *)&buf[24]);
         comp = 0;
     }
     else //All newer formats...
     {
-        if (*(short *)(&buf[26]) != SSWAPIB(1)) return(-1);
-        xsiz = LSWAPIB(*(int *)&buf[18]);
-        ysiz = LSWAPIB(*(int *)&buf[22]);
-        cdim = (int)SSWAPIB(*(unsigned short *)&buf[28]);
-        comp = LSWAPIB(*(int *)&buf[30]);
+        if (*(int16_t *)(&buf[26]) != SSWAPIB(1)) return(-1);
+        xsiz = LSWAPIB(*(int32_t *)&buf[18]);
+        ysiz = LSWAPIB(*(int32_t *)&buf[22]);
+        cdim = (int32_t)SSWAPIB(*(uint16_t *)&buf[28]);
+        comp = LSWAPIB(*(int32_t *)&buf[30]);
     }
     if ((xsiz <= 0) || (!ysiz)) return(-1);
     //cdim must be: (1,4,8,16,24,32)
-    if (((unsigned int)(cdim-1) >= (unsigned int)32) || (!((1<<cdim)&0x1010113))) return(-1);
+    if (((uint32_t)(cdim-1) >= (uint32_t)32) || (!((1<<cdim)&0x1010113))) return(-1);
     if ((comp != 0) && (comp != 3)) return(-1);
 
-    rastoff = LSWAPIB(*(int *)&buf[10]);
+    rastoff = LSWAPIB(*(int32_t *)&buf[10]);
 
     if (cdim < 16)
     {
         if (cdim == 2) { palcol[0] = 0xffffffff; palcol[1] = LSWAPIB(0xff000000); }
         if (headsiz == LSWAPIB(12)) j = 3; else j = 4;
         for (i=0,cptr=&buf[headsiz+14];cptr<&buf[rastoff];i++,cptr+=j)
-            palcol[i] = ((*(int *)&cptr[0])|LSWAPIB(0xff000000));
+            palcol[i] = ((*(int32_t *)&cptr[0])|LSWAPIB(0xff000000));
         coltype = 3; bitdepth = cdim; paleng = i; //For PNGOUT
     }
     else if (!(cdim&15))
@@ -2307,16 +2307,16 @@ static int kbmprend(const char *buf, int fleng,
         {
             for (i=0;i<3;i++)
             {
-                j = *(int *)&buf[headsiz+(i<<2)+14];
+                j = *(int32_t *)&buf[headsiz+(i<<2)+14];
                 for (palcol[i]=0;palcol[i]<32;palcol[i]++)
                 {
                     if (j&1) break;
-                    j = (((unsigned int)j)>>1);
+                    j = (((uint32_t)j)>>1);
                 }
                 for (palcol[i+3]=0;palcol[i+3]<32;palcol[i+3]++)
                 {
                     if (!(j&1)) break;
-                    j = (((unsigned int)j)>>1);
+                    j = (((uint32_t)j)>>1);
                 }
             }
         }
@@ -2339,31 +2339,31 @@ static int kbmprend(const char *buf, int fleng,
     if (x1 > daxres) x1 = daxres;
     for (y=y0;y<y1;y++,cptr=&cptr[cptrinc])
     {
-        if ((unsigned int)y >= (unsigned int)dayres) continue;
-        lptr = (int *)(y*dabytesperline-(daglobyoffs<<2)+daframeplace);
+        if ((uint32_t)y >= (uint32_t)dayres) continue;
+        lptr = (int32_t *)(y*dabytesperline-(daglobyoffs<<2)+daframeplace);
         switch (cdim)
         {
         case  1:
-            for (x=x0;x<x1;x++) lptr[x] = palcol[(int)((cptr[x>>3]>>((x&7)^7))&1)]; break;
+            for (x=x0;x<x1;x++) lptr[x] = palcol[(int32_t)((cptr[x>>3]>>((x&7)^7))&1)]; break;
         case  4:
-            for (x=x0;x<x1;x++) lptr[x] = palcol[(int)((cptr[x>>1]>>(((x&1)^1)<<2))&15)]; break;
+            for (x=x0;x<x1;x++) lptr[x] = palcol[(int32_t)((cptr[x>>1]>>(((x&1)^1)<<2))&15)]; break;
         case  8:
-            for (x=x0;x<x1;x++) lptr[x] = palcol[(int)(cptr[x])]; break;
+            for (x=x0;x<x1;x++) lptr[x] = palcol[(int32_t)(cptr[x])]; break;
         case 16:
             for (x=x0;x<x1;x++)
             {
-                i = ((int)(*(short *)&cptr[x<<1]));
+                i = ((int32_t)(*(int16_t *)&cptr[x<<1]));
                 lptr[x] = (_lrotl(i,palcol[0])&palcol[3]) +
                           (_lrotl(i,palcol[1])&palcol[4]) +
                           (_lrotl(i,palcol[2])&palcol[5]) + LSWAPIB(0xff000000);
             }
             break;
         case 24:
-            for (x=x0;x<x1;x++) lptr[x] = ((*(int *)&cptr[x*3])|LSWAPIB(0xff000000)); break;
+            for (x=x0;x<x1;x++) lptr[x] = ((*(int32_t *)&cptr[x*3])|LSWAPIB(0xff000000)); break;
         case 32:
             for (x=x0;x<x1;x++)
             {
-                i = (*(int *)&cptr[x<<2]);
+                i = (*(int32_t *)&cptr[x<<2]);
                 lptr[x] = (_lrotl(i,palcol[0])&palcol[3]) +
                           (_lrotl(i,palcol[1])&palcol[4]) +
                           (_lrotl(i,palcol[2])&palcol[5]) + LSWAPIB(0xff000000);
@@ -2377,17 +2377,17 @@ static int kbmprend(const char *buf, int fleng,
 //===============================  BMP ends ==================================
 //==============================  PCX begins =================================
 //Note: currently only supports 8 and 24 bit PCX
-static int kpcxrend(const char *buf, int fleng,
-                    intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
-                    int daglobxoffs, int daglobyoffs)
+static int32_t kpcxrend(const char *buf, int32_t fleng,
+                    intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres,
+                    int32_t daglobxoffs, int32_t daglobyoffs)
 {
-    int  j, x, y, nplanes, x0, x1, y0, y1, xsiz, ysiz;
-    unsigned char c, *cptr;
+    int32_t  j, x, y, nplanes, x0, x1, y0, y1, xsiz, ysiz;
+    char c, *cptr;
     intptr_t i,p;
 
-    if (*(int *)buf != LSWAPIB(0x0801050a)) return(-1);
-    xsiz = SSWAPIB(*(short *)&buf[ 8])-SSWAPIB(*(short *)&buf[4])+1; if (xsiz <= 0) return(-1);
-    ysiz = SSWAPIB(*(short *)&buf[10])-SSWAPIB(*(short *)&buf[6])+1; if (ysiz <= 0) return(-1);
+    if (*(int32_t *)buf != LSWAPIB(0x0801050a)) return(-1);
+    xsiz = SSWAPIB(*(int16_t *)&buf[ 8])-SSWAPIB(*(int16_t *)&buf[4])+1; if (xsiz <= 0) return(-1);
+    ysiz = SSWAPIB(*(int16_t *)&buf[10])-SSWAPIB(*(int16_t *)&buf[6])+1; if (ysiz <= 0) return(-1);
 
     //buf[3]: bpp/plane:{1,2,4,8}
     //bpl = *(short *)&buf[66];  //#bytes per scanline. Must be EVEN. May have unused data.
@@ -2397,12 +2397,12 @@ static int kpcxrend(const char *buf, int fleng,
     if (nplanes == 1)
     {
         //if (buf[fleng-769] != 12) return(-1); //Some PCX are buggy!
-        cptr = (unsigned char *)&buf[fleng-768];
+        cptr = (char *)&buf[fleng-768];
         for (i=0;i<256;i++)
         {
-            palcol[i] = (((int)cptr[0])<<16) +
-                        (((int)cptr[1])<< 8) +
-                        (((int)cptr[2])) + LSWAPIB(0xff000000);
+            palcol[i] = (((int32_t)cptr[0])<<16) +
+                        (((int32_t)cptr[1])<< 8) +
+                        (((int32_t)cptr[2])) + LSWAPIB(0xff000000);
             cptr += 3;
         }
         coltype = 3; bitdepth = 8; paleng = 256; //For PNGOUT
@@ -2421,7 +2421,7 @@ static int kpcxrend(const char *buf, int fleng,
 
     x = x0 = daglobxoffs; x1 = xsiz+daglobxoffs;
     y = y0 = daglobyoffs; y1 = ysiz+daglobyoffs;
-    cptr = (unsigned char *)&buf[128];
+    cptr = (char *)&buf[128];
     p = y*dabytesperline+daframeplace;
 
     j = nplanes-1; daxres <<= 2; x0 <<= 2; x1 <<= 2; x <<= 2; x += j;
@@ -2430,11 +2430,11 @@ static int kpcxrend(const char *buf, int fleng,
         do
         {
             c = *cptr++; if (c < 192) i = 1; else { i = (c&63); c = *cptr++; }
-            j = palcol[(int)c];
+            j = palcol[(int32_t)c];
             for (;i;i--)
             {
-                if ((unsigned int)y < (unsigned int)dayres)
-                    if ((unsigned int)x < (unsigned int)daxres) *(int *)(x+p) = j;
+                if ((uint32_t)y < (uint32_t)dayres)
+                    if ((uint32_t)x < (uint32_t)daxres) *(int32_t *)(x+p) = j;
                 x += 4; if (x >= x1) { x = x0; y++; p += dabytesperline; }
             }
         }
@@ -2447,8 +2447,8 @@ static int kpcxrend(const char *buf, int fleng,
             c = *cptr++; if (c < 192) i = 1; else { i = (c&63); c = *cptr++; }
             for (;i;i--)
             {
-                if ((unsigned int)y < (unsigned int)dayres)
-                    if ((unsigned int)x < (unsigned int)daxres) *(char *)(x+p) = c;
+                if ((uint32_t)y < (uint32_t)dayres)
+                    if ((uint32_t)x < (uint32_t)daxres) *(char *)(x+p) = c;
                 x += 4; if (x >= x1) { j--; if (j < 0) { j = 3-1; y++; p += dabytesperline; } x = x0+j; }
             }
         }
@@ -2462,25 +2462,25 @@ static int kpcxrend(const char *buf, int fleng,
 //==============================  DDS begins =================================
 
 //Note:currently supports: DXT1,DXT2,DXT3,DXT4,DXT5,A8R8G8B8
-static int kddsrend(const char *buf, int leng,
-                    intptr_t frameptr, int bpl, int xdim, int ydim, int xoff, int yoff)
+static int32_t kddsrend(const char *buf, int32_t leng,
+                    intptr_t frameptr, int32_t bpl, int32_t xdim, int32_t ydim, int32_t xoff, int32_t yoff)
 {
-    int x = 0, y = 0, z = 0, xx, yy, xsiz, ysiz, dxt, al[2], ai, k, v, c0, c1, stride;
-    unsigned int lut[256], r[4], g[4], b[4], a[8], rr, gg, bb;
-    unsigned char *uptr, *wptr;
+    int32_t x = 0, y = 0, z = 0, xx, yy, xsiz, ysiz, dxt, al[2], ai, k, v, c0, c1, stride;
+    uint32_t lut[256], r[4], g[4], b[4], a[8], rr, gg, bb;
+    char *uptr, *wptr;
     intptr_t j;
 
     UNREFERENCED_PARAMETER(leng);
 
-    xsiz = LSWAPIB(*(int *)&buf[16]);
-    ysiz = LSWAPIB(*(int *)&buf[12]);
-    if ((*(int *)&buf[80])&LSWAPIB(64)) //Uncompressed supports only A8R8G8B8 for now
+    xsiz = LSWAPIB(*(int32_t *)&buf[16]);
+    ysiz = LSWAPIB(*(int32_t *)&buf[12]);
+    if ((*(int32_t *)&buf[80])&LSWAPIB(64)) //Uncompressed supports only A8R8G8B8 for now
     {
-        if ((*(int *)&buf[88]) != (signed)LSWAPIB(32)) return(-1);
-        if ((*(int *)&buf[92]) != (signed)LSWAPIB(0x00ff0000)) return(-1);
-        if ((*(int *)&buf[96]) != (signed)LSWAPIB(0x0000ff00)) return(-1);
-        if ((*(int *)&buf[100]) != (signed)LSWAPIB(0x000000ff)) return(-1);
-        if ((*(int *)&buf[104]) != (signed)LSWAPIB(0xff000000)) return(-1);
+        if ((*(int32_t *)&buf[88]) != (signed)LSWAPIB(32)) return(-1);
+        if ((*(int32_t *)&buf[92]) != (signed)LSWAPIB(0x00ff0000)) return(-1);
+        if ((*(int32_t *)&buf[96]) != (signed)LSWAPIB(0x0000ff00)) return(-1);
+        if ((*(int32_t *)&buf[100]) != (signed)LSWAPIB(0x000000ff)) return(-1);
+        if ((*(int32_t *)&buf[104]) != (signed)LSWAPIB(0xff000000)) return(-1);
         buf += 128;
 
         j = yoff*bpl + (xoff<<2) + frameptr; xx = (xsiz<<2);
@@ -2488,12 +2488,12 @@ static int kddsrend(const char *buf, int leng,
         xsiz = (min(xsiz,xdim-xoff)<<2); ysiz = min(ysiz,ydim);
         for (y=0;y<ysiz;y++,j+=bpl,buf+=xx)
         {
-            if ((unsigned int)(y+yoff) >= (unsigned int)ydim) continue;
+            if ((uint32_t)(y+yoff) >= (uint32_t)ydim) continue;
             memcpy((void *)j,(void *)buf,xsiz);
         }
         return(0);
     }
-    if (!((*(int *)&buf[80])&LSWAPIB(4))) return(-1); //FOURCC invalid
+    if (!((*(int32_t *)&buf[80])&LSWAPIB(4))) return(-1); //FOURCC invalid
     dxt = buf[87]-'0';
     if ((buf[84] != 'D') || (buf[85] != 'X') || (buf[86] != 'T') || (dxt < 1) || (dxt > 5)) return(-1);
     buf += 128;
@@ -2508,11 +2508,11 @@ static int kddsrend(const char *buf, int leng,
     for (y=0;y<ysiz;y+=4,buf+=stride)
         for (x=0;x<xsiz;x+=4)
         {
-            if (dxt == 1) uptr = (unsigned char *)((intptr_t)(buf)+(x<<1));
-            else uptr = (unsigned char *)((intptr_t)(buf)+(x<<2)+8);
-            c0 = SSWAPIB(*(unsigned short *)&uptr[0]);
+            if (dxt == 1) uptr = (char *)((intptr_t)(buf)+(x<<1));
+            else uptr = (char *)((intptr_t)(buf)+(x<<2)+8);
+            c0 = SSWAPIB(*(uint16_t *)&uptr[0]);
             r[0] = ((c0>>8)&0xf8); g[0] = ((c0>>3)&0xfc); b[0] = ((c0<<3)&0xfc); a[0] = 255;
-            c1 = SSWAPIB(*(unsigned short *)&uptr[2]);
+            c1 = SSWAPIB(*(uint16_t *)&uptr[2]);
             r[1] = ((c1>>8)&0xf8); g[1] = ((c1>>3)&0xfc); b[1] = ((c1<<3)&0xfc); a[1] = 255;
             if ((c0 > c1) || (dxt != 1))
             {
@@ -2530,7 +2530,7 @@ static int kddsrend(const char *buf, int leng,
                 b[2] = (b[0] + b[1])>>1; a[2] = 255;
                 r[3] = g[3] = b[3] = a[3] = 0; //Transparent
             }
-            v = LSWAPIB(*(int *)&uptr[4]);
+            v = LSWAPIB(*(int32_t *)&uptr[4]);
             if (dxt >= 4)
             {
                 a[0] = uptr[-8]; a[1] = uptr[-7]; k = a[1]-a[0];
@@ -2545,17 +2545,17 @@ static int kddsrend(const char *buf, int leng,
                     for (j=2;j<6;j++) { a[j] = ((z*(65536/5))>>16); z += k; }
                     a[6] = 0; a[7] = 255;
                 }
-                al[0] = LSWAPIB(*(int *)&uptr[-6]);
-                al[1] = LSWAPIB(*(int *)&uptr[-3]);
+                al[0] = LSWAPIB(*(int32_t *)&uptr[-6]);
+                al[1] = LSWAPIB(*(int32_t *)&uptr[-3]);
             }
-            wptr = (unsigned char *)((y+yoff)*bpl + ((x+xoff)<<2) + frameptr);
+            wptr = (char *)((y+yoff)*bpl + ((x+xoff)<<2) + frameptr);
             ai = 0;
             for (yy=0;yy<4;yy++,wptr+=bpl)
             {
-                if ((unsigned int)(y+yy+yoff) >= (unsigned int)ydim) { ai += 4; continue; }
+                if ((uint32_t)(y+yy+yoff) >= (uint32_t)ydim) { ai += 4; continue; }
                 for (xx=0;xx<4;xx++,ai++)
                 {
-                    if ((unsigned int)(x+xx+xoff) >= (unsigned int)xdim) continue;
+                    if ((uint32_t)(x+xx+xoff) >= (uint32_t)xdim) continue;
 
                     j = ((v>>(ai<<1))&3);
                     switch (dxt)
@@ -2589,74 +2589,74 @@ static int kddsrend(const char *buf, int leng,
 //===============================  DDS ends ==================================
 //=================== External picture interface begins ======================
 
-void kpgetdim(const char *buf, int leng, int *xsiz, int *ysiz)
+void kpgetdim(const char *buf, int32_t leng, int32_t *xsiz, int32_t *ysiz)
 {
-    int *lptr;
-    const unsigned char *cptr;
-    unsigned char *ubuf = (unsigned char *)buf;
+    int32_t *lptr;
+    const char *cptr;
+    char *ubuf = (char *)buf;
 
     (*xsiz) = (*ysiz) = 0; if (leng < 16) return;
     if ((ubuf[0] == 0x89) && (ubuf[1] == 0x50)) //.PNG
     {
-        lptr = (int *)buf;
+        lptr = (int32_t *)buf;
         if ((lptr[0] != LSWAPIB(0x474e5089)) || (lptr[1] != LSWAPIB(0x0a1a0a0d))) return;
         lptr = &lptr[2];
         while (((uintptr_t)lptr-(uintptr_t)buf) < (uintptr_t)(leng-16))
         {
             if (lptr[1] == LSWAPIB(0x52444849)) //IHDR
                 {(*xsiz) = LSWAPIL(lptr[2]); (*ysiz) = LSWAPIL(lptr[3]); break; }
-            lptr = (int *)((intptr_t)lptr + LSWAPIL(lptr[0]) + 12);
+            lptr = (int32_t *)((intptr_t)lptr + LSWAPIL(lptr[0]) + 12);
         }
     }
     else if ((ubuf[0] == 0xff) && (ubuf[1] == 0xd8)) //.JPG
     {
-        cptr = (unsigned char *)&buf[2];
+        cptr = (char *)&buf[2];
         while (((uintptr_t)cptr-(uintptr_t)buf) < (uintptr_t)(leng-8))
         {
             if (cptr[0] != 255) { cptr = &cptr[1]; continue; }
-            if ((unsigned int)(cptr[1]-0xc0) < 3)
+            if ((uint32_t)(cptr[1]-0xc0) < 3)
             {
-                (*ysiz) = SSWAPIL(*(unsigned short *)&cptr[5]);
-                (*xsiz) = SSWAPIL(*(unsigned short *)&cptr[7]);
+                (*ysiz) = SSWAPIL(*(uint16_t *)&cptr[5]);
+                (*xsiz) = SSWAPIL(*(uint16_t *)&cptr[7]);
                 break;
             }
-            cptr = &cptr[SSWAPIL(*(unsigned short *)&cptr[2])+2];
+            cptr = &cptr[SSWAPIL(*(uint16_t *)&cptr[2])+2];
         }
     }
     else if ((ubuf[0] == 'G') && (ubuf[1] == 'I') && (ubuf[2] == 'F') && (ubuf[12] == 0)) //.GIF
     {
-        (*xsiz) = (int)SSWAPIB(*(unsigned short *)&buf[6]);
-        (*ysiz) = (int)SSWAPIB(*(unsigned short *)&buf[8]);
+        (*xsiz) = (int32_t)SSWAPIB(*(uint16_t *)&buf[6]);
+        (*ysiz) = (int32_t)SSWAPIB(*(uint16_t *)&buf[8]);
     }
     else if ((ubuf[0] == 0x19) && (ubuf[1] == 0x91) && (ubuf[10] == 8) && (ubuf[11] == 0)) //old .CEL/.PIC
     {
-        (*xsiz) = (int)SSWAPIB(*(unsigned short *)&buf[2]);
-        (*ysiz) = (int)SSWAPIB(*(unsigned short *)&buf[4]);
+        (*xsiz) = (int32_t)SSWAPIB(*(uint16_t *)&buf[2]);
+        (*ysiz) = (int32_t)SSWAPIB(*(uint16_t *)&buf[4]);
     }
     else if ((ubuf[0] == 'B') && (ubuf[1] == 'M')) //.BMP
     {
-        if (*(int *)(&buf[14]) == LSWAPIB(12)) //OS/2 1.x (old format)
+        if (*(int32_t *)(&buf[14]) == LSWAPIB(12)) //OS/2 1.x (old format)
         {
-            if (*(short *)(&buf[22]) != SSWAPIB(1)) return;
-            (*xsiz) = (int)SSWAPIB(*(unsigned short *)&buf[18]);
-            (*ysiz) = (int)SSWAPIB(*(unsigned short *)&buf[20]);
+            if (*(int16_t *)(&buf[22]) != SSWAPIB(1)) return;
+            (*xsiz) = (int32_t)SSWAPIB(*(uint16_t *)&buf[18]);
+            (*ysiz) = (int32_t)SSWAPIB(*(uint16_t *)&buf[20]);
         }
         else //All newer formats...
         {
-            if (*(short *)(&buf[26]) != SSWAPIB(1)) return;
-            (*xsiz) = LSWAPIB(*(int *)&buf[18]);
-            (*ysiz) = LSWAPIB(*(int *)&buf[22]);
+            if (*(int16_t *)(&buf[26]) != SSWAPIB(1)) return;
+            (*xsiz) = LSWAPIB(*(int32_t *)&buf[18]);
+            (*ysiz) = LSWAPIB(*(int32_t *)&buf[22]);
         }
     }
-    else if (*(int *)ubuf == LSWAPIB(0x0801050a)) //.PCX
+    else if (*(int32_t *)ubuf == LSWAPIB(0x0801050a)) //.PCX
     {
-        (*xsiz) = SSWAPIB(*(short *)&buf[ 8])-SSWAPIB(*(short *)&buf[4])+1;
-        (*ysiz) = SSWAPIB(*(short *)&buf[10])-SSWAPIB(*(short *)&buf[6])+1;
+        (*xsiz) = SSWAPIB(*(int16_t *)&buf[ 8])-SSWAPIB(*(int16_t *)&buf[4])+1;
+        (*ysiz) = SSWAPIB(*(int16_t *)&buf[10])-SSWAPIB(*(int16_t *)&buf[6])+1;
     }
-    else if ((*(int *)ubuf == LSWAPIB(0x20534444)) && (*(int *)&ubuf[4] == LSWAPIB(124))) //.DDS
+    else if ((*(int32_t *)ubuf == LSWAPIB(0x20534444)) && (*(int32_t *)&ubuf[4] == LSWAPIB(124))) //.DDS
     {
-        (*xsiz) = LSWAPIB(*(int *)&buf[16]);
-        (*ysiz) = LSWAPIB(*(int *)&buf[12]);
+        (*xsiz) = LSWAPIB(*(int32_t *)&buf[16]);
+        (*ysiz) = LSWAPIB(*(int32_t *)&buf[12]);
     }
     else
     {
@@ -2666,16 +2666,16 @@ void kpgetdim(const char *buf, int leng, int *xsiz, int *ysiz)
                 if ((!(ubuf[16]&7)) && (ubuf[16] != 0) && (ubuf[16] <= 32))
                     if (!(buf[17]&0xc0))
                     {
-                        (*xsiz) = (int)SSWAPIB(*(unsigned short *)&buf[12]);
-                        (*ysiz) = (int)SSWAPIB(*(unsigned short *)&buf[14]);
+                        (*xsiz) = (int32_t)SSWAPIB(*(uint16_t *)&buf[12]);
+                        (*ysiz) = (int32_t)SSWAPIB(*(uint16_t *)&buf[14]);
                     }
     }
 }
 
-int kprender(const char *buf, int leng, intptr_t frameptr, int bpl,
-             int xdim, int ydim, int xoff, int yoff)
+int32_t kprender(const char *buf, int32_t leng, intptr_t frameptr, int32_t bpl,
+             int32_t xdim, int32_t ydim, int32_t xoff, int32_t yoff)
 {
-    unsigned char *ubuf = (unsigned char *)buf;
+    char *ubuf = (char *)buf;
 
     paleng = 0; bakcol = 0; numhufblocks = zlibcompflags = 0; filtype = -1;
 
@@ -2694,10 +2694,10 @@ int kprender(const char *buf, int leng, intptr_t frameptr, int bpl,
     if ((ubuf[0] == 'B') && (ubuf[1] == 'M')) //.BMP
         return(kbmprend(buf,leng,frameptr,bpl,xdim,ydim,xoff,yoff));
 
-    if (*(int *)ubuf == LSWAPIB(0x0801050a)) //.PCX
+    if (*(int32_t *)ubuf == LSWAPIB(0x0801050a)) //.PCX
         return(kpcxrend(buf,leng,frameptr,bpl,xdim,ydim,xoff,yoff));
 
-    if ((*(int *)ubuf == LSWAPIB(0x20534444)) && (*(int *)&ubuf[4] == LSWAPIB(124))) //.DDS
+    if ((*(int32_t *)ubuf == LSWAPIB(0x20534444)) && (*(int32_t *)&ubuf[4] == LSWAPIB(124))) //.DDS
         return(kddsrend(buf,leng,frameptr,bpl,xdim,ydim,xoff,yoff));
 
     //Unreliable .TGA identification - this MUST be final case!
@@ -2715,7 +2715,7 @@ int kprender(const char *buf, int leng, intptr_t frameptr, int bpl,
 //Brute-force case-insensitive, slash-insensitive, * and ? wildcard matcher
 //Given: string i and string j. string j can have wildcards
 //Returns: 1:matches, 0:doesn't match
-static int wildmatch(const char *i, const char *j)
+static int32_t wildmatch(const char *i, const char *j)
 {
     const char *k;
     char c0, c1;
@@ -2742,9 +2742,9 @@ static int wildmatch(const char *i, const char *j)
 }
 
 //Same as: stricmp(st0,st1) except: '/' == '\'
-static int filnamcmp(const char *st0, const char *st1)
+static int32_t filnamcmp(const char *st0, const char *st1)
 {
-    int i;
+    int32_t i;
     char ch0, ch1;
 
     for (i=0;st0[i];i++)
@@ -2772,11 +2772,11 @@ static int filnamcmp(const char *st0, const char *st1)
 //...
 #define KZHASHINITSIZE 8192
 static char *kzhashbuf = 0;
-static int kzhashead[256], kzhashpos, kzlastfnam, kzhashsiz;
+static int32_t kzhashead[256], kzhashpos, kzlastfnam, kzhashsiz;
 
-static int kzcheckhashsiz(int siz)
+static int32_t kzcheckhashsiz(int32_t siz)
 {
-    int i;
+    int32_t i;
 
     if (!kzhashbuf) //Initialize hash table on first call
     {
@@ -2794,9 +2794,9 @@ static int kzcheckhashsiz(int siz)
     return(1);
 }
 
-static int kzcalchash(const char *st)
+static int32_t kzcalchash(const char *st)
 {
-    int i, hashind;
+    int32_t i, hashind;
     char ch;
 
     for (i=0,hashind=0;st[i];i++)
@@ -2809,17 +2809,17 @@ static int kzcalchash(const char *st)
     return(hashind%(sizeof(kzhashead)/sizeof(kzhashead[0])));
 }
 
-static int kzcheckhash(const char *filnam, char **zipnam, int *zipseek)
+static int32_t kzcheckhash(const char *filnam, char **zipnam, int32_t *zipseek)
 {
-    int i;
+    int32_t i;
 
     if (!kzhashbuf) return(0);
     if (filnam[0] == '|') filnam++;
-    for (i=kzhashead[kzcalchash(filnam)];i>=0;i=(*(int *)&kzhashbuf[i]))
+    for (i=kzhashead[kzcalchash(filnam)];i>=0;i=(*(int32_t *)&kzhashbuf[i]))
         if (!filnamcmp(filnam,&kzhashbuf[i+16]))
         {
-            (*zipnam) = &kzhashbuf[*(int *)&kzhashbuf[i+8]];
-            (*zipseek) = *(int *)&kzhashbuf[i+12];
+            (*zipnam) = &kzhashbuf[*(int32_t *)&kzhashbuf[i+8]];
+            (*zipseek) = *(int32_t *)&kzhashbuf[i+12];
             return(1);
         }
     return(0);
@@ -2832,10 +2832,10 @@ void kzuninit()
 }
 
 //Load ZIP directory into memory (hash) to allow fast access later
-int kzaddstack(const char *zipnam)
+int32_t kzaddstack(const char *zipnam)
 {
     FILE *fil;
-    int i, j, hashind, zipnamoffs, numfiles;
+    int32_t i, j, hashind, zipnamoffs, numfiles;
     char tempbuf[260+46];
 
     fil = fopen(zipnam,"rb"); if (!fil) return(-1);
@@ -2847,10 +2847,10 @@ int kzaddstack(const char *zipnam)
 
     fseek(fil,-22,SEEK_END);
     fread(tempbuf,22,1,fil);
-    if (*(int *)&tempbuf[0] == LSWAPIB(0x06054b50)) //Fast way of finding dir info
+    if (*(int32_t *)&tempbuf[0] == LSWAPIB(0x06054b50)) //Fast way of finding dir info
     {
-        numfiles = SSWAPIB(*(short *)&tempbuf[10]);
-        fseek(fil,LSWAPIB(*(int *)&tempbuf[16]),SEEK_SET);
+        numfiles = SSWAPIB(*(int16_t *)&tempbuf[10]);
+        fseek(fil,LSWAPIB(*(int32_t *)&tempbuf[16]),SEEK_SET);
     }
     else //Slow way of finding dir info (used when ZIP has junk at end)
     {
@@ -2861,7 +2861,7 @@ int kzaddstack(const char *zipnam)
             if (j == LSWAPIB(0x02014b50)) break; //Found central file header :)
             if (j != LSWAPIB(0x04034b50)) { numfiles = -1; break; }
             fread(tempbuf,26,1,fil);
-            fseek(fil,LSWAPIB(*(int *)&tempbuf[14]) + SSWAPIB(*(short *)&tempbuf[24]) + SSWAPIB(*(short *)&tempbuf[22]),SEEK_CUR);
+            fseek(fil,LSWAPIB(*(int32_t *)&tempbuf[14]) + SSWAPIB(*(int16_t *)&tempbuf[24]) + SSWAPIB(*(int16_t *)&tempbuf[22]),SEEK_CUR);
             numfiles++;
         }
         if (numfiles < 0) { fclose(fil); return(-1); }
@@ -2870,24 +2870,24 @@ int kzaddstack(const char *zipnam)
     for (i=0;i<numfiles;i++)
     {
         fread(tempbuf,46,1,fil);
-        if (*(int *)&tempbuf[0] != LSWAPIB(0x02014b50)) { fclose(fil); return(0); }
+        if (*(int32_t *)&tempbuf[0] != LSWAPIB(0x02014b50)) { fclose(fil); return(0); }
 
-        j = SSWAPIB(*(short *)&tempbuf[28]); //filename length
+        j = SSWAPIB(*(int16_t *)&tempbuf[28]); //filename length
         fread(&tempbuf[46],j,1,fil);
         tempbuf[j+46] = 0;
 
         //Write information into hash
         j = strlen(&tempbuf[46])+17; if (!kzcheckhashsiz(j)) { fclose(fil); return(-1); }
         hashind = kzcalchash(&tempbuf[46]);
-        *(int *)&kzhashbuf[kzhashpos] = kzhashead[hashind];
-        *(int *)&kzhashbuf[kzhashpos+4] = kzlastfnam;
-        *(int *)&kzhashbuf[kzhashpos+8] = zipnamoffs;
-        *(int *)&kzhashbuf[kzhashpos+12] = LSWAPIB(*(int *)&tempbuf[42]); //zipseek
+        *(int32_t *)&kzhashbuf[kzhashpos] = kzhashead[hashind];
+        *(int32_t *)&kzhashbuf[kzhashpos+4] = kzlastfnam;
+        *(int32_t *)&kzhashbuf[kzhashpos+8] = zipnamoffs;
+        *(int32_t *)&kzhashbuf[kzhashpos+12] = LSWAPIB(*(int32_t *)&tempbuf[42]); //zipseek
         strcpy(&kzhashbuf[kzhashpos+16],&tempbuf[46]);
         kzhashead[hashind] = kzhashpos; kzlastfnam = kzhashpos; kzhashpos += j;
 
-        j  = SSWAPIB(*(short *)&tempbuf[30]); //extra field length
-        j += SSWAPIB(*(short *)&tempbuf[32]); //file comment length
+        j  = SSWAPIB(*(int16_t *)&tempbuf[30]); //extra field length
+        j += SSWAPIB(*(int16_t *)&tempbuf[32]); //file comment length
         fseek(fil,j,SEEK_CUR);
     }
     fclose(fil);
@@ -2897,7 +2897,7 @@ int kzaddstack(const char *zipnam)
 intptr_t kzopen(const char *filnam)
 {
     FILE *fil;
-    int zipseek;
+    int32_t zipseek;
     char tempbuf[46+260], *zipnam;
 
     //kzfs.fil = 0;
@@ -2919,13 +2919,13 @@ intptr_t kzopen(const char *filnam)
         fil = fopen(zipnam,"rb"); if (!fil) return(0);
         fseek(fil,zipseek,SEEK_SET);
         fread(tempbuf,30,1,fil);
-        if (*(int *)&tempbuf[0] != LSWAPIB(0x04034b50)) { fclose(fil); return(0); }
-        fseek(fil,SSWAPIB(*(short *)&tempbuf[26])+SSWAPIB(*(short *)&tempbuf[28]),SEEK_CUR);
+        if (*(int32_t *)&tempbuf[0] != LSWAPIB(0x04034b50)) { fclose(fil); return(0); }
+        fseek(fil,SSWAPIB(*(int16_t *)&tempbuf[26])+SSWAPIB(*(int16_t *)&tempbuf[28]),SEEK_CUR);
 
         kzfs.fil = fil;
-        kzfs.comptyp = SSWAPIB(*(short *)&tempbuf[8]);
+        kzfs.comptyp = SSWAPIB(*(int16_t *)&tempbuf[8]);
         kzfs.seek0 = ftell(fil);
-        kzfs.leng = LSWAPIB(*(int *)&tempbuf[22]);
+        kzfs.leng = LSWAPIB(*(int32_t *)&tempbuf[22]);
         kzfs.pos = 0;
         switch (kzfs.comptyp) //Compression method
         {
@@ -2934,7 +2934,7 @@ intptr_t kzopen(const char *filnam)
         case 8:
             if (!pnginited) { pnginited = 1; initpngtables(); }
             kzfs.comptell = 0;
-            kzfs.compleng = LSWAPIB(*(int *)&tempbuf[18]);
+            kzfs.compleng = LSWAPIB(*(int32_t *)&tempbuf[18]);
 
             //WARNING: No file in ZIP can be > 2GB-32K bytes
             gslidew = 0x7fffffff; //Force reload at beginning
@@ -2949,7 +2949,7 @@ intptr_t kzopen(const char *filnam)
 
 // --------------------------------------------------------------------------
 
-static int srchstat = -1, wildstpathleng;
+static int32_t srchstat = -1, wildstpathleng;
 
 #if defined(__DOS__)
 static char wildst[260] = "";
@@ -2977,9 +2977,9 @@ void kzfindfilestart(const char *st)
     srchstat = -3;
 }
 
-int kzfindfile(char *filnam)
+int32_t kzfindfile(char *filnam)
 {
-    int i;
+    int32_t i;
 
     filnam[0] = 0;
     if (srchstat == -3)
@@ -3075,10 +3075,10 @@ int kzfindfile(char *filnam)
         {
             //strcpy(filnam,&kzhashbuf[srchstat+16]);
             filnam[0] = '|'; strcpy(&filnam[1],&kzhashbuf[srchstat+16]);
-            srchstat = *(int *)&kzhashbuf[srchstat+4];
+            srchstat = *(int32_t *)&kzhashbuf[srchstat+4];
             return(1);
         }
-        srchstat = *(int *)&kzhashbuf[srchstat+4];
+        srchstat = *(int32_t *)&kzhashbuf[srchstat+4];
     }
     return(0);
 }
@@ -3094,9 +3094,9 @@ int kzfindfile(char *filnam)
 // --------------------------------------------------------------------------
 
 static char *gzbufptr;
-static void putbuf4zip(const unsigned char *buf, int uncomp0, int uncomp1)
+static void putbuf4zip(const char *buf, int32_t uncomp0, int32_t uncomp1)
 {
-    int i0, i1;
+    int32_t i0, i1;
     //              uncomp0 ... uncomp1
     //  &gzbufptr[kzfs.pos] ... &gzbufptr[kzfs.endpos];
     i0 = max(uncomp0,kzfs.pos);
@@ -3105,9 +3105,9 @@ static void putbuf4zip(const unsigned char *buf, int uncomp0, int uncomp1)
 }
 
 //returns number of bytes copied
-int kzread(void *buffer, int leng)
+int32_t kzread(void *buffer, int32_t leng)
 {
-    int i, j, k, bfinal, btype, hlit, hdist;
+    int32_t i, j, k, bfinal, btype, hlit, hdist;
 
     if ((!kzfs.fil) || (leng <= 0)) return(0);
 
@@ -3139,7 +3139,7 @@ int kzread(void *buffer, int leng)
             kzfs.comptell = min((unsigned)kzfs.compleng,sizeof(olinbuf));
             fread(&olinbuf[0],kzfs.comptell,1,kzfs.fil);
             //Make it re-load when there are < 32 bits left in FIFO
-            bitpos = -(((int)sizeof(olinbuf)-4)<<3);
+            bitpos = -(((int32_t)sizeof(olinbuf)-4)<<3);
             //Identity: filptr + (bitpos>>3) = &olinbuf[0]
             filptr = &olinbuf[-(bitpos>>3)];
         }
@@ -3185,11 +3185,11 @@ kzreadplc0:
 #if 0
             //Display Huffman block offsets&lengths of input file - for debugging only!
             {
-                static int ouncomppos = 0, ocomppos = 0;
+                static int32_t ouncomppos = 0, ocomppos = 0;
                 if (kzfs.comptell == sizeof(olinbuf)) i = 0;
                 else if (kzfs.comptell < kzfs.compleng) i = kzfs.comptell-(sizeof(olinbuf)-4);
                 else i = kzfs.comptell-(kzfs.comptell%(sizeof(olinbuf)-4));
-                i += ((int)&filptr[bitpos>>3])-((int)(&olinbuf[0]));
+                i += ((int32_t)&filptr[bitpos>>3])-((int32_t)(&olinbuf[0]));
                 i = (i<<3)+(bitpos&7)-3;
                 if (gslidew) printf(" ULng:0x%08x CLng:0x%08x.%x",gslidew-ouncomppos,(i-ocomppos)>>3,((i-ocomppos)&7)<<1);
                 printf("\ntype:%d, Uoff:0x%08x Coff:0x%08x.%x",btype,gslidew,i>>3,(i&7)<<1);
@@ -3221,7 +3221,7 @@ kzreadplc1:
                             ;         i = kzfs.i; bfinal = kzfs.bfinal;
                         }
                     }
-                    slidebuf[(gslidew++)&32767] = (char)getbits(8);
+                    slidebuf[(gslidew++)&32767] = (uint8_t)getbits(8);
                 }
                 continue;
             }
@@ -3278,15 +3278,15 @@ kzreadplc2:
                 }
 
                 k = peekbits(LOGQHUFSIZ0);
-                if (qhufbit0[k]) { i = qhufval0[k]; suckbits((int)qhufbit0[k]); }
+                if (qhufbit0[k]) { i = qhufval0[k]; suckbits((int32_t)qhufbit0[k]); }
                 else i = hufgetsym(ibuf0,nbuf0);
 
-                if (i < 256) { slidebuf[(gslidew++)&32767] = (char)i; continue; }
+                if (i < 256) { slidebuf[(gslidew++)&32767] = (uint8_t)i; continue; }
                 if (i == 256) break;
                 i = getbits(hxbit[i+30-257][0]) + hxbit[i+30-257][1];
 
                 k = peekbits(LOGQHUFSIZ1);
-                if (qhufbit1[k]) { j = qhufval1[k]; suckbits((int)qhufbit1[k]); }
+                if (qhufbit1[k]) { j = qhufval1[k]; suckbits((int32_t)qhufbit1[k]); }
                 else j = hufgetsym(ibuf1,nbuf1);
 
                 j = getbits(hxbit[j][0]) + hxbit[j][1];
@@ -3314,7 +3314,7 @@ retkzread:
     return(kzfs.pos-i);
 }
 
-int kzfilelength()
+int32_t kzfilelength()
 {
     if (!kzfs.fil) return(0);
     return(kzfs.leng);
@@ -3322,7 +3322,7 @@ int kzfilelength()
 
 //WARNING: kzseek(<-32768,SEEK_CUR); or:
 //         kzseek(0,SEEK_END);       can make next kzread very slow!!!
-int kzseek(int offset, int whence)
+int32_t kzseek(int32_t offset, int32_t whence)
 {
     if (!kzfs.fil) return(-1);
     switch (whence)
@@ -3340,20 +3340,20 @@ int kzseek(int offset, int whence)
     return(kzfs.pos);
 }
 
-int kztell()
+int32_t kztell()
 {
     if (!kzfs.fil) return(-1);
     return(kzfs.pos);
 }
 
-int kzgetc()
+int32_t kzgetc()
 {
     char ch;
     if (!kzread(&ch,1)) return(-1);
-    return((int)ch);
+    return((int32_t)ch);
 }
 
-int kzeof()
+int32_t kzeof()
 {
     if (!kzfs.fil) return(-1);
     return(kzfs.pos >= kzfs.leng);
@@ -3367,10 +3367,10 @@ void kzclose()
 //====================== ZIP decompression code ends =========================
 //===================== HANDY PICTURE function begins ========================
 
-void kpzload(const char *filnam, intptr_t *pic, int *bpl, int *xsiz, int *ysiz)
+void kpzload(const char *filnam, intptr_t *pic, int32_t *bpl, int32_t *xsiz, int32_t *ysiz)
 {
     char *buf;
-    int leng;
+    int32_t leng;
 
     (*pic) = 0;
     if (!kzopen(filnam)) return;

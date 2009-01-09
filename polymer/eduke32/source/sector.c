@@ -27,12 +27,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // PRIMITIVE
 
-static int haltsoundhack;
+static int32_t haltsoundhack;
 
 // this function activates a sector's MUSICANDSFX sprite
-int A_CallSound(int sn,int whatsprite)
+int32_t A_CallSound(int32_t sn,int32_t whatsprite)
 {
-    int i;
+    int32_t i;
     if (haltsoundhack)
     {
         haltsoundhack = 0;
@@ -76,9 +76,9 @@ int A_CallSound(int sn,int whatsprite)
     return -1;
 }
 
-int check_activator_motion(int lotag)
+int32_t check_activator_motion(int32_t lotag)
 {
-    int i, j;
+    int32_t i, j;
     spritetype *s;
 
     i = headspritestat[STAT_ACTIVATOR];
@@ -120,7 +120,7 @@ int check_activator_motion(int lotag)
     return(0);
 }
 
-int CheckDoorTile(int dapic)
+int32_t CheckDoorTile(int32_t dapic)
 {
     switch (DynamicTileMap[dapic])
     {
@@ -151,7 +151,7 @@ int CheckDoorTile(int dapic)
     return 0;
 }
 
-int isanunderoperator(int lotag)
+int32_t isanunderoperator(int32_t lotag)
 {
     switch (lotag&0xff)
     {
@@ -167,7 +167,7 @@ int isanunderoperator(int lotag)
     return 0;
 }
 
-int isanearoperator(int lotag)
+int32_t isanearoperator(int32_t lotag)
 {
     switch (lotag&0xff)
     {
@@ -189,43 +189,43 @@ int isanearoperator(int lotag)
     return 0;
 }
 
-inline int CheckPlayerInSector(int sect)
+inline int32_t CheckPlayerInSector(int32_t sect)
 {
-    int i = connecthead;
+    int32_t i = connecthead;
     for (;i>=0;i=connectpoint2[i])
         if (sprite[g_player[i].ps->i].sectnum == sect) return i;
     return -1;
 }
 
-int ldist(spritetype *s1,spritetype *s2)
+int32_t ldist(spritetype *s1,spritetype *s2)
 {
-    int x= klabs(s1->x-s2->x);
-    int y= klabs(s1->y-s2->y);
+    int32_t x= klabs(s1->x-s2->x);
+    int32_t y= klabs(s1->y-s2->y);
 
     if (x<y) swaplong(&x,&y);
 
     {
-        int t = y + (y>>1);
+        int32_t t = y + (y>>1);
         return (x - (x>>5) - (x>>7)  + (t>>2) + (t>>6));
     }
 }
 
-int dist(spritetype *s1,spritetype *s2)
+int32_t dist(spritetype *s1,spritetype *s2)
 {
-    int x= klabs(s1->x-s2->x);
-    int y= klabs(s1->y-s2->y);
-    int z= klabs((s1->z-s2->z)>>4);
+    int32_t x= klabs(s1->x-s2->x);
+    int32_t y= klabs(s1->y-s2->y);
+    int32_t z= klabs((s1->z-s2->z)>>4);
 
     if (x<y) swaplong(&x,&y);
     if (x<z) swaplong(&x,&z);
 
     {
-        int t = y + z;
+        int32_t t = y + z;
         return (x - (x>>4) + (t>>2) + (t>>3));
     }
 }
 
-int __fastcall A_FindPlayer(spritetype *s, int *d)
+int32_t __fastcall A_FindPlayer(spritetype *s, int32_t *d)
 {
     if (ud.multimode < 2)
     {
@@ -234,8 +234,8 @@ int __fastcall A_FindPlayer(spritetype *s, int *d)
     }
 
     {
-        int j, closest_player = 0;
-        int x, closest = 0x7fffffff;
+        int32_t j, closest_player = 0;
+        int32_t x, closest = 0x7fffffff;
 
         TRAVERSE_CONNECT(j)
         {
@@ -252,10 +252,10 @@ int __fastcall A_FindPlayer(spritetype *s, int *d)
     }
 }
 
-int P_FindOtherPlayer(int p,int *d)
+int32_t P_FindOtherPlayer(int32_t p,int32_t *d)
 {
-    int j, closest_player = p;
-    int x, closest = 0x7fffffff;
+    int32_t j, closest_player = p;
+    int32_t x, closest = 0x7fffffff;
 
     TRAVERSE_CONNECT(j)
     if (p != j && sprite[g_player[j].ps->i].extra > 0)
@@ -275,7 +275,7 @@ int P_FindOtherPlayer(int p,int *d)
 
 void G_DoSectorAnimations(void)
 {
-    int i, j, a, p, v, dasect;
+    int32_t i, j, a, p, v, dasect;
 
     for (i=g_animateCount-1;i>=0;i--)
     {
@@ -349,12 +349,12 @@ void G_DoSectorAnimations(void)
     }
 }
 
-int GetAnimationGoal(int *animptr)
+int32_t GetAnimationGoal(int32_t *animptr)
 {
-    int i = g_animateCount-1, j = -1;
+    int32_t i = g_animateCount-1, j = -1;
 
     for (;i>=0;i--)
-        if (animptr == (int *)animateptr[i])
+        if (animptr == (int32_t *)animateptr[i])
         {
             j = i;
             break;
@@ -362,9 +362,9 @@ int GetAnimationGoal(int *animptr)
     return(j);
 }
 
-int SetAnimation(int animsect,int *animptr, int thegoal, int thevel)
+int32_t SetAnimation(int32_t animsect,int32_t *animptr, int32_t thegoal, int32_t thevel)
 {
-    int i = 0, j = g_animateCount;
+    int32_t i = 0, j = g_animateCount;
 
     if (g_animateCount >= MAXANIMATES-1)
         return(-1);
@@ -393,7 +393,7 @@ int SetAnimation(int animsect,int *animptr, int thegoal, int thevel)
 
 void G_AnimateCamSprite(void)
 {
-    int i = camsprite;
+    int32_t i = camsprite;
 
     if (camsprite <= 0) return;
 
@@ -416,7 +416,7 @@ void G_AnimateCamSprite(void)
 
 void G_AnimateWalls(void)
 {
-    int i, j, p = g_numAnimWalls-1, t;
+    int32_t i, j, p = g_numAnimWalls-1, t;
 
     for (;p>=0;p--)
         //    for(p=g_numAnimWalls-1;p>=0;p--)
@@ -505,9 +505,9 @@ void G_AnimateWalls(void)
     }
 }
 
-int G_ActivateWarpElevators(int s,int d) //Parm = sectoreffectornum
+int32_t G_ActivateWarpElevators(int32_t s,int32_t d) //Parm = sectoreffectornum
 {
-    int i = headspritestat[STAT_EFFECTOR], sn = sprite[s].sectnum;
+    int32_t i = headspritestat[STAT_EFFECTOR], sn = sprite[s].sectnum;
 
     while (i >= 0)
     {
@@ -546,10 +546,10 @@ int G_ActivateWarpElevators(int s,int d) //Parm = sectoreffectornum
     return 0;
 }
 
-void G_OperateSectors(int sn,int ii)
+void G_OperateSectors(int32_t sn,int32_t ii)
 {
-    int j=0, l, q, startwall, endwall;
-    int i;
+    int32_t j=0, l, q, startwall, endwall;
+    int32_t i;
     sectortype *sptr = &sector[sn];
 
     switch (sptr->lotag&(0xffff-49152))
@@ -592,8 +592,8 @@ void G_OperateSectors(int sn,int ii)
 
     case 9:
     {
-        int dax,day,dax2,day2,sp;
-        int wallfind[2];
+        int32_t dax,day,dax2,day2,sp;
+        int32_t wallfind[2];
 
         startwall = sptr->wallptr;
         endwall = startwall+sptr->wallnum-1;
@@ -987,9 +987,9 @@ REDODOOR:
     }
 }
 
-void G_OperateRespawns(int low)
+void G_OperateRespawns(int32_t low)
 {
-    int j, nexti, i = headspritestat[STAT_FX];
+    int32_t j, nexti, i = headspritestat[STAT_FX];
 
     while (i >= 0)
     {
@@ -1007,10 +1007,10 @@ void G_OperateRespawns(int low)
     }
 }
 
-void G_OperateActivators(int low,int snum)
+void G_OperateActivators(int32_t low,int32_t snum)
 {
-    int i, j, k;
-    short *p;
+    int32_t i, j, k;
+    int16_t *p;
     walltype *wal;
 
     for (i=g_numCyclers-1;i>=0;i--)
@@ -1101,9 +1101,9 @@ void G_OperateActivators(int low,int snum)
     G_OperateRespawns(low);
 }
 
-void G_OperateMasterSwitches(int low)
+void G_OperateMasterSwitches(int32_t low)
 {
-    int i = headspritestat[STAT_STANDABLE];
+    int32_t i = headspritestat[STAT_STANDABLE];
     while (i >= 0)
     {
         if (PN == MASTERSWITCH && SLT == low && SP == 0)
@@ -1112,9 +1112,9 @@ void G_OperateMasterSwitches(int low)
     }
 }
 
-void G_OperateForceFields(int s, int low)
+void G_OperateForceFields(int32_t s, int32_t low)
 {
-    int i, p=g_numAnimWalls;
+    int32_t i, p=g_numAnimWalls;
 
     for (;p>=0;p--)
     {
@@ -1141,11 +1141,11 @@ void G_OperateForceFields(int s, int low)
     }
 }
 
-int P_ActivateSwitch(int snum,int w,int switchtype)
+int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
 {
-    int switchpal, switchpicnum;
-    int i, x, lotag,hitag,picnum,correctdips = 1, numdips = 0;
-    int sx,sy;
+    int32_t switchpal, switchpicnum;
+    int32_t i, x, lotag,hitag,picnum,correctdips = 1, numdips = 0;
+    int32_t sx,sy;
 
     if (w < 0) return 0;
 
@@ -1284,7 +1284,7 @@ int P_ActivateSwitch(int snum,int w,int switchtype)
 
         if (lotag == SLT)
         {
-            int switchpicnum=PN; // put it in a variable so later switches don't trigger on the result of changes
+            int32_t switchpicnum=PN; // put it in a variable so later switches don't trigger on the result of changes
             if ((switchpicnum >= MULTISWITCH) && (switchpicnum <=MULTISWITCH+3))
             {
                 sprite[i].picnum++;
@@ -1423,7 +1423,7 @@ int P_ActivateSwitch(int snum,int w,int switchtype)
         }
     }
 
-    if (lotag == (short) 65535)
+    if (lotag == (int16_t) 65535)
     {
 
         g_player[myconnectindex].ps->gm = MODE_EOL;
@@ -1595,10 +1595,10 @@ int P_ActivateSwitch(int snum,int w,int switchtype)
 
 }
 
-void activatebysector(int sect,int j)
+void activatebysector(int32_t sect,int32_t j)
 {
-    int i = headspritesect[sect];
-    int didit = 0;
+    int32_t i = headspritesect[sect];
+    int32_t didit = 0;
 
     while (i >= 0)
     {
@@ -1615,7 +1615,7 @@ void activatebysector(int sect,int j)
         G_OperateSectors(sect,j);
 }
 
-static void BreakWall(int newpn,int spr,int dawallnum)
+static void BreakWall(int32_t newpn,int32_t spr,int32_t dawallnum)
 {
     wall[dawallnum].picnum = newpn;
     A_PlaySound(VENT_BUST,spr);
@@ -1623,10 +1623,10 @@ static void BreakWall(int newpn,int spr,int dawallnum)
     A_SpawnWallGlass(spr,dawallnum,10);
 }
 
-void A_DamageWall(int spr,int dawallnum,int x,int y,int z,int atwith)
+void A_DamageWall(int32_t spr,int32_t dawallnum,int32_t x,int32_t y,int32_t z,int32_t atwith)
 {
-    short sn = -1;
-    int j, i, darkestwall;
+    int16_t sn = -1;
+    int32_t j, i, darkestwall;
     walltype *wal = &wall[dawallnum];
 
     if (wal->overpicnum == MIRROR && wal->pal != 4 && A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) && (ActorExtra[spr].projectile.workslike & PROJECTILE_RPG))
@@ -1667,7 +1667,7 @@ void A_DamageWall(int spr,int dawallnum,int x,int y,int z,int atwith)
         if (sector[wal->nextsector].floorz > z)
             if (sector[wal->nextsector].floorz-sector[wal->nextsector].ceilingz)
             {
-                int switchpicnum = wal->overpicnum;
+                int32_t switchpicnum = wal->overpicnum;
                 if ((switchpicnum > W_FORCEFIELD)&&(switchpicnum <= W_FORCEFIELD+2))
                     switchpicnum = W_FORCEFIELD;
                 switch (DynamicTileMap[switchpicnum])
@@ -1884,7 +1884,7 @@ void A_DamageWall(int spr,int dawallnum,int x,int y,int z,int atwith)
     }
 }
 
-void P_CheckTouchDamage(DukePlayer_t *p,int j)
+void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
 {
     if ((j&49152) == 49152)
     {
@@ -1915,7 +1915,7 @@ void P_CheckTouchDamage(DukePlayer_t *p,int j)
     if (p->hurt_delay > 0) p->hurt_delay--;
     else if (wall[j].cstat&85)
     {
-        int switchpicnum = wall[j].overpicnum;
+        int32_t switchpicnum = wall[j].overpicnum;
         if ((switchpicnum>W_FORCEFIELD)&&(switchpicnum<=W_FORCEFIELD+2))
             switchpicnum=W_FORCEFIELD;
 
@@ -1955,9 +1955,9 @@ void P_CheckTouchDamage(DukePlayer_t *p,int j)
     }
 }
 
-int Sect_DamageCeiling(int sn)
+int32_t Sect_DamageCeiling(int32_t sn)
 {
-    int i, j;
+    int32_t i, j;
 
     switch (DynamicTileMap[sector[sn].ceilingpicnum])
     {
@@ -2029,12 +2029,12 @@ int Sect_DamageCeiling(int sn)
 }
 
 // hard coded props... :(
-void A_DamageObject(int i,int sn)
+void A_DamageObject(int32_t i,int32_t sn)
 {
-    short j;
-    int k, p, rpg=0;
+    int16_t j;
+    int32_t k, p, rpg=0;
     spritetype *s;
-    int switchpicnum = PN;
+    int32_t switchpicnum = PN;
 
     i &= (MAXSPRITES-1);
 
@@ -2507,7 +2507,7 @@ void A_DamageObject(int i,int sn)
 
 void allignwarpelevators(void)
 {
-    int j, i = headspritestat[STAT_EFFECTOR];
+    int32_t j, i = headspritestat[STAT_EFFECTOR];
 
     while (i >= 0)
     {
@@ -2532,10 +2532,10 @@ void allignwarpelevators(void)
     }
 }
 
-void G_HandleSharedKeys(int snum)
+void G_HandleSharedKeys(int32_t snum)
 {
-    int i, k, dainv;
-    unsigned int sb_snum = g_player[snum].sync->bits, j;
+    int32_t i, k, dainv;
+    uint32_t sb_snum = g_player[snum].sync->bits, j;
     DukePlayer_t *p = g_player[snum].ps;
 
     if (p->cheat_phase == 1) return;
@@ -2837,8 +2837,8 @@ CHECKINV1:
             break;
         }
 
-        if ((unsigned int) Gv_GetVar(g_iReturnVarID,p->i,snum) != j)
-            j = (unsigned int) Gv_GetVar(g_iReturnVarID,p->i,snum);
+        if ((uint32_t) Gv_GetVar(g_iReturnVarID,p->i,snum) != j)
+            j = (uint32_t) Gv_GetVar(g_iReturnVarID,p->i,snum);
 
         if (p->reloading == 1)
             j = -1;
@@ -2861,7 +2861,7 @@ CHECKINV1:
                     {
                         if (k == GROW_WEAPON)   // JBF: this is handling next/previous with the grower selected
                         {
-                            if (j == (unsigned int)-1)
+                            if (j == (uint32_t)-1)
                                 k = 5;
                             else k = 7;
 
@@ -2964,7 +2964,7 @@ CHECKINV1:
                         sb_snum |= BIT(SK_HOLSTER);
                         p->weapon_pos = -9;
                     }
-                    else if ((int)j >= 0 && p->gotweapon[j] && (unsigned int)p->curr_weapon != j)
+                    else if ((int32_t)j >= 0 && p->gotweapon[j] && (uint32_t)p->curr_weapon != j)
                         switch (j)
                         {
                         case KNEE_WEAPON:
@@ -3124,7 +3124,7 @@ CHECKINV1:
                 {
                     j = p->max_player_health-sprite[p->i].extra;
 
-                    if ((unsigned int)p->firstaid_amount > j)
+                    if ((uint32_t)p->firstaid_amount > j)
                     {
                         p->firstaid_amount -= j;
                         sprite[p->i].extra = p->max_player_health;
@@ -3190,10 +3190,10 @@ CHECKINV1:
     }
 }
 
-int A_CheckHitSprite(int i,short *hitsp)
+int32_t A_CheckHitSprite(int32_t i,int16_t *hitsp)
 {
-    int sx,sy,sz,zoff;
-    short sect,hw;
+    int32_t sx,sy,sz,zoff;
+    int16_t sect,hw;
 
     if (A_CheckEnemySprite(&sprite[i]))
         zoff = (42<<8);
@@ -3211,10 +3211,10 @@ int A_CheckHitSprite(int i,short *hitsp)
     return (FindDistance2D(sx-SX,sy-SY));
 }
 
-static int hitawall(DukePlayer_t *p,short *hitw)
+static int32_t hitawall(DukePlayer_t *p,int16_t *hitw)
 {
-    int sx,sy,sz;
-    short sect,hs;
+    int32_t sx,sy,sz;
+    int16_t sect,hs;
 
     hitscan(p->posx,p->posy,p->posz,p->cursectnum,
             sintable[(p->ang+512)&2047],
@@ -3225,11 +3225,11 @@ static int hitawall(DukePlayer_t *p,short *hitw)
 }
 
 
-void checksectors(int snum)
+void checksectors(int32_t snum)
 {
-    int i = -1,oldz;
+    int32_t i = -1,oldz;
     DukePlayer_t *p = g_player[snum].ps;
-    short j,hitscanwall;
+    int16_t j,hitscanwall;
 
     if (p->cursectnum > -1)
         switch (sector[p->cursectnum].lotag)

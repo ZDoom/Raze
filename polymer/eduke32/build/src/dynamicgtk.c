@@ -13,9 +13,9 @@ struct _dynamicgtksyms dynamicgtksyms;
 	if (!dynamicgtksyms.x ) { err = 1; break; } \
 }
 
-int dynamicgtk_init(void)
+int32_t dynamicgtk_init(void)
 {
-    int err = 0;
+    int32_t err = 0;
     const char *failsym = NULL;
 
     if (handle) return 1;

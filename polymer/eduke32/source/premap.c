@@ -32,29 +32,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern char pow2char[];
 
-extern int everyothertime;
-static int g_whichPalForPlayer = 9;
-int g_numRealPalettes;
-short SpriteCacheList[MAXTILES][3];
+extern int32_t everyothertime;
+static int32_t g_whichPalForPlayer = 9;
+int32_t g_numRealPalettes;
+int16_t SpriteCacheList[MAXTILES][3];
 
 static char precachehightile[2][MAXTILES>>3];
-static int  g_precacheCount;
+static int32_t  g_precacheCount;
 
 extern char *duke3dgrpstring;
-extern int g_levelTextTime;
+extern int32_t g_levelTextTime;
 
-static void tloadtile(int tilenume, int type)
+static void tloadtile(int32_t tilenume, int32_t type)
 {
     if ((picanm[tilenume]&63) < 1)
     {
         if (!(gotpic[tilenume>>3] & pow2char[tilenume&7])) g_precacheCount++;
         gotpic[tilenume>>3] |= pow2char[tilenume&7];
-        precachehightile[(unsigned char)type][tilenume>>3] |= pow2char[tilenume&7];
+        precachehightile[(uint8_t)type][tilenume>>3] |= pow2char[tilenume&7];
         return;
     }
 
     {
-        int i,j;
+        int32_t i,j;
 
         if ((picanm[tilenume]&192)==192)
         {
@@ -70,15 +70,15 @@ static void tloadtile(int tilenume, int type)
         {
             if (!(gotpic[i>>3] & pow2char[i&7])) g_precacheCount++;
             gotpic[i>>3] |= pow2char[i&7];
-            precachehightile[(unsigned char)type][i>>3] |= pow2char[i&7];
+            precachehightile[(uint8_t)type][i>>3] |= pow2char[i&7];
         }
     }
 }
 
-static void G_CacheSpriteNum(int i)
+static void G_CacheSpriteNum(int32_t i)
 {
     char maxc;
-    int j;
+    int32_t j;
 
     if (ud.monsters_off && A_CheckEnemySprite(&sprite[i])) return;
 
@@ -216,7 +216,7 @@ static void G_CacheSpriteNum(int i)
 
 static void G_PrecacheSprites(void)
 {
-    int i,j;
+    int32_t i,j;
 
     for (i=0;i<MAXTILES;i++)
     {
@@ -278,10 +278,10 @@ static void G_PrecacheSprites(void)
 }
 
 // FIXME: this function is a piece of shit, needs specific sounds listed
-static int CacheSound(unsigned int num)
+static int32_t CacheSound(uint32_t num)
 {
-    short fp = -1;
-    int   l;
+    int16_t fp = -1;
+    int32_t   l;
 
     if (num >= MAXSOUNDS || ud.config.SoundToggle == 0) return 0;
     if (ud.config.FXDevice < 0) return 0;
@@ -312,7 +312,7 @@ static int CacheSound(unsigned int num)
 
 static void G_PrecacheSounds(void)
 {
-    int i, j;
+    int32_t i, j;
 
     if (ud.config.FXDevice < 0) return;
     j = 0;
@@ -324,15 +324,15 @@ static void G_PrecacheSounds(void)
             if ((j&7) == 0)
             {
                 handleevents();
-                getpackets();
+                Net_GetPackets();
             }
             CacheSound(i);
         }
 }
 
-static void G_DoLoadScreen(char *statustext, int percent)
+static void G_DoLoadScreen(char *statustext, int32_t percent)
 {
-    int i=0,j;
+    int32_t i=0,j;
 
     if (ud.recstat != 2)
     {
@@ -375,8 +375,8 @@ static void G_DoLoadScreen(char *statustext, int percent)
                 rotatesprite(154<<16,144<<16,65536,0,LASERLINE,0,0,2+8+16,0,0,scale(scale(xdim-1,288,320),percent,100),ydim-1);
                 usehightile = j; */
         {
-            int ii = scale(288,percent,100);
-            int x = 32;
+            int32_t ii = scale(288,percent,100);
+            int32_t x = 32;
             j = usehightile;
             usehightile = 0;
             do
@@ -423,14 +423,14 @@ static void G_DoLoadScreen(char *statustext, int percent)
     }
 }
 
-extern void G_SetCrosshairColor(int r, int g, int b);
+extern void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b);
 extern palette_t CrosshairColors;
 
 void G_CacheMapData(void)
 {
-    int i,j,pc=0;
-    int tc;
-    unsigned int starttime, endtime;
+    int32_t i,j,pc=0;
+    int32_t tc;
+    uint32_t starttime, endtime;
 
     if (ud.recstat == 2)
         return;
@@ -490,12 +490,12 @@ void G_CacheMapData(void)
         if (gotpic[i>>3] & pow2char[i&7])
         {
             if (waloff[i] == 0)
-                loadtile((short)i);
+                loadtile((int16_t)i);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
             if (ud.config.useprecache)
             {
-                int k;
+                int32_t k;
 
                 if (precachehightile[0][i>>3] & pow2char[i&7])
                     for (k=0; k<MAXPALOOKUPS && !KB_KeyPressed(sc_Space); k++)
@@ -514,7 +514,7 @@ void G_CacheMapData(void)
         if ((j&7) == 0)
         {
             handleevents();
-            getpackets();
+            Net_GetPackets();
         }
         if (totalclock - tc > TICRATE/4)
         {
@@ -530,7 +530,7 @@ void G_CacheMapData(void)
     OSD_Printf("Cache time: %dms\n", endtime-starttime);
 }
 
-void xyzmirror(int i,int wn)
+void xyzmirror(int32_t i,int32_t wn)
 {
     //if (waloff[wn] == 0) loadtile(wn);
     setviewtotile(wn,tilesizy[wn],tilesizx[wn]);
@@ -548,7 +548,7 @@ void xyzmirror(int i,int wn)
 
 void G_UpdateScreenArea(void)
 {
-    int i, j, ss, x1, x2, y1, y2;
+    int32_t i, j, ss, x1, x2, y1, y2;
 
     if (ud.screen_size < 0) ud.screen_size = 0;
     if (ud.screen_size > 64) ud.screen_size = 64;
@@ -590,11 +590,11 @@ void G_UpdateScreenArea(void)
     pus = NUMPAGES;
 }
 
-void P_RandomSpawnPoint(int snum)
+void P_RandomSpawnPoint(int32_t snum)
 {
     DukePlayer_t *p = g_player[snum].ps;
-    int i=snum,j,k;
-    unsigned int dist,pdist = -1;
+    int32_t i=snum,j,k;
+    uint32_t dist,pdist = -1;
 
     if (ud.multimode > 1 && !(GametypeFlags[ud.coop] & GAMETYPE_FIXEDRESPAWN))
     {
@@ -624,7 +624,7 @@ void P_RandomSpawnPoint(int snum)
     p->cursectnum = g_playerSpawnPoints[i].os;
 }
 
-static void P_ResetStatus(int snum)
+static void P_ResetStatus(int32_t snum)
 {
     DukePlayer_t *p = g_player[snum].ps;
 
@@ -732,9 +732,9 @@ static void P_ResetStatus(int snum)
     X_OnEvent(EVENT_RESETPLAYER, p->i, snum, -1);
 }
 
-void P_ResetWeapons(int snum)
+void P_ResetWeapons(int32_t snum)
 {
-    int weapon;
+    int32_t weapon;
     DukePlayer_t *p = g_player[snum].ps;
 
     for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
@@ -757,7 +757,7 @@ void P_ResetWeapons(int snum)
     X_OnEvent(EVENT_RESETWEAPONS, p->i, snum, -1);
 }
 
-void P_ResetInventory(int snum)
+void P_ResetInventory(int32_t snum)
 {
     DukePlayer_t *p = g_player[snum].ps;
 
@@ -778,10 +778,10 @@ void P_ResetInventory(int snum)
     X_OnEvent(EVENT_RESETINVENTORY, p->i, snum, -1);
 }
 
-static void resetprestat(int snum,int g)
+static void resetprestat(int32_t snum,int32_t g)
 {
     DukePlayer_t *p = g_player[snum].ps;
-    int i;
+    int32_t i;
 
     g_spriteDeleteQueuePos = 0;
     for (i=0;i<g_spriteDeleteQueueSize;i++) SpriteDeletionQueue[i] = -1;
@@ -839,9 +839,9 @@ static void resetprestat(int snum,int g)
 
 }
 
-static void setupbackdrop(short sky)
+static void setupbackdrop(int16_t sky)
 {
-    short i;
+    int16_t i;
 
     for (i=0;i<MAXPSKYTILES;i++) pskyoff[i]=0;
 
@@ -883,9 +883,9 @@ static void setupbackdrop(short sky)
 
 static void prelevel(char g)
 {
-    int i, nexti, j, startwall, endwall, lotaglist;
-    int lotags[MAXSPRITES];
-    int switchpicnum;
+    int32_t i, nexti, j, startwall, endwall, lotaglist;
+    int32_t lotags[MAXSPRITES];
+    int32_t switchpicnum;
 
 
     clearbufbyte(show2dsector,sizeof(show2dsector),0L);
@@ -1205,20 +1205,20 @@ static void prelevel(char g)
     }
 }
 
-void G_NewGame(int vn,int ln,int sk)
+void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 {
     DukePlayer_t *p = g_player[0].ps;
-    int i;
+    int32_t i;
 
     handleevents();
-    getpackets();
+    Net_GetPackets();
 
     if (g_skillSoundID >= 0 && ud.config.FXDevice >= 0 && ud.config.SoundToggle)
     {
         while (S_CheckSoundPlaying(-1,g_skillSoundID))
         {
             handleevents();
-            getpackets();
+            Net_GetPackets();
         }
     }
 
@@ -1316,7 +1316,7 @@ void G_NewGame(int vn,int ln,int sk)
     X_OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek, -1);
 }
 
-int G_GetTeamPalette(int team)
+int32_t G_GetTeamPalette(int32_t team)
 {
     switch (team)
     {
@@ -1334,8 +1334,8 @@ int G_GetTeamPalette(int team)
 
 static void resetpspritevars(char g)
 {
-    short i, j, nexti,circ;
-//    int firstx,firsty;
+    int16_t i, j, nexti,circ;
+//    int32_t firstx,firsty;
     spritetype *s;
     char aimmode[MAXPLAYERS],autoaim[MAXPLAYERS],weaponswitch[MAXPLAYERS];
     STATUSBARTYPE tsbar[MAXPLAYERS];
@@ -1422,11 +1422,11 @@ static void resetpspritevars(char g)
                     firsty = g_player[0].ps->posy;
                 }*/
 
-        g_playerSpawnPoints[(unsigned char)g_numPlayerSprites].ox = s->x;
-        g_playerSpawnPoints[(unsigned char)g_numPlayerSprites].oy = s->y;
-        g_playerSpawnPoints[(unsigned char)g_numPlayerSprites].oz = s->z;
-        g_playerSpawnPoints[(unsigned char)g_numPlayerSprites].oa = s->ang;
-        g_playerSpawnPoints[(unsigned char)g_numPlayerSprites].os = s->sectnum;
+        g_playerSpawnPoints[(uint8_t)g_numPlayerSprites].ox = s->x;
+        g_playerSpawnPoints[(uint8_t)g_numPlayerSprites].oy = s->y;
+        g_playerSpawnPoints[(uint8_t)g_numPlayerSprites].oz = s->z;
+        g_playerSpawnPoints[(uint8_t)g_numPlayerSprites].oa = s->ang;
+        g_playerSpawnPoints[(uint8_t)g_numPlayerSprites].os = s->sectnum;
 
         g_numPlayerSprites++;
         if (j >= 0)
@@ -1453,7 +1453,7 @@ static void resetpspritevars(char g)
             {
                 if (s->pal == 0)
                 {
-                    int k = 0;
+                    int32_t k = 0;
 
                     for (;k<ud.multimode;k++)
                     {
@@ -1473,7 +1473,7 @@ static void resetpspritevars(char g)
             }
             else
             {
-                int k = g_player[j].pcolor;
+                int32_t k = g_player[j].pcolor;
 
                 if (GametypeFlags[ud.coop] & GAMETYPE_TDM)
                 {
@@ -1504,7 +1504,7 @@ static void resetpspritevars(char g)
 
 static inline void clearfrags(void)
 {
-    int i = 0;
+    int32_t i = 0;
 
     while (i<ud.multimode)
     {
@@ -1528,7 +1528,7 @@ void G_ResetTimers(void)
 
 void waitforeverybody()
 {
-    int i;
+    int32_t i;
 
     if (numplayers < 2) return;
     packbuf[0] = PACKET_TYPE_PLAYER_READY;
@@ -1539,7 +1539,7 @@ void waitforeverybody()
     if ((g_networkBroadcastMode == 1) || (!g_networkBroadcastMode && (myconnectindex != connecthead)))
         TRAVERSE_CONNECT(i)
     {
-        if (i != myconnectindex) sendpacket(i,packbuf,1);
+        if (i != myconnectindex) mmulti_sendpacket(i,packbuf,1);
         if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
     }
 
@@ -1561,7 +1561,7 @@ void waitforeverybody()
     {
         if (quitevent || keystatus[1]) G_GameExit("");
 
-        getpackets();
+        Net_GetPackets();
 
         TRAVERSE_CONNECT(i)
         {
@@ -1580,7 +1580,7 @@ void waitforeverybody()
                 TRAVERSE_CONNECT(i)
             {
                 packbuf[0] = PACKET_TYPE_PLAYER_READY;
-                if (i != myconnectindex) sendpacket(i,packbuf,1);
+                if (i != myconnectindex) mmulti_sendpacket(i,packbuf,1);
             }
 
             P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);
@@ -1589,13 +1589,13 @@ void waitforeverybody()
     }
 }
 
-extern int jump_input;
+extern int32_t jump_input;
 extern char g_szfirstSyncMsg[MAXSYNCBYTES][60];
-extern int g_foundSyncError;
+extern int32_t g_foundSyncError;
 
 void clearfifo(void)
 {
-    int i = 0;
+    int32_t i = 0;
 
     syncvaltail = 0L;
     syncvaltottail = 0L;
@@ -1644,7 +1644,7 @@ void Net_ResetPrediction(void)
     myreturntocenter = g_player[myconnectindex].ps->return_to_center;
 }
 
-extern int voting, vote_map, vote_episode;
+extern int32_t voting, vote_map, vote_episode;
 
 void G_FindLevelForFilename(const char *fn, char *volume, char *level)
 {
@@ -1661,9 +1661,9 @@ void G_FindLevelForFilename(const char *fn, char *volume, char *level)
     }
 }
 
-int G_EnterLevel(int g)
+int32_t G_EnterLevel(int32_t g)
 {
-    int i;
+    int32_t i;
     char levname[BMAX_PATH];
 
 //    flushpackets();
@@ -1709,10 +1709,10 @@ int G_EnterLevel(int g)
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
         {
             if (MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename == NULL)
-                MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename = Bcalloc(BMAX_PATH,sizeof(char));
+                MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename = Bcalloc(BMAX_PATH,sizeof(uint8_t));
             if (MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name == NULL)
             {
-                MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name = Bcalloc(16,sizeof(char));
+                MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name = Bcalloc(16,sizeof(uint8_t));
                 Bsprintf(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name,"USER MAP");
             }
         }
@@ -1770,7 +1770,7 @@ int G_EnterLevel(int g)
                 p = Bstrrchr(levname,'.');
                 if (p)
                 {
-                    int fil;
+                    int32_t fil;
 
                     p[1]='o';
                     p[2]='g';
@@ -1783,7 +1783,7 @@ int G_EnterLevel(int g)
                     {
                         kclose(fil);
                         if (MapInfo[ud.m_level_number].musicfn1 == NULL)
-                            MapInfo[ud.m_level_number].musicfn1 = Bcalloc(Bstrlen(levname)+1,sizeof(char));
+                            MapInfo[ud.m_level_number].musicfn1 = Bcalloc(Bstrlen(levname)+1,sizeof(uint8_t));
                         else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.m_level_number].musicfn1))
                             MapInfo[ud.m_level_number].musicfn1 = Brealloc(MapInfo[ud.m_level_number].musicfn1,(Bstrlen(levname)+1));
                         Bstrcpy(MapInfo[ud.m_level_number].musicfn1,levname);
@@ -1806,7 +1806,7 @@ int G_EnterLevel(int g)
                     else kclose(fil);
 
                     if (MapInfo[ud.m_level_number].musicfn == NULL)
-                        MapInfo[ud.m_level_number].musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(char));
+                        MapInfo[ud.m_level_number].musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(uint8_t));
                     else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.m_level_number].musicfn))
                         MapInfo[ud.m_level_number].musicfn = Brealloc(MapInfo[ud.m_level_number].musicfn,(Bstrlen(levname)+1));
                     Bstrcpy(MapInfo[ud.m_level_number].musicfn,levname);
@@ -1884,8 +1884,8 @@ int G_EnterLevel(int g)
     if (ud.recstat != 2)
     {
         g_musicIndex = (ud.volume_number*MAXLEVELS) + ud.level_number;
-        if (MapInfo[(unsigned char)g_musicIndex].musicfn != NULL)
-            S_PlayMusic(&MapInfo[(unsigned char)g_musicIndex].musicfn[0],g_musicIndex);
+        if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
+            S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);
     }
 
     if ((g&MODE_GAME) || (g&MODE_EOL))
@@ -1943,7 +1943,7 @@ int G_EnterLevel(int g)
     g_restorePalette = 1;
 
     waitforeverybody();
-    flushpackets();
+    mmulti_flushpackets();
 
     G_FadePalette(0,0,0,0);
     G_UpdateScreenArea();
@@ -1970,9 +1970,9 @@ int G_EnterLevel(int g)
     return 0;
 }
 
-void G_FreeMapState(int mapnum)
+void G_FreeMapState(int32_t mapnum)
 {
-    int j;
+    int32_t j;
 
     for (j=0;j<g_gameVarCount;j++)
     {

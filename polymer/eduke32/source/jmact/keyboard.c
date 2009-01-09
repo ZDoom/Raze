@@ -205,7 +205,7 @@ boolean KB_KeyWaiting(void)
 char KB_Getch(void)
 {
     /*
-    	unsigned char ch;
+    	uint8_t ch;
     	char shifted;
     	if (keyfifoplc == keyfifoend) return 0;
     	ch = keyfifo[keyfifoplc];
@@ -268,7 +268,7 @@ boolean KB_KeypadActive(void)
     return numpad;
 }
 
-static void KB_KeyEvent(int scancode, int keypressed)
+static void KB_KeyEvent(int32_t scancode, int32_t keypressed)
 {
     if (keypressed) KB_LastScan = scancode;
 }
@@ -281,6 +281,6 @@ void KB_Startup(void)
 
 void KB_Shutdown(void)
 {
-    setkeypresscallback((void(*)(int,int))NULL);
+    setkeypresscallback((void(*)(int32_t,int32_t))NULL);
 }
 

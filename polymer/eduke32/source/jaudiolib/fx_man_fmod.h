@@ -39,40 +39,40 @@ enum FX_ERRORS
    };
 
 
-char *FX_ErrorString( int ErrorNumber );
-int   FX_Init( int SoundCard, int numvoices, int numchannels, int samplebits, unsigned mixrate );
-int   FX_Shutdown( void );
-int   FX_SetCallBack( void ( *function )( unsigned int ) );
-void  FX_SetVolume( int volume );
+char *FX_ErrorString( int32_t ErrorNumber );
+int32_t   FX_Init( int32_t SoundCard, int32_t numvoices, int32_t numchannels, int32_t samplebits, unsigned mixrate );
+int32_t   FX_Shutdown( void );
+int32_t   FX_SetCallBack( void ( *function )( uint32_t ) );
+void  FX_SetVolume( int32_t volume );
 
-void  FX_SetReverseStereo( int setting );
-int   FX_GetReverseStereo( void );
-void  FX_SetReverb( int reverb );
-void  FX_SetReverbDelay( int delay );
+void  FX_SetReverseStereo( int32_t setting );
+int32_t   FX_GetReverseStereo( void );
+void  FX_SetReverb( int32_t reverb );
+void  FX_SetReverbDelay( int32_t delay );
 
-int FX_VoiceAvailable( int priority );
+int32_t FX_VoiceAvailable( int32_t priority );
 
-int FX_PlayLoopedVOC( char *ptr, int loopstart, int loopend,
-       int pitchoffset, int vol, int left, int right, int priority,
-       unsigned int callbackval );
-int FX_PlayLoopedWAV( char *ptr, int loopstart, int loopend,
-       int pitchoffset, int vol, int left, int right, int priority,
-       unsigned int callbackval );
-int FX_PlayVOC3D( char *ptr, int pitchoffset, int angle, int distance,
-       int priority, unsigned int callbackval );
-int FX_PlayWAV3D( char *ptr, int pitchoffset, int angle, int distance,
-       int priority, unsigned int callbackval );
+int32_t FX_PlayLoopedVOC( char *ptr, int32_t loopstart, int32_t loopend,
+       int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority,
+       uint32_t callbackval );
+int32_t FX_PlayLoopedWAV( char *ptr, int32_t loopstart, int32_t loopend,
+       int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority,
+       uint32_t callbackval );
+int32_t FX_PlayVOC3D( char *ptr, int32_t pitchoffset, int32_t angle, int32_t distance,
+       int32_t priority, uint32_t callbackval );
+int32_t FX_PlayWAV3D( char *ptr, int32_t pitchoffset, int32_t angle, int32_t distance,
+       int32_t priority, uint32_t callbackval );
 
-int FX_Pan3D( int handle, int angle, int distance );
-int FX_StopSound( int handle );
-int FX_StopAllSounds( void );
+int32_t FX_Pan3D( int32_t handle, int32_t angle, int32_t distance );
+int32_t FX_StopSound( int32_t handle );
+int32_t FX_StopAllSounds( void );
 
-int FX_LoadSample(char *ptr, int size, unsigned int number, int priority);
-int FX_SampleLoaded(unsigned int number);
+int32_t FX_LoadSample(char *ptr, int32_t size, uint32_t number, int32_t priority);
+int32_t FX_SampleLoaded(uint32_t number);
 
-int FX_PlayLoopedSound(int,int,unsigned int);
-int FX_PlayPositionedSound(int,int,int,unsigned int);
+int32_t FX_PlayLoopedSound(int32_t,int32_t,uint32_t);
+int32_t FX_PlayPositionedSound(int32_t,int32_t,int32_t,uint32_t);
 
-int FX_SimulateCallbacks(void);
+int32_t FX_SimulateCallbacks(void);
 
 #endif

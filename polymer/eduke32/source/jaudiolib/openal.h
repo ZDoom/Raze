@@ -25,20 +25,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <vorbis/vorbisfile.h>
 
-int AL_Init();
+int32_t AL_Init();
 void AL_Shutdown();
 void AL_Update();
-char *AL_ErrorString(int code);
-char *ALC_ErrorString(int code);
+char *AL_ErrorString(int32_t code);
+char *ALC_ErrorString(int32_t code);
 
 void AL_Stop();
-int  AL_isntALmusic();
-void AL_PlaySong(char *song,int loopflag);
+int32_t  AL_isntALmusic();
+void AL_PlaySong(char *song,int32_t loopflag);
 void AL_Pause();
 void AL_Continue();
-void AL_SetMusicVolume(int volume);
+void AL_SetMusicVolume(int32_t volume);
 
-int openal_disabled;
+int32_t openal_disabled;
 
 typedef struct sounddef
 {

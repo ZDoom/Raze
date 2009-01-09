@@ -5,30 +5,30 @@
 
 #define MAXMULTIPLAYERS 16
 
-extern int myconnectindex, numplayers;
-extern int connecthead, connectpoint2[MAXMULTIPLAYERS];
+extern int32_t myconnectindex, numplayers;
+extern int32_t connecthead, connectpoint2[MAXMULTIPLAYERS];
 extern char syncstate;
-extern int natfree; //Addfaz NatFree
+extern int32_t natfree; //Addfaz NatFree
 
-int initmultiplayersparms(int argc, char **argv);
-int initmultiplayerscycle(void);
+int32_t initmultiplayersparms(int32_t argc, char **argv);
+int32_t initmultiplayerscycle(void);
 
-void initmultiplayers(int argc, char **argv);
-void setpackettimeout(int datimeoutcount, int daresendagaincount);
-void uninitmultiplayers(void);
+void mmulti_initmultiplayers(int32_t argc, char **argv);
+void mmulti_setpackettimeout(int32_t datimeoutcount, int32_t daresendagaincount);
+void mmulti_uninitmultiplayers(void);
 void sendlogon(void);
 void sendlogoff(void);
-int getoutputcirclesize(void);
-void setsocket(short newsocket);
-void sendpacket(int other, char *bufptr, int messleng);
-int getpacket(int *other, char *bufptr);
-void flushpackets(void);
-void genericmultifunction(int other, char *bufptr, int messleng, int command);
-int isvalidipaddress(char *st);
+int32_t getoutputcirclesize(void);
+void setsocket(int16_t newsocket);
+void mmulti_sendpacket(int32_t other, char *bufptr, int32_t messleng);
+int32_t mmulti_getpacket(int32_t *other, char *bufptr);
+void mmulti_flushpackets(void);
+void genericmultifunction(int32_t other, char *bufptr, int32_t messleng, int32_t command);
+int32_t isvalidipaddress(char *st);
 
 void nfIncCP(void); //Addfaz NatFree
-int nfCheckHF (int other); //Addfaz NatFree
-int nfCheckCP(int other); //Addfaz NatFree
+int32_t nfCheckHF (int32_t other); //Addfaz NatFree
+int32_t nfCheckCP(int32_t other); //Addfaz NatFree
 
 #endif	// __mmulti_h__
 

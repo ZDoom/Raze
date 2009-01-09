@@ -1,12 +1,12 @@
-void GAME_drawosdchar(int x, int y, char ch, int shade, int pal);
-void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal);
-void GAME_drawosdcursor(int x, int y, int type, int lastkeypress);
-int GAME_getcolumnwidth(int w);
-int GAME_getrowheight(int w);
-void GAME_clearbackground(int c, int r);
-void GAME_onshowosd(int shown);
+void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal);
+void GAME_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade, int32_t pal);
+void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress);
+int32_t GAME_getcolumnwidth(int32_t w);
+int32_t GAME_getrowheight(int32_t w);
+void GAME_clearbackground(int32_t c, int32_t r);
+void GAME_onshowosd(int32_t shown);
 
-extern int osdhightile;
+extern int32_t osdhightile;
 
 #define OSDCHAR_WIDTH 8
 

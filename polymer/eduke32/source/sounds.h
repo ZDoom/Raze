@@ -47,6 +47,6 @@ struct audioenumdrv {
 	char **drvs;
 	struct audioenumdev *devs;
 };
-int EnumAudioDevs(struct audioenumdrv **wave, struct audioenumdev **midi, struct audioenumdev **cda);
+int32_t EnumAudioDevs(struct audioenumdrv **wave, struct audioenumdev **midi, struct audioenumdev **cda);
 
 #endif

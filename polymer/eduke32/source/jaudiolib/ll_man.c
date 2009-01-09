@@ -48,8 +48,8 @@ void LL_AddNode
     char *item,
     char **head,
     char **tail,
-    int next,
-    int prev
+    int32_t next,
+    int32_t prev
 )
 
 {
@@ -73,8 +73,8 @@ void LL_RemoveNode
     char *item,
     char **head,
     char **tail,
-    int next,
-    int prev
+    int32_t next,
+    int32_t prev
 )
 
 {

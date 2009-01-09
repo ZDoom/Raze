@@ -21,7 +21,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#define SOCKET int
+#define SOCKET int32_t
 #define INVALID_HANDLE_VALUE (-1)
 #define INVALID_SOCKET (-1)
 #define SOCKET_ERROR (-1)
@@ -30,10 +30,10 @@
 #define LPHOSTENT struct hostent *
 
 #include <sys/time.h>
-static int GetTickCount(void)
+static int32_t GetTickCount(void)
 {
     struct timeval tv;
-    int ti;
+    int32_t ti;
     if (gettimeofday(&tv,NULL) < 0) return 0;
     // tv is sec.usec, GTC gives msec
     ti = tv.tv_sec * 1000;
@@ -57,45 +57,45 @@ static int GetTickCount(void)
 
 
 #define PAKRATE 250  //Packet rate/sec limit ... necessary?
-int packetrate = PAKRATE;
+int32_t packetrate = PAKRATE;
 #define SIMMIS 0     //Release:0  Test:100 Packets per 256 missed.
 #define SIMLAG 0     //Release:0  Test: 10 Packets to delay receipt
 #if (SIMLAG != 0)
-static int simlagcnt[MAXPLAYERS];
+static int32_t simlagcnt[MAXPLAYERS];
 static char simlagfif[MAXPLAYERS][SIMLAG+1][MAXPAKSIZ+2];
 #endif
 #if ((SIMMIS != 0) || (SIMLAG != 0))
 #pragma message("\n\nWARNING! INTENTIONAL PACKET LOSS SIMULATION IS ENABLED!\nREMEMBER TO CHANGE SIMMIS&SIMLAG to 0 before RELEASE!\n\n")
 #endif
 
-int myconnectindex, numplayers;
-int connecthead, connectpoint2[MAXPLAYERS];
+int32_t myconnectindex, numplayers;
+int32_t connecthead, connectpoint2[MAXPLAYERS];
 
-static int tims, lastsendtims[MAXPLAYERS];
+static int32_t tims, lastsendtims[MAXPLAYERS];
 static char pakbuf[MAXPAKSIZ];
 
 #define FIFSIZ 512 //16384/40 = 6min:49sec
-static int ipak[MAXPLAYERS][FIFSIZ], icnt0[MAXPLAYERS];
-static int opak[MAXPLAYERS][FIFSIZ], ocnt0[MAXPLAYERS], ocnt1[MAXPLAYERS];
-static char pakmem[4194304]; static int pakmemi = 1;
+static int32_t ipak[MAXPLAYERS][FIFSIZ], icnt0[MAXPLAYERS];
+static int32_t opak[MAXPLAYERS][FIFSIZ], ocnt0[MAXPLAYERS], ocnt1[MAXPLAYERS];
+static char pakmem[4194304]; static int32_t pakmemi = 1;
 
 #define NETPORT 0x5bd9
 static SOCKET mysock;
-static int myip, myport = NETPORT, otherip[MAXPLAYERS], otherport[MAXPLAYERS];
-static int snatchip = 0, snatchport = 0, danetmode = 255, netready = 0;
+static int32_t myip, myport = NETPORT, otherip[MAXPLAYERS], otherport[MAXPLAYERS];
+static int32_t snatchip = 0, snatchport = 0, danetmode = 255, netready = 0;
 
 #ifdef _WIN32
-int wsainitialized = 0;
+int32_t wsainitialized = 0;
 #endif
 
 /*Addfaz NatFree Start*/
-int natfree; //NatFree mode flag
-int nfCurrentPlayer = 0; //Current NatFree player counter. Will only talk with one player at a time
-int nfFinished = 0; //Flag that determines NatFree has found all players and set the correct port numbers [normal routines can then take place]
-int HeardFrom[MAXPLAYERS]; //For connecthead
-int HeardFrom2[MAXPLAYERS]; //For others
+int32_t natfree; //NatFree mode flag
+int32_t nfCurrentPlayer = 0; //Current NatFree player counter. Will only talk with one player at a time
+int32_t nfFinished = 0; //Flag that determines NatFree has found all players and set the correct port numbers [normal routines can then take place]
+int32_t HeardFrom[MAXPLAYERS]; //For connecthead
+int32_t HeardFrom2[MAXPLAYERS]; //For others
 
-int nfCheckCP(int other)  //Check if target player is our current NatFree Player
+int32_t nfCheckCP(int32_t other)  //Check if target player is our current NatFree Player
 {
     if (!natfree || nfFinished)
         return 1;
@@ -105,7 +105,7 @@ int nfCheckCP(int other)  //Check if target player is our current NatFree Player
     return 0;
 }
 
-int nfCheckHF(int other)  //function to check if we've heard from a player
+int32_t nfCheckHF(int32_t other)  //function to check if we've heard from a player
 {
     if (HeardFrom[other] == 1)
         return 1;
@@ -138,14 +138,14 @@ void netuninit()
 #endif
 }
 
-static int set_socket_blockmode(SOCKET socket, int onOrOff)
+static int32_t set_socket_blockmode(SOCKET socket, int32_t onOrOff)
 {
 #ifdef _WIN32
-    unsigned int flags;
+    uint32_t flags;
 #else
-    signed int flags;
+    int32_t flags;
 #endif
-    int rc = 0;
+    int32_t rc = 0;
 
     /* set socket to be (non-)blocking. */
 
@@ -167,13 +167,13 @@ static int set_socket_blockmode(SOCKET socket, int onOrOff)
     return(rc);
 }
 
-int netinit(int portnum)
+int32_t netinit(int32_t portnum)
 {
     LPHOSTENT lpHostEnt;
     char hostnam[256];
     struct sockaddr_in ip;
 #ifdef __BEOS__
-    int i;
+    int32_t i;
 #endif
 
 #ifdef _WIN32
@@ -190,7 +190,7 @@ int netinit(int portnum)
 #ifdef __BEOS__
     i = 1; if (setsockopt(mysock,SOL_SOCKET,SO_NONBLOCK,&i,sizeof(i)) < 0) return(0);
 #else
-//    i = 1; if (ioctlsocket(mysock,FIONBIO,(unsigned int *)&i) == SOCKET_ERROR) return(0);
+//    i = 1; if (ioctlsocket(mysock,FIONBIO,(uint32_t *)&i) == SOCKET_ERROR) return(0);
     if (!set_socket_blockmode(mysock,0)) return(0);
 #endif
 
@@ -203,7 +203,7 @@ int netinit(int portnum)
         if (gethostname(hostnam,sizeof(hostnam)) != SOCKET_ERROR)
             if ((lpHostEnt = gethostbyname(hostnam)))
             {
-                myip = ip.sin_addr.s_addr = *(int *)lpHostEnt->h_addr;
+                myip = ip.sin_addr.s_addr = *(int32_t *)lpHostEnt->h_addr;
                 printf("mmulti: This machine's IP is %s\n", inet_ntoa(ip.sin_addr));
             }
         return(1);
@@ -211,7 +211,7 @@ int netinit(int portnum)
     return(0);
 }
 
-int netsend(int other, char *dabuf, int bufsiz)  //0:buffer full... can't send
+int32_t netsend(int32_t other, char *dabuf, int32_t bufsiz)  //0:buffer full... can't send
 {
     struct sockaddr_in ip;
 
@@ -239,10 +239,10 @@ int netsend(int other, char *dabuf, int bufsiz)  //0:buffer full... can't send
     return(sendto(mysock,dabuf,bufsiz,0,(struct sockaddr *)&ip,sizeof(struct sockaddr_in)) != SOCKET_ERROR);
 }
 
-int netread(int *other, char *dabuf, int bufsiz)  //0:no packets in buffer
+int32_t netread(int32_t *other, char *dabuf, int32_t bufsiz)  //0:no packets in buffer
 {
     struct sockaddr_in ip;
-    int i;
+    int32_t i;
 
     i = sizeof(ip);
 
@@ -251,7 +251,7 @@ int netread(int *other, char *dabuf, int bufsiz)  //0:no packets in buffer
     if ((rand()&255) < SIMMIS) return(0);
 #endif
 
-    snatchip = (int)ip.sin_addr.s_addr; snatchport = (int)ip.sin_port;
+    snatchip = (int32_t)ip.sin_addr.s_addr; snatchport = (int32_t)ip.sin_port;
 
     (*other) = myconnectindex;
     for (i=0;i<MAXPLAYERS;i++)
@@ -290,18 +290,18 @@ int netread(int *other, char *dabuf, int bufsiz)  //0:no packets in buffer
 
 #if (SIMLAG > 1)
     i = simlagcnt[*other]%(SIMLAG+1);
-    *(short *)&simlagfif[*other][i][0] = bufsiz; memcpy(&simlagfif[*other][i][2],dabuf,bufsiz);
+    *(int16_t *)&simlagfif[*other][i][0] = bufsiz; memcpy(&simlagfif[*other][i][2],dabuf,bufsiz);
     simlagcnt[*other]++; if (simlagcnt[*other] < SIMLAG+1) return(0);
     i = simlagcnt[*other]%(SIMLAG+1);
-    bufsiz = *(short *)&simlagfif[*other][i][0]; memcpy(dabuf,&simlagfif[*other][i][2],bufsiz);
+    bufsiz = *(int16_t *)&simlagfif[*other][i][0]; memcpy(dabuf,&simlagfif[*other][i][2],bufsiz);
 #endif
 
     return(1);
 }
 
-int isvalidipaddress(char *st)
+int32_t isvalidipaddress(char *st)
 {
-    int i, bcnt, num;
+    int32_t i, bcnt, num;
 
     bcnt = 0; num = 0;
     for (i=0;st[i];i++)
@@ -328,25 +328,25 @@ int isvalidipaddress(char *st)
 
 //---------------------------------- Obsolete variables&functions ----------------------------------
 char syncstate = 0;
-void setpackettimeout(int datimeoutcount, int daresendagaincount) { UNREFERENCED_PARAMETER(datimeoutcount); UNREFERENCED_PARAMETER(daresendagaincount); }
-void genericmultifunction(int other, char *bufptr, int messleng, int command)
+void mmulti_setpackettimeout(int32_t datimeoutcount, int32_t daresendagaincount) { UNREFERENCED_PARAMETER(datimeoutcount); UNREFERENCED_PARAMETER(daresendagaincount); }
+void genericmultifunction(int32_t other, char *bufptr, int32_t messleng, int32_t command)
 {
     UNREFERENCED_PARAMETER(other);
     UNREFERENCED_PARAMETER(bufptr);
     UNREFERENCED_PARAMETER(messleng);
     UNREFERENCED_PARAMETER(command);
 }
-int getoutputcirclesize() { return(0); }
-void setsocket(int newsocket) { UNREFERENCED_PARAMETER(newsocket); }
-void flushpackets() {}
+int32_t getoutputcirclesize() { return(0); }
+void setsocket(int32_t newsocket) { UNREFERENCED_PARAMETER(newsocket); }
+void mmulti_flushpackets() {}
 void sendlogon() {}
 void sendlogoff() {}
 //--------------------------------------------------------------------------------------------------
 
-static int crctab16[256];
+static int32_t crctab16[256];
 static void initcrc16()
 {
-    int i, j, k, a;
+    int32_t i, j, k, a;
     for (j=0;j<256;j++)
     {
         for (i=7,k=(j<<8),a=0;i>=0;i--,k=((k<<1)&65535))
@@ -357,22 +357,22 @@ static void initcrc16()
         crctab16[j] = (a&65535);
     }
 }
-#define updatecrc16(crc,dat) crc = (((crc<<8)&65535)^crctab16[((((unsigned short)crc)>>8)&65535)^dat])
-static unsigned short getcrc16(char *buffer, int bufleng)
+#define updatecrc16(crc,dat) crc = (((crc<<8)&65535)^crctab16[((((uint16_t)crc)>>8)&65535)^dat])
+static uint16_t getcrc16(char *buffer, int32_t bufleng)
 {
-    int i, j;
+    int32_t i, j;
 
     j = 0;
     for (i=bufleng-1;i>=0;i--) updatecrc16(j,buffer[i]);
-    return((unsigned short)(j&65535));
+    return((uint16_t)(j&65535));
 }
 
-void uninitmultiplayers() { netuninit(); }
+void mmulti_uninitmultiplayers() { netuninit(); }
 
-int getpacket(int *, char *);
+int32_t mmulti_getpacket(int32_t *, char *);
 static void initmultiplayers_reset(void)
 {
-    int i;
+    int32_t i;
 
     initcrc16();
     memset(icnt0,0,sizeof(icnt0));
@@ -404,9 +404,9 @@ static void initmultiplayers_reset(void)
 // 192.168.1.2     game /n1 192.168.1.100  game /n1 192.168.1.100 192.168.1.4
 // 192.168.1.100   game 192.168.1.2 /n1    game 192.168.1.2 /n1 192.168.1.4
 // 192.168.1.4                             game 192.168.1.2 192.168.1.100 /n1
-int initmultiplayersparms(int argc, char **argv)
+int32_t initmultiplayersparms(int32_t argc, char **argv)
 {
-    int i, j, daindex, portnum = NETPORT;
+    int32_t i, j, daindex, portnum = NETPORT;
     char *st;
 
     initmultiplayers_reset();
@@ -473,7 +473,7 @@ int initmultiplayersparms(int argc, char **argv)
             for (j=0;st[j];j++)
             {
                 if (st[j] == ':')
-                    { otherport[daindex] = htons((unsigned short)atol(&st[j+1])); st[j] = 0; break; }
+                    { otherport[daindex] = htons((uint16_t)atol(&st[j+1])); st[j] = 0; break; }
             }
             otherip[daindex] = inet_addr(st);
             printf("mmulti: Player %d at %s:%d\n",daindex,st,ntohs(otherport[daindex]));
@@ -482,15 +482,15 @@ int initmultiplayersparms(int argc, char **argv)
         else
         {
             LPHOSTENT lph;
-            unsigned short pt = htons(NETPORT);
+            uint16_t pt = htons(NETPORT);
 
             for (j=0;st[j];j++)
                 if (st[j] == ':')
-                    { pt = htons((unsigned short)atol(&st[j+1])); st[j] = 0; break; }
+                    { pt = htons((uint16_t)atol(&st[j+1])); st[j] = 0; break; }
             if ((lph = gethostbyname(st)))
             {
                 if ((danetmode == 1) && (daindex == myconnectindex)) daindex++;
-                otherip[daindex] = *(int *)lph->h_addr;
+                otherip[daindex] = *(int32_t *)lph->h_addr;
                 otherport[daindex] = pt;
                 printf("mmulti: Player %d at %s:%d (%s)\n",daindex,
                        inet_ntoa(*(struct in_addr *)lph->h_addr),ntohs(pt),argv[i]);
@@ -505,7 +505,7 @@ int initmultiplayersparms(int argc, char **argv)
     if (daindex > numplayers) numplayers = daindex;
 
     //for(i=0;i<numplayers;i++)
-    //   printf("Player %d: %d.%d.%d.%d:%d\n",i,otherip[i]&255,(otherip[i]>>8)&255,(otherip[i]>>16)&255,((unsigned int)otherip[i])>>24,ntohs(otherport[i]));
+    //   printf("Player %d: %d.%d.%d.%d:%d\n",i,otherip[i]&255,(otherip[i]>>8)&255,(otherip[i]>>16)&255,((uint32_t)otherip[i])>>24,ntohs(otherport[i]));
 
     connecthead = 0;
     for (i=0;i<numplayers-1;i++) connectpoint2[i] = i+1;
@@ -515,14 +515,14 @@ int initmultiplayersparms(int argc, char **argv)
     return (numplayers >= 2);
 }
 
-int initmultiplayerscycle(void)
+int32_t initmultiplayerscycle(void)
 {
-    int i, k;
-//    extern int totalclock;
+    int32_t i, k;
+//    extern int32_t totalclock;
 
     idle();
 
-    getpacket(&i,0);
+    mmulti_getpacket(&i,0);
 
     tims = GetTickCount();
     if (myconnectindex == connecthead) //Player 0 only
@@ -545,14 +545,14 @@ int initmultiplayerscycle(void)
             lastsendtims[connecthead] = tims;
 
             //   short crc16ofs;       //offset of crc16
-            //   int icnt0;           //-1 (special packet for MMULTI.C's player collection)
+            //   int32_t icnt0;           //-1 (special packet for MMULTI.C's player collection)
             //   ...
             //   unsigned short crc16; //CRC16 of everything except crc16
             k = 2;
-            *(int *)&pakbuf[k] = -1; k += 4;
+            *(int32_t *)&pakbuf[k] = -1; k += 4;
             pakbuf[k++] = 0xaa;
-            *(unsigned short *)&pakbuf[0] = (unsigned short)k;
-            *(unsigned short *)&pakbuf[k] = getcrc16(pakbuf,k); k += 2;
+            *(uint16_t *)&pakbuf[0] = (uint16_t)k;
+            *(uint16_t *)&pakbuf[k] = getcrc16(pakbuf,k); k += 2;
             netsend(connecthead,pakbuf,k);
         }
     }
@@ -560,7 +560,7 @@ int initmultiplayerscycle(void)
     return 1;
 }
 
-void initmultiplayers(int argc, char **argv, char damultioption, char dacomrateoption, char dapriority)
+void mmulti_initmultiplayers(int32_t argc, char **argv, char damultioption, char dacomrateoption, char dapriority)
 {
     UNREFERENCED_PARAMETER(damultioption);
     UNREFERENCED_PARAMETER(dacomrateoption);
@@ -569,11 +569,11 @@ void initmultiplayers(int argc, char **argv, char damultioption, char dacomrateo
     if (initmultiplayersparms(argc,argv))
     {
 #if 0
-        int i, j, k, otims;
+        int32_t i, j, k, otims;
         //Console code seems to crash Win98 upon quitting game
         //it's not necessary and it's not portable anyway
         char tbuf[1024];
-        unsigned int u;
+        uint32_t u;
         HANDLE hconsout;
         AllocConsole();
         SetConsoleTitle("Multiplayer status...");
@@ -591,7 +591,7 @@ void initmultiplayers(int argc, char **argv, char damultioption, char dacomrateo
                 {
                     if (i == myconnectindex) { strcat(tbuf,"<me> "); continue; }
                     if (!otherip[i]) { strcat(tbuf,"?.?.?.?:? "); continue; }
-                    sprintf(&tbuf[strlen(tbuf)],"%d.%d.%d.%d:%04x ",otherip[i]&255,(otherip[i]>>8)&255,(otherip[i]>>16)&255,(((unsigned int)otherip[i])>>24),otherport[i]);
+                    sprintf(&tbuf[strlen(tbuf)],"%d.%d.%d.%d:%04x ",otherip[i]&255,(otherip[i]>>8)&255,(otherip[i]>>16)&255,(((uint32_t)otherip[i])>>24),otherport[i]);
                 }
                 WriteConsole(hconsout,tbuf,strlen(tbuf),&u,0);
             }
@@ -604,19 +604,19 @@ void initmultiplayers(int argc, char **argv, char damultioption, char dacomrateo
     netready = 1;
 }
 
-void dosendpackets(int other)  //Host to send intially, client to send to others once heard from host.
+void mmulti_dosendpackets(int32_t other)  //Host to send intially, client to send to others once heard from host.
 {
-    int i, j, k;
+    int32_t i, j, k;
 
     if (!otherip[other]) return;
 
     //Packet format:
     //   short crc16ofs;       //offset of crc16
-    //   int icnt0;           //earliest unacked packet
+    //   int32_t icnt0;           //earliest unacked packet
     //   char ibits[32];       //ack status of packets icnt0<=i<icnt0+256
     //   while (short leng)    //leng: !=0 for packet, 0 for no more packets
     //   {
-    //      int ocnt;         //index of following packet data
+    //      int32_t ocnt;         //index of following packet data
     //      char pak[leng];    //actual packet data :)
     //   }
     //   unsigned short crc16; //CRC16 of everything except crc16
@@ -628,7 +628,7 @@ void dosendpackets(int other)  //Host to send intially, client to send to others
     lastsendtims[other] = tims;
 
     k = 2;
-    *(int *)&pakbuf[k] = icnt0[other]; k += 4;
+    *(int32_t *)&pakbuf[k] = icnt0[other]; k += 4;
     memset(&pakbuf[k],0,32);
     for (i=icnt0[other];i<icnt0[other]+256;i++)
         if (ipak[other][i&(FIFSIZ-1)])
@@ -638,16 +638,16 @@ void dosendpackets(int other)  //Host to send intially, client to send to others
     while ((ocnt0[other] < ocnt1[other]) && (!opak[other][ocnt0[other]&(FIFSIZ-1)])) ocnt0[other]++;
     for (i=ocnt0[other];i<ocnt1[other];i++)
     {
-        j = *(short *)&pakmem[opak[other][i&(FIFSIZ-1)]]; if (!j) continue; //packet already acked
-        if (k+6+j+4 > (int)sizeof(pakbuf)) break;
+        j = *(int16_t *)&pakmem[opak[other][i&(FIFSIZ-1)]]; if (!j) continue; //packet already acked
+        if (k+6+j+4 > (int32_t)sizeof(pakbuf)) break;
 
-        *(unsigned short *)&pakbuf[k] = (unsigned short)j; k += 2;
-        *(int *)&pakbuf[k] = i; k += 4;
+        *(uint16_t *)&pakbuf[k] = (uint16_t)j; k += 2;
+        *(int32_t *)&pakbuf[k] = i; k += 4;
         memcpy(&pakbuf[k],&pakmem[opak[other][i&(FIFSIZ-1)]+2],j); k += j;
     }
-    *(unsigned short *)&pakbuf[k] = 0; k += 2;
-    *(unsigned short *)&pakbuf[0] = (unsigned short)k;
-    *(unsigned short *)&pakbuf[k] = getcrc16(pakbuf,k); k += 2;
+    *(uint16_t *)&pakbuf[k] = 0; k += 2;
+    *(uint16_t *)&pakbuf[0] = (uint16_t)k;
+    *(uint16_t *)&pakbuf[k] = getcrc16(pakbuf,k); k += 2;
 
     //printf("Send: "); for(i=0;i<k;i++) printf("%02x ",pakbuf[i]); printf("\n");
 
@@ -657,28 +657,28 @@ void dosendpackets(int other)  //Host to send intially, client to send to others
     /*Addfaz NatFree End*/
 }
 
-void sendpacket(int other, char *bufptr, int messleng)
+void mmulti_sendpacket(int32_t other, char *bufptr, int32_t messleng)
 {
-//    int i, j;
+//    int32_t i, j;
 
     if (numplayers < 2) return;
 
-    if (pakmemi+messleng+2 > (int)sizeof(pakmem)) pakmemi = 1;
+    if (pakmemi+messleng+2 > (int32_t)sizeof(pakmem)) pakmemi = 1;
     opak[other][ocnt1[other]&(FIFSIZ-1)] = pakmemi;
-    *(short *)&pakmem[pakmemi] = messleng;
+    *(int16_t *)&pakmem[pakmemi] = messleng;
     memcpy(&pakmem[pakmemi+2],bufptr,messleng); pakmemi += messleng+2;
     ocnt1[other]++;
 
     //printf("Send: "); for(i=0;i<messleng;i++) printf("%02x ",bufptr[i]); printf("\n");
 
-    dosendpackets(other);
+    mmulti_dosendpackets(other);
 }
 
 //passing bufptr == 0 enables receive&sending raw packets but does not return any received packets
 //(used as hack for player collection)
-int getpacket(int *retother, char *bufptr)
+int32_t mmulti_getpacket(int32_t *retother, char *bufptr)
 {
-    int i, j, k, ic0, crc16ofs, messleng, other;
+    int32_t i, j, k, ic0, crc16ofs, messleng, other;
 
     if (numplayers < 2) return(0);
 
@@ -686,7 +686,7 @@ int getpacket(int *retother, char *bufptr)
     {
         for (i=connecthead;i>=0;i=connectpoint2[i])
         {
-            if (i != myconnectindex) dosendpackets(i);
+            if (i != myconnectindex) mmulti_dosendpackets(i);
             if ((!danetmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
         }
     }
@@ -695,22 +695,22 @@ int getpacket(int *retother, char *bufptr)
     {
         //Packet format:
         //   short crc16ofs;       //offset of crc16
-        //   int icnt0;           //earliest unacked packet
+        //   int32_t icnt0;           //earliest unacked packet
         //   char ibits[32];       //ack status of packets icnt0<=i<icnt0+256
         //   while (short leng)    //leng: !=0 for packet, 0 for no more packets
         //   {
-        //      int ocnt;         //index of following packet data
+        //      int32_t ocnt;         //index of following packet data
         //      char pak[leng];    //actual packet data :)
         //   }
         //   unsigned short crc16; //CRC16 of everything except crc16
         k = 0;
-        crc16ofs = (int)(*(unsigned short *)&pakbuf[k]); k += 2;
+        crc16ofs = (int32_t)(*(uint16_t *)&pakbuf[k]); k += 2;
 
         //printf("Recv: "); for(i=0;i<crc16ofs+2;i++) printf("%02x ",pakbuf[i]); printf("\n");
 
-        if ((crc16ofs+2 <= (int)sizeof(pakbuf)) && (getcrc16(pakbuf,crc16ofs) == (*(unsigned short *)&pakbuf[crc16ofs])))
+        if ((crc16ofs+2 <= (int32_t)sizeof(pakbuf)) && (getcrc16(pakbuf,crc16ofs) == (*(uint16_t *)&pakbuf[crc16ofs])))
         {
-            ic0 = *(int *)&pakbuf[k]; k += 4;
+            ic0 = *(int32_t *)&pakbuf[k]; k += 4;
             if (ic0 == -1)
             {
                 //Slave sends 0xaa to Master at initmultiplayers() and waits for 0xab response
@@ -725,16 +725,16 @@ int getpacket(int *retother, char *bufptr)
                         otherport[other] = snatchport;
 
                         //   short crc16ofs;       //offset of crc16
-                        //   int icnt0;           //-1 (special packet for MMULTI.C's player collection)
+                        //   int32_t icnt0;           //-1 (special packet for MMULTI.C's player collection)
                         //   ...
                         //   unsigned short crc16; //CRC16 of everything except crc16
                         k = 2;
-                        *(int *)&pakbuf[k] = -1; k += 4;
+                        *(int32_t *)&pakbuf[k] = -1; k += 4;
                         pakbuf[k++] = 0xab;
-                        pakbuf[k++] = (char)other;
-                        pakbuf[k++] = (char)numplayers;
-                        *(unsigned short *)&pakbuf[0] = (unsigned short)k;
-                        *(unsigned short *)&pakbuf[k] = getcrc16(pakbuf,k); k += 2;
+                        pakbuf[k++] = (uint8_t)other;
+                        pakbuf[k++] = (uint8_t)numplayers;
+                        *(uint16_t *)&pakbuf[0] = (uint16_t)k;
+                        *(uint16_t *)&pakbuf[k] = getcrc16(pakbuf,k); k += 2;
 
                         /*Addfaz NatFree Start*/
                         if (natfree && !nfCheckHF(other))
@@ -752,11 +752,11 @@ int getpacket(int *retother, char *bufptr)
                 }
                 else if ((pakbuf[k] == 0xab) && (myconnectindex != connecthead))
                 {
-                    if (((unsigned int)pakbuf[k+1] < (unsigned int)pakbuf[k+2]) &&
-                            ((unsigned int)pakbuf[k+2] < (unsigned int)MAXPLAYERS))
+                    if (((uint32_t)pakbuf[k+1] < (uint32_t)pakbuf[k+2]) &&
+                            ((uint32_t)pakbuf[k+2] < (uint32_t)MAXPLAYERS))
                     {
-                        myconnectindex = (int)pakbuf[k+1];
-                        numplayers = (int)pakbuf[k+2];
+                        myconnectindex = (int32_t)pakbuf[k+1];
+                        numplayers = (int32_t)pakbuf[k+2];
 
                         connecthead = 0;
                         for (i=0;i<numplayers-1;i++) connectpoint2[i] = i+1;
@@ -786,19 +786,19 @@ int getpacket(int *retother, char *bufptr)
                         opak[other][i&(FIFSIZ-1)] = 0;
                 k += 32;
 
-                messleng = (int)(*(unsigned short *)&pakbuf[k]); k += 2;
+                messleng = (int32_t)(*(uint16_t *)&pakbuf[k]); k += 2;
                 while (messleng)
                 {
-                    j = *(int *)&pakbuf[k]; k += 4;
+                    j = *(int32_t *)&pakbuf[k]; k += 4;
                     if ((j >= icnt0[other]) && (!ipak[other][j&(FIFSIZ-1)]))
                     {
-                        if (pakmemi+messleng+2 > (int)sizeof(pakmem)) pakmemi = 1;
+                        if (pakmemi+messleng+2 > (int32_t)sizeof(pakmem)) pakmemi = 1;
                         ipak[other][j&(FIFSIZ-1)] = pakmemi;
-                        *(short *)&pakmem[pakmemi] = messleng;
+                        *(int16_t *)&pakmem[pakmemi] = messleng;
                         memcpy(&pakmem[pakmemi+2],&pakbuf[k],messleng); pakmemi += messleng+2;
                     }
                     k += messleng;
-                    messleng = (int)(*(unsigned short *)&pakbuf[k]); k += 2;
+                    messleng = (int32_t)(*(uint16_t *)&pakbuf[k]); k += 2;
                 }
             }
         }
@@ -813,7 +813,7 @@ int getpacket(int *retother, char *bufptr)
             j = ipak[i][icnt0[i]&(FIFSIZ-1)];
             if (j)
             {
-                messleng = *(short *)&pakmem[j]; memcpy(bufptr,&pakmem[j+2],messleng);
+                messleng = *(int16_t *)&pakmem[j]; memcpy(bufptr,&pakmem[j+2],messleng);
                 *retother = i; ipak[i][icnt0[i]&(FIFSIZ-1)] = 0; icnt0[i]++;
                 //printf("Recv: "); for(i=0;i<messleng;i++) printf("%02x ",bufptr[i]); printf("\n");
 
@@ -836,9 +836,9 @@ int getpacket(int *retother, char *bufptr)
     return(0);
 }
 
-int getexternaladdress(char *buffer, const char *host, int port)
+int32_t getexternaladdress(char *buffer, const char *host, int32_t port)
 {
-    int bytes_sent, i=0, j=0;
+    int32_t bytes_sent, i=0, j=0;
     struct sockaddr_in dest_addr;
     struct hostent *h;
     char *req = "GET / HTTP/1.0\r\n\r\n";

@@ -3,15 +3,15 @@
 #include "namesdyn.h"
 #include "osdfuncs.h"
 
-int osdhightile = 0;
+int32_t osdhightile = 0;
 
-void GAME_drawosdchar(int x, int y, char ch, int shade, int pal)
+void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
 {
-    short ac;
+    int16_t ac;
 #if !defined(POLYMOST) || !defined(USE_OPENGL)
-    int usehightile = 0;
+    int32_t usehightile = 0;
 #endif
-    int ht = usehightile;
+    int32_t ht = usehightile;
 
     if (ch == 32) return;
     ac = ch-'!'+STARTALPHANUM;
@@ -21,15 +21,15 @@ void GAME_drawosdchar(int x, int y, char ch, int shade, int pal)
     usehightile = ht;
 }
 
-void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
+void GAME_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade, int32_t pal)
 {
-    short ac;
+    int16_t ac;
     char *ptr = OSD_GetTextPtr();
     char *fmt = OSD_GetFmtPtr();
 #if !defined(POLYMOST) || !defined(USE_OPENGL)
-    int usehightile = 0;
+    int32_t usehightile = 0;
 #endif
-    int ht = usehightile;
+    int32_t ht = usehightile;
 
     usehightile = (osdhightile && ht);
     x = (x<<3)+x;
@@ -79,9 +79,9 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
     usehightile = ht;
 }
 
-void GAME_drawosdcursor(int x, int y, int type, int lastkeypress)
+void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress)
 {
-    short ac;
+    int16_t ac;
 
     if (type) ac = SMALLFNTCURSOR;
     else ac = '_'-'!'+STARTALPHANUM;
@@ -90,12 +90,12 @@ void GAME_drawosdcursor(int x, int y, int type, int lastkeypress)
         rotatesprite(((x<<3)+x)<<16, ((y<<3)+(type?-1:2))<<16, 65536l, 0, ac, 0, 8, 8|16, 0, 0, xdim-1, ydim-1);
 }
 
-int GAME_getcolumnwidth(int w)
+int32_t GAME_getcolumnwidth(int32_t w)
 {
     return w/9;
 }
 
-int GAME_getrowheight(int w)
+int32_t GAME_getrowheight(int32_t w)
 {
     return w>>3;
 }
@@ -112,14 +112,14 @@ int GAME_getrowheight(int w)
 #define SHADE 0
 #define PALETTE 4
 
-void GAME_onshowosd(int shown)
+void GAME_onshowosd(int32_t shown)
 {
     // fix for TCs like Layre which don't have the BGTILE for some reason
     // most of this is copied from my dummytile stuff in defs.c
     if (!tilesizx[BGTILE] || !tilesizy[BGTILE])
     {
         extern char faketile[MAXTILES];
-        int j;
+        int32_t j;
 
         tilesizx[BGTILE] = BGTILE_SIZEX;
         tilesizy[BGTILE] = BGTILE_SIZEY;
@@ -127,9 +127,9 @@ void GAME_onshowosd(int shown)
         picanm[BGTILE] = 0;
 
         j = 15; while ((j > 1) && (pow2long[j] > BGTILE_SIZEX)) j--;
-        picsiz[BGTILE] = ((char)j);
+        picsiz[BGTILE] = ((uint8_t)j);
         j = 15; while ((j > 1) && (pow2long[j] > BGTILE_SIZEY)) j--;
-        picsiz[BGTILE] += ((char)(j<<4));
+        picsiz[BGTILE] += ((uint8_t)(j<<4));
     }
 
     G_UpdateScreenArea();
@@ -138,10 +138,10 @@ void GAME_onshowosd(int shown)
             KB_KeyDown[sc_Pause] = 1;
 }
 
-void GAME_clearbackground(int c, int r)
+void GAME_clearbackground(int32_t c, int32_t r)
 {
-    int x, y, xsiz, ysiz, tx2, ty2;
-    int daydim, bits;
+    int32_t x, y, xsiz, ysiz, tx2, ty2;
+    int32_t daydim, bits;
 
     UNREFERENCED_PARAMETER(c);
 

@@ -57,10 +57,10 @@ void Error(char *error, ...)
     exit((error != NULL));
 }
 
-int G_GetVersionFromWebsite(char *buffer)
+int32_t G_GetVersionFromWebsite(char *buffer)
 {
-    int wsainitialized = 0;
-    int bytes_sent, i=0, j=0;
+    int32_t wsainitialized = 0;
+    int32_t bytes_sent, i=0, j=0;
     struct sockaddr_in dest_addr;
     struct hostent *h;
     char *host = "eduke32.sourceforge.net";

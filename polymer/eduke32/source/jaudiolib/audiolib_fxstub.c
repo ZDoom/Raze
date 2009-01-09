@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define FALSE ( !TRUE )
 
 
-int FX_ErrorCode = FX_Ok;
+int32_t FX_ErrorCode = FX_Ok;
 
 #define FX_SetErrorCode( status ) \
    FX_ErrorCode = ( status );
@@ -46,7 +46,7 @@ int FX_ErrorCode = FX_Ok;
 
 char *FX_ErrorString
 (
-    int ErrorNumber
+    int32_t ErrorNumber
 )
 
 {
@@ -84,12 +84,12 @@ char *FX_ErrorString
    Selects which sound device to use.
 ---------------------------------------------------------------------*/
 
-int FX_Init
+int32_t FX_Init
 (
-    int SoundCard,
-    int numvoices,
-    int numchannels,
-    int samplebits,
+    int32_t SoundCard,
+    int32_t numvoices,
+    int32_t numchannels,
+    int32_t samplebits,
     unsigned mixrate
 )
 
@@ -104,7 +104,7 @@ int FX_Init
    Terminates use of sound device.
 ---------------------------------------------------------------------*/
 
-int FX_Shutdown
+int32_t FX_Shutdown
 (
     void
 )
@@ -120,9 +120,9 @@ int FX_Shutdown
    Sets the function to call when a voice is done.
 ---------------------------------------------------------------------*/
 
-int FX_SetCallBack
+int32_t FX_SetCallBack
 (
-    void(*function)(unsigned int)
+    void(*function)(uint32_t)
 )
 
 {
@@ -138,7 +138,7 @@ int FX_SetCallBack
 
 void FX_SetVolume
 (
-    int volume
+    int32_t volume
 )
 
 {}
@@ -152,7 +152,7 @@ void FX_SetVolume
 
 void FX_SetReverseStereo
 (
-    int setting
+    int32_t setting
 )
 
 {}
@@ -164,7 +164,7 @@ void FX_SetReverseStereo
    Returns the orientation of the left and right channels.
 ---------------------------------------------------------------------*/
 
-int FX_GetReverseStereo
+int32_t FX_GetReverseStereo
 (
     void
 )
@@ -182,7 +182,7 @@ int FX_GetReverseStereo
 
 void FX_SetReverb
 (
-    int reverb
+    int32_t reverb
 )
 
 {}
@@ -196,7 +196,7 @@ void FX_SetReverb
 
 void FX_SetReverbDelay
 (
-    int delay
+    int32_t delay
 )
 
 {}
@@ -208,9 +208,9 @@ void FX_SetReverbDelay
    Checks if a voice can be play at the specified priority.
 ---------------------------------------------------------------------*/
 
-int FX_VoiceAvailable
+int32_t FX_VoiceAvailable
 (
-    int priority
+    int32_t priority
 )
 
 {
@@ -224,17 +224,17 @@ int FX_VoiceAvailable
    Begin playback of sound data with the given volume and priority.
 ---------------------------------------------------------------------*/
 
-int FX_PlayLoopedVOC
+int32_t FX_PlayLoopedVOC
 (
     char *ptr,
-    int loopstart,
-    int loopend,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    int32_t loopstart,
+    int32_t loopend,
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
@@ -248,17 +248,17 @@ int FX_PlayLoopedVOC
    Begin playback of sound data with the given volume and priority.
 ---------------------------------------------------------------------*/
 
-int FX_PlayLoopedWAV
+int32_t FX_PlayLoopedWAV
 (
     char *ptr,
-    int loopstart,
-    int loopend,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    int32_t loopstart,
+    int32_t loopend,
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
@@ -273,14 +273,14 @@ int FX_PlayLoopedWAV
    from listener.
 ---------------------------------------------------------------------*/
 
-int FX_PlayVOC3D
+int32_t FX_PlayVOC3D
 (
     char *ptr,
-    int pitchoffset,
-    int angle,
-    int distance,
-    int priority,
-    unsigned int callbackval
+    int32_t pitchoffset,
+    int32_t angle,
+    int32_t distance,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
@@ -295,14 +295,14 @@ int FX_PlayVOC3D
    from listener.
 ---------------------------------------------------------------------*/
 
-int FX_PlayWAV3D
+int32_t FX_PlayWAV3D
 (
     char *ptr,
-    int pitchoffset,
-    int angle,
-    int distance,
-    int priority,
-    unsigned int callbackval
+    int32_t pitchoffset,
+    int32_t angle,
+    int32_t distance,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
@@ -317,11 +317,11 @@ int FX_PlayWAV3D
    with the specified handle.
 ---------------------------------------------------------------------*/
 
-int FX_Pan3D
+int32_t FX_Pan3D
 (
-    int handle,
-    int angle,
-    int distance
+    int32_t handle,
+    int32_t angle,
+    int32_t distance
 )
 
 {
@@ -335,9 +335,9 @@ int FX_Pan3D
    Halts playback of a specific voice
 ---------------------------------------------------------------------*/
 
-int FX_StopSound
+int32_t FX_StopSound
 (
-    int handle
+    int32_t handle
 )
 
 {
@@ -351,7 +351,7 @@ int FX_StopSound
    Halts playback of all sounds.
 ---------------------------------------------------------------------*/
 
-int FX_StopAllSounds
+int32_t FX_StopAllSounds
 (
     void
 )
@@ -363,30 +363,30 @@ int FX_StopAllSounds
 
 void AudioUpdate(void) { }
 
-int FX_PlayLoopedOGG
+int32_t FX_PlayLoopedOGG
 (
     char *ptr,
-    int loopstart,
-    int loopend,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    int32_t loopstart,
+    int32_t loopend,
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 {
     return(0);
 }
 
-int FX_PlayOGG3D
+int32_t FX_PlayOGG3D
 (
     char *ptr,
-    int pitchoffset,
-    int angle,
-    int distance,
-    int priority,
-    unsigned int callbackval
+    int32_t pitchoffset,
+    int32_t angle,
+    int32_t distance,
+    int32_t priority,
+    uint32_t callbackval
 )
 {
     return(0);

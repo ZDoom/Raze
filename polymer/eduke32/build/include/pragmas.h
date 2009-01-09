@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-extern int dmval;
+extern int32_t dmval;
 
 #if defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 
@@ -27,15 +27,15 @@ extern int dmval;
 
 
 // maybe one day I'll make these into macros
-int boundmulscale(int a, int b, int c);
-void clearbufbyte(void *D, int c, int a);
-void copybufbyte(void *S, void *D, int c);
-void copybufreverse(void *S, void *D, int c);
+int32_t boundmulscale(int32_t a, int32_t b, int32_t c);
+void clearbufbyte(void *D, int32_t c, int32_t a);
+void copybufbyte(void *S, void *D, int32_t c);
+void copybufreverse(void *S, void *D, int32_t c);
 
 
 #ifdef NO_GCC_BUILTINS
 #define sqr(a) \
-	({ int __a=(a); \
+	({ int32_t __a=(a); \
 	   __asm__ __volatile__ ("imull %0, %0" \
 		: "=q" (__a) \
 		: "0" (__a) \
@@ -46,437 +46,437 @@ void copybufreverse(void *S, void *D, int c);
 #endif
 
 #define scale(a,d,c) \
-	({ int __a=(a), __d=(d), __c=(c); \
+	({ int32_t __a=(a), __d=(d), __c=(c); \
 	   __asm__ __volatile__ ("imull %%edx; idivl %%ecx" \
 		: "=a" (__a), "=d" (__d) \
 		: "0" (__a), "1" (__d), "c" (__c) : "cc"); \
 	 __a; })
 
 #define mulscale(a,d,c) \
-	({ int __a=(a), __d=(d), __c=(c); \
+	({ int32_t __a=(a), __d=(d), __c=(c); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl %%cl, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d), "c" (__c) : "cc"); \
 	 __a; })
 #define mulscale1(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $1, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale2(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $2, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale3(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $3, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale4(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $4, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale5(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $5, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale6(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $6, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale7(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $7, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale8(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $8, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale9(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $9, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale10(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $10, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale11(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $11, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale12(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $12, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale13(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $13, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale14(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $14, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale15(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $15, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale16(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $16, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale17(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $17, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale18(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $18, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale19(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $19, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale20(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $20, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale21(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $21, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale22(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $22, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale23(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $23, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale24(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $24, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale25(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $25, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale26(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $26, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale27(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $27, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale28(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $28, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale29(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $29, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale30(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $30, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale31(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx; shrdl $31, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __a; })
 #define mulscale32(a,d) \
-	({ int __a=(a), __d=(d); \
+	({ int32_t __a=(a), __d=(d); \
 	   __asm__ __volatile__ ("imull %%edx" \
 		: "=a" (__a), "=d" (__d) \
 		: "a" (__a), "d" (__d) : "cc"); \
 	 __d; })
 
 #define dmulscale(a,d,S,D,c) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D), __c=(c); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D), __c=(c); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl %%cl, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D), "c" (__c) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale1(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $1, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale2(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $2, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale3(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $3, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale4(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $4, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale5(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $5, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale6(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $6, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale7(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $7, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale8(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $8, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale9(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $9, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale10(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $10, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale11(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $11, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale12(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $12, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale13(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $13, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale14(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $14, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale15(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $15, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale16(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $16, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale17(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $17, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale18(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $18, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale19(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $19, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale20(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $20, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale21(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $21, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale22(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $22, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale23(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $23, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale24(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $24, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale25(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $25, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale26(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $26, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale27(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $27, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale28(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $28, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale29(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $29, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale30(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $30, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale31(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx; shrdl $31, %%edx, %%eax" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __a; })
 #define dmulscale32(a,d,S,D) \
-	({ int __a=(a), __d=(d), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; movl %%eax, %%ebx; movl %%esi, %%eax; movl %%edx, %%esi; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%esi, %%edx" \
 		: "=a" (__a), "=d" (__d), "=S" (__S) \
@@ -484,7 +484,7 @@ void copybufreverse(void *S, void *D, int c);
 	 __d; })
 
 #define tmulscale1(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $1, %%edx, %%eax" \
@@ -492,7 +492,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale2(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $2, %%edx, %%eax" \
@@ -500,7 +500,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale3(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $3, %%edx, %%eax" \
@@ -508,7 +508,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale4(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $4, %%edx, %%eax" \
@@ -516,7 +516,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale5(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $5, %%edx, %%eax" \
@@ -524,7 +524,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale6(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $6, %%edx, %%eax" \
@@ -532,7 +532,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale7(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $7, %%edx, %%eax" \
@@ -540,7 +540,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale8(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $8, %%edx, %%eax" \
@@ -548,7 +548,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale9(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $9, %%edx, %%eax" \
@@ -556,7 +556,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale10(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $10, %%edx, %%eax" \
@@ -564,7 +564,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale11(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $11, %%edx, %%eax" \
@@ -572,7 +572,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale12(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $12, %%edx, %%eax" \
@@ -580,7 +580,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale13(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $13, %%edx, %%eax" \
@@ -588,7 +588,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale14(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $14, %%edx, %%eax" \
@@ -596,7 +596,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale15(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $15, %%edx, %%eax" \
@@ -604,7 +604,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale16(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $16, %%edx, %%eax" \
@@ -612,7 +612,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale17(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $17, %%edx, %%eax" \
@@ -620,7 +620,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale18(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $18, %%edx, %%eax" \
@@ -628,7 +628,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale19(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $19, %%edx, %%eax" \
@@ -636,7 +636,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale20(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $20, %%edx, %%eax" \
@@ -644,7 +644,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale21(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $21, %%edx, %%eax" \
@@ -652,7 +652,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale22(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $22, %%edx, %%eax" \
@@ -660,7 +660,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale23(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $23, %%edx, %%eax" \
@@ -668,7 +668,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale24(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $24, %%edx, %%eax" \
@@ -676,7 +676,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale25(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $25, %%edx, %%eax" \
@@ -684,7 +684,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale26(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $26, %%edx, %%eax" \
@@ -692,7 +692,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale27(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $27, %%edx, %%eax" \
@@ -700,7 +700,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale28(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $28, %%edx, %%eax" \
@@ -708,7 +708,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale29(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $29, %%edx, %%eax" \
@@ -716,7 +716,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale30(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $30, %%edx, %%eax" \
@@ -724,7 +724,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale31(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx; shrdl $31, %%edx, %%eax" \
@@ -732,7 +732,7 @@ void copybufreverse(void *S, void *D, int c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __a; })
 #define tmulscale32(a,d,b,c,S,D) \
-	({ int __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
+	({ int32_t __a=(a), __d=(d), __b=(b), __c=(c), __S=(S), __D=(D); \
 	   __asm__ __volatile__ ("imull %%edx; xchgl %%ebx, %%eax; xchgl %%ecx, %%edx; " \
 				"imull %%edx; addl %%eax, %%ebx; adcl %%edx, %%ecx; movl %%esi, %%eax; " \
 				"imull %%edi; addl %%ebx, %%eax; adcl %%ecx, %%edx" \
@@ -741,260 +741,260 @@ void copybufreverse(void *S, void *D, int c);
 	 __d; })
 
 #define divscale(a,b,c) \
-	({ int __a=(a), __b=(b), __c=(c); \
+	({ int32_t __a=(a), __b=(b), __c=(c); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; shll %%cl, %%eax; negb %%cl; sarl %%cl, %%edx; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "c" (__c), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale1(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("addl %%eax, %%eax; sbbl %%edx, %%edx; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale2(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $30, %%edx; leal (,%%eax,4), %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale3(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $29, %%edx; leal (,%%eax,8), %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale4(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $28, %%edx; shll $4, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale5(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $27, %%edx; shll $5, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale6(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $26, %%edx; shll $6, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale7(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $25, %%edx; shll $7, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale8(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $24, %%edx; shll $8, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale9(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $23, %%edx; shll $9, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale10(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $22, %%edx; shll $10, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale11(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $21, %%edx; shll $11, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale12(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $20, %%edx; shll $12, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale13(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $19, %%edx; shll $13, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale14(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $18, %%edx; shll $14, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale15(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $17, %%edx; shll $15, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale16(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $16, %%edx; shll $16, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale17(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $15, %%edx; shll $17, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale18(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $14, %%edx; shll $18, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale19(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $13, %%edx; shll $19, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale20(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $12, %%edx; shll $20, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale21(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $11, %%edx; shll $21, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale22(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $10, %%edx; shll $22, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale23(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $9, %%edx; shll $23, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale24(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $8, %%edx; shll $24, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale25(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $7, %%edx; shll $25, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale26(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $6, %%edx; shll $26, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale27(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $5, %%edx; shll $27, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale28(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $4, %%edx; shll $28, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale29(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $3, %%edx; shll $29, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale30(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $2, %%edx; shll $30, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale31(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; sarl $1, %%edx; shll $31, %%eax; idivl %%ebx" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "edx", "cc"); \
 	 __a; })
 #define divscale32(d,b) \
-	({ int __d=(d), __b=(b), __r; \
+	({ int32_t __d=(d), __b=(b), __r; \
 	   __asm__ __volatile__ ("xorl %%eax, %%eax; idivl %%ebx" \
 		: "=a" (__r), "=d" (__d) : "d" (__d), "b" (__b) : "cc"); \
 	 __r; })
 
 #define readpixel(D) \
-	({ void *__D=(D); int __a; \
+	({ void *__D=(D); int32_t __a; \
 	   __asm__ __volatile__ ("movb (%%edi), %%al" \
 		: "=a" (__a): "D" (__D) : "cc"); \
 	 __a; })
 #define drawpixel(D,a) \
-	({ void *__D=(D); int __a=(a); \
+	({ void *__D=(D); int32_t __a=(a); \
 	   __asm__ __volatile__ ("movb %%al, (%%edi)" \
 		: : "D" (__D), "a" (__a) : "memory", "cc"); \
 	 0; })
 #define drawpixels(D,a) \
-	({ void *__D=(D); int __a=(a); \
+	({ void *__D=(D); int32_t __a=(a); \
 	   __asm__ __volatile__ ("movw %%ax, (%%edi)" \
 		: : "D" (__D), "a" (__a) : "memory", "cc"); \
 	 0; })
 #define drawpixelses(D,a) \
-	({ void *__D=(D); int __a=(a); \
+	({ void *__D=(D); int32_t __a=(a); \
 	   __asm__ __volatile__ ("movl %%eax, (%%edi)" \
 		: : "D" (__D), "a" (__a) : "memory", "cc"); \
 	 0; })
 #define clearbuf(D,c,a) \
-	({ void *__D=(D); int __c=(c), __a=(a); \
+	({ void *__D=(D); int32_t __c=(c), __a=(a); \
 	   __asm__ __volatile__ ("rep; stosl" \
 		: "=&D" (__D), "=&c" (__c) : "0" (__D), "1" (__c), "a" (__a) : "memory", "cc"); \
 	 0; })
 #define copybuf(S,D,c) \
-	({ void *__S=(S), *__D=(D); int __c=(c); \
+	({ void *__S=(S), *__D=(D); int32_t __c=(c); \
 	   __asm__ __volatile__ ("rep; movsl" \
 		: "=&S" (__S), "=&D" (__D), "=&c" (__c) : "0" (__S), "1" (__D), "2" (__c) : "memory", "cc"); \
 	 0; })
 
 #define mul3(a) \
-	({ int __a=(a), __r; \
+	({ int32_t __a=(a), __r; \
 	   __asm__ __volatile__ ("lea (%1,%1,2), %0" \
 		: "=r" (__r) : "0" (__a) : "cc"); \
 	 __r; })
 #define mul5(a) \
-	({ int __a=(a), __r; \
+	({ int32_t __a=(a), __r; \
 	   __asm__ __volatile__ ("lea (%1,%1,4), %0" \
 		: "=r" (__r) : "0" (__a) : "cc"); \
 	 __r; })
 #define mul9(a) \
-	({ int __a=(a), __r; \
+	({ int32_t __a=(a), __r; \
 	   __asm__ __volatile__ ("lea (%1,%1,8), %0" \
 		: "=r" (__r) : "0" (__a) : "cc"); \
 	 __r; })
 
 //returns eax/ebx, dmval = eax%edx;
 #define divmod(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("xorl %%edx, %%edx; divl %%ebx; movl %%edx, "_DMVAL \
 		: "+a" (__a) : "b" (__b) : "edx", "memory", "cc"); \
 	 __a; })
 //returns eax%ebx, dmval = eax/edx;
 #define moddiv(a,b) \
-	({ int __a=(a), __b=(b), __d; \
+	({ int32_t __a=(a), __b=(b), __d; \
 	   __asm__ __volatile__ ("xorl %%edx, %%edx; divl %%ebx; movl %%eax, "_DMVAL \
 		: "=d" (__d) : "a" (__a), "b" (__b) : "eax", "memory", "cc"); \
 	 __d; })
 
 #define klabs(a) \
-	({ int __a=(a); \
+	({ int32_t __a=(a); \
 	   __asm__ __volatile__ ("testl %%eax, %%eax; jns 0f; negl %%eax; 0:" \
 		: "=a" (__a) : "a" (__a) : "cc"); \
 	 __a; })
 #define ksgn(b) \
-	({ int __b=(b), __r; \
+	({ int32_t __b=(b), __r; \
 	   __asm__ __volatile__ ("addl %%ebx, %%ebx; sbbl %%eax, %%eax; cmpl %%ebx, %%eax; adcb $0, %%al" \
 		: "=a" (__r) : "b" (__b) : "cc"); \
 	 __r; })
 
 #define umin(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("subl %%ebx, %%eax; sbbl %%ecx, %%ecx; andl %%ecx, %%eax; addl %%ebx, %%eax" \
 	   	: "=a" (__a) : "a" (__a), "b" (__b) : "ecx", "cc"); \
 	 __a; })
 #define umax(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("subl %%ebx, %%eax; sbbl %%ecx, %%ecx; xorl $0xffffffff, %%ecx; andl %%ecx, %%eax; addl %%ebx, %%eax" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "ecx", "cc"); \
 	 __a; })
 
 #define kmin(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("cmpl %%ebx, %%eax; jl 0f; movl %%ebx, %%eax; 0:" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "cc"); \
 	 __a; })
 #define kmax(a,b) \
-	({ int __a=(a), __b=(b); \
+	({ int32_t __a=(a), __b=(b); \
 	   __asm__ __volatile__ ("cmpl %%ebx, %%eax; jg 0f; movl %%ebx, %%eax; 0:" \
 		: "=a" (__a) : "a" (__a), "b" (__b) : "cc"); \
 	 __a; })
@@ -1015,7 +1015,7 @@ void copybufreverse(void *S, void *D, int c);
 		: : "a" (__a), "b" (__b) : "ecx", "edx", "memory", "cc"); \
 	 0; })
 #define swapbuf4(a,b,c) \
-	({ void *__a=(a), *__b=(b); int __c=(c); \
+	({ void *__a=(a), *__b=(b); int32_t __c=(c); \
 	   __asm__ __volatile__ ("0: movl (%%eax), %%esi; movl (%%ebx), %%edi; movl %%esi, (%%ebx); " \
 				"movl %%edi, (%%eax); addl $4, %%eax; addl $4, %%ebx; decl %%ecx; jnz 0b" \
 		: : "a" (__a), "b" (__b), "c" (__c) : "esi", "edi", "memory", "cc"); \
@@ -1031,7 +1031,7 @@ void copybufreverse(void *S, void *D, int c);
 //swapchar2(ptr1,ptr2,xsiz); is the same as:
 //swapchar(ptr1,ptr2); swapchar(ptr1+1,ptr2+xsiz);
 #define swapchar2(a,b,S) \
-	({ void *__a=(a), *__b=(b); int __S=(S); \
+	({ void *__a=(a), *__b=(b); int32_t __S=(S); \
 	   __asm__ __volatile__ ("addl %%ebx, %%esi; movw (%%eax), %%cx; movb (%%ebx), %%dl; " \
 				"movb %%cl, (%%ebx); movb (%%esi), %%dh; movb %%ch, (%%esi); " \
 				"movw %%dx, (%%eax)" \
@@ -1040,7 +1040,7 @@ void copybufreverse(void *S, void *D, int c);
 
 
 #define qinterpolatedown16(a,c,d,S) \
-	({ void *__a=(void*)(a); int __c=(c), __d=(d), __S=(S); \
+	({ void *__a=(void*)(a); int32_t __c=(c), __d=(d), __S=(S); \
 	   __asm__ __volatile__ ("movl %%ecx, %%ebx; shrl $1, %%ecx; jz 1f; " \
 				"0: leal (%%edx,%%esi,), %%edi; sarl $16, %%edx; movl %%edx, (%%eax); " \
 				"leal (%%edi,%%esi,), %%edx; sarl $16, %%edi; movl %%edi, 4(%%eax); " \
@@ -1051,7 +1051,7 @@ void copybufreverse(void *S, void *D, int c);
 	 0; })
 
 #define qinterpolatedown16short(a,c,d,S) \
-	({ void *__a=(void*)(a); int __c=(c), __d=(d), __S=(S); \
+	({ void *__a=(void*)(a); int32_t __c=(c), __d=(d), __S=(S); \
 	   __asm__ __volatile__ ("testl %%ecx, %%ecx; jz 3f; testb $2, %%al; jz 0f; movl %%edx, %%ebx; " \
 				"sarl $16, %%ebx; movw %%bx, (%%eax); addl %%esi, %%edx; addl $2, %%eax; " \
 				"decl %%ecx; jz 3f; " \
@@ -1075,252 +1075,252 @@ void copybufreverse(void *S, void *D, int c);
 // 
 
 //{{{
-int sqr(int);
+int32_t sqr(int32_t);
 #pragma aux sqr =\
 	"imul eax, eax",\
 	parm nomemory [eax]\
 	modify exact [eax]\
 	value [eax]
 
-int scale(int,int,int);
+int32_t scale(int32_t,int32_t,int32_t);
 #pragma aux scale =\
 	"imul edx",\
 	"idiv ecx",\
 	parm nomemory [eax][edx][ecx]\
 	modify exact [eax edx]
 
-int mulscale(int,int,int);
+int32_t mulscale(int32_t,int32_t,int32_t);
 #pragma aux mulscale =\
 	"imul edx",\
 	"shrd eax, edx, cl",\
 	parm nomemory [eax][edx][ecx]\
 	modify exact [eax edx]
 
-int mulscale1(int,int);
+int32_t mulscale1(int32_t,int32_t);
 #pragma aux mulscale1 =\
 	"imul edx",\
 	"shrd eax, edx, 1",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale2(int,int);
+int32_t mulscale2(int32_t,int32_t);
 #pragma aux mulscale2 =\
 	"imul edx",\
 	"shrd eax, edx, 2",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale3(int,int);
+int32_t mulscale3(int32_t,int32_t);
 #pragma aux mulscale3 =\
 	"imul edx",\
 	"shrd eax, edx, 3",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale4(int,int);
+int32_t mulscale4(int32_t,int32_t);
 #pragma aux mulscale4 =\
 	"imul edx",\
 	"shrd eax, edx, 4",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale5(int,int);
+int32_t mulscale5(int32_t,int32_t);
 #pragma aux mulscale5 =\
 	"imul edx",\
 	"shrd eax, edx, 5",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale6(int,int);
+int32_t mulscale6(int32_t,int32_t);
 #pragma aux mulscale6 =\
 	"imul edx",\
 	"shrd eax, edx, 6",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale7(int,int);
+int32_t mulscale7(int32_t,int32_t);
 #pragma aux mulscale7 =\
 	"imul edx",\
 	"shrd eax, edx, 7",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale8(int,int);
+int32_t mulscale8(int32_t,int32_t);
 #pragma aux mulscale8 =\
 	"imul edx",\
 	"shrd eax, edx, 8",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale9(int,int);
+int32_t mulscale9(int32_t,int32_t);
 #pragma aux mulscale9 =\
 	"imul edx",\
 	"shrd eax, edx, 9",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale10(int,int);
+int32_t mulscale10(int32_t,int32_t);
 #pragma aux mulscale10 =\
 	"imul edx",\
 	"shrd eax, edx, 10",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale11(int,int);
+int32_t mulscale11(int32_t,int32_t);
 #pragma aux mulscale11 =\
 	"imul edx",\
 	"shrd eax, edx, 11",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale12(int,int);
+int32_t mulscale12(int32_t,int32_t);
 #pragma aux mulscale12 =\
 	"imul edx",\
 	"shrd eax, edx, 12",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale13(int,int);
+int32_t mulscale13(int32_t,int32_t);
 #pragma aux mulscale13 =\
 	"imul edx",\
 	"shrd eax, edx, 13",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale14(int,int);
+int32_t mulscale14(int32_t,int32_t);
 #pragma aux mulscale14 =\
 	"imul edx",\
 	"shrd eax, edx, 14",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale15(int,int);
+int32_t mulscale15(int32_t,int32_t);
 #pragma aux mulscale15 =\
 	"imul edx",\
 	"shrd eax, edx, 15",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale16(int,int);
+int32_t mulscale16(int32_t,int32_t);
 #pragma aux mulscale16 =\
 	"imul edx",\
 	"shrd eax, edx, 16",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale17(int,int);
+int32_t mulscale17(int32_t,int32_t);
 #pragma aux mulscale17 =\
 	"imul edx",\
 	"shrd eax, edx, 17",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale18(int,int);
+int32_t mulscale18(int32_t,int32_t);
 #pragma aux mulscale18 =\
 	"imul edx",\
 	"shrd eax, edx, 18",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale19(int,int);
+int32_t mulscale19(int32_t,int32_t);
 #pragma aux mulscale19 =\
 	"imul edx",\
 	"shrd eax, edx, 19",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale20(int,int);
+int32_t mulscale20(int32_t,int32_t);
 #pragma aux mulscale20 =\
 	"imul edx",\
 	"shrd eax, edx, 20",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale21(int,int);
+int32_t mulscale21(int32_t,int32_t);
 #pragma aux mulscale21 =\
 	"imul edx",\
 	"shrd eax, edx, 21",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale22(int,int);
+int32_t mulscale22(int32_t,int32_t);
 #pragma aux mulscale22 =\
 	"imul edx",\
 	"shrd eax, edx, 22",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale23(int,int);
+int32_t mulscale23(int32_t,int32_t);
 #pragma aux mulscale23 =\
 	"imul edx",\
 	"shrd eax, edx, 23",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale24(int,int);
+int32_t mulscale24(int32_t,int32_t);
 #pragma aux mulscale24 =\
 	"imul edx",\
 	"shrd eax, edx, 24",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale25(int,int);
+int32_t mulscale25(int32_t,int32_t);
 #pragma aux mulscale25 =\
 	"imul edx",\
 	"shrd eax, edx, 25",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale26(int,int);
+int32_t mulscale26(int32_t,int32_t);
 #pragma aux mulscale26 =\
 	"imul edx",\
 	"shrd eax, edx, 26",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale27(int,int);
+int32_t mulscale27(int32_t,int32_t);
 #pragma aux mulscale27 =\
 	"imul edx",\
 	"shrd eax, edx, 27",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale28(int,int);
+int32_t mulscale28(int32_t,int32_t);
 #pragma aux mulscale28 =\
 	"imul edx",\
 	"shrd eax, edx, 28",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale29(int,int);
+int32_t mulscale29(int32_t,int32_t);
 #pragma aux mulscale29 =\
 	"imul edx",\
 	"shrd eax, edx, 29",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale30(int,int);
+int32_t mulscale30(int32_t,int32_t);
 #pragma aux mulscale30 =\
 	"imul edx",\
 	"shrd eax, edx, 30",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale31(int,int);
+int32_t mulscale31(int32_t,int32_t);
 #pragma aux mulscale31 =\
 	"imul edx",\
 	"shrd eax, edx, 31",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-int mulscale32(int,int);
+int32_t mulscale32(int32_t,int32_t);
 #pragma aux mulscale32 =\
 	"imul edx",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]\
 	value [edx]
 
-int dmulscale(int,int,int,int,int);
+int32_t dmulscale(int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1333,7 +1333,7 @@ int dmulscale(int,int,int,int,int);
 	parm nomemory [eax][edx][esi][edi][ecx]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale1(int,int,int,int);
+int32_t dmulscale1(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale1 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1346,7 +1346,7 @@ int dmulscale1(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale2(int,int,int,int);
+int32_t dmulscale2(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale2 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1359,7 +1359,7 @@ int dmulscale2(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale3(int,int,int,int);
+int32_t dmulscale3(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale3 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1372,7 +1372,7 @@ int dmulscale3(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale4(int,int,int,int);
+int32_t dmulscale4(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale4 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1385,7 +1385,7 @@ int dmulscale4(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale5(int,int,int,int);
+int32_t dmulscale5(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale5 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1398,7 +1398,7 @@ int dmulscale5(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale6(int,int,int,int);
+int32_t dmulscale6(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale6 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1411,7 +1411,7 @@ int dmulscale6(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale7(int,int,int,int);
+int32_t dmulscale7(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale7 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1424,7 +1424,7 @@ int dmulscale7(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale8(int,int,int,int);
+int32_t dmulscale8(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale8 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1437,7 +1437,7 @@ int dmulscale8(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale9(int,int,int,int);
+int32_t dmulscale9(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale9 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1450,7 +1450,7 @@ int dmulscale9(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale10(int,int,int,int);
+int32_t dmulscale10(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale10 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1463,7 +1463,7 @@ int dmulscale10(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale11(int,int,int,int);
+int32_t dmulscale11(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale11 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1476,7 +1476,7 @@ int dmulscale11(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale12(int,int,int,int);
+int32_t dmulscale12(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale12 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1489,7 +1489,7 @@ int dmulscale12(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale13(int,int,int,int);
+int32_t dmulscale13(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale13 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1502,7 +1502,7 @@ int dmulscale13(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale14(int,int,int,int);
+int32_t dmulscale14(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale14 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1515,7 +1515,7 @@ int dmulscale14(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale15(int,int,int,int);
+int32_t dmulscale15(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale15 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1528,7 +1528,7 @@ int dmulscale15(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale16(int,int,int,int);
+int32_t dmulscale16(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale16 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1541,7 +1541,7 @@ int dmulscale16(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale17(int,int,int,int);
+int32_t dmulscale17(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale17 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1554,7 +1554,7 @@ int dmulscale17(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale18(int,int,int,int);
+int32_t dmulscale18(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale18 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1567,7 +1567,7 @@ int dmulscale18(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale19(int,int,int,int);
+int32_t dmulscale19(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale19 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1580,7 +1580,7 @@ int dmulscale19(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale20(int,int,int,int);
+int32_t dmulscale20(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale20 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1593,7 +1593,7 @@ int dmulscale20(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale21(int,int,int,int);
+int32_t dmulscale21(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale21 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1606,7 +1606,7 @@ int dmulscale21(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale22(int,int,int,int);
+int32_t dmulscale22(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale22 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1619,7 +1619,7 @@ int dmulscale22(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale23(int,int,int,int);
+int32_t dmulscale23(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale23 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1632,7 +1632,7 @@ int dmulscale23(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale24(int,int,int,int);
+int32_t dmulscale24(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale24 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1645,7 +1645,7 @@ int dmulscale24(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale25(int,int,int,int);
+int32_t dmulscale25(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale25 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1658,7 +1658,7 @@ int dmulscale25(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale26(int,int,int,int);
+int32_t dmulscale26(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale26 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1671,7 +1671,7 @@ int dmulscale26(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale27(int,int,int,int);
+int32_t dmulscale27(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale27 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1684,7 +1684,7 @@ int dmulscale27(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale28(int,int,int,int);
+int32_t dmulscale28(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale28 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1697,7 +1697,7 @@ int dmulscale28(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale29(int,int,int,int);
+int32_t dmulscale29(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale29 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1710,7 +1710,7 @@ int dmulscale29(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale30(int,int,int,int);
+int32_t dmulscale30(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale30 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1723,7 +1723,7 @@ int dmulscale30(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale31(int,int,int,int);
+int32_t dmulscale31(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale31 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1736,7 +1736,7 @@ int dmulscale31(int,int,int,int);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
 
-int dmulscale32(int,int,int,int);
+int32_t dmulscale32(int32_t,int32_t,int32_t,int32_t);
 #pragma aux dmulscale32 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1749,7 +1749,7 @@ int dmulscale32(int,int,int,int);
 	modify exact [eax ebx edx esi]\
 	value [edx]
 
-int tmulscale1(int,int,int,int,int,int);
+int32_t tmulscale1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale1 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1765,7 +1765,7 @@ int tmulscale1(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale2(int,int,int,int,int,int);
+int32_t tmulscale2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale2 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1781,7 +1781,7 @@ int tmulscale2(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale3(int,int,int,int,int,int);
+int32_t tmulscale3(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale3 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1797,7 +1797,7 @@ int tmulscale3(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale4(int,int,int,int,int,int);
+int32_t tmulscale4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale4 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1813,7 +1813,7 @@ int tmulscale4(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale5(int,int,int,int,int,int);
+int32_t tmulscale5(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale5 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1829,7 +1829,7 @@ int tmulscale5(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale6(int,int,int,int,int,int);
+int32_t tmulscale6(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale6 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1845,7 +1845,7 @@ int tmulscale6(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale7(int,int,int,int,int,int);
+int32_t tmulscale7(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale7 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1861,7 +1861,7 @@ int tmulscale7(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale8(int,int,int,int,int,int);
+int32_t tmulscale8(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale8 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1877,7 +1877,7 @@ int tmulscale8(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale9(int,int,int,int,int,int);
+int32_t tmulscale9(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale9 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1893,7 +1893,7 @@ int tmulscale9(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale10(int,int,int,int,int,int);
+int32_t tmulscale10(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale10 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1909,7 +1909,7 @@ int tmulscale10(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale11(int,int,int,int,int,int);
+int32_t tmulscale11(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale11 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1925,7 +1925,7 @@ int tmulscale11(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale12(int,int,int,int,int,int);
+int32_t tmulscale12(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale12 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1941,7 +1941,7 @@ int tmulscale12(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale13(int,int,int,int,int,int);
+int32_t tmulscale13(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale13 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1957,7 +1957,7 @@ int tmulscale13(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale14(int,int,int,int,int,int);
+int32_t tmulscale14(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale14 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1973,7 +1973,7 @@ int tmulscale14(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale15(int,int,int,int,int,int);
+int32_t tmulscale15(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale15 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1989,7 +1989,7 @@ int tmulscale15(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale16(int,int,int,int,int,int);
+int32_t tmulscale16(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale16 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2005,7 +2005,7 @@ int tmulscale16(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale17(int,int,int,int,int,int);
+int32_t tmulscale17(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale17 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2021,7 +2021,7 @@ int tmulscale17(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale18(int,int,int,int,int,int);
+int32_t tmulscale18(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale18 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2037,7 +2037,7 @@ int tmulscale18(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale19(int,int,int,int,int,int);
+int32_t tmulscale19(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale19 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2053,7 +2053,7 @@ int tmulscale19(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale20(int,int,int,int,int,int);
+int32_t tmulscale20(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale20 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2069,7 +2069,7 @@ int tmulscale20(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale21(int,int,int,int,int,int);
+int32_t tmulscale21(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale21 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2085,7 +2085,7 @@ int tmulscale21(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale22(int,int,int,int,int,int);
+int32_t tmulscale22(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale22 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2101,7 +2101,7 @@ int tmulscale22(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale23(int,int,int,int,int,int);
+int32_t tmulscale23(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale23 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2117,7 +2117,7 @@ int tmulscale23(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale24(int,int,int,int,int,int);
+int32_t tmulscale24(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale24 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2133,7 +2133,7 @@ int tmulscale24(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale25(int,int,int,int,int,int);
+int32_t tmulscale25(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale25 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2149,7 +2149,7 @@ int tmulscale25(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale26(int,int,int,int,int,int);
+int32_t tmulscale26(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale26 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2165,7 +2165,7 @@ int tmulscale26(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale27(int,int,int,int,int,int);
+int32_t tmulscale27(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale27 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2181,7 +2181,7 @@ int tmulscale27(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale28(int,int,int,int,int,int);
+int32_t tmulscale28(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale28 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2197,7 +2197,7 @@ int tmulscale28(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale29(int,int,int,int,int,int);
+int32_t tmulscale29(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale29 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2213,7 +2213,7 @@ int tmulscale29(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale30(int,int,int,int,int,int);
+int32_t tmulscale30(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale30 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2229,7 +2229,7 @@ int tmulscale30(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale31(int,int,int,int,int,int);
+int32_t tmulscale31(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale31 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2245,7 +2245,7 @@ int tmulscale31(int,int,int,int,int,int);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
 
-int tmulscale32(int,int,int,int,int,int);
+int32_t tmulscale32(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 #pragma aux tmulscale32 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2261,7 +2261,7 @@ int tmulscale32(int,int,int,int,int,int);
 	modify exact [eax ebx ecx edx]\
 	value [edx]
 
-int boundmulscale(int,int,int);
+int32_t boundmulscale(int32_t,int32_t,int32_t);
 #pragma aux boundmulscale =\
 	"imul ebx",\
 	"mov ebx, edx",\
@@ -2281,7 +2281,7 @@ int boundmulscale(int,int,int);
 	parm nomemory [eax][ebx][ecx]\
 	modify exact [eax ebx edx]
 
-int divscale(int,int,int);
+int32_t divscale(int32_t,int32_t,int32_t);
 #pragma aux divscale =\
 	"mov edx, eax",\
 	"shl eax, cl",\
@@ -2291,7 +2291,7 @@ int divscale(int,int,int);
 	parm nomemory [eax][ebx][ecx]\
 	modify exact [eax ecx edx]
 
-int divscale1(int,int);
+int32_t divscale1(int32_t,int32_t);
 #pragma aux divscale1 =\
 	"add eax, eax",\
 	"sbb edx, edx",\
@@ -2299,7 +2299,7 @@ int divscale1(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale2(int,int);
+int32_t divscale2(int32_t,int32_t);
 #pragma aux divscale2 =\
 	"mov edx, eax",\
 	"sar edx, 30",\
@@ -2308,7 +2308,7 @@ int divscale2(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale3(int,int);
+int32_t divscale3(int32_t,int32_t);
 #pragma aux divscale3 =\
 	"mov edx, eax",\
 	"sar edx, 29",\
@@ -2317,7 +2317,7 @@ int divscale3(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale4(int,int);
+int32_t divscale4(int32_t,int32_t);
 #pragma aux divscale4 =\
 	"mov edx, eax",\
 	"sar edx, 28",\
@@ -2326,7 +2326,7 @@ int divscale4(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale5(int,int);
+int32_t divscale5(int32_t,int32_t);
 #pragma aux divscale5 =\
 	"mov edx, eax",\
 	"sar edx, 27",\
@@ -2335,7 +2335,7 @@ int divscale5(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale6(int,int);
+int32_t divscale6(int32_t,int32_t);
 #pragma aux divscale6 =\
 	"mov edx, eax",\
 	"sar edx, 26",\
@@ -2344,7 +2344,7 @@ int divscale6(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale7(int,int);
+int32_t divscale7(int32_t,int32_t);
 #pragma aux divscale7 =\
 	"mov edx, eax",\
 	"sar edx, 25",\
@@ -2353,7 +2353,7 @@ int divscale7(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale8(int,int);
+int32_t divscale8(int32_t,int32_t);
 #pragma aux divscale8 =\
 	"mov edx, eax",\
 	"sar edx, 24",\
@@ -2362,7 +2362,7 @@ int divscale8(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale9(int,int);
+int32_t divscale9(int32_t,int32_t);
 #pragma aux divscale9 =\
 	"mov edx, eax",\
 	"sar edx, 23",\
@@ -2371,7 +2371,7 @@ int divscale9(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale10(int,int);
+int32_t divscale10(int32_t,int32_t);
 #pragma aux divscale10 =\
 	"mov edx, eax",\
 	"sar edx, 22",\
@@ -2380,7 +2380,7 @@ int divscale10(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale11(int,int);
+int32_t divscale11(int32_t,int32_t);
 #pragma aux divscale11 =\
 	"mov edx, eax",\
 	"sar edx, 21",\
@@ -2389,7 +2389,7 @@ int divscale11(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale12(int,int);
+int32_t divscale12(int32_t,int32_t);
 #pragma aux divscale12 =\
 	"mov edx, eax",\
 	"sar edx, 20",\
@@ -2398,7 +2398,7 @@ int divscale12(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale13(int,int);
+int32_t divscale13(int32_t,int32_t);
 #pragma aux divscale13 =\
 	"mov edx, eax",\
 	"sar edx, 19",\
@@ -2407,7 +2407,7 @@ int divscale13(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale14(int,int);
+int32_t divscale14(int32_t,int32_t);
 #pragma aux divscale14 =\
 	"mov edx, eax",\
 	"sar edx, 18",\
@@ -2416,7 +2416,7 @@ int divscale14(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale15(int,int);
+int32_t divscale15(int32_t,int32_t);
 #pragma aux divscale15 =\
 	"mov edx, eax",\
 	"sar edx, 17",\
@@ -2425,7 +2425,7 @@ int divscale15(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale16(int,int);
+int32_t divscale16(int32_t,int32_t);
 #pragma aux divscale16 =\
 	"mov edx, eax",\
 	"sar edx, 16",\
@@ -2434,7 +2434,7 @@ int divscale16(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale17(int,int);
+int32_t divscale17(int32_t,int32_t);
 #pragma aux divscale17 =\
 	"mov edx, eax",\
 	"sar edx, 15",\
@@ -2443,7 +2443,7 @@ int divscale17(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale18(int,int);
+int32_t divscale18(int32_t,int32_t);
 #pragma aux divscale18 =\
 	"mov edx, eax",\
 	"sar edx, 14",\
@@ -2452,7 +2452,7 @@ int divscale18(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale19(int,int);
+int32_t divscale19(int32_t,int32_t);
 #pragma aux divscale19 =\
 	"mov edx, eax",\
 	"sar edx, 13",\
@@ -2461,7 +2461,7 @@ int divscale19(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale20(int,int);
+int32_t divscale20(int32_t,int32_t);
 #pragma aux divscale20 =\
 	"mov edx, eax",\
 	"sar edx, 12",\
@@ -2470,7 +2470,7 @@ int divscale20(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale21(int,int);
+int32_t divscale21(int32_t,int32_t);
 #pragma aux divscale21 =\
 	"mov edx, eax",\
 	"sar edx, 11",\
@@ -2479,7 +2479,7 @@ int divscale21(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale22(int,int);
+int32_t divscale22(int32_t,int32_t);
 #pragma aux divscale22 =\
 	"mov edx, eax",\
 	"sar edx, 10",\
@@ -2488,7 +2488,7 @@ int divscale22(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale23(int,int);
+int32_t divscale23(int32_t,int32_t);
 #pragma aux divscale23 =\
 	"mov edx, eax",\
 	"sar edx, 9",\
@@ -2497,7 +2497,7 @@ int divscale23(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale24(int,int);
+int32_t divscale24(int32_t,int32_t);
 #pragma aux divscale24 =\
 	"mov edx, eax",\
 	"sar edx, 8",\
@@ -2506,7 +2506,7 @@ int divscale24(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale25(int,int);
+int32_t divscale25(int32_t,int32_t);
 #pragma aux divscale25 =\
 	"mov edx, eax",\
 	"sar edx, 7",\
@@ -2515,7 +2515,7 @@ int divscale25(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale26(int,int);
+int32_t divscale26(int32_t,int32_t);
 #pragma aux divscale26 =\
 	"mov edx, eax",\
 	"sar edx, 6",\
@@ -2524,7 +2524,7 @@ int divscale26(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale27(int,int);
+int32_t divscale27(int32_t,int32_t);
 #pragma aux divscale27 =\
 	"mov edx, eax",\
 	"sar edx, 5",\
@@ -2533,7 +2533,7 @@ int divscale27(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale28(int,int);
+int32_t divscale28(int32_t,int32_t);
 #pragma aux divscale28 =\
 	"mov edx, eax",\
 	"sar edx, 4",\
@@ -2542,7 +2542,7 @@ int divscale28(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale29(int,int);
+int32_t divscale29(int32_t,int32_t);
 #pragma aux divscale29 =\
 	"mov edx, eax",\
 	"sar edx, 3",\
@@ -2551,7 +2551,7 @@ int divscale29(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale30(int,int);
+int32_t divscale30(int32_t,int32_t);
 #pragma aux divscale30 =\
 	"mov edx, eax",\
 	"sar edx, 2",\
@@ -2560,7 +2560,7 @@ int divscale30(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale31(int,int);
+int32_t divscale31(int32_t,int32_t);
 #pragma aux divscale31 =\
 	"mov edx, eax",\
 	"sar edx, 1",\
@@ -2569,44 +2569,44 @@ int divscale31(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
 
-int divscale32(int,int);
+int32_t divscale32(int32_t,int32_t);
 #pragma aux divscale32 =\
 	"xor eax, eax",\
 	"idiv ebx",\
 	parm nomemory [edx][ebx]\
 	modify exact [eax edx]
 
-int readpixel(void*);
+int32_t readpixel(void*);
 #pragma aux readpixel =\
 	"mov al, byte ptr [edi]",\
 	parm nomemory [edi]\
 	modify exact [eax]
 
-int drawpixel(void*,int);
+int32_t drawpixel(void*,int32_t);
 #pragma aux drawpixel =\
 	"mov byte ptr [edi], al",\
 	parm [edi][eax]\
 	modify exact
 
-int drawpixels(void*,int);
+int32_t drawpixels(void*,int32_t);
 #pragma aux drawpixels =\
 	"mov word ptr [edi], ax",\
 	parm [edi][eax]\
 	modify exact
 
-int drawpixelses(void*,int);
+int32_t drawpixelses(void*,int32_t);
 #pragma aux drawpixelses =\
 	"mov dword ptr [edi], eax",\
 	parm [edi][eax]\
 	modify exact
 
-int clearbuf(void*,int,int);
+int32_t clearbuf(void*,int32_t,int32_t);
 #pragma aux clearbuf =\
 	"rep stosd",\
 	parm [edi][ecx][eax]\
 	modify exact [edi ecx]
 
-int clearbufbyte(void*,int,int);
+int32_t clearbufbyte(void*,int32_t,int32_t);
 #pragma aux clearbufbyte =\
 	"cmp ecx, 4",\
 	"jae longcopy",\
@@ -2637,13 +2637,13 @@ int clearbufbyte(void*,int,int);
 	parm [edi][ecx][eax]\
 	modify [ebx]
 
-int copybuf(void*,void*,int);
+int32_t copybuf(void*,void*,int32_t);
 #pragma aux copybuf =\
 	"rep movsd",\
 	parm [esi][edi][ecx]\
 	modify exact [ecx esi edi]
 
-int copybufbyte(void*,void*,int);
+int32_t copybufbyte(void*,void*,int32_t);
 #pragma aux copybufbyte =\
 	"cmp ecx, 4",\
 	"jae longcopy",\
@@ -2674,7 +2674,7 @@ int copybufbyte(void*,void*,int);
 	parm [esi][edi][ecx]\
 	modify [ebx]
 
-int copybufreverse(void*,void*,int);
+int32_t copybufreverse(void*,void*,int32_t);
 #pragma aux copybufreverse =\
 	"shr ecx, 1",\
 	"jnc skipit1",\
@@ -2701,7 +2701,7 @@ int copybufreverse(void*,void*,int);
 	"endloop:",\
 	parm [esi][edi][ecx]
 
-int qinterpolatedown16(int,int,int,int);
+int32_t qinterpolatedown16(int32_t,int32_t,int32_t,int32_t);
 #pragma aux qinterpolatedown16 =\
 	"mov ebx, ecx",\
 	"shr ecx, 1",\
@@ -2723,7 +2723,7 @@ int qinterpolatedown16(int,int,int,int);
 	parm [eax][ecx][edx][esi]\
 	modify exact [eax ebx ecx edx edi]
 
-int qinterpolatedown16short(int,int,int,int);
+int32_t qinterpolatedown16short(int32_t,int32_t,int32_t,int32_t);
 #pragma aux qinterpolatedown16short =\
 	"test ecx, ecx",\
 	"jz endit",\
@@ -2758,23 +2758,23 @@ int qinterpolatedown16short(int,int,int,int);
 	parm [eax][ecx][edx][esi]\
 	modify exact [eax ebx ecx edx edi]
 
-int mul3(int);
+int32_t mul3(int32_t);
 #pragma aux mul3 =\
 	"lea eax, [eax+eax*2]",\
 	parm nomemory [eax]
 
-int mul5(int);
+int32_t mul5(int32_t);
 #pragma aux mul5 =\
 	"lea eax, [eax+eax*4]",\
 	parm nomemory [eax]
 
-int mul9(int);
+int32_t mul9(int32_t);
 #pragma aux mul9 =\
 	"lea eax, [eax+eax*8]",\
 	parm nomemory [eax]
 
 	//returns eax/ebx, dmval = eax%edx;
-int divmod(int,int);
+int32_t divmod(int32_t,int32_t);
 #pragma aux divmod =\
 	"xor edx, edx",\
 	"div ebx",\
@@ -2784,7 +2784,7 @@ int divmod(int,int);
 	value [eax]
 
 	//returns eax%ebx, dmval = eax/edx;
-int moddiv(int,int);
+int32_t moddiv(int32_t,int32_t);
 #pragma aux moddiv =\
 	"xor edx, edx",\
 	"div ebx",\
@@ -2793,7 +2793,7 @@ int moddiv(int,int);
 	modify exact [eax edx]\
 	value [edx]
 
-int klabs(int);
+int32_t klabs(int32_t);
 #pragma aux klabs =\
 	"test eax, eax",\
 	"jns skipnegate",\
@@ -2801,7 +2801,7 @@ int klabs(int);
 	"skipnegate:",\
 	parm nomemory [eax]
 
-int ksgn(int);
+int32_t ksgn(int32_t);
 #pragma aux ksgn =\
 	"add ebx, ebx",\
 	"sbb eax, eax",\
@@ -2811,7 +2811,7 @@ int ksgn(int);
 	modify exact [eax ebx]
 
 	//eax = (unsigned min)umin(eax,ebx)
-int umin(int,int);
+int32_t umin(int32_t,int32_t);
 #pragma aux umin =\
 	"sub eax, ebx",\
 	"sbb ecx, ecx",\
@@ -2821,7 +2821,7 @@ int umin(int,int);
 	modify exact [eax ecx]
 
 	//eax = (unsigned max)umax(eax,ebx)
-int umax(int,int);
+int32_t umax(int32_t,int32_t);
 #pragma aux umax =\
 	"sub eax, ebx",\
 	"sbb ecx, ecx",\
@@ -2831,7 +2831,7 @@ int umax(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax ecx]
 
-int kmin(int,int);
+int32_t kmin(int32_t,int32_t);
 #pragma aux kmin =\
 	"cmp eax, ebx",\
 	"jl skipit",\
@@ -2840,7 +2840,7 @@ int kmin(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax]
 
-int kmax(int,int);
+int32_t kmax(int32_t,int32_t);
 #pragma aux kmax =\
 	"cmp eax, ebx",\
 	"jg skipit",\
@@ -2849,7 +2849,7 @@ int kmax(int,int);
 	parm nomemory [eax][ebx]\
 	modify exact [eax]
 
-int swapchar(void*,void*);
+int32_t swapchar(void*,void*);
 #pragma aux swapchar =\
 	"mov cl, [eax]",\
 	"mov ch, [ebx]",\
@@ -2858,7 +2858,7 @@ int swapchar(void*,void*);
 	parm [eax][ebx]\
 	modify exact [ecx]
 
-int swapshort(void*,void*);
+int32_t swapshort(void*,void*);
 #pragma aux swapshort =\
 	"mov cx, [eax]",\
 	"mov dx, [ebx]",\
@@ -2867,7 +2867,7 @@ int swapshort(void*,void*);
 	parm [eax][ebx]\
 	modify exact [ecx edx]
 
-int swaplong(void*,void*);
+int32_t swaplong(void*,void*);
 #pragma aux swaplong =\
 	"mov ecx, [eax]",\
 	"mov edx, [ebx]",\
@@ -2876,7 +2876,7 @@ int swaplong(void*,void*);
 	parm [eax][ebx]\
 	modify exact [ecx edx]
 
-int swapbuf4(void*,void*,int);
+int32_t swapbuf4(void*,void*,int32_t);
 #pragma aux swapbuf4 =\
 	"begswap:",\
 	"mov esi, [eax]",\
@@ -2890,7 +2890,7 @@ int swapbuf4(void*,void*,int);
 	parm [eax][ebx][ecx]\
 	modify exact [eax ebx ecx esi edi]
 
-int swap64bit(void*,void*);
+int32_t swap64bit(void*,void*);
 #pragma aux swap64bit =\
 	"mov ecx, [eax]",\
 	"mov edx, [ebx]",\
@@ -2905,7 +2905,7 @@ int swap64bit(void*,void*);
 
 	//swapchar2(ptr1,ptr2,xsiz); is the same as:
 	//swapchar(ptr1,ptr2); swapchar(ptr1+1,ptr2+xsiz);
-int swapchar2(void*,void*,int);
+int32_t swapchar2(void*,void*,int32_t);
 #pragma aux swapchar2 =\
 	"add esi, ebx",\
 	"mov cx, [eax]",\
@@ -2925,7 +2925,7 @@ int swapchar2(void*,void*,int);
 // 
 
 //{{{
-static __inline int sqr(int a)
+static __inline int32_t sqr(int32_t a)
 {
 	_asm {
 		mov eax, a
@@ -2933,7 +2933,7 @@ static __inline int sqr(int a)
 	}
 }
 
-static __inline int scale(int a, int d, int c)
+static __inline int32_t scale(int32_t a, int32_t d, int32_t c)
 {
 	_asm {
 		mov eax, a
@@ -2942,7 +2942,7 @@ static __inline int scale(int a, int d, int c)
 	}
 }
 
-static __inline int mulscale(int a, int d, int c)
+static __inline int32_t mulscale(int32_t a, int32_t d, int32_t c)
 {
 	_asm {
 		mov ecx, c
@@ -2953,7 +2953,7 @@ static __inline int mulscale(int a, int d, int c)
 }
 
 #define MULSCALE(x) \
-static __inline int mulscale##x (int a, int d) \
+static __inline int32_t mulscale##x (int32_t a, int32_t d) \
 { \
 	_asm mov eax, a \
 	_asm imul d \
@@ -2969,7 +2969,7 @@ MULSCALE(21)	MULSCALE(22)	MULSCALE(23)	MULSCALE(24)
 MULSCALE(25)	MULSCALE(26)	MULSCALE(27)	MULSCALE(28)
 MULSCALE(29)	MULSCALE(30)	MULSCALE(31)
 #undef MULSCALE	
-static __inline int mulscale32(int a, int d)
+static __inline int32_t mulscale32(int32_t a, int32_t d)
 {
 	_asm {
 		mov eax, a
@@ -2978,7 +2978,7 @@ static __inline int mulscale32(int a, int d)
 	}
 }
 
-static __inline int dmulscale(int a, int d, int S, int D, int c)
+static __inline int32_t dmulscale(int32_t a, int32_t d, int32_t S, int32_t D, int32_t c)
 {
 	_asm {
 		mov ecx, c
@@ -2995,7 +2995,7 @@ static __inline int dmulscale(int a, int d, int S, int D, int c)
 }
 
 #define DMULSCALE(x) \
-static __inline int dmulscale##x (int a, int d, int S, int D) \
+static __inline int32_t dmulscale##x (int32_t a, int32_t d, int32_t S, int32_t D) \
 { \
 	_asm mov eax, a \
 	_asm imul d \
@@ -3017,7 +3017,7 @@ DMULSCALE(21)	DMULSCALE(22)	DMULSCALE(23)	DMULSCALE(24)
 DMULSCALE(25)	DMULSCALE(26)	DMULSCALE(27)	DMULSCALE(28)
 DMULSCALE(29)	DMULSCALE(30)	DMULSCALE(31)
 #undef DMULSCALE	
-static __inline int dmulscale32(int a, int d, int S, int D)
+static __inline int32_t dmulscale32(int32_t a, int32_t d, int32_t S, int32_t D)
 {
 	_asm {
 		mov eax, a
@@ -3033,7 +3033,7 @@ static __inline int dmulscale32(int a, int d, int S, int D)
 }
 
 #define TMULSCALE(x) \
-static __inline int tmulscale##x (int a, int d, int b, int c, int S, int D) \
+static __inline int32_t tmulscale##x (int32_t a, int32_t d, int32_t b, int32_t c, int32_t S, int32_t D) \
 { \
 	_asm mov eax, a \
 	_asm mov ebx, b \
@@ -3060,7 +3060,7 @@ TMULSCALE(21)	TMULSCALE(22)	TMULSCALE(23)	TMULSCALE(24)
 TMULSCALE(25)	TMULSCALE(26)	TMULSCALE(27)	TMULSCALE(28)
 TMULSCALE(29)	TMULSCALE(30)	TMULSCALE(31)
 #undef TMULSCALE	
-static __inline int tmulscale32(int a, int d, int b, int c, int S, int D)
+static __inline int32_t tmulscale32(int32_t a, int32_t d, int32_t b, int32_t c, int32_t S, int32_t D)
 {
 	_asm {
 		mov eax, a
@@ -3080,7 +3080,7 @@ static __inline int tmulscale32(int a, int d, int b, int c, int S, int D)
 	}
 }
 
-static __inline int boundmulscale(int a, int b, int c)
+static __inline int32_t boundmulscale(int32_t a, int32_t b, int32_t c)
 {
 	_asm {
 		mov eax, a
@@ -3103,7 +3103,7 @@ static __inline int boundmulscale(int a, int b, int c)
 	}
 }
 
-static __inline int divscale(int a, int b, int c)
+static __inline int32_t divscale(int32_t a, int32_t b, int32_t c)
 {
 	_asm {
 		mov eax, a
@@ -3116,7 +3116,7 @@ static __inline int divscale(int a, int b, int c)
 	}
 }
 
-static __inline int divscale1(int a, int b)
+static __inline int32_t divscale1(int32_t a, int32_t b)
 {
 	_asm {
 		mov eax, a
@@ -3126,7 +3126,7 @@ static __inline int divscale1(int a, int b)
 	}
 }
 
-static __inline int divscale2(int a, int b)
+static __inline int32_t divscale2(int32_t a, int32_t b)
 {
 	_asm {
 		mov eax, a
@@ -3137,7 +3137,7 @@ static __inline int divscale2(int a, int b)
 	}
 }
 
-static __inline int divscale3(int a, int b)
+static __inline int32_t divscale3(int32_t a, int32_t b)
 {
 	_asm {
 		mov eax, a
@@ -3149,7 +3149,7 @@ static __inline int divscale3(int a, int b)
 }
 
 #define DIVSCALE(x,y) \
-static __inline int divscale##y(int a, int b) \
+static __inline int32_t divscale##y(int32_t a, int32_t b) \
 { \
 	_asm mov eax, a \
 	_asm mov edx, eax \
@@ -3166,7 +3166,7 @@ DIVSCALE(12,20)	DIVSCALE(11,21)	DIVSCALE(10,22)	DIVSCALE(9,23)
 DIVSCALE(8,24)	DIVSCALE(7,25)	DIVSCALE(6,26)	DIVSCALE(5,27)
 DIVSCALE(4,28)	DIVSCALE(3,29)	DIVSCALE(2,30)	DIVSCALE(1,31)
 
-static __inline int divscale32(int d, int b)
+static __inline int32_t divscale32(int32_t d, int32_t b)
 {
 	_asm {
 		mov edx, d
@@ -3192,7 +3192,7 @@ static __inline void drawpixel(void *d, char a)
 	}
 }
 
-static __inline void drawpixels(void *d, short a)
+static __inline void drawpixels(void *d, int16_t a)
 {
 	_asm {
 		mov edx, d
@@ -3201,7 +3201,7 @@ static __inline void drawpixels(void *d, short a)
 	}
 }
 
-static __inline void drawpixelses(void *d, int a)
+static __inline void drawpixelses(void *d, int32_t a)
 {
 	_asm {
 		mov edx, d
@@ -3210,7 +3210,7 @@ static __inline void drawpixelses(void *d, int a)
 	}
 }
 
-static __inline void clearbuf(void *d, int c, int a)
+static __inline void clearbuf(void *d, int32_t c, int32_t a)
 {
 	_asm {
 		mov edi, d
@@ -3220,7 +3220,7 @@ static __inline void clearbuf(void *d, int c, int a)
 	}
 }
 
-static __inline void clearbufbyte(void *d, int c, int a)
+static __inline void clearbufbyte(void *d, int32_t c, int32_t a)
 {
 	_asm {
 		mov edi, d
@@ -3260,7 +3260,7 @@ static __inline void clearbufbyte(void *d, int c, int a)
 	}
 }
 
-static __inline void copybuf(void *s, void *d, int c)
+static __inline void copybuf(void *s, void *d, int32_t c)
 {
 	_asm {
 		mov esi, s
@@ -3270,7 +3270,7 @@ static __inline void copybuf(void *s, void *d, int c)
 	}
 }
 
-static __inline void copybufbyte(void *s, void *d, int c)
+static __inline void copybufbyte(void *s, void *d, int32_t c)
 {
 	_asm {
 		mov esi, s
@@ -3310,7 +3310,7 @@ static __inline void copybufbyte(void *s, void *d, int c)
 	}
 }
 
-static __inline void copybufreverse(void *s, void *d, int c)
+static __inline void copybufreverse(void *s, void *d, int32_t c)
 {
 	_asm {
 		mov esi, s
@@ -3345,7 +3345,7 @@ static __inline void copybufreverse(void *s, void *d, int c)
 	}
 }
 
-static __inline void qinterpolatedown16(int a, int c, int d, int s)
+static __inline void qinterpolatedown16(int32_t a, int32_t c, int32_t d, int32_t s)
 {
 	_asm {
 		mov eax, a
@@ -3374,7 +3374,7 @@ static __inline void qinterpolatedown16(int a, int c, int d, int s)
 	}
 }
 
-static __inline void qinterpolatedown16short(int a, int c, int d, int s)
+static __inline void qinterpolatedown16short(int32_t a, int32_t c, int32_t d, int32_t s)
 {
 	_asm {
 		mov eax, a
@@ -3417,7 +3417,7 @@ static __inline void qinterpolatedown16short(int a, int c, int d, int s)
 	}
 }
 
-static __inline int mul3(int a)
+static __inline int32_t mul3(int32_t a)
 {
 	_asm {
 		mov eax, a
@@ -3425,7 +3425,7 @@ static __inline int mul3(int a)
 	}
 }
 
-static __inline int mul5(int a)
+static __inline int32_t mul5(int32_t a)
 {
 	_asm {
 		mov eax, a
@@ -3433,7 +3433,7 @@ static __inline int mul5(int a)
 	}
 }
 
-static __inline int mul9(int a)
+static __inline int32_t mul9(int32_t a)
 {
 	_asm {
 		mov eax, a
@@ -3442,7 +3442,7 @@ static __inline int mul9(int a)
 }
 
 	//returns eax/ebx, dmval = eax%edx;
-static __inline int divmod(int a, int b)
+static __inline int32_t divmod(int32_t a, int32_t b)
 {
 	_asm {
 		mov eax, a
@@ -3453,7 +3453,7 @@ static __inline int divmod(int a, int b)
 }
 
 	//returns eax%ebx, dmval = eax/edx;
-static __inline int moddiv(int a, int b)
+static __inline int32_t moddiv(int32_t a, int32_t b)
 {
 	_asm {
 		mov eax, a
@@ -3464,7 +3464,7 @@ static __inline int moddiv(int a, int b)
 	}
 }
 
-static __inline int klabs(int a)
+static __inline int32_t klabs(int32_t a)
 {
 	_asm {
 		mov eax, a
@@ -3475,7 +3475,7 @@ static __inline int klabs(int a)
 	}
 }
 
-static __inline int ksgn(int b)
+static __inline int32_t ksgn(int32_t b)
 {
 	_asm {
 		mov ebx, b
@@ -3487,7 +3487,7 @@ static __inline int ksgn(int b)
 }
 
 	//eax = (unsigned min)umin(eax,ebx)
-static __inline int umin(int a, int b)
+static __inline int32_t umin(int32_t a, int32_t b)
 {
 	_asm {
 		mov eax, a
@@ -3499,7 +3499,7 @@ static __inline int umin(int a, int b)
 }
 
 	//eax = (unsigned max)umax(eax,ebx)
-static __inline int umax(int a, int b)
+static __inline int32_t umax(int32_t a, int32_t b)
 {
 	_asm {
 		mov eax, a
@@ -3511,7 +3511,7 @@ static __inline int umax(int a, int b)
 	}
 }
 
-static __inline int kmin(int a, int b)
+static __inline int32_t kmin(int32_t a, int32_t b)
 {
 	_asm {
 		mov eax, a
@@ -3523,7 +3523,7 @@ static __inline int kmin(int a, int b)
 	}
 }
 
-static __inline int kmax(int a, int b)
+static __inline int32_t kmax(int32_t a, int32_t b)
 {
 	_asm {
 		mov eax, a
@@ -3571,7 +3571,7 @@ static __inline void swaplong(void *a, void *b)
 	}
 }
 
-static __inline void swapbuf4(void *a, void *b, int c)
+static __inline void swapbuf4(void *a, void *b, int32_t c)
 {
 	_asm {
 		mov eax, a
@@ -3585,7 +3585,7 @@ static __inline void swapbuf4(void *a, void *b, int c)
 		add eax, 4
 		add ebx, 4
 		dec ecx
-		jnz short begswap
+		jnz int16_t begswap
 	}
 }
 
@@ -3607,7 +3607,7 @@ static __inline void swap64bit(void *a, void *b)
 
 	//swapchar2(ptr1,ptr2,xsiz); is the same as:
 	//swapchar(ptr1,ptr2); swapchar(ptr1+1,ptr2+xsiz);
-static __inline void swapchar2(void *a, void *b, int s)
+static __inline void swapchar2(void *a, void *b, int32_t s)
 {
 	_asm {
 		mov eax, a
@@ -3631,27 +3631,27 @@ static __inline void swapchar2(void *a, void *b, int s)
 //
 
 #define qw(x)	((int64)(x))		// quadword cast
-#define dw(x)	((int)(x))		// doubleword cast
-#define wo(x)	((short)(x))		// word cast
-#define by(x)	((char)(x))		// byte cast
+#define dw(x)	((int32_t)(x))		// doubleword cast
+#define wo(x)	((int16_t)(x))		// word cast
+#define by(x)	((uint8_t)(x))		// byte cast
 
 #define _scaler(a) \
-static inline int mulscale##a(int eax, int edx) \
+static inline int32_t mulscale##a(int32_t eax, int32_t edx) \
 { \
 	return dw((qw(eax) * qw(edx)) >> a); \
 } \
 \
-static inline int divscale##a(int eax, int ebx) \
+static inline int32_t divscale##a(int32_t eax, int32_t ebx) \
 { \
 	return dw((qw(eax) << a) / qw(ebx)); \
 } \
 \
-static inline int dmulscale##a(int eax, int edx, int esi, int edi) \
+static inline int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi) \
 { \
 	return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> a); \
 } \
 \
-static inline int tmulscale##a(int eax, int edx, int ebx, int ecx, int esi, int edi) \
+static inline int32_t tmulscale##a(int32_t eax, int32_t edx, int32_t ebx, int32_t ecx, int32_t esi, int32_t edi) \
 { \
 	return dw(((qw(eax) * qw(edx)) + (qw(ebx) * qw(ecx)) + (qw(esi) * qw(edi))) >> a); \
 } \
@@ -3666,44 +3666,44 @@ _scaler(25)	_scaler(26)	_scaler(27)	_scaler(28)
 _scaler(29)	_scaler(30)	_scaler(31)	_scaler(32)
 
 static inline void swapchar(void* a, void* b)  { char t = *((char*)b); *((char*)b) = *((char*)a); *((char*)a) = t; }
-static inline void swapchar2(void* a, void* b, int s) { swapchar(a,b); swapchar((char*)a+1,(char*)b+s); }
-static inline void swapshort(void* a, void* b) { short t = *((short*)b); *((short*)b) = *((short*)a); *((short*)a) = t; }
-static inline void swaplong(void* a, void* b)  { int t = *((int*)b); *((int*)b) = *((int*)a); *((int*)a) = t; }
+static inline void swapchar2(void* a, void* b, int32_t s) { swapchar(a,b); swapchar((char*)a+1,(char*)b+s); }
+static inline void swapshort(void* a, void* b) { int16_t t = *((int16_t*)b); *((int16_t*)b) = *((int16_t*)a); *((int16_t*)a) = t; }
+static inline void swaplong(void* a, void* b)  { int32_t t = *((int32_t*)b); *((int32_t*)b) = *((int32_t*)a); *((int32_t*)a) = t; }
 static inline void swap64bit(void* a, void* b) { int64 t = *((int64*)b); *((int64*)b) = *((int64*)a); *((int64*)a) = t; }
 
 static inline char readpixel(void* s)    { return (*((char*)(s))); }
 static inline void drawpixel(void* s, char a)    { *((char*)(s)) = a; }
-static inline void drawpixels(void* s, short a)  { *((short*)(s)) = a; }
-static inline void drawpixelses(void* s, int a) { *((int*)(s)) = a; }
+static inline void drawpixels(void* s, int16_t a)  { *((int16_t*)(s)) = a; }
+static inline void drawpixelses(void* s, int32_t a) { *((int32_t*)(s)) = a; }
 
-static inline int mul3(int a) { return (a<<1)+a; }
-static inline int mul5(int a) { return (a<<2)+a; }
-static inline int mul9(int a) { return (a<<3)+a; }
+static inline int32_t mul3(int32_t a) { return (a<<1)+a; }
+static inline int32_t mul5(int32_t a) { return (a<<2)+a; }
+static inline int32_t mul9(int32_t a) { return (a<<3)+a; }
 
-static inline int divmod(int a, int b) { unsigned int _a=(unsigned int)a, _b=(unsigned int)b; dmval = _a%_b; return _a/_b; }
-static inline int moddiv(int a, int b) { unsigned int _a=(unsigned int)a, _b=(unsigned int)b; dmval = _a/_b; return _a%_b; }
+static inline int32_t divmod(int32_t a, int32_t b) { uint32_t _a=(uint32_t)a, _b=(uint32_t)b; dmval = _a%_b; return _a/_b; }
+static inline int32_t moddiv(int32_t a, int32_t b) { uint32_t _a=(uint32_t)a, _b=(uint32_t)b; dmval = _a/_b; return _a%_b; }
 
-static inline int klabs(int a) { if (a < 0) return -a; return a; }
-static inline int ksgn(int a)  { if (a > 0) return 1; if (a < 0) return -1; return 0; }
+static inline int32_t klabs(int32_t a) { if (a < 0) return -a; return a; }
+static inline int32_t ksgn(int32_t a)  { if (a > 0) return 1; if (a < 0) return -1; return 0; }
 
-static inline int umin(int a, int b) { if ((unsigned int)a < (unsigned int)b) return a; return b; }
-static inline int umax(int a, int b) { if ((unsigned int)a < (unsigned int)b) return b; return a; }
-static inline int kmin(int a, int b) { if ((signed int)a < (signed int)b) return a; return b; }
-static inline int kmax(int a, int b) { if ((signed int)a < (signed int)b) return b; return a; }
+static inline int32_t umin(int32_t a, int32_t b) { if ((uint32_t)a < (uint32_t)b) return a; return b; }
+static inline int32_t umax(int32_t a, int32_t b) { if ((uint32_t)a < (uint32_t)b) return b; return a; }
+static inline int32_t kmin(int32_t a, int32_t b) { if ((int32_t)a < (int32_t)b) return a; return b; }
+static inline int32_t kmax(int32_t a, int32_t b) { if ((int32_t)a < (int32_t)b) return b; return a; }
 
-static inline int sqr(int eax) { return (eax) * (eax); }
-static inline int scale(int eax, int edx, int ecx) { return dw((qw(eax) * qw(edx)) / qw(ecx)); }
-static inline int mulscale(int eax, int edx, int ecx) { return dw((qw(eax) * qw(edx)) >> by(ecx)); }
-static inline int divscale(int eax, int ebx, int ecx) { return dw((qw(eax) << by(ecx)) / qw(ebx)); }
-static inline int dmulscale(int eax, int edx, int esi, int edi, int ecx) { return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> by(ecx)); }
+static inline int32_t sqr(int32_t eax) { return (eax) * (eax); }
+static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * qw(edx)) / qw(ecx)); }
+static inline int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * qw(edx)) >> by(ecx)); }
+static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return dw((qw(eax) << by(ecx)) / qw(ebx)); }
+static inline int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx) { return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> by(ecx)); }
 
-static inline int boundmulscale(int a, int d, int c)
+static inline int32_t boundmulscale(int32_t a, int32_t d, int32_t c)
 { // courtesy of Ken
     int64 p;
     p = (((int64)a)*((int64)d))>>c;
     if (p >= longlong(2147483647)) p = longlong(2147483647);
     if (p < longlong(-2147483648)) p = longlong(-2147483648);
-    return((int)p);
+    return((int32_t)p);
 }
 
 #undef qw
@@ -3712,16 +3712,16 @@ static inline int boundmulscale(int a, int d, int c)
 #undef by
 #undef _scaler
 
-void qinterpolatedown16 (intptr_t bufptr, int num, int val, int add);
-void qinterpolatedown16short (intptr_t bufptr, int num, int val, int add);
+void qinterpolatedown16 (intptr_t bufptr, int32_t num, int32_t val, int32_t add);
+void qinterpolatedown16short (intptr_t bufptr, int32_t num, int32_t val, int32_t add);
 
-void clearbuf(void* d, int c, int a);
-void copybuf(void* s, void* d, int c);
-void swapbuf4(void* a, void* b, int c);
+void clearbuf(void* d, int32_t c, int32_t a);
+void copybuf(void* s, void* d, int32_t c);
+void swapbuf4(void* a, void* b, int32_t c);
 
-void clearbufbyte(void *D, int c, int a);
-void copybufbyte(void *S, void *D, int c);
-void copybufreverse(void *S, void *D, int c);
+void clearbufbyte(void *D, int32_t c, int32_t a);
+void copybufbyte(void *S, void *D, int32_t c);
+void copybufreverse(void *S, void *D, int32_t c);
 
 #endif
 

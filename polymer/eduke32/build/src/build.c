@@ -22,12 +22,12 @@
 
 #define TIMERINTSPERSECOND 120
 
-#define updatecrc16(crc,dat) (crc = (((crc<<8)&65535)^crctable[((((unsigned short)crc)>>8)&65535)^dat]))
-static int crctable[256];
+#define updatecrc16(crc,dat) (crc = (((crc<<8)&65535)^crctable[((((uint16_t)crc)>>8)&65535)^dat]))
+static int32_t crctable[256];
 static char kensig[64];
 
-extern int ExtInit(void);
-extern int ExtPreInit(int argc,const char **argv);
+extern int32_t ExtInit(void);
+extern int32_t ExtPreInit(int32_t argc,const char **argv);
 extern void ExtUnInit(void);
 extern void ExtPreCheckKeys(void);
 #ifdef SUPERBUILD
@@ -36,22 +36,22 @@ extern void ExtAnalyzeSprites(void);
 extern void ExtCheckKeys(void);
 extern void ExtLoadMap(const char *mapname);
 extern void ExtSaveMap(const char *mapname);
-extern const char *ExtGetSectorCaption(short sectnum);
-extern const char *ExtGetWallCaption(short wallnum);
-extern const char *ExtGetSpriteCaption(short spritenum);
-extern void ExtShowSectorData(short sectnum);
-extern void ExtShowWallData(short wallnum);
-extern void ExtShowSpriteData(short spritenum);
-extern void ExtEditSectorData(short sectnum);
-extern void ExtEditWallData(short wallnum);
-extern void ExtEditSpriteData(short spritenum);
-extern const char *ExtGetSectorType(int lotag);
+extern const char *ExtGetSectorCaption(int16_t sectnum);
+extern const char *ExtGetWallCaption(int16_t wallnum);
+extern const char *ExtGetSpriteCaption(int16_t spritenum);
+extern void ExtShowSectorData(int16_t sectnum);
+extern void ExtShowWallData(int16_t wallnum);
+extern void ExtShowSpriteData(int16_t spritenum);
+extern void ExtEditSectorData(int16_t sectnum);
+extern void ExtEditWallData(int16_t wallnum);
+extern void ExtEditSpriteData(int16_t spritenum);
+extern const char *ExtGetSectorType(int32_t lotag);
 
 extern char spritecol2d[MAXTILES][2];
 
 char noclip=0;
 
-int vel, svel, angvel;
+int32_t vel, svel, angvel;
 
 // 0   1     2     3      4       5      6      7
 // up, down, left, right, lshift, rctrl, lctrl, space
@@ -59,93 +59,93 @@ int vel, svel, angvel;
 // a, z, pgdn, pgup, [,], [.]
 // 14       15     16 17 18   19
 // kpenter, enter, =, -, tab, `
-unsigned char buildkeys[NUMBUILDKEYS] =
+uint8_t buildkeys[NUMBUILDKEYS] =
 {
     0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
     0x1e,0x2c,0xd1,0xc9,0x33,0x34,
     0x9c,0x1c,0xd,0xc,0xf,0x29
 };
 
-int posx, posy, posz, horiz = 100;
-int mousexsurp = 0, mouseysurp = 0;
-short ang, cursectnum;
-int hvel;
+int32_t posx, posy, posz, horiz = 100;
+int32_t mousexsurp = 0, mouseysurp = 0;
+int16_t ang, cursectnum;
+int32_t hvel;
 
-int grponlymode = 0;
-extern int editorgridextent;	// in engine.c
+int32_t grponlymode = 0;
+extern int32_t editorgridextent;	// in engine.c
 extern double msens;
-int graphicsmode = 0;
-extern int xyaspect;
-extern int totalclocklock;
+int32_t graphicsmode = 0;
+extern int32_t xyaspect;
+extern int32_t totalclocklock;
 
-int synctics = 0, lockclock = 0;
+int32_t synctics = 0, lockclock = 0;
 
 extern char vgacompatible;
 
 extern char picsiz[MAXTILES];
-extern int startposx, startposy, startposz;
-extern short startang, startsectnum;
-extern int ydim16, halfxdim16, midydim16;
+extern int32_t startposx, startposy, startposz;
+extern int16_t startang, startsectnum;
+extern int32_t ydim16, halfxdim16, midydim16;
 extern intptr_t frameplace;
-int xdim2d = 640, ydim2d = 480, xdimgame = 640, ydimgame = 480, bppgame = 8;
-int forcesetup = 1;
+int32_t xdim2d = 640, ydim2d = 480, xdimgame = 640, ydimgame = 480, bppgame = 8;
+int32_t forcesetup = 1;
 
-extern int cachesize, artsize;
+extern int32_t cachesize, artsize;
 
-static short oldmousebstatus = 0;
-short brightness = 0;
+static int16_t oldmousebstatus = 0;
+int16_t brightness = 0;
 char game_executable[BMAX_PATH] = DEFAULT_GAME_LOCAL_EXEC;
-int zlock = 0x7fffffff, zmode = 0, whitecol, kensplayerheight = 32;
-short defaultspritecstat = 0;
+int32_t zlock = 0x7fffffff, zmode = 0, whitecol, kensplayerheight = 32;
+int16_t defaultspritecstat = 0;
 
-short localartfreq[MAXTILES];
-short localartlookup[MAXTILES], localartlookupnum;
+int16_t localartfreq[MAXTILES];
+int16_t localartlookup[MAXTILES], localartlookupnum;
 
 char tempbuf[4096];
 
 char names[MAXTILES][25];
 
-short asksave = 0;
-extern short editstatus, searchit;
-extern int searchx, searchy;                          //search input
-extern short searchsector, searchwall, searchstat;     //search output
-int osearchx, osearchy;                               //old search input
+int16_t asksave = 0;
+extern int16_t editstatus, searchit;
+extern int32_t searchx, searchy;                          //search input
+extern int16_t searchsector, searchwall, searchstat;     //search output
+int32_t osearchx, osearchy;                               //old search input
 
-extern short pointhighlight, linehighlight, highlightcnt;
-short grid = 3, gridlock = 1, showtags = 1;
-int zoom = 768, gettilezoom = 1;
-int lastpm16time;
+extern int16_t pointhighlight, linehighlight, highlightcnt;
+int16_t grid = 3, gridlock = 1, showtags = 1;
+int32_t zoom = 768, gettilezoom = 1;
+int32_t lastpm16time;
 
-int numsprites;
-extern int mapversion;
+int32_t numsprites;
+extern int32_t mapversion;
 
-short highlight[MAXWALLS];
-short highlightsector[MAXSECTORS], highlightsectorcnt = -1;
+int16_t highlight[MAXWALLS];
+int16_t highlightsector[MAXSECTORS], highlightsectorcnt = -1;
 extern char textfont[128][8];
 
 char pskysearch[MAXSECTORS];
 
-int temppicnum, tempcstat, templotag, temphitag, tempextra;
-unsigned int temppal, tempvis, tempxrepeat, tempyrepeat;
-int tempshade, tempxvel, tempyvel, tempzvel;
-unsigned char somethingintab = 255;
+int32_t temppicnum, tempcstat, templotag, temphitag, tempextra;
+uint32_t temppal, tempvis, tempxrepeat, tempyrepeat;
+int32_t tempshade, tempxvel, tempyvel, tempzvel;
+char somethingintab = 255;
 
-int mlook = 0,mskip=0;
-int revertCTRL=0,scrollamount=3;
-int unrealedlook=1, quickmapcycling=1; //PK
+int32_t mlook = 0,mskip=0;
+int32_t revertCTRL=0,scrollamount=3;
+int32_t unrealedlook=1, quickmapcycling=1; //PK
 
 static char boardfilename[BMAX_PATH], selectedboardfilename[BMAX_PATH];
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
-static int numdirs=0, numfiles=0;
-static int currentlist=0;
+static int32_t numdirs=0, numfiles=0;
+static int32_t currentlist=0;
 
-//static int repeatcountx, repeatcounty;
+//static int32_t repeatcountx, repeatcounty;
 
-static int fillist[640];
+static int32_t fillist[640];
 
-int mousx, mousy;
-short prefixtiles[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+int32_t mousx, mousy;
+int16_t prefixtiles[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 /*
 static char scantoasc[128] =
 {
@@ -170,54 +170,54 @@ static char scantoascwithshift[128] =
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
 */
-int pk_turnaccel=16;
-int pk_turndecel=12;
-int pk_uedaccel=3;
+int32_t pk_turnaccel=16;
+int32_t pk_turndecel=12;
+int32_t pk_uedaccel=3;
 
-char changechar(char dachar, int dadir, char smooshyalign, char boundcheck);
-int adjustmark(int *xplc, int *yplc, short danumwalls);
-int checkautoinsert(int dax, int day, short danumwalls);
+char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck);
+int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls);
+int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls);
 void keytimerstuff(void);
-int clockdir(short wallstart);
-void flipwalls(short numwalls, short newnumwalls);
-void insertpoint(short linehighlight, int dax, int day);
-void deletepoint(short point);
-int deletesector(short sucksect);
-int checksectorpointer(short i, short sectnum);
-void fixrepeats(short i);
-short loopinside(int x, int y, short startwall);
-int fillsector(short sectnum, char fillcolor);
-short whitelinescan(short dalinehighlight);
-void printcoords16(int posxe, int posye, short ange);
-void copysector(short soursector, short destsector, short deststartwall, char copystat);
-void showsectordata(short sectnum);
-void showwalldata(short wallnum);
-void showspritedata(short spritenum);
-int drawtilescreen(int pictopleft, int picbox);
+int32_t clockdir(int16_t wallstart);
+void flipwalls(int16_t numwalls, int16_t newnumwalls);
+void insertpoint(int16_t linehighlight, int32_t dax, int32_t day);
+void deletepoint(int16_t point);
+int32_t deletesector(int16_t sucksect);
+int32_t checksectorpointer(int16_t i, int16_t sectnum);
+void fixrepeats(int16_t i);
+int16_t loopinside(int32_t x, int32_t y, int16_t startwall);
+int32_t fillsector(int16_t sectnum, char fillcolor);
+int16_t whitelinescan(int16_t dalinehighlight);
+void printcoords16(int32_t posxe, int32_t posye, int16_t ange);
+void copysector(int16_t soursector, int16_t destsector, int16_t deststartwall, char copystat);
+void showsectordata(int16_t sectnum);
+void showwalldata(int16_t wallnum);
+void showspritedata(int16_t spritenum);
+int32_t drawtilescreen(int32_t pictopleft, int32_t picbox);
 void overheadeditor(void);
-int getlinehighlight(int xplc, int yplc, int line);
+int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line);
 void fixspritesectors(void);
-int movewalls(int start, int offs);
-int loadnames(void);
+int32_t movewalls(int32_t start, int32_t offs);
+int32_t loadnames(void);
 void updatenumsprites(void);
-void getclosestpointonwall(int x, int y, int dawall, int *nx, int *ny);
+void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny);
 void initcrc(void);
-void AutoAlignWalls(int nWall0, int ply);
-int gettile(int tilenum);
+void AutoAlignWalls(int32_t nWall0, int32_t ply);
+int32_t gettile(int32_t tilenum);
 
-int menuselect(void);
+int32_t menuselect(void);
 
-int menuselect_pk(int); //PK
+int32_t menuselect_pk(int32_t); //PK
 
-int getfilenames(char *path, char *kind);
+int32_t getfilenames(char *path, char *kind);
 void clearfilenames(void);
 void loadmhk();
 
 void clearkeys(void) { memset(keystatus,0,sizeof(keystatus)); }
 
-static int osdcmd_restartvid(const osdfuncparm_t *parm)
+static int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
 {
-    extern int qsetmode;
+    extern int32_t qsetmode;
 
     UNREFERENCED_PARAMETER(parm);
 
@@ -230,10 +230,10 @@ static int osdcmd_restartvid(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_vidmode(const osdfuncparm_t *parm)
+static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 {
-    int newx = xdim, newy = ydim, newbpp = bpp, newfullscreen = fullscreen;
-    extern int qsetmode;
+    int32_t newx = xdim, newy = ydim, newbpp = bpp, newfullscreen = fullscreen;
+    extern int32_t qsetmode;
 
     switch (parm->numparms)
     {
@@ -282,14 +282,14 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-extern int startwin_run(void);
+extern int32_t startwin_run(void);
 
 extern char *defsfilename;	// set in bstub.c
 
-int app_main(int argc, const char **argv)
+int32_t app_main(int32_t argc, const char **argv)
 {
     char quitflag, cmdsetup = 0;
-    int i, j, k;
+    int32_t i, j, k;
 
     pathsearchmode = 1;		// unrestrict findfrompath so that full access to the filesystem can be had
 
@@ -385,7 +385,7 @@ int app_main(int argc, const char **argv)
     k = 0;
     for (i=0;i<256;i++)
     {
-        j = ((int)palette[i*3])+((int)palette[i*3+1])+((int)palette[i*3+2]);
+        j = ((int32_t)palette[i*3])+((int32_t)palette[i*3+1])+((int32_t)palette[i*3+2]);
         if (j > k) { k = j; whitecol = i; }
     }
 
@@ -556,7 +556,7 @@ CANCEL:
 /*
 void showmouse(void)
 {
-    int i;
+    int32_t i;
 
     for (i=1;i<=4;i++)
     {
@@ -567,7 +567,7 @@ void showmouse(void)
     }
 }*/
 
-int mhk=0;
+int32_t mhk=0;
 void loadmhk()
 {
     char *p;char levname[BMAX_PATH];
@@ -590,11 +590,11 @@ void editinput(void)
 {
 //    char smooshyalign, repeatpanalign, buffer[80];
 //    short sectnum, nextsectnum, startwall, endwall, dasector, daang;
-    int mousz, bstatus;
-    int i, j, k, /*cnt,*/ tempint=0, doubvel/*, changedir, wallfind[2], daz[2]*/;
-    int /*dashade[2],*/ goalz, xvect, yvect,/*PK*/ zvect, hiz, loz;
-    short hitsect, hitwall, hitsprite;
-    int hitx, hity, hitz, dax, day, hihit, lohit;
+    int32_t mousz, bstatus;
+    int32_t i, j, k, /*cnt,*/ tempint=0, doubvel/*, changedir, wallfind[2], daz[2]*/;
+    int32_t /*dashade[2],*/ goalz, xvect, yvect,/*PK*/ zvect, hiz, loz;
+    int16_t hitsect, hitwall, hitsprite;
+    int32_t hitx, hity, hitz, dax, day, hihit, lohit;
 
 // 3B  3C  3D  3E   3F  40  41  42   43  44  57  58          46
 // F1  F2  F3  F4   F5  F6  F7  F8   F9 F10 F11 F12        SCROLL
@@ -625,13 +625,13 @@ void editinput(void)
         ldiv_t ld;
         if (mlook)
         {
-            ld = ldiv((int)(mousx), (int)((1<<16)/(msens*0.5f))); mousx = ld.quot; mousexsurp = ld.rem;
-            ld = ldiv((int)(mousy), (int)((1<<16)/(msens*0.25f))); mousy = ld.quot; mouseysurp = ld.rem;
+            ld = ldiv((int32_t)(mousx), (int32_t)((1<<16)/(msens*0.5f))); mousx = ld.quot; mousexsurp = ld.rem;
+            ld = ldiv((int32_t)(mousy), (int32_t)((1<<16)/(msens*0.25f))); mousy = ld.quot; mouseysurp = ld.rem;
         }
         else
         {
-            ld = ldiv((int)(mousx), (int)((1<<16)/msens)); mousx = ld.quot; mousexsurp = ld.rem;
-            ld = ldiv((int)(mousy), (int)((1<<16)/msens)); mousy = ld.quot; mouseysurp = ld.rem;
+            ld = ldiv((int32_t)(mousx), (int32_t)((1<<16)/msens)); mousx = ld.quot; mousexsurp = ld.rem;
+            ld = ldiv((int32_t)(mousy), (int32_t)((1<<16)/msens)); mousy = ld.quot; mouseysurp = ld.rem;
         }
     }
 
@@ -649,8 +649,8 @@ void editinput(void)
         if ((bstatus&1) && !(bstatus&(2|4)))
         {
             ang += mousx;
-            xvect = -((mousy*(int)sintable[(ang+2560)&2047])<<(3+pk_uedaccel));
-            yvect = -((mousy*(int)sintable[(ang+2048)&2047])<<(3+pk_uedaccel));
+            xvect = -((mousy*(int32_t)sintable[(ang+2560)&2047])<<(3+pk_uedaccel));
+            yvect = -((mousy*(int32_t)sintable[(ang+2048)&2047])<<(3+pk_uedaccel));
 
             if (noclip)
             {
@@ -667,8 +667,8 @@ void editinput(void)
         else if ((bstatus&1) && (bstatus&2) && !(bstatus&4))
         {
             zmode = 2;
-            xvect = -((mousx*(int)sintable[(ang+2048)&2047])<<pk_uedaccel);
-            yvect = -((mousx*(int)sintable[(ang+1536)&2047])<<pk_uedaccel);
+            xvect = -((mousx*(int32_t)sintable[(ang+2048)&2047])<<pk_uedaccel);
+            yvect = -((mousx*(int32_t)sintable[(ang+1536)&2047])<<pk_uedaccel);
             posz += mousy<<(4+pk_uedaccel);
             if (noclip)
             {
@@ -686,15 +686,15 @@ void editinput(void)
             tempint = getangle(128, horiz-100);
 
             xvect = -((mousy*
-                       ((int)sintable[(ang+2560)&2047]>>6)*
-                       ((int)sintable[(tempint+512)&2047])>>6)
+                       ((int32_t)sintable[(ang+2560)&2047]>>6)*
+                       ((int32_t)sintable[(tempint+512)&2047])>>6)
                       <<pk_uedaccel);
             yvect = -((mousy*
-                       ((int)sintable[(ang+2048)&2047]>>6)*
-                       ((int)sintable[(tempint+512)&2047])>>6)
+                       ((int32_t)sintable[(ang+2048)&2047]>>6)*
+                       ((int32_t)sintable[(tempint+512)&2047])>>6)
                       <<pk_uedaccel);
 
-            zvect = mousy*(((int)sintable[(tempint+2048)&2047])>>(10-pk_uedaccel));
+            zvect = mousy*(((int32_t)sintable[(tempint+2048)&2047])>>(10-pk_uedaccel));
 
             posz += zvect;
             if (noclip)
@@ -789,13 +789,13 @@ void editinput(void)
         xvect = 0, yvect = 0;
         if (vel != 0)
         {
-            xvect += ((vel*doubvel*(int)sintable[(ang+2560)&2047])>>3);
-            yvect += ((vel*doubvel*(int)sintable[(ang+2048)&2047])>>3);
+            xvect += ((vel*doubvel*(int32_t)sintable[(ang+2560)&2047])>>3);
+            yvect += ((vel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3);
         }
         if (svel != 0)
         {
-            xvect += ((svel*doubvel*(int)sintable[(ang+2048)&2047])>>3);
-            yvect += ((svel*doubvel*(int)sintable[(ang+1536)&2047])>>3);
+            xvect += ((svel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3);
+            yvect += ((svel*doubvel*(int32_t)sintable[(ang+1536)&2047])>>3);
         }
         if (noclip)
         {
@@ -1091,7 +1091,7 @@ void editinput(void)
     }
 }
 
-char changechar(char dachar, int dadir, char smooshyalign, char boundcheck)
+char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck)
 {
     if (dadir < 0)
     {
@@ -1118,11 +1118,11 @@ char changechar(char dachar, int dadir, char smooshyalign, char boundcheck)
 }
 #if 0
 /*
-int gettile(int tilenum)
+int32_t gettile(int32_t tilenum)
 {
     char snotbuf[80], ch;
-    int i, j, k, otilenum, topleft, gap, temp, tempint;
-    int xtiles, ytiles, tottiles;
+    int32_t i, j, k, otilenum, topleft, gap, temp, tempint;
+    int32_t xtiles, ytiles, tottiles;
 
     if (tilenum < 0) tilenum = 0;
 
@@ -1324,10 +1324,10 @@ int gettile(int tilenum)
     return(tilenum);
 }
 
-int drawtilescreen(int pictopleft, int picbox)
+int32_t drawtilescreen(int32_t pictopleft, int32_t picbox)
 {
-    int i, j, vidpos, vidpos2, dat, wallnum, xdime, ydime, cnt, pinc;
-    int dax, day, scaledown, xtiles, ytiles, tottiles;
+    int32_t i, j, vidpos, vidpos2, dat, wallnum, xdime, ydime, cnt, pinc;
+    int32_t dax, day, scaledown, xtiles, ytiles, tottiles;
     char *picptr, snotbuf[80];
 
     xtiles = (xdim>>6); ytiles = (ydim>>6); tottiles = xtiles*ytiles;
@@ -1432,22 +1432,22 @@ int drawtilescreen(int pictopleft, int picbox)
 void overheadeditor(void)
 {
     char buffer[80], *dabuffer, ch;
-    int i, j, k, m=0, mousxplc, mousyplc, firstx=0, firsty=0, oposz, col;
-    int tempint, tempint1, tempint2, doubvel;
-    int startwall=0, endwall, dax, day, daz, x1, y1, x2, y2, x3, y3, x4, y4;
-    int highlightx1, highlighty1, highlightx2, highlighty2, xvect, yvect;
-    short pag, suckwall=0, sucksect, newnumwalls, newnumsectors, split=0, bad;
-    short splitsect=0, danumwalls, secondstartwall, joinsector[2], joinsectnum;
-    short splitstartwall=0, splitendwall, loopnum;
-    int mousx, mousy, bstatus;
-    int centerx, centery, circlerad;
-    short circlepoints, circleang1, circleang2, circleangdir;
-    int sectorhighlightx=0, sectorhighlighty=0;
-    short cursectorhighlight, sectorhighlightstat;
-    short hitsect, hitwall, hitsprite;
-    int hitx, hity, hitz;
+    int32_t i, j, k, m=0, mousxplc, mousyplc, firstx=0, firsty=0, oposz, col;
+    int32_t tempint, tempint1, tempint2, doubvel;
+    int32_t startwall=0, endwall, dax, day, daz, x1, y1, x2, y2, x3, y3, x4, y4;
+    int32_t highlightx1, highlighty1, highlightx2, highlighty2, xvect, yvect;
+    int16_t pag, suckwall=0, sucksect, newnumwalls, newnumsectors, split=0, bad;
+    int16_t splitsect=0, danumwalls, secondstartwall, joinsector[2], joinsectnum;
+    int16_t splitstartwall=0, splitendwall, loopnum;
+    int32_t mousx, mousy, bstatus;
+    int32_t centerx, centery, circlerad;
+    int16_t circlepoints, circleang1, circleang2, circleangdir;
+    int32_t sectorhighlightx=0, sectorhighlighty=0;
+    int16_t cursectorhighlight, sectorhighlightstat;
+    int16_t hitsect, hitwall, hitsprite;
+    int32_t hitx, hity, hitz;
     walltype *wal;
-    int prefixarg = 0;
+    int32_t prefixarg = 0;
 
     //qsetmode640480();
     qsetmodeany(xdim2d,ydim2d);
@@ -1546,8 +1546,8 @@ void overheadeditor(void)
         mousy = (mousy<<16)+mouseysurp;
         {
             ldiv_t ld;
-            ld = ldiv((int)(mousx), (1<<16)); mousx = ld.quot; mousexsurp = ld.rem;
-            ld = ldiv((int)(mousy), (1<<16)); mousy = ld.quot; mouseysurp = ld.rem;
+            ld = ldiv((int32_t)(mousx), (1<<16)); mousx = ld.quot; mousexsurp = ld.rem;
+            ld = ldiv((int32_t)(mousy), (1<<16)); mousy = ld.quot; mouseysurp = ld.rem;
         }
         searchx += mousx;
         searchy += mousy;
@@ -1579,13 +1579,13 @@ void overheadeditor(void)
             xvect = 0, yvect = 0;
             if (vel != 0)
             {
-                xvect += ((vel*doubvel*(int)sintable[(ang+2560)&2047])>>3);
-                yvect += ((vel*doubvel*(int)sintable[(ang+2048)&2047])>>3);
+                xvect += ((vel*doubvel*(int32_t)sintable[(ang+2560)&2047])>>3);
+                yvect += ((vel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3);
             }
             if (svel != 0)
             {
-                xvect += ((svel*doubvel*(int)sintable[(ang+2048)&2047])>>3);
-                yvect += ((svel*doubvel*(int)sintable[(ang+1536)&2047])>>3);
+                xvect += ((svel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3);
+                yvect += ((svel*doubvel*(int32_t)sintable[(ang+1536)&2047])>>3);
             }
             if (noclip)
             {
@@ -1618,7 +1618,7 @@ void overheadeditor(void)
 
         if (graphicsmode)
         {
-            int ii = xyaspect;
+            int32_t ii = xyaspect;
 
             i = yxaspect;
             Bmemset(show2dsector, 255, sizeof(show2dsector));
@@ -1835,7 +1835,7 @@ void overheadeditor(void)
         //Draw the white pixel closest to mouse cursor on linehighlight
         if (linehighlight>=0)
         {
-            getclosestpointonwall(mousxplc,mousyplc,(int)linehighlight,&dax,&day);
+            getclosestpointonwall(mousxplc,mousyplc,(int32_t)linehighlight,&dax,&day);
             x2 = mulscale14(dax-posx,zoom);
             y2 = mulscale14(day-posy,zoom);
             if (wall[linehighlight].nextsector >= 0)
@@ -1886,10 +1886,10 @@ void overheadeditor(void)
 
                 for (i=0;i<highlightsectorcnt;i++)
                 {
-                    int startofloop;
-                    int endofloop;
-                    int numtoswap = -1;
-                    int w=0;
+                    int32_t startofloop;
+                    int32_t endofloop;
+                    int32_t numtoswap = -1;
+                    int32_t w=0;
                     walltype tempwall;
 
                     startofloop = startwall = sector[highlightsector[i]].wallptr;
@@ -2007,10 +2007,10 @@ void overheadeditor(void)
 
                 for (i=0;i<highlightsectorcnt;i++)
                 {
-                    int startofloop;
-                    int endofloop;
-                    int numtoswap = -1;
-                    int w=0;
+                    int32_t startofloop;
+                    int32_t endofloop;
+                    int32_t numtoswap = -1;
+                    int32_t w=0;
                     walltype tempwall;
 
                     startofloop = startwall = sector[highlightsector[i]].wallptr;
@@ -2279,7 +2279,7 @@ void overheadeditor(void)
                     bstatus &= ~32;
 
                     clearmidstatbar16();
-                    showspritedata((short)pointhighlight-16384);
+                    showspritedata((int16_t)pointhighlight-16384);
                 }
             }
         }
@@ -2378,7 +2378,7 @@ void overheadeditor(void)
                     mouseb &= ~16;
                     bstatus &= ~16;
                     clearmidstatbar16();
-                    showspritedata((short)pointhighlight-16384);
+                    showspritedata((int16_t)pointhighlight-16384);
                 }
             }
         }
@@ -2401,7 +2401,7 @@ void overheadeditor(void)
                 if (inside(mousxplc,mousyplc,i) == 1)
                 {
                     ydim16 = STATUS2DSIZ;
-                    ExtShowSectorData((short)i);
+                    ExtShowSectorData((int16_t)i);
                     ydim16 = ydim-STATUS2DSIZ;
                     break;
                 }
@@ -2415,7 +2415,7 @@ void overheadeditor(void)
                 i = pointhighlight-16384;
 
                 ydim16 = STATUS2DSIZ;
-                ExtShowSpriteData((short)i);
+                ExtShowSpriteData((int16_t)i);
                 ydim16 = ydim-STATUS2DSIZ;
             }
             else if (linehighlight >= 0)
@@ -2423,7 +2423,7 @@ void overheadeditor(void)
                 i = linehighlight;
 
                 ydim16 = STATUS2DSIZ;
-                ExtShowWallData((short)i);
+                ExtShowWallData((int16_t)i);
                 ydim16 = ydim-STATUS2DSIZ;
             }
         }
@@ -2435,7 +2435,7 @@ void overheadeditor(void)
                 if (inside(mousxplc,mousyplc,i) == 1)
                 {
                     ydim16 = STATUS2DSIZ;
-                    ExtEditSectorData((short)i);
+                    ExtEditSectorData((int16_t)i);
                     ydim16 = ydim-STATUS2DSIZ;
                     break;
                 }
@@ -2449,7 +2449,7 @@ void overheadeditor(void)
                 i = pointhighlight-16384;
 
                 ydim16 = STATUS2DSIZ;
-                ExtEditSpriteData((short)i);
+                ExtEditSpriteData((int16_t)i);
                 ydim16 = ydim-STATUS2DSIZ;
             }
             else if (linehighlight >= 0)
@@ -2457,7 +2457,7 @@ void overheadeditor(void)
                 i = linehighlight;
 
                 ydim16 = STATUS2DSIZ;
-                ExtEditWallData((short)i);
+                ExtEditWallData((int16_t)i);
                 ydim16 = ydim-STATUS2DSIZ;
             }
         }
@@ -2494,7 +2494,7 @@ void overheadeditor(void)
                     Bsprintf(buffer,"Sprite (%d) Hi-tag: ",i);
                     sprite[i].hitag = getnumber16(buffer,sprite[i].hitag,65536L,0);
                     clearmidstatbar16();
-                    showspritedata((short)i);
+                    showspritedata((int16_t)i);
                 }
                 else if (linehighlight >= 0)
                 {
@@ -2502,7 +2502,7 @@ void overheadeditor(void)
                     Bsprintf(buffer,"Wall (%d) Hi-tag: ",i);
                     wall[i].hitag = getnumber16(buffer,wall[i].hitag,65536L,0);
                     clearmidstatbar16();
-                    showwalldata((short)i);
+                    showwalldata((int16_t)i);
                 }
             }
             else
@@ -2513,7 +2513,7 @@ void overheadeditor(void)
                         Bsprintf(buffer,"Sector (%d) Hi-tag: ",i);
                         sector[i].hitag = getnumber16(buffer,sector[i].hitag,65536L,0);
                         clearmidstatbar16();
-                        showsectordata((short)i);
+                        showsectordata((int16_t)i);
                         break;
                     }
             }
@@ -2529,12 +2529,12 @@ void overheadeditor(void)
                     Bsprintf(buffer,"Sector (%d) Ceilingpal: ",i);
                     sector[i].ceilingpal = getnumber16(buffer,sector[i].ceilingpal,256L,0);
                     clearmidstatbar16();
-                    showsectordata((short)i);
+                    showsectordata((int16_t)i);
 
                     Bsprintf(buffer,"Sector (%d) Floorpal: ",i);
                     sector[i].floorpal = getnumber16(buffer,sector[i].floorpal,256L,0);
                     clearmidstatbar16();
-                    showsectordata((short)i);
+                    showsectordata((int16_t)i);
 
                     printmessage16("");
                     break;
@@ -2548,7 +2548,7 @@ void overheadeditor(void)
                 Bsprintf(buffer,"Sprite (%d) Status list: ",i);
                 changespritestat(i,getnumber16(buffer,sprite[i].statnum,65536L,0));
                 clearmidstatbar16();
-                showspritedata((short)i);
+                showspritedata((int16_t)i);
             }
 
             printmessage16("");
@@ -2563,16 +2563,16 @@ void overheadeditor(void)
             if ((keystatus[0x38]|keystatus[0xb8]|keystatus[0x1d]|keystatus[0x9d]) > 0)  //ALT or CTRL
             {
                 if (pointhighlight >= 16384)
-                    showspritedata((short)pointhighlight-16384);
+                    showspritedata((int16_t)pointhighlight-16384);
                 else if (linehighlight >= 0)
-                    showwalldata((short)linehighlight);
+                    showwalldata((int16_t)linehighlight);
             }
             else
             {
                 for (i=0;i<numsectors;i++)
                     if (inside(mousxplc,mousyplc,i) == 1)
                     {
-                        showsectordata((short)i);
+                        showsectordata((int16_t)i);
                         break;
                     }
             }
@@ -2695,7 +2695,7 @@ void overheadeditor(void)
                         {
                             if (wall[j].nextwall >= 0)
                                 checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                            checksectorpointer((short)j,highlightsector[i]);
+                            checksectorpointer((int16_t)j,highlightsector[i]);
                         }
                     }
                     highlightx1 = searchx;
@@ -2769,7 +2769,7 @@ void overheadeditor(void)
 
         if (((bstatus&1) < (oldmousebstatus&1)) && (highlightsectorcnt < 0))  //after dragging
         {
-            int wallsdrawn = newnumwalls-numwalls;
+            int32_t wallsdrawn = newnumwalls-numwalls;
 
             if (newnumwalls != -1)
             {
@@ -2830,7 +2830,7 @@ void overheadeditor(void)
             {
                 if (wall[i].x == wall[wall[i].point2].x)
                     if (wall[i].y == wall[wall[i].point2].y)
-                        if (sector[sectorofwall((short)i)].wallnum > 3)
+                        if (sector[sectorofwall((int16_t)i)].wallnum > 3)
                             if (sector[sectorofwall(wall[i].point2)].wallnum > 3)
                                 if (!(wall[i].nextwall == -1 ||
                                         (sector[sectorofwall(wall[i].nextwall)].wallnum > 3 &&
@@ -2845,13 +2845,13 @@ void overheadeditor(void)
             {
                 if (wall[i].x == wall[wall[i].point2].x)
                     if (wall[i].y == wall[wall[i].point2].y)
-                        if (sector[sectorofwall((short)i)].wallnum > 3)
+                        if (sector[sectorofwall((int16_t)i)].wallnum > 3)
                             if (sector[sectorofwall(wall[i].point2)].wallnum > 3)
                                 if (wall[i].nextwall == -1 ||
                                         (sector[sectorofwall(wall[i].nextwall)].wallnum > 3 &&
                                          sector[sectorofwall(wall[wall[i].nextwall].point2)].wallnum > 3))
                                 {
-                                    deletepoint((short)i);
+                                    deletepoint((int16_t)i);
                                     printmessage16("Point deleted.");
                                     asksave = 1;
                                 }
@@ -2861,14 +2861,14 @@ void overheadeditor(void)
             {
                 if ((wall[i].x == dax) && (wall[i].y == day))
                 {
-                    checksectorpointer((short)i,sectorofwall((short)i));
-                    fixrepeats((short)i);
+                    checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
+                    fixrepeats((int16_t)i);
                     asksave = 1;
                 }
                 else if ((wall[wall[i].point2].x == dax) && (wall[wall[i].point2].y == day))
                 {
-                    checksectorpointer((short)i,sectorofwall((short)i));
-                    fixrepeats((short)i);
+                    checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
+                    fixrepeats((int16_t)i);
                     asksave = 1;
                 }
             }
@@ -3018,7 +3018,7 @@ SKIP:
                                             sprite[pointhighlight&16383].x = dax;
                                             sprite[pointhighlight&16383].y = day;
                                             if (sprite[pointhighlight&16383].sectnum != i)
-                                                changespritesect(pointhighlight&16383,(short)i);
+                                                changespritesect(pointhighlight&16383,(int16_t)i);
                                             break;
                                         }
                         }
@@ -3241,10 +3241,10 @@ SKIP:
                             }
                         }
 
-                        deletesector((short)joinsector[0]);
+                        deletesector((int16_t)joinsector[0]);
                         if (joinsector[0] < joinsector[1])
                             joinsector[1]--;
-                        deletesector((short)joinsector[1]);
+                        deletesector((int16_t)joinsector[1]);
                         printmessage16("Sectors joined.");
                     }
                 }
@@ -3414,7 +3414,7 @@ SKIP:
                     {
                         if (wall[j].nextwall >= 0)
                             checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                        checksectorpointer((short)j,highlightsector[i]);
+                        checksectorpointer((int16_t)j,highlightsector[i]);
                     }
                     highlightsector[i] = numsectors+i;
                 }
@@ -3472,7 +3472,7 @@ SKIP:
             tempint2 = dmulscale4(y1-y2,x1-x3,y1-y3,x2-x1);
             if (tempint2 != 0)
             {
-                int pointsize = 2;
+                int32_t pointsize = 2;
 
                 centerx = (((x1+x2) + scale(y1-y2,tempint1,tempint2))>>1);
                 centery = (((y1+y2) + scale(x2-x1,tempint1,tempint2))>>1);
@@ -3600,7 +3600,7 @@ SKIP:
                                             }
                                     if (m >= 0)
                                         if ((wall[wall[k].point2].x != mousxplc) || (wall[wall[k].point2].y != mousyplc))
-                                            if ((wall[lastwall((short)k)].x != mousxplc) || (wall[lastwall((short)k)].y != mousyplc))
+                                            if ((wall[lastwall((int16_t)k)].x != mousxplc) || (wall[lastwall((int16_t)k)].y != mousyplc))
                                             {
                                                 split = 1;
                                                 splitsect = i;
@@ -3680,7 +3680,7 @@ SKIP:
                                 wall[i].cstat = 0;
                                 wall[i].shade = 0;
                                 wall[i].yrepeat = 8;
-                                fixrepeats((short)i);
+                                fixrepeats((int16_t)i);
                                 wall[i].picnum = 0;
                                 wall[i].overpicnum = 0;
                                 wall[i].nextsector = -1;
@@ -3721,7 +3721,7 @@ SKIP:
                                 wall[i].cstat = wall[suckwall+j].cstat&~(1+16+32+64);
                                 wall[i].shade = wall[suckwall+j].shade;
                                 wall[i].yrepeat = wall[suckwall+j].yrepeat;
-                                fixrepeats((short)i);
+                                fixrepeats((int16_t)i);
                                 wall[i].picnum = wall[suckwall+j].picnum;
                                 wall[i].overpicnum = wall[suckwall+j].overpicnum;
 
@@ -3760,10 +3760,10 @@ SKIP:
                             wall[i].cstat = wall[suckwall].cstat;
                             wall[i].shade = wall[suckwall].shade;
                             wall[i].yrepeat = wall[suckwall].yrepeat;
-                            fixrepeats((short)i);
+                            fixrepeats((int16_t)i);
                             wall[i].picnum = wall[suckwall].picnum;
                             wall[i].overpicnum = wall[suckwall].overpicnum;
-                            checksectorpointer((short)i,(short)numsectors);
+                            checksectorpointer((int16_t)i,(int16_t)numsectors);
                         }
                         headspritesect[numsectors] = -1;
                         numsectors++;
@@ -3782,7 +3782,7 @@ SKIP:
                             if (wall[k].y == wall[newnumwalls-1].y)
                             {
                                 bad = 0;
-                                if (loopnumofsector(splitsect,splitstartwall) != loopnumofsector(splitsect,(short)k))
+                                if (loopnumofsector(splitsect,splitstartwall) != loopnumofsector(splitsect,(int16_t)k))
                                     bad = 1;
 
                                 if (bad == 0)
@@ -3798,7 +3798,7 @@ SKIP:
                                         wall[i].cstat = wall[startwall].cstat;
                                         wall[i].shade = wall[startwall].shade;
                                         wall[i].yrepeat = wall[startwall].yrepeat;
-                                        fixrepeats((short)i);
+                                        fixrepeats((int16_t)i);
                                         wall[i].picnum = wall[startwall].picnum;
                                         wall[i].overpicnum = wall[startwall].overpicnum;
 
@@ -3823,7 +3823,7 @@ SKIP:
                                     i = loopnum;
                                     for (j=startwall;j<=endwall;j++)
                                     {
-                                        k = loopnumofsector(splitsect,(short)j);
+                                        k = loopnumofsector(splitsect,(int16_t)j);
                                         if ((k != i) && (k != loopnum))
                                         {
                                             i = k;
@@ -3869,7 +3869,7 @@ SKIP:
                                     i = loopnum;
                                     for (j=startwall;j<=endwall;j++)
                                     {
-                                        k = loopnumofsector(splitsect,(short)j);
+                                        k = loopnumofsector(splitsect,(int16_t)j);
                                         if ((k != i) && (k != loopnum))
                                         {
                                             i = k;
@@ -3951,7 +3951,7 @@ SKIP:
                                     {
                                         if (wall[j].nextwall >= 0)
                                             checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                                        checksectorpointer((short)j,sectorofwall((short)j));
+                                        checksectorpointer((int16_t)j,sectorofwall((int16_t)j));
                                     }
 
                                     //k now safe to use as temp
@@ -3982,7 +3982,7 @@ SKIP:
                                         wall[i].cstat = wall[startwall].cstat;
                                         wall[i].shade = wall[startwall].shade;
                                         wall[i].yrepeat = wall[startwall].yrepeat;
-                                        fixrepeats((short)i);
+                                        fixrepeats((int16_t)i);
                                         wall[i].picnum = wall[startwall].picnum;
                                         wall[i].overpicnum = wall[startwall].overpicnum;
 
@@ -4028,7 +4028,7 @@ SKIP:
                                     i = loopnum;
                                     for (j=startwall;j<=endwall;j++)
                                     {
-                                        k = loopnumofsector(splitsect,(short)j);
+                                        k = loopnumofsector(splitsect,(int16_t)j);
                                         if ((k != i) && (k != loopnumofsector(splitsect,splitstartwall)) && (k != loopnumofsector(splitsect,splitendwall)))
                                         {
                                             i = k;
@@ -4088,7 +4088,7 @@ SKIP:
                                     {
                                         if (wall[j].nextwall >= 0)
                                             checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                                        checksectorpointer((short)j,numsectors-1);
+                                        checksectorpointer((int16_t)j,numsectors-1);
                                     }
 
                                     newnumwalls = -1;
@@ -4127,7 +4127,7 @@ SKIP:
                     startwall = sector[i].wallptr;
                     endwall = startwall + sector[i].wallnum;
                     for (j=startwall;j<endwall;j++)
-                        checksectorpointer((short)j,(short)i);
+                        checksectorpointer((int16_t)j,(int16_t)i);
                 }
                 printmessage16("ALL POINTERS CHECKED!");
                 asksave = 1;
@@ -4207,7 +4207,7 @@ SKIP:
                             }
                     if (k == 0)
                     {
-                        deletesector((short)i);
+                        deletesector((int16_t)i);
                         highlightsectorcnt = -1;
                         printmessage16("Sector deleted.");
                     }
@@ -4250,7 +4250,7 @@ SKIP:
                     {
                         if (wall[j].nextwall >= 0)
                             checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                        checksectorpointer((short)j,highlightsector[i]);
+                        checksectorpointer((int16_t)j,highlightsector[i]);
                     }
                     highlightsector[i] = numsectors+i;
                 }
@@ -4282,7 +4282,7 @@ SKIP:
             }
             else if (linehighlight >= 0)
             {
-                int wallsdrawn = newnumwalls-numwalls;
+                int32_t wallsdrawn = newnumwalls-numwalls;
 
                 if (newnumwalls != -1)
                 {
@@ -4291,7 +4291,7 @@ SKIP:
                 }
                 else wallsdrawn = -1;
 
-                getclosestpointonwall(mousxplc,mousyplc,(int)linehighlight,&dax,&day);
+                getclosestpointonwall(mousxplc,mousyplc,(int32_t)linehighlight,&dax,&day);
                 adjustmark(&dax,&day,newnumwalls);
                 insertpoint(linehighlight,dax,day);
                 printmessage16("Point inserted.");
@@ -4302,20 +4302,20 @@ SKIP:
                     if (wall[i].x == wall[wall[i].point2].x)
                         if (wall[i].y == wall[wall[i].point2].y)
                         {
-                            deletepoint((short)i);
+                            deletepoint((int16_t)i);
                             j++;
                         }
                 for (i=0;i<numwalls;i++)       //make new red lines?
                 {
                     if ((wall[i].x == dax) && (wall[i].y == day))
                     {
-                        checksectorpointer((short)i,sectorofwall((short)i));
-                        fixrepeats((short)i);
+                        checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
+                        fixrepeats((int16_t)i);
                     }
                     else if ((wall[wall[i].point2].x == dax) && (wall[wall[i].point2].y == day))
                     {
-                        checksectorpointer((short)i,sectorofwall((short)i));
-                        fixrepeats((short)i);
+                        checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
+                        fixrepeats((int16_t)i);
                     }
                 }
                 //if (j != 0)
@@ -4558,7 +4558,7 @@ CANCEL:
                                 for (i=0;i<highlightsectorcnt;i++)
                                 {
                                     j -= sector[highlightsector[i]].wallnum;
-                                    copysector(highlightsector[i],(short)(MAXSECTORS-highlightsectorcnt+i),(short)j,0);
+                                    copysector(highlightsector[i],(int16_t)(MAXSECTORS-highlightsectorcnt+i),(int16_t)j,0);
                                 }
 
                                 //Put sprites to end of list
@@ -4625,7 +4625,7 @@ CANCEL:
                                     //Re-attach sectors&walls
                                     for (i=0;i<highlightsectorcnt;i++)
                                     {
-                                        copysector((short)(MAXSECTORS-highlightsectorcnt+i),numsectors,numwalls,0);
+                                        copysector((int16_t)(MAXSECTORS-highlightsectorcnt+i),numsectors,numwalls,0);
                                         highlightsector[i] = numsectors;
                                         numwalls += sector[numsectors].wallnum;
                                         numsectors++;
@@ -4659,7 +4659,7 @@ CANCEL:
                                         {
                                             if (wall[j].nextwall >= 0)
                                                 checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                                            checksectorpointer((short)j,highlightsector[i]);
+                                            checksectorpointer((int16_t)j,highlightsector[i]);
                                         }
                                     }
 
@@ -4736,7 +4736,7 @@ CANCEL:
                     }
                     if (bad == 2)
                     {
-                        char *f;int res;
+                        char *f;int32_t res;
                         keystatus[0x1c] = 0;
 
                         boardfilename[i] = '.';
@@ -4774,7 +4774,7 @@ CANCEL:
                 else if (ch == 's' || ch == 'S')  //S
                 {
                     char *f;
-                    int res;
+                    int32_t res;
                     bad = 0;
                     printmessage16("Saving board...");
                     showframe(1);
@@ -4888,7 +4888,7 @@ CANCEL:
         {
             if (wall[j].nextwall >= 0)
                 checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-            checksectorpointer((short)j,highlightsector[i]);
+            checksectorpointer((int16_t)j,highlightsector[i]);
         }
     }
 
@@ -4912,7 +4912,7 @@ CANCEL:
     searchy = scale(searchy,ydimgame,ydim2d-STATUS2DSIZ);
 }
 
-void getpoint(int searchxe, int searchye, int *x, int *y)
+void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y)
 {
     if (posx <= -editorgridextent) posx = -editorgridextent;
     if (posx >= editorgridextent) posx = editorgridextent;
@@ -4928,9 +4928,9 @@ void getpoint(int searchxe, int searchye, int *x, int *y)
     if (*y >= editorgridextent) *y = editorgridextent;
 }
 
-int getlinehighlight(int xplc, int yplc, int line)
+int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
 {
-    int i, dst, dist, closest, x1, y1, x2, y2, nx, ny;
+    int32_t i, dst, dist, closest, x1, y1, x2, y2, nx, ny;
 
     if (numwalls == 0)
         return(-1);
@@ -4964,9 +4964,9 @@ int getlinehighlight(int xplc, int yplc, int line)
     return(closest);
 }
 
-int getpointhighlight(int xplc, int yplc, int point)
+int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
 {
-    int i, dst, dist = 512, closest = -1;
+    int32_t i, dst, dist = 512, closest = -1;
 
     if (numwalls == 0)
         return(-1);
@@ -4995,9 +4995,9 @@ int getpointhighlight(int xplc, int yplc, int point)
     return(closest);
 }
 
-int adjustmark(int *xplc, int *yplc, short danumwalls)
+int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls)
 {
-    int i, dst, dist, dax, day, pointlockdist;
+    int32_t i, dst, dist, dax, day, pointlockdist;
 
     if (danumwalls < 0)
         danumwalls = numwalls;
@@ -5031,9 +5031,9 @@ int adjustmark(int *xplc, int *yplc, short danumwalls)
     return(0);
 }
 
-int checkautoinsert(int dax, int day, short danumwalls)
+int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls)
 {
-    int i, x1, y1, x2, y2;
+    int32_t i, x1, y1, x2, y2;
 
     if (danumwalls < 0)
         danumwalls = numwalls;
@@ -5054,10 +5054,10 @@ int checkautoinsert(int dax, int day, short danumwalls)
     return(0);
 }
 
-int clockdir(short wallstart)   //Returns: 0 is CW, 1 is CCW
+int32_t clockdir(int16_t wallstart)   //Returns: 0 is CW, 1 is CCW
 {
-    short i, themin;
-    int minx, tempint, x0, x1, x2, y0, y1, y2;
+    int16_t i, themin;
+    int32_t minx, tempint, x0, x1, x2, y0, y1, y2;
 
     minx = 0x7fffffff;
     themin = -1;
@@ -5090,9 +5090,9 @@ int clockdir(short wallstart)   //Returns: 0 is CW, 1 is CCW
         return(1);
 }
 
-void flipwalls(short numwalls, short newnumwalls)
+void flipwalls(int16_t numwalls, int16_t newnumwalls)
 {
-    int i, j, nume, tempint;
+    int32_t i, j, nume, tempint;
 
     nume = newnumwalls-numwalls;
 
@@ -5104,45 +5104,45 @@ void flipwalls(short numwalls, short newnumwalls)
     }
 }
 
-void insertpoint(short linehighlight, int dax, int day)
+void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
 {
-    short sucksect;
-    int i, j, k;
+    int16_t sucksect;
+    int32_t i, j, k;
 
     j = linehighlight;
-    sucksect = sectorofwall((short)j);
+    sucksect = sectorofwall((int16_t)j);
 
     sector[sucksect].wallnum++;
     for (i=sucksect+1;i<numsectors;i++)
         sector[i].wallptr++;
 
-    movewalls((int)j+1,+1L);
+    movewalls((int32_t)j+1,+1L);
     Bmemcpy(&wall[j+1],&wall[j],sizeof(walltype));
 
     wall[j].point2 = j+1;
     wall[j+1].x = dax;
     wall[j+1].y = day;
-    fixrepeats((short)j);
-    fixrepeats((short)j+1);
+    fixrepeats((int16_t)j);
+    fixrepeats((int16_t)j+1);
 
     if (wall[j].nextwall >= 0)
     {
         k = wall[j].nextwall;
 
-        sucksect = sectorofwall((short)k);
+        sucksect = sectorofwall((int16_t)k);
 
         sector[sucksect].wallnum++;
         for (i=sucksect+1;i<numsectors;i++)
             sector[i].wallptr++;
 
-        movewalls((int)k+1,+1L);
+        movewalls((int32_t)k+1,+1L);
         Bmemcpy(&wall[k+1],&wall[k],sizeof(walltype));
 
         wall[k].point2 = k+1;
         wall[k+1].x = dax;
         wall[k+1].y = day;
-        fixrepeats((short)k);
-        fixrepeats((short)k+1);
+        fixrepeats((int16_t)k);
+        fixrepeats((int16_t)k+1);
 
         j = wall[k].nextwall;
         wall[j].nextwall = k+1;
@@ -5152,9 +5152,9 @@ void insertpoint(short linehighlight, int dax, int day)
     }
 }
 
-void deletepoint(short point)
+void deletepoint(int16_t point)
 {
-    int i, j, k, sucksect;
+    int32_t i, j, k, sucksect;
 
     sucksect = sectorofwall(point);
 
@@ -5176,14 +5176,14 @@ void deletepoint(short point)
         wall[wall[point].nextwall].nextwall = -1;
         wall[wall[point].nextwall].nextsector = -1;
     }
-    movewalls((int)point,-1L);
+    movewalls((int32_t)point,-1L);
 
-    checksectorpointer((short)j,(short)sucksect);
+    checksectorpointer((int16_t)j,(int16_t)sucksect);
 }
 
-int deletesector(short sucksect)
+int32_t deletesector(int16_t sucksect)
 {
-    int i, j, k, nextk, startwall, endwall;
+    int32_t i, j, k, nextk, startwall, endwall;
 
     while (headspritesect[sucksect] >= 0)
         deletesprite(headspritesect[sucksect]);
@@ -5199,7 +5199,7 @@ int deletesector(short sucksect)
         while (k != -1)
         {
             nextk = nextspritesect[k];
-            changespritesect((short)k,(short)i);
+            changespritesect((int16_t)k,(int16_t)i);
             k = nextk;
         }
 
@@ -5224,11 +5224,11 @@ int deletesector(short sucksect)
 
 void fixspritesectors(void)
 {
-    int i, j, dax, day, daz;
+    int32_t i, j, dax, day, daz;
 
     for (i=numsectors-1;i>=0;i--)
         if ((sector[i].wallnum <= 0) || (sector[i].wallptr >= numwalls))
-            deletesector((short)i);
+            deletesector((int16_t)i);
 
     for (i=0;i<MAXSPRITES;i++)
         if (sprite[i].statnum < MAXSTATUS)
@@ -5240,20 +5240,20 @@ void fixspritesectors(void)
                 daz = ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
 
                 for (j=0;j<numsectors;j++)
-                    if (inside(dax,day,(short)j) == 1)
+                    if (inside(dax,day,(int16_t)j) == 1)
                         if (sprite[i].z >= getceilzofslope(j,dax,day))
                             if (sprite[i].z-daz <= getflorzofslope(j,dax,day))
                             {
-                                changespritesect((short)i,(short)j);
+                                changespritesect((int16_t)i,(int16_t)j);
                                 break;
                             }
             }
         }
 }
 
-int movewalls(int start, int offs)
+int32_t movewalls(int32_t start, int32_t offs)
 {
-    int i;
+    int32_t i;
 
     if (offs < 0)  //Delete
     {
@@ -5274,9 +5274,9 @@ int movewalls(int start, int offs)
     return(0);
 }
 
-int checksectorpointer(short i, short sectnum)
+int32_t checksectorpointer(int16_t i, int16_t sectnum)
 {
-    int j, k, startwall, endwall, x1, y1, x2, y2;
+    int32_t j, k, startwall, endwall, x1, y1, x2, y2;
 
     x1 = wall[i].x;
     y1 = wall[i].y;
@@ -5313,19 +5313,19 @@ int checksectorpointer(short i, short sectnum)
     return(0);
 }
 
-void fixrepeats(short i)
+void fixrepeats(int16_t i)
 {
-    int dax, day, dist;
+    int32_t dax, day, dist;
 
     dax = wall[wall[i].point2].x-wall[i].x;
     day = wall[wall[i].point2].y-wall[i].y;
     dist = ksqrt(dax*dax+day*day);
     dax = wall[i].xrepeat; day = wall[i].yrepeat;
-    wall[i].xrepeat = (char)min(max(mulscale10(dist,day),1),255);
+    wall[i].xrepeat = (uint8_t)min(max(mulscale10(dist,day),1),255);
 }
 
 
-int overridepm16y = -1;
+int32_t overridepm16y = -1;
 
 void clearmidstatbar16(void)
 {
@@ -5342,10 +5342,10 @@ void clearmidstatbar16(void)
     enddrawing();
 }
 
-short loopinside(int x, int y, short startwall)
+int16_t loopinside(int32_t x, int32_t y, int16_t startwall)
 {
-    int x1, y1, x2, y2, tempint;
-    short i, cnt;
+    int32_t x1, y1, x2, y2, tempint;
+    int16_t i, cnt;
 
     cnt = clockdir(startwall);
     i = startwall;
@@ -5370,9 +5370,9 @@ short loopinside(int x, int y, short startwall)
     return(cnt);
 }
 
-int numloopsofsector(short sectnum)
+int32_t numloopsofsector(int16_t sectnum)
 {
-    int i, numloops, startwall, endwall;
+    int32_t i, numloops, startwall, endwall;
 
     numloops = 0;
     startwall = sector[sectnum].wallptr;
@@ -5382,12 +5382,12 @@ int numloopsofsector(short sectnum)
     return(numloops);
 }
 
-int _getnumber16(char *namestart, int num, int maxnumber, char sign, void *(func)(int))
+int32_t _getnumber16(char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t))
 {
     char buffer[80], ch;
-    int n, danum, oldnum;
+    int32_t n, danum, oldnum;
 
-    danum = (int)num;
+    danum = (int32_t)num;
     oldnum = danum;
     bflushchars();
     while (keystatus[0x1] == 0)
@@ -5405,7 +5405,7 @@ int _getnumber16(char *namestart, int num, int maxnumber, char sign, void *(func
         printmessage16(buffer);
         if (func != NULL)
         {
-            Bsprintf(buffer,"^011%s",(char *)func((int)danum));
+            Bsprintf(buffer,"^011%s",(char *)func((int32_t)danum));
             printext16(200L-24, ydim-STATUS2DSIZ+20L, editorcolors[9], editorcolors[0], buffer, 0);
         }
 
@@ -5443,10 +5443,10 @@ int _getnumber16(char *namestart, int num, int maxnumber, char sign, void *(func
     return(oldnum);
 }
 
-int _getnumber256(char *namestart, int num, int maxnumber, char sign, void *(func)(int))
+int32_t _getnumber256(char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t))
 {
     char buffer[80], ch;
-    int n, danum, oldnum;
+    int32_t n, danum, oldnum;
 
     danum = num;
     oldnum = danum;
@@ -5481,7 +5481,7 @@ int _getnumber256(char *namestart, int num, int maxnumber, char sign, void *(fun
         printmessage256(0, 0, buffer);
         if (func != NULL)
         {
-            Bsprintf(buffer,"%s",(char *)func((int)danum));
+            Bsprintf(buffer,"%s",(char *)func((int32_t)danum));
             printmessage256(0, 9, buffer);
         }
 
@@ -5530,7 +5530,7 @@ void clearfilenames(void)
     numfiles = numdirs = 0;
 }
 
-int getfilenames(char *path, char *kind)
+int32_t getfilenames(char *path, char *kind)
 {
     CACHE1D_FIND_REC *r;
 
@@ -5552,7 +5552,7 @@ int getfilenames(char *path, char *kind)
 // copied off menuselect
 
 const char *g_oldpath=NULL;
-int menuselect_pk(int direction) // 20080104: jump to next (direction!=0) or prev (direction==0) file
+int32_t menuselect_pk(int32_t direction) // 20080104: jump to next (direction!=0) or prev (direction==0) file
 {
     const char *chptr;
 
@@ -5590,14 +5590,14 @@ int menuselect_pk(int direction) // 20080104: jump to next (direction!=0) or pre
 }
 // ^^^ PK ------------------------------------
 
-int menuselect(void)
+int32_t menuselect(void)
 {
-    int listsize = (ydim16-32)/8;
-    int i;
+    int32_t listsize = (ydim16-32)/8;
+    int32_t i;
     char ch, buffer[96], /*PK*/ *chptr;
     static char oldpath[BMAX_PATH];
     CACHE1D_FIND_REC *dir;
-    int bakpathsearchmode = pathsearchmode;
+    int32_t bakpathsearchmode = pathsearchmode;
 
     g_oldpath=oldpath; //PK: need it in menuselect_pk
 
@@ -5652,7 +5652,7 @@ int menuselect(void)
             }
             for (i=0; ((i<listsize) && dir); i++, dir=dir->next)
             {
-                int c = (dir->type == CACHE1D_FIND_DIR ? 2 : 3); //PK
+                int32_t c = (dir->type == CACHE1D_FIND_DIR ? 2 : 3); //PK
                 memset(buffer,0,sizeof(buffer));
                 strncpy(buffer,dir->name,25);
                 if (strlen(buffer) == 25)
@@ -5864,11 +5864,11 @@ int menuselect(void)
     return(-1);
 }
 
-int fillsector(short sectnum, char fillcolor)
+int32_t fillsector(int16_t sectnum, char fillcolor)
 {
-    int x1, x2, y1, y2, sy, y, tempint;
-    int lborder, rborder, uborder, dborder, miny, maxy, dax;
-    short z, zz, startwall, endwall, fillcnt;
+    int32_t x1, x2, y1, y2, sy, y, tempint;
+    int32_t lborder, rborder, uborder, dborder, miny, maxy, dax;
+    int16_t z, zz, startwall, endwall, fillcnt;
 
     lborder = 0; rborder = xdim;
     uborder = 0; dborder = ydim16;
@@ -5935,10 +5935,10 @@ int fillsector(short sectnum, char fillcolor)
     return(0);
 }
 
-short whitelinescan(short dalinehighlight)
+int16_t whitelinescan(int16_t dalinehighlight)
 {
-    int i, j, k;
-    short sucksect, newnumwalls;
+    int32_t i, j, k;
+    int16_t sucksect, newnumwalls;
 
     sucksect = sectorofwall(dalinehighlight);
 
@@ -5949,7 +5949,7 @@ short whitelinescan(short dalinehighlight)
     newnumwalls = numwalls;
     do
     {
-        j = lastwall((short)i);
+        j = lastwall((int16_t)i);
         if (wall[j].nextwall >= 0)
         {
             j = wall[j].point2;
@@ -5968,7 +5968,7 @@ short whitelinescan(short dalinehighlight)
         Bmemcpy(&wall[newnumwalls],&wall[i],sizeof(walltype));
 
         wall[newnumwalls].nextwall = j;
-        wall[newnumwalls].nextsector = sectorofwall((short)j);
+        wall[newnumwalls].nextsector = sectorofwall((int16_t)j);
 
         newnumwalls++;
         sector[numsectors].wallnum++;
@@ -6000,10 +6000,10 @@ short whitelinescan(short dalinehighlight)
 	bufplc = ((bufplc+1)&4095);                  \
 }                                               \
 
-int loadnames(void)
+int32_t loadnames(void)
 {
 	char buffer[80], firstch, ch;
-	int fil, i, num, buffercnt, bufplc;
+	int32_t fil, i, num, buffercnt, bufplc;
 
 	if ((fil = open("names.h",O_BINARY|O_RDWR,S_IREAD)) == -1) return(-1);
 	bufplc = 0;
@@ -6039,10 +6039,10 @@ int loadnames(void)
 }
 */
 
-int loadnames(void)
+int32_t loadnames(void)
 {
     char buffer[1024], *p, *name, *number, *endptr;
-    int num, syms=0, line=0, a, comment=0;
+    int32_t num, syms=0, line=0, a, comment=0;
     BFILE *fp;
 
     fp = fopenfrompath("NAMES.H","r");
@@ -6160,10 +6160,10 @@ badline:
     return 0;
 }
 
-void printcoords16(int posxe, int posye, short ange)
+void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
 {
     char snotbuf[80];
-    int i,m;
+    int32_t i,m;
 
     Bsprintf(snotbuf,"x:%d y:%d ang:%d",posxe,posye,ange);
     i = 0;
@@ -6200,7 +6200,7 @@ void printcoords16(int posxe, int posye, short ange)
 
 void updatenumsprites(void)
 {
-    int i;
+    int32_t i;
 
     numsprites = 0;
     for (i=0;i<MAXSPRITES;i++)
@@ -6208,9 +6208,9 @@ void updatenumsprites(void)
             numsprites++;
 }
 
-void copysector(short soursector, short destsector, short deststartwall, char copystat)
+void copysector(int16_t soursector, int16_t destsector, int16_t deststartwall, char copystat)
 {
-    short j, k, m, newnumwalls, startwall, endwall;
+    int16_t j, k, m, newnumwalls, startwall, endwall;
 
     newnumwalls = deststartwall;  //erase existing sector fragments
 
@@ -6262,7 +6262,7 @@ void copysector(short soursector, short destsector, short deststartwall, char co
     }
 }
 
-void showsectordata(short sectnum)
+void showsectordata(int16_t sectnum)
 {
     char snotbuf[80];
 
@@ -6318,9 +6318,9 @@ void showsectordata(short sectnum)
     printext16(400,ydim-STATUS2DSIZ+96,editorcolors[11],-1,snotbuf,0);
 }
 
-void showwalldata(short wallnum)
+void showwalldata(int16_t wallnum)
 {
-    int dax, day, dist;
+    int32_t dax, day, dist;
     char snotbuf[80];
 
     Bsprintf(snotbuf,"^10Wall %d ^O(F8 to edit)",wallnum);
@@ -6372,12 +6372,12 @@ void showwalldata(short wallnum)
     Bsprintf(snotbuf,"Wall length: %d",dist);
     printext16(400,ydim-STATUS2DSIZ+96,editorcolors[11],-1,snotbuf,0);
 
-    dax = (int)sectorofwall(wallnum);
+    dax = (int32_t)sectorofwall(wallnum);
     Bsprintf(snotbuf,"Pixel height: %d",(sector[dax].floorz-sector[dax].ceilingz)>>8);
     printext16(400,ydim-STATUS2DSIZ+104,editorcolors[11],-1,snotbuf,0);
 }
 
-void showspritedata(short spritenum)
+void showspritedata(int16_t spritenum)
 {
     char snotbuf[80];
 
@@ -6433,7 +6433,7 @@ void showspritedata(short spritenum)
 
 void keytimerstuff(void)
 {
-    static int ltotalclock=0;
+    static int32_t ltotalclock=0;
     if (totalclock == ltotalclock) return;
     ltotalclock=totalclock;
 
@@ -6465,7 +6465,7 @@ void keytimerstuff(void)
 
 void _printmessage16(const char *fmt, ...)
 {
-    int i, ybase;
+    int32_t i, ybase;
     char snotbuf[60];
     char tmpstr[64];
     va_list va;
@@ -6500,10 +6500,10 @@ void _printmessage16(const char *fmt, ...)
     enddrawing();
 }
 
-void printmessage256(int x, int y, char *name)
+void printmessage256(int32_t x, int32_t y, char *name)
 {
     char snotbuf[64];
-    int i;
+    int32_t i;
 
     i = 0;
     while ((name[i] != 0) && (i < 62))
@@ -6522,7 +6522,7 @@ void printmessage256(int x, int y, char *name)
 }
 
 //Find closest point (*dax, *day) on wall (dawall) to (x, y)
-void getclosestpointonwall(int x, int y, int dawall, int *nx, int *ny)
+void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny)
 {
     walltype *wal;
     int64 i, j, dx, dy;
@@ -6541,7 +6541,7 @@ void getclosestpointonwall(int x, int y, int dawall, int *nx, int *ny)
 
 void initcrc(void)
 {
-    int i, j, k, a;
+    int32_t i, j, k, a;
 
     for (j=0;j<256;j++)     //Calculate CRC table
     {
@@ -6560,11 +6560,11 @@ void initcrc(void)
 
 static char visited[MAXWALLS];
 
-int GetWallZPeg(int nWall)
+int32_t GetWallZPeg(int32_t nWall)
 {
-    int z=0, nSector, nNextSector;
+    int32_t z=0, nSector, nNextSector;
 
-    nSector = sectorofwall((short)nWall);
+    nSector = sectorofwall((int16_t)nWall);
     nNextSector = wall[nWall].nextsector;
     if (nNextSector == -1)
     {
@@ -6588,25 +6588,25 @@ int GetWallZPeg(int nWall)
     return(z);
 }
 
-void AlignWalls(int nWall0, int z0, int nWall1, int z1, int nTile)
+void AlignWalls(int32_t nWall0, int32_t z0, int32_t nWall1, int32_t z1, int32_t nTile)
 {
-    int n;
+    int32_t n;
 
     //do the x alignment
     wall[nWall1].cstat &= ~0x0108;    //Set to non-flip
-    wall[nWall1].xpanning = (char)((wall[nWall0].xpanning+(wall[nWall0].xrepeat<<3))%tilesizx[nTile]);
+    wall[nWall1].xpanning = (uint8_t)((wall[nWall0].xpanning+(wall[nWall0].xrepeat<<3))%tilesizx[nTile]);
 
     z1 = GetWallZPeg(nWall1);
 
     for (n=(picsiz[nTile]>>4);((1<<n)<tilesizy[nTile]);n++);
 
     wall[nWall1].yrepeat = wall[nWall0].yrepeat;
-    wall[nWall1].ypanning = (char)(wall[nWall0].ypanning+(((z1-z0)*wall[nWall0].yrepeat)>>(n+3)));
+    wall[nWall1].ypanning = (uint8_t)(wall[nWall0].ypanning+(((z1-z0)*wall[nWall0].yrepeat)>>(n+3)));
 }
 
-void AutoAlignWalls(int nWall0, int ply)
+void AutoAlignWalls(int32_t nWall0, int32_t ply)
 {
-    int z0, z1, nTile, nWall1, branch, visible, nNextSector, nSector;
+    int32_t z0, z1, nTile, nWall1, branch, visible, nNextSector, nSector;
 
     nTile = wall[nWall0].picnum;
     branch = 0;
@@ -6644,12 +6644,12 @@ void AutoAlignWalls(int nWall0, int ply)
             {
                 //ignore two sided walls that have no visible face
                 nSector = wall[wall[nWall1].nextwall].nextsector;
-                if (getceilzofslope((short)nSector,wall[nWall1].x,wall[nWall1].y) <
-                        getceilzofslope((short)nNextSector,wall[nWall1].x,wall[nWall1].y))
+                if (getceilzofslope((int16_t)nSector,wall[nWall1].x,wall[nWall1].y) <
+                        getceilzofslope((int16_t)nNextSector,wall[nWall1].x,wall[nWall1].y))
                     visible = 1;
 
-                if (getflorzofslope((short)nSector,wall[nWall1].x,wall[nWall1].y) >
-                        getflorzofslope((short)nNextSector,wall[nWall1].x,wall[nWall1].y))
+                if (getflorzofslope((int16_t)nSector,wall[nWall1].x,wall[nWall1].y) >
+                        getflorzofslope((int16_t)nNextSector,wall[nWall1].x,wall[nWall1].y))
                     visible = 1;
             }
 

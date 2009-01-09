@@ -30,19 +30,19 @@ enum SDLSOUND_ERRORS {
 	SDLSOUND_Ok = 0
 };
 
-extern int SDLSOUND_ErrorCode;
+extern int32_t SDLSOUND_ErrorCode;
 
-char *SDLSOUND_ErrorString(int);
+char *SDLSOUND_ErrorString(int32_t);
 
-int DisableInterrupts(void);	// simulated using critical sections
-int RestoreInterrupts(int);
+int32_t DisableInterrupts(void);	// simulated using critical sections
+int32_t RestoreInterrupts(int32_t);
 
-int SDLSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int buffersize);
-int SDLSOUND_Shutdown(void);
+int32_t SDLSOUND_Init(int32_t soundcard, int32_t mixrate, int32_t numchannels, int32_t samplebits, int32_t buffersize);
+int32_t SDLSOUND_Shutdown(void);
 
-int SDLSOUND_SetMixMode(int mode);
-int SDLSOUND_BeginBufferedPlayback(char *BufferStart, int (*CallBackFunc)(int), int buffersize, int numdivisions);
-int SDLSOUND_StopPlayback(void);
+int32_t SDLSOUND_SetMixMode(int32_t mode);
+int32_t SDLSOUND_BeginBufferedPlayback(char *BufferStart, int32_t (*CallBackFunc)(int32_t), int32_t buffersize, int32_t numdivisions);
+int32_t SDLSOUND_StopPlayback(void);
 
 #endif	// __sdlout_h__
 

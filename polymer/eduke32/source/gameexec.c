@@ -36,10 +36,10 @@ void G_SaveMapState(mapstate_t *save);
 
 vmstate_t vm;
 
-int g_errorLineNum;
-int g_tw;
+int32_t g_errorLineNum;
+int32_t g_tw;
 
-static int X_DoExecute(void);
+static int32_t X_DoExecute(void);
 
 #include "gamestructures.c"
 
@@ -62,7 +62,7 @@ void X_ScriptInfo(void)
     }
 }
 
-void X_OnEvent(int iEventID, int iActor, int iPlayer, int lDist)
+void X_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist)
 {
     if (iEventID<0 || iEventID >= MAXGAMEEVENTS)
     {
@@ -115,10 +115,10 @@ void X_OnEvent(int iEventID, int iActor, int iPlayer, int lDist)
     }
 }
 
-static int A_CheckSquished(int i, int p)
+static int32_t A_CheckSquished(int32_t i, int32_t p)
 {
     sectortype *sc = &sector[SECT];
-    int squishme = 0;
+    int32_t squishme = 0;
 
     if (PN == APLAYER && ud.clipping)
         return 0;
@@ -151,7 +151,7 @@ static int A_CheckSquished(int i, int p)
 
 static void P_ForceAngle(DukePlayer_t *p)
 {
-    int n = 128-(krand()&255);
+    int32_t n = 128-(krand()&255);
 
     p->horiz += 64;
     p->return_to_center = 9;
@@ -159,12 +159,12 @@ static void P_ForceAngle(DukePlayer_t *p)
     p->rotscrnang = n>>1;
 }
 
-static int A_Dodge(spritetype *s)
+static int32_t A_Dodge(spritetype *s)
 {
-    int bx,by,bxvect,byvect,d,i;
-    int mx = s->x, my = s->y;
-    int mxvect = sintable[(s->ang+512)&2047];
-    int myvect = sintable[s->ang&2047];
+    int32_t bx,by,bxvect,byvect,d,i;
+    int32_t mx = s->x, my = s->y;
+    int32_t mxvect = sintable[(s->ang+512)&2047];
+    int32_t myvect = sintable[s->ang&2047];
 
     if (A_CheckEnemySprite(s) && s->extra <= 0) // hack
         return 0;
@@ -193,7 +193,7 @@ static int A_Dodge(spritetype *s)
     return 0;
 }
 
-int A_GetFurthestAngle(int iActor,int angs)
+int32_t A_GetFurthestAngle(int32_t iActor,int32_t angs)
 {
     spritetype *s = &sprite[iActor];
 
@@ -201,11 +201,11 @@ int A_GetFurthestAngle(int iActor,int angs)
         return(s->ang + 1024);
 
     {
-        int furthest_angle=0;
-        short hitsect,hitwall,hitspr;
-        int hx, hy, hz, d;
-        int greatestd = -(1<<30);
-        int angincs = 2048/angs,j;
+        int32_t furthest_angle=0;
+        int16_t hitsect,hitwall,hitspr;
+        int32_t hx, hy, hz, d;
+        int32_t greatestd = -(1<<30);
+        int32_t angincs = 2048/angs,j;
 
         for (j=s->ang;j<(2048+s->ang);j+=angincs)
         {
@@ -226,13 +226,13 @@ int A_GetFurthestAngle(int iActor,int angs)
     }
 }
 
-int A_FurthestVisiblePoint(int iActor,spritetype *ts,int *dax,int *day)
+int32_t A_FurthestVisiblePoint(int32_t iActor,spritetype *ts,int32_t *dax,int32_t *day)
 {
     if ((ActorExtra[iActor].temp_data[0]&63)) return -1;
     {
-        short hitsect,hitwall,hitspr, angincs;
-        int hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
-        int j;
+        int16_t hitsect,hitwall,hitspr, angincs;
+        int32_t hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
+        int32_t j;
         spritetype *s = &sprite[iActor];
 
         if (ud.multimode < 2 && ud.player_skill < 3)
@@ -261,13 +261,13 @@ int A_FurthestVisiblePoint(int iActor,spritetype *ts,int *dax,int *day)
     }
 }
 
-void A_GetZLimits(int iActor)
+void A_GetZLimits(int32_t iActor)
 {
     spritetype *s = &sprite[iActor];
 
     if (s->statnum == 10 || s->statnum == 6 || s->statnum == 2 || s->statnum == 1 || s->statnum == 4)
     {
-        int hz,lz,zr = 127L;
+        int32_t hz,lz,zr = 127L;
 
         if (s->statnum == 4)
             zr = 4L;
@@ -307,10 +307,10 @@ void A_GetZLimits(int iActor)
     }
 }
 
-void A_Fall(int iActor)
+void A_Fall(int32_t iActor)
 {
     spritetype *s = &sprite[iActor];
-    int hz,lz,c = g_spriteGravity;
+    int32_t hz,lz,c = g_spriteGravity;
 
     if (G_CheckForSpaceFloor(s->sectnum))
         c = 0;
@@ -341,7 +341,7 @@ void A_Fall(int iActor)
     }
 }
 
-int G_GetAngleDelta(int a,int na)
+int32_t G_GetAngleDelta(int32_t a,int32_t na)
 {
     a &= 2047;
     na &= 2047;
@@ -361,10 +361,10 @@ int G_GetAngleDelta(int a,int na)
     return (na-a);
 }
 
-static inline void X_AlterAng(int a)
+static inline void X_AlterAng(int32_t a)
 {
     intptr_t *moveptr = (intptr_t *)vm.g_t[1];
-    int ticselapsed = (vm.g_t[0])&31;
+    int32_t ticselapsed = (vm.g_t[0])&31;
 
     vm.g_sp->xvel += (*moveptr-vm.g_sp->xvel)/5;
     if (vm.g_sp->zvel < 648) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)/5;
@@ -374,8 +374,8 @@ static inline void X_AlterAng(int a)
 
     if (a&seekplayer)
     {
-        int aang = vm.g_sp->ang, angdif, goalang;
-        int j = g_player[vm.g_p].ps->holoduke_on;
+        int32_t aang = vm.g_sp->ang, angdif, goalang;
+        int32_t j = g_player[vm.g_p].ps->holoduke_on;
 
         // NOTE: looks like 'owner' is set to target sprite ID...
 
@@ -413,7 +413,7 @@ static inline void X_AlterAng(int a)
 
     if (ticselapsed < 1)
     {
-        int j = 2;
+        int32_t j = 2;
         if (a&furthestdir)
         {
             vm.g_sp->ang = A_GetFurthestAngle(vm.g_i,j);
@@ -429,11 +429,11 @@ static inline void X_AlterAng(int a)
 
 static void X_Move(void)
 {
-    int l;
+    int32_t l;
     intptr_t *moveptr;
-    int a = vm.g_sp->hitag, goalang, angdif;
-    int daxvel;
-    int deadflag = (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0);
+    int32_t a = vm.g_sp->hitag, goalang, angdif;
+    int32_t daxvel;
+    int32_t deadflag = (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0);
 
     if (a == -1) a = 0;
 
@@ -483,8 +483,8 @@ static void X_Move(void)
 
     if (a&face_player_smart && !deadflag)
     {
-        int newx = g_player[vm.g_p].ps->posx+(g_player[vm.g_p].ps->posxv/768);
-        int newy = g_player[vm.g_p].ps->posy+(g_player[vm.g_p].ps->posyv/768);
+        int32_t newx = g_player[vm.g_p].ps->posx+(g_player[vm.g_p].ps->posxv/768);
+        int32_t newy = g_player[vm.g_p].ps->posy+(g_player[vm.g_p].ps->posyv/768);
 
         goalang = getangle(newx-vm.g_sp->x,newy-vm.g_sp->y);
         angdif = G_GetAngleDelta(vm.g_sp->ang,goalang)>>2;
@@ -621,7 +621,7 @@ static void X_Move(void)
     }
 }
 
-static inline void X_DoConditional(int condition)
+static inline void X_DoConditional(int32_t condition)
 {
     if (condition)
     {
@@ -640,9 +640,9 @@ static inline void X_DoConditional(int condition)
     }
 }
 
-static int X_DoExecute(void)
+static int32_t X_DoExecute(void)
 {
-    int j, l, s, tw = *insptr;
+    int32_t j, l, s, tw = *insptr;
 
     if (vm.g_killitFlag) return 1;
     if (vm.g_returnFlag) return 1;
@@ -658,7 +658,7 @@ static int X_DoExecute(void)
     case CON_REDEFINEQUOTE:
         insptr++;
         {
-            int q = *insptr++, i = *insptr++;
+            int32_t q = *insptr++, i = *insptr++;
             if ((ScriptQuotes[q] == NULL || ScriptQuoteRedefinitions[i] == NULL) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "%s %d null quote\n",g_errorLineNum,keyw[g_tw],q,i);
@@ -674,7 +674,7 @@ static int X_DoExecute(void)
         {
             // syntax [gs]etplayer[<var>].x <VAR>
             // <varid> <xxxid> <varid>
-            int lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
+            int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
 
             X_AccessActiveProjectile(tw==CON_SETTHISPROJECTILE,lVar1,lLabelID,lVar2);
             break;
@@ -687,7 +687,7 @@ static int X_DoExecute(void)
     case CON_IFCANSHOOTTARGET:
         if (vm.g_x > 1024)
         {
-            short temphit, sclip = 768, angdif = 16;
+            int16_t temphit, sclip = 768, angdif = 16;
 
             if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->xrepeat > 56)
             {
@@ -959,8 +959,8 @@ static int X_DoExecute(void)
 
     case CON_SIZEAT:
         insptr++;
-        vm.g_sp->xrepeat = (char) *insptr++;
-        vm.g_sp->yrepeat = (char) *insptr++;
+        vm.g_sp->xrepeat = (uint8_t) *insptr++;
+        vm.g_sp->yrepeat = (uint8_t) *insptr++;
         break;
 
     case CON_SHOOT:
@@ -998,7 +998,7 @@ static int X_DoExecute(void)
             insptr++;break;
         }
         if (A_CheckSoundPlaying(vm.g_i,*insptr))
-            A_StopSound((short)*insptr,vm.g_i);
+            A_StopSound((int16_t)*insptr,vm.g_i);
         insptr++;
         break;
 
@@ -1010,7 +1010,7 @@ static int X_DoExecute(void)
             insptr++;break;
         }
         if (vm.g_p == screenpeek || (GametypeFlags[ud.coop]&GAMETYPE_COOPSOUND))
-            A_PlaySound((short) *insptr,g_player[screenpeek].ps->i);
+            A_PlaySound((int16_t) *insptr,g_player[screenpeek].ps->i);
         insptr++;
         break;
 
@@ -1021,7 +1021,7 @@ static int X_DoExecute(void)
             OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr);
             insptr++;break;
         }
-        A_PlaySound((short) *insptr++,vm.g_i);
+        A_PlaySound((int16_t) *insptr++,vm.g_i);
         break;
 
     case CON_TIP:
@@ -1073,7 +1073,7 @@ static int X_DoExecute(void)
             else if (vm.g_sp->zvel > 2048  && sector[vm.g_sp->sectnum].lotag != 1)
             {
                 j = vm.g_sp->sectnum;
-                pushmove(&vm.g_sp->x,&vm.g_sp->y,&vm.g_sp->z,(short*)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
+                pushmove(&vm.g_sp->x,&vm.g_sp->y,&vm.g_sp->z,(int16_t*)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
                 if (j != vm.g_sp->sectnum && j >= 0 && j < MAXSECTORS)
                     changespritesect(vm.g_i,j);
                 A_PlaySound(THUD,vm.g_i);
@@ -1154,7 +1154,7 @@ static int X_DoExecute(void)
 
     case CON_SLEEPTIME:
         insptr++;
-        ActorExtra[vm.g_i].timetosleep = (short)*insptr++;
+        ActorExtra[vm.g_i].timetosleep = (int16_t)*insptr++;
         break;
 
     case CON_PAPER:
@@ -1336,7 +1336,7 @@ static int X_DoExecute(void)
     case CON_SSP:
         insptr++;
         {
-            int var1 = Gv_GetVarX(*insptr++), var2;
+            int32_t var1 = Gv_GetVarX(*insptr++), var2;
             if (tw == CON_OPERATEACTIVATORS && *insptr == g_iThisActorID)
             {
                 var2 = vm.g_p;
@@ -1372,7 +1372,7 @@ static int X_DoExecute(void)
     case CON_CANSEESPR:
         insptr++;
         {
-            int lVar1 = Gv_GetVarX(*insptr++), lVar2 = Gv_GetVarX(*insptr++), res;
+            int32_t lVar1 = Gv_GetVarX(*insptr++), lVar2 = Gv_GetVarX(*insptr++), res;
 
             if ((lVar1<0 || lVar1>=MAXSPRITES || lVar2<0 || lVar2>=MAXSPRITES) && g_scriptSanityChecks)
             {
@@ -1391,7 +1391,7 @@ static int X_DoExecute(void)
     case CON_CHECKACTIVATORMOTION:
         insptr++;
         {
-            int var1 = Gv_GetVarX(*insptr++);
+            int32_t var1 = Gv_GetVarX(*insptr++);
 
             switch (tw)
             {
@@ -1416,7 +1416,7 @@ static int X_DoExecute(void)
     case CON_QSTRLEN:
         insptr++;
         {
-            int i=*insptr++;
+            int32_t i=*insptr++;
             j=Gv_GetVarX(*insptr++);
             if ((ScriptQuotes[j] == NULL) && g_scriptSanityChecks)
             {
@@ -1431,7 +1431,7 @@ static int X_DoExecute(void)
     case CON_HEADSPRITESTAT:
         insptr++;
         {
-            int i=*insptr++;
+            int32_t i=*insptr++;
             j=Gv_GetVarX(*insptr++);
             if ((j < 0 || j > MAXSTATUS) && g_scriptSanityChecks)
             {
@@ -1445,7 +1445,7 @@ static int X_DoExecute(void)
     case CON_PREVSPRITESTAT:
         insptr++;
         {
-            int i=*insptr++;
+            int32_t i=*insptr++;
             j=Gv_GetVarX(*insptr++);
             if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
             {
@@ -1459,7 +1459,7 @@ static int X_DoExecute(void)
     case CON_NEXTSPRITESTAT:
         insptr++;
         {
-            int i=*insptr++;
+            int32_t i=*insptr++;
             j=Gv_GetVarX(*insptr++);
             if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
             {
@@ -1473,7 +1473,7 @@ static int X_DoExecute(void)
     case CON_HEADSPRITESECT:
         insptr++;
         {
-            int i=*insptr++;
+            int32_t i=*insptr++;
             j=Gv_GetVarX(*insptr++);
             if ((j < 0 || j > numsectors) && g_scriptSanityChecks)
             {
@@ -1487,7 +1487,7 @@ static int X_DoExecute(void)
     case CON_PREVSPRITESECT:
         insptr++;
         {
-            int i=*insptr++;
+            int32_t i=*insptr++;
             j=Gv_GetVarX(*insptr++);
             if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
             {
@@ -1501,7 +1501,7 @@ static int X_DoExecute(void)
     case CON_NEXTSPRITESECT:
         insptr++;
         {
-            int i=*insptr++;
+            int32_t i=*insptr++;
             j=Gv_GetVarX(*insptr++);
             if ((j < 0 || j >= MAXSPRITES) && g_scriptSanityChecks)
             {
@@ -1515,7 +1515,7 @@ static int X_DoExecute(void)
     case CON_GETKEYNAME:
         insptr++;
         {
-            int i = Gv_GetVarX(*insptr++),
+            int32_t i = Gv_GetVarX(*insptr++),
                     f=Gv_GetVarX(*insptr++);
             j=Gv_GetVarX(*insptr++);
             if ((i<0 || i>=MAXQUOTES) && g_scriptSanityChecks)
@@ -1544,7 +1544,7 @@ static int X_DoExecute(void)
         insptr++;
         {
             char *s1,*s2;
-            int q1,q2,st,ln;
+            int32_t q1,q2,st,ln;
 
             q1 = Gv_GetVarX(*insptr++),
                  q2 = Gv_GetVarX(*insptr++);
@@ -1573,7 +1573,7 @@ static int X_DoExecute(void)
     case CON_CHANGESPRITESECT:
         insptr++;
         {
-            int i = Gv_GetVarX(*insptr++), j;
+            int32_t i = Gv_GetVarX(*insptr++), j;
             if (tw == CON_GETPNAME && *insptr == g_iThisActorID)
             {
                 j = vm.g_p;
@@ -1649,7 +1649,7 @@ static int X_DoExecute(void)
     case CON_CHANGESPRITESTAT:
         insptr++;
         {
-            int i = Gv_GetVarX(*insptr++);
+            int32_t i = Gv_GetVarX(*insptr++);
             j = Gv_GetVarX(*insptr++);
 
             if ((i<0 || i>=MAXSPRITES) && g_scriptSanityChecks)
@@ -1696,7 +1696,7 @@ static int X_DoExecute(void)
         insptr++; // skip command
         {
             // from 'level' cheat in game.c (about line 6250)
-            int volnume=Gv_GetVarX(*insptr++), levnume=Gv_GetVarX(*insptr++);
+            int32_t volnume=Gv_GetVarX(*insptr++), levnume=Gv_GetVarX(*insptr++);
 
             if ((volnume > MAXVOLUMES-1 || volnume < 0) && g_scriptSanityChecks)
             {
@@ -1729,8 +1729,8 @@ static int X_DoExecute(void)
     case CON_MYOSPAL:
         insptr++;
         {
-            int x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), tilenum=Gv_GetVarX(*insptr++);
-            int shade=Gv_GetVarX(*insptr++), orientation=Gv_GetVarX(*insptr++);
+            int32_t x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), tilenum=Gv_GetVarX(*insptr++);
+            int32_t shade=Gv_GetVarX(*insptr++), orientation=Gv_GetVarX(*insptr++);
 
             switch (tw)
             {
@@ -1739,7 +1739,7 @@ static int X_DoExecute(void)
                 break;
             case CON_MYOSPAL:
             {
-                int pal=Gv_GetVarX(*insptr++);
+                int32_t pal=Gv_GetVarX(*insptr++);
                 G_DrawTilePal(x,y,tilenum,shade,orientation,pal);
                 break;
             }
@@ -1748,7 +1748,7 @@ static int X_DoExecute(void)
                 break;
             case CON_MYOSPALX:
             {
-                int pal=Gv_GetVarX(*insptr++);
+                int32_t pal=Gv_GetVarX(*insptr++);
                 G_DrawTilePalSmall(x,y,tilenum,shade,orientation,pal);
                 break;
             }
@@ -1766,10 +1766,10 @@ static int X_DoExecute(void)
             // script offset to default case (null if none)
             // For each case: value, ptr to code
             //AddLog("Processing Switch...");
-            int lValue=Gv_GetVarX(*insptr++), lEnd=*insptr++, lCases=*insptr++;
+            int32_t lValue=Gv_GetVarX(*insptr++), lEnd=*insptr++, lCases=*insptr++;
             intptr_t *lpDefault=insptr++, *lpCases=insptr, *lTempInsPtr;
-            int bMatched=0, lCheckCase;
-            int left,right;
+            int32_t bMatched=0, lCheckCase;
+            int32_t left,right;
             insptr+=lCases*2;
             lTempInsPtr=insptr;
             //Bsprintf(g_szBuf,"lEnd= %d *lpDefault=%d",lEnd,*lpDefault);
@@ -1792,11 +1792,11 @@ static int X_DoExecute(void)
                 {
                     //AddLog("Found Case Match");
                     //Bsprintf(g_szBuf,"insptr=%d. lCheckCase=%d, offset=%d, &script[0]=%d",
-                    //            (int)insptr,(int)lCheckCase,lpCases[lCheckCase*2+1],(int)&script[0]);
+                    //            (int32_t)insptr,(int32_t)lCheckCase,lpCases[lCheckCase*2+1],(int32_t)&script[0]);
                     //AddLog(g_szBuf);
                     // fake a 2-d Array
                     insptr=(intptr_t*)(lpCases[lCheckCase*2+1] + &script[0]);
-                    //Bsprintf(g_szBuf,"insptr=%d. ",     (int)insptr);
+                    //Bsprintf(g_szBuf,"insptr=%d. ",     (int32_t)insptr);
                     //AddLog(g_szBuf);
                     while (!X_DoExecute());
                     //AddLog("Done Executing Case");
@@ -1819,7 +1819,7 @@ static int X_DoExecute(void)
                 }
             }
             insptr=(intptr_t *)(lEnd + (intptr_t)&script[0]);
-            //Bsprintf(g_szBuf,"insptr=%d. ",     (int)insptr);
+            //Bsprintf(g_szBuf,"insptr=%d. ",     (int32_t)insptr);
             //AddLog(g_szBuf);
             //AddLog("Done Processing Switch");
 
@@ -1839,7 +1839,7 @@ static int X_DoExecute(void)
     case CON_DRAGPOINT:
         insptr++;
         {
-            int wallnum = Gv_GetVarX(*insptr++), newx = Gv_GetVarX(*insptr++), newy = Gv_GetVarX(*insptr++);
+            int32_t wallnum = Gv_GetVarX(*insptr++), newx = Gv_GetVarX(*insptr++), newy = Gv_GetVarX(*insptr++);
 
             if ((wallnum<0 || wallnum>=numwalls) && g_scriptSanityChecks)
             {
@@ -1854,7 +1854,7 @@ static int X_DoExecute(void)
     case CON_LDIST:
         insptr++;
         {
-            int distvar = *insptr++, xvar = Gv_GetVarX(*insptr++), yvar = Gv_GetVarX(*insptr++), distx=0;
+            int32_t distvar = *insptr++, xvar = Gv_GetVarX(*insptr++), yvar = Gv_GetVarX(*insptr++), distx=0;
 
             if ((xvar < 0 || yvar < 0 || xvar >= MAXSPRITES || yvar >= MAXSPRITES) && g_scriptSanityChecks)
             {
@@ -1872,9 +1872,9 @@ static int X_DoExecute(void)
     case CON_GETANGLE:
         insptr++;
         {
-            int angvar = *insptr++;
-            int xvar = Gv_GetVarX(*insptr++);
-            int yvar = Gv_GetVarX(*insptr++);
+            int32_t angvar = *insptr++;
+            int32_t xvar = Gv_GetVarX(*insptr++);
+            int32_t yvar = Gv_GetVarX(*insptr++);
 
             if (tw==CON_GETANGLE)
             {
@@ -1888,8 +1888,8 @@ static int X_DoExecute(void)
     case CON_MULSCALE:
         insptr++;
         {
-            int var1 = *insptr++, var2 = Gv_GetVarX(*insptr++);
-            int var3 = Gv_GetVarX(*insptr++), var4 = Gv_GetVarX(*insptr++);
+            int32_t var1 = *insptr++, var2 = Gv_GetVarX(*insptr++);
+            int32_t var3 = Gv_GetVarX(*insptr++), var4 = Gv_GetVarX(*insptr++);
 
             Gv_SetVarX(var1, mulscale(var2, var3, var4));
             break;
@@ -1914,7 +1914,7 @@ static int X_DoExecute(void)
     case CON_QSPAWNVAR:
         insptr++;
         {
-            int lIn=Gv_GetVarX(*insptr++);
+            int32_t lIn=Gv_GetVarX(*insptr++);
             if ((vm.g_sp->sectnum < 0 || vm.g_sp->sectnum >= numsectors) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->sectnum);
@@ -1999,7 +1999,7 @@ static int X_DoExecute(void)
     case CON_EZSHOOTVAR:
     case CON_ZSHOOTVAR:
     {
-        int lReturn=-1;
+        int32_t lReturn=-1;
 
         insptr++;
 
@@ -2043,20 +2043,20 @@ static int X_DoExecute(void)
         case CON_SOUNDONCEVAR:
             if ((j<0 || j>=MAXSOUNDS) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);break;}
             if (!A_CheckSoundPlaying(vm.g_i,j))
-                A_PlaySound((short)j,vm.g_i);
+                A_PlaySound((int16_t)j,vm.g_i);
             break;
         case CON_GLOBALSOUNDVAR:
             if ((j<0 || j>=MAXSOUNDS) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);break;}
-            A_PlaySound((short)j,g_player[screenpeek].ps->i);
+            A_PlaySound((int16_t)j,g_player[screenpeek].ps->i);
             break;
         case CON_STOPSOUNDVAR:
             if ((j<0 || j>=MAXSOUNDS) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);break;}
             if (A_CheckSoundPlaying(vm.g_i,j))
-                A_StopSound((short)j,vm.g_i);
+                A_StopSound((int16_t)j,vm.g_i);
             break;
         case CON_SOUNDVAR:
             if ((j<0 || j>=MAXSOUNDS) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);break;}
-            A_PlaySound((short)j,vm.g_i);
+            A_PlaySound((int16_t)j,vm.g_i);
             break;
         }
         break;
@@ -2099,17 +2099,17 @@ static int X_DoExecute(void)
     case CON_SHOWVIEW:
         insptr++;
         {
-            int x=Gv_GetVarX(*insptr++);
-            int y=Gv_GetVarX(*insptr++);
-            int z=Gv_GetVarX(*insptr++);
-            int a=Gv_GetVarX(*insptr++);
-            int horiz=Gv_GetVarX(*insptr++);
-            int sect=Gv_GetVarX(*insptr++);
-            int x1=scale(Gv_GetVarX(*insptr++),xdim,320);
-            int y1=scale(Gv_GetVarX(*insptr++),ydim,200);
-            int x2=scale(Gv_GetVarX(*insptr++),xdim,320);
-            int y2=scale(Gv_GetVarX(*insptr++),ydim,200);
-            int smoothratio = min(max((totalclock - ototalclock) * (65536 / TICSPERFRAME),0),65536);
+            int32_t x=Gv_GetVarX(*insptr++);
+            int32_t y=Gv_GetVarX(*insptr++);
+            int32_t z=Gv_GetVarX(*insptr++);
+            int32_t a=Gv_GetVarX(*insptr++);
+            int32_t horiz=Gv_GetVarX(*insptr++);
+            int32_t sect=Gv_GetVarX(*insptr++);
+            int32_t x1=scale(Gv_GetVarX(*insptr++),xdim,320);
+            int32_t y1=scale(Gv_GetVarX(*insptr++),ydim,200);
+            int32_t x2=scale(Gv_GetVarX(*insptr++),xdim,320);
+            int32_t y2=scale(Gv_GetVarX(*insptr++),ydim,200);
+            int32_t smoothratio = min(max((totalclock - ototalclock) * (65536 / TICSPERFRAME),0),65536);
 
             if (x1 > x2) swaplong(&x1,&x2);
             if (y1 > y2) swaplong(&y1,&y2);
@@ -2148,7 +2148,7 @@ static int X_DoExecute(void)
 #endif
                )
             {
-                int j, i = 0, k, dst = 0x7fffffff;
+                int32_t j, i = 0, k, dst = 0x7fffffff;
 
                 for (k=g_mirrorCount-1;k>=0;k--)
                 {
@@ -2159,8 +2159,8 @@ static int X_DoExecute(void)
 
                 if (wall[g_mirrorWall[i]].overpicnum == MIRROR)
                 {
-                    int tposx,tposy;
-                    short tang;
+                    int32_t tposx,tposy;
+                    int16_t tang;
 
                     preparemirror(x,y,z,a,horiz,g_mirrorWall[i],g_mirrorSector[i],&tposx,&tposy,&tang);
 
@@ -2201,11 +2201,11 @@ static int X_DoExecute(void)
     case CON_ROTATESPRITE:
         insptr++;
         {
-            int x=Gv_GetVarX(*insptr++),   y=Gv_GetVarX(*insptr++),           z=Gv_GetVarX(*insptr++);
-            int a=Gv_GetVarX(*insptr++),   tilenum=Gv_GetVarX(*insptr++),     shade=Gv_GetVarX(*insptr++);
-            int pal=Gv_GetVarX(*insptr++), orientation=Gv_GetVarX(*insptr++);
-            int x1=Gv_GetVarX(*insptr++),  y1=Gv_GetVarX(*insptr++);
-            int x2=Gv_GetVarX(*insptr++),  y2=Gv_GetVarX(*insptr++);
+            int32_t x=Gv_GetVarX(*insptr++),   y=Gv_GetVarX(*insptr++),           z=Gv_GetVarX(*insptr++);
+            int32_t a=Gv_GetVarX(*insptr++),   tilenum=Gv_GetVarX(*insptr++),     shade=Gv_GetVarX(*insptr++);
+            int32_t pal=Gv_GetVarX(*insptr++), orientation=Gv_GetVarX(*insptr++);
+            int32_t x1=Gv_GetVarX(*insptr++),  y1=Gv_GetVarX(*insptr++);
+            int32_t x2=Gv_GetVarX(*insptr++),  y2=Gv_GetVarX(*insptr++);
 
             if (tw == CON_ROTATESPRITE && !(orientation & 256)) {x<<=16;y<<=16;}
             rotatesprite(x,y,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
@@ -2219,20 +2219,20 @@ static int X_DoExecute(void)
     case CON_DIGITALNUMBERZ:
         insptr++;
         {
-            int tilenum = (tw == CON_GAMETEXT || tw == CON_GAMETEXTZ || tw == CON_DIGITALNUMBER || tw == CON_DIGITALNUMBERZ)?Gv_GetVarX(*insptr++):0;
-            int x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), q=Gv_GetVarX(*insptr++);
-            int shade=Gv_GetVarX(*insptr++), pal=Gv_GetVarX(*insptr++);
+            int32_t tilenum = (tw == CON_GAMETEXT || tw == CON_GAMETEXTZ || tw == CON_DIGITALNUMBER || tw == CON_DIGITALNUMBERZ)?Gv_GetVarX(*insptr++):0;
+            int32_t x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), q=Gv_GetVarX(*insptr++);
+            int32_t shade=Gv_GetVarX(*insptr++), pal=Gv_GetVarX(*insptr++);
 
             if (tw == CON_GAMETEXT || tw == CON_GAMETEXTZ || tw == CON_DIGITALNUMBER || tw == CON_DIGITALNUMBERZ)
             {
-                int orientation=Gv_GetVarX(*insptr++);
-                int x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++);
-                int x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++);
-                int z=65536;
+                int32_t orientation=Gv_GetVarX(*insptr++);
+                int32_t x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++);
+                int32_t x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++);
+                int32_t z=65536;
 
                 if (tw == CON_GAMETEXT || tw == CON_GAMETEXTZ)
                 {
-                    int z=65536;
+                    int32_t z=65536;
                     if ((ScriptQuotes[q] == NULL) && g_scriptSanityChecks)
                     {
                         OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q);
@@ -2268,11 +2268,11 @@ static int X_DoExecute(void)
     case CON_GETZRANGE:
         insptr++;
         {
-            int x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), z=Gv_GetVarX(*insptr++);
-            int sectnum=Gv_GetVarX(*insptr++);
-            int ceilzvar=*insptr++, ceilhitvar=*insptr++, florzvar=*insptr++, florhitvar=*insptr++;
-            int walldist=Gv_GetVarX(*insptr++), clipmask=Gv_GetVarX(*insptr++);
-            int ceilz, ceilhit, florz, florhit;
+            int32_t x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), z=Gv_GetVarX(*insptr++);
+            int32_t sectnum=Gv_GetVarX(*insptr++);
+            int32_t ceilzvar=*insptr++, ceilhitvar=*insptr++, florzvar=*insptr++, florhitvar=*insptr++;
+            int32_t walldist=Gv_GetVarX(*insptr++), clipmask=Gv_GetVarX(*insptr++);
+            int32_t ceilz, ceilhit, florz, florhit;
 
             if ((sectnum<0 || sectnum>=numsectors) && g_scriptSanityChecks)
             {
@@ -2290,13 +2290,13 @@ static int X_DoExecute(void)
     case CON_HITSCAN:
         insptr++;
         {
-            int xs=Gv_GetVarX(*insptr++), ys=Gv_GetVarX(*insptr++), zs=Gv_GetVarX(*insptr++);
-            int sectnum=Gv_GetVarX(*insptr++);
-            int vx=Gv_GetVarX(*insptr++), vy=Gv_GetVarX(*insptr++), vz=Gv_GetVarX(*insptr++);
-            int hitsectvar=*insptr++, hitwallvar=*insptr++, hitspritevar=*insptr++;
-            int hitxvar=*insptr++, hityvar=*insptr++, hitzvar=*insptr++, cliptype=Gv_GetVarX(*insptr++);
-            short hitsect, hitwall, hitsprite;
-            int hitx, hity, hitz;
+            int32_t xs=Gv_GetVarX(*insptr++), ys=Gv_GetVarX(*insptr++), zs=Gv_GetVarX(*insptr++);
+            int32_t sectnum=Gv_GetVarX(*insptr++);
+            int32_t vx=Gv_GetVarX(*insptr++), vy=Gv_GetVarX(*insptr++), vz=Gv_GetVarX(*insptr++);
+            int32_t hitsectvar=*insptr++, hitwallvar=*insptr++, hitspritevar=*insptr++;
+            int32_t hitxvar=*insptr++, hityvar=*insptr++, hitzvar=*insptr++, cliptype=Gv_GetVarX(*insptr++);
+            int16_t hitsect, hitwall, hitsprite;
+            int32_t hitx, hity, hitz;
 
             if ((sectnum<0 || sectnum>=numsectors) && g_scriptSanityChecks)
             {
@@ -2316,10 +2316,10 @@ static int X_DoExecute(void)
     case CON_CANSEE:
         insptr++;
         {
-            int x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++), z1=Gv_GetVarX(*insptr++);
-            int sect1=Gv_GetVarX(*insptr++);
-            int x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++), z2=Gv_GetVarX(*insptr++);
-            int sect2=Gv_GetVarX(*insptr++), rvar=*insptr++;
+            int32_t x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++), z1=Gv_GetVarX(*insptr++);
+            int32_t sect1=Gv_GetVarX(*insptr++);
+            int32_t x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++), z2=Gv_GetVarX(*insptr++);
+            int32_t sect2=Gv_GetVarX(*insptr++), rvar=*insptr++;
 
             if ((sect1<0 || sect1>=numsectors || sect2<0 || sect2>=numsectors) && g_scriptSanityChecks)
             {
@@ -2334,10 +2334,10 @@ static int X_DoExecute(void)
     case CON_ROTATEPOINT:
         insptr++;
         {
-            int xpivot=Gv_GetVarX(*insptr++), ypivot=Gv_GetVarX(*insptr++);
-            int x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), daang=Gv_GetVarX(*insptr++);
-            int x2var=*insptr++, y2var=*insptr++;
-            int x2, y2;
+            int32_t xpivot=Gv_GetVarX(*insptr++), ypivot=Gv_GetVarX(*insptr++);
+            int32_t x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), daang=Gv_GetVarX(*insptr++);
+            int32_t x2var=*insptr++, y2var=*insptr++;
+            int32_t x2, y2;
 
             rotatepoint(xpivot,ypivot,x,y,daang,&x2,&y2);
             Gv_SetVarX(x2var, x2);
@@ -2348,18 +2348,18 @@ static int X_DoExecute(void)
     case CON_NEARTAG:
         insptr++;
         {
-            //             neartag(int x, int y, int z, short sectnum, short ang,  //Starting position & angle
+            //             neartag(int32_t x, int32_t y, int32_t z, short sectnum, short ang,  //Starting position & angle
             //                     short *neartagsector,   //Returns near sector if sector[].tag != 0
             //                     short *neartagwall,     //Returns near wall if wall[].tag != 0
             //                     short *neartagsprite,   //Returns near sprite if sprite[].tag != 0
-            //                     int *neartaghitdist,   //Returns actual distance to object (scale: 1024=largest grid size)
-            //                     int neartagrange,      //Choose maximum distance to scan (scale: 1024=largest grid size)
+            //                     int32_t *neartaghitdist,   //Returns actual distance to object (scale: 1024=largest grid size)
+            //                     int32_t neartagrange,      //Choose maximum distance to scan (scale: 1024=largest grid size)
             //                     char tagsearch)         //1-lotag only, 2-hitag only, 3-lotag&hitag
 
-            int x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), z=Gv_GetVarX(*insptr++);
-            int sectnum=Gv_GetVarX(*insptr++), ang=Gv_GetVarX(*insptr++);
-            int neartagsectorvar=*insptr++, neartagwallvar=*insptr++, neartagspritevar=*insptr++, neartaghitdistvar=*insptr++;
-            int neartagrange=Gv_GetVarX(*insptr++), tagsearch=Gv_GetVarX(*insptr++);
+            int32_t x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), z=Gv_GetVarX(*insptr++);
+            int32_t sectnum=Gv_GetVarX(*insptr++), ang=Gv_GetVarX(*insptr++);
+            int32_t neartagsectorvar=*insptr++, neartagwallvar=*insptr++, neartagspritevar=*insptr++, neartaghitdistvar=*insptr++;
+            int32_t neartagrange=Gv_GetVarX(*insptr++), tagsearch=Gv_GetVarX(*insptr++);
 
             if ((sectnum<0 || sectnum>=numsectors) && g_scriptSanityChecks)
             {
@@ -2378,7 +2378,7 @@ static int X_DoExecute(void)
     case CON_GETTIMEDATE:
         insptr++;
         {
-            int v1=*insptr++,v2=*insptr++,v3=*insptr++,v4=*insptr++,v5=*insptr++,v6=*insptr++,v7=*insptr++,v8=*insptr++;
+            int32_t v1=*insptr++,v2=*insptr++,v3=*insptr++,v4=*insptr++,v5=*insptr++,v6=*insptr++,v7=*insptr++,v8=*insptr++;
             time_t rawtime;
             struct tm * ti;
 
@@ -2401,8 +2401,8 @@ static int X_DoExecute(void)
     case CON_SETSPRITE:
         insptr++;
         {
-            int spritenum = Gv_GetVarX(*insptr++);
-            int x = Gv_GetVarX(*insptr++), y = Gv_GetVarX(*insptr++), z = Gv_GetVarX(*insptr++);
+            int32_t spritenum = Gv_GetVarX(*insptr++);
+            int32_t x = Gv_GetVarX(*insptr++), y = Gv_GetVarX(*insptr++), z = Gv_GetVarX(*insptr++);
 
             if (tw == CON_SETSPRITE)
             {
@@ -2416,7 +2416,7 @@ static int X_DoExecute(void)
             }
 
             {
-                int cliptype = Gv_GetVarX(*insptr++);
+                int32_t cliptype = Gv_GetVarX(*insptr++);
 
                 if ((spritenum < 0 && spritenum >= MAXSPRITES) && g_scriptSanityChecks)
                 {
@@ -2433,7 +2433,7 @@ static int X_DoExecute(void)
     case CON_GETCEILZOFSLOPE:
         insptr++;
         {
-            int sectnum = Gv_GetVarX(*insptr++), x = Gv_GetVarX(*insptr++), y = Gv_GetVarX(*insptr++);
+            int32_t sectnum = Gv_GetVarX(*insptr++), x = Gv_GetVarX(*insptr++), y = Gv_GetVarX(*insptr++);
             if ((sectnum<0 || sectnum>=numsectors) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
@@ -2454,10 +2454,10 @@ static int X_DoExecute(void)
     case CON_UPDATESECTORZ:
         insptr++;
         {
-            int x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++);
-            int z=(tw==CON_UPDATESECTORZ)?Gv_GetVarX(*insptr++):0;
-            int var=*insptr++;
-            short w=sprite[vm.g_i].sectnum;
+            int32_t x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++);
+            int32_t z=(tw==CON_UPDATESECTORZ)?Gv_GetVarX(*insptr++):0;
+            int32_t var=*insptr++;
+            int16_t w=sprite[vm.g_i].sectnum;
 
             if (tw==CON_UPDATESECTOR) updatesector(x,y,&w);
             else updatesectorz(x,y,z,&w);
@@ -2501,7 +2501,7 @@ static int X_DoExecute(void)
     case CON_DEBRIS:
         insptr++;
         {
-            int dnum = *insptr++;
+            int32_t dnum = *insptr++;
 
             if (vm.g_sp->sectnum >= 0 && vm.g_sp->sectnum < MAXSECTORS)
                 for (j=(*insptr)-1;j>=0;j--)
@@ -2526,22 +2526,22 @@ static int X_DoExecute(void)
 
     case CON_COUNT:
         insptr++;
-        vm.g_t[0] = (short) *insptr++;
+        vm.g_t[0] = (int16_t) *insptr++;
         break;
 
     case CON_CSTATOR:
         insptr++;
-        vm.g_sp->cstat |= (short) *insptr++;
+        vm.g_sp->cstat |= (int16_t) *insptr++;
         break;
 
     case CON_CLIPDIST:
         insptr++;
-        vm.g_sp->clipdist = (short) *insptr++;
+        vm.g_sp->clipdist = (int16_t) *insptr++;
         break;
 
     case CON_CSTAT:
         insptr++;
-        vm.g_sp->cstat = (short) *insptr++;
+        vm.g_sp->cstat = (int16_t) *insptr++;
         break;
     case CON_SAVENN:
     case CON_SAVE:
@@ -2581,7 +2581,7 @@ static int X_DoExecute(void)
 
     case CON_QUAKE:
         insptr++;
-        g_earthquakeTime = (char)Gv_GetVarX(*insptr++);
+        g_earthquakeTime = (uint8_t)Gv_GetVarX(*insptr++);
         A_PlaySound(EARTHQUAKE,g_player[screenpeek].ps->i);
         break;
 
@@ -2762,8 +2762,8 @@ static int X_DoExecute(void)
     case CON_HITRADIUSVAR:
         insptr++;
         {
-            int v1=Gv_GetVarX(*insptr++),v2=Gv_GetVarX(*insptr++),v3=Gv_GetVarX(*insptr++);
-            int v4=Gv_GetVarX(*insptr++),v5=Gv_GetVarX(*insptr++);
+            int32_t v1=Gv_GetVarX(*insptr++),v2=Gv_GetVarX(*insptr++),v3=Gv_GetVarX(*insptr++);
+            int32_t v4=Gv_GetVarX(*insptr++),v5=Gv_GetVarX(*insptr++);
             A_RadiusDamage(vm.g_i,v1,v2,v3,v4,v5);
         }
         break;
@@ -2979,7 +2979,7 @@ static int X_DoExecute(void)
     case CON_QSPRINTF:
         insptr++;
         {
-            int dq = *insptr++, sq = *insptr++;
+            int32_t dq = *insptr++, sq = *insptr++;
             if ((ScriptQuotes[sq] == NULL || ScriptQuotes[dq] == NULL) && g_scriptSanityChecks)
             {
                 OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],ScriptQuotes[sq] ? dq : sq);
@@ -2988,8 +2988,8 @@ static int X_DoExecute(void)
             }
 
             {
-                int var1 = Gv_GetVarX(*insptr++), var2 = Gv_GetVarX(*insptr++);
-                int var3 = Gv_GetVarX(*insptr++), var4 = Gv_GetVarX(*insptr++);
+                int32_t var1 = Gv_GetVarX(*insptr++), var2 = Gv_GetVarX(*insptr++);
+                int32_t var3 = Gv_GetVarX(*insptr++), var4 = Gv_GetVarX(*insptr++);
                 Bstrcpy(tempbuf,ScriptQuotes[sq]);
                 Bsprintf(ScriptQuotes[dq],tempbuf,var1,var2,var3,var4);
                 break;
@@ -3007,9 +3007,9 @@ static int X_DoExecute(void)
     case CON_ADDLOGVAR:
         insptr++;
         {
-            int m=1;
+            int32_t m=1;
             char szBuf[256];
-            int lVarID = *insptr;
+            int32_t lVarID = *insptr;
 
             if ((lVarID >= g_gameVarCount) || lVarID < 0)
             {
@@ -3018,7 +3018,7 @@ static int X_DoExecute(void)
 //                else if (*insptr > g_gameVarCount && (*insptr < (MAXGAMEVARS<<1)+MAXGAMEVARS+1+MAXGAMEARRAYS))
                 else if (*insptr&(MAXGAMEVARS<<2))
                 {
-                    int index;
+                    int32_t index;
 
                     lVarID ^= (MAXGAMEVARS<<2);
 
@@ -3046,7 +3046,7 @@ static int X_DoExecute(void)
                 else if (*insptr&(MAXGAMEVARS<<3))
                 {
 //                    FIXME FIXME FIXME
-                    int index, label;
+                    int32_t index, label;
 
                     lVarID ^= (MAXGAMEVARS<<3);
 
@@ -3121,7 +3121,7 @@ static int X_DoExecute(void)
         {
             // syntax [gs]etsector[<var>].x <VAR>
             // <varid> <xxxid> <varid>
-            int lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
+            int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
 
             X_AccessSector(tw==CON_SETSECTOR, lVar1, lLabelID, lVar2);
             break;
@@ -3131,7 +3131,7 @@ static int X_DoExecute(void)
         insptr++;
         {
             // syntax sqrt <invar> <outvar>
-            int lInVarID=*insptr++, lOutVarID=*insptr++;
+            int32_t lInVarID=*insptr++, lOutVarID=*insptr++;
 
             Gv_SetVarX(lOutVarID, ksqrt(Gv_GetVarX(lInVarID)));
             break;
@@ -3148,8 +3148,8 @@ static int X_DoExecute(void)
             // that is of <type> into <getvar>
             // -1 for none found
             // <type> <maxdist> <varid>
-            int lType=*insptr++, lMaxDist=*insptr++, lVarID=*insptr++;
-            int lFound=-1, j, k = MAXSTATUS-1;
+            int32_t lType=*insptr++, lMaxDist=*insptr++, lVarID=*insptr++;
+            int32_t lFound=-1, j, k = MAXSTATUS-1;
 
             if (tw == CON_FINDNEARACTOR || tw == CON_FINDNEARACTOR3D)
                 k = 1;
@@ -3203,8 +3203,8 @@ static int X_DoExecute(void)
             // that is of <type> into <getvar>
             // -1 for none found
             // <type> <maxdistvarid> <varid>
-            int lType=*insptr++, lMaxDist=Gv_GetVarX(*insptr++), lVarID=*insptr++;
-            int lFound=-1, j, k = 1;
+            int32_t lType=*insptr++, lMaxDist=Gv_GetVarX(*insptr++), lVarID=*insptr++;
+            int32_t lFound=-1, j, k = 1;
 
             if (tw == CON_FINDNEARSPRITEVAR || tw == CON_FINDNEARSPRITE3DVAR)
                 k = MAXSTATUS-1;
@@ -3257,9 +3257,9 @@ static int X_DoExecute(void)
             // that is of <type> into <getvar>
             // -1 for none found
             // <type> <maxdistvarid> <varid>
-            int lType=*insptr++, lMaxDist=Gv_GetVarX(*insptr++);
-            int lMaxZDist=Gv_GetVarX(*insptr++);
-            int lVarID=*insptr++, lFound=-1, lTemp, lTemp2, j, k=MAXSTATUS-1;
+            int32_t lType=*insptr++, lMaxDist=Gv_GetVarX(*insptr++);
+            int32_t lMaxZDist=Gv_GetVarX(*insptr++);
+            int32_t lVarID=*insptr++, lFound=-1, lTemp, lTemp2, j, k=MAXSTATUS-1;
             do
             {
                 j=headspritestat[tw==CON_FINDNEARACTORZVAR?1:k];    // all sprites
@@ -3301,8 +3301,8 @@ static int X_DoExecute(void)
             // that is of <type> into <getvar>
             // -1 for none found
             // <type> <maxdist> <varid>
-            int lType=*insptr++, lMaxDist=*insptr++, lMaxZDist=*insptr++, lVarID=*insptr++;
-            int lTemp, lTemp2, lFound=-1, j, k=MAXSTATUS-1;
+            int32_t lType=*insptr++, lMaxDist=*insptr++, lMaxZDist=*insptr++, lVarID=*insptr++;
+            int32_t lTemp, lTemp2, lFound=-1, j, k=MAXSTATUS-1;
             do
             {
                 j=headspritestat[tw==CON_FINDNEARACTORZ?1:k];    // all sprites
@@ -3352,7 +3352,7 @@ static int X_DoExecute(void)
         {
             // syntax [gs]etplayer[<var>].x <VAR>
             // <varid> <xxxid> <varid>
-            int lVar1=*insptr++, lLabelID=*insptr++, lParm2 = 0, lVar2;
+            int32_t lVar1=*insptr++, lLabelID=*insptr++, lParm2 = 0, lVar2;
             // HACK: need to have access to labels structure at run-time...
 
             if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2)
@@ -3369,7 +3369,7 @@ static int X_DoExecute(void)
         {
             // syntax [gs]etplayer[<var>].x <VAR>
             // <varid> <xxxid> <varid>
-            int lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
+            int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
 
             X_AccessPlayerInput(tw==CON_SETINPUT, lVar1, lLabelID, lVar2);
             break;
@@ -3381,7 +3381,7 @@ static int X_DoExecute(void)
         {
             // syntax [gs]etuserdef.xxx <VAR>
             //  <xxxid> <varid>
-            int lLabelID=*insptr++, lVar2=*insptr++;
+            int32_t lLabelID=*insptr++, lVar2=*insptr++;
 
             X_AccessUserdef(tw==CON_SETUSERDEF, lLabelID, lVar2);
             break;
@@ -3393,7 +3393,7 @@ static int X_DoExecute(void)
         {
             // syntax [gs]etplayer[<var>].x <VAR>
             // <varid> <xxxid> <varid>
-            int lVar1=Gv_GetVarX(*insptr++), lLabelID=*insptr++, lVar2=*insptr++;
+            int32_t lVar1=Gv_GetVarX(*insptr++), lLabelID=*insptr++, lVar2=*insptr++;
 
             X_AccessProjectile(tw==CON_SETPROJECTILE,lVar1,lLabelID,lVar2);
             break;
@@ -3405,7 +3405,7 @@ static int X_DoExecute(void)
         {
             // syntax [gs]etwall[<var>].x <VAR>
             // <varid> <xxxid> <varid>
-            int lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
+            int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
 
             X_AccessWall(tw==CON_SETWALL, lVar1, lLabelID, lVar2);
             break;
@@ -3418,7 +3418,7 @@ static int X_DoExecute(void)
             // syntax [gs]etactorvar[<var>].<varx> <VAR>
             // gets the value of the per-actor variable varx into VAR
             // <var> <varx> <VAR>
-            int lSprite=Gv_GetVarX(*insptr++), lVar1=*insptr++;
+            int32_t lSprite=Gv_GetVarX(*insptr++), lVar1=*insptr++;
             j=*insptr++;
 
             if ((lSprite < 0 || lSprite >= MAXSPRITES) && g_scriptSanityChecks)
@@ -3442,7 +3442,7 @@ static int X_DoExecute(void)
     case CON_GETPLAYERVAR:
         insptr++;
         {
-            int iPlayer;
+            int32_t iPlayer;
 
             if (*insptr != g_iThisActorID)
                 iPlayer=Gv_GetVarX(*insptr);
@@ -3450,7 +3450,7 @@ static int X_DoExecute(void)
 
             insptr++;
             {
-                int lVar1=*insptr++, lVar2=*insptr++;
+                int32_t lVar1=*insptr++, lVar2=*insptr++;
 
                 if ((iPlayer < 0 || iPlayer >= ud.multimode) && g_scriptSanityChecks)
                 {
@@ -3475,13 +3475,13 @@ static int X_DoExecute(void)
             // syntax [gs]etactor[<var>].x <VAR>
             // <varid> <xxxid> <varid>
 
-            int lVar1=*insptr++, lLabelID=*insptr++, lParm2 = 0;
+            int32_t lVar1=*insptr++, lLabelID=*insptr++, lParm2 = 0;
 
             if (ActorLabels[lLabelID].flags & LABEL_HASPARM2)
                 lParm2=Gv_GetVarX(*insptr++);
 
             {
-                int lVar2=*insptr++;
+                int32_t lVar2=*insptr++;
 
                 X_AccessSprite(tw==CON_SETACTOR, lVar1, lLabelID, lVar2, lParm2);
             }
@@ -3495,7 +3495,7 @@ static int X_DoExecute(void)
             // syntax [gs]etactor[<var>].x <VAR>
             // <varid> <xxxid> <varid>
 
-            int lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
+            int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
 
             X_AccessTsprite(tw==CON_SETTSPR, lVar1, lLabelID, lVar2);
             break;
@@ -3571,8 +3571,8 @@ static int X_DoExecute(void)
         insptr++;
         j=*insptr++;
         {
-            int index = Gv_GetVarX(*insptr++);
-            int value = Gv_GetVarX(*insptr++);
+            int32_t index = Gv_GetVarX(*insptr++);
+            int32_t value = Gv_GetVarX(*insptr++);
 
 //            SetGameArrayID(j,index,value);
             if (j<0 || j >= g_gameArrayCount || index >= aGameArrays[j].size || index < 0)
@@ -3593,11 +3593,11 @@ static int X_DoExecute(void)
         insptr++;
         j=*insptr++;
         {
-            int asize = Gv_GetVarX(*insptr++);
+            int32_t asize = Gv_GetVarX(*insptr++);
             if (asize > 0)
             {
                 OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);
-                aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, sizeof(int) * asize);
+                aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, sizeof(int32_t) * asize);
                 aGameArrays[j].size = asize;
             }
             break;
@@ -3715,7 +3715,7 @@ static int X_DoExecute(void)
         insptr++;
         j=*insptr++;
         {
-            int l2=Gv_GetVarX(*insptr++);
+            int32_t l2=Gv_GetVarX(*insptr++);
 
             if (l2==0)
             {
@@ -3730,7 +3730,7 @@ static int X_DoExecute(void)
         insptr++;
         j=*insptr++;
         {
-            int l2=Gv_GetVarX(*insptr++);
+            int32_t l2=Gv_GetVarX(*insptr++);
 
             if (l2==0)
             {
@@ -3838,13 +3838,13 @@ static int X_DoExecute(void)
         insptr++;
         if (tw == CON_STARTTRACK) g_musicIndex=(ud.volume_number*MAXLEVELS)+(*(insptr++));
         else g_musicIndex=(ud.volume_number*MAXLEVELS)+(Gv_GetVarX(*(insptr++)));
-        if (MapInfo[(unsigned char)g_musicIndex].musicfn == NULL)
+        if (MapInfo[(uint8_t)g_musicIndex].musicfn == NULL)
         {
             OSD_Printf(CON_ERROR "null music for map %d\n",g_errorLineNum,keyw[g_tw],g_musicIndex);
             insptr++;
             break;
         }
-        S_PlayMusic(&MapInfo[(unsigned char)g_musicIndex].musicfn[0],g_musicIndex);
+        S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);
         break;
 
     case CON_ACTIVATECHEAT:
@@ -3956,7 +3956,7 @@ static int X_DoExecute(void)
 
     case CON_WHILEVARVARN:
     {
-        int i,k;
+        int32_t i,k;
         intptr_t *savedinsptr=insptr+2;
         j=1;
         do
@@ -4089,7 +4089,7 @@ static int X_DoExecute(void)
 
     case CON_IFAWAYFROMWALL:
     {
-        short s1=vm.g_sp->sectnum;
+        int16_t s1=vm.g_sp->sectnum;
 
         j = 0;
 
@@ -4135,7 +4135,7 @@ static int X_DoExecute(void)
     case CON_USERQUOTE:
         insptr++;
         {
-            int i=Gv_GetVarX(*insptr++);
+            int32_t i=Gv_GetVarX(*insptr++);
 
             if ((ScriptQuotes[i] == NULL) && g_scriptSanityChecks)
             {
@@ -4235,7 +4235,7 @@ static int X_DoExecute(void)
     return 0;
 }
 
-void A_LoadActor(int iActor)
+void A_LoadActor(int32_t iActor)
 {
     vm.g_i = iActor;    // Sprite ID
     vm.g_p = -1; // iPlayer;    // Player ID
@@ -4264,9 +4264,9 @@ void A_LoadActor(int iActor)
         deletesprite(vm.g_i);
 }
 
-void A_Execute(int iActor,int iPlayer,int lDist)
+void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 {
-//    int temp, temp2;
+//    int32_t temp, temp2;
 
 //    if (actorscrptr[sprite[iActor].picnum] == 0) return;
 
@@ -4290,7 +4290,7 @@ void A_Execute(int iActor,int iPlayer,int lDist)
     }
 
     /* Qbix: Changed variables to be aware of the sizeof *insptr
-     * (wether it is int vs intptr_t), Although it is specificly cast to intptr_t*
+     * (wether it is int32_t vs intptr_t), Although it is specificly cast to intptr_t*
      * which might be corrected if the code is converted to use offsets */
     if (vm.g_t[4])
     {
@@ -4377,7 +4377,7 @@ void G_SaveMapState(mapstate_t *save)
 {
     if (save != NULL)
     {
-        int i;
+        int32_t i;
         intptr_t j;
 
         Bmemcpy(&save->numwalls,&numwalls,sizeof(numwalls));
@@ -4456,9 +4456,9 @@ void G_SaveMapState(mapstate_t *save)
         Bmemcpy(&save->animatevel[0],&animatevel[0],sizeof(animatevel));
         Bmemcpy(&save->g_animateCount,&g_animateCount,sizeof(g_animateCount));
         Bmemcpy(&save->animatesect[0],&animatesect[0],sizeof(animatesect));
-        for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]-(intptr_t)(&sector[0]));
+        for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]-(intptr_t)(&sector[0]));
         Bmemcpy(&save->animateptr[0],&animateptr[0],sizeof(animateptr));
-        for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+        for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
         Bmemcpy(&save->g_numPlayerSprites,&g_numPlayerSprites,sizeof(g_numPlayerSprites));
         Bmemcpy(&save->g_earthquakeTime,&g_earthquakeTime,sizeof(g_earthquakeTime));
         Bmemcpy(&save->lockclock,&lockclock,sizeof(lockclock));
@@ -4493,7 +4493,7 @@ void G_RestoreMapState(mapstate_t *save)
 {
     if (save != NULL)
     {
-        int i, k, x;
+        int32_t i, k, x;
         intptr_t j;
         char phealth[MAXPLAYERS];
 
@@ -4550,7 +4550,7 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(&g_animateCount,&save->g_animateCount,sizeof(g_animateCount));
         Bmemcpy(&animatesect[0],&save->animatesect[0],sizeof(animatesect));
         Bmemcpy(&animateptr[0],&save->animateptr[0],sizeof(animateptr));
-        for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+        for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
         Bmemcpy(&g_numPlayerSprites,&save->g_numPlayerSprites,sizeof(g_numPlayerSprites));
         Bmemcpy(&g_earthquakeTime,&save->g_earthquakeTime,sizeof(g_earthquakeTime));
         Bmemcpy(&lockclock,&save->lockclock,sizeof(lockclock));
@@ -4647,7 +4647,7 @@ void G_RestoreMapState(mapstate_t *save)
         Net_ResetPrediction();
 
         waitforeverybody();
-        flushpackets();
+        mmulti_flushpackets();
         clearfifo();
         G_ResetTimers();
     }

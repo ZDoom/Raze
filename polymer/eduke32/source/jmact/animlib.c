@@ -124,13 +124,13 @@ void loadpage(uint16 pagenumber, uint16 *pagepointer)
 
 void CPlayRunSkipDump(char *srcP, char *dstP)
 {
-    signed char cnt;
+    int8_t cnt;
     uint16 wordCnt;
     byte pixel;
 
 
 nextOp:
-    cnt = (signed char) *srcP++;
+    cnt = (int8_t) *srcP++;
     if (cnt > 0)
         goto dump;
     if (cnt == 0)
@@ -268,7 +268,7 @@ void ANIM_LoadAnim(char * buffer)
         Anim_Started = true;
     }
 
-    anim->buffer = (unsigned char *)buffer;
+    anim->buffer = (uint8_t *)buffer;
     anim->curlpnum = 0xffff;
     anim->currentframe = -1;
     size = sizeof(lpfileheader);

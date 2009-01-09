@@ -22,16 +22,16 @@
 
 static struct
 {
-    int fullscreen;
-    int xdim2d, ydim2d;
-    int xdim3d, ydim3d, bpp3d;
-    int forcesetup;
+    int32_t fullscreen;
+    int32_t xdim2d, ydim2d;
+    int32_t xdim3d, ydim3d, bpp3d;
+    int32_t forcesetup;
 } settings;
 
-extern int gtkenabled;
+extern int32_t gtkenabled;
 
 static GtkWidget *startwin = NULL;
-static int retval = -1, mode = TAB_MESSAGES;
+static int32_t retval = -1, mode = TAB_MESSAGES;
 
 // -- SUPPORT FUNCTIONS -------------------------------------------------------
 
@@ -51,7 +51,7 @@ static GdkPixbuf *load_banner(void)
     return gdk_pixbuf_from_pixdata(&startbanner_pixdata, FALSE, NULL);
 }
 
-static void SetPage(int n)
+static void SetPage(int32_t n)
 {
     if (!gtkenabled || !startwin) return;
     mode = n;
@@ -68,7 +68,7 @@ static void on_vmode2dcombo_changed(GtkComboBox *, gpointer);
 static void on_vmode3dcombo_changed(GtkComboBox *, gpointer);
 static void PopulateForm(void)
 {
-    int mode2d, mode3d, i;
+    int32_t mode2d, mode3d, i;
     GtkListStore *modes2d, *modes3d;
     GtkTreeIter iter;
     GtkComboBox *box2d, *box3d;
@@ -79,7 +79,7 @@ static void PopulateForm(void)
     if (mode2d < 0) mode2d = 0;
     if (mode3d < 0)
     {
-        int i, cd[] = { 32, 24, 16, 15, 8, 0 };
+        int32_t i, cd[] = { 32, 24, 16, 15, 8, 0 };
         for (i=0; cd[i];) { if (cd[i] >= settings.bpp3d) i++; else break; }
         for (; cd[i]; i++)
         {
@@ -135,7 +135,7 @@ static void on_vmode2dcombo_changed(GtkComboBox *combobox, gpointer user_data)
 {
     GtkTreeModel *data;
     GtkTreeIter iter;
-    int val;
+    int32_t val;
     UNREFERENCED_PARAMETER(user_data);
     if (!gtk_combo_box_get_active_iter(combobox, &iter)) return;
     if (!(data = gtk_combo_box_get_model(combobox))) return;
@@ -148,7 +148,7 @@ static void on_vmode3dcombo_changed(GtkComboBox *combobox, gpointer user_data)
 {
     GtkTreeModel *data;
     GtkTreeIter iter;
-    int val;
+    int32_t val;
     UNREFERENCED_PARAMETER(user_data);
     if (!gtk_combo_box_get_active_iter(combobox, &iter)) return;
     if (!(data = gtk_combo_box_get_model(combobox))) return;
@@ -498,7 +498,7 @@ static GtkWidget *create_window(void)
 
 // -- BUILD ENTRY POINTS ------------------------------------------------------
 
-int startwin_open(void)
+int32_t startwin_open(void)
 {
     if (!gtkenabled) return 0;
     if (startwin) return 1;
@@ -514,7 +514,7 @@ int startwin_open(void)
     return -1;
 }
 
-int startwin_close(void)
+int32_t startwin_close(void)
 {
     if (!gtkenabled) return 0;
     if (!startwin) return 1;
@@ -523,7 +523,7 @@ int startwin_close(void)
     return 0;
 }
 
-int startwin_puts(const char *str)
+int32_t startwin_puts(const char *str)
 {
     GtkWidget *textview;
     GtkTextBuffer *textbuffer;
@@ -576,7 +576,7 @@ int startwin_puts(const char *str)
     return 0;
 }
 
-int startwin_settitle(const char *title)
+int32_t startwin_settitle(const char *title)
 {
     if (!gtkenabled) return 0;
     if (!startwin) return 1;
@@ -584,7 +584,7 @@ int startwin_settitle(const char *title)
     return 0;
 }
 
-int startwin_idle(void *s)
+int32_t startwin_idle(void *s)
 {
     UNREFERENCED_PARAMETER(s);
     if (!gtkenabled) return 0;
@@ -593,7 +593,7 @@ int startwin_idle(void *s)
     return 0;
 }
 
-int startwin_run(void)
+int32_t startwin_run(void)
 {
     if (!gtkenabled) return 1;
     if (!startwin) return 1;

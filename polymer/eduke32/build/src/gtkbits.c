@@ -10,11 +10,11 @@
 #include "baselayer.h"
 #include "build.h"
 
-int gtkenabled = 0;
+int32_t gtkenabled = 0;
 
 static GdkPixbuf *appicon = NULL;
 
-int gtkbuild_msgbox(char *name, char *msg)
+int32_t gtkbuild_msgbox(char *name, char *msg)
 {
     GtkWidget *dialog;
 
@@ -32,9 +32,9 @@ int gtkbuild_msgbox(char *name, char *msg)
     return 1;
 }
 
-int gtkbuild_ynbox(char *name, char *msg)
+int32_t gtkbuild_ynbox(char *name, char *msg)
 {
-    int r;
+    int32_t r;
     GtkWidget *dialog;
 
     if (!gtkenabled) return -1;
@@ -56,7 +56,7 @@ int gtkbuild_ynbox(char *name, char *msg)
 #include "sdlayer.h"
 extern struct sdlappicon sdlappicon;
 #endif
-void gtkbuild_init(int *argc, char ***argv)
+void gtkbuild_init(int32_t *argc, char ***argv)
 {
 #ifndef LINKED_GTK
     gtkenabled = dynamicgtk_init();
@@ -76,7 +76,7 @@ void gtkbuild_init(int *argc, char ***argv)
     if (appicon) gtk_window_set_default_icon(appicon);
 }
 
-void gtkbuild_exit(int r)
+void gtkbuild_exit(int32_t r)
 {
     UNREFERENCED_PARAMETER(r);
     if (gtkenabled)

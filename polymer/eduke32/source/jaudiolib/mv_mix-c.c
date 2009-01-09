@@ -1,30 +1,30 @@
 #include "multivoc.h"
 
 extern char  *MV_MixDestination;
-extern unsigned int MV_MixPosition;
+extern uint32_t MV_MixPosition;
 
 extern char *MV_LeftVolume;
 extern char *MV_RightVolume;
 
-extern unsigned char *MV_HarshClipTable;
+extern char *MV_HarshClipTable;
 
-extern int MV_RightChannelOffset;
-extern int MV_SampleSize;
+extern int32_t MV_RightChannelOffset;
+extern int32_t MV_SampleSize;
 
-void MV_Mix8BitMono(unsigned int position, unsigned int rate,
-                    const char *start, unsigned int length)
+void MV_Mix8BitMono(uint32_t position, uint32_t rate,
+                    const char *start, uint32_t length)
 {
-    const unsigned char *src;
-    unsigned char *dest;
-    unsigned int i;
+    const char *src;
+    char *dest;
+    uint32_t i;
 
-    src = (const unsigned char *)start;
-    dest = (unsigned char *)MV_MixDestination;
+    src = (const char *)start;
+    dest = (char *)MV_MixDestination;
 
     for (i = 0; i < length; i++)
     {
-        int s = src[position >> 16];
-        int d = *dest;
+        int32_t s = src[position >> 16];
+        int32_t d = *dest;
 
         s = MV_LeftVolume[s * 2];
 
@@ -42,21 +42,21 @@ void MV_Mix8BitMono(unsigned int position, unsigned int rate,
     MV_MixDestination = (char *)dest;
 }
 
-void MV_Mix8BitStereo(unsigned int position,
-                      unsigned int rate, const char *start, unsigned int length)
+void MV_Mix8BitStereo(uint32_t position,
+                      uint32_t rate, const char *start, uint32_t length)
 {
-    const unsigned char *src;
-    unsigned char *dest;
-    unsigned int i;
+    const char *src;
+    char *dest;
+    uint32_t i;
 
-    src = (const unsigned char *)start;
-    dest = (unsigned char *)MV_MixDestination;
+    src = (const char *)start;
+    dest = (char *)MV_MixDestination;
 
     for (i = 0; i < length; i++)
     {
-        int s = src[(position >> 16)];
-        int dl = dest[0];
-        int dr = dest[MV_RightChannelOffset];
+        int32_t s = src[(position >> 16)];
+        int32_t dl = dest[0];
+        int32_t dr = dest[MV_RightChannelOffset];
 
         dl += MV_LeftVolume[s * 2];
         dr += MV_RightVolume[s * 2];
@@ -75,23 +75,23 @@ void MV_Mix8BitStereo(unsigned int position,
     MV_MixDestination = (char *)dest;
 }
 
-void MV_Mix16BitMono(unsigned int position,
-                     unsigned int rate, const char *start, unsigned int length)
+void MV_Mix16BitMono(uint32_t position,
+                     uint32_t rate, const char *start, uint32_t length)
 {
-    const short *MV_LeftVolumeS;
-    const unsigned char *src;
-    short *dest;
-    unsigned int i;
+    const int16_t *MV_LeftVolumeS;
+    const char *src;
+    int16_t *dest;
+    uint32_t i;
 
-    src = (const unsigned char *)start;
-    dest = (short *)MV_MixDestination;
+    src = (const char *)start;
+    dest = (int16_t *)MV_MixDestination;
 
-    MV_LeftVolumeS = (const short *)MV_LeftVolume;
+    MV_LeftVolumeS = (const int16_t *)MV_LeftVolume;
 
     for (i = 0; i < length; i++)
     {
-        int s = src[position >> 16];
-        int d = dest[0];
+        int32_t s = src[position >> 16];
+        int32_t d = dest[0];
 
         s = MV_LeftVolumeS[s];
 
@@ -100,7 +100,7 @@ void MV_Mix16BitMono(unsigned int position,
         if (s < -32768) s = -32768;
         if (s >  32767) s =  32767;
 
-        *dest = (short) s;
+        *dest = (int16_t) s;
 
         position += rate;
         dest += MV_SampleSize/2;
@@ -110,26 +110,26 @@ void MV_Mix16BitMono(unsigned int position,
     MV_MixDestination = (char *)dest;
 }
 
-void MV_Mix16BitStereo(unsigned int position,
-                       unsigned int rate, const char *start, unsigned int length)
+void MV_Mix16BitStereo(uint32_t position,
+                       uint32_t rate, const char *start, uint32_t length)
 {
-    const short *MV_LeftVolumeS;
-    const short *MV_RightVolumeS;
-    const unsigned char *src;
-    short *dest;
-    unsigned int i;
+    const int16_t *MV_LeftVolumeS;
+    const int16_t *MV_RightVolumeS;
+    const char *src;
+    int16_t *dest;
+    uint32_t i;
 
-    src = (unsigned char *)start;
-    dest = (short *)MV_MixDestination;
+    src = (char *)start;
+    dest = (int16_t *)MV_MixDestination;
 
-    MV_LeftVolumeS = (const short *)MV_LeftVolume;
-    MV_RightVolumeS = (const short *)MV_RightVolume;
+    MV_LeftVolumeS = (const int16_t *)MV_LeftVolume;
+    MV_RightVolumeS = (const int16_t *)MV_RightVolume;
 
     for (i = 0; i < length; i++)
     {
-        int s = src[position >> 16];
-        int dl = dest[0];
-        int dr = dest[MV_RightChannelOffset/2];
+        int32_t s = src[position >> 16];
+        int32_t dl = dest[0];
+        int32_t dr = dest[MV_RightChannelOffset/2];
 
         dl += MV_LeftVolumeS[s];
         dr += MV_RightVolumeS[s];
@@ -139,8 +139,8 @@ void MV_Mix16BitStereo(unsigned int position,
         if (dr < -32768) dr = -32768;
         if (dr >  32767) dr =  32767;
 
-        dest[0] = (short) dl;
-        dest[MV_RightChannelOffset/2] = (short) dr;
+        dest[0] = (int16_t) dl;
+        dest[MV_RightChannelOffset/2] = (int16_t) dr;
 
         position += rate;
         dest += MV_SampleSize/2;
@@ -150,20 +150,20 @@ void MV_Mix16BitStereo(unsigned int position,
     MV_MixDestination = (char *)dest;
 }
 
-void MV_Mix8BitMono16(unsigned int position, unsigned int rate,
-                      const char *start, unsigned int length)
+void MV_Mix8BitMono16(uint32_t position, uint32_t rate,
+                      const char *start, uint32_t length)
 {
     const char *src;
-    unsigned char *dest;
-    unsigned int i;
+    char *dest;
+    uint32_t i;
 
     src = (const char *)start + 1;
-    dest = (unsigned char *)MV_MixDestination;
+    dest = (char *)MV_MixDestination;
 
     for (i = 0; i < length; i++)
     {
-        int s = (int)src[(position >> 16) * 2] + 0x80;
-        int d = *dest;
+        int32_t s = (int32_t)src[(position >> 16) * 2] + 0x80;
+        int32_t d = *dest;
 
         s = MV_LeftVolume[s * 2];
 
@@ -181,21 +181,21 @@ void MV_Mix8BitMono16(unsigned int position, unsigned int rate,
     MV_MixDestination = (char *)dest;
 }
 
-void MV_Mix8BitStereo16(unsigned int position,
-                        unsigned int rate, const char *start, unsigned int length)
+void MV_Mix8BitStereo16(uint32_t position,
+                        uint32_t rate, const char *start, uint32_t length)
 {
     const char *src;
-    unsigned char *dest;
-    unsigned int i;
+    char *dest;
+    uint32_t i;
 
     src = (const char *)start + 1;
-    dest = (unsigned char *)MV_MixDestination;
+    dest = (char *)MV_MixDestination;
 
     for (i = 0; i < length; i++)
     {
-        int s = src[(position >> 16) * 2] + 0x80;
-        int dl = dest[0];
-        int dr = dest[MV_RightChannelOffset];
+        int32_t s = src[(position >> 16) * 2] + 0x80;
+        int32_t dl = dest[0];
+        int32_t dr = dest[MV_RightChannelOffset];
 
         dl += MV_LeftVolume[s * 2];
         dr += MV_RightVolume[s * 2];
@@ -214,25 +214,25 @@ void MV_Mix8BitStereo16(unsigned int position,
     MV_MixDestination = (char *)dest;
 }
 
-void MV_Mix16BitMono16(unsigned int position,
-                       unsigned int rate, const char *start, unsigned int length)
+void MV_Mix16BitMono16(uint32_t position,
+                       uint32_t rate, const char *start, uint32_t length)
 {
-    const short *MV_LeftVolumeS;
-    const unsigned char *src;
-    short *dest;
-    unsigned int i;
+    const int16_t *MV_LeftVolumeS;
+    const char *src;
+    int16_t *dest;
+    uint32_t i;
 
-    src = (const unsigned char *)start;
-    dest = (short *)MV_MixDestination;
+    src = (const char *)start;
+    dest = (int16_t *)MV_MixDestination;
 
-    MV_LeftVolumeS = (const short *)MV_LeftVolume;
+    MV_LeftVolumeS = (const int16_t *)MV_LeftVolume;
 
     for (i = 0; i < length; i++)
     {
-        int sl = src[(position >> 16) * 2 + 0];
-        int sh = src[(position >> 16) * 2 + 1] ^ 0x80;
+        int32_t sl = src[(position >> 16) * 2 + 0];
+        int32_t sh = src[(position >> 16) * 2 + 1] ^ 0x80;
 
-        int d = *dest;
+        int32_t d = *dest;
 
         sl = MV_LeftVolume[sl * 2 + 1];
         sh = MV_LeftVolumeS[sh];
@@ -242,7 +242,7 @@ void MV_Mix16BitMono16(unsigned int position,
         if (d < -32768) d = -32768;
         if (d >  32767) d =  32767;
 
-        *dest = (short) d;
+        *dest = (int16_t) d;
 
         position += rate;
         dest += MV_SampleSize/2;
@@ -252,34 +252,34 @@ void MV_Mix16BitMono16(unsigned int position,
     MV_MixDestination = (char *)dest;
 }
 
-void MV_Mix16BitStereo16(unsigned int position,
-                         unsigned int rate, const char *start, unsigned int length)
+void MV_Mix16BitStereo16(uint32_t position,
+                         uint32_t rate, const char *start, uint32_t length)
 {
-    const short *MV_LeftVolumeS;
-    const short *MV_RightVolumeS;
-    const unsigned char *src;
-    short *dest;
-    unsigned int i;
+    const int16_t *MV_LeftVolumeS;
+    const int16_t *MV_RightVolumeS;
+    const char *src;
+    int16_t *dest;
+    uint32_t i;
 
-    src = (const unsigned char *)start;
-    dest = (short *)MV_MixDestination;
+    src = (const char *)start;
+    dest = (int16_t *)MV_MixDestination;
 
-    MV_LeftVolumeS = (const short *)MV_LeftVolume;
-    MV_RightVolumeS = (const short *)MV_RightVolume;
+    MV_LeftVolumeS = (const int16_t *)MV_LeftVolume;
+    MV_RightVolumeS = (const int16_t *)MV_RightVolume;
 
     for (i = 0; i < length; i++)
     {
-        int sl = src[(position >> 16) * 2 + 0];
-        int sh = src[(position >> 16) * 2 + 1] ^ 0x80;
+        int32_t sl = src[(position >> 16) * 2 + 0];
+        int32_t sh = src[(position >> 16) * 2 + 1] ^ 0x80;
 
-        int dl = dest[0];
-        int dr = dest[MV_RightChannelOffset/2];
+        int32_t dl = dest[0];
+        int32_t dr = dest[MV_RightChannelOffset/2];
 
-        int sll = MV_LeftVolume[sl * 2 + 1];
-        int slh = MV_LeftVolumeS[sh];
+        int32_t sll = MV_LeftVolume[sl * 2 + 1];
+        int32_t slh = MV_LeftVolumeS[sh];
 
-        int srl = MV_RightVolume[sl * 2 + 1];
-        int srh = MV_RightVolumeS[sh];
+        int32_t srl = MV_RightVolume[sl * 2 + 1];
+        int32_t srh = MV_RightVolumeS[sh];
 
         dl = sll + slh + 0x80 + dl;
         dr = srl + srh + 0x80 + dr;
@@ -289,8 +289,8 @@ void MV_Mix16BitStereo16(unsigned int position,
         if (dr < -32768) dr = -32768;
         if (dr >  32767) dr =  32767;
 
-        dest[0] = (short) dl;
-        dest[MV_RightChannelOffset/2] = (short) dr;
+        dest[0] = (int16_t) dl;
+        dest[MV_RightChannelOffset/2] = (int16_t) dr;
 
         position += rate;
         dest += MV_SampleSize/2;

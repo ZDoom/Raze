@@ -34,27 +34,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define dprintOSD(...)
 
 #ifdef WINDOWS
-extern int hWindow;
+extern int32_t hWindow;
 #endif
 
 
-void(*FX_CallBackFunc)(unsigned int) = NULL;
-int FX_ErrorCode = FX_Ok;
+void(*FX_CallBackFunc)(uint32_t) = NULL;
+int32_t FX_ErrorCode = FX_Ok;
 
 #define FX_SetErrorCode( status ) \
    FX_ErrorCode = ( status );
 
 FSOUND_SAMPLE * FX_Samples[MAXSOUNDS + 11];	// 11 remote ridicules
 
-int FX_NumVoices = 0;
+int32_t FX_NumVoices = 0;
 static char chtoggle=0;
 static char *chstates=NULL, *chstatesa, *chstatesb;
-static int *chcallvals=NULL;
+static int32_t *chcallvals=NULL;
 
-int FX_ReadVOCInfo(char *data, int size, int *samplerate, int *channels, int *samplesize, int *datalen);
-int FX_ReadVOCData(char *data, char *buf, int bufferlen, char eightbit);
+int32_t FX_ReadVOCInfo(char *data, int32_t size, int32_t *samplerate, int32_t *channels, int32_t *samplesize, int32_t *datalen);
+int32_t FX_ReadVOCData(char *data, char *buf, int32_t bufferlen, char eightbit);
 
-int FX_SimulateCallbacks(void);
+int32_t FX_SimulateCallbacks(void);
 
 
 /*---------------------------------------------------------------------
@@ -64,7 +64,7 @@ int FX_SimulateCallbacks(void);
    number.  A -1 returns a pointer the current error.
 ---------------------------------------------------------------------*/
 
-char *FX_ErrorString(int ErrorNumber)
+char *FX_ErrorString(int32_t ErrorNumber)
 {
     char *ErrorString;
 
@@ -104,7 +104,7 @@ char *FX_ErrorString(int ErrorNumber)
    Selects which sound device to use.
 ---------------------------------------------------------------------*/
 
-static char *OutputType(int a)
+static char *OutputType(int32_t a)
 {
     switch (a)
     {
@@ -123,7 +123,7 @@ static char *OutputType(int a)
     }
 }
 
-int FX_Init(int SoundCard, int numvoices, int numchannels, int samplebits, unsigned mixrate)
+int32_t FX_Init(int32_t SoundCard, int32_t numvoices, int32_t numchannels, int32_t samplebits, unsigned mixrate)
 {
     FSOUND_Close();
 
@@ -146,10 +146,10 @@ int FX_Init(int SoundCard, int numvoices, int numchannels, int samplebits, unsig
 
     chtoggle=0;
     if (chstates) free(chstates);
-    chstates = (char*)malloc(numvoices*2 + sizeof(int)*numvoices);
-    memset(chstates,0,numvoices*2 + sizeof(int)*numvoices);
+    chstates = (char*)malloc(numvoices*2 + sizeof(int32_t)*numvoices);
+    memset(chstates,0,numvoices*2 + sizeof(int32_t)*numvoices);
 
-    chcallvals = (int*)(chstates + numvoices*2);
+    chcallvals = (int32_t*)(chstates + numvoices*2);
     chstatesa = chstates;
     chstatesb = chstates + numvoices;
 
@@ -166,9 +166,9 @@ int FX_Init(int SoundCard, int numvoices, int numchannels, int samplebits, unsig
    Terminates use of sound device.
 ---------------------------------------------------------------------*/
 
-int FX_Shutdown(void)
+int32_t FX_Shutdown(void)
 {
-    unsigned int curalloced, maxalloced;
+    uint32_t curalloced, maxalloced;
 
     if (chstates)
     {
@@ -192,7 +192,7 @@ int FX_Shutdown(void)
    Sets the function to call when a voice is done.
 ---------------------------------------------------------------------*/
 
-int FX_SetCallBack(void(*function)(unsigned int))
+int32_t FX_SetCallBack(void(*function)(uint32_t))
 {
     FX_CallBackFunc = function;
     FX_SetErrorCode(FX_Ok);
@@ -206,7 +206,7 @@ int FX_SetCallBack(void(*function)(unsigned int))
    Sets the volume of the current sound device.
 ---------------------------------------------------------------------*/
 
-void FX_SetVolume(int volume)
+void FX_SetVolume(int32_t volume)
 {
     FSOUND_SetSFXMasterVolume(volume);
 }
@@ -218,7 +218,7 @@ void FX_SetVolume(int volume)
    Set the orientation of the left and right channels.
 ---------------------------------------------------------------------*/
 
-void FX_SetReverseStereo(int setting)
+void FX_SetReverseStereo(int32_t setting)
 {}
 
 
@@ -228,7 +228,7 @@ void FX_SetReverseStereo(int setting)
    Returns the orientation of the left and right channels.
 ---------------------------------------------------------------------*/
 
-int FX_GetReverseStereo(void)
+int32_t FX_GetReverseStereo(void)
 {
     return 0;
 }
@@ -240,7 +240,7 @@ int FX_GetReverseStereo(void)
    Sets the reverb level.
 ---------------------------------------------------------------------*/
 
-void FX_SetReverb(int reverb)
+void FX_SetReverb(int32_t reverb)
 {}
 
 
@@ -250,7 +250,7 @@ void FX_SetReverb(int reverb)
    Sets the delay level of reverb to add to mix.
 ---------------------------------------------------------------------*/
 
-void FX_SetReverbDelay(int delay)
+void FX_SetReverbDelay(int32_t delay)
 {}
 
 
@@ -260,7 +260,7 @@ void FX_SetReverbDelay(int delay)
    Checks if a voice can be play at the specified priority.
 ---------------------------------------------------------------------*/
 
-int FX_VoiceAvailable(int priority)
+int32_t FX_VoiceAvailable(int32_t priority)
 {
     FX_SimulateCallbacks();
     return 1;
@@ -278,17 +278,17 @@ int FX_VoiceAvailable(int priority)
    take up residence at the end of FX_Samples.
 ---------------------------------------------------------------------*/
 
-int FX_PlayLoopedVOC
+int32_t FX_PlayLoopedVOC
 (
     char *ptr,
-    int loopstart,
-    int loopend,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    int32_t loopstart,
+    int32_t loopend,
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 {
     return FX_PlayLoopedSound(pitchoffset, vol, callbackval);
@@ -301,17 +301,17 @@ int FX_PlayLoopedVOC
    Begin playback of sound data with the given volume and priority.
 ---------------------------------------------------------------------*/
 
-int FX_PlayLoopedWAV
+int32_t FX_PlayLoopedWAV
 (
     char *ptr,
-    int loopstart,
-    int loopend,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    int32_t loopstart,
+    int32_t loopend,
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 {
     return FX_PlayLoopedSound(pitchoffset, vol, callbackval);
@@ -325,14 +325,14 @@ int FX_PlayLoopedWAV
    from listener.
 ---------------------------------------------------------------------*/
 
-int FX_PlayVOC3D
+int32_t FX_PlayVOC3D
 (
     char *ptr,
-    int pitchoffset,
-    int angle,
-    int distance,
-    int priority,
-    unsigned int callbackval
+    int32_t pitchoffset,
+    int32_t angle,
+    int32_t distance,
+    int32_t priority,
+    uint32_t callbackval
 )
 {
     return FX_PlayPositionedSound(pitchoffset, angle, distance, callbackval);
@@ -346,14 +346,14 @@ int FX_PlayVOC3D
    from listener.
 ---------------------------------------------------------------------*/
 
-int FX_PlayWAV3D
+int32_t FX_PlayWAV3D
 (
     char *ptr,
-    int pitchoffset,
-    int angle,
-    int distance,
-    int priority,
-    unsigned int callbackval
+    int32_t pitchoffset,
+    int32_t angle,
+    int32_t distance,
+    int32_t priority,
+    uint32_t callbackval
 )
 {
     return FX_PlayPositionedSound(pitchoffset, angle, distance, callbackval);
@@ -367,11 +367,11 @@ int FX_PlayWAV3D
    with the specified handle.
 ---------------------------------------------------------------------*/
 
-int FX_Pan3D
+int32_t FX_Pan3D
 (
-    int handle,
-    int angle,
-    int distance
+    int32_t handle,
+    int32_t angle,
+    int32_t distance
 )
 {
     return FX_Ok;
@@ -384,7 +384,7 @@ int FX_Pan3D
    Halts playback of a specific voice
 ---------------------------------------------------------------------*/
 
-int FX_StopSound(int handle)
+int32_t FX_StopSound(int32_t handle)
 {
     FX_SimulateCallbacks();
     FSOUND_StopSound(handle);
@@ -403,7 +403,7 @@ int FX_StopSound(int handle)
    Halts playback of all sounds.
 ---------------------------------------------------------------------*/
 
-int FX_StopAllSounds(void)
+int32_t FX_StopAllSounds(void)
 {
     FX_SimulateCallbacks();
     FSOUND_StopSound(FSOUND_ALL);
@@ -421,13 +421,13 @@ int FX_StopAllSounds(void)
    Internal function to load a sound file and play it, returning
    the channel number it played on.
 ---------------------------------------------------------------------*/
-int FX_PlayLoopedSound(
-    int pitchoffset,
-    int vol,
-    unsigned int num
+int32_t FX_PlayLoopedSound(
+    int32_t pitchoffset,
+    int32_t vol,
+    uint32_t num
 )
 {
-    int chan;
+    int32_t chan;
 
     FX_SimulateCallbacks();
 
@@ -456,14 +456,14 @@ int FX_PlayLoopedSound(
 }
 
 
-int FX_PlayPositionedSound(
-    int pitchoffset,
-    int angle,
-    int distance,
-    unsigned int num
+int32_t FX_PlayPositionedSound(
+    int32_t pitchoffset,
+    int32_t angle,
+    int32_t distance,
+    uint32_t num
 )
 {
-    int chan;
+    int32_t chan;
 
     FX_SimulateCallbacks();
 
@@ -491,14 +491,14 @@ int FX_PlayPositionedSound(
 }
 
 
-int FX_LoadSample(char *ptr, int size, unsigned int number, int priority)
+int32_t FX_LoadSample(char *ptr, int32_t size, uint32_t number, int32_t priority)
 {
     FSOUND_SAMPLE *samp = NULL;
-    int samplerate=0, channels=0, samplesize=0;
-    int flags=0;
-    int datalen=0;
+    int32_t samplerate=0, channels=0, samplesize=0;
+    int32_t flags=0;
+    int32_t datalen=0;
     void *ptr1,*ptr2;
-    int ptr1len,ptr2len;
+    int32_t ptr1len,ptr2len;
 
     if (!memcmp(ptr, "Creative Voice File", 0x13))
     {
@@ -532,7 +532,7 @@ int FX_LoadSample(char *ptr, int size, unsigned int number, int priority)
 }
 
 
-int FX_SampleLoaded(unsigned int number)
+int32_t FX_SampleLoaded(uint32_t number)
 {
     return (FX_Samples[number] != NULL);
 }
@@ -541,19 +541,19 @@ int FX_SampleLoaded(unsigned int number)
 #define REGRESSTC(tc) (256000000/(65536-(tc)))
 #define REGRESSSR(sr) (1000000/(256-(sr)))
 
-int FX_ReadVOCInfo(char *data, int size, int *samplerate, int *channels, int *samplesize, int *datalen)
+int32_t FX_ReadVOCInfo(char *data, int32_t size, int32_t *samplerate, int32_t *channels, int32_t *samplesize, int32_t *datalen)
 {
-    short version,version2;
+    int16_t version,version2;
     char blocktype=0;
-    int  blocklen=0;
+    int32_t  blocklen=0;
     char *ptr=data;
 
     if (memcmp(ptr, "Creative Voice File\x1A", 0x14)) return -1;
     ptr += 0x14;
 
     ptr += 2;
-    version = ((short*)ptr)[0];
-    version2 = ((short*)ptr)[1];
+    version = ((int16_t*)ptr)[0];
+    version2 = ((int16_t*)ptr)[1];
 
     if (~version + 0x1234 != version2) return -1;
 
@@ -646,7 +646,7 @@ int FX_ReadVOCInfo(char *data, int size, int *samplerate, int *channels, int *sa
             break;
 
         case 9: /* sound data format 3 */
-            *samplerate = *((int*)(ptr));
+            *samplerate = *((int32_t*)(ptr));
             *samplesize = ptr[4];
             *channels   = ptr[5];
             if ((ptr[6] | (ptr[7] << 8)) != 0 &&
@@ -669,11 +669,11 @@ int FX_ReadVOCInfo(char *data, int size, int *samplerate, int *channels, int *sa
 }
 
 
-int FX_ReadVOCData(char *data, char *buf, int bufferlen, char eightbit)
+int32_t FX_ReadVOCData(char *data, char *buf, int32_t bufferlen, char eightbit)
 {
-    short offset;
+    int16_t offset;
     char blocktype=0;
-    int  blocklen=0, br;
+    int32_t  blocklen=0, br;
 
     data += 0x14 + 2 + 4;
 
@@ -716,7 +716,7 @@ convertdata:
         {
             // FMOD wants signed data
             for (; br>0; br--)
-                *(buf++) = (char)((short)(*(data++)) - 0x80);
+                *(buf++) = (uint8_t)((int16_t)(*(data++)) - 0x80);
         }
         else
         {
@@ -730,9 +730,9 @@ convertdata:
 }
 
 
-int FX_SimulateCallbacks(void)
+int32_t FX_SimulateCallbacks(void)
 {
-    int i;
+    int32_t i;
 
     if (!FX_CallBackFunc || !chstates) return 0;
 

@@ -30,13 +30,13 @@ static struct audioenumdrv *wavedevs = NULL;
 
 static struct
 {
-    int fullscreen;
-    int xdim, ydim, bpp;
-    int forcesetup;
-    int usemouse, usejoy;
+    int32_t fullscreen;
+    int32_t xdim, ydim, bpp;
+    int32_t forcesetup;
+    int32_t usemouse, usejoy;
     char selectedgrp[BMAX_PATH+1];
-    int game;
-    int crcval; // for finding the grp in the list again
+    int32_t game;
+    int32_t crcval; // for finding the grp in the list again
     char *gamedir;
 }
 settings;
@@ -46,10 +46,10 @@ static HWND pages[3] =
 {
     NULL, NULL, NULL
 };
-static int done = -1, mode = TAB_CONFIG;
+static int32_t done = -1, mode = TAB_CONFIG;
 
 static CACHE1D_FIND_REC *finddirs=NULL;
-static int numdirs=0;
+static int32_t numdirs=0;
 
 static void clearfilenames(void)
 {
@@ -58,7 +58,7 @@ static void clearfilenames(void)
     numdirs = 0;
 }
 
-static int getfilenames(char *path)
+static int32_t getfilenames(char *path)
 {
     CACHE1D_FIND_REC *r;
 
@@ -77,24 +77,24 @@ static int getfilenames(char *path)
 extern char TEXCACHEFILE[];
 #endif
 
-extern int g_noSetup;
+extern int32_t g_noSetup;
 
-static void PopulateForm(int pgs)
+static void PopulateForm(int32_t pgs)
 {
     HWND hwnd;
     char buf[256];
-    int i,j;
+    int32_t i,j;
 
     if (pgs & POPULATE_VIDEO)
     {
-        int mode;
+        int32_t mode;
 
         hwnd = GetDlgItem(pages[TAB_CONFIG], IDCVMODE);
 
         mode = checkvideomode(&settings.xdim, &settings.ydim, settings.bpp, settings.fullscreen, 1);
         if (mode < 0)
         {
-            int cd[] = { 32, 24, 16, 15, 8, 0 };
+            int32_t cd[] = { 32, 24, 16, 15, 8, 0 };
             for (i=0; cd[i];)
             {
                 if (cd[i] >= settings.bpp) i++;
@@ -163,7 +163,7 @@ static void PopulateForm(int pgs)
     if (pgs & POPULATE_GAME)
     {
         struct grpfile *fg;
-        int i, j;
+        int32_t i, j;
         char buf[128+BMAX_PATH];
 
         hwnd = GetDlgItem(pages[TAB_CONFIG], IDCDATA);
@@ -217,7 +217,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
         case IDCVMODE:
             if (HIWORD(wParam) == CBN_SELCHANGE)
             {
-                int i;
+                int32_t i;
                 i = ComboBox_GetCurSel((HWND)lParam);
                 if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
                 if (i != CB_ERR)
@@ -240,7 +240,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
         case IDCGAMEDIR:
             if (HIWORD(wParam) == CBN_SELCHANGE)
             {
-                int i,j;
+                int32_t i,j;
                 CACHE1D_FIND_REC *dir = NULL;
                 i = ComboBox_GetCurSel((HWND)lParam);
                 if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
@@ -262,7 +262,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
             return TRUE;
         case IDCDATA:
         {
-            int i;
+            int32_t i;
             if (HIWORD(wParam) != LBN_SELCHANGE) break;
             i = ListBox_GetCurSel((HWND)lParam);
             if (i != CB_ERR) i = ListBox_GetItemData((HWND)lParam, i);
@@ -285,12 +285,12 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
 }
 
 
-static void SetPage(int n)
+static void SetPage(int32_t n)
 {
     HWND tab;
-    int cur;
+    int32_t cur;
     tab = GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL);
-    cur = (int)SendMessage(tab, TCM_GETCURSEL,0,0);
+    cur = (int32_t)SendMessage(tab, TCM_GETCURSEL,0,0);
     ShowWindow(pages[cur],SW_HIDE);
     SendMessage(tab, TCM_SETCURSEL, n, 0);
     ShowWindow(pages[n],SW_SHOW);
@@ -299,7 +299,7 @@ static void SetPage(int n)
     SetFocus(GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL));
 }
 
-static void EnableConfig(int n)
+static void EnableConfig(int32_t n)
 {
     //EnableWindow(GetDlgItem(startupdlg, WIN_STARTWIN_CANCEL), n);
     EnableWindow(GetDlgItem(startupdlg, WIN_STARTWIN_START), n);
@@ -323,7 +323,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
     {
         HWND hwnd;
         RECT r, rdlg, chrome, rtab, rcancel, rstart;
-        int xoffset = 0, yoffset = 0;
+        int32_t xoffset = 0, yoffset = 0;
 
         // Fetch the positions (in screen coordinates) of all the windows we need to tweak
         ZeroMemory(&chrome, sizeof(chrome));
@@ -443,9 +443,9 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
     case WM_NOTIFY:
     {
         LPNMHDR nmhdr = (LPNMHDR)lParam;
-        int cur;
+        int32_t cur;
         if (nmhdr->idFrom != WIN_STARTWIN_TABCTL) break;
-        cur = (int)SendMessage(nmhdr->hwndFrom, TCM_GETCURSEL,0,0);
+        cur = (int32_t)SendMessage(nmhdr->hwndFrom, TCM_GETCURSEL,0,0);
         switch (nmhdr->code)
         {
         case TCN_SELCHANGING:
@@ -511,7 +511,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 }
 
 
-int startwin_open(void)
+int32_t startwin_open(void)
 {
     INITCOMMONCONTROLSEX icc;
     if (startupdlg) return 1;
@@ -528,7 +528,7 @@ int startwin_open(void)
     return -1;
 }
 
-int startwin_close(void)
+int32_t startwin_close(void)
 {
     if (!startupdlg) return 1;
     DestroyWindow(startupdlg);
@@ -536,14 +536,14 @@ int startwin_close(void)
     return 0;
 }
 
-int startwin_puts(const char *buf)
+int32_t startwin_puts(const char *buf)
 {
     const char *p = NULL, *q = NULL;
     static char workbuf[1024];
-    static int newline = 0;
-    int curlen, linesbefore, linesafter;
+    static int32_t newline = 0;
+    int32_t curlen, linesbefore, linesafter;
     HWND edctl;
-    int vis;
+    int32_t vis;
     static HWND dactrl = NULL;
 
     if (!startupdlg) return 1;
@@ -553,7 +553,7 @@ int startwin_puts(const char *buf)
 
     if (!dactrl) dactrl = GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL);
 
-    vis = ((int)SendMessage(dactrl, TCM_GETCURSEL,0,0) == TAB_MESSAGES);
+    vis = ((int32_t)SendMessage(dactrl, TCM_GETCURSEL,0,0) == TAB_MESSAGES);
 
     if (vis) SendMessage(edctl, WM_SETREDRAW, FALSE,0);
     curlen = SendMessage(edctl, WM_GETTEXTLENGTH, 0,0);
@@ -598,21 +598,21 @@ int startwin_puts(const char *buf)
     return 0;
 }
 
-int startwin_settitle(const char *str)
+int32_t startwin_settitle(const char *str)
 {
     if (!startupdlg) return 1;
     SetWindowText(startupdlg, str);
     return 0;
 }
 
-int startwin_idle(void *v)
+int32_t startwin_idle(void *v)
 {
     if (!startupdlg || !IsWindow(startupdlg)) return 0;
     if (IsDialogMessage(startupdlg, (MSG*)v)) return 1;
     return 0;
 }
 
-int startwin_run(void)
+int32_t startwin_run(void)
 {
     MSG msg;
     if (!startupdlg) return 1;
@@ -659,7 +659,7 @@ int startwin_run(void)
     EnableConfig(0);
     if (done)
     {
-        int i;
+        int32_t i;
 
         ud.config.ScreenMode = settings.fullscreen;
         ud.config.ScreenWidth = settings.xdim;

@@ -27,25 +27,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "osd.h"
 
-int g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
+int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
 static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
 
-int g_totalLines,g_lineNumber;
-static int g_checkingIfElse,g_processingState;
+int32_t g_totalLines,g_lineNumber;
+static int32_t g_checkingIfElse,g_processingState;
 char g_szBuf[1024];
 
 intptr_t *g_caseScriptPtr=NULL;      // the pointer to the start of the case table in a switch statement
 // first entry is 'default' code.
-static int g_numCases = 0;
-static int g_checkingSwitch = 0, g_currentEvent = -1;
-static int g_labelsOnly = 0, g_skipKeywordCheck = 0, g_dynamicTileMapping = 0;
-static int g_numBraces = 0;
+static int32_t g_numCases = 0;
+static int32_t g_checkingSwitch = 0, g_currentEvent = -1;
+static int32_t g_labelsOnly = 0, g_skipKeywordCheck = 0, g_dynamicTileMapping = 0;
+static int32_t g_numBraces = 0;
 
-static int C_IncreaseScriptSize(int size);
+static int32_t C_IncreaseScriptSize(int32_t size);
 
-int g_numQuoteRedefinitions = 0;
+int32_t g_numQuoteRedefinitions = 0;
 
 // pointers to weapon gamevar data
 intptr_t *aplWeaponClip[MAX_WEAPONS];       // number of items in magazine
@@ -67,21 +67,21 @@ intptr_t *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being remo
 intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
 intptr_t *aplWeaponSelectSound[MAX_WEAPONS];     // Sound of weapon being selected
 
-int g_iReturnVarID=-1;      // var ID of "RETURN"
-int g_iWeaponVarID=-1;      // var ID of "WEAPON"
-int g_iWorksLikeVarID=-1;   // var ID of "WORKSLIKE"
-int g_iZRangeVarID=-1;      // var ID of "ZRANGE"
-int g_iAngRangeVarID=-1;    // var ID of "ANGRANGE"
-int g_iAimAngleVarID=-1;    // var ID of "AUTOAIMANGLE"
-int g_iLoTagID=-1;          // var ID of "LOTAG"
-int g_iHiTagID=-1;          // var ID of "HITAG"
-int g_iTextureID=-1;        // var ID of "TEXTURE"
-int g_iThisActorID=-1;      // var ID of "THISACTOR"
-int g_iSpriteVarID=-1;
-int g_iSectorVarID=-1;
-int g_iWallVarID=-1;
-int g_iPlayerVarID=-1;
-int g_iActorVarID=-1;
+int32_t g_iReturnVarID=-1;      // var ID of "RETURN"
+int32_t g_iWeaponVarID=-1;      // var ID of "WEAPON"
+int32_t g_iWorksLikeVarID=-1;   // var ID of "WORKSLIKE"
+int32_t g_iZRangeVarID=-1;      // var ID of "ZRANGE"
+int32_t g_iAngRangeVarID=-1;    // var ID of "ANGRANGE"
+int32_t g_iAimAngleVarID=-1;    // var ID of "AUTOAIMANGLE"
+int32_t g_iLoTagID=-1;          // var ID of "LOTAG"
+int32_t g_iHiTagID=-1;          // var ID of "HITAG"
+int32_t g_iTextureID=-1;        // var ID of "TEXTURE"
+int32_t g_iThisActorID=-1;      // var ID of "THISACTOR"
+int32_t g_iSpriteVarID=-1;
+int32_t g_iSectorVarID=-1;
+int32_t g_iWallVarID=-1;
+int32_t g_iPlayerVarID=-1;
+int32_t g_iActorVarID=-1;
 
 intptr_t *actorLoadEventScrptr[MAXTILES];
 
@@ -90,13 +90,13 @@ static intptr_t *g_parsingEventPtr=NULL;
 
 gamevar_t aGameVars[MAXGAMEVARS];
 gamearray_t aGameArrays[MAXGAMEARRAYS];
-int g_gameVarCount=0;
-int g_gameArrayCount=0;
+int32_t g_gameVarCount=0;
+int32_t g_gameArrayCount=0;
 
-extern int qsetmode;
+extern int32_t qsetmode;
 
 char *textptr;
-int g_numCompilerErrors,g_numCompilerWarnings;
+int32_t g_numCompilerErrors,g_numCompilerWarnings;
 
 extern char *duke3dgrpstring;
 extern char *duke3ddef;
@@ -122,9 +122,9 @@ static const char *LabelTypeText[] =
     "move"
 };
 
-static const char *C_GetLabelType(int type)
+static const char *C_GetLabelType(int32_t type)
 {
-    int i;
+    int32_t i;
     char x[64];
 
     x[0] = 0;
@@ -137,7 +137,7 @@ static const char *C_GetLabelType(int type)
     return strdup(x);
 }
 
-#define NUMKEYWORDS (signed int)(sizeof(keyw)/sizeof(keyw[0]))
+#define NUMKEYWORDS (int32_t)(sizeof(keyw)/sizeof(keyw[0]))
 
 const char *keyw[] =
 {
@@ -960,7 +960,7 @@ void freehashnames();
 
 void C_InitHashes()
 {
-    int i;
+    int32_t i;
 
     HASH_init(&gamevarH);
     HASH_init(&arrayH);
@@ -1006,9 +1006,9 @@ void C_FreeHashes(void)
 }
 
 #define IFELSE_MAGIC 31337
-static int g_ifElseAborted;
+static int32_t g_ifElseAborted;
 
-static int C_IncreaseScriptSize(int size)
+static int32_t C_IncreaseScriptSize(int32_t size)
 {
     intptr_t oscriptPtr = (unsigned)(g_scriptPtr-script);
     intptr_t ocaseScriptPtr = (unsigned)(g_caseScriptPtr-script);
@@ -1017,7 +1017,7 @@ static int C_IncreaseScriptSize(int size)
     char *scriptptrs;
     intptr_t *newscript;
     intptr_t i, j;
-    int osize = g_scriptSize;
+    int32_t osize = g_scriptSize;
     char *newbitptr;
 
     for (i=MAXSECTORS-1;i>=0;i--)
@@ -1028,7 +1028,7 @@ static int C_IncreaseScriptSize(int size)
         }
     }
 
-    scriptptrs = Bcalloc(1,g_scriptSize * sizeof(char));
+    scriptptrs = Bcalloc(1,g_scriptSize * sizeof(uint8_t));
     for (i=g_scriptSize-1;i>=0;i--)
     {
 //            initprintf("%d\n",i);
@@ -1074,8 +1074,8 @@ static int C_IncreaseScriptSize(int size)
 
     newscript = (intptr_t *)Brealloc(script, g_scriptSize * sizeof(intptr_t));
 
-//    bitptr = (char *)Brealloc(bitptr, g_scriptSize * sizeof(char));
-    newbitptr = Bcalloc(1,(((size+7)>>3)+1) * sizeof(char));
+//    bitptr = (char *)Brealloc(bitptr, g_scriptSize * sizeof(uint8_t));
+    newbitptr = Bcalloc(1,(((size+7)>>3)+1) * sizeof(uint8_t));
 
     if (newscript == NULL || newbitptr == NULL)
     {
@@ -1090,10 +1090,10 @@ static int C_IncreaseScriptSize(int size)
     {
         Bmemset(&newscript[osize],0,(size-osize) * sizeof(intptr_t));
 //        Bmemset(&bitptr[osize],0,size-osize);
-        Bmemcpy(newbitptr,bitptr,sizeof(char) * ((osize+7)>>3));
+        Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) * ((osize+7)>>3));
     }
     else if (size < osize)
-        Bmemcpy(newbitptr,bitptr,sizeof(char) * ((size+7)>>3));
+        Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) * ((size+7)>>3));
 
     Bfree(bitptr);
     bitptr = newbitptr;
@@ -1161,7 +1161,7 @@ static int C_IncreaseScriptSize(int size)
     return 0;
 }
 
-static int C_SkipComments(void)
+static int32_t C_SkipComments(void)
 {
     char c = *textptr;
 
@@ -1216,7 +1216,7 @@ static int C_SkipComments(void)
     return 0;
 }
 
-static void C_SetProjectile(int lVar1, int lLabelID, int lVar2)
+static void C_SetProjectile(int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     switch (lLabelID)
     {
@@ -1342,7 +1342,7 @@ static void C_SetProjectile(int lVar1, int lLabelID, int lVar2)
     return;
 }
 
-static int C_CheckEventSync(int iEventID)
+static int32_t C_CheckEventSync(int32_t iEventID)
 {
     if (g_parsingEventPtr || g_parsingActorPtr)
     {
@@ -1381,26 +1381,10 @@ static int C_CheckEventSync(int iEventID)
     return 1;
 }
 
-#if 0
-void AddLog(const char *psz, ...)
-{
-    va_list va;
-
-    va_start(va, psz);
-    Bvsnprintf(tempbuf, sizeof(tempbuf), psz, va);
-    va_end(va);
-
-    if (tempbuf[Bstrlen(tempbuf)] != '\n')
-        Bstrcat(tempbuf,"\n");
-    if (qsetmode == 200) OSD_Printf(tempbuf);
-    else initprintf(tempbuf);
-}
-#endif
-
 #define GetDefID(szGameLabel) HASH_find(&gamevarH,szGameLabel)
 #define GetADefID(szGameLabel) HASH_find(&arrayH,szGameLabel)
 
-static inline int ispecial(char c)
+static inline int32_t ispecial(char c)
 {
     if (c == 0x0a)
     {
@@ -1414,17 +1398,17 @@ static inline int ispecial(char c)
     return 0;
 }
 
-static inline int isaltok(char c)
+static inline int32_t isaltok(char c)
 {
     return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '*' || c == '-' || c == '_' || c == '.');
 }
 
-static inline int GetLabelNameid(const memberlabel_t *pLabel, HASH_table *tH, const char *psz)
+static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, HASH_table *tH, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the ID for the label, or -1
 
-    int l=-1;
+    int32_t l=-1;
 
     l = HASH_findcase(tH,psz);
     if (l>=0) l= pLabel[l].lId;
@@ -1432,7 +1416,7 @@ static inline int GetLabelNameid(const memberlabel_t *pLabel, HASH_table *tH, co
     return l;
 }
 
-static inline int C_GetLabelNameOffset(HASH_table *tH, const char *psz)
+static inline int32_t C_GetLabelNameOffset(HASH_table *tH, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the offset in the array for the label, or -1
@@ -1442,7 +1426,7 @@ static inline int C_GetLabelNameOffset(HASH_table *tH, const char *psz)
 
 static void C_GetNextLabelName(void)
 {
-    int i;
+    int32_t i;
 
     C_SkipComments();
 
@@ -1463,9 +1447,9 @@ static void C_GetNextLabelName(void)
         initprintf("%s:%d: debug: got label `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
 }
 
-static int C_GetKeyword(void)
+static int32_t C_GetKeyword(void)
 {
-    int i;
+    int32_t i;
     char *temptextptr;
 
     C_SkipComments();
@@ -1486,9 +1470,9 @@ static int C_GetKeyword(void)
     return HASH_find(&keywH,tempbuf);
 }
 
-static int C_GetNextKeyword(void) //Returns its code #
+static int32_t C_GetNextKeyword(void) //Returns its code #
 {
-    int i, l;
+    int32_t i, l;
 
     C_SkipComments();
 
@@ -1544,9 +1528,9 @@ static int C_GetNextKeyword(void) //Returns its code #
     return -1;
 }
 
-static void C_GetNextVarType(int type)
+static void C_GetNextVarType(int32_t type)
 {
-    int i=0,f=0;
+    int32_t i=0,f=0;
 
     C_SkipComments();
     if (!type && !g_labelsOnly && (isdigit(*textptr) || ((*textptr == '-') && (isdigit(*(textptr+1))))))
@@ -1592,7 +1576,7 @@ static void C_GetNextVarType(int type)
     C_SkipComments(); //skip comments and whitespace
     if ((*textptr == '['))     //read of array as a gamevar
     {
-        int lLabelID = -1;
+        int32_t lLabelID = -1;
 
         f |= (MAXGAMEVARS<<2);
 //        initprintf("got an array");
@@ -1766,21 +1750,21 @@ static inline void C_GetNextVar(void)
     C_GetNextVarType(0);
 }
 
-static inline void C_GetManyVarsType(int type, int num)
+static inline void C_GetManyVarsType(int32_t type, int32_t num)
 {
-    int i;
+    int32_t i;
     for (i=num-1;i>=0;i--)
         C_GetNextVarType(type);
 }
 
-static inline void C_GetManyVars(int num)
+static inline void C_GetManyVars(int32_t num)
 {
     C_GetManyVarsType(0,num);
 }
 
-static int C_GetNextValue(int type)
+static int32_t C_GetNextValue(int32_t type)
 {
-    int i, l;
+    int32_t i, l;
 
     C_SkipComments();
 
@@ -1887,7 +1871,7 @@ static int C_GetNextValue(int type)
     return 0;   // literal value
 }
 
-static int C_CheckEmptyBranch(int tw, intptr_t lastScriptPtr)
+static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
 {
     // ifrnd and ifhitweapon actually do something when the condition is executed
     if ((Bstrncmp(keyw[tw], "if", 2) && tw != CON_ELSE) ||
@@ -1914,16 +1898,16 @@ static int C_CheckEmptyBranch(int tw, intptr_t lastScriptPtr)
     return 0;
 }
 
-static int C_ParseCommand(void);
+static int32_t C_ParseCommand(void);
 
-static int C_CountCaseStatements()
+static int32_t C_CountCaseStatements()
 {
-    int lCount;
+    int32_t lCount;
     char *temptextptr = textptr;
-    int temp_ScriptLineNumber = g_lineNumber;
+    int32_t temp_ScriptLineNumber = g_lineNumber;
     intptr_t scriptoffset = (unsigned)(g_scriptPtr-script);
     intptr_t caseoffset = (unsigned)(g_caseScriptPtr-script);
-//    int i;
+//    int32_t i;
 
     g_numCases=0;
     g_caseScriptPtr=NULL;
@@ -1950,9 +1934,9 @@ static int C_CountCaseStatements()
     return lCount;
 }
 
-static int C_ParseCommand(void)
+static int32_t C_ParseCommand(void)
 {
-    int i, j=0, k=0, done, tw;
+    int32_t i, j=0, k=0, done, tw;
     char *temptextptr;
     intptr_t *tempscrptr = NULL;
 
@@ -2091,7 +2075,7 @@ static int C_ParseCommand(void)
     case CON_GETTHISPROJECTILE:
     case CON_GETPROJECTILE:
     {
-        int lLabelID;
+        int32_t lLabelID;
 
         // syntax getwall[<var>].x <VAR>
         // gets the value of wall[<var>].xxx into <VAR>
@@ -2422,7 +2406,7 @@ static int C_ParseCommand(void)
                 tempbuf[j+1] = '\0';
 
                 if (MapInfo[(k*MAXLEVELS)+i].musicfn == NULL)
-                    MapInfo[(k*MAXLEVELS)+i].musicfn = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
+                    MapInfo[(k*MAXLEVELS)+i].musicfn = Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
                 else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[(k*MAXLEVELS)+i].musicfn))
                     MapInfo[(k*MAXLEVELS)+i].musicfn = Brealloc(MapInfo[(k*MAXLEVELS)+i].musicfn,(Bstrlen(tempbuf)+1));
 
@@ -2478,11 +2462,11 @@ static int C_ParseCommand(void)
         tempbuf[j] = '\0';
 
         {
-            int temp_ScriptLineNumber;
-            int  temp_ifelse_check;
+            int32_t temp_ScriptLineNumber;
+            int32_t  temp_ifelse_check;
             char *origtptr, *mptr;
             char parentScriptFileName[255];
-            int fp;
+            int32_t fp;
 
             fp = kopen4loadfrommod(tempbuf,g_loadFromGroupOnly);
             if (fp < 0)
@@ -3088,7 +3072,7 @@ static int C_ParseCommand(void)
         }
     case CON_GETSECTOR:
     {
-        int lLabelID;
+        int32_t lLabelID;
 
         // syntax getsector[<var>].x <VAR>
         // gets the value of sector[<var>].xxx into <VAR>
@@ -3126,7 +3110,7 @@ static int C_ParseCommand(void)
         C_GetNextLabelName();
         //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
 
-        lLabelID=GetLabelNameid(SectorLabels,&sectorH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+        lLabelID=C_GetLabelNameID(SectorLabels,&sectorH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
 
         if (lLabelID == -1)
         {
@@ -3223,7 +3207,7 @@ static int C_ParseCommand(void)
         }
     case CON_GETWALL:
     {
-        int lLabelID;
+        int32_t lLabelID;
 
         // syntax getwall[<var>].x <VAR>
         // gets the value of wall[<var>].xxx into <VAR>
@@ -3261,7 +3245,7 @@ static int C_ParseCommand(void)
         C_GetNextLabelName();
         //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
 
-        lLabelID=GetLabelNameid(WallLabels,&wallH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+        lLabelID=C_GetLabelNameID(WallLabels,&wallH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
 
         if (lLabelID == -1)
         {
@@ -3290,7 +3274,7 @@ static int C_ParseCommand(void)
         }
     case CON_GETPLAYER:
     {
-        int lLabelID;
+        int32_t lLabelID;
 
         // syntax getwall[<var>].x <VAR>
         // gets the value of wall[<var>].xxx into <VAR>
@@ -3371,7 +3355,7 @@ static int C_ParseCommand(void)
         }
     case CON_GETINPUT:
     {
-        int lLabelID;
+        int32_t lLabelID;
 
         // syntax getwall[<var>].x <VAR>
         // gets the value of wall[<var>].xxx into <VAR>
@@ -3434,7 +3418,7 @@ static int C_ParseCommand(void)
     case CON_SETUSERDEF:
     case CON_GETUSERDEF:
     {
-        int lLabelID;
+        int32_t lLabelID;
 
         // syntax [gs]etuserdef.x <VAR>
         // gets the value of ud.xxx into <VAR>
@@ -3460,7 +3444,7 @@ static int C_ParseCommand(void)
         C_GetNextLabelName();
         //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
 
-        lLabelID=GetLabelNameid(UserdefsLabels,&userdefH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+        lLabelID=C_GetLabelNameID(UserdefsLabels,&userdefH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
 
         if (lLabelID == -1)
         {
@@ -3627,7 +3611,7 @@ static int C_ParseCommand(void)
         }
     case CON_GETACTOR:
     {
-        int lLabelID;
+        int32_t lLabelID;
 
         // syntax getwall[<var>].x <VAR>
         // gets the value of wall[<var>].xxx into <VAR>
@@ -3703,7 +3687,7 @@ static int C_ParseCommand(void)
     case CON_GETTSPR:
     case CON_SETTSPR:
     {
-        int lLabelID;
+        int32_t lLabelID;
 
         if (g_currentEvent != EVENT_ANIMATESPRITES)
         {
@@ -4013,8 +3997,8 @@ static int C_ParseCommand(void)
 
     case CON_DEFINEPROJECTILE:
     {
-        int y;
-        signed int z;
+        int32_t y;
+        int32_t z;
 
         if (g_processingState || g_parsingActorPtr)
         {
@@ -4247,7 +4231,7 @@ static int C_ParseCommand(void)
         }
 
         // syntax:
-        // int x, int y, int z, short a, short tilenum, signed char shade, char orientation, x1, y1, x2, y2
+        // int32_t x, int32_t y, int32_t z, short a, short tilenum, int8_t shade, char orientation, x1, y1, x2, y2
         // myospal adds char pal
 
         // get the ID of the DEFs
@@ -4358,7 +4342,7 @@ static int C_ParseCommand(void)
         }
 
         // syntax:
-        // int x, int y, short tilenum, signed char shade, char orientation
+        // int32_t x, int32_t y, short tilenum, int8_t shade, char orientation
         // myospal adds char pal
 
         C_GetManyVars(5);
@@ -4527,7 +4511,7 @@ repeatcase:
         //AddLog(g_szBuf);
 
         j=*(--g_scriptPtr);      // get value
-        //Bsprintf(g_szBuf,"case: Value of case %d is %d",(int)g_numCases,(int)j);
+        //Bsprintf(g_szBuf,"case: Value of case %d is %d",(int32_t)g_numCases,(int32_t)j);
         //AddLog(g_szBuf);
         if (g_caseScriptPtr)
         {
@@ -5190,7 +5174,7 @@ repeatcase:
         Bcorrectfilename(tempbuf,0);
 
         if (MapInfo[j*MAXLEVELS+k].filename == NULL)
-            MapInfo[j*MAXLEVELS+k].filename = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
+            MapInfo[j*MAXLEVELS+k].filename = Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
         else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[j*MAXLEVELS+k].filename))
             MapInfo[j*MAXLEVELS+k].filename = Brealloc(MapInfo[j*MAXLEVELS+k].filename,(Bstrlen(tempbuf)+1));
 
@@ -5232,7 +5216,7 @@ repeatcase:
         tempbuf[i] = '\0';
 
         if (MapInfo[j*MAXLEVELS+k].name == NULL)
-            MapInfo[j*MAXLEVELS+k].name = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
+            MapInfo[j*MAXLEVELS+k].name = Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
         else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[j*MAXLEVELS+k].name))
             MapInfo[j*MAXLEVELS+k].name = Brealloc(MapInfo[j*MAXLEVELS+k].name,(Bstrlen(tempbuf)+1));
 
@@ -5260,11 +5244,11 @@ repeatcase:
         }
 
         if (ScriptQuotes[k] == NULL)
-            ScriptQuotes[k] = Bcalloc(MAXQUOTELEN,sizeof(char));
+            ScriptQuotes[k] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
         if (!ScriptQuotes[k])
         {
             ScriptQuotes[k] = NULL;
-            Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
+            Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(uint8_t) * MAXQUOTELEN);
             G_GameExit(tempbuf);
         }
 
@@ -5279,11 +5263,11 @@ repeatcase:
         if (tw == CON_REDEFINEQUOTE)
         {
             if (ScriptQuoteRedefinitions[g_numQuoteRedefinitions] == NULL)
-                ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = Bcalloc(MAXQUOTELEN,sizeof(char));
+                ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
             if (!ScriptQuoteRedefinitions[g_numQuoteRedefinitions])
             {
                 ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = NULL;
-                Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
+                Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(uint8_t) * MAXQUOTELEN);
                 G_GameExit(tempbuf);
             }
         }
@@ -5375,10 +5359,10 @@ repeatcase:
         C_SkipComments();
 
         if (g_sounds[k].filename == NULL)
-            g_sounds[k].filename = Bcalloc(BMAX_PATH,sizeof(char));
+            g_sounds[k].filename = Bcalloc(BMAX_PATH,sizeof(uint8_t));
         if (!g_sounds[k].filename)
         {
-            Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte buffer.",sizeof(char) * BMAX_PATH);
+            Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte buffer.",sizeof(uint8_t) * BMAX_PATH);
             G_GameExit(tempbuf);
         }
 
@@ -5512,7 +5496,7 @@ repeatcase:
         return 0;
     case CON_GAMESTARTUP:
     {
-        int params[30];
+        int32_t params[30];
 
         g_scriptPtr--;
         for (j = 0; j < 30; j++)
@@ -5624,7 +5608,7 @@ static const char *defaultcons[NUM_DEFAULT_CONS] =
 
 void copydefaultcons(void)
 {
-    int i, fs, fpi;
+    int32_t i, fs, fpi;
     FILE *fpo;
 
     for (i=0;i<NUM_DEFAULT_CONS;i++)
@@ -5652,7 +5636,7 @@ void copydefaultcons(void)
 
 /* Anything added with AddDefinition() cannot be overwritten in the CONs */
 
-static void AddDefinition(const char *lLabel,int lValue,int lType)
+static void AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
 {
     Bstrcpy(label+(g_numLabels<<6),lLabel);
     labeltype[g_numLabels] = lType;
@@ -5792,12 +5776,12 @@ static void C_AddDefaultDefinitions(void)
 
 static void C_InitProjectiles(void)
 {
-    int i;
+    int32_t i;
     struct
     {
-        int workslike, extra, cstat, extra_rand, hitradius, range;
-        short spawns, sound, isound, vel, decal, trail, tnum, drop, clipdist, offset, bounces, bsound, toffset;
-        signed char sxrepeat, syrepeat, txrepeat, tyrepeat, shade, xrepeat, yrepeat, pal, velmult;
+        int32_t workslike, extra, cstat, extra_rand, hitradius, range;
+        int16_t spawns, sound, isound, vel, decal, trail, tnum, drop, clipdist, offset, bounces, bsound, toffset;
+        int8_t sxrepeat, syrepeat, txrepeat, tyrepeat, shade, xrepeat, yrepeat, pal, velmult;
     } DefaultProjectile =
     {
         1, 100, -1, -1, 2048, 0,
@@ -5815,15 +5799,15 @@ static void C_InitProjectiles(void)
     Bmemcpy(&DefaultProjectileData[0], &ProjectileData[0], sizeof(ProjectileData));
 }
 
-extern int g_numObituaries;
-extern int g_numSelfObituaries;
+extern int32_t g_numObituaries;
+extern int32_t g_numSelfObituaries;
 
 void C_Compile(const char *filenam)
 {
     char *mptr;
-    int i;
-    int fs,fp;
-    int startcompiletime;
+    int32_t i;
+    int32_t fs,fp;
+    int32_t startcompiletime;
 
     clearbuf(apScriptGameEvent,MAXGAMEEVENTS,0L);
 
@@ -5851,7 +5835,7 @@ void C_Compile(const char *filenam)
     fp = kopen4loadfrommod((char *)filenam,g_loadFromGroupOnly);
     if (fp == -1) // JBF: was 0
     {
-        extern int numgroupfiles;
+        extern int32_t numgroupfiles;
 
         if (g_loadFromGroupOnly == 1)
         {
@@ -5898,7 +5882,7 @@ void C_Compile(const char *filenam)
         Bfree(script);
 
     script = Bcalloc(1,g_scriptSize * sizeof(intptr_t));
-    bitptr = Bcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(char));
+    bitptr = Bcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(uint8_t));
 //    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
     g_numLabels = g_numDefaultLabels = 0;
@@ -5980,7 +5964,7 @@ void C_Compile(const char *filenam)
     }
     else
     {
-        int j=0, k=0;
+        int32_t j=0, k=0;
 
         HASH_free(&keywH);
         freehashnames();
@@ -6005,7 +5989,7 @@ void C_Compile(const char *filenam)
 
         initprintf("Compiled code size: %ld*%d bytes, version %s\n",(unsigned)(g_scriptPtr-script),sizeof(intptr_t),(g_scriptVersion == 14?"1.4+":"1.3D"));
         initprintf("Pointer bitmap size: %ld bytes\n",(g_scriptSize+7)>>3);
-        initprintf("%ld/%ld labels, %d/%d variables\n",g_numLabels,min((MAXSECTORS * sizeof(sectortype)/sizeof(int)),(MAXSPRITES * sizeof(spritetype)/(1<<6))),g_gameVarCount,MAXGAMEVARS);
+        initprintf("%ld/%ld labels, %d/%d variables\n",g_numLabels,min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),(MAXSPRITES * sizeof(spritetype)/(1<<6))),g_gameVarCount,MAXGAMEVARS);
 
         for (i=MAXQUOTES-1;i>=0;i--)
             if (ScriptQuotes[i])
@@ -6025,7 +6009,7 @@ void C_Compile(const char *filenam)
 
         for (i=127;i>=0;i--)
             if (ScriptQuotes[i] == NULL)
-                ScriptQuotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
+                ScriptQuotes[i] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
 
 //        if (!Bstrcmp(ScriptQuotes[13],"PRESS SPACE TO RESTART LEVEL"))
 //            Bstrcpy(ScriptQuotes[13],"PRESS USE TO RESTART LEVEL");
@@ -6108,7 +6092,7 @@ void C_Compile(const char *filenam)
             {
                 if (ScriptQuotes[i+FIRST_OBITUARY_QUOTE] == NULL)
                 {
-                    ScriptQuotes[i+FIRST_OBITUARY_QUOTE] = Bcalloc(MAXQUOTELEN,sizeof(char));
+                    ScriptQuotes[i+FIRST_OBITUARY_QUOTE] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
                     Bstrcpy(ScriptQuotes[i+FIRST_OBITUARY_QUOTE],PlayerObituaries[i]);
                 }
             }
@@ -6118,7 +6102,7 @@ void C_Compile(const char *filenam)
             {
                 if (ScriptQuotes[i+FIRST_SUICIDE_QUOTE] == NULL)
                 {
-                    ScriptQuotes[i+FIRST_SUICIDE_QUOTE] = Bcalloc(MAXQUOTELEN,sizeof(char));
+                    ScriptQuotes[i+FIRST_SUICIDE_QUOTE] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
                     Bstrcpy(ScriptQuotes[i+FIRST_SUICIDE_QUOTE],PlayerSelfObituaries[i]);
                 }
             }
@@ -6126,7 +6110,7 @@ void C_Compile(const char *filenam)
     }
 }
 
-void C_ReportError(int iError)
+void C_ReportError(int32_t iError)
 {
     if (Bstrcmp(g_szCurrentBlockName,g_szLastBlockName))
     {

@@ -36,7 +36,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 
 #define MAXDETUNE 25
 
-static unsigned int PitchTable[ 12 ][ MAXDETUNE ] =
+static uint32_t PitchTable[ 12 ][ MAXDETUNE ] =
 {
     {
         0x10000, 0x10097, 0x1012f, 0x101c7, 0x10260, 0x102f9, 0x10392, 0x1042c,
@@ -91,7 +91,7 @@ static unsigned int PitchTable[ 12 ][ MAXDETUNE ] =
 };
 
 
-//static int PITCH_Installed = FALSE;
+//static int32_t PITCH_Installed = FALSE;
 
 
 /*---------------------------------------------------------------------
@@ -106,8 +106,8 @@ void PITCH_Init
    )
 
    {
-   int note;
-   int detune;
+   int32_t note;
+   int32_t detune;
 
    if ( !PITCH_Installed )
       {
@@ -138,17 +138,17 @@ void PITCH_Init
    Returns a fixed-point value to scale number the specified amount.
 ---------------------------------------------------------------------*/
 
-unsigned int PITCH_GetScale
+uint32_t PITCH_GetScale
 (
-    int pitchoffset
+    int32_t pitchoffset
 )
 
 {
-    unsigned int scale;
-    int octaveshift;
-    int noteshift;
-    int note;
-    int detune;
+    uint32_t scale;
+    int32_t octaveshift;
+    int32_t noteshift;
+    int32_t note;
+    int32_t detune;
 
 //   if ( !PITCH_Installed )
 //      {

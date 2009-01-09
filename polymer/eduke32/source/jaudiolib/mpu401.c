@@ -43,9 +43,9 @@ static DWORD mididevice = -1;
 
 typedef struct
 {
-    int time;
-    int stream;
-    int event;
+    int32_t time;
+    int32_t stream;
+    int32_t event;
 }
 MIDIEVENTHEAD;
 #define PAD(x) ((((x)+3)&(~3)))
@@ -53,13 +53,13 @@ MIDIEVENTHEAD;
 #define BUFFERLEN (32*4*4)
 #define NUMBUFFERS 6
 static char eventbuf[NUMBUFFERS][BUFFERLEN];
-static int  eventcnt[NUMBUFFERS];
+static int32_t  eventcnt[NUMBUFFERS];
 static MIDIHDR bufferheaders[NUMBUFFERS];
-int  _MPU_CurrentBuffer = 0;
-int  _MPU_BuffersWaiting = 0;
+int32_t  _MPU_CurrentBuffer = 0;
+int32_t  _MPU_BuffersWaiting = 0;
 
-extern unsigned int _MIDI_GlobalPositionInTicks;
-unsigned int _MPU_LastEvent=0;
+extern uint32_t _MIDI_GlobalPositionInTicks;
+uint32_t _MPU_LastEvent=0;
 
 #define MIDI_NOTE_OFF         0x80
 #define MIDI_NOTE_ON          0x90
@@ -82,7 +82,7 @@ unsigned int _MPU_LastEvent=0;
 **********************************************************************/
 
 
-void MPU_FinishBuffer(int buffer)
+void MPU_FinishBuffer(int32_t buffer)
 {
     if (!eventcnt[buffer]) return;
     ZeroMemory(&bufferheaders[buffer], sizeof(MIDIHDR));
@@ -114,7 +114,7 @@ void MPU_Unpause(void)
 
 void CALLBACK MPU_MIDICallback(HMIDIOUT handle, UINT uMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
 {
-    int i;
+    int32_t i;
 
     UNREFERENCED_PARAMETER(dwInstance);
     UNREFERENCED_PARAMETER(dwParam2);
@@ -125,7 +125,7 @@ void CALLBACK MPU_MIDICallback(HMIDIOUT handle, UINT uMsg, DWORD dwInstance, DWO
         midiOutUnprepareHeader((HMIDIOUT)handle, (MIDIHDR*)dwParam1, sizeof(MIDIHDR));
         for (i=0;i<NUMBUFFERS;i++)
         {
-            if (dwParam1 == (unsigned int)&bufferheaders[i])
+            if (dwParam1 == (uint32_t)&bufferheaders[i])
             {
                 eventcnt[i] = 0;	// marks the buffer as free
 //					printf("Finished buffer %d\n",i);
@@ -146,9 +146,9 @@ void CALLBACK MPU_MIDICallback(HMIDIOUT handle, UINT uMsg, DWORD dwInstance, DWO
    Queues a MIDI message to the music device.
 ---------------------------------------------------------------------*/
 
-int MPU_GetNextBuffer(void)
+int32_t MPU_GetNextBuffer(void)
 {
-    int i;
+    int32_t i;
     for (i=0; i<NUMBUFFERS; i++)
     {
         if (eventcnt[i] == 0) return i;
@@ -156,11 +156,11 @@ int MPU_GetNextBuffer(void)
     return -1;
 }
 
-void MPU_SendMidi(char *data, int count)
+void MPU_SendMidi(char *data, int32_t count)
 {
     char *p;
-    int padded, nextbuffer;
-    static int masks[3] = { 0x000000ffl, 0x0000ffffl, 0x00ffffffl };
+    int32_t padded, nextbuffer;
+    static int32_t masks[3] = { 0x000000ffl, 0x0000ffffl, 0x00ffffffl };
 
     if (count <= 0) return;
     if (count <= 3)
@@ -179,9 +179,9 @@ void MPU_SendMidi(char *data, int count)
         }
 
         p = eventbuf[_MPU_CurrentBuffer] + eventcnt[_MPU_CurrentBuffer];
-        ((int*)p)[0] = _MIDI_GlobalPositionInTicks - _MPU_LastEvent;
-        ((int*)p)[1] = 0;
-        ((int*)p)[2] = (MEVT_SHORTMSG << 24) | ((*((int*)data)) & masks[count-1]);
+        ((int32_t*)p)[0] = _MIDI_GlobalPositionInTicks - _MPU_LastEvent;
+        ((int32_t*)p)[1] = 0;
+        ((int32_t*)p)[2] = (MEVT_SHORTMSG << 24) | ((*((int32_t*)data)) & masks[count-1]);
         eventcnt[_MPU_CurrentBuffer] += 12;
     }
     else
@@ -201,9 +201,9 @@ void MPU_SendMidi(char *data, int count)
         }
 
         p = eventbuf[_MPU_CurrentBuffer] + eventcnt[_MPU_CurrentBuffer];
-        ((int*)p)[0] = _MIDI_GlobalPositionInTicks - _MPU_LastEvent;
-        ((int*)p)[1] = 0;
-        ((int*)p)[2] = (MEVT_LONGMSG<<24) | (count & 0xffffffl);
+        ((int32_t*)p)[0] = _MIDI_GlobalPositionInTicks - _MPU_LastEvent;
+        ((int32_t*)p)[1] = 0;
+        ((int32_t*)p)[2] = (MEVT_LONGMSG<<24) | (count & 0xffffffl);
         p+=12; eventcnt[_MPU_CurrentBuffer] += 12;
         for (; count>0; count--, padded--, eventcnt[_MPU_CurrentBuffer]++)
             *(p++) = *(data++);
@@ -219,13 +219,13 @@ void MPU_SendMidi(char *data, int count)
 
    Sends a MIDI message immediately to the the music device.
 ---------------------------------------------------------------------*/
-void MPU_SendMidiImmediate(char *data, int count)
+void MPU_SendMidiImmediate(char *data, int32_t count)
 {
     MIDIHDR mhdr;
-    static int masks[3] = { 0x00ffffffl, 0x0000ffffl, 0x000000ffl };
+    static int32_t masks[3] = { 0x00ffffffl, 0x0000ffffl, 0x000000ffl };
 
     if (!count) return;
-    if (count<=3) midiOutShortMsg((HMIDIOUT)hmido, (*((int*)data)) & masks[count-1]);
+    if (count<=3) midiOutShortMsg((HMIDIOUT)hmido, (*((int32_t*)data)) & masks[count-1]);
     else
     {
         ZeroMemory(&mhdr, sizeof(mhdr));
@@ -245,7 +245,7 @@ void MPU_SendMidiImmediate(char *data, int count)
    Resets the MPU401 card.
 ---------------------------------------------------------------------*/
 
-int MPU_Reset
+int32_t MPU_Reset
 (
     void
 )
@@ -264,13 +264,13 @@ int MPU_Reset
    Detects and initializes the MPU401 card.
 ---------------------------------------------------------------------*/
 
-int MPU_Init
+int32_t MPU_Init
 (
-    int addr
+    int32_t addr
 )
 
 {
-    int i;
+    int32_t i;
 
     for (i=0;i<NUMBUFFERS;i++) eventcnt[i]=0;
 
@@ -292,9 +292,9 @@ int MPU_Init
 
 void MPU_NoteOff
 (
-    int channel,
-    int key,
-    int velocity
+    int32_t channel,
+    int32_t key,
+    int32_t velocity
 )
 
 {
@@ -314,9 +314,9 @@ void MPU_NoteOff
 
 void MPU_NoteOn
 (
-    int channel,
-    int key,
-    int velocity
+    int32_t channel,
+    int32_t key,
+    int32_t velocity
 )
 
 {
@@ -336,9 +336,9 @@ void MPU_NoteOn
 
 void MPU_PolyAftertouch
 (
-    int channel,
-    int key,
-    int pressure
+    int32_t channel,
+    int32_t key,
+    int32_t pressure
 )
 
 {
@@ -358,9 +358,9 @@ void MPU_PolyAftertouch
 
 void MPU_ControlChange
 (
-    int channel,
-    int number,
-    int value
+    int32_t channel,
+    int32_t number,
+    int32_t value
 )
 
 {
@@ -380,8 +380,8 @@ void MPU_ControlChange
 
 void MPU_ProgramChange
 (
-    int channel,
-    int program
+    int32_t channel,
+    int32_t program
 )
 
 {
@@ -400,8 +400,8 @@ void MPU_ProgramChange
 
 void MPU_ChannelAftertouch
 (
-    int channel,
-    int pressure
+    int32_t channel,
+    int32_t pressure
 )
 
 {
@@ -420,9 +420,9 @@ void MPU_ChannelAftertouch
 
 void MPU_PitchBend
 (
-    int channel,
-    int lsb,
-    int msb
+    int32_t channel,
+    int32_t lsb,
+    int32_t msb
 )
 
 {
@@ -435,7 +435,7 @@ void MPU_PitchBend
 
 
 
-void MPU_SetTempo(int tempo)
+void MPU_SetTempo(int32_t tempo)
 {
     MIDIPROPTEMPO prop;
     prop.cbStruct = sizeof(MIDIPROPTEMPO);
@@ -443,7 +443,7 @@ void MPU_SetTempo(int tempo)
     midiStreamProperty(hmido, (LPBYTE)&prop, MIDIPROP_SET|MIDIPROP_TEMPO);
 }
 
-void MPU_SetDivision(int division)
+void MPU_SetDivision(int32_t division)
 {
     MIDIPROPTIMEDIV prop;
     prop.cbStruct = sizeof(MIDIPROPTIMEDIV);
@@ -451,11 +451,11 @@ void MPU_SetDivision(int division)
     midiStreamProperty(hmido, (LPBYTE)&prop, MIDIPROP_SET|MIDIPROP_TIMEDIV);
 }
 
-void MPU_SetVolume(int volume)
+void MPU_SetVolume(int32_t volume)
 {
     /*
     HMIXER hmixer;
-    int mixerid;
+    int32_t mixerid;
     MIXERCONTROLDETAILS mxcd;
     MIXERCONTROLDETAILS_UNSIGNED mxcdu;
     MMRESULT mme;
@@ -486,7 +486,7 @@ void MPU_SetVolume(int volume)
     UNREFERENCED_PARAMETER(volume);
 }
 
-int MPU_GetVolume(void)
+int32_t MPU_GetVolume(void)
 {
 //    if (mididevice < 0) return 0;
 

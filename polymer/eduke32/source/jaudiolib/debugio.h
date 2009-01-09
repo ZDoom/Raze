@@ -20,11 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __DEBUGIO_H
 #define __DEBUGIO_H
 
-void DB_SetXY( int x, int y );
+void DB_SetXY( int32_t x, int32_t y );
 void DB_PutChar( char ch );
-int  DB_PrintString( char *string );
-int  DB_PrintNum( int number );
-int  DB_PrintUnsigned( unsigned int number, int radix );
-int  DB_printf( char *fmt, ... );
+int32_t  DB_PrintString( char *string );
+int32_t  DB_PrintNum( int32_t number );
+int32_t  DB_PrintUnsigned( uint32_t number, int32_t radix );
+int32_t  DB_printf( char *fmt, ... );
 
 #endif

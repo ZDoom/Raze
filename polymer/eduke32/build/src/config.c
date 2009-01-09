@@ -11,15 +11,15 @@
 #endif
 #include "baselayer.h"
 
-static int vesares[13][2] = {{320,200},{360,200},{320,240},{360,240},{320,400},
+static int32_t vesares[13][2] = {{320,200},{360,200},{320,240},{360,240},{320,400},
     {360,400},{640,350},{640,400},{640,480},{800,600},
     {1024,768},{1280,1024},{1600,1200}
 };
 
-static int readconfig(BFILE *fp, const char *key, char *value, unsigned len)
+static int32_t readconfig(BFILE *fp, const char *key, char *value, unsigned len)
 {
     char buf[1000], *k, *v, *eq;
-    int x=0;
+    int32_t x=0;
 
     if (len < 1) return 0;
 
@@ -55,17 +55,17 @@ static int readconfig(BFILE *fp, const char *key, char *value, unsigned len)
     }
 }
 
-extern short brightness;
+extern int16_t brightness;
 extern char game_executable[BMAX_PATH];
-extern int fullscreen;
+extern int32_t fullscreen;
 extern char option[8];
 extern char keys[NUMBUILDKEYS];
-extern unsigned char remap[256];
-extern int remapinit;
+extern char remap[256];
+extern int32_t remapinit;
 extern double msens;
-extern int editorgridextent;
-extern int showheightindicators;
-extern int graphicsmode;
+extern int32_t editorgridextent;
+extern int32_t showheightindicators;
+extern int32_t graphicsmode;
 
 /*
  * SETUP.DAT
@@ -105,12 +105,12 @@ extern int graphicsmode;
  * 18     = Chat (0xf)
  */
 
-int loadsetup(const char *fn)
+int32_t loadsetup(const char *fn)
 {
     BFILE *fp;
 #define VL 256
     char val[VL];
-    int i;
+    int32_t i;
 
     if ((fp = Bfopen(fn, "rt")) == NULL) return -1;
 
@@ -234,7 +234,7 @@ int loadsetup(const char *fn)
 
 #ifdef _WIN32
     {
-        extern char map_dik_code(int);
+        extern char map_dik_code(int32_t);
         for (i=0;i<256;i++)
             remap[i]=map_dik_code(i);
     }
@@ -246,7 +246,7 @@ int loadsetup(const char *fn)
     remapinit=1;
     if (readconfig(fp, "remap", val, VL) > 0)
     {
-        char *p=val;int v1,v2;
+        char *p=val;int32_t v1,v2;
         while (*p)
         {
             if (!sscanf(p,"%x",&v1))break;
@@ -262,10 +262,10 @@ int loadsetup(const char *fn)
     return 0;
 }
 
-int writesetup(const char *fn)
+int32_t writesetup(const char *fn)
 {
     BFILE *fp;
-    int i,first=1;
+    int32_t i,first=1;
 
     fp = Bfopen(fn,"wt");
     if (!fp) return -1;

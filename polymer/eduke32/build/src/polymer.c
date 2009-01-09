@@ -5,16 +5,16 @@
 #include "polymer.h"
 
 // CVARS
-int             pr_occlusionculling = 50;
-int             pr_fov = 426;           // appears to be the classic setting.
-int             pr_billboardingmode = 1;
-int             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
-int             pr_wireframe = 0;
-int             pr_vbos = 2;
-int             pr_mirrordepth = 1;
-int             pr_gpusmoothing = 1;
+int32_t             pr_occlusionculling = 50;
+int32_t             pr_fov = 426;           // appears to be the classic setting.
+int32_t             pr_billboardingmode = 1;
+int32_t             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
+int32_t             pr_wireframe = 0;
+int32_t             pr_vbos = 2;
+int32_t             pr_mirrordepth = 1;
+int32_t             pr_gpusmoothing = 1;
 
-int             glerror;
+int32_t             glerror;
 
 GLenum          mapvbousage = GL_STREAM_DRAW_ARB;
 GLenum          modelvbousage = GL_STATIC_DRAW_ARB;
@@ -121,7 +121,7 @@ GLfloat         artskydata[16];
 
 // LIGHTS
 _prlight        prlights[PR_MAXLIGHTS];
-int             lightcount;
+int32_t             lightcount;
 
 // MATERIALS
 _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
@@ -286,25 +286,25 @@ GLdouble        rootmodelviewmatrix[16];
 GLdouble        *curmodelviewmatrix;
 GLdouble        projectionmatrix[16];
 
-int             updatesectors = 1;
+int32_t             updatesectors = 1;
 
-int             depth;
-int             mirrorfrom[10]; // -3: no mirror; -2: floor; -1: ceiling; >=0: wallnum
+int32_t             depth;
+int32_t             mirrorfrom[10]; // -3: no mirror; -2: floor; -1: ceiling; >=0: wallnum
 
 GLUtesselator*  prtess;
 
-short           cursky;
+int16_t           cursky;
 
-short           viewangle;
+int16_t           viewangle;
 
-int             rootsectnum;
+int32_t             rootsectnum;
 
 _pranimatespritesinfo asi;
 
 // EXTERNAL FUNCTIONS
-int                 polymer_init(void)
+int32_t                 polymer_init(void)
 {
-    int             i, j;
+    int32_t             i, j;
 
     if (pr_verbosity >= 1) OSD_Printf("Initalizing Polymer subsystem...\n");
 
@@ -405,7 +405,7 @@ void                polymer_glinit(void)
 
 void                polymer_loadboard(void)
 {
-    int             i;
+    int32_t             i;
 
     i = 0;
     while (i < numsectors)
@@ -428,10 +428,10 @@ void                polymer_loadboard(void)
     if (pr_verbosity >= 1) OSD_Printf("PR : Board loaded.\n");
 }
 
-void                polymer_drawrooms(int daposx, int daposy, int daposz, short daang, int dahoriz, short dacursectnum)
+void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum)
 {
-    short           cursectnum;
-    int             i;
+    int16_t           cursectnum;
+    int32_t             i;
     float           ang, horizang, tiltang;
     float           pos[3];
 
@@ -544,7 +544,7 @@ void                polymer_drawmasks(void)
     bglDisable(GL_ALPHA_TEST);
 }
 
-void                polymer_rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2)
+void                polymer_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, char dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
     UNREFERENCED_PARAMETER(sx);
     UNREFERENCED_PARAMETER(sy);
@@ -560,7 +560,7 @@ void                polymer_rotatesprite(int sx, int sy, int z, short a, short p
     UNREFERENCED_PARAMETER(cy2);
 }
 
-void                polymer_drawmaskwall(int damaskwallcnt)
+void                polymer_drawmaskwall(int32_t damaskwallcnt)
 {
     _prwall         *w;
 
@@ -571,9 +571,9 @@ void                polymer_drawmaskwall(int damaskwallcnt)
     polymer_drawplane(-1, -3, &w->mask, 0);
 }
 
-void                polymer_drawsprite(int snum)
+void                polymer_drawsprite(int32_t snum)
 {
-    int             curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff;
+    int32_t             curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff;
     spritetype      *tspr;
     float           xratio, yratio, ang;
     float           spos[3];
@@ -611,10 +611,10 @@ void                polymer_drawsprite(int snum)
     xsize = tilesizx[curpicnum] * xratio;
     ysize = tilesizy[curpicnum] * yratio;
 
-    tilexoff = (int)tspr->xoffset;
-    tileyoff = (int)tspr->yoffset;
-    tilexoff += (signed char)((usehightile&&h_xsize[curpicnum])?(h_xoffs[curpicnum]):((picanm[curpicnum]>>8)&255));
-    tileyoff += (signed char)((usehightile&&h_xsize[curpicnum])?(h_yoffs[curpicnum]):((picanm[curpicnum]>>16)&255));
+    tilexoff = (int32_t)tspr->xoffset;
+    tileyoff = (int32_t)tspr->yoffset;
+    tilexoff += (int8_t)((usehightile&&h_xsize[curpicnum])?(h_xoffs[curpicnum]):((picanm[curpicnum]>>8)&255));
+    tileyoff += (int8_t)((usehightile&&h_xsize[curpicnum])?(h_yoffs[curpicnum]):((picanm[curpicnum]>>16)&255));
 
     xoff = tilexoff * xratio;
     yoff = tileyoff * yratio;
@@ -718,7 +718,7 @@ void                polymer_drawsprite(int snum)
     bglPopMatrix();
 }
 
-void                polymer_setanimatesprites(animatespritesptr animatesprites, int x, int y, int a, int smoothratio)
+void                polymer_setanimatesprites(animatespritesptr animatesprites, int32_t x, int32_t y, int32_t a, int32_t smoothratio)
 {
     asi.animatesprites = animatesprites;
     asi.x = x;
@@ -739,25 +739,25 @@ void                polymer_addlight(_prlight light)
 }
 
 // CORE
-static void         polymer_displayrooms(short dacursectnum)
+static void         polymer_displayrooms(int16_t dacursectnum)
 {
     sectortype      *sec, *nextsec;
     walltype        *wal, *nextwal;
     _prwall         *w;
-    int             i, j;
+    int32_t             i, j;
     GLint           result;
-    int             front;
-    int             back;
-    int             firstback;
-    short           sectorqueue[MAXSECTORS];
-    short           querydelay[MAXSECTORS];
+    int32_t             front;
+    int32_t             back;
+    int32_t             firstback;
+    int16_t           sectorqueue[MAXSECTORS];
+    int16_t           querydelay[MAXSECTORS];
     GLuint          queryid[MAXSECTORS];
-    short           drawingstate[MAXSECTORS];
+    int16_t           drawingstate[MAXSECTORS];
     GLdouble        localmodelviewmatrix[16];
     float           frustum[5 * 4];
-    int             localspritesortcnt;
+    int32_t             localspritesortcnt;
     spritetype      localtsprite[MAXSPRITESONSCREEN];
-    short           localmaskwall[MAXWALLSB], localmaskwallcnt;
+    int16_t           localmaskwall[MAXWALLSB], localmaskwallcnt;
 
     if (depth)
     {
@@ -769,9 +769,9 @@ static void         polymer_displayrooms(short dacursectnum)
 
     polymer_extractfrustum(curmodelviewmatrix, projectionmatrix, frustum);
 
-    memset(querydelay, 0, sizeof(short) * MAXSECTORS);
+    memset(querydelay, 0, sizeof(int16_t) * MAXSECTORS);
     memset(queryid, 0, sizeof(GLuint) * MAXSECTORS);
-    memset(drawingstate, 0, sizeof(short) * MAXSECTORS);
+    memset(drawingstate, 0, sizeof(int16_t) * MAXSECTORS);
 
     front = 0;
     back = 0;
@@ -928,7 +928,7 @@ static void         polymer_displayrooms(short dacursectnum)
     spritesortcnt = localspritesortcnt;
     memcpy(tsprite, localtsprite, sizeof(spritetype) * MAXSPRITESONSCREEN);
     maskwallcnt = localmaskwallcnt;
-    memcpy(maskwall, localmaskwall, sizeof(short) * MAXWALLSB);
+    memcpy(maskwall, localmaskwall, sizeof(int16_t) * MAXWALLSB);
 
     if (depth)
     {
@@ -970,14 +970,14 @@ static void         polymer_displayrooms(short dacursectnum)
     else                                                                                \
         bglDrawElements(GL_TRIANGLES, indicecount, GL_UNSIGNED_SHORT, plane->indices)
 
-static void         polymer_drawplane(short sectnum, short wallnum, _prplane* plane, int indicecount)
+static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane* plane, int32_t indicecount)
 {
-    int             materialbits;
+    int32_t             materialbits;
 
 //     if ((depth < 1) && (plane != NULL) &&
 //             (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
 //     {
-//         int             gx, gy, gz, px, py, pz;
+//         int32_t             gx, gy, gz, px, py, pz;
 //         float           coeff;
 // 
 //         // set the stencil to 1 and clear the area to black where the sector floor is
@@ -1156,7 +1156,7 @@ static void         polymer_animatesprites(void)
 }
 
 // SECTORS
-static int          polymer_initsector(short sectnum)
+static int32_t          polymer_initsector(int16_t sectnum)
 {
     sectortype      *sec;
     _prsector*      s;
@@ -1201,17 +1201,17 @@ static int          polymer_initsector(short sectnum)
     return (1);
 }
 
-static int          polymer_updatesector(short sectnum)
+static int32_t          polymer_updatesector(int16_t sectnum)
 {
     _prsector*      s;
     sectortype      *sec;
     walltype        *wal;
-    int             i, j;
-    int             ceilz, florz;
-    int             tex, tey, heidiff;
+    int32_t             i, j;
+    int32_t             ceilz, florz;
+    int32_t             tex, tey, heidiff;
     float           secangcos, secangsin, scalecoef, xpancoef, ypancoef;
-    int             ang, needfloor, wallinvalidate;
-    short           curstat, curpicnum, floorpicnum, ceilingpicnum;
+    int32_t             ang, needfloor, wallinvalidate;
+    int16_t           curstat, curpicnum, floorpicnum, ceilingpicnum;
     char            curxpanning, curypanning;
     GLfloat*        curbuffer;
 
@@ -1467,7 +1467,7 @@ void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
     s->curindice++;
 }
 
-static int          polymer_buildfloor(short sectnum)
+static int32_t          polymer_buildfloor(int16_t sectnum)
 {
     // This function tesselates the floor/ceiling of a sector and stores the triangles in a display list.
     _prsector*      s;
@@ -1527,7 +1527,7 @@ static int          polymer_buildfloor(short sectnum)
     return (1);
 }
 
-static void         polymer_drawsector(short sectnum)
+static void         polymer_drawsector(int16_t sectnum)
 {
     sectortype      *sec;
     _prsector*      s;
@@ -1546,7 +1546,7 @@ static void         polymer_drawsector(short sectnum)
 }
 
 // WALLS
-static int          polymer_initwall(short wallnum)
+static int32_t          polymer_initwall(int16_t wallnum)
 {
     _prwall         *w;
 
@@ -1594,19 +1594,19 @@ static int          polymer_initwall(short wallnum)
     return (1);
 }
 
-static void         polymer_updatewall(short wallnum)
+static void         polymer_updatewall(int16_t wallnum)
 {
-    short           nwallnum, nnwallnum, curpicnum, wallpicnum, walloverpicnum, nwallpicnum;
+    int16_t           nwallnum, nnwallnum, curpicnum, wallpicnum, walloverpicnum, nwallpicnum;
     char            curxpanning, curypanning, underwall, overwall, curpal;
-    signed char     curshade;
+    int8_t     curshade;
     walltype        *wal;
     sectortype      *sec, *nsec;
     _prwall         *w;
     _prsector       *s, *ns;
-    int             xref, yref;
+    int32_t             xref, yref;
     float           ypancoef, dist;
-    int             i;
-    unsigned int    invalid;
+    int32_t             i;
+    uint32_t    invalid;
 
     // yes, this function is messy and unefficient
     // it also works, bitches
@@ -1983,7 +1983,7 @@ static void         polymer_updatewall(short wallnum)
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated wall %i.\n", wallnum);
 }
 
-static void         polymer_drawwall(short sectnum, short wallnum)
+static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
 {
     _prwall         *w;
 
@@ -2029,10 +2029,10 @@ static void         polymer_drawwall(short sectnum, short wallnum)
 #define INDICE(n) ((indices) ? (indices[i+n]*5) : ((i+n)*3))
 
 // HSR
-static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int indicecount, GLdouble* plane)
+static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int32_t indicecount, GLdouble* plane)
 {
     GLfloat         vec1[3], vec2[3];
-    int             i;
+    int32_t             i;
 
     i = 0;
     do
@@ -2068,12 +2068,12 @@ static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLdouble*
     out[2] = in_a[0] * in_b[1] - in_a[1] * in_b[0];
 }
 
-static void         polymer_pokesector(short sectnum)
+static void         polymer_pokesector(int16_t sectnum)
 {
     sectortype      *sec;
     _prsector       *s;
     walltype        *wal;
-    int             i;
+    int32_t             i;
 
     sec = &sector[sectnum];
     s = prsectors[sectnum];
@@ -2098,7 +2098,7 @@ static void         polymer_pokesector(short sectnum)
 static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projection, float* frustum)
 {
     GLdouble        matrix[16];
-    int             i;
+    int32_t             i;
 
     bglMatrixMode(GL_TEXTURE);
     bglLoadMatrixd(projection);
@@ -2122,9 +2122,9 @@ static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projec
     if (pr_verbosity >= 3) OSD_Printf("PR : Frustum extracted.\n");
 }
 
-static int          polymer_portalinfrustum(short wallnum, float* frustum)
+static int32_t          polymer_portalinfrustum(int16_t wallnum, float* frustum)
 {
-    int             i, j, k;
+    int32_t             i, j, k;
     float           sqdist;
     _prwall         *w;
 
@@ -2152,9 +2152,9 @@ static int          polymer_portalinfrustum(short wallnum, float* frustum)
     return (1);
 }
 
-static void         polymer_scansprites(short sectnum, spritetype* localtsprite, int* localspritesortcnt)
+static void         polymer_scansprites(int16_t sectnum, spritetype* localtsprite, int32_t* localspritesortcnt)
 {
-    int             i;
+    int32_t             i;
     spritetype      *spr;
 
     for (i = headspritesect[sectnum];i >=0;i = nextspritesect[i])
@@ -2173,7 +2173,7 @@ static void         polymer_scansprites(short sectnum, spritetype* localtsprite,
 // SKIES
 static void         polymer_getsky(void)
 {
-    int             i;
+    int32_t             i;
 
     i = 0;
     while (i < numsectors)
@@ -2187,7 +2187,7 @@ static void         polymer_getsky(void)
     }
 }
 
-static void         polymer_drawsky(short tilenum)
+static void         polymer_drawsky(int16_t tilenum)
 {
     pthtyp*         pth;
 
@@ -2215,11 +2215,11 @@ static void         polymer_initartsky(void)
     artskydata[14] = -halfsqrt2;    artskydata[15] = -halfsqrt2;    // 7
 }
 
-static void         polymer_drawartsky(short tilenum)
+static void         polymer_drawartsky(int16_t tilenum)
 {
     pthtyp*         pth;
     GLuint          glpics[5];
-    int             i, j;
+    int32_t             i, j;
     GLfloat         height = 2.45f / 2.0f;
 
     i = 0;
@@ -2242,7 +2242,7 @@ static void         polymer_drawartsky(short tilenum)
     }
 }
 
-static void         polymer_drawartskyquad(int p1, int p2, GLfloat height)
+static void         polymer_drawartskyquad(int32_t p1, int32_t p2, GLfloat height)
 {
     bglBegin(GL_QUADS);
     bglTexCoord2f(0.0f, 0.0f);
@@ -2260,10 +2260,10 @@ static void         polymer_drawartskyquad(int p1, int p2, GLfloat height)
     bglEnd();
 }
 
-static void         polymer_drawskybox(short tilenum)
+static void         polymer_drawskybox(int16_t tilenum)
 {
     pthtyp*         pth;
-    int             i;
+    int32_t             i;
 
     if ((pr_vbos > 0) && (skyboxdatavbo == 0))
     {
@@ -2316,9 +2316,9 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     float           spos[3];
     float           ang;
     float           scale;
-    int             surfi;
+    int32_t             surfi;
     GLfloat*        color;
-    int             materialbits;
+    int32_t             materialbits;
 
     m = (md3model*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
     updateanimation((md2model *)m,tspr);
@@ -2420,7 +2420,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                     mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
 
             for (sk = m->skinmap; sk; sk = sk->next)
-                if ((int)sk->palette == DETAILPAL &&
+                if ((int32_t)sk->palette == DETAILPAL &&
                     sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum &&
                     sk->surfnum == surfi)
                     mdspritematerial.detailscale[0] = mdspritematerial.detailscale[1] = sk->param;
@@ -2482,7 +2482,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
 static void         polymer_loadmodelvbos(md3model* m)
 {
-    int             i;
+    int32_t             i;
     md3surf_t       *s;
 
     m->indices = calloc(m->head.numsurfs, sizeof(GLuint));
@@ -2539,7 +2539,7 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     material->glowmap = 0;
 }
 
-static void         polymer_getbuildmaterial(_prmaterial* material, short tilenum, char pal, signed char shade)
+static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade)
 {
     pthtyp*         pth;
     pthtyp*         detailpth;
@@ -2612,10 +2612,10 @@ static void         polymer_getbuildmaterial(_prmaterial* material, short tilenu
     }
 }
 
-static int          polymer_bindmaterial(_prmaterial material)
+static int32_t          polymer_bindmaterial(_prmaterial material)
 {
-    int             programbits;
-    int             texunit;
+    int32_t             programbits;
+    int32_t             texunit;
 
     programbits = prprogrambits[PR_BIT_DEFAULT].bit;
 
@@ -2722,7 +2722,7 @@ static int          polymer_bindmaterial(_prmaterial material)
     return (programbits);
 }
 
-static void         polymer_unbindmaterial(int programbits)
+static void         polymer_unbindmaterial(int32_t programbits)
 {
     // PR_BIT_ANIM_INTERPOLATION
     if (programbits & prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit)
@@ -2733,9 +2733,9 @@ static void         polymer_unbindmaterial(int programbits)
     bglUseProgramObjectARB(0);
 }
 
-static void         polymer_compileprogram(int programbits)
+static void         polymer_compileprogram(int32_t programbits)
 {
-    int             i, enabledbits;
+    int32_t             i, enabledbits;
     GLhandleARB     vert, frag, program;
     GLcharARB*      source[PR_BIT_COUNT * 2];
     GLcharARB       infobuffer[PR_INFO_LOG_BUFFER_SIZE];

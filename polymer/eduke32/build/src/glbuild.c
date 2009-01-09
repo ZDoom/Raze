@@ -273,11 +273,11 @@ PROC(WINAPI * bwglGetProcAddress)(LPCSTR);
 BOOL (WINAPI * bwglMakeCurrent)(HDC,HGLRC);
 
 BOOL (WINAPI * bwglSwapBuffers)(HDC);
-int (WINAPI * bwglChoosePixelFormat)(HDC,CONST PIXELFORMATDESCRIPTOR*);
-int (WINAPI * bwglDescribePixelFormat)(HDC,int,UINT,LPPIXELFORMATDESCRIPTOR);
-int (WINAPI * bwglGetPixelFormat)(HDC);
-BOOL (WINAPI * bwglSetPixelFormat)(HDC,int,const PIXELFORMATDESCRIPTOR*);
-BOOL (WINAPI * bwglSwapIntervalEXT)(int);
+int32_t (WINAPI * bwglChoosePixelFormat)(HDC,CONST PIXELFORMATDESCRIPTOR*);
+int32_t (WINAPI * bwglDescribePixelFormat)(HDC,int32_t,UINT,LPPIXELFORMATDESCRIPTOR);
+int32_t (WINAPI * bwglGetPixelFormat)(HDC);
+BOOL (WINAPI * bwglSetPixelFormat)(HDC,int32_t,const PIXELFORMATDESCRIPTOR*);
+BOOL (WINAPI * bwglSwapIntervalEXT)(int32_t);
 
 static HANDLE hGLDLL, hGLUDLL;
 #else
@@ -288,7 +288,7 @@ static void *gluhandle = NULL;
 
 char *gldriver = NULL, *glulibrary = NULL;
 
-static void * getproc_(const char *s, int *err, int fatal, int extension)
+static void * getproc_(const char *s, int32_t *err, int32_t fatal, int32_t extension)
 {
     void *t;
 #if defined RENDERTYPESDL
@@ -312,9 +312,9 @@ static void * getproc_(const char *s, int *err, int fatal, int extension)
 #define GETPROCEXT(s)     getproc_(s,&err,1,1)
 #define GETPROCEXTSOFT(s) getproc_(s,&err,0,1)
 
-int loadgldriver(const char *driver)
+int32_t loadgldriver(const char *driver)
 {
-    int err=0;
+    int32_t err=0;
 
 #ifdef RENDERTYPEWIN
     if (hGLDLL) return 0;
@@ -469,9 +469,9 @@ int loadgldriver(const char *driver)
     return err;
 }
 
-int loadglextensions(void)
+int32_t loadglextensions(void)
 {
-    int err = 0;
+    int32_t err = 0;
 #ifdef RENDERTYPEWIN
     if (!hGLDLL) return 0;
 #endif
@@ -612,7 +612,7 @@ int loadglextensions(void)
     return err;
 }
 
-int unloadgldriver(void)
+int32_t unloadgldriver(void)
 {
     unloadglulibrary();
 
@@ -879,7 +879,7 @@ int unloadgldriver(void)
     return 0;
 }
 
-static void * glugetproc_(const char *s, int *err, int fatal)
+static void * glugetproc_(const char *s, int32_t *err, int32_t fatal)
 {
     void *t;
 #if defined _WIN32
@@ -897,9 +897,9 @@ static void * glugetproc_(const char *s, int *err, int fatal)
 #define GLUGETPROC(s)        glugetproc_(s,&err,1)
 #define GLUGETPROCSOFT(s)    glugetproc_(s,&err,0)
 
-int loadglulibrary(const char *driver)
+int32_t loadglulibrary(const char *driver)
 {
-    int err=0;
+    int32_t err=0;
 
 #ifdef RENDERTYPEWIN
     if (hGLUDLL) return 0;
@@ -947,7 +947,7 @@ int loadglulibrary(const char *driver)
     return err;
 }
 
-int unloadglulibrary(void)
+int32_t unloadglulibrary(void)
 {
 #ifdef RENDERTYPEWIN
     if (!hGLUDLL) return 0;

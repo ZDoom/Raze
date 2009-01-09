@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __dsoundout_h__
 #define __dsoundout_h__
 
+#include "compat.h"
+
 enum DSOUND_ERRORS {
 	DSOUND_Warning = -2,
 	DSOUND_Error = -1,
@@ -44,19 +46,19 @@ enum DSOUND_ERRORS {
 	DSOUND_FailedGetExitCode
 };
 
-extern int DSOUND_ErrorCode;
+extern int32_t DSOUND_ErrorCode;
 
-char *DSOUND_ErrorString(int);
+char *DSOUND_ErrorString(int32_t);
 
-int DisableInterrupts(void);	// simulated using critical sections
-int RestoreInterrupts(int);
+int32_t DisableInterrupts(void);	// simulated using critical sections
+int32_t RestoreInterrupts(int32_t);
 
-int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int buffersize);
-int DSOUND_Shutdown(void);
+int32_t DSOUND_Init(int32_t soundcard, int32_t mixrate, int32_t numchannels, int32_t samplebits, int32_t buffersize);
+int32_t DSOUND_Shutdown(void);
 
-int DSOUND_SetMixMode(int mode);
-int DSOUND_BeginBufferedPlayback(char *BufferStart, int (*CallBackFunc)(int), int buffersize, int numdivisions);
-int DSOUND_StopPlayback(void);
+int32_t DSOUND_SetMixMode(int32_t mode);
+int32_t DSOUND_BeginBufferedPlayback(char *BufferStart, int32_t (*CallBackFunc)(int32_t), int32_t buffersize, int32_t numdivisions);
+int32_t DSOUND_StopPlayback(void);
 
 #endif	// __dsoundout_h__
 

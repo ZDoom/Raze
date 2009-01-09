@@ -9,10 +9,10 @@
 #define snprintf _snprintf
 #endif
 
-static __inline unsigned short _swap16(unsigned short D)
+static __inline uint16_t _swap16(uint16_t D)
 {
 #if PLATFORM_MACOSX
-    register unsigned short returnValue;
+    register uint16_t returnValue;
     __asm__ volatile("lhbrx %0,0,%1"
         : "=r" (returnValue)
         : "r" (&D)
@@ -23,10 +23,10 @@ static __inline unsigned short _swap16(unsigned short D)
 #endif
 }
 
-static __inline unsigned int _swap32(unsigned int D)
+static __inline uint32_t _swap32(uint32_t D)
 {
 #if PLATFORM_MACOSX
-    register unsigned int returnValue;
+    register uint32_t returnValue;
     __asm__ volatile("lwbrx %0,0,%1"
         : "=r" (returnValue)
         : "r" (&D)
@@ -53,7 +53,7 @@ static __inline unsigned int _swap32(unsigned int D)
 #endif
 #endif
 
-extern int has_altivec;  /* PowerPC-specific. */
+extern int32_t has_altivec;  /* PowerPC-specific. */
 
 #endif  /* !defined _INCLUDE_PLATFORM_H_ */
 

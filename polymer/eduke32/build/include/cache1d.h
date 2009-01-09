@@ -9,26 +9,26 @@
 extern "C" {
 #endif
 
-void	initcache(intptr_t dacachestart, int dacachesize);
-void	allocache(intptr_t *newhandle, int newbytes, char *newlockptr);
+void	initcache(intptr_t dacachestart, int32_t dacachesize);
+void	allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr);
 void	suckcache(intptr_t *suckptr);
 void	agecache(void);
 
-extern int pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)
-int     addsearchpath(const char *p);
-int		findfrompath(const char *fn, char **where);
-int     openfrompath(const char *fn, int flags, int mode);
+extern int32_t pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)
+int32_t     addsearchpath(const char *p);
+int32_t		findfrompath(const char *fn, char **where);
+int32_t     openfrompath(const char *fn, int32_t flags, int32_t mode);
 BFILE  *fopenfrompath(const char *fn, const char *mode);
 
-int	initgroupfile(char *filename);
-void	uninitsinglegroupfile(int grphandle);
+int32_t	initgroupfile(char *filename);
+void	uninitsinglegroupfile(int32_t grphandle);
 void	uninitgroupfile(void);
-int	kopen4load(char *filename, char searchfirst);	// searchfirst: 0 = anywhere, 1 = first group, 2 = any group
-int	kread(int handle, void *buffer, int leng);
-int	klseek(int handle, int offset, int whence);
-int	kfilelength(int handle);
-int	ktell(int handle);
-void	kclose(int handle);
+int32_t	kopen4load(char *filename, char searchfirst);	// searchfirst: 0 = anywhere, 1 = first group, 2 = any group
+int32_t	kread(int32_t handle, void *buffer, int32_t leng);
+int32_t	klseek(int32_t handle, int32_t offset, int32_t whence);
+int32_t	kfilelength(int32_t handle);
+int32_t	ktell(int32_t handle);
+void	kclose(int32_t handle);
 
 enum {
 	CACHE1D_FIND_FILE = 1,
@@ -46,15 +46,15 @@ enum {
 };
 typedef struct _CACHE1D_FIND_REC {
 	char *name;
-	int type, source;
+	int32_t type, source;
 	struct _CACHE1D_FIND_REC *next, *prev, *usera, *userb;
 } CACHE1D_FIND_REC;
 void klistfree(CACHE1D_FIND_REC *rec);
-CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int type);
+CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int32_t type);
 
-int	kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int fil);
-int	dfread(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil);
-void	kdfwrite(void *buffer, bsize_t dasizeof, bsize_t count, int fil);
+int32_t	kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil);
+int32_t	dfread(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil);
+void	kdfwrite(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil);
 void	dfwrite(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil);
 
 #ifdef __cplusplus

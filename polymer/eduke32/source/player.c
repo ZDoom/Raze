@@ -28,19 +28,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osd.h"
 #include "gamedef.h"
 
-int g_currentweapon;
-int g_gun_pos;
-int g_looking_arc;
-int g_weapon_offset;
-int g_gs;
-int g_kb;
-int g_looking_angSR1;
-int g_weapon_xoffset;
+int32_t g_currentweapon;
+int32_t g_gun_pos;
+int32_t g_looking_arc;
+int32_t g_weapon_offset;
+int32_t g_gs;
+int32_t g_kb;
+int32_t g_looking_angSR1;
+int32_t g_weapon_xoffset;
 
 int32 turnheldtime; //MED
 int32 lastcontroltime; //MED
 
-extern int g_levelTextTime;
+extern int32_t g_levelTextTime;
 
 void P_UpdateScreenPal(DukePlayer_t *p)
 {
@@ -60,7 +60,7 @@ void P_UpdateScreenPal(DukePlayer_t *p)
 
 static void P_IncurDamage(DukePlayer_t *p)
 {
-    int damage = 0L, shield_damage = 0L;
+    int32_t damage = 0L, shield_damage = 0L;
 
     Gv_SetVar(g_iReturnVarID,0,p->i,sprite[p->i].yvel);
     X_OnEvent(EVENT_INCURDAMAGE, p->i, sprite[p->i].yvel, -1);
@@ -110,10 +110,10 @@ void P_QuickKill(DukePlayer_t *p)
     return;
 }
 
-static void A_DoWaterTracers(int x1,int y1,int z1,int x2,int y2,int z2,int n)
+static void A_DoWaterTracers(int32_t x1,int32_t y1,int32_t z1,int32_t x2,int32_t y2,int32_t z2,int32_t n)
 {
-    int i, xv, yv, zv;
-    short sect = -1;
+    int32_t i, xv, yv, zv;
+    int16_t sect = -1;
 
     i = n+1;
     xv = (x2-x1)/i;
@@ -139,10 +139,10 @@ static void A_DoWaterTracers(int x1,int y1,int z1,int x2,int y2,int z2,int n)
     }
 }
 
-static void A_HitscanProjTrail(int x1, int y1, int z1, int x2, int y2, int z2, int ang, int atwith)
+static void A_HitscanProjTrail(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t ang, int32_t atwith)
 {
-    int n, j, i;
-    short sect = -1;
+    int32_t n, j, i;
+    int16_t sect = -1;
 
     x1 += (sintable[(348+ang+512)&2047]/ProjectileData[atwith].offset);
     y1 += (sintable[(ang+348)&2047]/ProjectileData[atwith].offset);
@@ -172,11 +172,11 @@ static void A_HitscanProjTrail(int x1, int y1, int z1, int x2, int y2, int z2, i
     }
 }
 
-int A_GetHitscanRange(int i)
+int32_t A_GetHitscanRange(int32_t i)
 {
-    int sx,sy,sz;
-    short sect,hw,hs;
-    int zoff = 0;
+    int32_t sx,sy,sz;
+    int16_t sect,hw,hs;
+    int32_t zoff = 0;
 
     if (PN == APLAYER) zoff = (40<<8);
 
@@ -188,13 +188,13 @@ int A_GetHitscanRange(int i)
     return (FindDistance2D(sx-SX,sy-SY));
 }
 
-static int A_FindTargetSprite(spritetype *s,int aang,int atwith)
+static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
 {
-    int gotshrinker,gotfreezer;
-    int i, j, a, k, cans;
-    static int aimstats[] = {10,13,1,2};
-    int dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
-    int xv, yv;
+    int32_t gotshrinker,gotfreezer;
+    int32_t i, j, a, k, cans;
+    static int32_t aimstats[] = {10,13,1,2};
+    int32_t dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
+    int32_t xv, yv;
 
     if (s->picnum == APLAYER)
     {
@@ -298,13 +298,13 @@ static int A_FindTargetSprite(spritetype *s,int aang,int atwith)
     return j;
 }
 
-int A_Shoot(int i,int atwith)
+int32_t A_Shoot(int32_t i,int32_t atwith)
 {
-    short hitsect, hitspr, hitwall, l, sa, p, j, k=-1, wh, scount;
-    int sx, sy, sz, vel, zvel = 0, hitx, hity, hitz, x, oldzvel, dal;
-    unsigned char sizx,sizy;
+    int16_t hitsect, hitspr, hitwall, l, sa, p, j, k=-1, wh, scount;
+    int32_t sx, sy, sz, vel, zvel = 0, hitx, hity, hitz, x, oldzvel, dal;
+    char sizx,sizy;
     spritetype *s = &sprite[i];
-    short sect = s->sectnum;
+    int16_t sect = s->sectnum;
 
     if (s->picnum == APLAYER)
     {
@@ -551,8 +551,8 @@ int A_Shoot(int i,int atwith)
 
             if (p >= 0)
             {
-                int angRange=32;
-                int zRange=256;
+                int32_t angRange=32;
+                int32_t zRange=256;
 
                 Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
                 X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
@@ -1128,8 +1128,8 @@ DOSKIPBULLETHOLE:
 
             if (p >= 0)
             {
-                int angRange=32;
-                int zRange=256;
+                int32_t angRange=32;
+                int32_t zRange=256;
 
                 Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
                 X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
@@ -1681,12 +1681,12 @@ SKIPBULLETHOLE:
 
             if (j == 1)
             {
-                int lTripBombControl=Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, g_player[p].ps->i, p);
+                int32_t lTripBombControl=Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, g_player[p].ps->i, p);
                 k = A_InsertSprite(hitsect,hitx,hity,hitz,TRIPBOMB,-16,4,5,sa,0,0,i,6);
                 if (lTripBombControl & TRIPBOMB_TIMER)
                 {
-                    int lLifetime=Gv_GetVarByLabel("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, g_player[p].ps->i, p);
-                    int lLifetimeVar=Gv_GetVarByLabel("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, g_player[p].ps->i, p);
+                    int32_t lLifetime=Gv_GetVarByLabel("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, g_player[p].ps->i, p);
+                    int32_t lLifetimeVar=Gv_GetVarByLabel("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, g_player[p].ps->i, p);
                     // set timer.  blows up when at zero....
                     ActorExtra[k].temp_data[7]=lLifetime
                                                + mulscale(krand(),lLifetimeVar, 14)
@@ -1874,9 +1874,9 @@ SKIPBULLETHOLE:
     return -1;
 }
 
-static void P_DisplaySpitAnim(int snum)
+static void P_DisplaySpitAnim(int32_t snum)
 {
-    int i, a, x, y, z;
+    int32_t i, a, x, y, z;
 
     if (g_player[snum].ps->loogcnt == 0) return;
 
@@ -1893,10 +1893,10 @@ static void P_DisplaySpitAnim(int snum)
     }
 }
 
-static int P_DisplayFistAnim(int gs,int snum)
+static int32_t P_DisplayFistAnim(int32_t gs,int32_t snum)
 {
-    int looking_arc,fisti,fistpal;
-    int fistzoom, fistz;
+    int32_t looking_arc,fisti,fistpal;
+    int32_t fistzoom, fistz;
 
     fisti = g_player[snum].ps->fist_incs;
     if (fisti > 32) fisti = 32;
@@ -1927,10 +1927,10 @@ static int P_DisplayFistAnim(int gs,int snum)
 
 #define weapsc(sc) scale(sc,ud.weaponscale,100)
 
-static void G_DrawTileScaled(int x, int y, int tilenum, int shade, int orientation, int p)
+static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
 {
-    int a = 0;
-    int xoff = 192;
+    int32_t a = 0;
+    int32_t xoff = 192;
 
     switch (g_currentweapon)
     {
@@ -1959,7 +1959,7 @@ static void G_DrawTileScaled(int x, int y, int tilenum, int shade, int orientati
                  weapsc(65536L),a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
-static void G_DrawWeaponTile(int x, int y, int tilenum, int shade, int orientation, int p)
+static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
 {
     if (!ud.drawweapon)
         return;
@@ -1986,10 +1986,10 @@ static void G_DrawWeaponTile(int x, int y, int tilenum, int shade, int orientati
     }
 }
 
-static int P_DisplayKneeAnim(int gs,int snum)
+static int32_t P_DisplayKneeAnim(int32_t gs,int32_t snum)
 {
-    static signed char knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
-    int looking_arc, pal = g_player[snum].ps->palookup;
+    static int8_t knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
+    int32_t looking_arc, pal = g_player[snum].ps->palookup;
 
     if (g_player[snum].ps->knee_incs > 11 || g_player[snum].ps->knee_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
 
@@ -2011,10 +2011,10 @@ static int P_DisplayKneeAnim(int gs,int snum)
     return 1;
 }
 
-static int P_DisplayKnuckleAnim(int gs,int snum)
+static int32_t P_DisplayKnuckleAnim(int32_t gs,int32_t snum)
 {
     static char knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
-    int looking_arc, pal = 0;
+    int32_t looking_arc, pal = 0;
 
     if (g_player[snum].ps->knuckle_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
 
@@ -2032,11 +2032,11 @@ static int P_DisplayKnuckleAnim(int gs,int snum)
     return 1;
 }
 
-int lastvisinc;
+int32_t lastvisinc;
 
 void P_FireWeapon(DukePlayer_t *p)
 {
-    int i, snum = sprite[p->i].yvel;
+    int32_t i, snum = sprite[p->i].yvel;
 
     Gv_SetVar(g_iReturnVarID,0,p->i,snum);
     X_OnEvent(EVENT_DOFIRE, p->i, snum, -1);
@@ -2095,7 +2095,7 @@ void P_FireWeapon(DukePlayer_t *p)
 
 void P_DoWeaponSpawn(DukePlayer_t *p)
 {
-    int j, snum = sprite[p->i].yvel;
+    int32_t j, snum = sprite[p->i].yvel;
 
     if (!aplWeaponSpawn[p->curr_weapon][snum])
         return;
@@ -2115,9 +2115,9 @@ void P_DoWeaponSpawn(DukePlayer_t *p)
 
 }
 
-void P_DisplayScubaMask(int snum)
+void P_DisplayScubaMask(int32_t snum)
 {
-    int p;
+    int32_t p;
 
     if (sprite[g_player[snum].ps->i].pal == 1)
         p = 1;
@@ -2132,10 +2132,10 @@ void P_DisplayScubaMask(int snum)
     }
 }
 
-static int P_DisplayTipAnim(int gs,int snum)
+static int32_t P_DisplayTipAnim(int32_t gs,int32_t snum)
 {
-    int p,looking_arc;
-    static short tip_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
+    int32_t p,looking_arc;
+    static int16_t tip_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
 
     if (g_player[snum].ps->tipincs == 0) return 0;
 
@@ -2158,11 +2158,11 @@ static int P_DisplayTipAnim(int gs,int snum)
     return 1;
 }
 
-static int P_DisplayAccessAnim(int gs,int snum)
+static int32_t P_DisplayAccessAnim(int32_t gs,int32_t snum)
 {
-    static short access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
-    int looking_arc;
-    int p;
+    static int16_t access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
+    int32_t looking_arc;
+    int32_t p;
 
     if (g_player[snum].ps->access_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
 
@@ -2184,16 +2184,16 @@ static int P_DisplayAccessAnim(int gs,int snum)
 }
 
 
-static int fistsign;
+static int32_t fistsign;
 
-void P_DisplayWeapon(int snum)
+void P_DisplayWeapon(int32_t snum)
 {
-    int gun_pos, looking_arc, cw;
-    int weapon_xoffset, i, j;
-    int o = 0,pal = 0;
+    int32_t gun_pos, looking_arc, cw;
+    int32_t weapon_xoffset, i, j;
+    int32_t o = 0,pal = 0;
     DukePlayer_t *p = g_player[snum].ps;
-    short *kb = &p->kickback_pic;
-    int gs;
+    int16_t *kb = &p->kickback_pic;
+    int32_t gs;
 
     looking_arc = klabs(p->look_ang)/9;
 
@@ -2545,8 +2545,8 @@ void P_DisplayWeapon(int snum)
 
                     if ((*kb) < *aplWeaponTotalTime[PISTOL_WEAPON]+1)
                     {
-                        static short kb_frames[] = {0,1,2};
-                        int l = 195-12+weapon_xoffset;
+                        static int16_t kb_frames[] = {0,1,2};
+                        int32_t l = 195-12+weapon_xoffset;
 
                         if ((*kb) == *aplWeaponFireDelay[PISTOL_WEAPON])
                             l -= 3;
@@ -2856,13 +2856,13 @@ void P_DisplayWeapon(int snum)
 #define MAXANGVEL    127
 #define MAXHORIZ     127
 
-int g_myAimMode = 0, g_myAimStat = 0, g_oldAimStat = 0;
+int32_t g_myAimMode = 0, g_myAimStat = 0, g_oldAimStat = 0;
 int32 mouseyaxismode = -1;
-int jump_input = 0;
+int32_t jump_input = 0;
 
-void getinput(int snum)
+void getinput(int32_t snum)
 {
-    int j, daang;
+    int32_t j, daang;
     static ControlInfo info[2];
     int32 tics;
     boolean running;
@@ -2881,7 +2881,7 @@ void getinput(int snum)
         loc.svel = svel = 0;
         loc.avel = angvel = 0;
         loc.horz = horiz = 0;
-        loc.bits = (((int)g_gameQuit)<<SK_GAMEQUIT);
+        loc.bits = (((int32_t)g_gameQuit)<<SK_GAMEQUIT);
         loc.extbits = (g_player[snum].pteam != g_player[snum].ps->team)<<6;
         loc.extbits |= (1<<7);
         return;
@@ -3021,7 +3021,7 @@ void getinput(int snum)
     loc.bits |=   g_myAimMode<<SK_AIMMODE;
     loc.bits |=   BUTTON(gamefunc_Holo_Duke)<<SK_HOLODUKE;
     loc.bits |=   BUTTON(gamefunc_Jetpack)<<SK_JETPACK;
-    loc.bits |= (((int)g_gameQuit)<<SK_GAMEQUIT);
+    loc.bits |= (((int32_t)g_gameQuit)<<SK_GAMEQUIT);
     loc.bits |=   BUTTON(gamefunc_Inventory_Right)<<SK_INV_RIGHT;
     loc.bits |=   BUTTON(gamefunc_TurnAround)<<SK_TURNAROUND;
     loc.bits |=   BUTTON(gamefunc_Open)<<SK_OPEN;
@@ -3163,9 +3163,9 @@ void getinput(int snum)
     loc.horz = horiz;
 }
 
-static int P_DoCounters(DukePlayer_t *p)
+static int32_t P_DoCounters(DukePlayer_t *p)
 {
-    int snum = sprite[p->i].yvel;
+    int32_t snum = sprite[p->i].yvel;
 
     //    j = g_player[snum].sync->avel;
     //    p->weapon_ang = -(j/5);
@@ -3364,14 +3364,14 @@ static int P_DoCounters(DukePlayer_t *p)
     return 0;
 }
 
-short WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATIC, SHOTGUNSPRITE__STATIC,
+int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATIC, SHOTGUNSPRITE__STATIC,
         CHAINGUNSPRITE__STATIC, RPGSPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC, DEVISTATORSPRITE__STATIC,
         TRIPBOMBSPRITE__STATIC, FREEZESPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC
                                          };
 // this is used for player deaths
 void P_DropWeapon(DukePlayer_t *p)
 {
-    int snum = sprite[p->i].yvel, cw = aplWeaponWorksLike[p->curr_weapon][snum];
+    int32_t snum = sprite[p->i].yvel, cw = aplWeaponWorksLike[p->curr_weapon][snum];
 
     if (cw < 1 || cw >= MAX_WEAPONS) return;
 
@@ -3389,19 +3389,19 @@ void P_DropWeapon(DukePlayer_t *p)
     }
 }
 
-int g_numObituaries = 0;
-int g_numSelfObituaries = 0;
+int32_t g_numObituaries = 0;
+int32_t g_numSelfObituaries = 0;
 
-void P_ProcessInput(int snum)
+void P_ProcessInput(int32_t snum)
 {
-    int j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y, shrunk;
-    unsigned int sb_snum = g_player[snum].sync->bits;
+    int32_t j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y, shrunk;
+    uint32_t sb_snum = g_player[snum].sync->bits;
     DukePlayer_t *p = g_player[snum].ps;
-    int pi = p->i;
+    int32_t pi = p->i;
     spritetype *s = &sprite[pi];
-    int psect = p->cursectnum, psectlotag;
-    short *kb = &p->kickback_pic;
-    short tempsect;
+    int32_t psect = p->cursectnum, psectlotag;
+    int16_t *kb = &p->kickback_pic;
+    int16_t tempsect;
 
     p->player_par++;
 
@@ -4323,7 +4323,7 @@ void P_ProcessInput(int snum)
     else if (g_player[snum].sync->avel)            //p->ang += syncangvel * constant
     {
         //ENGINE calculates angvel for you
-        int tempang = g_player[snum].sync->avel<<1;
+        int32_t tempang = g_player[snum].sync->avel<<1;
 
         if (psectlotag == 2) p->angvel =(tempang-(tempang>>3))*ksgn(doubvel);
         else p->angvel = tempang*ksgn(doubvel);
@@ -4910,8 +4910,8 @@ SHOOTINCODE:
                 case TRIPBOMB_WEAPON:
                     if (p->ammo_amount[p->curr_weapon] > 0)
                     {
-                        int sx,sy,sz;
-                        short sect,hw,hitsp;
+                        int32_t sx,sy,sz;
+                        int16_t sect,hw,hitsp;
 
                         hitscan(p->posx, p->posy, p->posz,
                                 p->cursectnum, sintable[(p->ang+512)&2047],
@@ -5009,7 +5009,7 @@ SHOOTINCODE:
             (*kb)++;
             if ((*kb)==aplWeaponHoldDelay[p->curr_weapon][snum])
             {
-                int lPipeBombControl;
+                int32_t lPipeBombControl;
 
                 p->ammo_amount[p->curr_weapon]--;
 
@@ -5034,8 +5034,8 @@ SHOOTINCODE:
 
                 if (lPipeBombControl & PIPEBOMB_TIMER)
                 {
-                    int lGrenadeLifetime=Gv_GetVarByLabel("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
-                    int lGrenadeLifetimeVar=Gv_GetVarByLabel("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
+                    int32_t lGrenadeLifetime=Gv_GetVarByLabel("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
+                    int32_t lGrenadeLifetimeVar=Gv_GetVarByLabel("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
                     ActorExtra[j].temp_data[7]=lGrenadeLifetime
                                                + mulscale(krand(),lGrenadeLifetimeVar, 14)
                                                - lGrenadeLifetimeVar;
@@ -5065,7 +5065,7 @@ SHOOTINCODE:
             }
             else if ((*kb) > aplWeaponTotalTime[p->curr_weapon][snum])
             {
-                int lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
+                int32_t lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
 
                 (*kb) = 0;
 
@@ -5107,7 +5107,7 @@ SHOOTINCODE:
 
             if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
             {
-                int lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
+                int32_t lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
                 (*kb) = 0;
                 if ((p->ammo_amount[HANDBOMB_WEAPON] > 0) && lPipeBombControl == PIPEBOMB_REMOTE)
                     P_AddWeapon(p,HANDBOMB_WEAPON);
@@ -5159,7 +5159,7 @@ SHOOTINCODE:
                         (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum] && p->ammo_amount[p->curr_weapon] > 0
                          && (aplWeaponClip[p->curr_weapon][snum]) && (((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0))))
                 {
-                    int i = aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
+                    int32_t i = aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
 
                     p->reloading = 1;
 
@@ -5269,7 +5269,7 @@ SHOOTINCODE:
 }
 
 //UPDATE THIS FILE OVER THE OLD GETSPRITESCORE/COMPUTERGETINPUT FUNCTIONS
-int getspritescore(int snum, int dapicnum)
+int32_t getspritescore(int32_t snum, int32_t dapicnum)
 {
     switch (DynamicTileMap[dapicnum])
     {
@@ -5358,7 +5358,7 @@ int getspritescore(int snum, int dapicnum)
     return(0);
 }
 
-static int fdmatrix[12][12] =
+static int32_t fdmatrix[12][12] =
 {
     //KNEE PIST SHOT CHAIN RPG PIPE SHRI DEVI WALL FREE HAND EXPA
     {  128,  -1,  -1,  -1, 128,  -1,  -1,  -1, 128,  -1, 128,  -1 },   //KNEE
@@ -5375,17 +5375,17 @@ static int fdmatrix[12][12] =
     {  128, 128, 128, 128,2560, 128,2560,2560, 128, 128, 128, 128 }    //EXPA
 };
 
-static int goalx[MAXPLAYERS], goaly[MAXPLAYERS], goalz[MAXPLAYERS];
-static int goalsect[MAXPLAYERS], goalwall[MAXPLAYERS], goalsprite[MAXPLAYERS], goalspritescore[MAXPLAYERS];
-static int goalplayer[MAXPLAYERS], clipmovecount[MAXPLAYERS];
-short searchsect[MAXSECTORS], searchparent[MAXSECTORS];
+static int32_t goalx[MAXPLAYERS], goaly[MAXPLAYERS], goalz[MAXPLAYERS];
+static int32_t goalsect[MAXPLAYERS], goalwall[MAXPLAYERS], goalsprite[MAXPLAYERS], goalspritescore[MAXPLAYERS];
+static int32_t goalplayer[MAXPLAYERS], clipmovecount[MAXPLAYERS];
+int16_t searchsect[MAXSECTORS], searchparent[MAXSECTORS];
 char dashow2dsector[(MAXSECTORS+7)>>3];
-void computergetinput(int snum, input_t *syn)
+void computergetinput(int32_t snum, input_t *syn)
 {
-    int i, j, k, l, x1, y1, z1, x2, y2, z2, x3, y3, z3, dx, dy;
-    int dist, daang, zang, fightdist, damyang, damysect;
-    int startsect, endsect, splc, send, startwall, endwall;
-    short dasect, dawall, daspr;
+    int32_t i, j, k, l, x1, y1, z1, x2, y2, z2, x3, y3, z3, dx, dy;
+    int32_t dist, daang, zang, fightdist, damyang, damysect;
+    int32_t startsect, endsect, splc, send, startwall, endwall;
+    int16_t dasect, dawall, daspr;
     DukePlayer_t *p = g_player[snum].ps;
     walltype *wal;
 
@@ -5498,7 +5498,7 @@ void computergetinput(int snum, input_t *syn)
                     hitscan(sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].sectnum,
                             mulscale14(sprite[j].xvel,sintable[(sprite[j].ang+512)&2047]),
                             mulscale14(sprite[j].xvel,sintable[sprite[j].ang&2047]),
-                            (int)sprite[j].zvel,
+                            (int32_t)sprite[j].zvel,
                             &dasect,&dawall,&daspr,&x3,&y3,&z3,CLIPMASK1);
                 }
             }
@@ -5603,8 +5603,8 @@ void computergetinput(int snum, input_t *syn)
                 if ((dashow2dsector[j>>3]&(1<<(j&7))) == 0)
                 {
                     dashow2dsector[j>>3] |= (1<<(j&7));
-                    searchsect[send] = (short)j;
-                    searchparent[send] = (short)splc;
+                    searchsect[send] = (int16_t)j;
+                    searchparent[send] = (int16_t)splc;
                     send++;
                     if (j == endsect)
                     {
@@ -5671,8 +5671,8 @@ void computergetinput(int snum, input_t *syn)
                     if ((dashow2dsector[j>>3]&(1<<(j&7))) == 0)
                     {
                         dashow2dsector[j>>3] |= (1<<(j&7));
-                        searchsect[send] = (short)j;
-                        searchparent[send] = (short)splc;
+                        searchsect[send] = (int16_t)j;
+                        searchparent[send] = (int16_t)splc;
                         send++;
                         if (j == endsect)
                         {
@@ -5717,7 +5717,7 @@ void computergetinput(int snum, input_t *syn)
     {
         if (goalsprite[snum] < 0 || !cansee(x1,y1,z1-(32<<8),damysect,sprite[goalsprite[snum]].x,sprite[goalsprite[snum]].y,sprite[goalsprite[snum]].z-(4<<8),i))
         {
-            int bestsprite = -1, spritescore = 0;
+            int32_t bestsprite = -1, spritescore = 0;
 
             for (k=0;k<16;k++)
             {

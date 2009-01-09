@@ -37,7 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // I wonder if it's faster to use Ken's functions here...
 
-int FindDistance2D(int x, int y)
+int32_t FindDistance2D(int32_t x, int32_t y)
 {
     x= klabs(x);
     y= klabs(y);
@@ -45,12 +45,12 @@ int FindDistance2D(int x, int y)
     if (x<y) swaplong(&x,&y);
 
     {
-        int t = y + (y>>1);
+        int32_t t = y + (y>>1);
         return (x - (x>>5) - (x>>7)  + (t>>2) + (t>>6));
     }
 }
 
-int FindDistance3D(int x, int y, int z)
+int32_t FindDistance3D(int32_t x, int32_t y, int32_t z)
 {
     x= klabs(x);
     y= klabs(y);
@@ -60,7 +60,7 @@ int FindDistance3D(int x, int y, int z)
     if (x<z) swaplong(&x,&z);
 
     {
-        int t = y + z;
+        int32_t t = y + z;
         return (x - (x>>4) + (t>>2) + (t>>3));
     }
 }

@@ -30,9 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // I got a 3-4 fps gain by inlining these...
 
 #ifndef _gamevars_c_
-static inline void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
+static inline void X_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2)
 {
-    int lValue=0;
+    int32_t lValue=0;
 
     if (vm.g_p != myconnectindex)
     {
@@ -911,9 +911,9 @@ static inline void X_AccessUserdef(int iSet, int lLabelID, int lVar2)
     }
 }
 
-static inline void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
+static inline void X_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int lValue=0,proj=vm.g_i;
+    int32_t lValue=0,proj=vm.g_i;
 
     if (lVar1 != g_iThisActorID)
         proj=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
@@ -1190,10 +1190,10 @@ static inline void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, i
     }
 }
 
-static inline void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
+static inline void X_AccessPlayer(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
 {
-    int lValue=0;
-    int iPlayer=vm.g_p;
+    int32_t lValue=0;
+    int32_t iPlayer=vm.g_p;
 
     if (lVar1 != g_iThisActorID)
         iPlayer=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
@@ -2548,10 +2548,10 @@ static inline void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, 
     }
 }
 
-static inline void X_AccessPlayerInput(int iSet, int lVar1, int lLabelID, int lVar2)
+static inline void X_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int lValue=0;
-    int iPlayer=vm.g_p;
+    int32_t lValue=0;
+    int32_t iPlayer=vm.g_p;
 
     if (lVar1 != g_iThisActorID)
         iPlayer=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
@@ -2626,10 +2626,10 @@ static inline void X_AccessPlayerInput(int iSet, int lVar1, int lLabelID, int lV
     }
 }
 
-static inline void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
+static inline void X_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int lValue=0;
-    int iWall = Gv_GetVar(lVar1, vm.g_i, vm.g_p);
+    int32_t lValue=0;
+    int32_t iWall = Gv_GetVar(lVar1, vm.g_i, vm.g_p);
 
     if ((iWall<0 || iWall >= numwalls) && g_scriptSanityChecks)
     {
@@ -2800,10 +2800,10 @@ static inline void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2)
     }
 }
 
-static inline void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
+static inline void X_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int lValue=0;
-    int iSector=sprite[vm.g_i].sectnum;
+    int32_t lValue=0;
+    int32_t iSector=sprite[vm.g_i].sectnum;
 
     if (lVar1 != g_iThisActorID)
         iSector=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
@@ -3032,10 +3032,10 @@ static inline void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2)
     }
 }
 
-static inline void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
+static inline void X_AccessSprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
 {
-    int lValue=0;
-    int iActor=vm.g_i;
+    int32_t lValue=0;
+    int32_t iActor=vm.g_i;
 
     if (lVar1 != g_iThisActorID)
         iActor=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
@@ -3526,10 +3526,10 @@ static inline void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, 
     }
 }
 
-static inline void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
+static inline void X_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int lValue=0;
-    int iActor=vm.g_i;
+    int32_t lValue=0;
+    int32_t iActor=vm.g_i;
 
     if (lVar1 != g_iThisActorID)
         iActor=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
@@ -3766,9 +3766,9 @@ static inline void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
     }
 }
 
-static inline void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
+static inline void X_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int lValue=0;
+    int32_t lValue=0;
 
     if ((lVar1 < 0 || lVar1 >= MAXTILES) && g_scriptSanityChecks)
     {
@@ -4039,7 +4039,7 @@ static inline void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVa
     }
 }
 #else
-static int X_AccessSpriteX(int iActor, int lLabelID, int lParm2)
+static int32_t X_AccessSpriteX(int32_t iActor, int32_t lLabelID, int32_t lParm2)
 {
     if ((ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) && g_scriptSanityChecks)
     {
@@ -4105,7 +4105,7 @@ static int X_AccessSpriteX(int iActor, int lLabelID, int lParm2)
     }
 }
 
-static int X_AccessSectorX(int iSector, int lLabelID)
+static int32_t X_AccessSectorX(int32_t iSector, int32_t lLabelID)
 {
     switch (lLabelID)
     {
@@ -4136,7 +4136,7 @@ static int X_AccessSectorX(int iSector, int lLabelID)
     }
 }
 
-static int X_AccessPlayerX(int iPlayer, int lLabelID, int lParm2)
+static int32_t X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int32_t lParm2)
 {
     if ((PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) && g_scriptSanityChecks)
     {
@@ -4439,7 +4439,7 @@ static int X_AccessPlayerX(int iPlayer, int lLabelID, int lParm2)
     }
 }
 
-static int X_AccessWallX(int iWall, int lLabelID)
+static int32_t X_AccessWallX(int32_t iWall, int32_t lLabelID)
 {
     switch (lLabelID)
     {

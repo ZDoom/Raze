@@ -197,8 +197,8 @@ extern "C" {
 	// inline asm using bswap/xchg
 # endif
 #elif defined B_ENDIAN_C_INLINE
-static inline unsigned short B_SWAP16(unsigned short s) { return (s>>8)|(s<<8); }
-static inline unsigned int  B_SWAP32(unsigned int  l) { return ((l>>8)&0xff00)|((l&0xff00)<<8)|(l<<24)|(l>>24); }
+static inline uint16_t B_SWAP16(uint16_t s) { return (s>>8)|(s<<8); }
+static inline uint32_t  B_SWAP32(uint32_t  l) { return ((l>>8)&0xff00)|((l&0xff00)<<8)|(l<<24)|(l>>24); }
 static inline uint64 B_SWAP64(uint64 l) { return (l>>56)|((l>>40)&0xff00)|((l>>24)&0xff0000)|((l>>8)&0xff000000)|((l&255)<<56)|((l&0xff00)<<40)|((l&0xff0000)<<24)|((l&0xff000000)<<8); }
 #endif
 
@@ -299,7 +299,7 @@ static inline uint64 B_SWAP64(uint64 l) { return (l>>56)|((l>>40)&0xff00)|((l>>2
 
 
 struct Bdirent {
-	unsigned short namlen;
+	uint16_t namlen;
 	char *name;
 	unsigned mode;
 	unsigned size;
@@ -309,7 +309,7 @@ typedef void BDIR;
 
 BDIR*		Bopendir(const char *name);
 struct Bdirent*	Breaddir(BDIR *dir);
-int		Bclosedir(BDIR *dir);
+int32_t		Bclosedir(BDIR *dir);
 
 
 #ifdef __compat_h_macrodef__
@@ -318,8 +318,8 @@ int		Bclosedir(BDIR *dir);
 # define bssize_t ssize_t
 #else
   typedef void          BFILE;
-  typedef unsigned int bsize_t;
-  typedef signed   int bssize_t;
+  typedef uint32_t bsize_t;
+  typedef signed   int32_t bssize_t;
 #endif
 
 
@@ -404,62 +404,62 @@ int		Bclosedir(BDIR *dir);
 
 #else
 
-int Brand(void);
+int32_t Brand(void);
 void *Bmalloc(bsize_t size);
 void Bfree(void *ptr);
-int Bopen(const char *pathname, int flags, unsigned mode);
-int Bclose(int fd);
-bssize_t Bwrite(int fd, const void *buf, bsize_t count);
-bssize_t Bread(int fd, void *buf, bsize_t count);
-int Blseek(int fildes, int offset, int whence);
+int32_t Bopen(const char *pathname, int32_t flags, unsigned mode);
+int32_t Bclose(int32_t fd);
+bssize_t Bwrite(int32_t fd, const void *buf, bsize_t count);
+bssize_t Bread(int32_t fd, void *buf, bsize_t count);
+int32_t Blseek(int32_t fildes, int32_t offset, int32_t whence);
 BFILE *Bfopen(const char *path, const char *mode);
-int Bfclose(BFILE *stream);
-int Bfeof(BFILE *stream);
-int Bfgetc(BFILE *stream);
+int32_t Bfclose(BFILE *stream);
+int32_t Bfeof(BFILE *stream);
+int32_t Bfgetc(BFILE *stream);
 void Brewind(BFILE *stream);
-char *Bfgets(char *s, int size, BFILE *stream);
-int Bfputc(int c, BFILE *stream);
-int Bfputs(const char *s, BFILE *stream);
+char *Bfgets(char *s, int32_t size, BFILE *stream);
+int32_t Bfputc(int32_t c, BFILE *stream);
+int32_t Bfputs(const char *s, BFILE *stream);
 bsize_t Bfread(void *ptr, bsize_t size, bsize_t nmemb, BFILE *stream);
 bsize_t Bfwrite(const void *ptr, bsize_t size, bsize_t nmemb, BFILE *stream);
 char *Bstrdup(const char *s);
 char *Bstrcpy(char *dest, const char *src);
 char *Bstrncpy(char *dest, const char *src, bsize_t n);
-int Bstrcmp(const char *s1, const char *s2);
-int Bstrncmp(const char *s1, const char *s2, bsize_t n);
-int Bstrcasecmp(const char *s1, const char *s2);
-int Bstrncasecmp(const char *s1, const char *s2, bsize_t n);
+int32_t Bstrcmp(const char *s1, const char *s2);
+int32_t Bstrncmp(const char *s1, const char *s2, bsize_t n);
+int32_t Bstrcasecmp(const char *s1, const char *s2);
+int32_t Bstrncasecmp(const char *s1, const char *s2, bsize_t n);
 char *Bstrcat(char *dest, const char *src);
 char *Bstrncat(char *dest, const char *src, bsize_t n);
 bsize_t Bstrlen(const char *s);
-char *Bstrchr(const char *s, int c);
-char *Bstrrchr(const char *s, int c);
-int Batoi(const char *nptr);
-int Batol(const char *nptr);
-int int Bstrtol(const char *nptr, char **endptr, int base);
-unsigned int int Bstrtoul(const char *nptr, char **endptr, int base);
+char *Bstrchr(const char *s, int32_t c);
+char *Bstrrchr(const char *s, int32_t c);
+int32_t Batoi(const char *nptr);
+int32_t Batol(const char *nptr);
+int32_t int32_t Bstrtol(const char *nptr, char **endptr, int32_t base);
+uint32_t int32_t Bstrtoul(const char *nptr, char **endptr, int32_t base);
 void *Bmemcpy(void *dest, const void *src, bsize_t n);
 void *Bmemmove(void *dest, const void *src, bsize_t n);
-void *Bmemchr(const void *s, int c, bsize_t n);
-void *Bmemset(void *s, int c, bsize_t n);
-int Bmemcmp(const void *s1, const void *s2, bsize_t n);
-int Bprintf(const char *format, ...);
-int Bsprintf(char *str, const char *format, ...);
-int Bsnprintf(char *str, bsize_t size, const char *format, ...);
-int Bvsnprintf(char *str, bsize_t size, const char *format, va_list ap);
+void *Bmemchr(const void *s, int32_t c, bsize_t n);
+void *Bmemset(void *s, int32_t c, bsize_t n);
+int32_t Bmemcmp(const void *s1, const void *s2, bsize_t n);
+int32_t Bprintf(const char *format, ...);
+int32_t Bsprintf(char *str, const char *format, ...);
+int32_t Bsnprintf(char *str, bsize_t size, const char *format, ...);
+int32_t Bvsnprintf(char *str, bsize_t size, const char *format, va_list ap);
 char *Bgetcwd(char *buf, bsize_t size);
 char *Bgetenv(const char *name);
 #endif
 
 char *Bgethomedir(void);
-char *Bgetsupportdir(int global);
-unsigned int Bgetsysmemsize(void);
-int Bcorrectfilename(char *filename, int removefn);
-int Bcanonicalisefilename(char *filename, int removefn);
+char *Bgetsupportdir(int32_t global);
+uint32_t Bgetsysmemsize(void);
+int32_t Bcorrectfilename(char *filename, int32_t removefn);
+int32_t Bcanonicalisefilename(char *filename, int32_t removefn);
 char *Bgetsystemdrives(void);
-int Bfilelength(int fd);
-char *Bstrtoken(char *s, char *delim, char **ptrptr, int chop);
-int Bwildmatch (const char *i, const char *j);
+int32_t Bfilelength(int32_t fd);
+char *Bstrtoken(char *s, char *delim, char **ptrptr, int32_t chop);
+int32_t Bwildmatch (const char *i, const char *j);
 
 #if !defined(_WIN32)
 char *Bstrlwr(char *);

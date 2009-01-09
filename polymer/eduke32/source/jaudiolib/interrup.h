@@ -31,8 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __INTERRUPT_H
 #define __INTERRUPT_H
 
-unsigned int DisableInterrupts( void );
-void          RestoreInterrupts( unsigned int flags );
+uint32_t DisableInterrupts( void );
+void          RestoreInterrupts( uint32_t flags );
 
 #ifdef PLAT_DOS
 #pragma aux DisableInterrupts = \

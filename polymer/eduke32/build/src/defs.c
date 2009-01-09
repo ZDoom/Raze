@@ -78,7 +78,7 @@ enum
     T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET
 };
 
-typedef struct { char *text; int tokenid; } tokenlist;
+typedef struct { char *text; int32_t tokenid; } tokenlist;
 static tokenlist basetokens[] =
 {
     { "include",         T_INCLUDE          },
@@ -266,10 +266,10 @@ static tokenlist tilefromtexturetokens[] =
     { "yoff",            T_YOFFSET },
 };
 
-static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
+static int32_t getatoken(scriptfile *sf, tokenlist *tl, int32_t ntokens)
 {
     char *tok;
-    int i;
+    int32_t i;
 
     if (!sf) return T_ERROR;
     tok = scriptfile_gettoken(sf);
@@ -284,12 +284,12 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
     return T_ERROR;
 }
 
-static int lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
-extern int nextvoxid;
+static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
+extern int32_t nextvoxid;
 
 extern char faketile[MAXTILES];
 extern char *faketiledata[MAXTILES];
-extern int getclosestcol(int r, int g, int b);
+extern int32_t getclosestcol(int32_t r, int32_t g, int32_t b);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
 extern float alphahackarray[MAXTILES];
@@ -303,9 +303,9 @@ static const char *skyfaces[6] =
     "left face", "top face", "bottom face"
 };
 
-static int defsparser(scriptfile *script)
+static int32_t defsparser(scriptfile *script)
 {
-    int tokn;
+    int32_t tokn;
     char *cmdtokptr;
     while (1)
     {
@@ -343,7 +343,7 @@ static int defsparser(scriptfile *script)
         case T_DEFINE:
         {
             char *name;
-            int number;
+            int32_t number;
 
             if (scriptfile_getstring(script,&name)) break;
             if (scriptfile_getsymbol(script,&number)) break;
@@ -357,7 +357,7 @@ static int defsparser(scriptfile *script)
         // OLD (DEPRECATED) DEFINITION SYNTAX
         case T_DEFINETEXTURE:
         {
-            int tile,pal,fnoo,i;
+            int32_t tile,pal,fnoo,i;
             char *fn, *tfn = NULL;
 
             if (scriptfile_getsymbol(script,&tile)) break;
@@ -391,7 +391,7 @@ static int defsparser(scriptfile *script)
         break;
         case T_DEFINESKYBOX:
         {
-            int tile,pal,i,ii;
+            int32_t tile,pal,i,ii;
             char *fn[6],happy=1,*tfn = NULL;
 
             if (scriptfile_getsymbol(script,&tile)) break;
@@ -423,7 +423,7 @@ static int defsparser(scriptfile *script)
         break;
         case T_DEFINETINT:
         {
-            int pal, r,g,b,f;
+            int32_t pal, r,g,b,f;
 
             if (scriptfile_getsymbol(script,&pal)) break;
             if (scriptfile_getnumber(script,&r)) break;
@@ -435,7 +435,7 @@ static int defsparser(scriptfile *script)
         break;
         case T_DEFINECONV:
         {
-            int pal, pal1, pal2;
+            int32_t pal, pal1, pal2;
 
             if (scriptfile_getsymbol(script,&pal)) break;
             if (scriptfile_getnumber(script,&pal1)) break;
@@ -447,19 +447,19 @@ static int defsparser(scriptfile *script)
         break;
         case T_ALPHAHACK:
         {
-            int tile;
+            int32_t tile;
             double alpha;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getdouble(script,&alpha)) break;
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if ((unsigned int)tile < MAXTILES) alphahackarray[tile] = alpha;
+            if ((uint32_t)tile < MAXTILES) alphahackarray[tile] = alpha;
 #endif
         }
         break;
         case T_ALPHAHACKRANGE:
         {
-            int tilenume1,tilenume2,i;
+            int32_t tilenume1,tilenume2,i;
             double alpha;
 
             if (scriptfile_getsymbol(script,&tilenume1)) break;
@@ -477,7 +477,7 @@ static int defsparser(scriptfile *script)
             {
                 for (i=tilenume1;i<=tilenume2;i++)
                 {
-                    if ((unsigned int)i < MAXTILES)
+                    if ((uint32_t)i < MAXTILES)
                         alphahackarray[i] = alpha;
                 }
             }
@@ -486,12 +486,12 @@ static int defsparser(scriptfile *script)
         break;
         case T_SPRITECOL:
         {
-            int tile,col,col2;
+            int32_t tile,col,col2;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getnumber(script,&col)) break;
             if (scriptfile_getnumber(script,&col2)) break;
-            if ((unsigned int)tile < MAXTILES)
+            if ((uint32_t)tile < MAXTILES)
             {
                 spritecol2d[tile][0] = col;
                 spritecol2d[tile][1] = col2;
@@ -500,7 +500,7 @@ static int defsparser(scriptfile *script)
         break;
         case T_2DCOL:
         {
-            int col,b,g,r;
+            int32_t col,b,g,r;
 
             if (scriptfile_getnumber(script,&col)) break;
             if (scriptfile_getnumber(script,&r)) break;
@@ -517,7 +517,7 @@ static int defsparser(scriptfile *script)
         break;
         case T_FOGPAL:
         {
-            int p,r,g,b,j;
+            int32_t p,r,g,b,j;
             char tempbuf[256];
 
             if (scriptfile_getnumber(script,&p)) break;
@@ -538,14 +538,14 @@ static int defsparser(scriptfile *script)
         break;
         case T_CACHESIZE:
         {
-            int j;
+            int32_t j;
 
             if (scriptfile_getnumber(script,&j)) break;
         }
         break;
         case T_SETUPTILE:
         {
-            int tile, tmp;
+            int32_t tile, tmp;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (tile >= MAXTILES)break;
@@ -559,7 +559,7 @@ static int defsparser(scriptfile *script)
         }
         case T_SETUPTILERANGE:
         {
-            int tile1,tile2,xsiz,ysiz,xoffs,yoffs,i;
+            int32_t tile1,tile2,xsiz,ysiz,xoffs,yoffs,i;
 
             if (scriptfile_getnumber(script,&tile1)) break;
             if (scriptfile_getnumber(script,&tile2)) break;
@@ -578,7 +578,7 @@ static int defsparser(scriptfile *script)
             {
                 for (i=tile1;i<=tile2;i++)
                 {
-                    if ((unsigned int)i < MAXTILES)
+                    if ((uint32_t)i < MAXTILES)
                     {
                         h_xsize[i] = xsiz;
                         h_ysize[i] = ysiz;
@@ -591,7 +591,7 @@ static int defsparser(scriptfile *script)
         }
         case T_ANIMTILERANGE:
         {
-            int tile1, tile2, spd, type, i;
+            int32_t tile1, tile2, spd, type, i;
 
             if (scriptfile_getsymbol(script,&tile1)) break;
             if (tile1 >= MAXTILES)break;
@@ -612,9 +612,9 @@ static int defsparser(scriptfile *script)
         case T_TILEFROMTEXTURE:
         {
             char *texturetokptr = script->ltextptr, *textureend, *fn, *tfn = NULL;
-            int tile=-1, token, i;
-            int alphacut = 255;
-            int xoffset = 0, yoffset = 0;
+            int32_t tile=-1, token, i;
+            int32_t alphacut = 255;
+            int32_t xoffset = 0, yoffset = 0;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
@@ -672,8 +672,8 @@ static int defsparser(scriptfile *script)
             }
 
             {
-                int xsiz, ysiz, j;
-                int *picptr = NULL;
+                int32_t xsiz, ysiz, j;
+                int32_t *picptr = NULL;
                 palette_t *col;
 
                 kpzload(fn, (intptr_t *)&picptr, &j, &xsiz, &ysiz);
@@ -705,9 +705,9 @@ static int defsparser(scriptfile *script)
                     picanm[tile] = (picanm[tile]&0xff00ffff)+((yoffset&255)<<16);
 
                     j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
-                    picsiz[tile] = ((char)j);
+                    picsiz[tile] = ((uint8_t)j);
                     j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
-                    picsiz[tile] += ((char)(j<<4));
+                    picsiz[tile] += ((uint8_t)(j<<4));
                 }
 
                 Bfree(picptr);
@@ -716,9 +716,9 @@ static int defsparser(scriptfile *script)
         break;
         case T_IMPORTTILE:
         {
-            int tile, xsiz, ysiz, j, i;
-            int *picptr = NULL;
-            int bpl;
+            int32_t tile, xsiz, ysiz, j, i;
+            int32_t *picptr = NULL;
+            int32_t bpl;
             char *fn;
             palette_t *col;
 
@@ -750,9 +750,9 @@ static int defsparser(scriptfile *script)
                 picanm[tile] = 0;
 
                 j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
-                picsiz[tile] = ((char)j);
+                picsiz[tile] = ((uint8_t)j);
                 j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
-                picsiz[tile] += ((char)(j<<4));
+                picsiz[tile] += ((uint8_t)(j<<4));
             }
 
             Bfree(picptr);
@@ -760,7 +760,7 @@ static int defsparser(scriptfile *script)
         }
         case T_DUMMYTILE:
         {
-            int tile, xsiz, ysiz, j;
+            int32_t tile, xsiz, ysiz, j;
             extern char faketile[MAXTILES];
 
             if (scriptfile_getsymbol(script,&tile)) break;
@@ -775,16 +775,16 @@ static int defsparser(scriptfile *script)
                 picanm[tile] = 0;
 
                 j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
-                picsiz[tile] = ((char)j);
+                picsiz[tile] = ((uint8_t)j);
                 j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
-                picsiz[tile] += ((char)(j<<4));
+                picsiz[tile] += ((uint8_t)(j<<4));
             }
 
             break;
         }
         case T_DUMMYTILERANGE:
         {
-            int tile1,tile2,xsiz,ysiz,i,j;
+            int32_t tile1,tile2,xsiz,ysiz,i,j;
             extern char faketile[MAXTILES];
 
             if (scriptfile_getnumber(script,&tile1)) break;
@@ -802,7 +802,7 @@ static int defsparser(scriptfile *script)
             {
                 for (i=tile1;i<=tile2;i++)
                 {
-                    if ((unsigned int)i < MAXTILES)
+                    if ((uint32_t)i < MAXTILES)
                     {
                         if (xsiz > 0 && ysiz > 0)
                         {
@@ -812,9 +812,9 @@ static int defsparser(scriptfile *script)
                             picanm[i] = 0;
 
                             j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
-                            picsiz[i] = ((char)j);
+                            picsiz[i] = ((uint8_t)j);
                             j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
-                            picsiz[i] += ((char)(j<<4));
+                            picsiz[i] += ((uint8_t)(j<<4));
                         }
                     }
                 }
@@ -826,7 +826,7 @@ static int defsparser(scriptfile *script)
         {
             char *modelfn;
             double scale;
-            int shadeoffs;
+            int32_t shadeoffs;
 
             if (scriptfile_getstring(script,&modelfn)) break;
             if (scriptfile_getdouble(script,&scale)) break;
@@ -851,7 +851,7 @@ static int defsparser(scriptfile *script)
 #if defined(POLYMOST) && defined(USE_OPENGL)
             char happy=1;
 #endif
-            int ftilenume, ltilenume, tilex;
+            int32_t ftilenume, ltilenume, tilex;
 
             if (scriptfile_getstring(script,&framename)) break;
             if (scriptfile_getnumber(script,&ftilenume)) break; //first tile number
@@ -897,7 +897,7 @@ static int defsparser(scriptfile *script)
         case T_DEFINEMODELANIM:
         {
             char *startframe, *endframe;
-            int flags;
+            int32_t flags;
             double dfps;
 
             if (scriptfile_getstring(script,&startframe)) break;
@@ -911,7 +911,7 @@ static int defsparser(scriptfile *script)
                 break;
             }
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            switch (md_defineanimation(lastmodelid, startframe, endframe, (int)(dfps*(65536.0*.001)), flags))
+            switch (md_defineanimation(lastmodelid, startframe, endframe, (int32_t)(dfps*(65536.0*.001)), flags))
             {
             case 0:
                 break;
@@ -935,7 +935,7 @@ static int defsparser(scriptfile *script)
         break;
         case T_DEFINEMODELSKIN:
         {
-            int palnum;
+            int32_t palnum;
             char *skinfn;
 
             if (scriptfile_getsymbol(script,&palnum)) break;
@@ -1009,7 +1009,7 @@ static int defsparser(scriptfile *script)
         break;
         case T_DEFINEVOXELTILES:
         {
-            int ftilenume, ltilenume, tilex;
+            int32_t ftilenume, ltilenume, tilex;
 
             if (scriptfile_getnumber(script,&ftilenume)) break; //1st tile #
             if (scriptfile_getnumber(script,&ltilenume)) break; //last tile #
@@ -1048,7 +1048,7 @@ static int defsparser(scriptfile *script)
         {
             char *modelend, *modelfn;
             double scale=1.0, mzadd=0.0;
-            int shadeoffs=0, pal=0, flags=0;
+            int32_t shadeoffs=0, pal=0, flags=0;
 
             modelskin = lastmodelskin = 0;
             seenframe = 0;
@@ -1066,7 +1066,7 @@ static int defsparser(scriptfile *script)
 #endif
             while (script->textptr < modelend)
             {
-                int token = getatoken(script,modeltokens,sizeof(modeltokens)/sizeof(tokenlist));
+                int32_t token = getatoken(script,modeltokens,sizeof(modeltokens)/sizeof(tokenlist));
                 switch (token)
                 {
                     //case T_ERROR: initprintf("Error on line %s:%d in model tokens\n", script->filename,script->linenum); break;
@@ -1082,7 +1082,7 @@ static int defsparser(scriptfile *script)
                 {
                     char *frametokptr = script->ltextptr;
                     char *frameend, *framename = 0, happy=1;
-                    int ftilenume = -1, ltilenume = -1, tilex = 0;
+                    int32_t ftilenume = -1, ltilenume = -1, tilex = 0;
                     double smoothduration = 0.1f;
 
                     if (scriptfile_getbraces(script,&frameend)) break;
@@ -1151,7 +1151,7 @@ static int defsparser(scriptfile *script)
                 {
                     char *animtokptr = script->ltextptr;
                     char *animend, *startframe = 0, *endframe = 0, happy=1;
-                    int flags = 0;
+                    int32_t flags = 0;
                     double dfps = 1.0;
 
                     if (scriptfile_getbraces(script,&animend)) break;
@@ -1180,7 +1180,7 @@ static int defsparser(scriptfile *script)
                         break;
                     }
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                    switch (md_defineanimation(lastmodelid, startframe, endframe, (int)(dfps*(65536.0*.001)), flags))
+                    switch (md_defineanimation(lastmodelid, startframe, endframe, (int32_t)(dfps*(65536.0*.001)), flags))
                     {
                     case 0:
                         break;
@@ -1207,7 +1207,7 @@ static int defsparser(scriptfile *script)
                 {
                     char *skintokptr = script->ltextptr;
                     char *skinend, *skinfn = 0;
-                    int palnum = 0, surfnum = 0;
+                    int32_t palnum = 0, surfnum = 0;
                     double param = 1.0;
 
                     if (scriptfile_getbraces(script,&skinend)) break;
@@ -1280,7 +1280,7 @@ static int defsparser(scriptfile *script)
                 {
                     char *hudtokptr = script->ltextptr;
                     char happy=1, *frameend;
-                    int ftilenume = -1, ltilenume = -1, tilex = 0, flags = 0;
+                    int32_t ftilenume = -1, ltilenume = -1, tilex = 0, flags = 0;
                     double xadd = 0.0, yadd = 0.0, zadd = 0.0, angadd = 0.0;
 
                     if (scriptfile_getbraces(script,&frameend)) break;
@@ -1370,7 +1370,7 @@ static int defsparser(scriptfile *script)
         {
             char *voxeltokptr = script->ltextptr;
             char *fn, *modelend;
-            int tile0 = MAXTILES, tile1 = -1, tilex = -1;
+            int32_t tile0 = MAXTILES, tile1 = -1, tilex = -1;
 
             if (scriptfile_getstring(script,&fn)) break; //voxel filename
             if (nextvoxid == MAXVOXELS) { initprintf("Maximum number of voxels already defined.\n"); break; }
@@ -1388,7 +1388,7 @@ static int defsparser(scriptfile *script)
                 case T_TILE:
                     scriptfile_getsymbol(script,&tilex);
 #ifdef SUPERBUILD
-                    if ((unsigned int)tilex < MAXTILES) tiletovox[tilex] = lastvoxid;
+                    if ((uint32_t)tilex < MAXTILES) tiletovox[tilex] = lastvoxid;
                     else initprintf("Invalid tile number on line %s:%d\n",script->filename, scriptfile_getlinum(script,voxeltokptr));
 #endif
                     break;
@@ -1412,7 +1412,7 @@ static int defsparser(scriptfile *script)
                     double scale=1.0;
                     scriptfile_getdouble(script,&scale);
 #ifdef SUPERBUILD
-                    voxscale[lastvoxid] = (int)(65536*scale);
+                    voxscale[lastvoxid] = (int32_t)(65536*scale);
 #endif
                     break;
                 }
@@ -1425,7 +1425,7 @@ static int defsparser(scriptfile *script)
         {
             char *skyboxtokptr = script->ltextptr;
             char *fn[6] = {0,0,0,0,0,0}, *modelend, happy=1, *tfn = NULL;
-            int i, tile = -1, pal = 0,ii;
+            int32_t i, tile = -1, pal = 0,ii;
 
             if (scriptfile_getbraces(script,&modelend)) break;
             while (script->textptr < modelend)
@@ -1481,7 +1481,7 @@ static int defsparser(scriptfile *script)
         case T_TINT:
         {
             char *tinttokptr = script->ltextptr;
-            int red=255, green=255, blue=255, pal=-1, flags=0;
+            int32_t red=255, green=255, blue=255, pal=-1, flags=0;
             char *tintend;
 
             if (scriptfile_getbraces(script,&tintend)) break;
@@ -1514,10 +1514,10 @@ static int defsparser(scriptfile *script)
         case T_TEXTURE:
         {
             char *texturetokptr = script->ltextptr, *textureend;
-            int tile=-1, token;
+            int32_t tile=-1, token;
 
             char *fnB=0; double alphacutB=0, xscaleB=0, yscaleB=0; char flagsB=0;
-            int palmapbits=0;int palbits=0;
+            int32_t palmapbits=0;int32_t palbits=0;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
@@ -1529,7 +1529,7 @@ static int defsparser(scriptfile *script)
                 case T_PAL:
                 {
                     char *paltokptr = script->ltextptr, *palend;
-                    int pal=-1, i;
+                    int32_t pal=-1, i;
                     char *fn = NULL, *tfn = NULL;
                     double alphacut = -1.0, xscale = 1.0, yscale = 1.0;
                     char flags = 0;
@@ -1600,7 +1600,7 @@ static int defsparser(scriptfile *script)
                 case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL: case T_SPECPAL:
                 {
                     char *detailtokptr = script->ltextptr, *detailend;
-                    int pal = 0, i;
+                    int32_t pal = 0, i;
                     char *fn = NULL, *tfn = NULL;
                     double xscale = 1.0, yscale = 1.0;
                     char flags = 0;
@@ -1680,7 +1680,7 @@ static int defsparser(scriptfile *script)
 #if defined(POLYMOST) && defined(USE_OPENGL)
             if (palmapbits&&fnB)
             {
-                int i;
+                int32_t i;
                 for (i=0;i<=25;i++)
                     if (!(palbits&(1<<i))&&(palmapbits&checkpalmaps(i)))
                         hicsetsubsttex(tile,i,fnB,alphacutB,xscaleB,yscaleB,flagsB);
@@ -1699,7 +1699,7 @@ static int defsparser(scriptfile *script)
         case T_UNDEFMODEL:
         case T_UNDEFMODELRANGE:
         {
-            int r0,r1;
+            int32_t r0,r1;
 
             if (scriptfile_getsymbol(script,&r0)) break;
             if (tokn == T_UNDEFMODELRANGE)
@@ -1707,7 +1707,7 @@ static int defsparser(scriptfile *script)
                 if (scriptfile_getsymbol(script,&r1)) break;
                 if (r1 < r0)
                 {
-                    int t = r1;
+                    int32_t t = r1;
                     r1 = r0;
                     r0 = t;
                     initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -1735,9 +1735,9 @@ static int defsparser(scriptfile *script)
 
         case T_UNDEFMODELOF:
         {
-            int r0;
+            int32_t r0;
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            int mid;
+            int32_t mid;
 #endif
 
             if (scriptfile_getsymbol(script,&r0)) break;
@@ -1759,7 +1759,7 @@ static int defsparser(scriptfile *script)
         case T_UNDEFTEXTURE:
         case T_UNDEFTEXTURERANGE:
         {
-            int r0,r1,i;
+            int32_t r0,r1,i;
 
             if (scriptfile_getsymbol(script,&r0)) break;
             if (tokn == T_UNDEFTEXTURERANGE)
@@ -1767,7 +1767,7 @@ static int defsparser(scriptfile *script)
                 if (scriptfile_getsymbol(script,&r1)) break;
                 if (r1 < r0)
                 {
-                    int t = r1;
+                    int32_t t = r1;
                     r1 = r0;
                     r0 = t;
                     initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -1824,7 +1824,7 @@ static int defsparser(scriptfile *script)
                 switch (getatoken(script,sound_musictokens,sizeof(sound_musictokens)/sizeof(tokenlist)))
                 {
                 case T_ID:
-                    scriptfile_getsymbol(script,(int *)&dummy2);
+                    scriptfile_getsymbol(script,(int32_t *)&dummy2);
                     break;
                 case T_FILE:
                     scriptfile_getstring(script,&dummy2);
@@ -1842,7 +1842,7 @@ static int defsparser(scriptfile *script)
 }
 
 
-int loaddefinitionsfile(char *fn)
+int32_t loaddefinitionsfile(char *fn)
 {
     scriptfile *script;
 

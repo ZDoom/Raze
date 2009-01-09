@@ -58,17 +58,17 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 #endif
 
-int MUSIC_ErrorCode = MUSIC_Ok;
+int32_t MUSIC_ErrorCode = MUSIC_Ok;
 
 static char warningMessage[80];
 static char errorMessage[80];
 static FILE *debug_file = NULL;
-static int initialized_debugging = 0;
-static int external_midi = 0;
+static int32_t initialized_debugging = 0;
+static int32_t external_midi = 0;
 
-static int music_initialized = 0;
-static int music_context = 0;
-static int music_loopflag = MUSIC_PlayOnce;
+static int32_t music_initialized = 0;
+static int32_t music_context = 0;
+static int32_t music_loopflag = MUSIC_PlayOnce;
 static Mix_Music *music_musicchunk = NULL;
 // static char *music_songdata = NULL;
 
@@ -126,7 +126,7 @@ static void setErrorMessage(const char *msg)
 
 // The music functions...
 
-char *MUSIC_ErrorString(int ErrorNumber)
+char *MUSIC_ErrorString(int32_t ErrorNumber)
 {
     switch (ErrorNumber)
     {
@@ -171,7 +171,7 @@ char *MUSIC_ErrorString(int ErrorNumber)
     return(NULL);
 } // MUSIC_ErrorString
 
-int MUSIC_Init(int SoundCard, int Address)
+int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
 {
     // Use an external MIDI player if the user has specified to do so
     char *command = getenv("EDUKE32_MUSIC_CMD");
@@ -205,7 +205,7 @@ int MUSIC_Init(int SoundCard, int Address)
 } // MUSIC_Init
 
 
-int MUSIC_Shutdown(void)
+int32_t MUSIC_Shutdown(void)
 {
     musdebug("shutting down sound subsystem.");
 
@@ -222,13 +222,13 @@ int MUSIC_Shutdown(void)
 } // MUSIC_Shutdown
 
 
-void MUSIC_SetMaxFMMidiChannel(int channel)
+void MUSIC_SetMaxFMMidiChannel(int32_t channel)
 {
     musdebug("STUB ... MUSIC_SetMaxFMMidiChannel(%d).\n", channel);
 } // MUSIC_SetMaxFMMidiChannel
 
 
-void MUSIC_SetVolume(int volume)
+void MUSIC_SetVolume(int32_t volume)
 {
     volume = max(0, volume);
     volume = min(volume, 255);
@@ -237,7 +237,7 @@ void MUSIC_SetVolume(int volume)
 } // MUSIC_SetVolume
 
 
-void MUSIC_SetMidiChannelVolume(int channel, int volume)
+void MUSIC_SetMidiChannelVolume(int32_t channel, int32_t volume)
 {
     musdebug("STUB ... MUSIC_SetMidiChannelVolume(%d, %d).\n", channel, volume);
 } // MUSIC_SetMidiChannelVolume
@@ -249,19 +249,19 @@ void MUSIC_ResetMidiChannelVolumes(void)
 } // MUSIC_ResetMidiChannelVolumes
 
 
-int MUSIC_GetVolume(void)
+int32_t MUSIC_GetVolume(void)
 {
     return(Mix_VolumeMusic(-1) << 1);  // convert 0-128 to 0-255.
 } // MUSIC_GetVolume
 
 
-void MUSIC_SetLoopFlag(int loopflag)
+void MUSIC_SetLoopFlag(int32_t loopflag)
 {
     music_loopflag = loopflag;
 } // MUSIC_SetLoopFlag
 
 
-int MUSIC_SongPlaying(void)
+int32_t MUSIC_SongPlaying(void)
 {
     return((Mix_PlayingMusic()) ? __FX_TRUE : __FX_FALSE);
 } // MUSIC_SongPlaying
@@ -280,7 +280,7 @@ void MUSIC_Pause(void)
 } // MUSIC_Pause
 
 
-int MUSIC_StopSong(void)
+int32_t MUSIC_StopSong(void)
 {
     //if (!fx_initialized)
     if (!Mix_QuerySpec(NULL, NULL, NULL))
@@ -305,7 +305,7 @@ int MUSIC_StopSong(void)
 
 // Duke3D-specific.  --ryan.
 // void MUSIC_PlayMusic(char *_filename)
-int MUSIC_PlaySong(unsigned char *song, int loopflag)
+int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
 {
     MUSIC_StopSong();
     music_musicchunk = Mix_LoadMUS_RW(SDL_RWFromMem((char *) song, g_musicSize));
@@ -319,34 +319,34 @@ int MUSIC_PlaySong(unsigned char *song, int loopflag)
 }
 
 
-void MUSIC_SetContext(int context)
+void MUSIC_SetContext(int32_t context)
 {
     musdebug("STUB ... MUSIC_SetContext().\n");
     music_context = context;
 } // MUSIC_SetContext
 
 
-int MUSIC_GetContext(void)
+int32_t MUSIC_GetContext(void)
 {
     return(music_context);
 } // MUSIC_GetContext
 
 
-void MUSIC_SetSongTick(unsigned int PositionInTicks)
+void MUSIC_SetSongTick(uint32_t PositionInTicks)
 {
     UNREFERENCED_PARAMETER(PositionInTicks);
     musdebug("STUB ... MUSIC_SetSongTick().\n");
 } // MUSIC_SetSongTick
 
 
-void MUSIC_SetSongTime(unsigned int milliseconds)
+void MUSIC_SetSongTime(uint32_t milliseconds)
 {
     UNREFERENCED_PARAMETER(milliseconds);
     musdebug("STUB ... MUSIC_SetSongTime().\n");
 }// MUSIC_SetSongTime
 
 
-void MUSIC_SetSongPosition(int measure, int beat, int tick)
+void MUSIC_SetSongPosition(int32_t measure, int32_t beat, int32_t tick)
 {
     UNREFERENCED_PARAMETER(measure);
     UNREFERENCED_PARAMETER(beat);
@@ -369,7 +369,7 @@ void MUSIC_GetSongLength(songposition *pos)
 } // MUSIC_GetSongLength
 
 
-int MUSIC_FadeVolume(int tovolume, int milliseconds)
+int32_t MUSIC_FadeVolume(int32_t tovolume, int32_t milliseconds)
 {
     UNREFERENCED_PARAMETER(tovolume);
     Mix_FadeOutMusic(milliseconds);
@@ -377,7 +377,7 @@ int MUSIC_FadeVolume(int tovolume, int milliseconds)
 } // MUSIC_FadeVolume
 
 
-int MUSIC_FadeActive(void)
+int32_t MUSIC_FadeActive(void)
 {
     return((Mix_FadingMusic() == MIX_FADING_OUT) ? __FX_TRUE : __FX_FALSE);
 } // MUSIC_FadeActive
@@ -389,7 +389,7 @@ void MUSIC_StopFade(void)
 } // MUSIC_StopFade
 
 
-void MUSIC_RerouteMidiChannel(int channel, int cdecl(*function)(int event, int c1, int c2))
+void MUSIC_RerouteMidiChannel(int32_t channel, int32_t cdecl(*function)(int32_t event, int32_t c1, int32_t c2))
 {
     UNREFERENCED_PARAMETER(channel);
     UNREFERENCED_PARAMETER(function);
@@ -397,7 +397,7 @@ void MUSIC_RerouteMidiChannel(int channel, int cdecl(*function)(int event, int c
 } // MUSIC_RerouteMidiChannel
 
 
-void MUSIC_RegisterTimbreBank(unsigned char *timbres)
+void MUSIC_RegisterTimbreBank(char *timbres)
 {
     UNREFERENCED_PARAMETER(timbres);
     musdebug("STUB ... MUSIC_RegisterTimbreBank().\n");

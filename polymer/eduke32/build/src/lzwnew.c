@@ -1,27 +1,27 @@
 //--------------------------------------------------------------------------------------------------
 #if defined(__POWERPC__)
-static unsigned int LSWAPIB(unsigned int a) { return(((a>>8)&0xff00)+((a&0xff00)<<8)+(a<<24)+(a>>24)); }
-static unsigned short SSWAPIB(unsigned short a) { return((a>>8)+(a<<8)); }
+static uint32_t LSWAPIB(uint32_t a) { return(((a>>8)&0xff00)+((a&0xff00)<<8)+(a<<24)+(a>>24)); }
+static uint16_t SSWAPIB(uint16_t a) { return((a>>8)+(a<<8)); }
 #else
 #define LSWAPIB(a) (a)
 #define SSWAPIB(a) (a)
 #endif
 
 #define USENEW 1
-int lzwcompress(unsigned char *ucompbuf, int ucompleng, unsigned char *compbuf)
+int32_t lzwcompress(char *ucompbuf, int32_t ucompleng, char *compbuf)
 {
-    int i, j, numnodes, *lptr, bitcnt, nbits, oneupnbits, hmask, *child;
-    int *sibly;
+    int32_t i, j, numnodes, *lptr, bitcnt, nbits, oneupnbits, hmask, *child;
+    int32_t *sibly;
 #if USENEW
-    int *sibry;
+    int32_t *sibry;
 #endif
-    unsigned char *nodev, *cptr, *eptr;
+    char *nodev, *cptr, *eptr;
 
-    nodev = (unsigned char *)malloc((ucompleng+256)*sizeof(char)); if (!nodev) return(0);
-    child = (int *)malloc((ucompleng+256)*sizeof(int)); if (!child) { free(nodev); return(0); }
-    sibly = (int *)malloc((ucompleng+256)*sizeof(int)); if (!sibly) { free(child); free(nodev); return(0); }
+    nodev = (char *)malloc((ucompleng+256)*sizeof(uint8_t)); if (!nodev) return(0);
+    child = (int32_t *)malloc((ucompleng+256)*sizeof(int32_t)); if (!child) { free(nodev); return(0); }
+    sibly = (int32_t *)malloc((ucompleng+256)*sizeof(int32_t)); if (!sibly) { free(child); free(nodev); return(0); }
 #if USENEW
-    sibry = (int *)malloc((ucompleng+256)*sizeof(int)); if (!sibry) { free(sibly); free(child); free(nodev); return(0); }
+    sibry = (int32_t *)malloc((ucompleng+256)*sizeof(int32_t)); if (!sibry) { free(sibly); free(child); free(nodev); return(0); }
 #endif
 
     for (i=255;i>=0;i--) { nodev[i] = i; child[i] = -1; }
@@ -57,7 +57,7 @@ lzwcompbreak2b:
         sibry[numnodes] = -1;
 #endif
 
-        lptr = (int *)&compbuf[bitcnt>>3]; lptr[0] |= LSWAPIB(i<<(bitcnt&7));
+        lptr = (int32_t *)&compbuf[bitcnt>>3]; lptr[0] |= LSWAPIB(i<<(bitcnt&7));
         bitcnt += nbits; if ((i&hmask) > ((numnodes-1)&hmask)) bitcnt--;
 
         numnodes++; if (numnodes > oneupnbits) { nbits++; oneupnbits <<= 1; hmask = ((oneupnbits>>1)-1); }
@@ -70,28 +70,28 @@ lzwcompbreak2b:
     free(sibly);
     free(child); free(nodev);
 
-    lptr = (int *)compbuf;
+    lptr = (int32_t *)compbuf;
     if (((bitcnt+7)>>3) < ucompleng) { lptr[0] = LSWAPIB(numnodes); return((bitcnt+7)>>3); }
     memcpy(compbuf,ucompbuf,ucompleng); return(ucompleng);
 }
 
-int lzwuncompress(unsigned char *compbuf, int compleng, unsigned char *ucompbuf, int ucompleng)
+int32_t lzwuncompress(char *compbuf, int32_t compleng, char *ucompbuf, int32_t ucompleng)
 {
-    int i, dat, leng, bitcnt, *lptr, numnodes, totnodes, nbits, oneupnbits, hmask, *prefix;
-    unsigned char ch, *ucptr, *suffix;
-    int ucomp = (int)ucompbuf;
+    int32_t i, dat, leng, bitcnt, *lptr, numnodes, totnodes, nbits, oneupnbits, hmask, *prefix;
+    char ch, *ucptr, *suffix;
+    int32_t ucomp = (int32_t)ucompbuf;
 
     if (compleng >= ucompleng) { memcpy(ucompbuf,compbuf,ucompleng); return ucompleng; }
 
-    totnodes = LSWAPIB(((int *)compbuf)[0]); if (totnodes <= 0 || totnodes >= ucompleng+256) return 0;
+    totnodes = LSWAPIB(((int32_t *)compbuf)[0]); if (totnodes <= 0 || totnodes >= ucompleng+256) return 0;
 
-    prefix = (int *)malloc(totnodes*sizeof(int)); if (!prefix) return 0;
-    suffix = (unsigned char *)malloc(totnodes*sizeof(char)); if (!suffix) { free(prefix); return 0; }
+    prefix = (int32_t *)malloc(totnodes*sizeof(int32_t)); if (!prefix) return 0;
+    suffix = (char *)malloc(totnodes*sizeof(uint8_t)); if (!suffix) { free(prefix); return 0; }
 
     numnodes = 256; bitcnt = (4<<3); nbits = 8; oneupnbits = (1<<8); hmask = ((oneupnbits>>1)-1);
     do
     {
-        lptr = (int *)&compbuf[bitcnt>>3]; dat = ((LSWAPIB(lptr[0])>>(bitcnt&7))&(oneupnbits-1));
+        lptr = (int32_t *)&compbuf[bitcnt>>3]; dat = ((LSWAPIB(lptr[0])>>(bitcnt&7))&(oneupnbits-1));
         bitcnt += nbits; if ((dat&hmask) > ((numnodes-1)&hmask)) { dat &= hmask; bitcnt--; }
 
         prefix[numnodes] = dat;
@@ -99,7 +99,7 @@ int lzwuncompress(unsigned char *compbuf, int compleng, unsigned char *ucompbuf,
         ucompbuf++;
         for (leng=0;dat>=256;dat=prefix[dat])
         {
-            if ((int)ucompbuf+leng-ucomp > ucompleng) goto bail;
+            if ((int32_t)ucompbuf+leng-ucomp > ucompleng) goto bail;
             ucompbuf[leng++] = suffix[dat];
         }
 
@@ -116,6 +116,6 @@ int lzwuncompress(unsigned char *compbuf, int compleng, unsigned char *ucompbuf,
 bail:
     free(suffix); free(prefix);
 
-    return (int)ucompbuf-ucomp;
+    return (int32_t)ucompbuf-ucomp;
 }
 //--------------------------------------------------------------------------------------------------

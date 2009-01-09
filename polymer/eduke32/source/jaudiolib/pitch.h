@@ -32,6 +32,8 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #ifndef __PITCH_H
 #define __PITCH_H
 
+#include "compat.h"
+
 enum PITCH_ERRORS
    {
    PITCH_Warning = -2,
@@ -40,5 +42,5 @@ enum PITCH_ERRORS
    };
 
 //void          PITCH_Init( void );
-unsigned int PITCH_GetScale( int pitchoffset );
+uint32_t PITCH_GetScale( int32_t pitchoffset );
 #endif

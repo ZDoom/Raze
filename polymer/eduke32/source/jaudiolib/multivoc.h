@@ -32,9 +32,11 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #ifndef __MULTIVOC_H
 #define __MULTIVOC_H
 
+#include "compat.h"
+
 #define MV_MinVoiceHandle  1
 
-extern int MV_ErrorCode;
+extern int32_t MV_ErrorCode;
 
 enum MV_Errors
    {
@@ -58,73 +60,73 @@ enum MV_Errors
    MV_NullRecordFunction
    };
 
-typedef signed short MONO16;
-typedef signed char  MONO8;
+typedef int16_t MONO16;
+typedef int8_t  MONO8;
 
 typedef MONO8  VOLUME8[ 256 ];
 typedef MONO16 VOLUME16[ 256 ];
 
-char *MV_ErrorString( int ErrorNumber );
-int   MV_VoicePlaying( int handle );
-int   MV_KillAllVoices( void );
-int   MV_Kill( int handle );
-int   MV_VoicesPlaying( void );
-int   MV_VoiceAvailable( int priority );
-int   MV_SetPitch( int handle, int pitchoffset );
-int   MV_SetFrequency( int handle, int frequency );
-int   MV_EndLooping( int handle );
-int   MV_SetPan( int handle, int vol, int left, int right );
-int   MV_Pan3D( int handle, int angle, int distance );
-void  MV_SetReverb( int reverb );
-void  MV_SetFastReverb( int reverb );
-int   MV_GetMaxReverbDelay( void );
-int   MV_GetReverbDelay( void );
-void  MV_SetReverbDelay( int delay );
-int   MV_SetMixMode( int numchannels, int samplebits );
-int   MV_StartPlayback( void );
+char *MV_ErrorString( int32_t ErrorNumber );
+int32_t   MV_VoicePlaying( int32_t handle );
+int32_t   MV_KillAllVoices( void );
+int32_t   MV_Kill( int32_t handle );
+int32_t   MV_VoicesPlaying( void );
+int32_t   MV_VoiceAvailable( int32_t priority );
+int32_t   MV_SetPitch( int32_t handle, int32_t pitchoffset );
+int32_t   MV_SetFrequency( int32_t handle, int32_t frequency );
+int32_t   MV_EndLooping( int32_t handle );
+int32_t   MV_SetPan( int32_t handle, int32_t vol, int32_t left, int32_t right );
+int32_t   MV_Pan3D( int32_t handle, int32_t angle, int32_t distance );
+void  MV_SetReverb( int32_t reverb );
+void  MV_SetFastReverb( int32_t reverb );
+int32_t   MV_GetMaxReverbDelay( void );
+int32_t   MV_GetReverbDelay( void );
+void  MV_SetReverbDelay( int32_t delay );
+int32_t   MV_SetMixMode( int32_t numchannels, int32_t samplebits );
+int32_t   MV_StartPlayback( void );
 void  MV_StopPlayback( void );
-int   MV_StartRecording( int MixRate, void ( *function )( char *ptr, int length ) );
+int32_t   MV_StartRecording( int32_t MixRate, void ( *function )( char *ptr, int32_t length ) );
 void  MV_StopRecord( void );
-int   MV_StartDemandFeedPlayback( void ( *function )( char **ptr, unsigned int *length ),
-         int rate, int pitchoffset, int vol, int left, int right,
-         int priority, unsigned int callbackval );
-int   MV_PlayRaw( char *ptr, unsigned int length,
-         unsigned rate, int pitchoffset, int vol, int left,
-         int right, int priority, unsigned int callbackval );
-int   MV_PlayLoopedRaw( char *ptr, int length,
-         char *loopstart, char *loopend, unsigned rate, int pitchoffset,
-         int vol, int left, int right, int priority,
-         unsigned int callbackval );
-int   MV_PlayWAV( char *ptr, int pitchoffset, int vol, int left,
-         int right, int priority, unsigned int callbackval );
-int   MV_PlayWAV3D( char *ptr, int pitchoffset, int angle, int distance,
-         int priority, unsigned int callbackval );
-int   MV_PlayLoopedWAV( char *ptr, int loopstart, int loopend,
-         int pitchoffset, int vol, int left, int right, int priority,
-         unsigned int callbackval );
-int   MV_PlayOGG( char *ptr, int pitchoffset, int vol, int left,
-         int right, int priority, unsigned int callbackval );
-int   MV_PlayOGG3D( char *ptr, int pitchoffset, int angle, int distance,
-         int priority, unsigned int callbackval );
-int   MV_PlayLoopedOGG( char *ptr, int loopstart, int loopend,
-         int pitchoffset, int vol, int left, int right, int priority,
-         unsigned int callbackval );
-int   MV_PlayVOC3D( char *ptr, int pitchoffset, int angle, int distance,
-         int priority, unsigned int callbackval );
-int   MV_PlayVOC( char *ptr, int pitchoffset, int vol, int left, int right,
-         int priority, unsigned int callbackval );
-int   MV_PlayLoopedVOC( char *ptr, int loopstart, int loopend,
-         int pitchoffset, int vol, int left, int right, int priority,
-         unsigned int callbackval );
-void  MV_CreateVolumeTable( int index, int volume, int MaxVolume );
-void  MV_SetVolume( int volume );
-int   MV_GetVolume( void );
-void  MV_SetCallBack( void ( *function )( unsigned int ) );
-void  MV_SetReverseStereo( int setting );
-int   MV_GetReverseStereo( void );
-int   MV_Init( int soundcard, int MixRate, int Voices, int numchannels,
-         int samplebits );
-int   MV_Shutdown( void );
+int32_t   MV_StartDemandFeedPlayback( void ( *function )( char **ptr, uint32_t *length ),
+         int32_t rate, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
+         int32_t priority, uint32_t callbackval );
+int32_t   MV_PlayRaw( char *ptr, uint32_t length,
+         unsigned rate, int32_t pitchoffset, int32_t vol, int32_t left,
+         int32_t right, int32_t priority, uint32_t callbackval );
+int32_t   MV_PlayLoopedRaw( char *ptr, int32_t length,
+         char *loopstart, char *loopend, unsigned rate, int32_t pitchoffset,
+         int32_t vol, int32_t left, int32_t right, int32_t priority,
+         uint32_t callbackval );
+int32_t   MV_PlayWAV( char *ptr, int32_t pitchoffset, int32_t vol, int32_t left,
+         int32_t right, int32_t priority, uint32_t callbackval );
+int32_t   MV_PlayWAV3D( char *ptr, int32_t pitchoffset, int32_t angle, int32_t distance,
+         int32_t priority, uint32_t callbackval );
+int32_t   MV_PlayLoopedWAV( char *ptr, int32_t loopstart, int32_t loopend,
+         int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority,
+         uint32_t callbackval );
+int32_t   MV_PlayOGG( char *ptr, int32_t pitchoffset, int32_t vol, int32_t left,
+         int32_t right, int32_t priority, uint32_t callbackval );
+int32_t   MV_PlayOGG3D( char *ptr, int32_t pitchoffset, int32_t angle, int32_t distance,
+         int32_t priority, uint32_t callbackval );
+int32_t   MV_PlayLoopedOGG( char *ptr, int32_t loopstart, int32_t loopend,
+         int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority,
+         uint32_t callbackval );
+int32_t   MV_PlayVOC3D( char *ptr, int32_t pitchoffset, int32_t angle, int32_t distance,
+         int32_t priority, uint32_t callbackval );
+int32_t   MV_PlayVOC( char *ptr, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
+         int32_t priority, uint32_t callbackval );
+int32_t   MV_PlayLoopedVOC( char *ptr, int32_t loopstart, int32_t loopend,
+         int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority,
+         uint32_t callbackval );
+void  MV_CreateVolumeTable( int32_t index, int32_t volume, int32_t MaxVolume );
+void  MV_SetVolume( int32_t volume );
+int32_t   MV_GetVolume( void );
+void  MV_SetCallBack( void ( *function )( uint32_t ) );
+void  MV_SetReverseStereo( int32_t setting );
+int32_t   MV_GetReverseStereo( void );
+int32_t   MV_Init( int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numchannels,
+         int32_t samplebits );
+int32_t   MV_Shutdown( void );
 
 void MV_Update(void);
 

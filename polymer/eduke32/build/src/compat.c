@@ -47,7 +47,7 @@
 
 #ifndef __compat_h_macrodef__
 
-int Brand(void)
+int32_t Brand(void)
 {
     return rand();
 }
@@ -62,9 +62,9 @@ void Bfree(void *ptr)
     free(ptr);
 }
 
-int Bopen(const char *pathname, int flags, unsigned mode)
+int32_t Bopen(const char *pathname, int32_t flags, unsigned mode)
 {
-    int n=0,o=0;
+    int32_t n=0,o=0;
 
     if (flags&BO_BINARY) n|=O_BINARY; else n|=O_TEXT;
     if ((flags&BO_RDWR)==BO_RDWR) n|=O_RDWR;
@@ -80,22 +80,22 @@ int Bopen(const char *pathname, int flags, unsigned mode)
     return open(pathname,n,o);
 }
 
-int Bclose(int fd)
+int32_t Bclose(int32_t fd)
 {
     return close(fd);
 }
 
-bssize_t Bwrite(int fd, const void *buf, bsize_t count)
+bssize_t Bwrite(int32_t fd, const void *buf, bsize_t count)
 {
     return write(fd,buf,count);
 }
 
-bssize_t Bread(int fd, void *buf, bsize_t count)
+bssize_t Bread(int32_t fd, void *buf, bsize_t count)
 {
     return read(fd,buf,count);
 }
 
-int Blseek(int fildes, int offset, int whence)
+int32_t Blseek(int32_t fildes, int32_t offset, int32_t whence)
 {
     switch (whence)
     {
@@ -114,7 +114,7 @@ BFILE *Bfopen(const char *path, const char *mode)
     return (BFILE*)fopen(path,mode);
 }
 
-int Bfclose(BFILE *stream)
+int32_t Bfclose(BFILE *stream)
 {
     return fclose((FILE*)stream);
 }
@@ -124,22 +124,22 @@ void Brewind(BFILE *stream)
     rewind((FILE*)stream);
 }
 
-int Bfgetc(BFILE *stream)
+int32_t Bfgetc(BFILE *stream)
 {
     return fgetc((FILE*)stream);
 }
 
-char *Bfgets(char *s, int size, BFILE *stream)
+char *Bfgets(char *s, int32_t size, BFILE *stream)
 {
     return fgets(s,size,(FILE*)stream);
 }
 
-int Bfputc(int c, BFILE *stream)
+int32_t Bfputc(int32_t c, BFILE *stream)
 {
     return fputc(c,(FILE*)stream);
 }
 
-int Bfputs(const char *s, BFILE *stream)
+int32_t Bfputs(const char *s, BFILE *stream)
 {
     return fputs(s,(FILE*)stream);
 }
@@ -170,17 +170,17 @@ char *Bstrncpy(char *dest, const char *src, bsize_t n)
     return strncpy(dest,src,n);
 }
 
-int Bstrcmp(const char *s1, const char *s2)
+int32_t Bstrcmp(const char *s1, const char *s2)
 {
     return strcmp(s1,s2);
 }
 
-int Bstrncmp(const char *s1, const char *s2, bsize_t n)
+int32_t Bstrncmp(const char *s1, const char *s2, bsize_t n)
 {
     return strncmp(s1,s2,n);
 }
 
-int Bstrcasecmp(const char *s1, const char *s2)
+int32_t Bstrcasecmp(const char *s1, const char *s2)
 {
 #ifdef _MSC_VER
     return _stricmp(s1,s2);
@@ -189,7 +189,7 @@ int Bstrcasecmp(const char *s1, const char *s2)
 #endif
 }
 
-int Bstrncasecmp(const char *s1, const char *s2, bsize_t n)
+int32_t Bstrncasecmp(const char *s1, const char *s2, bsize_t n)
 {
 #ifdef _MSC_VER
     return _strnicmp(s1,s2,n);
@@ -213,32 +213,32 @@ bsize_t Bstrlen(const char *s)
     return strlen(s);
 }
 
-char *Bstrchr(const char *s, int c)
+char *Bstrchr(const char *s, int32_t c)
 {
     return strchr(s,c);
 }
 
-char *Bstrrchr(const char *s, int c)
+char *Bstrrchr(const char *s, int32_t c)
 {
     return strrchr(s,c);
 }
 
-int Batoi(const char *nptr)
+int32_t Batoi(const char *nptr)
 {
     return atoi(nptr);
 }
 
-int Batol(const char *nptr)
+int32_t Batol(const char *nptr)
 {
     return atol(nptr);
 }
 
-int int Bstrtol(const char *nptr, char **endptr, int base)
+int32_t int32_t Bstrtol(const char *nptr, char **endptr, int32_t base)
 {
     return strtol(nptr,endptr,base);
 }
 
-unsigned int int Bstrtoul(const char *nptr, char **endptr, int base)
+uint32_t int32_t Bstrtoul(const char *nptr, char **endptr, int32_t base)
 {
     return strtoul(nptr,endptr,base);
 }
@@ -253,20 +253,20 @@ void *Bmemmove(void *dest, const void *src, bsize_t n)
     return memmove(dest,src,n);
 }
 
-void *Bmemchr(const void *s, int c, bsize_t n)
+void *Bmemchr(const void *s, int32_t c, bsize_t n)
 {
     return memchr(s,c,n);
 }
 
-void *Bmemset(void *s, int c, bsize_t n)
+void *Bmemset(void *s, int32_t c, bsize_t n)
 {
     return memset(s,c,n);
 }
 
-int Bprintf(const char *format, ...)
+int32_t Bprintf(const char *format, ...)
 {
     va_list ap;
-    int r;
+    int32_t r;
 
     va_start(ap,format);
 #ifdef _MSC_VER
@@ -278,10 +278,10 @@ int Bprintf(const char *format, ...)
     return r;
 }
 
-int Bsprintf(char *str, const char *format, ...)
+int32_t Bsprintf(char *str, const char *format, ...)
 {
     va_list ap;
-    int r;
+    int32_t r;
 
     va_start(ap,format);
 #ifdef _MSC_VER
@@ -293,10 +293,10 @@ int Bsprintf(char *str, const char *format, ...)
     return r;
 }
 
-int Bsnprintf(char *str, bsize_t size, const char *format, ...)
+int32_t Bsnprintf(char *str, bsize_t size, const char *format, ...)
 {
     va_list ap;
-    int r;
+    int32_t r;
 
     va_start(ap,format);
 #ifdef _MSC_VER
@@ -308,7 +308,7 @@ int Bsnprintf(char *str, bsize_t size, const char *format, ...)
     return r;
 }
 
-int Bvsnprintf(char *str, bsize_t size, const char *format, va_list ap)
+int32_t Bvsnprintf(char *str, bsize_t size, const char *format, va_list ap)
 {
 #ifdef _MSC_VER
     return _vsnprintf(str,size,format,ap);
@@ -339,7 +339,7 @@ char *Bgethomedir(void)
 #ifdef _WIN32
     FARPROC aSHGetSpecialFolderPathA;
     TCHAR appdata[MAX_PATH];
-    int loaded = 0;
+    int32_t loaded = 0;
     HMODULE hShell32 = GetModuleHandle("shell32.dll");
 
     if (hShell32 == NULL)
@@ -386,7 +386,7 @@ char *Bgethomedir(void)
 #endif
 }
 
-char *Bgetsupportdir(int global)
+char *Bgetsupportdir(int32_t global)
 {
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3_
     UNREFERENCED_PARAMETER(global);
@@ -412,11 +412,11 @@ char *Bgetsupportdir(int global)
 #endif
 }
 
-int Bcorrectfilename(char *filename, int removefn)
+int32_t Bcorrectfilename(char *filename, int32_t removefn)
 {
     char *fn;
     char *tokarr[64], *first, *next = NULL, *token;
-    int i, ntok = 0, leadslash = 0, trailslash = 0;
+    int32_t i, ntok = 0, leadslash = 0, trailslash = 0;
 
     fn = strdup(filename);
     if (!fn) return -1;
@@ -461,12 +461,12 @@ int Bcorrectfilename(char *filename, int removefn)
     return 0;
 }
 
-int Bcanonicalisefilename(char *filename, int removefn)
+int32_t Bcanonicalisefilename(char *filename, int32_t removefn)
 {
     char cwd[BMAX_PATH], fn[BMAX_PATH], *p;
     char *fnp = filename;
 #ifdef _WIN32
-    int drv = 0;
+    int32_t drv = 0;
 #endif
 
 #ifdef _WIN32
@@ -520,7 +520,7 @@ char *Bgetsystemdrives(void)
 #ifdef _WIN32
     char *str, *p;
     DWORD drv, mask;
-    int number=0;
+    int32_t number=0;
 
     drv = GetLogicalDrives();
     if (drv == 0) return NULL;
@@ -552,24 +552,24 @@ char *Bgetsystemdrives(void)
 }
 
 
-int Bfilelength(int fd)
+int32_t Bfilelength(int32_t fd)
 {
     struct stat st;
     if (fstat(fd, &st) < 0) return -1;
-    return(int)(st.st_size);
+    return(int32_t)(st.st_size);
 }
 
 
 typedef struct
 {
 #ifdef _MSC_VER
-    int dir;
+    int32_t dir;
     struct _finddata_t fid;
 #else
     DIR *dir;
 #endif
     struct Bdirent info;
-    int status;
+    int32_t status;
     char name[1];
 } BDIR_real;
 
@@ -680,7 +680,7 @@ struct Bdirent*	Breaddir(BDIR *dir)
     return &dirr->info;
 }
 
-int Bclosedir(BDIR *dir)
+int32_t Bclosedir(BDIR *dir)
 {
     BDIR_real *dirr = (BDIR_real*)dir;
 
@@ -695,7 +695,7 @@ int Bclosedir(BDIR *dir)
 }
 
 
-char *Bstrtoken(char *s, char *delim, char **ptrptr, int chop)
+char *Bstrtoken(char *s, char *delim, char **ptrptr, int32_t chop)
 {
     char *p, *start;
 
@@ -728,7 +728,7 @@ char *Bstrtoken(char *s, char *delim, char **ptrptr, int chop)
 //Brute-force case-insensitive, slash-insensitive, * and ? wildcard matcher
 //Given: string i and string j. string j can have wildcards
 //Returns: 1:matches, 0:doesn't match
-int Bwildmatch(const char *i, const char *j)
+int32_t Bwildmatch(const char *i, const char *j)
 {
     const char *k;
     char c0, c1;
@@ -778,15 +778,15 @@ char *Bstrupr(char *s)
 //
 // getsysmemsize() -- gets the amount of system memory in the machine
 //
-unsigned int Bgetsysmemsize(void)
+uint32_t Bgetsysmemsize(void)
 {
 #ifdef _WIN32
     MEMORYSTATUS memst;
     GlobalMemoryStatus(&memst);
-    return (unsigned int)memst.dwTotalPhys;
+    return (uint32_t)memst.dwTotalPhys;
 #elif (defined(_SC_PAGE_SIZE) || defined(_SC_PAGESIZE)) && defined(_SC_PHYS_PAGES)
-    unsigned int siz = 0x7fffffff;
-    int scpagesiz, scphyspages;
+    uint32_t siz = 0x7fffffff;
+    int32_t scpagesiz, scphyspages;
 
 #ifdef _SC_PAGE_SIZE
     scpagesiz = sysconf(_SC_PAGE_SIZE);
@@ -795,7 +795,7 @@ unsigned int Bgetsysmemsize(void)
 #endif
     scphyspages = sysconf(_SC_PHYS_PAGES);
     if (scpagesiz >= 0 && scphyspages >= 0)
-        siz = (unsigned int)min(longlong(0x7fffffff), (int64)scpagesiz * (int64)scphyspages);
+        siz = (uint32_t)min(longlong(0x7fffffff), (int64)scpagesiz * (int64)scphyspages);
 
     //initprintf("Bgetsysmemsize(): %d pages of %d bytes, %d bytes of system memory\n",
     //		scphyspages, scpagesiz, siz);

@@ -252,10 +252,10 @@ int32 SCRIPT_ParseBuffer(int32 scripthandle, char *data, int32 length)
         ExpectingValue = 8,
         ExpectingComment = 16
     };
-    int state;
-    int expect;
-    int linenum=1;
-    int rv = 0;
+    int32_t state;
+    int32_t expect;
+    int32_t linenum=1;
+    int32_t rv = 0;
 #define SETRV(v) if (v>rv||rv==0) rv=v
 
     if (!data) return 1;
@@ -468,7 +468,7 @@ int32 SCRIPT_Load(char * filename)
 void SCRIPT_Save(int32 scripthandle, char * filename)
 {
     char *section, *entry, *value;
-    int sec, ent, numsect, nument;
+    int32_t sec, ent, numsect, nument;
     FILE *fp;
 
 
@@ -575,7 +575,7 @@ boolean SCRIPT_GetString(int32 scripthandle, char * sectionname, char * entrynam
     ScriptSectionType *s;
     ScriptEntryType *e;
     char *p, ch;
-    int c;
+    int32_t c;
 
     if (!SC(scripthandle)) return 1;
     if (!SCRIPT(scripthandle,script)) return 1;
@@ -634,7 +634,7 @@ boolean SCRIPT_GetDoubleString(int32 scripthandle, char * sectionname, char * en
     ScriptSectionType *s;
     ScriptEntryType *e;
     char *p, ch;
-    int c;
+    int32_t c;
 
     if (!SC(scripthandle)) return 1;
     if (!SCRIPT(scripthandle,script)) return 1;
@@ -813,7 +813,7 @@ void SCRIPT_PutString
 )
 {
     char *raw,*q,*p;
-    int len = 3;
+    int32_t len = 3;
     if (!string) string = "";
 
     for (q=string; *q; q++)
@@ -848,7 +848,7 @@ void SCRIPT_PutDoubleString
 )
 {
     char *raw,*q,*p;
-    int len = 6;
+    int32_t len = 6;
     if (!string1) string1 = "";
     if (!string2) string2 = "";
 

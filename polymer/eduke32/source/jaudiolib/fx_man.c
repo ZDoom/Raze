@@ -43,9 +43,9 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 
 static unsigned FX_MixRate;
 
-int FX_SoundDevice = -1;
-int FX_ErrorCode = FX_Ok;
-int FX_Installed = FALSE;
+int32_t FX_SoundDevice = -1;
+int32_t FX_ErrorCode = FX_Ok;
+int32_t FX_Installed = FALSE;
 
 #define FX_SetErrorCode( status ) \
    FX_ErrorCode = ( status );
@@ -59,7 +59,7 @@ int FX_Installed = FALSE;
 
 char *FX_ErrorString
 (
-    int ErrorNumber
+    int32_t ErrorNumber
 )
 
 {
@@ -115,15 +115,15 @@ char *FX_ErrorString
    Sets the configuration of a sound device.
 ---------------------------------------------------------------------*/
 
-int FX_SetupCard
+int32_t FX_SetupCard
 (
-    int SoundCard,
+    int32_t SoundCard,
     fx_device *device
 )
 
 {
-    int status;
-    int DeviceStatus;
+    int32_t status;
+    int32_t DeviceStatus;
 
     FX_SoundDevice = SoundCard;
 
@@ -161,13 +161,13 @@ int FX_SetupCard
    Returns the current BLASTER environment variable settings.
 ---------------------------------------------------------------------*/
 
-int FX_GetBlasterSettings
+int32_t FX_GetBlasterSettings
 (
     fx_blaster_config *blaster
 )
 
 {
-    int status;
+    int32_t status;
     BLASTER_CONFIG Blaster;
 
     FX_SetErrorCode(FX_Ok);
@@ -199,16 +199,16 @@ int FX_GetBlasterSettings
    Handles manual setup of the Sound Blaster information.
 ---------------------------------------------------------------------*/
 
-int FX_SetupSoundBlaster
+int32_t FX_SetupSoundBlaster
 (
     fx_blaster_config blaster,
-    int *MaxVoices,
-    int *MaxSampleBits,
-    int *MaxChannels
+    int32_t *MaxVoices,
+    int32_t *MaxSampleBits,
+    int32_t *MaxChannels
 )
 
 {
-    int DeviceStatus;
+    int32_t DeviceStatus;
     BLASTER_CONFIG Blaster;
 
     FX_SetErrorCode(FX_Ok);
@@ -246,18 +246,18 @@ int FX_SetupSoundBlaster
    Selects which sound device to use.
 ---------------------------------------------------------------------*/
 
-int FX_Init
+int32_t FX_Init
 (
-    int SoundCard,
-    int numvoices,
-    int numchannels,
-    int samplebits,
+    int32_t SoundCard,
+    int32_t numvoices,
+    int32_t numchannels,
+    int32_t samplebits,
     unsigned mixrate
 )
 
 {
-    int status;
-    int devicestatus;
+    int32_t status;
+    int32_t devicestatus;
 
     if (FX_Installed)
     {
@@ -292,13 +292,13 @@ int FX_Init
    Terminates use of sound device.
 ---------------------------------------------------------------------*/
 
-int FX_Shutdown
+int32_t FX_Shutdown
 (
     void
 )
 
 {
-    int status;
+    int32_t status;
 
     if (!FX_Installed)
     {
@@ -324,9 +324,9 @@ int FX_Shutdown
    Sets the function to call when a voice is done.
 ---------------------------------------------------------------------*/
 
-int FX_SetCallBack
+int32_t FX_SetCallBack
 (
-    void(*function)(unsigned int)
+    void(*function)(uint32_t)
 )
 
 {
@@ -344,7 +344,7 @@ int FX_SetCallBack
 
 void FX_SetVolume
 (
-    int volume
+    int32_t volume
 )
 
 {
@@ -358,7 +358,7 @@ void FX_SetVolume
    Returns the volume of the current sound device.
 ---------------------------------------------------------------------*/
 
-int FX_GetVolume
+int32_t FX_GetVolume
 (
     void
 )
@@ -376,7 +376,7 @@ int FX_GetVolume
 
 void FX_SetReverseStereo
 (
-    int setting
+    int32_t setting
 )
 
 {
@@ -390,7 +390,7 @@ void FX_SetReverseStereo
    Returns the orientation of the left and right channels.
 ---------------------------------------------------------------------*/
 
-int FX_GetReverseStereo
+int32_t FX_GetReverseStereo
 (
     void
 )
@@ -408,7 +408,7 @@ int FX_GetReverseStereo
 
 void FX_SetReverb
 (
-    int reverb
+    int32_t reverb
 )
 
 {
@@ -424,7 +424,7 @@ void FX_SetReverb
 
 void FX_SetFastReverb
 (
-    int reverb
+    int32_t reverb
 )
 
 {
@@ -438,7 +438,7 @@ void FX_SetFastReverb
    Returns the maximum delay time for reverb.
 ---------------------------------------------------------------------*/
 
-int FX_GetMaxReverbDelay
+int32_t FX_GetMaxReverbDelay
 (
     void
 )
@@ -454,7 +454,7 @@ int FX_GetMaxReverbDelay
    Returns the current delay time for reverb.
 ---------------------------------------------------------------------*/
 
-int FX_GetReverbDelay
+int32_t FX_GetReverbDelay
 (
     void
 )
@@ -472,7 +472,7 @@ int FX_GetReverbDelay
 
 void FX_SetReverbDelay
 (
-    int delay
+    int32_t delay
 )
 
 {
@@ -486,9 +486,9 @@ void FX_SetReverbDelay
    Checks if a voice can be play at the specified priority.
 ---------------------------------------------------------------------*/
 
-int FX_VoiceAvailable
+int32_t FX_VoiceAvailable
 (
-    int priority
+    int32_t priority
 )
 
 {
@@ -502,13 +502,13 @@ int FX_VoiceAvailable
    without stoping the sound.
 ---------------------------------------------------------------------*/
 
-int FX_EndLooping
+int32_t FX_EndLooping
 (
-    int handle
+    int32_t handle
 )
 
 {
-    int status;
+    int32_t status;
 
     status = MV_EndLooping(handle);
     if (status == MV_Error)
@@ -527,16 +527,16 @@ int FX_EndLooping
    with the specified handle.
 ---------------------------------------------------------------------*/
 
-int FX_SetPan
+int32_t FX_SetPan
 (
-    int handle,
-    int vol,
-    int left,
-    int right
+    int32_t handle,
+    int32_t vol,
+    int32_t left,
+    int32_t right
 )
 
 {
-    int status;
+    int32_t status;
 
     status = MV_SetPan(handle, vol, left, right);
     if (status == MV_Error)
@@ -555,14 +555,14 @@ int FX_SetPan
    Sets the pitch of the voice associated with the specified handle.
 ---------------------------------------------------------------------*/
 
-int FX_SetPitch
+int32_t FX_SetPitch
 (
-    int handle,
-    int pitchoffset
+    int32_t handle,
+    int32_t pitchoffset
 )
 
 {
-    int status;
+    int32_t status;
 
     status = MV_SetPitch(handle, pitchoffset);
     if (status == MV_Error)
@@ -581,14 +581,14 @@ int FX_SetPitch
    Sets the frequency of the voice associated with the specified handle.
 ---------------------------------------------------------------------*/
 
-int FX_SetFrequency
+int32_t FX_SetFrequency
 (
-    int handle,
-    int frequency
+    int32_t handle,
+    int32_t frequency
 )
 
 {
-    int status;
+    int32_t status;
 
     status = MV_SetFrequency(handle, frequency);
     if (status == MV_Error)
@@ -607,19 +607,19 @@ int FX_SetFrequency
    Begin playback of sound data with the given volume and priority.
 ---------------------------------------------------------------------*/
 
-int FX_PlayVOC
+int32_t FX_PlayVOC
 (
     char *ptr,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
-    int handle;
+    int32_t handle;
 
     handle = MV_PlayVOC(ptr, pitchoffset, vol, left, right,
                         priority, callbackval);
@@ -639,21 +639,21 @@ int FX_PlayVOC
    Begin playback of sound data with the given volume and priority.
 ---------------------------------------------------------------------*/
 
-int FX_PlayLoopedVOC
+int32_t FX_PlayLoopedVOC
 (
     char *ptr,
-    int loopstart,
-    int loopend,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    int32_t loopstart,
+    int32_t loopend,
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
-    int handle;
+    int32_t handle;
 
     handle = MV_PlayLoopedVOC(ptr, loopstart, loopend, pitchoffset,
                               vol, left, right, priority, callbackval);
@@ -675,19 +675,19 @@ int FX_PlayLoopedVOC
    Begin playback of sound data with the given volume and priority.
 ---------------------------------------------------------------------*/
 
-int FX_PlayWAV
+int32_t FX_PlayWAV
 (
     char *ptr,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
-    int handle;
+    int32_t handle;
 
     handle = MV_PlayWAV(ptr, pitchoffset, vol, left, right,
                         priority, callbackval);
@@ -706,19 +706,19 @@ int FX_PlayWAV
    Begin playback of sound data with the given volume and priority.
 ---------------------------------------------------------------------*/
 
-int FX_PlayOGG
+int32_t FX_PlayOGG
 (
     char *ptr,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
-    int handle;
+    int32_t handle;
 
     handle = MV_PlayOGG(ptr, pitchoffset, vol, left, right,
                         priority, callbackval);
@@ -737,21 +737,21 @@ int FX_PlayOGG
    Begin playback of sound data with the given volume and priority.
 ---------------------------------------------------------------------*/
 
-int FX_PlayLoopedWAV
+int32_t FX_PlayLoopedWAV
 (
     char *ptr,
-    int loopstart,
-    int loopend,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    int32_t loopstart,
+    int32_t loopend,
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
-    int handle;
+    int32_t handle;
 
     handle = MV_PlayLoopedWAV(ptr, loopstart, loopend,
                               pitchoffset, vol, left, right, priority, callbackval);
@@ -766,21 +766,21 @@ int FX_PlayLoopedWAV
     return(handle);
 }
 
-int FX_PlayLoopedOGG
+int32_t FX_PlayLoopedOGG
 (
     char *ptr,
-    int loopstart,
-    int loopend,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    int32_t loopstart,
+    int32_t loopend,
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
-    int handle;
+    int32_t handle;
 
     handle = MV_PlayLoopedOGG(ptr, loopstart, loopend,
                               pitchoffset, vol, left, right, priority, callbackval);
@@ -802,18 +802,18 @@ int FX_PlayLoopedOGG
    from listener.
 ---------------------------------------------------------------------*/
 
-int FX_PlayVOC3D
+int32_t FX_PlayVOC3D
 (
     char *ptr,
-    int pitchoffset,
-    int angle,
-    int distance,
-    int priority,
-    unsigned int callbackval
+    int32_t pitchoffset,
+    int32_t angle,
+    int32_t distance,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
-    int handle;
+    int32_t handle;
 
     handle = MV_PlayVOC3D(ptr, pitchoffset, angle, distance,
                           priority, callbackval);
@@ -826,18 +826,18 @@ int FX_PlayVOC3D
     return(handle);
 }
 
-int FX_PlayOGG3D
+int32_t FX_PlayOGG3D
 (
     char *ptr,
-    int pitchoffset,
-    int angle,
-    int distance,
-    int priority,
-    unsigned int callbackval
+    int32_t pitchoffset,
+    int32_t angle,
+    int32_t distance,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
-    int handle;
+    int32_t handle;
 
     handle = MV_PlayOGG3D(ptr, pitchoffset, angle, distance,
                           priority, callbackval);
@@ -857,18 +857,18 @@ int FX_PlayOGG3D
    from listener.
 ---------------------------------------------------------------------*/
 
-int FX_PlayWAV3D
+int32_t FX_PlayWAV3D
 (
     char *ptr,
-    int pitchoffset,
-    int angle,
-    int distance,
-    int priority,
-    unsigned int callbackval
+    int32_t pitchoffset,
+    int32_t angle,
+    int32_t distance,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
-    int handle;
+    int32_t handle;
 
     handle = MV_PlayWAV3D(ptr, pitchoffset, angle, distance,
                           priority, callbackval);
@@ -888,21 +888,21 @@ int FX_PlayWAV3D
    Begin playback of raw sound data with the given volume and priority.
 ---------------------------------------------------------------------*/
 
-int FX_PlayRaw
+int32_t FX_PlayRaw
 (
     char *ptr,
-    unsigned int length,
+    uint32_t length,
     unsigned rate,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
-    int handle;
+    int32_t handle;
 
     handle = MV_PlayRaw(ptr, length, rate, pitchoffset,
                         vol, left, right, priority, callbackval);
@@ -922,23 +922,23 @@ int FX_PlayRaw
    Begin playback of raw sound data with the given volume and priority.
 ---------------------------------------------------------------------*/
 
-int FX_PlayLoopedRaw
+int32_t FX_PlayLoopedRaw
 (
     char *ptr,
-    unsigned int length,
+    uint32_t length,
     char *loopstart,
     char *loopend,
     unsigned rate,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
-    int handle;
+    int32_t handle;
 
     handle = MV_PlayLoopedRaw(ptr, length, loopstart, loopend,
                               rate, pitchoffset, vol, left, right, priority, callbackval);
@@ -959,15 +959,15 @@ int FX_PlayLoopedRaw
    with the specified handle.
 ---------------------------------------------------------------------*/
 
-int FX_Pan3D
+int32_t FX_Pan3D
 (
-    int handle,
-    int angle,
-    int distance
+    int32_t handle,
+    int32_t angle,
+    int32_t distance
 )
 
 {
-    int status;
+    int32_t status;
 
     status = MV_Pan3D(handle, angle, distance);
     if (status != MV_Ok)
@@ -986,9 +986,9 @@ int FX_Pan3D
    Tests if the specified sound is currently playing.
 ---------------------------------------------------------------------*/
 
-int FX_SoundActive
+int32_t FX_SoundActive
 (
-    int handle
+    int32_t handle
 )
 
 {
@@ -1002,7 +1002,7 @@ int FX_SoundActive
    Reports the number of voices playing.
 ---------------------------------------------------------------------*/
 
-int FX_SoundsPlaying
+int32_t FX_SoundsPlaying
 (
     void
 )
@@ -1018,13 +1018,13 @@ int FX_SoundsPlaying
    Halts playback of a specific voice
 ---------------------------------------------------------------------*/
 
-int FX_StopSound
+int32_t FX_StopSound
 (
-    int handle
+    int32_t handle
 )
 
 {
-    int status;
+    int32_t status;
 
     status = MV_Kill(handle);
     if (status != MV_Ok)
@@ -1043,13 +1043,13 @@ int FX_StopSound
    Halts playback of all sounds.
 ---------------------------------------------------------------------*/
 
-int FX_StopAllSounds
+int32_t FX_StopAllSounds
 (
     void
 )
 
 {
-    int status;
+    int32_t status;
 
     status = MV_KillAllVoices();
     if (status != MV_Ok)
@@ -1068,20 +1068,20 @@ int FX_StopAllSounds
    Plays a digitized sound from a user controlled buffering system.
 ---------------------------------------------------------------------*/
 
-int FX_StartDemandFeedPlayback
+int32_t FX_StartDemandFeedPlayback
 (
-    void(*function)(char **ptr, unsigned int *length),
-    int rate,
-    int pitchoffset,
-    int vol,
-    int left,
-    int right,
-    int priority,
-    unsigned int callbackval
+    void(*function)(char **ptr, uint32_t *length),
+    int32_t rate,
+    int32_t pitchoffset,
+    int32_t vol,
+    int32_t left,
+    int32_t right,
+    int32_t priority,
+    uint32_t callbackval
 )
 
 {
-    int handle;
+    int32_t handle;
 
     handle = MV_StartDemandFeedPlayback(function, rate,
                                         pitchoffset, vol, left, right, priority, callbackval);
@@ -1101,14 +1101,14 @@ int FX_StartDemandFeedPlayback
    Starts the sound recording engine.
 ---------------------------------------------------------------------*/
 
-int FX_StartRecording
+int32_t FX_StartRecording
 (
-    int MixRate,
-    void(*function)(char *ptr, int length)
+    int32_t MixRate,
+    void(*function)(char *ptr, int32_t length)
 )
 
 {
-    int status;
+    int32_t status;
 
     switch (FX_SoundDevice)
     {

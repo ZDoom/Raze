@@ -68,7 +68,7 @@ void Error(char *error, ...)
 
 char CheckParm(char *check)
 {
-    int c;
+    int32_t c;
 
     for (c=1;c<_buildargc;c++)
     {

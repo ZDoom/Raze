@@ -23,21 +23,21 @@
 
 static struct
 {
-    int fullscreen;
-    int xdim2d, ydim2d;
-    int xdim3d, ydim3d, bpp3d;
-    int forcesetup;
+    int32_t fullscreen;
+    int32_t xdim2d, ydim2d;
+    int32_t xdim3d, ydim3d, bpp3d;
+    int32_t forcesetup;
 } settings;
 
 static HWND startupdlg = NULL;
 static HWND pages[2] = { NULL, NULL};
-static int done = -1, mode = TAB_CONFIG;
+static int32_t done = -1, mode = TAB_CONFIG;
 
 static void PopulateForm(void)
 {
-    int i,j;
+    int32_t i,j;
     char buf[64];
-    int mode2d, mode3d;
+    int32_t mode2d, mode3d;
     HWND hwnd2d, hwnd3d;
 
     hwnd2d = GetDlgItem(pages[TAB_CONFIG], IDC2DVMODE);
@@ -48,7 +48,7 @@ static void PopulateForm(void)
     if (mode2d < 0) mode2d = 0;
     if (mode3d < 0)
     {
-        int cd[] = { 32, 24, 16, 15, 8, 0 };
+        int32_t cd[] = { 32, 24, 16, 15, 8, 0 };
         for (i=0; cd[i];) { if (cd[i] >= settings.bpp3d) i++; else break; }
         for (; cd[i]; i++)
         {
@@ -97,7 +97,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
         case IDC2DVMODE:
             if (HIWORD(wParam) == CBN_SELCHANGE)
             {
-                int i;
+                int32_t i;
                 i = ComboBox_GetCurSel((HWND)lParam);
                 if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
                 if (i != CB_ERR)
@@ -110,7 +110,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
         case IDC3DVMODE:
             if (HIWORD(wParam) == CBN_SELCHANGE)
             {
-                int i;
+                int32_t i;
                 i = ComboBox_GetCurSel((HWND)lParam);
                 if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
                 if (i != CB_ERR)
@@ -136,12 +136,12 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
 
 
 
-static void SetPage(int n)
+static void SetPage(int32_t n)
 {
     HWND tab;
-    int cur;
+    int32_t cur;
     tab = GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL);
-    cur = (int)SendMessage(tab, TCM_GETCURSEL,0,0);
+    cur = (int32_t)SendMessage(tab, TCM_GETCURSEL,0,0);
     ShowWindow(pages[cur],SW_HIDE);
     SendMessage(tab, TCM_SETCURSEL, n, 0);
     ShowWindow(pages[n],SW_SHOW);
@@ -150,7 +150,7 @@ static void SetPage(int n)
     SetFocus(GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL));
 }
 
-static void EnableConfig(int n)
+static void EnableConfig(int32_t n)
 {
     //EnableWindow(GetDlgItem(startupdlg, WIN_STARTWIN_CANCEL), n);
     EnableWindow(GetDlgItem(startupdlg, WIN_STARTWIN_START), n);
@@ -170,7 +170,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
     {
         HWND hwnd;
         RECT r, rdlg, chrome, rtab, rcancel, rstart;
-        int xoffset = 0, yoffset = 0;
+        int32_t xoffset = 0, yoffset = 0;
 
         // Fetch the positions (in screen coordinates) of all the windows we need to tweak
         ZeroMemory(&chrome, sizeof(chrome));
@@ -270,9 +270,9 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
     case WM_NOTIFY:
     {
         LPNMHDR nmhdr = (LPNMHDR)lParam;
-        int cur;
+        int32_t cur;
         if (nmhdr->idFrom != WIN_STARTWIN_TABCTL) break;
-        cur = (int)SendMessage(nmhdr->hwndFrom, TCM_GETCURSEL,0,0);
+        cur = (int32_t)SendMessage(nmhdr->hwndFrom, TCM_GETCURSEL,0,0);
         switch (nmhdr->code)
         {
         case TCN_SELCHANGING:
@@ -337,7 +337,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 }
 
 
-int startwin_open(void)
+int32_t startwin_open(void)
 {
     INITCOMMONCONTROLSEX icc;
     if (startupdlg) return 1;
@@ -354,7 +354,7 @@ int startwin_open(void)
     return -1;
 }
 
-int startwin_close(void)
+int32_t startwin_close(void)
 {
     if (!startupdlg) return 1;
     DestroyWindow(startupdlg);
@@ -362,14 +362,14 @@ int startwin_close(void)
     return 0;
 }
 
-int startwin_puts(const char *buf)
+int32_t startwin_puts(const char *buf)
 {
     const char *p = NULL, *q = NULL;
     static char workbuf[1024];
-    static int newline = 0;
-    int curlen, linesbefore, linesafter;
+    static int32_t newline = 0;
+    int32_t curlen, linesbefore, linesafter;
     HWND edctl;
-    int vis;
+    int32_t vis;
     static HWND dactrl = NULL;
 
     if (!startupdlg) return 1;
@@ -379,7 +379,7 @@ int startwin_puts(const char *buf)
 
     if (!dactrl) dactrl = GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL);
 
-    vis = ((int)SendMessage(dactrl, TCM_GETCURSEL,0,0) == TAB_MESSAGES);
+    vis = ((int32_t)SendMessage(dactrl, TCM_GETCURSEL,0,0) == TAB_MESSAGES);
 
     if (vis) SendMessage(edctl, WM_SETREDRAW, FALSE,0);
     curlen = SendMessage(edctl, WM_GETTEXTLENGTH, 0,0);
@@ -424,21 +424,21 @@ int startwin_puts(const char *buf)
     return 0;
 }
 
-int startwin_settitle(const char *str)
+int32_t startwin_settitle(const char *str)
 {
     if (!startupdlg) return 1;
     SetWindowText(startupdlg, str);
     return 0;
 }
 
-int startwin_idle(void *v)
+int32_t startwin_idle(void *v)
 {
     if (!startupdlg || !IsWindow(startupdlg)) return 0;
     if (IsDialogMessage(startupdlg, (MSG*)v)) return 1;
     return 0;
 }
 
-int startwin_run(void)
+int32_t startwin_run(void)
 {
     MSG msg;
     if (!startupdlg) return 1;

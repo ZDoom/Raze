@@ -8,9 +8,9 @@
 #include "baselayer.h"
 
 struct sdlappicon {
-	int width,height;
-	unsigned int *pixels;
-	unsigned char *mask;
+	int32_t width,height;
+	uint32_t *pixels;
+	char *mask;
 };
 
 #else

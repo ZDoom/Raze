@@ -47,9 +47,9 @@ struct glinfo glinfo =
 };
 #endif
 
-char *strtolower(char *str, int len)
+char *strtolower(char *str, int32_t len)
 {
-    int i = 0;
+    int32_t i = 0;
     if (len <= 0) return str;
     do
     {
@@ -60,15 +60,15 @@ char *strtolower(char *str, int len)
     return str;
 }
 
-int flushlogwindow = 0;
+int32_t flushlogwindow = 0;
 
-static void onvideomodechange(int newmode) { UNREFERENCED_PARAMETER(newmode); }
-void (*baselayer_onvideomodechange)(int) = onvideomodechange;
+static void onvideomodechange(int32_t newmode) { UNREFERENCED_PARAMETER(newmode); }
+void (*baselayer_onvideomodechange)(int32_t) = onvideomodechange;
 
 #if defined(POLYMOST)
-static int osdfunc_setrendermode(const osdfuncparm_t *parm)
+static int32_t osdfunc_setrendermode(const osdfuncparm_t *parm)
 {
-    int m;
+    int32_t m;
     char *p;
 
     char *modestrs[] =
@@ -89,9 +89,9 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 }
 #if defined(USE_OPENGL)
 #ifdef DEBUGGINGAIDS
-static int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
+static int32_t osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 {
-    int pal, cols[3], eff;
+    int32_t pal, cols[3], eff;
 
     if (parm->numparms != 5) return OSDCMD_SHOWHELP;
 
@@ -107,7 +107,7 @@ static int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 }
 #endif
 
-int osdcmd_glinfo(const osdfuncparm_t *parm)
+int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
 {
     char *s,*t,*u,i;
 
@@ -191,9 +191,9 @@ int osdcmd_glinfo(const osdfuncparm_t *parm)
 #endif
 #endif
 
-static int osdcmd_vars(const osdfuncparm_t *parm)
+static int32_t osdcmd_vars(const osdfuncparm_t *parm)
 {
-    int showval = (parm->numparms < 1);
+    int32_t showval = (parm->numparms < 1);
 
     if (!Bstrcasecmp(parm->name, "r_scrcaptureformat"))
     {
@@ -201,7 +201,7 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
         if (showval) { OSD_Printf("r_scrcaptureformat is %s\n", fmts[captureformat]); }
         else
         {
-            int j;
+            int32_t j;
             for (j=0; j<2; j++)
                 if (!Bstrcasecmp(parm->parms[0], fmts[j])) break;
             if (j == 2) return OSDCMD_SHOWHELP;
@@ -224,7 +224,7 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
     return OSDCMD_SHOWHELP;
 }
 
-int baselayer_init(void)
+int32_t baselayer_init(void)
 {
 #ifdef POLYMOST
     OSD_RegisterFunction("setrendermode","setrendermode <number>: sets the engine's rendering mode.\n"

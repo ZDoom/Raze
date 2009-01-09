@@ -7,9 +7,9 @@
 
 #define ISWS(x) ((x == ' ') || (x == '\t') || (x == '\r') || (x == '\n'))
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
+int32_t WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int32_t nCmdShow)
 {
-    int i=0,j=0;
+    int32_t i=0,j=0;
     char CmdLine[1024], sCmdLine[1024], szFileName[255];
     LPTSTR szCmdLine;
 

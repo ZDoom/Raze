@@ -1,22 +1,24 @@
 #ifndef _MMULTI_UNSTABLE_H_
 #define _MMULTI_UNSTABLE_H_
 
+#include "compat.h"
+
 void callcommit(void);
 void initcrc(void);
-int getcrc(char *buffer, int bufleng);
-void initmultiplayers(int argc, char **argv);
-void sendpacket(int other, char *bufptr, int messleng);
-void setpackettimeout(int datimeoutcount, int daresendagaincount);
-void uninitmultiplayers(void);
+int32_t getcrc(char *buffer, int32_t bufleng);
+void mmulti_initmultiplayers(int32_t argc, char **argv);
+void mmulti_sendpacket(int32_t other, char *bufptr, int32_t messleng);
+void mmulti_setpackettimeout(int32_t datimeoutcount, int32_t daresendagaincount);
+void mmulti_uninitmultiplayers(void);
 void sendlogon(void);
 void sendlogoff(void);
-int  getoutputcirclesize(void);
-void setsocket(int newsocket);
-int getpacket(int *other, char *bufptr);
-void flushpackets(void);
-void genericmultifunction(int other, char *bufptr, int messleng, int command);
+int32_t  getoutputcirclesize(void);
+void setsocket(int32_t newsocket);
+int32_t mmulti_getpacket(int32_t *other, char *bufptr);
+void mmulti_flushpackets(void);
+void genericmultifunction(int32_t other, char *bufptr, int32_t messleng, int32_t command);
 
-extern int natfree;
+extern int32_t natfree;
 
 #endif
 

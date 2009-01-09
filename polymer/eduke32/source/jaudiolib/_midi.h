@@ -32,6 +32,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 
 #ifndef ___MIDI_H
 #define ___MIDI_H
+#include "compat.h"
 
 #define RELATIVE_BEAT( measure, beat, tick ) \
    ( ( tick ) + ( ( beat ) << 9 ) + ( ( measure ) << 16 ) )
@@ -109,32 +110,32 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #define EMIDI_NUM_CONTEXTS      7
 typedef struct
    {
-   unsigned char *pos;
-   unsigned char *loopstart;
-   short          loopcount;
-   short          RunningStatus;
+   char *pos;
+   char *loopstart;
+   int16_t          loopcount;
+   int16_t          RunningStatus;
    unsigned       time;
-   int           FPSecondsPerTick;
-   short          tick;
-   short          beat;
-   short          measure;
-   short          BeatsPerMeasure;
-   short          TicksPerBeat;
-   short          TimeBase;
-   int           delay;
-   short          active;
+   int32_t           FPSecondsPerTick;
+   int16_t          tick;
+   int16_t          beat;
+   int16_t          measure;
+   int16_t          BeatsPerMeasure;
+   int16_t          TicksPerBeat;
+   int16_t          TimeBase;
+   int32_t           delay;
+   int16_t          active;
    } songcontext;
 
 typedef struct
    {
-   unsigned char *start;
-   unsigned char *pos;
+   char *start;
+   char *pos;
 
-   int           delay;
-   short          active;
-   short          RunningStatus;
+   int32_t           delay;
+   int16_t          active;
+   int16_t          RunningStatus;
 
-   short          currentcontext;
+   int16_t          currentcontext;
    songcontext    context[ EMIDI_NUM_CONTEXTS ];
 
    char           EMIDI_IncludeTrack;
@@ -142,18 +143,18 @@ typedef struct
    char           EMIDI_VolumeChange;
    } track;
 
-static int _MIDI_ReadNumber( void *from, size_t size );
-static int _MIDI_ReadDelta( track *ptr );
+static int32_t _MIDI_ReadNumber( void *from, size_t size );
+static int32_t _MIDI_ReadDelta( track *ptr );
 static void _MIDI_ResetTracks( void );
 static void _MIDI_AdvanceTick( void );
 static void _MIDI_MetaEvent( track *Track );
 static void _MIDI_SysEx( track *Track );
-static int  _MIDI_InterpretControllerInfo( track *Track, int TimeSet,
-   int channel, int c1, int c2 );
-static int  _MIDI_SendControlChange( int channel, int c1, int c2 );
-static void _MIDI_SetChannelVolume( int channel, int volume );
+static int32_t  _MIDI_InterpretControllerInfo( track *Track, int32_t TimeSet,
+   int32_t channel, int32_t c1, int32_t c2 );
+static int32_t  _MIDI_SendControlChange( int32_t channel, int32_t c1, int32_t c2 );
+static void _MIDI_SetChannelVolume( int32_t channel, int32_t volume );
 static void _MIDI_SendChannelVolumes( void );
-static int  _MIDI_ProcessNextTick( void );
+static int32_t  _MIDI_ProcessNextTick( void );
 static void _MIDI_InitEMIDI( void );
 
 /*

@@ -30,10 +30,10 @@ extern char *bitptr;
 
 void ReadSaveGameHeaders(void)
 {
-    int dummy,j;
-    int i;
+    int32_t dummy,j;
+    int32_t i;
     char fn[13];
-    int fil;
+    int32_t fil;
 
     Bstrcpy(fn,"egam_.sav");
 
@@ -41,7 +41,7 @@ void ReadSaveGameHeaders(void)
     {
         fn[4] = i+'0';
         if ((fil = kopen4loadfrommod(fn,0)) == -1) continue;
-        if (kdfread(&j,sizeof(int),1,fil) != 1)
+        if (kdfread(&j,sizeof(int32_t),1,fil) != 1)
         {
             kclose(fil);
             continue;
@@ -74,11 +74,11 @@ void ReadSaveGameHeaders(void)
     }
 }
 
-int G_LoadSaveHeader(char spot,struct savehead *saveh)
+int32_t G_LoadSaveHeader(char spot,struct savehead *saveh)
 {
     char fn[13];
-    int fil;
-    int bv;
+    int32_t fil;
+    int32_t bv;
 
     strcpy(fn, "egam0.sav");
     fn[4] = spot+'0';
@@ -122,13 +122,13 @@ corrupt:
     return 1;
 }
 
-int G_LoadPlayer(int spot)
+int32_t G_LoadPlayer(int32_t spot)
 {
-    int k;
+    int32_t k;
     char fn[13];
     char mpfn[13];
     char *fnptr, *scriptptrs;
-    int fil, bv, i, x;
+    int32_t fil, bv, i, x;
     intptr_t j;
     int32 nump;
 
@@ -258,28 +258,28 @@ int G_LoadPlayer(int spot)
     if (kdfread(&g_playerSpawnPoints,sizeof(g_playerSpawnPoints),1,fil) != 1) goto corrupt;
     if (kdfread(&g_numAnimWalls,sizeof(g_numAnimWalls),1,fil) != 1) goto corrupt;
     if (kdfread(&animwall,sizeof(animwall),1,fil) != 1) goto corrupt;
-    if (kdfread(&msx[0],sizeof(int),sizeof(msx)/sizeof(int),fil) != sizeof(msx)/sizeof(int)) goto corrupt;
-    if (kdfread(&msy[0],sizeof(int),sizeof(msy)/sizeof(int),fil) != sizeof(msy)/sizeof(int)) goto corrupt;
-    if (kdfread((short *)&g_spriteDeleteQueuePos,sizeof(short),1,fil) != 1) goto corrupt;
-    if (kdfread((short *)&g_spriteDeleteQueueSize,sizeof(short),1,fil) != 1) goto corrupt;
-    if (kdfread((short *)&SpriteDeletionQueue[0],sizeof(short),g_spriteDeleteQueueSize,fil) != g_spriteDeleteQueueSize) goto corrupt;
-    if (kdfread(&g_mirrorCount,sizeof(short),1,fil) != 1) goto corrupt;
-    if (kdfread(&g_mirrorWall[0],sizeof(short),64,fil) != 64) goto corrupt;
-    if (kdfread(&g_mirrorSector[0],sizeof(short),64,fil) != 64) goto corrupt;
-    if (kdfread(&show2dsector[0],sizeof(char),MAXSECTORS>>3,fil) != (MAXSECTORS>>3)) goto corrupt;
-    if (kdfread(&ActorType[0],sizeof(char),MAXTILES,fil) != MAXTILES) goto corrupt;
+    if (kdfread(&msx[0],sizeof(int32_t),sizeof(msx)/sizeof(int32_t),fil) != sizeof(msx)/sizeof(int32_t)) goto corrupt;
+    if (kdfread(&msy[0],sizeof(int32_t),sizeof(msy)/sizeof(int32_t),fil) != sizeof(msy)/sizeof(int32_t)) goto corrupt;
+    if (kdfread((int16_t *)&g_spriteDeleteQueuePos,sizeof(int16_t),1,fil) != 1) goto corrupt;
+    if (kdfread((int16_t *)&g_spriteDeleteQueueSize,sizeof(int16_t),1,fil) != 1) goto corrupt;
+    if (kdfread((int16_t *)&SpriteDeletionQueue[0],sizeof(int16_t),g_spriteDeleteQueueSize,fil) != g_spriteDeleteQueueSize) goto corrupt;
+    if (kdfread(&g_mirrorCount,sizeof(int16_t),1,fil) != 1) goto corrupt;
+    if (kdfread(&g_mirrorWall[0],sizeof(int16_t),64,fil) != 64) goto corrupt;
+    if (kdfread(&g_mirrorSector[0],sizeof(int16_t),64,fil) != 64) goto corrupt;
+    if (kdfread(&show2dsector[0],sizeof(uint8_t),MAXSECTORS>>3,fil) != (MAXSECTORS>>3)) goto corrupt;
+    if (kdfread(&ActorType[0],sizeof(uint8_t),MAXTILES,fil) != MAXTILES) goto corrupt;
 
     if (kdfread(&g_numClouds,sizeof(g_numClouds),1,fil) != 1) goto corrupt;
-    if (kdfread(&clouds[0],sizeof(short)<<7,1,fil) != 1) goto corrupt;
-    if (kdfread(&cloudx[0],sizeof(short)<<7,1,fil) != 1) goto corrupt;
-    if (kdfread(&cloudy[0],sizeof(short)<<7,1,fil) != 1) goto corrupt;
+    if (kdfread(&clouds[0],sizeof(int16_t)<<7,1,fil) != 1) goto corrupt;
+    if (kdfread(&cloudx[0],sizeof(int16_t)<<7,1,fil) != 1) goto corrupt;
+    if (kdfread(&cloudy[0],sizeof(int16_t)<<7,1,fil) != 1) goto corrupt;
 
     if (kdfread(&g_scriptSize,sizeof(g_scriptSize),1,fil) != 1) goto corrupt;
     if (!g_scriptSize) goto corrupt;
     scriptptrs = Bcalloc(1,g_scriptSize * sizeof(scriptptrs));
     Bfree(bitptr);
-    bitptr = Bcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(char));
-    if (kdfread(&bitptr[0],sizeof(char),(g_scriptSize+7)>>3,fil) != ((g_scriptSize+7)>>3)) goto corrupt;
+    bitptr = Bcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(uint8_t));
+    if (kdfread(&bitptr[0],sizeof(uint8_t),(g_scriptSize+7)>>3,fil) != ((g_scriptSize+7)>>3)) goto corrupt;
     if (script != NULL)
         Bfree(script);
     script = Bcalloc(1,g_scriptSize * sizeof(intptr_t));
@@ -325,8 +325,8 @@ int G_LoadPlayer(int spot)
 
     if (kdfread(&g_animateCount,sizeof(g_animateCount),1,fil) != 1) goto corrupt;
     if (kdfread(&animatesect[0],2,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
-    if (kdfread(&animateptr[0],sizeof(int),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
-    for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+    if (kdfread(&animateptr[0],sizeof(int32_t),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
+    for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
     if (kdfread(&animategoal[0],4,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
     if (kdfread(&animatevel[0],4,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
 
@@ -360,7 +360,7 @@ int G_LoadPlayer(int spot)
     if (kdfread(connectpoint2,sizeof(connectpoint2),1,fil) != 1) goto corrupt;
     if (kdfread(&g_numPlayerSprites,sizeof(g_numPlayerSprites),1,fil) != 1) goto corrupt;
     for (i=0;i<MAXPLAYERS;i++)
-        if (kdfread((short *)&g_player[i].frags[0],sizeof(g_player[i].frags),1,fil) != 1) goto corrupt;
+        if (kdfread((int16_t *)&g_player[i].frags[0],sizeof(g_player[i].frags),1,fil) != 1) goto corrupt;
 
     if (kdfread(&randomseed,sizeof(randomseed),1,fil) != 1) goto corrupt;
     if (kdfread(&g_globalRandom,sizeof(g_globalRandom),1,fil) != 1) goto corrupt;
@@ -373,17 +373,17 @@ int G_LoadPlayer(int spot)
 
     if (kdfread(&SpriteCacheList[0],sizeof(SpriteCacheList[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
 
-    if (kdfread(&i,sizeof(int),1,fil) != 1) goto corrupt;
+    if (kdfread(&i,sizeof(int32_t),1,fil) != 1) goto corrupt;
 
     while (i != MAXQUOTES)
     {
         if (ScriptQuotes[i] != NULL)
             Bfree(ScriptQuotes[i]);
 
-        ScriptQuotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
+        ScriptQuotes[i] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
 
         if (kdfread((char *)ScriptQuotes[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
-        if (kdfread(&i,sizeof(int),1,fil) != 1) goto corrupt;
+        if (kdfread(&i,sizeof(int32_t),1,fil) != 1) goto corrupt;
     }
 
     if (kdfread(&g_numQuoteRedefinitions,sizeof(g_numQuoteRedefinitions),1,fil) != 1) goto corrupt;
@@ -393,7 +393,7 @@ int G_LoadPlayer(int spot)
         if (ScriptQuoteRedefinitions[i] != NULL)
             Bfree(ScriptQuoteRedefinitions[i]);
 
-        ScriptQuoteRedefinitions[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
+        ScriptQuoteRedefinitions[i] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
 
         if (kdfread((char *)ScriptQuoteRedefinitions[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
     }
@@ -428,7 +428,7 @@ int G_LoadPlayer(int spot)
     {
         char *p;
         char levname[BMAX_PATH];
-        int fil;
+        int32_t fil;
 
         strcpy(levname, boardfilename);
         // usermap music based on map filename
@@ -449,7 +449,7 @@ int G_LoadPlayer(int spot)
         {
             kclose(fil);
             if (MapInfo[ud.level_number].musicfn1 == NULL)
-                MapInfo[ud.level_number].musicfn1 = Bcalloc(Bstrlen(levname)+1,sizeof(char));
+                MapInfo[ud.level_number].musicfn1 = Bcalloc(Bstrlen(levname)+1,sizeof(uint8_t));
             else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.level_number].musicfn1))
                 MapInfo[ud.level_number].musicfn1 = Brealloc(MapInfo[ud.level_number].musicfn1,(Bstrlen(levname)+1));
             Bstrcpy(MapInfo[ud.level_number].musicfn1,levname);
@@ -472,16 +472,16 @@ int G_LoadPlayer(int spot)
         else kclose(fil);
 
         if (MapInfo[ud.level_number].musicfn == NULL)
-            MapInfo[ud.level_number].musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(char));
+            MapInfo[ud.level_number].musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(uint8_t));
         else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.level_number].musicfn))
             MapInfo[ud.level_number].musicfn = Brealloc(MapInfo[ud.level_number].musicfn,(Bstrlen(levname)+1));
         Bstrcpy(MapInfo[ud.level_number].musicfn,levname);
     }
 
-    if (MapInfo[(unsigned char)g_musicIndex].musicfn != NULL && (i != g_musicIndex || MapInfo[MAXVOLUMES*MAXLEVELS+2].musicfn1))
+    if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL && (i != g_musicIndex || MapInfo[MAXVOLUMES*MAXLEVELS+2].musicfn1))
     {
         MUSIC_StopSong();
-        S_PlayMusic(&MapInfo[(unsigned char)g_musicIndex].musicfn[0],g_musicIndex);
+        S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);
     }
     MUSIC_Continue();
 
@@ -572,7 +572,7 @@ int G_LoadPlayer(int spot)
 
     ready2send = 1;
 
-    flushpackets();
+    mmulti_flushpackets();
     clearfifo();
     waitforeverybody();
 
@@ -585,15 +585,15 @@ corrupt:
     return -1;
 }
 
-int G_SavePlayer(int spot)
+int32_t G_SavePlayer(int32_t spot)
 {
-    int i;
+    int32_t i;
     intptr_t j;
     char fn[13];
     char mpfn[13];
     char *fnptr, *scriptptrs;
     FILE *fil;
-    int bv = BYTEVERSION;
+    int32_t bv = BYTEVERSION;
 
     strcpy(fn, "egam0.sav");
     strcpy(mpfn, "egamA_00.sav");
@@ -689,21 +689,21 @@ int G_SavePlayer(int spot)
     dfwrite(&g_playerSpawnPoints,sizeof(g_playerSpawnPoints),1,fil);
     dfwrite(&g_numAnimWalls,sizeof(g_numAnimWalls),1,fil);
     dfwrite(&animwall,sizeof(animwall),1,fil);
-    dfwrite(&msx[0],sizeof(int),sizeof(msx)/sizeof(int),fil);
-    dfwrite(&msy[0],sizeof(int),sizeof(msy)/sizeof(int),fil);
-    dfwrite(&g_spriteDeleteQueuePos,sizeof(short),1,fil);
-    dfwrite(&g_spriteDeleteQueueSize,sizeof(short),1,fil);
-    dfwrite(&SpriteDeletionQueue[0],sizeof(short),g_spriteDeleteQueueSize,fil);
-    dfwrite(&g_mirrorCount,sizeof(short),1,fil);
-    dfwrite(&g_mirrorWall[0],sizeof(short),64,fil);
-    dfwrite(&g_mirrorSector[0],sizeof(short),64,fil);
-    dfwrite(&show2dsector[0],sizeof(char),MAXSECTORS>>3,fil);
-    dfwrite(&ActorType[0],sizeof(char),MAXTILES,fil);
+    dfwrite(&msx[0],sizeof(int32_t),sizeof(msx)/sizeof(int32_t),fil);
+    dfwrite(&msy[0],sizeof(int32_t),sizeof(msy)/sizeof(int32_t),fil);
+    dfwrite(&g_spriteDeleteQueuePos,sizeof(int16_t),1,fil);
+    dfwrite(&g_spriteDeleteQueueSize,sizeof(int16_t),1,fil);
+    dfwrite(&SpriteDeletionQueue[0],sizeof(int16_t),g_spriteDeleteQueueSize,fil);
+    dfwrite(&g_mirrorCount,sizeof(int16_t),1,fil);
+    dfwrite(&g_mirrorWall[0],sizeof(int16_t),64,fil);
+    dfwrite(&g_mirrorSector[0],sizeof(int16_t),64,fil);
+    dfwrite(&show2dsector[0],sizeof(uint8_t),MAXSECTORS>>3,fil);
+    dfwrite(&ActorType[0],sizeof(uint8_t),MAXTILES,fil);
 
     dfwrite(&g_numClouds,sizeof(g_numClouds),1,fil);
-    dfwrite(&clouds[0],sizeof(short)<<7,1,fil);
-    dfwrite(&cloudx[0],sizeof(short)<<7,1,fil);
-    dfwrite(&cloudy[0],sizeof(short)<<7,1,fil);
+    dfwrite(&clouds[0],sizeof(int16_t)<<7,1,fil);
+    dfwrite(&cloudx[0],sizeof(int16_t)<<7,1,fil);
+    dfwrite(&cloudy[0],sizeof(int16_t)<<7,1,fil);
 
     dfwrite(&g_scriptSize,sizeof(g_scriptSize),1,fil);
     scriptptrs = Bcalloc(1, g_scriptSize * sizeof(scriptptrs));
@@ -719,7 +719,7 @@ int G_SavePlayer(int spot)
     }
 
 //    dfwrite(&scriptptrs[0],sizeof(scriptptrs),g_scriptSize,fil);
-    dfwrite(&bitptr[0],sizeof(char),(g_scriptSize+7)>>3,fil);
+    dfwrite(&bitptr[0],sizeof(uint8_t),(g_scriptSize+7)>>3,fil);
     dfwrite(&script[0],sizeof(script),g_scriptSize,fil);
 
     for (i=0;i<g_scriptSize;i++)
@@ -806,9 +806,9 @@ int G_SavePlayer(int spot)
     dfwrite(&pskyoff[0],sizeof(pskyoff[0]),MAXPSKYTILES,fil);
     dfwrite(&g_animateCount,sizeof(g_animateCount),1,fil);
     dfwrite(&animatesect[0],2,MAXANIMATES,fil);
-    for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]-(intptr_t)(&sector[0]));
+    for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]-(intptr_t)(&sector[0]));
     dfwrite(&animateptr[0],4,MAXANIMATES,fil);
-    for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+    for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
     dfwrite(&animategoal[0],4,MAXANIMATES,fil);
     dfwrite(&animatevel[0],4,MAXANIMATES,fil);
 
@@ -832,7 +832,7 @@ int G_SavePlayer(int spot)
     dfwrite(connectpoint2,sizeof(connectpoint2),1,fil);
     dfwrite(&g_numPlayerSprites,sizeof(g_numPlayerSprites),1,fil);
     for (i=0;i<MAXPLAYERS;i++)
-        dfwrite((short *)&g_player[i].frags[0],sizeof(g_player[i].frags),1,fil);
+        dfwrite((int16_t *)&g_player[i].frags[0],sizeof(g_player[i].frags),1,fil);
 
     dfwrite(&randomseed,sizeof(randomseed),1,fil);
     dfwrite(&g_globalRandom,sizeof(g_globalRandom),1,fil);
@@ -849,11 +849,11 @@ int G_SavePlayer(int spot)
     {
         if (ScriptQuotes[i] != NULL)
         {
-            dfwrite(&i,sizeof(int),1,fil);
+            dfwrite(&i,sizeof(int32_t),1,fil);
             dfwrite(ScriptQuotes[i],MAXQUOTELEN, 1, fil);
         }
     }
-    dfwrite(&i,sizeof(int),1,fil);
+    dfwrite(&i,sizeof(int32_t),1,fil);
 
     dfwrite(&g_numQuoteRedefinitions,sizeof(g_numQuoteRedefinitions),1,fil);
     for (i=0;i<g_numQuoteRedefinitions;i++)

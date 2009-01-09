@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "mouse.h"
 #include "compat.h"
 
-void endanimsounds(int fr)
+void endanimsounds(int32_t fr)
 {
     switch (ud.volume_number)
     {
@@ -92,7 +92,7 @@ void endanimsounds(int fr)
     }
 }
 
-void logoanimsounds(int fr)
+void logoanimsounds(int32_t fr)
 {
     switch (fr)
     {
@@ -105,7 +105,7 @@ void logoanimsounds(int fr)
     }
 }
 
-void intro4animsounds(int fr)
+void intro4animsounds(int32_t fr)
 {
     switch (fr)
     {
@@ -122,7 +122,7 @@ void intro4animsounds(int fr)
     }
 }
 
-void first4animsounds(int fr)
+void first4animsounds(int32_t fr)
 {
     switch (fr)
     {
@@ -141,7 +141,7 @@ void first4animsounds(int fr)
     }
 }
 
-void intro42animsounds(int fr)
+void intro42animsounds(int32_t fr)
 {
     switch (fr)
     {
@@ -151,7 +151,7 @@ void intro42animsounds(int fr)
     }
 }
 
-void endanimvol41(int fr)
+void endanimvol41(int32_t fr)
 {
     switch (fr)
     {
@@ -164,7 +164,7 @@ void endanimvol41(int fr)
     }
 }
 
-void endanimvol42(int fr)
+void endanimvol42(int32_t fr)
 {
     switch (fr)
     {
@@ -183,7 +183,7 @@ void endanimvol42(int fr)
     }
 }
 
-void endanimvol43(int fr)
+void endanimvol43(int32_t fr)
 {
     switch (fr)
     {
@@ -203,13 +203,13 @@ void endanimvol43(int fr)
 void G_PlayAnim(const char *fn,char t)
 {
     char *animbuf;
-    unsigned char *palptr;
-    int i, j, length=0, numframes=0;
+    uint8_t *palptr;
+    int32_t i, j, length=0, numframes=0;
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    int ogltexfiltermode=gltexfiltermode;
+    int32_t ogltexfiltermode=gltexfiltermode;
 #endif
     int32 handle=-1;
-    int frametime = 0;
+    int32_t frametime = 0;
 
     //    return;
 
@@ -274,7 +274,7 @@ void G_PlayAnim(const char *fn,char t)
             if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE)
                 goto ENDOFANIMLOOP;
             handleevents();
-            getpackets();
+            Net_GetPackets();
             if (g_restorePalette == 1)
             {
                 P_SetGamePalette(g_player[myconnectindex].ps,animpal,0);

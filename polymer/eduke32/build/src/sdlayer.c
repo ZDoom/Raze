@@ -24,11 +24,11 @@
 #elif defined HAVE_GTK2
 # include "gtkbits.h"
 #else
-int startwin_open(void) { return 0; }
-int startwin_close(void) { return 0; }
-int startwin_puts(const char *s) { s=s; return 0; }
-int startwin_idle(void *s) { s=s; return 0; }
-int startwin_settitle(const char *s) { s=s; return 0; }
+int32_t startwin_open(void) { return 0; }
+int32_t startwin_close(void) { return 0; }
+int32_t startwin_puts(const char *s) { s=s; return 0; }
+int32_t startwin_idle(void *s) { s=s; return 0; }
+int32_t startwin_settitle(const char *s) { s=s; return 0; }
 #endif
 
 #define SURFACE_FLAGS	(SDL_SWSURFACE|SDL_HWPALETTE|SDL_HWACCEL)
@@ -38,59 +38,59 @@ int startwin_settitle(const char *s) { s=s; return 0; }
 
 // fix for mousewheel
 #define MWHEELTICKS 10
-static unsigned int mwheelup, mwheeldown;
+static uint32_t mwheelup, mwheeldown;
 
-int   _buildargc = 1;
+int32_t   _buildargc = 1;
 const char **_buildargv = NULL;
-extern int app_main(int argc, const char *argv[]);
+extern int32_t app_main(int32_t argc, const char *argv[]);
 
 char quitevent=0, appactive=1;
 
 // video
 static SDL_Surface *sdl_surface;
-int xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline, imageSize;
+int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline, imageSize;
 intptr_t frameplace=0;
-int lockcount=0;
+int32_t lockcount=0;
 char modechange=1;
 char offscreenrendering=0;
 char videomodereset = 0;
 char nofog=0;
-static unsigned short sysgamma[3][256];
-extern int curbrightness, gammabrightness;
+static uint16_t sysgamma[3][256];
+extern int32_t curbrightness, gammabrightness;
 #ifdef USE_OPENGL
 // OpenGL stuff
 char nogl=0;
 #endif
-int vsync=0;
+int32_t vsync=0;
 
 // input
 char inputdevices=0;
 char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
-unsigned char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
-unsigned char remap[256];
-int remapinit=0;
-static unsigned char keynames[256][24];
-volatile int mousex=0,mousey=0,mouseb=0;
-int *joyaxis = NULL, joyb=0, *joyhat = NULL;
+char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
+char remap[256];
+int32_t remapinit=0;
+static char keynames[256][24];
+volatile int32_t mousex=0,mousey=0,mouseb=0;
+int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;
 char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
-int joyaxespresent=0;
+int32_t joyaxespresent=0;
 
 
-void(*keypresscallback)(int,int) = 0;
-void(*mousepresscallback)(int,int) = 0;
-void(*joypresscallback)(int,int) = 0;
+void(*keypresscallback)(int32_t,int32_t) = 0;
+void(*mousepresscallback)(int32_t,int32_t) = 0;
+void(*joypresscallback)(int32_t,int32_t) = 0;
 
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
-static unsigned char keytranslation[SDLK_LAST];
+static char keytranslation[SDLK_LAST];
 #else
-static unsigned char keytranslation[SDL_NUM_SCANCODES];
+static char keytranslation[SDL_NUM_SCANCODES];
 #endif
-static int buildkeytranslationtable(void);
+static int32_t buildkeytranslationtable(void);
 
 //static SDL_Surface * loadtarga(const char *fn);		// for loading the icon
 static SDL_Surface * loadappicon(void);
 
-int wm_msgbox(char *name, char *fmt, ...)
+int32_t wm_msgbox(char *name, char *fmt, ...)
 {
     char buf[2048];
     va_list va;
@@ -113,13 +113,13 @@ int wm_msgbox(char *name, char *fmt, ...)
     return 0;
 }
 
-int wm_ynbox(char *name, char *fmt, ...)
+int32_t wm_ynbox(char *name, char *fmt, ...)
 {
     char buf[2048];
     char c;
     va_list va;
 #if (!defined(__APPLE__) && defined(HAVE_GTK2))
-    int r;
+    int32_t r;
 #endif
 
     UNREFERENCED_PARAMETER(name);
@@ -165,9 +165,9 @@ void wm_setapptitle(char *name)
 //
 //
 
-int main(int argc, char *argv[])
+int32_t main(int32_t argc, char *argv[])
 {
-    int r;
+    int32_t r;
     char *argp;
     FILE *fp;
 
@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
 }
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
-void setvsync(int sync)
+void setvsync(int32_t sync)
 {
     if (vsync == sync) return;
     vsync = sync;
@@ -224,7 +224,7 @@ void setvsync(int sync)
 //
 // initsystem() -- init SDL systems
 //
-int initsystem(void)
+int32_t initsystem(void)
 {
     /*
     #ifdef DEBUGGINGAIDS
@@ -334,7 +334,7 @@ void initprintf(const char *f, ...)
     va_list va;
     char buf[1024];
     static char dabuf[1024];
-    static int cnt = 0;
+    static int32_t cnt = 0;
 
     va_start(va, f);
     Bvsnprintf(buf, 1024, f, va);
@@ -386,15 +386,15 @@ void debugprintf(const char *f, ...)
 //
 
 static char mouseacquired=0,moustat=0;
-// static int joyblast=0;
+// static int32_t joyblast=0;
 static SDL_Joystick *joydev = NULL;
 
 //
 // initinput() -- init input system
 //
-int initinput(void)
+int32_t initinput(void)
 {
-    int i,j;
+    int32_t i,j;
 
 #ifdef __APPLE__
     // force OS X to operate in >1 button mouse mode so that LMB isn't adulterated
@@ -444,8 +444,8 @@ int initinput(void)
             initprintf("Joystick 1 has %d axes, %d buttons, and %d hat(s).\n",
                        joynumaxes,joynumbuttons,joynumhats);
 
-            joyaxis = (int *)Bcalloc(joynumaxes, sizeof(int));
-            joyhat = (int *)Bcalloc(joynumhats, sizeof(int));
+            joyaxis = (int32_t *)Bcalloc(joynumaxes, sizeof(int32_t));
+            joyhat = (int32_t *)Bcalloc(joynumhats, sizeof(int32_t));
         }
     }
 
@@ -466,13 +466,13 @@ void uninitinput(void)
     }
 }
 
-const unsigned char *getkeyname(int num)
+const char *getkeyname(int32_t num)
 {
     if ((unsigned)num >= 256) return NULL;
     return keynames[num];
 }
 
-const unsigned char *getjoyname(int what, int num)
+const char *getjoyname(int32_t what, int32_t num)
 {
     static char tmp[64];
 
@@ -481,17 +481,17 @@ const unsigned char *getjoyname(int what, int num)
     case 0:	// axis
         if ((unsigned)num > (unsigned)joynumaxes) return NULL;
         sprintf(tmp,"Axis %d",num);
-        return (unsigned char *)tmp;
+        return (char *)tmp;
 
     case 1: // button
         if ((unsigned)num > (unsigned)joynumbuttons) return NULL;
         sprintf(tmp,"Button %d",num);
-        return (unsigned char *)tmp;
+        return (char *)tmp;
 
     case 2: // hat
         if ((unsigned)num > (unsigned)joynumhats) return NULL;
         sprintf(tmp,"Hat %d",num);
-        return (unsigned char *)tmp;
+        return (char *)tmp;
 
     default:
         return NULL;
@@ -501,16 +501,16 @@ const unsigned char *getjoyname(int what, int num)
 //
 // bgetchar, bkbhit, bflushchars -- character-based input functions
 //
-unsigned char bgetchar(void)
+char bgetchar(void)
 {
-    unsigned char c;
+    char c;
     if (keyasciififoplc == keyasciififoend) return 0;
     c = keyasciififo[keyasciififoplc];
     keyasciififoplc = ((keyasciififoplc+1)&(KEYFIFOSIZ-1));
     return c;
 }
 
-int bkbhit(void)
+int32_t bkbhit(void)
 {
     return (keyasciififoplc != keyasciififoend);
 }
@@ -524,14 +524,14 @@ void bflushchars(void)
 //
 // set{key|mouse|joy}presscallback() -- sets a callback which gets notified when keys are pressed
 //
-void setkeypresscallback(void(*callback)(int, int)) { keypresscallback = callback; }
-void setmousepresscallback(void(*callback)(int, int)) { mousepresscallback = callback; }
-void setjoypresscallback(void(*callback)(int, int)) { joypresscallback = callback; }
+void setkeypresscallback(void(*callback)(int32_t, int32_t)) { keypresscallback = callback; }
+void setmousepresscallback(void(*callback)(int32_t, int32_t)) { mousepresscallback = callback; }
+void setjoypresscallback(void(*callback)(int32_t, int32_t)) { joypresscallback = callback; }
 
 //
 // initmouse() -- init mouse input
 //
-int initmouse(void)
+int32_t initmouse(void)
 {
     moustat=1;
     grabmouse(1); // FIXME - SA
@@ -581,7 +581,7 @@ void grabmouse(char a)
 //
 // readmousexy() -- return mouse motion information
 //
-void readmousexy(int *x, int *y)
+void readmousexy(int32_t *x, int32_t *y)
 {
     if (!mouseacquired || !appactive || !moustat) { *x = *y = 0; return; }
     *x = mousex;
@@ -592,7 +592,7 @@ void readmousexy(int *x, int *y)
 //
 // readmousebstatus() -- return mouse button information
 //
-void readmousebstatus(int *b)
+void readmousebstatus(int32_t *b)
 {
     if (!mouseacquired || !appactive || !moustat) *b = 0;
     else *b = mouseb;
@@ -601,7 +601,7 @@ void readmousebstatus(int *b)
 //
 // setjoydeadzone() -- sets the dead and saturation zones for the joystick
 //
-void setjoydeadzone(int axis, unsigned short dead, unsigned short satur)
+void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
 {
     UNREFERENCED_PARAMETER(axis);
     UNREFERENCED_PARAMETER(dead);
@@ -612,7 +612,7 @@ void setjoydeadzone(int axis, unsigned short dead, unsigned short satur)
 //
 // getjoydeadzone() -- gets the dead and saturation zones for the joystick
 //
-void getjoydeadzone(int axis, unsigned short *dead, unsigned short *satur)
+void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur)
 {
     UNREFERENCED_PARAMETER(axis);
     *dead = *satur = 0;
@@ -645,7 +645,7 @@ static void(*usertimercallback)(void) = NULL;
 //
 // inittimer() -- initialize timer
 //
-int inittimer(int tickspersecond)
+int32_t inittimer(int32_t tickspersecond)
 {
     if (timerfreq) return 0;	// already installed
 
@@ -676,12 +676,12 @@ void uninittimer(void)
 void sampletimer(void)
 {
     Uint32 i;
-    int n;
+    int32_t n;
 
     if (!timerfreq) return;
 
     i = SDL_GetTicks();
-    n = (int)(i * timerticspersec / timerfreq) - timerlastsample;
+    n = (int32_t)(i * timerticspersec / timerfreq) - timerlastsample;
     if (n>0)
     {
         totalclock += n;
@@ -694,16 +694,16 @@ void sampletimer(void)
 //
 // getticks() -- returns the sdl ticks count
 //
-unsigned int getticks(void)
+uint32_t getticks(void)
 {
-    return (unsigned int)SDL_GetTicks();
+    return (uint32_t)SDL_GetTicks();
 }
 
 
 //
 // gettimerfreq() -- returns the number of ticks per second the timer is configured to generate
 //
-int gettimerfreq(void)
+int32_t gettimerfreq(void)
 {
     return timerticspersec;
 }
@@ -738,9 +738,9 @@ void(*installusertimercallback(void(*callback)(void)))(void)
 //
 // getvalidmodes() -- figure out what video modes are available
 //
-static int sortmodes(const struct validmode_t *a, const struct validmode_t *b)
+static int32_t sortmodes(const struct validmode_t *a, const struct validmode_t *b)
 {
-    int x;
+    int32_t x;
 
     if ((x = a->fs   - b->fs)   != 0) return x;
     if ((x = a->bpp  - b->bpp)  != 0) return x;
@@ -752,7 +752,7 @@ static int sortmodes(const struct validmode_t *a, const struct validmode_t *b)
 static char modeschecked=0;
 void getvalidmodes(void)
 {
-    static int cdepths[] =
+    static int32_t cdepths[] =
     {
         8,
 #ifdef USE_OPENGL
@@ -760,7 +760,7 @@ void getvalidmodes(void)
 #endif
         0
     };
-    static int defaultres[][2] =
+    static int32_t defaultres[][2] =
     {
         {1280,1024}
         ,{1280,960},{1152,864},{1024,768},{800,600},{640,480},
@@ -772,7 +772,7 @@ void getvalidmodes(void)
 #else
     SDL_PixelFormat pf = { NULL, 8, 1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0 };
 #endif
-    int i, j, maxx=0, maxy=0;
+    int32_t i, j, maxx=0, maxy=0;
 
     if (modeschecked) return;
 
@@ -780,7 +780,7 @@ void getvalidmodes(void)
 //    initprintf("Detecting video modes:\n");
 
 #define ADDMODE(x,y,c,f) if (validmodecnt<MAXVALIDMODES) { \
-	int mn; \
+	int32_t mn; \
 	for(mn=0;mn<validmodecnt;mn++) \
 		if (validmode[mn].xdim==x && validmode[mn].ydim==y && \
 		    validmode[mn].bpp==c  && validmode[mn].fs==f) break; \
@@ -860,7 +860,7 @@ void getvalidmodes(void)
 #undef CHECK
 #undef ADDMODE
 
-    qsort((void*)validmode, validmodecnt, sizeof(struct validmode_t), (int(*)(const void*,const void*))sortmodes);
+    qsort((void*)validmode, validmodecnt, sizeof(struct validmode_t), (int32_t(*)(const void*,const void*))sortmodes);
 
     modeschecked=1;
 }
@@ -869,9 +869,9 @@ void getvalidmodes(void)
 //
 // checkvideomode() -- makes sure the video mode passed is legal
 //
-int checkvideomode(int *x, int *y, int c, int fs, int forced)
+int32_t checkvideomode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t forced)
 {
-    int i, nearest=-1, dx, dy, odx=9999, ody=9999;
+    int32_t i, nearest=-1, dx, dy, odx=9999, ody=9999;
 
     getvalidmodes();
 
@@ -929,12 +929,12 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 //
 // setvideomode() -- set SDL video mode
 //
-int setvideomode(int x, int y, int c, int fs)
+int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 {
-    int regrab = 0;
-    static int warnonce = 0;
+    int32_t regrab = 0;
+    static int32_t warnonce = 0;
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
-    static int ovsync = 1;
+    static int32_t ovsync = 1;
 #endif
 
     if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) &&
@@ -970,11 +970,11 @@ int setvideomode(int x, int y, int c, int fs)
 #if defined(USE_OPENGL)
     if (c > 8)
     {
-        int i, j, multisamplecheck = (glmultisample > 0);
+        int32_t i, j, multisamplecheck = (glmultisample > 0);
         struct
         {
             SDL_GLattr attr;
-            int value;
+            int32_t value;
         }
         attributes[] =
         {
@@ -1006,7 +1006,7 @@ int setvideomode(int x, int y, int c, int fs)
                    x,y,c, ((fs&1) ? "fullscreen" : "windowed"));
         do
         {
-            for (i=0; i < (int)(sizeof(attributes)/sizeof(attributes[0])); i++)
+            for (i=0; i < (int32_t)(sizeof(attributes)/sizeof(attributes[0])); i++)
             {
                 j = attributes[i].value;
                 if (!multisamplecheck &&
@@ -1201,7 +1201,7 @@ int setvideomode(int x, int y, int c, int fs)
 
         if (!glinfo.dumped)
         {
-            int oldbpp = bpp;
+            int32_t oldbpp = bpp;
             bpp = 32;
             osdcmd_glinfo(NULL);
             glinfo.dumped = 1;
@@ -1262,7 +1262,7 @@ void resetvideomode(void)
 //
 void begindrawing(void)
 {
-    int i,j;
+    int32_t i,j;
 
     if (bpp > 8)
     {
@@ -1322,9 +1322,9 @@ void enddrawing(void)
 //
 // showframe() -- update the display
 //
-void showframe(int w)
+void showframe(int32_t w)
 {
-//    int i,j;
+//    int32_t i,j;
     UNREFERENCED_PARAMETER(w);
 
 #ifdef USE_OPENGL
@@ -1379,10 +1379,10 @@ void showframe(int w)
 //
 // setpalette() -- set palette values
 //
-int setpalette(int start, int num)
+int32_t setpalette(int32_t start, int32_t num)
 {
     SDL_Color pal[256];
-    int i,n;
+    int32_t i,n;
 
     if (bpp > 8) return 0;	// no palette in opengl
 
@@ -1399,9 +1399,9 @@ int setpalette(int start, int num)
 // getpalette() -- get palette values
 //
 /*
-int getpalette(int start, int num, char *dapal)
+int32_t getpalette(int32_t start, int32_t num, char *dapal)
 {
-	int i;
+	int32_t i;
 	SDL_Palette *pal;
 
 	// we shouldn't need to lock the surface to get the palette
@@ -1421,10 +1421,10 @@ int getpalette(int start, int num, char *dapal)
 //
 // setgamma
 //
-int setgamma(void)
+int32_t setgamma(void)
 {
-    int i;
-    unsigned short gammaTable[768];
+    int32_t i;
+    uint16_t gammaTable[768];
     float gamma = max(0.1f,min(4.f,vid_gamma));
     float contrast = max(0.1f,min(3.f,vid_contrast));
     float bright = max(-0.8f,min(0.8f,vid_brightness));
@@ -1440,7 +1440,7 @@ int setgamma(void)
         if (gamma != 1) val = pow(val, invgamma) / norm;
         val += bright * 128;
 
-        gammaTable[i] = gammaTable[i + 256] = gammaTable[i + 512] = (unsigned short)max(0.f,(double)min(0xffff,val*256));
+        gammaTable[i] = gammaTable[i + 256] = gammaTable[i + 512] = (uint16_t)max(0.f,(double)min(0xffff,val*256));
     }
     return SDL_SetGammaRamp(&gammaTable[0],&gammaTable[256],&gammaTable[512]);
 }
@@ -1474,9 +1474,9 @@ static SDL_Surface * loadappicon(void)
 // handleevents() -- process the SDL message queue
 //   returns !0 if there was an important event worth checking (like quitting)
 //
-int handleevents(void)
+int32_t handleevents(void)
 {
-    int code, rv=0, j;
+    int32_t code, rv=0, j;
     SDL_Event ev;
 
 #define SetKey(key,state) { \
@@ -1697,7 +1697,7 @@ int handleevents(void)
 
         case SDL_JOYHATMOTION:
         {
-            int hatvals[16] =
+            int32_t hatvals[16] =
             {
                 -1,	// centre
                 0, 	// up 1
@@ -1772,7 +1772,7 @@ inline void idle(void)
 }
 
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
-static int buildkeytranslationtable(void)
+static int32_t buildkeytranslationtable(void)
 {
     memset(keytranslation,0,sizeof(keytranslation));
 
@@ -1906,7 +1906,7 @@ static int buildkeytranslationtable(void)
     return 0;
 }
 #else // SDL 1.3
-static int buildkeytranslationtable(void)
+static int32_t buildkeytranslationtable(void)
 {
     memset(keytranslation,0,sizeof(keytranslation));
 
@@ -2033,7 +2033,7 @@ static int buildkeytranslationtable(void)
 void makeasmwriteable(void)
 {
 #ifndef ENGINE_USING_A_C
-    extern int dep_begin, dep_end;
+    extern int32_t dep_begin, dep_end;
 # if defined _WIN32
     DWORD oldprot;
     if (!VirtualProtect((LPVOID)&dep_begin, (SIZE_T)&dep_end - (SIZE_T)&dep_begin, PAGE_EXECUTE_READWRITE, &oldprot))
@@ -2042,7 +2042,7 @@ void makeasmwriteable(void)
         return;
     }
 # elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__
-    int pagesize;
+    int32_t pagesize;
     size_t dep_begin_page;
     pagesize = sysconf(_SC_PAGE_SIZE);
     if (pagesize == -1)

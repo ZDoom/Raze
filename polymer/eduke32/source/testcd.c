@@ -36,10 +36,10 @@ Replacement cd-auth routine by Jonathon Fowler.
  * of it all. Because it's amusing. Who cares?
  */
 
-char testcd(char *fn, int testsiz)
+char testcd(char *fn, int32_t testsiz)
 {
     DWORD driveletters;
-    int i, fil, dalen;
+    int32_t i, fil, dalen;
     char name[32]="x:\\SUPPORT\\",driv[4]="x:\\";
 
     strcat(name,fn);

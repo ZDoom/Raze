@@ -29,49 +29,49 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define LABEL_HASPARM2  1
 #define LABEL_ISSTRING  2
 
-extern int g_iReturnVarID;      // var ID of "RETURN"
-extern int g_iWeaponVarID;      // var ID of "WEAPON"
-extern int g_iWorksLikeVarID;   // var ID of "WORKSLIKE"
-extern int g_iZRangeVarID;      // var ID of "ZRANGE"
-extern int g_iAngRangeVarID;    // var ID of "ANGRANGE"
-extern int g_iAimAngleVarID;    // var ID of "AUTOAIMANGLE"
-extern int g_iLoTagID;          // var ID of "LOTAG"
-extern int g_iHiTagID;          // var ID of "HITAG"
-extern int g_iTextureID;        // var ID of "TEXTURE"
-extern int g_iThisActorID;      // var ID of "THISACTOR"
-extern int g_iSpriteVarID;
-extern int g_iSectorVarID;
-extern int g_iWallVarID;
-extern int g_iPlayerVarID;
-extern int g_iActorVarID;
+extern int32_t g_iReturnVarID;      // var ID of "RETURN"
+extern int32_t g_iWeaponVarID;      // var ID of "WEAPON"
+extern int32_t g_iWorksLikeVarID;   // var ID of "WORKSLIKE"
+extern int32_t g_iZRangeVarID;      // var ID of "ZRANGE"
+extern int32_t g_iAngRangeVarID;    // var ID of "ANGRANGE"
+extern int32_t g_iAimAngleVarID;    // var ID of "AUTOAIMANGLE"
+extern int32_t g_iLoTagID;          // var ID of "LOTAG"
+extern int32_t g_iHiTagID;          // var ID of "HITAG"
+extern int32_t g_iTextureID;        // var ID of "TEXTURE"
+extern int32_t g_iThisActorID;      // var ID of "THISACTOR"
+extern int32_t g_iSpriteVarID;
+extern int32_t g_iSectorVarID;
+extern int32_t g_iWallVarID;
+extern int32_t g_iPlayerVarID;
+extern int32_t g_iActorVarID;
 
 extern intptr_t *actorLoadEventScrptr[MAXTILES];
 
 extern intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
 
-extern int otherp;
-extern int g_currentweapon;
-extern int g_gun_pos;
-extern int g_looking_arc;
-extern int g_currentweapon;
-extern int g_weapon_xoffset;
-extern int g_gs;
-extern int g_kb;
-extern int g_looking_angSR1;
-extern int lastvisinc;
+extern int32_t otherp;
+extern int32_t g_currentweapon;
+extern int32_t g_gun_pos;
+extern int32_t g_looking_arc;
+extern int32_t g_currentweapon;
+extern int32_t g_weapon_xoffset;
+extern int32_t g_gs;
+extern int32_t g_kb;
+extern int32_t g_looking_angSR1;
+extern int32_t lastvisinc;
 extern char CheatStrings[][MAXCHEATLEN];
 extern char g_szScriptFileName[BMAX_PATH];
-extern int g_totalLines,g_lineNumber;
-extern int g_numCompilerErrors,g_numCompilerWarnings;
+extern int32_t g_totalLines,g_lineNumber;
+extern int32_t g_numCompilerErrors,g_numCompilerWarnings;
 
 extern intptr_t *g_scriptPtr;
 
 typedef struct
 {
     char *name;
-    int lId;
-    int flags;
-    int maxParm2;
+    int32_t lId;
+    int32_t flags;
+    int32_t maxParm2;
 } memberlabel_t;
 
 extern const memberlabel_t SectorLabels[];
@@ -84,33 +84,33 @@ extern const memberlabel_t InputLabels[];
 extern const memberlabel_t TsprLabels[];
 
 /*
-extern void X_AccessUserdef(int iSet, int lLabelID, int lVar2);
-extern void X_AccessActiveProjectile(int iSet, int lVar1, int lLabelID, int lVar2);
-extern void X_AccessPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2);
-extern void X_AccessPlayerInput(int iSet, int lVar1, int lLabelID, int lVar2);
-extern void X_AccessWall(int iSet, int lVar1, int lLabelID, int lVar2);
-extern void X_AccessSector(int iSet, int lVar1, int lLabelID, int lVar2);
-extern void X_AccessSprite(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2);
-extern void X_AccessTsprite(int iSet, int lVar1, int lLabelID, int lVar2);
-extern void X_AccessProjectile(int iSet, int lVar1, int lLabelID, int lVar2);
+extern void X_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2);
+extern void X_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
+extern void X_AccessPlayer(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2);
+extern void X_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
+extern void X_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
+extern void X_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
+extern void X_AccessSprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2);
+extern void X_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
+extern void X_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
 */
 
 #define CON_ERROR OSD_ERROR "Line %d, %s: "
 
 typedef struct {
-    int g_i, g_p, g_x;
+    int32_t g_i, g_p, g_x;
     intptr_t *g_t;
     spritetype *g_sp;
-    int g_killitFlag, g_returnFlag;
-    int filler;
+    int32_t g_killitFlag, g_returnFlag;
+    int32_t filler;
 } vmstate_t;
 
 extern vmstate_t vm;
 
-extern int g_scriptSanityChecks;
+extern int32_t g_scriptSanityChecks;
 
-extern int g_errorLineNum;
-extern int g_tw;
+extern int32_t g_errorLineNum;
+extern int32_t g_tw;
 extern const char *keyw[];
 
 enum ScriptError_t

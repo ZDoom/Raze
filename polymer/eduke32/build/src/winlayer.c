@@ -43,10 +43,10 @@
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE
 
-int   _buildargc = 0;
+int32_t   _buildargc = 0;
 const char **_buildargv = NULL;
 static char *argvbuf = NULL;
-extern int app_main(int argc, const char *argv[]);
+extern int32_t app_main(int32_t argc, const char *argv[]);
 extern void app_crashhandler(void);
 
 // Windows crud
@@ -57,11 +57,11 @@ static HWND hWindow = 0;
 static BOOL window_class_registered = FALSE;
 static HANDLE instanceflag = NULL;
 
-int    backgroundidle = 1;
-int	   is_vista = 0;
+int32_t    backgroundidle = 1;
+int32_t	   is_vista = 0;
 
 static WORD sysgamma[3][256];
-extern int curbrightness, gammabrightness;
+extern int32_t curbrightness, gammabrightness;
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
 // OpenGL stuff
@@ -81,63 +81,63 @@ static BOOL CheckWinVersion(void);
 static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 static BOOL InitDirectDraw(void);
 static void UninitDirectDraw(void);
-static int RestoreDirectDrawMode(void);
+static int32_t RestoreDirectDrawMode(void);
 static void ReleaseDirectDrawSurfaces(void);
 static BOOL InitDirectInput(void);
 static void UninitDirectInput(void);
 static void GetKeyNames(void);
-static void AcquireInputDevices(char acquire, signed char device);
+static void AcquireInputDevices(char acquire, int8_t device);
 static void ProcessInputDevices(void);
-static int SetupDirectDraw(int width, int height);
+static int32_t SetupDirectDraw(int32_t width, int32_t height);
 static void UninitDIB(void);
-static int SetupDIB(int width, int height);
+static int32_t SetupDIB(int32_t width, int32_t height);
 static void ReleaseOpenGL(void);
 static void UninitOpenGL(void);
-static int SetupOpenGL(int width, int height, int bitspp);
+static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp);
 static BOOL RegisterWindowClass(void);
-static BOOL CreateAppWindow(int modenum);
+static BOOL CreateAppWindow(int32_t modenum);
 static void DestroyAppWindow(void);
 static void SaveSystemColours(void);
 static void SetBWSystemColours(void);
 static void RestoreSystemColours(void);
 
 // video
-static int desktopxdim=0,desktopydim=0,desktopbpp=0,modesetusing=-1;
-int xres=-1, yres=-1, fullscreen=0, bpp=0, bytesperline=0, imageSize=0;
+static int32_t desktopxdim=0,desktopydim=0,desktopbpp=0,modesetusing=-1;
+int32_t xres=-1, yres=-1, fullscreen=0, bpp=0, bytesperline=0, imageSize=0;
 intptr_t frameplace=0;
-int lockcount=0;
-static int curvidmode = -1;
-static int customxdim = 640, customydim = 480, custombpp = 8, customfs = 0;
+int32_t lockcount=0;
+static int32_t curvidmode = -1;
+static int32_t customxdim = 640, customydim = 480, custombpp = 8, customfs = 0;
 static unsigned modeschecked=0;
 unsigned maxrefreshfreq=60;
 char modechange=1, repaintneeded=0;
 char offscreenrendering=0;
-int glcolourdepth=32;
+int32_t glcolourdepth=32;
 char videomodereset = 0;
 char silentvideomodeswitch = 0;
-int vsync=0;
+int32_t vsync=0;
 // input and events
 char inputdevices=0;
 char quitevent=0, appactive=1, realfs=0, regrabmouse=0;
-volatile int mousex=0, mousey=0, mouseb=0;
-static unsigned int mousewheel[2] = { 0,0 };
+volatile int32_t mousex=0, mousey=0, mouseb=0;
+static uint32_t mousewheel[2] = { 0,0 };
 #define MouseWheelFakePressTime (50)	// getticks() is a 1000Hz timer, and the button press is faked for 100ms
-int *joyaxis = NULL, joyb=0, *joyhat = NULL;
+int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;
 char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
 
 static char taskswitching=1;
 
 char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
-unsigned char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
-unsigned char remap[256];
-int remapinit=0;
-static unsigned char keynames[256][24];
-static unsigned int lastKeyDown = 0;
-static unsigned int lastKeyTime = 0;
+char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
+char remap[256];
+int32_t remapinit=0;
+static char keynames[256][24];
+static uint32_t lastKeyDown = 0;
+static uint32_t lastKeyTime = 0;
 
-void (*keypresscallback)(int,int) = 0;
-void (*mousepresscallback)(int,int) = 0;
-void (*joypresscallback)(int,int) = 0;
+void (*keypresscallback)(int32_t,int32_t) = 0;
+void (*mousepresscallback)(int32_t,int32_t) = 0;
+void (*joypresscallback)(int32_t,int32_t) = 0;
 
 
 
@@ -150,25 +150,25 @@ void (*joypresscallback)(int,int) = 0;
 //
 // win_gethwnd() -- gets the window handle
 //
-int win_gethwnd(void)
+int32_t win_gethwnd(void)
 {
-    return (int)hWindow;
+    return (int32_t)hWindow;
 }
 
 
 //
 // win_gethinstance() -- gets the application instance
 //
-int win_gethinstance(void)
+int32_t win_gethinstance(void)
 {
-    return (int)hInstance;
+    return (int32_t)hInstance;
 }
 
 
 //
 // win_allowtaskswitching() -- captures/releases alt+tab hotkeys
 //
-void win_allowtaskswitching(int onf)
+void win_allowtaskswitching(int32_t onf)
 {
     if (onf == taskswitching) return;
 
@@ -190,7 +190,7 @@ void win_allowtaskswitching(int onf)
 //
 // win_checkinstance() -- looks for another instance of a Build app
 //
-int win_checkinstance(void)
+int32_t win_checkinstance(void)
 {
     if (!instanceflag) return 0;
     return (WaitForSingleObject(instanceflag,0) == WAIT_TIMEOUT);
@@ -200,7 +200,7 @@ int win_checkinstance(void)
 //
 // wm_msgbox/wm_ynbox() -- window-manager-provided message boxes
 //
-int wm_msgbox(char *name, char *fmt, ...)
+int32_t wm_msgbox(char *name, char *fmt, ...)
 {
     char buf[2048];
     va_list va;
@@ -212,11 +212,11 @@ int wm_msgbox(char *name, char *fmt, ...)
     MessageBox(hWindow,buf,name,MB_OK|MB_TASKMODAL);
     return 0;
 }
-int wm_ynbox(char *name, char *fmt, ...)
+int32_t wm_ynbox(char *name, char *fmt, ...)
 {
     char buf[2048];
     va_list va;
-    int r;
+    int32_t r;
 
     va_start(va,fmt);
     vsprintf(buf,fmt,va);
@@ -242,12 +242,12 @@ void wm_setapptitle(char *name)
     startwin_settitle(apptitle);
 }
 
-static int setgammaramp(WORD gt[3][256]);
+static int32_t setgammaramp(WORD gt[3][256]);
 
 //
 // SignalHandler() -- called when we've sprung a leak
 //
-static void SignalHandler(int signum)
+static void SignalHandler(int32_t signum)
 {
     switch (signum)
     {
@@ -268,9 +268,9 @@ static void SignalHandler(int signum)
 //
 // WinMain() -- main Windows entry point
 //
-int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
+int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int32_t nCmdShow)
 {
-    int r;
+    int32_t r;
     char *argp;
     FILE *fp;
     HDC hdc;
@@ -303,7 +303,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     if (argvbuf)
     {
         char quoted = 0, instring = 0, swallownext = 0;
-        char *p,*wp; int i;
+        char *p,*wp; int32_t i;
         for (p=wp=argvbuf; *p; p++)
         {
             if (*p == ' ')
@@ -424,9 +424,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 }
 
 
-static int set_maxrefreshfreq(const osdfuncparm_t *parm)
+static int32_t set_maxrefreshfreq(const osdfuncparm_t *parm)
 {
-    int freq;
+    int32_t freq;
     if (parm->numparms == 0)
     {
         if (maxrefreshfreq == 0)
@@ -446,7 +446,7 @@ static int set_maxrefreshfreq(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int set_windowpos(const osdfuncparm_t *parm)
+static int32_t set_windowpos(const osdfuncparm_t *parm)
 {
     if (parm->numparms == 0)
     {
@@ -470,7 +470,7 @@ static void print_os_version(void)
     OSVERSIONINFO osv;
     const char *ver = NULL;
     // I was going to call this 'windows_9x_is_awful', but I couldn't justify ever setting it to 0
-    int awful_windows_9x = 0;
+    int32_t awful_windows_9x = 0;
 
     osv.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osv);
@@ -536,7 +536,7 @@ static void print_os_version(void)
 }
 
 
-int initsystem(void)
+int32_t initsystem(void)
 {
     DEVMODE desktopmode;
 
@@ -610,7 +610,7 @@ void initprintf(const char *f, ...)
     va_list va;
     char buf[1024];
     static char dabuf[1024];
-    static int cnt = 0;
+    static int32_t cnt = 0;
 
     va_start(va, f);
     Bvsnprintf(buf, 1024, f, va);
@@ -661,9 +661,9 @@ void debugprintf(const char *f, ...)
 // handleevents() -- process the Windows message queue
 //   returns !0 if there was an important event worth checking (like quitting)
 //
-int handleevents(void)
+int32_t handleevents(void)
 {
-    int rv=0;
+    int32_t rv=0;
     MSG msg;
 
     //if (frameplace && fullscreen) printf("Offscreen buffer is locked!\n");
@@ -713,7 +713,7 @@ static GUID                  guidDevs[NUM_INPUTS];
 
 static char devacquired[NUM_INPUTS] = { 0,0,0 };
 static HANDLE inputevt[NUM_INPUTS] = {0,0,0};
-static int joyblast=0;
+static int32_t joyblast=0;
 static char volatile moustat = 0, mousegrab = 0;
 HANDLE  mousethread;
 
@@ -736,13 +736,13 @@ static struct _joydef
 
 struct _joydevicefeature
 {
-    unsigned int ofs;
+    uint32_t ofs;
     const char *name;
 };
 struct _joydevicedefn
 {
-    unsigned int devid;	// is the value of DIDEVICEINSTANCE.guidProduct.Data1
-    int nfeatures;
+    uint32_t devid;	// is the value of DIDEVICEINSTANCE.guidProduct.Data1
+    int32_t nfeatures;
     struct _joydevicefeature *features;
 };
 
@@ -780,7 +780,7 @@ static struct _joydevicedefn *thisjoydef = NULL, joyfeatures[] =
 		} \
 }
 
-char map_dik_code(int scanCode)
+char map_dik_code(int32_t scanCode)
 {
     // ugly table for remapping out of range DIK_ entries will go here
     // if I can't figure out the layout problem
@@ -790,9 +790,9 @@ char map_dik_code(int scanCode)
 //
 // initinput() -- init input system
 //
-int initinput(void)
+int32_t initinput(void)
 {
-    int i;
+    int32_t i;
     moustat=0;
     memset(keystatus, 0, sizeof(keystatus));
     if (!remapinit)
@@ -834,9 +834,9 @@ void uninitinput(void)
 //
 // bgetchar, bkbhit, bflushchars -- character-based input functions
 //
-unsigned char bgetchar(void)
+char bgetchar(void)
 {
-    unsigned char c;
+    char c;
     if (keyasciififoplc == keyasciififoend) return 0;
     c = keyasciififo[keyasciififoplc];
     keyasciififoplc = ((keyasciififoplc+1)&(KEYFIFOSIZ-1));
@@ -844,7 +844,7 @@ unsigned char bgetchar(void)
     return c;
 }
 
-int bkbhit(void)
+int32_t bkbhit(void)
 {
     return (keyasciififoplc != keyasciififoend);
 }
@@ -859,9 +859,9 @@ void bflushchars(void)
 //
 // set{key|mouse|joy}presscallback() -- sets a callback which gets notified when keys are pressed
 //
-void setkeypresscallback(void (*callback)(int, int)) { keypresscallback = callback; }
-void setmousepresscallback(void (*callback)(int, int)) { mousepresscallback = callback; }
-void setjoypresscallback(void (*callback)(int, int)) { joypresscallback = callback; }
+void setkeypresscallback(void (*callback)(int32_t, int32_t)) { keypresscallback = callback; }
+void setmousepresscallback(void (*callback)(int32_t, int32_t)) { mousepresscallback = callback; }
+void setjoypresscallback(void (*callback)(int32_t, int32_t)) { joypresscallback = callback; }
 
 
 DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
@@ -878,7 +878,7 @@ DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
         {
             DWORD i;
             unsigned t;
-            int result;
+            int32_t result;
             DIDEVICEOBJECTDATA didod;
             DWORD dwElements = 1;
 
@@ -901,18 +901,18 @@ DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
                     //            for (i=0; i<dwElements; i++)
                     {
                         if (didod.dwOfs == DIMOFS_X)
-                            mousex += (short)didod.dwData;
+                            mousex += (int16_t)didod.dwData;
                         else if (didod.dwOfs == DIMOFS_Y)
-                            mousey += (short)didod.dwData;
+                            mousey += (int16_t)didod.dwData;
                         else if (didod.dwOfs == DIMOFS_Z)
                         {
-                            if ((int)didod.dwData > 0)   	// wheel up
+                            if ((int32_t)didod.dwData > 0)   	// wheel up
                             {
                                 if (mousewheel[0] > 0 && mousepresscallback) mousepresscallback(5,0);
                                 mousewheel[0] = t;
                                 mouseb |= 16; if (mousepresscallback) mousepresscallback(5, 1);
                             }
-                            else if ((int)didod.dwData < 0)  	// wheel down
+                            else if ((int32_t)didod.dwData < 0)  	// wheel down
                             {
                                 if (mousewheel[1] > 0 && mousepresscallback) mousepresscallback(6,0);
                                 mousewheel[1] = t;
@@ -993,7 +993,7 @@ DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
 //
 // initmouse() -- init mouse input
 //
-int initmouse(void)
+int32_t initmouse(void)
 {
     DWORD   threadid;
 
@@ -1065,7 +1065,7 @@ void grabmouse(char a)
 //
 // readmousexy() -- return mouse motion information
 //
-void readmousexy(int *x, int *y)
+void readmousexy(int32_t *x, int32_t *y)
 {
     if (!moustat || !devacquired[MOUSE] || !mousegrab) { *x = *y = 0; return; }
     *x = mousex;
@@ -1078,7 +1078,7 @@ void readmousexy(int *x, int *y)
 //
 // readmousebstatus() -- return mouse button information
 //
-void readmousebstatus(int *b)
+void readmousebstatus(int32_t *b)
 {
     if (!moustat || !devacquired[MOUSE] || !mousegrab) *b = 0;
     else *b = mouseb;
@@ -1088,7 +1088,7 @@ void readmousebstatus(int *b)
 //
 // setjoydeadzone() -- sets the dead and saturation zones for the joystick
 //
-void setjoydeadzone(int axis, unsigned short dead, unsigned short satur)
+void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
 {
     DIPROPDWORD dipdw;
     HRESULT result;
@@ -1138,7 +1138,7 @@ void setjoydeadzone(int axis, unsigned short dead, unsigned short satur)
 //
 // getjoydeadzone() -- gets the dead and saturation zones for the joystick
 //
-void getjoydeadzone(int axis, unsigned short *dead, unsigned short *satur)
+void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur)
 {
     DIPROPDWORD dipdw;
     HRESULT result;
@@ -1185,7 +1185,7 @@ void getjoydeadzone(int axis, unsigned short *dead, unsigned short *satur)
 
 void releaseallbuttons(void)
 {
-    int i;
+    int32_t i;
 
     if (mousepresscallback)
     {
@@ -1250,14 +1250,14 @@ static BOOL CALLBACK InitDirectInput_enum(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRe
         break;
     case DIDEVTYPE_JOYSTICK:
     {
-        int i;
+        int32_t i;
         inputdevices |= (1<<JOYSTICK);
         joyisgamepad = ((lpddi->dwDevType & (DIDEVTYPEJOYSTICK_GAMEPAD<<8)) != 0);
         d = joyisgamepad ? "GAMEPAD" : "JOYSTICK";
         COPYGUID(guidDevs[JOYSTICK],lpddi->guidInstance);
 
         thisjoydef = NULL;
-        for (i=0; i<(int)(sizeof(joyfeatures)/sizeof(joyfeatures[0])); i++)
+        for (i=0; i<(int32_t)(sizeof(joyfeatures)/sizeof(joyfeatures[0])); i++)
         {
             if (lpddi->guidProduct.Data1 == joyfeatures[i].devid)
             {
@@ -1288,13 +1288,13 @@ static BOOL CALLBACK InitDirectInput_enum(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRe
     return DIENUM_CONTINUE;
 }
 
-static const char *joyfindnameforofs(int ofs)
+static const char *joyfindnameforofs(int32_t ofs)
 {
-    int i;
+    int32_t i;
     if (!thisjoydef) return NULL;
     for (i=0;i<thisjoydef->nfeatures;i++)
     {
-        if (ofs == (int)thisjoydef->features[i].ofs)
+        if (ofs == (int32_t)thisjoydef->features[i].ofs)
             return Bstrdup(thisjoydef->features[i].name);
     }
     return NULL;
@@ -1302,7 +1302,7 @@ static const char *joyfindnameforofs(int ofs)
 
 static BOOL CALLBACK InitDirectInput_enumobjects(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
 {
-    int *typecounts = (int*)pvRef;
+    int32_t *typecounts = (int32_t*)pvRef;
 
     if (lpddoi->dwType & DIDFT_AXIS)
     {
@@ -1355,7 +1355,7 @@ static BOOL InitDirectInput(void)
     LPDIRECTINPUTDEVICE7A dev2;
     DIDEVCAPS didc;
 
-    int devn;
+    int32_t devn;
 
     if (bDInputInited) return FALSE;
 
@@ -1447,7 +1447,7 @@ static BOOL InitDirectInput(void)
         // set up device
         if (devn == JOYSTICK)
         {
-            int typecounts[3] = {0,0,0};
+            int32_t typecounts[3] = {0,0,0};
 
             memset(&didc, 0, sizeof(didc));
             didc.dwSize = sizeof(didc);
@@ -1455,17 +1455,17 @@ static BOOL InitDirectInput(void)
             if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting joystick capabilities", result); }
             else if (result != DI_OK) initprintf("    Fetched joystick capabilities with warning: %s\n",GetDInputError(result));
 
-            joynumaxes    = (char)didc.dwAxes;
-            joynumbuttons = min(32,(char)didc.dwButtons);
-            joynumhats    = (char)didc.dwPOVs;
+            joynumaxes    = (uint8_t)didc.dwAxes;
+            joynumbuttons = min(32,(uint8_t)didc.dwButtons);
+            joynumhats    = (uint8_t)didc.dwPOVs;
             initprintf("Joystick has %d axes, %d buttons, and %d hat(s).\n",joynumaxes,joynumbuttons,joynumhats);
 
             axisdefs = (struct _joydef *)Bcalloc(didc.dwAxes, sizeof(struct _joydef));
             buttondefs = (struct _joydef *)Bcalloc(didc.dwButtons, sizeof(struct _joydef));
             hatdefs = (struct _joydef *)Bcalloc(didc.dwPOVs, sizeof(struct _joydef));
 
-            joyaxis = (int *)Bcalloc(didc.dwAxes, sizeof(int));
-            joyhat = (int *)Bcalloc(didc.dwPOVs, sizeof(int));
+            joyaxis = (int32_t *)Bcalloc(didc.dwAxes, sizeof(int32_t));
+            joyhat = (int32_t *)Bcalloc(didc.dwPOVs, sizeof(int32_t));
 
             result = IDirectInputDevice7_EnumObjects(dev2, InitDirectInput_enumobjects, (LPVOID)typecounts, DIDFT_ALL);
             if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting joystick features", result); }
@@ -1488,8 +1488,8 @@ static BOOL InitDirectInput(void)
 //
 static void UninitDirectInput(void)
 {
-    int devn;
-    int i;
+    int32_t devn;
+    int32_t i;
 
     if (bDInputInited) initprintf("Uninitializing DirectInput...\n");
 
@@ -1552,7 +1552,7 @@ static void UninitDirectInput(void)
 //
 static void GetKeyNames(void)
 {
-    int i;
+    int32_t i;
     DIDEVICEOBJECTINSTANCE key;
     HRESULT res;
     char tbuf[MAX_PATH];
@@ -1576,27 +1576,27 @@ static void GetKeyNames(void)
     }
 }
 
-const unsigned char *getkeyname(int num)
+const char *getkeyname(int32_t num)
 {
     if ((unsigned)num >= 256) return NULL;
     return keynames[num];
 }
 
-const unsigned char *getjoyname(int what, int num)
+const char *getjoyname(int32_t what, int32_t num)
 {
     switch (what)
     {
     case 0:	// axis
         if ((unsigned)num > (unsigned)joynumaxes) return NULL;
-        return (unsigned char *)axisdefs[num].name;
+        return (char *)axisdefs[num].name;
 
     case 1: // button
         if ((unsigned)num > (unsigned)joynumbuttons) return NULL;
-        return (unsigned char *)buttondefs[num].name;
+        return (char *)buttondefs[num].name;
 
     case 2: // hat
         if ((unsigned)num > (unsigned)joynumhats) return NULL;
-        return (unsigned char *)hatdefs[num].name;
+        return (char *)hatdefs[num].name;
 
     default:
         return NULL;
@@ -1606,11 +1606,11 @@ const unsigned char *getjoyname(int what, int num)
 //
 // AcquireInputDevices() -- (un)acquires the input devices
 //
-static void AcquireInputDevices(char acquire, signed char device)
+static void AcquireInputDevices(char acquire, int8_t device)
 {
     DWORD flags;
     HRESULT result;
-    int i;
+    int32_t i;
 
     if (!bDInputInited) return;
     if (!hWindow) return;
@@ -1774,7 +1774,7 @@ static void ProcessInputDevices(void)
                      (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
             if (result == DI_OK)
             {
-                int j;
+                int32_t j;
 
                 for (i=0; i<dwElements; i++)
                 {
@@ -1942,8 +1942,8 @@ static const char * GetDInputError(HRESULT code)
 //=================================================================================================
 
 static int64 timerfreq=0;
-static int timerlastsample=0;
-int timerticspersec=0;
+static int32_t timerlastsample=0;
+int32_t timerticspersec=0;
 static void (*usertimercallback)(void) = NULL;
 
 //  This timer stuff is all Ken's idea.
@@ -1965,7 +1965,7 @@ void (*installusertimercallback(void (*callback)(void)))(void)
 //
 // inittimer() -- initialize timer
 //
-int inittimer(int tickspersecond)
+int32_t inittimer(int32_t tickspersecond)
 {
     int64 t;
 
@@ -1984,7 +1984,7 @@ int inittimer(int tickspersecond)
     timerfreq = t;
     timerticspersec = tickspersecond;
     QueryPerformanceCounter((LARGE_INTEGER*)&t);
-    timerlastsample = (int)(t*timerticspersec / timerfreq);
+    timerlastsample = (int32_t)(t*timerticspersec / timerfreq);
 
     usertimercallback = NULL;
 
@@ -2008,12 +2008,12 @@ void uninittimer(void)
 void sampletimer(void)
 {
     int64 i;
-    int n;
+    int32_t n;
 
     if (!timerfreq) return;
 
     QueryPerformanceCounter((LARGE_INTEGER*)&i);
-    n = (int)(i*timerticspersec / timerfreq) - timerlastsample;
+    n = (int32_t)(i*timerticspersec / timerfreq) - timerlastsample;
     if (n>0)
     {
         totalclock += n;
@@ -2027,19 +2027,19 @@ void sampletimer(void)
 //
 // getticks() -- returns the windows ticks count
 //
-unsigned int getticks(void)
+uint32_t getticks(void)
 {
     int64 i;
     if (timerfreq == 0) return 0;
     QueryPerformanceCounter((LARGE_INTEGER*)&i);
-    return (unsigned int)(i*longlong(1000)/timerfreq);
+    return (uint32_t)(i*longlong(1000)/timerfreq);
 }
 
 
 //
 // gettimerfreq() -- returns the number of ticks per second the timer is configured to generate
 //
-int gettimerfreq(void)
+int32_t gettimerfreq(void)
 {
     return timerticspersec;
 }
@@ -2069,7 +2069,7 @@ static HPALETTE hPalette    = NULL;
 static VOID    *lpPixels    = NULL;
 
 #define NUM_SYS_COLOURS	25
-static int syscolouridx[NUM_SYS_COLOURS] =
+static int32_t syscolouridx[NUM_SYS_COLOURS] =
 {
     COLOR_SCROLLBAR,		// 1
     COLOR_BACKGROUND,
@@ -2100,15 +2100,15 @@ static int syscolouridx[NUM_SYS_COLOURS] =
 static DWORD syscolours[NUM_SYS_COLOURS];
 static char system_colours_saved = 0, bw_colours_set = 0;
 
-static int setgammaramp(WORD gt[3][256]);
-static int getgammaramp(WORD gt[3][256]);
+static int32_t setgammaramp(WORD gt[3][256]);
+static int32_t getgammaramp(WORD gt[3][256]);
 
 //
 // checkvideomode() -- makes sure the video mode passed is legal
 //
-int checkvideomode(int *x, int *y, int c, int fs, int forced)
+int32_t checkvideomode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t forced)
 {
-    int i, nearest=-1, dx, dy, odx=9999, ody=9999;
+    int32_t i, nearest=-1, dx, dy, odx=9999, ody=9999;
 
     getvalidmodes();
 
@@ -2170,10 +2170,10 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 static HWND hGLWindow = NULL;
 #endif
 
-int setvideomode(int x, int y, int c, int fs)
+int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 {
     char i,inp[NUM_INPUTS];
-    int modenum;
+    int32_t modenum;
 
     if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) &&
             !videomodereset)
@@ -2244,7 +2244,7 @@ int setvideomode(int x, int y, int c, int fs)
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
-void setvsync(int sync)
+void setvsync(int32_t sync)
 {
     if (!glinfo.vsync)
     {
@@ -2258,10 +2258,10 @@ void setvsync(int sync)
 static void cdsenummodes(void)
 {
     DEVMODE dm;
-    int i = 0, j = 0;
+    int32_t i = 0, j = 0;
 
     struct { unsigned x,y,bpp,freq; } modes[MAXVALIDMODES];
-    int nmodes=0;
+    int32_t nmodes=0;
     unsigned maxx = MAXXDIM, maxy = MAXYDIM;
 
 
@@ -2320,9 +2320,9 @@ static HRESULT WINAPI getvalidmodes_enum(DDSURFACEDESC *ddsd, VOID *udata)
     return(DDENUMRET_OK);
 }
 
-static int sortmodes(const struct validmode_t *a, const struct validmode_t *b)
+static int32_t sortmodes(const struct validmode_t *a, const struct validmode_t *b)
 {
-    int x;
+    int32_t x;
 
     if ((x = a->fs   - b->fs)   != 0) return x;
     if ((x = a->bpp  - b->bpp)  != 0) return x;
@@ -2333,13 +2333,13 @@ static int sortmodes(const struct validmode_t *a, const struct validmode_t *b)
 }
 void getvalidmodes(void)
 {
-    static int defaultres[][2] =
+    static int32_t defaultres[][2] =
     {
         {1280,1024},{1280,960},{1152,864},{1024,768},{800,600},{640,480},
         {640,400},{512,384},{480,360},{400,300},{320,240},{320,200},{0,0}
     };
-    int cdepths[2] = { 8, 0 };
-    int i, j, maxx=0, maxy=0;
+    int32_t cdepths[2] = { 8, 0 };
+    int32_t i, j, maxx=0, maxy=0;
     HRESULT result;
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
@@ -2385,7 +2385,7 @@ void getvalidmodes(void)
             ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],0,-1)
         }
 
-    qsort((void*)validmode, validmodecnt, sizeof(struct validmode_t), (int(*)(const void*,const void*))sortmodes);
+    qsort((void*)validmode, validmodecnt, sizeof(struct validmode_t), (int32_t(*)(const void*,const void*))sortmodes);
 
     modeschecked=1;
 }
@@ -2409,7 +2409,7 @@ void resetvideomode(void)
 //
 void begindrawing(void)
 {
-    int i,j;
+    int32_t i,j;
 
     if (bpp > 8)
     {
@@ -2476,12 +2476,12 @@ void enddrawing(void)
 //
 // showframe() -- update the display
 //
-void showframe(int w)
+void showframe(int32_t w)
 {
     HRESULT result;
     DDSURFACEDESC ddsd;
     char *p,*q;
-    int i,j;
+    int32_t i,j;
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
     if (bpp > 8)
@@ -2604,9 +2604,9 @@ void showframe(int w)
 // New behaviour: curpalettefaded is the live palette, and any changes this function
 // makes are done to it and not the base palette.
 //
-int setpalette(int start, int num)
+int32_t setpalette(int32_t start, int32_t num)
 {
-    int i, n;
+    int32_t i, n;
     HRESULT result;
     RGBQUAD *rgb;
     //HPALETTE hPalPrev;
@@ -2709,9 +2709,9 @@ int setpalette(int start, int num)
 // getpalette() -- get palette values
 //
 /*
-int getpalette(int start, int num, char *dapal)
+int32_t getpalette(int32_t start, int32_t num, char *dapal)
 {
-	int i;
+	int32_t i;
 
 	for (i=num; i>0; i--, start++) {
 		dapal[0] = curpalette[start].b >> 2;
@@ -2727,12 +2727,12 @@ int getpalette(int start, int num, char *dapal)
 //
 // setgamma
 //
-static int setgammaramp(WORD gt[3][256])
+static int32_t setgammaramp(WORD gt[3][256])
 {
     if (!fullscreen || bpp > 8)
     {
         // GL and windowed mode use DIB method
-        int i;
+        int32_t i;
         HDC hDC = GetDC(hWindow);
         i = SetDeviceGammaRamp(hDC, gt) ? 0 : -1;
         ReleaseDC(hWindow, hDC);
@@ -2769,9 +2769,9 @@ static int setgammaramp(WORD gt[3][256])
     else return 0;
 }
 
-int setgamma(void)
+int32_t setgamma(void)
 {
-    int i;
+    int32_t i;
     WORD gammaTable[3][256];
     float gamma = max(0.1f,min(4.f,vid_gamma));
     float contrast = max(0.1f,min(3.f,vid_contrast));
@@ -2795,12 +2795,12 @@ int setgamma(void)
     return setgammaramp(gammaTable);
 }
 
-static int getgammaramp(WORD gt[3][256])
+static int32_t getgammaramp(WORD gt[3][256])
 {
     if (!hWindow) return -1;
     if (!fullscreen || bpp > 8)
     {
-        int i;
+        int32_t i;
         HDC hDC = GetDC(hWindow);
         i = GetDeviceGammaRamp(hDC, gt) ? 0 : -1;
         ReleaseDC(hWindow, hDC);
@@ -2955,7 +2955,7 @@ static void UninitDirectDraw(void)
 //
 // RestoreDirectDrawMode() -- resets the screen mode
 //
-static int RestoreDirectDrawMode(void)
+static int32_t RestoreDirectDrawMode(void)
 {
     HRESULT result;
 
@@ -3025,11 +3025,11 @@ static void ReleaseDirectDrawSurfaces(void)
 //
 // SetupDirectDraw() -- sets up DirectDraw rendering
 //
-static int SetupDirectDraw(int width, int height)
+static int32_t SetupDirectDraw(int32_t width, int32_t height)
 {
     HRESULT result;
     DDSURFACEDESC ddsd;
-    int i;
+    int32_t i;
 
     // now create the DirectDraw surfaces
     ZeroMemory(&ddsd, sizeof(ddsd));
@@ -3130,14 +3130,14 @@ static void UninitDIB(void)
 //
 // SetupDIB() -- sets up DIB rendering
 //
-static int SetupDIB(int width, int height)
+static int32_t SetupDIB(int32_t width, int32_t height)
 {
     struct binfo
     {
         BITMAPINFOHEADER header;
         RGBQUAD colours[256];
     } dibsect;
-    int i;
+    int32_t i;
 
     if (!hDC)
     {
@@ -3258,7 +3258,7 @@ static void UninitOpenGL(void)
 //
 // SetupOpenGL() -- sets up opengl rendering
 //
-static int SetupOpenGL(int width, int height, int bitspp)
+static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
 {
     PIXELFORMATDESCRIPTOR pfd =
     {
@@ -3280,9 +3280,9 @@ static int SetupOpenGL(int width, int height, int bitspp)
         0,0,0                          //Layer Masks Ignored
     };
     GLuint PixelFormat;
-    int minidriver;
-    int err;
-    static int warnonce = 0;
+    int32_t minidriver;
+    int32_t err;
+    static int32_t warnonce = 0;
     pfd.cColorBits = bitspp;
 
     hGLWindow = CreateWindow(
@@ -3356,7 +3356,7 @@ static int SetupOpenGL(int width, int height, int bitspp)
 
     {
         GLubyte *p,*p2,*p3;
-        int err = 0;
+        int32_t err = 0;
 
         glinfo.vendor     = (char *)bglGetString(GL_VENDOR);
         glinfo.renderer   = (char *)bglGetString(GL_RENDERER);
@@ -3398,9 +3398,9 @@ static int SetupOpenGL(int width, int height, int bitspp)
         glinfo.texcompr = 0;
 
         // process the extensions string and flag stuff we recognize
-        p = (unsigned char *)Bstrdup(glinfo.extensions);
+        p = (char *)Bstrdup(glinfo.extensions);
         p3 = p;
-        while ((p2 = (unsigned char *)Bstrtoken(p3==p?(char *)p:NULL, " ", (char**)&p3, 1)) != NULL)
+        while ((p2 = (char *)Bstrtoken(p3==p?(char *)p:NULL, " ", (char**)&p3, 1)) != NULL)
         {
             if (!Bstrcmp((char *)p2, "GL_EXT_texture_filter_anisotropic"))
             {
@@ -3479,7 +3479,7 @@ static int SetupOpenGL(int width, int height, int bitspp)
 
     if (!glinfo.dumped)
     {
-        int oldbpp = bpp;
+        int32_t oldbpp = bpp;
         bpp = 32;
         osdcmd_glinfo(NULL);
         glinfo.dumped = TRUE;
@@ -3493,11 +3493,11 @@ static int SetupOpenGL(int width, int height, int bitspp)
 //
 // CreateAppWindow() -- create the application window
 //
-static BOOL CreateAppWindow(int modenum)
+static BOOL CreateAppWindow(int32_t modenum)
 {
     RECT rect;
-    int w, h, x, y, stylebits = 0, stylebitsex = 0;
-    int width, height, fs, bitspp;
+    int32_t w, h, x, y, stylebits = 0, stylebitsex = 0;
+    int32_t width, height, fs, bitspp;
 
     HRESULT result;
 
@@ -3788,7 +3788,7 @@ static void DestroyAppWindow(void)
 //
 static void SaveSystemColours(void)
 {
-    int i;
+    int32_t i;
 
     if (system_colours_saved) return;
 
@@ -4221,7 +4221,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         // someone stole the palette so try and steal it back
         if (bDDrawInited && bpp == 8 && fullscreen)
         {
-            int result = IDirectDrawSurface_SetPalette(lpDDSPrimary, lpDDPalette);
+            int32_t result = IDirectDrawSurface_SetPalette(lpDDSPrimary, lpDDPalette);
             if (result != DD_OK)
             {
                 initprintf("Palette set failed: %s\n", GetDDrawError(result));
@@ -4291,9 +4291,9 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
     case WM_CHAR:
         if (((keyasciififoend+1)&(KEYFIFOSIZ-1)) == keyasciififoplc) return 0;
         if ((keyasciififoend - keyasciififoplc) > 0) return 0;
-        if (Btolower(scantoasc[OSD_OSDKey()]) == Btolower((unsigned char)wParam)) return 0;
-        if (!OSD_HandleChar((unsigned char)wParam)) return 0;
-        keyasciififo[keyasciififoend] = (unsigned char)wParam;
+        if (Btolower(scantoasc[OSD_OSDKey()]) == Btolower((uint8_t)wParam)) return 0;
+        if (!OSD_HandleChar((uint8_t)wParam)) return 0;
+        keyasciififo[keyasciififoend] = (uint8_t)wParam;
         keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
         //OSD_Printf("WM_CHAR %d, %d-%d\n",wParam,keyasciififoplc,keyasciififoend);
         return 0;
@@ -4381,7 +4381,7 @@ static LPTSTR GetWindowsErrorMsg(DWORD code)
 void makeasmwriteable(void)
 {
 #ifndef ENGINE_USING_A_C
-    extern int dep_begin, dep_end;
+    extern int32_t dep_begin, dep_end;
     DWORD oldprot;
 
     if (!VirtualProtect((LPVOID)&dep_begin, (SIZE_T)&dep_end - (SIZE_T)&dep_begin, PAGE_EXECUTE_READWRITE, &oldprot))

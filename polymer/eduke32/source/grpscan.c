@@ -27,17 +27,17 @@ static struct grpcache
 {
     struct grpcache *next;
     char name[BMAX_PATH+1];
-    int size;
-    int mtime;
-    int crcval;
+    int32_t size;
+    int32_t mtime;
+    int32_t crcval;
 }
 *grpcache = NULL, *usedgrpcache = NULL;
 
-static int LoadGroupsCache(void)
+static int32_t LoadGroupsCache(void)
 {
     struct grpcache *fg;
 
-    int fsize, fmtime, fcrcval;
+    int32_t fsize, fmtime, fcrcval;
     char *fname;
 
     scriptfile *script;
@@ -78,7 +78,7 @@ static void FreeGroupsCache(void)
     }
 }
 
-int ScanGroups(void)
+int32_t ScanGroups(void)
 {
     CACHE1D_FIND_REC *srch, *sidx;
     struct grpcache *fg, *fgg;
@@ -129,8 +129,8 @@ int ScanGroups(void)
         }
 
         {
-            int b, fh;
-            int crcval;
+            int32_t b, fh;
+            int32_t crcval;
             char buf[16*512];
 
             fh = openfrompath(sidx->name, BO_RDONLY|BO_BINARY, BS_IREAD);
@@ -138,14 +138,14 @@ int ScanGroups(void)
             if (fstat(fh, &st)) continue;
 
             initprintf(" Checksumming %s...", sidx->name);
-            crc32init((unsigned int *)&crcval);
+            crc32init((uint32_t *)&crcval);
             do
             {
                 b = read(fh, buf, sizeof(buf));
-                if (b > 0) crc32block((unsigned int *)&crcval, (unsigned char *)buf, b);
+                if (b > 0) crc32block((uint32_t *)&crcval, (uint8_t *)buf, b);
             }
             while (b == sizeof(buf));
-            crc32finish((unsigned int *)&crcval);
+            crc32finish((uint32_t *)&crcval);
             close(fh);
             initprintf(" Done\n");
 
@@ -171,7 +171,7 @@ int ScanGroups(void)
 
     if (usedgrpcache)
     {
-        int i = 0;
+        int32_t i = 0;
         FILE *fp;
         fp = fopen(GRPCACHEFILE, "wt");
         if (fp)

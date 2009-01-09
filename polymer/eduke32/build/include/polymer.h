@@ -33,15 +33,15 @@
 # include <math.h>
 
 // CVARS
-extern int          pr_occlusionculling;
-extern int          pr_fov;
-extern int          pr_billboardingmode;
-extern int          pr_verbosity;
-extern int          pr_wireframe;
-extern int          pr_vbos;
-extern int          pr_gpusmoothing;
+extern int32_t          pr_occlusionculling;
+extern int32_t          pr_fov;
+extern int32_t          pr_billboardingmode;
+extern int32_t          pr_verbosity;
+extern int32_t          pr_wireframe;
+extern int32_t          pr_vbos;
+extern int32_t          pr_gpusmoothing;
 
-extern int          glerror;
+extern int32_t          glerror;
 
 // MATERIAL
 typedef enum {
@@ -94,7 +94,7 @@ typedef struct      s_prrograminfo {
 #define             PR_INFO_LOG_BUFFER_SIZE 16384
 
 typedef struct      s_prprogrambit {
-    int             bit;
+    int32_t             bit;
     char*           vert_def;
     char*           vert_prog;
     char*           frag_def;
@@ -119,24 +119,24 @@ typedef struct      s_prsector {
     GLdouble*       verts;
     _prplane        floor;
     _prplane        ceil;
-    short           curindice;
-    int             indicescount;
-    int             oldindicescount;
+    int16_t           curindice;
+    int32_t             indicescount;
+    int32_t             oldindicescount;
     // stuff
     float           wallsproffset;
     float           floorsproffset;
     // build sector data
-    int             ceilingz, floorz;
-    short           ceilingstat, floorstat;
-    short           ceilingpicnum, ceilingheinum;
-    signed char     ceilingshade;
+    int32_t             ceilingz, floorz;
+    int16_t           ceilingstat, floorstat;
+    int16_t           ceilingpicnum, ceilingheinum;
+    int8_t     ceilingshade;
     char            ceilingpal, ceilingxpanning, ceilingypanning;
-    short           floorpicnum, floorheinum;
-    signed char     floorshade;
+    int16_t           floorpicnum, floorheinum;
+    int8_t     floorshade;
     char            floorpal, floorxpanning, floorypanning;
 
     char            controlstate; // 1: up to date, 2: just allocated
-    unsigned int    invalidid;
+    uint32_t    invalidid;
 }                   _prsector;
 
 typedef struct      s_prwall {
@@ -148,21 +148,21 @@ typedef struct      s_prwall {
     GLfloat*        cap;
     GLuint          stuffvbo;
     // build wall data
-    short           cstat, nwallcstat;
-    short           picnum, overpicnum, nwallpicnum;
-    signed char     shade;
+    int16_t           cstat, nwallcstat;
+    int16_t           picnum, overpicnum, nwallpicnum;
+    int8_t     shade;
     char            pal, xrepeat, yrepeat, xpanning, ypanning;
     char            nwallxpanning, nwallypanning;
 
 
     char            underover;
-    unsigned int    invalidid;
+    uint32_t    invalidid;
     char            controlstate;
 }                   _prwall;
 
 typedef struct      s_pranimatespritesinfo {
     animatespritesptr animatesprites;
-    int             x, y, a, smoothratio;
+    int32_t             x, y, a, smoothratio;
 }                   _pranimatespritesinfo;
 
 // LIGHTS
@@ -175,70 +175,70 @@ typedef enum {
 }                   prlighttype;
 
 typedef struct      s_prlight {
-    int             x, y, z, horiz, faderange, range;
-    short           angle, sector;
+    int32_t             x, y, z, horiz, faderange, range;
+    int16_t           angle, sector;
     prlighttype     type;
 }                   _prlight;
 
 // PROGRAMS
 
 // CONTROL
-extern int          updatesectors;
+extern int32_t          updatesectors;
 
 // EXTERNAL FUNCTIONS
-int                 polymer_init(void);
+int32_t                 polymer_init(void);
 void                polymer_glinit(void);
 void                polymer_loadboard(void);
-void                polymer_drawrooms(int daposx, int daposy, int daposz, short daang, int dahoriz, short dacursectnum);
+void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum);
 void                polymer_drawmasks(void);
-void                polymer_rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2);
-void                polymer_drawmaskwall(int damaskwallcnt);
-void                polymer_drawsprite(int snum);
+void                polymer_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, char dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
+void                polymer_drawmaskwall(int32_t damaskwallcnt);
+void                polymer_drawsprite(int32_t snum);
 void                polymer_resetlights(void);
 void                polymer_addlight(_prlight light);
 
 # ifdef POLYMER_C
 
 // CORE
-static void         polymer_displayrooms(short sectnum);
-static void         polymer_drawplane(short sectnum, short wallnum, _prplane* plane, int indicecount);
+static void         polymer_displayrooms(int16_t sectnum);
+static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane* plane, int32_t indicecount);
 static void         polymer_inb4mirror(GLfloat* buffer, GLdouble* plane);
 static void         polymer_animatesprites(void);
 // SECTORS
-static int          polymer_initsector(short sectnum);
-static int          polymer_updatesector(short sectnum);
+static int32_t          polymer_initsector(int16_t sectnum);
+static int32_t          polymer_updatesector(int16_t sectnum);
 void PR_CALLBACK    polymer_tesserror(GLenum error);
 void PR_CALLBACK    polymer_tessedgeflag(GLenum error);
 void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector);
-static int          polymer_buildfloor(short sectnum);
-static void         polymer_drawsector(short sectnum);
+static int32_t          polymer_buildfloor(int16_t sectnum);
+static void         polymer_drawsector(int16_t sectnum);
 // WALLS
-static int          polymer_initwall(short wallnum);
-static void         polymer_updatewall(short wallnum);
-static void         polymer_drawwall(short sectnum, short wallnum);
+static int32_t          polymer_initwall(int16_t wallnum);
+static void         polymer_updatewall(int16_t wallnum);
+static void         polymer_drawwall(int16_t sectnum, int16_t wallnum);
 // HSR
-static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int indicecount, GLdouble* plane);
+static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int32_t indicecount, GLdouble* plane);
 static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLdouble* out);
-static void         polymer_pokesector(short sectnum);
+static void         polymer_pokesector(int16_t sectnum);
 static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projection, float* frustum);
-static int          polymer_portalinfrustum(short wallnum, float* frustum);
-static void         polymer_scansprites(short sectnum, spritetype* tsprite, int* spritesortcnt);
+static int32_t          polymer_portalinfrustum(int16_t wallnum, float* frustum);
+static void         polymer_scansprites(int16_t sectnum, spritetype* tsprite, int32_t* spritesortcnt);
 // SKIES
 static void         polymer_getsky(void);
-static void         polymer_drawsky(short tilenum);
+static void         polymer_drawsky(int16_t tilenum);
 static void         polymer_initartsky(void);
-static void         polymer_drawartsky(short tilenum);
-static void         polymer_drawartskyquad(int p1, int p2, GLfloat height);
-static void         polymer_drawskybox(short tilenum);
+static void         polymer_drawartsky(int16_t tilenum);
+static void         polymer_drawartskyquad(int32_t p1, int32_t p2, GLfloat height);
+static void         polymer_drawskybox(int16_t tilenum);
 // MDSPRITES
 static void         polymer_drawmdsprite(spritetype *tspr);
 static void         polymer_loadmodelvbos(md3model* m);
 // MATERIALS
 static void         polymer_getscratchmaterial(_prmaterial* material);
-static void         polymer_getbuildmaterial(_prmaterial* material, short tilenum, char pal, signed char shade);
-static int          polymer_bindmaterial(_prmaterial material);
-static void         polymer_unbindmaterial(int programbits);
-static void         polymer_compileprogram(int programbits);
+static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade);
+static int32_t          polymer_bindmaterial(_prmaterial material);
+static void         polymer_unbindmaterial(int32_t programbits);
+static void         polymer_compileprogram(int32_t programbits);
 
 # endif // !POLYMER_C
 

@@ -307,20 +307,20 @@ extern PROC (WINAPI * bwglGetProcAddress)(LPCSTR);
 extern BOOL (WINAPI * bwglMakeCurrent)(HDC,HGLRC);
 
 extern BOOL (WINAPI * bwglSwapBuffers)(HDC);
-extern int (WINAPI * bwglChoosePixelFormat)(HDC,CONST PIXELFORMATDESCRIPTOR*);
-extern int (WINAPI * bwglDescribePixelFormat)(HDC,int,UINT,LPPIXELFORMATDESCRIPTOR);
-extern int (WINAPI * bwglGetPixelFormat)(HDC);
-extern BOOL (WINAPI * bwglSetPixelFormat)(HDC,int,const PIXELFORMATDESCRIPTOR*);
-extern BOOL (WINAPI * bwglSwapIntervalEXT)(int);
+extern int32_t (WINAPI * bwglChoosePixelFormat)(HDC,CONST PIXELFORMATDESCRIPTOR*);
+extern int32_t (WINAPI * bwglDescribePixelFormat)(HDC,int32_t,UINT,LPPIXELFORMATDESCRIPTOR);
+extern int32_t (WINAPI * bwglGetPixelFormat)(HDC);
+extern BOOL (WINAPI * bwglSetPixelFormat)(HDC,int32_t,const PIXELFORMATDESCRIPTOR*);
+extern BOOL (WINAPI * bwglSwapIntervalEXT)(int32_t);
 #endif
 
 #endif //USE_OPENGL
 
 extern char *gldriver;
 
-int loadgldriver(const char *driver);
-int loadglextensions(void);
-int unloadgldriver(void);
+int32_t loadgldriver(const char *driver);
+int32_t loadglextensions(void);
+int32_t unloadgldriver(void);
 
-int loadglulibrary(const char *driver);
-int unloadglulibrary(void);
+int32_t loadglulibrary(const char *driver);
+int32_t unloadglulibrary(void);

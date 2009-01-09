@@ -16,9 +16,9 @@
 #include "md4.h"
 
 voxmodel *voxmodels[MAXVOXELS];
-int curextra=MAXTILES;
+int32_t curextra=MAXTILES;
 
-int addtileP(int model,int tile,int pallet)
+int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
 {
     UNREFERENCED_PARAMETER(model);
     if (curextra==MAXTILES+EXTRATILES-2)return curextra;
@@ -33,9 +33,9 @@ int addtileP(int model,int tile,int pallet)
     tile2model[curextra].pal=pallet;
     return curextra++;
 }
-int Ptile2tile(int tile,int pallet)
+int32_t Ptile2tile(int32_t tile,int32_t pallet)
 {
-    int t=tile;
+    int32_t t=tile;
 //  if(tile>=1550&&tile<=1589){initprintf("(%d, %d)\n",tile,pallet);pallet=0;}
     while ((tile=tile2model[tile].next)!=-1)
         if (tile2model[tile].pal==pallet)
@@ -43,30 +43,30 @@ int Ptile2tile(int tile,int pallet)
     return t;
 }
 
-int mdinited=0;
-int mdpause=0;
+int32_t mdinited=0;
+int32_t mdpause=0;
 
 #define MODELALLOCGROUP 256
-int nummodelsalloced = 0, nextmodelid = 0;
+int32_t nummodelsalloced = 0, nextmodelid = 0;
 
-static int maxmodelverts = 0, allocmodelverts = 0;
-static int maxmodeltris = 0, allocmodeltris = 0;
+static int32_t maxmodelverts = 0, allocmodelverts = 0;
+static int32_t maxmodeltris = 0, allocmodeltris = 0;
 static point3d *vertlist = NULL; //temp array to store interpolated vertices for drawing
 
-static int allocvbos = 0, curvbo = 0;
+static int32_t allocvbos = 0, curvbo = 0;
 static GLuint* vertvbos = NULL;
 static GLuint* indexvbos = NULL;
 
 mdmodel *mdload(const char *);
-int mddraw(spritetype *);
+int32_t mddraw(spritetype *);
 void mdfree(mdmodel *);
-int globalnoeffect=0;
+int32_t globalnoeffect=0;
 
-extern int timerticspersec;
+extern int32_t timerticspersec;
 
 void freeallmodels()
 {
-    int i;
+    int32_t i;
 
     if (models)
     {
@@ -99,7 +99,7 @@ void freeallmodels()
 
 void freevbos()
 {
-    int i;
+    int32_t i;
 
     for (i=0;i<nextmodelid;i++)
     if (models[i]->mdnum == 3)
@@ -130,7 +130,7 @@ void freevbos()
 void clearskins()
 {
     mdmodel *m;
-    int i, j;
+    int32_t i, j;
 
     for (i=0;i<nextmodelid;i++)
     {
@@ -181,7 +181,7 @@ void mdinit()
     mdinited = 1;
 }
 
-int md_loadmodel(const char *fn)
+int32_t md_loadmodel(const char *fn)
 {
     mdmodel *vm, **ml;
 
@@ -198,13 +198,13 @@ int md_loadmodel(const char *fn)
     return(nextmodelid-1);
 }
 
-int md_setmisc(int modelid, float scale, int shadeoff, float zadd, int flags)
+int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, int32_t flags)
 {
     mdmodel *m;
 
     if (!mdinited) mdinit();
 
-    if ((unsigned int)modelid >= (unsigned int)nextmodelid) return -1;
+    if ((uint32_t)modelid >= (uint32_t)nextmodelid) return -1;
     m = models[modelid];
     m->bscale = scale;
     m->shadeoff = shadeoff;
@@ -214,15 +214,15 @@ int md_setmisc(int modelid, float scale, int shadeoff, float zadd, int flags)
     return 0;
 }
 
-int md_tilehasmodel(int tilenume,int pal)
+int32_t md_tilehasmodel(int32_t tilenume,int32_t pal)
 {
     if (!mdinited) return -1;
     return tile2model[Ptile2tile(tilenume,pal)].modelid;
 }
 
-static int framename2index(mdmodel *vm, const char *nam)
+static int32_t framename2index(mdmodel *vm, const char *nam)
 {
-    int i = 0;
+    int32_t i = 0;
 
     switch (vm->mdnum)
     {
@@ -248,15 +248,15 @@ static int framename2index(mdmodel *vm, const char *nam)
     return(i);
 }
 
-int md_defineframe(int modelid, const char *framename, int tilenume, int skinnum, float smoothduration, int pal)
+int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume, int32_t skinnum, float smoothduration, int32_t pal)
 {
     md2model *m;
-    int i;
+    int32_t i;
 
     if (!mdinited) mdinit();
 
-    if ((unsigned int)modelid >= (unsigned int)nextmodelid) return(-1);
-    if ((unsigned int)tilenume >= (unsigned int)MAXTILES) return(-2);
+    if ((uint32_t)modelid >= (uint32_t)nextmodelid) return(-1);
+    if ((uint32_t)tilenume >= (uint32_t)MAXTILES) return(-2);
     if (!framename) return(-3);
 
     tilenume=addtileP(modelid,tilenume,pal);
@@ -279,15 +279,15 @@ int md_defineframe(int modelid, const char *framename, int tilenume, int skinnum
     return 0;
 }
 
-int md_defineanimation(int modelid, const char *framestart, const char *frameend, int fpssc, int flags)
+int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *frameend, int32_t fpssc, int32_t flags)
 {
     md2model *m;
     mdanim_t ma, *map;
-    int i;
+    int32_t i;
 
     if (!mdinited) mdinit();
 
-    if ((unsigned int)modelid >= (unsigned int)nextmodelid) return(-1);
+    if ((uint32_t)modelid >= (uint32_t)nextmodelid) return(-1);
 
     memset(&ma, 0, sizeof(ma));
     m = (md2model *)models[modelid];
@@ -316,14 +316,14 @@ int md_defineanimation(int modelid, const char *framestart, const char *frameend
     return(0);
 }
 
-int md_defineskin(int modelid, const char *skinfn, int palnum, int skinnum, int surfnum, float param)
+int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum, int32_t surfnum, float param)
 {
     mdskinmap_t *sk, *skl;
     md2model *m;
 
     if (!mdinited) mdinit();
 
-    if ((unsigned int)modelid >= (unsigned int)nextmodelid) return -1;
+    if ((uint32_t)modelid >= (uint32_t)nextmodelid) return -1;
     if (!skinfn) return -2;
     if ((unsigned)palnum >= (unsigned)MAXPALOOKUPS) return -3;
 
@@ -333,7 +333,7 @@ int md_defineskin(int modelid, const char *skinfn, int palnum, int skinnum, int 
 
     skl = NULL;
     for (sk = m->skinmap; sk; skl = sk, sk = sk->next)
-        if (sk->palette == (unsigned char)palnum && skinnum == sk->skinnum && surfnum == sk->surfnum) break;
+        if (sk->palette == (uint8_t)palnum && skinnum == sk->skinnum && surfnum == sk->surfnum) break;
     if (!sk)
     {
         sk = (mdskinmap_t *)calloc(1,sizeof(mdskinmap_t));
@@ -344,7 +344,7 @@ int md_defineskin(int modelid, const char *skinfn, int palnum, int skinnum, int 
     }
     else if (sk->fn) free(sk->fn);
 
-    sk->palette = (unsigned char)palnum;
+    sk->palette = (uint8_t)palnum;
     sk->skinnum = skinnum;
     sk->surfnum = surfnum;
     sk->param = param;
@@ -356,23 +356,23 @@ int md_defineskin(int modelid, const char *skinfn, int palnum, int skinnum, int 
     return 0;
 }
 
-int md_definehud(int modelid, int tilex, double xadd, double yadd, double zadd, double angadd, int flags)
+int32_t md_definehud(int32_t modelid, int32_t tilex, double xadd, double yadd, double zadd, double angadd, int32_t flags)
 {
     if (!mdinited) mdinit();
 
-    if ((unsigned int)modelid >= (unsigned int)nextmodelid) return -1;
-    if ((unsigned int)tilex >= (unsigned int)MAXTILES) return -2;
+    if ((uint32_t)modelid >= (uint32_t)nextmodelid) return -1;
+    if ((uint32_t)tilex >= (uint32_t)MAXTILES) return -2;
 
     hudmem[(flags>>2)&1][tilex].xadd = xadd;
     hudmem[(flags>>2)&1][tilex].yadd = yadd;
     hudmem[(flags>>2)&1][tilex].zadd = zadd;
-    hudmem[(flags>>2)&1][tilex].angadd = ((short)angadd)|2048;
-    hudmem[(flags>>2)&1][tilex].flags = (short)flags;
+    hudmem[(flags>>2)&1][tilex].angadd = ((int16_t)angadd)|2048;
+    hudmem[(flags>>2)&1][tilex].flags = (int16_t)flags;
 
     return 0;
 }
 
-int md_undefinetile(int tile)
+int32_t md_undefinetile(int32_t tile)
 {
     if (!mdinited) return 0;
     if ((unsigned)tile >= (unsigned)MAXTILES) return -1;
@@ -382,11 +382,11 @@ int md_undefinetile(int tile)
     return 0;
 }
 
-int md_undefinemodel(int modelid)
+int32_t md_undefinemodel(int32_t modelid)
 {
-    int i;
+    int32_t i;
     if (!mdinited) return 0;
-    if ((unsigned int)modelid >= (unsigned int)nextmodelid) return -1;
+    if ((uint32_t)modelid >= (uint32_t)nextmodelid) return -1;
 
     for (i=MAXTILES+EXTRATILES-1; i>=0; i--)
         if (tile2model[i].modelid == modelid)
@@ -406,7 +406,7 @@ mdskinmap_t *skhead;
 
 typedef struct
 {
-    int pal,pal1,pal2;
+    int32_t pal,pal1,pal2;
 } palmaptr;
 palmaptr palconv[MAXPALCONV];
 
@@ -414,9 +414,9 @@ void clearconv()
 {
     Bmemset(palconv,0,sizeof(palconv));
 }
-void setpalconv(int pal,int pal1,int pal2)
+void setpalconv(int32_t pal,int32_t pal1,int32_t pal2)
 {
-    int i;
+    int32_t i;
     for (i=0;i<MAXPALCONV;i++)
         if (!palconv[i].pal)
         {
@@ -432,7 +432,7 @@ void setpalconv(int pal,int pal1,int pal2)
 }
 
 
-void getpalmap(int *i,int *pal1,int *pal2)
+void getpalmap(int32_t *i,int32_t *pal1,int32_t *pal2)
 {
     for (;*i<MAXPALCONV&&palconv[*i].pal1;(*i)++)
         if (palconv[*i].pal==*pal2)
@@ -443,13 +443,13 @@ void getpalmap(int *i,int *pal1,int *pal2)
         }
 }
 
-int checkpalmaps(int pal)
+int32_t checkpalmaps(int32_t pal)
 {
-    int stage,val=0;
+    int32_t stage,val=0;
 
     for (stage=0;stage<MAXPALCONV;stage++)
     {
-        int pal1=0,pal2=pal;
+        int32_t pal1=0,pal2=pal;
         getpalmap(&stage,&pal1,&pal2);
         if (!pal)break;
         if (pal1)val|=1<<(pal1-SPECPAL);
@@ -457,9 +457,9 @@ int checkpalmaps(int pal)
     return val;
 }
 
-void applypalmap(char *pic, char *palmap, int size, int pal)
+void applypalmap(char *pic, char *palmap, int32_t size, int32_t pal)
 {
-    int r=0,g=1,b=2;
+    int32_t r=0,g=1,b=2;
     pal+=200;
 
     //_initprintf("  %d #%d\n",pal,palmap);
@@ -481,34 +481,34 @@ void applypalmap(char *pic, char *palmap, int size, int pal)
     }
 }
 
-static void applypalmapSkin(char *pic, int sizx, int sizy, md2model *m, int number, int pal, int surf)
+static void applypalmapSkin(char *pic, int32_t sizx, int32_t sizy, md2model *m, int32_t number, int32_t pal, int32_t surf)
 {
-    int stage;
+    int32_t stage;
 
     //_initprintf("%d(%dx%d)\n",pal,sizx,sizy);
     for (stage=0;stage<MAXPALCONV;stage++)
     {
-        int pal1=0,pal2=pal;
+        int32_t pal1=0,pal2=pal;
         mdskinmap_t *sk=modelhead->skinmap;
         getpalmap(&stage,&pal1,&pal2);
         if (!pal1)return;
 
         mdloadskin((md2model *)m,number,pal1,surf);
         for (; sk; sk = sk->next)
-            if ((int)sk->palette == pal1&&sk->palmap)break;
+            if ((int32_t)sk->palette == pal1&&sk->palmap)break;
         if (!sk||sk->size!=sizx*sizy)continue;
 
         applypalmap(pic,sk->palmap,sk->size,pal2);
     }
 }
 
-static int daskinloader(int filh, intptr_t *fptr, int *bpl, int *sizx, int *sizy, int *osizx, int *osizy, char *hasalpha, int pal, char effect, md2model *m, int number, int surf)
+static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t *sizx, int32_t *sizy, int32_t *osizx, int32_t *osizy, char *hasalpha, int32_t pal, char effect, md2model *m, int32_t number, int32_t surf)
 {
-    int picfillen, j,y,x;
+    int32_t picfillen, j,y,x;
     char *picfil,*cptr,al=255;
     coltype *pic;
-    int xsiz, ysiz, tsizx, tsizy;
-    int r, g, b;
+    int32_t xsiz, ysiz, tsizx, tsizy;
+    int32_t r, g, b;
 
     picfillen = kfilelength(filh);
     picfil = (char *)malloc(picfillen+1); if (!picfil) { return -1; }
@@ -570,9 +570,9 @@ static int daskinloader(int filh, intptr_t *fptr, int *bpl, int *sizx, int *sizy
             if (effect & 4)
             {
                 // colorize
-                tcol.b = min((int)(tcol.b)*b/64,255);
-                tcol.g = min((int)(tcol.g)*g/64,255);
-                tcol.r = min((int)(tcol.r)*r/64,255);
+                tcol.b = min((int32_t)(tcol.b)*b/64,255);
+                tcol.g = min((int32_t)(tcol.g)*g/64,255);
+                tcol.r = min((int32_t)(tcol.r)*r/64,255);
             }
 
             rpptr[x].b = tcol.b;
@@ -598,11 +598,11 @@ static int daskinloader(int filh, intptr_t *fptr, int *bpl, int *sizx, int *sizy
 }
 
 // JONOF'S COMPRESSED TEXTURE CACHE STUFF ---------------------------------------------------
-int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcacheheader *head)
+int32_t mdloadskin_trytexcache(char *fn, int32_t len, int32_t pal, char effect, texcacheheader *head)
 {
-    int fp;
+    int32_t fp;
     char cachefn[BMAX_PATH], *cp;
-    unsigned char mdsum[16];
+    uint8_t mdsum[16];
 
     if (!glinfo.texcompr || !glusetexcompr || !glusetexcache || !cacheindexptr || cachefilehandle < 0) return -1;
     if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
@@ -613,7 +613,7 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
         return -1;
     }
 
-    md4once((unsigned char *)fn, strlen(fn), mdsum);
+    md4once((uint8_t *)fn, strlen(fn), mdsum);
 //    for (cp = cachefn, fp = 0; (*cp = TEXCACHEFILE[fp]); cp++,fp++);
 //    *(cp++) = '/';
     cp = cachefn;
@@ -624,9 +624,9 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
 //    if (fil < 0) return -1;
 
     {
-        int offset = 0;
-        int len = 0;
-        int i;
+        int32_t offset = 0;
+        int32_t len = 0;
+        int32_t i;
 /*
         texcacheindex *cacheindexptr = &firstcacheindex;
 
@@ -658,7 +658,7 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
 
 //    initprintf("Loading cached skin: %s\n", cachefn);
 
-    if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int)sizeof(texcacheheader)) goto failure;
+    if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader)) goto failure;
     if (memcmp(head->magic, "PMST", 4)) goto failure;
 
     head->xdim = B_LITTLE32(head->xdim);
@@ -679,13 +679,13 @@ failure:
     return -1;
 }
 
-static int mdloadskin_cached(int fil, texcacheheader *head, int *doalloc, GLuint *glpic, int *xsiz, int *ysiz, int pal)
+static int32_t mdloadskin_cached(int32_t fil, texcacheheader *head, int32_t *doalloc, GLuint *glpic, int32_t *xsiz, int32_t *ysiz, int32_t pal)
 {
-    int level, r;
+    int32_t level, r;
     texcachepicture pict;
     void *pic = NULL, *packbuf = NULL;
     void *midbuf = NULL;
-    int alloclen=0;
+    int32_t alloclen=0;
 
     UNREFERENCED_PARAMETER(pal);
 
@@ -702,7 +702,7 @@ static int mdloadskin_cached(int fil, texcacheheader *head, int *doalloc, GLuint
     for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
     {
         r = Bread(fil, &pict, sizeof(texcachepicture));
-        if (r < (int)sizeof(texcachepicture)) goto failure;
+        if (r < (int32_t)sizeof(texcachepicture)) goto failure;
 
         pict.size = B_LITTLE32(pict.size);
         pict.format = B_LITTLE32(pict.format);
@@ -746,15 +746,15 @@ failure:
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
 
 //Note: even though it says md2model, it works for both md2model&md3model
-int mdloadskin(md2model *m, int number, int pal, int surf)
+int32_t mdloadskin(md2model *m, int32_t number, int32_t pal, int32_t surf)
 {
-    int i,j, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
+    int32_t i,j, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
     intptr_t fptr=0;
     char *skinfile, hasalpha, fn[BMAX_PATH+65];
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
-    int doalloc = 1, filh;
-    int cachefil = -1, picfillen;
+    int32_t doalloc = 1, filh;
+    int32_t cachefil = -1, picfillen;
     texcacheheader cachead;
 
     modelhead=m; // for palmaps
@@ -765,7 +765,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
     i = -1;
     for (sk = m->skinmap; sk; sk = sk->next)
     {
-        if ((int)sk->palette == pal && sk->skinnum == number && sk->surfnum == surf)
+        if ((int32_t)sk->palette == pal && sk->skinnum == number && sk->surfnum == surf)
         {
             skinfile = sk->fn;
             texidx = &sk->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
@@ -774,12 +774,12 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
             break;
         }
         //If no match, give highest priority to number, then pal.. (Parkar's request, 02/27/2005)
-        else if (((int)sk->palette ==   0) && (sk->skinnum == number) && (sk->surfnum == surf) && (i < 5)) { i = 5; skzero = sk; }
-        else if (((int)sk->palette == pal) && (sk->skinnum ==      0) && (sk->surfnum == surf) && (i < 4)) { i = 4; skzero = sk; }
-        else if (((int)sk->palette ==   0) && (sk->skinnum ==      0) && (sk->surfnum == surf) && (i < 3)) { i = 3; skzero = sk; }
-        else if (((int)sk->palette ==   0) && (sk->skinnum == number) && (i < 2)) { i = 2; skzero = sk; }
-        else if (((int)sk->palette == pal) && (sk->skinnum ==      0) && (i < 1)) { i = 1; skzero = sk; }
-        else if (((int)sk->palette ==   0) && (sk->skinnum ==      0) && (i < 0)) { i = 0; skzero = sk; }
+        else if (((int32_t)sk->palette ==   0) && (sk->skinnum == number) && (sk->surfnum == surf) && (i < 5)) { i = 5; skzero = sk; }
+        else if (((int32_t)sk->palette == pal) && (sk->skinnum ==      0) && (sk->surfnum == surf) && (i < 4)) { i = 4; skzero = sk; }
+        else if (((int32_t)sk->palette ==   0) && (sk->skinnum ==      0) && (sk->surfnum == surf) && (i < 3)) { i = 3; skzero = sk; }
+        else if (((int32_t)sk->palette ==   0) && (sk->skinnum == number) && (i < 2)) { i = 2; skzero = sk; }
+        else if (((int32_t)sk->palette == pal) && (sk->skinnum ==      0) && (i < 1)) { i = 1; skzero = sk; }
+        else if (((int32_t)sk->palette ==   0) && (sk->skinnum ==      0) && (i < 0)) { i = 0; skzero = sk; }
     }
     if (!sk)
     {
@@ -887,7 +887,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
             fy = ((float)osizy)/((float)ysiz);
             if (m->mdnum == 2)
             {
-                int *lptr;
+                int32_t *lptr;
                 for (lptr=m->glcmds;(i=*lptr++);)
                     for (i=labs(i);i>0;i--,lptr+=3)
                     {
@@ -899,7 +899,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
             {
                 md3model *m3 = (md3model *)m;
                 md3surf_t *s;
-                int surfi;
+                int32_t surfi;
                 for (surfi=0;surfi<m3->head.numsurfs;surfi++)
                 {
                     s = &m3->head.surfs[surfi];
@@ -947,8 +947,8 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
 void updateanimation(md2model *m, spritetype *tspr)
 {
     mdanim_t *anim;
-    int i, j, k;
-    int fps;
+    int32_t i, j, k;
+    int32_t fps;
     char lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
 
     if (m->numframes < 2) 
@@ -997,11 +997,11 @@ void updateanimation(md2model *m, spritetype *tspr)
         }
     }
 
-    if (anim && (((int)spriteext[tspr->owner].mdanimcur) != anim->startframe))
+    if (anim && (((int32_t)spriteext[tspr->owner].mdanimcur) != anim->startframe))
     {
         //if (spriteext[tspr->owner].flags & SPREXT_NOMDANIM) OSD_Printf("SPREXT_NOMDANIM\n");
         //OSD_Printf("smooth launched ! oldanim %i new anim %i\n", spriteext[tspr->owner].mdanimcur, anim->startframe);
-        spriteext[tspr->owner].mdanimcur = (short)anim->startframe;
+        spriteext[tspr->owner].mdanimcur = (int16_t)anim->startframe;
         spriteext[tspr->owner].mdanimtims = mdtims;
         m->interpol = 0;
         if (!r_animsmoothing || (tile2model[Ptile2tile(tspr->picnum,lpal)].smoothduration == 0))
@@ -1026,7 +1026,7 @@ void updateanimation(md2model *m, spritetype *tspr)
         j = 65536;
     else
         j = ((anim->endframe+1-anim->startframe)<<16);
-    //Just in case you play the game for a VERY int time...
+    //Just in case you play the game for a VERY int32_t time...
     if (i < 0) { i = 0;spriteext[tspr->owner].mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
     if ((anim) && (i >= j+j) && (fps) && !mdpause) //Keep mdanimtims close to mdtims to avoid the use of MOD
@@ -1068,7 +1068,7 @@ void updateanimation(md2model *m, spritetype *tspr)
 // VBO generation and allocation
 static void mdloadvbos(md3model *m)
 {
-    int     i;
+    int32_t     i;
 
     m->vbos = malloc(m->head.numsurfs * sizeof(GLuint));
     bglGenBuffersARB(m->head.numsurfs, m->vbos);
@@ -1084,7 +1084,7 @@ static void mdloadvbos(md3model *m)
 }
 
 //--------------------------------------- MD2 LIBRARY BEGINS ---------------------------------------
-static md2model *md2load(int fil, const char *filnam)
+static md2model *md2load(int32_t fil, const char *filnam)
 {
     md2model *m;
     md3model *m3;
@@ -1092,7 +1092,7 @@ static md2model *md2load(int fil, const char *filnam)
     md2frame_t *f;
     md2head_t head;
     char st[BMAX_PATH];
-    int i, j, k;
+    int32_t i, j, k;
 
     m = (md2model *)calloc(1,sizeof(md2model)); if (!m) return(0);
     m->mdnum = 2; m->scale = .01f;
@@ -1117,7 +1117,7 @@ static md2model *md2load(int fil, const char *filnam)
     m->framebytes = head.framebytes;
 
     m->frames = (char *)calloc(m->numframes,m->framebytes); if (!m->frames) { free(m); return(0); }
-    m->glcmds = (int *)calloc(m->numglcmds,sizeof(int)); if (!m->glcmds) { free(m->frames); free(m); return(0); }
+    m->glcmds = (int32_t *)calloc(m->numglcmds,sizeof(int32_t)); if (!m->glcmds) { free(m->frames); free(m); return(0); }
     m->tris = (md2tri_t *)calloc(head.numtris, sizeof(md2tri_t)); if (!m->tris) { free(m->glcmds); free(m->frames); free(m); return(0); }
     m->uv = (md2uv_t *)calloc(head.numuv, sizeof(md2uv_t)); if (!m->uv) { free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
 
@@ -1126,27 +1126,27 @@ static md2model *md2load(int fil, const char *filnam)
         { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
 
     klseek(fil,head.ofsglcmds,SEEK_SET);
-    if (kread(fil,(char *)m->glcmds,m->numglcmds*sizeof(int)) != (int)(m->numglcmds*sizeof(int)))
+    if (kread(fil,(char *)m->glcmds,m->numglcmds*sizeof(int32_t)) != (int32_t)(m->numglcmds*sizeof(int32_t)))
         { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
 
     klseek(fil,head.ofstris,SEEK_SET);
-    if (kread(fil,(char *)m->tris,head.numtris*sizeof(md2tri_t)) != (int)(head.numtris*sizeof(md2tri_t)))
+    if (kread(fil,(char *)m->tris,head.numtris*sizeof(md2tri_t)) != (int32_t)(head.numtris*sizeof(md2tri_t)))
         { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
 
     klseek(fil,head.ofsuv,SEEK_SET);
-    if (kread(fil,(char *)m->uv,head.numuv*sizeof(md2uv_t)) != (int)(head.numuv*sizeof(md2uv_t)))
+    if (kread(fil,(char *)m->uv,head.numuv*sizeof(md2uv_t)) != (int32_t)(head.numuv*sizeof(md2uv_t)))
         { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
 
 #if B_BIG_ENDIAN != 0
     {
         char *f = (char *)m->frames;
-        int *l,j;
+        int32_t *l,j;
         md2frame_t *fr;
 
         for (i = m->numframes-1; i>=0; i--)
         {
             fr = (md2frame_t *)f;
-            l = (int *)&fr->mul;
+            l = (int32_t *)&fr->mul;
             for (j=5;j>=0;j--) l[j] = B_LITTLE32(l[j]);
             f += m->framebytes;
         }
@@ -1306,8 +1306,8 @@ static md2model *md2load(int fil, const char *filnam)
         m3->skinmap = sk;
     }
 
-    m3->indexes = malloc(sizeof(unsigned short) * s->numtris);
-    m3->vindexes = malloc(sizeof(unsigned short) * s->numtris * 3);
+    m3->indexes = malloc(sizeof(uint16_t) * s->numtris);
+    m3->vindexes = malloc(sizeof(uint16_t) * s->numtris * 3);
     m3->maxdepths = malloc(sizeof(float) * s->numtris);
 
     m3->vbos = NULL;
@@ -1320,13 +1320,13 @@ static md2model *md2load(int fil, const char *filnam)
 //---------------------------------------- MD2 LIBRARY ENDS ----------------------------------------
 
 // DICHOTOMIC RECURSIVE SORTING - USED BY MD3DRAW - MAY PUT IT IN ITS OWN SOURCE FILE LATER
-int partition(unsigned short *indexes, float *depths, int f, int l)
+int32_t partition(uint16_t *indexes, float *depths, int32_t f, int32_t l)
 {
-    int up,down;
+    int32_t up,down;
     float tempf;
-    unsigned short tempus;
+    uint16_t tempus;
     float piv = depths[f];
-    unsigned short piv2 = indexes[f];
+    uint16_t piv2 = indexes[f];
     up = f;
     down = l;
     do
@@ -1353,9 +1353,9 @@ int partition(unsigned short *indexes, float *depths, int f, int l)
     return down;
 }
 
-void quicksort(unsigned short *indexes, float *depths, int first, int last)
+void quicksort(uint16_t *indexes, float *depths, int32_t first, int32_t last)
 {
-    int pivIndex = 0;
+    int32_t pivIndex = 0;
     if (first < last)
     {
         pivIndex = partition(indexes,depths,first, last);
@@ -1367,10 +1367,10 @@ void quicksort(unsigned short *indexes, float *depths, int first, int last)
 
 //--------------------------------------- MD3 LIBRARY BEGINS ---------------------------------------
 
-static md3model *md3load(int fil)
+static md3model *md3load(int32_t fil)
 {
-    int i, surfi, ofsurf, offs[4], leng[4];
-    int maxtrispersurf;
+    int32_t i, surfi, ofsurf, offs[4], leng[4];
+    int32_t maxtrispersurf;
     md3model *m;
     md3surf_t *s;
 
@@ -1411,17 +1411,17 @@ static md3model *md3load(int fil)
 
 #if B_BIG_ENDIAN != 0
     {
-        int *l;
+        int32_t *l;
 
         for (i = m->head.numframes-1; i>=0; i--)
         {
-            l = (int *)&m->head.frames[i].min;
+            l = (int32_t *)&m->head.frames[i].min;
             for (j=3+3+3+1-1;j>=0;j--) l[j] = B_LITTLE32(l[j]);
         }
 
         for (i = m->head.numtags-1; i>=0; i--)
         {
-            l = (int *)&m->head.tags[i].p;
+            l = (int32_t *)&m->head.tags[i].p;
             for (j=3+3+3+3-1;j>=0;j--) l[j] = B_LITTLE32(l[j]);
         }
     }
@@ -1436,9 +1436,9 @@ static md3model *md3load(int fil)
 
 #if B_BIG_ENDIAN != 0
         {
-            int *l;
+            int32_t *l;
             s->id = B_LITTLE32(s->id);
-            l =	(int *)&s->flags;
+            l =	(int32_t *)&s->flags;
             for	(j=1+1+1+1+1+1+1+1+1+1-1;j>=0;j--) l[j] = B_LITTLE32(l[j]);
         }
 #endif
@@ -1468,7 +1468,7 @@ static md3model *md3load(int fil)
 
 #if B_BIG_ENDIAN != 0
         {
-            int *l;
+            int32_t *l;
 
             for (i=s->numtris-1;i>=0;i--)
             {
@@ -1480,15 +1480,15 @@ static md3model *md3load(int fil)
             }
             for (i=s->numverts-1;i>=0;i--)
             {
-                l = (int*)&s->uv[i].u;
+                l = (int32_t*)&s->uv[i].u;
                 l[0] = B_LITTLE32(l[0]);
                 l[1] = B_LITTLE32(l[1]);
             }
             for (i=s->numframes*s->numverts-1;i>=0;i--)
             {
-                s->xyzn[i].x = (signed short)B_LITTLE16((unsigned short)s->xyzn[i].x);
-                s->xyzn[i].y = (signed short)B_LITTLE16((unsigned short)s->xyzn[i].y);
-                s->xyzn[i].z = (signed short)B_LITTLE16((unsigned short)s->xyzn[i].z);
+                s->xyzn[i].x = (int16_t)B_LITTLE16((uint16_t)s->xyzn[i].x);
+                s->xyzn[i].y = (int16_t)B_LITTLE16((uint16_t)s->xyzn[i].y);
+                s->xyzn[i].z = (int16_t)B_LITTLE16((uint16_t)s->xyzn[i].z);
             }
         }
 #endif
@@ -1501,7 +1501,7 @@ static md3model *md3load(int fil)
 #if 0
     {
         char *buf, st[BMAX_PATH+2], bst[BMAX_PATH+2];
-        int j, bsc;
+        int32_t j, bsc;
 
         strcpy(st,filnam);
         for (i=0,j=0;st[i];i++) if ((st[i] == '/') || (st[i] == '\\')) j = i+1;
@@ -1524,8 +1524,8 @@ static md3model *md3load(int fil)
     }
 #endif
 
-    m->indexes = malloc(sizeof(unsigned short) * maxtrispersurf);
-    m->vindexes = malloc(sizeof(unsigned short) * maxtrispersurf * 3);
+    m->indexes = malloc(sizeof(uint16_t) * maxtrispersurf);
+    m->vindexes = malloc(sizeof(uint16_t) * maxtrispersurf * 3);
     m->maxdepths = malloc(sizeof(float) * maxtrispersurf);
 
     m->vbos = NULL;
@@ -1533,20 +1533,20 @@ static md3model *md3load(int fil)
     return(m);
 }
 
-static int md3draw(md3model *m, spritetype *tspr)
+static int32_t md3draw(md3model *m, spritetype *tspr)
 {
     point3d fp, fp1, fp2, m0, m1, a0;
     md3xyzn_t *v0, *v1;
-    int i, j, k, l, surfi;
+    int32_t i, j, k, l, surfi;
     float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16];
     md3surf_t *s;
     GLfloat pc[4];
-    int                 texunits = GL_TEXTURE0_ARB;
+    int32_t                 texunits = GL_TEXTURE0_ARB;
     mdskinmap_t *sk;
     //PLAG : sorting stuff
     void*               vbotemp;
     point3d*            vertexhandle = NULL;
-    unsigned short*     indexhandle;
+    uint16_t*     indexhandle;
     char lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
 
     if (r_vbos && (m->vbos == NULL))
@@ -1722,15 +1722,15 @@ static int md3draw(md3model *m, spritetype *tspr)
     if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll || m->head.flags == 1337)
     {
         if (spriteext[tspr->owner].xoff)
-            a0.x = (int)(spriteext[tspr->owner].xoff / (2048 * (m0.x+m1.x)));
+            a0.x = (int32_t)(spriteext[tspr->owner].xoff / (2048 * (m0.x+m1.x)));
         else
             a0.x = 0;
         if (spriteext[tspr->owner].yoff)
-            a0.y = (int)(spriteext[tspr->owner].yoff / (2048 * (m0.x+m1.x)));
+            a0.y = (int32_t)(spriteext[tspr->owner].yoff / (2048 * (m0.x+m1.x)));
         else
             a0.y = 0;
         if ((spriteext[tspr->owner].zoff) && !(tspr->cstat&1024))
-            a0.z = (int)(spriteext[tspr->owner].zoff / (524288 * (m0.z+m1.z)));
+            a0.z = (int32_t)(spriteext[tspr->owner].zoff / (524288 * (m0.z+m1.z)));
         else
             a0.z = 0;
         k0 = (float)sintable[(spriteext[tspr->owner].pitch+512)&2047] / 16384.0;
@@ -1836,7 +1836,7 @@ static int md3draw(md3model *m, spritetype *tspr)
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
             for (sk = m->skinmap; sk; sk = sk->next)
-                if ((int)sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum && sk->surfnum == surfi)
+                if ((int32_t)sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum && sk->surfnum == surfi)
                     f = sk->param;
 
             bglMatrixMode(GL_TEXTURE);
@@ -1881,7 +1881,7 @@ static int md3draw(md3model *m, spritetype *tspr)
         {
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexvbos[curvbo]);
             vbotemp = bglMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
-            indexhandle = (unsigned short *)vbotemp;
+            indexhandle = (uint16_t *)vbotemp;
         }
         else
             indexhandle = m->vindexes;
@@ -2057,7 +2057,7 @@ static void md3free(md3model *m)
     mdanim_t *anim, *nanim = NULL;
     mdskinmap_t *sk, *nsk = NULL;
     md3surf_t *s;
-    int surfi;
+    int32_t surfi;
 
     if (!m) return;
 
@@ -2118,28 +2118,28 @@ static void md3free(md3model *m)
 //--------------------------------------- VOX LIBRARY BEGINS ---------------------------------------
 
 //For loading/conversion only
-static int xsiz, ysiz, zsiz, yzsiz, *vbit = 0; //vbit: 1 bit per voxel: 0=air,1=solid
+static int32_t xsiz, ysiz, zsiz, yzsiz, *vbit = 0; //vbit: 1 bit per voxel: 0=air,1=solid
 static float xpiv, ypiv, zpiv; //Might want to use more complex/unique names!
-static int *vcolhashead = 0, vcolhashsizm1;
-typedef struct { int p, c, n; } voxcol_t;
-static voxcol_t *vcol = 0; int vnum = 0, vmax = 0;
-typedef struct { short x, y; } spoint2d;
+static int32_t *vcolhashead = 0, vcolhashsizm1;
+typedef struct { int32_t p, c, n; } voxcol_t;
+static voxcol_t *vcol = 0; int32_t vnum = 0, vmax = 0;
+typedef struct { int16_t x, y; } spoint2d;
 static spoint2d *shp;
-static int *shcntmal, *shcnt = 0, shcntp;
-static int mytexo5, *zbit, gmaxx, gmaxy, garea, pow2m1[33];
+static int32_t *shcntmal, *shcnt = 0, shcntp;
+static int32_t mytexo5, *zbit, gmaxx, gmaxy, garea, pow2m1[33];
 static voxmodel *gvox;
 
 //pitch must equal xsiz*4
-unsigned gloadtex(int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
+unsigned gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
 {
     unsigned rtexid;
     coltype *pic, *pic2;
-    unsigned char *cptr;
-    int i;
+    char *cptr;
+    int32_t i;
 
     pic = (coltype *)picbuf; //Correct for GL's RGB order; also apply gamma here..
-    pic2 = (coltype *)malloc(xsiz*ysiz*sizeof(int)); if (!pic2) return((unsigned)-1);
-    cptr = (unsigned char*)&britable[gammabrightness ? 0 : curbrightness][0];
+    pic2 = (coltype *)malloc(xsiz*ysiz*sizeof(int32_t)); if (!pic2) return((unsigned)-1);
+    cptr = (char*)&britable[gammabrightness ? 0 : curbrightness][0];
     if (!is8bit)
     {
         for (i=xsiz*ysiz-1;i>=0;i--)
@@ -2155,9 +2155,9 @@ unsigned gloadtex(int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
         if (palookup[dapal] == NULL) dapal = 0;
         for (i=xsiz*ysiz-1;i>=0;i--)
         {
-            pic2[i].b = cptr[palette[(int)palookup[dapal][pic[i].a]*3+2]*4];
-            pic2[i].g = cptr[palette[(int)palookup[dapal][pic[i].a]*3+1]*4];
-            pic2[i].r = cptr[palette[(int)palookup[dapal][pic[i].a]*3+0]*4];
+            pic2[i].b = cptr[palette[(int32_t)palookup[dapal][pic[i].a]*3+2]*4];
+            pic2[i].g = cptr[palette[(int32_t)palookup[dapal][pic[i].a]*3+1]*4];
+            pic2[i].r = cptr[palette[(int32_t)palookup[dapal][pic[i].a]*3+0]*4];
             pic2[i].a = 255;
         }
     }
@@ -2166,12 +2166,12 @@ unsigned gloadtex(int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
     bglBindTexture(GL_TEXTURE_2D,rtexid);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    bglTexImage2D(GL_TEXTURE_2D,0,4,xsiz,ysiz,0,GL_RGBA,GL_UNSIGNED_BYTE,(unsigned char *)pic2);
+    bglTexImage2D(GL_TEXTURE_2D,0,4,xsiz,ysiz,0,GL_RGBA,GL_UNSIGNED_BYTE,(char *)pic2);
     free(pic2);
     return(rtexid);
 }
 
-static int getvox(int x, int y, int z)
+static int32_t getvox(int32_t x, int32_t y, int32_t z)
 {
     z += x*yzsiz + y*zsiz;
     for (x=vcolhashead[(z*214013)&vcolhashsizm1];x>=0;x=vcol[x].n)
@@ -2179,7 +2179,7 @@ static int getvox(int x, int y, int z)
     return(0x808080);
 }
 
-static void putvox(int x, int y, int z, int col)
+static void putvox(int32_t x, int32_t y, int32_t z, int32_t col)
 {
     if (vnum >= vmax) { vmax = max(vmax<<1,4096); vcol = (voxcol_t *)realloc(vcol,vmax*sizeof(voxcol_t)); }
 
@@ -2191,9 +2191,9 @@ static void putvox(int x, int y, int z, int col)
 
 //Set all bits in vbit from (x,y,z0) to (x,y,z1-1) to 0's
 #if 0
-static void setzrange0(int *lptr, int z0, int z1)
+static void setzrange0(int32_t *lptr, int32_t z0, int32_t z1)
 {
-    int z, ze;
+    int32_t z, ze;
     if (!((z0^z1)&~31)) { lptr[z0>>5] &= ((~(-1<<SHIFTMOD32(z0)))|(-1<<SHIFTMOD32(z1))); return; }
     z = (z0>>5); ze = (z1>>5);
     lptr[z] &=~(-1<<SHIFTMOD32(z0)); for (z++;z<ze;z++) lptr[z] = 0;
@@ -2201,24 +2201,24 @@ static void setzrange0(int *lptr, int z0, int z1)
 }
 #endif
 //Set all bits in vbit from (x,y,z0) to (x,y,z1-1) to 1's
-static void setzrange1(int *lptr, int z0, int z1)
+static void setzrange1(int32_t *lptr, int32_t z0, int32_t z1)
 {
-    int z, ze;
+    int32_t z, ze;
     if (!((z0^z1)&~31)) { lptr[z0>>5] |= ((~(-1<<SHIFTMOD32(z1)))&(-1<<SHIFTMOD32(z0))); return; }
     z = (z0>>5); ze = (z1>>5);
     lptr[z] |= (-1<<SHIFTMOD32(z0)); for (z++;z<ze;z++) lptr[z] = -1;
     lptr[z] |=~(-1<<SHIFTMOD32(z1));
 }
 
-static int isrectfree(int x0, int y0, int dx, int dy)
+static int32_t isrectfree(int32_t x0, int32_t y0, int32_t dx, int32_t dy)
 {
 #if 0
-    int i, j, x;
+    int32_t i, j, x;
     i = y0*gvox->mytexx + x0;
     for (dy=0;dy;dy--,i+=gvox->mytexx)
         for (x=0;x<dx;x++) { j = i+x; if (zbit[j>>5]&(1<<SHIFTMOD32(j))) return(0); }
 #else
-    int i, c, m, m1, x;
+    int32_t i, c, m, m1, x;
 
     i = y0*mytexo5 + (x0>>5); dx += x0-1; c = (dx>>5) - (x0>>5);
     m = ~pow2m1[x0&31]; m1 = pow2m1[(dx&31)+1];
@@ -2236,15 +2236,15 @@ static int isrectfree(int x0, int y0, int dx, int dy)
     return(1);
 }
 
-static void setrect(int x0, int y0, int dx, int dy)
+static void setrect(int32_t x0, int32_t y0, int32_t dx, int32_t dy)
 {
 #if 0
-    int i, j, y;
+    int32_t i, j, y;
     i = y0*gvox->mytexx + x0;
     for (y=0;y<dy;y++,i+=gvox->mytexx)
         for (x=0;x<dx;x++) { j = i+x; zbit[j>>5] |= (1<<SHIFTMOD32(j)); }
 #else
-    int i, c, m, m1, x;
+    int32_t i, c, m, m1, x;
 
     i = y0*mytexo5 + (x0>>5); dx += x0-1; c = (dx>>5) - (x0>>5);
     m = ~pow2m1[x0&31]; m1 = pow2m1[(dx&31)+1];
@@ -2261,9 +2261,9 @@ static void setrect(int x0, int y0, int dx, int dy)
 #endif
 }
 
-static void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
+static void cntquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t face)
 {
-    int x, y, z;
+    int32_t x, y, z;
 
     UNREFERENCED_PARAMETER(x1);
     UNREFERENCED_PARAMETER(y1);
@@ -2280,9 +2280,9 @@ static void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int 
     gvox->qcnt++;
 }
 
-static void addquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
+static void addquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t face)
 {
-    int i, j, x, y, z, xx, yy, nx = 0, ny = 0, nz = 0, *lptr;
+    int32_t i, j, x, y, z, xx, yy, nx = 0, ny = 0, nz = 0, *lptr;
     voxrect_t *qptr;
 
     x = labs(x2-x0); y = labs(y2-y0); z = labs(z2-z0);
@@ -2376,18 +2376,18 @@ static void addquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int 
 
 }
 
-static int isolid(int x, int y, int z)
+static int32_t isolid(int32_t x, int32_t y, int32_t z)
 {
-    if ((unsigned int)x >= (unsigned int)xsiz) return(0);
-    if ((unsigned int)y >= (unsigned int)ysiz) return(0);
-    if ((unsigned int)z >= (unsigned int)zsiz) return(0);
+    if ((uint32_t)x >= (uint32_t)xsiz) return(0);
+    if ((uint32_t)y >= (uint32_t)ysiz) return(0);
+    if ((uint32_t)z >= (uint32_t)zsiz) return(0);
     z += x*yzsiz + y*zsiz; return(vbit[z>>5]&(1<<SHIFTMOD32(z)));
 }
 
 static voxmodel *vox2poly()
 {
-    int i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy,*bx0, *by0;
-    void (*daquad)(int, int, int, int, int, int, int, int, int, int);
+    int32_t i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy,*bx0, *by0;
+    void (*daquad)(int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
 
     gvox = (voxmodel *)malloc(sizeof(voxmodel)); if (!gvox) return(0);
     memset(gvox,0,sizeof(voxmodel));
@@ -2396,8 +2396,8 @@ static voxmodel *vox2poly()
     x = xsiz; y = ysiz; z = zsiz;
     if ((x < y) && (x < z)) x = z; else if (y < z) y = z;
     if (x < y) { z = x; x = y; y = z; }
-    shcntp = x; i = x*y*sizeof(int);
-    shcntmal = (int *)malloc(i); if (!shcntmal) { free(gvox); return(0); }
+    shcntp = x; i = x*y*sizeof(int32_t);
+    shcntmal = (int32_t *)malloc(i); if (!shcntmal) { free(gvox); return(0); }
     memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
     gmaxx = gmaxy = garea = 0;
 
@@ -2405,8 +2405,8 @@ static voxmodel *vox2poly()
     for (i=0;i<7;i++) gvox->qfacind[i] = -1;
 
     i = ((max(ysiz,zsiz)+1)<<2);
-    bx0 = (int *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
-    by0 = (int *)(((intptr_t)bx0)+i);
+    bx0 = (int32_t *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
+    by0 = (int32_t *)(((intptr_t)bx0)+i);
 
     for (cnt=0;cnt<2;cnt++)
     {
@@ -2473,7 +2473,7 @@ skindidntfit:
             mytexo5 = (gvox->mytexx>>5);
 
             i = (((gvox->mytexx*gvox->mytexy+31)>>5)<<2);
-            zbit = (int *)malloc(i); if (!zbit) { free(bx0); free(gvox); free(shp); return(0); }
+            zbit = (int32_t *)malloc(i); if (!zbit) { free(bx0); free(gvox); free(shp); return(0); }
             memset(zbit,0,i);
 
             v = gvox->mytexx*gvox->mytexy;
@@ -2518,7 +2518,7 @@ skindidntfit:
             gvox->quad = (voxrect_t *)malloc(gvox->qcnt*sizeof(voxrect_t));
             if (!gvox->quad) { free(zbit); free(shp); free(bx0); free(gvox); return(0); }
 
-            gvox->mytex = (int *)malloc(gvox->mytexx*gvox->mytexy*sizeof(int));
+            gvox->mytex = (int32_t *)malloc(gvox->mytexx*gvox->mytexy*sizeof(int32_t));
             if (!gvox->mytex) { free(gvox->quad); free(zbit); free(shp); free(bx0); free(gvox); return(0); }
         }
     }
@@ -2526,10 +2526,10 @@ skindidntfit:
     return(gvox);
 }
 
-static int loadvox(const char *filnam)
+static int32_t loadvox(const char *filnam)
 {
-    int i, j, k, x, y, z, pal[256], fil;
-    unsigned char c[3], *tbuf;
+    int32_t i, j, k, x, y, z, pal[256], fil;
+    char c[3], *tbuf;
 
     fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
     kread(fil,&xsiz,4); xsiz = B_LITTLE32(xsiz);
@@ -2541,18 +2541,18 @@ static int loadvox(const char *filnam)
 
     klseek(fil,-768,SEEK_END);
     for (i=0;i<256;i++)
-        { kread(fil,c,3); pal[i] = (((int)c[0])<<18)+(((int)c[1])<<10)+(((int)c[2])<<2)+(i<<24); }
+        { kread(fil,c,3); pal[i] = (((int32_t)c[0])<<18)+(((int32_t)c[1])<<10)+(((int32_t)c[2])<<2)+(i<<24); }
     pal[255] = -1;
 
     vcolhashsizm1 = 8192-1;
-    vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { kclose(fil); return(-1); }
-    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
+    vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { kclose(fil); return(-1); }
+    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
+    vbit = (int32_t *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
     memset(vbit,0,i);
 
-    tbuf = (unsigned char *)malloc(zsiz*sizeof(char)); if (!tbuf) { kclose(fil); return(-1); }
+    tbuf = (char *)malloc(zsiz*sizeof(uint8_t)); if (!tbuf) { kclose(fil); return(-1); }
 
     klseek(fil,12,SEEK_SET);
     for (x=0;x<xsiz;x++)
@@ -2587,11 +2587,11 @@ static int loadvox(const char *filnam)
     free(tbuf); kclose(fil); return(0);
 }
 
-static int loadkvx(const char *filnam)
+static int32_t loadkvx(const char *filnam)
 {
-    int i, j, k, x, y, z, pal[256], z0, z1, mip1leng, ysizp1, fil;
-    unsigned short *xyoffs;
-    unsigned char c[3], *tbuf, *cptr;
+    int32_t i, j, k, x, y, z, pal[256], z0, z1, mip1leng, ysizp1, fil;
+    uint16_t *xyoffs;
+    char c[3], *tbuf, *cptr;
 
     fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
     kread(fil,&mip1leng,4); mip1leng = B_LITTLE32(mip1leng);
@@ -2603,26 +2603,26 @@ static int loadkvx(const char *filnam)
     kread(fil,&i,4); zpiv = ((float)B_LITTLE32(i))/256.0;
     klseek(fil,(xsiz+1)<<2,SEEK_CUR);
     ysizp1 = ysiz+1;
-    i = xsiz*ysizp1*sizeof(short);
-    xyoffs = (unsigned short *)malloc(i); if (!xyoffs) { kclose(fil); return(-1); }
-    kread(fil,xyoffs,i); for (i=i/sizeof(short)-1; i>=0; i--) xyoffs[i] = B_LITTLE16(xyoffs[i]);
+    i = xsiz*ysizp1*sizeof(int16_t);
+    xyoffs = (uint16_t *)malloc(i); if (!xyoffs) { kclose(fil); return(-1); }
+    kread(fil,xyoffs,i); for (i=i/sizeof(int16_t)-1; i>=0; i--) xyoffs[i] = B_LITTLE16(xyoffs[i]);
 
     klseek(fil,-768,SEEK_END);
     for (i=0;i<256;i++)
-        { kread(fil,c,3); pal[i] = B_LITTLE32((((int)c[0])<<18)+(((int)c[1])<<10)+(((int)c[2])<<2)+(i<<24)); }
+        { kread(fil,c,3); pal[i] = B_LITTLE32((((int32_t)c[0])<<18)+(((int32_t)c[1])<<10)+(((int32_t)c[2])<<2)+(i<<24)); }
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int *)malloc(i); if (!vbit) { free(xyoffs); kclose(fil); return(-1); }
+    vbit = (int32_t *)malloc(i); if (!vbit) { free(xyoffs); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
     for (vcolhashsizm1=4096;vcolhashsizm1<(mip1leng>>1);vcolhashsizm1<<=1); vcolhashsizm1--; //approx to numvoxs!
-    vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { free(xyoffs); kclose(fil); return(-1); }
-    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
+    vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { free(xyoffs); kclose(fil); return(-1); }
+    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     klseek(fil,28+((xsiz+1)<<2)+((ysizp1*xsiz)<<1),SEEK_SET);
 
     i = kfilelength(fil)-ktell(fil);
-    tbuf = (unsigned char *)malloc(i); if (!tbuf) { free(xyoffs); kclose(fil); return(-1); }
+    tbuf = (char *)malloc(i); if (!tbuf) { free(xyoffs); kclose(fil); return(-1); }
     kread(fil,tbuf,i); kclose(fil);
 
     cptr = tbuf;
@@ -2633,7 +2633,7 @@ static int loadkvx(const char *filnam)
             z1 = 0;
             while (i)
             {
-                z0 = (int)cptr[0]; k = (int)cptr[1]; cptr += 3;
+                z0 = (int32_t)cptr[0]; k = (int32_t)cptr[1]; cptr += 3;
                 if (!(cptr[-1]&16)) setzrange1(vbit,j+z1,j+z0);
                 i -= k+3; z1 = z0+k;
                 setzrange1(vbit,j+z0,j+z1);
@@ -2644,11 +2644,11 @@ static int loadkvx(const char *filnam)
     free(tbuf); free(xyoffs); return(0);
 }
 
-static int loadkv6(const char *filnam)
+static int32_t loadkv6(const char *filnam)
 {
-    int i, j, x, y, numvoxs, z0, z1, fil;
-    unsigned short *ylen;
-    unsigned char c[8];
+    int32_t i, j, x, y, numvoxs, z0, z1, fil;
+    uint16_t *ylen;
+    char c[8];
 
     fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
     kread(fil,&i,4); if (B_LITTLE32(i) != 0x6c78764b) { kclose(fil); return(-1); } //Kvxl
@@ -2660,20 +2660,20 @@ static int loadkv6(const char *filnam)
     kread(fil,&i,4);       zpiv = (float)(B_LITTLE32(i));
     kread(fil,&numvoxs,4); numvoxs = B_LITTLE32(numvoxs);
 
-    ylen = (unsigned short *)malloc(xsiz*ysiz*sizeof(short));
+    ylen = (uint16_t *)malloc(xsiz*ysiz*sizeof(int16_t));
     if (!ylen) { kclose(fil); return(-1); }
 
     klseek(fil,32+(numvoxs<<3)+(xsiz<<2),SEEK_SET);
-    kread(fil,ylen,xsiz*ysiz*sizeof(short)); for (i=xsiz*ysiz-1; i>=0; i--) ylen[i] = B_LITTLE16(ylen[i]);
+    kread(fil,ylen,xsiz*ysiz*sizeof(int16_t)); for (i=xsiz*ysiz-1; i>=0; i--) ylen[i] = B_LITTLE16(ylen[i]);
     klseek(fil,32,SEEK_SET);
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int *)malloc(i); if (!vbit) { free(ylen); kclose(fil); return(-1); }
+    vbit = (int32_t *)malloc(i); if (!vbit) { free(ylen); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
     for (vcolhashsizm1=4096;vcolhashsizm1<numvoxs;vcolhashsizm1<<=1); vcolhashsizm1--;
-    vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { free(ylen); kclose(fil); return(-1); }
-    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
+    vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { free(ylen); kclose(fil); return(-1); }
+    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     for (x=0;x<xsiz;x++)
         for (y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
@@ -2682,10 +2682,10 @@ static int loadkv6(const char *filnam)
             for (i=ylen[x*ysiz+y];i>0;i--)
             {
                 kread(fil,c,8); //b,g,r,a,z_lo,z_hi,vis,dir
-                z0 = B_LITTLE16(*(unsigned short *)&c[4]);
+                z0 = B_LITTLE16(*(uint16_t *)&c[4]);
                 if (!(c[6]&16)) setzrange1(vbit,j+z1,j+z0);
                 vbit[(j+z0)>>5] |= (1<<SHIFTMOD32(j+z0));
-                putvox(x,y,z0,B_LITTLE32(*(int *)&c[0])&0xffffff);
+                putvox(x,y,z0,B_LITTLE32(*(int32_t *)&c[0])&0xffffff);
                 z1 = z0+1;
             }
         }
@@ -2694,10 +2694,10 @@ static int loadkv6(const char *filnam)
 
 #if 0
 //While this code works, it's way too slow and can only cause trouble.
-static int loadvxl(const char *filnam)
+static int32_t loadvxl(const char *filnam)
 {
-    int i, j, x, y, z, fil;
-    unsigned char *v, *vbuf;
+    int32_t i, j, x, y, z, fil;
+    char *v, *vbuf;
 
     fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
     kread(fil,&i,4);
@@ -2711,16 +2711,16 @@ static int loadvxl(const char *filnam)
     zpiv = ((float)zsiz)*.5;
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
+    vbit = (int32_t *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
     memset(vbit,-1,i);
 
     vcolhashsizm1 = 1048576-1;
-    vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { kclose(fil); return(-1); }
-    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
+    vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { kclose(fil); return(-1); }
+    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     //Allocate huge buffer and load rest of file into it...
     i = kfilelength(fil)-ktell(fil);
-    vbuf = (unsigned char *)malloc(i); if (!vbuf) { kclose(fil); return(-1); }
+    vbuf = (char *)malloc(i); if (!vbuf) { kclose(fil); return(-1); }
     kread(fil,vbuf,i);
     kclose(fil);
 
@@ -2732,11 +2732,11 @@ static int loadvxl(const char *filnam)
             while (1)
             {
                 setzrange0(vbit,j+z,j+v[1]);
-                for (z=v[1];z<=v[2];z++) putvox(x,y,z,(*(int *)&v[(z-v[1]+1)<<2])&0xffffff);
+                for (z=v[1];z<=v[2];z++) putvox(x,y,z,(*(int32_t *)&v[(z-v[1]+1)<<2])&0xffffff);
                 if (!v[0]) break; z = v[2]-v[1]-v[0]+2; v += v[0]*4;
-                for (z+=v[3];z<v[3];z++) putvox(x,y,z,(*(int *)&v[(z-v[3])<<2])&0xffffff);
+                for (z+=v[3];z<v[3];z++) putvox(x,y,z,(*(int32_t *)&v[(z-v[3])<<2])&0xffffff);
             }
-            v += ((((int)v[2])-((int)v[1])+2)<<2);
+            v += ((((int32_t)v[2])-((int32_t)v[1])+2)<<2);
         }
     free(vbuf); return(0);
 }
@@ -2753,7 +2753,7 @@ void voxfree(voxmodel *m)
 
 voxmodel *voxload(const char *filnam)
 {
-    int i, is8bit, ret;
+    int32_t i, is8bit, ret;
     voxmodel *vm;
 
     i = strlen(filnam)-4; if (i < 0) return(0);
@@ -2771,7 +2771,7 @@ voxmodel *voxload(const char *filnam)
         vm->xpiv = xpiv; vm->ypiv = ypiv; vm->zpiv = zpiv;
         vm->is8bit = is8bit;
 
-        vm->texid = (unsigned int *)calloc(MAXPALOOKUPS,sizeof(unsigned int));
+        vm->texid = (uint32_t *)calloc(MAXPALOOKUPS,sizeof(uint32_t));
         if (!vm->texid) { voxfree(vm); vm = 0; }
     }
     if (shcntmal) { free(shcntmal); shcntmal = 0; }
@@ -2782,10 +2782,10 @@ voxmodel *voxload(const char *filnam)
 }
 
 //Draw voxel model as perfect cubes
-int voxdraw(voxmodel *m, spritetype *tspr)
+int32_t voxdraw(voxmodel *m, spritetype *tspr)
 {
     point3d fp, m0, a0;
-    int i, j, fi, xx, yy, zz;
+    int32_t i, j, fi, xx, yy, zz;
     float ru, rv, phack[2], clut[6] = {1,1,1,1,1,1}; //1.02,1.02,0.94,1.06,0.98,0.98};
     float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], omat[16], pc[4];
     vert_t *vptr;
@@ -2938,8 +2938,8 @@ int voxdraw(voxmodel *m, spritetype *tspr)
 mdmodel *mdload(const char *filnam)
 {
     mdmodel *vm;
-    int fil;
-    int i;
+    int32_t fil;
+    int32_t i;
 
     vm = (mdmodel*)voxload(filnam); if (vm) return(vm);
 
@@ -2959,10 +2959,10 @@ mdmodel *mdload(const char *filnam)
     return(vm);
 }
 
-int mddraw(spritetype *tspr)
+int32_t mddraw(spritetype *tspr)
 {
     mdmodel *vm;
-    int i;
+    int32_t i;
 
     if (r_vbos && (r_vbocount > allocvbos))
     {
@@ -2976,7 +2976,7 @@ int mddraw(spritetype *tspr)
         while (i < r_vbocount)
         {
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexvbos[i]);
-            bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, maxmodeltris * 3 * sizeof(unsigned short), NULL, GL_STREAM_DRAW_ARB);
+            bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, maxmodeltris * 3 * sizeof(uint16_t), NULL, GL_STREAM_DRAW_ARB);
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, vertvbos[i]);
             bglBufferDataARB(GL_ARRAY_BUFFER_ARB, maxmodelverts * sizeof(point3d), NULL, GL_STREAM_DRAW_ARB);
             i++;

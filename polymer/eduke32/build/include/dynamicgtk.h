@@ -6,6 +6,8 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
+#include "compat.h"
+
 #if !GTK_CHECK_VERSION(2,4,0)
 #error You need at least 2.4.0 version of GTK+
 #endif
@@ -68,9 +70,9 @@ GdkPixbuf*	(*gdk_pixbuf_from_pixdata)	(const GdkPixdata	*pixdata,
 GdkPixbuf *(*gdk_pixbuf_new_from_data) (const guchar *data,
 				     GdkColorspace colorspace,
 				     gboolean has_alpha,
-				     int bits_per_sample,
-				     int width, int height,
-				     int rowstride,
+				     int32_t bits_per_sample,
+				     int32_t width, int32_t height,
+				     int32_t rowstride,
 				     GdkPixbufDestroyNotify destroy_fn,
 				     gpointer destroy_fn_data);
 
@@ -159,7 +161,7 @@ GtkWidget* (*gtk_image_new_from_stock)     (const gchar     *stock_id,
                                          GtkIconSize      size);
 
 	// gtkmain.h
-gboolean (*gtk_init_check)           (int    *argc,
+gboolean (*gtk_init_check)           (int32_t    *argc,
                                    char ***argv);
 
 	// gtklabel.h
@@ -375,7 +377,7 @@ gint   (*g_utf8_collate)     (const gchar *str1,
 };
 extern struct _dynamicgtksyms dynamicgtksyms;
 
-int dynamicgtk_init(void);
+int32_t dynamicgtk_init(void);
 void dynamicgtk_uninit(void);
 
 #ifndef __dynamicgtkfoo__

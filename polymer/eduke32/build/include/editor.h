@@ -32,28 +32,28 @@ extern "C" {
 #define BK_CONSOLE  	19
 #define NUMBUILDKEYS 20
 
-extern int qsetmode;
-extern short searchsector, searchwall, searchstat;
-extern int zmode, kensplayerheight;
-extern short defaultspritecstat;
+extern int32_t qsetmode;
+extern int16_t searchsector, searchwall, searchstat;
+extern int32_t zmode, kensplayerheight;
+extern int16_t defaultspritecstat;
 
-extern int temppicnum, tempcstat, templotag, temphitag, tempextra;
-extern unsigned int temppal, tempvis, tempxrepeat, tempyrepeat;
-extern int tempshade, tempxvel, tempyvel, tempzvel;
-extern unsigned char somethingintab;
+extern int32_t temppicnum, tempcstat, templotag, temphitag, tempextra;
+extern uint32_t temppal, tempvis, tempxrepeat, tempyrepeat;
+extern int32_t tempshade, tempxvel, tempyvel, tempzvel;
+extern char somethingintab;
 
-extern unsigned char buildkeys[NUMBUILDKEYS];
+extern uint8_t buildkeys[NUMBUILDKEYS];
 
-extern int ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
-extern int unrealedlook, quickmapcycling;
-extern int pk_turnaccel,pk_turndecel,pk_uedaccel;
-extern int revertCTRL,scrollamount;
-extern int autosave;
-extern int mlook;
-extern short prefixtiles[16];
+extern int32_t ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
+extern int32_t unrealedlook, quickmapcycling;
+extern int32_t pk_turnaccel,pk_turndecel,pk_uedaccel;
+extern int32_t revertCTRL,scrollamount;
+extern int32_t autosave;
+extern int32_t mlook;
+extern int16_t prefixtiles[16];
 
-extern int ExtInit(void);
-extern int ExtPreInit(int argc,const char **argv);
+extern int32_t ExtInit(void);
+extern int32_t ExtPreInit(int32_t argc,const char **argv);
 extern void ExtUnInit(void);
 extern void ExtPreCheckKeys(void);
 #ifdef SUPERBUILD
@@ -64,36 +64,36 @@ extern void ExtPreLoadMap(void);
 extern void ExtLoadMap(const char *mapname);
 extern void ExtPreSaveMap(void);
 extern void ExtSaveMap(const char *mapname);
-extern const char *ExtGetSectorCaption(short sectnum);
-extern const char *ExtGetWallCaption(short wallnum);
-extern const char *ExtGetSpriteCaption(short spritenum);
-extern void ExtShowSectorData(short sectnum);
-extern void ExtShowWallData(short wallnum);
-extern void ExtShowSpriteData(short spritenum);
-extern void ExtEditSectorData(short sectnum);
-extern void ExtEditWallData(short wallnum);
-extern void ExtEditSpriteData(short spritenum);
-extern const char *ExtGetSectorType(int lotag);
+extern const char *ExtGetSectorCaption(int16_t sectnum);
+extern const char *ExtGetWallCaption(int16_t wallnum);
+extern const char *ExtGetSpriteCaption(int16_t spritenum);
+extern void ExtShowSectorData(int16_t sectnum);
+extern void ExtShowWallData(int16_t wallnum);
+extern void ExtShowSpriteData(int16_t spritenum);
+extern void ExtEditSectorData(int16_t sectnum);
+extern void ExtEditWallData(int16_t wallnum);
+extern void ExtEditSpriteData(int16_t spritenum);
+extern const char *ExtGetSectorType(int32_t lotag);
 
-extern int circlewall;
+extern int32_t circlewall;
 
-int loadsetup(const char *fn);	// from config.c
-int writesetup(const char *fn);	// from config.c
+int32_t loadsetup(const char *fn);	// from config.c
+int32_t writesetup(const char *fn);	// from config.c
 
 void editinput(void);
 void clearmidstatbar16(void);
 
-int _getnumber256(char *namestart, int num, int maxnumber, char sign, void *(func)(int));
+int32_t _getnumber256(char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t));
 #define getnumber256(namestart, num, maxnumber, sign) _getnumber256(namestart, num, maxnumber, sign, NULL)
-int _getnumber16(char *namestart, int num, int maxnumber, char sign, void *(func)(int));
+int32_t _getnumber16(char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t));
 #define getnumber16(namestart, num, maxnumber, sign) _getnumber16(namestart, num, maxnumber, sign, NULL)
-void printmessage256(int x, int y, char *name);
+void printmessage256(int32_t x, int32_t y, char *name);
 void _printmessage16(const char *fmt, ...);
 
 #define printmessage16(fmt, ...) lastpm16time = totalclock, _printmessage16(fmt, ## __VA_ARGS__)
 
-void getpoint(int searchxe, int searchye, int *x, int *y);
-int getpointhighlight(int xplc, int yplc, int point);
+void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y);
+int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point);
 
 #ifdef _WIN32
 #define DEFAULT_GAME_EXEC "eduke32.exe"

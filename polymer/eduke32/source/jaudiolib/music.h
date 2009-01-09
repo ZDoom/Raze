@@ -32,7 +32,9 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #ifndef __MUSIC_H
 #define __MUSIC_H
 
-extern int MUSIC_ErrorCode;
+#include "compat.h"
+
+extern int32_t MUSIC_ErrorCode;
 
 enum MUSIC_ERRORS
    {
@@ -50,41 +52,41 @@ enum MUSIC_ERRORS
 
 typedef struct
    {
-   unsigned int tickposition;
-   unsigned int milliseconds;
-   unsigned int  measure;
-   unsigned int  beat;
-   unsigned int  tick;
+   uint32_t tickposition;
+   uint32_t milliseconds;
+   uint32_t  measure;
+   uint32_t  beat;
+   uint32_t  tick;
    } songposition;
 
 #define MUSIC_LoopSong ( 1 == 1 )
 #define MUSIC_PlayOnce ( !MUSIC_LoopSong )
 
-char *MUSIC_ErrorString( int ErrorNumber );
-int   MUSIC_Init( int SoundCard, int Address );
-int   MUSIC_Shutdown( void );
-void  MUSIC_SetVolume( int volume );
-void  MUSIC_SetMidiChannelVolume( int channel, int volume );
+char *MUSIC_ErrorString( int32_t ErrorNumber );
+int32_t   MUSIC_Init( int32_t SoundCard, int32_t Address );
+int32_t   MUSIC_Shutdown( void );
+void  MUSIC_SetVolume( int32_t volume );
+void  MUSIC_SetMidiChannelVolume( int32_t channel, int32_t volume );
 void  MUSIC_ResetMidiChannelVolumes( void );
-int   MUSIC_GetVolume( void );
-void  MUSIC_SetLoopFlag( int loopflag );
-int   MUSIC_SongPlaying( void );
+int32_t   MUSIC_GetVolume( void );
+void  MUSIC_SetLoopFlag( int32_t loopflag );
+int32_t   MUSIC_SongPlaying( void );
 void  MUSIC_Continue( void );
 void  MUSIC_Pause( void );
-int   MUSIC_StopSong( void );
-int   MUSIC_PlaySong( unsigned char *song, int loopflag );
-void  MUSIC_SetContext( int context );
-int   MUSIC_GetContext( void );
-void  MUSIC_SetSongTick( unsigned int PositionInTicks );
-void  MUSIC_SetSongTime( unsigned int milliseconds );
-void  MUSIC_SetSongPosition( int measure, int beat, int tick );
+int32_t   MUSIC_StopSong( void );
+int32_t   MUSIC_PlaySong( char *song, int32_t loopflag );
+void  MUSIC_SetContext( int32_t context );
+int32_t   MUSIC_GetContext( void );
+void  MUSIC_SetSongTick( uint32_t PositionInTicks );
+void  MUSIC_SetSongTime( uint32_t milliseconds );
+void  MUSIC_SetSongPosition( int32_t measure, int32_t beat, int32_t tick );
 void  MUSIC_GetSongPosition( songposition *pos );
 void  MUSIC_GetSongLength( songposition *pos );
-int   MUSIC_FadeVolume( int tovolume, int milliseconds );
-int   MUSIC_FadeActive( void );
+int32_t   MUSIC_FadeVolume( int32_t tovolume, int32_t milliseconds );
+int32_t   MUSIC_FadeActive( void );
 void  MUSIC_StopFade( void );
-void  MUSIC_RerouteMidiChannel( int channel, int ( *function )( int event, int c1, int c2 ) );
-void  MUSIC_RegisterTimbreBank( unsigned char *timbres );
+void  MUSIC_RerouteMidiChannel( int32_t channel, int32_t ( *function )( int32_t event, int32_t c1, int32_t c2 ) );
+void  MUSIC_RegisterTimbreBank( char *timbres );
 void  MUSIC_Update(void);
 
 #endif

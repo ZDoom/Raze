@@ -37,9 +37,9 @@ ALCdevice  * device=NULL;
 ALCcontext * context=NULL;
 
 char *ALdoing = NULL;
-int AL_Error;
-int bufsize;
-int openal_disabled = 0;
+int32_t AL_Error;
+int32_t bufsize;
+int32_t openal_disabled = 0;
 
 typedef struct SD
 {
@@ -49,9 +49,9 @@ typedef struct SD
 
     char loop;
     char type;
-    int rate;
+    int32_t rate;
     sounddef def;
-    int ready;
+    int32_t ready;
 } sounddef1;
 
 sounddef1 music;
@@ -87,7 +87,7 @@ static LPALCOPENDEVICE balcOpenDevice = NULL;
 static LPALCCREATECONTEXT balcCreateContext = NULL;
 static LPALGETSTRING balGetString = NULL;
 
-static void * algetproc_(const char *s, int *err, int fatal)
+static void * algetproc_(const char *s, int32_t *err, int32_t fatal)
 {
     void *t;
 #if defined _WIN32
@@ -105,7 +105,7 @@ static void * algetproc_(const char *s, int *err, int fatal)
 #define ALGETPROC(s)        algetproc_(s,&err,1)
 #define ALGETPROCSOFT(s)    algetproc_(s,&err,0)
 
-static int unloadaldriver(void)
+static int32_t unloadaldriver(void)
 {
 #ifdef _WIN32
     if (!hALDLL) return 0;
@@ -151,9 +151,9 @@ static int unloadaldriver(void)
     return 0;
 }
 
-static int loadaldriver(void)
+static int32_t loadaldriver(void)
 {
-    int err=0;
+    int32_t err=0;
     char *driver;
 
 #ifdef _WIN32
@@ -210,7 +210,7 @@ static int loadaldriver(void)
     return err;
 }
 
-char *ALC_ErrorString(int code)
+char *ALC_ErrorString(int32_t code)
 {
     switch (code)
     {
@@ -230,7 +230,7 @@ char *ALC_ErrorString(int code)
         return "OpenAL error: Unknown error.";
     }
 }
-char *AL_ErrorString(int code)
+char *AL_ErrorString(int32_t code)
 {
     switch (code)
     {
@@ -272,7 +272,7 @@ char *AL_ErrorString(int code)
         return "Unknown OpenAL/Ogg error.";
     }
 }
-void check(int show)
+void check(int32_t show)
 {
     AL_Error=balcGetError(device);
     if (AL_Error!=ALC_NO_ERROR&&show)initprintf("%s(%s)\n",ALC_ErrorString(AL_Error),ALdoing);
@@ -282,7 +282,7 @@ void check(int show)
 extern ov_callbacks cb;
 
 
-int AL_Init()
+int32_t AL_Init()
 {
     Bmemset(&music,0,sizeof(music)); // "music.def.size=0" means music not playing
     if (loadaldriver())
@@ -362,38 +362,38 @@ void AL_Shutdown()
 }
 
 #define BUFFER_SIZE 65536 // (4096 * 4*8*8)
-int AL_MusicVolume;
-extern int g_musicSize;
+int32_t AL_MusicVolume;
+extern int32_t g_musicSize;
 
 
-int update();
-int stream(ALuint buffer);
-void open1(char *ptr,int sizef,char loop);
+int32_t update();
+int32_t stream(ALuint buffer);
+void open1(char *ptr,int32_t sizef,char loop);
 
 
 
 void AL_Pause()       {if (music.def.size)balSourcePause(music.source);}
 void AL_Continue()    {if (music.def.size)balSourcePlay(music.source);}
 void AL_Update()      {if (music.def.size&&music.ready&&!update(0))AL_Stop();}
-int  AL_isntALmusic() {return !music.def.size;}
+int32_t  AL_isntALmusic() {return !music.def.size;}
 
-void AL_SetMusicVolume(int volume)
+void AL_SetMusicVolume(int32_t volume)
 {
     AL_MusicVolume=volume;
     if (music.def.size)balSourcef(music.source,AL_GAIN,volume/(255.));
 }
 
-int isplaying()
+int32_t isplaying()
 {
     ALenum state;
     balGetSourcei(music.source,AL_SOURCE_STATE,&state);
     return state==AL_PLAYING;
 }
 
-int update()
+int32_t update()
 {
-    int processed=0;
-    int active=1;
+    int32_t processed=0;
+    int32_t active=1;
     ALuint buffer;
 
     ALdoing="update";
@@ -423,7 +423,7 @@ int update()
 
 void AL_Stop()
 {
-    int queued=0;ALuint buffer;
+    int32_t queued=0;ALuint buffer;
 
     if (!music.def.size)
         return;
@@ -448,10 +448,10 @@ void AL_Stop()
 
 static char pcm[BUFFER_SIZE];
 
-int stream(ALuint buffer)
+int32_t stream(ALuint buffer)
 {
     ALsizei  size=0;
-    int  section,result;
+    int32_t  section,result;
 
     while (size<BUFFER_SIZE)
     {
@@ -467,10 +467,10 @@ int stream(ALuint buffer)
     return 1;
 }
 
-void AL_PlaySong(char *ptr,int loop)
+void AL_PlaySong(char *ptr,int32_t loop)
 {
     vorbis_info* vorbisInfo;
-    int bf=2,i;
+    int32_t bf=2,i;
 
     if (!context)
         return;

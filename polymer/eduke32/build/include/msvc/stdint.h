@@ -90,8 +90,8 @@ typedef uint64_t  uint_fast64_t;
    typedef __int64           intptr_t;
    typedef unsigned __int64  uintptr_t;
 #else // _WIN64 ][
-   typedef int               intptr_t;
-   typedef unsigned int      uintptr_t;
+   typedef int32_t               intptr_t;
+   typedef uint32_t      uintptr_t;
 #endif // _WIN64 ]
 
 // 7.18.1.5 Greatest-width integer types

@@ -49,7 +49,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 static CRITICAL_SECTION mutex;
-static int _DSOUND_CriticalSectionAlloced = FALSE;
+static int32_t _DSOUND_CriticalSectionAlloced = FALSE;
 static HANDLE isrthread = NULL;
 static HANDLE isrfinish = NULL;
 
@@ -60,14 +60,14 @@ static LPDIRECTSOUNDBUFFER lpDSBSecondary = NULL;
 static LPDIRECTSOUNDNOTIFY lpDSNotify = NULL;
 static HANDLE              *hPosNotify = NULL;
 
-static int(*_DSOUND_CallBack)(int) = NULL;
-static int _DSOUND_BufferLength = 0;
-static int _DSOUND_NumBuffers   = 0;
+static int32_t(*_DSOUND_CallBack)(int32_t) = NULL;
+static int32_t _DSOUND_BufferLength = 0;
+static int32_t _DSOUND_NumBuffers   = 0;
 static char *_DSOUND_MixBuffer  = NULL;
 
-static int DSOUND_Installed = FALSE;
+static int32_t DSOUND_Installed = FALSE;
 
-int DSOUND_ErrorCode = DSOUND_Ok;
+int32_t DSOUND_ErrorCode = DSOUND_Ok;
 
 #define DSOUND_SetErrorCode( status ) \
    DSOUND_ErrorCode   = ( status );
@@ -78,7 +78,7 @@ int DSOUND_ErrorCode = DSOUND_Ok;
  * DisableInterrupts
  * Enter the critical section.
  */
-int DisableInterrupts(void)
+int32_t DisableInterrupts(void)
 {
     if (!_DSOUND_CriticalSectionAlloced) return -1;
 
@@ -92,7 +92,7 @@ int DisableInterrupts(void)
  * RestoreInterrupts
  * Leave the critical section.
  */
-int RestoreInterrupts(int a)
+int32_t RestoreInterrupts(int32_t a)
 {
     if (!_DSOUND_CriticalSectionAlloced) return -1;
 
@@ -107,7 +107,7 @@ int RestoreInterrupts(int a)
  * DSOUND_ErrorString
  * Returns a description of an error code.
  */
-char *DSOUND_ErrorString(int errorcode)
+char *DSOUND_ErrorString(int32_t errorcode)
 {
     switch (errorcode)
     {
@@ -170,7 +170,7 @@ char *DSOUND_ErrorString(int errorcode)
  * DSOUND_Init
  * Initializes the DirectSound objects.
  */
-int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int buffersize)
+int32_t DSOUND_Init(int32_t soundcard, int32_t mixrate, int32_t numchannels, int32_t samplebits, int32_t buffersize)
 {
     HRESULT(WINAPI *aDirectSoundCreate)(LPGUID,LPDIRECTSOUND*,LPUNKNOWN);
     HRESULT hr;
@@ -325,9 +325,9 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
  * DSOUND_Shutdown
  * Shuts down DirectSound and it's associates.
  */
-int DSOUND_Shutdown(void)
+int32_t DSOUND_Shutdown(void)
 {
-    int i;
+    int32_t i;
 
     if (DSOUND_Installed) initprintf("Uninitializing DirectSound...\n");
 
@@ -389,7 +389,7 @@ int DSOUND_Shutdown(void)
  * DSOUND_SetMixMode
  * Bit of filler for the future.
  */
-int DSOUND_SetMixMode(int mode)
+int32_t DSOUND_SetMixMode(int32_t mode)
 {
     return mode;
 }
@@ -404,11 +404,11 @@ static DWORD WINAPI isr(LPVOID parm)
 {
     HANDLE *handles;
     HRESULT hr;
-    int rv;
+    int32_t rv;
 #ifdef DEBUGAUDIO
-    int h;
+    int32_t h;
 #endif
-    int p;
+    int32_t p;
     LPVOID lockptr; DWORD lockbytes;
     LPVOID lockptr2; DWORD lockbytes2;
 
@@ -460,7 +460,7 @@ static DWORD WINAPI isr(LPVOID parm)
             {
                 /*
                 #define copybuf(S,D,c) \
-                ({ void *__S=(S), *__D=(D); int __c=(c); \
+                ({ void *__S=(S), *__D=(D); int32_t __c=(c); \
                 __asm__ __volatile__ ("rep; movsl" \
                 : "+S" (__S), "+D" (__D), "+c" (__c) : : "memory", "cc"); \
                 0; })
@@ -486,12 +486,12 @@ static DWORD WINAPI isr(LPVOID parm)
  * DSOUND_BeginBufferedPlayback
  * Spins off a thread that behaves somewhat like the SoundBlaster DMA ISR did.
  */
-int DSOUND_BeginBufferedPlayback(char *BufferStart, int(*CallBackFunc)(int), int buffersize, int numdivisions)
+int32_t DSOUND_BeginBufferedPlayback(char *BufferStart, int32_t(*CallBackFunc)(int32_t), int32_t buffersize, int32_t numdivisions)
 {
     DWORD threadid;
     HRESULT hr;
     DSBPOSITIONNOTIFY *posns;
-    int i;
+    int32_t i;
 
     _DSOUND_CallBack = CallBackFunc;
     _DSOUND_MixBuffer = BufferStart;
@@ -582,10 +582,10 @@ int DSOUND_BeginBufferedPlayback(char *BufferStart, int(*CallBackFunc)(int), int
  * DSOUND_StopPlayback
  * Halts the playback thread.
  */
-int DSOUND_StopPlayback(void)
+int32_t DSOUND_StopPlayback(void)
 {
 //	DWORD exitcode;
-    int i;
+    int32_t i;
 
     if (isrthread)
     {

@@ -145,7 +145,7 @@ char * CONFIG_AnalogNumToName(int32 func)
 ===================
 */
 
-void CONFIG_SetDefaultKeys(int type)
+void CONFIG_SetDefaultKeys(int32_t type)
 {
     int32 i,f;
 
@@ -395,8 +395,8 @@ void CONFIG_ReadKeys(void)
 // wrapper for CONTROL_MapKey(), generates key bindings to reflect changes to keyboard setup
 void CONFIG_MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
 {
-    int i, j, k;
-    int ii[] = { key1, key2, oldkey1, oldkey2 };
+    int32_t i, j, k;
+    int32_t ii[] = { key1, key2, oldkey1, oldkey2 };
     char buf[64];
 
     CONTROL_MapKey(which, key1, key2);
@@ -595,12 +595,12 @@ void CONFIG_SetupJoystick(void)
 ===================
 */
 extern char *duke3dgrp;
-extern void G_CheckPlayerColor(int *color,int prev_color);
+extern void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
 extern palette_t CrosshairColors;
 extern palette_t DefaultCrosshairColors;
 extern char mod_dir[BMAX_PATH];
-extern int r_maxfps;
-extern int g_noSetup;
+extern int32_t r_maxfps;
+extern int32_t g_noSetup;
 
 int32 CONFIG_ReadSetup(void)
 {
@@ -702,7 +702,7 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Detail",&ud.detail);
 
         {
-            extern int g_frameDelay;
+            extern int32_t g_frameDelay;
 
             SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "MaxFPS",&r_maxfps);
             r_maxfps = max(0,min(1000,r_maxfps));
@@ -819,7 +819,7 @@ int32 CONFIG_ReadSetup(void)
 
         {
             SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Color",&ud.color);
-            G_CheckPlayerColor((int *)&ud.color,-1);
+            G_CheckPlayerColor((int32_t *)&ud.color,-1);
             g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
         }
 
@@ -960,7 +960,7 @@ int32 CONFIG_ReadSetup(void)
 
 void CONFIG_WriteBinds(void) // save binds and aliases to disk
 {
-    int i;
+    int32_t i;
     FILE *fp;
     char *ptr = Bstrdup(setupfilename);
     char tempbuf[128];
@@ -986,7 +986,7 @@ void CONFIG_WriteBinds(void) // save binds and aliases to disk
 
         /*        for (i = 0; i < sizeof(cvar)/sizeof(cvarmappings); i++)
                     if (!(cvar[i].type&CVAR_NOSAVE))
-                        fprintf(fp,"%s \"%d\"\n",cvar[i].name,*(int*)cvar[i].var);
+                        fprintf(fp,"%s \"%d\"\n",cvar[i].name,*(int32_t*)cvar[i].var);
                         */
         fclose(fp);
         Bsprintf(tempbuf,"Wrote %s_binds.cfg\n",ptr);
@@ -1009,7 +1009,7 @@ void CONFIG_WriteSetup(void)
     if (ud.config.scripthandle < 0)
         ud.config.scripthandle = SCRIPT_Init(setupfilename);
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","AimingFlag",(int) g_myAimMode,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","AimingFlag",(int32_t) g_myAimMode,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Controls","AutoAim",ud.config.AutoAim,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseAimingFlipped",ud.mouseflip,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);

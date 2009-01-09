@@ -37,16 +37,16 @@ enum DSL_ERRORS
    DSL_MixerInitFailure
    };
 
-extern int DSL_ErrorCode;
-char *DSL_ErrorString( int ErrorNumber );
+extern int32_t DSL_ErrorCode;
+char *DSL_ErrorString( int32_t ErrorNumber );
 
-int DisableInterrupts(void);	// simulated using critical sections
-int RestoreInterrupts(int);
+int32_t DisableInterrupts(void);	// simulated using critical sections
+int32_t RestoreInterrupts(int32_t);
 
-int   DSL_Init(int soundcard, int mixrate, int numchannels, int samplebits, int buffersize);
+int32_t   DSL_Init(int32_t soundcard, int32_t mixrate, int32_t numchannels, int32_t samplebits, int32_t buffersize);
 void  DSL_StopPlayback( void );
 unsigned DSL_GetPlaybackRate( void );
-int   DSL_BeginBufferedPlayback(char *BufferStart, int (*CallBackFunc)(int), int buffersize, int numdivisions);
+int32_t   DSL_BeginBufferedPlayback(char *BufferStart, int32_t (*CallBackFunc)(int32_t), int32_t buffersize, int32_t numdivisions);
 void  DSL_Shutdown( void );
 
 #endif

@@ -47,19 +47,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define BUILDDATE " 20090105"
 #define VERSION " 1.2.0devel"
 
-static int floor_over_floor;
+static int32_t floor_over_floor;
 
 // static char *startwin_labeltext = "Starting Mapster32...";
 static char setupfilename[BMAX_PATH]= "mapster32.cfg";
 static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 static char *duke3dgrp = defaultduke3dgrp;
-static int fixmapbeforesaving = 1;
-static int lastsave = -180*60;
-static int NoAutoLoad = 0;
-int spnoclip=1;
+static int32_t fixmapbeforesaving = 1;
+static int32_t lastsave = -180*60;
+static int32_t NoAutoLoad = 0;
+int32_t spnoclip=1;
 
 #if !defined(_WIN32)
-static int usecwd = 0;
+static int32_t usecwd = 0;
 #endif
 
 static struct strllist
@@ -69,7 +69,7 @@ static struct strllist
 }
 *CommandPaths = NULL, *CommandGrps = NULL;
 
-#define MAXHELP2D (signed int)(sizeof(Help2d)/sizeof(Help2d[0]))
+#define MAXHELP2D (int32_t)(sizeof(Help2d)/sizeof(Help2d[0]))
 
 #define eitherALT   (keystatus[KEYSC_LALT]|  keystatus[KEYSC_RALT])
 #define eitherCTRL  (keystatus[KEYSC_LCTRL]| keystatus[KEYSC_RCTRL])
@@ -130,7 +130,7 @@ static char *SPRDSPMODE[MAXNOSPRITES]=
     "Sprite display: NO EFFECTORS OR ACTORS"
 };
 
-#define MAXHELP3D (signed int)(sizeof(Help3d)/sizeof(Help3d[0]))
+#define MAXHELP3D (int32_t)(sizeof(Help3d)/sizeof(Help3d[0]))
 static char *Help3d[]=
 {
     "Mapster32 3D mode help",
@@ -167,18 +167,18 @@ static char *Help3d[]=
 static char *type2str[]={"Wall","Sector","Sector","Sprite","Wall"};
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
-static int numdirs=0, numfiles=0;
-static int currentlist=0;
-static int mouseaction=0, mouseax=0, mouseay=0;
-static int repeatcountx, repeatcounty;
-static int infobox=3; // bit0: current window, bit1: mouse pointer, the variable should be renamed
+static int32_t numdirs=0, numfiles=0;
+static int32_t currentlist=0;
+static int32_t mouseaction=0, mouseax=0, mouseay=0;
+static int32_t repeatcountx, repeatcounty;
+static int32_t infobox=3; // bit0: current window, bit1: mouse pointer, the variable should be renamed
 
 extern char mskip;
-extern short capturecount;
-extern int editorgridextent;	// in engine.c
+extern int16_t capturecount;
+extern int32_t editorgridextent;	// in engine.c
 extern char game_executable[BMAX_PATH];
 
-extern int fillsector(short sectnum, char fillcolor);
+extern int32_t fillsector(int16_t sectnum, char fillcolor);
 
 static void clearfilenames(void)
 {
@@ -188,7 +188,7 @@ static void clearfilenames(void)
     numfiles = numdirs = 0;
 }
 
-static int getfilenames(const char *path, char kind[])
+static int32_t getfilenames(const char *path, char kind[])
 {
     CACHE1D_FIND_REC *r;
 
@@ -208,9 +208,9 @@ static int getfilenames(const char *path, char kind[])
 
 void ExtLoadMap(const char *mapname)
 {
-    int i;
-    int sky=0;
-    int j;
+    int32_t i;
+    int32_t sky=0;
+    int32_t j;
 
     getmessageleng = 0;
     getmessagetimeoff = 0;
@@ -326,9 +326,9 @@ void ExtSaveMap(const char *mapname)
     saveboard("backup.map",&posx,&posy,&posz,&ang,&cursectnum);
 }
 
-int getTileGroup(const char *groupName)
+int32_t getTileGroup(const char *groupName)
 {
-    int temp;
+    int32_t temp;
     for (temp = 0; temp < MAX_TILE_GROUPS; temp++)
     {
         if (s_TileGroups[temp].szText == NULL)
@@ -343,10 +343,10 @@ int getTileGroup(const char *groupName)
     return -1;
 }
 
-int tileInGroup(int group, int tilenum)
+int32_t tileInGroup(int32_t group, int32_t tilenum)
 {
     // @todo Make a bitmap instead of doing this slow search..
-    int temp;
+    int32_t temp;
     if (group < 0 || group >= MAX_TILE_GROUPS || s_TileGroups[group].szText == NULL)
     {
         // group isn't valid.
@@ -362,7 +362,7 @@ int tileInGroup(int group, int tilenum)
     return 0;
 }
 
-const char *ExtGetSectorType(int lotag)
+const char *ExtGetSectorType(int32_t lotag)
 {
     static char tempbuf[64];
     Bmemset(tempbuf,0,sizeof(tempbuf));
@@ -440,7 +440,7 @@ const char *ExtGetSectorType(int lotag)
     return(tempbuf);
 }
 
-const char *ExtGetSectorCaption(short sectnum)
+const char *ExtGetSectorCaption(int16_t sectnum)
 {
     static char tempbuf[64];
     Bmemset(tempbuf,0,sizeof(tempbuf));
@@ -464,7 +464,7 @@ const char *ExtGetSectorCaption(short sectnum)
     return(tempbuf);
 }
 
-const char *ExtGetWallCaption(short wallnum)
+const char *ExtGetWallCaption(int16_t wallnum)
 {
     static char tempbuf[64];
 
@@ -472,9 +472,9 @@ const char *ExtGetWallCaption(short wallnum)
 
     if (wall[wallnum].cstat & (1<<14))
     {
-        int dax = wall[wallnum].x-wall[wall[wallnum].point2].x;
-        int day = wall[wallnum].y-wall[wall[wallnum].point2].y;
-        int dist = ksqrt(dax*dax+day*day);
+        int32_t dax = wall[wallnum].x-wall[wall[wallnum].point2].x;
+        int32_t day = wall[wallnum].y-wall[wall[wallnum].point2].y;
+        int32_t dist = ksqrt(dax*dax+day*day);
         Bsprintf(tempbuf,"%d",dist);
         wall[wallnum].cstat &= ~(1<<14);
         return(tempbuf);
@@ -500,7 +500,7 @@ const char *ExtGetWallCaption(short wallnum)
     return(tempbuf);
 } //end
 
-const char *SectorEffectorTagText(int lotag)
+const char *SectorEffectorTagText(int32_t lotag)
 {
     static char tempbuf[64];
     Bmemset(tempbuf,0,sizeof(tempbuf));
@@ -612,7 +612,7 @@ const char *SectorEffectorTagText(int lotag)
     return (tempbuf);
 }
 
-const char *SectorEffectorText(int spritenum)
+const char *SectorEffectorText(int32_t spritenum)
 {
     static char tempbuf[64];
     Bmemset(tempbuf,0,sizeof(tempbuf));
@@ -624,7 +624,7 @@ const char *SectorEffectorText(int spritenum)
     return (tempbuf);
 }
 
-const char *ExtGetSpriteCaption(short spritenum)
+const char *ExtGetSpriteCaption(int16_t spritenum)
 {
     static char tempbuf[1024];
 
@@ -684,7 +684,7 @@ const char *ExtGetSpriteCaption(short spritenum)
 } //end
 
 //printext16 parameters:
-//printext16(int xpos, int ypos, short col, short backcol,
+//printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
 //           char name[82], char fontsize)
 //  xpos 0-639   (top left)
 //  ypos 0-479   (top left)
@@ -694,19 +694,19 @@ const char *ExtGetSpriteCaption(short spritenum)
 //  fontsize 0=8*8, 1=3*5
 
 //drawline16 parameters:
-// drawline16(int x1, int y1, int x2, int y2, char col)
+// drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 //  x1, x2  0-639
 //  y1, y2  0-143  (status bar is 144 high, origin is top-left of STATUS BAR)
 //  col     0-15
 
-void ExtShowSectorData(short sectnum)   //F5
+void ExtShowSectorData(int16_t sectnum)   //F5
 {
-    short statnum=0;
-    int x,x2,y;
-    int i;
-    int secrets=0;
-    int totalactors1=0,totalactors2=0,totalactors3=0,totalactors4=0;
-    int totalrespawn=0;
+    int16_t statnum=0;
+    int32_t x,x2,y;
+    int32_t i;
+    int32_t secrets=0;
+    int32_t totalactors1=0,totalactors2=0,totalactors3=0,totalactors4=0;
+    int32_t totalrespawn=0;
 
     UNREFERENCED_PARAMETER(sectnum);
     if (qsetmode==200)
@@ -851,9 +851,9 @@ void ExtShowSectorData(short sectnum)   //F5
 
 }// end ExtShowSectorData
 
-void ExtShowWallData(short wallnum)       //F6
+void ExtShowWallData(int16_t wallnum)       //F6
 {
-    int i,nextfreetag=0,total=0;
+    int32_t i,nextfreetag=0,total=0;
     char x,y;
 
     UNREFERENCED_PARAMETER(wallnum);
@@ -1128,8 +1128,8 @@ void ExtShowWallData(short wallnum)       //F6
 
 static void Show2dText(char *name)
 {
-    int fp,t;
-    unsigned char x=0,y=4,xmax=0,xx=0,col=0;
+    int32_t fp,t;
+    uint8_t x=0,y=4,xmax=0,xx=0,col=0;
     clearmidstatbar16();
     if ((fp=kopen4load(name,0)) == -1)
     {
@@ -1175,16 +1175,16 @@ static void Show2dText(char *name)
 // PK_ vvvv
 typedef struct helppage_
 {
-    int numlines;
+    int32_t numlines;
     char line[][80];  // C99 flexible array member
 } helppage_t;
 
 helppage_t **helppage=NULL;
-int numhelppages=0;
+int32_t numhelppages=0;
 
-static int emptyline(const char *start)
+static int32_t emptyline(const char *start)
 {
-    int i;
+    int32_t i;
     for (i=0; i<80; i++)
     {
         if (start[i]=='\n' || !start[i]) break;
@@ -1194,9 +1194,9 @@ static int emptyline(const char *start)
     return 1;
 }
 
-static int newpage(const char *start)
+static int32_t newpage(const char *start)
 {
-    int i;
+    int32_t i;
     for (i=80-1; i>=0; i--)
     {
         if (start[i] == '^' && start[i+1] == 'P')
@@ -1211,8 +1211,8 @@ static int newpage(const char *start)
 static void ReadHelpFile(const char *name)
 {
     BFILE *fp;
-    int i, j, k, numallocpages;
-    long int pos, charsread=0;
+    int32_t i, j, k, numallocpages;
+    int32_t pos, charsread=0;
     helppage_t *hp;
     char skip=0;
 
@@ -1318,7 +1318,7 @@ HELPFILE_ERROR:
 // why can't MSVC allocate an array of variable size?!
 #define IHELP_NUMDISPLINES 42 // ((overridepm16y>>4)+(overridepm16y>>5)+(overridepm16y>>7)-2)
 #define IHELP_PATLEN 45
-extern int overridepm16y;  // influences printmessage16() and clearmidstatbar16()
+extern int32_t overridepm16y;  // influences printmessage16() and clearmidstatbar16()
 
 static void IntegratedHelp()
 {
@@ -1327,9 +1327,9 @@ static void IntegratedHelp()
     overridepm16y = 3*STATUS2DSIZ;
 
     {
-        int i, j;
-        static int curhp=0, curline=0;
-        int highlighthp=-1, highlightline=-1, lasthighlighttime=0;
+        int32_t i, j;
+        static int32_t curhp=0, curline=0;
+        int32_t highlighthp=-1, highlightline=-1, lasthighlighttime=0;
         char disptext[IHELP_NUMDISPLINES][80];
         char oldpattern[IHELP_PATLEN+1];
 
@@ -1575,8 +1575,8 @@ ENDFOR1:
 
 static void Show3dText(char *name)
 {
-    int fp,t;
-    unsigned char x=0,y=4,xmax=0,xx=0,col=0;
+    int32_t fp,t;
+    uint8_t x=0,y=4,xmax=0,xx=0,col=0;
 
     if ((fp=kopen4load(name,0)) == -1)
     {
@@ -1653,7 +1653,7 @@ static void ShowHelpText(char *name)
     Bfclose(fp);
 }// end ShowHelpText
 #endif
-void ExtShowSpriteData(short spritenum)   //F6
+void ExtShowSpriteData(int16_t spritenum)   //F6
 {
     UNREFERENCED_PARAMETER(spritenum);
     if (qsetmode != 200)
@@ -1674,8 +1674,8 @@ void ExtShowSpriteData(short spritenum)   //F6
 // If standing in sector with SE43 or SE45
 // then draw viewing to SE40 and lower all =hi SE42 floors.
 
-int fofsizex = -1;
-int fofsizey = -1;
+int32_t fofsizex = -1;
+int32_t fofsizey = -1;
 #if 0
 static void ResetFOFSize()
 {
@@ -1683,14 +1683,14 @@ static void ResetFOFSize()
     if (fofsizey != -1) tilesizy[FOF] = fofsizey;
 }
 #endif
-static void ExtSE40Draw(int spnum,int x,int y,int z,short a,short h)
+static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,int16_t h)
 {
-    static int tempsectorz[MAXSECTORS];
-    static int tempsectorpicnum[MAXSECTORS];
+    static int32_t tempsectorz[MAXSECTORS];
+    static int32_t tempsectorpicnum[MAXSECTORS];
 
-    int i=0,j=0,k=0;
-    int floor1=0,floor2=0,ok=0,fofmode=0,draw_both=0;
-    int offx,offy,offz;
+    int32_t i=0,j=0,k=0;
+    int32_t floor1=0,floor2=0,ok=0,fofmode=0,draw_both=0;
+    int32_t offx,offy,offz;
 
     if (sprite[spnum].ang!=512) return;
 
@@ -1838,14 +1838,14 @@ static void ExtSE40Draw(int spnum,int x,int y,int z,short a,short h)
 
 } // end SE40
 
-static void SE40Code(int x,int y,int z,int a,int h)
+static void SE40Code(int32_t x,int32_t y,int32_t z,int32_t a,int32_t h)
 {
-    int i;
+    int32_t i;
 
     i = 0;
     while (i<MAXSPRITES)
     {
-        int t = sprite[i].lotag;
+        int32_t t = sprite[i].lotag;
         switch (t)
         {
             //            case 40:
@@ -1864,7 +1864,7 @@ static void SE40Code(int x,int y,int z,int a,int h)
     }
 }
 
-void ExtEditSectorData(short sectnum)    //F7
+void ExtEditSectorData(int16_t sectnum)    //F7
 {
     //    if (qsetmode != 200) Show2dText("sthelp.hlp");
     if (qsetmode == 200)
@@ -1885,7 +1885,7 @@ void ExtEditSectorData(short sectnum)    //F7
     else EditSectorData(sectnum);
 }// end ExtEditSectorData
 
-void ExtEditWallData(short wallnum)       //F8
+void ExtEditWallData(int16_t wallnum)       //F8
 {
     if (qsetmode==200)
         return;
@@ -1910,7 +1910,7 @@ void ExtEditWallData(short wallnum)       //F8
 
 static void GenSearchSprite(void);
 
-void ExtEditSpriteData(short spritenum)   //F8
+void ExtEditSpriteData(int16_t spritenum)   //F8
 {
     if (qsetmode==200)
         return;
@@ -1934,22 +1934,22 @@ void ExtEditSpriteData(short spritenum)   //F8
     else EditSpriteData(spritenum);
 }
 
-static void PrintStatus(char *string,int num,char x,char y,char color)
+static void PrintStatus(char *string,int32_t num,char x,char y,char color)
 {
     Bsprintf(tempbuf,"%s %d",string,num);
     begindrawing();
-    printext16(x*8,ydim16+y*8,editorcolors[(int)color],-1,tempbuf,0);
+    printext16(x*8,ydim16+y*8,editorcolors[(int32_t)color],-1,tempbuf,0);
     enddrawing();
 }
 
-static inline void SpriteName(short spritenum, char *lo2)
+static inline void SpriteName(int16_t spritenum, char *lo2)
 {
     Bstrcpy(lo2,names[sprite[spritenum].picnum]);
 }// end SpriteName
 
 static void ReadPaletteTable()
 {
-    int i,j,fp;
+    int32_t i,j,fp;
     char lookup_num;
 
     for (j = 0; j < 256; j++)
@@ -1993,7 +1993,7 @@ static void ReadPaletteTable()
 
 static void ReadGamePalette()
 {
-    int fp;
+    int32_t fp;
     if ((fp=kopen4load("palette.dat",0)) == -1)
         if ((fp=kopen4load("palette.dat",1)) == -1)
         {
@@ -2031,11 +2031,11 @@ void message(const char *fmt, ...)
 
 static char lockbyte4094;
 
-static int lastupdate, mousecol, mouseadd = 1, bstatus;
+static int32_t lastupdate, mousecol, mouseadd = 1, bstatus;
 
 static void m32_showmouse(void)
 {
-    int i, col;
+    int32_t i, col;
 
     if (totalclock > lastupdate)
     {
@@ -2096,9 +2096,9 @@ static void m32_showmouse(void)
     }
 }
 
-static int AskIfSure(char *text)
+static int32_t AskIfSure(char *text)
 {
-    int retval=1;
+    int32_t retval=1;
 
     if (qsetmode == 200)
     {
@@ -2141,9 +2141,9 @@ static int AskIfSure(char *text)
     return(retval);
 }
 
-static int IsValidTile(const int idTile)
+static int32_t IsValidTile(const int32_t idTile)
 {
-    int bValid = 0;
+    int32_t bValid = 0;
 
     if ((idTile >= 0) && (idTile < MAXTILES))
     {
@@ -2156,9 +2156,9 @@ static int IsValidTile(const int idTile)
     return bValid;
 }
 
-static int SelectAllTiles(int iCurrentTile)
+static int32_t SelectAllTiles(int32_t iCurrentTile)
 {
-    int i;
+    int32_t i;
 
     if (iCurrentTile < localartlookupnum)
     {
@@ -2180,23 +2180,23 @@ static int SelectAllTiles(int iCurrentTile)
     return iCurrentTile;
 }
 
-static int OnGotoTile(int iTile);
-static int OnSelectTile(int iTile);
-static int s_Zoom = INITIAL_ZOOM;
-static int s_TileZoom = 1;
+static int32_t OnGotoTile(int32_t iTile);
+static int32_t OnSelectTile(int32_t iTile);
+static int32_t s_Zoom = INITIAL_ZOOM;
+static int32_t s_TileZoom = 1;
 
-static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int TileDim, int offset);
+static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, int32_t nYTiles, int32_t TileDim, int32_t offset);
 
 
-static int m32gettile(int idInitialTile)
+static int32_t m32gettile(int32_t idInitialTile)
 {
-    int gap, temp;
-    int nXTiles, nYTiles, nDisplayedTiles;
-    int i;
-    int iTile, iTopLeftTile;
-    int idSelectedTile;
-    int scrollmode;
-    int mousedx, mousedy, mtile, omousex=searchx, omousey=searchy, moffset=0;
+    int32_t gap, temp;
+    int32_t nXTiles, nYTiles, nDisplayedTiles;
+    int32_t i;
+    int32_t iTile, iTopLeftTile;
+    int32_t idSelectedTile;
+    int32_t scrollmode;
+    int32_t mousedx, mousedy, mtile, omousex=searchx, omousey=searchy, moffset=0;
 
 // Enable following line for testing. I couldn't work out how to change vidmode on the fly
 // s_Zoom = NUM_ZOOMS - 1;
@@ -2293,7 +2293,7 @@ static int m32gettile(int idInitialTile)
 
             while ((localartfreq[temp] < localartfreq[temp+gap]) && (temp >= 0))
             {
-                int tempint;
+                int32_t tempint;
 
                 tempint = localartfreq[temp];
                 localartfreq[temp] = localartfreq[temp+gap];
@@ -2658,13 +2658,13 @@ static int m32gettile(int idInitialTile)
 }
 
 // Dir = 0 (zoom out) or 1 (zoom in)
-//void OnZoomInOut( int *pZoom, int Dir /*0*/ )
+//void OnZoomInOut( int32_t *pZoom, int32_t Dir /*0*/ )
 //{
 //}
 
-static int OnGotoTile(int iTile)
+static int32_t OnGotoTile(int32_t iTile)
 {
-    int iTemp, iNewTile;
+    int32_t iTemp, iNewTile;
     char ch;
     char szTemp[128];
 
@@ -2713,10 +2713,10 @@ static int OnGotoTile(int iTile)
     return iTile;
 }
 
-static int LoadTileSet(const int idCurrentTile, const int *pIds, const int nIds)
+static int32_t LoadTileSet(const int32_t idCurrentTile, const int32_t *pIds, const int32_t nIds)
 {
-    int iNewTile = 0;
-    int i;
+    int32_t iNewTile = 0;
+    int32_t i;
 
     localartlookupnum = nIds;
 
@@ -2737,10 +2737,10 @@ static int LoadTileSet(const int idCurrentTile, const int *pIds, const int nIds)
 
 }
 
-static int OnSelectTile(int iTile)
+static int32_t OnSelectTile(int32_t iTile)
 {
-    int bDone = 0;
-    int i;
+    int32_t bDone = 0;
+    int32_t i;
     char ch;
 
     for (i = 0; (unsigned)i < tile_groups; i++)
@@ -2810,7 +2810,7 @@ static int OnSelectTile(int iTile)
     return iTile;
 }
 
-const char * GetTilePixels(const int idTile)
+const char * GetTilePixels(const int32_t idTile)
 {
     char *pPixelData = 0;
 
@@ -2830,17 +2830,17 @@ const char * GetTilePixels(const int idTile)
     return pPixelData;
 }
 
-static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int TileDim, int offset)
+static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, int32_t nYTiles, int32_t TileDim, int32_t offset)
 {
-    int XTile, YTile;
-    int iTile, idTile;
-    int XBox, YBox;
-    int XPos, YPos;
-    int XOffset, YOffset;
-    int i;
+    int32_t XTile, YTile;
+    int32_t iTile, idTile;
+    int32_t XBox, YBox;
+    int32_t XPos, YPos;
+    int32_t XOffset, YOffset;
+    int32_t i;
     const char * pRawPixels;
-    int TileSizeX, TileSizeY;
-    int DivInc,MulInc;
+    int32_t TileSizeX, TileSizeY;
+    int32_t DivInc,MulInc;
     char *pScreen;
     char szT[128];
 
@@ -2896,7 +2896,7 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
 
                         for (YOffset = 0; YOffset < TileSizeY; YOffset++)
                         {
-                            int y=YPos+YOffset;
+                            int32_t y=YPos+YOffset;
                             if (y>=0 && y<ydim)
                             {
                                 pScreen = (char *)ylookup[y]+XPos+frameplace;
@@ -2973,9 +2973,9 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
 
 }
 
-int spriteonceilingz(int searchwall)
+int32_t spriteonceilingz(int32_t searchwall)
 {
-    int z=sprite[searchwall].z;
+    int32_t z=sprite[searchwall].z;
     z = getceilzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
     if (sprite[searchwall].cstat&128) z -= ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<1);
     if ((sprite[searchwall].cstat&48) != 32)
@@ -2983,9 +2983,9 @@ int spriteonceilingz(int searchwall)
     return z;
 }
 
-int spriteongroundz(int searchwall)
+int32_t spriteongroundz(int32_t searchwall)
 {
-    int z=sprite[searchwall].z;
+    int32_t z=sprite[searchwall].z;
     z = getflorzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
     if (sprite[searchwall].cstat&128) z -= ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<1);
     return z;
@@ -2993,24 +2993,24 @@ int spriteongroundz(int searchwall)
 
 #define WIND1X   3
 #define WIND1Y 150
-void drawtileinfo(char *title,int x,int y,int picnum,int shade,int pal,int cstat,int lotag,int hitag,int extra)
+void drawtileinfo(char *title,int32_t x,int32_t y,int32_t picnum,int32_t shade,int32_t pal,int32_t cstat,int32_t lotag,int32_t hitag,int32_t extra)
 {
     char buf[64];
-    int i,j;
-    int scale=65536;
-    int x1;
+    int32_t i,j;
+    int32_t scale=65536;
+    int32_t x1;
 
     j = xdimgame>640?0:1;
     i = ydimgame>>6;
 
     x1=x+80;
     if (j)x1/=2;
-    x1=(int)(x1*(320./xdimgame));
-    scale=(int)(scale/(max(tilesizx[picnum],tilesizy[picnum])/24.));
+    x1=(int32_t)(x1*(320./xdimgame));
+    scale=(int32_t)(scale/(max(tilesizx[picnum],tilesizy[picnum])/24.));
     rotatesprite((x1+13)<<16,(y+11)<<16,scale,0,picnum,shade,pal,2,0L,0L,xdim-1L,ydim-1L);
 
-    x=(int)(x*(xdimgame/320.));
-    y=(int)(y*(ydimgame/200.));
+    x=(int32_t)(x*(xdimgame/320.));
+    y=(int32_t)(y*(ydimgame/200.));
     begindrawing();
     printext256(x+2,y+2,0,-1,title,j);
     printext256(x,y,255-13,-1,title,j);
@@ -3038,33 +3038,33 @@ void drawtileinfo(char *title,int x,int y,int picnum,int shade,int pal,int cstat
     printext256(x,y+i*7,whitecol,-1,buf,j);
     enddrawing();
 }
-int snap=0;
-int saveval1,saveval2,saveval3;
+int32_t snap=0;
+int32_t saveval1,saveval2,saveval3;
 
-static inline void getnumber_dochar(char *ptr, int num)
+static inline void getnumber_dochar(char *ptr, int32_t num)
 {
     *ptr = (char) num;
 }
 
-static inline void getnumber_doshort(short *ptr, int num)
+static inline void getnumber_doint16_t(int16_t *ptr, int32_t num)
 {
-    *ptr = (short) num;
+    *ptr = (int16_t) num;
 }
 
-static inline void getnumber_doint32(int32 *ptr, int num)
+static inline void getnumber_doint32(int32 *ptr, int32_t num)
 {
     *ptr = (int32) num;
 }
 
-static inline void getnumber_doint64(int64 *ptr, int num)
+static inline void getnumber_doint64(int64 *ptr, int32_t num)
 {
     *ptr = (int64) num;
 }
 
-void getnumberptr256(char *namestart, void *num, int bytes, int maxnumber, char sign, void *(func)(int))
+void getnumberptr256(char *namestart, void *num, int32_t bytes, int32_t maxnumber, char sign, void *(func)(int32_t))
 {
     char buffer[80], ch;
-    int n, danum = 0, oldnum;
+    int32_t n, danum = 0, oldnum;
 
     switch (bytes)
     {
@@ -3072,7 +3072,7 @@ void getnumberptr256(char *namestart, void *num, int bytes, int maxnumber, char 
         danum = *(char *)num;
         break;
     case 2:
-        danum = *(short *)num;
+        danum = *(int16_t *)num;
         break;
     case 4:
         danum = *(int32 *)num;
@@ -3114,7 +3114,7 @@ void getnumberptr256(char *namestart, void *num, int bytes, int maxnumber, char 
         printmessage256(0, 0, buffer);
         if (func != NULL)
         {
-            Bsprintf(buffer,"%s",(char *)func((int)danum));
+            Bsprintf(buffer,"%s",(char *)func((int32_t)danum));
             printmessage256(0, 9, buffer);
         }
         showframe(1);
@@ -3152,7 +3152,7 @@ void getnumberptr256(char *namestart, void *num, int bytes, int maxnumber, char 
             getnumber_dochar(num, danum);
             break;
         case 2:
-            getnumber_doshort(num, danum);
+            getnumber_doint16_t(num, danum);
             break;
         case 4:
             getnumber_doint32(num, danum);
@@ -3172,7 +3172,7 @@ void getnumberptr256(char *namestart, void *num, int bytes, int maxnumber, char 
         getnumber_dochar(num, oldnum);
         break;
     case 2:
-        getnumber_doshort(num, oldnum);
+        getnumber_doint16_t(num, oldnum);
         break;
     case 4:
         getnumber_doint32(num, oldnum);
@@ -3183,11 +3183,11 @@ void getnumberptr256(char *namestart, void *num, int bytes, int maxnumber, char 
     }
 }
 
-static void DoSpriteOrnament(int i)
+static void DoSpriteOrnament(int32_t i)
 {
-    int j;
-    int hitx, hity, hitz;
-    short hitsect, hitwall, hitsprite;
+    int32_t j;
+    int32_t hitx, hity, hitz;
+    int16_t hitsect, hitwall, hitsprite;
 
     hitscan(sprite[i].x,sprite[i].y,sprite[i].z,sprite[i].sectnum,
             sintable[(sprite[i].ang+2560+1024)&2047],
@@ -3217,17 +3217,17 @@ int64 ldistsqr(spritetype *s1,spritetype *s2)
             ((int64)(s2->y - s1->y))*((int64)(s2->y - s1->y)));
 }
 
-void rendertext(short startspr)
+void rendertext(int16_t startspr)
 {
     char ch, buffer[80], doingspace=0;
-    short daang = 0, t, alphidx, basetile, linebegspr, curspr, cursor;
-    int i, j, k, dax = 0, day = 0;
-    static unsigned char hgap=0, vgap=4;
-    static unsigned char spcgap[MAX_ALPHABETS], firstrun=1;
+    int16_t daang = 0, t, alphidx, basetile, linebegspr, curspr, cursor;
+    int32_t i, j, k, dax = 0, day = 0;
+    static uint8_t hgap=0, vgap=4;
+    static uint8_t spcgap[MAX_ALPHABETS], firstrun=1;
     spritetype *sp;
 
-    short *spritenums;
-    int stackallocsize=32, numletters=0;
+    int16_t *spritenums;
+    int32_t stackallocsize=32, numletters=0;
 
     if (firstrun)
     {
@@ -3279,7 +3279,7 @@ ENDFOR1:
     sprite[startspr].xoffset = -(((picanm[t])>>8)&255);
     sprite[startspr].yoffset = -(((picanm[t])>>16)&255);
 
-    spritenums = Bmalloc(stackallocsize * sizeof(short));
+    spritenums = Bmalloc(stackallocsize * sizeof(int16_t));
     if (!spritenums) goto ERROR_NOMEMORY;
 
     cursor = insertsprite(sprite[startspr].sectnum,0);
@@ -3399,7 +3399,7 @@ ENDFOR1:
 
         if (ch>=33 && ch<=126 && alphabets[alphidx].pic[ch-33] >= 0)
         {
-            short sect;
+            int16_t sect;
 
             // mapping char->tilenum
             t = alphabets[alphidx].pic[ch-33];
@@ -3422,8 +3422,8 @@ ENDFOR1:
 
                 sprite[i].xoffset = -(((picanm[sprite[i].picnum])>>8)&255);
                 sprite[i].yoffset = -(((picanm[sprite[i].picnum])>>16)&255);
-                sprite[i].xoffset += alphabets[alphidx].xofs[(int)ch-33];
-                sprite[i].yoffset += alphabets[alphidx].yofs[(int)ch-33];
+                sprite[i].xoffset += alphabets[alphidx].xofs[(int32_t)ch-33];
+                sprite[i].yoffset += alphabets[alphidx].yofs[(int32_t)ch-33];
 
                 DoSpriteOrnament(i);
 
@@ -3442,7 +3442,7 @@ ENDFOR1:
                 if (numletters >= stackallocsize)
                 {
                     stackallocsize *= 2;
-                    spritenums = Brealloc(spritenums, stackallocsize*sizeof(short));
+                    spritenums = Brealloc(spritenums, stackallocsize*sizeof(int16_t));
                     if (!spritenums) goto ERROR_NOMEMORY;
                 }
                 spritenums[numletters++] = i;
@@ -3460,7 +3460,7 @@ ENDFOR1:
                 doingspace = 0;
             else if (numletters > 0)
             {
-                short last = spritenums[numletters-1];
+                int16_t last = spritenums[numletters-1];
 
                 if (sprite[last].z != sprite[linebegspr].z)  // only "delete" line break
                 {
@@ -3469,7 +3469,7 @@ ENDFOR1:
                 }
                 else if (numletters > 1)
                 {
-                    short sectolast = spritenums[numletters-2];
+                    int16_t sectolast = spritenums[numletters-2];
 
                     if (sprite[last].z == sprite[sectolast].z)
                         curspr = sectolast;
@@ -3522,11 +3522,11 @@ ERROR_NOMEMORY:
 
 static void Keys3d(void)
 {
-    int i,count,nexti,changedir;
-    int j, k, tempint = 0, hiz, loz;
-    int hihit, lohit;
+    int32_t i,count,nexti,changedir;
+    int32_t j, k, tempint = 0, hiz, loz;
+    int32_t hihit, lohit;
     char smooshyalign=0, repeatpanalign=0, buffer[80];
-    short startwall, endwall, dasector, statnum=0;
+    int16_t startwall, endwall, dasector, statnum=0;
     char tempbuf[128];
 
     /* start Mapster32 */
@@ -3584,8 +3584,8 @@ static void Keys3d(void)
 //    if (infobox&1)
     {
         char lines[8][64];
-        int dax, day, dist, height1=0,height2=0,height3=0, num=0;
-        int x,y;
+        int32_t dax, day, dist, height1=0,height2=0,height3=0, num=0;
+        int32_t x,y;
 
         if (infobox&1)
         {
@@ -3603,7 +3603,7 @@ static void Keys3d(void)
                 dist = ksqrt(dax*dax+day*day);
                 if (wall[searchwall].nextsector!=-1)
                 {
-                    int nextsect=wall[searchwall].nextsector;
+                    int32_t nextsect=wall[searchwall].nextsector;
                     height1=sector[searchsector].floorz-sector[nextsect].floorz;
                     height2=sector[nextsect].floorz-sector[nextsect].ceilingz;
                     height3=sector[nextsect].ceilingz-sector[searchsector].ceilingz;
@@ -3672,8 +3672,8 @@ static void Keys3d(void)
             }
         }
         x=WIND1X;y=WIND1Y;
-        x=(int)(x*(xdimgame/320.));
-        y=(int)(y*(ydimgame/200.));
+        x=(int32_t)(x*(xdimgame/320.));
+        y=(int32_t)(y*(ydimgame/200.));
         y+=(ydimgame>>6)*8;
         if (getmessageleng)
         {
@@ -3705,8 +3705,8 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_SEMI] && keystatus[KEYSC_V])   // ; V
     {
-        short currsector;
-        unsigned char visval;
+        int16_t currsector;
+        uint8_t visval;
 
         keystatus[KEYSC_V] = 0;
 
@@ -3715,7 +3715,7 @@ static void Keys3d(void)
             message("You didn't select any sectors!");
             return;
         }
-        visval = (unsigned char)getnumber256("Visibility of selected sectors: ",sector[searchsector].visibility,256L,0);
+        visval = (uint8_t)getnumber256("Visibility of selected sectors: ",sector[searchsector].visibility,256L,0);
         if (AskIfSure(0)) return;
 
         for (i = 0; i < highlightsectorcnt; i++)
@@ -3728,7 +3728,7 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_V])  //V
     {
-        int oldtile;
+        int32_t oldtile;
         if (searchstat == 0) tempint = wall[searchwall].picnum;
         if (searchstat == 1) tempint = sector[searchsector].ceilingpicnum;
         if (searchstat == 2) tempint = sector[searchsector].floorpicnum;
@@ -3794,8 +3794,8 @@ static void Keys3d(void)
     // 'P - Will copy palette to all sectors highlighted with R-Alt key
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_P])   // ' P
     {
-        short w, start_wall, end_wall, currsector;
-        signed char pal[4];
+        int16_t w, start_wall, end_wall, currsector;
+        int8_t pal[4];
 
         keystatus[KEYSC_P] = 0;
 
@@ -3845,8 +3845,8 @@ static void Keys3d(void)
     // ;P - Will copy palette to all sectors & sprites within highlighted with R-Alt key
     if (keystatus[KEYSC_SEMI] && keystatus[KEYSC_P])   // ; P
     {
-        short w, start_wall, end_wall, currsector;
-        unsigned char pal;
+        int16_t w, start_wall, end_wall, currsector;
+        uint8_t pal;
 
         keystatus[KEYSC_P] = 0;
 
@@ -3856,7 +3856,7 @@ static void Keys3d(void)
             return;
         }
 
-        pal = (unsigned char)getnumber256("Global palette: ",0,MAXPALOOKUPS,0);
+        pal = (uint8_t)getnumber256("Global palette: ",0,MAXPALOOKUPS,0);
         if (AskIfSure(0)) return;
 
         for (i = 0; i < highlightsectorcnt; i++)
@@ -3937,7 +3937,7 @@ static void Keys3d(void)
     {
         if ((searchstat == 0) || (searchstat == 4))
         {
-            AutoAlignWalls((int)searchwall,0L);
+            AutoAlignWalls((int32_t)searchwall,0L);
             message("Wall %d autoalign",searchwall);
             keystatus[KEYSC_PERIOD] = 0;
         }
@@ -4023,16 +4023,16 @@ static void Keys3d(void)
         case 0:
         case 4:
             strcpy(buffer,"Wall extra: ");
-            wall[searchwall].extra = getnumber256(buffer,(int)wall[searchwall].extra,65536L,1);
+            wall[searchwall].extra = getnumber256(buffer,(int32_t)wall[searchwall].extra,65536L,1);
             break;
         case 1:
         case 2:
             strcpy(buffer,"Sector extra: ");
-            sector[searchsector].extra = getnumber256(buffer,(int)sector[searchsector].extra,65536L,1);
+            sector[searchsector].extra = getnumber256(buffer,(int32_t)sector[searchsector].extra,65536L,1);
             break;
         case 3:
             strcpy(buffer,"Sprite extra: ");
-            sprite[searchwall].extra = getnumber256(buffer,(int)sprite[searchwall].extra,65536L,1);
+            sprite[searchwall].extra = getnumber256(buffer,(int32_t)sprite[searchwall].extra,65536L,1);
             break;
         }
         asksave = 1;
@@ -4144,19 +4144,19 @@ static void Keys3d(void)
             case 0:
             case 4:
                 strcpy(buffer,"Wall hitag: ");
-                wall[searchwall].hitag = getnumber256(buffer,(int)wall[searchwall].hitag,65536L,0);
+                wall[searchwall].hitag = getnumber256(buffer,(int32_t)wall[searchwall].hitag,65536L,0);
                 break;
             case 1:
                 strcpy(buffer,"Sector hitag: ");
-                sector[searchsector].hitag = getnumber256(buffer,(int)sector[searchsector].hitag,65536L,0);
+                sector[searchsector].hitag = getnumber256(buffer,(int32_t)sector[searchsector].hitag,65536L,0);
                 break;
             case 2:
                 strcpy(buffer,"Sector hitag: ");
-                sector[searchsector].hitag = getnumber256(buffer,(int)sector[searchsector].hitag,65536L,0);
+                sector[searchsector].hitag = getnumber256(buffer,(int32_t)sector[searchsector].hitag,65536L,0);
                 break;
             case 3:
                 strcpy(buffer,"Sprite hitag: ");
-                sprite[searchwall].hitag = getnumber256(buffer,(int)sprite[searchwall].hitag,65536L,0);
+                sprite[searchwall].hitag = getnumber256(buffer,(int32_t)sprite[searchwall].hitag,65536L,0);
                 break;
             }
         }
@@ -4264,7 +4264,7 @@ static void Keys3d(void)
 
                 if (k == 0)
                 {
-                    int shade=-1, i=-1;
+                    int32_t shade=-1, i=-1;
                     if (searchstat == 0) shade=++wall[i=searchwall].shade;
                     if (searchstat == 1) shade=++sector[i=searchsector].ceilingshade;
                     if (searchstat == 2) shade=++sector[i=searchsector].floorshade;
@@ -4361,7 +4361,7 @@ static void Keys3d(void)
 
                 if (k == 0)
                 {
-                    int shade=-1, i=-1;
+                    int32_t shade=-1, i=-1;
                     if (searchstat == 0) shade=--wall[i=searchwall].shade;
                     if (searchstat == 1) shade=--sector[i=searchsector].ceilingshade;
                     if (searchstat == 2) shade=--sector[i=searchsector].floorshade;
@@ -4988,17 +4988,17 @@ static void Keys3d(void)
 
     if (framerateon)
     {
-        static int FrameCount = 0;
-        static int LastCount = 0;
-        static int LastSec = 0;
-        static int LastMS = 0;
-        int ms = getticks();
-        int howlong = ms - LastMS;
+        static int32_t FrameCount = 0;
+        static int32_t LastCount = 0;
+        static int32_t LastSec = 0;
+        static int32_t LastMS = 0;
+        int32_t ms = getticks();
+        int32_t howlong = ms - LastMS;
         if (howlong >= 0)
         {
-            int thisSec = ms/1000;
-            int x = (xdim <= 640);
-            int chars = Bsprintf(tempbuf, "%2u ms (%3u fps)", howlong, LastCount);
+            int32_t thisSec = ms/1000;
+            int32_t x = (xdim <= 640);
+            int32_t chars = Bsprintf(tempbuf, "%2u ms (%3u fps)", howlong, LastCount);
 
             if (!x)
             {
@@ -5468,19 +5468,19 @@ static void Keys3d(void)
             case 0:
             case 4:
                 strcpy(buffer,"Wall lotag: ");
-                wall[searchwall].lotag = getnumber256(buffer,(int)wall[searchwall].lotag,65536L,0);
+                wall[searchwall].lotag = getnumber256(buffer,(int32_t)wall[searchwall].lotag,65536L,0);
                 break;
             case 1:
                 strcpy(buffer,"Sector lotag: ");
-                sector[searchsector].lotag = getnumber256(buffer,(int)sector[searchsector].lotag,65536L,0);
+                sector[searchsector].lotag = getnumber256(buffer,(int32_t)sector[searchsector].lotag,65536L,0);
                 break;
             case 2:
                 strcpy(buffer,"Sector lotag: ");
-                sector[searchsector].lotag = getnumber256(buffer,(int)sector[searchsector].lotag,65536L,0);
+                sector[searchsector].lotag = getnumber256(buffer,(int32_t)sector[searchsector].lotag,65536L,0);
                 break;
             case 3:
                 strcpy(buffer,"Sprite lotag: ");
-                sprite[searchwall].lotag = getnumber256(buffer,(int)sprite[searchwall].lotag,65536L,0);
+                sprite[searchwall].lotag = getnumber256(buffer,(int32_t)sprite[searchwall].lotag,65536L,0);
                 break;
             }
         }
@@ -5678,7 +5678,7 @@ static void Keys3d(void)
     if (bstatus&1 && eitherSHIFT) mskip=1;
     if (bstatus&1 && eitherSHIFT && (searchstat == 1 || searchstat == 2) && (mousex|mousey))
     {
-        int fw,x1,y1,x2,y2,stat,ma,a=0;
+        int32_t fw,x1,y1,x2,y2,stat,ma,a=0;
 
         stat=(searchstat==2)?sector[searchsector].floorstat:sector[searchsector].ceilingstat;
         if (stat&64) // align to first wall
@@ -5722,7 +5722,7 @@ static void Keys3d(void)
         a=ksqrt(mouseax*mouseax+mouseay*mouseay);
         if (a)
         {
-            int mult=(stat&8)?8192:8192*2;
+            int32_t mult=(stat&8)?8192:8192*2;
             x1=-a*sintable[(ma+2048)&2047]/mult;
             y1=-a*sintable[(ma+1536)&2047]/mult;
             if (x1||y1)
@@ -5766,7 +5766,7 @@ static void Keys3d(void)
             {
                 mouseaction=1;
                 mouseax+=mousex;
-                updownunits=klabs((int)(mouseax/2.));
+                updownunits=klabs((int32_t)(mouseax/2.));
                 if (updownunits) {mouseax=0;}
             }
         }
@@ -5836,10 +5836,10 @@ static void Keys3d(void)
             {
                 if (mouseaction==1)
                 {
-                    int xvect,yvect;
-                    short cursectnum=sprite[searchwall].sectnum;
-                    xvect = -((mousex*(int)sintable[(ang+2048)&2047])<<3);
-                    yvect = -((mousex*(int)sintable[(ang+1536)&2047])<<3);
+                    int32_t xvect,yvect;
+                    int16_t cursectnum=sprite[searchwall].sectnum;
+                    xvect = -((mousex*(int32_t)sintable[(ang+2048)&2047])<<3);
+                    yvect = -((mousex*(int32_t)sintable[(ang+1536)&2047])<<3);
                     clipmove(&sprite[searchwall].x,&sprite[searchwall].y,&sprite[searchwall].z,
                              &cursectnum,xvect,yvect,128L,4L<<8,4L<<8,spnoclip?1:CLIPMASK0);
                     setsprite(searchwall,sprite[searchwall].x,sprite[searchwall].y,sprite[searchwall].z);
@@ -5874,7 +5874,7 @@ static void Keys3d(void)
                 updownunits=klabs(mousey);
                 if (searchstat != 3)
                 {
-                    updownunits=klabs((int)(mousey*128./tilesizy[wall[searchwall].picnum]));
+                    updownunits=klabs((int32_t)(mousey*128./tilesizy[wall[searchwall].picnum]));
                 }
             }
         }
@@ -5942,10 +5942,10 @@ static void Keys3d(void)
             {
                 if (mouseaction==1)
                 {
-                    int xvect,yvect;
-                    short cursectnum=sprite[searchwall].sectnum;
-                    xvect = -((mousey*(int)sintable[(ang+2560)&2047])<<3);
-                    yvect = -((mousey*(int)sintable[(ang+2048)&2047])<<3);
+                    int32_t xvect,yvect;
+                    int16_t cursectnum=sprite[searchwall].sectnum;
+                    xvect = -((mousey*(int32_t)sintable[(ang+2560)&2047])<<3);
+                    yvect = -((mousey*(int32_t)sintable[(ang+2048)&2047])<<3);
                     clipmove(&sprite[searchwall].x,&sprite[searchwall].y,&sprite[searchwall].z,
                              &cursectnum,xvect,yvect,128L,4L<<8,4L<<8,spnoclip?1:CLIPMASK0);
                     setsprite(searchwall,sprite[searchwall].x,sprite[searchwall].y,sprite[searchwall].z);
@@ -5968,7 +5968,7 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_F11])  //F11 - brightness
     {
-        extern short brightness;
+        extern int16_t brightness;
 
         keystatus[KEYSC_F11] = 0;
 
@@ -6062,8 +6062,8 @@ static void Keys3d(void)
     if (keystatus[KEYSC_ENTER])
     {
         extern char pskysearch[MAXSECTORS];
-        short daang;
-        int dashade[2];
+        int16_t daang;
+        int32_t dashade[2];
         if (eitherSHIFT)
         {
             if (((searchstat == 0) || (searchstat == 4)) && eitherCTRL)  //Ctrl-shift Enter (auto-shade)
@@ -6073,8 +6073,8 @@ static void Keys3d(void)
                 i = searchwall;
                 do
                 {
-                    if ((int)wall[i].shade < dashade[0]) dashade[0] = wall[i].shade;
-                    if ((int)wall[i].shade > dashade[1]) dashade[1] = wall[i].shade;
+                    if ((int32_t)wall[i].shade < dashade[0]) dashade[0] = wall[i].shade;
+                    if ((int32_t)wall[i].shade > dashade[1]) dashade[1] = wall[i].shade;
 
                     i = wall[i].point2;
                 }
@@ -6129,7 +6129,7 @@ static void Keys3d(void)
                     wall[i].yrepeat = tempyrepeat;
                     wall[i].cstat = tempcstat;
                 }
-                fixrepeats((short)i);
+                fixrepeats((int16_t)i);
                 i = wall[i].point2;
             }
             while (i != searchwall);
@@ -6137,7 +6137,7 @@ static void Keys3d(void)
         }
         else if (((searchstat == 1) || (searchstat == 2)) && eitherCTRL && (somethingintab < 255))  //Either ctrl key
         {
-            clearbuf(&pskysearch[0],(int)((numsectors+3)>>2),0L);
+            clearbuf(&pskysearch[0],(int32_t)((numsectors+3)>>2),0L);
             if (searchstat == 1)
             {
                 i = searchsector;
@@ -6375,7 +6375,7 @@ static void Keys3d(void)
             wall[searchwall].xrepeat = 8;
             wall[searchwall].yrepeat = 8;
             wall[searchwall].cstat = 0;
-            fixrepeats((short)searchwall);
+            fixrepeats((int16_t)searchwall);
         }
         if (searchstat == 1)
         {
@@ -6473,10 +6473,10 @@ static void Keys3d(void)
     }
 }// end 3d
 
-static void DoSpriteSearch(int dir)  // <0: backwards, >=0: forwards
+static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
 {
     char did_wrap = 0;
-    int i, j, k = 0;
+    int32_t i, j, k = 0;
 
     for (dir<0 ? gs_cursprite-- : gs_cursprite++;; dir<0 ? gs_cursprite-- : gs_cursprite++)
     {
@@ -6579,10 +6579,10 @@ NEXTSPRITE:
 
 static void Keys2d(void)
 {
-    short temp=0;
-    int i=0, j,k;
-    int repeatcountx=0,repeatcounty=0,smooshyalign,changedir;
-    static int opointhighlight=-1, olinehighlight=-1, ocursectornum=-1;
+    int16_t temp=0;
+    int32_t i=0, j,k;
+    int32_t repeatcountx=0,repeatcounty=0,smooshyalign,changedir;
+    static int32_t opointhighlight=-1, olinehighlight=-1, ocursectornum=-1;
     /*
        for(i=0;i<0x50;i++)
        {if(keystatus[i]==1) {Bsprintf(tempbuf,"key %d",i); printmessage16(tempbuf);
@@ -6612,7 +6612,7 @@ static void Keys2d(void)
         }
         else if ((linehighlight >= 0) && (sectorofwall(linehighlight) == cursectornum))
         {
-            int dax, day, dist;
+            int32_t dax, day, dist;
             dax = wall[linehighlight].x-wall[wall[linehighlight].point2].x;
             day = wall[linehighlight].y-wall[wall[linehighlight].point2].y;
             dist = ksqrt(dax*dax+day*day);
@@ -6633,17 +6633,17 @@ static void Keys2d(void)
         {
             i = pointhighlight-16384;
             clearmidstatbar16();
-            showspritedata((short)i);
+            showspritedata((int16_t)i);
         }
         else if ((linehighlight >= 0) && (bstatus&1 || sectorofwall(linehighlight) == cursectornum))
         {
             clearmidstatbar16();
-            showwalldata((short)linehighlight);
+            showwalldata((int16_t)linehighlight);
         }
         else if (cursectornum >= 0)
         {
             clearmidstatbar16();
-            showsectordata((short)cursectornum);
+            showsectordata((int16_t)cursectornum);
         }
         else clearmidstatbar16();
         opointhighlight = pointhighlight;
@@ -6667,7 +6667,7 @@ static void Keys2d(void)
         keystatus[0x14] = 0;
         if (keystatus[0x1d]|keystatus[0x9d])  //Ctrl-T
         {
-            extern short showtags;
+            extern int16_t showtags;
 
             showtags ^= 1;
             if (showtags == 0)
@@ -6685,7 +6685,7 @@ static void Keys2d(void)
                     sprite[i].lotag = _getnumber16(buffer,sprite[i].lotag,65536L,0,(void *)SectorEffectorTagText);
                 else sprite[i].lotag = getnumber16(buffer,sprite[i].lotag,65536L,0);
                 clearmidstatbar16();
-                showspritedata((short)i);
+                showspritedata((int16_t)i);
             }
             else if (linehighlight >= 0)
             {
@@ -6693,7 +6693,7 @@ static void Keys2d(void)
                 Bsprintf(buffer,"Wall (%d) Lo-tag: ",i);
                 wall[i].lotag = getnumber16(buffer,wall[i].lotag,65536L,0);
                 clearmidstatbar16();
-                showwalldata((short)i);
+                showwalldata((int16_t)i);
             }
             printmessage16("");
         }
@@ -6708,7 +6708,7 @@ static void Keys2d(void)
                     sector[i].lotag = _getnumber16(buffer,sector[i].lotag,65536L,0,(void *)ExtGetSectorType);
                     qsetmode = j;
                     clearmidstatbar16();
-                    showsectordata((short)i);
+                    showsectordata((int16_t)i);
                     break;
                 }
             printmessage16("");
@@ -6775,7 +6775,7 @@ static void Keys2d(void)
                 Bsprintf(tempbuf,"Sprite %d Extra: ",i);
                 sprite[i].extra = getnumber16(tempbuf,sprite[i].extra,65536L,1);
                 clearmidstatbar16();
-                showspritedata((short)i);
+                showspritedata((int16_t)i);
             }
             else if (linehighlight >= 0)
             {
@@ -6783,7 +6783,7 @@ static void Keys2d(void)
                 Bsprintf(tempbuf,"Wall %d Extra: ",i);
                 wall[i].extra = getnumber16(tempbuf,wall[i].extra,65536L,1);
                 clearmidstatbar16();
-                showwalldata((short)i);
+                showwalldata((int16_t)i);
             }
             printmessage16("");
         }
@@ -6795,7 +6795,7 @@ static void Keys2d(void)
                     Bsprintf(tempbuf,"Sector %d Extra: ",i);
                     sector[i].extra = getnumber16(tempbuf,sector[i].extra,65536L,1);
                     clearmidstatbar16();
-                    showsectordata((short)i);
+                    showsectordata((int16_t)i);
                     break;
                 }
             printmessage16("");
@@ -7074,7 +7074,7 @@ static void Keys2d(void)
     }
 
     {
-        static int autogrid = 0;
+        static int32_t autogrid = 0;
 
         if (keystatus[KEYSC_G])  // G (grid on/off)
         {
@@ -7244,7 +7244,7 @@ static void InitCustomColors(void)
     /*    vgapal16[9*4+0] = 63;
         vgapal16[9*4+1] = 31;
         vgapal16[9*4+2] = 7; */
-    int i;
+    int32_t i;
     palette_t *edcol;
     /*
 
@@ -7263,7 +7263,7 @@ static void InitCustomColors(void)
         editorcolors[4] = getclosestcol(42,0,0);
         editorcolors[5] = getclosestcol(0,0,0);
     */
-    extern int getclosestcol(int r, int g, int b);
+    extern int32_t getclosestcol(int32_t r, int32_t g, int32_t b);
 
 
     vgapal16[9*4+0] = 63;
@@ -7327,7 +7327,7 @@ void ExtPreSaveMap(void)
 {
     if (fixmapbeforesaving)
     {
-        int i, startwall, j, endwall;
+        int32_t i, startwall, j, endwall;
 
         for (i=0;i<numsectors;i++)
         {
@@ -7350,7 +7350,7 @@ void ExtPreSaveMap(void)
             startwall = sector[i].wallptr;
             endwall = startwall + sector[i].wallnum;
             for (j=startwall;j<endwall;j++)
-                checksectorpointer((short)j,(short)i);
+                checksectorpointer((int16_t)j,(int16_t)i);
         }
     }
 }
@@ -7419,16 +7419,16 @@ static void G_AddGroup(const char *buffer)
 extern char forcegl;
 #endif
 
-static void G_CheckCommandLine(int argc, const char **argv)
+static void G_CheckCommandLine(int32_t argc, const char **argv)
 {
-    int i = 1, j, maxlen=0, *lengths;
+    int32_t i = 1, j, maxlen=0, *lengths;
     char *c, *k;
 
     mapster32_fullpath = (char*)argv[0];
 
     if (argc > 1)
     {
-        lengths = Bmalloc(argc*sizeof(int));
+        lengths = Bmalloc(argc*sizeof(int32_t));
         for (j=1; j<argc; j++) maxlen += (lengths[j] = Bstrlen(argv[j]));
 
         testplay_addparam = Bmalloc(maxlen+argc);
@@ -7619,7 +7619,7 @@ static void G_CheckCommandLine(int argc, const char **argv)
 }
 #undef COPYARG
 
-int ExtPreInit(int argc,const char **argv)
+int32_t ExtPreInit(int32_t argc,const char **argv)
 {
     wm_setapptitle("Mapster32"VERSION BUILDDATE);
 
@@ -7639,7 +7639,7 @@ int ExtPreInit(int argc,const char **argv)
     return 0;
 }
 
-static int osdcmd_quit(const osdfuncparm_t *parm)
+static int32_t osdcmd_quit(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
     clearfilenames();
@@ -7651,10 +7651,10 @@ static int osdcmd_quit(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_editorgridextent(const osdfuncparm_t *parm)
+static int32_t osdcmd_editorgridextent(const osdfuncparm_t *parm)
 {
-    int i;
-    extern int editorgridextent;
+    int32_t i;
+    extern int32_t editorgridextent;
 
     if (parm->numparms == 0)
     {
@@ -7674,7 +7674,7 @@ static int osdcmd_editorgridextent(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_addpath(const osdfuncparm_t *parm)
+static int32_t osdcmd_addpath(const osdfuncparm_t *parm)
 {
     char pathname[BMAX_PATH];
 
@@ -7685,7 +7685,7 @@ static int osdcmd_addpath(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_initgroupfile(const osdfuncparm_t *parm)
+static int32_t osdcmd_initgroupfile(const osdfuncparm_t *parm)
 {
     char file[BMAX_PATH];
 
@@ -7696,9 +7696,9 @@ static int osdcmd_initgroupfile(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_echo(const osdfuncparm_t *parm)
+static int32_t osdcmd_echo(const osdfuncparm_t *parm)
 {
-    int i;
+    int32_t i;
     for (i = 0; i < parm->numparms; i++)
     {
         if (i > 0) OSD_Printf(" ");
@@ -7709,10 +7709,10 @@ static int osdcmd_echo(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_fileinfo(const osdfuncparm_t *parm)
+static int32_t osdcmd_fileinfo(const osdfuncparm_t *parm)
 {
-    unsigned int crc, length;
-    int i,j;
+    uint32_t crc, length;
+    int32_t i,j;
     char buf[256];
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
@@ -7729,7 +7729,7 @@ static int osdcmd_fileinfo(const osdfuncparm_t *parm)
     do
     {
         j = kread(i,buf,256);
-        crc32block(&crc,(unsigned char *)buf,j);
+        crc32block(&crc,(uint8_t *)buf,j);
     }
     while (j == 256);
     crc32finish(&crc);
@@ -7744,7 +7744,7 @@ static int osdcmd_fileinfo(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_sensitivity(const osdfuncparm_t *parm)
+static int32_t osdcmd_sensitivity(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1)
     {
@@ -7756,9 +7756,9 @@ static int osdcmd_sensitivity(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_gamma(const osdfuncparm_t *parm)
+static int32_t osdcmd_gamma(const osdfuncparm_t *parm)
 {
-    extern short brightness;
+    extern int16_t brightness;
 
     if (parm->numparms != 1)
     {
@@ -7771,7 +7771,7 @@ static int osdcmd_gamma(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_noclip(const osdfuncparm_t *parm)
+static int32_t osdcmd_noclip(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
     noclip = !noclip;
@@ -7779,9 +7779,9 @@ static int osdcmd_noclip(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_testplay_addparam(const osdfuncparm_t *parm)
+static int32_t osdcmd_testplay_addparam(const osdfuncparm_t *parm)
 {
-    int slen;
+    int32_t slen;
 
     if (parm->numparms != 1)
     {
@@ -7816,9 +7816,9 @@ static int osdcmd_testplay_addparam(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_showheightindicators(const osdfuncparm_t *parm)
+static int32_t osdcmd_showheightindicators(const osdfuncparm_t *parm)
 {
-    extern int showheightindicators;
+    extern int32_t showheightindicators;
 
     if (parm->numparms == 1)
         showheightindicators = min(max(atoi(parm->parms[0]),0),2);
@@ -7831,9 +7831,9 @@ static int osdcmd_showheightindicators(const osdfuncparm_t *parm)
 }
 
 //PK vvv ------------
-static int osdcmd_vars_pk(const osdfuncparm_t *parm)
+static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
 {
-    int showval = (parm->numparms < 1);
+    int32_t showval = (parm->numparms < 1);
 
     // this is something of a misnomer, since it's actually accel+decel
     if (!Bstrcasecmp(parm->name, "pk_turnaccel"))
@@ -7875,7 +7875,7 @@ static int osdcmd_vars_pk(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int registerosdcommands(void)
+static int32_t registerosdcommands(void)
 {
     OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
 
@@ -7906,9 +7906,9 @@ static int registerosdcommands(void)
 }
 #define DUKEOSD
 #ifdef DUKEOSD
-void GAME_drawosdchar(int x, int y, char ch, int shade, int pal)
+void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
 {
-    int ac;
+    int32_t ac;
 
     if (ch == 32) return;
     ac = ch-'!'+STARTALPHANUM;
@@ -7917,9 +7917,9 @@ void GAME_drawosdchar(int x, int y, char ch, int shade, int pal)
     rotatesprite(((x<<3)+x)<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16, 0, 0, xdim-1, ydim-1);
 }
 
-void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
+void GAME_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade, int32_t pal)
 {
-    int ac;
+    int32_t ac;
 
     for (x = (x<<3)+x; len>0; len--, ch++, x++)
     {
@@ -7937,14 +7937,14 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
     }
 }
 
-static int GetTime(void)
+static int32_t GetTime(void)
 {
     return totalclock;
 }
 
-void GAME_drawosdcursor(int x, int y, int type, int lastkeypress)
+void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress)
 {
-    int ac;
+    int32_t ac;
 
     if (type) ac = SMALLFNTCURSOR;
     else ac = '_'-'!'+STARTALPHANUM;
@@ -7953,12 +7953,12 @@ void GAME_drawosdcursor(int x, int y, int type, int lastkeypress)
         rotatesprite(((x<<3)+x)<<16, ((y<<3)+(type?-1:2))<<16, 65536l, 0, ac, 0, 8, 8|16, 0, 0, xdim-1, ydim-1);
 }
 
-int GAME_getcolumnwidth(int w)
+int32_t GAME_getcolumnwidth(int32_t w)
 {
     return w/9;
 }
 
-int GAME_getrowheight(int w)
+int32_t GAME_getrowheight(int32_t w)
 {
     return w>>3;
 }
@@ -7972,10 +7972,10 @@ int GAME_getrowheight(int w)
 #define BITS 8+16+64		// solid
 #define SHADE 16
 #define PALETTE 4
-void GAME_clearbackground(int c, int r)
+void GAME_clearbackground(int32_t c, int32_t r)
 {
-    int x, y, xsiz, ysiz, tx2, ty2;
-    int daydim, bits;
+    int32_t x, y, xsiz, ysiz, tx2, ty2;
+    int32_t daydim, bits;
 
     UNREFERENCED_PARAMETER(c);
     /*
@@ -7989,7 +7989,7 @@ void GAME_clearbackground(int c, int r)
                 NULL,
                 NULL,
                 NULL,
-                (int(*)(void))GetTime,
+                (int32_t(*)(void))GetTime,
                 NULL
             );
             return;
@@ -8046,14 +8046,14 @@ enum
 typedef struct
 {
     char *text;
-    int tokenid;
+    int32_t tokenid;
 }
 tokenlist;
 
-static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
+static int32_t getatoken(scriptfile *sf, tokenlist *tl, int32_t ntokens)
 {
     char *tok;
-    int i;
+    int32_t i;
 
     if (!sf) return T_ERROR;
     tok = scriptfile_gettoken(sf);
@@ -8080,9 +8080,9 @@ static void DoAutoload(const char *fn)
     while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
 }
 
-int parsegroupfiles(scriptfile *script)
+int32_t parsegroupfiles(scriptfile *script)
 {
-    int tokn;
+    int32_t tokn;
     char *cmdtokptr;
 
     tokenlist grptokens[] =
@@ -8106,7 +8106,7 @@ int parsegroupfiles(scriptfile *script)
             pathsearchmode = 1;
             if (!scriptfile_getstring(script,&fn))
             {
-                int j = initgroupfile(fn);
+                int32_t j = initgroupfile(fn);
 
                 if (j == -1)
                     initprintf("Could not find group file '%s'.\n",fn);
@@ -8155,7 +8155,7 @@ int parsegroupfiles(scriptfile *script)
     return 0;
 }
 
-int loadgroupfiles(char *fn)
+int32_t loadgroupfiles(char *fn)
 {
     scriptfile *script;
 
@@ -8170,9 +8170,9 @@ int loadgroupfiles(char *fn)
     return 0;
 }
 
-int parsetilegroups(scriptfile *script)
+int32_t parsetilegroups(scriptfile *script)
 {
-    int tokn;
+    int32_t tokn;
     char *cmdtokptr;
 
     tokenlist tgtokens[] =
@@ -8194,7 +8194,7 @@ int parsetilegroups(scriptfile *script)
         {
         case T_HOTKEY:
         {
-            int i, j;
+            int32_t i, j;
             if (scriptfile_getsymbol(script,&i)) break;
             if (scriptfile_getsymbol(script,&j)) break;
             if (i < 0 || i > 9 || j < 0 || j >= MAXTILES) break;
@@ -8225,7 +8225,7 @@ int parsetilegroups(scriptfile *script)
         case T_DEFINE:
         {
             char *name;
-            int number;
+            int32_t number;
 
             if (scriptfile_getstring(script,&name)) break;
             if (scriptfile_getsymbol(script,&number)) break;
@@ -8237,13 +8237,13 @@ int parsetilegroups(scriptfile *script)
         case T_TILEGROUP:
         {
             char *end, *name;
-            int i;
+            int32_t i;
 
             if (tile_groups >= MAX_TILE_GROUPS) break;
             if (scriptfile_getstring(script,&name)) break;
             if (scriptfile_getbraces(script,&end)) break;
 
-            s_TileGroups[tile_groups].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES,sizeof(int));
+            s_TileGroups[tile_groups].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES,sizeof(int32_t));
             s_TileGroups[tile_groups].szText = Bstrdup(name);
 
             while (script->textptr < end)
@@ -8258,7 +8258,7 @@ int parsetilegroups(scriptfile *script)
                     { "colors",     T_COLORS      },
                 };
 
-                int token = getatoken(script,tgtokens2,sizeof(tgtokens2)/sizeof(tokenlist));
+                int32_t token = getatoken(script,tgtokens2,sizeof(tgtokens2)/sizeof(tokenlist));
                 switch (token)
                 {
                 case T_TILE:
@@ -8271,7 +8271,7 @@ int parsetilegroups(scriptfile *script)
                 }
                 case T_TILERANGE:
                 {
-                    int j;
+                    int32_t j;
                     if (scriptfile_getsymbol(script,&i)) break;
                     if (scriptfile_getsymbol(script,&j)) break;
                     if (i < 0 || i >= MAXTILES || j < 0 || j >= MAXTILES) break;
@@ -8284,7 +8284,7 @@ int parsetilegroups(scriptfile *script)
                 }
                 case T_COLORS:
                 {
-                    int j;
+                    int32_t j;
                     if (scriptfile_getsymbol(script, &i)) break;
                     if (scriptfile_getsymbol(script, &j)) break;
                     if (i < 0 || i >= 256 || j < 0 || j >= 256) break;
@@ -8317,14 +8317,14 @@ int parsetilegroups(scriptfile *script)
                 }
                 }
             }
-            s_TileGroups[tile_groups].pIds = Brealloc(s_TileGroups[tile_groups].pIds,s_TileGroups[tile_groups].nIds*sizeof(int));
+            s_TileGroups[tile_groups].pIds = Brealloc(s_TileGroups[tile_groups].pIds,s_TileGroups[tile_groups].nIds*sizeof(int32_t));
             tile_groups++;
             break;
         }
         case T_ALPHABET:
         {
             char *end;
-            int i, j, k;
+            int32_t i, j, k;
 
             if (numalphabets >= MAX_ALPHABETS) break;
             if (scriptfile_getbraces(script,&end)) break;
@@ -8348,7 +8348,7 @@ int parsetilegroups(scriptfile *script)
                     { "offseta",    T_OFFSETA     },
                 };
 
-                int token = getatoken(script,alphtokens2,sizeof(alphtokens2)/sizeof(tokenlist));
+                int32_t token = getatoken(script,alphtokens2,sizeof(alphtokens2)/sizeof(tokenlist));
                 switch (token)
                 {
                 case T_MAP:  // map <ascii num> <start tilenum>, e.g. map 46 3002
@@ -8444,9 +8444,9 @@ int parsetilegroups(scriptfile *script)
     return 0;
 }
 
-int loadtilegroups(char *fn)
+int32_t loadtilegroups(char *fn)
 {
-    int i, j;
+    int32_t i, j;
     scriptfile *script;
     TileGroup blank = { NULL,     0,  NULL,     0, 0, 0, 0};
 
@@ -8486,10 +8486,10 @@ int loadtilegroups(char *fn)
     return 0;
 }
 
-int ExtInit(void)
+int32_t ExtInit(void)
 {
-    int rv = 0;
-    int i;
+    int32_t rv = 0;
+    int32_t i;
     char cwd[BMAX_PATH];
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
@@ -8537,7 +8537,7 @@ int ExtInit(void)
 #endif
     {
         char *homedir;
-        int asperr;
+        int32_t asperr;
 
         if ((homedir = Bgethomedir()))
         {
@@ -8593,7 +8593,7 @@ int ExtInit(void)
 
     {
         struct strllist *s;
-        int j;
+        int32_t j;
 
         pathsearchmode = 1;
         while (CommandGrps)
@@ -8625,7 +8625,7 @@ int ExtInit(void)
 
     if (glusetexcache == -1 || glusetexcachecompression == -1)
     {
-        int i;
+        int32_t i;
 #if 1
         i=wm_ynbox("Texture Caching",
                    "Would you like to enable the on-disk texture cache?\n\n"
@@ -8672,7 +8672,7 @@ int ExtInit(void)
         		GAME_getrowheight,*/
         0,0,0,0,0,
         GAME_clearbackground,
-        (int(*)(void))GetTime,
+        (int32_t(*)(void))GetTime,
         NULL
     );
 #endif
@@ -8717,7 +8717,7 @@ void app_crashhandler(void)
 
 void ExtUnInit(void)
 {
-    int i;
+    int32_t i;
     // setvmode(0x03);
     uninitgroupfile();
     writesetup(setupfilename);
@@ -8740,27 +8740,27 @@ static char wallpals[MAXWALLS];
 static char sectorpals[MAXSECTORS][2];
 static char spritepals[MAXSPRITES];
 static char wallflag[MAXWALLS];
-extern int graphicsmode;
+extern int32_t graphicsmode;
 
 void ExtPreCheckKeys(void) // just before drawrooms
 {
-    int i = 0;
-    int radius, xp1, yp1;
-    int col;
-    int picnum, frames;
-    int ang = 0, flags, shade;
+    int32_t i = 0;
+    int32_t radius, xp1, yp1;
+    int32_t col;
+    int32_t picnum, frames;
+    int32_t ang = 0, flags, shade;
 
     if (qsetmode == 200)    //In 3D mode
     {
         if (shadepreview)
         {
-            int i = 0;
+            int32_t i = 0;
             for (i=numsprites-1;i>=0;i--)
                 if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || sprite[i].lotag == 3))
                 {
-                    int w;
-                    int start_wall = sector[sprite[i].sectnum].wallptr;
-                    int end_wall = start_wall + sector[sprite[i].sectnum].wallnum;
+                    int32_t w;
+                    int32_t start_wall = sector[sprite[i].sectnum].wallptr;
+                    int32_t end_wall = start_wall + sector[sprite[i].sectnum].wallnum;
 
                     for (w = start_wall; w < end_wall; w++)
                     {
@@ -8880,7 +8880,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
             case LIZMANJUMP :
 
             {
-                int k;
+                int32_t k;
                 if (frames!=0)
                 {
                     if (frames==10) frames=0;
@@ -8947,7 +8947,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
             if (i+16384 == pointhighlight)
                 if (totalclock & 32) col += (2<<2);
             drawlinepat = 0xf0f0f0f0;
-            drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, editorcolors[(int)col]);
+            drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, editorcolors[(int32_t)col]);
             drawlinepat = 0xffffffff;
 //            radius = mulscale15(sprite[i].hitag,zoom);
             //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
@@ -8958,9 +8958,9 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
 void ExtAnalyzeSprites(void)
 {
-    int i, k;
+    int32_t i, k;
     spritetype *tspr;
-    int frames=0, l;
+    int32_t frames=0, l;
 
     for (i=0,tspr=&tsprite[0];i<spritesortcnt;i++,tspr++)
     {
@@ -9096,7 +9096,7 @@ void ExtAnalyzeSprites(void)
 
 static void Keys2d3d(void)
 {
-    int i;
+    int32_t i;
 
     if (keystatus[KEYSC_F12])   //F12
     {
@@ -9173,7 +9173,7 @@ static void Keys2d3d(void)
                 char *param = " -map autosave.map -noinstancechecking";
                 char *fullparam;
                 char current_cwd[BMAX_PATH];
-                int slen = 0;
+                int32_t slen = 0;
                 BFILE *fp;
 
                 if ((program_origcwd[0] == '\0') || !getcwd(current_cwd, BMAX_PATH))
@@ -9281,12 +9281,12 @@ static void Keys2d3d(void)
         }
         if (keystatus[KEYSC_L]) // L
         {
-            extern int grponlymode;
+            extern int32_t grponlymode;
             extern void loadmhk();
 
             if (totalclock < (lastsave + 120*10) || !AskIfSure("Are you sure you want to load the last saved map?"))
             {
-                int sposx=posx,sposy=posy,sposz=posz,sang=ang;
+                int32_t sposx=posx,sposy=posy,sposz=posz,sang=ang;
 
                 lastsave=totalclock;
                 highlightcnt = -1;
@@ -9337,7 +9337,7 @@ static void Keys2d3d(void)
                 NULL,
                 NULL,
                 NULL,
-                (int(*)(void))GetTime,
+                (int32_t(*)(void))GetTime,
                 NULL
             );
         }
@@ -9351,7 +9351,7 @@ static void Keys2d3d(void)
                 				GAME_getrowheight,*/
                 0,0,0,0,0,
                 GAME_clearbackground,
-                (int(*)(void))GetTime,
+                (int32_t(*)(void))GetTime,
                 NULL
             );
         }
@@ -9399,13 +9399,13 @@ void ExtCheckKeys(void)
     {
         if (shadepreview)
         {
-            int i = 0;
+            int32_t i = 0;
             for (i=numsprites-1;i>=0;i--)
                 if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || sprite[i].lotag == 3))
                 {
-                    int w;
-                    int start_wall = sector[sprite[i].sectnum].wallptr;
-                    int end_wall = start_wall + sector[sprite[i].sectnum].wallnum;
+                    int32_t w;
+                    int32_t start_wall = sector[sprite[i].sectnum].wallptr;
+                    int32_t end_wall = start_wall + sector[sprite[i].sectnum].wallnum;
 
                     for (w = start_wall; w < end_wall; w++)
                     {
@@ -9458,9 +9458,9 @@ void ExtCheckKeys(void)
 
 void faketimerhandler(void)
 {
-    int i, dist;
-    int hiz, hihit, loz, lohit, oposx, oposy;
-    short hitwall, daang;
+    int32_t i, dist;
+    int32_t hiz, hihit, loz, lohit, oposx, oposy;
+    int16_t hitwall, daang;
 
     counter++;
     if (counter>=5) counter=0;
@@ -9492,8 +9492,8 @@ void faketimerhandler(void)
         if (yvel > 0) yvel--;
 
         i = 4-keystatus[buildkeys[BK_RUN]];
-        xvel += mulscale(vel,(int)sintable[(ang+512)&2047],i);
-        yvel += mulscale(vel,(int)sintable[ang&2047],i);
+        xvel += mulscale(vel,(int32_t)sintable[(ang+512)&2047],i);
+        yvel += mulscale(vel,(int32_t)sintable[ang&2047],i);
 
         if (((daang-ang)&2047) < 1024)
             ang = ((ang+((((daang-ang)&2047)+24)>>4))&2047);
@@ -9534,7 +9534,7 @@ void faketimerhandler(void)
         */
 }
 
-extern short brightness;
+extern int16_t brightness;
 
 static inline void SetBOSS1Palette()
 {
@@ -9566,7 +9566,7 @@ static inline void SetGAMEPalette()
 
 static void SearchSectorsForward()
 {
-    int ii=0;
+    int32_t ii=0;
     if (cursector_lotag!=0)
     {
         if (cursectornum<MAXSECTORS) cursectornum++;
@@ -9589,7 +9589,7 @@ static void SearchSectorsForward()
 
 static void SearchSectorsBackward()
 {
-    int ii=0;
+    int32_t ii=0;
     if (cursector_lotag!=0)
     {
         if (cursectornum>0) cursectornum--;
@@ -9611,12 +9611,12 @@ static void SearchSectorsBackward()
 }
 
 // Build edit originally by Ed Coolidge <semicharm@earthlink.net>
-static void EditSectorData(short sectnum)
+static void EditSectorData(int16_t sectnum)
 {
     char disptext[80];
     char edittext[80];
-    int col=1, row=0, rowmax = 6, dispwidth = 24, editval = 0, i = -1;
-    int xpos = 200, ypos = ydim-STATUS2DSIZ+48;
+    int32_t col=1, row=0, rowmax = 6, dispwidth = 24, editval = 0, i = -1;
+    int32_t xpos = 200, ypos = ydim-STATUS2DSIZ+48;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();
@@ -9693,7 +9693,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].ceilingstat = (short)getnumber16(edittext,(int)sector[sectnum].ceilingstat,65536L,0);
+                    sector[sectnum].ceilingstat = (int16_t)getnumber16(edittext,(int32_t)sector[sectnum].ceilingstat,65536L,0);
                 }
                 break;
             case 1:
@@ -9702,10 +9702,10 @@ static void EditSectorData(short sectnum)
                 {
                     Bsprintf(edittext,"Sector %d Ceiling X Pan: ",sectnum);
                     printmessage16(edittext);
-                    sector[sectnum].ceilingxpanning = (char)getnumber16(edittext,(int)sector[sectnum].ceilingxpanning,256L,0);
+                    sector[sectnum].ceilingxpanning = (char)getnumber16(edittext,(int32_t)sector[sectnum].ceilingxpanning,256L,0);
                     Bsprintf(edittext,"Sector %d Ceiling Y Pan: ",sectnum);
                     printmessage16(edittext);
-                    sector[sectnum].ceilingypanning = (char)getnumber16(edittext,(int)sector[sectnum].ceilingypanning,256L,0);
+                    sector[sectnum].ceilingypanning = (char)getnumber16(edittext,(int32_t)sector[sectnum].ceilingypanning,256L,0);
                 }
                 break;
             case 2:
@@ -9714,7 +9714,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].ceilingshade = (char)getnumber16(edittext,(int)sector[sectnum].ceilingshade,128L,1);
+                    sector[sectnum].ceilingshade = (char)getnumber16(edittext,(int32_t)sector[sectnum].ceilingshade,128L,1);
                 }
                 break;
 
@@ -9734,7 +9734,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].ceilingpicnum = (short)getnumber16(edittext,(int)sector[sectnum].ceilingpicnum,MAXTILES,0);
+                    sector[sectnum].ceilingpicnum = (int16_t)getnumber16(edittext,(int32_t)sector[sectnum].ceilingpicnum,MAXTILES,0);
                 }
                 break;
 
@@ -9744,7 +9744,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].ceilingheinum = (short)getnumber16(edittext,(int)sector[sectnum].ceilingheinum,65536L,1);
+                    sector[sectnum].ceilingheinum = (int16_t)getnumber16(edittext,(int32_t)sector[sectnum].ceilingheinum,65536L,1);
                 }
                 break;
 
@@ -9754,7 +9754,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].ceilingpal = (char)getnumber16(edittext,(int)sector[sectnum].ceilingpal,MAXPALOOKUPS,0);
+                    sector[sectnum].ceilingpal = (char)getnumber16(edittext,(int32_t)sector[sectnum].ceilingpal,MAXPALOOKUPS,0);
                 }
                 break;
             }
@@ -9769,7 +9769,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].floorstat = (short)getnumber16(edittext,(int)sector[sectnum].floorstat,65536L,0);
+                    sector[sectnum].floorstat = (int16_t)getnumber16(edittext,(int32_t)sector[sectnum].floorstat,65536L,0);
                 }
                 break;
 
@@ -9779,10 +9779,10 @@ static void EditSectorData(short sectnum)
                 {
                     Bsprintf(edittext,"Sector %d Floor X Pan: ",sectnum);
                     printmessage16(edittext);
-                    sector[sectnum].floorxpanning = (char)getnumber16(edittext,(int)sector[sectnum].floorxpanning,256L,0);
+                    sector[sectnum].floorxpanning = (char)getnumber16(edittext,(int32_t)sector[sectnum].floorxpanning,256L,0);
                     Bsprintf(edittext,"Sector %d Floor Y Pan: ",sectnum);
                     printmessage16(edittext);
-                    sector[sectnum].floorypanning = (char)getnumber16(edittext,(int)sector[sectnum].floorypanning,256L,0);
+                    sector[sectnum].floorypanning = (char)getnumber16(edittext,(int32_t)sector[sectnum].floorypanning,256L,0);
                 }
                 break;
 
@@ -9792,7 +9792,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].floorshade = (char)getnumber16(edittext,(int)sector[sectnum].floorshade,128L,1L);
+                    sector[sectnum].floorshade = (char)getnumber16(edittext,(int32_t)sector[sectnum].floorshade,128L,1L);
                 }
                 break;
 
@@ -9812,7 +9812,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].floorpicnum = (short)getnumber16(edittext,(int)sector[sectnum].floorpicnum,MAXTILES,0);
+                    sector[sectnum].floorpicnum = (int16_t)getnumber16(edittext,(int32_t)sector[sectnum].floorpicnum,MAXTILES,0);
                 }
                 break;
             case 5:
@@ -9821,7 +9821,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].floorheinum = (short)getnumber16(edittext,(int)sector[sectnum].floorheinum,65536L,1);
+                    sector[sectnum].floorheinum = (int16_t)getnumber16(edittext,(int32_t)sector[sectnum].floorheinum,65536L,1);
                 }
                 break;
             case 6:
@@ -9830,7 +9830,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].floorpal = (char)getnumber16(edittext,(int)sector[sectnum].floorpal,MAXPALOOKUPS,0);
+                    sector[sectnum].floorpal = (char)getnumber16(edittext,(int32_t)sector[sectnum].floorpal,MAXPALOOKUPS,0);
                 }
                 break;
             }
@@ -9849,12 +9849,12 @@ static void EditSectorData(short sectnum)
     keystatus[KEYSC_ESC] = 0;
 }
 
-static void EditWallData(short wallnum)
+static void EditWallData(int16_t wallnum)
 {
     char disptext[80];
     char edittext[80];
-    int row=0, dispwidth = 24, editval = 0, i = -1;
-    int xpos = 200, ypos = ydim-STATUS2DSIZ+48;
+    int32_t row=0, dispwidth = 24, editval = 0, i = -1;
+    int32_t xpos = 200, ypos = ydim-STATUS2DSIZ+48;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();
@@ -9899,7 +9899,7 @@ static void EditWallData(short wallnum)
             if (editval)
             {
                 printmessage16(edittext);
-                wall[wallnum].cstat = (short)getnumber16(edittext,(int)wall[wallnum].cstat,65536L,0);
+                wall[wallnum].cstat = (int16_t)getnumber16(edittext,(int32_t)wall[wallnum].cstat,65536L,0);
             }
             break;
         case 1:
@@ -9908,7 +9908,7 @@ static void EditWallData(short wallnum)
             if (editval)
             {
                 printmessage16(edittext);
-                wall[wallnum].shade = (char)getnumber16(edittext,(int)wall[wallnum].shade,128,1);
+                wall[wallnum].shade = (char)getnumber16(edittext,(int32_t)wall[wallnum].shade,128,1);
             }
             break;
         case 2:
@@ -9917,7 +9917,7 @@ static void EditWallData(short wallnum)
             if (editval)
             {
                 printmessage16(edittext);
-                wall[wallnum].pal = (char)getnumber16(edittext,(int)wall[wallnum].pal,MAXPALOOKUPS,0);
+                wall[wallnum].pal = (char)getnumber16(edittext,(int32_t)wall[wallnum].pal,MAXPALOOKUPS,0);
             }
             break;
         case 3:
@@ -9926,10 +9926,10 @@ static void EditWallData(short wallnum)
             {
                 Bsprintf(edittext,"Wall %d X Repeat: ",wallnum);
                 printmessage16(edittext);
-                wall[wallnum].xrepeat = (char)getnumber16(edittext,(int)wall[wallnum].xrepeat,256L,0);
+                wall[wallnum].xrepeat = (char)getnumber16(edittext,(int32_t)wall[wallnum].xrepeat,256L,0);
                 Bsprintf(edittext,"Wall %d Y Repeat: ",wallnum);
                 printmessage16(edittext);
-                wall[wallnum].yrepeat = (char)getnumber16(edittext,(int)wall[wallnum].yrepeat,256L,0);
+                wall[wallnum].yrepeat = (char)getnumber16(edittext,(int32_t)wall[wallnum].yrepeat,256L,0);
             }
             break;
         case 4:
@@ -9938,10 +9938,10 @@ static void EditWallData(short wallnum)
             {
                 Bsprintf(edittext,"Wall %d X Pan: ",wallnum);
                 printmessage16(edittext);
-                wall[wallnum].xpanning = (char)getnumber16(edittext,(int)wall[wallnum].xpanning,256L,0);
+                wall[wallnum].xpanning = (char)getnumber16(edittext,(int32_t)wall[wallnum].xpanning,256L,0);
                 Bsprintf(edittext,"Wall %d Y Pan: ",wallnum);
                 printmessage16(edittext);
-                wall[wallnum].ypanning = (char)getnumber16(edittext,(int)wall[wallnum].ypanning,256L,0);
+                wall[wallnum].ypanning = (char)getnumber16(edittext,(int32_t)wall[wallnum].ypanning,256L,0);
             }
             break;
         case 5:
@@ -9950,7 +9950,7 @@ static void EditWallData(short wallnum)
             if (editval)
             {
                 printmessage16(edittext);
-                wall[wallnum].picnum = (short)getnumber16(edittext,(int)wall[wallnum].picnum,MAXTILES,0);
+                wall[wallnum].picnum = (int16_t)getnumber16(edittext,(int32_t)wall[wallnum].picnum,MAXTILES,0);
             }
             break;
 
@@ -9960,7 +9960,7 @@ static void EditWallData(short wallnum)
             if (editval)
             {
                 printmessage16(edittext);
-                wall[wallnum].overpicnum = (short)getnumber16(edittext,(int)wall[wallnum].overpicnum,MAXTILES,0);
+                wall[wallnum].overpicnum = (int16_t)getnumber16(edittext,(int32_t)wall[wallnum].overpicnum,MAXTILES,0);
             }
             break;
         }
@@ -9982,12 +9982,12 @@ static void EditWallData(short wallnum)
     keystatus[KEYSC_ESC] = 0;
 }
 
-static void EditSpriteData(short spritenum)
+static void EditSpriteData(int16_t spritenum)
 {
     char disptext[80];
     char edittext[80];
-    int col=0, row=0, rowmax=4, dispwidth = 24, editval = 0, i = -1;
-    int xpos = 8, ypos = ydim-STATUS2DSIZ+48;
+    int32_t col=0, row=0, rowmax=4, dispwidth = 24, editval = 0, i = -1;
+    int32_t xpos = 8, ypos = ydim-STATUS2DSIZ+48;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();
@@ -10162,7 +10162,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].cstat = (short)getnumber16(edittext,(int)sprite[spritenum].cstat,65536L,0);
+                    sprite[spritenum].cstat = (int16_t)getnumber16(edittext,(int32_t)sprite[spritenum].cstat,65536L,0);
                 }
             }
             break;
@@ -10173,7 +10173,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].shade = (char)getnumber16(edittext,(int)sprite[spritenum].shade,128,1);
+                    sprite[spritenum].shade = (char)getnumber16(edittext,(int32_t)sprite[spritenum].shade,128,1);
                 }
             }
             break;
@@ -10184,7 +10184,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].pal = (char)getnumber16(edittext,(int)sprite[spritenum].pal,MAXPALOOKUPS,0);
+                    sprite[spritenum].pal = (char)getnumber16(edittext,(int32_t)sprite[spritenum].pal,MAXPALOOKUPS,0);
                 }
             }
             break;
@@ -10195,10 +10195,10 @@ static void EditSpriteData(short spritenum)
                 {
                     Bsprintf(edittext,"Sprite %d X Repeat: ",spritenum);
                     printmessage16(edittext);
-                    sprite[spritenum].xrepeat = (char)getnumber16(edittext,(int)sprite[spritenum].xrepeat,256L,0);
+                    sprite[spritenum].xrepeat = (char)getnumber16(edittext,(int32_t)sprite[spritenum].xrepeat,256L,0);
                     Bsprintf(edittext,"Sprite %d Y Repeat: ",spritenum);
                     printmessage16(edittext);
-                    sprite[spritenum].yrepeat = (char)getnumber16(edittext,(int)sprite[spritenum].yrepeat,256L,0);
+                    sprite[spritenum].yrepeat = (char)getnumber16(edittext,(int32_t)sprite[spritenum].yrepeat,256L,0);
                 }
             }
             break;
@@ -10209,10 +10209,10 @@ static void EditSpriteData(short spritenum)
                 {
                     Bsprintf(edittext,"Sprite %d X Offset: ",spritenum);
                     printmessage16(edittext);
-                    sprite[spritenum].xoffset = (char)getnumber16(edittext,(int)sprite[spritenum].xoffset,128L,1);
+                    sprite[spritenum].xoffset = (char)getnumber16(edittext,(int32_t)sprite[spritenum].xoffset,128L,1);
                     Bsprintf(edittext,"Sprite %d Y Offset: ",spritenum);
                     printmessage16(edittext);
-                    sprite[spritenum].yoffset = (char)getnumber16(edittext,(int)sprite[spritenum].yoffset,128L,1);
+                    sprite[spritenum].yoffset = (char)getnumber16(edittext,(int32_t)sprite[spritenum].yoffset,128L,1);
                 }
             }
             break;
@@ -10223,7 +10223,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].picnum = (short)getnumber16(edittext,(int)sprite[spritenum].picnum,MAXTILES,0);
+                    sprite[spritenum].picnum = (int16_t)getnumber16(edittext,(int32_t)sprite[spritenum].picnum,MAXTILES,0);
                 }
             }
             break;
@@ -10241,7 +10241,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].ang = (short)getnumber16(edittext,(int)sprite[spritenum].ang,2048L,0);
+                    sprite[spritenum].ang = (int16_t)getnumber16(edittext,(int32_t)sprite[spritenum].ang,2048L,0);
                 }
             }
             break;
@@ -10252,7 +10252,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].xvel = getnumber16(edittext,(int)sprite[spritenum].xvel,65536,1);
+                    sprite[spritenum].xvel = getnumber16(edittext,(int32_t)sprite[spritenum].xvel,65536,1);
                 }
             }
             break;
@@ -10263,7 +10263,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].yvel = getnumber16(edittext,(int)sprite[spritenum].yvel,65536,1);
+                    sprite[spritenum].yvel = getnumber16(edittext,(int32_t)sprite[spritenum].yvel,65536,1);
                 }
             }
             break;
@@ -10274,7 +10274,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].zvel = getnumber16(edittext,(int)sprite[spritenum].zvel,65536,1);
+                    sprite[spritenum].zvel = getnumber16(edittext,(int32_t)sprite[spritenum].zvel,65536,1);
                 }
             }
             break;
@@ -10285,7 +10285,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].owner = getnumber16(edittext,(int)sprite[spritenum].owner,MAXSPRITES,0);
+                    sprite[spritenum].owner = getnumber16(edittext,(int32_t)sprite[spritenum].owner,MAXSPRITES,0);
                 }
             }
             break;
@@ -10296,7 +10296,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].clipdist = (char)getnumber16(edittext,(int)sprite[spritenum].clipdist,256,0);
+                    sprite[spritenum].clipdist = (char)getnumber16(edittext,(int32_t)sprite[spritenum].clipdist,256,0);
                 }
             }
             break;
@@ -10307,7 +10307,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].extra = getnumber16(edittext,(int)sprite[spritenum].extra,65536,1);
+                    sprite[spritenum].extra = getnumber16(edittext,(int32_t)sprite[spritenum].extra,65536,1);
                 }
             }
             break;
@@ -10336,10 +10336,10 @@ static void GenSearchSprite()
 {
     char disptext[80];
     char edittext[80];
-    static int col=0, row=0;
-    int i, j, k;
-    int rowmax[3]={6,5,6}, dispwidth[3] = {24,24,28};
-    int xpos[3] = {8,200,400}, ypos = ydim-STATUS2DSIZ+48;
+    static int32_t col=0, row=0;
+    int32_t i, j, k;
+    int32_t rowmax[3]={6,5,6}, dispwidth[3] = {24,24,28};
+    int32_t xpos[3] = {8,200,400}, ypos = ydim-STATUS2DSIZ+48;
 
     static char *labels[7][3] =
     {
@@ -10352,7 +10352,7 @@ static void GenSearchSprite()
         {"Lotag",        "",            "Extra"}
     };
 
-    static int maxval[7][3] =
+    static int32_t maxval[7][3] =
     {
         { 524288      , 65536       , 2048 },
         { 524288      , 128         , 65536 },
@@ -10517,13 +10517,13 @@ static char *FuncMenuStrings[] =
 
 static void FuncMenuOpts(void)
 {
-    int x = 8;
-    int y = MENU_BASE_Y+16;
-    int i = 0;
-    //  int x2 = 0;
-//    static int x2_max = 0;
+    int32_t x = 8;
+    int32_t y = MENU_BASE_Y+16;
+    int32_t i = 0;
+    //  int32_t x2 = 0;
+//    static int32_t x2_max = 0;
 
-    int numopts = (sizeof(FuncMenuStrings)/sizeof(FuncMenuStrings[0]));
+    int32_t numopts = (sizeof(FuncMenuStrings)/sizeof(FuncMenuStrings[0]));
 
     do
     {
@@ -10546,8 +10546,8 @@ static void FuncMenuOpts(void)
 static void FuncMenu(void)
 {
     char disptext[80];
-    int col=0, row=0, rowmax=7, dispwidth = 24, editval = 0, i = -1, j;
-    int xpos = 8, ypos = MENU_BASE_Y+16;
+    int32_t col=0, row=0, rowmax=7, dispwidth = 24, editval = 0, i = -1, j;
+    int32_t xpos = 8, ypos = MENU_BASE_Y+16;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();
@@ -10682,7 +10682,7 @@ static void FuncMenu(void)
                     i = getnumber16(tempbuf,-1,MAXSPRITES-1,1);
                     if (i >= 0)
                     {
-                        int k = 0;
+                        int32_t k = 0;
                         for (j=0;j<MAXSPRITES-1;j++)
                             if (sprite[j].picnum == i)
                                 deletesprite(j), k++;
@@ -10757,30 +10757,30 @@ static void FuncMenu(void)
                     j=getnumber16("Percentage of original:    ",100,1000,0);
                     if (j!=100)
                     {
-                        int w, currsector, start_wall, end_wall;
+                        int32_t w, currsector, start_wall, end_wall;
                         double size = (j/100.f);
                         for (i = 0; i < highlightsectorcnt; i++)
                         {
                             currsector = highlightsector[i];
-                            sector[currsector].ceilingz = (int)(sector[currsector].ceilingz*size);
-                            sector[currsector].floorz = (int)(sector[currsector].floorz*size);
+                            sector[currsector].ceilingz = (int32_t)(sector[currsector].ceilingz*size);
+                            sector[currsector].floorz = (int32_t)(sector[currsector].floorz*size);
                             // Do all the walls in the sector
                             start_wall = sector[currsector].wallptr;
                             end_wall = start_wall + sector[currsector].wallnum;
                             for (w = start_wall; w < end_wall; w++)
                             {
-                                wall[w].x = (int)(wall[w].x*size);
-                                wall[w].y = (int)(wall[w].y*size);
-                                wall[w].yrepeat = min((int)(wall[w].yrepeat/size),255);
+                                wall[w].x = (int32_t)(wall[w].x*size);
+                                wall[w].y = (int32_t)(wall[w].y*size);
+                                wall[w].yrepeat = min((int32_t)(wall[w].yrepeat/size),255);
                             }
                             w = headspritesect[highlightsector[i]];
                             while (w >= 0)
                             {
-                                sprite[w].x = (int)(sprite[w].x*size);
-                                sprite[w].y = (int)(sprite[w].y*size);
-                                sprite[w].z = (int)(sprite[w].z*size);
-                                sprite[w].xrepeat = min(max((int)(sprite[w].xrepeat*size),1),255);
-                                sprite[w].yrepeat = min(max((int)(sprite[w].yrepeat*size),1),255);
+                                sprite[w].x = (int32_t)(sprite[w].x*size);
+                                sprite[w].y = (int32_t)(sprite[w].y*size);
+                                sprite[w].z = (int32_t)(sprite[w].z*size);
+                                sprite[w].xrepeat = min(max((int32_t)(sprite[w].xrepeat*size),1),255);
+                                sprite[w].yrepeat = min(max((int32_t)(sprite[w].yrepeat*size),1),255);
                                 w = nextspritesect[w];
                             }
                         }
@@ -10852,23 +10852,23 @@ static void FuncMenu(void)
 
 typedef struct _mapundo
 {
-    int numsectors;
-    int numwalls;
-    int numsprites;
+    int32_t numsectors;
+    int32_t numwalls;
+    int32_t numsprites;
 
     sectortype *sectors;
     walltype *walls;
     spritetype *sprites;
 
-    short *headspritesect;
-    short *prevspritesect;
-    short *nextspritesect;
+    int16_t *headspritesect;
+    int16_t *prevspritesect;
+    int16_t *nextspritesect;
 
-    short *headspritestat;
-    short *prevspritestat;
-    short *nextspritestat;
+    int16_t *headspritestat;
+    int16_t *prevspritestat;
+    int16_t *nextspritestat;
 
-    int revision;
+    int32_t revision;
 
     struct _mapundo *next; // 'redo' loads this
     struct _mapundo *prev; // 'undo' loads this
@@ -10877,5 +10877,5 @@ typedef struct _mapundo
 mapundo_t *undopos = NULL;
 mapundo_t undoredo[UNDODEPTH];
 
-int map_revision = 0;
+int32_t map_revision = 0;
 */

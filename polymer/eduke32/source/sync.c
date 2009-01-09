@@ -24,16 +24,16 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
-int g_numSyncBytes = 1;
+int32_t g_numSyncBytes = 1;
 char g_szfirstSyncMsg[MAXSYNCBYTES][60];
-int g_foundSyncError = 0;
+int32_t g_foundSyncError = 0;
 
-static int crctable[256];
+static int32_t crctable[256];
 #define updatecrc(dcrc,xz) (dcrc = (crctable[((dcrc)>>8)^((xz)&255)]^((dcrc)<<8)))
 
 void initsynccrc(void)
 {
-    int i, j, k, a;
+    int32_t i, j, k, a;
 
     for (j=0;j<256;j++)     //Calculate CRC table
     {
@@ -52,8 +52,8 @@ void initsynccrc(void)
 
 char Net_PlayerSync(void)
 {
-    short i;
-    unsigned short crc = 0;
+    int16_t i;
+    uint16_t crc = 0;
     DukePlayer_t *pp;
 
     TRAVERSE_CONNECT(i)
@@ -65,14 +65,14 @@ char Net_PlayerSync(void)
         updatecrc(crc, pp->ang & 255);
     }
 
-    return ((char) crc & 255);
+    return ((uint8_t) crc & 255);
 }
 
 char Net_PlayerSync2(void)
 {
-    int i;
-    int j, nextj;
-    unsigned short crc = 0;
+    int32_t i;
+    int32_t j, nextj;
+    uint16_t crc = 0;
     DukePlayer_t *pp;
     spritetype *spr;
 
@@ -94,13 +94,13 @@ char Net_PlayerSync2(void)
         updatecrc(crc, (spr->ang) & 255);
     }
 
-    return ((char) crc & 255);
+    return ((uint8_t) crc & 255);
 }
 
 char Net_ActorSync(void)
 {
-    unsigned short crc = 0;
-    int j, nextj;
+    uint16_t crc = 0;
+    int32_t j, nextj;
     spritetype *spr;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_ACTOR], j, nextj)
@@ -125,13 +125,13 @@ char Net_ActorSync(void)
         updatecrc(crc, (spr->ang) & 255);
     }
 
-    return ((char) crc & 255);
+    return ((uint8_t) crc & 255);
 }
 
 char Net_WeaponSync(void)
 {
-    unsigned short crc = 0;
-    int j, nextj;
+    uint16_t crc = 0;
+    int32_t j, nextj;
     spritetype *spr;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_PROJECTILE], j, nextj)
@@ -143,13 +143,13 @@ char Net_WeaponSync(void)
         updatecrc(crc, (spr->ang) & 255);
     }
 
-    return ((char) crc & 255);
+    return ((uint8_t) crc & 255);
 }
 
 char Net_MapSync(void)
 {
-    unsigned short crc = 0;
-    int j, nextj;
+    uint16_t crc = 0;
+    int32_t j, nextj;
     spritetype *spr;
     walltype *wal;
     sectortype *sect;
@@ -179,12 +179,12 @@ char Net_MapSync(void)
         updatecrc(crc, (sect->ceilingz) & 255);
     }
 
-    return ((char) crc & 255);
+    return ((uint8_t) crc & 255);
 }
 
 char Net_RandomSync(void)
 {
-    unsigned short crc = 0;
+    uint16_t crc = 0;
 
     updatecrc(crc, randomseed & 255);
     updatecrc(crc, (randomseed >> 8) & 255);
@@ -199,7 +199,7 @@ char Net_RandomSync(void)
         updatecrc(crc,Net_ActorSync() & 255);
     }
 
-    return ((char) crc & 255);
+    return ((uint8_t) crc & 255);
 }
 
 char *SyncNames[] =
@@ -226,10 +226,10 @@ static char(*SyncFunc[MAXSYNCBYTES + 1])(void) =
 
 void Net_GetSyncStat(void)
 {
-    int i;
+    int32_t i;
     playerdata_t *pp = &g_player[myconnectindex];
-    unsigned int val;
-    static unsigned int count;
+    uint32_t val;
+    static uint32_t count;
 
     if (numplayers < 2)
         return;
@@ -254,9 +254,9 @@ void Net_GetSyncStat(void)
 
 void Net_DisplaySyncMsg(void)
 {
-    int i, j;
-    static unsigned int moveCount = 0;
-    extern unsigned int g_moveThingsCount;
+    int32_t i, j;
+    static uint32_t moveCount = 0;
+    extern uint32_t g_moveThingsCount;
 
 //    if (!SyncPrintMode)
 //        return;
@@ -319,10 +319,10 @@ void Net_DisplaySyncMsg(void)
 }
 
 
-void  Net_AddSyncInfoToPacket(int *j)
+void  Net_AddSyncInfoToPacket(int32_t *j)
 {
-    int sb;
-    int count = 0;
+    int32_t sb;
+    int32_t count = 0;
 
     // sync testing
     while (g_player[myconnectindex].syncvalhead != syncvaltail && count++ < 4)
@@ -334,10 +334,10 @@ void  Net_AddSyncInfoToPacket(int *j)
     }
 }
 
-void Net_GetSyncInfoFromPacket(char *packbuf, int packbufleng, int *j, int otherconnectindex)
+void Net_GetSyncInfoFromPacket(char *packbuf, int32_t packbufleng, int32_t *j, int32_t otherconnectindex)
 {
-    int sb, i;
-    extern int syncvaltail, syncvaltottail;
+    int32_t sb, i;
+    extern int32_t syncvaltail, syncvaltottail;
     playerdata_t *ppo = &g_player[otherconnectindex];
     char found = 0;
 
