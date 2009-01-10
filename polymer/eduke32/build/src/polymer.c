@@ -2308,7 +2308,7 @@ static void         polymer_drawskybox(int16_t tilenum)
 // MDSPRITES
 static void         polymer_drawmdsprite(spritetype *tspr)
 {
-    md3model*       m;
+    md3model_t*       m;
     mdskinmap_t*    sk;
     md3xyzn_t       *v0, *v1;
     md3surf_t       *s;
@@ -2320,8 +2320,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     GLfloat*        color;
     int32_t             materialbits;
 
-    m = (md3model*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
-    updateanimation((md2model *)m,tspr);
+    m = (md3model_t*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
+    updateanimation((md2model_t *)m,tspr);
 
     lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
 
@@ -2410,14 +2410,14 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         v1 = &s->xyzn[m->nframe*s->numverts];
 
         mdspritematerial.diffusemap =
-                mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
+                mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
         if (!mdspritematerial.diffusemap)
             continue;
 
         if (r_detailmapping && !(tspr->cstat&1024))
         {
             mdspritematerial.detailmap =
-                    mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
+                    mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
 
             for (sk = m->skinmap; sk; sk = sk->next)
                 if ((int32_t)sk->palette == DETAILPAL &&
@@ -2429,7 +2429,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         if (r_glowmapping && !(tspr->cstat&1024))
         {
             mdspritematerial.glowmap =
-                    mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);
+                    mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);
         }
 
         if (pr_vbos > 1)
@@ -2480,7 +2480,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     globalnoeffect=0;
 }
 
-static void         polymer_loadmodelvbos(md3model* m)
+static void         polymer_loadmodelvbos(md3model_t* m)
 {
     int32_t             i;
     md3surf_t       *s;

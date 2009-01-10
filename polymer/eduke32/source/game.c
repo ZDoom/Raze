@@ -86,7 +86,7 @@ static struct strllist
 
 char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
 char root[BMAX_PATH];
-char waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768], animpal[768];
+uint8_t waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768], animpal[768];
 static char firstdemofile[80] = { '\0' };
 static int32_t userconfiles = 0;
 
@@ -285,7 +285,7 @@ static void G_PatchStatusBar(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 //    else rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1,cly1,clx2+clofx-1,cly2+clofy-1);
 }
 
-void P_SetGamePalette(DukePlayer_t *player, char *pal, int32_t set)
+void P_SetGamePalette(DukePlayer_t *player, uint8_t *pal, int32_t set)
 {
     if (player != g_player[screenpeek].ps)
     {
@@ -513,32 +513,6 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
     return (x);
 }
 
-static void allowtimetocorrecterrorswhenquitting(void)
-{
-    int32_t i, j, oldtotalclock;
-
-    ready2send = 0;
-
-    for (j=MAXPLAYERS-1;j>=0;j--)
-    {
-        oldtotalclock = totalclock;
-
-        while (totalclock < oldtotalclock+TICSPERFRAME)
-        {
-            handleevents();
-            Net_GetPackets();
-        }
-        if (KB_KeyPressed(sc_Escape)) return;
-
-        packbuf[0] = PACKET_TYPE_NULL_PACKET;
-        TRAVERSE_CONNECT(i)
-        {
-            if (i != myconnectindex) mmulti_sendpacket(i,packbuf,1);
-            if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-        }
-    }
-}
-
 void G_AddUserQuote(const char *daquote)
 {
     int32_t i;
@@ -619,7 +593,7 @@ void Net_GetPackets(void)
 #endif
         switch (packbuf[0])
         {
-        case PACKET_TYPE_MASTER_TO_SLAVE:  //[0] (receive master sync buffer)
+        case PACKET_MASTER_TO_SLAVE:  //[0] (receive master sync buffer)
             j = 1;
 
             if ((g_player[other].movefifoend&(TIMERUPDATESIZ-1)) == 0)
@@ -710,7 +684,7 @@ void Net_GetPackets(void)
             movefifosendplc += g_movesPerPacket;
 
             break;
-        case PACKET_TYPE_SLAVE_TO_MASTER:  //[1] (receive slave sync buffer)
+        case PACKET_SLAVE_TO_MASTER:  //[1] (receive slave sync buffer)
             j = 3;
             k = packbuf[1] + (int32_t)(packbuf[2]<<8);
 
@@ -748,7 +722,7 @@ void Net_GetPackets(void)
 
             break;
 
-        case PACKET_TYPE_BROADCAST:
+        case PACKET_BROADCAST:
             g_player[other].movefifoend = movefifoplc = movefifosendplc = predictfifoplc = 0;
             g_player[other].syncvalhead = syncvaltottail = 0L;
         case SERVER_GENERATED_BROADCAST:
@@ -804,21 +778,21 @@ void Net_GetPackets(void)
                 initprintf("INVALID GAME PACKET!!! (packet %d, %d too many bytes (%d %d))\n",packbuf[0],j-packbufleng,packbufleng,k);
 
             break;
-        case PACKET_TYPE_NULL_PACKET:
+        case PACKET_NULL_PACKET:
             break;
 
-        case PACKET_TYPE_PLAYER_READY:
+        case PACKET_PLAYER_READY:
             if (g_player[other].playerreadyflag == 0)
                 initprintf("Player %d is ready\n", other);
             g_player[other].playerreadyflag++;
             return;
-        case PACKET_TYPE_QUIT:
+        case PACKET_QUIT:
             G_GameExit(" ");
             break;
         default:
             switch (packbuf[0])
             {
-            case PACKET_TYPE_MESSAGE:
+            case PACKET_MESSAGE:
                 //slaves in M/S mode only send to master
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
                 {
@@ -848,7 +822,7 @@ void Net_GetPackets(void)
 
                 break;
 
-            case PACKET_TYPE_NEW_GAME:
+            case PACKET_NEW_GAME:
                 //Slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
@@ -883,7 +857,7 @@ void Net_GetPackets(void)
 
                 break;
 
-            case PACKET_TYPE_VERSION:
+            case PACKET_VERSION:
                 //slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
@@ -908,7 +882,7 @@ void Net_GetPackets(void)
 
                 break;
 
-            case PACKET_TYPE_PLAYER_OPTIONS:
+            case PACKET_PLAYER_OPTIONS:
                 //slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
@@ -926,7 +900,7 @@ void Net_GetPackets(void)
 
                 break;
 
-            case PACKET_TYPE_PLAYER_NAME:
+            case PACKET_PLAYER_NAME:
                 //slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
@@ -942,7 +916,7 @@ void Net_GetPackets(void)
 
                 break;
 
-            case PACKET_TYPE_WEAPON_CHOICE:
+            case PACKET_WEAPON_CHOICE:
                 //slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
@@ -957,7 +931,7 @@ void Net_GetPackets(void)
                 for (;i-j<10;i++) g_player[other].wchoice[i-j] = packbuf[i];
 
                 break;
-            case PACKET_TYPE_RTS:
+            case PACKET_RTS:
                 //slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
@@ -976,7 +950,7 @@ void Net_GetPackets(void)
                 g_RTSPlaying = 7;
                 break;
 
-            case PACKET_TYPE_MENU_LEVEL_QUIT:
+            case PACKET_MENU_LEVEL_QUIT:
                 //slaves in M/S mode only send to master
                 if (myconnectindex == connecthead)
                 {
@@ -1012,7 +986,7 @@ void Net_GetPackets(void)
 
                 break;
 
-            case PACKET_TYPE_USER_MAP:
+            case PACKET_USER_MAP:
                 //slaves in M/S mode only send to master
                 if (myconnectindex == connecthead)
                 {
@@ -1040,9 +1014,9 @@ void Net_GetPackets(void)
 
                 break;
 
-            case PACKET_TYPE_MAP_VOTE:
-            case PACKET_TYPE_MAP_VOTE_INITIATE:
-            case PACKET_TYPE_MAP_VOTE_CANCEL:
+            case PACKET_MAP_VOTE:
+            case PACKET_MAP_VOTE_INITIATE:
+            case PACKET_MAP_VOTE_CANCEL:
 
                 if (myconnectindex == connecthead)
                 {
@@ -1054,7 +1028,7 @@ void Net_GetPackets(void)
 
                 switch (packbuf[0])
                 {
-                case PACKET_TYPE_MAP_VOTE:
+                case PACKET_MAP_VOTE:
                     if (voting == myconnectindex && g_player[(uint8_t)packbuf[1]].gotvote == 0)
                     {
                         g_player[(uint8_t)packbuf[1]].gotvote = 1;
@@ -1064,7 +1038,7 @@ void Net_GetPackets(void)
                     }
                     break;
 
-                case PACKET_TYPE_MAP_VOTE_INITIATE: // call map vote
+                case PACKET_MAP_VOTE_INITIATE: // call map vote
                     /*                    if (g_networkBroadcastMode == 0 && packbuf[1] == connecthead)
                                             break; // ignore this from master */
                     voting = packbuf[1];
@@ -1088,7 +1062,7 @@ void Net_GetPackets(void)
                     g_player[voting].gotvote = g_player[voting].vote = 1;
                     break;
 
-                case PACKET_TYPE_MAP_VOTE_CANCEL: // cancel map vote
+                case PACKET_MAP_VOTE_CANCEL: // cancel map vote
                     if (voting == packbuf[1])
                     {
                         voting = -1;
@@ -1110,7 +1084,7 @@ void Net_GetPackets(void)
                 }
                 break;
 
-            case PACKET_TYPE_LOAD_GAME:
+            case PACKET_LOAD_GAME:
                 //Slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
@@ -1228,7 +1202,7 @@ void faketimerhandler(void)
     if (g_networkBroadcastMode == 1)
     {
         packbuf[0] = SERVER_GENERATED_BROADCAST;
-        if ((g_player[myconnectindex].movefifoend-1) == 0) packbuf[0] = PACKET_TYPE_BROADCAST;
+        if ((g_player[myconnectindex].movefifoend-1) == 0) packbuf[0] = PACKET_BROADCAST;
         j = 1;
 
         //Fix timers and buffer/jitter value
@@ -1377,7 +1351,7 @@ void faketimerhandler(void)
             }
         }
 
-        packbuf[0] = PACKET_TYPE_SLAVE_TO_MASTER;
+        packbuf[0] = PACKET_SLAVE_TO_MASTER;
         packbuf[1] = 0;
         packbuf[2] = 0;
         j = 3;
@@ -1433,7 +1407,7 @@ void faketimerhandler(void)
     TRAVERSE_CONNECT(i)
     if (g_player[i].movefifoend <= movefifosendplc)
     {
-        packbuf[0] = PACKET_TYPE_NULL_PACKET;
+        packbuf[0] = PACKET_NULL_PACKET;
         for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
             mmulti_sendpacket(i,packbuf,1);
         return;
@@ -1448,7 +1422,7 @@ void faketimerhandler(void)
         nsyn = (input_t *)&inputfifo[(movefifosendplc)&(MOVEFIFOSIZ-1)][0];
 
         //MASTER -> SLAVE packet
-        packbuf[0] = PACKET_TYPE_MASTER_TO_SLAVE;
+        packbuf[0] = PACKET_MASTER_TO_SLAVE;
         j = 1;
 
         //Fix timers and buffer/jitter value
@@ -2878,10 +2852,33 @@ extern int32_t g_doQuickSave;
 
 void G_GameExit(const char *t)
 {
-    if (*t != 0) g_player[myconnectindex].ps->palette = (char *) &palette[0];
+    if (*t != 0) g_player[myconnectindex].ps->palette = (unsigned char *) &palette[0];
 
     if (numplayers > 1)
-        allowtimetocorrecterrorswhenquitting();
+	{
+		int32_t i, j, oldtotalclock;
+
+		ready2send = 0;
+
+		for (j=MAXPLAYERS-1;j>=0;j--)
+		{
+			oldtotalclock = totalclock;
+
+			while (totalclock < oldtotalclock+TICSPERFRAME)
+			{
+				handleevents();
+				Net_GetPackets();
+			}
+			if (KB_KeyPressed(sc_Escape)) return;
+
+			packbuf[0] = PACKET_NULL_PACKET;
+			TRAVERSE_CONNECT(i)
+			{
+				if (i != myconnectindex) mmulti_sendpacket(i,packbuf,1);
+				if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+			}
+		}
+	}
 
     mmulti_uninitmultiplayers();
 
@@ -3016,7 +3013,7 @@ static void Net_EnterMessage(void)
     {
         if (g_chatPlayer != -1 || ud.multimode < 3 || g_movesPerPacket == 4)
         {
-            tempbuf[0] = PACKET_TYPE_MESSAGE;
+            tempbuf[0] = PACKET_MESSAGE;
             tempbuf[2] = 0;
             recbuf[0]  = 0;
 
@@ -4756,8 +4753,8 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     if (show2dsector[SECT>>3]&(1<<(SECT&7))) show2dsprite[i>>3] |= (1<<(i&7));
     else show2dsprite[i>>3] &= ~(1<<(i&7));
 
-    clearbufbyte(&spriteext[i], sizeof(spriteexttype), 0);
-    clearbufbyte(&spritesmooth[i], sizeof(spritesmoothtype), 0);
+    clearbufbyte(&spriteext[i], sizeof(spriteext_t), 0);
+    clearbufbyte(&spritesmooth[i], sizeof(spritesmooth_t), 0);
 
     /*
         if(s->sectnum < 0)
@@ -8221,7 +8218,7 @@ static void G_HandleLocalKeys(void)
     {
         if (KB_UnBoundKeyPressed(sc_F1) || KB_UnBoundKeyPressed(sc_F2) || ud.autovote)
         {
-            tempbuf[0] = PACKET_TYPE_MAP_VOTE;
+            tempbuf[0] = PACKET_MAP_VOTE;
             tempbuf[1] = myconnectindex;
             tempbuf[2] = (KB_UnBoundKeyPressed(sc_F1) || ud.autovote?ud.autovote-1:0);
 
@@ -8407,7 +8404,7 @@ static void G_HandleLocalKeys(void)
 
                 ch = 0;
 
-                tempbuf[ch] = PACKET_TYPE_MESSAGE;
+                tempbuf[ch] = PACKET_MESSAGE;
                 tempbuf[ch+1] = 255;
                 tempbuf[ch+2] = 0;
                 Bstrcat(tempbuf+2,ud.ridecule[i-1]);
@@ -8440,7 +8437,7 @@ static void G_HandleLocalKeys(void)
 
                     if (ud.multimode > 1)
                     {
-                        tempbuf[0] = PACKET_TYPE_RTS;
+                        tempbuf[0] = PACKET_RTS;
                         tempbuf[1] = i;
 
                         TRAVERSE_CONNECT(ch)
@@ -9083,25 +9080,25 @@ static char *makename(char *destname, char *OGGname, char *origname)
     if (!origname)
         return destname;
 
-    if (destname)
-        Bfree(destname);
-    destname = Bcalloc(Bstrlen(OGGname) + Bstrlen(origname) + 1, sizeof(uint8_t));
+    destname = Brealloc(destname, Bstrlen(OGGname) + Bstrlen(origname) + 1);
+
     if (!destname)
         return NULL;
 
-    Bstrcpy(destname,(*OGGname)?OGGname:origname);
+    Bstrcpy(destname, (*OGGname)?OGGname:origname);
 
-    if (*OGGname&&OGGname[Bstrlen(OGGname)-1]=='/')
+    if (*OGGname && OGGname[Bstrlen(OGGname)-1] == '/')
     {
-        while (*origname=='/')
+        while (*origname == '/')
             origname++;
-        Bstrcat(destname,origname);
+        Bstrcat(destname, origname);
     }
 
-    OGGname=Bstrchr(destname,'.');
+    OGGname = Bstrchr(destname, '.');
+
     if (OGGname)
-        Bstrcpy(OGGname,".ogg");
-    else Bstrcat(destname,".ogg");
+        Bstrcpy(OGGname, ".ogg");
+    else Bstrcat(destname, ".ogg");
 
     return destname;
 }
@@ -10186,7 +10183,7 @@ static void G_FreeMemory(void)
 //    if (MusicPtr != NULL) Bfree(MusicPtr);
 
     // C_FreeHashes();
-    HASH_free(&gamefuncH);
+    hash_free(&gamefuncH);
 }
 
 /*
@@ -10534,7 +10531,7 @@ void Net_SendQuit(void)
         {
             int32_t i;
 
-            tempbuf[0] = PACKET_TYPE_MENU_LEVEL_QUIT;
+            tempbuf[0] = PACKET_MENU_LEVEL_QUIT;
             tempbuf[1] = myconnectindex;
 
             TRAVERSE_CONNECT(i)
@@ -10556,7 +10553,7 @@ static void Net_SendWeaponChoice(void)
 {
     int32_t i,l;
 
-    buf[0] = PACKET_TYPE_WEAPON_CHOICE;
+    buf[0] = PACKET_WEAPON_CHOICE;
     buf[1] = myconnectindex;
     l = 2;
 
@@ -10579,7 +10576,7 @@ static void Net_SendVersion(void)
 
     if (numplayers < 2) return;
 
-    buf[0] = PACKET_TYPE_VERSION;
+    buf[0] = PACKET_VERSION;
     buf[1] = myconnectindex;
     buf[2] = (uint8_t)atoi(s_buildDate);
     buf[3] = BYTEVERSION;
@@ -10597,7 +10594,7 @@ static void Net_SendPlayerOptions(void)
 {
     int32_t i,l;
 
-    buf[0] = PACKET_TYPE_PLAYER_OPTIONS;
+    buf[0] = PACKET_PLAYER_OPTIONS;
     buf[1] = myconnectindex;
     l = 2;
 
@@ -10628,7 +10625,7 @@ void Net_SendPlayerName(void)
 
     if (numplayers < 2) return;
 
-    buf[0] = PACKET_TYPE_PLAYER_NAME;
+    buf[0] = PACKET_PLAYER_NAME;
     buf[1] = myconnectindex;
     l = 2;
 
@@ -10650,7 +10647,7 @@ void Net_SendUserMapName(void)
         int32_t j;
         int32_t ch;
 
-        packbuf[0] = PACKET_TYPE_USER_MAP;
+        packbuf[0] = PACKET_USER_MAP;
         packbuf[1] = 0;
 
         Bcorrectfilename(boardfilename,0);
@@ -10671,7 +10668,7 @@ void Net_NewGame(int32_t volume, int32_t level)
 {
     int32_t i;
 
-    packbuf[0] = PACKET_TYPE_NEW_GAME;
+    packbuf[0] = PACKET_NEW_GAME;
     packbuf[1] = ud.m_level_number = level;
     packbuf[2] = ud.m_volume_number = volume;
     packbuf[3] = ud.m_player_skill+1;
@@ -10691,27 +10688,6 @@ void Net_NewGame(int32_t volume, int32_t level)
     }
 }
 
-#if 0
-static void getnames(void)
-{
-    int32_t l;
-
-    if (numplayers > 1)
-    {
-        Net_SendVersion();
-        Net_SendPlayerName();
-        Net_SendPlayerOptions();
-        Net_SendWeaponChoice();
-        Net_SendUserMapName();
-        getpackets();
-        waitforeverybody();
-    }
-
-    if (cp == 1 && numplayers < 2)
-        G_GameExit("Please put the Duke Nukem 3D Atomic Edition CD in the CD-ROM drive.");
-}
-#endif
-
 void G_UpdatePlayerFromMenu(void)
 {
     if (ud.recstat != 0)
@@ -10725,13 +10701,13 @@ void G_UpdatePlayerFromMenu(void)
     }
     else
     {
-        int32_t j;
+        /*int32_t j = g_player[myconnectindex].ps->team;*/
 
         g_player[myconnectindex].ps->aim_mode = ud.mouseaiming;
         g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
         g_player[myconnectindex].ps->weaponswitch = ud.weaponswitch;
         g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
-        j = g_player[myconnectindex].ps->team;
+        
         g_player[myconnectindex].pteam = ud.team;
 
         if (sprite[g_player[myconnectindex].ps->i].picnum == APLAYER && sprite[g_player[myconnectindex].ps->i].pal != 1)
@@ -10928,12 +10904,12 @@ void app_main(int32_t argc,const char **argv)
     ud.config.CheckForUpdates = -1;
 #endif
 
-    HASH_init(&gamefuncH);
+    hash_init(&gamefuncH);
     for (i=NUMGAMEFUNCTIONS-1;i>=0;i--)
     {
         char *str = strtolower(Bstrdup(gamefunctions[i]),Bstrlen(gamefunctions[i]));
-        HASH_add(&gamefuncH,gamefunctions[i],i);
-        HASH_add(&gamefuncH,str,i);
+        hash_add(&gamefuncH,gamefunctions[i],i);
+        hash_add(&gamefuncH,str,i);
         Bfree(str);
     }
 
@@ -10990,10 +10966,12 @@ void app_main(int32_t argc,const char **argv)
 
                         if (!ShellExecuteExA(&sinfo))
                             initprintf("update: error launching browser!\n");
+/*
                         CONFIG_SetupMouse();
                         CONFIG_SetupJoystick();
                         CONFIG_WriteSetup();
                         G_GameExit(" ");
+*/
                     }
                 }
                 else initprintf("... no updates available\n");
@@ -11280,7 +11258,7 @@ CLEAN_DIRECTORY:
         g_player[i].sync = (input_t *) Bcalloc(1,sizeof(input_t));
     }
 
-    g_player[myconnectindex].ps->palette = (char *) &palette[0];
+    g_player[myconnectindex].ps->palette = (uint8_t *) &palette[0];
 
     i = 1;
     for (j=numplayers;j<ud.multimode;j++)
@@ -11303,9 +11281,14 @@ CLEAN_DIRECTORY:
     Net_SendVersion();
     Net_SendPlayerName();
 
+#if 0
+    if (cp == 1 && numplayers < 2)
+        G_GameExit("Please put the Duke Nukem 3D Atomic Edition CD in the CD-ROM drive.");
+#endif
+
     if (numplayers > 1)
     {
-        sendlogon();
+        mmulti_sendlogon();
         Net_SendPlayerOptions();
         Net_SendWeaponChoice();
         Net_SendUserMapName();

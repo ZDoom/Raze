@@ -329,18 +329,17 @@ int32_t isvalidipaddress(char *st)
 //---------------------------------- Obsolete variables&functions ----------------------------------
 char syncstate = 0;
 void mmulti_setpackettimeout(int32_t datimeoutcount, int32_t daresendagaincount) { UNREFERENCED_PARAMETER(datimeoutcount); UNREFERENCED_PARAMETER(daresendagaincount); }
-void genericmultifunction(int32_t other, char *bufptr, int32_t messleng, int32_t command)
+void mmulti_generic(int32_t other, char *bufptr, int32_t messleng, int32_t command)
 {
     UNREFERENCED_PARAMETER(other);
     UNREFERENCED_PARAMETER(bufptr);
     UNREFERENCED_PARAMETER(messleng);
     UNREFERENCED_PARAMETER(command);
 }
-int32_t getoutputcirclesize() { return(0); }
-void setsocket(int32_t newsocket) { UNREFERENCED_PARAMETER(newsocket); }
+int32_t mmulti_getoutputcirclesize() { return(0); }
 void mmulti_flushpackets() {}
-void sendlogon() {}
-void sendlogoff() {}
+void mmulti_sendlogon() {}
+void mmulti_sendlogoff() {}
 //--------------------------------------------------------------------------------------------------
 
 static int32_t crctab16[256];

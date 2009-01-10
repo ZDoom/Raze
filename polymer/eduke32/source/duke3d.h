@@ -438,7 +438,7 @@ typedef struct {
 
     int32_t loogiex[64], loogiey[64], numloogs, loogcnt;
 
-    char *palette;
+    uint8_t *palette;
 
     int16_t sbs, sound_pitch;
 
@@ -620,7 +620,7 @@ extern int32_t packetrate;
 
 extern int32_t cachecount;
 extern char boardfilename[BMAX_PATH];
-extern char waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],animpal[768];
+extern uint8_t waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],animpal[768];
 extern char currentboardfilename[BMAX_PATH];
 extern char cachedebug,g_earthquakeTime;
 // 0: master/slave, 1: peer-to-peer
@@ -989,7 +989,7 @@ typedef struct {
     int16_t numsectors;
     sectortype sector[MAXSECTORS];
     spritetype sprite[MAXSPRITES];
-    spriteexttype spriteext[MAXSPRITES];
+    spriteext_t spriteext[MAXSPRITES];
     int16_t headspritesect[MAXSECTORS+1];
     int16_t prevspritesect[MAXSPRITES];
     int16_t nextspritesect[MAXSPRITES];
@@ -1051,46 +1051,46 @@ typedef struct {
     int32_t id;
 } keydef_t;
 
-extern keydef_t keynames[];
-extern char *mousenames[];
+extern keydef_t ConsoleKeys[];
+extern char *ConsoleButtons[];
 
 extern char *duke3dgrp, *duke3dgrpstring;
 extern char mod_dir[BMAX_PATH];
 
-extern HASH_table gamevarH;
-extern HASH_table arrayH;
-extern HASH_table keywH;
-extern HASH_table gamefuncH;
+extern hashtable_t gamevarH;
+extern hashtable_t arrayH;
+extern hashtable_t keywH;
+extern hashtable_t gamefuncH;
 
 enum DukePacket_t
 {
-    PACKET_TYPE_MASTER_TO_SLAVE,
-    PACKET_TYPE_SLAVE_TO_MASTER,
-    PACKET_TYPE_BROADCAST,
+    PACKET_MASTER_TO_SLAVE,
+    PACKET_SLAVE_TO_MASTER,
+    PACKET_BROADCAST,
     SERVER_GENERATED_BROADCAST,
-    PACKET_TYPE_VERSION,
+    PACKET_VERSION,
 
     /* don't change anything above this line */
 
-    PACKET_TYPE_MESSAGE,
+    PACKET_MESSAGE,
 
-    PACKET_TYPE_NEW_GAME,
-    PACKET_TYPE_RTS,
-    PACKET_TYPE_MENU_LEVEL_QUIT,
-    PACKET_TYPE_WEAPON_CHOICE,
-    PACKET_TYPE_PLAYER_OPTIONS,
-    PACKET_TYPE_PLAYER_NAME,
+    PACKET_NEW_GAME,
+    PACKET_RTS,
+    PACKET_MENU_LEVEL_QUIT,
+    PACKET_WEAPON_CHOICE,
+    PACKET_PLAYER_OPTIONS,
+    PACKET_PLAYER_NAME,
 
-    PACKET_TYPE_USER_MAP,
+    PACKET_USER_MAP,
 
-    PACKET_TYPE_MAP_VOTE,
-    PACKET_TYPE_MAP_VOTE_INITIATE,
-    PACKET_TYPE_MAP_VOTE_CANCEL,
+    PACKET_MAP_VOTE,
+    PACKET_MAP_VOTE_INITIATE,
+    PACKET_MAP_VOTE_CANCEL,
 
-    PACKET_TYPE_LOAD_GAME,
-    PACKET_TYPE_NULL_PACKET,
-    PACKET_TYPE_PLAYER_READY,
-    PACKET_TYPE_QUIT = 255 // should match mmulti I think
+    PACKET_LOAD_GAME,
+    PACKET_NULL_PACKET,
+    PACKET_PLAYER_READY,
+    PACKET_QUIT = 255 // should match mmulti I think
 };
 
 #ifdef __cplusplus

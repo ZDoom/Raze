@@ -42,21 +42,17 @@ void mmulti_uninitmultiplayers(void)
 {
 }
 
-void sendlogon(void)
+void mmulti_sendlogon(void)
 {
 }
 
-void sendlogoff(void)
+void mmulti_sendlogoff(void)
 {
 }
 
-int32_t getoutputcirclesize(void)
+int32_t mmulti_getoutputcirclesize(void)
 {
     return 0;
-}
-
-void setsocket(int16_t newsocket)
-{
 }
 
 void mmulti_sendpacket(int32_t other, char *bufptr, int32_t messleng)
@@ -72,7 +68,7 @@ void mmulti_flushpackets(void)
 {
 }
 
-void genericmultifunction(int32_t other, char *bufptr, int32_t messleng, int32_t command)
+void mmulti_generic(int32_t other, char *bufptr, int32_t messleng, int32_t command)
 {
 }
 

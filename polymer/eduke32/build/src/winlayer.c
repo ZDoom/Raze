@@ -108,8 +108,8 @@ intptr_t frameplace=0;
 int32_t lockcount=0;
 static int32_t curvidmode = -1;
 static int32_t customxdim = 640, customydim = 480, custombpp = 8, customfs = 0;
-static unsigned modeschecked=0;
-unsigned maxrefreshfreq=60;
+static uint32_t modeschecked=0;
+uint32_t maxrefreshfreq=60;
 char modechange=1, repaintneeded=0;
 char offscreenrendering=0;
 int32_t glcolourdepth=32;
@@ -131,7 +131,7 @@ char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
 char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
 char remap[256];
 int32_t remapinit=0;
-static char keynames[256][24];
+static char key_names[256][24];
 static uint32_t lastKeyDown = 0;
 static uint32_t lastKeyTime = 0;
 
@@ -640,7 +640,7 @@ void initprintf(const char *f, ...)
 //
 void debugprintf(const char *f, ...)
 {
-#ifdef DEBUGGINGAIDS
+#if 0 // def DEBUGGINGAIDS
     va_list va;
     char buf[1024];
 
@@ -731,7 +731,7 @@ static struct
 static struct _joydef
 {
     const char *name;
-    unsigned ofs;	// directinput 'dwOfs' value
+    uint32_t ofs;	// directinput 'dwOfs' value
 } *axisdefs = NULL, *buttondefs = NULL, *hatdefs = NULL;
 
 struct _joydevicefeature
@@ -877,7 +877,7 @@ DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
             continue;
         {
             DWORD i;
-            unsigned t;
+            uint32_t t;
             int32_t result;
             DIDEVICEOBJECTDATA didod;
             DWORD dwElements = 1;
@@ -1557,7 +1557,7 @@ static void GetKeyNames(void)
     HRESULT res;
     char tbuf[MAX_PATH];
 
-    memset(keynames,0,sizeof(keynames));
+    memset(key_names,0,sizeof(key_names));
     for (i=0;i<256;i++)
     {
         ZeroMemory(&key,sizeof(key));
@@ -1567,19 +1567,19 @@ static void GetKeyNames(void)
         if (FAILED(res)) continue;
 
         CharToOem(key.tszName, tbuf);
-        strncpy((char *)keynames[i], tbuf, sizeof(keynames[i])-1);
+        strncpy((char *)key_names[i], tbuf, sizeof(key_names[i])-1);
 
         tbuf[0] = 0;
-        GetKeyNameText((i>128?(i+128):i)<<16, tbuf, sizeof(keynames[i])-1);
-//        initprintf("%d %15s  %15s\n",i,keynames[i],tbuf);
-        if (*tbuf)strncpy(&keynames[i][0], tbuf, sizeof(keynames[i])-1);
+        GetKeyNameText((i>128?(i+128):i)<<16, tbuf, sizeof(key_names[i])-1);
+//        initprintf("%d %15s  %15s\n",i,key_names[i],tbuf);
+        if (*tbuf)strncpy(&key_names[i][0], tbuf, sizeof(key_names[i])-1);
     }
 }
 
 const char *getkeyname(int32_t num)
 {
     if ((unsigned)num >= 256) return NULL;
-    return keynames[num];
+    return key_names[num];
 }
 
 const char *getjoyname(int32_t what, int32_t num)
@@ -1672,8 +1672,8 @@ static void ProcessInputDevices(void)
     DIDEVICEOBJECTDATA didod[INPUT_BUFFER_SIZE];
     DWORD dwElements = INPUT_BUFFER_SIZE;
     DWORD ev;
-    unsigned t,u;
-    unsigned idevnums[NUM_INPUTS], numdevs = 0;
+    uint32_t t,u;
+    uint32_t idevnums[NUM_INPUTS], numdevs = 0;
     HANDLE waithnds[NUM_INPUTS];
 
     for (t = 0; t < NUM_INPUTS; t++)
@@ -2260,9 +2260,9 @@ static void cdsenummodes(void)
     DEVMODE dm;
     int32_t i = 0, j = 0;
 
-    struct { unsigned x,y,bpp,freq; } modes[MAXVALIDMODES];
+    struct { uint32_t x,y,bpp,freq; } modes[MAXVALIDMODES];
     int32_t nmodes=0;
-    unsigned maxx = MAXXDIM, maxy = MAXYDIM;
+    uint32_t maxx = MAXXDIM, maxy = MAXYDIM;
 
 
     ZeroMemory(&dm,sizeof(DEVMODE));
@@ -2307,7 +2307,7 @@ static void cdsenummodes(void)
 // mode enumerator
 static HRESULT WINAPI getvalidmodes_enum(DDSURFACEDESC *ddsd, VOID *udata)
 {
-    unsigned maxx = MAXXDIM, maxy = MAXYDIM;
+    uint32_t maxx = MAXXDIM, maxy = MAXYDIM;
 
     UNREFERENCED_PARAMETER(udata);
 

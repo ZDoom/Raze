@@ -32,9 +32,9 @@ typedef struct
     int32_t extra;      // for string, is the length
     int32_t min;
     int32_t max;
-} cvarmappings;
+} cvar_t;
 
-extern cvarmappings cvar[];
+extern cvar_t cvars[];
 
 #endif	// __osdcmds_h__
 

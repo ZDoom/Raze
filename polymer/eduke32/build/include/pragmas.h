@@ -3585,7 +3585,7 @@ static __inline void swapbuf4(void *a, void *b, int32_t c)
 		add eax, 4
 		add ebx, 4
 		dec ecx
-		jnz int16_t begswap
+		jnz short begswap
 	}
 }
 

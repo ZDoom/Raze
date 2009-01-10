@@ -940,20 +940,20 @@ const memberlabel_t InputLabels[]=
 char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 #define BITPTR_POINTER 1
 
-HASH_table gamevarH    = { MAXGAMEVARS>>1, NULL };
-HASH_table arrayH      = { MAXGAMEARRAYS>>1, NULL };
-HASH_table labelH      = { 11264>>1, NULL };
-HASH_table keywH       = { CON_END>>1, NULL };
+hashtable_t gamevarH    = { MAXGAMEVARS>>1, NULL };
+hashtable_t arrayH      = { MAXGAMEARRAYS>>1, NULL };
+hashtable_t labelH      = { 11264>>1, NULL };
+hashtable_t keywH       = { CON_END>>1, NULL };
 
-HASH_table sectorH     = { SECTOR_END>>1, NULL };
-HASH_table wallH       = { WALL_END>>1, NULL };
-HASH_table userdefH    = { USERDEFS_END>>1, NULL };
+hashtable_t sectorH     = { SECTOR_END>>1, NULL };
+hashtable_t wallH       = { WALL_END>>1, NULL };
+hashtable_t userdefH    = { USERDEFS_END>>1, NULL };
 
-HASH_table projectileH = { PROJ_END>>1, NULL };
-HASH_table playerH     = { PLAYER_END>>1, NULL };
-HASH_table inputH      = { INPUT_END>>1, NULL };
-HASH_table actorH      = { ACTOR_END>>1, NULL };
-HASH_table tspriteH    = { ACTOR_END>>1, NULL };
+hashtable_t projectileH = { PROJ_END>>1, NULL };
+hashtable_t playerH     = { PLAYER_END>>1, NULL };
+hashtable_t inputH      = { INPUT_END>>1, NULL };
+hashtable_t actorH      = { ACTOR_END>>1, NULL };
+hashtable_t tspriteH    = { ACTOR_END>>1, NULL };
 
 void inithashnames();
 void freehashnames();
@@ -962,47 +962,47 @@ void C_InitHashes()
 {
     int32_t i;
 
-    HASH_init(&gamevarH);
-    HASH_init(&arrayH);
-    HASH_init(&labelH);
+    hash_init(&gamevarH);
+    hash_init(&arrayH);
+    hash_init(&labelH);
     inithashnames();
 
-    HASH_init(&keywH);
+    hash_init(&keywH);
     for (i=NUMKEYWORDS-1;i>=0;i--)
-        HASH_add(&keywH,keyw[i],i);
+        hash_add(&keywH,keyw[i],i);
 
-    HASH_init(&sectorH);
+    hash_init(&sectorH);
     for (i=0;SectorLabels[i].lId >=0 ; i++)
-        HASH_add(&sectorH,SectorLabels[i].name,i);
-    HASH_init(&wallH);
+        hash_add(&sectorH,SectorLabels[i].name,i);
+    hash_init(&wallH);
     for (i=0;WallLabels[i].lId >=0 ; i++)
-        HASH_add(&wallH,WallLabels[i].name,i);
-    HASH_init(&userdefH);
+        hash_add(&wallH,WallLabels[i].name,i);
+    hash_init(&userdefH);
     for (i=0;UserdefsLabels[i].lId >=0 ; i++)
-        HASH_add(&userdefH,UserdefsLabels[i].name,i);
+        hash_add(&userdefH,UserdefsLabels[i].name,i);
 
-    HASH_init(&projectileH);
+    hash_init(&projectileH);
     for (i=0;ProjectileLabels[i].lId >=0 ; i++)
-        HASH_add(&projectileH,ProjectileLabels[i].name,i);
-    HASH_init(&playerH);
+        hash_add(&projectileH,ProjectileLabels[i].name,i);
+    hash_init(&playerH);
     for (i=0;PlayerLabels[i].lId >=0 ; i++)
-        HASH_add(&playerH,PlayerLabels[i].name,i);
-    HASH_init(&inputH);
+        hash_add(&playerH,PlayerLabels[i].name,i);
+    hash_init(&inputH);
     for (i=0;InputLabels[i].lId >=0 ; i++)
-        HASH_add(&inputH,InputLabels[i].name,i);
-    HASH_init(&actorH);
+        hash_add(&inputH,InputLabels[i].name,i);
+    hash_init(&actorH);
     for (i=0;ActorLabels[i].lId >=0 ; i++)
-        HASH_add(&actorH,ActorLabels[i].name,i);
-    HASH_init(&tspriteH);
+        hash_add(&actorH,ActorLabels[i].name,i);
+    hash_init(&tspriteH);
     for (i=0;TsprLabels[i].lId >=0 ; i++)
-        HASH_add(&tspriteH,TsprLabels[i].name,i);
+        hash_add(&tspriteH,TsprLabels[i].name,i);
 }
 
 void C_FreeHashes(void)
 {
-    HASH_free(&gamevarH);
-    HASH_free(&arrayH);
-    HASH_free(&labelH);
+    hash_free(&gamevarH);
+    hash_free(&arrayH);
+    hash_free(&labelH);
 }
 
 #define IFELSE_MAGIC 31337
@@ -1031,15 +1031,14 @@ static int32_t C_IncreaseScriptSize(int32_t size)
     scriptptrs = Bcalloc(1,g_scriptSize * sizeof(uint8_t));
     for (i=g_scriptSize-1;i>=0;i--)
     {
-//            initprintf("%d\n",i);
-        /*        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)) && !((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_scriptSize])))
-                {
-                    g_numCompilerErrors++;
-                    initprintf("Internal compiler error at %d (0x%x)\n",i,i);
-                } */
+        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)) && !((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_scriptSize])))
+        {
+            g_numCompilerErrors++;
+            initprintf("Internal compiler error at %d (0x%x)\n",i,i);
+        }
 //        if (bitptr[i] == 0 && ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_scriptSize])))
 //            initprintf("oh no!\n");
-        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)) /*&& ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_scriptSize]))*/)
+        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
         {
             scriptptrs[i] = 1;
             script[i] -= (intptr_t)&script[0];
@@ -1381,8 +1380,8 @@ static int32_t C_CheckEventSync(int32_t iEventID)
     return 1;
 }
 
-#define GetDefID(szGameLabel) HASH_find(&gamevarH,szGameLabel)
-#define GetADefID(szGameLabel) HASH_find(&arrayH,szGameLabel)
+#define GetDefID(szGameLabel) hash_find(&gamevarH,szGameLabel)
+#define GetADefID(szGameLabel) hash_find(&arrayH,szGameLabel)
 
 static inline int32_t ispecial(char c)
 {
@@ -1403,25 +1402,25 @@ static inline int32_t isaltok(char c)
     return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '*' || c == '-' || c == '_' || c == '.');
 }
 
-static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, HASH_table *tH, const char *psz)
+static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, hashtable_t *tH, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the ID for the label, or -1
 
     int32_t l=-1;
 
-    l = HASH_findcase(tH,psz);
+    l = hash_findcase(tH,psz);
     if (l>=0) l= pLabel[l].lId;
 
     return l;
 }
 
-static inline int32_t C_GetLabelNameOffset(HASH_table *tH, const char *psz)
+static inline int32_t C_GetLabelNameOffset(hashtable_t *tH, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the offset in the array for the label, or -1
 
-    return HASH_findcase(tH,psz);
+    return hash_findcase(tH,psz);
 }
 
 static void C_GetNextLabelName(void)
@@ -1467,7 +1466,7 @@ static int32_t C_GetKeyword(void)
     while (isaltok(*temptextptr))
         tempbuf[i++] = *(temptextptr++);
     tempbuf[i] = 0;
-    return HASH_find(&keywH,tempbuf);
+    return hash_find(&keywH,tempbuf);
 }
 
 static int32_t C_GetNextKeyword(void) //Returns its code #
@@ -1497,7 +1496,7 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
     }
     tempbuf[l] = 0;
 
-    i = HASH_find(&keywH,tempbuf);
+    i = hash_find(&keywH,tempbuf);
     if (i>=0)
     {
         if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
@@ -1516,12 +1515,12 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
     if (tempbuf[0] == '{' && tempbuf[1] != 0)
     {
         C_ReportError(-1);
-        initprintf("%s:%d: error: expected a SPACE or CR between `{' and `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf+1);
+        initprintf("%s:%d: error: expected whitespace between `{' and `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf+1);
     }
     else if (tempbuf[0] == '}' && tempbuf[1] != 0)
     {
         C_ReportError(-1);
-        initprintf("%s:%d: error: expected a SPACE or CR between `}' and `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf+1);
+        initprintf("%s:%d: error: expected whitespace between `}' and `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf+1);
     }
     else C_ReportError(ERROR_EXPECTEDKEYWORD);
     g_numCompilerErrors++;
@@ -1542,7 +1541,7 @@ static void C_GetNextVarType(int32_t type)
         if (tolower(textptr[1])=='x')
             sscanf(textptr+2,"%" PRIxPTR "",g_scriptPtr);
         else
-            *g_scriptPtr=atol(textptr);
+            *g_scriptPtr=atoi(textptr);
         bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
         g_scriptPtr++;
         C_GetNextLabelName();
@@ -1566,7 +1565,7 @@ static void C_GetNextVarType(int32_t type)
     }
     C_GetNextLabelName();
 
-    if (!g_skipKeywordCheck && HASH_find(&keywH,label+(g_numLabels<<6))>=0)
+    if (!g_skipKeywordCheck && hash_find(&keywH,label+(g_numLabels<<6))>=0)
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_ISAKEYWORD);
@@ -1579,7 +1578,6 @@ static void C_GetNextVarType(int32_t type)
         int32_t lLabelID = -1;
 
         f |= (MAXGAMEVARS<<2);
-//        initprintf("got an array");
         textptr++;
         i=GetADefID(label+(g_numLabels<<6));
         if (i < 0)
@@ -1696,7 +1694,7 @@ static void C_GetNextVarType(int32_t type)
         {
             //try looking for a define instead
             Bstrcpy(tempbuf,label+(g_numLabels<<6));
-            i = HASH_find(&labelH,tempbuf);
+            i = hash_find(&labelH,tempbuf);
             if (i>=0)
             {
                 if (labeltype[i] & LABEL_DEFINE)
@@ -1735,7 +1733,9 @@ static void C_GetNextVarType(int32_t type)
     if ((aGameVars[i].dwFlags & GAMEVAR_SYNCCHECK) && g_parsingActorPtr && C_CheckEventSync(g_currentEvent))
     {
         C_ReportError(-1);
-        initprintf("%s:%d: warning: found local gamevar `%s' used within %s; expect multiplayer synchronization issues.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6),g_parsingEventPtr?"a synced event":"an actor");
+        initprintf("%s:%d: warning: found local gamevar `%s' used within %s; "
+			"expect multiplayer synchronization issues.\n",g_szScriptFileName,
+			g_lineNumber,label+(g_numLabels<<6),g_parsingEventPtr?"a synced event":"an actor");
         g_numCompilerWarnings++;
     }
     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
@@ -1745,10 +1745,7 @@ static void C_GetNextVarType(int32_t type)
     *g_scriptPtr++=(i|f);
 }
 
-static inline void C_GetNextVar(void)
-{
-    C_GetNextVarType(0);
-}
+#define C_GetNextVar() C_GetNextVarType(0)
 
 static inline void C_GetManyVarsType(int32_t type, int32_t num)
 {
@@ -1757,10 +1754,7 @@ static inline void C_GetManyVarsType(int32_t type, int32_t num)
         C_GetNextVarType(type);
 }
 
-static inline void C_GetManyVars(int32_t num)
-{
-    C_GetManyVarsType(0,num);
-}
+#define C_GetManyVars(num) C_GetManyVarsType(0,num)
 
 static int32_t C_GetNextValue(int32_t type)
 {
@@ -1784,14 +1778,14 @@ static int32_t C_GetNextValue(int32_t type)
     }
     tempbuf[l] = 0;
 
-    if (!g_skipKeywordCheck && HASH_find(&keywH,label+(g_numLabels<<6))>=0)
+    if (!g_skipKeywordCheck && hash_find(&keywH,label+(g_numLabels<<6))>=0)
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_ISAKEYWORD);
         textptr+=l;
     }
 
-    i = HASH_find(&labelH,tempbuf);
+    i = hash_find(&labelH,tempbuf);
     if (i>=0)
     {
         char *el,*gl;
@@ -1817,7 +1811,7 @@ static int32_t C_GetNextValue(int32_t type)
         el = (char *)C_GetLabelType(type);
         gl = (char *)C_GetLabelType(labeltype[i]);
         C_ReportError(-1);
-        initprintf("%s:%d: warning: expected a %s, found a %s.\n",g_szScriptFileName,g_lineNumber,el,gl);
+        initprintf("%s:%d: warning: expected %s, found %s.\n",g_szScriptFileName,g_lineNumber,el,gl);
         g_numCompilerWarnings++;
         Bfree(el);
         Bfree(gl);
@@ -1844,11 +1838,12 @@ static int32_t C_GetNextValue(int32_t type)
     i = l-1;
     do
     {
+		// FIXME: check for 0-9 A-F for hex
         if (textptr[0] == '0' && textptr[1] == 'x') break; // kill the warning for hex
         if (!isdigit(textptr[i--]))
         {
             C_ReportError(-1);
-            initprintf("%s:%d: warning: invalid character in definition: '%c'!\n",g_szScriptFileName,g_lineNumber,textptr[i+1]);
+            initprintf("%s:%d: warning: invalid character `%c' in definition!\n",g_szScriptFileName,g_lineNumber,textptr[i+1]);
             g_numCompilerWarnings++;
             break;
         }
@@ -1980,28 +1975,28 @@ static int32_t C_ParseCommand(void)
 
             g_processingState = 1;
             Bsprintf(g_szCurrentBlockName,"%s",label+(g_numLabels<<6));
-            HASH_add(&labelH,label+(g_numLabels<<6),g_numLabels);
+            hash_add(&labelH,label+(g_numLabels<<6),g_numLabels);
             g_numLabels++;
             return 0;
         }
 
         C_GetNextLabelName();
 
-        if (HASH_find(&keywH,label+(g_numLabels<<6))>=0)
+        if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
             return 0;
         }
 
-        i = HASH_find(&gamevarH,label+(g_numLabels<<6));
+        i = hash_find(&gamevarH,label+(g_numLabels<<6));
         if (i>=0)
         {
             g_numCompilerWarnings++;
             C_ReportError(WARNING_NAMEMATCHESVAR);
         }
 
-        j = HASH_find(&labelH,label+(g_numLabels<<6));
+        j = hash_find(&labelH,label+(g_numLabels<<6));
         if (j>=0)
         {
             if (labeltype[j] & LABEL_STATE)
@@ -2019,7 +2014,7 @@ static int32_t C_ParseCommand(void)
             {
                 char *gl = (char *)C_GetLabelType(labeltype[j]);
                 C_ReportError(-1);
-                initprintf("%s:%d: warning: expected a state, found a %s.\n",g_szScriptFileName,g_lineNumber,gl);
+                initprintf("%s:%d: warning: expected state, found %s.\n",g_szScriptFileName,g_lineNumber,gl);
                 g_numCompilerWarnings++;
                 Bfree(gl);
                 *(g_scriptPtr-1) = CON_NULLOP; // get rid of the state, leaving a nullop to satisfy if conditions
@@ -2166,7 +2161,7 @@ static int32_t C_ParseCommand(void)
         //printf("Got Label '%.20s'\n",textptr);
         // Check to see it's already defined
 
-        if (HASH_find(&keywH,label+(g_numLabels<<6))>=0)
+        if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
@@ -2211,14 +2206,14 @@ static int32_t C_ParseCommand(void)
         //printf("Got Label '%.20s'\n",textptr);
         // Check to see it's already defined
 
-        if (HASH_find(&keywH,label+(g_numLabels<<6))>=0)
+        if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
             return 0;
         }
 
-        i = HASH_find(&gamevarH,label+(g_numLabels<<6));
+        i = hash_find(&gamevarH,label+(g_numLabels<<6));
         if (i>=0)
         {
             g_numCompilerWarnings++;
@@ -2239,21 +2234,21 @@ static int32_t C_ParseCommand(void)
         //printf("Got label. '%.20s'\n",textptr);
         // Check to see it's already defined
 
-        if (HASH_find(&keywH,label+(g_numLabels<<6))>=0)
+        if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
             return 0;
         }
 
-        i = HASH_find(&gamevarH,label+(g_numLabels<<6));
+        i = hash_find(&gamevarH,label+(g_numLabels<<6));
         if (i>=0)
         {
             g_numCompilerWarnings++;
             C_ReportError(WARNING_NAMEMATCHESVAR);
         }
 
-        i = HASH_find(&labelH,label+(g_numLabels<<6));
+        i = hash_find(&labelH,label+(g_numLabels<<6));
         if (i>=0)
         {
             /*            if (i >= g_numDefaultLabels)
@@ -2269,7 +2264,7 @@ static int32_t C_ParseCommand(void)
         if (i == -1)
         {
             //              printf("Defining Definition '%s' to be '%d'\n",label+(g_numLabels<<6),*(g_scriptPtr-1));
-            HASH_add(&labelH,label+(g_numLabels<<6),g_numLabels);
+            hash_add(&labelH,label+(g_numLabels<<6),g_numLabels);
             labeltype[g_numLabels] = LABEL_DEFINE;
             labelcode[g_numLabels++] = *(g_scriptPtr-1);
             if (*(g_scriptPtr-1) >= 0 && *(g_scriptPtr-1) < MAXTILES && g_dynamicTileMapping)
@@ -2332,21 +2327,21 @@ static int32_t C_ParseCommand(void)
             C_GetNextLabelName();
             // Check to see it's already defined
 
-            if (HASH_find(&keywH,label+(g_numLabels<<6))>=0)
+            if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_ISAKEYWORD);
                 return 0;
             }
 
-            i = HASH_find(&gamevarH,label+(g_numLabels<<6));
+            i = hash_find(&gamevarH,label+(g_numLabels<<6));
             if (i>=0)
             {
                 g_numCompilerWarnings++;
                 C_ReportError(WARNING_NAMEMATCHESVAR);
             }
 
-            i = HASH_find(&labelH,label+(g_numLabels<<6));
+            i = hash_find(&labelH,label+(g_numLabels<<6));
             if (i>=0)
             {
                 g_numCompilerWarnings++;
@@ -2354,7 +2349,7 @@ static int32_t C_ParseCommand(void)
             }
             if (i == -1)
             {
-                HASH_add(&labelH,label+(g_numLabels<<6),g_numLabels);
+                hash_add(&labelH,label+(g_numLabels<<6),g_numLabels);
                 labeltype[g_numLabels] = LABEL_MOVE;
                 labelcode[g_numLabels++] = (intptr_t) g_scriptPtr;
             }
@@ -2534,21 +2529,21 @@ static int32_t C_ParseCommand(void)
             g_scriptPtr--;
             C_GetNextLabelName();
 
-            if (HASH_find(&keywH,label+(g_numLabels<<6))>=0)
+            if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_ISAKEYWORD);
                 return 0;
             }
 
-            i = HASH_find(&gamevarH,label+(g_numLabels<<6));
+            i = hash_find(&gamevarH,label+(g_numLabels<<6));
             if (i>=0)
             {
                 g_numCompilerWarnings++;
                 C_ReportError(WARNING_NAMEMATCHESVAR);
             }
 
-            i = HASH_find(&labelH,label+(g_numLabels<<6));
+            i = hash_find(&labelH,label+(g_numLabels<<6));
             if (i>=0)
             {
                 g_numCompilerWarnings++;
@@ -2558,7 +2553,7 @@ static int32_t C_ParseCommand(void)
             if (i == -1)
             {
                 labeltype[g_numLabels] = LABEL_AI;
-                HASH_add(&labelH,label+(g_numLabels<<6),g_numLabels);
+                hash_add(&labelH,label+(g_numLabels<<6),g_numLabels);
                 labelcode[g_numLabels++] = (intptr_t) g_scriptPtr;
             }
 
@@ -2615,21 +2610,21 @@ static int32_t C_ParseCommand(void)
             C_GetNextLabelName();
             // Check to see it's already defined
 
-            if (HASH_find(&keywH,label+(g_numLabels<<6))>=0)
+            if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_ISAKEYWORD);
                 return 0;
             }
 
-            i = HASH_find(&gamevarH,label+(g_numLabels<<6));
+            i = hash_find(&gamevarH,label+(g_numLabels<<6));
             if (i>=0)
             {
                 g_numCompilerWarnings++;
                 C_ReportError(WARNING_NAMEMATCHESVAR);
             }
 
-            i = HASH_find(&labelH,label+(g_numLabels<<6));
+            i = hash_find(&labelH,label+(g_numLabels<<6));
             if (i>=0)
             {
                 g_numCompilerWarnings++;
@@ -2640,7 +2635,7 @@ static int32_t C_ParseCommand(void)
             {
                 labeltype[g_numLabels] = LABEL_ACTION;
                 labelcode[g_numLabels] = (intptr_t) g_scriptPtr;
-                HASH_add(&labelH,label+(g_numLabels<<6),g_numLabels);
+                hash_add(&labelH,label+(g_numLabels<<6),g_numLabels);
                 g_numLabels++;
             }
 
@@ -3535,7 +3530,7 @@ static int32_t C_ParseCommand(void)
         //printf("found label of '%s'\n",   label+(g_numLabels<<6));
 
         // Check to see if it's a keyword
-        if (HASH_find(&keywH,label+(g_numLabels<<6))>=0)
+        if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
@@ -4947,10 +4942,10 @@ repeatcase:
         }
         gamefunctions[j][i] = '\0';
         keydefaults[j*3][i] = '\0';
-        HASH_add(&gamefuncH,gamefunctions[j],j);
+        hash_add(&gamefuncH,gamefunctions[j],j);
         {
             char *str = strtolower(Bstrdup(gamefunctions[j]),Bstrlen(gamefunctions[j]));
-            HASH_add(&gamefuncH,str,j);
+            hash_add(&gamefuncH,str,j);
             Bfree(str);
         }
 
@@ -5321,7 +5316,7 @@ repeatcase:
 
         if (k > 25)
         {
-            initprintf("%s:%d: error: cheat redefinition attempts to redefine nonexistant cheat.\n",g_szScriptFileName,g_lineNumber);
+            initprintf("%s:%d: error: cheat redefinition attempts to redefine nonexistent cheat.\n",g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
             break;
@@ -5597,6 +5592,7 @@ repeatcase:
     return 0;
 }
 
+/*
 #define NUM_DEFAULT_CONS    4
 static const char *defaultcons[NUM_DEFAULT_CONS] =
 {
@@ -5633,145 +5629,146 @@ void copydefaultcons(void)
         fclose(fpo);
     }
 }
+*/
 
-/* Anything added with AddDefinition() cannot be overwritten in the CONs */
+/* Anything added with C_AddDefinition() cannot be overwritten in the CONs */
 
-static void AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
+static void C_AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
 {
     Bstrcpy(label+(g_numLabels<<6),lLabel);
     labeltype[g_numLabels] = lType;
-    HASH_add(&labelH,label+(g_numLabels<<6),g_numLabels);
+    hash_add(&labelH,label+(g_numLabels<<6),g_numLabels);
     labelcode[g_numLabels++] = lValue;
     g_numDefaultLabels++;
 }
 
 static void C_AddDefaultDefinitions(void)
 {
-    AddDefinition("EVENT_AIMDOWN",EVENT_AIMDOWN,LABEL_DEFINE);
-    AddDefinition("EVENT_AIMUP",EVENT_AIMUP,LABEL_DEFINE);
-    AddDefinition("EVENT_ANIMATESPRITES",EVENT_ANIMATESPRITES,LABEL_DEFINE);
-    AddDefinition("EVENT_CHANGEWEAPON",EVENT_CHANGEWEAPON,LABEL_DEFINE);
-    AddDefinition("EVENT_CHEATGETBOOT",EVENT_CHEATGETBOOT,LABEL_DEFINE);
-    AddDefinition("EVENT_CHEATGETFIRSTAID",EVENT_CHEATGETFIRSTAID,LABEL_DEFINE);
-    AddDefinition("EVENT_CHEATGETHEAT",EVENT_CHEATGETHEAT,LABEL_DEFINE);
-    AddDefinition("EVENT_CHEATGETHOLODUKE",EVENT_CHEATGETHOLODUKE,LABEL_DEFINE);
-    AddDefinition("EVENT_CHEATGETJETPACK",EVENT_CHEATGETJETPACK,LABEL_DEFINE);
-    AddDefinition("EVENT_CHEATGETSCUBA",EVENT_CHEATGETSCUBA,LABEL_DEFINE);
-    AddDefinition("EVENT_CHEATGETSHIELD",EVENT_CHEATGETSHIELD,LABEL_DEFINE);
-    AddDefinition("EVENT_CHEATGETSTEROIDS",EVENT_CHEATGETSTEROIDS,LABEL_DEFINE);
-    AddDefinition("EVENT_CROUCH",EVENT_CROUCH,LABEL_DEFINE);
-    AddDefinition("EVENT_DISPLAYCROSSHAIR",EVENT_DISPLAYCROSSHAIR,LABEL_DEFINE);
-    AddDefinition("EVENT_DISPLAYREST",EVENT_DISPLAYREST,LABEL_DEFINE);
-    AddDefinition("EVENT_DISPLAYBONUSSCREEN",EVENT_DISPLAYBONUSSCREEN,LABEL_DEFINE);
-    AddDefinition("EVENT_DISPLAYMENU",EVENT_DISPLAYMENU,LABEL_DEFINE);
-    AddDefinition("EVENT_DISPLAYMENUREST",EVENT_DISPLAYMENUREST,LABEL_DEFINE);
-    AddDefinition("EVENT_DISPLAYLOADINGSCREEN",EVENT_DISPLAYLOADINGSCREEN,LABEL_DEFINE);
-    AddDefinition("EVENT_DISPLAYROOMS",EVENT_DISPLAYROOMS,LABEL_DEFINE);
-    AddDefinition("EVENT_DISPLAYSBAR",EVENT_DISPLAYSBAR,LABEL_DEFINE);
-    AddDefinition("EVENT_DISPLAYWEAPON",EVENT_DISPLAYWEAPON,LABEL_DEFINE);
-    AddDefinition("EVENT_DOFIRE",EVENT_DOFIRE,LABEL_DEFINE);
-    AddDefinition("EVENT_DRAWWEAPON",EVENT_DRAWWEAPON,LABEL_DEFINE);
-    AddDefinition("EVENT_EGS",EVENT_EGS,LABEL_DEFINE);
-    AddDefinition("EVENT_ENTERLEVEL",EVENT_ENTERLEVEL,LABEL_DEFINE);
-    AddDefinition("EVENT_FAKEDOMOVETHINGS",EVENT_FAKEDOMOVETHINGS,LABEL_DEFINE);
-    AddDefinition("EVENT_FIRE",EVENT_FIRE,LABEL_DEFINE);
-    AddDefinition("EVENT_FIREWEAPON",EVENT_FIREWEAPON,LABEL_DEFINE);
-    AddDefinition("EVENT_GAME",EVENT_GAME,LABEL_DEFINE);
-    AddDefinition("EVENT_GETAUTOAIMANGLE",EVENT_GETAUTOAIMANGLE,LABEL_DEFINE);
-    AddDefinition("EVENT_GETLOADTILE",EVENT_GETLOADTILE,LABEL_DEFINE);
-    AddDefinition("EVENT_GETMENUTILE",EVENT_GETMENUTILE,LABEL_DEFINE);
-    AddDefinition("EVENT_GETSHOTRANGE",EVENT_GETSHOTRANGE,LABEL_DEFINE);
-    AddDefinition("EVENT_HOLODUKEOFF",EVENT_HOLODUKEOFF,LABEL_DEFINE);
-    AddDefinition("EVENT_HOLODUKEON",EVENT_HOLODUKEON,LABEL_DEFINE);
-    AddDefinition("EVENT_HOLSTER",EVENT_HOLSTER,LABEL_DEFINE);
-    AddDefinition("EVENT_INCURDAMAGE",EVENT_INCURDAMAGE,LABEL_DEFINE);
-    AddDefinition("EVENT_INIT",EVENT_INIT,LABEL_DEFINE);
-    AddDefinition("EVENT_INVENTORY",EVENT_INVENTORY,LABEL_DEFINE);
-    AddDefinition("EVENT_INVENTORYLEFT",EVENT_INVENTORYLEFT,LABEL_DEFINE);
-    AddDefinition("EVENT_INVENTORYRIGHT",EVENT_INVENTORYRIGHT,LABEL_DEFINE);
-    AddDefinition("EVENT_JUMP",EVENT_JUMP,LABEL_DEFINE);
-    AddDefinition("EVENT_LOGO",EVENT_LOGO,LABEL_DEFINE);
-    AddDefinition("EVENT_LOOKDOWN",EVENT_LOOKDOWN,LABEL_DEFINE);
-    AddDefinition("EVENT_LOOKLEFT",EVENT_LOOKLEFT,LABEL_DEFINE);
-    AddDefinition("EVENT_LOOKRIGHT",EVENT_LOOKRIGHT,LABEL_DEFINE);
-    AddDefinition("EVENT_LOOKUP",EVENT_LOOKUP,LABEL_DEFINE);
-    AddDefinition("EVENT_MOVEBACKWARD",EVENT_MOVEBACKWARD,LABEL_DEFINE);
-    AddDefinition("EVENT_MOVEFORWARD",EVENT_MOVEFORWARD,LABEL_DEFINE);
-    AddDefinition("EVENT_NEXTWEAPON",EVENT_NEXTWEAPON,LABEL_DEFINE);
-    AddDefinition("EVENT_PREVIOUSWEAPON",EVENT_PREVIOUSWEAPON,LABEL_DEFINE);
-    AddDefinition("EVENT_PRESSEDFIRE",EVENT_PRESSEDFIRE,LABEL_DEFINE);
-    AddDefinition("EVENT_PROCESSINPUT",EVENT_PROCESSINPUT,LABEL_DEFINE);
-    AddDefinition("EVENT_QUICKKICK",EVENT_QUICKKICK,LABEL_DEFINE);
-    AddDefinition("EVENT_RESETINVENTORY",EVENT_RESETINVENTORY,LABEL_DEFINE);
-    AddDefinition("EVENT_RESETPLAYER",EVENT_RESETPLAYER,LABEL_DEFINE);
-    AddDefinition("EVENT_RESETWEAPONS",EVENT_RESETWEAPONS,LABEL_DEFINE);
-    AddDefinition("EVENT_RETURNTOCENTER",EVENT_RETURNTOCENTER,LABEL_DEFINE);
-    AddDefinition("EVENT_SELECTWEAPON",EVENT_SELECTWEAPON,LABEL_DEFINE);
-    AddDefinition("EVENT_SOARDOWN",EVENT_SOARDOWN,LABEL_DEFINE);
-    AddDefinition("EVENT_SOARUP",EVENT_SOARUP,LABEL_DEFINE);
-    AddDefinition("EVENT_SPAWN",EVENT_SPAWN,LABEL_DEFINE);
-    AddDefinition("EVENT_STRAFELEFT",EVENT_STRAFELEFT,LABEL_DEFINE);
-    AddDefinition("EVENT_STRAFERIGHT",EVENT_STRAFERIGHT,LABEL_DEFINE);
-    AddDefinition("EVENT_SWIMDOWN",EVENT_SWIMDOWN,LABEL_DEFINE);
-    AddDefinition("EVENT_SWIMUP",EVENT_SWIMUP,LABEL_DEFINE);
-    AddDefinition("EVENT_TURNAROUND",EVENT_TURNAROUND,LABEL_DEFINE);
-    AddDefinition("EVENT_TURNLEFT",EVENT_TURNLEFT,LABEL_DEFINE);
-    AddDefinition("EVENT_TURNRIGHT",EVENT_TURNRIGHT,LABEL_DEFINE);
-    AddDefinition("EVENT_USE",EVENT_USE,LABEL_DEFINE);
-    AddDefinition("EVENT_USEJETPACK",EVENT_USEJETPACK,LABEL_DEFINE);
-    AddDefinition("EVENT_USEMEDKIT",EVENT_USEMEDKIT,LABEL_DEFINE);
-    AddDefinition("EVENT_USENIGHTVISION",EVENT_USENIGHTVISION,LABEL_DEFINE);
-    AddDefinition("EVENT_USESTEROIDS",EVENT_USESTEROIDS,LABEL_DEFINE);
-    AddDefinition("EVENT_WEAPKEY10",EVENT_WEAPKEY10,LABEL_DEFINE);
-    AddDefinition("EVENT_WEAPKEY1",EVENT_WEAPKEY1,LABEL_DEFINE);
-    AddDefinition("EVENT_WEAPKEY2",EVENT_WEAPKEY2,LABEL_DEFINE);
-    AddDefinition("EVENT_WEAPKEY3",EVENT_WEAPKEY3,LABEL_DEFINE);
-    AddDefinition("EVENT_WEAPKEY4",EVENT_WEAPKEY4,LABEL_DEFINE);
-    AddDefinition("EVENT_WEAPKEY5",EVENT_WEAPKEY5,LABEL_DEFINE);
-    AddDefinition("EVENT_WEAPKEY6",EVENT_WEAPKEY6,LABEL_DEFINE);
-    AddDefinition("EVENT_WEAPKEY7",EVENT_WEAPKEY7,LABEL_DEFINE);
-    AddDefinition("EVENT_WEAPKEY8",EVENT_WEAPKEY8,LABEL_DEFINE);
-    AddDefinition("EVENT_WEAPKEY9",EVENT_WEAPKEY9,LABEL_DEFINE);
-    AddDefinition("EVENT_KILLIT",EVENT_KILLIT,LABEL_DEFINE);
-    AddDefinition("EVENT_LOADACTOR",EVENT_LOADACTOR,LABEL_DEFINE);
-    AddDefinition("EVENT_NEWGAME",EVENT_NEWGAME,LABEL_DEFINE);
+    C_AddDefinition("EVENT_AIMDOWN",EVENT_AIMDOWN,LABEL_DEFINE);
+    C_AddDefinition("EVENT_AIMUP",EVENT_AIMUP,LABEL_DEFINE);
+    C_AddDefinition("EVENT_ANIMATESPRITES",EVENT_ANIMATESPRITES,LABEL_DEFINE);
+    C_AddDefinition("EVENT_CHANGEWEAPON",EVENT_CHANGEWEAPON,LABEL_DEFINE);
+    C_AddDefinition("EVENT_CHEATGETBOOT",EVENT_CHEATGETBOOT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_CHEATGETFIRSTAID",EVENT_CHEATGETFIRSTAID,LABEL_DEFINE);
+    C_AddDefinition("EVENT_CHEATGETHEAT",EVENT_CHEATGETHEAT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_CHEATGETHOLODUKE",EVENT_CHEATGETHOLODUKE,LABEL_DEFINE);
+    C_AddDefinition("EVENT_CHEATGETJETPACK",EVENT_CHEATGETJETPACK,LABEL_DEFINE);
+    C_AddDefinition("EVENT_CHEATGETSCUBA",EVENT_CHEATGETSCUBA,LABEL_DEFINE);
+    C_AddDefinition("EVENT_CHEATGETSHIELD",EVENT_CHEATGETSHIELD,LABEL_DEFINE);
+    C_AddDefinition("EVENT_CHEATGETSTEROIDS",EVENT_CHEATGETSTEROIDS,LABEL_DEFINE);
+    C_AddDefinition("EVENT_CROUCH",EVENT_CROUCH,LABEL_DEFINE);
+    C_AddDefinition("EVENT_DISPLAYCROSSHAIR",EVENT_DISPLAYCROSSHAIR,LABEL_DEFINE);
+    C_AddDefinition("EVENT_DISPLAYREST",EVENT_DISPLAYREST,LABEL_DEFINE);
+    C_AddDefinition("EVENT_DISPLAYBONUSSCREEN",EVENT_DISPLAYBONUSSCREEN,LABEL_DEFINE);
+    C_AddDefinition("EVENT_DISPLAYMENU",EVENT_DISPLAYMENU,LABEL_DEFINE);
+    C_AddDefinition("EVENT_DISPLAYMENUREST",EVENT_DISPLAYMENUREST,LABEL_DEFINE);
+    C_AddDefinition("EVENT_DISPLAYLOADINGSCREEN",EVENT_DISPLAYLOADINGSCREEN,LABEL_DEFINE);
+    C_AddDefinition("EVENT_DISPLAYROOMS",EVENT_DISPLAYROOMS,LABEL_DEFINE);
+    C_AddDefinition("EVENT_DISPLAYSBAR",EVENT_DISPLAYSBAR,LABEL_DEFINE);
+    C_AddDefinition("EVENT_DISPLAYWEAPON",EVENT_DISPLAYWEAPON,LABEL_DEFINE);
+    C_AddDefinition("EVENT_DOFIRE",EVENT_DOFIRE,LABEL_DEFINE);
+    C_AddDefinition("EVENT_DRAWWEAPON",EVENT_DRAWWEAPON,LABEL_DEFINE);
+    C_AddDefinition("EVENT_EGS",EVENT_EGS,LABEL_DEFINE);
+    C_AddDefinition("EVENT_ENTERLEVEL",EVENT_ENTERLEVEL,LABEL_DEFINE);
+    C_AddDefinition("EVENT_FAKEDOMOVETHINGS",EVENT_FAKEDOMOVETHINGS,LABEL_DEFINE);
+    C_AddDefinition("EVENT_FIRE",EVENT_FIRE,LABEL_DEFINE);
+    C_AddDefinition("EVENT_FIREWEAPON",EVENT_FIREWEAPON,LABEL_DEFINE);
+    C_AddDefinition("EVENT_GAME",EVENT_GAME,LABEL_DEFINE);
+    C_AddDefinition("EVENT_GETAUTOAIMANGLE",EVENT_GETAUTOAIMANGLE,LABEL_DEFINE);
+    C_AddDefinition("EVENT_GETLOADTILE",EVENT_GETLOADTILE,LABEL_DEFINE);
+    C_AddDefinition("EVENT_GETMENUTILE",EVENT_GETMENUTILE,LABEL_DEFINE);
+    C_AddDefinition("EVENT_GETSHOTRANGE",EVENT_GETSHOTRANGE,LABEL_DEFINE);
+    C_AddDefinition("EVENT_HOLODUKEOFF",EVENT_HOLODUKEOFF,LABEL_DEFINE);
+    C_AddDefinition("EVENT_HOLODUKEON",EVENT_HOLODUKEON,LABEL_DEFINE);
+    C_AddDefinition("EVENT_HOLSTER",EVENT_HOLSTER,LABEL_DEFINE);
+    C_AddDefinition("EVENT_INCURDAMAGE",EVENT_INCURDAMAGE,LABEL_DEFINE);
+    C_AddDefinition("EVENT_INIT",EVENT_INIT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_INVENTORY",EVENT_INVENTORY,LABEL_DEFINE);
+    C_AddDefinition("EVENT_INVENTORYLEFT",EVENT_INVENTORYLEFT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_INVENTORYRIGHT",EVENT_INVENTORYRIGHT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_JUMP",EVENT_JUMP,LABEL_DEFINE);
+    C_AddDefinition("EVENT_LOGO",EVENT_LOGO,LABEL_DEFINE);
+    C_AddDefinition("EVENT_LOOKDOWN",EVENT_LOOKDOWN,LABEL_DEFINE);
+    C_AddDefinition("EVENT_LOOKLEFT",EVENT_LOOKLEFT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_LOOKRIGHT",EVENT_LOOKRIGHT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_LOOKUP",EVENT_LOOKUP,LABEL_DEFINE);
+    C_AddDefinition("EVENT_MOVEBACKWARD",EVENT_MOVEBACKWARD,LABEL_DEFINE);
+    C_AddDefinition("EVENT_MOVEFORWARD",EVENT_MOVEFORWARD,LABEL_DEFINE);
+    C_AddDefinition("EVENT_NEXTWEAPON",EVENT_NEXTWEAPON,LABEL_DEFINE);
+    C_AddDefinition("EVENT_PREVIOUSWEAPON",EVENT_PREVIOUSWEAPON,LABEL_DEFINE);
+    C_AddDefinition("EVENT_PRESSEDFIRE",EVENT_PRESSEDFIRE,LABEL_DEFINE);
+    C_AddDefinition("EVENT_PROCESSINPUT",EVENT_PROCESSINPUT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_QUICKKICK",EVENT_QUICKKICK,LABEL_DEFINE);
+    C_AddDefinition("EVENT_RESETINVENTORY",EVENT_RESETINVENTORY,LABEL_DEFINE);
+    C_AddDefinition("EVENT_RESETPLAYER",EVENT_RESETPLAYER,LABEL_DEFINE);
+    C_AddDefinition("EVENT_RESETWEAPONS",EVENT_RESETWEAPONS,LABEL_DEFINE);
+    C_AddDefinition("EVENT_RETURNTOCENTER",EVENT_RETURNTOCENTER,LABEL_DEFINE);
+    C_AddDefinition("EVENT_SELECTWEAPON",EVENT_SELECTWEAPON,LABEL_DEFINE);
+    C_AddDefinition("EVENT_SOARDOWN",EVENT_SOARDOWN,LABEL_DEFINE);
+    C_AddDefinition("EVENT_SOARUP",EVENT_SOARUP,LABEL_DEFINE);
+    C_AddDefinition("EVENT_SPAWN",EVENT_SPAWN,LABEL_DEFINE);
+    C_AddDefinition("EVENT_STRAFELEFT",EVENT_STRAFELEFT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_STRAFERIGHT",EVENT_STRAFERIGHT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_SWIMDOWN",EVENT_SWIMDOWN,LABEL_DEFINE);
+    C_AddDefinition("EVENT_SWIMUP",EVENT_SWIMUP,LABEL_DEFINE);
+    C_AddDefinition("EVENT_TURNAROUND",EVENT_TURNAROUND,LABEL_DEFINE);
+    C_AddDefinition("EVENT_TURNLEFT",EVENT_TURNLEFT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_TURNRIGHT",EVENT_TURNRIGHT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_USE",EVENT_USE,LABEL_DEFINE);
+    C_AddDefinition("EVENT_USEJETPACK",EVENT_USEJETPACK,LABEL_DEFINE);
+    C_AddDefinition("EVENT_USEMEDKIT",EVENT_USEMEDKIT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_USENIGHTVISION",EVENT_USENIGHTVISION,LABEL_DEFINE);
+    C_AddDefinition("EVENT_USESTEROIDS",EVENT_USESTEROIDS,LABEL_DEFINE);
+    C_AddDefinition("EVENT_WEAPKEY10",EVENT_WEAPKEY10,LABEL_DEFINE);
+    C_AddDefinition("EVENT_WEAPKEY1",EVENT_WEAPKEY1,LABEL_DEFINE);
+    C_AddDefinition("EVENT_WEAPKEY2",EVENT_WEAPKEY2,LABEL_DEFINE);
+    C_AddDefinition("EVENT_WEAPKEY3",EVENT_WEAPKEY3,LABEL_DEFINE);
+    C_AddDefinition("EVENT_WEAPKEY4",EVENT_WEAPKEY4,LABEL_DEFINE);
+    C_AddDefinition("EVENT_WEAPKEY5",EVENT_WEAPKEY5,LABEL_DEFINE);
+    C_AddDefinition("EVENT_WEAPKEY6",EVENT_WEAPKEY6,LABEL_DEFINE);
+    C_AddDefinition("EVENT_WEAPKEY7",EVENT_WEAPKEY7,LABEL_DEFINE);
+    C_AddDefinition("EVENT_WEAPKEY8",EVENT_WEAPKEY8,LABEL_DEFINE);
+    C_AddDefinition("EVENT_WEAPKEY9",EVENT_WEAPKEY9,LABEL_DEFINE);
+    C_AddDefinition("EVENT_KILLIT",EVENT_KILLIT,LABEL_DEFINE);
+    C_AddDefinition("EVENT_LOADACTOR",EVENT_LOADACTOR,LABEL_DEFINE);
+    C_AddDefinition("EVENT_NEWGAME",EVENT_NEWGAME,LABEL_DEFINE);
 
-    AddDefinition("STR_MAPNAME",STR_MAPNAME,LABEL_DEFINE);
-    AddDefinition("STR_MAPFILENAME",STR_MAPFILENAME,LABEL_DEFINE);
-    AddDefinition("STR_PLAYERNAME",STR_PLAYERNAME,LABEL_DEFINE);
-    AddDefinition("STR_VERSION",STR_VERSION,LABEL_DEFINE);
-    AddDefinition("STR_GAMETYPE",STR_GAMETYPE,LABEL_DEFINE);
+    C_AddDefinition("STR_MAPNAME",STR_MAPNAME,LABEL_DEFINE);
+    C_AddDefinition("STR_MAPFILENAME",STR_MAPFILENAME,LABEL_DEFINE);
+    C_AddDefinition("STR_PLAYERNAME",STR_PLAYERNAME,LABEL_DEFINE);
+    C_AddDefinition("STR_VERSION",STR_VERSION,LABEL_DEFINE);
+    C_AddDefinition("STR_GAMETYPE",STR_GAMETYPE,LABEL_DEFINE);
 
-    AddDefinition("NO",0,LABEL_DEFINE|LABEL_ACTION|LABEL_AI|LABEL_MOVE);
+    C_AddDefinition("NO",0,LABEL_DEFINE|LABEL_ACTION|LABEL_AI|LABEL_MOVE);
 
-    AddDefinition("PROJ_BOUNCES",PROJ_BOUNCES,LABEL_DEFINE);
-    AddDefinition("PROJ_BSOUND",PROJ_BSOUND,LABEL_DEFINE);
-    AddDefinition("PROJ_CLIPDIST",PROJ_CLIPDIST,LABEL_DEFINE);
-    AddDefinition("PROJ_CSTAT",PROJ_CSTAT,LABEL_DEFINE);
-    AddDefinition("PROJ_DECAL",PROJ_DECAL,LABEL_DEFINE);
-    AddDefinition("PROJ_DROP",PROJ_DROP,LABEL_DEFINE);
-    AddDefinition("PROJ_EXTRA",PROJ_EXTRA,LABEL_DEFINE);
-    AddDefinition("PROJ_EXTRA_RAND",PROJ_EXTRA_RAND,LABEL_DEFINE);
-    AddDefinition("PROJ_HITRADIUS",PROJ_HITRADIUS,LABEL_DEFINE);
-    AddDefinition("PROJ_ISOUND",PROJ_ISOUND,LABEL_DEFINE);
-    AddDefinition("PROJ_OFFSET",PROJ_OFFSET,LABEL_DEFINE);
-    AddDefinition("PROJ_PAL",PROJ_PAL,LABEL_DEFINE);
-    AddDefinition("PROJ_RANGE",PROJ_RANGE,LABEL_DEFINE);
-    AddDefinition("PROJ_SHADE",PROJ_SHADE,LABEL_DEFINE);
-    AddDefinition("PROJ_SOUND",PROJ_SOUND,LABEL_DEFINE);
-    AddDefinition("PROJ_SPAWNS",PROJ_SPAWNS,LABEL_DEFINE);
-    AddDefinition("PROJ_SXREPEAT",PROJ_SXREPEAT,LABEL_DEFINE);
-    AddDefinition("PROJ_SYREPEAT",PROJ_SYREPEAT,LABEL_DEFINE);
-    AddDefinition("PROJ_TNUM",PROJ_TNUM,LABEL_DEFINE);
-    AddDefinition("PROJ_TOFFSET",PROJ_TOFFSET,LABEL_DEFINE);
-    AddDefinition("PROJ_TRAIL",PROJ_TRAIL,LABEL_DEFINE);
-    AddDefinition("PROJ_TXREPEAT",PROJ_TXREPEAT,LABEL_DEFINE);
-    AddDefinition("PROJ_TYREPEAT",PROJ_TYREPEAT,LABEL_DEFINE);
-    AddDefinition("PROJ_VEL_MULT",PROJ_VEL_MULT,LABEL_DEFINE);
-    AddDefinition("PROJ_VEL",PROJ_VEL,LABEL_DEFINE);
-    AddDefinition("PROJ_WORKSLIKE",PROJ_WORKSLIKE,LABEL_DEFINE);
-    AddDefinition("PROJ_XREPEAT",PROJ_XREPEAT,LABEL_DEFINE);
-    AddDefinition("PROJ_YREPEAT",PROJ_YREPEAT,LABEL_DEFINE);
+    C_AddDefinition("PROJ_BOUNCES",PROJ_BOUNCES,LABEL_DEFINE);
+    C_AddDefinition("PROJ_BSOUND",PROJ_BSOUND,LABEL_DEFINE);
+    C_AddDefinition("PROJ_CLIPDIST",PROJ_CLIPDIST,LABEL_DEFINE);
+    C_AddDefinition("PROJ_CSTAT",PROJ_CSTAT,LABEL_DEFINE);
+    C_AddDefinition("PROJ_DECAL",PROJ_DECAL,LABEL_DEFINE);
+    C_AddDefinition("PROJ_DROP",PROJ_DROP,LABEL_DEFINE);
+    C_AddDefinition("PROJ_EXTRA",PROJ_EXTRA,LABEL_DEFINE);
+    C_AddDefinition("PROJ_EXTRA_RAND",PROJ_EXTRA_RAND,LABEL_DEFINE);
+    C_AddDefinition("PROJ_HITRADIUS",PROJ_HITRADIUS,LABEL_DEFINE);
+    C_AddDefinition("PROJ_ISOUND",PROJ_ISOUND,LABEL_DEFINE);
+    C_AddDefinition("PROJ_OFFSET",PROJ_OFFSET,LABEL_DEFINE);
+    C_AddDefinition("PROJ_PAL",PROJ_PAL,LABEL_DEFINE);
+    C_AddDefinition("PROJ_RANGE",PROJ_RANGE,LABEL_DEFINE);
+    C_AddDefinition("PROJ_SHADE",PROJ_SHADE,LABEL_DEFINE);
+    C_AddDefinition("PROJ_SOUND",PROJ_SOUND,LABEL_DEFINE);
+    C_AddDefinition("PROJ_SPAWNS",PROJ_SPAWNS,LABEL_DEFINE);
+    C_AddDefinition("PROJ_SXREPEAT",PROJ_SXREPEAT,LABEL_DEFINE);
+    C_AddDefinition("PROJ_SYREPEAT",PROJ_SYREPEAT,LABEL_DEFINE);
+    C_AddDefinition("PROJ_TNUM",PROJ_TNUM,LABEL_DEFINE);
+    C_AddDefinition("PROJ_TOFFSET",PROJ_TOFFSET,LABEL_DEFINE);
+    C_AddDefinition("PROJ_TRAIL",PROJ_TRAIL,LABEL_DEFINE);
+    C_AddDefinition("PROJ_TXREPEAT",PROJ_TXREPEAT,LABEL_DEFINE);
+    C_AddDefinition("PROJ_TYREPEAT",PROJ_TYREPEAT,LABEL_DEFINE);
+    C_AddDefinition("PROJ_VEL_MULT",PROJ_VEL_MULT,LABEL_DEFINE);
+    C_AddDefinition("PROJ_VEL",PROJ_VEL,LABEL_DEFINE);
+    C_AddDefinition("PROJ_WORKSLIKE",PROJ_WORKSLIKE,LABEL_DEFINE);
+    C_AddDefinition("PROJ_XREPEAT",PROJ_XREPEAT,LABEL_DEFINE);
+    C_AddDefinition("PROJ_YREPEAT",PROJ_YREPEAT,LABEL_DEFINE);
 }
 
 static void C_InitProjectiles(void)
@@ -5791,7 +5788,7 @@ static void C_InitProjectiles(void)
 
     // this will only happen if I forget to update this function...
     if (sizeof(projectile_t) != sizeof(DefaultProjectile))
-        G_GameExit("ERROR: C_InitProjectiles() projectile_t mismatch!");
+        G_GameExit("ERROR: C_InitProjectiles(): projectile_t mismatch!");
 
     for (i=MAXTILES-1;i>=0;i--)
         Bmemcpy(&ProjectileData[i],&DefaultProjectile,sizeof(projectile_t));
@@ -5966,18 +5963,18 @@ void C_Compile(const char *filenam)
     {
         int32_t j=0, k=0;
 
-        HASH_free(&keywH);
+        hash_free(&keywH);
         freehashnames();
 
-        HASH_free(&sectorH);
-        HASH_free(&wallH);
-        HASH_free(&userdefH);
+        hash_free(&sectorH);
+        hash_free(&wallH);
+        hash_free(&userdefH);
 
-        HASH_free(&projectileH);
-        HASH_free(&playerH);
-        HASH_free(&inputH);
-        HASH_free(&actorH);
-        HASH_free(&tspriteH);
+        hash_free(&projectileH);
+        hash_free(&playerH);
+        hash_free(&inputH);
+        hash_free(&actorH);
+        hash_free(&tspriteH);
 
         g_totalLines += g_lineNumber;
 
@@ -5985,11 +5982,16 @@ void C_Compile(const char *filenam)
 
         flushlogwindow = 0;
 
-        initprintf("Script compiled in %dms\n",getticks()-startcompiletime);
+        initprintf("Script compiled in %dms\n", getticks() - startcompiletime);
 
-        initprintf("Compiled code size: %ld*%d bytes, version %s\n",(unsigned)(g_scriptPtr-script),sizeof(intptr_t),(g_scriptVersion == 14?"1.4+":"1.3D"));
+        initprintf("Compiled code size: %ld*%d bytes, version %s\n",
+			(unsigned)(g_scriptPtr-script), sizeof(intptr_t), (g_scriptVersion == 14?"1.4+":"1.3D"));
+
         initprintf("Pointer bitmap size: %ld bytes\n",(g_scriptSize+7)>>3);
-        initprintf("%ld/%ld labels, %d/%d variables\n",g_numLabels,min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),(MAXSPRITES * sizeof(spritetype)/(1<<6))),g_gameVarCount,MAXGAMEVARS);
+        initprintf("%ld/%ld labels, %d/%d variables\n", g_numLabels,
+			min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
+			MAXSPRITES * sizeof(spritetype)/(1<<6)),
+			g_gameVarCount, MAXGAMEVARS);
 
         for (i=MAXQUOTES-1;i>=0;i--)
             if (ScriptQuotes[i])
@@ -6010,9 +6012,6 @@ void C_Compile(const char *filenam)
         for (i=127;i>=0;i--)
             if (ScriptQuotes[i] == NULL)
                 ScriptQuotes[i] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
-
-//        if (!Bstrcmp(ScriptQuotes[13],"PRESS SPACE TO RESTART LEVEL"))
-//            Bstrcpy(ScriptQuotes[13],"PRESS USE TO RESTART LEVEL");
 
         for (i=MAXQUOTELEN-7;i>=0;i--)
             if (Bstrncmp(&ScriptQuotes[13][i],"SPACE",5) == 0)
@@ -6112,92 +6111,92 @@ void C_Compile(const char *filenam)
 
 void C_ReportError(int32_t iError)
 {
-    if (Bstrcmp(g_szCurrentBlockName,g_szLastBlockName))
-    {
-        if (g_parsingEventPtr || g_processingState || g_parsingActorPtr)
-            initprintf("%s: In %s `%s':\n",g_szScriptFileName,g_parsingEventPtr?"event":g_parsingActorPtr?"actor":"state",g_szCurrentBlockName);
-        else initprintf("%s: At top level:\n",g_szScriptFileName);
-        Bstrcpy(g_szLastBlockName,g_szCurrentBlockName);
-    }
-    switch (iError)
-    {
-    case ERROR_CLOSEBRACKET:
-        initprintf("%s:%d: error: found more `}' than `{' before `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-        break;
-    case ERROR_EVENTONLY:
-        initprintf("%s:%d: error: command `%s' only valid during events.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-        break;
-    case ERROR_EXCEEDSMAXTILES:
-        initprintf("%s:%d: error: `%s' value exceeds MAXTILES.  Maximum is %d.\n",g_szScriptFileName,g_lineNumber,tempbuf,MAXTILES-1);
-        break;
-    case ERROR_EXPECTEDKEYWORD:
-        initprintf("%s:%d: error: expected a keyword but found `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-        break;
-    case ERROR_FOUNDWITHIN:
-        initprintf("%s:%d: error: found `%s' within %s.\n",g_szScriptFileName,g_lineNumber,tempbuf,g_parsingEventPtr?"an event":g_parsingActorPtr?"an actor":"a state");
-        break;
-    case ERROR_ISAKEYWORD:
-        initprintf("%s:%d: error: symbol `%s' is a keyword.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-        break;
-    case ERROR_NOENDSWITCH:
-        initprintf("%s:%d: error: did not find `endswitch' before `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-        break;
-    case ERROR_NOTAGAMEDEF:
-        initprintf("%s:%d: error: symbol `%s' is not a game definition.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-        break;
-    case ERROR_NOTAGAMEVAR:
-        initprintf("%s:%d: error: symbol `%s' is not a game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-        break;
-    case ERROR_NOTAGAMEARRAY:
-        initprintf("%s:%d: error: symbol `%s' is not a game array.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-        break;
-    case ERROR_GAMEARRAYBNC:
-        initprintf("%s:%d: error: square brackets for index of game array not closed, expected ] found %c\n",g_szScriptFileName,g_lineNumber,*textptr);
-        break;
-    case ERROR_GAMEARRAYBNO:
-        initprintf("%s:%d: error: square brackets for index of game array not opened, expected [ found %c\n",g_szScriptFileName,g_lineNumber,*textptr);
-        break;
-    case ERROR_INVALIDARRAYWRITE:
-        initprintf("%s:%d: error: arrays can only be written using setarray %c\n",g_szScriptFileName,g_lineNumber,*textptr);
-        break;
-    case ERROR_OPENBRACKET:
-        initprintf("%s:%d: error: found more `{' than `}' before `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-        break;
-    case ERROR_PARAMUNDEFINED:
-        initprintf("%s:%d: error: parameter `%s' is undefined.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-        break;
-    case ERROR_SYMBOLNOTRECOGNIZED:
-        initprintf("%s:%d: error: symbol `%s' is not recognized.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-        break;
-    case ERROR_SYNTAXERROR:
-        initprintf("%s:%d: error: syntax error.\n",g_szScriptFileName,g_lineNumber);
-        break;
-    case ERROR_VARREADONLY:
-        initprintf("%s:%d: error: variable `%s' is read-only.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-        break;
-    case ERROR_VARTYPEMISMATCH:
-        initprintf("%s:%d: error: variable `%s' is of the wrong type.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-        break;
-    case WARNING_BADGAMEVAR:
-        initprintf("%s:%ld: warning: variable `%s' should be either per-player OR per-actor, not both.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-        break;
-    case WARNING_DUPLICATECASE:
-        initprintf("%s:%ld: warning: duplicate case ignored.\n",g_szScriptFileName,g_lineNumber);
-        break;
-    case WARNING_DUPLICATEDEFINITION:
-        initprintf("%s:%d: warning: duplicate game definition `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-        break;
-    case WARNING_EVENTSYNC:
-        initprintf("%s:%d: warning: found `%s' within a local event.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-        break;
-    case WARNING_LABELSONLY:
-        initprintf("%s:%d: warning: expected a label, found a constant.\n",g_szScriptFileName,g_lineNumber);
-        break;
-    case WARNING_NAMEMATCHESVAR:
-        initprintf("%s:%d: warning: symbol `%s' already used for game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-        break;
-    case WARNING_REVEVENTSYNC:
-        initprintf("%s:%d: warning: found `%s' outside of a local event.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-        break;
-    }
+	if (Bstrcmp(g_szCurrentBlockName,g_szLastBlockName))
+	{
+		if (g_parsingEventPtr || g_processingState || g_parsingActorPtr)
+			initprintf("%s: In %s `%s':\n",g_szScriptFileName,g_parsingEventPtr?"event":g_parsingActorPtr?"actor":"state",g_szCurrentBlockName);
+		else initprintf("%s: At top level:\n",g_szScriptFileName);
+		Bstrcpy(g_szLastBlockName,g_szCurrentBlockName);
+	}
+	switch (iError)
+	{
+	case ERROR_CLOSEBRACKET:
+		initprintf("%s:%d: error: found more `}' than `{' before `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+		break;
+	case ERROR_EVENTONLY:
+		initprintf("%s:%d: error: `%s' only valid during events.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+		break;
+	case ERROR_EXCEEDSMAXTILES:
+		initprintf("%s:%d: error: `%s' value exceeds MAXTILES.  Maximum is %d.\n",g_szScriptFileName,g_lineNumber,tempbuf,MAXTILES-1);
+		break;
+	case ERROR_EXPECTEDKEYWORD:
+		initprintf("%s:%d: error: expected a keyword but found `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+		break;
+	case ERROR_FOUNDWITHIN:
+		initprintf("%s:%d: error: found `%s' within %s.\n",g_szScriptFileName,g_lineNumber,tempbuf,g_parsingEventPtr?"an event":g_parsingActorPtr?"an actor":"a state");
+		break;
+	case ERROR_ISAKEYWORD:
+		initprintf("%s:%d: error: symbol `%s' is a keyword.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+		break;
+	case ERROR_NOENDSWITCH:
+		initprintf("%s:%d: error: did not find `endswitch' before `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+		break;
+	case ERROR_NOTAGAMEDEF:
+		initprintf("%s:%d: error: symbol `%s' is not a game definition.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+		break;
+	case ERROR_NOTAGAMEVAR:
+		initprintf("%s:%d: error: symbol `%s' is not a game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+		break;
+	case ERROR_NOTAGAMEARRAY:
+		initprintf("%s:%d: error: symbol `%s' is not a game array.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+		break;
+	case ERROR_GAMEARRAYBNC:
+		initprintf("%s:%d: error: square brackets for index of game array not closed, expected ] found %c\n",g_szScriptFileName,g_lineNumber,*textptr);
+		break;
+	case ERROR_GAMEARRAYBNO:
+		initprintf("%s:%d: error: square brackets for index of game array not opened, expected [ found %c\n",g_szScriptFileName,g_lineNumber,*textptr);
+		break;
+	case ERROR_INVALIDARRAYWRITE:
+		initprintf("%s:%d: error: arrays can only be written to using `setarray' %c\n",g_szScriptFileName,g_lineNumber,*textptr);
+		break;
+	case ERROR_OPENBRACKET:
+		initprintf("%s:%d: error: found more `{' than `}' before `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+		break;
+	case ERROR_PARAMUNDEFINED:
+		initprintf("%s:%d: error: parameter `%s' is undefined.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+		break;
+	case ERROR_SYMBOLNOTRECOGNIZED:
+		initprintf("%s:%d: error: symbol `%s' is not recognized.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+		break;
+	case ERROR_SYNTAXERROR:
+		initprintf("%s:%d: error: syntax error.\n",g_szScriptFileName,g_lineNumber);
+		break;
+	case ERROR_VARREADONLY:
+		initprintf("%s:%d: error: variable `%s' is read-only.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+		break;
+	case ERROR_VARTYPEMISMATCH:
+		initprintf("%s:%d: error: variable `%s' is of the wrong type.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+		break;
+	case WARNING_BADGAMEVAR:
+		initprintf("%s:%ld: warning: variable `%s' should be either per-player OR per-actor, not both.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+		break;
+	case WARNING_DUPLICATECASE:
+		initprintf("%s:%ld: warning: duplicate case ignored.\n",g_szScriptFileName,g_lineNumber);
+		break;
+	case WARNING_DUPLICATEDEFINITION:
+		initprintf("%s:%d: warning: duplicate game definition `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+		break;
+	case WARNING_EVENTSYNC:
+		initprintf("%s:%d: warning: found `%s' within a local event.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+		break;
+	case WARNING_LABELSONLY:
+		initprintf("%s:%d: warning: expected a label, found a constant.\n",g_szScriptFileName,g_lineNumber);
+		break;
+	case WARNING_NAMEMATCHESVAR:
+		initprintf("%s:%d: warning: symbol `%s' already used for game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+		break;
+	case WARNING_REVEVENTSYNC:
+		initprintf("%s:%d: warning: found `%s' outside of a local event.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+		break;
+	}
 }

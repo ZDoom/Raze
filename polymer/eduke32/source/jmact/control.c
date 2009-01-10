@@ -55,7 +55,7 @@ static int32 ticrate;
 static int32 CONTROL_DoubleClickSpeed;
 
 int32_t extinput[CONTROL_NUM_FLAGS];
-keybind boundkeys[MAXBOUNDKEYS], mousebind[MAXMOUSEBUTTONS];
+keybind KeyBindings[MAXBOUNDKEYS], MouseBindings[MAXMOUSEBUTTONS];
 int32_t bindsenabled = 0;
 int32_t control_smoothmouse = 0;
 
@@ -167,10 +167,10 @@ boolean CONTROL_KeyboardFunctionPressed(int32 which)
 
     if (!CONTROL_Flags[which].used) return false;
 
-    if (CONTROL_KeyMapping[which].key1 != KEYUNDEFINED && !boundkeys[CONTROL_KeyMapping[which].key1].cmd[0])
+    if (CONTROL_KeyMapping[which].key1 != KEYUNDEFINED && !KeyBindings[CONTROL_KeyMapping[which].key1].cmd[0])
         key1 = KB_KeyDown[ CONTROL_KeyMapping[which].key1 ] ? true : false;
 
-    if (CONTROL_KeyMapping[which].key2 != KEYUNDEFINED && !boundkeys[CONTROL_KeyMapping[which].key2].cmd[0])
+    if (CONTROL_KeyMapping[which].key2 != KEYUNDEFINED && !KeyBindings[CONTROL_KeyMapping[which].key2].cmd[0])
         key2 = KB_KeyDown[ CONTROL_KeyMapping[which].key2 ] ? true : false;
 
     return (key1 | key2);
@@ -723,7 +723,7 @@ void CONTROL_ButtonFunctionState(int32 *p1)
 
         do
         {
-            if (!mousebind[i].cmd[0])
+            if (!MouseBindings[i].cmd[0])
             {
                 j = CONTROL_MouseButtonMapping[i].doubleclicked;
                 if (j != KEYUNDEFINED)
@@ -737,12 +737,12 @@ void CONTROL_ButtonFunctionState(int32 *p1)
             if (!bindsenabled)
                 continue;
 
-            if (mousebind[i].cmd[0] && CONTROL_MouseButtonState[i])
+            if (MouseBindings[i].cmd[0] && CONTROL_MouseButtonState[i])
             {
-                if (mousebind[i].repeat || (mousebind[i].laststate == 0))
-                    OSD_Dispatch(mousebind[i].cmd);
+                if (MouseBindings[i].repeat || (MouseBindings[i].laststate == 0))
+                    OSD_Dispatch(MouseBindings[i].cmd);
             }
-            mousebind[i].laststate = CONTROL_MouseButtonState[i];
+            MouseBindings[i].laststate = CONTROL_MouseButtonState[i];
         }
         while (i--);
     }
@@ -867,22 +867,22 @@ void CONTROL_ProcessBinds(void)
 
         do
         {
-            if (boundkeys[i].cmd[0] && KB_KeyPressed(i))
+            if (KeyBindings[i].cmd[0] && KB_KeyPressed(i))
             {
-                if (boundkeys[i].repeat || (boundkeys[i].laststate == 0))
-                    OSD_Dispatch(boundkeys[i].cmd);
+                if (KeyBindings[i].repeat || (KeyBindings[i].laststate == 0))
+                    OSD_Dispatch(KeyBindings[i].cmd);
             }
-            boundkeys[i].laststate = KB_KeyPressed(i);
+            KeyBindings[i].laststate = KB_KeyPressed(i);
         }
         while (--i);
     }
 
-    if (boundkeys[0].cmd[0] && KB_KeyPressed(0))
+    if (KeyBindings[0].cmd[0] && KB_KeyPressed(0))
     {
-        if (boundkeys[0].repeat || (boundkeys[0].laststate == 0))
-            OSD_Dispatch(boundkeys[0].cmd);
+        if (KeyBindings[0].repeat || (KeyBindings[0].laststate == 0))
+            OSD_Dispatch(KeyBindings[0].cmd);
     }
-    boundkeys[0].laststate = KB_KeyPressed(0);
+    KeyBindings[0].laststate = KB_KeyPressed(0);
 }
 
 

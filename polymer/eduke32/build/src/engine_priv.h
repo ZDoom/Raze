@@ -9,55 +9,55 @@
 #define MAXCLIPDIST 1024
 
 extern char pow2char[8];
-extern int pow2int[32];
+extern int32_t pow2int[32];
 
-extern short thesector[MAXWALLSB], thewall[MAXWALLSB];
-extern short bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
-extern short maskwall[MAXWALLSB], maskwallcnt;
+extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
+extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
+extern int16_t maskwall[MAXWALLSB], maskwallcnt;
 extern spritetype *tspriteptr[MAXSPRITESONSCREEN];
-extern int xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
+extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern intptr_t frameoffset;
-extern int globalposx, globalposy, globalposz, globalhoriz;
-extern short globalang, globalcursectnum;
-extern int globalpal, cosglobalang, singlobalang;
-extern int cosviewingrangeglobalang, sinviewingrangeglobalang;
-extern int globalvisibility;
-extern int xyaspect;
+extern int32_t globalposx, globalposy, globalposz, globalhoriz;
+extern int16_t globalang, globalcursectnum;
+extern int32_t globalpal, cosglobalang, singlobalang;
+extern int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
+extern int32_t globalvisibility;
+extern int32_t xyaspect;
 extern intptr_t asm1, asm2, asm3, asm4;
-extern int globalshade;
-extern short globalpicnum;
-extern int globalx1, globaly2;
-extern int globalorientation;
+extern int32_t globalshade;
+extern int16_t globalpicnum;
+extern int32_t globalx1, globaly2;
+extern int32_t globalorientation;
 
-extern short searchit;
-extern int searchx, searchy;
-extern short searchsector, searchwall, searchstat;
+extern int16_t searchit;
+extern int32_t searchx, searchy;
+extern int16_t searchsector, searchwall, searchstat;
 
 extern char inpreparemirror;
 
-extern int curbrightness, gammabrightness;
+extern int32_t curbrightness, gammabrightness;
 extern char britable[16][256];
 extern char picsiz[MAXTILES];
-extern int lastx[MAXYDIM];
+extern int32_t lastx[MAXYDIM];
 extern char *transluc;
-extern short sectorborder[256], sectorbordercnt;
-extern int qsetmode;
-extern int hitallsprites;
+extern int16_t sectorborder[256], sectorbordercnt;
+extern int32_t qsetmode;
+extern int32_t hitallsprites;
 
-extern int xb1[MAXWALLSB];
-extern int rx1[MAXWALLSB], ry1[MAXWALLSB];
-extern short p2[MAXWALLSB];
-extern short numscans, numhits, numbunches;
+extern int32_t xb1[MAXWALLSB];
+extern int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
+extern int16_t p2[MAXWALLSB];
+extern int16_t numscans, numhits, numbunches;
 
 #ifdef USE_OPENGL
 extern palette_t palookupfog[MAXPALOOKUPS];
 #endif
 
-int wallmost(short *mostbuf, int w, int sectnum, char dastat);
-int wallfront(int l1, int l2);
-int animateoffs(short tilenum, short fakevar);
+int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);
+int32_t wallfront(int32_t l1, int32_t l2);
+int32_t animateoffs(int16_t tilenum, int16_t fakevar);
 
-extern int indrawroomsandmasks;
+extern int32_t indrawroomsandmasks;
 
 
 #if defined(__WATCOMC__) && !defined(NOASM)
@@ -75,11 +75,11 @@ extern int indrawroomsandmasks;
 "mov byte ptr gotpic[eax], dl",\
 parm [eax]\
 modify exact [eax ebx ecx edx]
-void setgotpic(int);
+void setgotpic(int32_t);
 
 #elif defined(_MSC_VER) && !defined(NOASM)	// __WATCOMC__
 
-static inline void setgotpic(int a)
+static inline void setgotpic(int32_t a)
 {
 	_asm {
 		push ebx
@@ -102,7 +102,7 @@ skipit:
 #elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)	// _MSC_VER
 
 #define setgotpic(a) \
-({ int __a=(a); \
+({ int32_t __a=(a); \
 	__asm__ __volatile__ ( \
 			       "movl %%eax, %%ebx\n\t" \
 			       "cmpb $200, "ASMSYM("walock")"(%%eax)\n\t" \
@@ -121,7 +121,7 @@ skipit:
 
 #else	// __GNUC__ && __i386__
 
-static inline void setgotpic(int tilenume)
+static inline void setgotpic(int32_t tilenume)
 {
 	if (walock[tilenume] < 200) walock[tilenume] = 199;
 	gotpic[tilenume>>3] |= pow2char[tilenume&7];

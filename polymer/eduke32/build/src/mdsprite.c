@@ -15,7 +15,7 @@
 #include "kplib.h"
 #include "md4.h"
 
-voxmodel *voxmodels[MAXVOXELS];
+voxmodel_t *voxmodels[MAXVOXELS];
 int32_t curextra=MAXTILES;
 
 int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
@@ -57,9 +57,9 @@ static int32_t allocvbos = 0, curvbo = 0;
 static GLuint* vertvbos = NULL;
 static GLuint* indexvbos = NULL;
 
-mdmodel *mdload(const char *);
+mdmodel_t *mdload(const char *);
 int32_t mddraw(spritetype *);
-void mdfree(mdmodel *);
+void mdfree(mdmodel_t *);
 int32_t globalnoeffect=0;
 
 extern int32_t timerticspersec;
@@ -104,7 +104,7 @@ void freevbos()
     for (i=0;i<nextmodelid;i++)
     if (models[i]->mdnum == 3)
     {
-        md3model *m = (md3model *)models[i];
+        md3model_t *m = (md3model_t *)models[i];
         if (m->vbos)
         {
 //            OSD_Printf("freeing model %d vbo\n",i);
@@ -129,7 +129,7 @@ void freevbos()
 
 void clearskins()
 {
-    mdmodel *m;
+    mdmodel_t *m;
     int32_t i, j;
 
     for (i=0;i<nextmodelid;i++)
@@ -137,7 +137,7 @@ void clearskins()
         m = models[i];
         if (m->mdnum == 1)
         {
-            voxmodel *v = (voxmodel*)m;
+            voxmodel_t *v = (voxmodel_t*)m;
             for (j=0;j<MAXPALOOKUPS;j++)
             {
                 if (v->texid[j]) bglDeleteTextures(1,(GLuint*)&v->texid[j]);
@@ -146,7 +146,7 @@ void clearskins()
         }
         else if (m->mdnum == 2 || m->mdnum == 3)
         {
-            md2model *m2 = (md2model*)m;
+            md2model_t *m2 = (md2model_t*)m;
             mdskinmap_t *sk;
             for (j=0;j<m2->numskins*(HICEFFECTMASK+1);j++)
             {
@@ -165,7 +165,7 @@ void clearskins()
 
     for (i=0;i<MAXVOXELS;i++)
     {
-        voxmodel *v = (voxmodel*)voxmodels[i]; if (!v) continue;
+        voxmodel_t *v = (voxmodel_t*)voxmodels[i]; if (!v) continue;
         for (j=0;j<MAXPALOOKUPS;j++)
         {
             if (v->texid[j]) bglDeleteTextures(1,(GLuint*)&v->texid[j]);
@@ -183,13 +183,13 @@ void mdinit()
 
 int32_t md_loadmodel(const char *fn)
 {
-    mdmodel *vm, **ml;
+    mdmodel_t *vm, **ml;
 
     if (!mdinited) mdinit();
 
     if (nextmodelid >= nummodelsalloced)
     {
-        ml = (mdmodel **)realloc(models,(nummodelsalloced+MODELALLOCGROUP)*sizeof(void*)); if (!ml) return(-1);
+        ml = (mdmodel_t **)realloc(models,(nummodelsalloced+MODELALLOCGROUP)*sizeof(void*)); if (!ml) return(-1);
         models = ml; nummodelsalloced += MODELALLOCGROUP;
     }
 
@@ -200,7 +200,7 @@ int32_t md_loadmodel(const char *fn)
 
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, int32_t flags)
 {
-    mdmodel *m;
+    mdmodel_t *m;
 
     if (!mdinited) mdinit();
 
@@ -220,7 +220,7 @@ int32_t md_tilehasmodel(int32_t tilenume,int32_t pal)
     return tile2model[Ptile2tile(tilenume,pal)].modelid;
 }
 
-static int32_t framename2index(mdmodel *vm, const char *nam)
+static int32_t framename2index(mdmodel_t *vm, const char *nam)
 {
     int32_t i = 0;
 
@@ -228,7 +228,7 @@ static int32_t framename2index(mdmodel *vm, const char *nam)
     {
     case 2:
     {
-        md2model *m = (md2model *)vm;
+        md2model_t *m = (md2model_t *)vm;
         md2frame_t *fr;
         for (i=0;i<m->numframes;i++)
         {
@@ -239,7 +239,7 @@ static int32_t framename2index(mdmodel *vm, const char *nam)
     break;
     case 3:
     {
-        md3model *m = (md3model *)vm;
+        md3model_t *m = (md3model_t *)vm;
         for (i=0;i<m->numframes;i++)
             if (!Bstrcmp(m->head.frames[i].nam,nam)) break;
     }
@@ -250,7 +250,7 @@ static int32_t framename2index(mdmodel *vm, const char *nam)
 
 int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume, int32_t skinnum, float smoothduration, int32_t pal)
 {
-    md2model *m;
+    md2model_t *m;
     int32_t i;
 
     if (!mdinited) mdinit();
@@ -260,7 +260,7 @@ int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
     if (!framename) return(-3);
 
     tilenume=addtileP(modelid,tilenume,pal);
-    m = (md2model *)models[modelid];
+    m = (md2model_t *)models[modelid];
     if (m->mdnum == 1)
     {
         tile2model[tilenume].modelid = modelid;
@@ -268,7 +268,7 @@ int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
         return 0;
     }
 
-    i = framename2index((mdmodel*)m,framename);
+    i = framename2index((mdmodel_t*)m,framename);
     if (i == m->numframes) return(-3);   // frame name invalid
 
     tile2model[tilenume].modelid = modelid;
@@ -281,7 +281,7 @@ int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
 
 int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *frameend, int32_t fpssc, int32_t flags)
 {
-    md2model *m;
+    md2model_t *m;
     mdanim_t ma, *map;
     int32_t i;
 
@@ -290,16 +290,16 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
     if ((uint32_t)modelid >= (uint32_t)nextmodelid) return(-1);
 
     memset(&ma, 0, sizeof(ma));
-    m = (md2model *)models[modelid];
+    m = (md2model_t *)models[modelid];
     if (m->mdnum < 2) return 0;
 
     //find index of start frame
-    i = framename2index((mdmodel*)m,framestart);
+    i = framename2index((mdmodel_t*)m,framestart);
     if (i == m->numframes) return -2;
     ma.startframe = i;
 
     //find index of finish frame which must trail start frame
-    i = framename2index((mdmodel*)m,frameend);
+    i = framename2index((mdmodel_t*)m,frameend);
     if (i == m->numframes) return -3;
     ma.endframe = i;
 
@@ -319,7 +319,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
 int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum, int32_t surfnum, float param)
 {
     mdskinmap_t *sk, *skl;
-    md2model *m;
+    md2model_t *m;
 
     if (!mdinited) mdinit();
 
@@ -327,7 +327,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     if (!skinfn) return -2;
     if ((unsigned)palnum >= (unsigned)MAXPALOOKUPS) return -3;
 
-    m = (md2model *)models[modelid];
+    m = (md2model_t *)models[modelid];
     if (m->mdnum < 2) return 0;
     if (m->mdnum == 2) surfnum = 0;
 
@@ -401,7 +401,7 @@ int32_t md_undefinemodel(int32_t modelid)
     return 0;
 }
 
-md2model *modelhead;
+md2model_t *modelhead;
 mdskinmap_t *skhead;
 
 typedef struct
@@ -481,7 +481,7 @@ void applypalmap(char *pic, char *palmap, int32_t size, int32_t pal)
     }
 }
 
-static void applypalmapSkin(char *pic, int32_t sizx, int32_t sizy, md2model *m, int32_t number, int32_t pal, int32_t surf)
+static void applypalmapSkin(char *pic, int32_t sizx, int32_t sizy, md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 {
     int32_t stage;
 
@@ -493,7 +493,7 @@ static void applypalmapSkin(char *pic, int32_t sizx, int32_t sizy, md2model *m, 
         getpalmap(&stage,&pal1,&pal2);
         if (!pal1)return;
 
-        mdloadskin((md2model *)m,number,pal1,surf);
+        mdloadskin((md2model_t *)m,number,pal1,surf);
         for (; sk; sk = sk->next)
             if ((int32_t)sk->palette == pal1&&sk->palmap)break;
         if (!sk||sk->size!=sizx*sizy)continue;
@@ -502,7 +502,7 @@ static void applypalmapSkin(char *pic, int32_t sizx, int32_t sizy, md2model *m, 
     }
 }
 
-static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t *sizx, int32_t *sizy, int32_t *osizx, int32_t *osizy, char *hasalpha, int32_t pal, char effect, md2model *m, int32_t number, int32_t surf)
+static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t *sizx, int32_t *sizy, int32_t *osizx, int32_t *osizy, char *hasalpha, int32_t pal, char effect, md2model_t *m, int32_t number, int32_t surf)
 {
     int32_t picfillen, j,y,x;
     char *picfil,*cptr,al=255;
@@ -644,7 +644,7 @@ int32_t mdloadskin_trytexcache(char *fn, int32_t len, int32_t pal, char effect, 
         }
         while (cacheindexptr->next);
         */
-        i = HASH_find(&cacheH,cachefn);
+        i = hash_find(&cacheH,cachefn);
         if (i != -1)
         {
             texcacheindex *cacheindexptr = cacheptrs[i];
@@ -746,7 +746,7 @@ failure:
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
 
 //Note: even though it says md2model, it works for both md2model&md3model
-int32_t mdloadskin(md2model *m, int32_t number, int32_t pal, int32_t surf)
+int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 {
     int32_t i,j, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
     intptr_t fptr=0;
@@ -809,7 +809,7 @@ int32_t mdloadskin(md2model *m, int32_t number, int32_t pal, int32_t surf)
     // possibly fetch an already loaded multitexture :_)
     if (pal >= (MAXPALOOKUPS - RESERVEDPALS))
         for (i=0;i<nextmodelid;i++)
-            for (skzero = ((md2model *)models[i])->skinmap; skzero; skzero = skzero->next)
+            for (skzero = ((md2model_t *)models[i])->skinmap; skzero; skzero = skzero->next)
                 if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)])
                 {
                     sk->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)] = skzero->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
@@ -897,7 +897,7 @@ int32_t mdloadskin(md2model *m, int32_t number, int32_t pal, int32_t surf)
             }
             else if (m->mdnum == 3)
             {
-                md3model *m3 = (md3model *)m;
+                md3model_t *m3 = (md3model_t *)m;
                 md3surf_t *s;
                 int32_t surfi;
                 for (surfi=0;surfi<m3->head.numsurfs;surfi++)
@@ -944,7 +944,7 @@ int32_t mdloadskin(md2model *m, int32_t number, int32_t pal, int32_t surf)
 }
 
 //Note: even though it says md2model, it works for both md2model&md3model
-void updateanimation(md2model *m, spritetype *tspr)
+void updateanimation(md2model_t *m, spritetype *tspr)
 {
     mdanim_t *anim;
     int32_t i, j, k;
@@ -1066,7 +1066,7 @@ void updateanimation(md2model *m, spritetype *tspr)
 }
 
 // VBO generation and allocation
-static void mdloadvbos(md3model *m)
+static void mdloadvbos(md3model_t *m)
 {
     int32_t     i;
 
@@ -1084,17 +1084,17 @@ static void mdloadvbos(md3model *m)
 }
 
 //--------------------------------------- MD2 LIBRARY BEGINS ---------------------------------------
-static md2model *md2load(int32_t fil, const char *filnam)
+static md2model_t *md2load(int32_t fil, const char *filnam)
 {
-    md2model *m;
-    md3model *m3;
+    md2model_t *m;
+    md3model_t *m3;
     md3surf_t *s;
     md2frame_t *f;
     md2head_t head;
     char st[BMAX_PATH];
     int32_t i, j, k;
 
-    m = (md2model *)calloc(1,sizeof(md2model)); if (!m) return(0);
+    m = (md2model_t *)calloc(1,sizeof(md2model_t)); if (!m) return(0);
     m->mdnum = 2; m->scale = .01f;
 
     kread(fil,(char *)&head,sizeof(md2head_t));
@@ -1181,7 +1181,7 @@ static md2model *md2load(int32_t fil, const char *filnam)
 
     // the MD2 is now loaded internally - let's begin the MD3 conversion process
     //OSD_Printf("Beginning md3 conversion.\n");
-    m3 = (md3model *)calloc(1, sizeof(md3model)); if (!m3) { free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+    m3 = (md3model_t *)calloc(1, sizeof(md3model_t)); if (!m3) { free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
     m3->mdnum = 3; m3->texid = 0; m3->scale = m->scale;
     m3->head.id = 0x33504449; m3->head.vers = 15;
     // this changes the conversion code to do real MD2->MD3 conversion
@@ -1315,7 +1315,7 @@ static md2model *md2load(int32_t fil, const char *filnam)
     // die MD2 ! DIE !
     free(m->texid); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m);
 
-    return((md2model *)m3);
+    return((md2model_t *)m3);
 }
 //---------------------------------------- MD2 LIBRARY ENDS ----------------------------------------
 
@@ -1367,14 +1367,14 @@ void quicksort(uint16_t *indexes, float *depths, int32_t first, int32_t last)
 
 //--------------------------------------- MD3 LIBRARY BEGINS ---------------------------------------
 
-static md3model *md3load(int32_t fil)
+static md3model_t *md3load(int32_t fil)
 {
     int32_t i, surfi, ofsurf, offs[4], leng[4];
     int32_t maxtrispersurf;
-    md3model *m;
+    md3model_t *m;
     md3surf_t *s;
 
-    m = (md3model *)calloc(1,sizeof(md3model)); if (!m) return(0);
+    m = (md3model_t *)calloc(1,sizeof(md3model_t)); if (!m) return(0);
     m->mdnum = 3; m->texid = 0; m->scale = .01;
 
     m->muladdframes = NULL;
@@ -1533,7 +1533,7 @@ static md3model *md3load(int32_t fil)
     return(m);
 }
 
-static int32_t md3draw(md3model *m, spritetype *tspr)
+static int32_t md3draw(md3model_t *m, spritetype *tspr)
 {
     point3d fp, fp1, fp2, m0, m1, a0;
     md3xyzn_t *v0, *v1;
@@ -1554,7 +1554,7 @@ static int32_t md3draw(md3model *m, spritetype *tspr)
 
     //    if ((tspr->cstat&48) == 32) return 0;
 
-    updateanimation((md2model *)m,tspr);
+    updateanimation((md2model_t *)m,tspr);
 
     //create current&next frame's vertex list from whole list
 
@@ -1801,12 +1801,12 @@ static int32_t md3draw(md3model *m, spritetype *tspr)
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f; bglLoadMatrixf(mat);
         // PLAG: End
 
-        i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,globalpal,surfi); if (!i) continue;
+        i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,globalpal,surfi); if (!i) continue;
         //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
         if (r_detailmapping && !r_depthpeeling && !(tspr->cstat&1024))
-            i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
+            i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
         else
             i = 0;
 
@@ -1846,7 +1846,7 @@ static int32_t md3draw(md3model *m, spritetype *tspr)
         }
 
         if (r_glowmapping && !r_depthpeeling && !(tspr->cstat&1024))
-            i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);
+            i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);
         else
             i = 0;
 
@@ -2052,7 +2052,7 @@ static int32_t md3draw(md3model *m, spritetype *tspr)
     return 1;
 }
 
-static void md3free(md3model *m)
+static void md3free(md3model_t *m)
 {
     mdanim_t *anim, *nanim = NULL;
     mdskinmap_t *sk, *nsk = NULL;
@@ -2127,7 +2127,7 @@ typedef struct { int16_t x, y; } spoint2d;
 static spoint2d *shp;
 static int32_t *shcntmal, *shcnt = 0, shcntp;
 static int32_t mytexo5, *zbit, gmaxx, gmaxy, garea, pow2m1[33];
-static voxmodel *gvox;
+static voxmodel_t *gvox;
 
 //pitch must equal xsiz*4
 unsigned gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
@@ -2384,13 +2384,13 @@ static int32_t isolid(int32_t x, int32_t y, int32_t z)
     z += x*yzsiz + y*zsiz; return(vbit[z>>5]&(1<<SHIFTMOD32(z)));
 }
 
-static voxmodel *vox2poly()
+static voxmodel_t *vox2poly()
 {
     int32_t i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy,*bx0, *by0;
     void (*daquad)(int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
 
-    gvox = (voxmodel *)malloc(sizeof(voxmodel)); if (!gvox) return(0);
-    memset(gvox,0,sizeof(voxmodel));
+    gvox = (voxmodel_t *)malloc(sizeof(voxmodel_t)); if (!gvox) return(0);
+    memset(gvox,0,sizeof(voxmodel_t));
 
     //x is largest dimension, y is 2nd largest dimension
     x = xsiz; y = ysiz; z = zsiz;
@@ -2742,7 +2742,7 @@ static int32_t loadvxl(const char *filnam)
 }
 #endif
 
-void voxfree(voxmodel *m)
+void voxfree(voxmodel_t *m)
 {
     if (!m) return;
     if (m->mytex) free(m->mytex);
@@ -2751,10 +2751,10 @@ void voxfree(voxmodel *m)
     free(m);
 }
 
-voxmodel *voxload(const char *filnam)
+voxmodel_t *voxload(const char *filnam)
 {
     int32_t i, is8bit, ret;
-    voxmodel *vm;
+    voxmodel_t *vm;
 
     i = strlen(filnam)-4; if (i < 0) return(0);
     if (!Bstrcasecmp(&filnam[i],".vox")) { ret = loadvox(filnam); is8bit = 1; }
@@ -2782,7 +2782,7 @@ voxmodel *voxload(const char *filnam)
 }
 
 //Draw voxel model as perfect cubes
-int32_t voxdraw(voxmodel *m, spritetype *tspr)
+int32_t voxdraw(voxmodel_t *m, spritetype *tspr)
 {
     point3d fp, m0, a0;
     int32_t i, j, fi, xx, yy, zz;
@@ -2935,13 +2935,13 @@ int32_t voxdraw(voxmodel *m, spritetype *tspr)
 //---------------------------------------- VOX LIBRARY ENDS ----------------------------------------
 //--------------------------------------- MD LIBRARY BEGINS  ---------------------------------------
 
-mdmodel *mdload(const char *filnam)
+mdmodel_t *mdload(const char *filnam)
 {
-    mdmodel *vm;
+    mdmodel_t *vm;
     int32_t fil;
     int32_t i;
 
-    vm = (mdmodel*)voxload(filnam); if (vm) return(vm);
+    vm = (mdmodel_t*)voxload(filnam); if (vm) return(vm);
 
     fil = kopen4load((char *)filnam,0); if (fil < 0) return(0);
     kread(fil,&i,4); klseek(fil,0,SEEK_SET);
@@ -2949,11 +2949,11 @@ mdmodel *mdload(const char *filnam)
     {
     case 0x32504449:
 //        initprintf("Warning: model '%s' is version IDP2; wanted version IDP3\n",filnam);
-        vm = (mdmodel*)md2load(fil,filnam); break; //IDP2
+        vm = (mdmodel_t*)md2load(fil,filnam); break; //IDP2
     case 0x33504449:
-        vm = (mdmodel*)md3load(fil); break; //IDP3
+        vm = (mdmodel_t*)md3load(fil); break; //IDP3
     default:
-        vm = (mdmodel*)0; break;
+        vm = (mdmodel_t*)0; break;
     }
     kclose(fil);
     return(vm);
@@ -2961,7 +2961,7 @@ mdmodel *mdload(const char *filnam)
 
 int32_t mddraw(spritetype *tspr)
 {
-    mdmodel *vm;
+    mdmodel_t *vm;
     int32_t i;
 
     if (r_vbos && (r_vbocount > allocvbos))
@@ -2997,15 +2997,15 @@ int32_t mddraw(spritetype *tspr)
     }
 
     vm = models[tile2model[Ptile2tile(tspr->picnum,(tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal)].modelid];
-    if (vm->mdnum == 1) { return voxdraw((voxmodel *)vm,tspr); }
-    if (vm->mdnum == 3) { return md3draw((md3model *)vm,tspr); }
+    if (vm->mdnum == 1) { return voxdraw((voxmodel_t *)vm,tspr); }
+    if (vm->mdnum == 3) { return md3draw((md3model_t *)vm,tspr); }
     return 0;
 }
 
-void mdfree(mdmodel *vm)
+void mdfree(mdmodel_t *vm)
 {
-    if (vm->mdnum == 1) { voxfree((voxmodel *)vm); return; }
-    if (vm->mdnum == 3) { md3free((md3model *)vm); return; }
+    if (vm->mdnum == 1) { voxfree((voxmodel_t *)vm); return; }
+    if (vm->mdnum == 3) { md3free((md3model_t *)vm); return; }
 }
 
 #endif

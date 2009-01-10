@@ -762,7 +762,7 @@ void editinput(void)
     }
     if (keystatus[0x44])
     {
-        memset(spriteext, 0, sizeof(spriteexttype) * MAXSPRITES);
+        memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
         memset(spritesmooth, 0, sizeof(spritesmooth));
         mhk=0;
         initprintf("Maphacks disabled\n");

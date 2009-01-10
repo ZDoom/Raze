@@ -122,7 +122,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
 
                 voting = myconnectindex;
 
-                tempbuf[0] = PACKET_TYPE_MAP_VOTE_INITIATE;
+                tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
                 tempbuf[1] = myconnectindex;
                 tempbuf[2] = ud.m_volume_number;
                 tempbuf[3] = ud.m_level_number;
@@ -280,7 +280,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
                 g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
                 voting = myconnectindex;
 
-                tempbuf[0] = PACKET_TYPE_MAP_VOTE_INITIATE;
+                tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
                 tempbuf[1] = myconnectindex;
                 tempbuf[2] = ud.m_volume_number;
                 tempbuf[3] = ud.m_level_number;
@@ -614,12 +614,12 @@ static int32_t osdcmd_setvar(const osdfuncparm_t *parm)
 
     strcpy(varname,parm->parms[1]);
     varval = Batol(varname);
-    i = HASH_find(&gamevarH,varname);
+    i = hash_find(&gamevarH,varname);
     if (i >= 0)
         varval=Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex);
 
     strcpy(varname,parm->parms[0]);
-    i = HASH_find(&gamevarH,varname);
+    i = hash_find(&gamevarH,varname);
     if (i >= 0)
         Gv_SetVar(i, varval, g_player[myconnectindex].ps->i, myconnectindex);
     return OSDCMD_OK;
@@ -639,7 +639,7 @@ static int32_t osdcmd_addlogvar(const osdfuncparm_t *parm)
     }
 
     strcpy(varname,parm->parms[0]);
-    i = HASH_find(&gamevarH,varname);
+    i = hash_find(&gamevarH,varname);
     if (i >= 0)
         OSD_Printf("%s = %d\n", varname, Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex));
     return OSDCMD_OK;
@@ -668,12 +668,12 @@ static int32_t osdcmd_setactorvar(const osdfuncparm_t *parm)
     varval = Batol(parm->parms[2]);
     strcpy(varname,parm->parms[2]);
     varval = Batol(varname);
-    i = HASH_find(&gamevarH,varname);
+    i = hash_find(&gamevarH,varname);
     if (i >= 0)
         varval=Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex);
 
     strcpy(varname,parm->parms[1]);
-    i = HASH_find(&gamevarH,varname);
+    i = hash_find(&gamevarH,varname);
     if (i >= 0)
         Gv_SetVar(i, varval, ID, -1);
     return OSDCMD_OK;
@@ -717,7 +717,7 @@ static int32_t osdcmd_cmenu(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-cvarmappings cvar[] =
+cvar_t cvars[] =
 {
     { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_BOOL, 0, 0, 1 },
 
@@ -789,18 +789,18 @@ static int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
     int32_t showval = (parm->numparms == 0);
     uint32_t i;
 
-    for (i = 0; i < sizeof(cvar)/sizeof(cvarmappings); i++)
+    for (i = 0; i < sizeof(cvars)/sizeof(cvar_t); i++)
     {
-        if (!Bstrcasecmp(parm->name, cvar[i].name))
+        if (!Bstrcasecmp(parm->name, cvars[i].name))
         {
-            if ((cvar[i].type & CVAR_NOMULTI) && numplayers > 1)
+            if ((cvars[i].type & CVAR_NOMULTI) && numplayers > 1)
             {
                 // sound the alarm
-                OSD_Printf("Cvar \"%s\" locked in multiplayer.\n",cvar[i].name);
+                OSD_Printf("Cvar \"%s\" locked in multiplayer.\n",cvars[i].name);
                 return OSDCMD_OK;
             }
             else
-                switch (cvar[i].type&0x7f)
+                switch (cvars[i].type&0x7f)
                 {
                 case CVAR_INT:
                 case CVAR_UNSIGNEDINT:
@@ -809,41 +809,41 @@ static int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
                     int32_t val;
                     if (showval)
                     {
-                        OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvar[i].name,*(int32_t*)cvar[i].var,(char*)cvar[i].helpstr);
+                        OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvars[i].name,*(int32_t*)cvars[i].var,(char*)cvars[i].helpstr);
                         return OSDCMD_OK;
                     }
 
                     val = atoi(parm->parms[0]);
-                    if (cvar[i].type == CVAR_BOOL) val = val != 0;
+                    if (cvars[i].type == CVAR_BOOL) val = val != 0;
 
-                    if (val < cvar[i].min || val > cvar[i].max)
+                    if (val < cvars[i].min || val > cvars[i].max)
                     {
-                        OSD_Printf("%s value out of range\n",cvar[i].name);
+                        OSD_Printf("%s value out of range\n",cvars[i].name);
                         return OSDCMD_OK;
                     }
-                    *(int32_t*)cvar[i].var = val;
-                    OSD_Printf("%s %d",cvar[i].name,val);
+                    *(int32_t*)cvars[i].var = val;
+                    OSD_Printf("%s %d",cvars[i].name,val);
                 }
                 break;
                 case CVAR_STRING:
                 {
                     if (showval)
                     {
-                        OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvar[i].name,(char*)cvar[i].var,(char*)cvar[i].helpstr);
+                        OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvars[i].name,(char*)cvars[i].var,(char*)cvars[i].helpstr);
                         return OSDCMD_OK;
                     }
                     else
                     {
-                        Bstrncpy((char*)cvar[i].var, parm->parms[0], cvar[i].extra-1);
-                        ((char*)cvar[i].var)[cvar[i].extra-1] = 0;
-                        OSD_Printf("%s %s",cvar[i].name,(char*)cvar[i].var);
+                        Bstrncpy((char*)cvars[i].var, parm->parms[0], cvars[i].extra-1);
+                        ((char*)cvars[i].var)[cvars[i].extra-1] = 0;
+                        OSD_Printf("%s %s",cvars[i].name,(char*)cvars[i].var);
                     }
                 }
                 break;
                 default:
                     break;
                 }
-            if (cvar[i].type&CVAR_MULTI)
+            if (cvars[i].type&CVAR_MULTI)
                 G_UpdatePlayerFromMenu();
         }
     }
@@ -932,7 +932,7 @@ static int32_t osdcmd_give(const osdfuncparm_t *parm)
 
 void onvideomodechange(int32_t newmode)
 {
-    char *pal;
+    uint8_t *pal;
     extern int32_t g_crosshairSum;
 
     if (newmode)
@@ -1023,7 +1023,7 @@ static int32_t osdcmd_button(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-keydef_t keynames[]=
+keydef_t ConsoleKeys[]=
 {
     { "Escape", 0x1 },
     { "1", 0x2 },
@@ -1130,7 +1130,7 @@ keydef_t keynames[]=
     {0,0}
 };
 
-char *mousenames[] = { "mouse1", "mouse2", "mouse3", "mouse4", "mwheelup", "mwheeldn", "mouse5", "mouse6", "mouse7", "mouse8" };
+char *ConsoleButtons[] = { "mouse1", "mouse2", "mouse3", "mouse4", "mwheelup", "mwheeldn", "mouse5", "mouse6", "mouse7", "mouse8" };
 
 static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 {
@@ -1138,8 +1138,8 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 
     if (parm->numparms==1&&!Bstrcasecmp(parm->parms[0],"showkeys"))
     {
-        for (i=0;keynames[i].name;i++)OSD_Printf("%s\n",keynames[i].name);
-        for (i=0;i<MAXMOUSEBUTTONS;i++)OSD_Printf("%s\n",mousenames[i]);
+        for (i=0;ConsoleKeys[i].name;i++)OSD_Printf("%s\n",ConsoleKeys[i].name);
+        for (i=0;i<MAXMOUSEBUTTONS;i++)OSD_Printf("%s\n",ConsoleButtons[i]);
         return OSDCMD_OK;
     }
 
@@ -1149,17 +1149,17 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 
         OSD_Printf("Current key bindings:\n");
         for (i=0;i<MAXBOUNDKEYS;i++)
-            if (boundkeys[i].cmd[0] && boundkeys[i].key)
+            if (KeyBindings[i].cmd[0] && KeyBindings[i].key)
             {
                 j++;
-                OSD_Printf("%-9s %s\"%s\"\n",boundkeys[i].key, boundkeys[i].repeat?"":"norepeat ", boundkeys[i].cmd);
+                OSD_Printf("%-9s %s\"%s\"\n",KeyBindings[i].key, KeyBindings[i].repeat?"":"norepeat ", KeyBindings[i].cmd);
             }
 
         for (i=0;i<MAXMOUSEBUTTONS;i++)
-            if (mousebind[i].cmd[0] && mousebind[i].key)
+            if (MouseBindings[i].cmd[0] && MouseBindings[i].key)
             {
                 j++;
-                OSD_Printf("%-9s %s\"%s\"\n",mousebind[i].key, mousebind[i].repeat?"":"norepeat ",mousebind[i].cmd);
+                OSD_Printf("%-9s %s\"%s\"\n",MouseBindings[i].key, MouseBindings[i].repeat?"":"norepeat ",MouseBindings[i].cmd);
             }
 
         if (j == 0)
@@ -1168,30 +1168,30 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
-    for (i=0;keynames[i].name;i++)
-        if (!Bstrcasecmp(parm->parms[0],keynames[i].name))
+    for (i=0;ConsoleKeys[i].name;i++)
+        if (!Bstrcasecmp(parm->parms[0],ConsoleKeys[i].name))
             break;
 
-    if (!keynames[i].name)
+    if (!ConsoleKeys[i].name)
     {
         for (i=0;i<MAXMOUSEBUTTONS;i++)
-            if (!Bstrcasecmp(parm->parms[0],mousenames[i]))
+            if (!Bstrcasecmp(parm->parms[0],ConsoleButtons[i]))
                 break;
         if (i >= MAXMOUSEBUTTONS)
             return OSDCMD_SHOWHELP;
 
         if (parm->numparms < 2)
         {
-            OSD_Printf("%-9s %s\"%s\"\n",mousenames[i], mousebind[i].repeat?"":"norepeat ",mousebind[i].cmd);
+            OSD_Printf("%-9s %s\"%s\"\n",ConsoleButtons[i], MouseBindings[i].repeat?"":"norepeat ",MouseBindings[i].cmd);
             return OSDCMD_OK;
         }
 
         j = 1;
 
-        mousebind[i].repeat = 1;
+        MouseBindings[i].repeat = 1;
         if (parm->numparms >= 2 && !Bstrcasecmp(parm->parms[j],"norepeat"))
         {
-            mousebind[i].repeat = 0;
+            MouseBindings[i].repeat = 0;
             j++;
         }
 
@@ -1201,9 +1201,9 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
             Bstrcat(tempbuf," ");
             Bstrcat(tempbuf,parm->parms[j++]);
         }
-        Bstrncpy(mousebind[i].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
+        Bstrncpy(MouseBindings[i].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
 
-        mousebind[i].key=mousenames[i];
+        MouseBindings[i].key=ConsoleButtons[i];
         if (!OSD_ParsingScript())
             OSD_Printf("%s\n",parm->raw);
         return OSDCMD_OK;
@@ -1211,16 +1211,16 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 
     if (parm->numparms < 2)
     {
-        OSD_Printf("%-9s %s\"%s\"\n",keynames[i].name, boundkeys[keynames[i].id].repeat?"":"norepeat ", boundkeys[keynames[i].id].cmd);
+        OSD_Printf("%-9s %s\"%s\"\n",ConsoleKeys[i].name, KeyBindings[ConsoleKeys[i].id].repeat?"":"norepeat ", KeyBindings[ConsoleKeys[i].id].cmd);
         return OSDCMD_OK;
     }
 
     j = 1;
 
-    boundkeys[keynames[i].id].repeat = 1;
+    KeyBindings[ConsoleKeys[i].id].repeat = 1;
     if (parm->numparms >= 2 && !Bstrcasecmp(parm->parms[j],"norepeat"))
     {
-        boundkeys[keynames[i].id].repeat = 0;
+        KeyBindings[ConsoleKeys[i].id].repeat = 0;
         j++;
     }
 
@@ -1230,9 +1230,9 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
         Bstrcat(tempbuf," ");
         Bstrcat(tempbuf,parm->parms[j++]);
     }
-    Bstrncpy(boundkeys[keynames[i].id].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
+    Bstrncpy(KeyBindings[ConsoleKeys[i].id].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
 
-    boundkeys[keynames[i].id].key=keynames[i].name;
+    KeyBindings[ConsoleKeys[i].id].key=ConsoleKeys[i].name;
     if (!OSD_ParsingScript())
         OSD_Printf("%s\n",parm->raw);
     return OSDCMD_OK;
@@ -1245,11 +1245,11 @@ static int32_t osdcmd_unbindall(const osdfuncparm_t *parm)
     UNREFERENCED_PARAMETER(parm);
 
     for (i=0;i<MAXBOUNDKEYS;i++)
-        if (boundkeys[i].cmd[0])
-            boundkeys[i].cmd[0] = 0;
+        if (KeyBindings[i].cmd[0])
+            KeyBindings[i].cmd[0] = 0;
     for (i=0;i<MAXMOUSEBUTTONS;i++)
-        if (mousebind[i].cmd[0])
-            mousebind[i].cmd[0] = 0;
+        if (MouseBindings[i].cmd[0])
+            MouseBindings[i].cmd[0] = 0;
     OSD_Printf("unbound all keys\n");
     return OSDCMD_OK;
 }
@@ -1259,24 +1259,24 @@ static int32_t osdcmd_unbind(const osdfuncparm_t *parm)
     int32_t i;
 
     if (parm->numparms < 1) return OSDCMD_SHOWHELP;
-    for (i=0;keynames[i].name;i++)
-        if (!Bstrcasecmp(parm->parms[0],keynames[i].name))
+    for (i=0;ConsoleKeys[i].name;i++)
+        if (!Bstrcasecmp(parm->parms[0],ConsoleKeys[i].name))
             break;
-    if (!keynames[i].name)
+    if (!ConsoleKeys[i].name)
     {
         for (i=0;i<MAXMOUSEBUTTONS;i++)
-            if (!Bstrcasecmp(parm->parms[0],mousenames[i]))
+            if (!Bstrcasecmp(parm->parms[0],ConsoleButtons[i]))
                 break;
         if (i >= MAXMOUSEBUTTONS)
             return OSDCMD_SHOWHELP;
-        mousebind[i].repeat = 0;
-        mousebind[i].cmd[0] = 0;
-        OSD_Printf("unbound %s\n",mousenames[i]);
+        MouseBindings[i].repeat = 0;
+        MouseBindings[i].cmd[0] = 0;
+        OSD_Printf("unbound %s\n",ConsoleButtons[i]);
         return OSDCMD_OK;
     }
-    boundkeys[keynames[i].id].repeat = 0;
-    boundkeys[keynames[i].id].cmd[0] = 0;
-    OSD_Printf("unbound key %s\n",keynames[i].name);
+    KeyBindings[ConsoleKeys[i].id].repeat = 0;
+    KeyBindings[ConsoleKeys[i].id].cmd[0] = 0;
+    OSD_Printf("unbound key %s\n",ConsoleKeys[i].name);
     return OSDCMD_OK;
 }
 
@@ -1463,9 +1463,9 @@ int32_t registerosdcommands(void)
 
     osdcmd_cheatsinfo_stat.cheatnum = -1;
 
-    for (i=0; i<sizeof(cvar)/sizeof(cvar[0]); i++)
+    for (i=0; i<sizeof(cvars)/sizeof(cvars[0]); i++)
     {
-        OSD_RegisterFunction(cvar[i].name, cvar[i].helpstr, osdcmd_cvar_set);
+        OSD_RegisterFunction(cvars[i].name, cvars[i].helpstr, osdcmd_cvar_set);
     }
 
     if (VOLUMEONE)

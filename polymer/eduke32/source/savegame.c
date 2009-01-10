@@ -239,7 +239,7 @@ int32_t G_LoadPlayer(int32_t spot)
     if (kdfread(&numsectors,2,1,fil) != 1) goto corrupt;
     if (kdfread(&sector[0],sizeof(sectortype),MAXSECTORS,fil) != MAXSECTORS) goto corrupt;
     if (kdfread(&sprite[0],sizeof(spritetype),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
-    if (kdfread(&spriteext[0],sizeof(spriteexttype),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+    if (kdfread(&spriteext[0],sizeof(spriteext_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 #if defined(POLYMOST) && defined(USE_OPENGL)
     for (i=0;i<MAXSPRITES;i++)
         if (spriteext[i].mdanimtims)
@@ -672,7 +672,7 @@ int32_t G_SavePlayer(int32_t spot)
                 spriteext[i].mdanimtims++;
         }
 #endif
-    dfwrite(&spriteext[0],sizeof(spriteexttype),MAXSPRITES,fil);
+    dfwrite(&spriteext[0],sizeof(spriteext_t),MAXSPRITES,fil);
 #if defined(POLYMOST) && defined(USE_OPENGL)
     for (i=0;i<MAXSPRITES;i++)if (spriteext[i].mdanimtims)spriteext[i].mdanimtims+=mdtims;
 #endif

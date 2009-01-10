@@ -339,7 +339,7 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
 int32_t cachefilehandle = -1; // texture cache file handle
 FILE *cacheindexptr = NULL;
 
-HASH_table cacheH    = { 1024, NULL };
+hashtable_t cacheH    = { 1024, NULL };
 
 char TEXCACHEFILE[BMAX_PATH] = "textures";
 
@@ -600,11 +600,11 @@ void gltexapplyprops(void)
     {
         int32_t j;
         mdskinmap_t *sk;
-        md2model *m;
+        md2model_t *m;
 
         for (i=0;i<nextmodelid;i++)
         {
-            m = (md2model *)models[i];
+            m = (md2model_t *)models[i];
             if (m->mdnum < 2) continue;
             for (j=0;j<m->numskins*(HICEFFECTMASK+1);j++)
             {
@@ -897,7 +897,7 @@ void polymost_glinit()
     numcacheentries = 0;
     Bmemset(&firstcacheindex, 0, sizeof(texcacheindex));
     Bmemset(&cacheptrs[0], 0, sizeof(cacheptrs));
-    HASH_init(&cacheH);
+    hash_init(&cacheH);
     LoadCacheOffsets();
 
     Bstrcpy(ptempbuf,TEXCACHEFILE);
@@ -971,7 +971,7 @@ void invalidatecache(void)
     numcacheentries = 0;
     Bmemset(&firstcacheindex, 0, sizeof(texcacheindex));
     Bmemset(&cacheptrs[0], 0, sizeof(cacheptrs));
-    HASH_init(&cacheH);
+    hash_init(&cacheH);
 //    LoadCacheOffsets();
 
     Bstrcpy(ptempbuf,TEXCACHEFILE);
@@ -1381,7 +1381,7 @@ static int32_t LoadCacheOffsets(void)
         if (scriptfile_getnumber(script, &foffset)) break;	// offset in cache
         if (scriptfile_getnumber(script, &fsize)) break;	// size
 
-        i = HASH_find(&cacheH,fname);
+        i = hash_find(&cacheH,fname);
         if (i > -1)
         {
             // update an existing entry
@@ -1396,7 +1396,7 @@ static int32_t LoadCacheOffsets(void)
             curcacheindex->offset = foffset;
             curcacheindex->len = fsize;
             curcacheindex->next = Bcalloc(1, sizeof(texcacheindex));
-            HASH_replace(&cacheH, Bstrdup(fname), numcacheentries);
+            hash_replace(&cacheH, Bstrdup(fname), numcacheentries);
             cacheptrs[numcacheentries++] = curcacheindex;
             curcacheindex = curcacheindex->next;
         }
@@ -1445,7 +1445,7 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
         int32_t len = 0;
         int32_t i;
 
-        i = HASH_find(&cacheH,cachefn);
+        i = hash_find(&cacheH,cachefn);
         if (i > -1)
         {
             texcacheindex *t = cacheptrs[i];
@@ -1616,7 +1616,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
     }
 
     {
-        int32_t i = HASH_find(&cacheH,cachefn);
+        int32_t i = hash_find(&cacheH,cachefn);
         if (i > -1)
         {
             // update an existing entry
@@ -1638,7 +1638,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
             if (cacheindexptr)
                 Bfprintf(cacheindexptr, "%s %d %d\n", curcacheindex->name, curcacheindex->offset, curcacheindex->len);
 
-            HASH_add(&cacheH, Bstrdup(cachefn), numcacheentries);
+            hash_add(&cacheH, Bstrdup(cachefn), numcacheentries);
             cacheptrs[numcacheentries++] = curcacheindex;
             curcacheindex = curcacheindex->next;
         }
@@ -6426,11 +6426,11 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
         int32_t i,j=0;
 
         if (models[mid]->mdnum == 3)
-            j = ((md3model *)models[mid])->head.numsurfs;
+            j = ((md3model_t *)models[mid])->head.numsurfs;
 
         for (i=0;i<=j;i++)
         {
-            mdloadskin((md2model*)models[mid], 0, dapalnum, i);
+            mdloadskin((md2model_t*)models[mid], 0, dapalnum, i);
         }
     }
 #endif

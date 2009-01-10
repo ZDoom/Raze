@@ -1477,7 +1477,7 @@ void M_DisplayMenus(void)
                 }
                 else
                 {
-                    tempbuf[0] = PACKET_TYPE_LOAD_GAME;
+                    tempbuf[0] = PACKET_LOAD_GAME;
                     tempbuf[1] = g_lastSaveSlot;
                     tempbuf[2] = myconnectindex;
                     TRAVERSE_CONNECT(x)
@@ -3790,13 +3790,13 @@ cheat_for_port_credits:
                 {
                     ud.config.MouseFunctions[whichkey>>1][whichkey&1] = x;
                     CONTROL_MapButton(x, whichkey>>1, whichkey&1, controldevice_mouse);
-                    mousebind[whichkey>>1].cmd[0] = 0; // kill the bind when changing the button in the menu
+                    MouseBindings[whichkey>>1].cmd[0] = 0; // kill the bind when changing the button in the menu
                 }
                 else
                 {
                     ud.config.MouseFunctions[whichkey-(MAXMOUSEBUTTONS-2)][0] = x;
                     CONTROL_MapButton(x, whichkey-(MAXMOUSEBUTTONS-2), 0, controldevice_mouse);
-                    mousebind[whichkey-(MAXMOUSEBUTTONS-2)].cmd[0] = 0;
+                    MouseBindings[whichkey-(MAXMOUSEBUTTONS-2)].cmd[0] = 0;
                 }
                 ChangeToMenu(205);
                 probey = whichkey;
@@ -5107,7 +5107,7 @@ VOLUME_ALL_40x:
                     g_player[i].gotvote = 0;
                 }
 
-                tempbuf[0] = PACKET_TYPE_MAP_VOTE_CANCEL;
+                tempbuf[0] = PACKET_MAP_VOTE_CANCEL;
                 tempbuf[1] = myconnectindex;
 
                 TRAVERSE_CONNECT(c)
@@ -5164,7 +5164,7 @@ VOLUME_ALL_40x:
 
                 voting = -1;
 
-                tempbuf[0] = PACKET_TYPE_MAP_VOTE_CANCEL;
+                tempbuf[0] = PACKET_MAP_VOTE_CANCEL;
                 tempbuf[1] = myconnectindex;
                 tempbuf[2] = 1;
 
@@ -5315,7 +5315,7 @@ VOLUME_ALL_40x:
                     g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
                     voting = myconnectindex;
 
-                    tempbuf[0] = PACKET_TYPE_MAP_VOTE_INITIATE;
+                    tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
                     tempbuf[1] = myconnectindex;
                     tempbuf[2] = ud.m_volume_number;
                     tempbuf[3] = ud.m_level_number;

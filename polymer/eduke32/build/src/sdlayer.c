@@ -69,7 +69,7 @@ char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
 char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
 char remap[256];
 int32_t remapinit=0;
-static char keynames[256][24];
+static char key_names[256][24];
 volatile int32_t mousex=0,mousey=0,mouseb=0;
 int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;
 char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
@@ -412,18 +412,18 @@ int32_t initinput(void)
 
     SDL_EnableUNICODE(1);	// let's hope this doesn't hit us too hard
 
-    memset(keynames,0,sizeof(keynames));
+    memset(key_names,0,sizeof(key_names));
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
     for (i=0; i<SDLK_LAST; i++)
     {
         if (!keytranslation[i]) continue;
-        strncpy((char *)keynames[ keytranslation[i] ], SDL_GetKeyName(i), sizeof(keynames[i])-1);
+        strncpy((char *)key_names[ keytranslation[i] ], SDL_GetKeyName(i), sizeof(key_names[i])-1);
     }
 #else
     for (i=0; i<SDL_NUM_SCANCODES; i++)
     {
         if (!keytranslation[i]) continue;
-        strncpy((char *)keynames[ keytranslation[i] ], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(keynames[i])-1);
+        strncpy((char *)key_names[ keytranslation[i] ], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(key_names[i])-1);
     }
 #endif
 
@@ -469,7 +469,7 @@ void uninitinput(void)
 const char *getkeyname(int32_t num)
 {
     if ((unsigned)num >= 256) return NULL;
-    return keynames[num];
+    return key_names[num];
 }
 
 const char *getjoyname(int32_t what, int32_t num)

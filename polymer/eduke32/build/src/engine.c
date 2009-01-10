@@ -229,10 +229,10 @@ static inline int32_t nsqrtasm(int32_t a)
         mov eax, a
         test eax, 0xff000000
         mov ebx, eax
-        jnz int16_t over24
+        jnz short over24
         shr ebx, 12
         mov cx, word ptr shlookup[ebx*2]
-        jmp int16_t under24
+        jmp short under24
 over24:
         shr ebx, 24
         mov cx, word ptr shlookup[ebx*2+8192]
@@ -332,7 +332,7 @@ beg:
         ror edx, cl
         adc eax, edx
         bswap eax
-        loop int16_t beg
+        loop short beg
         pop ebx
     }
 }
@@ -5555,8 +5555,8 @@ static int32_t preinitcalled = 0;
 #define DYNALLOC_ARRAYS
 
 #ifndef DYNALLOC_ARRAYS
-static spriteexttype spriteext_s[MAXSPRITES+MAXUNIQHUDID];
-static spritesmoothtype spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
+static spriteext_t spriteext_s[MAXSPRITES+MAXUNIQHUDID];
+static spritesmooth_t spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
 static sectortype sector_s[MAXSECTORS];
 static walltype wall_s[MAXWALLS];
 static spritetype sprite_s[MAXSPRITES];
@@ -5577,8 +5577,8 @@ int32_t preinitengine(void)
     wall = Bcalloc(MAXWALLS,sizeof(walltype));
     sprite = Bcalloc(MAXSPRITES,sizeof(spritetype));
     tsprite = Bcalloc(MAXSPRITESONSCREEN,sizeof(spritetype));
-    spriteext = Bcalloc(MAXSPRITES+MAXUNIQHUDID,sizeof(spriteexttype));
-    spritesmooth = Bcalloc(MAXSPRITES+MAXUNIQHUDID,sizeof(spritesmoothtype));
+    spriteext = Bcalloc(MAXSPRITES+MAXUNIQHUDID,sizeof(spriteext_t));
+    spritesmooth = Bcalloc(MAXSPRITES+MAXUNIQHUDID,sizeof(spritesmooth_t));
 
     if (!sector || !wall || !sprite || !tsprite || !spriteext || !spritesmooth)
         return 1;
@@ -6817,7 +6817,7 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
     kclose(fil);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    memset(spriteext, 0, sizeof(spriteexttype) * MAXSPRITES);
+    memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
     memset(spritesmooth, 0, sizeof(spritesmooth));
 
 # ifdef POLYMER
@@ -7300,7 +7300,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
     kclose(fil);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    memset(spriteext, 0, sizeof(spriteexttype) * MAXSPRITES);
+    memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
     memset(spritesmooth, 0, sizeof(spritesmooth));
 #endif
     guniqhudid = 0;
@@ -7361,7 +7361,7 @@ int32_t loadmaphack(char *filename)
     script = scriptfile_fromfile(filename);
     if (!script) return -1;
 
-    memset(spriteext, 0, sizeof(spriteexttype) * MAXSPRITES);
+    memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
     memset(spritesmooth, 0, sizeof(spritesmooth));
 
     while (1)
@@ -9952,7 +9952,7 @@ void setvgapalette(void)
 //
 // setbrightness
 //
-void setbrightness(char dabrightness, char *dapal, char noapply)
+void setbrightness(char dabrightness, uint8_t *dapal, char noapply)
 {
     int32_t i, k, j;
 //    uint32_t lastbright = curbrightness;
@@ -12129,15 +12129,15 @@ void setpolymost2dview(void)
 #endif
 }
 
-void HASH_init(HASH_table *t)
+void hash_init(hashtable_t *t)
 {
-    HASH_free(t);
-    t->items=Bcalloc(1, t->size * sizeof(HASH_item));
+    hash_free(t);
+    t->items=Bcalloc(1, t->size * sizeof(hashitem_t));
 }
 
-void HASH_free(HASH_table *t)
+void hash_free(hashtable_t *t)
 {
-    HASH_item *cur, *tmp;
+    hashitem_t *cur, *tmp;
     int32_t i;
     int32_t num;
 
@@ -12192,16 +12192,16 @@ inline uint32_t HASH_getcode(const char *s)
 }
 #endif
 
-void HASH_add(HASH_table *t, const char *s, int32_t key)
+void hash_add(hashtable_t *t, const char *s, int32_t key)
 {
-    HASH_item *cur, *prev=NULL;
+    hashitem_t *cur, *prev=NULL;
     int32_t code;
 
     if (!s)
         return;
     if (t->items == NULL)
     {
-        initprintf("HASH_add(): table not initialized!\n");
+        initprintf("hash_add(): table not initialized!\n");
         return;
     }
     code = HASH_getcode(s)%t->size;
@@ -12209,7 +12209,7 @@ void HASH_add(HASH_table *t, const char *s, int32_t key)
 
     if (!cur)
     {
-        cur=Bcalloc(1,sizeof(HASH_item));
+        cur=Bcalloc(1,sizeof(hashitem_t));
         cur->string=Bstrdup(s);
         cur->key=key;
         cur->next=NULL;
@@ -12226,21 +12226,21 @@ void HASH_add(HASH_table *t, const char *s, int32_t key)
     }
     while (cur);
 
-    cur=Bcalloc(1,sizeof(HASH_item));
+    cur=Bcalloc(1,sizeof(hashitem_t));
     cur->string=Bstrdup(s);
     cur->key=key;
     cur->next=NULL;
     prev->next=cur;
 }
 
-void HASH_replace(HASH_table *t, const char *s, int32_t key)
+void hash_replace(hashtable_t *t, const char *s, int32_t key)
 {
-    HASH_item *cur, *prev=NULL;
+    hashitem_t *cur, *prev=NULL;
     int32_t code;
 
     if (t->items==NULL)
     {
-        initprintf("HASH_replace(): table not initialized!\n");
+        initprintf("hash_replace(): table not initialized!\n");
         return;
     }
     code=HASH_getcode(s)%t->size;
@@ -12248,7 +12248,7 @@ void HASH_replace(HASH_table *t, const char *s, int32_t key)
 
     if (!cur)
     {
-        cur=Bcalloc(1,sizeof(HASH_item));
+        cur=Bcalloc(1,sizeof(hashitem_t));
         cur->string=Bstrdup(s);
         cur->key=key;
         cur->next=NULL;
@@ -12268,20 +12268,20 @@ void HASH_replace(HASH_table *t, const char *s, int32_t key)
     }
     while (cur);
 
-    cur=Bcalloc(1,sizeof(HASH_item));
+    cur=Bcalloc(1,sizeof(hashitem_t));
     cur->string=Bstrdup(s);
     cur->key=key;
     cur->next=NULL;
     prev->next=cur;
 }
 
-int32_t HASH_find(HASH_table *t, const char *s)
+int32_t hash_find(hashtable_t *t, const char *s)
 {
-    HASH_item *cur;
+    hashitem_t *cur;
 
     if (t->items==NULL)
     {
-        initprintf("HASH_find(): table not initialized!\n");
+        initprintf("hash_find(): table not initialized!\n");
         return -1;
     }
     cur=t->items[HASH_getcode(s)%t->size];
@@ -12294,13 +12294,13 @@ int32_t HASH_find(HASH_table *t, const char *s)
     return -1;
 }
 
-int32_t HASH_findcase(HASH_table *t, const char *s)
+int32_t hash_findcase(hashtable_t *t, const char *s)
 {
-    HASH_item *cur;
+    hashitem_t *cur;
 
     if (t->items==NULL)
     {
-        initprintf("HASH_findcase(): table not initialized!\n");
+        initprintf("hash_findcase(): table not initialized!\n");
         return -1;
     }
     cur=t->items[HASH_getcode(s)%t->size];

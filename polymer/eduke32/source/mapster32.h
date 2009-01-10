@@ -52,11 +52,11 @@ static int32_t ototalclock = 0;
 
 char option[NUMOPTIONS] = {0,0,0,0,0,0,1,0,0};
 uint8_t keys[NUMBUILDKEYS] =
-    {
-        0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
-        0x1e,0x2c,0xd1,0xc9,0x47,0x49,
+{
+	0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
+	0x1e,0x2c,0xd1,0xc9,0x47,0x49,
 	0x9c,0x1c,0xd,0xc,0xf,0x29
-    };
+};
 
 int32_t nextvoxid = 0;
 
@@ -111,12 +111,8 @@ static void EditWallData(int16_t wallnum);
 static void EditSectorData(int16_t sectnum);
 static void FuncMenu(void);
 
-char GAMEpalette[768];
-char WATERpalette[768];
-char SLIMEpalette[768];
-char TITLEpalette[768];
-char REALMSpalette[768];
-char BOSS1palette[768];
+uint8_t GAMEpalette[768], WATERpalette[768], SLIMEpalette[768], TITLEpalette[768];
+uint8_t REALMSpalette[768], BOSS1palette[768];
 
 char num_tables;
 

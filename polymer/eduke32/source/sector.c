@@ -27,15 +27,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // PRIMITIVE
 
-static int32_t haltsoundhack;
+static int32_t g_haltSoundHack = 0;
 
 // this function activates a sector's MUSICANDSFX sprite
 int32_t A_CallSound(int32_t sn,int32_t whatsprite)
 {
     int32_t i;
-    if (haltsoundhack)
+    if (g_haltSoundHack)
     {
-        haltsoundhack = 0;
+        g_haltSoundHack = 0;
         return -1;
     }
     i = headspritesect[sn];
@@ -76,12 +76,11 @@ int32_t A_CallSound(int32_t sn,int32_t whatsprite)
     return -1;
 }
 
-int32_t check_activator_motion(int32_t lotag)
+int32_t G_CheckActivatorMotion(int32_t lotag)
 {
-    int32_t i, j;
+    int32_t i = headspritestat[STAT_ACTIVATOR], j;
     spritetype *s;
 
-    i = headspritestat[STAT_ACTIVATOR];
     while (i >= 0)
     {
         if (sprite[i].lotag == lotag)
@@ -578,7 +577,7 @@ void G_OperateSectors(int32_t sn,int32_t ii)
         i = GetAnimationGoal(&sptr->ceilingz);
         if (i == -1) //if the door has stopped
         {
-            haltsoundhack = 1;
+            g_haltSoundHack = 1;
             sptr->lotag &= 0xff00;
             sptr->lotag |= 22;
             G_OperateSectors(sn,ii);
@@ -1271,7 +1270,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
         //case LOCKSWITCH1+1:
     case POWERSWITCH2__STATIC:
         //case POWERSWITCH2+1:
-        if (check_activator_motion(lotag)) return 0;
+        if (G_CheckActivatorMotion(lotag)) return 0;
         break;
     default:
         if (CheckDoorTile(picnum) == 0) return 0;

@@ -52,7 +52,7 @@ extern void pan3dsound(void);
 extern void S_TestSoundCallback(uint32_t num);
 extern void S_ClearSoundLocks(void);
 extern int32_t A_CallSound(int32_t sn,int32_t whatsprite);
-extern int32_t check_activator_motion(int32_t lotag);
+extern int32_t G_CheckActivatorMotion(int32_t lotag);
 extern int32_t CheckDoorTile(int32_t dapic);
 extern int32_t isanunderoperator(int32_t lotag);
 extern int32_t isanearoperator(int32_t lotag);
@@ -195,7 +195,7 @@ extern void A_MoveDummyPlayers(void);
 // game.c
 extern inline void G_SetStatusBarScale(int32_t sc);
 
-extern void P_SetGamePalette(DukePlayer_t *player, char *pal, int32_t set);
+extern void P_SetGamePalette(DukePlayer_t *player, uint8_t *pal, int32_t set);
 extern void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step);
 
 extern int32_t gametext_z(int32_t small, int32_t starttile, int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t orientation,int32_t x1, int32_t y1, int32_t x2, int32_t y2,int32_t z);

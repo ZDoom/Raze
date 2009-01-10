@@ -1402,7 +1402,7 @@ static int32_t X_DoExecute(void)
                 G_OperateMasterSwitches(var1);
                 break;
             case CON_CHECKACTIVATORMOTION:
-                Gv_SetVarX(g_iReturnVarID, check_activator_motion(var1));
+                Gv_SetVarX(g_iReturnVarID, G_CheckActivatorMotion(var1));
                 break;
             }
             break;
@@ -4385,7 +4385,7 @@ void G_SaveMapState(mapstate_t *save)
         Bmemcpy(&save->numsectors,&numsectors,sizeof(numsectors));
         Bmemcpy(&save->sector[0],&sector[0],sizeof(sectortype)*MAXSECTORS);
         Bmemcpy(&save->sprite[0],&sprite[0],sizeof(spritetype)*MAXSPRITES);
-        Bmemcpy(&save->spriteext[0],&spriteext[0],sizeof(spriteexttype)*MAXSPRITES);
+        Bmemcpy(&save->spriteext[0],&spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
         Bmemcpy(&save->headspritesect[0],&headspritesect[0],sizeof(headspritesect));
         Bmemcpy(&save->prevspritesect[0],&prevspritesect[0],sizeof(prevspritesect));
         Bmemcpy(&save->nextspritesect[0],&nextspritesect[0],sizeof(nextspritesect));
@@ -4509,7 +4509,7 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(&numsectors,&save->numsectors,sizeof(numsectors));
         Bmemcpy(&sector[0],&save->sector[0],sizeof(sectortype)*MAXSECTORS);
         Bmemcpy(&sprite[0],&save->sprite[0],sizeof(spritetype)*MAXSPRITES);
-        Bmemcpy(&spriteext[0],&save->spriteext[0],sizeof(spriteexttype)*MAXSPRITES);
+        Bmemcpy(&spriteext[0],&save->spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
         Bmemcpy(&headspritesect[0],&save->headspritesect[0],sizeof(headspritesect));
         Bmemcpy(&prevspritesect[0],&save->prevspritesect[0],sizeof(prevspritesect));
         Bmemcpy(&nextspritesect[0],&save->nextspritesect[0],sizeof(nextspritesect));

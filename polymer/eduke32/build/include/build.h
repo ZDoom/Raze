@@ -100,11 +100,11 @@ typedef struct BPACK
     int16_t ceilingstat, floorstat;
     int16_t ceilingpicnum, ceilingheinum;
     int8_t ceilingshade;
-    char ceilingpal, ceilingxpanning, ceilingypanning;
+    uint8_t ceilingpal, ceilingxpanning, ceilingypanning;
     int16_t floorpicnum, floorheinum;
     int8_t floorshade;
-    char floorpal, floorxpanning, floorypanning;
-    char visibility, filler;
+    uint8_t floorpal, floorxpanning, floorypanning;
+    uint8_t visibility, filler;
     int16_t lotag, hitag, extra;
 } sectortype;
 
@@ -128,7 +128,7 @@ typedef struct BPACK
     int16_t point2, nextwall, nextsector, cstat;
     int16_t picnum, overpicnum;
     int8_t shade;
-    char pal, xrepeat, yrepeat, xpanning, ypanning;
+    uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
     int16_t lotag, hitag, extra;
 } walltype;
 
@@ -153,8 +153,8 @@ typedef struct BPACK
     int32_t x, y, z;
     int16_t cstat, picnum;
     int8_t shade;
-    char pal, clipdist, filler;
-    char xrepeat, yrepeat;
+    uint8_t pal, clipdist, filler;
+    uint8_t xrepeat, yrepeat;
     int8_t xoffset, yoffset;
     int16_t sectnum, statnum;
     int16_t ang, owner, xvel, yvel, zvel;
@@ -167,18 +167,18 @@ typedef struct BPACK {
     int16_t angoff;
     int16_t pitch, roll;
     int32_t xoff, yoff, zoff;
-    char flags;
-    char xpanning, ypanning;
-    char filler[1];
+    uint8_t flags;
+    uint8_t xpanning, ypanning;
+    uint8_t filler[1];
     spritetype *tspr;
-} spriteexttype;
+} spriteext_t;
 
 typedef struct BPACK {
     float smoothduration;
     int16_t mdcurframe, mdoldframe;
     int16_t mdsmooth;
-    char filler[2];
-} spritesmoothtype;
+    uint8_t filler[2];
+} spritesmooth_t;
 
 #define SPREXT_NOTMD 1
 #define SPREXT_NOMDANIM 2
@@ -186,8 +186,8 @@ typedef struct BPACK {
 #define SPREXT_AWAY2 8
 #define SPREXT_TSPRACCESS 16
 
-EXTERN spriteexttype *spriteext;
-EXTERN spritesmoothtype *spritesmooth;
+EXTERN spriteext_t *spriteext;
+EXTERN spritesmooth_t *spritesmooth;
 EXTERN int32_t guniqhudid;
 
 EXTERN sectortype *sector;
@@ -220,7 +220,7 @@ EXTERN char display_mirror;
 EXTERN /*volatile*/ int32_t totalclock;
 EXTERN int32_t numframes, randomseed;
 EXTERN int16_t sintable[2048];
-EXTERN char palette[768];
+EXTERN uint8_t palette[768];
 EXTERN int16_t numpalookups;
 EXTERN char *palookup[MAXPALOOKUPS];
 EXTERN char parallaxtype, showinvisibility;
@@ -416,7 +416,7 @@ int32_t   allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
 void   makepalookup(int32_t palnum, char *remapbuf, int8_t r, int8_t g, int8_t b, char dastat);
 void   setvgapalette(void);
-void   setbrightness(char dabrightness, char *dapal, char noapply);
+void   setbrightness(char dabrightness, uint8_t *dapal, char noapply);
 void   setpalettefade(char r, char g, char b, char offset);
 void   squarerotatetile(int16_t tilenume);
 
@@ -600,20 +600,20 @@ typedef struct _hashitem // size is 12/24 bits.
     char *string;
     int32_t key;
     struct _hashitem *next;
-} HASH_item;
+} hashitem_t;
 
 typedef struct
 {
     int32_t size;
-    HASH_item **items;
-} HASH_table;
+    hashitem_t **items;
+} hashtable_t;
 
-void HASH_init(HASH_table *t);
-void HASH_free(HASH_table *t);
-int32_t  HASH_findcase(HASH_table *t, const char *s);
-int32_t  HASH_find(HASH_table *t, const char *s);
-void HASH_replace(HASH_table *t, const char *s, int32_t key);
-void HASH_add(HASH_table *t, const char *s, int32_t key);
+void hash_init(hashtable_t *t);
+void hash_free(hashtable_t *t);
+int32_t  hash_findcase(hashtable_t *t, const char *s);
+int32_t  hash_find(hashtable_t *t, const char *s);
+void hash_replace(hashtable_t *t, const char *s, int32_t key);
+void hash_add(hashtable_t *t, const char *s, int32_t key);
 
 #ifdef _MSC_VER
 #pragma pack()

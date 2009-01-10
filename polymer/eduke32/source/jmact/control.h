@@ -213,7 +213,7 @@ typedef struct binding {
 
 #define MAXMOUSEBUTTONS 10
 
-extern keybind boundkeys[MAXBOUNDKEYS], mousebind[MAXMOUSEBUTTONS];
+extern keybind KeyBindings[MAXBOUNDKEYS], MouseBindings[MAXMOUSEBUTTONS];
 extern int32_t bindsenabled;
 
 void CONTROL_ProcessBinds(void);

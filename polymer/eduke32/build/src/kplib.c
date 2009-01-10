@@ -265,7 +265,7 @@ beg:
         shr edx, 1
         adc eax, eax
         sub ecx, 1
-        jnz int16_t beg
+        jnz short beg
     }
 }
 
@@ -684,29 +684,29 @@ static _inline void rgbhlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
         mov edi, t
         mov ebx, b
         sub ecx, edx
-        jle int16_t endit
+        jle short endit
         add edx, offset olinbuf
         cmp dword ptr trnsrgb, 0
-        jz int16_t begit2
+        jz short begit2
 begit:
         mov eax, dword ptr [ecx+edx]
         or eax, 0xff000000
         cmp eax, dword ptr trnsrgb
-        jne int16_t skipit
+        jne short skipit
         and eax, 0xffffff
 skipit:
         sub ecx, 3
         mov [edi], eax
         lea edi, [edi+ebx]
-        jnz int16_t begit
-        jmp int16_t endit
+        jnz short begit
+        jmp short endit
 begit2:
         mov eax, dword ptr [ecx+edx]
         or eax, 0xff000000
         sub ecx, 3
         mov [edi], eax
         lea edi, [edi+ebx]
-        jnz int16_t begit2
+        jnz short begit2
 endit:
     }
 }
@@ -720,7 +720,7 @@ static _inline void pal8hlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
         mov edi, t
         mov ebx, b
         sub ecx, edx
-        jle int16_t endit
+        jle short endit
         add edx, offset olinbuf
 begit:
         movzx eax, byte ptr [ecx+edx]
@@ -728,7 +728,7 @@ begit:
         sub ecx, 1
         mov [edi], eax
         lea edi, [edi+ebx]
-        jnz int16_t begit
+        jnz short begit
 endit:
     }
 }

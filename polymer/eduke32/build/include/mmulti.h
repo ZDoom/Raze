@@ -16,14 +16,13 @@ int32_t initmultiplayerscycle(void);
 void mmulti_initmultiplayers(int32_t argc, char **argv);
 void mmulti_setpackettimeout(int32_t datimeoutcount, int32_t daresendagaincount);
 void mmulti_uninitmultiplayers(void);
-void sendlogon(void);
-void sendlogoff(void);
-int32_t getoutputcirclesize(void);
-void setsocket(int16_t newsocket);
+void mmulti_sendlogon(void);
+void mmulti_sendlogoff(void);
+int32_t mmulti_getoutputcirclesize(void);
 void mmulti_sendpacket(int32_t other, char *bufptr, int32_t messleng);
 int32_t mmulti_getpacket(int32_t *other, char *bufptr);
 void mmulti_flushpackets(void);
-void genericmultifunction(int32_t other, char *bufptr, int32_t messleng, int32_t command);
+void mmulti_generic(int32_t other, char *bufptr, int32_t messleng, int32_t command);
 int32_t isvalidipaddress(char *st);
 
 void nfIncCP(void); //Addfaz NatFree

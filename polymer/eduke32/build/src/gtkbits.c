@@ -24,7 +24,7 @@ int32_t gtkbuild_msgbox(char *name, char *msg)
                                     GTK_DIALOG_DESTROY_WITH_PARENT,
                                     GTK_MESSAGE_INFO,
                                     GTK_BUTTONS_OK,
-                                    msg);
+                                    "%s", msg);
     gtk_window_set_title(GTK_WINDOW(dialog), name);
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
@@ -43,7 +43,7 @@ int32_t gtkbuild_ynbox(char *name, char *msg)
                                     GTK_DIALOG_DESTROY_WITH_PARENT,
                                     GTK_MESSAGE_INFO,
                                     GTK_BUTTONS_YES_NO,
-                                    msg);
+                                    "%s", msg);
     gtk_window_set_title(GTK_WINDOW(dialog), name);
     r = gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);

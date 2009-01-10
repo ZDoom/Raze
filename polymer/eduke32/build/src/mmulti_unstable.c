@@ -55,7 +55,8 @@ int32_t crctable[256];
 int32_t tmpmax[8]; //addfaz variable addition (you could probs think of something better)
 int32_t itmp = 0; //addfaz router fix STUN
 
-static char lastpacket[576], inlastpacket = 0;
+static uint8_t lastpacket[576];
+char inlastpacket = 0;
 static int32_t lastpacketfrom, lastpacketleng;
 
 extern int32_t totalclock;  /* MUST EXTERN 1 ANNOYING VARIABLE FROM GAME */
@@ -64,7 +65,7 @@ static int32_t timeoutcount = 60, resendagaincount = 4, lastsendtime[MAXPLAYERS]
 int32_t natfree; //NatFree mode flag
 
 static int16_t bakpacketptr[MAXPLAYERS][256], bakpacketlen[MAXPLAYERS][256];
-static char bakpacketbuf[BAKSIZ];
+static uint16_t bakpacketbuf[BAKSIZ];
 static int32_t bakpacketplc = 0;
 
 int32_t myconnectindex, numplayers;
@@ -74,18 +75,24 @@ char syncstate = 0;
 #define MAXPACKETSIZE 2048
 #define PACKET_START_GAME 0x1337
 
+enum commit_cmd_t
+{
+    COMMIT_CMD_SEND				= 1,
+    COMMIT_CMD_GET              = 2,
+    COMMIT_CMD_SENDTOALL        = 3,
+    COMMIT_CMD_SENDTOALLOTHERS  = 4,
+    COMMIT_CMD_SCORE            = 5,
+};
+
 typedef struct gcomtype_t
 {
-//    short intnum;                /* communication between Game and the driver */
     int16_t command;               /* 1-send, 2-get */
     int16_t other;                 /* dest for send, set by get (-1 = no packet) */
     int16_t numbytes;
     int16_t myconnectindex;
     int16_t numplayers;
-//    short gametype;              /* gametype: 1-serial,2-modem,3-net */
     int16_t filler;
     char buffer[MAXPACKETSIZE];
-//    intptr_t longcalladdress;
 } gcomtype;
 static gcomtype *gcom;
 
@@ -118,15 +125,6 @@ typedef struct
 */
 
 //typedef std::vector<PACKET> PacketQueue;
-
-enum ECommitCMDs
-{
-    COMMIT_CMD_SEND				= 1,
-    COMMIT_CMD_GET              = 2,
-    COMMIT_CMD_SENDTOALL        = 3,
-    COMMIT_CMD_SENDTOALLOTHERS  = 4,
-    COMMIT_CMD_SCORE            = 5,
-};
 
 static struct allowed_addr_t
 {
@@ -371,14 +369,14 @@ typedef enum
     udpmode_peer,
     udpmode_server,
     udpmode_client
-} udpmodes;
-static udpmodes udpmode = udpmode_peer;
+} udpmode_t;
+static udpmode_t udpmode = udpmode_peer;
 
-void sendlogon(void)
+void mmulti_sendlogon(void)
 {
 }
 
-void sendlogoff(void)
+void mmulti_sendlogoff(void)
 {
     int32_t i;
     char tempbuf[2];
@@ -393,16 +391,10 @@ void sendlogoff(void)
     }
 }
 
-int32_t getoutputcirclesize(void)
+int32_t mmulti_getoutputcirclesize(void)
 {
     return(0);
 }
-
-void setsocket(int32_t newsocket)
-{
-    UNREFERENCED_PARAMETER(newsocket);
-}
-
 
 int32_t mmulti_getpacket(int32_t *other, char *bufptr)
 {
@@ -577,7 +569,7 @@ void mmulti_flushpackets()
 #endif
 }
 
-void genericmultifunction(int32_t other, char *bufptr, int32_t messleng, int32_t command)
+void mmulti_generic(int32_t other, char *bufptr, int32_t messleng, int32_t command)
 {
     if (numplayers < 2) return;
 
@@ -588,8 +580,6 @@ void genericmultifunction(int32_t other, char *bufptr, int32_t messleng, int32_t
     callcommit();
 
 }
-
-#if UDP_NETWORKING
 
 #if PLATFORM_WIN32
 #  include <winsock.h>
@@ -2168,10 +2158,6 @@ void callcommit(void)
         break;
     }
 }
-
-#else
-#error Please define a network transport for your platform.
-#endif
 
 /* end of mmulti.c ... */
 

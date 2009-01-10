@@ -312,8 +312,7 @@ int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
 
     if (music_musicchunk != NULL)
     {
-        // !!! FIXME: I set the music to loop. Hope that's okay. --ryan.
-        Mix_PlayMusic(music_musicchunk, -1);
+        Mix_PlayMusic(music_musicchunk, (loopflag == MUSIC_LoopSong)?-1:0);
     } // if
     return MUSIC_Ok;
 }

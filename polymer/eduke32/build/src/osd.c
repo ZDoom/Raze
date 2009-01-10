@@ -105,7 +105,7 @@ static int32_t  osdcursorpal=0; */
 
 static symbol_t *osdsymbptrs[MAXSYMBOLS];
 static int32_t osdnumsymbols = 0;
-static HASH_table osdsymbolsH      = { MAXSYMBOLS<<1, NULL };
+static hashtable_t osdsymbolsH      = { MAXSYMBOLS<<1, NULL };
 
 // application callbacks
 static void (*drawosdchar)(int32_t, int32_t, char, int32_t, int32_t) = _internal_drawosdchar;
@@ -623,7 +623,7 @@ void OSD_Cleanup(void)
 {
     symbol_t *s;
 
-    HASH_free(&osdsymbolsH);
+    hash_free(&osdsymbolsH);
 
     for (; symbols; symbols=s)
     {
@@ -649,7 +649,7 @@ void OSD_Init(void)
 
     osdnumsymbols = 0;
 
-    HASH_init(&osdsymbolsH);
+    hash_init(&osdsymbolsH);
 
     osdlines=1;
 
@@ -1823,9 +1823,9 @@ static symbol_t *addnewsymbol(const char *name)
             newsymb->next = t;
         }
     }
-    HASH_add(&osdsymbolsH, name, osdnumsymbols);
+    hash_add(&osdsymbolsH, name, osdnumsymbols);
     lname = strtolower(Bstrdup(name),Bstrlen(name));
-    HASH_add(&osdsymbolsH, lname, osdnumsymbols);
+    hash_add(&osdsymbolsH, lname, osdnumsymbols);
     Bfree(lname);
     osdsymbptrs[osdnumsymbols++] = newsymb;
     return newsymb;
@@ -1855,7 +1855,7 @@ static symbol_t *findexactsymbol(const char *name)
     char *lname = Bstrdup(name);
     if (!symbols) return NULL;
 
-    i = HASH_find(&osdsymbolsH,lname);
+    i = hash_find(&osdsymbolsH,lname);
     if (i > -1)
     {
 //        if ((symbol_t *)osdsymbptrs[i]->func == (void *)OSD_UNALIASED)
@@ -1866,7 +1866,7 @@ static symbol_t *findexactsymbol(const char *name)
 
     // try it again
     lname = strtolower(lname, Bstrlen(name));
-    i = HASH_find(&osdsymbolsH,lname);
+    i = hash_find(&osdsymbolsH,lname);
     Bfree(lname);
 
     if (i > -1)

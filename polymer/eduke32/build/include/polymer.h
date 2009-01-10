@@ -232,7 +232,7 @@ static void         polymer_drawartskyquad(int32_t p1, int32_t p2, GLfloat heigh
 static void         polymer_drawskybox(int16_t tilenum);
 // MDSPRITES
 static void         polymer_drawmdsprite(spritetype *tspr);
-static void         polymer_loadmodelvbos(md3model* m);
+static void         polymer_loadmodelvbos(md3model_t* m);
 // MATERIALS
 static void         polymer_getscratchmaterial(_prmaterial* material);
 static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade);

@@ -2228,7 +2228,7 @@ CLEAR_THE_BOLT:
             p = CheckPlayerInSector(sect);
             if (p >= 0 && (g_player[p].ps->on_ground || s->ang == 512))
             {
-                if (t[0] == 0 && !check_activator_motion(s->lotag))
+                if (t[0] == 0 && !G_CheckActivatorMotion(s->lotag))
                 {
                     t[0] = 1;
                     t[1] = 1;

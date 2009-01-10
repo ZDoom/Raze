@@ -682,7 +682,7 @@ static void P_ResetStatus(int32_t snum)
     p->on_warping_sector = 0;
     p->spritebridge      = 0;
     p->sbs          = 0;
-    p->palette = (char *) &palette[0];
+    p->palette = (uint8_t *) &palette[0];
 
     if (p->steroids_amount < 400)
     {
@@ -1531,7 +1531,7 @@ void waitforeverybody()
     int32_t i;
 
     if (numplayers < 2) return;
-    packbuf[0] = PACKET_TYPE_PLAYER_READY;
+    packbuf[0] = PACKET_PLAYER_READY;
 
     g_player[myconnectindex].playerreadyflag++;
 
@@ -1579,7 +1579,7 @@ void waitforeverybody()
             if (!g_networkBroadcastMode && myconnectindex == connecthead)
                 TRAVERSE_CONNECT(i)
             {
-                packbuf[0] = PACKET_TYPE_PLAYER_READY;
+                packbuf[0] = PACKET_PLAYER_READY;
                 if (i != myconnectindex) mmulti_sendpacket(i,packbuf,1);
             }
 
