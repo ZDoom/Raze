@@ -30,7 +30,8 @@ char *defsfilename = "duke3d.def";
 
 extern char keystatus[];
 extern int16_t defaultspritecstat;
-extern int32_t posx, posy, posz, horiz, qsetmode;
+extern int32_t horiz, qsetmode;
+extern vec3_t pos;
 extern int16_t ang, cursectnum;
 extern int16_t ceilingheinum, floorheinum;
 extern char names[MAXTILES][25];

@@ -1501,15 +1501,15 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("cameradist",(intptr_t)&g_cameraDistance, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
     Gv_NewVar("cameraclock",(intptr_t)&g_cameraClock, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
 
-    Gv_NewVar("myx",(intptr_t)&myx, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myy",(intptr_t)&myy, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myz",(intptr_t)&myz, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("omyx",(intptr_t)&omyx, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("omyy",(intptr_t)&omyy, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("omyz",(intptr_t)&omyz, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myxvel",(intptr_t)&myxvel, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myyvel",(intptr_t)&myyvel, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myzvel",(intptr_t)&myzvel, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("myx",(intptr_t)&my.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("myy",(intptr_t)&my.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("myz",(intptr_t)&my.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("omyx",(intptr_t)&omy.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("omyy",(intptr_t)&omy.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("omyz",(intptr_t)&omy.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("myvelx",(intptr_t)&myvel.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("myvely",(intptr_t)&myvel.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("myvelz",(intptr_t)&myvel.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
 
     Gv_NewVar("myhoriz",(intptr_t)&myhoriz, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_SYNCCHECK);
     Gv_NewVar("myhorizoff",(intptr_t)&myhorizoff, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_SYNCCHECK);
@@ -1651,15 +1651,15 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("cameradist")].val.lValue = (intptr_t)&g_cameraDistance;
     aGameVars[Gv_GetVarIndex("cameraclock")].val.lValue = (intptr_t)&g_cameraClock;
 
-    aGameVars[Gv_GetVarIndex("myx")].val.lValue = (intptr_t)&myx;
-    aGameVars[Gv_GetVarIndex("myy")].val.lValue = (intptr_t)&myy;
-    aGameVars[Gv_GetVarIndex("myz")].val.lValue = (intptr_t)&myz;
-    aGameVars[Gv_GetVarIndex("omyx")].val.lValue = (intptr_t)&omyx;
-    aGameVars[Gv_GetVarIndex("omyy")].val.lValue = (intptr_t)&omyy;
-    aGameVars[Gv_GetVarIndex("omyz")].val.lValue = (intptr_t)&omyz;
-    aGameVars[Gv_GetVarIndex("myxvel")].val.lValue = (intptr_t)&myxvel;
-    aGameVars[Gv_GetVarIndex("myyvel")].val.lValue = (intptr_t)&myyvel;
-    aGameVars[Gv_GetVarIndex("myzvel")].val.lValue = (intptr_t)&myzvel;
+    aGameVars[Gv_GetVarIndex("myx")].val.lValue = (intptr_t)&my.x;
+    aGameVars[Gv_GetVarIndex("myy")].val.lValue = (intptr_t)&my.y;
+    aGameVars[Gv_GetVarIndex("myz")].val.lValue = (intptr_t)&my.z;
+    aGameVars[Gv_GetVarIndex("omyx")].val.lValue = (intptr_t)&omy.x;
+    aGameVars[Gv_GetVarIndex("omyy")].val.lValue = (intptr_t)&omy.y;
+    aGameVars[Gv_GetVarIndex("omyz")].val.lValue = (intptr_t)&omy.z;
+    aGameVars[Gv_GetVarIndex("myvelx")].val.lValue = (intptr_t)&myvel.x;
+    aGameVars[Gv_GetVarIndex("myvely")].val.lValue = (intptr_t)&myvel.y;
+    aGameVars[Gv_GetVarIndex("myvelz")].val.lValue = (intptr_t)&myvel.z;
 
     aGameVars[Gv_GetVarIndex("myhoriz")].val.lValue = (intptr_t)&myhoriz;
     aGameVars[Gv_GetVarIndex("myhorizoff")].val.lValue = (intptr_t)&myhorizoff;

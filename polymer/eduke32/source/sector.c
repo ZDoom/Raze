@@ -188,7 +188,7 @@ int32_t isanearoperator(int32_t lotag)
     return 0;
 }
 
-inline int32_t CheckPlayerInSector(int32_t sect)
+inline int32_t G_CheckPlayerInSector(int32_t sect)
 {
     int32_t i = connecthead;
     for (;i>=0;i=connectpoint2[i])
@@ -329,8 +329,8 @@ void G_DoSectorAnimations(void)
                         g_player[p].ps->poszv = 0;
                         if (p == myconnectindex)
                         {
-                            myz += v;
-                            myzvel = 0;
+                            my.z += v;
+                            myvel.z = 0;
                             myzbak[((movefifoplc-1)&(MOVEFIFOSIZ-1))] = g_player[p].ps->posz;
                         }
                     }
@@ -2456,7 +2456,7 @@ void A_DamageObject(int32_t i,int32_t sn)
                             SA = (sprite[sn].ang+1024)&2047;
                         sprite[i].xvel = -(sprite[sn].extra<<2);
                         j = SECT;
-                        pushmove(&SX,&SY,&SZ,&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
+                        pushmove((vec3_t *)&sprite[i],&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
                         if (j != SECT && j >= 0 && j < MAXSECTORS)
                             changespritesect(i,j);
                     }
@@ -3201,38 +3201,41 @@ CHECKINV1:
     }
 }
 
-int32_t A_CheckHitSprite(int32_t i,int16_t *hitsp)
+int32_t A_CheckHitSprite(int32_t i, int16_t *hitsp)
 {
-    int32_t sx,sy,sz,zoff;
-    int16_t sect,hw;
+    hitdata_t hitinfo;
+    int32_t zoff = 0;
 
     if (A_CheckEnemySprite(&sprite[i]))
         zoff = (42<<8);
     else if (PN == APLAYER) zoff = (39<<8);
-    else zoff = 0;
 
-    hitscan(SX,SY,SZ-zoff,SECT,
+    SZ -= zoff;
+    hitscan((const vec3_t *)&sprite[i],SECT,
             sintable[(SA+512)&2047],
             sintable[SA&2047],
-            0,&sect,&hw,hitsp,&sx,&sy,&sz,CLIPMASK1);
+            0,&hitinfo,CLIPMASK1);
 
-    if (hw >= 0 && (wall[hw].cstat&16) && A_CheckEnemySprite(&sprite[i]))
+    SZ += zoff;
+    *hitsp = hitinfo.hitsprite;
+    if (hitinfo.hitwall >= 0 && (wall[hitinfo.hitwall].cstat&16) && A_CheckEnemySprite(&sprite[i]))
         return((1<<30));
 
-    return (FindDistance2D(sx-SX,sy-SY));
+    return (FindDistance2D(hitinfo.pos.x-SX,hitinfo.pos.y-SY));
 }
 
 static int32_t hitawall(DukePlayer_t *p,int16_t *hitw)
 {
-    int32_t sx,sy,sz;
-    int16_t sect,hs;
+    hitdata_t hitinfo;
 
-    hitscan(p->posx,p->posy,p->posz,p->cursectnum,
+    hitscan((const vec3_t *)p,p->cursectnum,
             sintable[(p->ang+512)&2047],
             sintable[p->ang&2047],
-            0,&sect,hitw,&hs,&sx,&sy,&sz,CLIPMASK0);
+            0,&hitinfo,CLIPMASK0);
 
-    return (FindDistance2D(sx-p->posx,sy-p->posy));
+    *hitw = hitinfo.hitwall;
+
+    return (FindDistance2D(hitinfo.pos.x-p->posx,hitinfo.pos.y-p->posy));
 }
 
 

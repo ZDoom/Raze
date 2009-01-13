@@ -402,6 +402,17 @@ OTHER VARIABLES:
             you call the loadboard function.
 ***************************************************************************/
 
+typedef struct BPACK {
+    int32_t x, y, z;
+} vec3_t;
+
+typedef struct {
+    vec3_t pos;
+    int16_t hitsprite;
+    int16_t hitwall;
+    int16_t hitsect;
+} hitdata_t;
+
 int32_t    preinitengine(void);	// a partial setup of the engine used for launch windows
 int32_t    initengine(void);
 void   uninitengine(void);
@@ -443,12 +454,12 @@ void   drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
 int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char *name, char fontsize);
 void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char *name, char fontsize);
 
-int32_t   clipmove(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype);
+int32_t   clipmove(vec3_t *vect, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype);
 int32_t   clipinsidebox(int32_t x, int32_t y, int16_t wallnum, int32_t walldist);
 int32_t   clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t walldist);
-int32_t   pushmove(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype);
-void   getzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit, int32_t walldist, uint32_t cliptype);
-int32_t   hitscan(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz, int16_t *hitsect, int16_t *hitwall, int16_t *hitsprite, int32_t *hitx, int32_t *hity, int32_t *hitz, uint32_t cliptype);
+int32_t   pushmove(vec3_t *vect, int16_t *sectnum, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype);
+void   getzrange(const vec3_t *vect, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit, int32_t walldist, uint32_t cliptype);
+int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz, hitdata_t *hitinfo, uint32_t cliptype);
 int32_t   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, char tagsearch);
 int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
 void   updatesector(int32_t x, int32_t y, int16_t *sectnum);
@@ -476,7 +487,7 @@ int32_t   insertsprite(int16_t sectnum, int16_t statnum);
 int32_t   deletesprite(int16_t spritenum);
 int32_t   changespritesect(int16_t spritenum, int16_t newsectnum);
 int32_t   changespritestat(int16_t spritenum, int16_t newstatnum);
-int32_t   setsprite(int16_t spritenum, int32_t newx, int32_t newy, int32_t newz);
+int32_t   setsprite(int16_t spritenum, vec3_t *new);
 
 int32_t   screencapture(char *filename, char inverseit);
 

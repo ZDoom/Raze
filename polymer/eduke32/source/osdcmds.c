@@ -515,11 +515,11 @@ static int32_t osdcmd_setweaponscale(const osdfuncparm_t *parm)
 
 static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
 {
-    int32_t x=0,y=0,z=0;
     uint16_t cstat=0,picnum=0;
     char pal=0;
     int16_t ang=0;
     int16_t set=0, idx;
+    vec3_t vect;
 
     if (numplayers > 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
     {
@@ -530,9 +530,9 @@ static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
     switch (parm->numparms)
     {
     case 7: // x,y,z
-        x = Batol(parm->parms[4]);
-        y = Batol(parm->parms[5]);
-        z = Batol(parm->parms[6]);
+        vect.x = Batol(parm->parms[4]);
+        vect.y = Batol(parm->parms[5]);
+        vect.z = Batol(parm->parms[6]);
         set |= 8;
     case 4: // ang
         ang = Batol(parm->parms[3]) & 2047;
@@ -589,7 +589,7 @@ static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
     if (set & 4) sprite[idx].ang = ang;
     if (set & 8)
     {
-        if (setsprite(idx, x,y,z) < 0)
+        if (setsprite(idx, &vect) < 0)
         {
             OSD_Printf("spawn: Sprite can't be spawned into null space\n");
             deletesprite(idx);

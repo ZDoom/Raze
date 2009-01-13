@@ -1629,10 +1629,10 @@ void clearfifo(void)
 
 void Net_ResetPrediction(void)
 {
-    myx = omyx = g_player[myconnectindex].ps->posx;
-    myy = omyy = g_player[myconnectindex].ps->posy;
-    myz = omyz = g_player[myconnectindex].ps->posz;
-    myxvel = myyvel = myzvel = 0;
+    my.x = omy.x = g_player[myconnectindex].ps->posx;
+    my.y = omy.y = g_player[myconnectindex].ps->posy;
+    my.z = omy.z = g_player[myconnectindex].ps->posz;
+    myvel.x = myvel.y = myvel.z = 0;
     myang = omyang = g_player[myconnectindex].ps->ang;
     myhoriz = omyhoriz = g_player[myconnectindex].ps->horiz;
     myhorizoff = omyhorizoff = g_player[myconnectindex].ps->horizoff;

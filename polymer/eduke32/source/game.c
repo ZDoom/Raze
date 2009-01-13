@@ -3742,8 +3742,8 @@ void G_DisplayRest(int32_t smoothratio)
                 {
                     if (screenpeek == myconnectindex && numplayers > 1)
                     {
-                        cposx = omyx+mulscale16((int32_t)(myx-omyx),smoothratio);
-                        cposy = omyy+mulscale16((int32_t)(myy-omyy),smoothratio);
+                        cposx = omy.x+mulscale16((int32_t)(my.x-omy.x),smoothratio);
+                        cposy = omy.y+mulscale16((int32_t)(my.y-omy.y),smoothratio);
                         cang = omyang+mulscale16((int32_t)(((myang+1024-omyang)&2047)-1024),smoothratio);
                     }
                     else
@@ -3954,20 +3954,21 @@ void G_DisplayRest(int32_t smoothratio)
         G_FadePalette(tempTint.r,tempTint.g,tempTint.b,tempTint.f|128);
 }
 
-static void G_DoThirdPerson(DukePlayer_t *pp, int32_t *vx, int32_t *vy,int32_t *vz,int16_t *vsectnum, int32_t ang, int32_t horiz)
+static void G_DoThirdPerson(DukePlayer_t *pp, vec3_t *vect,int16_t *vsectnum, int32_t ang, int32_t horiz)
 {
     spritetype *sp = &sprite[pp->i];
-    int32_t i, hx, hy, hitx, hity, hitz;
+    int32_t i, hx, hy;
     int32_t nx = (sintable[(ang+1536)&2047]>>4);
     int32_t ny = (sintable[(ang+1024)&2047]>>4);
     int32_t nz = (horiz-100)*128;
-    int16_t hitsect, hitwall, hitsprite, daang;
+    int16_t daang;
     int16_t bakcstat = sp->cstat;
+    hitdata_t hitinfo;
 
     sp->cstat &= (int16_t)~0x101;
 
-    updatesectorz(*vx,*vy,*vz,vsectnum);
-    hitscan(*vx,*vy,*vz,*vsectnum,nx,ny,nz,&hitsect,&hitwall,&hitsprite,&hitx,&hity,&hitz,CLIPMASK1);
+    updatesectorz(vect->x,vect->y,vect->z,vsectnum);
+    hitscan((const vec3_t *)&vect,*vsectnum,nx,ny,nz,&hitinfo,CLIPMASK1);
 
     if (*vsectnum < 0)
     {
@@ -3975,21 +3976,21 @@ static void G_DoThirdPerson(DukePlayer_t *pp, int32_t *vx, int32_t *vy,int32_t *
         return;
     }
 
-    hx = hitx-(*vx);
-    hy = hity-(*vy);
+    hx = hitinfo.pos.x-(vect->x);
+    hy = hitinfo.pos.y-(vect->y);
     if (klabs(nx)+klabs(ny) > klabs(hx)+klabs(hy))
     {
-        *vsectnum = hitsect;
-        if (hitwall >= 0)
+        *vsectnum = hitinfo.hitsect;
+        if (hitinfo.hitwall >= 0)
         {
-            daang = getangle(wall[wall[hitwall].point2].x-wall[hitwall].x,
-                             wall[wall[hitwall].point2].y-wall[hitwall].y);
+            daang = getangle(wall[wall[hitinfo.hitwall].point2].x-wall[hitinfo.hitwall].x,
+                             wall[wall[hitinfo.hitwall].point2].y-wall[hitinfo.hitwall].y);
 
             i = nx*sintable[daang]+ny*sintable[(daang+1536)&2047];
             if (klabs(nx) > klabs(ny)) hx -= mulscale28(nx,i);
             else hy -= mulscale28(ny,i);
         }
-        else if (hitsprite < 0)
+        else if (hitinfo.hitsprite < 0)
         {
             if (klabs(nx) > klabs(ny)) hx -= (nx>>5);
             else hy -= (ny>>5);
@@ -3998,14 +3999,14 @@ static void G_DoThirdPerson(DukePlayer_t *pp, int32_t *vx, int32_t *vy,int32_t *
         else i = divscale16(hy,ny);
         if (i < g_cameraDistance) g_cameraDistance = i;
     }
-    *vx = (*vx)+mulscale16(nx,g_cameraDistance);
-    *vy = (*vy)+mulscale16(ny,g_cameraDistance);
-    *vz = (*vz)+mulscale16(nz,g_cameraDistance);
+    vect->x = (vect->x)+mulscale16(nx,g_cameraDistance);
+    vect->y = (vect->y)+mulscale16(ny,g_cameraDistance);
+    vect->z = (vect->z)+mulscale16(nz,g_cameraDistance);
 
     g_cameraDistance = min(g_cameraDistance+((totalclock-g_cameraClock)<<10),65536);
     g_cameraClock = totalclock;
 
-    updatesectorz(*vx,*vy,*vz,vsectnum);
+    updatesectorz(vect->x,vect->y,vect->z,vsectnum);
 
     sp->cstat = bakcstat;
 }
@@ -4459,9 +4460,9 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
 
         if ((snum == myconnectindex) && (numplayers > 1))
         {
-            ud.camerax = omyx+mulscale16((int32_t)(myx-omyx),smoothratio);
-            ud.cameray = omyy+mulscale16((int32_t)(myy-omyy),smoothratio);
-            ud.cameraz = omyz+mulscale16((int32_t)(myz-omyz),smoothratio);
+            ud.camerax = omy.x+mulscale16((int32_t)(my.x-omy.x),smoothratio);
+            ud.cameray = omy.y+mulscale16((int32_t)(my.y-omy.y),smoothratio);
+            ud.cameraz = omy.z+mulscale16((int32_t)(my.z-omy.z),smoothratio);
             ud.cameraang = omyang+mulscale16((int32_t)(((myang+1024-omyang)&2047)-1024),smoothratio);
             ud.camerahoriz = omyhoriz+omyhorizoff+mulscale16((int32_t)(myhoriz+myhorizoff-omyhoriz-omyhorizoff),smoothratio);
             ud.camerasect = mycursectnum;
@@ -4491,7 +4492,7 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
             if (ud.viewbob)
                 ud.cameraz += p->opyoff+mulscale16((int32_t)(p->pyoff-p->opyoff),smoothratio);
         }
-        else G_DoThirdPerson(p,&ud.camerax,&ud.cameray,&ud.cameraz,&ud.camerasect,ud.cameraang,ud.camerahoriz);
+        else G_DoThirdPerson(p,(vec3_t *)&ud,&ud.camerasect,ud.cameraang,ud.camerahoriz);
 
         cz = ActorExtra[p->i].ceilingz;
         fz = ActorExtra[p->i].floorz;
@@ -4960,7 +4961,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case WATERSPLASH2__STATIC:
             if (j >= 0)
             {
-                setsprite(i,sprite[j].x,sprite[j].y,sprite[j].z);
+                setsprite(i,(vec3_t *)&sprite[j]);
                 sp->xrepeat = sp->yrepeat = 8+(krand()&7);
             }
             else sp->xrepeat = sp->yrepeat = 16+(krand()&15);
@@ -5054,7 +5055,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->xvel = 128;
             changespritestat(i,5);
             A_SetSprite(i,CLIPMASK0);
-            setsprite(i,sp->x,sp->y,sp->z);
+            setsprite(i,(vec3_t *)sp);
             break;
 
         case FRAMEEFFECT1_13__STATIC:
@@ -5672,7 +5673,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     sprite[s].z = sp->z;
                     sprite[s].shade = sp->shade;
 
-                    setsprite(s,sprite[s].x,sprite[s].y,sprite[s].z);
+                    setsprite(s,(vec3_t *)&sprite[s]);
                     break;
                 }
                 s = nextspritestat[s];
@@ -7044,9 +7045,9 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                 t->cstat |= 2;
                 if (screenpeek == myconnectindex && numplayers >= 2)
                 {
-                    t->x = omyx+mulscale16((int32_t)(myx-omyx),smoothratio);
-                    t->y = omyy+mulscale16((int32_t)(myy-omyy),smoothratio);
-                    t->z = omyz+mulscale16((int32_t)(myz-omyz),smoothratio)+(40<<8);
+                    t->x = omy.x+mulscale16((int32_t)(my.x-omy.x),smoothratio);
+                    t->y = omy.y+mulscale16((int32_t)(my.y-omy.y),smoothratio);
+                    t->z = omy.z+mulscale16((int32_t)(my.z-omy.z),smoothratio)+(40<<8);
                     t->ang = omyang+mulscale16((int32_t)(((myang+1024-omyang)&2047)-1024),smoothratio);
                     t->sectnum = mycursectnum;
                 }
@@ -12074,15 +12075,15 @@ static void Net_CorrectPrediction(void)
     if (p->posx == myxbak[i] && p->posy == myybak[i] && p->posz == myzbak[i]
             && p->horiz == myhorizbak[i] && p->ang == myangbak[i]) return;
 
-    myx = p->posx;
-    omyx = p->oposx;
-    myxvel = p->posxv;
-    myy = p->posy;
-    omyy = p->oposy;
-    myyvel = p->posyv;
-    myz = p->posz;
-    omyz = p->oposz;
-    myzvel = p->poszv;
+    my.x = p->posx;
+    omy.x = p->oposx;
+    myvel.x = p->posxv;
+    my.y = p->posy;
+    omy.y = p->oposy;
+    myvel.y = p->posyv;
+    my.z = p->posz;
+    omy.z = p->oposz;
+    myvel.z = p->poszv;
     myang = p->ang;
     omyang = p->oang;
     mycursectnum = p->cursectnum;
@@ -12127,31 +12128,31 @@ static void Net_DoPrediction(void)
 
     if (ud.clipping == 0 && (sector[psect].floorpicnum == MIRROR || psect < 0 || psect >= MAXSECTORS))
     {
-        myx = omyx;
-        myy = omyy;
+        my.x = omy.x;
+        my.y = omy.y;
     }
     else
     {
-        omyx = myx;
-        omyy = myy;
+        omy.x = my.x;
+        omy.y = my.y;
     }
 
     omyhoriz = myhoriz;
     omyhorizoff = myhorizoff;
-    omyz = myz;
+    omy.z = my.z;
     omyang = myang;
 
-    getzrange(myx,myy,myz,psect,&cz,&hz,&fz,&lz,163L,CLIPMASK0);
+    getzrange(&my,psect,&cz,&hz,&fz,&lz,163L,CLIPMASK0);
 
-    j = getflorzofslope(psect,myx,myy);
+    j = getflorzofslope(psect,my.x,my.y);
 
-    if ((lz&49152) == 16384 && psectlotag == 1 && klabs(myz-j) > PHEIGHT+(16<<8))
+    if ((lz&49152) == 16384 && psectlotag == 1 && klabs(my.z-j) > PHEIGHT+(16<<8))
         psectlotag = 0;
 
     if (p->aim_mode == 0 && myonground && psectlotag != 2 && (sector[psect].floorstat&2))
     {
-        x = myx+(sintable[(myang+512)&2047]>>5);
-        y = myy+(sintable[myang&2047]>>5);
+        x = my.x+(sintable[(myang+512)&2047]>>5);
+        y = my.y+(sintable[myang&2047]>>5);
         tempsect = psect;
         updatesector(x,y,&tempsect);
         if (tempsect >= 0)
@@ -12172,7 +12173,7 @@ static void Net_DoPrediction(void)
         if (sprite[hz].statnum == 1 && sprite[hz].extra >= 0)
         {
             hz = 0;
-            cz = getceilzofslope(psect,myx,myy);
+            cz = getceilzofslope(psect,my.x,my.y);
         }
     }
 
@@ -12186,9 +12187,9 @@ static void Net_DoPrediction(void)
         }
         if (A_CheckEnemySprite(&sprite[j]) && sprite[j].xrepeat > 24 && klabs(sprite[p->i].z-sprite[j].z) < (84<<8))
         {
-            j = getangle(sprite[j].x-myx,sprite[j].y-myy);
-            myxvel -= sintable[(j+512)&2047]<<4;
-            myyvel -= sintable[j&2047]<<4;
+            j = getangle(sprite[j].x-my.x,sprite[j].y-my.y);
+            myvel.x -= sintable[(j+512)&2047]<<4;
+            myvel.y -= sintable[j&2047]<<4;
         }
     }
 
@@ -12198,14 +12199,14 @@ static void Net_DoPrediction(void)
         {
             if (p->on_warping_sector == 0)
             {
-                if (klabs(myz-fz) > (PHEIGHT>>1))
-                    myz += 348;
+                if (klabs(my.z-fz) > (PHEIGHT>>1))
+                    my.z += 348;
             }
-            clipmove(&myx,&myy,&myz,&mycursectnum,0,0,164L,(4L<<8),(4L<<8),CLIPMASK0);
+            clipmove(&my,&mycursectnum,0,0,164L,(4L<<8),(4L<<8),CLIPMASK0);
         }
 
-        updatesector(myx,myy,&mycursectnum);
-        pushmove(&myx,&myy,&myz,&mycursectnum,128L,(4L<<8),(20L<<8),CLIPMASK0);
+        updatesector(my.x,my.y,&mycursectnum);
+        pushmove(&my,&mycursectnum,128L,(4L<<8),(20L<<8),CLIPMASK0);
 
         myhoriz = 100;
         myhorizoff = 0;
@@ -12227,43 +12228,43 @@ static void Net_DoPrediction(void)
 
         if (TEST_SYNC_KEY(sb_snum, SK_JUMP))
         {
-            if (myzvel > 0) myzvel = 0;
-            myzvel -= 348;
-            if (myzvel < -(256*6)) myzvel = -(256*6);
+            if (myvel.z > 0) myvel.z = 0;
+            myvel.z -= 348;
+            if (myvel.z < -(256*6)) myvel.z = -(256*6);
         }
         else if (TEST_SYNC_KEY(sb_snum, SK_CROUCH))
         {
-            if (myzvel < 0) myzvel = 0;
-            myzvel += 348;
-            if (myzvel > (256*6)) myzvel = (256*6);
+            if (myvel.z < 0) myvel.z = 0;
+            myvel.z += 348;
+            if (myvel.z > (256*6)) myvel.z = (256*6);
         }
         else
         {
-            if (myzvel < 0)
+            if (myvel.z < 0)
             {
-                myzvel += 256;
-                if (myzvel > 0)
-                    myzvel = 0;
+                myvel.z += 256;
+                if (myvel.z > 0)
+                    myvel.z = 0;
             }
-            if (myzvel > 0)
+            if (myvel.z > 0)
             {
-                myzvel -= 256;
-                if (myzvel < 0)
-                    myzvel = 0;
+                myvel.z -= 256;
+                if (myvel.z < 0)
+                    myvel.z = 0;
             }
         }
 
-        if (myzvel > 2048) myzvel >>= 1;
+        if (myvel.z > 2048) myvel.z >>= 1;
 
-        myz += myzvel;
+        my.z += myvel.z;
 
-        if (myz > (fz-(15<<8)))
-            myz += ((fz-(15<<8))-myz)>>1;
+        if (my.z > (fz-(15<<8)))
+            my.z += ((fz-(15<<8))-my.z)>>1;
 
-        if (myz < (cz+(4<<8)))
+        if (my.z < (cz+(4<<8)))
         {
-            myz = cz+(4<<8);
-            myzvel = 0;
+            my.z = cz+(4<<8);
+            myvel.z = 0;
         }
     }
 
@@ -12274,23 +12275,23 @@ static void Net_DoPrediction(void)
         myhardlanding = 0;
 
         if (p->jetpack_on < 11)
-            myz -= (p->jetpack_on<<7); //Goin up
+            my.z -= (p->jetpack_on<<7); //Goin up
 
         if (shrunk) j = 512;
         else j = 2048;
 
         if (TEST_SYNC_KEY(sb_snum, SK_JUMP))                            //A
-            myz -= j;
+            my.z -= j;
         if (TEST_SYNC_KEY(sb_snum, SK_CROUCH))                       //Z
-            myz += j;
+            my.z += j;
 
         if (shrunk == 0 && (psectlotag == 0 || psectlotag == 2)) k = 32;
         else k = 16;
 
-        if (myz > (fz-(k<<8)))
-            myz += ((fz-(k<<8))-myz)>>1;
-        if (myz < (cz+(18<<8)))
-            myz = cz+(18<<8);
+        if (my.z > (fz-(k<<8)))
+            my.z += ((fz-(k<<8))-my.z)>>1;
+        if (my.z < (cz+(18<<8)))
+            my.z = cz+(18<<8);
     }
     else if (psectlotag != 2)
     {
@@ -12299,49 +12300,49 @@ static void Net_DoPrediction(void)
             if (shrunk == 0) i = 34;
             else i = 12;
         }
-        if (myz < (fz-(i<<8)) && (G_CheckForSpaceFloor(psect)|G_CheckForSpaceCeiling(psect)) == 0) //falling
+        if (my.z < (fz-(i<<8)) && (G_CheckForSpaceFloor(psect)|G_CheckForSpaceCeiling(psect)) == 0) //falling
         {
             if (!TEST_SYNC_KEY(sb_snum, SK_JUMP) && !TEST_SYNC_KEY(sb_snum, SK_CROUCH) &&
-                    myonground && (sector[psect].floorstat&2) && myz >= (fz-(i<<8)-(16<<8)))
-                myz = fz-(i<<8);
+                    myonground && (sector[psect].floorstat&2) && my.z >= (fz-(i<<8)-(16<<8)))
+                my.z = fz-(i<<8);
             else
             {
                 myonground = 0;
 
-                myzvel += (g_spriteGravity+80);
+                myvel.z += (g_spriteGravity+80);
 
-                if (myzvel >= (4096+2048)) myzvel = (4096+2048);
+                if (myvel.z >= (4096+2048)) myvel.z = (4096+2048);
             }
         }
 
         else
         {
-            if (psectlotag != 1 && psectlotag != 2 && myonground == 0 && myzvel > (6144>>1))
-                myhardlanding = myzvel>>10;
+            if (psectlotag != 1 && psectlotag != 2 && myonground == 0 && myvel.z > (6144>>1))
+                myhardlanding = myvel.z>>10;
             myonground = 1;
 
             if (i==40)
             {
                 //Smooth on the ground
 
-                k = ((fz-(i<<8))-myz)>>1;
+                k = ((fz-(i<<8))-my.z)>>1;
                 if (klabs(k) < 256) k = 0;
-                myz += k; // ((fz-(i<<8))-myz)>>1;
-                myzvel -= 768; // 412;
-                if (myzvel < 0) myzvel = 0;
+                my.z += k; // ((fz-(i<<8))-my.z)>>1;
+                myvel.z -= 768; // 412;
+                if (myvel.z < 0) myvel.z = 0;
             }
             else if (myjumpingcounter == 0)
             {
-                myz += ((fz-(i<<7))-myz)>>1; //Smooth on the water
-                if (p->on_warping_sector == 0 && myz > fz-(16<<8))
+                my.z += ((fz-(i<<7))-my.z)>>1; //Smooth on the water
+                if (p->on_warping_sector == 0 && my.z > fz-(16<<8))
                 {
-                    myz = fz-(16<<8);
-                    myzvel >>= 1;
+                    my.z = fz-(16<<8);
+                    myvel.z >>= 1;
                 }
             }
 
             if (TEST_SYNC_KEY(sb_snum, SK_CROUCH))
-                myz += (2048+768);
+                my.z += (2048+768);
 
             if (TEST_SYNC_KEY(sb_snum, SK_JUMP) == 0 && myjumpingtoggle == 1)
                 myjumpingtoggle = 0;
@@ -12369,11 +12370,11 @@ static void Net_DoPrediction(void)
                 if (psectlotag == 1 && myjumpingcounter > 768)
                 {
                     myjumpingcounter = 0;
-                    myzvel = -512;
+                    myvel.z = -512;
                 }
                 else
                 {
-                    myzvel -= (sintable[(2048-128+myjumpingcounter)&2047])/12;
+                    myvel.z -= (sintable[(2048-128+myjumpingcounter)&2047])/12;
                     myjumpingcounter += 180;
 
                     myonground = 0;
@@ -12382,18 +12383,18 @@ static void Net_DoPrediction(void)
             else
             {
                 myjumpingcounter = 0;
-                myzvel = 0;
+                myvel.z = 0;
             }
         }
 
-        myz += myzvel;
+        my.z += myvel.z;
 
-        if (myz < (cz+(4<<8)))
+        if (my.z < (cz+(4<<8)))
         {
             myjumpingcounter = 0;
-            if (myzvel < 0) myxvel = myyvel = 0;
-            myzvel = 128;
-            myz = cz+(4<<8);
+            if (myvel.z < 0) myvel.x = myvel.y = 0;
+            myvel.z = 128;
+            my.z = cz+(4<<8);
         }
     }
 
@@ -12407,8 +12408,8 @@ static void Net_DoPrediction(void)
              p->kickback_pic < 4))
     {
         doubvel = 0;
-        myxvel = 0;
-        myyvel = 0;
+        myvel.x = 0;
+        myvel.y = 0;
     }
     else if (syn->avel)          //p->ang += syncangvel * constant
     {
@@ -12421,42 +12422,42 @@ static void Net_DoPrediction(void)
         myang &= 2047;
     }
 
-    if (myxvel || myyvel || syn->fvel || syn->svel)
+    if (myvel.x || myvel.y || syn->fvel || syn->svel)
     {
         if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
             doubvel <<= 1;
 
-        myxvel += ((syn->fvel*doubvel)<<6);
-        myyvel += ((syn->svel*doubvel)<<6);
+        myvel.x += ((syn->fvel*doubvel)<<6);
+        myvel.y += ((syn->svel*doubvel)<<6);
 
         if ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && myonground) || (myonground && TEST_SYNC_KEY(sb_snum, SK_CROUCH)))
         {
-            myxvel = mulscale16(myxvel,p->runspeed-0x2000);
-            myyvel = mulscale16(myyvel,p->runspeed-0x2000);
+            myvel.x = mulscale16(myvel.x,p->runspeed-0x2000);
+            myvel.y = mulscale16(myvel.y,p->runspeed-0x2000);
         }
         else
         {
             if (psectlotag == 2)
             {
-                myxvel = mulscale16(myxvel,p->runspeed-0x1400);
-                myyvel = mulscale16(myyvel,p->runspeed-0x1400);
+                myvel.x = mulscale16(myvel.x,p->runspeed-0x1400);
+                myvel.y = mulscale16(myvel.y,p->runspeed-0x1400);
             }
             else
             {
-                myxvel = mulscale16(myxvel,p->runspeed);
-                myyvel = mulscale16(myyvel,p->runspeed);
+                myvel.x = mulscale16(myvel.x,p->runspeed);
+                myvel.y = mulscale16(myvel.y,p->runspeed);
             }
         }
 
-        if (klabs(myxvel) < 2048 && klabs(myyvel) < 2048)
-            myxvel = myyvel = 0;
+        if (klabs(myvel.x) < 2048 && klabs(myvel.y) < 2048)
+            myvel.x = myvel.y = 0;
 
         if (shrunk)
         {
-            myxvel =
-                mulscale16(myxvel,(p->runspeed)-(p->runspeed>>1)+(p->runspeed>>2));
-            myyvel =
-                mulscale16(myyvel,(p->runspeed)-(p->runspeed>>1)+(p->runspeed>>2));
+            myvel.x =
+                mulscale16(myvel.x,(p->runspeed)-(p->runspeed>>1)+(p->runspeed>>2));
+            myvel.y =
+                mulscale16(myvel.y,(p->runspeed)-(p->runspeed>>1)+(p->runspeed>>2));
         }
     }
 
@@ -12464,11 +12465,11 @@ FAKEHORIZONLY:
     if (psectlotag == 1 || spritebridge == 1) i = (4L<<8);
     else i = (20L<<8);
 
-    clipmove(&myx,&myy,&myz,&mycursectnum,myxvel,myyvel,164L,4L<<8,i,CLIPMASK0);
-    pushmove(&myx,&myy,&myz,&mycursectnum,164L,4L<<8,4L<<8,CLIPMASK0);
+    clipmove(&my,&mycursectnum,myvel.x,myvel.y,164L,4L<<8,i,CLIPMASK0);
+    pushmove(&my,&mycursectnum,164L,4L<<8,4L<<8,CLIPMASK0);
 
     if (p->jetpack_on == 0 && psectlotag != 1 && psectlotag != 2 && shrunk)
-        myz += 30<<8;
+        my.z += 30<<8;
 
     if (TEST_SYNC_KEY(sb_snum, SK_CENTER_VIEW) || myhardlanding)
         myreturntocenter = 9;
@@ -12530,9 +12531,9 @@ ENDFAKEPROCESSINPUT:
 
     X_OnEvent(EVENT_FAKEDOMOVETHINGS, g_player[myconnectindex].ps->i, myconnectindex, -1);
 
-    myxbak[predictfifoplc&(MOVEFIFOSIZ-1)] = myx;
-    myybak[predictfifoplc&(MOVEFIFOSIZ-1)] = myy;
-    myzbak[predictfifoplc&(MOVEFIFOSIZ-1)] = myz;
+    myxbak[predictfifoplc&(MOVEFIFOSIZ-1)] = my.x;
+    myybak[predictfifoplc&(MOVEFIFOSIZ-1)] = my.y;
+    myzbak[predictfifoplc&(MOVEFIFOSIZ-1)] = my.z;
     myangbak[predictfifoplc&(MOVEFIFOSIZ-1)] = myang;
     myhorizbak[predictfifoplc&(MOVEFIFOSIZ-1)] = myhoriz;
     predictfifoplc++;
@@ -12612,29 +12613,30 @@ static int32_t G_DoMoveThings(void)
 
     if (ud.idplayers && ud.multimode > 1)
     {
-        int32_t sx,sy,sz;
-        int16_t sect,hw,hs;
+        hitdata_t hitinfo;
 
         for (i=0;i<ud.multimode;i++)
             if (g_player[i].ps->holoduke_on != -1)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
-        hitscan(g_player[screenpeek].ps->posx,g_player[screenpeek].ps->posy,g_player[screenpeek].ps->posz,g_player[screenpeek].ps->cursectnum,
+        hitscan((vec3_t *)g_player[screenpeek].ps,g_player[screenpeek].ps->cursectnum,
                 sintable[(g_player[screenpeek].ps->ang+512)&2047],
                 sintable[g_player[screenpeek].ps->ang&2047],
-                (100-g_player[screenpeek].ps->horiz-g_player[screenpeek].ps->horizoff)<<11,&sect,&hw,&hs,&sx,&sy,&sz,0xffff0030);
+                (100-g_player[screenpeek].ps->horiz-g_player[screenpeek].ps->horizoff)<<11,&hitinfo,0xffff0030);
 
         for (i=0;i<ud.multimode;i++)
             if (g_player[i].ps->holoduke_on != -1)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
-        if ((hs >= 0) && !(g_player[myconnectindex].ps->gm & MODE_MENU) && sprite[hs].picnum == APLAYER && sprite[hs].yvel != screenpeek && g_player[sprite[hs].yvel].ps->dead_flag == 0)
+        if ((hitinfo.hitsprite >= 0) && !(g_player[myconnectindex].ps->gm & MODE_MENU) &&
+                sprite[hitinfo.hitsprite].picnum == APLAYER && sprite[hitinfo.hitsprite].yvel != screenpeek &&
+                g_player[sprite[hitinfo.hitsprite].yvel].ps->dead_flag == 0)
         {
             if (g_player[screenpeek].ps->fta == 0 || g_player[screenpeek].ps->ftq == 117)
             {
-                if (ldist(&sprite[g_player[screenpeek].ps->i],&sprite[hs]) < 9216)
+                if (ldist(&sprite[g_player[screenpeek].ps->i],&sprite[hitinfo.hitsprite]) < 9216)
                 {
-                    Bsprintf(ScriptQuotes[117],"%s",&g_player[sprite[hs].yvel].user_name[0]);
+                    Bsprintf(ScriptQuotes[117],"%s",&g_player[sprite[hitinfo.hitsprite].yvel].user_name[0]);
                     g_player[screenpeek].ps->fta = 12, g_player[screenpeek].ps->ftq = 117;
                 }
             }

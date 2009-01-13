@@ -368,6 +368,7 @@ typedef struct {
 } config_t;
 
 typedef struct {
+    int32_t camerax,cameray,cameraz;
     int32_t const_visibility,uw_framerate;
     int32_t camera_time,folfvel,folavel,folx,foly,fola;
     int32_t reccnt,crosshairscale;
@@ -386,7 +387,6 @@ typedef struct {
     int32_t m_ffire,ffire,m_player_skill,m_level_number,m_volume_number,multimode;
     int32_t player_skill,level_number,volume_number,m_marker,marker,mouseflip;
 
-    int32_t camerax,cameray,cameraz;
     int32_t configversion;
 
     int16_t cameraang, camerasect, camerahoriz;
@@ -420,13 +420,13 @@ extern int32_t fricxv,fricyv;
 // mywhatever type globals
 
 typedef struct {
-    int32_t zoom, exitx, exity;
     int32_t posx, posy, posz, horiz, ohoriz, ohorizoff, invdisptime;
     int32_t bobposx, bobposy, oposx, oposy, oposz, pyoff, opyoff;
     int32_t posxv, posyv, poszv, last_pissed_time, truefz, truecz;
     int32_t player_par, visibility;
     int32_t bobcounter, weapon_sway;
     int32_t pals_time, randomflamex, crack_time;
+    int32_t zoom, exitx, exity;
 
     uint32_t interface_toggle_flag;
 
@@ -574,10 +574,6 @@ extern int32_t movefifoplc, vel,svel,angvel,horiz;
 
 extern int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
 
-typedef struct {
-    int32_t x, y, z;
-} vec3_t;
-
 #include "funct.h"
 
 extern int32_t g_screenCapture;
@@ -630,7 +626,8 @@ extern int32_t g_networkBroadcastMode;
 extern char lumplockbyte[11];
 
 //DUKE3D.H - replace the end "my's" with this
-extern int32_t myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
+extern vec3_t my;
+extern vec3_t my, omy, myvel;
 extern int16_t myhoriz, omyhoriz, myhorizoff, omyhorizoff, g_skillSoundID;
 extern int16_t myang, omyang, mycursectnum, myjumpingcounter;
 extern char myjumpingtoggle, myonground, myhardlanding,myreturntocenter;

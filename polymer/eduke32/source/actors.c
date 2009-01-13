@@ -475,10 +475,11 @@ BOLT:
 
 int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 {
-    int32_t daz, oldx, oldy;
+    int32_t oldx, oldy;
     int32_t retval;
     int16_t dasectnum, cd;
     int32_t bg = A_CheckEnemySprite(&sprite[spritenum]);
+    int32_t dazoff = ((tilesizy[sprite[spritenum].picnum]*sprite[spritenum].yrepeat)<<1);
 
     if (sprite[spritenum].statnum == 5 || (bg && sprite[spritenum].xrepeat < 4))
     {
@@ -486,13 +487,13 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
         sprite[spritenum].y += (change->y*TICSPERFRAME)>>2;
         sprite[spritenum].z += (change->z*TICSPERFRAME)>>2;
         if (bg)
-            setsprite(spritenum,sprite[spritenum].x,sprite[spritenum].y,sprite[spritenum].z);
+            setsprite(spritenum,(vec3_t *)&sprite[spritenum]);
         return 0;
     }
 
     dasectnum = sprite[spritenum].sectnum;
 
-    daz = sprite[spritenum].z - ((tilesizy[sprite[spritenum].picnum]*sprite[spritenum].yrepeat)<<1);
+//    daz = sprite[spritenum].z - ;
 
     if (bg)
     {
@@ -500,7 +501,11 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
         oldy = sprite[spritenum].y;
 
         if (sprite[spritenum].xrepeat > 60)
-            retval = clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),1024L,(4<<8),(4<<8),cliptype);
+        {
+            sprite[spritenum].z -= dazoff;
+            retval = clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),1024L,(4<<8),(4<<8),cliptype);
+            sprite[spritenum].z += dazoff;
+        }
         else
         {
             if (sprite[spritenum].picnum == LIZMAN)
@@ -510,7 +515,9 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
             else
                 cd = 192L;
 
-            retval = clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),cd,(4<<8),(4<<8),cliptype);
+            sprite[spritenum].z -= dazoff;
+            retval = clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),cd,(4<<8),(4<<8),cliptype);
+            sprite[spritenum].z += dazoff;
         }
 
         if (dasectnum < 0 || (dasectnum >= 0 &&
@@ -523,11 +530,13 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
         {
             sprite[spritenum].x = oldx;
             sprite[spritenum].y = oldy;
-            /*            if (dasectnum >= 0 && sector[dasectnum].lotag == 1 && sprite[spritenum].picnum == LIZMAN)
-                            sprite[spritenum].ang = (krand()&2047);
-                        else if ((ActorExtra[spritenum].temp_data[0]&3) == 1 && sprite[spritenum].picnum != COMMANDER)
-                            sprite[spritenum].ang = (krand()&2047); */
-            setsprite(spritenum,oldx,oldy,sprite[spritenum].z);
+            /*
+            if (dasectnum >= 0 && sector[dasectnum].lotag == 1 && sprite[spritenum].picnum == LIZMAN)
+            sprite[spritenum].ang = (krand()&2047);
+            else if ((ActorExtra[spritenum].temp_data[0]&3) == 1 && sprite[spritenum].picnum != COMMANDER)
+            sprite[spritenum].ang = (krand()&2047);
+            */
+            setsprite(spritenum,(vec3_t *)&sprite[spritenum]);
             if (dasectnum < 0) dasectnum = 0;
             return (16384+dasectnum);
         }
@@ -535,22 +544,28 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
     }
     else
     {
+        sprite[spritenum].z -= dazoff;
         if (sprite[spritenum].statnum == 4)
             retval =
-                clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),8L,(4<<8),(4<<8),cliptype);
+                clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),8L,(4<<8),(4<<8),cliptype);
         else
             retval =
-                clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),(int32_t)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
+                clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),(int32_t)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
+        sprite[spritenum].z += dazoff;
     }
 
-    if (dasectnum >= 0)
-        if ((dasectnum != sprite[spritenum].sectnum))
-            changespritesect(spritenum,dasectnum);
-    daz = sprite[spritenum].z + ((change->z*TICSPERFRAME)>>3);
-    if ((daz > ActorExtra[spritenum].ceilingz) && (daz <= ActorExtra[spritenum].floorz))
-        sprite[spritenum].z = daz;
-    else if (retval == 0)
-        return(16384+dasectnum);
+    {
+        int32_t daz;
+
+        if (dasectnum >= 0)
+            if ((dasectnum != sprite[spritenum].sectnum))
+                changespritesect(spritenum,dasectnum);
+        daz = sprite[spritenum].z + ((change->z*TICSPERFRAME)>>3);
+        if ((daz > ActorExtra[spritenum].ceilingz) && (daz <= ActorExtra[spritenum].floorz))
+            sprite[spritenum].z = daz;
+        else if (retval == 0)
+            return(16384+dasectnum);
+    }
 
     return(retval);
 }
@@ -1023,7 +1038,7 @@ void A_MoveDummyPlayers(void)
 
         SX += (g_player[p].ps->posx-g_player[p].ps->oposx);
         SY += (g_player[p].ps->posy-g_player[p].ps->oposy);
-        setsprite(i,SX,SY,SZ);
+        setsprite(i,(vec3_t *)&sprite[i]);
 
 BOLT:
 
@@ -1054,7 +1069,7 @@ static void G_MovePlayers(void) //Players
                 s->y = p->oposy;
                 ActorExtra[i].bposz = s->z = p->oposz+PHEIGHT;
                 s->ang = p->oang;
-                setsprite(i,s->x,s->y,s->z);
+                setsprite(i,(vec3_t *)s);
             }
             else
             {
@@ -1155,7 +1170,7 @@ static void G_MovePlayers(void) //Players
             else
             {
                 s->ang = 2047-p->ang;
-                setsprite(i,s->x,s->y,s->z);
+                setsprite(i,(vec3_t *)s);
             }
         }
 
@@ -1408,10 +1423,18 @@ static void G_MoveStandables(void)
                     case 2:
                     case 6:
                     case 10:
+                    {
+                        vec3_t vect;
+
+                        vect.x = msx[t[4]+1];
+                        vect.y = msy[t[4]+1];
+                        vect.z = sprite[j].z;
                         s->ang = getangle(msx[t[4]+1]-s->x,msy[t[4]+1]-s->y);
-                        setsprite(j,msx[t[4]+1],msy[t[4]+1],sprite[j].z);
+                        setsprite(j,&vect);
                         t[0]++;
                         goto BOLT;
+
+                    }
                     }
                     j = nextj;
                 }
@@ -1465,7 +1488,7 @@ static void G_MoveStandables(void)
                 s->picnum++;
                 if (s->picnum == (CRANE+2))
                 {
-                    p = CheckPlayerInSector(t[1]);
+                    p = G_CheckPlayerInSector(t[1]);
                     if (p >= 0 && g_player[p].ps->on_ground)
                     {
                         s->owner = -2;
@@ -1527,7 +1550,13 @@ static void G_MoveStandables(void)
             else if (t[0]==9)
                 t[0] = 0;
 
-            setsprite(msy[t[4]+2],s->x,s->y,s->z-(34<<8));
+            {
+                vec3_t vect;
+                Bmemcpy(&vect,s,sizeof(vec3_t));
+                vect.z -= (34<<8);
+                setsprite(msy[t[4]+2],&vect);
+            }
+
 
             if (s->owner != -1)
             {
@@ -1545,7 +1574,7 @@ static void G_MoveStandables(void)
 
                 if (s->owner >= 0)
                 {
-                    setsprite(s->owner,s->x,s->y,s->z);
+                    setsprite(s->owner,(vec3_t *)s);
 
                     ActorExtra[s->owner].bposx = s->x;
                     ActorExtra[s->owner].bposy = s->y;
@@ -1555,10 +1584,17 @@ static void G_MoveStandables(void)
                 }
                 else if (s->owner == -2)
                 {
+                    vec3_t vect;
+
                     g_player[p].ps->oposx = g_player[p].ps->posx = s->x-(sintable[(g_player[p].ps->ang+512)&2047]>>6);
                     g_player[p].ps->oposy = g_player[p].ps->posy = s->y-(sintable[g_player[p].ps->ang&2047]>>6);
                     g_player[p].ps->oposz = g_player[p].ps->posz = s->z+(2<<8);
-                    setsprite(g_player[p].ps->i,g_player[p].ps->posx,g_player[p].ps->posy,g_player[p].ps->posz);
+
+                    vect.x = g_player[p].ps->posx;
+                    vect.y = g_player[p].ps->posy;
+                    vect.z = g_player[p].ps->posz;
+
+                    setsprite(g_player[p].ps->i,&vect);
                     g_player[p].ps->cursectnum = sprite[g_player[p].ps->i].sectnum;
                 }
             }
@@ -1711,7 +1747,7 @@ static void G_MoveStandables(void)
                 s->x += sintable[(T6+512)&2047]>>9;
                 s->y += sintable[(T6)&2047]>>9;
                 s->z -= (3<<8);
-                setsprite(i,s->x,s->y,s->z);
+                setsprite(i,(vec3_t *)s);
 
                 x = A_CheckHitSprite(i,&m);
 
@@ -1729,7 +1765,7 @@ static void G_MoveStandables(void)
                     while (x > 0)
                     {
                         j = A_Spawn(i,LASERLINE);
-                        setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
+                        setsprite(j,(vec3_t *)&sprite[j]);
                         sprite[j].hitag = s->hitag;
                         ActorExtra[j].temp_data[1] = sprite[j].z;
 
@@ -1748,7 +1784,7 @@ static void G_MoveStandables(void)
                 s->x = T4;
                 s->y = T5;
                 s->z += (3<<8);
-                setsprite(i,s->x,s->y,s->z);
+                setsprite(i,(vec3_t *)s);
                 T4 = 0;
                 //                if( m >= 0 && lTripBombControl & TRIPBOMB_TRIPWIRE)
                 if (m >= 0 && ActorExtra[i].temp_data[6] != 1)
@@ -1769,14 +1805,14 @@ static void G_MoveStandables(void)
                 s->x += sintable[(T6+512)&2047]>>9;
                 s->y += sintable[(T6)&2047]>>9;
                 s->z -= (3<<8);
-                setsprite(i,s->x,s->y,s->z);
+                setsprite(i,(vec3_t *)s);
 
                 x = A_CheckHitSprite(i,&m);
 
                 s->x = T4;
                 s->y = T5;
                 s->z += (3<<8);
-                setsprite(i,s->x,s->y,s->z);
+                setsprite(i,(vec3_t *)s);
 
                 //                if( ActorExtra[i].lastvx != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
                 if (ActorExtra[i].lastvx != x && ActorExtra[i].temp_data[6] != 1)
@@ -2211,7 +2247,7 @@ CLEAR_THE_BOLT:
                     else
                     {
                         sector[sect].floorz += sector[sect].extra;
-                        p = CheckPlayerInSector(sect);
+                        p = G_CheckPlayerInSector(sect);
                         if (p >= 0) g_player[p].ps->posz += sector[sect].extra;
                     }
                 }
@@ -2225,7 +2261,7 @@ CLEAR_THE_BOLT:
                     else
                     {
                         sector[sect].floorz -= sector[sect].extra;
-                        p = CheckPlayerInSector(sect);
+                        p = G_CheckPlayerInSector(sect);
                         if (p >= 0)
                             g_player[p].ps->posz -= sector[sect].extra;
                     }
@@ -2235,7 +2271,7 @@ CLEAR_THE_BOLT:
 
             if (t[5] == 1) goto BOLT;
 
-            p = CheckPlayerInSector(sect);
+            p = G_CheckPlayerInSector(sect);
             if (p >= 0 && (g_player[p].ps->on_ground || s->ang == 512))
             {
                 if (t[0] == 0 && !G_CheckActivatorMotion(s->lotag))
@@ -2680,10 +2716,10 @@ static void G_MoveWeapons(void)
                         }
                         else
                         {
-                            vec3_t tmpvect;
-                            setsprite(i,davect.x,davect.y,davect.z);
-                            Bmemcpy(&tmpvect, s, sizeof(int32_t) * 3);
-                            A_DamageWall(i,j,&tmpvect,s->picnum);
+//                            vec3_t tmpvect;
+                            setsprite(i,&davect);
+//                            Bmemcpy(&tmpvect, s, sizeof(int32_t) * 3);
+                            A_DamageWall(i,j,(vec3_t *)s,s->picnum);
 
                             if (ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFWALLS)
                             {
@@ -2709,7 +2745,7 @@ static void G_MoveWeapons(void)
                     }
                     else if ((j&49152) == 16384)
                     {
-                        setsprite(i,davect.x,davect.y,davect.z);
+                        setsprite(i,&davect);
 
                         if (s->zvel < 0)
                         {
@@ -3002,7 +3038,7 @@ static void G_MoveWeapons(void)
                         else
                         {
                             vec3_t tmpvect;
-                            setsprite(i,davect.x,davect.y,davect.z);
+                            setsprite(i,&davect);
                             Bmemcpy(&tmpvect, s, sizeof(int32_t) * 3);
                             A_DamageWall(i,j,&tmpvect,s->picnum);
 
@@ -3024,7 +3060,7 @@ static void G_MoveWeapons(void)
                     }
                     else if ((j&49152) == 16384)
                     {
-                        setsprite(i,davect.x,davect.y,davect.z);
+                        setsprite(i,&davect);
 
                         if (s->zvel < 0)
                         {
@@ -3284,6 +3320,7 @@ static void G_MoveTransports(void)
 
                     if (k == 1)
                     {
+                        vec3_t vect;
                         g_player[p].ps->oposx = g_player[p].ps->posx += sprite[OW].x-SX;
                         g_player[p].ps->oposy = g_player[p].ps->posy += sprite[OW].y-SY;
 
@@ -3292,7 +3329,12 @@ static void G_MoveTransports(void)
                         g_player[p].ps->cursectnum = sprite[OW].sectnum;
 
                         changespritesect(j,sprite[OW].sectnum);
-                        setsprite(g_player[p].ps->i,g_player[p].ps->posx,g_player[p].ps->posy,g_player[p].ps->posz+PHEIGHT);
+
+                        vect.x = g_player[p].ps->posx;
+                        vect.y = g_player[p].ps->posy;
+                        vect.z = g_player[p].ps->posz+PHEIGHT;
+
+                        setsprite(g_player[p].ps->i,&vect);
 
                         P_UpdateScreenPal(g_player[p].ps);
 
@@ -3387,7 +3429,7 @@ static void G_MoveTransports(void)
                             case 0:
                                 if (onfloorz)
                                 {
-                                    if (sprite[j].statnum == 4 || (CheckPlayerInSector(sect) == -1 && CheckPlayerInSector(sprite[OW].sectnum)  == -1))
+                                    if (sprite[j].statnum == 4 || (G_CheckPlayerInSector(sect) == -1 && G_CheckPlayerInSector(sprite[OW].sectnum)  == -1))
                                     {
                                         sprite[j].x += (sprite[OW].x-SX);
                                         sprite[j].y += (sprite[OW].y-SY);
@@ -3627,7 +3669,7 @@ static void G_MoveActors(void)
                     j = nextj;
                 }
 
-                j = clipmove(&s->x,&s->y,&s->z,&s->sectnum,
+                j = clipmove((vec3_t *)s,&s->sectnum,
                              (((s->xvel*(sintable[(s->ang+512)&2047]))>>14)*TICSPERFRAME)<<11,
                              (((s->xvel*(sintable[s->ang&2047]))>>14)*TICSPERFRAME)<<11,
                              24L,(4<<8),(4<<8),CLIPMASK1);
@@ -4037,7 +4079,7 @@ static void G_MoveActors(void)
                     goto BOLT;
                 }
 
-                setsprite(i,s->x,s->y,s->z);
+                setsprite(i,(vec3_t *)s);
 
                 s->ang = g_player[p].ps->ang;
 
@@ -5017,7 +5059,7 @@ static void G_MoveMisc(void)  // STATNUM 5
                 A_SetSprite(i,CLIPMASK0);
 
                 if ((krand()&3) == 0)
-                    setsprite(i,s->x,s->y,s->z);
+                    setsprite(i,(vec3_t *)s);
 
                 if (s->sectnum == -1) KILLIT(i);
                 l = getflorzofslope(s->sectnum,s->x,s->y);
@@ -5068,7 +5110,7 @@ static void G_MoveMisc(void)  // STATNUM 5
 
                 if (s->zvel > 1024 && s->zvel < 1280)
                 {
-                    setsprite(i,s->x,s->y,s->z);
+                    setsprite(i,(vec3_t *)s);
                     sect = s->sectnum;
                 }
 
@@ -5298,7 +5340,7 @@ static void G_MoveMisc(void)  // STATNUM 5
                     s->xrepeat >>= 1;
                     s->yrepeat >>= 1;
                     if (rnd(96))
-                        setsprite(i,s->x,s->y,s->z);
+                        setsprite(i,(vec3_t *)s);
                     t[0]++;//Number of bounces
                 }
                 else if (t[0] == 3) KILLIT(i);
@@ -5323,7 +5365,7 @@ static void G_MoveMisc(void)  // STATNUM 5
 
             if (s->zvel > 1024 && s->zvel < 1280)
             {
-                setsprite(i,s->x,s->y,s->z);
+                setsprite(i,(vec3_t *)s);
                 sect = s->sectnum;
             }
 
@@ -5357,7 +5399,7 @@ static void G_MoveMisc(void)  // STATNUM 5
                 if (s->picnum == SCRAP1 && s->yvel > 0)
                 {
                     j = A_Spawn(i,s->yvel);
-                    setsprite(j,s->x,s->y,s->z);
+                    setsprite(j,(vec3_t *)s);
                     A_GetZLimits(j);
                     sprite[j].hitag = sprite[j].lotag = 0;
                 }
@@ -5678,7 +5720,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                                 g_player[p].ps->posy = s->y;
                                 g_player[p].ps->cursectnum = s->sectnum;
 
-                                setsprite(g_player[p].ps->i,s->x,s->y,s->z);
+                                setsprite(g_player[p].ps->i,(vec3_t *)s);
                                 P_QuickKill(g_player[p].ps);
                             }
                         }
@@ -5742,7 +5784,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 }
 
                 ms(i);
-                setsprite(i,s->x,s->y,s->z);
+                setsprite(i,(vec3_t *)s);
 
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                 {
@@ -5758,7 +5800,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                                 g_player[p].ps->oposy = g_player[p].ps->posy = s->y;
                                 g_player[p].ps->cursectnum = s->sectnum;
 
-                                setsprite(g_player[p].ps->i,s->x,s->y,s->z);
+                                setsprite(g_player[p].ps->i,(vec3_t *)s);
                                 P_QuickKill(g_player[p].ps);
                             }
                         }
@@ -5857,7 +5899,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                                 g_player[p].ps->posy = s->y;
                                 g_player[p].ps->cursectnum = s->sectnum;
 
-                                setsprite(g_player[p].ps->i,s->x,s->y,s->z);
+                                setsprite(g_player[p].ps->i,(vec3_t *)s);
                                 P_QuickKill(g_player[p].ps);
                             }
                         }
@@ -5910,7 +5952,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 }
 
                 ms(i);
-                setsprite(i,s->x,s->y,s->z);
+                setsprite(i,(vec3_t *)s);
 
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                 {
@@ -5930,7 +5972,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
                                 g_player[p].ps->cursectnum = s->sectnum;
 
-                                setsprite(g_player[p].ps->i,s->x,s->y,s->z);
+                                setsprite(g_player[p].ps->i,(vec3_t *)s);
                                 P_QuickKill(g_player[p].ps);
                             }
                         }
@@ -6018,12 +6060,12 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     {
                         sprite[j].x+=m;
                         sprite[j].y+=x;
-                        setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
+                        setsprite(j,(vec3_t *)&sprite[j]);
                     }
                     j = nextj;
                 }
                 ms(i);
-                setsprite(i,s->x,s->y,s->z);
+                setsprite(i,(vec3_t *)s);
             }
             break;
 
@@ -6203,7 +6245,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
             sc->ceilingz += s->zvel;
             sector[t[0]].ceilingz += s->zvel;
             ms(i);
-            setsprite(i,s->x,s->y,s->z);
+            setsprite(i,(vec3_t *)s);
             break;
 
 
@@ -6343,7 +6385,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                             t[2]-=k;
                             t[4]-=k;
                             ms(i);
-                            setsprite(i,s->x,s->y,s->z);
+                            setsprite(i,(vec3_t *)s);
                             goto BOLT;
                         }
                         k = nextspritestat[k];
@@ -6354,14 +6396,14 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 t[2]+=k;
                 t[4]+=k;
                 ms(i);
-                setsprite(i,s->x,s->y,s->z);
+                setsprite(i,(vec3_t *)s);
 
                 if (t[4] <= -511 || t[4] >= 512)
                 {
                     t[4] = 0;
                     t[2] &= 0xffffff00;
                     ms(i);
-                    setsprite(i,s->x,s->y,s->z);
+                    setsprite(i,(vec3_t *)s);
                     break;
                 }
             }
@@ -6527,7 +6569,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 }
 
                 ms(i);
-                setsprite(i,s->x,s->y,s->z);
+                setsprite(i,(vec3_t *)s);
             }
             break;
 
@@ -6562,7 +6604,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
             else sc->ceilingz-=512;
 
             ms(i);
-            setsprite(i,s->x,s->y,s->z);
+            setsprite(i,(vec3_t *)s);
 
             break;
 
@@ -6671,7 +6713,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                             ActorExtra[k].bposz = sprite[k].z;
 
                             changespritesect(k,sprite[j].sectnum);
-                            setsprite(k,sprite[k].x,sprite[k].y,sprite[k].z);
+                            setsprite(k,(vec3_t *)&sprite[k]);
 
                             ActorExtra[k].floorz = sector[sprite[j].sectnum].floorz;
                             ActorExtra[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
@@ -6889,7 +6931,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     {
                         sprite[j].x += x;
                         sprite[j].y += l;
-                        setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
+                        setsprite(j,(vec3_t *)&sprite[j]);
                         if (sector[sprite[j].sectnum].floorstat&2)
                             if (sprite[j].statnum == 2)
                                 A_Fall(j);
@@ -6903,13 +6945,19 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 TRAVERSE_CONNECT(p)
                 if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground)
                 {
+                    vec3_t vect;
+
                     g_player[p].ps->posx += x;
                     g_player[p].ps->posy += l;
 
                     g_player[p].ps->oposx = g_player[p].ps->posx;
                     g_player[p].ps->oposy = g_player[p].ps->posy;
 
-                    setsprite(g_player[p].ps->i,g_player[p].ps->posx,g_player[p].ps->posy,g_player[p].ps->posz+PHEIGHT);
+                    vect.x = g_player[p].ps->posx;
+                    vect.y = g_player[p].ps->posy;
+                    vect.z = g_player[p].ps->posz+PHEIGHT;
+
+                    setsprite(g_player[p].ps->i,&vect);
                 }
 
                 sc->floorxpanning-=x>>3;
@@ -7024,7 +7072,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                                 sprite[j].x += x>>2;
                                 sprite[j].y += l>>2;
 
-                                setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
+                                setsprite(j,(vec3_t *)&sprite[j]);
 
                                 if (sector[sprite[j].sectnum].floorstat&2)
                                     if (sprite[j].statnum == 2)
@@ -7056,7 +7104,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     k = A_Spawn(i,SMALLSMOKE);
                     sprite[k].xvel = 96+(krand()&127);
                     A_SetSprite(k,CLIPMASK0);
-                    setsprite(k,sprite[k].x,sprite[k].y,sprite[k].z);
+                    setsprite(k,(vec3_t *)&sprite[k]);
                     if (rnd(16))
                         A_Spawn(i,EXPLOSION2);
                 }
@@ -7135,7 +7183,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     sprite[j].y += x;
 
                     sprite[j].z += s->zvel;
-                    setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
+                    setsprite(j,(vec3_t *)&sprite[j]);
                 }
                 j = nextj;
             }
@@ -7152,7 +7200,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     g_player[p].ps->posz += s->zvel;
 
             ms(i);
-            setsprite(i,s->x,s->y,s->z);
+            setsprite(i,(vec3_t *)s);
 
             break;
 

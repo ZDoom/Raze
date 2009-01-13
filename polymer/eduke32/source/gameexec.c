@@ -202,19 +202,20 @@ int32_t A_GetFurthestAngle(int32_t iActor,int32_t angs)
 
     {
         int32_t furthest_angle=0;
-        int16_t hitsect,hitwall,hitspr;
-        int32_t hx, hy, hz, d;
+        int32_t d;
         int32_t greatestd = -(1<<30);
         int32_t angincs = 2048/angs,j;
+        hitdata_t hitinfo;
 
         for (j=s->ang;j<(2048+s->ang);j+=angincs)
         {
-            hitscan(s->x, s->y, s->z-(8<<8), s->sectnum,
+            s->z -= (8<<8);
+            hitscan((const vec3_t *)s, s->sectnum,
                     sintable[(j+512)&2047],
                     sintable[j&2047],0,
-                    &hitsect,&hitwall,&hitspr,&hx,&hy,&hz,CLIPMASK1);
-
-            d = klabs(hx-s->x) + klabs(hy-s->y);
+                    &hitinfo,CLIPMASK1);
+            s->z += (8<<8);
+            d = klabs(hitinfo.pos.x-s->x) + klabs(hitinfo.pos.y-s->y);
 
             if (d > greatestd)
             {
@@ -230,10 +231,10 @@ int32_t A_FurthestVisiblePoint(int32_t iActor,spritetype *ts,int32_t *dax,int32_
 {
     if ((ActorExtra[iActor].temp_data[0]&63)) return -1;
     {
-        int16_t hitsect,hitwall,hitspr, angincs;
-        int32_t hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
-        int32_t j;
+        int32_t d, da;//, d, cd, ca,tempx,tempy,cx,cy;
+        int32_t j, angincs;
         spritetype *s = &sprite[iActor];
+        hitdata_t hitinfo;
 
         if (ud.multimode < 2 && ud.player_skill < 3)
             angincs = 2048/2;
@@ -241,20 +242,24 @@ int32_t A_FurthestVisiblePoint(int32_t iActor,spritetype *ts,int32_t *dax,int32_
 
         for (j=ts->ang;j<(2048+ts->ang);j+=(angincs-(krand()&511)))
         {
-            hitscan(ts->x, ts->y, ts->z-(16<<8), ts->sectnum,
+            ts->z -= (16<<8);
+            hitscan((const vec3_t *)ts, ts->sectnum,
                     sintable[(j+512)&2047],
                     sintable[j&2047],16384-(krand()&32767),
-                    &hitsect,&hitwall,&hitspr,&hx,&hy,&hz,CLIPMASK1);
+                    &hitinfo,CLIPMASK1);
 
-            d = klabs(hx-ts->x)+klabs(hy-ts->y);
-            da = klabs(hx-s->x)+klabs(hy-s->y);
+            ts->z += (16<<8);
 
-            if (d < da && hitsect > -1)
-                if (cansee(hx,hy,hz,hitsect,s->x,s->y,s->z-(16<<8),s->sectnum))
+            d = klabs(hitinfo.pos.x-ts->x)+klabs(hitinfo.pos.y-ts->y);
+            da = klabs(hitinfo.pos.x-s->x)+klabs(hitinfo.pos.y-s->y);
+
+            if (d < da && hitinfo.hitsect > -1)
+                if (cansee(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,
+                           hitinfo.hitsect,s->x,s->y,s->z-(16<<8),s->sectnum))
                 {
-                    *dax = hx;
-                    *day = hy;
-                    return hitsect;
+                    *dax = hitinfo.pos.x;
+                    *day = hitinfo.pos.y;
+                    return hitinfo.hitsect;
                 }
         }
         return -1;
@@ -272,7 +277,9 @@ void A_GetZLimits(int32_t iActor)
         if (s->statnum == 4)
             zr = 4L;
 
-        getzrange(s->x,s->y,s->z-(FOURSLEIGHT),s->sectnum,&ActorExtra[iActor].ceilingz,&hz,&ActorExtra[iActor].floorz,&lz,zr,CLIPMASK0);
+        s->z -= FOURSLEIGHT;
+        getzrange((vec3_t *)s,s->sectnum,&ActorExtra[iActor].ceilingz,&hz,&ActorExtra[iActor].floorz,&lz,zr,CLIPMASK0);
+        s->z += FOURSLEIGHT;
 
         if ((lz&49152) == 49152 && (sprite[lz&(MAXSPRITES-1)].cstat&48) == 0)
         {
@@ -321,7 +328,11 @@ void A_Fall(int32_t iActor)
     }
 
     if ((s->statnum == 1 || s->statnum == 10 || s->statnum == 2 || s->statnum == 6))
-        getzrange(s->x,s->y,s->z-(FOURSLEIGHT),s->sectnum,&ActorExtra[iActor].ceilingz,&hz,&ActorExtra[iActor].floorz,&lz,127L,CLIPMASK0);
+    {
+        s->z -= FOURSLEIGHT;
+        getzrange((vec3_t *)s,s->sectnum,&ActorExtra[iActor].ceilingz,&hz,&ActorExtra[iActor].floorz,&lz,127L,CLIPMASK0);
+        s->z += FOURSLEIGHT;
+    }
     else
     {
         ActorExtra[iActor].ceilingz = sector[s->sectnum].ceilingz;
@@ -445,7 +456,7 @@ static void X_Move(void)
         {
             ActorExtra[vm.g_i].bposx = vm.g_sp->x;
             ActorExtra[vm.g_i].bposy = vm.g_sp->y;
-            setsprite(vm.g_i,vm.g_sp->x,vm.g_sp->y,vm.g_sp->z);
+            setsprite(vm.g_i,(vec3_t *)vm.g_sp);
         }
         return;
     }
@@ -1078,7 +1089,7 @@ static int32_t X_DoExecute(void)
             else if (vm.g_sp->zvel > 2048  && sector[vm.g_sp->sectnum].lotag != 1)
             {
                 j = vm.g_sp->sectnum;
-                pushmove(&vm.g_sp->x,&vm.g_sp->y,&vm.g_sp->z,(int16_t*)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
+                pushmove((vec3_t *)vm.g_sp,(int16_t*)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
                 if (j != vm.g_sp->sectnum && j >= 0 && j < MAXSECTORS)
                     changespritesect(vm.g_i,j);
                 A_PlaySound(THUD,vm.g_i);
@@ -2276,48 +2287,62 @@ static int32_t X_DoExecute(void)
     case CON_GETZRANGE:
         insptr++;
         {
-            int32_t x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), z=Gv_GetVarX(*insptr++);
-            int32_t sectnum=Gv_GetVarX(*insptr++);
-            int32_t ceilzvar=*insptr++, ceilhitvar=*insptr++, florzvar=*insptr++, florhitvar=*insptr++;
-            int32_t walldist=Gv_GetVarX(*insptr++), clipmask=Gv_GetVarX(*insptr++);
-            int32_t ceilz, ceilhit, florz, florhit;
+            vec3_t vect;
 
-            if ((sectnum<0 || sectnum>=numsectors) && g_scriptSanityChecks)
+            vect.x = Gv_GetVarX(*insptr++);
+            vect.y = Gv_GetVarX(*insptr++);
+            vect.z = Gv_GetVarX(*insptr++);
+
             {
-                OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
-                break;
+                int32_t sectnum=Gv_GetVarX(*insptr++);
+                int32_t ceilzvar=*insptr++, ceilhitvar=*insptr++, florzvar=*insptr++, florhitvar=*insptr++;
+                int32_t walldist=Gv_GetVarX(*insptr++), clipmask=Gv_GetVarX(*insptr++);
+                int32_t ceilz, ceilhit, florz, florhit;
+
+
+                if ((sectnum<0 || sectnum>=numsectors) && g_scriptSanityChecks)
+                {
+                    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
+                    break;
+                }
+                getzrange(&vect, sectnum, &ceilz, &ceilhit, &florz, &florhit, walldist, clipmask);
+                Gv_SetVarX(ceilzvar, ceilz);
+                Gv_SetVarX(ceilhitvar, ceilhit);
+                Gv_SetVarX(florzvar, florz);
+                Gv_SetVarX(florhitvar, florhit);
             }
-            getzrange(x, y, z, sectnum, &ceilz, &ceilhit, &florz, &florhit, walldist, clipmask);
-            Gv_SetVarX(ceilzvar, ceilz);
-            Gv_SetVarX(ceilhitvar, ceilhit);
-            Gv_SetVarX(florzvar, florz);
-            Gv_SetVarX(florhitvar, florhit);
             break;
         }
 
     case CON_HITSCAN:
         insptr++;
         {
-            int32_t xs=Gv_GetVarX(*insptr++), ys=Gv_GetVarX(*insptr++), zs=Gv_GetVarX(*insptr++);
-            int32_t sectnum=Gv_GetVarX(*insptr++);
-            int32_t vx=Gv_GetVarX(*insptr++), vy=Gv_GetVarX(*insptr++), vz=Gv_GetVarX(*insptr++);
-            int32_t hitsectvar=*insptr++, hitwallvar=*insptr++, hitspritevar=*insptr++;
-            int32_t hitxvar=*insptr++, hityvar=*insptr++, hitzvar=*insptr++, cliptype=Gv_GetVarX(*insptr++);
-            int16_t hitsect, hitwall, hitsprite;
-            int32_t hitx, hity, hitz;
+            vec3_t vect;
+            hitdata_t hitinfo;
 
-            if ((sectnum<0 || sectnum>=numsectors) && g_scriptSanityChecks)
+            vect.x = Gv_GetVarX(*insptr++);
+            vect.x = Gv_GetVarX(*insptr++);
+            vect.z = Gv_GetVarX(*insptr++);
+
             {
-                OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
-                break;
+                int32_t sectnum=Gv_GetVarX(*insptr++);
+                int32_t vx=Gv_GetVarX(*insptr++), vy=Gv_GetVarX(*insptr++), vz=Gv_GetVarX(*insptr++);
+                int32_t hitsectvar=*insptr++, hitwallvar=*insptr++, hitspritevar=*insptr++;
+                int32_t hitxvar=*insptr++, hityvar=*insptr++, hitzvar=*insptr++, cliptype=Gv_GetVarX(*insptr++);
+
+                if ((sectnum<0 || sectnum>=numsectors) && g_scriptSanityChecks)
+                {
+                    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
+                    break;
+                }
+                hitscan((const vec3_t *)&vect, sectnum, vx, vy, vz, &hitinfo, cliptype);
+                Gv_SetVarX(hitsectvar, hitinfo.hitsect);
+                Gv_SetVarX(hitwallvar, hitinfo.hitwall);
+                Gv_SetVarX(hitspritevar, hitinfo.hitsprite);
+                Gv_SetVarX(hitxvar, hitinfo.pos.x);
+                Gv_SetVarX(hityvar, hitinfo.pos.y);
+                Gv_SetVarX(hitzvar, hitinfo.pos.z);
             }
-            hitscan(xs, ys, zs, sectnum, vx, vy, vz, &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, cliptype);
-            Gv_SetVarX(hitsectvar, hitsect);
-            Gv_SetVarX(hitwallvar, hitwall);
-            Gv_SetVarX(hitspritevar, hitsprite);
-            Gv_SetVarX(hitxvar, hitx);
-            Gv_SetVarX(hityvar, hity);
-            Gv_SetVarX(hitzvar, hitz);
             break;
         }
 
@@ -2423,7 +2448,7 @@ static int32_t X_DoExecute(void)
                     OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],spritenum);
                     break;
                 }
-                setsprite(spritenum, davector.x, davector.y, davector.z);
+                setsprite(spritenum, &davector);
                 break;
             }
 
@@ -2620,12 +2645,17 @@ static int32_t X_DoExecute(void)
         }
         else
         {
+            vec3_t tmpvect;
+
+            tmpvect.x = g_player[vm.g_p].ps->posx;
+            tmpvect.y = g_player[vm.g_p].ps->posy;
+            tmpvect.z = g_player[vm.g_p].ps->posz+PHEIGHT;
             P_RandomSpawnPoint(vm.g_p);
             vm.g_sp->x = ActorExtra[vm.g_i].bposx = g_player[vm.g_p].ps->bobposx = g_player[vm.g_p].ps->oposx = g_player[vm.g_p].ps->posx;
             vm.g_sp->y = ActorExtra[vm.g_i].bposy = g_player[vm.g_p].ps->bobposy = g_player[vm.g_p].ps->oposy =g_player[vm.g_p].ps->posy;
             vm.g_sp->z = ActorExtra[vm.g_i].bposy = g_player[vm.g_p].ps->oposz =g_player[vm.g_p].ps->posz;
             updatesector(g_player[vm.g_p].ps->posx,g_player[vm.g_p].ps->posy,&g_player[vm.g_p].ps->cursectnum);
-            setsprite(g_player[vm.g_p].ps->i,g_player[vm.g_p].ps->posx,g_player[vm.g_p].ps->posy,g_player[vm.g_p].ps->posz+PHEIGHT);
+            setsprite(g_player[vm.g_p].ps->i,&tmpvect);
             vm.g_sp->cstat = 257;
 
             vm.g_sp->shade = -12;

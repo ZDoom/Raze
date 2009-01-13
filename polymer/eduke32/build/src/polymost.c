@@ -4421,9 +4421,10 @@ void polymost_drawrooms()
 
     if (searchit == 2)
     {
-        int16_t hitsect, hitwall, hitsprite;
-        int32_t vx, vy, vz, hitx, hity, hitz;
+        int32_t vx, vy, vz;
         int32_t cz, fz;
+        hitdata_t hitinfo;
+        vec3_t vect;
         double ratio = 1.05;
 
         if (glwidescreen == 1)
@@ -4458,37 +4459,41 @@ void polymost_drawrooms()
         vy = (int32_t)(ox2*((float)singlobalang) + oy2*((float)cosglobalang));
         vz = (int32_t)(oz2*16384.0);
 
+        vect.x = globalposx;
+        vect.y = globalposy;
+        vect.z = globalposz;
+
         hitallsprites = 1;
-        hitscan(globalposx,globalposy,globalposz,globalcursectnum, //Start position
-                vx>>12,vy>>12,vz>>8,&hitsect,&hitwall,&hitsprite,&hitx,&hity,&hitz,0xffff0030);
-        getzsofslope(hitsect,hitx,hity,&cz,&fz);
+        hitscan((const vec3_t *)&vect,globalcursectnum, //Start position
+                vx>>12,vy>>12,vz>>8,&hitinfo,0xffff0030);
+        getzsofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
         hitallsprites = 0;
 
-        searchsector = hitsect;
-        if (hitz<cz) searchstat = 1;else
-        if (hitz>fz) searchstat = 2;else
-        if (hitwall >= 0)
+        searchsector = hitinfo.hitsect;
+        if (hitinfo.pos.z<cz) searchstat = 1;else
+        if (hitinfo.pos.z>fz) searchstat = 2;else
+        if (hitinfo.hitwall >= 0)
         {
-            searchwall = hitwall; searchstat = 0;
-            if (wall[hitwall].nextwall >= 0)
+            searchwall = hitinfo.hitwall; searchstat = 0;
+            if (wall[hitinfo.hitwall].nextwall >= 0)
             {
                 int32_t cz, fz;
-                getzsofslope(wall[hitwall].nextsector,hitx,hity,&cz,&fz);
-                if (hitz > fz)
+                getzsofslope(wall[hitinfo.hitwall].nextsector,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
+                if (hitinfo.pos.z > fz)
                 {
-                    if (wall[hitwall].cstat&2) //'2' bottoms of walls
-                        searchwall = wall[hitwall].nextwall;
+                    if (wall[hitinfo.hitwall].cstat&2) //'2' bottoms of walls
+                        searchwall = wall[hitinfo.hitwall].nextwall;
                 }
-                else if ((hitz > cz) && (wall[hitwall].cstat&(16+32))) //masking or 1-way
+                else if ((hitinfo.pos.z > cz) && (wall[hitinfo.hitwall].cstat&(16+32))) //masking or 1-way
                     searchstat = 4;
             }
         }
-        else if (hitsprite >= 0) { searchwall = hitsprite; searchstat = 3; }
+        else if (hitinfo.hitsprite >= 0) { searchwall = hitinfo.hitsprite; searchstat = 3; }
         else
         {
             int32_t cz, fz;
-            getzsofslope(hitsect,hitx,hity,&cz,&fz);
-            if ((hitz<<1) < cz+fz) searchstat = 1; else searchstat = 2;
+            getzsofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
+            if ((hitinfo.pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
             //if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
         }
         searchit = 0;
@@ -4563,6 +4568,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     float fy, x0, x1, sx0, sy0, sx1, sy1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1;
     float r, t, t0, t1, csy[4], fsy[4];
     int32_t i, j, n, n2, z, sectnum, z1, z2, cz[4], fz[4], method;
+    int32_t m0, m1;
     sectortype *sec, *nsec;
     walltype *wal, *wal2;
 
@@ -4604,10 +4610,14 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     if (yp1 < SCISDIST) { t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0; yp1 = SCISDIST; }
     else { t1 = 1.f; }
 
-    getzsofslope(sectnum,(int32_t)((wal2->x-wal->x)*t0+wal->x),(int32_t)((wal2->y-wal->y)*t0+wal->y),&cz[0],&fz[0]);
-    getzsofslope(wal->nextsector,(int32_t)((wal2->x-wal->x)*t0+wal->x),(int32_t)((wal2->y-wal->y)*t0+wal->y),&cz[1],&fz[1]);
-    getzsofslope(sectnum,(int32_t)((wal2->x-wal->x)*t1+wal->x),(int32_t)((wal2->y-wal->y)*t1+wal->y),&cz[2],&fz[2]);
-    getzsofslope(wal->nextsector,(int32_t)((wal2->x-wal->x)*t1+wal->x),(int32_t)((wal2->y-wal->y)*t1+wal->y),&cz[3],&fz[3]);
+    m0 = (int32_t)((wal2->x-wal->x)*t0+wal->x);
+    m1 = (int32_t)((wal2->y-wal->y)*t0+wal->y);
+    getzsofslope(sectnum,m0,m1,&cz[0],&fz[0]);
+    getzsofslope(wal->nextsector,m0,m1,&cz[1],&fz[1]);
+    m0 = (int32_t)((wal2->x-wal->x)*t1+wal->x);
+    m1 = (int32_t)((wal2->y-wal->y)*t1+wal->y);
+    getzsofslope(sectnum,m0,m1,&cz[2],&fz[2]);
+    getzsofslope(wal->nextsector,m0,m1,&cz[3],&fz[3]);
 
     ryp0 = 1.f/yp0; ryp1 = 1.f/yp1;
 

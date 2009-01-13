@@ -66,7 +66,8 @@ uint8_t buildkeys[NUMBUILDKEYS] =
     0x9c,0x1c,0xd,0xc,0xf,0x29
 };
 
-int32_t posx, posy, posz, horiz = 100;
+vec3_t pos;
+int32_t horiz = 100;
 int32_t mousexsurp = 0, mouseysurp = 0;
 int16_t ang, cursectnum;
 int32_t hvel;
@@ -394,15 +395,15 @@ int32_t app_main(int32_t argc, const char **argv)
     for (i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;
 
     ExtPreLoadMap();
-    i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
+    i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
     loadmhk();
-    if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
+    if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
     if (i < 0)
     {
         initspritelists();
-        posx = 32768;
-        posy = 32768;
-        posz = 0;
+        pos.x = 32768;
+        pos.y = 32768;
+        pos.z = 0;
         ang = 1536;
         numsectors = 0;
         numwalls = 0;
@@ -415,15 +416,15 @@ int32_t app_main(int32_t argc, const char **argv)
 
     updatenumsprites();
 
-    startposx = posx;
-    startposy = posy;
-    startposz = posz;
+    startposx = pos.x;
+    startposy = pos.y;
+    startposz = pos.z;
     startang = ang;
     startsectnum = cursectnum; // TX 20050225: moved to loadboard
 
     totalclock = 0;
 
-    updatesector(posx,posy,&cursectnum);
+    updatesector(pos.x,pos.y,&cursectnum);
 
     if (cursectnum == -1)
     {
@@ -452,7 +453,7 @@ CANCEL:
 
         ExtPreCheckKeys();
 
-        drawrooms(posx,posy,posz,ang,horiz,cursectnum);
+        drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
 #ifdef SUPERBUILD
         ExtAnalyzeSprites();
 #endif
@@ -593,8 +594,8 @@ void editinput(void)
     int32_t mousz, bstatus;
     int32_t i, j, k, /*cnt,*/ tempint=0, doubvel/*, changedir, wallfind[2], daz[2]*/;
     int32_t /*dashade[2],*/ goalz, xvect, yvect,/*PK*/ zvect, hiz, loz;
-    int16_t hitsect, hitwall, hitsprite;
-    int32_t hitx, hity, hitz, dax, day, hihit, lohit;
+    hitdata_t hitinfo;
+    int32_t dax, day, hihit, lohit;
 
 // 3B  3C  3D  3E   3F  40  41  42   43  44  57  58          46
 // F1  F2  F3  F4   F5  F6  F7  F8   F9 F10 F11 F12        SCROLL
@@ -654,11 +655,11 @@ void editinput(void)
 
             if (noclip)
             {
-                posx += xvect>>14;
-                posy += yvect>>14;
-                updatesector(posx,posy,&cursectnum);
+                pos.x += xvect>>14;
+                pos.y += yvect>>14;
+                updatesector(pos.x,pos.y,&cursectnum);
             }
-            else clipmove(&posx,&posy,&posz,&cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK0);
+            else clipmove(&pos,&cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK0);
         }
         else if (!mlook && (bstatus&2) && !(bstatus&(1|4)))
         {
@@ -669,14 +670,14 @@ void editinput(void)
             zmode = 2;
             xvect = -((mousx*(int32_t)sintable[(ang+2048)&2047])<<pk_uedaccel);
             yvect = -((mousx*(int32_t)sintable[(ang+1536)&2047])<<pk_uedaccel);
-            posz += mousy<<(4+pk_uedaccel);
+            pos.z += mousy<<(4+pk_uedaccel);
             if (noclip)
             {
-                posx += xvect>>14;
-                posy += yvect>>14;
-                updatesectorz(posx,posy,posz,&cursectnum);
+                pos.x += xvect>>14;
+                pos.y += yvect>>14;
+                updatesectorz(pos.x,pos.y,pos.z,&cursectnum);
             }
-            else clipmove(&posx,&posy,&posz,&cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK0);
+            else clipmove(&pos,&cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK0);
         }
         else if (bstatus&4)
         {
@@ -696,14 +697,14 @@ void editinput(void)
 
             zvect = mousy*(((int32_t)sintable[(tempint+2048)&2047])>>(10-pk_uedaccel));
 
-            posz += zvect;
+            pos.z += zvect;
             if (noclip)
             {
-                posx += xvect>>16;
-                posy += yvect>>16;
-                updatesectorz(posx,posy,posz,&cursectnum);
+                pos.x += xvect>>16;
+                pos.y += yvect>>16;
+                updatesectorz(pos.x,pos.y,pos.z,&cursectnum);
             }
-            else clipmove(&posx,&posy,&posz,&cursectnum,xvect>>2,yvect>>2,128L,4L<<8,4L<<8,CLIPMASK0);
+            else clipmove(&pos,&cursectnum,xvect>>2,yvect>>2,128L,4L<<8,4L<<8,CLIPMASK0);
         }
     }
 
@@ -747,10 +748,10 @@ void editinput(void)
 
 //    showmouse();
 
-//    if (keystatus[0x3b] > 0) posx--;
-//    if (keystatus[0x3c] > 0) posx++;
-//    if (keystatus[0x3d] > 0) posy--;
-//    if (keystatus[0x3e] > 0) posy++;
+//    if (keystatus[0x3b] > 0) pos.x--;
+//    if (keystatus[0x3c] > 0) pos.x++;
+//    if (keystatus[0x3d] > 0) pos.y--;
+//    if (keystatus[0x3e] > 0) pos.y++;
 //    if (keystatus[0x43] > 0) ang--;
 //    if (keystatus[0x44] > 0) ang++;
 
@@ -799,19 +800,19 @@ void editinput(void)
         }
         if (noclip)
         {
-            posx += xvect>>14;
-            posy += yvect>>14;
-            updatesector(posx,posy,&cursectnum);
+            pos.x += xvect>>14;
+            pos.y += yvect>>14;
+            updatesector(pos.x,pos.y,&cursectnum);
         }
-        else clipmove(&posx,&posy,&posz,&cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK0);
+        else clipmove(&pos,&cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK0);
     }
-    getzrange(posx,posy,posz,cursectnum,&hiz,&hihit,&loz,&lohit,128L,CLIPMASK0);
+    getzrange(&pos,cursectnum,&hiz,&hihit,&loz,&lohit,128L,CLIPMASK0);
 
     /*    if (keystatus[0x3a] > 0)
         {
             zmode++;
             if (zmode == 3) zmode = 0;
-            if (zmode == 1) zlock = (loz-posz)&0xfffffc00;
+            if (zmode == 1) zlock = (loz-pos.z)&0xfffffc00;
             keystatus[0x3a] = 0;
     	}*/
 
@@ -848,19 +849,19 @@ void editinput(void)
             }
         }
 
-        if (goalz != posz)
+        if (goalz != pos.z)
         {
-            if (posz < goalz) hvel += 64;
-            if (posz > goalz) hvel = ((goalz-posz)>>3);
+            if (pos.z < goalz) hvel += 64;
+            if (pos.z > goalz) hvel = ((goalz-pos.z)>>3);
 
-            posz += hvel;
-            if (posz > loz-(4<<8)) posz = loz-(4<<8), hvel = 0;
-            if (posz < hiz+(4<<8)) posz = hiz+(4<<8), hvel = 0;
+            pos.z += hvel;
+            if (pos.z > loz-(4<<8)) pos.z = loz-(4<<8), hvel = 0;
+            if (pos.z < hiz+(4<<8)) pos.z = hiz+(4<<8), hvel = 0;
         }
     }
     else
     {
-        goalz = posz;
+        goalz = pos.z;
         if (keystatus[buildkeys[BK_MOVEUP]])							//A
         {
             if (keystatus[0x1d]|keystatus[0x9d])
@@ -903,21 +904,21 @@ void editinput(void)
         }
         if (zmode == 1) goalz = loz-zlock;
         if (!noclip && (goalz < hiz+(4<<8))) goalz = ((loz+hiz)>>1);  //ceiling&floor too close
-        if (zmode == 1) posz = goalz;
+        if (zmode == 1) pos.z = goalz;
 
-        if (goalz != posz)
+        if (goalz != pos.z)
         {
-            //if (posz < goalz) hvel += (32<<keystatus[buildkeys[BK_RUN]]);
-            //if (posz > goalz) hvel -= (32<<keystatus[buildkeys[BK_RUN]]);
-            if (posz < goalz) hvel = ((synctics* 192)<<keystatus[buildkeys[BK_RUN]]);
-            if (posz > goalz) hvel = ((synctics*-192)<<keystatus[buildkeys[BK_RUN]]);
+            //if (pos.z < goalz) hvel += (32<<keystatus[buildkeys[BK_RUN]]);
+            //if (pos.z > goalz) hvel -= (32<<keystatus[buildkeys[BK_RUN]]);
+            if (pos.z < goalz) hvel = ((synctics* 192)<<keystatus[buildkeys[BK_RUN]]);
+            if (pos.z > goalz) hvel = ((synctics*-192)<<keystatus[buildkeys[BK_RUN]]);
 
-            posz += hvel;
+            pos.z += hvel;
 
             if (!noclip)
             {
-                if (posz > loz-(4<<8)) posz = loz-(4<<8), hvel = 0;
-                if (posz < hiz+(4<<8)) posz = hiz+(4<<8), hvel = 0;
+                if (pos.z > loz-(4<<8)) pos.z = loz-(4<<8), hvel = 0;
+                if (pos.z < hiz+(4<<8)) pos.z = hiz+(4<<8), hvel = 0;
             }
         }
         else
@@ -936,19 +937,19 @@ void editinput(void)
             day = divscale14(searchx-(xdim>>1),xdim>>1);
             rotatepoint(0,0,dax,day,ang,&dax,&day);
 
-            hitscan(posx,posy,posz,cursectnum,               //Start position
+            hitscan((const vec3_t *)&pos,cursectnum,               //Start position
                     dax,day,(scale(searchy,200,ydim)-horiz)*2000, //vector of 3D ang
-                    &hitsect,&hitwall,&hitsprite,&hitx,&hity,&hitz,CLIPMASK1);
+                    &hitinfo,CLIPMASK1);
 
-            if (hitsect >= 0)
+            if (hitinfo.hitsect >= 0)
             {
-                dax = hitx;
-                day = hity;
+                dax = hitinfo.pos.x;
+                day = hitinfo.pos.x;
                 if ((gridlock > 0) && (grid > 0))
                 {
                     if ((searchstat == 0) || (searchstat == 4))
                     {
-                        hitz = (hitz&0xfffffc00);
+                        hitinfo.pos.y = (hitinfo.pos.y&0xfffffc00);
                     }
                     else
                     {
@@ -957,7 +958,7 @@ void editinput(void)
                     }
                 }
 
-                i = insertsprite(hitsect,0);
+                i = insertsprite(hitinfo.hitsect,0);
                 sprite[i].x = dax, sprite[i].y = day;
                 sprite[i].cstat = defaultspritecstat;
                 sprite[i].shade = 0;
@@ -1011,22 +1012,27 @@ void editinput(void)
 
                 j = ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
                 if ((sprite[i].cstat&128) == 0)
-                    sprite[i].z = min(max(hitz,getceilzofslope(hitsect,hitx,hity)+(j<<1)),getflorzofslope(hitsect,hitx,hity));
+                    sprite[i].z = min(max(hitinfo.pos.y,
+                    getceilzofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y)+(j<<1)),
+                    getflorzofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y));
                 else
-                    sprite[i].z = min(max(hitz,getceilzofslope(hitsect,hitx,hity)+j),getflorzofslope(hitsect,hitx,hity)-j);
+                    sprite[i].z = min(max(hitinfo.pos.y,
+                    getceilzofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y)+j),
+                    getflorzofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y)-j);
 
                 if ((searchstat == 0) || (searchstat == 4))
                 {
                     sprite[i].cstat = (sprite[i].cstat&~48)|(16+64);
-                    if (hitwall >= 0)
-                        sprite[i].ang = ((getangle(wall[wall[hitwall].point2].x-wall[hitwall].x,wall[wall[hitwall].point2].y-wall[hitwall].y)+512)&2047);
+                    if (hitinfo.hitwall >= 0)
+                        sprite[i].ang = ((getangle(wall[wall[hitinfo.hitwall].point2].x-wall[hitinfo.hitwall].x,
+                        wall[wall[hitinfo.hitwall].point2].y-wall[hitinfo.hitwall].y)+512)&2047);
 
                     //Make sure sprite's in right sector
                     if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
                     {
-                        j = wall[hitwall].point2;
-                        sprite[i].x -= ksgn(wall[j].y-wall[hitwall].y);
-                        sprite[i].y += ksgn(wall[j].x-wall[hitwall].x);
+                        j = wall[hitinfo.hitwall].point2;
+                        sprite[i].x -= ksgn(wall[j].y-wall[hitinfo.hitwall].y);
+                        sprite[i].y += ksgn(wall[j].x-wall[hitinfo.hitwall].x);
                     }
                 }
                 else
@@ -1448,10 +1454,9 @@ void overheadeditor(void)
     int16_t circlepoints, circleang1, circleang2, circleangdir;
     int32_t sectorhighlightx=0, sectorhighlighty=0;
     int16_t cursectorhighlight, sectorhighlightstat;
-    int16_t hitsect, hitwall, hitsprite;
-    int32_t hitx, hity, hitz;
     walltype *wal;
     int32_t prefixarg = 0;
+    hitdata_t hitinfo;
 
     //qsetmode640480();
     qsetmodeany(xdim2d,ydim2d);
@@ -1463,7 +1468,7 @@ void overheadeditor(void)
 
     searchx = scale(searchx,xdim2d,xdimgame);
     searchy = scale(searchy,ydim2d-STATUS2DSIZ,ydimgame);
-    oposz = posz;
+    oposz = pos.z;
 
     begindrawing();	//{{{
     clearbuf((char *)(frameplace + (ydim16*bytesperline)), (bytesperline*STATUS2DSIZ) >> 2, 0x00000000l);
@@ -1560,10 +1565,10 @@ void overheadeditor(void)
         if (searchy < 8) searchy = 8;
         if (searchy > ydim-8-1) searchy = ydim-8-1;
 
-        /*      if (keystatus[0x3b] > 0) posx--, keystatus[0x3b] = 0;
-        		if (keystatus[0x3c] > 0) posx++, keystatus[0x3c] = 0;
-        		if (keystatus[0x3d] > 0) posy--, keystatus[0x3d] = 0;
-        		if (keystatus[0x3e] > 0) posy++, keystatus[0x3e] = 0;
+        /*      if (keystatus[0x3b] > 0) pos.x--, keystatus[0x3b] = 0;
+        		if (keystatus[0x3c] > 0) pos.x++, keystatus[0x3c] = 0;
+        		if (keystatus[0x3d] > 0) pos.y--, keystatus[0x3d] = 0;
+        		if (keystatus[0x3e] > 0) pos.y++, keystatus[0x3e] = 0;
         		if (keystatus[0x43] > 0) ang--, keystatus[0x43] = 0;
                 if (keystatus[0x44] > 0) ang++, keystatus[0x44] = 0; */
         if (angvel != 0)          //ang += angvel * constant
@@ -1593,11 +1598,11 @@ void overheadeditor(void)
             }
             if (noclip)
             {
-                posx += xvect>>14;
-                posy += yvect>>14;
-                updatesector(posx,posy,&cursectnum);
+                pos.x += xvect>>14;
+                pos.y += yvect>>14;
+                updatesector(pos.x,pos.y,&cursectnum);
             }
-            else clipmove(&posx,&posy,&posz,&cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK0);
+            else clipmove(&pos,&cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK0);
         }
 
         getpoint(searchx,searchy,&mousxplc,&mousyplc);
@@ -1634,18 +1639,18 @@ void overheadeditor(void)
             if (graphicsmode == 2)
                 totalclocklock = totalclock;
 
-            drawmapview(posx, posy, zoom, 1536);
+            drawmapview(pos.x, pos.y, zoom, 1536);
             yxaspect = i;
             ydim = j;
             xyaspect = ii;
         }
 
-        draw2dgrid(posx,posy,ang,zoom,grid);
+        draw2dgrid(pos.x,pos.y,ang,zoom,grid);
 
         ExtPreCheckKeys();
 
-        x2 = mulscale14(startposx-posx,zoom);          //Draw brown arrow (start)
-        y2 = mulscale14(startposy-posy,zoom);
+        x2 = mulscale14(startposx-pos.x,zoom);          //Draw brown arrow (start)
+        y2 = mulscale14(startposy-pos.y,zoom);
         if (((halfxdim16+x2) >= 2) && ((halfxdim16+x2) <= xdim-3))
             if (((midydim16+y2) >= 2) && ((midydim16+y2) <= ydim16-3))
             {
@@ -1658,7 +1663,7 @@ void overheadeditor(void)
                 enddrawing();	//}}}
             }
 
-        draw2dscreen(posx,posy,ang,zoom,grid);
+        draw2dscreen(pos.x,pos.y,ang,zoom,grid);
 
         begindrawing();	//{{{
         if (showtags == 1)
@@ -1684,8 +1689,8 @@ void overheadeditor(void)
                             day /= (endwall-startwall+1);
                         }
 
-                        dax = mulscale14(dax-posx,zoom);
-                        day = mulscale14(day-posy,zoom);
+                        dax = mulscale14(dax-pos.x,zoom);
+                        day = mulscale14(day-pos.y,zoom);
 
                         x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
                         y1 = midydim16+day-4;
@@ -1704,10 +1709,10 @@ void overheadeditor(void)
                     }
                 }
 
-            x3 = divscale14(-halfxdim16,zoom)+posx;
-            y3 = divscale14(-(midydim16-4),zoom)+posy;
-            x4 = divscale14(halfxdim16,zoom)+posx;
-            y4 = divscale14(ydim16-(midydim16-4),zoom)+posy;
+            x3 = divscale14(-halfxdim16,zoom)+pos.x;
+            y3 = divscale14(-(midydim16-4),zoom)+pos.y;
+            x4 = divscale14(halfxdim16,zoom)+pos.x;
+            y4 = divscale14(ydim16-(midydim16-4),zoom)+pos.y;
 
             if (newnumwalls >= 0)
             {
@@ -1728,8 +1733,8 @@ void overheadeditor(void)
                     dabuffer = (char *)ExtGetWallCaption(i);
                     if (dabuffer[0] != 0)
                     {
-                        dax = mulscale14(dax-posx,zoom);
-                        day = mulscale14(day-posy,zoom);
+                        dax = mulscale14(dax-pos.x,zoom);
+                        day = mulscale14(day-pos.y,zoom);
                         x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
                         y1 = midydim16+day-4;
                         x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
@@ -1761,8 +1766,8 @@ void overheadeditor(void)
                             dax = sprite[i].x;
                             day = sprite[i].y;
 
-                            dax = mulscale14(dax-posx,zoom);
-                            day = mulscale14(day-posy,zoom);
+                            dax = mulscale14(dax-pos.x,zoom);
+                            day = mulscale14(day-pos.y,zoom);
                             x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
                             y1 = midydim16+day-4;
                             x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
@@ -1797,7 +1802,7 @@ void overheadeditor(void)
                 }
         }
 
-        printcoords16(posx,posy,ang);
+        printcoords16(pos.x,pos.y,ang);
 
         numwalls = tempint;
 
@@ -1840,8 +1845,8 @@ void overheadeditor(void)
         if (linehighlight>=0)
         {
             getclosestpointonwall(mousxplc,mousyplc,(int32_t)linehighlight,&dax,&day);
-            x2 = mulscale14(dax-posx,zoom);
-            y2 = mulscale14(day-posy,zoom);
+            x2 = mulscale14(dax-pos.x,zoom);
+            y2 = mulscale14(day-pos.y,zoom);
             if (wall[linehighlight].nextsector >= 0)
                 drawline16(halfxdim16+x2,midydim16+y2,halfxdim16+x2,midydim16+y2,editorcolors[15]);
             else
@@ -2102,8 +2107,8 @@ void overheadeditor(void)
             /*
             j = ydim16; ydim16 = ydim;
             clear2dscreen();
-            draw2dgrid(posx,posy,ang,zoom,grid);
-            draw2dscreen(posx,posy,ang,zoom,grid);
+            draw2dgrid(pos.x,pos.y,ang,zoom,grid);
+            draw2dscreen(pos.x,pos.y,ang,zoom,grid);
             */
 
             screencapture("captxxxx.tga",keystatus[0x2a]|keystatus[0x36]);
@@ -2111,8 +2116,8 @@ void overheadeditor(void)
             /*
             ydim16 = j;
             clear2dscreen();
-            draw2dgrid(posx,posy,ang,zoom,grid);
-            draw2dscreen(posx,posy,ang,zoom,grid);
+            draw2dgrid(pos.x,pos.y,ang,zoom,grid);
+            draw2dscreen(pos.x,pos.y,ang,zoom,grid);
             */
             showframe(1);
         }
@@ -2164,25 +2169,24 @@ void overheadeditor(void)
                 asksave = 1;
                 i = (pointhighlight&16383);
 
-                hitscan(sprite[i].x,sprite[i].y,sprite[i].z,sprite[i].sectnum,
+                hitscan((const vec3_t *)&sprite[i],sprite[i].sectnum,
                         sintable[(sprite[i].ang+2560+1024)&2047],
                         sintable[(sprite[i].ang+2048+1024)&2047],
-                        0,
-                        &hitsect,&hitwall,&hitsprite,&hitx,&hity,&hitz,CLIPMASK1);
+                        0,&hitinfo,CLIPMASK1);
 
-                sprite[i].x = hitx;
-                sprite[i].y = hity;
-                sprite[i].z = hitz;
-                changespritesect(i,hitsect);
-                if (hitwall >= 0)
-                    sprite[i].ang = ((getangle(wall[wall[hitwall].point2].x-wall[hitwall].x,wall[wall[hitwall].point2].y-wall[hitwall].y)+512)&2047);
+                sprite[i].x = hitinfo.pos.x;
+                sprite[i].y = hitinfo.pos.y;
+                sprite[i].z = hitinfo.pos.z;
+                changespritesect(i,hitinfo.hitsect);
+                if (hitinfo.hitwall >= 0)
+                    sprite[i].ang = ((getangle(wall[wall[hitinfo.hitwall].point2].x-wall[hitinfo.hitwall].x,wall[wall[hitinfo.hitwall].point2].y-wall[hitinfo.hitwall].y)+512)&2047);
 
                 //Make sure sprite's in right sector
                 if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
                 {
-                    j = wall[hitwall].point2;
-                    sprite[i].x -= ksgn(wall[j].y-wall[hitwall].y);
-                    sprite[i].y += ksgn(wall[j].x-wall[hitwall].x);
+                    j = wall[hitinfo.hitwall].point2;
+                    sprite[i].x -= ksgn(wall[j].y-wall[hitinfo.hitwall].y);
+                    sprite[i].y += ksgn(wall[j].x-wall[hitinfo.hitwall].x);
                 }
             }
         }
@@ -2388,9 +2392,9 @@ void overheadeditor(void)
         }
         if (keystatus[0x46])  //Scroll lock (set starting position)
         {
-            startposx = posx;
-            startposy = posy;
-            startposz = posz;
+            startposx = pos.x;
+            startposy = pos.y;
+            startposz = pos.z;
             startang = ang;
             startsectnum = cursectnum;
             keystatus[0x46] = 0;
@@ -2799,7 +2803,7 @@ void overheadeditor(void)
                     {
                         j = (highlight[i]&16383);
 
-                        setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
+                        setsprite(j,(vec3_t *)&sprite[j]);
 
                         tempint = ((tilesizy[sprite[j].picnum]*sprite[j].yrepeat)<<2);
                         sprite[j].z = max(sprite[j].z,getceilzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y)+tempint);
@@ -2811,7 +2815,7 @@ void overheadeditor(void)
             {
                 j = (pointhighlight&16383);
 
-                setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
+                setsprite(j,(vec3_t *)&sprite[j]);
 
                 tempint = ((tilesizy[sprite[j].picnum]*sprite[j].yrepeat)<<2);
 
@@ -3041,8 +3045,8 @@ SKIP:
         {
             searchx = halfxdim16;
             searchy = midydim16;
-            posx = mousxplc;
-            posy = mousyplc;
+            pos.x = mousxplc;
+            pos.y = mousyplc;
         }
 
         if (circlewall != -1 && (keystatus[0x4a] || (bstatus&32 && !(keystatus[0x1d]|keystatus[0x9d]))))  // -
@@ -3070,8 +3074,8 @@ SKIP:
             {
                 searchx = halfxdim16;
                 searchy = midydim16;
-                posx = mousxplc;
-                posy = mousyplc;
+                pos.x = mousxplc;
+                pos.y = mousyplc;
             }
             if (zoom > 16384) zoom = 16384;
             printmessage16("Zoom: %d",zoom);
@@ -3083,8 +3087,8 @@ SKIP:
             {
                 searchx = halfxdim16;
                 searchy = midydim16;
-                posx = mousxplc;
-                posy = mousyplc;
+                pos.x = mousxplc;
+                pos.y = mousyplc;
             }
             if (zoom < 8) zoom = 8;
             printmessage16("Zoom: %d",zoom);
@@ -3442,7 +3446,7 @@ SKIP:
                         j = insertsprite(sprite[k].sectnum,sprite[k].statnum);
                         Bmemcpy(&sprite[j],&sprite[k],sizeof(spritetype));
                         sprite[j].sectnum = sprite[k].sectnum;   //Don't let memcpy overwrite sector!
-                        setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
+                        setsprite(j,(vec3_t *)&sprite[j]);
                     }
                 updatenumsprites();
                 printmessage16("Sprites duplicated and stamped.");
@@ -3481,8 +3485,8 @@ SKIP:
                 centerx = (((x1+x2) + scale(y1-y2,tempint1,tempint2))>>1);
                 centery = (((y1+y2) + scale(x2-x1,tempint1,tempint2))>>1);
 
-                dax = mulscale14(centerx-posx,zoom);
-                day = mulscale14(centery-posy,zoom);
+                dax = mulscale14(centerx-pos.x,zoom);
+                day = mulscale14(centery-pos.y,zoom);
                 drawline16(halfxdim16+dax-2,midydim16+day-2,halfxdim16+dax+2,midydim16+day+2,editorcolors[14]);
                 drawline16(halfxdim16+dax-2,midydim16+day+2,halfxdim16+dax+2,midydim16+day-2,editorcolors[14]);
 
@@ -3518,8 +3522,8 @@ SKIP:
                         insertpoint(circlewall,dax,day);
                         circlewall += m;
                     }
-                    dax = mulscale14(dax-posx,zoom);
-                    day = mulscale14(day-posy,zoom);
+                    dax = mulscale14(dax-pos.x,zoom);
+                    day = mulscale14(day-pos.y,zoom);
                     drawline16(halfxdim16+dax-pointsize,midydim16+day-pointsize,halfxdim16+dax+pointsize,midydim16+day-pointsize,editorcolors[14]);
                     drawline16(halfxdim16+dax+pointsize,midydim16+day-pointsize,halfxdim16+dax+pointsize,midydim16+day+pointsize,editorcolors[14]);
                     drawline16(halfxdim16+dax+pointsize,midydim16+day+pointsize,halfxdim16+dax-pointsize,midydim16+day+pointsize,editorcolors[14]);
@@ -3966,7 +3970,7 @@ SKIP:
                                         while (j != -1)
                                         {
                                             k = nextspritesect[j];
-                                            setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
+                                            setsprite(j,(vec3_t *)&sprite[j]);
                                             j = k;
                                         }
                                     }
@@ -4278,7 +4282,7 @@ SKIP:
                         j = insertsprite(sprite[k].sectnum,sprite[k].statnum);
                         Bmemcpy(&sprite[j],&sprite[k],sizeof(spritetype));
                         sprite[j].sectnum = sprite[k].sectnum;   //Don't let memcpy overwrite sector!
-                        setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
+                        setsprite(j,(vec3_t *)&sprite[j]);
                     }
                 updatenumsprites();
                 printmessage16("Sprites duplicated and stamped.");
@@ -4363,7 +4367,7 @@ SKIP:
 
         if (keystatus[buildkeys[BK_MODE2D_3D]])
         {
-            updatesector(posx,posy,&cursectnum);
+            updatesector(pos.x,pos.y,&cursectnum);
             if (cursectnum >= 0)
                 keystatus[buildkeys[BK_MODE2D_3D]] = 2;
             else
@@ -4403,9 +4407,9 @@ nextmap:
                     for (i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;
 
                     ExtPreLoadMap();
-                    i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
-                    if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
-                    oposz = posz;
+                    i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
+                    if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
+                    oposz = pos.z;
                     if (i < 0)
                     {
 //                        printmessage16("Invalid map format.");
@@ -4419,9 +4423,9 @@ nextmap:
                         else printmessage16("Map %s loaded successfully.",boardfilename);
                     }
                     updatenumsprites();
-                    startposx = posx;      //this is same
-                    startposy = posy;
-                    startposz = posz;
+                    startposx = pos.x;      //this is same
+                    startposy = pos.y;
+                    startposz = pos.z;
                     startang = ang;
                     startsectnum = cursectnum;
                 }
@@ -4502,9 +4506,9 @@ CANCEL:
                             circlewall = -1;
                             circlepoints = 7;
 
-                            posx = 32768;          //new board!
-                            posy = 32768;
-                            posz = 0;
+                            pos.x = 32768;          //new board!
+                            pos.y = 32768;
+                            pos.z = 0;
                             ang = 1536;
                             numsectors = 0;
                             numwalls = 0;
@@ -4606,10 +4610,10 @@ CANCEL:
                         for (i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;
 
                         ExtPreLoadMap();
-                        i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
+                        i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
                         loadmhk();
-                        if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
-                        oposz = posz;
+                        if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
+                        oposz = pos.z;
                         if (i < 0)
                         {
                             printmessage16("Invalid map format.");
@@ -4674,9 +4678,9 @@ CANCEL:
                             else printmessage16("Map %s loaded successfully.",boardfilename);
                         }
                         updatenumsprites();
-                        startposx = posx;      //this is same
-                        startposy = posy;
-                        startposz = posz;
+                        startposx = pos.x;      //this is same
+                        startposy = pos.y;
+                        startposz = pos.z;
                         startang = ang;
                         startsectnum = cursectnum;
                     }
@@ -4911,20 +4915,20 @@ CANCEL:
 
     setbrightness(brightness,palette,0);
 
-    posz = oposz;
+    pos.z = oposz;
     searchx = scale(searchx,xdimgame,xdim2d);
     searchy = scale(searchy,ydimgame,ydim2d-STATUS2DSIZ);
 }
 
 void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y)
 {
-    if (posx <= -editorgridextent) posx = -editorgridextent;
-    if (posx >= editorgridextent) posx = editorgridextent;
-    if (posy <= -editorgridextent) posy = -editorgridextent;
-    if (posy >= editorgridextent) posy = editorgridextent;
+    if (pos.x <= -editorgridextent) pos.x = -editorgridextent;
+    if (pos.x >= editorgridextent) pos.x = editorgridextent;
+    if (pos.y <= -editorgridextent) pos.y = -editorgridextent;
+    if (pos.y >= editorgridextent) pos.y = editorgridextent;
 
-    *x = posx + divscale14(searchxe-halfxdim16,zoom);
-    *y = posy + divscale14(searchye-midydim16,zoom);
+    *x = pos.x + divscale14(searchxe-halfxdim16,zoom);
+    *y = pos.y + divscale14(searchye-midydim16,zoom);
 
     if (*x <= -editorgridextent) *x = -editorgridextent;
     if (*x >= editorgridextent) *x = editorgridextent;
@@ -5462,7 +5466,7 @@ int32_t _getnumber256(char *namestart, int32_t num, int32_t maxnumber, char sign
             if (quitevent) quitevent = 0;
         }
 
-        drawrooms(posx,posy,posz,ang,horiz,cursectnum);
+        drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
 #ifdef SUPERBUILD
         ExtAnalyzeSprites();
 #endif
@@ -5885,8 +5889,8 @@ int32_t fillsector(int16_t sectnum, char fillcolor)
     endwall = startwall + sector[sectnum].wallnum - 1;
     for (z=startwall;z<=endwall;z++)
     {
-        y1 = (((wall[z].y-posy)*zoom)>>14)+midydim16;
-        y2 = (((wall[wall[z].point2].y-posy)*zoom)>>14)+midydim16;
+        y1 = (((wall[z].y-pos.y)*zoom)>>14)+midydim16;
+        y2 = (((wall[wall[z].point2].y-pos.y)*zoom)>>14)+midydim16;
         if (y1 < miny) miny = y1;
         if (y2 < miny) miny = y2;
         if (y1 > maxy) maxy = y1;
@@ -5897,7 +5901,7 @@ int32_t fillsector(int16_t sectnum, char fillcolor)
 
     for (sy=miny+((totalclock>>2)&3);sy<=maxy;sy+=3)	// JBF 20040116: numframes%3 -> (totalclock>>2)&3
     {
-        y = posy+(((sy-midydim16)<<14)/zoom);
+        y = pos.y+(((sy-midydim16)<<14)/zoom);
 
         fillist[0] = lborder; fillcnt = 1;
         for (z=startwall;z<=endwall;z++)
@@ -5913,7 +5917,7 @@ int32_t fillsector(int16_t sectnum, char fillcolor)
                 //if (x1*(y-y2) + x2*(y1-y) <= 0)
             {
                 dax = x1+scale(y-y1,x2-x1,y2-y1);
-                dax = (((dax-posx)*zoom)>>14)+halfxdim16;
+                dax = (((dax-pos.x)*zoom)>>14)+halfxdim16;
                 if (dax >= lborder)
                     fillist[fillcnt++] = dax;
             }
@@ -6464,7 +6468,7 @@ void keytimerstuff(void)
     if (vel < 0) vel = min(vel+6,0);
     if (vel > 0) vel = max(vel-6,0);
     /*    if(mlook)
-            posz -= (horiz-101)*(vel/40); */
+            pos.z -= (horiz-101)*(vel/40); */
 }
 
 void _printmessage16(const char *fmt, ...)

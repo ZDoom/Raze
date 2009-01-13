@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20090105"
+#define BUILDDATE " 20090112"
 #define VERSION " 1.2.0devel"
 
 static int32_t floor_over_floor;
@@ -323,7 +323,7 @@ void ExtLoadMap(const char *mapname)
 void ExtSaveMap(const char *mapname)
 {
     UNREFERENCED_PARAMETER(mapname);
-    saveboard("backup.map",&posx,&posy,&posz,&ang,&cursectnum);
+    saveboard("backup.map",&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
 }
 
 int32_t getTileGroup(const char *groupName)
@@ -3091,7 +3091,7 @@ void getnumberptr256(char *namestart, void *num, int32_t bytes, int32_t maxnumbe
             if (quitevent) quitevent = 0;
         }
 
-        drawrooms(posx,posy,posz,ang,horiz,cursectnum);
+        drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
 #ifdef SUPERBUILD
         ExtAnalyzeSprites();
 #endif
@@ -3186,28 +3186,28 @@ void getnumberptr256(char *namestart, void *num, int32_t bytes, int32_t maxnumbe
 static void DoSpriteOrnament(int32_t i)
 {
     int32_t j;
-    int32_t hitx, hity, hitz;
-    int16_t hitsect, hitwall, hitsprite;
+    hitdata_t hitinfo;
 
-    hitscan(sprite[i].x,sprite[i].y,sprite[i].z,sprite[i].sectnum,
+    hitscan((const vec3_t *)&sprite[i],sprite[i].sectnum,
             sintable[(sprite[i].ang+2560+1024)&2047],
             sintable[(sprite[i].ang+2048+1024)&2047],
             0,
-            &hitsect,&hitwall,&hitsprite,&hitx,&hity,&hitz,CLIPMASK1);
+            &hitinfo,CLIPMASK1);
 
-    sprite[i].x = hitx;
-    sprite[i].y = hity;
-    sprite[i].z = hitz;
-    changespritesect(i,hitsect);
-    if (hitwall >= 0)
-        sprite[i].ang = ((getangle(wall[wall[hitwall].point2].x-wall[hitwall].x,wall[wall[hitwall].point2].y-wall[hitwall].y)+512)&2047);
+    sprite[i].x = hitinfo.pos.x;
+    sprite[i].y = hitinfo.pos.y;
+    sprite[i].z = hitinfo.pos.z;
+    changespritesect(i,hitinfo.hitsect);
+    if (hitinfo.hitwall >= 0)
+        sprite[i].ang = ((getangle(wall[wall[hitinfo.hitwall].point2].x-wall[hitinfo.hitwall].x,
+                                   wall[wall[hitinfo.hitwall].point2].y-wall[hitinfo.hitwall].y)+512)&2047);
 
     //Make sure sprite's in right sector
     if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
     {
-        j = wall[hitwall].point2;
-        sprite[i].x -= ksgn(wall[j].y-wall[hitwall].y);
-        sprite[i].y += ksgn(wall[j].x-wall[hitwall].x);
+        j = wall[hitinfo.hitwall].point2;
+        sprite[i].x -= ksgn(wall[j].y-wall[hitinfo.hitwall].y);
+        sprite[i].y += ksgn(wall[j].x-wall[hitinfo.hitwall].x);
     }
 }
 
@@ -3359,7 +3359,7 @@ ENDFOR1:
             if (sprite[linebegspr].pal>0) sprite[linebegspr].pal--;
         }
 
-        drawrooms(posx,posy,posz,ang,horiz,cursectnum);
+        drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
 #ifdef SUPERBUILD
         ExtAnalyzeSprites();
 #endif
@@ -3392,10 +3392,13 @@ ENDFOR1:
         }
 
         j = sp->xrepeat*(hgap+tilesizx[sp->picnum]+2);
-        setsprite(cursor,
-                  dax + ((j*sintable[daang])>>17),
-                  day - ((j*sintable[(daang+512)&2047])>>17),
-                  sp->z);
+        {
+            vec3_t vect;
+            vect.x = dax + ((j*sintable[daang])>>17);
+            vect.y = day - ((j*sintable[(daang+512)&2047])>>17);
+            vect.z = sp->z;
+            setsprite(cursor,&vect);
+        }
 
         if (ch>=33 && ch<=126 && alphabets[alphidx].pic[ch-33] >= 0)
         {
@@ -4000,13 +4003,13 @@ static void Keys3d(void)
         noclip = i;
     }
 
-    getzrange(posx,posy,posz,cursectnum,&hiz,&hihit,&loz,&lohit,128L,CLIPMASK0);
+    getzrange(&pos,cursectnum,&hiz,&hihit,&loz,&lohit,128L,CLIPMASK0);
 
     if (keystatus[KEYSC_CAPS] || (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_Z]))
     {
         zmode++;
         if (zmode == 3) zmode = 0;
-        else if (zmode == 1) zlock = (loz-posz)&0xfffffc00;
+        else if (zmode == 1) zlock = (loz-pos.z)&0xfffffc00;
         switch (zmode)
         {
         case 0: message("Zmode = Gravity");break;
@@ -4056,7 +4059,7 @@ static void Keys3d(void)
             {
                 sprite[searchwall].cstat &= ~8;
                 if ((i&64) > 0)
-                    if (posz > sprite[searchwall].z)
+                    if (pos.z > sprite[searchwall].z)
                         sprite[searchwall].cstat |= 8;
             }
             asksave = 1;
@@ -5840,9 +5843,9 @@ static void Keys3d(void)
                     int16_t cursectnum=sprite[searchwall].sectnum;
                     xvect = -((mousex*(int32_t)sintable[(ang+2048)&2047])<<3);
                     yvect = -((mousex*(int32_t)sintable[(ang+1536)&2047])<<3);
-                    clipmove(&sprite[searchwall].x,&sprite[searchwall].y,&sprite[searchwall].z,
+                    clipmove((vec3_t *)&sprite[searchwall],
                              &cursectnum,xvect,yvect,128L,4L<<8,4L<<8,spnoclip?1:CLIPMASK0);
-                    setsprite(searchwall,sprite[searchwall].x,sprite[searchwall].y,sprite[searchwall].z);
+                    setsprite(searchwall,(vec3_t *)&sprite[searchwall]);
                 }
                 else
                 {
@@ -5946,9 +5949,9 @@ static void Keys3d(void)
                     int16_t cursectnum=sprite[searchwall].sectnum;
                     xvect = -((mousey*(int32_t)sintable[(ang+2560)&2047])<<3);
                     yvect = -((mousey*(int32_t)sintable[(ang+2048)&2047])<<3);
-                    clipmove(&sprite[searchwall].x,&sprite[searchwall].y,&sprite[searchwall].z,
+                    clipmove((vec3_t *)&sprite[searchwall],
                              &cursectnum,xvect,yvect,128L,4L<<8,4L<<8,spnoclip?1:CLIPMASK0);
-                    setsprite(searchwall,sprite[searchwall].x,sprite[searchwall].y,sprite[searchwall].z);
+                    setsprite(searchwall,(vec3_t *)&sprite[searchwall]);
                 }
                 else
                 {
@@ -6562,8 +6565,8 @@ static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
             }
 
         // found matching sprite
-        posx = sprite[gs_cursprite].x;
-        posy = sprite[gs_cursprite].y;
+        pos.x = sprite[gs_cursprite].x;
+        pos.y = sprite[gs_cursprite].y;
         ang = sprite[gs_cursprite].ang;
 
         printmessage16("%s Sprite seach%s: found sprite %d", dir<0 ? "<" : ">",
@@ -6965,8 +6968,8 @@ static void Keys2d(void)
                            (search_hitag!=0 && search_hitag==wall[i].hitag))
                     )
                     {
-                        posx=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
-                        posy=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
+                        pos.x=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
+                        pos.y=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
                         printmessage16("< Wall search: found");
                         //                    curwallnum--;
                         keystatus[KEYSC_LBRACK]=0;
@@ -6995,8 +6998,8 @@ static void Keys2d(void)
                        (search_hitag!=0 && search_hitag==sprite[i].hitag))
                 )
                 {
-                    posx=sprite[i].x;
-                    posy=sprite[i].y;
+                    pos.x=sprite[i].x;
+                    pos.y=sprite[i].y;
                     ang= sprite[i].ang;
                     printmessage16("< Sprite search: found");
                     //                    curspritenum--;
@@ -7031,8 +7034,8 @@ static void Keys2d(void)
                        (search_hitag!=0 && search_hitag==wall[i].hitag))
                 )
                 {
-                    posx=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
-                    posy=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
+                    pos.x=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
+                    pos.y=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
                     printmessage16("> Wall search: found");
                     //                    curwallnum++;
                     keystatus[KEYSC_RBRACK]=0;
@@ -7058,8 +7061,8 @@ static void Keys2d(void)
                        (search_hitag!=0 && search_hitag==sprite[i].hitag))
                 )
                 {
-                    posx=sprite[i].x;
-                    posy=sprite[i].y;
+                    pos.x=sprite[i].x;
+                    pos.y=sprite[i].y;
                     ang= sprite[i].ang;
                     printmessage16("> Sprite search: found");
                     //                    curspritenum++;
@@ -7195,7 +7198,7 @@ static void Keys2d(void)
             {
                     editstatus = 0;
                     zmode = 2;
-                    posz = ((sector[cursectnum].ceilingz+sector[cursectnum].floorz)>>1);
+                    pos.z = ((sector[cursectnum].ceilingz+sector[cursectnum].floorz)>>1);
             }
             else
             {
@@ -7229,9 +7232,9 @@ static void Keys2d(void)
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_J]) // ' J
     {
-        posx=getnumber16("X-coordinate:    ",posx,131072L,1);
-        posy=getnumber16("Y-coordinate:    ",posy,131072L,1);
-        Bsprintf(tempbuf,"Current pos now (%d, %d)",posx,posy);
+        pos.x=getnumber16("X-coordinate:    ",pos.x,131072L,1);
+        pos.y=getnumber16("Y-coordinate:    ",pos.y,131072L,1);
+        Bsprintf(tempbuf,"Current pos now (%d, %d)",pos.x,pos.y);
         printmessage16(tempbuf);
         keystatus[KEYSC_J]=0;
     }
@@ -8802,7 +8805,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                     }
                 }
         }
-        if (floor_over_floor) SE40Code(posx,posy,posz,ang,horiz);
+        if (floor_over_floor) SE40Code(pos.x,pos.y,pos.z,ang,horiz);
         if (purpleon) clearview(255);
         if (sidemode != 0)
         {
@@ -8882,7 +8885,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 if (frames!=0)
                 {
                     if (frames==10) frames=0;
-                    k = 1536;//getangle(tspr->x-posx,tspr->y-posy);
+                    k = 1536;//getangle(tspr->x-pos.x,tspr->y-pos.y);
                     k = (((sprite[i].ang+3072+128-k)&2047)>>8)&7;
                     //This guy has only 5 pictures for 8 angles (3 are x-flipped)
                     if (k <= 4)
@@ -8915,8 +8918,8 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
             }
 
-            xp1 = mulscale14(sprite[i].x-posx,zoom);
-            yp1 = mulscale14(sprite[i].y-posy-(tilesizy[picnum]<<2),zoom);
+            xp1 = mulscale14(sprite[i].x-pos.x,zoom);
+            yp1 = mulscale14(sprite[i].y-pos.y-(tilesizy[picnum]<<2),zoom);
             if (i+16384 != pointhighlight || !(totalclock&32))
             {
                 shade = sprite[i].shade;
@@ -8937,8 +8940,8 @@ void ExtPreCheckKeys(void) // just before drawrooms
     for (i=0;i<numsprites;i++)
         if (sprite[i].picnum == 5 /*&& zoom >= 256*/ && sprite[i].sectnum != MAXSECTORS)
         {
-            xp1 = mulscale14(sprite[i].x-posx,zoom);
-            yp1 = mulscale14(sprite[i].y-posy,zoom);
+            xp1 = mulscale14(sprite[i].x-pos.x,zoom);
+            yp1 = mulscale14(sprite[i].y-pos.y,zoom);
 
             radius = mulscale14(sprite[i].hitag,zoom);
             col = 6;
@@ -9059,7 +9062,7 @@ void ExtAnalyzeSprites(void)
                 if (frames!=0)
                 {
                     if (frames==10) frames=0;
-                    k = getangle(tspr->x-posx,tspr->y-posy);
+                    k = getangle(tspr->x-pos.x,tspr->y-pos.y);
                     k = (((tspr->ang+3072+128-k)&2047)>>8)&7;
                     //This guy has only 5 pictures for 8 angles (3 are x-flipped)
                     if (k <= 4)
@@ -9162,7 +9165,7 @@ static void Keys2d3d(void)
             keystatus[KEYSC_P] = 0;
 
             if (!eitherALT)
-                updatesector(posx, posy, &cursectnum);
+                updatesector(pos.x, pos.y, &cursectnum);
             else
                 updatesector(startposx, startposy, &startsectnum);
 
@@ -9225,7 +9228,7 @@ static void Keys2d3d(void)
                 if (eitherALT)
                     saveboard("autosave.map",&startposx,&startposy,&startposz,&startang,&startsectnum);
                 else
-                    saveboard("autosave.map",&posx,&posy,&posz,&ang,&cursectnum);
+                    saveboard("autosave.map",&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
                 message("Board saved to AUTOSAVE.MAP. Starting the game...");
 
                 uninitmouse();
@@ -9284,7 +9287,7 @@ static void Keys2d3d(void)
 
             if (totalclock < (lastsave + 120*10) || !AskIfSure("Are you sure you want to load the last saved map?"))
             {
-                int32_t sposx=posx,sposy=posy,sposz=posz,sang=ang;
+                int32_t sposx=pos.x,sposy=pos.y,sposz=pos.z,sang=ang;
 
                 lastsave=totalclock;
                 highlightcnt = -1;
@@ -9299,9 +9302,9 @@ static void Keys2d3d(void)
                 for (i=MAXSPRITES-1;i>=0;i--) sprite[i].extra = -1;
 
                 ExtPreLoadMap();
-                i = loadboard(f,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
+                i = loadboard(f,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
                 loadmhk();
-                if (i == -2) i = loadoldboard(f,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
+                if (i == -2) i = loadoldboard(f,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
                 if (i < 0) printmessage16("Invalid map format.");
                 else
                 {
@@ -9310,12 +9313,12 @@ static void Keys2d3d(void)
                     else message("Map %s loaded successfully",f);
                 }
                 updatenumsprites();
-                startposx = posx;
-                startposy = posy;
-                startposz = posz;
+                startposx = pos.x;
+                startposy = pos.y;
+                startposz = pos.z;
                 startang = ang;
                 startsectnum = cursectnum;
-                posx=sposx;posy=sposy;posz=sposz;ang=sang;
+                pos.x=sposx;pos.y=sposy;pos.z=sposz;ang=sang;
                 keystatus[KEYSC_L]=0;
             }
         }
@@ -9468,11 +9471,12 @@ void faketimerhandler(void)
         return;
     ototalclock = totalclock;
 
-    oposx = posx;
-    oposy = posy;
-    hitwall = clipmove(&posx,&posy,&posz,&cursectnum,xvel,yvel,128L,4L<<8,4L<<8,0);
-    xvel = ((posx-oposx)<<14);
-    yvel = ((posy-oposy)<<14);
+    oposx = pos.x;
+    oposy = pos.y;
+
+    hitwall = clipmove(&pos,&cursectnum,xvel,yvel,128L,4L<<8,4L<<8,0);
+    xvel = ((pos.x-oposx)<<14);
+    yvel = ((pos.y-oposy)<<14);
 
     yvel += 80000;
     if ((hitwall&0xc000) == 32768)
@@ -9506,18 +9510,18 @@ void faketimerhandler(void)
             ang = ((ang+((timoff+32-ototalclock)>>4))&2047);
     }
 
-    getzrange(posx,posy,posz,cursectnum,&hiz,&hihit,&loz,&lohit,128L,0);
+    getzrange(&pos,cursectnum,&hiz,&hihit,&loz,&lohit,128L,0);
 
-    oposx -= posx;
-    oposy -= posy;
+    oposx -= pos.x;
+    oposy -= pos.y;
 
     dist = ksqrt(oposx*oposx+oposy*oposy);
     if (ototalclock > timoff+32) dist = 0;
 
     daang = mulscale(dist,angvel,9);
-    posz += (daang<<6);
-    if (posz > loz-(4<<8)) posz = loz-(4<<8), hvel = 0;
-    if (posz < hiz+(4<<8)) posz = hiz+(4<<8), hvel = 0;
+    pos.z += (daang<<6);
+    if (pos.z > loz-(4<<8)) pos.z = loz-(4<<8), hvel = 0;
+    if (pos.z < hiz+(4<<8)) pos.z = hiz+(4<<8), hvel = 0;
 
     horiz = ((horiz*7+(100-(daang>>1)))>>3);
     if (horiz < 100) horiz++;
@@ -9572,8 +9576,8 @@ static void SearchSectorsForward()
         {
             if (sector[ii].lotag==cursector_lotag)
             {
-                posx=wall[sector[ii].wallptr].x;
-                posy=wall[sector[ii].wallptr].y;
+                pos.x=wall[sector[ii].wallptr].x;
+                pos.y=wall[sector[ii].wallptr].y;
                 printmessage16("> Sector search: found");
                 //            cursectornum++;
                 keystatus[KEYSC_RBRACK]=0; // ]
@@ -9595,8 +9599,8 @@ static void SearchSectorsBackward()
         {
             if (sector[ii].lotag==cursector_lotag)
             {
-                posx=wall[sector[ii].wallptr].x;
-                posy=wall[sector[ii].wallptr].y;
+                pos.x=wall[sector[ii].wallptr].x;
+                pos.y=wall[sector[ii].wallptr].y;
                 printmessage16("< Sector search: found");
                 //            cursectornum--;
                 keystatus[KEYSC_LBRACK]=0; // [

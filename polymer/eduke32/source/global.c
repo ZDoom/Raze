@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 #include "duke3d.h"
 
-const char *s_buildDate = "20090105";
+const char *s_buildDate = "20090112";
 char *MusicPtr = NULL;
 int32_t g_musicSize;
 
@@ -147,7 +147,7 @@ int32_t g_impactDamage;
 int32_t g_scriptDebug;
 
 //GLOBAL.C - replace the end "my's" with this
-int32_t myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
+vec3_t my, omy, myvel;
 int16_t myhoriz, omyhoriz, myhorizoff, omyhorizoff;
 int16_t myang, omyang, mycursectnum, myjumpingcounter;
 

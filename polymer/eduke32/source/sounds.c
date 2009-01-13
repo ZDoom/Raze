@@ -513,10 +513,11 @@ int32_t A_PlaySound(uint32_t num, int32_t i)
         return 0;
     }
     {
-        vec3_t davector;
-        Bmemcpy(&davector,&sprite[i],sizeof(intptr_t) * 3);
+        /*
+                        vec3_t davector;
+                        Bmemcpy(&davector,&sprite[i],sizeof(intptr_t) * 3); */
 //        OSD_Printf("x: %d y: %d z: %d\n",davector.x,davector.y,davector.z);
-        return S_PlaySoundXYZ(num,i, &davector);
+        return S_PlaySoundXYZ(num,i, (vec3_t *)&sprite[i]);
     }
 }
 

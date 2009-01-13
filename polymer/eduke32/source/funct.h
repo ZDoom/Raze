@@ -56,7 +56,7 @@ extern int32_t G_CheckActivatorMotion(int32_t lotag);
 extern int32_t CheckDoorTile(int32_t dapic);
 extern int32_t isanunderoperator(int32_t lotag);
 extern int32_t isanearoperator(int32_t lotag);
-extern inline int32_t CheckPlayerInSector(int32_t sect);
+extern inline int32_t G_CheckPlayerInSector(int32_t sect);
 extern int32_t ldist(spritetype *s1,spritetype *s2);
 extern int32_t dist(spritetype *s1,spritetype *s2);
 extern int32_t __fastcall A_FindPlayer(spritetype *s,int32_t *d);
