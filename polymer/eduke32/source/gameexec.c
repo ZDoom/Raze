@@ -605,9 +605,14 @@ static void X_Move(void)
             }
         }
 
-        ActorExtra[vm.g_i].movflag = A_MoveSprite(vm.g_i,
-                                               (daxvel*(sintable[(angdif+512)&2047]))>>14,
-                                               (daxvel*(sintable[angdif&2047]))>>14,vm.g_sp->zvel,CLIPMASK0);
+        {
+            vec3_t tmpvect;
+
+            tmpvect.x = (daxvel*(sintable[(angdif+512)&2047]))>>14;
+            tmpvect.y = (daxvel*(sintable[angdif&2047]))>>14;
+            tmpvect.z = vm.g_sp->zvel;
+            ActorExtra[vm.g_i].movflag = A_MoveSprite(vm.g_i,&tmpvect,CLIPMASK0);
+        }
     }
 
     if (a)
@@ -1095,7 +1100,7 @@ static int32_t X_DoExecute(void)
             default:
                 // fix for flying/jumping monsters getting stuck in water
                 if (vm.g_sp->hitag & jumptoplayer || (actorscrptr[vm.g_sp->picnum] &&
-                                                   moveptr >= &script[0] && moveptr <= (&script[0]+g_scriptSize) && *(moveptr+1)))
+                                                      moveptr >= &script[0] && moveptr <= (&script[0]+g_scriptSize) && *(moveptr+1)))
                 {
 //                    OSD_Printf("%d\n",*(moveptr+1));
                     break;
@@ -1516,7 +1521,7 @@ static int32_t X_DoExecute(void)
         insptr++;
         {
             int32_t i = Gv_GetVarX(*insptr++),
-                    f=Gv_GetVarX(*insptr++);
+                        f=Gv_GetVarX(*insptr++);
             j=Gv_GetVarX(*insptr++);
             if ((i<0 || i>=MAXQUOTES) && g_scriptSanityChecks)
                 OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],i);
@@ -1616,6 +1621,9 @@ static int32_t X_DoExecute(void)
                     break;
                 case STR_GAMETYPE:
                     Bstrcpy(ScriptQuotes[i],GametypeNames[ud.coop]);
+                    break;
+                case STR_VOLUMENAME:
+                    Bstrcpy(ScriptQuotes[i],EpisodeNames[ud.volume_number]);
                     break;
                 default:
                     OSD_Printf(CON_ERROR "unknown str ID %d %d\n",g_errorLineNum,keyw[g_tw],i,j);
@@ -2402,7 +2410,11 @@ static int32_t X_DoExecute(void)
         insptr++;
         {
             int32_t spritenum = Gv_GetVarX(*insptr++);
-            int32_t x = Gv_GetVarX(*insptr++), y = Gv_GetVarX(*insptr++), z = Gv_GetVarX(*insptr++);
+            vec3_t davector;
+
+            davector.x = Gv_GetVarX(*insptr++);
+            davector.y = Gv_GetVarX(*insptr++);
+            davector.z = Gv_GetVarX(*insptr++);
 
             if (tw == CON_SETSPRITE)
             {
@@ -2411,7 +2423,7 @@ static int32_t X_DoExecute(void)
                     OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],spritenum);
                     break;
                 }
-                setsprite(spritenum, x, y, z);
+                setsprite(spritenum, davector.x, davector.y, davector.z);
                 break;
             }
 
@@ -2424,7 +2436,7 @@ static int32_t X_DoExecute(void)
                     insptr++;
                     break;
                 }
-                Gv_SetVarX(*insptr++, A_MoveSprite(spritenum, x, y, z, cliptype));
+                Gv_SetVarX(*insptr++, A_MoveSprite(spritenum, &davector, cliptype));
                 break;
             }
         }
@@ -3061,17 +3073,17 @@ static int32_t X_DoExecute(void)
                     index=Gv_GetVarX(*insptr++);
                     label=*insptr++;
 
-/*                    if ((index < aGameArrays[lVarID].size)&&(index>=0))
-                    {
-                        OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n",g_errorLineNum,keyw[g_tw],
-                                   aGameArrays[lVarID].szLabel,index,m*aGameArrays[lVarID].plValues[index]);
-                        break;
-                    }
-                    else
-                    {
-                        OSD_Printf(CON_ERROR "invalid array index\n",g_errorLineNum,keyw[g_tw]);
-                        break;
-                    } */
+                    /*                    if ((index < aGameArrays[lVarID].size)&&(index>=0))
+                                        {
+                                            OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n",g_errorLineNum,keyw[g_tw],
+                                                       aGameArrays[lVarID].szLabel,index,m*aGameArrays[lVarID].plValues[index]);
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            OSD_Printf(CON_ERROR "invalid array index\n",g_errorLineNum,keyw[g_tw]);
+                                            break;
+                                        } */
                     break;
                 }
                 else if (*insptr&(MAXGAMEVARS<<1))

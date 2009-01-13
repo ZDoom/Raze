@@ -480,6 +480,8 @@ int32_t   setsprite(int16_t spritenum, int32_t newx, int32_t newy, int32_t newz)
 
 int32_t   screencapture(char *filename, char inverseit);
 
+int32_t   getclosestcol(int32_t r, int32_t g, int32_t b);
+
 // PLAG: line utility functions
 typedef struct  s_equation {
     float       a, b, c;

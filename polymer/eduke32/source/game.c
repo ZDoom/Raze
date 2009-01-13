@@ -305,7 +305,7 @@ int32_t gametext_z(int32_t small, int32_t starttile, int32_t x,int32_t y,const c
 {
     int32_t ac,newx,oldx=x;
     char centre;
-	char *oldt;
+    char *oldt;
     int32_t squishtext = ((small&2)!=0);
 //    int32_t ht = usehightile;
     int32_t shift = 16, widthx = 320, ox, oy;
@@ -2034,9 +2034,9 @@ static void G_DrawStatusBar(int32_t snum)
                    the HUD is drawn */
 
                 int32_t asprites[MAX_WEAPONS] = { BOOTS, AMMO, SHOTGUNAMMO,
-                                              BATTERYAMMO, RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO,
-                                              TRIPBOMBSPRITE, FREEZEAMMO+1, HBOMBAMMO, GROWAMMO
-                                            };
+                                                  BATTERYAMMO, RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO,
+                                                  TRIPBOMBSPRITE, FREEZEAMMO+1, HBOMBAMMO, GROWAMMO
+                                                };
                 Bmemcpy(ammo_sprites,asprites,sizeof(ammo_sprites));
             }
 
@@ -2855,30 +2855,30 @@ void G_GameExit(const char *t)
     if (*t != 0) g_player[myconnectindex].ps->palette = (unsigned char *) &palette[0];
 
     if (numplayers > 1)
-	{
-		int32_t i, j, oldtotalclock;
+    {
+        int32_t i, j, oldtotalclock;
 
-		ready2send = 0;
+        ready2send = 0;
 
-		for (j=MAXPLAYERS-1;j>=0;j--)
-		{
-			oldtotalclock = totalclock;
+        for (j=MAXPLAYERS-1;j>=0;j--)
+        {
+            oldtotalclock = totalclock;
 
-			while (totalclock < oldtotalclock+TICSPERFRAME)
-			{
-				handleevents();
-				Net_GetPackets();
-			}
-			if (KB_KeyPressed(sc_Escape)) return;
+            while (totalclock < oldtotalclock+TICSPERFRAME)
+            {
+                handleevents();
+                Net_GetPackets();
+            }
+            if (KB_KeyPressed(sc_Escape)) return;
 
-			packbuf[0] = PACKET_NULL_PACKET;
-			TRAVERSE_CONNECT(i)
-			{
-				if (i != myconnectindex) mmulti_sendpacket(i,packbuf,1);
-				if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-			}
-		}
-	}
+            packbuf[0] = PACKET_NULL_PACKET;
+            TRAVERSE_CONNECT(i)
+            {
+                if (i != myconnectindex) mmulti_sendpacket(i,packbuf,1);
+                if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+            }
+        }
+    }
 
     mmulti_uninitmultiplayers();
 
@@ -3473,7 +3473,6 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
 #define CROSSHAIR_PAL (MAXPALOOKUPS-RESERVEDPALS-1)
 
-extern int32_t getclosestcol(int32_t r, int32_t g, int32_t b);
 palette_t CrosshairColors = { 255, 255, 255, 0 };
 palette_t DefaultCrosshairColors = { 0, 0, 0, 0 };
 int32_t g_crosshairSum = 0;
@@ -3598,7 +3597,7 @@ void G_DisplayRest(int32_t smoothratio)
 
     DukePlayer_t *pp = g_player[screenpeek].ps;
     walltype *wal;
-    int32_t cposx,cposy,cang;
+    int32_t cposx, cposy, cang;
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
     // this takes care of fullscreen tint for OpenGL
@@ -7505,7 +7504,7 @@ PALONLY:
     do
     {
         if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
-        if (tsprite[j].owner < MAXSPRITES && tsprite[j].owner > 0 && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
+        if (tsprite[j].owner < MAXSPRITES && tsprite[j].owner >= 0 && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
         {
             spriteext[tsprite[j].owner].tspr = (spritetype *)&tsprite[j];
             X_OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
@@ -7516,7 +7515,7 @@ PALONLY:
     if (j < 0) return;
 
     if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
-    if (tsprite[j].owner > 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
+    if (tsprite[j].owner >= 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
     {
         spriteext[tsprite[j].owner].tspr = (spritetype *)&tsprite[j];
         X_OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
@@ -10707,7 +10706,7 @@ void G_UpdatePlayerFromMenu(void)
         g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
         g_player[myconnectindex].ps->weaponswitch = ud.weaponswitch;
         g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
-        
+
         g_player[myconnectindex].pteam = ud.team;
 
         if (sprite[g_player[myconnectindex].ps->i].picnum == APLAYER && sprite[g_player[myconnectindex].ps->i].pal != 1)
@@ -10966,12 +10965,12 @@ void app_main(int32_t argc,const char **argv)
 
                         if (!ShellExecuteExA(&sinfo))
                             initprintf("update: error launching browser!\n");
-/*
-                        CONFIG_SetupMouse();
-                        CONFIG_SetupJoystick();
-                        CONFIG_WriteSetup();
-                        G_GameExit(" ");
-*/
+                        /*
+                                                CONFIG_SetupMouse();
+                                                CONFIG_SetupJoystick();
+                                                CONFIG_WriteSetup();
+                                                G_GameExit(" ");
+                        */
                     }
                 }
                 else initprintf("... no updates available\n");

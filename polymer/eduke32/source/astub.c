@@ -7263,8 +7263,6 @@ static void InitCustomColors(void)
         editorcolors[4] = getclosestcol(42,0,0);
         editorcolors[5] = getclosestcol(0,0,0);
     */
-    extern int32_t getclosestcol(int32_t r, int32_t g, int32_t b);
-
 
     vgapal16[9*4+0] = 63;
     vgapal16[9*4+1] = 31;

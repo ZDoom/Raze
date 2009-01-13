@@ -574,6 +574,10 @@ extern int32_t movefifoplc, vel,svel,angvel,horiz;
 
 extern int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
 
+typedef struct {
+    int32_t x, y, z;
+} vec3_t;
+
 #include "funct.h"
 
 extern int32_t g_screenCapture;
@@ -588,27 +592,25 @@ extern int32_t GametypeFlags[MAXGAMETYPES];
 extern char g_numGametypes;
 
 enum GametypeFlags_t {
-    GAMETYPE_COOP                   = 1,
-    GAMETYPE_WEAPSTAY               = 2,
-    GAMETYPE_FRAGBAR                = 4,
-    GAMETYPE_SCORESHEET             = 8,
-    GAMETYPE_DMSWITCHES             = 16,
-    GAMETYPE_COOPSPAWN              = 32,
-    GAMETYPE_ACCESSCARDSPRITES      = 64,
-    GAMETYPE_COOPVIEW               = 128,
-    GAMETYPE_COOPSOUND              = 256,
-    GAMETYPE_OTHERPLAYERSINMAP      = 512,
-    GAMETYPE_ITEMRESPAWN            = 1024,
-    GAMETYPE_MARKEROPTION           = 2048,
-    GAMETYPE_PLAYERSFRIENDLY        = 4096,
-    GAMETYPE_FIXEDRESPAWN           = 8192,
-    GAMETYPE_ACCESSATSTART          = 16384,
-    GAMETYPE_PRESERVEINVENTORYDEATH = 32768,
-    GAMETYPE_TDM                    = 65536,
-    GAMETYPE_TDMSPAWN               = 131072
+    GAMETYPE_COOP                   = 0x00000001,
+    GAMETYPE_WEAPSTAY               = 0x00000002,
+    GAMETYPE_FRAGBAR                = 0x00000004,
+    GAMETYPE_SCORESHEET             = 0x00000008,
+    GAMETYPE_DMSWITCHES             = 0x00000010,
+    GAMETYPE_COOPSPAWN              = 0x00000020,
+    GAMETYPE_ACCESSCARDSPRITES      = 0x00000040,
+    GAMETYPE_COOPVIEW               = 0x00000080,
+    GAMETYPE_COOPSOUND              = 0x00000100,
+    GAMETYPE_OTHERPLAYERSINMAP      = 0x00000200,
+    GAMETYPE_ITEMRESPAWN            = 0x00000400,
+    GAMETYPE_MARKEROPTION           = 0x00000800,
+    GAMETYPE_PLAYERSFRIENDLY        = 0x00001000,
+    GAMETYPE_FIXEDRESPAWN           = 0x00002000,
+    GAMETYPE_ACCESSATSTART          = 0x00004000,
+    GAMETYPE_PRESERVEINVENTORYDEATH = 0x00008000,
+    GAMETYPE_TDM                    = 0x00010000,
+    GAMETYPE_TDMSPAWN               = 0x00020000
 };
-
-#define GTFLAGS(x) (GametypeFlags[ud.coop] & x)
 
 extern char g_numVolumes;
 
@@ -783,14 +785,6 @@ enum GameEvent_t {
     EVENT_ANIMATESPRITES,
     EVENT_NEWGAME,
     MAXEVENTS
-};
-
-enum SystemString_t {
-    STR_MAPNAME,
-    STR_MAPFILENAME,
-    STR_PLAYERNAME,
-    STR_VERSION,
-    STR_GAMETYPE
 };
 
 // store global game definitions
@@ -1004,19 +998,18 @@ typedef struct {
     animwalltype animwall[MAXANIMWALLS];
     int32_t msx[2048], msy[2048];
     int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
-    char show2dsector[(MAXSECTORS+7)>>3];
+    uint8_t show2dsector[(MAXSECTORS+7)>>3];
     int16_t g_numClouds,clouds[128],cloudx[128],cloudy[128];
     ActorData_t ActorExtra[MAXSPRITES];
     int16_t pskyoff[MAXPSKYTILES], pskybits;
-
     int32_t animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;
     int16_t animatesect[MAXANIMATES];
     int32_t animateptr[MAXANIMATES];
-    char g_numPlayerSprites;
-    char g_earthquakeTime;
+    uint8_t g_numPlayerSprites;
+    uint8_t g_earthquakeTime;
     int32_t lockclock;
     int32_t randomseed, g_globalRandom;
-    char scriptptrs[MAXSPRITES];
+    uint8_t scriptptrs[MAXSPRITES];
     intptr_t *vars[MAXGAMEVARS];
 } mapstate_t;
 

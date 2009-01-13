@@ -335,7 +335,14 @@ void A_RadiusDamage(int32_t i, int32_t  r, int32_t  hp1, int32_t  hp2, int32_t  
                     y1 = (((wal->y+wall[wal->point2].y)>>1)+s->y)>>1;
                     updatesector(x1,y1,&sect);
                     if (sect >= 0 && cansee(x1,y1,s->z,sect,s->x,s->y,s->z,s->sectnum))
-                        A_DamageWall(i,x,wal->x,wal->y,s->z,s->picnum);
+                    {
+                        vec3_t tmpvect;
+
+                        Bmemcpy(&tmpvect, wal, sizeof(int32_t) * 2);
+                        tmpvect.z = s->z;
+
+                        A_DamageWall(i,x,&tmpvect,s->picnum);
+                    }
                 }
         }
         while (sectcnt < sectend);
@@ -466,7 +473,7 @@ BOLT:
     }
 }
 
-int32_t A_MoveSprite(int32_t spritenum, int32_t xchange, int32_t ychange, int32_t zchange, uint32_t cliptype)
+int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 {
     int32_t daz, oldx, oldy;
     int32_t retval;
@@ -475,9 +482,9 @@ int32_t A_MoveSprite(int32_t spritenum, int32_t xchange, int32_t ychange, int32_
 
     if (sprite[spritenum].statnum == 5 || (bg && sprite[spritenum].xrepeat < 4))
     {
-        sprite[spritenum].x += (xchange*TICSPERFRAME)>>2;
-        sprite[spritenum].y += (ychange*TICSPERFRAME)>>2;
-        sprite[spritenum].z += (zchange*TICSPERFRAME)>>2;
+        sprite[spritenum].x += (change->x*TICSPERFRAME)>>2;
+        sprite[spritenum].y += (change->y*TICSPERFRAME)>>2;
+        sprite[spritenum].z += (change->z*TICSPERFRAME)>>2;
         if (bg)
             setsprite(spritenum,sprite[spritenum].x,sprite[spritenum].y,sprite[spritenum].z);
         return 0;
@@ -493,7 +500,7 @@ int32_t A_MoveSprite(int32_t spritenum, int32_t xchange, int32_t ychange, int32_
         oldy = sprite[spritenum].y;
 
         if (sprite[spritenum].xrepeat > 60)
-            retval = clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((xchange*TICSPERFRAME)<<11),((ychange*TICSPERFRAME)<<11),1024L,(4<<8),(4<<8),cliptype);
+            retval = clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),1024L,(4<<8),(4<<8),cliptype);
         else
         {
             if (sprite[spritenum].picnum == LIZMAN)
@@ -503,7 +510,7 @@ int32_t A_MoveSprite(int32_t spritenum, int32_t xchange, int32_t ychange, int32_
             else
                 cd = 192L;
 
-            retval = clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((xchange*TICSPERFRAME)<<11),((ychange*TICSPERFRAME)<<11),cd,(4<<8),(4<<8),cliptype);
+            retval = clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),cd,(4<<8),(4<<8),cliptype);
         }
 
         if (dasectnum < 0 || (dasectnum >= 0 &&
@@ -530,16 +537,16 @@ int32_t A_MoveSprite(int32_t spritenum, int32_t xchange, int32_t ychange, int32_
     {
         if (sprite[spritenum].statnum == 4)
             retval =
-                clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((xchange*TICSPERFRAME)<<11),((ychange*TICSPERFRAME)<<11),8L,(4<<8),(4<<8),cliptype);
+                clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),8L,(4<<8),(4<<8),cliptype);
         else
             retval =
-                clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((xchange*TICSPERFRAME)<<11),((ychange*TICSPERFRAME)<<11),(int32_t)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
+                clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),(int32_t)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
     }
 
     if (dasectnum >= 0)
         if ((dasectnum != sprite[spritenum].sectnum))
             changespritesect(spritenum,dasectnum);
-    daz = sprite[spritenum].z + ((zchange*TICSPERFRAME)>>3);
+    daz = sprite[spritenum].z + ((change->z*TICSPERFRAME)>>3);
     if ((daz > ActorExtra[spritenum].ceilingz) && (daz <= ActorExtra[spritenum].floorz))
         sprite[spritenum].z = daz;
     else if (retval == 0)
@@ -550,9 +557,12 @@ int32_t A_MoveSprite(int32_t spritenum, int32_t xchange, int32_t ychange, int32_
 
 inline int32_t A_SetSprite(int32_t i,uint32_t cliptype) //The set sprite function
 {
-    return (A_MoveSprite(i,(sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
-                         (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14,sprite[i].zvel,
-                         cliptype)==0);
+    vec3_t davect;
+
+    davect.x = (sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14;
+    davect.y = (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14;
+    davect.z = sprite[i].zvel;
+    return (A_MoveSprite(i,&davect,cliptype)==0);
 }
 
 #undef deletesprite
@@ -2347,7 +2357,8 @@ static void A_DoProjectileBounce(int32_t i)
 static void G_MoveWeapons(void)
 {
     int32_t i = headspritestat[STAT_PROJECTILE], j=0, k, f, nexti, p, q;
-    int32_t dax,day,daz, x, ll;
+    vec3_t davect;
+    int32_t x, ll;
     uint32_t qq;
     spritetype *s;
 
@@ -2403,9 +2414,12 @@ static void G_MoveWeapons(void)
                     ll = s->zvel>>1;
                 }
 
-                dax = s->x;
-                day = s->y;
-                daz = s->z;
+                Bmemcpy(&davect,s,sizeof(int32_t) * 3);
+                /*
+                                dax = s->x;
+                                day = s->y;
+                                daz = s->z;
+                */
 
                 A_GetZLimits(i);
                 qq = CLIPMASK1;
@@ -2426,12 +2440,19 @@ static void G_MoveWeapons(void)
 
                 for (f=1;f<=ActorExtra[i].projectile.velmult;f++)
                 {
-                    dax = s->x;
-                    day = s->y;
-                    daz = s->z;
-                    j = A_MoveSprite(i,
-                                     (k*(sintable[(s->ang+512)&2047]))>>14,
-                                     (k*(sintable[s->ang&2047]))>>14,ll,qq);
+                    vec3_t tmpvect;
+                    /*
+                                        dax = s->x;
+                                        day = s->y;
+                                        daz = s->z;
+                    */
+                    Bmemcpy(&davect,s,sizeof(int32_t) * 3);
+
+                    tmpvect.x = (k*(sintable[(s->ang+512)&2047]))>>14;
+                    tmpvect.y = (k*(sintable[s->ang&2047]))>>14;
+                    tmpvect.z = ll;
+
+                    j = A_MoveSprite(i,&tmpvect,qq);
                     if (j)
                         break;
                 }
@@ -2462,9 +2483,13 @@ static void G_MoveWeapons(void)
                             if (ActorExtra[i].projectile.spawns >= 0)
                             {
                                 k = A_Spawn(i,ActorExtra[i].projectile.spawns);
-                                sprite[k].x = dax;
-                                sprite[k].y = day;
-                                sprite[k].z = daz;
+
+                                Bmemcpy(&sprite[k],&davect,sizeof(int32_t) * 3);
+                                /*
+                                                                sprite[k].x = dax;
+                                                                sprite[k].y = day;
+                                                                sprite[k].z = daz;
+                                */
 
                                 if (ActorExtra[i].projectile.sxrepeat > 4)
                                     sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
@@ -2496,9 +2521,13 @@ static void G_MoveWeapons(void)
                         if (ActorExtra[i].projectile.spawns >= 0)
                         {
                             k = A_Spawn(i,ActorExtra[i].projectile.spawns);
-                            sprite[k].x = dax;
-                            sprite[k].y = day;
-                            sprite[k].z = daz;
+
+                            Bmemcpy(&sprite[k],&davect,sizeof(int32_t) * 3);
+                            /*
+                                                        sprite[k].x = dax;
+                                                        sprite[k].y = day;
+                                                        sprite[k].z = daz;
+                            */
 
                             if (ActorExtra[i].projectile.sxrepeat > 4)
                                 sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
@@ -2612,9 +2641,12 @@ static void G_MoveWeapons(void)
                             if (ActorExtra[i].projectile.spawns >= 0)
                             {
                                 k = A_Spawn(i,ActorExtra[i].projectile.spawns);
-                                sprite[k].x = dax;
-                                sprite[k].y = day;
-                                sprite[k].z = daz;
+                                Bmemcpy(&sprite[k],&davect,sizeof(int32_t) * 3);
+                                /*
+                                                                sprite[k].x = dax;
+                                                                sprite[k].y = day;
+                                                                sprite[k].z = daz;
+                                */
 
                                 if (ActorExtra[i].projectile.sxrepeat > 4)
                                     sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
@@ -2648,8 +2680,10 @@ static void G_MoveWeapons(void)
                         }
                         else
                         {
-                            setsprite(i,dax,day,daz);
-                            A_DamageWall(i,j,s->x,s->y,s->z,s->picnum);
+                            vec3_t tmpvect;
+                            setsprite(i,davect.x,davect.y,davect.z);
+                            Bmemcpy(&tmpvect, s, sizeof(int32_t) * 3);
+                            A_DamageWall(i,j,&tmpvect,s->picnum);
 
                             if (ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFWALLS)
                             {
@@ -2675,7 +2709,7 @@ static void G_MoveWeapons(void)
                     }
                     else if ((j&49152) == 16384)
                     {
-                        setsprite(i,dax,day,daz);
+                        setsprite(i,davect.x,davect.y,davect.z);
 
                         if (s->zvel < 0)
                         {
@@ -2708,9 +2742,12 @@ static void G_MoveWeapons(void)
                     if (ActorExtra[i].projectile.workslike & PROJECTILE_RPG && ActorExtra[i].projectile.spawns > 0)
                     {
                         k = A_Spawn(i,ActorExtra[i].projectile.spawns);
-                        sprite[k].x = dax;
-                        sprite[k].y = day;
-                        sprite[k].z = daz;
+                        Bmemcpy(&sprite[k],&davect,sizeof(int32_t) * 3);
+                        /*
+                                                sprite[k].x = dax;
+                                                sprite[k].y = day;
+                                                sprite[k].z = daz;
+                        */
 
                         if (ActorExtra[i].projectile.sxrepeat > 4)
                             sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
@@ -2819,9 +2856,12 @@ static void G_MoveWeapons(void)
                     ll = s->zvel>>1;
                 }
 
-                dax = s->x;
-                day = s->y;
-                daz = s->z;
+                Bmemcpy(&davect,s,sizeof(int32_t) * 3);
+                /*
+                                dax = s->x;
+                                day = s->y;
+                                daz = s->z;
+                */
 
                 A_GetZLimits(i);
                 qq = CLIPMASK1;
@@ -2837,7 +2877,15 @@ static void G_MoveWeapons(void)
                     break;
                 }
 
-                j = A_MoveSprite(i,(k*(sintable[(s->ang+512)&2047]))>>14,(k*(sintable[s->ang&2047]))>>14,ll,qq);
+                {
+                    vec3_t tmpvect;
+
+                    tmpvect.x = (k*(sintable[(s->ang+512)&2047]))>>14;
+                    tmpvect.y = (k*(sintable[s->ang&2047]))>>14;
+                    tmpvect.z = ll;
+                    j = A_MoveSprite(i,&tmpvect,qq);
+                }
+
 
                 if (s->picnum == RPG && s->yvel >= 0 && sprite[s->yvel].sectnum < MAXSECTORS)
                     if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
@@ -2953,8 +3001,10 @@ static void G_MoveWeapons(void)
                         }
                         else
                         {
-                            setsprite(i,dax,day,daz);
-                            A_DamageWall(i,j,s->x,s->y,s->z,s->picnum);
+                            vec3_t tmpvect;
+                            setsprite(i,davect.x,davect.y,davect.z);
+                            Bmemcpy(&tmpvect, s, sizeof(int32_t) * 3);
+                            A_DamageWall(i,j,&tmpvect,s->picnum);
 
                             if (s->picnum == FREEZEBLAST)
                             {
@@ -2974,7 +3024,7 @@ static void G_MoveWeapons(void)
                     }
                     else if ((j&49152) == 16384)
                     {
-                        setsprite(i,dax,day,daz);
+                        setsprite(i,davect.x,davect.y,davect.z);
 
                         if (s->zvel < 0)
                         {
@@ -3004,9 +3054,12 @@ static void G_MoveWeapons(void)
                         if (s->picnum == RPG)
                         {
                             k = A_Spawn(i,EXPLOSION2);
-                            sprite[k].x = dax;
-                            sprite[k].y = day;
-                            sprite[k].z = daz;
+                            Bmemcpy(&sprite[k],&davect,sizeof(int32_t) * 3);
+                            /*
+                                                        sprite[k].x = dax;
+                                                        sprite[k].y = day;
+                                                        sprite[k].z = daz;
+                            */
 
                             if (s->xrepeat < 10)
                             {
@@ -4355,10 +4408,14 @@ static void G_MoveActors(void)
                 }
             }
 
-            j = A_MoveSprite(i,
-                             (s->xvel*(sintable[(s->ang+512)&2047]))>>14,
-                             (s->xvel*(sintable[s->ang&2047]))>>14,
-                             s->zvel,CLIPMASK0);
+            {
+                vec3_t tmpvect;
+
+                tmpvect.x = (s->xvel*(sintable[(s->ang+512)&2047]))>>14;
+                tmpvect.y = (s->xvel*(sintable[s->ang&2047]))>>14;
+                tmpvect.z = s->zvel;
+                j = A_MoveSprite(i,&tmpvect,CLIPMASK0);
+            }
 
             ActorExtra[i].movflag = j;
 
@@ -4399,9 +4456,12 @@ static void G_MoveActors(void)
 
             if ((j&49152) == 32768)
             {
+                vec3_t davect;
+
                 j &= (MAXWALLS-1);
 
-                A_DamageWall(i,j,s->x,s->y,s->z,s->picnum);
+                Bmemcpy(&davect, s, sizeof(int32_t) * 3);
+                A_DamageWall(i,j,&davect,s->picnum);
 
                 k = getangle(
                         wall[wall[j].point2].x-wall[j].x,

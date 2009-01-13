@@ -139,35 +139,39 @@ static void A_DoWaterTracers(int32_t x1,int32_t y1,int32_t z1,int32_t x2,int32_t
     }
 }
 
-static void A_HitscanProjTrail(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t ang, int32_t atwith)
+static void A_HitscanProjTrail(const vec3_t *sv, const vec3_t *dv, int32_t ang, int32_t atwith)
 {
     int32_t n, j, i;
     int16_t sect = -1;
+    vec3_t srcvect;
+    vec3_t destvect;
 
-    x1 += (sintable[(348+ang+512)&2047]/ProjectileData[atwith].offset);
-    y1 += (sintable[(ang+348)&2047]/ProjectileData[atwith].offset);
-    z1 += 1024+(ProjectileData[atwith].toffset<<8);
+    Bmemcpy(&destvect,&dv,sizeof(vec3_t));
 
-    n = ((FindDistance2D(x1-x2,y1-y2))>>8)+1;
+    srcvect.x = sv->x + (sintable[(348+ang+512)&2047]/ProjectileData[atwith].offset);
+    srcvect.y = sv->y + (sintable[(ang+348)&2047]/ProjectileData[atwith].offset);
+    srcvect.z = sv->z + 1024+(ProjectileData[atwith].toffset<<8);
 
-    x2 = ((x2-x1)/n);
-    y2 = ((y2-y1)/n);
-    z2 = ((z2-z1)/n);
+    n = ((FindDistance2D(srcvect.x-destvect.x,srcvect.y-destvect.y))>>8)+1;
 
-    x1 += x2>>2;
-    y1 += y2>>2;
-    z1 += (z2>>2);
+    destvect.x = ((destvect.x-srcvect.x)/n);
+    destvect.y = ((destvect.y-srcvect.y)/n);
+    destvect.z = ((destvect.z-srcvect.z)/n);
+
+    srcvect.x += destvect.x>>2;
+    srcvect.y += destvect.y>>2;
+    srcvect.z += (destvect.z>>2);
 
     for (i=ProjectileData[atwith].tnum;i>0;i--)
     {
-        x1 += x2;
-        y1 += y2;
-        z1 += z2;
-        updatesector(x1,y1,&sect);
-        getzsofslope(sect,x1,y1,&n,&j);
-        if (sect < 0 || z1 > j || z1 < n)
+        srcvect.x += destvect.x;
+        srcvect.y += destvect.y;
+        srcvect.z += destvect.z;
+        updatesector(srcvect.x,srcvect.y,&sect);
+        getzsofslope(sect,srcvect.x,srcvect.y,&n,&j);
+        if (sect < 0 || srcvect.z > j || srcvect.z < n)
             break;
-        j = A_InsertSprite(sect,x1,y1,z1,ProjectileData[atwith].trail,-32,ProjectileData[atwith].txrepeat,ProjectileData[atwith].tyrepeat,ang,0,0,g_player[0].ps->i,0);
+        j = A_InsertSprite(sect,srcvect.x,srcvect.y,srcvect.z,ProjectileData[atwith].trail,-32,ProjectileData[atwith].txrepeat,ProjectileData[atwith].tyrepeat,ang,0,0,g_player[0].ps->i,0);
         changespritestat(j,1);
     }
 }
@@ -301,7 +305,9 @@ static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
 int32_t A_Shoot(int32_t i,int32_t atwith)
 {
     int16_t hitsect, hitspr, hitwall, l, sa, p, j, k=-1, wh, scount;
-    int32_t sx, sy, sz, vel, zvel = 0, hitx, hity, hitz, x, oldzvel, dal;
+    int32_t vel, zvel = 0, x, oldzvel, dal;
+    vec3_t hitvect;
+    vec3_t srcvect;
     char sizx,sizy;
     spritetype *s = &sprite[i];
     int16_t sect = s->sectnum;
@@ -310,9 +316,9 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
     {
         p = s->yvel;
 
-        sx = g_player[p].ps->posx;
-        sy = g_player[p].ps->posy;
-        sz = g_player[p].ps->posz+g_player[p].ps->pyoff+(4<<8);
+        srcvect.x = g_player[p].ps->posx;
+        srcvect.y = g_player[p].ps->posy;
+        srcvect.z = g_player[p].ps->posz+g_player[p].ps->pyoff+(4<<8);
         sa = g_player[p].ps->ang;
 
         g_player[p].ps->crack_time = 777;
@@ -321,16 +327,16 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
     {
         p = -1;
         sa = s->ang;
-        sx = s->x;
-        sy = s->y;
-        sz = s->z-((s->yrepeat*tilesizy[s->picnum])<<1)+(4<<8);
+        Bmemcpy(&srcvect,s,sizeof(int32_t) * 3);
+        srcvect.z -= ((s->yrepeat*tilesizy[s->picnum])<<1)+(4<<8);
+
         if (s->picnum != ROTATEGUN)
         {
-            sz -= (7<<8);
+            srcvect.z -= (7<<8);
             if (A_CheckEnemySprite(s) && PN != COMMANDER)
             {
-                sx += (sintable[(sa+1024+96)&2047]>>7);
-                sy += (sintable[(sa+512+96)&2047]>>7);
+                srcvect.x += (sintable[(sa+1024+96)&2047]>>7);
+                srcvect.y += (sintable[(sa+512+96)&2047]>>7);
             }
         }
     }
@@ -357,29 +363,29 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 if (p >= 0)
                 {
                     zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
-                    sz += (6<<8);
+                    srcvect.z += (6<<8);
                     sa += 15;
                 }
                 else if (!(ProjectileData[atwith].workslike & PROJECTILE_NOAIM))
                 {
                     j = g_player[A_FindPlayer(s,&x)].ps->i;
-                    zvel = ((sprite[j].z-sz)<<8) / (x+1);
-                    sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
+                    zvel = ((sprite[j].z-srcvect.z)<<8) / (x+1);
+                    sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
             }
 
             if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
-            hitscan(sx,sy,sz,sect,
+            hitscan(srcvect.x,srcvect.y,srcvect.z,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],zvel<<6,
-                    &hitsect,&hitwall,&hitspr,&hitx,&hity,&hitz,CLIPMASK1);
+                    &hitsect,&hitwall,&hitspr,&hitvect.x,&hitvect.y,&hitvect.z,CLIPMASK1);
 
             if (ProjectileData[atwith].workslike & PROJECTILE_BLOOD)
             {
                 if (ProjectileData[atwith].range == 0)
                     ProjectileData[atwith].range = 1024;
 
-                if (FindDistance2D(sx-hitx,sy-hity) < ProjectileData[atwith].range)
+                if (FindDistance2D(srcvect.x-hitvect.x,srcvect.y-hitvect.y) < ProjectileData[atwith].range)
                     if (FindDistance2D(wall[hitwall].x-wall[wall[hitwall].point2].x,wall[hitwall].y-wall[wall[hitwall].point2].y) > (mulscale(ProjectileData[atwith].xrepeat+8,tilesizx[ProjectileData[atwith].decal],3)))
                         if (hitwall >= 0 && wall[hitwall].overpicnum != BIGFORCE)
                             if ((wall[hitwall].nextsector >= 0 && hitsect >= 0 &&
@@ -414,9 +420,9 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                                                                     sprite[k].xvel = -12;
                                                                                     sprite[k].ang = getangle(wall[hitwall].x-wall[wall[hitwall].point2].x,
                                                                                                              wall[hitwall].y-wall[wall[hitwall].point2].y)+512;
-                                                                                    sprite[k].x = hitx;
-                                                                                    sprite[k].y = hity;
-                                                                                    sprite[k].z = hitz;
+                                                                                    sprite[k].x = hitvect.x;
+                                                                                    sprite[k].y = hitvect.y;
+                                                                                    sprite[k].z = hitvect.z;
                                                                                     sprite[k].cstat |= (krand()&4);
                                                                     sprite[k].xrepeat = ProjectileData[atwith].xrepeat;
                                                                 sprite[k].yrepeat = ProjectileData[atwith].yrepeat;
@@ -433,9 +439,9 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                             sprite[k].xvel = -1;
                                             sprite[k].ang = getangle(wall[hitwall].x-wall[wall[hitwall].point2].x,
                                                                      wall[hitwall].y-wall[wall[hitwall].point2].y)+512;
-                                            sprite[k].x = hitx;
-                                            sprite[k].y = hity;
-                                            sprite[k].z = hitz;
+                                            sprite[k].x = hitvect.x;
+                                            sprite[k].y = hitvect.y;
+                                            sprite[k].z = hitvect.z;
                                             if (ProjectileData[atwith].workslike & PROJECTILE_RANDDECALSIZE)
                                             {
                                                 wh = (krand()&ProjectileData[atwith].xrepeat);
@@ -483,13 +489,13 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
             if ((ProjectileData[atwith].range == 0) && (ProjectileData[atwith].workslike & PROJECTILE_KNEE))
                 ProjectileData[atwith].range = 1024;
 
-            if ((ProjectileData[atwith].range > 0) && ((klabs(sx-hitx)+klabs(sy-hity)) > ProjectileData[atwith].range))
+            if ((ProjectileData[atwith].range > 0) && ((klabs(srcvect.x-hitvect.x)+klabs(srcvect.y-hitvect.y)) > ProjectileData[atwith].range))
                 return -1;
             else
             {
                 if (hitwall >= 0 || hitspr >= 0)
                 {
-                    j = A_InsertSprite(hitsect,hitx,hity,hitz,atwith,-15,0,0,sa,32,0,i,4);
+                    j = A_InsertSprite(hitsect,hitvect.x,hitvect.y,hitvect.z,atwith,-15,0,0,sa,32,0,i,4);
                     ActorExtra[j].projectile.workslike = ProjectileData[sprite[j].picnum].workslike;
                     sprite[j].extra = ProjectileData[atwith].extra;
                     if (ProjectileData[atwith].extra_rand > 0)
@@ -520,12 +526,12 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                     {
                         if (wall[hitwall].cstat&2)
                             if (wall[hitwall].nextsector >= 0)
-                                if (hitz >= (sector[wall[hitwall].nextsector].floorz))
+                                if (hitvect.z >= (sector[wall[hitwall].nextsector].floorz))
                                     hitwall = wall[hitwall].nextwall;
 
                         if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
                         {
-                            A_DamageWall(j,hitwall,hitx,hity,hitz,atwith);
+                            A_DamageWall(j,hitwall,&hitvect,atwith);
                             if (p >= 0) P_ActivateSwitch(p,hitwall,0);
                         }
                     }
@@ -533,8 +539,8 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 else if (p >= 0 && zvel > 0 && sector[hitsect].lotag == 1)
                 {
                     j = A_Spawn(g_player[p].ps->i,WATERSPLASH2);
-                    sprite[j].x = hitx;
-                    sprite[j].y = hity;
+                    sprite[j].x = hitvect.x;
+                    sprite[j].y = hitvect.y;
                     sprite[j].ang = g_player[p].ps->ang; // Total tweek
                     sprite[j].xvel = 32;
                     A_SetSprite(i,CLIPMASK0);
@@ -569,10 +575,10 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                         dal -= (8<<8);
 //                        return -1;
                     }
-                    hitx = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
-                    if (hitx == 0) hitx++;
-                    zvel = ((sprite[j].z-sz-dal)<<8) / hitx;
-                    sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
+                    hitvect.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    if (hitvect.x == 0) hitvect.x++;
+                    zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hitvect.x;
+                    sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
 
                 Gv_SetVar(g_iAngRangeVarID,angRange, i,p);
@@ -587,8 +593,8 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                     {
                         zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
                         if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
-                        hitscan(sx,sy,sz,sect,sintable[(sa+512)&2047],sintable[sa&2047],
-                                zvel<<6,&hitsect,&hitwall,&hitspr,&hitx,&hity,&hitz,CLIPMASK1);
+                        hitscan(srcvect.x,srcvect.y,srcvect.z,sect,sintable[(sa+512)&2047],sintable[sa&2047],
+                                zvel<<6,&hitsect,&hitwall,&hitspr,&hitvect.x,&hitvect.y,&hitvect.z,CLIPMASK1);
                         if (hitspr != -1)
                         {
                             if (sprite[hitspr].statnum == 1 || sprite[hitspr].statnum == 2 || sprite[hitspr].statnum == 10 || sprite[hitspr].statnum == 13)
@@ -613,16 +619,16 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                     }
                     zvel += (zRange/2)-(krand()&(zRange-1));
                 }
-                sz -= (2<<8);
+                srcvect.z -= (2<<8);
             }
             else
             {
                 j = A_FindPlayer(s,&x);
-                sz -= (4<<8);
-                hitx = ldist(&sprite[g_player[j].ps->i], s);
-                if (hitx == 0)
-                    hitx++;
-                zvel = ((g_player[j].ps->posz-sz) <<8) / hitx;
+                srcvect.z -= (4<<8);
+                hitvect.x = ldist(&sprite[g_player[j].ps->i], s);
+                if (hitvect.x == 0)
+                    hitvect.x++;
+                zvel = ((g_player[j].ps->posz-srcvect.z) <<8) / hitvect.x;
                 if (s->picnum != BOSS1)
                 {
                     zvel += 128-(krand()&255);
@@ -631,7 +637,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 else
                 {
                     zvel += 128-(krand()&255);
-                    sa = getangle(g_player[j].ps->posx-sx,g_player[j].ps->posy-sy)+64-(krand()&127);
+                    sa = getangle(g_player[j].ps->posx-srcvect.x,g_player[j].ps->posy-srcvect.y)+64-(krand()&127);
                 }
             }
 
@@ -639,10 +645,10 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
             else s->cstat &= ~257;
 
             if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
-            hitscan(sx,sy,sz,sect,
+            hitscan(srcvect.x,srcvect.y,srcvect.z,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
-                    zvel<<6,&hitsect,&hitwall,&hitspr,&hitx,&hity,&hitz,CLIPMASK1);
+                    zvel<<6,&hitsect,&hitwall,&hitspr,&hitvect.x,&hitvect.y,&hitvect.z,CLIPMASK1);
 
 
             if (ProjectileData[atwith].cstat >= 0) s->cstat |= ProjectileData[atwith].cstat;
@@ -650,20 +656,28 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
 
             if (hitsect < 0) return -1;
 
-            if ((ProjectileData[atwith].range > 0) && ((klabs(sx-hitx)+klabs(sy-hity)) > ProjectileData[atwith].range)) return -1;
+            if ((ProjectileData[atwith].range > 0) &&
+                    ((klabs(srcvect.x-hitvect.x)+klabs(srcvect.y-hitvect.y)) > ProjectileData[atwith].range))
+                return -1;
 
             if (ProjectileData[atwith].trail >= 0)
-                A_HitscanProjTrail(sx,sy,sz,hitx,hity,hitz,sa,atwith);
+            {
+                vec3_t tmpvect;
+                vec3_t tmphvect;
+                Bmemcpy(&tmpvect,&srcvect,sizeof(vec3_t));
+                Bmemcpy(&tmphvect,&hitvect,sizeof(vec3_t));
+                A_HitscanProjTrail(&tmpvect,&tmphvect,sa,atwith);
+            }
 
             if (ProjectileData[atwith].workslike & PROJECTILE_WATERBUBBLES)
             {
                 if ((krand()&15) == 0 && sector[hitsect].lotag == 2)
-                    A_DoWaterTracers(hitx,hity,hitz,sx,sy,sz,8-(ud.multimode>>1));
+                    A_DoWaterTracers(hitvect.x,hitvect.y,hitvect.z,srcvect.x,srcvect.y,srcvect.z,8-(ud.multimode>>1));
             }
 
             if (p >= 0)
             {
-                k = A_InsertSprite(hitsect,hitx,hity,hitz,SHOTSPARK1,-15,10,10,sa,0,0,i,4);
+                k = A_InsertSprite(hitsect,hitvect.x,hitvect.y,hitvect.z,SHOTSPARK1,-15,10,10,sa,0,0,i,4);
                 sprite[k].extra = ProjectileData[atwith].extra;
                 if (ProjectileData[atwith].extra_rand > 0)
                     sprite[k].extra += (krand()%ProjectileData[atwith].extra_rand);
@@ -821,15 +835,15 @@ DOSKIPBULLETHOLE:
 
                     if (wall[hitwall].cstat&2)
                         if (wall[hitwall].nextsector >= 0)
-                            if (hitz >= (sector[wall[hitwall].nextsector].floorz))
+                            if (hitvect.z >= (sector[wall[hitwall].nextsector].floorz))
                                 hitwall = wall[hitwall].nextwall;
 
-                    A_DamageWall(k,hitwall,hitx,hity,hitz,atwith);
+                    A_DamageWall(k,hitwall,&hitvect,atwith);
                 }
             }
             else
             {
-                k = A_InsertSprite(hitsect,hitx,hity,hitz,SHOTSPARK1,-15,24,24,sa,0,0,i,4);
+                k = A_InsertSprite(hitsect,hitvect.x,hitvect.y,hitvect.z,SHOTSPARK1,-15,24,24,sa,0,0,i,4);
                 sprite[k].extra = ProjectileData[atwith].extra;
                 if (ProjectileData[atwith].extra_rand > 0)
                     sprite[k].extra += (krand()%ProjectileData[atwith].extra_rand);
@@ -856,12 +870,14 @@ DOSKIPBULLETHOLE:
                     else sprite[k].xrepeat = sprite[k].yrepeat = 0;
                 }
                 else if (hitwall >= 0)
-                    A_DamageWall(k,hitwall,hitx,hity,hitz,atwith);
+                    A_DamageWall(k,hitwall,&hitvect,atwith);
             }
 
             if ((krand()&255) < 4)
                 if (ProjectileData[atwith].isound >= 0)
-                    S_PlaySoundXYZ(ProjectileData[atwith].isound,k,hitx,hity,hitz);
+                {
+                    S_PlaySoundXYZ(ProjectileData[atwith].isound,k,&hitvect);
+                }
 
             return -1;
         }
@@ -892,15 +908,15 @@ DOSKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
-                    hitx = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    hitvect.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
 
-                    if (hitx == 0)
-                        hitx++;
+                    if (hitvect.x == 0)
+                        hitvect.x++;
 
-                    zvel = ((sprite[j].z-sz-dal)*vel) / hitx;
+                    zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hitvect.x;
 
                     if (sprite[j].picnum != RECON)
-                        sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
+                        sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
                 //                else zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*81;
                 else zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*(ProjectileData[atwith].vel/8);
@@ -913,12 +929,12 @@ DOSKIPBULLETHOLE:
                 if (!(ProjectileData[atwith].workslike & PROJECTILE_NOAIM))
                 {
                     j = A_FindPlayer(s,&x);
-                    sa = getangle(g_player[j].ps->oposx-sx,g_player[j].ps->oposy-sy);
+                    sa = getangle(g_player[j].ps->oposx-srcvect.x,g_player[j].ps->oposy-srcvect.y);
 
                     l = ldist(&sprite[g_player[j].ps->i],s);
                     if (l == 0)
                         l++;
-                    zvel = ((g_player[j].ps->oposz-sz)*vel) / l;
+                    zvel = ((g_player[j].ps->oposz-srcvect.z)*vel) / l;
 
                     if (A_CheckEnemySprite(s) && (s->hitag&face_player_smart))
                         sa = s->ang+(krand()&31)-16;
@@ -937,9 +953,9 @@ DOSKIPBULLETHOLE:
                                             sz-(1<<8),atwith,0,14,14,sa,vel,zvel,i,4);*/
             if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
             j = A_InsertSprite(sect,
-                               sx+(sintable[(348+sa+512)&2047]/ProjectileData[atwith].offset),
-                               sy+(sintable[(sa+348)&2047]/ProjectileData[atwith].offset),
-                               sz-(1<<8),atwith,0,14,14,sa,vel,zvel,i,4);
+                               srcvect.x+(sintable[(348+sa+512)&2047]/ProjectileData[atwith].offset),
+                               srcvect.y+(sintable[(sa+348)&2047]/ProjectileData[atwith].offset),
+                               srcvect.z-(1<<8),atwith,0,14,14,sa,vel,zvel,i,4);
 
             sprite[j].xrepeat=ProjectileData[atwith].xrepeat;
             sprite[j].yrepeat=ProjectileData[atwith].yrepeat;
@@ -1001,26 +1017,26 @@ DOSKIPBULLETHOLE:
                 if (p >= 0)
                 {
                     zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
-                    sz += (6<<8);
+                    srcvect.z += (6<<8);
                     sa += 15;
                 }
                 else
                 {
                     j = g_player[A_FindPlayer(s,&x)].ps->i;
-                    zvel = ((sprite[j].z-sz)<<8) / (x+1);
-                    sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
+                    zvel = ((sprite[j].z-srcvect.z)<<8) / (x+1);
+                    sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
             }
 
             if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
-            hitscan(sx,sy,sz,sect,
+            hitscan(srcvect.x,srcvect.y,srcvect.z,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],zvel<<6,
-                    &hitsect,&hitwall,&hitspr,&hitx,&hity,&hitz,CLIPMASK1);
+                    &hitsect,&hitwall,&hitspr,&hitvect.x,&hitvect.y,&hitvect.z,CLIPMASK1);
 
             if (atwith == BLOODSPLAT1 || atwith == BLOODSPLAT2 || atwith == BLOODSPLAT3 || atwith == BLOODSPLAT4)
             {
-                if (FindDistance2D(sx-hitx,sy-hity) < 1024)
+                if (FindDistance2D(srcvect.x-hitvect.x,srcvect.y-hitvect.y) < 1024)
                     if (hitwall >= 0 && wall[hitwall].overpicnum != BIGFORCE)
                         if ((wall[hitwall].nextsector >= 0 && hitsect >= 0 &&
                                 sector[wall[hitwall].nextsector].lotag == 0 &&
@@ -1051,9 +1067,9 @@ DOSKIPBULLETHOLE:
                                     sprite[k].xvel = -12;
                                     sprite[k].ang = getangle(wall[hitwall].x-wall[wall[hitwall].point2].x,
                                                              wall[hitwall].y-wall[wall[hitwall].point2].y)+512;
-                                    sprite[k].x = hitx;
-                                    sprite[k].y = hity;
-                                    sprite[k].z = hitz;
+                                    sprite[k].x = hitvect.x;
+                                    sprite[k].y = hitvect.y;
+                                    sprite[k].z = hitvect.z;
                                     sprite[k].cstat |= (krand()&4);
                                     A_SetSprite(k,CLIPMASK0);
                                     setsprite(k,sprite[k].x,sprite[k].y,sprite[k].z);
@@ -1066,11 +1082,11 @@ DOSKIPBULLETHOLE:
 
             if (hitsect < 0) break;
 
-            if ((klabs(sx-hitx)+klabs(sy-hity)) < 1024)
+            if ((klabs(srcvect.x-hitvect.x)+klabs(srcvect.y-hitvect.y)) < 1024)
             {
                 if (hitwall >= 0 || hitspr >= 0)
                 {
-                    j = A_InsertSprite(hitsect,hitx,hity,hitz,KNEE,-15,0,0,sa,32,0,i,4);
+                    j = A_InsertSprite(hitsect,hitvect.x,hitvect.y,hitvect.z,KNEE,-15,0,0,sa,32,0,i,4);
                     sprite[j].extra += (krand()&7);
                     if (p >= 0)
                     {
@@ -1095,12 +1111,12 @@ DOSKIPBULLETHOLE:
                     {
                         if (wall[hitwall].cstat&2)
                             if (wall[hitwall].nextsector >= 0)
-                                if (hitz >= (sector[wall[hitwall].nextsector].floorz))
+                                if (hitvect.z >= (sector[wall[hitwall].nextsector].floorz))
                                     hitwall = wall[hitwall].nextwall;
 
                         if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
                         {
-                            A_DamageWall(j,hitwall,hitx,hity,hitz,atwith);
+                            A_DamageWall(j,hitwall,&hitvect,atwith);
                             if (p >= 0) P_ActivateSwitch(p,hitwall,0);
                         }
                     }
@@ -1108,8 +1124,8 @@ DOSKIPBULLETHOLE:
                 else if (p >= 0 && zvel > 0 && sector[hitsect].lotag == 1)
                 {
                     j = A_Spawn(g_player[p].ps->i,WATERSPLASH2);
-                    sprite[j].x = hitx;
-                    sprite[j].y = hity;
+                    sprite[j].x = hitvect.x;
+                    sprite[j].y = hitvect.y;
                     sprite[j].ang = g_player[p].ps->ang; // Total tweek
                     sprite[j].xvel = 32;
                     A_SetSprite(i,CLIPMASK0);
@@ -1147,10 +1163,10 @@ DOSKIPBULLETHOLE:
                         dal -= (8<<8);
 
                     }
-                    hitx = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
-                    if (hitx == 0) hitx++;
-                    zvel = ((sprite[j].z-sz-dal)<<8) / hitx;
-                    sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
+                    hitvect.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    if (hitvect.x == 0) hitvect.x++;
+                    zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hitvect.x;
+                    sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
 
                 Gv_SetVar(g_iAngRangeVarID,angRange, i,p);
@@ -1167,8 +1183,8 @@ DOSKIPBULLETHOLE:
                     {
                         zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
                         if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
-                        hitscan(sx,sy,sz,sect,sintable[(sa+512)&2047],sintable[sa&2047],
-                                zvel<<6,&hitsect,&hitwall,&hitspr,&hitx,&hity,&hitz,CLIPMASK1);
+                        hitscan(srcvect.x,srcvect.y,srcvect.z,sect,sintable[(sa+512)&2047],sintable[sa&2047],
+                                zvel<<6,&hitsect,&hitwall,&hitspr,&hitvect.x,&hitvect.y,&hitvect.z,CLIPMASK1);
                         if (hitspr != -1)
                         {
                             if (sprite[hitspr].statnum == 1 || sprite[hitspr].statnum == 2 || sprite[hitspr].statnum == 10 || sprite[hitspr].statnum == 13)
@@ -1194,16 +1210,16 @@ DOSKIPBULLETHOLE:
                     zvel += (zRange/2)-(krand()&(zRange-1));
                 }
 
-                sz -= (2<<8);
+                srcvect.z -= (2<<8);
             }
             else
             {
                 j = A_FindPlayer(s,&x);
-                sz -= (4<<8);
-                hitx = ldist(&sprite[g_player[j].ps->i], s);
-                if (hitx == 0)
-                    hitx++;
-                zvel = ((g_player[j].ps->posz-sz) <<8) / hitx;
+                srcvect.z -= (4<<8);
+                hitvect.x = ldist(&sprite[g_player[j].ps->i], s);
+                if (hitvect.x == 0)
+                    hitvect.x++;
+                zvel = ((g_player[j].ps->posz-srcvect.z) <<8) / hitvect.x;
                 if (s->picnum != BOSS1)
                 {
                     zvel += 128-(krand()&255);
@@ -1212,26 +1228,27 @@ DOSKIPBULLETHOLE:
                 else
                 {
                     zvel += 128-(krand()&255);
-                    sa = getangle(g_player[j].ps->posx-sx,g_player[j].ps->posy-sy)+64-(krand()&127);
+                    sa = getangle(g_player[j].ps->posx-srcvect.x,g_player[j].ps->posy-srcvect.y)+64-(krand()&127);
                 }
             }
 
             s->cstat &= ~257;
             if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
-            hitscan(sx,sy,sz,sect,
+            hitscan(srcvect.x,srcvect.y,srcvect.z,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
-                    zvel<<6,&hitsect,&hitwall,&hitspr,&hitx,&hity,&hitz,CLIPMASK1);
+                    zvel<<6,&hitsect,&hitwall,&hitspr,&hitvect.x,&hitvect.y,&hitvect.z,CLIPMASK1);
             s->cstat |= 257;
 
             if (hitsect < 0) return -1;
 
             if ((krand()&15) == 0 && sector[hitsect].lotag == 2)
-                A_DoWaterTracers(hitx,hity,hitz,sx,sy,sz,8-(ud.multimode>>1));
+                A_DoWaterTracers(hitvect.x,hitvect.y,hitvect.z,
+                                 srcvect.x,srcvect.y,srcvect.z,8-(ud.multimode>>1));
 
             if (p >= 0)
             {
-                k = A_InsertSprite(hitsect,hitx,hity,hitz,SHOTSPARK1,-15,10,10,sa,0,0,i,4);
+                k = A_InsertSprite(hitsect,hitvect.x,hitvect.y,hitvect.z,SHOTSPARK1,-15,10,10,sa,0,0,i,4);
                 sprite[k].extra = *actorscrptr[atwith];
                 sprite[k].extra += (krand()%6);
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
@@ -1346,9 +1363,9 @@ DOSKIPBULLETHOLE:
                                     }
                                     l = A_Spawn(k,BULLETHOLE);
                                     sprite[l].xvel = -1;
-                                    sprite[l].x = hitx;
-                                    sprite[l].y = hity;
-                                    sprite[l].z = hitz;
+                                    sprite[l].x = hitvect.x;
+                                    sprite[l].y = hitvect.y;
+                                    sprite[l].z = hitvect.z;
 
                                     sprite[l].ang = getangle(wall[hitwall].x-wall[wall[hitwall].point2].x,
                                                              wall[hitwall].y-wall[wall[hitwall].point2].y)+512;
@@ -1362,15 +1379,15 @@ SKIPBULLETHOLE:
 
                     if (wall[hitwall].cstat&2)
                         if (wall[hitwall].nextsector >= 0)
-                            if (hitz >= (sector[wall[hitwall].nextsector].floorz))
+                            if (hitvect.z >= (sector[wall[hitwall].nextsector].floorz))
                                 hitwall = wall[hitwall].nextwall;
 
-                    A_DamageWall(k,hitwall,hitx,hity,hitz,SHOTSPARK1);
+                    A_DamageWall(k,hitwall,&hitvect,SHOTSPARK1);
                 }
             }
             else
             {
-                k = A_InsertSprite(hitsect,hitx,hity,hitz,SHOTSPARK1,-15,24,24,sa,0,0,i,4);
+                k = A_InsertSprite(hitsect,hitvect.x,hitvect.y,hitvect.z,SHOTSPARK1,-15,24,24,sa,0,0,i,4);
                 sprite[k].extra = *actorscrptr[atwith];
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
                 ActorExtra[k].temp_data[6] = hitwall;
@@ -1390,11 +1407,11 @@ SKIPBULLETHOLE:
                     else sprite[k].xrepeat = sprite[k].yrepeat = 0;
                 }
                 else if (hitwall >= 0)
-                    A_DamageWall(k,hitwall,hitx,hity,hitz,SHOTSPARK1);
+                    A_DamageWall(k,hitwall,&hitvect,SHOTSPARK1);
             }
 
             if ((krand()&255) < 4)
-                S_PlaySoundXYZ(PISTOL_RICOCHET,k,hitx,hity,hitz);
+                S_PlaySoundXYZ(PISTOL_RICOCHET,k, &hitvect);
 
             return -1;
 
@@ -1412,12 +1429,12 @@ SKIPBULLETHOLE:
                 {
                     if (s->picnum == BOSS2) vel = 644;
                     else vel = 348;
-                    sz -= (4<<7);
+                    srcvect.z -= (4<<7);
                 }
                 else
                 {
                     vel = 840;
-                    sz -= (4<<7);
+                    srcvect.z -= (4<<7);
                 }
             }
 
@@ -1435,10 +1452,10 @@ SKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)-(12<<8);
-                    hitx = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
-                    if (hitx == 0) hitx++;
-                    zvel = ((sprite[j].z-sz-dal)*vel) / hitx;
-                    sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
+                    hitvect.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    if (hitvect.x == 0) hitvect.x++;
+                    zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hitvect.x;
+                    sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
                 else
                     zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*98;
@@ -1448,9 +1465,9 @@ SKIPBULLETHOLE:
                 j = A_FindPlayer(s,&x);
                 //                sa = getangle(g_player[j].ps->oposx-sx,g_player[j].ps->oposy-sy);
                 sa += 16-(krand()&31);
-                hitx = ldist(&sprite[g_player[j].ps->i],s);
-                if (hitx == 0) hitx++;
-                zvel = ((g_player[j].ps->oposz - sz + (3<<8))*vel) / hitx;
+                hitvect.x = ldist(&sprite[g_player[j].ps->i],s);
+                if (hitvect.x == 0) hitvect.x++;
+                zvel = ((g_player[j].ps->oposz - srcvect.z + (3<<8))*vel) / hitvect.x;
             }
             if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
             oldzvel = zvel;
@@ -1458,7 +1475,7 @@ SKIPBULLETHOLE:
             if (atwith == SPIT)
             {
                 sizx = 18;
-                sizy = 18,sz -= (10<<8);
+                sizy = 18,srcvect.z -= (10<<8);
             }
             else
             {
@@ -1487,7 +1504,8 @@ SKIPBULLETHOLE:
 
             while (scount > 0)
             {
-                j = A_InsertSprite(sect,sx,sy,sz,atwith,-127,sizx,sizy,sa,vel,zvel,i,4);
+                j = A_InsertSprite(sect,srcvect.x,srcvect.y,srcvect.z,
+                                   atwith,-127,sizx,sizy,sa,vel,zvel,i,4);
                 sprite[j].extra += (krand()&7);
 
                 if (atwith == COOLEXPLOSION1)
@@ -1515,7 +1533,7 @@ SKIPBULLETHOLE:
             return j;
 
         case FREEZEBLAST__STATIC:
-            sz += (3<<8);
+            srcvect.z += (3<<8);
         case RPG__STATIC:
 
             if (s->extra >= 0) s->shade = -96;
@@ -1539,11 +1557,11 @@ SKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
-                    hitx = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
-                    if (hitx == 0) hitx++;
-                    zvel = ((sprite[j].z-sz-dal)*vel) / hitx;
+                    hitvect.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    if (hitvect.x == 0) hitvect.x++;
+                    zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hitvect.x;
                     if (sprite[j].picnum != RECON)
-                        sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
+                        sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
                 else zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*81;
                 if (atwith == RPG)
@@ -1552,19 +1570,19 @@ SKIPBULLETHOLE:
             else
             {
                 j = A_FindPlayer(s,&x);
-                sa = getangle(g_player[j].ps->oposx-sx,g_player[j].ps->oposy-sy);
+                sa = getangle(g_player[j].ps->oposx-srcvect.x,g_player[j].ps->oposy-srcvect.y);
                 if (PN == BOSS3)
-                    sz -= (32<<8);
+                    srcvect.z -= (32<<8);
                 else if (PN == BOSS2)
                 {
                     vel += 128;
-                    sz += 24<<8;
+                    srcvect.z += 24<<8;
                 }
 
                 l = ldist(&sprite[g_player[j].ps->i],s);
                 if (l == 0)
                     l++;
-                zvel = ((g_player[j].ps->oposz-sz)*vel) / l;
+                zvel = ((g_player[j].ps->oposz-srcvect.z)*vel) / l;
 
                 if (A_CheckEnemySprite(s) && (s->hitag&face_player_smart))
                     sa = s->ang+(krand()&31)-16;
@@ -1575,9 +1593,9 @@ SKIPBULLETHOLE:
             else l = -1;
             if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
             j = A_InsertSprite(sect,
-                               sx+(sintable[(348+sa+512)&2047]/448),
-                               sy+(sintable[(sa+348)&2047]/448),
-                               sz-(1<<8),atwith,0,14,14,sa,vel,zvel,i,4);
+                               srcvect.x+(sintable[(348+sa+512)&2047]/448),
+                               srcvect.y+(sintable[(sa+348)&2047]/448),
+                               srcvect.z-(1<<8),atwith,0,14,14,sa,vel,zvel,i,4);
 
             sprite[j].extra += (krand()&7);
             if (atwith != FREEZEBLAST)
@@ -1659,16 +1677,16 @@ SKIPBULLETHOLE:
                 zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*32;
             else zvel = 0;
             if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
-            hitscan(sx,sy,sz-g_player[p].ps->pyoff,sect,
+            hitscan(srcvect.x,srcvect.y,srcvect.z-g_player[p].ps->pyoff,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
-                    zvel<<6,&hitsect,&hitwall,&hitspr,&hitx,&hity,&hitz,CLIPMASK1);
+                    zvel<<6,&hitsect,&hitwall,&hitspr,&hitvect.x,&hitvect.y,&hitvect.z,CLIPMASK1);
 
             j = 0;
             if (hitspr >= 0) break;
 
             if (hitwall >= 0 && hitsect >= 0)
-                if (((hitx-sx)*(hitx-sx)+(hity-sy)*(hity-sy)) < (290*290))
+                if (((hitvect.x-srcvect.x)*(hitvect.x-srcvect.x)+(hitvect.y-srcvect.y)*(hitvect.y-srcvect.y)) < (290*290))
                 {
                     if (wall[hitwall].nextsector >= 0)
                     {
@@ -1682,7 +1700,7 @@ SKIPBULLETHOLE:
             if (j == 1)
             {
                 int32_t lTripBombControl=Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, g_player[p].ps->i, p);
-                k = A_InsertSprite(hitsect,hitx,hity,hitz,TRIPBOMB,-16,4,5,sa,0,0,i,6);
+                k = A_InsertSprite(hitsect,hitvect.x,hitvect.y,hitvect.z,TRIPBOMB,-16,4,5,sa,0,0,i,6);
                 if (lTripBombControl & TRIPBOMB_TIMER)
                 {
                     int32_t lLifetime=Gv_GetVarByLabel("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, g_player[p].ps->i, p);
@@ -1721,9 +1739,9 @@ SKIPBULLETHOLE:
             vel = x>>4;
             if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
             A_InsertSprite(sect,
-                           sx+(sintable[(512+sa+512)&2047]>>8),
-                           sy+(sintable[(sa+512)&2047]>>8),
-                           sz+(6<<8),atwith,-64,32,32,sa,vel,zvel,i,1);
+                           srcvect.x+(sintable[(512+sa+512)&2047]>>8),
+                           srcvect.y+(sintable[(sa+512)&2047]>>8),
+                           srcvect.z+(6<<8),atwith,-64,32,32,sa,vel,zvel,i,1);
             break;
 
         case GROWSPARK__STATIC:
@@ -1747,11 +1765,11 @@ SKIPBULLETHOLE:
                         dal -= (8<<8);
 
                     }
-                    hitx = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
-                    if (hitx == 0)
-                        hitx++;
-                    zvel = ((sprite[j].z-sz-dal)<<8) / hitx;
-                    sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
+                    hitvect.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    if (hitvect.x == 0)
+                        hitvect.x++;
+                    zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hitvect.x;
+                    sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
                 else
                 {
@@ -1760,16 +1778,16 @@ SKIPBULLETHOLE:
                     zvel += 128-(krand()&255);
                 }
 
-                sz -= (2<<8);
+                srcvect.z -= (2<<8);
             }
             else
             {
                 j = A_FindPlayer(s,&x);
-                sz -= (4<<8);
-                hitx = ldist(&sprite[g_player[j].ps->i], s);
-                if (hitx == 0)
-                    hitx++;
-                zvel = ((g_player[j].ps->posz-sz) <<8) / hitx;
+                srcvect.z -= (4<<8);
+                hitvect.x = ldist(&sprite[g_player[j].ps->i], s);
+                if (hitvect.x == 0)
+                    hitvect.x++;
+                zvel = ((g_player[j].ps->posz-srcvect.z) <<8) / hitvect.x;
                 zvel += 128-(krand()&255);
                 sa += 32-(krand()&63);
             }
@@ -1781,14 +1799,14 @@ SKIPBULLETHOLE:
 
             s->cstat &= ~257;
             if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
-            hitscan(sx,sy,sz,sect,
+            hitscan(srcvect.x,srcvect.y,srcvect.z,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
-                    zvel<<6,&hitsect,&hitwall,&hitspr,&hitx,&hity,&hitz,CLIPMASK1);
+                    zvel<<6,&hitsect,&hitwall,&hitspr,&hitvect.x,&hitvect.y,&hitvect.z,CLIPMASK1);
 
             s->cstat |= 257;
 
-            j = A_InsertSprite(sect,hitx,hity,hitz,GROWSPARK,-16,28,28,sa,0,0,i,1);
+            j = A_InsertSprite(sect,hitvect.x,hitvect.y,hitvect.z,GROWSPARK,-16,28,28,sa,0,0,i,1);
 
             sprite[j].pal = 2;
             sprite[j].cstat |= 130;
@@ -1808,9 +1826,9 @@ SKIPBULLETHOLE:
                             wall[wall[hitwall].point2].x-wall[hitwall].x,
                             wall[wall[hitwall].point2].y-wall[hitwall].y);
 
-                        sx = hitx;
-                        sy = hity;
-                        sz = hitz;
+                        sx = hitvect.x;
+                        sy = hitvect.y;
+                        srcvect.z = hitvect.z;
                         sect = hitsect;
                         sa = ((l<<1) - sa)&2047;
                         sx += sintable[(sa+512)&2047]>>12;
@@ -1820,7 +1838,7 @@ SKIPBULLETHOLE:
                         goto RESHOOTGROW;
                     }
                     else */
-                A_DamageWall(j,hitwall,hitx,hity,hitz,atwith);
+                A_DamageWall(j,hitwall,&hitvect,atwith);
             }
 
             break;
@@ -1841,11 +1859,11 @@ SKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1);
-                    hitx = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
-                    if (hitx == 0)
-                        hitx++;
-                    zvel = ((sprite[j].z-sz-dal-(4<<8))*768) / hitx;
-                    sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
+                    hitvect.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    if (hitvect.x == 0)
+                        hitvect.x++;
+                    zvel = ((sprite[j].z-srcvect.z-dal-(4<<8))*768) / hitvect.x;
+                    sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
                 else zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*98;
             }
@@ -1855,14 +1873,14 @@ SKIPBULLETHOLE:
                 l = ldist(&sprite[g_player[j].ps->i],s);
                 if (l == 0)
                     l++;
-                zvel = ((g_player[j].ps->oposz-sz)*512) / l ;
+                zvel = ((g_player[j].ps->oposz-srcvect.z)*512) / l ;
             }
             else zvel = 0;
             if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
             j = A_InsertSprite(sect,
-                               sx+(sintable[(512+sa+512)&2047]>>12),
-                               sy+(sintable[(sa+512)&2047]>>12),
-                               sz+(2<<8),SHRINKSPARK,-16,28,28,sa,768,zvel,i,4);
+                               srcvect.x+(sintable[(512+sa+512)&2047]>>12),
+                               srcvect.y+(sintable[(sa+512)&2047]>>12),
+                               srcvect.z+(2<<8),SHRINKSPARK,-16,28,28,sa,768,zvel,i,4);
 
             sprite[j].cstat = 128;
             sprite[j].clipdist = 32;
@@ -3367,7 +3385,7 @@ static int32_t P_DoCounters(DukePlayer_t *p)
 int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATIC, SHOTGUNSPRITE__STATIC,
         CHAINGUNSPRITE__STATIC, RPGSPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC, DEVISTATORSPRITE__STATIC,
         TRIPBOMBSPRITE__STATIC, FREEZESPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC
-                                         };
+                                           };
 // this is used for player deaths
 void P_DropWeapon(DukePlayer_t *p)
 {

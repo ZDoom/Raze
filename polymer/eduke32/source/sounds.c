@@ -267,7 +267,7 @@ int32_t S_LoadSound(uint32_t num)
     return 1;
 }
 
-int32_t S_PlaySoundXYZ(int32_t num,int32_t i,int32_t x,int32_t y,int32_t z)
+int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
 {
     int32_t sndist, cx, cy, cz, j,k;
     int32_t pitche,pitchs,cs;
@@ -311,7 +311,7 @@ int32_t S_PlaySoundXYZ(int32_t num,int32_t i,int32_t x,int32_t y,int32_t z)
     cs = g_player[screenpeek].ps->cursectnum;
     ca = g_player[screenpeek].ps->ang+g_player[screenpeek].ps->look_ang;
 
-    sndist = FindDistance3D((cx-x),(cy-y),(cz-z)>>4);
+    sndist = FindDistance3D((cx-pos->x),(cy-pos->y),(cz-pos->z)>>4);
 
     if (i >= 0 && (g_sounds[num].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
         sndist = divscale14(sndist,(SHT+1));
@@ -367,7 +367,7 @@ int32_t S_PlaySoundXYZ(int32_t num,int32_t i,int32_t x,int32_t y,int32_t z)
     }
     else
     {
-        sndang = 2048 + ca - getangle(cx-x,cy-y);
+        sndang = 2048 + ca - getangle(cx-pos->x,cy-pos->y);
         sndang &= 2047;
     }
 
@@ -512,7 +512,12 @@ int32_t A_PlaySound(uint32_t num, int32_t i)
         S_PlaySound(num);
         return 0;
     }
-    return S_PlaySoundXYZ(num,i,SX,SY,SZ);
+    {
+        vec3_t davector;
+        Bmemcpy(&davector,&sprite[i],sizeof(intptr_t) * 3);
+//        OSD_Printf("x: %d y: %d z: %d\n",davector.x,davector.y,davector.z);
+        return S_PlaySoundXYZ(num,i, &davector);
+    }
 }
 
 void A_StopSound(int32_t num, int32_t i)

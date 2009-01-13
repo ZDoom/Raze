@@ -1144,7 +1144,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
 {
     int32_t switchpal, switchpicnum;
     int32_t i, x, lotag,hitag,picnum,correctdips = 1, numdips = 0;
-    int32_t sx,sy;
+    vec3_t davector;
 
     if (w < 0) return 0;
 
@@ -1153,8 +1153,10 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
         lotag = sprite[w].lotag;
         if (lotag == 0) return 0;
         hitag = sprite[w].hitag;
-        sx = sprite[w].x;
-        sy = sprite[w].y;
+
+//        sx = sprite[w].x;
+//        sy = sprite[w].y;
+        Bmemcpy(&davector, &sprite[w], sizeof(int32_t) * 3);
         picnum = sprite[w].picnum;
         switchpal = sprite[w].pal;
     }
@@ -1163,8 +1165,10 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
         lotag = wall[w].lotag;
         if (lotag == 0) return 0;
         hitag = wall[w].hitag;
-        sx = wall[w].x;
-        sy = wall[w].y;
+        // sx = wall[w].x;
+        // sy = wall[w].y;
+        Bmemcpy(&davector, &wall[w], sizeof(int32_t) * 2);
+        davector.z = g_player[snum].ps->posz;
         picnum = wall[w].picnum;
         switchpal = wall[w].pal;
     }
@@ -1488,17 +1492,17 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
             if (picnum == ALIENSWITCH || picnum == ALIENSWITCH+1)
             {
                 if (switchtype == 1)
-                    S_PlaySoundXYZ(ALIEN_SWITCH1,w,sx,sy,g_player[snum].ps->posz);
-                else S_PlaySoundXYZ(ALIEN_SWITCH1,g_player[snum].ps->i,sx,sy,g_player[snum].ps->posz);
+                    S_PlaySoundXYZ(ALIEN_SWITCH1, w, &davector);
+                else S_PlaySoundXYZ(ALIEN_SWITCH1,g_player[snum].ps->i,&davector);
             }
             else
             {
                 if (switchtype == 1)
-                    S_PlaySoundXYZ(SWITCH_ON,w,sx,sy,g_player[snum].ps->posz);
-                else S_PlaySoundXYZ(SWITCH_ON,g_player[snum].ps->i,sx,sy,g_player[snum].ps->posz);
+                    S_PlaySoundXYZ(SWITCH_ON, w, &davector);
+                else S_PlaySoundXYZ(SWITCH_ON,g_player[snum].ps->i,&davector);
             }
             if (numdips != correctdips) break;
-            S_PlaySoundXYZ(END_OF_LEVEL_WARN,g_player[snum].ps->i,sx,sy,g_player[snum].ps->posz);
+            S_PlaySoundXYZ(END_OF_LEVEL_WARN,g_player[snum].ps->i,&davector);
         }
     case DIPSWITCH2__STATIC:
         //case DIPSWITCH2+1:
@@ -1578,13 +1582,13 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
         if (hitag == 0 && CheckDoorTile(picnum) == 0)
         {
             if (switchtype == 1)
-                S_PlaySoundXYZ(SWITCH_ON,w,sx,sy,g_player[snum].ps->posz);
-            else S_PlaySoundXYZ(SWITCH_ON,g_player[snum].ps->i,sx,sy,g_player[snum].ps->posz);
+                S_PlaySoundXYZ(SWITCH_ON,w,&davector);
+            else S_PlaySoundXYZ(SWITCH_ON,g_player[snum].ps->i,&davector);
         }
         else if (hitag != 0)
         {
             if (switchtype == 1 && (g_sounds[hitag].m&4) == 0)
-                S_PlaySoundXYZ(hitag,w,sx,sy,g_player[snum].ps->posz);
+                S_PlaySoundXYZ(hitag,w,&davector);
             else A_PlaySound(hitag,g_player[snum].ps->i);
         }
 
@@ -1622,7 +1626,7 @@ static void BreakWall(int32_t newpn,int32_t spr,int32_t dawallnum)
     A_SpawnWallGlass(spr,dawallnum,10);
 }
 
-void A_DamageWall(int32_t spr,int32_t dawallnum,int32_t x,int32_t y,int32_t z,int32_t atwith)
+void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith)
 {
     int16_t sn = -1;
     int32_t j, i, darkestwall;
@@ -1663,7 +1667,7 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,int32_t x,int32_t y,int32_t z,in
     }
 
     if (((wal->cstat&16) || wal->overpicnum == BIGFORCE) && wal->nextsector >= 0)
-        if (sector[wal->nextsector].floorz > z)
+        if (sector[wal->nextsector].floorz > pos->z)
             if (sector[wal->nextsector].floorz-sector[wal->nextsector].ceilingz)
             {
                 int32_t switchpicnum = wal->overpicnum;
@@ -1676,16 +1680,16 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,int32_t x,int32_t y,int32_t z,in
                     //case W_FORCEFIELD+2:
                     wal->extra = 1; // tell the forces to animate
                 case BIGFORCE__STATIC:
-                    updatesector(x,y,&sn);
+                    updatesector(pos->x,pos->y,&sn);
                     if (sn < 0) return;
 
                     if (atwith == -1)
-                        i = A_InsertSprite(sn,x,y,z,FORCERIPPLE,-127,8,8,0,0,0,spr,5);
+                        i = A_InsertSprite(sn,pos->x,pos->y,pos->z,FORCERIPPLE,-127,8,8,0,0,0,spr,5);
                     else
                     {
                         if (atwith == CHAINGUN)
-                            i = A_InsertSprite(sn,x,y,z,FORCERIPPLE,-127,16+sprite[spr].xrepeat,16+sprite[spr].yrepeat,0,0,0,spr,5);
-                        else i = A_InsertSprite(sn,x,y,z,FORCERIPPLE,-127,32,32,0,0,0,spr,5);
+                            i = A_InsertSprite(sn,pos->x,pos->y,pos->z,FORCERIPPLE,-127,16+sprite[spr].xrepeat,16+sprite[spr].yrepeat,0,0,0,spr,5);
+                        else i = A_InsertSprite(sn,pos->x,pos->y,pos->z,FORCERIPPLE,-127,32,32,0,0,0,spr,5);
                     }
 
                     CS |= 18+128;
@@ -1709,7 +1713,7 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,int32_t x,int32_t y,int32_t z,in
                     return;
 
                 case GLASS__STATIC:
-                    updatesector(x,y,&sn);
+                    updatesector(pos->x,pos->y,&sn);
                     if (sn < 0) return;
                     wal->overpicnum=GLASS2;
                     A_SpawnWallGlass(spr,dawallnum,10);
@@ -1718,14 +1722,14 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,int32_t x,int32_t y,int32_t z,in
                     if (wal->nextwall >= 0)
                         wall[wal->nextwall].cstat = 0;
 
-                    i = A_InsertSprite(sn,x,y,z,SECTOREFFECTOR,0,0,0,g_player[0].ps->ang,0,0,spr,3);
+                    i = A_InsertSprite(sn,pos->x,pos->y,pos->z,SECTOREFFECTOR,0,0,0,g_player[0].ps->ang,0,0,spr,3);
                     SLT = 128;
                     T2 = 5;
                     T3 = dawallnum;
                     A_PlaySound(GLASS_BREAKING,i);
                     return;
                 case STAINGLASS1__STATIC:
-                    updatesector(x,y,&sn);
+                    updatesector(pos->x,pos->y,&sn);
                     if (sn < 0) return;
                     A_SpawnRandomGlass(spr,dawallnum,80);
                     wal->cstat = 0;
@@ -1935,19 +1939,27 @@ void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
             p->posyv = -(sintable[(p->ang)&2047]<<8);
             A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
 
-            A_DamageWall(p->i,j,
-                         p->posx+(sintable[(p->ang+512)&2047]>>9),
-                         p->posy+(sintable[p->ang&2047]>>9),
-                         p->posz,-1);
+            {
+                vec3_t davect;
+
+                davect.x = p->posx+(sintable[(p->ang+512)&2047]>>9);
+                davect.y = p->posy+(sintable[p->ang&2047]>>9);
+                davect.z = p->posz;
+                A_DamageWall(p->i,j,&davect,-1);
+            }
 
             break;
 
         case BIGFORCE__STATIC:
             p->hurt_delay = 26;
-            A_DamageWall(p->i,j,
-                         p->posx+(sintable[(p->ang+512)&2047]>>9),
-                         p->posy+(sintable[p->ang&2047]>>9),
-                         p->posz,-1);
+            {
+                vec3_t davect;
+
+                davect.x = p->posx+(sintable[(p->ang+512)&2047]>>9);
+                davect.y = p->posy+(sintable[p->ang&2047]>>9);
+                davect.z = p->posz;
+                A_DamageWall(p->i,j,&davect,-1);
+            }
             break;
 
         }

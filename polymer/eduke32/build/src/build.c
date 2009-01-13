@@ -823,9 +823,11 @@ void editinput(void)
         goalz += mousz;
         if (keystatus[buildkeys[BK_MOVEUP]])							//A (stand high)
         {
+/*
             if (keystatus[0x1d]|keystatus[0x9d])
                 horiz = max(-100,horiz-((keystatus[buildkeys[BK_RUN]]+1)*synctics*2));
             else
+*/
             {
                 goalz -= (16<<8);
                 if (keystatus[buildkeys[BK_RUN]])    //Either shift key
@@ -834,9 +836,11 @@ void editinput(void)
         }
         if (keystatus[buildkeys[BK_MOVEDOWN]])  						  //Z (stand low)
         {
+/*
             if (keystatus[0x1d]|keystatus[0x9d])
                 horiz = min(300,horiz+((keystatus[buildkeys[BK_RUN]]+1)*synctics*2));
             else
+*/
             {
                 goalz += (12<<8);
                 if (keystatus[buildkeys[BK_RUN]])    //Either shift key

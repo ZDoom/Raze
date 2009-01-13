@@ -4044,7 +4044,7 @@ static int32_t X_AccessSpriteX(int32_t iActor, int32_t lLabelID, int32_t lParm2)
     if ((ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) && g_scriptSanityChecks)
     {
         OSD_Printf(CON_ERROR "tried to get invalid %s position %d on sprite (%d) from spr %d\n",
-            g_errorLineNum,keyw[g_tw],ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
+                   g_errorLineNum,keyw[g_tw],ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
         return -1;
     }
 
@@ -4141,7 +4141,7 @@ static int32_t X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int32_t lParm2
     if ((PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) && g_scriptSanityChecks)
     {
         OSD_Printf(CON_ERROR "tried to %s invalid %s position %d on player (%d) from spr %d\n",
-                g_errorLineNum,keyw[g_tw],PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
+                   g_errorLineNum,keyw[g_tw],PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
     }
 
     switch (lLabelID)

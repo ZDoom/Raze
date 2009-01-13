@@ -113,6 +113,15 @@ extern int32_t g_errorLineNum;
 extern int32_t g_tw;
 extern const char *keyw[];
 
+enum SystemString_t {
+    STR_MAPNAME,
+    STR_MAPFILENAME,
+    STR_PLAYERNAME,
+    STR_VERSION,
+    STR_GAMETYPE,
+    STR_VOLUMENAME
+};
+
 enum ScriptError_t
 {
     ERROR_CLOSEBRACKET,

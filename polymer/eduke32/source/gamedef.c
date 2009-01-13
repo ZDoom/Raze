@@ -1646,7 +1646,7 @@ static void C_GetNextVarType(int32_t type)
                 lLabelID=C_GetLabelNameOffset(&wallH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
             else if (i == g_iPlayerVarID)
                 lLabelID=C_GetLabelNameOffset(&playerH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
-            
+
             //printf("LabelID is %d\n",lLabelID);
             if (lLabelID == -1)
             {
@@ -1734,8 +1734,8 @@ static void C_GetNextVarType(int32_t type)
     {
         C_ReportError(-1);
         initprintf("%s:%d: warning: found local gamevar `%s' used within %s; "
-			"expect multiplayer synchronization issues.\n",g_szScriptFileName,
-			g_lineNumber,label+(g_numLabels<<6),g_parsingEventPtr?"a synced event":"an actor");
+                   "expect multiplayer synchronization issues.\n",g_szScriptFileName,
+                   g_lineNumber,label+(g_numLabels<<6),g_parsingEventPtr?"a synced event":"an actor");
         g_numCompilerWarnings++;
     }
     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
@@ -1838,7 +1838,7 @@ static int32_t C_GetNextValue(int32_t type)
     i = l-1;
     do
     {
-		// FIXME: check for 0-9 A-F for hex
+        // FIXME: check for 0-9 A-F for hex
         if (textptr[0] == '0' && textptr[1] == 'x') break; // kill the warning for hex
         if (!isdigit(textptr[i--]))
         {
@@ -5738,6 +5738,7 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("STR_PLAYERNAME",STR_PLAYERNAME,LABEL_DEFINE);
     C_AddDefinition("STR_VERSION",STR_VERSION,LABEL_DEFINE);
     C_AddDefinition("STR_GAMETYPE",STR_GAMETYPE,LABEL_DEFINE);
+    C_AddDefinition("STR_VOLUMENAME",STR_VOLUMENAME,LABEL_DEFINE);
 
     C_AddDefinition("NO",0,LABEL_DEFINE|LABEL_ACTION|LABEL_AI|LABEL_MOVE);
 
@@ -5985,13 +5986,13 @@ void C_Compile(const char *filenam)
         initprintf("Script compiled in %dms\n", getticks() - startcompiletime);
 
         initprintf("Compiled code size: %ld*%d bytes, version %s\n",
-			(unsigned)(g_scriptPtr-script), sizeof(intptr_t), (g_scriptVersion == 14?"1.4+":"1.3D"));
+                   (unsigned)(g_scriptPtr-script), sizeof(intptr_t), (g_scriptVersion == 14?"1.4+":"1.3D"));
 
         initprintf("Pointer bitmap size: %ld bytes\n",(g_scriptSize+7)>>3);
         initprintf("%ld/%ld labels, %d/%d variables\n", g_numLabels,
-			min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
-			MAXSPRITES * sizeof(spritetype)/(1<<6)),
-			g_gameVarCount, MAXGAMEVARS);
+                   min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
+                       MAXSPRITES * sizeof(spritetype)/(1<<6)),
+                   g_gameVarCount, MAXGAMEVARS);
 
         for (i=MAXQUOTES-1;i>=0;i--)
             if (ScriptQuotes[i])
@@ -6111,92 +6112,92 @@ void C_Compile(const char *filenam)
 
 void C_ReportError(int32_t iError)
 {
-	if (Bstrcmp(g_szCurrentBlockName,g_szLastBlockName))
-	{
-		if (g_parsingEventPtr || g_processingState || g_parsingActorPtr)
-			initprintf("%s: In %s `%s':\n",g_szScriptFileName,g_parsingEventPtr?"event":g_parsingActorPtr?"actor":"state",g_szCurrentBlockName);
-		else initprintf("%s: At top level:\n",g_szScriptFileName);
-		Bstrcpy(g_szLastBlockName,g_szCurrentBlockName);
-	}
-	switch (iError)
-	{
-	case ERROR_CLOSEBRACKET:
-		initprintf("%s:%d: error: found more `}' than `{' before `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-		break;
-	case ERROR_EVENTONLY:
-		initprintf("%s:%d: error: `%s' only valid during events.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-		break;
-	case ERROR_EXCEEDSMAXTILES:
-		initprintf("%s:%d: error: `%s' value exceeds MAXTILES.  Maximum is %d.\n",g_szScriptFileName,g_lineNumber,tempbuf,MAXTILES-1);
-		break;
-	case ERROR_EXPECTEDKEYWORD:
-		initprintf("%s:%d: error: expected a keyword but found `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-		break;
-	case ERROR_FOUNDWITHIN:
-		initprintf("%s:%d: error: found `%s' within %s.\n",g_szScriptFileName,g_lineNumber,tempbuf,g_parsingEventPtr?"an event":g_parsingActorPtr?"an actor":"a state");
-		break;
-	case ERROR_ISAKEYWORD:
-		initprintf("%s:%d: error: symbol `%s' is a keyword.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-		break;
-	case ERROR_NOENDSWITCH:
-		initprintf("%s:%d: error: did not find `endswitch' before `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-		break;
-	case ERROR_NOTAGAMEDEF:
-		initprintf("%s:%d: error: symbol `%s' is not a game definition.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-		break;
-	case ERROR_NOTAGAMEVAR:
-		initprintf("%s:%d: error: symbol `%s' is not a game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-		break;
-	case ERROR_NOTAGAMEARRAY:
-		initprintf("%s:%d: error: symbol `%s' is not a game array.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-		break;
-	case ERROR_GAMEARRAYBNC:
-		initprintf("%s:%d: error: square brackets for index of game array not closed, expected ] found %c\n",g_szScriptFileName,g_lineNumber,*textptr);
-		break;
-	case ERROR_GAMEARRAYBNO:
-		initprintf("%s:%d: error: square brackets for index of game array not opened, expected [ found %c\n",g_szScriptFileName,g_lineNumber,*textptr);
-		break;
-	case ERROR_INVALIDARRAYWRITE:
-		initprintf("%s:%d: error: arrays can only be written to using `setarray' %c\n",g_szScriptFileName,g_lineNumber,*textptr);
-		break;
-	case ERROR_OPENBRACKET:
-		initprintf("%s:%d: error: found more `{' than `}' before `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-		break;
-	case ERROR_PARAMUNDEFINED:
-		initprintf("%s:%d: error: parameter `%s' is undefined.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-		break;
-	case ERROR_SYMBOLNOTRECOGNIZED:
-		initprintf("%s:%d: error: symbol `%s' is not recognized.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-		break;
-	case ERROR_SYNTAXERROR:
-		initprintf("%s:%d: error: syntax error.\n",g_szScriptFileName,g_lineNumber);
-		break;
-	case ERROR_VARREADONLY:
-		initprintf("%s:%d: error: variable `%s' is read-only.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-		break;
-	case ERROR_VARTYPEMISMATCH:
-		initprintf("%s:%d: error: variable `%s' is of the wrong type.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-		break;
-	case WARNING_BADGAMEVAR:
-		initprintf("%s:%ld: warning: variable `%s' should be either per-player OR per-actor, not both.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-		break;
-	case WARNING_DUPLICATECASE:
-		initprintf("%s:%ld: warning: duplicate case ignored.\n",g_szScriptFileName,g_lineNumber);
-		break;
-	case WARNING_DUPLICATEDEFINITION:
-		initprintf("%s:%d: warning: duplicate game definition `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-		break;
-	case WARNING_EVENTSYNC:
-		initprintf("%s:%d: warning: found `%s' within a local event.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-		break;
-	case WARNING_LABELSONLY:
-		initprintf("%s:%d: warning: expected a label, found a constant.\n",g_szScriptFileName,g_lineNumber);
-		break;
-	case WARNING_NAMEMATCHESVAR:
-		initprintf("%s:%d: warning: symbol `%s' already used for game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-		break;
-	case WARNING_REVEVENTSYNC:
-		initprintf("%s:%d: warning: found `%s' outside of a local event.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-		break;
-	}
+    if (Bstrcmp(g_szCurrentBlockName,g_szLastBlockName))
+    {
+        if (g_parsingEventPtr || g_processingState || g_parsingActorPtr)
+            initprintf("%s: In %s `%s':\n",g_szScriptFileName,g_parsingEventPtr?"event":g_parsingActorPtr?"actor":"state",g_szCurrentBlockName);
+        else initprintf("%s: At top level:\n",g_szScriptFileName);
+        Bstrcpy(g_szLastBlockName,g_szCurrentBlockName);
+    }
+    switch (iError)
+    {
+    case ERROR_CLOSEBRACKET:
+        initprintf("%s:%d: error: found more `}' than `{' before `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+        break;
+    case ERROR_EVENTONLY:
+        initprintf("%s:%d: error: `%s' only valid during events.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+        break;
+    case ERROR_EXCEEDSMAXTILES:
+        initprintf("%s:%d: error: `%s' value exceeds MAXTILES.  Maximum is %d.\n",g_szScriptFileName,g_lineNumber,tempbuf,MAXTILES-1);
+        break;
+    case ERROR_EXPECTEDKEYWORD:
+        initprintf("%s:%d: error: expected a keyword but found `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+        break;
+    case ERROR_FOUNDWITHIN:
+        initprintf("%s:%d: error: found `%s' within %s.\n",g_szScriptFileName,g_lineNumber,tempbuf,g_parsingEventPtr?"an event":g_parsingActorPtr?"an actor":"a state");
+        break;
+    case ERROR_ISAKEYWORD:
+        initprintf("%s:%d: error: symbol `%s' is a keyword.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        break;
+    case ERROR_NOENDSWITCH:
+        initprintf("%s:%d: error: did not find `endswitch' before `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        break;
+    case ERROR_NOTAGAMEDEF:
+        initprintf("%s:%d: error: symbol `%s' is not a game definition.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        break;
+    case ERROR_NOTAGAMEVAR:
+        initprintf("%s:%d: error: symbol `%s' is not a game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        break;
+    case ERROR_NOTAGAMEARRAY:
+        initprintf("%s:%d: error: symbol `%s' is not a game array.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        break;
+    case ERROR_GAMEARRAYBNC:
+        initprintf("%s:%d: error: square brackets for index of game array not closed, expected ] found %c\n",g_szScriptFileName,g_lineNumber,*textptr);
+        break;
+    case ERROR_GAMEARRAYBNO:
+        initprintf("%s:%d: error: square brackets for index of game array not opened, expected [ found %c\n",g_szScriptFileName,g_lineNumber,*textptr);
+        break;
+    case ERROR_INVALIDARRAYWRITE:
+        initprintf("%s:%d: error: arrays can only be written to using `setarray' %c\n",g_szScriptFileName,g_lineNumber,*textptr);
+        break;
+    case ERROR_OPENBRACKET:
+        initprintf("%s:%d: error: found more `{' than `}' before `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+        break;
+    case ERROR_PARAMUNDEFINED:
+        initprintf("%s:%d: error: parameter `%s' is undefined.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+        break;
+    case ERROR_SYMBOLNOTRECOGNIZED:
+        initprintf("%s:%d: error: symbol `%s' is not recognized.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        break;
+    case ERROR_SYNTAXERROR:
+        initprintf("%s:%d: error: syntax error.\n",g_szScriptFileName,g_lineNumber);
+        break;
+    case ERROR_VARREADONLY:
+        initprintf("%s:%d: error: variable `%s' is read-only.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        break;
+    case ERROR_VARTYPEMISMATCH:
+        initprintf("%s:%d: error: variable `%s' is of the wrong type.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        break;
+    case WARNING_BADGAMEVAR:
+        initprintf("%s:%ld: warning: variable `%s' should be either per-player OR per-actor, not both.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        break;
+    case WARNING_DUPLICATECASE:
+        initprintf("%s:%ld: warning: duplicate case ignored.\n",g_szScriptFileName,g_lineNumber);
+        break;
+    case WARNING_DUPLICATEDEFINITION:
+        initprintf("%s:%d: warning: duplicate game definition `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        break;
+    case WARNING_EVENTSYNC:
+        initprintf("%s:%d: warning: found `%s' within a local event.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+        break;
+    case WARNING_LABELSONLY:
+        initprintf("%s:%d: warning: expected a label, found a constant.\n",g_szScriptFileName,g_lineNumber);
+        break;
+    case WARNING_NAMEMATCHESVAR:
+        initprintf("%s:%d: warning: symbol `%s' already used for game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        break;
+    case WARNING_REVEVENTSYNC:
+        initprintf("%s:%d: warning: found `%s' outside of a local event.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+        break;
+    }
 }

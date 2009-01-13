@@ -289,7 +289,6 @@ extern int32_t nextvoxid;
 
 extern char faketile[MAXTILES];
 extern char *faketiledata[MAXTILES];
-extern int32_t getclosestcol(int32_t r, int32_t g, int32_t b);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
 extern float alphahackarray[MAXTILES];
