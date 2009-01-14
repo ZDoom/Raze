@@ -317,9 +317,8 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
     {
         p = s->yvel;
 
-        srcvect.x = g_player[p].ps->posx;
-        srcvect.y = g_player[p].ps->posy;
-        srcvect.z = g_player[p].ps->posz+g_player[p].ps->pyoff+(4<<8);
+        Bmemcpy(&srcvect,g_player[p].ps,sizeof(vec3_t));
+        srcvect.z += g_player[p].ps->pyoff+(4<<8);
         sa = g_player[p].ps->ang;
 
         g_player[p].ps->crack_time = 777;
@@ -328,7 +327,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
     {
         p = -1;
         sa = s->ang;
-        Bmemcpy(&srcvect,s,sizeof(int32_t) * 3);
+        Bmemcpy(&srcvect,s,sizeof(vec3_t));
         srcvect.z -= ((s->yrepeat*tilesizy[s->picnum])<<1)+(4<<8);
 
         if (s->picnum != ROTATEGUN)
@@ -440,9 +439,12 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                             sprite[k].xvel = -1;
                                             sprite[k].ang = getangle(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,
                                                                      wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y)+512;
+                                            Bmemcpy(&sprite[k],hitinfo.pos,sizeof(vec3_t));
+/*
                                             sprite[k].x = hitinfo.pos.x;
                                             sprite[k].y = hitinfo.pos.y;
                                             sprite[k].z = hitinfo.pos.z;
+*/
                                             if (ProjectileData[atwith].workslike & PROJECTILE_RANDDECALSIZE)
                                             {
                                                 wh = (krand()&ProjectileData[atwith].xrepeat);

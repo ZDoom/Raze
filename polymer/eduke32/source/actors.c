@@ -2450,7 +2450,7 @@ static void G_MoveWeapons(void)
                     ll = s->zvel>>1;
                 }
 
-                Bmemcpy(&davect,s,sizeof(int32_t) * 3);
+                Bmemcpy(&davect,s,sizeof(vec3_t));
                 /*
                                 dax = s->x;
                                 day = s->y;
@@ -2482,7 +2482,7 @@ static void G_MoveWeapons(void)
                                         day = s->y;
                                         daz = s->z;
                     */
-                    Bmemcpy(&davect,s,sizeof(int32_t) * 3);
+                    Bmemcpy(&davect,s,sizeof(vec3_t));
 
                     tmpvect.x = (k*(sintable[(s->ang+512)&2047]))>>14;
                     tmpvect.y = (k*(sintable[s->ang&2047]))>>14;
@@ -2520,7 +2520,7 @@ static void G_MoveWeapons(void)
                             {
                                 k = A_Spawn(i,ActorExtra[i].projectile.spawns);
 
-                                Bmemcpy(&sprite[k],&davect,sizeof(int32_t) * 3);
+                                Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
                                 /*
                                                                 sprite[k].x = dax;
                                                                 sprite[k].y = day;
@@ -2558,7 +2558,7 @@ static void G_MoveWeapons(void)
                         {
                             k = A_Spawn(i,ActorExtra[i].projectile.spawns);
 
-                            Bmemcpy(&sprite[k],&davect,sizeof(int32_t) * 3);
+                            Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
                             /*
                                                         sprite[k].x = dax;
                                                         sprite[k].y = day;
@@ -2677,7 +2677,7 @@ static void G_MoveWeapons(void)
                             if (ActorExtra[i].projectile.spawns >= 0)
                             {
                                 k = A_Spawn(i,ActorExtra[i].projectile.spawns);
-                                Bmemcpy(&sprite[k],&davect,sizeof(int32_t) * 3);
+                                Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
                                 /*
                                                                 sprite[k].x = dax;
                                                                 sprite[k].y = day;
@@ -2778,7 +2778,7 @@ static void G_MoveWeapons(void)
                     if (ActorExtra[i].projectile.workslike & PROJECTILE_RPG && ActorExtra[i].projectile.spawns > 0)
                     {
                         k = A_Spawn(i,ActorExtra[i].projectile.spawns);
-                        Bmemcpy(&sprite[k],&davect,sizeof(int32_t) * 3);
+                        Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
                         /*
                                                 sprite[k].x = dax;
                                                 sprite[k].y = day;
@@ -2892,7 +2892,7 @@ static void G_MoveWeapons(void)
                     ll = s->zvel>>1;
                 }
 
-                Bmemcpy(&davect,s,sizeof(int32_t) * 3);
+                Bmemcpy(&davect,s,sizeof(vec3_t));
                 /*
                                 dax = s->x;
                                 day = s->y;
@@ -3039,7 +3039,7 @@ static void G_MoveWeapons(void)
                         {
                             vec3_t tmpvect;
                             setsprite(i,&davect);
-                            Bmemcpy(&tmpvect, s, sizeof(int32_t) * 3);
+                            Bmemcpy(&tmpvect, s, sizeof(vec3_t));
                             A_DamageWall(i,j,&tmpvect,s->picnum);
 
                             if (s->picnum == FREEZEBLAST)
@@ -3090,7 +3090,7 @@ static void G_MoveWeapons(void)
                         if (s->picnum == RPG)
                         {
                             k = A_Spawn(i,EXPLOSION2);
-                            Bmemcpy(&sprite[k],&davect,sizeof(int32_t) * 3);
+                            Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
                             /*
                                                         sprite[k].x = dax;
                                                         sprite[k].y = day;
@@ -4502,7 +4502,7 @@ static void G_MoveActors(void)
 
                 j &= (MAXWALLS-1);
 
-                Bmemcpy(&davect, s, sizeof(int32_t) * 3);
+                Bmemcpy(&davect, s, sizeof(vec3_t));
                 A_DamageWall(i,j,&davect,s->picnum);
 
                 k = getangle(
