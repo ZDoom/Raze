@@ -408,9 +408,7 @@ typedef struct BPACK {
 
 typedef struct {
     vec3_t pos;
-    int16_t hitsprite;
-    int16_t hitwall;
-    int16_t hitsect;
+    int16_t hitsprite, hitwall, hitsect;
 } hitdata_t;
 
 int32_t    preinitengine(void);	// a partial setup of the engine used for launch windows

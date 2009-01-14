@@ -328,7 +328,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
         p = -1;
         sa = s->ang;
         Bmemcpy(&srcvect,s,sizeof(vec3_t));
-        srcvect.z -= ((s->yrepeat*tilesizy[s->picnum])<<1)+(4<<8);
+        srcvect.z -= (((s->yrepeat*tilesizy[s->picnum])<<1)-(4<<8));
 
         if (s->picnum != ROTATEGUN)
         {
@@ -439,7 +439,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                             sprite[k].xvel = -1;
                                             sprite[k].ang = getangle(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,
                                                                      wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y)+512;
-                                            Bmemcpy(&sprite[k],hitinfo.pos,sizeof(vec3_t));
+                                            Bmemcpy(&sprite[k],&hitinfo.pos,sizeof(vec3_t));
 /*
                                             sprite[k].x = hitinfo.pos.x;
                                             sprite[k].y = hitinfo.pos.y;

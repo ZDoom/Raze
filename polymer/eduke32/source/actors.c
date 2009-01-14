@@ -479,7 +479,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
     int32_t retval;
     int16_t dasectnum, cd;
     int32_t bg = A_CheckEnemySprite(&sprite[spritenum]);
-    int32_t dazoff = ((tilesizy[sprite[spritenum].picnum]*sprite[spritenum].yrepeat)<<1);
+    int32_t daz;
 
     if (sprite[spritenum].statnum == 5 || (bg && sprite[spritenum].xrepeat < 4))
     {
@@ -493,7 +493,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 
     dasectnum = sprite[spritenum].sectnum;
 
-//    daz = sprite[spritenum].z - ;
+    daz = sprite[spritenum].z - ((tilesizy[sprite[spritenum].picnum]*sprite[spritenum].yrepeat)<<1);
 
     if (bg)
     {
@@ -502,12 +502,16 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 
         if (sprite[spritenum].xrepeat > 60)
         {
-            sprite[spritenum].z -= dazoff;
+            int32_t oz = sprite[spritenum].z;
+            sprite[spritenum].z = daz;
             retval = clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),1024L,(4<<8),(4<<8),cliptype);
-            sprite[spritenum].z += dazoff;
+            daz = sprite[spritenum].z;
+            sprite[spritenum].z = oz;
         }
         else
         {
+            int32_t oz = sprite[spritenum].z;
+
             if (sprite[spritenum].picnum == LIZMAN)
                 cd = 292L;
             else if ((ActorType[sprite[spritenum].picnum]&3))
@@ -515,9 +519,10 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
             else
                 cd = 192L;
 
-            sprite[spritenum].z -= dazoff;
+            sprite[spritenum].z = daz;
             retval = clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),cd,(4<<8),(4<<8),cliptype);
-            sprite[spritenum].z += dazoff;
+            daz = sprite[spritenum].z;
+            sprite[spritenum].z = oz;
         }
 
         if (dasectnum < 0 || (dasectnum >= 0 &&
@@ -544,28 +549,28 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
     }
     else
     {
-        sprite[spritenum].z -= dazoff;
+        int32_t oz = sprite[spritenum].z;
+        sprite[spritenum].z = daz;
+
         if (sprite[spritenum].statnum == 4)
             retval =
                 clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),8L,(4<<8),(4<<8),cliptype);
         else
             retval =
                 clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),(int32_t)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
-        sprite[spritenum].z += dazoff;
+        daz = sprite[spritenum].z;
+        sprite[spritenum].z = oz;
+
     }
 
-    {
-        int32_t daz;
-
-        if (dasectnum >= 0)
-            if ((dasectnum != sprite[spritenum].sectnum))
-                changespritesect(spritenum,dasectnum);
-        daz = sprite[spritenum].z + ((change->z*TICSPERFRAME)>>3);
-        if ((daz > ActorExtra[spritenum].ceilingz) && (daz <= ActorExtra[spritenum].floorz))
-            sprite[spritenum].z = daz;
-        else if (retval == 0)
-            return(16384+dasectnum);
-    }
+    if (dasectnum >= 0)
+        if ((dasectnum != sprite[spritenum].sectnum))
+            changespritesect(spritenum,dasectnum);
+    daz = sprite[spritenum].z + ((change->z*TICSPERFRAME)>>3);
+    if ((daz > ActorExtra[spritenum].ceilingz) && (daz <= ActorExtra[spritenum].floorz))
+        sprite[spritenum].z = daz;
+    else if (retval == 0)
+        return(16384+dasectnum);
 
     return(retval);
 }
@@ -2477,11 +2482,6 @@ static void G_MoveWeapons(void)
                 for (f=1;f<=ActorExtra[i].projectile.velmult;f++)
                 {
                     vec3_t tmpvect;
-                    /*
-                                        dax = s->x;
-                                        day = s->y;
-                                        daz = s->z;
-                    */
                     Bmemcpy(&davect,s,sizeof(vec3_t));
 
                     tmpvect.x = (k*(sintable[(s->ang+512)&2047]))>>14;
@@ -2716,9 +2716,7 @@ static void G_MoveWeapons(void)
                         }
                         else
                         {
-//                            vec3_t tmpvect;
                             setsprite(i,&davect);
-//                            Bmemcpy(&tmpvect, s, sizeof(int32_t) * 3);
                             A_DamageWall(i,j,(vec3_t *)s,s->picnum);
 
                             if (ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFWALLS)
@@ -3037,10 +3035,8 @@ static void G_MoveWeapons(void)
                         }
                         else
                         {
-                            vec3_t tmpvect;
                             setsprite(i,&davect);
-                            Bmemcpy(&tmpvect, s, sizeof(vec3_t));
-                            A_DamageWall(i,j,&tmpvect,s->picnum);
+                            A_DamageWall(i,j,(vec3_t *)s,s->picnum);
 
                             if (s->picnum == FREEZEBLAST)
                             {
