@@ -84,6 +84,7 @@ typedef struct      s_prrograminfo {
     GLint           uniform_detailMap;
     GLint           uniform_detailScale;
     // PR_BIT_POINT_LIGHT
+    GLint           uniform_lightCount;
     GLint           uniform_pointLightPosition;
     GLint           uniform_pointLightColor;
     GLint           uniform_pointLightRange;
@@ -220,7 +221,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum);
 static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int32_t indicecount, GLdouble* plane);
 static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLdouble* out);
 static void         polymer_pokesector(int16_t sectnum);
-static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projection, float* frustum);
+static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projection, float* frustum);
 static int32_t          polymer_portalinfrustum(int16_t wallnum, float* frustum);
 static void         polymer_scansprites(int16_t sectnum, spritetype* tsprite, int32_t* spritesortcnt);
 // SKIES

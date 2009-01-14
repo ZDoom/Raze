@@ -192,32 +192,35 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
     {
         1 << PR_BIT_POINT_LIGHT,
         // vert_def
-        "uniform vec3 pointLightPosition;\n"
-        "uniform vec2 pointLightRange;\n"
+        "#define MAX_LIGHTS 2\n"
+        "uniform int lightCount;\n"
+        "uniform vec3 pointLightPosition[MAX_LIGHTS];\n"
+        "uniform vec2 pointLightRange[MAX_LIGHTS];\n"
         "varying vec3 vertexNormal;\n"
-        "varying vec3 lightVector;\n"
-        "varying vec2 eyeSpaceRange;\n"
+        "varying vec3 vertexPos;\n"
+        "varying vec3 lightVector[MAX_LIGHTS];\n"
         "\n",
         // vert_prog
-        "  vec3 vertexPos;\n"
         "  vec3 lightPos;\n"
         "\n"
         "  vertexNormal = normalize(gl_NormalMatrix * gl_Normal);\n"
-        "  vertexPos = vec3(result);\n"
-        "  lightPos = vec3(gl_ModelViewProjectionMatrix * vec4(pointLightPosition, 1.0));\n"
-        "  lightVector = lightPos - vertexPos;\n"
-        "  eyeSpaceRange.x = length(gl_ModelViewProjectionMatrix * vec4(pointLightRange.x, 0.0, 0.0, 0.0));\n"
-        "  eyeSpaceRange.y = length(gl_ModelViewProjectionMatrix * vec4(pointLightRange.y, 0.0, 0.0, 0.0));\n"
-        "  eyeSpaceRange.x = 0.5;\n"
-        "  eyeSpaceRange.y = 1.0;\n"
-/*        "  pointLightDirection = normalize(lightVector);\n"
-        "  pointLightHalfVector = normalize(lightVector) + normalize(vec3(-result));\n"*/
+        "  vertexPos = vec3(gl_ModelViewMatrix * gl_Vertex);\n"
+        "\n"
+        "  while (l < lightCount) {\n"
+        "    lightPos = pointLightPosition[l];\n"
+        "    lightVector[l] = lightPos - vertexPos;\n"
+        "\n"
+        "    l++;\n"
+        "  }\n"
         "\n",
         // frag_def
-        "uniform vec3 pointLightColor;\n"
+        "#define MAX_LIGHTS 2\n"
+        "uniform int lightCount;\n"
+        "uniform vec3 pointLightColor[MAX_LIGHTS];\n"
+        "uniform vec2 pointLightRange[MAX_LIGHTS];\n"
         "varying vec3 vertexNormal;\n"
-        "varying vec3 lightVector;\n"
-        "varying vec2 eyeSpaceRange;\n"
+        "varying vec3 vertexPos;\n"
+        "varying vec3 lightVector[MAX_LIGHTS];\n"
         "\n",
         // frag_prog
         "  vec3 fragmentNormal;\n"
@@ -226,17 +229,24 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  float pointLightDistance;\n"
         "\n"
         "  fragmentNormal = normalize(vertexNormal);\n"
-        "  pointLightDistance = length(lightVector);\n"
-//         "  dotNormalLightDir = max(dot(fragmentNormal, normalize(pointLightDirection)), 0.0);\n"
-        "  if (pointLightDistance < eyeSpaceRange.y)\n"
-        "  {\n"
-        "    if (pointLightDistance < eyeSpaceRange.x)\n"
-        "      lightAttenuation = 1.0;\n"
-        "    else {\n"
-        "      lightAttenuation = 1.0 - (pointLightDistance - eyeSpaceRange.x)  /\n"
-        "                                (eyeSpaceRange.y - eyeSpaceRange.x);\n"
+        "\n"
+        "  while (l < lightCount) {\n"
+        "    pointLightDistance = length(lightVector[l]);\n"
+        "    dotNormalLightDir = max(dot(fragmentNormal, normalize(lightVector[l])), 0.0);\n"
+        "    if (pointLightDistance < pointLightRange[l].y)\n"
+        "    {\n"
+        "      if (pointLightDistance < pointLightRange[l].x)\n"
+        "        lightAttenuation = 1.0;\n"
+        "      else {\n"
+        "        lightAttenuation = 1.0 - (pointLightDistance - pointLightRange[l].x)  /\n"
+        "                                 (pointLightRange[l].y - pointLightRange[l].x);\n"
+        "      }\n"
+        "      result += vec4(lightAttenuation * dotNormalLightDir * pointLightColor[l], 0.0);\n"
+        "      float specular = pow( max(dot(reflect(-normalize(lightVector[l]), fragmentNormal), normalize(-vertexPos)), 0.0), 60.0);\n"
+        "      result += vec4(lightAttenuation * specular * vec3(1.0, 0.5, 0.5), 0.0);\n"
         "    }\n"
-        "    result += vec4(lightAttenuation * 1.0 * pointLightColor, 0.0);\n"
+        "\n"
+        "    l++;\n"
         "  }\n"
         "\n",
     },
@@ -263,6 +273,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "void main(void)\n"
         "{\n"
         "  vec4 result = ftransform();\n"
+        "  int l = 0;\n"
         "\n",
         // vert_prog
         "  gl_Position = result;\n"
@@ -271,6 +282,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "void main(void)\n"
         "{\n"
         "  vec4 result = vec4(1.0, 1.0, 1.0, 1.0);\n"
+        "  int l = 0;\n"
         "\n",
         // frag_prog
         "  gl_FragColor = result;\n"
@@ -281,10 +293,10 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
 _prprograminfo  prprograms[1 << PR_BIT_COUNT];
 
 // CONTROL
-GLdouble        spritemodelview[16];
-GLdouble        rootmodelviewmatrix[16];
-GLdouble        *curmodelviewmatrix;
-GLdouble        projectionmatrix[16];
+GLfloat         spritemodelview[16];
+GLfloat         rootmodelviewmatrix[16];
+GLfloat         *curmodelviewmatrix;
+GLfloat         projectionmatrix[16];
 
 int32_t             updatesectors = 1;
 
@@ -380,7 +392,7 @@ void                polymer_glinit(void)
     bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 0.1f, 100.0f);
 
     // get the new projection matrix
-    bglGetDoublev(GL_PROJECTION_MATRIX, projectionmatrix);
+    bglGetFloatv(GL_PROJECTION_MATRIX, projectionmatrix);
 
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
@@ -460,7 +472,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     bglScalef(1.0f / 1000.0f, 1.0f / 1000.0f, 1.0f / 1000.0f);
     bglTranslatef(-pos[0], -pos[1], -pos[2]);
 
-    bglGetDoublev(GL_MODELVIEW_MATRIX, rootmodelviewmatrix);
+    bglGetFloatv(GL_MODELVIEW_MATRIX, rootmodelviewmatrix);
 
     cursectnum = dacursectnum;
     updatesector(daposx, daposy, &cursectnum);
@@ -654,7 +666,7 @@ void                polymer_drawsprite(int32_t snum)
                                 curmodelviewmatrix[10] * spos[2] +
                                 curmodelviewmatrix[14];
 
-        bglLoadMatrixd(spritemodelview);
+        bglLoadMatrixf(spritemodelview);
         bglRotatef((gtang * 90.0f), 0.0f, 0.0f, -1.0f);
         bglTranslatef((float)(-xoff)/1000.0f, (float)(yoff)/1000.0f, 0.0f);
         bglScalef((float)(xsize) / 1000.0f, (float)(ysize) / 1000.0f, 1.0f / 1000.0f);
@@ -753,7 +765,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     int16_t           querydelay[MAXSECTORS];
     GLuint          queryid[MAXSECTORS];
     int16_t           drawingstate[MAXSECTORS];
-    GLdouble        localmodelviewmatrix[16];
+    GLfloat         localmodelviewmatrix[16];
     float           frustum[5 * 4];
     int32_t             localspritesortcnt;
     spritetype      localtsprite[MAXSPRITESONSCREEN];
@@ -762,7 +774,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     if (depth)
     {
         curmodelviewmatrix = localmodelviewmatrix;
-        bglGetDoublev(GL_MODELVIEW_MATRIX, localmodelviewmatrix);
+        bglGetFloatv(GL_MODELVIEW_MATRIX, localmodelviewmatrix);
     }
     else
         curmodelviewmatrix = rootmodelviewmatrix;
@@ -1094,7 +1106,7 @@ static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane
 
 //     bglBindTexture(GL_TEXTURE_2D, plane->material.diffusemap);
 
-    bglNormal3f((float)(plane->plane[0]), (float)(plane->plane[1]), (float)(plane->plane[2]));
+    bglNormal3f((float)(-plane->plane[0]), (float)(-plane->plane[1]), (float)(-plane->plane[2]));
 
     materialbits = polymer_bindmaterial(plane->material);
 
@@ -2095,15 +2107,15 @@ static void         polymer_pokesector(int16_t sectnum)
     }
 }
 
-static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projection, float* frustum)
+static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projection, float* frustum)
 {
-    GLdouble        matrix[16];
+    GLfloat         matrix[16];
     int32_t             i;
 
     bglMatrixMode(GL_TEXTURE);
-    bglLoadMatrixd(projection);
-    bglMultMatrixd(modelview);
-    bglGetDoublev(GL_TEXTURE_MATRIX, matrix);
+    bglLoadMatrixf(projection);
+    bglMultMatrixf(modelview);
+    bglGetFloatv(GL_TEXTURE_MATRIX, matrix);
     bglLoadIdentity();
     bglMatrixMode(GL_MODELVIEW);
 
@@ -2701,9 +2713,68 @@ static int32_t          polymer_bindmaterial(_prmaterial material)
     // PR_BIT_POINT_LIGHT
     if (programbits & prprogrambits[PR_BIT_POINT_LIGHT].bit)
     {
-        bglUniform3fARB(prprograms[programbits].uniform_pointLightPosition, 62208, 36864 / 16.0, -6656);
-        bglUniform3fARB(prprograms[programbits].uniform_pointLightColor, 0.1f, 0.1f, 0.5f);
-        bglUniform2fARB(prprograms[programbits].uniform_pointLightRange, 1024.0f, 2048.0f);
+        int lightCount;
+        float range[4];
+        float color[6];
+        float pos[6];
+        float lightpos[6];
+
+        lightCount = 2;
+
+        pos[0] = 62208;
+        pos[1] = 42000 / 16.0;
+        pos[2] = -6919;
+
+        lightpos[0] = pos[0] * rootmodelviewmatrix[0] +
+                      pos[1] * rootmodelviewmatrix[4] +
+                      pos[2] * rootmodelviewmatrix[8] +
+                             + rootmodelviewmatrix[12];
+        lightpos[1] = pos[0] * rootmodelviewmatrix[1] +
+                      pos[1] * rootmodelviewmatrix[5] +
+                      pos[2] * rootmodelviewmatrix[9] +
+                             + rootmodelviewmatrix[13];
+        lightpos[2] = pos[0] * rootmodelviewmatrix[2] +
+                      pos[1] * rootmodelviewmatrix[6] +
+                      pos[2] * rootmodelviewmatrix[10] +
+                             + rootmodelviewmatrix[14];
+
+        color[0] = 0.1f;
+        color[1] = 0.1f;
+        color[2] = 0.5f;
+
+        range[0] = 1024.0f / 1000.0;
+        range[1] = 2048.0f / 1000.0;
+
+        pos[3] = globalposy;
+        pos[4] = -globalposz / 16.0;
+        pos[5] = -globalposx;
+
+        lightpos[3] = pos[3] * rootmodelviewmatrix[0] +
+                      pos[4] * rootmodelviewmatrix[4] +
+                      pos[5] * rootmodelviewmatrix[8] +
+                             + rootmodelviewmatrix[12];
+        lightpos[4] = pos[3] * rootmodelviewmatrix[1] +
+                      pos[4] * rootmodelviewmatrix[5] +
+                      pos[5] * rootmodelviewmatrix[9] +
+                             + rootmodelviewmatrix[13];
+        lightpos[5] = pos[3] * rootmodelviewmatrix[2] +
+                      pos[4] * rootmodelviewmatrix[6] +
+                      pos[5] * rootmodelviewmatrix[10] +
+                             + rootmodelviewmatrix[14];
+
+        color[3] = 0.1f;
+        color[4] = 0.5f;
+        color[5] = 0.1f;
+
+        range[2] = 0.0f / 1000.0;
+        range[3] = 10000.0f / 1000.0;
+
+/*        bglUniform3fARB(prprograms[programbits].uniform_pointLightPosition, 62208, 42000 / 16.0, -6919);
+        bglUniform3fARB(prprograms[programbits].uniform_pointLightPosition, globalposy, -globalposz / 16.0, -globalposx);*/
+        bglUniform1iARB(prprograms[programbits].uniform_lightCount, lightCount);
+        bglUniform3fvARB(prprograms[programbits].uniform_pointLightPosition, lightCount, lightpos);
+        bglUniform3fvARB(prprograms[programbits].uniform_pointLightColor, lightCount, color);
+        bglUniform2fvARB(prprograms[programbits].uniform_pointLightRange, lightCount, range);
     }
 
     // PR_BIT_DIFFUSE_GLOW_MAP
@@ -2830,6 +2901,7 @@ static void         polymer_compileprogram(int32_t programbits)
     // PR_BIT_POINT_LIGHT
     if (programbits & prprogrambits[PR_BIT_POINT_LIGHT].bit)
     {
+        prprograms[programbits].uniform_lightCount = bglGetUniformLocationARB(program, "lightCount");
         prprograms[programbits].uniform_pointLightPosition = bglGetUniformLocationARB(program, "pointLightPosition");
         prprograms[programbits].uniform_pointLightColor = bglGetUniformLocationARB(program, "pointLightColor");
         prprograms[programbits].uniform_pointLightRange = bglGetUniformLocationARB(program, "pointLightRange");
