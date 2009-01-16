@@ -576,7 +576,7 @@ int32_t __fastcall Gv_GetVar(int32_t id, int32_t iActor, int32_t iPlayer)
                 {
                     int32_t parm2 = 0;
 
-                    OSD_Printf("%d %d %d\n",__LINE__,index,label);
+                    /*OSD_Printf("%d %d %d\n",__LINE__,index,label);*/
                     if (ActorLabels[label].flags & LABEL_HASPARM2)
                         parm2 = Gv_GetVar(*insptr++, iActor, iPlayer);
 
@@ -784,7 +784,7 @@ int32_t __fastcall Gv_GetVarX(int32_t id)
                 {
                     int32_t parm2 = 0;
 
-                    OSD_Printf("%d %d %d\n",__LINE__,index,label);
+                    /*OSD_Printf("%d %d %d\n",__LINE__,index,label);*/
                     if (ActorLabels[label].flags & LABEL_HASPARM2)
                         parm2 = Gv_GetVarX(*insptr++);
                     if (index >= MAXSPRITES || index < 0)

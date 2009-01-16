@@ -1644,7 +1644,7 @@ static void C_GetNextVarType(int32_t type)
             textptr++;
             /// now pointing at 'xxx'
             C_GetNextLabelName();
-            initprintf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
+            /*initprintf("found xxx label of '%s'\n",   label+(g_numLabels<<6));*/
 
             if (i == g_iSpriteVarID)
                 lLabelID=C_GetLabelNameOffset(&actorH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));

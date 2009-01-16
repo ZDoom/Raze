@@ -3909,62 +3909,78 @@ static int32_t X_DoExecute(void)
 
     case CON_IFVARVARAND:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) & Gv_GetVarX(*(insptr)));
+        j=Gv_GetVarX(*insptr++);
+        l=Gv_GetVarX(*insptr++);
+        insptr--;
+        X_DoConditional(j & l);
         break;
 
     case CON_IFVARVAROR:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) | Gv_GetVarX(*(insptr)));
+        j=Gv_GetVarX(*insptr++);
+        l=Gv_GetVarX(*insptr++);
+        insptr--;
+        X_DoConditional(j | l);
         break;
 
     case CON_IFVARVARXOR:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) ^ Gv_GetVarX(*(insptr)));
+        j=Gv_GetVarX(*insptr++);
+        l=Gv_GetVarX(*insptr++);
+        insptr--;
+        X_DoConditional(j ^ l);
         break;
 
     case CON_IFVARVAREITHER:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) || Gv_GetVarX(*(insptr)));
+        j=Gv_GetVarX(*insptr++);
+        l=Gv_GetVarX(*insptr++);
+        insptr--;
+        X_DoConditional(j || l);
         break;
 
     case CON_IFVARVARN:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) != Gv_GetVarX(*(insptr)));
+        j=Gv_GetVarX(*insptr++);
+        l=Gv_GetVarX(*insptr++);
+        insptr--;
+        X_DoConditional(j != l);
         break;
 
     case CON_IFVARVARE:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) == Gv_GetVarX(*(insptr)));
+        j=Gv_GetVarX(*insptr++);
+        l=Gv_GetVarX(*insptr++);
+        insptr--;
+        X_DoConditional(j == l);
         break;
 
     case CON_IFVARVARG:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) > Gv_GetVarX(*(insptr)));
+        j=Gv_GetVarX(*insptr++);
+        l=Gv_GetVarX(*insptr++);
+        insptr--;
+        X_DoConditional(j > l);
         break;
 
     case CON_IFVARVARL:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) < Gv_GetVarX(*(insptr)));
+        j=Gv_GetVarX(*insptr++);
+        l=Gv_GetVarX(*insptr++);
+        insptr--;
+        X_DoConditional(j < l);
         break;
 
     case CON_IFVARE:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) == *insptr);
+        j=Gv_GetVarX(*insptr++);
+        X_DoConditional(j == *insptr);
         break;
 
     case CON_IFVARN:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) != *insptr);
+        j=Gv_GetVarX(*insptr++);
+        X_DoConditional(j != *insptr);
         break;
 
     case CON_WHILEVARN:
@@ -3988,7 +4004,8 @@ static int32_t X_DoExecute(void)
         {
             insptr=savedinsptr;
             i = Gv_GetVarX(*(insptr-1));
-            j = (i != Gv_GetVarX(*insptr));
+            j = (i != Gv_GetVarX(*insptr++));
+            insptr--;
             X_DoConditional(j);
         }
         while (j);
@@ -3997,38 +4014,38 @@ static int32_t X_DoExecute(void)
 
     case CON_IFVARAND:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) & *insptr);
+        j=Gv_GetVarX(*insptr++);
+        X_DoConditional(j & *insptr);
         break;
 
     case CON_IFVAROR:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) | *insptr);
+        j=Gv_GetVarX(*insptr++);
+        X_DoConditional(j | *insptr);
         break;
 
     case CON_IFVARXOR:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) ^ *insptr);
+        j=Gv_GetVarX(*insptr++);
+        X_DoConditional(j ^ *insptr);
         break;
 
     case CON_IFVAREITHER:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) || *insptr);
+        j=Gv_GetVarX(*insptr++);
+        X_DoConditional(j || *insptr);
         break;
 
     case CON_IFVARG:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) > *insptr);
+        j=Gv_GetVarX(*insptr++);
+        X_DoConditional(j > *insptr);
         break;
 
     case CON_IFVARL:
         insptr++;
-        j=*insptr++;
-        X_DoConditional(Gv_GetVarX(j) < *insptr);
+        j=Gv_GetVarX(*insptr++);
+        X_DoConditional(j < *insptr);
         break;
 
     case CON_IFPHEALTHL:
