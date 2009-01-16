@@ -660,8 +660,7 @@ static int32_t X_DoExecute(void)
 {
     int32_t j, l, s, tw = *insptr;
 
-    if (vm.g_killitFlag) return 1;
-    if (vm.g_returnFlag) return 1;
+    if (vm.g_killitFlag + vm.g_killitFlag) return 1;
 
     //      Bsprintf(g_szBuf,"Parsing: %d",*insptr);
     //      AddLog(g_szBuf);
@@ -2321,7 +2320,7 @@ static int32_t X_DoExecute(void)
             hitdata_t hitinfo;
 
             vect.x = Gv_GetVarX(*insptr++);
-            vect.x = Gv_GetVarX(*insptr++);
+            vect.y = Gv_GetVarX(*insptr++);
             vect.z = Gv_GetVarX(*insptr++);
 
             {
@@ -3075,7 +3074,7 @@ static int32_t X_DoExecute(void)
                     index=Gv_GetVarX(*insptr++);
                     if ((index < aGameArrays[lVarID].size)&&(index>=0))
                     {
-                        OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n",g_errorLineNum,keyw[g_tw],
+                        OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n",keyw[g_tw],g_errorLineNum,
                                    aGameArrays[lVarID].szLabel,index,m*aGameArrays[lVarID].plValues[index]);
                         break;
                     }
@@ -3088,33 +3087,20 @@ static int32_t X_DoExecute(void)
                 else if (*insptr&(MAXGAMEVARS<<3))
                 {
 //                    FIXME FIXME FIXME
-                    int32_t index, label;
-
-                    lVarID ^= (MAXGAMEVARS<<3);
-
-                    if (lVarID&(MAXGAMEVARS<<1))
+                    if ((lVarID & (MAXGAMEVARS-1)) == g_iActorVarID)
                     {
-                        m = -m;
-                        lVarID ^= (MAXGAMEVARS<<1);
+                        intptr_t *oinsptr = insptr++;
+                        int32_t index = Gv_GetVarX(*insptr++);
+                        insptr = oinsptr;
+                        if (index < 0 || index >= MAXSPRITES-1)
+                        {
+                            OSD_Printf(CON_ERROR "invalid array index\n",g_errorLineNum,keyw[g_tw]);
+                            Gv_GetVarX(*insptr++);
+                            break;
+                        }
+                        OSD_Printf(OSDTEXT_GREEN "%s: L=%d %d %d\n",keyw[g_tw],g_errorLineNum,index,Gv_GetVar(*insptr++,index,vm.g_p));
+                        break;
                     }
-
-                    insptr++;
-
-                    index=Gv_GetVarX(*insptr++);
-                    label=*insptr++;
-
-                    /*                    if ((index < aGameArrays[lVarID].size)&&(index>=0))
-                                        {
-                                            OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n",g_errorLineNum,keyw[g_tw],
-                                                       aGameArrays[lVarID].szLabel,index,m*aGameArrays[lVarID].plValues[index]);
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            OSD_Printf(CON_ERROR "invalid array index\n",g_errorLineNum,keyw[g_tw]);
-                                            break;
-                                        } */
-                    break;
                 }
                 else if (*insptr&(MAXGAMEVARS<<1))
                 {
@@ -3984,12 +3970,10 @@ static int32_t X_DoExecute(void)
     case CON_WHILEVARN:
     {
         intptr_t *savedinsptr=insptr+2;
-        j=1;
         do
         {
             insptr=savedinsptr;
-            if (Gv_GetVarX(*(insptr-1)) == *insptr)
-                j=0;
+            j = (Gv_GetVarX(*(insptr-1)) != *insptr);
             X_DoConditional(j);
         }
         while (j);
@@ -3998,16 +3982,13 @@ static int32_t X_DoExecute(void)
 
     case CON_WHILEVARVARN:
     {
-        int32_t i,k;
+        int32_t i;
         intptr_t *savedinsptr=insptr+2;
-        j=1;
         do
         {
             insptr=savedinsptr;
             i = Gv_GetVarX(*(insptr-1));
-            k=*(insptr);
-            if (i == Gv_GetVarX(k))
-                j=0;
+            j = (i != Gv_GetVarX(*insptr));
             X_DoConditional(j);
         }
         while (j);

@@ -1399,7 +1399,8 @@ static inline int32_t ispecial(char c)
 
 static inline int32_t isaltok(char c)
 {
-    return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '*' || c == '-' || c == '_' || c == '.');
+    return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '\\' ||
+        c == '*' || c == '-' || c == '_' || c == '.');
 }
 
 static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, hashtable_t *tH, const char *psz)
@@ -1544,7 +1545,11 @@ static void C_GetNextVarType(int32_t type)
             *g_scriptPtr=atoi(textptr);
         bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
         g_scriptPtr++;
+#if 1
+        while (!ispecial(*textptr) && *textptr != ']') textptr++;
+#else
         C_GetNextLabelName();
+#endif
         return;
     }
     else if ((*textptr == '-')/* && !isdigit(*(textptr+1))*/)
@@ -1583,7 +1588,7 @@ static void C_GetNextVarType(int32_t type)
         if (i < 0)
         {
             i=GetDefID(label+(g_numLabels<<6));
-            if (i < g_iSpriteVarID || i > g_iPlayerVarID)
+            if (i < g_iSpriteVarID || i > g_iActorVarID)
                 i = -1;
 
             if (i < 0)
@@ -1599,7 +1604,7 @@ static void C_GetNextVarType(int32_t type)
         bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
         *g_scriptPtr++=(i|f);
         C_GetNextVarType(0);
-        C_SkipComments(); //skip comments and whitespace
+        C_SkipComments();
 
         if (*textptr != ']')
         {
@@ -1608,7 +1613,10 @@ static void C_GetNextVarType(int32_t type)
             return;
         }
         textptr++;
-        if (type)   //writing arrays in this way is not supported because it would require too many changes to other code
+
+        //writing arrays in this way is not supported because it would require too many changes to other code
+
+        if (type)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_INVALIDARRAYWRITE);
@@ -1627,7 +1635,7 @@ static void C_GetNextVarType(int32_t type)
                 textptr++;
             }
 
-            if (*textptr!='.')
+            if (*textptr != '.')
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_SYNTAXERROR);
@@ -1636,7 +1644,7 @@ static void C_GetNextVarType(int32_t type)
             textptr++;
             /// now pointing at 'xxx'
             C_GetNextLabelName();
-            //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
+            initprintf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
 
             if (i == g_iSpriteVarID)
                 lLabelID=C_GetLabelNameOffset(&actorH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
@@ -1646,6 +1654,8 @@ static void C_GetNextVarType(int32_t type)
                 lLabelID=C_GetLabelNameOffset(&wallH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
             else if (i == g_iPlayerVarID)
                 lLabelID=C_GetLabelNameOffset(&playerH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+            else if (i == g_iActorVarID)
+                lLabelID=GetDefID(label+(g_numLabels<<6));
 
             //printf("LabelID is %d\n",lLabelID);
             if (lLabelID == -1)
@@ -1670,6 +1680,10 @@ static void C_GetNextVarType(int32_t type)
                     C_GetNextVarType(0);
                 }
             }
+            else if (i == g_iSectorVarID)
+                *g_scriptPtr++=SectorLabels[lLabelID].lId;
+            else if (i == g_iWallVarID)
+                *g_scriptPtr++=SectorLabels[lLabelID].lId;
             else if (i == g_iPlayerVarID)
             {
                 *g_scriptPtr++=PlayerLabels[lLabelID].lId;
@@ -1683,6 +1697,8 @@ static void C_GetNextVarType(int32_t type)
                     C_GetNextVarType(0);
                 }
             }
+            else if (i == g_iActorVarID)
+                *g_scriptPtr++=lLabelID;
         }
         return;
     }
@@ -1778,7 +1794,7 @@ static int32_t C_GetNextValue(int32_t type)
     }
     tempbuf[l] = 0;
 
-    if (!g_skipKeywordCheck && hash_find(&keywH,label+(g_numLabels<<6))>=0)
+    if (!g_skipKeywordCheck && hash_find(&keywH,tempbuf /*label+(g_numLabels<<6)*/)>=0)
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_ISAKEYWORD);
@@ -2045,7 +2061,7 @@ static int32_t C_ParseCommand(void)
                 C_ReportError(ERROR_OPENBRACKET);
                 g_numCompilerErrors++;
             }
-            if (g_numBraces < 0)
+            else if (g_numBraces < 0)
             {
                 C_ReportError(ERROR_CLOSEBRACKET);
                 g_numCompilerErrors++;
@@ -2385,12 +2401,7 @@ static int32_t C_ParseCommand(void)
             // get the file name...
             while (C_GetKeyword() == -1)
             {
-                while (isaltok(*textptr) == 0)
-                {
-                    if (*textptr == 0x0a) g_lineNumber++;
-                    textptr++;
-                    if (*textptr == 0) break;
-                }
+                C_SkipComments();
                 j = 0;
                 tempbuf[j] = '/';
                 while (isaltok(*(textptr+j)))
@@ -2417,12 +2428,7 @@ static int32_t C_ParseCommand(void)
             i = 0;
             while (C_GetKeyword() == -1)
             {
-                while (isaltok(*textptr) == 0)
-                {
-                    if (*textptr == 0x0a) g_lineNumber++;
-                    textptr++;
-                    if (*textptr == 0) break;
-                }
+                C_SkipComments();
                 j = 0;
 
                 while (isaltok(*(textptr+j)))
@@ -3551,7 +3557,6 @@ static int32_t C_ParseCommand(void)
             g_numCompilerErrors++;
             C_ReportError(ERROR_VARREADONLY);
             return 0;
-
         }
 
         switch (tw)
