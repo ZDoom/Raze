@@ -62,10 +62,11 @@ static void P_IncurDamage(DukePlayer_t *p)
 {
     int32_t damage = 0L, shield_damage = 0L;
 
-    Gv_SetVar(g_iReturnVarID,0,p->i,sprite[p->i].yvel);
-    X_OnEvent(EVENT_INCURDAMAGE, p->i, sprite[p->i].yvel, -1);
+    aGameVars[g_iReturnVarID].val.lValue = 0;
+    if (apScriptGameEvent[EVENT_INCURDAMAGE])
+        X_OnEvent(EVENT_INCURDAMAGE, p->i, sprite[p->i].yvel, -1);
 
-    if (Gv_GetVar(g_iReturnVarID,p->i,sprite[p->i].yvel) == 0)
+    if (aGameVars[g_iReturnVarID].val.lValue == 0)
 
     {
         sprite[p->i].extra -= p->extra_extra8>>8;
@@ -440,11 +441,11 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                             sprite[k].ang = getangle(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,
                                                                      wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y)+512;
                                             Bmemcpy(&sprite[k],&hitinfo.pos,sizeof(vec3_t));
-/*
-                                            sprite[k].x = hitinfo.pos.x;
-                                            sprite[k].y = hitinfo.pos.y;
-                                            sprite[k].z = hitinfo.pos.z;
-*/
+                                            /*
+                                                                                        sprite[k].x = hitinfo.pos.x;
+                                                                                        sprite[k].y = hitinfo.pos.y;
+                                                                                        sprite[k].z = hitinfo.pos.z;
+                                            */
                                             if (ProjectileData[atwith].workslike & PROJECTILE_RANDDECALSIZE)
                                             {
                                                 wh = (krand()&ProjectileData[atwith].xrepeat);
@@ -564,7 +565,8 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 int32_t zRange=256;
 
                 Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
+                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
+                    X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
                 j=-1;
                 if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
                 {
@@ -898,7 +900,8 @@ DOSKIPBULLETHOLE:
             {
                 //            j = A_FindTargetSprite( s, AUTO_AIM_ANGLE ); // 48
                 Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
+                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
+                    X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
                 j=-1;
                 if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
                 {
@@ -1147,7 +1150,8 @@ DOSKIPBULLETHOLE:
                 int32_t zRange=256;
 
                 Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
+                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
+                    X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
                 j=-1;
                 if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
                 {
@@ -1441,7 +1445,8 @@ SKIPBULLETHOLE:
             {
                 //            j = A_FindTargetSprite( s, AUTO_AIM_ANGLE );
                 Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
+                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
+                    X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
                 j=-1;
                 if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
                 {
@@ -1546,7 +1551,8 @@ SKIPBULLETHOLE:
             {
                 //            j = A_FindTargetSprite( s, AUTO_AIM_ANGLE ); // 48
                 Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
+                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
+                    X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
                 j=-1;
                 if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
                 {
@@ -1752,7 +1758,8 @@ SKIPBULLETHOLE:
             {
                 //            j = A_FindTargetSprite( s, AUTO_AIM_ANGLE );
                 Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
+                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
+                    X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
                 j=-1;
                 if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
                 {
@@ -1851,7 +1858,8 @@ SKIPBULLETHOLE:
             {
                 //            j = A_FindTargetSprite( s, AUTO_AIM_ANGLE );
                 Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
+                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
+                    X_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
                 j=-1;
                 if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
                 {
@@ -2058,10 +2066,11 @@ void P_FireWeapon(DukePlayer_t *p)
 {
     int32_t i, snum = sprite[p->i].yvel;
 
-    Gv_SetVar(g_iReturnVarID,0,p->i,snum);
-    X_OnEvent(EVENT_DOFIRE, p->i, snum, -1);
+    aGameVars[g_iReturnVarID].val.lValue = 0;
+    if (apScriptGameEvent[EVENT_DOFIRE])
+        X_OnEvent(EVENT_DOFIRE, p->i, snum, -1);
 
-    if (Gv_GetVar(g_iReturnVarID,p->i,snum) == 0)
+    if (aGameVars[g_iReturnVarID].val.lValue == 0)
     {
         if (p->weapon_pos != 0) return;
 
@@ -2255,10 +2264,11 @@ void P_DisplayWeapon(int32_t snum)
     g_kb=*kb;
     g_looking_angSR1=p->look_ang>>1;
 
-    Gv_SetVar(g_iReturnVarID,0,p->i,snum);
-    X_OnEvent(EVENT_DISPLAYWEAPON, p->i, screenpeek, -1);
+    aGameVars[g_iReturnVarID].val.lValue = 0;
+    if (apScriptGameEvent[EVENT_DISPLAYWEAPON])
+        X_OnEvent(EVENT_DISPLAYWEAPON, p->i, screenpeek, -1);
 
-    if (Gv_GetVar(g_iReturnVarID,p->i,snum) == 0)
+    if (aGameVars[g_iReturnVarID].val.lValue == 0)
     {
         j = 14-p->quick_kick;
         if (j != 14 || p->last_quick_kick)
@@ -2307,9 +2317,10 @@ void P_DisplayWeapon(int32_t snum)
 
             case KNEE_WEAPON:
 
-                Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-                X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+                aGameVars[g_iReturnVarID].val.lValue = 0;
+                if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                    X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     if ((*kb) > 0)
                     {
@@ -2336,9 +2347,10 @@ void P_DisplayWeapon(int32_t snum)
 
             case TRIPBOMB_WEAPON:
 
-                Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-                X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+                aGameVars[g_iReturnVarID].val.lValue = 0;
+                if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                    X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
@@ -2373,9 +2385,10 @@ void P_DisplayWeapon(int32_t snum)
 
             case RPG_WEAPON:
 
-                Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-                X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+                aGameVars[g_iReturnVarID].val.lValue = 0;
+                if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                    X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
@@ -2402,9 +2415,10 @@ void P_DisplayWeapon(int32_t snum)
 
             case SHOTGUN_WEAPON:
 
-                Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-                X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+                aGameVars[g_iReturnVarID].val.lValue = 0;
+                if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                    X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
@@ -2502,9 +2516,10 @@ void P_DisplayWeapon(int32_t snum)
 
             case CHAINGUN_WEAPON:
 
-                Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-                X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+                aGameVars[g_iReturnVarID].val.lValue = 0;
+                if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                    X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
@@ -2553,9 +2568,10 @@ void P_DisplayWeapon(int32_t snum)
 
             case PISTOL_WEAPON:
 
-                Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-                X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+                aGameVars[g_iReturnVarID].val.lValue = 0;
+                if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                    X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
@@ -2565,7 +2581,7 @@ void P_DisplayWeapon(int32_t snum)
 
                     if ((*kb) < *aplWeaponTotalTime[PISTOL_WEAPON]+1)
                     {
-                        static int16_t kb_frames[] = {0,1,2};
+                        static uint8_t kb_frames[] = { 0, 1, 2 };
                         int32_t l = 195-12+weapon_xoffset;
 
                         if ((*kb) == *aplWeaponFireDelay[PISTOL_WEAPON])
@@ -2626,9 +2642,10 @@ void P_DisplayWeapon(int32_t snum)
                 break;
             case HANDBOMB_WEAPON:
             {
-                Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-                X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+                aGameVars[g_iReturnVarID].val.lValue = 0;
+                if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                    X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
@@ -2641,7 +2658,7 @@ void P_DisplayWeapon(int32_t snum)
                         if ((*kb) < (*aplWeaponTotalTime[p->curr_weapon]))
                         {
 
-                            static char throw_frames[]
+                            static uint8_t throw_frames[]
                             = {0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2};
 
                             if ((*kb) < 7)
@@ -2663,11 +2680,12 @@ void P_DisplayWeapon(int32_t snum)
 
             case HANDREMOTE_WEAPON:
             {
-                Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-                X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+                aGameVars[g_iReturnVarID].val.lValue = 0;
+                if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                    X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    static char remote_frames[] = {0,1,1,2,1,1,0,0,0,0,0};
+                    static uint8_t remote_frames[] = {0,1,1,2,1,1,0,0,0,0,0};
                     if (sprite[p->i].pal == 1)
                         pal = 1;
                     else if (p->cursectnum >= 0)
@@ -2687,9 +2705,10 @@ void P_DisplayWeapon(int32_t snum)
 
             case DEVISTATOR_WEAPON:
 
-                Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-                X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+                aGameVars[g_iReturnVarID].val.lValue = 0;
+                if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                    X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
@@ -2699,7 +2718,7 @@ void P_DisplayWeapon(int32_t snum)
 
                     if ((*kb) < (*aplWeaponTotalTime[DEVISTATOR_WEAPON]+1) && (*kb) > 0)
                     {
-                        static char cycloidy[] = {0,4,12,24,12,4,0};
+                        static uint8_t cycloidy[] = {0,4,12,24,12,4,0};
 
                         i = ksgn((*kb)>>2);
 
@@ -2733,9 +2752,10 @@ void P_DisplayWeapon(int32_t snum)
 
             case FREEZE_WEAPON:
 
-                Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-                X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+                aGameVars[g_iReturnVarID].val.lValue = 0;
+                if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                    X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
@@ -2744,7 +2764,7 @@ void P_DisplayWeapon(int32_t snum)
                     else pal = 0;
                     if ((*kb) < (aplWeaponTotalTime[p->curr_weapon][snum]+1) && (*kb) > 0)
                     {
-                        static char cat_frames[] = { 0,0,1,1,2,2 };
+                        static uint8_t cat_frames[] = { 0,0,1,1,2,2 };
 
                         if (sprite[p->i].pal != 1)
                         {
@@ -2769,9 +2789,10 @@ void P_DisplayWeapon(int32_t snum)
 
             case GROW_WEAPON:
 
-                Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-                X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+                aGameVars[g_iReturnVarID].val.lValue = 0;
+                if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                    X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     weapon_xoffset += 28;
                     looking_arc += 18;
@@ -2818,9 +2839,10 @@ void P_DisplayWeapon(int32_t snum)
 
             case SHRINKER_WEAPON:
 
-                Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-                X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+                aGameVars[g_iReturnVarID].val.lValue = 0;
+                if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                    X_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     weapon_xoffset += 28;
                     looking_arc += 18;
@@ -3391,7 +3413,8 @@ int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATI
 // this is used for player deaths
 void P_DropWeapon(DukePlayer_t *p)
 {
-    int32_t snum = sprite[p->i].yvel, cw = aplWeaponWorksLike[p->curr_weapon][snum];
+    int32_t snum = sprite[p->i].yvel,
+                   cw = aplWeaponWorksLike[p->curr_weapon][snum];
 
     if (cw < 1 || cw >= MAX_WEAPONS) return;
 
@@ -3411,6 +3434,294 @@ void P_DropWeapon(DukePlayer_t *p)
 
 int32_t g_numObituaries = 0;
 int32_t g_numSelfObituaries = 0;
+
+void P_AddAmmo(int32_t weapon,DukePlayer_t *p,int32_t amount)
+{
+    p->ammo_amount[weapon] += amount;
+
+    if (p->ammo_amount[weapon] > p->max_ammo_amount[weapon])
+        p->ammo_amount[weapon] = p->max_ammo_amount[weapon];
+}
+
+void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
+{
+    int32_t snum = sprite[p->i].yvel;
+
+    if (p->gotweapon[weapon] == 0)
+    {
+        p->gotweapon[weapon] = 1;
+        if (weapon == SHRINKER_WEAPON)
+            p->gotweapon[GROW_WEAPON] = 1;
+    }
+
+#if 1
+    if (aplWeaponSelectSound[p->curr_weapon][snum])
+        A_StopSound(aplWeaponSelectSound[p->curr_weapon][snum],p->i);
+    if (aplWeaponSelectSound[weapon][snum])
+        A_PlaySound(aplWeaponSelectSound[weapon][snum],p->i);
+#else
+    switch (p->curr_weapon)
+    {
+    case KNEE_WEAPON:
+    case TRIPBOMB_WEAPON:
+    case HANDREMOTE_WEAPON:
+    case HANDBOMB_WEAPON:
+        break;
+    case SHOTGUN_WEAPON:
+        A_StopSound(SHOTGUN_COCK,p->i);
+        break;
+    case PISTOL_WEAPON:
+        A_StopSound(INSERT_CLIP,p->i);
+        break;
+    default:
+        A_StopSound(SELECT_WEAPON,p->i);
+        break;
+    }
+    switch (weapon)
+    {
+    case KNEE_WEAPON:
+    case TRIPBOMB_WEAPON:
+    case HANDREMOTE_WEAPON:
+    case HANDBOMB_WEAPON:
+        break;
+    case SHOTGUN_WEAPON:
+        A_PlaySound(SHOTGUN_COCK,p->i);
+        break;
+    case PISTOL_WEAPON:
+        A_PlaySound(INSERT_CLIP,p->i);
+        break;
+    default:
+        A_PlaySound(SELECT_WEAPON,p->i);
+        break;
+    }
+#endif
+}
+
+void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
+{
+    int32_t snum = sprite[p->i].yvel;
+
+    P_AddWeaponNoSwitch(p,weapon);
+
+    if (p->reloading) return;
+
+    p->random_club_frame = 0;
+
+    if (p->holster_weapon == 0)
+    {
+        if (p->weapon_pos == 0)
+            p->weapon_pos = -1;
+        else p->weapon_pos = -9;
+        p->last_weapon = p->curr_weapon;
+    }
+    else
+    {
+        p->weapon_pos = 10;
+        p->holster_weapon = 0;
+        p->last_weapon = -1;
+    }
+
+    p->kickback_pic = 0;
+
+    if (p->curr_weapon != weapon && apScriptGameEvent[EVENT_CHANGEWEAPON])
+        X_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1);
+
+    p->curr_weapon = weapon;
+
+    Gv_SetVar(g_iWeaponVarID,p->curr_weapon, p->i, snum);
+    if (p->curr_weapon>=0)
+    {
+        Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
+    }
+    else
+    {
+        Gv_SetVar(g_iWorksLikeVarID,-1, p->i, snum);
+    }
+}
+
+void P_SelectNextInvItem(DukePlayer_t *p)
+{
+    if (p->firstaid_amount > 0)
+        p->inven_icon = 1;
+    else if (p->steroids_amount > 0)
+        p->inven_icon = 2;
+    else if (p->holoduke_amount > 0)
+        p->inven_icon = 3;
+    else if (p->jetpack_amount > 0)
+        p->inven_icon = 4;
+    else if (p->heat_amount > 0)
+        p->inven_icon = 5;
+    else if (p->scuba_amount > 0)
+        p->inven_icon = 6;
+    else if (p->boot_amount > 0)
+        p->inven_icon = 7;
+    else p->inven_icon = 0;
+}
+
+void P_CheckWeapon(DukePlayer_t *p)
+{
+    int16_t i,snum;
+    int32 weap;
+
+    if (p->reloading) return;
+
+    if (p->wantweaponfire >= 0)
+    {
+        weap = p->wantweaponfire;
+        p->wantweaponfire = -1;
+
+        if (weap == p->curr_weapon) return;
+        else if (p->gotweapon[weap] && p->ammo_amount[weap] > 0)
+        {
+            P_AddWeapon(p,weap);
+            return;
+        }
+    }
+
+    weap = p->curr_weapon;
+    if (p->gotweapon[weap] && p->ammo_amount[weap] > 0)
+        return;
+    if (p->gotweapon[weap] && !(p->weaponswitch & 2))
+        return;
+
+    snum = sprite[p->i].yvel;
+
+    for (i=0;i<10;i++)
+    {
+        weap = g_player[snum].wchoice[i];
+        if (VOLUMEONE && weap > 6) continue;
+
+        if (weap == 0) weap = 9;
+        else weap--;
+
+        if (weap == 0 || (p->gotweapon[weap] && p->ammo_amount[weap] > 0))
+            break;
+    }
+
+    if (i == 10) weap = 0;
+
+    // Found the weapon
+
+    p->last_weapon  = p->curr_weapon;
+    p->random_club_frame = 0;
+    p->curr_weapon  = weap;
+    Gv_SetVar(g_iWeaponVarID,p->curr_weapon, p->i, snum);
+    if (p->curr_weapon>=0)
+    {
+        Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
+    }
+    else
+    {
+        Gv_SetVar(g_iWorksLikeVarID,-1, p->i, snum);
+    }
+    if (apScriptGameEvent[EVENT_CHANGEWEAPON])
+        X_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1);
+    p->kickback_pic = 0;
+    if (p->holster_weapon == 1)
+    {
+        p->holster_weapon = 0;
+        p->weapon_pos = 10;
+    }
+    else p->weapon_pos   = -1;
+}
+
+void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
+{
+    if ((j&49152) == 49152)
+    {
+        j &= (MAXSPRITES-1);
+
+        if (sprite[j].picnum == CACTUS)
+        {
+            if (p->hurt_delay < 8)
+            {
+                sprite[p->i].extra -= 5;
+
+                p->hurt_delay = 16;
+                p->pals_time = 32;
+                p->pals[0] = 32;
+                p->pals[1] = 0;
+                p->pals[2] = 0;
+                A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
+            }
+        }
+        return;
+    }
+
+    if ((j&49152) != 32768) return;
+    j &= (MAXWALLS-1);
+
+    if (p->hurt_delay > 0) p->hurt_delay--;
+    else if (wall[j].cstat&85)
+    {
+        int32_t switchpicnum = wall[j].overpicnum;
+        if ((switchpicnum>W_FORCEFIELD)&&(switchpicnum<=W_FORCEFIELD+2))
+            switchpicnum=W_FORCEFIELD;
+
+        switch (DynamicTileMap[switchpicnum])
+        {
+        case W_FORCEFIELD__STATIC:
+            //        case W_FORCEFIELD+1:
+            //        case W_FORCEFIELD+2:
+            sprite[p->i].extra -= 5;
+
+            p->hurt_delay = 16;
+            p->pals_time = 32;
+            p->pals[0] = 32;
+            p->pals[1] = 0;
+            p->pals[2] = 0;
+
+            p->posxv = -(sintable[(p->ang+512)&2047]<<8);
+            p->posyv = -(sintable[(p->ang)&2047]<<8);
+            A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
+
+            {
+                vec3_t davect;
+
+                davect.x = p->posx+(sintable[(p->ang+512)&2047]>>9);
+                davect.y = p->posy+(sintable[p->ang&2047]>>9);
+                davect.z = p->posz;
+                A_DamageWall(p->i,j,&davect,-1);
+            }
+
+            break;
+
+        case BIGFORCE__STATIC:
+            p->hurt_delay = 26;
+            {
+                vec3_t davect;
+
+                davect.x = p->posx+(sintable[(p->ang+512)&2047]>>9);
+                davect.y = p->posy+(sintable[p->ang&2047]>>9);
+                davect.z = p->posz;
+                A_DamageWall(p->i,j,&davect,-1);
+            }
+            break;
+
+        }
+    }
+}
+
+int32_t P_FindOtherPlayer(int32_t p,int32_t *d)
+{
+    int32_t j, closest_player = p;
+    int32_t x, closest = 0x7fffffff;
+
+    TRAVERSE_CONNECT(j)
+    if (p != j && sprite[g_player[j].ps->i].extra > 0)
+    {
+        x = klabs(g_player[j].ps->oposx-g_player[p].ps->posx) + klabs(g_player[j].ps->oposy-g_player[p].ps->posy) + (klabs(g_player[j].ps->oposz-g_player[p].ps->posz)>>4);
+
+        if (x < closest)
+        {
+            closest_player = j;
+            closest = x;
+        }
+    }
+
+    *d = closest;
+    return closest_player;
+}
 
 void P_ProcessInput(int32_t snum)
 {
@@ -3432,9 +3743,9 @@ void P_ProcessInput(int32_t snum)
     if (TEST_SYNC_KEY(sb_snum, SK_FIRE))
 //    if ((sb_snum&(1<<2)))
     {
-        Gv_SetVar(g_iReturnVarID,0,pi,snum);
+        aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_PRESSEDFIRE, pi, snum, -1);
-        if (Gv_GetVar(g_iReturnVarID,pi,snum) != 0)
+        if (aGameVars[g_iReturnVarID].val.lValue != 0)
             sb_snum &= ~BIT(SK_FIRE);
     }
 
@@ -3712,52 +4023,6 @@ void P_ProcessInput(int32_t snum)
 
                     if (ud.obituaries)
                     {
-                        /*
-                                                if (GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) || (GTFLAGS(GAMETYPE_TDM) && g_player[snum].ps->team == g_player[p->frag_ps].ps->team))
-                                                    i = 9;
-                                                else
-                                                {
-                                                    // temp_data[1] on a player's APLAYER actor means the player is frozen
-                                                    if (ActorExtra[p->i].temp_data[1] == 1)
-                                                        i = 7;
-                                                    else switch (DynamicTileMap[ActorExtra[p->i].picnum])
-                                                        {
-                                                        case KNEE__STATIC:
-                                                            i = 0;
-                                                            break;
-                                                        case SHOTSPARK1__STATIC:
-                                                            switch (g_player[p->frag_ps].ps->curr_weapon)
-                                                            {
-                                                            default:
-                                                            case PISTOL_WEAPON:
-                                                                i = 1;
-                                                                break;
-                                                            case SHOTGUN_WEAPON:
-                                                                i = 2;
-                                                                break;
-                                                            case CHAINGUN_WEAPON:
-                                                                i = 3;
-                                                                break;
-                                                            }
-                                                            break;
-                                                        case RPG__STATIC:
-                                                            i = 4;
-                                                            break;
-                                                        case RADIUSEXPLOSION__STATIC:
-                                                            i = 5;
-                                                            break;
-                                                        case SHRINKSPARK__STATIC:
-                                                            i = 6;
-                                                            break;
-                                                        case GROWSPARK__STATIC:
-                                                            i = 8;
-                                                            break;
-                                                        default:
-                                                            i = 0;
-                                                            break;
-                                                        }
-                                                }
-                                                */
                         Bsprintf(tempbuf,ScriptQuotes[FIRST_OBITUARY_QUOTE+(krand()%g_numObituaries)],
                                  &g_player[p->frag_ps].user_name[0],
                                  &g_player[snum].user_name[0]);
@@ -3877,9 +4142,9 @@ void P_ProcessInput(int32_t snum)
     if (TEST_SYNC_KEY(sb_snum, SK_LOOK_LEFT))
     {
         // look_left
-        Gv_SetVar(g_iReturnVarID,0,pi,snum);
+        aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_LOOKLEFT,pi,snum, -1);
-        if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+        if (aGameVars[g_iReturnVarID].val.lValue == 0)
         {
             p->look_ang -= 152;
             p->rotscrnang += 24;
@@ -3889,9 +4154,9 @@ void P_ProcessInput(int32_t snum)
     if (TEST_SYNC_KEY(sb_snum, SK_LOOK_RIGHT))
     {
         // look_right
-        Gv_SetVar(g_iReturnVarID,0,pi,snum);
+        aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_LOOKRIGHT,pi,snum, -1);
-        if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+        if (aGameVars[g_iReturnVarID].val.lValue == 0)
         {
             p->look_ang += 152;
             p->rotscrnang -= 24;
@@ -3968,9 +4233,9 @@ void P_ProcessInput(int32_t snum)
 
         if (TEST_SYNC_KEY(sb_snum, SK_JUMP))
         {
-            Gv_SetVar(g_iReturnVarID,0,pi,snum);
+            aGameVars[g_iReturnVarID].val.lValue = 0;
             X_OnEvent(EVENT_SWIMUP,pi,snum, -1);
-            if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+            if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 // jump
                 if (p->poszv > 0) p->poszv = 0;
@@ -3980,9 +4245,9 @@ void P_ProcessInput(int32_t snum)
         }
         else if (TEST_SYNC_KEY(sb_snum, SK_CROUCH))
         {
-            Gv_SetVar(g_iReturnVarID,0,pi,snum);
+            aGameVars[g_iReturnVarID].val.lValue = 0;
             X_OnEvent(EVENT_SWIMDOWN,pi,snum, -1);
-            if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+            if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 // crouch
                 if (p->poszv < 0) p->poszv = 0;
@@ -4059,9 +4324,9 @@ void P_ProcessInput(int32_t snum)
         if (TEST_SYNC_KEY(sb_snum, SK_JUMP))         //A (soar high)
         {
             // jump
-            Gv_SetVar(g_iReturnVarID,0,pi,snum);
+            aGameVars[g_iReturnVarID].val.lValue = 0;
             X_OnEvent(EVENT_SOARUP,pi,snum, -1);
-            if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+            if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 p->posz -= j;
                 p->crack_time = 777;
@@ -4071,9 +4336,9 @@ void P_ProcessInput(int32_t snum)
         if (TEST_SYNC_KEY(sb_snum, SK_CROUCH))   //Z (soar low)
         {
             // crouch
-            Gv_SetVar(g_iReturnVarID,0,pi,snum);
+            aGameVars[g_iReturnVarID].val.lValue = 0;
             X_OnEvent(EVENT_SOARDOWN,pi,snum, -1);
-            if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+            if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 p->posz += j;
                 p->crack_time = 777;
@@ -4255,9 +4520,9 @@ void P_ProcessInput(int32_t snum)
             if (TEST_SYNC_KEY(sb_snum, SK_CROUCH))
             {
                 // crouching
-                Gv_SetVar(g_iReturnVarID,0,pi,snum);
+                aGameVars[g_iReturnVarID].val.lValue = 0;
                 X_OnEvent(EVENT_CROUCH,pi,snum, -1);
-                if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     p->posz += (2048+768);
                     p->crack_time = 777;
@@ -4272,9 +4537,9 @@ void P_ProcessInput(int32_t snum)
                 if (p->jumping_counter == 0)
                     if ((fz-cz) > (56<<8))
                     {
-                        Gv_SetVar(g_iReturnVarID,0,pi,snum);
+                        aGameVars[g_iReturnVarID].val.lValue = 0;
                         X_OnEvent(EVENT_JUMP,pi,snum, -1);
-                        if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+                        if (aGameVars[g_iReturnVarID].val.lValue == 0)
                         {
                             p->jumping_counter = 1;
                             p->jumping_toggle = 1;
@@ -4639,9 +4904,9 @@ HORIZONLY:
     i = 0;
     if (TEST_SYNC_KEY(sb_snum, SK_CENTER_VIEW) || p->hard_landing)
     {
-        Gv_SetVar(g_iReturnVarID,0,pi,snum);
+        aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_RETURNTOCENTER,pi,snum, -1);
-        if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+        if (aGameVars[g_iReturnVarID].val.lValue == 0)
         {
             p->return_to_center = 9;
         }
@@ -4650,9 +4915,9 @@ HORIZONLY:
     if (TEST_SYNC_KEY(sb_snum, SK_LOOK_UP))
     {
         // look_up
-        Gv_SetVar(g_iReturnVarID,0,pi,snum);
+        aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_LOOKUP,pi,snum, -1);
-        if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+        if (aGameVars[g_iReturnVarID].val.lValue == 0)
         {
             p->return_to_center = 9;
             if (TEST_SYNC_KEY(sb_snum, SK_RUN)) p->horiz += 12;     // running
@@ -4664,9 +4929,9 @@ HORIZONLY:
     else if (TEST_SYNC_KEY(sb_snum, SK_LOOK_DOWN))
     {
         // look_down
-        Gv_SetVar(g_iReturnVarID,0,pi,snum);
+        aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_LOOKDOWN,pi,snum, -1);
-        if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+        if (aGameVars[g_iReturnVarID].val.lValue == 0)
         {
             p->return_to_center = 9;
             if (TEST_SYNC_KEY(sb_snum, SK_RUN)) p->horiz -= 12;
@@ -4678,9 +4943,9 @@ HORIZONLY:
     else if (TEST_SYNC_KEY(sb_snum, SK_AIM_UP))
     {
         // aim_up
-        Gv_SetVar(g_iReturnVarID,0,pi,snum);
+        aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_AIMUP,pi,snum, -1);
-        if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+        if (aGameVars[g_iReturnVarID].val.lValue == 0)
         {
             // running
             if (TEST_SYNC_KEY(sb_snum, SK_RUN)) p->horiz += 6;
@@ -4692,9 +4957,9 @@ HORIZONLY:
     else if (TEST_SYNC_KEY(sb_snum, SK_AIM_DOWN))
     {
         // aim_down
-        Gv_SetVar(g_iReturnVarID,0,pi,snum);
+        aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_AIMDOWN,pi,snum, -1);
-        if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+        if (aGameVars[g_iReturnVarID].val.lValue == 0)
         {
             // running
             if (TEST_SYNC_KEY(sb_snum, SK_RUN)) p->horiz -= 6;
@@ -4819,11 +5084,11 @@ HORIZONLY:
 SHOOTINCODE:
     if (TEST_SYNC_KEY(sb_snum, SK_HOLSTER))   // 'Holster Weapon
     {
-        Gv_SetVar(g_iReturnVarID,0,pi,snum);
+        aGameVars[g_iReturnVarID].val.lValue = 0;
         Gv_SetVar(g_iWeaponVarID,p->curr_weapon,pi,snum);
         Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum],pi,snum);
         X_OnEvent(EVENT_HOLSTER, pi, snum, -1);
-        if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+        if (aGameVars[g_iReturnVarID].val.lValue == 0)
         {
             if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_HOLSTER_CLEARS_CLIP)
             {
@@ -4889,16 +5154,17 @@ SHOOTINCODE:
         }
         else
         {
-            Gv_SetVar(g_iReturnVarID,0,pi,snum);
+            aGameVars[g_iReturnVarID].val.lValue = 0;
             Gv_SetVar(g_iWeaponVarID,p->curr_weapon,pi,snum);
             Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum],pi,snum);
             X_OnEvent(EVENT_FIRE, pi, snum, -1);
-            if (Gv_GetVar(g_iReturnVarID,pi,snum) == 0)
+            if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 switch (aplWeaponWorksLike[p->curr_weapon][snum])
                 {
                 case HANDBOMB_WEAPON:
-                    X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
+                    if (apScriptGameEvent[EVENT_FIREWEAPON])
+                        X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
 
                     p->hbomb_hold_delay = 0;
                     if (p->ammo_amount[p->curr_weapon] > 0)
@@ -4912,7 +5178,8 @@ SHOOTINCODE:
                     break;
 
                 case HANDREMOTE_WEAPON:
-                    X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
+                    if (apScriptGameEvent[EVENT_FIREWEAPON])
+                        X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
                     p->hbomb_hold_delay = 0;
                     (*kb) = 1;
                     if (aplWeaponInitialSound[p->curr_weapon][snum])
@@ -4922,7 +5189,8 @@ SHOOTINCODE:
                     break;
 
                 case SHOTGUN_WEAPON:
-                    X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
+                    if (apScriptGameEvent[EVENT_FIREWEAPON])
+                        X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
                     if (p->ammo_amount[p->curr_weapon] > 0 && p->random_club_frame == 0)
                     {
                         (*kb)=1;
@@ -4987,7 +5255,8 @@ SHOOTINCODE:
                 case GROW_WEAPON:
                 case FREEZE_WEAPON:
                 case RPG_WEAPON:
-                    X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
+                    if (apScriptGameEvent[EVENT_FIREWEAPON])
+                        X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
                     if (p->ammo_amount[p->curr_weapon] > 0)
                     {
                         (*kb) = 1;
@@ -4999,7 +5268,8 @@ SHOOTINCODE:
                     break;
 
                 case DEVISTATOR_WEAPON:
-                    X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
+                    if (apScriptGameEvent[EVENT_FIREWEAPON])
+                        X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
                     if (p->ammo_amount[p->curr_weapon] > 0)
                     {
                         (*kb) = 1;
@@ -5012,7 +5282,8 @@ SHOOTINCODE:
                     break;
 
                 case KNEE_WEAPON:
-                    X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
+                    if (apScriptGameEvent[EVENT_FIREWEAPON])
+                        X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
                     if (p->quick_kick == 0)
                     {
                         (*kb) = 1;

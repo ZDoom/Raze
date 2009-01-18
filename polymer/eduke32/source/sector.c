@@ -251,27 +251,6 @@ int32_t __fastcall A_FindPlayer(spritetype *s, int32_t *d)
     }
 }
 
-int32_t P_FindOtherPlayer(int32_t p,int32_t *d)
-{
-    int32_t j, closest_player = p;
-    int32_t x, closest = 0x7fffffff;
-
-    TRAVERSE_CONNECT(j)
-    if (p != j && sprite[g_player[j].ps->i].extra > 0)
-    {
-        x = klabs(g_player[j].ps->oposx-g_player[p].ps->posx) + klabs(g_player[j].ps->oposy-g_player[p].ps->posy) + (klabs(g_player[j].ps->oposz-g_player[p].ps->posz)>>4);
-
-        if (x < closest)
-        {
-            closest_player = j;
-            closest = x;
-        }
-    }
-
-    *d = closest;
-    return closest_player;
-}
-
 void G_DoSectorAnimations(void)
 {
     int32_t i, j, a, p, v, dasect;
@@ -1887,85 +1866,6 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
     }
 }
 
-void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
-{
-    if ((j&49152) == 49152)
-    {
-        j &= (MAXSPRITES-1);
-
-        if (sprite[j].picnum==CACTUS)
-        {
-
-            if (p->hurt_delay < 8)
-            {
-                sprite[p->i].extra -= 5;
-
-                p->hurt_delay = 16;
-                p->pals_time = 32;
-                p->pals[0] = 32;
-                p->pals[1] = 0;
-                p->pals[2] = 0;
-                A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
-            }
-
-        }
-        return;
-    }
-
-    if ((j&49152) != 32768) return;
-    j &= (MAXWALLS-1);
-
-    if (p->hurt_delay > 0) p->hurt_delay--;
-    else if (wall[j].cstat&85)
-    {
-        int32_t switchpicnum = wall[j].overpicnum;
-        if ((switchpicnum>W_FORCEFIELD)&&(switchpicnum<=W_FORCEFIELD+2))
-            switchpicnum=W_FORCEFIELD;
-
-        switch (DynamicTileMap[switchpicnum])
-        {
-        case W_FORCEFIELD__STATIC:
-            //        case W_FORCEFIELD+1:
-            //        case W_FORCEFIELD+2:
-            sprite[p->i].extra -= 5;
-
-            p->hurt_delay = 16;
-            p->pals_time = 32;
-            p->pals[0] = 32;
-            p->pals[1] = 0;
-            p->pals[2] = 0;
-
-            p->posxv = -(sintable[(p->ang+512)&2047]<<8);
-            p->posyv = -(sintable[(p->ang)&2047]<<8);
-            A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
-
-            {
-                vec3_t davect;
-
-                davect.x = p->posx+(sintable[(p->ang+512)&2047]>>9);
-                davect.y = p->posy+(sintable[p->ang&2047]>>9);
-                davect.z = p->posz;
-                A_DamageWall(p->i,j,&davect,-1);
-            }
-
-            break;
-
-        case BIGFORCE__STATIC:
-            p->hurt_delay = 26;
-            {
-                vec3_t davect;
-
-                davect.x = p->posx+(sintable[(p->ang+512)&2047]>>9);
-                davect.y = p->posy+(sintable[p->ang&2047]>>9);
-                davect.z = p->posz;
-                A_DamageWall(p->i,j,&davect,-1);
-            }
-            break;
-
-        }
-    }
-}
-
 int32_t Sect_DamageCeiling(int32_t sn)
 {
     int32_t i, j;
@@ -2589,9 +2489,9 @@ void G_HandleSharedKeys(int32_t snum)
     if (TEST_SYNC_KEY(sb_snum, SK_QUICK_KICK) && p->quick_kick == 0)
         if (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0)
         {
-            Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+            aGameVars[g_iReturnVarID].val.lValue = 0;
             X_OnEvent(EVENT_QUICKKICK,g_player[snum].ps->i,snum, -1);
-            if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+            if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 p->quick_kick = 14;
                 if (p->fta == 0 || p->ftq == 80)
@@ -2635,9 +2535,9 @@ void G_HandleSharedKeys(int32_t snum)
 
         if (TEST_SYNC_KEY(sb_snum, SK_INVENTORY) && p->newowner == -1)	// inventory button generates event for selected item
         {
-            Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+            aGameVars[g_iReturnVarID].val.lValue = 0;
             X_OnEvent(EVENT_INVENTORY,g_player[snum].ps->i,snum, -1);
-            if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+            if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 switch (p->inven_icon)
                 {
@@ -2662,9 +2562,9 @@ void G_HandleSharedKeys(int32_t snum)
 
         if (TEST_SYNC_KEY(sb_snum, SK_NIGHTVISION))
         {
-            Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+            aGameVars[g_iReturnVarID].val.lValue = 0;
             X_OnEvent(EVENT_USENIGHTVISION,g_player[snum].ps->i,snum, -1);
-            if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0
+            if (aGameVars[g_iReturnVarID].val.lValue == 0
                     &&  p->heat_amount > 0)
             {
                 p->heat_on = !p->heat_on;
@@ -2677,9 +2577,9 @@ void G_HandleSharedKeys(int32_t snum)
 
         if (TEST_SYNC_KEY(sb_snum, SK_STEROIDS))
         {
-            Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+            aGameVars[g_iReturnVarID].val.lValue = 0;
             X_OnEvent(EVENT_USESTEROIDS,g_player[snum].ps->i,snum, -1);
-            if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+            if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 if (p->steroids_amount == 400)
                 {
@@ -2765,15 +2665,17 @@ CHECKINV1:
 
                 if (TEST_SYNC_KEY(sb_snum, SK_INV_LEFT))   // Inventory_Left
                 {
-                    Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);
+                    /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
+                    aGameVars[g_iReturnVarID].val.lValue = dainv;
                     X_OnEvent(EVENT_INVENTORYLEFT,g_player[snum].ps->i,snum, -1);
-                    dainv=Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum);
+                    dainv=aGameVars[g_iReturnVarID].val.lValue;
                 }
                 if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT))   // Inventory_Right
                 {
-                    Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);
+                    /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
+                    aGameVars[g_iReturnVarID].val.lValue = dainv;
                     X_OnEvent(EVENT_INVENTORYRIGHT,g_player[snum].ps->i,snum, -1);
-                    dainv=Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum);
+                    dainv=aGameVars[g_iReturnVarID].val.lValue;
                 }
 
                 p->inven_icon = dainv;
@@ -2806,7 +2708,7 @@ CHECKINV1:
 
         j = ((sb_snum&(15<<SK_WEAPON_BITS))>>SK_WEAPON_BITS) - 1;
 
-        Gv_SetVar(g_iReturnVarID,j,p->i,snum);
+        aGameVars[g_iReturnVarID].val.lValue = j;
 
         switch (j)
         {
@@ -2848,8 +2750,8 @@ CHECKINV1:
             break;
         }
 
-        if ((uint32_t) Gv_GetVar(g_iReturnVarID,p->i,snum) != j)
-            j = (uint32_t) Gv_GetVar(g_iReturnVarID,p->i,snum);
+        if ((uint32_t) aGameVars[g_iReturnVarID].val.lValue != j)
+            j = (uint32_t) aGameVars[g_iReturnVarID].val.lValue;
 
         if (p->reloading == 1)
             j = -1;
@@ -2923,9 +2825,9 @@ CHECKINV1:
                 k = -1;
 
                 Gv_SetVar(g_iWeaponVarID,j, p->i, snum);
-                Gv_SetVar(g_iReturnVarID,0,p->i,snum);
+                aGameVars[g_iReturnVarID].val.lValue = 0;
                 X_OnEvent(EVENT_SELECTWEAPON,p->i,snum, -1);
-                if (Gv_GetVar(g_iReturnVarID,p->i,snum) == 0)
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     if (j == HANDBOMB_WEAPON && p->ammo_amount[HANDBOMB_WEAPON] == 0)
                     {
@@ -3087,9 +2989,9 @@ CHECKINV1:
 
             if (p->holoduke_on == -1)
             {
-                Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+                aGameVars[g_iReturnVarID].val.lValue = 0;
                 X_OnEvent(EVENT_HOLODUKEON,g_player[snum].ps->i,snum, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     if (p->holoduke_amount > 0)
                     {
@@ -3114,9 +3016,9 @@ CHECKINV1:
             }
             else
             {
-                Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+                aGameVars[g_iReturnVarID].val.lValue = 0;
                 X_OnEvent(EVENT_HOLODUKEOFF,g_player[snum].ps->i,snum, -1);
-                if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+                if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     A_PlaySound(TELEPORTER,p->holoduke_on);
                     p->holoduke_on = -1;
@@ -3127,9 +3029,9 @@ CHECKINV1:
 
         if (TEST_SYNC_KEY(sb_snum, SK_MEDKIT))
         {
-            Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+            aGameVars[g_iReturnVarID].val.lValue = 0;
             X_OnEvent(EVENT_USEMEDKIT,g_player[snum].ps->i,snum, -1);
-            if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+            if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 if (p->firstaid_amount > 0 && sprite[p->i].extra < p->max_player_health)
                 {
@@ -3154,9 +3056,9 @@ CHECKINV1:
 
         if (TEST_SYNC_KEY(sb_snum, SK_JETPACK) && p->newowner == -1)
         {
-            Gv_SetVar(g_iReturnVarID,0,g_player[snum].ps->i,snum);
+            aGameVars[g_iReturnVarID].val.lValue = 0;
             X_OnEvent(EVENT_USEJETPACK,g_player[snum].ps->i,snum, -1);
-            if (Gv_GetVar(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
+            if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 if (p->jetpack_amount > 0)
                 {
@@ -3191,9 +3093,9 @@ CHECKINV1:
 
         if (TEST_SYNC_KEY(sb_snum, SK_TURNAROUND) && p->one_eighty_count == 0)
         {
-            Gv_SetVar(g_iReturnVarID,0,p->i,snum);
+            aGameVars[g_iReturnVarID].val.lValue = 0;
             X_OnEvent(EVENT_TURNAROUND,p->i,snum, -1);
-            if (Gv_GetVar(g_iReturnVarID,p->i,snum) == 0)
+            if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 p->one_eighty_count = -1024;
             }
@@ -3294,9 +3196,9 @@ void checksectors(int32_t snum)
 
     if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_OPEN))
     {
-        Gv_SetVar(g_iReturnVarID,0,p->i,snum);
+        aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_USE, p->i, snum, -1);
-        if (Gv_GetVar(g_iReturnVarID,p->i,snum) != 0)
+        if (aGameVars[g_iReturnVarID].val.lValue != 0)
             g_player[snum].sync->bits &= ~BIT(SK_OPEN);
     }
 

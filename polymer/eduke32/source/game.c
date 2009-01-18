@@ -3794,9 +3794,10 @@ void G_DisplayRest(int32_t smoothratio)
 
     if (pp->invdisptime > 0) G_DrawInventory(pp);
 
-    Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-    X_OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek, -1);
-    if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+    aGameVars[g_iReturnVarID].val.lValue = 0;
+    if (apScriptGameEvent[EVENT_DISPLAYSBAR])
+        X_OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek, -1);
+    if (aGameVars[g_iReturnVarID].val.lValue == 0)
         G_DrawStatusBar(screenpeek);
 
     G_PrintGameQuotes();
@@ -3856,13 +3857,15 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-    X_OnEvent(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek, -1);
+    if (apScriptGameEvent[EVENT_DISPLAYSBAR])
+        X_OnEvent(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek, -1);
 
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
     {
-        Gv_SetVar(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
-        X_OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, -1);
-        if (Gv_GetVar(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
+        aGameVars[g_iReturnVarID].val.lValue = 0;
+        if (apScriptGameEvent[EVENT_DISPLAYCROSSHAIR])
+            X_OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, -1);
+        if (aGameVars[g_iReturnVarID].val.lValue == 0)
             rotatesprite((160L-(g_player[myconnectindex].ps->look_ang>>1))<<16,100L<<16,scale(65536,ud.crosshairscale,100),0,CROSSHAIR,0,CROSSHAIR_PAL,2+1,windowx1,windowy1,windowx2,windowy2);
     }
 #if 0
@@ -3968,7 +3971,7 @@ static void G_DoThirdPerson(DukePlayer_t *pp, vec3_t *vect,int16_t *vsectnum, in
     sp->cstat &= (int16_t)~0x101;
 
     updatesectorz(vect->x,vect->y,vect->z,vsectnum);
-    hitscan((const vec3_t *)&vect,*vsectnum,nx,ny,nz,&hitinfo,CLIPMASK1);
+    hitscan((const vec3_t *)vect,*vsectnum,nx,ny,nz,&hitinfo,CLIPMASK1);
 
     if (*vsectnum < 0)
     {
@@ -3999,9 +4002,9 @@ static void G_DoThirdPerson(DukePlayer_t *pp, vec3_t *vect,int16_t *vsectnum, in
         else i = divscale16(hy,ny);
         if (i < g_cameraDistance) g_cameraDistance = i;
     }
-    vect->x = (vect->x)+mulscale16(nx,g_cameraDistance);
-    vect->y = (vect->y)+mulscale16(ny,g_cameraDistance);
-    vect->z = (vect->z)+mulscale16(nz,g_cameraDistance);
+    vect->x += mulscale16(nx,g_cameraDistance);
+    vect->y += mulscale16(ny,g_cameraDistance);
+    vect->z += mulscale16(nz,g_cameraDistance);
 
     g_cameraDistance = min(g_cameraDistance+((totalclock-g_cameraClock)<<10),65536);
     g_cameraClock = totalclock;
@@ -4056,15 +4059,17 @@ void G_DrawBackground(void)
     {
         // when not rendering a game, fullscreen wipe
 #define MENUTILE (!getrendermode()?MENUSCREEN:LOADSCREEN)
-        Gv_SetVar(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
-        X_OnEvent(EVENT_GETMENUTILE, -1, myconnectindex, -1);
+//        Gv_SetVar(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
+        aGameVars[g_iReturnVarID].val.lValue = (tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE);
+        if (apScriptGameEvent[EVENT_GETMENUTILE])
+            X_OnEvent(EVENT_GETMENUTILE, -1, myconnectindex, -1);
         if (Gv_GetVarByLabel("MENU_TILE", tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?0:1, -1, -1))
         {
-            for (y=y1;y<y2;y+=tilesizy[Gv_GetVar(g_iReturnVarID, -1, -1)])
-                for (x=0;x<xdim;x+=tilesizx[Gv_GetVar(g_iReturnVarID, -1, -1)])
-                    rotatesprite(x<<16,y<<16,65536L,0,Gv_GetVar(g_iReturnVarID, -1, -1),bpp==8?16:8,0,8+16+64,0,0,xdim-1,ydim-1);
+            for (y=y1;y<y2;y+=tilesizy[aGameVars[g_iReturnVarID].val.lValue])
+                for (x=0;x<xdim;x+=tilesizx[aGameVars[g_iReturnVarID].val.lValue])
+                    rotatesprite(x<<16,y<<16,65536L,0,aGameVars[g_iReturnVarID].val.lValue,bpp==8?16:8,0,8+16+64,0,0,xdim-1,ydim-1);
         }
-        else rotatesprite(320<<15,200<<15,65536L,0,Gv_GetVar(g_iReturnVarID, -1, -1),bpp==8?16:8,0,2+8+64,0,0,xdim-1,ydim-1);
+        else rotatesprite(320<<15,200<<15,65536L,0,aGameVars[g_iReturnVarID].val.lValue,bpp==8?16:8,0,2+8+64,0,0,xdim-1,ydim-1);
         return;
     }
 
@@ -4523,7 +4528,8 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
         if (ud.camerahoriz > HORIZ_MAX) ud.camerahoriz = HORIZ_MAX;
         else if (ud.camerahoriz < HORIZ_MIN) ud.camerahoriz = HORIZ_MIN;
 
-        X_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1);
+        if (apScriptGameEvent[EVENT_DISPLAYROOMS])
+            X_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1);
 
 #ifdef SE40
         se40code(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,smoothratio);
@@ -7501,25 +7507,28 @@ PALONLY:
             t->xrepeat = t->yrepeat = 0;
     }
 
-    j = spritesortcnt-1;
-    do
+    if (apScriptGameEvent[EVENT_ANIMATESPRITES])
     {
+        j = spritesortcnt-1;
+        do
+        {
+            if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
+            if (tsprite[j].owner < MAXSPRITES && tsprite[j].owner >= 0 && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
+            {
+                spriteext[tsprite[j].owner].tspr = (spritetype *)&tsprite[j];
+                X_OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
+            }
+        }
+        while (j--);
+
+        if (j < 0) return;
+
         if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
-        if (tsprite[j].owner < MAXSPRITES && tsprite[j].owner >= 0 && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
+        if (tsprite[j].owner >= 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
         {
             spriteext[tsprite[j].owner].tspr = (spritetype *)&tsprite[j];
             X_OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
         }
-    }
-    while (j--);
-
-    if (j < 0) return;
-
-    if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
-    if (tsprite[j].owner >= 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
-    {
-        spriteext[tsprite[j].owner].tspr = (spritetype *)&tsprite[j];
-        X_OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
     }
 }
 #ifdef _MSC_VER
@@ -7593,66 +7602,66 @@ void G_CheatGetInv(void)
 {
     Gv_SetVar(g_iReturnVarID, 400, g_player[myconnectindex].ps->i, myconnectindex);
     X_OnEvent(EVENT_CHEATGETSTEROIDS, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex) >=0)
+    if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
         g_player[myconnectindex].ps->steroids_amount =
-            Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex);
+            aGameVars[g_iReturnVarID].val.lValue;
     }
 
     Gv_SetVar(g_iReturnVarID, 1200, g_player[myconnectindex].ps->i, myconnectindex);
     X_OnEvent(EVENT_CHEATGETHEAT, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex) >=0)
+    if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
         g_player[myconnectindex].ps->heat_amount     =
-            Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex);
+            aGameVars[g_iReturnVarID].val.lValue;
     }
 
     Gv_SetVar(g_iReturnVarID, 200, g_player[myconnectindex].ps->i, myconnectindex);
     X_OnEvent(EVENT_CHEATGETBOOT, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex) >=0)
+    if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
         g_player[myconnectindex].ps->boot_amount          =
-            Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex);
+            aGameVars[g_iReturnVarID].val.lValue;
     }
 
     Gv_SetVar(g_iReturnVarID, 100, g_player[myconnectindex].ps->i, myconnectindex);
     X_OnEvent(EVENT_CHEATGETSHIELD, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex) >=0)
+    if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
         g_player[myconnectindex].ps->shield_amount =
-            Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex);
+            aGameVars[g_iReturnVarID].val.lValue;
     }
 
     Gv_SetVar(g_iReturnVarID, 6400, g_player[myconnectindex].ps->i, myconnectindex);
     X_OnEvent(EVENT_CHEATGETSCUBA, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex) >=0)
+    if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
         g_player[myconnectindex].ps->scuba_amount =
-            Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex);
+            aGameVars[g_iReturnVarID].val.lValue;
     }
 
     Gv_SetVar(g_iReturnVarID, 2400, g_player[myconnectindex].ps->i, myconnectindex);
     X_OnEvent(EVENT_CHEATGETHOLODUKE, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex) >=0)
+    if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
         g_player[myconnectindex].ps->holoduke_amount =
-            Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex);
+            aGameVars[g_iReturnVarID].val.lValue;
     }
 
     Gv_SetVar(g_iReturnVarID, 1600, g_player[myconnectindex].ps->i, myconnectindex);
     X_OnEvent(EVENT_CHEATGETJETPACK, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex) >=0)
+    if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
         g_player[myconnectindex].ps->jetpack_amount =
-            Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex);
+            aGameVars[g_iReturnVarID].val.lValue;
     }
 
     Gv_SetVar(g_iReturnVarID, g_player[myconnectindex].ps->max_player_health, g_player[myconnectindex].ps->i, myconnectindex);
     X_OnEvent(EVENT_CHEATGETFIRSTAID, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex) >=0)
+    if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
         g_player[myconnectindex].ps->firstaid_amount =
-            Gv_GetVar(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex);
+            aGameVars[g_iReturnVarID].val.lValue;
     }
 }
 
@@ -11940,6 +11949,7 @@ RECHECK:
                     ud.reccnt--;
                 }
                 G_DoMoveThings();
+                ototalclock += TICSPERFRAME;
             }
 
         if (foundemo == 0)
@@ -11948,7 +11958,8 @@ RECHECK:
         {
             G_HandleLocalKeys();
 
-            j = min(max((totalclock-lockclock)*(65536/TICSPERFRAME),0),65536);
+//            j = min(max((totalclock-lockclock)*(65536/TICSPERFRAME),0),65536);
+            j = min(max((totalclock - ototalclock) * (65536 / TICSPERFRAME),0),65536);
             G_DrawRooms(screenpeek,j);
             G_DisplayRest(j);
 
@@ -12529,7 +12540,8 @@ FAKEHORIZONLY:
 
 ENDFAKEPROCESSINPUT:
 
-    X_OnEvent(EVENT_FAKEDOMOVETHINGS, g_player[myconnectindex].ps->i, myconnectindex, -1);
+    if (apScriptGameEvent[EVENT_FAKEDOMOVETHINGS])
+        X_OnEvent(EVENT_FAKEDOMOVETHINGS, g_player[myconnectindex].ps->i, myconnectindex, -1);
 
     myxbak[predictfifoplc&(MOVEFIFOSIZ-1)] = my.x;
     myybak[predictfifoplc&(MOVEFIFOSIZ-1)] = my.y;

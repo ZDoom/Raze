@@ -792,7 +792,7 @@ int32_t __fastcall Gv_GetVarX(int32_t id)
                         OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index\n",g_errorLineNum,keyw[g_tw]);
                         return -1;
                     }
-                    
+
                     if (negateResult) return (-X_AccessSpriteX(index, label, parm2));
                     return (X_AccessSpriteX(index, label, parm2));
                 }

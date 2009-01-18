@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "mouse.h"
 #include "osd.h"
 #include "osdcmds.h"
+#include "gamedef.h"
 #include <sys/stat.h>
 
 extern char inputloc;
@@ -562,7 +563,8 @@ void M_DisplayMenus(void)
         walock[TILE_LOADSHOT] = 1;
         return;
     }
-    X_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, -1);
+    if (apScriptGameEvent[EVENT_DISPLAYMENU])
+        X_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, -1);
 
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
     g_player[myconnectindex].ps->fta = 0;
@@ -5404,7 +5406,8 @@ VOLUME_ALL_40x:
 
         break;
     }
-    X_OnEvent(EVENT_DISPLAYMENUREST, g_player[myconnectindex].ps->i, myconnectindex, -1);
+    if (apScriptGameEvent[EVENT_DISPLAYMENUREST])
+        X_OnEvent(EVENT_DISPLAYMENUREST, g_player[myconnectindex].ps->i, myconnectindex, -1);
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU)
     {

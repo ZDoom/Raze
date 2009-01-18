@@ -78,7 +78,8 @@ extern int32_t g_scriptVersion, g_Shareware, g_gameType;
 #define BYTEVERSION_13  27
 #define BYTEVERSION_14  116
 #define BYTEVERSION_15  117
-#define BYTEVERSION_JF  189 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
+
+#define BYTEVERSION_JF  192 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
 
 #define BYTEVERSION (BYTEVERSION_JF+(PLUTOPAK?1:(VOLUMEONE<<1)))    // JBF 20040116: different data files give different versions
 
@@ -533,7 +534,8 @@ typedef struct {
 spriteinterpolate sprpos[MAXSPRITES];
 
 typedef struct {
-    int32_t floorz,ceilingz,lastvx,lastvy,bposx,bposy,bposz;
+    int32_t bposx,bposy,bposz;
+    int32_t floorz,ceilingz,lastvx,lastvy;
     int32_t flags;
     intptr_t temp_data[10]; // sometimes used to hold pointers to con code
     int16_t picnum,ang,extra,owner,movflag;

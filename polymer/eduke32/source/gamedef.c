@@ -1383,7 +1383,7 @@ static int32_t C_CheckEventSync(int32_t iEventID)
 #define GetDefID(szGameLabel) hash_find(&gamevarH,szGameLabel)
 #define GetADefID(szGameLabel) hash_find(&arrayH,szGameLabel)
 
-static inline int32_t ispecial(char c)
+static inline int32_t ispecial(const char c)
 {
     if (c == 0x0a)
     {
@@ -1397,10 +1397,10 @@ static inline int32_t ispecial(char c)
     return 0;
 }
 
-static inline int32_t isaltok(char c)
+static inline int32_t isaltok(const char c)
 {
     return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '\\' ||
-        c == '*' || c == '-' || c == '_' || c == '.');
+            c == '*' || c == '-' || c == '_' || c == '.');
 }
 
 static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, hashtable_t *tH, const char *psz)

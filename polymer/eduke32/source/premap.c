@@ -347,9 +347,10 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
             clearview(0L);
         }
 
-        Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);
+        /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
+        aGameVars[g_iReturnVarID].val.lValue = LOADSCREEN;
         X_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
-        j = Gv_GetVar(g_iReturnVarID, -1, -1);
+        j = aGameVars[g_iReturnVarID].val.lValue;
         rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
         if (j > MAXTILES-1)
         {
@@ -407,9 +408,10 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
             //G_FadePalette(0,0,0,0);
             P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
         }
-        Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);
+        /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
+        aGameVars[g_iReturnVarID].val.lValue = LOADSCREEN;
         X_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
-        j = Gv_GetVar(g_iReturnVarID, -1, -1);
+        j = aGameVars[g_iReturnVarID].val.lValue;
         rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
         if (j > MAXTILES-1)
         {
