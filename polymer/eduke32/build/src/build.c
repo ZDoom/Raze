@@ -944,12 +944,12 @@ void editinput(void)
             if (hitinfo.hitsect >= 0)
             {
                 dax = hitinfo.pos.x;
-                day = hitinfo.pos.x;
+                day = hitinfo.pos.y;
                 if ((gridlock > 0) && (grid > 0))
                 {
                     if ((searchstat == 0) || (searchstat == 4))
                     {
-                        hitinfo.pos.y = (hitinfo.pos.y&0xfffffc00);
+                        hitinfo.pos.z = (hitinfo.pos.z&0xfffffc00);
                     }
                     else
                     {
@@ -1012,11 +1012,11 @@ void editinput(void)
 
                 j = ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
                 if ((sprite[i].cstat&128) == 0)
-                    sprite[i].z = min(max(hitinfo.pos.y,
+                    sprite[i].z = min(max(hitinfo.pos.z,
                     getceilzofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y)+(j<<1)),
                     getflorzofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y));
                 else
-                    sprite[i].z = min(max(hitinfo.pos.y,
+                    sprite[i].z = min(max(hitinfo.pos.z,
                     getceilzofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y)+j),
                     getflorzofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y)-j);
 

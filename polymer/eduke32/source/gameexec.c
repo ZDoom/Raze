@@ -273,6 +273,9 @@ void A_GetZLimits(int32_t iActor)
     if (s->statnum == 10 || s->statnum == 6 || s->statnum == 2 || s->statnum == 1 || s->statnum == 4)
     {
         int32_t hz,lz,zr = 127L;
+        int32_t cstat = s->cstat;
+
+        s->cstat = 0;
 
         if (s->statnum == 4)
             zr = 4L;
@@ -280,6 +283,8 @@ void A_GetZLimits(int32_t iActor)
         s->z -= FOURSLEIGHT;
         getzrange((vec3_t *)s,s->sectnum,&ActorExtra[iActor].ceilingz,&hz,&ActorExtra[iActor].floorz,&lz,zr,CLIPMASK0);
         s->z += FOURSLEIGHT;
+
+        s->cstat = cstat;
 
         if ((lz&49152) == 49152 && (sprite[lz&(MAXSPRITES-1)].cstat&48) == 0)
         {
@@ -329,9 +334,12 @@ void A_Fall(int32_t iActor)
 
     if ((s->statnum == 1 || s->statnum == 10 || s->statnum == 2 || s->statnum == 6))
     {
+        int32_t cstat = s->cstat;
+        s->cstat = 0;
         s->z -= FOURSLEIGHT;
         getzrange((vec3_t *)s,s->sectnum,&ActorExtra[iActor].ceilingz,&hz,&ActorExtra[iActor].floorz,&lz,127L,CLIPMASK0);
         s->z += FOURSLEIGHT;
+        s->cstat = cstat;
     }
     else
     {
@@ -2968,8 +2976,10 @@ static int32_t X_DoExecute(void)
     case CON_IFGAPZL:
         insptr++;
         X_DoConditional(((ActorExtra[vm.g_i].floorz - ActorExtra[vm.g_i].ceilingz) >> 8) < *insptr);
+/*
         if (sprite[vm.g_i].sectnum == g_player[vm.g_p].ps->cursectnum)
         OSD_Printf("%d %d\n",ActorExtra[vm.g_i].floorz,ActorExtra[vm.g_i].ceilingz);
+*/
         break;
 
     case CON_IFHITSPACE:

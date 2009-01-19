@@ -573,7 +573,7 @@ static char coldist[8] = {0,1,2,3,4,3,2,1};
 static int32_t colscan[27];
 
 static int16_t clipnum, hitwalls[4];
-int32_t hitscangoalx = (1<<29)-1, hitscangoaly = (1<<29)-1;
+const int32_t hitscangoalx = (1<<29)-1, hitscangoaly = (1<<29)-1;
 #ifdef POLYMOST
 int32_t hitallsprites = 0;
 #endif
