@@ -8265,18 +8265,13 @@ int32_t krecip(int32_t num)
 //
 // setsprite
 //
-int32_t setsprite(int16_t spritenum, vec3_t *new)
+int32_t setsprite(int16_t spritenum, const vec3_t *new)
 {
-    int16_t tempsectnum;
+    int16_t tempsectnum = sprite[spritenum].sectnum;
 
-    Bmemcpy(&sprite[spritenum], new, sizeof(vec3_t));
-/*
-    sprite[spritenum].x = newx;
-    sprite[spritenum].y = newy;
-    sprite[spritenum].z = newz;
-*/
+    if ((void *)new != (void *)&sprite[spritenum])
+        Bmemcpy(&sprite[spritenum], new, sizeof(vec3_t));
 
-    tempsectnum = sprite[spritenum].sectnum;
     updatesector(new->x,new->y,&tempsectnum);
 
     if (tempsectnum < 0)
@@ -8287,13 +8282,13 @@ int32_t setsprite(int16_t spritenum, vec3_t *new)
     return(0);
 }
 
-int32_t setspritez(int16_t spritenum, vec3_t *new)
+int32_t setspritez(int16_t spritenum, const vec3_t *new)
 {
-    int16_t tempsectnum;
+    int16_t tempsectnum = sprite[spritenum].sectnum;
 
-    Bmemcpy(&sprite[spritenum], new, sizeof(vec3_t));
+    if ((void *)new != (void *)&sprite[spritenum])
+        Bmemcpy(&sprite[spritenum], new, sizeof(vec3_t));
 
-    tempsectnum = sprite[spritenum].sectnum;
     updatesectorz(new->x,new->y,new->z,&tempsectnum);
 
     if (tempsectnum < 0)

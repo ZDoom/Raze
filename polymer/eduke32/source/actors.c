@@ -1400,17 +1400,11 @@ static void G_MoveStandables(void)
                 }
                 else if (s->owner == -2)
                 {
-                    vec3_t vect;
-
                     g_player[p].ps->oposx = g_player[p].ps->posx = s->x-(sintable[(g_player[p].ps->ang+512)&2047]>>6);
                     g_player[p].ps->oposy = g_player[p].ps->posy = s->y-(sintable[g_player[p].ps->ang&2047]>>6);
                     g_player[p].ps->oposz = g_player[p].ps->posz = s->z+(2<<8);
 
-                    vect.x = g_player[p].ps->posx;
-                    vect.y = g_player[p].ps->posy;
-                    vect.z = g_player[p].ps->posz;
-
-                    setsprite(g_player[p].ps->i,&vect);
+                    setsprite(g_player[p].ps->i,(vec3_t *)g_player[p].ps);
                     g_player[p].ps->cursectnum = sprite[g_player[p].ps->i].sectnum;
                 }
             }
@@ -6752,19 +6746,15 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 TRAVERSE_CONNECT(p)
                 if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground)
                 {
-                    vec3_t vect;
-
                     g_player[p].ps->posx += x;
                     g_player[p].ps->posy += l;
 
                     g_player[p].ps->oposx = g_player[p].ps->posx;
                     g_player[p].ps->oposy = g_player[p].ps->posy;
 
-                    vect.x = g_player[p].ps->posx;
-                    vect.y = g_player[p].ps->posy;
-                    vect.z = g_player[p].ps->posz+PHEIGHT;
-
-                    setsprite(g_player[p].ps->i,&vect);
+                    g_player[p].ps->posz += PHEIGHT;
+                    setsprite(g_player[p].ps->i,(vec3_t *)g_player[p].ps);
+                    g_player[p].ps->posz -= PHEIGHT;
                 }
 
                 sc->floorxpanning-=x>>3;

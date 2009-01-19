@@ -2968,6 +2968,8 @@ static int32_t X_DoExecute(void)
     case CON_IFGAPZL:
         insptr++;
         X_DoConditional(((ActorExtra[vm.g_i].floorz - ActorExtra[vm.g_i].ceilingz) >> 8) < *insptr);
+        if (sprite[vm.g_i].sectnum == g_player[vm.g_p].ps->cursectnum)
+        OSD_Printf("%d %d\n",ActorExtra[vm.g_i].floorz,ActorExtra[vm.g_i].ceilingz);
         break;
 
     case CON_IFHITSPACE:

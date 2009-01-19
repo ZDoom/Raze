@@ -485,7 +485,7 @@ int32_t   insertsprite(int16_t sectnum, int16_t statnum);
 int32_t   deletesprite(int16_t spritenum);
 int32_t   changespritesect(int16_t spritenum, int16_t newsectnum);
 int32_t   changespritestat(int16_t spritenum, int16_t newstatnum);
-int32_t   setsprite(int16_t spritenum, vec3_t *new);
+int32_t   setsprite(int16_t spritenum, const vec3_t *new);
 
 int32_t   screencapture(char *filename, char inverseit);
 
