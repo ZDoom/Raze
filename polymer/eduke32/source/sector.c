@@ -2824,6 +2824,7 @@ CHECKINV1:
 
                 k = -1;
 
+                Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum],p->i,snum);
                 Gv_SetVar(g_iWeaponVarID,j, p->i, snum);
                 aGameVars[g_iReturnVarID].val.lValue = 0;
                 X_OnEvent(EVENT_SELECTWEAPON,p->i,snum, -1);

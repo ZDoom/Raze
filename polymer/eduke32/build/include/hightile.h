@@ -18,7 +18,7 @@ extern palette_t hictinting[MAXPALOOKUPS];
 extern hicreplctyp *hicreplc[MAXTILES];
 extern char hicfirstinit;
 
-typedef struct
+typedef struct texcachehead_t
 {
     char magic[4];	// 'PMST', was 'Polymost'
     int xdim, ydim;	// of image, unpadded
@@ -26,7 +26,7 @@ typedef struct
     int quality;    // r_downsize at the time the cache was written
 } texcacheheader;
 
-typedef struct
+typedef struct texcachepic_t
 {
     int size;
     int format;

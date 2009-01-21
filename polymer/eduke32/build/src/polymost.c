@@ -192,18 +192,23 @@ int32_t r_fullbrights = 1;
 // is medium quality a good default?
 int32_t r_downsize = 1;
 
-static float fogresult, fogcol[4];
+static float fogresult, fogcol[4], fogtable[4*MAXPALOOKUPS];
 
-// making this a macro should speed things up at the expense of code size
-#define fogcalc(shade, vis, pal) \
-{ \
-    fogresult = (float)gvisibility*(vis+16+(shade<0?(-shade*shade)*0.125f:(shade*shade)*0.125f)); \
-    if (vis > 239) fogresult = (float)gvisibility*((vis-240+(shade<0?(-shade*shade)*0.125f:(shade*shade)*0.125f))/(klabs(vis-256))); \
-    fogresult = min(max(fogresult, 0.01f),10.f); \
-    fogcol[0] = (float)palookupfog[pal].r / 63.f; \
-    fogcol[1] = (float)palookupfog[pal].g / 63.f; \
-    fogcol[2] = (float)palookupfog[pal].b / 63.f; \
-    fogcol[3] = 0; \
+static inline void fogcalc(const int32_t shade, const int32_t vis, const int32_t pal) 
+{
+    float f;
+
+    if (shade < 0)
+        f = ((-shade*shade)*0.125f);
+    else f = ((shade*shade)*0.125f);
+
+    if (vis > 239)
+        f = gvisibility*((vis-240+f)/(klabs(vis-256)));
+    else f = gvisibility*(vis+16+f);
+
+    fogresult = clamp(f, 0.01f, 10.f);
+
+    Bmemcpy(fogcol,&fogtable[pal<<2],sizeof(float)*4);
 }
 #endif
 
@@ -881,6 +886,14 @@ void polymost_glinit()
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
+    for(i=MAXPALOOKUPS-1;i>=0;i--)
+    {
+        fogtable[i<<2] = palookupfog[i].r / 63.f;
+        fogcol[(i<<2)+1] = palookupfog[i].g / 63.f;
+        fogcol[(i<<2)+2] = palookupfog[i].b / 63.f;
+        fogcol[(i<<2)+3] = 0;
+    }
+
     if (cachefilehandle > -1)
     {
         Bclose(cachefilehandle);
@@ -938,7 +951,7 @@ void polymost_glinit()
 
     curcacheindex = &firstcacheindex;
     initprintf("Cache contains %d bytes of garbage data\n",Blseek(cachefilehandle, 0, BSEEK_END)-i);
-    Blseek(cachefilehandle, 0, BSEEK_SET);
+//    Blseek(cachefilehandle, 0, BSEEK_SET);
 }
 
 void invalidatecache(void)
@@ -978,7 +991,7 @@ void invalidatecache(void)
     unlink(ptempbuf);
     Bstrcat(ptempbuf,".cache");
     unlink(ptempbuf);
-    cacheindexptr = Bfopen(ptempbuf, "wt");
+    cacheindexptr = Bfopen(ptempbuf, "at");
     if (!cacheindexptr)
     {
         glusetexcache = 0;
@@ -1435,7 +1448,7 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
 //    *(cp++) = '/';
     cp = cachefn;
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
-    sprintf(cp, "-%x-%x%x", len, dameth, effect);
+    Bsprintf(cp, "-%x-%x%x", len, dameth, effect);
 
 //    fil = kopen4load(cachefn, 0);
 //    if (fil < 0) return -1;
@@ -1466,7 +1479,7 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
 //    initprintf("Loading cached tex: %s\n", cachefn);
 
     if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader)) goto failure;
-    if (memcmp(head->magic, "PMST", 4)) goto failure;
+    if (Bmemcmp(head->magic, "PMST", 4)) goto failure;
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
@@ -1559,7 +1572,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
     offset = Blseek(cachefilehandle, 0, BSEEK_CUR);
     OSD_Printf("Writing cached tex %s, offset 0x%x\n", cachefn, offset);
 
-    memcpy(head->magic, "PMST", 4);   // sizes are set by caller
+    Bmemcpy(head->magic, "PMST", 4);   // sizes are set by caller
 
     if (glusetexcachecompression) head->flags |= 4;
 
@@ -1626,7 +1639,10 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
             //            initprintf("got a match for %s offset %d\n",cachefn,offset);
 
             if (cacheindexptr)
+            {
+                fseek(cacheindexptr, 0, BSEEK_END);
                 Bfprintf(cacheindexptr, "%s %d %d\n", t->name, t->offset, t->len);
+            }
         }
         else
         {
@@ -1636,7 +1652,10 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
             curcacheindex->next = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
 
             if (cacheindexptr)
+            {
+                fseek(cacheindexptr, 0, BSEEK_END);
                 Bfprintf(cacheindexptr, "%s %d %d\n", curcacheindex->name, curcacheindex->offset, curcacheindex->len);
+            }
 
             hash_add(&cacheH, Bstrdup(cachefn), numcacheentries);
             cacheptrs[numcacheentries++] = curcacheindex;

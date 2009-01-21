@@ -68,7 +68,6 @@ static void Gv_Clear(void)
 
     for (;i>=0;i--)
     {
-        aGameVars[i].val.lValue=0;
         if (aGameVars[i].szLabel)
             Bfree(aGameVars[i].szLabel);
         aGameVars[i].szLabel=NULL;
@@ -79,6 +78,7 @@ static void Gv_Clear(void)
             Bfree(aGameVars[i].val.plValues);
             aGameVars[i].val.plValues=NULL;
         }
+        aGameVars[i].val.lValue=0;
         aGameVars[i].dwFlags |= GAMEVAR_RESET;
         if (i >= MAXGAMEARRAYS)
             continue;

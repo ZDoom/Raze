@@ -378,15 +378,17 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
         {
             int32_t ii = scale(288,percent,100);
             int32_t x = 32;
+/*
             j = usehightile;
             usehightile = 0;
+*/
             do
             {
                 rotatesprite(x<<16,140<<16,49152,0,NOTCHON,0,2,2+8+16,0,0,xdim-1,ydim-1);
                 x++;
             }
             while (x < ii);
-            usehightile = j;
+/*            usehightile = j;*/
         }
         X_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
         nextpage();

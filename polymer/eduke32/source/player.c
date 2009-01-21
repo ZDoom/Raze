@@ -3743,6 +3743,8 @@ void P_ProcessInput(int32_t snum)
     if (TEST_SYNC_KEY(sb_snum, SK_FIRE))
 //    if ((sb_snum&(1<<2)))
     {
+        Gv_SetVar(g_iWeaponVarID,p->curr_weapon,pi,snum);
+        Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum],pi,snum);
         aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_PRESSEDFIRE, pi, snum, -1);
         if (aGameVars[g_iReturnVarID].val.lValue != 0)
