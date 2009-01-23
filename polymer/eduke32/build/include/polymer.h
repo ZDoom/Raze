@@ -85,9 +85,6 @@ typedef struct      s_prrograminfo {
     GLint           uniform_detailScale;
     // PR_BIT_POINT_LIGHT
     GLint           uniform_lightCount;
-    GLint           uniform_pointLightPosition;
-    GLint           uniform_pointLightColor;
-    GLint           uniform_pointLightRange;
     // PR_BIT_DIFFUSE_GLOW_MAP
     GLint           uniform_glowMap;
 }                   _prprograminfo;

@@ -107,6 +107,7 @@ extern void (APIENTRY * bglNormal3f)( GLfloat x, GLfloat y, GLfloat z );
 
 // Lighting
 extern void (APIENTRY * bglShadeModel)( GLenum mode );
+extern void (APIENTRY * bglLightfv)( GLenum light, GLenum pname, const GLfloat * params );
 
 // Raster funcs
 extern void (APIENTRY * bglReadPixels)( GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels );

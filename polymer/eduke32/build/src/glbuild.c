@@ -74,6 +74,7 @@ void (APIENTRY * bglNormal3f)(GLfloat x, GLfloat y, GLfloat z);
 
 // Lighting
 void (APIENTRY * bglShadeModel)(GLenum mode);
+void (APIENTRY * bglLightfv)( GLenum light, GLenum pname, const GLfloat * params );
 
 // Raster funcs
 void (APIENTRY * bglReadPixels)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
@@ -417,6 +418,7 @@ int32_t loadgldriver(const char *driver)
 
     // Lighting
     bglShadeModel		= GETPROC("glShadeModel");
+    bglLightfv  		= GETPROC("glLightfv");
 
     // Raster funcs
     bglReadPixels		= GETPROC("glReadPixels");
@@ -690,6 +692,7 @@ int32_t unloadgldriver(void)
 
     // Lighting
     bglShadeModel		= NULL;
+    bglLightfv			= NULL;
 
     // Raster funcs
     bglReadPixels		= NULL;

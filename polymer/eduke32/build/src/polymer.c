@@ -200,17 +200,16 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  vertexPos = vec3(gl_ModelViewMatrix * gl_Vertex);\n"
         "\n",
         // frag_def
-        "#define MAX_LIGHTS 32\n"
         "uniform int lightCount;\n"
-        "uniform vec3 pointLightPosition[MAX_LIGHTS];\n"
-        "uniform vec3 pointLightColor[MAX_LIGHTS];\n"
-        "uniform vec2 pointLightRange[MAX_LIGHTS];\n"
         "varying vec3 vertexNormal;\n"
         "varying vec3 vertexPos;\n"
         "\n",
         // frag_prog
-        "  vec3 lightVector;\n"
         "  vec3 fragmentNormal;\n"
+        "  vec3 lightPos;\n"
+        "  vec3 lightDiffuse;\n"
+        "  vec2 lightRange;\n"
+        "  vec3 lightVector;\n"
         "  float dotNormalLightDir;\n"
         "  float lightAttenuation;\n"
         "  float pointLightDistance;\n"
@@ -218,18 +217,23 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  fragmentNormal = normalize(vertexNormal);\n"
         "\n"
         "  while (l < lightCount) {\n"
-        "    lightVector = pointLightPosition[l] - vertexPos;\n"
+        "    lightPos = gl_LightSource[l].ambient.rgb;\n"
+        "    lightDiffuse = gl_LightSource[l].diffuse.rgb;\n"
+        "    lightRange.x = gl_LightSource[l].constantAttenuation;\n"
+        "    lightRange.y = gl_LightSource[l].linearAttenuation;\n"
+        "\n"
+        "    lightVector = lightPos - vertexPos;\n"
         "    pointLightDistance = length(lightVector);\n"
         "    dotNormalLightDir = max(dot(fragmentNormal, normalize(lightVector)), 0.0);\n"
-        "    if (pointLightDistance < pointLightRange[l].y)\n"
+        "    if (pointLightDistance < lightRange.y)\n"
         "    {\n"
-        "      if (pointLightDistance < pointLightRange[l].x)\n"
+        "      if (pointLightDistance < lightRange.x)\n"
         "        lightAttenuation = 1.0;\n"
         "      else {\n"
-        "        lightAttenuation = 1.0 - (pointLightDistance - pointLightRange[l].x)  /\n"
-        "                                 (pointLightRange[l].y - pointLightRange[l].x);\n"
+        "        lightAttenuation = 1.0 - (pointLightDistance - lightRange.x)  /\n"
+        "                                 (lightRange.y - lightRange.x);\n"
         "      }\n"
-        "      result += vec4(lightAttenuation * dotNormalLightDir * pointLightColor[l], 0.0);\n"
+        "      result += vec4(lightAttenuation * dotNormalLightDir * lightDiffuse, 0.0);\n"
         "      float specular = pow( max(dot(reflect(-normalize(lightVector), fragmentNormal), normalize(-vertexPos)), 0.0), 60.0);\n"
         "      result += vec4(lightAttenuation * specular * vec3(1.0, 0.5, 0.5), 0.0);\n"
         "    }\n"
@@ -2703,9 +2707,9 @@ static int32_t      polymer_bindmaterial(_prmaterial material)
     {
         int lightCount;
         float range[4];
-        float color[6];
+        float color[8];
         float pos[6];
-        float lightpos[6];
+        float lightpos[8];
 
         lightCount = 2;
 
@@ -2737,32 +2741,37 @@ static int32_t      polymer_bindmaterial(_prmaterial material)
         pos[4] = -globalposz / 16.0;
         pos[5] = -globalposx;
 
-        lightpos[3] = pos[3] * rootmodelviewmatrix[0] +
+        lightpos[4] = pos[3] * rootmodelviewmatrix[0] +
                       pos[4] * rootmodelviewmatrix[4] +
                       pos[5] * rootmodelviewmatrix[8] +
                              + rootmodelviewmatrix[12];
-        lightpos[4] = pos[3] * rootmodelviewmatrix[1] +
+        lightpos[5] = pos[3] * rootmodelviewmatrix[1] +
                       pos[4] * rootmodelviewmatrix[5] +
                       pos[5] * rootmodelviewmatrix[9] +
                              + rootmodelviewmatrix[13];
-        lightpos[5] = pos[3] * rootmodelviewmatrix[2] +
+        lightpos[6] = pos[3] * rootmodelviewmatrix[2] +
                       pos[4] * rootmodelviewmatrix[6] +
                       pos[5] * rootmodelviewmatrix[10] +
                              + rootmodelviewmatrix[14];
 
-        color[3] = 0.5f;
         color[4] = 0.5f;
         color[5] = 0.5f;
+        color[6] = 0.5f;
 
         range[2] = 5000.0f / 1000.0;
         range[3] = 10000.0f / 1000.0;
 
-/*        bglUniform3fARB(prprograms[programbits].uniform_pointLightPosition, 62208, 42000 / 16.0, -6919);
-        bglUniform3fARB(prprograms[programbits].uniform_pointLightPosition, globalposy, -globalposz / 16.0, -globalposx);*/
+        bglLightfv(GL_LIGHT0, GL_AMBIENT, lightpos);
+        bglLightfv(GL_LIGHT0, GL_DIFFUSE, color);
+        bglLightfv(GL_LIGHT0, GL_CONSTANT_ATTENUATION, &range[0]);
+        bglLightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, &range[1]);
+
+        bglLightfv(GL_LIGHT1, GL_AMBIENT, &lightpos[4]);
+        bglLightfv(GL_LIGHT1, GL_DIFFUSE, &color[4]);
+        bglLightfv(GL_LIGHT1, GL_CONSTANT_ATTENUATION, &range[2]);
+        bglLightfv(GL_LIGHT1, GL_LINEAR_ATTENUATION, &range[3]);
+
         bglUniform1iARB(prprograms[programbits].uniform_lightCount, lightCount);
-        bglUniform3fvARB(prprograms[programbits].uniform_pointLightPosition, lightCount, lightpos);
-        bglUniform3fvARB(prprograms[programbits].uniform_pointLightColor, lightCount, color);
-        bglUniform2fvARB(prprograms[programbits].uniform_pointLightRange, lightCount, range);
     }
 
     // PR_BIT_DIFFUSE_GLOW_MAP
@@ -2890,9 +2899,6 @@ static void         polymer_compileprogram(int32_t programbits)
     if (programbits & prprogrambits[PR_BIT_POINT_LIGHT].bit)
     {
         prprograms[programbits].uniform_lightCount = bglGetUniformLocationARB(program, "lightCount");
-        prprograms[programbits].uniform_pointLightPosition = bglGetUniformLocationARB(program, "pointLightPosition");
-        prprograms[programbits].uniform_pointLightColor = bglGetUniformLocationARB(program, "pointLightColor");
-        prprograms[programbits].uniform_pointLightRange = bglGetUniformLocationARB(program, "pointLightRange");
     }
 
     // PR_BIT_DIFFUSE_GLOW_MAP
