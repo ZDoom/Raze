@@ -208,7 +208,7 @@ static inline void fogcalc(const int32_t shade, const int32_t vis, const int32_t
 
     fogresult = clamp(f, 0.01f, 10.f);
 
-    Bmemcpy(fogcol,&fogtable[pal<<2],sizeof(float)*4);
+    Bmemcpy(fogcol,&fogtable[pal<<2],sizeof(fogcol));
 }
 #endif
 
@@ -646,6 +646,15 @@ void polymost_glreset()
 {
     int32_t i;
     pthtyp *pth, *next;
+
+    for(i=MAXPALOOKUPS-1;i>=0;i--)
+    {
+        fogtable[i<<2] = palookupfog[i].r / 63.f;
+        fogtable[(i<<2)+1] = palookupfog[i].g / 63.f;
+        fogtable[(i<<2)+2] = palookupfog[i].b / 63.f;
+        fogtable[(i<<2)+3] = 0;
+    }
+
     //Reset if this is -1 (meaning 1st texture call ever), or > 0 (textures in memory)
     if (gltexcacnum < 0)
     {
@@ -885,14 +894,6 @@ void polymost_glinit()
 
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    for(i=MAXPALOOKUPS-1;i>=0;i--)
-    {
-        fogtable[i<<2] = palookupfog[i].r / 63.f;
-        fogcol[(i<<2)+1] = palookupfog[i].g / 63.f;
-        fogcol[(i<<2)+2] = palookupfog[i].b / 63.f;
-        fogcol[(i<<2)+3] = 0;
-    }
 
     if (cachefilehandle > -1)
     {

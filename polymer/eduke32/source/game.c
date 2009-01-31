@@ -3857,7 +3857,7 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-    if (apScriptGameEvent[EVENT_DISPLAYSBAR])
+    if (apScriptGameEvent[EVENT_DISPLAYREST])
         X_OnEvent(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek, -1);
 
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)

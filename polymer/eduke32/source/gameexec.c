@@ -1172,7 +1172,8 @@ static int32_t X_DoExecute(void)
         P_AddAmmo(*insptr, g_player[vm.g_p].ps, *(insptr+1));
         if (g_player[vm.g_p].ps->curr_weapon == KNEE_WEAPON && g_player[vm.g_p].ps->gotweapon[*insptr])
         {
-            if (!(g_player[vm.g_p].ps->weaponswitch & 1)) P_AddWeaponNoSwitch(g_player[vm.g_p].ps, *insptr);
+            if (!(g_player[vm.g_p].ps->weaponswitch & 1))
+                P_AddWeaponNoSwitch(g_player[vm.g_p].ps, *insptr);
             else P_AddWeapon(g_player[vm.g_p].ps, *insptr);
         }
         insptr += 2;

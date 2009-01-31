@@ -122,7 +122,7 @@ void loadpage(uint16 pagenumber, uint16 *pagepointer)
 //
 //****************************************************************************
 
-void CPlayRunSkipDump(char *srcP, char *dstP)
+void CPlayRunSkipDump(uint8_t *srcP, uint8_t *dstP)
 {
     int8_t cnt;
     uint16 wordCnt;
@@ -232,7 +232,7 @@ void renderframe(uint16 framenumber, uint16 *pagepointer)
         ppointer+=4;
     }
 
-    CPlayRunSkipDump((char *)ppointer, (char *)anim->imagebuffer);
+    CPlayRunSkipDump((uint8_t *)ppointer, (uint8_t *)anim->imagebuffer);
 }
 
 

@@ -42,6 +42,9 @@ int32 lastcontroltime; //MED
 
 extern int32_t g_levelTextTime;
 
+int32_t g_numObituaries = 0;
+int32_t g_numSelfObituaries = 0;
+
 void P_UpdateScreenPal(DukePlayer_t *p)
 {
     if (p->heat_on) p->palette = slimepal;
@@ -107,7 +110,8 @@ void P_QuickKill(DukePlayer_t *p)
 
     sprite[p->i].extra = 0;
     sprite[p->i].cstat |= 32768;
-    if (ud.god == 0) A_DoGuts(p->i,JIBS6,8);
+    if (ud.god == 0)
+        A_DoGuts(p->i,JIBS6,8);
     return;
 }
 
@@ -416,8 +420,8 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                     {
                                         if (ProjectileData[atwith].decal >= 0)
                                         {
-                                            k = A_Spawn(i,ProjectileData[atwith].decal);
                                             /*
+                                            k = A_Spawn(i,ProjectileData[atwith].decal);
                                             sprite[k].xvel = -12;
                                             sprite[k].ang = getangle(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,
                                             wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y)+512;
@@ -1036,7 +1040,7 @@ DOSKIPBULLETHOLE:
                     sintable[sa&2047],zvel<<6,
                     &hitinfo,CLIPMASK1);
 
-            if (atwith == BLOODSPLAT1 || atwith == BLOODSPLAT2 || atwith == BLOODSPLAT3 || atwith == BLOODSPLAT4)
+            if (atwith >= BLOODSPLAT1 && atwith <= BLOODSPLAT4)
             {
                 if (FindDistance2D(srcvect.x-hitinfo.pos.x,srcvect.y-hitinfo.pos.y) < 1024)
                     if (hitinfo.hitwall >= 0 && wall[hitinfo.hitwall].overpicnum != BIGFORCE)
@@ -3418,22 +3422,16 @@ void P_DropWeapon(DukePlayer_t *p)
 
     if (cw < 1 || cw >= MAX_WEAPONS) return;
 
-    if (cw)
+    if (krand()&1)
+        A_Spawn(p->i,WeaponPickupSprites[cw]);
+    else switch (cw)
     {
-        if (krand()&1)
-            A_Spawn(p->i,WeaponPickupSprites[cw]);
-        else switch (cw)
-            {
-            case RPG_WEAPON:
-            case HANDBOMB_WEAPON:
-                A_Spawn(p->i,EXPLOSION2);
-                break;
-            }
+        case RPG_WEAPON:
+        case HANDBOMB_WEAPON:
+            A_Spawn(p->i,EXPLOSION2);
+            break;
     }
 }
-
-int32_t g_numObituaries = 0;
-int32_t g_numSelfObituaries = 0;
 
 void P_AddAmmo(int32_t weapon,DukePlayer_t *p,int32_t amount)
 {
@@ -3454,47 +3452,10 @@ void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
             p->gotweapon[GROW_WEAPON] = 1;
     }
 
-#if 1
     if (aplWeaponSelectSound[p->curr_weapon][snum])
         A_StopSound(aplWeaponSelectSound[p->curr_weapon][snum],p->i);
     if (aplWeaponSelectSound[weapon][snum])
         A_PlaySound(aplWeaponSelectSound[weapon][snum],p->i);
-#else
-    switch (p->curr_weapon)
-    {
-    case KNEE_WEAPON:
-    case TRIPBOMB_WEAPON:
-    case HANDREMOTE_WEAPON:
-    case HANDBOMB_WEAPON:
-        break;
-    case SHOTGUN_WEAPON:
-        A_StopSound(SHOTGUN_COCK,p->i);
-        break;
-    case PISTOL_WEAPON:
-        A_StopSound(INSERT_CLIP,p->i);
-        break;
-    default:
-        A_StopSound(SELECT_WEAPON,p->i);
-        break;
-    }
-    switch (weapon)
-    {
-    case KNEE_WEAPON:
-    case TRIPBOMB_WEAPON:
-    case HANDREMOTE_WEAPON:
-    case HANDBOMB_WEAPON:
-        break;
-    case SHOTGUN_WEAPON:
-        A_PlaySound(SHOTGUN_COCK,p->i);
-        break;
-    case PISTOL_WEAPON:
-        A_PlaySound(INSERT_CLIP,p->i);
-        break;
-    default:
-        A_PlaySound(SELECT_WEAPON,p->i);
-        break;
-    }
-#endif
 }
 
 void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
@@ -3560,8 +3521,7 @@ void P_SelectNextInvItem(DukePlayer_t *p)
 
 void P_CheckWeapon(DukePlayer_t *p)
 {
-    int16_t i,snum;
-    int32 weap;
+    int32_t i, snum, weap;
 
     if (p->reloading) return;
 
@@ -3571,7 +3531,7 @@ void P_CheckWeapon(DukePlayer_t *p)
         p->wantweaponfire = -1;
 
         if (weap == p->curr_weapon) return;
-        else if (p->gotweapon[weap] && p->ammo_amount[weap] > 0)
+        if (p->gotweapon[weap] && p->ammo_amount[weap] > 0)
         {
             P_AddWeapon(p,weap);
             return;
