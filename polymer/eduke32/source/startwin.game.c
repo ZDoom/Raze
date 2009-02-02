@@ -634,7 +634,7 @@ int32_t startwin_run(void)
     settings.usejoy = ud.config.UseJoystick;
     settings.game = g_gameType;
 //    settings.crcval = 0;
-    strncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
+    Bstrncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
     settings.gamedir = mod_dir;
     PopulateForm(-1);
 

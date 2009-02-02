@@ -618,7 +618,7 @@ int32_t mdloadskin_trytexcache(char *fn, int32_t len, int32_t pal, char effect, 
 //    *(cp++) = '/';
     cp = cachefn;
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
-    sprintf(cp, "-%x-%x%x", len, pal, effect);
+    Bsprintf(cp, "-%x-%x%x", len, pal, effect);
 
 //    fil = kopen4load(cachefn, 0);
 //    if (fil < 0) return -1;
@@ -1704,14 +1704,14 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
         float al = 0.0;
         if (alphahackarray[globalpicnum] != 0)
             al=alphahackarray[globalpicnum];
-        if (!peelcompiling)
+        /*if (!peelcompiling)*/
             bglEnable(GL_BLEND);
         bglEnable(GL_ALPHA_TEST);
         bglAlphaFunc(GL_GREATER,al);
     }
     else
     {
-        if (tspr->cstat&2 && (!peelcompiling)) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
+        if (tspr->cstat&2/* && (!peelcompiling)*/) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
     }
     bglColor4f(pc[0],pc[1],pc[2],pc[3]);
     //if (m->head.flags == 1337)
@@ -1805,7 +1805,7 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
         //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
-        if (r_detailmapping && !r_depthpeeling && !(tspr->cstat&1024))
+        if (r_detailmapping && /*!r_depthpeeling &&*/ !(tspr->cstat&1024))
             i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
         else
             i = 0;
@@ -1845,7 +1845,7 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
             bglMatrixMode(GL_MODELVIEW);
         }
 
-        if (r_glowmapping && !r_depthpeeling && !(tspr->cstat&1024))
+        if (r_glowmapping && /*!r_depthpeeling &&*/ !(tspr->cstat&1024))
             i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);
         else
             i = 0;
@@ -1887,7 +1887,7 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
             indexhandle = m->vindexes;
 
         //PLAG: delayed polygon-level sorted rendering
-        if (m->usesalpha && !(tspr->cstat & 1024) && !r_depthpeeling)
+        if (m->usesalpha && !(tspr->cstat & 1024)/* && !r_depthpeeling*/)
         {
             for (i=s->numtris-1;i>=0;i--)
             {
@@ -2867,7 +2867,7 @@ int32_t voxdraw(voxmodel_t *m, spritetype *tspr)
     pc[2] *= (float)hictinting[globalpal].b / 255.0;
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; }
     else pc[3] = 1.0;
-    if (tspr->cstat&2 && (!peelcompiling)) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
+    if (tspr->cstat&2/* && (!peelcompiling)*/) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
     //------------
 
     //transform to Build coords

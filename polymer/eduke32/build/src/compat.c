@@ -167,7 +167,7 @@ char *Bstrcpy(char *dest, const char *src)
 
 char *Bstrncpy(char *dest, const char *src, bsize_t n)
 {
-    return strncpy(dest,src,n);
+    return Bstrncpy(dest,src,n);
 }
 
 int32_t Bstrcmp(const char *s1, const char *s2)
@@ -667,7 +667,7 @@ struct Bdirent*	Breaddir(BDIR *dir)
     fn = (char *)malloc(strlen(dirr->name) + 1 + dirr->info.namlen + 1);
     if (fn)
     {
-        sprintf(fn,"%s/%s",dirr->name,dirr->info.name);
+        Bsprintf(fn,"%s/%s",dirr->name,dirr->info.name);
         if (!stat(fn, &st))
         {
             dirr->info.mode = st.st_mode;

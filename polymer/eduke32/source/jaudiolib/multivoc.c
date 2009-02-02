@@ -2103,7 +2103,7 @@ int32_t MV_PlayWAV(char *ptr, int32_t pitchoffset, int32_t vol, int32_t left, in
     status = MV_PlayLoopedWAV(ptr, -1, -1, pitchoffset, vol, left, right, priority, callbackval);
     if (status < MV_Ok)
     {
-        sprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
+        Bsprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
         initprintf(tempbuf);
     }
 
@@ -2325,7 +2325,7 @@ int32_t MV_PlayVOC(char *ptr, int32_t pitchoffset, int32_t vol, int32_t left, in
     status = MV_PlayLoopedVOC(ptr, -1, -1, pitchoffset, vol, left, right, priority, callbackval);
     if (status < MV_Ok)
     {
-        sprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
+        Bsprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
         initprintf(tempbuf);
     }
 
@@ -2503,7 +2503,7 @@ int32_t MV_PlayOGG(char *ptr, int32_t pitchoffset, int32_t vol, int32_t left, in
     status = MV_PlayLoopedOGG(ptr, -1, -1, pitchoffset, vol, left, right, priority, callbackval);
     if (status < MV_Ok)
     {
-        sprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
+        Bsprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
         initprintf(tempbuf);
     }
 

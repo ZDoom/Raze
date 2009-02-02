@@ -429,7 +429,7 @@ int32 SCRIPT_Init(char * name)
 {
     int32 h = SCRIPT_New();
 
-    if (h >= 0) strncpy(SCRIPT(h,scriptfilename), name, 127);
+    if (h >= 0) Bstrncpy(SCRIPT(h,scriptfilename), name, 127);
 
     return h;
 }
@@ -903,8 +903,8 @@ void SCRIPT_PutNumber
     char raw[64];
 
     UNREFERENCED_PARAMETER(defaultvalue);
-    if (hexadecimal) sprintf(raw, "0x%X", number);
-    else sprintf(raw, "%d", number);
+    if (hexadecimal) Bsprintf(raw, "0x%X", number);
+    else Bsprintf(raw, "%d", number);
 
     SCRIPT_AddEntry(scripthandle, sectionname, entryname, raw);
 }
@@ -936,7 +936,7 @@ void SCRIPT_PutDouble
     char raw[64];
 
     UNREFERENCED_PARAMETER(defaultvalue);
-    sprintf(raw, "%g", number);
+    Bsprintf(raw, "%g", number);
 
     SCRIPT_AddEntry(scripthandle, sectionname, entryname, raw);
 }

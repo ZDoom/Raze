@@ -760,7 +760,7 @@ int32_t startwin_run(void)
     settings.usemouse = ud.config.UseMouse;
     settings.usejoy = ud.config.UseJoystick;
     settings.game = g_gameType;
-    strncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
+    Bstrncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
     PopulateForm(-1);
 
     gtk_main();

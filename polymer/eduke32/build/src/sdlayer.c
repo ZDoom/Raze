@@ -417,13 +417,13 @@ int32_t initinput(void)
     for (i=0; i<SDLK_LAST; i++)
     {
         if (!keytranslation[i]) continue;
-        strncpy((char *)key_names[ keytranslation[i] ], SDL_GetKeyName(i), sizeof(key_names[i])-1);
+        Bstrncpy((char *)key_names[ keytranslation[i] ], SDL_GetKeyName(i), sizeof(key_names[i])-1);
     }
 #else
     for (i=0; i<SDL_NUM_SCANCODES; i++)
     {
         if (!keytranslation[i]) continue;
-        strncpy((char *)key_names[ keytranslation[i] ], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(key_names[i])-1);
+        Bstrncpy((char *)key_names[ keytranslation[i] ], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(key_names[i])-1);
     }
 #endif
 
@@ -480,17 +480,17 @@ const char *getjoyname(int32_t what, int32_t num)
     {
     case 0:	// axis
         if ((unsigned)num > (unsigned)joynumaxes) return NULL;
-        sprintf(tmp,"Axis %d",num);
+        Bsprintf(tmp,"Axis %d",num);
         return (char *)tmp;
 
     case 1: // button
         if ((unsigned)num > (unsigned)joynumbuttons) return NULL;
-        sprintf(tmp,"Button %d",num);
+        Bsprintf(tmp,"Button %d",num);
         return (char *)tmp;
 
     case 2: // hat
         if ((unsigned)num > (unsigned)joynumhats) return NULL;
-        sprintf(tmp,"Hat %d",num);
+        Bsprintf(tmp,"Hat %d",num);
         return (char *)tmp;
 
     default:

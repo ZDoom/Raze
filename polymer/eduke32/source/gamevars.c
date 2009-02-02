@@ -303,46 +303,47 @@ void Gv_WriteSave(FILE *fil)
     dfwrite(g_szBuf,l,1,fil);
 }
 
-void Gv_DumpValues(FILE *fp)
+void Gv_DumpValues(void)
 {
     int32_t i;
 
-    if (!fp)
-        return;
-
-    fprintf(fp,"// Current Game Definitions\n\n");
+    OSD_Printf("// Current Game Definitions\n\n");
 
     for (i=0;i<g_gameVarCount;i++)
     {
         if (aGameVars[i].dwFlags & (GAMEVAR_SECRET))
             continue; // do nothing...
 
-        fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
+        OSD_Printf("gamevar %s ",aGameVars[i].szLabel);
 
         if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR))
-            fprintf(fp,"%d",*((int32_t*)aGameVars[i].val.lValue));
+            OSD_Printf("%d",*((int32_t*)aGameVars[i].val.lValue));
         else if (aGameVars[i].dwFlags & (GAMEVAR_SHORTPTR))
-            fprintf(fp,"%d",*((int16_t*)aGameVars[i].val.lValue));
+            OSD_Printf("%d",*((int16_t*)aGameVars[i].val.lValue));
         else if (aGameVars[i].dwFlags & (GAMEVAR_CHARPTR))
-            fprintf(fp,"%d",*((char*)aGameVars[i].val.lValue));
+            OSD_Printf("%d",*((char*)aGameVars[i].val.lValue));
         else
-            fprintf(fp,"%" PRIdPTR "",aGameVars[i].val.lValue);
+            OSD_Printf("%" PRIdPTR "",aGameVars[i].val.lValue);
+
         if (aGameVars[i].dwFlags & (GAMEVAR_PERPLAYER))
-            fprintf(fp," GAMEVAR_PERPLAYER");
+            OSD_Printf(" GAMEVAR_PERPLAYER");
         else if (aGameVars[i].dwFlags & (GAMEVAR_PERACTOR))
-            fprintf(fp," GAMEVAR_PERACTOR");
+            OSD_Printf(" GAMEVAR_PERACTOR");
         else
-            fprintf(fp," %d",aGameVars[i].dwFlags & (GAMEVAR_USER_MASK));
-        fprintf(fp," // ");
+            OSD_Printf(" %d",aGameVars[i].dwFlags/* & (GAMEVAR_USER_MASK)*/);
+
+        OSD_Printf(" // ");
         if (aGameVars[i].dwFlags & (GAMEVAR_SYSTEM))
-            fprintf(fp," (system)");
+            OSD_Printf(" (system)");
         if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
-            fprintf(fp," (pointer)");
+            OSD_Printf(" (pointer)");
         if (aGameVars[i].dwFlags & (GAMEVAR_READONLY))
-            fprintf(fp," (read only)");
-        fprintf(fp,"\n");
+            OSD_Printf(" (read only)");
+        if (aGameVars[i].dwFlags & (GAMEVAR_SPECIAL))
+            OSD_Printf(" (special)");
+        OSD_Printf("\n");
     }
-    fprintf(fp,"\n// end of game definitions\n");
+    OSD_Printf("\n// end of game definitions\n");
 }
 
 void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
@@ -1502,11 +1503,11 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("THISACTOR", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
 
     // special vars for struct access
-    Gv_NewVar("sprite", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-    Gv_NewVar("sector", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-    Gv_NewVar("wall", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-    Gv_NewVar("player", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-    Gv_NewVar("actorvar", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_NewVar("sprite", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("sector", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("wall", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("player", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("actorvar", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
 
     Gv_NewVar("myconnectindex", (intptr_t)&myconnectindex, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
     Gv_NewVar("screenpeek", (intptr_t)&screenpeek, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);

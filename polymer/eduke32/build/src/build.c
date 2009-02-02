@@ -337,7 +337,7 @@ int32_t app_main(int32_t argc, const char **argv)
         }
         if (!boardfilename[0])
         {
-            strncpy(boardfilename, argv[i], BMAX_PATH-4-1);
+            Bstrncpy(boardfilename, argv[i], BMAX_PATH-4-1);
             boardfilename[i-BMAX_PATH] = 0;
         }
     }
@@ -5641,7 +5641,7 @@ int32_t menuselect(void)
         }
         else
         {
-            sprintf(buffer,"Game filesystem %smode; press F for local filesystem or G for %s.",
+            Bsprintf(buffer,"Game filesystem %smode; press F for local filesystem or G for %s.",
                     grponlymode?"GRP-only ":"", grponlymode?"all files":"GRP contents only");
         }
         printext16(halfxdim16-(8*strlen(buffer)/2), 4, editorcolors[12],editorcolors[0],buffer,0);
@@ -5662,7 +5662,7 @@ int32_t menuselect(void)
             {
                 int32_t c = (dir->type == CACHE1D_FIND_DIR ? 2 : 3); //PK
                 memset(buffer,0,sizeof(buffer));
-                strncpy(buffer,dir->name,25);
+                Bstrncpy(buffer,dir->name,25);
                 if (strlen(buffer) == 25)
                     buffer[21] = buffer[22] = buffer[23] = '.', buffer[24] = 0;
                 if (dir == finddirshigh)

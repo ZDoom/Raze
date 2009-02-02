@@ -4884,7 +4884,8 @@ repeatcase:
 
         if (j < 0 || j > MAXVOLUMES-1)
         {
-            initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",g_szScriptFileName,g_lineNumber);
+            initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",
+                g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
             while (*textptr != 0x0a && *textptr != 0) textptr++;
             break;
@@ -4898,8 +4899,9 @@ repeatcase:
             textptr++,i++;
             if (i >= (signed)sizeof(EpisodeNames[j])-1)
             {
-                initprintf("%s:%d: error: volume name exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,sizeof(EpisodeNames[j])-1);
-                g_numCompilerErrors++;
+                initprintf("%s:%d: warning: truncating volume name to %d characters.\n",
+                    g_szScriptFileName,g_lineNumber,sizeof(EpisodeNames[j])-1);
+                g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
             }
@@ -4917,7 +4919,8 @@ repeatcase:
 
         if (j < 0 || j > NUMGAMEFUNCTIONS-1)
         {
-            initprintf("%s:%d: error: function number exceeds number of game functions.\n",g_szScriptFileName,g_lineNumber);
+            initprintf("%s:%d: error: function number exceeds number of game functions.\n",
+                g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
             while (*textptr != 0x0a && *textptr != 0) textptr++;
             break;
@@ -4932,14 +4935,16 @@ repeatcase:
             textptr++,i++;
             if (*textptr == '/' || *textptr == ' ')
             {
-                initprintf("%s:%d: warning: invalid character in function name.\n",g_szScriptFileName,g_lineNumber);
+                initprintf("%s:%d: warning: invalid character in function name.\n",
+                    g_szScriptFileName,g_lineNumber);
                 g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
             }
             if (i >= MAXGAMEFUNCLEN-1)
             {
-                initprintf("%s:%d: warning: function name exceeds limit of %d characters, truncating.\n",g_szScriptFileName,g_lineNumber,MAXGAMEFUNCLEN);
+                initprintf("%s:%d: warning: truncating function name to %d characters.\n",
+                    g_szScriptFileName,g_lineNumber,MAXGAMEFUNCLEN);
                 g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
@@ -4966,7 +4971,8 @@ repeatcase:
 
         if (j < 0 || j > 4)
         {
-            initprintf("%s:%d: error: skill number exceeds maximum skill count.\n",g_szScriptFileName,g_lineNumber);
+            initprintf("%s:%d: error: skill number exceeds maximum skill count.\n",
+                g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
             while (*textptr != 0x0a && *textptr != 0) textptr++;
             break;
@@ -4980,8 +4986,9 @@ repeatcase:
             textptr++,i++;
             if (i >= (signed)sizeof(SkillNames[j])-1)
             {
-                initprintf("%s:%d: error: skill name exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,sizeof(SkillNames[j])-1);
-                g_numCompilerErrors++;
+                initprintf("%s:%d: warning: truncating skill name to %d characters.\n",
+                    g_szScriptFileName,g_lineNumber,sizeof(SkillNames[j])-1);
+                g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
             }
@@ -5004,8 +5011,9 @@ repeatcase:
             textptr++,i++;
             if (i >= (signed)sizeof(gamename)-1)
             {
-                initprintf("%s:%d: error: game name exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,sizeof(gamename)-1);
-                g_numCompilerErrors++;
+                initprintf("%s:%d: warning: truncating game name to %d characters.\n",
+                    g_szScriptFileName,g_lineNumber,sizeof(gamename)-1);
+                g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
             }
@@ -5058,6 +5066,10 @@ repeatcase:
         {
             char temp[BMAX_PATH];
             struct stat st;
+            int32_t fullscreen = ud.config.ScreenMode;
+            int32_t xdim = ud.config.ScreenWidth, ydim = ud.config.ScreenHeight, bpp = ud.config.ScreenBPP;
+            int32_t usemouse = ud.config.UseMouse, usejoy = ud.config.UseJoystick;
+
             if (stat(mod_dir, &st) < 0)
             {
                 if (errno == ENOENT)     // path doesn't exist
@@ -5080,13 +5092,23 @@ repeatcase:
                 // directory isn't a directory
                 return 0;
             }
+
             Bstrcpy(temp,tempbuf);
             CONFIG_WriteSetup();
             Bsprintf(setupfilename,"%s/",mod_dir);
             Bstrcat(setupfilename,temp);
+
+            initprintf("Using config file '%s'.\n",setupfilename);
+
             CONFIG_ReadSetup();
+
+            ud.config.ScreenMode = fullscreen;
+            ud.config.ScreenWidth = xdim;
+            ud.config.ScreenHeight = ydim;
+            ud.config.ScreenBPP = bpp;
+            ud.config.UseMouse = usemouse;
+            ud.config.UseJoystick = usejoy;
         }
-        initprintf("Using config file '%s'.\n",setupfilename);
     }
     return 0;
 
@@ -5119,8 +5141,9 @@ repeatcase:
             textptr++,i++;
             if (i >= (signed)sizeof(GametypeNames[j])-1)
             {
-                initprintf("%s:%d: error: gametype name exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,sizeof(GametypeNames[j])-1);
-                g_numCompilerErrors++;
+                initprintf("%s:%d: warning: truncating gametype name to %d characters.\n",
+                    g_szScriptFileName,g_lineNumber,sizeof(GametypeNames[j])-1);
+                g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
             }
@@ -5206,8 +5229,9 @@ repeatcase:
             textptr++,i++;
             if (i >= 32)
             {
-                initprintf("%s:%d: error: level name exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,32);
-                g_numCompilerErrors++;
+                initprintf("%s:%d: warning: truncating level name to %d characters.\n",
+                    g_szScriptFileName,g_lineNumber,32);
+                g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
             }
@@ -5288,8 +5312,8 @@ repeatcase:
             textptr++,i++;
             if (i >= MAXQUOTELEN-1)
             {
-                initprintf("%s:%d: error: quote text exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,MAXQUOTELEN-1);
-                g_numCompilerErrors++;
+                initprintf("%s:%d: warning: truncating quote text to %d characters.\n",g_szScriptFileName,g_lineNumber,MAXQUOTELEN-1);
+                g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
             }
@@ -5336,8 +5360,9 @@ repeatcase:
             textptr++,i++;
             if (i >= (signed)sizeof(CheatStrings[k])-1)
             {
-                initprintf("%s:%d: error: cheat exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,MAXCHEATLEN,sizeof(CheatStrings[k])-1);
-                g_numCompilerErrors++;
+                initprintf("%s:%d: warning: truncating cheat string to %d characters.\n",
+                    g_szScriptFileName,g_lineNumber,MAXCHEATLEN,sizeof(CheatStrings[k])-1);
+                g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0 && *textptr != ' ') textptr++;
                 break;
             }
@@ -5936,7 +5961,7 @@ void C_Compile(const char *filenam)
     {
         if (g_loadFromGroupOnly)
         {
-            sprintf(buf,"Error compiling CON files.");
+            Bsprintf(buf,"Error compiling CON files.");
             G_GameExit(buf);
         }
         else

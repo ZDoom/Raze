@@ -56,7 +56,7 @@ static int32_t LoadGroupsCache(void)
         fg->next = grpcache;
         grpcache = fg;
 
-        strncpy(fg->name, fname, BMAX_PATH);
+        Bstrncpy(fg->name, fname, BMAX_PATH);
         fg->size = fsize;
         fg->mtime = fmtime;
         fg->crcval = fcrcval;
@@ -157,7 +157,7 @@ int32_t ScanGroups(void)
             foundgrps = grp;
 
             fgg = (struct grpcache *)Bcalloc(1, sizeof(struct grpcache));
-            strncpy(fgg->name, sidx->name, BMAX_PATH);
+            Bstrncpy(fgg->name, sidx->name, BMAX_PATH);
             fgg->size = st.st_size;
             fgg->mtime = st.st_mtime;
             fgg->crcval = crcval;

@@ -143,7 +143,7 @@ int32_t tempwallptr;
 static int32_t nonsharedtimer;
 
 static void G_DrawCameraText(int16_t i);
-static int32_t G_MoveLoop(void);
+static inline int32_t G_MoveLoop(void);
 static void G_DoOrderScreen(void);
 static void Net_DoPrediction(void);
 static void Net_CorrectPrediction(void);
@@ -643,35 +643,7 @@ void Net_GetPackets(void)
                 g_player[i].movefifoend++;
             }
 
-            /*            while (j != packbufleng)
-                        {
-                            for (i=connecthead;i>=0;i=connectpoint2[i])
-                                if (i != myconnectindex)
-                                {
-                                    g_player[i].syncval[g_player[i].syncvalhead&(MOVEFIFOSIZ-1)] = packbuf[j];
-                                    g_player[i].syncvalhead++;
-                                }
-                            j++;
-                        } */
-            /*            while (j != packbufleng)
-                        {
-                            for (i = connecthead; i >= 0; i = connectpoint2[i])
-                            {
-                                if (i != myconnectindex)
-                                {
-                                    for (sb = 0; sb < g_numSyncBytes; sb++)
-                                    {
-                                        g_player[i].syncval[g_player[i].syncvalhead & (SYNCFIFOSIZ - 1)][sb] = packbuf[j + sb];
-                                    }
-
-                                    g_player[i].syncvalhead++;
-                                }
-                            }
-
-                            j += g_numSyncBytes;
-                        } */
-
-            Net_GetSyncInfoFromPacket(packbuf, packbufleng, &j, other);
+            Net_GetSyncData(packbuf, packbufleng, &j, other);
 
             TRAVERSE_CONNECT(i)
             if (i != myconnectindex)
@@ -707,12 +679,7 @@ void Net_GetPackets(void)
                         if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((int32_t)packbuf[j++])<<24); */
             g_player[other].movefifoend++;
 
-            /*            while (j != packbufleng)
-                        {
-                            g_player[other].syncval[g_player[other].syncvalhead&(MOVEFIFOSIZ-1)] = packbuf[j++];
-                            g_player[other].syncvalhead++;
-                        } */
-            Net_GetSyncInfoFromPacket(packbuf, packbufleng, &j, other);
+            Net_GetSyncData(packbuf, packbufleng, &j, other);
 
             for (i=g_movesPerPacket-1;i>=1;i--)
             {
@@ -765,14 +732,7 @@ void Net_GetPackets(void)
                 g_player[other].movefifoend++;
             }
 
-            /*
-                        while (j < packbufleng)
-                        {
-                            g_player[other].syncval[g_player[other].syncvalhead&(MOVEFIFOSIZ-1)] = packbuf[j++];
-                            g_player[other].syncvalhead++;
-                        }
-                        */
-            Net_GetSyncInfoFromPacket(packbuf, packbufleng, &j, other);
+            Net_GetSyncData(packbuf, packbufleng, &j, other);
 
             if (j > packbufleng)
                 initprintf("INVALID GAME PACKET!!! (packet %d, %d too many bytes (%d %d))\n",packbuf[0],j-packbufleng,packbufleng,k);
@@ -1312,7 +1272,7 @@ void faketimerhandler(void)
                     syncvaltail++;
                 } */
 
-        Net_AddSyncInfoToPacket(&j);
+        Net_AddSyncData(&j);
 
         TRAVERSE_CONNECT(i)
         if (i != myconnectindex)
@@ -1397,7 +1357,7 @@ void faketimerhandler(void)
                     packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
                     syncvaltail++;
                 } */
-        Net_AddSyncInfoToPacket(&j);
+        Net_AddSyncData(&j);
 
         mmulti_sendpacket(connecthead,packbuf,j);
         return;
@@ -1486,7 +1446,7 @@ void faketimerhandler(void)
                     packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
                     syncvaltail++;
                 } */
-        Net_AddSyncInfoToPacket(&j);
+        Net_AddSyncData(&j);
 
         for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
             if (g_player[i].playerquitflag)
@@ -2619,7 +2579,7 @@ static void G_PrintCoords(int32_t snum)
         else if (ud.multimode > 1)
             y = 24;
     }
-    sprintf(tempbuf,"XYZ= (%d,%d,%d)",g_player[snum].ps->posx,g_player[snum].ps->posy,g_player[snum].ps->posz);
+    Bsprintf(tempbuf,"XYZ= (%d,%d,%d)",g_player[snum].ps->posx,g_player[snum].ps->posy,g_player[snum].ps->posz);
     printext256(250L,y,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"A/H= %d,%d",g_player[snum].ps->ang,g_player[snum].ps->horiz);
     printext256(250L,y+9L,31,-1,tempbuf,0);
@@ -4616,66 +4576,66 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
 static void G_DumpDebugInfo(void)
 {
     int32_t i,j,x;
-    FILE * fp=fopen("debug.con","w");
+//    FILE * fp=fopen("condebug.log","w");
     for (i=0;i<MAX_WEAPONS;i++)
     {
         for (j=0;j<numplayers;j++)
         {
-            fprintf(fp,"Player %d\n\n",j);
-            fprintf(fp,"WEAPON%d_CLIP %" PRIdPTR "\n",i,aplWeaponClip[i][j]);
-            fprintf(fp,"WEAPON%d_RELOAD %" PRIdPTR "\n",i,aplWeaponReload[i][j]);
-            fprintf(fp,"WEAPON%d_FIREDELAY %" PRIdPTR "\n",i,aplWeaponFireDelay[i][j]);
-            fprintf(fp,"WEAPON%d_TOTALTIME %" PRIdPTR "\n",i,aplWeaponTotalTime[i][j]);
-            fprintf(fp,"WEAPON%d_HOLDDELAY %" PRIdPTR "\n",i,aplWeaponHoldDelay[i][j]);
-            fprintf(fp,"WEAPON%d_FLAGS %" PRIdPTR "\n",i,aplWeaponFlags[i][j]);
-            fprintf(fp,"WEAPON%d_SHOOTS %" PRIdPTR "\n",i,aplWeaponShoots[i][j]);
-            fprintf(fp,"WEAPON%d_SPAWNTIME %" PRIdPTR "\n",i,aplWeaponSpawnTime[i][j]);
-            fprintf(fp,"WEAPON%d_SPAWN %" PRIdPTR "\n",i,aplWeaponSpawn[i][j]);
-            fprintf(fp,"WEAPON%d_SHOTSPERBURST %" PRIdPTR "\n",i,aplWeaponShotsPerBurst[i][j]);
-            fprintf(fp,"WEAPON%d_WORKSLIKE %" PRIdPTR "\n",i,aplWeaponWorksLike[i][j]);
-            fprintf(fp,"WEAPON%d_INITIALSOUND %" PRIdPTR "\n",i,aplWeaponInitialSound[i][j]);
-            fprintf(fp,"WEAPON%d_FIRESOUND %" PRIdPTR "\n",i,aplWeaponFireSound[i][j]);
-            fprintf(fp,"WEAPON%d_SOUND2TIME %" PRIdPTR "\n",i,aplWeaponSound2Time[i][j]);
-            fprintf(fp,"WEAPON%d_SOUND2SOUND %" PRIdPTR "\n",i,aplWeaponSound2Sound[i][j]);
-            fprintf(fp,"WEAPON%d_RELOADSOUND1 %" PRIdPTR "\n",i,aplWeaponReloadSound1[i][j]);
-            fprintf(fp,"WEAPON%d_RELOADSOUND2 %" PRIdPTR "\n",i,aplWeaponReloadSound2[i][j]);
-            fprintf(fp,"WEAPON%d_SELECTSOUND %" PRIdPTR "\n",i,aplWeaponSelectSound[i][j]);
+            OSD_Printf("Player %d\n\n",j);
+            OSD_Printf("WEAPON%d_CLIP %" PRIdPTR "\n",i,aplWeaponClip[i][j]);
+            OSD_Printf("WEAPON%d_RELOAD %" PRIdPTR "\n",i,aplWeaponReload[i][j]);
+            OSD_Printf("WEAPON%d_FIREDELAY %" PRIdPTR "\n",i,aplWeaponFireDelay[i][j]);
+            OSD_Printf("WEAPON%d_TOTALTIME %" PRIdPTR "\n",i,aplWeaponTotalTime[i][j]);
+            OSD_Printf("WEAPON%d_HOLDDELAY %" PRIdPTR "\n",i,aplWeaponHoldDelay[i][j]);
+            OSD_Printf("WEAPON%d_FLAGS %" PRIdPTR "\n",i,aplWeaponFlags[i][j]);
+            OSD_Printf("WEAPON%d_SHOOTS %" PRIdPTR "\n",i,aplWeaponShoots[i][j]);
+            OSD_Printf("WEAPON%d_SPAWNTIME %" PRIdPTR "\n",i,aplWeaponSpawnTime[i][j]);
+            OSD_Printf("WEAPON%d_SPAWN %" PRIdPTR "\n",i,aplWeaponSpawn[i][j]);
+            OSD_Printf("WEAPON%d_SHOTSPERBURST %" PRIdPTR "\n",i,aplWeaponShotsPerBurst[i][j]);
+            OSD_Printf("WEAPON%d_WORKSLIKE %" PRIdPTR "\n",i,aplWeaponWorksLike[i][j]);
+            OSD_Printf("WEAPON%d_INITIALSOUND %" PRIdPTR "\n",i,aplWeaponInitialSound[i][j]);
+            OSD_Printf("WEAPON%d_FIRESOUND %" PRIdPTR "\n",i,aplWeaponFireSound[i][j]);
+            OSD_Printf("WEAPON%d_SOUND2TIME %" PRIdPTR "\n",i,aplWeaponSound2Time[i][j]);
+            OSD_Printf("WEAPON%d_SOUND2SOUND %" PRIdPTR "\n",i,aplWeaponSound2Sound[i][j]);
+            OSD_Printf("WEAPON%d_RELOADSOUND1 %" PRIdPTR "\n",i,aplWeaponReloadSound1[i][j]);
+            OSD_Printf("WEAPON%d_RELOADSOUND2 %" PRIdPTR "\n",i,aplWeaponReloadSound2[i][j]);
+            OSD_Printf("WEAPON%d_SELECTSOUND %" PRIdPTR "\n",i,aplWeaponSelectSound[i][j]);
         }
-        fprintf(fp,"\n");
+        OSD_Printf("\n");
     }
     for (x=0;x<MAXSTATUS;x++)
     {
         j = headspritestat[x];
         while (j >= 0)
         {
-            fprintf(fp,"Sprite %d (%d,%d,%d) (picnum: %d)\n",j,sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].picnum);
+            OSD_Printf("Sprite %d (%d,%d,%d) (picnum: %d)\n",j,sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].picnum);
             for (i=0;i<g_gameVarCount;i++)
             {
                 if (aGameVars[i].dwFlags & (GAMEVAR_PERACTOR))
                 {
                     if (aGameVars[i].val.plValues[j] != aGameVars[i].lDefault)
                     {
-                        fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
-                        fprintf(fp,"%" PRIdPTR "",aGameVars[i].val.plValues[j]);
-                        fprintf(fp," GAMEVAR_PERACTOR");
+                        OSD_Printf("gamevar %s ",aGameVars[i].szLabel);
+                        OSD_Printf("%" PRIdPTR "",aGameVars[i].val.plValues[j]);
+                        OSD_Printf(" GAMEVAR_PERACTOR");
                         if (aGameVars[i].dwFlags != GAMEVAR_PERACTOR)
                         {
-                            fprintf(fp," // ");
+                            OSD_Printf(" // ");
                             if (aGameVars[i].dwFlags & (GAMEVAR_SYSTEM))
                             {
-                                fprintf(fp," (system)");
+                                OSD_Printf(" (system)");
                             }
                         }
-                        fprintf(fp,"\n");
+                        OSD_Printf("\n");
                     }
                 }
             }
-            fprintf(fp,"\n");
+            OSD_Printf("\n");
             j = nextspritestat[j];
         }
     }
-    Gv_DumpValues(fp);
-    fclose(fp);
+    Gv_DumpValues();
+//    fclose(fp);
     saveboard("debug.map",&g_player[myconnectindex].ps->posx,&g_player[myconnectindex].ps->posy,&g_player[myconnectindex].ps->posz,&g_player[myconnectindex].ps->ang,&g_player[myconnectindex].ps->cursectnum);
 }
 
@@ -7311,7 +7271,8 @@ PALONLY:
                 t->cstat |= 4;
         }
 
-        if (g_player[screenpeek].ps->heat_amount > 0 && g_player[screenpeek].ps->heat_on && (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_NVG) || s->picnum == APLAYER || s->statnum == 13))
+        if (g_player[screenpeek].ps->heat_amount > 0 && g_player[screenpeek].ps->heat_on &&
+            (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_NVG) || s->picnum == APLAYER || s->statnum == 13))
         {
             t->pal = 6;
             t->shade = 0;
@@ -7776,7 +7737,7 @@ FOUNDCHEAT:
                     g_player[myconnectindex].ps->cheat_phase = 0;
 
                     G_DumpDebugInfo();
-                    Bsprintf(tempbuf,"GAMEVARS DUMPED TO DEBUG.CON");
+                    Bsprintf(tempbuf,"GAMEVARS DUMPED TO LOG");
                     G_AddUserQuote(tempbuf);
                     Bsprintf(tempbuf,"MAP DUMPED TO DEBUG.MAP");
                     G_AddUserQuote(tempbuf);
@@ -9798,6 +9759,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                         g_noMusic = 1;
                         initprintf("Music off.\n");
                     }
+/*
                     else if (*c == 'd' || *c == 'D')
                     {
                         FILE * fp=fopen("gamevars.txt","w");
@@ -9806,6 +9768,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                         fclose(fp);
                         initprintf("Game variables saved to gamevars.txt.\n");
                     }
+*/
                     else
                     {
                         G_ShowParameterHelp();
@@ -12053,7 +12016,7 @@ RECHECK:
     return 1;
 }
 
-static int32_t G_MoveLoop()
+static inline int32_t G_MoveLoop()
 {
     int32_t i;
 
@@ -13464,7 +13427,7 @@ FRAGBONUS:
 
                     if (playerbest > 0)
                     {
-                        sprintf(tempbuf,"%0*d:%02d.%02d",clockpad,
+                        Bsprintf(tempbuf,"%0*d:%02d.%02d",clockpad,
                                 (playerbest/(26*60)),
                                 (playerbest/26)%60,
                                 ((playerbest%26)*38)/10
@@ -13498,20 +13461,20 @@ FRAGBONUS:
                         bonuscnt++;
                         S_PlaySound(PIPEBOMB_EXPLODE);
                     }
-                    sprintf(tempbuf,"%-3d",g_player[myconnectindex].ps->actors_killed);
+                    Bsprintf(tempbuf,"%-3d",g_player[myconnectindex].ps->actors_killed);
                     gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
                     yy += 10;
                     if (ud.player_skill > 3)
                     {
-                        sprintf(tempbuf,"N/A");
+                        Bsprintf(tempbuf,"N/A");
                         gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
                         yy += 10;
                     }
                     else
                     {
                         if ((g_player[myconnectindex].ps->max_actors_killed-g_player[myconnectindex].ps->actors_killed) < 0)
-                            sprintf(tempbuf,"%-3d",0);
-                        else sprintf(tempbuf,"%-3d",g_player[myconnectindex].ps->max_actors_killed-g_player[myconnectindex].ps->actors_killed);
+                            Bsprintf(tempbuf,"%-3d",0);
+                        else Bsprintf(tempbuf,"%-3d",g_player[myconnectindex].ps->max_actors_killed-g_player[myconnectindex].ps->actors_killed);
                         gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
                         yy += 10;
                     }
@@ -13535,12 +13498,12 @@ FRAGBONUS:
                         bonuscnt++;
                         S_PlaySound(PIPEBOMB_EXPLODE);
                     }
-                    sprintf(tempbuf,"%-3d",g_player[myconnectindex].ps->secret_rooms);
+                    Bsprintf(tempbuf,"%-3d",g_player[myconnectindex].ps->secret_rooms);
                     gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
                     yy += 10;
                     if (g_player[myconnectindex].ps->secret_rooms > 0)
-                        sprintf(tempbuf,"%-3d%%",(100*g_player[myconnectindex].ps->secret_rooms/g_player[myconnectindex].ps->max_secret_rooms));
-                    sprintf(tempbuf,"%-3d",g_player[myconnectindex].ps->max_secret_rooms-g_player[myconnectindex].ps->secret_rooms);
+                        Bsprintf(tempbuf,"%-3d%%",(100*g_player[myconnectindex].ps->secret_rooms/g_player[myconnectindex].ps->max_secret_rooms));
+                    Bsprintf(tempbuf,"%-3d",g_player[myconnectindex].ps->max_secret_rooms-g_player[myconnectindex].ps->secret_rooms);
                     gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
                     yy += 10;
                 }

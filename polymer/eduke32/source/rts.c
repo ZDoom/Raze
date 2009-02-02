@@ -119,7 +119,7 @@ int32 RTS_AddFile(const char *filename)
         lump_p->handle = handle;
         lump_p->position = IntelLong(fileinfo->filepos);
         lump_p->size = IntelLong(fileinfo->size);
-        strncpy(lump_p->name, fileinfo->name, 8);
+        Bstrncpy(lump_p->name, fileinfo->name, 8);
     }
 
     free(fileinfoo);

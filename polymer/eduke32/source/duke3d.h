@@ -807,6 +807,7 @@ enum GamevarFlags_t {
     GAMEVAR_SHORTPTR   = 0x00008000, // plValues is a pointer to a short
     GAMEVAR_CHARPTR    = 0x00010000, // plValues is a pointer to a char
     GAMEVAR_NORESET    = 0x00020000, // var values are not reset when restoring map state
+    GAMEVAR_SPECIAL    = 0x00040000, // flag for structure member shortcut vars
 };
 
 enum GamearrayFlags_t {

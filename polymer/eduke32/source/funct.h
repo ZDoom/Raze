@@ -220,7 +220,7 @@ extern void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue);
 extern void A_LoadActor(int32_t sActor);
 
 extern int32_t Gv_GetVarByLabel(const char *szGameLabel, int32_t lDefault, int32_t iActor, int32_t iPlayer);
-extern void Gv_DumpValues(FILE *fp);
+extern void Gv_DumpValues(void);
 // extern void AddLog(const char *psz, ...);
 
 extern void Gv_ResetSystemDefaults(void);

@@ -670,7 +670,7 @@ static const char *win32netstrerror(void)
 static char *static_ipstring(int32_t ip)
 {
     static char s[16];
-    sprintf(s, "%u.%u.%u.%u", IPSEG1(ip), IPSEG2(ip), IPSEG3(ip), IPSEG4(ip));
+    Bsprintf(s, "%u.%u.%u.%u", IPSEG1(ip), IPSEG2(ip), IPSEG3(ip), IPSEG4(ip));
     return(s);
 }
 

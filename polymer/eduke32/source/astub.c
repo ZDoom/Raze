@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20090123"
+#define BUILDDATE " 20090131"
 #define VERSION " 1.2.0devel"
 
 static int32_t floor_over_floor;
@@ -4047,7 +4047,7 @@ static void Keys3d(void)
         if (searchstat != 3)
         {
             wall[searchwall].cstat ^= 32;
-            sprintf(getmessage,"Wall %d one side masking bit %s",searchwall,wall[searchwall].cstat&32?"ON":"OFF");
+            Bsprintf(getmessage,"Wall %d one side masking bit %s",searchwall,wall[searchwall].cstat&32?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -4063,7 +4063,7 @@ static void Keys3d(void)
                         sprite[searchwall].cstat |= 8;
             }
             asksave = 1;
-            sprintf(getmessage,"Sprite %d one sided bit %s",searchwall,sprite[searchwall].cstat&64?"ON":"OFF");
+            Bsprintf(getmessage,"Sprite %d one sided bit %s",searchwall,sprite[searchwall].cstat&64?"ON":"OFF");
             message(getmessage);
 
         }
@@ -4074,7 +4074,7 @@ static void Keys3d(void)
         if (searchstat != 3)
         {
             wall[searchwall].cstat ^= 2;
-            sprintf(getmessage,"Wall %d bottom texture swap bit %s",searchwall,wall[searchwall].cstat&2?"ON":"OFF");
+            Bsprintf(getmessage,"Wall %d bottom texture swap bit %s",searchwall,wall[searchwall].cstat&2?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -4109,7 +4109,7 @@ static void Keys3d(void)
             if (i >= 0)
             {
                 wall[searchwall].cstat ^= 16;
-                sprintf(getmessage,"Wall %d masking bit %s",searchwall,wall[searchwall].cstat&16?"ON":"OFF");
+                Bsprintf(getmessage,"Wall %d masking bit %s",searchwall,wall[searchwall].cstat&16?"ON":"OFF");
                 message(getmessage);
                 if ((wall[searchwall].cstat&16) > 0)
                 {
@@ -4170,7 +4170,7 @@ static void Keys3d(void)
             if (searchstat == 3)
             {
                 sprite[searchwall].cstat ^= 256;
-                sprintf(getmessage,"Sprite %d hitscan sensitivity bit %s",searchwall,sprite[searchwall].cstat&256?"ON":"OFF");
+                Bsprintf(getmessage,"Sprite %d hitscan sensitivity bit %s",searchwall,sprite[searchwall].cstat&256?"ON":"OFF");
                 message(getmessage);
                 asksave = 1;
             }
@@ -4183,7 +4183,7 @@ static void Keys3d(void)
                     wall[wall[searchwall].nextwall].cstat &= ~64;
                     wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&64);
                 }
-                sprintf(getmessage,"Wall %d hitscan sensitivity bit %s",searchwall,wall[searchwall].cstat&64?"ON":"OFF");
+                Bsprintf(getmessage,"Wall %d hitscan sensitivity bit %s",searchwall,wall[searchwall].cstat&64?"ON":"OFF");
                 message(getmessage);
 
                 asksave = 1;
@@ -4466,14 +4466,14 @@ static void Keys3d(void)
         if (searchstat == 1)
         {
             sector[searchsector].ceilingstat ^= 8;
-            sprintf(getmessage,"Sector %d ceiling texture expansion bit %s",searchsector,sector[searchsector].ceilingstat&8?"ON":"OFF");
+            Bsprintf(getmessage,"Sector %d ceiling texture expansion bit %s",searchsector,sector[searchsector].ceilingstat&8?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
         if (searchstat == 2)
         {
             sector[searchsector].floorstat ^= 8;
-            sprintf(getmessage,"Sector %d floor texture expansion bit %s",searchsector,sector[searchsector].floorstat&8?"ON":"OFF");
+            Bsprintf(getmessage,"Sector %d floor texture expansion bit %s",searchsector,sector[searchsector].floorstat&8?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -4497,14 +4497,14 @@ static void Keys3d(void)
             if (searchstat == 1)
             {
                 sector[searchsector].ceilingstat ^= 64;
-                sprintf(getmessage,"Sector %d ceiling texture relativity bit %s",searchsector,sector[searchsector].ceilingstat&64?"ON":"OFF");
+                Bsprintf(getmessage,"Sector %d ceiling texture relativity bit %s",searchsector,sector[searchsector].ceilingstat&64?"ON":"OFF");
                 message(getmessage);
                 asksave = 1;
             }
             if (searchstat == 2)
             {
                 sector[searchsector].floorstat ^= 64;
-                sprintf(getmessage,"Sector %d floor texture relativity bit %s",searchsector,sector[searchsector].floorstat&64?"ON":"OFF"); //PK (was ceiling in string)
+                Bsprintf(getmessage,"Sector %d floor texture relativity bit %s",searchsector,sector[searchsector].floorstat&64?"ON":"OFF"); //PK (was ceiling in string)
                 message(getmessage);
                 asksave = 1;
             }
@@ -4517,11 +4517,11 @@ static void Keys3d(void)
                 sprite[searchwall].cstat = i;
 
                 if (sprite[searchwall].cstat&16)
-                    sprintf(getmessage,"Sprite %d now wall aligned",searchwall);
+                    Bsprintf(getmessage,"Sprite %d now wall aligned",searchwall);
                 else if (sprite[searchwall].cstat&32)
-                    sprintf(getmessage,"Sprite %d now floor aligned",searchwall);
+                    Bsprintf(getmessage,"Sprite %d now floor aligned",searchwall);
                 else
-                    sprintf(getmessage,"Sprite %d now view aligned",searchwall);
+                    Bsprintf(getmessage,"Sprite %d now view aligned",searchwall);
                 message(getmessage);
                 asksave = 1;
             }
@@ -4728,7 +4728,7 @@ static void Keys3d(void)
                     i = nextspritesect[i];
                 }
                 sector[searchsector].ceilingz -= updownunits << (eitherCTRL<<1); // JBF 20031128
-                sprintf(getmessage,"Sector %d ceilingz = %d",searchsector,sector[searchsector].ceilingz);
+                Bsprintf(getmessage,"Sector %d ceilingz = %d",searchsector,sector[searchsector].ceilingz);
                 message(getmessage);
 
             }
@@ -4747,7 +4747,7 @@ static void Keys3d(void)
                         i = nextspritesect[i];
                     }
                     sector[highlightsector[j]].ceilingz -= updownunits << (eitherCTRL<<1);   // JBF 20031128
-                    sprintf(getmessage,"Sector %d ceilingz = %d",*highlightsector,sector[highlightsector[j]].ceilingz);
+                    Bsprintf(getmessage,"Sector %d ceilingz = %d",*highlightsector,sector[highlightsector[j]].ceilingz);
                     message(getmessage);
 
                 }
@@ -4767,7 +4767,7 @@ static void Keys3d(void)
                     i = nextspritesect[i];
                 }
                 sector[searchsector].floorz -= updownunits << (eitherCTRL<<1);   // JBF 20031128
-                sprintf(getmessage,"Sector %d floorz = %d",searchsector,sector[searchsector].floorz);
+                Bsprintf(getmessage,"Sector %d floorz = %d",searchsector,sector[searchsector].floorz);
                 message(getmessage);
 
             }
@@ -4785,7 +4785,7 @@ static void Keys3d(void)
                         i = nextspritesect[i];
                     }
                     sector[highlightsector[j]].floorz -= updownunits << (eitherCTRL<<1); // JBF 20031128
-                    sprintf(getmessage,"Sector %d floorz = %d",*highlightsector,sector[highlightsector[j]].floorz);
+                    Bsprintf(getmessage,"Sector %d floorz = %d",*highlightsector,sector[highlightsector[j]].floorz);
                     message(getmessage);
 
                 }
@@ -4815,7 +4815,7 @@ static void Keys3d(void)
                 {
                     sprite[searchwall].z -= updownunits;
                     if (!spnoclip)sprite[searchwall].z = max(sprite[searchwall].z,spriteonceilingz(searchwall));
-                    sprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
+                    Bsprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
                     message(getmessage);
 
                 }
@@ -4827,7 +4827,7 @@ static void Keys3d(void)
                             sprite[highlight[i]&16383].z -= updownunits;
                             if (!spnoclip)sprite[highlight[i]&16383].z = max(sprite[highlight[i]&16383].z,spriteonceilingz(highlight[i]&16383));
                         }
-                    sprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
+                    Bsprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
                     message(getmessage);
 
                 }
@@ -4876,7 +4876,7 @@ static void Keys3d(void)
                     i = nextspritesect[i];
                 }
                 sector[searchsector].ceilingz += updownunits << (eitherCTRL<<1); // JBF 20031128
-                sprintf(getmessage,"Sector %d ceilingz = %d",searchsector,sector[searchsector].ceilingz);
+                Bsprintf(getmessage,"Sector %d ceilingz = %d",searchsector,sector[searchsector].ceilingz);
                 message(getmessage);
 
             }
@@ -4895,7 +4895,7 @@ static void Keys3d(void)
                         i = nextspritesect[i];
                     }
                     sector[highlightsector[j]].ceilingz += updownunits << (eitherCTRL<<1);   // JBF 20031128
-                    sprintf(getmessage,"Sector %d ceilingz = %d",*highlightsector,sector[highlightsector[j]].ceilingz);
+                    Bsprintf(getmessage,"Sector %d ceilingz = %d",*highlightsector,sector[highlightsector[j]].ceilingz);
                     message(getmessage);
 
                 }
@@ -4915,7 +4915,7 @@ static void Keys3d(void)
                     i = nextspritesect[i];
                 }
                 sector[searchsector].floorz += updownunits << (eitherCTRL<<1);   // JBF 20031128
-                sprintf(getmessage,"Sector %d floorz = %d",searchsector,sector[searchsector].floorz);
+                Bsprintf(getmessage,"Sector %d floorz = %d",searchsector,sector[searchsector].floorz);
                 message(getmessage);
 
             }
@@ -4933,7 +4933,7 @@ static void Keys3d(void)
                         i = nextspritesect[i];
                     }
                     sector[highlightsector[j]].floorz += updownunits << (eitherCTRL<<1); // JBF 20031128
-                    sprintf(getmessage,"Sector %d floorz = %d",*highlightsector,sector[highlightsector[j]].floorz);
+                    Bsprintf(getmessage,"Sector %d floorz = %d",*highlightsector,sector[highlightsector[j]].floorz);
                     message(getmessage);
 
                 }
@@ -4962,7 +4962,7 @@ static void Keys3d(void)
                 {
                     sprite[searchwall].z += updownunits;
                     if (!spnoclip)sprite[searchwall].z = min(sprite[searchwall].z,spriteongroundz(searchwall));
-                    sprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
+                    Bsprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
                     message(getmessage);
 
                 }
@@ -4974,7 +4974,7 @@ static void Keys3d(void)
                             sprite[highlight[i]&16383].z += updownunits;
                             if (!spnoclip)sprite[highlight[i]&16383].z = min(sprite[highlight[i]&16383].z,spriteongroundz(highlight[i]&16383));
                         }
-                    sprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
+                    Bsprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
                     message(getmessage);
 
                 }
@@ -5106,7 +5106,7 @@ static void Keys3d(void)
                 Bsprintf(tempbuf,"%d",purpleon);
                 break;
             default :
-                sprintf(tempbuf," ");
+                Bsprintf(tempbuf," ");
                 break;
             }
             begindrawing();
@@ -5399,7 +5399,7 @@ static void Keys3d(void)
             sprite[searchwall].cstat ^= 1;
             //                                sprite[searchwall].cstat &= ~256;
             //                                sprite[searchwall].cstat |= ((sprite[searchwall].cstat&1)<<8);
-            sprintf(getmessage,"Sprite %d blocking bit %s",searchwall,sprite[searchwall].cstat&1?"ON":"OFF");
+            Bsprintf(getmessage,"Sprite %d blocking bit %s",searchwall,sprite[searchwall].cstat&1?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -5412,7 +5412,7 @@ static void Keys3d(void)
                 wall[wall[searchwall].nextwall].cstat &= ~(1+64);
                 wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&1);
             }
-            sprintf(getmessage,"Wall %d blocking bit %s",searchwall,wall[searchwall].cstat&1?"ON":"OFF");
+            Bsprintf(getmessage,"Wall %d blocking bit %s",searchwall,wall[searchwall].cstat&1?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -6913,11 +6913,11 @@ static void Keys2d(void)
             sprite[cursprite].cstat = i;
 
             if (sprite[cursprite].cstat&16)
-                sprintf(getmessage,"Sprite %d now wall aligned",cursprite);
+                Bsprintf(getmessage,"Sprite %d now wall aligned",cursprite);
             else if (sprite[cursprite].cstat&32)
-                sprintf(getmessage,"Sprite %d now floor aligned",cursprite);
+                Bsprintf(getmessage,"Sprite %d now floor aligned",cursprite);
             else
-                sprintf(getmessage,"Sprite %d now view aligned",cursprite);
+                Bsprintf(getmessage,"Sprite %d now view aligned",cursprite);
             message(getmessage);
             asksave = 1;
 
@@ -7106,9 +7106,9 @@ static void Keys2d(void)
                     }
                 }
             }
-            if (autogrid) sprintf(tempbuf,"Grid size: 9 (autosize)");
-            else if (!grid) sprintf(tempbuf,"Grid off");
-            else sprintf(tempbuf,"Grid size: %d (%d units)",grid,2048>>grid);
+            if (autogrid) Bsprintf(tempbuf,"Grid size: 9 (autosize)");
+            else if (!grid) Bsprintf(tempbuf,"Grid off");
+            else Bsprintf(tempbuf,"Grid size: %d (%d units)",grid,2048>>grid);
             printmessage16(tempbuf);
             keystatus[KEYSC_G] = 0;
         }
@@ -9526,14 +9526,6 @@ void faketimerhandler(void)
     horiz = ((horiz*7+(100-(daang>>1)))>>3);
     if (horiz < 100) horiz++;
     if (horiz > 100) horiz--;
-    /*
-        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_5]) // ' 5
-        {
-            keystatus[KEYSC_5]=0;
-            editstatus = 1;
-            sidemode = 2;
-        }
-        */
 }
 
 extern int16_t brightness;

@@ -1279,7 +1279,7 @@ void M_DisplayMenus(void)
 
         mgametext(160,90,"LOAD last game:",0,2+8+16);
 
-        sprintf(tempbuf,"\"%s\"",ud.savegame[g_lastSaveSlot]);
+        Bsprintf(tempbuf,"\"%s\"",ud.savegame[g_lastSaveSlot]);
         mgametext(160,99,tempbuf,0,2+8+16);
 
         mgametext(160,99+9,"(Y/N)",0,2+8+16);
@@ -1444,17 +1444,17 @@ void M_DisplayMenus(void)
 
         M_DisplaySaveGameList();
 
-        sprintf(tempbuf,"PLAYERS: %-2d                      ",savehead.numplr);
+        Bsprintf(tempbuf,"PLAYERS: %-2d                      ",savehead.numplr);
         mgametext(160,156,tempbuf,0,2+8+16);
 
-        sprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+savehead.volnum,1+savehead.levnum,savehead.plrskl);
+        Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+savehead.volnum,1+savehead.levnum,savehead.plrskl);
         mgametext(160,168,tempbuf,0,2+8+16);
 
         if (savehead.volnum == 0 && savehead.levnum == 7)
             mgametext(160,180,savehead.boardfn,0,2+8+16);
 
         mgametext(160,90,"LOAD game:",0,2+8+16);
-        sprintf(tempbuf,"\"%s\"",ud.savegame[g_currentMenu-1000]);
+        Bsprintf(tempbuf,"\"%s\"",ud.savegame[g_currentMenu-1000]);
         mgametext(160,99,tempbuf,0,2+8+16);
         mgametext(160,99+9,"(Y/N)",0,2+8+16);
 
@@ -1571,10 +1571,10 @@ void M_DisplayMenus(void)
         menutext(160,24,0,0,"SAVE GAME");
 
         rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
-        sprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
+        Bsprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
         mgametext(160,156,tempbuf,0,2+8+16);
 
-        sprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
+        Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
         mgametext(160,168,tempbuf,0,2+8+16);
 
         if (ud.volume_number == 0 && ud.level_number == 7)
@@ -2493,7 +2493,7 @@ cheat_for_port_credits:
                     else if (glanisotropy < 1) glanisotropy = (int32_t)glinfo.maxanisotropy;
                     gltexapplyprops();
                     if (glanisotropy == 1) strcpy(tempbuf,"NONE");
-                    else sprintf(tempbuf,"%dx",glanisotropy);
+                    else Bsprintf(tempbuf,"%dx",glanisotropy);
                     mgametextpal(d,yy, tempbuf, MENUHIGHLIGHT(io), 0);
                     break;
                 }
@@ -3394,7 +3394,7 @@ cheat_for_port_credits:
         }
 
         menutext(c,50,MENUHIGHLIGHT(0),0,"RESOLUTION");
-        sprintf(tempbuf,"%d x %d",
+        Bsprintf(tempbuf,"%d x %d",
                 (newvidmode==validmodecnt)?xdim:validmode[newvidmode].xdim,
                 (newvidmode==validmodecnt)?ydim:validmode[newvidmode].ydim);
         mgametext(c+168,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
@@ -3580,7 +3580,7 @@ cheat_for_port_credits:
         menutext(320>>1,24,0,0,"KEYBOARD SETUP");
 
         mgametext(320>>1,90,"PRESS THE KEY TO ASSIGN AS",0,2+8+16);
-        sprintf(tempbuf,"%s FOR \"%s\"", whichkey?"SECONDARY":"PRIMARY", CONFIG_FunctionNumToName(function));
+        Bsprintf(tempbuf,"%s FOR \"%s\"", whichkey?"SECONDARY":"PRIMARY", CONFIG_FunctionNumToName(function));
         mgametext(320>>1,90+9,tempbuf,0,2+8+16);
         mgametext(320>>1,90+9+9+9,"PRESS \"ESCAPE\" TO CANCEL",0,2+8+16);
 
@@ -3840,7 +3840,7 @@ cheat_for_port_credits:
         if (function == 0)
         {
             if (whichkey < (MAXMOUSEBUTTONS-2)*2)
-                sprintf(tempbuf,"TO %s%s", (whichkey&1)?"DOUBLE-CLICKED ":"", mousebuttonnames[whichkey>>1]);
+                Bsprintf(tempbuf,"TO %s%s", (whichkey&1)?"DOUBLE-CLICKED ":"", mousebuttonnames[whichkey>>1]);
             else
                 Bstrcpy(tempbuf, mousebuttonnames[whichkey-(MAXMOUSEBUTTONS-2)]);
         }
@@ -4125,7 +4125,7 @@ cheat_for_port_credits:
         {
             if (m+l < 2*joynumbuttons)
             {
-                sprintf(tempbuf, "%s%s", ((l+m)&1)?"Double ":"", getjoyname(1,(l+m)>>1));
+                Bsprintf(tempbuf, "%s%s", ((l+m)&1)?"Double ":"", getjoyname(1,(l+m)>>1));
                 x = ud.config.JoystickFunctions[(l+m)>>1][(l+m)&1];
             }
             else
@@ -4133,7 +4133,7 @@ cheat_for_port_credits:
                 static char *directions[] =
                     { "Up", "Right", "Down", "Left"
                     };
-                sprintf(tempbuf, "Hat %s", directions[(l+m)-2*joynumbuttons]);
+                Bsprintf(tempbuf, "Hat %s", directions[(l+m)-2*joynumbuttons]);
                 x = ud.config.JoystickFunctions[joynumbuttons + ((l+m)-2*joynumbuttons)][0];
             }
             minitextshade(80-4,33+l*8,tempbuf,(m+l == probey)?0:16,1,10+16);
@@ -4337,7 +4337,7 @@ cheat_for_port_credits:
         if (joynumaxes > 2)
         {
             menutext(320>>1,twothispage?158:108,SHX(-10),(joynumaxes<=2),"NEXT...");
-            sprintf(tempbuf,"Page %d of %d",thispage+1,(joynumaxes+1)/2);
+            Bsprintf(tempbuf,"Page %d of %d",thispage+1,(joynumaxes+1)/2);
             mgametext(320-100,158,tempbuf,0,2+8+16);
         }
         break;
@@ -4401,7 +4401,7 @@ cheat_for_port_credits:
         if (joynumaxes>4)
         {
             menutext(32,48+30*(last-first),0,0,"NEXT...");
-            sprintf(tempbuf,"Page %d of %d", 1+(g_currentMenu-213), (joynumaxes+3)/4);
+            Bsprintf(tempbuf,"Page %d of %d", 1+(g_currentMenu-213), (joynumaxes+3)/4);
             mgametext(320-100,158,tempbuf,0,2+8+16);
         }
         break;
@@ -4715,9 +4715,9 @@ cheat_for_port_credits:
 
         if (g_currentMenu >= 360 && g_currentMenu <= 369)
         {
-            sprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
+            Bsprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
             mgametext(160,156,tempbuf,0,2+8+16);
-            sprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
+            Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
             mgametext(160,168,tempbuf,0,2+8+16);
             if (ud.volume_number == 0 && ud.level_number == 7)
                 mgametext(160,180,currentboardfilename,0,2+8+16);
@@ -4782,9 +4782,9 @@ cheat_for_port_credits:
                 }
 
                 rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
-                sprintf(tempbuf,"PLAYERS: %-2d                      ",savehead.numplr);
+                Bsprintf(tempbuf,"PLAYERS: %-2d                      ",savehead.numplr);
                 mgametext(160,156,tempbuf,0,2+8+16);
-                sprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+savehead.volnum,1+savehead.levnum,savehead.plrskl);
+                Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+savehead.volnum,1+savehead.levnum,savehead.plrskl);
                 mgametext(160,168,tempbuf,0,2+8+16);
                 if (savehead.volnum == 0 && savehead.levnum == 7)
                     mgametext(160,180,savehead.boardfn,0,2+8+16);
@@ -4801,9 +4801,9 @@ cheat_for_port_credits:
                 rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
             }
             else menutext(69,70,0,0,"EMPTY");
-            sprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
+            Bsprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
             mgametext(160,156,tempbuf,0,2+8+16);
-            sprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
+            Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
             mgametext(160,168,tempbuf,0,2+8+16);
             if (ud.volume_number == 0 && ud.level_number == 7)
                 mgametext(160,180,currentboardfilename,0,2+8+16);
@@ -5069,7 +5069,7 @@ VOLUME_ALL_40x:
         rotatesprite(160<<16,29<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(320>>1,34,0,0,&g_player[myconnectindex].user_name[0]);
 
-        sprintf(tempbuf,"Waiting for master");
+        Bsprintf(tempbuf,"Waiting for master");
         mgametext(160,50,tempbuf,0,2+8+16);
         mgametext(160,59,"to select level",0,2+8+16);
 
@@ -5368,16 +5368,16 @@ VOLUME_ALL_40x:
 
         if (VOLUMEONE)
         {
-            sprintf(tempbuf,"EPISODE %d",ud.m_volume_number+1);
+            Bsprintf(tempbuf,"EPISODE %d",ud.m_volume_number+1);
             menutext(c,57+16-9,MENUHIGHLIGHT(1),1,tempbuf);
         }
         else
         {
-            sprintf(tempbuf,"EPISODE %d",ud.m_volume_number+1);
+            Bsprintf(tempbuf,"EPISODE %d",ud.m_volume_number+1);
             menutext(c,57+16-9,MENUHIGHLIGHT(1),PHX(-3),tempbuf);
         }
 
-        sprintf(tempbuf,"LEVEL %d",ud.m_level_number+1);
+        Bsprintf(tempbuf,"LEVEL %d",ud.m_level_number+1);
         menutext(c,57+16+16-9,MENUHIGHLIGHT(2),PHX(-4),tempbuf);
 
         menutext(c,57+16+16+16-9,MENUHIGHLIGHT(3),PHX(-5),"MONSTERS");

@@ -48,9 +48,11 @@ void gltexinvalidateall(void);
 void gltexinvalidate8(void);
 int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char *name, char fontsize);
 
+extern float curpolygonoffset;
+
+/*
 // Depth peeling control
 extern int32_t r_curpeel;
-extern float curpolygonoffset;
 extern int32_t peelcompiling;
 
 // Depth peeling data
@@ -58,6 +60,7 @@ extern GLuint ztexture[3];
 extern GLuint *peels;
 extern GLuint *peelfbos;
 extern GLuint peelprogram[2];
+*/
 
 extern int32_t cachefilehandle;
 extern FILE *cacheindexptr;

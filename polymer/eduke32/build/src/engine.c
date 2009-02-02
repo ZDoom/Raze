@@ -996,7 +996,7 @@ int32_t wallfront(int32_t l1, int32_t l2)
 //
 // spritewallfront (internal)
 //
-static int32_t spritewallfront(spritetype *s, int32_t w)
+static inline int32_t spritewallfront(spritetype *s, int32_t w)
 {
     walltype *wal;
     int32_t x1, y1;
@@ -1061,7 +1061,7 @@ static int32_t spriteobstructswall(spritetype *s, int32_t w)
 //
 // bunchfront (internal)
 //
-static int32_t bunchfront(int32_t b1, int32_t b2)
+static inline int32_t bunchfront(int32_t b1, int32_t b2)
 {
     int32_t x1b1, x2b1, x1b2, x2b2, b1f, b2f, i;
 
@@ -1083,7 +1083,7 @@ static int32_t bunchfront(int32_t b1, int32_t b2)
 //
 // hline (internal)
 //
-static void hline(int32_t xr, int32_t yp)
+static inline void hline(int32_t xr, int32_t yp)
 {
     int32_t xl, r, s;
 
@@ -1101,7 +1101,7 @@ static void hline(int32_t xr, int32_t yp)
 //
 // slowhline (internal)
 //
-static void slowhline(int32_t xr, int32_t yp)
+static inline void slowhline(int32_t xr, int32_t yp)
 {
     int32_t xl, r;
 
@@ -1206,7 +1206,7 @@ static void prepwall(int32_t z, walltype *wal)
 //
 // animateoffs (internal)
 //
-int32_t animateoffs(int16_t tilenum, int16_t fakevar)
+inline int32_t animateoffs(int16_t tilenum, int16_t fakevar)
 {
     int32_t i, k, offs;
 
@@ -2084,7 +2084,7 @@ static void transmaskvline2(int32_t x)
 //
 // transmaskwallscan (internal)
 //
-static void transmaskwallscan(int32_t x1, int32_t x2)
+static inline void transmaskwallscan(int32_t x1, int32_t x2)
 {
     int32_t x;
 
@@ -2109,7 +2109,7 @@ static void transmaskwallscan(int32_t x1, int32_t x2)
 //
 // ceilspritehline (internal)
 //
-static void ceilspritehline(int32_t x2, int32_t y)
+static inline void ceilspritehline(int32_t x2, int32_t y)
 {
     int32_t x1, v, bx, by;
 
@@ -2139,7 +2139,7 @@ static void ceilspritehline(int32_t x2, int32_t y)
 //
 // ceilspritescan (internal)
 //
-static void ceilspritescan(int32_t x1, int32_t x2)
+static inline void ceilspritescan(int32_t x1, int32_t x2)
 {
     int32_t x, y1, y2, twall, bwall;
 
@@ -6074,6 +6074,7 @@ int32_t         sameside(_equation* eq, _point2d* p1, _point2d* p2)
     return (0);
 }
 
+/*
 #ifdef USE_OPENGL
 void    drawpeel(int32_t peel)
 {
@@ -6090,6 +6091,7 @@ void    drawpeel(int32_t peel)
     bglEnd();
 }
 #endif
+*/
 
 //
 // drawmasks
@@ -6136,7 +6138,7 @@ killsprite:
     }
 
 #ifdef USE_OPENGL
-    if ((!r_depthpeeling) || (rendmode < 3))
+//    if ((!r_depthpeeling) || (rendmode < 3))
 #endif
     {
 
@@ -6215,7 +6217,7 @@ killsprite:
     }*/
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
-    if ((!r_depthpeeling) || (rendmode < 3))
+//    if ((!r_depthpeeling) || (rendmode < 3))
 #endif
     {
 #if defined(USE_OPENGL) && defined(POLYMOST)
@@ -6285,6 +6287,7 @@ killsprite:
 #endif
     } /* depthpeeling */
 #if defined(USE_OPENGL) && defined(POLYMOST)
+/*
     else
     {
         curpolygonoffset = 0;
@@ -6299,9 +6302,11 @@ killsprite:
         if (totalclock >= lastcullcheck + CULL_DELAY)
             lastcullcheck = (totalclock + CULL_DELAY);
     }
+*/
 #endif
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
+/*
     if ((r_depthpeeling) && (rendmode >= 3))
     {
         bglPopAttrib();
@@ -6402,6 +6407,7 @@ killsprite:
 
         bglDeleteLists(1, 1);
     }
+*/
 #endif
 
     indrawroomsandmasks = 0;

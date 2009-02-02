@@ -659,7 +659,7 @@ int32_t FX_PlayLoopedVOC
                               vol, left, right, priority, callbackval);
     if (handle < MV_Ok)
     {
-        sprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
+        Bsprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
         initprintf(tempbuf);
         FX_SetErrorCode(FX_MultiVocError);
         handle = FX_Warning;
@@ -757,7 +757,7 @@ int32_t FX_PlayLoopedWAV
                               pitchoffset, vol, left, right, priority, callbackval);
     if (handle < MV_Ok)
     {
-        sprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
+        Bsprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
         initprintf(tempbuf);
         FX_SetErrorCode(FX_MultiVocError);
         handle = FX_Warning;
@@ -786,7 +786,7 @@ int32_t FX_PlayLoopedOGG
                               pitchoffset, vol, left, right, priority, callbackval);
     if (handle < MV_Ok)
     {
-        sprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
+        Bsprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
         initprintf(tempbuf);
         FX_SetErrorCode(FX_MultiVocError);
         handle = FX_Warning;

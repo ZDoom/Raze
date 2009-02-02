@@ -152,11 +152,11 @@ static int32_t fullbrightloadingpass = 0;
 static int32_t fullbrightdrawingpass = 0;
 static int32_t shadeforfullbrightpass;
 
+/*
 // Depth peeling control
 int32_t r_depthpeeling = 0;    // cvar toggling general depth peeling usage
 int32_t r_peelscount = 5;      // cvar controlling the number of peeling layers
 int32_t r_curpeel = -1;        // cvar controlling the display of independant peeling layers
-float curpolygonoffset;    // internal polygon offset stack for drawing flat sprites to avoid depth fighting
 int32_t peelcompiling = 0;     // internal control var to disable blending when compiling the peeling display list
 int32_t newpeelscount = 0;     // temporary var for peels count changing during the game
 
@@ -165,6 +165,9 @@ GLuint ztexture[3];         // secondary Z-buffers identifier
 GLuint *peels;              // peels identifiers
 GLuint *peelfbos;           // peels FBOs identifiers
 GLuint peelprogram[2];      // ARBfp peeling fragment program
+*/
+
+float curpolygonoffset;    // internal polygon offset stack for drawing flat sprites to avoid depth fighting
 
 // Detail mapping cvar
 int32_t r_detailmapping = 1;
@@ -503,7 +506,7 @@ tryart:
     return(pth);
 }
 
-int32_t gltexmayhavealpha(int32_t dapicnum, int32_t dapalnum)
+static inline int32_t gltexmayhavealpha(int32_t dapicnum, int32_t dapalnum)
 {
     int32_t j = (dapicnum&(GLTEXCACHEADSIZ-1));
     pthtyp *pth;
@@ -697,6 +700,7 @@ void polymost_glreset()
     glox1 = -1;
 
     // Depth peeling cleanup
+/*
     if (peels)
     {
         bglDeleteProgramsARB(2, peelprogram);
@@ -708,6 +712,7 @@ void polymost_glreset()
 
         peels = NULL;
     }
+*/
 
     if (cachefilehandle != -1)
     {
@@ -740,6 +745,7 @@ void polymost_glinit()
 {
     GLfloat col[4];
     int32_t     i;
+/*
     char    notpeeledprogramstring[] =
         "!!ARBfp1.0\n"
         "OPTION ARB_fog_exp2;\n"
@@ -767,6 +773,7 @@ void polymost_glinit()
         "TEX texsample, fragment.texcoord[0], texture[0], 2D;\n"
         "MUL result.color, fragment.color, texsample;\n"
         "END\n";
+*/
 
     if (!Bstrcmp(glinfo.vendor, "NVIDIA Corporation"))
     {
@@ -796,11 +803,13 @@ void polymost_glinit()
         bglEnable(GL_MULTISAMPLE_ARB);
     }
 
+/*
     if (r_depthpeeling && (!glinfo.arbfp || !glinfo.depthtex || !glinfo.shadow || !glinfo.fbos || !glinfo.rect || !glinfo.multitex))
     {
         OSD_Printf("Your OpenGL implementation doesn't support depth peeling. Disabling...\n");
         r_depthpeeling = 0;
     }
+*/
 
     if (r_detailmapping && (!glinfo.multitex || !glinfo.envcombine))
     {
@@ -821,6 +830,7 @@ void polymost_glinit()
     }
 
     //depth peeling initialization
+/*
     if (r_depthpeeling)
     {
         if (newpeelscount)
@@ -891,6 +901,7 @@ void polymost_glinit()
         bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[1]);
         bglProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(peeledprogramstring), peeledprogramstring);
     }
+*/
 
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -1406,7 +1417,7 @@ static int32_t LoadCacheOffsets(void)
         }
         else
         {
-            strncpy(curcacheindex->name, fname, BMAX_PATH);
+            Bstrncpy(curcacheindex->name, fname, BMAX_PATH);
             curcacheindex->offset = foffset;
             curcacheindex->len = fsize;
             curcacheindex->next = Bcalloc(1, sizeof(texcacheindex));
@@ -1435,8 +1446,8 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
     char cachefn[BMAX_PATH], *cp;
     uint8_t mdsum[16];
 
-    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache || !cacheindexptr || cachefilehandle < 0) return -1;
-    if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
+    if (!glusetexcompr || !glusetexcache || !cacheindexptr || cachefilehandle < 0) return -1;
+    if (!glinfo.texcompr || !bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
     {
         // lacking the necessary extensions to do this
         OSD_Printf("Warning: the GL driver lacks necessary functions to use caching\n");
@@ -1450,9 +1461,6 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
     cp = cachefn;
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
     Bsprintf(cp, "-%x-%x%x", len, dameth, effect);
-
-//    fil = kopen4load(cachefn, 0);
-//    if (fil < 0) return -1;
 
     {
         int32_t offset = 0;
@@ -1489,20 +1497,18 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
     if ((head->flags & 4) && !glusetexcachecompression) goto failure;
     if (!(head->flags & 4) && glusetexcachecompression) goto failure;
 
-    if (!(head->flags & 8) && head->quality != r_downsize) goto failure; // handle nocompress
+    if (!(head->flags & 8) && head->quality != r_downsize) return -1; // handle nocompress
     if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
     if (!glinfo.texnpot && (head->flags & 1)) goto failure;
 
     return cachefilehandle;
 failure:
     initprintf("cache miss\n");
-//    kclose(cachefilehandle);
     return -1;
 }
 
 void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head)
 {
-//    int32_t fil=-1;
     int32_t fp;
     char cachefn[BMAX_PATH], *cp;
     uint8_t mdsum[16];
@@ -1558,15 +1564,10 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
     if (gi != GL_TRUE) return;
 
     md4once((uint8_t *)fn, strlen(fn), mdsum);
-//    for (cp = cachefn, fp = 0; (*cp = TEXCACHEFILE[fp]); cp++,fp++);
-//    *(cp++) = '/';
+
     cp = cachefn;
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
-    sprintf(cp, "-%x-%x%x", len, dameth, effect);
-
-//    fil = Bopen(cachefn,BO_BINARY|BO_CREAT|BO_TRUNC|BO_RDWR,BS_IREAD|BS_IWRITE);
-//    if (fil < 0) return;
-
+    Bsprintf(cp, "-%x-%x%x", len, dameth, effect);
 
     Blseek(cachefilehandle, 0, BSEEK_END);
 
@@ -1672,7 +1673,6 @@ failure:
     Bmemset(curcacheindex->name,0,sizeof(curcacheindex->name));
 
 success:
-//    if (fil>=0) Bclose(fil);
     if (midbuf) free(midbuf);
     if (pic) free(pic);
     if (packbuf) free(packbuf);
@@ -1827,13 +1827,9 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         tsizx = cachead.xdim;
         tsizy = cachead.ydim;
         hasalpha = (cachead.flags & 2) ? 0 : 255;
-//        kclose(cachefil);
-        //kclose(filh);	// FIXME: uncomment when cache1d.c is fixed
-        // cachefil >= 0, so it won't be rewritten
     }
     else
     {
-//        if (cachefil >= 0) kclose(cachefil);
         cachefil = -1;	// the compressed version will be saved to disk
 
         if ((filh = kopen4load(fn, 0)) < 0) return -1;
@@ -2151,7 +2147,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         // detail texture
         detailpth = NULL;
-        if (r_detailmapping && usehightile && !r_depthpeeling && !drawingskybox &&
+        if (r_detailmapping && usehightile /*&& !r_depthpeeling*/ && !drawingskybox &&
                 hicfindsubst(globalpicnum, DETAILPAL, 0))
             detailpth = gltexcache(globalpicnum, DETAILPAL, method&(~3));
 
@@ -2197,7 +2193,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         // glow texture
         glowpth = NULL;
-        if (r_glowmapping && usehightile && !r_depthpeeling && !drawingskybox &&
+        if (r_glowmapping && usehightile /*&& !r_depthpeeling*/ && !drawingskybox &&
                 hicfindsubst(globalpicnum, GLOWPAL, 0))
             glowpth = gltexcache(globalpicnum, GLOWPAL, method&(~3));
 
@@ -2251,7 +2247,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         if ((!(method&3)) && (!fullbrightdrawingpass))
         {
             bglDisable(GL_BLEND);
-            if (!peelcompiling)
+/*            if (!peelcompiling)*/
                 bglDisable(GL_ALPHA_TEST);
         }
         else
@@ -2261,7 +2257,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             if (alphahackarray[globalpicnum])
                 al=alphahackarray[globalpicnum];
             if (!waloff[globalpicnum]) al = 0.0;	// invalid textures ignore the alpha cutoff settings
-            if (!peelcompiling)
+/*            if (!peelcompiling)*/
                 bglEnable(GL_BLEND);
             bglEnable(GL_ALPHA_TEST);
             bglAlphaFunc(GL_GREATER,al);
@@ -2908,7 +2904,7 @@ void initmosts(double *px, double *py, int32_t n)
     vsp[VSPMAX-1].n = vcnt; vsp[vcnt].p = VSPMAX-1;
 }
 
-void vsdel(int32_t i)
+static inline void vsdel(int32_t i)
 {
     int32_t pi, ni;
     //Delete i
@@ -2924,7 +2920,7 @@ void vsdel(int32_t i)
     vsp[VSPMAX-1].n = i;
 }
 
-int32_t vsinsaft(int32_t i)
+static inline int32_t vsinsaft(int32_t i)
 {
     int32_t r;
     //i = next element from empty list
@@ -2941,7 +2937,7 @@ int32_t vsinsaft(int32_t i)
     return(r);
 }
 
-int32_t testvisiblemost(float x0, float x1)
+static inline int32_t testvisiblemost(float x0, float x1)
 {
     int32_t i, newi;
 
@@ -4359,6 +4355,7 @@ void polymost_drawrooms()
                 globalposy += cosglobalang/1024;
             }
         }
+/*
         if (r_depthpeeling)
         {
             bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, peelfbos[r_peelscount]);
@@ -4366,6 +4363,7 @@ void polymost_drawrooms()
             bglViewport(0, 0, xdim, ydim);
             //bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
         }
+*/
     }
 #endif
 
@@ -4605,6 +4603,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     globalpal = (int32_t)((uint8_t)wal->pal);
     globalorientation = (int32_t)wal->cstat;
 
+/*
 #ifdef USE_OPENGL
     if (r_depthpeeling)
     {
@@ -4614,6 +4613,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
             return; // discard opaque sprite when composing the depth peels
     }
 #endif
+*/
 
     sx0 = (float)(wal->x-globalposx); sx1 = (float)(wal2->x-globalposx);
     sy0 = (float)(wal->y-globalposy); sy1 = (float)(wal2->y-globalposy);
@@ -4854,6 +4854,7 @@ void polymost_drawsprite(int32_t snum)
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
 
 #ifdef USE_OPENGL
+/*
     if (r_depthpeeling)
     {
         if ((((tspr->cstat&2) || (gltexmayhavealpha(globalpicnum,tspr->pal)))) && !peelcompiling)
@@ -4861,6 +4862,7 @@ void polymost_drawsprite(int32_t snum)
         if (!(((tspr->cstat&2) || (gltexmayhavealpha(globalpicnum,tspr->pal)))) && peelcompiling)
             return; // discard opaque sprite when composing the depth peels
     }
+*/
 
     if (!nofog && rendmode >= 3)
     {
@@ -6170,6 +6172,7 @@ static int32_t osdcmd_polymostvars(const osdfuncparm_t *parm)
         else gltexmiplevel = val;
         return OSDCMD_OK;
     }
+/*
     else if (!Bstrcasecmp(parm->name, "r_depthpeeling"))
     {
         if (showval) { OSD_Printf("r_depthpeeling is %d\n", r_depthpeeling); }
@@ -6208,6 +6211,7 @@ static int32_t osdcmd_polymostvars(const osdfuncparm_t *parm)
         else r_curpeel = val;
         return OSDCMD_OK;
     }
+*/
     else if (!Bstrcasecmp(parm->name, "r_detailmapping"))
     {
         if (showval) { OSD_Printf("r_detailmapping is %d\n", r_detailmapping); }
@@ -6396,8 +6400,10 @@ void polymost_initosdfuncs(void)
 #ifdef USE_OPENGL
     OSD_RegisterFunction("r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",osdcmd_polymostvars);
     OSD_RegisterFunction("r_modelocclusionchecking","r_modelocclusionchecking: enable/disable hack to cull \"obstructed\" models",osdcmd_polymostvars);
+/*
     OSD_RegisterFunction("r_curpeel","r_curpeel: allows to display one depth layer at a time (for development purposes)",osdcmd_polymostvars);
     OSD_RegisterFunction("r_depthpeeling","r_depthpeeling: enable/disable order-independant transparency",osdcmd_polymostvars);
+*/
     OSD_RegisterFunction("r_detailmapping","r_detailmapping: enable/disable detail mapping",osdcmd_polymostvars);
     OSD_RegisterFunction("r_downsize","r_downsize: controls downsizing factor for hires textures",osdcmd_polymostvars);
     OSD_RegisterFunction("r_fullbrights","r_fullbrights: enable/disable fullbright textures",osdcmd_polymostvars);
@@ -6406,7 +6412,7 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",osdcmd_polymostvars);
     OSD_RegisterFunction("r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",osdcmd_polymostvars);
     OSD_RegisterFunction("r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_peelscount","r_peelscount: sets the number of depth layers for depth peeling",osdcmd_polymostvars);
+/*    OSD_RegisterFunction("r_peelscount","r_peelscount: sets the number of depth layers for depth peeling",osdcmd_polymostvars);*/
     OSD_RegisterFunction("r_polygonmode","r_polygonmode: debugging feature",osdcmd_polymostvars); //FUK
     OSD_RegisterFunction("r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",osdcmd_polymostvars);
     OSD_RegisterFunction("r_shadescale","r_shadescale: multiplier for lighting",osdcmd_polymostvars);

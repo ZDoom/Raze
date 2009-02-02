@@ -271,7 +271,7 @@ void Net_DisplaySyncMsg(void)
         {
             if (g_numSyncBytes > 1)
             {
-                sprintf(tempbuf, "Out Of Sync - %s", SyncNames[i]);
+                Bsprintf(tempbuf, "Out Of Sync - %s", SyncNames[i]);
                 printext256(4L, 100L + (i * 8), 31, 1, tempbuf, 0);
             }
 
@@ -287,7 +287,7 @@ void Net_DisplaySyncMsg(void)
                 {
                     if (syncstat[j] != 0 && g_szfirstSyncMsg[j][0] == '\0')
                     {
-                        sprintf(tempbuf, "Out Of Sync - %s", SyncNames[j]);
+                        Bsprintf(tempbuf, "Out Of Sync - %s", SyncNames[j]);
                         strcpy(g_szfirstSyncMsg[j], tempbuf);
                     }
                 }
@@ -302,9 +302,9 @@ void Net_DisplaySyncMsg(void)
         {
             if (g_numSyncBytes > 1)
             {
-                sprintf(tempbuf, "FIRST %s", g_szfirstSyncMsg[i]);
+                Bsprintf(tempbuf, "FIRST %s", g_szfirstSyncMsg[i]);
                 printext256(4L, 44L + (i * 8), 31, 1, tempbuf, 0);
-                sprintf(tempbuf, "moveCount %d",moveCount);
+                Bsprintf(tempbuf, "moveCount %d",moveCount);
                 printext256(4L, 52L + (i * 8), 31, 1, tempbuf, 0);
             }
             else
@@ -319,7 +319,7 @@ void Net_DisplaySyncMsg(void)
 }
 
 
-void  Net_AddSyncInfoToPacket(int32_t *j)
+static inline void Net_AddSyncData(int32_t *j)
 {
     int32_t sb;
     int32_t count = 0;
@@ -334,7 +334,7 @@ void  Net_AddSyncInfoToPacket(int32_t *j)
     }
 }
 
-void Net_GetSyncInfoFromPacket(char *packbuf, int32_t packbufleng, int32_t *j, int32_t otherconnectindex)
+void Net_GetSyncData(char *packbuf, int32_t packbufleng, int32_t *j, int32_t otherconnectindex)
 {
     int32_t sb, i;
     extern int32_t syncvaltail, syncvaltottail;

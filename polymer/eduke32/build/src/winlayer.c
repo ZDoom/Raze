@@ -87,7 +87,7 @@ static BOOL InitDirectInput(void);
 static void UninitDirectInput(void);
 static void GetKeyNames(void);
 static void AcquireInputDevices(char acquire, int8_t device);
-static void ProcessInputDevices(void);
+static inline void ProcessInputDevices(void);
 static int32_t SetupDirectDraw(int32_t width, int32_t height);
 static void UninitDIB(void);
 static int32_t SetupDIB(int32_t width, int32_t height);
@@ -1567,12 +1567,12 @@ static void GetKeyNames(void)
         if (FAILED(res)) continue;
 
         CharToOem(key.tszName, tbuf);
-        strncpy((char *)key_names[i], tbuf, sizeof(key_names[i])-1);
+        Bstrncpy((char *)key_names[i], tbuf, sizeof(key_names[i])-1);
 
         tbuf[0] = 0;
         GetKeyNameText((i>128?(i+128):i)<<16, tbuf, sizeof(key_names[i])-1);
 //        initprintf("%d %15s  %15s\n",i,key_names[i],tbuf);
-        if (*tbuf)strncpy(&key_names[i][0], tbuf, sizeof(key_names[i])-1);
+        if (*tbuf)Bstrncpy(&key_names[i][0], tbuf, sizeof(key_names[i])-1);
     }
 }
 
@@ -1664,7 +1664,7 @@ static void AcquireInputDevices(char acquire, int8_t device)
 //
 // ProcessInputDevices() -- processes the input devices
 //
-static void ProcessInputDevices(void)
+static inline void ProcessInputDevices(void)
 {
     DWORD i;
     HRESULT result;
@@ -2005,7 +2005,7 @@ void uninittimer(void)
 //
 // sampletimer() -- update totalclock
 //
-void sampletimer(void)
+inline void sampletimer(void)
 {
     int64 i;
     int32_t n;
@@ -2335,7 +2335,7 @@ void getvalidmodes(void)
 {
     static int32_t defaultres[][2] =
     {
-        {1280,1024},{1280,960},{1152,864},{1024,768},{800,600},{640,480},
+        {1920,1440},{1920,1200},{1600,1200},{1280,1024},{1280,960},{1152,864},{1024,768},{1024,600},{800,600},{640,480},
         {640,400},{512,384},{480,360},{400,300},{320,240},{320,200},{0,0}
     };
     int32_t cdepths[2] = { 8, 0 };
