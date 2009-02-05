@@ -23,6 +23,7 @@
 # define _polymer_h_
 
 # include "compat.h"
+# include "baselayer.h"
 # include "build.h"
 # include "glbuild.h"
 # include "osd.h"
@@ -45,14 +46,17 @@ extern int32_t      glerror;
 
 // MATERIAL
 typedef enum {
+                    PR_BIT_HEADER,              // must be first
+                    PR_BIT_NV4X_COMPAT,
+                    PR_BIT_G8X_COMPAT,
                     PR_BIT_ANIM_INTERPOLATION,
                     PR_BIT_DIFFUSE_MAP,
                     PR_BIT_DIFFUSE_DETAIL_MAP,
                     PR_BIT_DIFFUSE_MODULATION,
                     PR_BIT_POINT_LIGHT,
                     PR_BIT_DIFFUSE_GLOW_MAP,
-                    PR_BIT_DEFAULT, // must be just before last
-                    PR_BIT_COUNT    // must be last
+                    PR_BIT_FOOTER,              // must be just before last
+                    PR_BIT_COUNT                // must be last
 }                   prbittype;
 
 typedef struct      s_prmaterial {

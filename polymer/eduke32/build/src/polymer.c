@@ -126,6 +126,43 @@ int32_t         lightcount;
 // MATERIALS
 _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
     {
+        1 << PR_BIT_HEADER,
+        // vert_def
+        "#version 120\n"
+        "\n",
+        // vert_prog
+        "",
+        // frag_def
+        "#version 120\n"
+        "\n",
+        // frag_prog
+        "",
+    },
+    {
+        1 << PR_BIT_NV4X_COMPAT,
+        // vert_def
+        "",
+        // vert_prog
+        "",
+        // frag_def
+        "#define LIGHTCOUNT 4\n"
+        "\n",
+        // frag_prog
+        "",
+    },
+    {
+        1 << PR_BIT_G8X_COMPAT,
+        // vert_def
+        "",
+        // vert_prog
+        "",
+        // frag_def
+        "#define LIGHTCOUNT lightCount\n"
+        "\n",
+        // frag_prog
+        "",
+    },
+    {
         1 << PR_BIT_ANIM_INTERPOLATION,
         // vert_def
         "attribute vec4 nextFrameData;\n"
@@ -216,7 +253,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n"
         "  fragmentNormal = normalize(vertexNormal);\n"
         "\n"
-        "  while (l < lightCount) {\n"
+        "  while (l < LIGHTCOUNT) {\n"
         "    lightPos = gl_LightSource[l].ambient.rgb;\n"
         "    lightDiffuse = gl_LightSource[l].diffuse.rgb;\n"
         "    lightRange.x = gl_LightSource[l].constantAttenuation;\n"
@@ -260,7 +297,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
     },
     {
-        1 << PR_BIT_DEFAULT,
+        1 << PR_BIT_FOOTER,
         // vert_def
         "void main(void)\n"
         "{\n"
@@ -2621,9 +2658,16 @@ static int32_t      polymer_bindmaterial(_prmaterial material)
     int32_t         programbits;
     int32_t         texunit;
 
-    programbits = prprogrambits[PR_BIT_DEFAULT].bit;
+    programbits = prprogrambits[PR_BIT_HEADER].bit;
+    programbits |= prprogrambits[PR_BIT_FOOTER].bit;
 
     // --------- bit validation
+
+    // PR_BIT_*_COMPAT
+    if (glinfo.sm4)
+        programbits |= prprogrambits[PR_BIT_G8X_COMPAT].bit;
+    else
+        programbits |= prprogrambits[PR_BIT_NV4X_COMPAT].bit;
 
     // PR_BIT_ANIM_INTERPOLATION
     if (material.nextframedata)
@@ -2642,7 +2686,9 @@ static int32_t      polymer_bindmaterial(_prmaterial material)
         (material.diffusemodulation[2] != 1.0f) || (material.diffusemodulation[3] != 1.0f))
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
 
+    // PR_BIT_POINT_LIGHT
     programbits |= prprogrambits[PR_BIT_POINT_LIGHT].bit;
+
     // PR_BIT_DIFFUSE_GLOW_MAP
     if (material.glowmap)
         programbits |= prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit;
@@ -2758,7 +2804,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material)
         color[5] = 0.5f;
         color[6] = 0.5f;
 
-        range[2] = 5000.0f / 1000.0;
+        range[2] = 8000.0f / 1000.0;
         range[3] = 10000.0f / 1000.0;
 
         bglLightfv(GL_LIGHT0, GL_AMBIENT, lightpos);
@@ -2771,7 +2817,17 @@ static int32_t      polymer_bindmaterial(_prmaterial material)
         bglLightfv(GL_LIGHT1, GL_CONSTANT_ATTENUATION, &range[2]);
         bglLightfv(GL_LIGHT1, GL_LINEAR_ATTENUATION, &range[3]);
 
-        bglUniform1iARB(prprograms[programbits].uniform_lightCount, lightCount);
+        range[3] = 0;
+
+        bglLightfv(GL_LIGHT2, GL_LINEAR_ATTENUATION, &range[3]);
+        bglLightfv(GL_LIGHT3, GL_LINEAR_ATTENUATION, &range[3]);
+        bglLightfv(GL_LIGHT4, GL_LINEAR_ATTENUATION, &range[3]);
+        bglLightfv(GL_LIGHT5, GL_LINEAR_ATTENUATION, &range[3]);
+        bglLightfv(GL_LIGHT6, GL_LINEAR_ATTENUATION, &range[3]);
+        bglLightfv(GL_LIGHT7, GL_LINEAR_ATTENUATION, &range[3]);
+
+        if (glinfo.sm4)
+            bglUniform1iARB(prprograms[programbits].uniform_lightCount, lightCount);
     }
 
     // PR_BIT_DIFFUSE_GLOW_MAP
@@ -2895,8 +2951,9 @@ static void         polymer_compileprogram(int32_t programbits)
         prprograms[programbits].uniform_detailMap = bglGetUniformLocationARB(program, "detailMap");
         prprograms[programbits].uniform_detailScale = bglGetUniformLocationARB(program, "detailScale");
     }
+
     // PR_BIT_POINT_LIGHT
-    if (programbits & prprogrambits[PR_BIT_POINT_LIGHT].bit)
+    if (programbits & prprogrambits[PR_BIT_POINT_LIGHT].bit && glinfo.sm4)
     {
         prprograms[programbits].uniform_lightCount = bglGetUniformLocationARB(program, "lightCount");
     }

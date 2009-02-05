@@ -3472,6 +3472,10 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
             {
                 glinfo.vsync = 1;
             }
+            else if (!Bstrcmp((char *)p2, "GL_EXT_gpu_shader4"))
+            {
+                glinfo.sm4 = 1;
+            }
         }
         Bfree(p);
     }

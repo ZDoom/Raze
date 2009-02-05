@@ -58,6 +58,7 @@ struct glinfo {
     char envcombine;
     char vbos;
     char vsync;
+    char sm4;
     char dumped;
 };
 extern struct glinfo glinfo;

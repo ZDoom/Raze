@@ -43,6 +43,7 @@ struct glinfo glinfo =
     0,       // env_combine
     0,       // Vertex Buffer Objects
     0,       // VSync support
+    0,       // Shader Model 4 support
     0,       // GL info dumped
 };
 #endif
@@ -145,6 +146,7 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
                " Multitexturing:          %s\n"
                " env_combine:             %s\n"
                " Vertex Buffer Objects:   %s\n"
+               " Shader Model 4:          %s\n"
                " Extensions:\n",
                glinfo.maxanisotropy, glinfo.maxanisotropy>1.0?"":" (no anisotropic filtering)",
                glinfo.bgra ? "supported": "not supported",
@@ -160,7 +162,8 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
                glinfo.rect ? "supported": "not supported",
                glinfo.multitex ? "supported": "not supported",
                glinfo.envcombine ? "supported": "not supported",
-               glinfo.vbos ? "supported": "not supported"
+               glinfo.vbos ? "supported": "not supported",
+               glinfo.sm4 ? "supported": "not supported"
               );
 
     s = Bstrdup(glinfo.extensions);
