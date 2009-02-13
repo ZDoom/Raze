@@ -557,12 +557,21 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     mirrorfrom[0] = -3; // no mirror
     polymer_displayrooms(dacursectnum);
 
-    viewangle = daang;
     curmodelviewmatrix = rootmodelviewmatrix;
-    cosglobalang = sintable[(viewangle+512)&2047];
-    singlobalang = sintable[viewangle&2047];
+
+    // build globals used by rotatesprite
+    viewangle = daang;
+    globalang = (daang&2047);
+    cosglobalang = sintable[(globalang+512)&2047];
+    singlobalang = sintable[globalang&2047];
     cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
     sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
+
+    // polymost globals used by polymost_dorotatesprite
+    gcosang = ((double)cosglobalang)/262144.0;
+    gsinang = ((double)singlobalang)/262144.0;
+    gcosang2 = gcosang*((double)viewingrange)/65536.0;
+    gsinang2 = gsinang*((double)viewingrange)/65536.0;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Rooms drawn.\n");
 }
