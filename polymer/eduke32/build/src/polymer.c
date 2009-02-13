@@ -479,7 +479,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing rooms...\n");
 
     ang = (float)(daang) / (2048.0f / 360.0f);
-    horizang = (float)(100 - dahoriz) / (512.0f / 180.0f);
+    horizang = (float)(-getangle(128, dahoriz-100)) / (2048.0f / 360.0f);
     tiltang = (gtang * 90.0f);
 
     pos[0] = daposy;
@@ -2778,7 +2778,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material)
 
         color[0] = 0.1f;
         color[1] = 0.1f;
-        color[2] = 0.5f;
+        color[2] = 1.0f;
 
         range[0] = 1024.0f / 1000.0;
         range[1] = 2048.0f / 1000.0;
@@ -2804,8 +2804,8 @@ static int32_t      polymer_bindmaterial(_prmaterial material)
         color[5] = 0.5f;
         color[6] = 0.5f;
 
-        range[2] = 8000.0f / 1000.0;
-        range[3] = 10000.0f / 1000.0;
+        range[2] = 0.0f / 1000.0;
+        range[3] = 2048.0f / 1000.0;
 
         bglLightfv(GL_LIGHT0, GL_AMBIENT, lightpos);
         bglLightfv(GL_LIGHT0, GL_DIFFUSE, color);
