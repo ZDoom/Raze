@@ -658,8 +658,17 @@ void                polymer_drawsprite(int32_t snum)
 
     yratio = (float)(tspr->yrepeat) / 4.0f;
 
-    xsize = tilesizx[curpicnum] * xratio;
-    ysize = tilesizy[curpicnum] * yratio;
+    if (usehightile && h_xsize[curpicnum])
+    {
+        xsize = h_xsize[curpicnum];
+        ysize = h_ysize[curpicnum];
+    } else {
+        xsize = tilesizx[curpicnum];
+        ysize = tilesizy[curpicnum];
+    }
+
+    xsize *= xratio;
+    ysize *= yratio;
 
     tilexoff = (int32_t)tspr->xoffset;
     tileyoff = (int32_t)tspr->yoffset;
