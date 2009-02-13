@@ -2628,7 +2628,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         detailpth = NULL;
         detailpth = gltexcache(tilenum, DETAILPAL, 0);
 
-        if (detailpth && (detailpth->hicr->palnum == DETAILPAL))
+        if (detailpth && detailpth->hicr && (detailpth->hicr->palnum == DETAILPAL))
         {
             material->detailmap = detailpth->glpic;
 
@@ -2666,7 +2666,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         glowpth = NULL;
         glowpth = gltexcache(tilenum, GLOWPAL, 0);
 
-        if (glowpth && (glowpth->hicr->palnum == GLOWPAL))
+        if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
             material->glowmap = glowpth->glpic;
     }
 }

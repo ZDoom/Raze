@@ -2151,7 +2151,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                 hicfindsubst(globalpicnum, DETAILPAL, 0))
             detailpth = gltexcache(globalpicnum, DETAILPAL, method&(~3));
 
-        if (detailpth && (detailpth->hicr->palnum == DETAILPAL))
+        if (detailpth && detailpth->hicr && (detailpth->hicr->palnum == DETAILPAL))
         {
             bglActiveTextureARB(++texunits);
 
@@ -2197,7 +2197,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                 hicfindsubst(globalpicnum, GLOWPAL, 0))
             glowpth = gltexcache(globalpicnum, GLOWPAL, method&(~3));
 
-        if (glowpth && (glowpth->hicr->palnum == GLOWPAL))
+        if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
         {
             bglActiveTextureARB(++texunits);
 
