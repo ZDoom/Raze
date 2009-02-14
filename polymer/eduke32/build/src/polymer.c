@@ -145,7 +145,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // vert_prog
         "",
         // frag_def
-        "#define LIGHTCOUNT 4\n"
+        "#define LIGHTCOUNT "STR(PR_SM3_MAXLIGHTS)"\n"
         "\n",
         // frag_prog
         "",
@@ -1155,7 +1155,7 @@ static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane
 
     bglNormal3f((float)(-plane->plane[0]), (float)(-plane->plane[1]), (float)(-plane->plane[2]));
 
-    materialbits = polymer_bindmaterial(plane->material);
+    materialbits = polymer_bindmaterial(plane->material, prlights, lightcount);
 
     if (plane->vbo && (pr_vbos > 0))
     {
@@ -2505,7 +2505,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 mdspritematerial.nextframedatastride = sizeof(md3xyzn_t);
             }
 
-            materialbits = polymer_bindmaterial(mdspritematerial);
+            materialbits = polymer_bindmaterial(mdspritematerial, prlights, lightcount);
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[surfi]);
             bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
@@ -2526,7 +2526,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 mdspritematerial.nextframedatastride = sizeof(md3xyzn_t);
             }
 
-            materialbits = polymer_bindmaterial(mdspritematerial);
+            materialbits = polymer_bindmaterial(mdspritematerial, prlights, lightcount);
 
             bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
 
@@ -2671,7 +2671,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 }
 
-static int32_t      polymer_bindmaterial(_prmaterial material)
+static int32_t      polymer_bindmaterial(_prmaterial material, _prlight* lights, int lightcount)
 {
     int32_t         programbits;
     int32_t         texunit;
@@ -2705,7 +2705,8 @@ static int32_t      polymer_bindmaterial(_prmaterial material)
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
 
     // PR_BIT_POINT_LIGHT
-    programbits |= prprogrambits[PR_BIT_POINT_LIGHT].bit;
+    if (lightcount)
+        programbits |= prprogrambits[PR_BIT_POINT_LIGHT].bit;
 
     // PR_BIT_DIFFUSE_GLOW_MAP
     if (material.glowmap)
@@ -2769,83 +2770,47 @@ static int32_t      polymer_bindmaterial(_prmaterial material)
     // PR_BIT_POINT_LIGHT
     if (programbits & prprogrambits[PR_BIT_POINT_LIGHT].bit)
     {
-        int lightCount;
-        float range[4];
-        float color[8];
-        float pos[6];
-        float lightpos[8];
+        int i;
+        float inpos[4], pos[4];
+        float range[2];
+        float color[4];
 
-        lightCount = 2;
+        i = 0;
 
-        pos[0] = 62208;
-        pos[1] = 42000 / 16.0;
-        pos[2] = -6919;
+        while (i < ((glinfo.sm4) ? lightcount : PR_SM3_MAXLIGHTS))
+        {
+            inpos[0] = lights[i].y;
+            inpos[1] = -lights[i].z / 16.0f;
+            inpos[2] = -lights[i].x;
 
-        lightpos[0] = pos[0] * rootmodelviewmatrix[0] +
-                      pos[1] * rootmodelviewmatrix[4] +
-                      pos[2] * rootmodelviewmatrix[8] +
-                             + rootmodelviewmatrix[12];
-        lightpos[1] = pos[0] * rootmodelviewmatrix[1] +
-                      pos[1] * rootmodelviewmatrix[5] +
-                      pos[2] * rootmodelviewmatrix[9] +
-                             + rootmodelviewmatrix[13];
-        lightpos[2] = pos[0] * rootmodelviewmatrix[2] +
-                      pos[1] * rootmodelviewmatrix[6] +
-                      pos[2] * rootmodelviewmatrix[10] +
-                             + rootmodelviewmatrix[14];
+            polymer_transformlight(inpos, pos, rootmodelviewmatrix);
 
-        color[0] = 0.1f;
-        color[1] = 0.1f;
-        color[2] = 1.0f;
+            range[0] = lights[i].faderange  / 1000.0f;
+            range[1] = lights[i].range      / 1000.0f;
 
-        range[0] = 1024.0f / 1000.0;
-        range[1] = 2048.0f / 1000.0;
+            color[0] = lights[i].color[0]   / 255.0f;
+            color[1] = lights[i].color[1]   / 255.0f;
+            color[2] = lights[i].color[2]   / 255.0f;
 
-        pos[3] = globalposy;
-        pos[4] = -globalposz / 16.0;
-        pos[5] = -globalposx;
+            bglLightfv(GL_LIGHT0 + i, GL_AMBIENT, pos);
+            bglLightfv(GL_LIGHT0 + i, GL_DIFFUSE, color);
+            bglLightfv(GL_LIGHT0 + i, GL_CONSTANT_ATTENUATION, &range[0]);
+            bglLightfv(GL_LIGHT0 + i, GL_LINEAR_ATTENUATION, &range[1]);
 
-        lightpos[4] = pos[3] * rootmodelviewmatrix[0] +
-                      pos[4] * rootmodelviewmatrix[4] +
-                      pos[5] * rootmodelviewmatrix[8] +
-                             + rootmodelviewmatrix[12];
-        lightpos[5] = pos[3] * rootmodelviewmatrix[1] +
-                      pos[4] * rootmodelviewmatrix[5] +
-                      pos[5] * rootmodelviewmatrix[9] +
-                             + rootmodelviewmatrix[13];
-        lightpos[6] = pos[3] * rootmodelviewmatrix[2] +
-                      pos[4] * rootmodelviewmatrix[6] +
-                      pos[5] * rootmodelviewmatrix[10] +
-                             + rootmodelviewmatrix[14];
-
-        color[4] = 0.5f;
-        color[5] = 0.5f;
-        color[6] = 0.5f;
-
-        range[2] = 0.0f / 1000.0;
-        range[3] = 2048.0f / 1000.0;
-
-        bglLightfv(GL_LIGHT0, GL_AMBIENT, lightpos);
-        bglLightfv(GL_LIGHT0, GL_DIFFUSE, color);
-        bglLightfv(GL_LIGHT0, GL_CONSTANT_ATTENUATION, &range[0]);
-        bglLightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, &range[1]);
-
-        bglLightfv(GL_LIGHT1, GL_AMBIENT, &lightpos[4]);
-        bglLightfv(GL_LIGHT1, GL_DIFFUSE, &color[4]);
-        bglLightfv(GL_LIGHT1, GL_CONSTANT_ATTENUATION, &range[2]);
-        bglLightfv(GL_LIGHT1, GL_LINEAR_ATTENUATION, &range[3]);
-
-        range[3] = 0;
-
-        bglLightfv(GL_LIGHT2, GL_LINEAR_ATTENUATION, &range[3]);
-        bglLightfv(GL_LIGHT3, GL_LINEAR_ATTENUATION, &range[3]);
-        bglLightfv(GL_LIGHT4, GL_LINEAR_ATTENUATION, &range[3]);
-        bglLightfv(GL_LIGHT5, GL_LINEAR_ATTENUATION, &range[3]);
-        bglLightfv(GL_LIGHT6, GL_LINEAR_ATTENUATION, &range[3]);
-        bglLightfv(GL_LIGHT7, GL_LINEAR_ATTENUATION, &range[3]);
+            i++;
+        }
 
         if (glinfo.sm4)
-            bglUniform1iARB(prprograms[programbits].uniform_lightCount, lightCount);
+            bglUniform1iARB(prprograms[programbits].uniform_lightCount, lightcount);
+        else {
+            range[0] = 0.0f;
+
+            while (i < PR_SM3_MAXLIGHTS)
+            {
+                bglLightfv(GL_LIGHT0 + i, GL_LINEAR_ATTENUATION, &range[0]);
+                i++;
+            }
+        }
     }
 
     // PR_BIT_DIFFUSE_GLOW_MAP
@@ -2981,6 +2946,23 @@ static void         polymer_compileprogram(int32_t programbits)
     {
         prprograms[programbits].uniform_glowMap = bglGetUniformLocationARB(program, "glowMap");
     }
+}
+
+// LIGHTS
+static void         polymer_transformlight(float* inpos, float* pos, float* matrix)
+{
+    pos[0] = inpos[0] * matrix[0] +
+             inpos[1] * matrix[4] +
+             inpos[2] * matrix[8] +
+                      + matrix[12];
+    pos[1] = inpos[0] * matrix[1] +
+             inpos[1] * matrix[5] +
+             inpos[2] * matrix[9] +
+                      + matrix[13];
+    pos[2] = inpos[0] * matrix[2] +
+             inpos[1] * matrix[6] +
+             inpos[2] * matrix[10] +
+                      + matrix[14];
 }
 
 #endif

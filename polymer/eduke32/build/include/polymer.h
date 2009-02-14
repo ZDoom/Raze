@@ -162,13 +162,18 @@ typedef struct      s_prwall {
     char            controlstate;
 }                   _prwall;
 
+typedef void    (*animatespritesptr)(int32_t, int32_t, int32_t, int32_t);
+
 typedef struct      s_pranimatespritesinfo {
     animatespritesptr animatesprites;
     int32_t         x, y, a, smoothratio;
 }                   _pranimatespritesinfo;
 
 // LIGHTS
-#define             PR_MAXLIGHTS 128
+#define             PR_MAXLIGHTS            128
+#define             PR_SM3_MAXLIGHTS        4
+#define             STR_EXPAND(tok) #tok
+#define             STR(tok) STR_EXPAND(tok)
 
 typedef enum {
                     PR_LIGHT_POINT,
@@ -179,6 +184,7 @@ typedef enum {
 typedef struct      s_prlight {
     int32_t         x, y, z, horiz, faderange, range;
     int16_t         angle, sector;
+    char            color[3];
     prlighttype     type;
 }                   _prlight;
 
@@ -196,6 +202,7 @@ void                polymer_drawmasks(void);
 void                polymer_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, char dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 void                polymer_drawmaskwall(int32_t damaskwallcnt);
 void                polymer_drawsprite(int32_t snum);
+void                polymer_setanimatesprites(animatespritesptr animatesprites, int32_t x, int32_t y, int32_t a, int32_t smoothratio);
 void                polymer_resetlights(void);
 void                polymer_addlight(_prlight light);
 
@@ -238,9 +245,11 @@ static void         polymer_loadmodelvbos(md3model_t* m);
 // MATERIALS
 static void         polymer_getscratchmaterial(_prmaterial* material);
 static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade);
-static int32_t      polymer_bindmaterial(_prmaterial material);
+static int32_t      polymer_bindmaterial(_prmaterial material, _prlight* lights, int lightcount);
 static void         polymer_unbindmaterial(int32_t programbits);
 static void         polymer_compileprogram(int32_t programbits);
+// LIGHTS
+static void         polymer_transformlight(float* inpos, float* pos, float* matrix);
 
 # endif // !POLYMER_C
 

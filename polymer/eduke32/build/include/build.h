@@ -502,12 +502,6 @@ _equation       equation(float x1, float y1, float x2, float y2);
 int32_t             sameside(_equation* eq, _point2d* p1, _point2d* p2);
 int32_t             wallvisible(int16_t wallnum);
 
-#ifdef POLYMER
-// polymer stuff for the game to provide it with the animatessprites ptr
-typedef void (*animatespritesptr)(int32_t, int32_t, int32_t, int32_t);
-EXTERN void polymer_setanimatesprites(animatespritesptr, int32_t, int32_t, int32_t, int32_t);
-#endif
-
 #define STATUS2DSIZ 144
 void   qsetmode640350(void);
 void   qsetmode640480(void);
@@ -625,6 +619,10 @@ int32_t  hash_findcase(hashtable_t *t, const char *s);
 int32_t  hash_find(hashtable_t *t, const char *s);
 void hash_replace(hashtable_t *t, const char *s, int32_t key);
 void hash_add(hashtable_t *t, const char *s, int32_t key);
+
+#ifdef POLYMER
+# include "polymer.h"
+#endif
 
 #ifdef _MSC_VER
 #pragma pack()
