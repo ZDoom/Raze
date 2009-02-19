@@ -192,8 +192,8 @@ int32_t scriptfile_getlinum(scriptfile *sf, char *ptr)
 
     ind = ((intptr_t)ptr) - ((intptr_t)sf->textbuf);
 
-    for (stp=1;stp+stp<sf->linenum;stp+=stp); //stp = highest power of 2 less than sf->linenum
-    for (i=0;stp;stp>>=1)
+    for (stp=1; stp+stp<sf->linenum; stp+=stp); //stp = highest power of 2 less than sf->linenum
+    for (i=0; stp; stp>>=1)
         if ((i+stp < sf->linenum) && (sf->lineoffs[i+stp] < ind)) i += stp;
     return(i+1); //i = index to highest lineoffs which is less than ind; convert to 1-based line numbers
 }
@@ -204,10 +204,10 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
 
     //Count number of lines
     numcr = 1;
-    for (i=0;i<flen;i++)
+    for (i=0; i<flen; i++)
     {
         //detect all 4 types of carriage return (\r, \n, \r\n, \n\r :)
-        cr=0;if (tx[i] == '\r') { i += (tx[i+1] == '\n'); cr = 1; }
+        cr=0; if (tx[i] == '\r') { i += (tx[i+1] == '\n'); cr = 1; }
         else if (tx[i] == '\n') { i += (tx[i+1] == '\r'); cr = 1; }
         if (cr) { numcr++; continue; }
     }
@@ -217,10 +217,10 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
 
     //Preprocess file for comments (// and /*...*/, and convert all whitespace to single spaces)
     nflen = 0; ws = 0; cs = 0; numcr = 0; inquote = 0;
-    for (i=0;i<flen;i++)
+    for (i=0; i<flen; i++)
     {
         //detect all 4 types of carriage return (\r, \n, \r\n, \n\r :)
-        cr=0;if (tx[i] == '\r') { i += (tx[i+1] == '\n'); cr = 1; }
+        cr=0; if (tx[i] == '\r') { i += (tx[i+1] == '\n'); cr = 1; }
         else if (tx[i] == '\n') { i += (tx[i+1] == '\r'); cr = 1; }
         if (cr)
         {
@@ -250,9 +250,9 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
 #if 0
     //for debugging only:
     printf("pre-parsed file:flen=%d,nflen=%d\n",flen,nflen);
-    for (i=0;i<nflen;i++) { if (tx[i] < 32) printf("_"); else printf("%c",tx[i]); }
+    for (i=0; i<nflen; i++) { if (tx[i] < 32) printf("_"); else printf("%c",tx[i]); }
     printf("[eof]\nnumlines=%d\n",sf->linenum);
-    for (i=0;i<sf->linenum;i++) printf("line %d = byte %d\n",i,sf->lineoffs[i]);
+    for (i=0; i<sf->linenum; i++) printf("line %d = byte %d\n",i,sf->lineoffs[i]);
 #endif
     flen = nflen;
 
@@ -356,7 +356,7 @@ static char * getsymbtabspace(int32_t reqd)
 
     if (symbtablength + reqd > symbtaballoclength)
     {
-        for (i=max(symbtaballoclength,SYMBTABSTARTSIZE);symbtablength+reqd>i;i<<=1);
+        for (i=max(symbtaballoclength,SYMBTABSTARTSIZE); symbtablength+reqd>i; i<<=1);
         np = (char *)realloc(symbtab, i); if (!np) return NULL;
         symbtab = np; symbtaballoclength = i;
     }

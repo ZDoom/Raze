@@ -796,7 +796,7 @@ int32_t initinput(void)
     moustat=0;
     memset(keystatus, 0, sizeof(keystatus));
     if (!remapinit)
-        for (i=0;i<256;i++)
+        for (i=0; i<256; i++)
             remap[i]=map_dik_code(i);
     remapinit=1;
     keyfifoplc = keyfifoend = 0;
@@ -1205,12 +1205,12 @@ void releaseallbuttons(void)
 
     if (joypresscallback)
     {
-        for (i=0;i<32;i++)
+        for (i=0; i<32; i++)
             if (joyb & (1<<i)) joypresscallback(i+1, 0);
     }
     joyb = joyblast = 0;
 
-    for (i=0;i<256;i++)
+    for (i=0; i<256; i++)
     {
         //if (!keystatus[i]) continue;
         //if (OSD_HandleKey(i, 0) != 0) {
@@ -1292,7 +1292,7 @@ static const char *joyfindnameforofs(int32_t ofs)
 {
     int32_t i;
     if (!thisjoydef) return NULL;
-    for (i=0;i<thisjoydef->nfeatures;i++)
+    for (i=0; i<thisjoydef->nfeatures; i++)
     {
         if (ofs == (int32_t)thisjoydef->features[i].ofs)
             return Bstrdup(thisjoydef->features[i].name);
@@ -1558,7 +1558,7 @@ static void GetKeyNames(void)
     char tbuf[MAX_PATH];
 
     memset(key_names,0,sizeof(key_names));
-    for (i=0;i<256;i++)
+    for (i=0; i<256; i++)
     {
         ZeroMemory(&key,sizeof(key));
         key.dwSize = sizeof(DIDEVICEOBJECTINSTANCE);
@@ -2142,7 +2142,7 @@ int32_t checkvideomode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t fo
     if (!forced && (fs&1) == 0 && (nearest < 0 || validmode[nearest].xdim!=*x || validmode[nearest].ydim!=*y))
     {
         // check the colour depth is recognised at the very least
-        for (i=0;i<validmodecnt;i++)
+        for (i=0; i<validmodecnt; i++)
             if (validmode[i].bpp == c)
                 return 0x7fffffffl;
         return -1;	// strange colour depth
@@ -2192,7 +2192,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         customfs   = fs;
     }
 
-    for (i=0;i<NUM_INPUTS;i++) inp[i] = devacquired[i];
+    for (i=0; i<NUM_INPUTS; i++) inp[i] = devacquired[i];
     AcquireInputDevices(0,-1);
 
     if (hWindow && gammabrightness)
@@ -2217,7 +2217,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 #if defined(USE_OPENGL) && defined(POLYMOST)
     if (hGLWindow && glinfo.vsync) bwglSwapIntervalEXT(vsync);
 #endif
-    for (i=0;i<NUM_INPUTS;i++) if (inp[i]) AcquireInputDevices(1,i);
+    for (i=0; i<NUM_INPUTS; i++) if (inp[i]) AcquireInputDevices(1,i);
     modechange=1;
     videomodereset = 0;
     OSD_ResizeDisplay(xres,yres);
@@ -2271,7 +2271,7 @@ static void cdsenummodes(void)
     {
         if (dm.dmBitsPerPel > 8)
         {
-            for (i=0;i<nmodes;i++)
+            for (i=0; i<nmodes; i++)
             {
                 if (modes[i].x == dm.dmPelsWidth
                         && modes[i].y == dm.dmPelsHeight
@@ -2296,7 +2296,7 @@ static void cdsenummodes(void)
         dm.dmSize = sizeof(DEVMODE);
     }
 
-    for (i=0;i<nmodes;i++)
+    for (i=0; i<nmodes; i++)
     {
         CHECK(modes[i].x, modes[i].y)
         ADDMODE(modes[i].x, modes[i].y, modes[i].bpp, 1, modes[i].freq);
@@ -2450,7 +2450,7 @@ void begindrawing(void)
     setvlinebpl(bytesperline);
 
     j = 0;
-    for (i=0;i<=ydim;i++) ylookup[i] = j, j += bytesperline;
+    for (i=0; i<=ydim; i++) ylookup[i] = j, j += bytesperline;
     modechange=0;
 }
 

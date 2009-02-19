@@ -235,26 +235,26 @@ int32_t loadsetup(const char *fn)
 #ifdef _WIN32
     {
         extern char map_dik_code(int32_t);
-        for (i=0;i<256;i++)
+        for (i=0; i<256; i++)
             remap[i]=map_dik_code(i);
     }
 #else
-    for (i=0;i<256;i++)
+    for (i=0; i<256; i++)
         remap[i]=i;
 #endif
 
     remapinit=1;
     if (readconfig(fp, "remap", val, VL) > 0)
     {
-        char *p=val;int32_t v1,v2;
+        char *p=val; int32_t v1,v2;
         while (*p)
         {
             if (!sscanf(p,"%x",&v1))break;
-            if ((p=strchr(p,'-'))==0)break;p++;
+            if ((p=strchr(p,'-'))==0)break; p++;
             if (!sscanf(p,"%x",&v2))break;
             remap[v1]=v2;
             initprintf("Remap %X key to %X\n",v1,v2);
-            if ((p=strchr(p,','))==0)break;p++;
+            if ((p=strchr(p,','))==0)break; p++;
         }
     }
     Bfclose(fp);
@@ -451,7 +451,7 @@ int32_t writesetup(const char *fn)
              keys[19]
             );
 
-    for (i=0;i<256;i++)
+    for (i=0; i<256; i++)
         if (remap[i]!=i)
         {
             Bfprintf(fp,first?"%02X-%02X":",%02X-%02X",i,remap[i]);

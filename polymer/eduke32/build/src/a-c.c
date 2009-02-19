@@ -41,7 +41,7 @@ void hlineasm4(int32_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, 
 
     palptr = (char *)&ghlinepal[paloffs];
     if (!skiploadincs) { gbxinc = asm1; gbyinc = asm2; }
-    for (;cnt>=0;cnt--)
+    for (; cnt>=0; cnt--)
     {
         *((char *)p) = palptr[gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))]];
         bx -= gbxinc;
@@ -64,7 +64,7 @@ void slopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, int32_t cnt, int32_t 
 
     bz = asm3; bzinc = (asm1>>3);
     slopalptr = (int32_t*)slopaloffs;
-    for (;cnt>0;cnt--)
+    for (; cnt>0; cnt--)
     {
         i = krecip(bz>>6); bz += bzinc;
         u = bx+globalx3*i;
@@ -82,7 +82,7 @@ void vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intpt
 {
     gbuf = (char *)bufplc;
     gpal = (char *)paloffs;
-    for (;cnt>=0;cnt--)
+    for (; cnt>=0; cnt--)
     {
         *((char *)p) = gpal[gbuf[vplc>>glogy]];
         p += bpl;
@@ -97,7 +97,7 @@ void mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intp
 
     gbuf = (char *)bufplc;
     gpal = (char *)paloffs;
-    for (;cnt>=0;cnt--)
+    for (; cnt>=0; cnt--)
     {
         ch = gbuf[vplc>>glogy]; if (ch != 255) *((char *)p) = gpal[ch];
         p += bpl;
@@ -114,7 +114,7 @@ void tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intp
     gpal = (char *)paloffs;
     if (transmode)
     {
-        for (;cnt>=0;cnt--)
+        for (; cnt>=0; cnt--)
         {
             ch = gbuf[vplc>>glogy];
             if (ch != 255) *((char *)p) = gtrans[(*((char *)p))+(gpal[ch]<<8)];
@@ -124,7 +124,7 @@ void tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intp
     }
     else
     {
-        for (;cnt>=0;cnt--)
+        for (; cnt>=0; cnt--)
         {
             ch = gbuf[vplc>>glogy];
             if (ch != 255) *((char *)p) = gtrans[((*((char *)p))<<8)+gpal[ch]];
@@ -142,7 +142,7 @@ void mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_
 
     gbuf = (char *)bufplc;
     gpal = (char *)asm3;
-    for (cntup16>>=16;cntup16>0;cntup16--)
+    for (cntup16>>=16; cntup16>0; cntup16--)
     {
         ch = gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))];
         if (ch != 255) *((char *)p) = gpal[ch];
@@ -161,7 +161,7 @@ void thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_
     gpal = (char *)asm3;
     if (transmode)
     {
-        for (cntup16>>=16;cntup16>0;cntup16--)
+        for (cntup16>>=16; cntup16>0; cntup16--)
         {
             ch = gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))];
             if (ch != 255) *((char *)p) = gtrans[(*((char *)p))+(gpal[ch]<<8)];
@@ -172,7 +172,7 @@ void thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_
     }
     else
     {
-        for (cntup16>>=16;cntup16>0;cntup16--)
+        for (cntup16>>=16; cntup16>0; cntup16--)
         {
             ch = gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))];
             if (ch != 255) *((char *)p) = gtrans[((*((char *)p))<<8)+gpal[ch]];
@@ -195,7 +195,7 @@ void setupspritevline(intptr_t paloffs, int32_t bxinc, int32_t byinc, int32_t ys
 void spritevline(int32_t bx, int32_t by, int32_t cnt, intptr_t bufplc, intptr_t p)
 {
     gbuf = (char *)bufplc;
-    for (;cnt>1;cnt--)
+    for (; cnt>1; cnt--)
     {
         (*(char *)p) = gpal[gbuf[(bx>>16)*glogy+(by>>16)]];
         bx += gbxinc;
@@ -217,7 +217,7 @@ void mspritevline(int32_t bx, int32_t by, int32_t cnt, intptr_t bufplc, intptr_t
     char ch;
 
     gbuf = (char *)bufplc;
-    for (;cnt>1;cnt--)
+    for (; cnt>1; cnt--)
     {
         ch = gbuf[(bx>>16)*glogy+(by>>16)];
         if (ch != 255)(*(char *)p) = gpal[ch];
@@ -241,7 +241,7 @@ void tspritevline(int32_t bx, int32_t by, int32_t cnt, intptr_t bufplc, intptr_t
     gbuf = (char *)bufplc;
     if (transmode)
     {
-        for (;cnt>1;cnt--)
+        for (; cnt>1; cnt--)
         {
             ch = gbuf[(bx>>16)*glogy+(by>>16)];
             if (ch != 255) *((char *)p) = gtrans[(*((char *)p))+(gpal[ch]<<8)];
@@ -252,7 +252,7 @@ void tspritevline(int32_t bx, int32_t by, int32_t cnt, intptr_t bufplc, intptr_t
     }
     else
     {
-        for (;cnt>1;cnt--)
+        for (; cnt>1; cnt--)
         {
             ch = gbuf[(bx>>16)*glogy+(by>>16)];
             if (ch != 255) *((char *)p) = gtrans[((*((char *)p))<<8)+gpal[ch]];
@@ -272,7 +272,7 @@ void drawslab(int32_t dx, int32_t v, int32_t dy, int32_t vi, intptr_t vptr, intp
 
     while (dy > 0)
     {
-        for (x=0;x<dx;x++) *(char *)(p+x) = gpal[(int32_t)(*(char *)((v>>16)+vptr))];
+        for (x=0; x<dx; x++) *(char *)(p+x) = gpal[(int32_t)(*(char *)((v>>16)+vptr))];
         p += bpl; v += vi; dy--;
     }
 }

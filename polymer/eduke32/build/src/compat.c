@@ -738,7 +738,7 @@ int32_t Bwildmatch(const char *i, const char *j)
     {
         if (*j == '*')
         {
-            for (k=i,j++;*k;k++) if (Bwildmatch(k,j)) return(1);
+            for (k=i,j++; *k; k++) if (Bwildmatch(k,j)) return(1);
             continue;
         }
         if (!*i) return(0);

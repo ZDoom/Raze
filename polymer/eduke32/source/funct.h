@@ -255,10 +255,33 @@ extern void Net_SendQuit(void);
 extern void G_AddUserQuote(const char *daquote);
 extern void Net_NewGame(int32_t volume, int32_t level);
 
-extern inline int32_t A_CheckSpriteFlags(int32_t iActor, int32_t iType);
-extern inline int32_t A_CheckSpriteTileFlags(int32_t iPicnum, int32_t iType);
+extern int32_t SpriteFlags[MAXTILES];
 
-extern int32_t G_GetTeamPalette(int32_t team);
+inline int32_t A_CheckSpriteFlags(int32_t iActor, int32_t iType)
+{
+    return (((SpriteFlags[sprite[iActor].picnum]^ActorExtra[iActor].flags) & iType) != 0);
+}
+
+inline int32_t A_CheckSpriteTileFlags(int32_t iPicnum, int32_t iType)
+{
+    return ((SpriteFlags[iPicnum] & iType) != 0);
+}
+
+inline int32_t G_GetTeamPalette(int32_t team)
+{
+    switch (team)
+    {
+    case 0:
+        return 3;
+    case 1:
+        return 10;
+    case 2:
+        return 11;
+    case 3:
+        return 12;
+    }
+    return 0;
+}
 
 extern void se40code(int32_t x,int32_t y,int32_t z,int32_t a,int32_t h, int32_t smoothratio);
 

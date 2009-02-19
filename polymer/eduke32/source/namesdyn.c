@@ -1533,7 +1533,7 @@ void inithashnames()
 {
     int32_t i;
     hash_init(&dynnamesH);
-    for (i=0;list[i].val;i++)
+    for (i=0; list[i].val; i++)
         hash_add(&dynnamesH,list[i].s,i);
 }
 

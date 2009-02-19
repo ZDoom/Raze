@@ -268,7 +268,7 @@ static void _internal_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, 
     {
         // find the palette index closest to white
         k=0;
-        for (i=0;i<256;i++)
+        for (i=0; i<256; i++)
         {
             j = ((int32_t)curpalette[i].r)+((int32_t)curpalette[i].g)+((int32_t)curpalette[i].b);
             if (j > k) { k = j; white = i; }
@@ -294,7 +294,7 @@ static void _internal_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, in
     {
         // find the palette index closest to white
         k=0;
-        for (i=0;i<256;i++)
+        for (i=0; i<256; i++)
         {
             j = ((int32_t)curpalette[i].r)+((int32_t)curpalette[i].g)+((int32_t)curpalette[i].b);
             if (j > k) { k = j; white = i; }
@@ -317,7 +317,7 @@ static void _internal_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t 
     {
         // find the palette index closest to white
         k=0;
-        for (i=0;i<256;i++)
+        for (i=0; i<256; i++)
         {
             j = ((int32_t)palette[i*3])+((int32_t)palette[i*3+1])+((int32_t)palette[i*3+2]);
             if (j > k) { k = j; white = i; }
@@ -607,7 +607,7 @@ static int32_t _internal_osdfunc_history(const osdfuncparm_t *parm)
     int32_t i, j = 0;
     UNREFERENCED_PARAMETER(parm);
     OSD_Printf(OSDTEXT_RED "Command history:\n");
-    for (i=HISTORYDEPTH-1; i>=0;i--)
+    for (i=HISTORYDEPTH-1; i>=0; i--)
         if (osdhistorybuf[i][0])
             OSD_Printf("%4d \"%s\"\n",osdhistorytotal-osdhistorysize+(++j),osdhistorybuf[i]);
     return OSDCMD_OK;
@@ -884,8 +884,8 @@ int32_t OSD_HandleChar(char ch)
 
         if (!lastmatch)
         {
-            for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
-            for (j=0;osdeditbuf[i] != ' ' && i < osdeditlen;j++,i++)
+            for (i=osdeditcursor; i>0; i--) if (osdeditbuf[i-1] == ' ') break;
+            for (j=0; osdeditbuf[i] != ' ' && i < osdeditlen; j++,i++)
                 osdedittmp[j] = osdeditbuf[i];
             osdedittmp[j] = 0;
 
@@ -947,10 +947,10 @@ int32_t OSD_HandleChar(char ch)
 
         if (tabc)
         {
-            for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
+            for (i=osdeditcursor; i>0; i--) if (osdeditbuf[i-1] == ' ') break;
             osdeditlen = i;
-            for (j=0;tabc->name[j] && osdeditlen <= EDITLENGTH
-                    && (osdeditlen < commonsize);i++,j++,osdeditlen++)
+            for (j=0; tabc->name[j] && osdeditlen <= EDITLENGTH
+                    && (osdeditlen < commonsize); i++,j++,osdeditlen++)
                 osdeditbuf[i] = tabc->name[j];
             osdeditcursor = osdeditlen;
             osdeditwinend = osdeditcursor;
@@ -1264,7 +1264,7 @@ void OSD_ResizeDisplay(int32_t w, int32_t h)
     k = min(newcols, osdcols);
 
     memset(newtext, 32, TEXTSIZE);
-    for (i=j-1;i>=0;i--)
+    for (i=j-1; i>=0; i--)
     {
         memcpy(newtext+newcols*i, osdtext+osdcols*i, k);
         memcpy(newfmt+newcols*i, osdfmt+osdcols*i, k);

@@ -25,7 +25,7 @@ int32_t lzwcompress(char *ucompbuf, int32_t ucompleng, char *compbuf)
     sibry = (int32_t *)malloc((ucompleng+256)*sizeof(int32_t)); if (!sibry) { free(sibly); free(child); free(nodev); return(0); }
 #endif
 
-    for (i=255;i>=0;i--) { nodev[i] = i; child[i] = -1; }
+    for (i=255; i>=0; i--) { nodev[i] = i; child[i] = -1; }
     memset(compbuf,0,ucompleng+15);
 
     cptr = ucompbuf; eptr = &ucompbuf[ucompleng];
@@ -33,7 +33,7 @@ int32_t lzwcompress(char *ucompbuf, int32_t ucompleng, char *compbuf)
     numnodes = 256; bitcnt = (4<<3); nbits = 8; oneupnbits = (1<<8); hmask = ((oneupnbits>>1)-1);
     do
     {
-        for (i=cptr[0];i>=0;i=j)
+        for (i=cptr[0]; i>=0; i=j)
         {
             cptr++; if (cptr >= eptr) goto lzwcompbreak2b;
             j = child[i]; if (j < 0) { child[i] = numnodes; break; }
@@ -46,7 +46,7 @@ int32_t lzwcompress(char *ucompbuf, int32_t ucompleng, char *compbuf)
                 else { if (sibry[j] < 0) { sibry[j] = numnodes; goto lzwcompbreak2a; } j = sibry[j]; }
             }
 #else
-            for (;nodev[j]!=cptr[0];j=sibly[j])
+            for (; nodev[j]!=cptr[0]; j=sibly[j])
                 if (sibly[j] < 0) { sibly[j] = numnodes; goto lzwcompbreak2a; }
 #endif
         }
@@ -98,14 +98,14 @@ int32_t lzwuncompress(char *compbuf, int32_t compleng, char *ucompbuf, int32_t u
         prefix[numnodes] = dat;
 
         ucompbuf++;
-        for (leng=0;dat>=256;dat=prefix[dat])
+        for (leng=0; dat>=256; dat=prefix[dat])
         {
             if ((int32_t)ucompbuf+leng-ucomp > ucompleng) goto bail;
             ucompbuf[leng++] = suffix[dat];
         }
 
         ucptr = &ucompbuf[leng-1];
-        for (i=(leng>>1)-1;i>=0;i--) { ch = ucompbuf[i]; ucompbuf[i] = ucptr[-i]; ucptr[-i] = ch; }
+        for (i=(leng>>1)-1; i>=0; i--) { ch = ucompbuf[i]; ucompbuf[i] = ucptr[-i]; ucptr[-i] = ch; }
         ucompbuf[-1] = dat; ucompbuf += leng;
 
         suffix[numnodes-1] = suffix[numnodes] = dat;

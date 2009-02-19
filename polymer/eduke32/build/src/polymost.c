@@ -197,7 +197,7 @@ int32_t r_downsize = 1;
 
 static float fogresult, fogcol[4], fogtable[4*MAXPALOOKUPS];
 
-static inline void fogcalc(const int32_t shade, const int32_t vis, const int32_t pal) 
+static inline void fogcalc(const int32_t shade, const int32_t vis, const int32_t pal)
 {
     float f;
 
@@ -258,7 +258,7 @@ static inline void ftol(float f, int32_t *a)
 #if 0 //(__GNUC__ >= 3)
         "flds %1; fistpl %0;"
 #else
-        "flds %1; fistpl (%0);"
+"flds %1; fistpl (%0);"
 #endif
     : "=r"(a) : "m"(f) : "memory","cc");
 }
@@ -269,7 +269,7 @@ static inline void dtol(double d, int32_t *a)
 #if 0 //(__GNUC__ >= 3)
         "fldl %1; fistpl %0;"
 #else
-        "fldl %1; fistpl (%0);"
+"fldl %1; fistpl (%0);"
 #endif
     : "=r"(a) : "m"(d) : "memory","cc");
 }
@@ -317,7 +317,7 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
         x = (int32_t)(x0+.5); if (x < 0) { y -= inc*x; x = 0; } //if for safety
         e = (int32_t)(x1+.5); if (e > xdimen) e = xdimen;       //if for safety
         up16 = (ydimen<<16);
-        for (;x<e;x++,y+=inc) if ((uint32_t)y < up16) *(char *)(ylookup[y>>16]+x+frameoffset) = col;
+        for (; x<e; x++,y+=inc) if ((uint32_t)y < up16) *(char *)(ylookup[y>>16]+x+frameoffset) = col;
     }
     else
     {
@@ -327,7 +327,7 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
         y = (int32_t)(y0+.5); if (y < 0) { x -= inc*y; y = 0; } //if for safety
         e = (int32_t)(y1+.5); if (e > ydimen) e = ydimen;       //if for safety
         up16 = (xdimen<<16);
-        for (;y<e;y++,x+=inc) if ((uint32_t)x < up16) *(char *)(ylookup[y]+(x>>16)+frameoffset) = col;
+        for (; y<e; y++,x+=inc) if ((uint32_t)x < up16) *(char *)(ylookup[y]+(x>>16)+frameoffset) = col;
     }
 }
 
@@ -540,8 +540,8 @@ void gltexinvalidateall()
     int32_t j;
     pthtyp *pth;
 
-    for (j=GLTEXCACHEADSIZ-1;j>=0;j--)
-        for (pth=gltexcachead[j];pth;pth=pth->next)
+    for (j=GLTEXCACHEADSIZ-1; j>=0; j--)
+        for (pth=gltexcachead[j]; pth; pth=pth->next)
         {
             pth->flags |= 128;
             if (pth->flags & 16)
@@ -558,8 +558,8 @@ void gltexinvalidate8()
     int32_t j;
     pthtyp *pth;
 
-    for (j=GLTEXCACHEADSIZ-1;j>=0;j--)
-        for (pth=gltexcachead[j];pth;pth=pth->next)
+    for (j=GLTEXCACHEADSIZ-1; j>=0; j--)
+        for (pth=gltexcachead[j]; pth; pth=pth->next)
         {
             if (pth->hicr == NULL)
             {
@@ -585,9 +585,9 @@ void gltexapplyprops(void)
 
     if (gltexfiltermode < 0) gltexfiltermode = 0;
     else if (gltexfiltermode >= (int32_t)numglfiltermodes) gltexfiltermode = numglfiltermodes-1;
-    for (i=GLTEXCACHEADSIZ-1;i>=0;i--)
+    for (i=GLTEXCACHEADSIZ-1; i>=0; i--)
     {
-        for (pth=gltexcachead[i];pth;pth=pth->next)
+        for (pth=gltexcachead[i]; pth; pth=pth->next)
         {
             bglBindTexture(GL_TEXTURE_2D,pth->glpic);
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
@@ -610,11 +610,11 @@ void gltexapplyprops(void)
         mdskinmap_t *sk;
         md2model_t *m;
 
-        for (i=0;i<nextmodelid;i++)
+        for (i=0; i<nextmodelid; i++)
         {
             m = (md2model_t *)models[i];
             if (m->mdnum < 2) continue;
-            for (j=0;j<m->numskins*(HICEFFECTMASK+1);j++)
+            for (j=0; j<m->numskins*(HICEFFECTMASK+1); j++)
             {
                 if (!m->texid[j]) continue;
                 bglBindTexture(GL_TEXTURE_2D,m->texid[j]);
@@ -624,8 +624,8 @@ void gltexapplyprops(void)
                     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
             }
 
-            for (sk=m->skinmap;sk;sk=sk->next)
-                for (j=0;j<(HICEFFECTMASK+1);j++)
+            for (sk=m->skinmap; sk; sk=sk->next)
+                for (j=0; j<(HICEFFECTMASK+1); j++)
                 {
                     if (!sk->texid[j]) continue;
                     bglBindTexture(GL_TEXTURE_2D,sk->texid[j]);
@@ -650,7 +650,7 @@ void polymost_glreset()
     int32_t i;
     pthtyp *pth, *next;
 
-    for(i=MAXPALOOKUPS-1;i>=0;i--)
+    for (i=MAXPALOOKUPS-1; i>=0; i--)
     {
         fogtable[i<<2] = palookupfog[i].r / 63.f;
         fogtable[(i<<2)+1] = palookupfog[i].g / 63.f;
@@ -683,7 +683,7 @@ void polymost_glreset()
                 if (pth->palmap)
                 {
                     //_initprintf("Kill #%d\n",pth->palmap);
-                    free(pth->palmap);pth->palmap=0;
+                    free(pth->palmap); pth->palmap=0;
                 }
                 free(pth);
                 pth = next;
@@ -700,19 +700,19 @@ void polymost_glreset()
     glox1 = -1;
 
     // Depth peeling cleanup
-/*
-    if (peels)
-    {
-        bglDeleteProgramsARB(2, peelprogram);
-        bglDeleteFramebuffersEXT(r_peelscount + 1, peelfbos);
-        bglDeleteTextures(r_peelscount + 1, peels);
-        bglDeleteTextures(3, ztexture);
-        free(peels);
-        free(peelfbos);
+    /*
+        if (peels)
+        {
+            bglDeleteProgramsARB(2, peelprogram);
+            bglDeleteFramebuffersEXT(r_peelscount + 1, peelfbos);
+            bglDeleteTextures(r_peelscount + 1, peels);
+            bglDeleteTextures(3, ztexture);
+            free(peels);
+            free(peelfbos);
 
-        peels = NULL;
-    }
-*/
+            peels = NULL;
+        }
+    */
 
     if (cachefilehandle != -1)
     {
@@ -745,35 +745,35 @@ void polymost_glinit()
 {
     GLfloat col[4];
     int32_t     i;
-/*
-    char    notpeeledprogramstring[] =
-        "!!ARBfp1.0\n"
-        "OPTION ARB_fog_exp2;\n"
-        "OPTION ARB_fragment_program_shadow;\n"
-        "TEMP texsample;\n"
-        "TEMP depthresult;\n"
-        "TEX depthresult, fragment.position, texture[1], SHADOWRECT;\n"
-        "ADD depthresult.a, depthresult.a, -0.5;\n"
-        "KIL depthresult.a;\n"
-        "TEX texsample, fragment.texcoord[0], texture[0], 2D;\n"
-        "MUL result.color, fragment.color, texsample;\n"
-        "END\n";
-    char    peeledprogramstring[] =
-        "!!ARBfp1.0\n"
-        "OPTION ARB_fog_exp2;\n"
-        "OPTION ARB_fragment_program_shadow;\n"
-        "TEMP texsample;\n"
-        "TEMP depthresult;\n"
-        "TEX depthresult, fragment.position, texture[2], SHADOWRECT;\n"
-        "ADD depthresult.a, depthresult.a, -0.5;\n"
-        "KIL depthresult.a;\n"
-        "TEX depthresult, fragment.position, texture[1], SHADOWRECT;\n"
-        "ADD depthresult.a, depthresult.a, -0.5;\n"
-        "KIL depthresult.a;\n"
-        "TEX texsample, fragment.texcoord[0], texture[0], 2D;\n"
-        "MUL result.color, fragment.color, texsample;\n"
-        "END\n";
-*/
+    /*
+        char    notpeeledprogramstring[] =
+            "!!ARBfp1.0\n"
+            "OPTION ARB_fog_exp2;\n"
+            "OPTION ARB_fragment_program_shadow;\n"
+            "TEMP texsample;\n"
+            "TEMP depthresult;\n"
+            "TEX depthresult, fragment.position, texture[1], SHADOWRECT;\n"
+            "ADD depthresult.a, depthresult.a, -0.5;\n"
+            "KIL depthresult.a;\n"
+            "TEX texsample, fragment.texcoord[0], texture[0], 2D;\n"
+            "MUL result.color, fragment.color, texsample;\n"
+            "END\n";
+        char    peeledprogramstring[] =
+            "!!ARBfp1.0\n"
+            "OPTION ARB_fog_exp2;\n"
+            "OPTION ARB_fragment_program_shadow;\n"
+            "TEMP texsample;\n"
+            "TEMP depthresult;\n"
+            "TEX depthresult, fragment.position, texture[2], SHADOWRECT;\n"
+            "ADD depthresult.a, depthresult.a, -0.5;\n"
+            "KIL depthresult.a;\n"
+            "TEX depthresult, fragment.position, texture[1], SHADOWRECT;\n"
+            "ADD depthresult.a, depthresult.a, -0.5;\n"
+            "KIL depthresult.a;\n"
+            "TEX texsample, fragment.texcoord[0], texture[0], 2D;\n"
+            "MUL result.color, fragment.color, texsample;\n"
+            "END\n";
+    */
 
     if (!Bstrcmp(glinfo.vendor, "NVIDIA Corporation"))
     {
@@ -803,13 +803,13 @@ void polymost_glinit()
         bglEnable(GL_MULTISAMPLE_ARB);
     }
 
-/*
-    if (r_depthpeeling && (!glinfo.arbfp || !glinfo.depthtex || !glinfo.shadow || !glinfo.fbos || !glinfo.rect || !glinfo.multitex))
-    {
-        OSD_Printf("Your OpenGL implementation doesn't support depth peeling. Disabling...\n");
-        r_depthpeeling = 0;
-    }
-*/
+    /*
+        if (r_depthpeeling && (!glinfo.arbfp || !glinfo.depthtex || !glinfo.shadow || !glinfo.fbos || !glinfo.rect || !glinfo.multitex))
+        {
+            OSD_Printf("Your OpenGL implementation doesn't support depth peeling. Disabling...\n");
+            r_depthpeeling = 0;
+        }
+    */
 
     if (r_detailmapping && (!glinfo.multitex || !glinfo.envcombine))
     {
@@ -830,78 +830,78 @@ void polymost_glinit()
     }
 
     //depth peeling initialization
-/*
-    if (r_depthpeeling)
-    {
-        if (newpeelscount)
+    /*
+        if (r_depthpeeling)
         {
-            r_peelscount = newpeelscount;
-            newpeelscount = 0;
-        }
-        // create the secondary Z-buffers and the Z-backbuffer
-        bglGenTextures(3, ztexture);
-
-        i = 0;
-        while (i < 3)
-        {
-            bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[i]);
-            bglCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_DEPTH_COMPONENT, 0, 0, xdim, ydim, 0);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-            if (i < 2)
-                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_FUNC_ARB, GL_GREATER);
-            else
-                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LESS);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_DEPTH_TEXTURE_MODE_ARB, GL_ALPHA);
-
-            i++;
-        }
-
-        // create the various peeling layers as well as the FBOs to render to them
-        peels = malloc((r_peelscount + 1) * sizeof(GLuint));
-        bglGenTextures(r_peelscount + 1, peels);
-
-        peelfbos = malloc((r_peelscount + 1) * sizeof(GLuint));
-        bglGenFramebuffersEXT(r_peelscount + 1, peelfbos);
-
-        i = 0;
-        while (i <= r_peelscount)
-        {
-            bglBindTexture(GL_TEXTURE_RECTANGLE, peels[i]);
-            bglCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, 0, 0, xdim, ydim, 0);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
-
-            bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, peelfbos[i]);
-            bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_RECTANGLE, peels[i], 0);
-            if (i == r_peelscount) // bakcbuffer
-                bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_RECTANGLE, ztexture[2], 0);
-            else if (i < (r_peelscount - 1))
-                bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_RECTANGLE, ztexture[i % 2], 0);
-
-            if (bglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
+            if (newpeelscount)
             {
-                OSD_Printf("FBO #%d initialization failed.\n", i);
+                r_peelscount = newpeelscount;
+                newpeelscount = 0;
+            }
+            // create the secondary Z-buffers and the Z-backbuffer
+            bglGenTextures(3, ztexture);
+
+            i = 0;
+            while (i < 3)
+            {
+                bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[i]);
+                bglCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_DEPTH_COMPONENT, 0, 0, xdim, ydim, 0);
+                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+                if (i < 2)
+                    bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_FUNC_ARB, GL_GREATER);
+                else
+                    bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LESS);
+                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_DEPTH_TEXTURE_MODE_ARB, GL_ALPHA);
+
+                i++;
             }
 
-            bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+            // create the various peeling layers as well as the FBOs to render to them
+            peels = malloc((r_peelscount + 1) * sizeof(GLuint));
+            bglGenTextures(r_peelscount + 1, peels);
 
-            i++;
+            peelfbos = malloc((r_peelscount + 1) * sizeof(GLuint));
+            bglGenFramebuffersEXT(r_peelscount + 1, peelfbos);
+
+            i = 0;
+            while (i <= r_peelscount)
+            {
+                bglBindTexture(GL_TEXTURE_RECTANGLE, peels[i]);
+                bglCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, 0, 0, xdim, ydim, 0);
+                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+                bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, peelfbos[i]);
+                bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_RECTANGLE, peels[i], 0);
+                if (i == r_peelscount) // bakcbuffer
+                    bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_RECTANGLE, ztexture[2], 0);
+                else if (i < (r_peelscount - 1))
+                    bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_RECTANGLE, ztexture[i % 2], 0);
+
+                if (bglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
+                {
+                    OSD_Printf("FBO #%d initialization failed.\n", i);
+                }
+
+                bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+                i++;
+            }
+
+            // create the peeling fragment programs
+            bglGenProgramsARB(2, peelprogram);
+            bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[0]);
+            bglProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(notpeeledprogramstring), notpeeledprogramstring);
+            bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[1]);
+            bglProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(peeledprogramstring), peeledprogramstring);
         }
-
-        // create the peeling fragment programs
-        bglGenProgramsARB(2, peelprogram);
-        bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[0]);
-        bglProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(notpeeledprogramstring), notpeeledprogramstring);
-        bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[1]);
-        bglProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(peeledprogramstring), peeledprogramstring);
-    }
-*/
+    */
 
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -942,7 +942,7 @@ void polymost_glinit()
         Bfprintf(cacheindexptr,"// automatically generated by EDuke32, DO NOT MODIFY!\n");
     }
     else rewind(cacheindexptr);
-    
+
     cachefilehandle = Bopen(TEXCACHEFILE,BO_BINARY|BO_CREAT|BO_APPEND|BO_RDWR,BS_IREAD|BS_IWRITE);
 
     if (cachefilehandle < 0)
@@ -1120,10 +1120,10 @@ void fixtransparency(coltype *dapic, int32_t daxsiz, int32_t daysiz, int32_t dax
 
     //Set transparent pixels to average color of neighboring opaque pixels
     //Doing this makes bilinear filtering look much better for masked textures (I.E. sprites)
-    for (y=doy;y>=0;y--)
+    for (y=doy; y>=0; y--)
     {
         wpptr = &dapic[y*daxsiz2+dox];
-        for (x=dox;x>=0;x--,wpptr--)
+        for (x=dox; x>=0; x--,wpptr--)
         {
             if (wpptr->a) continue;
             r = g = b = j = 0;
@@ -1199,14 +1199,14 @@ void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt
     gluBuild2DMipmaps(GL_TEXTURE_2D,GL_RGBA8,xsiz,ysiz,texfmt,GL_UNSIGNED_BYTE,pic); //Needs C++ to link?
 #elif 1
     x2 = xsiz; y2 = ysiz;
-    for (j=1;(x2 > 1) || (y2 > 1);j++)
+    for (j=1; (x2 > 1) || (y2 > 1); j++)
     {
         //x3 = ((x2+1)>>1); y3 = ((y2+1)>>1);
         x3 = max(1, x2 >> 1); y3 = max(1, y2 >> 1);		// this came from the GL_ARB_texture_non_power_of_two spec
-        for (y=0;y<y3;y++)
+        for (y=0; y<y3; y++)
         {
             wpptr = &pic[y*x3]; rpptr = &pic[(y<<1)*x2];
-            for (x=0;x<x3;x++,wpptr++,rpptr+=2)
+            for (x=0; x<x3; x++,wpptr++,rpptr+=2)
             {
                 r = g = b = a = k = 0;
                 if (rpptr[0].a)                  { r += (int32_t)rpptr[0].r; g += (int32_t)rpptr[0].g; b += (int32_t)rpptr[0].b; a += (int32_t)rpptr[0].a; k++; }
@@ -1256,8 +1256,8 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth,
     tsizy = tilesizy[dapic];
     if (!glinfo.texnpot)
     {
-        for (xsiz=1;xsiz<tsizx;xsiz+=xsiz);
-        for (ysiz=1;ysiz<tsizy;ysiz+=ysiz);
+        for (xsiz=1; xsiz<tsizx; xsiz+=xsiz);
+        for (ysiz=1; ysiz<tsizy; ysiz+=ysiz);
     }
     else
     {
@@ -1284,11 +1284,11 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth,
     }
     else
     {
-        for (y=0;y<ysiz;y++)
+        for (y=0; y<ysiz; y++)
         {
             if (y < tsizy) y2 = y; else y2 = y-tsizy;
             wpptr = &pic[y*xsiz];
-            for (x=0;x<xsiz;x++,wpptr++)
+            for (x=0; x<xsiz; x++,wpptr++)
             {
                 if ((dameth&4) && ((x >= tsizx) || (y >= tsizy))) //Clamp texture
                     { wpptr->r = wpptr->g = wpptr->b = wpptr->a = 0; continue; }
@@ -1528,37 +1528,37 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
         glusetexcache = 0;
         return;
     }
-/*
-    {
-        struct stat st;
-        if (stat(TEXCACHEFILE, &st) < 0)
+    /*
         {
-            if (errno == ENOENT)     // path doesn't exist
+            struct stat st;
+            if (stat(TEXCACHEFILE, &st) < 0)
             {
-                // try to create the cache directory
-                if (Bmkdir(TEXCACHEFILE, S_IRWXU) < 0)
+                if (errno == ENOENT)     // path doesn't exist
                 {
-                    OSD_Printf("Failed to create texture cache directory %s\n", TEXCACHEFILE);
+                    // try to create the cache directory
+                    if (Bmkdir(TEXCACHEFILE, S_IRWXU) < 0)
+                    {
+                        OSD_Printf("Failed to create texture cache directory %s\n", TEXCACHEFILE);
+                        glusetexcache = 0;
+                        return;
+                    }
+                    else OSD_Printf("Created texture cache directory %s\n", TEXCACHEFILE);
+                }
+                else
+                {
+                    // another type of failure
                     glusetexcache = 0;
                     return;
                 }
-                else OSD_Printf("Created texture cache directory %s\n", TEXCACHEFILE);
             }
-            else
+            else if ((st.st_mode & S_IFDIR) != S_IFDIR)
             {
-                // another type of failure
+                // cache directory isn't a directory
                 glusetexcache = 0;
                 return;
             }
         }
-        else if ((st.st_mode & S_IFDIR) != S_IFDIR)
-        {
-            // cache directory isn't a directory
-            glusetexcache = 0;
-            return;
-        }
-    }
-*/
+    */
     gi = GL_FALSE;
     bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, (GLint *)&gi);
     if (gi != GL_TRUE) return;
@@ -1764,7 +1764,7 @@ static void applypalmapsT(char *pic, int32_t sizx, int32_t sizy, int32_t dapic,i
     int32_t stage;
     pthtyp *pichead1=pichead;
 
-    for (stage=0;stage<MAXPALCONV;stage++)
+    for (stage=0; stage<MAXPALCONV; stage++)
     {
         int32_t pal1=0,pal2=dapalnum;
         pthtyp *pth;
@@ -1848,8 +1848,8 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         if (!glinfo.texnpot)
         {
-            for (xsiz=1;xsiz<tsizx;xsiz+=xsiz);
-            for (ysiz=1;ysiz<tsizy;ysiz+=ysiz);
+            for (xsiz=1; xsiz<tsizx; xsiz+=xsiz);
+            for (ysiz=1; ysiz<tsizy; ysiz+=ysiz);
         }
         else
         {
@@ -1864,13 +1864,13 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         r=(glinfo.bgra)?hictinting[dapalnum].r:hictinting[dapalnum].b;
         g=hictinting[dapalnum].g;
         b=(glinfo.bgra)?hictinting[dapalnum].b:hictinting[dapalnum].r;
-        for (y=0,j=0;y<tsizy;y++,j+=xsiz)
+        for (y=0,j=0; y<tsizy; y++,j+=xsiz)
         {
             coltype tcol;
             char *cptr = &britable[gammabrightness ? 0 : curbrightness][0];
             rpptr = &pic[j];
 
-            for (x=0;x<tsizx;x++)
+            for (x=0; x<tsizx; x++)
             {
                 tcol.b = cptr[rpptr[x].b];
                 tcol.g = cptr[rpptr[x].g];
@@ -1909,7 +1909,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             if (xsiz > tsizx) //Copy left to right
             {
                 int32_t *lptr = (int32_t *)pic;
-                for (y=0;y<tsizy;y++,lptr+=xsiz)
+                for (y=0; y<tsizy; y++,lptr+=xsiz)
                     memcpy(&lptr[tsizx],lptr,(xsiz-tsizx)<<2);
             }
             if (ysiz > tsizy)  //Copy top to bottom
@@ -1917,7 +1917,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         }
         if (!glinfo.bgra)
         {
-            for (j=xsiz*ysiz-1;j>=0;j--)
+            for (j=xsiz*ysiz-1; j>=0; j--)
             {
                 swapchar(&pic[j].r, &pic[j].b);
             }
@@ -1999,7 +1999,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             cachead.xdim = tsizx>>cachead.quality;
             cachead.ydim = tsizy>>cachead.quality;
             x = 0;
-            for (j=0;j<31;j++)
+            for (j=0; j<31; j++)
             {
                 if (xsiz == pow2long[j]) { x |= 1; }
                 if (ysiz == pow2long[j]) { x |= 2; }
@@ -2045,7 +2045,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     else
     {
         f = 0; //f is area of polygon / 2
-        for (i=n-2,j=n-1,k=0;k<n;i=j,j=k,k++) f += (dpx[i]-dpx[k])*dpy[j];
+        for (i=n-2,j=n-1,k=0; k<n; i=j,j=k,k++) f += (dpx[i]-dpx[k])*dpy[j];
         if (f <= 0) return;
     }
 
@@ -2070,7 +2070,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     j = 0; dorot = ((gchang != 1.0) || (gctang != 1.0));
     if (dorot)
     {
-        for (i=0;i<n;i++)
+        for (i=0; i<n; i++)
         {
             ox = dpx[i]-ghalfx;
             oy = dpy[i]-ghoriz;
@@ -2101,7 +2101,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     }
     else
     {
-        for (i=0;i<n;i++)
+        for (i=0; i<n; i++)
         {
             px[j] = dpx[i];
             py[j] = dpy[i];
@@ -2235,8 +2235,8 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         if (!glinfo.texnpot)
         {
-            for (xx=1;xx<tsizx;xx+=xx); ox2 = (double)1.0/(double)xx;
-            for (yy=1;yy<tsizy;yy+=yy); oy2 = (double)1.0/(double)yy;
+            for (xx=1; xx<tsizx; xx+=xx); ox2 = (double)1.0/(double)xx;
+            for (yy=1; yy<tsizy; yy+=yy); oy2 = (double)1.0/(double)yy;
         }
         else
         {
@@ -2247,8 +2247,8 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         if ((!(method&3)) && (!fullbrightdrawingpass))
         {
             bglDisable(GL_BLEND);
-/*            if (!peelcompiling)*/
-                bglDisable(GL_ALPHA_TEST);
+            /*            if (!peelcompiling)*/
+            bglDisable(GL_ALPHA_TEST);
         }
         else
         {
@@ -2257,15 +2257,15 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             if (alphahackarray[globalpicnum])
                 al=alphahackarray[globalpicnum];
             if (!waloff[globalpicnum]) al = 0.0;	// invalid textures ignore the alpha cutoff settings
-/*            if (!peelcompiling)*/
-                bglEnable(GL_BLEND);
+            /*            if (!peelcompiling)*/
+            bglEnable(GL_BLEND);
             bglEnable(GL_ALPHA_TEST);
             bglAlphaFunc(GL_GREATER,al);
         }
 
         if (!dorot)
         {
-            for (i=n-1;i>=0;i--)
+            for (i=n-1; i>=0; i--)
             {
                 dd[i] = px[i]*gdx + py[i]*gdy + gdo;
                 uu[i] = px[i]*gux + py[i]*guy + guo;
@@ -2355,7 +2355,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             nguo -= ngdo*uoffs;
 
             //Find min&max u coordinates (du0...du1)
-            for (i=0;i<n;i++)
+            for (i=0; i<n; i++)
             {
                 ox = px[i]; oy = py[i];
                 f = (ox*ngux + oy*nguy + nguo) / (ox*ngdx + oy*ngdy + ngdo);
@@ -2367,7 +2367,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             f = 1.0/(double)tsizx;
             ix0 = (int32_t)floor(du0*f);
             ix1 = (int32_t)floor(du1*f);
-            for (;ix0<=ix1;ix0++)
+            for (; ix0<=ix1; ix0++)
             {
                 du0 = (double)((ix0)*tsizx);   // + uoffs;
                 du1 = (double)((ix0+1)*tsizx); // + uoffs;
@@ -2429,7 +2429,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                 if (nn < 3) continue;
 
                 bglBegin(GL_TRIANGLE_FAN);
-                for (i=0;i<nn;i++)
+                for (i=0; i<nn; i++)
                 {
                     ox = uu[i]; oy = vv[i];
                     dp = ox*ngdx + oy*ngdy + ngdo;
@@ -2453,7 +2453,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         {
             ox2 *= hackscx; oy2 *= hackscy;
             bglBegin(GL_TRIANGLE_FAN);
-            for (i=0;i<n;i++)
+            for (i=0; i<n; i++)
             {
                 r = 1.0/dd[i];
                 if (texunits > GL_TEXTURE0_ARB)
@@ -2559,8 +2559,8 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         tsizxm1 = tsizx-1; xmodnice = (!(tsizxm1&tsizx));
         tsizym1 = tsizy-1; ymulnice = (!(tsizym1&tsizy));
         if ((method&4) && (!xmodnice)) //Sprites don't need a mod on texture coordinates
-            { xmodnice = 1; for (tsizxm1=1;tsizxm1<tsizx;tsizxm1=(tsizxm1<<1)+1); }
-        if (!ymulnice) { for (tsizym1=1;tsizym1+1<tsizy;tsizym1=(tsizym1<<1)+1); }
+            { xmodnice = 1; for (tsizxm1=1; tsizxm1<tsizx; tsizxm1=(tsizxm1<<1)+1); }
+        if (!ymulnice) { for (tsizym1=1; tsizym1+1<tsizy; tsizym1=(tsizym1<<1)+1); }
         ltsizy = (picsiz[globalpicnum]>>4);
     }
     else
@@ -2570,7 +2570,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
     if (grhalfxdown10x < 0) //Hack for mirrors
     {
-        for (i=((n-1)>>1);i>=0;i--)
+        for (i=((n-1)>>1); i>=0; i--)
         {
             r = px[i]; px[i] = ((double)xdimen)-px[n-1-i]; px[n-1-i] = ((double)xdimen)-r;
             r = py[i]; py[i] = py[n-1-i]; py[n-1-i] = r;
@@ -2585,7 +2585,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     ngvx2 = ngvx*(1<<LINTERPSIZ);
 
     mini = (py[0] >= py[1]); maxi = 1-mini;
-    for (z=2;z<n;z++)
+    for (z=2; z<n; z++)
     {
         if (py[z] < py[mini]) mini = z;
         if (py[z] > py[maxi]) maxi = z;
@@ -2600,7 +2600,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         {
             f = (px[j]-px[i])/(py[j]-py[i]); dtol(f*16384.0,&xi);
             dtol((((double)yy-.5-py[j])*f + px[j])*16384.0+8192.0,&x);
-            for (;yy>y;yy--,x-=xi) lastx[yy-1] = (x>>14);
+            for (; yy>y; yy--,x-=xi) lastx[yy-1] = (x>>14);
         }
         i = j;
     }
@@ -2613,7 +2613,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         {
             f = (px[j]-px[i])/(py[j]-py[i]); dtol(f*16384.0,&xi);
             dtol((((double)y+.5-py[j])*f + px[j])*16384.0+8192.0,&x);
-            for (;y<yy;y++,x+=xi)
+            for (; y<yy; y++,x+=xi)
             {
                 ix0 = lastx[y]; if (ix0 < 0) ix0 = 0;
                 ix1 = (x>>14); if (ix1 > xdimen) ix1 = xdimen;
@@ -2638,7 +2638,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                         case 0:
                             if (xmodnice&ymulnice) //both u&v texture sizes are powers of 2 :)
                             {
-                                for (xx=ix0;xx<ix1;xx+=(1<<LINTERPSIZ))
+                                for (xx=ix0; xx<ix1; xx+=(1<<LINTERPSIZ))
                                 {
                                     dtol(rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
                                     dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
@@ -2660,7 +2660,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                             }
                             else
                             {
-                                for (xx=ix0;xx<ix1;xx+=(1<<LINTERPSIZ))
+                                for (xx=ix0; xx<ix1; xx+=(1<<LINTERPSIZ))
                                 {
                                     dtol(rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
                                     dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
@@ -2684,7 +2684,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                         case 1:
                             if (xmodnice) //both u&v texture sizes are powers of 2 :)
                             {
-                                for (xx=ix0;xx<ix1;xx+=(1<<LINTERPSIZ))
+                                for (xx=ix0; xx<ix1; xx+=(1<<LINTERPSIZ))
                                 {
                                     dtol(rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
                                     dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
@@ -2712,7 +2712,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                             }
                             else
                             {
-                                for (xx=ix0;xx<ix1;xx+=(1<<LINTERPSIZ))
+                                for (xx=ix0; xx<ix1; xx+=(1<<LINTERPSIZ))
                                 {
                                     dtol(rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
                                     dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
@@ -2740,7 +2740,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                             }
                             break;
                         case 2: //Transluscence #1
-                            for (xx=ix0;xx<ix1;xx+=(1<<LINTERPSIZ))
+                            for (xx=ix0; xx<ix1; xx+=(1<<LINTERPSIZ))
                             {
                                 dtol(rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
                                 dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
@@ -2769,7 +2769,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                             }
                             break;
                         case 3: //Transluscence #2
-                            for (xx=ix0;xx<ix1;xx+=(1<<LINTERPSIZ))
+                            for (xx=ix0; xx<ix1; xx+=(1<<LINTERPSIZ))
                             {
                                 dtol(rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
                                 dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
@@ -2810,7 +2810,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     {
         if (method&3) //Only draw border around sprites/maskwalls
         {
-            for (i=0,j=n-1;i<n;j=i,i++) drawline2d(px[i],py[i],px[j],py[j],31); //hopefully color index 31 is white
+            for (i=0,j=n-1; i<n; j=i,i++) drawline2d(px[i],py[i],px[j],py[j],31); //hopefully color index 31 is white
         }
 
         //ox = 0; oy = 0;
@@ -2834,7 +2834,7 @@ void initmosts(double *px, double *py, int32_t n)
 
     if (n < 3) return;
     imin = (px[1] < px[0]);
-    for (i=n-1;i>=2;i--) if (px[i] < px[imin]) imin = i;
+    for (i=n-1; i>=2; i--) if (px[i] < px[imin]) imin = i;
 
 
     vsp[vcnt].x = px[imin];
@@ -2890,7 +2890,7 @@ void initmosts(double *px, double *py, int32_t n)
     }
 
 
-    for (i=0;i<vcnt;i++)
+    for (i=0; i<vcnt; i++)
     {
         vsp[i].cy[1] = vsp[i+1].cy[0]; vsp[i].ctag = i;
         vsp[i].fy[1] = vsp[i+1].fy[0]; vsp[i].ftag = i;
@@ -2900,7 +2900,7 @@ void initmosts(double *px, double *py, int32_t n)
     gtag = vcnt;
 
     //VSPMAX-1 is dummy empty node
-    for (i=vcnt;i<VSPMAX;i++) { vsp[i].n = i+1; vsp[i].p = i-1; }
+    for (i=vcnt; i<VSPMAX; i++) { vsp[i].n = i+1; vsp[i].p = i-1; }
     vsp[VSPMAX-1].n = vcnt; vsp[vcnt].p = VSPMAX-1;
 }
 
@@ -2941,7 +2941,7 @@ static inline int32_t testvisiblemost(float x0, float x1)
 {
     int32_t i, newi;
 
-    for (i=vsp[0].n;i;i=newi)
+    for (i=vsp[0].n; i; i=newi)
     {
         newi = vsp[i].n;
         if ((x0 < vsp[newi].x) && (vsp[i].x < x1) && (vsp[i].ctag >= 0)) return(1);
@@ -2973,7 +2973,7 @@ void domost(float x0, float y0, float x1, float y1)
     }
 
     slop = (y1-y0)/(x1-x0);
-    for (i=vsp[0].n;i;i=newi)
+    for (i=vsp[0].n; i; i=newi)
     {
         newi = vsp[i].n; nx0 = vsp[i].x; nx1 = vsp[newi].x;
         if ((x0 >= nx1) || (nx0 >= x1) || (vsp[i].ctag <= 0)) continue;
@@ -2992,7 +2992,7 @@ void domost(float x0, float y0, float x1, float y1)
         }
 
         //Test for intersection on umost (j == 0) and dmost (j == 1)
-        for (j=0;j<2;j++)
+        for (j=0; j<2; j++)
         {
             d = (y0-y1)*dx - (x0-x1)*cv[j];
             n = (y0-cy[j])*dx - (x0-nx0)*cv[j];
@@ -3024,7 +3024,7 @@ void domost(float x0, float y0, float x1, float y1)
         }
 
         vsp[i].tag = vsp[newi].tag = -1;
-        for (z=0;z<=scnt;z++,i=vcnt)
+        for (z=0; z<=scnt; z++,i=vcnt)
         {
             if (z < scnt)
             {
@@ -3183,7 +3183,7 @@ static void polymost_drawalls(int32_t bunch)
 #endif
 
     //DRAW WALLS SECTION!
-    for (z=bunchfirst[bunch];z>=0;z=p2[z])
+    for (z=bunchfirst[bunch]; z>=0; z=p2[z])
     {
         wallnum = thewall[z]; wal = &wall[wallnum]; wal2 = &wall[wal->point2];
         nextsectnum = wal->nextsector; nextsec = &sector[nextsectnum];
@@ -3301,7 +3301,7 @@ static void polymost_drawalls(int32_t bunch)
                 px[2] = ghalfx*ox2*oy2 + ghalfx; oy2 *= gyxscale;
                 py[2] = oy2 + ghoriz;
 
-                for (i=0;i<3;i++)
+                for (i=0; i<3; i++)
                 {
                     dd[i] = px[i]*gdx + py[i]*gdy + gdo;
                     uu[i] = px[i]*gux + py[i]*guy + guo;
@@ -3367,7 +3367,7 @@ static void polymost_drawalls(int32_t bunch)
                 }
 
                 //Use clamping for tiled sky textures
-                for (i=(1<<pskybits)-1;i>0;i--)
+                for (i=(1<<pskybits)-1; i>0; i--)
                     if (pskyoff[i] != pskyoff[i-1])
                         { skyclamphack = r_parallaxskyclamping; break; }
             }
@@ -3436,7 +3436,7 @@ static void polymost_drawalls(int32_t bunch)
                 pow2xsplit = 0;
                 skyclamphack = 1;
 
-                for (i=0;i<4;i++)
+                for (i=0; i<4; i++)
                 {
                     x = skywalx[i&3]; y = skywaly[i&3];
                     _xp0 = (double)y*gcosang  - (double)x*gsinang;
@@ -3676,7 +3676,7 @@ static void polymost_drawalls(int32_t bunch)
                 px[2] = ghalfx*ox2*oy2 + ghalfx; oy2 *= gyxscale;
                 py[2] = oy2 + ghoriz;
 
-                for (i=0;i<3;i++)
+                for (i=0; i<3; i++)
                 {
                     dd[i] = px[i]*gdx + py[i]*gdy + gdo;
                     uu[i] = px[i]*gux + py[i]*guy + guo;
@@ -3740,7 +3740,7 @@ static void polymost_drawalls(int32_t bunch)
                     bglFogfv(GL_FOG_COLOR,fogcol);
                 }
                 //Use clamping for tiled sky textures
-                for (i=(1<<pskybits)-1;i>0;i--)
+                for (i=(1<<pskybits)-1; i>0; i--)
                     if (pskyoff[i] != pskyoff[i-1])
                         { skyclamphack = r_parallaxskyclamping; break; }
             }
@@ -3807,7 +3807,7 @@ static void polymost_drawalls(int32_t bunch)
                 pow2xsplit = 0;
                 skyclamphack = 1;
 
-                for (i=0;i<4;i++)
+                for (i=0; i<4; i++)
                 {
                     x = skywalx[i&3]; y = skywaly[i&3];
                     _xp0 = (double)y*gcosang  - (double)x*gsinang;
@@ -4208,10 +4208,10 @@ static int32_t polymost_bunchfront(int32_t b1, int32_t b2)
 
     if (x1b1 >= x1b2)
     {
-        for (i=b2f;dxb2[i]<=x1b1;i=p2[i]);
+        for (i=b2f; dxb2[i]<=x1b1; i=p2[i]);
         return(wallfront(b1f,i));
     }
-    for (i=b1f;dxb2[i]<=x1b2;i=p2[i]);
+    for (i=b1f; dxb2[i]<=x1b2; i=p2[i]);
     return(wallfront(i,b2f));
 }
 
@@ -4231,7 +4231,7 @@ static void polymost_scansector(int32_t sectnum)
     {
         sectnum = sectorborder[--sectorbordercnt];
 
-        for (z=headspritesect[sectnum];z>=0;z=nextspritesect[z])
+        for (z=headspritesect[sectnum]; z>=0; z=nextspritesect[z])
         {
             spr = &sprite[z];
             if ((((spr->cstat&0x8000) == 0) || (showinvisibility)) &&
@@ -4256,7 +4256,7 @@ static void polymost_scansector(int32_t sectnum)
         startwall = sector[sectnum].wallptr; endwall = sector[sectnum].wallnum+startwall;
         scanfirst = numscans;
         xp2 = 0; yp2 = 0;
-        for (z=startwall,wal=&wall[z];z<endwall;z++,wal++)
+        for (z=startwall,wal=&wall[z]; z<endwall; z++,wal++)
         {
             wal2 = &wall[wal->point2];
             x1 = wal->x-globalposx; y1 = wal->y-globalposy;
@@ -4297,13 +4297,13 @@ static void polymost_scansector(int32_t sectnum)
                 { p2[numscans-1] = scanfirst; scanfirst = numscans; }
         }
 
-        for (z=numscansbefore;z<numscans;z++)
+        for (z=numscansbefore; z<numscans; z++)
             if ((wall[thewall[z]].point2 != thewall[p2[z]]) || (dxb2[z] > dxb1[p2[z]]))
                 { bunchfirst[numbunches++] = p2[z]; p2[z] = -1; }
 
-        for (z=bunchfrst;z<numbunches;z++)
+        for (z=bunchfrst; z<numbunches; z++)
         {
-            for (zz=bunchfirst[z];p2[zz]>=0;zz=p2[zz]);
+            for (zz=bunchfirst[z]; p2[zz]>=0; zz=p2[zz]);
             bunchlast[z] = zz;
         }
     }
@@ -4355,15 +4355,15 @@ void polymost_drawrooms()
                 globalposy += cosglobalang/1024;
             }
         }
-/*
-        if (r_depthpeeling)
-        {
-            bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, peelfbos[r_peelscount]);
-            bglPushAttrib(GL_VIEWPORT_BIT);
-            bglViewport(0, 0, xdim, ydim);
-            //bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-        }
-*/
+        /*
+                if (r_depthpeeling)
+                {
+                    bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, peelfbos[r_peelscount]);
+                    bglPushAttrib(GL_VIEWPORT_BIT);
+                    bglViewport(0, 0, xdim, ydim);
+                    //bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+                }
+        */
     }
 #endif
 
@@ -4399,7 +4399,7 @@ void polymost_drawrooms()
     //Generate viewport trapezoid (for handling screen up/down)
     px[0] = px[3] = 0-1; px[1] = px[2] = windowx2+1-windowx1+2;
     py[0] = py[1] = 0-1; py[2] = py[3] = windowy2+1-windowy1+2; n = 4;
-    for (i=0;i<n;i++)
+    for (i=0; i<n; i++)
     {
         ox = px[i]-ghalfx; oy = py[i]-ghoriz; oz = ghalfx;
 
@@ -4416,7 +4416,7 @@ void polymost_drawrooms()
 
     //Clip to SCISDIST plane
     n2 = 0;
-    for (i=0;i<n;i++)
+    for (i=0; i<n; i++)
     {
         j = i+1; if (j >= n) j = 0;
         if (pz[i] >= SCISDIST) { px2[n2] = px[i]; py2[n2] = py[i]; pz2[n2] = pz[i]; n2++; }
@@ -4429,7 +4429,7 @@ void polymost_drawrooms()
         }
     }
     if (n2 < 3) { enddrawing(); return; }
-    for (i=0;i<n2;i++)
+    for (i=0; i<n2; i++)
     {
         r = ghalfx / pz2[i];
         sx[i] = px2[i]*r + ghalfx;
@@ -4488,9 +4488,7 @@ void polymost_drawrooms()
         hitallsprites = 0;
 
         searchsector = hitinfo.hitsect;
-        if (hitinfo.pos.z<cz) searchstat = 1;else
-        if (hitinfo.pos.z>fz) searchstat = 2;else
-        if (hitinfo.hitwall >= 0)
+        if (hitinfo.pos.z<cz) searchstat = 1; else if (hitinfo.pos.z>fz) searchstat = 2; else if (hitinfo.hitwall >= 0)
         {
             searchwall = hitinfo.hitwall; searchstat = 0;
             if (wall[hitinfo.hitwall].nextwall >= 0)
@@ -4547,13 +4545,13 @@ void polymost_drawrooms()
         memset(ptempbuf,0,numbunches+3); ptempbuf[0] = 1;
 
         closest = 0;              //Almost works, but not quite :(
-        for (i=1;i<numbunches;i++)
+        for (i=1; i<numbunches; i++)
         {
             j = polymost_bunchfront(i,closest); if (j < 0) continue;
             ptempbuf[i] = 1;
             if (!j) { ptempbuf[closest] = 1; closest = i; }
         }
-        for (i=0;i<numbunches;i++) //Double-check
+        for (i=0; i<numbunches; i++) //Double-check
         {
             if (ptempbuf[i]) continue;
             j = polymost_bunchfront(i,closest); if (j < 0) continue;
@@ -4603,17 +4601,17 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     globalpal = (int32_t)((uint8_t)wal->pal);
     globalorientation = (int32_t)wal->cstat;
 
-/*
-#ifdef USE_OPENGL
-    if (r_depthpeeling)
-    {
-        if ((((wal->cstat&128) || (gltexmayhavealpha(globalpicnum,globalpal)))) && !peelcompiling)
-            return; // discard translucent sprite if drawing the backbuffer when doing depth peeling
-        if (!(((wal->cstat&128) || (gltexmayhavealpha(globalpicnum,globalpal)))) && peelcompiling)
-            return; // discard opaque sprite when composing the depth peels
-    }
-#endif
-*/
+    /*
+    #ifdef USE_OPENGL
+        if (r_depthpeeling)
+        {
+            if ((((wal->cstat&128) || (gltexmayhavealpha(globalpicnum,globalpal)))) && !peelcompiling)
+                return; // discard translucent sprite if drawing the backbuffer when doing depth peeling
+            if (!(((wal->cstat&128) || (gltexmayhavealpha(globalpicnum,globalpal)))) && peelcompiling)
+                return; // discard opaque sprite when composing the depth peels
+        }
+    #endif
+    */
 
     sx0 = (float)(wal->x-globalposx); sx1 = (float)(wal2->x-globalposx);
     sy0 = (float)(wal->y-globalposy); sy1 = (float)(wal2->y-globalposy);
@@ -4695,7 +4693,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     }
 #endif
 
-    for (i=0;i<2;i++)
+    for (i=0; i<2; i++)
     {
         csy[i] = ((float)(cz[i]-globalposz))*ryp0 + ghoriz;
         fsy[i] = ((float)(fz[i]-globalposz))*ryp0 + ghoriz;
@@ -4725,7 +4723,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
 
     //Clip to (x0,csy[0])-(x1,csy[2])
     n2 = 0; t1 = -((dpx[0]-x0)*(csy[2]-csy[0]) - (dpy[0]-csy[0])*(x1-x0));
-    for (i=0;i<n;i++)
+    for (i=0; i<n; i++)
     {
         j = i+1; if (j >= n) j = 0;
 
@@ -4743,7 +4741,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
 
     //Clip to (x1,fsy[2])-(x0,fsy[0])
     n = 0; t1 = -((dpx2[0]-x1)*(fsy[0]-fsy[2]) - (dpy2[0]-fsy[2])*(x0-x1));
-    for (i=0;i<n2;i++)
+    for (i=0; i<n2; i++)
     {
         j = i+1; if (j >= n2) j = 0;
 
@@ -4767,13 +4765,13 @@ char cullmodel[MAXSPRITES];
 int32_t cullcheckcnt = 0;
 
 #ifndef _MSC_VER
-  #ifdef __GNUC__
-    #ifndef __fastcall
-      #define __fastcall __attribute__((fastcall))
-    #endif
-  #else
-    #define __fastcall
-  #endif
+#ifdef __GNUC__
+#ifndef __fastcall
+#define __fastcall __attribute__((fastcall))
+#endif
+#else
+#define __fastcall
+#endif
 #endif
 
 int32_t __fastcall polymost_checkcoordinates(int32_t x, int32_t y, spritetype *tspr)
@@ -4808,7 +4806,7 @@ RECHECK:
 
     cullcheckcnt++;
     if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-        tspr->x+x, tspr->y+y, tspr->z-512, datempsectnum))
+               tspr->x+x, tspr->y+y, tspr->z-512, datempsectnum))
         return 1;
 
     if (x != y && x == oldx)
@@ -4854,15 +4852,15 @@ void polymost_drawsprite(int32_t snum)
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
 
 #ifdef USE_OPENGL
-/*
-    if (r_depthpeeling)
-    {
-        if ((((tspr->cstat&2) || (gltexmayhavealpha(globalpicnum,tspr->pal)))) && !peelcompiling)
-            return; // discard translucent sprite if drawing the backbuffer when doing depth peeling
-        if (!(((tspr->cstat&2) || (gltexmayhavealpha(globalpicnum,tspr->pal)))) && peelcompiling)
-            return; // discard opaque sprite when composing the depth peels
-    }
-*/
+    /*
+        if (r_depthpeeling)
+        {
+            if ((((tspr->cstat&2) || (gltexmayhavealpha(globalpicnum,tspr->pal)))) && !peelcompiling)
+                return; // discard translucent sprite if drawing the backbuffer when doing depth peeling
+            if (!(((tspr->cstat&2) || (gltexmayhavealpha(globalpicnum,tspr->pal)))) && peelcompiling)
+                return; // discard opaque sprite when composing the depth peels
+        }
+    */
 
     if (!nofog && rendmode >= 3)
     {
@@ -5193,7 +5191,7 @@ void polymost_drawsprite(int32_t snum)
         y1 = ((tsizy>>1)+yoff)*tspr->yrepeat;
 
         //Project 3D to 2D
-        for (j=0;j<4;j++)
+        for (j=0; j<4; j++)
         {
             sx0 = (float)(tspr->x-globalposx);
             sy0 = (float)(tspr->y-globalposy);
@@ -5215,7 +5213,7 @@ void polymost_drawsprite(int32_t snum)
 
         //Clip to SCISDIST plane
         npoints = 0;
-        for (i=0;i<4;i++)
+        for (i=0; i<4; i++)
         {
             j = ((i+1)&3);
             if (py[i] >= SCISDIST) { px2[npoints] = px[i]; py2[npoints] = py[i]; npoints++; }
@@ -5230,7 +5228,7 @@ void polymost_drawsprite(int32_t snum)
 
         //Project rotated 3D points to screen
         f = ((float)(tspr->z-globalposz))*gyxscale;
-        for (j=0;j<npoints;j++)
+        for (j=0; j<npoints; j++)
         {
             ryp0 = 1/py2[j];
             px[j] = ghalfx*px2[j]*ryp0 + ghalfx;
@@ -5636,7 +5634,7 @@ static void drawtrap(float x0, float x1, float y0, float x2, float x3, float y1)
     else               { px[1] = x1; py[1] = y0; px[2] = x3; px[3] = x2; py[3] = y1; n = 4; }
 
     bglBegin(GL_TRIANGLE_FAN);
-    for (i=0;i<n;i++)
+    for (i=0; i<n; i++)
     {
         px[i] = min(max(px[i],trapextx[0]),trapextx[1]);
         bglTexCoord2f(px[i]*gux + py[i]*guy + guo,
@@ -5663,9 +5661,9 @@ static void tessectrap(float *px, float *py, int32_t *point2, int32_t numpoints)
     }
 
     //Remove unnecessary collinear points:
-    for (i=0;i<numpoints;i++) npoint2[i] = point2[i];
+    for (i=0; i<numpoints; i++) npoint2[i] = point2[i];
     npoints = numpoints; z = 0;
-    for (i=0;i<numpoints;i++)
+    for (i=0; i<numpoints; i++)
     {
         j = npoint2[i]; if ((point2[i] < i) && (i < numpoints-1)) z = 3;
         if (j < 0) continue;
@@ -5678,7 +5676,7 @@ static void tessectrap(float *px, float *py, int32_t *point2, int32_t numpoints)
     }
     if (!z) return;
     trapextx[0] = trapextx[1] = px[0];
-    for (i=j=0;i<numpoints;i++)
+    for (i=j=0; i<numpoints; i++)
     {
         if (npoint2[i] < 0) continue;
         if (px[i] < trapextx[0]) trapextx[0] = px[i];
@@ -5688,7 +5686,7 @@ static void tessectrap(float *px, float *py, int32_t *point2, int32_t numpoints)
     if (z != 3) //Simple polygon... early out
     {
         bglBegin(GL_TRIANGLE_FAN);
-        for (i=0;i<npoints;i++)
+        for (i=0; i<npoints; i++)
         {
             j = slist[i];
             bglTexCoord2f(px[j]*gux + py[j]*guy + guo,
@@ -5700,16 +5698,16 @@ static void tessectrap(float *px, float *py, int32_t *point2, int32_t numpoints)
     }
 
     //Sort points by y's
-    for (gap=(npoints>>1);gap;gap>>=1)
-        for (i=0;i<npoints-gap;i++)
-            for (j=i;j>=0;j-=gap)
+    for (gap=(npoints>>1); gap; gap>>=1)
+        for (i=0; i<npoints-gap; i++)
+            for (j=i; j>=0; j-=gap)
             {
                 if (py[npoint2[slist[j]]] <= py[npoint2[slist[j+gap]]]) break;
                 k = slist[j]; slist[j] = slist[j+gap]; slist[j+gap] = k;
             }
 
     numrst = 0;
-    for (z=0;z<npoints;z++)
+    for (z=0; z<npoints; z++)
     {
         i0 = slist[z]; i1 = npoint2[i0]; if (py[i0] == py[i1]) continue;
         i2 = i1; i3 = npoint2[i1];
@@ -5723,7 +5721,7 @@ static void tessectrap(float *px, float *py, int32_t *point2, int32_t numpoints)
 
         if ((py[i1] < py[i0]) && (py[i2] < py[i3])) //Insert raster
         {
-            for (i=numrst;i>0;i--)
+            for (i=numrst; i>0; i--)
             {
                 if (rst[i-1].xi*(py[i1]-rst[i-1].y) + rst[i-1].x < px[i1]) break;
                 rst[i+1] = rst[i-1];
@@ -5751,13 +5749,13 @@ static void tessectrap(float *px, float *py, int32_t *point2, int32_t numpoints)
         else
         {
             //NOTE:don't count backwards!
-            if (i1 == i2) { for (i=0;i<numrst;i++) if (rst[i].i == i1) break; }
-            else { for (i=0;i<numrst;i++) if ((rst[i].i == i1) || (rst[i].i == i2)) break; }
+            if (i1 == i2) { for (i=0; i<numrst; i++) if (rst[i].i == i1) break; }
+            else { for (i=0; i<numrst; i++) if ((rst[i].i == i1) || (rst[i].i == i2)) break; }
             j = i&~1;
 
             if ((py[i1] > py[i0]) && (py[i2] > py[i3])) //Delete raster
             {
-                for (;j<=i+1;j+=2)
+                for (; j<=i+1; j+=2)
                 {
                     x0 = (py[i1] - rst[j  ].y)*rst[j  ].xi + rst[j  ].x;
                     if ((i == j) && (i1 == i2)) x1 = x0; else x1 = (py[i1] - rst[j+1].y)*rst[j+1].xi + rst[j+1].x;
@@ -5765,7 +5763,7 @@ static void tessectrap(float *px, float *py, int32_t *point2, int32_t numpoints)
                     rst[j  ].x = x0; rst[j  ].y = py[i1];
                     rst[j+1].x = x1; rst[j+1].y = py[i1];
                 }
-                numrst -= 2; for (;i<numrst;i++) rst[i] = rst[i+2];
+                numrst -= 2; for (; i<numrst; i++) rst[i] = rst[i+2];
             }
             else
             {
@@ -5799,7 +5797,7 @@ void polymost_fillpolygon(int32_t npoints)
     gvo = (((double)xdim)*gvx + ((double)ydim)*gvy)*-.5 - ((double)globalposy)*(1.0/4294967296.0);
 
     //Convert int32_t to float (in-place)
-    for (i=npoints-1;i>=0;i--)
+    for (i=npoints-1; i>=0; i--)
     {
         ((float *)rx1)[i] = ((float)rx1[i])/4096.0;
         ((float *)ry1)[i] = ((float)ry1[i])/4096.0;
@@ -5955,12 +5953,12 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
         Bmemset(tbuf, 0, 256*128);
 
         cptr = (char*)textfont;
-        for (h=0;h<256;h++)
+        for (h=0; h<256; h++)
         {
             tptr = tbuf + (h%32)*8 + (h/32)*256*8;
-            for (i=0;i<8;i++)
+            for (i=0; i<8; i++)
             {
-                for (j=0;j<8;j++)
+                for (j=0; j<8; j++)
                 {
                     if (cptr[h*8+i] & pow2char[7-j]) tptr[j] = 255;
                 }
@@ -5969,12 +5967,12 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
         }
 
         cptr = (char*)smalltextfont;
-        for (h=0;h<256;h++)
+        for (h=0; h<256; h++)
         {
             tptr = tbuf + 256*64 + (h%32)*8 + (h/32)*256*8;
-            for (i=1;i<7;i++)
+            for (i=1; i<7; i++)
             {
-                for (j=2;j<6;j++)
+                for (j=2; j<6; j++)
                 {
                     if (cptr[h*8+i] & pow2char[7-j]) tptr[j-2] = 255;
                 }
@@ -6172,46 +6170,46 @@ static int32_t osdcmd_polymostvars(const osdfuncparm_t *parm)
         else gltexmiplevel = val;
         return OSDCMD_OK;
     }
-/*
-    else if (!Bstrcasecmp(parm->name, "r_depthpeeling"))
-    {
-        if (showval) { OSD_Printf("r_depthpeeling is %d\n", r_depthpeeling); }
-        else
+    /*
+        else if (!Bstrcasecmp(parm->name, "r_depthpeeling"))
         {
-            if (!glinfo.arbfp || !glinfo.depthtex || !glinfo.shadow || !glinfo.fbos || !glinfo.rect)
+            if (showval) { OSD_Printf("r_depthpeeling is %d\n", r_depthpeeling); }
+            else
             {
-                OSD_Printf("r_depthpeeling: Your OpenGL implementation doesn't support depth peeling.\n");
-                r_depthpeeling = 0;
-                return OSDCMD_OK;
+                if (!glinfo.arbfp || !glinfo.depthtex || !glinfo.shadow || !glinfo.fbos || !glinfo.rect)
+                {
+                    OSD_Printf("r_depthpeeling: Your OpenGL implementation doesn't support depth peeling.\n");
+                    r_depthpeeling = 0;
+                    return OSDCMD_OK;
+                }
+                r_depthpeeling = (val != 0);
+                resetvideomode();
+                if (setgamemode(fullscreen,xdim,ydim,bpp))
+                    OSD_Printf("restartvid: Reset failed...\n");
             }
-            r_depthpeeling = (val != 0);
-            resetvideomode();
-            if (setgamemode(fullscreen,xdim,ydim,bpp))
-                OSD_Printf("restartvid: Reset failed...\n");
+            return OSDCMD_OK;
         }
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_peelscount"))
-    {
-        if (showval) { OSD_Printf("r_peelscount is %d\n", r_peelscount); }
-        else if (val < 1) { OSD_Printf("Value out of range.\n"); }
-        else
+        else if (!Bstrcasecmp(parm->name, "r_peelscount"))
         {
-            newpeelscount = val;
-            resetvideomode();
-            if (setgamemode(fullscreen,xdim,ydim,bpp))
-                OSD_Printf("restartvid: Reset failed...\n");
+            if (showval) { OSD_Printf("r_peelscount is %d\n", r_peelscount); }
+            else if (val < 1) { OSD_Printf("Value out of range.\n"); }
+            else
+            {
+                newpeelscount = val;
+                resetvideomode();
+                if (setgamemode(fullscreen,xdim,ydim,bpp))
+                    OSD_Printf("restartvid: Reset failed...\n");
+            }
+            return OSDCMD_OK;
         }
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_curpeel"))
-    {
-        if (showval) { OSD_Printf("r_curpeel is %d\n", r_curpeel); }
-        else if ((val < -1) || (val >= r_peelscount)) { OSD_Printf("Value out of range.\n"); }
-        else r_curpeel = val;
-        return OSDCMD_OK;
-    }
-*/
+        else if (!Bstrcasecmp(parm->name, "r_curpeel"))
+        {
+            if (showval) { OSD_Printf("r_curpeel is %d\n", r_curpeel); }
+            else if ((val < -1) || (val >= r_peelscount)) { OSD_Printf("Value out of range.\n"); }
+            else r_curpeel = val;
+            return OSDCMD_OK;
+        }
+    */
     else if (!Bstrcasecmp(parm->name, "r_detailmapping"))
     {
         if (showval) { OSD_Printf("r_detailmapping is %d\n", r_detailmapping); }
@@ -6375,7 +6373,7 @@ static int32_t dumptexturedefs(const osdfuncparm_t *parm)
     if (!hicfirstinit) return OSDCMD_OK;
 
     initprintf("// Begin Texture Dump\n");
-    for (i=0;i<MAXTILES;i++)
+    for (i=0; i<MAXTILES; i++)
     {
         hr = hicreplc[i];
         if (!hr) continue;
@@ -6400,10 +6398,10 @@ void polymost_initosdfuncs(void)
 #ifdef USE_OPENGL
     OSD_RegisterFunction("r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",osdcmd_polymostvars);
     OSD_RegisterFunction("r_modelocclusionchecking","r_modelocclusionchecking: enable/disable hack to cull \"obstructed\" models",osdcmd_polymostvars);
-/*
-    OSD_RegisterFunction("r_curpeel","r_curpeel: allows to display one depth layer at a time (for development purposes)",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_depthpeeling","r_depthpeeling: enable/disable order-independant transparency",osdcmd_polymostvars);
-*/
+    /*
+        OSD_RegisterFunction("r_curpeel","r_curpeel: allows to display one depth layer at a time (for development purposes)",osdcmd_polymostvars);
+        OSD_RegisterFunction("r_depthpeeling","r_depthpeeling: enable/disable order-independant transparency",osdcmd_polymostvars);
+    */
     OSD_RegisterFunction("r_detailmapping","r_detailmapping: enable/disable detail mapping",osdcmd_polymostvars);
     OSD_RegisterFunction("r_downsize","r_downsize: controls downsizing factor for hires textures",osdcmd_polymostvars);
     OSD_RegisterFunction("r_fullbrights","r_fullbrights: enable/disable fullbright textures",osdcmd_polymostvars);
@@ -6412,7 +6410,7 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",osdcmd_polymostvars);
     OSD_RegisterFunction("r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",osdcmd_polymostvars);
     OSD_RegisterFunction("r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",osdcmd_polymostvars);
-/*    OSD_RegisterFunction("r_peelscount","r_peelscount: sets the number of depth layers for depth peeling",osdcmd_polymostvars);*/
+    /*    OSD_RegisterFunction("r_peelscount","r_peelscount: sets the number of depth layers for depth peeling",osdcmd_polymostvars);*/
     OSD_RegisterFunction("r_polygonmode","r_polygonmode: debugging feature",osdcmd_polymostvars); //FUK
     OSD_RegisterFunction("r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",osdcmd_polymostvars);
     OSD_RegisterFunction("r_shadescale","r_shadescale: multiplier for lighting",osdcmd_polymostvars);
@@ -6464,7 +6462,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
         if (models[mid]->mdnum == 3)
             j = ((md3model_t *)models[mid])->head.numsurfs;
 
-        for (i=0;i<=j;i++)
+        for (i=0; i<=j; i++)
         {
             mdloadskin((md2model_t*)models[mid], 0, dapalnum, i);
         }
@@ -6572,9 +6570,9 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     {
         //alpha_4x4
         cptr = midbuf;
-        for (k=0;k<8;k++) *cptr++ = pic[k];
-        for (j=stride;(unsigned)j<miplen;j+=stride)
-            for (k=0;k<8;k++) *cptr++ = pic[j+k];
+        for (k=0; k<8; k++) *cptr++ = pic[k];
+        for (j=stride; (unsigned)j<miplen; j+=stride)
+            for (k=0; k<8; k++) *cptr++ = pic[j+k];
         if (glusetexcachecompression)
         {
 #ifdef USELZF
@@ -6587,8 +6585,8 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
             }
             else writebuf = packbuf;
 #else
-            cleng = lzwcompress(midbuf,(miplen/stride)*8,packbuf);
-            writebuf = packbuf;
+    cleng = lzwcompress(midbuf,(miplen/stride)*8,packbuf);
+    writebuf = packbuf;
 #endif
         }
         else
@@ -6603,8 +6601,8 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
 
     //rgb0,rgb1
     cptr = midbuf;
-    for (k=0;k<=2;k+=2)
-        for (j=0;(unsigned)j<miplen;j+=stride)
+    for (k=0; k<=2; k+=2)
+        for (j=0; (unsigned)j<miplen; j+=stride)
             { *(int16_t *)cptr = hicosub(*(int16_t *)(&pic[offs+j+k])); cptr += 2; }
     if (glusetexcachecompression)
     {
@@ -6618,8 +6616,8 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
         }
         else writebuf = packbuf;
 #else
-        cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
-        writebuf = packbuf;
+    cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
+    writebuf = packbuf;
 #endif
     }
     else
@@ -6633,7 +6631,7 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
 
     //index_4x4
     cptr = midbuf;
-    for (j=0;(unsigned)j<miplen;j+=stride)
+    for (j=0; (unsigned)j<miplen; j+=stride)
     {
         char *c2 = &pic[j+offs+4];
         cptr[0] = ((c2[0]>>0)&3) + (((c2[1]>>0)&3)<<2) + (((c2[2]>>0)&3)<<4) + (((c2[3]>>0)&3)<<6);
@@ -6654,8 +6652,8 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
         }
         else writebuf = packbuf;
 #else
-        cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
-        writebuf = packbuf;
+    cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
+    writebuf = packbuf;
 #endif
     }
     else
@@ -6709,13 +6707,13 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
         if (ispacked && cleng < j)
             if (lzf_decompress(packbuf,cleng,midbuf,j) == 0) return -1;
 #else
-        if (Bread(fil,inbuf,cleng) < cleng) return -1;
-        if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
+    if (Bread(fil,inbuf,cleng) < cleng) return -1;
+    if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
 #endif
         cptr = midbuf;
-        for (k=0;k<8;k++) pic[k] = *cptr++;
-        for (j=stride;j<pict->size;j+=stride)
-            for (k=0;k<8;k++) pic[j+k] = (*cptr++);
+        for (k=0; k<8; k++) pic[k] = *cptr++;
+        for (j=stride; j<pict->size; j+=stride)
+            for (k=0; k<8; k++) pic[j+k] = (*cptr++);
     }
 
     //rgb0,rgb1
@@ -6731,8 +6729,8 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
     if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
 #endif
     cptr = midbuf;
-    for (k=0;k<=2;k+=2)
-        for (j=0;j<pict->size;j+=stride)
+    for (k=0; k<=2; k+=2)
+        for (j=0; j<pict->size; j+=stride)
         {
             *(int16_t *)(&pic[offs+j+k]) = hicoadd(*(int16_t *)cptr);
             cptr += 2;
@@ -6751,7 +6749,7 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
     if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
 #endif
     cptr = midbuf;
-    for (j=0;j<pict->size;j+=stride)
+    for (j=0; j<pict->size; j+=stride)
     {
         pic[j+offs+4] = ((cptr[0]>>0)&3) + (((cptr[1]>>0)&3)<<2) + (((cptr[2]>>0)&3)<<4) + (((cptr[3]>>0)&3)<<6);
         pic[j+offs+5] = ((cptr[0]>>2)&3) + (((cptr[1]>>2)&3)<<2) + (((cptr[2]>>2)&3)<<4) + (((cptr[3]>>2)&3)<<6);
@@ -6766,7 +6764,7 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
 
 #else /* POLYMOST */
 
-int32_t polymost_drawtilescreen (int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen) { return -1; }
+int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen) { return -1; }
 
 #endif
 

@@ -185,14 +185,14 @@ void qinterpolatedown16(intptr_t bufptr, int32_t num, int32_t val, int32_t add)
 {
     // gee, I wonder who could have provided this...
     int32_t i, *lptr = (int32_t *)bufptr;
-    for (i=0;i<num;i++) { lptr[i] = (val>>16); val += add; }
+    for (i=0; i<num; i++) { lptr[i] = (val>>16); val += add; }
 }
 
 void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t add)
 {
     // ...maybe the same person who provided this too?
     int32_t i; int16_t *sptr = (int16_t *)bufptr;
-    for (i=0;i<num;i++) { sptr[i] = (int16_t)(val>>16); val += add; }
+    for (i=0; i<num; i++) { sptr[i] = (int16_t)(val>>16); val += add; }
 }
 
 void clearbuf(void *d, int32_t c, int32_t a)

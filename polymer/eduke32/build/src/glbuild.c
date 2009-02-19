@@ -74,7 +74,7 @@ void (APIENTRY * bglNormal3f)(GLfloat x, GLfloat y, GLfloat z);
 
 // Lighting
 void (APIENTRY * bglShadeModel)(GLenum mode);
-void (APIENTRY * bglLightfv)( GLenum light, GLenum pname, const GLfloat * params );
+void (APIENTRY * bglLightfv)(GLenum light, GLenum pname, const GLfloat * params);
 
 // Raster funcs
 void (APIENTRY * bglReadPixels)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
@@ -147,7 +147,7 @@ void (APIENTRY * bglBindBufferARB)(GLenum target, GLuint buffer);
 void (APIENTRY * bglDeleteBuffersARB)(GLsizei n, const GLuint * buffers);
 void (APIENTRY * bglBufferDataARB)(GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage);
 void (APIENTRY * bglBufferSubDataARB)(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid * data);
-void* (APIENTRY * bglMapBufferARB)(GLenum target, GLenum access);
+void*(APIENTRY * bglMapBufferARB)(GLenum target, GLenum access);
 GLboolean(APIENTRY * bglUnmapBufferARB)(GLenum target);
 
 // Occlusion queries
@@ -162,12 +162,12 @@ void (APIENTRY * bglGetQueryObjectuivARB)(GLuint id, GLenum pname, GLuint *param
 
 // Shader Objects
 void (APIENTRY * bglDeleteObjectARB)(GLhandleARB);
-GLhandleARB (APIENTRY * bglGetHandleARB)(GLenum);
+GLhandleARB(APIENTRY * bglGetHandleARB)(GLenum);
 void (APIENTRY * bglDetachObjectARB)(GLhandleARB, GLhandleARB);
-GLhandleARB (APIENTRY * bglCreateShaderObjectARB)(GLenum);
+GLhandleARB(APIENTRY * bglCreateShaderObjectARB)(GLenum);
 void (APIENTRY * bglShaderSourceARB)(GLhandleARB, GLsizei, const GLcharARB* *, const GLint *);
 void (APIENTRY * bglCompileShaderARB)(GLhandleARB);
-GLhandleARB (APIENTRY * bglCreateProgramObjectARB)(void);
+GLhandleARB(APIENTRY * bglCreateProgramObjectARB)(void);
 void (APIENTRY * bglAttachObjectARB)(GLhandleARB, GLhandleARB);
 void (APIENTRY * bglLinkProgramARB)(GLhandleARB);
 void (APIENTRY * bglUseProgramObjectARB)(GLhandleARB);
@@ -195,7 +195,7 @@ void (APIENTRY * bglGetObjectParameterfvARB)(GLhandleARB, GLenum, GLfloat *);
 void (APIENTRY * bglGetObjectParameterivARB)(GLhandleARB, GLenum, GLint *);
 void (APIENTRY * bglGetInfoLogARB)(GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
 void (APIENTRY * bglGetAttachedObjectsARB)(GLhandleARB, GLsizei, GLsizei *, GLhandleARB *);
-GLint (APIENTRY * bglGetUniformLocationARB)(GLhandleARB, const GLcharARB *);
+GLint(APIENTRY * bglGetUniformLocationARB)(GLhandleARB, const GLcharARB *);
 void (APIENTRY * bglGetActiveUniformARB)(GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *);
 void (APIENTRY * bglGetUniformfvARB)(GLhandleARB, GLint, GLfloat *);
 void (APIENTRY * bglGetUniformivARB)(GLhandleARB, GLint, GLint *);
@@ -247,7 +247,7 @@ void (APIENTRY * bglGetVertexAttribivARB)(GLuint, GLenum, GLint *);
 void (APIENTRY * bglGetVertexAttribPointervARB)(GLuint, GLenum, GLvoid* *);
 void (APIENTRY * bglBindAttribLocationARB)(GLhandleARB, GLuint, const GLcharARB *);
 void (APIENTRY * bglGetActiveAttribARB)(GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *);
-GLint (APIENTRY * bglGetAttribLocationARB)(GLhandleARB, const GLcharARB *);
+GLint(APIENTRY * bglGetAttribLocationARB)(GLhandleARB, const GLcharARB *);
 
 // GLU
 void (APIENTRY * bgluTessBeginContour)(GLUtesselator* tess);
@@ -262,7 +262,7 @@ GLUtesselator*(APIENTRY * bgluNewTess)(void);
 
 void (APIENTRY * bgluPerspective)(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
-const GLubyte * (APIENTRY * bgluErrorString)(GLenum error);
+const GLubyte *(APIENTRY * bgluErrorString)(GLenum error);
 
 GLint(APIENTRY * bgluProject)(GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint	*view, GLdouble* winX, GLdouble* winY, GLdouble* winZ);
 

@@ -671,7 +671,7 @@ static void scansector(int16_t sectnum)
     {
         sectnum = sectorborder[--sectorbordercnt];
 
-        for (z=headspritesect[sectnum];z>=0;z=nextspritesect[z])
+        for (z=headspritesect[sectnum]; z>=0; z=nextspritesect[z])
         {
             spr = &sprite[z];
             if ((((spr->cstat&0x8000) == 0) || (showinvisibility)) &&
@@ -696,7 +696,7 @@ static void scansector(int16_t sectnum)
         startwall = sector[sectnum].wallptr;
         endwall = startwall + sector[sectnum].wallnum;
         scanfirst = numscans;
-        for (z=startwall,wal=&wall[z];z<endwall;z++,wal++)
+        for (z=startwall,wal=&wall[z]; z<endwall; z++,wal++)
         {
             nextsectnum = wal->nextsector;
 
@@ -778,13 +778,13 @@ skipitaddwall:
                 p2[numscans-1] = scanfirst, scanfirst = numscans;
         }
 
-        for (z=numscansbefore;z<numscans;z++)
+        for (z=numscansbefore; z<numscans; z++)
             if ((wall[thewall[z]].point2 != thewall[p2[z]]) || (xb2[z] >= xb1[p2[z]]))
                 bunchfirst[numbunches++] = p2[z], p2[z] = -1;
 
-        for (z=bunchfrst;z<numbunches;z++)
+        for (z=bunchfrst; z<numbunches; z++)
         {
-            for (zz=bunchfirst[z];p2[zz]>=0;zz=p2[zz]);
+            for (zz=bunchfirst[z]; p2[zz]>=0; zz=p2[zz]);
             bunchlast[z] = zz;
         }
     }
@@ -802,7 +802,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
     int32_t y1ve[4], y2ve[4], /* p,*/ tsizx, tsizy;
 #ifndef ENGINE_USING_A_C
     char bad;
-	int32_t i, u4, d4, dax, z;
+    int32_t i, u4, d4, dax, z;
 #endif
 
     tsizx = tilesizx[globalpicnum];
@@ -835,7 +835,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
 
     p = x+frameoffset;
 
-    for (;(x<=x2)&&(p&3);x++,p++)
+    for (; (x<=x2)&&(p&3); x++,p++)
     {
         y1ve[0] = max(uwal[x],startumost[x+windowx1]-windowy1);
         y2ve[0] = min(dwal[x],startdmost[x+windowx1]-windowy1);
@@ -852,10 +852,10 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
 
         mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],p+ylookup[y1ve[0]]);
     }
-    for (;x<=x2-3;x+=4,p+=4)
+    for (; x<=x2-3; x+=4,p+=4)
     {
         bad = 0;
-        for (z=3,dax=x+3;z>=0;z--,dax--)
+        for (z=3,dax=x+3; z>=0; z--,dax--)
         {
             y1ve[z] = max(uwal[dax],startumost[dax+windowx1]-windowy1);
             y2ve[z] = min(dwal[dax],startdmost[dax+windowx1]-windowy1)-1;
@@ -910,7 +910,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         if (y2ve[2] > d4) mvlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],i+2);
         if (y2ve[3] > d4) mvlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],i+3);
     }
-    for (;x<=x2;x++,p++)
+    for (; x<=x2; x++,p++)
     {
         y1ve[0] = max(uwal[x],startumost[x+windowx1]-windowy1);
         y2ve[0] = min(dwal[x],startdmost[x+windowx1]-windowy1);
@@ -931,7 +931,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
 #else   // ENGINE_USING_A_C
 
     p = startx+frameoffset;
-    for (x=startx;x<=x2;x++,p++)
+    for (x=startx; x<=x2; x++,p++)
     {
         y1ve[0] = max(uwal[x],startumost[x+windowx1]-windowy1);
         y2ve[0] = min(dwal[x],startdmost[x+windowx1]-windowy1);
@@ -1072,10 +1072,10 @@ static inline int32_t bunchfront(int32_t b1, int32_t b2)
 
     if (x1b1 >= x1b2)
     {
-        for (i=b2f;xb2[i]<x1b1;i=p2[i]);
+        for (i=b2f; xb2[i]<x1b1; i=p2[i]);
         return(wallfront(b1f,i));
     }
-    for (i=b1f;xb2[i]<x1b2;i=p2[i]);
+    for (i=b1f; xb2[i]<x1b2; i=p2[i]);
     return(wallfront(i,b2f));
 }
 
@@ -1198,7 +1198,7 @@ static void prepwall(int32_t z, walltype *wal)
     if (wal->cstat&8)
     {
         walxrepeat--;
-        for (x=xb1[z];x<=xb2[z];x++) lwall[x] = walxrepeat-lwall[x];
+        for (x=xb1[z]; x<=xb2[z]; x++) lwall[x] = walxrepeat-lwall[x];
     }
 }
 
@@ -1571,7 +1571,7 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
     if (!(globalorientation&0x180))
     {
         y1 = umost[x1]; y2 = y1;
-        for (x=x1;x<=x2;x++)
+        for (x=x1; x<=x2; x++)
         {
             twall = umost[x]-1; bwall = min(uplc[x],dmost[x]);
             if (twall < bwall-1)
@@ -1618,7 +1618,7 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
     }
 
     y1 = umost[x1]; y2 = y1;
-    for (x=x1;x<=x2;x++)
+    for (x=x1; x<=x2; x++)
     {
         twall = umost[x]-1; bwall = min(uplc[x],dmost[x]);
         if (twall < bwall-1)
@@ -1742,7 +1742,7 @@ static void florscan(int32_t x1, int32_t x2, int32_t sectnum)
     if (!(globalorientation&0x180))
     {
         y1 = max(dplc[x1],umost[x1]); y2 = y1;
-        for (x=x1;x<=x2;x++)
+        for (x=x1; x<=x2; x++)
         {
             twall = max(dplc[x],umost[x])-1; bwall = dmost[x];
             if (twall < bwall-1)
@@ -1789,7 +1789,7 @@ static void florscan(int32_t x1, int32_t x2, int32_t sectnum)
     }
 
     y1 = max(dplc[x1],umost[x1]); y2 = y1;
-    for (x=x1;x<=x2;x++)
+    for (x=x1; x<=x2; x++)
     {
         twall = max(dplc[x],umost[x])-1; bwall = dmost[x];
         if (twall < bwall-1)
@@ -1829,7 +1829,7 @@ static void wallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, int32
     int32_t y1ve[4], y2ve[4], tsizx, tsizy;
 #ifndef ENGINE_USING_A_C
     char bad;
-	int32_t i, u4, d4, z;
+    int32_t i, u4, d4, z;
 #endif
 
     if (x2 >= xdim) x2 = xdim-1;
@@ -1857,7 +1857,7 @@ static void wallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, int32
     x = x1;
     while ((umost[x] > dmost[x]) && (x <= x2)) x++;
 
-    for (;(x<=x2)&&((x+frameoffset)&3);x++)
+    for (; (x<=x2)&&((x+frameoffset)&3); x++)
     {
         y1ve[0] = max(uwal[x],umost[x]);
         y2ve[0] = min(dwal[x],dmost[x]);
@@ -1874,10 +1874,10 @@ static void wallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, int32
 
         vlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],x+frameoffset+ylookup[y1ve[0]]);
     }
-    for (;x<=x2-3;x+=4)
+    for (; x<=x2-3; x+=4)
     {
         bad = 0;
-        for (z=3;z>=0;z--)
+        for (z=3; z>=0; z--)
         {
             y1ve[z] = max(uwal[x+z],umost[x+z]);
             y2ve[z] = min(dwal[x+z],dmost[x+z])-1;
@@ -1932,7 +1932,7 @@ static void wallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, int32
         if (y2ve[2] > d4) prevlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],i+2);
         if (y2ve[3] > d4) prevlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],i+3);
     }
-    for (;x<=x2;x++)
+    for (; x<=x2; x++)
     {
         y1ve[0] = max(uwal[x],umost[x]);
         y2ve[0] = min(dwal[x],dmost[x]);
@@ -1952,7 +1952,7 @@ static void wallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, int32
 
 #else   // ENGINE_USING_A_C
 
-    for (x=x1;x<=x2;x++)
+    for (x=x1; x<=x2; x++)
     {
         y1ve[0] = max(uwal[x],umost[x]);
         y2ve[0] = min(dwal[x],dmost[x]);
@@ -2144,7 +2144,7 @@ static inline void ceilspritescan(int32_t x1, int32_t x2)
     int32_t x, y1, y2, twall, bwall;
 
     y1 = uwall[x1]; y2 = y1;
-    for (x=x1;x<=x2;x++)
+    for (x=x1; x<=x2; x++)
     {
         twall = uwall[x]-1; bwall = dwall[x];
         if (twall < bwall-1)
@@ -2303,7 +2303,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     m2 = m1+l;
     mptr1 = (int32_t *)&slopalookup[y1+(shoffs>>15)]; mptr2 = mptr1+1;
 
-    for (x=dax1;x<=dax2;x++)
+    for (x=dax1; x<=dax2; x++)
     {
         if (dastat == 0) { y1 = umost[x]; y2 = min(dmost[x],uplc[x])-1; }
         else { y1 = max(umost[x],dplc[x]); y2 = dmost[x]-1; }
@@ -2391,7 +2391,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     k = 11 - (picsiz[globalpicnum]&15) - pskybits;
     x = -1;
 
-    for (z=bunchfirst[bunch];z>=0;z=p2[z])
+    for (z=bunchfirst[bunch]; z>=0; z=p2[z])
     {
         wallnum = thewall[z]; nextsectnum = wall[wallnum].nextsector;
 
@@ -2408,18 +2408,18 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
             if (parallaxtype == 0)
             {
                 n = mulscale16(xdimenrecip,viewingrange);
-                for (j=xb1[z];j<=xb2[z];j++)
+                for (j=xb1[z]; j<=xb2[z]; j++)
                     lplc[j] = (((mulscale23(j-halfxdimen,n)+globalang)&2047)>>k);
             }
             else
             {
-                for (j=xb1[z];j<=xb2[z];j++)
+                for (j=xb1[z]; j<=xb2[z]; j++)
                     lplc[j] = ((((int32_t)radarang2[j]+globalang)&2047)>>k);
             }
             if (parallaxtype == 2)
             {
                 n = mulscale16(xdimscale,viewingrange);
-                for (j=xb1[z];j<=xb2[z];j++)
+                for (j=xb1[z]; j<=xb2[z]; j++)
                     swplc[j] = mulscale14(sintable[((int32_t)radarang2[j]+512)&2047],n);
             }
             else
@@ -2501,7 +2501,7 @@ static void drawalls(int32_t bunch)
     sectnum = thesector[z]; sec = &sector[sectnum];
 
     andwstat1 = 0xff; andwstat2 = 0xff;
-    for (;z>=0;z=p2[z]) //uplc/dplc calculation
+    for (; z>=0; z=p2[z]) //uplc/dplc calculation
     {
         andwstat1 &= wallmost(uplc,z,sectnum,(uint8_t)0);
         andwstat2 &= wallmost(dplc,z,sectnum,(uint8_t)1);
@@ -2527,12 +2527,12 @@ static void drawalls(int32_t bunch)
     }
 
     //DRAW WALLS SECTION!
-    for (z=bunchfirst[bunch];z>=0;z=p2[z])
+    for (z=bunchfirst[bunch]; z>=0; z=p2[z])
     {
         x1 = xb1[z]; x2 = xb2[z];
         if (umost[x2] >= dmost[x2])
         {
-            for (x=x1;x<x2;x++)
+            for (x=x1; x<x2; x++)
                 if (umost[x] < dmost[x]) break;
             if (x >= x2)
             {
@@ -2580,7 +2580,7 @@ static void drawalls(int32_t bunch)
                 if ((cz[2] <= cz[0]) && (cz[3] <= cz[1]))
                 {
                     if (globparaceilclip)
-                        for (x=x1;x<=x2;x++)
+                        for (x=x1; x<=x2; x++)
                             if (uplc[x] > umost[x])
                                 if (umost[x] <= dmost[x])
                                 {
@@ -2592,7 +2592,7 @@ static void drawalls(int32_t bunch)
                 {
                     wallmost(dwall,z,nextsectnum,(uint8_t)0);
                     if ((cz[2] > fz[0]) || (cz[3] > fz[1]))
-                        for (i=x1;i<=x2;i++) if (dwall[i] > dplc[i]) dwall[i] = dplc[i];
+                        for (i=x1; i<=x2; i++) if (dwall[i] > dplc[i]) dwall[i] = dplc[i];
 
                     if ((searchit == 2) && (searchx >= x1) && (searchx <= x2))
                         if (searchy <= dwall[searchx]) //wall
@@ -2628,7 +2628,7 @@ static void drawalls(int32_t bunch)
 
                     if ((cz[2] >= cz[0]) && (cz[3] >= cz[1]))
                     {
-                        for (x=x1;x<=x2;x++)
+                        for (x=x1; x<=x2; x++)
                             if (dwall[x] > umost[x])
                                 if (umost[x] <= dmost[x])
                                 {
@@ -2638,7 +2638,7 @@ static void drawalls(int32_t bunch)
                     }
                     else
                     {
-                        for (x=x1;x<=x2;x++)
+                        for (x=x1; x<=x2; x++)
                             if (umost[x] <= dmost[x])
                             {
                                 i = max(uplc[x],dwall[x]);
@@ -2669,7 +2669,7 @@ static void drawalls(int32_t bunch)
                 if ((fz[2] >= fz[0]) && (fz[3] >= fz[1]))
                 {
                     if (globparaflorclip)
-                        for (x=x1;x<=x2;x++)
+                        for (x=x1; x<=x2; x++)
                             if (dplc[x] < dmost[x])
                                 if (umost[x] <= dmost[x])
                                 {
@@ -2681,7 +2681,7 @@ static void drawalls(int32_t bunch)
                 {
                     wallmost(uwall,z,nextsectnum,(uint8_t)1);
                     if ((fz[2] < cz[0]) || (fz[3] < cz[1]))
-                        for (i=x1;i<=x2;i++) if (uwall[i] < uplc[i]) uwall[i] = uplc[i];
+                        for (i=x1; i<=x2; i++) if (uwall[i] < uplc[i]) uwall[i] = uplc[i];
 
                     if ((searchit == 2) && (searchx >= x1) && (searchx <= x2))
                         if (searchy >= uwall[searchx]) //wall
@@ -2734,7 +2734,7 @@ static void drawalls(int32_t bunch)
 
                     if ((fz[2] <= fz[0]) && (fz[3] <= fz[1]))
                     {
-                        for (x=x1;x<=x2;x++)
+                        for (x=x1; x<=x2; x++)
                             if (uwall[x] < dmost[x])
                                 if (umost[x] <= dmost[x])
                                 {
@@ -2744,7 +2744,7 @@ static void drawalls(int32_t bunch)
                     }
                     else
                     {
-                        for (x=x1;x<=x2;x++)
+                        for (x=x1; x<=x2; x++)
                             if (umost[x] <= dmost[x])
                             {
                                 i = min(dplc[x],uwall[x]);
@@ -2777,7 +2777,7 @@ static void drawalls(int32_t bunch)
                     scansector(nextsectnum);
                 else
                 {
-                    for (x=x1;x<x2;x++)
+                    for (x=x1; x<x2; x++)
                         if (umost[x] < dmost[x])
                             { scansector(nextsectnum); break; }
 
@@ -2828,7 +2828,7 @@ static void drawalls(int32_t bunch)
             if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
             wallscan(x1,x2,uplc,dplc,swall,lwall);
 
-            for (x=x1;x<=x2;x++)
+            for (x=x1; x<=x2; x++)
                 if (umost[x] <= dmost[x])
                     { umost[x] = 1; dmost[x] = 0; numhits--; }
             smostwall[smostwallcnt] = z;
@@ -2874,7 +2874,7 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
     setupdrawslab(ylookup[1],FP_OFF(palookup[dapal])+j);
     j = 1310720;
     j *= min(daxscale,dayscale); j >>= 6;  //New hacks (for sized-down voxels)
-    for (k=0;k<MAXVOXMIPS;k++)
+    for (k=0; k<MAXVOXMIPS; k++)
     {
         if (i < j) { i = k; break; }
         j <<= 1;
@@ -2929,7 +2929,7 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
     gyinc = dmulscale10(sprcosang,cosang,sprsinang,sinang);
 
     x = 0; y = 0; j = max(daxsiz,daysiz);
-    for (i=0;i<=j;i++)
+    for (i=0; i<=j; i++)
     {
         ggxinc[i] = x; x += gxinc;
         ggyinc[i] = y; y += gyinc;
@@ -2943,7 +2943,7 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
 
     begindrawing(); //{{{
 
-    for (cnt=0;cnt<8;cnt++)
+    for (cnt=0; cnt<8; cnt++)
     {
         switch (cnt)
         {
@@ -3026,14 +3026,14 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
         ggxstart = gxstart+ggyinc[ys];
         ggystart = gystart-ggxinc[ys];
 
-        for (x=xs;x!=xe;x+=xi)
+        for (x=xs; x!=xe; x+=xi)
         {
             slabxoffs = (intptr_t)&davoxptr[B_LITTLE32(longptr[x])];
             shortptr = (int16_t *)&davoxptr[((x*(daysiz+1))<<1)+xyvoxoffs];
 
             nx = mulscale16(ggxstart+ggxinc[x],viewingrangerecip)+x1;
             ny = ggystart+ggyinc[x];
-            for (y=ys;y!=ye;y+=yi,nx+=dagyinc,ny-=dagxinc)
+            for (y=ys; y!=ye; y+=yi,nx+=dagyinc,ny-=dagxinc)
             {
                 if ((ny <= nytooclose) || (ny >= nytoofar)) continue;
                 voxptr = (char *)(B_LITTLE16(shortptr[y])+slabxoffs);
@@ -3049,7 +3049,7 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
 
                 l1 = distrecip[(ny-yoff)>>14];
                 l2 = distrecip[(ny+yoff)>>14];
-                for (;voxptr<voxend;voxptr+=voxptr[1]+3)
+                for (; voxptr<voxend; voxptr+=voxptr[1]+3)
                 {
                     j = (voxptr[0]<<15)-syoff;
                     if (j < 0)
@@ -3254,13 +3254,13 @@ static void drawsprite(int32_t snum)
             i = y1; y1 = y2; y2 = i;
         }
 
-        for (x=lx;x<=rx;x++)
+        for (x=lx; x<=rx; x++)
         {
             uwall[x] = max(startumost[x+windowx1]-windowy1,(int16_t)startum);
             dwall[x] = min(startdmost[x+windowx1]-windowy1,(int16_t)startdm);
         }
         daclip = 0;
-        for (i=smostwallcnt-1;i>=0;i--)
+        for (i=smostwallcnt-1; i>=0; i--)
         {
             if (smostwalltype[i]&daclip) continue;
             j = smostwall[i];
@@ -3282,13 +3282,13 @@ static void drawsprite(int32_t snum)
                 break;
             case 1:
                 k = smoststart[i] - xb1[j];
-                for (x=dalx2;x<=darx2;x++)
+                for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
                 if ((dalx2 == lx) && (darx2 == rx)) daclip |= 1;
                 break;
             case 2:
                 k = smoststart[i] - xb1[j];
-                for (x=dalx2;x<=darx2;x++)
+                for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
                 if ((dalx2 == lx) && (darx2 == rx)) daclip |= 2;
                 break;
@@ -3297,7 +3297,7 @@ static void drawsprite(int32_t snum)
 
         if (uwall[rx] >= dwall[rx])
         {
-            for (x=lx;x<rx;x++)
+            for (x=lx; x<rx; x++)
                 if (uwall[x] < dwall[x]) break;
             if (x == rx) return;
         }
@@ -3425,7 +3425,7 @@ static void drawsprite(int32_t snum)
         j = xb2[MAXWALLSB-1]+3;
         z = mulscale20(top,krecipasm(bot));
         lwall[xb1[MAXWALLSB-1]] = (z>>8);
-        for (x=xb1[MAXWALLSB-1]+4;x<=j;x+=4)
+        for (x=xb1[MAXWALLSB-1]+4; x<=j; x+=4)
         {
             top += topinc; bot += botinc;
             zz = z; z = mulscale20(top,krecipasm(bot));
@@ -3442,7 +3442,7 @@ static void drawsprite(int32_t snum)
         if ((swapped^((cstat&4)>0)) > 0)
         {
             j = xspan-1;
-            for (x=xb1[MAXWALLSB-1];x<=xb2[MAXWALLSB-1];x++)
+            for (x=xb1[MAXWALLSB-1]; x<=xb2[MAXWALLSB-1]; x++)
                 lwall[x] = j-lwall[x];
         }
 
@@ -3486,10 +3486,10 @@ static void drawsprite(int32_t snum)
 
         owallmost(uwall,(int32_t)(MAXWALLSB-1),z1-globalposz);
         owallmost(dwall,(int32_t)(MAXWALLSB-1),z2-globalposz);
-        for (i=xb1[MAXWALLSB-1];i<=xb2[MAXWALLSB-1];i++)
+        for (i=xb1[MAXWALLSB-1]; i<=xb2[MAXWALLSB-1]; i++)
             { swall[i] = (krecipasm(hplc)<<2); hplc += hinc; }
 
-        for (i=smostwallcnt-1;i>=0;i--)
+        for (i=smostwallcnt-1; i>=0; i--)
         {
             j = smostwall[i];
 
@@ -3569,12 +3569,12 @@ static void drawsprite(int32_t snum)
                         break;
                     case 1:
                         k = smoststart[i] - xb1[j];
-                        for (x=dalx2;x<=darx2;x++)
+                        for (x=dalx2; x<=darx2; x++)
                             if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
                         break;
                     case 2:
                         k = smoststart[i] - xb1[j];
-                        for (x=dalx2;x<=darx2;x++)
+                        for (x=dalx2; x<=darx2; x++)
                             if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
                         break;
                     }
@@ -3679,7 +3679,7 @@ static void drawsprite(int32_t snum)
         //Clip edge 1
         npoints2 = 0;
         zzsgn = rxi[0]+rzi[0];
-        for (z=0;z<npoints;z++)
+        for (z=0; z<npoints; z++)
         {
             zz = z+1; if (zz == npoints) zz = 0;
             zsgn = zzsgn; zzsgn = rxi[zz]+rzi[zz];
@@ -3702,7 +3702,7 @@ static void drawsprite(int32_t snum)
         //Clip edge 2
         npoints = 0;
         zzsgn = rxi2[0]-rzi2[0];
-        for (z=0;z<npoints2;z++)
+        for (z=0; z<npoints2; z++)
         {
             zz = z+1; if (zz == npoints2) zz = 0;
             zsgn = zzsgn; zzsgn = rxi2[zz]-rzi2[zz];
@@ -3725,7 +3725,7 @@ static void drawsprite(int32_t snum)
         //Clip edge 3
         npoints2 = 0;
         zzsgn = ryi[0]*halfxdimen + (rzi[0]*(globalhoriz-0));
-        for (z=0;z<npoints;z++)
+        for (z=0; z<npoints; z++)
         {
             zz = z+1; if (zz == npoints) zz = 0;
             zsgn = zzsgn; zzsgn = ryi[zz]*halfxdimen + (rzi[zz]*(globalhoriz-0));
@@ -3750,7 +3750,7 @@ static void drawsprite(int32_t snum)
         //Clip edge 4
         npoints = 0;
         zzsgn = ryi2[0]*halfxdimen + (rzi2[0]*(globalhoriz-ydimen));
-        for (z=0;z<npoints2;z++)
+        for (z=0; z<npoints2; z++)
         {
             zz = z+1; if (zz == npoints2) zz = 0;
             zsgn = zzsgn; zzsgn = ryi2[zz]*halfxdimen + (rzi2[zz]*(globalhoriz-ydimen));
@@ -3775,7 +3775,7 @@ static void drawsprite(int32_t snum)
         //Project onto screen
         lpoint = -1; lmax = 0x7fffffff;
         rpoint = -1; rmax = 0x80000000;
-        for (z=0;z<npoints;z++)
+        for (z=0; z<npoints; z++)
         {
             xsi[z] = scale(rxi[z],xdimen<<15,rzi[z]) + (xdimen<<15);
             ysi[z] = scale(ryi[z],xdimen<<15,rzi[z]) + (globalhoriz<<16);
@@ -3788,7 +3788,7 @@ static void drawsprite(int32_t snum)
         }
 
         //Get uwall arrays
-        for (z=lpoint;z!=rpoint;z=zz)
+        for (z=lpoint; z!=rpoint; z=zz)
         {
             zz = z+1; if (zz == npoints) zz = 0;
 
@@ -3803,7 +3803,7 @@ static void drawsprite(int32_t snum)
         }
 
         //Get dwall arrays
-        for (;z!=lpoint;z=zz)
+        for (; z!=lpoint; z=zz)
         {
             zz = z+1; if (zz == npoints) zz = 0;
 
@@ -3820,14 +3820,14 @@ static void drawsprite(int32_t snum)
 
         lx = ((lmax+65535)>>16);
         rx = ((rmax+65535)>>16);
-        for (x=lx;x<=rx;x++)
+        for (x=lx; x<=rx; x++)
         {
             uwall[x] = max(uwall[x],startumost[x+windowx1]-windowy1);
             dwall[x] = min(dwall[x],startdmost[x+windowx1]-windowy1);
         }
 
         //Additional uwall/dwall clipping goes here
-        for (i=smostwallcnt-1;i>=0;i--)
+        for (i=smostwallcnt-1; i>=0; i--)
         {
             j = smostwall[i];
             if ((xb1[j] > rx) || (xb2[j] < lx)) continue;
@@ -3854,12 +3854,12 @@ static void drawsprite(int32_t snum)
                 break;
             case 1:
                 k = smoststart[i] - xb1[j];
-                for (x=dalx2;x<=darx2;x++)
+                for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
                 break;
             case 2:
                 k = smoststart[i] - xb1[j];
-                for (x=dalx2;x<=darx2;x++)
+                for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
                 break;
             }
@@ -3918,12 +3918,12 @@ static void drawsprite(int32_t snum)
         int32_t nxrepeat, nyrepeat;
 
         lx = 0; rx = xdim-1;
-        for (x=lx;x<=rx;x++)
+        for (x=lx; x<=rx; x++)
         {
             lwall[x] = (int32_t)startumost[x+windowx1]-windowy1;
             swall[x] = (int32_t)startdmost[x+windowx1]-windowy1;
         }
-        for (i=smostwallcnt-1;i>=0;i--)
+        for (i=smostwallcnt-1; i>=0; i--)
         {
             j = smostwall[i];
             if ((xb1[j] > rx) || (xb2[j] < lx)) continue;
@@ -3944,12 +3944,12 @@ static void drawsprite(int32_t snum)
                 break;
             case 1:
                 k = smoststart[i] - xb1[j];
-                for (x=dalx2;x<=darx2;x++)
+                for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] > lwall[x]) lwall[x] = smost[k+x];
                 break;
             case 2:
                 k = smoststart[i] - xb1[j];
-                for (x=dalx2;x<=darx2;x++)
+                for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] < swall[x]) swall[x] = smost[k+x];
                 break;
             }
@@ -3957,12 +3957,12 @@ static void drawsprite(int32_t snum)
 
         if (lwall[rx] >= swall[rx])
         {
-            for (x=lx;x<rx;x++)
+            for (x=lx; x<rx; x++)
                 if (lwall[x] < swall[x]) break;
             if (x == rx) return;
         }
 
-        for (i=0;i<MAXVOXMIPS;i++)
+        for (i=0; i<MAXVOXMIPS; i++)
             if (!voxoff[vtilenum][i])
             {
                 kloadvoxel(vtilenum);
@@ -4086,10 +4086,10 @@ static void drawmaskwall(int16_t damaskwallcnt)
 
     wallmost(uwall,z,sectnum,(uint8_t)0);
     wallmost(uplc,z,(int32_t)wal->nextsector,(uint8_t)0);
-    for (x=xb1[z];x<=xb2[z];x++) if (uplc[x] > uwall[x]) uwall[x] = uplc[x];
+    for (x=xb1[z]; x<=xb2[z]; x++) if (uplc[x] > uwall[x]) uwall[x] = uplc[x];
     wallmost(dwall,z,sectnum,(uint8_t)1);
     wallmost(dplc,z,(int32_t)wal->nextsector,(uint8_t)1);
-    for (x=xb1[z];x<=xb2[z];x++) if (dplc[x] < dwall[x]) dwall[x] = dplc[x];
+    for (x=xb1[z]; x<=xb2[z]; x++) if (dplc[x] < dwall[x]) dwall[x] = dplc[x];
     prepwall(z,wal);
 
     globalorientation = (int32_t)wal->cstat;
@@ -4113,7 +4113,7 @@ static void drawmaskwall(int16_t damaskwallcnt)
     globalzd += (globalypanning<<24);
     if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
 
-    for (i=smostwallcnt-1;i>=0;i--)
+    for (i=smostwallcnt-1; i>=0; i--)
     {
         j = smostwall[i];
         if ((xb1[j] > xb2[z]) || (xb2[j] < xb1[z])) continue;
@@ -4133,12 +4133,12 @@ static void drawmaskwall(int16_t damaskwallcnt)
             break;
         case 1:
             k = smoststart[i] - xb1[j];
-            for (x=lx;x<=rx;x++)
+            for (x=lx; x<=rx; x++)
                 if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
             break;
         case 2:
             k = smoststart[i] - xb1[j];
-            for (x=lx;x<=rx;x++)
+            for (x=lx; x<=rx; x++)
                 if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
             break;
         }
@@ -4180,19 +4180,19 @@ static void fillpolygon(int32_t npoints)
 #endif
 
     miny = 0x7fffffff; maxy = 0x80000000;
-    for (z=npoints-1;z>=0;z--)
+    for (z=npoints-1; z>=0; z--)
         { y = ry1[z]; miny = min(miny,y); maxy = max(maxy,y); }
     miny = (miny>>12); maxy = (maxy>>12);
     if (miny < 0) miny = 0;
     if (maxy >= ydim) maxy = ydim-1;
     ptr = smost;    //They're pointers! - watch how you optimize this thing
-    for (y=miny;y<=maxy;y++)
+    for (y=miny; y<=maxy; y++)
     {
         dotp1[y] = ptr; dotp2[y] = ptr+(MAXNODESPERLINE>>1);
         ptr += MAXNODESPERLINE;
     }
 
-    for (z=npoints-1;z>=0;z--)
+    for (z=npoints-1; z>=0; z--)
     {
         zz = xb1[z];
         y1 = ry1[z]; day1 = (y1>>12);
@@ -4204,12 +4204,12 @@ static void fillpolygon(int32_t npoints)
             if (day2 > day1)
             {
                 x1 += mulscale12((day1<<12)+4095-y1,xinc);
-                for (y=day1;y<day2;y++) { if (!dotp2[y]) { x1 += xinc; continue; } *dotp2[y]++ = (x1>>12); x1 += xinc; }
+                for (y=day1; y<day2; y++) { if (!dotp2[y]) { x1 += xinc; continue; } *dotp2[y]++ = (x1>>12); x1 += xinc; }
             }
             else
             {
                 x2 += mulscale12((day2<<12)+4095-y2,xinc);
-                for (y=day2;y<day1;y++) { if (!dotp1[y]) { x2 += xinc; continue; } *dotp1[y]++ = (x2>>12); x2 += xinc; }
+                for (y=day2; y<day1; y++) { if (!dotp1[y]) { x2 += xinc; continue; } *dotp1[y]++ = (x2>>12); x2 += xinc; }
             }
         }
     }
@@ -4224,13 +4224,13 @@ static void fillpolygon(int32_t npoints)
     setuphlineasm4(asm1,asm2);
 
     ptr = smost;
-    for (y=miny;y<=maxy;y++)
+    for (y=miny; y<=maxy; y++)
     {
         cnt = dotp1[y]-ptr; ptr2 = ptr+(MAXNODESPERLINE>>1);
-        for (z=cnt-1;z>=0;z--)
+        for (z=cnt-1; z>=0; z--)
         {
             day1 = 0; day2 = 0;
-            for (zz=z;zz>0;zz--)
+            for (zz=z; zz>0; zz--)
             {
                 if (ptr[zz] < ptr[day1]) day1 = zz;
                 if (ptr2[zz] < ptr2[day2]) day2 = zz;
@@ -4325,8 +4325,8 @@ static int32_t clippoly(int32_t npoints, int32_t clipstat)
         while (z < npoints);
         if (npoints2 <= 2) return(0);
 
-        for (z=1;z<splitcnt;z++)
-            for (zz=0;zz<z;zz++)
+        for (z=1; z<splitcnt; z++)
+            for (zz=0; zz<z; zz++)
             {
                 z1 = p2[z]; z2 = xb2[z1]; z3 = p2[zz]; z4 = xb2[z3];
                 s1  = klabs(rx2[z1]-rx2[z2])+klabs(ry2[z1]-ry2[z2]);
@@ -4374,8 +4374,8 @@ static int32_t clippoly(int32_t npoints, int32_t clipstat)
         while (z < npoints2);
         if (npoints <= 2) return(0);
 
-        for (z=1;z<splitcnt;z++)
-            for (zz=0;zz<z;zz++)
+        for (z=1; z<splitcnt; z++)
+            for (zz=0; zz<z; zz++)
             {
                 z1 = p2[z]; z2 = xb1[z1]; z3 = p2[zz]; z4 = xb1[z3];
                 s1  = klabs(rx1[z1]-rx1[z2])+klabs(ry1[z1]-ry1[z2]);
@@ -4424,8 +4424,8 @@ static int32_t clippoly(int32_t npoints, int32_t clipstat)
         while (z < npoints);
         if (npoints2 <= 2) return(0);
 
-        for (z=1;z<splitcnt;z++)
-            for (zz=0;zz<z;zz++)
+        for (z=1; z<splitcnt; z++)
+            for (zz=0; zz<z; zz++)
             {
                 z1 = p2[z]; z2 = xb2[z1]; z3 = p2[zz]; z4 = xb2[z3];
                 s1  = klabs(rx2[z1]-rx2[z2])+klabs(ry2[z1]-ry2[z2]);
@@ -4473,8 +4473,8 @@ static int32_t clippoly(int32_t npoints, int32_t clipstat)
         while (z < npoints2);
         if (npoints <= 2) return(0);
 
-        for (z=1;z<splitcnt;z++)
-            for (zz=0;zz<z;zz++)
+        for (z=1; z<splitcnt; z++)
+            for (zz=0; zz<z; zz++)
             {
                 z1 = p2[z]; z2 = xb1[z1]; z3 = p2[zz]; z4 = xb1[z3];
                 s1  = klabs(rx1[z1]-rx1[z2])+klabs(ry1[z1]-ry1[z2]);
@@ -4561,8 +4561,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     int32_t xv, yv, xv2, yv2;
 #ifndef ENGINE_USING_A_C
     char bad;
-	int32_t ny1, ny2, xx, xend;
-	int32_t qlinemode=0, y1ve[4], y2ve[4], u4, d4;
+    int32_t ny1, ny2, xx, xend;
+    int32_t qlinemode=0, y1ve[4], y2ve[4], u4, d4;
 #endif
 
     UNREFERENCED_PARAMETER(uniqid);
@@ -4645,7 +4645,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     lx = nrx1[0]; rx = nrx1[0];
 
     nextv = 0;
-    for (v=npoints-1;v>=0;v--)
+    for (v=npoints-1; v>=0; v--)
     {
         x1 = nrx1[v]; x2 = nrx1[nextv];
         dax1 = (x1>>16); if (x1 < lx) lx = x1;
@@ -4721,10 +4721,10 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
             palookupoffse[0] = palookupoffse[1] = palookupoffse[2] = palookupoffse[3] = palookupoffs;
             vince[0] = vince[1] = vince[2] = vince[3] = yv;
 
-            for (x=x1;x<x2;x+=4)
+            for (x=x1; x<x2; x+=4)
             {
                 bad = 15; xend = min(x2-x,4);
-                for (xx=0;xx<xend;xx++)
+                for (xx=0; xx<xend; xx++)
                 {
                     bx += xv2;
 
@@ -4823,7 +4823,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
             y1 = uplc[x1];
             if (((dastat&8) == 0) && (startumost[x1] > y1)) y1 = startumost[x1];
             y2 = y1;
-            for (x=x1;x<x2;x++)
+            for (x=x1; x<x2; x++)
             {
                 ny1 = uplc[x]-1; ny2 = dplc[x];
                 if ((dastat&8) == 0)
@@ -4934,7 +4934,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
             tsetupspritevline(palookupoffs,(xv>>16)*ysiz,xv<<16,ysiz,yv,0L);
             if (dastat&32) settransreverse(); else settransnormal();
         }
-        for (x=x1;x<x2;x++)
+        for (x=x1; x<x2; x++)
         {
             bx += xv2; by += yv2;
 
@@ -4989,7 +4989,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         tsetupspritevline(palookupoffs,xv,yv,ysiz);
         if (dastat&32) settransreverse(); else settransnormal();
     }
-    for (x=x1;x<x2;x++)
+    for (x=x1; x<x2; x++)
     {
         bx += xv2; by += yv2;
 
@@ -5048,7 +5048,7 @@ static inline void initksqrt(void)
     int32_t i, j, k;
 
     j = 1; k = 0;
-    for (i=0;i<4096;i++)
+    for (i=0; i<4096; i++)
     {
         if (i >= j) { j <<= 2; k++; }
         sqrtable[i] = (uint16_t)(msqrtasm((i<<18)+131072)<<1);
@@ -5070,7 +5070,7 @@ static void dosetaspect(void)
         oxyaspect = xyaspect;
         j = xyaspect*320;
         horizlookup2[horizycent-1] = divscale26(131072,j);
-        for (i=ydim*4-1;i>=0;i--)
+        for (i=ydim*4-1; i>=0; i--)
             if (i != (horizycent-1))
             {
                 horizlookup[i] = divscale28(1,i-(horizycent-1));
@@ -5083,14 +5083,14 @@ static void dosetaspect(void)
         oviewingrange = viewingrange;
         xinc = mulscale32(viewingrange*320,xdimenrecip);
         x = (640<<16)-mulscale1(xinc,xdimen);
-        for (i=0;i<xdimen;i++)
+        for (i=0; i<xdimen; i++)
         {
             j = (x&65535); k = (x>>16); x += xinc;
             if (j != 0) j = mulscale16((int32_t)radarang[k+1]-(int32_t)radarang[k],j);
             radarang2[i] = (int16_t)(((int32_t)radarang[k]+j)>>6);
         }
 #ifdef SUPERBUILD
-        for (i=1;i<65536;i++) distrecip[i] = divscale20(xdimen,i);
+        for (i=1; i<65536; i++) distrecip[i] = divscale20(xdimen,i);
         nytooclose = xdimen*2100;
         nytoofar = 65536*16384-1048576;
 #endif
@@ -5105,11 +5105,11 @@ static inline void calcbritable(void)
 {
     int32_t i,j;
     double a,b;
-    for (i=0;i<16;i++)
+    for (i=0; i<16; i++)
     {
         a = (double)8 / ((double)i+8);
         b = (double)255 / pow((double)255,a);
-        for (j=0;j<256;j++) // JBF 20040207: full 8bit precision
+        for (j=0; j<256; j++) // JBF 20040207: full 8bit precision
             britable[i][j] = (uint8_t)(pow((double)j,a)*b);
     }
 }
@@ -5122,13 +5122,13 @@ static int32_t loadtables(void)
     {
         initksqrt();
 
-        for (i=0;i<2048;i++) reciptable[i] = divscale30(2048L,i+2048);
+        for (i=0; i<2048; i++) reciptable[i] = divscale30(2048L,i+2048);
 
         if ((fil = kopen4load("tables.dat",0)) != -1)
         {
             kread(fil,sintable,2048*2); for (i=2048-1; i>=0; i--) sintable[i] = B_LITTLE16(sintable[i]);
             kread(fil,radarang,640*2);  for (i=640-1;  i>=0; i--) radarang[i] = B_LITTLE16(radarang[i]);
-            for (i=0;i<640;i++) radarang[1279-i] = -radarang[i];
+            for (i=0; i<640; i++) radarang[1279-i] = -radarang[i];
             //kread(fil,textfont,1024);
             //kread(fil,smalltextfont,1024);
             //kread(fil,britable,1024);
@@ -5158,7 +5158,7 @@ static void initfastcolorlookup(int32_t rscale, int32_t gscale, int32_t bscale)
     char *pal1;
 
     j = 0;
-    for (i=64;i>=0;i--)
+    for (i=64; i>=0; i--)
     {
         //j = (i-64)*(i-64);
         rdist[i] = rdist[128-i] = j*rscale;
@@ -5173,7 +5173,7 @@ static void initfastcolorlookup(int32_t rscale, int32_t gscale, int32_t bscale)
     Bmemset(colhead,0,sizeof(colhead));
 
     pal1 = (char *)&palette[768-3];
-    for (i=255;i>=0;i--,pal1-=3)
+    for (i=255; i>=0; i--,pal1-=3)
     {
         j = (pal1[0]>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(pal1[1]>>3)*FASTPALGRIDSIZ+(pal1[2]>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
         if (colhere[j>>3]&pow2char[j&7]) colnext[i] = colhead[j]; else colnext[i] = -1;
@@ -5182,9 +5182,9 @@ static void initfastcolorlookup(int32_t rscale, int32_t gscale, int32_t bscale)
     }
 
     i = 0;
-    for (x=-FASTPALGRIDSIZ*FASTPALGRIDSIZ;x<=FASTPALGRIDSIZ*FASTPALGRIDSIZ;x+=FASTPALGRIDSIZ*FASTPALGRIDSIZ)
-        for (y=-FASTPALGRIDSIZ;y<=FASTPALGRIDSIZ;y+=FASTPALGRIDSIZ)
-            for (z=-1;z<=1;z++)
+    for (x=-FASTPALGRIDSIZ*FASTPALGRIDSIZ; x<=FASTPALGRIDSIZ*FASTPALGRIDSIZ; x+=FASTPALGRIDSIZ*FASTPALGRIDSIZ)
+        for (y=-FASTPALGRIDSIZ; y<=FASTPALGRIDSIZ; y+=FASTPALGRIDSIZ)
+            for (z=-1; z<=1; z++)
                 colscan[i++] = x+y+z;
     i = colscan[13]; colscan[13] = colscan[26]; colscan[26] = i;
 }
@@ -5239,7 +5239,7 @@ int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
     r = 64-r; g = 64-g; b = 64-b;
 
     retcol = -1;
-    for (k=26;k>=0;k--)
+    for (k=26; k>=0; k--)
     {
         i = colscan[k]+j; if ((colhere[i>>3]&pow2char[i&7]) == 0) continue;
         i = colhead[i];
@@ -5264,7 +5264,7 @@ int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
 
     mindist = 0x7fffffff;
     pal1 = (char *)&palette[768-3];
-    for (i=255;i>=0;i--,pal1-=3)
+    for (i=255; i>=0; i--,pal1-=3)
     {
         dist = gdist[pal1[1]+g]; if (dist >= mindist) continue;
         dist += rdist[pal1[0]+r]; if (dist >= mindist) continue;
@@ -5383,7 +5383,7 @@ static int32_t deletespritestat(int16_t deleteme)
 // lintersect (internal)
 //
 static inline int32_t lintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t x3,
-                      int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
+                                 int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
 {
     //p1 to p2 is a line segment
     int32_t x21, y21, x34, y34, x31, y31, bot, topt, topu, t;
@@ -5416,7 +5416,7 @@ static inline int32_t lintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2,
 // rintersect (internal)
 //
 static inline int32_t rintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy, int32_t vz, int32_t x3,
-                      int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
+                                 int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
 {
     //p1 towards p2 is a ray
     int32_t x34, y34, x31, y31, bot, topt, topu, t;
@@ -5474,7 +5474,7 @@ static inline int32_t raytrace(int32_t x3, int32_t y3, int32_t *x4, int32_t *y4)
     int32_t x21, y21, x43, y43;
 
     hitwall = -1;
-    for (z=clipnum-1;z>=0;z--)
+    for (z=clipnum-1; z>=0; z--)
     {
         x1 = clipit[z].x1; x2 = clipit[z].x2; x21 = x2-x1;
         y1 = clipit[z].y1; y2 = clipit[z].y2; y21 = y2-y1;
@@ -5640,14 +5640,14 @@ int32_t initengine(void)
     showinvisibility = 0;
 
 #ifdef SUPERBUILD
-    for (i=1;i<1024;i++) lowrecip[i] = ((1<<24)-1)/i;
-    for (i=0;i<MAXVOXELS;i++)
-        for (j=0;j<MAXVOXMIPS;j++)
+    for (i=1; i<1024; i++) lowrecip[i] = ((1<<24)-1)/i;
+    for (i=0; i<MAXVOXELS; i++)
+        for (j=0; j<MAXVOXMIPS; j++)
         {
             voxoff[i][j] = 0L;
             voxlock[i][j] = 200;
         }
-    for (i=0;i<MAXTILES;i++)
+    for (i=0; i<MAXTILES; i++)
         tiletovox[i] = -1;
     clearbuf(&voxscale[0],sizeof(voxscale)>>2,65536L);
 #endif
@@ -5660,7 +5660,7 @@ int32_t initengine(void)
 
     searchit = 0; searchstat = -1;
 
-    for (i=0;i<MAXPALOOKUPS;i++) palookup[i] = NULL;
+    for (i=0; i<MAXPALOOKUPS; i++) palookup[i] = NULL;
 
     clearbuf(&waloff[0],(int32_t)MAXTILES,0L);
 
@@ -5702,10 +5702,10 @@ void uninitengine(void)
     polymost_glreset();
     hicinit();
     freeallmodels();
-/*    if (cachefilehandle > -1)
-        Bclose(cachefilehandle);
-    if (cacheindexptr != NULL)
-        Bfclose(cacheindexptr); */
+    /*    if (cachefilehandle > -1)
+            Bclose(cachefilehandle);
+        if (cacheindexptr != NULL)
+            Bfclose(cacheindexptr); */
 #endif
 
     uninitsystem();
@@ -5719,7 +5719,7 @@ void uninitengine(void)
         //if (lookupsalloctype == 1) suckcache(lookups);  //Cache already gone
         lookups = NULL;
     }
-    for (i=0;i<MAXPALOOKUPS;i++)
+    for (i=0; i<MAXPALOOKUPS; i++)
         if (palookup[i] != NULL) { kkfree(palookup[i]); palookup[i] = NULL; }
 
 #ifdef DYNALLOC_ARRAYS
@@ -5746,10 +5746,10 @@ void initspritelists(void)
 {
     int32_t i;
 
-    for (i=0;i<MAXSECTORS;i++)     //Init doubly-linked sprite sector lists
+    for (i=0; i<MAXSECTORS; i++)   //Init doubly-linked sprite sector lists
         headspritesect[i] = -1;
     headspritesect[MAXSECTORS] = 0;
-    for (i=0;i<MAXSPRITES;i++)
+    for (i=0; i<MAXSPRITES; i++)
     {
         prevspritesect[i] = i-1;
         nextspritesect[i] = i+1;
@@ -5759,10 +5759,10 @@ void initspritelists(void)
     nextspritesect[MAXSPRITES-1] = -1;
 
 
-    for (i=0;i<MAXSTATUS;i++)     //Init doubly-linked sprite status lists
+    for (i=0; i<MAXSTATUS; i++)   //Init doubly-linked sprite status lists
         headspritestat[i] = -1;
     headspritestat[MAXSTATUS] = 0;
-    for (i=0;i<MAXSPRITES;i++)
+    for (i=0; i<MAXSPRITES; i++)
     {
         prevspritestat[i] = i-1;
         nextspritestat[i] = i+1;
@@ -5878,17 +5878,17 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     {
         inpreparemirror = 0;
         mirrorsx1 = xdimen-1; mirrorsx2 = 0;
-        for (i=numscans-1;i>=0;i--)
+        for (i=numscans-1; i>=0; i--)
         {
             if (wall[thewall[i]].nextsector < 0) continue;
             if (xb1[i] < mirrorsx1) mirrorsx1 = xb1[i];
             if (xb2[i] > mirrorsx2) mirrorsx2 = xb2[i];
         }
 
-        for (i=0;i<mirrorsx1;i++)
+        for (i=0; i<mirrorsx1; i++)
             if (umost[i] <= dmost[i])
                 { umost[i] = 1; dmost[i] = 0; numhits--; }
-        for (i=mirrorsx2+1;i<xdimen;i++)
+        for (i=mirrorsx2+1; i<xdimen; i++)
             if (umost[i] <= dmost[i])
                 { umost[i] = 1; dmost[i] = 0; numhits--; }
 
@@ -5907,13 +5907,13 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         tempbuf[0] = 1;
 
         closest = 0;              //Almost works, but not quite :(
-        for (i=1;i<numbunches;i++)
+        for (i=1; i<numbunches; i++)
         {
             if ((j = bunchfront(i,closest)) < 0) continue;
             tempbuf[i] = 1;
             if (j == 0) tempbuf[closest] = 1, closest = i;
         }
-        for (i=0;i<numbunches;i++) //Double-check
+        for (i=0; i<numbunches; i++) //Double-check
         {
             if (tempbuf[i]) continue;
             if ((j = bunchfront(i,closest)) < 0) continue;
@@ -5925,7 +5925,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
         if (automapping)
         {
-            for (z=bunchfirst[closest];z>=0;z=p2[z])
+            for (z=bunchfirst[closest]; z>=0; z=p2[z])
                 show2dwall[thewall[z]>>3] |= pow2char[thewall[z]&7];
         }
 
@@ -6112,8 +6112,8 @@ void drawmasks(void)
     }
 #endif
 
-    for (i=spritesortcnt-1;i>=0;i--) tspriteptr[i] = &tsprite[i];
-    for (i=spritesortcnt-1;i>=0;i--)
+    for (i=spritesortcnt-1; i>=0; i--) tspriteptr[i] = &tsprite[i];
+    for (i=spritesortcnt-1; i>=0; i--)
     {
         xs = tspriteptr[i]->x-globalposx; ys = tspriteptr[i]->y-globalposy;
         yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
@@ -6144,9 +6144,9 @@ killsprite:
     {
 
         gap = 1; while (gap < spritesortcnt) gap = (gap<<1)+1;
-        for (gap>>=1;gap>0;gap>>=1)     //Sort sprite list
-            for (i=0;i<spritesortcnt-gap;i++)
-                for (l=i;l>=0;l-=gap)
+        for (gap>>=1; gap>0; gap>>=1)   //Sort sprite list
+            for (i=0; i<spritesortcnt-gap; i++)
+                for (l=i; l>=0; l-=gap)
                 {
                     if (spritesy[l] <= spritesy[l+gap]) break;
                     swaplong(&tspriteptr[l],&tspriteptr[l+gap]);
@@ -6158,13 +6158,13 @@ killsprite:
             spritesy[spritesortcnt] = (spritesy[spritesortcnt-1]^1);
 
         ys = spritesy[0]; i = 0;
-        for (j=1;j<=spritesortcnt;j++)
+        for (j=1; j<=spritesortcnt; j++)
         {
             if (spritesy[j] == ys) continue;
             ys = spritesy[j];
             if (j > i+1)
             {
-                for (k=i;k<j;k++)
+                for (k=i; k<j; k++)
                 {
                     spritesz[k] = tspriteptr[k]->z;
                     if ((tspriteptr[k]->cstat&48) != 32)
@@ -6176,8 +6176,8 @@ killsprite:
                         if (klabs(spritesz[k]-globalposz) < (yspan>>1)) spritesz[k] = globalposz;
                     }
                 }
-                for (k=i+1;k<j;k++)
-                    for (l=i;l<k;l++)
+                for (k=i+1; k<j; k++)
+                    for (l=i; l<k; l++)
                         if (klabs(spritesz[k]-globalposz) < klabs(spritesz[l]-globalposz))
                         {
                             swaplong(&tspriteptr[k],&tspriteptr[l]);
@@ -6185,8 +6185,8 @@ killsprite:
                             swaplong(&spritesy[k],&spritesy[l]);
                             swaplong(&spritesz[k],&spritesz[l]);
                         }
-                for (k=i+1;k<j;k++)
-                    for (l=i;l<k;l++)
+                for (k=i+1; k<j; k++)
+                    for (l=i; l<k; l++)
                         if (tspriteptr[k]->statnum < tspriteptr[l]->statnum)
                         {
                             swaplong(&tspriteptr[k],&tspriteptr[l]);
@@ -6288,127 +6288,127 @@ killsprite:
 #endif
     } /* depthpeeling */
 #if defined(USE_OPENGL) && defined(POLYMOST)
-/*
-    else
-    {
-        curpolygonoffset = 0;
-        cullcheckcnt = 0;
-        j = spritesortcnt;
-        k = maskwallcnt;
+    /*
+        else
+        {
+            curpolygonoffset = 0;
+            cullcheckcnt = 0;
+            j = spritesortcnt;
+            k = maskwallcnt;
 
-        while (j > 0) drawsprite(--j);
-        while (k > 0) drawmaskwall(--k);
-        if (totalclock < lastcullcheck - CULL_DELAY)
-            lastcullcheck = totalclock;
-        if (totalclock >= lastcullcheck + CULL_DELAY)
-            lastcullcheck = (totalclock + CULL_DELAY);
-    }
-*/
+            while (j > 0) drawsprite(--j);
+            while (k > 0) drawmaskwall(--k);
+            if (totalclock < lastcullcheck - CULL_DELAY)
+                lastcullcheck = totalclock;
+            if (totalclock >= lastcullcheck + CULL_DELAY)
+                lastcullcheck = (totalclock + CULL_DELAY);
+        }
+    */
 #endif
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
-/*
-    if ((r_depthpeeling) && (rendmode >= 3))
-    {
-        bglPopAttrib();
-        bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-
-        bglNewList(1, GL_COMPILE);
-
-        peelcompiling = 1;
-        curpolygonoffset = 0;
-
-        while (spritesortcnt > 0) drawsprite(--spritesortcnt);
-        while (maskwallcnt > 0) drawmaskwall(--maskwallcnt);
-
-        peelcompiling = 0;
-
-        bglEndList();
-
-        bglDisable(GL_BLEND);
-        bglEnable(GL_ALPHA_TEST);
-        bglAlphaFunc(GL_GREATER, 0.0f);
-        bglEnable(GL_FRAGMENT_PROGRAM_ARB);
-
-        i = 0;
-        while (i < r_peelscount)
+    /*
+        if ((r_depthpeeling) && (rendmode >= 3))
         {
-
-            if (i > 0)
-            {
-                bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[1]);
-                bglActiveTextureARB(GL_TEXTURE1_ARB);
-                bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[(i - 1) % 2]);
-                bglActiveTextureARB(GL_TEXTURE2_ARB);
-                bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[2]);
-                bglActiveTextureARB(GL_TEXTURE0_ARB);
-            }
-            else
-            {
-                bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[0]);
-                bglActiveTextureARB(GL_TEXTURE1_ARB);
-                bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[2]);
-                bglActiveTextureARB(GL_TEXTURE0_ARB);
-            }
-
-            if (i == (r_peelscount - 1))
-                bglEnable(GL_BLEND);
-
-            bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, peelfbos[i]);
-            bglPushAttrib(GL_VIEWPORT_BIT);
-            bglViewport(0, 0, xdim, ydim);
-
-            bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            bglCallList(1);
-
             bglPopAttrib();
             bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
-            i++;
+            bglNewList(1, GL_COMPILE);
+
+            peelcompiling = 1;
+            curpolygonoffset = 0;
+
+            while (spritesortcnt > 0) drawsprite(--spritesortcnt);
+            while (maskwallcnt > 0) drawmaskwall(--maskwallcnt);
+
+            peelcompiling = 0;
+
+            bglEndList();
+
+            bglDisable(GL_BLEND);
+            bglEnable(GL_ALPHA_TEST);
+            bglAlphaFunc(GL_GREATER, 0.0f);
+            bglEnable(GL_FRAGMENT_PROGRAM_ARB);
+
+            i = 0;
+            while (i < r_peelscount)
+            {
+
+                if (i > 0)
+                {
+                    bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[1]);
+                    bglActiveTextureARB(GL_TEXTURE1_ARB);
+                    bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[(i - 1) % 2]);
+                    bglActiveTextureARB(GL_TEXTURE2_ARB);
+                    bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[2]);
+                    bglActiveTextureARB(GL_TEXTURE0_ARB);
+                }
+                else
+                {
+                    bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[0]);
+                    bglActiveTextureARB(GL_TEXTURE1_ARB);
+                    bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[2]);
+                    bglActiveTextureARB(GL_TEXTURE0_ARB);
+                }
+
+                if (i == (r_peelscount - 1))
+                    bglEnable(GL_BLEND);
+
+                bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, peelfbos[i]);
+                bglPushAttrib(GL_VIEWPORT_BIT);
+                bglViewport(0, 0, xdim, ydim);
+
+                bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                bglCallList(1);
+
+                bglPopAttrib();
+                bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+                i++;
+            }
+
+            bglDisable(GL_FRAGMENT_PROGRAM_ARB);
+            bglEnable(GL_BLEND);
+            bglDisable(GL_DEPTH_TEST);
+
+            bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+            // identity for screen aligned quads
+            bglMatrixMode(GL_PROJECTION);
+            bglPushMatrix();
+            bglLoadIdentity();
+            bglMatrixMode(GL_MODELVIEW);
+            bglPushMatrix();
+            bglLoadIdentity();
+
+            bglEnable(GL_TEXTURE_RECTANGLE);
+
+            // backbuffer
+            drawpeel(r_peelscount);
+
+            if (r_curpeel == -1)
+            {
+                i = r_peelscount - 1;
+                while (i >= 0)
+                    drawpeel(i--);
+            }
+            else
+                drawpeel(r_curpeel);
+
+            bglDisable(GL_TEXTURE_RECTANGLE);
+            bglEnable(GL_TEXTURE_2D);
+
+            // restore the polymost projection
+            bglMatrixMode(GL_PROJECTION);
+            bglPopMatrix();
+            bglMatrixMode(GL_MODELVIEW);
+            bglPopMatrix();
+
+            bglEnable(GL_DEPTH_TEST);
+
+            bglDeleteLists(1, 1);
         }
-
-        bglDisable(GL_FRAGMENT_PROGRAM_ARB);
-        bglEnable(GL_BLEND);
-        bglDisable(GL_DEPTH_TEST);
-
-        bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-        // identity for screen aligned quads
-        bglMatrixMode(GL_PROJECTION);
-        bglPushMatrix();
-        bglLoadIdentity();
-        bglMatrixMode(GL_MODELVIEW);
-        bglPushMatrix();
-        bglLoadIdentity();
-
-        bglEnable(GL_TEXTURE_RECTANGLE);
-
-        // backbuffer
-        drawpeel(r_peelscount);
-
-        if (r_curpeel == -1)
-        {
-            i = r_peelscount - 1;
-            while (i >= 0)
-                drawpeel(i--);
-        }
-        else
-            drawpeel(r_curpeel);
-
-        bglDisable(GL_TEXTURE_RECTANGLE);
-        bglEnable(GL_TEXTURE_2D);
-
-        // restore the polymost projection
-        bglMatrixMode(GL_PROJECTION);
-        bglPopMatrix();
-        bglMatrixMode(GL_MODELVIEW);
-        bglPopMatrix();
-
-        bglEnable(GL_DEPTH_TEST);
-
-        bglDeleteLists(1, 1);
-    }
-*/
+    */
 #endif
 
     indrawroomsandmasks = 0;
@@ -6447,13 +6447,13 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     begindrawing(); //{{{
 
-    for (s=0,sec=&sector[s];s<numsectors;s++,sec++)
+    for (s=0,sec=&sector[s]; s<numsectors; s++,sec++)
         if (show2dsector[s>>3]&pow2char[s&7])
         {
             npoints = 0; i = 0;
             startwall = sec->wallptr;
 #if 0
-            for (w=sec->wallnum,wal=&wall[startwall];w>0;w--,wal++)
+            for (w=sec->wallnum,wal=&wall[startwall]; w>0; w--,wal++)
             {
                 ox = wal->x - dax; oy = wal->y - day;
                 x = dmulscale16(ox,xvect,-oy,yvect) + (xdim<<11);
@@ -6466,7 +6466,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             }
 #else
             j = startwall; l = 0;
-            for (w=sec->wallnum,wal=&wall[startwall];w>0;w--,wal++,j++)
+            for (w=sec->wallnum,wal=&wall[startwall]; w>0; w--,wal++,j++)
             {
                 k = lastwall(j);
                 if ((k > j) && (npoints > 0)) { xb1[npoints-1] = l; l = npoints; } //overwrite point2
@@ -6493,7 +6493,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             }
 
             //Collect floor sprites to draw
-            for (i=headspritesect[s];i>=0;i=nextspritesect[i])
+            for (i=headspritesect[s]; i>=0; i=nextspritesect[i])
                 if ((sprite[i].cstat&48) == 32)
                 {
                     if ((sprite[i].cstat&(64+8)) == (64+8)) continue;
@@ -6575,15 +6575,15 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     //Sort sprite list
     gap = 1; while (gap < sortnum) gap = (gap<<1)+1;
-    for (gap>>=1;gap>0;gap>>=1)
-        for (i=0;i<sortnum-gap;i++)
-            for (j=i;j>=0;j-=gap)
+    for (gap>>=1; gap>0; gap>>=1)
+        for (i=0; i<sortnum-gap; i++)
+            for (j=i; j>=0; j-=gap)
             {
                 if (sprite[tsprite[j].owner].z <= sprite[tsprite[j+gap].owner].z) break;
                 swapshort(&tsprite[j].owner,&tsprite[j+gap].owner);
             }
 
-    for (s=sortnum-1;s>=0;s--)
+    for (s=sortnum-1; s>=0; s--)
     {
         spr = &sprite[tsprite[s].owner];
         if ((spr->cstat&48) == 32)
@@ -6711,7 +6711,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 // loadboard
 //
 int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *daposy, int32_t *daposz,
-              int16_t *daang, int16_t *dacursectnum)
+                  int16_t *daang, int16_t *dacursectnum)
 {
     int16_t fil, i, numsprites;
 
@@ -6812,7 +6812,7 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
         }
     }
 
-    for (i=0;i<numsprites;i++)
+    for (i=0; i<numsprites; i++)
     {
         if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
         insertsprite(sprite[i].sectnum,sprite[i].statnum);
@@ -6951,7 +6951,7 @@ static int16_t sectorofwallv5(int16_t theline)
     int16_t i, startwall, endwall, sucksect;
 
     sucksect = -1;
-    for (i=0;i<numsectors;i++)
+    for (i=0; i<numsectors; i++)
     {
         startwall = sector[i].wallptr;
         endwall = startwall + sector[i].wallnum - 1;
@@ -7124,7 +7124,7 @@ static void convertv6sprv7(struct spritetypev6 *from, spritetype *to)
 // Powerslave uses v6
 // Witchaven 1 and TekWar and LameDuke use v5
 int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *daposy, int32_t *daposz,
-                 int16_t *daang, int16_t *dacursectnum)
+                     int16_t *daang, int16_t *dacursectnum)
 {
     int16_t fil, i, numsprites;
     struct sectortypev5 v5sect;
@@ -7295,7 +7295,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
         }
     }
 
-    for (i=0;i<numsprites;i++)
+    for (i=0; i<numsprites; i++)
     {
         if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
         insertsprite(sprite[i].sectnum,sprite[i].statnum);
@@ -7375,7 +7375,7 @@ int32_t loadmaphack(char *filename)
     {
         tok = scriptfile_gettoken(script);
         if (!tok) break;
-        for (i=0;legaltokens[i].text;i++) if (!Bstrcasecmp(tok,legaltokens[i].text)) break;
+        for (i=0; legaltokens[i].text; i++) if (!Bstrcasecmp(tok,legaltokens[i].text)) break;
         cmdtokptr = script->ltextptr;
         switch (legaltokens[i].tokenid)
         {
@@ -7541,7 +7541,7 @@ int32_t loadmaphack(char *filename) { UNREFERENCED_PARAMETER(filename); return -
 // saveboard
 //
 int32_t saveboard(char *filename, int32_t *daposx, int32_t *daposy, int32_t *daposz,
-              int16_t *daang, int16_t *dacursectnum)
+                  int16_t *daang, int16_t *dacursectnum)
 {
     int16_t fil, i, j, numsprites, ts;
     int32_t tl;
@@ -7555,7 +7555,7 @@ int32_t saveboard(char *filename, int32_t *daposx, int32_t *daposy, int32_t *dap
     if ((fil = Bopen(filename,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
         return(-1);
 
-    for (j=0;j<MAXSPRITES;j++)if ((unsigned)sprite[j].statnum>MAXSTATUS)
+    for (j=0; j<MAXSPRITES; j++)if ((unsigned)sprite[j].statnum>MAXSTATUS)
         {
             initprintf("Map error: sprite #%d(%d,%d) with an illegal statnum(%d)\n",j,sprite[j].x,sprite[j].y,sprite[j].statnum);
             changespritestat(j,0);
@@ -7563,7 +7563,7 @@ int32_t saveboard(char *filename, int32_t *daposx, int32_t *daposy, int32_t *dap
 
     numsprites = 0;
 #if 0
-    for (j=0;j<MAXSTATUS;j++)
+    for (j=0; j<MAXSTATUS; j++)
     {
         i = headspritestat[j];
         while (i != -1)
@@ -7573,7 +7573,7 @@ int32_t saveboard(char *filename, int32_t *daposx, int32_t *daposy, int32_t *dap
         }
     }
 #else
-    for (j=0;j<MAXSPRITES;j++)
+    for (j=0; j<MAXSPRITES; j++)
     {
         if (sprite[j].statnum != MAXSTATUS)
             numsprites++;
@@ -7663,7 +7663,7 @@ int32_t saveboard(char *filename, int32_t *daposx, int32_t *daposy, int32_t *dap
 
         spri=tspri;
 
-        for (j=0;j<MAXSPRITES;j++)
+        for (j=0; j<MAXSPRITES; j++)
         {
             if (sprite[j].statnum != MAXSTATUS)
             {
@@ -7769,7 +7769,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 
     setvlinebpl(bytesperline);
     j = 0;
-    for (i=0;i<=ydim;i++) ylookup[i] = j, j += bytesperline;
+    for (i=0; i<=ydim; i++) ylookup[i] = j, j += bytesperline;
 
     setview(0L,0L,xdim-1,ydim-1);
     clearallviews(0L);
@@ -7818,7 +7818,7 @@ void nextpage(void)
     {
     case 200:
         begindrawing(); //{{{
-        for (i=permtail;i!=permhead;i=((i+1)&(MAXPERMS-1)))
+        for (i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
         {
             per = &permfifo[i];
             if ((per->pagesleft > 0) && (per->pagesleft <= numpages))
@@ -7832,7 +7832,7 @@ void nextpage(void)
         showframe(0);
 
         begindrawing(); //{{{
-        for (i=permtail;i!=permhead;i=((i+1)&(MAXPERMS-1)))
+        for (i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
         {
             per = &permfifo[i];
             if (per->pagesleft >= 130)
@@ -7861,7 +7861,7 @@ void nextpage(void)
 
     {
         int32_t i;
-        for (i=0;i<MAXSPRITES;i++)
+        for (i=0; i<MAXSPRITES; i++)
             if ((mdpause&&spriteext[i].mdanimtims)||(spriteext[i].flags & SPREXT_NOMDANIM))
                 spriteext[i].mdanimtims+=mdtims-omdtims;
     }
@@ -7882,7 +7882,7 @@ int32_t loadpics(char *filename, int32_t askedsize)
 
     Bstrcpy(artfilename,filename);
 
-    for (i=0;i<MAXTILES;i++)
+    for (i=0; i<MAXTILES; i++)
     {
         tilesizx[i] = 0;
         tilesizy[i] = 0;
@@ -7921,7 +7921,7 @@ int32_t loadpics(char *filename, int32_t askedsize)
             }
 
             offscount = 4+4+4+4+((localtileend-localtilestart+1)<<3);
-            for (i=localtilestart;i<=localtileend;i++)
+            for (i=localtilestart; i<=localtileend; i++)
             {
                 tilefilenum[i] = k;
                 tilefileoffs[i] = offscount;
@@ -7951,7 +7951,7 @@ int32_t loadpics(char *filename, int32_t askedsize)
     }
     initcache((intptr_t) pic, cachesize);
 
-    for (i=0;i<MAXTILES;i++)
+    for (i=0; i<MAXTILES; i++)
     {
         j = 15;
         while ((j > 1) && (pow2long[j] > tilesizx[i])) j--;
@@ -8022,7 +8022,7 @@ void loadtile(int16_t tilenume)
         artfilplc = tilefileoffs[tilenume]+dasiz;
     }
     else
-    { 
+    {
         if (faketile[tilenume] == 1 || (faketile[tilenume] == 2 && faketiledata[tilenume] == NULL))
             Bmemset((char *)waloff[tilenume],0,dasiz);
         else if (faketile[tilenume] == 2)
@@ -8082,10 +8082,10 @@ void copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, in
         if (waloff[tilenume2] == 0) loadtile(tilenume2);
 
         x1 = sx1;
-        for (i=0;i<xsiz;i++)
+        for (i=0; i<xsiz; i++)
         {
             y1 = sy1;
-            for (j=0;j<ysiz;j++)
+            for (j=0; j<ysiz; j++)
             {
                 x2 = sx2+i;
                 y2 = sy2+j;
@@ -8120,7 +8120,7 @@ int32_t qloadkvx(int32_t voxindex, char *filename)
     lengcnt = 0;
     lengtot = kfilelength(fil);
 
-    for (i=0;i<MAXVOXMIPS;i++)
+    for (i=0; i<MAXVOXMIPS; i++)
     {
         kread(fil,&dasiz,4); dasiz = B_LITTLE32(dasiz);
         //Must store filenames to use cacheing system :(
@@ -8438,10 +8438,10 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
     x21 = x2-x1; y21 = y2-y1; z21 = z2-z1;
 
     clipsectorlist[0] = sect1; danum = 1;
-    for (dacnt=0;dacnt<danum;dacnt++)
+    for (dacnt=0; dacnt<danum; dacnt++)
     {
         dasectnum = clipsectorlist[dacnt]; sec = &sector[dasectnum];
-        for (cnt=sec->wallnum,wal=&wall[sec->wallptr];cnt>0;cnt--,wal++)
+        for (cnt=sec->wallnum,wal=&wall[sec->wallptr]; cnt>0; cnt--,wal++)
         {
             wal2 = &wall[wal->point2];
             x31 = wal->x-x1; x34 = wal->x-wal2->x;
@@ -8464,11 +8464,11 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
             getzsofslope((int16_t)nexts,x,y,&cz,&fz);
             if ((z <= cz) || (z >= fz)) return(0);
 
-            for (i=danum-1;i>=0;i--) if (clipsectorlist[i] == nexts) break;
+            for (i=danum-1; i>=0; i--) if (clipsectorlist[i] == nexts) break;
             if (i < 0) clipsectorlist[danum++] = nexts;
         }
     }
-    for (i=danum-1;i>=0;i--) if (clipsectorlist[i] == sect2) return(1);
+    for (i=danum-1; i>=0; i--) if (clipsectorlist[i] == sect2) return(1);
     return(0);
 }
 
@@ -8544,212 +8544,212 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 hitinfo->pos.x = x1; hitinfo->pos.y = y1; hitinfo->pos.z = z1;
             }
 
-            x1 = 0x7fffffff;
-            if (sec->floorstat&2)
-            {
-                wal = &wall[sec->wallptr]; wal2 = &wall[wal->point2];
-                dax = wal2->x-wal->x; day = wal2->y-wal->y;
-                i = nsqrtasm(dax*dax+day*day); if (i == 0) continue;
-                i = divscale15(sec->floorheinum,i);
-                dax *= i; day *= i;
+        x1 = 0x7fffffff;
+        if (sec->floorstat&2)
+        {
+            wal = &wall[sec->wallptr]; wal2 = &wall[wal->point2];
+            dax = wal2->x-wal->x; day = wal2->y-wal->y;
+            i = nsqrtasm(dax*dax+day*day); if (i == 0) continue;
+            i = divscale15(sec->floorheinum,i);
+            dax *= i; day *= i;
 
-                j = (vz<<8)-dmulscale15(dax,vy,-day,vx);
-                if (j != 0)
-                {
-                    i = ((sec->floorz-sv->z)<<8)+dmulscale15(dax,sv->y-wal->y,-day,sv->x-wal->x);
-                    if (((i^j) >= 0) && ((klabs(i)>>1) < klabs(j)))
-                    {
-                        i = divscale30(i,j);
-                        x1 = sv->x + mulscale30(vx,i);
-                        y1 = sv->y + mulscale30(vy,i);
-                        z1 = sv->z + mulscale30(vz,i);
-                    }
-                }
-            }
-            else if ((vz > 0) && (sv->z <= sec->floorz))
+            j = (vz<<8)-dmulscale15(dax,vy,-day,vx);
+            if (j != 0)
             {
-                z1 = sec->floorz; i = z1-sv->z;
-                if ((klabs(i)>>1) < vz)
+                i = ((sec->floorz-sv->z)<<8)+dmulscale15(dax,sv->y-wal->y,-day,sv->x-wal->x);
+                if (((i^j) >= 0) && ((klabs(i)>>1) < klabs(j)))
                 {
-                    i = divscale30(i,vz);
+                    i = divscale30(i,j);
                     x1 = sv->x + mulscale30(vx,i);
                     y1 = sv->y + mulscale30(vy,i);
+                    z1 = sv->z + mulscale30(vz,i);
                 }
             }
-            if ((x1 != 0x7fffffff) && (klabs(x1-sv->x)+klabs(y1-sv->y) < klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)))
-                if (inside(x1,y1,dasector) != 0)
-                {
-                    hitinfo->hitsect = dasector; hitinfo->hitwall = -1; hitinfo->hitsprite = -1;
-                    hitinfo->pos.x = x1; hitinfo->pos.y = y1; hitinfo->pos.z = z1;
-                }
+        }
+        else if ((vz > 0) && (sv->z <= sec->floorz))
+        {
+            z1 = sec->floorz; i = z1-sv->z;
+            if ((klabs(i)>>1) < vz)
+            {
+                i = divscale30(i,vz);
+                x1 = sv->x + mulscale30(vx,i);
+                y1 = sv->y + mulscale30(vy,i);
+            }
+        }
+        if ((x1 != 0x7fffffff) && (klabs(x1-sv->x)+klabs(y1-sv->y) < klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)))
+            if (inside(x1,y1,dasector) != 0)
+            {
+                hitinfo->hitsect = dasector; hitinfo->hitwall = -1; hitinfo->hitsprite = -1;
+                hitinfo->pos.x = x1; hitinfo->pos.y = y1; hitinfo->pos.z = z1;
+            }
 
-                startwall = sec->wallptr; endwall = startwall + sec->wallnum;
-                for (z=startwall,wal=&wall[startwall];z<endwall;z++,wal++)
-                {
-                    wal2 = &wall[wal->point2];
-                    x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
+        startwall = sec->wallptr; endwall = startwall + sec->wallnum;
+        for (z=startwall,wal=&wall[startwall]; z<endwall; z++,wal++)
+        {
+            wal2 = &wall[wal->point2];
+            x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
 
-                    if ((x1-sv->x)*(y2-sv->y) < (x2-sv->x)*(y1-sv->y)) continue;
-                    if (rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz) == 0) continue;
+            if ((x1-sv->x)*(y2-sv->y) < (x2-sv->x)*(y1-sv->y)) continue;
+            if (rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz) == 0) continue;
 
-                    if (klabs(intx-sv->x)+klabs(inty-sv->y) >= klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)) continue;
+            if (klabs(intx-sv->x)+klabs(inty-sv->y) >= klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)) continue;
 
-                    nextsector = wal->nextsector;
-                    if ((nextsector < 0) || (wal->cstat&dawalclipmask))
-                    {
-                        hitinfo->hitsect = dasector; hitinfo->hitwall = z; hitinfo->hitsprite = -1;
-                        hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
-                        continue;
-                    }
-                    getzsofslope(nextsector,intx,inty,&daz,&daz2);
-                    if ((intz <= daz) || (intz >= daz2))
-                    {
-                        hitinfo->hitsect = dasector; hitinfo->hitwall = z; hitinfo->hitsprite = -1;
-                        hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
-                        continue;
-                    }
+            nextsector = wal->nextsector;
+            if ((nextsector < 0) || (wal->cstat&dawalclipmask))
+            {
+                hitinfo->hitsect = dasector; hitinfo->hitwall = z; hitinfo->hitsprite = -1;
+                hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
+                continue;
+            }
+            getzsofslope(nextsector,intx,inty,&daz,&daz2);
+            if ((intz <= daz) || (intz >= daz2))
+            {
+                hitinfo->hitsect = dasector; hitinfo->hitwall = z; hitinfo->hitsprite = -1;
+                hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
+                continue;
+            }
 
-                    for (zz=tempshortnum-1;zz>=0;zz--)
-                        if (clipsectorlist[zz] == nextsector) break;
-                    if (zz < 0) clipsectorlist[tempshortnum++] = nextsector;
-                }
+            for (zz=tempshortnum-1; zz>=0; zz--)
+                if (clipsectorlist[zz] == nextsector) break;
+            if (zz < 0) clipsectorlist[tempshortnum++] = nextsector;
+        }
 
-                for (z=headspritesect[dasector];z>=0;z=nextspritesect[z])
-                {
-                    spr = &sprite[z];
-                    cstat = spr->cstat;
+        for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
+        {
+            spr = &sprite[z];
+            cstat = spr->cstat;
 #ifdef POLYMOST
-                    if (!hitallsprites)
+            if (!hitallsprites)
 #endif
-                        if ((cstat&dasprclipmask) == 0) continue;
+                if ((cstat&dasprclipmask) == 0) continue;
 
-                    x1 = spr->x; y1 = spr->y; z1 = spr->z;
-                    switch (cstat&48)
-                    {
-                    case 0:
-                        topt = vx*(x1-sv->x) + vy*(y1-sv->y); if (topt <= 0) continue;
-                        bot = vx*vx + vy*vy; if (bot == 0) continue;
+            x1 = spr->x; y1 = spr->y; z1 = spr->z;
+            switch (cstat&48)
+            {
+            case 0:
+                topt = vx*(x1-sv->x) + vy*(y1-sv->y); if (topt <= 0) continue;
+                bot = vx*vx + vy*vy; if (bot == 0) continue;
 
-                        intz = sv->z+scale(vz,topt,bot);
+                intz = sv->z+scale(vz,topt,bot);
 
-                        i = (tilesizy[spr->picnum]*spr->yrepeat<<2);
-                        if (cstat&128) z1 += (i>>1);
-                        if (picanm[spr->picnum]&0x00ff0000) z1 -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
-                        if ((intz > z1) || (intz < z1-i)) continue;
-                        topu = vx*(y1-sv->y) - vy*(x1-sv->x);
+                i = (tilesizy[spr->picnum]*spr->yrepeat<<2);
+                if (cstat&128) z1 += (i>>1);
+                if (picanm[spr->picnum]&0x00ff0000) z1 -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+                if ((intz > z1) || (intz < z1-i)) continue;
+                topu = vx*(y1-sv->y) - vy*(x1-sv->x);
 
-                        offx = scale(vx,topu,bot);
-                        offy = scale(vy,topu,bot);
-                        dist = offx*offx + offy*offy;
-                        i = tilesizx[spr->picnum]*spr->xrepeat; i *= i;
-                        if (dist > (i>>7)) continue;
-                        intx = sv->x + scale(vx,topt,bot);
-                        inty = sv->y + scale(vy,topt,bot);
+                offx = scale(vx,topu,bot);
+                offy = scale(vy,topu,bot);
+                dist = offx*offx + offy*offy;
+                i = tilesizx[spr->picnum]*spr->xrepeat; i *= i;
+                if (dist > (i>>7)) continue;
+                intx = sv->x + scale(vx,topt,bot);
+                inty = sv->y + scale(vy,topt,bot);
 
-                        if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)) continue;
+                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)) continue;
 
-                        hitinfo->hitsect = dasector; hitinfo->hitwall = -1; hitinfo->hitsprite = z;
-                        hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
-                        break;
-                    case 16:
-                        //These lines get the 2 points of the rotated sprite
-                        //Given: (x1, y1) starts out as the center point
-                        tilenum = spr->picnum;
-                        xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
-                        if ((cstat&4) > 0) xoff = -xoff;
-                        k = spr->ang; l = spr->xrepeat;
-                        dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
-                        l = tilesizx[tilenum]; k = (l>>1)+xoff;
-                        x1 -= mulscale16(dax,k); x2 = x1+mulscale16(dax,l);
-                        y1 -= mulscale16(day,k); y2 = y1+mulscale16(day,l);
+                hitinfo->hitsect = dasector; hitinfo->hitwall = -1; hitinfo->hitsprite = z;
+                hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
+                break;
+            case 16:
+                //These lines get the 2 points of the rotated sprite
+                //Given: (x1, y1) starts out as the center point
+                tilenum = spr->picnum;
+                xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
+                if ((cstat&4) > 0) xoff = -xoff;
+                k = spr->ang; l = spr->xrepeat;
+                dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
+                l = tilesizx[tilenum]; k = (l>>1)+xoff;
+                x1 -= mulscale16(dax,k); x2 = x1+mulscale16(dax,l);
+                y1 -= mulscale16(day,k); y2 = y1+mulscale16(day,l);
 
-                        if ((cstat&64) != 0)   //back side of 1-way sprite
-                            if ((x1-sv->x)*(y2-sv->y) < (x2-sv->x)*(y1-sv->y)) continue;
+                if ((cstat&64) != 0)   //back side of 1-way sprite
+                    if ((x1-sv->x)*(y2-sv->y) < (x2-sv->x)*(y1-sv->y)) continue;
 
-                        if (rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz) == 0) continue;
+                if (rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz) == 0) continue;
 
-                        if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)) continue;
+                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)) continue;
 
-                        k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
-                        if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
-                        if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
-                        if ((intz < daz) && (intz > daz-k))
-                        {
-                            hitinfo->hitsect = dasector; hitinfo->hitwall = -1; hitinfo->hitsprite = z;
-                            hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
-                        }
-                        break;
-                    case 32:
-                        if (vz == 0) continue;
-                        intz = z1;
-                        if (((intz-sv->z)^vz) < 0) continue;
-                        if ((cstat&64) != 0)
-                            if ((sv->z > intz) == ((cstat&8)==0)) continue;
+                k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
+                if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
+                if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+                if ((intz < daz) && (intz > daz-k))
+                {
+                    hitinfo->hitsect = dasector; hitinfo->hitwall = -1; hitinfo->hitsprite = z;
+                    hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
+                }
+                break;
+            case 32:
+                if (vz == 0) continue;
+                intz = z1;
+                if (((intz-sv->z)^vz) < 0) continue;
+                if ((cstat&64) != 0)
+                    if ((sv->z > intz) == ((cstat&8)==0)) continue;
 
 #if 1           // Abyss crash prevention code ((intz-sv->z)*zx overflowing a 8-bit word)
-                        zz=(int32_t)((intz-sv->z)*vx);
-                        intx = sv->x+scale(zz,1,vz);
-                        zz=(int32_t)((intz-sv->z)*vy);
-                        inty = sv->y+scale(zz,1,vz);
+                zz=(int32_t)((intz-sv->z)*vx);
+                intx = sv->x+scale(zz,1,vz);
+                zz=(int32_t)((intz-sv->z)*vy);
+                inty = sv->y+scale(zz,1,vz);
 #else
-                        intx = sv->x+scale(intz-sv->z,vx,vz);
-                        inty = sv->y+scale(intz-sv->z,vy,vz);
+                intx = sv->x+scale(intz-sv->z,vx,vz);
+                inty = sv->y+scale(intz-sv->z,vy,vz);
 #endif
 
-                        if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)) continue;
+                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)) continue;
 
-                        tilenum = spr->picnum;
-                        xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
-                        yoff = (int32_t)((int8_t)((picanm[tilenum]>>16)&255))+((int32_t)spr->yoffset);
-                        if ((cstat&4) > 0) xoff = -xoff;
-                        if ((cstat&8) > 0) yoff = -yoff;
+                tilenum = spr->picnum;
+                xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
+                yoff = (int32_t)((int8_t)((picanm[tilenum]>>16)&255))+((int32_t)spr->yoffset);
+                if ((cstat&4) > 0) xoff = -xoff;
+                if ((cstat&8) > 0) yoff = -yoff;
 
-                        ang = spr->ang;
-                        cosang = sintable[(ang+512)&2047]; sinang = sintable[ang];
-                        xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
-                        yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
+                ang = spr->ang;
+                cosang = sintable[(ang+512)&2047]; sinang = sintable[ang];
+                xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
+                yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
 
-                        dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
-                        x1 += dmulscale16(sinang,dax,cosang,day)-intx;
-                        y1 += dmulscale16(sinang,day,-cosang,dax)-inty;
-                        l = xspan*xrepeat;
-                        x2 = x1 - mulscale16(sinang,l);
-                        y2 = y1 + mulscale16(cosang,l);
-                        l = yspan*yrepeat;
-                        k = -mulscale16(cosang,l); x3 = x2+k; x4 = x1+k;
-                        k = -mulscale16(sinang,l); y3 = y2+k; y4 = y1+k;
+                dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
+                x1 += dmulscale16(sinang,dax,cosang,day)-intx;
+                y1 += dmulscale16(sinang,day,-cosang,dax)-inty;
+                l = xspan*xrepeat;
+                x2 = x1 - mulscale16(sinang,l);
+                y2 = y1 + mulscale16(cosang,l);
+                l = yspan*yrepeat;
+                k = -mulscale16(cosang,l); x3 = x2+k; x4 = x1+k;
+                k = -mulscale16(sinang,l); y3 = y2+k; y4 = y1+k;
 
-                        clipyou = 0;
-                        if ((y1^y2) < 0)
-                        {
-                            if ((x1^x2) < 0) clipyou ^= (x1*y2<x2*y1)^(y1<y2);
-                            else if (x1 >= 0) clipyou ^= 1;
-                        }
-                        if ((y2^y3) < 0)
-                        {
-                            if ((x2^x3) < 0) clipyou ^= (x2*y3<x3*y2)^(y2<y3);
-                            else if (x2 >= 0) clipyou ^= 1;
-                        }
-                        if ((y3^y4) < 0)
-                        {
-                            if ((x3^x4) < 0) clipyou ^= (x3*y4<x4*y3)^(y3<y4);
-                            else if (x3 >= 0) clipyou ^= 1;
-                        }
-                        if ((y4^y1) < 0)
-                        {
-                            if ((x4^x1) < 0) clipyou ^= (x4*y1<x1*y4)^(y4<y1);
-                            else if (x4 >= 0) clipyou ^= 1;
-                        }
-
-                        if (clipyou != 0)
-                        {
-                            hitinfo->hitsect = dasector; hitinfo->hitwall = -1; hitinfo->hitsprite = z;
-                            hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
-                        }
-                        break;
-                    }
+                clipyou = 0;
+                if ((y1^y2) < 0)
+                {
+                    if ((x1^x2) < 0) clipyou ^= (x1*y2<x2*y1)^(y1<y2);
+                    else if (x1 >= 0) clipyou ^= 1;
                 }
-                tempshortcnt++;
+                if ((y2^y3) < 0)
+                {
+                    if ((x2^x3) < 0) clipyou ^= (x2*y3<x3*y2)^(y2<y3);
+                    else if (x2 >= 0) clipyou ^= 1;
+                }
+                if ((y3^y4) < 0)
+                {
+                    if ((x3^x4) < 0) clipyou ^= (x3*y4<x4*y3)^(y3<y4);
+                    else if (x3 >= 0) clipyou ^= 1;
+                }
+                if ((y4^y1) < 0)
+                {
+                    if ((x4^x1) < 0) clipyou ^= (x4*y1<x1*y4)^(y4<y1);
+                    else if (x4 >= 0) clipyou ^= 1;
+                }
+
+                if (clipyou != 0)
+                {
+                    hitinfo->hitsect = dasector; hitinfo->hitwall = -1; hitinfo->hitsprite = z;
+                    hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
+                }
+                break;
+            }
+        }
+        tempshortcnt++;
     }
     while (tempshortcnt < tempshortnum);
     return(0);
@@ -8787,7 +8787,7 @@ int32_t neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ang
 
         startwall = sector[dasector].wallptr;
         endwall = startwall + sector[dasector].wallnum - 1;
-        for (z=startwall,wal=&wall[startwall];z<=endwall;z++,wal++)
+        for (z=startwall,wal=&wall[startwall]; z<=endwall; z++,wal++)
         {
             wal2 = &wall[wal->point2];
             x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
@@ -8817,14 +8817,14 @@ int32_t neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ang
                 }
                 if (nextsector >= 0)
                 {
-                    for (zz=tempshortnum-1;zz>=0;zz--)
+                    for (zz=tempshortnum-1; zz>=0; zz--)
                         if (clipsectorlist[zz] == nextsector) break;
                     if (zz < 0) clipsectorlist[tempshortnum++] = nextsector;
                 }
             }
         }
 
-        for (z=headspritesect[dasector];z>=0;z=nextspritesect[z])
+        for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
         {
             spr = &sprite[z];
 
@@ -9014,7 +9014,7 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
         dasect = clipsectorlist[clipsectcnt++];
         sec = &sector[dasect];
         startwall = sec->wallptr; endwall = startwall + sec->wallnum;
-        for (j=startwall,wal=&wall[startwall];j<endwall;j++,wal++)
+        for (j=startwall,wal=&wall[startwall]; j<endwall; j++,wal++)
         {
             wal2 = &wall[wal->point2];
             if ((wal->x < xmin) && (wal2->x < xmin)) continue;
@@ -9070,13 +9070,13 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
             }
             else
             {
-                for (i=clipsectnum-1;i>=0;i--)
+                for (i=clipsectnum-1; i>=0; i--)
                     if (wal->nextsector == clipsectorlist[i]) break;
                 if (i < 0) clipsectorlist[clipsectnum++] = wal->nextsector;
             }
         }
 
-        for (j=headspritesect[dasect];j>=0;j=nextspritesect[j])
+        for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
         {
             spr = &sprite[j];
             cstat = spr->cstat;
@@ -9134,9 +9134,9 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
 
                         //Side blocker
                         if ((x2-x1)*((vect->x)-x1) + (y2-y1)*((vect->y)-y1) < 0)
-                        { addclipline(x1-day,y1+dax,x1+dax,y1+day,(int16_t)j+49152); }
+                            { addclipline(x1-day,y1+dax,x1+dax,y1+day,(int16_t)j+49152); }
                         else if ((x1-x2)*((vect->x)-x2) + (y1-y2)*((vect->y)-y2) < 0)
-                        { addclipline(x2+day,y2-dax,x2-dax,y2-day,(int16_t)j+49152); }
+                            { addclipline(x2+day,y2-dax,x2-dax,y2-day,(int16_t)j+49152); }
                     }
                 }
                 break;
@@ -9224,7 +9224,7 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
             }
 
             tempint1 = dmulscale6(lx,oxvect,ly,oyvect);
-            for (i=cnt+1;i<=clipmoveboxtracenum;i++)
+            for (i=cnt+1; i<=clipmoveboxtracenum; i++)
             {
                 j = hitwalls[i];
                 tempint2 = dmulscale6(clipit[j].x2-clipit[j].x1,oxvect,clipit[j].y2-clipit[j].y1,oyvect);
@@ -9249,45 +9249,45 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
     }
     while (((xvect|yvect) != 0) && (hitwall >= 0) && (cnt > 0));
 
-    for (j=0;j<clipsectnum;j++)
+    for (j=0; j<clipsectnum; j++)
         if (inside(vect->x,vect->y,clipsectorlist[j]) == 1)
         {
             *sectnum = clipsectorlist[j];
             return(retval);
         }
 
-        *sectnum = -1; tempint1 = 0x7fffffff;
-        for (j=numsectors-1;j>=0;j--)
-            if (inside(vect->x,vect->y,j) == 1)
+    *sectnum = -1; tempint1 = 0x7fffffff;
+    for (j=numsectors-1; j>=0; j--)
+        if (inside(vect->x,vect->y,j) == 1)
+        {
+            if (sector[j].ceilingstat&2)
+                tempint2 = (getceilzofslope((int16_t)j,vect->x,vect->y)-(vect->z));
+            else
+                tempint2 = (sector[j].ceilingz-(vect->z));
+
+            if (tempint2 > 0)
             {
-                if (sector[j].ceilingstat&2)
-                    tempint2 = (getceilzofslope((int16_t)j,vect->x,vect->y)-(vect->z));
-                else
-                    tempint2 = (sector[j].ceilingz-(vect->z));
-
-                if (tempint2 > 0)
-                {
-                    if (tempint2 < tempint1)
+                if (tempint2 < tempint1)
                     { *sectnum = j; tempint1 = tempint2; }
-                }
-                else
-                {
-                    if (sector[j].floorstat&2)
-                        tempint2 = ((vect->z)-getflorzofslope((int16_t)j,vect->x,vect->y));
-                    else
-                        tempint2 = ((vect->z)-sector[j].floorz);
-
-                    if (tempint2 <= 0)
-                    {
-                        *sectnum = j;
-                        return(retval);
-                    }
-                    if (tempint2 < tempint1)
-                    { *sectnum = j; tempint1 = tempint2; }
-                }
             }
+            else
+            {
+                if (sector[j].floorstat&2)
+                    tempint2 = ((vect->z)-getflorzofslope((int16_t)j,vect->x,vect->y));
+                else
+                    tempint2 = ((vect->z)-sector[j].floorz);
 
-            return(retval);
+                if (tempint2 <= 0)
+                {
+                    *sectnum = j;
+                    return(retval);
+                }
+                if (tempint2 < tempint1)
+                    { *sectnum = j; tempint1 = tempint2; }
+            }
+        }
+
+    return(retval);
 }
 
 
@@ -9359,7 +9359,7 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
             else
                 endwall = sec->wallptr, startwall = endwall + sec->wallnum;
 
-            for (i=startwall,wal=&wall[startwall];i!=endwall;i+=dir,wal+=dir)
+            for (i=startwall,wal=&wall[startwall]; i!=endwall; i+=dir,wal+=dir)
                 if (clipinsidebox(vect->x,vect->y,i,walldist-4) == 1)
                 {
                     j = 0;
@@ -9413,13 +9413,13 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                     }
                     else
                     {
-                        for (j=clipsectnum-1;j>=0;j--)
+                        for (j=clipsectnum-1; j>=0; j--)
                             if (wal->nextsector == clipsectorlist[j]) break;
                         if (j < 0) clipsectorlist[clipsectnum++] = wal->nextsector;
                     }
                 }
 
-                clipsectcnt++;
+            clipsectcnt++;
         }
         while (clipsectcnt < clipsectnum);
         dir = -dir;
@@ -9459,7 +9459,7 @@ void updatesector(int32_t x, int32_t y, int16_t *sectnum)
         while (j != 0);
     }
 
-    for (i=numsectors-1;i>=0;i--)
+    for (i=numsectors-1; i>=0; i--)
         if (inside(x,y,(int16_t)i) == 1)
         {
             *sectnum = i;
@@ -9497,7 +9497,7 @@ void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum)
         while (j != 0);
     }
 
-    for (i=numsectors-1;i>=0;i--)
+    for (i=numsectors-1; i>=0; i--)
     {
         getzsofslope(i, x, y, &cz, &fz);
         if ((z >= cz) && (z <= fz))
@@ -9590,7 +9590,7 @@ void getzrange(const vec3_t *vect, int16_t sectnum,
     {
         sec = &sector[clipsectorlist[clipsectcnt]];
         startwall = sec->wallptr; endwall = startwall + sec->wallnum;
-        for (j=startwall,wal=&wall[startwall];j<endwall;j++,wal++)
+        for (j=startwall,wal=&wall[startwall]; j<endwall; j++,wal++)
         {
             k = wal->nextsector;
             if (k >= 0)
@@ -9617,7 +9617,7 @@ void getzrange(const vec3_t *vect, int16_t sectnum,
                     if (((sec->floorstat&1) == 0) && (vect->z >= sec->floorz-(3<<8))) continue;
                 }
 
-                for (i=clipsectnum-1;i>=0;i--) if (clipsectorlist[i] == k) break;
+                for (i=clipsectnum-1; i>=0; i--) if (clipsectorlist[i] == k) break;
                 if (i < 0) clipsectorlist[clipsectnum++] = k;
 
                 if ((x1 < xmin+MAXCLIPDIST) && (x2 < xmin+MAXCLIPDIST)) continue;
@@ -9638,9 +9638,9 @@ void getzrange(const vec3_t *vect, int16_t sectnum,
     }
     while (clipsectcnt < clipsectnum);
 
-    for (i=0;i<clipsectnum;i++)
+    for (i=0; i<clipsectnum; i++)
     {
-        for (j=headspritesect[clipsectorlist[i]];j>=0;j=nextspritesect[j])
+        for (j=headspritesect[clipsectorlist[i]]; j>=0; j=nextspritesect[j])
         {
             spr = &sprite[j];
             cstat = spr->cstat;
@@ -9765,10 +9765,10 @@ void setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 
     setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
 
-    for (i=0;i<windowx1;i++) { startumost[i] = 1, startdmost[i] = 0; }
-    for (i=windowx1;i<=windowx2;i++)
+    for (i=0; i<windowx1; i++) { startumost[i] = 1, startdmost[i] = 0; }
+    for (i=windowx1; i<=windowx2; i++)
         { startumost[i] = windowy1, startdmost[i] = windowy2+1; }
-    for (i=windowx2+1;i<xdim;i++) { startumost[i] = 1, startdmost[i] = 0; }
+    for (i=windowx2+1; i<xdim; i++) { startumost[i] = 1, startdmost[i] = 0; }
 
     /*
     begindrawing(); //{{{
@@ -9841,7 +9841,7 @@ void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, 
         //Would be better to optimize out true bounding boxes
         if (dastat&64)  //If non-masking write, checking for overlapping cases
         {
-            for (i=permtail;i!=permhead;i=((i+1)&(MAXPERMS-1)))
+            for (i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
             {
                 per2 = &permfifo[i];
                 if ((per2->pagesleft&127) == 0) continue;
@@ -9858,7 +9858,7 @@ void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, 
                 per2->pagesleft = 0;
             }
             if ((per->z == 65536) && (per->a == 0))
-                for (i=permtail;i!=permhead;i=((i+1)&(MAXPERMS-1)))
+                for (i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
                 {
                     per2 = &permfifo[i];
                     if ((per2->pagesleft&127) == 0) continue;
@@ -9903,11 +9903,11 @@ void makepalookup(int32_t palnum, char *remapbuf, int8_t r, int8_t g, int8_t b, 
 
     if ((r|g|b) == 0)
     {
-        for (i=0;i<256;i++)
+        for (i=0; i<256; i++)
         {
             ptr = (char *)(FP_OFF(palookup[0])+remapbuf[i]);
             ptr2 = (char *)(FP_OFF(palookup[palnum])+i);
-            for (j=0;j<numpalookups;j++)
+            for (j=0; j<numpalookups; j++)
                 { *ptr2 = *ptr; ptr += 256; ptr2 += 256; }
         }
 #if defined(USE_OPENGL)
@@ -9919,10 +9919,10 @@ void makepalookup(int32_t palnum, char *remapbuf, int8_t r, int8_t g, int8_t b, 
     else
     {
         ptr2 = palookup[palnum];
-        for (i=0;i<numpalookups;i++)
+        for (i=0; i<numpalookups; i++)
         {
             palscale = divscale16(i,numpalookups);
-            for (j=0;j<256;j++)
+            for (j=0; j<256; j++)
             {
                 ptr = (char *)&palette[remapbuf[j]*3];
                 *ptr2++ = getclosestcol((int32_t)ptr[0]+mulscale16(r-ptr[0],palscale),
@@ -9943,7 +9943,7 @@ void setvgapalette(void)
 {
     int32_t i;
 
-    for (i=0;i<256;i++)
+    for (i=0; i<256; i++)
     {
         curpalettefaded[i].b = curpalette[i].b = vgapal16[4*i] << 2;
         curpalettefaded[i].g = curpalette[i].g = vgapal16[4*i+1] << 2;
@@ -9969,7 +9969,7 @@ void setbrightness(char dabrightness, uint8_t *dapal, char noapply)
 
     if (setgamma()) j = curbrightness; else j = 0;
 
-    for (k=i=0;i<256;i++)
+    for (k=i=0; i<256; i++)
     {
         // save palette without any brightness adjustment
         curpalette[i].r = dapal[i*3+0] << 2;
@@ -10022,7 +10022,7 @@ void setpalettefade(char r, char g, char b, char offset)
     palfadedelta = min(63,offset) << 2;
 
     k = 0;
-    for (i=0;i<256;i++)
+    for (i=0; i<256; i++)
     {
         if (gammabrightness) p = curpalette[i];
         else
@@ -10079,7 +10079,7 @@ void clearview(int32_t dacol)
     dx = windowx2-windowx1+1;
     //dacol += (dacol<<8); dacol += (dacol<<16);
     p = frameplace+ylookup[windowy1]+windowx1;
-    for (y=windowy1;y<=windowy2;y++)
+    for (y=windowy1; y<=windowy2; y++)
     {
         //clearbufbyte((void*)p,dx,dacol);
         Bmemset((void*)p,dacol,dx);
@@ -10215,7 +10215,7 @@ void setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     offscreenrendering = 1;
     setview(0,0,ysiz-1,xsiz-1);
     setaspect(65536,65536);
-    j = 0; for (i=0;i<=xsiz;i++) { ylookup[i] = j, j += ysiz; }
+    j = 0; for (i=0; i<=xsiz; i++) { ylookup[i] = j, j += ysiz; }
     setvlinebpl(ysiz);
 }
 
@@ -10249,7 +10249,7 @@ void setviewback(void)
         k = bakxsiz[0];
     else
         k = max(bakxsiz[setviewcnt-1],bakxsiz[setviewcnt]);
-    j = 0; for (i=0;i<=k;i++) ylookup[i] = j, j += bytesperline;
+    j = 0; for (i=0; i<=k; i++) ylookup[i] = j, j += bytesperline;
     setvlinebpl(bytesperline);
     modechange=1;
 }
@@ -10269,11 +10269,11 @@ void squarerotatetile(int16_t tilenume)
     if (xsiz == ysiz)
     {
         k = (xsiz<<1);
-        for (i=xsiz-1;i>=0;i--)
+        for (i=xsiz-1; i>=0; i--)
         {
             ptr1 = (char *)(waloff[tilenume]+i*(xsiz+1)); ptr2 = ptr1;
             if ((i&1) != 0) { ptr1--; ptr2 -= xsiz; swapchar(ptr1,ptr2); }
-            for (j=(i>>1)-1;j>=0;j--)
+            for (j=(i>>1)-1; j>=0; j--)
                 { ptr1 -= 2; ptr2 -= k; swapchar2(ptr1,ptr2,xsiz); }
         }
     }
@@ -10324,7 +10324,7 @@ void completemirror(void)
     begindrawing();
     p = frameplace+ylookup[windowy1+mirrorsy1]+windowx1+mirrorsx1;
     i = windowx2-windowx1-mirrorsx2-mirrorsx1; mirrorsx2 -= mirrorsx1;
-    for (dy=mirrorsy2-mirrorsy1-1;dy>=0;dy--)
+    for (dy=mirrorsy2-mirrorsy1-1; dy>=0; dy--)
     {
         copybufbyte((void*)(p+1),tempbuf,mirrorsx2+1);
         tempbuf[mirrorsx2] = tempbuf[mirrorsx2-1];
@@ -10467,7 +10467,7 @@ int32_t loopnumofsector(int16_t sectnum, int16_t wallnum)
     numloops = 0;
     startwall = sector[sectnum].wallptr;
     endwall = startwall + sector[sectnum].wallnum;
-    for (i=startwall;i<endwall;i++)
+    for (i=startwall; i<endwall; i++)
     {
         if (i == wallnum) return(numloops);
         if (wall[i].point2 < i) numloops++;
@@ -10488,7 +10488,7 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
     danumwalls = sector[sectnum].wallnum;
     endwall = startwall+danumwalls;
     if ((newfirstwall < startwall) || (newfirstwall >= startwall+danumwalls)) return;
-    for (i=0;i<danumwalls;i++)
+    for (i=0; i<danumwalls; i++)
         Bmemcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
 
     numwallsofloop = 0;
@@ -10506,7 +10506,7 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
     {
         j = 0;
         while (loopnumofsector(sectnum,j+startwall) != dagoalloop) j++;
-        for (i=0;i<danumwalls;i++)
+        for (i=0; i<danumwalls; i++)
         {
             k = i+j; if (k >= danumwalls) k -= danumwalls;
             Bmemcpy(&wall[startwall+i],&wall[numwalls+k],sizeof(walltype));
@@ -10520,9 +10520,9 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
         if (newfirstwall >= startwall+danumwalls) newfirstwall -= danumwalls;
     }
 
-    for (i=0;i<numwallsofloop;i++)
+    for (i=0; i<numwallsofloop; i++)
         Bmemcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
-    for (i=0;i<numwallsofloop;i++)
+    for (i=0; i<numwallsofloop; i++)
     {
         k = i+newfirstwall-startwall;
         if (k >= numwallsofloop) k -= numwallsofloop;
@@ -10534,7 +10534,7 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
         wall[startwall+i].point2 += startwall;
     }
 
-    for (i=startwall;i<endwall;i++)
+    for (i=startwall; i<endwall; i++)
         if (wall[i].nextwall >= 0) wall[wall[i].nextwall].nextwall = i;
 }
 
@@ -10615,7 +10615,7 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
         i = ((x1+2048)>>12); daend = ((x2+2048)>>12);
 
         begindrawing(); //{{{
-        for (;i<daend;i++)
+        for (; i<daend; i++)
         {
             j = (plc>>12);
             if ((j >= startumost[i]) && (j < startdmost[i]))
@@ -10638,7 +10638,7 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 
         begindrawing(); //{{{
         p = ylookup[i]+frameplace;
-        for (;i<daend;i++)
+        for (; i<daend; i++)
         {
             j = (plc>>12);
             if ((i >= startumost[j]) && (i < startdmost[j]))
@@ -10707,7 +10707,7 @@ void drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
             clearbufbyte((void *)p, dx, i);
         }
         else
-            for (i=dx;i>0;i--)
+            for (i=dx; i>0; i--)
             {
                 if (drawlinepat & pow2long[(patc++)&31])
                     drawpixel((char *)p, col);
@@ -10729,7 +10729,7 @@ void drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 
     begindrawing(); //{{{
     p = (y1*bytesperline)+x1+frameplace;
-    for (i=dy;i>0;i--)
+    for (i=dy; i>0; i--)
     {
         if (drawlinepat & pow2long[(patc++)&31])
             drawpixel((char *)p, col);
@@ -10832,7 +10832,7 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, char col)
     spx = lpx = x1+mulscale14(r,sintable[0]);
     spy = lpy = y1+mulscale14(r,sintable[512]);
 
-    for (l=64;l<2048;l+=64)
+    for (l=64; l<2048; l+=64)
     {
         px = x1+mulscale14(r,sintable[l]);
         py = y1+mulscale14(r,sintable[(l+512)&2047]);
@@ -10982,7 +10982,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int16
         if ((yp1 < ydim16) && (yp2 >= 0) && (yp2 >= yp1))
         {
             xp1 = halfxdim16-mulscale14(posxe+editorgridextent,zoome);
-            for (i=-editorgridextent;i<=editorgridextent;i+=(2048>>gride))
+            for (i=-editorgridextent; i<=editorgridextent; i+=(2048>>gride))
             {
                 xp2 = xp1;
                 xp1 = halfxdim16-mulscale14(posxe-i,zoome);
@@ -11005,7 +11005,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int16
         xp1 = mulscale14(posxe+editorgridextent,zoome);
         xp2 = mulscale14(posxe-editorgridextent,zoome);
         tempy = 0x80000000l;
-        for (i=-editorgridextent;i<=editorgridextent;i+=(2048>>gride))
+        for (i=-editorgridextent; i<=editorgridextent; i+=(2048>>gride))
         {
             yp1 = (((posye-i)*zoome)>>14);
             if (yp1 != tempy)
@@ -11052,7 +11052,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
     }
 
     faketimerhandler();
-    for (i=numwalls-1,wal=&wall[i];i>=0;i--,wal--)
+    for (i=numwalls-1,wal=&wall[i]; i>=0; i--,wal--)
     {
         int64 dist,dx,dy;
         if (editstatus == 0)
@@ -11202,8 +11202,8 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
     faketimerhandler();
 
     if ((zoome >= 256) || (editstatus == 0))
-        for (i=0;i<numsectors;i++)
-            for (j=headspritesect[i];j>=0;j=nextspritesect[j])
+        for (i=0; i<numsectors; i++)
+            for (j=headspritesect[i]; j>=0; j=nextspritesect[j])
                 if ((editstatus == 1) || (show2dsprite[j>>3]&pow2char[j&7]))
                 {
                     col = 3;
@@ -11276,7 +11276,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
                                     co[1][0] = co[2][0] = fx;
                                     co[2][1] = co[3][1] = fy;
 
-                                    for (ii=3;ii>=0;ii--)
+                                    for (ii=3; ii>=0; ii--)
                                     {
                                         r = mulscale14(cosang,co[ii][0]) - mulscale14(sinang,co[ii][1]);
                                         s = mulscale14(sinang,co[ii][0]) + mulscale14(cosang,co[ii][1]);
@@ -11284,7 +11284,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
                                         co[ii][1] = s;
                                     }
                                     drawlinepat = 0xcfcfcfcf;
-                                    for (ii=3;ii>=0;ii--)
+                                    for (ii=3; ii>=0; ii--)
                                     {
                                         drawline16(halfxdim16 + xp1 + co[ii][0], midydim16 + yp1 - co[ii][1],
                                                    halfxdim16 + xp1 + co[(ii+1)&3][0], midydim16 + yp1 - co[(ii+1)&3][1],
@@ -11406,7 +11406,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
                                 co[1][0] = co[2][0] = fx;
                                 co[2][1] = co[3][1] = fy;
 
-                                for (ii=3;ii>=0;ii--)
+                                for (ii=3; ii>=0; ii--)
                                 {
                                     r = mulscale14(cosang,co[ii][0]) - mulscale14(sinang,co[ii][1]);
                                     s = mulscale14(sinang,co[ii][0]) + mulscale14(cosang,co[ii][1]);
@@ -11415,7 +11415,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
                                 }
 
                                 drawlinepat = 0xcfcfcfcf;
-                                for (ii=3;ii>=0;ii--)
+                                for (ii=3; ii>=0; ii--)
                                 {
                                     drawline16(halfxdim16 + xp1 + co[ii][0], midydim16 + yp1 - co[ii][1],
                                                halfxdim16 + xp1 + co[(ii+1)&3][0], midydim16 + yp1 - co[(ii+1)&3][1],
@@ -11455,7 +11455,7 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, cha
     else { fontptr = textfont; charxsiz = 8; }
 
     begindrawing(); //{{{
-    for (i=0;name[i];i++)
+    for (i=0; name[i]; i++)
     {
         if (name[i] == '^')
         {
@@ -11521,9 +11521,9 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, cha
 
         letptr = &fontptr[name[i]<<3];
         ptr = (char *)(bytesperline*(ypos+7)+(stx-fontsize)+frameplace);
-        for (y=7;y>=0;y--)
+        for (y=7; y>=0; y--)
         {
-            for (x=charxsiz-1;x>=0;x--)
+            for (x=charxsiz-1; x>=0; x--)
             {
                 if (letptr[y]&pow2char[7-fontsize-x])
                     ptr[x] = (uint8_t)col;
@@ -11583,7 +11583,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char 
 
         bglBegin(GL_POINTS);
 
-        for (i=0;name[i];i++)
+        for (i=0; name[i]; i++)
         {
             if (name[i] == '^' && isdigit(name[i+1]))
             {
@@ -11612,9 +11612,9 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char 
             letptr = &fontptr[name[i]<<3];
             xx = stx-fontsize;
             yy = ypos+7 + 2; //+1 is hack!
-            for (y=7;y>=0;y--)
+            for (y=7; y>=0; y--)
             {
-                for (x=charxsiz-1;x>=0;x--)
+                for (x=charxsiz-1; x>=0; x--)
                 {
                     if (letptr[y]&pow2char[7-fontsize-x])
                     {
@@ -11644,7 +11644,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char 
 #endif
 
     begindrawing(); //{{{
-    for (i=0;name[i];i++)
+    for (i=0; name[i]; i++)
     {
         if (name[i] == '^' && isdigit(name[i+1]))
         {
@@ -11661,9 +11661,9 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char 
         }
         letptr = &fontptr[name[i]<<3];
         ptr = (char *)(ylookup[ypos+7]+(stx-fontsize)+frameplace);
-        for (y=7;y>=0;y--)
+        for (y=7; y>=0; y--)
         {
-            for (x=charxsiz-1;x>=0;x--)
+            for (x=charxsiz-1; x>=0; x--)
             {
                 if (letptr[y]&pow2char[7-fontsize-x])
                     ptr[x] = (uint8_t)col;

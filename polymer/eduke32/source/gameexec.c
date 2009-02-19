@@ -49,7 +49,7 @@ void X_ScriptInfo(void)
     {
         intptr_t *p;
         if (insptr)
-            for (p=insptr-20;p<insptr+20;p++)
+            for (p=insptr-20; p<insptr+20; p++)
             {
                 if (*p>>12&&(*p&0xFFF)<CON_END)
                     initprintf("\n%5d: %5d %s ",p-script,*p>>12,keyw[*p&0xFFF]);
@@ -169,7 +169,7 @@ static int32_t A_Dodge(spritetype *s)
     if (A_CheckEnemySprite(s) && s->extra <= 0) // hack
         return 0;
 
-    for (i=headspritestat[STAT_PROJECTILE];i>=0;i=nextspritestat[i]) //weapons list
+    for (i=headspritestat[STAT_PROJECTILE]; i>=0; i=nextspritestat[i]) //weapons list
     {
         if (OW == i || SECT != s->sectnum)
             continue;
@@ -207,7 +207,7 @@ int32_t A_GetFurthestAngle(int32_t iActor,int32_t angs)
         int32_t angincs = 2048/angs,j;
         hitdata_t hitinfo;
 
-        for (j=s->ang;j<(2048+s->ang);j+=angincs)
+        for (j=s->ang; j<(2048+s->ang); j+=angincs)
         {
             s->z -= (8<<8);
             hitscan((const vec3_t *)s, s->sectnum,
@@ -240,7 +240,7 @@ int32_t A_FurthestVisiblePoint(int32_t iActor,spritetype *ts,int32_t *dax,int32_
             angincs = 2048/2;
         else angincs = 2048/(1+(krand()&1));
 
-        for (j=ts->ang;j<(2048+ts->ang);j+=(angincs-(krand()&511)))
+        for (j=ts->ang; j<(2048+ts->ang); j+=(angincs-(krand()&511)))
         {
             ts->z -= (16<<8);
             hitscan((const vec3_t *)ts, ts->sectnum,
@@ -911,7 +911,7 @@ static int32_t X_DoExecute(void)
             if (*insptr == 0)
             {
                 int32_t j = 0;
-                for (;j < g_player[vm.g_p].ps->weapreccnt;j++)
+                for (; j < g_player[vm.g_p].ps->weapreccnt; j++)
                     if (g_player[vm.g_p].ps->weaprecs[j] == vm.g_sp->picnum)
                         break;
 
@@ -1029,7 +1029,7 @@ static int32_t X_DoExecute(void)
         if ((*insptr<0 || *insptr>=MAXSOUNDS) && g_scriptSanityChecks)
         {
             OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr);
-            insptr++;break;
+            insptr++; break;
         }
         if (A_CheckSoundPlaying(vm.g_i,*insptr))
             A_StopSound((int16_t)*insptr,vm.g_i);
@@ -1041,7 +1041,7 @@ static int32_t X_DoExecute(void)
         if ((*insptr<0 || *insptr>=MAXSOUNDS) && g_scriptSanityChecks)
         {
             OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr);
-            insptr++;break;
+            insptr++; break;
         }
         if (vm.g_p == screenpeek || (GametypeFlags[ud.coop]&GAMETYPE_COOPSOUND))
             A_PlaySound((int16_t) *insptr,g_player[screenpeek].ps->i);
@@ -1053,7 +1053,7 @@ static int32_t X_DoExecute(void)
         if ((*insptr<0 || *insptr>=MAXSOUNDS) && g_scriptSanityChecks)
         {
             OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr);
-            insptr++;break;
+            insptr++; break;
         }
         A_PlaySound((int16_t) *insptr++,vm.g_i);
         break;
@@ -1162,7 +1162,7 @@ static int32_t X_DoExecute(void)
         if ((*insptr<0 || *insptr>=MAX_WEAPONS) && g_scriptSanityChecks)
         {
             OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],*insptr);
-            insptr+=2;break;
+            insptr+=2; break;
         }
         if (g_player[vm.g_p].ps->ammo_amount[*insptr] >= g_player[vm.g_p].ps->max_ammo_amount[*insptr])
         {
@@ -1220,7 +1220,7 @@ static int32_t X_DoExecute(void)
         if ((*insptr<0 ||*insptr>=MAX_WEAPONS) && g_scriptSanityChecks)
         {
             OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],*insptr);
-            insptr+=2;break;
+            insptr+=2; break;
         }
         if (g_player[vm.g_p].ps->gotweapon[*insptr] == 0)
         {
@@ -1388,22 +1388,22 @@ static int32_t X_DoExecute(void)
             switch (tw)
             {
             case CON_ACTIVATEBYSECTOR:
-                if ((var1<0 || var1>=numsectors) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],var1);break;}
+                if ((var1<0 || var1>=numsectors) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],var1); break;}
                 activatebysector(var1, var2);
                 break;
             case CON_OPERATESECTORS:
-                if ((var1<0 || var1>=numsectors) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],var1);break;}
+                if ((var1<0 || var1>=numsectors) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],var1); break;}
                 G_OperateSectors(var1, var2);
                 break;
             case CON_OPERATEACTIVATORS:
-                if ((var2<0 || var2>=ud.multimode) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid player %d\n",g_errorLineNum,keyw[g_tw],var2);break;}
+                if ((var2<0 || var2>=ud.multimode) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid player %d\n",g_errorLineNum,keyw[g_tw],var2); break;}
                 G_OperateActivators(var1, var2);
                 break;
             case CON_SETASPECT:
                 setaspect(var1, var2);
                 break;
             case CON_SSP:
-                if ((var1<0 || var1>=MAXSPRITES) && g_scriptSanityChecks) { OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],var1);break;}
+                if ((var1<0 || var1>=MAXSPRITES) && g_scriptSanityChecks) { OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],var1); break;}
                 A_SetSprite(var1, var2);
                 break;
             }
@@ -1601,7 +1601,7 @@ static int32_t X_DoExecute(void)
                 s1=ScriptQuotes[q1];
                 s2=ScriptQuotes[q2];
                 while (*s2&&st--)s2++;
-                while ((*s1=*s2)&&ln--) {s1++;s2++;}
+                while ((*s1=*s2)&&ln--) {s1++; s2++;}
                 *s1=0;
             }
             break;
@@ -1682,8 +1682,8 @@ static int32_t X_DoExecute(void)
                 Bstrcpy(ScriptQuotes[i],ScriptQuotes[j]);
                 break;
             case CON_CHANGESPRITESECT:
-                if ((i<0 || i>=MAXSPRITES) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],i);break;}
-                if ((j<0 || j>=numsectors) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],j);break;}
+                if ((i<0 || i>=MAXSPRITES) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],i); break;}
+                if ((j<0 || j>=numsectors) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],j); break;}
                 changespritesect(i,j);
                 break;
             }
@@ -1821,7 +1821,7 @@ static int32_t X_DoExecute(void)
 
             //Bsprintf(g_szBuf,"Checking %d cases for %d",lCases, lValue);
             //AddLog(g_szBuf);
-            left=0;right=lCases-1;
+            left=0; right=lCases-1;
             while (!bMatched)
             {
                 //Bsprintf(g_szBuf,"Checking #%d Value= %d",lCheckCase, lpCases[lCheckCase*2]);
@@ -2097,21 +2097,21 @@ static int32_t X_DoExecute(void)
             switch (tw)
             {
             case CON_SOUNDONCEVAR:
-                if ((j<0 || j>=MAXSOUNDS) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);break;}
+                if ((j<0 || j>=MAXSOUNDS) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j); break;}
                 if (!A_CheckSoundPlaying(vm.g_i,j))
                     A_PlaySound((int16_t)j,vm.g_i);
                 break;
             case CON_GLOBALSOUNDVAR:
-                if ((j<0 || j>=MAXSOUNDS) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);break;}
+                if ((j<0 || j>=MAXSOUNDS) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j); break;}
                 A_PlaySound((int16_t)j,g_player[screenpeek].ps->i);
                 break;
             case CON_STOPSOUNDVAR:
-                if ((j<0 || j>=MAXSOUNDS) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);break;}
+                if ((j<0 || j>=MAXSOUNDS) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j); break;}
                 if (A_CheckSoundPlaying(vm.g_i,j))
                     A_StopSound((int16_t)j,vm.g_i);
                 break;
             case CON_SOUNDVAR:
-                if ((j<0 || j>=MAXSOUNDS) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);break;}
+                if ((j<0 || j>=MAXSOUNDS) && g_scriptSanityChecks) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j); break;}
                 A_PlaySound((int16_t)j,vm.g_i);
                 break;
             }
@@ -2208,7 +2208,7 @@ static int32_t X_DoExecute(void)
             {
                 int32_t j, i = 0, k, dst = 0x7fffffff;
 
-                for (k=g_mirrorCount-1;k>=0;k--)
+                for (k=g_mirrorCount-1; k>=0; k--)
                 {
                     j = klabs(wall[g_mirrorWall[k]].x-x);
                     j += klabs(wall[g_mirrorWall[k]].y-y);
@@ -2265,7 +2265,7 @@ static int32_t X_DoExecute(void)
             int32_t x1=Gv_GetVarX(*insptr++),  y1=Gv_GetVarX(*insptr++);
             int32_t x2=Gv_GetVarX(*insptr++),  y2=Gv_GetVarX(*insptr++);
 
-            if (tw == CON_ROTATESPRITE && !(orientation & 256)) {x<<=16;y<<=16;}
+            if (tw == CON_ROTATESPRITE && !(orientation & 256)) {x<<=16; y<<=16;}
             rotatesprite(x,y,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
             break;
         }
@@ -2581,7 +2581,7 @@ static int32_t X_DoExecute(void)
             int32_t s, l, j;
 
             if (vm.g_sp->sectnum >= 0 && vm.g_sp->sectnum < MAXSECTORS)
-                for (j=(*insptr)-1;j>=0;j--)
+                for (j=(*insptr)-1; j>=0; j--)
                 {
                     if (vm.g_sp->picnum == BLIMP && dnum == SCRAP1)
                         s = 0;
@@ -3062,7 +3062,7 @@ static int32_t X_DoExecute(void)
         {
             int32_t j = 2;
             g_player[vm.g_p].ps->pals_time = *insptr++;
-            for (;j>=0;j--)
+            for (; j>=0; j--)
                 g_player[vm.g_p].ps->pals[2-j] = *insptr++;
         }
         break;
@@ -4045,13 +4045,13 @@ static int32_t X_DoExecute(void)
         switch (Gv_GetVarX(*(insptr++)))
         {
         default:
-        case 0:P_SetGamePalette(g_player[vm.g_p].ps,palette  ,0);break;
-        case 1:P_SetGamePalette(g_player[vm.g_p].ps,waterpal ,0);break;
-        case 2:P_SetGamePalette(g_player[vm.g_p].ps,slimepal ,0);break;
-        case 3:P_SetGamePalette(g_player[vm.g_p].ps,drealms  ,0);break;
-        case 4:P_SetGamePalette(g_player[vm.g_p].ps,titlepal ,0);break;
-        case 5:P_SetGamePalette(g_player[vm.g_p].ps,endingpal,0);break;
-        case 6:P_SetGamePalette(g_player[vm.g_p].ps,animpal  ,0);break;
+        case 0:P_SetGamePalette(g_player[vm.g_p].ps,palette  ,0); break;
+        case 1:P_SetGamePalette(g_player[vm.g_p].ps,waterpal ,0); break;
+        case 2:P_SetGamePalette(g_player[vm.g_p].ps,slimepal ,0); break;
+        case 3:P_SetGamePalette(g_player[vm.g_p].ps,drealms  ,0); break;
+        case 4:P_SetGamePalette(g_player[vm.g_p].ps,titlepal ,0); break;
+        case 5:P_SetGamePalette(g_player[vm.g_p].ps,endingpal,0); break;
+        case 6:P_SetGamePalette(g_player[vm.g_p].ps,animpal  ,0); break;
         }
         break;
 
@@ -4299,7 +4299,7 @@ static int32_t X_DoExecute(void)
             if (cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z-(4<<8),vm.g_sp->sectnum,g_player[vm.g_p].ps->posx,g_player[vm.g_p].ps->posy,g_player[vm.g_p].ps->posz+(16<<8),sprite[g_player[vm.g_p].ps->i].sectnum))
             {
                 int32_t j = ud.multimode-1;
-                for (;j>=0;j--)
+                for (; j>=0; j--)
                 {
                     if (g_player[j].ps->actorsqu == vm.g_i)
                         break;
@@ -4421,7 +4421,7 @@ static int32_t X_DoExecute(void)
     case CON_IFNOSOUNDS:
     {
         int32_t j = MAXSOUNDS-1;
-        for (;j>=0;j--)
+        for (; j>=0; j--)
             if (g_sounds[j].SoundOwner[0].i == vm.g_i)
                 break;
 
@@ -4630,7 +4630,7 @@ void G_SaveMapState(mapstate_t *save)
         Bmemcpy(&save->prevspritestat[STAT_DEFAULT],&prevspritestat[STAT_DEFAULT],sizeof(prevspritestat));
         Bmemcpy(&save->nextspritestat[STAT_DEFAULT],&nextspritestat[STAT_DEFAULT],sizeof(nextspritestat));
 
-        for (i=MAXSPRITES-1;i>=0;i--)
+        for (i=MAXSPRITES-1; i>=0; i--)
         {
             save->scriptptrs[i] = 0;
 
@@ -4657,7 +4657,7 @@ void G_SaveMapState(mapstate_t *save)
 
         Bmemcpy(&save->ActorExtra[0],&ActorExtra[0],sizeof(ActorData_t)*MAXSPRITES);
 
-        for (i=MAXSPRITES-1;i>=0;i--)
+        for (i=MAXSPRITES-1; i>=0; i--)
         {
             if (actorscrptr[PN] == 0) continue;
             j = (intptr_t)&script[0];
@@ -4693,16 +4693,16 @@ void G_SaveMapState(mapstate_t *save)
         Bmemcpy(&save->animatevel[0],&animatevel[0],sizeof(animatevel));
         Bmemcpy(&save->g_animateCount,&g_animateCount,sizeof(g_animateCount));
         Bmemcpy(&save->animatesect[0],&animatesect[0],sizeof(animatesect));
-        for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]-(intptr_t)(&sector[0]));
+        for (i = g_animateCount-1; i>=0; i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]-(intptr_t)(&sector[0]));
         Bmemcpy(&save->animateptr[0],&animateptr[0],sizeof(animateptr));
-        for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+        for (i = g_animateCount-1; i>=0; i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
         Bmemcpy(&save->g_numPlayerSprites,&g_numPlayerSprites,sizeof(g_numPlayerSprites));
         Bmemcpy(&save->g_earthquakeTime,&g_earthquakeTime,sizeof(g_earthquakeTime));
         Bmemcpy(&save->lockclock,&lockclock,sizeof(lockclock));
         Bmemcpy(&save->randomseed,&randomseed,sizeof(randomseed));
         Bmemcpy(&save->g_globalRandom,&g_globalRandom,sizeof(g_globalRandom));
 
-        for (i=g_gameVarCount-1; i>=0;i--)
+        for (i=g_gameVarCount-1; i>=0; i--)
         {
             if (aGameVars[i].dwFlags & GAMEVAR_NORESET) continue;
             if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
@@ -4734,7 +4734,7 @@ void G_RestoreMapState(mapstate_t *save)
         intptr_t j;
         char phealth[MAXPLAYERS];
 
-        for (i=0;i<ud.multimode;i++)
+        for (i=0; i<ud.multimode; i++)
             phealth[i] = sprite[g_player[i].ps->i].extra;
 
         pub = NUMPAGES;
@@ -4755,7 +4755,7 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(&nextspritestat[STAT_DEFAULT],&save->nextspritestat[STAT_DEFAULT],sizeof(nextspritestat));
         Bmemcpy(&ActorExtra[0],&save->ActorExtra[0],sizeof(ActorData_t)*MAXSPRITES);
 
-        for (i=MAXSPRITES-1;i>=0;i--)
+        for (i=MAXSPRITES-1; i>=0; i--)
         {
             j = (intptr_t)(&script[0]);
             if (save->scriptptrs[i]&1) T2 += j;
@@ -4787,14 +4787,14 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(&g_animateCount,&save->g_animateCount,sizeof(g_animateCount));
         Bmemcpy(&animatesect[0],&save->animatesect[0],sizeof(animatesect));
         Bmemcpy(&animateptr[0],&save->animateptr[0],sizeof(animateptr));
-        for (i = g_animateCount-1;i>=0;i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+        for (i = g_animateCount-1; i>=0; i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
         Bmemcpy(&g_numPlayerSprites,&save->g_numPlayerSprites,sizeof(g_numPlayerSprites));
         Bmemcpy(&g_earthquakeTime,&save->g_earthquakeTime,sizeof(g_earthquakeTime));
         Bmemcpy(&lockclock,&save->lockclock,sizeof(lockclock));
         Bmemcpy(&randomseed,&save->randomseed,sizeof(randomseed));
         Bmemcpy(&g_globalRandom,&save->g_globalRandom,sizeof(g_globalRandom));
 
-        for (i=g_gameVarCount-1;i>=0;i--)
+        for (i=g_gameVarCount-1; i>=0; i--)
         {
             if (aGameVars[i].dwFlags & GAMEVAR_NORESET) continue;
             if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
@@ -4806,7 +4806,7 @@ void G_RestoreMapState(mapstate_t *save)
 
         Gv_RefreshPointers();
 
-        for (i=0;i<ud.multimode;i++)
+        for (i=0; i<ud.multimode; i++)
             sprite[g_player[i].ps->i].extra = phealth[i];
 
         if (g_player[myconnectindex].ps->over_shoulder_on != 0)
@@ -4820,13 +4820,13 @@ void G_RestoreMapState(mapstate_t *save)
 
         if (ud.lockout == 0)
         {
-            for (x=g_numAnimWalls-1;x>=0;x--)
+            for (x=g_numAnimWalls-1; x>=0; x--)
                 if (wall[animwall[x].wallnum].extra >= 0)
                     wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
         }
         else
         {
-            for (x=g_numAnimWalls-1;x>=0;x--)
+            for (x=g_numAnimWalls-1; x>=0; x--)
                 switch (DynamicTileMap[wall[animwall[x].wallnum].picnum])
                 {
                 case FEMPIC1__STATIC:
@@ -4877,8 +4877,8 @@ void G_RestoreMapState(mapstate_t *save)
             k = nextspritestat[k];
         }
 
-        for (i=g_numInterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
-        for (i = g_animateCount-1;i>=0;i--)
+        for (i=g_numInterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
+        for (i = g_animateCount-1; i>=0; i--)
             G_SetInterpolation(animateptr[i]);
 
         Net_ResetPrediction();

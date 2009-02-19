@@ -250,7 +250,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
                         settings.gamedir = NULL;
                     else
                     {
-                        for (j=1,dir=finddirs;dir != NULL;dir=dir->next,j++)
+                        for (j=1,dir=finddirs; dir != NULL; dir=dir->next,j++)
                             if (j == i)
                             {
                                 settings.gamedir = dir->name;

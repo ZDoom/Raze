@@ -146,10 +146,10 @@ void initcrc(void)
 {
     int32_t i, j, k, a;
 
-    for (j=0;j<256;j++)     /* Calculate CRC table */
+    for (j=0; j<256; j++)   /* Calculate CRC table */
     {
         k = (j<<8); a = 0;
-        for (i=7;i>=0;i--)
+        for (i=7; i>=0; i--)
         {
             if (((k^a)&0x8000) > 0)
                 a = ((a<<1)&65535) ^ 0x1021;   /* 0x1021 = genpoly */
@@ -167,7 +167,7 @@ int32_t getcrc(char *buffer, int32_t bufleng)
     int32_t i, j;
 
     j = 0;
-    for (i=bufleng-1;i>=0;i--) updatecrc16(j,buffer[i]);
+    for (i=bufleng-1; i>=0; i--) updatecrc16(j,buffer[i]);
     return(j&65535);
 }
 
@@ -178,7 +178,7 @@ void mmulti_initmultiplayers(int32_t argc, char **argv)
     UNREFERENCED_PARAMETER(argc);
 
     initcrc();
-    for (i=0;i<MAXPLAYERS;i++)
+    for (i=0; i<MAXPLAYERS; i++)
     {
         incnt[i] = 0L;
         outcntplc[i] = 0L;
@@ -226,10 +226,10 @@ void mmulti_initmultiplayers(int32_t argc, char **argv)
     srand(myconnectindex*24572457+345356);
 #endif
     connecthead = 0;
-    for (i=0;i<numplayers-1;i++) connectpoint2[i] = i+1;
+    for (i=0; i<numplayers-1; i++) connectpoint2[i] = i+1;
     connectpoint2[numplayers-1] = -1;
 
-    for (i=0;i<numplayers;i++) lastsendtime[i] = totalclock;
+    for (i=0; i<numplayers; i++) lastsendtime[i] = totalclock;
 }
 
 
@@ -257,7 +257,7 @@ void mmulti_dosendpackets(int32_t other)
 
         j = bakpacketptr[other][outcntplc[other]&255];
         messleng = bakpacketlen[other][outcntplc[other]&255];
-        for (i=0;i<messleng;i++)
+        for (i=0; i<messleng; i++)
             gcom->buffer[k++] = bakpacketbuf[(i+j)&(BAKSIZ-1)];
         outcntplc[other]++;
     }
@@ -273,14 +273,14 @@ void mmulti_dosendpackets(int32_t other)
         messleng = bakpacketlen[other][outcntplc[other]&255];
         gcom->buffer[k++] = (uint8_t)(messleng&255);
         gcom->buffer[k++] = (uint8_t)(messleng>>8);
-        for (i=0;i<messleng;i++)
+        for (i=0; i<messleng; i++)
             gcom->buffer[k++] = bakpacketbuf[(i+j)&(BAKSIZ-1)];
         outcntplc[other]++;
 
         /* Second half-packet */
         j = bakpacketptr[other][outcntplc[other]&255];
         messleng = bakpacketlen[other][outcntplc[other]&255];
-        for (i=0;i<messleng;i++)
+        for (i=0; i<messleng; i++)
             gcom->buffer[k++] = bakpacketbuf[(i+j)&(BAKSIZ-1)];
         outcntplc[other]++;
 
@@ -295,7 +295,7 @@ void mmulti_dosendpackets(int32_t other)
 
 #if (SHOWSENDPACKETS)
     initprintf("Send(%ld): ",gcom->other);
-    for (i=0;i<gcom->numbytes;i++) initprintf("%2x ",gcom->buffer[i]);
+    for (i=0; i<gcom->numbytes; i++) initprintf("%2x ",gcom->buffer[i]);
     initprintf("\n");
 #endif
 
@@ -321,7 +321,7 @@ void mmulti_sendpacket(int32_t other, char *bufptr, int32_t messleng)
     if (bakpacketlen[other][(outcntend[other]-1)&255] == messleng)
     {
         j = bakpacketptr[other][(outcntend[other]-1)&255];
-        for (i=messleng-1;i>=0;i--)
+        for (i=messleng-1; i>=0; i--)
             if (bakpacketbuf[(i+j)&(BAKSIZ-1)] != bufptr[i]) break;
     }
     bakpacketlen[other][outcntend[other]&255] = messleng;
@@ -331,7 +331,7 @@ void mmulti_sendpacket(int32_t other, char *bufptr, int32_t messleng)
     else
     {
         bakpacketptr[other][outcntend[other]&255] = bakpacketplc;
-        for (i=0;i<messleng;i++)
+        for (i=0; i<messleng; i++)
             bakpacketbuf[(bakpacketplc+i)&(BAKSIZ-1)] = bufptr[i];
         bakpacketplc = ((bakpacketplc+messleng)&(BAKSIZ-1));
     }
@@ -383,7 +383,7 @@ void mmulti_sendlogoff(void)
 
     tempbuf[0] = 255;
     tempbuf[1] = myconnectindex;
-    for (i=connecthead;i>=0;i=connectpoint2[i])
+    for (i=connecthead; i>=0; i=connectpoint2[i])
     {
         if (i != myconnectindex)
             mmulti_sendpacket(i,tempbuf,2L);
@@ -403,7 +403,7 @@ int32_t mmulti_getpacket(int32_t *other, char *bufptr)
 
     if (numplayers < 2 || gcom == NULL) return(0);
 
-    for (i=connecthead;i>=0;i=connectpoint2[i])
+    for (i=connecthead; i>=0; i=connectpoint2[i])
     {
         if (i != myconnectindex)
         {
@@ -444,7 +444,7 @@ int32_t mmulti_getpacket(int32_t *other, char *bufptr)
     if (gcom->other != -1)
     {
         initprintf(" Get(%ld): ",gcom->other);
-        for (i=0;i<gcom->numbytes;i++) initprintf("%2x ",gcom->buffer[i]);
+        for (i=0; i<gcom->numbytes; i++) initprintf("%2x ",gcom->buffer[i]);
         initprintf("\n");
     }
 #endif
@@ -556,7 +556,7 @@ void mmulti_flushpackets()
     }
     while (gcom->other >= 0);
 
-    for (i=connecthead;i>=0;i=connectpoint2[i])
+    for (i=connecthead; i>=0; i=connectpoint2[i])
     {
         incnt[i] = 0L;
         outcntplc[i] = 0L;
@@ -721,9 +721,9 @@ static int32_t get_udp_packet(int32_t *ip, uint16_t *_port, void *pkt, size_t pk
     /* FIXME: Will this ever receive a partial packet? */
     int32_t rc = recvfrom(udpsocket, pkt, pktsize, 0, (struct sockaddr *) &addr,
 #ifdef _WIN32
-                      (int32_t *)&fromlen);
+                          (int32_t *)&fromlen);
 #else
-                      (uint32_t *)&fromlen);
+                          (uint32_t *)&fromlen);
 #endif
 
     if (rc == -1)
@@ -1095,15 +1095,15 @@ static int32_t wait_for_other_players(gcomtype *gcom, int32_t myip)
     }
 
     // found all the clients expected so relay all greetings
-    for (j=max;j>=0;j--)
+    for (j=max; j>=0; j--)
         if (allowed_addresses[j].host)
         {
             int32_t ii;
 
             // send another copy of our greeting just in case they missed it
             send_peer_greeting(allowed_addresses[j].host,
-                allowed_addresses[j].port,
-                my_id);
+                               allowed_addresses[j].port,
+                               my_id);
 
             for (ii = 0; ii < max; ii++)
                 send_peer_greeting(allowed_addresses[j].host,
@@ -1209,9 +1209,9 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
 
     while (my_id == 0)  /* player number is based on id, low to high. */
     {
-/*        struct timeval tv;
-        gettimeofday(&tv, NULL);
-        my_id = (unsigned short)tv.tv_usec; //HACK */
+        /*        struct timeval tv;
+                gettimeofday(&tv, NULL);
+                my_id = (unsigned short)tv.tv_usec; //HACK */
         my_id = (uint16_t) rand();
     }
 
@@ -1274,7 +1274,7 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
                 continue;
             }
 
-            for (i=0;i<MAXPLAYERS;i++)
+            for (i=0; i<MAXPLAYERS; i++)
                 if (!heard_from[i] || heard_from[i] == B_SWAP16(packet.id)) break; // only increase once
 
             // greeting with 0x1337 id starts the game
@@ -1301,7 +1301,7 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
                     heard_from[i] = packet.id;
 
                     initprintf("New player with id 0x%X\n",
-                        (int32_t) packet.id);
+                               (int32_t) packet.id);
                     gcom->numplayers++;
                     max++;
                 }
@@ -1420,9 +1420,9 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
 
     while (my_id == 0)  /* player number is based on id, low to high. */
     {
-/*        struct timeval tv;
-        gettimeofday(&tv, NULL);
-        my_id = (unsigned short)tv.tv_usec; //HACK */
+        /*        struct timeval tv;
+                gettimeofday(&tv, NULL);
+                my_id = (unsigned short)tv.tv_usec; //HACK */
         my_id = (uint16_t) rand();
     }
 
@@ -1760,14 +1760,14 @@ int32_t isvalidipaddress(char *st)
     int32_t i, bcnt, num;
 
     bcnt = 0; num = 0;
-    for (i=0;st[i];i++)
+    for (i=0; st[i]; i++)
     {
         if (st[i] == '.') { bcnt++; num = 0; continue; }
         if (st[i] == ':')
         {
             if (bcnt != 3) return(0);
             num = 0;
-            for (i++;st[i];i++)
+            for (i++; st[i]; i++)
             {
                 if ((st[i] >= '0') && (st[i] <= '9'))
                     { num = num*10+st[i]-'0'; if (num >= 65536) return(0); }
@@ -1802,7 +1802,7 @@ static int32_t parse_udp_config(int32_t argc, char **argv, gcomtype *gcom)
 
         //    if (!argv) return 0;
         // go looking for the port, if specified
-        for (i=0;i<argc;i++)
+        for (i=0; i<argc; i++)
         {
             if (argv[i][0] != '-' && argv[i][0] != '/') continue;
             if ((argv[i][1] == 'p' || argv[i][1] == 'P') && argv[i][2])
@@ -1815,7 +1815,7 @@ static int32_t parse_udp_config(int32_t argc, char **argv, gcomtype *gcom)
             }
         }
 
-        for (i=0;i<argc;i++)
+        for (i=0; i<argc; i++)
         {
             if ((argv[i][0] == '-') || (argv[i][0] == '/'))
             {
@@ -1862,7 +1862,7 @@ static int32_t parse_udp_config(int32_t argc, char **argv, gcomtype *gcom)
                 struct hostent * lph;
                 uint16_t pt = BUILD_DEFAULT_UDP_PORT;
 
-                for (j=0;st[j];j++)
+                for (j=0; st[j]; j++)
                     if (st[j] == ':')
                         { pt = (uint16_t)atol(&st[j+1]); st[j] = 0; break; }
                 if ((lph = gethostbyname(st)))

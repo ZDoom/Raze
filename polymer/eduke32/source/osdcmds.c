@@ -112,7 +112,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
             {
                 int32_t i;
 
-                for (i=0;i<MAXPLAYERS;i++)
+                for (i=0; i<MAXPLAYERS; i++)
                 {
                     g_player[i].vote = 0;
                     g_player[i].gotvote = 0;
@@ -271,7 +271,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
             {
                 int32_t i;
 
-                for (i=0;i<MAXPLAYERS;i++)
+                for (i=0; i<MAXPLAYERS; i++)
                 {
                     g_player[i].vote = 0;
                     g_player[i].gotvote = 0;
@@ -908,7 +908,7 @@ static int32_t osdcmd_give(const osdfuncparm_t *parm)
     }
     else if (!Bstrcasecmp(parm->parms[0], "ammo"))
     {
-        for (i=MAX_WEAPONS-(VOLUMEONE?6:1)-1;i>=PISTOL_WEAPON;i--)
+        for (i=MAX_WEAPONS-(VOLUMEONE?6:1)-1; i>=PISTOL_WEAPON; i--)
             P_AddAmmo(i,g_player[myconnectindex].ps,g_player[myconnectindex].ps->max_ammo_amount[i]);
         return OSDCMD_OK;
     }
@@ -1138,8 +1138,8 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 
     if (parm->numparms==1&&!Bstrcasecmp(parm->parms[0],"showkeys"))
     {
-        for (i=0;ConsoleKeys[i].name;i++)OSD_Printf("%s\n",ConsoleKeys[i].name);
-        for (i=0;i<MAXMOUSEBUTTONS;i++)OSD_Printf("%s\n",ConsoleButtons[i]);
+        for (i=0; ConsoleKeys[i].name; i++)OSD_Printf("%s\n",ConsoleKeys[i].name);
+        for (i=0; i<MAXMOUSEBUTTONS; i++)OSD_Printf("%s\n",ConsoleButtons[i]);
         return OSDCMD_OK;
     }
 
@@ -1148,14 +1148,14 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
         int32_t j=0;
 
         OSD_Printf("Current key bindings:\n");
-        for (i=0;i<MAXBOUNDKEYS;i++)
+        for (i=0; i<MAXBOUNDKEYS; i++)
             if (KeyBindings[i].cmd[0] && KeyBindings[i].key)
             {
                 j++;
                 OSD_Printf("%-9s %s\"%s\"\n",KeyBindings[i].key, KeyBindings[i].repeat?"":"norepeat ", KeyBindings[i].cmd);
             }
 
-        for (i=0;i<MAXMOUSEBUTTONS;i++)
+        for (i=0; i<MAXMOUSEBUTTONS; i++)
             if (MouseBindings[i].cmd[0] && MouseBindings[i].key)
             {
                 j++;
@@ -1168,13 +1168,13 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
-    for (i=0;ConsoleKeys[i].name;i++)
+    for (i=0; ConsoleKeys[i].name; i++)
         if (!Bstrcasecmp(parm->parms[0],ConsoleKeys[i].name))
             break;
 
     if (!ConsoleKeys[i].name)
     {
-        for (i=0;i<MAXMOUSEBUTTONS;i++)
+        for (i=0; i<MAXMOUSEBUTTONS; i++)
             if (!Bstrcasecmp(parm->parms[0],ConsoleButtons[i]))
                 break;
         if (i >= MAXMOUSEBUTTONS)
@@ -1196,7 +1196,7 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
         }
 
         Bstrcpy(tempbuf,parm->parms[j++]);
-        for (;j<parm->numparms;j++)
+        for (; j<parm->numparms; j++)
         {
             Bstrcat(tempbuf," ");
             Bstrcat(tempbuf,parm->parms[j++]);
@@ -1225,7 +1225,7 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
     }
 
     Bstrcpy(tempbuf,parm->parms[j++]);
-    for (;j<parm->numparms;j++)
+    for (; j<parm->numparms; j++)
     {
         Bstrcat(tempbuf," ");
         Bstrcat(tempbuf,parm->parms[j++]);
@@ -1244,10 +1244,10 @@ static int32_t osdcmd_unbindall(const osdfuncparm_t *parm)
 
     UNREFERENCED_PARAMETER(parm);
 
-    for (i=0;i<MAXBOUNDKEYS;i++)
+    for (i=0; i<MAXBOUNDKEYS; i++)
         if (KeyBindings[i].cmd[0])
             KeyBindings[i].cmd[0] = 0;
-    for (i=0;i<MAXMOUSEBUTTONS;i++)
+    for (i=0; i<MAXMOUSEBUTTONS; i++)
         if (MouseBindings[i].cmd[0])
             MouseBindings[i].cmd[0] = 0;
     OSD_Printf("unbound all keys\n");
@@ -1259,12 +1259,12 @@ static int32_t osdcmd_unbind(const osdfuncparm_t *parm)
     int32_t i;
 
     if (parm->numparms < 1) return OSDCMD_SHOWHELP;
-    for (i=0;ConsoleKeys[i].name;i++)
+    for (i=0; ConsoleKeys[i].name; i++)
         if (!Bstrcasecmp(parm->parms[0],ConsoleKeys[i].name))
             break;
     if (!ConsoleKeys[i].name)
     {
-        for (i=0;i<MAXMOUSEBUTTONS;i++)
+        for (i=0; i<MAXMOUSEBUTTONS; i++)
             if (!Bstrcasecmp(parm->parms[0],ConsoleButtons[i]))
                 break;
         if (i >= MAXMOUSEBUTTONS)
@@ -1490,7 +1490,7 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
 
-    for (i=0;i<NUMGAMEFUNCTIONS;i++)
+    for (i=0; i<NUMGAMEFUNCTIONS; i++)
     {
         char *t;
         int32_t j;
@@ -1499,7 +1499,7 @@ int32_t registerosdcommands(void)
 
         Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);
         t = Bstrdup(tempbuf);
-        for (j=Bstrlen(t);j>=0;j--)
+        for (j=Bstrlen(t); j>=0; j--)
             t[j] = Btolower(t[j]);
         Bstrcat(tempbuf,": game button");
         OSD_RegisterFunction(t,Bstrdup(tempbuf),osdcmd_button);

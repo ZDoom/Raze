@@ -275,7 +275,7 @@ static int32_t getatoken(scriptfile *sf, tokenlist *tl, int32_t ntokens)
     tok = scriptfile_gettoken(sf);
     if (!tok) return T_EOF;
 
-    for (i=0;i<ntokens;i++)
+    for (i=0; i<ntokens; i++)
     {
         if (!Bstrcasecmp(tok, tl[i].text))
             return tl[i].tokenid;
@@ -396,7 +396,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getsymbol(script,&pal)) break;
             if (scriptfile_getsymbol(script,&i)) break; //future expansion
-            for (i=0;i<6;i++)
+            for (i=0; i<6; i++)
             {
                 if (scriptfile_getstring(script,&fn[i])) break; //grab the 6 faces
                 ii = pathsearchmode;
@@ -474,7 +474,7 @@ static int32_t defsparser(scriptfile *script)
 #if defined(POLYMOST) && defined(USE_OPENGL)
             if ((tilenume1 >= 0 && tilenume1 < MAXTILES) && (tilenume2 >= 0 && tilenume2 < MAXTILES))
             {
-                for (i=tilenume1;i<=tilenume2;i++)
+                for (i=tilenume1; i<=tilenume2; i++)
                 {
                     if ((uint32_t)i < MAXTILES)
                         alphahackarray[i] = alpha;
@@ -575,7 +575,7 @@ static int32_t defsparser(scriptfile *script)
             }
             if ((tile1 >= 0 && tile1 < MAXTILES) && (tile2 >= 0 && tile2 < MAXTILES))
             {
-                for (i=tile1;i<=tile2;i++)
+                for (i=tile1; i<=tile2; i++)
                 {
                     if ((uint32_t)i < MAXTILES)
                     {
@@ -681,9 +681,9 @@ static int32_t defsparser(scriptfile *script)
 
                 faketiledata[tile] = Bmalloc(xsiz*ysiz);
 
-                for (i=xsiz-1;i>=0;i--)
+                for (i=xsiz-1; i>=0; i--)
                 {
-                    for (j=ysiz-1;j>=0;j--)
+                    for (j=ysiz-1; j>=0; j--)
                     {
                         col = (palette_t *)&picptr[j*xsiz+i];
                         if (col->f < alphacut) { faketiledata[tile][i*ysiz+j] = 255; continue; }
@@ -730,9 +730,9 @@ static int32_t defsparser(scriptfile *script)
 
             faketiledata[tile] = Bmalloc(xsiz*ysiz);
 
-            for (i=xsiz-1;i>=0;i--)
+            for (i=xsiz-1; i>=0; i--)
             {
-                for (j=ysiz-1;j>=0;j--)
+                for (j=ysiz-1; j>=0; j--)
                 {
                     col = (palette_t *)&picptr[j*xsiz+i];
                     if (col->f != 255) { faketiledata[tile][i*ysiz+j] = 255; continue; }
@@ -799,7 +799,7 @@ static int32_t defsparser(scriptfile *script)
             }
             if ((tile1 >= 0 && tile1 < MAXTILES) && (tile2 >= 0 && tile2 < MAXTILES))
             {
-                for (i=tile1;i<=tile2;i++)
+                for (i=tile1; i<=tile2; i++)
                 {
                     if ((uint32_t)i < MAXTILES)
                     {
@@ -1238,9 +1238,9 @@ static int32_t defsparser(scriptfile *script)
                     {
                     case T_REDPAL:  palnum = REDPAL;  break;
                     case T_BLUEPAL: palnum = BLUEPAL; break;
-                    case T_BROWNPAL:palnum = BROWNPAL;break;
+                    case T_BROWNPAL:palnum = BROWNPAL; break;
                     case T_GREYPAL: palnum = GREYPAL; break;
-                    case T_GREENPAL:palnum = GREENPAL;break;
+                    case T_GREENPAL:palnum = GREENPAL; break;
                     case T_SPECPAL: palnum = SPECPAL; break;
 
                     case T_DETAIL:
@@ -1403,7 +1403,7 @@ static int32_t defsparser(scriptfile *script)
                     if ((tile1 < 0) || (tile0 >= MAXTILES))
                         { initprintf("Invalid tile range on line %s:%d\n",script->filename, scriptfile_getlinum(script,voxeltokptr)); break; }
 #ifdef SUPERBUILD
-                    for (tilex=tile0;tilex<=tile1;tilex++) tiletovox[tilex] = lastvoxid;
+                    for (tilex=tile0; tilex<=tile1; tilex++) tiletovox[tilex] = lastvoxid;
 #endif
                     break; //last tile number (inclusive)
                 case T_SCALE:
@@ -1452,7 +1452,7 @@ static int32_t defsparser(scriptfile *script)
             }
 
             if (tile < 0) initprintf("Error: missing 'tile number' for skybox definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy=0;
-            for (i=0;i<6;i++)
+            for (i=0; i<6; i++)
             {
                 if (!fn[i]) initprintf("Error: missing '%s filename' for skybox definition near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
                 ii = pathsearchmode;
@@ -1516,7 +1516,7 @@ static int32_t defsparser(scriptfile *script)
             int32_t tile=-1, token;
 
             char *fnB=0; double alphacutB=0, xscaleB=0, yscaleB=0; char flagsB=0;
-            int32_t palmapbits=0;int32_t palbits=0;
+            int32_t palmapbits=0; int32_t palbits=0;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
@@ -1591,7 +1591,7 @@ static int32_t defsparser(scriptfile *script)
                     yscale = 1.0f / yscale;
 
                     hicsetsubsttex(tile,pal,fn,alphacut,xscale,yscale,flags);
-                    fnB=fn;alphacutB=alphacut;xscaleB=xscale;yscaleB=yscale;flagsB=flags;
+                    fnB=fn; alphacutB=alphacut; xscaleB=xscale; yscaleB=yscale; flagsB=flags;
                     if (pal<30)palbits|=1<<pal;
                 }
                 break;
@@ -1652,12 +1652,12 @@ static int32_t defsparser(scriptfile *script)
 
                     switch (token)
                     {
-                    case T_REDPAL:  pal = REDPAL;  palmapbits|=32;break;
-                    case T_BLUEPAL: pal = BLUEPAL; palmapbits|=16;break;
-                    case T_BROWNPAL:pal = BROWNPAL;palmapbits|= 8;break;
-                    case T_GREYPAL: pal = GREYPAL; palmapbits|= 4;break;
-                    case T_GREENPAL:pal = GREENPAL;palmapbits|= 2;break;
-                    case T_SPECPAL: pal = SPECPAL; palmapbits|= 1;break;
+                    case T_REDPAL:  pal = REDPAL;  palmapbits|=32; break;
+                    case T_BLUEPAL: pal = BLUEPAL; palmapbits|=16; break;
+                    case T_BROWNPAL:pal = BROWNPAL; palmapbits|= 8; break;
+                    case T_GREYPAL: pal = GREYPAL; palmapbits|= 4; break;
+                    case T_GREENPAL:pal = GREENPAL; palmapbits|= 2; break;
+                    case T_SPECPAL: pal = SPECPAL; palmapbits|= 1; break;
 
                     case T_DETAIL:
                         pal = DETAILPAL;
@@ -1680,7 +1680,7 @@ static int32_t defsparser(scriptfile *script)
             if (palmapbits&&fnB)
             {
                 int32_t i;
-                for (i=0;i<=25;i++)
+                for (i=0; i<=25; i++)
                     if (!(palbits&(1<<i))&&(palmapbits&checkpalmaps(i)))
                         hicsetsubsttex(tile,i,fnB,alphacutB,xscaleB,yscaleB,flagsB);
             }

@@ -218,7 +218,7 @@ static int32_t getatoken(scriptfile *sf, tokenlist *tl, int32_t ntokens)
     tok = scriptfile_gettoken(sf);
     if (!tok) return T_EOF;
 
-    for (i=ntokens-1;i>=0;i--)
+    for (i=ntokens-1; i>=0; i--)
     {
         if (!Bstrcasecmp(tok, tl[i].text))
             return tl[i].tokenid;
@@ -399,7 +399,7 @@ int32_t gametext_z(int32_t small, int32_t starttile, int32_t x,int32_t y,const c
         {
             x+=(x-ox)<<16;
             y+=(y-oy)<<16;
-            ox=x;oy=y;
+            ox=x; oy=y;
         }
 
         if (small&4)
@@ -517,7 +517,7 @@ void G_AddUserQuote(const char *daquote)
 {
     int32_t i;
 
-    for (i=MAXUSERQUOTES-1;i>0;i--)
+    for (i=MAXUSERQUOTES-1; i>0; i--)
     {
         Bstrcpy(user_quote[i],user_quote[i-1]);
         user_quote_time[i] = user_quote_time[i-1];
@@ -597,7 +597,7 @@ void Net_GetPackets(void)
             j = 1;
 
             if ((g_player[other].movefifoend&(TIMERUPDATESIZ-1)) == 0)
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                 {
                     if (g_player[i].playerquitflag == 0) continue;
                     if (i == myconnectindex)
@@ -647,7 +647,7 @@ void Net_GetPackets(void)
 
             TRAVERSE_CONNECT(i)
             if (i != myconnectindex)
-                for (j=g_movesPerPacket-1;j>=1;j--)
+                for (j=g_movesPerPacket-1; j>=1; j--)
                 {
                     copybufbyte(&nsyn[i],&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t));
                     g_player[i].movefifoend++;
@@ -681,7 +681,7 @@ void Net_GetPackets(void)
 
             Net_GetSyncData(packbuf, packbufleng, &j, other);
 
-            for (i=g_movesPerPacket-1;i>=1;i--)
+            for (i=g_movesPerPacket-1; i>=1; i--)
             {
                 copybufbyte(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input_t));
                 g_player[other].movefifoend++;
@@ -697,7 +697,7 @@ void Net_GetPackets(void)
 
             if ((g_player[other].movefifoend&(TIMERUPDATESIZ-1)) == 0)
                 if (other == connecthead)
-                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                     {
                         if (i == myconnectindex)
                             otherminlag = (int32_t)((int8_t)packbuf[j]);
@@ -726,7 +726,7 @@ void Net_GetPackets(void)
                         if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((int32_t)packbuf[j++])<<24); */
             g_player[other].movefifoend++;
 
-            for (i=g_movesPerPacket-1;i>=1;i--)
+            for (i=g_movesPerPacket-1; i>=1; i--)
             {
                 copybufbyte(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input_t));
                 g_player[other].movefifoend++;
@@ -759,7 +759,7 @@ void Net_GetPackets(void)
                     if (packbuf[1] == 255)
                     {
                         //Master re-transmits message to all others
-                        for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                             if (i != other)
                                 mmulti_sendpacket(i,packbuf,packbufleng);
                     }
@@ -786,7 +786,7 @@ void Net_GetPackets(void)
                 //Slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
-                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                         if (i != other) mmulti_sendpacket(i,packbuf,packbufleng);
 
                 if (vote_map != -1 || vote_episode != -1 || voting != -1)
@@ -821,7 +821,7 @@ void Net_GetPackets(void)
                 //slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
-                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                         if (i != other) mmulti_sendpacket(i,packbuf,packbufleng);
 
                 if (packbuf[2] != (uint8_t)atoi(s_buildDate))
@@ -846,7 +846,7 @@ void Net_GetPackets(void)
                 //slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
-                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                         if (i != other) mmulti_sendpacket(i,packbuf,packbufleng);
 
                 other = packbuf[1];
@@ -864,12 +864,12 @@ void Net_GetPackets(void)
                 //slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
-                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                         if (i != other) mmulti_sendpacket(i,packbuf,packbufleng);
 
                 other = packbuf[1];
 
-                for (i=2;packbuf[i];i++)
+                for (i=2; packbuf[i]; i++)
                     g_player[other].user_name[i-2] = packbuf[i];
                 g_player[other].user_name[i-2] = 0;
                 i++;
@@ -880,7 +880,7 @@ void Net_GetPackets(void)
                 //slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
-                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                         if (i != other) mmulti_sendpacket(i,packbuf,packbufleng);
 
                 other = packbuf[1];
@@ -888,14 +888,14 @@ void Net_GetPackets(void)
                 i = 2;
 
                 j = i; //This used to be Duke packet #9... now concatenated with Duke packet #6
-                for (;i-j<10;i++) g_player[other].wchoice[i-j] = packbuf[i];
+                for (; i-j<10; i++) g_player[other].wchoice[i-j] = packbuf[i];
 
                 break;
             case PACKET_RTS:
                 //slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
-                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                         if (i != other) mmulti_sendpacket(i,packbuf,packbufleng);
 
                 if (numlumps == 0) break;
@@ -915,7 +915,7 @@ void Net_GetPackets(void)
                 if (myconnectindex == connecthead)
                 {
                     //Master re-transmits message to all others
-                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                         if (i != other)
                             mmulti_sendpacket(i,packbuf,packbufleng);
                 }
@@ -951,7 +951,7 @@ void Net_GetPackets(void)
                 if (myconnectindex == connecthead)
                 {
                     //Master re-transmits message to all others
-                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                         if (i != other)
                             mmulti_sendpacket(i,packbuf,packbufleng);
                 }
@@ -981,7 +981,7 @@ void Net_GetPackets(void)
                 if (myconnectindex == connecthead)
                 {
                     //Master re-transmits message to all others
-                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                         if (i != other)
                             mmulti_sendpacket(i,packbuf,packbufleng);
                 }
@@ -1014,7 +1014,7 @@ void Net_GetPackets(void)
                     Bsprintf(tempbuf,"PRESS F1 TO ACCEPT, F2 TO DECLINE");
                     G_AddUserQuote(tempbuf);
 
-                    for (i=MAXPLAYERS-1;i>=0;i--)
+                    for (i=MAXPLAYERS-1; i>=0; i--)
                     {
                         g_player[i].vote = 0;
                         g_player[i].gotvote = 0;
@@ -1027,13 +1027,13 @@ void Net_GetPackets(void)
                     {
                         voting = -1;
                         i = 0;
-                        for (j=MAXPLAYERS-1;j>=0;j--)
+                        for (j=MAXPLAYERS-1; j>=0; j--)
                             i += g_player[j].gotvote;
 
                         if (i != numplayers)
                             Bsprintf(tempbuf,"%s^00 HAS CANCELED THE VOTE",g_player[(uint8_t)packbuf[1]].user_name);
                         else Bsprintf(tempbuf,"VOTE FAILED");
-                        for (i=MAXPLAYERS-1;i>=0;i--)
+                        for (i=MAXPLAYERS-1; i>=0; i--)
                         {
                             g_player[i].vote = 0;
                             g_player[i].gotvote = 0;
@@ -1048,7 +1048,7 @@ void Net_GetPackets(void)
                 //Slaves in M/S mode only send to master
                 //Master re-transmits message to all others
                 if ((!g_networkBroadcastMode) && (myconnectindex == connecthead))
-                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                         if (i != other) mmulti_sendpacket(i,packbuf,packbufleng);
 
                 multiflag = 2;
@@ -1218,10 +1218,10 @@ void faketimerhandler(void)
             }
 
             if (myconnectindex == connecthead)
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                     packbuf[j++] = min(max(g_player[i].myminlag,-128),127);
 
-            for (i=connecthead;i>=0;i=connectpoint2[i])
+            for (i=connecthead; i>=0; i=connectpoint2[i])
                 g_player[i].myminlag = 0x7fffffff;
         }
 #endif
@@ -1368,7 +1368,7 @@ void faketimerhandler(void)
     if (g_player[i].movefifoend <= movefifosendplc)
     {
         packbuf[0] = PACKET_NULL_PACKET;
-        for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+        for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
             mmulti_sendpacket(i,packbuf,1);
         return;
     }
@@ -1388,7 +1388,7 @@ void faketimerhandler(void)
         //Fix timers and buffer/jitter value
         if ((movefifosendplc&(TIMERUPDATESIZ-1)) == 0)
         {
-            for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+            for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                 if (g_player[i].playerquitflag)
                     packbuf[j++] = min(max(g_player[i].myminlag,-128),127);
 
@@ -1448,7 +1448,7 @@ void faketimerhandler(void)
                 } */
         Net_AddSyncData(&j);
 
-        for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+        for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
             if (g_player[i].playerquitflag)
             {
                 mmulti_sendpacket(i,packbuf,j);
@@ -1474,7 +1474,7 @@ static void G_ShowCacheLocks(void)
     int16_t i,k;
 
     k = 0;
-    for (i=cacnum-1;i>=0;i--)
+    for (i=cacnum-1; i>=0; i--)
         if ((*cac[i].lock) >= 200)
         {
             Bsprintf(tempbuf,"Locked- %d: Leng:%d, Lock:%d",i,cac[i].leng,*cac[i].lock);
@@ -1484,7 +1484,7 @@ static void G_ShowCacheLocks(void)
 
     k += 6;
 
-    for (i=10;i>=0;i--)
+    for (i=10; i>=0; i--)
         if (lumplockbyte[i] >= 200)
         {
             Bsprintf(tempbuf,"RTS Locked %d:",i);
@@ -1761,7 +1761,7 @@ static void G_DrawDigiNum(int32_t x,int32_t y,int32_t n,char s,char cs)
     Bsnprintf(b,10,"%d",n);
     i = Bstrlen(b);
 
-    for (k=i-1;k>=0;k--)
+    for (k=i-1; k>=0; k--)
     {
         p = DIGITALNUM+*(b+k)-'0';
         j += tilesizx[p]+1;
@@ -1769,7 +1769,7 @@ static void G_DrawDigiNum(int32_t x,int32_t y,int32_t n,char s,char cs)
     c = x-(j>>1);
 
     j = 0;
-    for (k=0;k<i;k++)
+    for (k=0; k<i; k++)
     {
         p = DIGITALNUM+*(b+k)-'0';
         rotatesprite(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,0,cs,0,0,xdim-1,ydim-1);
@@ -1787,7 +1787,7 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
     Bsnprintf(b,10,"%d",n);
     i = Bstrlen(b);
 
-    for (k=i-1;k>=0;k--)
+    for (k=i-1; k>=0; k--)
     {
         p = starttile+*(b+k)-'0';
         j += (tilesizx[p]+1)*z/65536;
@@ -1796,7 +1796,7 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
     c = x-(j>>1);
 
     j = 0;
-    for (k=0;k<i;k++)
+    for (k=0; k<i; k++)
     {
         p = starttile+*(b+k)-'0';
         rotatesprite((c+j)<<shift,y<<shift,z,0,p,s,pal,2|cs,x1,y1,x2,y2);
@@ -1819,7 +1819,7 @@ static void G_DrawAltDigiNum(int32_t x,int32_t y,int32_t n,char s,char cs)
     Bsnprintf(b,10,"%d",n);
     i = Bstrlen(b);
 
-    for (k=i-1;k>=0;k--)
+    for (k=i-1; k>=0; k--)
     {
         p = althud_numbertile+*(b+k)-'0';
         j += tilesizx[p]+1;
@@ -1829,7 +1829,7 @@ static void G_DrawAltDigiNum(int32_t x,int32_t y,int32_t n,char s,char cs)
     if (rev)
     {
 //        j = 0;
-        for (k=0;k<i;k++)
+        for (k=0; k<i; k++)
         {
             p = althud_numbertile+*(b+k)-'0';
             if (shd && getrendermode() >= 3 && althud_shadows)
@@ -1840,7 +1840,7 @@ static void G_DrawAltDigiNum(int32_t x,int32_t y,int32_t n,char s,char cs)
         return;
     }
     j = 0;
-    for (k=0;k<i;k++)
+    for (k=0; k<i; k++)
     {
         p = althud_numbertile+*(b+k)-'0';
         if (shd && getrendermode() >= 3 && althud_shadows)
@@ -2276,7 +2276,7 @@ static void G_DrawStatusBar(int32_t snum)
         u |= (4+8+16+32+64+128+256+512+1024+65536L);
     }
 
-    for (i=1;i<MAX_WEAPONS;i++)
+    for (i=1; i<MAX_WEAPONS; i++)
     {
         if (sbar.ammo_amount[i] != p->ammo_amount[i])
         {
@@ -2552,7 +2552,7 @@ static void G_PrintFPS(void)
             // lag meter
             if (numplayers > 1 && (totalclock - lastpackettime) > 1)
             {
-                for (howlong = (totalclock - lastpackettime);howlong>0 && howlong<(xdim>>2);howlong--)
+                for (howlong = (totalclock - lastpackettime); howlong>0 && howlong<(xdim>>2); howlong--)
                     printext256(4L*howlong,0,COLOR_WHITE,-1,".",0);
             }
         }
@@ -2635,7 +2635,7 @@ static void G_PrintGameQuotes(void)
     //quotebotgoal = j;
     //j = quotebot;
     j = scale(j,ydim,200);
-    for (i=MAXUSERQUOTES-1;i>=0;i--)
+    for (i=MAXUSERQUOTES-1; i>=0; i--)
     {
         if (user_quote_time[i] <= 0) continue;
         k = user_quote_time[i];
@@ -2820,7 +2820,7 @@ void G_GameExit(const char *t)
 
         ready2send = 0;
 
-        for (j=MAXPLAYERS-1;j>=0;j--)
+        for (j=MAXPLAYERS-1; j>=0; j--)
         {
             oldtotalclock = totalclock;
 
@@ -2935,7 +2935,7 @@ int32_t _EnterText(int32_t small,int32_t x,int32_t y,char *t,int32_t dalen,int32
     if (c == 998)
     {
         char b[91],ii;
-        for (ii=0;ii<inputloc;ii++)
+        for (ii=0; ii<inputloc; ii++)
             b[(uint8_t)ii] = '*';
         b[(uint8_t)inputloc] = 0;
         if (g_player[myconnectindex].ps->gm&MODE_TYPE)
@@ -3134,7 +3134,7 @@ static inline void G_MoveClouds(void)
 
         cloudtotalclock = totalclock+6;
 
-        for (i=g_numClouds-1;i>=0;i--)
+        for (i=g_numClouds-1; i>=0; i--)
         {
             cloudx[i] += (sintable[(g_player[screenpeek].ps->ang+512)&2047]>>9);
             cloudy[i] += (sintable[g_player[screenpeek].ps->ang&2047]>>9);
@@ -3162,7 +3162,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     yvect2 = mulscale16(yvect,yxaspect);
 
     //Draw red lines
-    for (i=numsectors-1;i>=0;i--)
+    for (i=numsectors-1; i>=0; i--)
     {
         if (!(show2dsector[i>>3]&(1<<(i&7)))) continue;
 
@@ -3172,7 +3172,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         z1 = sector[i].ceilingz;
         z2 = sector[i].floorz;
 
-        for (j=startwall,wal=&wall[startwall];j<endwall;j++,wal++)
+        for (j=startwall,wal=&wall[startwall]; j<endwall; j++,wal++)
         {
             k = wal->nextwall;
             if (k < 0) continue;
@@ -3208,10 +3208,10 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
     //Draw sprites
     k = g_player[screenpeek].ps->i;
-    for (i=numsectors-1;i>=0;i--)
+    for (i=numsectors-1; i>=0; i--)
     {
         if (!(show2dsector[i>>3]&(1<<(i&7)))) continue;
-        for (j=headspritesect[i];j>=0;j=nextspritesect[j])
+        for (j=headspritesect[i]; j>=0; j=nextspritesect[j])
             //if ((show2dsprite[j>>3]&(1<<(j&7))) > 0)
         {
             spr = &sprite[j];
@@ -3354,7 +3354,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     }
 
     //Draw white lines
-    for (i=numsectors-1;i>=0;i--)
+    for (i=numsectors-1; i>=0; i--)
     {
         if (!(show2dsector[i>>3]&(1<<(i&7)))) continue;
 
@@ -3362,7 +3362,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         endwall = sector[i].wallptr + sector[i].wallnum;
 
         k = -1;
-        for (j=startwall,wal=&wall[startwall];j<endwall;j++,wal++)
+        for (j=startwall,wal=&wall[startwall]; j<endwall; j++,wal++)
         {
             if (wal->nextwall >= 0) continue;
 
@@ -3664,7 +3664,7 @@ void G_DisplayRest(int32_t smoothratio)
     {
         show2dsector[i>>3] |= (1<<(i&7));
         wal = &wall[sector[i].wallptr];
-        for (j=sector[i].wallnum;j>0;j--,wal++)
+        for (j=sector[i].wallnum; j>0; j--,wal++)
         {
             i = wal->nextsector;
             if (i < 0) continue;
@@ -3831,7 +3831,7 @@ void G_DisplayRest(int32_t smoothratio)
 #if 0
     if (GametypeFlags[ud.coop] & GAMETYPE_TDM)
     {
-        for (i=0;i<ud.multimode;i++)
+        for (i=0; i<ud.multimode; i++)
         {
             if (g_player[i].ps->team == g_player[myconnectindex].ps->team)
             {
@@ -4025,8 +4025,8 @@ void G_DrawBackground(void)
             X_OnEvent(EVENT_GETMENUTILE, -1, myconnectindex, -1);
         if (Gv_GetVarByLabel("MENU_TILE", tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?0:1, -1, -1))
         {
-            for (y=y1;y<y2;y+=tilesizy[aGameVars[g_iReturnVarID].val.lValue])
-                for (x=0;x<xdim;x+=tilesizx[aGameVars[g_iReturnVarID].val.lValue])
+            for (y=y1; y<y2; y+=tilesizy[aGameVars[g_iReturnVarID].val.lValue])
+                for (x=0; x<xdim; x+=tilesizx[aGameVars[g_iReturnVarID].val.lValue])
                     rotatesprite(x<<16,y<<16,65536L,0,aGameVars[g_iReturnVarID].val.lValue,bpp==8?16:8,0,8+16+64,0,0,xdim-1,ydim-1);
         }
         else rotatesprite(320<<15,200<<15,65536L,0,aGameVars[g_iReturnVarID].val.lValue,bpp==8?16:8,0,2+8+64,0,0,xdim-1,ydim-1);
@@ -4074,8 +4074,8 @@ void G_DrawBackground(void)
             */
         // when not rendering a game, fullscreen wipe
         x2 = (xdim - scale(xdim,ud.statusbarscale,100)) >> 1;
-        for (y=y2-y2%tilesizy[dapicnum];y<ydim;y+=tilesizy[dapicnum])
-            for (x=0;x<xdim>>1;x+=tilesizx[dapicnum])
+        for (y=y2-y2%tilesizy[dapicnum]; y<ydim; y+=tilesizy[dapicnum])
+            for (x=0; x<xdim>>1; x+=tilesizx[dapicnum])
             {
                 rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,0,y2,x2,ydim-1);
                 rotatesprite((xdim-x)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64,xdim-x2-1,y2,xdim-1,ydim-1);
@@ -4097,13 +4097,13 @@ void G_DrawBackground(void)
         x2 = min(windowx2+4,xdim-1);
         y2 = min(windowy2+4,scale(ydim,200-scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100),200)-1);
 
-        for (y=y1+4;y<y2-4;y+=64)
+        for (y=y1+4; y<y2-4; y+=64)
         {
             rotatesprite(x1<<16,y<<16,65536L,0,VIEWBORDER,0,0,8+16+64,x1,y1,x2,y2);
             rotatesprite((x2+1)<<16,(y+64)<<16,65536L,1024,VIEWBORDER,0,0,8+16+64,x1,y1,x2,y2);
         }
 
-        for (x=x1+4;x<x2-4;x+=64)
+        for (x=x1+4; x<x2-4; x+=64)
         {
             rotatesprite((x+64)<<16,y1<<16,65536L,512,VIEWBORDER,0,0,8+16+64,x1,y1,x2,y2);
             rotatesprite(x<<16,(y2+1)<<16,65536L,1536,VIEWBORDER,0,0,8+16+64,x1,y1,x2,y2);
@@ -4173,7 +4173,7 @@ static void SE40_Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int32_t a,int3
 
     // if(ok==0) { Message("no fof",RED); return; }
 
-    for (j=headspritestat[15];j>=0;j=nextspritestat[j])
+    for (j=headspritestat[15]; j>=0; j=nextspritestat[j])
     {
         if (sprite[j].picnum==1 && sprite[j].lotag==fofmode && sprite[j].hitag==sprite[floor1].hitag)
         {
@@ -4188,7 +4188,7 @@ static void SE40_Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int32_t a,int3
     if (fofmode==40) k=41;
     else k=40;
 
-    for (j=headspritestat[15];j>=0;j=nextspritestat[j])
+    for (j=headspritestat[15]; j>=0; j=nextspritestat[j])
     {
         if (sprite[j].picnum==1 && sprite[j].lotag==k && sprite[j].hitag==sprite[floor1].hitag)
         {
@@ -4219,7 +4219,7 @@ static void SE40_Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int32_t a,int3
 
     // if(ok==2) { Message("no floor2",RED); return; }
 
-    for (j=headspritestat[15];j>=0;j=nextspritestat[j]) // raise ceiling or floor
+    for (j=headspritestat[15]; j>=0; j=nextspritestat[j]) // raise ceiling or floor
     {
         if (sprite[j].picnum==1 && sprite[j].lotag==k+2 && sprite[j].hitag==sprite[floor1].hitag)
         {
@@ -4247,7 +4247,7 @@ static void SE40_Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int32_t a,int3
 
     if (draw_both)
     {
-        for (j=headspritestat[15];j>=0;j=nextspritestat[j]) // restore ceiling or floor for the draw both sectors
+        for (j=headspritestat[15]; j>=0; j=nextspritestat[j]) // restore ceiling or floor for the draw both sectors
         {
             if (sprite[j].picnum==1 &&
                     sprite[j].lotag==k+2 &&
@@ -4401,7 +4401,7 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
             {
                 //Block off unscreen section of 90ø tilted screen
                 j = ((tiltcx-(60*tiltcs))>>(1-ud.detail));
-                for (i=((60*tiltcs)>>(1-ud.detail))-1;i>=0;i--)
+                for (i=((60*tiltcs)>>(1-ud.detail))-1; i>=0; i--)
                 {
                     startumost[i] = 1;
                     startumost[i+j] = 1;
@@ -4502,7 +4502,7 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
         {
             dst = 0x7fffffff;
             i = 0;
-            for (k=g_mirrorCount-1;k>=0;k--)
+            for (k=g_mirrorCount-1; k>=0; k--)
             {
                 j = klabs(wall[g_mirrorWall[k]].x-ud.camerax);
                 j += klabs(wall[g_mirrorWall[k]].y-ud.cameray);
@@ -4579,9 +4579,9 @@ static void G_DumpDebugInfo(void)
 //    FILE * fp=fopen("condebug.log","w");
 
     OSD_Printf("Current gamevar values:\n");
-    for (i=0;i<MAX_WEAPONS;i++)
+    for (i=0; i<MAX_WEAPONS; i++)
     {
-        for (j=0;j<numplayers;j++)
+        for (j=0; j<numplayers; j++)
         {
             OSD_Printf("Player %d\n\n",j);
             OSD_Printf("WEAPON%d_CLIP %" PRIdPTR "\n",i,aplWeaponClip[i][j]);
@@ -4605,13 +4605,13 @@ static void G_DumpDebugInfo(void)
         }
         OSD_Printf("\n");
     }
-    for (x=0;x<MAXSTATUS;x++)
+    for (x=0; x<MAXSTATUS; x++)
     {
         j = headspritestat[x];
         while (j >= 0)
         {
             OSD_Printf("Sprite %d (%d,%d,%d) (picnum: %d)\n",j,sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].picnum);
-            for (i=0;i<g_gameVarCount;i++)
+            for (i=0; i<g_gameVarCount; i++)
             {
                 if (aGameVars[i].dwFlags & (GAMEVAR_PERACTOR))
                 {
@@ -6087,7 +6087,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             case 23:// XPTR END
                 if (sp->lotag != 23)
                 {
-                    for (j=0;j<MAXSPRITES;j++)
+                    for (j=0; j<MAXSPRITES; j++)
                         if (sprite[j].statnum < MAXSTATUS && sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 7 || sprite[j].lotag == 23) && i != j && sprite[j].hitag == SHT)
                         {
                             OW = j;
@@ -6184,7 +6184,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     {
                         startwall = sector[sect].wallptr;
                         endwall = startwall+sector[sect].wallnum;
-                        for (j=startwall;j<endwall;j++)
+                        for (j=startwall; j<endwall; j++)
                         {
                             x = wall[j].nextsector;
                             if (x >= 0)
@@ -6235,7 +6235,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 //find the two most clostest wall x's and y's
                 q = 0x7fffffff;
 
-                for (s=startwall;s<endwall;s++)
+                for (s=startwall; s<endwall; s++)
                 {
                     x = wall[s].x;
                     y = wall[s].y;
@@ -6252,7 +6252,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                 q = 0x7fffffff;
 
-                for (s=startwall;s<endwall;s++)
+                for (s=startwall; s<endwall; s++)
                 {
                     x = wall[s].x;
                     y = wall[s].y;
@@ -6285,7 +6285,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 startwall = sector[sect].wallptr;
                 endwall = startwall+sector[sect].wallnum;
 
-                for (s=startwall;s<endwall;s++)
+                for (s=startwall; s<endwall; s++)
                 {
                     if (!(wall[s].hitag&1))
                         wall[s].shade=sp->shade;
@@ -6302,7 +6302,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 startwall = sector[sect].wallptr;
                 endwall = startwall+sector[sect].wallnum;
 
-                for (s=startwall;s<endwall;s++)
+                for (s=startwall; s<endwall; s++)
                     if (wall[s].hitag == 0) wall[s].hitag = 9999;
 
                 G_SetInterpolation(&sector[sect].floorz);
@@ -6316,7 +6316,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 startwall = sector[sect].wallptr;
                 endwall = startwall+sector[sect].wallnum;
 
-                for (s=startwall;s<endwall;s++)
+                for (s=startwall; s<endwall; s++)
                     if (wall[s].hitag == 0) wall[s].hitag = 9999;
 
                 G_SetInterpolation(&sector[sect].ceilingz);
@@ -6333,7 +6333,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->owner = sector[sect].ceilingpal<<8;
                 sp->owner |= sector[sect].floorpal;
 
-                for (s=startwall;s<endwall;s++)
+                for (s=startwall; s<endwall; s++)
                     if (wall[s].shade > T4)
                         T4 = wall[s].shade;
 
@@ -6352,7 +6352,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 startwall = sector[sect].wallptr;
                 endwall = startwall+sector[sect].wallnum;
 
-                for (s=startwall;s<endwall;s++)
+                for (s=startwall; s<endwall; s++)
                     if (wall[s].shade > T3)
                         T3 = wall[s].shade;
 
@@ -6383,7 +6383,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                         sector[sect].hitag = i;
                     }
 
-                    for (j = MAXSPRITES-1;j>=0;j--)
+                    for (j = MAXSPRITES-1; j>=0; j--)
                     {
                         if (sprite[j].statnum < MAXSTATUS)
                             if (sprite[j].picnum == SECTOREFFECTOR &&
@@ -6418,7 +6418,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 endwall = startwall+sector[sect].wallnum;
 
                 T2 = tempwallptr;
-                for (s=startwall;s<endwall;s++)
+                for (s=startwall; s<endwall; s++)
                 {
                     msx[tempwallptr] = wall[s].x-sp->x;
                     msy[tempwallptr] = wall[s].y-sp->y;
@@ -6443,7 +6443,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                     j = 0;
 
-                    for (s=startwall;s<endwall;s++)
+                    for (s=startwall; s<endwall; s++)
                     {
                         if (wall[ s ].nextsector >= 0 &&
                                 sector[ wall[ s ].nextsector].hitag == 0 &&
@@ -6645,7 +6645,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
     if (!spritesortcnt) return;
 
-    for (j=spritesortcnt-1;j>=0; j--)
+    for (j=spritesortcnt-1; j>=0; j--)
     {
         t = &tsprite[j];
         i = t->owner;
@@ -6739,7 +6739,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         t->shade = l;
     }
 
-    for (j=spritesortcnt-1;j>=0; j--) //Between drawrooms() and drawmasks()
+    for (j=spritesortcnt-1; j>=0; j--) //Between drawrooms() and drawmasks()
     {
         //is the perfect time to animate sprites
         t = &tsprite[j];
@@ -7682,9 +7682,9 @@ static void G_DoCheats(void)
                 return;
             }
 
-            for (k=0;k < NUMCHEATCODES;k++)
+            for (k=0; k < NUMCHEATCODES; k++)
             {
-                for (j = 0;j<cheatbuflen;j++)
+                for (j = 0; j<cheatbuflen; j++)
                 {
                     if (cheatbuf[j] == CheatStrings[k][j] || (CheatStrings[k][j] == '#' && ch >= '0' && ch <= '9'))
                     {
@@ -7709,7 +7709,7 @@ FOUNDCHEAT:
                     if (VOLUMEONE)
                         j = 6;
 
-                    for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
+                    for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS-j; weapon++)
                     {
                         P_AddAmmo(weapon, g_player[myconnectindex].ps, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
                         g_player[myconnectindex].ps->gotweapon[weapon]  = 1;
@@ -7826,7 +7826,7 @@ FOUNDCHEAT:
                         Bstrcpy(ScriptQuotes[122],"Scream for me, Long Beach!");
                         P_DoQuote(122,g_player[myconnectindex].ps);
                         G_CheatGetInv();
-                        for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS;weapon++)
+                        for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
                             g_player[myconnectindex].ps->gotweapon[weapon]  = 1;
 
                         for (weapon = PISTOL_WEAPON;
@@ -7856,7 +7856,7 @@ FOUNDCHEAT:
                     if (VOLUMEONE)
                         j = 6;
 
-                    for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
+                    for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS-j; weapon++)
                         g_player[myconnectindex].ps->gotweapon[weapon]  = 1;
 
                     for (weapon = PISTOL_WEAPON;
@@ -7958,7 +7958,7 @@ FOUNDCHEAT:
                 case CHEAT_UNLOCK:
                     if (VOLUMEONE) return;
 
-                    for (i=numsectors-1;i>=0;i--) //Unlock
+                    for (i=numsectors-1; i>=0; i--) //Unlock
                     {
                         j = sector[i].lotag;
                         if (j == -1 || j == 32767) continue;
@@ -7994,17 +7994,17 @@ FOUNDCHEAT:
                     ud.showallmap = 1-ud.showallmap;
                     if (ud.showallmap)
                     {
-                        for (i=0;i<(MAXSECTORS>>3);i++)
+                        for (i=0; i<(MAXSECTORS>>3); i++)
                             show2dsector[i] = 255;
-                        for (i=0;i<(MAXWALLS>>3);i++)
+                        for (i=0; i<(MAXWALLS>>3); i++)
                             show2dwall[i] = 255;
                         P_DoQuote(111,g_player[myconnectindex].ps);
                     }
                     else
                     {
-                        for (i=0;i<(MAXSECTORS>>3);i++)
+                        for (i=0; i<(MAXSECTORS>>3); i++)
                             show2dsector[i] = 0;
-                        for (i=0;i<(MAXWALLS>>3);i++)
+                        for (i=0; i<(MAXWALLS>>3); i++)
                             show2dwall[i] = 0;
                         P_DoQuote(1,g_player[myconnectindex].ps);
                     }
@@ -8116,13 +8116,13 @@ static void G_ShowScores(void)
 
         t = 0;
         minitext(23,80,"   NAME                                           KILLS",8,2+8+16+128);
-        for (i=playerswhenstarted-1;i>=0;i--)
+        for (i=playerswhenstarted-1; i>=0; i--)
         {
             Bsprintf(tempbuf,"%-4d",i+1);
             minitext(92+(i*23),80,tempbuf,3,2+8+16+128);
         }
 
-        for (i=playerswhenstarted-1;i>=0;i--)
+        for (i=playerswhenstarted-1; i>=0; i--)
         {
             xfragtotal = 0;
             Bsprintf(tempbuf,"%d",i+1);
@@ -8130,7 +8130,7 @@ static void G_ShowScores(void)
             minitext(30,90+t,tempbuf,0,2+8+16+128);
             minitext(38,90+t,g_player[i].user_name,g_player[i].ps->palookup,2+8+16+128);
 
-            for (y=playerswhenstarted-1;y>=0;y--)
+            for (y=playerswhenstarted-1; y>=0; y--)
             {
                 if (i == y)
                 {
@@ -8158,10 +8158,10 @@ static void G_ShowScores(void)
             t += 7;
         }
 
-        for (y=playerswhenstarted-1;y>=0;y--)
+        for (y=playerswhenstarted-1; y>=0; y--)
         {
             yfragtotal = 0;
-            for (i=playerswhenstarted-1;i>=0;i--)
+            for (i=playerswhenstarted-1; i>=0; i--)
             {
                 if (i == y)
                     yfragtotal += g_player[i].ps->fraggedself;
@@ -8913,7 +8913,7 @@ static void setup_rancid_net(const char *fn)
 
         if (g_keepAddr == 0)
         {
-            for (i=0;i<rancid_players;i++)
+            for (i=0; i<rancid_players; i++)
             {
                 if (Bstrcmp(rancid_ip_strings[i],rancid_ip_strings[MAXPLAYERS-1]))
                 {
@@ -8964,7 +8964,7 @@ static void setup_rancid_net(const char *fn)
                 {
                     if (tempbuf[0])
                     {
-                        for (i=0;i<rancid_players;i++)
+                        for (i=0; i<rancid_players; i++)
                         {
                             if (Bstrcmp(rancid_ip_strings[i],rancid_ip_strings[MAXPLAYERS-1]) == 0)
                             {
@@ -8985,7 +8985,7 @@ static void setup_rancid_net(const char *fn)
             netparamcount++;
         netparam = (char **)Bcalloc(netparamcount, sizeof(char **));
 
-        for (i=0;i<rancid_players;i++)
+        for (i=0; i<rancid_players; i++)
         {
             if (Bstrcmp(rancid_ip_strings[i],rancid_ip_strings[MAXPLAYERS-1]) == 0)
                 Bsprintf(rancid_ip_strings[i],"/n1");
@@ -9035,7 +9035,7 @@ static void G_DoAutoload(const char *fn)
 {
     int32_t i;
 
-    for (i=0;i<NUMAUTOLOADMASKS;i++)
+    for (i=0; i<NUMAUTOLOADMASKS; i++)
     {
         Bsprintf(tempbuf,"autoload/%s",fn);
         getfilenames(tempbuf,autoloadmasks[i]);
@@ -9089,7 +9089,7 @@ static int32_t AL_DefineSound(int32_t ID,char *name)
 
 static int32_t AL_DefineMusic(char *ID,char *name)
 {
-    int32_t lev,ep,sel;char b1,b2;
+    int32_t lev,ep,sel; char b1,b2;
 
     if (!ID)
         return 1;
@@ -10124,7 +10124,7 @@ static void G_FreeMemory(void)
     int32_t i;
     extern char *bitptr;
 
-    for (i=(MAXLEVELS*(MAXVOLUMES+1))-1;i>=0;i--) // +1 volume for "intro", "briefing" music
+    for (i=(MAXLEVELS*(MAXVOLUMES+1))-1; i>=0; i--) // +1 volume for "intro", "briefing" music
     {
         if (MapInfo[i].name != NULL) Bfree(MapInfo[i].name);
         if (MapInfo[i].filename != NULL) Bfree(MapInfo[i].filename);
@@ -10133,19 +10133,19 @@ static void G_FreeMemory(void)
         if (MapInfo[i].savedstate != NULL) G_FreeMapState(i);
     }
 
-    for (i=MAXQUOTES-1;i>=0;i--)
+    for (i=MAXQUOTES-1; i>=0; i--)
     {
         if (ScriptQuotes[i] != NULL) Bfree(ScriptQuotes[i]);
         if (ScriptQuoteRedefinitions[i] != NULL) Bfree(ScriptQuoteRedefinitions[i]);
     }
 
-    for (i=MAXPLAYERS-1;i>=0;i--)
+    for (i=MAXPLAYERS-1; i>=0; i--)
     {
         if (g_player[i].ps != NULL) Bfree(g_player[i].ps);
         if (g_player[i].sync != NULL) Bfree(g_player[i].sync);
     }
 
-    for (i=MAXSOUNDS-1;i>=0;i--)
+    for (i=MAXSOUNDS-1; i>=0; i--)
     {
         if (g_sounds[i].filename != NULL) Bfree(g_sounds[i].filename);
         if (g_sounds[i].filename1 != NULL) Bfree(g_sounds[i].filename1);
@@ -10284,10 +10284,10 @@ static void G_LoadExtraPalettes(void)
     for (j = 0; j < 256; j++)
         tempbuf[j] = j;
 
-    for (j=g_numRealPalettes+1;j<MAXPALOOKUPS;j++)
+    for (j=g_numRealPalettes+1; j<MAXPALOOKUPS; j++)
         makepalookup(j,tempbuf,0,0,0,1);
 
-    for (j=g_numRealPalettes-1;j>=0;j--)
+    for (j=g_numRealPalettes-1; j>=0; j--)
     {
         kread(fp,(char *)&look_pos,1);
         kread(fp,tempbuf,256);
@@ -10400,7 +10400,7 @@ static void G_Startup(void)
         if (ud.executions >= 50) initprintf("IT IS NOW TIME TO UPGRADE TO THE COMPLETE VERSION!!!\n");
     }
 
-    for (i=0;i<MAXPLAYERS;i++)
+    for (i=0; i<MAXPLAYERS; i++)
         g_player[i].playerreadyflag = 0;
 
 #ifndef RANCID_NETWORKING
@@ -10533,7 +10533,7 @@ static void Net_SendWeaponChoice(void)
     buf[1] = myconnectindex;
     l = 2;
 
-    for (i=0;i<10;i++)
+    for (i=0; i<10; i++)
     {
         g_player[myconnectindex].wchoice[i] = g_player[0].wchoice[i];
         buf[l++] = (uint8_t)g_player[0].wchoice[i];
@@ -10596,7 +10596,7 @@ void Net_SendPlayerName(void)
 {
     int32_t i,l;
 
-    for (l=0;(unsigned)l<sizeof(szPlayerName)-1;l++)
+    for (l=0; (unsigned)l<sizeof(szPlayerName)-1; l++)
         g_player[myconnectindex].user_name[l] = Btoupper(szPlayerName[l]);
 
     if (numplayers < 2) return;
@@ -10606,7 +10606,7 @@ void Net_SendPlayerName(void)
     l = 2;
 
     //null terminated player name to send
-    for (i=0;szPlayerName[i];i++) buf[l++] = Btoupper(szPlayerName[i]);
+    for (i=0; szPlayerName[i]; i++) buf[l++] = Btoupper(szPlayerName[i]);
     buf[l++] = 0;
 
     TRAVERSE_CONNECT(i)
@@ -10745,7 +10745,7 @@ void app_main(int32_t argc,const char **argv)
 #ifdef RENDERTYPEWIN
     if (argc > 1)
     {
-        for (;i<argc;i++)
+        for (; i<argc; i++)
         {
             if (Bstrcasecmp("-noinstancechecking",*(&argv[i])) == 0)
                 break;
@@ -10881,7 +10881,7 @@ void app_main(int32_t argc,const char **argv)
 #endif
 
     hash_init(&gamefuncH);
-    for (i=NUMGAMEFUNCTIONS-1;i>=0;i--)
+    for (i=NUMGAMEFUNCTIONS-1; i>=0; i--)
     {
         char *str = strtolower(Bstrdup(gamefunctions[i]),Bstrlen(gamefunctions[i]));
         hash_add(&gamefuncH,gamefunctions[i],i);
@@ -11124,7 +11124,7 @@ CLEAN_DIRECTORY:
     {
         int32_t ii;
 
-        for (ii=0;ii<NUMAUTOLOADMASKS;ii++)
+        for (ii=0; ii<NUMAUTOLOADMASKS; ii++)
         {
             getfilenames("autoload",autoloadmasks[ii]);
             while (findfiles)
@@ -11144,7 +11144,7 @@ CLEAN_DIRECTORY:
     {
         int32_t ii;
 
-        for (ii=0;ii<NUMAUTOLOADMASKS;ii++)
+        for (ii=0; ii<NUMAUTOLOADMASKS; ii++)
         {
             Bsprintf(tempbuf,"%s/",mod_dir);
             getfilenames(tempbuf,autoloadmasks[ii]);
@@ -11222,7 +11222,7 @@ CLEAN_DIRECTORY:
     if (numplayers > 1)
         ud.multimode = numplayers;
 
-    for (i=1;i<ud.multimode;i++)
+    for (i=1; i<ud.multimode; i++)
     {
         g_player[i].ps = (DukePlayer_t *) Bcalloc(1,sizeof(DukePlayer_t));
         g_player[i].sync = (input_t *) Bcalloc(1,sizeof(input_t));
@@ -11231,7 +11231,7 @@ CLEAN_DIRECTORY:
     g_player[myconnectindex].ps->palette = (uint8_t *) &palette[0];
 
     i = 1;
-    for (j=numplayers;j<ud.multimode;j++)
+    for (j=numplayers; j<ud.multimode; j++)
     {
         Bsprintf(g_player[j].user_name,"PLAYER %d",j+1);
         g_player[j].ps->team = g_player[j].pteam = i;
@@ -11337,7 +11337,7 @@ CLEAN_DIRECTORY:
     CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
 
     // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-    for (i=0;i<joynumaxes;i++)
+    for (i=0; i<joynumaxes; i++)
         setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
 
     if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
@@ -11647,8 +11647,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     {
         if ((recfilep = kopen4loadfrommod(firstdemofile,g_loadFromGroupOnly)) == -1) return(0);
     }
-    else
-        if ((recfilep = kopen4loadfrommod(d,g_loadFromGroupOnly)) == -1) return(0);
+    else if ((recfilep = kopen4loadfrommod(d,g_loadFromGroupOnly)) == -1) return(0);
 
     if (kread(recfilep,&ud.reccnt,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
     if (kread(recfilep,&ver,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
@@ -11705,7 +11704,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
 
     if (kread(recfilep,(int32_t *)&ud.m_noexits,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
 
-    for (i=0;i<ud.multimode;i++)
+    for (i=0; i<ud.multimode; i++)
     {
         if (!g_player[i].ps)
             g_player[i].ps = (DukePlayer_t *) Bcalloc(1,sizeof(DukePlayer_t));
@@ -11775,7 +11774,7 @@ void G_OpenDemoWrite(void)
     fwrite((char *)boardfilename,sizeof(boardfilename),1,frecfilep);
     fwrite((int32_t *)&ud.m_noexits,sizeof(int32_t),1,frecfilep);
 
-    for (i=0;i<ud.multimode;i++)
+    for (i=0; i<ud.multimode; i++)
     {
         fwrite((char *)&g_player[i].user_name,sizeof(g_player[i].user_name),1,frecfilep);
         fwrite((int32_t *)&g_player[i].ps->aim_mode,sizeof(int32_t),1,frecfilep);
@@ -12575,7 +12574,7 @@ static int32_t G_DoMoveThings(void)
     if (g_earthquakeTime > 0) g_earthquakeTime--;
     if (g_RTSPlaying > 0) g_RTSPlaying--;
 
-    for (i=0;i<MAXUSERQUOTES;i++)
+    for (i=0; i<MAXUSERQUOTES; i++)
         if (user_quote_time[i])
         {
             user_quote_time[i]--;
@@ -12588,7 +12587,7 @@ static int32_t G_DoMoveThings(void)
     {
         hitdata_t hitinfo;
 
-        for (i=0;i<ud.multimode;i++)
+        for (i=0; i<ud.multimode; i++)
             if (g_player[i].ps->holoduke_on != -1)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
@@ -12597,7 +12596,7 @@ static int32_t G_DoMoveThings(void)
                 sintable[g_player[screenpeek].ps->ang&2047],
                 (100-g_player[screenpeek].ps->horiz-g_player[screenpeek].ps->horizoff)<<11,&hitinfo,0xffff0030);
 
-        for (i=0;i<ud.multimode;i++)
+        for (i=0; i<ud.multimode; i++)
             if (g_player[i].ps->holoduke_on != -1)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
@@ -12675,7 +12674,7 @@ static int32_t G_DoMoveThings(void)
 
         if (voting == i)
         {
-            for (i=0;i<MAXPLAYERS;i++)
+            for (i=0; i<MAXPLAYERS; i++)
             {
                 g_player[i].vote = 0;
                 g_player[i].gotvote = 0;
@@ -12880,7 +12879,7 @@ void G_BonusScreen(int32_t bonusonly)
 
                     // boss
                     if (totalclock > 390 && totalclock < 780)
-                        for (t=0;t<35;t+=5) if (bossmove[t+2] && (totalclock%390) > bossmove[t] && (totalclock%390) <= bossmove[t+1])
+                        for (t=0; t<35; t+=5) if (bossmove[t+2] && (totalclock%390) > bossmove[t] && (totalclock%390) <= bossmove[t+1])
                             {
                                 if (t==10 && bonuscnt == 1)
                                 {
@@ -12904,7 +12903,7 @@ void G_BonusScreen(int32_t bonusonly)
                             }
 
                         }
-                        for (t=0;t<20;t+=5)
+                        for (t=0; t<20; t+=5)
                             if (breathe[t+2] && (totalclock%120) > breathe[t] && (totalclock%120) <= breathe[t+1])
                             {
                                 if (t==5 && bonuscnt == 0)
@@ -13158,13 +13157,13 @@ FRAGBONUS:
 
         t = 0;
         minitext(23,80,"   NAME                                           KILLS",8,2+8+16+128);
-        for (i=0;i<playerswhenstarted;i++)
+        for (i=0; i<playerswhenstarted; i++)
         {
             Bsprintf(tempbuf,"%-4d",i+1);
             minitext(92+(i*23),80,tempbuf,3,2+8+16+128);
         }
 
-        for (i=0;i<playerswhenstarted;i++)
+        for (i=0; i<playerswhenstarted; i++)
         {
             xfragtotal = 0;
             Bsprintf(tempbuf,"%d",i+1);
@@ -13172,7 +13171,7 @@ FRAGBONUS:
             minitext(30,90+t,tempbuf,0,2+8+16+128);
             minitext(38,90+t,g_player[i].user_name,g_player[i].ps->palookup,2+8+16+128);
 
-            for (y=0;y<playerswhenstarted;y++)
+            for (y=0; y<playerswhenstarted; y++)
             {
                 if (i == y)
                 {
@@ -13200,10 +13199,10 @@ FRAGBONUS:
             t += 7;
         }
 
-        for (y=0;y<playerswhenstarted;y++)
+        for (y=0; y<playerswhenstarted; y++)
         {
             yfragtotal = 0;
-            for (i=0;i<playerswhenstarted;i++)
+            for (i=0; i<playerswhenstarted; i++)
             {
                 if (i == y)
                     yfragtotal += g_player[i].ps->fraggedself;
@@ -13545,8 +13544,8 @@ static void G_DrawCameraText(int16_t i)
     else
     {
         flipbits = (totalclock<<1)&48;
-        for (x=0;x<394;x+=64)
-            for (y=0;y<200;y+=64)
+        for (x=0; x<394; x+=64)
+            for (y=0; y<200; y+=64)
                 rotatesprite(x<<16,y<<16,65536L,0,STATIC,0,0,2+flipbits,windowx1,windowy1,windowx2,windowy2);
     }
 }
@@ -13561,7 +13560,7 @@ void vglass(int32_t x,int32_t y,short a,short wn,short n)
     if (sect == -1) return;
     zincs = (sector[sect].floorz-sector[sect].ceilingz) / n;
 
-    for (z = sector[sect].ceilingz;z < sector[sect].floorz; z += zincs)
+    for (z = sector[sect].ceilingz; z < sector[sect].floorz; z += zincs)
         A_InsertSprite(sect,x,y,z-(krand()&8191),GLASSPIECES+(z&(krand()%3)),-32,36,36,a+128-(krand()&255),16+(krand()&31),0,-1,5);
 }
 #endif
@@ -13576,7 +13575,7 @@ void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n)
 
     if (wallnum < 0)
     {
-        for (j=n-1; j >= 0 ;j--)
+        for (j=n-1; j >= 0 ; j--)
         {
             a = SA-256+(krand()&511)+1024;
             A_InsertSprite(SECT,SX,SY,SZ,GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),1024-(krand()&1023),i,5);
@@ -13598,7 +13597,7 @@ void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n)
     xv /= j;
     yv /= j;
 
-    for (j=n;j>0;j--)
+    for (j=n; j>0; j--)
     {
         x1 += xv;
         y1 += yv;
@@ -13619,7 +13618,7 @@ void A_SpawnGlass(int32_t i,int32_t n)
 {
     int32_t j, k, a, z;
 
-    for (j=n;j>0;j--)
+    for (j=n; j>0; j--)
     {
         a = krand()&2047;
         z = SZ-((krand()&16)<<8);
@@ -13634,7 +13633,7 @@ void A_SpawnCeilingGlass(int32_t i,int32_t sectnum,int32_t n)
     int32_t startwall = sector[sectnum].wallptr;
     int32_t endwall = startwall+sector[sectnum].wallnum;
 
-    for (s=startwall;s<(endwall-1);s++)
+    for (s=startwall; s<(endwall-1); s++)
     {
         x1 = wall[s].x;
         y1 = wall[s].y;
@@ -13642,7 +13641,7 @@ void A_SpawnCeilingGlass(int32_t i,int32_t sectnum,int32_t n)
         xv = (wall[s+1].x-x1)/(n+1);
         yv = (wall[s+1].y-y1)/(n+1);
 
-        for (j=n;j>0;j--)
+        for (j=n; j>0; j--)
         {
             x1 += xv;
             y1 += yv;
@@ -13661,7 +13660,7 @@ void A_SpawnRandomGlass(int32_t i,int32_t wallnum,int32_t n)
 
     if (wallnum < 0)
     {
-        for (j=n-1; j >= 0 ;j--)
+        for (j=n-1; j >= 0 ; j--)
         {
             a = krand()&2047;
             k = A_InsertSprite(SECT,SX,SY,SZ-(krand()&(63<<8)),GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),1024-(krand()&2047),i,5);
@@ -13677,7 +13676,7 @@ void A_SpawnRandomGlass(int32_t i,int32_t wallnum,int32_t n)
     xv = (wall[wall[wallnum].point2].x-wall[wallnum].x)/j;
     yv = (wall[wall[wallnum].point2].y-wall[wallnum].y)/j;
 
-    for (j=n;j>0;j--)
+    for (j=n; j>0; j--)
     {
         x1 += xv;
         y1 += yv;

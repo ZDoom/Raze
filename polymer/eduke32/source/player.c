@@ -128,7 +128,7 @@ static void A_DoWaterTracers(int32_t x1,int32_t y1,int32_t z1,int32_t x2,int32_t
     if ((klabs(x1-x2)+klabs(y1-y2)) < 3084)
         return;
 
-    for (i=n;i>0;i--)
+    for (i=n; i>0; i--)
     {
         x1 += xv;
         y1 += yv;
@@ -167,7 +167,7 @@ static void A_HitscanProjTrail(const vec3_t *sv, const vec3_t *dv, int32_t ang, 
     srcvect.y += destvect.y>>2;
     srcvect.z += (destvect.z>>2);
 
-    for (i=ProjectileData[atwith].tnum;i>0;i--)
+    for (i=ProjectileData[atwith].tnum; i>0; i--)
     {
         srcvect.x += destvect.x;
         srcvect.y += destvect.y;
@@ -248,11 +248,11 @@ static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
     dx3 = sintable[(a+512)&2047];
     dy3 = sintable[a&2047];
 
-    for (k=0;k<4;k++)
+    for (k=0; k<4; k++)
     {
         if (j >= 0)
             break;
-        for (i=headspritestat[aimstats[k]];i >= 0;i=nextspritestat[i])
+        for (i=headspritestat[aimstats[k]]; i >= 0; i=nextspritestat[i])
             if (sprite[i].xrepeat > 0 && sprite[i].extra >= 0 && (sprite[i].cstat&(257+32768)) == 257)
                 if (A_CheckEnemySprite(&sprite[i]) || k < 2)
                 {
@@ -1913,7 +1913,7 @@ static void P_DisplaySpitAnim(int32_t snum)
     if (g_player[snum].ps->loogcnt == 0) return;
 
     y = (g_player[snum].ps->loogcnt<<2);
-    for (i=0;i<g_player[snum].ps->numloogs;i++)
+    for (i=0; i<g_player[snum].ps->numloogs; i++)
     {
         a = klabs(sintable[((g_player[snum].ps->loogcnt+i)<<5)&2047])>>5;
         z = 4096+((g_player[snum].ps->loogcnt+i)<<9);
@@ -2090,7 +2090,7 @@ void P_FireWeapon(DukePlayer_t *p)
         Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
 //        OSD_Printf("doing %d %d %d\n",aplWeaponShoots[p->curr_weapon][snum],p->curr_weapon,snum);
         A_Shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
-        for (i=1;i<aplWeaponShotsPerBurst[p->curr_weapon][snum];i++)
+        for (i=1; i<aplWeaponShotsPerBurst[p->curr_weapon][snum]; i++)
         {
             if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FIREEVERYOTHER)
             {
@@ -3546,7 +3546,7 @@ void P_CheckWeapon(DukePlayer_t *p)
 
     snum = sprite[p->i].yvel;
 
-    for (i=0;i<10;i++)
+    for (i=0; i<10; i++)
     {
         weap = g_player[snum].wchoice[i];
         if (VOLUMEONE && weap > 6) continue;
@@ -4359,7 +4359,7 @@ void P_ProcessInput(int32_t snum)
             if (p->footprintcount > 0 && p->on_ground)
                 if (p->cursectnum >= 0 && (sector[p->cursectnum].floorstat&2) != 2)
                 {
-                    for (j=headspritesect[psect];j>=0;j=nextspritesect[j])
+                    for (j=headspritesect[psect]; j>=0; j=nextspritesect[j])
                         if (sprite[j].picnum == FOOTPRINTS || sprite[j].picnum == FOOTPRINTS2 || sprite[j].picnum == FOOTPRINTS3 || sprite[j].picnum == FOOTPRINTS4)
                             if (klabs(sprite[j].x-p->posx) < 384)
                                 if (klabs(sprite[j].y-p->posy) < 384)
@@ -5713,7 +5713,7 @@ void computergetinput(int32_t snum, input_t *syn)
     if ((p->firstaid_amount > 0) && (p->last_extra < 100))
         syn->bits |= BIT(SK_MEDKIT);
 
-    for (j=headspritestat[STAT_PROJECTILE];j>=0;j=nextspritestat[j])
+    for (j=headspritestat[STAT_PROJECTILE]; j>=0; j=nextspritestat[j])
     {
         switch (DynamicTileMap[sprite[j].picnum])
         {
@@ -5738,7 +5738,7 @@ void computergetinput(int32_t snum, input_t *syn)
             x3 = sprite[j].x;
             y3 = sprite[j].y;
             z3 = sprite[j].z;
-            for (l=0;l<=8;l++)
+            for (l=0; l<=8; l++)
             {
                 if (tmulscale11(x3-x1,x3-x1,y3-y1,y3-y1,(z3-z1)>>4,(z3-z1)>>4) < 3072)
                 {
@@ -5857,11 +5857,11 @@ void computergetinput(int32_t snum, input_t *syn)
         searchsect[0] = startsect;
         searchparent[0] = -1;
         dashow2dsector[startsect>>3] |= (1<<(startsect&7));
-        for (splc=0,send=1;splc<send;splc++)
+        for (splc=0,send=1; splc<send; splc++)
         {
             startwall = sector[searchsect[splc]].wallptr;
             endwall = startwall + sector[searchsect[splc]].wallnum;
-            for (i=startwall,wal=&wall[startwall];i<endwall;i++,wal++)
+            for (i=startwall,wal=&wall[startwall]; i<endwall; i++,wal++)
             {
                 j = wal->nextsector;
                 if (j < 0) continue;
@@ -5881,17 +5881,17 @@ void computergetinput(int32_t snum, input_t *syn)
                     if (j == endsect)
                     {
                         clearbufbyte(dashow2dsector,(MAXSECTORS+7)>>3,0L);
-                        for (k=send-1;k>=0;k=searchparent[k])
+                        for (k=send-1; k>=0; k=searchparent[k])
                             dashow2dsector[searchsect[k]>>3] |= (1<<(searchsect[k]&7));
 
-                        for (k=send-1;k>=0;k=searchparent[k])
+                        for (k=send-1; k>=0; k=searchparent[k])
                             if (!searchparent[k]) break;
 
                         goalsect[snum] = searchsect[k];
                         startwall = sector[goalsect[snum]].wallptr;
                         endwall = startwall+sector[goalsect[snum]].wallnum;
                         x3 = y3 = 0;
-                        for (i=startwall;i<endwall;i++)
+                        for (i=startwall; i<endwall; i++)
                         {
                             x3 += wall[i].x;
                             y3 += wall[i].y;
@@ -5903,7 +5903,7 @@ void computergetinput(int32_t snum, input_t *syn)
                         endwall = startwall+sector[startsect].wallnum;
                         l = 0;
                         k = startwall;
-                        for (i=startwall;i<endwall;i++)
+                        for (i=startwall; i<endwall; i++)
                         {
                             if (wall[i].nextsector != goalsect[snum]) continue;
                             dx = wall[wall[i].point2].x-wall[i].x;
@@ -5936,7 +5936,7 @@ void computergetinput(int32_t snum, input_t *syn)
                 }
             }
 
-            for (i=headspritesect[searchsect[splc]];i>=0;i=nextspritesect[i])
+            for (i=headspritesect[searchsect[splc]]; i>=0; i=nextspritesect[i])
                 if (sprite[i].lotag == 7)
                 {
                     j = sprite[sprite[i].owner].sectnum;
@@ -5949,10 +5949,10 @@ void computergetinput(int32_t snum, input_t *syn)
                         if (j == endsect)
                         {
                             clearbufbyte(dashow2dsector,(MAXSECTORS+7)>>3,0L);
-                            for (k=send-1;k>=0;k=searchparent[k])
+                            for (k=send-1; k>=0; k=searchparent[k])
                                 dashow2dsector[searchsect[k]>>3] |= (1<<(searchsect[k]&7));
 
-                            for (k=send-1;k>=0;k=searchparent[k])
+                            for (k=send-1; k>=0; k=searchparent[k])
                                 if (!searchparent[k]) break;
 
                             goalsect[snum] = searchsect[k];
@@ -5960,7 +5960,7 @@ void computergetinput(int32_t snum, input_t *syn)
                             endwall = startwall+sector[startsect].wallnum;
                             l = 0;
                             k = startwall;
-                            for (i=startwall;i<endwall;i++)
+                            for (i=startwall; i<endwall; i++)
                             {
                                 dx = wall[wall[i].point2].x-wall[i].x;
                                 dy = wall[wall[i].point2].y-wall[i].y;
@@ -5991,10 +5991,10 @@ void computergetinput(int32_t snum, input_t *syn)
         {
             int32_t bestsprite = -1, spritescore = 0;
 
-            for (k=0;k<16;k++)
+            for (k=0; k<16; k++)
             {
                 i = (rand()%numsectors);
-                for (j=headspritesect[i];j>=0;j=nextspritesect[j])
+                for (j=headspritesect[i]; j>=0; j=nextspritesect[j])
                 {
                     if ((sprite[j].xrepeat <= 0) || (sprite[j].yrepeat <= 0)) continue;
                     if (getspritescore(snum,sprite[j].picnum) <= 0) continue;

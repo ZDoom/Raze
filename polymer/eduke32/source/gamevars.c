@@ -38,7 +38,7 @@ static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
     // call this function as many times as needed.
     int32_t i=(MAXGAMEVARS-1);
     //  AddLog("Gv_Free");
-    for (;i>=0;i--)
+    for (; i>=0; i--)
     {
         if (aGameVars[i].dwFlags & (GAMEVAR_USER_MASK) && aGameVars[i].val.plValues)
         {
@@ -66,7 +66,7 @@ static void Gv_Clear(void)
 
     //AddLog("Gv_Clear");
 
-    for (;i>=0;i--)
+    for (; i>=0; i--)
     {
         if (aGameVars[i].szLabel)
             Bfree(aGameVars[i].szLabel);
@@ -113,7 +113,7 @@ int32_t Gv_ReadSave(int32_t fil)
     //  AddLog(g_szBuf);
 
     if (kdfread(&g_gameVarCount,sizeof(g_gameVarCount),1,fil) != 1) goto corrupt;
-    for (i=0;i<g_gameVarCount;i++)
+    for (i=0; i<g_gameVarCount; i++)
     {
         if (kdfread(&(aGameVars[i]),sizeof(gamevar_t),1,fil) != 1) goto corrupt;
         aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(uint8_t));
@@ -141,7 +141,7 @@ int32_t Gv_ReadSave(int32_t fil)
     Gv_RefreshPointers();
 
     if (kdfread(&g_gameArrayCount,sizeof(g_gameArrayCount),1,fil) != 1) goto corrupt;
-    for (i=0;i<g_gameArrayCount;i++)
+    for (i=0; i<g_gameArrayCount; i++)
     {
         if (kdfread(&(aGameArrays[i]),sizeof(gamearray_t),1,fil) != 1) goto corrupt;
         aGameArrays[i].szLabel=Bcalloc(MAXARRAYLABEL,sizeof(uint8_t));
@@ -155,7 +155,7 @@ int32_t Gv_ReadSave(int32_t fil)
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
     if (kdfread(apScriptGameEvent,sizeof(apScriptGameEvent),1,fil) != 1) goto corrupt;
-    for (i=0;i<MAXGAMEEVENTS;i++)
+    for (i=0; i<MAXGAMEEVENTS; i++)
         if (apScriptGameEvent[i])
         {
             l = (intptr_t)apScriptGameEvent[i]+(intptr_t)&script[0];
@@ -167,14 +167,14 @@ int32_t Gv_ReadSave(int32_t fil)
 
     if (kdfread(&savedstate[0],sizeof(savedstate),1,fil) != 1) goto corrupt;
 
-    for (i=0;i<(MAXVOLUMES*MAXLEVELS);i++)
+    for (i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
     {
         if (savedstate[i])
         {
             if (MapInfo[i].savedstate == NULL)
                 MapInfo[i].savedstate = Bcalloc(1,sizeof(mapstate_t));
             if (kdfread(MapInfo[i].savedstate,sizeof(mapstate_t),1,fil) != sizeof(mapstate_t)) goto corrupt;
-            for (j=0;j<g_gameVarCount;j++)
+            for (j=0; j<g_gameVarCount; j++)
             {
                 if (aGameVars[j].dwFlags & GAMEVAR_NORESET) continue;
                 if (aGameVars[j].dwFlags & GAMEVAR_PERPLAYER)
@@ -231,7 +231,7 @@ void Gv_WriteSave(FILE *fil)
     //   AddLog("Saving Game Vars to File");
     dfwrite(&g_gameVarCount,sizeof(g_gameVarCount),1,fil);
 
-    for (i=0;i<g_gameVarCount;i++)
+    for (i=0; i<g_gameVarCount; i++)
     {
         dfwrite(&(aGameVars[i]),sizeof(gamevar_t),1,fil);
         dfwrite(aGameVars[i].szLabel,sizeof(uint8_t) * MAXVARLABEL, 1, fil);
@@ -252,38 +252,38 @@ void Gv_WriteSave(FILE *fil)
 
     dfwrite(&g_gameArrayCount,sizeof(g_gameArrayCount),1,fil);
 
-    for (i=0;i<g_gameArrayCount;i++)
+    for (i=0; i<g_gameArrayCount; i++)
     {
         dfwrite(&(aGameArrays[i]),sizeof(gamearray_t),1,fil);
         dfwrite(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil);
         dfwrite(aGameArrays[i].plValues,sizeof(intptr_t) * aGameArrays[i].size, 1, fil);
     }
 
-    for (i=0;i<MAXGAMEEVENTS;i++)
+    for (i=0; i<MAXGAMEEVENTS; i++)
         if (apScriptGameEvent[i])
         {
             l = (intptr_t)apScriptGameEvent[i]-(intptr_t)&script[0];
             apScriptGameEvent[i] = (intptr_t *)l;
         }
     dfwrite(apScriptGameEvent,sizeof(apScriptGameEvent),1,fil);
-    for (i=0;i<MAXGAMEEVENTS;i++)
+    for (i=0; i<MAXGAMEEVENTS; i++)
         if (apScriptGameEvent[i])
         {
             l = (intptr_t)apScriptGameEvent[i]+(intptr_t)&script[0];
             apScriptGameEvent[i] = (intptr_t *)l;
         }
 
-    for (i=0;i<(MAXVOLUMES*MAXLEVELS);i++)
+    for (i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
         if (MapInfo[i].savedstate != NULL)
             savedstate[i] = 1;
 
     dfwrite(&savedstate[0],sizeof(savedstate),1,fil);
 
-    for (i=0;i<(MAXVOLUMES*MAXLEVELS);i++)
+    for (i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
         if (MapInfo[i].savedstate)
         {
             dfwrite(MapInfo[i].savedstate,sizeof(mapstate_t),1,fil);
-            for (j=0;j<g_gameVarCount;j++)
+            for (j=0; j<g_gameVarCount; j++)
             {
                 if (aGameVars[j].dwFlags & GAMEVAR_NORESET) continue;
                 if (aGameVars[j].dwFlags & GAMEVAR_PERPLAYER)
@@ -309,7 +309,7 @@ void Gv_DumpValues(void)
 
     OSD_Printf("// Current Game Definitions\n\n");
 
-    for (i=0;i<g_gameVarCount;i++)
+    for (i=0; i<g_gameVarCount; i++)
     {
         if (aGameVars[i].dwFlags & (GAMEVAR_SECRET))
             continue; // do nothing...
@@ -353,13 +353,13 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
     Gv_Free();
     OSD_errors=0;
 
-    for (i=0;i<MAXGAMEVARS;i++)
+    for (i=0; i<MAXGAMEVARS; i++)
     {
         if (aGameVars[i].szLabel != NULL && aGameVars[i].dwFlags & GAMEVAR_RESET)
             Gv_NewVar(aGameVars[i].szLabel,aGameVars[i].lDefault,aGameVars[i].dwFlags);
     }
 
-    for (i=0;i<MAXGAMEARRAYS;i++)
+    for (i=0; i<MAXGAMEARRAYS; i++)
     {
         if (aGameArrays[i].szLabel != NULL && aGameArrays[i].bReset)
             Gv_NewArray(aGameArrays[i].szLabel,aGameArrays[i].size);
@@ -488,14 +488,14 @@ int32_t Gv_NewVar(const char *pszLabel, int32_t lValue, uint32_t dwFlags)
     {
         if (!aGameVars[i].val.plValues)
             aGameVars[i].val.plValues=Bcalloc(MAXPLAYERS,sizeof(intptr_t));
-        for (j=MAXPLAYERS-1;j>=0;j--)
+        for (j=MAXPLAYERS-1; j>=0; j--)
             aGameVars[i].val.plValues[j]=lValue;
     }
     else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
     {
         if (!aGameVars[i].val.plValues)
             aGameVars[i].val.plValues=Bcalloc(MAXSPRITES,sizeof(intptr_t));
-        for (j=MAXSPRITES-1;j>=0;j--)
+        for (j=MAXSPRITES-1; j>=0; j--)
             aGameVars[i].val.plValues[j]=lValue;
     }
     else aGameVars[i].val.lValue = lValue;
@@ -506,7 +506,7 @@ int32_t Gv_NewVar(const char *pszLabel, int32_t lValue, uint32_t dwFlags)
 void A_ResetVars(int32_t iActor)
 {
     int32_t i=(MAXGAMEVARS-1);
-    for (;i>=0;i--)
+    for (; i>=0; i--)
         if ((aGameVars[i].dwFlags & GAMEVAR_PERACTOR) && !(aGameVars[i].dwFlags & GAMEVAR_NODEFAULT))
             aGameVars[i].val.plValues[iActor]=aGameVars[i].lDefault;
 }
@@ -944,9 +944,9 @@ void Gv_ResetSystemDefaults(void)
 
     //AddLog("ResetWeaponDefaults");
 
-    for (j=MAXPLAYERS-1;j>=0;j--)
+    for (j=MAXPLAYERS-1; j>=0; j--)
     {
-        for (i=MAX_WEAPONS-1;i>=0;i--)
+        for (i=MAX_WEAPONS-1; i>=0; i--)
         {
             Bsprintf(aszBuf,"WEAPON%d_CLIP",i);
             aplWeaponClip[i][j]=Gv_GetVarByLabel(aszBuf,0, -1, j);
@@ -1602,7 +1602,7 @@ void Gv_InitWeaponPointers(void)
 
     //AddLog("Gv_InitWeaponPointers");
 
-    for (i=(MAX_WEAPONS-1);i>=0;i--)
+    for (i=(MAX_WEAPONS-1); i>=0; i--)
     {
         Bsprintf(aszBuf,"WEAPON%d_CLIP",i);
         aplWeaponClip[i]=Gv_GetVarDataPtr(aszBuf);

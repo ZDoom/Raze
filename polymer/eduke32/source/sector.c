@@ -191,7 +191,7 @@ int32_t isanearoperator(int32_t lotag)
 inline int32_t G_CheckPlayerInSector(int32_t sect)
 {
     int32_t i = connecthead;
-    for (;i>=0;i=connectpoint2[i])
+    for (; i>=0; i=connectpoint2[i])
         if (sprite[g_player[i].ps->i].sectnum == sect) return i;
     return -1;
 }
@@ -255,7 +255,7 @@ void G_DoSectorAnimations(void)
 {
     int32_t i, j, a, p, v, dasect;
 
-    for (i=g_animateCount-1;i>=0;i--)
+    for (i=g_animateCount-1; i>=0; i--)
     {
         a = *animateptr[i];
         v = animatevel[i]*TICSPERFRAME;
@@ -269,7 +269,7 @@ void G_DoSectorAnimations(void)
             // elevator sectors (ST 16-19) would jitter vertically after the
             // elevator had stopped.
             if (animateptr[i] == &sector[animatesect[i]].floorz)
-                for (j=headspritesect[dasect];j>=0;j=nextspritesect[j])
+                for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
                     if (sprite[j].statnum != 3)
                         ActorExtra[j].bposz = sprite[j].z;
 
@@ -314,7 +314,7 @@ void G_DoSectorAnimations(void)
                         }
                     }
 
-            for (j=headspritesect[dasect];j>=0;j=nextspritesect[j])
+            for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
                 if (sprite[j].statnum != 3)
                 {
                     ActorExtra[j].bposz = sprite[j].z;
@@ -331,7 +331,7 @@ int32_t GetAnimationGoal(int32_t *animptr)
 {
     int32_t i = g_animateCount-1, j = -1;
 
-    for (;i>=0;i--)
+    for (; i>=0; i--)
         if (animptr == (int32_t *)animateptr[i])
         {
             j = i;
@@ -347,7 +347,7 @@ int32_t SetAnimation(int32_t animsect,int32_t *animptr, int32_t thegoal, int32_t
     if (g_animateCount >= MAXANIMATES-1)
         return(-1);
 
-    for (;i<g_animateCount;i++)
+    for (; i<g_animateCount; i++)
         if (animptr == animateptr[i])
         {
             j = i;
@@ -396,7 +396,7 @@ void G_AnimateWalls(void)
 {
     int32_t i, j, p = g_numAnimWalls-1, t;
 
-    for (;p>=0;p--)
+    for (; p>=0; p--)
         //    for(p=g_numAnimWalls-1;p>=0;p--)
     {
         i = animwall[p].wallnum;
@@ -580,7 +580,7 @@ void G_OperateSectors(int32_t sn,int32_t ii)
 
         //first find center point by averaging all points
         dax = 0L, day = 0L;
-        for (i=startwall;i<=endwall;i++)
+        for (i=startwall; i<=endwall; i++)
         {
             dax += wall[i].x;
             day += wall[i].y;
@@ -592,7 +592,7 @@ void G_OperateSectors(int32_t sn,int32_t ii)
         //  as center (dax, day) - should be 2 points found.
         wallfind[0] = -1;
         wallfind[1] = -1;
-        for (i=startwall;i<=endwall;i++)
+        for (i=startwall; i<=endwall; i++)
             if ((wall[i].x == dax) || (wall[i].y == day))
             {
                 if (wallfind[0] == -1)
@@ -600,7 +600,7 @@ void G_OperateSectors(int32_t sn,int32_t ii)
                 else wallfind[1] = i;
             }
 
-        for (j=0;j<2;j++)
+        for (j=0; j<2; j++)
         {
             if ((wall[wallfind[j]].x == dax) && (wall[wallfind[j]].y == day))
             {
@@ -991,7 +991,7 @@ void G_OperateActivators(int32_t low,int32_t snum)
     int16_t *p;
     walltype *wal;
 
-    for (i=g_numCyclers-1;i>=0;i--)
+    for (i=g_numCyclers-1; i>=0; i--)
     {
         p = &cyclers[i][0];
 
@@ -1001,7 +1001,7 @@ void G_OperateActivators(int32_t low,int32_t snum)
 
             sector[p[0]].floorshade = sector[p[0]].ceilingshade = p[3];
             wal = &wall[sector[p[0]].wallptr];
-            for (j=sector[p[0]].wallnum;j > 0;j--,wal++)
+            for (j=sector[p[0]].wallnum; j > 0; j--,wal++)
                 wal->shade = p[3];
         }
     }
@@ -1094,7 +1094,7 @@ void G_OperateForceFields(int32_t s, int32_t low)
 {
     int32_t i, p=g_numAnimWalls;
 
-    for (;p>=0;p--)
+    for (; p>=0; p--)
     {
         i = animwall[p].wallnum;
 
@@ -1334,7 +1334,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
         i = nextspritestat[i];
     }
 
-    for (i=numwalls-1;i>=0;i--)
+    for (i=numwalls-1; i>=0; i--)
     {
         x = i;
         if (lotag == wall[x].lotag)
@@ -1846,7 +1846,7 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
         darkestwall = 0;
 
         wal = &wall[sector[sn].wallptr];
-        for (i=sector[sn].wallnum;i > 0;i--,wal++)
+        for (i=sector[sn].wallnum; i > 0; i--,wal++)
             if (wal->shade > darkestwall)
                 darkestwall=wal->shade;
 
@@ -2024,7 +2024,7 @@ void A_DamageObject(int32_t i,int32_t sn)
     case CACTUS__STATIC:
     {
         if (rpg == 1)
-            for (k=64;k>0;k--)
+            for (k=64; k>0; k--)
             {
                 j = A_InsertSprite(SECT,SX,SY,SZ-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
                 sprite[j].pal = 8;
@@ -2037,7 +2037,7 @@ void A_DamageObject(int32_t i,int32_t sn)
         case FIRELASER__STATIC:
         case HYDRENT__STATIC:
         case HEAVYHBOMB__STATIC:
-            for (k=64;k>0;k--)
+            for (k=64; k>0; k--)
             {
                 j = A_InsertSprite(SECT,SX,SY,SZ-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
                 sprite[j].pal = 8;
@@ -2053,7 +2053,7 @@ void A_DamageObject(int32_t i,int32_t sn)
     }
     case HANGLIGHT__STATIC:
     case GENERICPOLE2__STATIC:
-        for (k=6;k>0;k--)
+        for (k=6; k>0; k--)
             A_InsertSprite(SECT,SX,SY,SZ-(8<<8),SCRAP1+(krand()&15),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
         A_PlaySound(GLASS_HEAVYBREAK,i);
         deletesprite(i);
@@ -2068,7 +2068,7 @@ void A_DamageObject(int32_t i,int32_t sn)
 
         A_PlaySound(GLASS_HEAVYBREAK,i);
         s = &sprite[i];
-        for (j=16;j>0;j--) RANDOMSCRAP;
+        for (j=16; j>0; j--) RANDOMSCRAP;
 
         break;
     case WATERFOUNTAIN__STATIC:
@@ -2084,7 +2084,7 @@ void A_DamageObject(int32_t i,int32_t sn)
     case ANTENNA__STATIC:
         if (sprite[sn].extra != *actorscrptr[SHOTSPARK1])
         {
-            for (j=15;j>0;j--)
+            for (j=15; j>0; j--)
                 A_InsertSprite(SECT,SX,SY,sector[SECT].floorz-(12<<8)-(j<<9),SCRAP1+(krand()&15),-8,64,64,
                                krand()&2047,(krand()&127)+64,-(krand()&511)-256,i,5);
             A_Spawn(i,EXPLOSION2);
@@ -2140,7 +2140,7 @@ void A_DamageObject(int32_t i,int32_t sn)
         A_SpawnWallGlass(i,-1,10);
         break;
     case FETUSBROKE__STATIC:
-        for (j=48;j>0;j--)
+        for (j=48; j>0; j--)
         {
             A_Shoot(i,BLOODSPLAT1);
             SA += 333;
@@ -2309,7 +2309,7 @@ void A_DamageObject(int32_t i,int32_t sn)
     case TRIPODCAMERA__STATIC:
         A_PlaySound(GLASS_HEAVYBREAK,i);
         s = &sprite[i];
-        for (j=16;j>0;j--) RANDOMSCRAP;
+        for (j=16; j>0; j--) RANDOMSCRAP;
         deletesprite(i);
         break;
     case PLAYERONWATER__STATIC:

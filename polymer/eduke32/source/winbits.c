@@ -125,7 +125,7 @@ int32_t G_GetVersionFromWebsite(char *buffer)
     strtok(otherbuf," ");
     if (atol(strtok(NULL," ")) == 200)
     {
-        for (i=0;(unsigned)i<strlen(tempbuf);i++) // HACK: all of this needs to die a fiery death; we just skip to the content
+        for (i=0; (unsigned)i<strlen(tempbuf); i++) // HACK: all of this needs to die a fiery death; we just skip to the content
         {
             // instead of actually parsing any of the http headers
             if (i > 4)

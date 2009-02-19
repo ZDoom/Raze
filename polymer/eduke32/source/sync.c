@@ -35,10 +35,10 @@ void initsynccrc(void)
 {
     int32_t i, j, k, a;
 
-    for (j=0;j<256;j++)     //Calculate CRC table
+    for (j=0; j<256; j++)   //Calculate CRC table
     {
         k = (j<<8); a = 0;
-        for (i=7;i>=0;i--)
+        for (i=7; i>=0; i--)
         {
             if (((k^a)&0x8000) > 0)
                 a = ((a<<1)&65535) ^ 0x1021;   //0x1021 = genpoly
@@ -165,14 +165,14 @@ char Net_MapSync(void)
         updatecrc(crc, (spr->hitag) & 255);
     }
 
-    for (j=numwalls;j>=0;j--)
+    for (j=numwalls; j>=0; j--)
     {
         wal = &wall[j];
         updatecrc(crc, (wal->x) & 255);
         updatecrc(crc, (wal->y) & 255);
     }
 
-    for (j=numsectors;j>=0;j--)
+    for (j=numsectors; j>=0; j--)
     {
         sect = &sector[j];
         updatecrc(crc, (sect->floorz) & 255);

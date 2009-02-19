@@ -401,7 +401,7 @@ int32_t initinput(void)
     if (!getenv("SDL_HAS3BUTTONMOUSE")) putenv("SDL_HAS3BUTTONMOUSE=1");
 #endif
     if (!remapinit)
-        for (i=0;i<256;i++)
+        for (i=0; i<256; i++)
             remap[i]=i;
     remapinit=1;
 
@@ -431,7 +431,7 @@ int32_t initinput(void)
     {
         i = SDL_NumJoysticks();
         initprintf("%d joystick(s) found\n",i);
-        for (j=0;j<i;j++) initprintf("  %d. %s\n", j+1, SDL_JoystickName(j));
+        for (j=0; j<i; j++) initprintf("  %d. %s\n", j+1, SDL_JoystickName(j));
         joydev = SDL_JoystickOpen(0);
         if (joydev)
         {
@@ -805,11 +805,11 @@ void getvalidmodes(void)
         pf.BitsPerPixel = cdepths[j];
         pf.BytesPerPixel = cdepths[j] >> 3;
 
-        modes = SDL_ListModes(&pf, SURFACE_FLAGS 
+        modes = SDL_ListModes(&pf, SURFACE_FLAGS
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
-            | SDL_FULLSCREEN // not implemented/working in SDL 1.3 SDL_compat.c
+                              | SDL_FULLSCREEN // not implemented/working in SDL 1.3 SDL_compat.c
 #endif
-            );
+                             );
 
         if (modes == (SDL_Rect **)0)
         {
@@ -821,7 +821,7 @@ void getvalidmodes(void)
         {
             for (i=0; defaultres[i][0]; i++)
                 ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],1)
-        }
+            }
         else
         {
             for (i=0; modes[i]; i++)
@@ -1294,7 +1294,7 @@ void begindrawing(void)
         setvlinebpl(bytesperline);
 
         j = 0;
-        for (i=0;i<=ydim;i++) ylookup[i] = j, j += bytesperline;
+        for (i=0; i<=ydim; i++) ylookup[i] = j, j += bytesperline;
         modechange=0;
     }
 }

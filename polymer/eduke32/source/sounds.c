@@ -299,8 +299,8 @@ int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
         }
         else if (!(ud.config.VoiceToggle&1))
             return -1;
-        for (j=0;j<MAXSOUNDS;j++)
-            for (k=0;k<g_sounds[j].num;k++)
+        for (j=0; j<MAXSOUNDS; j++)
+            for (k=0; k<g_sounds[j].num; k++)
                 if ((g_sounds[j].num > 0) && (g_sounds[j].m&4))
                     return -1;
     }
@@ -398,23 +398,21 @@ int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
         if (*g_sounds[num].ptr == 'C')
             voice = FX_PlayLoopedVOC(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
                                      pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,num);
+        else if (*g_sounds[num].ptr == 'O')
+            voice = FX_PlayLoopedOGG(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
+                                     pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,num);
         else
-            if (*g_sounds[num].ptr == 'O')
-                voice = FX_PlayLoopedOGG(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
-                                         pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,num);
-            else
-                voice = FX_PlayLoopedWAV(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
-                                         pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,num);
+            voice = FX_PlayLoopedWAV(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
+                                     pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,num);
     }
     else
     {
         if (*g_sounds[num].ptr == 'C')
             voice = FX_PlayVOC3D(g_sounds[ num ].ptr,pitch,sndang>>6,sndist>>6, g_sounds[num].pr, num);
+        else if (*g_sounds[num].ptr == 'O')
+            voice = FX_PlayOGG3D(g_sounds[ num ].ptr,pitch,sndang>>6,sndist>>6, g_sounds[num].pr, num);
         else
-            if (*g_sounds[num].ptr == 'O')
-                voice = FX_PlayOGG3D(g_sounds[ num ].ptr,pitch,sndang>>6,sndist>>6, g_sounds[num].pr, num);
-            else
-                voice = FX_PlayWAV3D(g_sounds[ num ].ptr,pitch,sndang>>6,sndist>>6, g_sounds[num].pr, num);
+            voice = FX_PlayWAV3D(g_sounds[ num ].ptr,pitch,sndang>>6,sndist>>6, g_sounds[num].pr, num);
     }
 
     if (voice > FX_Ok)
@@ -475,29 +473,27 @@ void S_PlaySound(int32_t num)
             voice = FX_PlayLoopedVOC(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
                                      pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
         }
+        else if (*g_sounds[num].ptr == 'O')
+        {
+            start = (int32_t)*(uint16_t *)(g_sounds[num].ptr + 0x14);
+            voice = FX_PlayLoopedOGG(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
+                                     pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
+        }
         else
-            if (*g_sounds[num].ptr == 'O')
-            {
-                start = (int32_t)*(uint16_t *)(g_sounds[num].ptr + 0x14);
-                voice = FX_PlayLoopedOGG(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
-                                         pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
-            }
-            else
-            {
-                start = (int32_t)*(uint16_t *)(g_sounds[num].ptr + 0x14);
-                voice = FX_PlayLoopedWAV(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
-                                         pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
-            }
+        {
+            start = (int32_t)*(uint16_t *)(g_sounds[num].ptr + 0x14);
+            voice = FX_PlayLoopedWAV(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
+                                     pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
+        }
     }
     else
     {
         if (*g_sounds[num].ptr == 'C')
             voice = FX_PlayVOC3D(g_sounds[ num ].ptr, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
+        else if (*g_sounds[num].ptr == 'O')
+            voice = FX_PlayOGG3D(g_sounds[ num ].ptr, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
         else
-            if (*g_sounds[num].ptr == 'O')
-                voice = FX_PlayOGG3D(g_sounds[ num ].ptr, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
-            else
-                voice = FX_PlayWAV3D(g_sounds[ num ].ptr, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
+            voice = FX_PlayWAV3D(g_sounds[ num ].ptr, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
     }
 
     if (voice > FX_Ok) return;
@@ -545,7 +541,7 @@ void S_StopEnvSound(int32_t num,int32_t i)
         if (g_sounds[num].num > 0)
         {
             k = g_sounds[num].num;
-            for (j=0;j<k;j++)
+            for (j=0; j<k; j++)
                 if (g_sounds[num].SoundOwner[j].i == i)
                 {
                     FX_StopSound(g_sounds[num].SoundOwner[j].voice);
@@ -578,7 +574,7 @@ void pan3dsound(void)
         ca = sprite[ud.camerasprite].ang;
     }
 
-    for (j=0;j<MAXSOUNDS;j++) for (k=0;k<g_sounds[j].num;k++)
+    for (j=0; j<MAXSOUNDS; j++) for (k=0; k<g_sounds[j].num; k++)
         {
             i = g_sounds[j].SoundOwner[k].i;
 
@@ -650,7 +646,7 @@ void S_TestSoundCallback(uint32_t num)
     if (tempk > 0)
     {
         if ((g_sounds[num].m&16) == 0)
-            for (tempj=0;tempj<tempk;tempj++)
+            for (tempj=0; tempj<tempk; tempj++)
             {
                 tempi = g_sounds[num].SoundOwner[tempj].i;
                 if (sprite[tempi].picnum == MUSICANDSFX && sector[sprite[tempi].sectnum].lotag < 3 && sprite[tempi].lotag < 999)
@@ -676,11 +672,11 @@ void S_ClearSoundLocks(void)
 {
     int32_t i;
 
-    for (i=0;i<MAXSOUNDS;i++)
+    for (i=0; i<MAXSOUNDS; i++)
         if (g_sounds[i].lock >= 200)
             g_sounds[i].lock = 199;
 
-    for (i=0;i<11;i++)
+    for (i=0; i<11; i++)
         if (lumplockbyte[i] >= 200)
             lumplockbyte[i] = 199;
 }

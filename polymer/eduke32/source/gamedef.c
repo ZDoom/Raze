@@ -129,7 +129,7 @@ static const char *C_GetLabelType(int32_t type)
     char x[64];
 
     x[0] = 0;
-    for (i=0;i<6;i++)
+    for (i=0; i<6; i++)
     {
         if (!(type & (1<<i))) continue;
         if (x[0]) Bstrcat(x, " or ");
@@ -970,33 +970,33 @@ void C_InitHashes()
     inithashnames();
 
     hash_init(&keywH);
-    for (i=NUMKEYWORDS-1;i>=0;i--)
+    for (i=NUMKEYWORDS-1; i>=0; i--)
         hash_add(&keywH,keyw[i],i);
 
     hash_init(&sectorH);
-    for (i=0;SectorLabels[i].lId >=0 ; i++)
+    for (i=0; SectorLabels[i].lId >=0 ; i++)
         hash_add(&sectorH,SectorLabels[i].name,i);
     hash_init(&wallH);
-    for (i=0;WallLabels[i].lId >=0 ; i++)
+    for (i=0; WallLabels[i].lId >=0 ; i++)
         hash_add(&wallH,WallLabels[i].name,i);
     hash_init(&userdefH);
-    for (i=0;UserdefsLabels[i].lId >=0 ; i++)
+    for (i=0; UserdefsLabels[i].lId >=0 ; i++)
         hash_add(&userdefH,UserdefsLabels[i].name,i);
 
     hash_init(&projectileH);
-    for (i=0;ProjectileLabels[i].lId >=0 ; i++)
+    for (i=0; ProjectileLabels[i].lId >=0 ; i++)
         hash_add(&projectileH,ProjectileLabels[i].name,i);
     hash_init(&playerH);
-    for (i=0;PlayerLabels[i].lId >=0 ; i++)
+    for (i=0; PlayerLabels[i].lId >=0 ; i++)
         hash_add(&playerH,PlayerLabels[i].name,i);
     hash_init(&inputH);
-    for (i=0;InputLabels[i].lId >=0 ; i++)
+    for (i=0; InputLabels[i].lId >=0 ; i++)
         hash_add(&inputH,InputLabels[i].name,i);
     hash_init(&actorH);
-    for (i=0;ActorLabels[i].lId >=0 ; i++)
+    for (i=0; ActorLabels[i].lId >=0 ; i++)
         hash_add(&actorH,ActorLabels[i].name,i);
     hash_init(&tspriteH);
-    for (i=0;TsprLabels[i].lId >=0 ; i++)
+    for (i=0; TsprLabels[i].lId >=0 ; i++)
         hash_add(&tspriteH,TsprLabels[i].name,i);
 }
 
@@ -1022,7 +1022,7 @@ static int32_t C_IncreaseScriptSize(int32_t size)
     int32_t osize = g_scriptSize;
     char *newbitptr;
 
-    for (i=MAXSECTORS-1;i>=0;i--)
+    for (i=MAXSECTORS-1; i>=0; i--)
     {
         if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
         {
@@ -1031,7 +1031,7 @@ static int32_t C_IncreaseScriptSize(int32_t size)
     }
 
     scriptptrs = Bcalloc(1,g_scriptSize * sizeof(uint8_t));
-    for (i=g_scriptSize-1;i>=0;i--)
+    for (i=g_scriptSize-1; i>=0; i--)
     {
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)) && !((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_scriptSize])))
         {
@@ -1048,7 +1048,7 @@ static int32_t C_IncreaseScriptSize(int32_t size)
         else scriptptrs[i] = 0;
     }
 
-    for (i=MAXTILES-1;i>=0;i--)
+    for (i=MAXTILES-1; i>=0; i--)
     {
         if (actorscrptr[i])
         {
@@ -1062,7 +1062,7 @@ static int32_t C_IncreaseScriptSize(int32_t size)
         }
     }
 
-    for (i=MAXGAMEEVENTS-1;i>=0;i--)
+    for (i=MAXGAMEEVENTS-1; i>=0; i--)
         if (apScriptGameEvent[i])
         {
             j = (intptr_t)apScriptGameEvent[i]-(intptr_t)&script[0];
@@ -1091,10 +1091,10 @@ static int32_t C_IncreaseScriptSize(int32_t size)
     {
         Bmemset(&newscript[osize],0,(size-osize) * sizeof(intptr_t));
 //        Bmemset(&bitptr[osize],0,size-osize);
-        Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) * ((osize+7)>>3));
+        Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) *((osize+7)>>3));
     }
     else if (size < osize)
-        Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) * ((size+7)>>3));
+        Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) *((size+7)>>3));
 
     Bfree(bitptr);
     bitptr = newbitptr;
@@ -1110,7 +1110,7 @@ static int32_t C_IncreaseScriptSize(int32_t size)
     if (g_parsingActorPtr != NULL)
         g_parsingActorPtr = (intptr_t *)(script+oparsingActorPtr);
 
-    for (i=MAXSECTORS-1;i>=0;i--)
+    for (i=MAXSECTORS-1; i>=0; i--)
     {
         if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
         {
@@ -1120,7 +1120,7 @@ static int32_t C_IncreaseScriptSize(int32_t size)
 
     if (size > osize)
     {
-        for (i=g_scriptSize-(size-osize)-1;i>=0;i--)
+        for (i=g_scriptSize-(size-osize)-1; i>=0; i--)
             if (scriptptrs[i])
             {
                 j = (intptr_t)script[i]+(intptr_t)&script[0];
@@ -1129,7 +1129,7 @@ static int32_t C_IncreaseScriptSize(int32_t size)
     }
     else
     {
-        for (i=g_scriptSize-1;i>=0;i--)
+        for (i=g_scriptSize-1; i>=0; i--)
             if (scriptptrs[i])
             {
                 j = (intptr_t)script[i]+(intptr_t)&script[0];
@@ -1137,7 +1137,7 @@ static int32_t C_IncreaseScriptSize(int32_t size)
             }
     }
 
-    for (i=MAXTILES-1;i>=0;i--)
+    for (i=MAXTILES-1; i>=0; i--)
     {
         if (actorscrptr[i])
         {
@@ -1151,7 +1151,7 @@ static int32_t C_IncreaseScriptSize(int32_t size)
         }
     }
 
-    for (i=MAXGAMEEVENTS-1;i>=0;i--)
+    for (i=MAXGAMEEVENTS-1; i>=0; i--)
         if (apScriptGameEvent[i])
         {
             j = (intptr_t)apScriptGameEvent[i]+(intptr_t)&script[0];
@@ -1768,7 +1768,7 @@ static void C_GetNextVarType(int32_t type)
 static inline void C_GetManyVarsType(int32_t type, int32_t num)
 {
     int32_t i;
-    for (i=num-1;i>=0;i--)
+    for (i=num-1; i>=0; i--)
         C_GetNextVarType(type);
 }
 
@@ -2293,7 +2293,7 @@ static int32_t C_ParseCommand(void)
     }
 
     case CON_PALFROM:
-        for (j=3;j>=0;j--)
+        for (j=3; j>=0; j--)
         {
             if (C_GetKeyword() == -1)
                 C_GetNextValue(LABEL_DEFINE);
@@ -2371,12 +2371,12 @@ static int32_t C_ParseCommand(void)
                 labeltype[g_numLabels] = LABEL_MOVE;
                 labelcode[g_numLabels++] = (intptr_t) g_scriptPtr;
             }
-            for (j=1;j>=0;j--)
+            for (j=1; j>=0; j--)
             {
                 if (C_GetKeyword() >= 0) break;
                 C_GetNextValue(LABEL_DEFINE);
             }
-            for (k=j;k>=0;k--)
+            for (k=j; k>=0; k--)
             {
                 bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
                 *g_scriptPtr = 0;
@@ -2565,7 +2565,7 @@ static int32_t C_ParseCommand(void)
                 labelcode[g_numLabels++] = (intptr_t) g_scriptPtr;
             }
 
-            for (j=0;j<3;j++)
+            for (j=0; j<3; j++)
             {
                 if (C_GetKeyword() >= 0) break;
                 if (j == 1)
@@ -2593,7 +2593,7 @@ static int32_t C_ParseCommand(void)
                     return 0;
                 }
             }
-            for (k=j;k<3;k++)
+            for (k=j; k<3; k++)
             {
                 bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
                 *g_scriptPtr = 0;
@@ -2647,12 +2647,12 @@ static int32_t C_ParseCommand(void)
                 g_numLabels++;
             }
 
-            for (j=4;j>=0;j--)
+            for (j=4; j>=0; j--)
             {
                 if (C_GetKeyword() >= 0) break;
                 C_GetNextValue(LABEL_DEFINE);
             }
-            for (k=j;k>=0;k--)
+            for (k=j; k>=0; k--)
             {
                 bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
                 *(g_scriptPtr++) = 0;
@@ -2684,7 +2684,7 @@ static int32_t C_ParseCommand(void)
         g_scriptPtr--;
         actorscrptr[*g_scriptPtr] = g_parsingActorPtr;
 
-        for (j=0;j<4;j++)
+        for (j=0; j<4; j++)
         {
             bitptr[(g_parsingActorPtr+j-script)>>3] &= ~(1<<((g_parsingActorPtr+j-script)&7));
             *(g_parsingActorPtr+j) = 0;
@@ -2850,7 +2850,7 @@ static int32_t C_ParseCommand(void)
         actorscrptr[*g_scriptPtr] = g_parsingActorPtr;
         ActorType[*g_scriptPtr] = j;
 
-        for (j=0;j<4;j++)
+        for (j=0; j<4; j++)
         {
             bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
             *(g_parsingActorPtr+j) = 0;
@@ -2918,7 +2918,7 @@ static int32_t C_ParseCommand(void)
     case CON_QSPRINTF:
         C_GetNextValue(LABEL_DEFINE);
         C_GetNextValue(LABEL_DEFINE);
-        for (j=3;j>=0;j--)
+        for (j=3; j>=0; j--)
         {
             if (C_GetKeyword() == -1)
                 C_GetNextVar();
@@ -4493,15 +4493,15 @@ static int32_t C_ParseCommand(void)
         if (tempscrptr)
         {
             intptr_t t,n;
-            for (i=3;i<3+tempscrptr[1]*2-2;i+=2) // sort them
+            for (i=3; i<3+tempscrptr[1]*2-2; i+=2) // sort them
             {
-                t=tempscrptr[i];n=i;
-                for (j=i+2;j<3+tempscrptr[1]*2;j+=2)
-                    if (tempscrptr[j]<t) {t=tempscrptr[j];n=j;}
+                t=tempscrptr[i]; n=i;
+                for (j=i+2; j<3+tempscrptr[1]*2; j+=2)
+                    if (tempscrptr[j]<t) {t=tempscrptr[j]; n=j;}
                 if (n!=i)
                 {
-                    t=tempscrptr[i  ];tempscrptr[i  ]=tempscrptr[n  ];tempscrptr[n  ]=t;
-                    t=tempscrptr[i+1];tempscrptr[i+1]=tempscrptr[n+1];tempscrptr[n+1]=t;
+                    t=tempscrptr[i  ]; tempscrptr[i  ]=tempscrptr[n  ]; tempscrptr[n  ]=t;
+                    t=tempscrptr[i+1]; tempscrptr[i+1]=tempscrptr[n+1]; tempscrptr[n+1]=t;
                 }
             }
 //            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
@@ -4553,7 +4553,7 @@ repeatcase:
         //AddLog(g_szBuf);
         if (g_caseScriptPtr)
         {
-            for (i=(g_numCases/2)-1;i>=0;i--)
+            for (i=(g_numCases/2)-1; i>=0; i--)
                 if (g_caseScriptPtr[i*2+1]==j)
                 {
                     g_numCompilerWarnings++;
@@ -5830,7 +5830,7 @@ static void C_InitProjectiles(void)
     if (sizeof(projectile_t) != sizeof(DefaultProjectile))
         G_GameExit("ERROR: C_InitProjectiles(): projectile_t mismatch!");
 
-    for (i=MAXTILES-1;i>=0;i--)
+    for (i=MAXTILES-1; i>=0; i--)
         Bmemcpy(&ProjectileData[i],&DefaultProjectile,sizeof(projectile_t));
 
     Bmemcpy(&DefaultProjectileData[0], &ProjectileData[0], sizeof(ProjectileData));
@@ -6016,27 +6016,27 @@ void C_Compile(const char *filenam)
                        MAXSPRITES * sizeof(spritetype)/(1<<6)),
                    g_gameVarCount, MAXGAMEVARS);
 
-        for (i=MAXQUOTES-1;i>=0;i--)
+        for (i=MAXQUOTES-1; i>=0; i--)
             if (ScriptQuotes[i])
                 j++;
 
         initprintf("%ld/%d quotes, %d quote redefinitions\n",j,MAXQUOTES,g_numQuoteRedefinitions);
 
         j = 0;
-        for (i=MAXGAMEEVENTS-1;i>=0;i--)
+        for (i=MAXGAMEEVENTS-1; i>=0; i--)
             if (apScriptGameEvent[i])
                 j++;
-        for (i=MAXTILES-1;i>=0;i--)
+        for (i=MAXTILES-1; i>=0; i--)
             if (actorscrptr[i])
                 k++;
 
         initprintf("%ld/%d event definitions, %ld defined actors\n",j,MAXEVENTS,k);
 
-        for (i=127;i>=0;i--)
+        for (i=127; i>=0; i--)
             if (ScriptQuotes[i] == NULL)
                 ScriptQuotes[i] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
 
-        for (i=MAXQUOTELEN-7;i>=0;i--)
+        for (i=MAXQUOTELEN-7; i>=0; i--)
             if (Bstrncmp(&ScriptQuotes[13][i],"SPACE",5) == 0)
             {
                 Bmemset(tempbuf,0,sizeof(tempbuf));
@@ -6110,7 +6110,7 @@ void C_Compile(const char *filenam)
             };
 
             g_numObituaries = (sizeof(PlayerObituaries)/sizeof(PlayerObituaries[0]));
-            for (i=g_numObituaries-1;i>=0;i--)
+            for (i=g_numObituaries-1; i>=0; i--)
             {
                 if (ScriptQuotes[i+FIRST_OBITUARY_QUOTE] == NULL)
                 {
@@ -6120,7 +6120,7 @@ void C_Compile(const char *filenam)
             }
 
             g_numSelfObituaries = (sizeof(PlayerSelfObituaries)/sizeof(PlayerSelfObituaries[0]));
-            for (i=g_numSelfObituaries-1;i>=0;i--)
+            for (i=g_numSelfObituaries-1; i>=0; i--)
             {
                 if (ScriptQuotes[i+FIRST_SUICIDE_QUOTE] == NULL)
                 {

@@ -22,7 +22,7 @@ int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
 {
     UNREFERENCED_PARAMETER(model);
     if (curextra==MAXTILES+EXTRATILES-2)return curextra;
-    if (tile2model[tile].modelid==-1) {tile2model[tile].pal=pallet;return tile;}
+    if (tile2model[tile].modelid==-1) {tile2model[tile].pal=pallet; return tile;}
     if (tile2model[tile].pal==pallet)return tile;
     while (tile2model[tile].next!=-1)
     {
@@ -70,7 +70,7 @@ void freeallmodels()
 
     if (models)
     {
-        for (i=0;i<nextmodelid;i++) mdfree(models[i]);
+        for (i=0; i<nextmodelid; i++) mdfree(models[i]);
         free(models); models = NULL;
         nummodelsalloced = 0;
         nextmodelid = 0;
@@ -101,18 +101,18 @@ void freevbos()
 {
     int32_t i;
 
-    for (i=0;i<nextmodelid;i++)
-    if (models[i]->mdnum == 3)
-    {
-        md3model_t *m = (md3model_t *)models[i];
-        if (m->vbos)
+    for (i=0; i<nextmodelid; i++)
+        if (models[i]->mdnum == 3)
         {
+            md3model_t *m = (md3model_t *)models[i];
+            if (m->vbos)
+            {
 //            OSD_Printf("freeing model %d vbo\n",i);
-            bglDeleteBuffersARB(m->head.numsurfs, m->vbos);
-            free(m->vbos);
-            m->vbos = NULL;
+                bglDeleteBuffersARB(m->head.numsurfs, m->vbos);
+                free(m->vbos);
+                m->vbos = NULL;
+            }
         }
-    }
 
     if (allocvbos)
     {
@@ -132,13 +132,13 @@ void clearskins()
     mdmodel_t *m;
     int32_t i, j;
 
-    for (i=0;i<nextmodelid;i++)
+    for (i=0; i<nextmodelid; i++)
     {
         m = models[i];
         if (m->mdnum == 1)
         {
             voxmodel_t *v = (voxmodel_t*)m;
-            for (j=0;j<MAXPALOOKUPS;j++)
+            for (j=0; j<MAXPALOOKUPS; j++)
             {
                 if (v->texid[j]) bglDeleteTextures(1,(GLuint*)&v->texid[j]);
                 v->texid[j] = 0;
@@ -148,14 +148,14 @@ void clearskins()
         {
             md2model_t *m2 = (md2model_t*)m;
             mdskinmap_t *sk;
-            for (j=0;j<m2->numskins*(HICEFFECTMASK+1);j++)
+            for (j=0; j<m2->numskins*(HICEFFECTMASK+1); j++)
             {
                 if (m2->texid[j]) bglDeleteTextures(1,(GLuint*)&m2->texid[j]);
                 m2->texid[j] = 0;
             }
 
-            for (sk=m2->skinmap;sk;sk=sk->next)
-                for (j=0;j<(HICEFFECTMASK+1);j++)
+            for (sk=m2->skinmap; sk; sk=sk->next)
+                for (j=0; j<(HICEFFECTMASK+1); j++)
                 {
                     if (sk->texid[j]) bglDeleteTextures(1,(GLuint*)&sk->texid[j]);
                     sk->texid[j] = 0;
@@ -163,10 +163,10 @@ void clearskins()
         }
     }
 
-    for (i=0;i<MAXVOXELS;i++)
+    for (i=0; i<MAXVOXELS; i++)
     {
         voxmodel_t *v = (voxmodel_t*)voxmodels[i]; if (!v) continue;
-        for (j=0;j<MAXPALOOKUPS;j++)
+        for (j=0; j<MAXPALOOKUPS; j++)
         {
             if (v->texid[j]) bglDeleteTextures(1,(GLuint*)&v->texid[j]);
             v->texid[j] = 0;
@@ -230,7 +230,7 @@ static int32_t framename2index(mdmodel_t *vm, const char *nam)
     {
         md2model_t *m = (md2model_t *)vm;
         md2frame_t *fr;
-        for (i=0;i<m->numframes;i++)
+        for (i=0; i<m->numframes; i++)
         {
             fr = (md2frame_t *)&m->frames[i*m->framebytes];
             if (!Bstrcmp(fr->name, nam)) break;
@@ -240,7 +240,7 @@ static int32_t framename2index(mdmodel_t *vm, const char *nam)
     case 3:
     {
         md3model_t *m = (md3model_t *)vm;
-        for (i=0;i<m->numframes;i++)
+        for (i=0; i<m->numframes; i++)
             if (!Bstrcmp(m->head.frames[i].nam,nam)) break;
     }
     break;
@@ -417,24 +417,23 @@ void clearconv()
 void setpalconv(int32_t pal,int32_t pal1,int32_t pal2)
 {
     int32_t i;
-    for (i=0;i<MAXPALCONV;i++)
+    for (i=0; i<MAXPALCONV; i++)
         if (!palconv[i].pal)
         {
             palconv[i].pal =pal;
             palconv[i].pal1=pal1;
-            palconv[i].pal2=pal2;return;
+            palconv[i].pal2=pal2; return;
         }
-        else
-            if (palconv[i].pal==pal&&palconv[i].pal1==pal1)
-            {
-                palconv[i].pal2=pal2;return;
-            }
+        else if (palconv[i].pal==pal&&palconv[i].pal1==pal1)
+        {
+            palconv[i].pal2=pal2; return;
+        }
 }
 
 
 void getpalmap(int32_t *i,int32_t *pal1,int32_t *pal2)
 {
-    for (;*i<MAXPALCONV&&palconv[*i].pal1;(*i)++)
+    for (; *i<MAXPALCONV&&palconv[*i].pal1; (*i)++)
         if (palconv[*i].pal==*pal2)
         {
             *pal1=palconv[*i].pal1;
@@ -447,7 +446,7 @@ int32_t checkpalmaps(int32_t pal)
 {
     int32_t stage,val=0;
 
-    for (stage=0;stage<MAXPALCONV;stage++)
+    for (stage=0; stage<MAXPALCONV; stage++)
     {
         int32_t pal1=0,pal2=pal;
         getpalmap(&stage,&pal1,&pal2);
@@ -477,7 +476,7 @@ void applypalmap(char *pic, char *palmap, int32_t size, int32_t pal)
         		pic[b]=((255*(255-a)+hictinting[pal].b*a)*palmap[b])/255/255;
         */
         if (glinfo.bgra)swapchar(&pic[r], &pic[b]);
-        r+=4;g+=4;b+=4;
+        r+=4; g+=4; b+=4;
     }
 }
 
@@ -486,7 +485,7 @@ static void applypalmapSkin(char *pic, int32_t sizx, int32_t sizy, md2model_t *m
     int32_t stage;
 
     //_initprintf("%d(%dx%d)\n",pal,sizx,sizy);
-    for (stage=0;stage<MAXPALCONV;stage++)
+    for (stage=0; stage<MAXPALCONV; stage++)
     {
         int32_t pal1=0,pal2=pal;
         mdskinmap_t *sk=modelhead->skinmap;
@@ -522,8 +521,8 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
 
     if (!glinfo.texnpot)
     {
-        for (xsiz=1;xsiz<tsizx;xsiz+=xsiz);
-        for (ysiz=1;ysiz<tsizy;ysiz+=ysiz);
+        for (xsiz=1; xsiz<tsizx; xsiz+=xsiz);
+        for (ysiz=1; ysiz<tsizy; ysiz+=ysiz);
     }
     else
     {
@@ -544,11 +543,11 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
     r=(glinfo.bgra)?hictinting[pal].b:hictinting[pal].r;
     g=hictinting[pal].g;
     b=(glinfo.bgra)?hictinting[pal].r:hictinting[pal].b;
-    for (y=0,j=0;y<tsizy;y++,j+=xsiz)
+    for (y=0,j=0; y<tsizy; y++,j+=xsiz)
     {
         coltype *rpptr = &pic[j], tcol;
 
-        for (x=0;x<tsizx;x++)
+        for (x=0; x<tsizx; x++)
         {
             tcol.b = cptr[rpptr[x].b];
             tcol.g = cptr[rpptr[x].g];
@@ -583,7 +582,7 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
     }
     if (!glinfo.bgra)
     {
-        for (j=xsiz*ysiz-1;j>=0;j--)
+        for (j=xsiz*ysiz-1; j>=0; j--)
         {
             swapchar(&pic[j].r, &pic[j].b);
         }
@@ -627,23 +626,23 @@ int32_t mdloadskin_trytexcache(char *fn, int32_t len, int32_t pal, char effect, 
         int32_t offset = 0;
         int32_t len = 0;
         int32_t i;
-/*
-        texcacheindex *cacheindexptr = &firstcacheindex;
+        /*
+                texcacheindex *cacheindexptr = &firstcacheindex;
 
-        do
-        {
-//            initprintf("checking %s against %s\n",cachefn,cacheindexptr->name);
-            if (!Bstrcmp(cachefn,cacheindexptr->name))
-            {
-                offset = cacheindexptr->offset;
-                len = cacheindexptr->len;
-//                initprintf("got a match for %s offset %d\n",cachefn,offset);
-                break;
-            }
-            cacheindexptr = cacheindexptr->next;
-        }
-        while (cacheindexptr->next);
-        */
+                do
+                {
+        //            initprintf("checking %s against %s\n",cachefn,cacheindexptr->name);
+                    if (!Bstrcmp(cachefn,cacheindexptr->name))
+                    {
+                        offset = cacheindexptr->offset;
+                        len = cacheindexptr->len;
+        //                initprintf("got a match for %s offset %d\n",cachefn,offset);
+                        break;
+                    }
+                    cacheindexptr = cacheindexptr->next;
+                }
+                while (cacheindexptr->next);
+                */
         i = hash_find(&cacheH,cachefn);
         if (i != -1)
         {
@@ -808,7 +807,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
     // possibly fetch an already loaded multitexture :_)
     if (pal >= (MAXPALOOKUPS - RESERVEDPALS))
-        for (i=0;i<nextmodelid;i++)
+        for (i=0; i<nextmodelid; i++)
             for (skzero = ((md2model_t *)models[i])->skinmap; skzero; skzero = skzero->next)
                 if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)])
                 {
@@ -888,8 +887,8 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             if (m->mdnum == 2)
             {
                 int32_t *lptr;
-                for (lptr=m->glcmds;(i=*lptr++);)
-                    for (i=labs(i);i>0;i--,lptr+=3)
+                for (lptr=m->glcmds; (i=*lptr++);)
+                    for (i=labs(i); i>0; i--,lptr+=3)
                     {
                         ((float *)lptr)[0] *= fx;
                         ((float *)lptr)[1] *= fy;
@@ -900,10 +899,10 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
                 md3model_t *m3 = (md3model_t *)m;
                 md3surf_t *s;
                 int32_t surfi;
-                for (surfi=0;surfi<m3->head.numsurfs;surfi++)
+                for (surfi=0; surfi<m3->head.numsurfs; surfi++)
                 {
                     s = &m3->head.surfs[surfi];
-                    for (i=s->numverts-1;i>=0;i--)
+                    for (i=s->numverts-1; i>=0; i--)
                     {
                         s->uv[i].u *= fx;
                         s->uv[i].v *= fy;
@@ -930,7 +929,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             cachead.ydim = osizy>>cachead.quality;
 
             i = 0;
-            for (j=0;j<31;j++)
+            for (j=0; j<31; j++)
             {
                 if (xsiz == pow2long[j]) { i |= 1; }
                 if (ysiz == pow2long[j]) { i |= 2; }
@@ -951,7 +950,7 @@ void updateanimation(md2model_t *m, spritetype *tspr)
     int32_t fps;
     char lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
 
-    if (m->numframes < 2) 
+    if (m->numframes < 2)
     {
         m->interpol = 0;
         return;
@@ -1027,7 +1026,7 @@ void updateanimation(md2model_t *m, spritetype *tspr)
     else
         j = ((anim->endframe+1-anim->startframe)<<16);
     //Just in case you play the game for a VERY int32_t time...
-    if (i < 0) { i = 0;spriteext[tspr->owner].mdanimtims = mdtims; }
+    if (i < 0) { i = 0; spriteext[tspr->owner].mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
     if ((anim) && (i >= j+j) && (fps) && !mdpause) //Keep mdanimtims close to mdtims to avoid the use of MOD
         spriteext[tspr->owner].mdanimtims += j/((fps*timerticspersec)/120);
@@ -1147,7 +1146,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
         {
             fr = (md2frame_t *)f;
             l = (int32_t *)&fr->mul;
-            for (j=5;j>=0;j--) l[j] = B_LITTLE32(l[j]);
+            for (j=5; j>=0; j--) l[j] = B_LITTLE32(l[j]);
             f += m->framebytes;
         }
 
@@ -1159,7 +1158,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
 #endif
 
     strcpy(st,filnam);
-    for (i=strlen(st)-1;i>0;i--)
+    for (i=strlen(st)-1; i>0; i--)
         if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
     if (i<0) i=0;
     st[i] = 0;
@@ -1298,7 +1297,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
             if (sk->palmap)
             {
                 //_initprintf("Delete %s",m->skinfn);
-                sk->palmap=0;sk->size=0;
+                sk->palmap=0; sk->size=0;
             }
             strcpy(sk->fn, m->basepath);
             strcat(sk->fn, m->skinfn);
@@ -1416,20 +1415,20 @@ static md3model_t *md3load(int32_t fil)
         for (i = m->head.numframes-1; i>=0; i--)
         {
             l = (int32_t *)&m->head.frames[i].min;
-            for (j=3+3+3+1-1;j>=0;j--) l[j] = B_LITTLE32(l[j]);
+            for (j=3+3+3+1-1; j>=0; j--) l[j] = B_LITTLE32(l[j]);
         }
 
         for (i = m->head.numtags-1; i>=0; i--)
         {
             l = (int32_t *)&m->head.tags[i].p;
-            for (j=3+3+3+3-1;j>=0;j--) l[j] = B_LITTLE32(l[j]);
+            for (j=3+3+3+3-1; j>=0; j--) l[j] = B_LITTLE32(l[j]);
         }
     }
 #endif
 
     maxtrispersurf = 0;
 
-    for (surfi=0;surfi<m->head.numsurfs;surfi++)
+    for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
         s = &m->head.surfs[surfi];
         klseek(fil,ofsurf,SEEK_SET); kread(fil,s,SIZEOF_MD3SURF_T);
@@ -1439,7 +1438,7 @@ static md3model_t *md3load(int32_t fil)
             int32_t *l;
             s->id = B_LITTLE32(s->id);
             l =	(int32_t *)&s->flags;
-            for	(j=1+1+1+1+1+1+1+1+1+1-1;j>=0;j--) l[j] = B_LITTLE32(l[j]);
+            for	(j=1+1+1+1+1+1+1+1+1+1-1; j>=0; j--) l[j] = B_LITTLE32(l[j]);
         }
 #endif
 
@@ -1454,7 +1453,7 @@ static md3model_t *md3load(int32_t fil)
         s->tris = (md3tri_t *)malloc(leng[0]+leng[1]+leng[2]+leng[3]);
         if (!s->tris)
         {
-            for (surfi--;surfi>=0;surfi--) free(m->head.surfs[surfi].tris);
+            for (surfi--; surfi>=0; surfi--) free(m->head.surfs[surfi].tris);
             if (m->head.tags) free(m->head.tags); free(m->head.frames); free(m); return(0);
         }
         s->shaders = (md3shader_t *)(((intptr_t)s->tris)+leng[0]);
@@ -1470,21 +1469,21 @@ static md3model_t *md3load(int32_t fil)
         {
             int32_t *l;
 
-            for (i=s->numtris-1;i>=0;i--)
+            for (i=s->numtris-1; i>=0; i--)
             {
-                for (j=2;j>=0;j--) s->tris[i].i[j] = B_LITTLE32(s->tris[i].i[j]);
+                for (j=2; j>=0; j--) s->tris[i].i[j] = B_LITTLE32(s->tris[i].i[j]);
             }
-            for (i=s->numshaders-1;i>=0;i--)
+            for (i=s->numshaders-1; i>=0; i--)
             {
                 s->shaders[i].i = B_LITTLE32(s->shaders[i].i);
             }
-            for (i=s->numverts-1;i>=0;i--)
+            for (i=s->numverts-1; i>=0; i--)
             {
                 l = (int32_t*)&s->uv[i].u;
                 l[0] = B_LITTLE32(l[0]);
                 l[1] = B_LITTLE32(l[1]);
             }
-            for (i=s->numframes*s->numverts-1;i>=0;i--)
+            for (i=s->numframes*s->numverts-1; i>=0; i--)
             {
                 s->xyzn[i].x = (int16_t)B_LITTLE16((uint16_t)s->xyzn[i].x);
                 s->xyzn[i].y = (int16_t)B_LITTLE16((uint16_t)s->xyzn[i].y);
@@ -1504,19 +1503,19 @@ static md3model_t *md3load(int32_t fil)
         int32_t j, bsc;
 
         strcpy(st,filnam);
-        for (i=0,j=0;st[i];i++) if ((st[i] == '/') || (st[i] == '\\')) j = i+1;
+        for (i=0,j=0; st[i]; i++) if ((st[i] == '/') || (st[i] == '\\')) j = i+1;
         st[j] = '*'; st[j+1] = 0;
         kzfindfilestart(st); bsc = -1;
         while (kzfindfile(st))
         {
             if (st[0] == '\\') continue;
 
-            for (i=0,j=0;st[i];i++) if (st[i] == '.') j = i+1;
+            for (i=0,j=0; st[i]; i++) if (st[i] == '.') j = i+1;
             if ((!stricmp(&st[j],"JPG")) || (!stricmp(&st[j],"PNG")) || (!stricmp(&st[j],"GIF")) ||
                     (!stricmp(&st[j],"PCX")) || (!stricmp(&st[j],"TGA")) || (!stricmp(&st[j],"BMP")) ||
                     (!stricmp(&st[j],"CEL")))
             {
-                for (i=0;st[i];i++) if (st[i] != filnam[i]) break;
+                for (i=0; st[i]; i++) if (st[i] != filnam[i]) break;
                 if (i > bsc) { bsc = i; strcpy(bst,st); }
             }
         }
@@ -1705,7 +1704,7 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
         if (alphahackarray[globalpicnum] != 0)
             al=alphahackarray[globalpicnum];
         /*if (!peelcompiling)*/
-            bglEnable(GL_BLEND);
+        bglEnable(GL_BLEND);
         bglEnable(GL_ALPHA_TEST);
         bglAlphaFunc(GL_GREATER,al);
     }
@@ -1738,7 +1737,7 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
         k2 = (float)sintable[(spriteext[tspr->owner].roll+512)&2047] / 16384.0;
         k3 = (float)sintable[spriteext[tspr->owner].roll&2047] / 16384.0;
     }
-    for (surfi=0;surfi<m->head.numsurfs;surfi++)
+    for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
         s = &m->head.surfs[surfi];
         v0 = &s->xyzn[m->cframe*s->numverts];
@@ -1754,7 +1753,7 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
             vertexhandle = (point3d *)vbotemp;
         }
 
-        for (i=s->numverts-1;i>=0;i--)
+        for (i=s->numverts-1; i>=0; i--)
         {
             if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll || m->head.flags == 1337)
             {
@@ -1889,7 +1888,7 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
         //PLAG: delayed polygon-level sorted rendering
         if (m->usesalpha && !(tspr->cstat & 1024)/* && !r_depthpeeling*/)
         {
-            for (i=s->numtris-1;i>=0;i--)
+            for (i=s->numtris-1; i>=0; i--)
             {
                 // Matrix multiplication - ugly but clear
                 fp.x = (vertlist[s->tris[i].i[0]].x * mat[0]) + (vertlist[s->tris[i].i[0]].y * mat[4]) + (vertlist[s->tris[i].i[0]].z * mat[8]) + mat[12];
@@ -1923,15 +1922,15 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
             if (r_vertexarrays)
             {
                 k = 0;
-                for (i=s->numtris-1;i>=0;i--)
-                    for (j=0;j<3;j++)
+                for (i=s->numtris-1; i>=0; i--)
+                    for (j=0; j<3; j++)
                         indexhandle[k++] = s->tris[m->indexes[i]].i[j];
             }
             else
             {
                 bglBegin(GL_TRIANGLES);
-                for (i=s->numtris-1;i>=0;i--)
-                    for (j=0;j<3;j++)
+                for (i=s->numtris-1; i>=0; i--)
+                    for (j=0; j<3; j++)
                     {
                         k = s->tris[m->indexes[i]].i[j];
                         if (texunits > GL_TEXTURE0_ARB)
@@ -1952,15 +1951,15 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
             if (r_vertexarrays)
             {
                 k = 0;
-                for (i=s->numtris-1;i>=0;i--)
-                    for (j=0;j<3;j++)
+                for (i=s->numtris-1; i>=0; i--)
+                    for (j=0; j<3; j++)
                         indexhandle[k++] = s->tris[i].i[j];
             }
             else
             {
                 bglBegin(GL_TRIANGLES);
-                for (i=s->numtris-1;i>=0;i--)
-                    for (j=0;j<3;j++)
+                for (i=s->numtris-1; i>=0; i--)
+                    for (j=0; j<3; j++)
                     {
                         k = s->tris[i].i[j];
                         if (texunits > GL_TEXTURE0_ARB)
@@ -2073,14 +2072,14 @@ static void md3free(md3model_t *m)
         if (sk->palmap)
         {
             //_initprintf("Kill %d\n",sk->palette);
-            free(sk->palmap);sk->palmap=0;
+            free(sk->palmap); sk->palmap=0;
         }
         free(sk);
     }
 
     if (m->head.surfs)
     {
-        for (surfi=m->head.numsurfs-1;surfi>=0;surfi--)
+        for (surfi=m->head.numsurfs-1; surfi>=0; surfi--)
         {
             s = &m->head.surfs[surfi];
             if (s->tris) free(s->tris);
@@ -2142,7 +2141,7 @@ unsigned gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
     cptr = (char*)&britable[gammabrightness ? 0 : curbrightness][0];
     if (!is8bit)
     {
-        for (i=xsiz*ysiz-1;i>=0;i--)
+        for (i=xsiz*ysiz-1; i>=0; i--)
         {
             pic2[i].b = cptr[pic[i].r];
             pic2[i].g = cptr[pic[i].g];
@@ -2153,7 +2152,7 @@ unsigned gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
     else
     {
         if (palookup[dapal] == NULL) dapal = 0;
-        for (i=xsiz*ysiz-1;i>=0;i--)
+        for (i=xsiz*ysiz-1; i>=0; i--)
         {
             pic2[i].b = cptr[palette[(int32_t)palookup[dapal][pic[i].a]*3+2]*4];
             pic2[i].g = cptr[palette[(int32_t)palookup[dapal][pic[i].a]*3+1]*4];
@@ -2174,7 +2173,7 @@ unsigned gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
 static int32_t getvox(int32_t x, int32_t y, int32_t z)
 {
     z += x*yzsiz + y*zsiz;
-    for (x=vcolhashead[(z*214013)&vcolhashsizm1];x>=0;x=vcol[x].n)
+    for (x=vcolhashead[(z*214013)&vcolhashsizm1]; x>=0; x=vcol[x].n)
         if (vcol[x].p == z) return(vcol[x].c);
     return(0x808080);
 }
@@ -2196,7 +2195,7 @@ static void setzrange0(int32_t *lptr, int32_t z0, int32_t z1)
     int32_t z, ze;
     if (!((z0^z1)&~31)) { lptr[z0>>5] &= ((~(-1<<SHIFTMOD32(z0)))|(-1<<SHIFTMOD32(z1))); return; }
     z = (z0>>5); ze = (z1>>5);
-    lptr[z] &=~(-1<<SHIFTMOD32(z0)); for (z++;z<ze;z++) lptr[z] = 0;
+    lptr[z] &=~(-1<<SHIFTMOD32(z0)); for (z++; z<ze; z++) lptr[z] = 0;
     lptr[z] &= (-1<<SHIFTMOD32(z1));
 }
 #endif
@@ -2206,7 +2205,7 @@ static void setzrange1(int32_t *lptr, int32_t z0, int32_t z1)
     int32_t z, ze;
     if (!((z0^z1)&~31)) { lptr[z0>>5] |= ((~(-1<<SHIFTMOD32(z1)))&(-1<<SHIFTMOD32(z0))); return; }
     z = (z0>>5); ze = (z1>>5);
-    lptr[z] |= (-1<<SHIFTMOD32(z0)); for (z++;z<ze;z++) lptr[z] = -1;
+    lptr[z] |= (-1<<SHIFTMOD32(z0)); for (z++; z<ze; z++) lptr[z] = -1;
     lptr[z] |=~(-1<<SHIFTMOD32(z1));
 }
 
@@ -2215,20 +2214,20 @@ static int32_t isrectfree(int32_t x0, int32_t y0, int32_t dx, int32_t dy)
 #if 0
     int32_t i, j, x;
     i = y0*gvox->mytexx + x0;
-    for (dy=0;dy;dy--,i+=gvox->mytexx)
-        for (x=0;x<dx;x++) { j = i+x; if (zbit[j>>5]&(1<<SHIFTMOD32(j))) return(0); }
+    for (dy=0; dy; dy--,i+=gvox->mytexx)
+        for (x=0; x<dx; x++) { j = i+x; if (zbit[j>>5]&(1<<SHIFTMOD32(j))) return(0); }
 #else
     int32_t i, c, m, m1, x;
 
     i = y0*mytexo5 + (x0>>5); dx += x0-1; c = (dx>>5) - (x0>>5);
     m = ~pow2m1[x0&31]; m1 = pow2m1[(dx&31)+1];
-    if (!c) { for (m&=m1;dy;dy--,i+=mytexo5) if (zbit[i]&m) return(0); }
+    if (!c) { for (m&=m1; dy; dy--,i+=mytexo5) if (zbit[i]&m) return(0); }
     else
     {
-        for (;dy;dy--,i+=mytexo5)
+        for (; dy; dy--,i+=mytexo5)
         {
             if (zbit[i]&m) return(0);
-            for (x=1;x<c;x++) if (zbit[i+x]) return(0);
+            for (x=1; x<c; x++) if (zbit[i+x]) return(0);
             if (zbit[i+x]&m1) return(0);
         }
     }
@@ -2241,20 +2240,20 @@ static void setrect(int32_t x0, int32_t y0, int32_t dx, int32_t dy)
 #if 0
     int32_t i, j, y;
     i = y0*gvox->mytexx + x0;
-    for (y=0;y<dy;y++,i+=gvox->mytexx)
-        for (x=0;x<dx;x++) { j = i+x; zbit[j>>5] |= (1<<SHIFTMOD32(j)); }
+    for (y=0; y<dy; y++,i+=gvox->mytexx)
+        for (x=0; x<dx; x++) { j = i+x; zbit[j>>5] |= (1<<SHIFTMOD32(j)); }
 #else
     int32_t i, c, m, m1, x;
 
     i = y0*mytexo5 + (x0>>5); dx += x0-1; c = (dx>>5) - (x0>>5);
     m = ~pow2m1[x0&31]; m1 = pow2m1[(dx&31)+1];
-    if (!c) { for (m&=m1;dy;dy--,i+=mytexo5) zbit[i] |= m; }
+    if (!c) { for (m&=m1; dy; dy--,i+=mytexo5) zbit[i] |= m; }
     else
     {
-        for (;dy;dy--,i+=mytexo5)
+        for (; dy; dy--,i+=mytexo5)
         {
             zbit[i] |= m;
-            for (x=1;x<c;x++) zbit[i+x] = -1;
+            for (x=1; x<c; x++) zbit[i+x] = -1;
             zbit[i+x] |= m1;
         }
     }
@@ -2307,8 +2306,8 @@ static void addquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, 
     case 5:
         nx = x0; break;
     }
-    for (yy=0;yy<y;yy++,lptr+=gvox->mytexx)
-        for (xx=0;xx<x;xx++)
+    for (yy=0; yy<y; yy++,lptr+=gvox->mytexx)
+        for (xx=0; xx<x; xx++)
         {
             switch (face)
             {
@@ -2341,14 +2340,14 @@ static void addquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, 
         }
 
     //Extend borders horizontally
-    for (yy=VOXBORDWIDTH;yy<y+VOXBORDWIDTH;yy++)
-        for (xx=0;xx<VOXBORDWIDTH;xx++)
+    for (yy=VOXBORDWIDTH; yy<y+VOXBORDWIDTH; yy++)
+        for (xx=0; xx<VOXBORDWIDTH; xx++)
         {
             lptr = &gvox->mytex[(shp[z].y+yy)*gvox->mytexx+shp[z].x];
             lptr[xx] = lptr[VOXBORDWIDTH]; lptr[xx+x+VOXBORDWIDTH] = lptr[x-1+VOXBORDWIDTH];
         }
     //Extend borders vertically
-    for (yy=0;yy<VOXBORDWIDTH;yy++)
+    for (yy=0; yy<VOXBORDWIDTH; yy++)
     {
         memcpy(&gvox->mytex[(shp[z].y+yy)*gvox->mytexx+shp[z].x],
                &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
@@ -2362,7 +2361,7 @@ static void addquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, 
     qptr->v[0].x = x0; qptr->v[0].y = y0; qptr->v[0].z = z0;
     qptr->v[1].x = x1; qptr->v[1].y = y1; qptr->v[1].z = z1;
     qptr->v[2].x = x2; qptr->v[2].y = y2; qptr->v[2].z = z2;
-    for (j=0;j<3;j++) { qptr->v[j].u = shp[z].x+VOXBORDWIDTH; qptr->v[j].v = shp[z].y+VOXBORDWIDTH; }
+    for (j=0; j<3; j++) { qptr->v[j].u = shp[z].x+VOXBORDWIDTH; qptr->v[j].v = shp[z].y+VOXBORDWIDTH; }
     if (i < 3) qptr->v[1].u += x; else qptr->v[1].v += y;
     qptr->v[2].u += x; qptr->v[2].v += y;
 
@@ -2401,14 +2400,14 @@ static voxmodel_t *vox2poly()
     memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
     gmaxx = gmaxy = garea = 0;
 
-    if (pow2m1[32] != -1) { for (i=0;i<32;i++) pow2m1[i] = (1<<i)-1; pow2m1[32] = -1; }
-    for (i=0;i<7;i++) gvox->qfacind[i] = -1;
+    if (pow2m1[32] != -1) { for (i=0; i<32; i++) pow2m1[i] = (1<<i)-1; pow2m1[32] = -1; }
+    for (i=0; i<7; i++) gvox->qfacind[i] = -1;
 
     i = ((max(ysiz,zsiz)+1)<<2);
     bx0 = (int32_t *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
     by0 = (int32_t *)(((intptr_t)bx0)+i);
 
-    for (cnt=0;cnt<2;cnt++)
+    for (cnt=0; cnt<2; cnt++)
     {
         if (!cnt) daquad = cntquad;
         else daquad = addquad;
@@ -2416,10 +2415,10 @@ static voxmodel_t *vox2poly()
 
         memset(by0,-1,(max(ysiz,zsiz)+1)<<2); v = 0;
 
-        for (i=-1;i<=1;i+=2)
-            for (y=0;y<ysiz;y++)
-                for (x=0;x<=xsiz;x++)
-                    for (z=0;z<=zsiz;z++)
+        for (i=-1; i<=1; i+=2)
+            for (y=0; y<ysiz; y++)
+                for (x=0; x<=xsiz; x++)
+                    for (z=0; z<=zsiz; z++)
                     {
                         ov = v; v = (isolid(x,y,z) && (!isolid(x,y+i,z)));
                         if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
@@ -2427,10 +2426,10 @@ static voxmodel_t *vox2poly()
                         if (v > ov) oz = z; else if ((v < ov) && (by0[z] != oz)) { bx0[z] = x; by0[z] = oz; }
                     }
 
-        for (i=-1;i<=1;i+=2)
-            for (z=0;z<zsiz;z++)
-                for (x=0;x<=xsiz;x++)
-                    for (y=0;y<=ysiz;y++)
+        for (i=-1; i<=1; i+=2)
+            for (z=0; z<zsiz; z++)
+                for (x=0; x<=xsiz; x++)
+                    for (y=0; y<=ysiz; y++)
                     {
                         ov = v; v = (isolid(x,y,z) && (!isolid(x,y,z-i)));
                         if ((by0[y] >= 0) && ((by0[y] != oz) || (v >= ov)))
@@ -2438,10 +2437,10 @@ static voxmodel_t *vox2poly()
                         if (v > ov) oz = y; else if ((v < ov) && (by0[y] != oz)) { bx0[y] = x; by0[y] = oz; }
                     }
 
-        for (i=-1;i<=1;i+=2)
-            for (x=0;x<xsiz;x++)
-                for (y=0;y<=ysiz;y++)
-                    for (z=0;z<=zsiz;z++)
+        for (i=-1; i<=1; i+=2)
+            for (x=0; x<xsiz; x++)
+                for (y=0; y<=ysiz; y++)
+                    for (z=0; z<=zsiz; z++)
                     {
                         ov = v; v = (isolid(x,y,z) && (!isolid(x-i,y,z)));
                         if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
@@ -2455,15 +2454,15 @@ static voxmodel_t *vox2poly()
             if (!shp) { free(bx0); free(gvox); return(0); }
 
             sc = 0;
-            for (y=gmaxy;y;y--)
-                for (x=gmaxx;x>=y;x--)
+            for (y=gmaxy; y; y--)
+                for (x=gmaxx; x>=y; x--)
                 {
                     i = shcnt[y*shcntp+x]; shcnt[y*shcntp+x] = sc; //shcnt changes from counter to head index
-                    for (;i>0;i--) { shp[sc].x = x; shp[sc].y = y; sc++; }
+                    for (; i>0; i--) { shp[sc].x = x; shp[sc].y = y; sc++; }
                 }
 
-            for (gvox->mytexx=32;gvox->mytexx<(gmaxx+(VOXBORDWIDTH<<1));gvox->mytexx<<=1);
-            for (gvox->mytexy=32;gvox->mytexy<(gmaxy+(VOXBORDWIDTH<<1));gvox->mytexy<<=1);
+            for (gvox->mytexx=32; gvox->mytexx<(gmaxx+(VOXBORDWIDTH<<1)); gvox->mytexx<<=1);
+            for (gvox->mytexy=32; gvox->mytexy<(gmaxy+(VOXBORDWIDTH<<1)); gvox->mytexy<<=1);
             while (gvox->mytexx*gvox->mytexy*8 < garea*9) //This should be sufficient to fit most skins...
             {
 skindidntfit:
@@ -2477,7 +2476,7 @@ skindidntfit:
             memset(zbit,0,i);
 
             v = gvox->mytexx*gvox->mytexy;
-            for (z=0;z<sc;z++)
+            for (z=0; z<sc; z++)
             {
                 dx = shp[z].x+(VOXBORDWIDTH<<1); dy = shp[z].y+(VOXBORDWIDTH<<1); i = v;
                 do
@@ -2496,14 +2495,14 @@ skindidntfit:
 
                         //Re-generate shp[].x/y (box sizes) from shcnt (now head indices) for next pass :/
                         j = 0;
-                        for (y=gmaxy;y;y--)
-                            for (x=gmaxx;x>=y;x--)
+                        for (y=gmaxy; y; y--)
+                            for (x=gmaxx; x>=y; x--)
                             {
                                 i = shcnt[y*shcntp+x];
-                                for (;j<i;j++) { shp[j].x = x0; shp[j].y = y0; }
+                                for (; j<i; j++) { shp[j].x = x0; shp[j].y = y0; }
                                 x0 = x; y0 = y;
                             }
-                        for (;j<sc;j++) { shp[j].x = x0; shp[j].y = y0; }
+                        for (; j<sc; j++) { shp[j].x = x0; shp[j].y = y0; }
 
                         goto skindidntfit;
                     }
@@ -2540,7 +2539,7 @@ static int32_t loadvox(const char *filnam)
     zpiv = ((float)zsiz)*.5;
 
     klseek(fil,-768,SEEK_END);
-    for (i=0;i<256;i++)
+    for (i=0; i<256; i++)
         { kread(fil,c,3); pal[i] = (((int32_t)c[0])<<18)+(((int32_t)c[1])<<10)+(((int32_t)c[2])<<2)+(i<<24); }
     pal[255] = -1;
 
@@ -2555,20 +2554,20 @@ static int32_t loadvox(const char *filnam)
     tbuf = (char *)malloc(zsiz*sizeof(uint8_t)); if (!tbuf) { kclose(fil); return(-1); }
 
     klseek(fil,12,SEEK_SET);
-    for (x=0;x<xsiz;x++)
-        for (y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
+    for (x=0; x<xsiz; x++)
+        for (y=0,j=x*yzsiz; y<ysiz; y++,j+=zsiz)
         {
             kread(fil,tbuf,zsiz);
-            for (z=zsiz-1;z>=0;z--)
+            for (z=zsiz-1; z>=0; z--)
                 { if (tbuf[z] != 255) { i = j+z; vbit[i>>5] |= (1<<SHIFTMOD32(i)); } }
         }
 
     klseek(fil,12,SEEK_SET);
-    for (x=0;x<xsiz;x++)
-        for (y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
+    for (x=0; x<xsiz; x++)
+        for (y=0,j=x*yzsiz; y<ysiz; y++,j+=zsiz)
         {
             kread(fil,tbuf,zsiz);
-            for (z=0;z<zsiz;z++)
+            for (z=0; z<zsiz; z++)
             {
                 if (tbuf[z] == 255) continue;
                 if ((!x) || (!y) || (!z) || (x == xsiz-1) || (y == ysiz-1) || (z == zsiz-1))
@@ -2608,14 +2607,14 @@ static int32_t loadkvx(const char *filnam)
     kread(fil,xyoffs,i); for (i=i/sizeof(int16_t)-1; i>=0; i--) xyoffs[i] = B_LITTLE16(xyoffs[i]);
 
     klseek(fil,-768,SEEK_END);
-    for (i=0;i<256;i++)
+    for (i=0; i<256; i++)
         { kread(fil,c,3); pal[i] = B_LITTLE32((((int32_t)c[0])<<18)+(((int32_t)c[1])<<10)+(((int32_t)c[2])<<2)+(i<<24)); }
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
     vbit = (int32_t *)malloc(i); if (!vbit) { free(xyoffs); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
-    for (vcolhashsizm1=4096;vcolhashsizm1<(mip1leng>>1);vcolhashsizm1<<=1); vcolhashsizm1--; //approx to numvoxs!
+    for (vcolhashsizm1=4096; vcolhashsizm1<(mip1leng>>1); vcolhashsizm1<<=1); vcolhashsizm1--; //approx to numvoxs!
     vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { free(xyoffs); kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
@@ -2626,8 +2625,8 @@ static int32_t loadkvx(const char *filnam)
     kread(fil,tbuf,i); kclose(fil);
 
     cptr = tbuf;
-    for (x=0;x<xsiz;x++) //Set surface voxels to 1 else 0
-        for (y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
+    for (x=0; x<xsiz; x++) //Set surface voxels to 1 else 0
+        for (y=0,j=x*yzsiz; y<ysiz; y++,j+=zsiz)
         {
             i = xyoffs[x*ysizp1+y+1] - xyoffs[x*ysizp1+y]; if (!i) continue;
             z1 = 0;
@@ -2637,7 +2636,7 @@ static int32_t loadkvx(const char *filnam)
                 if (!(cptr[-1]&16)) setzrange1(vbit,j+z1,j+z0);
                 i -= k+3; z1 = z0+k;
                 setzrange1(vbit,j+z0,j+z1);
-                for (z=z0;z<z1;z++) putvox(x,y,z,pal[*cptr++]);
+                for (z=z0; z<z1; z++) putvox(x,y,z,pal[*cptr++]);
             }
         }
 
@@ -2671,15 +2670,15 @@ static int32_t loadkv6(const char *filnam)
     vbit = (int32_t *)malloc(i); if (!vbit) { free(ylen); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
-    for (vcolhashsizm1=4096;vcolhashsizm1<numvoxs;vcolhashsizm1<<=1); vcolhashsizm1--;
+    for (vcolhashsizm1=4096; vcolhashsizm1<numvoxs; vcolhashsizm1<<=1); vcolhashsizm1--;
     vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { free(ylen); kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
-    for (x=0;x<xsiz;x++)
-        for (y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
+    for (x=0; x<xsiz; x++)
+        for (y=0,j=x*yzsiz; y<ysiz; y++,j+=zsiz)
         {
             z1 = zsiz;
-            for (i=ylen[x*ysiz+y];i>0;i--)
+            for (i=ylen[x*ysiz+y]; i>0; i--)
             {
                 kread(fil,c,8); //b,g,r,a,z_lo,z_hi,vis,dir
                 z0 = B_LITTLE16(*(uint16_t *)&c[4]);
@@ -2725,16 +2724,16 @@ static int32_t loadvxl(const char *filnam)
     kclose(fil);
 
     v = vbuf;
-    for (y=0;y<ysiz;y++)
-        for (x=0,j=y*zsiz;x<xsiz;x++,j+=yzsiz)
+    for (y=0; y<ysiz; y++)
+        for (x=0,j=y*zsiz; x<xsiz; x++,j+=yzsiz)
         {
             z = 0;
             while (1)
             {
                 setzrange0(vbit,j+z,j+v[1]);
-                for (z=v[1];z<=v[2];z++) putvox(x,y,z,(*(int32_t *)&v[(z-v[1]+1)<<2])&0xffffff);
+                for (z=v[1]; z<=v[2]; z++) putvox(x,y,z,(*(int32_t *)&v[(z-v[1]+1)<<2])&0xffffff);
                 if (!v[0]) break; z = v[2]-v[1]-v[0]+2; v += v[0]*4;
-                for (z+=v[3];z<v[3];z++) putvox(x,y,z,(*(int32_t *)&v[(z-v[3])<<2])&0xffffff);
+                for (z+=v[3]; z<v[3]; z++) putvox(x,y,z,(*(int32_t *)&v[(z-v[3])<<2])&0xffffff);
             }
             v += ((((int32_t)v[2])-((int32_t)v[1])+2)<<2);
         }
@@ -2895,7 +2894,7 @@ int32_t voxdraw(voxmodel_t *m, spritetype *tspr)
     if (!m->texid[globalpal]) m->texid[globalpal] = gloadtex(m->mytex,m->mytexx,m->mytexy,m->is8bit,globalpal);
     else bglBindTexture(GL_TEXTURE_2D,m->texid[globalpal]);
     bglBegin(GL_QUADS);
-    for (i=0,fi=0;i<m->qcnt;i++)
+    for (i=0,fi=0; i<m->qcnt; i++)
     {
         if (i == m->qfacind[fi]) { f = clut[fi++]; bglColor4f(pc[0]*f,pc[1]*f,pc[2]*f,pc[3]*f); }
         vptr = &m->quad[i].v[0];
@@ -2904,7 +2903,7 @@ int32_t voxdraw(voxmodel_t *m, spritetype *tspr)
         yy = vptr[0].y+vptr[2].y;
         zz = vptr[0].z+vptr[2].z;
 
-        for (j=0;j<4;j++)
+        for (j=0; j<4; j++)
         {
 #if (VOXBORDWIDTH == 0)
             bglTexCoord2f(((float)vptr[j].u)*ru+uhack[vptr[j].u!=vptr[0].u],

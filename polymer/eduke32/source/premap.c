@@ -66,7 +66,7 @@ static void tloadtile(int32_t tilenume, int32_t type)
             i = tilenume;
             j = tilenume + (picanm[tilenume]&63);
         }
-        for (;i<=j;i++)
+        for (; i<=j; i++)
         {
             if (!(gotpic[i>>3] & pow2char[i&7])) g_precacheCount++;
             gotpic[i>>3] |= pow2char[i&7];
@@ -118,7 +118,7 @@ static void G_CacheSpriteNum(int32_t i)
     case LIZTROOPONTOILET__STATIC:
     case LIZTROOPDUCKING__STATIC:
         for (j = LIZTROOP; j < (LIZTROOP+72); j++) tloadtile(j,1);
-        for (j=HEADJIB1;j<LEGJIB1+3;j++) tloadtile(j,1);
+        for (j=HEADJIB1; j<LEGJIB1+3; j++) tloadtile(j,1);
         maxc = 0;
         break;
     case WOODENHORSE__STATIC:
@@ -154,7 +154,7 @@ static void G_CacheSpriteNum(int32_t i)
     case LIZMANSPITTING__STATIC:
     case LIZMANFEEDING__STATIC:
     case LIZMANJUMP__STATIC:
-        for (j=LIZMANHEAD1;j<LIZMANLEG1+3;j++) tloadtile(j,1);
+        for (j=LIZMANHEAD1; j<LIZMANLEG1+3; j++) tloadtile(j,1);
         maxc = 80;
         break;
     case APLAYER__STATIC:
@@ -162,7 +162,7 @@ static void G_CacheSpriteNum(int32_t i)
         if (ud.multimode > 1)
         {
             maxc = 5;
-            for (j = 1420;j < 1420+106; j++) tloadtile(j,1);
+            for (j = 1420; j < 1420+106; j++) tloadtile(j,1);
         }
         break;
     case ATOMICHEALTH__STATIC:
@@ -218,7 +218,7 @@ static void G_PrecacheSprites(void)
 {
     int32_t i,j;
 
-    for (i=0;i<MAXTILES;i++)
+    for (i=0; i<MAXTILES; i++)
     {
         if (SpriteFlags[i] & SPRITE_PROJECTILE)
             tloadtile(i,1);
@@ -232,11 +232,11 @@ static void G_PrecacheSprites(void)
 
     tloadtile(VIEWSCREEN,1);
 
-    for (i=STARTALPHANUM;i<ENDALPHANUM+1;i++) tloadtile(i,1);
+    for (i=STARTALPHANUM; i<ENDALPHANUM+1; i++) tloadtile(i,1);
     for (i=BIGALPHANUM; i<BIGALPHANUM+82; i++) tloadtile(i,1);
-    for (i=MINIFONT;i<MINIFONT+63;i++) tloadtile(i,1);
+    for (i=MINIFONT; i<MINIFONT+63; i++) tloadtile(i,1);
 
-    for (i=FOOTPRINTS;i<FOOTPRINTS+3;i++) tloadtile(i,1);
+    for (i=FOOTPRINTS; i<FOOTPRINTS+3; i++) tloadtile(i,1);
 
     for (i = BURNING; i < BURNING+14; i++) tloadtile(i,1);
     for (i = BURNING2; i < BURNING2+14; i++) tloadtile(i,1);
@@ -278,7 +278,7 @@ static void G_PrecacheSprites(void)
 }
 
 // FIXME: this function is a piece of shit, needs specific sounds listed
-static int32_t CacheSound(uint32_t num)
+static int32_t G_CacheSound(uint32_t num)
 {
     int16_t fp = -1;
     int32_t   l;
@@ -317,7 +317,7 @@ static void G_PrecacheSounds(void)
     if (ud.config.FXDevice < 0) return;
     j = 0;
 
-    for (i=MAXSOUNDS;i>=0;i--)
+    for (i=MAXSOUNDS; i>=0; i--)
         if (g_sounds[i].ptr == 0)
         {
             j++;
@@ -326,7 +326,7 @@ static void G_PrecacheSounds(void)
                 handleevents();
                 Net_GetPackets();
             }
-            CacheSound(i);
+            G_CacheSound(i);
         }
 }
 
@@ -452,7 +452,7 @@ void G_CacheMapData(void)
 
     G_PrecacheSprites();
 
-    for (i=0;i<numwalls;i++)
+    for (i=0; i<numwalls; i++)
     {
         tloadtile(wall[i].picnum, 0);
 
@@ -462,7 +462,7 @@ void G_CacheMapData(void)
         }
     }
 
-    for (i=0;i<numsectors;i++)
+    for (i=0; i<numsectors; i++)
     {
         tloadtile(sector[i].floorpicnum, 0);
         tloadtile(sector[i].ceilingpicnum, 0);
@@ -484,7 +484,7 @@ void G_CacheMapData(void)
     tc = totalclock;
     j = 0;
 
-    for (i=0;i<MAXTILES;i++)
+    for (i=0; i<MAXTILES; i++)
     {
         if (!(i&7) && !gotpic[i>>3])
         {
@@ -607,11 +607,11 @@ void P_RandomSpawnPoint(int32_t snum)
         i = krand()%g_numPlayerSprites;
         if (GametypeFlags[ud.coop] & GAMETYPE_TDMSPAWN)
         {
-            for (j=0;j<ud.multimode;j++)
+            for (j=0; j<ud.multimode; j++)
             {
                 if (j != snum && g_player[j].ps->team == p->team && sprite[g_player[j].ps->i].extra > 0)
                 {
-                    for (k=0;k<g_numPlayerSprites;k++)
+                    for (k=0; k<g_numPlayerSprites; k++)
                     {
                         dist = FindDistance2D(g_player[j].ps->posx-g_playerSpawnPoints[k].ox,g_player[j].ps->posy-g_playerSpawnPoints[k].oy);
                         if (dist < pdist)
@@ -790,7 +790,7 @@ static void resetprestat(int32_t snum,int32_t g)
     int32_t i;
 
     g_spriteDeleteQueuePos = 0;
-    for (i=0;i<g_spriteDeleteQueueSize;i++) SpriteDeletionQueue[i] = -1;
+    for (i=0; i<g_spriteDeleteQueueSize; i++) SpriteDeletionQueue[i] = -1;
 
     p->hbomb_on          = 0;
     p->cheat_phase       = 0;
@@ -845,11 +845,11 @@ static void resetprestat(int32_t snum,int32_t g)
 
 }
 
-static void setupbackdrop(int16_t sky)
+static inline void G_SetupBackdrop(int16_t sky)
 {
     int16_t i;
 
-    for (i=0;i<MAXPSKYTILES;i++) pskyoff[i]=0;
+    for (i=0; i<MAXPSKYTILES; i++) pskyoff[i]=0;
 
     if (parallaxyscale != 65536L)
         parallaxyscale = 32768;
@@ -887,7 +887,7 @@ static void setupbackdrop(int16_t sky)
     pskybits=3;
 }
 
-static void prelevel(char g)
+static inline void prelevel(char g)
 {
     int32_t i, nexti, j, startwall, endwall, lotaglist;
     int32_t lotags[MAXSPRITES];
@@ -901,7 +901,7 @@ static void prelevel(char g)
     resetprestat(0,g);
     g_numClouds = 0;
 
-    for (i=0;i<numsectors;i++)
+    for (i=0; i<numsectors; i++)
     {
         sector[i].extra = 256;
 
@@ -919,10 +919,10 @@ static void prelevel(char g)
             if (waloff[sector[i].ceilingpicnum] == 0)
             {
                 if (sector[i].ceilingpicnum == LA)
-                    for (j=0;j<5;j++)
+                    for (j=0; j<5; j++)
                         tloadtile(sector[i].ceilingpicnum+j, 0);
             }
-            setupbackdrop(sector[i].ceilingpicnum);
+            G_SetupBackdrop(sector[i].ceilingpicnum);
 
             if (sector[i].ceilingpicnum == CLOUDYSKIES && g_numClouds < 127)
                 clouds[g_numClouds++] = i;
@@ -994,7 +994,7 @@ static void prelevel(char g)
         i = nexti;
     }
 
-    for (i=0;i < MAXSPRITES;i++)
+    for (i=0; i < MAXSPRITES; i++)
     {
         if (sprite[i].statnum < MAXSTATUS)
         {
@@ -1004,7 +1004,7 @@ static void prelevel(char g)
         }
     }
 
-    for (i=0;i < MAXSPRITES;i++)
+    for (i=0; i < MAXSPRITES; i++)
         if (sprite[i].statnum < MAXSTATUS)
         {
             if (PN == SECTOREFFECTOR && SLT == 14)
@@ -1031,7 +1031,7 @@ static void prelevel(char g)
         case POWERSWITCH1__STATIC:
         case LOCKSWITCH1__STATIC:
         case POWERSWITCH2__STATIC:
-            for (j=0;j<lotaglist;j++)
+            for (j=0; j<lotaglist; j++)
                 if (SLT == lotags[j])
                     break;
 
@@ -1103,7 +1103,7 @@ static void prelevel(char g)
 
         case W_FORCEFIELD__STATIC:
             if (wal->overpicnum==W_FORCEFIELD__STATIC)
-                for (j=0;j<3;j++)
+                for (j=0; j<3; j++)
                     tloadtile(W_FORCEFIELD+j, 0);
             if (wal->shade > 31)
                 wal->cstat = 0;
@@ -1127,7 +1127,7 @@ static void prelevel(char g)
         switch (DynamicTileMap[wal->picnum])
         {
         case WATERTILE2__STATIC:
-            for (j=0;j<3;j++)
+            for (j=0; j<3; j++)
                 tloadtile(wal->picnum+j, 0);
             break;
 
@@ -1146,7 +1146,7 @@ static void prelevel(char g)
         case SCREENBREAK6__STATIC:
         case SCREENBREAK7__STATIC:
         case SCREENBREAK8__STATIC:
-            for (j=SCREENBREAK6;j<SCREENBREAK9;j++)
+            for (j=SCREENBREAK6; j<SCREENBREAK9; j++)
                 tloadtile(j, 0);
             animwall[g_numAnimWalls].wallnum = i;
             animwall[g_numAnimWalls].tag = -1;
@@ -1197,11 +1197,11 @@ static void prelevel(char g)
     }
 
     //Invalidate textures in sector behind mirror
-    for (i=0;i<g_mirrorCount;i++)
+    for (i=0; i<g_mirrorCount; i++)
     {
         startwall = sector[g_mirrorSector[i]].wallptr;
         endwall = startwall + sector[g_mirrorSector[i]].wallnum;
-        for (j=startwall;j<endwall;j++)
+        for (j=startwall; j<endwall; j++)
         {
             wall[j].picnum = MIRROR;
             wall[j].overpicnum = MIRROR;
@@ -1230,7 +1230,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 
     g_skillSoundID = -1;
 
-    waitforeverybody();
+    Net_WaitForEverybody();
     ready2send = 0;
 
     if (ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && (ud.coop&GAMETYPE_SCORESHEET))
@@ -1278,7 +1278,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 
     Gv_ResetSystemDefaults();
 
-    for (i=0;i<(MAXVOLUMES*MAXLEVELS);i++)
+    for (i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
         if (MapInfo[i].savedstate)
         {
             Bfree(MapInfo[i].savedstate);
@@ -1287,7 +1287,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 
     if (ud.m_coop != 1)
     {
-        for (i=0;i<MAX_WEAPONS;i++)
+        for (i=0; i<MAX_WEAPONS; i++)
         {
             if (aplWeaponWorksLike[i][0]==PISTOL_WEAPON)
             {
@@ -1310,7 +1310,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
         if (numplayers < 2)
         {
             connecthead = 0;
-            for (i=0;i<MAXPLAYERS;i++) connectpoint2[i] = i+1;
+            for (i=0; i<MAXPLAYERS; i++) connectpoint2[i] = i+1;
             connectpoint2[ud.multimode-1] = -1;
         }
     }
@@ -1320,22 +1320,6 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
         connectpoint2[0] = -1;
     }
     X_OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek, -1);
-}
-
-int32_t G_GetTeamPalette(int32_t team)
-{
-    switch (team)
-    {
-    case 0:
-        return 3;
-    case 1:
-        return 10;
-    case 2:
-        return 11;
-    case 3:
-        return 12;
-    }
-    return 0;
 }
 
 static void resetpspritevars(char g)
@@ -1349,14 +1333,14 @@ static void resetpspritevars(char g)
     A_InsertSprite(g_player[0].ps->cursectnum,g_player[0].ps->posx,g_player[0].ps->posy,g_player[0].ps->posz,
                    APLAYER,0,0,0,g_player[0].ps->ang,0,0,0,10);
 
-    if (ud.recstat != 2) for (i=0;i<ud.multimode;i++)
+    if (ud.recstat != 2) for (i=0; i<ud.multimode; i++)
         {
             aimmode[i] = g_player[i].ps->aim_mode;
             autoaim[i] = g_player[i].ps->auto_aim;
             weaponswitch[i] = g_player[i].ps->weaponswitch;
             if (ud.multimode > 1 && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
             {
-                for (j=0;j<MAX_WEAPONS;j++)
+                for (j=0; j<MAX_WEAPONS; j++)
                 {
                     tsbar[i].ammo_amount[j] = g_player[i].ps->ammo_amount[j];
                     tsbar[i].gotweapon[j] = g_player[i].ps->gotweapon[j];
@@ -1378,18 +1362,18 @@ static void resetpspritevars(char g)
 
     P_ResetStatus(0);
 
-    for (i=1;i<ud.multimode;i++)
+    for (i=1; i<ud.multimode; i++)
         memcpy(g_player[i].ps,g_player[0].ps,sizeof(DukePlayer_t));
 
     if (ud.recstat != 2)
-        for (i=0;i<ud.multimode;i++)
+        for (i=0; i<ud.multimode; i++)
         {
             g_player[i].ps->aim_mode = aimmode[i];
             g_player[i].ps->auto_aim = autoaim[i];
             g_player[i].ps->weaponswitch = weaponswitch[i];
             if (ud.multimode > 1 && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
             {
-                for (j=0;j<MAX_WEAPONS;j++)
+                for (j=0; j<MAX_WEAPONS; j++)
                 {
                     g_player[i].ps->ammo_amount[j] = tsbar[i].ammo_amount[j];
                     g_player[i].ps->gotweapon[j] = tsbar[i].gotweapon[j];
@@ -1461,7 +1445,7 @@ static void resetpspritevars(char g)
                 {
                     int32_t k = 0;
 
-                    for (;k<ud.multimode;k++)
+                    for (; k<ud.multimode; k++)
                     {
                         if (g_whichPalForPlayer == g_player[k].ps->palookup)
                         {
@@ -1532,7 +1516,7 @@ void G_ResetTimers(void)
     g_moveThingsCount = 0;
 }
 
-void waitforeverybody()
+void Net_WaitForEverybody(void)
 {
     int32_t i;
 
@@ -1619,7 +1603,7 @@ void clearfifo(void)
     clearbufbyte(&loc,sizeof(input_t),0L);
     clearbufbyte(&inputfifo,sizeof(input_t)*MOVEFIFOSIZ*MAXPLAYERS,0L);
 
-    for (;i<MAXPLAYERS;i++)
+    for (; i<MAXPLAYERS; i++)
     {
 //      Bmemset(g_player[i].inputfifo,0,sizeof(g_player[i].inputfifo));
         if (g_player[i].sync != NULL)
@@ -1654,9 +1638,9 @@ extern int32_t voting, vote_map, vote_episode;
 
 void G_FindLevelForFilename(const char *fn, char *volume, char *level)
 {
-    for (*volume=0;*volume<MAXVOLUMES;(*volume)++)
+    for (*volume=0; *volume<MAXVOLUMES; (*volume)++)
     {
-        for (*level=0;*level<MAXLEVELS;(*level)++)
+        for (*level=0; *level<MAXLEVELS; (*level)++)
         {
             if (MapInfo[(*volume*MAXLEVELS)+*level].filename != NULL)
                 if (!Bstrcasecmp(fn, MapInfo[(*volume*MAXLEVELS)+*level].filename))
@@ -1944,11 +1928,11 @@ int32_t G_EnterLevel(int32_t g)
 
     clearfifo();
 
-    for (i=g_numInterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
+    for (i=g_numInterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
 
     g_restorePalette = 1;
 
-    waitforeverybody();
+    Net_WaitForEverybody();
     mmulti_flushpackets();
 
     G_FadePalette(0,0,0,0);
@@ -1957,7 +1941,7 @@ int32_t G_EnterLevel(int32_t g)
     G_DrawBackground();
     G_DrawRooms(myconnectindex,65536);
 
-    for (i=0;i<ud.multimode;i++)
+    for (i=0; i<ud.multimode; i++)
         clearbufbyte(&g_player[i].playerquitflag,1,0x01010101);
     g_player[myconnectindex].ps->over_shoulder_on = 0;
 
@@ -1980,7 +1964,7 @@ void G_FreeMapState(int32_t mapnum)
 {
     int32_t j;
 
-    for (j=0;j<g_gameVarCount;j++)
+    for (j=0; j<g_gameVarCount; j++)
     {
         if (aGameVars[j].dwFlags & GAMEVAR_NORESET) continue;
         if (aGameVars[j].dwFlags & GAMEVAR_PERPLAYER)

@@ -33,7 +33,7 @@ extern int32_t g_noEnemies;
 inline void G_UpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
 {
     int32_t i=g_numInterpolations-1;
-    for (;i>=0;i--) oldipos[i] = *curipos[i];
+    for (; i>=0; i--) oldipos[i] = *curipos[i];
 }
 
 void G_SetInterpolation(int32_t *posptr)
@@ -41,7 +41,7 @@ void G_SetInterpolation(int32_t *posptr)
     int32_t i=g_numInterpolations-1;
 
     if (g_numInterpolations >= MAXINTERPOLATIONS) return;
-    for (;i>=0;i--)
+    for (; i>=0; i--)
         if (curipos[i] == posptr) return;
     curipos[g_numInterpolations] = posptr;
     oldipos[g_numInterpolations] = *posptr;
@@ -52,7 +52,7 @@ void G_StopInterpolation(int32_t *posptr)
 {
     int32_t i=g_numInterpolations-1;
 
-    for (;i>=startofdynamicinterpolations;i--)
+    for (; i>=startofdynamicinterpolations; i--)
         if (curipos[i] == posptr)
         {
             g_numInterpolations--;
@@ -66,7 +66,7 @@ void G_DoInterpolations(int32_t smoothratio)       //Stick at beginning of draws
 {
     int32_t i=g_numInterpolations-1, j = 0, odelta, ndelta = 0;
 
-    for (;i>=0;i--)
+    for (; i>=0; i--)
     {
         bakipos[i] = *curipos[i];
         odelta = ndelta;
@@ -79,7 +79,7 @@ void G_DoInterpolations(int32_t smoothratio)       //Stick at beginning of draws
 inline void G_RestoreInterpolations(void)  //Stick at end of drawscreen
 {
     int32_t i=g_numInterpolations-1;
-    for (;i>=0;i--) *curipos[i] = bakipos[i];
+    for (; i>=0; i--) *curipos[i] = bakipos[i];
 }
 
 inline int32_t G_CheckForSpaceCeiling(int32_t sectnum)
@@ -132,13 +132,13 @@ void A_RadiusDamage(int32_t i, int32_t  r, int32_t  hp1, int32_t  hp2, int32_t  
 
             startwall = sector[dasect].wallptr;
             endwall = startwall+sector[dasect].wallnum;
-            for (x=startwall,wal=&wall[startwall];x<endwall;x++,wal++)
+            for (x=startwall,wal=&wall[startwall]; x<endwall; x++,wal++)
                 if ((klabs(wal->x-s->x)+klabs(wal->y-s->y)) < r)
                 {
                     nextsect = wal->nextsector;
                     if (nextsect >= 0)
                     {
-                        for (dasect=sectend-1;dasect>=0;dasect--)
+                        for (dasect=sectend-1; dasect>=0; dasect--)
                             if (tempshort[dasect] == nextsect) break;
                         if (dasect < 0) tempshort[sectend++] = nextsect;
                     }
@@ -163,7 +163,7 @@ SKIPWALLCHECK:
 
     q = -(16<<8)+(krand()&((32<<8)-1));
 
-    for (x = 0;x<7;x++)
+    for (x = 0; x<7; x++)
     {
         j = headspritestat[(uint8_t)statlist[x]];
         while (j >= 0)
@@ -439,7 +439,7 @@ void A_SpawnMultiple(int32_t sp, int32_t pic, int32_t n)
     int32_t j;
     spritetype *s = &sprite[sp];
 
-    for (;n>0;n--)
+    for (; n>0; n--)
     {
         j = A_InsertSprite(s->sectnum,s->x,s->y,s->z-(krand()%(47<<8)),pic,-32,8,8,krand()&2047,0,0,sp,5);
         A_Spawn(-1, j);
@@ -470,7 +470,7 @@ void A_DoGuts(int32_t sp, int32_t gtype, int32_t n)
 //        pal = 6;
 //    else pal = 0;
 
-    for (j=n;j>0;j--)
+    for (j=n; j>0; j--)
     {
         a = krand()&2047;
         i = A_InsertSprite(s->sectnum,s->x+(krand()&255)-128,s->y+(krand()&255)-128,gutz-(krand()&8191),gtype,-32,sx,sy,a,48+(krand()&31),-512-(krand()&2047),sp,5);
@@ -503,7 +503,7 @@ void A_DoGutsDir(int32_t sp, int32_t gtype, int32_t n)
     if (s->picnum == COMMANDER)
         gutz -= (24<<8);
 
-    for (j=n;j>0;j--)
+    for (j=n; j>0; j--)
     {
         a = krand()&2047;
         i = A_InsertSprite(s->sectnum,s->x,s->y,gutz,gtype,-32,sx,sy,a,256+(krand()&127),-512-(krand()&2047),sp,5);
@@ -515,7 +515,7 @@ void Sect_SetInterpolation(int32_t i)
 {
     int32_t k, j = sector[SECT].wallptr,endwall = j+sector[SECT].wallnum;
 
-    for (;j<endwall;j++)
+    for (; j<endwall; j++)
     {
         G_SetInterpolation(&wall[j].x);
         G_SetInterpolation(&wall[j].y);
@@ -535,7 +535,7 @@ void Sect_ClearInterpolation(int32_t i)
 {
     int32_t j = sector[SECT].wallptr,endwall = j+sector[SECT].wallnum;
 
-    for (;j<endwall;j++)
+    for (; j<endwall; j++)
     {
         G_StopInterpolation(&wall[j].x);
         G_StopInterpolation(&wall[j].y);
@@ -561,7 +561,7 @@ static void ms(int32_t i)
     {
         int32_t x = sector[s->sectnum].wallptr, endwall = x+sector[s->sectnum].wallnum;
 
-        for (;x<endwall;x++)
+        for (; x<endwall; x++)
         {
             rotatepoint(0,0,msx[j],msy[j],k&2047,&tx,&ty);
             dragpoint(x,s->x+tx,s->y+ty);
@@ -788,7 +788,7 @@ void A_MoveCyclers(void)
     int16_t *c;
     walltype *wal;
 
-    for (q=g_numCyclers-1;q>=0;q--)
+    for (q=g_numCyclers-1; q>=0; q--)
     {
 
         c = &cyclers[q][0];
@@ -805,7 +805,7 @@ void A_MoveCyclers(void)
         if (c[5])
         {
             wal = &wall[sector[s].wallptr];
-            for (x = sector[s].wallnum;x>0;x--,wal++)
+            for (x = sector[s].wallnum; x>0; x--,wal++)
                 if (wal->hitag != 1)
                 {
                     wal->shade = j;
@@ -1187,7 +1187,7 @@ static void G_MoveFallers(void)
                 if ((sector[sect].floorz-s->z) < (16<<8))
                 {
                     j = 1+(krand()&7);
-                    for (x=0;x<j;x++) RANDOMSCRAP;
+                    for (x=0; x<j; x++) RANDOMSCRAP;
                     KILLIT(i);
                 }
             }
@@ -1509,7 +1509,7 @@ static void G_MoveStandables(void)
                 if (T3 == 8)
                 {
                     A_PlaySound(LASERTRIP_EXPLODE,i);
-                    for (j=0;j<5;j++) RANDOMSCRAP;
+                    for (j=0; j<5; j++) RANDOMSCRAP;
                     x = s->extra;
                     A_RadiusDamage(i, g_tripbombBlastRadius, x>>2,x>>1,x-(x>>2),x);
 
@@ -1671,7 +1671,7 @@ static void G_MoveStandables(void)
             j = A_IncurDamage(i);
             if (j == -1) goto BOLT;
 
-            for (k=0;k<16;k++)
+            for (k=0; k<16; k++)
             {
                 j = A_InsertSprite(SECT,SX,SY,SZ-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
                 sprite[j].pal = 2;
@@ -1806,7 +1806,7 @@ DETONATE:
                     }
 
                     if (s->xrepeat)
-                        for (x=0;x<8;x++) RANDOMSCRAP;
+                        for (x=0; x<8; x++) RANDOMSCRAP;
 
                     KILLIT(i);
                 }
@@ -2123,7 +2123,7 @@ CLEAR_THE_BOLT:
             IFHIT
             {
                 A_PlaySound(VENT_BUST,i);
-                for (j=0;j<10;j++)
+                for (j=0; j<10; j++)
                     RANDOMSCRAP;
 
                 if (s->lotag) A_Spawn(i,s->lotag);
@@ -2305,7 +2305,7 @@ static void G_MoveWeapons(void)
 
                 if (ActorExtra[i].projectile.trail >= 0)
                 {
-                    for (f=0;f<=ActorExtra[i].projectile.tnum;f++)
+                    for (f=0; f<=ActorExtra[i].projectile.tnum; f++)
                     {
                         j = A_Spawn(i,ActorExtra[i].projectile.trail);
                         if (ActorExtra[i].projectile.toffset != 0)
@@ -2317,7 +2317,7 @@ static void G_MoveWeapons(void)
                     }
                 }
 
-                for (f=1;f<=ActorExtra[i].projectile.velmult;f++)
+                for (f=1; f<=ActorExtra[i].projectile.velmult; f++)
                 {
                     vec3_t tmpvect;
                     Bmemcpy(&davect,s,sizeof(vec3_t));
@@ -2388,14 +2388,13 @@ static void G_MoveWeapons(void)
                             j = 16384|(s->sectnum);
                             s->zvel = -1;
                         }
-                        else
-                            if ((s->z > ActorExtra[i].floorz && sector[s->sectnum].lotag != 1) ||
-                                    (s->z > ActorExtra[i].floorz+(16<<8) && sector[s->sectnum].lotag == 1))
-                            {
-                                j = 16384|(s->sectnum);
-                                if (sector[s->sectnum].lotag != 1)
-                                    s->zvel = 1;
-                            }
+                        else if ((s->z > ActorExtra[i].floorz && sector[s->sectnum].lotag != 1) ||
+                                 (s->z > ActorExtra[i].floorz+(16<<8) && sector[s->sectnum].lotag == 1))
+                        {
+                            j = 16384|(s->sectnum);
+                            if (sector[s->sectnum].lotag != 1)
+                                s->zvel = 1;
+                        }
                     }
 
                 if (ActorExtra[i].projectile.workslike & PROJECTILE_WATERBUBBLES &&
@@ -2452,7 +2451,7 @@ static void G_MoveWeapons(void)
                                     j = 3+(krand()&3);
                                     g_player[p].ps->numloogs = j;
                                     g_player[p].ps->loogcnt = 24*4;
-                                    for (x=0;x < j;x++)
+                                    for (x=0; x < j; x++)
                                     {
                                         g_player[p].ps->loogiex[x] = krand()%xdim;
                                         g_player[p].ps->loogiey[x] = krand()%ydim;
@@ -2623,7 +2622,7 @@ static void G_MoveWeapons(void)
                 s->y = sprite[s->owner].y;
                 if (sprite[s->owner].picnum == APLAYER)
                     s->z = sprite[s->owner].z-(34<<8);
-                for (k=0;k<T1;k++)
+                for (k=0; k<T1; k++)
                 {
                     q = A_InsertSprite(s->sectnum,
                                        s->x+((k*sintable[(s->ang+512)&2047])>>9),
@@ -2717,19 +2716,18 @@ static void G_MoveWeapons(void)
                             j = 16384|(s->sectnum);
                             s->zvel = -1;
                         }
-                        else
-                            if ((s->z > ActorExtra[i].floorz && sector[s->sectnum].lotag != 1) ||
-                                    (s->z > ActorExtra[i].floorz+(16<<8) && sector[s->sectnum].lotag == 1))
-                            {
-                                j = 16384|(s->sectnum);
-                                if (sector[s->sectnum].lotag != 1)
-                                    s->zvel = 1;
-                            }
+                        else if ((s->z > ActorExtra[i].floorz && sector[s->sectnum].lotag != 1) ||
+                                 (s->z > ActorExtra[i].floorz+(16<<8) && sector[s->sectnum].lotag == 1))
+                        {
+                            j = 16384|(s->sectnum);
+                            if (sector[s->sectnum].lotag != 1)
+                                s->zvel = 1;
+                        }
                     }
 
                 if (s->picnum == FIRELASER)
                 {
-                    for (k=-3;k<2;k++)
+                    for (k=-3; k<2; k++)
                     {
                         x = A_InsertSprite(s->sectnum,
                                            s->x+((k*sintable[(s->ang+512)&2047])>>9),
@@ -2789,7 +2787,7 @@ static void G_MoveWeapons(void)
                                     j = 3+(krand()&3);
                                     g_player[p].ps->numloogs = j;
                                     g_player[p].ps->loogcnt = 24*4;
-                                    for (x=0;x < j;x++)
+                                    for (x=0; x < j; x++)
                                     {
                                         g_player[p].ps->loogiex[x] = krand()%xdim;
                                         g_player[p].ps->loogiey[x] = krand()%ydim;
@@ -3112,7 +3110,7 @@ static void G_MoveTransports(void)
                             A_Spawn(j,WATERSPLASH2);
 
                         if (sectlotag == 1)
-                            for (l = 0;l < 9;l++)
+                            for (l = 0; l < 9; l++)
                             {
                                 q = A_Spawn(g_player[p].ps->i,WATERBUBBLE);
                                 sprite[q].z += krand()&16383;
@@ -3399,7 +3397,7 @@ static void G_MoveActors(void)
             if (t[0] > (26*8))
             {
                 S_PlaySound(RPG_EXPLODE);
-                for (j=0;j<32;j++) RANDOMSCRAP;
+                for (j=0; j<32; j++) RANDOMSCRAP;
                 g_earthquakeTime = 16;
                 KILLIT(i);
             }
@@ -3521,8 +3519,8 @@ static void G_MoveActors(void)
             {
                 s->yvel = 1;
 
-                for (l=512;l<(2048-512);l+= 128)
-                    for (j=0;j<2048;j += 128)
+                for (l=512; l<(2048-512); l+= 128)
+                    for (j=0; j<2048; j += 128)
                     {
                         k = A_Spawn(i,FORCESPHERE);
                         sprite[k].cstat = 257+128;
@@ -3601,7 +3599,7 @@ static void G_MoveActors(void)
                 j = A_SetSprite(i,CLIPMASK0);
                 if (j != 1 || s->z > ActorExtra[i].floorz)
                 {
-                    for (l=0;l<16;l++)
+                    for (l=0; l<16; l++)
                         RANDOMSCRAP;
                     A_PlaySound(LASERTRIP_EXPLODE,i);
                     A_Spawn(i,PIGCOP);
@@ -3819,7 +3817,7 @@ static void G_MoveActors(void)
                 IFHIT
                 {
                     if (j == FREEZEBLAST) goto BOLT;
-                    for (j=16; j >= 0 ;j--)
+                    for (j=16; j >= 0 ; j--)
                     {
                         k = A_InsertSprite(SECT,SX,SY,SZ,GLASSPIECES+(j%3),-32,36,36,krand()&2047,32+(krand()&63),1024-(krand()&1023),i,5);
                         sprite[k].pal = 1;
@@ -3856,7 +3854,7 @@ static void G_MoveActors(void)
                 if ((TEST_SYNC_KEY(g_player[p].sync->bits, SK_FIRE) || (g_player[p].ps->quick_kick > 0)) && sprite[g_player[p].ps->i].extra > 0)
                     if (g_player[p].ps->quick_kick > 0 || (g_player[p].ps->curr_weapon != HANDREMOTE_WEAPON && g_player[p].ps->curr_weapon != HANDBOMB_WEAPON && g_player[p].ps->curr_weapon != TRIPBOMB_WEAPON && g_player[p].ps->ammo_amount[g_player[p].ps->curr_weapon] >= 0))
                     {
-                        for (x=0;x<8;x++)
+                        for (x=0; x<8; x++)
                         {
                             j = A_InsertSprite(sect,s->x,s->y,s->z-(8<<8),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(s->zvel>>2),i,5);
                             sprite[j].pal = 6;
@@ -3971,7 +3969,7 @@ static void G_MoveActors(void)
                     sprite[j].pal = 0;
                 }
 
-                for (x=0;x<8;x++)
+                for (x=0; x<8; x++)
                 {
                     j = A_InsertSprite(sect,s->x,s->y,s->z-(8<<8),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(s->zvel>>2),i,5);
                     sprite[j].pal = 6;
@@ -4338,7 +4336,7 @@ DETONATEB:
                     if (s->zvel == 0)
                         A_Spawn(i,EXPLOSION2BOT);
                     A_PlaySound(PIPEBOMB_EXPLODE,i);
-                    for (x=0;x<8;x++)
+                    for (x=0; x<8; x++)
                         RANDOMSCRAP;
                 }
 
@@ -4370,7 +4368,7 @@ DETONATEB:
                     {
                         if ((GametypeFlags[ud.coop] & GAMETYPE_WEAPSTAY) && s->owner == i)
                         {
-                            for (j=0;j<g_player[p].ps->weapreccnt;j++)
+                            for (j=0; j<g_player[p].ps->weapreccnt; j++)
                                 if (g_player[p].ps->weaprecs[j] == s->picnum)
                                     goto BOLT;
 
@@ -4544,7 +4542,7 @@ DETONATEB:
                     }
                     break;
                 }
-                for (x=0;x<16;x++)
+                for (x=0; x<16; x++)
                     RANDOMSCRAP;
 
                 s->z = t[4];
@@ -4555,7 +4553,7 @@ DETONATEB:
             {
                 IFHIT
                 {
-                    for (x=0;x<32;x++)
+                    for (x=0; x<32; x++)
                         RANDOMSCRAP;
                     if (s->extra < 0)
                         t[1] = 1;
@@ -4574,7 +4572,7 @@ DETONATEB:
                     {
                         t[0] = 1; // static
                         s->cstat = (int16_t)32768;
-                        for (x=0;x<5;x++) RANDOMSCRAP;
+                        for (x=0; x<5; x++) RANDOMSCRAP;
                         goto BOLT;
                     }
                 }
@@ -4721,12 +4719,11 @@ static void G_MoveMisc(void)  // STATNUM 5
                         l += 3;
                     }
                 }
-                else
-                    if (t[0] > 64)
-                    {
-                        t[0]--;
-                        l -= 3;
-                    }
+                else if (t[0] > 64)
+                {
+                    t[0]--;
+                    l -= 3;
+                }
 
                 s->x = sprite[s->owner].x;
                 s->y = sprite[s->owner].y;
@@ -4740,7 +4737,7 @@ static void G_MoveMisc(void)  // STATNUM 5
                 s->yrepeat = l;
                 s->shade = (l>>1)-48;
 
-                for (j=t[0];j > 0;j--)
+                for (j=t[0]; j > 0; j--)
                     A_SetSprite(i,CLIPMASK0);
                 goto BOLT;
             case WATERSPLASH2__STATIC:
@@ -4821,9 +4818,8 @@ static void G_MoveMisc(void)  // STATNUM 5
                         if (s->zvel < 64)
                             s->zvel += (g_spriteGravity>>5)+(krand()&7);
                     }
-                    else
-                        if (s->zvel < 144)
-                            s->zvel += (g_spriteGravity>>5)+(krand()&7);
+                    else if (s->zvel < 144)
+                        s->zvel += (g_spriteGravity>>5)+(krand()&7);
                 }
 
                 A_SetSprite(i,CLIPMASK0);
@@ -5499,7 +5495,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 m = (s->xvel*sintable[(s->ang+512)&2047])>>14;
                 x = (s->xvel*sintable[s->ang&2047])>>14;
 
-                for (p = connecthead;p >= 0;p=connectpoint2[p])
+                for (p = connecthead; p >= 0; p=connectpoint2[p])
                     if (sector[g_player[p].ps->cursectnum].lotag != 2)
                     {
                         if (g_playerSpawnPoints[p].os == s->sectnum)
@@ -5674,7 +5670,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                             }
                         }
 
-                for (p = connecthead;p >= 0;p = connectpoint2[p])
+                for (p = connecthead; p >= 0; p = connectpoint2[p])
                 {
                     if (sprite[g_player[p].ps->i].sectnum == s->sectnum)
                     {
@@ -5868,7 +5864,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
             wal = &wall[sc->wallptr];
 
-            for (x=sc->wallnum;x > 0;x--,wal++)
+            for (x=sc->wallnum; x > 0; x--,wal++)
             {
                 if (wal->hitag != 1)
                 {
@@ -5908,7 +5904,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
             wal = &wall[sc->wallptr];
 
-            for (x=sc->wallnum;x > 0; x--,wal++)
+            for (x=sc->wallnum; x > 0; x--,wal++)
             {
                 if (j) wal->pal = (s->owner&0xff);
                 else wal->pal = s->pal;
@@ -6055,7 +6051,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
                         wal = &wall[sector[sn].wallptr];
 
-                        for (l=sector[sn].wallnum;l>0;l--,wal++)
+                        for (l=sector[sn].wallnum; l>0; l--,wal++)
                         {
                             if (wal->hitag != 1)
                             {
@@ -6135,7 +6131,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
             {
                 int32_t endwall = sc->wallptr+sc->wallnum;
 
-                for (j=sc->wallptr;j<endwall;j++)
+                for (j=sc->wallptr; j<endwall; j++)
                 {
                     k = headspritestat[STAT_ACTOR];
                     while (k >= 0)
@@ -6185,7 +6181,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 sc->ceilingpal = 0;
 
                 wal = &wall[sc->wallptr];
-                for (j = sc->wallnum;j > 0; j--, wal++)
+                for (j = sc->wallnum; j > 0; j--, wal++)
                     if (wal->hitag != 1)
                     {
                         wal->shade = t[1];
@@ -6222,7 +6218,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     sc->ceilingshade -= 2;
 
                     wal = &wall[sc->wallptr];
-                    for (j=sc->wallnum;j>0;j--,wal++)
+                    for (j=sc->wallnum; j>0; j--,wal++)
                         if (wal->hitag != 1)
                         {
                             wal->pal = s->pal;
@@ -6286,7 +6282,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     if (s->ang == 512)
                     {
                         wal = &wall[sc->wallptr];
-                        for (j=sc->wallnum;j>0;j--,wal++)
+                        for (j=sc->wallnum; j>0; j--,wal++)
                             wal->shade = s->shade;
 
                         sc->floorshade = s->shade;
@@ -6307,7 +6303,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
 
             if (t[2] == 4 && s->ang != 512)
-                for (x=0;x<7;x++) RANDOMSCRAP;
+                for (x=0; x<7; x++) RANDOMSCRAP;
             break;
 
 
@@ -6584,7 +6580,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     t[0]++;
                     x = sc->wallptr;
                     q = x+sc->wallnum;
-                    for (j=x;j<q;j++)
+                    for (j=x; j<q; j++)
                         if (wall[j].overpicnum == BIGFORCE)
                         {
                             wall[j].cstat &= (128+32+8+4+2);
@@ -6864,7 +6860,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
         case 35:
             if (sc->ceilingz > s->z)
-                for (j = 0;j < 8;j++)
+                for (j = 0; j < 8; j++)
                 {
                     s->ang += krand()&511;
                     k = A_Spawn(i,SMALLSMOKE);
@@ -6961,7 +6957,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 fricyv += x<<5;
             }
 
-            for (p = connecthead;p >= 0;p = connectpoint2[p])
+            for (p = connecthead; p >= 0; p = connectpoint2[p])
                 if (sprite[g_player[p].ps->i].sectnum == s->sectnum && g_player[p].ps->on_ground)
                     g_player[p].ps->posz += s->zvel;
 
@@ -7401,7 +7397,7 @@ BOLT:
     }
 
     //Sloped sin-wave floors!
-    for (i=headspritestat[STAT_EFFECTOR];i>=0;i=nextspritestat[i])
+    for (i=headspritestat[STAT_EFFECTOR]; i>=0; i=nextspritestat[i])
     {
         s = &sprite[i];
         if (s->lotag != 29) continue;
@@ -7478,19 +7474,6 @@ void A_PlayAlertSound(int32_t i)
         }
 }
 
-
-inline int32_t A_CheckSpriteFlags(int32_t iActor, int32_t iType)
-{
-    if ((SpriteFlags[sprite[iActor].picnum]^ActorExtra[iActor].flags) & iType) return 1;
-    return 0;
-}
-
-inline int32_t A_CheckSpriteTileFlags(int32_t iPicnum, int32_t iType)
-{
-    if (SpriteFlags[iPicnum] & iType) return 1;
-    return 0;
-}
-
 int32_t A_CheckEnemyTile(int32_t pn)
 {
     //this case can't be handled by the dynamictostatic system because it adds
@@ -7558,7 +7541,7 @@ int32_t A_CheckSwitchTile(int32_t i)
     // ACCESSSWITCH and ACCESSSWITCH2 are only active in 1 state so deal with them separately
     if ((PN == ACCESSSWITCH) || (PN == ACCESSSWITCH2)) return 1;
     //loop to catch both states of switches
-    for (j=1;j>=0;j--)
+    for (j=1; j>=0; j--)
     {
         switch (DynamicTileMap[PN-j])
         {

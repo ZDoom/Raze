@@ -482,7 +482,7 @@ static void M_DisplaySaveGameList(void)
     int32_t x, c = 160;
 
     c += 64;
-    for (x = 0;x <= 108;x += 12)
+    for (x = 0; x <= 108; x += 12)
         rotatesprite((c+91-64)<<16,(x+56)<<16,65536L,0,TEXTBOX,24,0,10,0,0,xdim-1,ydim-1);
 
     rotatesprite(22<<16,97<<16,65536L,0,WINDOWBORDER2,24,0,10,0,0,xdim-1,ydim-1);
@@ -490,7 +490,7 @@ static void M_DisplaySaveGameList(void)
     rotatesprite(99<<16,50<<16,65536L,512,WINDOWBORDER1,24,0,10,0,0,xdim-1,ydim-1);
     rotatesprite(103<<16,144<<16,65536L,1024+512,WINDOWBORDER1,24,0,10,0,0,xdim-1,ydim-1);
 
-    for (x=0;x<=9;x++)
+    for (x=0; x<=9; x++)
         minitext(c,48+(12*x),ud.savegame[x],2,10+16);
 }
 
@@ -526,7 +526,7 @@ void G_CheckPlayerColor(int32_t *color, int32_t prev_color)
 {
     int32_t i, disallowed[] = { 1, 2, 3, 4, 5, 6, 7, 8, 17, 18, 19, 20, 22 };
 
-    for (i=0;i<(signed)(sizeof(disallowed)/sizeof(disallowed[0]));i++)
+    for (i=0; i<(signed)(sizeof(disallowed)/sizeof(disallowed[0])); i++)
     {
         while (*color == disallowed[i])
         {
@@ -576,8 +576,8 @@ void M_DisplayMenus(void)
     if (getrendermode() >= 3)
     {
         int32_t x,y=0;
-        for (;y<ydim;y+=tilesizy[MENUSCREEN])
-            for (x=0;x<xdim;x+=tilesizx[MENUSCREEN])
+        for (; y<ydim; y+=tilesizy[MENUSCREEN])
+            for (x=0; x<xdim; x+=tilesizx[MENUSCREEN])
                 rotatesprite(x<<16,y<<16,65536L,0,MENUSCREEN,80,0,1+8+16,0,0,xdim-1,ydim-1);
     }
 
@@ -992,7 +992,7 @@ void M_DisplayMenus(void)
                 g_currentMenu = 20004;
             }
         }
-        for (i=0;i<10;i++)
+        for (i=0; i<10; i++)
         {
             if (g_currentMenu == 20005 && i == last_menu_pos) continue;
             mgametextpal(26,40+(i<<3),ud.ridecule[i],MENUHIGHLIGHT(i),0);
@@ -1360,7 +1360,7 @@ void M_DisplayMenus(void)
                     ud.lockout = 0;
                     buf[0] = 0;
 
-                    for (x=0;x<g_numAnimWalls;x++)
+                    for (x=0; x<g_numAnimWalls; x++)
                         if (wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
                                 wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
                                 wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2)
@@ -1383,7 +1383,7 @@ void M_DisplayMenus(void)
                     if (ud.pwlockout[0] == 0)
                     {
                         ud.lockout = 0;
-                        for (x=0;x<g_numAnimWalls;x++)
+                        for (x=0; x<g_numAnimWalls; x++)
                             if (wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
                                     wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
                                     wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2)
@@ -1402,7 +1402,7 @@ void M_DisplayMenus(void)
                 {
                     ud.lockout = 1;
 
-                    for (x=0;x<g_numAnimWalls;x++)
+                    for (x=0; x<g_numAnimWalls; x++)
                         switch (DynamicTileMap[wall[animwall[x].wallnum].picnum])
                         {
                         case FEMPIC1__STATIC:
@@ -2135,7 +2135,7 @@ cheat_for_port_credits:
         }
         else
         {
-            for (i=0;i<g_numVolumes;i++)
+            for (i=0; i<g_numVolumes; i++)
                 menutext(160,60-(g_numVolumes*2)+(20*i),MENUHIGHLIGHT(i),PHX(-2),EpisodeNames[i]);
 
             menutext(160,60-(g_numVolumes*2)+(20*i),MENUHIGHLIGHT(i),PHX(-6),"USER MAP");
@@ -3549,7 +3549,7 @@ cheat_for_port_credits:
             if (!p) continue;
 
             strcpy(tempbuf, p);
-            for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+            for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
             minitextshade(70,34+l*8,tempbuf,(m+l == probey)?0:16,1,10+16);
 
             //strcpy(tempbuf, KB_ScanCodeToString(ud.config.KeyboardKeys[m+l][0]));
@@ -3701,7 +3701,7 @@ cheat_for_port_credits:
             else
             {
                 strcpy(tempbuf, CONFIG_FunctionNumToName(m));
-                for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+                for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
                 minitextshade(c+100+20,34+l*8,tempbuf,(l==probey)?0:16,2,10+16);
             }
         }
@@ -3904,7 +3904,7 @@ cheat_for_port_credits:
             else
                 strcpy(tempbuf, CONFIG_FunctionNumToName(m+l));
 
-            for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+            for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
             minitext(100,51+l*8,tempbuf,(m+l == probey)?0:16,10+16);
         }
 
@@ -4022,7 +4022,7 @@ cheat_for_port_credits:
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[1][0]));
 
-        for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+        for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,93+16,tempbuf,MENUHIGHLIGHT(3),0,10+16);
 
         mgametextpal(c+10,92+16+9,"DOWN:",MENUHIGHLIGHT(4),10);
@@ -4031,7 +4031,7 @@ cheat_for_port_credits:
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[1][1]));
 
-        for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+        for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,93+16+9,tempbuf,MENUHIGHLIGHT(4),0,10+16);
 
         mgametextpal(c+10,92+16+9+9,"LEFT:",MENUHIGHLIGHT(5),10);
@@ -4040,7 +4040,7 @@ cheat_for_port_credits:
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[0][0]));
 
-        for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+        for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,93+16+9+9,tempbuf,MENUHIGHLIGHT(5),0,10+16);
 
         mgametextpal(c+10,92+16+9+9+9,"RIGHT:",MENUHIGHLIGHT(6),10);
@@ -4049,7 +4049,7 @@ cheat_for_port_credits:
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[0][1]));
 
-        for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+        for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,93+16+9+9+9,tempbuf,MENUHIGHLIGHT(6),0,10+16);
 
         break;
@@ -4143,7 +4143,7 @@ cheat_for_port_credits:
             else
             {
                 strcpy(tempbuf, CONFIG_FunctionNumToName(x));
-                for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+                for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
                 minitextshade(176,33+l*8,tempbuf,(m+l==probey)?0:16,2,10+16);
             }
         }
@@ -4271,7 +4271,7 @@ cheat_for_port_credits:
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2][0]));
 
-        for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+        for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitext(140+12,38+15,tempbuf,0,10+16);
 
         if (ud.config.JoystickDigitalFunctions[thispage*2][1] < 0)
@@ -4279,7 +4279,7 @@ cheat_for_port_credits:
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2][1]));
 
-        for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+        for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitext(140+12+72,38+15,tempbuf,0,10+16);
 
         mgametext(76,38+15+15,"ANALOG",0,2+8+16);
@@ -4312,7 +4312,7 @@ cheat_for_port_credits:
             else
                 strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2+1][0]));
 
-            for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+            for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
             minitext(140+12,38+15+64,tempbuf,0,10+16);
 
             if (ud.config.JoystickDigitalFunctions[thispage*2+1][1] < 0)
@@ -4320,7 +4320,7 @@ cheat_for_port_credits:
             else
                 strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2+1][1]));
 
-            for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+            for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
             minitext(140+12+72,38+15+64,tempbuf,0,10+16);
 
             mgametext(76,38+64+15+15,"ANALOG",0,2+8+16);
@@ -4372,7 +4372,7 @@ cheat_for_port_credits:
             break;
         }
 
-        for (m=first;m<last-1;m++)
+        for (m=first; m<last-1; m++)
         {
             int32_t odx,dx,ody,dy;
             Bstrcpy(tempbuf,(char *)getjoyname(0,m));
@@ -4561,7 +4561,7 @@ cheat_for_port_credits:
                     int32_t rates[] = { 8000, 11025, 16000, 22050, 32000, 44100, 48000 };
                     int32_t j = (sizeof(rates)/sizeof(rates[0]));
 
-                    for (i = 0;i<j;i++)
+                    for (i = 0; i<j; i++)
                         if (rates[i] == ud.config.MixRate)
                             break;
 
@@ -5103,7 +5103,7 @@ VOLUME_ALL_40x:
         {
             if (voting == myconnectindex)
             {
-                for (i=0;i<MAXPLAYERS;i++)
+                for (i=0; i<MAXPLAYERS; i++)
                 {
                     g_player[i].vote = 0;
                     g_player[i].gotvote = 0;
@@ -5122,7 +5122,7 @@ VOLUME_ALL_40x:
             ChangeToMenu(0);
         }
 
-        for (i=0;i<MAXPLAYERS;i++)
+        for (i=0; i<MAXPLAYERS; i++)
         {
             plrvotes += g_player[i].vote;
             j += g_player[i].gotvote;
@@ -5158,7 +5158,7 @@ VOLUME_ALL_40x:
             }
             else if (j == numplayers)
             {
-                for (i=0;i<MAXPLAYERS;i++)
+                for (i=0; i<MAXPLAYERS; i++)
                 {
                     g_player[i].vote = 0;
                     g_player[i].gotvote = 0;
@@ -5309,7 +5309,7 @@ VOLUME_ALL_40x:
             {
                 if (g_player[myconnectindex].ps->i)
                 {
-                    for (i=0;i<MAXPLAYERS;i++)
+                    for (i=0; i<MAXPLAYERS; i++)
                     {
                         g_player[i].vote = 0;
                         g_player[i].gotvote = 0;

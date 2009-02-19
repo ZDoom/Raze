@@ -65,14 +65,14 @@ void hicinit(void)
 #if defined(USE_OPENGL)
     clearconv();
 #endif
-    for (i=0;i<MAXPALOOKUPS;i++)  	// all tints should be 100%
+    for (i=0; i<MAXPALOOKUPS; i++)  	// all tints should be 100%
     {
         hictinting[i].r = hictinting[i].g = hictinting[i].b = 0xff;
         hictinting[i].f = 0;
     }
 
     if (hicfirstinit)
-        for (i=MAXTILES-1;i>=0;i--)
+        for (i=MAXTILES-1; i>=0; i--)
         {
             for (hr=hicreplc[i]; hr;)
             {
@@ -80,7 +80,7 @@ void hicinit(void)
 
                 if (hr->skybox)
                 {
-                    for (j=5;j>=0;j--)
+                    for (j=5; j>=0; j--)
                     {
                         if (hr->skybox->face[j])
                         {
@@ -184,7 +184,7 @@ int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6])
 
     if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
     if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
-    for (j=5;j>=0;j--) if (!faces[j]) return -1;
+    for (j=5; j>=0; j--) if (!faces[j]) return -1;
     if (!hicfirstinit) hicinit();
 
     for (hr = hicreplc[picnum]; hr; hr = hr->next)
@@ -214,7 +214,7 @@ int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6])
     }
     else
     {
-        for (j=5;j>=0;j--)
+        for (j=5; j>=0; j--)
         {
             if (hrn->skybox->face[j])
                 free(hrn->skybox->face[j]);
@@ -222,7 +222,7 @@ int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6])
     }
 
     // store each face's filename
-    for (j=0;j<6;j++)
+    for (j=0; j<6; j++)
     {
         hrn->skybox->face[j] = strdup(faces[j]);
         if (!hrn->skybox->face[j])
@@ -270,7 +270,7 @@ int32_t hicclearsubst(int32_t picnum, int32_t palnum)
     if (hr->skybox)
     {
         int32_t i;
-        for (i=5;i>=0;i--)
+        for (i=5; i>=0; i--)
             if (hr->skybox->face[i])
                 free(hr->skybox->face[i]);
         free(hr->skybox);

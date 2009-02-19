@@ -240,7 +240,7 @@ void G_PlayAnim(const char *fn,char t)
     numframes = ANIM_NumFrames();
 
     palptr = ANIM_GetPalette();
-    for (i=0;i<256;i++)
+    for (i=0; i<256; i++)
     {
         j = i*3;
         animpal[j+0] = (palptr[j+0]>>2);
@@ -261,7 +261,7 @@ void G_PlayAnim(const char *fn,char t)
 
     frametime = totalclock;
 
-    for (i=1;i<numframes;i++)
+    for (i=1; i<numframes; i++)
     {
         if ((i > 4) && (totalclock > frametime + 45))
         {
