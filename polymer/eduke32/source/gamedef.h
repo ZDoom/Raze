@@ -900,6 +900,7 @@ enum ScriptKeywords_t
     CON_IFVARVAREITHER,     // 342
     CON_GETARRAYSIZE,       // 343
     CON_SAVENN,             // 344
+    CON_COPY,               // 345
     CON_END
 };
 #endif

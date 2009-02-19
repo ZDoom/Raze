@@ -565,6 +565,7 @@ int32_t __fastcall Gv_GetVar(int32_t id, int32_t iActor, int32_t iPlayer)
                         return -1;
                     }
                     label = Gv_GetVar(*insptr++, index, iPlayer);
+//                    OSD_Printf("actorvar returned %d\n",label);
                 }
                 else label = *insptr++;
 
@@ -777,7 +778,7 @@ int32_t __fastcall Gv_GetVarX(int32_t id)
                         OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index\n",g_errorLineNum,keyw[g_tw]);
                         return -1;
                     }
-                    label = Gv_GetVarX(*insptr++);
+                    label = Gv_GetVar(*insptr++, index, vm.g_p);
                 }
                 else label = *insptr++;
 

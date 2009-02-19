@@ -4577,6 +4577,8 @@ static void G_DumpDebugInfo(void)
 {
     int32_t i,j,x;
 //    FILE * fp=fopen("condebug.log","w");
+
+    OSD_Printf("Current gamevar values:\n");
     for (i=0;i<MAX_WEAPONS;i++)
     {
         for (j=0;j<numplayers;j++)
@@ -6953,12 +6955,14 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         case RPG__STATIC:
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 &&
+                    !(spriteext[i].flags & SPREXT_NOTMD))
             {
-                int32_t v=getangle(t->xvel,t->zvel>>4);
-                if (v>1023)v-=2048;
-                spriteext[i].pitch=v;
+                int32_t v = getangle(t->xvel, t->zvel>>4);
 
+                if (v > 1023)
+                    v -= 2048;
+                spriteext[i].pitch = v;
                 t->cstat &= ~4;
                 break;
             }
@@ -7272,7 +7276,7 @@ PALONLY:
         }
 
         if (g_player[screenpeek].ps->heat_amount > 0 && g_player[screenpeek].ps->heat_on &&
-            (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_NVG) || s->picnum == APLAYER || s->statnum == 13))
+                (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_NVG) || s->picnum == APLAYER || s->statnum == 13))
         {
             t->pal = 6;
             t->shade = 0;
@@ -9759,16 +9763,16 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                         g_noMusic = 1;
                         initprintf("Music off.\n");
                     }
-/*
-                    else if (*c == 'd' || *c == 'D')
-                    {
-                        FILE * fp=fopen("gamevars.txt","w");
-                        Gv_Init();
-                        Gv_DumpValues(fp);
-                        fclose(fp);
-                        initprintf("Game variables saved to gamevars.txt.\n");
-                    }
-*/
+                    /*
+                                        else if (*c == 'd' || *c == 'D')
+                                        {
+                                            FILE * fp=fopen("gamevars.txt","w");
+                                            Gv_Init();
+                                            Gv_DumpValues(fp);
+                                            fclose(fp);
+                                            initprintf("Game variables saved to gamevars.txt.\n");
+                                        }
+                    */
                     else
                     {
                         G_ShowParameterHelp();
@@ -10891,9 +10895,9 @@ void app_main(int32_t argc,const char **argv)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (glusetexcache == -1 || glusetexcachecompression == -1)
     {
-        i=wm_ynbox("Texture Caching",
+        i=wm_ynbox("Texture Cache",
                    "Would you like to enable the on-disk texture cache?\n\n"
-                   "You will generally want to say 'yes' here, especially if using the HRP.");
+                   "You generally want to say 'yes' here, especially if using the HRP.");
         if (i) ud.config.useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
     }
@@ -10938,12 +10942,6 @@ void app_main(int32_t argc,const char **argv)
 
                         if (!ShellExecuteExA(&sinfo))
                             initprintf("update: error launching browser!\n");
-                        /*
-                                                CONFIG_SetupMouse();
-                                                CONFIG_SetupJoystick();
-                                                CONFIG_WriteSetup();
-                                                G_GameExit(" ");
-                        */
                     }
                 }
                 else initprintf("... no updates available\n");
@@ -13428,10 +13426,10 @@ FRAGBONUS:
                     if (playerbest > 0)
                     {
                         Bsprintf(tempbuf,"%0*d:%02d.%02d",clockpad,
-                                (playerbest/(26*60)),
-                                (playerbest/26)%60,
-                                ((playerbest%26)*38)/10
-                               );
+                                 (playerbest/(26*60)),
+                                 (playerbest/26)%60,
+                                 ((playerbest%26)*38)/10
+                                );
                         gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                         yy+=10;
                     }

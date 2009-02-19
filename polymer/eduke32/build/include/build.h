@@ -300,6 +300,15 @@ extern char noclip;
 
 EXTERN int32_t editorzrange[2];
 
+static inline int32_t getrendermode(void)
+{
+#ifndef POLYMOST
+    return 0;
+#else
+    return rendmode;
+#endif
+}
+
 /*************************************************************************
 POSITION VARIABLES:
 
@@ -498,8 +507,6 @@ typedef struct  s_equation {
 typedef struct  s_point2d {
     float       x, y;
 }               _point2d;
-_equation       equation(float x1, float y1, float x2, float y2);
-int32_t             sameside(_equation* eq, _point2d* p1, _point2d* p2);
 int32_t             wallvisible(int16_t wallnum);
 
 #define STATUS2DSIZ 144

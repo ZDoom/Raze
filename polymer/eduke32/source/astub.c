@@ -8628,9 +8628,9 @@ int32_t ExtInit(void)
     {
         int32_t i;
 #if 1
-        i=wm_ynbox("Texture Caching",
+        i=wm_ynbox("Texture Cache",
                    "Would you like to enable the on-disk texture cache?\n\n"
-                   "You will generally want to say 'yes' here, especially if using the HRP.");
+                   "You generally want to say 'yes' here, especially if using the HRP.");
 #else
         i = 1;
 #endif

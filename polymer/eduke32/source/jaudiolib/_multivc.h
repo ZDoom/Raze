@@ -80,7 +80,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #define NumberOfBuffers   16
 #define TotalBufferSize   ( MixBufferSize * NumberOfBuffers )
 
-#define PI                3.1415926536
+#define PI                3.14159265358979323
 
 typedef enum
 {

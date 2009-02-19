@@ -38,6 +38,7 @@ char g_szBuf[1024];
 
 intptr_t *g_caseScriptPtr=NULL;      // the pointer to the start of the case table in a switch statement
 // first entry is 'default' code.
+static intptr_t *previous_event=NULL;
 static int32_t g_numCases = 0;
 static int32_t g_checkingSwitch = 0, g_currentEvent = -1;
 static int32_t g_labelsOnly = 0, g_skipKeywordCheck = 0, g_dynamicTileMapping = 0;
@@ -486,6 +487,7 @@ const char *keyw[] =
     "ifvarvareither",           // 342
     "getarraysize",             // 343
     "savenn",                   // 344
+    "copy",                     // 345
     "<null>"
 };
 
@@ -2773,17 +2775,12 @@ static int32_t C_ParseCommand(void)
             g_numCompilerErrors++;
             return 0;
         }
-
+        // if event has already been declared then store previous script location
         if (apScriptGameEvent[j])
         {
-            tempscrptr = g_parsingEventPtr;
-            g_parsingEventPtr = g_parsingActorPtr = 0;
-            C_ReportError(-1);
-            g_parsingEventPtr = g_parsingActorPtr = tempscrptr;
-            initprintf("%s:%d: warning: duplicate event `%s'.\n",g_szScriptFileName,g_lineNumber,g_szCurrentBlockName);
-            g_numCompilerWarnings++;
+            previous_event =apScriptGameEvent[j];
         }
-        else apScriptGameEvent[j]=g_parsingEventPtr;
+        apScriptGameEvent[j]=g_parsingEventPtr;
 
         g_checkingIfElse = 0;
 
@@ -3863,6 +3860,46 @@ static int32_t C_ParseCommand(void)
 
         C_GetNextValue(LABEL_DEFINE); // the number to check against...
         return 0;
+    case CON_WRITEARRAYTOFILE:
+    case CON_READARRAYFROMFILE:
+        C_GetNextLabelName();
+        i=GetADefID(label+(g_numLabels<<6));
+        if (i > (-1))
+        {
+            bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
+            *g_scriptPtr++=i;
+        }
+        else
+            C_ReportError(ERROR_NOTAGAMEARRAY);
+        C_GetNextValue(LABEL_DEFINE);
+        return 0;
+    case CON_COPY:
+        C_GetNextLabelName();
+        i=GetADefID(label+(g_numLabels<<6));
+        if (i > (-1))
+        {
+            bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
+            *g_scriptPtr++=i;
+        }
+        else
+            C_ReportError(ERROR_NOTAGAMEARRAY);
+        C_SkipComments();// skip comments and whitespace
+        if (*textptr != '[')
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_GAMEARRAYBNO);
+            return 1;
+        }
+        textptr++;
+        C_GetNextVar();
+        C_SkipComments();// skip comments and whitespace
+        if (*textptr != ']')
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_GAMEARRAYBNC);
+            return 1;
+        }
+        textptr++;
     case CON_SETARRAY:
         C_GetNextLabelName();
         i=GetADefID(label+(g_numLabels<<6));
@@ -3906,6 +3943,7 @@ static int32_t C_ParseCommand(void)
         C_SkipComments();
         C_GetNextVar();
         return 0;
+
     case CON_RANDVARVAR:
         if (!C_CheckEventSync(g_currentEvent))
         {
@@ -4885,7 +4923,7 @@ repeatcase:
         if (j < 0 || j > MAXVOLUMES-1)
         {
             initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",
-                g_szScriptFileName,g_lineNumber);
+                       g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
             while (*textptr != 0x0a && *textptr != 0) textptr++;
             break;
@@ -4900,7 +4938,7 @@ repeatcase:
             if (i >= (signed)sizeof(EpisodeNames[j])-1)
             {
                 initprintf("%s:%d: warning: truncating volume name to %d characters.\n",
-                    g_szScriptFileName,g_lineNumber,sizeof(EpisodeNames[j])-1);
+                           g_szScriptFileName,g_lineNumber,sizeof(EpisodeNames[j])-1);
                 g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
@@ -4920,7 +4958,7 @@ repeatcase:
         if (j < 0 || j > NUMGAMEFUNCTIONS-1)
         {
             initprintf("%s:%d: error: function number exceeds number of game functions.\n",
-                g_szScriptFileName,g_lineNumber);
+                       g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
             while (*textptr != 0x0a && *textptr != 0) textptr++;
             break;
@@ -4936,7 +4974,7 @@ repeatcase:
             if (*textptr == '/' || *textptr == ' ')
             {
                 initprintf("%s:%d: warning: invalid character in function name.\n",
-                    g_szScriptFileName,g_lineNumber);
+                           g_szScriptFileName,g_lineNumber);
                 g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
@@ -4944,7 +4982,7 @@ repeatcase:
             if (i >= MAXGAMEFUNCLEN-1)
             {
                 initprintf("%s:%d: warning: truncating function name to %d characters.\n",
-                    g_szScriptFileName,g_lineNumber,MAXGAMEFUNCLEN);
+                           g_szScriptFileName,g_lineNumber,MAXGAMEFUNCLEN);
                 g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
@@ -4972,7 +5010,7 @@ repeatcase:
         if (j < 0 || j > 4)
         {
             initprintf("%s:%d: error: skill number exceeds maximum skill count.\n",
-                g_szScriptFileName,g_lineNumber);
+                       g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
             while (*textptr != 0x0a && *textptr != 0) textptr++;
             break;
@@ -4987,7 +5025,7 @@ repeatcase:
             if (i >= (signed)sizeof(SkillNames[j])-1)
             {
                 initprintf("%s:%d: warning: truncating skill name to %d characters.\n",
-                    g_szScriptFileName,g_lineNumber,sizeof(SkillNames[j])-1);
+                           g_szScriptFileName,g_lineNumber,sizeof(SkillNames[j])-1);
                 g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
@@ -5012,7 +5050,7 @@ repeatcase:
             if (i >= (signed)sizeof(gamename)-1)
             {
                 initprintf("%s:%d: warning: truncating game name to %d characters.\n",
-                    g_szScriptFileName,g_lineNumber,sizeof(gamename)-1);
+                           g_szScriptFileName,g_lineNumber,sizeof(gamename)-1);
                 g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
@@ -5142,7 +5180,7 @@ repeatcase:
             if (i >= (signed)sizeof(GametypeNames[j])-1)
             {
                 initprintf("%s:%d: warning: truncating gametype name to %d characters.\n",
-                    g_szScriptFileName,g_lineNumber,sizeof(GametypeNames[j])-1);
+                           g_szScriptFileName,g_lineNumber,sizeof(GametypeNames[j])-1);
                 g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
@@ -5230,7 +5268,7 @@ repeatcase:
             if (i >= 32)
             {
                 initprintf("%s:%d: warning: truncating level name to %d characters.\n",
-                    g_szScriptFileName,g_lineNumber,32);
+                           g_szScriptFileName,g_lineNumber,32);
                 g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
@@ -5361,7 +5399,7 @@ repeatcase:
             if (i >= (signed)sizeof(CheatStrings[k])-1)
             {
                 initprintf("%s:%d: warning: truncating cheat string to %d characters.\n",
-                    g_szScriptFileName,g_lineNumber,MAXCHEATLEN,sizeof(CheatStrings[k])-1);
+                           g_szScriptFileName,g_lineNumber,MAXCHEATLEN,sizeof(CheatStrings[k])-1);
                 g_numCompilerWarnings++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0 && *textptr != ' ') textptr++;
                 break;
@@ -5439,6 +5477,16 @@ repeatcase:
         {
             C_ReportError(ERROR_CLOSEBRACKET);
             g_numCompilerErrors++;
+        }
+        // if event has already been declared then put a jump in instead
+        if (previous_event)
+        {
+            g_scriptPtr--;
+            *(g_scriptPtr++) = CON_JUMP;
+            *(g_scriptPtr++) = MAXGAMEVARS;
+            *(g_scriptPtr++) = previous_event-script;
+            *(g_scriptPtr++) = CON_ENDEVENT;
+            previous_event = NULL;
         }
         g_parsingEventPtr = 0;
         g_parsingActorPtr = 0;
@@ -5622,45 +5670,6 @@ repeatcase:
     return 0;
 }
 
-/*
-#define NUM_DEFAULT_CONS    4
-static const char *defaultcons[NUM_DEFAULT_CONS] =
-{
-    "EDUKE.CON",
-    "GAME.CON",
-    "USER.CON",
-    "DEFS.CON"
-};
-
-void copydefaultcons(void)
-{
-    int32_t i, fs, fpi;
-    FILE *fpo;
-
-    for (i=0;i<NUM_DEFAULT_CONS;i++)
-    {
-        fpi = kopen4loadfrommod((char *)defaultcons[i] , 1);
-        if (fpi < 0) continue;
-
-        fpo = fopenfrompath((char *)defaultcons[i],"wb");
-
-        if (fpo == NULL)
-        {
-            kclose(fpi);
-            continue;
-        }
-
-        fs = kfilelength(fpi);
-
-        kread(fpi,&ActorExtra[0],fs);
-        if (fwrite(&ActorExtra[0],fs,1,fpo)==0)initprintf("Failed to restore default CONs.\n");
-
-        kclose(fpi);
-        fclose(fpo);
-    }
-}
-*/
-
 /* Anything added with C_AddDefinition() cannot be overwritten in the CONs */
 
 static void C_AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
@@ -5843,23 +5852,6 @@ void C_Compile(const char *filenam)
     Gv_Init();
     C_InitProjectiles();
 
-    /* JBF 20040109: Don't prompt to extract CONs from GRP if they're missing.
-     * If someone really wants them they can Kextract them.
-    if(!SafeFileExists(filenam) && g_loadFromGroupOnly == 0)
-    {
-        initprintf("Missing external CON file(s).\n");
-        initprintf("COPY INTERNAL DEFAULTS TO DIRECTORY(Y/n)?\n");
-
-    i=wm_ynbox("Missing CON file(s)", "Missing external CON file(s). "
-    "Copy internal defaults to directory?");
-    if (i) i = 'y';
-        if(i == 'y' || i == 'Y')
-        {
-            initprintf(" Yes\n");
-            copydefaultcons();
-        }
-    }
-    */
     fp = kopen4loadfrommod((char *)filenam,g_loadFromGroupOnly);
     if (fp == -1) // JBF: was 0
     {

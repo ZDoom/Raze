@@ -2977,10 +2977,10 @@ static int32_t X_DoExecute(void)
     case CON_IFGAPZL:
         insptr++;
         X_DoConditional(((ActorExtra[vm.g_i].floorz - ActorExtra[vm.g_i].ceilingz) >> 8) < *insptr);
-/*
-        if (sprite[vm.g_i].sectnum == g_player[vm.g_p].ps->cursectnum)
-        OSD_Printf("%d %d\n",ActorExtra[vm.g_i].floorz,ActorExtra[vm.g_i].ceilingz);
-*/
+        /*
+                if (sprite[vm.g_i].sectnum == g_player[vm.g_p].ps->cursectnum)
+                OSD_Printf("%d %d\n",ActorExtra[vm.g_i].floorz,ActorExtra[vm.g_i].ceilingz);
+        */
         break;
 
     case CON_IFHITSPACE:
@@ -3671,6 +3671,56 @@ static int32_t X_DoExecute(void)
             aGameArrays[j].plValues[index]=value;
             break;
         }
+    case CON_WRITEARRAYTOFILE:
+    case CON_READARRAYFROMFILE:
+        insptr++;
+        {
+            int32_t j=*insptr++;
+            {
+                int q = *insptr++;
+
+                if (ScriptQuotes[q] == NULL)
+                {
+                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q);
+                    break;
+                }
+
+                if (tw == CON_READARRAYFROMFILE)
+                {
+                    int32_t fil = kopen4loadfrommod(ScriptQuotes[q], 0);
+                    int32_t asize;
+
+                    if (fil < 0)
+                        break;
+
+                    asize = kfilelength(fil);
+
+                    if (asize > 0)
+                    {
+                        OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);
+                        aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, sizeof(int) * asize);
+                        aGameArrays[j].size = asize;
+                    }
+
+                    kread(fil,aGameArrays[j].plValues,sizeof(int) * asize);
+                    kclose(fil);
+                }
+                else
+                {
+                    FILE *fil;
+                    char temp[BMAX_PATH];
+                    if (mod_dir[0] != '/')
+                        Bsprintf(temp,"%s/%s",mod_dir,ScriptQuotes[q]);
+                    else Bsprintf(temp,"%s",ScriptQuotes[q]);
+                    if ((fil = fopen(temp,"wb")) == 0) break;
+
+                    fwrite(aGameArrays[j].plValues,1,sizeof(int) * aGameArrays[j].size,fil);
+                    fclose(fil);
+                }
+                break;
+            }
+        }
+
     case CON_GETARRAYSIZE:
         insptr++;
         {
@@ -3691,6 +3741,24 @@ static int32_t X_DoExecute(void)
                 aGameArrays[j].size = asize;
             }
             break;
+        }
+
+    case CON_COPY:
+        insptr++;
+        {
+            int32_t j=*insptr++;
+            {
+                int32_t index = Gv_GetVar(*insptr++, vm.g_i, vm.g_p);
+                int32_t j1=*insptr++;
+                int32_t index1 = Gv_GetVar(*insptr++, vm.g_i, vm.g_p);
+                int32_t value = Gv_GetVar(*insptr++, vm.g_i, vm.g_p);
+                if (index>aGameArrays[j].size) break;
+                if (index1>aGameArrays[j1].size) break;
+                if ((index+value)>aGameArrays[j].size) value=aGameArrays[j].size-index;
+                if ((index1+value)>aGameArrays[j1].size) value=aGameArrays[j1].size-index1;
+                memcpy(aGameArrays[j1].plValues+index1,aGameArrays[j].plValues+index,value*sizeof(int));
+                break;
+            }
         }
 
     case CON_RANDVAR:

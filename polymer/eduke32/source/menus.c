@@ -3395,8 +3395,8 @@ cheat_for_port_credits:
 
         menutext(c,50,MENUHIGHLIGHT(0),0,"RESOLUTION");
         Bsprintf(tempbuf,"%d x %d",
-                (newvidmode==validmodecnt)?xdim:validmode[newvidmode].xdim,
-                (newvidmode==validmodecnt)?ydim:validmode[newvidmode].ydim);
+                 (newvidmode==validmodecnt)?xdim:validmode[newvidmode].xdim,
+                 (newvidmode==validmodecnt)?ydim:validmode[newvidmode].ydim);
         mgametext(c+168,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
 
         menutext(c,50+16,MENUHIGHLIGHT(1),0,"RENDERER");

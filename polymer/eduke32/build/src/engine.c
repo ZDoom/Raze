@@ -5043,7 +5043,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 //
 // initksqrt (internal)
 //
-static void initksqrt(void)
+static inline void initksqrt(void)
 {
     int32_t i, j, k;
 
@@ -5101,7 +5101,7 @@ static void dosetaspect(void)
 //
 // loadtables (internal)
 //
-static void calcbritable(void)
+static inline void calcbritable(void)
 {
     int32_t i,j;
     double a,b;
@@ -5382,7 +5382,7 @@ static int32_t deletespritestat(int16_t deleteme)
 //
 // lintersect (internal)
 //
-static int32_t lintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t x3,
+static inline int32_t lintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t x3,
                       int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
 {
     //p1 to p2 is a line segment
@@ -5415,7 +5415,7 @@ static int32_t lintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_
 //
 // rintersect (internal)
 //
-static int32_t rintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy, int32_t vz, int32_t x3,
+static inline int32_t rintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy, int32_t vz, int32_t x3,
                       int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
 {
     //p1 towards p2 is a ray
@@ -5447,7 +5447,7 @@ static int32_t rintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_
 //
 // keepaway (internal)
 //
-static void keepaway(int32_t *x, int32_t *y, int32_t w)
+static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
 {
     int32_t dx, dy, ox, oy, x1, y1;
     char first;
@@ -5468,7 +5468,7 @@ static void keepaway(int32_t *x, int32_t *y, int32_t w)
 //
 // raytrace (internal)
 //
-static int32_t raytrace(int32_t x3, int32_t y3, int32_t *x4, int32_t *y4)
+static inline int32_t raytrace(int32_t x3, int32_t y3, int32_t *x4, int32_t *y4)
 {
     int32_t x1, y1, x2, y2, bot, topu, nintx, ninty, cnt, z, hitwall;
     int32_t x21, y21, x43, y43;
@@ -5950,7 +5950,7 @@ typedef struct          s_maskleaf
 _maskleaf               maskleaves[MAXWALLSB];
 
 // returns equation of a line given two points
-_equation       equation(float x1, float y1, float x2, float y2)
+static inline _equation       equation(float x1, float y1, float x2, float y2)
 {
     _equation   ret;
 
@@ -5990,7 +5990,7 @@ int32_t                 wallvisible(int16_t wallnum)
     else
         return (0);
 }
-
+/*
 // returns the intersection point between two lines
 _point2d        intersection(_equation eq1, _equation eq2)
 {
@@ -6037,7 +6037,7 @@ int32_t             wallobstructswall(_maskleaf* wall1, _maskleaf* wall2)
 }
 
 // recursive mask drawing function
-void    drawmaskleaf(_maskleaf* wall)
+static inline void    drawmaskleaf(_maskleaf* wall)
 {
     int32_t i;
 
@@ -6056,8 +6056,9 @@ void    drawmaskleaf(_maskleaf* wall)
     //OSD_Printf("Drawing mask %i\n", wall->index);
     drawmaskwall(wall->index);
 }
+*/
 
-int32_t         sameside(_equation* eq, _point2d* p1, _point2d* p2)
+static inline int32_t         sameside(_equation* eq, _point2d* p1, _point2d* p2)
 {
     float   sign1, sign2;
 
@@ -7121,7 +7122,7 @@ static void convertv6sprv7(struct spritetypev6 *from, spritetype *to)
 }
 
 // Powerslave uses v6
-// Witchaven 1 and TekWar use v5
+// Witchaven 1 and TekWar and LameDuke use v5
 int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *daposy, int32_t *daposz,
                  int16_t *daang, int16_t *dacursectnum)
 {
@@ -12028,19 +12029,6 @@ int32_t setrendermode(int32_t renderer)
 
     return 0;
 }
-
-//
-// getrendermode
-//
-int32_t getrendermode(void)
-{
-#ifndef POLYMOST
-    return 0;
-#else
-    return rendmode;
-#endif
-}
-
 
 //
 // setrollangle

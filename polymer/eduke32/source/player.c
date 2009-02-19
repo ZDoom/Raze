@@ -3425,12 +3425,12 @@ void P_DropWeapon(DukePlayer_t *p)
     if (krand()&1)
         A_Spawn(p->i,WeaponPickupSprites[cw]);
     else switch (cw)
-    {
+        {
         case RPG_WEAPON:
         case HANDBOMB_WEAPON:
             A_Spawn(p->i,EXPLOSION2);
             break;
-    }
+        }
 }
 
 void P_AddAmmo(int32_t weapon,DukePlayer_t *p,int32_t amount)

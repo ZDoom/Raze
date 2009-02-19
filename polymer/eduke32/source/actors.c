@@ -2236,6 +2236,44 @@ static void G_MoveWeapons(void)
                 //                if( g_sounds[WIERDSHOT_FLY].num == 0 )
                 //                    A_PlaySound(WIERDSHOT_FLY,i);
 
+                if (ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFWALLS)
+                {
+                    /*                    if(s->yvel < 1 || s->extra < 2 || (s->xvel|s->zvel) == 0)
+                    Did this cause the bug with prematurely exploding projectiles? */
+                    if (s->yvel < 1)
+                    {
+
+                        if (ActorExtra[i].projectile.spawns >= 0)
+                        {
+                            k = A_Spawn(i,ActorExtra[i].projectile.spawns);
+
+                            Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
+                            /*
+                            sprite[k].x = dax;
+                            sprite[k].y = day;
+                            sprite[k].z = daz;
+                            */
+
+                            if (ActorExtra[i].projectile.sxrepeat > 4)
+                                sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
+                            if (ActorExtra[i].projectile.syrepeat > 4)
+                                sprite[k].yrepeat=ActorExtra[i].projectile.syrepeat;
+                        }
+                        if (ActorExtra[i].projectile.isound >= 0)
+                            A_PlaySound(ActorExtra[i].projectile.isound,i);
+
+                        s->extra=ActorExtra[i].projectile.extra;
+
+                        if (ActorExtra[i].projectile.extra_rand > 0)
+                            s->extra += (krand()&ActorExtra[i].projectile.extra_rand);
+
+                        x = s->extra;
+                        A_RadiusDamage(i,ActorExtra[i].projectile.hitradius, x>>2,x>>1,x-(x>>2),x);
+
+                        KILLIT(i);
+                    }
+                }
+
                 p = -1;
 
                 if (ActorExtra[i].projectile.workslike & PROJECTILE_COOLEXPLOSION1)
@@ -2261,11 +2299,6 @@ static void G_MoveWeapons(void)
                 }
 
                 Bmemcpy(&davect,s,sizeof(vec3_t));
-                /*
-                                dax = s->x;
-                                day = s->y;
-                                daz = s->z;
-                */
 
                 A_GetZLimits(i);
                 qq = CLIPMASK1;
@@ -2326,11 +2359,6 @@ static void G_MoveWeapons(void)
                                 k = A_Spawn(i,ActorExtra[i].projectile.spawns);
 
                                 Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
-                                /*
-                                                                sprite[k].x = dax;
-                                                                sprite[k].y = day;
-                                                                sprite[k].z = daz;
-                                */
 
                                 if (ActorExtra[i].projectile.sxrepeat > 4)
                                     sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
@@ -2350,45 +2378,6 @@ static void G_MoveWeapons(void)
                         }
                         KILLIT(i);
                     }
-                }
-
-                if (ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFWALLS)
-                {
-                    /*                    if(s->yvel < 1 || s->extra < 2 || (s->xvel|s->zvel) == 0)
-                                Did this cause the bug with prematurely exploding projectiles? */
-                    if (s->yvel < 1)
-                    {
-
-                        if (ActorExtra[i].projectile.spawns >= 0)
-                        {
-                            k = A_Spawn(i,ActorExtra[i].projectile.spawns);
-
-                            Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
-                            /*
-                                                        sprite[k].x = dax;
-                                                        sprite[k].y = day;
-                                                        sprite[k].z = daz;
-                            */
-
-                            if (ActorExtra[i].projectile.sxrepeat > 4)
-                                sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
-                            if (ActorExtra[i].projectile.syrepeat > 4)
-                                sprite[k].yrepeat=ActorExtra[i].projectile.syrepeat;
-                        }
-                        if (ActorExtra[i].projectile.isound >= 0)
-                            A_PlaySound(ActorExtra[i].projectile.isound,i);
-
-                        s->extra=ActorExtra[i].projectile.extra;
-
-                        if (ActorExtra[i].projectile.extra_rand > 0)
-                            s->extra += (krand()&ActorExtra[i].projectile.extra_rand);
-
-                        x = s->extra;
-                        A_RadiusDamage(i,ActorExtra[i].projectile.hitradius, x>>2,x>>1,x-(x>>2),x);
-
-                        KILLIT(i);
-                    }
-
                 }
 
                 if ((j&49152) != 49152)
@@ -2483,11 +2472,6 @@ static void G_MoveWeapons(void)
                             {
                                 k = A_Spawn(i,ActorExtra[i].projectile.spawns);
                                 Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
-                                /*
-                                                                sprite[k].x = dax;
-                                                                sprite[k].y = day;
-                                                                sprite[k].z = daz;
-                                */
 
                                 if (ActorExtra[i].projectile.sxrepeat > 4)
                                     sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
@@ -2582,11 +2566,6 @@ static void G_MoveWeapons(void)
                     {
                         k = A_Spawn(i,ActorExtra[i].projectile.spawns);
                         Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
-                        /*
-                                                sprite[k].x = dax;
-                                                sprite[k].y = day;
-                                                sprite[k].z = daz;
-                        */
 
                         if (ActorExtra[i].projectile.sxrepeat > 4)
                             sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
@@ -2696,11 +2675,6 @@ static void G_MoveWeapons(void)
                 }
 
                 Bmemcpy(&davect,s,sizeof(vec3_t));
-                /*
-                                dax = s->x;
-                                day = s->y;
-                                daz = s->z;
-                */
 
                 A_GetZLimits(i);
                 qq = CLIPMASK1;
@@ -2892,11 +2866,6 @@ static void G_MoveWeapons(void)
                         {
                             k = A_Spawn(i,EXPLOSION2);
                             Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
-                            /*
-                                                        sprite[k].x = dax;
-                                                        sprite[k].y = day;
-                                                        sprite[k].z = daz;
-                            */
 
                             if (s->xrepeat < 10)
                             {
