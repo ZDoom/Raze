@@ -52,11 +52,12 @@ int32_t backflag,g_numEnvSoundsPlaying;
 
 void S_SoundStartup(void)
 {
-    int32_t status;
+    int32_t status, err = 0;
 
     // if they chose None lets return
     if (ud.config.FXDevice < 0) return;
 
+RETRY:
     status = FX_Init(ud.config.FXDevice, ud.config.NumVoices, ud.config.NumChannels, ud.config.NumBits, ud.config.MixRate);
     if (status == FX_Ok)
     {
@@ -70,6 +71,20 @@ void S_SoundStartup(void)
 
     if (status != FX_Ok)
     {
+        if (!err)
+        {
+#if defined(_WIN32)
+            ud.config.MixRate = 44100;
+#else
+            ud.config.MixRate = 48000;
+#endif
+            ud.config.NumBits = 16;
+            ud.config.NumChannels = 2;
+            ud.config.NumVoices = 32;
+            ud.config.ReverseStereo = 0;
+            err = 1;
+            goto RETRY;
+        }
         Bsprintf(tempbuf, "Sound startup error: %s", FX_ErrorString(FX_Error));
         G_GameExit(tempbuf);
     }
@@ -123,17 +138,27 @@ void S_MusicStartup(void)
     }
     else
     {
-        initprintf("Couldn't find selected sound card, or, error w/ sound card itself.\n");
+        ud.config.MusicDevice = 0;
 
-        S_SoundShutdown();
-        uninittimer();
-        uninitengine();
-        CONTROL_Shutdown();
-        CONFIG_WriteSetup();
-        KB_Shutdown();
-        uninitgroupfile();
-        //unlink("duke3d.tmp");
-        exit(-1);
+        status = MUSIC_Init(ud.config.MusicDevice, 0);
+
+        if (status == MUSIC_Ok)
+        {
+            MUSIC_SetVolume(ud.config.MusicVolume);
+        }
+        /*
+                initprintf("Couldn't find selected sound card, or, error w/ sound card itself.\n");
+
+                S_SoundShutdown();
+                uninittimer();
+                uninitengine();
+                CONTROL_Shutdown();
+                CONFIG_WriteSetup();
+                KB_Shutdown();
+                uninitgroupfile();
+                //unlink("duke3d.tmp");
+                exit(-1);
+        */
     }
 }
 
@@ -160,11 +185,6 @@ void S_MusicShutdown(void)
     }
 }
 
-void MusicUpdate(void)
-{
-    MUSIC_Update();
-}
-
 void S_MenuSound(void)
 {
     static int32_t SoundNum=0;
@@ -189,7 +209,7 @@ void S_MenuSound(void)
         SELECT_WEAPON
     };
     S_PlaySound(menusnds[SoundNum++]);
-    SoundNum %= 17;
+    SoundNum %= (sizeof(menusnds)/sizeof(menusnds[0]));
 }
 
 void _playmusic(const char *fn)
@@ -246,7 +266,7 @@ int32_t S_LoadSound(uint32_t num)
         return 0;
     }
 
-    if (g_sounds[num].filename1)fp = kopen4loadfrommod(g_sounds[num].filename1,g_loadFromGroupOnly);
+    if (g_sounds[num].filename1) fp = kopen4loadfrommod(g_sounds[num].filename1,g_loadFromGroupOnly);
     if (fp == -1)fp = kopen4loadfrommod(g_sounds[num].filename,g_loadFromGroupOnly);
     if (fp == -1)
     {
@@ -550,7 +570,7 @@ void S_StopEnvSound(int32_t num,int32_t i)
         }
 }
 
-void pan3dsound(void)
+void S_Pan3D(void)
 {
     int32_t sndist, sx, sy, sz, cx, cy, cz;
     int32_t sndang,ca,j,k,i,cs;

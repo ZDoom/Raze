@@ -2167,7 +2167,9 @@ static int32_t X_DoExecute(void)
             int32_t x2=scale(Gv_GetVarX(*insptr++),xdim,320);
             int32_t y2=scale(Gv_GetVarX(*insptr++),ydim,200);
             int32_t smoothratio = min(max((totalclock - ototalclock) * (65536 / TICSPERFRAME),0),65536);
+#if defined(USE_OPENGL) && defined(POLYMOST)
             int32_t j;
+#endif
 
             if (x1 > x2) swaplong(&x1,&x2);
             if (y1 > y2) swaplong(&y1,&y2);
@@ -3769,7 +3771,7 @@ static int32_t X_DoExecute(void)
 
     case CON_DISPLAYRANDVAR:
         insptr++;
-        Gv_SetVarX(*insptr, mulscale15(rand(), *(insptr+1)+1));
+        Gv_SetVarX(*insptr, mulscale15((uint16_t)rand(), *(insptr+1)+1));
         insptr += 2;
         break;
 
@@ -3841,7 +3843,7 @@ static int32_t X_DoExecute(void)
         insptr++;
         {
             int32_t j=*insptr++;
-            Gv_SetVarX(j,mulscale(rand(), Gv_GetVarX(*insptr++)+1, 15));
+            Gv_SetVarX(j,mulscale((uint16_t)rand(), Gv_GetVarX(*insptr++)+1, 15));
         }
         break;
 
@@ -4883,7 +4885,7 @@ void G_RestoreMapState(mapstate_t *save)
 
         Net_ResetPrediction();
 
-        waitforeverybody();
+        Net_WaitForEverybody();
         mmulti_flushpackets();
         clearfifo();
         G_ResetTimers();

@@ -341,6 +341,7 @@ void initprintf(const char *f, ...)
     va_end(va);
 
     OSD_Printf(buf);
+    Bprintf(buf);
 
     if (Bstrlen(dabuf) + Bstrlen(buf) > 1022)
     {

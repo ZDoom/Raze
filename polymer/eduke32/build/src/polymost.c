@@ -6764,6 +6764,7 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
 
 #else /* POLYMOST */
 
+#include "inttypes.h"
 int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen) { return -1; }
 
 #endif

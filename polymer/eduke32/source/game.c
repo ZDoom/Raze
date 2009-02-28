@@ -10090,7 +10090,7 @@ static void G_DisplayLogo(void)
         MOUSE_ClearButton(LEFT_MOUSE);
     }
 
-    waitforeverybody();
+    Net_WaitForEverybody();
 
     flushperms();
     clearview(0L);
@@ -10563,7 +10563,7 @@ static void Net_SendVersion(void)
         if (i != myconnectindex) mmulti_sendpacket(i,&buf[0],5);
         if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
     }
-    waitforeverybody();
+    Net_WaitForEverybody();
 }
 
 static void Net_SendPlayerOptions(void)
@@ -11263,7 +11263,7 @@ CLEAN_DIRECTORY:
         Net_SendWeaponChoice();
         Net_SendUserMapName();
         Net_GetPackets();
-        waitforeverybody();
+        Net_WaitForEverybody();
     }
     else if (boardfilename[0] != 0)
     {
@@ -11436,7 +11436,7 @@ MAIN_LOOP_RESTART:
                 ud.m_respawn_monsters = 1;
             else ud.m_respawn_monsters = 0;
 
-            waitforeverybody();
+            Net_WaitForEverybody();
 
             TRAVERSE_CONNECT(i)
             {
@@ -11515,7 +11515,7 @@ MAIN_LOOP_RESTART:
             if (g_player[myconnectindex].ps->gm&MODE_EOL)
             {
                 G_CloseDemoWrite();
-                waitforeverybody();
+                Net_WaitForEverybody();
 
                 ready2send = 0;
 
@@ -11550,7 +11550,7 @@ MAIN_LOOP_RESTART:
             }
             ud.display_bonus_screen = 1;
             ready2send = 0;
-            waitforeverybody();
+            Net_WaitForEverybody();
             if (numplayers > 1) g_player[myconnectindex].ps->gm = MODE_GAME;
             if (G_EnterLevel(g_player[myconnectindex].ps->gm))
             {
@@ -12732,7 +12732,7 @@ static int32_t G_DoMoveThings(void)
         if (ud.pause_on == 0)
         {
             P_ProcessInput(i);
-            checksectors(i);
+            P_CheckSectors(i);
         }
     }
 
@@ -12745,7 +12745,7 @@ static int32_t G_DoMoveThings(void)
     {
         G_AnimateWalls();
         A_MoveCyclers();
-        pan3dsound();
+        S_Pan3D();
     }
 
 #ifdef POLYMER

@@ -204,6 +204,7 @@ typedef struct
     int32_t is8bit;
 } voxmodel_t;
 
+/*
 typedef struct
 {
     // maps build tiles to particular animation frames of a model
@@ -217,6 +218,8 @@ typedef struct
 
 #define EXTRATILES MAXTILES
 EXTERN tile2model_t tile2model[MAXTILES+EXTRATILES];
+*/
+
 EXTERN mdmodel_t **models;
 
 void updateanimation(md2model_t *m, spritetype *tspr);
@@ -230,7 +233,6 @@ typedef struct { float xadd, yadd, zadd; int16_t angadd, flags; } hudtyp;
 
 EXTERN hudtyp hudmem[2][MAXTILES]; //~320KB ... ok for now ... could replace with dynamic alloc
 
-EXTERN int32_t mdinited;
 EXTERN int32_t mdpause;
 EXTERN int32_t nummodelsalloced, nextmodelid;
 EXTERN voxmodel_t *voxmodels[MAXVOXELS];

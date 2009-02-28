@@ -201,7 +201,7 @@ int32_t G_LoadPlayer(int32_t spot)
         nextpage();
     }
 
-    waitforeverybody();
+    Net_WaitForEverybody();
 
     FX_StopAllSounds();
     S_ClearSoundLocks();
@@ -574,7 +574,7 @@ int32_t G_LoadPlayer(int32_t spot)
 
     mmulti_flushpackets();
     clearfifo();
-    waitforeverybody();
+    Net_WaitForEverybody();
 
     G_ResetTimers();
 
@@ -606,7 +606,7 @@ int32_t G_SavePlayer(int32_t spot)
         return -1;
     }
 
-    waitforeverybody();
+    Net_WaitForEverybody();
 
     if (multiflag == 2 && multiwho != myconnectindex)
     {
@@ -878,7 +878,7 @@ int32_t G_SavePlayer(int32_t spot)
 
     ready2send = 1;
 
-    waitforeverybody();
+    Net_WaitForEverybody();
 
     ototalclock = totalclock;
 

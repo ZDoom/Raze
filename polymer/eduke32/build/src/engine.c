@@ -102,7 +102,7 @@ int32_t tilefileoffs[MAXTILES];
 
 int32_t artsize = 0, cachesize = 0;
 
-static int16_t radarang[1280], radarang2[MAXXDIM];
+static int16_t radarang2[MAXXDIM];
 static uint16_t sqrtable[4096], shlookup[4096+256];
 char pow2char[8] = {1,2,4,8,16,32,64,128};
 int32_t pow2long[32] =
@@ -5278,7 +5278,7 @@ int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
 //
 // insertspritesect (internal)
 //
-static int32_t insertspritesect(int16_t sectnum)
+int32_t insertspritesect(int16_t sectnum)
 {
     int16_t blanktouse;
 
@@ -5306,7 +5306,7 @@ static int32_t insertspritesect(int16_t sectnum)
 //
 // insertspritestat (internal)
 //
-static int32_t insertspritestat(int16_t statnum)
+int32_t insertspritestat(int16_t statnum)
 {
     int16_t blanktouse;
 
@@ -5334,7 +5334,7 @@ static int32_t insertspritestat(int16_t statnum)
 //
 // deletespritesect (internal)
 //
-static int32_t deletespritesect(int16_t deleteme)
+int32_t deletespritesect(int16_t deleteme)
 {
     if (sprite[deleteme].sectnum == MAXSECTORS)
         return(-1);
@@ -5358,7 +5358,7 @@ static int32_t deletespritesect(int16_t deleteme)
 //
 // deletespritestat (internal)
 //
-static int32_t deletespritestat(int16_t deleteme)
+int32_t deletespritestat(int16_t deleteme)
 {
     if (sprite[deleteme].statnum == MAXSTATUS)
         return(-1);
@@ -8237,22 +8237,6 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
 
 
 //
-// getangle
-//
-int32_t getangle(int32_t xvect, int32_t yvect)
-{
-    if ((xvect|yvect) == 0) return(0);
-    if (xvect == 0) return(512+((yvect<0)<<10));
-    if (yvect == 0) return(((xvect<0)<<10));
-    if (xvect == yvect) return(256+((xvect<0)<<10));
-    if (xvect == -yvect) return(768+((xvect>0)<<10));
-    if (klabs(xvect) > klabs(yvect))
-        return(((radarang[640+scale(160,yvect,xvect)]>>6)+((xvect<0)<<10))&2047);
-    return(((radarang[640-scale(160,xvect,yvect)]>>6)+512+((yvect<0)<<10))&2047);
-}
-
-
-//
 // ksqrt
 //
 int32_t ksqrt(int32_t num)
@@ -8305,26 +8289,6 @@ int32_t setspritez(int16_t spritenum, const vec3_t *new)
 
     return(0);
 }
-
-//
-// insertsprite
-//
-int32_t insertsprite(int16_t sectnum, int16_t statnum)
-{
-    insertspritestat(statnum);
-    return(insertspritesect(sectnum));
-}
-
-
-//
-// deletesprite
-//
-int32_t deletesprite(int16_t spritenum)
-{
-    deletespritestat(spritenum);
-    return(deletespritesect(spritenum));
-}
-
 
 //
 // changespritesect

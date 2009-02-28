@@ -3000,10 +3000,7 @@ CHECKINV1:
 
                         if (p->cursectnum > -1)
                         {
-                            p->holoduke_on = i =
-                                                 A_InsertSprite(p->cursectnum,
-                                                                p->posx,
-                                                                p->posy,
+                            p->holoduke_on = i = A_InsertSprite(p->cursectnum,p->posx,p->posy,
                                                                 p->posz+(30<<8),APLAYER,-64,0,0,p->ang,0,0,-1,10);
                             T4 = T5 = 0;
                             SP = snum;
@@ -3142,7 +3139,7 @@ static int32_t hitawall(DukePlayer_t *p,int16_t *hitw)
 }
 
 
-void checksectors(int32_t snum)
+void P_CheckSectors(int32_t snum)
 {
     int32_t i = -1,oldz;
     DukePlayer_t *p = g_player[snum].ps;

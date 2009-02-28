@@ -48,6 +48,7 @@ endif
 
 CC=gcc
 CXX=g++
+AS=nasm
 
 GCC_MAJOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f1)
 GCC_MINOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f2)
@@ -299,10 +300,10 @@ $(EOBJ)/$(EDITORLIB): editorlib
 # RULES
 $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(COMPILE_STATUS)
-	nasm $(NASMFLAGS) $< -o $@
+	$(AS) $(NASMFLAGS) $< -o $@
 $(OBJ)/%.$o: $(SRC)/jaudiolib/%.nasm
 	$(COMPILE_STATUS)
-	nasm $(NASMFLAGS) $< -o $@
+	$(AS) $(NASMFLAGS) $< -o $@
  
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)

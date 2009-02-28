@@ -285,6 +285,8 @@ int32_t hicclearsubst(int32_t picnum, int32_t palnum)
 
 #else /* POLYMOST */
 
+#include "inttypes.h"
+
 void hicsetpalettetint(int32_t palnum, char r, char g, char b, char effect) { }
 int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, char *filen, float alphacut) { return 0; }
 int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6]) { return 0; }

@@ -214,11 +214,13 @@ int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, i
     return 0;
 }
 
+/*
 int32_t md_tilehasmodel(int32_t tilenume,int32_t pal)
 {
     if (!mdinited) return -1;
     return tile2model[Ptile2tile(tilenume,pal)].modelid;
 }
+*/
 
 static int32_t framename2index(mdmodel_t *vm, const char *nam)
 {

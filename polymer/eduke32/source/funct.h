@@ -48,7 +48,7 @@ extern void S_PlaySound(int32_t num);
 extern int32_t A_PlaySound(uint32_t num,int32_t i);
 extern void S_StopSound(int32_t num);
 extern void S_StopEnvSound(int32_t num,int32_t i);
-extern void pan3dsound(void);
+extern void S_Pan3D(void);
 extern void S_TestSoundCallback(uint32_t num);
 extern void S_ClearSoundLocks(void);
 extern int32_t A_CallSound(int32_t sn,int32_t whatsprite);
@@ -80,7 +80,7 @@ extern int32_t Sect_DamageCeiling(int32_t sn);
 extern void A_DamageObject(int32_t i,int32_t sn);
 extern void allignwarpelevators(void);
 extern void G_HandleSharedKeys(int32_t snum);
-extern void checksectors(int32_t snum);
+extern void P_CheckSectors(int32_t snum);
 extern int32 RTS_AddFile(const char *filename);
 extern void RTS_Init(const char *filename);
 extern int32 RTS_NumSounds(void);
@@ -96,7 +96,7 @@ extern void P_ResetWeapons(int32_t snum);
 extern void P_ResetInventory(int32_t snum);
 extern void G_NewGame(int32_t vn,int32_t ln,int32_t sk);
 extern void G_ResetTimers(void);
-extern void waitforeverybody(void);
+extern void Net_WaitForEverybody(void);
 extern void clearfifo(void);
 extern void Net_ResetPrediction(void);
 extern int32_t  G_EnterLevel(int32_t g);
@@ -257,17 +257,10 @@ extern void Net_NewGame(int32_t volume, int32_t level);
 
 extern int32_t SpriteFlags[MAXTILES];
 
-inline int32_t A_CheckSpriteFlags(int32_t iActor, int32_t iType)
-{
-    return (((SpriteFlags[sprite[iActor].picnum]^ActorExtra[iActor].flags) & iType) != 0);
-}
+#define A_CheckSpriteFlags(iActor, iType) (((SpriteFlags[sprite[iActor].picnum]^ActorExtra[iActor].flags) & iType) != 0)
+#define A_CheckSpriteTileFlags(iPicnum, iType) ((SpriteFlags[iPicnum] & iType) != 0)
 
-inline int32_t A_CheckSpriteTileFlags(int32_t iPicnum, int32_t iType)
-{
-    return ((SpriteFlags[iPicnum] & iType) != 0);
-}
-
-inline int32_t G_GetTeamPalette(int32_t team)
+static inline int32_t G_GetTeamPalette(int32_t team)
 {
     switch (team)
     {

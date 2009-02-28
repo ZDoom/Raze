@@ -10,6 +10,7 @@
 #define __build_h__
 
 #include "compat.h"
+#include "pragmas.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -478,7 +479,26 @@ void   setfirstwall(int16_t sectnum, int16_t newfirstwall);
 void   getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus);
 int32_t    krand(void);
 int32_t   ksqrt(int32_t num);
-int32_t   getangle(int32_t xvect, int32_t yvect);
+// int32_t   getangle(int32_t xvect, int32_t yvect);
+
+//
+// getangle
+//
+
+EXTERN int16_t radarang[1280];
+
+static inline int32_t getangle(int32_t xvect, int32_t yvect)
+{
+    if ((xvect|yvect) == 0) return(0);
+    if (xvect == 0) return(512+((yvect<0)<<10));
+    if (yvect == 0) return(((xvect<0)<<10));
+    if (xvect == yvect) return(256+((xvect<0)<<10));
+    if (xvect == -yvect) return(768+((xvect>0)<<10));
+    if (klabs(xvect) > klabs(yvect))
+        return(((radarang[640+scale(160,yvect,xvect)]>>6)+((xvect<0)<<10))&2047);
+    return(((radarang[640-scale(160,xvect,yvect)]>>6)+512+((yvect<0)<<10))&2047);
+}
+
 void   rotatepoint(int32_t xpivot, int32_t ypivot, int32_t x, int32_t y, int16_t daang, int32_t *x2, int32_t *y2);
 int32_t   lastwall(int16_t point);
 int32_t   nextsectorneighborz(int16_t sectnum, int32_t thez, int16_t topbottom, int16_t direction);
@@ -490,8 +510,33 @@ void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 int32_t   sectorofwall(int16_t theline);
 int32_t   loopnumofsector(int16_t sectnum, int16_t wallnum);
 
-int32_t   insertsprite(int16_t sectnum, int16_t statnum);
-int32_t   deletesprite(int16_t spritenum);
+// int32_t   insertsprite(int16_t sectnum, int16_t statnum);
+// int32_t   deletesprite(int16_t spritenum);
+
+//
+// insertsprite
+//
+
+int32_t insertspritesect(int16_t sectnum);
+int32_t insertspritestat(int16_t statnum);
+int32_t deletespritesect(int16_t deleteme);
+int32_t deletespritestat(int16_t deleteme);
+
+static inline int32_t insertsprite(int16_t sectnum, int16_t statnum)
+{
+    insertspritestat(statnum);
+    return(insertspritesect(sectnum));
+}
+
+//
+// deletesprite
+//
+static inline int32_t deletesprite(int16_t spritenum)
+{
+    deletespritestat(spritenum);
+    return(deletespritesect(spritenum));
+}
+
 int32_t   changespritesect(int16_t spritenum, int16_t newsectnum);
 int32_t   changespritestat(int16_t spritenum, int16_t newstatnum);
 int32_t   setsprite(int16_t spritenum, const vec3_t *new);
@@ -585,7 +630,30 @@ int32_t hicclearsubst(int32_t picnum, int32_t palnum);
 int32_t Ptile2tile(int32_t tile, int32_t pallet);
 int32_t md_loadmodel(const char *fn);
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, int32_t flags);
-int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
+// int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
+
+typedef struct
+{
+    // maps build tiles to particular animation frames of a model
+    int32_t     modelid;
+    int32_t     skinnum;
+    int32_t     framenum;   // calculate the number from the name when declaring
+    float   smoothduration;
+    int32_t     next;
+    char    pal;
+} tile2model_t;
+
+#define EXTRATILES MAXTILES
+
+EXTERN int32_t mdinited;
+EXTERN tile2model_t tile2model[MAXTILES+EXTRATILES];
+
+static inline int32_t md_tilehasmodel(int32_t tilenume,int32_t pal)
+{
+    if (!mdinited) return -1;
+    return tile2model[Ptile2tile(tilenume,pal)].modelid;
+}
+
 int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume, int32_t skinnum, float smoothduration, int32_t pal);
 int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *frameend, int32_t fps, int32_t flags);
 int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum, int32_t surfnum, float param);
