@@ -5938,16 +5938,16 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 }
 
 // UTILITY TYPES AND FUNCTIONS FOR DRAWMASKS OCCLUSION TREE
-typedef struct          s_maskleaf
-{
-    int32_t                index;
-    _point2d            p1, p2;
-    _equation           maskeq, p1eq, p2eq;
-    struct s_maskleaf*  branch[MAXWALLSB];
-    int32_t                 drawing;
-}                       _maskleaf;
-
-_maskleaf               maskleaves[MAXWALLSB];
+// typedef struct          s_maskleaf
+// {
+//     int32_t                index;
+//     _point2d            p1, p2;
+//     _equation           maskeq, p1eq, p2eq;
+//     struct s_maskleaf*  branch[MAXWALLSB];
+//     int32_t                 drawing;
+// }                       _maskleaf;
+// 
+// _maskleaf               maskleaves[MAXWALLSB];
 
 // returns equation of a line given two points
 static inline _equation       equation(float x1, float y1, float x2, float y2)
