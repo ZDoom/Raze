@@ -3,18 +3,14 @@
 // - CORE STUFF
 //   o there's also the texture alignment problem Hunter reported (san andreas fault)
 //   o also sliding doors are still fucked up sometimes (like under the bar in E1L2)
-//   o port glowmaps and detail maps from hacked polymost (:(
 //   o shading needs a lot of work
 //   o remove all the IM matrix crap and write real functions now that it works
 // - SPRITES
-//   o port sprite panning and fullbrights from hacked polymost (:(
+//   o sprite panning
 // - SKIES
 //   o figure a better way to handle ART skies - maybe add symetric caps that would fade to black like a big gem or something wow this is a long column lol ;0)
-//   o implement polymost skyboxes
 // - MDSPRITES
-//   o need to truly convert MD2s to MD3s with proper scale offset to just dump the data into VRAM
 //   o need full translation and rotation support from CON to attach to game world or tags
-//   o need to blend between frames
 //
 // the renderer should hopefully be pretty solid after all that
 // the rest will be a bliss :)
