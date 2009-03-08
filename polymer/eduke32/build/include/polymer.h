@@ -99,10 +99,30 @@ typedef struct      s_prprogrambit {
     char*           frag_prog;
 }                   _prprogrambit;
 
+// LIGHTS
+#define             PR_MAXLIGHTS            128
+#define             PR_SM3_MAXLIGHTS        4
+#define             STR_EXPAND(tok) #tok
+#define             STR(tok) STR_EXPAND(tok)
+
+typedef enum {
+    PR_LIGHT_POINT,
+    PR_LIGHT_SPOT,
+    PR_LIGHT_DIRECTIONAL
+}                   prlighttype;
+
+typedef struct      s_prlight {
+    int32_t         x, y, z, horiz, faderange, range;
+    int16_t         angle, sector;
+    char            color[3];
+    prlighttype     type;
+}                   _prlight;
+
 // BUILD DATA
 typedef struct      s_prplane {
     // geometry
     GLfloat*        buffer;
+    int32_t         vertcount;
     GLuint          vbo;
     // attributes
     GLdouble        plane[4];
@@ -110,6 +130,9 @@ typedef struct      s_prplane {
     // elements
     GLushort*       indices;
     GLuint          ivbo;
+    // lights
+    char            lights[PR_MAXLIGHTS];
+    char            lightcount;
 }                   _prplane;
 
 typedef struct      s_prsector {
@@ -164,25 +187,6 @@ typedef struct      s_pranimatespritesinfo {
     animatespritesptr animatesprites;
     int32_t         x, y, a, smoothratio;
 }                   _pranimatespritesinfo;
-
-// LIGHTS
-#define             PR_MAXLIGHTS            128
-#define             PR_SM3_MAXLIGHTS        4
-#define             STR_EXPAND(tok) #tok
-#define             STR(tok) STR_EXPAND(tok)
-
-typedef enum {
-                    PR_LIGHT_POINT,
-                    PR_LIGHT_SPOT,
-                    PR_LIGHT_DIRECTIONAL
-}                   prlighttype;
-
-typedef struct      s_prlight {
-    int32_t         x, y, z, horiz, faderange, range;
-    int16_t         angle, sector;
-    char            color[3];
-    prlighttype     type;
-}                   _prlight;
 
 // PROGRAMS
 
@@ -241,11 +245,13 @@ static void         polymer_loadmodelvbos(md3model_t* m);
 // MATERIALS
 static void         polymer_getscratchmaterial(_prmaterial* material);
 static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade);
-static int32_t      polymer_bindmaterial(_prmaterial material, _prlight* lights, int lightcount);
+static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int lightcount);
 static void         polymer_unbindmaterial(int32_t programbits);
 static void         polymer_compileprogram(int32_t programbits);
 // LIGHTS
 static void         polymer_transformlight(float* inpos, float* pos, float* matrix);
+static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light);
+static void         polymer_culllight(char lightindex);
 
 # endif // !POLYMER_C
 

@@ -194,7 +194,8 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "uniform sampler2D diffuseMap;\n"
         "\n",
         // frag_prog
-        "  result *= texture2D(diffuseMap, gl_TexCoord[0].st);\n"
+        "  diffuseTexel = texture2D(diffuseMap, gl_TexCoord[0].st);\n"
+        "  result *= diffuseTexel;\n"
         "\n",
     },
     {
@@ -270,9 +271,9 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "        lightAttenuation = 1.0 - (pointLightDistance - lightRange.x)  /\n"
         "                                 (lightRange.y - lightRange.x);\n"
         "      }\n"
-        "      result += vec4(lightAttenuation * dotNormalLightDir * lightDiffuse, 0.0);\n"
+        "      result += diffuseTexel * vec4(lightAttenuation * dotNormalLightDir * lightDiffuse, 0.0);\n"
         "      float specular = pow( max(dot(reflect(-normalize(lightVector), fragmentNormal), normalize(-vertexPos)), 0.0), 60.0);\n"
-        "      result += vec4(lightAttenuation * specular * vec3(1.0, 0.5, 0.5), 0.0);\n"
+        "      result += vec4(lightAttenuation * specular * vec3(1.0, 1.0, 1.0), 0.0);\n"
         "    }\n"
         "\n"
         "    l++;\n"
@@ -311,6 +312,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "void main(void)\n"
         "{\n"
         "  vec4 result = vec4(1.0, 1.0, 1.0, 1.0);\n"
+        "  vec4 diffuseTexel = vec4(1.0, 1.0, 1.0, 1.0);\n"
         "  int l = 0;\n"
         "\n",
         // frag_prog
@@ -788,13 +790,46 @@ void                polymer_setanimatesprites(animatespritesptr animatesprites, 
 
 void                polymer_resetlights(void)
 {
+    int32_t         i;
+    _prsector       *s;
+    _prwall         *w;
+
+    i = 0;
+    while (i < numsectors)
+    {
+        s = prsectors[i];
+
+        s->floor.lightcount = 0;
+        s->ceil.lightcount = 0;
+
+        i++;
+    }
+
+    i = 0;
+    while (i < numwalls)
+    {
+        w = prwalls[i];
+
+        w->wall.lightcount = 0;
+        w->over.lightcount = 0;
+        w->mask.lightcount = 0;
+
+        i++;
+    }
+
     lightcount = 0;
 }
 
 void                polymer_addlight(_prlight light)
 {
     if (lightcount < PR_MAXLIGHTS)
-        prlights[lightcount++] = light;
+    {
+        prlights[lightcount] = light;
+
+        polymer_culllight(lightcount);
+
+        lightcount++;
+    }
 }
 
 // CORE
@@ -1155,7 +1190,7 @@ static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane
 
     bglNormal3f((float)(-plane->plane[0]), (float)(-plane->plane[1]), (float)(-plane->plane[2]));
 
-    materialbits = polymer_bindmaterial(plane->material, prlights, lightcount);
+    materialbits = polymer_bindmaterial(plane->material, plane->lights, plane->lightcount);
 
     if (plane->vbo && (pr_vbos > 0))
     {
@@ -1232,7 +1267,9 @@ static int32_t      polymer_initsector(int16_t sectnum)
 
     s->verts = calloc(sec->wallnum, sizeof(GLdouble) * 3);
     s->floor.buffer = calloc(sec->wallnum, sizeof(GLfloat) * 5);
+    s->floor.vertcount = sec->wallnum;
     s->ceil.buffer = calloc(sec->wallnum, sizeof(GLfloat) * 5);
+    s->ceil.vertcount = sec->wallnum;
     if ((s->verts == NULL) || (s->floor.buffer == NULL) || (s->ceil.buffer == NULL))
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize geometry of sector %i : malloc failed.\n", sectnum);
@@ -1260,8 +1297,7 @@ static int32_t      polymer_initsector(int16_t sectnum)
     return (1);
 }
 
-static int32_t      polymer_updatesector(int16_t sectnum)
-{
+static int32_t      polymer_updatesector(int16_t sectnum){
     _prsector*      s;
     sectortype      *sec;
     walltype        *wal;
@@ -1618,8 +1654,10 @@ static int32_t      polymer_initwall(int16_t wallnum)
         return (0);
     }
 
-    if (w->mask.buffer == NULL)
+    if (w->mask.buffer == NULL) {
         w->mask.buffer = calloc(4, sizeof(GLfloat) * 5);
+        w->mask.vertcount = 4;
+    }
     if (w->bigportal == NULL)
         w->bigportal = calloc(4, sizeof(GLfloat) * 3);
     if (w->cap == NULL)
@@ -1687,8 +1725,10 @@ static void         polymer_updatewall(int16_t wallnum)
         nsec = NULL;
     }
 
-    if (w->wall.buffer == NULL)
+    if (w->wall.buffer == NULL) {
         w->wall.buffer = calloc(4, sizeof(GLfloat) * 5);
+        w->wall.vertcount = 4;
+    }
 
     wallpicnum = wal->picnum;
     if (picanm[wallpicnum]&192) wallpicnum += animateoffs(wallpicnum,wallnum+16384);
@@ -1892,8 +1932,10 @@ static void         polymer_updatewall(int16_t wallnum)
 
         if ((overwall) || (wal->cstat & 16))
         {
-            if (w->over.buffer == NULL)
+            if (w->over.buffer == NULL) {
                 w->over.buffer = calloc(4, sizeof(GLfloat) * 5);
+                w->over.vertcount = 4;
+            }
 
             memcpy(w->over.buffer, &ns->ceil.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
             memcpy(&w->over.buffer[5], &ns->ceil.buffer[(nwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
@@ -2505,7 +2547,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 mdspritematerial.nextframedatastride = sizeof(md3xyzn_t);
             }
 
-            materialbits = polymer_bindmaterial(mdspritematerial, prlights, lightcount);
+            materialbits = polymer_bindmaterial(mdspritematerial, NULL, 0);
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[surfi]);
             bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
@@ -2526,7 +2568,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 mdspritematerial.nextframedatastride = sizeof(md3xyzn_t);
             }
 
-            materialbits = polymer_bindmaterial(mdspritematerial, prlights, lightcount);
+            materialbits = polymer_bindmaterial(mdspritematerial, NULL, 0);
 
             bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
 
@@ -2671,7 +2713,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 }
 
-static int32_t      polymer_bindmaterial(_prmaterial material, _prlight* lights, int lightcount)
+static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int lightcount)
 {
     int32_t         programbits;
     int32_t         texunit;
@@ -2779,18 +2821,18 @@ static int32_t      polymer_bindmaterial(_prmaterial material, _prlight* lights,
 
         while (i < ((glinfo.sm4) ? lightcount : PR_SM3_MAXLIGHTS))
         {
-            inpos[0] = lights[i].y;
-            inpos[1] = -lights[i].z / 16.0f;
-            inpos[2] = -lights[i].x;
+            inpos[0] = prlights[lights[i]].y;
+            inpos[1] = -prlights[lights[i]].z / 16.0f;
+            inpos[2] = -prlights[lights[i]].x;
 
             polymer_transformlight(inpos, pos, rootmodelviewmatrix);
 
-            range[0] = lights[i].faderange  / 1000.0f;
-            range[1] = lights[i].range      / 1000.0f;
+            range[0] = prlights[lights[i]].faderange  / 1000.0f;
+            range[1] = prlights[lights[i]].range      / 1000.0f;
 
-            color[0] = lights[i].color[0]   / 255.0f;
-            color[1] = lights[i].color[1]   / 255.0f;
-            color[2] = lights[i].color[2]   / 255.0f;
+            color[0] = prlights[lights[i]].color[0]   / 255.0f;
+            color[1] = prlights[lights[i]].color[1]   / 255.0f;
+            color[2] = prlights[lights[i]].color[2]   / 255.0f;
 
             bglLightfv(GL_LIGHT0 + i, GL_AMBIENT, pos);
             bglLightfv(GL_LIGHT0 + i, GL_DIFFUSE, color);
@@ -2963,6 +3005,102 @@ static void         polymer_transformlight(float* inpos, float* pos, float* matr
              inpos[1] * matrix[6] +
              inpos[2] * matrix[10] +
                       + matrix[14];
+}
+
+static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
+{
+    float           lightpos[3];
+    int             i, j, k, l;
+
+    lightpos[0] = light->y;
+    lightpos[1] = -light->z / 16.0f;
+    lightpos[2] = -light->x;
+
+    i = 0;
+
+    while (i < 3)
+    {
+        j = k = l = 0;
+
+        while (j < plane->vertcount)
+        {
+            if (plane->buffer[(j * 5) + i] > (lightpos[i] + light->range)) k++;
+            if (plane->buffer[(j * 5) + i] < (lightpos[i] - light->range)) l++;
+            j++;
+        }
+
+        if ((k == plane->vertcount) || (l == plane->vertcount))
+            return 0;
+
+        i++;
+    }
+
+    return 1;
+}
+
+static void         polymer_culllight(char lightindex)
+{
+    _prlight*       light;
+    int32_t         front;
+    int32_t         back;
+    int32_t         i;
+    int16_t         cullingstate[MAXSECTORS];
+    int16_t         sectorqueue[MAXSECTORS];
+    _prsector       *s;
+    _prwall         *w;
+    sectortype      *sec;
+
+    light = &prlights[lightindex];
+    front = 0;
+    back = 1;
+    memset(cullingstate, 0, sizeof(int16_t) * MAXSECTORS);
+    cullingstate[light->sector] = 1;
+
+    sectorqueue[0] = light->sector;
+
+    while (front != back)
+    {
+        s = prsectors[sectorqueue[front]];
+        sec = &sector[sectorqueue[front]];
+
+        if (polymer_planeinlight(&s->floor, light)) {
+            s->floor.lights[s->floor.lightcount] = lightindex;
+            s->floor.lightcount++;
+        }
+        if (polymer_planeinlight(&s->ceil, light)) {
+            s->ceil.lights[s->floor.lightcount] = lightindex;
+            s->ceil.lightcount++;
+        }
+
+        i = 0;
+        while (i < sec->wallnum)
+        {
+            w = prwalls[sec->wallptr + i];
+
+            if (polymer_planeinlight(&w->wall, light)) {
+                w->wall.lights[w->wall.lightcount] = lightindex;
+                w->wall.lightcount++;
+            }
+            if (polymer_planeinlight(&w->over, light)) {
+                w->over.lights[w->over.lightcount] = lightindex;
+                w->over.lightcount++;
+            }
+            if (polymer_planeinlight(&w->mask, light)) {
+                w->mask.lights[w->mask.lightcount] = lightindex;
+                w->mask.lightcount++;
+
+                if ((wall[sec->wallptr + i].nextsector != -1) &&
+                    (!cullingstate[wall[sec->wallptr + i].nextsector])) {
+                    cullingstate[wall[sec->wallptr + i].nextsector] = 1;
+                    sectorqueue[back] = wall[sec->wallptr + i].nextsector;
+                    back++;
+                }
+            }
+
+            i++;
+        }
+        front++;
+    }
 }
 
 #endif
