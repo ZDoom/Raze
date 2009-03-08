@@ -2152,7 +2152,7 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
         vec1[0] = plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2];
         i+= 3;
     }
-    while ((i < indicecount) && (vec1[0] == 0));
+    while ((i < indicecount) && (vec1[0] < 5000)); // hack to work around a precision issue with slopes
 
     vec1[0] = sqrt(vec1[0]);
     plane[0] /= vec1[0];
