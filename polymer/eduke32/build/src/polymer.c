@@ -329,6 +329,8 @@ GLfloat         rootmodelviewmatrix[16];
 GLfloat         *curmodelviewmatrix;
 GLfloat         projectionmatrix[16];
 
+float           horizang;
+
 int32_t         updatesectors = 1;
 
 int32_t         depth;
@@ -347,7 +349,7 @@ _pranimatespritesinfo asi;
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void)
 {
-    int32_t         i, j;
+    int32_t         i;
 
     if (pr_verbosity >= 1) OSD_Printf("Initalizing Polymer subsystem...\n");
 
@@ -376,20 +378,11 @@ int32_t             polymer_init(void)
 
     polymer_initartsky();
 
-    // init the face sprite modelview to identity
-    i = 0;
-    while (i < 4)
-    {
-        j = 0;
-        while (j < 4)
-        {
-            if (i == j)
-                spritemodelview[(i * 4) + j] = 1.0;
-            else
-                spritemodelview[(i * 4) + j] = 0.0;
-            j++;
-        }
-        i++;
+    if (spriteplane.buffer == NULL) {
+        spriteplane.buffer = calloc(4, sizeof(GLfloat) * 5);
+        spriteplane.vertcount = 4;
+
+        memcpy(spriteplane.buffer, horizsprite, sizeof(GLfloat) * 4 * 5);
     }
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete.\n");
@@ -475,7 +468,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
 {
     int16_t         cursectnum;
     int32_t         i;
-    float           ang, horizang, tiltang;
+    float           ang, tiltang;
     float           pos[3];
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing rooms...\n");
@@ -625,10 +618,11 @@ void                polymer_drawmaskwall(int32_t damaskwallcnt)
 
 void                polymer_drawsprite(int32_t snum)
 {
-    int32_t         curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff;
+    int32_t         curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff, i;
     spritetype      *tspr;
     float           xratio, yratio, ang;
     float           spos[3];
+    GLfloat         *inbuffer;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
 
@@ -687,7 +681,11 @@ void                polymer_drawsprite(int32_t snum)
     spos[1] = -(float)(tspr->z) / 16.0f;
     spos[2] = -tspr->x;
 
-    spriteplane.buffer = vertsprite;
+    bglMatrixMode(GL_MODELVIEW);
+    bglPushMatrix();
+    bglLoadIdentity();
+
+    inbuffer = vertsprite;
 
     if (pr_billboardingmode && !((tspr->cstat>>4) & 3))
     {
@@ -699,33 +697,17 @@ void                polymer_drawsprite(int32_t snum)
     switch ((tspr->cstat>>4) & 3)
     {
     case 0:
-        bglMatrixMode(GL_MODELVIEW);
-        bglPushMatrix();
+        ang = (float)((viewangle) & 2047) / (2048.0f / 360.0f);
 
-        spritemodelview[12] =   curmodelviewmatrix[0] * spos[0] +
-                                curmodelviewmatrix[4] * spos[1] +
-                                curmodelviewmatrix[8] * spos[2] +
-                                curmodelviewmatrix[12];
-        spritemodelview[13] =   curmodelviewmatrix[1] * spos[0] +
-                                curmodelviewmatrix[5] * spos[1] +
-                                curmodelviewmatrix[9] * spos[2] +
-                                curmodelviewmatrix[13];
-        spritemodelview[14] =   curmodelviewmatrix[2]  * spos[0] +
-                                curmodelviewmatrix[6]  * spos[1] +
-                                curmodelviewmatrix[10] * spos[2] +
-                                curmodelviewmatrix[14];
-
-        bglLoadMatrixf(spritemodelview);
-        bglRotatef((gtang * 90.0f), 0.0f, 0.0f, -1.0f);
-        bglTranslatef((float)(-xoff)/1000.0f, (float)(yoff)/1000.0f, 0.0f);
-        bglScalef((float)(xsize) / 1000.0f, (float)(ysize) / 1000.0f, 1.0f / 1000.0f);
+        bglTranslatef(spos[0], spos[1], spos[2]);
+        bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+        bglRotatef(-horizang, 1.0f, 0.0f, 0.0f);
+        bglTranslatef((float)(-xoff), (float)(yoff), 0.0f);
+        bglScalef((float)(xsize), (float)(ysize), 1.0f);
 
         bglPolygonOffset(0.0f, 0.0f);
         break;
     case 1:
-        bglMatrixMode(GL_MODELVIEW);
-        bglPushMatrix();
-
         ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
 
         bglTranslatef(spos[0], spos[1], spos[2]);
@@ -738,9 +720,6 @@ void                polymer_drawsprite(int32_t snum)
                          -prsectors[tspr->sectnum]->wallsproffset);
         break;
     case 2:
-        bglMatrixMode(GL_MODELVIEW);
-        bglPushMatrix();
-
         ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
 
         bglTranslatef(spos[0], spos[1], spos[2]);
@@ -748,7 +727,7 @@ void                polymer_drawsprite(int32_t snum)
         bglTranslatef((float)(-xoff), 1.0f, (float)(yoff));
         bglScalef((float)(xsize), 1.0f, (float)(ysize));
 
-        spriteplane.buffer = horizsprite;
+        inbuffer = horizsprite;
 
         prsectors[tspr->sectnum]->floorsproffset += 0.5f;
         bglPolygonOffset(-prsectors[tspr->sectnum]->floorsproffset,
@@ -762,6 +741,30 @@ void                polymer_drawsprite(int32_t snum)
     if (tspr->cstat & 8)
         spriteplane.material.diffusescale[1] = -spriteplane.material.diffusescale[1];
 
+    bglGetFloatv(GL_MODELVIEW_MATRIX, spritemodelview);
+    bglPopMatrix();
+
+    i = 0;
+    while (i < 4)
+    {
+        polymer_transformpoint(&inbuffer[i * 5], &spriteplane.buffer[i * 5], spritemodelview);
+        i++;
+    }
+
+    polymer_buffertoplane(spriteplane.buffer, NULL, 4, spriteplane.plane);
+
+    spriteplane.lightcount = 0;
+    i = 0;
+    while (i < lightcount)
+    {
+        if (polymer_planeinlight(&spriteplane, &prlights[i]))
+        {
+            spriteplane.lights[spriteplane.lightcount] = i;
+            spriteplane.lightcount++;
+        }
+        i++;
+    }
+
     if ((tspr->cstat & 64) && (((tspr->cstat>>4) & 3) == 1))
         bglEnable(GL_CULL_FACE);
 
@@ -774,9 +777,6 @@ void                polymer_drawsprite(int32_t snum)
     if ((tspr->cstat & 64) && (((tspr->cstat>>4) & 3) == 1))
         bglDisable(GL_CULL_FACE);
 
-    bglLoadIdentity();
-    bglMatrixMode(GL_MODELVIEW);
-    bglPopMatrix();
 }
 
 void                polymer_setanimatesprites(animatespritesptr animatesprites, int32_t x, int32_t y, int32_t a, int32_t smoothratio)
@@ -989,10 +989,10 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                                 if (pr_vbos > 0)
                                 {
                                     bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
-                                    bglVertexPointer(3, GL_FLOAT, 0, NULL);
+                                    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), NULL);
                                 }
                                 else
-                                    bglVertexPointer(3, GL_FLOAT, 0, w->bigportal);
+                                    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->bigportal);
 
                                 bglDrawArrays(GL_QUADS, 0, 4);
 
@@ -1659,7 +1659,7 @@ static int32_t      polymer_initwall(int16_t wallnum)
         w->mask.vertcount = 4;
     }
     if (w->bigportal == NULL)
-        w->bigportal = calloc(4, sizeof(GLfloat) * 3);
+        w->bigportal = calloc(4, sizeof(GLfloat) * 5);
     if (w->cap == NULL)
         w->cap = calloc(4, sizeof(GLfloat) * 3);
 
@@ -1678,7 +1678,7 @@ static int32_t      polymer_initwall(int16_t wallnum)
     bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, NULL, mapvbousage);
 
     bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
-    bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 8 * sizeof(GLfloat) * 3, NULL, mapvbousage);
+    bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 8 * sizeof(GLfloat) * 5, NULL, mapvbousage);
 
     bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
@@ -2050,9 +2050,9 @@ static void         polymer_updatewall(int16_t wallnum)
         memcpy(w->mask.buffer, w->wall.buffer, sizeof(GLfloat) * 4 * 5);
 
     memcpy(w->bigportal, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    memcpy(&w->bigportal[3], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    memcpy(&w->bigportal[6], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    memcpy(&w->bigportal[9], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    memcpy(&w->bigportal[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    memcpy(&w->bigportal[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    memcpy(&w->bigportal[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
     memcpy(&w->cap[0], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
     memcpy(&w->cap[3], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
@@ -2074,8 +2074,8 @@ static void         polymer_updatewall(int16_t wallnum)
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->mask.vbo);
         bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, w->mask.buffer);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
-        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 3, w->bigportal);
-        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 3, 4 * sizeof(GLfloat) * 3, w->cap);
+        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, w->bigportal);
+        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, 4 * sizeof(GLfloat) * 3, w->cap);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
     }
 
@@ -2111,7 +2111,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
         if (pr_vbos)
         {
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
-            bglVertexPointer(3, GL_FLOAT, 0, (const GLvoid*)(4 * sizeof(GLfloat) * 3));
+            bglVertexPointer(3, GL_FLOAT, 0, (const GLvoid*)(4 * sizeof(GLfloat) * 5));
         }
         else
             bglVertexPointer(3, GL_FLOAT, 0, w->cap);
@@ -2127,7 +2127,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing wall %i...\n", wallnum);
 }
 
-#define INDICE(n) ((indices) ? (indices[i+n]*5) : ((i+n)*3))
+#define INDICE(n) ((indices) ? (indices[i+n]*5) : ((i+n)*5))
 
 // HSR
 static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int32_t indicecount, GLdouble* plane)
@@ -2167,6 +2167,22 @@ static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLdouble*
     out[0] = in_a[1] * in_b[2] - in_a[2] * in_b[1];
     out[1] = in_a[2] * in_b[0] - in_a[0] * in_b[2];
     out[2] = in_a[0] * in_b[1] - in_a[1] * in_b[0];
+}
+
+static void         polymer_transformpoint(float* inpos, float* pos, float* matrix)
+{
+    pos[0] = inpos[0] * matrix[0] +
+             inpos[1] * matrix[4] +
+             inpos[2] * matrix[8] +
+                      + matrix[12];
+    pos[1] = inpos[0] * matrix[1] +
+             inpos[1] * matrix[5] +
+             inpos[2] * matrix[9] +
+                      + matrix[13];
+    pos[2] = inpos[0] * matrix[2] +
+             inpos[1] * matrix[6] +
+             inpos[2] * matrix[10] +
+                      + matrix[14];
 }
 
 static void         polymer_pokesector(int16_t sectnum)
@@ -2237,9 +2253,9 @@ static int32_t      polymer_portalinfrustum(int16_t wallnum, float* frustum)
         j = k = 0;
         while (j < 4)
         {
-            sqdist = frustum[(i * 4) + 0] * w->bigportal[(j * 3) + 0] +
-                     frustum[(i * 4) + 1] * w->bigportal[(j * 3) + 1] +
-                     frustum[(i * 4) + 2] * w->bigportal[(j * 3) + 2] +
+            sqdist = frustum[(i * 4) + 0] * w->bigportal[(j * 5) + 0] +
+                     frustum[(i * 4) + 1] * w->bigportal[(j * 5) + 1] +
+                     frustum[(i * 4) + 2] * w->bigportal[(j * 5) + 2] +
                      frustum[(i * 4) + 3];
             if (sqdist < 0)
                 k++;
@@ -2825,7 +2841,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
             inpos[1] = -prlights[lights[i]].z / 16.0f;
             inpos[2] = -prlights[lights[i]].x;
 
-            polymer_transformlight(inpos, pos, rootmodelviewmatrix);
+            polymer_transformpoint(inpos, pos, rootmodelviewmatrix);
 
             range[0] = prlights[lights[i]].faderange  / 1000.0f;
             range[1] = prlights[lights[i]].range      / 1000.0f;
@@ -2991,22 +3007,6 @@ static void         polymer_compileprogram(int32_t programbits)
 }
 
 // LIGHTS
-static void         polymer_transformlight(float* inpos, float* pos, float* matrix)
-{
-    pos[0] = inpos[0] * matrix[0] +
-             inpos[1] * matrix[4] +
-             inpos[2] * matrix[8] +
-                      + matrix[12];
-    pos[1] = inpos[0] * matrix[1] +
-             inpos[1] * matrix[5] +
-             inpos[2] * matrix[9] +
-                      + matrix[13];
-    pos[2] = inpos[0] * matrix[2] +
-             inpos[1] * matrix[6] +
-             inpos[2] * matrix[10] +
-                      + matrix[14];
-}
-
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
 {
     float           lightpos[3];

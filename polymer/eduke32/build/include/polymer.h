@@ -228,6 +228,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum);
 // HSR
 static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int32_t indicecount, GLdouble* plane);
 static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLdouble* out);
+static void         polymer_transformpoint(float* inpos, float* pos, float* matrix);
 static void         polymer_pokesector(int16_t sectnum);
 static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projection, float* frustum);
 static int32_t      polymer_portalinfrustum(int16_t wallnum, float* frustum);
@@ -249,7 +250,6 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
 static void         polymer_unbindmaterial(int32_t programbits);
 static void         polymer_compileprogram(int32_t programbits);
 // LIGHTS
-static void         polymer_transformlight(float* inpos, float* pos, float* matrix);
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light);
 static void         polymer_culllight(char lightindex);
 
