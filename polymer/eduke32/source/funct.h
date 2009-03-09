@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __funct_h__
 
 #ifndef _MSC_VER
-  #ifdef __GNUC__
+  #if defined(__GNUC__) && defined(__i386__) 
     #ifndef __fastcall
       #define __fastcall __attribute__((fastcall))
     #endif
