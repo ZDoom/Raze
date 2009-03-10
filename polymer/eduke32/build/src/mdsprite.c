@@ -1624,6 +1624,26 @@ static void     md3postload(md3model_t* m)
 
         framei++;
     }
+
+    // let's also repack the geometry to more usable formats
+
+    surfi = 0;
+    while (surfi < m->head.numsurfs)
+    {
+        m->head.surfs[surfi].geometry = malloc(m->head.numframes * m->head.surfs[surfi].numverts * sizeof(float) * 6);
+
+        verti = 0;
+        while (verti < (m->head.numframes * m->head.surfs[surfi].numverts))
+        {
+            m->head.surfs[surfi].geometry[(verti * 6) + 0] = m->head.surfs[surfi].xyzn[verti].x;
+            m->head.surfs[surfi].geometry[(verti * 6) + 1] = m->head.surfs[surfi].xyzn[verti].y;
+            m->head.surfs[surfi].geometry[(verti * 6) + 2] = m->head.surfs[surfi].xyzn[verti].z;
+
+            verti++;
+        }
+        surfi++;
+    }
+
 }
 
 static int32_t md3draw(md3model_t *m, spritetype *tspr)

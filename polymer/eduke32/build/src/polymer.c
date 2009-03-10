@@ -2427,7 +2427,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 {
     md3model_t*     m;
     mdskinmap_t*    sk;
-    md3xyzn_t       *v0, *v1;
+    float           *v0, *v1;
     md3surf_t       *s;
     char            lpal;
     float           spos[3];
@@ -2550,8 +2550,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     for (surfi=0;surfi<m->head.numsurfs;surfi++)
     {
         s = &m->head.surfs[surfi];
-        v0 = &s->xyzn[m->cframe*s->numverts];
-        v1 = &s->xyzn[m->nframe*s->numverts];
+        v0 = &s->geometry[m->cframe*s->numverts*6];
+        v1 = &s->geometry[m->nframe*s->numverts*6];
 
         mdspritematerial.diffusemap =
                 mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
@@ -2582,12 +2582,12 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             bglTexCoordPointer(2, GL_FLOAT, 0, 0);
 
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->geometry[surfi]);
-            bglVertexPointer(3, GL_SHORT, sizeof(md3xyzn_t), (GLfloat*)(m->cframe * s->numverts * sizeof(md3xyzn_t)));
+            bglVertexPointer(3, GL_FLOAT, sizeof(float) * 6, (GLfloat*)(m->cframe * s->numverts * sizeof(float) * 6));
 
             if (pr_gpusmoothing)
             {
-                mdspritematerial.nextframedata = (GLfloat*)(m->nframe * s->numverts * sizeof(md3xyzn_t));
-                mdspritematerial.nextframedatastride = sizeof(md3xyzn_t);
+                mdspritematerial.nextframedata = (GLfloat*)(m->nframe * s->numverts * sizeof(float) * 6);
+                mdspritematerial.nextframedatastride = sizeof(float) * 6;
             }
 
             materialbits = polymer_bindmaterial(mdspritematerial, NULL, 0);
@@ -2602,13 +2602,13 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         }
         else
         {
-            bglVertexPointer(3, GL_SHORT, sizeof(md3xyzn_t), v0);
+            bglVertexPointer(3, GL_FLOAT, sizeof(float) * 6, v0);
             bglTexCoordPointer(2, GL_FLOAT, 0, s->uv);
 
             if (pr_gpusmoothing)
             {
                 mdspritematerial.nextframedata = (GLfloat*)(v1);
-                mdspritematerial.nextframedatastride = sizeof(md3xyzn_t);
+                mdspritematerial.nextframedatastride = sizeof(float) * 6;
             }
 
             materialbits = polymer_bindmaterial(mdspritematerial, NULL, 0);
@@ -2651,7 +2651,7 @@ static void         polymer_loadmodelvbos(md3model_t* m)
         bglBufferDataARB(GL_ARRAY_BUFFER_ARB, s->numverts * sizeof(md3uv_t), s->uv, modelvbousage);
 
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->geometry[i]);
-        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, s->numframes * s->numverts * sizeof(md3xyzn_t), s->xyzn, modelvbousage);
+        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, s->numframes * s->numverts * sizeof(float) * 6, s->geometry, modelvbousage);
 
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
         i++;
@@ -2812,7 +2812,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     {
         bglEnableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameData);
         bglVertexAttribPointerARB(prprograms[programbits].attrib_nextFrameData,
-                                  3, GL_SHORT, GL_FALSE,
+                                  3, GL_FLOAT, GL_FALSE,
                                   material.nextframedatastride,
                                   material.nextframedata);
 

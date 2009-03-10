@@ -127,9 +127,10 @@ typedef struct
     md3shader_t *shaders;
     md3uv_t *uv;
     md3xyzn_t *xyzn;
+    float *geometry;
 } md3surf_t;
 
-#define SIZEOF_MD3SURF_T (sizeof(md3surf_t)-4*sizeof(void*))
+#define SIZEOF_MD3SURF_T (11*sizeof(int32_t) + 64*sizeof(char))
 
 typedef struct
 {
