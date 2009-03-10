@@ -166,16 +166,20 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         1 << PR_BIT_ANIM_INTERPOLATION,
         // vert_def
         "attribute vec4 nextFrameData;\n"
+        "attribute vec4 nextFrameNormal;\n"
         "uniform float frameProgress;\n"
         "\n",
         // vert_prog
         "  vec4 currentFramePosition;\n"
         "  vec4 nextFramePosition;\n"
         "\n"
-        "  currentFramePosition = gl_Vertex * (1.0 - frameProgress);\n"
+        "  currentFramePosition = curVertex * (1.0 - frameProgress);\n"
         "  nextFramePosition = nextFrameData * frameProgress;\n"
-        "  currentFramePosition = currentFramePosition + nextFramePosition;\n"
-        "  result = gl_ModelViewProjectionMatrix * currentFramePosition;\n"
+        "  curVertex = currentFramePosition + nextFramePosition;\n"
+        "\n"
+        "  currentFramePosition = vec4(curNormal, 1.0) * (1.0 - frameProgress);\n"
+        "  nextFramePosition = nextFrameNormal * frameProgress;\n"
+        "  curNormal = vec3(currentFramePosition + nextFramePosition);\n"
         "\n",
         // frag_def
         "",
@@ -234,8 +238,8 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "varying vec3 vertexPos;\n"
         "\n",
         // vert_prog
-        "  vertexNormal = normalize(gl_NormalMatrix * gl_Normal);\n"
-        "  vertexPos = vec3(gl_ModelViewMatrix * gl_Vertex);\n"
+        "  vertexNormal = normalize(gl_NormalMatrix * curNormal);\n"
+        "  vertexPos = vec3(gl_ModelViewMatrix * curVertex);\n"
         "\n",
         // frag_def
         "uniform int lightCount;\n"
@@ -302,11 +306,11 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // vert_def
         "void main(void)\n"
         "{\n"
-        "  vec4 result = ftransform();\n"
-        "  int l = 0;\n"
+        "  vec4 curVertex = gl_Vertex;\n"
+        "  vec3 curNormal = gl_Normal;\n"
         "\n",
         // vert_prog
-        "  gl_Position = result;\n"
+        "  gl_Position = gl_ModelViewProjectionMatrix * curVertex;\n"
         "}\n",
         // frag_def
         "void main(void)\n"
@@ -2485,31 +2489,31 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     bglTranslatef(0.0f, 0.0, m->zadd * 64);
 
     // debug code for drawing the model bounding sphere
-    // bglDisable(GL_TEXTURE_2D);
-    // bglBegin(GL_LINES);
-    // bglColor4f(1.0, 0.0, 0.0, 1.0);
-    // bglVertex3f(m->head.frames[m->cframe].cen.x,
-    //             m->head.frames[m->cframe].cen.y,
-    //             m->head.frames[m->cframe].cen.z);
-    // bglVertex3f(m->head.frames[m->cframe].cen.x + m->head.frames[m->cframe].r,
-    //             m->head.frames[m->cframe].cen.y,
-    //             m->head.frames[m->cframe].cen.z);
-    // bglColor4f(0.0, 1.0, 0.0, 1.0);
-    // bglVertex3f(m->head.frames[m->cframe].cen.x,
-    //             m->head.frames[m->cframe].cen.y,
-    //             m->head.frames[m->cframe].cen.z);
-    // bglVertex3f(m->head.frames[m->cframe].cen.x,
-    //             m->head.frames[m->cframe].cen.y + m->head.frames[m->cframe].r,
-    //             m->head.frames[m->cframe].cen.z);
-    // bglColor4f(0.0, 0.0, 1.0, 1.0);
-    // bglVertex3f(m->head.frames[m->cframe].cen.x,
-    //             m->head.frames[m->cframe].cen.y,
-    //             m->head.frames[m->cframe].cen.z);
-    // bglVertex3f(m->head.frames[m->cframe].cen.x,
-    //             m->head.frames[m->cframe].cen.y,
-    //             m->head.frames[m->cframe].cen.z + m->head.frames[m->cframe].r);
-    // bglEnd();
-    // bglEnable(GL_TEXTURE_2D);
+//     bglDisable(GL_TEXTURE_2D);
+//     bglBegin(GL_LINES);
+//     bglColor4f(1.0, 0.0, 0.0, 1.0);
+//     bglVertex3f(m->head.frames[m->cframe].cen.x,
+//                 m->head.frames[m->cframe].cen.y,
+//                 m->head.frames[m->cframe].cen.z);
+//     bglVertex3f(m->head.frames[m->cframe].cen.x + m->head.frames[m->cframe].r,
+//                 m->head.frames[m->cframe].cen.y,
+//                 m->head.frames[m->cframe].cen.z);
+//     bglColor4f(0.0, 1.0, 0.0, 1.0);
+//     bglVertex3f(m->head.frames[m->cframe].cen.x,
+//                 m->head.frames[m->cframe].cen.y,
+//                 m->head.frames[m->cframe].cen.z);
+//     bglVertex3f(m->head.frames[m->cframe].cen.x,
+//                 m->head.frames[m->cframe].cen.y + m->head.frames[m->cframe].r,
+//                 m->head.frames[m->cframe].cen.z);
+//     bglColor4f(0.0, 0.0, 1.0, 1.0);
+//     bglVertex3f(m->head.frames[m->cframe].cen.x,
+//                 m->head.frames[m->cframe].cen.y,
+//                 m->head.frames[m->cframe].cen.z);
+//     bglVertex3f(m->head.frames[m->cframe].cen.x,
+//                 m->head.frames[m->cframe].cen.y,
+//                 m->head.frames[m->cframe].cen.z + m->head.frames[m->cframe].r);
+//     bglEnd();
+//     bglEnable(GL_TEXTURE_2D);
 
     polymer_getscratchmaterial(&mdspritematerial);
 
@@ -2553,6 +2557,26 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         v0 = &s->geometry[m->cframe*s->numverts*6];
         v1 = &s->geometry[m->nframe*s->numverts*6];
 
+        // debug code for drawing model normals
+//         bglDisable(GL_TEXTURE_2D);
+//         bglBegin(GL_LINES);
+//         bglColor4f(1.0, 1.0, 1.0, 1.0);
+// 
+//         int i = 0;
+//         while (i < s->numverts)
+//         {
+//             bglVertex3f(v0[(i * 6) + 0],
+//                         v0[(i * 6) + 1],
+//                         v0[(i * 6) + 2]);
+//             bglVertex3f(v0[(i * 6) + 0] + v0[(i * 6) + 3] * 100,
+//                         v0[(i * 6) + 1] + v0[(i * 6) + 4] * 100,
+//                         v0[(i * 6) + 2] + v0[(i * 6) + 5] * 100);
+//             i++;
+//         }
+//         bglEnd();
+//         bglEnable(GL_TEXTURE_2D);
+
+
         mdspritematerial.diffusemap =
                 mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
         if (!mdspritematerial.diffusemap)
@@ -2576,6 +2600,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                     mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);
         }
 
+        bglEnableClientState(GL_NORMAL_ARRAY);
+
         if (pr_vbos > 1)
         {
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->texcoords[surfi]);
@@ -2583,6 +2609,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->geometry[surfi]);
             bglVertexPointer(3, GL_FLOAT, sizeof(float) * 6, (GLfloat*)(m->cframe * s->numverts * sizeof(float) * 6));
+            bglNormalPointer(GL_FLOAT, sizeof(float) * 6, (GLfloat*)(m->cframe * s->numverts * sizeof(float) * 6) + 3);
 
             if (pr_gpusmoothing)
             {
@@ -2603,6 +2630,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         else
         {
             bglVertexPointer(3, GL_FLOAT, sizeof(float) * 6, v0);
+            bglNormalPointer(GL_FLOAT, sizeof(float) * 6, v0 + 3);
             bglTexCoordPointer(2, GL_FLOAT, 0, s->uv);
 
             if (pr_gpusmoothing)
@@ -2617,6 +2645,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
             polymer_unbindmaterial(materialbits);
         }
+
+        bglDisableClientState(GL_NORMAL_ARRAY);
     }
 
     bglPopMatrix();
@@ -2811,10 +2841,15 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     if (programbits & prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit)
     {
         bglEnableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameData);
+        bglEnableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameNormal);
         bglVertexAttribPointerARB(prprograms[programbits].attrib_nextFrameData,
                                   3, GL_FLOAT, GL_FALSE,
                                   material.nextframedatastride,
                                   material.nextframedata);
+        bglVertexAttribPointerARB(prprograms[programbits].attrib_nextFrameNormal,
+                                  3, GL_FLOAT, GL_FALSE,
+                                  material.nextframedatastride,
+                                  material.nextframedata + 3);
 
         bglUniform1fARB(prprograms[programbits].uniform_frameProgress, material.frameprogress);
     }
@@ -2919,6 +2954,7 @@ static void         polymer_unbindmaterial(int32_t programbits)
     // PR_BIT_ANIM_INTERPOLATION
     if (programbits & prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit)
     {
+        bglDisableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameNormal);
         bglDisableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameData);
     }
 
@@ -3003,6 +3039,7 @@ static void         polymer_compileprogram(int32_t programbits)
     if (programbits & prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit)
     {
         prprograms[programbits].attrib_nextFrameData = bglGetAttribLocationARB(program, "nextFrameData");
+        prprograms[programbits].attrib_nextFrameNormal = bglGetAttribLocationARB(program, "nextFrameNormal");
         prprograms[programbits].uniform_frameProgress = bglGetUniformLocationARB(program, "frameProgress");
     }
 

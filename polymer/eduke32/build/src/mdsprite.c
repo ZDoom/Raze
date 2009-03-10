@@ -1538,7 +1538,7 @@ static void     md3postload(md3model_t* m)
 {
     int         framei, surfi, verti;
     md3xyzn_t   *frameverts;
-    float       dist;
+    float       dist, lat, lng;
 
     // apparently we can't trust loaded models bounding box/sphere information,
     // so let's compute it ourselves
@@ -1638,6 +1638,15 @@ static void     md3postload(md3model_t* m)
             m->head.surfs[surfi].geometry[(verti * 6) + 0] = m->head.surfs[surfi].xyzn[verti].x;
             m->head.surfs[surfi].geometry[(verti * 6) + 1] = m->head.surfs[surfi].xyzn[verti].y;
             m->head.surfs[surfi].geometry[(verti * 6) + 2] = m->head.surfs[surfi].xyzn[verti].z;
+
+            // normal extraction from packed spherical coordinates
+            // FIXME: swapping lat and lng because of npherno's compiler
+            lat = m->head.surfs[surfi].xyzn[verti].nlng * (2 * PI) / 255.0f;
+            lng = m->head.surfs[surfi].xyzn[verti].nlat * (2 * PI) / 255.0f;
+
+            m->head.surfs[surfi].geometry[(verti * 6) + 3] = cos(lat) * sin(lng);
+            m->head.surfs[surfi].geometry[(verti * 6) + 4] = sin(lat) * sin(lng);
+            m->head.surfs[surfi].geometry[(verti * 6) + 5] = cos(lng);
 
             verti++;
         }

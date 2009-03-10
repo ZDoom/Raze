@@ -76,6 +76,7 @@ typedef struct      s_prrograminfo {
     GLhandleARB     handle;
     // PR_BIT_ANIM_INTERPOLATION
     GLint           attrib_nextFrameData;
+    GLint           attrib_nextFrameNormal;
     GLint           uniform_frameProgress;
     // PR_BIT_DIFFUSE_MAP
     GLint           uniform_diffuseMap;
