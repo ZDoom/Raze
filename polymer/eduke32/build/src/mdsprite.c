@@ -1534,6 +1534,98 @@ static md3model_t *md3load(int32_t fil)
     return(m);
 }
 
+static void     md3postload(md3model_t* m)
+{
+    int         framei, surfi, verti;
+    md3xyzn_t   *frameverts;
+    float       dist;
+
+    // apparently we can't trust loaded models bounding box/sphere information,
+    // so let's compute it ourselves
+
+    framei = 0;
+
+    while (framei < m->head.numframes)
+    {
+        m->head.frames[framei].min.x    = 0.0f;
+        m->head.frames[framei].min.y    = 0.0f;
+        m->head.frames[framei].min.z    = 0.0f;
+
+        m->head.frames[framei].max.x    = 0.0f;
+        m->head.frames[framei].max.y    = 0.0f;
+        m->head.frames[framei].max.z    = 0.0f;
+
+        m->head.frames[framei].r        = 0.0f;
+
+        surfi = 0;
+        while (surfi < m->head.numsurfs)
+        {
+            frameverts = &m->head.surfs[surfi].xyzn[framei * m->head.surfs[surfi].numverts];
+
+            verti = 0;
+            while (verti < m->head.surfs[surfi].numverts)
+            {
+                if (!verti && !surfi)
+                {
+                    m->head.frames[framei].min.x    = frameverts[verti].x;
+                    m->head.frames[framei].min.y    = frameverts[verti].y;
+                    m->head.frames[framei].min.z    = frameverts[verti].z;
+
+                    m->head.frames[framei].max.x    = frameverts[verti].x;
+                    m->head.frames[framei].max.y    = frameverts[verti].y;
+                    m->head.frames[framei].max.z    = frameverts[verti].z;
+                } else {
+                    if (m->head.frames[framei].min.x > frameverts[verti].x)
+                        m->head.frames[framei].min.x = frameverts[verti].x;
+                    if (m->head.frames[framei].max.x < frameverts[verti].x)
+                        m->head.frames[framei].max.x = frameverts[verti].x;
+
+                    if (m->head.frames[framei].min.y > frameverts[verti].y)
+                        m->head.frames[framei].min.y = frameverts[verti].y;
+                    if (m->head.frames[framei].max.y < frameverts[verti].y)
+                        m->head.frames[framei].max.y = frameverts[verti].y;
+
+                    if (m->head.frames[framei].min.z > frameverts[verti].z)
+                        m->head.frames[framei].min.z = frameverts[verti].z;
+                    if (m->head.frames[framei].max.z < frameverts[verti].z)
+                        m->head.frames[framei].max.z = frameverts[verti].z;
+                }
+
+                verti++;
+            }
+            surfi++;
+        }
+
+        m->head.frames[framei].cen.x = (m->head.frames[framei].min.x + m->head.frames[framei].max.x) / 2.0f;
+        m->head.frames[framei].cen.y = (m->head.frames[framei].min.y + m->head.frames[framei].max.y) / 2.0f;
+        m->head.frames[framei].cen.z = (m->head.frames[framei].min.z + m->head.frames[framei].max.z) / 2.0f;
+
+        surfi = 0;
+        while (surfi < m->head.numsurfs)
+        {
+            frameverts = &m->head.surfs[surfi].xyzn[framei * m->head.surfs[surfi].numverts];
+
+            verti = 0;
+            while (verti < m->head.surfs[surfi].numverts)
+            {
+                dist =  m->head.frames[framei].cen.x * frameverts[verti].x +
+                        m->head.frames[framei].cen.y * frameverts[verti].y +
+                        m->head.frames[framei].cen.z * frameverts[verti].z;
+
+                if (dist > m->head.frames[framei].r)
+                    m->head.frames[framei].r = dist;
+
+                verti++;
+            }
+            surfi++;
+        }
+
+        m->head.frames[framei].r = sqrt(m->head.frames[framei].r);
+
+        framei++;
+    }
+}
+
 static int32_t md3draw(md3model_t *m, spritetype *tspr)
 {
     point3d fp, fp1, fp2, m0, m1, a0;
@@ -2950,9 +3042,13 @@ mdmodel_t *mdload(const char *filnam)
     {
     case 0x32504449:
 //        initprintf("Warning: model '%s' is version IDP2; wanted version IDP3\n",filnam);
-        vm = (mdmodel_t*)md2load(fil,filnam); break; //IDP2
+        vm = (mdmodel_t*)md2load(fil,filnam);
+        md3postload((md3model_t*)vm);
+        break; //IDP2
     case 0x33504449:
-        vm = (mdmodel_t*)md3load(fil); break; //IDP3
+        vm = (mdmodel_t*)md3load(fil);
+        md3postload((md3model_t*)vm);
+        break; //IDP3
     default:
         vm = (mdmodel_t*)0; break;
     }

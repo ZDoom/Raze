@@ -273,7 +273,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "      }\n"
         "      result += diffuseTexel * vec4(lightAttenuation * dotNormalLightDir * lightDiffuse, 0.0);\n"
         "      float specular = pow( max(dot(reflect(-normalize(lightVector), fragmentNormal), normalize(-vertexPos)), 0.0), 60.0);\n"
-        "      result += vec4(lightAttenuation * specular * vec3(1.0, 1.0, 1.0), 0.0);\n"
+        "      result += diffuseTexel * vec4(lightAttenuation * specular * lightDiffuse * 10, 0.0);\n"
         "    }\n"
         "\n"
         "    l++;\n"
@@ -2483,6 +2483,33 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
     bglScalef(scale * tspr->xrepeat, scale * tspr->xrepeat, scale * tspr->yrepeat);
     bglTranslatef(0.0f, 0.0, m->zadd * 64);
+
+    // debug code for drawing the model bounding sphere
+    // bglDisable(GL_TEXTURE_2D);
+    // bglBegin(GL_LINES);
+    // bglColor4f(1.0, 0.0, 0.0, 1.0);
+    // bglVertex3f(m->head.frames[m->cframe].cen.x,
+    //             m->head.frames[m->cframe].cen.y,
+    //             m->head.frames[m->cframe].cen.z);
+    // bglVertex3f(m->head.frames[m->cframe].cen.x + m->head.frames[m->cframe].r,
+    //             m->head.frames[m->cframe].cen.y,
+    //             m->head.frames[m->cframe].cen.z);
+    // bglColor4f(0.0, 1.0, 0.0, 1.0);
+    // bglVertex3f(m->head.frames[m->cframe].cen.x,
+    //             m->head.frames[m->cframe].cen.y,
+    //             m->head.frames[m->cframe].cen.z);
+    // bglVertex3f(m->head.frames[m->cframe].cen.x,
+    //             m->head.frames[m->cframe].cen.y + m->head.frames[m->cframe].r,
+    //             m->head.frames[m->cframe].cen.z);
+    // bglColor4f(0.0, 0.0, 1.0, 1.0);
+    // bglVertex3f(m->head.frames[m->cframe].cen.x,
+    //             m->head.frames[m->cframe].cen.y,
+    //             m->head.frames[m->cframe].cen.z);
+    // bglVertex3f(m->head.frames[m->cframe].cen.x,
+    //             m->head.frames[m->cframe].cen.y,
+    //             m->head.frames[m->cframe].cen.z + m->head.frames[m->cframe].r);
+    // bglEnd();
+    // bglEnable(GL_TEXTURE_2D);
 
     polymer_getscratchmaterial(&mdspritematerial);
 
