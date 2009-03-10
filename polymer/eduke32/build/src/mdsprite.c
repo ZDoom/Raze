@@ -1538,7 +1538,7 @@ static void     md3postload(md3model_t* m)
 {
     int         framei, surfi, verti;
     md3xyzn_t   *frameverts;
-    float       dist, lat, lng;
+    float       dist, lat, lng, vec[3];
 
     // apparently we can't trust loaded models bounding box/sphere information,
     // so let's compute it ourselves
@@ -1608,9 +1608,11 @@ static void     md3postload(md3model_t* m)
             verti = 0;
             while (verti < m->head.surfs[surfi].numverts)
             {
-                dist =  m->head.frames[framei].cen.x * frameverts[verti].x +
-                        m->head.frames[framei].cen.y * frameverts[verti].y +
-                        m->head.frames[framei].cen.z * frameverts[verti].z;
+                vec[0] = frameverts[verti].x - m->head.frames[framei].cen.x;
+                vec[1] = frameverts[verti].y - m->head.frames[framei].cen.y;
+                vec[2] = frameverts[verti].z - m->head.frames[framei].cen.z;
+
+                dist = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2];
 
                 if (dist > m->head.frames[framei].r)
                     m->head.frames[framei].r = dist;

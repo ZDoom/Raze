@@ -278,7 +278,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "      result += diffuseTexel * vec4(lightAttenuation * dotNormalLightDir * lightDiffuse, 0.0);\n"
         "      float specular = pow( max(dot(reflect(-normalize(lightVector), fragmentNormal), normalize(-vertexPos)), 0.0), 60.0);\n"
         "      result += diffuseTexel * vec4(lightAttenuation * specular * lightDiffuse * 10, 0.0);\n"
-        "    }\n"
+        "    } //else { result = vec4(0.0, 1.0, 0.0, 1.0); }\n"
         "\n"
         "    l++;\n"
         "  }\n"
@@ -2434,12 +2434,16 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     float           *v0, *v1;
     md3surf_t       *s;
     char            lpal;
-    float           spos[3];
+    float           spos[3], tspos[3], lpos[3], tlpos[3], vec[3];
     float           ang;
     float           scale;
-    int32_t         surfi;
+    int32_t         surfi, i;
     GLfloat*        color;
     int32_t         materialbits;
+    float           sradius, lradius;
+    char            modellights[PR_MAXLIGHTS];
+    char            modellightcount;
+
 
     m = (md3model_t*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
     updateanimation((md2model_t *)m,tspr);
@@ -2487,6 +2491,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
     bglScalef(scale * tspr->xrepeat, scale * tspr->xrepeat, scale * tspr->yrepeat);
     bglTranslatef(0.0f, 0.0, m->zadd * 64);
+
+    bglGetFloatv(GL_MODELVIEW_MATRIX, spritemodelview);
 
     // debug code for drawing the model bounding sphere
 //     bglDisable(GL_TEXTURE_2D);
@@ -2550,6 +2556,54 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
     if (pr_gpusmoothing)
         mdspritematerial.frameprogress = m->interpol;
+
+    // light culling
+    if (lightcount)
+    {
+        sradius = (m->head.frames[m->cframe].r * (1 - m->interpol)) +
+                  (m->head.frames[m->nframe].r * m->interpol);
+
+        sradius *= max(scale * tspr->xrepeat, scale * tspr->yrepeat);
+        sradius /= 1000.0f;
+
+        spos[0] = (m->head.frames[m->cframe].cen.x * (1 - m->interpol)) +
+                  (m->head.frames[m->nframe].cen.x * m->interpol);
+        spos[1] = (m->head.frames[m->cframe].cen.y * (1 - m->interpol)) +
+                  (m->head.frames[m->nframe].cen.y * m->interpol);
+        spos[2] = (m->head.frames[m->cframe].cen.z * (1 - m->interpol)) +
+                  (m->head.frames[m->nframe].cen.z * m->interpol);
+
+        polymer_transformpoint(spos, tspos, spritemodelview);
+
+        modellightcount = 0;
+        i = 0;
+        while (i < lightcount)
+        {
+            lradius = prlights[i].range / 1000.0f;
+
+            lpos[0] = prlights[i].y;
+            lpos[1] = -prlights[i].z / 16.0f;
+            lpos[2] = -prlights[i].x;
+
+            polymer_transformpoint(lpos, tlpos, rootmodelviewmatrix);
+
+            vec[0] = tlpos[0] - tspos[0];
+            vec[0] *= vec[0];
+            vec[1] = tlpos[1] - tspos[1];
+            vec[1] *= vec[1];
+            vec[2] = tlpos[2] - tspos[2];
+            vec[2] *= vec[2];
+
+            if ((vec[0] + vec[1] + vec[2]) <=
+                ((sradius+lradius) * (sradius+lradius)))
+            {
+                modellights[modellightcount] = i;
+                modellightcount++;
+            }
+            i++;
+        }
+
+    }
 
     for (surfi=0;surfi<m->head.numsurfs;surfi++)
     {
@@ -2617,7 +2671,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 mdspritematerial.nextframedatastride = sizeof(float) * 6;
             }
 
-            materialbits = polymer_bindmaterial(mdspritematerial, NULL, 0);
+            materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[surfi]);
             bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
@@ -2639,7 +2693,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 mdspritematerial.nextframedatastride = sizeof(float) * 6;
             }
 
-            materialbits = polymer_bindmaterial(mdspritematerial, NULL, 0);
+            materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
 
             bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
 
