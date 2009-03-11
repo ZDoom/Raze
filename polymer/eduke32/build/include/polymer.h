@@ -126,7 +126,10 @@ typedef struct      s_prplane {
     int32_t         vertcount;
     GLuint          vbo;
     // attributes
-    GLdouble        plane[4];
+    GLfloat         t[3];
+    GLfloat         b[3];
+    GLfloat         n[3];
+    GLfloat         plane[4];
     _prmaterial     material;
     // elements
     GLushort*       indices;
@@ -212,7 +215,7 @@ void                polymer_addlight(_prlight light);
 // CORE
 static void         polymer_displayrooms(int16_t sectnum);
 static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane* plane, int32_t indicecount);
-static void         polymer_inb4mirror(GLfloat* buffer, GLdouble* plane);
+static void         polymer_inb4mirror(GLfloat* buffer, GLfloat* plane);
 static void         polymer_animatesprites(void);
 // SECTORS
 static int32_t      polymer_initsector(int16_t sectnum);
@@ -227,8 +230,8 @@ static int32_t      polymer_initwall(int16_t wallnum);
 static void         polymer_updatewall(int16_t wallnum);
 static void         polymer_drawwall(int16_t sectnum, int16_t wallnum);
 // HSR
-static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int32_t indicecount, GLdouble* plane);
-static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLdouble* out);
+static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int32_t indicecount, GLfloat* plane, GLfloat* t, GLfloat* b, GLfloat* n);
+static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out);
 static void         polymer_transformpoint(float* inpos, float* pos, float* matrix);
 static void         polymer_pokesector(int16_t sectnum);
 static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projection, float* frustum);

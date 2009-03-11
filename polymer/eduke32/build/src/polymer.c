@@ -755,7 +755,7 @@ void                polymer_drawsprite(int32_t snum)
         i++;
     }
 
-    polymer_buffertoplane(spriteplane.buffer, NULL, 4, spriteplane.plane);
+    polymer_buffertoplane(spriteplane.buffer, NULL, 4, spriteplane.plane, spriteplane.t, spriteplane.b,  spriteplane.n);
 
     spriteplane.lightcount = 0;
     i = 0;
@@ -1192,7 +1192,47 @@ static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane
 
 //     bglBindTexture(GL_TEXTURE_2D, plane->material.diffusemap);
 
-    bglNormal3f((float)(-plane->plane[0]), (float)(-plane->plane[1]), (float)(-plane->plane[2]));
+    bglNormal3f((float)(plane->plane[0]), (float)(plane->plane[1]), (float)(plane->plane[2]));
+
+    // debug code for drawing plane inverse TBN
+//     bglDisable(GL_TEXTURE_2D);
+//     bglBegin(GL_LINES);
+//     bglColor4f(1.0, 0.0, 0.0, 1.0);
+//     bglVertex3f(plane->buffer[0],
+//                 plane->buffer[1],
+//                 plane->buffer[2]);
+//     bglVertex3f(plane->buffer[0] + plane->t[0] * 50,
+//                 plane->buffer[1] + plane->t[1] * 50,
+//                 plane->buffer[2] + plane->t[2] * 50);
+//     bglColor4f(0.0, 1.0, 0.0, 1.0);
+//     bglVertex3f(plane->buffer[0],
+//                 plane->buffer[1],
+//                 plane->buffer[2]);
+//     bglVertex3f(plane->buffer[0] + plane->b[0] * 50,
+//                 plane->buffer[1] + plane->b[1] * 50,
+//                 plane->buffer[2] + plane->b[2] * 50);
+//     bglColor4f(0.0, 0.0, 1.0, 1.0);
+//     bglVertex3f(plane->buffer[0],
+//                 plane->buffer[1],
+//                 plane->buffer[2]);
+//     bglVertex3f(plane->buffer[0] + plane->n[0] * 50,
+//                 plane->buffer[1] + plane->n[1] * 50,
+//                 plane->buffer[2] + plane->n[2] * 50);
+//     bglEnd();
+//     bglEnable(GL_TEXTURE_2D);
+
+    // debug code for drawing plane normals
+//     bglDisable(GL_TEXTURE_2D);
+//     bglBegin(GL_LINES);
+//     bglColor4f(1.0, 1.0, 1.0, 1.0);
+//     bglVertex3f(plane->buffer[0],
+//                 plane->buffer[1],
+//                 plane->buffer[2]);
+//     bglVertex3f(plane->buffer[0] + plane->plane[0] * 50,
+//                 plane->buffer[1] + plane->plane[1] * 50,
+//                 plane->buffer[2] + plane->plane[2] * 50);
+//     bglEnd();
+//     bglEnable(GL_TEXTURE_2D);
 
     materialbits = polymer_bindmaterial(plane->material, plane->lights, plane->lightcount);
 
@@ -1215,7 +1255,7 @@ static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane
 //     }
 }
 
-static void         polymer_inb4mirror(GLfloat* buffer, GLdouble* plane)
+static void         polymer_inb4mirror(GLfloat* buffer, GLfloat* plane)
 {
     float           pv;
     float           reflectionmatrix[16];
@@ -1525,8 +1565,10 @@ finish:
     if (wallinvalidate)
     {
         s->invalidid++;
-        polymer_buffertoplane(s->floor.buffer, s->floor.indices, s->indicescount, s->floor.plane);
-        polymer_buffertoplane(s->ceil.buffer, s->ceil.indices, s->indicescount, s->ceil.plane);
+        polymer_buffertoplane(s->floor.buffer, s->floor.indices, s->indicescount, s->floor.plane,
+                              s->floor.t, s->floor.b, s->floor.n);
+        polymer_buffertoplane(s->ceil.buffer, s->ceil.indices, s->indicescount, s->ceil.plane,
+                              s->ceil.t, s->ceil.b, s->ceil.n);
     }
 
     s->controlstate = 1;
@@ -2065,7 +2107,7 @@ static void         polymer_updatewall(int16_t wallnum)
     w->cap[7] += 1048576; // this number is the result of 1048574 + 2
     w->cap[10] += 1048576; // this one is arbitrary
 
-    polymer_buffertoplane(w->bigportal, NULL, 4, w->wall.plane);
+    polymer_buffertoplane(w->bigportal, NULL, 4, w->wall.plane, w->wall.t, w->wall.b, w->wall.n);
     memcpy(w->over.plane, w->wall.plane, sizeof(w->wall.plane));
     memcpy(w->mask.plane, w->wall.plane, sizeof(w->wall.plane));
 
@@ -2134,39 +2176,101 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
 #define INDICE(n) ((indices) ? (indices[i+n]*5) : ((i+n)*5))
 
 // HSR
-static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int32_t indicecount, GLdouble* plane)
+static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int32_t indicecount, GLfloat* plane, GLfloat* t, GLfloat* b, GLfloat* n)
 {
-    GLfloat         vec1[3], vec2[3];
+    GLfloat         vec1[5], vec2[5], norm, r, BxN[3], NxT[3], TxB[3];
     int32_t         i;
 
     i = 0;
     do
     {
-        vec1[0] = buffer[(INDICE(1)) + 0] - buffer[(INDICE(0)) + 0];
-        vec1[1] = buffer[(INDICE(1)) + 1] - buffer[(INDICE(0)) + 1];
-        vec1[2] = buffer[(INDICE(1)) + 2] - buffer[(INDICE(0)) + 2];
+        vec1[0] = buffer[(INDICE(1)) + 0] - buffer[(INDICE(0)) + 0]; //x1
+        vec1[1] = buffer[(INDICE(1)) + 1] - buffer[(INDICE(0)) + 1]; //y1
+        vec1[2] = buffer[(INDICE(1)) + 2] - buffer[(INDICE(0)) + 2]; //z1
+        vec1[3] = buffer[(INDICE(1)) + 3] - buffer[(INDICE(0)) + 3]; //s1
+        vec1[4] = buffer[(INDICE(1)) + 4] - buffer[(INDICE(0)) + 4]; //t1
 
-        vec2[0] = buffer[(INDICE(2)) + 0] - buffer[(INDICE(1)) + 0];
-        vec2[1] = buffer[(INDICE(2)) + 1] - buffer[(INDICE(1)) + 1];
-        vec2[2] = buffer[(INDICE(2)) + 2] - buffer[(INDICE(1)) + 2];
+        vec2[0] = buffer[(INDICE(2)) + 0] - buffer[(INDICE(1)) + 0]; //x2
+        vec2[1] = buffer[(INDICE(2)) + 1] - buffer[(INDICE(1)) + 1]; //y2
+        vec2[2] = buffer[(INDICE(2)) + 2] - buffer[(INDICE(1)) + 2]; //z2
+        vec2[3] = buffer[(INDICE(2)) + 3] - buffer[(INDICE(1)) + 3]; //s2
+        vec2[4] = buffer[(INDICE(2)) + 4] - buffer[(INDICE(1)) + 4]; //t2
 
         polymer_crossproduct(vec2, vec1, plane);
 
-        // normalize
-        vec1[0] = plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2];
+        norm = plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2];
+
+        if (norm >= 5000) // hack to work around a precision issue with slopes
+        {
+            // normalize the normal/plane equation and calculate its plane norm
+            norm = -sqrt(norm);
+            plane[0] /= norm;
+            plane[1] /= norm;
+            plane[2] /= norm;
+            plane[3] = (plane[0] * buffer[0] + plane[1] * buffer[1] + plane[2] * buffer[2]);
+
+            // calculate T and B
+            r = 1.0 / (vec1[3] * vec2[4] - vec2[3] * vec1[4]);
+
+            // tangent
+            t[0] = (vec2[4] * vec1[0] - vec1[4] * vec2[0]) * r;
+            t[1] = (vec2[4] * vec1[1] - vec1[4] * vec2[1]) * r;
+            t[2] = (vec2[4] * vec1[2] - vec1[4] * vec2[2]) * r;
+
+            // bitangent
+            b[0] = (vec1[3] * vec2[0] - vec2[3] * vec1[0]) * r;
+            b[1] = (vec1[3] * vec2[1] - vec2[3] * vec1[1]) * r;
+            b[2] = (vec1[3] * vec2[2] - vec2[3] * vec1[2]) * r;
+
+            // invert T, B and N
+            r = 1.0f / ((t[0] * b[1] * plane[2] - t[2] * b[1] * plane[0]) +
+                        (b[0] * plane[1] * t[2] - b[2] * plane[1] * t[0]) +
+                        (plane[0] * t[1] * b[2] - plane[2] * t[1] * b[0]));
+
+            polymer_crossproduct(b, plane, BxN);
+            polymer_crossproduct(plane, t, NxT);
+            polymer_crossproduct(t, b,     TxB);
+
+            // GLSL matrix constructors are in column-major order
+            t[0] = BxN[0] * r;
+            t[1] = -NxT[0] * r;
+            t[2] = TxB[0] * r;
+
+            b[0] = -BxN[1] * r;
+            b[1] = NxT[1] * r;
+            b[2] = -TxB[1] * r;
+
+            n[0] = BxN[2] * r;
+            n[1] = -NxT[2] * r;
+            n[2] = TxB[2] * r;
+
+            // normalize T, B and N
+            norm = t[0] * t[0] + t[1] * t[1] + t[2] * t[2];
+            norm = sqrt(norm);
+            t[0] /= norm;
+            t[1] /= norm;
+            t[2] /= norm;
+
+            norm = b[0] * b[0] + b[1] * b[1] + b[2] * b[2];
+            norm = sqrt(norm);
+            b[0] /= norm;
+            b[1] /= norm;
+            b[2] /= norm;
+
+            norm = n[0] * n[0] + n[1] * n[1] + n[2] * n[2];
+            norm = sqrt(norm);
+            n[0] /= norm;
+            n[1] /= norm;
+            n[2] /= norm;
+
+            break;
+        }
         i+= 3;
     }
-    while ((i < indicecount) && (vec1[0] < 5000)); // hack to work around a precision issue with slopes
-
-    vec1[0] = sqrt(vec1[0]);
-    plane[0] /= vec1[0];
-    plane[1] /= vec1[0];
-    plane[2] /= vec1[0];
-
-    plane[3] = -(plane[0] * buffer[0] + plane[1] * buffer[1] + plane[2] * buffer[2]);
+    while (i < indicecount);
 }
 
-static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLdouble* out)
+static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out)
 {
     out[0] = in_a[1] * in_b[2] - in_a[2] * in_b[1];
     out[1] = in_a[2] * in_b[0] - in_a[0] * in_b[2];
