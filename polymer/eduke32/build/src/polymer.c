@@ -122,6 +122,7 @@ GLfloat         artskydata[16];
 // LIGHTS
 _prlight        prlights[PR_MAXLIGHTS];
 int32_t         lightcount;
+int32_t         curlight;
 
 // MATERIALS
 _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
@@ -134,30 +135,6 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "",
         // frag_def
         "#version 120\n"
-        "\n",
-        // frag_prog
-        "",
-    },
-    {
-        1 << PR_BIT_NV4X_COMPAT,
-        // vert_def
-        "",
-        // vert_prog
-        "",
-        // frag_def
-        "#define LIGHTCOUNT "STR(PR_SM3_MAXLIGHTS)"\n"
-        "\n",
-        // frag_prog
-        "",
-    },
-    {
-        1 << PR_BIT_G8X_COMPAT,
-        // vert_def
-        "",
-        // vert_prog
-        "",
-        // frag_def
-        "#define LIGHTCOUNT lightCount\n"
         "\n",
         // frag_prog
         "",
@@ -187,6 +164,19 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "",
     },
     {
+        1 << PR_BIT_LIGHTING_PASS,
+        // vert_def
+        "",
+        // vert_prog
+        "",
+        // frag_def
+        "",
+        // frag_prog
+        "  isLightingPass = 1;\n"
+        "  result = vec4(0.0, 0.0, 0.0, 1.0);\n"
+        "\n",
+    },
+    {
         1 << PR_BIT_DIFFUSE_MAP,
         // vert_def
         "uniform vec2 diffuseScale;\n"
@@ -199,7 +189,8 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
         // frag_prog
         "  diffuseTexel = texture2D(diffuseMap, gl_TexCoord[0].st);\n"
-        "  result *= diffuseTexel;\n"
+        "  if (isLightingPass == 0)\n"
+        "    result *= diffuseTexel;\n"
         "\n",
     },
     {
@@ -228,60 +219,8 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // frag_def
         "",
         // frag_prog
-        "  result *= vec4(gl_Color);\n"
-        "\n",
-    },
-    {
-        1 << PR_BIT_POINT_LIGHT,
-        // vert_def
-        "varying vec3 vertexNormal;\n"
-        "varying vec3 vertexPos;\n"
-        "\n",
-        // vert_prog
-        "  vertexNormal = normalize(gl_NormalMatrix * curNormal);\n"
-        "  vertexPos = vec3(gl_ModelViewMatrix * curVertex);\n"
-        "\n",
-        // frag_def
-        "uniform int lightCount;\n"
-        "varying vec3 vertexNormal;\n"
-        "varying vec3 vertexPos;\n"
-        "\n",
-        // frag_prog
-        "  vec3 fragmentNormal;\n"
-        "  vec3 lightPos;\n"
-        "  vec3 lightDiffuse;\n"
-        "  vec2 lightRange;\n"
-        "  vec3 lightVector;\n"
-        "  float dotNormalLightDir;\n"
-        "  float lightAttenuation;\n"
-        "  float pointLightDistance;\n"
-        "\n"
-        "  fragmentNormal = normalize(vertexNormal);\n"
-        "\n"
-        "  while (l < LIGHTCOUNT) {\n"
-        "    lightPos = gl_LightSource[l].ambient.rgb;\n"
-        "    lightDiffuse = gl_LightSource[l].diffuse.rgb;\n"
-        "    lightRange.x = gl_LightSource[l].constantAttenuation;\n"
-        "    lightRange.y = gl_LightSource[l].linearAttenuation;\n"
-        "\n"
-        "    lightVector = lightPos - vertexPos;\n"
-        "    pointLightDistance = length(lightVector);\n"
-        "    dotNormalLightDir = max(dot(fragmentNormal, normalize(lightVector)), 0.0);\n"
-        "    if (pointLightDistance < lightRange.y)\n"
-        "    {\n"
-        "      if (pointLightDistance < lightRange.x)\n"
-        "        lightAttenuation = 1.0;\n"
-        "      else {\n"
-        "        lightAttenuation = 1.0 - (pointLightDistance - lightRange.x)  /\n"
-        "                                 (lightRange.y - lightRange.x);\n"
-        "      }\n"
-        "      result += diffuseTexel * vec4(lightAttenuation * dotNormalLightDir * lightDiffuse, 0.0);\n"
-        "      float specular = pow( max(dot(reflect(-normalize(lightVector), fragmentNormal), normalize(-vertexPos)), 0.0), 60.0);\n"
-        "      result += diffuseTexel * vec4(lightAttenuation * specular * lightDiffuse * 10, 0.0);\n"
-        "    } //else { result = vec4(0.0, 1.0, 0.0, 1.0); }\n"
-        "\n"
-        "    l++;\n"
-        "  }\n"
+        "  if (isLightingPass == 0)\n"
+        "    result *= vec4(gl_Color);\n"
         "\n",
     },
     {
@@ -302,6 +241,54 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
     },
     {
+        1 << PR_BIT_POINT_LIGHT,
+        // vert_def
+        "varying vec3 vertexNormal;\n"
+        "varying vec3 vertexPos;\n"
+        "\n",
+        // vert_prog
+        "  vertexNormal = normalize(gl_NormalMatrix * curNormal);\n"
+        "  vertexPos = vec3(gl_ModelViewMatrix * curVertex);\n"
+        "\n",
+        // frag_def
+        "varying vec3 vertexNormal;\n"
+        "varying vec3 vertexPos;\n"
+        "\n",
+        // frag_prog
+        "  vec3 fragmentNormal;\n"
+        "  vec3 lightPos;\n"
+        "  vec3 lightDiffuse;\n"
+        "  vec2 lightRange;\n"
+        "  vec3 lightVector;\n"
+        "  float dotNormalLightDir;\n"
+        "  float lightAttenuation;\n"
+        "  float pointLightDistance;\n"
+        "\n"
+        "  fragmentNormal = normalize(vertexNormal);\n"
+        "\n"
+        "  lightPos = gl_LightSource[0].ambient.rgb;\n"
+        "  lightDiffuse = gl_LightSource[0].diffuse.rgb;\n"
+        "  lightRange.x = gl_LightSource[0].constantAttenuation;\n"
+        "  lightRange.y = gl_LightSource[0].linearAttenuation;\n"
+        "\n"
+        "  lightVector = lightPos - vertexPos;\n"
+        "  pointLightDistance = length(lightVector);\n"
+        "  dotNormalLightDir = max(dot(fragmentNormal, normalize(lightVector)), 0.0);\n"
+        "  if (pointLightDistance < lightRange.y)\n"
+        "  {\n"
+        "    if (pointLightDistance < lightRange.x)\n"
+        "      lightAttenuation = 1.0;\n"
+        "    else {\n"
+        "      lightAttenuation = 1.0 - (pointLightDistance - lightRange.x)  /\n"
+        "                               (lightRange.y - lightRange.x);\n"
+        "    }\n"
+        "    result += diffuseTexel.a * gl_Color.a * diffuseTexel * vec4(lightAttenuation * dotNormalLightDir * lightDiffuse, 0.0);\n"
+        "    float specular = pow( max(dot(reflect(-normalize(lightVector), fragmentNormal), normalize(-vertexPos)), 0.0), 60.0);\n"
+        "    result += diffuseTexel.a * gl_Color.a * diffuseTexel * vec4(lightAttenuation * specular * lightDiffuse * 10, 0.0);\n"
+        "  } //else { result = vec4(0.0, 1.0, 0.0, 1.0); }\n"
+        "\n",
+    },
+    {
         1 << PR_BIT_FOOTER,
         // vert_def
         "void main(void)\n"
@@ -317,7 +304,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "{\n"
         "  vec4 result = vec4(1.0, 1.0, 1.0, 1.0);\n"
         "  vec4 diffuseTexel = vec4(1.0, 1.0, 1.0, 1.0);\n"
-        "  int l = 0;\n"
+        "  int isLightingPass = 0;\n"
         "\n",
         // frag_prog
         "  gl_FragColor = result;\n"
@@ -1192,8 +1179,6 @@ static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane
 
 //     bglBindTexture(GL_TEXTURE_2D, plane->material.diffusemap);
 
-    bglNormal3f((float)(plane->plane[0]), (float)(plane->plane[1]), (float)(plane->plane[2]));
-
     // debug code for drawing plane inverse TBN
 //     bglDisable(GL_TEXTURE_2D);
 //     bglBegin(GL_LINES);
@@ -1234,18 +1219,27 @@ static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane
 //     bglEnd();
 //     bglEnable(GL_TEXTURE_2D);
 
-    materialbits = polymer_bindmaterial(plane->material, plane->lights, plane->lightcount);
+    bglNormal3f((float)(plane->plane[0]), (float)(plane->plane[1]), (float)(plane->plane[2]));
 
-    if (plane->vbo && (pr_vbos > 0))
-    {
-        OMGDRAWSHITVBO;
-    }
-    else
-    {
-        OMGDRAWSHIT;
-    }
+    curlight = 0;
 
-    polymer_unbindmaterial(materialbits);
+    while ((curlight == 0) || (curlight < plane->lightcount))
+    {
+        materialbits = polymer_bindmaterial(plane->material, plane->lights, plane->lightcount);
+
+        if (plane->vbo && (pr_vbos > 0))
+        {
+            OMGDRAWSHITVBO;
+        }
+        else
+        {
+            OMGDRAWSHIT;
+        }
+
+        polymer_unbindmaterial(materialbits);
+
+        curlight++;
+    }
 
 //     if ((depth < 1) && (plane->plane != NULL) &&
 //             (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
@@ -2661,6 +2655,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     if (pr_gpusmoothing)
         mdspritematerial.frameprogress = m->interpol;
 
+    modellightcount = 0;
+
     // light culling
     if (lightcount)
     {
@@ -2679,7 +2675,6 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
         polymer_transformpoint(spos, tspos, spritemodelview);
 
-        modellightcount = 0;
         i = 0;
         while (i < lightcount)
         {
@@ -2775,12 +2770,17 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 mdspritematerial.nextframedatastride = sizeof(float) * 6;
             }
 
-            materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
-
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[surfi]);
-            bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
 
-            polymer_unbindmaterial(materialbits);
+            curlight = 0;
+            while ((curlight == 0) || (curlight < modellightcount))
+            {
+                materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
+                bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
+                polymer_unbindmaterial(materialbits);
+
+                curlight++;
+            }
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
@@ -2797,11 +2797,15 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 mdspritematerial.nextframedatastride = sizeof(float) * 6;
             }
 
-            materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
+            curlight = 0;
+            while ((curlight == 0) || (curlight < modellightcount))
+            {
+                materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
+                bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
+                polymer_unbindmaterial(materialbits);
 
-            bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
-
-            polymer_unbindmaterial(materialbits);
+                curlight++;
+            }
         }
 
         bglDisableClientState(GL_NORMAL_ARRAY);
@@ -2954,36 +2958,32 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
 
     // --------- bit validation
 
-    // PR_BIT_*_COMPAT
-    if (glinfo.sm4)
-        programbits |= prprogrambits[PR_BIT_G8X_COMPAT].bit;
-    else
-        programbits |= prprogrambits[PR_BIT_NV4X_COMPAT].bit;
-
     // PR_BIT_ANIM_INTERPOLATION
     if (material.nextframedata)
         programbits |= prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit;
+
+    // PR_BIT_LIGHTING_PASS
+    if (curlight && lightcount)
+        programbits |= prprogrambits[PR_BIT_LIGHTING_PASS].bit;
 
     // PR_BIT_DIFFUSE_MAP
     if (material.diffusemap)
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP].bit;
 
     // PR_BIT_DIFFUSE_DETAIL_MAP
-    if (material.detailmap)
+    if (!curlight && material.detailmap)
         programbits |= prprogrambits[PR_BIT_DIFFUSE_DETAIL_MAP].bit;
 
     // PR_BIT_DIFFUSE_MODULATION
-    if ((material.diffusemodulation[0] != 1.0f) || (material.diffusemodulation[1] != 1.0f) ||
-        (material.diffusemodulation[2] != 1.0f) || (material.diffusemodulation[3] != 1.0f))
-        programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
+    programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
+
+    // PR_BIT_DIFFUSE_GLOW_MAP
+    if (!curlight && material.glowmap)
+        programbits |= prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit;
 
     // PR_BIT_POINT_LIGHT
     if (lightcount)
         programbits |= prprogrambits[PR_BIT_POINT_LIGHT].bit;
-
-    // PR_BIT_DIFFUSE_GLOW_MAP
-    if (material.glowmap)
-        programbits |= prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit;
 
     // --------- program compiling
     if (!prprograms[programbits].handle)
@@ -3010,6 +3010,13 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
                                   material.nextframedata + 3);
 
         bglUniform1fARB(prprograms[programbits].uniform_frameProgress, material.frameprogress);
+    }
+
+    // PR_BIT_LIGHTING_PASS
+    if (programbits & prprogrambits[PR_BIT_LIGHTING_PASS].bit)
+    {
+        bglEnable(GL_BLEND);
+        bglBlendFunc(GL_ONE, GL_ONE);
     }
 
     // PR_BIT_DIFFUSE_MAP
@@ -3045,52 +3052,6 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
                    material.diffusemodulation[3]);
     }
 
-    // PR_BIT_POINT_LIGHT
-    if (programbits & prprogrambits[PR_BIT_POINT_LIGHT].bit)
-    {
-        int i;
-        float inpos[4], pos[4];
-        float range[2];
-        float color[4];
-
-        i = 0;
-
-        while (i < ((glinfo.sm4) ? lightcount : PR_SM3_MAXLIGHTS))
-        {
-            inpos[0] = prlights[lights[i]].y;
-            inpos[1] = -prlights[lights[i]].z / 16.0f;
-            inpos[2] = -prlights[lights[i]].x;
-
-            polymer_transformpoint(inpos, pos, rootmodelviewmatrix);
-
-            range[0] = prlights[lights[i]].faderange  / 1000.0f;
-            range[1] = prlights[lights[i]].range      / 1000.0f;
-
-            color[0] = prlights[lights[i]].color[0]   / 255.0f;
-            color[1] = prlights[lights[i]].color[1]   / 255.0f;
-            color[2] = prlights[lights[i]].color[2]   / 255.0f;
-
-            bglLightfv(GL_LIGHT0 + i, GL_AMBIENT, pos);
-            bglLightfv(GL_LIGHT0 + i, GL_DIFFUSE, color);
-            bglLightfv(GL_LIGHT0 + i, GL_CONSTANT_ATTENUATION, &range[0]);
-            bglLightfv(GL_LIGHT0 + i, GL_LINEAR_ATTENUATION, &range[1]);
-
-            i++;
-        }
-
-        if (glinfo.sm4)
-            bglUniform1iARB(prprograms[programbits].uniform_lightCount, lightcount);
-        else {
-            range[0] = 0.0f;
-
-            while (i < PR_SM3_MAXLIGHTS)
-            {
-                bglLightfv(GL_LIGHT0 + i, GL_LINEAR_ATTENUATION, &range[0]);
-                i++;
-            }
-        }
-    }
-
     // PR_BIT_DIFFUSE_GLOW_MAP
     if (programbits & prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit)
     {
@@ -3102,6 +3063,32 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
         texunit++;
     }
 
+    // PR_BIT_POINT_LIGHT
+    if (programbits & prprogrambits[PR_BIT_POINT_LIGHT].bit)
+    {
+        float inpos[4], pos[4];
+        float range[2];
+        float color[4];
+
+        inpos[0] = prlights[lights[curlight]].y;
+        inpos[1] = -prlights[lights[curlight]].z / 16.0f;
+        inpos[2] = -prlights[lights[curlight]].x;
+
+        polymer_transformpoint(inpos, pos, rootmodelviewmatrix);
+
+        range[0] = prlights[lights[curlight]].faderange  / 1000.0f;
+        range[1] = prlights[lights[curlight]].range      / 1000.0f;
+
+        color[0] = prlights[lights[curlight]].color[0]   / 255.0f;
+        color[1] = prlights[lights[curlight]].color[1]   / 255.0f;
+        color[2] = prlights[lights[curlight]].color[2]   / 255.0f;
+
+        bglLightfv(GL_LIGHT0, GL_AMBIENT, pos);
+        bglLightfv(GL_LIGHT0, GL_DIFFUSE, color);
+        bglLightfv(GL_LIGHT0, GL_CONSTANT_ATTENUATION, &range[0]);
+        bglLightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, &range[1]);
+    }
+
     bglActiveTextureARB(GL_TEXTURE0_ARB);
 
     return (programbits);
@@ -3109,11 +3096,20 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
 
 static void         polymer_unbindmaterial(int32_t programbits)
 {
+    // repair any dirty GL state here
+
     // PR_BIT_ANIM_INTERPOLATION
     if (programbits & prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit)
     {
         bglDisableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameNormal);
         bglDisableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameData);
+    }
+
+    // PR_BIT_LIGHTING_PASS
+    if (programbits & prprogrambits[PR_BIT_LIGHTING_PASS].bit)
+    {
+        bglDisable(GL_BLEND);
+        bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     bglUseProgramObjectARB(0);
@@ -3215,17 +3211,18 @@ static void         polymer_compileprogram(int32_t programbits)
         prprograms[programbits].uniform_detailScale = bglGetUniformLocationARB(program, "detailScale");
     }
 
-    // PR_BIT_POINT_LIGHT
-    if (programbits & prprogrambits[PR_BIT_POINT_LIGHT].bit && glinfo.sm4)
-    {
-        prprograms[programbits].uniform_lightCount = bglGetUniformLocationARB(program, "lightCount");
-    }
-
     // PR_BIT_DIFFUSE_GLOW_MAP
     if (programbits & prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit)
     {
         prprograms[programbits].uniform_glowMap = bglGetUniformLocationARB(program, "glowMap");
     }
+
+    // PR_BIT_POINT_LIGHT
+    if (programbits & prprogrambits[PR_BIT_POINT_LIGHT].bit && glinfo.sm4)
+    {
+//         prprograms[programbits].uniform_lightCount = bglGetUniformLocationARB(program, "lightCount");
+    }
+
 }
 
 // LIGHTS
@@ -3290,7 +3287,7 @@ static void         polymer_culllight(char lightindex)
             s->floor.lightcount++;
         }
         if (polymer_planeinlight(&s->ceil, light)) {
-            s->ceil.lights[s->floor.lightcount] = lightindex;
+            s->ceil.lights[s->ceil.lightcount] = lightindex;
             s->ceil.lightcount++;
         }
 
