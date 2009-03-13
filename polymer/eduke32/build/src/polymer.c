@@ -177,18 +177,43 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
     },
     {
+        1 << PR_BIT_NORMAL_MAP,
+        // vert_def
+        "attribute vec3 T;\n"
+        "attribute vec3 B;\n"
+        "attribute vec3 N;\n"
+        "varying mat3 matTBN;\n"
+        "\n",
+        // vert_prog
+        "  //TBN = mat3(gl_NormalMatrix * T, gl_NormalMatrix * B, gl_NormalMatrix * N);\n"
+        "  matTBN = gl_NormalMatrix * mat3(T, B, N);\n"
+        "\n"
+        "  gl_TexCoord[texCoord++] = gl_MultiTexCoord0;\n"
+        "  isNormalMapped = 1;\n"
+        "\n",
+        // frag_def
+        "uniform sampler2D normalMap;\n"
+        "varying mat3 matTBN;\n"
+        "\n",
+        // frag_prog
+        "  normalTexel = texture2D(normalMap, gl_TexCoord[texCoord++].st);\n"
+        "  isNormalMapped = 1;\n"
+        "  TBN = matTBN;\n"
+        "\n",
+    },
+    {
         1 << PR_BIT_DIFFUSE_MAP,
         // vert_def
         "uniform vec2 diffuseScale;\n"
         "\n",
         // vert_prog
-        "  gl_TexCoord[0] = vec4(diffuseScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
+        "  gl_TexCoord[texCoord++] = vec4(diffuseScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
         "\n",
         // frag_def
         "uniform sampler2D diffuseMap;\n"
         "\n",
         // frag_prog
-        "  diffuseTexel = texture2D(diffuseMap, gl_TexCoord[0].st);\n"
+        "  diffuseTexel = texture2D(diffuseMap, gl_TexCoord[texCoord++].st);\n"
         "  if (isLightingPass == 0)\n"
         "    result *= diffuseTexel;\n"
         "\n",
@@ -199,13 +224,13 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "uniform vec2 detailScale;\n"
         "\n",
         // vert_prog
-        "  gl_TexCoord[1] = vec4(detailScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
+        "  gl_TexCoord[texCoord++] = vec4(detailScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
         "\n",
         // frag_def
         "uniform sampler2D detailMap;\n"
         "\n",
         // frag_prog
-        "  result *= texture2D(detailMap, gl_TexCoord[1].st);\n"
+        "  result *= texture2D(detailMap, gl_TexCoord[texCoord++].st);\n"
         "  result.rgb *= 2.0;\n"
         "\n",
     },
@@ -228,7 +253,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // vert_def
         "",
         // vert_prog
-        "  gl_TexCoord[2] = gl_MultiTexCoord0;\n"
+        "  gl_TexCoord[texCoord++] = gl_MultiTexCoord0;\n"
         "\n",
         // frag_def
         "uniform sampler2D glowMap;\n"
@@ -236,7 +261,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // frag_prog
         "  vec4 glowTexel;\n"
         "\n"
-        "  glowTexel = texture2D(glowMap, gl_TexCoord[2].st);\n"
+        "  glowTexel = texture2D(glowMap, gl_TexCoord[texCoord++].st);\n"
         "  result = vec4((result.rgb * (1.0 - glowTexel.a)) + (glowTexel.rgb * glowTexel.a), result.a);\n"
         "\n",
     },
@@ -246,19 +271,26 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "varying vec3 vertexNormal;\n"
         "varying vec3 eyeVector;\n"
         "varying vec3 lightVector;\n"
+        "varying vec3 tangentSpaceLightVector;\n"
         "\n",
         // vert_prog
         "  vec3 vertexPos;\n"
         "\n"
-        "  vertexNormal = normalize(gl_NormalMatrix * curNormal);\n"
         "  vertexPos = vec3(gl_ModelViewMatrix * curVertex);\n"
         "  eyeVector = -vertexPos;\n"
         "  lightVector = gl_LightSource[0].ambient.rgb - vertexPos;\n"
+        "\n"
+        "  if (isNormalMapped == 1) {\n"
+        "    tangentSpaceLightVector = vec3(32376.0, -94.0, -32496.0) - vec3(curVertex);\n"
+        "    tangentSpaceLightVector = TBN * tangentSpaceLightVector;\n"
+        "  } else\n"
+        "    vertexNormal = normalize(gl_NormalMatrix * curNormal);\n"
         "\n",
         // frag_def
         "varying vec3 vertexNormal;\n"
         "varying vec3 eyeVector;\n"
         "varying vec3 lightVector;\n"
+        "varying vec3 tangentSpaceLightVector;\n"
         "\n",
         // frag_prog
         "  vec2 lightRange;\n"
@@ -284,7 +316,11 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "                             (lightRange.y - lightRange.x);\n"
         "\n"
         "  if (lightAttenuation > 0.0) {\n"
-        "    N = normalize(vertexNormal);\n"
+        "    if (isNormalMapped == 1) {\n"
+        "      N = 2.0 * (normalTexel.rgb - 0.5);\n"
+        "      N = normalize(TBN * N);\n"
+        "    } else\n"
+        "      N = normalize(vertexNormal);\n"
         "    NdotL = dot(N, L);\n"
         "\n"
         "    if (NdotL > 0.0) {\n"
@@ -306,8 +342,11 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // vert_def
         "void main(void)\n"
         "{\n"
+        "  int texCoord = 0;\n"
         "  vec4 curVertex = gl_Vertex;\n"
         "  vec3 curNormal = gl_Normal;\n"
+        "  int isNormalMapped = 0;\n"
+        "  mat3 TBN;\n"
         "\n",
         // vert_prog
         "  gl_Position = gl_ModelViewProjectionMatrix * curVertex;\n"
@@ -315,9 +354,13 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // frag_def
         "void main(void)\n"
         "{\n"
+        "  int texCoord = 0;\n"
         "  vec4 result = vec4(1.0, 1.0, 1.0, 1.0);\n"
         "  vec4 diffuseTexel = vec4(1.0, 1.0, 1.0, 1.0);\n"
+        "  vec4 normalTexel;\n"
         "  int isLightingPass = 0;\n"
+        "  int isNormalMapped = 0;\n"
+        "  mat3 TBN;\n"
         "\n",
         // frag_prog
         "  gl_FragColor = result;\n"
@@ -826,6 +869,9 @@ void                polymer_resetlights(void)
 
 void                polymer_addlight(_prlight light)
 {
+    if (light.sector == -1)
+        return;
+
     if (lightcount < PR_MAXLIGHTS)
     {
         prlights[lightcount] = light;
@@ -1239,6 +1285,13 @@ static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane
     while ((curlight == 0) || (curlight < plane->lightcount))
     {
         materialbits = polymer_bindmaterial(plane->material, plane->lights, plane->lightcount);
+
+        if (materialbits & prprogrambits[PR_BIT_NORMAL_MAP].bit)
+        {
+            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_T, plane->t);
+            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_B, plane->b);
+            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_N, plane->plane);
+        }
 
         if (plane->vbo && (pr_vbos > 0))
         {
@@ -2114,9 +2167,12 @@ static void         polymer_updatewall(int16_t wallnum)
     w->cap[7] += 1048576; // this number is the result of 1048574 + 2
     w->cap[10] += 1048576; // this one is arbitrary
 
-    polymer_buffertoplane(w->bigportal, NULL, 4, w->wall.plane, w->wall.t, w->wall.b, w->wall.n);
-    memcpy(w->over.plane, w->wall.plane, sizeof(w->wall.plane));
-    memcpy(w->mask.plane, w->wall.plane, sizeof(w->wall.plane));
+    if (w->underover & 1)
+        polymer_buffertoplane(w->wall.buffer, NULL, 4, w->wall.plane, w->wall.t, w->wall.b, w->wall.n);
+    if (w->underover & 2)
+        polymer_buffertoplane(w->over.buffer, NULL, 4, w->over.plane, w->over.t, w->over.b, w->over.n);
+    if (!((wal->nextsector == -1) || (wal->cstat & 32)))
+        polymer_buffertoplane(w->mask.buffer, NULL, 4, w->mask.plane, w->mask.t, w->mask.b, w->mask.n);
 
     if ((pr_vbos > 0))
     {
@@ -2229,27 +2285,27 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
             b[1] = (vec1[3] * vec2[1] - vec2[3] * vec1[1]) * r;
             b[2] = (vec1[3] * vec2[2] - vec2[3] * vec1[2]) * r;
 
-            // invert T, B and N
-            r = 1.0f / ((t[0] * b[1] * plane[2] - t[2] * b[1] * plane[0]) +
-                        (b[0] * plane[1] * t[2] - b[2] * plane[1] * t[0]) +
-                        (plane[0] * t[1] * b[2] - plane[2] * t[1] * b[0]));
-
-            polymer_crossproduct(b, plane, BxN);
-            polymer_crossproduct(plane, t, NxT);
-            polymer_crossproduct(t, b,     TxB);
-
-            // GLSL matrix constructors are in column-major order
-            t[0] = BxN[0] * r;
-            t[1] = -NxT[0] * r;
-            t[2] = TxB[0] * r;
-
-            b[0] = -BxN[1] * r;
-            b[1] = NxT[1] * r;
-            b[2] = -TxB[1] * r;
-
-            n[0] = BxN[2] * r;
-            n[1] = -NxT[2] * r;
-            n[2] = TxB[2] * r;
+//             // invert T, B and N
+//             r = 1.0f / ((t[0] * b[1] * plane[2] - t[2] * b[1] * plane[0]) +
+//                         (b[0] * plane[1] * t[2] - b[2] * plane[1] * t[0]) +
+//                         (plane[0] * t[1] * b[2] - plane[2] * t[1] * b[0]));
+// 
+//             polymer_crossproduct(b, plane, BxN);
+//             polymer_crossproduct(plane, t, NxT);
+//             polymer_crossproduct(t, b,     TxB);
+// 
+//             // GLSL matrix constructors are in column-major order
+//             t[0] = BxN[0] * r;
+//             t[1] = -NxT[0] * r;
+//             t[2] = TxB[0] * r;
+// 
+//             b[0] = -BxN[1] * r;
+//             b[1] = NxT[1] * r;
+//             b[2] = -TxB[1] * r;
+// 
+//             n[0] = BxN[2] * r;
+//             n[1] = -NxT[2] * r;
+//             n[2] = TxB[2] * r;
 
             // normalize T, B and N
             norm = t[0] * t[0] + t[1] * t[1] + t[2] * t[2];
@@ -2873,6 +2929,8 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     material->frameprogress = 0.0f;
     material->nextframedata = NULL;
     material->nextframedatastride = 0;
+    // PR_BIT_NORMAL_MAP
+    material->normalmap = 0;
     // PR_BIT_DIFFUSE_MAP
     material->diffusemap = 0;
     material->diffusescale[0] = material->diffusescale[1] = 1.0f;
@@ -2895,6 +2953,16 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     pthtyp*         glowpth;
 
     polymer_getscratchmaterial(material);
+
+    // PR_BIT_NORMAL_MAP
+    if (hicfindsubst(tilenum, 100, 0))
+    {
+        glowpth = NULL;
+        glowpth = gltexcache(tilenum, 100, 0);
+
+        if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == 100))
+            material->normalmap = glowpth->glpic;
+    }
 
     // PR_BIT_DIFFUSE_MAP
     if (!waloff[tilenum])
@@ -2979,6 +3047,10 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     if (curlight && lightcount)
         programbits |= prprogrambits[PR_BIT_LIGHTING_PASS].bit;
 
+    // PR_BIT_NORMAL_MAP
+    if (material.normalmap)
+        programbits |= prprogrambits[PR_BIT_NORMAL_MAP].bit;
+
     // PR_BIT_DIFFUSE_MAP
     if (material.diffusemap)
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP].bit;
@@ -3030,6 +3102,17 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     {
         bglEnable(GL_BLEND);
         bglBlendFunc(GL_ONE, GL_ONE);
+    }
+
+    // PR_BIT_NORMAL_MAP
+    if (programbits & prprogrambits[PR_BIT_NORMAL_MAP].bit)
+    {
+        bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
+        bglBindTexture(GL_TEXTURE_2D, material.normalmap);
+
+        bglUniform1iARB(prprograms[programbits].uniform_normalMap, texunit);
+
+        texunit++;
     }
 
     // PR_BIT_DIFFUSE_MAP
@@ -3208,6 +3291,15 @@ static void         polymer_compileprogram(int32_t programbits)
         prprograms[programbits].attrib_nextFrameData = bglGetAttribLocationARB(program, "nextFrameData");
         prprograms[programbits].attrib_nextFrameNormal = bglGetAttribLocationARB(program, "nextFrameNormal");
         prprograms[programbits].uniform_frameProgress = bglGetUniformLocationARB(program, "frameProgress");
+    }
+
+    // PR_BIT_NORMAL_MAP
+    if (programbits & prprogrambits[PR_BIT_NORMAL_MAP].bit)
+    {
+        prprograms[programbits].uniform_normalMap = bglGetUniformLocationARB(program, "normalMap");
+        prprograms[programbits].attrib_T = bglGetAttribLocationARB(program, "T");
+        prprograms[programbits].attrib_B = bglGetAttribLocationARB(program, "B");
+        prprograms[programbits].attrib_N = bglGetAttribLocationARB(program, "N");
     }
 
     // PR_BIT_DIFFUSE_MAP

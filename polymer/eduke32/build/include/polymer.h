@@ -45,6 +45,7 @@ typedef enum {
                     PR_BIT_HEADER,              // must be first
                     PR_BIT_ANIM_INTERPOLATION,
                     PR_BIT_LIGHTING_PASS,
+                    PR_BIT_NORMAL_MAP,
                     PR_BIT_DIFFUSE_MAP,
                     PR_BIT_DIFFUSE_DETAIL_MAP,
                     PR_BIT_DIFFUSE_MODULATION,
@@ -59,6 +60,8 @@ typedef struct      s_prmaterial {
     GLfloat         frameprogress;
     GLfloat*        nextframedata;
     GLsizei         nextframedatastride;
+    // PR_BIT_NORMAL_MAP
+    GLuint          normalmap;
     // PR_BIT_DIFFUSE_MAP
     GLuint          diffusemap;
     GLfloat         diffusescale[2];
@@ -77,6 +80,11 @@ typedef struct      s_prrograminfo {
     GLint           attrib_nextFrameData;
     GLint           attrib_nextFrameNormal;
     GLint           uniform_frameProgress;
+    // PR_BIT_NORMAL_MAP
+    GLint           uniform_normalMap;
+    GLint           attrib_T;
+    GLint           attrib_B;
+    GLint           attrib_N;
     // PR_BIT_DIFFUSE_MAP
     GLint           uniform_diffuseMap;
     GLint           uniform_diffuseScale;
