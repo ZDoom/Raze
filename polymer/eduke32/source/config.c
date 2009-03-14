@@ -260,6 +260,8 @@ void CONFIG_SetDefaults(void)
     ud.weaponscale = 100;
     ud.textscale = 100;
 
+    ud.config.CheckForUpdates = 1;
+
     Bstrcpy(ud.rtsname, "DUKE.RTS");
     Bstrcpy(szPlayerName, "Duke");
 
@@ -901,6 +903,7 @@ int32 CONFIG_ReadSetup(void)
 
         {
             SCRIPT_GetNumber(ud.config.scripthandle, "Sound Setup", "VoiceToggle",&ud.config.VoiceToggle);
+            // hack to switch old VoiceToggle value over to new bitfield format
             if (ud.config.VoiceToggle == 2) ud.config.VoiceToggle = 5;
         }
 
@@ -958,14 +961,14 @@ int32 CONFIG_ReadSetup(void)
 ===================
 */
 
-void CONFIG_WriteBinds(void) // save binds and aliases to disk
+void CONFIG_WriteBinds(void) // save binds and aliases to <cfgname>_binds.cfg
 {
     int32_t i;
     FILE *fp;
     char *ptr = Bstrdup(setupfilename);
     char tempbuf[128];
 
-    Bsprintf(tempbuf,"%s_binds.cfg",strtok(ptr,"."));
+    Bsprintf(tempbuf, "%s_binds.cfg", strtok(ptr, "."));
     fp = fopen(tempbuf, "wt");
 
     if (fp)

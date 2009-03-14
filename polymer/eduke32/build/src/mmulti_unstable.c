@@ -205,7 +205,7 @@ void mmulti_initmultiplayers(int32_t argc, char **argv)
 
     if (!argc)
     {
-//        initprintf("mmulti_unstable: No configuration file specified!\n");
+//        initprintf("network: No configuration file specified!\n");
         numplayers = 1; myconnectindex = 0;
         connecthead = 0; connectpoint2[0] = -1;
         return;
@@ -954,13 +954,13 @@ static int32_t open_udp_socket(int32_t ip, int32_t port)
     if (natfree)
     {
         //initprintf("Stun is currently %s\n", (natfree) ? "Enabled":"Disabled");
-        initprintf("mmulti_unstable: Stun enabled\n");
+        initprintf("network: Stun enabled\n");
     }
 
     udpsocket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if ((signed)udpsocket == -1)
     {
-        initprintf("mmulti_unstable: socket creation failed: %s\n", netstrerror());
+        initprintf("network: socket creation failed: %s\n", netstrerror());
         return(0);
     }
 
@@ -981,7 +981,7 @@ static int32_t open_udp_socket(int32_t ip, int32_t port)
     addr.sin_port = htons((uint16_t)port);
     if (bind(udpsocket, (struct sockaddr *) &addr, sizeof(addr)) == -1)
     {
-        initprintf("mmulti_unstable: socket binding failed: %s\n", netstrerror());
+        initprintf("network: socket binding failed: %s\n", netstrerror());
         return(0);
     }
 
@@ -1049,12 +1049,12 @@ static int32_t wait_for_other_players(gcomtype *gcom, int32_t myip)
 
             if (rc != sizeof(packet))
             {
-                initprintf("mmulti_unstable: Missized packet or fragment from %s:%i ?!\n", ipstr, port);
+                initprintf("network: Missized packet or fragment from %s:%i ?!\n", ipstr, port);
                 continue;
             }
             else if (packet.header != HEADER_PEER_GREETING)
             {
-                initprintf("mmulti_unstable: Unexpected packet type from %s:%i ?!\n", ipstr, port);
+                initprintf("network: Unexpected packet type from %s:%i ?!\n", ipstr, port);
                 continue;
             }
 
@@ -1065,7 +1065,7 @@ static int32_t wait_for_other_players(gcomtype *gcom, int32_t myip)
             }
 
             if (i == max)
-                initprintf("mmulti_unstable: Disallowed player %s:%d ?!\n", ipstr, port);
+                initprintf("network: Disallowed player %s:%d ?!\n", ipstr, port);
             else if (heard_from[i] == 0)
             {
                 packet.id = B_SWAP16(packet.id);
@@ -1090,7 +1090,7 @@ static int32_t wait_for_other_players(gcomtype *gcom, int32_t myip)
 
     if (quitevent)
     {
-        initprintf("Connection attempt aborted.\n");
+        initprintf("network: Connection attempt aborted.\n");
         return(0);
     }
 
@@ -1129,8 +1129,8 @@ static int32_t wait_for_other_players(gcomtype *gcom, int32_t myip)
         {
             if (heard_from[i] == heard_from[i+1])  /* blah. */
             {
-                initprintf("mmulti_unstable: ERROR: Two players have the same random ID!\n");
-                initprintf("mmulti_unstable: ERROR: Please restart the game to generate new IDs.\n");
+                initprintf("network: ERROR: Two players have the same random ID!\n");
+                initprintf("network: ERROR: Please restart the game to generate new IDs.\n");
                 return(0);
             }
 
@@ -1179,11 +1179,11 @@ static int32_t wait_for_other_players(gcomtype *gcom, int32_t myip)
                 gcom->myconnectindex = i;
         }
 
-        initprintf("mmulti_unstable: player #%i at %s:%i\n", i,static_ipstring(ip),allowed_addresses[i].port);
+        initprintf("network: player #%i at %s:%i\n", i,static_ipstring(ip),allowed_addresses[i].port);
     }
 //    assert(gcom->myconnectindex);
 
-    initprintf("mmulti_unstable: We are player #%i\n", gcom->myconnectindex);
+    initprintf("network: We are player #%i\n", gcom->myconnectindex);
 
     return(1);
 }
@@ -1215,12 +1215,12 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
         my_id = (uint16_t) rand();
     }
 
-    initprintf("mmulti_unstable: Using 0x%X as client ID\n", my_id);
+    initprintf("network: Using 0x%X as client ID\n", my_id);
 
     resendat = getticks();
     remaining = max = gcom->numplayers - 1;
 
-    initprintf("Waiting for %d player%s...\n", remaining, remaining==1 ? "":"s");
+    initprintf("network: Waiting for %d player%s...\n", remaining, remaining==1 ? "":"s");
     if (remaining == 0)
     {
         initprintf("Hmmm... don't have time to play with myself!\n");
@@ -1240,7 +1240,7 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
                 //this is where special formatting of allow lines comes in
                 if (!heard_from[i])
                 {
-                    initprintf("%s %s:%d...\n",first_send?"Connecting to":"Retrying",
+                    initprintf("network: %s %s:%d...\n",first_send?"Connecting to":"Retrying",
                                static_ipstring(allowed_addresses[i].host),allowed_addresses[i].port);
 
                     send_peer_greeting(allowed_addresses[i].host,
@@ -1265,12 +1265,12 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
 
             if (rc != sizeof(packet))
             {
-                initprintf("mmulti_unstable: Missized packet or fragment from %s:%i ?!\n", ipstr, port);
+                initprintf("network: Missized packet or fragment from %s:%i ?!\n", ipstr, port);
                 continue;
             }
             else if (packet.header != HEADER_PEER_GREETING)
             {
-                initprintf("mmulti_unstable: Unexpected packet type from %s:%i ?!\n", ipstr, port);
+                initprintf("network: Unexpected packet type from %s:%i ?!\n", ipstr, port);
                 continue;
             }
 
@@ -1289,9 +1289,9 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
                 packet.id = B_SWAP16(packet.id);
                 heard_from[i] = packet.id;
 
-                initprintf("Connected to %s:%i\n",
+                initprintf("network: Connected to %s:%i\n",
                            ipstr, (unsigned)port);
-                initprintf("Waiting for server to launch game\n");
+                initprintf("network: Waiting for server to launch game\n");
             }
             else
             {
@@ -1300,7 +1300,7 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
                     packet.id = B_SWAP16(packet.id);
                     heard_from[i] = packet.id;
 
-                    initprintf("New player with id 0x%X\n",
+                    initprintf("network: New player with id 0x%X\n",
                                (int32_t) packet.id);
                     gcom->numplayers++;
                     max++;
@@ -1311,7 +1311,7 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
 
     if (quitevent)
     {
-        initprintf("Connection attempt aborted.\n");
+        initprintf("network: Connection attempt aborted.\n");
         return(0);
     }
 
@@ -1328,8 +1328,8 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
         {
             if (heard_from[i] == heard_from[i+1])  /* blah. */
             {
-                initprintf("mmulti_unstable: ERROR: Two players have the same random ID!\n");
-                initprintf("mmulti_unstable: ERROR: Please restart the game to generate new IDs.\n");
+                initprintf("network: ERROR: Two players have the same random ID!\n");
+                initprintf("network: ERROR: Please restart the game to generate new IDs.\n");
                 return(0);
             }
 
@@ -1377,11 +1377,11 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
                 gcom->myconnectindex = i;
         }
 
-//        initprintf("mmulti_unstable: player #%i with id %d\n",i,heard_from[i]);
+//        initprintf("network: player #%i with id %d\n",i,heard_from[i]);
     }
 //    assert(gcom->myconnectindex);
 
-//    initprintf("mmulti_unstable: We are player #%i\n", gcom->myconnectindex);
+//    initprintf("network: We are player #%i\n", gcom->myconnectindex);
 
     return(1);
 }
@@ -1406,7 +1406,7 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
     {
         if (gcom->numplayers > 1)
         {
-            initprintf("mmulti_unstable: Error: can't do both 'broadcast' and 'allow'.\n");
+            initprintf("network: Error: can't do both 'broadcast' and 'allow'.\n");
             return(0);
         }
 
@@ -1427,7 +1427,7 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
     }
 
 
-    initprintf("mmulti_unstable: Using 0x%X as client ID\n", my_id);
+    initprintf("network: Using 0x%X as client ID\n", my_id);
 
     resendat = getticks();
     remaining = max = gcom->numplayers - 1;
@@ -1465,7 +1465,7 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
 
                     if (!heard_from[i])
                     {
-                        initprintf("%s %s:%d...\n",first_send?"Connecting to":"Retrying",
+                        initprintf("network: %s %s:%d...\n",first_send?"Connecting to":"Retrying",
                                    static_ipstring(allowed_addresses[i].host),allowed_addresses[i].port);
 
                         send_peer_greeting(allowed_addresses[i].host,
@@ -1526,7 +1526,7 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
                         {
                             if (allowed_addresses[i].port != port)
                             {
-                                initprintf("mmulti_unstable: Port number for player %d changed from %d to %d.\n",i,allowed_addresses[i].port,port);
+                                initprintf("network: Port number for player %d changed from %d to %d.\n",i,allowed_addresses[i].port,port);
                                 /*                                initprintf("Different player Port Number detected. %s:%i\n",ipstr,
                                                                            allowed_addresses[i].port);
                                                                 initprintf("Changed to %s:%i, player may be behind a firewall.\n", ipstr, port); //addfaz NAT addition */
@@ -1549,13 +1549,13 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
             }
 
             if (i == max)
-                initprintf("mmulti_unstable: Disallowed player %s:%d ?!\n", ipstr, port);
+                initprintf("network: Disallowed player %s:%d ?!\n", ipstr, port);
 
             else if (rc != sizeof(packet))
-                initprintf("mmulti_unstable: Missized packet or fragment from %s:%i ?!\n", ipstr, port);
+                initprintf("network: Missized packet or fragment from %s:%i ?!\n", ipstr, port);
 
             else if (packet.header != HEADER_PEER_GREETING)
-                initprintf("mmulti_unstable: Unexpected packet type from %s:%i ?!\n", ipstr, port);
+                initprintf("network: Unexpected packet type from %s:%i ?!\n", ipstr, port);
 
             else if (heard_from[i] == 0)
             {
@@ -1565,7 +1565,7 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
                 allowed_addresses[i].port = port;
                 remaining--;
 
-                initprintf("Connected to %s:%i (id 0x%X). %d player%s left.\n",
+                initprintf("network: Connected to %s:%i (id 0x%X). %d player%s left.\n",
                            ipstr, port ,(int32_t) packet.id,
                            remaining, remaining == 1 ? "" : "s");
 
@@ -1589,7 +1589,7 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
 
     if (quitevent)
     {
-        initprintf("Connection attempt aborted.\n");
+        initprintf("network: Connection attempt aborted.\n");
         return(0);
     }
 
@@ -1606,8 +1606,8 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
         {
             if (heard_from[i] == heard_from[i+1])  /* blah. */
             {
-                initprintf("mmulti_unstable: ERROR: Two players have the same random ID!\n");
-                initprintf("mmulti_unstable: ERROR: Please restart the game to generate new IDs.\n");
+                initprintf("network: ERROR: Two players have the same random ID!\n");
+                initprintf("network: ERROR: Please restart the game to generate new IDs.\n");
                 return(0);
             }
 
@@ -1656,11 +1656,11 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
                 gcom->myconnectindex = i;
         }
 
-        initprintf("mmulti_unstable: player #%i at %s:%i\n", i,static_ipstring(ip),allowed_addresses[i].port);
+        initprintf("network: player #%i at %s:%i\n", i,static_ipstring(ip),allowed_addresses[i].port);
     }
 //    assert(gcom->myconnectindex);
 
-    initprintf("mmulti_unstable: We are player #%i\n", gcom->myconnectindex);
+    initprintf("network: We are player #%i\n", gcom->myconnectindex);
 
     /*
      * Ok, we should have specific IPs and ports for all players, and
@@ -1811,7 +1811,7 @@ static int32_t parse_udp_config(int32_t argc, char **argv, gcomtype *gcom)
                 j = strtol(argv[i]+2, &p, 10);
                 if (!(*p) && j > 1024 && j<65535) udpport = j;
 
-                initprintf("mmulti_unstable: Using port %d\n", udpport);
+                initprintf("network: Using port %d\n", udpport);
             }
         }
 
@@ -1831,9 +1831,9 @@ static int32_t parse_udp_config(int32_t argc, char **argv, gcomtype *gcom)
                             udpmode = udpmode_server;
                             gcom->numplayers = (argv[i][4]-'0');
                             if ((argv[i][5] >= '0') && (argv[i][5] <= '9')) gcom->numplayers = gcom->numplayers*10+(argv[i][5]-'0');
-                            initprintf("mmulti_unstable: %d-player game server\n", gcom->numplayers--);
+                            initprintf("network: %d-player game server\n", gcom->numplayers--);
                         }
-                        initprintf("mmulti_unstable: Master-slave mode\n");
+                        initprintf("network: Master-slave mode\n");
                     }
                     else if (argv[i][2] == '1')
                     {
@@ -1841,7 +1841,7 @@ static int32_t parse_udp_config(int32_t argc, char **argv, gcomtype *gcom)
                         udpmode = udpmode_peer;
                         myconnectindex = daindex;
 //                        daindex++;
-                        initprintf("mmulti_unstable: Peer-to-peer mode\n");
+                        initprintf("network: Peer-to-peer mode\n");
                     }
                     continue;
                 }
@@ -1854,7 +1854,7 @@ static int32_t parse_udp_config(int32_t argc, char **argv, gcomtype *gcom)
             {
 //                if ((danetmode == 1) && (daindex == myconnectindex)) daindex++;
                 parse_interface(st, &allowed_addresses[daindex].host, &allowed_addresses[daindex].port);
-                initprintf("mmulti_unstable: Player %d at %s:%d\n",daindex,st,allowed_addresses[daindex].port);
+                initprintf("network: Player %d at %s:%d\n",daindex,st,allowed_addresses[daindex].port);
                 daindex++;
             }
             else
@@ -1870,11 +1870,11 @@ static int32_t parse_udp_config(int32_t argc, char **argv, gcomtype *gcom)
 //                        if ((danetmode == 1) && (daindex == myconnectindex)) daindex++;
                     allowed_addresses[daindex].host = ntohl(*(int32_t *)lph->h_addr);
                     allowed_addresses[daindex].port = pt;
-                    initprintf("mmulti_unstable: Player %d at %s:%d (%s)\n",daindex,
+                    initprintf("network: Player %d at %s:%d (%s)\n",daindex,
                                inet_ntoa(*(struct in_addr *)lph->h_addr),pt,argv[i]);
                     daindex++;
                 }
-                else initprintf("mmulti_unstable: Failed resolving %s\n",argv[i]);
+                else initprintf("network: Failed resolving %s\n",argv[i]);
             }
             free(st);
         }
@@ -1884,7 +1884,7 @@ static int32_t parse_udp_config(int32_t argc, char **argv, gcomtype *gcom)
     }
     else
     {
-        initprintf("mmulti_unstable: Using '%s' as configuration file\n", argv[0]);
+        initprintf("network: Using '%s' as configuration file\n", argv[0]);
 
         ptr = buf;
         while ((tok = get_token(&ptr)) != NULL)
@@ -1898,7 +1898,7 @@ static int32_t parse_udp_config(int32_t argc, char **argv, gcomtype *gcom)
                 {
                     bogus = 0;
                 }
-                initprintf("mmulti_unstable: Using interface %s:%d\n",
+                initprintf("network: Using interface %s:%d\n",
                            static_ipstring(ip), (int32_t) udpport);
             }
 
@@ -2051,7 +2051,7 @@ void deinit_network_transport(gcomtype *gcom)
 
     deinitialize_sockets();
 
-    initprintf("UDP net deinitialized successfully.\n");
+    initprintf("UDP networking uninitialized successfully.\n");
 }
 
 

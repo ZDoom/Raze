@@ -4534,6 +4534,10 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
             polymer_setanimatesprites(G_DoSpriteAnimations, ud.camerax,ud.cameray,ud.cameraang,smoothratio);
 #endif
         drawrooms(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,ud.camerasect);
+#ifdef POLYMER
+        if (getrendermode() == 4)
+            polymer_resetlights();
+#endif
         G_DoSpriteAnimations(ud.camerax,ud.cameray,ud.cameraang,smoothratio);
         drawmasks();
 
@@ -6642,6 +6646,9 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
     intptr_t l, t1,t3,t4;
     spritetype *s,*t;
     int32_t switchpic;
+#ifdef POLYMER
+    _prlight light;
+#endif
 
     if (!spritesortcnt) return;
 
@@ -7363,6 +7370,39 @@ PALONLY:
         case SHRINKEREXPLOSION__STATIC:
         case RPG__STATIC:
         case FLOORFLAME__STATIC:
+
+#ifdef POLYMER
+            light.sector = t->sectnum;
+
+            light.x = t->x;
+            light.y = t->y;
+            light.z = t->z;
+
+            light.range = tilesizx[t->picnum]*tilesizy[t->picnum];
+            light.faderange = 0;
+
+            light.color[0] = 255;
+            light.color[1] = 80;
+            light.color[2] = 0;
+
+            if ((DynamicTileMap[s->picnum] == ATOMICHEALTH__STATIC) ||
+                (DynamicTileMap[s->picnum] == FREEZEBLAST__STATIC))
+            {
+                light.color[0] = 0;
+                light.color[1] = 0;
+                light.color[2] = 255;
+            }
+            if ((DynamicTileMap[s->picnum] == SHRINKSPARK__STATIC) ||
+                (DynamicTileMap[s->picnum] == SHRINKEREXPLOSION__STATIC))
+            {
+                light.color[0] = 0;
+                light.color[1] = 255;
+                light.color[2] = 0;
+            }
+
+            if (getrendermode() >= 4)
+                polymer_addlight(light);
+#endif
             if (t->picnum == EXPLOSION2)
             {
                 g_player[screenpeek].ps->visibility = -127;
@@ -9339,10 +9379,16 @@ static int32_t loaddefinitions_game(const char *fn, int32_t preload)
 static void G_AddGroup(const char *buffer)
 {
     struct strllist *s;
+    char buf[BMAX_PATH];
+
     s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
-    s->str = Bstrdup(buffer);
-    if (Bstrchr(s->str,'.') == 0)
-        Bstrcat(s->str,".grp");
+
+    Bstrcpy(buf, buffer);
+
+    if (Bstrchr(buf,'.') == 0)
+        Bstrcat(buf,".grp");
+
+    s->str = Bstrdup(buf);
 
     if (CommandGrps)
     {
@@ -10872,14 +10918,7 @@ void app_main(int32_t argc,const char **argv)
         }
     }
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
-    glusetexcache = glusetexcachecompression = -1;
-#endif
-
-#ifdef _WIN32
-    ud.config.CheckForUpdates = -1;
-#endif
-
+    // used with binds for fast function lookup
     hash_init(&gamefuncH);
     for (i=NUMGAMEFUNCTIONS-1; i>=0; i--)
     {
@@ -10889,21 +10928,21 @@ void app_main(int32_t argc,const char **argv)
         Bfree(str);
     }
 
+#if defined(POLYMOST) && defined(USE_OPENGL)
+    glusetexcache = glusetexcachecompression = -1;
+#endif
+
+/*
+#ifdef _WIN32
+    ud.config.CheckForUpdates = -1;
+#endif
+*/
+
     i = CONFIG_ReadSetup();
     if (getenv("DUKE3DGRP")) duke3dgrp = getenv("DUKE3DGRP");
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
-    if (glusetexcache == -1 || glusetexcachecompression == -1)
-    {
-        i=wm_ynbox("Texture Cache",
-                   "Would you like to enable the on-disk texture cache?\n\n"
-                   "You generally want to say 'yes' here, especially if using the HRP.");
-        if (i) ud.config.useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
-        else glusetexcache = glusetexcachecompression = 0;
-    }
-#endif
-
 #ifdef _WIN32
+/*
     if (ud.config.CheckForUpdates == -1)
     {
         i=wm_ynbox("Automatic Update Notifications",
@@ -10911,6 +10950,7 @@ void app_main(int32_t argc,const char **argv)
         ud.config.CheckForUpdates = 0;
         if (i) ud.config.CheckForUpdates = 1;
     }
+*/
 
 //    initprintf("build %d\n",(uint8_t)atoi(BUILDDATE));
 
@@ -10950,6 +10990,18 @@ void app_main(int32_t argc,const char **argv)
         }
     }
 #endif
+
+#if defined(POLYMOST) && defined(USE_OPENGL)
+    if (glusetexcache == -1 || glusetexcachecompression == -1)
+    {
+        i=wm_ynbox("Texture Cache",
+            "Would you like to enable the on-disk texture cache?\n\n"
+            "You generally want to say 'yes' here, especially if using the HRP.");
+        if (i) ud.config.useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
+        else glusetexcache = glusetexcachecompression = 0;
+    }
+#endif
+
     if (preinitengine())
     {
         wm_msgbox("Build Engine Initialization Error",
@@ -10963,7 +11015,7 @@ void app_main(int32_t argc,const char **argv)
     {
         // try and identify the 'defaultduke3dgrp' in the set of GRPs.
         // if it is found, set up the environment accordingly for the game it represents.
-        // if it is not found, choose the first GRP from the list of
+        // if it is not found, choose the first GRP from the list
         struct grpfile *fg, *first = NULL;
         int32_t i;
         for (fg = foundgrps; fg; fg=fg->next)
@@ -11116,7 +11168,7 @@ CLEAN_DIRECTORY:
     i = initgroupfile(duke3dgrp);
 
     if (i == -1)
-        initprintf("Warning: could not find group file '%s'!\n",duke3dgrp);
+        initprintf("Warning: could not find main group file '%s'!\n",duke3dgrp);
     else
         initprintf("Using group file '%s' as main group file.\n", duke3dgrp);
 
@@ -11177,8 +11229,8 @@ CLEAN_DIRECTORY:
                     G_DoAutoload(CommandGrps->str);
             }
 
-            free(CommandGrps->str);
-            free(CommandGrps);
+            Bfree(CommandGrps->str);
+            Bfree(CommandGrps);
             CommandGrps = s;
         }
         pathsearchmode = 0;

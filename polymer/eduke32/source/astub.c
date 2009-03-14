@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20090227"
+#define BUILDDATE " 20090313"
 #define VERSION " 1.2.0devel"
 
 static int32_t floor_over_floor;

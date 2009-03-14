@@ -15,6 +15,8 @@
 #include "kplib.h"
 #include "md4.h"
 
+#include <math.h>
+
 voxmodel_t *voxmodels[MAXVOXELS];
 int32_t curextra=MAXTILES;
 

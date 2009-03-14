@@ -5133,7 +5133,9 @@ repeatcase:
 
             Bstrcpy(temp,tempbuf);
             CONFIG_WriteSetup();
-            Bsprintf(setupfilename,"%s/",mod_dir);
+            if (mod_dir[0] != '/')
+                Bsprintf(setupfilename,"%s/",mod_dir);
+            else setupfilename[0] = 0;
             Bstrcat(setupfilename,temp);
 
             initprintf("Using config file '%s'.\n",setupfilename);
