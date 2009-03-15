@@ -73,7 +73,7 @@ static void Gv_Clear(void)
         aGameVars[i].szLabel=NULL;
         aGameVars[i].dwFlags=0;
 
-        if (aGameVars[i].val.plValues)
+        if (aGameVars[i].dwFlags & (GAMEVAR_USER_MASK) && aGameVars[i].val.plValues)
         {
             Bfree(aGameVars[i].val.plValues);
             aGameVars[i].val.plValues=NULL;
