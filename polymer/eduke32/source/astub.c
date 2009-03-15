@@ -38,6 +38,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "scriptfile.h"
 #include "crc32.h"
 
+#include "sounds_mapster32.h"
+#include "fx_man.h"
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -57,6 +60,14 @@ static int32_t fixmapbeforesaving = 1;
 static int32_t lastsave = -180*60;
 static int32_t NoAutoLoad = 0;
 int32_t spnoclip=1;
+
+// Sound in Mapster32
+static char defaultgamecon[BMAX_PATH] = "game.con";
+static char *gamecon = defaultgamecon;
+sound_t g_sounds[MAXSOUNDS];
+static int16_t g_definedsndnum[MAXSOUNDS];  // maps parse order index to g_sounds index
+static int16_t g_sndnum[MAXSOUNDS];  // maps current order index to g_sounds index
+int32_t g_numsounds = 0;
 
 #if !defined(_WIN32)
 static int32_t usecwd = 0;
@@ -1567,6 +1578,216 @@ ENDFOR1:
         showframe(1);
 
         keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F1] = 0;
+    }
+}
+
+#define SOUND_NUMDISPLINES IHELP_NUMDISPLINES
+extern char SoundToggle;
+
+static void SoundDisplay()
+{
+    if (g_numsounds <= 0) return;
+
+    overridepm16y = 3*STATUS2DSIZ;
+
+    {
+        int32_t i, j;
+        // cursnd is the first displayed line, cursnd+curofs is where the cursor is
+        static int32_t cursnd=0, curofs=0;
+        char disptext[SOUND_NUMDISPLINES][80];
+
+        begindrawing();
+        clearbuf((char *)(frameplace + (ydim-overridepm16y)*bytesperline), (bytesperline*(overridepm16y-25)) >> 2, 0L);
+
+        drawline16(0,ydim-overridepm16y,xdim-1,ydim-overridepm16y,editorcolors[1]);
+        Bsprintf(tempbuf, "Sounds Listing");
+        printext16(9L,ydim2d-overridepm16y+9L,editorcolors[4],-1,tempbuf,0);
+        printext16(8L,ydim2d-overridepm16y+8L,editorcolors[12],-1,tempbuf,0);
+        enddrawing();
+
+        SoundToggle = 1;
+
+        while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F2]==0)
+        {
+            if (handleevents())
+            {
+                if (quitevent) quitevent = 0;
+            }
+            idle();
+
+            if (keystatus[KEYSC_G])    // goto specified sound#
+            {
+                keystatus[KEYSC_G]=0;
+                printmessage16("                                                    ");
+                Bsprintf(tempbuf, "Goto sound#: ");
+                j = getnumber16(tempbuf, 0, g_numsounds-1, 0);
+                for (i=0; i<g_numsounds; i++)
+                    if (g_sndnum[i]==j)
+                        break;
+                if (i != g_numsounds)
+                {
+                    if (i<SOUND_NUMDISPLINES)
+                        cursnd = 0, curofs = i;
+                    else if (i>=g_numsounds-SOUND_NUMDISPLINES)
+                        cursnd = g_numsounds-SOUND_NUMDISPLINES, curofs = i-cursnd;
+                    else
+                        curofs = SOUND_NUMDISPLINES/2, cursnd = i-curofs;
+                }
+            }
+            else if (keystatus[KEYSC_UP])    // scroll up
+            {
+                keystatus[KEYSC_UP]=0;
+                if (curofs>0) curofs--;
+                else if (cursnd>0) cursnd--;
+            }
+            else if (keystatus[KEYSC_DOWN])    // scroll down
+            {
+                keystatus[KEYSC_DOWN]=0;
+                if (curofs<SOUND_NUMDISPLINES-1 && cursnd+curofs<g_numsounds-1)
+                    curofs++;
+                else if (cursnd+SOUND_NUMDISPLINES < g_numsounds)
+                    cursnd++;
+            }
+            else if (keystatus[KEYSC_PGUP])    // scroll one page up
+            {
+                keystatus[KEYSC_PGUP]=0;
+                i=SOUND_NUMDISPLINES;
+                while (i>0 && curofs>0)
+                    i--, curofs--;
+                while (i>0 && cursnd>0)
+                    i--, cursnd--;
+            }
+            else if (keystatus[KEYSC_PGDN])    // scroll one page down
+            {
+                keystatus[KEYSC_PGDN]=0;
+                i=SOUND_NUMDISPLINES;
+
+                while (i>0 && curofs<SOUND_NUMDISPLINES-1 && cursnd+curofs<g_numsounds-1)
+                    i--, curofs++;
+                while (i>0 && cursnd+SOUND_NUMDISPLINES < g_numsounds)
+                    i--, cursnd++;
+            }
+            else if (keystatus[KEYSC_SPACE] || keystatus[KEYSC_ENTER])   // play/stop sound
+            {
+                int32_t j = cursnd+curofs;
+                int32_t k = g_sndnum[j];
+                keystatus[KEYSC_SPACE] = keystatus[KEYSC_ENTER] = 0;
+                if (S_CheckSoundPlaying(0, k) > 0)
+                    S_StopSound(k);
+                else
+                    S_PlaySound(k);
+            }
+            else if (keystatus[KEYSC_HOME])    // goto first sound#
+            {
+                keystatus[KEYSC_HOME]=0;
+                cursnd = curofs = 0;
+            }
+            else if (keystatus[KEYSC_END])    // goto last sound#
+            {
+                keystatus[KEYSC_END]=0;
+                if ((cursnd=g_numsounds-SOUND_NUMDISPLINES) >= 0)
+                    curofs=SOUND_NUMDISPLINES-1;
+                else
+                {
+                    cursnd = 0;
+                    curofs = g_numsounds-1;
+                }
+            }
+
+            else if (keystatus[KEYSC_S])    // sorting
+            {
+
+                char ch, bad=0;
+
+                i=0;
+                bflushchars();
+                while (bad == 0)
+                {
+                    Bsprintf(tempbuf,"Sort by: (N)um d(E)f (F)ile (R) (M) (D) (P) (G)");
+                    printmessage16(tempbuf);
+                    showframe(1);
+
+                    if (handleevents())
+                    {
+                        if (quitevent) quitevent = 0;
+                    }
+                    idle();
+
+                    ch = bgetchar();
+
+                    if (keystatus[1]) bad = 1;
+                   
+                    else if (ch == 'n' || ch == 'e' || ch == 'f' || ch == 'r' ||
+                             ch == 'm' || ch == 'd' || ch == 'p' || ch == 'g')
+                    {
+                        bad = 2;
+//                        sort_sounds(ch);
+                    }
+                }
+
+                if (bad==1)
+                {
+                    keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F2] = 0;
+                }
+
+                if (bad==2)
+                {
+                    keystatus[KEYSC_N] = keystatus[KEYSC_E] = keystatus[KEYSC_F] = keystatus[KEYSC_R] =
+                        keystatus[KEYSC_M] = keystatus[KEYSC_D] = keystatus[KEYSC_P] = keystatus[KEYSC_G] = 0;
+                }
+            }
+
+            clearmidstatbar16();
+
+            printmessage16("     FILE NAME         PITCH RANGE  PRI FLAGS VOLUME");
+            for (i=0; j=cursnd+i, i<SOUND_NUMDISPLINES && j<g_numsounds; i++)
+            {
+                int32_t l, k=g_sndnum[j];
+                sound_t *snd=&g_sounds[k];
+                char *cp;
+
+                Bsprintf(disptext[i],                                             
+                         "%4d .................... ................ %6d:%-6d %3d %c%c%c%c%c %6d",
+                         //   5678901234567890X23456789012345678901234567
+                         k, snd->ps, snd->pe, snd->pr,
+                         snd->m&1 ? 'R':'-', snd->m&2 ? 'M':'-', snd->m&4 ? 'D':'-',
+                         snd->m&8 ? 'P':'-', snd->m&16 ? 'G':'-', snd->vo);
+                for (l = Bsnprintf(disptext[i]+5, 20, snd->definedname); l<20; l++)
+                    disptext[i][5+l] = ' ';
+                if (snd->filename)
+                {
+                    l = strlen(snd->filename);
+                    if (l<=16)
+                        cp = snd->filename;
+                    else
+                        cp = snd->filename + l-16;
+                    for (l = Bsnprintf(disptext[i]+26, 16, cp); l<16; l++)
+                        disptext[i][26+l] = ' ';
+                }
+
+                printext16(8, ydim-overridepm16y+28+i*9,
+                           S_CheckSoundPlaying(-1, k) ? editorcolors[2] : editorcolors[10],
+                           j==cursnd+curofs ? editorcolors[1] : -1,
+                           disptext[i], 0);
+            }
+
+            showframe(1);
+        }
+
+        clearmidstatbar16();
+        overridepm16y = -1;
+        i=ydim16;
+        ydim16=ydim;
+        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
+        ydim16=i;
+        printmessage16("");
+        showframe(1);
+
+        FX_StopAllSounds();
+        S_ClearSoundLocks();
+        SoundToggle = 0;
+
+        keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F2] = 0;
     }
 }
 // PK_ ^^^^
@@ -6738,6 +6959,15 @@ static void Keys2d(void)
         }
     }
 
+    if (keystatus[KEYSC_F2])
+    {
+        keystatus[KEYSC_F2]=0;
+        clearmidstatbar16();
+
+        if (g_numsounds > 0)
+            SoundDisplay();
+    }
+
     getpoint(searchx,searchy,&mousxplc,&mousyplc);
     ppointhighlight = getpointhighlight(mousxplc,mousyplc, ppointhighlight);
 
@@ -8037,6 +8267,8 @@ enum
     T_MAPRANGEA,
     T_OFFSET,
     T_OFFSETA,
+
+    T_DEFINESOUND,
 };
 
 typedef struct
@@ -8482,6 +8714,167 @@ int32_t loadtilegroups(char *fn)
     return 0;
 }
 
+/// vvv Parse CON files partially to get sound definitions
+int32_t parseconsounds(scriptfile *script)
+{
+    int32_t tokn;
+    char *cmdtokptr;
+    int32_t numsounds=0, num_invalidsounds=0;
+
+    tokenlist cstokens[] =
+    {
+        { "include",         T_INCLUDE          },
+        { "#include",        T_INCLUDE          },
+        { "define",          T_DEFINE           },
+        { "#define",         T_DEFINE           },
+        { "definesound",     T_DEFINESOUND      },
+    };
+
+    while (1)
+    {
+        tokn = getatoken(script,cstokens,sizeof(cstokens)/sizeof(tokenlist));
+        cmdtokptr = script->ltextptr;
+        switch (tokn)
+        {
+        case T_INCLUDE:
+        {
+            char *fn;
+            if (!scriptfile_getstring(script,&fn))
+            {
+                scriptfile *included;
+
+                included = scriptfile_fromfile(fn);
+                if (!included)
+                {
+                    initprintf("Warning: Failed including %s on line %s:%d\n",
+                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                }
+                else
+                {
+                    numsounds += parseconsounds(included);
+                    scriptfile_close(included);
+                }
+            }
+            break;
+        }
+        case T_DEFINE:
+        {
+            char *name;
+            int32_t number;
+
+            if (scriptfile_getstring(script,&name)) break;
+            if (scriptfile_getsymbol(script,&number)) break;
+            if (scriptfile_addsymbolvalue(name,number) < 0)
+                initprintf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
+                           name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
+            break;
+        }
+        case T_DEFINESOUND:
+        {
+            char *definedname, *filename;
+            int32_t sndnum, ps, pe, pr, m, vo;
+            int32_t slen;
+
+            if (scriptfile_getsymbol(script, &sndnum)) break;
+
+            definedname = Bstrdup(script->ltextptr);
+            if (!definedname) return -1;
+
+            if (sndnum < 0 || sndnum >= MAXSOUNDS)
+            {
+                initprintf("Warning: invalid sound definition %s (sound number < 0 or >= MAXSOUNDS) on line %s:%d\n",
+                           definedname, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                num_invalidsounds++;
+                break;
+            }
+
+            if (scriptfile_getstring(script, &filename))
+            {
+                Bfree(definedname);
+                num_invalidsounds++;
+                break;
+            }
+
+            slen = strlen(filename);
+            if (slen >= BMAX_PATH)
+            {
+                initprintf("Warning: invalid sound definition %s (filename too long) on line %s:%d\n",
+                           definedname, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                Bfree(definedname);
+                num_invalidsounds++;
+                break;
+            }
+
+            if (g_sounds[sndnum].filename == NULL)
+                g_sounds[sndnum].filename = Bcalloc(BMAX_PATH,sizeof(uint8_t));
+                // do other callers ever mess with g_sounds[].filename?
+            if (!g_sounds[sndnum].filename)
+            {
+                Bfree(definedname);
+                return -1;
+            }
+            Bmemcpy(g_sounds[sndnum].filename, filename, slen+1);
+
+            if (scriptfile_getnumber(script, &ps)) goto BAD;
+            if (scriptfile_getnumber(script, &pe)) goto BAD;
+            if (scriptfile_getnumber(script, &pr)) goto BAD;
+            if (scriptfile_getnumber(script, &m)) goto BAD;
+            if (scriptfile_getnumber(script, &vo)) goto BAD;
+            if (0)
+            {
+BAD:
+                Bfree(definedname);
+                Bfree(g_sounds[sndnum].filename);
+                g_sounds[sndnum].filename = NULL;
+                num_invalidsounds++;
+                break;
+            }
+
+            g_sounds[sndnum].definedname = definedname;  // we want to keep it for display purposes
+            g_sounds[sndnum].ps = ps;
+            g_sounds[sndnum].pe = pe;
+            g_sounds[sndnum].pr = pr;
+            g_sounds[sndnum].m = m;
+            g_sounds[sndnum].vo = vo;
+            g_sndnum[numsounds] = g_definedsndnum[numsounds] = sndnum;
+            numsounds++;
+            break;
+        }
+        case T_EOF:
+            goto END;
+        default:
+            break;
+        }
+    }
+END:
+    return numsounds;
+}
+
+int32_t loadconsounds(char *fn)
+{
+    scriptfile *script;
+    int32_t ret;
+
+    initprintf("Loading sounds from '%s'\n",fn);
+
+    script = scriptfile_fromfile(fn);
+    if (!script)
+    {
+        initprintf("Error loading sounds: file '%s' not found.\n", fn);
+        return -1;
+    }
+    ret = parseconsounds(script);
+    if (ret == 0)
+        initprintf("'%s' doesn't contain sound definitions. No sounds loaded.\n", fn);
+    else
+        initprintf("Loaded %d sound definitions.\n", ret);
+
+    scriptfile_close(script);
+    scriptfile_clearsymbols();
+    return ret;
+}
+/// ^^^
+
 int32_t ExtInit(void)
 {
     int32_t rv = 0;
@@ -8678,6 +9071,13 @@ int32_t ExtInit(void)
 
     loadtilegroups("tiles.cfg");
 
+    g_numsounds = loadconsounds(gamecon);
+    if (g_numsounds > 0)
+    {
+        if (S_SoundStartup() != 0)
+            S_SoundShutdown();
+    }
+
     ReadHelpFile("m32help.hlp");
 
     return rv;
@@ -8715,6 +9115,7 @@ void ExtUnInit(void)
 {
     int32_t i;
     // setvmode(0x03);
+    S_SoundShutdown();
     uninitgroupfile();
     writesetup(setupfilename);
 

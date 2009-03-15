@@ -23,7 +23,7 @@ BUILD32_ON_64 = 0
 RANCID_NETWORKING = 1
 
 # Debugging/Build options
-RELEASE?=1
+RELEASE?=0
 NOSOUND?=0
 USE_OPENAL	?= 1
 OPTLEVEL?=2
@@ -150,7 +150,8 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/grpscan.$o \
 	$(JMACTOBJ)
 
-EDITOROBJS=$(OBJ)/astub.$o
+EDITOROBJS=$(OBJ)/astub.$o \
+    $(OBJ)/mathutil.$o
 
 # PLATFORM SPECIFIC SETTINGS
 
@@ -194,18 +195,20 @@ endif
 
 ifeq ($(RENDERTYPE),SDL)
 	ifeq (0,$(SDL_FRAMEWORK))
-	 OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
+		OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
 	else
 		OURCFLAGS	+= -DSDL_FRAMEWORK
 	endif
 
 		ifneq ($(PLATFORM),WINDOWS)
 			AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_SDL) $(AUDIOLIB_FX_SDL) $(OBJ)/sounds.$o
+			AUDIOLIBOBJ_M32=$(AUDIOLIB_FX_SDL) $(OBJ)/sounds_mapster32.$o
 		ifeq (0,$(SDL_FRAMEWORK))
 			LIBS+= -lSDL_mixer
 		endif
 		else
 			AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_STUB) $(AUDIOLIB_FX_STUB) $(OBJ)/sounds.$o
+			AUDIOLIBOBJ_M32=$(AUDIOLIB_FX_STUB) $(OBJ)/sounds_mapster32.$o
 		endif
 
 	ifeq (1,$(HAVE_GTK2))
@@ -219,14 +222,17 @@ ifeq ($(RENDERTYPE),SDL)
 endif
 
 ifeq ($(RENDERTYPE),WIN)
-		AUDIOLIBOBJ=$(AUDIOLIB_MUSIC) $(AUDIOLIB_FX) $(OBJ)/sounds.$o
+	AUDIOLIBOBJ=$(AUDIOLIB_MUSIC) $(AUDIOLIB_FX) $(OBJ)/sounds.$o
+    AUDIOLIBOBJ_M32=$(AUDIOLIB_FX) $(OBJ)/sounds_mapster32.$o
 endif
 
 ifeq ($(NOSOUND),1)
     AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_STUB) $(AUDIOLIB_FX_STUB) $(OBJ)/sounds.$o
+    AUDIOLIBOBJ_M32=$(AUDIOLIB_FX_STUB) $(OBJ)/sounds_mapster32.$o
 endif
 
 GAMEOBJS+= $(AUDIOLIBOBJ)
+EDITOROBJS+= $(AUDIOLIBOBJ_M32)
 OURCFLAGS+= $(BUILDCFLAGS)
 OURCXXFLAGS+= $(BUILDCFLAGS)
 

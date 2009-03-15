@@ -31,7 +31,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <duke3d.h>
+//#include <duke3d.h>
 #include "multivoc.h"
 #include "ll_man.h"
 #include "fx_man.h"
@@ -42,6 +42,9 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #endif
 
 static unsigned FX_MixRate;
+
+static char tempbuf[2048];
+extern void initprintf(const char *, ...);
 
 int32_t FX_SoundDevice = -1;
 int32_t FX_ErrorCode = FX_Ok;
