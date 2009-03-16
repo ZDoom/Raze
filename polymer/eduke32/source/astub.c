@@ -1584,11 +1584,11 @@ ENDFOR1:
 #define SOUND_NUMDISPLINES IHELP_NUMDISPLINES
 extern char SoundToggle;
 
-int32_t compare_sounds_n(int16_t k1, int16_t k2)
+static int32_t compare_sounds_s(int16_t k1, int16_t k2)
 {
     return (int32_t)k1 - (int32_t)k2;
 }
-int32_t compare_sounds_d(int16_t k1, int16_t k2)
+static int32_t compare_sounds_d(int16_t k1, int16_t k2)
 {
     sound_t *s1 = &g_sounds[k1], *s2 = &g_sounds[k2];
     char *n1 = s1->definedname, *n2 = s2->definedname;
@@ -1598,7 +1598,7 @@ int32_t compare_sounds_d(int16_t k1, int16_t k2)
     if (!n2) return 1;
     return Bstrcasecmp(n1, n2);    
 }
-int32_t compare_sounds_f(int16_t k1, int16_t k2)
+static int32_t compare_sounds_f(int16_t k1, int16_t k2)
 {
     sound_t *s1 = &g_sounds[k1], *s2 = &g_sounds[k2];
     char *n1 = s1->filename, *n2 = s2->filename;
@@ -1608,23 +1608,23 @@ int32_t compare_sounds_f(int16_t k1, int16_t k2)
     if (!n2) return 1;
     return Bstrcasecmp(n1, n2); 
 }
-int32_t compare_sounds_1(int16_t k1, int16_t k2)
+static int32_t compare_sounds_1(int16_t k1, int16_t k2)
 {
     return (g_sounds[k2].m&1) - (g_sounds[k1].m&1);
 }
-int32_t compare_sounds_2(int16_t k1, int16_t k2)
+static int32_t compare_sounds_2(int16_t k1, int16_t k2)
 {
     return (g_sounds[k2].m&2) - (g_sounds[k1].m&2);    
 }
-int32_t compare_sounds_3(int16_t k1, int16_t k2)
+static int32_t compare_sounds_3(int16_t k1, int16_t k2)
 {
     return (g_sounds[k2].m&4) - (g_sounds[k1].m&4);
 }
-int32_t compare_sounds_4(int16_t k1, int16_t k2)
+static int32_t compare_sounds_4(int16_t k1, int16_t k2)
 {
     return (g_sounds[k2].m&8) - (g_sounds[k1].m&8);
 }
-int32_t compare_sounds_5(int16_t k1, int16_t k2)
+static int32_t compare_sounds_5(int16_t k1, int16_t k2)
 {
     return (g_sounds[k2].m&16) - (g_sounds[k1].m&16);
 }
@@ -1649,7 +1649,7 @@ static int32_t sort_sounds(int32_t how)
         Bmemcpy(g_sndnum, g_definedsndnum, sizeof(int16_t)*n);
         return 0;
     case 's':
-        compare_sounds = compare_sounds_n;
+        compare_sounds = compare_sounds_s;
         break;
     case 'd':
         compare_sounds = compare_sounds_d;
