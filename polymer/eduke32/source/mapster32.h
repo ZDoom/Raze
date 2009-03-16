@@ -222,3 +222,5 @@ static char *testplay_addparam = 0;
 int32_t gs_sprite[3][7];
 char gs_spritewhat[3][7];
 int16_t gs_cursprite=-1;
+
+int32_t g_musicSize=0;

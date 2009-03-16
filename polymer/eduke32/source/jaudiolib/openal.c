@@ -275,9 +275,11 @@ char *AL_ErrorString(int32_t code)
 void check(int32_t show)
 {
     AL_Error=balcGetError(device);
-    if (AL_Error!=ALC_NO_ERROR&&show)initprintf("%s(%s)\n",ALC_ErrorString(AL_Error),ALdoing);
+    if (AL_Error!=ALC_NO_ERROR&&show)
+        initprintf("%s(%s)\n",ALC_ErrorString(AL_Error),ALdoing);
     AL_Error=balGetError();
-    if (AL_Error!= AL_NO_ERROR&&show)initprintf("%s(%s)\n", AL_ErrorString(AL_Error),ALdoing);
+    if (AL_Error!= AL_NO_ERROR&&show)
+        initprintf("%s(%s)\n", AL_ErrorString(AL_Error),ALdoing);
 }
 extern ov_callbacks cb;
 

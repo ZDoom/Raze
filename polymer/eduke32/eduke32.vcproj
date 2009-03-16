@@ -449,6 +449,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\source\sounds_mapster32.c"
+					>
+				</File>
+				<File
 					RelativePath=".\source\startgtk.game.c"
 					>
 				</File>
@@ -554,6 +558,10 @@
 				</File>
 				<File
 					RelativePath=".\source\sounds.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\sounds_mapster32.h"
 					>
 				</File>
 				<File

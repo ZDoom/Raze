@@ -7581,9 +7581,6 @@ void ExtPreSaveMap(void)
     }
 }
 
-void ExtPreLoadMap(void)
-{}
-
 static void G_ShowParameterHelp(void)
 {
     char *s = "Usage: mapster32 [OPTIONS] [FILE]\n\n"
@@ -8873,6 +8870,22 @@ int32_t loadconsounds(char *fn)
     scriptfile_clearsymbols();
     return ret;
 }
+
+void ExtPreLoadMap(void)
+{
+    static int32_t soundinit = 0;
+    if (!soundinit)
+    {
+        g_numsounds = loadconsounds(gamecon);
+        if (g_numsounds > 0)
+        {
+            if (S_SoundStartup() != 0)
+                S_SoundShutdown();
+        }
+        soundinit = 1;
+    }
+}
+
 /// ^^^
 
 int32_t ExtInit(void)
@@ -9070,13 +9083,6 @@ int32_t ExtInit(void)
     registerosdcommands();
 
     loadtilegroups("tiles.cfg");
-
-    g_numsounds = loadconsounds(gamecon);
-    if (g_numsounds > 0)
-    {
-        if (S_SoundStartup() != 0)
-            S_SoundShutdown();
-    }
 
     ReadHelpFile("m32help.hlp");
 
