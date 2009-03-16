@@ -1584,6 +1584,140 @@ ENDFOR1:
 #define SOUND_NUMDISPLINES IHELP_NUMDISPLINES
 extern char SoundToggle;
 
+int32_t compare_sounds_n(int16_t k1, int16_t k2)
+{
+    return (int32_t)k1 - (int32_t)k2;
+}
+int32_t compare_sounds_d(int16_t k1, int16_t k2)
+{
+    sound_t *s1 = &g_sounds[k1], *s2 = &g_sounds[k2];
+    char *n1 = s1->definedname, *n2 = s2->definedname;
+
+    if (!n1 && !n2) return 0;
+    if (!n1) return -1;
+    if (!n2) return 1;
+    return Bstrcasecmp(n1, n2);    
+}
+int32_t compare_sounds_f(int16_t k1, int16_t k2)
+{
+    sound_t *s1 = &g_sounds[k1], *s2 = &g_sounds[k2];
+    char *n1 = s1->filename, *n2 = s2->filename;
+
+    if (!n1 && !n2) return 0;
+    if (!n1) return -1;
+    if (!n2) return 1;
+    return Bstrcasecmp(n1, n2); 
+}
+int32_t compare_sounds_1(int16_t k1, int16_t k2)
+{
+    return (g_sounds[k2].m&1) - (g_sounds[k1].m&1);
+}
+int32_t compare_sounds_2(int16_t k1, int16_t k2)
+{
+    return (g_sounds[k2].m&2) - (g_sounds[k1].m&2);    
+}
+int32_t compare_sounds_3(int16_t k1, int16_t k2)
+{
+    return (g_sounds[k2].m&4) - (g_sounds[k1].m&4);
+}
+int32_t compare_sounds_4(int16_t k1, int16_t k2)
+{
+    return (g_sounds[k2].m&8) - (g_sounds[k1].m&8);
+}
+int32_t compare_sounds_5(int16_t k1, int16_t k2)
+{
+    return (g_sounds[k2].m&16) - (g_sounds[k1].m&16);
+}
+
+
+static int32_t sort_sounds(int32_t how)
+{
+    int32_t (*compare_sounds)(int16_t, int16_t) = NULL;
+
+    int32_t ms, ofs, l, lb, r, rb, d, n, k1, k2;
+    int16_t *src, *dst, *source, *dest, *tmp;
+
+    n = g_numsounds;
+    src = source = g_sndnum;
+    dest = Bmalloc(sizeof(int16_t) * n);
+    dst = dest;
+    if (!dest) return -1;
+
+    switch (how)
+    {
+    case 'g':  // restore original order
+        Bmemcpy(g_sndnum, g_definedsndnum, sizeof(int16_t)*n);
+        return 0;
+    case 's':
+        compare_sounds = compare_sounds_n;
+        break;
+    case 'd':
+        compare_sounds = compare_sounds_d;
+        break;
+    case 'f':
+        compare_sounds = compare_sounds_f;
+        break;
+    case '1':
+        compare_sounds = compare_sounds_1;
+        break;
+    case '2':
+        compare_sounds = compare_sounds_2;
+        break;
+    case '3':
+        compare_sounds = compare_sounds_3;
+        break;
+    case '4':
+        compare_sounds = compare_sounds_4;
+        break;
+    case '5':
+        compare_sounds = compare_sounds_5;
+        break;
+    default:
+        return -2;
+    }
+
+    for (ms=1; ms<n; ms*=2)
+    {
+        for (ofs=0; ofs<n; ofs+=2*ms)
+        {
+            l = ofs;
+            r = ofs+ms;
+            d = ofs;
+            lb = min((l+ms), n);
+            rb = min((r+ms), n);
+            while (l < lb || r < rb)
+            {
+                if (l >= lb)
+                {
+                    dst[d++] = src[r++];
+                    continue;
+                }
+                if (r >= rb)
+                {
+                    dst[d++] = src[l++];
+                    continue;
+                }
+                k1 = src[l];
+                k2 = src[r];
+                if (compare_sounds(k1, k2) <= 0)
+                {
+                    dst[d++] = src[l++];
+                    continue;
+                }                
+                dst[d++] = src[r++];
+            }
+        }
+        tmp = src;
+        src = dst;
+        dst = tmp;
+    }
+    if (src != source)
+        Bmemcpy(source, src, sizeof(int16_t) * n);
+
+    Bfree(dest);
+    return 0;
+}
+
 static void SoundDisplay()
 {
     if (g_numsounds <= 0) return;
@@ -1703,7 +1837,7 @@ static void SoundDisplay()
                 bflushchars();
                 while (bad == 0)
                 {
-                    Bsprintf(tempbuf,"Sort by: (N)um d(E)f (F)ile (R) (M) (D) (P) (G)");
+                    Bsprintf(tempbuf,"Sort by: (S)num (D)ef (F)ile ori(g) or (12345)");
                     printmessage16(tempbuf);
                     showframe(1);
 
@@ -1717,11 +1851,11 @@ static void SoundDisplay()
 
                     if (keystatus[1]) bad = 1;
                    
-                    else if (ch == 'n' || ch == 'e' || ch == 'f' || ch == 'r' ||
-                             ch == 'm' || ch == 'd' || ch == 'p' || ch == 'g')
+                    else if (ch == 's' || ch == 'd' || ch == 'f' || ch == 'g' ||
+                             ch == '1' || ch == '2' || ch == '3' || ch == '4' || ch == '5')
                     {
                         bad = 2;
-//                        sort_sounds(ch);
+                        sort_sounds(ch);
                     }
                 }
 
@@ -1732,8 +1866,9 @@ static void SoundDisplay()
 
                 if (bad==2)
                 {
-                    keystatus[KEYSC_N] = keystatus[KEYSC_E] = keystatus[KEYSC_F] = keystatus[KEYSC_R] =
-                        keystatus[KEYSC_M] = keystatus[KEYSC_D] = keystatus[KEYSC_P] = keystatus[KEYSC_G] = 0;
+                    keystatus[KEYSC_S] = keystatus[KEYSC_D] = keystatus[KEYSC_F] = 0;
+                    keystatus[KEYSC_G] = keystatus[KEYSC_1] = keystatus[KEYSC_2] = 0;
+                    keystatus[KEYSC_3] = keystatus[KEYSC_4] = keystatus[KEYSC_5] = 0;
                 }
             }
 
