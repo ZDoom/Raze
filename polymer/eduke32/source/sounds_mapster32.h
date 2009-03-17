@@ -23,6 +23,7 @@ int32_t S_SoundStartup(void);
 void S_SoundShutdown(void);
 int32_t S_PlaySoundXYZ(int32_t, int32_t, const vec3_t*);
 void S_PlaySound(int32_t);
+int32_t A_PlaySound(uint32_t num, int32_t i);
 void A_StopSound(int32_t num, int32_t i);
 void S_StopSound(int32_t num);
 void S_StopEnvSound(int32_t num,int32_t i);
@@ -30,7 +31,6 @@ void S_Pan3D(void);
 int32_t A_CheckSoundPlaying(int32_t i, int32_t num);
 int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
 void S_ClearSoundLocks(void);
-
 
 #define MAXSOUNDS 2560
 

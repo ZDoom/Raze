@@ -53,7 +53,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static char SM32_havesound = 0;
 extern sound_t g_sounds[MAXSOUNDS];
-char SoundToggle = 0;
+char SoundToggle = 1;
+int32_t NumVoices = 32;
 
 int32_t backflag,g_numEnvSoundsPlaying;
 
@@ -75,7 +76,7 @@ int32_t S_SoundStartup(void)
     int32_t status, err = 0;
 
     // TODO: read config
-    int32_t FXVolume=220, NumVoices=32, NumChannels=2, NumBits=16, MixRate, ReverseStereo=0;
+    int32_t FXVolume=220, /*NumVoices=32,*/ NumChannels=2, NumBits=16, MixRate, ReverseStereo=0;
 #if defined(_WIN32)
     MixRate = 44100;
 #else
@@ -178,7 +179,7 @@ extern int16_t ang, cursectnum;
 
 int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
 {
-    int32_t sndist, cx, cy, cz, j,k;
+    int32_t sndist, cx, cy, cz, j/*,k*/;
     int32_t pitche,pitchs,cs;
     int32_t voice, sndang, ca, pitch;
 
@@ -519,6 +520,7 @@ void S_TestSoundCallback(uint32_t num)
                 if (sprite[i].picnum == MUSICANDSFX && sector[sprite[i].sectnum].lotag < 3 && sprite[i].lotag < 999)
                 {
 //                    ActorExtra[i].temp_data[0] = 0;
+                    sprite[i].filler &= (~1);
                     if ((j + 1) < k)
                     {
                         g_sounds[num].SoundOwner[j].voice = g_sounds[num].SoundOwner[k-1].voice;

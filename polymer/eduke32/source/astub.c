@@ -1582,7 +1582,7 @@ ENDFOR1:
 }
 
 #define SOUND_NUMDISPLINES IHELP_NUMDISPLINES
-extern char SoundToggle;
+//extern char SoundToggle;
 
 static int32_t compare_sounds_s(int16_t k1, int16_t k2)
 {
@@ -1739,9 +1739,10 @@ static void SoundDisplay()
         printext16(8L,ydim2d-overridepm16y+8L,editorcolors[12],-1,tempbuf,0);
         enddrawing();
 
-        SoundToggle = 1;
+//        SoundToggle = 1;
 
-        while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F2]==0)
+        while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F2]==0
+               && keystatus[buildkeys[BK_MODE2D_3D]]==0)  // quickjump to 3d mode
         {
             if (handleevents())
             {
@@ -1920,12 +1921,92 @@ static void SoundDisplay()
 
         FX_StopAllSounds();
         S_ClearSoundLocks();
-        SoundToggle = 0;
+//        SoundToggle = 0;
 
         keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F2] = 0;
     }
 }
 // PK_ ^^^^
+
+// from sector.c
+static int32_t dist(spritetype *s1,spritetype *s2)
+{
+    int32_t x= klabs(s1->x-s2->x);
+    int32_t y= klabs(s1->y-s2->y);
+    int32_t z= klabs((s1->z-s2->z)>>4);
+
+    if (x<y) swaplong(&x,&y);
+    if (x<z) swaplong(&x,&z);
+
+    {
+        int32_t t = y + z;
+        return (x - (x>>4) + (t>>2) + (t>>3));
+    }
+}
+
+extern int32_t NumVoices;
+extern int32_t g_numEnvSoundsPlaying;
+int32_t AmbienceToggle = 1; //SoundToggle;
+#define T1 (s->filler)
+#define T2 (s->filler)
+
+// adapted from actors.c
+static void M32_MoveFX(void)
+{
+    int32_t i, j;
+    int32_t x, ht;
+    spritetype *s;
+
+    for (i=headspritestat[0]; i>=0; i=nextspritestat[i])
+    {
+        s = &sprite[i];
+
+        if (s->picnum == MUSICANDSFX)
+        {
+            ht = s->hitag;
+
+            if ((T2&2) != AmbienceToggle<<1)
+            {
+                T2 |= AmbienceToggle<<1;
+                T1 &= (~1);
+            }
+
+            else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 &&
+                     AmbienceToggle && sector[s->sectnum].floorz != sector[s->sectnum].ceilingz)
+            {
+                if ((g_sounds[s->lotag].m&2))
+                {
+                    x = dist((spritetype*)&pos,s);
+                    if (x < ht && (T1&1) == 0 && FX_VoiceAvailable(g_sounds[s->lotag].pr-1))
+                    {
+                        if (g_numEnvSoundsPlaying == NumVoices)
+                        {
+                            for (j = headspritestat[0]; j >= 0; j = nextspritestat[j])
+                            {
+                                if (s->picnum == MUSICANDSFX && j != i && sprite[j].lotag < 999 &&
+                                    (sprite[j].filler&1) == 1 && /*ActorExtra[j].temp_data[0] == 1 &&*/
+                                    dist(&sprite[j],(spritetype*)&pos) > x)
+                                {
+                                    S_StopEnvSound(sprite[j].lotag,j);
+                                    break;
+                                }
+                                
+                            }
+                            if (j == -1) continue;
+                        }
+                        A_PlaySound(s->lotag,i);
+                        T1 |= 1;
+                    }
+                    if (x >= ht && (T1&1) == 1)
+                    {
+                        T1 &= (~1);
+                        S_StopEnvSound(s->lotag,i);
+                    }
+                }
+            }
+        }
+    }
+}
 
 static void Show3dText(char *name)
 {
@@ -3905,6 +3986,12 @@ static void Keys3d(void)
     }
     */
 
+    if (g_numsounds > 0 && AmbienceToggle)
+    {
+        M32_MoveFX();
+        S_Pan3D();
+    }
+
     if (usedcount && !helpon)
     {
         if (searchstat!=3)
@@ -4120,6 +4207,18 @@ static void Keys3d(void)
         mlook = 1-mlook;
         message("Mouselook: %s",mlook?"enabled":"disabled");
         keystatus[KEYSC_F3] = 0;
+    }
+
+    if (keystatus[KEYSC_F4])
+    {
+        AmbienceToggle = 1-AmbienceToggle;
+        message("Ambience sounds: %s",AmbienceToggle?"enabled":"disabled");
+        if (!AmbienceToggle)
+        {
+            FX_StopAllSounds();
+            S_ClearSoundLocks();
+        }
+        keystatus[KEYSC_F4] = 0;
     }
 
 // PK
@@ -5493,7 +5592,11 @@ static void Keys3d(void)
     else SetGAMEPalette();
 
     if (keystatus[buildkeys[BK_MODE2D_3D]])  // Enter
+    {
         SetGAMEPalette();
+        FX_StopAllSounds();
+        S_ClearSoundLocks();
+    }
 
     //Stick this in 3D part of ExtCheckKeys
     //Also choose your own key scan codes
@@ -8883,8 +8986,10 @@ int32_t parseconsounds(scriptfile *script)
                 }
                 else
                 {
-                    numsounds += parseconsounds(included);
+                    int32_t tmp = parseconsounds(included);
                     scriptfile_close(included);
+                    if (tmp < 0) return tmp;
+                    numsounds += tmp;
                 }
             }
             break;
@@ -8996,7 +9101,9 @@ int32_t loadconsounds(char *fn)
         return -1;
     }
     ret = parseconsounds(script);
-    if (ret == 0)
+    if (ret < 0)
+        initprintf("There was an error parsing '%s'.\n", fn);
+    else if (ret == 0)
         initprintf("'%s' doesn't contain sound definitions. No sounds loaded.\n", fn);
     else
         initprintf("Loaded %d sound definitions.\n", ret);
