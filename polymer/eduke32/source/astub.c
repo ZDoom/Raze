@@ -623,6 +623,23 @@ const char *SectorEffectorTagText(int32_t lotag)
     return (tempbuf);
 }
 
+const char *MusicAndSFXTagText(int32_t lotag)
+{
+    static char tempbuf[16];
+
+    Bmemset(tempbuf, 0, sizeof(tempbuf));
+
+    if (g_numsounds <= 0)
+        return tempbuf;    
+
+    if (lotag>0 && lotag<999 && g_sounds[lotag].definedname)
+        return g_sounds[lotag].definedname;
+
+    if (lotag>=1000 && lotag<2000)
+        Bsprintf(tempbuf, "REVERB");
+    return tempbuf;
+}
+
 const char *SectorEffectorText(int32_t spritenum)
 {
     static char tempbuf[64];
@@ -1948,7 +1965,6 @@ extern int32_t NumVoices;
 extern int32_t g_numEnvSoundsPlaying;
 int32_t AmbienceToggle = 1; //SoundToggle;
 #define T1 (s->filler)
-#define T2 (s->filler)
 
 // adapted from actors.c
 static void M32_MoveFX(void)
@@ -1961,17 +1977,19 @@ static void M32_MoveFX(void)
     {
         s = &sprite[i];
 
-        if (s->picnum == MUSICANDSFX)
+        if (s->picnum != MUSICANDSFX)
+        {
+            if (T1&1)
+            {
+                T1 &= (~1);
+                S_StopEnvSound(s->lotag, i);
+            }
+        }
+        else
         {
             ht = s->hitag;
 
-            if ((T2&2) != AmbienceToggle<<1)
-            {
-                T2 |= AmbienceToggle<<1;
-                T1 &= (~1);
-            }
-
-            else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 &&
+            if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 &&
                      AmbienceToggle && sector[s->sectnum].floorz != sector[s->sectnum].ceilingz)
             {
                 if ((g_sounds[s->lotag].m&2))
@@ -1984,8 +2002,7 @@ static void M32_MoveFX(void)
                             for (j = headspritestat[0]; j >= 0; j = nextspritestat[j])
                             {
                                 if (s->picnum == MUSICANDSFX && j != i && sprite[j].lotag < 999 &&
-                                    (sprite[j].filler&1) == 1 && /*ActorExtra[j].temp_data[0] == 1 &&*/
-                                    dist(&sprite[j],(spritetype*)&pos) > x)
+                                    (sprite[j].filler&1) == 1 && dist(&sprite[j],(spritetype*)&pos) > x)
                                 {
                                     S_StopEnvSound(sprite[j].lotag,j);
                                     break;
@@ -2007,6 +2024,8 @@ static void M32_MoveFX(void)
         }
     }
 }
+#undef T1
+
 
 static void Show3dText(char *name)
 {
@@ -4348,6 +4367,11 @@ static void Keys3d(void)
             deletesprite(searchwall);
             updatenumsprites();
             message("Sprite %d deleted",searchwall);
+            if (AmbienceToggle)
+            {
+                sprite[searchwall].filler &= (~1);
+                S_StopEnvSound(sprite[searchwall].lotag, searchwall);
+            }
             asksave = 1;
         }
         keystatus[KEYSC_DELETE] = 0;
@@ -5727,6 +5751,17 @@ static void Keys3d(void)
             if (sprite[searchwall].picnum == SECTOREFFECTOR)
                 sprite[searchwall].lotag =
                     _getnumber256("Sprite lotag: ",sprite[searchwall].lotag,65536L,0,(void *)SectorEffectorTagText);
+            else if (sprite[searchwall].picnum == MUSICANDSFX)
+            {
+                int16_t oldtag = sprite[searchwall].lotag;
+                sprite[searchwall].lotag =
+                    _getnumber256("Sprite lotag: ",sprite[searchwall].lotag,65536L,0,(void *)MusicAndSFXTagText);
+                if ((sprite[searchwall].filler&1) && sprite[searchwall].lotag != oldtag)
+                {
+                    sprite[searchwall].filler &= ~1;
+                    S_StopEnvSound(oldtag, searchwall);
+                }
+            }
             else
                 sprite[searchwall].lotag =
                     getnumber256("Sprite lotag: ",sprite[searchwall].lotag,65536L,0);
