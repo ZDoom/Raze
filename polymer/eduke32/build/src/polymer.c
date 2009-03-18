@@ -370,6 +370,8 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
 
 _prprograminfo  prprograms[1 << PR_BIT_COUNT];
 
+int32_t         overridematerial;
+
 // CONTROL
 GLfloat         spritemodelview[16];
 GLfloat         rootmodelviewmatrix[16];
@@ -431,6 +433,8 @@ int32_t             polymer_init(void)
 
         memcpy(spriteplane.buffer, horizsprite, sizeof(GLfloat) * 4 * 5);
     }
+
+    overridematerial = 0xFFFFFFFF;
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete.\n");
     return (1);
@@ -885,17 +889,15 @@ void                polymer_addlight(_prlight light)
 // CORE
 static void         polymer_displayrooms(int16_t dacursectnum)
 {
-    sectortype      *sec, *nextsec;
-    walltype        *wal, *nextwal;
-    _prwall         *w;
-    int32_t         i, j;
+    sectortype      *sec;
+    int32_t         i;
     GLint           result;
+    int16_t         doquery;
     int32_t         front;
     int32_t         back;
-    int32_t         firstback;
     int16_t         sectorqueue[MAXSECTORS];
     int16_t         querydelay[MAXSECTORS];
-    GLuint          queryid[MAXSECTORS];
+    GLuint          queryid[MAXWALLS];
     int16_t         drawingstate[MAXSECTORS];
     GLfloat         localmodelviewmatrix[16];
     float           frustum[5 * 4];
@@ -914,158 +916,120 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     polymer_extractfrustum(curmodelviewmatrix, projectionmatrix, frustum);
 
     memset(querydelay, 0, sizeof(int16_t) * MAXSECTORS);
-    memset(queryid, 0, sizeof(GLuint) * MAXSECTORS);
+    memset(queryid, 0, sizeof(GLuint) * MAXWALLS);
     memset(drawingstate, 0, sizeof(int16_t) * MAXSECTORS);
 
     front = 0;
-    back = 0;
-    localspritesortcnt = localmaskwallcnt = 0;
-
-    polymer_pokesector(dacursectnum);
-    polymer_drawsector(dacursectnum);
-    polymer_scansprites(dacursectnum, localtsprite, &localspritesortcnt);
+    back = 1;
+    sectorqueue[0] = dacursectnum;
     drawingstate[dacursectnum] = 1;
 
-    sec = &sector[dacursectnum];
-    wal = &wall[sec->wallptr];
+    localspritesortcnt = localmaskwallcnt = 0;
 
-    i = 0;
-    while (i < sec->wallnum)
-    {
-        if (((wallvisible(sec->wallptr + i))) &&
-                (polymer_portalinfrustum(sec->wallptr + i, frustum)))
-        {
-            if (mirrorfrom[depth] != (sec->wallptr + i))
-                polymer_drawwall(dacursectnum, sec->wallptr + i);
-            // mask
-            if ((wal->cstat&48) == 16) localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
-
-            if ((wal->nextsector != -1) &&
-                    (drawingstate[wal->nextsector] == 0))
-            {
-                sectorqueue[back++] = wal->nextsector;
-                drawingstate[wal->nextsector] = 1;
-            }
-        }
-        i++;
-        wal = &wall[sec->wallptr + i];
-    }
-
-    mirrorfrom[depth] = -3;
-
-    firstback = back;
+    // depth-only occlusion testing pass
+    overridematerial = 0;
 
     while (front != back)
     {
-        if ((front >= firstback) && (pr_occlusionculling))
-        {
-            if (querydelay[sectorqueue[front]] == 0)
-            {
-                bglGetQueryObjectivARB(queryid[sectorqueue[front]],
-                                       GL_QUERY_RESULT_ARB,
-                                       &result);
-                bglDeleteQueriesARB(1, &queryid[sectorqueue[front]]);
-                if (!result)
-                {
-                    front++;
-                    continue;
-                }
-                else
-                    querydelay[sectorqueue[front]] = pr_occlusionculling-1;
-            }
-            else if (querydelay[sectorqueue[front]] == -1)
-                querydelay[sectorqueue[front]] = pr_occlusionculling-1;
-            else if (querydelay[sectorqueue[front]])
-                querydelay[sectorqueue[front]]--;
-        }
+        sec = &sector[sectorqueue[front]];
 
         polymer_pokesector(sectorqueue[front]);
         polymer_drawsector(sectorqueue[front]);
         polymer_scansprites(sectorqueue[front], localtsprite, &localspritesortcnt);
 
-        // scan sectors
-        sec = &sector[sectorqueue[front]];
-        wal = &wall[sec->wallptr];
+        doquery = 0;
 
         i = 0;
         while (i < sec->wallnum)
         {
-            if ((wallvisible(sec->wallptr + i)) &&
-                    (polymer_portalinfrustum(sec->wallptr + i, frustum)))
+            polymer_drawwall(sectorqueue[front], sec->wallptr + i);
+
+            // if we have a level boundary somewhere in the sector,
+            // consider these walls as visportals
+            if (wall[sec->wallptr + i].nextsector == -1)
+                doquery = 1;
+
+            i++;
+        }
+
+        i = 0;
+        while (i < sec->wallnum)
+        {
+            if ((wall[sec->wallptr + i].nextsector != -1) &&
+                (!drawingstate[wall[sec->wallptr + i].nextsector]) &&
+                (wallvisible(sec->wallptr + i)) &&
+                (polymer_portalinfrustum(sec->wallptr + i, frustum)))
             {
-                polymer_drawwall(sectorqueue[front], sec->wallptr + i);
-                // mask
-                if ((wal->cstat&48) == 16) localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
-
-                if ((wal->nextsector != -1) &&
-                        (drawingstate[wal->nextsector] == 0))
+                if (doquery)
                 {
-                    polymer_pokesector(wal->nextsector);
-                    sectorqueue[back++] = wal->nextsector;
-                    drawingstate[wal->nextsector] = 1;
+                    bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+                    bglDepthMask(GL_FALSE);
 
-                    if (pr_occlusionculling && !querydelay[wal->nextsector])
-                    {
-                        nextsec = &sector[wal->nextsector];
-                        nextwal = &wall[nextsec->wallptr];
+                    bglGenQueriesARB(1, &queryid[sec->wallptr + i]);
+                    bglBeginQueryARB(GL_SAMPLES_PASSED_ARB, queryid[sec->wallptr + i]);
 
-                        if ((nextsec->ceilingstat & 1) &&
-                                (nextsec->floorz == nextsec->ceilingz))
-                        {
-                            querydelay[wal->nextsector] = -1;
-                            i++;
-                            wal = &wall[sec->wallptr + i];
-                            continue;
-                        }
+                    polymer_drawplane(-1, -3, &prwalls[sec->wallptr + i]->mask, 0);
 
-                        bglDisable(GL_TEXTURE_2D);
-                        bglDisable(GL_FOG);
-                        bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-                        bglDepthMask(GL_FALSE);
+                    bglEndQueryARB(GL_SAMPLES_PASSED_ARB);
 
-                        bglGenQueriesARB(1, &queryid[wal->nextsector]);
-                        bglBeginQueryARB(GL_SAMPLES_PASSED_ARB, queryid[wal->nextsector]);
+                    bglDepthMask(GL_TRUE);
+                    bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+                } else
+                    queryid[sec->wallptr + i] = 1;
+            }
 
-                        j = 0;
-                        while (j < nextsec->wallnum)
-                        {
-                            if ((nextwal->nextwall == (sec->wallptr + i)) ||
-                                    ((nextwal->nextwall != -1) &&
-                                     (wallvisible(nextwal->nextwall)) &&
-                                     (polymer_portalinfrustum(nextwal->nextwall, frustum))))
-                            {
-                                w = prwalls[nextwal->nextwall];
+            i++;
+        }
 
-                                if (pr_vbos > 0)
-                                {
-                                    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
-                                    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), NULL);
-                                }
-                                else
-                                    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->bigportal);
+        i = 0;
+        while (i < sec->wallnum)
+        {
+            if ((queryid[sec->wallptr + i]) &&
+                (!drawingstate[wall[sec->wallptr + i].nextsector]))
+            {
+                // REAP
+                result = 0;
+                if (doquery)
+                {
+                    bglGetQueryObjectivARB(queryid[sec->wallptr + i],
+                                           GL_QUERY_RESULT_ARB,
+                                           &result);
+                    bglDeleteQueriesARB(1, &queryid[sec->wallptr + i]);
+                }
+                queryid[sec->wallptr + i] = 0;
 
-                                bglDrawArrays(GL_QUADS, 0, 4);
-
-                                if (pr_vbos > 0)
-                                    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-                            }
-
-                            j++;
-                            nextwal = &wall[nextsec->wallptr + j];
-                        }
-                        bglEndQueryARB(GL_SAMPLES_PASSED_ARB);
-
-                        bglDepthMask(GL_TRUE);
-                        bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-                        bglEnable(GL_FOG);
-                        bglEnable(GL_TEXTURE_2D);
-                    }
+                if (result || !doquery)
+                {
+                    sectorqueue[back++] = wall[sec->wallptr + i].nextsector;
+                    drawingstate[wall[sec->wallptr + i].nextsector] = 1;
                 }
             }
+
             i++;
-            wal = &wall[sec->wallptr + i];
         }
+
+        front++;
+    }
+
+    // do the actual shaded drawing
+    overridematerial = 0xFFFFFFFF;
+
+    // go through the sector queue again
+    front = 0;
+    while (front < back)
+    {
+        sec = &sector[sectorqueue[front]];
+
+        polymer_drawsector(sectorqueue[front]);
+
+        i = 0;
+        while (i < sec->wallnum)
+        {
+            polymer_drawwall(sectorqueue[front], sec->wallptr + i);
+
+            i++;
+        }
+
         front++;
     }
 
@@ -1074,22 +1038,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     maskwallcnt = localmaskwallcnt;
     memcpy(maskwall, localmaskwall, sizeof(int16_t) * MAXWALLSB);
 
-    if (depth)
-    {
-        cosglobalang = sintable[(viewangle+512)&2047];
-        singlobalang = sintable[viewangle&2047];
-        cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
-        sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
-
-        display_mirror = 1;
-        polymer_animatesprites();
-        display_mirror = 0;
-
-        bglDisable(GL_CULL_FACE);
-        drawmasks();
-        bglEnable(GL_CULL_FACE);
-        bglEnable(GL_BLEND);
-    }
+    return;
 }
 
 #define OMGDRAWSHITVBO                                                                      \
@@ -3034,8 +2983,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     int32_t         programbits;
     int32_t         texunit;
 
-    programbits = prprogrambits[PR_BIT_HEADER].bit;
-    programbits |= prprogrambits[PR_BIT_FOOTER].bit;
+    programbits = 0;
 
     // --------- bit validation
 
@@ -3069,6 +3017,12 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     // PR_BIT_POINT_LIGHT
     if (lightcount)
         programbits |= prprogrambits[PR_BIT_POINT_LIGHT].bit;
+
+    // material override
+    programbits &= overridematerial;
+
+    programbits |= prprogrambits[PR_BIT_HEADER].bit;
+    programbits |= prprogrambits[PR_BIT_FOOTER].bit;
 
     // --------- program compiling
     if (!prprograms[programbits].handle)
