@@ -8074,11 +8074,18 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     G_AddGroup(c);
                     COPYARG(i);
                     break;
+                case 'x':
+                case 'X':
+                    c++;
+                    if (!*c) break;
+                    gamecon = c;
+                    COPYARG(i);
+                    break;
                 }
             }
             else
             {
-                k = Bstrchr(c,'.');
+                k = Bstrrchr(c,'.');
                 if (k)
                 {
                     if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
@@ -8092,6 +8099,12 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                         defsfilename = (char *)argv[i++];
                         COPYARG(i);
                         initprintf("Using DEF file: %s.\n",defsfilename);
+                        continue;
+                    }
+                    if (!Bstrcasecmp(k,".con"))
+                    {
+                        gamecon = (char *)argv[i++];
+                        COPYARG(i);
                         continue;
                     }
                 }

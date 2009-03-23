@@ -9944,7 +9944,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             }
             else
             {
-                k = Bstrchr(c,'.');
+                k = Bstrrchr(c,'.');
                 if (k)
                 {
                     if (!Bstrcasecmp(k,".map"))
