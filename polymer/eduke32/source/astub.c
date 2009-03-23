@@ -1895,7 +1895,7 @@ static void SoundDisplay()
             printmessage16("     FILE NAME         PITCH RANGE  PRI FLAGS VOLUME");
             for (i=0; j=cursnd+i, i<SOUND_NUMDISPLINES && j<g_numsounds; i++)
             {
-                int32_t l, k=g_sndnum[j];
+                int32_t l, m, k=g_sndnum[j];
                 sound_t *snd=&g_sounds[k];
                 char *cp;
 
@@ -1913,9 +1913,11 @@ static void SoundDisplay()
                     if (l<=16)
                         cp = snd->filename;
                     else
-                        cp = snd->filename + l-16;
-                    for (l = Bsnprintf(disptext[i]+26, 16, cp); l<16; l++)
-                        disptext[i][26+l] = ' ';
+                        cp = snd->filename + l-15;
+                    for (m = Bsnprintf(disptext[i]+26, 16, cp); m<16; m++)
+                        disptext[i][26+m] = ' ';
+                    if (l>16)
+                        disptext[i][26] = disptext[i][27] = disptext[i][28] = '.';
                 }
 
                 printext16(8, ydim-overridepm16y+28+i*9,
