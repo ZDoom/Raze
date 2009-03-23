@@ -49,6 +49,7 @@ typedef enum {
                     PR_BIT_DIFFUSE_MAP,
                     PR_BIT_DIFFUSE_DETAIL_MAP,
                     PR_BIT_DIFFUSE_MODULATION,
+                    PR_BIT_DIFFUSE_MIRROR_MAP,
                     PR_BIT_DIFFUSE_GLOW_MAP,
                     PR_BIT_POINT_LIGHT,
                     PR_BIT_FOOTER,              // must be just before last
@@ -70,6 +71,8 @@ typedef struct      s_prmaterial {
     GLfloat         detailscale[2];
     // PR_BIT_DIFFUSE_MODULATION
     GLfloat         diffusemodulation[4];
+    // PR_BIT_DIFFUSE_MIRROR_MAP
+    GLuint          mirrormap;
     // PR_BIT_DIFFUSE_GLOW_MAP
     GLuint          glowmap;
 }                   _prmaterial;
@@ -91,6 +94,8 @@ typedef struct      s_prrograminfo {
     // PR_BIT_DIFFUSE_DETAIL_MAP
     GLint           uniform_detailMap;
     GLint           uniform_detailScale;
+    // PR_BIT_DIFFUSE_MIRROR_MAP
+    GLint           uniform_mirrorMap;
     // PR_BIT_DIFFUSE_GLOW_MAP
     GLint           uniform_glowMap;
     // PR_BIT_POINT_LIGHT
@@ -126,6 +131,13 @@ typedef struct      s_prlight {
     prlighttype     type;
 }                   _prlight;
 
+// RENDER TARGETS
+typedef struct      s_prrt {
+    GLuint          color;
+    GLuint          z;
+    GLuint          fbo;
+}                   _prrt;
+
 // BUILD DATA
 typedef struct      s_prplane {
     // geometry
@@ -140,6 +152,7 @@ typedef struct      s_prplane {
     _prmaterial     material;
     // elements
     GLushort*       indices;
+    int32_t         indicescount;
     GLuint          ivbo;
     // lights
     char            lights[PR_MAXLIGHTS];
@@ -192,6 +205,12 @@ typedef struct      s_prwall {
     char            controlstate;
 }                   _prwall;
 
+typedef struct      s_prmirror {
+    _prplane        *plane;
+    int16_t         sectnum;
+    int16_t         wallnum;
+}                   _prmirror;
+
 typedef void    (*animatespritesptr)(int32_t, int32_t, int32_t, int32_t);
 
 typedef struct      s_pranimatespritesinfo {
@@ -221,7 +240,7 @@ void                polymer_addlight(_prlight light);
 
 // CORE
 static void         polymer_displayrooms(int16_t sectnum);
-static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane* plane, int32_t indicecount);
+static void         polymer_drawplane(_prplane* plane);
 static void         polymer_inb4mirror(GLfloat* buffer, GLfloat* plane);
 static void         polymer_animatesprites(void);
 // SECTORS
@@ -264,6 +283,8 @@ static void         polymer_compileprogram(int32_t programbits);
 // LIGHTS
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light);
 static void         polymer_culllight(char lightindex);
+// RENDER TARGETS
+static void         polymer_initrendertargets(int32_t count);
 
 # endif // !POLYMER_C
 

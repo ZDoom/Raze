@@ -2509,6 +2509,8 @@ void showframe(int32_t w)
             bglVertex2i(-1, 1);
             bglEnd();
 
+            bglDisable(GL_BLEND);
+
             bglMatrixMode(GL_MODELVIEW);
             bglPopMatrix();
             bglMatrixMode(GL_PROJECTION);

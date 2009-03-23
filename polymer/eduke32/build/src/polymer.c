@@ -130,11 +130,13 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         1 << PR_BIT_HEADER,
         // vert_def
         "#version 120\n"
+        "#extension GL_ARB_texture_rectangle : enable\n"
         "\n",
         // vert_prog
         "",
         // frag_def
         "#version 120\n"
+        "#extension GL_ARB_texture_rectangle : enable\n"
         "\n",
         // frag_prog
         "",
@@ -246,6 +248,27 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // frag_prog
         "  if (isLightingPass == 0)\n"
         "    result *= vec4(gl_Color);\n"
+        "\n",
+    },
+    {
+        1 << PR_BIT_DIFFUSE_MIRROR_MAP,
+        // vert_def
+        "",
+        // vert_prog
+        "",
+        // frag_def
+        "uniform sampler2DRect mirrorMap;\n"
+        "\n",
+        // frag_prog
+        "  vec4 mirrorTexel;\n"
+        "  vec2 mirrorCoords;\n"
+        "\n"
+        "  mirrorCoords = gl_FragCoord.st;\n"
+        "  if (isNormalMapped == 1) {\n"
+        "    mirrorCoords += 100.0 * (normalTexel.rg - 0.5);\n"
+        "  }\n"
+        "  mirrorTexel = texture2DRect(mirrorMap, mirrorCoords);\n"
+        "  result = vec4((result.rgb * result.a) + (mirrorTexel.rgb * (1.0 - result.a)), result.a);\n"
         "\n",
     },
     {
@@ -372,6 +395,9 @@ _prprograminfo  prprograms[1 << PR_BIT_COUNT];
 
 int32_t         overridematerial;
 
+// RENDER TARGETS
+_prrt           *prrts;
+
 // CONTROL
 GLfloat         spritemodelview[16];
 GLfloat         rootmodelviewmatrix[16];
@@ -383,7 +409,7 @@ float           horizang;
 int32_t         updatesectors = 1;
 
 int32_t         depth;
-int32_t         mirrorfrom[10]; // -3: no mirror; -2: floor; -1: ceiling; >=0: wallnum
+_prmirror       mirrors[10];
 
 GLUtesselator*  prtess;
 
@@ -436,6 +462,8 @@ int32_t             polymer_init(void)
 
     overridematerial = 0xFFFFFFFF;
 
+    polymer_initrendertargets(5);
+
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete.\n");
     return (1);
 }
@@ -456,6 +484,9 @@ void                polymer_glinit(void)
 
     bglEnable(GL_DEPTH_TEST);
     bglDepthFunc(GL_LEQUAL);
+
+    bglDisable(GL_BLEND);
+    bglDisable(GL_ALPHA_TEST);
 
     if (pr_wireframe)
         bglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -600,7 +631,6 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
 
     // GO!
     depth = 0;
-    mirrorfrom[0] = -3; // no mirror
     polymer_displayrooms(dacursectnum);
 
     curmodelviewmatrix = rootmodelviewmatrix;
@@ -664,7 +694,11 @@ void                polymer_drawmaskwall(int32_t damaskwallcnt)
 
     w = prwalls[maskwall[damaskwallcnt]];
 
-    polymer_drawplane(-1, -3, &w->mask, 0);
+    bglEnable(GL_CULL_FACE);
+
+    polymer_drawplane(&w->mask);
+
+    bglDisable(GL_CULL_FACE);
 }
 
 void                polymer_drawsprite(int32_t snum)
@@ -821,7 +855,7 @@ void                polymer_drawsprite(int32_t snum)
 
 //     bglEnable(GL_POLYGON_OFFSET_FILL);
 
-    polymer_drawplane(-1, -3, &spriteplane, 0);
+    polymer_drawplane(&spriteplane);
 
 //     bglDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -904,6 +938,11 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     int32_t         localspritesortcnt;
     spritetype      localtsprite[MAXSPRITESONSCREEN];
     int16_t         localmaskwall[MAXWALLSB], localmaskwallcnt;
+    _prmirror       mirrorlist[10];
+    int             mirrorcount;
+    int32_t         gx, gy, gz, px, py, pz;
+    GLdouble        plane[4];
+    float           coeff;
 
     if (depth)
     {
@@ -926,8 +965,10 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
     localspritesortcnt = localmaskwallcnt = 0;
 
+    mirrorcount = 0;
+
     // depth-only occlusion testing pass
-    overridematerial = 0;
+//     overridematerial = 0;
 
     while (front != back)
     {
@@ -936,6 +977,14 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         polymer_pokesector(sectorqueue[front]);
         polymer_drawsector(sectorqueue[front]);
         polymer_scansprites(sectorqueue[front], localtsprite, &localspritesortcnt);
+
+//         if (!depth && sectorqueue[front] == dacursectnum)
+//         {
+//             mirrorlist[mirrorcount].plane = &prsectors[sectorqueue[front]]->floor;
+//             mirrorlist[mirrorcount].sectnum = sectorqueue[front];
+//             mirrorlist[mirrorcount].wallnum = -1;
+//             mirrorcount++;
+//         }
 
         doquery = 0;
 
@@ -960,6 +1009,19 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                 (wallvisible(sec->wallptr + i)) &&
                 (polymer_portalinfrustum(sec->wallptr + i, frustum)))
             {
+                if (wall[sec->wallptr + i].cstat & 48)
+                    localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
+
+                if (!depth &&
+                     wall[sec->wallptr + i].overpicnum == 560 &&
+                     wall[sec->wallptr + i].cstat & 64)
+                {
+                    mirrorlist[mirrorcount].plane = &prwalls[sec->wallptr + i]->wall;
+                    mirrorlist[mirrorcount].sectnum = sectorqueue[front];
+                    mirrorlist[mirrorcount].wallnum = sec->wallptr + i;
+                    mirrorcount++;
+                }
+
                 if (doquery)
                 {
                     bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -968,7 +1030,11 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                     bglGenQueriesARB(1, &queryid[sec->wallptr + i]);
                     bglBeginQueryARB(GL_SAMPLES_PASSED_ARB, queryid[sec->wallptr + i]);
 
-                    polymer_drawplane(-1, -3, &prwalls[sec->wallptr + i]->mask, 0);
+                    overridematerial = 0;
+
+                    polymer_drawplane(&prwalls[sec->wallptr + i]->mask);
+
+                    overridematerial = 0xFFFFFFFF;
 
                     bglEndQueryARB(GL_SAMPLES_PASSED_ARB);
 
@@ -1012,31 +1078,126 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     }
 
     // do the actual shaded drawing
-    overridematerial = 0xFFFFFFFF;
+//     overridematerial = 0xFFFFFFFF;
 
     // go through the sector queue again
-    front = 0;
-    while (front < back)
+//     front = 0;
+//     while (front < back)
+//     {
+//         sec = &sector[sectorqueue[front]];
+// 
+//         polymer_drawsector(sectorqueue[front]);
+// 
+//         i = 0;
+//         while (i < sec->wallnum)
+//         {
+//             polymer_drawwall(sectorqueue[front], sec->wallptr + i);
+// 
+//             i++;
+//         }
+// 
+//         front++;
+//     }
+
+    i = 0;
+    while (i < mirrorcount)
     {
-        sec = &sector[sectorqueue[front]];
+        bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prrts[0].fbo);
+        bglPushAttrib(GL_VIEWPORT_BIT);
+        bglViewport(0, 0, xdim, ydim);
 
-        polymer_drawsector(sectorqueue[front]);
+        bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        i = 0;
-        while (i < sec->wallnum)
-        {
-            polymer_drawwall(sectorqueue[front], sec->wallptr + i);
+        bglMatrixMode(GL_MODELVIEW);
+        bglPushMatrix();
 
-            i++;
-        }
+        plane[0] = mirrorlist[i].plane->plane[0];
+        plane[1] = mirrorlist[i].plane->plane[1];
+        plane[2] = mirrorlist[i].plane->plane[2];
+        plane[3] = mirrorlist[i].plane->plane[3];
 
-        front++;
+        bglClipPlane(GL_CLIP_PLANE0, plane);
+        polymer_inb4mirror(mirrorlist[i].plane->buffer, mirrorlist[i].plane->plane);
+        bglCullFace(GL_FRONT);
+        bglEnable(GL_CLIP_PLANE0);
+
+        if (mirrorlist[i].wallnum >= 0)
+            preparemirror(globalposx, globalposy, 0, globalang, 0,
+                          mirrorlist[i].wallnum, 0, &gx, &gy, &viewangle);
+
+        gx = globalposx;
+        gy = globalposy;
+        gz = globalposz;
+
+        // map the player pos from build to polymer
+        px = globalposy;
+        py = -globalposz / 16;
+        pz = -globalposx;
+
+        // calculate new player position on the other side of the mirror
+        // this way the basic build visibility shit can be used (wallvisible)
+        coeff = mirrorlist[i].plane->plane[0] * px +
+                mirrorlist[i].plane->plane[1] * py +
+                mirrorlist[i].plane->plane[2] * pz +
+                mirrorlist[i].plane->plane[3];
+
+        coeff /= (float)(mirrorlist[i].plane->plane[0] * mirrorlist[i].plane->plane[0] +
+                         mirrorlist[i].plane->plane[1] * mirrorlist[i].plane->plane[1] +
+                         mirrorlist[i].plane->plane[2] * mirrorlist[i].plane->plane[2]);
+
+        px = -coeff*mirrorlist[i].plane->plane[0]*2 + px;
+        py = -coeff*mirrorlist[i].plane->plane[1]*2 + py;
+        pz = -coeff*mirrorlist[i].plane->plane[2]*2 + pz;
+
+        // map back from polymer to build
+        globalposx = -pz;
+        globalposy = px;
+        globalposz = -py * 16;
+
+        mirrors[depth++] = mirrorlist[i];
+        polymer_displayrooms(mirrorlist[i].sectnum);
+        depth--;
+
+        globalposx = gx;
+        globalposy = gy;
+        globalposz = gz;
+
+        bglDisable(GL_CLIP_PLANE0);
+        bglCullFace(GL_BACK);
+        bglMatrixMode(GL_MODELVIEW);
+        bglPopMatrix();
+
+        bglPopAttrib();
+        bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+        mirrorlist[i].plane->material.mirrormap = prrts[0].color;
+        polymer_drawplane(mirrorlist[i].plane);
+        mirrorlist[i].plane->material.mirrormap = 0;
+
+        i++;
     }
 
     spritesortcnt = localspritesortcnt;
     memcpy(tsprite, localtsprite, sizeof(spritetype) * MAXSPRITESONSCREEN);
     maskwallcnt = localmaskwallcnt;
     memcpy(maskwall, localmaskwall, sizeof(int16_t) * MAXWALLSB);
+
+    if (depth)
+    {
+        // drawmasks needs these
+        cosglobalang = sintable[(viewangle+512)&2047];
+        singlobalang = sintable[viewangle&2047];
+        cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
+        sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
+
+        display_mirror = 1;
+        polymer_animatesprites();
+        display_mirror = 0;
+
+        bglDisable(GL_CULL_FACE);
+        drawmasks();
+        bglEnable(GL_CULL_FACE);
+    }
 
     return;
 }
@@ -1050,7 +1211,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     else                                                                                    \
     {                                                                                       \
         bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, plane->ivbo);                         \
-        bglDrawElements(GL_TRIANGLES, indicecount, GL_UNSIGNED_SHORT, NULL);                \
+        bglDrawElements(GL_TRIANGLES, plane->indicescount, GL_UNSIGNED_SHORT, NULL);        \
     }                                                                                       \
     bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);                                               \
     bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0)
@@ -1061,131 +1222,11 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     if (!plane->indices)                                                                \
         bglDrawArrays(GL_QUADS, 0, 4);                                                  \
     else                                                                                \
-        bglDrawElements(GL_TRIANGLES, indicecount, GL_UNSIGNED_SHORT, plane->indices)
+        bglDrawElements(GL_TRIANGLES, plane->indicescount, GL_UNSIGNED_SHORT, plane->indices)
 
-static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane* plane, int32_t indicecount)
+static void         polymer_drawplane(_prplane* plane)
 {
     int32_t         materialbits;
-
-//     if ((depth < 1) && (plane != NULL) &&
-//             (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
-//     {
-//         int32_t         gx, gy, gz, px, py, pz;
-//         float           coeff;
-// 
-//         // set the stencil to 1 and clear the area to black where the sector floor is
-//         bglDisable(GL_TEXTURE_2D);
-//         bglDisable(GL_FOG);
-//         bglColor4f(0.0f, 1.0f, 0.0f, 1.0f);
-//         bglDepthMask(GL_FALSE);
-// 
-//         bglEnable(GL_STENCIL_TEST);
-//         bglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-//         bglStencilFunc(GL_EQUAL, 0, 0xffffffff);
-// 
-//         if (plane->vbo && (pr_vbos > 0))
-//         {
-//             OMGDRAWSHITVBO;
-//         }
-//         else
-//         {
-//             OMGDRAWSHIT;
-//         }
-// 
-//         bglDepthMask(GL_TRUE);
-// 
-//         // set the depth to 1 where we put the stencil by drawing a screen aligned quad
-//         bglStencilFunc(GL_EQUAL, 1, 0xffffffff);
-//         bglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-//         bglDepthFunc(GL_ALWAYS);
-//         bglMatrixMode(GL_PROJECTION);
-//         bglPushMatrix();
-//         bglLoadIdentity();
-//         bglMatrixMode(GL_MODELVIEW);
-//         bglPushMatrix();
-//         bglLoadIdentity();
-// 
-//         bglColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-//         bglBegin(GL_QUADS);
-//         bglVertex3f(-1.0f, -1.0f, 1.0f);
-//         bglVertex3f(1.0f, -1.0f, 1.0f);
-//         bglVertex3f(1.0f, 1.0f, 1.0f);
-//         bglVertex3f(-1.0f, 1.0f, 1.0f);
-//         bglEnd();
-// 
-//         bglMatrixMode(GL_PROJECTION);
-//         bglPopMatrix();
-//         bglMatrixMode(GL_MODELVIEW);
-//         bglPopMatrix();
-//         bglDepthFunc(GL_LEQUAL);
-//         bglEnable(GL_TEXTURE_2D);
-//         bglEnable(GL_FOG);
-//         // finally draw the shit
-//         bglPushMatrix();
-//         bglClipPlane(GL_CLIP_PLANE0, plane->plane);
-//         polymer_inb4mirror(plane->buffer, plane->plane);
-//         bglCullFace(GL_FRONT);
-//         bglEnable(GL_CLIP_PLANE0);
-// 
-//         if (wallnum >= 0)
-//             preparemirror(globalposx, globalposy, 0, globalang,
-//                           0, wallnum, 0, &gx, &gy, &viewangle);
-// 
-//         gx = globalposx;
-//         gy = globalposy;
-//         gz = globalposz;
-// 
-//         // map the player pos from build to polymer
-//         px = globalposy;
-//         py = -globalposz / 16;
-//         pz = -globalposx;
-// 
-//         // calculate new player position on the other side of the mirror
-//         // this way the basic build visibility shit can be used (wallvisible)
-//         coeff = -plane->plane[0] * px +
-//                 -plane->plane[1] * py +
-//                 -plane->plane[2] * pz +
-//                 -plane->plane[3];
-// 
-//         coeff /= (float)(plane->plane[0] * plane->plane[0] +
-//                          plane->plane[1] * plane->plane[1] +
-//                          plane->plane[2] * plane->plane[2]);
-// 
-//         px = coeff*plane->plane[0]*2 + px;
-//         py = coeff*plane->plane[1]*2 + py;
-//         pz = coeff*plane->plane[2]*2 + pz;
-// 
-//         // map back from polymer to build
-//         globalposx = -pz;
-//         globalposy = px;
-//         globalposz = -py * 16;
-// 
-//         depth++;
-//         mirrorfrom[depth] = wallnum;
-//         polymer_displayrooms(sectnum);
-//         depth--;
-// 
-//         globalposx = gx;
-//         globalposy = gy;
-//         globalposz = gz;
-// 
-//         bglDisable(GL_CLIP_PLANE0);
-//         bglCullFace(GL_BACK);
-//         bglMatrixMode(GL_MODELVIEW);
-//         bglPopMatrix();
-// 
-//         bglColor4f(plane->material.diffusemodulation[0],
-//                    plane->material.diffusemodulation[1],
-//                    plane->material.diffusemodulation[2],
-//                    0.0f);
-//     }
-//     else
-//         bglColor4f(plane->material.diffusemodulation[0],
-//                    plane->material.diffusemodulation[1],
-//                    plane->material.diffusemodulation[2],
-//                    plane->material.diffusemodulation[3]);
-
-//     bglBindTexture(GL_TEXTURE_2D, plane->material.diffusemap);
 
     // debug code for drawing plane inverse TBN
 //     bglDisable(GL_TEXTURE_2D);
@@ -1255,13 +1296,6 @@ static void         polymer_drawplane(int16_t sectnum, int16_t wallnum, _prplane
 
         curlight++;
     }
-
-//     if ((depth < 1) && (plane->plane != NULL) &&
-//             (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
-//     {
-//         bglDisable(GL_STENCIL_TEST);
-//         bglClear(GL_STENCIL_BUFFER_BIT);
-//     }
 }
 
 static void         polymer_inb4mirror(GLfloat* buffer, GLfloat* plane)
@@ -1671,6 +1705,7 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
 
         i++;
     }
+    s->floor.indicescount = s->ceil.indicescount = s->indicescount;
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Tesselated floor of sector %i.\n", sectnum);
 
@@ -1687,10 +1722,10 @@ static void         polymer_drawsector(int16_t sectnum)
     sec = &sector[sectnum];
     s = prsectors[sectnum];
 
-    if (!(sec->floorstat & 1) && (mirrorfrom[depth] != -2))
-        polymer_drawplane(sectnum, -2, &s->floor, s->indicescount);
-    if (!(sec->ceilingstat & 1) && (mirrorfrom[depth] != -1))
-        polymer_drawplane(sectnum, -1, &s->ceil, s->indicescount);
+    if (!(sec->floorstat & 1))
+        polymer_drawplane(&s->floor);
+    if (!(sec->ceilingstat & 1))
+        polymer_drawplane(&s->ceil);
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing sector %i...\n", sectnum);
 }
@@ -1852,7 +1887,10 @@ static void         polymer_updatewall(int16_t wallnum)
         memcpy(&w->wall.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
         memcpy(&w->wall.buffer[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
-        curpicnum = wallpicnum;
+        if (wal->cstat & 32)
+            curpicnum = walloverpicnum;
+        else
+            curpicnum = wallpicnum;
 
         polymer_getbuildmaterial(&w->wall.material, curpicnum, wal->pal, wal->shade);
 
@@ -2007,7 +2045,7 @@ static void         polymer_updatewall(int16_t wallnum)
             if (wal->cstat & 16)
             {
                 // mask
-                polymer_getbuildmaterial(&w->mask.material, wal->overpicnum, wal->pal, wal->shade);
+                polymer_getbuildmaterial(&w->mask.material, walloverpicnum, wal->pal, wal->shade);
                 if (wal->cstat & 128)
                 {
                     if (wal->cstat & 512)
@@ -2065,7 +2103,7 @@ static void         polymer_updatewall(int16_t wallnum)
                 else
                     yref = max(sec->ceilingz, nsec->ceilingz);
 
-                curpicnum = wal->overpicnum;
+                curpicnum = walloverpicnum;
 
                 if (wal->ypanning)
                 {
@@ -2120,8 +2158,7 @@ static void         polymer_updatewall(int16_t wallnum)
         polymer_buffertoplane(w->wall.buffer, NULL, 4, w->wall.plane, w->wall.t, w->wall.b, w->wall.n);
     if (w->underover & 2)
         polymer_buffertoplane(w->over.buffer, NULL, 4, w->over.plane, w->over.t, w->over.b, w->over.n);
-    if (!((wal->nextsector == -1) || (wal->cstat & 32)))
-        polymer_buffertoplane(w->mask.buffer, NULL, 4, w->mask.plane, w->mask.t, w->mask.b, w->mask.n);
+    polymer_buffertoplane(w->mask.buffer, NULL, 4, w->mask.plane, w->mask.t, w->mask.b, w->mask.n);
 
     if ((pr_vbos > 0))
     {
@@ -2152,12 +2189,12 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
 
     if ((w->underover & 1) && !(w->underover & 4))
     {
-        polymer_drawplane(sectnum, wallnum, &w->wall, 0);
+        polymer_drawplane(&w->wall);
     }
 
     if ((w->underover & 2) && !(w->underover & 8))
     {
-        polymer_drawplane(sectnum, wallnum, &w->over, 0);
+        polymer_drawplane(&w->over);
     }
 
     if ((sector[sectnum].ceilingstat & 1) &&
@@ -2219,7 +2256,7 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
             plane[0] /= norm;
             plane[1] /= norm;
             plane[2] /= norm;
-            plane[3] = (plane[0] * buffer[0] + plane[1] * buffer[1] + plane[2] * buffer[2]);
+            plane[3] = -(plane[0] * buffer[0] + plane[1] * buffer[1] + plane[2] * buffer[2]);
 
             // calculate T and B
             r = 1.0 / (vec1[3] * vec2[4] - vec2[3] * vec1[4]);
@@ -2702,7 +2739,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             lpos[1] = -prlights[i].z / 16.0f;
             lpos[2] = -prlights[i].x;
 
-            polymer_transformpoint(lpos, tlpos, rootmodelviewmatrix);
+            polymer_transformpoint(lpos, tlpos, curmodelviewmatrix);
 
             vec[0] = tlpos[0] - tspos[0];
             vec[0] *= vec[0];
@@ -2891,6 +2928,8 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
             material->diffusemodulation[3] = 1.0f;
+    // PR_BIT_DIFFUSE_MIRROR_MAP
+    material->mirrormap = 0;
     // PR_BIT_DIFFUSE_GLOW_MAP
     material->glowmap = 0;
 }
@@ -3010,6 +3049,10 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     // PR_BIT_DIFFUSE_MODULATION
     programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
 
+    // PR_BIT_DIFFUSE_MIRROR_MAP
+    if (!curlight && material.mirrormap)
+        programbits |= prprogrambits[PR_BIT_DIFFUSE_MIRROR_MAP].bit;
+
     // PR_BIT_DIFFUSE_GLOW_MAP
     if (!curlight && material.glowmap)
         programbits |= prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit;
@@ -3102,6 +3145,17 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
                    material.diffusemodulation[3]);
     }
 
+    // PR_BIT_DIFFUSE_MIRROR_MAP
+    if (programbits & prprogrambits[PR_BIT_DIFFUSE_MIRROR_MAP].bit)
+    {
+        bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
+        bglBindTexture(GL_TEXTURE_RECTANGLE, material.mirrormap);
+
+        bglUniform1iARB(prprograms[programbits].uniform_mirrorMap, texunit);
+
+        texunit++;
+    }
+
     // PR_BIT_DIFFUSE_GLOW_MAP
     if (programbits & prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit)
     {
@@ -3124,7 +3178,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
         inpos[1] = -prlights[lights[curlight]].z / 16.0f;
         inpos[2] = -prlights[lights[curlight]].x;
 
-        polymer_transformpoint(inpos, pos, rootmodelviewmatrix);
+        polymer_transformpoint(inpos, pos, curmodelviewmatrix);
 
         range[0] = prlights[lights[curlight]].faderange  / 1000.0f;
         range[1] = prlights[lights[curlight]].range      / 1000.0f;
@@ -3270,6 +3324,12 @@ static void         polymer_compileprogram(int32_t programbits)
         prprograms[programbits].uniform_detailScale = bglGetUniformLocationARB(program, "detailScale");
     }
 
+    // PR_BIT_DIFFUSE_MIRROR_MAP
+    if (programbits & prprogrambits[PR_BIT_DIFFUSE_MIRROR_MAP].bit)
+    {
+        prprograms[programbits].uniform_mirrorMap = bglGetUniformLocationARB(program, "mirrorMap");
+    }
+
     // PR_BIT_DIFFUSE_GLOW_MAP
     if (programbits & prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit)
     {
@@ -3378,6 +3438,55 @@ static void         polymer_culllight(char lightindex)
             i++;
         }
         front++;
+    }
+}
+
+// RENDER TARGETS
+static void         polymer_initrendertargets(int32_t count)
+{
+    int32_t         i;
+
+    prrts = calloc(count, sizeof(_prrt));
+
+    i = 0;
+    while (i < count)
+    {
+        bglGenTextures(1, &prrts[i].color);
+        bglBindTexture(GL_TEXTURE_RECTANGLE, prrts[i].color);
+
+        bglCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, 0, 0, xdim, ydim, 0);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+        bglGenTextures(1, &prrts[i].z);
+        bglBindTexture(GL_TEXTURE_RECTANGLE, prrts[i].z);
+
+        bglCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_DEPTH_COMPONENT, 0, 0, xdim, ydim, 0);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_FUNC_ARB, GL_GREATER);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_DEPTH_TEXTURE_MODE_ARB, GL_ALPHA);
+
+        bglGenFramebuffersEXT(1, &prrts[i].fbo);
+        bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prrts[i].fbo);
+
+        bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_RECTANGLE, prrts[i].color, 0);
+        bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_RECTANGLE, prrts[i].z, 0);
+
+        if (bglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
+        {
+            OSD_Printf("FBO #%d initialization failed.\n", i);
+        }
+
+        bglBindTexture(GL_TEXTURE_RECTANGLE, 0);
+        bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+        i++;
     }
 }
 
