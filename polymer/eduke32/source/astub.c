@@ -11070,7 +11070,7 @@ static void GenSearchSprite()
         for (j=0; j<=rowmax[i]; j++)
         {
             if (gs_spritewhat[i][j])
-                k=Bsprintf(disptext, "%s: ^O%d", labels[j][i], gs_sprite[i][j]);
+                k=Bsprintf(disptext, "%s: %d", labels[j][i], gs_sprite[i][j]);
             else
                 k=Bsprintf(disptext, "%s: ^7any", labels[j][i]);
             for (; k<dispwidth[i]; k++) disptext[k] = 0;
@@ -11161,9 +11161,9 @@ static void GenSearchSprite()
         if (gs_spritewhat[col][row])
         {
             if (col == 1 && row == 0)  // flags
-                k = Bsprintf(disptext, "%s: ^O%x", labels[row][col], gs_sprite[col][row]);
+                k = Bsprintf(disptext, "%s: %x", labels[row][col], gs_sprite[col][row]);
             else
-                k = Bsprintf(disptext, "%s: ^O%d", labels[row][col], gs_sprite[col][row]);
+                k = Bsprintf(disptext, "%s: %d", labels[row][col], gs_sprite[col][row]);
         }
         else
             k = Bsprintf(disptext, "%s: ^7any", labels[row][col]);
