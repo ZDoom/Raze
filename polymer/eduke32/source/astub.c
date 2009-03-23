@@ -9002,7 +9002,7 @@ int32_t parseconsounds(scriptfile *script)
 {
     int32_t tokn;
     char *cmdtokptr;
-    int32_t numsounds=0, num_invalidsounds=0;
+    int32_t num_invalidsounds=0;
 
     tokenlist cstokens[] =
     {
@@ -9037,7 +9037,6 @@ int32_t parseconsounds(scriptfile *script)
                     int32_t tmp = parseconsounds(included);
                     scriptfile_close(included);
                     if (tmp < 0) return tmp;
-                    numsounds += tmp;
                 }
             }
             break;
@@ -9121,8 +9120,8 @@ BAD:
             g_sounds[sndnum].pr = pr;
             g_sounds[sndnum].m = m;
             g_sounds[sndnum].vo = vo;
-            g_sndnum[numsounds] = g_definedsndnum[numsounds] = sndnum;
-            numsounds++;
+            g_sndnum[g_numsounds] = g_definedsndnum[g_numsounds] = sndnum;
+            g_numsounds++;
             break;
         }
         case T_EOF:
@@ -9132,7 +9131,7 @@ BAD:
         }
     }
 END:
-    return numsounds;
+    return g_numsounds;
 }
 
 int32_t loadconsounds(char *fn)
@@ -9166,7 +9165,8 @@ void ExtPreLoadMap(void)
     static int32_t soundinit = 0;
     if (!soundinit)
     {
-        g_numsounds = loadconsounds(gamecon);
+        g_numsounds = 0;
+        loadconsounds(gamecon);
         if (g_numsounds > 0)
         {
             if (S_SoundStartup() != 0)
