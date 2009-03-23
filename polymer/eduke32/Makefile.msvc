@@ -24,8 +24,8 @@ flags_link=/RELEASE
 
 
 DXROOT=c:\sdks\dx6
-MSSDKROOT="C:\Program Files\Microsoft Visual Studio 8\VC
-PLATFORMSDK="C:\Program Files\Microsoft Visual Studio 8\VC\PlatformSDK
+MSSDKROOT="N:\Program Files\Microsoft Visual Studio 9.0\VC
+PLATFORMSDK="N:\Program Files\Microsoft Visual Studio 9.0\VC\PlatformSDK
 
 ENGINEOPTS=/DSUPERBUILD /DPOLYMOST /DUSE_OPENGL /DUSE_OPENAL /DRANCID_NETWORKING /DPOLYMER
 
@@ -72,7 +72,7 @@ AUDIOLIB_MUSIC=$(OBJ)\midi.$o \
  	  $(OBJ)\mpu401.$o \
  	  $(OBJ)\music.$o
 
-AUDIOLIBOBJ=$(AUDIOLIB_MUSIC) $(AUDIOLIB_FX) $(OBJ)\sounds.$o
+AUDIOLIBOBJ=$(AUDIOLIB_MUSIC) $(AUDIOLIB_FX)
  
 GAMEOBJS=$(OBJ)\game.$o \
 	$(OBJ)\actors.$o \
@@ -99,12 +99,16 @@ GAMEOBJS=$(OBJ)\game.$o \
 	$(OBJ)\startwin.game.$o \
  	$(JMACTOBJ) \
 	$(AUDIOLIBOBJ) \
+	$(OBJ)\sounds.$o \
 !ifdef DEBUG
 	$(OBJ)\mdump.$o
 !endif
 
 EDITOROBJS=$(OBJ)\astub.$o \
+	$(OBJ)\mathutil.$o \
+	$(OBJ)\sounds_mapster32.$o \
 	$(OBJ)\buildres.res \
+	$(AUDIOLIB_FX) \
 !ifdef DEBUG
 	$(OBJ)\mdump.$o
 !endif
