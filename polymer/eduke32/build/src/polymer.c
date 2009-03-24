@@ -1005,7 +1005,6 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         while (i < sec->wallnum)
         {
             if ((wall[sec->wallptr + i].nextsector != -1) &&
-                (!drawingstate[wall[sec->wallptr + i].nextsector]) &&
                 (wallvisible(sec->wallptr + i)) &&
                 (polymer_portalinfrustum(sec->wallptr + i, frustum)))
             {
@@ -1022,7 +1021,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                     mirrorcount++;
                 }
 
-                if (doquery)
+                if (doquery && (!drawingstate[wall[sec->wallptr + i].nextsector]))
                 {
                     bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
                     bglDepthMask(GL_FALSE);
