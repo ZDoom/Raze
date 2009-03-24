@@ -1887,10 +1887,10 @@ static void         polymer_updatewall(int16_t wallnum)
         memcpy(&w->wall.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
         memcpy(&w->wall.buffer[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
-        if (wal->cstat & 32)
-            curpicnum = walloverpicnum;
-        else
+        if (wal->nextsector == -1)
             curpicnum = wallpicnum;
+        else
+            curpicnum = walloverpicnum;
 
         polymer_getbuildmaterial(&w->wall.material, curpicnum, wal->pal, wal->shade);
 
