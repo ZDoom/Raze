@@ -1201,28 +1201,6 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     return;
 }
 
-#define OMGDRAWSHITVBO                                                                      \
-    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, plane->vbo);                                      \
-    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), NULL);                               \
-    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), (GLfloat*)(3 * sizeof(GLfloat)));  \
-    if (!plane->indices)                                                                    \
-        bglDrawArrays(GL_QUADS, 0, 4);                                                      \
-    else                                                                                    \
-    {                                                                                       \
-        bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, plane->ivbo);                         \
-        bglDrawElements(GL_TRIANGLES, plane->indicescount, GL_UNSIGNED_SHORT, NULL);        \
-    }                                                                                       \
-    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);                                               \
-    bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0)
-
-#define OMGDRAWSHIT                                                                     \
-    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), plane->buffer);                  \
-    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &plane->buffer[3]);            \
-    if (!plane->indices)                                                                \
-        bglDrawArrays(GL_QUADS, 0, 4);                                                  \
-    else                                                                                \
-        bglDrawElements(GL_TRIANGLES, plane->indicescount, GL_UNSIGNED_SHORT, plane->indices)
-
 static void         polymer_drawplane(_prplane* plane)
 {
     int32_t         materialbits;
@@ -1269,6 +1247,18 @@ static void         polymer_drawplane(_prplane* plane)
 
     bglNormal3f((float)(plane->plane[0]), (float)(plane->plane[1]), (float)(plane->plane[2]));
 
+    if (plane->vbo && (pr_vbos > 0))
+    {
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, plane->vbo);
+        bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), NULL);
+        bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), (GLfloat*)(3 * sizeof(GLfloat)));
+        if (plane->indices)
+            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, plane->ivbo);
+    } else {
+        bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), plane->buffer);
+        bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &plane->buffer[3]);
+    }
+
     curlight = 0;
 
     while ((curlight == 0) || (curlight < plane->lightcount))
@@ -1282,18 +1272,25 @@ static void         polymer_drawplane(_prplane* plane)
             bglVertexAttrib3fvARB(prprograms[materialbits].attrib_N, plane->plane);
         }
 
-        if (plane->vbo && (pr_vbos > 0))
+        if (plane->indices)
         {
-            OMGDRAWSHITVBO;
-        }
-        else
-        {
-            OMGDRAWSHIT;
-        }
+            if (plane->vbo && (pr_vbos > 0))
+                bglDrawElements(GL_TRIANGLES, plane->indicescount, GL_UNSIGNED_SHORT, NULL);
+            else
+                bglDrawElements(GL_TRIANGLES, plane->indicescount, GL_UNSIGNED_SHORT, plane->indices);
+        } else
+            bglDrawArrays(GL_QUADS, 0, 4);
 
         polymer_unbindmaterial(materialbits);
 
         curlight++;
+    }
+
+    if (plane->vbo && (pr_vbos > 0))
+    {
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+        if (plane->indices)
+            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
     }
 }
 
