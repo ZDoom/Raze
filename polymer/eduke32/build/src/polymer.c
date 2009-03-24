@@ -1380,7 +1380,8 @@ static int32_t      polymer_initsector(int16_t sectnum)
     return (1);
 }
 
-static int32_t      polymer_updatesector(int16_t sectnum){
+static int32_t      polymer_updatesector(int16_t sectnum)
+{
     _prsector*      s;
     sectortype      *sec;
     walltype        *wal;
@@ -1427,6 +1428,7 @@ static int32_t      polymer_updatesector(int16_t sectnum){
     }
 
     if ((s->controlstate == 2) ||
+            needfloor ||
             (sec->floorz != s->floorz) ||
             (sec->ceilingz != s->ceilingz) ||
             (sec->floorheinum != s->floorheinum) ||
