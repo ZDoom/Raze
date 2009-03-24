@@ -8092,21 +8092,21 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
                     {
-                        G_AddGroup(argv[i++]);
                         COPYARG(i);
+                        G_AddGroup(argv[i++]);
                         continue;
                     }
                     if (!Bstrcasecmp(k,".def"))
                     {
-                        defsfilename = (char *)argv[i++];
                         COPYARG(i);
+                        defsfilename = (char *)argv[i++];
                         initprintf("Using DEF file: %s.\n",defsfilename);
                         continue;
                     }
                     if (!Bstrcasecmp(k,".con"))
                     {
-                        gamecon = (char *)argv[i++];
                         COPYARG(i);
+                        gamecon = (char *)argv[i++];
                         continue;
                     }
                 }
