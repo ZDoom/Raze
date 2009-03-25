@@ -125,17 +125,13 @@ typedef struct      s_prprogrambit {
 #define             STR_EXPAND(tok) #tok
 #define             STR(tok) STR_EXPAND(tok)
 
-typedef enum {
-    PR_LIGHT_POINT,
-    PR_LIGHT_SPOT,
-    PR_LIGHT_DIRECTIONAL
-}                   prlighttype;
-
 typedef struct      s_prlight {
     int32_t         x, y, z, horiz, range;
     int16_t         angle, faderadius, radius, sector;
     char            color[3];
-    prlighttype     type;
+    GLfloat         proj[16];
+    GLfloat         transform[16];
+    float           frustum[5 * 4];
 }                   _prlight;
 
 // RENDER TARGETS
@@ -269,7 +265,7 @@ static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* 
 static void         polymer_transformpoint(float* inpos, float* pos, float* matrix);
 static void         polymer_pokesector(int16_t sectnum);
 static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projection, float* frustum);
-static int32_t      polymer_portalinfrustum(int16_t wallnum, float* frustum);
+static int32_t      polymer_planeinfrustum(_prplane *plane, float* frustum);
 static void         polymer_scansprites(int16_t sectnum, spritetype* tsprite, int32_t* spritesortcnt);
 // SKIES
 static void         polymer_getsky(void);

@@ -932,6 +932,38 @@ void                polymer_addlight(_prlight light)
     {
         prlights[lightcount] = light;
 
+        if (light.radius) {
+            float radius, ang, horizang, lightpos[3];
+
+            lightpos[0] = light.y;
+            lightpos[1] = -light.z / 16.0f;
+            lightpos[2] = -light.x;
+
+            // calculate the spot light transformations and matrices
+            radius = (float)(light.radius) / (2048.0f / 360.0f);
+            ang = (float)(light.angle) / (2048.0f / 360.0f);
+            horizang = (float)(-getangle(128, light.horiz-100)) / (2048.0f / 360.0f);
+
+            bglMatrixMode(GL_PROJECTION);
+            bglPushMatrix();
+            bglLoadIdentity();
+            bgluPerspective(radius * 2, 1, 0.1f, light.range / 1000.0f);
+            bglGetFloatv(GL_PROJECTION_MATRIX, prlights[lightcount].proj);
+            bglPopMatrix();
+
+            bglMatrixMode(GL_MODELVIEW);
+            bglPushMatrix();
+            bglLoadIdentity();
+            bglRotatef(horizang, 1.0f, 0.0f, 0.0f);
+            bglRotatef(ang, 0.0f, 1.0f, 0.0f);
+            bglScalef(1.0f / 1000.0f, 1.0f / 1000.0f, 1.0f / 1000.0f);
+            bglTranslatef(-lightpos[0], -lightpos[1], -lightpos[2]);
+            bglGetFloatv(GL_MODELVIEW_MATRIX, prlights[lightcount].transform);
+            bglPopMatrix();
+
+            polymer_extractfrustum(prlights[lightcount].transform, prlights[lightcount].proj, prlights[lightcount].frustum);
+        }
+
         polymer_culllight(lightcount);
 
         lightcount++;
@@ -1024,7 +1056,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         {
             if ((wall[sec->wallptr + i].nextsector != -1) &&
                 (wallvisible(sec->wallptr + i)) &&
-                (polymer_portalinfrustum(sec->wallptr + i, frustum)))
+                (polymer_planeinfrustum(&prwalls[sec->wallptr + i]->mask, frustum)))
             {
                 if (wall[sec->wallptr + i].cstat & 48)
                     localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
@@ -2404,7 +2436,7 @@ static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projecti
         frustum[i + 4] = matrix[(4 * i) + 3] - matrix[4 * i];           // right
         frustum[i + 8] = matrix[(4 * i) + 3] - matrix[(4 * i) + 1];     // top
         frustum[i + 12] = matrix[(4 * i) + 3] + matrix[(4 * i) + 1];    // bottom
-        frustum[i + 16] = matrix[(4 * i) + 3] + matrix[(4 * i) + 2];    // near
+        frustum[i + 16] = matrix[(4 * i) + 3] - matrix[(4 * i) + 2];    // far
         i++;
     }
     i = 0;
@@ -2412,29 +2444,26 @@ static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projecti
     if (pr_verbosity >= 3) OSD_Printf("PR : Frustum extracted.\n");
 }
 
-static int32_t      polymer_portalinfrustum(int16_t wallnum, float* frustum)
+static int32_t      polymer_planeinfrustum(_prplane *plane, float* frustum)
 {
     int32_t         i, j, k;
     float           sqdist;
-    _prwall         *w;
-
-    w = prwalls[wallnum];
 
     i = 0;
-    while (i < 4)
+    while (i < 5)
     {
         j = k = 0;
-        while (j < 4)
+        while (j < plane->vertcount)
         {
-            sqdist = frustum[(i * 4) + 0] * w->bigportal[(j * 5) + 0] +
-                     frustum[(i * 4) + 1] * w->bigportal[(j * 5) + 1] +
-                     frustum[(i * 4) + 2] * w->bigportal[(j * 5) + 2] +
+            sqdist = frustum[(i * 4) + 0] * plane->buffer[(j * 5) + 0] +
+                     frustum[(i * 4) + 1] * plane->buffer[(j * 5) + 1] +
+                     frustum[(i * 4) + 2] * plane->buffer[(j * 5) + 2] +
                      frustum[(i * 4) + 3];
             if (sqdist < 0)
                 k++;
             j++;
         }
-        if (k == 4)
+        if (k == plane->vertcount)
             return (0); // OUT !
         i++;
     }
@@ -3405,6 +3434,9 @@ static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
 {
     float           lightpos[3];
     int             i, j, k, l;
+
+    if (light->radius)
+        return polymer_planeinfrustum(plane, light->frustum);
 
     lightpos[0] = light->y;
     lightpos[1] = -light->z / 16.0f;
