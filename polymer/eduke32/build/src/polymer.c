@@ -289,6 +289,22 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
     },
     {
+        1 << PR_BIT_SPOT_LIGHT,
+        // vert_def
+        "",
+        // vert_prog
+        "",
+        // frag_def
+        "uniform vec3 spotDir;\n"
+        "uniform vec2 spotRadius;\n"
+        "\n",
+        // frag_prog
+        "  spotVector = spotDir;\n"
+        "  spotCosRadius = spotRadius;\n"
+        "  isSpotLight = 1;\n"
+        "\n",
+    },
+    {
         1 << PR_BIT_POINT_LIGHT,
         // vert_def
         "varying vec3 vertexNormal;\n"
@@ -319,10 +335,12 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  vec2 lightRange;\n"
         "  float pointLightDistance;\n"
         "  float lightAttenuation;\n"
-        "  vec3 N, L, E, R;\n"
+        "  float spotAttenuation;\n"
+        "  vec3 N, L, E, R, D;\n"
         "  vec3 lightDiffuse;\n"
         "  float lightSpecular;\n"
         "  float NdotL;\n"
+        "  float spotCosAngle;\n"
         "\n"
         "  L = normalize(lightVector);\n"
         "\n"
@@ -331,6 +349,13 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  lightRange.y = gl_LightSource[0].linearAttenuation;\n"
         "\n"
         "  lightAttenuation = clamp(1.0 - pointLightDistance * lightRange.y, 0.0, 1.0);\n"
+        "  spotAttenuation = 1.0;\n"
+        "\n"
+        "  if (isSpotLight == 1) {\n"
+        "    D = normalize(spotVector);\n"
+        "    spotCosAngle = dot(-L, D);\n"
+        "    spotAttenuation = clamp((spotCosAngle - spotCosRadius.x) * spotCosRadius.y, 0.0, 1.0);\n"
+        "  }\n"
         "\n"
         "  if (isNormalMapped == 1) {\n"
         "    N = 2.0 * (normalTexel.rgb - 0.5);\n"
@@ -343,7 +368,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  R = reflect(-L, N);\n"
         "\n"
         "  lightDiffuse = diffuseTexel.a * gl_Color.a * diffuseTexel.rgb *\n"
-        "                 gl_LightSource[0].diffuse.rgb * lightAttenuation;\n"
+        "                 gl_LightSource[0].diffuse.rgb * lightAttenuation * spotAttenuation;\n"
         "  result += vec4(lightDiffuse * NdotL, 0.0);\n"
         "\n"
         "  lightSpecular = pow( max(dot(R, E), 0.0), 60.0) * 10.0;\n"
@@ -374,6 +399,9 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  int isLightingPass = 0;\n"
         "  int isNormalMapped = 0;\n"
         "  mat3 TBN;\n"
+        "  int isSpotLight = 0;\n"
+        "  vec3 spotVector;\n"
+        "  vec2 spotCosRadius;\n"
         "\n",
         // frag_prog
         "  gl_FragColor = result;\n"
@@ -2727,7 +2755,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             lpos[1] = -prlights[i].z / 16.0f;
             lpos[2] = -prlights[i].x;
 
-            polymer_transformpoint(lpos, tlpos, curmodelviewmatrix);
+            polymer_transformpoint(lpos, tlpos, rootmodelviewmatrix);
 
             vec[0] = tlpos[0] - tspos[0];
             vec[0] *= vec[0];
@@ -3046,8 +3074,12 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
         programbits |= prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit;
 
     // PR_BIT_POINT_LIGHT
-    if (lightcount)
+    if (lightcount) {
         programbits |= prprogrambits[PR_BIT_POINT_LIGHT].bit;
+        // PR_BIT_SPOT_LIGHT
+        if (prlights[lights[curlight]].radius)
+            programbits |= prprogrambits[PR_BIT_SPOT_LIGHT].bit;
+    }
 
     // material override
     programbits &= overridematerial;
@@ -3166,7 +3198,36 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
         inpos[1] = -prlights[lights[curlight]].z / 16.0f;
         inpos[2] = -prlights[lights[curlight]].x;
 
-        polymer_transformpoint(inpos, pos, curmodelviewmatrix);
+        polymer_transformpoint(inpos, pos, rootmodelviewmatrix);
+
+        // PR_BIT_SPOT_LIGHT
+        if (programbits & prprogrambits[PR_BIT_SPOT_LIGHT].bit)
+        {
+            float sinang, cosang, sinhorizang, coshorizangs;
+            float indir[3], dir[3];
+
+            cosang = (float)(sintable[(-prlights[lights[curlight]].angle+1024)&2047]) / 16383.0f;
+            sinang = (float)(sintable[(-prlights[lights[curlight]].angle+512)&2047]) / 16383.0f;
+            coshorizangs = (float)(sintable[(getangle(128, prlights[lights[curlight]].horiz-100)+1024)&2047]) / 16383.0f;
+            sinhorizang = (float)(sintable[(getangle(128, prlights[lights[curlight]].horiz-100)+512)&2047]) / 16383.0f;
+
+            indir[0] = inpos[0] + sinhorizang * cosang;
+            indir[1] = inpos[1] - coshorizangs;
+            indir[2] = inpos[2] - sinhorizang * sinang;
+
+            polymer_transformpoint(indir, dir, rootmodelviewmatrix);
+
+            dir[0] -= pos[0];
+            dir[1] -= pos[1];
+            dir[2] -= pos[2];
+
+            indir[0] = (float)(sintable[(prlights[lights[curlight]].radius+512)&2047]) / 16383.0f;
+            indir[1] = (float)(sintable[(prlights[lights[curlight]].faderadius+512)&2047]) / 16383.0f;
+            indir[1] = 1.0 / (indir[1] - indir[0]);
+
+            bglUniform3fvARB(prprograms[programbits].uniform_spotDir, 1, dir);
+            bglUniform2fvARB(prprograms[programbits].uniform_spotRadius, 1, indir);
+        }
 
         range[0] = prlights[lights[curlight]].range  / 1000.0f;
         range[1] = 1 / range[0];
@@ -3322,6 +3383,13 @@ static void         polymer_compileprogram(int32_t programbits)
     if (programbits & prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit)
     {
         prprograms[programbits].uniform_glowMap = bglGetUniformLocationARB(program, "glowMap");
+    }
+
+    // PR_BIT_SPOT_LIGHT
+    if (programbits & prprogrambits[PR_BIT_SPOT_LIGHT].bit)
+    {
+        prprograms[programbits].uniform_spotDir = bglGetUniformLocationARB(program, "spotDir");
+        prprograms[programbits].uniform_spotRadius = bglGetUniformLocationARB(program, "spotRadius");
     }
 
     // PR_BIT_POINT_LIGHT

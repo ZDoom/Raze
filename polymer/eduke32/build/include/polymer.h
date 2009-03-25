@@ -4,11 +4,14 @@
 //   o there's also the texture alignment problem Hunter reported (san andreas fault)
 //   o also sliding doors are still fucked up sometimes (like under the bar in E1L2)
 //   o shading needs a lot of work
-//   o remove all the IM matrix crap and write real functions now that it works
+//   o planeinfrustum
+//   o RTT portals (water)
+//   o clip mirrors/portals to their planes
+//   o merge mirrors/portals from the same plane
 // - SPRITES
 //   o sprite panning
 // - SKIES
-//   o figure a better way to handle ART skies - maybe add symetric caps that would fade to black like a big gem or something wow this is a long column lol ;0)
+//   o skyview
 // - MDSPRITES
 //   o need full translation and rotation support from CON to attach to game world or tags
 //
@@ -51,6 +54,7 @@ typedef enum {
                     PR_BIT_DIFFUSE_MODULATION,
                     PR_BIT_DIFFUSE_MIRROR_MAP,
                     PR_BIT_DIFFUSE_GLOW_MAP,
+                    PR_BIT_SPOT_LIGHT,
                     PR_BIT_POINT_LIGHT,
                     PR_BIT_FOOTER,              // must be just before last
                     PR_BIT_COUNT                // must be last
@@ -98,6 +102,9 @@ typedef struct      s_prrograminfo {
     GLint           uniform_mirrorMap;
     // PR_BIT_DIFFUSE_GLOW_MAP
     GLint           uniform_glowMap;
+    // PR_BIT_SPOT_LIGHT
+    GLint           uniform_spotDir;
+    GLint           uniform_spotRadius;
     // PR_BIT_POINT_LIGHT
 //     GLint           uniform_lightCount;
 }                   _prprograminfo;
@@ -126,7 +133,7 @@ typedef enum {
 
 typedef struct      s_prlight {
     int32_t         x, y, z, horiz, range;
-    int16_t         angle, sector;
+    int16_t         angle, faderadius, radius, sector;
     char            color[3];
     prlighttype     type;
 }                   _prlight;
