@@ -125,7 +125,7 @@ typedef enum {
 }                   prlighttype;
 
 typedef struct      s_prlight {
-    int32_t         x, y, z, horiz, faderange, range;
+    int32_t         x, y, z, horiz, range;
     int16_t         angle, sector;
     char            color[3];
     prlighttype     type;

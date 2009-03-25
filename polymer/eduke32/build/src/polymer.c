@@ -330,34 +330,24 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  lightRange.x = gl_LightSource[0].constantAttenuation;\n"
         "  lightRange.y = gl_LightSource[0].linearAttenuation;\n"
         "\n"
-        "  if (pointLightDistance > lightRange.y)\n"
-        "    lightAttenuation = 0.0;\n"
-        "  else if (pointLightDistance < lightRange.x)\n"
-        "    lightAttenuation = 1.0;\n"
-        "  else\n"
-        "    lightAttenuation = 1.0 - (pointLightDistance - lightRange.x)  /\n"
-        "                             (lightRange.y - lightRange.x);\n"
+        "  lightAttenuation = clamp(1.0 - pointLightDistance * lightRange.y, 0.0, 1.0);\n"
         "\n"
-        "  if (lightAttenuation > 0.0) {\n"
-        "    if (isNormalMapped == 1) {\n"
-        "      N = 2.0 * (normalTexel.rgb - 0.5);\n"
-        "      N = normalize(TBN * N);\n"
-        "    } else\n"
-        "      N = normalize(vertexNormal);\n"
-        "    NdotL = dot(N, L);\n"
+        "  if (isNormalMapped == 1) {\n"
+        "    N = 2.0 * (normalTexel.rgb - 0.5);\n"
+        "    N = normalize(TBN * N);\n"
+        "  } else\n"
+        "    N = normalize(vertexNormal);\n"
+        "  NdotL = max(dot(N, L), 0.0);\n"
         "\n"
-        "    if (NdotL > 0.0) {\n"
-        "      E = normalize(eyeVector);\n"
-        "      R = reflect(-L, N);\n"
+        "  E = normalize(eyeVector);\n"
+        "  R = reflect(-L, N);\n"
         "\n"
-        "      lightDiffuse = diffuseTexel.a * gl_Color.a * diffuseTexel.rgb *\n"
-        "                     gl_LightSource[0].diffuse.rgb * lightAttenuation;\n"
-        "      result += vec4(lightDiffuse * NdotL, 0.0);\n"
+        "  lightDiffuse = diffuseTexel.a * gl_Color.a * diffuseTexel.rgb *\n"
+        "                 gl_LightSource[0].diffuse.rgb * lightAttenuation;\n"
+        "  result += vec4(lightDiffuse * NdotL, 0.0);\n"
         "\n"
-        "      lightSpecular = pow( max(dot(R, E), 0.0), 60.0) * 10.0;\n"
-        "      result += vec4(lightDiffuse * lightSpecular, 0.0);\n"
-        "    }\n"
-        "  } //else { result = vec4(0.0, 1.0, 0.0, 1.0); }\n"
+        "  lightSpecular = pow( max(dot(R, E), 0.0), 60.0) * 10.0;\n"
+        "  result += vec4(lightDiffuse * lightSpecular, 0.0);\n"
         "\n",
     },
     {
@@ -3178,8 +3168,8 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
 
         polymer_transformpoint(inpos, pos, curmodelviewmatrix);
 
-        range[0] = prlights[lights[curlight]].faderange  / 1000.0f;
-        range[1] = prlights[lights[curlight]].range      / 1000.0f;
+        range[0] = prlights[lights[curlight]].range  / 1000.0f;
+        range[1] = 1 / range[0];
 
         color[0] = prlights[lights[curlight]].color[0]   / 255.0f;
         color[1] = prlights[lights[curlight]].color[1]   / 255.0f;

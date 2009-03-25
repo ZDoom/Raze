@@ -7379,7 +7379,6 @@ PALONLY:
             light.z = t->z;
 
             light.range = tilesizx[t->picnum]*tilesizy[t->picnum];
-            light.faderange = 0;
 
             light.color[0] = 255;
             light.color[1] = 80;
