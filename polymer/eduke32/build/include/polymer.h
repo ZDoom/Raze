@@ -54,6 +54,7 @@ typedef enum {
                     PR_BIT_DIFFUSE_MODULATION,
                     PR_BIT_DIFFUSE_MIRROR_MAP,
                     PR_BIT_DIFFUSE_GLOW_MAP,
+                    PR_BIT_SHADOW_MAP,
                     PR_BIT_SPOT_LIGHT,
                     PR_BIT_POINT_LIGHT,
                     PR_BIT_FOOTER,              // must be just before last
@@ -102,6 +103,9 @@ typedef struct      s_prrograminfo {
     GLint           uniform_mirrorMap;
     // PR_BIT_DIFFUSE_GLOW_MAP
     GLint           uniform_glowMap;
+    // PR_BIT_SHADOW_MAP
+    GLint           uniform_shadowMap;
+    GLint           uniform_shadowProjMatrix;
     // PR_BIT_SPOT_LIGHT
     GLint           uniform_spotDir;
     GLint           uniform_spotRadius;
@@ -132,13 +136,16 @@ typedef struct      s_prlight {
     GLfloat         proj[16];
     GLfloat         transform[16];
     float           frustum[5 * 4];
+    int32_t         rtindex;
 }                   _prlight;
 
 // RENDER TARGETS
 typedef struct      s_prrt {
+    GLenum          target;
     GLuint          color;
     GLuint          z;
     GLuint          fbo;
+    int32_t         xdim, ydim;
 }                   _prrt;
 
 // BUILD DATA
@@ -286,6 +293,7 @@ static void         polymer_compileprogram(int32_t programbits);
 // LIGHTS
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light);
 static void         polymer_culllight(char lightindex);
+static void         polymer_prepareshadows(void);
 // RENDER TARGETS
 static void         polymer_initrendertargets(int32_t count);
 

@@ -124,6 +124,15 @@ _prlight        prlights[PR_MAXLIGHTS];
 int32_t         lightcount;
 int32_t         curlight;
 
+GLfloat         shadowBias[] =
+{
+    0.5, 0.0, 0.0, 0.0,
+    0.0, 0.5, 0.0, 0.0,
+    0.0, 0.0, 0.5, 0.0,
+    0.5, 0.5, 0.5, 1.0
+};
+
+
 // MATERIALS
 _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
     {
@@ -289,6 +298,21 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
     },
     {
+        1 << PR_BIT_SHADOW_MAP,
+        // vert_def
+        "uniform mat4 shadowProjMatrix;\n"
+        "\n",
+        // vert_prog
+        "  gl_TexCoord[texCoord++] = shadowProjMatrix * curVertex;\n"
+        "\n",
+        // frag_def
+        "uniform sampler2DShadow shadowMap;\n"
+        "\n",
+        // frag_prog
+        "  shadowResult = shadow2DProj(shadowMap, gl_TexCoord[texCoord++]).a;\n"
+        "\n",
+    },
+    {
         1 << PR_BIT_SPOT_LIGHT,
         // vert_def
         "",
@@ -367,7 +391,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  E = normalize(eyeVector);\n"
         "  R = reflect(-L, N);\n"
         "\n"
-        "  lightDiffuse = diffuseTexel.a * gl_Color.a * diffuseTexel.rgb *\n"
+        "  lightDiffuse = diffuseTexel.a * gl_Color.a * diffuseTexel.rgb * shadowResult *\n"
         "                 gl_LightSource[0].diffuse.rgb * lightAttenuation * spotAttenuation;\n"
         "  result += vec4(lightDiffuse * NdotL, 0.0);\n"
         "\n"
@@ -402,6 +426,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  int isSpotLight = 0;\n"
         "  vec3 spotVector;\n"
         "  vec2 spotCosRadius;\n"
+        "  float shadowResult = 1;\n"
         "\n",
         // frag_prog
         "  gl_FragColor = result;\n"
@@ -581,6 +606,9 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     pos[1] = -(float)(daposz) / 16.0f;
     pos[2] = -daposx;
 
+    depth = 0;
+    polymer_prepareshadows();
+
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
 
@@ -648,7 +676,6 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     rootsectnum = dacursectnum;
 
     // GO!
-    depth = 0;
     polymer_displayrooms(dacursectnum);
 
     curmodelviewmatrix = rootmodelviewmatrix;
@@ -962,6 +989,8 @@ void                polymer_addlight(_prlight light)
             bglPopMatrix();
 
             polymer_extractfrustum(prlights[lightcount].transform, prlights[lightcount].proj, prlights[lightcount].frustum);
+
+            prlights[lightcount].rtindex = -1;
         }
 
         polymer_culllight(lightcount);
@@ -984,6 +1013,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     GLuint          queryid[MAXWALLS];
     int16_t         drawingstate[MAXSECTORS];
     GLfloat         localmodelviewmatrix[16];
+    GLfloat         localprojectionmatrix[16];
     float           frustum[5 * 4];
     int32_t         localspritesortcnt;
     spritetype      localtsprite[MAXSPRITESONSCREEN];
@@ -994,15 +1024,11 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     GLdouble        plane[4];
     float           coeff;
 
-    if (depth)
-    {
-        curmodelviewmatrix = localmodelviewmatrix;
-        bglGetFloatv(GL_MODELVIEW_MATRIX, localmodelviewmatrix);
-    }
-    else
-        curmodelviewmatrix = rootmodelviewmatrix;
+    curmodelviewmatrix = localmodelviewmatrix;
+    bglGetFloatv(GL_MODELVIEW_MATRIX, localmodelviewmatrix);
+    bglGetFloatv(GL_PROJECTION_MATRIX, localprojectionmatrix);
 
-    polymer_extractfrustum(curmodelviewmatrix, projectionmatrix, frustum);
+    polymer_extractfrustum(localmodelviewmatrix, localprojectionmatrix, frustum);
 
     memset(querydelay, 0, sizeof(int16_t) * MAXSECTORS);
     memset(queryid, 0, sizeof(GLuint) * MAXWALLS);
@@ -3106,8 +3132,12 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     if (lightcount) {
         programbits |= prprogrambits[PR_BIT_POINT_LIGHT].bit;
         // PR_BIT_SPOT_LIGHT
-        if (prlights[lights[curlight]].radius)
+        if (prlights[lights[curlight]].radius) {
             programbits |= prprogrambits[PR_BIT_SPOT_LIGHT].bit;
+            // PR_BIT_SHADOW_MAP
+            if (prlights[lights[curlight]].rtindex != -1)
+                programbits |= prprogrambits[PR_BIT_SHADOW_MAP].bit;
+        }
     }
 
     // material override
@@ -3256,6 +3286,28 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
 
             bglUniform3fvARB(prprograms[programbits].uniform_spotDir, 1, dir);
             bglUniform2fvARB(prprograms[programbits].uniform_spotRadius, 1, indir);
+
+            // PR_BIT_SHADOW_MAP
+            if (programbits & prprogrambits[PR_BIT_SHADOW_MAP].bit)
+            {
+                GLfloat matrix[16];
+
+                bglMatrixMode(GL_TEXTURE);
+                bglLoadMatrixf(shadowBias);
+                bglMultMatrixf(prlights[lights[curlight]].proj);
+                bglMultMatrixf(prlights[lights[curlight]].transform);
+                bglGetFloatv(GL_TEXTURE_MATRIX, matrix);
+                bglLoadIdentity();
+                bglMatrixMode(GL_MODELVIEW);
+
+                bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
+                bglBindTexture(prrts[prlights[lights[curlight]].rtindex].target, prrts[prlights[lights[curlight]].rtindex].z);
+
+                bglUniform1iARB(prprograms[programbits].uniform_shadowMap, texunit);
+                bglUniformMatrix4fvARB(prprograms[programbits].uniform_shadowProjMatrix, 1, GL_FALSE, matrix);
+
+                texunit++;
+            }
         }
 
         range[0] = prlights[lights[curlight]].range  / 1000.0f;
@@ -3414,6 +3466,13 @@ static void         polymer_compileprogram(int32_t programbits)
         prprograms[programbits].uniform_glowMap = bglGetUniformLocationARB(program, "glowMap");
     }
 
+    // PR_BIT_SHADOW_MAP
+    if (programbits & prprogrambits[PR_BIT_SHADOW_MAP].bit)
+    {
+        prprograms[programbits].uniform_shadowMap = bglGetUniformLocationARB(program, "shadowMap");
+        prprograms[programbits].uniform_shadowProjMatrix = bglGetUniformLocationARB(program, "shadowProjMatrix");
+    }
+
     // PR_BIT_SPOT_LIGHT
     if (programbits & prprogrambits[PR_BIT_SPOT_LIGHT].bit)
     {
@@ -3529,6 +3588,49 @@ static void         polymer_culllight(char lightindex)
     }
 }
 
+static void         polymer_prepareshadows(void)
+{
+    int32_t         i, j;
+
+    i = j = 0;
+
+    while ((i < lightcount) && (j < 1))
+    {
+        if (prlights[i].radius)
+        {
+            prlights[i].rtindex = j + 1;
+
+            bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prrts[prlights[i].rtindex].fbo);
+            bglPushAttrib(GL_VIEWPORT_BIT);
+            bglViewport(0, 0, prrts[prlights[i].rtindex].xdim, prrts[prlights[i].rtindex].ydim);
+
+            bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            bglMatrixMode(GL_PROJECTION);
+            bglPushMatrix();
+            bglLoadMatrixf(prlights[i].proj);
+            bglMatrixMode(GL_MODELVIEW);
+            bglLoadMatrixf(prlights[i].transform);
+
+            bglEnable(GL_POLYGON_OFFSET_FILL);
+            bglPolygonOffset(15, 15);
+
+            polymer_displayrooms(prlights[i].sector);
+
+            bglDisable(GL_POLYGON_OFFSET_FILL);
+
+            bglMatrixMode(GL_PROJECTION);
+            bglPopMatrix();
+
+            bglPopAttrib();
+            bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+            j++;
+        }
+        i++;
+    }
+}
+
 // RENDER TARGETS
 static void         polymer_initrendertargets(int32_t count)
 {
@@ -3539,39 +3641,56 @@ static void         polymer_initrendertargets(int32_t count)
     i = 0;
     while (i < count)
     {
-        bglGenTextures(1, &prrts[i].color);
-        bglBindTexture(GL_TEXTURE_RECTANGLE, prrts[i].color);
+        if (!i) {
+            prrts[i].target = GL_TEXTURE_RECTANGLE;
+            prrts[i].xdim = xdim;
+            prrts[i].ydim = ydim;
 
-        bglCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, 0, 0, xdim, ydim, 0);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+            bglGenTextures(1, &prrts[i].color);
+            bglBindTexture(prrts[i].target, prrts[i].color);
+
+            bglCopyTexImage2D(prrts[i].target, 0, GL_RGBA, 0, 0, prrts[i].xdim, prrts[i].ydim, 0);
+            bglTexParameteri(prrts[i].target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            bglTexParameteri(prrts[i].target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_S, GL_CLAMP);
+            bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        } else {
+            prrts[i].target = GL_TEXTURE_2D;
+            prrts[i].xdim = 512;
+            prrts[i].ydim = 512;
+            prrts[i].color = 0;
+        }
 
         bglGenTextures(1, &prrts[i].z);
-        bglBindTexture(GL_TEXTURE_RECTANGLE, prrts[i].z);
+        bglBindTexture(prrts[i].target, prrts[i].z);
 
-        bglCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_DEPTH_COMPONENT, 0, 0, xdim, ydim, 0);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_FUNC_ARB, GL_GREATER);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_DEPTH_TEXTURE_MODE_ARB, GL_ALPHA);
+        bglCopyTexImage2D(prrts[i].target, 0, GL_DEPTH_COMPONENT, 0, 0, prrts[i].xdim, prrts[i].ydim, 0);
+        bglTexParameteri(prrts[i].target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        bglTexParameteri(prrts[i].target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        bglTexParameteri(prrts[i].target, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+        bglTexParameteri(prrts[i].target, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
+        bglTexParameteri(prrts[i].target, GL_DEPTH_TEXTURE_MODE_ARB, GL_ALPHA);
 
         bglGenFramebuffersEXT(1, &prrts[i].fbo);
         bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prrts[i].fbo);
 
-        bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_RECTANGLE, prrts[i].color, 0);
-        bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_RECTANGLE, prrts[i].z, 0);
+        if (prrts[i].color)
+            bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+                                       prrts[i].target, prrts[i].color, 0);
+        else {
+            bglDrawBuffer(GL_NONE);
+            bglReadBuffer(GL_NONE);
+        }
+        bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, prrts[i].target, prrts[i].z, 0);
 
         if (bglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
         {
             OSD_Printf("FBO #%d initialization failed.\n", i);
         }
 
-        bglBindTexture(GL_TEXTURE_RECTANGLE, 0);
+        bglBindTexture(prrts[i].target, 0);
         bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
         i++;
