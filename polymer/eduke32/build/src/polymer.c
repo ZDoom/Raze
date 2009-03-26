@@ -1099,22 +1099,39 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
                 if (doquery && (!drawingstate[wall[sec->wallptr + i].nextsector]))
                 {
-                    bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-                    bglDepthMask(GL_FALSE);
+                    float pos[3], sqdist;
 
-                    bglGenQueriesARB(1, &queryid[sec->wallptr + i]);
-                    bglBeginQueryARB(GL_SAMPLES_PASSED_ARB, queryid[sec->wallptr + i]);
+                    pos[0] = globalposy;
+                    pos[1] = -(float)(globalposz) / 16.0f;
+                    pos[2] = -globalposx;
 
-                    overridematerial = 0;
+                    sqdist = prwalls[sec->wallptr + i]->mask.plane[0] * pos[0] +
+                             prwalls[sec->wallptr + i]->mask.plane[1] * pos[1] +
+                             prwalls[sec->wallptr + i]->mask.plane[2] * pos[2] +
+                             prwalls[sec->wallptr + i]->mask.plane[3];
 
-                    polymer_drawplane(&prwalls[sec->wallptr + i]->mask);
+                    // hack to avoid occlusion querying portals that are too close to the viewpoint
+                    // this is needed because of the near z-clipping plane;
+                    if (sqdist < 100)
+                        queryid[sec->wallptr + i] = -1;
+                    else {
+                        bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+                        bglDepthMask(GL_FALSE);
 
-                    overridematerial = 0xFFFFFFFF;
+                        bglGenQueriesARB(1, &queryid[sec->wallptr + i]);
+                        bglBeginQueryARB(GL_SAMPLES_PASSED_ARB, queryid[sec->wallptr + i]);
 
-                    bglEndQueryARB(GL_SAMPLES_PASSED_ARB);
+                        overridematerial = 0;
 
-                    bglDepthMask(GL_TRUE);
-                    bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+                        polymer_drawplane(&prwalls[sec->wallptr + i]->mask);
+
+                        overridematerial = 0xFFFFFFFF;
+
+                        bglEndQueryARB(GL_SAMPLES_PASSED_ARB);
+
+                        bglDepthMask(GL_TRUE);
+                        bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+                    }
                 } else
                     queryid[sec->wallptr + i] = 1;
             }
@@ -1130,13 +1147,15 @@ static void         polymer_displayrooms(int16_t dacursectnum)
             {
                 // REAP
                 result = 0;
-                if (doquery)
+                if (doquery && (queryid[sec->wallptr + i] != -1))
                 {
                     bglGetQueryObjectivARB(queryid[sec->wallptr + i],
                                            GL_QUERY_RESULT_ARB,
                                            &result);
                     bglDeleteQueriesARB(1, &queryid[sec->wallptr + i]);
-                }
+                } else if (queryid[sec->wallptr + i] == -1)
+                    result = 1;
+
                 queryid[sec->wallptr + i] = 0;
 
                 if (result || !doquery)
@@ -3591,7 +3610,7 @@ static void         polymer_culllight(char lightindex)
 static void         polymer_prepareshadows(void)
 {
     int32_t         i, j;
-    int32_t         gx, gy;
+    int32_t         gx, gy, gz;
 
     i = j = 0;
 
@@ -3619,11 +3638,13 @@ static void         polymer_prepareshadows(void)
             // for wallvisible()
             gx = globalposx;
             gy = globalposy;
+            gz = globalposz;
 
             polymer_displayrooms(prlights[i].sector);
 
             globalposx = gx;
             globalposy = gy;
+            globalposz = gz;
 
             bglDisable(GL_POLYGON_OFFSET_FILL);
 
