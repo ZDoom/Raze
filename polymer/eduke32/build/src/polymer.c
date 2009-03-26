@@ -3591,6 +3591,7 @@ static void         polymer_culllight(char lightindex)
 static void         polymer_prepareshadows(void)
 {
     int32_t         i, j;
+    int32_t         gx, gy;
 
     i = j = 0;
 
@@ -3615,7 +3616,14 @@ static void         polymer_prepareshadows(void)
             bglEnable(GL_POLYGON_OFFSET_FILL);
             bglPolygonOffset(15, 15);
 
+            // for wallvisible()
+            gx = globalposx;
+            gy = globalposy;
+
             polymer_displayrooms(prlights[i].sector);
+
+            globalposx = gx;
+            globalposy = gy;
 
             bglDisable(GL_POLYGON_OFFSET_FILL);
 
