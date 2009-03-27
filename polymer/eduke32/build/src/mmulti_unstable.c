@@ -971,7 +971,7 @@ static int32_t open_udp_socket(int32_t ip, int32_t port)
     {
         /* !!! FIXME: Might be Linux (not Unix, not BSD, not WinSock) specific. */
         int32_t flags = 1;
-        setsockopt(udpsocket, SOL_IP, IP_RECVERR, &flags, sizeof(flags));
+        setsockopt(udpsocket, IPPROTO_IP, IP_RECVERR, &flags, sizeof(flags));
     }
 #endif
 

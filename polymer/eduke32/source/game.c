@@ -7372,6 +7372,7 @@ PALONLY:
         case FLOORFLAME__STATIC:
 
 #ifdef POLYMER
+            light.radius = 0;
             light.sector = t->sectnum;
 
             light.x = t->x;
@@ -8139,26 +8140,30 @@ FOUNDCHEAT:
     }
 }
 
+#define SCORESHEETOFFSET -20
+
 static void G_ShowScores(void)
 {
     int32_t t, i, y,xfragtotal,yfragtotal;
 
     if (playerswhenstarted > 1 && (GametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
+/*
         rotatesprite(160<<16,34<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10,0,0,xdim-1,ydim-1);
         if (PLUTOPAK)   // JBF 20030804
             rotatesprite((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8,0,0,xdim-1,ydim-1);
-        gametext(160,58+2,"MULTIPLAYER TOTALS",0,2+8+16);
-        gametext(160,58+10,MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name,0,2+8+16);
+*/
+        gametext(160,SCORESHEETOFFSET+58+2,"MULTIPLAYER TOTALS",0,2+8+16);
+        gametext(160,SCORESHEETOFFSET+58+10,MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name,0,2+8+16);
 
 //        gametext(160,165,"PRESS ANY KEY TO CONTINUE",0,2+8+16);
 
         t = 0;
-        minitext(23,80,"   NAME                                           KILLS",8,2+8+16+128);
+        minitext(23,SCORESHEETOFFSET+80,"   NAME                                           KILLS",8,2+8+16+128);
         for (i=playerswhenstarted-1; i>=0; i--)
         {
             Bsprintf(tempbuf,"%-4d",i+1);
-            minitext(92+(i*23),80,tempbuf,3,2+8+16+128);
+            minitext(92+(i*23),SCORESHEETOFFSET+80,tempbuf,3,2+8+16+128);
         }
 
         for (i=playerswhenstarted-1; i>=0; i--)
@@ -8166,21 +8171,21 @@ static void G_ShowScores(void)
             xfragtotal = 0;
             Bsprintf(tempbuf,"%d",i+1);
 
-            minitext(30,90+t,tempbuf,0,2+8+16+128);
-            minitext(38,90+t,g_player[i].user_name,g_player[i].ps->palookup,2+8+16+128);
+            minitext(30,SCORESHEETOFFSET+90+t,tempbuf,0,2+8+16+128);
+            minitext(38,SCORESHEETOFFSET+90+t,g_player[i].user_name,g_player[i].ps->palookup,2+8+16+128);
 
             for (y=playerswhenstarted-1; y>=0; y--)
             {
                 if (i == y)
                 {
                     Bsprintf(tempbuf,"%-4d",g_player[y].ps->fraggedself);
-                    minitext(92+(y*23),90+t,tempbuf,2,2+8+16+128);
+                    minitext(92+(y*23),SCORESHEETOFFSET+90+t,tempbuf,2,2+8+16+128);
                     xfragtotal -= g_player[y].ps->fraggedself;
                 }
                 else
                 {
                     Bsprintf(tempbuf,"%-4d",g_player[i].frags[y]);
-                    minitext(92+(y*23),90+t,tempbuf,0,2+8+16+128);
+                    minitext(92+(y*23),SCORESHEETOFFSET+90+t,tempbuf,0,2+8+16+128);
                     xfragtotal += g_player[i].frags[y];
                 }
 
@@ -8192,7 +8197,7 @@ static void G_ShowScores(void)
             }
 
             Bsprintf(tempbuf,"%-4d",xfragtotal);
-            minitext(101+(8*23),90+t,tempbuf,2,2+8+16+128);
+            minitext(101+(8*23),SCORESHEETOFFSET+90+t,tempbuf,2,2+8+16+128);
 
             t += 7;
         }
@@ -8207,12 +8212,14 @@ static void G_ShowScores(void)
                 yfragtotal += g_player[i].frags[y];
             }
             Bsprintf(tempbuf,"%-4d",yfragtotal);
-            minitext(92+(y*23),96+(8*7),tempbuf,2,2+8+16+128);
+            minitext(92+(y*23),SCORESHEETOFFSET+96+(8*7),tempbuf,2,2+8+16+128);
         }
 
-        minitext(45,96+(8*7),"DEATHS",8,2+8+16+128);
+        minitext(45,SCORESHEETOFFSET+96+(8*7),"DEATHS",8,2+8+16+128);
     }
 }
+
+#undef SCORESHEETOFFSET
 
 static void G_HandleLocalKeys(void)
 {
@@ -10993,9 +11000,13 @@ void app_main(int32_t argc,const char **argv)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (glusetexcache == -1 || glusetexcachecompression == -1)
     {
+#if 0
         i=wm_ynbox("Texture Cache",
             "Would you like to enable the on-disk texture cache?\n\n"
             "You generally want to say 'yes' here, especially if using the HRP.");
+#else
+        i = 1;
+#endif
         if (i) ud.config.useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
     }

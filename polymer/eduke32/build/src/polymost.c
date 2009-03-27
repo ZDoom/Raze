@@ -146,6 +146,7 @@ int32_t glwidescreen = 0;
 int32_t glprojectionhacks = 1;
 static GLuint polymosttext = 0;
 extern char nofog;
+int32_t glrendmode = 3;
 
 // Those THREE globals control the drawing of fullbright tiles
 static int32_t fullbrightloadingpass = 0;

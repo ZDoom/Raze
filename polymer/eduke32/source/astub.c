@@ -9320,7 +9320,7 @@ int32_t ExtInit(void)
     if (glusetexcache == -1 || glusetexcachecompression == -1)
     {
         int32_t i;
-#if 1
+#if 0
         i=wm_ynbox("Texture Cache",
                    "Would you like to enable the on-disk texture cache?\n\n"
                    "You generally want to say 'yes' here, especially if using the HRP.");

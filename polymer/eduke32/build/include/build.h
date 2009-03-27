@@ -617,6 +617,7 @@ extern int32_t r_modelocclusionchecking;
 extern int32_t r_fullbrights;
 extern int32_t r_downsize;
 extern int32_t mdtims, omdtims;
+extern int32_t glrendmode;
 #endif
 
 void hicinit(void);

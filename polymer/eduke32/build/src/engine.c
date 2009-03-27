@@ -7724,7 +7724,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     if (nogl) dabpp = 8;
 #endif
     if ((qsetmode == 200) && (videomodereset == 0) &&
-            (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp))
+            (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp) && glrendmode != 4)
         return(0);
 
     strcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI.  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
@@ -7739,7 +7739,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     if (setvideomode(daxdim,daydim,dabpp,davidoption) < 0) return(-1);
 
 #ifdef POLYMOST
-    if (dabpp > 8) rendmode = 3;    // GL renderer
+    if (dabpp > 8) rendmode = glrendmode;    // GL renderer
     else if (dabpp == 8 && j > 8) rendmode = 0; // going from GL to software activates softpolymost
 #endif
 
@@ -7778,14 +7778,17 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    if (rendmode == 3)
+    if (rendmode >= 3)
     {
         polymost_glreset();
         polymost_glinit();
     }
 # ifdef POLYMER
     if (rendmode == 4)
-        polymer_glinit();
+    {
+        polymer_init();
+//        polymer_glinit();
+    }
 #endif
 #endif
     qsetmode = 200;
@@ -11989,6 +11992,8 @@ int32_t setrendermode(int32_t renderer)
 # endif
 
     rendmode = renderer;
+    if (rendmode >= 3)
+        glrendmode = rendmode;
 #endif
 
     return 0;
