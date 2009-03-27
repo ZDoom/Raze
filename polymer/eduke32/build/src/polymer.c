@@ -1087,7 +1087,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                 if (wall[sec->wallptr + i].cstat & 48)
                     localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
 
-                if (!depth &&
+                if (!depth && (overridematerial & prprogrambits[PR_BIT_DIFFUSE_MIRROR_MAP].bit) &&
                      wall[sec->wallptr + i].overpicnum == 560 &&
                      wall[sec->wallptr + i].cstat & 64)
                 {
@@ -1100,6 +1100,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                 if (doquery && (!drawingstate[wall[sec->wallptr + i].nextsector]))
                 {
                     float pos[3], sqdist;
+                    int32_t oldoverridematerial;
 
                     pos[0] = globalposy;
                     pos[1] = -(float)(globalposz) / 16.0f;
@@ -1121,11 +1122,12 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                         bglGenQueriesARB(1, &queryid[sec->wallptr + i]);
                         bglBeginQueryARB(GL_SAMPLES_PASSED_ARB, queryid[sec->wallptr + i]);
 
+                        oldoverridematerial = overridematerial;
                         overridematerial = 0;
 
                         polymer_drawplane(&prwalls[sec->wallptr + i]->mask);
 
-                        overridematerial = 0xFFFFFFFF;
+                        overridematerial = oldoverridematerial;
 
                         bglEndQueryARB(GL_SAMPLES_PASSED_ARB);
 
@@ -3611,10 +3613,11 @@ static void         polymer_prepareshadows(void)
 {
     int32_t         i, j;
     int32_t         gx, gy, gz;
+    int32_t         oldoverridematerial;
 
     i = j = 0;
 
-    while ((i < lightcount) && (j < 1))
+    while ((i < lightcount) && (j < 4))
     {
         if (prlights[i].radius)
         {
@@ -3640,7 +3643,18 @@ static void         polymer_prepareshadows(void)
             gy = globalposy;
             gz = globalposz;
 
+            oldoverridematerial = overridematerial;
+            // smooth model shadows
+            overridematerial = prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit;
+            // used by alpha-testing for sprite silhouette
+            overridematerial |= prprogrambits[PR_BIT_DIFFUSE_MAP].bit;
+
+            // to force sprite drawing
+            depth++;
             polymer_displayrooms(prlights[i].sector);
+            depth--;
+
+            overridematerial = oldoverridematerial;
 
             globalposx = gx;
             globalposy = gy;
