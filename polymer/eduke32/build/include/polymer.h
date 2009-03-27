@@ -127,9 +127,7 @@ typedef struct      s_prprogrambit {
 
 // LIGHTS
 #define             PR_MAXLIGHTS            128
-#define             PR_SM3_MAXLIGHTS        4
-#define             STR_EXPAND(tok) #tok
-#define             STR(tok) STR_EXPAND(tok)
+#define             SHADOW_DEPTH_OFFSET     30
 
 typedef struct      s_prlight {
     int32_t         x, y, z, horiz, range;

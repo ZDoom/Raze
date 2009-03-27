@@ -846,8 +846,9 @@ void                polymer_drawsprite(int32_t snum)
         bglScalef((float)(xsize), (float)(ysize), 1.0f);
 
         prsectors[tspr->sectnum]->wallsproffset += 0.5f;
-/*        bglPolygonOffset(-prsectors[tspr->sectnum]->wallsproffset,
-                         -prsectors[tspr->sectnum]->wallsproffset);*/
+
+        if (!depth || mirrors[depth-1].plane)
+            bglPolygonOffset(-1.0f, -1.0f);
         break;
     case 2:
         ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
@@ -860,8 +861,8 @@ void                polymer_drawsprite(int32_t snum)
         inbuffer = horizsprite;
 
         prsectors[tspr->sectnum]->floorsproffset += 0.5f;
-/*        bglPolygonOffset(-prsectors[tspr->sectnum]->floorsproffset,
-                         -prsectors[tspr->sectnum]->floorsproffset);*/
+        if (!depth || mirrors[depth-1].plane)
+            bglPolygonOffset(-1.0f, -1.0f);
         break;
     }
 
@@ -898,11 +899,13 @@ void                polymer_drawsprite(int32_t snum)
     if ((tspr->cstat & 64) && (((tspr->cstat>>4) & 3) == 1))
         bglEnable(GL_CULL_FACE);
 
-//     bglEnable(GL_POLYGON_OFFSET_FILL);
+    if (!depth || mirrors[depth-1].plane)
+        bglEnable(GL_POLYGON_OFFSET_FILL);
 
     polymer_drawplane(&spriteplane);
 
-//     bglDisable(GL_POLYGON_OFFSET_FILL);
+    if (!depth || mirrors[depth-1].plane)
+        bglDisable(GL_POLYGON_OFFSET_FILL);
 
     if ((tspr->cstat & 64) && (((tspr->cstat>>4) & 3) == 1))
         bglDisable(GL_CULL_FACE);
@@ -961,6 +964,12 @@ void                polymer_addlight(_prlight light)
 
         if (light.radius) {
             float radius, ang, horizang, lightpos[3];
+
+            // hack to avoid lights beams perpendicular to walls
+            if ((light.horiz <= 100) && (light.horiz > 90))
+                light.horiz = 90;
+            if ((light.horiz > 100) && (light.horiz < 110))
+                light.horiz = 110;
 
             lightpos[0] = light.y;
             lightpos[1] = -light.z / 16.0f;
@@ -3648,7 +3657,7 @@ static void         polymer_prepareshadows(void)
             bglLoadMatrixf(prlights[i].transform);
 
             bglEnable(GL_POLYGON_OFFSET_FILL);
-            bglPolygonOffset(15, 15);
+            bglPolygonOffset(5, SHADOW_DEPTH_OFFSET);
 
             // for wallvisible()
             gx = globalposx;
