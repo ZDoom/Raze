@@ -2690,7 +2690,6 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     float           sradius, lradius;
     char            modellights[PR_MAXLIGHTS];
     char            modellightcount;
-    int32_t         oldoverridematerial;
 
     m = (md3model_t*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
     updateanimation((md2model_t *)m,tspr);
@@ -2708,11 +2707,9 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     if (((tspr->cstat>>4) & 3) == 2)
         ang -= 90.0f;
 
-    oldoverridematerial = overridematerial;
-    overridematerial &= ~prprogrambits[PR_BIT_SHADOW_MAP].bit;
-
     bglMatrixMode(GL_MODELVIEW);
     bglPushMatrix();
+    bglLoadIdentity();
     scale = (1.0/4.0);
     scale *= m->scale;
     scale *= m->bscale;
@@ -2743,6 +2740,9 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     bglTranslatef(0.0f, 0.0, m->zadd * 64);
 
     bglGetFloatv(GL_MODELVIEW_MATRIX, spritemodelview);
+    bglPopMatrix();
+    bglPushMatrix();
+    bglMultMatrixf(spritemodelview);
 
     // debug code for drawing the model bounding sphere
 //     bglDisable(GL_TEXTURE_2D);
@@ -2807,6 +2807,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     if (pr_gpusmoothing)
         mdspritematerial.frameprogress = m->interpol;
 
+    mdspritematerial.mdspritespace = GL_TRUE;
+
     modellightcount = 0;
 
     // light culling
@@ -2826,6 +2828,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                   (m->head.frames[m->nframe].cen.z * m->interpol);
 
         polymer_transformpoint(spos, tspos, spritemodelview);
+        polymer_transformpoint(tspos, spos, rootmodelviewmatrix);
 
         i = 0;
         while (i < lightcount)
@@ -2838,11 +2841,11 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
             polymer_transformpoint(lpos, tlpos, rootmodelviewmatrix);
 
-            vec[0] = tlpos[0] - tspos[0];
+            vec[0] = tlpos[0] - spos[0];
             vec[0] *= vec[0];
-            vec[1] = tlpos[1] - tspos[1];
+            vec[1] = tlpos[1] - spos[1];
             vec[1] *= vec[1];
-            vec[2] = tlpos[2] - tspos[2];
+            vec[2] = tlpos[2] - spos[2];
             vec[2] *= vec[2];
 
             if ((vec[0] + vec[1] + vec[2]) <=
@@ -2965,8 +2968,6 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
     bglPopMatrix();
 
-    overridematerial = oldoverridematerial;
-
     globalnoeffect=0;
 }
 
@@ -3031,6 +3032,8 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     material->mirrormap = 0;
     // PR_BIT_DIFFUSE_GLOW_MAP
     material->glowmap = 0;
+    // PR_BIT_SHADOW_MAP
+    material->mdspritespace = GL_FALSE;
 }
 
 static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade)
@@ -3324,6 +3327,8 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
                 bglLoadMatrixf(shadowBias);
                 bglMultMatrixf(prlights[lights[curlight]].proj);
                 bglMultMatrixf(prlights[lights[curlight]].transform);
+                if (material.mdspritespace == GL_TRUE)
+                    bglMultMatrixf(spritemodelview);
                 bglGetFloatv(GL_TEXTURE_MATRIX, matrix);
                 bglLoadIdentity();
                 bglMatrixMode(GL_MODELVIEW);

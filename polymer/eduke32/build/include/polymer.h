@@ -80,6 +80,8 @@ typedef struct      s_prmaterial {
     GLuint          mirrormap;
     // PR_BIT_DIFFUSE_GLOW_MAP
     GLuint          glowmap;
+    // PR_BIT_SHADOW_MAP
+    GLboolean       mdspritespace;
 }                   _prmaterial;
 
 typedef struct      s_prrograminfo {
