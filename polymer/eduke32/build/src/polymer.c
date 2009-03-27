@@ -835,7 +835,7 @@ void                polymer_drawsprite(int32_t snum)
         bglTranslatef((float)(-xoff), (float)(yoff), 0.0f);
         bglScalef((float)(xsize), (float)(ysize), 1.0f);
 
-        bglPolygonOffset(0.0f, 0.0f);
+//         bglPolygonOffset(0.0f, 0.0f);
         break;
     case 1:
         ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
@@ -846,8 +846,8 @@ void                polymer_drawsprite(int32_t snum)
         bglScalef((float)(xsize), (float)(ysize), 1.0f);
 
         prsectors[tspr->sectnum]->wallsproffset += 0.5f;
-        bglPolygonOffset(-prsectors[tspr->sectnum]->wallsproffset,
-                         -prsectors[tspr->sectnum]->wallsproffset);
+/*        bglPolygonOffset(-prsectors[tspr->sectnum]->wallsproffset,
+                         -prsectors[tspr->sectnum]->wallsproffset);*/
         break;
     case 2:
         ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
@@ -860,8 +860,8 @@ void                polymer_drawsprite(int32_t snum)
         inbuffer = horizsprite;
 
         prsectors[tspr->sectnum]->floorsproffset += 0.5f;
-        bglPolygonOffset(-prsectors[tspr->sectnum]->floorsproffset,
-                         -prsectors[tspr->sectnum]->floorsproffset);
+/*        bglPolygonOffset(-prsectors[tspr->sectnum]->floorsproffset,
+                         -prsectors[tspr->sectnum]->floorsproffset);*/
         break;
     }
 
@@ -1286,9 +1286,11 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
         sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
 
-        display_mirror = 1;
+        if (mirrors[depth - 1].plane)
+            display_mirror = 1;
         polymer_animatesprites();
-        display_mirror = 0;
+        if (mirrors[depth - 1].plane)
+            display_mirror = 0;
 
         bglDisable(GL_CULL_FACE);
         drawmasks();
@@ -2688,7 +2690,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     float           sradius, lradius;
     char            modellights[PR_MAXLIGHTS];
     char            modellightcount;
-
+    int32_t         oldoverridematerial;
 
     m = (md3model_t*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
     updateanimation((md2model_t *)m,tspr);
@@ -2705,6 +2707,9 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     ang -= 90.0f;
     if (((tspr->cstat>>4) & 3) == 2)
         ang -= 90.0f;
+
+    oldoverridematerial = overridematerial;
+    overridematerial &= ~prprogrambits[PR_BIT_SHADOW_MAP].bit;
 
     bglMatrixMode(GL_MODELVIEW);
     bglPushMatrix();
@@ -2959,6 +2964,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     }
 
     bglPopMatrix();
+
+    overridematerial = oldoverridematerial;
 
     globalnoeffect=0;
 }
@@ -3650,7 +3657,7 @@ static void         polymer_prepareshadows(void)
             overridematerial |= prprogrambits[PR_BIT_DIFFUSE_MAP].bit;
 
             // to force sprite drawing
-            depth++;
+            mirrors[depth++].plane = NULL;
             polymer_displayrooms(prlights[i].sector);
             depth--;
 
