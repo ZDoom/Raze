@@ -97,10 +97,11 @@ typedef struct      s_prrograminfo {
     GLint           attrib_nextFrameNormal;
     GLint           uniform_frameProgress;
     // PR_BIT_NORMAL_MAP
-    GLint           uniform_normalMap;
     GLint           attrib_T;
     GLint           attrib_B;
     GLint           attrib_N;
+    GLint           uniform_eyePosition;
+    GLint           uniform_normalMap;
     // PR_BIT_DIFFUSE_MAP
     GLint           uniform_diffuseMap;
     GLint           uniform_diffuseScale;
@@ -218,7 +219,6 @@ typedef struct      s_prwall {
     int8_t          shade;
     char            pal, xrepeat, yrepeat, xpanning, ypanning;
     char            nwallxpanning, nwallypanning;
-
 
     char            underover;
     uint32_t        invalidid;

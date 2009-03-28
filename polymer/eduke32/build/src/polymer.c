@@ -192,22 +192,21 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "attribute vec3 T;\n"
         "attribute vec3 B;\n"
         "attribute vec3 N;\n"
-        "varying mat3 matTBN;\n"
+        "uniform vec3 eyePosition;\n"
         "\n",
         // vert_prog
-        "  //TBN = mat3(gl_NormalMatrix * T, gl_NormalMatrix * B, gl_NormalMatrix * N);\n"
-        "  matTBN = gl_NormalMatrix * mat3(T, B, N);\n"
+        "  TBN = transpose(mat3(T, B, N));\n"
+        "  eyePos = eyePosition;\n"
         "\n"
         "  isNormalMapped = 1;\n"
         "\n",
         // frag_def
         "uniform sampler2D normalMap;\n"
-        "varying mat3 matTBN;\n"
         "\n",
         // frag_prog
         "  normalTexel = texture2D(normalMap, gl_TexCoord[0].st);\n"
+        "\n"
         "  isNormalMapped = 1;\n"
-        "  TBN = matTBN;\n"
         "\n",
     },
     {
@@ -367,8 +366,10 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  lightVector = gl_LightSource[0].ambient.rgb - vertexPos;\n"
         "\n"
         "  if (isNormalMapped == 1) {\n"
-        "    //tangentSpaceLightVector = vec3(32376.0, -94.0, -32496.0) - vec3(curVertex);\n"
-        "    //tangentSpaceLightVector = TBN * tangentSpaceLightVector;\n"
+        "    tangentSpaceLightVector = gl_LightSource[0].specular.rgb - vec3(curVertex);\n"
+        "    tangentSpaceLightVector = TBN * tangentSpaceLightVector;\n"
+        "    eyeVector = eyePos - vec3(curVertex);\n"
+        "    eyeVector = TBN * eyeVector;\n"
         "  } else\n"
         "    vertexNormal = normalize(gl_NormalMatrix * curNormal);\n"
         "\n",
@@ -405,8 +406,8 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  }\n"
         "\n"
         "  if (isNormalMapped == 1) {\n"
-        "    N = 2.0 * (normalTexel.rgb - 0.5);\n"
-        "    N = normalize(TBN * N);\n"
+        "    N = normalize(2.0 * (normalTexel.rgb - 0.5));\n"
+        "    L = normalize(tangentSpaceLightVector);\n"
         "  } else\n"
         "    N = normalize(vertexNormal);\n"
         "  NdotL = max(dot(N, L), 0.0);\n"
@@ -431,6 +432,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  vec4 curVertex = gl_Vertex;\n"
         "  vec3 curNormal = gl_Normal;\n"
         "  int isNormalMapped = 0;\n"
+        "  vec3 eyePos;\n"
         "  mat3 TBN;\n"
         "\n"
         "  gl_TexCoord[0] = gl_MultiTexCoord0;\n"
@@ -448,7 +450,6 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  vec4 normalTexel;\n"
         "  int isLightingPass = 0;\n"
         "  int isNormalMapped = 0;\n"
-        "  mat3 TBN;\n"
         "  int isSpotLight = 0;\n"
         "  vec3 spotVector;\n"
         "  vec2 spotCosRadius;\n"
@@ -3288,9 +3289,16 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     // PR_BIT_NORMAL_MAP
     if (programbits & prprogrambits[PR_BIT_NORMAL_MAP].bit)
     {
+        float pos[3];
+
+        pos[0] = globalposy;
+        pos[1] = -(float)(globalposz) / 16.0f;
+        pos[2] = -globalposx;
+
         bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
         bglBindTexture(GL_TEXTURE_2D, material.normalmap);
 
+        bglUniform3fvARB(prprograms[programbits].uniform_eyePosition, 1, pos);
         bglUniform1iARB(prprograms[programbits].uniform_normalMap, texunit);
 
         texunit++;
@@ -3443,6 +3451,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
 
         bglLightfv(GL_LIGHT0, GL_AMBIENT, pos);
         bglLightfv(GL_LIGHT0, GL_DIFFUSE, color);
+        bglLightfv(GL_LIGHT0, GL_SPECULAR, inpos);
         bglLightfv(GL_LIGHT0, GL_CONSTANT_ATTENUATION, &range[0]);
         bglLightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, &range[1]);
     }
@@ -3558,10 +3567,11 @@ static void         polymer_compileprogram(int32_t programbits)
     // PR_BIT_NORMAL_MAP
     if (programbits & prprogrambits[PR_BIT_NORMAL_MAP].bit)
     {
-        prprograms[programbits].uniform_normalMap = bglGetUniformLocationARB(program, "normalMap");
         prprograms[programbits].attrib_T = bglGetAttribLocationARB(program, "T");
         prprograms[programbits].attrib_B = bglGetAttribLocationARB(program, "B");
         prprograms[programbits].attrib_N = bglGetAttribLocationARB(program, "N");
+        prprograms[programbits].uniform_eyePosition = bglGetUniformLocationARB(program, "eyePosition");
+        prprograms[programbits].uniform_normalMap = bglGetUniformLocationARB(program, "normalMap");
     }
 
     // PR_BIT_DIFFUSE_MAP
