@@ -2908,7 +2908,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
 
         mdspritematerial.diffusemap =
-                mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
+                mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,tspr->pal,surfi);
         if (!mdspritematerial.diffusemap)
             continue;
 
@@ -2922,6 +2922,15 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                     sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum &&
                     sk->surfnum == surfi)
                     mdspritematerial.detailscale[0] = mdspritematerial.detailscale[1] = sk->param;
+        }
+
+        for (sk = m->skinmap; sk; sk = sk->next)
+            if ((int32_t)sk->palette == tspr->pal &&
+                 sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum &&
+                 sk->surfnum == surfi)
+        {
+            mdspritematerial.specmaterial[0] = sk->specpower;
+            mdspritematerial.specmaterial[1] = sk->specfactor;
         }
 
         if (r_glowmapping && !(tspr->cstat&1024))

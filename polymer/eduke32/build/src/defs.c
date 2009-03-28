@@ -173,13 +173,15 @@ static tokenlist modelanimtokens[] =
 
 static tokenlist modelskintokens[] =
 {
-    { "pal",           T_PAL    },
-    { "file",          T_FILE   },
-    { "surf",          T_SURF   },
-    { "surface",       T_SURF   },
-    { "intensity",     T_PARAM  },
-    { "scale",         T_PARAM  },
-    { "detailscale",   T_PARAM  },
+    { "pal",           T_PAL        },
+    { "file",          T_FILE       },
+    { "surf",          T_SURF       },
+    { "surface",       T_SURF       },
+    { "intensity",     T_PARAM      },
+    { "scale",         T_PARAM      },
+    { "detailscale",   T_PARAM      },
+    { "specpower",     T_SPECPOWER  },
+    { "specfactor",    T_SPECFACTOR },
 };
 
 static tokenlist modelhudtokens[] =
@@ -958,7 +960,7 @@ static int32_t defsparser(scriptfile *script)
             seenframe = 0;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0, 0.0f))
+            switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0, 0.0f, 1.0f, 1.0f))
             {
             case 0:
                 break;
@@ -1209,7 +1211,7 @@ static int32_t defsparser(scriptfile *script)
                     char *skintokptr = script->ltextptr;
                     char *skinend, *skinfn = 0;
                     int32_t palnum = 0, surfnum = 0;
-                    double param = 1.0;
+                    double param = 1.0, specpower = 1.0, specfactor = 1.0;
 
                     if (scriptfile_getbraces(script,&skinend)) break;
                     while (script->textptr < skinend)
@@ -1220,6 +1222,10 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getsymbol(script,&palnum); break;
                         case T_PARAM:
                             scriptfile_getdouble(script,&param); break;
+                        case T_SPECPOWER:
+                            scriptfile_getdouble(script,&specpower); break;
+                        case T_SPECFACTOR:
+                            scriptfile_getdouble(script,&specfactor); break;
                         case T_FILE:
                             scriptfile_getstring(script,&skinfn); break; //skin filename
                         case T_SURF:
@@ -1255,7 +1261,7 @@ static int32_t defsparser(scriptfile *script)
                     }
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                    switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum, param))
+                    switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum, param, specpower, specfactor))
                     {
                     case 0:
                         break;

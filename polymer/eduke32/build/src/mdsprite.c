@@ -320,7 +320,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
     return(0);
 }
 
-int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum, int32_t surfnum, float param)
+int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum, int32_t surfnum, float param, float specpower, float specfactor)
 {
     mdskinmap_t *sk, *skl;
     md2model_t *m;
@@ -352,6 +352,8 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     sk->skinnum = skinnum;
     sk->surfnum = surfnum;
     sk->param = param;
+    sk->specpower = specpower;
+    sk->specfactor = specfactor;
     sk->fn = (char *)malloc(strlen(skinfn)+1);
     if (!sk->fn) return(-4);
     strcpy(sk->fn, skinfn);
