@@ -301,7 +301,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "    mirrorCoords += 100.0 * (normalTexel.rg - 0.5);\n"
         "  }\n"
         "  mirrorTexel = texture2DRect(mirrorMap, mirrorCoords);\n"
-        "  result = vec4((result.rgb * result.a) + (mirrorTexel.rgb * (1.0 - result.a)), result.a);\n"
+        "  result = vec4((result.rgb * (1.0 - specTexel.a)) + (mirrorTexel.rgb * specTexel.rgb * specTexel.a), result.a);\n"
         "\n",
     },
     {
