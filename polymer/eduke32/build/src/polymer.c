@@ -258,6 +258,19 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
     },
     {
+        1 << PR_BIT_SPECULAR_MAP,
+        // vert_def
+        "",
+        // vert_prog
+        "",
+        // frag_def
+        "uniform sampler2D specMap;\n"
+        "\n",
+        // frag_prog
+        "  specTexel = texture2D(specMap, gl_TexCoord[0].st);\n"
+        "\n",
+    },
+    {
         1 << PR_BIT_SPECULAR_MATERIAL,
         // vert_def
         "",
@@ -405,8 +418,8 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "                 gl_LightSource[0].diffuse.rgb * lightAttenuation * spotAttenuation;\n"
         "  result += vec4(lightDiffuse * NdotL, 0.0);\n"
         "\n"
-        "  lightSpecular = pow( max(dot(R, E), 0.0), specularMaterial.x) * specularMaterial.y;\n"
-        "  result += vec4(lightDiffuse * lightSpecular, 0.0);\n"
+        "  lightSpecular = pow( max(dot(R, E), 0.0), specularMaterial.x * specTexel.a) * specularMaterial.y;\n"
+        "  result += vec4(lightDiffuse * specTexel.rgb * lightSpecular, 0.0);\n"
         "\n",
     },
     {
@@ -431,6 +444,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  int texCoord = 1;\n"
         "  vec4 result = vec4(1.0, 1.0, 1.0, 1.0);\n"
         "  vec4 diffuseTexel = vec4(1.0, 1.0, 1.0, 1.0);\n"
+        "  vec4 specTexel = vec4(1.0, 1.0, 1.0, 1.0);\n"
         "  vec4 normalTexel;\n"
         "  int isLightingPass = 0;\n"
         "  int isNormalMapped = 0;\n"
@@ -3059,6 +3073,8 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
             material->diffusemodulation[3] = 1.0f;
+    // PR_BIT_SPECULAR_MAP
+    material->specmap = 0;
     // PR_BIT_SPECULAR_MATERIAL
     material->specmaterial[0] = material->specmaterial[1] = 1.0f;
     // PR_BIT_MIRROR_MAP
@@ -3138,6 +3154,16 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         material->diffusemodulation[2] *= (float)hictinting[pal].b / 255.0;
     }
 
+    // PR_BIT_SPECULAR_MAP
+    if (hicfindsubst(tilenum, 101, 0))
+    {
+        glowpth = NULL;
+        glowpth = gltexcache(tilenum, 101, 0);
+
+        if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == 101))
+            material->specmap = glowpth->glpic;
+    }
+
     // PR_BIT_SPECULAR_MATERIAL
     if (pth->hicr)
     {
@@ -3190,6 +3216,10 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
 
     // PR_BIT_DIFFUSE_MODULATION
     programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
+
+    // PR_BIT_SPECULAR_MAP
+    if (material.specmap)
+        programbits |= prprogrambits[PR_BIT_SPECULAR_MAP].bit;
 
     // PR_BIT_SPECULAR_MATERIAL
     if ((material.specmaterial[0] != 1.0) || (material.specmaterial[1] != 1.0))
@@ -3297,6 +3327,17 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
                    material.diffusemodulation[1],
                    material.diffusemodulation[2],
                    material.diffusemodulation[3]);
+    }
+
+    // PR_BIT_SPECULAR_MAP
+    if (programbits & prprogrambits[PR_BIT_SPECULAR_MAP].bit)
+    {
+        bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
+        bglBindTexture(GL_TEXTURE_2D, material.specmap);
+
+        bglUniform1iARB(prprograms[programbits].uniform_specMap, texunit);
+
+        texunit++;
     }
 
     // PR_BIT_SPECULAR_MATERIAL
@@ -3535,6 +3576,12 @@ static void         polymer_compileprogram(int32_t programbits)
     {
         prprograms[programbits].uniform_detailMap = bglGetUniformLocationARB(program, "detailMap");
         prprograms[programbits].uniform_detailScale = bglGetUniformLocationARB(program, "detailScale");
+    }
+
+    // PR_BIT_SPECULAR_MAP
+    if (programbits & prprogrambits[PR_BIT_SPECULAR_MAP].bit)
+    {
+        prprograms[programbits].uniform_specMap = bglGetUniformLocationARB(program, "specMap");
     }
 
     // PR_BIT_SPECULAR_MATERIAL
