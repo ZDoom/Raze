@@ -198,7 +198,6 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  //TBN = mat3(gl_NormalMatrix * T, gl_NormalMatrix * B, gl_NormalMatrix * N);\n"
         "  matTBN = gl_NormalMatrix * mat3(T, B, N);\n"
         "\n"
-        "  gl_TexCoord[texCoord++] = gl_MultiTexCoord0;\n"
         "  isNormalMapped = 1;\n"
         "\n",
         // frag_def
@@ -206,7 +205,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "varying mat3 matTBN;\n"
         "\n",
         // frag_prog
-        "  normalTexel = texture2D(normalMap, gl_TexCoord[texCoord++].st);\n"
+        "  normalTexel = texture2D(normalMap, gl_TexCoord[0].st);\n"
         "  isNormalMapped = 1;\n"
         "  TBN = matTBN;\n"
         "\n",
@@ -217,13 +216,13 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "uniform vec2 diffuseScale;\n"
         "\n",
         // vert_prog
-        "  gl_TexCoord[texCoord++] = vec4(diffuseScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
+        "  gl_TexCoord[0] = vec4(diffuseScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
         "\n",
         // frag_def
         "uniform sampler2D diffuseMap;\n"
         "\n",
         // frag_prog
-        "  diffuseTexel = texture2D(diffuseMap, gl_TexCoord[texCoord++].st);\n"
+        "  diffuseTexel = texture2D(diffuseMap, gl_TexCoord[0].st);\n"
         "  if (isLightingPass == 0)\n"
         "    result *= diffuseTexel;\n"
         "\n",
@@ -297,15 +296,14 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // vert_def
         "",
         // vert_prog
-        "  gl_TexCoord[texCoord++] = gl_MultiTexCoord0;\n"
-        "\n",
+        "",
         // frag_def
         "uniform sampler2D glowMap;\n"
         "\n",
         // frag_prog
         "  vec4 glowTexel;\n"
         "\n"
-        "  glowTexel = texture2D(glowMap, gl_TexCoord[texCoord++].st);\n"
+        "  glowTexel = texture2D(glowMap, gl_TexCoord[0].st);\n"
         "  result = vec4((result.rgb * (1.0 - glowTexel.a)) + (glowTexel.rgb * glowTexel.a), result.a);\n"
         "\n",
     },
@@ -416,11 +414,13 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // vert_def
         "void main(void)\n"
         "{\n"
-        "  int texCoord = 0;\n"
+        "  int texCoord = 1;\n"
         "  vec4 curVertex = gl_Vertex;\n"
         "  vec3 curNormal = gl_Normal;\n"
         "  int isNormalMapped = 0;\n"
         "  mat3 TBN;\n"
+        "\n"
+        "  gl_TexCoord[0] = gl_MultiTexCoord0;\n"
         "\n",
         // vert_prog
         "  gl_Position = gl_ModelViewProjectionMatrix * curVertex;\n"
@@ -428,7 +428,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // frag_def
         "void main(void)\n"
         "{\n"
-        "  int texCoord = 0;\n"
+        "  int texCoord = 1;\n"
         "  vec4 result = vec4(1.0, 1.0, 1.0, 1.0);\n"
         "  vec4 diffuseTexel = vec4(1.0, 1.0, 1.0, 1.0);\n"
         "  vec4 normalTexel;\n"
