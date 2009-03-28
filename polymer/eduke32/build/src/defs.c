@@ -62,7 +62,7 @@ enum
     T_SKYBOX,
     T_FRONT,T_RIGHT,T_BACK,T_LEFT,T_TOP,T_BOTTOM,
     T_TINT,T_RED,T_GREEN,T_BLUE,
-    T_TEXTURE,T_ALPHACUT,T_XSCALE,T_YSCALE,T_NOCOMPRESS,T_NODOWNSIZE,
+    T_TEXTURE,T_ALPHACUT,T_XSCALE,T_YSCALE,T_SPECPOWER,T_SPECFACTOR,T_NOCOMPRESS,T_NODOWNSIZE,
     T_UNDEFMODEL,T_UNDEFMODELRANGE,T_UNDEFMODELOF,T_UNDEFTEXTURE,T_UNDEFTEXTURERANGE,
     T_ALPHAHACK,T_ALPHAHACKRANGE,
     T_SPRITECOL,T_2DCOL,
@@ -245,6 +245,8 @@ static tokenlist texturetokens_pal[] =
     { "alphacut",        T_ALPHACUT },
     { "detailscale",     T_XSCALE }, { "scale",  T_XSCALE }, { "xscale",  T_XSCALE }, { "intensity",  T_XSCALE },
     { "yscale",          T_YSCALE },
+    { "specpower",       T_SPECPOWER },
+    { "specfactor",      T_SPECFACTOR },
     { "nocompress",      T_NOCOMPRESS },
     { "nodownsize",      T_NODOWNSIZE },
 };
@@ -385,7 +387,7 @@ static int32_t defsparser(scriptfile *script)
             else Bfree(tfn);
             pathsearchmode = i;
 
-            hicsetsubsttex(tile,pal,fn,-1.0,1.0,1.0,0);
+            hicsetsubsttex(tile,pal,fn,-1.0,1.0,1.0,1.0,1.0,0);
         }
         break;
         case T_DEFINESKYBOX:
@@ -1530,7 +1532,7 @@ static int32_t defsparser(scriptfile *script)
                     char *paltokptr = script->ltextptr, *palend;
                     int32_t pal=-1, i;
                     char *fn = NULL, *tfn = NULL;
-                    double alphacut = -1.0, xscale = 1.0, yscale = 1.0;
+                    double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
                     char flags = 0;
 
                     if (scriptfile_getsymbol(script,&pal)) break;
@@ -1547,6 +1549,10 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&xscale); break;
                         case T_YSCALE:
                             scriptfile_getdouble(script,&yscale); break;
+                        case T_SPECPOWER:
+                            scriptfile_getdouble(script,&specpower); break;
+                        case T_SPECFACTOR:
+                            scriptfile_getdouble(script,&specfactor); break;
                         case T_NOCOMPRESS:
                             flags |= 1; break;
                         case T_NODOWNSIZE:
@@ -1590,7 +1596,7 @@ static int32_t defsparser(scriptfile *script)
                     xscale = 1.0f / xscale;
                     yscale = 1.0f / yscale;
 
-                    hicsetsubsttex(tile,pal,fn,alphacut,xscale,yscale,flags);
+                    hicsetsubsttex(tile,pal,fn,alphacut,xscale,yscale, specpower, specfactor,flags);
                     fnB=fn; alphacutB=alphacut; xscaleB=xscale; yscaleB=yscale; flagsB=flags;
                     if (pal<30)palbits|=1<<pal;
                 }
@@ -1668,7 +1674,7 @@ static int32_t defsparser(scriptfile *script)
                         pal = GLOWPAL;
                         break;
                     }
-                    hicsetsubsttex(tile,pal,fn,-1.0,xscale,yscale,flags);
+                    hicsetsubsttex(tile,pal,fn,-1.0,xscale,yscale,1.0,1.0,flags);
                 }
                 break;
                 default:
@@ -1682,7 +1688,7 @@ static int32_t defsparser(scriptfile *script)
                 int32_t i;
                 for (i=0; i<=25; i++)
                     if (!(palbits&(1<<i))&&(palmapbits&checkpalmaps(i)))
-                        hicsetsubsttex(tile,i,fnB,alphacutB,xscaleB,yscaleB,flagsB);
+                        hicsetsubsttex(tile,i,fnB,alphacutB,xscaleB,yscaleB,1.0,1.0,flagsB);
             }
 #endif
 

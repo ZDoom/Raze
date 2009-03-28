@@ -123,7 +123,7 @@ void hicsetpalettetint(int32_t palnum, char r, char g, char b, char effect)
 // hicsetsubsttex(picnum,pal,filen,alphacut)
 //   Specifies a replacement graphic file for an ART tile.
 //
-int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, char *filen, float alphacut, float xscale, float yscale, char flags)
+int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, char *filen, float alphacut, float xscale, float yscale, float specpower, float specfactor, char flags)
 {
     hicreplctyp *hr, *hrn;
 
@@ -160,6 +160,8 @@ int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, char *filen, float alphac
     hrn->alphacut = min(alphacut,1.0);
     hrn->xscale = xscale;
     hrn->yscale = yscale;
+    hrn->specpower = specpower;
+    hrn->specfactor = specfactor;
     hrn->flags = flags;
     if (hr == NULL)
     {
