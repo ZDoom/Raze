@@ -578,6 +578,11 @@ int32_t G_LoadPlayer(int32_t spot)
 
     G_ResetTimers();
 
+#ifdef POLYMER
+    if (getrendermode() >= 4)
+        polymer_loadboard();
+#endif
+
     return(0);
 corrupt:
     Bsprintf(tempbuf,"Save game file \"%s\" is corrupt or of the wrong version.",fnptr);
