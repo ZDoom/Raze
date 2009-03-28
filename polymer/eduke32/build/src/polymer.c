@@ -260,7 +260,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
     },
     {
-        1 << PR_BIT_DIFFUSE_MIRROR_MAP,
+        1 << PR_BIT_MIRROR_MAP,
         // vert_def
         "",
         // vert_prog
@@ -281,7 +281,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
     },
     {
-        1 << PR_BIT_DIFFUSE_GLOW_MAP,
+        1 << PR_BIT_GLOW_MAP,
         // vert_def
         "",
         // vert_prog
@@ -1096,7 +1096,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                 if (wall[sec->wallptr + i].cstat & 48)
                     localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
 
-                if (!depth && (overridematerial & prprogrambits[PR_BIT_DIFFUSE_MIRROR_MAP].bit) &&
+                if (!depth && (overridematerial & prprogrambits[PR_BIT_MIRROR_MAP].bit) &&
                      wall[sec->wallptr + i].overpicnum == 560 &&
                      wall[sec->wallptr + i].cstat & 64)
                 {
@@ -3037,9 +3037,9 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
             material->diffusemodulation[3] = 1.0f;
-    // PR_BIT_DIFFUSE_MIRROR_MAP
+    // PR_BIT_MIRROR_MAP
     material->mirrormap = 0;
-    // PR_BIT_DIFFUSE_GLOW_MAP
+    // PR_BIT_GLOW_MAP
     material->glowmap = 0;
     // PR_BIT_SHADOW_MAP
     material->mdspritespace = GL_FALSE;
@@ -3114,7 +3114,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         material->diffusemodulation[2] *= (float)hictinting[pal].b / 255.0;
     }
 
-    // PR_BIT_DIFFUSE_GLOW_MAP
+    // PR_BIT_GLOW_MAP
     if (r_fullbrights && pth && pth->flags & 16)
         material->glowmap = pth->ofb->glpic;
 
@@ -3160,13 +3160,13 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     // PR_BIT_DIFFUSE_MODULATION
     programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
 
-    // PR_BIT_DIFFUSE_MIRROR_MAP
+    // PR_BIT_MIRROR_MAP
     if (!curlight && material.mirrormap)
-        programbits |= prprogrambits[PR_BIT_DIFFUSE_MIRROR_MAP].bit;
+        programbits |= prprogrambits[PR_BIT_MIRROR_MAP].bit;
 
-    // PR_BIT_DIFFUSE_GLOW_MAP
+    // PR_BIT_GLOW_MAP
     if (!curlight && material.glowmap)
-        programbits |= prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit;
+        programbits |= prprogrambits[PR_BIT_GLOW_MAP].bit;
 
     // PR_BIT_POINT_LIGHT
     if (lightcount) {
@@ -3264,8 +3264,8 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
                    material.diffusemodulation[3]);
     }
 
-    // PR_BIT_DIFFUSE_MIRROR_MAP
-    if (programbits & prprogrambits[PR_BIT_DIFFUSE_MIRROR_MAP].bit)
+    // PR_BIT_MIRROR_MAP
+    if (programbits & prprogrambits[PR_BIT_MIRROR_MAP].bit)
     {
         bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
         bglBindTexture(GL_TEXTURE_RECTANGLE, material.mirrormap);
@@ -3275,8 +3275,8 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
         texunit++;
     }
 
-    // PR_BIT_DIFFUSE_GLOW_MAP
-    if (programbits & prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit)
+    // PR_BIT_GLOW_MAP
+    if (programbits & prprogrambits[PR_BIT_GLOW_MAP].bit)
     {
         bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
         bglBindTexture(GL_TEXTURE_2D, material.glowmap);
@@ -3496,14 +3496,14 @@ static void         polymer_compileprogram(int32_t programbits)
         prprograms[programbits].uniform_detailScale = bglGetUniformLocationARB(program, "detailScale");
     }
 
-    // PR_BIT_DIFFUSE_MIRROR_MAP
-    if (programbits & prprogrambits[PR_BIT_DIFFUSE_MIRROR_MAP].bit)
+    // PR_BIT_MIRROR_MAP
+    if (programbits & prprogrambits[PR_BIT_MIRROR_MAP].bit)
     {
         prprograms[programbits].uniform_mirrorMap = bglGetUniformLocationARB(program, "mirrorMap");
     }
 
-    // PR_BIT_DIFFUSE_GLOW_MAP
-    if (programbits & prprogrambits[PR_BIT_DIFFUSE_GLOW_MAP].bit)
+    // PR_BIT_GLOW_MAP
+    if (programbits & prprogrambits[PR_BIT_GLOW_MAP].bit)
     {
         prprograms[programbits].uniform_glowMap = bglGetUniformLocationARB(program, "glowMap");
     }
