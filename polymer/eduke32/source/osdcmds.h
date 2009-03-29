@@ -14,6 +14,7 @@ extern float r_ambientlight,r_ambientlightrecip;
 
 enum cvartypes
 {
+    CVAR_FLOAT,
     CVAR_INT,
     CVAR_UNSIGNEDINT,
     CVAR_BOOL,

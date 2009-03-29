@@ -765,6 +765,9 @@ cvar_t cvars[] =
     { "pr_wireframe", "pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_INT, 0, 0, 1 },
     { "pr_vbos", "pr_vbos: contols Vertex Buffer Object usage. 0: no VBOs. 1: VBOs for map data. 2: VBOs for model data.", (void*)&pr_vbos, CVAR_INT, 0, 0, 2 },
     { "pr_gpusmoothing", "pr_gpusmoothing: toggles model animation interpolation", (void*)&pr_gpusmoothing, CVAR_INT, 0, 0, 1 },
+    { "pr_overrideparallax", "pr_overrideparallax: overrides parallax mapping scale and bias values with values from the pr_parallaxscale and pr_parallaxbias cvars; use it to fine-tune DEF tokens", (void*)&pr_overrideparallax, CVAR_BOOL, 0, 0, 1 },
+    { "pr_parallaxscale", "pr_parallaxscale: overriden parallax mapping offset scale", (void*)&pr_parallaxscale, CVAR_FLOAT, 0, -10, 10 },
+    { "pr_parallaxbias", "pr_parallaxbias: overriden parallax mapping offset bias", (void*)&pr_parallaxbias, CVAR_FLOAT, 0, -10, 10 },
 #endif
 #endif
     { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
@@ -802,6 +805,26 @@ static int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             else
                 switch (cvars[i].type&0x7f)
                 {
+                case CVAR_FLOAT:
+                {
+                    float val;
+                    if (showval)
+                    {
+                        OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(float*)cvars[i].var,(char*)cvars[i].helpstr);
+                        return OSDCMD_OK;
+                    }
+
+                    sscanf(parm->parms[0], "%f", &val);
+
+                    if (val < cvars[i].min || val > cvars[i].max)
+                    {
+                        OSD_Printf("%s value out of range\n",cvars[i].name);
+                        return OSDCMD_OK;
+                    }
+                    *(float*)cvars[i].var = val;
+                    OSD_Printf("%s %f",cvars[i].name,val);
+                }
+                break;
                 case CVAR_INT:
                 case CVAR_UNSIGNEDINT:
                 case CVAR_BOOL:

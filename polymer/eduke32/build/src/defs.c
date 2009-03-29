@@ -247,8 +247,8 @@ static tokenlist texturetokens_pal[] =
     { "alphacut",        T_ALPHACUT },
     { "detailscale",     T_XSCALE }, { "scale",  T_XSCALE }, { "xscale",  T_XSCALE }, { "intensity",  T_XSCALE },
     { "yscale",          T_YSCALE },
-    { "specpower",       T_SPECPOWER },
-    { "specfactor",      T_SPECFACTOR },
+    { "specpower",       T_SPECPOWER }, { "parallaxscale", T_SPECPOWER },
+    { "specfactor",      T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
     { "nocompress",      T_NOCOMPRESS },
     { "nodownsize",      T_NODOWNSIZE },
 };

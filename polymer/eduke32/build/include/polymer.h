@@ -40,6 +40,9 @@ extern int32_t      pr_verbosity;
 extern int32_t      pr_wireframe;
 extern int32_t      pr_vbos;
 extern int32_t      pr_gpusmoothing;
+extern int32_t      pr_overrideparallax;
+extern float        pr_parallaxscale;
+extern float        pr_parallaxbias;
 
 extern int32_t      glerror;
 
@@ -70,6 +73,7 @@ typedef struct      s_prmaterial {
     GLsizei         nextframedatastride;
     // PR_BIT_NORMAL_MAP
     GLuint          normalmap;
+    GLfloat         normalbias[2];
     // PR_BIT_DIFFUSE_MAP
     GLuint          diffusemap;
     GLfloat         diffusescale[2];
@@ -102,6 +106,7 @@ typedef struct      s_prrograminfo {
     GLint           attrib_N;
     GLint           uniform_eyePosition;
     GLint           uniform_normalMap;
+    GLint           uniform_normalBias;
     // PR_BIT_DIFFUSE_MAP
     GLint           uniform_diffuseMap;
     GLint           uniform_diffuseScale;

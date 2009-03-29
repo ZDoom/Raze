@@ -13,6 +13,9 @@ int32_t         pr_wireframe = 0;
 int32_t         pr_vbos = 2;
 int32_t         pr_mirrordepth = 1;
 int32_t         pr_gpusmoothing = 1;
+int32_t         pr_overrideparallax = 0;
+float           pr_parallaxscale = 0.5f;
+float           pr_parallaxbias = 0.5f;
 
 int32_t         glerror;
 
@@ -193,18 +196,33 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "attribute vec3 B;\n"
         "attribute vec3 N;\n"
         "uniform vec3 eyePosition;\n"
+        "varying vec3 tangentSpaceEyeVec;\n"
         "\n",
         // vert_prog
         "  TBN = transpose(mat3(T, B, N));\n"
-        "  eyePos = eyePosition;\n"
+        "  tangentSpaceEyeVec = eyePosition - vec3(curVertex);\n"
+        "  tangentSpaceEyeVec = TBN * tangentSpaceEyeVec;\n"
         "\n"
         "  isNormalMapped = 1;\n"
         "\n",
         // frag_def
         "uniform sampler2D normalMap;\n"
+        "uniform vec2 normalBias;\n"
+        "varying vec3 tangentSpaceEyeVec;\n"
         "\n",
         // frag_prog
-        "  normalTexel = texture2D(normalMap, gl_TexCoord[0].st);\n"
+        "  vec4 normalStep;\n"
+        "  float biasedHeight;\n"
+        "\n"
+        "  eyeVec = normalize(tangentSpaceEyeVec);\n"
+        "\n"
+        "  for (int i = 0; i < 4; i++) {\n"
+        "    normalStep = texture2D(normalMap, commonTexCoord.st);\n"
+        "    biasedHeight = normalStep.a * normalBias.x - normalBias.y;\n"
+        "    commonTexCoord += (biasedHeight - commonTexCoord.z) * normalStep.z * eyeVec;\n"
+        "  }\n"
+        "\n"
+        "  normalTexel = texture2D(normalMap, commonTexCoord.st);\n"
         "\n"
         "  isNormalMapped = 1;\n"
         "\n",
@@ -221,7 +239,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "uniform sampler2D diffuseMap;\n"
         "\n",
         // frag_prog
-        "  diffuseTexel = texture2D(diffuseMap, gl_TexCoord[0].st);\n"
+        "  diffuseTexel = texture2D(diffuseMap, commonTexCoord.st);\n"
         "  if (isLightingPass == 0)\n"
         "    result *= diffuseTexel;\n"
         "\n",
@@ -232,13 +250,18 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "uniform vec2 detailScale;\n"
         "\n",
         // vert_prog
-        "  gl_TexCoord[texCoord++] = vec4(detailScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
+        "  if (isNormalMapped == 0)\n"
+        "    gl_TexCoord[texCoord++] = vec4(detailScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
         "\n",
         // frag_def
         "uniform sampler2D detailMap;\n"
+        "uniform vec2 detailScale;\n"
         "\n",
         // frag_prog
-        "  result *= texture2D(detailMap, gl_TexCoord[texCoord++].st);\n"
+        "  if (isNormalMapped == 0)\n"
+        "    result *= texture2D(detailMap, gl_TexCoord[texCoord++].st);\n"
+        "  else\n"
+        "    result *= texture2D(detailMap, commonTexCoord.st * detailScale);\n"
         "  result.rgb *= 2.0;\n"
         "\n",
     },
@@ -266,7 +289,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "uniform sampler2D specMap;\n"
         "\n",
         // frag_prog
-        "  specTexel = texture2D(specMap, gl_TexCoord[0].st);\n"
+        "  specTexel = texture2D(specMap, commonTexCoord.st);\n"
         "\n",
     },
     {
@@ -315,7 +338,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // frag_prog
         "  vec4 glowTexel;\n"
         "\n"
-        "  glowTexel = texture2D(glowMap, gl_TexCoord[0].st);\n"
+        "  glowTexel = texture2D(glowMap, commonTexCoord.st);\n"
         "  result = vec4((result.rgb * (1.0 - glowTexel.a)) + (glowTexel.rgb * glowTexel.a), result.a);\n"
         "\n",
     },
@@ -368,8 +391,6 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  if (isNormalMapped == 1) {\n"
         "    tangentSpaceLightVector = gl_LightSource[0].specular.rgb - vec3(curVertex);\n"
         "    tangentSpaceLightVector = TBN * tangentSpaceLightVector;\n"
-        "    eyeVector = eyePos - vec3(curVertex);\n"
-        "    eyeVector = TBN * eyeVector;\n"
         "  } else\n"
         "    vertexNormal = normalize(gl_NormalMatrix * curNormal);\n"
         "\n",
@@ -406,13 +427,15 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  }\n"
         "\n"
         "  if (isNormalMapped == 1) {\n"
+        "    E = eyeVec;\n"
         "    N = normalize(2.0 * (normalTexel.rgb - 0.5));\n"
         "    L = normalize(tangentSpaceLightVector);\n"
-        "  } else\n"
+        "  } else {\n"
+        "    E = normalize(eyeVector);\n"
         "    N = normalize(vertexNormal);\n"
+        "  }\n"
         "  NdotL = max(dot(N, L), 0.0);\n"
         "\n"
-        "  E = normalize(eyeVector);\n"
         "  R = reflect(-L, N);\n"
         "\n"
         "  lightDiffuse = diffuseTexel.a * gl_Color.a * diffuseTexel.rgb * shadowResult *\n"
@@ -432,7 +455,6 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  vec4 curVertex = gl_Vertex;\n"
         "  vec3 curNormal = gl_Normal;\n"
         "  int isNormalMapped = 0;\n"
-        "  vec3 eyePos;\n"
         "  mat3 TBN;\n"
         "\n"
         "  gl_TexCoord[0] = gl_MultiTexCoord0;\n"
@@ -443,6 +465,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // frag_def
         "void main(void)\n"
         "{\n"
+        "  vec3 commonTexCoord = vec3(gl_TexCoord[0].st, 0.0);\n"
         "  int texCoord = 1;\n"
         "  vec4 result = vec4(1.0, 1.0, 1.0, 1.0);\n"
         "  vec4 diffuseTexel = vec4(1.0, 1.0, 1.0, 1.0);\n"
@@ -450,6 +473,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  vec4 normalTexel;\n"
         "  int isLightingPass = 0;\n"
         "  int isNormalMapped = 0;\n"
+        "  vec3 eyeVec;\n"
         "  int isSpotLight = 0;\n"
         "  vec3 spotVector;\n"
         "  vec2 spotCosRadius;\n"
@@ -3063,6 +3087,7 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     material->nextframedatastride = 0;
     // PR_BIT_NORMAL_MAP
     material->normalmap = 0;
+    material->normalbias[0] = material->normalbias[1] = 0.0f;
     // PR_BIT_DIFFUSE_MAP
     material->diffusemap = 0;
     material->diffusescale[0] = material->diffusescale[1] = 1.0f;
@@ -3100,8 +3125,11 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         glowpth = NULL;
         glowpth = gltexcache(tilenum, 100, 0);
 
-        if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == 100))
+        if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == 100)) {
             material->normalmap = glowpth->glpic;
+            material->normalbias[0] = glowpth->hicr->specpower;
+            material->normalbias[1] = glowpth->hicr->specfactor;
+        }
     }
 
     // PR_BIT_DIFFUSE_MAP
@@ -3132,13 +3160,6 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
 
             material->detailscale[0] = detailpth->hicr->xscale;
             material->detailscale[1] = detailpth->hicr->yscale;
-
-            // scale by the diffuse map scale if there's one defined
-            if (pth->hicr)
-            {
-                material->detailscale[0] *= material->diffusescale[0];
-                material->detailscale[1] *= material->diffusescale[1];
-            }
         }
     }
 
@@ -3289,7 +3310,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     // PR_BIT_NORMAL_MAP
     if (programbits & prprogrambits[PR_BIT_NORMAL_MAP].bit)
     {
-        float pos[3];
+        float pos[3], bias[2];
 
         pos[0] = globalposy;
         pos[1] = -(float)(globalposz) / 16.0f;
@@ -3300,6 +3321,12 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
 
         bglUniform3fvARB(prprograms[programbits].uniform_eyePosition, 1, pos);
         bglUniform1iARB(prprograms[programbits].uniform_normalMap, texunit);
+        if (pr_overrideparallax) {
+            bias[0] = pr_parallaxscale;
+            bias[1] = pr_parallaxbias;
+            bglUniform2fvARB(prprograms[programbits].uniform_normalBias, 1, bias);
+        } else
+            bglUniform2fvARB(prprograms[programbits].uniform_normalBias, 1, material.normalbias);
 
         texunit++;
     }
@@ -3319,11 +3346,23 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     // PR_BIT_DIFFUSE_DETAIL_MAP
     if (programbits & prprogrambits[PR_BIT_DIFFUSE_DETAIL_MAP].bit)
     {
+        float scale[2];
+
+        // scale by the diffuse map scale if we're not doing normal mapping
+        if (!(programbits & prprogrambits[PR_BIT_NORMAL_MAP].bit))
+        {
+            scale[0] = material.diffusescale[0] * material.detailscale[0];
+            scale[1] = material.diffusescale[1] * material.detailscale[1];
+        } else {
+            scale[0] = material.detailscale[0];
+            scale[1] = material.detailscale[1];
+        }
+
         bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
         bglBindTexture(GL_TEXTURE_2D, material.detailmap);
 
         bglUniform1iARB(prprograms[programbits].uniform_detailMap, texunit);
-        bglUniform2fvARB(prprograms[programbits].uniform_detailScale, 1, material.detailscale);
+        bglUniform2fvARB(prprograms[programbits].uniform_detailScale, 1, scale);
 
         texunit++;
     }
@@ -3572,6 +3611,7 @@ static void         polymer_compileprogram(int32_t programbits)
         prprograms[programbits].attrib_N = bglGetAttribLocationARB(program, "N");
         prprograms[programbits].uniform_eyePosition = bglGetUniformLocationARB(program, "eyePosition");
         prprograms[programbits].uniform_normalMap = bglGetUniformLocationARB(program, "normalMap");
+        prprograms[programbits].uniform_normalBias = bglGetUniformLocationARB(program, "normalBias");
     }
 
     // PR_BIT_DIFFUSE_MAP
