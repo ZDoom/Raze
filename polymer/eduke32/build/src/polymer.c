@@ -1153,9 +1153,9 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
                 if (!depth && (overridematerial & prprogrambits[PR_BIT_MIRROR_MAP].bit) &&
                      wall[sec->wallptr + i].overpicnum == 560 &&
-                     wall[sec->wallptr + i].cstat & 64)
+                     wall[sec->wallptr + i].cstat & 32)
                 {
-                    mirrorlist[mirrorcount].plane = &prwalls[sec->wallptr + i]->wall;
+                    mirrorlist[mirrorcount].plane = &prwalls[sec->wallptr + i]->mask;
                     mirrorlist[mirrorcount].sectnum = sectorqueue[front];
                     mirrorlist[mirrorcount].wallnum = sec->wallptr + i;
                     mirrorcount++;
@@ -3234,7 +3234,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     // --------- bit validation
 
     // PR_BIT_ANIM_INTERPOLATION
-    if (material.nextframedata)
+    if (material.nextframedatastride)
         programbits |= prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit;
 
     // PR_BIT_LIGHTING_PASS
