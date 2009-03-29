@@ -768,6 +768,9 @@ cvar_t cvars[] =
     { "pr_overrideparallax", "pr_overrideparallax: overrides parallax mapping scale and bias values with values from the pr_parallaxscale and pr_parallaxbias cvars; use it to fine-tune DEF tokens", (void*)&pr_overrideparallax, CVAR_BOOL, 0, 0, 1 },
     { "pr_parallaxscale", "pr_parallaxscale: overriden parallax mapping offset scale", (void*)&pr_parallaxscale, CVAR_FLOAT, 0, -10, 10 },
     { "pr_parallaxbias", "pr_parallaxbias: overriden parallax mapping offset bias", (void*)&pr_parallaxbias, CVAR_FLOAT, 0, -10, 10 },
+    { "pr_overridespecular", "pr_overridespecular: overrides specular material power and factor values with values from the pr_specularpower and pr_specularfactor cvars; use it to fine-tune DEF tokens", (void*)&pr_overridespecular, CVAR_BOOL, 0, 0, 1 },
+    { "pr_specularpower", "pr_specularpower: overriden specular material power", (void*)&pr_specularpower, CVAR_FLOAT, 0, -10, 1000 },
+    { "pr_specularfactor", "pr_specularfactor: overriden specular material factor", (void*)&pr_specularfactor, CVAR_FLOAT, 0, -10, 1000 },
 #endif
 #endif
     { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },

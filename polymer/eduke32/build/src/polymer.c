@@ -14,8 +14,11 @@ int32_t         pr_vbos = 2;
 int32_t         pr_mirrordepth = 1;
 int32_t         pr_gpusmoothing = 1;
 int32_t         pr_overrideparallax = 0;
-float           pr_parallaxscale = 0.5f;
-float           pr_parallaxbias = 0.5f;
+float           pr_parallaxscale = 0.1f;
+float           pr_parallaxbias = 0.0f;
+int32_t         pr_overridespecular = 0;
+float           pr_specularpower = 15.0f;
+float           pr_specularfactor = 1.0f;
 
 int32_t         glerror;
 
@@ -478,7 +481,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  vec3 spotVector;\n"
         "  vec2 spotCosRadius;\n"
         "  float shadowResult = 1;\n"
-        "  vec2 specularMaterial = vec2(1.0, 1.0);\n"
+        "  vec2 specularMaterial = vec2(15.0, 1.0);\n"
         "\n",
         // frag_prog
         "  gl_FragColor = result;\n"
@@ -2968,7 +2971,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                  sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum &&
                  sk->surfnum == surfi)
         {
-            mdspritematerial.specmaterial[0] = sk->specpower;
+            if (sk->specpower != 1.0)
+                mdspritematerial.specmaterial[0] = sk->specpower;
             mdspritematerial.specmaterial[1] = sk->specfactor;
         }
 
@@ -3102,7 +3106,8 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     // PR_BIT_SPECULAR_MAP
     material->specmap = 0;
     // PR_BIT_SPECULAR_MATERIAL
-    material->specmaterial[0] = material->specmaterial[1] = 1.0f;
+    material->specmaterial[0] = 15.0f;
+    material->specmaterial[1] = 1.0f;
     // PR_BIT_MIRROR_MAP
     material->mirrormap = 0;
     // PR_BIT_GLOW_MAP
@@ -3189,7 +3194,8 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     // PR_BIT_SPECULAR_MATERIAL
     if (pth->hicr)
     {
-        material->specmaterial[0] = pth->hicr->specpower;
+        if (pth->hicr->specpower != 1.0f)
+            material->specmaterial[0] = pth->hicr->specpower;
         material->specmaterial[1] = pth->hicr->specfactor;
     }
 
@@ -3244,7 +3250,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
         programbits |= prprogrambits[PR_BIT_SPECULAR_MAP].bit;
 
     // PR_BIT_SPECULAR_MATERIAL
-    if ((material.specmaterial[0] != 1.0) || (material.specmaterial[1] != 1.0))
+    if ((material.specmaterial[0] != 15.0) || (material.specmaterial[1] != 1.0) || pr_overridespecular)
         programbits |= prprogrambits[PR_BIT_SPECULAR_MATERIAL].bit;
 
     // PR_BIT_MIRROR_MAP
@@ -3390,7 +3396,14 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     // PR_BIT_SPECULAR_MATERIAL
     if (programbits & prprogrambits[PR_BIT_SPECULAR_MATERIAL].bit)
     {
-        bglUniform2fvARB(prprograms[programbits].uniform_specMaterial, 1, material.specmaterial);
+        float specmaterial[2];
+
+        if (pr_overridespecular) {
+            specmaterial[0] = pr_specularpower;
+            specmaterial[1] = pr_specularfactor;
+            bglUniform2fvARB(prprograms[programbits].uniform_specMaterial, 1, specmaterial);
+        } else
+            bglUniform2fvARB(prprograms[programbits].uniform_specMaterial, 1, material.specmaterial);
     }
 
     // PR_BIT_MIRROR_MAP

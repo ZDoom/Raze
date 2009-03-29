@@ -43,6 +43,9 @@ extern int32_t      pr_gpusmoothing;
 extern int32_t      pr_overrideparallax;
 extern float        pr_parallaxscale;
 extern float        pr_parallaxbias;
+extern int32_t      pr_overridespecular;
+extern float        pr_specularpower;
+extern float        pr_specularfactor;
 
 extern int32_t      glerror;
 
