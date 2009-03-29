@@ -2041,7 +2041,7 @@ static void         polymer_updatewall(int16_t wallnum)
     else
         xref = 0;
 
-    if ((wal->nextsector == -1) || (wal->cstat & 32))
+    if (wal->nextsector == -1)
     {
         memcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
         memcpy(&w->wall.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
@@ -2106,7 +2106,7 @@ static void         polymer_updatewall(int16_t wallnum)
                  (s->floor.buffer[((wal->point2 - sec->wallptr) * 5) + 1] <= ns->floor.buffer[((nwallnum - nsec->wallptr) * 5) + 1])))
             underwall = 1;
 
-        if ((underwall) || (wal->cstat & 16))
+        if ((underwall) || (wal->cstat & 16) || (wal->cstat & 32))
         {
             memcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
             memcpy(&w->wall.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
@@ -2184,7 +2184,7 @@ static void         polymer_updatewall(int16_t wallnum)
                  (s->ceil.buffer[((wal->point2 - sec->wallptr) * 5) + 1] >= ns->ceil.buffer[((nwallnum - nsec->wallptr) * 5) + 1])))
             overwall = 1;
 
-        if ((overwall) || (wal->cstat & 16))
+        if ((overwall) || (wal->cstat & 16) || (wal->cstat & 32))
         {
             if (w->over.buffer == NULL) {
                 w->over.buffer = calloc(4, sizeof(GLfloat) * 5);
@@ -2203,7 +2203,7 @@ static void         polymer_updatewall(int16_t wallnum)
 
             polymer_getbuildmaterial(&w->over.material, curpicnum, wal->pal, wal->shade);
 
-            if (wal->cstat & 16)
+            if ((wal->cstat & 16) || (wal->cstat & 32))
             {
                 // mask
                 polymer_getbuildmaterial(&w->mask.material, walloverpicnum, wal->pal, wal->shade);
@@ -2256,13 +2256,21 @@ static void         polymer_updatewall(int16_t wallnum)
             memcpy(&w->mask.buffer[10], &w->over.buffer[5], sizeof(GLfloat) * 5);
             memcpy(&w->mask.buffer[15], &w->over.buffer[0], sizeof(GLfloat) * 5);
 
-            if (wal->cstat & 16)
+            if ((wal->cstat & 16) || (wal->cstat & 32))
             {
                 // mask wall pass
                 if (wal->cstat & 4)
                     yref = min(sec->floorz, nsec->floorz);
                 else
                     yref = max(sec->ceilingz, nsec->ceilingz);
+
+                if (wal->cstat & 32)
+                {
+                    if ((!(wal->cstat & 2) && (wal->cstat & 4)) || ((wal->cstat & 2) && (wall[nwallnum].cstat & 4)))
+                        yref = sec->ceilingz;
+                    else
+                        yref = nsec->ceilingz;
+                }
 
                 curpicnum = walloverpicnum;
 
@@ -2300,7 +2308,7 @@ static void         polymer_updatewall(int16_t wallnum)
         }
     }
 
-    if ((wal->nextsector == -1) || (wal->cstat & 32))
+    if (wal->nextsector == -1)
         memcpy(w->mask.buffer, w->wall.buffer, sizeof(GLfloat) * 4 * 5);
 
     memcpy(w->bigportal, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
@@ -2357,6 +2365,9 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
     {
         polymer_drawplane(&w->over);
     }
+
+    if (wall[wallnum].cstat & 32)
+        polymer_drawplane(&w->mask);
 
     if ((sector[sectnum].ceilingstat & 1) &&
             ((wall[wallnum].nextsector == -1) ||
