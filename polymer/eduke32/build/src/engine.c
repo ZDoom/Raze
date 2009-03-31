@@ -7337,6 +7337,7 @@ int32_t loadmaphack(char *filename)
         T_MDZOFF,
         T_AWAY1,
         T_AWAY2,
+        T_LIGHT,
     };
 
     static struct { char *text; int32_t tokenid; } legaltokens[] =
@@ -7357,6 +7358,7 @@ int32_t loadmaphack(char *filename)
         { "mdzoff", T_MDZOFF },
         { "away1", T_AWAY1 },
         { "away2", T_AWAY2 },
+        { "light", T_LIGHT },
         { NULL, -1 }
     };
 
@@ -7370,6 +7372,8 @@ int32_t loadmaphack(char *filename)
 
     memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
     memset(spritesmooth, 0, sizeof(spritesmooth));
+
+    staticlightcount = 0;
 
     while (1)
     {
@@ -7522,6 +7526,38 @@ int32_t loadmaphack(char *filename)
             }
             spriteext[whichsprite].flags |= SPREXT_AWAY2;
             break;
+        case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz
+        {
+            int32_t value;
+
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].sector = value;
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].x = value;
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].y = value;
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].z = value;
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].range = value;
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].color[0] = value;
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].color[1] = value;
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].color[2] = value;
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].radius = value;
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].faderadius = value;
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].angle = value;
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].horiz = value;
+
+            staticlightcount++;
+            break;
+        }
 
         default:
             // unrecognised token

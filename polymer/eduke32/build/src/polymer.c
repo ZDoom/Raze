@@ -130,6 +130,10 @@ _prlight        prlights[PR_MAXLIGHTS];
 int32_t         lightcount;
 int32_t         curlight;
 
+_prlight        staticlights[PR_MAXLIGHTS];
+int32_t         staticlightcount;
+
+
 GLfloat         shadowBias[] =
 {
     0.5, 0.0, 0.0, 0.0,
@@ -661,6 +665,13 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     pos[1] = -(float)(daposz) / 16.0f;
     pos[2] = -daposx;
 
+    i = 0;
+    while (i < staticlightcount)
+    {
+        polymer_addlight(staticlights[i]);
+        i++;
+    }
+
     depth = 0;
     polymer_prepareshadows();
 
@@ -1118,14 +1129,6 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         polymer_drawsector(sectorqueue[front]);
         polymer_scansprites(sectorqueue[front], localtsprite, &localspritesortcnt);
 
-//         if (!depth && sectorqueue[front] == dacursectnum)
-//         {
-//             mirrorlist[mirrorcount].plane = &prsectors[sectorqueue[front]]->floor;
-//             mirrorlist[mirrorcount].sectnum = sectorqueue[front];
-//             mirrorlist[mirrorcount].wallnum = -1;
-//             mirrorcount++;
-//         }
-
         doquery = 0;
 
         i = 0;
@@ -1424,7 +1427,7 @@ static void         polymer_drawplane(_prplane* plane)
 
     curlight = 0;
 
-    while ((curlight == 0) || (curlight < plane->lightcount))
+    while ((curlight == 0) || ((curlight < plane->lightcount) && (curlight < pr_occlusionculling)))
     {
         materialbits = polymer_bindmaterial(plane->material, plane->lights, plane->lightcount);
 
@@ -3013,7 +3016,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[surfi]);
 
             curlight = 0;
-            while ((curlight == 0) || (curlight < modellightcount))
+            while ((curlight == 0) || ((curlight < modellightcount) && (curlight < pr_occlusionculling)))
             {
                 materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
                 bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
@@ -3038,7 +3041,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             }
 
             curlight = 0;
-            while ((curlight == 0) || (curlight < modellightcount))
+            while ((curlight == 0) || ((curlight < modellightcount) && (curlight < pr_occlusionculling)))
             {
                 materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
                 bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
@@ -3450,7 +3453,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
         inpos[1] = -prlights[lights[curlight]].z / 16.0f;
         inpos[2] = -prlights[lights[curlight]].x;
 
-        polymer_transformpoint(inpos, pos, rootmodelviewmatrix);
+        polymer_transformpoint(inpos, pos, curmodelviewmatrix);
 
         // PR_BIT_SPOT_LIGHT
         if (programbits & prprogrambits[PR_BIT_SPOT_LIGHT].bit)
@@ -3467,7 +3470,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
             indir[1] = inpos[1] - coshorizangs;
             indir[2] = inpos[2] - sinhorizang * sinang;
 
-            polymer_transformpoint(indir, dir, rootmodelviewmatrix);
+            polymer_transformpoint(indir, dir, curmodelviewmatrix);
 
             dir[0] -= pos[0];
             dir[1] -= pos[1];

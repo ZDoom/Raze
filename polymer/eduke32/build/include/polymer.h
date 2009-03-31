@@ -158,6 +158,9 @@ typedef struct      s_prlight {
     int32_t         rtindex;
 }                   _prlight;
 
+extern _prlight     staticlights[PR_MAXLIGHTS];
+extern int32_t      staticlightcount;
+
 // RENDER TARGETS
 typedef struct      s_prrt {
     GLenum          target;
