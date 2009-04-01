@@ -7298,7 +7298,7 @@ PALONLY:
                         ActorExtra[i].dispicnum++;
                         continue;
                     }
-                    else if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2))
+                    else if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2) && getrendermode() != 4)
                     {
                         int32_t daz,xrep,yrep;
 
@@ -7380,6 +7380,7 @@ PALONLY:
             light.z = t->z;
 
             light.range = tilesizx[t->picnum]*tilesizy[t->picnum];
+            light.range -= rand()%((light.range>>3)+1);
 
             light.color[0] = 255;
             light.color[1] = 80;
@@ -7418,10 +7419,46 @@ PALONLY:
             if (sprite[s->owner].picnum != TREE1 && sprite[s->owner].picnum != TREE2)
                 t->z = sector[t->sectnum].floorz;
             t->shade = -127;
+#ifdef POLYMER
+            light.radius = 0;
+            light.sector = t->sectnum;
+
+            light.x = t->x;
+            light.y = t->y;
+            light.z = t->z;
+
+            light.range = tilesizx[t->picnum]*tilesizy[t->picnum];
+            light.range -= rand()%((light.range>>3)+1);
+
+            light.color[0] = 255;
+            light.color[1] = 80;
+            light.color[2] = 0;
+
+            if (getrendermode() >= 4)
+                polymer_addlight(light);
+#endif
             break;
         case COOLEXPLOSION1__STATIC:
             t->shade = -127;
             t->picnum += (s->shade>>1);
+#ifdef POLYMER
+            light.radius = 0;
+            light.sector = t->sectnum;
+
+            light.x = t->x;
+            light.y = t->y;
+            light.z = t->z;
+
+            light.range = tilesizx[t->picnum]*tilesizy[t->picnum];
+            light.range -= rand()%((light.range>>3)+1);
+
+            light.color[0] = 128;
+            light.color[1] = 0;
+            light.color[2] = 255;
+
+            if (getrendermode() >= 4)
+                polymer_addlight(light);
+#endif
             break;
         case PLAYERONWATER__STATIC:
 #if defined(POLYMOST) && defined(USE_OPENGL)
