@@ -5,7 +5,7 @@
 #include "polymer.h"
 
 // CVARS
-int32_t         pr_occlusionculling = 50;
+int32_t         pr_maxlightpasses = 5;
 int32_t         pr_fov = 426;           // appears to be the classic setting.
 int32_t         pr_billboardingmode = 1;
 int32_t         pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
@@ -1436,7 +1436,7 @@ static void         polymer_drawplane(_prplane* plane)
 
     curlight = 0;
 
-    while ((curlight == 0) || ((curlight < plane->lightcount) && (curlight < pr_occlusionculling)))
+    while ((curlight == 0) || ((curlight < plane->lightcount) && (curlight < pr_maxlightpasses)))
     {
         materialbits = polymer_bindmaterial(plane->material, plane->lights, plane->lightcount);
 
@@ -3027,7 +3027,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[surfi]);
 
             curlight = 0;
-            while ((curlight == 0) || ((curlight < modellightcount) && (curlight < pr_occlusionculling)))
+            while ((curlight == 0) || ((curlight < modellightcount) && (curlight < pr_maxlightpasses)))
             {
                 materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
                 bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
@@ -3052,7 +3052,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             }
 
             curlight = 0;
-            while ((curlight == 0) || ((curlight < modellightcount) && (curlight < pr_occlusionculling)))
+            while ((curlight == 0) || ((curlight < modellightcount) && (curlight < pr_maxlightpasses)))
             {
                 materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
                 bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);

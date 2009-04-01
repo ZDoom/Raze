@@ -33,7 +33,7 @@
 # include <math.h>
 
 // CVARS
-extern int32_t      pr_occlusionculling;
+extern int32_t      pr_maxlightpasses;
 extern int32_t      pr_fov;
 extern int32_t      pr_billboardingmode;
 extern int32_t      pr_verbosity;
