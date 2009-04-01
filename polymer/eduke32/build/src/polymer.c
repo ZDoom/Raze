@@ -3803,9 +3803,24 @@ static void         polymer_culllight(char lightindex)
 
 static void         polymer_prepareshadows(void)
 {
+    int16_t         oviewangle, oglobalang;
+    int32_t         ocosglobalang, osinglobalang;
+    int32_t         ocosviewingrangeglobalang, osinviewingrangeglobalang;
     int32_t         i, j;
     int32_t         gx, gy, gz;
     int32_t         oldoverridematerial;
+
+    // for wallvisible()
+    gx = globalposx;
+    gy = globalposy;
+    gz = globalposz;
+    // build globals used by drawmasks
+    oviewangle = viewangle;
+    oglobalang = globalang;
+    ocosglobalang = cosglobalang;
+    osinglobalang = singlobalang;
+    ocosviewingrangeglobalang = cosviewingrangeglobalang;
+    osinviewingrangeglobalang = sinviewingrangeglobalang;
 
     i = j = 0;
 
@@ -3830,10 +3845,17 @@ static void         polymer_prepareshadows(void)
             bglEnable(GL_POLYGON_OFFSET_FILL);
             bglPolygonOffset(5, SHADOW_DEPTH_OFFSET);
 
-            // for wallvisible()
-            gx = globalposx;
-            gy = globalposy;
-            gz = globalposz;
+            globalposx = prlights[i].x;
+            globalposy = prlights[i].y;
+            globalposz = prlights[i].z;
+
+            // build globals used by rotatesprite
+            viewangle = prlights[i].angle;
+            globalang = (prlights[i].angle&2047);
+            cosglobalang = sintable[(globalang+512)&2047];
+            singlobalang = sintable[globalang&2047];
+            cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
+            sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
 
             oldoverridematerial = overridematerial;
             // smooth model shadows
@@ -3848,10 +3870,6 @@ static void         polymer_prepareshadows(void)
 
             overridematerial = oldoverridematerial;
 
-            globalposx = gx;
-            globalposy = gy;
-            globalposz = gz;
-
             bglDisable(GL_POLYGON_OFFSET_FILL);
 
             bglMatrixMode(GL_PROJECTION);
@@ -3864,6 +3882,17 @@ static void         polymer_prepareshadows(void)
         }
         i++;
     }
+
+    globalposx = gx;
+    globalposy = gy;
+    globalposz = gz;
+
+    viewangle = oviewangle;
+    globalang = oglobalang;
+    cosglobalang = ocosglobalang;
+    singlobalang = osinglobalang;
+    cosviewingrangeglobalang = ocosviewingrangeglobalang;
+    sinviewingrangeglobalang = osinviewingrangeglobalang;
 }
 
 // RENDER TARGETS
