@@ -156,6 +156,7 @@ typedef struct      s_prlight {
     GLfloat         transform[16];
     float           frustum[5 * 4];
     int32_t         rtindex;
+    char            isinview;
 }                   _prlight;
 
 extern _prlight     staticlights[PR_MAXLIGHTS];
@@ -189,6 +190,7 @@ typedef struct      s_prplane {
     // lights
     char            lights[PR_MAXLIGHTS];
     char            lightcount;
+    char            drawn;
 }                   _prplane;
 
 typedef struct      s_prsector {

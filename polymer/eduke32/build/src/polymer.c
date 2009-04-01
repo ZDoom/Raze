@@ -703,6 +703,8 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     while (i < numsectors)
     {
         prsectors[i]->controlstate = 0;
+        prsectors[i]->ceil.drawn = 0;
+        prsectors[i]->floor.drawn = 0;
         prsectors[i]->wallsproffset = 0.0f;
         prsectors[i]->floorsproffset = 0.0f;
         i++;
@@ -711,6 +713,9 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     while (i < numwalls)
     {
         prwalls[i]->controlstate = 0;
+        prwalls[i]->wall.drawn = 0;
+        prwalls[i]->over.drawn = 0;
+        prwalls[i]->mask.drawn = 0;
         i++;
     }
 
@@ -1069,6 +1074,8 @@ void                polymer_addlight(_prlight light)
 
             prlights[lightcount].rtindex = -1;
         }
+
+        prlights[lightcount].isinview = 0;
 
         polymer_culllight(lightcount);
 
@@ -1460,6 +1467,8 @@ static void         polymer_drawplane(_prplane* plane)
         if (plane->indices)
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
     }
+
+    plane->drawn = 1;
 }
 
 static void         polymer_inb4mirror(GLfloat* buffer, GLfloat* plane)
@@ -3766,10 +3775,14 @@ static void         polymer_culllight(char lightindex)
         if (polymer_planeinlight(&s->floor, light)) {
             s->floor.lights[s->floor.lightcount] = lightindex;
             s->floor.lightcount++;
+            if (s->floor.drawn)
+                light->isinview = 1;
         }
         if (polymer_planeinlight(&s->ceil, light)) {
             s->ceil.lights[s->ceil.lightcount] = lightindex;
             s->ceil.lightcount++;
+            if (s->ceil.drawn)
+                light->isinview = 1;
         }
 
         i = 0;
@@ -3780,14 +3793,20 @@ static void         polymer_culllight(char lightindex)
             if (polymer_planeinlight(&w->wall, light)) {
                 w->wall.lights[w->wall.lightcount] = lightindex;
                 w->wall.lightcount++;
+                if (w->wall.drawn)
+                    light->isinview = 1;
             }
             if (polymer_planeinlight(&w->over, light)) {
                 w->over.lights[w->over.lightcount] = lightindex;
                 w->over.lightcount++;
+                if (w->over.drawn)
+                    light->isinview = 1;
             }
             if (polymer_planeinlight(&w->mask, light)) {
                 w->mask.lights[w->mask.lightcount] = lightindex;
                 w->mask.lightcount++;
+                if (w->mask.drawn)
+                    light->isinview = 1;
 
                 if ((wall[sec->wallptr + i].nextsector != -1) &&
                     (!cullingstate[wall[sec->wallptr + i].nextsector])) {
@@ -3828,7 +3847,7 @@ static void         polymer_prepareshadows(void)
 
     while ((i < lightcount) && (j < 4))
     {
-        if (prlights[i].radius)
+        if (prlights[i].radius && prlights[i].isinview)
         {
             prlights[i].rtindex = j + 1;
 
