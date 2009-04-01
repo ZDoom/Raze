@@ -651,7 +651,7 @@ void                polymer_loadboard(void)
 void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum)
 {
     int16_t         cursectnum;
-    int32_t         i;
+    int32_t         i, cursectflorz, cursectceilz;
     float           ang, tiltang;
     float           pos[3];
 
@@ -714,10 +714,12 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
         i++;
     }
 
+    getzsofslope(dacursectnum, daposx, daposy, &cursectceilz, &cursectflorz);
+
     // external view (editor)
     if ((dacursectnum < 0) || (dacursectnum >= numsectors) ||
-            (daposz > sector[dacursectnum].floorz) ||
-            (daposz < sector[dacursectnum].ceilingz))
+            (daposz > cursectflorz) ||
+            (daposz < cursectceilz))
     {
         i = 0;
         while (i < numsectors)
