@@ -597,7 +597,7 @@ void                polymer_glinit(void)
 
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
-    bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 0.1f, 100.0f);
+    bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 0.01f, 100.0f);
 
     // get the new projection matrix
     bglGetFloatv(GL_PROJECTION_MATRIX, projectionmatrix);
@@ -2380,7 +2380,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
         polymer_drawplane(&w->over);
     }
 
-    if (wall[wallnum].cstat & 32)
+    if ((wall[wallnum].cstat & 32) && (wall[wallnum].nextsector != -1))
         polymer_drawplane(&w->mask);
 
     if ((sector[sectnum].ceilingstat & 1) &&
