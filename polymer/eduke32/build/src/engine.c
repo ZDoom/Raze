@@ -6825,7 +6825,7 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-    memset(spritesmooth, 0, sizeof(spritesmooth));
+    memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
 
 # ifdef POLYMER
     if (rendmode == 4)
@@ -7308,7 +7308,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-    memset(spritesmooth, 0, sizeof(spritesmooth));
+    memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
 #endif
     guniqhudid = 0;
 
@@ -7371,7 +7371,7 @@ int32_t loadmaphack(char *filename)
     if (!script) return -1;
 
     memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-    memset(spritesmooth, 0, sizeof(spritesmooth));
+    memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
 
     staticlightcount = 0;
 
