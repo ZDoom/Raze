@@ -35,6 +35,7 @@ RANCID_NETWORKING ?= 0
 #  OPTLEVEL	- 0..3 = GCC optimization strategy 
 #
 RELEASE?=1
+DEBUGANYWAY?=0
 EFENCE?=0
 OPTLEVEL	?= 2
 
@@ -66,6 +67,10 @@ ifneq ($(RELEASE),0)
 else
   # Debugging enabled
   debug=-ggdb -O0 -DDEBUGGINGAIDS -DNOSDLPARACHUTE
+endif
+
+ifneq (0,$(DEBUGANYWAY))
+  debug+=-ggdb
 endif
 
 CC=gcc

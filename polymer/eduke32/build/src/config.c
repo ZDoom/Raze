@@ -66,6 +66,8 @@ extern double msens;
 extern int32_t editorgridextent;
 extern int32_t showheightindicators;
 extern int32_t graphicsmode;
+extern int32_t AmbienceToggle;
+extern int32_t ParentalLock;
 
 /*
  * SETUP.DAT
@@ -232,6 +234,10 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "graphicsmode", val, VL) > 0)
         graphicsmode = min(max(Batoi(val),0),2);
 
+    if (readconfig(fp, "ambiencetoggle", val, VL) > 0) AmbienceToggle = Batoi(val);
+
+    if (readconfig(fp, "parlock", val, VL) > 0) ParentalLock = Batoi(val);
+
 #ifdef _WIN32
     {
         extern char map_dik_code(int32_t);
@@ -376,10 +382,13 @@ int32_t writesetup(const char *fn)
              "autosavesec = %d\n"
              "\n"
              "; Height indicators (0:none, 1:only 2-sided&different, 2:all)\n"
-             "showheightindicators = %d\n\n"
+             "showheightindicators = %d\n"
              "\n"
              "; 2D mode display type (0:classic, 1:textured, 2:textured/animated)\n"
              "graphicsmode = %d\n\n"
+             "; Ambient sounds in 3D mode (0:off, 1:on)\n"
+             "ambiencetoggle = %d\n"
+             "parlock = %d\n\n"
 #if 1
              "; Key Settings\n"
              ";  Here's a map of all the keyboard scan codes: NOTE: values are listed in hex!\n"
@@ -425,6 +434,8 @@ int32_t writesetup(const char *fn)
 #endif
 //             "; Console key scancode, in hex\n"
              "keyconsole = %X\n"
+             "; example: make 'Q' function as CapsLock and 'N' as AltGr:\n"
+             "; remap = 10-3A,31-B8\n"
              "remap = ",
 
              forcesetup, fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame,
@@ -441,7 +452,7 @@ int32_t writesetup(const char *fn)
 #endif
              option[3], msens, unrealedlook, pk_uedaccel, quickmapcycling,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,
-             showheightindicators,graphicsmode,
+             showheightindicators,graphicsmode,AmbienceToggle,ParentalLock,
 #if 1
              keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
              keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],

@@ -78,7 +78,7 @@ int32_t xoldtimerhandler, lastmessagetime=-1;
 char tempbuf[1024]; //1024
 int32_t numsprite[MAXSPRITES];
 int32_t multisprite[MAXSPRITES];
-char lo[32];
+char lo[64];
 char levelname[255];
 int16_t curwall=0,curwallnum=0;
 int16_t cursearchsprite=0,cursearchspritenum=0,cursector_lotag=0,cursectornum=0;

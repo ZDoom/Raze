@@ -1966,6 +1966,7 @@ static int32_t dist(spritetype *s1,spritetype *s2)
 extern int32_t NumVoices;
 extern int32_t g_numEnvSoundsPlaying;
 int32_t AmbienceToggle = 1; //SoundToggle;
+int32_t ParentalLock = 0;
 #define T1 (s->filler)
 
 // adapted from actors.c
@@ -4225,14 +4226,14 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_F3])
     {
-        mlook = 1-mlook;
+        mlook = !mlook;
         message("Mouselook: %s",mlook?"enabled":"disabled");
         keystatus[KEYSC_F3] = 0;
     }
 
     if (keystatus[KEYSC_F4])
     {
-        AmbienceToggle = 1-AmbienceToggle;
+        AmbienceToggle = !AmbienceToggle;
         message("Ambience sounds: %s",AmbienceToggle?"enabled":"disabled");
         if (!AmbienceToggle)
         {
@@ -4245,7 +4246,7 @@ static void Keys3d(void)
 // PK
     if (keystatus[KEYSC_F5])
     {
-        unrealedlook = 1-unrealedlook;
+        unrealedlook = !unrealedlook;
         message("UnrealEd mouse navigation: %s",unrealedlook?"enabled":"disabled");
         keystatus[KEYSC_F5] = 0;
     }
@@ -9092,8 +9093,8 @@ int32_t parseconsounds(scriptfile *script)
             }
 
             if (g_sounds[sndnum].filename == NULL)
-                g_sounds[sndnum].filename = Bcalloc(BMAX_PATH,sizeof(uint8_t));
-                // do other callers ever mess with g_sounds[].filename?
+                g_sounds[sndnum].filename = Bcalloc(slen+1,sizeof(uint8_t));
+                // Hopefully noone does memcpy(..., g_sounds[].filename, BMAX_PATH)
             if (!g_sounds[sndnum].filename)
             {
                 Bfree(definedname);
@@ -9105,6 +9106,7 @@ int32_t parseconsounds(scriptfile *script)
             if (scriptfile_getnumber(script, &pe)) goto BAD;
             if (scriptfile_getnumber(script, &pr)) goto BAD;
             if (scriptfile_getnumber(script, &m)) goto BAD;
+            if (ParentalLock && (m&8)) goto BAD;
             if (scriptfile_getnumber(script, &vo)) goto BAD;
             if (0)
             {
@@ -9124,6 +9126,8 @@ BAD:
             g_sounds[sndnum].vo = vo;
             g_sndnum[g_numsounds] = g_definedsndnum[g_numsounds] = sndnum;
             g_numsounds++;
+            if (g_numsounds == MAXSOUNDS)
+                goto END;
             break;
         }
         case T_EOF:
