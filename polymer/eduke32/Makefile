@@ -266,7 +266,7 @@ eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB)
 	$(LINK_STATUS)
 	if $(CC) -o $@ $^ $(LIBS) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
-  ifneq (0,$(DEBUGANYWAY))
+  ifeq (0,$(DEBUGANYWAY))
 	strip eduke32$(EXESUFFIX)
   endif
 endif
@@ -275,7 +275,7 @@ mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB)
 	$(LINK_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
-  ifneq (0,$(DEBUGANYWAY))
+  ifeq (0,$(DEBUGANYWAY))
 	strip mapster32$(EXESUFFIX)
   endif
 endif	
@@ -284,7 +284,7 @@ duke3d_w32$(EXESUFFIX): $(OBJ)/wrapper.$o
 	$(LINK_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ -Wl; then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
-  ifneq (0,$(DEBUGANYWAY))
+  ifeq (0,$(DEBUGANYWAY))
 	strip duke3d_w32$(EXESUFFIX)
   endif
 endif	
