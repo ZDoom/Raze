@@ -61,6 +61,7 @@ typedef enum {
                     PR_BIT_SPECULAR_MAP,
                     PR_BIT_SPECULAR_MATERIAL,
                     PR_BIT_MIRROR_MAP,
+                    PR_BIT_FOG,
                     PR_BIT_GLOW_MAP,
                     PR_BIT_SHADOW_MAP,
                     PR_BIT_SPOT_LIGHT,

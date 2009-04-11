@@ -99,7 +99,6 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
-#define FOGSCALE 0.0000640
 
 float shadescale = 1.050;
 
@@ -196,9 +195,9 @@ int32_t r_fullbrights = 1;
 // is medium quality a good default?
 int32_t r_downsize = 1;
 
-static float fogresult, fogcol[4], fogtable[4*MAXPALOOKUPS];
+float fogresult, fogcol[4], fogtable[4*MAXPALOOKUPS];
 
-static inline void fogcalc(const int32_t shade, const int32_t vis, const int32_t pal)
+void fogcalc(const int32_t shade, const int32_t vis, const int32_t pal)
 {
     float f;
 

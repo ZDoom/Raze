@@ -7,6 +7,8 @@
 #define CULL_DELAY 2
 #define MAXCULLCHECKS 1024
 
+#define FOGSCALE 0.0000640
+
 extern int32_t lastcullcheck;
 extern char cullmodel[MAXSPRITES];
 extern int32_t cullcheckcnt;
@@ -20,7 +22,7 @@ extern float gtang;
 extern float glox1, gloy1;
 extern double gxyaspect, grhalfxdown10x;
 extern double gcosang, gsinang, gcosang2, gsinang2;
-extern double gchang, gshang, gctang, gstang;
+extern double gchang, gshang, gctang, gstang, gvisibility;
 
 struct glfiltermodes {
 	char *name;
@@ -118,6 +120,10 @@ extern int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 extern float shadescale;
 extern int32_t globalnoeffect;
 extern int32_t drawingskybox;
+
+extern float fogresult, fogcol[4], fogtable[4*MAXPALOOKUPS];
+
+void fogcalc(const int32_t shade, const int32_t vis, const int32_t pal);
 
 #endif
 

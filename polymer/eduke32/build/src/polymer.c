@@ -3,6 +3,7 @@
 
 #define POLYMER_C
 #include "polymer.h"
+#include "engine_priv.h"
 
 // CVARS
 int32_t         pr_maxlightpasses = 5;
@@ -334,6 +335,24 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
     },
     {
+        1 << PR_BIT_FOG,
+        // vert_def
+        "",
+        // vert_prog
+        "",
+        // frag_def
+        "",
+        // frag_prog
+        "  float fragDepth;\n"
+        "  float fogFactor;\n"
+        "\n"
+        "  fragDepth = gl_FragCoord.z / gl_FragCoord.w / 35;\n"
+        "  fragDepth *= fragDepth;\n"
+        "  fogFactor = exp2(-gl_Fog.density * gl_Fog.density * fragDepth * 1.442695);\n"
+        "  result.rgb = mix(gl_Fog.color.rgb, result.rgb, fogFactor);\n"
+        "\n",
+    },
+    {
         1 << PR_BIT_GLOW_MAP,
         // vert_def
         "",
@@ -572,8 +591,6 @@ int32_t             polymer_init(void)
 
 void                polymer_glinit(void)
 {
-    float           a;
-
     bglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     bglClearStencil(0);
     bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -609,15 +626,6 @@ void                polymer_glinit(void)
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
     bglDisable(GL_FOG);
-
-    bglFogi(GL_FOG_MODE, GL_EXP2);
-    //glFogfv(GL_FOG_COLOR, fogColor);
-    bglEnable(GL_FOG);
-
-    a = (1 - ((float)(visibility) / 512.0f)) / 10.0f;
-    bglFogf(GL_FOG_DENSITY, 0.1f - a);
-    bglFogf(GL_FOG_START, 0.0f);
-    bglFogf(GL_FOG_END, 1000000.0f);
 
     bglEnable(GL_CULL_FACE);
     bglCullFace(GL_BACK);
@@ -656,6 +664,9 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     float           pos[3];
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing rooms...\n");
+
+    // fogcalc needs this
+    gvisibility = ((float)globalvisibility)*FOGSCALE;
 
     ang = (float)(daang) / (2048.0f / 360.0f);
     horizang = (float)(-getangle(128, dahoriz-100)) / (2048.0f / 360.0f);
@@ -806,11 +817,19 @@ void                polymer_rotatesprite(int32_t sx, int32_t sy, int32_t z, int1
 
 void                polymer_drawmaskwall(int32_t damaskwallcnt)
 {
+    sectortype      *sec;
+    walltype        *wal;
     _prwall         *w;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Masked wall %i...\n", damaskwallcnt);
 
+    sec = &sector[sectorofwall(maskwall[damaskwallcnt])];
+    wal = &wall[maskwall[damaskwallcnt]];
     w = prwalls[maskwall[damaskwallcnt]];
+
+    fogcalc(wal->shade,sec->visibility,sec->floorpal);
+    bglFogf(GL_FOG_DENSITY,fogresult);
+    bglFogfv(GL_FOG_COLOR,fogcol);
 
     bglEnable(GL_CULL_FACE);
 
@@ -830,6 +849,10 @@ void                polymer_drawsprite(int32_t snum)
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
 
     tspr = tspriteptr[snum];
+
+    fogcalc(tspr->shade,sector[tspr->sectnum].visibility,sector[tspr->sectnum].floorpal);
+    bglFogf(GL_FOG_DENSITY,fogresult);
+    bglFogfv(GL_FOG_COLOR,fogcol);
 
     if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0)
     {
@@ -1897,8 +1920,17 @@ static void         polymer_drawsector(int16_t sectnum)
     sec = &sector[sectnum];
     s = prsectors[sectnum];
 
+    fogcalc(sec->floorshade,sec->visibility,sec->floorpal);
+    bglFogf(GL_FOG_DENSITY,fogresult);
+    bglFogfv(GL_FOG_COLOR,fogcol);
+
     if (!(sec->floorstat & 1))
         polymer_drawplane(&s->floor);
+
+    fogcalc(sec->ceilingshade,sec->visibility,sec->ceilingpal);
+    bglFogf(GL_FOG_DENSITY,fogresult);
+    bglFogfv(GL_FOG_COLOR,fogcol);
+
     if (!(sec->ceilingstat & 1))
         polymer_drawplane(&s->ceil);
 
@@ -2364,11 +2396,19 @@ static void         polymer_updatewall(int16_t wallnum)
 
 static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
 {
+    sectortype      *sec;
+    walltype        *wal;
     _prwall         *w;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing wall %i...\n", wallnum);
 
+    sec = &sector[sectnum];
+    wal = &wall[wallnum];
     w = prwalls[wallnum];
+
+    fogcalc(wal->shade,sec->visibility,sec->floorpal);
+    bglFogf(GL_FOG_DENSITY,fogresult);
+    bglFogfv(GL_FOG_COLOR,fogcol);
 
     if ((w->underover & 1) && !(w->underover & 4))
     {
@@ -3281,6 +3321,9 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     // PR_BIT_MIRROR_MAP
     if (!curlight && material.mirrormap)
         programbits |= prprogrambits[PR_BIT_MIRROR_MAP].bit;
+
+    // PR_BIT_FOG
+    programbits |= prprogrambits[PR_BIT_FOG].bit;
 
     // PR_BIT_GLOW_MAP
     if (!curlight && material.glowmap)
