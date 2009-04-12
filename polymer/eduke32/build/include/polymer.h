@@ -291,7 +291,6 @@ static void         polymer_updatewall(int16_t wallnum);
 static void         polymer_drawwall(int16_t sectnum, int16_t wallnum);
 // HSR
 static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int32_t indicecount, GLfloat* plane, GLfloat* t, GLfloat* b, GLfloat* n);
-static GLfloat      polymer_dotproduct(GLfloat* in_a, GLfloat* in_b);
 static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out);
 static void         polymer_transformpoint(float* inpos, float* pos, float* matrix);
 static void         polymer_pokesector(int16_t sectnum);

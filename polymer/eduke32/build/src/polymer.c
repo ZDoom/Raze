@@ -583,6 +583,19 @@ int32_t             polymer_init(void)
     }
 
     i = 0;
+    while (i < nextmodelid)
+    {
+        if (models[i])
+        {
+            md3model_t* m;
+
+            m = (md3model_t*)models[i];
+            m->indices = NULL;
+        }
+        i++;
+    }
+
+    i = 0;
     while (i < (1 << PR_BIT_COUNT))
     {
         prprograms[i].handle = 0;
@@ -1221,7 +1234,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                     // hack to avoid occlusion querying portals that are too close to the viewpoint
                     // this is needed because of the near z-clipping plane;
                     if (sqdist < 100)
-                        queryid[sec->wallptr + i] = -1;
+                        queryid[sec->wallptr + i] = 0xFFFFFFFF;
                     else {
                         bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
                         bglDepthMask(GL_FALSE);
@@ -1256,13 +1269,13 @@ static void         polymer_displayrooms(int16_t dacursectnum)
             {
                 // REAP
                 result = 0;
-                if (doquery && (queryid[sec->wallptr + i] != -1))
+                if (doquery && (queryid[sec->wallptr + i] != 0xFFFFFFFF))
                 {
                     bglGetQueryObjectivARB(queryid[sec->wallptr + i],
                                            GL_QUERY_RESULT_ARB,
                                            &result);
                     bglDeleteQueriesARB(1, &queryid[sec->wallptr + i]);
-                } else if (queryid[sec->wallptr + i] == -1)
+                } else if (queryid[sec->wallptr + i] == 0xFFFFFFFF)
                     result = 1;
 
                 queryid[sec->wallptr + i] = 0;
@@ -2461,7 +2474,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
 // HSR
 static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int32_t indicecount, GLfloat* plane, GLfloat* t, GLfloat* b, GLfloat* n)
 {
-    GLfloat         vec1[5], vec2[5], norm, r, BxN[3], NxT[3], TxB[3];
+    GLfloat         vec1[5], vec2[5], norm, r;// BxN[3], NxT[3], TxB[3];
     int32_t         i;
 
     i = 0;
