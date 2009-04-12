@@ -3568,6 +3568,23 @@ static void G_MoveActors(void)
             if (s->z < sector[sect].ceilingz+(32<<8))
                 s->z = sector[sect].ceilingz+(32<<8);
 
+            gamelights[gamelightcount].sector = s->sectnum;
+            gamelights[gamelightcount].x = s->x;
+            gamelights[gamelightcount].y = s->y;
+            gamelights[gamelightcount].z = s->z + 10248;
+            gamelights[gamelightcount].range = 8192;
+
+            gamelights[gamelightcount].angle = s->ang;
+            gamelights[gamelightcount].horiz = 100;
+            gamelights[gamelightcount].radius = 256;
+            gamelights[gamelightcount].faderadius = 200;
+
+            gamelights[gamelightcount].color[0] = 255;
+            gamelights[gamelightcount].color[1] = 255;
+            gamelights[gamelightcount].color[2] = 255;
+
+            gamelightcount++;
+
             if (ud.multimode < 2)
             {
                 if (g_noEnemies == 1)
@@ -7593,6 +7610,8 @@ int32_t A_CheckSwitchTile(int32_t i)
 
 void G_MoveWorld(void)
 {
+    gamelightcount = 0;
+
     G_MoveZombieActors();     //ST 2
     G_MoveWeapons();          //ST 4
     G_MoveTransports();       //ST 9

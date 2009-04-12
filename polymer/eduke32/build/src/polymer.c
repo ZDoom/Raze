@@ -134,6 +134,9 @@ int32_t         curlight;
 _prlight        staticlights[PR_MAXLIGHTS];
 int32_t         staticlightcount;
 
+_prlight        gamelights[PR_MAXLIGHTS];
+int32_t         gamelightcount;
+
 
 GLfloat         shadowBias[] =
 {
@@ -698,6 +701,13 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     pos[2] = -daposx;
 
     polymer_dostaticlights();
+
+    i = 0;
+    while (i < gamelightcount)
+    {
+        polymer_addlight(gamelights[i]);
+        i++;
+    }
 
     depth = 0;
     polymer_prepareshadows();

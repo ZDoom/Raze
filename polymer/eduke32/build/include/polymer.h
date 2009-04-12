@@ -164,6 +164,9 @@ typedef struct      s_prlight {
 extern _prlight     staticlights[PR_MAXLIGHTS];
 extern int32_t      staticlightcount;
 
+extern _prlight     gamelights[PR_MAXLIGHTS];
+extern int32_t      gamelightcount;
+
 // RENDER TARGETS
 typedef struct      s_prrt {
     GLenum          target;
