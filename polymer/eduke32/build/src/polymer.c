@@ -2378,6 +2378,9 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
     GLfloat         vec1[5], vec2[5], norm, r;// BxN[3], NxT[3], TxB[3];
     int32_t         i;
 
+    if (indices && (indicecount < 3))
+        return; // corrupt sector (E3L4, I'm looking at you)
+
     i = 0;
     do
     {
