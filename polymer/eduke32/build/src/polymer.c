@@ -697,12 +697,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     pos[1] = -(float)(daposz) / 16.0f;
     pos[2] = -daposx;
 
-    i = 0;
-    while (i < staticlightcount)
-    {
-        polymer_addlight(staticlights[i]);
-        i++;
-    }
+    polymer_dostaticlights();
 
     depth = 0;
     polymer_prepareshadows();
@@ -3978,6 +3973,39 @@ static void         polymer_prepareshadows(void)
     singlobalang = osinglobalang;
     cosviewingrangeglobalang = ocosviewingrangeglobalang;
     sinviewingrangeglobalang = osinviewingrangeglobalang;
+}
+
+static void         polymer_dostaticlights(void)
+{
+    int32_t         i;
+    _prlight        light;
+    float           fade;
+
+    i = 0;
+    while (i < staticlightcount)
+    {
+        if (staticlights[i].minshade == staticlights[i].maxshade)
+            polymer_addlight(staticlights[i]);
+        else {
+            light = staticlights[i];
+
+            fade = sector[light.sector].floorshade;
+            fade -= light.minshade;
+            fade /= light.maxshade - light.minshade;
+
+            if (fade < 0.0f)
+                fade = 0.0f;
+            if (fade > 1.0f)
+                fade = 1.0f;
+
+            light.color[0] *= fade;
+            light.color[1] *= fade;
+            light.color[2] *= fade;
+
+            polymer_addlight(light);
+        }
+        i++;
+    }
 }
 
 // RENDER TARGETS
