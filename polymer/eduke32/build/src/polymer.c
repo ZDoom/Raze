@@ -263,20 +263,22 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         1 << PR_BIT_DIFFUSE_DETAIL_MAP,
         // vert_def
         "uniform vec2 detailScale;\n"
+        "varying vec2 fragDetailScale;\n"
         "\n",
         // vert_prog
+        "  fragDetailScale = detailScale;\n"
         "  if (isNormalMapped == 0)\n"
         "    gl_TexCoord[texCoord++] = vec4(detailScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
         "\n",
         // frag_def
         "uniform sampler2D detailMap;\n"
-        "uniform vec2 detailScale;\n"
+        "varying vec2 fragDetailScale;\n"
         "\n",
         // frag_prog
         "  if (isNormalMapped == 0)\n"
         "    result *= texture2D(detailMap, gl_TexCoord[texCoord++].st);\n"
         "  else\n"
-        "    result *= texture2D(detailMap, commonTexCoord.st * detailScale);\n"
+        "    result *= texture2D(detailMap, commonTexCoord.st * fragDetailScale);\n"
         "  result.rgb *= 2.0;\n"
         "\n",
     },
