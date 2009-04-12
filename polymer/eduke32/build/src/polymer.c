@@ -137,6 +137,8 @@ int32_t         staticlightcount;
 _prlight        gamelights[PR_MAXLIGHTS];
 int32_t         gamelightcount;
 
+_prlight        framelights[PR_MAXLIGHTS];
+int32_t         framelightcount;
 
 GLfloat         shadowBias[] =
 {
@@ -700,12 +702,21 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     pos[1] = -(float)(daposz) / 16.0f;
     pos[2] = -daposx;
 
+    polymer_resetlights();
+
     polymer_dostaticlights();
 
     i = 0;
     while (i < gamelightcount)
     {
         polymer_addlight(gamelights[i]);
+        i++;
+    }
+
+    i = 0;
+    while (i < framelightcount)
+    {
+        polymer_addlight(framelights[i]);
         i++;
     }
 
@@ -1041,95 +1052,6 @@ void                polymer_setanimatesprites(animatespritesptr animatesprites, 
     asi.y = y;
     asi.a = a;
     asi.smoothratio = smoothratio;
-}
-
-void                polymer_resetlights(void)
-{
-    int32_t         i;
-    _prsector       *s;
-    _prwall         *w;
-
-    i = 0;
-    while (i < numsectors)
-    {
-        s = prsectors[i];
-
-        s->floor.lightcount = 0;
-        s->ceil.lightcount = 0;
-
-        i++;
-    }
-
-    i = 0;
-    while (i < numwalls)
-    {
-        w = prwalls[i];
-
-        w->wall.lightcount = 0;
-        w->over.lightcount = 0;
-        w->mask.lightcount = 0;
-
-        i++;
-    }
-
-    lightcount = 0;
-}
-
-void                polymer_addlight(_prlight light)
-{
-    if (light.sector == -1)
-        return;
-
-    if (lightcount < PR_MAXLIGHTS)
-    {
-        prlights[lightcount] = light;
-
-        if (light.radius) {
-            float radius, ang, horizang, lightpos[3];
-
-            // hack to avoid lights beams perpendicular to walls
-            if ((light.horiz <= 100) && (light.horiz > 90))
-                light.horiz = 90;
-            if ((light.horiz > 100) && (light.horiz < 110))
-                light.horiz = 110;
-
-            lightpos[0] = light.y;
-            lightpos[1] = -light.z / 16.0f;
-            lightpos[2] = -light.x;
-
-            // calculate the spot light transformations and matrices
-            radius = (float)(light.radius) / (2048.0f / 360.0f);
-            ang = (float)(light.angle) / (2048.0f / 360.0f);
-            horizang = (float)(-getangle(128, light.horiz-100)) / (2048.0f / 360.0f);
-
-            bglMatrixMode(GL_PROJECTION);
-            bglPushMatrix();
-            bglLoadIdentity();
-            bgluPerspective(radius * 2, 1, 0.1f, light.range / 1000.0f);
-            bglGetFloatv(GL_PROJECTION_MATRIX, prlights[lightcount].proj);
-            bglPopMatrix();
-
-            bglMatrixMode(GL_MODELVIEW);
-            bglPushMatrix();
-            bglLoadIdentity();
-            bglRotatef(horizang, 1.0f, 0.0f, 0.0f);
-            bglRotatef(ang, 0.0f, 1.0f, 0.0f);
-            bglScalef(1.0f / 1000.0f, 1.0f / 1000.0f, 1.0f / 1000.0f);
-            bglTranslatef(-lightpos[0], -lightpos[1], -lightpos[2]);
-            bglGetFloatv(GL_MODELVIEW_MATRIX, prlights[lightcount].transform);
-            bglPopMatrix();
-
-            polymer_extractfrustum(prlights[lightcount].transform, prlights[lightcount].proj, prlights[lightcount].frustum);
-
-            prlights[lightcount].rtindex = -1;
-        }
-
-        prlights[lightcount].isinview = 0;
-
-        polymer_culllight(lightcount);
-
-        lightcount++;
-    }
 }
 
 // CORE
@@ -3782,6 +3704,95 @@ static void         polymer_compileprogram(int32_t programbits)
 }
 
 // LIGHTS
+static void         polymer_resetlights(void)
+{
+    int32_t         i;
+    _prsector       *s;
+    _prwall         *w;
+
+    i = 0;
+    while (i < numsectors)
+    {
+        s = prsectors[i];
+
+        s->floor.lightcount = 0;
+        s->ceil.lightcount = 0;
+
+        i++;
+    }
+
+    i = 0;
+    while (i < numwalls)
+    {
+        w = prwalls[i];
+
+        w->wall.lightcount = 0;
+        w->over.lightcount = 0;
+        w->mask.lightcount = 0;
+
+        i++;
+    }
+
+    lightcount = 0;
+}
+
+static void         polymer_addlight(_prlight light)
+{
+    if (light.sector == -1)
+        return;
+
+    if (lightcount < PR_MAXLIGHTS)
+    {
+        prlights[lightcount] = light;
+
+        if (light.radius) {
+            float radius, ang, horizang, lightpos[3];
+
+            // hack to avoid lights beams perpendicular to walls
+            if ((light.horiz <= 100) && (light.horiz > 90))
+                light.horiz = 90;
+            if ((light.horiz > 100) && (light.horiz < 110))
+                light.horiz = 110;
+
+            lightpos[0] = light.y;
+            lightpos[1] = -light.z / 16.0f;
+            lightpos[2] = -light.x;
+
+            // calculate the spot light transformations and matrices
+            radius = (float)(light.radius) / (2048.0f / 360.0f);
+            ang = (float)(light.angle) / (2048.0f / 360.0f);
+            horizang = (float)(-getangle(128, light.horiz-100)) / (2048.0f / 360.0f);
+
+            bglMatrixMode(GL_PROJECTION);
+            bglPushMatrix();
+            bglLoadIdentity();
+            bgluPerspective(radius * 2, 1, 0.1f, light.range / 1000.0f);
+            bglGetFloatv(GL_PROJECTION_MATRIX, prlights[lightcount].proj);
+            bglPopMatrix();
+
+            bglMatrixMode(GL_MODELVIEW);
+            bglPushMatrix();
+            bglLoadIdentity();
+            bglRotatef(horizang, 1.0f, 0.0f, 0.0f);
+            bglRotatef(ang, 0.0f, 1.0f, 0.0f);
+            bglScalef(1.0f / 1000.0f, 1.0f / 1000.0f, 1.0f / 1000.0f);
+            bglTranslatef(-lightpos[0], -lightpos[1], -lightpos[2]);
+            bglGetFloatv(GL_MODELVIEW_MATRIX, prlights[lightcount].transform);
+            bglPopMatrix();
+
+            polymer_extractfrustum(prlights[lightcount].transform, prlights[lightcount].proj, prlights[lightcount].frustum);
+
+            prlights[lightcount].rtindex = -1;
+        }
+
+        prlights[lightcount].isinview = 0;
+
+        polymer_culllight(lightcount);
+
+        lightcount++;
+    }
+}
+
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
 {
     float           lightpos[3];

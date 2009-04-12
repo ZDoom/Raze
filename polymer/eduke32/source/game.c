@@ -4530,13 +4530,13 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
         }
 
 #ifdef POLYMER
-        if (getrendermode() == 4)
+        if (getrendermode() == 4) {
             polymer_setanimatesprites(G_DoSpriteAnimations, ud.camerax,ud.cameray,ud.cameraang,smoothratio);
+        }
 #endif
         drawrooms(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,ud.camerasect);
 #ifdef POLYMER
-        if (getrendermode() == 4)
-            polymer_resetlights();
+        framelightcount = 0;
 #endif
         G_DoSpriteAnimations(ud.camerax,ud.cameray,ud.cameraang,smoothratio);
         drawmasks();
@@ -6646,9 +6646,6 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
     intptr_t l, t1,t3,t4;
     spritetype *s,*t;
     int32_t switchpic;
-#ifdef POLYMER
-    _prlight light;
-#endif
 
     if (!spritesortcnt) return;
 
@@ -7372,37 +7369,36 @@ PALONLY:
         case FLOORFLAME__STATIC:
 
 #ifdef POLYMER
-            light.radius = 0;
-            light.sector = t->sectnum;
+            framelights[framelightcount].radius = 0;
+            framelights[framelightcount].sector = t->sectnum;
 
-            light.x = t->x;
-            light.y = t->y;
-            light.z = t->z;
+            framelights[framelightcount].x = t->x;
+            framelights[framelightcount].y = t->y;
+            framelights[framelightcount].z = t->z;
 
-            light.range = tilesizx[t->picnum]*tilesizy[t->picnum];
-            light.range -= rand()%((light.range>>3)+1);
+            framelights[framelightcount].range = tilesizx[t->picnum]*tilesizy[t->picnum];
+            framelights[framelightcount].range -= rand()%((framelights[framelightcount].range>>3)+1);
 
-            light.color[0] = 255;
-            light.color[1] = 80;
-            light.color[2] = 0;
+            framelights[framelightcount].color[0] = 255;
+            framelights[framelightcount].color[1] = 80;
+            framelights[framelightcount].color[2] = 0;
 
             if ((DynamicTileMap[s->picnum] == ATOMICHEALTH__STATIC) ||
                 (DynamicTileMap[s->picnum] == FREEZEBLAST__STATIC))
             {
-                light.color[0] = 0;
-                light.color[1] = 0;
-                light.color[2] = 255;
+                framelights[framelightcount].color[0] = 0;
+                framelights[framelightcount].color[1] = 0;
+                framelights[framelightcount].color[2] = 255;
             }
             if ((DynamicTileMap[s->picnum] == SHRINKSPARK__STATIC) ||
                 (DynamicTileMap[s->picnum] == SHRINKEREXPLOSION__STATIC))
             {
-                light.color[0] = 0;
-                light.color[1] = 255;
-                light.color[2] = 0;
+                framelights[framelightcount].color[0] = 0;
+                framelights[framelightcount].color[1] = 255;
+                framelights[framelightcount].color[2] = 0;
             }
 
-            if (getrendermode() >= 4)
-                polymer_addlight(light);
+            framelightcount++;
 #endif
             if (t->picnum == EXPLOSION2)
             {
@@ -7420,44 +7416,42 @@ PALONLY:
                 t->z = sector[t->sectnum].floorz;
             t->shade = -127;
 #ifdef POLYMER
-            light.radius = 0;
-            light.sector = t->sectnum;
+            framelights[framelightcount].radius = 0;
+            framelights[framelightcount].sector = t->sectnum;
 
-            light.x = t->x;
-            light.y = t->y;
-            light.z = t->z;
+            framelights[framelightcount].x = t->x;
+            framelights[framelightcount].y = t->y;
+            framelights[framelightcount].z = t->z;
 
-            light.range = tilesizx[t->picnum]*tilesizy[t->picnum];
-            light.range -= rand()%((light.range>>3)+1);
+            framelights[framelightcount].range = tilesizx[t->picnum]*tilesizy[t->picnum];
+            framelights[framelightcount].range -= rand()%((framelights[framelightcount].range>>3)+1);
 
-            light.color[0] = 255;
-            light.color[1] = 80;
-            light.color[2] = 0;
+            framelights[framelightcount].color[0] = 255;
+            framelights[framelightcount].color[1] = 80;
+            framelights[framelightcount].color[2] = 0;
 
-            if (getrendermode() >= 4)
-                polymer_addlight(light);
+            framelightcount++;
 #endif
             break;
         case COOLEXPLOSION1__STATIC:
             t->shade = -127;
             t->picnum += (s->shade>>1);
 #ifdef POLYMER
-            light.radius = 0;
-            light.sector = t->sectnum;
+            framelights[framelightcount].radius = 0;
+            framelights[framelightcount].sector = t->sectnum;
 
-            light.x = t->x;
-            light.y = t->y;
-            light.z = t->z;
+            framelights[framelightcount].x = t->x;
+            framelights[framelightcount].y = t->y;
+            framelights[framelightcount].z = t->z;
 
-            light.range = tilesizx[t->picnum]*tilesizy[t->picnum];
-            light.range -= rand()%((light.range>>3)+1);
+            framelights[framelightcount].range = tilesizx[t->picnum]*tilesizy[t->picnum];
+            framelights[framelightcount].range -= rand()%((framelights[framelightcount].range>>3)+1);
 
-            light.color[0] = 128;
-            light.color[1] = 0;
-            light.color[2] = 255;
+            framelights[framelightcount].color[0] = 128;
+            framelights[framelightcount].color[1] = 0;
+            framelights[framelightcount].color[2] = 255;
 
-            if (getrendermode() >= 4)
-                polymer_addlight(light);
+            framelightcount++;
 #endif
             break;
         case PLAYERONWATER__STATIC:

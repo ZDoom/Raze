@@ -167,6 +167,9 @@ extern int32_t      staticlightcount;
 extern _prlight     gamelights[PR_MAXLIGHTS];
 extern int32_t      gamelightcount;
 
+extern _prlight     framelights[PR_MAXLIGHTS];
+extern int32_t      framelightcount;
+
 // RENDER TARGETS
 typedef struct      s_prrt {
     GLenum          target;
@@ -271,8 +274,6 @@ void                polymer_rotatesprite(int32_t sx, int32_t sy, int32_t z, int1
 void                polymer_drawmaskwall(int32_t damaskwallcnt);
 void                polymer_drawsprite(int32_t snum);
 void                polymer_setanimatesprites(animatespritesptr animatesprites, int32_t x, int32_t y, int32_t a, int32_t smoothratio);
-void                polymer_resetlights(void);
-void                polymer_addlight(_prlight light);
 
 # ifdef POLYMER_C
 
@@ -318,6 +319,8 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
 static void         polymer_unbindmaterial(int32_t programbits);
 static void         polymer_compileprogram(int32_t programbits);
 // LIGHTS
+static void         polymer_resetlights(void);
+static void         polymer_addlight(_prlight light);
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light);
 static void         polymer_culllight(char lightindex);
 static void         polymer_prepareshadows(void);
