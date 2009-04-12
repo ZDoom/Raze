@@ -533,6 +533,11 @@ GLfloat         spritemodelview[16];
 GLfloat         rootmodelviewmatrix[16];
 GLfloat         *curmodelviewmatrix;
 
+static int16_t  sectorqueue[MAXSECTORS];
+static int16_t  querydelay[MAXSECTORS];
+static GLuint   queryid[MAXWALLS];
+static int16_t  drawingstate[MAXSECTORS];
+
 float           horizang;
 int16_t         viewangle;
 
@@ -881,7 +886,7 @@ void                polymer_drawsprite(int32_t snum)
     }
 
     if (((tspr->cstat>>4) & 3) == 0)
-        xratio = (float)(tspr->xrepeat) * 0.20f;
+        xratio = (float)(tspr->xrepeat) * 0.20f; // 32 / 160
     else
         xratio = (float)(tspr->xrepeat) * 0.25f;
 
@@ -1024,13 +1029,6 @@ void                polymer_setanimatesprites(animatespritesptr animatesprites, 
     asi.smoothratio = smoothratio;
 }
 
-static int16_t      sectorqueue[MAXSECTORS];
-static int16_t      querydelay[MAXSECTORS];
-static GLuint       queryid[MAXWALLS];
-static int16_t      drawingstate[MAXSECTORS];
-static spritetype   localtsprite[MAXSPRITESONSCREEN];
-static int16_t      localmaskwall[MAXWALLSB];
-
 // CORE
 static void         polymer_displayrooms(int16_t dacursectnum)
 {
@@ -1044,6 +1042,8 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     GLfloat         localprojectionmatrix[16];
     float           frustum[5 * 4];
     int32_t         localspritesortcnt;
+    spritetype      localtsprite[MAXSPRITESONSCREEN];
+    int16_t         localmaskwall[MAXWALLSB];
     int16_t         localmaskwallcnt;
     _prmirror       mirrorlist[10];
     int             mirrorcount;
@@ -1414,7 +1414,7 @@ static void         polymer_drawplane(_prplane* plane)
     plane->drawn = 1;
 }
 
-static inline void         polymer_inb4mirror(GLfloat* buffer, GLfloat* plane)
+static inline void  polymer_inb4mirror(GLfloat* buffer, GLfloat* plane)
 {
     float           pv;
     float           reflectionmatrix[16];
@@ -2397,7 +2397,7 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
 
         norm = plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2];
 
-        if (norm >= 5000) // hack to work around a precision issue with slopes
+        if (norm >= 15000) // hack to work around a precision issue with slopes
         {
             // normalize the normal/plane equation and calculate its plane norm
             norm = -sqrt(norm);
@@ -2467,14 +2467,14 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
     while (i < indicecount);
 }
 
-static inline void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out)
+static inline void  polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out)
 {
     out[0] = in_a[1] * in_b[2] - in_a[2] * in_b[1];
     out[1] = in_a[2] * in_b[0] - in_a[0] * in_b[2];
     out[2] = in_a[0] * in_b[1] - in_a[1] * in_b[0];
 }
 
-static inline void         polymer_transformpoint(float* inpos, float* pos, float* matrix)
+static inline void  polymer_transformpoint(float* inpos, float* pos, float* matrix)
 {
     pos[0] = inpos[0] * matrix[0] +
              inpos[1] * matrix[4] +
@@ -2490,7 +2490,7 @@ static inline void         polymer_transformpoint(float* inpos, float* pos, floa
                       + matrix[14];
 }
 
-static inline void         polymer_pokesector(int16_t sectnum)
+static inline void  polymer_pokesector(int16_t sectnum)
 {
     sectortype      *sec;
     _prsector       *s;
@@ -2571,7 +2571,7 @@ static int32_t      polymer_planeinfrustum(_prplane *plane, float* frustum)
     return (1);
 }
 
-static inline void         polymer_scansprites(int16_t sectnum, spritetype* localtsprite, int32_t* localspritesortcnt)
+static inline void  polymer_scansprites(int16_t sectnum, spritetype* localtsprite, int32_t* localspritesortcnt)
 {
     int32_t         i;
     spritetype      *spr;
@@ -3794,7 +3794,7 @@ static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
     return 1;
 }
 
-static inline void         polymer_culllight(char lightindex)
+static inline void  polymer_culllight(char lightindex)
 {
     _prlight*       light;
     int32_t         front;
