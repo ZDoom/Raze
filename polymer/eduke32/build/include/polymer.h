@@ -47,8 +47,6 @@ extern int32_t      pr_overridespecular;
 extern float        pr_specularpower;
 extern float        pr_specularfactor;
 
-extern int32_t      glerror;
-
 // MATERIAL
 typedef enum {
                     PR_BIT_HEADER,              // must be first
@@ -131,8 +129,6 @@ typedef struct      s_prrograminfo {
     // PR_BIT_SPOT_LIGHT
     GLint           uniform_spotDir;
     GLint           uniform_spotRadius;
-    // PR_BIT_POINT_LIGHT
-//     GLint           uniform_lightCount;
 }                   _prprograminfo;
 
 #define             PR_INFO_LOG_BUFFER_SIZE 16384
@@ -259,11 +255,6 @@ typedef struct      s_pranimatespritesinfo {
     animatespritesptr animatesprites;
     int32_t         x, y, a, smoothratio;
 }                   _pranimatespritesinfo;
-
-// PROGRAMS
-
-// CONTROL
-extern int32_t      updatesectors;
 
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void);

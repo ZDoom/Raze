@@ -12847,11 +12847,6 @@ static int32_t G_DoMoveThings(void)
         S_Pan3D();
     }
 
-#ifdef POLYMER
-    //polymer invalidate
-    updatesectors = 1;
-#endif
-
     return 0;
 }
 

@@ -13,7 +13,6 @@ int32_t         pr_billboardingmode = 1;
 int32_t         pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
 int32_t         pr_wireframe = 0;
 int32_t         pr_vbos = 2;
-int32_t         pr_mirrordepth = 1;
 int32_t         pr_gpusmoothing = 1;
 int32_t         pr_overrideparallax = 0;
 float           pr_parallaxscale = 0.1f;
@@ -22,12 +21,8 @@ int32_t         pr_overridespecular = 0;
 float           pr_specularpower = 15.0f;
 float           pr_specularfactor = 1.0f;
 
-int32_t         glerror;
-
 GLenum          mapvbousage = GL_STREAM_DRAW_ARB;
 GLenum          modelvbousage = GL_STATIC_DRAW_ARB;
-
-GLuint          modelvp;
 
 // BUILD DATA
 _prsector       *prsectors[MAXSECTORS];
@@ -529,11 +524,9 @@ _prrt           *prrts;
 GLfloat         spritemodelview[16];
 GLfloat         rootmodelviewmatrix[16];
 GLfloat         *curmodelviewmatrix;
-GLfloat         projectionmatrix[16];
 
 float           horizang;
-
-int32_t         updatesectors = 1;
+int16_t         viewangle;
 
 int32_t         depth;
 _prmirror       mirrors[10];
@@ -541,10 +534,6 @@ _prmirror       mirrors[10];
 GLUtesselator*  prtess;
 
 int16_t         cursky;
-
-int16_t         viewangle;
-
-int32_t         rootsectnum;
 
 _pranimatespritesinfo asi;
 
@@ -642,9 +631,6 @@ void                polymer_glinit(void)
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
     bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 0.01f, 100.0f);
-
-    // get the new projection matrix
-    bglGetFloatv(GL_PROJECTION_MATRIX, projectionmatrix);
 
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
@@ -780,8 +766,6 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
         viewangle = daang;
         return;
     }
-
-    rootsectnum = dacursectnum;
 
     // GO!
     polymer_displayrooms(dacursectnum);
@@ -3681,13 +3665,6 @@ static void         polymer_compileprogram(int32_t programbits)
         prprograms[programbits].uniform_spotDir = bglGetUniformLocationARB(program, "spotDir");
         prprograms[programbits].uniform_spotRadius = bglGetUniformLocationARB(program, "spotRadius");
     }
-
-    // PR_BIT_POINT_LIGHT
-    if (programbits & prprogrambits[PR_BIT_POINT_LIGHT].bit && glinfo.sm4)
-    {
-//         prprograms[programbits].uniform_lightCount = bglGetUniformLocationARB(program, "lightCount");
-    }
-
 }
 
 // LIGHTS
