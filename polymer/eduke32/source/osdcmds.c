@@ -758,7 +758,14 @@ cvar_t cvars[] =
     { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_INT, 0, 0, 2 },
 # ifdef POLYMER
     // polymer cvars
+    { "pr_lighting", "pr_lighting: enable/disable dynamic lights", (void*)&pr_lighting, CVAR_BOOL, 0, 0, 1 },
+    { "pr_normalmapping", "pr_normalmapping: enable/disable virtual displacement mapping", (void*)&pr_normalmapping, CVAR_BOOL, 0, 0, 1 },
+    { "pr_specularmapping", "pr_specularmapping: enable/disable specular mapping", (void*)&pr_specularmapping, CVAR_BOOL, 0, 0, 1 },
+    { "pr_shadows", "pr_shadows: enable/disable dynamic shadows", (void*)&pr_shadows, CVAR_BOOL, 0, 0, 1 },
+    { "pr_shadowcount", "pr_shadowcount: maximal amount of shadow emitting lights on screen - you need to restart the renderer for it to take effect", (void*)&pr_shadowcount, CVAR_INT, 0, 0, 64 },
+    { "pr_shadowdetail", "pr_shadowdetail: sets the shadow map resolution - you need to restart the renderer for it to take effect", (void*)&pr_shadowdetail, CVAR_INT, 0, 0, 5 },
     { "pr_maxlightpasses", "pr_maxlightpasses: the maximal amount of lights a single object can by affected by", (void*)&pr_maxlightpasses, CVAR_INT, 0, 0, 512 },
+    { "pr_maxlightpriority", "pr_maxlightpriority: lowering that value removes less meaningful lights from the scene", (void*)&pr_maxlightpriority, CVAR_INT, 0, 0, PR_MAXLIGHTPRIORITY },
     { "pr_fov", "pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_INT, 0, 0, 1023},
     { "pr_billboardingmode", "pr_billboardingmode: face sprite display method. 0: classic mode; 1: polymost mode", (void*)&pr_billboardingmode, CVAR_INT, 0, 0, 1 },
     { "pr_verbosity", "pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },

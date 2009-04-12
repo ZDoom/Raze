@@ -6,6 +6,12 @@
 #include "engine_priv.h"
 
 // CVARS
+int32_t         pr_lighting = 1;
+int32_t         pr_normalmapping = 1;
+int32_t         pr_specularmapping = 1;
+int32_t         pr_shadows = 1;
+int32_t         pr_shadowcount = 5;
+int32_t         pr_shadowdetail = 2;
 int32_t         pr_maxlightpasses = 5;
 int32_t         pr_maxlightpriority = PR_MAXLIGHTPRIORITY;
 int32_t         pr_fov = 426;           // appears to be the classic setting.
@@ -599,7 +605,7 @@ int32_t             polymer_init(void)
 
     overridematerial = 0xFFFFFFFF;
 
-    polymer_initrendertargets(5);
+    polymer_initrendertargets(pr_shadowcount + 1);
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete.\n");
     return (1);
@@ -690,11 +696,13 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     pos[2] = -daposx;
 
     polymer_resetlights();
-
-    polymer_applylights();
+    if (pr_lighting)
+        polymer_applylights();
 
     depth = 0;
-    polymer_prepareshadows();
+
+    if (pr_shadows)
+        polymer_prepareshadows();
 
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
@@ -2938,7 +2946,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         if (!mdspritematerial.diffusemap)
             continue;
 
-        if (r_detailmapping && !(tspr->cstat&1024))
+        if (!(tspr->cstat&1024))
         {
             mdspritematerial.detailmap =
                     mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
@@ -2960,7 +2968,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             mdspritematerial.specmaterial[1] = sk->specfactor;
         }
 
-        if (r_glowmapping && !(tspr->cstat&1024))
+        if (!(tspr->cstat&1024))
         {
             mdspritematerial.glowmap =
                     mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);
@@ -3138,7 +3146,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 
     // PR_BIT_DIFFUSE_DETAIL_MAP
-    if (r_detailmapping && hicfindsubst(tilenum, DETAILPAL, 0))
+    if (hicfindsubst(tilenum, DETAILPAL, 0))
     {
         detailpth = NULL;
         detailpth = gltexcache(tilenum, DETAILPAL, 0);
@@ -3187,7 +3195,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     if (r_fullbrights && pth && pth->flags & 16)
         material->glowmap = pth->ofb->glpic;
 
-    if (r_glowmapping && hicfindsubst(tilenum, GLOWPAL, 0))
+    if (hicfindsubst(tilenum, GLOWPAL, 0))
     {
         glowpth = NULL;
         glowpth = gltexcache(tilenum, GLOWPAL, 0);
@@ -3215,7 +3223,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
         programbits |= prprogrambits[PR_BIT_LIGHTING_PASS].bit;
 
     // PR_BIT_NORMAL_MAP
-    if (material.normalmap)
+    if (pr_normalmapping && material.normalmap)
         programbits |= prprogrambits[PR_BIT_NORMAL_MAP].bit;
 
     // PR_BIT_DIFFUSE_MAP
@@ -3223,14 +3231,14 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP].bit;
 
     // PR_BIT_DIFFUSE_DETAIL_MAP
-    if (!curlight && material.detailmap)
+    if (!curlight && r_detailmapping && material.detailmap)
         programbits |= prprogrambits[PR_BIT_DIFFUSE_DETAIL_MAP].bit;
 
     // PR_BIT_DIFFUSE_MODULATION
     programbits |= prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
 
     // PR_BIT_SPECULAR_MAP
-    if (material.specmap)
+    if (pr_specularmapping && material.specmap)
         programbits |= prprogrambits[PR_BIT_SPECULAR_MAP].bit;
 
     // PR_BIT_SPECULAR_MATERIAL
@@ -3245,7 +3253,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     programbits |= prprogrambits[PR_BIT_FOG].bit;
 
     // PR_BIT_GLOW_MAP
-    if (!curlight && material.glowmap)
+    if (!curlight && r_glowmapping && material.glowmap)
         programbits |= prprogrambits[PR_BIT_GLOW_MAP].bit;
 
     // PR_BIT_POINT_LIGHT
@@ -3889,7 +3897,7 @@ static void         polymer_prepareshadows(void)
 
     i = j = 0;
 
-    while ((i < lightcount) && (j < 4))
+    while ((i < lightcount) && (j < pr_shadowcount))
     {
         if (prlights[i].radius && prlights[i].isinview)
         {
@@ -4058,8 +4066,8 @@ static void         polymer_initrendertargets(int32_t count)
             bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_T, GL_CLAMP);
         } else {
             prrts[i].target = GL_TEXTURE_2D;
-            prrts[i].xdim = 512;
-            prrts[i].ydim = 512;
+            prrts[i].xdim = 128 << pr_shadowdetail;
+            prrts[i].ydim = 128 << pr_shadowdetail;
             prrts[i].color = 0;
         }
 
