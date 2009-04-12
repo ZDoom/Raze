@@ -2075,15 +2075,16 @@ static void         polymer_updatewall(int16_t wallnum)
     {
         nnwallnum = wall[nwallnum].point2;
 
-        if (((s->floor.buffer[((wallnum - sec->wallptr) * 5) + 1] != ns->floor.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-                (s->floor.buffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->floor.buffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
-                ((s->floor.buffer[((wallnum - sec->wallptr) * 5) + 1] <= ns->floor.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-                 (s->floor.buffer[((wal->point2 - sec->wallptr) * 5) + 1] <= ns->floor.buffer[((nwallnum - nsec->wallptr) * 5) + 1])))
+        if ((s->floor.buffer[((wallnum - sec->wallptr) * 5) + 1] < ns->floor.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
+            (s->floor.buffer[((wal->point2 - sec->wallptr) * 5) + 1] < ns->floor.buffer[((nwallnum - nsec->wallptr) * 5) + 1]))
             underwall = 1;
 
         if ((underwall) || (wal->cstat & 16) || (wal->cstat & 32))
         {
-            memcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+            if (s->floor.buffer[((wallnum - sec->wallptr) * 5) + 1] < ns->floor.buffer[((nnwallnum - nsec->wallptr) * 5) + 1])
+                memcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+            else
+                memcpy(w->wall.buffer, &ns->floor.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
             memcpy(&w->wall.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
             memcpy(&w->wall.buffer[10], &ns->floor.buffer[(nwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
             memcpy(&w->wall.buffer[15], &ns->floor.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
@@ -2153,10 +2154,8 @@ static void         polymer_updatewall(int16_t wallnum)
             memcpy(&w->mask.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 5);
         }
 
-        if (((s->ceil.buffer[((wallnum - sec->wallptr) * 5) + 1] != ns->ceil.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-                (s->ceil.buffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->ceil.buffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
-                ((s->ceil.buffer[((wallnum - sec->wallptr) * 5) + 1] >= ns->ceil.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-                 (s->ceil.buffer[((wal->point2 - sec->wallptr) * 5) + 1] >= ns->ceil.buffer[((nwallnum - nsec->wallptr) * 5) + 1])))
+        if ((s->ceil.buffer[((wallnum - sec->wallptr) * 5) + 1] > ns->ceil.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
+            (s->ceil.buffer[((wal->point2 - sec->wallptr) * 5) + 1] > ns->ceil.buffer[((nwallnum - nsec->wallptr) * 5) + 1]))
             overwall = 1;
 
         if ((overwall) || (wal->cstat & 16) || (wal->cstat & 32))
@@ -2168,7 +2167,10 @@ static void         polymer_updatewall(int16_t wallnum)
 
             memcpy(w->over.buffer, &ns->ceil.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
             memcpy(&w->over.buffer[5], &ns->ceil.buffer[(nwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
-            memcpy(&w->over.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+            if (s->ceil.buffer[((wal->point2 - sec->wallptr) * 5) + 1] > ns->ceil.buffer[((nwallnum - nsec->wallptr) * 5) + 1])
+                memcpy(&w->over.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+            else
+                memcpy(&w->over.buffer[10], &ns->ceil.buffer[(nwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
             memcpy(&w->over.buffer[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
             if ((wal->cstat & 16) || (wal->overpicnum == 0))
