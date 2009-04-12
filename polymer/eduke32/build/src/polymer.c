@@ -2404,7 +2404,7 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
 
         norm = plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2];
 
-        if (norm >= 5000) // hack to work around a precision issue with slopes
+        if (norm >= 15000) // hack to work around a precision issue with slopes
         {
             // normalize the normal/plane equation and calculate its plane norm
             norm = -sqrt(norm);
