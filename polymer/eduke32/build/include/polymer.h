@@ -148,11 +148,12 @@ typedef struct      s_prprogrambit {
 // LIGHTS
 #define             PR_MAXLIGHTS            128
 #define             SHADOW_DEPTH_OFFSET     30
+#define             PR_MAXLIGHTPRIORITY     3
 
 typedef struct      s_prlight {
     int32_t         x, y, z, horiz, range;
     int16_t         angle, faderadius, radius, sector;
-    char            color[3];
+    char            color[3], priority;
     int8_t          minshade, maxshade;
     GLfloat         proj[16];
     GLfloat         transform[16];
@@ -324,7 +325,7 @@ static void         polymer_addlight(_prlight light);
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light);
 static void         polymer_culllight(char lightindex);
 static void         polymer_prepareshadows(void);
-static void         polymer_dostaticlights(void);
+static void         polymer_applylights(void);
 // RENDER TARGETS
 static void         polymer_initrendertargets(int32_t count);
 

@@ -7,6 +7,7 @@
 
 // CVARS
 int32_t         pr_maxlightpasses = 5;
+int32_t         pr_maxlightpriority = PR_MAXLIGHTPRIORITY;
 int32_t         pr_fov = 426;           // appears to be the classic setting.
 int32_t         pr_billboardingmode = 1;
 int32_t         pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
@@ -704,21 +705,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
 
     polymer_resetlights();
 
-    polymer_dostaticlights();
-
-    i = 0;
-    while (i < gamelightcount)
-    {
-        polymer_addlight(gamelights[i]);
-        i++;
-    }
-
-    i = 0;
-    while (i < framelightcount)
-    {
-        polymer_addlight(framelights[i]);
-        i++;
-    }
+    polymer_applylights();
 
     depth = 0;
     polymer_prepareshadows();
@@ -3996,36 +3983,76 @@ static void         polymer_prepareshadows(void)
     sinviewingrangeglobalang = osinviewingrangeglobalang;
 }
 
-static void         polymer_dostaticlights(void)
+static void         polymer_applylights(void)
 {
-    int32_t         i;
+    int32_t         i, curpriority;
     _prlight        light;
     float           fade;
 
-    i = 0;
-    while (i < staticlightcount)
+    curpriority = 0;
+    while (curpriority < PR_MAXLIGHTPRIORITY)
     {
-        if (staticlights[i].minshade == staticlights[i].maxshade)
-            polymer_addlight(staticlights[i]);
-        else {
-            light = staticlights[i];
+        i = 0;
+        while (i < staticlightcount)
+        {
+            if ((staticlights[i].priority != curpriority) ||
+                (staticlights[i].priority > pr_maxlightpriority))
+            {
+                i++;
+                continue;
+            }
 
-            fade = sector[light.sector].floorshade;
-            fade -= light.minshade;
-            fade /= light.maxshade - light.minshade;
+            if (staticlights[i].minshade == staticlights[i].maxshade)
+                polymer_addlight(staticlights[i]);
+            else {
+                light = staticlights[i];
 
-            if (fade < 0.0f)
-                fade = 0.0f;
-            if (fade > 1.0f)
-                fade = 1.0f;
+                fade = sector[light.sector].floorshade;
+                fade -= light.minshade;
+                fade /= light.maxshade - light.minshade;
 
-            light.color[0] *= fade;
-            light.color[1] *= fade;
-            light.color[2] *= fade;
+                if (fade < 0.0f)
+                    fade = 0.0f;
+                if (fade > 1.0f)
+                    fade = 1.0f;
 
-            polymer_addlight(light);
+                light.color[0] *= fade;
+                light.color[1] *= fade;
+                light.color[2] *= fade;
+
+                polymer_addlight(light);
+            }
+            i++;
         }
-        i++;
+
+        i = 0;
+        while (i < gamelightcount)
+        {
+            if ((gamelights[i].priority != curpriority) ||
+                (gamelights[i].priority > pr_maxlightpriority))
+            {
+                i++;
+                continue;
+            }
+
+            polymer_addlight(gamelights[i]);
+            i++;
+        }
+
+        i = 0;
+        while (i < framelightcount)
+        {
+            if ((framelights[i].priority != curpriority) ||
+                (framelights[i].priority > pr_maxlightpriority))
+            {
+                i++;
+                continue;
+            }
+
+            polymer_addlight(framelights[i]);
+            i++;
+        }
+        curpriority++;
     }
 }
 

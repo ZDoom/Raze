@@ -7526,7 +7526,7 @@ int32_t loadmaphack(char *filename)
             }
             spriteext[whichsprite].flags |= SPREXT_AWAY2;
             break;
-        case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade
+        case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority
         {
             int32_t value;
 
@@ -7558,6 +7558,8 @@ int32_t loadmaphack(char *filename)
             staticlights[staticlightcount].minshade = value;
             scriptfile_getnumber(script, &value);
             staticlights[staticlightcount].maxshade = value;
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].priority = value;
 
             staticlightcount++;
             break;

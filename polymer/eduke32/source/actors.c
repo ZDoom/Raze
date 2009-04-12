@@ -3583,6 +3583,8 @@ static void G_MoveActors(void)
             gamelights[gamelightcount].color[1] = 255;
             gamelights[gamelightcount].color[2] = 255;
 
+            gamelights[gamelightcount].priority = 0;
+
             gamelightcount++;
 
             if (ud.multimode < 2)

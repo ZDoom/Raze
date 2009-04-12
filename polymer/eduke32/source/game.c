@@ -7383,6 +7383,8 @@ PALONLY:
             framelights[framelightcount].color[1] = 80;
             framelights[framelightcount].color[2] = 0;
 
+            framelights[framelightcount].priority = 0;
+
             if ((DynamicTileMap[s->picnum] == ATOMICHEALTH__STATIC) ||
                 (DynamicTileMap[s->picnum] == FREEZEBLAST__STATIC))
             {
@@ -7430,6 +7432,8 @@ PALONLY:
             framelights[framelightcount].color[1] = 80;
             framelights[framelightcount].color[2] = 0;
 
+            framelights[framelightcount].priority = 0;
+
             framelightcount++;
 #endif
             break;
@@ -7450,6 +7454,8 @@ PALONLY:
             framelights[framelightcount].color[0] = 128;
             framelights[framelightcount].color[1] = 0;
             framelights[framelightcount].color[2] = 255;
+
+            framelights[framelightcount].priority = 0;
 
             framelightcount++;
 #endif
