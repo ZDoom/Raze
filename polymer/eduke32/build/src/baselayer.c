@@ -237,7 +237,7 @@ int32_t baselayer_init(void)
                          "   2 - Polygonal textured software\n"
 #ifdef USE_OPENGL
                          "   3 - Polygonal OpenGL\n"
-//                         "   4 - great justice renderer\n"
+                         "   4 - Great justice renderer\n"
 #endif
                          ,
                          osdfunc_setrendermode);

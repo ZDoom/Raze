@@ -197,6 +197,7 @@ char Net_RandomSync(void)
         updatecrc(crc,Net_PlayerSync2() & 255);
         updatecrc(crc,Net_WeaponSync() & 255);
         updatecrc(crc,Net_ActorSync() & 255);
+        updatecrc(crc,Net_MapSync() & 255);
     }
 
     return ((uint8_t) crc & 255);

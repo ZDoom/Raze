@@ -214,7 +214,7 @@ void S_MenuSound(void)
 
 void _playmusic(const char *fn)
 {
-    int32_t        fp, l;
+    int32_t        fp, l, i;
 
     if (fn == NULL) return;
 
@@ -223,18 +223,27 @@ void _playmusic(const char *fn)
 
     fp = kopen4loadfrommod((char *)fn,0);
 
-    if (fp == -1) return;
+    if (fp == -1)
+    {
+        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open '%s' for playback!",fn);
+        return;
+    }
 
     l = kfilelength(fp);
     MUSIC_StopSong();
 
-    if (!MusicPtr) MusicPtr = Bcalloc(1, l);
-    else MusicPtr = Brealloc(MusicPtr, l);
+    MusicPtr = Brealloc(MusicPtr, l);
+    if ((i = kread(fp, (char *)MusicPtr, l)) != l)
+    {
+        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: read %d bytes from '%s', needed %d\n",i, fn, l);
+        kclose(fp);
+        return;
+    }
+
+    kclose(fp);
 
     g_musicSize=l;
 
-    kread(fp, (char *)MusicPtr, l);
-    kclose(fp);
     // FIXME: I need this to get the music volume initialized (not sure why) -- Jim Bentler
     MUSIC_SetVolume(ud.config.MusicVolume);
     MUSIC_PlaySong((char *)MusicPtr, MUSIC_LoopSong);

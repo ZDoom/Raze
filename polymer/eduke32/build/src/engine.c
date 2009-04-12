@@ -5733,8 +5733,8 @@ void uninitengine(void)
         Bfree(tsprite);
     if (spriteext != NULL)
         Bfree(spriteext);
-    if (spritesmooth != NULL)
-        Bfree(spritesmooth);
+//    if (spritesmooth != NULL)
+//        Bfree(spritesmooth);
 #endif
 }
 
@@ -6824,8 +6824,8 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
     kclose(fil);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-    memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
+    Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
+    Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
 
 # ifdef POLYMER
     if (rendmode == 4)
@@ -7827,10 +7827,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     }
 # ifdef POLYMER
     if (rendmode == 4)
-    {
         polymer_init();
-//        polymer_glinit();
-    }
 #endif
 #endif
     qsetmode = 200;

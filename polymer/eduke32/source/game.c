@@ -7369,6 +7369,7 @@ PALONLY:
         case FLOORFLAME__STATIC:
 
 #ifdef POLYMER
+/*
             framelights[framelightcount].radius = 0;
             framelights[framelightcount].sector = t->sectnum;
 
@@ -7401,6 +7402,7 @@ PALONLY:
             }
 
             framelightcount++;
+*/
 #endif
             if (t->picnum == EXPLOSION2)
             {
@@ -7418,6 +7420,7 @@ PALONLY:
                 t->z = sector[t->sectnum].floorz;
             t->shade = -127;
 #ifdef POLYMER
+/*
             framelights[framelightcount].radius = 0;
             framelights[framelightcount].sector = t->sectnum;
 
@@ -7435,12 +7438,14 @@ PALONLY:
             framelights[framelightcount].priority = 0;
 
             framelightcount++;
+*/
 #endif
             break;
         case COOLEXPLOSION1__STATIC:
             t->shade = -127;
             t->picnum += (s->shade>>1);
 #ifdef POLYMER
+/*
             framelights[framelightcount].radius = 0;
             framelights[framelightcount].sector = t->sectnum;
 
@@ -7458,6 +7463,7 @@ PALONLY:
             framelights[framelightcount].priority = 0;
 
             framelightcount++;
+*/
 #endif
             break;
         case PLAYERONWATER__STATIC:
@@ -8441,11 +8447,13 @@ static void G_HandleLocalKeys(void)
                 if (i == 5 && g_player[myconnectindex].ps->fta > 0 && g_player[myconnectindex].ps->ftq == 26)
                 {
                     i = (VOLUMEALL?MAXVOLUMES*MAXLEVELS:6);
-                    g_musicIndex++;
-                    while ((MapInfo[(uint8_t)g_musicIndex].musicfn == NULL) && g_musicIndex < i)
+                    g_musicIndex = (g_musicIndex+1)%i;
+                    while (MapInfo[(uint8_t)g_musicIndex].musicfn == NULL)
+                    {
                         g_musicIndex++;
-                    if (g_musicIndex == i)
-                        g_musicIndex = 0;
+                        if (g_musicIndex >= i)
+                            g_musicIndex = 0;
+                    }
                     if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
                     {
                         if (S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex))
@@ -12802,6 +12810,8 @@ static int32_t G_DoMoveThings(void)
     g_moveThingsCount++;
 
     if (ud.recstat == 1) G_DemoRecord();
+
+    gamelightcount = 0;
 
     if (ud.pause_on == 0)
     {

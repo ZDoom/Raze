@@ -32,6 +32,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 
 #include "mpu401.h"
 #include "compat.h"
+#include "osd.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -51,7 +52,7 @@ MIDIEVENTHEAD;
 #define PAD(x) ((((x)+3)&(~3)))
 
 #define BUFFERLEN (32*4*4)
-#define NUMBUFFERS 6
+#define NUMBUFFERS 8
 static char eventbuf[NUMBUFFERS][BUFFERLEN];
 static int32_t  eventcnt[NUMBUFFERS];
 static MIDIHDR bufferheaders[NUMBUFFERS];
@@ -91,7 +92,7 @@ void MPU_FinishBuffer(int32_t buffer)
         bufferheaders[buffer].dwBytesRecorded = eventcnt[buffer];
     midiOutPrepareHeader((HMIDIOUT)hmido, &bufferheaders[buffer], sizeof(MIDIHDR));
     midiStreamOut(hmido, &bufferheaders[buffer], sizeof(MIDIHDR));
-//	printf("Sending %d bytes (buffer %d)\n",eventcnt[buffer],buffer);
+	// OSD_Printf("Sending %d bytes (buffer %d)\n",eventcnt[buffer],buffer);
     _MPU_BuffersWaiting++;
 }
 
@@ -128,7 +129,7 @@ void CALLBACK MPU_MIDICallback(HMIDIOUT handle, UINT uMsg, DWORD dwInstance, DWO
             if (dwParam1 == (uint32_t)&bufferheaders[i])
             {
                 eventcnt[i] = 0;	// marks the buffer as free
-//					printf("Finished buffer %d\n",i);
+					// OSD_Printf("Finished buffer %d\n",i);
                 _MPU_BuffersWaiting--;
                 break;
             }
@@ -171,7 +172,7 @@ void MPU_SendMidi(char *data, int32_t count)
             nextbuffer = MPU_GetNextBuffer();
             if (nextbuffer < 0)
             {
-//				printf("All buffers full!\n");
+				// OSD_Printf("All buffers full!\n");
                 return;
             }
             MPU_FinishBuffer(_MPU_CurrentBuffer);
@@ -193,7 +194,7 @@ void MPU_SendMidi(char *data, int32_t count)
             nextbuffer = MPU_GetNextBuffer();
             if (nextbuffer < 0)
             {
-//				printf("All buffers full!\n");
+				// OSD_Printf("All buffers full!\n");
                 return;
             }
             MPU_FinishBuffer(_MPU_CurrentBuffer);

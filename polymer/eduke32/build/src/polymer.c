@@ -37,7 +37,7 @@ _prwall         *prwalls[MAXWALLS];
 _prplane        spriteplane;
 _prmaterial     mdspritematerial;
 
-GLfloat         vertsprite[4 * 5] =
+static GLfloat  vertsprite[4 * 5] =
 {
     -0.5f, 0.0f, 0.0f,
     0.0f, 1.0f,
@@ -49,7 +49,7 @@ GLfloat         vertsprite[4 * 5] =
     0.0f, 0.0f,
 };
 
-GLfloat         horizsprite[4 * 5] =
+static GLfloat  horizsprite[4 * 5] =
 {
     -0.5f, 0.0f, -0.5f,
     0.0f, 1.0f,
@@ -61,7 +61,7 @@ GLfloat         horizsprite[4 * 5] =
     0.0f, 0.0f,
 };
 
-GLfloat         skyboxdata[4 * 5 * 6] =
+static GLfloat  skyboxdata[4 * 5 * 6] =
 {
     // -ZY
     -0.5f, -0.5f, 0.5f,
@@ -142,7 +142,7 @@ int32_t         gamelightcount;
 _prlight        framelights[PR_MAXLIGHTS];
 int32_t         framelightcount;
 
-GLfloat         shadowBias[] =
+static GLfloat  shadowBias[] =
 {
     0.5, 0.0, 0.0, 0.0,
     0.0, 0.5, 0.0, 0.0,
@@ -552,24 +552,13 @@ int32_t             polymer_init(void)
 
     if (pr_verbosity >= 1) OSD_Printf("Initalizing Polymer subsystem...\n");
 
-    i = 0;
-    while (i < MAXSECTORS)
-    {
-        prsectors[i] = NULL;
-        i++;
-    }
-
-    i = 0;
-    while (i < MAXWALLS)
-    {
-        prwalls[i] = NULL;
-        i++;
-    }
+    Bmemset(&prsectors[0], sizeof(prsectors[0]) * MAXSECTORS, 0);
+    Bmemset(&prwalls[0], sizeof(prwalls[0]) * MAXWALLS, 0);
 
     prtess = bgluNewTess();
     if (prtess == 0)
     {
-        if (pr_verbosity >= 1) OSD_Printf("PR : Tesselator initialization failed.\n");
+        OSD_Printf("PR : Tesselator initialization failed.\n");
         return (0);
     }
 
@@ -892,19 +881,19 @@ void                polymer_drawsprite(int32_t snum)
     }
 
     if (((tspr->cstat>>4) & 3) == 0)
-        xratio = (float)(tspr->xrepeat) * 32.0f / 160.0f;
+        xratio = (float)(tspr->xrepeat) * 0.20f;
     else
-        xratio = (float)(tspr->xrepeat) / 4.0f;
+        xratio = (float)(tspr->xrepeat) * 0.25f;
 
-    yratio = (float)(tspr->yrepeat) / 4.0f;
+    yratio = (float)(tspr->yrepeat) * 0.25f;
+
+    xsize = tilesizx[curpicnum];
+    ysize = tilesizy[curpicnum];
 
     if (usehightile && h_xsize[curpicnum])
     {
         xsize = h_xsize[curpicnum];
         ysize = h_ysize[curpicnum];
-    } else {
-        xsize = tilesizx[curpicnum];
-        ysize = tilesizy[curpicnum];
     }
 
     xsize *= xratio;
@@ -1035,6 +1024,13 @@ void                polymer_setanimatesprites(animatespritesptr animatesprites, 
     asi.smoothratio = smoothratio;
 }
 
+static int16_t      sectorqueue[MAXSECTORS];
+static int16_t      querydelay[MAXSECTORS];
+static GLuint       queryid[MAXWALLS];
+static int16_t      drawingstate[MAXSECTORS];
+static spritetype   localtsprite[MAXSPRITESONSCREEN];
+static int16_t      localmaskwall[MAXWALLSB];
+
 // CORE
 static void         polymer_displayrooms(int16_t dacursectnum)
 {
@@ -1044,16 +1040,11 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     int16_t         doquery;
     int32_t         front;
     int32_t         back;
-    int16_t         sectorqueue[MAXSECTORS];
-    int16_t         querydelay[MAXSECTORS];
-    GLuint          queryid[MAXWALLS];
-    int16_t         drawingstate[MAXSECTORS];
     GLfloat         localmodelviewmatrix[16];
     GLfloat         localprojectionmatrix[16];
     float           frustum[5 * 4];
     int32_t         localspritesortcnt;
-    spritetype      localtsprite[MAXSPRITESONSCREEN];
-    int16_t         localmaskwall[MAXWALLSB], localmaskwallcnt;
+    int16_t         localmaskwallcnt;
     _prmirror       mirrorlist[10];
     int             mirrorcount;
     int32_t         gx, gy, gz, px, py, pz;
@@ -1423,7 +1414,7 @@ static void         polymer_drawplane(_prplane* plane)
     plane->drawn = 1;
 }
 
-static void         polymer_inb4mirror(GLfloat* buffer, GLfloat* plane)
+static inline void         polymer_inb4mirror(GLfloat* buffer, GLfloat* plane)
 {
     float           pv;
     float           reflectionmatrix[16];
@@ -2406,7 +2397,7 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
 
         norm = plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2];
 
-        if (norm >= 15000) // hack to work around a precision issue with slopes
+        if (norm >= 5000) // hack to work around a precision issue with slopes
         {
             // normalize the normal/plane equation and calculate its plane norm
             norm = -sqrt(norm);
@@ -2476,14 +2467,14 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
     while (i < indicecount);
 }
 
-static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out)
+static inline void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out)
 {
     out[0] = in_a[1] * in_b[2] - in_a[2] * in_b[1];
     out[1] = in_a[2] * in_b[0] - in_a[0] * in_b[2];
     out[2] = in_a[0] * in_b[1] - in_a[1] * in_b[0];
 }
 
-static void         polymer_transformpoint(float* inpos, float* pos, float* matrix)
+static inline void         polymer_transformpoint(float* inpos, float* pos, float* matrix)
 {
     pos[0] = inpos[0] * matrix[0] +
              inpos[1] * matrix[4] +
@@ -2499,7 +2490,7 @@ static void         polymer_transformpoint(float* inpos, float* pos, float* matr
                       + matrix[14];
 }
 
-static void         polymer_pokesector(int16_t sectnum)
+static inline void         polymer_pokesector(int16_t sectnum)
 {
     sectortype      *sec;
     _prsector       *s;
@@ -2580,7 +2571,7 @@ static int32_t      polymer_planeinfrustum(_prplane *plane, float* frustum)
     return (1);
 }
 
-static void         polymer_scansprites(int16_t sectnum, spritetype* localtsprite, int32_t* localspritesortcnt)
+static inline void         polymer_scansprites(int16_t sectnum, spritetype* localtsprite, int32_t* localspritesortcnt)
 {
     int32_t         i;
     spritetype      *spr;
@@ -3803,7 +3794,7 @@ static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
     return 1;
 }
 
-static void         polymer_culllight(char lightindex)
+static inline void         polymer_culllight(char lightindex)
 {
     _prlight*       light;
     int32_t         front;

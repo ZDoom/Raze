@@ -23,7 +23,7 @@ flags_link=/RELEASE
 !endif
 
 
-DXROOT=c:\sdks\dx6
+DXROOT="U:\SDKs\Microsoft DirectX SDK (April 2007)
 MSSDKROOT="N:\Program Files\Microsoft Visual Studio 9.0\VC
 PLATFORMSDK="N:\Program Files\Microsoft Visual Studio 9.0\VC\PlatformSDK
 
@@ -36,7 +36,7 @@ MT=mt
 CFLAGS= /MD /J /nologo $(flags_cl)  \
 	/I$(INC) /I$(EINC)\ /I$(SRC)\jmact /I$(SRC)\jaudiolib /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" \
  	/DNOCOPYPROTECT  /D "_CRT_SECURE_NO_DEPRECATE" -W2 $(ENGINEOPTS) \
- 	/I$(DXROOT)\include /DRENDERTYPEWIN=1
+ 	/I$(DXROOT)\include" /DRENDERTYPEWIN=1
 LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib wsock32.lib comctl32.lib \
         /NODEFAULTLIB:libFLAC.lib /NODEFAULTLIB:glu32.lib /NODEFAULTLIB:LIBCMT.lib /NODEFAULTLIB:LIBCMTD.lib
 
@@ -146,15 +146,15 @@ EDITOROBJS=$(OBJ)\astub.$o \
 all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) # duke3d_w32$(EXESUFFIX);
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 	$(MT) -manifest $@.manifest $(RSRC)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 	$(MT) -manifest $@.manifest $(RSRC)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 duke3d_w32$(EXESUFFIX): $(OBJ)/wrapper.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 	$(MT) -manifest $@.manifest -outputresource:$@
 	
 !include Makefile.deps

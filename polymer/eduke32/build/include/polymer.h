@@ -279,7 +279,7 @@ void                polymer_setanimatesprites(animatespritesptr animatesprites, 
 // CORE
 static void         polymer_displayrooms(int16_t sectnum);
 static void         polymer_drawplane(_prplane* plane);
-static void         polymer_inb4mirror(GLfloat* buffer, GLfloat* plane);
+static inline void  polymer_inb4mirror(GLfloat* buffer, GLfloat* plane);
 static void         polymer_animatesprites(void);
 // SECTORS
 static int32_t      polymer_initsector(int16_t sectnum);
@@ -295,12 +295,12 @@ static void         polymer_updatewall(int16_t wallnum);
 static void         polymer_drawwall(int16_t sectnum, int16_t wallnum);
 // HSR
 static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int32_t indicecount, GLfloat* plane, GLfloat* t, GLfloat* b, GLfloat* n);
-static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out);
-static void         polymer_transformpoint(float* inpos, float* pos, float* matrix);
-static void         polymer_pokesector(int16_t sectnum);
+static inline void  polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out);
+static inline void  polymer_transformpoint(float* inpos, float* pos, float* matrix);
+static inline void  polymer_pokesector(int16_t sectnum);
 static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projection, float* frustum);
 static int32_t      polymer_planeinfrustum(_prplane *plane, float* frustum);
-static void         polymer_scansprites(int16_t sectnum, spritetype* tsprite, int32_t* spritesortcnt);
+static inline void  polymer_scansprites(int16_t sectnum, spritetype* tsprite, int32_t* spritesortcnt);
 // SKIES
 static void         polymer_getsky(void);
 static void         polymer_drawsky(int16_t tilenum);
@@ -321,7 +321,7 @@ static void         polymer_compileprogram(int32_t programbits);
 static void         polymer_resetlights(void);
 static void         polymer_addlight(_prlight light);
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light);
-static void         polymer_culllight(char lightindex);
+static inline void  polymer_culllight(char lightindex);
 static void         polymer_prepareshadows(void);
 static void         polymer_applylights(void);
 // RENDER TARGETS

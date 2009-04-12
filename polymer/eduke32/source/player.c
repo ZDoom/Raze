@@ -2111,8 +2111,50 @@ void P_FireWeapon(DukePlayer_t *p)
 
         if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_NOVISIBLE))
         {
+            spritetype *s = &sprite[p->i];
+
             lastvisinc = totalclock+32;
             p->visibility = 0;
+
+            gamelights[gamelightcount].radius = 0;
+            gamelights[gamelightcount].sector = s->sectnum;
+
+            gamelights[gamelightcount].x = s->x;
+            gamelights[gamelightcount].y = s->y;
+            gamelights[gamelightcount].z = s->z-PHEIGHT;
+
+            gamelights[gamelightcount].range = 4096;
+            gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
+
+            gamelights[gamelightcount].color[0] = 255;
+            gamelights[gamelightcount].color[1] = 80;
+            gamelights[gamelightcount].color[2] = 0;
+
+            gamelights[gamelightcount].priority = 0;
+
+            gamelightcount++;
+
+            gamelights[gamelightcount].sector = s->sectnum;
+            gamelights[gamelightcount].x = s->x+((sintable[(p->ang+512)&2047])>>5);
+            gamelights[gamelightcount].y = s->y+((sintable[(p->ang)&2047])>>5);
+
+            gamelights[gamelightcount].z = s->z-PHEIGHT;
+            gamelights[gamelightcount].range = 8192;
+
+            gamelights[gamelightcount].angle = (s->ang+1024)&2047;
+            gamelights[gamelightcount].horiz = 100;
+            gamelights[gamelightcount].radius = 256;
+            gamelights[gamelightcount].faderadius = 200;
+
+            gamelights[gamelightcount].color[0] = 255;
+            gamelights[gamelightcount].color[1] = 80;
+            gamelights[gamelightcount].color[2] = 0;
+
+            gamelights[gamelightcount].priority = 0;
+
+            gamelightcount++;
+
+
         }
 
         /*        if( //!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_CHECKATRELOAD) &&

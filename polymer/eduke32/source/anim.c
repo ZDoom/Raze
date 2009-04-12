@@ -228,7 +228,7 @@ void G_PlayAnim(const char *fn,char t)
 
     walock[TILE_ANIM] = 219+t;
 
-    allocache((intptr_t *)&animbuf,length,&walock[TILE_ANIM]);
+    allocache((intptr_t *)&animbuf,length+1,&walock[TILE_ANIM]);
 
     tilesizx[TILE_ANIM] = 200;
     tilesizy[TILE_ANIM] = 320;

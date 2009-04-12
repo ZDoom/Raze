@@ -52,7 +52,7 @@ extern "C" {
 #include "macros.h"
 
 #define APPNAME "EDuke32"
-#define VERSION " 1.5.0devel"
+#define VERSION " 2.0.0devel"
 	// this is checked against http://eduke32.com/VERSION
 	extern const char *s_buildDate;
 #define HEAD2 APPNAME VERSION

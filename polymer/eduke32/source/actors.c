@@ -2680,8 +2680,88 @@ static void G_MoveWeapons(void)
 
                 switch (DynamicTileMap[s->picnum])
                 {
+                case FREEZEBLAST__STATIC:
+                    gamelights[gamelightcount].radius = 0;
+                    gamelights[gamelightcount].sector = s->sectnum;
+
+                    gamelights[gamelightcount].x = s->x;
+                    gamelights[gamelightcount].y = s->y;
+                    gamelights[gamelightcount].z = s->z;
+
+                    gamelights[gamelightcount].range = 2048;
+                    gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
+
+                    gamelights[gamelightcount].color[0] = 128;
+                    gamelights[gamelightcount].color[1] = 128;
+                    gamelights[gamelightcount].color[2] = 255;
+
+                    gamelights[gamelightcount].priority = 0;
+
+                    gamelightcount++;
+                    break;
+
+                case COOLEXPLOSION1__STATIC:
+                    gamelights[gamelightcount].radius = 0;
+                    gamelights[gamelightcount].sector = s->sectnum;
+
+                    gamelights[gamelightcount].x = s->x;
+                    gamelights[gamelightcount].y = s->y;
+                    gamelights[gamelightcount].z = s->z;
+
+                    gamelights[gamelightcount].range = 3072;
+                    gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
+
+                    gamelights[gamelightcount].color[0] = 128;
+                    gamelights[gamelightcount].color[1] = 0;
+                    gamelights[gamelightcount].color[2] = 255;
+
+                    gamelights[gamelightcount].priority = 0;
+
+                    gamelightcount++;
+                    break;
+
+                case SHRINKSPARK__STATIC:
+                    gamelights[gamelightcount].radius = 0;
+                    gamelights[gamelightcount].sector = s->sectnum;
+
+                    gamelights[gamelightcount].x = s->x;
+                    gamelights[gamelightcount].y = s->y;
+                    gamelights[gamelightcount].z = s->z;
+
+                    gamelights[gamelightcount].range = tilesizx[s->picnum]*tilesizy[s->picnum];
+                    gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
+
+                    gamelights[gamelightcount].color[0] = 128;
+                    gamelights[gamelightcount].color[1] = 255;
+                    gamelights[gamelightcount].color[2] = 128;
+
+                    gamelights[gamelightcount].priority = 0;
+
+                    gamelightcount++;
+                    break;
+
                 case RPG__STATIC:
-                    if (ActorExtra[i].picnum != BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
+                case FIRELASER__STATIC:
+                    gamelights[gamelightcount].radius = 0;
+                    gamelights[gamelightcount].sector = s->sectnum;
+
+                    gamelights[gamelightcount].x = s->x;
+                    gamelights[gamelightcount].y = s->y;
+                    gamelights[gamelightcount].z = s->z;
+
+                    gamelights[gamelightcount].range = tilesizx[s->picnum]*tilesizy[s->picnum];
+                    gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
+
+                    gamelights[gamelightcount].color[0] = 255;
+                    gamelights[gamelightcount].color[1] = 80;
+                    gamelights[gamelightcount].color[2] = 0;
+
+                    gamelights[gamelightcount].priority = 0;
+
+                    gamelightcount++;
+
+                    if (DynamicTileMap[s->picnum] == RPG__STATIC && ActorExtra[i].picnum != BOSS2 &&
+                        s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
                     {
                         j = A_Spawn(i,SMALLSMOKE);
                         sprite[j].z += (1<<8);
@@ -3323,6 +3403,47 @@ static void G_MoveActors(void)
         }
         switch (DynamicTileMap[switchpicnum])
         {
+        case ATOMICHEALTH__STATIC:
+            gamelights[gamelightcount].radius = 0;
+            gamelights[gamelightcount].sector = s->sectnum;
+
+            gamelights[gamelightcount].x = s->x;
+            gamelights[gamelightcount].y = s->y;
+            gamelights[gamelightcount].z = s->z;
+
+            gamelights[gamelightcount].range = 2048;
+            gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
+
+            gamelights[gamelightcount].color[0] = 128;
+            gamelights[gamelightcount].color[1] = 128;
+            gamelights[gamelightcount].color[2] = 255;
+
+            gamelights[gamelightcount].priority = 0;
+
+            gamelightcount++;
+            break;
+
+        case FIRE__STATIC:
+        case FIRE2__STATIC:
+            gamelights[gamelightcount].radius = 0;
+            gamelights[gamelightcount].sector = s->sectnum;
+
+            gamelights[gamelightcount].x = s->x;
+            gamelights[gamelightcount].y = s->y;
+            gamelights[gamelightcount].z = s->z;
+
+            gamelights[gamelightcount].range = tilesizx[s->picnum]*tilesizy[s->picnum];
+            gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
+
+            gamelights[gamelightcount].color[0] = 255;
+            gamelights[gamelightcount].color[1] = 80;
+            gamelights[gamelightcount].color[2] = 0;
+
+            gamelights[gamelightcount].priority = 0;
+
+            gamelightcount++;
+            break;
+
         case DUCK__STATIC:
         case TARGET__STATIC:
             if (s->cstat&32)
@@ -5063,11 +5184,77 @@ static void G_MoveMisc(void)  // STATNUM 5
             case FORCERIPPLE__STATIC:
             case TRANSPORTERSTAR__STATIC:
             case TRANSPORTERBEAM__STATIC:
+                {
+                    switch (DynamicTileMap[switchpicnum])
+                    {
+                    case BURNING__STATIC:
+                    case BURNING2__STATIC:
+                    case EXPLOSION2__STATIC:
+                        gamelights[gamelightcount].radius = 0;
+                        gamelights[gamelightcount].sector = s->sectnum;
+
+                        gamelights[gamelightcount].x = s->x;
+                        gamelights[gamelightcount].y = s->y;
+                        gamelights[gamelightcount].z = s->z;
+
+                        gamelights[gamelightcount].range = tilesizx[s->picnum]*tilesizy[s->picnum];
+                        gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
+
+                        gamelights[gamelightcount].color[0] = 255;
+                        gamelights[gamelightcount].color[1] = 80;
+                        gamelights[gamelightcount].color[2] = 0;
+
+                        gamelights[gamelightcount].priority = 0;
+
+                        gamelightcount++;
+                        break;
+                    case FORCERIPPLE__STATIC:
+                    case TRANSPORTERSTAR__STATIC:
+                    case TRANSPORTERBEAM__STATIC:
+                        gamelights[gamelightcount].radius = 0;
+                        gamelights[gamelightcount].sector = s->sectnum;
+
+                        gamelights[gamelightcount].x = s->x;
+                        gamelights[gamelightcount].y = s->y;
+                        gamelights[gamelightcount].z = s->z;
+
+                        gamelights[gamelightcount].range = tilesizx[s->picnum]*tilesizy[s->picnum];
+                        gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
+
+                        gamelights[gamelightcount].color[0] = 80;
+                        gamelights[gamelightcount].color[1] = 80;
+                        gamelights[gamelightcount].color[2] = 255;
+
+                        gamelights[gamelightcount].priority = 0;
+
+                        gamelightcount++;
+                        break;
+                    case SHRINKEREXPLOSION__STATIC:
+                        gamelights[gamelightcount].radius = 0;
+                        gamelights[gamelightcount].sector = s->sectnum;
+
+                        gamelights[gamelightcount].x = s->x;
+                        gamelights[gamelightcount].y = s->y;
+                        gamelights[gamelightcount].z = s->z;
+
+                        gamelights[gamelightcount].range = tilesizx[s->picnum]*tilesizy[s->picnum];
+                        gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
+
+                        gamelights[gamelightcount].color[0] = 128;
+                        gamelights[gamelightcount].color[1] = 255;
+                        gamelights[gamelightcount].color[2] = 128;
+
+                        gamelights[gamelightcount].priority = 0;
+
+                        gamelightcount++;
+                        break;
+                    }
                 if (!actorscrptr[sprite[i].picnum])
                     goto BOLT;
                 p = A_FindPlayer(s,&x);
                 A_Execute(i,p,x);
                 goto BOLT;
+                }
 
             case SHELL__STATIC:
             case SHOTGUNSHELL__STATIC:
@@ -7612,8 +7799,6 @@ int32_t A_CheckSwitchTile(int32_t i)
 
 void G_MoveWorld(void)
 {
-    gamelightcount = 0;
-
     G_MoveZombieActors();     //ST 2
     G_MoveWeapons();          //ST 4
     G_MoveTransports();       //ST 9

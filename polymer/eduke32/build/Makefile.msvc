@@ -19,9 +19,9 @@ asm=masm
 ENGINELIB=engine.lib
 EDITORLIB=build.lib
 
-DXROOT=c:\sdks\dx6
-MSSDKROOT="C:\Program Files\Microsoft Visual Studio 8\VC
-PLATFORMSDK="C:\Program Files\Microsoft Visual Studio 8\VC\PlatformSDK
+DXROOT="U:\SDKs\Microsoft DirectX SDK (April 2007)
+MSSDKROOT="N:\Program Files\Microsoft Visual Studio 9.0\VC
+PLATFORMSDK="N:\Program Files\Microsoft Visual Studio 9.0\VC\PlatformSDK
 # ENETROOT=$(SRC)\enet
 
 # /D these to enable certain features of the port's compile process
@@ -45,7 +45,7 @@ CC=cl
 AS=ml
 RC=rc
 LINK=link /opt:nowin98 /opt:ref /nologo
-CFLAGS=$(CFLAGS) /nologo /MD /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(DXROOT)\include /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" # /I$(ENETROOT)\include"
+CFLAGS=$(CFLAGS) /nologo /MD /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(DXROOT)\include" /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" # /I$(ENETROOT)\include"
 ASFLAGS=/nologo /coff /c
 EXESUFFIX=.exe
 !ifdef DEBUG
@@ -127,23 +127,23 @@ $(OBJ)\$(EDITORLIB): $(EDITOROBJS)
 
 # the tools
 kextract$(EXESUFFIX): $(OBJ)\kextract.$o $(OBJ)\compat.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 	$(MT) -manifest $@.manifest -outputresource:$@
 	
 kgroup$(EXESUFFIX): $(OBJ)\kgroup.$o $(OBJ)\compat.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 	$(MT) -manifest $@.manifest -outputresource:$@
 
 transpal$(EXESUFFIX): $(OBJ)\transpal.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 	$(MT) -manifest $@.manifest -outputresource:$@
 
 wad2map$(EXESUFFIX): $(OBJ)\wad2map.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 	$(MT) -manifest $@.manifest -outputresource:$@
 
 wad2art$(EXESUFFIX): $(OBJ)\wad2art.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 	$(MT) -manifest $@.manifest -outputresource:$@
 
 # DEPENDENCIES
