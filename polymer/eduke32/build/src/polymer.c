@@ -573,12 +573,20 @@ int32_t             polymer_init(void)
     polymer_loadboard();
 
     polymer_initartsky();
+    skyboxdatavbo = 0;
 
     if (spriteplane.buffer == NULL) {
         spriteplane.buffer = calloc(4, sizeof(GLfloat) * 5);
         spriteplane.vertcount = 4;
 
         memcpy(spriteplane.buffer, horizsprite, sizeof(GLfloat) * 4 * 5);
+    }
+
+    i = 0;
+    while (i < (1 << PR_BIT_COUNT))
+    {
+        prprograms[i].handle = 0;
+        i++;
     }
 
     overridematerial = 0xFFFFFFFF;
