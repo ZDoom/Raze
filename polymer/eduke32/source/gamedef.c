@@ -5825,7 +5825,7 @@ static void C_InitProjectiles(void)
         int8_t sxrepeat, syrepeat, txrepeat, tyrepeat, shade, xrepeat, yrepeat, pal, velmult;
     } DefaultProjectile =
     {
-        1, 100, -1, -1, 2048, 0, 0, 
+        1, 100, -1, -1, 2048, 0, 0,
         SMALLSMOKE, -1, -1, 600, BULLETHOLE, -1, 0, 0, 32, 448, g_numFreezeBounces, PIPEBOMB_BOUNCE, 1,
         -1, -1, -1, -1, -96, 18, 18, 0, 1
     };

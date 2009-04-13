@@ -5733,8 +5733,8 @@ void uninitengine(void)
         Bfree(tsprite);
     if (spriteext != NULL)
         Bfree(spriteext);
-//    if (spritesmooth != NULL)
-//        Bfree(spritesmooth);
+    if (spritesmooth != NULL)
+        Bfree(spritesmooth);
 #endif
 }
 

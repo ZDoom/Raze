@@ -345,29 +345,39 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
             }
         }
 
-        G_AddGameLight(0, s->sectnum, s->x+((sintable[(s->ang+512)&2047])>>7),
-            s->y+((sintable[(s->ang)&2047])>>7), s->z-PHEIGHT, 4096, 255+(80<<8),0);
+        switch (DynamicTileMap[atwith])
+        {
+        case FIRELASER__STATIC:
+        case SHOTGUN__STATIC:
+        case SHOTSPARK1__STATIC:
+        case CHAINGUN__STATIC:
+        case RPG__STATIC:
+        case MORTER__STATIC:
+            G_AddGameLight(0, s->sectnum, s->x+((sintable[(s->ang+512)&2047])>>7),
+                           s->y+((sintable[(s->ang)&2047])>>7), s->z-PHEIGHT, 4096, 255+(80<<8),0);
 
-        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
-        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>7);
-        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>7);
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>7);
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>7);
 
-        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
-        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
 
-        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = (s->ang+1024)&2047;
-        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
-        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
-        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = (s->ang+1024)&2047;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
 
-        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = 255;
-        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = 80;
-        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = 0;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = 255;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = 80;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = 0;
 
-        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 1;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 1;
 
-        if (gamelightcount < PR_MAXLIGHTS)
-            gamelightcount++;
+            if (gamelightcount < PR_MAXLIGHTS)
+                gamelightcount++;
+            break;
+        }
     }
 
     if (A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE))
@@ -2141,7 +2151,7 @@ void P_FireWeapon(DukePlayer_t *p)
             p->visibility = 0;
 
             G_AddGameLight(0, s->sectnum, s->x+((sintable[(p->ang+512)&2047])>>7), s->y+((sintable[(p->ang)&2047])>>7),
-                s->z-PHEIGHT, 4096, aplWeaponFlashColor[p->curr_weapon][snum],0);
+                           s->z-PHEIGHT, 4096, aplWeaponFlashColor[p->curr_weapon][snum],0);
 
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(p->ang+512)&2047])>>7);

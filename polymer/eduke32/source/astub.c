@@ -630,7 +630,7 @@ const char *MusicAndSFXTagText(int32_t lotag)
     Bmemset(tempbuf, 0, sizeof(tempbuf));
 
     if (g_numsounds <= 0)
-        return tempbuf;    
+        return tempbuf;
 
     if (lotag>0 && lotag<999 && g_sounds[lotag].definedname)
         return g_sounds[lotag].definedname;
@@ -1613,7 +1613,7 @@ static int32_t compare_sounds_d(int16_t k1, int16_t k2)
     if (!n1 && !n2) return 0;
     if (!n1) return -1;
     if (!n2) return 1;
-    return Bstrcasecmp(n1, n2);    
+    return Bstrcasecmp(n1, n2);
 }
 static int32_t compare_sounds_f(int16_t k1, int16_t k2)
 {
@@ -1623,7 +1623,7 @@ static int32_t compare_sounds_f(int16_t k1, int16_t k2)
     if (!n1 && !n2) return 0;
     if (!n1) return -1;
     if (!n2) return 1;
-    return Bstrcasecmp(n1, n2); 
+    return Bstrcasecmp(n1, n2);
 }
 static int32_t compare_sounds_1(int16_t k1, int16_t k2)
 {
@@ -1631,7 +1631,7 @@ static int32_t compare_sounds_1(int16_t k1, int16_t k2)
 }
 static int32_t compare_sounds_2(int16_t k1, int16_t k2)
 {
-    return (g_sounds[k2].m&2) - (g_sounds[k1].m&2);    
+    return (g_sounds[k2].m&2) - (g_sounds[k1].m&2);
 }
 static int32_t compare_sounds_3(int16_t k1, int16_t k2)
 {
@@ -1720,7 +1720,7 @@ static int32_t sort_sounds(int32_t how)
                 {
                     dst[d++] = src[l++];
                     continue;
-                }                
+                }
                 dst[d++] = src[r++];
             }
         }
@@ -1759,7 +1759,7 @@ static void SoundDisplay()
 //        SoundToggle = 1;
 
         while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F2]==0
-               && keystatus[buildkeys[BK_MODE2D_3D]]==0)  // quickjump to 3d mode
+                && keystatus[buildkeys[BK_MODE2D_3D]]==0)  // quickjump to 3d mode
         {
             if (handleevents())
             {
@@ -1868,7 +1868,7 @@ static void SoundDisplay()
                     ch = bgetchar();
 
                     if (keystatus[1]) bad = 1;
-                   
+
                     else if (ch == 's' || ch == 'd' || ch == 'f' || ch == 'g' ||
                              ch == '1' || ch == '2' || ch == '3' || ch == '4' || ch == '5')
                     {
@@ -1899,7 +1899,7 @@ static void SoundDisplay()
                 sound_t *snd=&g_sounds[k];
                 char *cp;
 
-                Bsprintf(disptext[i],                                             
+                Bsprintf(disptext[i],
                          "%4d .................... ................ %6d:%-6d %3d %c%c%c%c%c %6d",
                          //   5678901234567890X23456789012345678901234567
                          k, snd->ps, snd->pe, snd->pr,
@@ -1993,7 +1993,7 @@ static void M32_MoveFX(void)
             ht = s->hitag;
 
             if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 &&
-                     AmbienceToggle && sector[s->sectnum].floorz != sector[s->sectnum].ceilingz)
+                    AmbienceToggle && sector[s->sectnum].floorz != sector[s->sectnum].ceilingz)
             {
                 if ((g_sounds[s->lotag].m&2))
                 {
@@ -2005,12 +2005,12 @@ static void M32_MoveFX(void)
                             for (j = headspritestat[0]; j >= 0; j = nextspritestat[j])
                             {
                                 if (s->picnum == MUSICANDSFX && j != i && sprite[j].lotag < 999 &&
-                                    (sprite[j].filler&1) == 1 && dist(&sprite[j],(spritetype*)&pos) > x)
+                                        (sprite[j].filler&1) == 1 && dist(&sprite[j],(spritetype*)&pos) > x)
                                 {
                                     S_StopEnvSound(sprite[j].lotag,j);
                                     break;
                                 }
-                                
+
                             }
                             if (j == -1) continue;
                         }
@@ -9163,7 +9163,7 @@ int32_t parseconsounds(scriptfile *script)
 
             if (g_sounds[sndnum].filename == NULL)
                 g_sounds[sndnum].filename = Bcalloc(slen+1,sizeof(uint8_t));
-                // Hopefully noone does memcpy(..., g_sounds[].filename, BMAX_PATH)
+            // Hopefully noone does memcpy(..., g_sounds[].filename, BMAX_PATH)
             if (!g_sounds[sndnum].filename)
             {
                 Bfree(definedname);

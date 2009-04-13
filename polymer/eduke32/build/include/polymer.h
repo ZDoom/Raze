@@ -149,7 +149,7 @@ typedef struct      s_prprogrambit {
 }                   _prprogrambit;
 
 // LIGHTS
-#define             PR_MAXLIGHTS            256
+#define             PR_MAXLIGHTS            128
 #define             SHADOW_DEPTH_OFFSET     30
 #define             PR_MAXLIGHTPRIORITY     3
 

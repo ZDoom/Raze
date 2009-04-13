@@ -186,12 +186,12 @@ int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
     //    if(num != 358) return 0;
 
     if (num >= MAXSOUNDS ||
-        !SM32_havesound ||
+            !SM32_havesound ||
 //        ((g_sounds[num].m&8) && ud.lockout) ||
-        SoundToggle == 0 ||
-        g_sounds[num].num > 3 ||
-        FX_VoiceAvailable(g_sounds[num].pr) == 0)
-            return -1;
+            SoundToggle == 0 ||
+            g_sounds[num].num > 3 ||
+            FX_VoiceAvailable(g_sounds[num].pr) == 0)
+        return -1;
 
     if (g_sounds[num].m&128)
     {
@@ -203,8 +203,8 @@ int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
     {
         for (j=0; j<MAXSOUNDS; j++)
 //            for (k=0; k<g_sounds[j].num; k++)
-                if ((g_sounds[j].num > 0) && (g_sounds[j].m&4))
-                    return -1;
+            if ((g_sounds[j].num > 0) && (g_sounds[j].m&4))
+                return -1;
     }
 
     cx = pos->x;
@@ -234,23 +234,23 @@ int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
     if (sndist < 0) sndist = 0;
     if (cs > -1 && sndist && PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,SX,SY,SZ-(24<<8),SECT))
         sndist += sndist>>5;
-/*
-    switch (num)
-    {
-    case PIPEBOMB_EXPLODE:
-    case LASERTRIP_EXPLODE:
-    case RPG_EXPLODE:
-        if (sndist > (6144))
-            sndist = 6144;
-        if (g_player[screenpeek].ps->cursectnum > -1 && sector[g_player[screenpeek].ps->cursectnum].lotag == 2)
-            pitch -= 1024;
-        break;
-    default:
-*/
-        if (cursectnum > -1 && sector[cursectnum].lotag == 2 && (g_sounds[num].m&4) == 0)
-            pitch = -768;
-        if (sndist > 31444 && PN != MUSICANDSFX)
-            return -1;
+    /*
+        switch (num)
+        {
+        case PIPEBOMB_EXPLODE:
+        case LASERTRIP_EXPLODE:
+        case RPG_EXPLODE:
+            if (sndist > (6144))
+                sndist = 6144;
+            if (g_player[screenpeek].ps->cursectnum > -1 && sector[g_player[screenpeek].ps->cursectnum].lotag == 2)
+                pitch -= 1024;
+            break;
+        default:
+    */
+    if (cursectnum > -1 && sector[cursectnum].lotag == 2 && (g_sounds[num].m&4) == 0)
+        pitch = -768;
+    if (sndist > 31444 && PN != MUSICANDSFX)
+        return -1;
 //        break;
 //    }
 
@@ -478,21 +478,21 @@ void S_Pan3D(void)
 
             if (PN == MUSICANDSFX && SLT < 999)
                 g_numEnvSoundsPlaying++;
-/*
-            switch (j)
+            /*
+                        switch (j)
+                        {
+                        case PIPEBOMB_EXPLODE:
+                        case LASERTRIP_EXPLODE:
+                        case RPG_EXPLODE:
+                            if (sndist > (6144)) sndist = (6144);
+                            break;
+                        default:
+            */
+            if (sndist > 31444 && PN != MUSICANDSFX)
             {
-            case PIPEBOMB_EXPLODE:
-            case LASERTRIP_EXPLODE:
-            case RPG_EXPLODE:
-                if (sndist > (6144)) sndist = (6144);
-                break;
-            default:
-*/
-                if (sndist > 31444 && PN != MUSICANDSFX)
-                {
-                    S_StopSound(j);
-                    continue;
-                }
+                S_StopSound(j);
+                continue;
+            }
 //            }
 
             if (g_sounds[j].ptr == 0 && S_LoadSound(j) == 0) continue;

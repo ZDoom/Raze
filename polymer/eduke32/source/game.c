@@ -4530,7 +4530,8 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
         }
 
 #ifdef POLYMER
-        if (getrendermode() == 4) {
+        if (getrendermode() == 4)
+        {
             polymer_setanimatesprites(G_DoSpriteAnimations, ud.camerax,ud.cameray,ud.cameraang,smoothratio);
         }
 #endif
@@ -7350,43 +7351,44 @@ PALONLY:
                     }
                 }
 
-                switch (DynamicTileMap[s->picnum-1])
-                {
-                case DIPSWITCH__STATIC:
-                case DIPSWITCH2__STATIC:
-                case DIPSWITCH3__STATIC:
-                case PULLSWITCH__STATIC:
-                case HANDSWITCH__STATIC:
-                case SLOTDOOR__STATIC:
-                case LIGHTSWITCH__STATIC:
-                case SPACELIGHTSWITCH__STATIC:
-                case SPACEDOORSWITCH__STATIC:
-                case FRANKENSTINESWITCH__STATIC:
-                case LIGHTSWITCH2__STATIC:
-                case POWERSWITCH1__STATIC:
-                case LOCKSWITCH1__STATIC:
-                case POWERSWITCH2__STATIC:
-                case TECHSWITCH__STATIC:
-                    framelights[framelightcount & (PR_MAXLIGHTS-1)].radius = 0;
-                    framelights[framelightcount & (PR_MAXLIGHTS-1)].sector = t->sectnum;
+        switch (DynamicTileMap[s->picnum-1])
+        {
+        case DIPSWITCH__STATIC:
+        case DIPSWITCH2__STATIC:
+        case DIPSWITCH3__STATIC:
+        case PULLSWITCH__STATIC:
+        case HANDSWITCH__STATIC:
+        case SLOTDOOR__STATIC:
+        case LIGHTSWITCH__STATIC:
+        case SPACELIGHTSWITCH__STATIC:
+        case SPACEDOORSWITCH__STATIC:
+        case FRANKENSTINESWITCH__STATIC:
+        case POWERSWITCH1__STATIC:
+        case LOCKSWITCH1__STATIC:
+        case POWERSWITCH2__STATIC:
+        case TECHSWITCH__STATIC:
+        case ACCESSSWITCH__STATIC:
+        case ACCESSSWITCH2__STATIC:
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].radius = 0;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].sector = t->sectnum;
 
-                    framelights[framelightcount & (PR_MAXLIGHTS-1)].x = t->x+((sintable[(t->ang+512)&2047])>>7);
-                    framelights[framelightcount & (PR_MAXLIGHTS-1)].y = t->y+((sintable[(t->ang)&2047])>>7);
-                    framelights[framelightcount & (PR_MAXLIGHTS-1)].z = t->z-1024;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].x = t->x+((sintable[(t->ang+512)&2047])>>7);
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].y = t->y+((sintable[(t->ang)&2047])>>7);
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].z = t->z-1024;
 
-                    framelights[framelightcount & (PR_MAXLIGHTS-1)].range = 1024;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].range = 1024;
 
-                    framelights[framelightcount & (PR_MAXLIGHTS-1)].color[0] = 48;
-                    framelights[framelightcount & (PR_MAXLIGHTS-1)].color[1] = 255;
-                    framelights[framelightcount & (PR_MAXLIGHTS-1)].color[2] = 48;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].color[0] = 48;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].color[1] = 255;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].color[2] = 48;
 
-                    framelights[framelightcount & (PR_MAXLIGHTS-1)].priority = 2;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].priority = 2;
 
-                    if (framelightcount < PR_MAXLIGHTS)
-                        framelightcount++;
+            if (framelightcount < PR_MAXLIGHTS)
+                framelightcount++;
 
-                    break;
-                }
+            break;
+        }
 
         switch (DynamicTileMap[s->picnum])
         {
@@ -7400,11 +7402,12 @@ PALONLY:
         case SPACELIGHTSWITCH__STATIC:
         case SPACEDOORSWITCH__STATIC:
         case FRANKENSTINESWITCH__STATIC:
-        case LIGHTSWITCH2__STATIC:
         case POWERSWITCH1__STATIC:
         case LOCKSWITCH1__STATIC:
         case POWERSWITCH2__STATIC:
         case TECHSWITCH__STATIC:
+        case ACCESSSWITCH__STATIC:
+        case ACCESSSWITCH2__STATIC:
             framelights[framelightcount & (PR_MAXLIGHTS-1)].radius = 0;
             framelights[framelightcount & (PR_MAXLIGHTS-1)].sector = t->sectnum;
 
@@ -8186,11 +8189,11 @@ static void G_ShowScores(void)
 
     if (playerswhenstarted > 1 && (GametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
-/*
-        rotatesprite(160<<16,34<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10,0,0,xdim-1,ydim-1);
-        if (PLUTOPAK)   // JBF 20030804
-            rotatesprite((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8,0,0,xdim-1,ydim-1);
-*/
+        /*
+                rotatesprite(160<<16,34<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10,0,0,xdim-1,ydim-1);
+                if (PLUTOPAK)   // JBF 20030804
+                    rotatesprite((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8,0,0,xdim-1,ydim-1);
+        */
         gametext(160,SCORESHEETOFFSET+58+2,"MULTIPLAYER TOTALS",0,2+8+16);
         gametext(160,SCORESHEETOFFSET+58+10,MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name,0,2+8+16);
 
@@ -10978,25 +10981,25 @@ void app_main(int32_t argc,const char **argv)
     glusetexcache = glusetexcachecompression = -1;
 #endif
 
-/*
-#ifdef _WIN32
-    ud.config.CheckForUpdates = -1;
-#endif
-*/
+    /*
+    #ifdef _WIN32
+        ud.config.CheckForUpdates = -1;
+    #endif
+    */
 
     i = CONFIG_ReadSetup();
     if (getenv("DUKE3DGRP")) duke3dgrp = getenv("DUKE3DGRP");
 
 #ifdef _WIN32
-/*
-    if (ud.config.CheckForUpdates == -1)
-    {
-        i=wm_ynbox("Automatic Update Notifications",
-                   "Would you like to check for new versions of EDuke32 at startup?");
-        ud.config.CheckForUpdates = 0;
-        if (i) ud.config.CheckForUpdates = 1;
-    }
-*/
+    /*
+        if (ud.config.CheckForUpdates == -1)
+        {
+            i=wm_ynbox("Automatic Update Notifications",
+                       "Would you like to check for new versions of EDuke32 at startup?");
+            ud.config.CheckForUpdates = 0;
+            if (i) ud.config.CheckForUpdates = 1;
+        }
+    */
 
 //    initprintf("build %d\n",(uint8_t)atoi(BUILDDATE));
 
@@ -11042,8 +11045,8 @@ void app_main(int32_t argc,const char **argv)
     {
 #if 0
         i=wm_ynbox("Texture Cache",
-            "Would you like to enable the on-disk texture cache?\n\n"
-            "You generally want to say 'yes' here, especially if using the HRP.");
+                   "Would you like to enable the on-disk texture cache?\n\n"
+                   "You generally want to say 'yes' here, especially if using the HRP.");
 #else
         i = 1;
 #endif

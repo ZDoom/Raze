@@ -2701,7 +2701,7 @@ static void G_MoveWeapons(void)
                     G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 1024, 255+(80<<8),0);
 
                     if (DynamicTileMap[s->picnum] == RPG__STATIC && ActorExtra[i].picnum != BOSS2 &&
-                        s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
+                            s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
                     {
                         j = A_Spawn(i,SMALLSMOKE);
                         sprite[j].z += (1<<8);
@@ -5095,34 +5095,34 @@ static void G_MoveMisc(void)  // STATNUM 5
             case FORCERIPPLE__STATIC:
             case TRANSPORTERSTAR__STATIC:
             case TRANSPORTERBEAM__STATIC:
+            {
+                switch (DynamicTileMap[switchpicnum])
                 {
-                    switch (DynamicTileMap[switchpicnum])
-                    {
-                    case BURNING__STATIC:
-                    case BURNING2__STATIC:
-                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
-                        if (s->z > ActorExtra[i].floorz + 2048) break;
-                        G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 64 * s->xrepeat, 255+(80<<8),0);
-                        break;
+                case BURNING__STATIC:
+                case BURNING2__STATIC:
+                    if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
+                    if (s->z > ActorExtra[i].floorz + 2048) break;
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 64 * s->xrepeat, 255+(80<<8),0);
+                    break;
 
-                    case EXPLOSION2__STATIC:
-                        G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 4096, 255+(80<<8),0);
-                        break;
-                    case FORCERIPPLE__STATIC:
+                case EXPLOSION2__STATIC:
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 4096, 255+(80<<8),0);
+                    break;
+                case FORCERIPPLE__STATIC:
 //                    case TRANSPORTERSTAR__STATIC:
-                    case TRANSPORTERBEAM__STATIC:
-                        G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 2048, 80+(80<<8)+(255<<16),0);
-                        break;
-                    case SHRINKEREXPLOSION__STATIC:
-                        G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 2048, 128+(255<<8)+(128<<16),0);
-                        break;
-                    }
+                case TRANSPORTERBEAM__STATIC:
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 2048, 80+(80<<8)+(255<<16),0);
+                    break;
+                case SHRINKEREXPLOSION__STATIC:
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 2048, 128+(255<<8)+(128<<16),0);
+                    break;
+                }
                 if (!actorscrptr[sprite[i].picnum])
                     goto BOLT;
                 p = A_FindPlayer(s,&x);
                 A_Execute(i,p,x);
                 goto BOLT;
-                }
+            }
 
             case SHELL__STATIC:
             case SHOTGUNSHELL__STATIC:
