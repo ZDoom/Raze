@@ -67,6 +67,7 @@ intptr_t *aplWeaponSound2Sound[MAX_WEAPONS];    // Alternate sound sound ID
 intptr_t *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being removed
 intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
 intptr_t *aplWeaponSelectSound[MAX_WEAPONS];     // Sound of weapon being selected
+intptr_t *aplWeaponFlashColor[MAX_WEAPONS];     // Muzzle flash color
 
 int32_t g_iReturnVarID=-1;      // var ID of "RETURN"
 int32_t g_iWeaponVarID=-1;      // var ID of "WEAPON"
@@ -821,6 +822,7 @@ const memberlabel_t ProjectileLabels[]=
     { "bounces", PROJ_BOUNCES, 0, 0 },
     { "bsound", PROJ_BSOUND, 0, 0 },
     { "range", PROJ_RANGE, 0, 0 },
+    { "flashcolor", PROJ_FLASH_COLOR, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 
@@ -5818,12 +5820,12 @@ static void C_InitProjectiles(void)
     int32_t i;
     struct
     {
-        int32_t workslike, extra, cstat, extra_rand, hitradius, range;
+        int32_t workslike, extra, cstat, extra_rand, hitradius, range, flashcolor;
         int16_t spawns, sound, isound, vel, decal, trail, tnum, drop, clipdist, offset, bounces, bsound, toffset;
         int8_t sxrepeat, syrepeat, txrepeat, tyrepeat, shade, xrepeat, yrepeat, pal, velmult;
     } DefaultProjectile =
     {
-        1, 100, -1, -1, 2048, 0,
+        1, 100, -1, -1, 2048, 0, 0, 
         SMALLSMOKE, -1, -1, 600, BULLETHOLE, -1, 0, 0, 32, 448, g_numFreezeBounces, PIPEBOMB_BOUNCE, 1,
         -1, -1, -1, -1, -96, 18, 18, 0, 1
     };

@@ -984,6 +984,8 @@ void Gv_ResetSystemDefaults(void)
             aplWeaponReloadSound2[i][j]=Gv_GetVarByLabel(aszBuf,0, -1, j);
             Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",i);
             aplWeaponSelectSound[i][j]=Gv_GetVarByLabel(aszBuf,0, -1, j);
+            Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",i);
+            aplWeaponFlashColor[i][j]=Gv_GetVarByLabel(aszBuf,0, -1, j);
         }
     }
 
@@ -1052,6 +1054,9 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar(aszBuf, INSERT_CLIP, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",KNEE_WEAPON);
     Gv_NewVar(aszBuf, 0, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",KNEE_WEAPON);
+    Gv_NewVar(aszBuf, 0, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+
 
     /////////////////////////////
     Bsprintf(aszBuf,"WEAPON%d_WORKSLIKE",PISTOL_WEAPON);
@@ -1090,6 +1095,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar(aszBuf, INSERT_CLIP, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",PISTOL_WEAPON);
     Gv_NewVar(aszBuf, INSERT_CLIP, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",PISTOL_WEAPON);
+    Gv_NewVar(aszBuf, 255+(80<<8), GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
     /////////////////////////////
     Bsprintf(aszBuf,"WEAPON%d_WORKSLIKE",SHOTGUN_WEAPON);
@@ -1128,6 +1135,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar(aszBuf, INSERT_CLIP, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",SHOTGUN_WEAPON);
     Gv_NewVar(aszBuf, SHOTGUN_COCK, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",SHOTGUN_WEAPON);
+    Gv_NewVar(aszBuf, 255+(80<<8), GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
     /////////////////////////////
     Bsprintf(aszBuf,"WEAPON%d_WORKSLIKE",CHAINGUN_WEAPON);
@@ -1166,6 +1175,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar(aszBuf, INSERT_CLIP, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",CHAINGUN_WEAPON);
     Gv_NewVar(aszBuf, SELECT_WEAPON, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",CHAINGUN_WEAPON);
+    Gv_NewVar(aszBuf, 255+(80<<8), GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
     /////////////////////////////
     Bsprintf(aszBuf,"WEAPON%d_WORKSLIKE",RPG_WEAPON);
@@ -1204,6 +1215,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar(aszBuf, INSERT_CLIP, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",RPG_WEAPON);
     Gv_NewVar(aszBuf, SELECT_WEAPON, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",RPG_WEAPON);
+    Gv_NewVar(aszBuf, 255+(80<<8), GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
     /////////////////////////////
     Bsprintf(aszBuf,"WEAPON%d_WORKSLIKE",HANDBOMB_WEAPON);
@@ -1241,6 +1254,8 @@ static void Gv_AddSystemVars(void)
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND2",HANDBOMB_WEAPON);
     Gv_NewVar(aszBuf, INSERT_CLIP, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",HANDBOMB_WEAPON);
+    Gv_NewVar(aszBuf, 0, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",HANDBOMB_WEAPON);
     Gv_NewVar(aszBuf, 0, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
     /////////////////////////////
@@ -1280,6 +1295,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar(aszBuf, INSERT_CLIP, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",SHRINKER_WEAPON);
     Gv_NewVar(aszBuf, SELECT_WEAPON, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",SHRINKER_WEAPON);
+    Gv_NewVar(aszBuf, 128+(255<<8)+(128<<16), GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
     /////////////////////////////
     Bsprintf(aszBuf,"WEAPON%d_WORKSLIKE",DEVISTATOR_WEAPON);
@@ -1318,6 +1335,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar(aszBuf, INSERT_CLIP, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",DEVISTATOR_WEAPON);
     Gv_NewVar(aszBuf, SELECT_WEAPON, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",DEVISTATOR_WEAPON);
+    Gv_NewVar(aszBuf, 255+(80<<8), GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
     /////////////////////////////
     Bsprintf(aszBuf,"WEAPON%d_WORKSLIKE",TRIPBOMB_WEAPON);
@@ -1333,7 +1352,7 @@ static void Gv_AddSystemVars(void)
     Bsprintf(aszBuf,"WEAPON%d_HOLDDELAY",TRIPBOMB_WEAPON);
     Gv_NewVar(aszBuf, 7, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_FLAGS",TRIPBOMB_WEAPON);
-    Gv_NewVar(aszBuf, WEAPON_STANDSTILL | WEAPON_CHECKATRELOAD, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Gv_NewVar(aszBuf, WEAPON_NOVISIBLE | WEAPON_STANDSTILL | WEAPON_CHECKATRELOAD, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SHOOTS",TRIPBOMB_WEAPON);
     Gv_NewVar(aszBuf, HANDHOLDINGLASER, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SPAWNTIME",TRIPBOMB_WEAPON);
@@ -1355,6 +1374,8 @@ static void Gv_AddSystemVars(void)
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND2",TRIPBOMB_WEAPON);
     Gv_NewVar(aszBuf, INSERT_CLIP, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",TRIPBOMB_WEAPON);
+    Gv_NewVar(aszBuf, 0, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",TRIPBOMB_WEAPON);
     Gv_NewVar(aszBuf, 0, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
     /////////////////////////////
@@ -1394,6 +1415,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar(aszBuf, INSERT_CLIP, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",FREEZE_WEAPON);
     Gv_NewVar(aszBuf, SELECT_WEAPON, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",FREEZE_WEAPON);
+    Gv_NewVar(aszBuf, 128+(128<<8)+(255<<16), GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
     /////////////////////////////
     Bsprintf(aszBuf,"WEAPON%d_WORKSLIKE",HANDREMOTE_WEAPON);
@@ -1431,6 +1454,8 @@ static void Gv_AddSystemVars(void)
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND2",HANDREMOTE_WEAPON);
     Gv_NewVar(aszBuf, INSERT_CLIP, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",HANDREMOTE_WEAPON);
+    Gv_NewVar(aszBuf, 0, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",HANDREMOTE_WEAPON);
     Gv_NewVar(aszBuf, 0, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
     ///////////////////////////////////////////////////////
@@ -1470,6 +1495,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar(aszBuf, INSERT_CLIP, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",GROW_WEAPON);
     Gv_NewVar(aszBuf, SELECT_WEAPON, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",GROW_WEAPON);
+    Gv_NewVar(aszBuf, 255+(80<<8), GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
     Gv_NewVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
     Gv_NewVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
@@ -1646,6 +1673,8 @@ void Gv_InitWeaponPointers(void)
         aplWeaponReloadSound2[i]=Gv_GetVarDataPtr(aszBuf);
         Bsprintf(aszBuf,"WEAPON%d_SELECTSOUND",i);
         aplWeaponSelectSound[i]=Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf,"WEAPON%d_FLASHCOLOR",i);
+        aplWeaponFlashColor[i]=Gv_GetVarDataPtr(aszBuf);
     }
 }
 

@@ -1185,6 +1185,15 @@ static inline void X_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int32_t
         Gv_SetVar(lVar2, ActorExtra[proj].projectile.range, vm.g_i, vm.g_p);
         return;
 
+    case PROJ_FLASH_COLOR:
+        if (iSet)
+        {
+            ActorExtra[proj].projectile.flashcolor=lValue;
+            return;
+        }
+        Gv_SetVar(lVar2, ActorExtra[proj].projectile.flashcolor, vm.g_i, vm.g_p);
+        return;
+
     default:
         return;
     }

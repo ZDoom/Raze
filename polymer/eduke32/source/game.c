@@ -4606,6 +4606,7 @@ static void G_DumpDebugInfo(void)
             OSD_Printf("WEAPON%d_RELOADSOUND1 %" PRIdPTR "\n",i,aplWeaponReloadSound1[i][j]);
             OSD_Printf("WEAPON%d_RELOADSOUND2 %" PRIdPTR "\n",i,aplWeaponReloadSound2[i][j]);
             OSD_Printf("WEAPON%d_SELECTSOUND %" PRIdPTR "\n",i,aplWeaponSelectSound[i][j]);
+            OSD_Printf("WEAPON%d_FLASHCOLOR %" PRIdPTR "\n",i,aplWeaponFlashColor[i][j]);
         }
         OSD_Printf("\n");
     }
@@ -7349,8 +7350,81 @@ PALONLY:
                     }
                 }
 
+                switch (DynamicTileMap[s->picnum-1])
+                {
+                case DIPSWITCH__STATIC:
+                case DIPSWITCH2__STATIC:
+                case DIPSWITCH3__STATIC:
+                case PULLSWITCH__STATIC:
+                case HANDSWITCH__STATIC:
+                case SLOTDOOR__STATIC:
+                case LIGHTSWITCH__STATIC:
+                case SPACELIGHTSWITCH__STATIC:
+                case SPACEDOORSWITCH__STATIC:
+                case FRANKENSTINESWITCH__STATIC:
+                case LIGHTSWITCH2__STATIC:
+                case POWERSWITCH1__STATIC:
+                case LOCKSWITCH1__STATIC:
+                case POWERSWITCH2__STATIC:
+                case TECHSWITCH__STATIC:
+                    framelights[framelightcount & (PR_MAXLIGHTS-1)].radius = 0;
+                    framelights[framelightcount & (PR_MAXLIGHTS-1)].sector = t->sectnum;
+
+                    framelights[framelightcount & (PR_MAXLIGHTS-1)].x = t->x+((sintable[(t->ang+512)&2047])>>7);
+                    framelights[framelightcount & (PR_MAXLIGHTS-1)].y = t->y+((sintable[(t->ang)&2047])>>7);
+                    framelights[framelightcount & (PR_MAXLIGHTS-1)].z = t->z-1024;
+
+                    framelights[framelightcount & (PR_MAXLIGHTS-1)].range = 1024;
+
+                    framelights[framelightcount & (PR_MAXLIGHTS-1)].color[0] = 48;
+                    framelights[framelightcount & (PR_MAXLIGHTS-1)].color[1] = 255;
+                    framelights[framelightcount & (PR_MAXLIGHTS-1)].color[2] = 48;
+
+                    framelights[framelightcount & (PR_MAXLIGHTS-1)].priority = 2;
+
+                    if (framelightcount < PR_MAXLIGHTS)
+                        framelightcount++;
+
+                    break;
+                }
+
         switch (DynamicTileMap[s->picnum])
         {
+        case DIPSWITCH__STATIC:
+        case DIPSWITCH2__STATIC:
+        case DIPSWITCH3__STATIC:
+        case PULLSWITCH__STATIC:
+        case HANDSWITCH__STATIC:
+        case SLOTDOOR__STATIC:
+        case LIGHTSWITCH__STATIC:
+        case SPACELIGHTSWITCH__STATIC:
+        case SPACEDOORSWITCH__STATIC:
+        case FRANKENSTINESWITCH__STATIC:
+        case LIGHTSWITCH2__STATIC:
+        case POWERSWITCH1__STATIC:
+        case LOCKSWITCH1__STATIC:
+        case POWERSWITCH2__STATIC:
+        case TECHSWITCH__STATIC:
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].radius = 0;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].sector = t->sectnum;
+
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].x = t->x+((sintable[(t->ang+512)&2047])>>7);
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].y = t->y+((sintable[(t->ang)&2047])>>7);
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].z = t->z-1024;
+
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].range = 1024;
+
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].color[0] = 255;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].color[1] = 48;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].color[2] = 48;
+
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].priority = 2;
+
+            if (framelightcount < PR_MAXLIGHTS)
+                framelightcount++;
+
+            break;
+
         case LASERLINE__STATIC:
             if (sector[t->sectnum].lotag == 2) t->pal = 8;
             t->z = sprite[s->owner].z-(3<<8);
@@ -7367,43 +7441,6 @@ PALONLY:
         case SHRINKEREXPLOSION__STATIC:
         case RPG__STATIC:
         case FLOORFLAME__STATIC:
-
-#ifdef POLYMER
-/*
-            framelights[framelightcount].radius = 0;
-            framelights[framelightcount].sector = t->sectnum;
-
-            framelights[framelightcount].x = t->x;
-            framelights[framelightcount].y = t->y;
-            framelights[framelightcount].z = t->z;
-
-            framelights[framelightcount].range = tilesizx[t->picnum]*tilesizy[t->picnum];
-            framelights[framelightcount].range -= rand()%((framelights[framelightcount].range>>3)+1);
-
-            framelights[framelightcount].color[0] = 255;
-            framelights[framelightcount].color[1] = 80;
-            framelights[framelightcount].color[2] = 0;
-
-            framelights[framelightcount].priority = 0;
-
-            if ((DynamicTileMap[s->picnum] == ATOMICHEALTH__STATIC) ||
-                (DynamicTileMap[s->picnum] == FREEZEBLAST__STATIC))
-            {
-                framelights[framelightcount].color[0] = 0;
-                framelights[framelightcount].color[1] = 0;
-                framelights[framelightcount].color[2] = 255;
-            }
-            if ((DynamicTileMap[s->picnum] == SHRINKSPARK__STATIC) ||
-                (DynamicTileMap[s->picnum] == SHRINKEREXPLOSION__STATIC))
-            {
-                framelights[framelightcount].color[0] = 0;
-                framelights[framelightcount].color[1] = 255;
-                framelights[framelightcount].color[2] = 0;
-            }
-
-            framelightcount++;
-*/
-#endif
             if (t->picnum == EXPLOSION2)
             {
                 g_player[screenpeek].ps->visibility = -127;
@@ -7419,52 +7456,10 @@ PALONLY:
             if (sprite[s->owner].picnum != TREE1 && sprite[s->owner].picnum != TREE2)
                 t->z = sector[t->sectnum].floorz;
             t->shade = -127;
-#ifdef POLYMER
-/*
-            framelights[framelightcount].radius = 0;
-            framelights[framelightcount].sector = t->sectnum;
-
-            framelights[framelightcount].x = t->x;
-            framelights[framelightcount].y = t->y;
-            framelights[framelightcount].z = t->z;
-
-            framelights[framelightcount].range = tilesizx[t->picnum]*tilesizy[t->picnum];
-            framelights[framelightcount].range -= rand()%((framelights[framelightcount].range>>3)+1);
-
-            framelights[framelightcount].color[0] = 255;
-            framelights[framelightcount].color[1] = 80;
-            framelights[framelightcount].color[2] = 0;
-
-            framelights[framelightcount].priority = 0;
-
-            framelightcount++;
-*/
-#endif
             break;
         case COOLEXPLOSION1__STATIC:
             t->shade = -127;
             t->picnum += (s->shade>>1);
-#ifdef POLYMER
-/*
-            framelights[framelightcount].radius = 0;
-            framelights[framelightcount].sector = t->sectnum;
-
-            framelights[framelightcount].x = t->x;
-            framelights[framelightcount].y = t->y;
-            framelights[framelightcount].z = t->z;
-
-            framelights[framelightcount].range = tilesizx[t->picnum]*tilesizy[t->picnum];
-            framelights[framelightcount].range -= rand()%((framelights[framelightcount].range>>3)+1);
-
-            framelights[framelightcount].color[0] = 128;
-            framelights[framelightcount].color[1] = 0;
-            framelights[framelightcount].color[2] = 255;
-
-            framelights[framelightcount].priority = 0;
-
-            framelightcount++;
-*/
-#endif
             break;
         case PLAYERONWATER__STATIC:
 #if defined(POLYMOST) && defined(USE_OPENGL)

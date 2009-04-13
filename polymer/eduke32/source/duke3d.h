@@ -517,7 +517,7 @@ extern char EnvMusicFilename[MAXVOLUMES+1][BMAX_PATH];
 extern int16_t camsprite;
 
 typedef struct {
-    int32_t workslike, extra, cstat, extra_rand, hitradius, range;
+    int32_t workslike, extra, cstat, extra_rand, hitradius, range, flashcolor;
     int16_t spawns, sound, isound, vel, decal, trail, tnum, drop, clipdist, offset, bounces, bsound, toffset;
     int8_t sxrepeat, syrepeat, txrepeat, tyrepeat, shade, xrepeat, yrepeat, pal, velmult;
 } projectile_t;
@@ -889,6 +889,7 @@ extern intptr_t *aplWeaponSound2Sound[MAX_WEAPONS];     // Alternate sound sound
 extern intptr_t *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being removed
 extern intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
 extern intptr_t *aplWeaponSelectSound[MAX_WEAPONS];     // Sound for weapon selection
+extern intptr_t *aplWeaponFlashColor[MAX_WEAPONS];      // Color for polymer muzzle flash
 
 extern int32_t g_timerTicsPerSecond;
 

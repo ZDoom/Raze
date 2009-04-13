@@ -2132,12 +2132,13 @@ CLEAR_THE_BOLT:
             }
             goto BOLT;
 
-        case EXPLODINGBARREL__STATIC:
-        case WOODENHORSE__STATIC:
-        case HORSEONSIDE__STATIC:
         case FLOORFLAME__STATIC:
         case FIREBARREL__STATIC:
         case FIREVASE__STATIC:
+            G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 4096, 255+(80<<8),0);
+        case EXPLODINGBARREL__STATIC:
+        case WOODENHORSE__STATIC:
+        case HORSEONSIDE__STATIC:
         case NUKEBARREL__STATIC:
         case NUKEBARRELDENTED__STATIC:
         case NUKEBARRELLEAKED__STATIC:
@@ -2235,6 +2236,9 @@ static void G_MoveWeapons(void)
                 //  if (ActorExtra[i].projectile.workslike & COOLEXPLOSION1)
                 //                if( g_sounds[WIERDSHOT_FLY].num == 0 )
                 //                    A_PlaySound(WIERDSHOT_FLY,i);
+
+                if (ActorExtra[i].projectile.flashcolor)
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 2048, ActorExtra[i].projectile.flashcolor,0);
 
                 if (ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFWALLS)
                 {
@@ -2681,84 +2685,20 @@ static void G_MoveWeapons(void)
                 switch (DynamicTileMap[s->picnum])
                 {
                 case FREEZEBLAST__STATIC:
-                    gamelights[gamelightcount].radius = 0;
-                    gamelights[gamelightcount].sector = s->sectnum;
-
-                    gamelights[gamelightcount].x = s->x;
-                    gamelights[gamelightcount].y = s->y;
-                    gamelights[gamelightcount].z = s->z;
-
-                    gamelights[gamelightcount].range = 2048;
-                    gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
-
-                    gamelights[gamelightcount].color[0] = 128;
-                    gamelights[gamelightcount].color[1] = 128;
-                    gamelights[gamelightcount].color[2] = 255;
-
-                    gamelights[gamelightcount].priority = 0;
-
-                    gamelightcount++;
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 2048, 128+(128<<8)+(255<<16),0);
                     break;
 
                 case COOLEXPLOSION1__STATIC:
-                    gamelights[gamelightcount].radius = 0;
-                    gamelights[gamelightcount].sector = s->sectnum;
-
-                    gamelights[gamelightcount].x = s->x;
-                    gamelights[gamelightcount].y = s->y;
-                    gamelights[gamelightcount].z = s->z;
-
-                    gamelights[gamelightcount].range = 3072;
-                    gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
-
-                    gamelights[gamelightcount].color[0] = 128;
-                    gamelights[gamelightcount].color[1] = 0;
-                    gamelights[gamelightcount].color[2] = 255;
-
-                    gamelights[gamelightcount].priority = 0;
-
-                    gamelightcount++;
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 3072, 128+(0<<8)+(255<<16),0);
                     break;
 
                 case SHRINKSPARK__STATIC:
-                    gamelights[gamelightcount].radius = 0;
-                    gamelights[gamelightcount].sector = s->sectnum;
-
-                    gamelights[gamelightcount].x = s->x;
-                    gamelights[gamelightcount].y = s->y;
-                    gamelights[gamelightcount].z = s->z;
-
-                    gamelights[gamelightcount].range = tilesizx[s->picnum]*tilesizy[s->picnum];
-                    gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
-
-                    gamelights[gamelightcount].color[0] = 128;
-                    gamelights[gamelightcount].color[1] = 255;
-                    gamelights[gamelightcount].color[2] = 128;
-
-                    gamelights[gamelightcount].priority = 0;
-
-                    gamelightcount++;
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 2048, 128+(255<<8)+(128<<16),0);
                     break;
 
                 case RPG__STATIC:
                 case FIRELASER__STATIC:
-                    gamelights[gamelightcount].radius = 0;
-                    gamelights[gamelightcount].sector = s->sectnum;
-
-                    gamelights[gamelightcount].x = s->x;
-                    gamelights[gamelightcount].y = s->y;
-                    gamelights[gamelightcount].z = s->z;
-
-                    gamelights[gamelightcount].range = tilesizx[s->picnum]*tilesizy[s->picnum];
-                    gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
-
-                    gamelights[gamelightcount].color[0] = 255;
-                    gamelights[gamelightcount].color[1] = 80;
-                    gamelights[gamelightcount].color[2] = 0;
-
-                    gamelights[gamelightcount].priority = 0;
-
-                    gamelightcount++;
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 1024, 255+(80<<8),0);
 
                     if (DynamicTileMap[s->picnum] == RPG__STATIC && ActorExtra[i].picnum != BOSS2 &&
                         s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
@@ -3404,44 +3344,14 @@ static void G_MoveActors(void)
         switch (DynamicTileMap[switchpicnum])
         {
         case ATOMICHEALTH__STATIC:
-            gamelights[gamelightcount].radius = 0;
-            gamelights[gamelightcount].sector = s->sectnum;
-
-            gamelights[gamelightcount].x = s->x;
-            gamelights[gamelightcount].y = s->y;
-            gamelights[gamelightcount].z = s->z;
-
-            gamelights[gamelightcount].range = 2048;
-            gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
-
-            gamelights[gamelightcount].color[0] = 128;
-            gamelights[gamelightcount].color[1] = 128;
-            gamelights[gamelightcount].color[2] = 255;
-
-            gamelights[gamelightcount].priority = 0;
-
-            gamelightcount++;
+            G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 2048, 128+(128<<8)+(255<<16),0);
             break;
 
         case FIRE__STATIC:
         case FIRE2__STATIC:
-            gamelights[gamelightcount].radius = 0;
-            gamelights[gamelightcount].sector = s->sectnum;
-
-            gamelights[gamelightcount].x = s->x;
-            gamelights[gamelightcount].y = s->y;
-            gamelights[gamelightcount].z = s->z;
-
-            gamelights[gamelightcount].range = tilesizx[s->picnum]*tilesizy[s->picnum];
-            gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
-
-            gamelights[gamelightcount].color[0] = 255;
-            gamelights[gamelightcount].color[1] = 80;
-            gamelights[gamelightcount].color[2] = 0;
-
-            gamelights[gamelightcount].priority = 0;
-
-            gamelightcount++;
+            if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
+            if (s->z > ActorExtra[i].floorz+2048) break;
+            G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 64 * s->xrepeat, 255+(80<<8),0);
             break;
 
         case DUCK__STATIC:
@@ -3689,24 +3599,25 @@ static void G_MoveActors(void)
             if (s->z < sector[sect].ceilingz+(32<<8))
                 s->z = sector[sect].ceilingz+(32<<8);
 
-            gamelights[gamelightcount].sector = s->sectnum;
-            gamelights[gamelightcount].x = s->x;
-            gamelights[gamelightcount].y = s->y;
-            gamelights[gamelightcount].z = s->z + 10248;
-            gamelights[gamelightcount].range = 8192;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z + 10248;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
 
-            gamelights[gamelightcount].angle = s->ang;
-            gamelights[gamelightcount].horiz = 100;
-            gamelights[gamelightcount].radius = 256;
-            gamelights[gamelightcount].faderadius = 200;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = s->ang;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
 
-            gamelights[gamelightcount].color[0] = 255;
-            gamelights[gamelightcount].color[1] = 255;
-            gamelights[gamelightcount].color[2] = 255;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = 255;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = 255;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = 255;
 
-            gamelights[gamelightcount].priority = 0;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 0;
 
-            gamelightcount++;
+            if (gamelightcount < PR_MAXLIGHTS)
+                gamelightcount++;
 
             if (ud.multimode < 2)
             {
@@ -5189,64 +5100,21 @@ static void G_MoveMisc(void)  // STATNUM 5
                     {
                     case BURNING__STATIC:
                     case BURNING2__STATIC:
+                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
+                        if (s->z > ActorExtra[i].floorz + 2048) break;
+                        G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 64 * s->xrepeat, 255+(80<<8),0);
+                        break;
+
                     case EXPLOSION2__STATIC:
-                        gamelights[gamelightcount].radius = 0;
-                        gamelights[gamelightcount].sector = s->sectnum;
-
-                        gamelights[gamelightcount].x = s->x;
-                        gamelights[gamelightcount].y = s->y;
-                        gamelights[gamelightcount].z = s->z;
-
-                        gamelights[gamelightcount].range = tilesizx[s->picnum]*tilesizy[s->picnum];
-                        gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
-
-                        gamelights[gamelightcount].color[0] = 255;
-                        gamelights[gamelightcount].color[1] = 80;
-                        gamelights[gamelightcount].color[2] = 0;
-
-                        gamelights[gamelightcount].priority = 0;
-
-                        gamelightcount++;
+                        G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 4096, 255+(80<<8),0);
                         break;
                     case FORCERIPPLE__STATIC:
-                    case TRANSPORTERSTAR__STATIC:
+//                    case TRANSPORTERSTAR__STATIC:
                     case TRANSPORTERBEAM__STATIC:
-                        gamelights[gamelightcount].radius = 0;
-                        gamelights[gamelightcount].sector = s->sectnum;
-
-                        gamelights[gamelightcount].x = s->x;
-                        gamelights[gamelightcount].y = s->y;
-                        gamelights[gamelightcount].z = s->z;
-
-                        gamelights[gamelightcount].range = tilesizx[s->picnum]*tilesizy[s->picnum];
-                        gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
-
-                        gamelights[gamelightcount].color[0] = 80;
-                        gamelights[gamelightcount].color[1] = 80;
-                        gamelights[gamelightcount].color[2] = 255;
-
-                        gamelights[gamelightcount].priority = 0;
-
-                        gamelightcount++;
+                        G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 2048, 80+(80<<8)+(255<<16),0);
                         break;
                     case SHRINKEREXPLOSION__STATIC:
-                        gamelights[gamelightcount].radius = 0;
-                        gamelights[gamelightcount].sector = s->sectnum;
-
-                        gamelights[gamelightcount].x = s->x;
-                        gamelights[gamelightcount].y = s->y;
-                        gamelights[gamelightcount].z = s->z;
-
-                        gamelights[gamelightcount].range = tilesizx[s->picnum]*tilesizy[s->picnum];
-                        gamelights[gamelightcount].range -= rand()%((gamelights[gamelightcount].range>>3)+1);
-
-                        gamelights[gamelightcount].color[0] = 128;
-                        gamelights[gamelightcount].color[1] = 255;
-                        gamelights[gamelightcount].color[2] = 128;
-
-                        gamelights[gamelightcount].priority = 0;
-
-                        gamelightcount++;
+                        G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 2048, 128+(255<<8)+(128<<16),0);
                         break;
                     }
                 if (!actorscrptr[sprite[i].picnum])
