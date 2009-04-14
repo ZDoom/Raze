@@ -5530,6 +5530,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
 
         case EXPLOSION2__STATIC:
+            G_AddGameLight(0, sp->sectnum, sp->x, sp->y, sp->z-((sp->yrepeat*tilesizy[sp->picnum])<<1), 8192, 255+(80<<8),0);
         case EXPLOSION2BOT__STATIC:
         case BURNING__STATIC:
         case BURNING2__STATIC:
@@ -7376,7 +7377,7 @@ PALONLY:
 
             framelights[framelightcount & (PR_MAXLIGHTS-1)].x = t->x+((sintable[(t->ang+512)&2047])>>7);
             framelights[framelightcount & (PR_MAXLIGHTS-1)].y = t->y+((sintable[(t->ang)&2047])>>7);
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].z = t->z-1024;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].z = t->z-((t->yrepeat*tilesizy[t->picnum])<<1);
 
             framelights[framelightcount & (PR_MAXLIGHTS-1)].range = 1024;
 
@@ -7417,7 +7418,7 @@ PALONLY:
 
             framelights[framelightcount & (PR_MAXLIGHTS-1)].x = t->x+((sintable[(t->ang+512)&2047])>>7);
             framelights[framelightcount & (PR_MAXLIGHTS-1)].y = t->y+((sintable[(t->ang)&2047])>>7);
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].z = t->z-1024;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].z = t->z-((t->yrepeat*tilesizy[t->picnum])<<1);
 
             framelights[framelightcount & (PR_MAXLIGHTS-1)].range = 1024;
 
@@ -12813,7 +12814,8 @@ static int32_t G_DoMoveThings(void)
 
     if (ud.recstat == 1) G_DemoRecord();
 
-    gamelightcount = 0;
+    if (ud.pause_on == 0)
+        gamelightcount = 0;
 
     if (ud.pause_on == 0)
     {

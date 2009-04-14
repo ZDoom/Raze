@@ -384,6 +384,32 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
     {
         /* Custom projectiles.  This is a big hack. */
 
+        if (ProjectileData[atwith].flashcolor)
+        {
+            G_AddGameLight(0, s->sectnum, s->x+((sintable[(s->ang+512)&2047])>>7),
+                s->y+((sintable[(s->ang)&2047])>>7), s->z-PHEIGHT, 4096, ProjectileData[atwith].flashcolor,0);
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>4);
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>4);
+
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
+
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = (s->ang+1024)&2047;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
+
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = ProjectileData[atwith].flashcolor&255;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = (ProjectileData[atwith].flashcolor>>8)&255;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = (ProjectileData[atwith].flashcolor>>16)&255;
+
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 1;
+
+            if (gamelightcount < PR_MAXLIGHTS)
+                gamelightcount++;
+        }
+
         if (ProjectileData[atwith].offset == 0) ProjectileData[atwith].offset = 1;
 
         if (ProjectileData[atwith].workslike & PROJECTILE_BLOOD || ProjectileData[atwith].workslike & PROJECTILE_KNEE)
