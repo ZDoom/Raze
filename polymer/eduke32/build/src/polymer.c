@@ -3310,15 +3310,17 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
     if (programbits & prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit)
     {
         bglEnableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameData);
-        bglEnableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameNormal);
+        if (prprograms[programbits].attrib_nextFrameNormal != -1)
+            bglEnableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameNormal);
         bglVertexAttribPointerARB(prprograms[programbits].attrib_nextFrameData,
                                   3, GL_FLOAT, GL_FALSE,
                                   material.nextframedatastride,
                                   material.nextframedata);
-        bglVertexAttribPointerARB(prprograms[programbits].attrib_nextFrameNormal,
-                                  3, GL_FLOAT, GL_FALSE,
-                                  material.nextframedatastride,
-                                  material.nextframedata + 3);
+        if (prprograms[programbits].attrib_nextFrameNormal != -1)
+            bglVertexAttribPointerARB(prprograms[programbits].attrib_nextFrameNormal,
+                                      3, GL_FLOAT, GL_FALSE,
+                                      material.nextframedatastride,
+                                      material.nextframedata + 3);
 
         bglUniform1fARB(prprograms[programbits].uniform_frameProgress, material.frameprogress);
     }
@@ -3537,7 +3539,8 @@ static void         polymer_unbindmaterial(int32_t programbits)
     // PR_BIT_ANIM_INTERPOLATION
     if (programbits & prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit)
     {
-        bglDisableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameNormal);
+        if (prprograms[programbits].attrib_nextFrameNormal != -1)
+            bglDisableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameNormal);
         bglDisableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameData);
     }
 
@@ -3557,6 +3560,7 @@ static void         polymer_compileprogram(int32_t programbits)
     GLhandleARB     vert, frag, program;
     GLcharARB*      source[PR_BIT_COUNT * 2];
     GLcharARB       infobuffer[PR_INFO_LOG_BUFFER_SIZE];
+    GLint           linkstatus;
 
     // --------- VERTEX
     vert = bglCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
@@ -3610,17 +3614,20 @@ static void         polymer_compileprogram(int32_t programbits)
 
     bglLinkProgramARB(program);
 
+    bglGetObjectParameterivARB(program, GL_OBJECT_LINK_STATUS_ARB, &linkstatus);
+
     bglGetInfoLogARB(program, PR_INFO_LOG_BUFFER_SIZE, NULL, infobuffer);
 
     prprograms[programbits].handle = program;
 
-    if (pr_verbosity >= 1) OSD_Printf("Compiling GPU program with bits %i...\n", programbits);
-    if (infobuffer[0]) {
-        if (pr_verbosity >= 1) OSD_Printf("Info log:\n%s\n", infobuffer);
+    if (pr_verbosity >= 1) OSD_Printf("PR : Compiling GPU program with bits %i...\n", programbits);
+    if (!linkstatus) {
+        OSD_Printf("PR : Failed to compile GPU program with bits %i!\n", programbits);
+        if (pr_verbosity >= 1) OSD_Printf("PR : Compilation log:\n%s\n", infobuffer);
         bglGetShaderSourceARB(vert, PR_INFO_LOG_BUFFER_SIZE, NULL, infobuffer);
-        if (pr_verbosity >= 1) OSD_Printf("Vertex source dump:\n%s\n", infobuffer);
+        if (pr_verbosity >= 1) OSD_Printf("PR : Vertex source dump:\n%s\n", infobuffer);
         bglGetShaderSourceARB(frag, PR_INFO_LOG_BUFFER_SIZE, NULL, infobuffer);
-        if (pr_verbosity >= 1) OSD_Printf("Shader source dump:\n%s\n", infobuffer);
+        if (pr_verbosity >= 1) OSD_Printf("PR : Fragment source dump:\n%s\n", infobuffer);
     }
 
     // --------- ATTRIBUTE/UNIFORM LOCATIONS
@@ -4129,7 +4136,7 @@ static void         polymer_initrendertargets(int32_t count)
 
         if (bglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
         {
-            OSD_Printf("FBO #%d initialization failed.\n", i);
+            OSD_Printf("PR : FBO #%d initialization failed.\n", i);
         }
 
         bglBindTexture(prrts[i].target, 0);

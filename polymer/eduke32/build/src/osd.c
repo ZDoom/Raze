@@ -1413,14 +1413,14 @@ static inline void linefeed(void)
 #define MAX_ERRORS 4096
 void OSD_Printf(const char *fmt, ...)
 {
-    static char tmpstr[1024];
+    static char tmpstr[8192];
     char *chp, p=osdtextpal, s=osdtextshade;
     va_list va;
 
     if (!osdinited) OSD_Init();
 
     va_start(va, fmt);
-    Bvsnprintf(tmpstr, 1024, fmt, va);
+    Bvsnprintf(tmpstr, 8192, fmt, va);
     va_end(va);
 
     if (tmpstr[0]=='^' && tmpstr[1]=='1' && tmpstr[2]=='0' && ++OSD_errors > MAX_ERRORS)
