@@ -196,6 +196,7 @@ void CONFIG_SetDefaults(void)
 #endif
     ud.config.useprecache = 1;
     ud.config.ForceSetup = 1;
+    ud.config.NoAutoLoad = 0;
     ud.config.AmbienceToggle = 1;
     ud.config.AutoAim = 1;
     ud.config.FXDevice = 0;
@@ -667,6 +668,7 @@ int32 CONFIG_ReadSetup(void)
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Setup","ConfigVersion",&ud.configversion);
         SCRIPT_GetNumber(ud.config.scripthandle, "Setup","ForceSetup",&ud.config.ForceSetup);
+        SCRIPT_GetNumber(ud.config.scripthandle, "Setup","NoAutoLoad",&ud.config.NoAutoLoad);
 
 #ifdef _WIN32
         if (g_noSetup == 0 && mod_dir[0] == '/')
@@ -784,9 +786,9 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyPanning", &r_parallaxskypanning);
         /*SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLPeelsCount", &r_peelscount);*/
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLProjectionFix", &glprojectionhacks);
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLRenderMode", &glrendmode);
-        if (glrendmode > 4) glrendmode = 4;
-        if (glrendmode < 3) glrendmode = 3;
+        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Polymer", &dummy);
+        if (dummy > 0) glrendmode = 4;
+        else glrendmode = 3;
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLTextureMode", &gltexfiltermode);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLTextureQuality", &r_downsize);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLUseCompressedTextureCache", &glusetexcache);
@@ -1070,6 +1072,7 @@ void CONFIG_WriteSetup(void)
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup","ConfigVersion",BYTEVERSION_JF,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ForceSetup",ud.config.ForceSetup,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "NoAutoLoad",ud.config.NoAutoLoad,false,false);
 
     {
         Bsprintf(tempbuf,"%.2f",r_ambientlight);
@@ -1089,7 +1092,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyPanning",r_parallaxskypanning,false,false);
     /*SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLPeelsCount",r_peelscount,false,false);*/
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLProjectionFix",glprojectionhacks,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLRenderMode",glrendmode,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Polymer",glrendmode == 4,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLTextureMode",gltexfiltermode,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLTextureQuality", r_downsize,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLUseCompressedTextureCache", glusetexcache,false,false);

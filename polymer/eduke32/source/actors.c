@@ -600,7 +600,7 @@ static void G_MoveZombieActors(void)
                     G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(80<<8),0);
                     break;
                 case ATOMICHEALTH__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),1);
                     break;
 
                 case FIRE__STATIC:
@@ -621,15 +621,15 @@ static void G_MoveZombieActors(void)
                     break;
 
                 case EXPLOSION2__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(80<<8),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(80<<8),1);
                     break;
                 case FORCERIPPLE__STATIC:
                     //                    case TRANSPORTERSTAR__STATIC:
                 case TRANSPORTERBEAM__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 80+(80<<8)+(255<<16),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 80+(80<<8)+(255<<16),2);
                     break;
                 case SHRINKEREXPLOSION__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),1);
                     break;
 
                 }
@@ -2280,7 +2280,7 @@ static void G_MoveWeapons(void)
                 //                    A_PlaySound(WIERDSHOT_FLY,i);
 
                 if (ActorExtra[i].projectile.flashcolor)
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, ActorExtra[i].projectile.flashcolor,0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, ActorExtra[i].projectile.flashcolor,2);
 
                 if (ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFWALLS)
                 {
@@ -2727,20 +2727,20 @@ static void G_MoveWeapons(void)
                 switch (DynamicTileMap[s->picnum])
                 {
                 case FREEZEBLAST__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),1);
                     break;
 
                 case COOLEXPLOSION1__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 3072, 128+(0<<8)+(255<<16),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 3072, 128+(0<<8)+(255<<16),1);
                     break;
 
                 case SHRINKSPARK__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),1);
                     break;
 
                 case RPG__STATIC:
                 case FIRELASER__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 32 * s->yrepeat, 255+(80<<8),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 32 * s->yrepeat, 255+(80<<8),2);
 
                     if (DynamicTileMap[s->picnum] == RPG__STATIC && ActorExtra[i].picnum != BOSS2 &&
                             s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
@@ -3386,7 +3386,7 @@ static void G_MoveActors(void)
         switch (DynamicTileMap[switchpicnum])
         {
         case ATOMICHEALTH__STATIC:
-            G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),0);
+            G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),1);
             break;
 
         case FIRE__STATIC:
@@ -5152,15 +5152,15 @@ static void G_MoveMisc(void)  // STATNUM 5
                     break;
 
                 case EXPLOSION2__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), (512 * s->yrepeat) / (ActorExtra[i].temp_data[2]+1), 255+(80<<8),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), (512 * s->yrepeat) / (ActorExtra[i].temp_data[2]+1), 255+(80<<8),1);
                     break;
                 case FORCERIPPLE__STATIC:
 //                    case TRANSPORTERSTAR__STATIC:
                 case TRANSPORTERBEAM__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 80+(80<<8)+(255<<16),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 80+(80<<8)+(255<<16),2);
                     break;
                 case SHRINKEREXPLOSION__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),1);
                     break;
                 }
                 if (!actorscrptr[sprite[i].picnum])

@@ -9261,7 +9261,7 @@ static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
                 else
                 {
                     initprintf("Using group file '%s'.\n",fn);
-                    if (!g_noAutoLoad)
+                    if (!g_noAutoLoad && !ud.config.NoAutoLoad)
                         G_DoAutoload(fn);
                 }
 
@@ -11230,7 +11230,7 @@ CLEAN_DIRECTORY:
     else
         initprintf("Using group file '%s' as main group file.\n", duke3dgrp);
 
-    if (!g_noAutoLoad)
+    if (!g_noAutoLoad && !ud.config.NoAutoLoad)
     {
         int32_t ii;
 
@@ -11283,7 +11283,7 @@ CLEAN_DIRECTORY:
             {
                 g_groupFileHandle = j;
                 initprintf("Using group file '%s'.\n",CommandGrps->str);
-                if (!g_noAutoLoad)
+                if (!g_noAutoLoad && !ud.config.NoAutoLoad)
                     G_DoAutoload(CommandGrps->str);
             }
 

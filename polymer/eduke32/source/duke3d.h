@@ -79,7 +79,7 @@ extern int32_t g_scriptVersion, g_Shareware, g_gameType;
 #define BYTEVERSION_14  116
 #define BYTEVERSION_15  117
 
-#define BYTEVERSION_JF  192 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
+#define BYTEVERSION_JF  195 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
 
 #define BYTEVERSION (BYTEVERSION_JF+(PLUTOPAK?1:(VOLUMEONE<<1)))    // JBF 20040116: different data files give different versions
 
@@ -359,6 +359,7 @@ typedef struct {
     int32_t ScreenBPP;
 
     int32_t ForceSetup;
+    int32_t NoAutoLoad;
 
     int32_t scripthandle;
     int32_t setupread;

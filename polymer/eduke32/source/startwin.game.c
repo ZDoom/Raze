@@ -30,7 +30,7 @@ static struct audioenumdrv *wavedevs = NULL;
 
 static struct
 {
-    int32_t fullscreen;
+    int32_t flags; // bitfield
     int32_t xdim, ydim, bpp;
     int32_t forcesetup;
     int32_t usemouse, usejoy;
@@ -91,8 +91,8 @@ static void PopulateForm(int32_t pgs)
 
         hwnd = GetDlgItem(pages[TAB_CONFIG], IDCVMODE);
 
-        mode = checkvideomode(&settings.xdim, &settings.ydim, settings.bpp, settings.fullscreen, 1);
-        if (mode < 0)
+        mode = checkvideomode(&settings.xdim, &settings.ydim, settings.bpp, settings.flags&1, 1);
+        if (mode < 0 || (settings.bpp < 15 && (settings.flags & 2)))
         {
             int32_t cd[] = { 32, 24, 16, 15, 8, 0 };
             for (i=0; cd[i];)
@@ -102,18 +102,20 @@ static void PopulateForm(int32_t pgs)
             }
             for (; cd[i]; i++)
             {
-                mode = checkvideomode(&settings.xdim, &settings.ydim, cd[i], settings.fullscreen, 1);
+                mode = checkvideomode(&settings.xdim, &settings.ydim, cd[i], settings.flags&1, 1);
                 if (mode < 0) continue;
                 settings.bpp = cd[i];
                 break;
             }
         }
 
-        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), (settings.fullscreen ? BST_CHECKED : BST_UNCHECKED));
+        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), ((settings.flags&1) ? BST_CHECKED : BST_UNCHECKED));
+        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCPOLYMER), ((settings.flags&2) ? BST_CHECKED : BST_UNCHECKED));
         (void)ComboBox_ResetContent(hwnd);
         for (i=0; i<validmodecnt; i++)
         {
-            if (validmode[i].fs != settings.fullscreen) continue;
+            if (validmode[i].fs != (settings.flags & 1)) continue;
+            if ((validmode[i].bpp < 15) && (settings.flags & 2)) continue;
 
             // all modes get added to the 3D mode list
             Bsprintf(buf, "%d x %d %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
@@ -155,7 +157,7 @@ static void PopulateForm(int32_t pgs)
         }
 
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.forcesetup ? BST_CHECKED : BST_UNCHECKED));
-
+        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCAUTOLOAD), (!(settings.flags & 4) ? BST_CHECKED : BST_UNCHECKED));
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTMOUSE), (settings.usemouse ? BST_CHECKED : BST_UNCHECKED));
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTJOY), (settings.usejoy ? BST_CHECKED : BST_UNCHECKED));
     }
@@ -211,7 +213,14 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
         switch (LOWORD(wParam))
         {
         case IDCFULLSCREEN:
-            settings.fullscreen = !settings.fullscreen;
+            if (settings.flags & 1) settings.flags &= ~1;
+            else settings.flags |= 1;
+            PopulateForm(POPULATE_VIDEO);
+            return TRUE;
+        case IDCPOLYMER:
+            if (settings.flags & 2) settings.flags &= ~2;
+            else settings.flags |= 2;
+            if (settings.bpp == 8) settings.bpp = 32;
             PopulateForm(POPULATE_VIDEO);
             return TRUE;
         case IDCVMODE:
@@ -230,6 +239,11 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
             return TRUE;
         case IDCALWAYSSHOW:
             settings.forcesetup = IsDlgButtonChecked(hwndDlg, IDCALWAYSSHOW) == BST_CHECKED;
+            return TRUE;
+        case IDCAUTOLOAD:
+            if (IsDlgButtonChecked(hwndDlg, IDCALWAYSSHOW) == BST_CHECKED)
+                settings.flags &= ~4;
+            else settings.flags |= 4;
             return TRUE;
         case IDCINPUTMOUSE:
             settings.usemouse = IsDlgButtonChecked(hwndDlg, IDCINPUTMOUSE) == BST_CHECKED;
@@ -304,6 +318,7 @@ static void EnableConfig(int32_t n)
     //EnableWindow(GetDlgItem(startupdlg, WIN_STARTWIN_CANCEL), n);
     EnableWindow(GetDlgItem(startupdlg, WIN_STARTWIN_START), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), n);
+    EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCPOLYMER), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCVMODE), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUTMOUSE), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUTJOY), n);
@@ -625,11 +640,13 @@ int32_t startwin_run(void)
     SetPage(TAB_CONFIG);
     EnableConfig(1);
 
-    settings.fullscreen = ud.config.ScreenMode;
+    if (ud.config.ScreenMode) settings.flags = 1;
+    if (glrendmode == 4) settings.flags |= 2;
     settings.xdim = ud.config.ScreenWidth;
     settings.ydim = ud.config.ScreenHeight;
     settings.bpp = ud.config.ScreenBPP;
     settings.forcesetup = ud.config.ForceSetup;
+    if (ud.config.NoAutoLoad) settings.flags |= 4;
     settings.usemouse = ud.config.UseMouse;
     settings.usejoy = ud.config.UseJoystick;
     settings.game = g_gameType;
@@ -661,11 +678,14 @@ int32_t startwin_run(void)
     {
         int32_t i;
 
-        ud.config.ScreenMode = settings.fullscreen;
+        ud.config.ScreenMode = (settings.flags&1);
+        if (settings.flags & 2) glrendmode = 4;
+        else glrendmode = 3;
         ud.config.ScreenWidth = settings.xdim;
         ud.config.ScreenHeight = settings.ydim;
         ud.config.ScreenBPP = settings.bpp;
         ud.config.ForceSetup = settings.forcesetup;
+        ud.config.NoAutoLoad = (settings.flags & 4);
         ud.config.UseMouse = settings.usemouse;
         ud.config.UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;

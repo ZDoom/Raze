@@ -21,7 +21,7 @@ enum
     T_DEFINETEXTURE,
     T_DEFINESKYBOX,
     T_DEFINETINT,
-    T_DEFINECONV,
+    /*T_DEFINECONV,*/
     T_DEFINEMODEL,
     T_DEFINEMODELFRAME,
     T_DEFINEMODELANIM,
@@ -74,7 +74,7 @@ enum
     T_CACHESIZE,
     T_IMPORTTILE,
     T_MUSIC,T_ID,T_SOUND,
-    T_REDPAL,T_BLUEPAL,T_BROWNPAL,T_GREYPAL,T_GREENPAL,T_SPECPAL,
+/*    T_REDPAL,T_BLUEPAL,T_BROWNPAL,T_GREYPAL,T_GREENPAL,T_SPECPAL,*/
     T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET
 };
 
@@ -90,7 +90,7 @@ static tokenlist basetokens[] =
     { "definetexture",   T_DEFINETEXTURE    },
     { "defineskybox",    T_DEFINESKYBOX     },
     { "definetint",      T_DEFINETINT       },
-    { "defineconv",      T_DEFINECONV       },
+/*    { "defineconv",      T_DEFINECONV       },*/
     { "definemodel",     T_DEFINEMODEL      },
     { "definemodelframe",T_DEFINEMODELFRAME },
     { "definemodelanim", T_DEFINEMODELANIM  },
@@ -142,12 +142,14 @@ static tokenlist modeltokens[] =
     { "skin",   T_SKIN   },
     { "glow",   T_GLOW   },
     { "detail", T_DETAIL },
+/*
     { "redmap",  T_REDPAL  },
     { "bluepal", T_BLUEPAL },
     { "brownpal",T_BROWNPAL},
     { "greypal", T_GREYPAL },
     { "greenpal",T_GREENPAL},
     { "specpal", T_SPECPAL },
+*/
     { "hud",    T_HUD    },
     { "flags",   T_FLAGS   },
 };
@@ -233,12 +235,14 @@ static tokenlist texturetokens[] =
     { "pal",     T_PAL  },
     { "detail",  T_DETAIL },
     { "glow",    T_GLOW },
+/*
     { "redmap",  T_REDPAL  },
     { "bluepal", T_BLUEPAL },
     { "brownpal",T_BROWNPAL},
     { "greypal", T_GREYPAL },
     { "greenpal",T_GREENPAL},
     { "specpal", T_SPECPAL },
+*/
 };
 
 static tokenlist texturetokens_pal[] =
@@ -436,6 +440,7 @@ static int32_t defsparser(scriptfile *script)
             hicsetpalettetint(pal,r,g,b,f);
         }
         break;
+/*
         case T_DEFINECONV:
         {
             int32_t pal, pal1, pal2;
@@ -448,6 +453,7 @@ static int32_t defsparser(scriptfile *script)
 #endif
         }
         break;
+*/
         case T_ALPHAHACK:
         {
             int32_t tile;
@@ -1206,7 +1212,9 @@ static int32_t defsparser(scriptfile *script)
                 }
                 break;
                 case T_SKIN: case T_DETAIL: case T_GLOW:
+/*
                 case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL: case T_SPECPAL:
+*/
                 {
                     char *skintokptr = script->ltextptr;
                     char *skinend, *skinfn = 0;
@@ -1244,12 +1252,14 @@ static int32_t defsparser(scriptfile *script)
 
                     switch (token)
                     {
+/*
                     case T_REDPAL:  palnum = REDPAL;  break;
                     case T_BLUEPAL: palnum = BLUEPAL; break;
                     case T_BROWNPAL:palnum = BROWNPAL; break;
                     case T_GREYPAL: palnum = GREYPAL; break;
                     case T_GREENPAL:palnum = GREENPAL; break;
                     case T_SPECPAL: palnum = SPECPAL; break;
+*/
 
                     case T_DETAIL:
                         palnum = DETAILPAL;
@@ -1608,7 +1618,7 @@ static int32_t defsparser(scriptfile *script)
                 }
                 break;
                 case T_DETAIL: case T_GLOW:
-                case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL: case T_SPECPAL:
+/*                case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL: case T_SPECPAL:*/
                 {
                     char *detailtokptr = script->ltextptr, *detailend;
                     int32_t pal = 0, i;
@@ -1664,12 +1674,14 @@ static int32_t defsparser(scriptfile *script)
 
                     switch (token)
                     {
+/*
                     case T_REDPAL:  pal = REDPAL;  palmapbits|=32; break;
                     case T_BLUEPAL: pal = BLUEPAL; palmapbits|=16; break;
                     case T_BROWNPAL:pal = BROWNPAL; palmapbits|= 8; break;
                     case T_GREYPAL: pal = GREYPAL; palmapbits|= 4; break;
                     case T_GREENPAL:pal = GREENPAL; palmapbits|= 2; break;
                     case T_SPECPAL: pal = SPECPAL; palmapbits|= 1; break;
+*/
 
                     case T_DETAIL:
                         pal = DETAILPAL;

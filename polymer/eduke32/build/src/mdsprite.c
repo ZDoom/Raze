@@ -357,7 +357,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     sk->fn = (char *)malloc(strlen(skinfn)+1);
     if (!sk->fn) return(-4);
     strcpy(sk->fn, skinfn);
-    sk->palmap=0;
+/*    sk->palmap=0;*/
 
     return 0;
 }
@@ -410,6 +410,7 @@ int32_t md_undefinemodel(int32_t modelid)
 md2model_t *modelhead;
 mdskinmap_t *skhead;
 
+/*
 typedef struct
 {
     int32_t pal,pal1,pal2;
@@ -476,11 +477,11 @@ void applypalmap(char *pic, char *palmap, int32_t size, int32_t pal)
         pic[g]=((pic[g]*(255-a)+hictinting[pal].g*a)*palmap[g])/255/255;
         pic[b]=((pic[b]*(255-a)+hictinting[pal].b*a)*palmap[b])/255/255;
 
-        /*
+        / *
         		pic[r]=((255*(255-a)+hictinting[pal].r*a)*palmap[r])/255/255;
         		pic[g]=((255*(255-a)+hictinting[pal].g*a)*palmap[g])/255/255;
         		pic[b]=((255*(255-a)+hictinting[pal].b*a)*palmap[b])/255/255;
-        */
+        * /
         if (glinfo.bgra)swapchar(&pic[r], &pic[b]);
         r+=4; g+=4; b+=4;
     }
@@ -506,8 +507,9 @@ static void applypalmapSkin(char *pic, int32_t sizx, int32_t sizy, md2model_t *m
         applypalmap(pic,sk->palmap,sk->size,pal2);
     }
 }
+*/
 
-static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t *sizx, int32_t *sizy, int32_t *osizx, int32_t *osizy, char *hasalpha, int32_t pal, char effect, md2model_t *m, int32_t number, int32_t surf)
+static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t *sizx, int32_t *sizy, int32_t *osizx, int32_t *osizy, char *hasalpha, int32_t pal, char effect)
 {
     int32_t picfillen, j,y,x;
     char *picfil,*cptr,al=255;
@@ -544,7 +546,7 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
         { free(picfil); free(pic); return -1; }
     free(picfil);
 
-    applypalmapSkin((char *)pic,tsizx,tsizy,m,number,pal,surf);
+    /*applypalmapSkin((char *)pic,tsizx,tsizy,m,number,pal,surf);*/
     cptr = &britable[gammabrightness ? 0 : curbrightness][0];
     r=(glinfo.bgra)?hictinting[pal].b:hictinting[pal].r;
     g=hictinting[pal].g;
@@ -850,7 +852,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         cachefil = -1;	// the compressed version will be saved to disk
 
         if ((filh = kopen4load(fn, 0)) < 0) return -1;
-        if (daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,pal,(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK),m,number,surf))
+        if (daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,pal,(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)))
         {
             kclose(filh);
             OSD_Printf("Failed loading skin file \"%s\"\n", fn);
@@ -859,6 +861,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         }
         else kclose(filh);
         if (pal < (MAXPALOOKUPS - RESERVEDPALS))m->usesalpha = hasalpha;
+/*
         if (pal>=SPECPAL&&pal<=REDPAL)
         {
             //_initprintf("%cLoaded palmap %d(%dx%d)",sk->palmap?'+':'-',pal,xsiz,ysiz);
@@ -871,6 +874,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             cachefil=0;
             //_initprintf("#%d\n",sk->palmap);
         }
+*/
 
         if ((doalloc&3)==1) bglGenTextures(1,(GLuint*)texidx);
         bglBindTexture(GL_TEXTURE_2D,*texidx);
@@ -1300,11 +1304,13 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
         if (m->numskins > 0)
         {
             sk->fn = (char *)malloc(strlen(m->basepath)+strlen(m->skinfn)+1);
+/*
             if (sk->palmap)
             {
                 //_initprintf("Delete %s",m->skinfn);
                 sk->palmap=0; sk->size=0;
             }
+*/
             strcpy(sk->fn, m->basepath);
             strcat(sk->fn, m->skinfn);
         }
@@ -2198,11 +2204,13 @@ static void md3free(md3model_t *m)
     {
         nsk = sk->next;
         free(sk->fn);
+/*
         if (sk->palmap)
         {
             //_initprintf("Kill %d\n",sk->palette);
             free(sk->palmap); sk->palmap=0;
         }
+*/
         free(sk);
     }
 

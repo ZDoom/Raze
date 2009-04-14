@@ -20,6 +20,8 @@
 #define IDCINPUTMOUSE	105
 #define IDCINPUTJOY	106
 #define IDCALWAYSSHOW	107
-#define IDCDATA 108
-#define IDCGAMEDIR 109
+#define IDCDATA         108
+#define IDCGAMEDIR      109
+#define IDCPOLYMER      110
+#define IDCAUTOLOAD     111
 

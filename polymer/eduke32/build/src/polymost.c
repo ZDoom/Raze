@@ -680,11 +680,13 @@ void polymost_glreset()
                     free(pth->ofb);
                 }
                 bglDeleteTextures(1,&pth->glpic);
+/*
                 if (pth->palmap)
                 {
                     //_initprintf("Kill #%d\n",pth->palmap);
                     free(pth->palmap); pth->palmap=0;
                 }
+*/
                 free(pth);
                 pth = next;
             }
@@ -1476,8 +1478,7 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
             offset = t->offset;
 //            initprintf("got a match for %s offset %d\n",cachefn,offset);
         }
-
-        if (i < 0) return -1; // didn't find it
+        else return -1; // didn't find it
 
         if (Blseek(cachefilehandle, offset, BSEEK_SET) == -1)
         {
@@ -1521,7 +1522,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
     GLint gi;
     int32_t offset = 0;
 
-    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache || !cacheindexptr || cachefilehandle < 0) return;
+    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache) return;
     if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
     {
         // lacking the necessary extensions to do this
@@ -1529,40 +1530,19 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
         glusetexcache = 0;
         return;
     }
-    /*
-        {
-            struct stat st;
-            if (stat(TEXCACHEFILE, &st) < 0)
-            {
-                if (errno == ENOENT)     // path doesn't exist
-                {
-                    // try to create the cache directory
-                    if (Bmkdir(TEXCACHEFILE, S_IRWXU) < 0)
-                    {
-                        OSD_Printf("Failed to create texture cache directory %s\n", TEXCACHEFILE);
-                        glusetexcache = 0;
-                        return;
-                    }
-                    else OSD_Printf("Created texture cache directory %s\n", TEXCACHEFILE);
-                }
-                else
-                {
-                    // another type of failure
-                    glusetexcache = 0;
-                    return;
-                }
-            }
-            else if ((st.st_mode & S_IFDIR) != S_IFDIR)
-            {
-                // cache directory isn't a directory
-                glusetexcache = 0;
-                return;
-            }
-        }
-    */
+    if (!cacheindexptr || cachefilehandle < 0)
+    {
+        OSD_Printf("Warning: no active cache!\n");
+        return;
+    }
+
     gi = GL_FALSE;
     bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, (GLint *)&gi);
-    if (gi != GL_TRUE) return;
+    if (gi != GL_TRUE)
+    {
+        OSD_Printf("Error: glGetTexLevelParameteriv returned GL_FALSE!\n");
+        return;
+    }
 
     md4once((uint8_t *)fn, strlen(fn), mdsum);
 
@@ -1573,7 +1553,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
     Blseek(cachefilehandle, 0, BSEEK_END);
 
     offset = Blseek(cachefilehandle, 0, BSEEK_CUR);
-    OSD_Printf("Writing cached tex %s, offset 0x%x\n", cachefn, offset);
+    OSD_Printf("Caching %s, offset 0x%x\n", cachefn, offset);
 
     Bmemcpy(head->magic, "PMST", 4);   // sizes are set by caller
 
@@ -1646,6 +1626,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
                 fseek(cacheindexptr, 0, BSEEK_END);
                 Bfprintf(cacheindexptr, "%s %d %d\n", t->name, t->offset, t->len);
             }
+            else OSD_Printf("wtf?\n");
         }
         else
         {
@@ -1659,6 +1640,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
                 fseek(cacheindexptr, 0, BSEEK_END);
                 Bfprintf(cacheindexptr, "%s %d %d\n", curcacheindex->name, curcacheindex->offset, curcacheindex->len);
             }
+            else OSD_Printf("wtf?\n");
 
             hash_add(&cacheH, Bstrdup(cachefn), numcacheentries);
             cacheptrs[numcacheentries++] = curcacheindex;
@@ -1669,7 +1651,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
     goto success;
 
 failure:
-    initprintf("failure!\n");
+    initprintf("ERROR: cache failure!\n");
     curcacheindex->offset = 0;
     Bmemset(curcacheindex->name,0,sizeof(curcacheindex->name));
 
@@ -1759,6 +1741,7 @@ failure:
     return -1;
 }
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
+/*
 static void applypalmapsT(char *pic, int32_t sizx, int32_t sizy, int32_t dapic,int32_t dapalnum, int32_t dameth)
 {
     //_initprintf("%d\n",pal);
@@ -1782,6 +1765,7 @@ static void applypalmapsT(char *pic, int32_t sizx, int32_t sizy, int32_t dapic,i
         applypalmap(pic,pth->palmap,pth->size,pal2);
     }
 }
+*/
 
 int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr, int32_t dameth, pthtyp *pth, int32_t doalloc, char effect)
 {
@@ -1860,7 +1844,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         pic = (coltype *)calloc(xsiz,ysiz*sizeof(coltype)); if (!pic) { free(picfil); return 1; }
 
         if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0)) { free(picfil); free(pic); return -2; }
-        applypalmapsT((char *)pic,tsizx,tsizy,dapic,dapalnum,dameth);
+/*        applypalmapsT((char *)pic,tsizx,tsizy,dapic,dapalnum,dameth);*/
 
         r=(glinfo.bgra)?hictinting[dapalnum].r:hictinting[dapalnum].b;
         g=hictinting[dapalnum].g;
@@ -1933,6 +1917,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         if ((doalloc&3)==1) bglGenTextures(1,(GLuint*)&pth->glpic);  //# of textures (make OpenGL allocate structure)
         bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
+/*
         if (dapalnum>=SPECPAL&&dapalnum<=REDPAL)
         {
             //_initprintf("%cLoaded palamp %d(%dx%d)",pth->palmap?'+':'-',dapalnum,xsiz,ysiz);
@@ -1944,6 +1929,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             }
             cachefil=0;
         }
+*/
         fixtransparency(pic,tsizx,tsizy,xsiz,ysiz,dameth);
         uploadtexture(doalloc,xsiz,ysiz,intexfmt,texfmt,pic,-1,tsizy,dameth|8192|(hicr->flags & 16?4096:0));
     }
