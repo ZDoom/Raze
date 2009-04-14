@@ -3865,6 +3865,14 @@ static inline void  polymer_culllight(char lightindex)
                     light->isinview = 1;
             }
             if (polymer_planeinlight(&w->mask, light)) {
+                if ((w->mask.vertcount == 4) &&
+                    (w->mask.buffer[(0 * 5) + 1] >= w->mask.buffer[(3 * 5) + 1]) &&
+                    (w->mask.buffer[(1 * 5) + 1] >= w->mask.buffer[(2 * 5) + 1]))
+                {
+                    i++;
+                    continue;
+                }
+
                 w->mask.lights[w->mask.lightcount] = lightindex;
                 w->mask.lightcount++;
                 if (w->mask.drawn)
