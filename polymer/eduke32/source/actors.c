@@ -2740,7 +2740,7 @@ static void G_MoveWeapons(void)
 
                 case RPG__STATIC:
                 case FIRELASER__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 255+(80<<8),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 32 * s->yrepeat, 255+(80<<8),0);
 
                     if (DynamicTileMap[s->picnum] == RPG__STATIC && ActorExtra[i].picnum != BOSS2 &&
                             s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
@@ -5148,11 +5148,11 @@ static void G_MoveMisc(void)  // STATNUM 5
                     if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
                     if (s->z > ActorExtra[i].floorz + 2048) break;
 */
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(80<<8),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(80<<8),0);
                     break;
 
                 case EXPLOSION2__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(80<<8),0);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), (512 * s->yrepeat) / (ActorExtra[i].temp_data[2]+1), 255+(80<<8),0);
                     break;
                 case FORCERIPPLE__STATIC:
 //                    case TRANSPORTERSTAR__STATIC:
