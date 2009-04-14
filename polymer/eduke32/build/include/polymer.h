@@ -135,7 +135,7 @@ typedef struct      s_prrograminfo {
     GLint           uniform_spotRadius;
 }                   _prprograminfo;
 
-#define             PR_INFO_LOG_BUFFER_SIZE 16384
+#define             PR_INFO_LOG_BUFFER_SIZE 65536
 
 typedef struct      s_prprogrambit {
     int32_t         bit;

@@ -268,7 +268,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // vert_prog
         "  fragDetailScale = detailScale;\n"
         "  if (isNormalMapped == 0)\n"
-        "    gl_TexCoord[texCoord++] = vec4(detailScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
+        "    gl_TexCoord[1] = vec4(detailScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
         "\n",
         // frag_def
         "uniform sampler2D detailMap;\n"
@@ -276,7 +276,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
         // frag_prog
         "  if (isNormalMapped == 0)\n"
-        "    result *= texture2D(detailMap, gl_TexCoord[texCoord++].st);\n"
+        "    result *= texture2D(detailMap, gl_TexCoord[1].st);\n"
         "  else\n"
         "    result *= texture2D(detailMap, commonTexCoord.st * fragDetailScale);\n"
         "  result.rgb *= 2.0;\n"
@@ -355,7 +355,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  float fragDepth;\n"
         "  float fogFactor;\n"
         "\n"
-        "  fragDepth = gl_FragCoord.z / gl_FragCoord.w / 35;\n"
+        "  fragDepth = gl_FragCoord.z / gl_FragCoord.w / 35.0;\n"
         "  fragDepth *= fragDepth;\n"
         "  fogFactor = exp2(-gl_Fog.density * gl_Fog.density * fragDepth * 1.442695);\n"
         "  result.rgb = mix(gl_Fog.color.rgb, result.rgb, fogFactor);\n"
@@ -383,13 +383,13 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "uniform mat4 shadowProjMatrix;\n"
         "\n",
         // vert_prog
-        "  gl_TexCoord[texCoord++] = shadowProjMatrix * curVertex;\n"
+        "  gl_TexCoord[2] = shadowProjMatrix * curVertex;\n"
         "\n",
         // frag_def
         "uniform sampler2DShadow shadowMap;\n"
         "\n",
         // frag_prog
-        "  shadowResult = shadow2DProj(shadowMap, gl_TexCoord[texCoord++]).a;\n"
+        "  shadowResult = shadow2DProj(shadowMap, gl_TexCoord[2]).a;\n"
         "\n",
     },
     {
@@ -486,7 +486,6 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // vert_def
         "void main(void)\n"
         "{\n"
-        "  int texCoord = 1;\n"
         "  vec4 curVertex = gl_Vertex;\n"
         "  vec3 curNormal = gl_Normal;\n"
         "  int isNormalMapped = 0;\n"
@@ -501,7 +500,6 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "void main(void)\n"
         "{\n"
         "  vec3 commonTexCoord = vec3(gl_TexCoord[0].st, 0.0);\n"
-        "  int texCoord = 1;\n"
         "  vec4 result = vec4(1.0, 1.0, 1.0, 1.0);\n"
         "  vec4 diffuseTexel = vec4(1.0, 1.0, 1.0, 1.0);\n"
         "  vec4 specTexel = vec4(1.0, 1.0, 1.0, 1.0);\n"
@@ -512,7 +510,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  int isSpotLight = 0;\n"
         "  vec3 spotVector;\n"
         "  vec2 spotCosRadius;\n"
-        "  float shadowResult = 1;\n"
+        "  float shadowResult = 1.0;\n"
         "  vec2 specularMaterial = vec2(15.0, 1.0);\n"
         "\n",
         // frag_prog
