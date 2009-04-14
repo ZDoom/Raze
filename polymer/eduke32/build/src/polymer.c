@@ -1103,6 +1103,20 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                 (wallvisible(sec->wallptr + i)) &&
                 (polymer_planeinfrustum(&prwalls[sec->wallptr + i]->mask, frustum)))
             {
+                if (prwalls[sec->wallptr + i]->mask.vertcount == 4)
+                {
+                    _prwall         *w;
+
+                    w = prwalls[sec->wallptr + i];
+
+                    if ((w->mask.buffer[(0 * 5) + 1] >= w->mask.buffer[(3 * 5) + 1]) &&
+                        (w->mask.buffer[(1 * 5) + 1] >= w->mask.buffer[(2 * 5) + 1]))
+                    {
+                        i++;
+                        continue;
+                    }
+                }
+
                 if (wall[sec->wallptr + i].cstat & 48)
                     localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
 
