@@ -354,11 +354,11 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
         case RPG__STATIC:
         case MORTER__STATIC:
             G_AddGameLight(0, s->sectnum, s->x+((sintable[(s->ang+512)&2047])>>7),
-                           s->y+((sintable[(s->ang)&2047])>>7), s->z-PHEIGHT, 4096, 255+(80<<8),0);
+                s->y+((sintable[(s->ang)&2047])>>7), s->z-PHEIGHT, 4096, 255+(80<<8),0);
 
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>7);
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>7);
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>4);
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>4);
 
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
@@ -2151,11 +2151,11 @@ void P_FireWeapon(DukePlayer_t *p)
             p->visibility = 0;
 
             G_AddGameLight(0, s->sectnum, s->x+((sintable[(p->ang+512)&2047])>>7), s->y+((sintable[(p->ang)&2047])>>7),
-                           s->z-PHEIGHT, 4096, aplWeaponFlashColor[p->curr_weapon][snum],0);
+                s->z-PHEIGHT, 4096, aplWeaponFlashColor[p->curr_weapon][snum],0);
 
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(p->ang+512)&2047])>>7);
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(p->ang)&2047])>>7);
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(p->ang+512)&2047])>>4);
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(p->ang)&2047])>>4);
 
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
@@ -2169,7 +2169,7 @@ void P_FireWeapon(DukePlayer_t *p)
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = (aplWeaponFlashColor[p->curr_weapon][snum]>>8)&255;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = (aplWeaponFlashColor[p->curr_weapon][snum]>>16)&255;;
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 2;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 1;
 
             if (gamelightcount < PR_MAXLIGHTS)
                 gamelightcount++;

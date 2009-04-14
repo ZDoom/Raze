@@ -2839,6 +2839,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             color[0] *= (float)hictinting[tspr->pal].r / 255.0;
             color[1] *= (float)hictinting[tspr->pal].g / 255.0;
             color[2] *= (float)hictinting[tspr->pal].b / 255.0;
+
             if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
             {
                 color[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
@@ -3164,12 +3165,23 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
             material->diffusemodulation[2] =
             ((float)(numpalookups-min(max(shade*shadescale,0),numpalookups)))/((float)numpalookups);
 
-    if (pth && (pth->flags & 2) && (pth->palnum != pal))
+    if (pth && (pth->flags & 2))
     {
-        material->diffusemodulation[0] *= (float)hictinting[pal].r / 255.0;
-        material->diffusemodulation[1] *= (float)hictinting[pal].g / 255.0;
-        material->diffusemodulation[2] *= (float)hictinting[pal].b / 255.0;
+        if (pth->palnum != pal)
+        {
+            material->diffusemodulation[0] *= (float)hictinting[pal].r / 255.0;
+            material->diffusemodulation[1] *= (float)hictinting[pal].g / 255.0;
+            material->diffusemodulation[2] *= (float)hictinting[pal].b / 255.0;
+        }
+
+        if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
+        {
+            material->diffusemodulation[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
+            material->diffusemodulation[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
+            material->diffusemodulation[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
+        }
     }
+
 
     // PR_BIT_SPECULAR_MAP
     if (hicfindsubst(tilenum, 101, 0))

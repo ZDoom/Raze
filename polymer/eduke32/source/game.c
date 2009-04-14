@@ -7369,6 +7369,8 @@ PALONLY:
         case TECHSWITCH__STATIC:
         case ACCESSSWITCH__STATIC:
         case ACCESSSWITCH2__STATIC:
+            if (!inside(t->x+((sintable[(t->ang+512)&2047])>>9), t->y+((sintable[(t->ang)&2047])>>9), t->sectnum))
+                break;
             framelights[framelightcount & (PR_MAXLIGHTS-1)].radius = 0;
             framelights[framelightcount & (PR_MAXLIGHTS-1)].sector = t->sectnum;
 
@@ -7408,6 +7410,8 @@ PALONLY:
         case TECHSWITCH__STATIC:
         case ACCESSSWITCH__STATIC:
         case ACCESSSWITCH2__STATIC:
+            if (!inside(t->x+((sintable[(t->ang+512)&2047])>>9), t->y+((sintable[(t->ang)&2047])>>9), t->sectnum))
+                break;
             framelights[framelightcount & (PR_MAXLIGHTS-1)].radius = 0;
             framelights[framelightcount & (PR_MAXLIGHTS-1)].sector = t->sectnum;
 

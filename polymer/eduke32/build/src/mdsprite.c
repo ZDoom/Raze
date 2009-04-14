@@ -93,8 +93,8 @@ void freeallmodels()
     {
         bglDeleteBuffersARB(allocvbos, indexvbos);
         bglDeleteBuffersARB(allocvbos, vertvbos);
-        free(indexvbos);
-        free(vertvbos);
+//        free(indexvbos);
+//        free(vertvbos);
         allocvbos = 0;
     }
 }

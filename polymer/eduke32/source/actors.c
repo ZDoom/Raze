@@ -592,6 +592,44 @@ static void G_MoveZombieActors(void)
         {
             if (x < 30000)
             {
+                switch (DynamicTileMap[s->picnum])
+                {
+                case FLOORFLAME__STATIC:
+                case FIREBARREL__STATIC:
+                case FIREVASE__STATIC:
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 4096, 255+(80<<8),0);
+                    break;
+                case ATOMICHEALTH__STATIC:
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 2048, 128+(128<<8)+(255<<16),0);
+                    break;
+
+                case FIRE__STATIC:
+                case FIRE2__STATIC:
+                    if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
+                    if (s->z > ActorExtra[i].floorz+2048) break;
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 64 * s->xrepeat, 255+(80<<8),0);
+                    break;
+                case BURNING__STATIC:
+                case BURNING2__STATIC:
+                    if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
+                    if (s->z > ActorExtra[i].floorz + 2048) break;
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 64 * s->xrepeat, 255+(80<<8),0);
+                    break;
+
+                case EXPLOSION2__STATIC:
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 4096, 255+(80<<8),0);
+                    break;
+                case FORCERIPPLE__STATIC:
+                    //                    case TRANSPORTERSTAR__STATIC:
+                case TRANSPORTERBEAM__STATIC:
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 2048, 80+(80<<8)+(255<<16),0);
+                    break;
+                case SHRINKEREXPLOSION__STATIC:
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z, 2048, 128+(255<<8)+(128<<16),0);
+                    break;
+
+                }
+
                 ActorExtra[i].timetosleep++;
                 if (ActorExtra[i].timetosleep >= (x>>8))
                 {

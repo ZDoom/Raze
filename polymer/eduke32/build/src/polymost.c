@@ -696,6 +696,8 @@ void polymost_glreset()
     if (polymosttext) bglDeleteTextures(1,&polymosttext);
     polymosttext=0;
 
+    freevbos();
+
     memset(gltexcachead,0,sizeof(gltexcachead));
     glox1 = -1;
 
@@ -737,7 +739,6 @@ void polymost_glreset()
         }
         firstcacheindex.next = NULL;
     }
-    freevbos();
 }
 
 // one-time initialization of OpenGL for polymost
