@@ -241,7 +241,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
             settings.forcesetup = IsDlgButtonChecked(hwndDlg, IDCALWAYSSHOW) == BST_CHECKED;
             return TRUE;
         case IDCAUTOLOAD:
-            if (IsDlgButtonChecked(hwndDlg, IDCALWAYSSHOW) == BST_CHECKED)
+            if (IsDlgButtonChecked(hwndDlg, IDCAUTOLOAD) == BST_CHECKED)
                 settings.flags &= ~4;
             else settings.flags |= 4;
             return TRUE;
@@ -640,13 +640,14 @@ int32_t startwin_run(void)
     SetPage(TAB_CONFIG);
     EnableConfig(1);
 
-    if (ud.config.ScreenMode) settings.flags = 1;
+    settings.flags = 0;
+    if (ud.config.ScreenMode) settings.flags |= 1;
     if (glrendmode == 4) settings.flags |= 2;
+    if (ud.config.NoAutoLoad) settings.flags |= 4;
     settings.xdim = ud.config.ScreenWidth;
     settings.ydim = ud.config.ScreenHeight;
     settings.bpp = ud.config.ScreenBPP;
     settings.forcesetup = ud.config.ForceSetup;
-    if (ud.config.NoAutoLoad) settings.flags |= 4;
     settings.usemouse = ud.config.UseMouse;
     settings.usejoy = ud.config.UseJoystick;
     settings.game = g_gameType;
@@ -681,11 +682,12 @@ int32_t startwin_run(void)
         ud.config.ScreenMode = (settings.flags&1);
         if (settings.flags & 2) glrendmode = 4;
         else glrendmode = 3;
+        if (settings.flags & 4) ud.config.NoAutoLoad = 1;
+        else ud.config.NoAutoLoad = 0;
         ud.config.ScreenWidth = settings.xdim;
         ud.config.ScreenHeight = settings.ydim;
         ud.config.ScreenBPP = settings.bpp;
         ud.config.ForceSetup = settings.forcesetup;
-        ud.config.NoAutoLoad = (settings.flags & 4);
         ud.config.UseMouse = settings.usemouse;
         ud.config.UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;
