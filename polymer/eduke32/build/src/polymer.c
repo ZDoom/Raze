@@ -3848,6 +3848,8 @@ static inline void  polymer_culllight(char lightindex)
         s = prsectors[sectorqueue[front]];
         sec = &sector[sectorqueue[front]];
 
+        polymer_pokesector(sectorqueue[front]);
+
         if (polymer_planeinlight(&s->floor, light)) {
             s->floor.lights[s->floor.lightcount] = lightindex;
             s->floor.lightcount++;

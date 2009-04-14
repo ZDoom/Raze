@@ -2,9 +2,6 @@
 // TODO :
 // - CORE STUFF
 //   o there's also the texture alignment problem Hunter reported (san andreas fault)
-//   o also sliding doors are still fucked up sometimes (like under the bar in E1L2)
-//   o shading needs a lot of work
-//   o planeinfrustum
 //   o RTT portals (water)
 //   o clip mirrors/portals to their planes
 //   o merge mirrors/portals from the same plane
