@@ -2731,16 +2731,17 @@ static void G_MoveWeapons(void)
                     break;
 
                 case COOLEXPLOSION1__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 3072, 128+(0<<8)+(255<<16),1);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 128+(0<<8)+(255<<16),1);
                     break;
 
                 case SHRINKSPARK__STATIC:
                     G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),1);
                     break;
-
-                case RPG__STATIC:
                 case FIRELASER__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 32 * s->yrepeat, 255+(80<<8),2);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(80<<8),2);
+                    break;
+                case RPG__STATIC:
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(80<<8),2);
 
                     if (DynamicTileMap[s->picnum] == RPG__STATIC && ActorExtra[i].picnum != BOSS2 &&
                             s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)

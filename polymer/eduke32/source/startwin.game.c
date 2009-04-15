@@ -79,6 +79,11 @@ extern char TEXCACHEFILE[];
 
 extern int32_t g_noSetup;
 
+#define INPUT_KB 0
+#define INPUT_MOUSE 1
+#define INPUT_JOYSTICK 2
+#define INPUT_ALL 3
+
 static void PopulateForm(int32_t pgs)
 {
     HWND hwnd;
@@ -158,8 +163,31 @@ static void PopulateForm(int32_t pgs)
 
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.forcesetup ? BST_CHECKED : BST_UNCHECKED));
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCAUTOLOAD), (!(settings.flags & 4) ? BST_CHECKED : BST_UNCHECKED));
+/*
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTMOUSE), (settings.usemouse ? BST_CHECKED : BST_UNCHECKED));
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTJOY), (settings.usejoy ? BST_CHECKED : BST_UNCHECKED));
+*/
+
+        {
+            char *s[] = { "Keyboard only", "Keyboard and mouse", "Keyboard and joystick", "All devices" };
+
+            hwnd = GetDlgItem(pages[TAB_CONFIG], IDCINPUT);
+
+            (void)ComboBox_ResetContent(hwnd);
+            j = ComboBox_AddString(hwnd, s[INPUT_KB]);
+            (void)ComboBox_SetItemData(hwnd, j, INPUT_KB);
+            (void)ComboBox_SetCurSel(hwnd, j);
+            for (i=1;i<4;i++)
+            {
+                j = ComboBox_AddString(hwnd, s[i]);
+                (void)ComboBox_SetItemData(hwnd, j, i);
+                if ((settings.usemouse && !settings.usejoy && i == INPUT_MOUSE) ||
+                    (!settings.usemouse && settings.usejoy && i == INPUT_JOYSTICK) ||
+                    (settings.usemouse && settings.usejoy && i == INPUT_ALL))
+                    (void)ComboBox_SetCurSel(hwnd, j);
+            }
+        }
+
     }
 
     if (pgs & POPULATE_GAME)
@@ -245,12 +273,43 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
                 settings.flags &= ~4;
             else settings.flags |= 4;
             return TRUE;
+/*
         case IDCINPUTMOUSE:
             settings.usemouse = IsDlgButtonChecked(hwndDlg, IDCINPUTMOUSE) == BST_CHECKED;
             return TRUE;
         case IDCINPUTJOY:
             settings.usejoy = IsDlgButtonChecked(hwndDlg, IDCINPUTJOY) == BST_CHECKED;
             return TRUE;
+*/
+        case IDCINPUT:
+            if (HIWORD(wParam) == CBN_SELCHANGE)
+            {
+                int32_t i;
+                i = ComboBox_GetCurSel((HWND)lParam);
+                if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
+                if (i != CB_ERR)
+                {
+                    switch (i)
+                    {
+                    case 0:
+                        settings.usemouse = settings.usejoy = 0;
+                        break;
+                    case 1:
+                        settings.usemouse = 1;
+                        settings.usejoy = 0;
+                        break;
+                    case 2:
+                        settings.usemouse = 0;
+                        settings.usejoy = 1;
+                        break;
+                    case 3:
+                        settings.usemouse = settings.usejoy = 1;
+                        break;
+                    }
+                }
+            }
+            return TRUE;
+
         case IDCGAMEDIR:
             if (HIWORD(wParam) == CBN_SELCHANGE)
             {
@@ -320,8 +379,11 @@ static void EnableConfig(int32_t n)
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCPOLYMER), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCVMODE), n);
+/*
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUTMOUSE), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUTJOY), n);
+*/
+    EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUT), n);
 
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCDATA), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCGAMEDIR), n);

@@ -17,11 +17,11 @@
 #define IDCSOUNDDRV	102
 #define IDCMIDIDEV	103
 #define IDCCDADEV	104
-#define IDCINPUTMOUSE	105
-#define IDCINPUTJOY	106
+// #define IDCINPUTMOUSE	105
+// #define IDCINPUTJOY	106
 #define IDCALWAYSSHOW	107
 #define IDCDATA         108
 #define IDCGAMEDIR      109
 #define IDCPOLYMER      110
 #define IDCAUTOLOAD     111
-
+#define IDCINPUT	112

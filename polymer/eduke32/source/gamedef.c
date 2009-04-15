@@ -5108,7 +5108,7 @@ repeatcase:
             struct stat st;
             int32_t fullscreen = ud.config.ScreenMode;
             int32_t xdim = ud.config.ScreenWidth, ydim = ud.config.ScreenHeight, bpp = ud.config.ScreenBPP;
-            int32_t usemouse = ud.config.UseMouse, usejoy = ud.config.UseJoystick;
+            int32_t usemouse = ud.config.UseMouse, usejoy = ud.config.UseJoystick, glrm = glrendmode;
 
             if (stat(mod_dir, &st) < 0)
             {
@@ -5150,6 +5150,7 @@ repeatcase:
             ud.config.ScreenBPP = bpp;
             ud.config.UseMouse = usemouse;
             ud.config.UseJoystick = usejoy;
+            glrendmode = glrm;
         }
     }
     return 0;
