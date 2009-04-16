@@ -354,7 +354,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
         case RPG__STATIC:
         case MORTER__STATIC:
             G_AddGameLight(0, s->sectnum, s->x+((sintable[(s->ang+512)&2047])>>7),
-                s->y+((sintable[(s->ang)&2047])>>7), s->z-PHEIGHT, 4096, 255+(80<<8),1);
+                           s->y+((sintable[(s->ang)&2047])>>7), s->z-PHEIGHT, 4096, 255+(80<<8),1);
 
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>4);
@@ -387,7 +387,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
         if (ProjectileData[atwith].flashcolor)
         {
             G_AddGameLight(0, s->sectnum, s->x+((sintable[(s->ang+512)&2047])>>7),
-                s->y+((sintable[(s->ang)&2047])>>7), s->z-PHEIGHT, 4096, ProjectileData[atwith].flashcolor,1);
+                           s->y+((sintable[(s->ang)&2047])>>7), s->z-PHEIGHT, 4096, ProjectileData[atwith].flashcolor,1);
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>4);
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>4);
@@ -2177,7 +2177,7 @@ void P_FireWeapon(DukePlayer_t *p)
             p->visibility = 0;
 
             G_AddGameLight(0, s->sectnum, s->x+((sintable[(p->ang+512)&2047])>>7), s->y+((sintable[(p->ang)&2047])>>7),
-                s->z-PHEIGHT, 4096, aplWeaponFlashColor[p->curr_weapon][snum],1);
+                           s->z-PHEIGHT, 4096, aplWeaponFlashColor[p->curr_weapon][snum],1);
 
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(p->ang+512)&2047])>>4);

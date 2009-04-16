@@ -105,8 +105,6 @@ typedef struct pthtyp_t
     uint16_t sizx, sizy;
     float scalex, scaley;
     struct pthtyp_t *ofb; // only fullbright
-
-    char *palmap;int32_t size;
 } pthtyp;
 
 pthtyp * gltexcache (int32_t dapicnum, int32_t dapalnum, int32_t dameth);
@@ -123,7 +121,19 @@ extern int32_t drawingskybox;
 
 extern float fogresult, fogcol[4], fogtable[4*MAXPALOOKUPS];
 
-void fogcalc(const int32_t shade, const int32_t vis, const int32_t pal);
+static inline void fogcalc(const int32_t shade, const int32_t vis, const int32_t pal)
+{
+    float f = ((shade*shade)*0.125f);
+
+    if (shade < 0) f = -f;
+    if (vis > 239) f = gvisibility*((vis-240+f)/(klabs(vis-256)));
+    else f = gvisibility*(vis+16+f);
+
+    fogresult = clamp(f, 0.01f, 10.f);
+
+    Bmemcpy(fogcol,&fogtable[pal<<2],sizeof(fogcol));
+}
+
 
 #endif
 

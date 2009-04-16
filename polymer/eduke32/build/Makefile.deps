@@ -32,7 +32,7 @@ $(OBJ)/sdlayer.$o: $(SRC)/sdlayer.c $(INC)/compat.h $(INC)/sdlayer.h $(INC)/base
 $(OBJ)/winlayer.$o: $(SRC)/winlayer.c $(INC)/compat.h $(INC)/winlayer.h $(INC)/baselayer.h $(INC)/pragmas.h $(INC)/build.h $(INC)/a.h $(INC)/osd.h $(INC)/dxdidf.h $(INC)/glbuild.h
 $(OBJ)/gtkbits.$o: $(SRC)/gtkbits.c $(INC)/baselayer.h $(INC)/build.h $(INC)/dynamicgtk.h
 $(OBJ)/dynamicgtk.$o: $(SRC)/dynamicgtk.c $(INC)/dynamicgtk.h
-$(OBJ)/polymer.$o: $(SRC)/polymer.c $(INC)/polymer.h $(INC)/compat.h $(INC)/build.h $(INC)/glbuild.h $(INC)/osd.h $(INC)/pragmas.h $(INC)/mdsprite.h
+$(OBJ)/polymer.$o: $(SRC)/polymer.c $(INC)/polymer.h $(INC)/compat.h $(INC)/build.h $(INC)/glbuild.h $(INC)/osd.h $(INC)/pragmas.h $(INC)/mdsprite.h $(INC)/polymost.h
 
 $(OBJ)/buildres.$(res): $(SRC)/misc/buildres.rc $(INC)/startwin.editor.h
 $(OBJ)/startwin.editor.$o: $(SRC)/startwin.editor.c $(INC)/build.h $(INC)/editor.h $(INC)/winlayer.h $(INC)/compat.h $(INC)/startwin.editor.h

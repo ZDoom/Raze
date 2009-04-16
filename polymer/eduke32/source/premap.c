@@ -372,7 +372,6 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
         if (statustext) gametext(160,180,statustext,0,2+8+16);
         {
             int32_t ii = scale(scale(xdim-1,288,320),percent,100);
-
             rotatesprite(31<<16,145<<16,65536,0,929,15,0,2+8+16,0,0,ii,ydim-1);
             rotatesprite(159<<16,145<<16,65536,0,929,15,0,2+8+16,0,0,ii,ydim-1);
             rotatesprite(30<<16,144<<16,65536,0,929,0,0,2+8+16,0,0,ii,ydim-1);

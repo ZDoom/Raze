@@ -357,7 +357,6 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     sk->fn = (char *)malloc(strlen(skinfn)+1);
     if (!sk->fn) return(-4);
     strcpy(sk->fn, skinfn);
-/*    sk->palmap=0;*/
 
     return 0;
 }
@@ -410,105 +409,6 @@ int32_t md_undefinemodel(int32_t modelid)
 md2model_t *modelhead;
 mdskinmap_t *skhead;
 
-/*
-typedef struct
-{
-    int32_t pal,pal1,pal2;
-} palmaptr;
-palmaptr palconv[MAXPALCONV];
-
-void clearconv()
-{
-    Bmemset(palconv,0,sizeof(palconv));
-}
-void setpalconv(int32_t pal,int32_t pal1,int32_t pal2)
-{
-    int32_t i;
-    for (i=0; i<MAXPALCONV; i++)
-        if (!palconv[i].pal)
-        {
-            palconv[i].pal =pal;
-            palconv[i].pal1=pal1;
-            palconv[i].pal2=pal2; return;
-        }
-        else if (palconv[i].pal==pal&&palconv[i].pal1==pal1)
-        {
-            palconv[i].pal2=pal2; return;
-        }
-}
-
-
-void getpalmap(int32_t *i,int32_t *pal1,int32_t *pal2)
-{
-    for (; *i<MAXPALCONV&&palconv[*i].pal1; (*i)++)
-        if (palconv[*i].pal==*pal2)
-        {
-            *pal1=palconv[*i].pal1;
-            *pal2=palconv[*i].pal2;
-            return;
-        }
-}
-
-int32_t checkpalmaps(int32_t pal)
-{
-    int32_t stage,val=0;
-
-    for (stage=0; stage<MAXPALCONV; stage++)
-    {
-        int32_t pal1=0,pal2=pal;
-        getpalmap(&stage,&pal1,&pal2);
-        if (!pal)break;
-        if (pal1)val|=1<<(pal1-SPECPAL);
-    }
-    return val;
-}
-
-void applypalmap(char *pic, char *palmap, int32_t size, int32_t pal)
-{
-    int32_t r=0,g=1,b=2;
-    pal+=200;
-
-    //_initprintf("  %d #%d\n",pal,palmap);
-    while (size--)
-    {
-        char a=palmap[b+1];
-        if (glinfo.bgra)swapchar(&pic[r], &pic[b]);
-        pic[r]=((pic[r]*(255-a)+hictinting[pal].r*a)*palmap[r])/255/255;
-        pic[g]=((pic[g]*(255-a)+hictinting[pal].g*a)*palmap[g])/255/255;
-        pic[b]=((pic[b]*(255-a)+hictinting[pal].b*a)*palmap[b])/255/255;
-
-        / *
-        		pic[r]=((255*(255-a)+hictinting[pal].r*a)*palmap[r])/255/255;
-        		pic[g]=((255*(255-a)+hictinting[pal].g*a)*palmap[g])/255/255;
-        		pic[b]=((255*(255-a)+hictinting[pal].b*a)*palmap[b])/255/255;
-        * /
-        if (glinfo.bgra)swapchar(&pic[r], &pic[b]);
-        r+=4; g+=4; b+=4;
-    }
-}
-
-static void applypalmapSkin(char *pic, int32_t sizx, int32_t sizy, md2model_t *m, int32_t number, int32_t pal, int32_t surf)
-{
-    int32_t stage;
-
-    //_initprintf("%d(%dx%d)\n",pal,sizx,sizy);
-    for (stage=0; stage<MAXPALCONV; stage++)
-    {
-        int32_t pal1=0,pal2=pal;
-        mdskinmap_t *sk=modelhead->skinmap;
-        getpalmap(&stage,&pal1,&pal2);
-        if (!pal1)return;
-
-        mdloadskin((md2model_t *)m,number,pal1,surf);
-        for (; sk; sk = sk->next)
-            if ((int32_t)sk->palette == pal1&&sk->palmap)break;
-        if (!sk||sk->size!=sizx*sizy)continue;
-
-        applypalmap(pic,sk->palmap,sk->size,pal2);
-    }
-}
-*/
-
 static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t *sizx, int32_t *sizy, int32_t *osizx, int32_t *osizy, char *hasalpha, int32_t pal, char effect)
 {
     int32_t picfillen, j,y,x;
@@ -546,7 +446,6 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
         { free(picfil); free(pic); return -1; }
     free(picfil);
 
-    /*applypalmapSkin((char *)pic,tsizx,tsizy,m,number,pal,surf);*/
     cptr = &britable[gammabrightness ? 0 : curbrightness][0];
     r=(glinfo.bgra)?hictinting[pal].b:hictinting[pal].r;
     g=hictinting[pal].g;
@@ -860,22 +759,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             return(0);
         }
         else kclose(filh);
-        if (pal < (MAXPALOOKUPS - RESERVEDPALS))m->usesalpha = hasalpha;
-/*
-        if (pal>=SPECPAL&&pal<=REDPAL)
-        {
-            //_initprintf("%cLoaded palmap %d(%dx%d)",sk->palmap?'+':'-',pal,xsiz,ysiz);
-            if (!sk->palmap)
-            {
-                sk->size=xsiz*ysiz;
-                sk->palmap=malloc(sk->size*4);
-                memcpy(sk->palmap,(char *)fptr,sk->size*4);
-            }
-            cachefil=0;
-            //_initprintf("#%d\n",sk->palmap);
-        }
-*/
-
+        if (pal < (MAXPALOOKUPS - RESERVEDPALS)) m->usesalpha = hasalpha;
         if ((doalloc&3)==1) bglGenTextures(1,(GLuint*)texidx);
         bglBindTexture(GL_TEXTURE_2D,*texidx);
 
@@ -1304,13 +1188,6 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
         if (m->numskins > 0)
         {
             sk->fn = (char *)malloc(strlen(m->basepath)+strlen(m->skinfn)+1);
-/*
-            if (sk->palmap)
-            {
-                //_initprintf("Delete %s",m->skinfn);
-                sk->palmap=0; sk->size=0;
-            }
-*/
             strcpy(sk->fn, m->basepath);
             strcat(sk->fn, m->skinfn);
         }
@@ -2204,13 +2081,6 @@ static void md3free(md3model_t *m)
     {
         nsk = sk->next;
         free(sk->fn);
-/*
-        if (sk->palmap)
-        {
-            //_initprintf("Kill %d\n",sk->palette);
-            free(sk->palmap); sk->palmap=0;
-        }
-*/
         free(sk);
     }
 

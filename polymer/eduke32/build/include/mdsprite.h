@@ -33,7 +33,6 @@ typedef struct _mdskinmap_t
     GLuint texid[HICEFFECTMASK+1];   // OpenGL texture numbers for effect variations
     struct _mdskinmap_t *next;
     float param, specpower, specfactor;
-    char *palmap;int32_t size;
 } mdskinmap_t;
 
 

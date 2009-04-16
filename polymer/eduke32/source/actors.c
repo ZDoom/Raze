@@ -605,18 +605,18 @@ static void G_MoveZombieActors(void)
 
                 case FIRE__STATIC:
                 case FIRE2__STATIC:
-/*
-                    if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
-                    if (s->z > ActorExtra[i].floorz+2048) break;
-*/
+                    /*
+                                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
+                                        if (s->z > ActorExtra[i].floorz+2048) break;
+                    */
                     G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(80<<8),0);
                     break;
                 case BURNING__STATIC:
                 case BURNING2__STATIC:
-/*
-                    if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
-                    if (s->z > ActorExtra[i].floorz + 2048) break;
-*/
+                    /*
+                                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
+                                        if (s->z > ActorExtra[i].floorz + 2048) break;
+                    */
                     G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(80<<8),0);
                     break;
 
@@ -3392,10 +3392,10 @@ static void G_MoveActors(void)
 
         case FIRE__STATIC:
         case FIRE2__STATIC:
-/*
-            if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
-            if (s->z > ActorExtra[i].floorz+2048) break;
-*/
+            /*
+                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
+                        if (s->z > ActorExtra[i].floorz+2048) break;
+            */
             G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(80<<8),0);
             break;
 
@@ -5145,10 +5145,10 @@ static void G_MoveMisc(void)  // STATNUM 5
                 {
                 case BURNING__STATIC:
                 case BURNING2__STATIC:
-/*
-                    if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
-                    if (s->z > ActorExtra[i].floorz + 2048) break;
-*/
+                    /*
+                                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
+                                        if (s->z > ActorExtra[i].floorz + 2048) break;
+                    */
                     G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(80<<8),0);
                     break;
 

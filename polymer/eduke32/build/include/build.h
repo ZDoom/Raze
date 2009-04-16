@@ -43,14 +43,6 @@ extern "C" {
 #define RESERVEDPALS 2 // don't forget to increment this when adding reserved pals
 #define DETAILPAL   (MAXPALOOKUPS - 1)
 #define GLOWPAL     (MAXPALOOKUPS - 2)
-/*
-#define REDPAL      (MAXPALOOKUPS - 3)
-#define BLUEPAL     (MAXPALOOKUPS - 4)
-#define BROWNPAL    (MAXPALOOKUPS - 5)
-#define GREYPAL     (MAXPALOOKUPS - 6)
-#define GREENPAL    (MAXPALOOKUPS - 7)
-#define SPECPAL     (MAXPALOOKUPS - 8)
-*/
 
 #define TSPR_TEMP 99
 #define TSPR_MIRROR 100
@@ -663,13 +655,6 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
 int32_t md_definehud (int32_t modelid, int32_t tilex, double xadd, double yadd, double zadd, double angadd, int32_t flags);
 int32_t md_undefinetile(int32_t tile);
 int32_t md_undefinemodel(int32_t modelid);
-
-#define MAXPALCONV 200
-void clearconv();
-void setpalconv(int32_t pal,int32_t pal1,int32_t pal2);
-void getpalmap(int32_t *stage,int32_t *pal1,int32_t *pal2);
-int32_t checkpalmaps(int32_t pal);
-void applypalmap(char *pic, char *palmap, int32_t size, int32_t pal);
 
 int32_t loaddefinitionsfile(char *fn);
 

@@ -195,24 +195,8 @@ int32_t r_fullbrights = 1;
 // is medium quality a good default?
 int32_t r_downsize = 1;
 
+// used for fogcalc
 float fogresult, fogcol[4], fogtable[4*MAXPALOOKUPS];
-
-void fogcalc(const int32_t shade, const int32_t vis, const int32_t pal)
-{
-    float f;
-
-    if (shade < 0)
-        f = ((-shade*shade)*0.125f);
-    else f = ((shade*shade)*0.125f);
-
-    if (vis > 239)
-        f = gvisibility*((vis-240+f)/(klabs(vis-256)));
-    else f = gvisibility*(vis+16+f);
-
-    fogresult = clamp(f, 0.01f, 10.f);
-
-    Bmemcpy(fogcol,&fogtable[pal<<2],sizeof(fogcol));
-}
 #endif
 
 static char ptempbuf[MAXWALLSB<<1];
@@ -680,13 +664,6 @@ void polymost_glreset()
                     free(pth->ofb);
                 }
                 bglDeleteTextures(1,&pth->glpic);
-/*
-                if (pth->palmap)
-                {
-                    //_initprintf("Kill #%d\n",pth->palmap);
-                    free(pth->palmap); pth->palmap=0;
-                }
-*/
                 free(pth);
                 pth = next;
             }
@@ -1741,32 +1718,6 @@ failure:
     return -1;
 }
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
-/*
-static void applypalmapsT(char *pic, int32_t sizx, int32_t sizy, int32_t dapic,int32_t dapalnum, int32_t dameth)
-{
-    //_initprintf("%d\n",pal);
-    int32_t stage;
-    pthtyp *pichead1=pichead;
-
-    for (stage=0; stage<MAXPALCONV; stage++)
-    {
-        int32_t pal1=0,pal2=dapalnum;
-        pthtyp *pth;
-        getpalmap(&stage,&pal1,&pal2);
-        if (!pal1)return;
-
-        //_initprintf("Pal: %d\n",pal1);
-        if (hicfindsubst(dapic, pal1, 0))
-            gltexcache(dapic, pal1, dameth);
-        for (pth=pichead1; pth; pth=pth->next)
-            if (pth->palnum ==pal1&&pth->palmap)break;
-        if (!pth||pth->size!=sizx*sizy)continue;
-
-        applypalmap(pic,pth->palmap,pth->size,pal2);
-    }
-}
-*/
-
 int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr, int32_t dameth, pthtyp *pth, int32_t doalloc, char effect)
 {
     coltype *pic = NULL, *rpptr;
@@ -1844,7 +1795,6 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         pic = (coltype *)calloc(xsiz,ysiz*sizeof(coltype)); if (!pic) { free(picfil); return 1; }
 
         if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0)) { free(picfil); free(pic); return -2; }
-/*        applypalmapsT((char *)pic,tsizx,tsizy,dapic,dapalnum,dameth);*/
 
         r=(glinfo.bgra)?hictinting[dapalnum].r:hictinting[dapalnum].b;
         g=hictinting[dapalnum].g;
@@ -1917,19 +1867,6 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         if ((doalloc&3)==1) bglGenTextures(1,(GLuint*)&pth->glpic);  //# of textures (make OpenGL allocate structure)
         bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
-/*
-        if (dapalnum>=SPECPAL&&dapalnum<=REDPAL)
-        {
-            //_initprintf("%cLoaded palamp %d(%dx%d)",pth->palmap?'+':'-',dapalnum,xsiz,ysiz);
-            if (!pth->palmap)
-            {
-                pth->size=xsiz*ysiz;
-                pth->palmap=malloc(pth->size*4);
-                memcpy(pth->palmap,pic,pth->size*4);
-            }
-            cachefil=0;
-        }
-*/
         fixtransparency(pic,tsizx,tsizy,xsiz,ysiz,dameth);
         uploadtexture(doalloc,xsiz,ysiz,intexfmt,texfmt,pic,-1,tsizy,dameth|8192|(hicr->flags & 16?4096:0));
     }

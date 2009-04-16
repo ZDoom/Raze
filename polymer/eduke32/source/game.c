@@ -7358,7 +7358,6 @@ PALONLY:
         case DIPSWITCH2__STATIC:
         case DIPSWITCH3__STATIC:
         case PULLSWITCH__STATIC:
-        case HANDSWITCH__STATIC:
         case SLOTDOOR__STATIC:
         case LIGHTSWITCH__STATIC:
         case SPACELIGHTSWITCH__STATIC:
@@ -7399,7 +7398,6 @@ PALONLY:
         case DIPSWITCH2__STATIC:
         case DIPSWITCH3__STATIC:
         case PULLSWITCH__STATIC:
-        case HANDSWITCH__STATIC:
         case SLOTDOOR__STATIC:
         case LIGHTSWITCH__STATIC:
         case SPACELIGHTSWITCH__STATIC:
