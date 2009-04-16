@@ -555,8 +555,8 @@ int32_t             polymer_init(void)
 
     if (pr_verbosity >= 1) OSD_Printf("Initalizing Polymer subsystem...\n");
 
-    Bmemset(&prsectors[0], sizeof(prsectors[0]) * MAXSECTORS, 0);
-    Bmemset(&prwalls[0], sizeof(prwalls[0]) * MAXWALLS, 0);
+    Bmemset(&prsectors[0], 0, sizeof(prsectors[0]) * MAXSECTORS);
+    Bmemset(&prwalls[0], 0, sizeof(prwalls[0]) * MAXWALLS);
 
     prtess = bgluNewTess();
     if (prtess == 0)
@@ -571,10 +571,10 @@ int32_t             polymer_init(void)
     skyboxdatavbo = 0;
 
     if (spriteplane.buffer == NULL) {
-        spriteplane.buffer = calloc(4, sizeof(GLfloat) * 5);
+        spriteplane.buffer = Bcalloc(4, sizeof(GLfloat) * 5);
         spriteplane.vertcount = 4;
 
-        memcpy(spriteplane.buffer, horizsprite, sizeof(GLfloat) * 4 * 5);
+        Bmemcpy(spriteplane.buffer, horizsprite, sizeof(GLfloat) * 4 * 5);
     }
 
     i = 0;
@@ -1055,9 +1055,9 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
     polymer_extractfrustum(localmodelviewmatrix, localprojectionmatrix, frustum);
 
-    memset(querydelay, 0, sizeof(int16_t) * MAXSECTORS);
-    memset(queryid, 0, sizeof(GLuint) * MAXWALLS);
-    memset(drawingstate, 0, sizeof(int16_t) * MAXSECTORS);
+    Bmemset(querydelay, 0, sizeof(int16_t) * MAXSECTORS);
+    Bmemset(queryid, 0, sizeof(GLuint) * MAXWALLS);
+    Bmemset(drawingstate, 0, sizeof(int16_t) * MAXSECTORS);
 
     front = 0;
     back = 1;
@@ -1318,9 +1318,9 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     }
 
     spritesortcnt = localspritesortcnt;
-    memcpy(tsprite, localtsprite, sizeof(spritetype) * MAXSPRITESONSCREEN);
+    Bmemcpy(tsprite, localtsprite, sizeof(spritetype) * MAXSPRITESONSCREEN);
     maskwallcnt = localmaskwallcnt;
-    memcpy(maskwall, localmaskwall, sizeof(int16_t) * MAXWALLSB);
+    Bmemcpy(maskwall, localmaskwall, sizeof(int16_t) * MAXWALLSB);
 
     if (depth)
     {
@@ -1486,21 +1486,21 @@ static int32_t      polymer_initsector(int16_t sectnum)
     if (pr_verbosity >= 2) OSD_Printf("PR : Initalizing sector %i...\n", sectnum);
 
     sec = &sector[sectnum];
-    s = calloc(1, sizeof(_prsector));
+    s = Bcalloc(1, sizeof(_prsector));
     if (s == NULL)
     {
-        if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize sector %i : malloc failed.\n", sectnum);
+        if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize sector %i : Bmalloc failed.\n", sectnum);
         return (0);
     }
 
-    s->verts = calloc(sec->wallnum, sizeof(GLdouble) * 3);
-    s->floor.buffer = calloc(sec->wallnum, sizeof(GLfloat) * 5);
+    s->verts = Bcalloc(sec->wallnum, sizeof(GLdouble) * 3);
+    s->floor.buffer = Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
     s->floor.vertcount = sec->wallnum;
-    s->ceil.buffer = calloc(sec->wallnum, sizeof(GLfloat) * 5);
+    s->ceil.buffer = Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
     s->ceil.vertcount = sec->wallnum;
     if ((s->verts == NULL) || (s->floor.buffer == NULL) || (s->ceil.buffer == NULL))
     {
-        if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize geometry of sector %i : malloc failed.\n", sectnum);
+        if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize geometry of sector %i : Bmalloc failed.\n", sectnum);
         return (0);
     }
     bglGenBuffersARB(1, &s->floor.vbo);
@@ -1787,8 +1787,8 @@ void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
     {
         if (pr_verbosity >= 2) OSD_Printf("PR : Indice overflow, extending the indices list... !\n");
         s->indicescount++;
-        s->floor.indices = realloc(s->floor.indices, s->indicescount * sizeof(GLushort));
-        s->ceil.indices = realloc(s->ceil.indices, s->indicescount * sizeof(GLushort));
+        s->floor.indices = Brealloc(s->floor.indices, s->indicescount * sizeof(GLushort));
+        s->ceil.indices = Brealloc(s->ceil.indices, s->indicescount * sizeof(GLushort));
     }
     s->ceil.indices[s->curindice] = (intptr_t)vertex;
     s->curindice++;
@@ -1812,8 +1812,8 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
     if (s->floor.indices == NULL)
     {
         s->indicescount = (sec->wallnum - 2) * 3;
-        s->floor.indices = calloc(s->indicescount, sizeof(GLushort));
-        s->ceil.indices = calloc(s->indicescount, sizeof(GLushort));
+        s->floor.indices = Bcalloc(s->indicescount, sizeof(GLushort));
+        s->ceil.indices = Bcalloc(s->indicescount, sizeof(GLushort));
     }
 
     s->curindice = 0;
@@ -1889,21 +1889,21 @@ static int32_t      polymer_initwall(int16_t wallnum)
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Initalizing wall %i...\n", wallnum);
 
-    w = calloc(1, sizeof(_prwall));
+    w = Bcalloc(1, sizeof(_prwall));
     if (w == NULL)
     {
-        if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize wall %i : malloc failed.\n", wallnum);
+        if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize wall %i : Bmalloc failed.\n", wallnum);
         return (0);
     }
 
     if (w->mask.buffer == NULL) {
-        w->mask.buffer = calloc(4, sizeof(GLfloat) * 5);
+        w->mask.buffer = Bcalloc(4, sizeof(GLfloat) * 5);
         w->mask.vertcount = 4;
     }
     if (w->bigportal == NULL)
-        w->bigportal = calloc(4, sizeof(GLfloat) * 5);
+        w->bigportal = Bcalloc(4, sizeof(GLfloat) * 5);
     if (w->cap == NULL)
-        w->cap = calloc(4, sizeof(GLfloat) * 3);
+        w->cap = Bcalloc(4, sizeof(GLfloat) * 3);
 
     bglGenBuffersARB(1, &w->wall.vbo);
     bglGenBuffersARB(1, &w->over.vbo);
@@ -1968,7 +1968,7 @@ static void         polymer_updatewall(int16_t wallnum)
     }
 
     if (w->wall.buffer == NULL) {
-        w->wall.buffer = calloc(4, sizeof(GLfloat) * 5);
+        w->wall.buffer = Bcalloc(4, sizeof(GLfloat) * 5);
         w->wall.vertcount = 4;
     }
 
@@ -2034,10 +2034,10 @@ static void         polymer_updatewall(int16_t wallnum)
 
     if (wal->nextsector == -1)
     {
-        memcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-        memcpy(&w->wall.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-        memcpy(&w->wall.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-        memcpy(&w->wall.buffer[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+        Bmemcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+        Bmemcpy(&w->wall.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+        Bmemcpy(&w->wall.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+        Bmemcpy(&w->wall.buffer[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
         if (wal->nextsector == -1)
             curpicnum = wallpicnum;
@@ -2098,12 +2098,12 @@ static void         polymer_updatewall(int16_t wallnum)
         if ((underwall) || (wal->cstat & 16) || (wal->cstat & 32))
         {
             if (s->floor.buffer[((wallnum - sec->wallptr) * 5) + 1] < ns->floor.buffer[((nnwallnum - nsec->wallptr) * 5) + 1])
-                memcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+                Bmemcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
             else
-                memcpy(w->wall.buffer, &ns->floor.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
-            memcpy(&w->wall.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-            memcpy(&w->wall.buffer[10], &ns->floor.buffer[(nwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
-            memcpy(&w->wall.buffer[15], &ns->floor.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
+                Bmemcpy(w->wall.buffer, &ns->floor.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
+            Bmemcpy(&w->wall.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+            Bmemcpy(&w->wall.buffer[10], &ns->floor.buffer[(nwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
+            Bmemcpy(&w->wall.buffer[15], &ns->floor.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
 
             if (wal->cstat & 2)
             {
@@ -2161,13 +2161,13 @@ static void         polymer_updatewall(int16_t wallnum)
                 if ((sec->floorstat & 1) && (nsec->floorstat & 1))
                     w->underover |= 4;
             }
-            memcpy(w->mask.buffer, &w->wall.buffer[15], sizeof(GLfloat) * 5);
-            memcpy(&w->mask.buffer[5], &w->wall.buffer[10], sizeof(GLfloat) * 5);
+            Bmemcpy(w->mask.buffer, &w->wall.buffer[15], sizeof(GLfloat) * 5);
+            Bmemcpy(&w->mask.buffer[5], &w->wall.buffer[10], sizeof(GLfloat) * 5);
         }
         else
         {
-            memcpy(w->mask.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 5);
-            memcpy(&w->mask.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 5);
+            Bmemcpy(w->mask.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 5);
+            Bmemcpy(&w->mask.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 5);
         }
 
         if ((s->ceil.buffer[((wallnum - sec->wallptr) * 5) + 1] > ns->ceil.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
@@ -2177,17 +2177,17 @@ static void         polymer_updatewall(int16_t wallnum)
         if ((overwall) || (wal->cstat & 16) || (wal->cstat & 32))
         {
             if (w->over.buffer == NULL) {
-                w->over.buffer = calloc(4, sizeof(GLfloat) * 5);
+                w->over.buffer = Bcalloc(4, sizeof(GLfloat) * 5);
                 w->over.vertcount = 4;
             }
 
-            memcpy(w->over.buffer, &ns->ceil.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
-            memcpy(&w->over.buffer[5], &ns->ceil.buffer[(nwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
+            Bmemcpy(w->over.buffer, &ns->ceil.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
+            Bmemcpy(&w->over.buffer[5], &ns->ceil.buffer[(nwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
             if (s->ceil.buffer[((wal->point2 - sec->wallptr) * 5) + 1] > ns->ceil.buffer[((nwallnum - nsec->wallptr) * 5) + 1])
-                memcpy(&w->over.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+                Bmemcpy(&w->over.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
             else
-                memcpy(&w->over.buffer[10], &ns->ceil.buffer[(nwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
-            memcpy(&w->over.buffer[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+                Bmemcpy(&w->over.buffer[10], &ns->ceil.buffer[(nwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
+            Bmemcpy(&w->over.buffer[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
             if ((wal->cstat & 16) || (wal->overpicnum == 0))
                 curpicnum = wallpicnum;
@@ -2246,8 +2246,8 @@ static void         polymer_updatewall(int16_t wallnum)
                 if ((sec->ceilingstat & 1) && (nsec->ceilingstat & 1))
                     w->underover |= 8;
             }
-            memcpy(&w->mask.buffer[10], &w->over.buffer[5], sizeof(GLfloat) * 5);
-            memcpy(&w->mask.buffer[15], &w->over.buffer[0], sizeof(GLfloat) * 5);
+            Bmemcpy(&w->mask.buffer[10], &w->over.buffer[5], sizeof(GLfloat) * 5);
+            Bmemcpy(&w->mask.buffer[15], &w->over.buffer[0], sizeof(GLfloat) * 5);
 
             if ((wal->cstat & 16) || (wal->cstat & 32))
             {
@@ -2296,23 +2296,23 @@ static void         polymer_updatewall(int16_t wallnum)
         }
         else
         {
-            memcpy(&w->mask.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 5);
-            memcpy(&w->mask.buffer[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 5);
+            Bmemcpy(&w->mask.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 5);
+            Bmemcpy(&w->mask.buffer[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 5);
         }
     }
 
     if (wal->nextsector == -1)
-        memcpy(w->mask.buffer, w->wall.buffer, sizeof(GLfloat) * 4 * 5);
+        Bmemcpy(w->mask.buffer, w->wall.buffer, sizeof(GLfloat) * 4 * 5);
 
-    memcpy(w->bigportal, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    memcpy(&w->bigportal[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    memcpy(&w->bigportal[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    memcpy(&w->bigportal[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    Bmemcpy(w->bigportal, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    Bmemcpy(&w->bigportal[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    Bmemcpy(&w->bigportal[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    Bmemcpy(&w->bigportal[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
-    memcpy(&w->cap[0], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    memcpy(&w->cap[3], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    memcpy(&w->cap[6], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    memcpy(&w->cap[9], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    Bmemcpy(&w->cap[0], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    Bmemcpy(&w->cap[3], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    Bmemcpy(&w->cap[6], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    Bmemcpy(&w->cap[9], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
     w->cap[7] += 1048576; // this number is the result of 1048574 + 2
     w->cap[10] += 1048576; // this one is arbitrary
 
@@ -3066,9 +3066,9 @@ static void         polymer_loadmodelvbos(md3model_t* m)
     int32_t         i;
     md3surf_t       *s;
 
-    m->indices = calloc(m->head.numsurfs, sizeof(GLuint));
-    m->texcoords = calloc(m->head.numsurfs, sizeof(GLuint));
-    m->geometry = calloc(m->head.numsurfs, sizeof(GLuint));
+    m->indices = Bcalloc(m->head.numsurfs, sizeof(GLuint));
+    m->texcoords = Bcalloc(m->head.numsurfs, sizeof(GLuint));
+    m->geometry = Bcalloc(m->head.numsurfs, sizeof(GLuint));
 
     bglGenBuffersARB(m->head.numsurfs, m->indices);
     bglGenBuffersARB(m->head.numsurfs, m->texcoords);
@@ -3856,7 +3856,7 @@ static inline void  polymer_culllight(char lightindex)
     light = &prlights[lightindex];
     front = 0;
     back = 1;
-    memset(cullingstate, 0, sizeof(int16_t) * MAXSECTORS);
+    Bmemset(cullingstate, 0, sizeof(int16_t) * MAXSECTORS);
     cullingstate[light->sector] = 1;
 
     sectorqueue[0] = light->sector;
@@ -4098,7 +4098,7 @@ static void         polymer_initrendertargets(int32_t count)
 {
     int32_t         i;
 
-    prrts = calloc(count, sizeof(_prrt));
+    prrts = Bcalloc(count, sizeof(_prrt));
 
     i = 0;
     while (i < count)
