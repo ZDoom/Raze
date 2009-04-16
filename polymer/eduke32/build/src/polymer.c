@@ -1101,8 +1101,11 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                 (wallvisible(sec->wallptr + i)) &&
                 (polymer_planeinfrustum(&prwalls[sec->wallptr + i]->mask, frustum)))
             {
-                if (prwalls[sec->wallptr + i]->mask.vertcount == 4)
+                if ((prwalls[sec->wallptr + i]->mask.vertcount == 4) &&
+                    !(prwalls[sec->wallptr + i]->underover & 4) &&
+                    !(prwalls[sec->wallptr + i]->underover & 8))
                 {
+                    // early exit for closed sectors
                     _prwall         *w;
 
                     w = prwalls[sec->wallptr + i];
@@ -1128,45 +1131,55 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                     mirrorcount++;
                 }
 
-                if (doquery && (!drawingstate[wall[sec->wallptr + i].nextsector]))
-                {
-                    float pos[3], sqdist;
-                    int32_t oldoverridematerial;
+                if (!(wall[sec->wallptr + i].cstat & 32)) {
+                    if (doquery && (!drawingstate[wall[sec->wallptr + i].nextsector]))
+                    {
+                        float pos[3], sqdist;
+                        int32_t oldoverridematerial;
 
-                    pos[0] = globalposy;
-                    pos[1] = -(float)(globalposz) / 16.0f;
-                    pos[2] = -globalposx;
+                        pos[0] = globalposy;
+                        pos[1] = -(float)(globalposz) / 16.0f;
+                        pos[2] = -globalposx;
 
-                    sqdist = prwalls[sec->wallptr + i]->mask.plane[0] * pos[0] +
-                             prwalls[sec->wallptr + i]->mask.plane[1] * pos[1] +
-                             prwalls[sec->wallptr + i]->mask.plane[2] * pos[2] +
-                             prwalls[sec->wallptr + i]->mask.plane[3];
+                        sqdist = prwalls[sec->wallptr + i]->mask.plane[0] * pos[0] +
+                                 prwalls[sec->wallptr + i]->mask.plane[1] * pos[1] +
+                                 prwalls[sec->wallptr + i]->mask.plane[2] * pos[2] +
+                                 prwalls[sec->wallptr + i]->mask.plane[3];
 
-                    // hack to avoid occlusion querying portals that are too close to the viewpoint
-                    // this is needed because of the near z-clipping plane;
-                    if (sqdist < 100)
-                        queryid[sec->wallptr + i] = 0xFFFFFFFF;
-                    else {
-                        bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-                        bglDepthMask(GL_FALSE);
+                        // hack to avoid occlusion querying portals that are too close to the viewpoint
+                        // this is needed because of the near z-clipping plane;
+                        if (sqdist < 100)
+                            queryid[sec->wallptr + i] = 0xFFFFFFFF;
+                        else {
+                            _prwall         *w;
 
-                        bglGenQueriesARB(1, &queryid[sec->wallptr + i]);
-                        bglBeginQueryARB(GL_SAMPLES_PASSED_ARB, queryid[sec->wallptr + i]);
+                            w = prwalls[sec->wallptr + i];
 
-                        oldoverridematerial = overridematerial;
-                        overridematerial = 0;
+                            bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+                            bglDepthMask(GL_FALSE);
 
-                        polymer_drawplane(&prwalls[sec->wallptr + i]->mask);
+                            bglGenQueriesARB(1, &queryid[sec->wallptr + i]);
+                            bglBeginQueryARB(GL_SAMPLES_PASSED_ARB, queryid[sec->wallptr + i]);
 
-                        overridematerial = oldoverridematerial;
+                            oldoverridematerial = overridematerial;
+                            overridematerial = 0;
 
-                        bglEndQueryARB(GL_SAMPLES_PASSED_ARB);
+                            if ((w->underover & 4) && (w->underover & 1))
+                                polymer_drawplane(&w->wall);
+                            polymer_drawplane(&w->mask);
+                            if ((w->underover & 8) && (w->underover & 2))
+                                polymer_drawplane(&w->over);
 
-                        bglDepthMask(GL_TRUE);
-                        bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-                    }
-                } else
-                    queryid[sec->wallptr + i] = 1;
+                            overridematerial = oldoverridematerial;
+
+                            bglEndQueryARB(GL_SAMPLES_PASSED_ARB);
+
+                            bglDepthMask(GL_TRUE);
+                            bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+                        }
+                    } else
+                        queryid[sec->wallptr + i] = 1;
+                }
             }
 
             i++;
