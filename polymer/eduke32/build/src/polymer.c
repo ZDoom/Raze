@@ -665,7 +665,6 @@ void                polymer_loadboard(void)
     }
 
     polymer_getsky();
-    polymer_resetlights();
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Board loaded.\n");
 }
@@ -696,7 +695,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
 
     depth = 0;
 
-    if (pr_shadows && lightcount > 0 && pr_shadowcount > 0)
+    if (pr_shadows && lightcount && (pr_shadowcount > 0))
         polymer_prepareshadows();
 
     bglMatrixMode(GL_MODELVIEW);
@@ -983,12 +982,11 @@ void                polymer_drawsprite(int32_t snum)
     bglPopMatrix();
 
     i = 0;
-    do
+    while (i < 4)
     {
         polymer_transformpoint(&inbuffer[i * 5], &spriteplane.buffer[i * 5], spritemodelview);
         i++;
     }
-    while (i < 4);
 
     polymer_buffertoplane(spriteplane.buffer, NULL, 4, spriteplane.plane, spriteplane.t, spriteplane.b,  spriteplane.n);
 
@@ -1057,9 +1055,9 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
     polymer_extractfrustum(localmodelviewmatrix, localprojectionmatrix, frustum);
 
-    Bmemset(querydelay, 0, sizeof(int16_t) * MAXSECTORS);
-    Bmemset(queryid, 0, sizeof(GLuint) * MAXWALLS);
-    Bmemset(drawingstate, 0, sizeof(int16_t) * MAXSECTORS);
+    Bmemset(querydelay, 0, sizeof(int16_t) * numsectors);
+    Bmemset(queryid, 0, sizeof(GLuint) * numwalls);
+    Bmemset(drawingstate, 0, sizeof(int16_t) * numsectors);
 
     front = 0;
     back = 1;
@@ -1073,7 +1071,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     // depth-only occlusion testing pass
 //     overridematerial = 0;
 
-    do
+    while (front != back)
     {
         sec = &sector[sectorqueue[front]];
 
@@ -1084,7 +1082,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         doquery = 0;
 
         i = 0;
-        do
+        while (i < sec->wallnum)
         {
             polymer_drawwall(sectorqueue[front], sec->wallptr + i);
 
@@ -1095,10 +1093,9 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
             i++;
         }
-        while (i < sec->wallnum);
 
         i = 0;
-        do
+        while (i < sec->wallnum)
         {
             if ((wall[sec->wallptr + i].nextsector != -1) &&
                 (wallvisible(sec->wallptr + i)) &&
@@ -1187,10 +1184,9 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
             i++;
         }
-        while (i < sec->wallnum);
 
         i = 0;
-        do
+        while (i < sec->wallnum)
         {
             if ((queryid[sec->wallptr + i]) &&
                 (!drawingstate[wall[sec->wallptr + i].nextsector]))
@@ -1217,11 +1213,9 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
             i++;
         }
-        while (i < sec->wallnum);
 
         front++;
     }
-    while (front != back);
 
     // do the actual shaded drawing
 //     overridematerial = 0xFFFFFFFF;
@@ -1324,9 +1318,9 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     }
 
     spritesortcnt = localspritesortcnt;
-    Bmemcpy(tsprite, localtsprite, sizeof(spritetype) * localspritesortcnt);
+    Bmemcpy(tsprite, localtsprite, sizeof(spritetype) * spritesortcnt);
     maskwallcnt = localmaskwallcnt;
-    Bmemcpy(maskwall, localmaskwall, sizeof(int16_t) * localmaskwallcnt);
+    Bmemcpy(maskwall, localmaskwall, sizeof(int16_t) * maskwallcnt);
 
     if (depth)
     {
@@ -1410,7 +1404,7 @@ static void         polymer_drawplane(_prplane* plane)
 
     curlight = 0;
 
-    do
+    while ((curlight == 0) || ((curlight < plane->lightcount) && (curlight < pr_maxlightpasses)))
     {
         materialbits = polymer_bindmaterial(plane->material, plane->lights, plane->lightcount);
 
@@ -1434,7 +1428,6 @@ static void         polymer_drawplane(_prplane* plane)
 
         curlight++;
     }
-    while ((curlight == 0) || ((curlight < plane->lightcount) && (curlight < pr_maxlightpasses)));
 
     if (plane->vbo && (pr_vbos > 0))
     {
@@ -1562,7 +1555,7 @@ static int32_t      polymer_updatesector(int16_t sectnum)
     // geometry
     wal = &wall[sec->wallptr];
     i = 0;
-    do
+    while (i < sec->wallnum)
     {
         if ((-wal->x != s->verts[(i*3)+2]))
         {
@@ -1578,7 +1571,6 @@ static int32_t      polymer_updatesector(int16_t sectnum)
         i++;
         wal = &wall[sec->wallptr + i];
     }
-    while (i < sec->wallnum);
 
     if ((s->controlstate == 2) ||
             needfloor ||
@@ -1591,7 +1583,7 @@ static int32_t      polymer_updatesector(int16_t sectnum)
 
         wal = &wall[sec->wallptr];
         i = 0;
-        do
+        while (i < sec->wallnum)
         {
             getzsofslope(sectnum, wal->x, wal->y, &ceilz, &florz);
             s->floor.buffer[(i*5)+1] = -(float)(florz) / 16.0f;
@@ -1600,7 +1592,6 @@ static int32_t      polymer_updatesector(int16_t sectnum)
             i++;
             wal = &wall[sec->wallptr + i];
         }
-        while (i < sec->wallnum);
 
         s->floorz = sec->floorz;
         s->ceilingz = sec->ceilingz;
@@ -1626,7 +1617,7 @@ static int32_t      polymer_updatesector(int16_t sectnum)
 
     wal = &wall[sec->wallptr];
     i = 0;
-    do
+    while (i < sec->wallnum)
     {
         j = 2;
         curstat = sec->floorstat;
@@ -1635,7 +1626,7 @@ static int32_t      polymer_updatesector(int16_t sectnum)
         curxpanning = sec->floorxpanning;
         curypanning = sec->floorypanning;
 
-        do
+        while (j)
         {
             if (j == 1)
             {
@@ -1696,11 +1687,9 @@ static int32_t      polymer_updatesector(int16_t sectnum)
 
             j--;
         }
-        while (j);
         i++;
         wal = &wall[sec->wallptr + i];
     }
-    while (i < sec->wallnum);
 
     s->floorstat = sec->floorstat;
     s->ceilingstat = sec->ceilingstat;
@@ -2418,7 +2407,7 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
         return; // corrupt sector (E3L4, I'm looking at you)
 
     i = 0;
-    while (i < indicecount)
+    do
     {
         vec1[0] = buffer[(INDICE(1)) + 0] - buffer[(INDICE(0)) + 0]; //x1
         vec1[1] = buffer[(INDICE(1)) + 1] - buffer[(INDICE(0)) + 1]; //y1
@@ -2439,7 +2428,8 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
         if (norm >= 15000) // hack to work around a precision issue with slopes
         {
             // normalize the normal/plane equation and calculate its plane norm
-            norm = 1.0f/(-sqrt(norm));
+            norm = -sqrt(norm);
+            norm = 1.0 / norm;
             plane[0] *= norm;
             plane[1] *= norm;
             plane[2] *= norm;
@@ -2482,19 +2472,22 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
 
             // normalize T, B and N
             norm = t[0] * t[0] + t[1] * t[1] + t[2] * t[2];
-            norm = 1.0f/sqrt(norm);
+            norm = sqrt(norm);
+            norm = 1.0 / norm;
             t[0] *= norm;
             t[1] *= norm;
             t[2] *= norm;
 
             norm = b[0] * b[0] + b[1] * b[1] + b[2] * b[2];
-            norm = 1.0f/sqrt(norm);
+            norm = sqrt(norm);
+            norm = 1.0 / norm;
             b[0] *= norm;
             b[1] *= norm;
             b[2] *= norm;
 
             norm = n[0] * n[0] + n[1] * n[1] + n[2] * n[2];
-            norm = 1.0f/sqrt(norm);
+            norm = sqrt(norm);
+            norm = 1.0 / norm;
             n[0] *= norm;
             n[1] *= norm;
             n[2] *= norm;
@@ -2503,6 +2496,7 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
         }
         i+= 3;
     }
+    while (i < indicecount);
 }
 
 static inline void  polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out)
@@ -2680,7 +2674,7 @@ static void         polymer_drawartsky(int16_t tilenum)
     GLfloat         height = 2.45f / 2.0f;
 
     i = 0;
-    do
+    while (i < 5)
     {
         if (!waloff[tilenum + i])
             loadtile(tilenum + i);
@@ -2688,17 +2682,15 @@ static void         polymer_drawartsky(int16_t tilenum)
         glpics[i] = pth ? pth->glpic : 0;
         i++;
     }
-    while (i < 5);
 
     i = 0;
     j = (1<<pskybits);
-    do
+    while (i < j)
     {
         bglBindTexture(GL_TEXTURE_2D, glpics[pskyoff[i]]);
         polymer_drawartskyquad(i, (i + 1) & (j - 1), height);
         i++;
     }
-    while (i < j);
 }
 
 static void         polymer_drawartskyquad(int32_t p1, int32_t p2, GLfloat height)
@@ -2738,7 +2730,7 @@ static void         polymer_drawskybox(int16_t tilenum)
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, skyboxdatavbo);
 
     i = 0;
-    do
+    while (i < 6)
     {
         drawingskybox = i + 1;
         pth = gltexcache(tilenum, 0, 4);
@@ -2756,7 +2748,6 @@ static void         polymer_drawskybox(int16_t tilenum)
 
         i++;
     }
-    while (i < 6);
     drawingskybox = 0;
 
     if (pr_vbos > 0)
@@ -2888,15 +2879,14 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         else globalnoeffect=1; //mdloadskin reads this
     }
 
-    color[3] = 1.0;
-
     if (tspr->cstat & 2)
     {
         if (!(tspr->cstat&512))
             color[3] = 0.66;
         else
             color[3] = 0.33;
-    }
+    } else
+        color[3] = 1.0;
 
     if (pr_gpusmoothing)
         mdspritematerial.frameprogress = m->interpol;
@@ -3032,7 +3022,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[surfi]);
 
             curlight = 0;
-            do
+            while ((curlight == 0) || ((curlight < modellightcount) && (curlight < pr_maxlightpasses)))
             {
                 materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
                 bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
@@ -3040,7 +3030,6 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
                 curlight++;
             }
-            while ((curlight == 0) || ((curlight < modellightcount) && (curlight < pr_maxlightpasses)));
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
@@ -3058,7 +3047,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             }
 
             curlight = 0;
-            do
+            while ((curlight == 0) || ((curlight < modellightcount) && (curlight < pr_maxlightpasses)))
             {
                 materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
                 bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
@@ -3066,7 +3055,6 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
                 curlight++;
             }
-            while ((curlight == 0) || ((curlight < modellightcount) && (curlight < pr_maxlightpasses)));
         }
 
         bglDisableClientState(GL_NORMAL_ARRAY);
@@ -3768,7 +3756,7 @@ static void         polymer_resetlights(void)
 
 static void         polymer_addlight(_prlight light)
 {
-    if (light.sector == -1 || light.sector >= numsectors)
+    if ((light.sector == -1) || (light.sector >= numsectors))
         return;
 
     if (lightcount < PR_MAXLIGHTS)
@@ -3823,16 +3811,16 @@ static void         polymer_addlight(_prlight light)
     }
 }
 
-static int32_t polymer_planeinlight(_prplane* plane, _prlight* light)
+static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
 {
     float           lightpos[3];
     int             i, j, k, l;
 
+    if (!plane->vertcount)
+        return 0;
+
     if (light->radius)
         return polymer_planeinfrustum(plane, light->frustum);
-
-    if (plane->vertcount < 1)
-        return 0;
 
     lightpos[0] = light->y;
     lightpos[1] = -light->z / 16.0f;
@@ -3840,24 +3828,22 @@ static int32_t polymer_planeinlight(_prplane* plane, _prlight* light)
 
     i = 0;
 
-    do
+    while (i < 3)
     {
         j = k = l = 0;
 
-        do
+        while (j < plane->vertcount)
         {
             if (plane->buffer[(j * 5) + i] > (lightpos[i] + light->range)) k++;
             if (plane->buffer[(j * 5) + i] < (lightpos[i] - light->range)) l++;
             j++;
         }
-        while (j < plane->vertcount);
 
         if ((k == plane->vertcount) || (l == plane->vertcount))
             return 0;
 
         i++;
     }
-    while (i < 3);
 
     return 1;
 }
@@ -3868,8 +3854,6 @@ static inline void  polymer_culllight(char lightindex)
     int32_t         front;
     int32_t         back;
     int32_t         i;
-    int16_t         cullingstate[MAXSECTORS];
-    int16_t         sectorqueue[MAXSECTORS];
     _prsector       *s;
     _prwall         *w;
     sectortype      *sec;
@@ -3877,14 +3861,12 @@ static inline void  polymer_culllight(char lightindex)
     light = &prlights[lightindex];
     front = 0;
     back = 1;
-    Bmemset(cullingstate, 0, sizeof(int16_t) * MAXSECTORS);
-    Bmemset(sectorqueue, 0, sizeof(int16_t) * MAXSECTORS);
-
-    cullingstate[light->sector] = 1;
+    Bmemset(drawingstate, 0, sizeof(int16_t) * numsectors);
+    drawingstate[light->sector] = 1;
 
     sectorqueue[0] = light->sector;
 
-    do
+    while (front != back)
     {
         s = prsectors[sectorqueue[front]];
         sec = &sector[sectorqueue[front]];
@@ -3905,7 +3887,7 @@ static inline void  polymer_culllight(char lightindex)
         }
 
         i = 0;
-        do
+        while (i < sec->wallnum)
         {
             w = prwalls[sec->wallptr + i];
 
@@ -3936,8 +3918,8 @@ static inline void  polymer_culllight(char lightindex)
                     light->isinview = 1;
 
                 if ((wall[sec->wallptr + i].nextsector != -1) &&
-                    (!cullingstate[wall[sec->wallptr + i].nextsector])) {
-                    cullingstate[wall[sec->wallptr + i].nextsector] = 1;
+                    (!drawingstate[wall[sec->wallptr + i].nextsector])) {
+                    drawingstate[wall[sec->wallptr + i].nextsector] = 1;
                     sectorqueue[back] = wall[sec->wallptr + i].nextsector;
                     back++;
                 }
@@ -3945,10 +3927,8 @@ static inline void  polymer_culllight(char lightindex)
 
             i++;
         }
-        while (i < sec->wallnum);
         front++;
     }
-    while (front != back);
 }
 
 static void         polymer_prepareshadows(void)
@@ -4052,7 +4032,7 @@ static void         polymer_applylights(void)
     float           fade;
 
     curpriority = 0;
-    do
+    while (curpriority < PR_MAXLIGHTPRIORITY)
     {
         i = 0;
         while (i < staticlightcount)
@@ -4116,7 +4096,6 @@ static void         polymer_applylights(void)
         }
         curpriority++;
     }
-    while (curpriority < PR_MAXLIGHTPRIORITY);
 }
 
 // RENDER TARGETS
