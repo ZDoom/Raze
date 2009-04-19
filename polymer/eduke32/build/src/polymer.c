@@ -1651,13 +1651,8 @@ static int32_t      polymer_updatesector(int16_t sectnum)
             // relative texturing
             if (curstat & 64)
             {
-                // absolute distance for walls "behind" the first wall (concave sectors)
                 xpancoef = wal->x - wall[sec->wallptr].x;
-                if (xpancoef < 0)
-                    xpancoef = -xpancoef;
                 ypancoef = wall[sec->wallptr].y - wal->y;
-                if (ypancoef < 0)
-                    ypancoef = -ypancoef;
 
                 tex = xpancoef * secangsin + ypancoef * secangcos;
                 tey = xpancoef * secangcos - ypancoef * secangsin;
@@ -1669,7 +1664,11 @@ static int32_t      polymer_updatesector(int16_t sectnum)
             if ((curstat & (2+64)) == (2+64))
             {
                 heidiff = curbuffer[(i*5)+1] - curbuffer[1];
-                tey = sqrt((tey * tey) + (heidiff * heidiff));
+                // don't forget the sign, tey could be negative with concave sectors
+                if (tey >= 0)
+                    tey = sqrt((tey * tey) + (heidiff * heidiff));
+                else
+                    tey = -sqrt((tey * tey) + (heidiff * heidiff));
             }
 
             if (curstat & 4)
