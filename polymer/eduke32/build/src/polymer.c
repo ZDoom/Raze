@@ -988,7 +988,7 @@ void                polymer_drawsprite(int32_t snum)
         i++;
     }
 
-    polymer_buffertoplane(spriteplane.buffer, NULL, 4, spriteplane.plane, spriteplane.t, spriteplane.b,  spriteplane.n);
+    polymer_computeplane(&spriteplane);
 
     spriteplane.lightcount = 0;
     i = 0;
@@ -1765,10 +1765,8 @@ finish:
     if (wallinvalidate)
     {
         s->invalidid++;
-        polymer_buffertoplane(s->floor.buffer, s->floor.indices, s->indicescount, s->floor.plane,
-                              s->floor.t, s->floor.b, s->floor.n);
-        polymer_buffertoplane(s->ceil.buffer, s->ceil.indices, s->indicescount, s->ceil.plane,
-                              s->ceil.t, s->ceil.b, s->ceil.n);
+        polymer_computeplane(&s->floor);
+        polymer_computeplane(&s->ceil);
     }
 
     s->controlstate = 1;
@@ -2331,10 +2329,10 @@ static void         polymer_updatewall(int16_t wallnum)
     w->cap[10] += 1048576; // this one is arbitrary
 
     if (w->underover & 1)
-        polymer_buffertoplane(w->wall.buffer, NULL, 4, w->wall.plane, w->wall.t, w->wall.b, w->wall.n);
+        polymer_computeplane(&w->wall);
     if (w->underover & 2)
-        polymer_buffertoplane(w->over.buffer, NULL, 4, w->over.plane, w->over.t, w->over.b, w->over.n);
-    polymer_buffertoplane(w->mask.buffer, NULL, 4, w->mask.plane, w->mask.t, w->mask.b, w->mask.n);
+        polymer_computeplane(&w->over);
+    polymer_computeplane(&w->mask);
 
     if ((pr_vbos > 0))
     {
@@ -2409,16 +2407,27 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing wall %i...\n", wallnum);
 }
 
-#define INDICE(n) ((indices) ? (indices[i+n]*5) : ((i+n)*5))
+#define INDICE(n) ((p->indices) ? (p->indices[i+n]*5) : ((i+n)*5))
 
 // HSR
-static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int32_t indicecount, GLfloat* plane, GLfloat* t, GLfloat* b, GLfloat* n)
+static void         polymer_computeplane(_prplane* p)
 {
     GLfloat         vec1[5], vec2[5], norm, r;// BxN[3], NxT[3], TxB[3];
     int32_t         i;
+    GLfloat*        buffer;
+    GLfloat*        t;
+    GLfloat*        b;
+    GLfloat*        n;
+    GLfloat*        plane;
 
-    if (indices && (indicecount < 3))
+    if (p->indices && (p->indicescount < 3))
         return; // corrupt sector (E3L4, I'm looking at you)
+
+    buffer = p->buffer;
+    t = p->t;
+    b = p->b;
+    n = p->n;
+    plane = p->plane;
 
     i = 0;
     do
@@ -2439,7 +2448,9 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
 
         norm = plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2];
 
-        if (norm >= 15000) // hack to work around a precision issue with slopes
+        // hack to work around a precision issue with slopes
+        if ((norm >= 15000) ||
+            (((p->indices) ? p->indices[i+2] : i+2) >= p->vertcount))
         {
             // normalize the normal/plane equation and calculate its plane norm
             norm = -sqrt(norm);
@@ -2508,9 +2519,9 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
 
             break;
         }
-        i+= 3;
+        i+= 1;
     }
-    while (i < indicecount);
+    while (i < p->indicescount);
 }
 
 static inline void  polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out)
