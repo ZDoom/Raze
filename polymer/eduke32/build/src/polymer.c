@@ -1648,9 +1648,23 @@ static int32_t      polymer_updatesector(int16_t sectnum)
                 secangsin = (float)(sintable[ang&2047]) / 16383.0f;
             }
 
+            // relative texturing
+            if (curstat & 64)
+            {
+                // absolute distance for walls "behind" the first wall (concave sectors)
+                xpancoef = wal->x - wall[sec->wallptr].x;
+                if (xpancoef < 0)
+                    xpancoef = -xpancoef;
+                ypancoef = wall[sec->wallptr].y - wal->y;
+                if (ypancoef < 0)
+                    ypancoef = -ypancoef;
 
-            tex = (curstat & 64) ? ((wal->x - wall[sec->wallptr].x) * secangsin) + ((-wal->y - -wall[sec->wallptr].y) * secangcos) : wal->x;
-            tey = (curstat & 64) ? ((wal->x - wall[sec->wallptr].x) * secangcos) - ((wall[sec->wallptr].y - wal->y) * secangsin) : -wal->y;
+                tex = xpancoef * secangsin + ypancoef * secangcos;
+                tey = xpancoef * secangcos - ypancoef * secangsin;
+            } else {
+                tex = wal->x;
+                tey = -wal->y;
+            }
 
             if ((curstat & (2+64)) == (2+64))
             {
