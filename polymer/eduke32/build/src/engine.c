@@ -5719,6 +5719,7 @@ void uninitengine(void)
         //if (lookupsalloctype == 1) suckcache(lookups);  //Cache already gone
         lookups = NULL;
     }
+
     for (i=0; i<MAXPALOOKUPS; i++)
         if (palookup[i] != NULL) { kkfree(palookup[i]); palookup[i] = NULL; }
 

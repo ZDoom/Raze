@@ -676,6 +676,11 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     float           ang, tiltang;
     float           pos[3];
 
+    if (!rendmode) return;
+
+    begindrawing();
+    frameoffset = frameplace + windowy1*bytesperline + windowx1;
+
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing rooms...\n");
 
     // fogcalc needs this
@@ -766,6 +771,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
             i++;
         }
         viewangle = daang;
+        enddrawing();
         return;
     }
 
@@ -789,6 +795,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     gsinang2 = gsinang*((double)viewingrange)/65536.0;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Rooms drawn.\n");
+    enddrawing();
 }
 
 void                polymer_drawmasks(void)
@@ -859,6 +866,8 @@ void                polymer_drawsprite(int32_t snum)
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
 
     tspr = tspriteptr[snum];
+
+    if (tspr->owner < 0 || tspr->picnum < 0) return;
 
     fogcalc(tspr->shade,sector[tspr->sectnum].visibility,sector[tspr->sectnum].floorpal);
     bglFogf(GL_FOG_DENSITY,fogresult);

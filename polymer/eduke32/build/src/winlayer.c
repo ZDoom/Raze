@@ -404,7 +404,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
                MB_OK|MB_ICONINFORMATION);
 #endif
 
-    atexit(uninitsystem);
+//    atexit(uninitsystem);
 
     instanceflag = CreateSemaphore(NULL, 1,1, WindowClass);
 
