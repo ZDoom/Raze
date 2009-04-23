@@ -677,9 +677,17 @@ void polymost_glreset()
         cacheindexptr = NULL;
     }
 
-    for (i = 0; i < numcacheentries; i++)
+    for (i = numcacheentries-1; i >= 0; i--)
         if (cacheptrs[i])
         {
+            int32_t ii;
+            for (ii = numcacheentries-1; ii >= 0; ii--)
+                if (i != ii && cacheptrs[ii] == cacheptrs[i])
+                {
+                    /*OSD_Printf("removing duplicate cacheptr %d\n",ii);*/
+                    cacheptrs[ii] = NULL;
+                }
+
             Bfree(cacheptrs[i]);
             cacheptrs[i] = NULL;
         }
@@ -752,14 +760,22 @@ void polymost_glinit()
         cacheindexptr = NULL;
     }
 
-    for (i = 0; i < numcacheentries; i++)
+    for (i = numcacheentries-1; i >= 0; i--)
         if (cacheptrs[i])
         {
+            int32_t ii;
+            for (ii = numcacheentries-1; ii >= 0; ii--)
+                if (i != ii && cacheptrs[ii] == cacheptrs[i])
+                {
+                    /*OSD_Printf("removing duplicate cacheptr %d\n",ii);*/
+                    cacheptrs[ii] = NULL;
+                }
+
             Bfree(cacheptrs[i]);
             cacheptrs[i] = NULL;
         }
 
-    curcacheindex = firstcacheindex = Bcalloc(1, sizeof(texcacheindex));
+    curcacheindex = firstcacheindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
     numcacheentries = 0;
 
 //    Bmemset(&firstcacheindex, 0, sizeof(texcacheindex));
@@ -826,14 +842,22 @@ void invalidatecache(void)
         cacheindexptr = NULL;
     }
 
-    for (i = 0; i < numcacheentries; i++)
+    for (i = numcacheentries-1; i >= 0; i--)
         if (cacheptrs[i])
         {
+            int32_t ii;
+            for (ii = numcacheentries-1; ii >= 0; ii--)
+                if (i != ii && cacheptrs[ii] == cacheptrs[i])
+                {
+                    /*OSD_Printf("removing duplicate cacheptr %d\n",ii);*/
+                    cacheptrs[ii] = NULL;
+                }
+
             Bfree(cacheptrs[i]);
             cacheptrs[i] = NULL;
         }
 
-    curcacheindex = firstcacheindex = Bcalloc(1, sizeof(texcacheindex));
+    curcacheindex = firstcacheindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
     numcacheentries = 0;
 
 //    Bmemset(&firstcacheindex, 0, sizeof(texcacheindex));
@@ -1256,14 +1280,14 @@ static int32_t LoadCacheOffsets(void)
             texcacheindex *t = cacheptrs[i];
             t->offset = foffset;
             t->len = fsize;
-//            initprintf("got a match for %s offset %d\n",cachefn,offset);
+            /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, fname,foffset);*/
         }
         else
         {
             Bstrncpy(curcacheindex->name, fname, BMAX_PATH);
             curcacheindex->offset = foffset;
             curcacheindex->len = fsize;
-            curcacheindex->next = Bcalloc(1, sizeof(texcacheindex));
+            curcacheindex->next = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
             hash_replace(&cacheH, Bstrdup(fname), numcacheentries);
             cacheptrs[numcacheentries++] = curcacheindex;
             curcacheindex = curcacheindex->next;
@@ -1316,7 +1340,7 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
             texcacheindex *t = cacheptrs[i];
             len = t->len;
             offset = t->offset;
-//            initprintf("got a match for %s offset %d\n",cachefn,offset);
+            /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);*/
         }
         else return -1; // didn't find it
 
@@ -1459,7 +1483,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
             texcacheindex *t = cacheptrs[i];
             t->offset = offset;
             t->len = Blseek(cachefilehandle, 0, BSEEK_CUR) - t->offset;
-            //            initprintf("got a match for %s offset %d\n",cachefn,offset);
+            /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);*/
 
             if (cacheindexptr)
             {

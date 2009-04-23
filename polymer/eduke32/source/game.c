@@ -4457,7 +4457,11 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
             if (ud.viewbob)
                 ud.cameraz += p->opyoff+mulscale16((int32_t)(p->pyoff-p->opyoff),smoothratio);
         }
-        else G_DoThirdPerson(p,(vec3_t *)&ud,&ud.camerasect,ud.cameraang,ud.camerahoriz);
+        else
+        {
+            ud.cameraz -= 3072;
+            G_DoThirdPerson(p,(vec3_t *)&ud,&ud.camerasect,ud.cameraang,ud.camerahoriz);
+        }
 
         cz = ActorExtra[p->i].ceilingz;
         fz = ActorExtra[p->i].floorz;
@@ -7018,7 +7022,6 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
             if (g_player[p].ps->over_shoulder_on > 0 && g_player[p].ps->newowner < 0)
             {
-                t->cstat |= 2;
                 if (screenpeek == myconnectindex && numplayers >= 2)
                 {
                     t->x = omy.x+mulscale16((int32_t)(my.x-omy.x),smoothratio);
@@ -7027,6 +7030,32 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                     t->ang = omyang+mulscale16((int32_t)(((myang+1024-omyang)&2047)-1024),smoothratio);
                     t->sectnum = mycursectnum;
                 }
+                else t->ang = g_player[p].ps->ang+mulscale16((int32_t)(((g_player[p].ps->ang+1024- g_player[p].ps->oang)&2047)-1024),smoothratio);
+                if (bpp == 8)
+                    t->cstat |= 2;
+                else if (usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0)
+                {
+                    static int32_t targetang = 0;
+
+                    if (g_player[p].sync->extbits&(1<<1))
+                    {
+                        if (g_player[p].sync->extbits&(1<<2))targetang += 16;
+                        else if (g_player[p].sync->extbits&(1<<3)) targetang -= 16;
+                        else if (targetang > 0) targetang -= targetang>>2;
+                        else if (targetang < 0) targetang += (-targetang)>>2;
+                    }
+                    else
+                    {
+                        if (g_player[p].sync->extbits&(1<<2))targetang -= 16;
+                        else if (g_player[p].sync->extbits&(1<<3)) targetang += 16;
+                        else if (targetang > 0) targetang -= targetang>>2;
+                        else if (targetang < 0) targetang += (-targetang)>>2;
+                    }
+
+                    targetang = clamp(targetang, -128, 128);
+                    t->ang += targetang;
+                }
+
             }
 
             if (ud.multimode > 1 && (display_mirror || screenpeek != p || s->owner == -1))
