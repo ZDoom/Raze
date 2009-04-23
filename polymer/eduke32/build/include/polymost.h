@@ -78,9 +78,9 @@ struct cacheitem_t
 
 typedef struct cacheitem_t texcacheindex;
 
-extern texcacheindex firstcacheindex;
+extern texcacheindex *firstcacheindex;
 extern texcacheindex *curcacheindex;
-extern texcacheindex *cacheptrs[MAXTILES<<2];
+extern texcacheindex *cacheptrs[MAXTILES<<1];
 extern int32_t numcacheentries;
 
 int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, uint32_t miplen);

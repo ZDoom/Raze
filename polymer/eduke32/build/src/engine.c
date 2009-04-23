@@ -7373,7 +7373,9 @@ int32_t loadmaphack(char *filename)
     memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
     memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
 
+#ifdef POLYMER
     staticlightcount = 0;
+#endif // POLYMER
 
     while (1)
     {
@@ -7526,6 +7528,7 @@ int32_t loadmaphack(char *filename)
             }
             spriteext[whichsprite].flags |= SPREXT_AWAY2;
             break;
+#ifdef POLYMER
         case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority
         {
             int32_t value;
@@ -7564,6 +7567,7 @@ int32_t loadmaphack(char *filename)
             staticlightcount++;
             break;
         }
+#endif // POLYMER
 
         default:
             // unrecognised token
@@ -7766,7 +7770,11 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     if (nogl) dabpp = 8;
 #endif
     if ((qsetmode == 200) && (videomodereset == 0) &&
-            (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp) && glrendmode != 4)
+            (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp)
+#ifdef POLYMER
+            && glrendmode != 4
+#endif // POLYMER
+            )
         return(0);
 
     strcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI.  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");

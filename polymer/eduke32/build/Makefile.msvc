@@ -45,7 +45,7 @@ CC=cl
 AS=ml
 RC=rc
 LINK=link /opt:nowin98 /opt:ref /nologo
-CFLAGS=$(CFLAGS) /nologo /MD /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(DXROOT)\include" /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" # /I$(ENETROOT)\include"
+CFLAGS=$(CFLAGS) /nologo /MD /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" /I$(DXROOT)\include" # /I$(ENETROOT)\include"
 ASFLAGS=/nologo /coff /c
 EXESUFFIX=.exe
 !ifdef DEBUG

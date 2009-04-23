@@ -1,7 +1,7 @@
 // ISO C9x  compliant stdint.h for Microsoft Visual Studio
 // Based on ISO/IEC 9899:TC2 Committee draft (May 6, 2005) WG14/N1124 
 // 
-//  Copyright (c) 2006 Alexander Chemeris
+//  Copyright (c) 2006-2008 Alexander Chemeris
 // 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -53,6 +53,16 @@
    }
 #endif
 
+// Define _W64 macros to mark types changing their size, like intptr_t.
+#ifndef _W64
+#  if !defined(__midl) && (defined(_X86_) || defined(_M_IX86)) && _MSC_VER >= 1300
+#     define _W64 __w64
+#  else
+#     define _W64
+#  endif
+#endif
+
+
 // 7.18.1 Integer types
 
 // 7.18.1.1 Exact-width integer types
@@ -90,8 +100,8 @@ typedef uint64_t  uint_fast64_t;
    typedef __int64           intptr_t;
    typedef unsigned __int64  uintptr_t;
 #else // _WIN64 ][
-   typedef int32_t               intptr_t;
-   typedef uint32_t      uintptr_t;
+   typedef _W64 int               intptr_t;
+   typedef _W64 unsigned int      uintptr_t;
 #endif // _WIN64 ]
 
 // 7.18.1.5 Greatest-width integer types

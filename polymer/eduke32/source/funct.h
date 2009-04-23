@@ -278,6 +278,7 @@ static inline int32_t G_GetTeamPalette(int32_t team)
 
 static inline void G_AddGameLight(int32_t radius, int32_t sector, int32_t x, int32_t y, int32_t z, int32_t range, int32_t color, int32_t priority)
 {
+#ifdef POLYMER
     gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = radius;
     gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = sector;
 
@@ -296,6 +297,16 @@ static inline void G_AddGameLight(int32_t radius, int32_t sector, int32_t x, int
 
     if (gamelightcount < PR_MAXLIGHTS)
         gamelightcount++;
+#else
+    UNREFERENCED_PARAMETER(radius);
+    UNREFERENCED_PARAMETER(sector);
+    UNREFERENCED_PARAMETER(x);
+    UNREFERENCED_PARAMETER(y);
+    UNREFERENCED_PARAMETER(z);
+    UNREFERENCED_PARAMETER(range);
+    UNREFERENCED_PARAMETER(color);
+    UNREFERENCED_PARAMETER(priority);
+#endif
 }
 
 extern void se40code(int32_t x,int32_t y,int32_t z,int32_t a,int32_t h, int32_t smoothratio);

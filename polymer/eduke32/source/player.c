@@ -345,6 +345,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
             }
         }
 
+#ifdef POLYMER
         switch (DynamicTileMap[atwith])
         {
         case FIRELASER__STATIC:
@@ -378,12 +379,14 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 gamelightcount++;
             break;
         }
+#endif // POLYMER
     }
 
     if (A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE))
     {
         /* Custom projectiles.  This is a big hack. */
 
+#ifdef POLYMER
         if (ProjectileData[atwith].flashcolor)
         {
             G_AddGameLight(0, s->sectnum, s->x+((sintable[(s->ang+512)&2047])>>7),
@@ -409,6 +412,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
             if (gamelightcount < PR_MAXLIGHTS)
                 gamelightcount++;
         }
+#endif // POLYMER
 
         if (ProjectileData[atwith].offset == 0) ProjectileData[atwith].offset = 1;
 
@@ -2171,11 +2175,15 @@ void P_FireWeapon(DukePlayer_t *p)
 
         if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_NOVISIBLE))
         {
+#ifdef POLYMER
             spritetype *s = &sprite[p->i];
+#endif // POLYMER
+
 
             lastvisinc = totalclock+32;
             p->visibility = 0;
 
+#ifdef POLYMER
             G_AddGameLight(0, s->sectnum, s->x+((sintable[(p->ang+512)&2047])>>7), s->y+((sintable[(p->ang)&2047])>>7),
                            s->z-PHEIGHT, 4096, aplWeaponFlashColor[p->curr_weapon][snum],1);
 
@@ -2199,6 +2207,7 @@ void P_FireWeapon(DukePlayer_t *p)
 
             if (gamelightcount < PR_MAXLIGHTS)
                 gamelightcount++;
+#endif // POLYMER
         }
 
         /*        if( //!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_CHECKATRELOAD) &&

@@ -5938,12 +5938,11 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     break;
                 }
                 sp->extra = 130;
-            }
+                CS |= 256; // Make it hitable
+            } else CS |= 257;
 
             if (sp->picnum == REACTOR || sp->picnum == REACTOR2)
                 sp->extra = g_impactDamage;
-
-            CS |= 257; // Make it hitable
 
             if (ud.multimode < 2 && sp->pal != 0)
             {
@@ -7352,6 +7351,7 @@ PALONLY:
                     }
                 }
 
+#ifdef POLYMER
         switch (DynamicTileMap[s->picnum-1])
         {
         case DIPSWITCH__STATIC:
@@ -7391,9 +7391,10 @@ PALONLY:
 
             break;
         }
-
+#endif
         switch (DynamicTileMap[s->picnum])
         {
+#ifdef POLYMER
         case DIPSWITCH__STATIC:
         case DIPSWITCH2__STATIC:
         case DIPSWITCH3__STATIC:
@@ -7430,7 +7431,7 @@ PALONLY:
                 framelightcount++;
 
             break;
-
+#endif
         case LASERLINE__STATIC:
             if (sector[t->sectnum].lotag == 2) t->pal = 8;
             t->z = sprite[s->owner].z-(3<<8);
@@ -12812,8 +12813,10 @@ static int32_t G_DoMoveThings(void)
 
     if (ud.recstat == 1) G_DemoRecord();
 
+#ifdef POLYMER
     if (ud.pause_on == 0)
         gamelightcount = 0;
+#endif
 
     if (ud.pause_on == 0)
     {

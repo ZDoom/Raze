@@ -3327,7 +3327,14 @@ cheat_for_port_credits:
                 nydim = (newvidmode==validmodecnt)?ydim:validmode[newvidmode].ydim;
                 nfs   = newfullscreen;
                 nbpp  = (newvidmode==validmodecnt)?bpp:validmode[newvidmode].bpp;
-                nrend = (vidsets[newvidset] & 0x20000) ? (nbpp==8?2:glrendmode) : 0;
+                nrend = (vidsets[newvidset] & 0x20000) ? (nbpp==8?2:
+#ifdef POLYMOST
+                        glrendmode
+#else
+                        0
+#endif // POLYMOST
+
+                                                         ) : 0;
 
                 if (setgamemode(nfs, nxdim, nydim, nbpp) < 0)
                 {

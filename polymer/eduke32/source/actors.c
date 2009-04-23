@@ -592,6 +592,7 @@ static void G_MoveZombieActors(void)
         {
             if (x < 30000)
             {
+#ifdef POLYMER
                 switch (DynamicTileMap[s->picnum])
                 {
                 case FLOORFLAME__STATIC:
@@ -633,6 +634,7 @@ static void G_MoveZombieActors(void)
                     break;
 
                 }
+#endif // POLYMER
 
                 ActorExtra[i].timetosleep++;
                 if (ActorExtra[i].timetosleep >= (x>>8))
@@ -685,6 +687,8 @@ static void G_MoveZombieActors(void)
                             ActorExtra[i].timetosleep = 0;
                             changespritestat(i,6);
                             break;
+                        case RECON__STATIC:
+                            CS |= 257;
                         default:
                             ActorExtra[i].timetosleep = 0;
                             A_PlayAlertSound(i);
@@ -3644,6 +3648,7 @@ static void G_MoveActors(void)
             if (s->z < sector[sect].ceilingz+(32<<8))
                 s->z = sector[sect].ceilingz+(32<<8);
 
+#ifdef POLYMER
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y;
@@ -3663,6 +3668,7 @@ static void G_MoveActors(void)
 
             if (gamelightcount < PR_MAXLIGHTS)
                 gamelightcount++;
+#endif // POLYMER
 
             if (ud.multimode < 2)
             {
