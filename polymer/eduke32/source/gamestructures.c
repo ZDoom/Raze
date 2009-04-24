@@ -4119,7 +4119,7 @@ static int32_t X_AccessSpriteX(int32_t iActor, int32_t lLabelID, int32_t lParm2)
     case ACTOR_XPANNING: return spriteext[iActor].xpanning;
     case ACTOR_YPANNING: return spriteext[iActor].ypanning;
     case ACTOR_HTFLAGS: return ActorExtra[iActor].flags;
-    case ACTOR_ALPHA: return (uint8_t)(ActorExtra[iActor].alpha*255.0f);
+    case ACTOR_ALPHA: return (uint8_t)(spriteext[iActor].alpha*255.0f);
     default: return -1;
     }
 }
