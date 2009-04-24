@@ -6731,6 +6731,11 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
     clearbufbyte(&sprite, sizeof(sprite), 0);
     */
 
+#ifdef POLYMER
+    staticlightcount = 0;
+#endif // POLYMER
+
+
     initspritelists();
 
 #define MYMAXSECTORS (mapversion==7l?MAXSECTORSV7:MAXSECTORSV8)
@@ -7373,10 +7378,6 @@ int32_t loadmaphack(char *filename)
 
     memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
     memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
-
-#ifdef POLYMER
-    staticlightcount = 0;
-#endif // POLYMER
 
     while (1)
     {

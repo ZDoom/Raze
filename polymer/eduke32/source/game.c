@@ -4452,12 +4452,13 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
             ud.camerasect = sprite[p->newowner].sectnum;
             smoothratio = 65536L;
         }
-        else if (p->over_shoulder_on == 0)
+        else if (ud.viewbob) // if (p->over_shoulder_on == 0)
         {
-            if (ud.viewbob)
-                ud.cameraz += p->opyoff+mulscale16((int32_t)(p->pyoff-p->opyoff),smoothratio);
+            if (p->over_shoulder_on)
+                ud.cameraz += (p->opyoff+mulscale16((int32_t)(p->pyoff-p->opyoff),smoothratio))>>3;
+            else ud.cameraz += p->opyoff+mulscale16((int32_t)(p->pyoff-p->opyoff),smoothratio);
         }
-        else
+        if (p->over_shoulder_on)
         {
             ud.cameraz -= 3072;
             G_DoThirdPerson(p,(vec3_t *)&ud,&ud.camerasect,ud.cameraang,ud.camerahoriz);
@@ -7031,9 +7032,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                     t->sectnum = mycursectnum;
                 }
                 else t->ang = g_player[p].ps->ang+mulscale16((int32_t)(((g_player[p].ps->ang+1024- g_player[p].ps->oang)&2047)-1024),smoothratio);
-                if (bpp == 8)
-                    t->cstat |= 2;
-                else if (usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0)
+                if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0)
                 {
                     static int32_t targetang = 0;
 
@@ -7055,7 +7054,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                     targetang = clamp(targetang, -128, 128);
                     t->ang += targetang;
                 }
-
+                else t->cstat |= 2;
             }
 
             if (ud.multimode > 1 && (display_mirror || screenpeek != p || s->owner == -1))

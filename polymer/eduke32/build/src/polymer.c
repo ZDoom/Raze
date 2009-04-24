@@ -669,6 +669,108 @@ void                polymer_loadboard(void)
     if (pr_verbosity >= 1) OSD_Printf("PR : Board loaded.\n");
 }
 
+void                polymer_editorselect(void)
+{
+
+        int32_t     i, n;
+        double      ox, oy, oz, ox2, oy2, oz2, px[6], py[6], pz[6];
+
+        //Polymost supports true look up/down :) Here, we convert horizon to angle.
+        //gchang&gshang are cos&sin of this angle (respectively)
+        ghalfx = (double)halfxdimen; grhalfxdown10 = 1.0/(((double)ghalfx)*1024);
+        ghoriz = (double)globalhoriz;
+
+        gvisibility = ((float)globalvisibility)*FOGSCALE;
+
+        ghoriz = (double)(ydimen>>1);
+
+        //global cos/sin tilt angle
+        gctang = cos(gtang);
+        gstang = sin(gtang);
+        if (fabs(gstang) < .001) //This hack avoids nasty precision bugs in domost()
+        { gstang = 0; if (gctang > 0) gctang = 1.0; else gctang = -1.0; }
+
+        //Generate viewport trapezoid (for handling screen up/down)
+        px[0] = px[3] = 0-1; px[1] = px[2] = windowx2+1-windowx1+2;
+        py[0] = py[1] = 0-1; py[2] = py[3] = windowy2+1-windowy1+2; n = 4;
+        for (i=0; i<n; i++)
+        {
+            ox = px[i]-ghalfx; oy = py[i]-ghoriz; oz = ghalfx;
+
+            //Tilt rotation (backwards)
+            ox2 = ox*gctang + oy*gstang;
+            oy2 = oy*gctang - ox*gstang;
+            oz2 = oz;
+
+            //Up/down rotation (backwards)
+            px[i] = ox2;
+            py[i] = oy2*gchang + oz2*gshang;
+            pz[i] = oz2*gchang - oy2*gshang;
+        }
+
+        if (searchit == 2)
+        {
+            int32_t vx, vy, vz;
+            int32_t cz, fz;
+            hitdata_t hitinfo;
+            vec3_t vect;
+
+            ox2 = searchx-ghalfx; oy2 = searchy-ghoriz; oz2 = ghalfx;
+
+            //Tilt rotation
+            ox = ox2*gctang + oy2*gstang;
+            oy = oy2*gctang - ox2*gstang;
+            oz = oz2;
+
+            //Up/down rotation
+            ox2 = oz*gchang - oy*gshang;
+            oy2 = ox;
+            oz2 = oy*gchang + oz*gshang;
+
+            //Standard Left/right rotation
+            vx = (int32_t)(ox2*((float)cosglobalang) - oy2*((float)singlobalang));
+            vy = (int32_t)(ox2*((float)singlobalang) + oy2*((float)cosglobalang));
+            vz = (int32_t)(oz2*16384.0);
+
+            vect.x = globalposx;
+            vect.y = globalposy;
+            vect.z = globalposz;
+
+            hitallsprites = 1;
+            hitscan((const vec3_t *)&vect,globalcursectnum, //Start position
+                vx>>12,vy>>12,vz>>8,&hitinfo,0xffff0030);
+            getzsofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
+            hitallsprites = 0;
+
+            searchsector = hitinfo.hitsect;
+            if (hitinfo.pos.z<cz) searchstat = 1; else if (hitinfo.pos.z>fz) searchstat = 2; else if (hitinfo.hitwall >= 0)
+            {
+                searchwall = hitinfo.hitwall; searchstat = 0;
+                if (wall[hitinfo.hitwall].nextwall >= 0)
+                {
+                    int32_t cz, fz;
+                    getzsofslope(wall[hitinfo.hitwall].nextsector,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
+                    if (hitinfo.pos.z > fz)
+                    {
+                        if (wall[hitinfo.hitwall].cstat&2) //'2' bottoms of walls
+                            searchwall = wall[hitinfo.hitwall].nextwall;
+                    }
+                    else if ((hitinfo.pos.z > cz) && (wall[hitinfo.hitwall].cstat&(16+32))) //masking or 1-way
+                        searchstat = 4;
+                }
+            }
+            else if (hitinfo.hitsprite >= 0) { searchwall = hitinfo.hitsprite; searchstat = 3; }
+            else
+            {
+                int32_t cz, fz;
+                getzsofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
+                if ((hitinfo.pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
+                //if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
+            }
+            searchit = 0;
+        }
+}
+
 void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum)
 {
     int16_t         cursectnum;
@@ -691,6 +793,8 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     ang = (float)(daang) / (2048.0f / 360.0f);
     horizang = (float)(-getangle(128, dahoriz-100)) / (2048.0f / 360.0f);
     tiltang = (gtang * 90.0f);
+
+    if (searchit == 2) polymer_editorselect();
 
     pos[0] = daposy;
     pos[1] = -(float)(daposz) / 16.0f;
@@ -893,6 +997,8 @@ void                polymer_drawsprite(int32_t snum)
         else
             spriteplane.material.diffusemodulation[3] = 0.66f;
     }
+
+    spriteplane.material.diffusemodulation[3] *=  (1.0f - spriteext[tspr->owner].alpha);
 
     if (((tspr->cstat>>4) & 3) == 0)
         xratio = (float)(tspr->xrepeat) * 0.20f; // 32 / 160
@@ -2922,6 +3028,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             color[3] = 0.33;
     } else
         color[3] = 1.0;
+
+    color[3] *=  (1.0f - spriteext[tspr->owner].alpha);
 
     if (pr_gpusmoothing)
         mdspritematerial.frameprogress = m->interpol;

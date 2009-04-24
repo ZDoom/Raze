@@ -1171,8 +1171,10 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 
     if (parm->numparms==1&&!Bstrcasecmp(parm->parms[0],"showkeys"))
     {
-        for (i=0; ConsoleKeys[i].name; i++)OSD_Printf("%s\n",ConsoleKeys[i].name);
-        for (i=0; i<MAXMOUSEBUTTONS; i++)OSD_Printf("%s\n",ConsoleButtons[i]);
+        for (i=0; ConsoleKeys[i].name; i++)
+            OSD_Printf("%s\n",ConsoleKeys[i].name);
+        for (i=0; i<MAXMOUSEBUTTONS; i++)
+            OSD_Printf("%s\n",ConsoleButtons[i]);
         return OSDCMD_OK;
     }
 

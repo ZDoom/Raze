@@ -987,6 +987,64 @@ static inline void prelevel(char g)
         {
             if (PN == SECTOREFFECTOR && SLT == 14)
                 continue;
+#if 1 // POLYMER
+            if (PN == SECTOREFFECTOR && SLT == 49)
+            {
+                staticlights[staticlightcount].sector = SECT;
+                staticlights[staticlightcount].x = SX;
+                staticlights[staticlightcount].y = SY;
+                staticlights[staticlightcount].z = SZ;
+                staticlights[staticlightcount].range = SHT;
+                if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
+                {
+                    staticlights[staticlightcount].color[0] = sprite[i].xvel;
+                    staticlights[staticlightcount].color[1] = sprite[i].yvel;
+                    staticlights[staticlightcount].color[2] = sprite[i].zvel;
+                }
+                else
+                {
+                    staticlights[staticlightcount].color[0] = hictinting[PL].r;
+                    staticlights[staticlightcount].color[1] = hictinting[PL].g;
+                    staticlights[staticlightcount].color[2] = hictinting[PL].b;
+                }
+                staticlights[staticlightcount].radius = 0;
+                staticlights[staticlightcount].angle = SA;
+                staticlights[staticlightcount].horiz = SH;
+                staticlights[staticlightcount].priority = SS;
+                staticlightcount++;
+                deletesprite(i);
+                continue;
+            }
+            if (PN == SECTOREFFECTOR && SLT == 50)
+            {
+                staticlights[staticlightcount].sector = SECT;
+                staticlights[staticlightcount].x = SX;
+                staticlights[staticlightcount].y = SY;
+                staticlights[staticlightcount].z = SZ;
+                staticlights[staticlightcount].range = SHT;
+                if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
+                {
+                    staticlights[staticlightcount].color[0] = sprite[i].xvel;
+                    staticlights[staticlightcount].color[1] = sprite[i].yvel;
+                    staticlights[staticlightcount].color[2] = sprite[i].zvel;
+                }
+                else
+                {
+                    staticlights[staticlightcount].color[0] = hictinting[PL].r;
+                    staticlights[staticlightcount].color[1] = hictinting[PL].g;
+                    staticlights[staticlightcount].color[2] = hictinting[PL].b;
+                }
+                staticlights[staticlightcount].radius = 256;
+                staticlights[staticlightcount].faderadius = 200;
+                staticlights[staticlightcount].angle = SA;
+                staticlights[staticlightcount].horiz = SH;
+                staticlights[staticlightcount].priority = SS;
+                staticlightcount++;
+                deletesprite(i);
+                continue;
+            }
+#endif // POLYMER
+
             A_Spawn(-1,i);
         }
     }

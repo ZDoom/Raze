@@ -506,6 +506,7 @@ enum ActorLabel_t
     ACTOR_XPANNING,
     ACTOR_YPANNING,
     ACTOR_HTFLAGS,
+    ACTOR_ALPHA,
     ACTOR_END
 };
 

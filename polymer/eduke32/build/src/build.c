@@ -765,6 +765,7 @@ void editinput(void)
     {
         memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
         memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
+        staticlightcount = 0;
         mhk=0;
         initprintf("Maphacks disabled\n");
         keystatus[0x44] = 0;

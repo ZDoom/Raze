@@ -119,6 +119,10 @@ extern float shadescale;
 extern int32_t globalnoeffect;
 extern int32_t drawingskybox;
 
+extern double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
+extern double gcosang, gsinang, gcosang2, gsinang2;
+extern double gchang, gshang, gctang, gstang, gvisibility;
+
 extern float fogresult, fogcol[4], fogtable[4*MAXPALOOKUPS];
 
 static inline void fogcalc(const int32_t shade, const int32_t vis, const int32_t pal)

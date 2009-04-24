@@ -41,6 +41,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sounds_mapster32.h"
 #include "fx_man.h"
 
+#include "macros.h"
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -615,6 +617,12 @@ const char *SectorEffectorTagText(int32_t lotag)
         break;
     case 36:
         Bsprintf(tempbuf,"%d: SKRINK RAY SHOOTER",lotag);
+        break;
+    case 49:
+        Bsprintf(tempbuf,"%d: POINT LIGHT",lotag);
+        break;
+    case 50:
+        Bsprintf(tempbuf,"%d: SPOTLIGHT",lotag);
         break;
     default:
         Bsprintf(tempbuf,"%d: (UNKNOWN)",lotag);
@@ -1967,6 +1975,7 @@ extern int32_t NumVoices;
 extern int32_t g_numEnvSoundsPlaying;
 int32_t AmbienceToggle = 1; //SoundToggle;
 int32_t ParentalLock = 0;
+#undef T1
 #define T1 (s->filler)
 
 // adapted from actors.c
@@ -4514,8 +4523,9 @@ static void Keys3d(void)
             sector[searchsector].extra = getnumber256(buffer,(int32_t)sector[searchsector].extra,65536L,1);
             break;
         case 3:
-            strcpy(buffer,"Sprite extra: ");
-            sprite[searchwall].extra = getnumber256(buffer,(int32_t)sprite[searchwall].extra,65536L,1);
+//            strcpy(buffer,"Sprite extra: ");
+//            sprite[searchwall].extra = getnumber256(buffer,(int32_t)sprite[searchwall].extra,65536L,1);
+            getnumberptr256("Sprite extra: ",&sprite[searchwall].extra,sizeof(sprite[searchwall].extra),1024,1,NULL);
             break;
         }
         asksave = 1;
@@ -4639,7 +4649,8 @@ static void Keys3d(void)
                 break;
             case 3:
                 strcpy(buffer,"Sprite hitag: ");
-                sprite[searchwall].hitag = getnumber256(buffer,(int32_t)sprite[searchwall].hitag,65536L,0);
+                // sprite[searchwall].hitag = getnumber256(buffer,(int32_t)sprite[searchwall].hitag,65536L,0);
+                getnumberptr256(buffer,&sprite[searchwall].hitag,sizeof(sprite[searchwall].hitag),INT16_MAX,1,NULL);
                 break;
             }
         }
@@ -9520,6 +9531,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
     if (qsetmode == 200)    //In 3D mode
     {
+
         if (shadepreview)
         {
             int32_t i = 0;
@@ -9541,16 +9553,16 @@ void ExtPreCheckKeys(void) // just before drawrooms
                             wallflag[w] = 1;
                         }
                         /*                        if (wall[w].nextwall >= 0)
-                                                {
-                                                    if (!wallflag[wall[w].nextwall])
-                                                    {
-                                                        wallshades[wall[w].nextwall] = wall[wall[w].nextwall].shade;
-                                                        wall[wall[w].nextwall].shade = sprite[i].shade;
-                                                        wallpals[wall[w].nextwall] = wall[wall[w].nextwall].pal;
-                                                        wall[wall[w].nextwall].pal = sprite[i].pal;
-                                                        wallflag[wall[w].nextwall] = 1;
-                                                    }
-                                                } */
+                        {
+                        if (!wallflag[wall[w].nextwall])
+                        {
+                        wallshades[wall[w].nextwall] = wall[wall[w].nextwall].shade;
+                        wall[wall[w].nextwall].shade = sprite[i].shade;
+                        wallpals[wall[w].nextwall] = wall[wall[w].nextwall].pal;
+                        wall[wall[w].nextwall].pal = sprite[i].pal;
+                        wallflag[wall[w].nextwall] = 1;
+                        }
+                        } */
                     }
                     sectorshades[sprite[i].sectnum][0] = sector[sprite[i].sectnum].floorshade;
                     sectorshades[sprite[i].sectnum][1] = sector[sprite[i].sectnum].ceilingshade;
@@ -9571,7 +9583,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                         w = nextspritesect[w];
                     }
                 }
-        }
+            }
         if (floor_over_floor) SE40Code(pos.x,pos.y,pos.z,ang,horiz);
         if (purpleon) clearview(255);
         if (sidemode != 0)
@@ -9729,6 +9741,63 @@ void ExtAnalyzeSprites(void)
     int32_t i, k;
     spritetype *tspr;
     int32_t frames=0, l;
+
+    gamelightcount = 0;
+
+    for (i=numsprites-1; i>=0; i--)
+    {
+        if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 49)
+        {
+            gamelights[gamelightcount].sector = SECT;
+            gamelights[gamelightcount].x = SX;
+            gamelights[gamelightcount].y = SY;
+            gamelights[gamelightcount].z = SZ;
+            gamelights[gamelightcount].range = SHT;
+            if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
+            {
+                gamelights[gamelightcount].color[0] = sprite[i].xvel;
+                gamelights[gamelightcount].color[1] = sprite[i].yvel;
+                gamelights[gamelightcount].color[2] = sprite[i].zvel;
+            }
+            else
+            {
+                gamelights[gamelightcount].color[0] = hictinting[PL].r;
+                gamelights[gamelightcount].color[1] = hictinting[PL].g;
+                gamelights[gamelightcount].color[2] = hictinting[PL].b;
+            }
+            gamelights[gamelightcount].radius = 0;
+            gamelights[gamelightcount].angle = SA;
+            gamelights[gamelightcount].horiz = SH;
+            gamelights[gamelightcount].priority = SS;
+            gamelightcount++;
+        }
+        if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 50)
+        {
+            gamelights[gamelightcount].sector = SECT;
+            gamelights[gamelightcount].x = SX;
+            gamelights[gamelightcount].y = SY;
+            gamelights[gamelightcount].z = SZ;
+            gamelights[gamelightcount].range = SHT;
+            if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
+            {
+                gamelights[gamelightcount].color[0] = sprite[i].xvel;
+                gamelights[gamelightcount].color[1] = sprite[i].yvel;
+                gamelights[gamelightcount].color[2] = sprite[i].zvel;
+            }
+            else
+            {
+                gamelights[gamelightcount].color[0] = hictinting[PL].r;
+                gamelights[gamelightcount].color[1] = hictinting[PL].g;
+                gamelights[gamelightcount].color[2] = hictinting[PL].b;
+            }
+            gamelights[gamelightcount].radius = 256;
+            gamelights[gamelightcount].faderadius = 200;
+            gamelights[gamelightcount].angle = SA;
+            gamelights[gamelightcount].horiz = SH;
+            gamelights[gamelightcount].priority = SS;
+            gamelightcount++;
+        }
+    }
 
     for (i=0,tspr=&tsprite[0]; i<spritesortcnt; i++,tspr++)
     {

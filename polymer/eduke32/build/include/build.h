@@ -164,7 +164,8 @@ typedef struct BPACK {
     int32_t xoff, yoff, zoff;
     uint8_t flags;
     uint8_t xpanning, ypanning;
-    uint8_t filler[1];
+    uint8_t filler;
+    float alpha;
     spritetype *tspr;
 } spriteext_t;
 

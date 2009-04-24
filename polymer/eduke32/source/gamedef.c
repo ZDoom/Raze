@@ -604,6 +604,8 @@ const memberlabel_t ActorLabels[]=
 
     { "htflags", ACTOR_HTFLAGS, 0, 0 },
 
+    { "alpha", ACTOR_ALPHA, 0, 0 }, 
+
     { "", -1, 0, 0  }     // END OF LIST
 };
 
