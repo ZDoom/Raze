@@ -692,7 +692,7 @@ static void G_MoveZombieActors(void)
                         default:
                             ActorExtra[i].timetosleep = 0;
                             A_PlayAlertSound(i);
-                            changespritestat(i,1);
+                            changespritestat(i, STAT_ACTOR);
                             break;
                         }
                     else ActorExtra[i].timetosleep = 0;
@@ -3897,7 +3897,7 @@ static void G_MoveActors(void)
                 if (ActorExtra[i].timetosleep > SLEEPTIME)
                 {
                     ActorExtra[i].timetosleep = 0;
-                    changespritestat(i,2);
+                    changespritestat(i, STAT_ZOMBIEACTOR);
                     goto BOLT;
                 }
             }
@@ -7518,6 +7518,64 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 A_SetSprite(k,CLIPMASK0);
             }
             break;
+#if 1 // POLYMER
+        case 49:
+        {
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = SECT;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = SX;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = SY;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = SZ;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = SHT;
+            if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
+            {
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = sprite[i].xvel;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = sprite[i].yvel;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = sprite[i].zvel;
+            }
+            else
+            {
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = hictinting[PL].r;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = hictinting[PL].g;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = hictinting[PL].b;
+            }
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 0;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = SA;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = SH;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = SS;
+            if (gamelightcount < PR_MAXLIGHTS)
+                gamelightcount++;
+            break;
+        }
+        case 50:
+        {
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = SECT;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = SX;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = SY;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = SZ;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = SHT;
+            if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
+            {
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = sprite[i].xvel;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = sprite[i].yvel;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = sprite[i].zvel;
+            }
+            else
+            {
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = hictinting[PL].r;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = hictinting[PL].g;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = hictinting[PL].b;
+            }
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = SA;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = SH;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = SS;
+            if (gamelightcount < PR_MAXLIGHTS)
+                gamelightcount++;
+            break;
+        }
+#endif // POLYMER
+
         }
 BOLT:
         i = nexti;

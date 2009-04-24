@@ -4876,7 +4876,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (!(sp->picnum == CAMERAPOLE || sp->picnum == GENERICPOLE))
             {
                 sp->picnum = CAMERA1;
-                changespritestat(i,1);
+                changespritestat(i, STAT_ACTOR);
             }
         }
     }
@@ -4916,15 +4916,15 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     {
                         if (sprite[j].picnum == RESPAWN)
                             ActorExtra[i].tempang = sprite[i].pal = sprite[j].pal;
-                        changespritestat(i,1);
+                        changespritestat(i, STAT_ACTOR);
                     }
-                    else changespritestat(i,2);
+                    else changespritestat(i, STAT_ZOMBIEACTOR);
                 }
                 else
                 {
                     sp->clipdist = 40;
                     sp->owner = i;
-                    changespritestat(i,1);
+                    changespritestat(i, STAT_ACTOR);
                 }
 
                 ActorExtra[i].timetosleep = 0;
@@ -5074,7 +5074,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (j == -1)
             {
                 sp->cstat = (int16_t) 32768;
-                changespritestat(i,2);
+                changespritestat(i, STAT_ZOMBIEACTOR);
             }
             else
             {
@@ -5207,7 +5207,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->extra = 20;
                 sp->cstat |= 257;
             }
-            changespritestat(i,2);
+            changespritestat(i, STAT_ZOMBIEACTOR);
             break;
 
         case HYDRENT__STATIC:
@@ -5406,7 +5406,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->clipdist = 32;
             }
 
-            changespritestat(i,2);
+            changespritestat(i, STAT_ZOMBIEACTOR);
             break;
 
         case DUKELYINGDEAD__STATIC:
@@ -5444,7 +5444,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->hitag = 0;
             }
         case WEATHERWARN__STATIC:
-            changespritestat(i,1);
+            changespritestat(i, STAT_ACTOR);
             break;
 
         case SPOTLITE__STATIC:
@@ -5744,7 +5744,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case LETTER__STATIC:
             sp->extra = 1;
             sp->cstat |= 257;
-            changespritestat(i,1);
+            changespritestat(i, STAT_ACTOR);
             break;
         case OCTABRAINSTAYPUT__STATIC:
         case LIZTROOPSTAYPUT__STATIC:
@@ -5864,9 +5864,9 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 {
                     ActorExtra[i].timetosleep = 0;
                     A_PlayAlertSound(i);
-                    changespritestat(i,1);
+                    changespritestat(i, STAT_ACTOR);
                 }
-                else changespritestat(i,2);
+                else changespritestat(i, STAT_ZOMBIEACTOR);
             }
 
             if (sp->picnum == ROTATEGUN)
@@ -5904,7 +5904,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 A_AddToDeleteQueue(i);
             }
 
-            changespritestat(i,1);
+            changespritestat(i, STAT_ACTOR);
 
             A_GetZLimits(i);
 
@@ -5944,7 +5944,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 }
                 sp->extra = 130;
                 CS |= 256; // Make it hitable
-            } else CS |= 257;
+            }
+            else CS |= 257;
 
             if (sp->picnum == REACTOR || sp->picnum == REACTOR2)
                 sp->extra = g_impactDamage;
@@ -5958,7 +5959,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->pal = 0;
             SS = -17;
 
-            changespritestat(i,2);
+            changespritestat(i, STAT_ZOMBIEACTOR);
             break;
 
         case ATOMICHEALTH__STATIC:
@@ -6036,10 +6037,10 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             sp->shade = -17;
 
-            if (j >= 0) changespritestat(i,1);
+            if (j >= 0) changespritestat(i, STAT_ACTOR);
             else
             {
-                changespritestat(i,2);
+                changespritestat(i, STAT_ZOMBIEACTOR);
                 A_Fall(i);
             }
             break;
@@ -6068,7 +6069,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->xrepeat = sp->yrepeat = 24;
             sp->shade = -127;
             sp->extra = g_impactDamage<<2;
-            changespritestat(i,2);
+            changespritestat(i, STAT_ZOMBIEACTOR);
             break;
 
         case STEAM__STATIC:
@@ -6085,6 +6086,16 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
 
         case SECTOREFFECTOR__STATIC:
+            switch (sp->lotag)
+            {
+
+            case 49:
+            case 50:
+                changespritestat(i, STAT_EFFECTOR);
+                goto SPAWN_END;
+                break;
+            }
+
             sp->yvel = sector[sect].extra;
             sp->cstat |= 32768;
             sp->xrepeat = sp->yrepeat = 0;
@@ -6414,7 +6425,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 //                        Bsprintf(tempbuf,"Found lonely Sector Effector (lotag 0) at (%d,%d)\n",sp->x,sp->y);
 //                        G_GameExit(tempbuf);
                         OSD_Printf(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",sp->x,sp->y);
-                        changespritestat(i,1);
+                        changespritestat(i, STAT_ACTOR);
                         if (apScriptGameEvent[EVENT_SPAWN])
                         {
                             int32_t pl=A_FindPlayer(&sprite[i],&p);
@@ -6531,7 +6542,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 changespritestat(i,15);
                 break;
             default:
-                changespritestat(i,3);
+                changespritestat(i, STAT_EFFECTOR);
                 break;
             }
 
@@ -6623,7 +6634,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 if (sp->picnum == EGG)
                     sp->clipdist = 24;
                 sp->cstat = 257|(krand()&4);
-                changespritestat(i,2);
+                changespritestat(i, STAT_ZOMBIEACTOR);
             }
             break;
         case TOILETWATER__STATIC:
@@ -6632,6 +6643,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
         }
 
+SPAWN_END:
     if (apScriptGameEvent[EVENT_SPAWN])
     {
         int32_t pl=A_FindPlayer(&sprite[i],&p);

@@ -3533,7 +3533,7 @@ static inline void X_AccessSprite(int32_t iSet, int32_t lVar1, int32_t lLabelID,
     case ACTOR_ALPHA:
         if (iSet)
         {
-            spriteext[iActor].alpha=(float) (lValue/255.0f);
+            spriteext[iActor].alpha=(float)(lValue/255.0f);
             return;
         }
         Gv_SetVar(lVar2, (uint8_t)(spriteext[iActor].alpha * 255.0f), vm.g_i, vm.g_p);

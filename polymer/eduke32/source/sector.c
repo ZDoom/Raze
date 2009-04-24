@@ -2364,7 +2364,7 @@ void A_DamageObject(int32_t i,int32_t sn)
 
                 if (sprite[i].statnum == 2)
                 {
-                    changespritestat(i,1);
+                    changespritestat(i, STAT_ACTOR);
                     ActorExtra[i].timetosleep = SLEEPTIME;
                 }
                 if ((RX < 24 || PN == SHARK) && sprite[sn].picnum == SHRINKSPARK) return;

@@ -9583,7 +9583,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                         w = nextspritesect[w];
                     }
                 }
-            }
+        }
         if (floor_over_floor) SE40Code(pos.x,pos.y,pos.z,ang,horiz);
         if (purpleon) clearview(255);
         if (sidemode != 0)
