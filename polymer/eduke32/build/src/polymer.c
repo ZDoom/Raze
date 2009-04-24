@@ -1000,6 +1000,8 @@ void                polymer_drawsprite(int32_t snum)
 
     spriteplane.material.diffusemodulation[3] *=  (1.0f - spriteext[tspr->owner].alpha);
 
+    if (tspr->cstat & 16384) spriteplane.material.diffusemodulation[3] = 0.0f;
+
     if (((tspr->cstat>>4) & 3) == 0)
         xratio = (float)(tspr->xrepeat) * 0.20f; // 32 / 160
     else
@@ -3030,6 +3032,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         color[3] = 1.0;
 
     color[3] *=  (1.0f - spriteext[tspr->owner].alpha);
+
+    if (tspr->cstat & 16384) color[3] = 0.0f;
 
     if (pr_gpusmoothing)
         mdspritematerial.frameprogress = m->interpol;

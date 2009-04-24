@@ -7163,11 +7163,33 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                 if (s->owner >= 0 && display_mirror == 0 && g_player[p].ps->over_shoulder_on == 0)
                     if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
                     {
-                        t->owner = -1;
-                        t->xrepeat = t->yrepeat = 0;
-                        continue;
-                    }
+//                         t->owner = -1;
+//                         t->xrepeat = t->yrepeat = 0;
+                        t->cstat |= 16384;
+#if defined(POLYMOST) && defined(USE_OPENGL)
+                        if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                        {
+                            k = 0;
+                            t->cstat &= ~4;
+                        }
+                        else
+#endif
+                        {
+                            k = (((s->ang+3072+128-a)&2047)>>8)&7;
+                            if (k>4)
+                            {
+                                k = 8-k;
+                                t->cstat |= 4;
+                            }
+                            else t->cstat &= ~4;
+                        }
 
+                        if (sector[t->sectnum].lotag == 2) k += 1795-1405;
+                        else if ((ActorExtra[i].floorz-s->z) > (64<<8)) k += 60;
+
+                        t->picnum += k;
+                        t->pal = g_player[p].ps->palookup;
+                    }
 PALONLY:
 
             if (sector[sect].floorpal && sector[sect].floorpal < g_numRealPalettes && !A_CheckSpriteFlags(t->owner,SPRITE_NOPAL))
