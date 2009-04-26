@@ -2082,6 +2082,8 @@ static void         polymer_updatewall(int16_t wallnum)
     wal = &wall[wallnum];
     nwallnum = wal->nextwall;
     sec = &sector[sectorofwall(wallnum)];
+    if (sec->wallptr > wallnum)
+        return; // the map is horribly corrupt
     w = prwalls[wallnum];
     s = prsectors[sectorofwall(wallnum)];
     invalid = s->invalidid;
@@ -2639,7 +2641,7 @@ static void         polymer_computeplane(_prplane* p)
         }
         i+= 1;
     }
-    while (i < p->indicescount);
+    while ((i + 2) < p->indicescount);
 }
 
 static inline void  polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out)
