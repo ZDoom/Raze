@@ -5287,7 +5287,7 @@ static void Keys3d(void)
             sector[searchsector].floorz = sector[searchsector].ceilingz;
         if (searchstat == 3)
         {
-            if (eitherCTRL)  //CTRL - put sprite on ceiling
+            if (eitherCTRL && !eitherALT)  //CTRL - put sprite on ceiling
             {
                 sprite[searchwall].z = spriteonceilingz(searchwall);
             }
@@ -5304,7 +5304,7 @@ static void Keys3d(void)
 
                 if (k == 0)
                 {
-                    sprite[searchwall].z -= updownunits;
+                    sprite[searchwall].z -= updownunits << ((eitherCTRL && mouseaction)*3);
                     if (!spnoclip)sprite[searchwall].z = max(sprite[searchwall].z,spriteonceilingz(searchwall));
                     Bsprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
                     message(getmessage);
@@ -5434,7 +5434,7 @@ static void Keys3d(void)
             sector[searchsector].ceilingz = sector[searchsector].floorz;
         if (searchstat == 3)
         {
-            if (eitherCTRL)  //CTRL - put sprite on ground
+            if (eitherCTRL && !eitherALT)  //CTRL - put sprite on ground
             {
                 sprite[searchwall].z = spriteongroundz(searchwall);
             }
@@ -5451,7 +5451,7 @@ static void Keys3d(void)
 
                 if (k == 0)
                 {
-                    sprite[searchwall].z += updownunits;
+                    sprite[searchwall].z += updownunits << ((eitherCTRL && mouseaction)*3);
                     if (!spnoclip)sprite[searchwall].z = min(sprite[searchwall].z,spriteongroundz(searchwall));
                     Bsprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
                     message(getmessage);
@@ -5534,15 +5534,31 @@ static void Keys3d(void)
         {
         case 0:
         case 4:
-            if (eitherSHIFT) Bsprintf(tempbuf,"PAN");
-            if (eitherCTRL)  Bsprintf(tempbuf,"SCALE");
-            if (eitherALT)   Bsprintf(tempbuf,"Z");
+            if (eitherSHIFT)
+            {
+                Bsprintf(tempbuf,"PAN");
+                if (eitherCTRL)
+                    Bstrcat(tempbuf, " 8");
+            }
+            if (eitherCTRL && !eitherALT && !eitherSHIFT)
+                Bsprintf(tempbuf,"SCALE");
+            if (eitherALT)
+            {
+                Bsprintf(tempbuf,"Z");
+                if (eitherCTRL)
+                    Bstrcat(tempbuf, " 512");
+            }
             break;
         case 1:
         case 2:
             if (eitherSHIFT) Bsprintf(tempbuf,"PAN");
-            if (eitherCTRL)  Bsprintf(tempbuf,"SLOPE");
-            if (eitherALT)   Bsprintf(tempbuf,"Z");
+            if (eitherCTRL && !eitherALT) Bsprintf(tempbuf,"SLOPE");
+            if (eitherALT)
+            {
+                Bsprintf(tempbuf,"Z");
+                if (eitherCTRL)
+                    Bstrcat(tempbuf, " 512");
+            }
             break;
         case 3:
             if (eitherSHIFT)
@@ -5551,8 +5567,14 @@ static void Keys3d(void)
                 if (eitherCTRL)
                     Bstrcat(tempbuf, " GRID");
             }
-            if (eitherCTRL && !eitherSHIFT)  Bsprintf(tempbuf,"SIZE");
-            if (eitherALT)   Bsprintf(tempbuf,"MOVE Z");
+            if (eitherCTRL && !eitherALT && !eitherSHIFT)
+                Bsprintf(tempbuf,"SIZE");
+            if (eitherALT)
+            {
+                Bsprintf(tempbuf,"MOVE Z");
+                if (eitherCTRL)
+                    Bstrcat(tempbuf, " 1024");
+            }
             break;
         }
     }
@@ -6078,7 +6100,7 @@ static void Keys3d(void)
         if (eitherALT)
         {
             i = wall[searchwall].nextsector;
-            if (i >= 0)
+            if (i >= 0 && !mouseaction)
                 switch (searchstat)
                 {
                 case 0:
@@ -6142,7 +6164,7 @@ static void Keys3d(void)
         if (eitherALT)
         {
             i = wall[searchwall].nextsector;
-            if (i >= 0)
+            if (i >= 0 && !mouseaction)
                 switch (searchstat)
                 {
                 case 1:
@@ -6326,6 +6348,7 @@ static void Keys3d(void)
                         i=wall[searchwall].cstat;
                         i=((i>>3)&1)+((i>>7)&2);
                         if (i==1||i==3)changedir*=-1;
+                        if (eitherCTRL) updownunits *= 8;
                     }
                     while (updownunits--)wall[searchwall].xpanning = changechar(wall[searchwall].xpanning,changedir,smooshyalign,0);
                     message("Wall %d panning: %d, %d",searchwall,wall[searchwall].xpanning,wall[searchwall].ypanning);
@@ -6461,6 +6484,8 @@ static void Keys3d(void)
                 }
                 else
                 {
+                    if (mouseaction && eitherCTRL)
+                        updownunits *= 8;
                     while (updownunits--)
                         wall[searchwall].ypanning = changechar(wall[searchwall].ypanning,changedir,smooshyalign,0);
                     message("Wall %d panning: %d, %d",searchwall,wall[searchwall].xpanning,wall[searchwall].ypanning);
@@ -7152,11 +7177,14 @@ NEXTSPRITE:
     printmessage16("%s Sprite search: none found", dir<0 ? "<" : ">");
 }
 
+extern int32_t graphicsmode;
+
 static void Keys2d(void)
 {
     int16_t temp=0;
     int32_t i=0, j,k;
-    int32_t repeatcountx=0,repeatcounty=0,smooshyalign,changedir;
+    int32_t smooshyalign,changedir;
+    static int32_t repeatcountx=0,repeatcounty=0;
     static int32_t opointhighlight=-1, olinehighlight=-1, ocursectornum=-1;
     /*
        for(i=0;i<0x50;i++)
@@ -7413,6 +7441,15 @@ static void Keys2d(void)
                 sprite[cursprite].yrepeat = 64;
             }
         }
+        else if (graphicsmode != 0)
+        {
+            for (i=0; i<numsectors; i++)
+                if (inside(mousxplc,mousyplc,i) == 1)
+                {
+                    sector[i].floorxpanning = sector[i].floorypanning = 0;
+                    message("Sector %d floor panning reset", i);
+                }
+        }
         keystatus[KEYSC_SLASH] = 0;
         asksave = 1;
     }
@@ -7431,6 +7468,7 @@ static void Keys2d(void)
                 sprite[cursprite].xrepeat = changechar(sprite[cursprite].xrepeat,changedir,smooshyalign,1);
                 if (sprite[cursprite].xrepeat < 4)
                     sprite[cursprite].xrepeat = 4;
+                message("Sprite %d repeat: %d, %d",cursprite,sprite[cursprite].xrepeat,sprite[cursprite].yrepeat);
             }
             else
             {
@@ -7441,7 +7479,6 @@ static void Keys2d(void)
                         message("Sector %d floor panning: %d, %d",searchsector,sector[i].floorxpanning,sector[i].floorypanning);
                     }
             }
-
             asksave = 1;
             repeatcountx = max(1,repeatcountx-2);
         }
@@ -7464,6 +7501,7 @@ static void Keys2d(void)
                 sprite[cursprite].yrepeat = changechar(sprite[cursprite].yrepeat,changedir,smooshyalign,1);
                 if (sprite[cursprite].yrepeat < 4)
                     sprite[cursprite].yrepeat = 4;
+                message("Sprite %d repeat: %d, %d",cursprite,sprite[cursprite].xrepeat,sprite[cursprite].yrepeat);
             }
             else
             {
@@ -7709,9 +7747,9 @@ static void Keys2d(void)
         {
             i = pointhighlight - 16384;
             Bsprintf(tempbuf,"Sprite %d x: ",i);
-            sprite[i].x = getnumber16(tempbuf,sprite[i].x,131072,1);
+            sprite[i].x = getnumber16(tempbuf,sprite[i].x,editorgridextent-1,1);
             Bsprintf(tempbuf,"Sprite %d y: ",i);
-            sprite[i].y = getnumber16(tempbuf,sprite[i].y,131072,1);
+            sprite[i].y = getnumber16(tempbuf,sprite[i].y,editorgridextent-1,1);
             Bsprintf(tempbuf,"Sprite %d z: ",i);
             sprite[i].z = getnumber16(tempbuf,sprite[i].z,8388608,1);
             Bsprintf(tempbuf,"Sprite %d angle: ",i);
@@ -7813,8 +7851,8 @@ static void Keys2d(void)
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_J]) // ' J
     {
-        pos.x=getnumber16("X-coordinate:    ",pos.x,131072L,1);
-        pos.y=getnumber16("Y-coordinate:    ",pos.y,131072L,1);
+        pos.x=getnumber16("X-coordinate:    ",pos.x,editorgridextent,1);
+        pos.y=getnumber16("Y-coordinate:    ",pos.y,editorgridextent,1);
         Bsprintf(tempbuf,"Current pos now (%d, %d)",pos.x,pos.y);
         printmessage16(tempbuf);
         keystatus[KEYSC_J]=0;

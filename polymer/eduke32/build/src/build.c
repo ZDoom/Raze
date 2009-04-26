@@ -4998,7 +4998,7 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
                 dst = klabs(xplc-sprite[i].x) + klabs(yplc-sprite[i].y);
                 // was (dst <= dist), but this way, when duplicating sprites,
                 // the selected ones are dragged first
-                if (dst < dist)
+                if (dst < dist || (dst == dist && (show2dsprite[i>>3]&(1<<(i&7)))))
                     dist = dst, closest = i+16384;
             }
     return(closest);
