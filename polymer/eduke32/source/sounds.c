@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#include <conio.h>
 #include <stdio.h>
 #include <string.h>
-#include "types.h"
+
 #include "fx_man.h"
 #include "music.h"
 #include "duke3d.h"
@@ -310,7 +310,7 @@ int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
             ud.config.SoundToggle == 0 ||
             g_sounds[num].num > 3 ||
             FX_VoiceAvailable(g_sounds[num].pr) == 0 ||
-            (g_player[myconnectindex].ps->timebeforeexit > 0 && g_player[myconnectindex].ps->timebeforeexit <= 26*3) ||
+            (g_player[myconnectindex].ps->timebeforeexit > 0 && g_player[myconnectindex].ps->timebeforeexit <= GAMETICSPERSEC*3) ||
             g_player[myconnectindex].ps->gm&MODE_MENU) return -1;
 
     if (g_sounds[num].m&128)

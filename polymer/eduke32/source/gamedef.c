@@ -5259,15 +5259,15 @@ repeatcase:
         while (*textptr == ' ' || *textptr == '\t') textptr++;
 
         MapInfo[j*MAXLEVELS+k].partime =
-            (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*26*60)+
-            (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*26);
+            (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*GAMETICSPERSEC*60)+
+            (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*GAMETICSPERSEC);
 
         textptr += 5;
         while (*textptr == ' '  || *textptr == '\t') textptr++;
 
         MapInfo[j*MAXLEVELS+k].designertime =
-            (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*26*60)+
-            (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*26);
+            (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*GAMETICSPERSEC*60)+
+            (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*GAMETICSPERSEC);
 
         textptr += 5;
         while (*textptr == ' '  || *textptr == '\t') textptr++;

@@ -663,7 +663,7 @@ static void P_ResetStatus(int32_t snum)
     p->on_ground        = 0;
     p->player_par       = 0;
     p->return_to_center = 9;
-    p->airleft          = 15*26;
+    p->airleft          = 15*GAMETICSPERSEC;
     p->rapid_fire_hold  = 0;
     p->toggle_key_flag  = 0;
     p->access_spritenum = -1;
@@ -1244,7 +1244,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
         FX_StopAllSounds();
     }
 
-    g_showShareware = 26*34;
+    g_showShareware = GAMETICSPERSEC*34;
 
     ud.level_number =   ln;
     ud.volume_number =  vn;

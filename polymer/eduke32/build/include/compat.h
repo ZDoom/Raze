@@ -25,6 +25,14 @@
 #  include "msvc/inttypes.h" // from http://code.google.com/p/msinttypes/
 #endif
 
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 // Define this to rewrite all 'B' versions to library functions. This
 // is for platforms which give us a standard sort of C library so we
 // link directly. Platforms like PalmOS which don't have a standard C
@@ -301,9 +309,9 @@ static inline uint64 B_SWAP64(uint64 l) { return (l>>56)|((l>>40)&0xff00)|((l>>2
 struct Bdirent {
 	uint16_t namlen;
 	char *name;
-	unsigned mode;
-	unsigned size;
-	unsigned mtime;
+	uint32_t mode;
+	uint32_t size;
+	uint32_t mtime;
 };
 typedef void BDIR;
 
@@ -319,7 +327,7 @@ int32_t		Bclosedir(BDIR *dir);
 #else
   typedef void          BFILE;
   typedef uint32_t bsize_t;
-  typedef signed   int32_t bssize_t;
+  typedef int32_t bssize_t;
 #endif
 
 

@@ -33,12 +33,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "compat.h"
-#include "types.h"
+
 #include "mouse.h"
 #include "baselayer.h"
 
 
-boolean MOUSE_Init(void)
+int32_t MOUSE_Init(void)
 {
     initmouse();
     return ((inputdevices & 2) == 2);
@@ -61,21 +61,21 @@ void MOUSE_HideCursor(void)
 }
 
 
-int32 MOUSE_GetButtons(void)
+int32_t MOUSE_GetButtons(void)
 {
-    int32 buttons;
+    int32_t buttons;
     readmousebstatus(&buttons);
     return buttons;
 }
 
 
-int32 MOUSE_ClearButton(int32 b)
+int32_t MOUSE_ClearButton(int32_t b)
 {
     return (mouseb &= ~b);
 }
 
 
-void MOUSE_GetDelta(int32*x, int32*y)
+void MOUSE_GetDelta(int32_t*x, int32_t*y)
 {
     readmousexy(x,y);
 }

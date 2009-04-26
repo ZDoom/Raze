@@ -38,7 +38,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 extern "C" {
 #endif
 
-#include "types.h"
+
 //****************************************************************************
 //
 // DEFINES
@@ -145,58 +145,58 @@ typedef enum
 
 typedef struct
    {
-   int32 joyMinX;
-   int32 joyMinY;
-   int32 threshMinX;
-   int32 threshMinY;
-   int32 threshMaxX;
-   int32 threshMaxY;
-   int32 joyMaxX;
-   int32 joyMaxY;
-   int32 joyMultXL;
-   int32 joyMultYL;
-   int32 joyMultXH;
-   int32 joyMultYH;
+   int32_t joyMinX;
+   int32_t joyMinY;
+   int32_t threshMinX;
+   int32_t threshMinY;
+   int32_t threshMaxX;
+   int32_t threshMaxY;
+   int32_t joyMaxX;
+   int32_t joyMaxY;
+   int32_t joyMultXL;
+   int32_t joyMultYL;
+   int32_t joyMultXH;
+   int32_t joyMultYH;
    } JoystickDef;
 
-//   int32 ThrottleMin;
-//   int32 RudderMin;
-//   int32 ThrottlethreshMin;
-//   int32 RudderthreshMin;
-//   int32 ThrottlethreshMax;
-//   int32 RudderthreshMax;
-//   int32 ThrottleMax;
-//   int32 RudderMax;
-//   int32 ThrottleMultL;
-//   int32 RudderMultL;
-//   int32 ThrottleMultH;
-//   int32 RudderMultH;
+//   int32_t ThrottleMin;
+//   int32_t RudderMin;
+//   int32_t ThrottlethreshMin;
+//   int32_t RudderthreshMin;
+//   int32_t ThrottlethreshMax;
+//   int32_t RudderthreshMax;
+//   int32_t ThrottleMax;
+//   int32_t RudderMax;
+//   int32_t ThrottleMultL;
+//   int32_t RudderMultL;
+//   int32_t ThrottleMultH;
+//   int32_t RudderMultH;
 
 /*
 typedef struct
    {
-   byte active     : 1;
-   byte used       : 1;
-   byte toggle     : 1;
-   byte buttonheld : 1;
-   byte cleared    : 1;
+   uint8_t active     : 1;
+   uint8_t used       : 1;
+   uint8_t toggle     : 1;
+   uint8_t buttonheld : 1;
+   uint8_t cleared    : 1;
    } controlflags;
 typedef struct
    {
-   volatile byte active     : 1;
-   volatile byte used       : 1;
-   volatile byte toggle     : 1;
-   volatile byte buttonheld : 1;
-   volatile byte cleared    : 1;
+   volatile uint8_t active     : 1;
+   volatile uint8_t used       : 1;
+   volatile uint8_t toggle     : 1;
+   volatile uint8_t buttonheld : 1;
+   volatile uint8_t cleared    : 1;
    } controlflags;
 */
 typedef struct
    {
-   byte active     ;
-   byte used       ;
-   byte toggle     ;
-   byte buttonheld ;
-   int32 cleared    ;
+   uint8_t active     ;
+   uint8_t used       ;
+   uint8_t toggle     ;
+   uint8_t buttonheld ;
+   int32_t cleared    ;
    } controlflags;
 
 typedef struct
@@ -207,23 +207,23 @@ typedef struct
 
 typedef struct
    {
-   byte singleclicked;
-   byte doubleclicked;
-   word extra;
+   uint8_t singleclicked;
+   uint8_t doubleclicked;
+   uint16_t extra;
    } controlbuttontype;
 
 typedef struct
    {
-   byte analogmap;
-   byte minmap;
-   byte maxmap;
-   byte extra;
+   uint8_t analogmap;
+   uint8_t minmap;
+   uint8_t maxmap;
+   uint8_t extra;
    } controlaxismaptype;
 
 typedef struct
    {
-   int32 analog;
-   int32 digital;
+   int32_t analog;
+   int32_t digital;
    } controlaxistype;
 
 
@@ -234,18 +234,18 @@ typedef struct
 //***************************************************************************
 
 void    CONTROL_GetMouseDelta( void );
-byte    CONTROL_GetMouseButtons( void );
-boolean CONTROL_StartMouse( void );
+uint8_t    CONTROL_GetMouseButtons( void );
+int32_t CONTROL_StartMouse( void );
 void    CONTROL_GetJoyAbs( void );
 void    CONTROL_GetJoyDelta( void );
-boolean CONTROL_StartJoy( int32 joy );
-void    CONTROL_ShutJoy( int32 joy );
-void    CONTROL_SetFlag( int32 which, boolean active );
-void    CONTROL_ButtonFunctionState( boolean * state );
-boolean CONTROL_KeyboardFunctionPressed( int32 whichfunction );
-static inline boolean CONTROL_CheckRange( int32 which );
-int32   CONTROL_GetTime( void );
-void    CONTROL_AxisFunctionState( boolean * state );
+int32_t CONTROL_StartJoy( int32_t joy );
+void    CONTROL_ShutJoy( int32_t joy );
+void    CONTROL_SetFlag( int32_t which, int32_t active );
+void    CONTROL_ButtonFunctionState( int32_t * state );
+int32_t CONTROL_KeyboardFunctionPressed( int32_t whichfunction );
+static inline int32_t CONTROL_CheckRange( int32_t which );
+int32_t   CONTROL_GetTime( void );
+void    CONTROL_AxisFunctionState( int32_t * state );
 void    CONTROL_GetJoyMovement( ControlInfo * info );
 
 #ifdef __cplusplus

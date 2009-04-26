@@ -53,8 +53,8 @@ extern "C" {
 
 #define APPNAME "EDuke32"
 #define VERSION " 2.0.0devel"
-	// this is checked against http://eduke32.com/VERSION
-	extern const char *s_buildDate;
+// this is checked against http://eduke32.com/VERSION
+extern const char *s_buildDate;
 #define HEAD2 APPNAME VERSION
 
 #define HORIZ_MIN -99
@@ -94,7 +94,7 @@ extern int32_t g_scriptVersion, g_Shareware, g_gameType;
 #define MAXVOLUMES 7
 #define MAXLEVELS 32
 
-#include "types.h"
+
 #include "file_lib.h"
 #include "gamedefs.h"
 #include "keyboard.h"
@@ -114,7 +114,8 @@ extern int32_t g_scriptVersion, g_Shareware, g_gameType;
 #include "namesdyn.h"
 
 #define TICRATE (120)
-#define TICSPERFRAME (TICRATE/26)
+#define GAMETICSPERSEC 26
+#define TICSPERFRAME (TICRATE/GAMETICSPERSEC)
 
 // #define GC (TICSPERFRAME*44)
 
@@ -256,7 +257,7 @@ enum DukeWeapon_t {
 void A_DeleteSprite(int32_t s);
 
 typedef struct {
-    uint32 bits;
+    uint32_t bits;
     int16_t fvel, svel;
     int8_t avel, horz;
     char extbits;
@@ -327,7 +328,7 @@ typedef struct {
     int32_t JoystickAnalogueScale[MAXJOYAXES];
     int32_t JoystickAnalogueDead[MAXJOYAXES];
     int32_t JoystickAnalogueSaturate[MAXJOYAXES];
-    byte KeyboardKeys[NUMGAMEFUNCTIONS][2];
+    uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 
     //
     // Sound variables
@@ -1027,8 +1028,8 @@ typedef struct {
     DukePlayer_t *ps;
     input_t *sync;
 
-    int32 movefifoend, syncvalhead, myminlag;
-    int32 pcolor, pteam, frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
+    int32_t movefifoend, syncvalhead, myminlag;
+    int32_t pcolor, pteam, frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
     char vote, gotvote, playerreadyflag, playerquitflag;
     char user_name[32];

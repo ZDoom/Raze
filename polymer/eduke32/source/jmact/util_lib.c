@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "compat.h"
-#include "types.h"
+
 #include "util_lib.h"
 #include "baselayer.h"
 
@@ -70,7 +70,7 @@ char CheckParm(char *check)
 {
     int32_t c;
 
-    for (c=1;c<_buildargc;c++)
+    for (c=1; c<_buildargc; c++)
     {
         if (_buildargv[c][0] == '/' || _buildargv[c][0] == '-')
             if (!Bstrcasecmp(&_buildargv[c][1], check)) return c;
@@ -79,7 +79,7 @@ char CheckParm(char *check)
     return 0;
 }
 
-void *SafeMalloc(int32 size)
+void *SafeMalloc(int32_t size)
 {
     void *p;
 
@@ -95,7 +95,7 @@ void SafeFree(void * ptr)
     free(ptr);
 }
 
-void SafeRealloc(void ** ptr, int32 newsize)
+void SafeRealloc(void ** ptr, int32_t newsize)
 {
     void *p;
 
@@ -105,17 +105,17 @@ void SafeRealloc(void ** ptr, int32 newsize)
     *ptr = p;
 }
 
-int32 ParseHex(char *hex)
+int32_t ParseHex(char *hex)
 {
     return strtol(hex, NULL, 16);
 }
 
-int32 ParseNum(char *str)
+int32_t ParseNum(char *str)
 {
     return strtol(str, NULL, 10);
 }
 
-int16 MotoShort(int16 l)
+int16_t MotoShort(int16_t l)
 {
 #if B_LITTLE_ENDIAN != 0
     return l;
@@ -124,7 +124,7 @@ int16 MotoShort(int16 l)
 #endif
 }
 
-int16  IntelShort(int16 l)
+int16_t  IntelShort(int16_t l)
 {
 #if B_BIG_ENDIAN != 0
     return ((l & 0x00ff) << 8) | ((l & 0xff00) >> 8);
@@ -133,20 +133,20 @@ int16  IntelShort(int16 l)
 #endif
 }
 
-int32  MotoLong(int32 l)
+int32_t  MotoLong(int32_t l)
 {
 #if B_LITTLE_ENDIAN != 0
     return l;
 #else
-    int32 t = ((l & 0x00ff00ffl) << 8) | ((l & 0xff00ff00l) >> 8);
+    int32_t t = ((l & 0x00ff00ffl) << 8) | ((l & 0xff00ff00l) >> 8);
     return ((t & 0x0000ffffl) << 16) | ((t & 0xffff0000l) >> 16);
 #endif
 }
 
-int32  IntelLong(int32 l)
+int32_t  IntelLong(int32_t l)
 {
 #if B_BIG_ENDIAN != 0
-    int32 t = ((l & 0x00ff00ffl) << 8) | ((l & 0xff00ff00l) >> 8);
+    int32_t t = ((l & 0x00ff00ffl) << 8) | ((l & 0xff00ff00l) >> 8);
     return ((t & 0x0000ffffl) << 16) | ((t & 0xffff0000l) >> 16);
 #else
     return l;

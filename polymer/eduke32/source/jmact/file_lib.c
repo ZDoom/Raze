@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <fcntl.h>
 #include <errno.h>
 #include "compat.h"
-#include "types.h"
+
 #include "file_lib.h"
 #include "util_lib.h"
 #include "cache1d.h"
@@ -56,9 +56,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MaxFiles 20
 static char *FileNames[MaxFiles];
 
-int32 SafeOpen(const char *filename, int32 mode, int32 sharemode)
+int32_t SafeOpen(const char *filename, int32_t mode, int32_t sharemode)
 {
-    int32 h;
+    int32_t h;
 
     h = openfrompath(filename, mode, sharemode);
     if (h < 0) Error("Error opening %s: %s", filename, strerror(errno));
@@ -73,7 +73,7 @@ int32 SafeOpen(const char *filename, int32 mode, int32 sharemode)
     return h;
 }
 
-int32 SafeOpenRead(const char *filename, int32 filetype)
+int32_t SafeOpenRead(const char *filename, int32_t filetype)
 {
     switch (filetype)
     {
@@ -87,7 +87,7 @@ int32 SafeOpenRead(const char *filename, int32 filetype)
     }
 }
 
-void SafeClose(int32 handle)
+void SafeClose(int32_t handle)
 {
     if (handle < 0) return;
     if (close(handle) < 0)
@@ -105,21 +105,21 @@ void SafeClose(int32 handle)
     }
 }
 
-boolean SafeFileExists(const char *filename)
+int32_t SafeFileExists(const char *filename)
 {
-    if (!access(filename, F_OK)) return true;
-    return false;
+    if (!access(filename, F_OK)) return TRUE;
+    return FALSE;
 }
 
-int32 SafeFileLength(int32 handle)
+int32_t SafeFileLength(int32_t handle)
 {
     if (handle < 0) return -1;
     return Bfilelength(handle);
 }
 
-void SafeRead(int32 handle, void *buffer, int32 count)
+void SafeRead(int32_t handle, void *buffer, int32_t count)
 {
-    int32 b;
+    int32_t b;
 
     b = read(handle, buffer, count);
     if (b != count)

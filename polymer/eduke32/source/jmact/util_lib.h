@@ -46,18 +46,18 @@ void   Error (char *error, ...);
 
 char   CheckParm (char *check);
 
-void   *SafeMalloc (int32 size);
-int32  SafeMallocSize (void * ptr);
+void   *SafeMalloc (int32_t size);
+int32_t  SafeMallocSize (void * ptr);
 void   SafeFree (void * ptr);
-void   SafeRealloc (void ** ptr, int32 newsize);
-int32  ParseHex (char *hex);
-int32  ParseNum (char *str);
-int16  MotoShort (int16 l);
-int16  IntelShort (int16 l);
-int32  MotoLong (int32 l);
-int32  IntelLong (int32 l);
+void   SafeRealloc (void ** ptr, int32_t newsize);
+int32_t  ParseHex (char *hex);
+int32_t  ParseNum (char *str);
+int16_t  MotoShort (int16_t l);
+int16_t  IntelShort (int16_t l);
+int32_t  MotoLong (int32_t l);
+int32_t  IntelLong (int32_t l);
 
-void HeapSort(char * base, int32 nel, int32 width, int32 (*compare)(), void (*switcher)());
+void HeapSort(char * base, int32_t nel, int32_t width, int32_t (*compare)(), void (*switcher)());
 
 #ifdef __cplusplus
 };

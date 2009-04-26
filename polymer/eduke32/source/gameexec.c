@@ -421,7 +421,7 @@ static inline void X_AlterAng(int32_t a)
                         vm.g_sp->ang -= j;
                 }
             }
-            else if (ticselapsed > 18 && ticselapsed < 26) // choose
+            else if (ticselapsed > 18 && ticselapsed < GAMETICSPERSEC) // choose
             {
                 if (klabs(angdif>>2) < 128) vm.g_sp->ang = goalang;
                 else vm.g_sp->ang += angdif>>2;
@@ -1060,7 +1060,7 @@ static int32_t X_DoExecute(void)
 
     case CON_TIP:
         insptr++;
-        g_player[vm.g_p].ps->tipincs = 26;
+        g_player[vm.g_p].ps->tipincs = GAMETICSPERSEC;
         break;
 
     case CON_FALL:
@@ -2132,7 +2132,7 @@ static int32_t X_DoExecute(void)
     case CON_SAVEGAMEVAR:
     case CON_READGAMEVAR:
     {
-        int32 i=0;
+        int32_t i=0;
         insptr++;
         if (ud.config.scripthandle < 0)
         {
@@ -2143,7 +2143,7 @@ static int32_t X_DoExecute(void)
         {
         case CON_SAVEGAMEVAR:
             i=Gv_GetVarX(*insptr);
-            SCRIPT_PutNumber(ud.config.scripthandle, "Gamevars",aGameVars[*insptr++].szLabel,i,false,false);
+            SCRIPT_PutNumber(ud.config.scripthandle, "Gamevars",aGameVars[*insptr++].szLabel,i,FALSE,FALSE);
             break;
         case CON_READGAMEVAR:
             SCRIPT_GetNumber(ud.config.scripthandle, "Gamevars",aGameVars[*insptr].szLabel,&i);

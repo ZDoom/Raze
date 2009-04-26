@@ -7,7 +7,7 @@
  */
 
 #include "compat.h"
-#include "types.h"
+
 #include "keyboard.h"
 #include "mouse.h"
 #include "control.h"
@@ -19,19 +19,19 @@
 #include "pragmas.h"
 
 
-boolean CONTROL_JoyPresent = false;
-boolean CONTROL_JoystickEnabled = false;
-boolean CONTROL_MousePresent = false;
-boolean CONTROL_MouseEnabled = false;
+int32_t CONTROL_JoyPresent = FALSE;
+int32_t CONTROL_JoystickEnabled = FALSE;
+int32_t CONTROL_MousePresent = FALSE;
+int32_t CONTROL_MouseEnabled = FALSE;
 uint64  CONTROL_ButtonState = 0;
 uint64  CONTROL_ButtonHeldState = 0;
 
-// static int32 CONTROL_UserInputDelay = -1;
-static int32 CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
-static int32 CONTROL_NumMouseButtons = 0;
-static int32 CONTROL_NumMouseAxes = 0;
-static int32 CONTROL_NumJoyButtons = 0;
-static int32 CONTROL_NumJoyAxes = 0;
+// static int32_t CONTROL_UserInputDelay = -1;
+static int32_t CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
+static int32_t CONTROL_NumMouseButtons = 0;
+static int32_t CONTROL_NumMouseAxes = 0;
+static int32_t CONTROL_NumJoyButtons = 0;
+static int32_t CONTROL_NumJoyAxes = 0;
 static controlflags       CONTROL_Flags[CONTROL_NUM_FLAGS];
 static controlbuttontype  CONTROL_MouseButtonMapping[MAXMOUSEBUTTONS],
 CONTROL_JoyButtonMapping[MAXJOYBUTTONS];
@@ -42,17 +42,17 @@ static controlaxistype    CONTROL_MouseAxes[MAXMOUSEAXES],	// physical axes
 CONTROL_JoyAxes[MAXJOYAXES];
 static controlaxistype    CONTROL_LastMouseAxes[MAXMOUSEAXES],
 CONTROL_LastJoyAxes[MAXJOYAXES];
-static int32   CONTROL_MouseAxesScale[MAXMOUSEAXES],             CONTROL_JoyAxesScale[MAXJOYAXES];
-static int32   CONTROL_MouseButtonState[MAXMOUSEBUTTONS],        CONTROL_JoyButtonState[MAXJOYBUTTONS];
-static int32   CONTROL_MouseButtonClickedTime[MAXMOUSEBUTTONS],  CONTROL_JoyButtonClickedTime[MAXJOYBUTTONS];
-static boolean CONTROL_MouseButtonClickedState[MAXMOUSEBUTTONS], CONTROL_JoyButtonClickedState[MAXJOYBUTTONS];
-static boolean CONTROL_MouseButtonClicked[MAXMOUSEBUTTONS],      CONTROL_JoyButtonClicked[MAXJOYBUTTONS];
-static byte    CONTROL_MouseButtonClickedCount[MAXMOUSEBUTTONS], CONTROL_JoyButtonClickedCount[MAXJOYBUTTONS];
-static boolean CONTROL_UserInputCleared[3];
-static int32(*GetTime)(void);
-static boolean CONTROL_Started = false;
-static int32 ticrate;
-static int32 CONTROL_DoubleClickSpeed;
+static int32_t   CONTROL_MouseAxesScale[MAXMOUSEAXES],             CONTROL_JoyAxesScale[MAXJOYAXES];
+static int32_t   CONTROL_MouseButtonState[MAXMOUSEBUTTONS],        CONTROL_JoyButtonState[MAXJOYBUTTONS];
+static int32_t   CONTROL_MouseButtonClickedTime[MAXMOUSEBUTTONS],  CONTROL_JoyButtonClickedTime[MAXJOYBUTTONS];
+static int32_t CONTROL_MouseButtonClickedState[MAXMOUSEBUTTONS], CONTROL_JoyButtonClickedState[MAXJOYBUTTONS];
+static int32_t CONTROL_MouseButtonClicked[MAXMOUSEBUTTONS],      CONTROL_JoyButtonClicked[MAXJOYBUTTONS];
+static uint8_t CONTROL_MouseButtonClickedCount[MAXMOUSEBUTTONS], CONTROL_JoyButtonClickedCount[MAXJOYBUTTONS];
+static int32_t CONTROL_UserInputCleared[3];
+static int32_t(*GetTime)(void);
+static int32_t CONTROL_Started = FALSE;
+static int32_t ticrate;
+static int32_t CONTROL_DoubleClickSpeed;
 
 int32_t extinput[CONTROL_NUM_FLAGS];
 keybind KeyBindings[MAXBOUNDKEYS], MouseBindings[MAXMOUSEBUTTONS];
@@ -61,13 +61,13 @@ int32_t control_smoothmouse = 0;
 
 void CONTROL_GetMouseDelta(void)
 {
-    int32 x,y;
+    int32_t x,y;
 
     MOUSE_GetDelta(&x, &y);
 
     if (control_smoothmouse)
     {
-        static int32 lastx = 0, lasty = 0;
+        static int32_t lastx = 0, lasty = 0;
 
         CONTROL_MouseAxes[0].analog = (((x + lastx) / 2) * (CONTROL_MouseSensitivity<<1));
         CONTROL_MouseAxes[1].analog = (((y + lasty) / 2) * (CONTROL_MouseSensitivity<<1))<<1;
@@ -80,17 +80,17 @@ void CONTROL_GetMouseDelta(void)
     CONTROL_MouseAxes[1].analog = (y * (CONTROL_MouseSensitivity<<1))<<1;
 }
 
-int32 CONTROL_GetMouseSensitivity(void)
+int32_t CONTROL_GetMouseSensitivity(void)
 {
     return (CONTROL_MouseSensitivity);
 }
 
-void CONTROL_SetMouseSensitivity(int32 newsensitivity)
+void CONTROL_SetMouseSensitivity(int32_t newsensitivity)
 {
     CONTROL_MouseSensitivity = newsensitivity;
 }
 
-boolean CONTROL_StartMouse(void)
+int32_t CONTROL_StartMouse(void)
 {
     CONTROL_NumMouseButtons = MAXMOUSEBUTTONS;
     return MOUSE_Init();
@@ -106,40 +106,40 @@ void CONTROL_FilterJoyDelta(void)
 
 void CONTROL_GetJoyDelta(void)
 {
-    int32 i;
+    int32_t i;
 
     for (i=0; i<joynumaxes; i++)
         CONTROL_JoyAxes[i].analog = joyaxis[i] >> 5;
 }
 
-boolean CONTROL_StartJoy(int32 joy)
+int32_t CONTROL_StartJoy(int32_t joy)
 {
     UNREFERENCED_PARAMETER(joy);
     return (inputdevices & 4) == 4;
 }
 
-void CONTROL_ShutJoy(int32 joy)
+void CONTROL_ShutJoy(int32_t joy)
 {
     UNREFERENCED_PARAMETER(joy);
-    CONTROL_JoyPresent = false;
+    CONTROL_JoyPresent = FALSE;
 }
 
-int32 CONTROL_GetTime(void)
+int32_t CONTROL_GetTime(void)
 {
-    static int32 t = 0;
+    static int32_t t = 0;
     t += 5;
     return t;
 }
 
-static inline boolean CONTROL_CheckRange(int32 which)
+static inline int32_t CONTROL_CheckRange(int32_t which)
 {
-    if ((uint32)which >= (uint32)CONTROL_NUM_FLAGS) return true;
+    if ((uint32_t)which >= (uint32_t)CONTROL_NUM_FLAGS) return TRUE;
     //Error("CONTROL_CheckRange: Index %d out of valid range for %d control flags.",
     //	which, CONTROL_NUM_FLAGS);
-    return false;
+    return FALSE;
 }
 
-void CONTROL_SetFlag(int32 which, boolean active)
+void CONTROL_SetFlag(int32_t which, int32_t active)
 {
     if (CONTROL_CheckRange(which)) return;
 
@@ -150,33 +150,33 @@ void CONTROL_SetFlag(int32 which, boolean active)
     }
     if (active)
     {
-        CONTROL_Flags[which].buttonheld = false;
+        CONTROL_Flags[which].buttonheld = FALSE;
     }
-    else if (CONTROL_Flags[which].buttonheld == false)
+    else if (CONTROL_Flags[which].buttonheld == FALSE)
     {
-        CONTROL_Flags[which].buttonheld = true;
-        CONTROL_Flags[which].active = (CONTROL_Flags[which].active ? false : true);
+        CONTROL_Flags[which].buttonheld = TRUE;
+        CONTROL_Flags[which].active = (CONTROL_Flags[which].active ? FALSE : TRUE);
     }
 }
 
-boolean CONTROL_KeyboardFunctionPressed(int32 which)
+int32_t CONTROL_KeyboardFunctionPressed(int32_t which)
 {
-    boolean key1 = 0, key2 = 0;
+    int32_t key1 = 0, key2 = 0;
 
-    if (CONTROL_CheckRange(which)) return false;
+    if (CONTROL_CheckRange(which)) return FALSE;
 
-    if (!CONTROL_Flags[which].used) return false;
+    if (!CONTROL_Flags[which].used) return FALSE;
 
     if (CONTROL_KeyMapping[which].key1 != KEYUNDEFINED && !KeyBindings[CONTROL_KeyMapping[which].key1].cmd[0])
-        key1 = KB_KeyDown[ CONTROL_KeyMapping[which].key1 ] ? true : false;
+        key1 = KB_KeyDown[ CONTROL_KeyMapping[which].key1 ] ? TRUE : FALSE;
 
     if (CONTROL_KeyMapping[which].key2 != KEYUNDEFINED && !KeyBindings[CONTROL_KeyMapping[which].key2].cmd[0])
-        key2 = KB_KeyDown[ CONTROL_KeyMapping[which].key2 ] ? true : false;
+        key2 = KB_KeyDown[ CONTROL_KeyMapping[which].key2 ] ? TRUE : FALSE;
 
     return (key1 | key2);
 }
 
-void CONTROL_ClearKeyboardFunction(int32 which)
+void CONTROL_ClearKeyboardFunction(int32_t which)
 {
     if (CONTROL_CheckRange(which)) return;
 
@@ -189,25 +189,25 @@ void CONTROL_ClearKeyboardFunction(int32 which)
         KB_KeyDown[ CONTROL_KeyMapping[which].key2 ] = 0;
 }
 
-void CONTROL_DefineFlag(int32 which, boolean toggle)
+void CONTROL_DefineFlag(int32_t which, int32_t toggle)
 {
     if (CONTROL_CheckRange(which)) return;
 
-    CONTROL_Flags[which].active     = false;
-    CONTROL_Flags[which].used       = true;
+    CONTROL_Flags[which].active     = FALSE;
+    CONTROL_Flags[which].used       = TRUE;
     CONTROL_Flags[which].toggle     = toggle;
-    CONTROL_Flags[which].buttonheld = false;
+    CONTROL_Flags[which].buttonheld = FALSE;
     CONTROL_Flags[which].cleared    = 0;
 }
 
-boolean CONTROL_FlagActive(int32 which)
+int32_t CONTROL_FlagActive(int32_t which)
 {
-    if (CONTROL_CheckRange(which)) return false;
+    if (CONTROL_CheckRange(which)) return FALSE;
 
     return CONTROL_Flags[which].used;
 }
 
-void CONTROL_MapKey(int32 which, kb_scancode key1, kb_scancode key2)
+void CONTROL_MapKey(int32_t which, kb_scancode key1, kb_scancode key2)
 {
     if (CONTROL_CheckRange(which)) return;
 
@@ -217,16 +217,16 @@ void CONTROL_MapKey(int32 which, kb_scancode key1, kb_scancode key2)
 
 void CONTROL_PrintKeyMap(void)
 {
-    int32 i;
+    int32_t i;
 
-    for (i=0;i<CONTROL_NUM_FLAGS;i++)
+    for (i=0; i<CONTROL_NUM_FLAGS; i++)
     {
         initprintf("function %2ld key1=%3x key2=%3x\n",
                    i, CONTROL_KeyMapping[i].key1, CONTROL_KeyMapping[i].key2);
     }
 }
 
-void CONTROL_PrintControlFlag(int32 which)
+void CONTROL_PrintControlFlag(int32_t which)
 {
     initprintf("function %2ld active=%d used=%d toggle=%d buttonheld=%d cleared=%d\n",
                which, CONTROL_Flags[which].active, CONTROL_Flags[which].used,
@@ -236,10 +236,10 @@ void CONTROL_PrintControlFlag(int32 which)
 
 void CONTROL_PrintAxes(void)
 {
-    int32 i;
+    int32_t i;
 
     initprintf("nummouseaxes=%d\n", CONTROL_NumMouseAxes);
-    for (i=0;i<CONTROL_NumMouseAxes;i++)
+    for (i=0; i<CONTROL_NumMouseAxes; i++)
     {
         initprintf("axis=%d analog=%d digital1=%d digital2=%d\n",
                    i, CONTROL_MouseAxesMap[i].analogmap,
@@ -247,7 +247,7 @@ void CONTROL_PrintAxes(void)
     }
 
     initprintf("numjoyaxes=%d\n", CONTROL_NumJoyAxes);
-    for (i=0;i<CONTROL_NumJoyAxes;i++)
+    for (i=0; i<CONTROL_NumJoyAxes; i++)
     {
         initprintf("axis=%d analog=%d digital1=%d digital2=%d\n",
                    i, CONTROL_JoyAxesMap[i].analogmap,
@@ -255,7 +255,7 @@ void CONTROL_PrintAxes(void)
     }
 }
 
-void CONTROL_MapButton(int32 whichfunction, int32 whichbutton, boolean doubleclicked, controldevice device)
+void CONTROL_MapButton(int32_t whichfunction, int32_t whichbutton, int32_t doubleclicked, controldevice device)
 {
     controlbuttontype *set;
 
@@ -264,7 +264,7 @@ void CONTROL_MapButton(int32 whichfunction, int32 whichbutton, boolean doublecli
     switch (device)
     {
     case controldevice_mouse:
-        if ((uint32)whichbutton >= (uint32)MAXMOUSEBUTTONS)
+        if ((uint32_t)whichbutton >= (uint32_t)MAXMOUSEBUTTONS)
         {
             //Error("CONTROL_MapButton: button %d out of valid range for %d mouse buttons.",
             //		whichbutton, CONTROL_NumMouseButtons);
@@ -274,7 +274,7 @@ void CONTROL_MapButton(int32 whichfunction, int32 whichbutton, boolean doublecli
         break;
 
     case controldevice_joystick:
-        if ((uint32)whichbutton >= (uint32)MAXJOYBUTTONS)
+        if ((uint32_t)whichbutton >= (uint32_t)MAXJOYBUTTONS)
         {
             //Error("CONTROL_MapButton: button %d out of valid range for %d joystick buttons.",
             //		whichbutton, CONTROL_NumJoyButtons);
@@ -294,11 +294,11 @@ void CONTROL_MapButton(int32 whichfunction, int32 whichbutton, boolean doublecli
         set[whichbutton].singleclicked = whichfunction;
 }
 
-void CONTROL_MapAnalogAxis(int32 whichaxis, int32 whichanalog, controldevice device)
+void CONTROL_MapAnalogAxis(int32_t whichaxis, int32_t whichanalog, controldevice device)
 {
     controlaxismaptype *set;
 
-    if ((uint32)whichanalog >= (uint32)analog_maxtype)
+    if ((uint32_t)whichanalog >= (uint32_t)analog_maxtype)
     {
         //Error("CONTROL_MapAnalogAxis: analog function %d out of valid range for %d analog functions.",
         //		whichanalog, analog_maxtype);
@@ -308,7 +308,7 @@ void CONTROL_MapAnalogAxis(int32 whichaxis, int32 whichanalog, controldevice dev
     switch (device)
     {
     case controldevice_mouse:
-        if ((uint32)whichaxis >= (uint32)MAXMOUSEAXES)
+        if ((uint32_t)whichaxis >= (uint32_t)MAXMOUSEAXES)
         {
             //Error("CONTROL_MapAnalogAxis: axis %d out of valid range for %d mouse axes.",
             //		whichaxis, MAXMOUSEAXES);
@@ -319,7 +319,7 @@ void CONTROL_MapAnalogAxis(int32 whichaxis, int32 whichanalog, controldevice dev
         break;
 
     case controldevice_joystick:
-        if ((uint32)whichaxis >= (uint32)MAXJOYAXES)
+        if ((uint32_t)whichaxis >= (uint32_t)MAXJOYAXES)
         {
             //Error("CONTROL_MapAnalogAxis: axis %d out of valid range for %d joystick axes.",
             //		whichaxis, MAXJOYAXES);
@@ -337,14 +337,14 @@ void CONTROL_MapAnalogAxis(int32 whichaxis, int32 whichanalog, controldevice dev
     set[whichaxis].analogmap = whichanalog;
 }
 
-void CONTROL_SetAnalogAxisScale(int32 whichaxis, int32 axisscale, controldevice device)
+void CONTROL_SetAnalogAxisScale(int32_t whichaxis, int32_t axisscale, controldevice device)
 {
-    int32 *set;
+    int32_t *set;
 
     switch (device)
     {
     case controldevice_mouse:
-        if ((uint32)whichaxis >= (uint32)MAXMOUSEAXES)
+        if ((uint32_t)whichaxis >= (uint32_t)MAXMOUSEAXES)
         {
             //Error("CONTROL_SetAnalogAxisScale: axis %d out of valid range for %d mouse axes.",
             //		whichaxis, MAXMOUSEAXES);
@@ -355,7 +355,7 @@ void CONTROL_SetAnalogAxisScale(int32 whichaxis, int32 axisscale, controldevice 
         break;
 
     case controldevice_joystick:
-        if ((uint32)whichaxis >= (uint32)MAXJOYAXES)
+        if ((uint32_t)whichaxis >= (uint32_t)MAXJOYAXES)
         {
             //Error("CONTROL_SetAnalogAxisScale: axis %d out of valid range for %d joystick axes.",
             //		whichaxis, MAXJOYAXES);
@@ -373,7 +373,7 @@ void CONTROL_SetAnalogAxisScale(int32 whichaxis, int32 axisscale, controldevice 
     set[whichaxis] = axisscale;
 }
 
-void CONTROL_MapDigitalAxis(int32 whichaxis, int32 whichfunction, int32 direction, controldevice device)
+void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t direction, controldevice device)
 {
     controlaxismaptype *set;
 
@@ -382,7 +382,7 @@ void CONTROL_MapDigitalAxis(int32 whichaxis, int32 whichfunction, int32 directio
     switch (device)
     {
     case controldevice_mouse:
-        if ((uint32)whichaxis >= (uint32)MAXMOUSEAXES)
+        if ((uint32_t)whichaxis >= (uint32_t)MAXMOUSEAXES)
         {
             //Error("CONTROL_MapDigitalAxis: axis %d out of valid range for %d mouse axes.",
             //		whichaxis, MAXMOUSEAXES);
@@ -393,7 +393,7 @@ void CONTROL_MapDigitalAxis(int32 whichaxis, int32 whichfunction, int32 directio
         break;
 
     case controldevice_joystick:
-        if ((uint32)whichaxis >= (uint32)MAXJOYAXES)
+        if ((uint32_t)whichaxis >= (uint32_t)MAXJOYAXES)
         {
             //Error("CONTROL_MapDigitalAxis: axis %d out of valid range for %d joystick axes.",
             //		whichaxis, MAXJOYAXES);
@@ -425,7 +425,7 @@ void CONTROL_MapDigitalAxis(int32 whichaxis, int32 whichfunction, int32 directio
 
 void CONTROL_ClearAssignments(void)
 {
-    int32 i;
+    int32_t i;
 
     memset(CONTROL_MouseButtonMapping,  BUTTONUNDEFINED, sizeof(CONTROL_MouseButtonMapping));
     memset(CONTROL_JoyButtonMapping,    BUTTONUNDEFINED, sizeof(CONTROL_JoyButtonMapping));
@@ -436,36 +436,36 @@ void CONTROL_ClearAssignments(void)
     memset(CONTROL_JoyAxes,             0,               sizeof(CONTROL_JoyAxes));
     memset(CONTROL_LastMouseAxes,       0,               sizeof(CONTROL_LastMouseAxes));
     memset(CONTROL_LastJoyAxes,         0,               sizeof(CONTROL_LastJoyAxes));
-    for (i=0;i<MAXMOUSEAXES;i++)
+    for (i=0; i<MAXMOUSEAXES; i++)
         CONTROL_MouseAxesScale[i] = NORMALAXISSCALE;
-    for (i=0;i<MAXJOYAXES;i++)
+    for (i=0; i<MAXJOYAXES; i++)
         CONTROL_JoyAxesScale[i] = NORMALAXISSCALE;
 }
 
 static void DoGetDeviceButtons(
-    int32 buttons, int32 tm,
-    int32 NumButtons,
-    int32 *DeviceButtonState,
-    int32 *ButtonClickedTime,
-    boolean *ButtonClickedState,
-    boolean *ButtonClicked,
-    byte  *ButtonClickedCount
+    int32_t buttons, int32_t tm,
+    int32_t NumButtons,
+    int32_t *DeviceButtonState,
+    int32_t *ButtonClickedTime,
+    int32_t *ButtonClickedState,
+    int32_t *ButtonClicked,
+    uint8_t *ButtonClickedCount
 )
 {
-    int32 i=NumButtons-1, bs;
+    int32_t i=NumButtons-1, bs;
 
-    for (;i>=0;i--)
+    for (; i>=0; i--)
     {
         bs = (buttons >> i) & 1;
 
         DeviceButtonState[i] = bs;
-        ButtonClickedState[i] = false;
+        ButtonClickedState[i] = FALSE;
 
         if (bs)
         {
-            if (ButtonClicked[i] == false)
+            if (ButtonClicked[i] == FALSE)
             {
-                ButtonClicked[i] = true;
+                ButtonClicked[i] = TRUE;
 
                 if (ButtonClickedCount[i] == 0 || tm > ButtonClickedTime[i])
                 {
@@ -474,27 +474,27 @@ static void DoGetDeviceButtons(
                 }
                 else if (tm < ButtonClickedTime[i])
                 {
-                    ButtonClickedState[i] = true;
+                    ButtonClickedState[i] = TRUE;
                     ButtonClickedTime[i]  = 0;
                     ButtonClickedCount[i] = 2;
                 }
             }
             else if (ButtonClickedCount[i] == 2)
             {
-                ButtonClickedState[i] = true;
+                ButtonClickedState[i] = TRUE;
             }
             continue;
         }
         if (ButtonClickedCount[i] == 2)
             ButtonClickedCount[i] = 0;
 
-        ButtonClicked[i] = false;
+        ButtonClicked[i] = FALSE;
     }
 }
 
 void CONTROL_GetDeviceButtons(void)
 {
-    int32 t;
+    int32_t t;
 
     t = GetTime();
 
@@ -513,10 +513,10 @@ void CONTROL_GetDeviceButtons(void)
 
     if (CONTROL_JoystickEnabled)
     {
-        int32 buttons = joyb;
+        int32_t buttons = joyb;
         if (joynumhats > 0 && joyhat[0] != -1)
         {
-            static int32 hatstate[] = { 1, 1|2, 2, 2|4, 4, 4|8, 8, 8|1 };
+            static int32_t hatstate[] = { 1, 1|2, 2, 2|4, 4, 4|8, 8, 8|1 };
             int32_t val;
 
             // thanks SDL for this much more sensible method
@@ -536,7 +536,7 @@ void CONTROL_GetDeviceButtons(void)
     }
 }
 
-void CONTROL_DigitizeAxis(int32 axis, controldevice device)
+void CONTROL_DigitizeAxis(int32_t axis, controldevice device)
 {
     controlaxistype *set, *lastset;
 
@@ -567,10 +567,10 @@ void CONTROL_DigitizeAxis(int32 axis, controldevice device)
     }
 }
 
-void CONTROL_ScaleAxis(int32 axis, controldevice device)
+void CONTROL_ScaleAxis(int32_t axis, controldevice device)
 {
     controlaxistype *set;
-    int32 *scale;
+    int32_t *scale;
 
     switch (device)
     {
@@ -590,7 +590,7 @@ void CONTROL_ScaleAxis(int32 axis, controldevice device)
     set[axis].analog = mulscale16(set[axis].analog, scale[axis]);
 }
 
-void CONTROL_ApplyAxis(int32 axis, ControlInfo *info, controldevice device)
+void CONTROL_ApplyAxis(int32_t axis, ControlInfo *info, controldevice device)
 {
     controlaxistype *set;
     controlaxismaptype *map;
@@ -633,7 +633,7 @@ void CONTROL_PollDevices(ControlInfo *info)
 
     if (CONTROL_MouseEnabled)
     {
-        int32 i = MAXMOUSEAXES-1;
+        int32_t i = MAXMOUSEAXES-1;
 
         CONTROL_GetMouseDelta();
         do
@@ -653,7 +653,7 @@ void CONTROL_PollDevices(ControlInfo *info)
 
     if (CONTROL_JoystickEnabled)
     {
-        int32 i = MAXJOYAXES-1;
+        int32_t i = MAXJOYAXES-1;
 
         CONTROL_GetJoyDelta();
         do
@@ -674,11 +674,11 @@ void CONTROL_PollDevices(ControlInfo *info)
     CONTROL_GetDeviceButtons();
 }
 
-void CONTROL_AxisFunctionState(int32 *p1)
+void CONTROL_AxisFunctionState(int32_t *p1)
 {
     if (CONTROL_NumMouseAxes)
     {
-        int32 j, i = CONTROL_NumMouseAxes-1;
+        int32_t j, i = CONTROL_NumMouseAxes-1;
 
         do
         {
@@ -697,7 +697,7 @@ void CONTROL_AxisFunctionState(int32 *p1)
 
     if (CONTROL_NumJoyAxes)
     {
-        int32 j, i = CONTROL_NumJoyAxes-1;
+        int32_t j, i = CONTROL_NumJoyAxes-1;
 
         do
         {
@@ -715,11 +715,11 @@ void CONTROL_AxisFunctionState(int32 *p1)
     }
 }
 
-void CONTROL_ButtonFunctionState(int32 *p1)
+void CONTROL_ButtonFunctionState(int32_t *p1)
 {
     if (CONTROL_NumMouseButtons)
     {
-        int32 i = CONTROL_NumMouseButtons-1, j;
+        int32_t i = CONTROL_NumMouseButtons-1, j;
 
         do
         {
@@ -749,7 +749,7 @@ void CONTROL_ButtonFunctionState(int32 *p1)
 
     if (CONTROL_NumJoyButtons)
     {
-        int32 i=CONTROL_NumJoyButtons-1, j;
+        int32_t i=CONTROL_NumJoyButtons-1, j;
 
         do
         {
@@ -851,11 +851,11 @@ void CONTROL_ClearUserInput( UserInput *info )
 	if (info->button1) CONTROL_UserInputCleared[2] = true;
 }
 */
-void CONTROL_ClearButton(int32 whichbutton)
+void CONTROL_ClearButton(int32_t whichbutton)
 {
     if (CONTROL_CheckRange(whichbutton)) return;
     BUTTONCLEAR(whichbutton);
-    CONTROL_Flags[whichbutton].cleared = true;
+    CONTROL_Flags[whichbutton].cleared = TRUE;
 }
 
 void CONTROL_ProcessBinds(void)
@@ -888,7 +888,7 @@ void CONTROL_ProcessBinds(void)
 
 void CONTROL_GetInput(ControlInfo *info)
 {
-    int32 periphs[CONTROL_NUM_FLAGS];
+    int32_t periphs[CONTROL_NUM_FLAGS];
 
     CONTROL_PollDevices(info);
 
@@ -902,20 +902,20 @@ void CONTROL_GetInput(ControlInfo *info)
     CONTROL_ProcessBinds();
 
     {
-        int32 i = CONTROL_NUM_FLAGS-1;
+        int32_t i = CONTROL_NUM_FLAGS-1;
 
         do
         {
             CONTROL_SetFlag(i, CONTROL_KeyboardFunctionPressed(i) | periphs[i] | extinput[i]);
 
-            if (CONTROL_Flags[i].cleared == false) BUTTONSET(i, CONTROL_Flags[i].active);
-            else if (CONTROL_Flags[i].active == false) CONTROL_Flags[i].cleared = 0;
+            if (CONTROL_Flags[i].cleared == FALSE) BUTTONSET(i, CONTROL_Flags[i].active);
+            else if (CONTROL_Flags[i].active == FALSE) CONTROL_Flags[i].cleared = 0;
         }
         while (--i);
 
         CONTROL_SetFlag(0, CONTROL_KeyboardFunctionPressed(0) | periphs[0] | extinput[0]);
-        if (CONTROL_Flags[0].cleared == false) BUTTONSET(0, CONTROL_Flags[0].active);
-        else if (CONTROL_Flags[0].active == false) CONTROL_Flags[0].cleared = 0;
+        if (CONTROL_Flags[0].cleared == FALSE) BUTTONSET(0, CONTROL_Flags[0].active);
+        else if (CONTROL_Flags[0].active == FALSE) CONTROL_Flags[0].cleared = 0;
     }
 
     memset(extinput, 0, sizeof(extinput));
@@ -929,13 +929,13 @@ void CONTROL_Ack(void)
 {
 }
 
-boolean CONTROL_Startup(controltype which, int32(*TimeFunction)(void), int32 ticspersecond)
+int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ticspersecond)
 {
-    int32 i;
+    int32_t i;
 
     UNREFERENCED_PARAMETER(which);
 
-    if (CONTROL_Started) return false;
+    if (CONTROL_Started) return FALSE;
 
     if (TimeFunction) GetTime = TimeFunction;
     else GetTime = CONTROL_GetTime;
@@ -946,10 +946,10 @@ boolean CONTROL_Startup(controltype which, int32(*TimeFunction)(void), int32 tic
     if (CONTROL_DoubleClickSpeed <= 0)
         CONTROL_DoubleClickSpeed = 1;
 
-    if (initinput()) return true;
+    if (initinput()) return TRUE;
 
-    CONTROL_MousePresent = CONTROL_MouseEnabled    = false;
-    CONTROL_JoyPresent   = CONTROL_JoystickEnabled = false;
+    CONTROL_MousePresent = CONTROL_MouseEnabled    = FALSE;
+    CONTROL_JoyPresent   = CONTROL_JoystickEnabled = FALSE;
     CONTROL_NumMouseButtons = CONTROL_NumJoyButtons = 0;
     CONTROL_NumMouseAxes    = CONTROL_NumJoyAxes    = 0;
     KB_Startup();
@@ -986,22 +986,22 @@ boolean CONTROL_Startup(controltype which, int32(*TimeFunction)(void), int32 tic
     memset(CONTROL_UserInputCleared, 0, sizeof(CONTROL_UserInputCleared));
 
     for (i=0; i<CONTROL_NUM_FLAGS; i++)
-        CONTROL_Flags[i].used = false;
+        CONTROL_Flags[i].used = FALSE;
 
-    CONTROL_Started = true;
+    CONTROL_Started = TRUE;
 
-    return false;
+    return FALSE;
 }
 
 void CONTROL_Shutdown(void)
 {
     if (!CONTROL_Started) return;
 
-    CONTROL_JoyPresent = false;
+    CONTROL_JoyPresent = FALSE;
 
     MOUSE_Shutdown();
     uninitinput();
 
-    CONTROL_Started = false;
+    CONTROL_Started = FALSE;
 }
 

@@ -26,7 +26,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 //-------------------------------------------------------------------------
 
 #include "compat.h"
-#include "types.h"
+
 #include "util_lib.h"
 #include "animlib.h"
 
@@ -42,7 +42,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 //
 //****************************************************************************
 static anim_t * anim=NULL;
-static boolean Anim_Started = false;
+static int32_t Anim_Started = FALSE;
 
 //****************************************************************************
 //
@@ -62,9 +62,9 @@ static void CheckAnimStarted(char * funcname)
 //
 //****************************************************************************
 
-uint16 findpage(uint16 framenumber)
+uint16_t findpage(uint16_t framenumber)
 {
-    uint16 i;
+    uint16_t i;
 
     CheckAnimStarted("findpage");
     for (i=0; i<anim->lpheader.nLps; i++)
@@ -87,10 +87,10 @@ uint16 findpage(uint16 framenumber)
 //
 //****************************************************************************
 
-void loadpage(uint16 pagenumber, uint16 *pagepointer)
+void loadpage(uint16_t pagenumber, uint16_t *pagepointer)
 {
-    int32 size;
-    byte * buffer;
+    int32_t size;
+    uint8_t * buffer;
 
     CheckAnimStarted("loadpage");
     buffer = anim->buffer;
@@ -109,7 +109,7 @@ void loadpage(uint16 pagenumber, uint16 *pagepointer)
          */
         Bmemcpy(&anim->curlp, &anim->LpArray[pagenumber], size);
 
-        buffer += size + sizeof(uint16);
+        buffer += size + sizeof(uint16_t);
         Bmemcpy(pagepointer,buffer,anim->curlp.nBytes+(anim->curlp.nRecords*2));
     }
 }
@@ -125,8 +125,8 @@ void loadpage(uint16 pagenumber, uint16 *pagepointer)
 void CPlayRunSkipDump(uint8_t *srcP, uint8_t *dstP)
 {
     int8_t cnt;
-    uint16 wordCnt;
-    byte pixel;
+    uint16_t wordCnt;
+    uint8_t pixel;
 
 
 nextOp:
@@ -149,7 +149,7 @@ dump:
     while (--cnt);
     goto nextOp;
 run:
-    wordCnt = (byte)*srcP++;                /* 8-bit unsigned count */
+    wordCnt = (uint8_t)*srcP++;                /* 8-bit unsigned count */
     pixel = *srcP++;
     do
     {
@@ -159,9 +159,9 @@ run:
 
     goto nextOp;
 longOp:
-    wordCnt = B_LITTLE16(*((uint16 *)srcP));
-    srcP += sizeof(uint16);
-    if ((int16)wordCnt <= 0)
+    wordCnt = B_LITTLE16(*((uint16_t *)srcP));
+    srcP += sizeof(uint16_t);
+    if ((int16_t)wordCnt <= 0)
         goto notLongSkip;       /* Do SIGNED test. */
 
     /* longSkip. */
@@ -206,12 +206,12 @@ stop:   /* all done */
 //
 //****************************************************************************
 
-void renderframe(uint16 framenumber, uint16 *pagepointer)
+void renderframe(uint16_t framenumber, uint16_t *pagepointer)
 {
-    uint16 offset=0;
-    uint16 i;
-    uint16 destframe;
-    byte *ppointer;
+    uint16_t offset=0;
+    uint16_t i;
+    uint16_t destframe;
+    uint8_t *ppointer;
 
     CheckAnimStarted("renderframe");
     destframe = framenumber - anim->curlp.baseRecord;
@@ -220,12 +220,12 @@ void renderframe(uint16 framenumber, uint16 *pagepointer)
     {
         offset += B_LITTLE16(pagepointer[i]);
     }
-    ppointer = (byte *)pagepointer;
+    ppointer = (uint8_t *)pagepointer;
 
     ppointer+=anim->curlp.nRecords*2+offset;
     if (ppointer[1])
     {
-        ppointer += (4 + B_LITTLE16(((uint16 *)ppointer)[1]) + (B_LITTLE16(((uint16 *)ppointer)[1]) & 1));
+        ppointer += (4 + B_LITTLE16(((uint16_t *)ppointer)[1]) + (B_LITTLE16(((uint16_t *)ppointer)[1]) & 1));
     }
     else
     {
@@ -243,7 +243,7 @@ void renderframe(uint16 framenumber, uint16 *pagepointer)
 //
 //****************************************************************************
 
-void drawframe(uint16 framenumber)
+void drawframe(uint16_t framenumber)
 {
     CheckAnimStarted("drawframe");
     loadpage(findpage(framenumber), anim->thepage);
@@ -259,13 +259,13 @@ void drawframe(uint16 framenumber)
 
 void ANIM_LoadAnim(char * buffer)
 {
-    uint16 i;
-    int32 size;
+    uint16_t i;
+    int32_t size;
 
     if (!Anim_Started)
     {
         anim = SafeMalloc(sizeof(anim_t));
-        Anim_Started = true;
+        Anim_Started = TRUE;
     }
 
     anim->buffer = (uint8_t *)buffer;
@@ -318,7 +318,7 @@ void ANIM_FreeAnim(void)
     if (Anim_Started)
     {
         SafeFree(anim);
-        Anim_Started = false;
+        Anim_Started = FALSE;
     }
 }
 
@@ -328,7 +328,7 @@ void ANIM_FreeAnim(void)
 //
 //****************************************************************************
 
-int32 ANIM_NumFrames(void)
+int32_t ANIM_NumFrames(void)
 {
     CheckAnimStarted("NumFrames");
     return anim->lpheader.nRecords;
@@ -340,9 +340,9 @@ int32 ANIM_NumFrames(void)
 //
 //****************************************************************************
 
-byte * ANIM_DrawFrame(int32 framenumber)
+uint8_t * ANIM_DrawFrame(int32_t framenumber)
 {
-    int32 cnt;
+    int32_t cnt;
 
     CheckAnimStarted("DrawFrame");
     if ((anim->currentframe != -1) && (anim->currentframe<=framenumber))
@@ -365,7 +365,7 @@ byte * ANIM_DrawFrame(int32 framenumber)
 //
 //****************************************************************************
 
-byte * ANIM_GetPalette(void)
+uint8_t * ANIM_GetPalette(void)
 {
     CheckAnimStarted("GetPalette");
     return anim->pal;

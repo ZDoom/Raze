@@ -97,7 +97,7 @@ void initcache(intptr_t dacachestart, int32_t dacachesize)
 
 //printf("BEFORE: cachestart = %x, cachesize = %d\n", dacachestart, dacachesize);
     cachestart = ((uintptr_t)dacachestart+15)&~(uintptr_t)0xf;
-    cachesize = (dacachesize-((-(uintptr_t)(dacachestart))&0xf))&~(uintptr_t)0xf;
+    cachesize = (dacachesize-(((uintptr_t)(dacachestart))&0xf))&~(uintptr_t)0xf;
 //printf("AFTER : cachestart = %x, cachesize = %d\n", cachestart, cachesize);
 
     cac[0].leng = cachesize;

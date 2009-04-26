@@ -96,19 +96,19 @@ typedef enum
 
 typedef struct
    {
-   boolean   button0;
-   boolean   button1;
+   int32_t   button0;
+   int32_t   button1;
    direction dir;
    } UserInput;
 
 typedef struct
    {
-   fixed     dx;
-   fixed     dy;
-   fixed     dz;
-   fixed     dyaw;
-   fixed     dpitch;
-   fixed     droll;
+   int32_t     dx;
+   int32_t     dy;
+   int32_t     dz;
+   int32_t     dyaw;
+   int32_t     dpitch;
+   int32_t     droll;
    } ControlInfo;
 
 typedef enum
@@ -132,10 +132,10 @@ typedef enum
 //
 //***************************************************************************
 
-extern boolean  CONTROL_MousePresent;
-extern boolean  CONTROL_JoyPresent;
-extern boolean  CONTROL_MouseEnabled;
-extern boolean  CONTROL_JoystickEnabled;
+extern int32_t  CONTROL_MousePresent;
+extern int32_t  CONTROL_JoyPresent;
+extern int32_t  CONTROL_MouseEnabled;
+extern int32_t  CONTROL_JoystickEnabled;
 extern uint64   CONTROL_ButtonState;
 extern uint64   CONTROL_ButtonHeldState;
 
@@ -146,59 +146,59 @@ extern uint64   CONTROL_ButtonHeldState;
 //
 //***************************************************************************
 
-void CONTROL_MapKey( int32 which, kb_scancode key1, kb_scancode key2 );
+void CONTROL_MapKey( int32_t which, kb_scancode key1, kb_scancode key2 );
 void CONTROL_MapButton
         (
-        int32 whichfunction,
-        int32 whichbutton,
-        boolean doubleclicked,
+        int32_t whichfunction,
+        int32_t whichbutton,
+        int32_t doubleclicked,
 	controldevice device
         );
-void CONTROL_DefineFlag( int32 which, boolean toggle );
-boolean CONTROL_FlagActive( int32 which );
+void CONTROL_DefineFlag( int32_t which, int32_t toggle );
+int32_t CONTROL_FlagActive( int32_t which );
 void CONTROL_ClearAssignments( void );
 void CONTROL_GetUserInput( UserInput *info );
 void CONTROL_GetInput( ControlInfo *info );
-void CONTROL_ClearButton( int32 whichbutton );
+void CONTROL_ClearButton( int32_t whichbutton );
 void CONTROL_ClearUserInput( UserInput *info );
 void CONTROL_WaitRelease( void );
 void CONTROL_Ack( void );
-int32 CONTROL_GetMouseSensitivity( void );
-void CONTROL_SetMouseSensitivity( int32 newsensitivity );
-boolean CONTROL_Startup
+int32_t CONTROL_GetMouseSensitivity( void );
+void CONTROL_SetMouseSensitivity( int32_t newsensitivity );
+int32_t CONTROL_Startup
    (
    controltype which,
-   int32 ( *TimeFunction )( void ),
-   int32 ticspersecond
+   int32_t ( *TimeFunction )( void ),
+   int32_t ticspersecond
    );
 void CONTROL_Shutdown( void );
 
-void CONTROL_SetDoubleClickDelay(int32 delay);
-int32 CONTROL_GetDoubleClickDelay(void);
+void CONTROL_SetDoubleClickDelay(int32_t delay);
+int32_t CONTROL_GetDoubleClickDelay(void);
 
 void CONTROL_MapAnalogAxis
    (
-   int32 whichaxis,
-   int32 whichanalog,
+   int32_t whichaxis,
+   int32_t whichanalog,
    controldevice device
    );
 
 void CONTROL_MapDigitalAxis
    (
-   int32 whichaxis,
-   int32 whichfunction,
-   int32 direction,
+   int32_t whichaxis,
+   int32_t whichfunction,
+   int32_t direction,
    controldevice device
    );
 void CONTROL_SetAnalogAxisScale
    (
-   int32 whichaxis,
-   int32 axisscale,
+   int32_t whichaxis,
+   int32_t axisscale,
    controldevice device
    );
 
 void CONTROL_PrintKeyMap(void);
-void CONTROL_PrintControlFlag(int32 which);
+void CONTROL_PrintControlFlag(int32_t which);
 void CONTROL_PrintAxes( void );
 
 #define MAXBINDSTRINGLENGTH 128

@@ -100,12 +100,12 @@ int32_t G_LoadSaveHeader(char spot,struct savehead *saveh)
             return 1;
         }*/
 
-    if (kdfread(&saveh->numplr,sizeof(int32),1,fil) != 1) goto corrupt;
+    if (kdfread(&saveh->numplr,sizeof(int32_t),1,fil) != 1) goto corrupt;
 
     if (kdfread(saveh->name,19,1,fil) != 1) goto corrupt;
-    if (kdfread(&saveh->volnum,sizeof(int32),1,fil) != 1) goto corrupt;
-    if (kdfread(&saveh->levnum,sizeof(int32),1,fil) != 1) goto corrupt;
-    if (kdfread(&saveh->plrskl,sizeof(int32),1,fil) != 1) goto corrupt;
+    if (kdfread(&saveh->volnum,sizeof(int32_t),1,fil) != 1) goto corrupt;
+    if (kdfread(&saveh->levnum,sizeof(int32_t),1,fil) != 1) goto corrupt;
+    if (kdfread(&saveh->plrskl,sizeof(int32_t),1,fil) != 1) goto corrupt;
     if (kdfread(saveh->boardfn,BMAX_PATH,1,fil) != 1) goto corrupt;
 
     if (waloff[TILE_LOADSHOT] == 0) allocache(&waloff[TILE_LOADSHOT],320*200,&walock[TILE_LOADSHOT]);
@@ -130,7 +130,7 @@ int32_t G_LoadPlayer(int32_t spot)
     char *fnptr, *scriptptrs;
     int32_t fil, bv, i, x;
     intptr_t j;
-    int32 nump;
+    int32_t nump;
 
     strcpy(fn, "egam0.sav");
     strcpy(mpfn, "egamA_00.sav");

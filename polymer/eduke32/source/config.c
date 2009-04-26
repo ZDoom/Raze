@@ -53,9 +53,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 hashtable_t gamefuncH    = { NUMGAMEFUNCTIONS<<1, NULL };
 
-int32 CONFIG_FunctionNameToNum(char * func)
+int32_t CONFIG_FunctionNameToNum(char * func)
 {
-    int32 i;
+    int32_t i;
 
     i = hash_find(&gamefuncH,func);
 
@@ -79,7 +79,7 @@ int32 CONFIG_FunctionNameToNum(char * func)
 ===================
 */
 
-char * CONFIG_FunctionNumToName(int32 func)
+char * CONFIG_FunctionNumToName(int32_t func)
 {
     if ((unsigned)func >= (unsigned)NUMGAMEFUNCTIONS)
         return NULL;
@@ -95,7 +95,7 @@ char * CONFIG_FunctionNumToName(int32 func)
 */
 
 
-int32 CONFIG_AnalogNameToNum(char * func)
+int32_t CONFIG_AnalogNameToNum(char * func)
 {
 
     if (!Bstrcasecmp(func,"analog_turning"))
@@ -119,7 +119,7 @@ int32 CONFIG_AnalogNameToNum(char * func)
 }
 
 
-char * CONFIG_AnalogNumToName(int32 func)
+char * CONFIG_AnalogNumToName(int32_t func)
 {
     switch (func)
     {
@@ -147,7 +147,7 @@ char * CONFIG_AnalogNumToName(int32 func)
 
 void CONFIG_SetDefaultKeys(int32_t type)
 {
-    int32 i,f;
+    int32_t i,f;
 
     Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
     Bmemset(&KeyBindings,0,sizeof(KeyBindings));
@@ -155,7 +155,7 @@ void CONFIG_SetDefaultKeys(int32_t type)
 
     if (type == 1)
     {
-        for (i=0; i < (int32)(sizeof(oldkeydefaults)/sizeof(oldkeydefaults[0])); i+=3)
+        for (i=0; i < (int32_t)(sizeof(oldkeydefaults)/sizeof(oldkeydefaults[0])); i+=3)
         {
             f = CONFIG_FunctionNameToNum((char *)oldkeydefaults[i+0]);
             if (f == -1) continue;
@@ -168,7 +168,7 @@ void CONFIG_SetDefaultKeys(int32_t type)
         return;
     }
 
-    for (i=0; i < (int32)(sizeof(keydefaults)/sizeof(keydefaults[0])); i+=3)
+    for (i=0; i < (int32_t)(sizeof(keydefaults)/sizeof(keydefaults[0])); i+=3)
     {
         f = CONFIG_FunctionNameToNum(keydefaults[i+0]);
         if (f == -1) continue;
@@ -183,7 +183,7 @@ void CONFIG_SetDefaultKeys(int32_t type)
 void CONFIG_SetDefaults(void)
 {
     // JBF 20031211
-    int32 i;
+    int32_t i;
 
     ud.config.scripthandle = -1;
     ud.config.ScreenWidth = 1024;
@@ -343,9 +343,9 @@ void CONFIG_SetDefaults(void)
 
 void CONFIG_ReadKeys(void)
 {
-    int32 i;
-    int32 numkeyentries;
-    int32 function;
+    int32_t i;
+    int32_t numkeyentries;
+    int32_t function;
     char keyname1[80];
     char keyname2[80];
     kb_scancode key1,key2;
@@ -375,11 +375,11 @@ void CONFIG_ReadKeys(void)
             key2 = 0xff;
             if (keyname1[0])
             {
-                key1 = (byte) KB_StringToScanCode(keyname1);
+                key1 = (uint8_t) KB_StringToScanCode(keyname1);
             }
             if (keyname2[0])
             {
-                key2 = (byte) KB_StringToScanCode(keyname2);
+                key2 = (uint8_t) KB_StringToScanCode(keyname2);
             }
             ud.config.KeyboardKeys[function][0] = key1;
             ud.config.KeyboardKeys[function][1] = key2;
@@ -396,7 +396,7 @@ void CONFIG_ReadKeys(void)
 }
 
 // wrapper for CONTROL_MapKey(), generates key bindings to reflect changes to keyboard setup
-void CONFIG_MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
+void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
 {
     int32_t i, j, k;
     int32_t ii[] = { key1, key2, oldkey1, oldkey2 };
@@ -444,10 +444,10 @@ void CONFIG_MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scanco
 
 void CONFIG_SetupMouse(void)
 {
-    int32 i;
+    int32_t i;
     char str[80];
     char temp[80];
-    int32 function, scale;
+    int32_t function, scale;
 
     if (ud.config.scripthandle < 0) return;
 
@@ -519,10 +519,10 @@ void CONFIG_SetupMouse(void)
 
 void CONFIG_SetupJoystick(void)
 {
-    int32 i;
+    int32_t i;
     char str[80];
     char temp[80];
-    int32 scale;
+    int32_t scale;
 
     if (ud.config.scripthandle < 0) return;
 
@@ -605,11 +605,11 @@ extern char mod_dir[BMAX_PATH];
 extern int32_t r_maxfps;
 extern int32_t g_noSetup;
 
-int32 CONFIG_ReadSetup(void)
+int32_t CONFIG_ReadSetup(void)
 {
-    int32 dummy, i = 0;
+    int32_t dummy, i = 0;
     char commmacro[] = "CommbatMacro# ";
-    extern int32 CommandWeaponChoice;
+    extern int32_t CommandWeaponChoice;
     char tempbuf[1024];
 
     CONTROL_ClearAssignments();
@@ -662,7 +662,7 @@ int32 CONFIG_ReadSetup(void)
 
 #ifndef RANCID_NETWORKING
         // The packetrate mechanism is specific to the eduke32 networking code
-        SCRIPT_GetNumber(ud.config.scripthandle, "Comm Setup", "Rate",(int32 *)&packetrate);
+        SCRIPT_GetNumber(ud.config.scripthandle, "Comm Setup", "Rate",(int32_t *)&packetrate);
         packetrate = min(max(packetrate,50),1000);
 #endif
 
@@ -752,11 +752,11 @@ int32 CONFIG_ReadSetup(void)
 
 #ifdef RENDERTYPEWIN
         {
-            SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", (int32 *)&windowpos);
+            SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", (int32_t *)&windowpos);
             windowx = -1;
-            SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosX", (int32 *)&windowx);
+            SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosX", (int32_t *)&windowx);
             windowy = -1;
-            SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", (int32 *)&windowy);
+            SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", (int32_t *)&windowy);
         }
 #endif
 
@@ -771,7 +771,7 @@ int32 CONFIG_ReadSetup(void)
         }
 
 #ifdef RENDERTYPEWIN
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq", (int32*)&maxrefreshfreq);
+        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq", (int32_t*)&maxrefreshfreq);
 #endif
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
@@ -912,7 +912,7 @@ int32 CONFIG_ReadSetup(void)
             if (ud.config.VoiceToggle == 2) ud.config.VoiceToggle = 5;
         }
 
-        SCRIPT_GetNumber(ud.config.scripthandle, "Controls","AimingFlag",(int32 *)&g_myAimMode);    // (if toggle mode) gives state
+        SCRIPT_GetNumber(ud.config.scripthandle, "Controls","AimingFlag",(int32_t *)&g_myAimMode);    // (if toggle mode) gives state
 
         {
             SCRIPT_GetNumber(ud.config.scripthandle, "Controls","AutoAim",&ud.config.AutoAim);          // JBF 20031125
@@ -1009,7 +1009,7 @@ void CONFIG_WriteBinds(void) // save binds and aliases to <cfgname>_binds.cfg
 
 void CONFIG_WriteSetup(void)
 {
-    int32 dummy;
+    int32_t dummy;
     char tempbuf[1024];
 
     if (!ud.config.setupread) return;
@@ -1017,23 +1017,23 @@ void CONFIG_WriteSetup(void)
     if (ud.config.scripthandle < 0)
         ud.config.scripthandle = SCRIPT_Init(setupfilename);
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","AimingFlag",(int32_t) g_myAimMode,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","AutoAim",ud.config.AutoAim,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseAimingFlipped",ud.mouseflip,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseBias",ud.config.MouseBias,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseDeadZone",ud.config.MouseDeadZone,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","RunKeyBehaviour",ud.runkey_mode,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","SmoothInput",ud.config.SmoothInput,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","UseJoystick",ud.config.UseJoystick,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","UseMouse",ud.config.UseMouse,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","WeaponSwitchMode",ud.weaponswitch,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","AimingFlag",(int32_t) g_myAimMode,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","AutoAim",ud.config.AutoAim,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseAimingFlipped",ud.mouseflip,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseAiming",ud.mouseaiming,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseBias",ud.config.MouseBias,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","MouseDeadZone",ud.config.MouseDeadZone,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","RunKeyBehaviour",ud.runkey_mode,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","SmoothInput",ud.config.SmoothInput,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","UseJoystick",ud.config.UseJoystick,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","UseMouse",ud.config.UseMouse,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","WeaponSwitchMode",ud.weaponswitch,FALSE,FALSE);
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "AltHud",ud.althud,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "AltHud",ud.althud,FALSE,FALSE);
 //    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "AngleInterpolation",ud.angleinterpolation,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "AutoMsg",ud.automsg,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "AutoVote",ud.autovote,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Color",ud.color,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "AutoMsg",ud.automsg,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "AutoVote",ud.autovote,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Color",ud.color,FALSE,FALSE);
 
     if (CrosshairColors.r != DefaultCrosshairColors.r || CrosshairColors.g != DefaultCrosshairColors.g
             || CrosshairColors.b != DefaultCrosshairColors.b)
@@ -1042,95 +1042,95 @@ void CONFIG_WriteSetup(void)
         SCRIPT_PutString(ud.config.scripthandle, "Misc", "CrosshairColor",tempbuf);
     }
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "CrosshairScale",ud.crosshairscale,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Crosshairs",ud.crosshair,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DeathMessages",ud.obituaries,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DemoCams",ud.democams,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Executions",++ud.executions,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "IDPlayers",ud.idplayers,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "MPMessageDisplayTime",ud.msgdisptime,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "RunMode",ud.config.RunMode,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "ShowFPS",ud.tickrate,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "ShowLevelStats",ud.levelstats,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "ShowOpponentWeapons",ud.config.ShowOpponentWeapons,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "ShowViewWeapon",ud.drawweapon,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "StatusBarMode",ud.statusbarmode,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "StatusBarScale",ud.statusbarscale,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Team",ud.team,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "TextScale",ud.textscale,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "UsePrecache",ud.config.useprecache,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "ViewBobbing",ud.viewbob,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "CrosshairScale",ud.crosshairscale,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Crosshairs",ud.crosshair,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DeathMessages",ud.obituaries,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DemoCams",ud.democams,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Executions",++ud.executions,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "IDPlayers",ud.idplayers,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "MPMessageDisplayTime",ud.msgdisptime,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "RunMode",ud.config.RunMode,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "ShowFPS",ud.tickrate,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "ShowLevelStats",ud.levelstats,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "ShowOpponentWeapons",ud.config.ShowOpponentWeapons,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "ShowViewWeapon",ud.drawweapon,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "StatusBarMode",ud.statusbarmode,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "StatusBarScale",ud.statusbarscale,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Team",ud.team,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "TextScale",ud.textscale,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "UsePrecache",ud.config.useprecache,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "ViewBobbing",ud.viewbob,FALSE,FALSE);
 
     for (dummy=0; dummy<10; dummy++)
     {
         Bsprintf(buf,"WeaponChoice%d",dummy);
-        SCRIPT_PutNumber(ud.config.scripthandle, "Misc",buf,g_player[myconnectindex].wchoice[dummy],false,false);
+        SCRIPT_PutNumber(ud.config.scripthandle, "Misc",buf,g_player[myconnectindex].wchoice[dummy],FALSE,FALSE);
     }
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "WeaponScale",ud.weaponscale,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "WeaponSway",ud.weaponsway,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "WeaponScale",ud.weaponscale,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "WeaponSway",ud.weaponsway,FALSE,FALSE);
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Setup","ConfigVersion",BYTEVERSION_JF,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ForceSetup",ud.config.ForceSetup,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "NoAutoLoad",ud.config.NoAutoLoad,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Setup","ConfigVersion",BYTEVERSION_JF,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ForceSetup",ud.config.ForceSetup,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "NoAutoLoad",ud.config.NoAutoLoad,FALSE,FALSE);
 
     {
         Bsprintf(tempbuf,"%.2f",r_ambientlight);
         SCRIPT_PutString(ud.config.scripthandle, "Screen Setup", "AmbientLight",tempbuf);
     }
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Detail",ud.detail,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Detail",ud.detail,FALSE,FALSE);
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLAnimationSmoothing",r_animsmoothing,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLAnisotropy",glanisotropy,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLAnimationSmoothing",r_animsmoothing,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLAnisotropy",glanisotropy,FALSE,FALSE);
     /*SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLDepthPeeling",r_depthpeeling,false,false);*/
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLDetailMapping", r_detailmapping,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLFullbrights", r_fullbrights,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLGlowMapping", r_glowmapping,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLOcclusionChecking", r_modelocclusionchecking,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyClamping",r_parallaxskyclamping,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyPanning",r_parallaxskypanning,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLDetailMapping", r_detailmapping,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLFullbrights", r_fullbrights,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLGlowMapping", r_glowmapping,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLOcclusionChecking", r_modelocclusionchecking,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyClamping",r_parallaxskyclamping,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyPanning",r_parallaxskypanning,FALSE,FALSE);
     /*SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLPeelsCount",r_peelscount,false,false);*/
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLProjectionFix",glprojectionhacks,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Polymer",glrendmode == 4,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLTextureMode",gltexfiltermode,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLTextureQuality", r_downsize,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLUseCompressedTextureCache", glusetexcache,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLUseTextureCacheCompression", glusetexcachecompression,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLUseTextureCompr",glusetexcompr,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLVBOCount", r_vbocount,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLVBOs", r_vbos,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLVertexArrays", r_vertexarrays,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLVSync", vsync,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLWidescreen",glwidescreen,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLProjectionFix",glprojectionhacks,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Polymer",glrendmode == 4,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLTextureMode",gltexfiltermode,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLTextureQuality", r_downsize,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLUseCompressedTextureCache", glusetexcache,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLUseTextureCacheCompression", glusetexcachecompression,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLUseTextureCompr",glusetexcompr,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLVBOCount", r_vbocount,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLVBOs", r_vbos,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLVertexArrays", r_vertexarrays,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLVSync", vsync,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLWidescreen",glwidescreen,FALSE,FALSE);
 #endif
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "MaxFPS", r_maxfps, false, false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "MaxFPS", r_maxfps, FALSE, FALSE);
 #ifdef RENDERTYPEWIN
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,FALSE,FALSE);
 #endif
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Messages",ud.fta_on,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Messages",ud.fta_on,FALSE,FALSE);
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "OSDHightile",osdhightile,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "OSDTextMode",OSD_GetTextMode(),false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "OSDHightile",osdhightile,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "OSDTextMode",OSD_GetTextMode(),FALSE,FALSE);
 
     if (!NAM)
     {
-        SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Out",ud.lockout,false,false);
+        SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Out",ud.lockout,FALSE,FALSE);
         SCRIPT_PutString(ud.config.scripthandle, "Screen Setup", "Password",ud.pwlockout);
     }
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP",ud.config.ScreenBPP,false,false);  // JBF 20040523
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenGamma",ud.brightness,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight",ud.config.ScreenHeight,false,false);    // JBF 20031206
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode",ud.config.ScreenMode,false,false);    // JBF 20031206
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenSize",ud.screen_size,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth",ud.config.ScreenWidth,false,false);  // JBF 20031206
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Shadows",ud.shadows,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Tilt",ud.screen_tilting,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP",ud.config.ScreenBPP,FALSE,FALSE);  // JBF 20040523
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenGamma",ud.brightness,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight",ud.config.ScreenHeight,FALSE,FALSE);    // JBF 20031206
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode",ud.config.ScreenMode,FALSE,FALSE);    // JBF 20031206
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenSize",ud.screen_size,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth",ud.config.ScreenWidth,FALSE,FALSE);  // JBF 20031206
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Shadows",ud.shadows,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Tilt",ud.screen_tilting,FALSE,FALSE);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "UseHightile",usehightile,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "UseModels",usemodels,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "UseHightile",usehightile,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "UseModels",usemodels,FALSE,FALSE);
 #endif
 
     {
@@ -1143,26 +1143,26 @@ void CONFIG_WriteSetup(void)
     }
 
 #ifdef RENDERTYPEWIN
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", windowpos, false, false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPosX", windowx, false, false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", windowy, false, false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", windowpos, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPosX", windowx, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", windowy, FALSE, FALSE);
 #endif
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "AmbienceToggle",ud.config.AmbienceToggle,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "FXVolume",ud.config.FXVolume,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "MusicToggle",ud.config.MusicToggle,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "MusicVolume",ud.config.MusicVolume,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "NumVoices",ud.config.NumVoices,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "NumChannels",ud.config.NumChannels,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "NumBits",ud.config.NumBits,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "MixRate",ud.config.MixRate,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "ReverseStereo",ud.config.ReverseStereo,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "SoundToggle",ud.config.SoundToggle,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "VoiceToggle",ud.config.VoiceToggle,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "AmbienceToggle",ud.config.AmbienceToggle,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "FXVolume",ud.config.FXVolume,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "MusicToggle",ud.config.MusicToggle,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "MusicVolume",ud.config.MusicVolume,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "NumVoices",ud.config.NumVoices,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "NumChannels",ud.config.NumChannels,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "NumBits",ud.config.NumBits,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "MixRate",ud.config.MixRate,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "ReverseStereo",ud.config.ReverseStereo,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "SoundToggle",ud.config.SoundToggle,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "VoiceToggle",ud.config.VoiceToggle,FALSE,FALSE);
 
 #ifdef _WIN32
-    SCRIPT_PutNumber(ud.config.scripthandle, "Updates", "CheckForUpdates", ud.config.CheckForUpdates, false, false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Updates", "LastUpdateCheck", ud.config.LastUpdateCheck, false, false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Updates", "CheckForUpdates", ud.config.CheckForUpdates, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Updates", "LastUpdateCheck", ud.config.LastUpdateCheck, FALSE, FALSE);
 #endif
 
     // JBF 20031211
@@ -1195,10 +1195,10 @@ void CONFIG_WriteSetup(void)
         SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[dummy][1]));
 
         Bsprintf(buf,"MouseAnalogScale%d",dummy);
-        SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.MouseAnalogueScale[dummy], false, false);
+        SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.MouseAnalogueScale[dummy], FALSE, FALSE);
     }
     dummy = CONTROL_GetMouseSensitivity();
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","Mouse_Sensitivity",dummy,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","Mouse_Sensitivity",dummy,FALSE,FALSE);
 
     for (dummy=0; dummy<MAXJOYBUTTONS; dummy++)
     {
@@ -1220,13 +1220,13 @@ void CONFIG_WriteSetup(void)
         SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[dummy][1]));
 
         Bsprintf(buf,"JoystickAnalogScale%d",dummy);
-        SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueScale[dummy], false, false);
+        SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueScale[dummy], FALSE, FALSE);
 
         Bsprintf(buf,"JoystickAnalogDead%d",dummy);
-        SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueDead[dummy], false, false);
+        SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueDead[dummy], FALSE, FALSE);
 
         Bsprintf(buf,"JoystickAnalogSaturate%d",dummy);
-        SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueSaturate[dummy], false, false);
+        SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueSaturate[dummy], FALSE, FALSE);
     }
 
     SCRIPT_PutString(ud.config.scripthandle, "Comm Setup","PlayerName",&szPlayerName[0]);
@@ -1234,7 +1234,7 @@ void CONFIG_WriteSetup(void)
 
 #ifndef RANCID_NETWORKING
     // The packetrate mechanism is specific to the eduke32 networking code
-    SCRIPT_PutNumber(ud.config.scripthandle, "Comm Setup", "Rate", packetrate, false, false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Comm Setup", "Rate", packetrate, FALSE, FALSE);
 #endif
 
 
@@ -1262,9 +1262,9 @@ void CONFIG_WriteSetup(void)
 }
 
 
-int32 CONFIG_GetMapBestTime(char *mapname)
+int32_t CONFIG_GetMapBestTime(char *mapname)
 {
-    int32 t = -1;
+    int32_t t = -1;
     char m[BMAX_PATH], *p;
 
     strcpy(m, mapname);
@@ -1284,7 +1284,7 @@ int32 CONFIG_GetMapBestTime(char *mapname)
     return t;
 }
 
-int32 CONFIG_SetMapBestTime(char *mapname, int32 tm)
+int32_t CONFIG_SetMapBestTime(char *mapname, int32_t tm)
 {
     char m[BMAX_PATH], *p;
 
@@ -1301,7 +1301,7 @@ int32 CONFIG_SetMapBestTime(char *mapname, int32 tm)
     if (ud.config.scripthandle < 0) ud.config.scripthandle = SCRIPT_Init(setupfilename);
     if (ud.config.scripthandle < 0) return -1;
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "MapTimes", p, tm, false, false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "MapTimes", p, tm, FALSE, FALSE);
     return 0;
 }
 

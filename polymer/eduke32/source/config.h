@@ -27,16 +27,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define SETUPNAMEPARM "SETUPFILE"
 
-int32 CONFIG_ReadSetup( void );
+int32_t CONFIG_ReadSetup( void );
 void CONFIG_GetSetupFilename( void );
 void CONFIG_WriteSetup( void );
 void CONFIG_SetupMouse( void );
 void CONFIG_SetupJoystick( void );
 void CONFIG_SetDefaultKeys(int32_t type);
 
-int32 CONFIG_GetMapBestTime(char *mapname);
-int32 CONFIG_SetMapBestTime(char *mapname, int32 tm);
+int32_t CONFIG_GetMapBestTime(char *mapname);
+int32_t CONFIG_SetMapBestTime(char *mapname, int32_t tm);
 
-void CONFIG_MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
+void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
 
 #endif

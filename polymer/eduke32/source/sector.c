@@ -2599,7 +2599,7 @@ void G_HandleSharedKeys(int32_t snum)
         if (p->newowner == -1)
             if (TEST_SYNC_KEY(sb_snum, SK_INV_LEFT) || TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT))
             {
-                p->invdisptime = 26*2;
+                p->invdisptime = GAMETICSPERSEC*2;
 
                 if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT)) k = 1;
                 else k = 0;
@@ -2760,7 +2760,7 @@ CHECKINV1:
             p->wantweaponfire = j;
             p->kickback_pic = 0;
         }
-        if (p->last_pissed_time <= (26*218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
+        if (p->last_pissed_time <= (GAMETICSPERSEC*218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
         {
             //            if(  ( p->weapon_pos == 0 || ( p->holster_weapon && p->weapon_pos == -9 ) ))
             {
@@ -3174,7 +3174,7 @@ void P_CheckSectors(int32_t snum)
             return;
         case -2:
             sector[p->cursectnum].lotag = 0;
-            p->timebeforeexit = 26*8;
+            p->timebeforeexit = GAMETICSPERSEC*8;
             p->customexitsound = sector[p->cursectnum].hitag;
             return;
         default:
@@ -3315,7 +3315,7 @@ void P_CheckSectors(int32_t snum)
                 {
                     if (ud.lockout == 0) A_PlaySound(DUKE_URINATE,p->i);
 
-                    p->last_pissed_time = 26*220;
+                    p->last_pissed_time = GAMETICSPERSEC*220;
                     p->transporter_hold = 29*2;
                     if (p->holster_weapon == 0)
                     {

@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "duke3d.h"
-#include "types.h"
+
 #include "scriplib.h"
 #include "file_lib.h"
 #include "mathutil.h"
@@ -2812,7 +2812,7 @@ extern int32_t g_doQuickSave;
 
 void G_GameExit(const char *t)
 {
-    if (*t != 0) g_player[myconnectindex].ps->palette = (unsigned char *) &palette[0];
+    if (*t != 0) g_player[myconnectindex].ps->palette = (uint8_t *) &palette[0];
 
     if (numplayers > 1)
     {
@@ -3881,9 +3881,9 @@ void G_DisplayRest(int32_t smoothratio)
         j = scale(2,ud.config.ScreenWidth,320);
 
         Bsprintf(tempbuf,"T:^15%d:%02d.%02d",
-                 (g_player[myconnectindex].ps->player_par/(26*60)),
-                 (g_player[myconnectindex].ps->player_par/26)%60,
-                 ((g_player[myconnectindex].ps->player_par%26)*38)/10
+                 (g_player[myconnectindex].ps->player_par/(GAMETICSPERSEC*60)),
+                 (g_player[myconnectindex].ps->player_par/GAMETICSPERSEC)%60,
+                 ((g_player[myconnectindex].ps->player_par%GAMETICSPERSEC)*38)/10
                 );
         gametext_z(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(21),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
@@ -13447,19 +13447,19 @@ FRAGBONUS:
     {
         int32_t ii, ij;
 
-        for (ii=g_player[myconnectindex].ps->player_par/(26*60), ij=1; ii>9; ii/=10, ij++) ;
+        for (ii=g_player[myconnectindex].ps->player_par/(GAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
         clockpad = max(clockpad,ij);
         if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
         {
-            for (ii=MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/(26*60), ij=1; ii>9; ii/=10, ij++) ;
+            for (ii=MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/(GAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
             clockpad = max(clockpad,ij);
             if (!NAM)
             {
-                for (ii=MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/(26*60), ij=1; ii>9; ii/=10, ij++) ;
+                for (ii=MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/(GAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
                 clockpad = max(clockpad,ij);
             }
         }
-        if (playerbest > 0) for (ii=playerbest/(26*60), ij=1; ii>9; ii/=10, ij++) ;
+        if (playerbest > 0) for (ii=playerbest/(GAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
         clockpad = max(clockpad,ij);
     }
 
@@ -13566,9 +13566,9 @@ FRAGBONUS:
                     }
 
                     Bsprintf(tempbuf,"%0*d:%02d.%02d",clockpad,
-                             (g_player[myconnectindex].ps->player_par/(26*60)),
-                             (g_player[myconnectindex].ps->player_par/26)%60,
-                             ((g_player[myconnectindex].ps->player_par%26)*38)/10
+                             (g_player[myconnectindex].ps->player_par/(GAMETICSPERSEC*60)),
+                             (g_player[myconnectindex].ps->player_par/GAMETICSPERSEC)%60,
+                             ((g_player[myconnectindex].ps->player_par%GAMETICSPERSEC)*38)/10
                             );
                     gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                     if (g_player[myconnectindex].ps->player_par < playerbest)
@@ -13578,16 +13578,16 @@ FRAGBONUS:
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
                     {
                         Bsprintf(tempbuf,"%0*d:%02d",clockpad,
-                                 (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/(26*60)),
-                                 (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/26)%60);
+                                 (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/(GAMETICSPERSEC*60)),
+                                 (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/GAMETICSPERSEC)%60);
                         gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                         yy+=10;
 
                         if (!NAM)
                         {
                             Bsprintf(tempbuf,"%0*d:%02d",clockpad,
-                                     (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/(26*60)),
-                                     (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/26)%60);
+                                     (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/(GAMETICSPERSEC*60)),
+                                     (MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/GAMETICSPERSEC)%60);
                             gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                             yy+=10;
                         }
@@ -13596,9 +13596,9 @@ FRAGBONUS:
                     if (playerbest > 0)
                     {
                         Bsprintf(tempbuf,"%0*d:%02d.%02d",clockpad,
-                                 (playerbest/(26*60)),
-                                 (playerbest/26)%60,
-                                 ((playerbest%26)*38)/10
+                                 (playerbest/(GAMETICSPERSEC*60)),
+                                 (playerbest/GAMETICSPERSEC)%60,
+                                 ((playerbest%GAMETICSPERSEC)*38)/10
                                 );
                         gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                         yy+=10;
@@ -13864,58 +13864,58 @@ void A_SpawnRandomGlass(int32_t i,int32_t wallnum,int32_t n)
 
 static void G_SetupGameButtons(void)
 {
-    CONTROL_DefineFlag(gamefunc_Move_Forward,false);
-    CONTROL_DefineFlag(gamefunc_Move_Backward,false);
-    CONTROL_DefineFlag(gamefunc_Turn_Left,false);
-    CONTROL_DefineFlag(gamefunc_Turn_Right,false);
-    CONTROL_DefineFlag(gamefunc_Strafe,false);
-    CONTROL_DefineFlag(gamefunc_Fire,false);
-    CONTROL_DefineFlag(gamefunc_Open,false);
-    CONTROL_DefineFlag(gamefunc_Run,false);
-    CONTROL_DefineFlag(gamefunc_AutoRun,false);
-    CONTROL_DefineFlag(gamefunc_Jump,false);
-    CONTROL_DefineFlag(gamefunc_Crouch,false);
-    CONTROL_DefineFlag(gamefunc_Look_Up,false);
-    CONTROL_DefineFlag(gamefunc_Look_Down,false);
-    CONTROL_DefineFlag(gamefunc_Look_Left,false);
-    CONTROL_DefineFlag(gamefunc_Look_Right,false);
-    CONTROL_DefineFlag(gamefunc_Strafe_Left,false);
-    CONTROL_DefineFlag(gamefunc_Strafe_Right,false);
-    CONTROL_DefineFlag(gamefunc_Aim_Up,false);
-    CONTROL_DefineFlag(gamefunc_Aim_Down,false);
-    CONTROL_DefineFlag(gamefunc_Weapon_1,false);
-    CONTROL_DefineFlag(gamefunc_Weapon_2,false);
-    CONTROL_DefineFlag(gamefunc_Weapon_3,false);
-    CONTROL_DefineFlag(gamefunc_Weapon_4,false);
-    CONTROL_DefineFlag(gamefunc_Weapon_5,false);
-    CONTROL_DefineFlag(gamefunc_Weapon_6,false);
-    CONTROL_DefineFlag(gamefunc_Weapon_7,false);
-    CONTROL_DefineFlag(gamefunc_Weapon_8,false);
-    CONTROL_DefineFlag(gamefunc_Weapon_9,false);
-    CONTROL_DefineFlag(gamefunc_Weapon_10,false);
-    CONTROL_DefineFlag(gamefunc_Inventory,false);
-    CONTROL_DefineFlag(gamefunc_Inventory_Left,false);
-    CONTROL_DefineFlag(gamefunc_Inventory_Right,false);
-    CONTROL_DefineFlag(gamefunc_Holo_Duke,false);
-    CONTROL_DefineFlag(gamefunc_Jetpack,false);
-    CONTROL_DefineFlag(gamefunc_NightVision,false);
-    CONTROL_DefineFlag(gamefunc_MedKit,false);
-    CONTROL_DefineFlag(gamefunc_TurnAround,false);
-    CONTROL_DefineFlag(gamefunc_SendMessage,false);
-    CONTROL_DefineFlag(gamefunc_Map,false);
-    CONTROL_DefineFlag(gamefunc_Shrink_Screen,false);
-    CONTROL_DefineFlag(gamefunc_Enlarge_Screen,false);
-    CONTROL_DefineFlag(gamefunc_Center_View,false);
-    CONTROL_DefineFlag(gamefunc_Holster_Weapon,false);
-    CONTROL_DefineFlag(gamefunc_Show_Opponents_Weapon,false);
-    CONTROL_DefineFlag(gamefunc_Map_Follow_Mode,false);
-    CONTROL_DefineFlag(gamefunc_See_Coop_View,false);
-    CONTROL_DefineFlag(gamefunc_Mouse_Aiming,false);
-    CONTROL_DefineFlag(gamefunc_Toggle_Crosshair,false);
-    CONTROL_DefineFlag(gamefunc_Steroids,false);
-    CONTROL_DefineFlag(gamefunc_Quick_Kick,false);
-    CONTROL_DefineFlag(gamefunc_Next_Weapon,false);
-    CONTROL_DefineFlag(gamefunc_Previous_Weapon,false);
+    CONTROL_DefineFlag(gamefunc_Move_Forward,FALSE);
+    CONTROL_DefineFlag(gamefunc_Move_Backward,FALSE);
+    CONTROL_DefineFlag(gamefunc_Turn_Left,FALSE);
+    CONTROL_DefineFlag(gamefunc_Turn_Right,FALSE);
+    CONTROL_DefineFlag(gamefunc_Strafe,FALSE);
+    CONTROL_DefineFlag(gamefunc_Fire,FALSE);
+    CONTROL_DefineFlag(gamefunc_Open,FALSE);
+    CONTROL_DefineFlag(gamefunc_Run,FALSE);
+    CONTROL_DefineFlag(gamefunc_AutoRun,FALSE);
+    CONTROL_DefineFlag(gamefunc_Jump,FALSE);
+    CONTROL_DefineFlag(gamefunc_Crouch,FALSE);
+    CONTROL_DefineFlag(gamefunc_Look_Up,FALSE);
+    CONTROL_DefineFlag(gamefunc_Look_Down,FALSE);
+    CONTROL_DefineFlag(gamefunc_Look_Left,FALSE);
+    CONTROL_DefineFlag(gamefunc_Look_Right,FALSE);
+    CONTROL_DefineFlag(gamefunc_Strafe_Left,FALSE);
+    CONTROL_DefineFlag(gamefunc_Strafe_Right,FALSE);
+    CONTROL_DefineFlag(gamefunc_Aim_Up,FALSE);
+    CONTROL_DefineFlag(gamefunc_Aim_Down,FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_1,FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_2,FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_3,FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_4,FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_5,FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_6,FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_7,FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_8,FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_9,FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_10,FALSE);
+    CONTROL_DefineFlag(gamefunc_Inventory,FALSE);
+    CONTROL_DefineFlag(gamefunc_Inventory_Left,FALSE);
+    CONTROL_DefineFlag(gamefunc_Inventory_Right,FALSE);
+    CONTROL_DefineFlag(gamefunc_Holo_Duke,FALSE);
+    CONTROL_DefineFlag(gamefunc_Jetpack,FALSE);
+    CONTROL_DefineFlag(gamefunc_NightVision,FALSE);
+    CONTROL_DefineFlag(gamefunc_MedKit,FALSE);
+    CONTROL_DefineFlag(gamefunc_TurnAround,FALSE);
+    CONTROL_DefineFlag(gamefunc_SendMessage,FALSE);
+    CONTROL_DefineFlag(gamefunc_Map,FALSE);
+    CONTROL_DefineFlag(gamefunc_Shrink_Screen,FALSE);
+    CONTROL_DefineFlag(gamefunc_Enlarge_Screen,FALSE);
+    CONTROL_DefineFlag(gamefunc_Center_View,FALSE);
+    CONTROL_DefineFlag(gamefunc_Holster_Weapon,FALSE);
+    CONTROL_DefineFlag(gamefunc_Show_Opponents_Weapon,FALSE);
+    CONTROL_DefineFlag(gamefunc_Map_Follow_Mode,FALSE);
+    CONTROL_DefineFlag(gamefunc_See_Coop_View,FALSE);
+    CONTROL_DefineFlag(gamefunc_Mouse_Aiming,FALSE);
+    CONTROL_DefineFlag(gamefunc_Toggle_Crosshair,FALSE);
+    CONTROL_DefineFlag(gamefunc_Steroids,FALSE);
+    CONTROL_DefineFlag(gamefunc_Quick_Kick,FALSE);
+    CONTROL_DefineFlag(gamefunc_Next_Weapon,FALSE);
+    CONTROL_DefineFlag(gamefunc_Previous_Weapon,FALSE);
 }
 
 /*

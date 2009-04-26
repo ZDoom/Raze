@@ -1,4 +1,4 @@
-duke3d_h=$(EINC)/build.h $(EINC)/polymer.h $(EINC)/pragmas.h $(EINC)/compat.h $(EINC)/cache1d.h $(EINC)/baselayer.h $(SRC)/jmact/types.h $(SRC)/jmact/file_lib.h $(SRC)/jmact/util_lib.h $(SRC)/jmact/keyboard.h $(SRC)/jmact/control.h $(INC)/gamedefs.h $(INC)/function.h $(INC)/config.h $(INC)/sounds.h $(INC)/rts.h $(INC)/_rts.h $(INC)/soundefs.h $(SRC)/jaudiolib/fx_man.h $(SRC)/jaudiolib/music.h $(INC)/namesdyn.h $(INC)/funct.h $(INC)/duke3d.h
+duke3d_h=$(EINC)/build.h $(EINC)/polymer.h $(EINC)/pragmas.h $(EINC)/compat.h $(EINC)/cache1d.h $(EINC)/baselayer.h $(SRC)/jmact/file_lib.h $(SRC)/jmact/util_lib.h $(SRC)/jmact/keyboard.h $(SRC)/jmact/control.h $(INC)/gamedefs.h $(INC)/function.h $(INC)/config.h $(INC)/sounds.h $(INC)/rts.h $(INC)/_rts.h $(INC)/soundefs.h $(SRC)/jaudiolib/fx_man.h $(SRC)/jaudiolib/music.h $(INC)/namesdyn.h $(INC)/funct.h $(INC)/duke3d.h
 gamedef_h=$(SRC)/gamedef.h
 
 $(OBJ)/game.$o: $(SRC)/game.c $(SRC)/sync.c $(SRC)/jmact/scriplib.h $(duke3d_h) $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h
@@ -37,14 +37,14 @@ $(OBJ)/startgtk.game.$o: $(SRC)/startgtk.game.c $(duke3d_h) $(EINC)/dynamicgtk.h
 
 
 # jMACT objects
-$(OBJ)/animlib.$o: $(SRC)/jmact/animlib.c $(SRC)/jmact/types.h $(SRC)/jmact/util_lib.h $(SRC)/jmact/animlib.h $(EINC)/compat.h
-$(OBJ)/util_lib.$o: $(SRC)/jmact/util_lib.c $(SRC)/jmact/util_lib.h $(SRC)/jmact/types.h $(EINC)/compat.h
-$(OBJ)/file_lib.$o: $(SRC)/jmact/file_lib.c $(SRC)/jmact/file_lib.h $(SRC)/jmact/types.h
-$(OBJ)/control.$o: $(SRC)/jmact/control.c $(SRC)/jmact/types.h $(SRC)/jmact/control.h $(SRC)/jmact/keyboard.h $(SRC)/jmact/mouse.h $(EINC)/baselayer.h
-$(OBJ)/keyboard.$o: $(SRC)/jmact/keyboard.c $(SRC)/jmact/types.h $(SRC)/jmact/keyboard.h $(EINC)/compat.h $(EINC)/baselayer.h
-$(OBJ)/mouse.$o: $(SRC)/jmact/mouse.c $(SRC)/jmact/types.h $(SRC)/jmact/mouse.h $(EINC)/baselayer.h
-$(OBJ)/mathutil.$o: $(SRC)/jmact/mathutil.c $(SRC)/jmact/types.h
-$(OBJ)/scriplib.$o: $(SRC)/jmact/scriplib.c $(SRC)/jmact/scriplib.h $(SRC)/jmact/util_lib.h $(SRC)/jmact/_scrplib.h $(SRC)/jmact/types.h $(EINC)/compat.h
+$(OBJ)/animlib.$o: $(SRC)/jmact/animlib.c $(SRC)/jmact/util_lib.h $(SRC)/jmact/animlib.h $(EINC)/compat.h
+$(OBJ)/util_lib.$o: $(SRC)/jmact/util_lib.c $(SRC)/jmact/util_lib.h $(EINC)/compat.h
+$(OBJ)/file_lib.$o: $(SRC)/jmact/file_lib.c $(SRC)/jmact/file_lib.h 
+$(OBJ)/control.$o: $(SRC)/jmact/control.c $(SRC)/jmact/control.h $(SRC)/jmact/keyboard.h $(SRC)/jmact/mouse.h $(EINC)/baselayer.h
+$(OBJ)/keyboard.$o: $(SRC)/jmact/keyboard.c $(SRC)/jmact/keyboard.h $(EINC)/compat.h $(EINC)/baselayer.h
+$(OBJ)/mouse.$o: $(SRC)/jmact/mouse.c $(SRC)/jmact/mouse.h $(EINC)/baselayer.h
+$(OBJ)/mathutil.$o: $(SRC)/jmact/mathutil.c
+$(OBJ)/scriplib.$o: $(SRC)/jmact/scriplib.c $(SRC)/jmact/scriplib.h $(SRC)/jmact/util_lib.h $(SRC)/jmact/_scrplib.h $(EINC)/compat.h
 
 # jAudioLib objects
 $(OBJ)/audiolib_fxstub.$o: $(SRC)/jaudiolib/audiolib_fxstub.c $(SRC)/jaudiolib/fx_man.h

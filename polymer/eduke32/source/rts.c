@@ -28,10 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // STATICS
 //=============
 
-int32 numlumps;
+int32_t numlumps;
 static void  **lumpcache;
 static lumpinfo_t *lumpinfo;              // location of each lump on disk
-static boolean RTS_Started = false;
+static int32_t RTS_Started = FALSE;
 
 char lumplockbyte[11];
 
@@ -55,13 +55,13 @@ char lumplockbyte[11];
 ====================
 */
 
-int32 RTS_AddFile(const char *filename)
+int32_t RTS_AddFile(const char *filename)
 {
     wadinfo_t  header;
     lumpinfo_t *lump_p;
-    uint32     i;
-    int32      handle, length;
-    int32      startlump;
+    uint32_t     i;
+    int32_t      handle, length;
+    int32_t      startlump;
     filelump_t *fileinfo, *fileinfoo;
 
     //
@@ -114,7 +114,7 @@ int32 RTS_AddFile(const char *filename)
 
     lump_p = &lumpinfo[startlump];
 
-    for (i=startlump ; i<(uint32)numlumps ; i++,lump_p++, fileinfo++)
+    for (i=startlump ; i<(uint32_t)numlumps ; i++,lump_p++, fileinfo++)
     {
         lump_p->handle = handle;
         lump_p->position = IntelLong(fileinfo->filepos);
@@ -139,7 +139,7 @@ int32 RTS_AddFile(const char *filename)
 
 void RTS_Init(const char *filename)
 {
-    int32 length;
+    int32_t length;
     //
     // open all the files, load headers, and count lumps
     //
@@ -157,7 +157,7 @@ void RTS_Init(const char *filename)
     length = (numlumps) * sizeof(*lumpcache);
     lumpcache = SafeMalloc(length);
     memset(lumpcache,0,length);
-    RTS_Started = true;
+    RTS_Started = TRUE;
 }
 
 
@@ -169,7 +169,7 @@ void RTS_Init(const char *filename)
 ====================
 */
 
-int32 RTS_NumSounds(void)
+int32_t RTS_NumSounds(void)
 {
     return numlumps-1;
 }
@@ -184,7 +184,7 @@ int32 RTS_NumSounds(void)
 ====================
 */
 
-int32 RTS_SoundLength(int32 lump)
+int32_t RTS_SoundLength(int32_t lump)
 {
     lump++;
     if (lump >= numlumps)
@@ -200,7 +200,7 @@ int32 RTS_SoundLength(int32 lump)
 ====================
 */
 
-const char * RTS_GetSoundName(int32 i)
+const char * RTS_GetSoundName(int32_t i)
 {
     i++;
     if (i>=numlumps)
@@ -217,7 +217,7 @@ const char * RTS_GetSoundName(int32 i)
 =
 ====================
 */
-void RTS_ReadLump(int32 lump, void *dest)
+void RTS_ReadLump(int32_t lump, void *dest)
 {
     lumpinfo_t *l;
 
@@ -237,10 +237,10 @@ void RTS_ReadLump(int32 lump, void *dest)
 =
 ====================
 */
-void *RTS_GetSound(int32 lump)
+void *RTS_GetSound(int32_t lump)
 {
     lump++;
-    if ((uint32)lump >= (uint32)numlumps)
+    if ((uint32_t)lump >= (uint32_t)numlumps)
         Error("RTS_GetSound: %i >= %i\n",lump,numlumps);
 
     if (lumpcache[lump] == NULL)

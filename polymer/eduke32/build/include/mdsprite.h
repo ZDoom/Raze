@@ -27,7 +27,7 @@ typedef struct _mdanim_t
 
 typedef struct _mdskinmap_t
 {
-    unsigned char palette, filler[3]; // Build palette number
+    uint8_t palette, filler[3]; // Build palette number
     int32_t skinnum, surfnum;   // Skin identifier, surface number
     char *fn;   // Skin filename
     GLuint texid[HICEFFECTMASK+1];   // OpenGL texture numbers for effect variations
@@ -50,7 +50,7 @@ typedef struct
     int32_t ofsskins, ofsuv, ofstris, ofsframes, ofsglcmds, ofseof; //ofsskins: skin names (64 bytes each)
 } md2head_t;
 
-typedef struct { unsigned char v[3], ni; } md2vert_t; //compressed vertex coords (x,y,z)
+typedef struct { uint8_t v[3], ni; } md2vert_t; //compressed vertex coords (x,y,z)
 typedef struct
 {
     point3d mul, add; //scale&translation vector
@@ -93,7 +93,7 @@ typedef struct
 typedef struct { char nam[64]; int32_t i; } md3shader_t; //ascz path of shader, shader index
 typedef struct { int32_t i[3]; } md3tri_t; //indices of tri
 typedef struct { float u, v; } md3uv_t;
-typedef struct { int16_t x, y, z; unsigned char nlat, nlng; } md3xyzn_t; //xyz are [10:6] ints
+typedef struct { int16_t x, y, z; uint8_t nlat, nlng; } md3xyzn_t; //xyz are [10:6] ints
 
 typedef struct
 {
@@ -182,7 +182,7 @@ typedef struct
 #define VOXBORDWIDTH 1 //use 0 to save memory, but has texture artifacts; 1 looks better...
 #define VOXUSECHAR 0
 #if (VOXUSECHAR != 0)
-typedef struct { unsigned char x, y, z, u, v; } vert_t;
+typedef struct { uint8_t x, y, z, u, v; } vert_t;
 #else
 typedef struct { uint16_t x, y, z, u, v; } vert_t;
 #endif

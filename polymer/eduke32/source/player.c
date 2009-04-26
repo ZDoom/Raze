@@ -37,8 +37,8 @@ int32_t g_kb;
 int32_t g_looking_angSR1;
 int32_t g_weapon_xoffset;
 
-int32 turnheldtime; //MED
-int32 lastcontroltime; //MED
+int32_t turnheldtime; //MED
+int32_t lastcontroltime; //MED
 
 extern int32_t g_levelTextTime;
 
@@ -2998,18 +2998,18 @@ void P_DisplayWeapon(int32_t snum)
 #define MAXHORIZ     127
 
 int32_t g_myAimMode = 0, g_myAimStat = 0, g_oldAimStat = 0;
-int32 mouseyaxismode = -1;
+int32_t mouseyaxismode = -1;
 int32_t jump_input = 0;
 
 void getinput(int32_t snum)
 {
     int32_t j, daang;
     static ControlInfo info[2];
-    int32 tics;
-    boolean running;
-    int32 turnamount;
-    int32 keymove;
-    int32 momx = 0,momy = 0;
+    int32_t tics;
+    int32_t running;
+    int32_t turnamount;
+    int32_t keymove;
+    int32_t momx = 0,momy = 0;
     DukePlayer_t *p = g_player[snum].ps;
 
     if ((p->gm&MODE_MENU) || (p->gm&MODE_TYPE) || (ud.pause_on && !KB_KeyPressed(sc_Pause)) || (numplayers > 1 && totalclock < 10))
@@ -3042,7 +3042,7 @@ void getinput(int32_t snum)
     }
 
     {
-        int32 i;
+        int32_t i;
         if (g_myAimMode) i = analog_lookingupanddown;
         else i = ud.config.MouseAnalogueAxes[1];
 
@@ -3320,14 +3320,14 @@ static int32_t P_DoCounters(DukePlayer_t *p)
     {
         p->last_pissed_time--;
 
-        if (p->last_pissed_time == (26*219))
+        if (p->last_pissed_time == (GAMETICSPERSEC*219))
         {
             A_PlaySound(FLUSH_TOILET,p->i);
             if (snum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
                 A_PlaySound(DUKE_PISSRELIEF,p->i);
         }
 
-        if (p->last_pissed_time == (26*218))
+        if (p->last_pissed_time == (GAMETICSPERSEC*218))
         {
             p->holster_weapon = 0;
             p->weapon_pos = 10;
@@ -3742,7 +3742,7 @@ void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
             break;
 
         case BIGFORCE__STATIC:
-            p->hurt_delay = 26;
+            p->hurt_delay = GAMETICSPERSEC;
             {
                 vec3_t davect;
 
@@ -3951,7 +3951,7 @@ void P_ProcessInput(int32_t snum)
     if (p->timebeforeexit > 1 && p->last_extra > 0)
     {
         p->timebeforeexit--;
-        if (p->timebeforeexit == 26*5)
+        if (p->timebeforeexit == GAMETICSPERSEC*5)
         {
             FX_StopAllSounds();
             S_ClearSoundLocks();
@@ -4416,8 +4416,8 @@ void P_ProcessInput(int32_t snum)
     }
     else if (psectlotag != 2)
     {
-        if (p->airleft != 15*26)
-            p->airleft = 15*26; //Aprox twenty seconds.
+        if (p->airleft != 15*GAMETICSPERSEC)
+            p->airleft = 15*GAMETICSPERSEC; //Aprox twenty seconds.
 
         if (p->scuba_on == 1)
             p->scuba_on = 0;
@@ -5202,7 +5202,7 @@ SHOOTINCODE:
 
         if (p->holster_weapon == 1)
         {
-            if (p->last_pissed_time <= (26*218) && p->weapon_pos == -9)
+            if (p->last_pissed_time <= (GAMETICSPERSEC*218) && p->weapon_pos == -9)
             {
                 p->holster_weapon = 0;
                 p->weapon_pos = 10;

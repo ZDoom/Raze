@@ -58,7 +58,7 @@ typedef enum
 
 typedef struct scriptline
    {
-   int32  type;
+   int32_t  type;
    void * ptr;
    struct scriptline *nextline;
    struct scriptline *prevline;
@@ -97,7 +97,7 @@ typedef struct
 ==============
 */
 
-int32 SCRIPT_New( void );
+int32_t SCRIPT_New( void );
 
 /*
 ==============
@@ -106,7 +106,7 @@ int32 SCRIPT_New( void );
 =
 ==============
 */
-void SCRIPT_Delete( int32 scripthandle );
+void SCRIPT_Delete( int32_t scripthandle );
 
 /*
 ==============
@@ -124,7 +124,7 @@ void SCRIPT_FreeSection( ScriptSectionType * section );
 =
 ==============
 */
-void SafeWriteString (int32 handle, char * string);
+void SafeWriteString (int32_t handle, char * string);
 
 /*
 ==============
@@ -138,7 +138,7 @@ void SafeWriteString (int32 handle, char * string);
 ScriptLineType * SCRIPT_AddLine
    (
    ScriptLineType * root,
-   int32 type,
+   int32_t type,
    void * ptr
    );
 
@@ -151,7 +151,7 @@ ScriptLineType * SCRIPT_AddLine
 */
 ScriptSectionType * SCRIPT_SectionExists
    (
-   int32 scripthandle,
+   int32_t scripthandle,
    char * sectionname
    );
 
@@ -162,7 +162,7 @@ ScriptSectionType * SCRIPT_SectionExists
 =
 ==============
 */
-ScriptSectionType * SCRIPT_AddSection( int32 scripthandle, char * sectionname );
+ScriptSectionType * SCRIPT_AddSection( int32_t scripthandle, char * sectionname );
 
 /*
 ==============
@@ -186,7 +186,7 @@ ScriptEntryType * SCRIPT_EntryExists
 */
 void SCRIPT_AddEntry
    (
-   int32 scripthandle,
+   int32_t scripthandle,
    char * sectionname,
    char * entryname,
    char * entryvalue
@@ -200,7 +200,7 @@ void SCRIPT_AddEntry
 ==============
 */
 
-void SCRIPT_DecodeToken ( int32 scripthandle, char * str );
+void SCRIPT_DecodeToken ( int32_t scripthandle, char * str );
 
 
 #ifdef __cplusplus

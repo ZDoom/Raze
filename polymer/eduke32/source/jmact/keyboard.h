@@ -41,7 +41,7 @@ extern "C" {
 =============================================================================
 */
 
-typedef uint8 kb_scancode;
+typedef uint8_t kb_scancode;
 
 #define  sc_None         0
 #define  sc_Bad          0xff
@@ -209,7 +209,7 @@ extern kb_scancode KB_LastScan;
 =============================================================================
 */
 
-boolean KB_KeyWaiting( void );         // Checks if a character is waiting in the keyboard queue
+int32_t KB_KeyWaiting( void );         // Checks if a character is waiting in the keyboard queue
 char    KB_Getch( void );              // Gets the next keypress
 void    KB_FlushKeyboardQueue( void ); // Empties the keyboard queue of all waiting characters.
 void    KB_ClearKeysDown( void );      // Clears all keys down flags.
@@ -217,7 +217,7 @@ char *  KB_ScanCodeToString( kb_scancode scancode ); // convert scancode into a 
 kb_scancode KB_StringToScanCode( char * string );  // convert a string into a scancode
 void    KB_TurnKeypadOn( void );       // turn the keypad on
 void    KB_TurnKeypadOff( void );      // turn the keypad off
-boolean KB_KeypadActive( void );       // check whether keypad is active
+int32_t KB_KeypadActive( void );       // check whether keypad is active
 void    KB_Startup( void );
 void    KB_Shutdown( void );
 

@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "mapster32.h"
 #include "keys.h"
-#include "types.h"
+
 #include "keyboard.h"
 #include "scriptfile.h"
 #include "crc32.h"
@@ -3517,9 +3517,9 @@ static inline void getnumber_doint16_t(int16_t *ptr, int32_t num)
     *ptr = (int16_t) num;
 }
 
-static inline void getnumber_doint32(int32 *ptr, int32_t num)
+static inline void getnumber_doint32(int32_t *ptr, int32_t num)
 {
-    *ptr = (int32) num;
+    *ptr = (int32_t) num;
 }
 
 static inline void getnumber_doint64(int64 *ptr, int32_t num)
@@ -3541,7 +3541,7 @@ void getnumberptr256(char *namestart, void *num, int32_t bytes, int32_t maxnumbe
         danum = *(int16_t *)num;
         break;
     case 4:
-        danum = *(int32 *)num;
+        danum = *(int32_t *)num;
         break;
     case 8:
         danum = *(int64 *)num;

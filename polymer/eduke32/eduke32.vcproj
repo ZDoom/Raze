@@ -769,10 +769,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\jmact\types.h"
-					>
-				</File>
-				<File
 					RelativePath=".\source\jmact\util_lib.h"
 					>
 				</File>

@@ -473,7 +473,7 @@ static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t dam
 extern int32_t G_LoadSaveHeader(char spot,struct savehead *saveh);
 
 static struct savehead savehead;
-//static int32 volnum,levnum,plrskl,numplr;
+//static int32_t volnum,levnum,plrskl,numplr;
 //static char brdfn[BMAX_PATH];
 int32_t g_lastSaveSlot = -1;
 
@@ -3582,7 +3582,7 @@ cheat_for_port_credits:
 
     case 210:
     {
-        int32 sc;
+        int32_t sc;
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(320>>1,24,0,0,"KEYBOARD SETUP");
 
@@ -4245,7 +4245,7 @@ cheat_for_port_credits:
             ud.config.JoystickAnalogueAxes[thispage*2+(x==7)] = l;
             CONTROL_MapAnalogAxis(thispage*2+(x==7),l,controldevice_joystick);
             {
-                extern int32 mouseyaxismode;	// player.c
+                extern int32_t mouseyaxismode;	// player.c
                 mouseyaxismode = -1;
             }
             break;

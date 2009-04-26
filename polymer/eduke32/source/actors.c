@@ -1135,7 +1135,7 @@ static void G_MoveFX(void)
                         {
                             j = s->lotag+((unsigned)g_globalRandom%(s->hitag+1));
                             S_PlaySound(j);
-                            T5 =  26*40 + (g_globalRandom%(26*40));
+                            T5 =  GAMETICSPERSEC*40 + (g_globalRandom%(GAMETICSPERSEC*40));
                         }
                 }
             }
@@ -3474,7 +3474,7 @@ static void G_MoveActors(void)
 
             if (t[0] == 4) A_PlaySound(WAR_AMBIENCE2,i);
 
-            if (t[0] > (26*8))
+            if (t[0] > (GAMETICSPERSEC*8))
             {
                 S_PlaySound(RPG_EXPLODE);
                 for (j=0; j<32; j++) RANDOMSCRAP;
@@ -3732,7 +3732,7 @@ static void G_MoveActors(void)
                     A_Shoot(i,FIRELASER);
                     s->ang = a;
                 }
-                if (t[2] > (26*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, g_player[p].ps->posx,g_player[p].ps->posy,g_player[p].ps->posz,g_player[p].ps->cursectnum))
+                if (t[2] > (GAMETICSPERSEC*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, g_player[p].ps->posx,g_player[p].ps->posy,g_player[p].ps->posz,g_player[p].ps->cursectnum))
                 {
                     t[0] = 0;
                     t[2] = 0;
@@ -3755,7 +3755,7 @@ static void G_MoveActors(void)
                 else
                 {
                     t[2]++;
-                    if (t[2] > (26*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, g_player[p].ps->posx,g_player[p].ps->posy,g_player[p].ps->posz,g_player[p].ps->cursectnum))
+                    if (t[2] > (GAMETICSPERSEC*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, g_player[p].ps->posx,g_player[p].ps->posy,g_player[p].ps->posz,g_player[p].ps->cursectnum))
                     {
                         t[0] = 1;
                         t[2] = 0;
@@ -3804,7 +3804,7 @@ static void G_MoveActors(void)
 
                     if (t[0] < 2) t[2]++;
 
-                    if (x < 6144 && t[0] < 2 && t[2] > (26*4))
+                    if (x < 6144 && t[0] < 2 && t[2] > (GAMETICSPERSEC*4))
                     {
                         t[0] = 2+(krand()&2);
                         t[2] = 0;
@@ -4777,7 +4777,7 @@ static void G_MoveMisc(void)  // STATNUM 5
             case BLOODSPLAT3__STATIC:
             case BLOODSPLAT4__STATIC:
 
-                if (t[0] == 7*26) goto BOLT;
+                if (t[0] == 7*GAMETICSPERSEC) goto BOLT;
                 s->z += 16+(krand()&15);
                 t[0]++;
                 if ((t[0]%9) == 0) s->yrepeat++;
@@ -4797,7 +4797,7 @@ static void G_MoveMisc(void)  // STATNUM 5
                         s->picnum = NUKEBUTTON+2;
                         g_player[sprite[s->owner].yvel].ps->fist_incs = 1;
                     }
-                    if (g_player[sprite[s->owner].yvel].ps->fist_incs == 26)
+                    if (g_player[sprite[s->owner].yvel].ps->fist_incs == GAMETICSPERSEC)
                         s->picnum = NUKEBUTTON+3;
                 }
                 goto BOLT;
@@ -7444,7 +7444,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
             {
                 if (t[0] == 1)
                     A_Shoot(i,sc->extra);
-                else if (t[0] == 26*5)
+                else if (t[0] == GAMETICSPERSEC*5)
                     t[0] = 0;
                 t[0]++;
             }

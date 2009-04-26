@@ -33,14 +33,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "compat.h"
-#include "types.h"
+
 #include "keyboard.h"
 #include "control.h"
 
 
 kb_scancode KB_LastScan;
 
-static boolean numpad = 0;
+static int32_t numpad = 0;
 
 // translation table for taking key names to scancodes and back again
 static struct
@@ -196,7 +196,7 @@ static char sctoasc[2][256] = {
 };
 */
 
-boolean KB_KeyWaiting(void)
+int32_t KB_KeyWaiting(void)
 {
     return bkbhit();
 //	return (keyfifoplc != keyfifoend);
@@ -263,7 +263,7 @@ void KB_TurnKeypadOff(void)
     numpad = 0;
 }
 
-boolean KB_KeypadActive(void)
+int32_t KB_KeypadActive(void)
 {
     return numpad;
 }

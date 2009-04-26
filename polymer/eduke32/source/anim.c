@@ -208,7 +208,7 @@ void G_PlayAnim(const char *fn,char t)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     int32_t ogltexfiltermode=gltexfiltermode;
 #endif
-    int32 handle=-1;
+    int32_t handle=-1;
     int32_t frametime = 0;
 
     //    return;
