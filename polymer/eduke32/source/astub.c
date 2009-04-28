@@ -49,7 +49,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20090313"
+#define BUILDDATE " 20090426"
 #define VERSION " 1.2.0devel"
 
 static int32_t floor_over_floor;
@@ -9786,53 +9786,76 @@ void ExtAnalyzeSprites(void)
     {
         if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 49)
         {
-            gamelights[gamelightcount].sector = SECT;
-            gamelights[gamelightcount].x = SX;
-            gamelights[gamelightcount].y = SY;
-            gamelights[gamelightcount].z = SZ;
-            gamelights[gamelightcount].range = SHT;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = SECT;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = SX;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = SY;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = SZ;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = SHT;
             if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
             {
-                gamelights[gamelightcount].color[0] = sprite[i].xvel;
-                gamelights[gamelightcount].color[1] = sprite[i].yvel;
-                gamelights[gamelightcount].color[2] = sprite[i].zvel;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = sprite[i].xvel;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = sprite[i].yvel;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = sprite[i].zvel;
             }
             else
             {
-                gamelights[gamelightcount].color[0] = hictinting[PL].r;
-                gamelights[gamelightcount].color[1] = hictinting[PL].g;
-                gamelights[gamelightcount].color[2] = hictinting[PL].b;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = hictinting[PL].r;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = hictinting[PL].g;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = hictinting[PL].b;
             }
-            gamelights[gamelightcount].radius = 0;
-            gamelights[gamelightcount].angle = SA;
-            gamelights[gamelightcount].horiz = SH;
-            gamelights[gamelightcount].priority = SS;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 0;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = SA;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = SH;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].minshade = sprite[i].xoffset;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].maxshade = sprite[i].yoffset;
+//            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = SS;
+
+            if (CS & 2)
+            {
+                if (CS & 512)
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 2;
+                else
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 1;
+            } else
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 0;
+
             gamelightcount++;
         }
         if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 50)
         {
-            gamelights[gamelightcount].sector = SECT;
-            gamelights[gamelightcount].x = SX;
-            gamelights[gamelightcount].y = SY;
-            gamelights[gamelightcount].z = SZ;
-            gamelights[gamelightcount].range = SHT;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = SECT;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = SX;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = SY;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = SZ;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = SHT;
             if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
             {
-                gamelights[gamelightcount].color[0] = sprite[i].xvel;
-                gamelights[gamelightcount].color[1] = sprite[i].yvel;
-                gamelights[gamelightcount].color[2] = sprite[i].zvel;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = sprite[i].xvel;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = sprite[i].yvel;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = sprite[i].zvel;
             }
             else
             {
-                gamelights[gamelightcount].color[0] = hictinting[PL].r;
-                gamelights[gamelightcount].color[1] = hictinting[PL].g;
-                gamelights[gamelightcount].color[2] = hictinting[PL].b;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = hictinting[PL].r;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = hictinting[PL].g;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = hictinting[PL].b;
             }
-            gamelights[gamelightcount].radius = 256;
-            gamelights[gamelightcount].faderadius = 200;
-            gamelights[gamelightcount].angle = SA;
-            gamelights[gamelightcount].horiz = SH;
-            gamelights[gamelightcount].priority = SS;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = (256-(SS+128))<<1;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius * 0.75;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = SA;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = SH;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].minshade = sprite[i].xoffset;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].maxshade = sprite[i].yoffset;
+
+            if (CS & 2)
+            {
+                if (CS & 512)
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 2;
+                else
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 1;
+            } else
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 0;
+
             gamelightcount++;
         }
     }

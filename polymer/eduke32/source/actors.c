@@ -7541,7 +7541,18 @@ static void G_MoveEffectors(void)   //STATNUM 3
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 0;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = SA;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = SH;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = SS;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].minshade = sprite[i].xoffset;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].maxshade = sprite[i].yoffset;
+
+            if (CS & 2)
+            {
+                if (CS & 512)
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 2;
+                else
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 1;
+            } else
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 0;
+
             if (gamelightcount < PR_MAXLIGHTS)
                 gamelightcount++;
             break;
@@ -7565,11 +7576,22 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = hictinting[PL].g;
                 gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = hictinting[PL].b;
             }
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = (256-(SS+128))<<1;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius * 0.75;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = SA;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = SH;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = SS;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].minshade = sprite[i].xoffset;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].maxshade = sprite[i].yoffset;
+
+            if (CS & 2)
+            {
+                if (CS & 512)
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 2;
+                else
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 1;
+            } else
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 0;
+
             if (gamelightcount < PR_MAXLIGHTS)
                 gamelightcount++;
             break;

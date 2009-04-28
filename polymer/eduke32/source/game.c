@@ -6086,6 +6086,9 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
 
         case SECTOREFFECTOR__STATIC:
+            sp->cstat |= 32768;
+            sp->xrepeat = sp->yrepeat = 0;
+
             switch (sp->lotag)
             {
 
@@ -6097,8 +6100,6 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             }
 
             sp->yvel = sector[sect].extra;
-            sp->cstat |= 32768;
-            sp->xrepeat = sp->yrepeat = 0;
 
             switch (sp->lotag)
             {
