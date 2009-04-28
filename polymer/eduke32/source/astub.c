@@ -9813,11 +9813,11 @@ void ExtAnalyzeSprites(void)
             if (CS & 2)
             {
                 if (CS & 512)
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 2;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_LOW;
                 else
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 1;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_HIGH;
             } else
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 0;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX;
 
             gamelightcount++;
         }
@@ -9850,11 +9850,11 @@ void ExtAnalyzeSprites(void)
             if (CS & 2)
             {
                 if (CS & 512)
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 2;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_LOW;
                 else
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 1;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_HIGH;
             } else
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = 0;
+                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX;
 
             gamelightcount++;
         }

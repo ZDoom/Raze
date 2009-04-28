@@ -5535,7 +5535,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
 
         case EXPLOSION2__STATIC:
-            G_AddGameLight(0, sp->sectnum, sp->x, sp->y, sp->z-((sp->yrepeat*tilesizy[sp->picnum])<<1), 8192, 255+(80<<8),0);
+            G_AddGameLight(0, sp->sectnum, sp->x, sp->y, sp->z-((sp->yrepeat*tilesizy[sp->picnum])<<1), 8192, 255+(80<<8),PR_LIGHT_PRIO_MAX_GAME);
         case EXPLOSION2BOT__STATIC:
         case BURNING__STATIC:
         case BURNING2__STATIC:
@@ -7447,7 +7447,7 @@ PALONLY:
             framelights[framelightcount & (PR_MAXLIGHTS-1)].color[1] = 255;
             framelights[framelightcount & (PR_MAXLIGHTS-1)].color[2] = 48;
 
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].priority = 2;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_LOW_GAME;
 
             if (framelightcount < PR_MAXLIGHTS)
                 framelightcount++;
@@ -7488,7 +7488,7 @@ PALONLY:
             framelights[framelightcount & (PR_MAXLIGHTS-1)].color[1] = 48;
             framelights[framelightcount & (PR_MAXLIGHTS-1)].color[2] = 48;
 
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].priority = 2;
+            framelights[framelightcount & (PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_LOW_GAME;
 
             if (framelightcount < PR_MAXLIGHTS)
                 framelightcount++;

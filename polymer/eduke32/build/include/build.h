@@ -43,6 +43,8 @@ extern "C" {
 #define RESERVEDPALS 2 // don't forget to increment this when adding reserved pals
 #define DETAILPAL   (MAXPALOOKUPS - 1)
 #define GLOWPAL     (MAXPALOOKUPS - 2)
+#define SPECULARPAL (MAXPALOOKUPS - 3)
+#define NORMALPAL   (MAXPALOOKUPS - 4)
 
 #define TSPR_TEMP 99
 #define TSPR_MIRROR 100

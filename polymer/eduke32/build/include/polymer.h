@@ -148,12 +148,19 @@ typedef struct      s_prprogrambit {
 // LIGHTS
 #define             PR_MAXLIGHTS            128
 #define             SHADOW_DEPTH_OFFSET     30
-#define             PR_MAXLIGHTPRIORITY     3
+#define             PR_MAXLIGHTPRIORITY     6
+
+#define             PR_LIGHT_PRIO_MAX       0
+#define             PR_LIGHT_PRIO_MAX_GAME  1
+#define             PR_LIGHT_PRIO_HIGH      2
+#define             PR_LIGHT_PRIO_HIGH_GAME 3
+#define             PR_LIGHT_PRIO_LOW       4
+#define             PR_LIGHT_PRIO_LOW_GAME  5
 
 typedef struct      s_prlight {
     int32_t         x, y, z, horiz, range;
     int16_t         angle, faderadius, radius, sector;
-    char            color[3], priority;
+    uint8_t         color[3], priority;
     int8_t          minshade, maxshade;
     GLfloat         proj[16];
     GLfloat         transform[16];

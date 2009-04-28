@@ -47,6 +47,8 @@ enum
     T_PAL,
     T_DETAIL,
     T_GLOW,
+    T_SPECULAR,
+    T_NORMAL,
     T_PARAM,
     T_HUD,
     T_XADD,
@@ -131,16 +133,18 @@ static tokenlist basetokens[] =
 
 static tokenlist modeltokens[] =
 {
-    { "scale",  T_SCALE  },
-    { "shade",  T_SHADE  },
-    { "zadd",   T_ZADD   },
-    { "frame",  T_FRAME  },
-    { "anim",   T_ANIM   },
-    { "skin",   T_SKIN   },
-    { "glow",   T_GLOW   },
-    { "detail", T_DETAIL },
-    { "hud",    T_HUD    },
-    { "flags",   T_FLAGS   },
+    { "scale",    T_SCALE    },
+    { "shade",    T_SHADE    },
+    { "zadd",     T_ZADD     },
+    { "frame",    T_FRAME    },
+    { "anim",     T_ANIM     },
+    { "skin",     T_SKIN     },
+    { "detail",   T_DETAIL   },
+    { "glow",     T_GLOW     },
+    { "specular", T_SPECULAR },
+    { "normal",   T_NORMAL   },
+    { "hud",      T_HUD      },
+    { "flags",    T_FLAGS    },
 };
 
 static tokenlist modelframetokens[] =
@@ -224,6 +228,8 @@ static tokenlist texturetokens[] =
     { "pal",     T_PAL  },
     { "detail",  T_DETAIL },
     { "glow",    T_GLOW },
+    { "specular",T_SPECULAR },
+    { "normal",  T_NORMAL },
 };
 
 static tokenlist texturetokens_pal[] =
@@ -1178,7 +1184,7 @@ static int32_t defsparser(scriptfile *script)
 #endif
                 }
                 break;
-                case T_SKIN: case T_DETAIL: case T_GLOW:
+                case T_SKIN: case T_DETAIL: case T_GLOW: case T_SPECULAR: case T_NORMAL:
                 {
                     char *skintokptr = script->ltextptr;
                     char *skinend, *skinfn = 0;
@@ -1222,6 +1228,12 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     case T_GLOW:
                         palnum = GLOWPAL;
+                        break;
+                    case T_SPECULAR:
+                        palnum = SPECULARPAL;
+                        break;
+                    case T_NORMAL:
+                        palnum = NORMALPAL;
                         break;
                     }
 
@@ -1488,9 +1500,6 @@ static int32_t defsparser(scriptfile *script)
             char *texturetokptr = script->ltextptr, *textureend;
             int32_t tile=-1, token;
 
-            char *fnB=0; double alphacutB=0, xscaleB=0, yscaleB=0; char flagsB=0;
-            int32_t palbits=0;
-
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
             while (script->textptr < textureend)
@@ -1503,7 +1512,7 @@ static int32_t defsparser(scriptfile *script)
                     char *paltokptr = script->ltextptr, *palend;
                     int32_t pal=-1, i;
                     char *fn = NULL, *tfn = NULL;
-                    double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
+                    double alphacut = -1.0, xscale = 1.0, yscale = 1.0;
                     char flags = 0;
 
                     if (scriptfile_getsymbol(script,&pal)) break;
@@ -1520,10 +1529,6 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&xscale); break;
                         case T_YSCALE:
                             scriptfile_getdouble(script,&yscale); break;
-                        case T_SPECPOWER:
-                            scriptfile_getdouble(script,&specpower); break;
-                        case T_SPECFACTOR:
-                            scriptfile_getdouble(script,&specfactor); break;
                         case T_NOCOMPRESS:
                             flags |= 1; break;
                         case T_NODOWNSIZE:
@@ -1567,17 +1572,15 @@ static int32_t defsparser(scriptfile *script)
                     xscale = 1.0f / xscale;
                     yscale = 1.0f / yscale;
 
-                    hicsetsubsttex(tile,pal,fn,alphacut,xscale,yscale, specpower, specfactor,flags);
-                    fnB=fn; alphacutB=alphacut; xscaleB=xscale; yscaleB=yscale; flagsB=flags;
-                    if (pal<30)palbits|=1<<pal;
+                    hicsetsubsttex(tile,pal,fn,alphacut,xscale,yscale, 1.0f, 1.0f,flags);
                 }
                 break;
-                case T_DETAIL: case T_GLOW:
+                case T_DETAIL: case T_GLOW: case T_SPECULAR: case T_NORMAL:
                 {
                     char *detailtokptr = script->ltextptr, *detailend;
                     int32_t pal = 0, i;
                     char *fn = NULL, *tfn = NULL;
-                    double xscale = 1.0, yscale = 1.0;
+                    double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
                     char flags = 0;
 
                     if (scriptfile_getbraces(script,&detailend)) break;
@@ -1591,6 +1594,10 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&xscale); break;
                         case T_YSCALE:
                             scriptfile_getdouble(script,&yscale); break;
+                        case T_SPECPOWER:
+                            scriptfile_getdouble(script,&specpower); break;
+                        case T_SPECFACTOR:
+                            scriptfile_getdouble(script,&specfactor); break;
                         case T_NOCOMPRESS:
                             flags |= 1; break;
                         case T_NODOWNSIZE:
@@ -1636,8 +1643,14 @@ static int32_t defsparser(scriptfile *script)
                     case T_GLOW:
                         pal = GLOWPAL;
                         break;
+                    case T_SPECULAR:
+                        pal = SPECULARPAL;
+                        break;
+                    case T_NORMAL:
+                        pal = NORMALPAL;
+                        break;
                     }
-                    hicsetsubsttex(tile,pal,fn,-1.0,xscale,yscale,1.0,1.0,flags);
+                    hicsetsubsttex(tile,pal,fn,-1.0f,xscale,yscale, specpower, specfactor,flags);
                 }
                 break;
                 default:

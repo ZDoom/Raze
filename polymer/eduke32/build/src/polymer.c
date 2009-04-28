@@ -11,7 +11,7 @@ int32_t         pr_normalmapping = 1;
 int32_t         pr_specularmapping = 1;
 int32_t         pr_shadows = 1;
 int32_t         pr_shadowcount = 5;
-int32_t         pr_shadowdetail = 2;
+int32_t         pr_shadowdetail = 4;
 int32_t         pr_maxlightpasses = 5;
 int32_t         pr_maxlightpriority = PR_MAXLIGHTPRIORITY;
 int32_t         pr_fov = 426;           // appears to be the classic setting.
@@ -3294,12 +3294,12 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     polymer_getscratchmaterial(material);
 
     // PR_BIT_NORMAL_MAP
-    if (hicfindsubst(tilenum, 100, 0))
+    if (hicfindsubst(tilenum, NORMALPAL, 0))
     {
         glowpth = NULL;
-        glowpth = gltexcache(tilenum, 100, 0);
+        glowpth = gltexcache(tilenum, NORMALPAL, 0);
 
-        if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == 100)) {
+        if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == NORMALPAL)) {
             material->normalmap = glowpth->glpic;
             material->normalbias[0] = glowpth->hicr->specpower;
             material->normalbias[1] = glowpth->hicr->specfactor;
@@ -3362,12 +3362,12 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
 
 
     // PR_BIT_SPECULAR_MAP
-    if (hicfindsubst(tilenum, 101, 0))
+    if (hicfindsubst(tilenum, SPECULARPAL, 0))
     {
         glowpth = NULL;
-        glowpth = gltexcache(tilenum, 101, 0);
+        glowpth = gltexcache(tilenum, SPECULARPAL, 0);
 
-        if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == 101))
+        if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == SPECULARPAL))
             material->specmap = glowpth->glpic;
     }
 
