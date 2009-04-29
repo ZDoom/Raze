@@ -49,6 +49,13 @@ extern "C" {
 #define TSPR_TEMP 99
 #define TSPR_MIRROR 100
 
+#define PR_LIGHT_PRIO_MAX       0
+#define PR_LIGHT_PRIO_MAX_GAME  1
+#define PR_LIGHT_PRIO_HIGH      2
+#define PR_LIGHT_PRIO_HIGH_GAME 3
+#define PR_LIGHT_PRIO_LOW       4
+#define PR_LIGHT_PRIO_LOW_GAME  5
+
 #define CLIPMASK0 (((1L)<<16)+1L)
 #define CLIPMASK1 (((256L)<<16)+64L)
 

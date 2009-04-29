@@ -9780,6 +9780,7 @@ void ExtAnalyzeSprites(void)
     spritetype *tspr;
     int32_t frames=0, l;
 
+#ifdef POLYMER
     gamelightcount = 0;
 
     for (i=numsprites-1; i>=0; i--)
@@ -9816,7 +9817,8 @@ void ExtAnalyzeSprites(void)
                     gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_LOW;
                 else
                     gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_HIGH;
-            } else
+            }
+            else
                 gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX;
 
             gamelightcount++;
@@ -9853,13 +9855,14 @@ void ExtAnalyzeSprites(void)
                     gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_LOW;
                 else
                     gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_HIGH;
-            } else
+            }
+            else
                 gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX;
 
             gamelightcount++;
         }
     }
-
+#endif
     for (i=0,tspr=&tsprite[0]; i<spritesortcnt; i++,tspr++)
     {
         frames=0;

@@ -305,7 +305,7 @@ void CONFIG_SetDefaults(void)
         ud.config.MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(mouseanalogdefaults[i]);
         CONTROL_MapAnalogAxis(i, ud.config.MouseAnalogueAxes[i], controldevice_mouse);
     }
-    CONTROL_SetMouseSensitivity(DEFAULTMOUSESENSITIVITY);
+    CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
 
     memset(ud.config.JoystickFunctions, -1, sizeof(ud.config.JoystickFunctions));
     for (i=0; i<MAXJOYBUTTONS; i++)
@@ -447,7 +447,7 @@ void CONFIG_SetupMouse(void)
     int32_t i;
     char str[80];
     char temp[80];
-    int32_t function, scale;
+    int32_t scale;
 
     if (ud.config.scripthandle < 0) return;
 
@@ -491,9 +491,11 @@ void CONFIG_SetupMouse(void)
         ud.config.MouseAnalogueScale[i] = scale;
     }
 
-    function = DEFAULTMOUSESENSITIVITY;
-    SCRIPT_GetNumber(ud.config.scripthandle, "Controls","Mouse_Sensitivity",&function);
-    CONTROL_SetMouseSensitivity(function);
+    {
+        tempbuf[0] = 0;
+        SCRIPT_GetString(ud.config.scripthandle, "Controls","Mouse_Sensitivity",&tempbuf[0]);
+        if (tempbuf[0]) CONTROL_MouseSensitivity = atof(tempbuf);
+    }
 
     for (i=0; i<MAXMOUSEBUTTONS; i++)
     {
@@ -1197,8 +1199,9 @@ void CONFIG_WriteSetup(void)
         Bsprintf(buf,"MouseAnalogScale%d",dummy);
         SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.MouseAnalogueScale[dummy], FALSE, FALSE);
     }
-    dummy = CONTROL_GetMouseSensitivity();
-    SCRIPT_PutNumber(ud.config.scripthandle, "Controls","Mouse_Sensitivity",dummy,FALSE,FALSE);
+
+    Bsprintf(tempbuf,"%.2f",CONTROL_MouseSensitivity);
+    SCRIPT_PutString(ud.config.scripthandle,  "Controls","Mouse_Sensitivity",tempbuf);
 
     for (dummy=0; dummy<MAXJOYBUTTONS; dummy++)
     {
@@ -1259,6 +1262,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_Free(ud.config.scripthandle);
     OSD_Printf("Wrote %s\n",setupfilename);
     CONFIG_WriteBinds();
+    OSD_WriteCvars(setupfilename);
 }
 
 

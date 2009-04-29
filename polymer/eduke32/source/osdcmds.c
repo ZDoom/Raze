@@ -38,6 +38,7 @@ float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
 extern int32_t althud_numbertile, althud_numberpal, althud_shadows, althud_flashing, hud_glowingquotes;
 extern int32_t hud_showmapname;
 extern int32_t r_maxfps;
+extern int32_t g_frameDelay;
 
 static inline int32_t osdcmd_quit(const osdfuncparm_t *parm)
 {
@@ -488,33 +489,6 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_setstatusbarscale(const osdfuncparm_t *parm)
-{
-    if (parm->numparms == 0)
-    {
-        OSD_Printf("\"hud_scale\" is \"%d\"\n", ud.statusbarscale);
-        return OSDCMD_SHOWHELP;
-    }
-    else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-    G_SetStatusBarScale(Batol(parm->parms[0]));
-    OSD_Printf("hud_scale %d\n", ud.statusbarscale);
-    return OSDCMD_OK;
-}
-
-static int32_t osdcmd_setweaponscale(const osdfuncparm_t *parm)
-{
-    if (parm->numparms == 0)
-    {
-        OSD_Printf("\"hud_weaponscale\" is \"%d\"\n", ud.weaponscale);
-        return OSDCMD_SHOWHELP;
-    }
-    else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-    ud.weaponscale = min(100,max(10,Batol(parm->parms[0])));
-    OSD_Printf("hud_weaponscale %d\n", ud.weaponscale);
-    return OSDCMD_OK;
-}
-
 static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
 {
     uint16_t cstat=0,picnum=0;
@@ -719,20 +693,6 @@ static int32_t osdcmd_cmenu(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_setcrosshairscale(const osdfuncparm_t *parm)
-{
-    if (parm->numparms == 0)
-    {
-        OSD_Printf("\"crosshairscale\" is \"%d\"\n", ud.crosshairscale);
-        return OSDCMD_SHOWHELP;
-    }
-    else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-    ud.crosshairscale = min(100,max(10,Batol(parm->parms[0])));
-    OSD_Printf("%s\n", parm->raw);
-    return OSDCMD_OK;
-}
-
 extern void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b);
 extern palette_t CrosshairColors;
 
@@ -750,18 +710,6 @@ static int32_t osdcmd_crosshaircolor(const osdfuncparm_t *parm)
     b = atol(parm->parms[2]);
     G_SetCrosshairColor(r,g,b);
     OSD_Printf("%s\n", parm->raw);
-    return OSDCMD_OK;
-}
-
-static int32_t osdcmd_sensitivity(const osdfuncparm_t *parm)
-{
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("\"sensitivity\" is \"%d\"\n",CONTROL_GetMouseSensitivity());
-        return OSDCMD_SHOWHELP;
-    }
-    CONTROL_SetMouseSensitivity(atoi(parm->parms[0]));
-    OSD_Printf("sensitivity %d\n",CONTROL_GetMouseSensitivity());
     return OSDCMD_OK;
 }
 
@@ -858,38 +806,6 @@ void onvideomodechange(int32_t newmode)
     setbrightness(ud.brightness>>2, pal, 0);
     g_restorePalette = 1;
     g_crosshairSum = 0;
-}
-
-static int32_t osdcmd_usemousejoy(const osdfuncparm_t *parm)
-{
-    int32_t showval = (parm->numparms < 1);
-    if (!Bstrcasecmp(parm->name, "in_mouse"))
-    {
-        if (showval)
-        {
-            OSD_Printf("in_mouse is %d\n", ud.config.UseMouse);
-        }
-        else
-        {
-            ud.config.UseMouse = (atoi(parm->parms[0]) != 0);
-            CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
-        }
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "in_joystick"))
-    {
-        if (showval)
-        {
-            OSD_Printf("in_joystick is %d\n", ud.config.UseJoystick);
-        }
-        else
-        {
-            ud.config.UseJoystick = (atoi(parm->parms[0]) != 0);
-            CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
-        }
-        return OSDCMD_OK;
-    }
-    return OSDCMD_SHOWHELP;
 }
 
 static int32_t osdcmd_name(const osdfuncparm_t *parm)
@@ -1232,79 +1148,6 @@ static int32_t osdcmd_restorestate(const osdfuncparm_t *parm)
 }
 */
 
-static int32_t osdcmd_vid_gamma(const osdfuncparm_t *parm)
-{
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("\"vid_gamma\" is \"%.1f\"\n",vid_gamma);
-        return OSDCMD_SHOWHELP;
-    }
-    vid_gamma = atof(parm->parms[0]);
-    ud.brightness = (int32_t)(min(max((float)((vid_gamma-1.0)*10.0),0),15));
-    ud.brightness <<= 2;
-    OSD_Printf("%s\n",parm->raw);
-    setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
-    return OSDCMD_OK;
-}
-
-static int32_t osdcmd_vid_brightness(const osdfuncparm_t *parm)
-{
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("\"vid_brightness\" is \"%.1f\"\n",vid_brightness);
-        return OSDCMD_SHOWHELP;
-    }
-    vid_brightness = atof(parm->parms[0]);
-    OSD_Printf("%s\n",parm->raw);
-    setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
-    return OSDCMD_OK;
-}
-
-static int32_t osdcmd_vid_contrast(const osdfuncparm_t *parm)
-{
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("\"vid_contrast\" is \"%.1f\"\n",vid_contrast);
-        return OSDCMD_SHOWHELP;
-    }
-    vid_contrast = atof(parm->parms[0]);
-    OSD_Printf("%s\n",parm->raw);
-    setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
-    return OSDCMD_OK;
-}
-
-static int32_t osdcmd_visibility(const osdfuncparm_t *parm)
-{
-    float f;
-
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("\"r_ambientlight\" is \"%.1f\"\n",r_ambientlight);
-        return OSDCMD_SHOWHELP;
-    }
-    f = max(0.05f,min(10.f,atof(parm->parms[0])));
-    r_ambientlight = f;
-    r_ambientlightrecip = 1.f/r_ambientlight;
-    OSD_Printf("%s\n",parm->raw);
-    return OSDCMD_OK;
-}
-
-static int32_t osdcmd_maxfps(const osdfuncparm_t *parm)
-{
-    extern int32_t g_frameDelay;
-
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("\"r_maxfps\" is \"%d\"\n",r_maxfps);
-        return OSDCMD_SHOWHELP;
-    }
-    r_maxfps = max(0,min(1000,atol(parm->parms[0])));
-    if (r_maxfps) g_frameDelay = (1000/r_maxfps);
-    else g_frameDelay = 0;
-    OSD_Printf("%s\n",parm->raw);
-    return OSDCMD_OK;
-}
-
 static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
 {
     int32_t j;
@@ -1334,6 +1177,72 @@ static int32_t osdcmd_cvar_set_multi(const osdfuncparm_t *parm)
     return r;
 }
 
+static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
+{
+    int32_t r = osdcmd_cvar_set(parm);
+
+#ifdef USE_OPENGL
+    if (r == OSDCMD_OK)
+    {
+        if (!Bstrcasecmp(parm->name, "r_maxfps"))
+        {
+            if (r_maxfps) g_frameDelay = (1000/r_maxfps);
+            else g_frameDelay = 0;
+
+            return r;
+        }
+        else if (!Bstrcasecmp(parm->name, "r_ambientlight"))
+        {
+            r_ambientlightrecip = 1.f/r_ambientlight;
+
+            return r;
+        }
+        else if (!Bstrcasecmp(parm->name, "in_mouse"))
+        {
+            CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
+
+            return r;
+        }
+        else if (!Bstrcasecmp(parm->name, "in_joystick"))
+        {
+            CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
+
+            return r;
+        }
+        else if (!Bstrcasecmp(parm->name, "vid_gamma"))
+        {
+            ud.brightness = (int32_t)(min(max((float)((vid_gamma-1.0)*10.0),0),15));
+            ud.brightness <<= 2;
+            setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+
+            return r;
+        }
+        else if (!Bstrcasecmp(parm->name, "vid_brightness"))
+        {
+            setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+
+            return r;
+        }
+        else if (!Bstrcasecmp(parm->name, "vid_contrast"))
+        {
+            setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+
+            return r;
+        }
+        else if (!Bstrcasecmp(parm->name, "hud_scale"))
+        {
+            G_UpdateScreenArea();
+
+            return r;
+        }
+
+
+    }
+
+#endif
+    return r;
+}
+
 int32_t registerosdcommands(void)
 {
     uint32_t i;
@@ -1350,11 +1259,11 @@ int32_t registerosdcommands(void)
         { "hud_shadows", "hud_shadows: enable/disable althud shadows", (void*)&althud_shadows, CVAR_BOOL, 0, 0, 1 },
         { "hud_flashing", "hud_flashing: enable/disable althud flashing", (void*)&althud_flashing, CVAR_BOOL, 0, 0, 1 },
         { "hud_glowingquotes", "hud_glowingquotes: enable/disable \"glowing\" quote text", (void*)&hud_glowingquotes, CVAR_BOOL, 0, 0, 1 },
-        { "hud_scale","hud_scale: changes the hud scale", osdcmd_setstatusbarscale, CVAR_FUNCPTR, 0, 0, 0 },
+        { "hud_scale","hud_scale: changes the hud scale", (void*)&ud.statusbarscale, CVAR_INT|CVAR_FUNCPTR, 0, 10, 100 },
         { "hud_showmapname", "hud_showmapname: enable/disable map name display on load", (void*)&hud_showmapname, CVAR_BOOL, 0, 0, 1 },
         { "hud_stats", "hud_stats: enable/disable level statistics display", (void*)&ud.levelstats, CVAR_BOOL, 0, 0, 1 },
         { "hud_textscale", "hud_textscale: sets multiplayer chat message size", (void*)&ud.textscale, CVAR_INT, 0, 100, 400 },
-        { "hud_weaponscale","hud_scale: changes the weapon scale", osdcmd_setweaponscale, CVAR_FUNCPTR, 0, 0, 0 },
+        { "hud_weaponscale","hud_weaponscale: changes the weapon scale", (void*)&ud.weaponscale, CVAR_INT, 0, 10, 100 },
 
         { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&ud.config.AutoAim, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
         { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
@@ -1373,11 +1282,10 @@ int32_t registerosdcommands(void)
         { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|CVAR_MULTI, 0, 0, 3 },
         { "cl_angleinterpolation", "cl_angleinterpolation: enable/disable angle interpolation", (void*)&ud.angleinterpolation, CVAR_INT, 0, 0, 256 },
 
-        { "crosshairscale","crosshairscale: changes the crosshair scale", osdcmd_setcrosshairscale, CVAR_FUNCPTR, 0, 0, 0 },
-        { "crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor, CVAR_FUNCPTR, 0, 0, 0 },
+        { "crosshairscale","crosshairscale: changes the crosshair scale", (void*)&ud.crosshairscale, CVAR_INT, 0, 10, 100 },
 
-        { "in_joystick","in_joystick: enables input from the joystick if it is present",osdcmd_usemousejoy, CVAR_FUNCPTR, 0, 0, 0 },
-        { "in_mouse","in_mouse: enables input from the mouse if it is present",osdcmd_usemousejoy, CVAR_FUNCPTR, 0, 0, 0 },
+        { "in_joystick","in_joystick: enables input from the joystick if it is present",(void*)&ud.config.UseJoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 0, 1 },
+        { "in_mouse","in_mouse: enables input from the mouse if it is present",(void*)&ud.config.UseMouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 0, 1 },
 
         { "in_mousebias", "in_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time", (void*)&ud.config.MouseBias, CVAR_INT, 0, 0, 32 },
         { "in_mousedeadzone", "in_mousedeadzone: amount of mouse movement to filter out", (void*)&ud.config.MouseDeadZone, CVAR_INT, 0, 0, 512 },
@@ -1389,10 +1297,10 @@ int32_t registerosdcommands(void)
         { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void*)&ud.shadows, CVAR_BOOL, 0, 0, 1 },
         { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 0, 1 },
 
-        { "r_ambientlight", "r_ambientlight: sets the global map light level",osdcmd_visibility, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_maxfps", "r_maxfps: sets a framerate cap",osdcmd_maxfps, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_ambientlight", "r_ambientlight: sets the global map light level",(void*)&r_ambientlight, CVAR_FLOAT|CVAR_FUNCPTR, 0, 0, 10 },
+        { "r_maxfps", "r_maxfps: sets a framerate cap",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 0, 1000 },
 
-        { "sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity, CVAR_FUNCPTR, 0, 0, 0 },
+        { "sensitivity","sensitivity <value>: changes the mouse sensitivity", (void*)&CONTROL_MouseSensitivity, CVAR_FLOAT|CVAR_FUNCPTR, 0, 0, 25 },
 
         { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
         { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&ud.config.VoiceToggle, CVAR_INT, 0, 0, 5 },
@@ -1403,16 +1311,16 @@ int32_t registerosdcommands(void)
         { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&ud.config.NumChannels, CVAR_INT, 0, 0, 2 },
         { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&ud.config.NumVoices, CVAR_INT, 0, 0, 32 },
         { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&ud.config.ReverseStereo, CVAR_BOOL, 0, 0, 16 },
-        { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",osdcmd_vid_gamma, CVAR_FUNCPTR, 0, 0, 0 },
-        { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",osdcmd_vid_contrast, CVAR_FUNCPTR, 0, 0, 0 },
-        { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",osdcmd_vid_brightness, CVAR_FUNCPTR, 0, 0, 0 },
+        { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",(void*)&vid_gamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 0, 10 },
+        { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void*)&vid_contrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 0, 10 },
+        { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",(void*)&vid_brightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 0, 10 },
 
     };
 
     for (i=0; i<sizeof(cvars_game)/sizeof(cvars_game[0]); i++)
     {
         OSD_RegisterCvar(&cvars_game[i]);
-        if (cvars_game[i].type == CVAR_FUNCPTR) OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, cvars_game[i].var);
+        if (cvars_game[i].type & CVAR_FUNCPTR) OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set_game);
         else if (cvars_game[i].type & CVAR_MULTI) OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set_multi);
         else OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set);
     }
@@ -1428,6 +1336,8 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
     OSD_RegisterFunction("bind","bind <key> <string>: associates a keypress with a string of console input. Type \"bind showkeys\" for a list of keys and \"listsymbols\" for a list of valid console commands.", osdcmd_bind);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
+    OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
+
     OSD_RegisterFunction("echo","echo [text]: echoes text to the console", osdcmd_echo);
     OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
 

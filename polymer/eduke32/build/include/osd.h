@@ -137,8 +137,7 @@ int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)
 
 int32_t osdcmd_cvar_set(const osdfuncparm_t *parm);
 int32_t OSD_RegisterCvar(const cvar_t *cvar);
-
-cvar_t *cvars;
+void OSD_WriteCvars(const char *setupfilename);
 
 // these correspond to the Duke palettes, so they shouldn't really be here
 // ...but I don't care

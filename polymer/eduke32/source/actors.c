@@ -5160,7 +5160,7 @@ static void G_MoveMisc(void)  // STATNUM 5
 
                 case EXPLOSION2__STATIC:
                     G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1),
-                        (512 * s->yrepeat) / (ActorExtra[i].temp_data[2]+1), 255+(80<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                                   (512 * s->yrepeat) / (ActorExtra[i].temp_data[2]+1), 255+(80<<8),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
                 case FORCERIPPLE__STATIC:
 //                    case TRANSPORTERSTAR__STATIC:
@@ -7519,7 +7519,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 A_SetSprite(k,CLIPMASK0);
             }
             break;
-#if 1 // POLYMER
+#ifdef POLYMER
         case 49:
         {
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = SECT;
@@ -7551,7 +7551,8 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_LOW;
                 else
                     gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_HIGH;
-            } else
+            }
+            else
                 gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX;
 
             if (gamelightcount < PR_MAXLIGHTS)
@@ -7590,7 +7591,8 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_LOW;
                 else
                     gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_HIGH;
-            } else
+            }
+            else
                 gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX;
 
             if (gamelightcount < PR_MAXLIGHTS)

@@ -7045,6 +7045,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                     t->sectnum = mycursectnum;
                 }
                 else t->ang = g_player[p].ps->ang+mulscale16((int32_t)(((g_player[p].ps->ang+1024- g_player[p].ps->oang)&2047)-1024),smoothratio);
+#if defined(POLYMOST) && defined(USE_OPENGL)
                 if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0)
                 {
                     static int32_t targetang = 0;
@@ -7067,7 +7068,9 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                     targetang = clamp(targetang, -128, 128);
                     t->ang += targetang;
                 }
-                else t->cstat |= 2;
+                else
+#endif
+                    t->cstat |= 2;
             }
 
             if (ud.multimode > 1 && (display_mirror || screenpeek != p || s->owner == -1))
@@ -11512,6 +11515,23 @@ CLEAN_DIRECTORY:
     for (i=0; i<joynumaxes; i++)
         setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
 
+    /*    if (VOLUMEONE)
+        {
+            if (numplayers > 4 || ud.multimode > 4)
+                G_GameExit(" The full version of Duke Nukem 3D supports 5 or more players.");
+        } */
+
+    {
+        char *ptr = Bstrdup(setupfilename), *p = strtok(ptr,".");
+        Bsprintf(tempbuf,"%s_binds.cfg",p);
+        OSD_Exec(tempbuf);
+        Bsprintf(tempbuf,"%s_cvars.cfg",p);
+        OSD_Exec(tempbuf);
+        Bfree(ptr);
+    }
+
+    OSD_Exec("autoexec.cfg");
+
     if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
     {
         int32_t i = 0;
@@ -11550,34 +11570,13 @@ CLEAN_DIRECTORY:
         ud.config.ScreenBPP = bpp[i];
     }
 
+    setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+
     initprintf("Initializing music...\n");
     S_MusicStartup();
     initprintf("Initializing sound...\n");
     S_SoundStartup();
     loadtmb();
-
-    /*    if (VOLUMEONE)
-        {
-            if (numplayers > 4 || ud.multimode > 4)
-                G_GameExit(" The full version of Duke Nukem 3D supports 5 or more players.");
-        } */
-
-    setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
-
-    //    if(KB_KeyPressed( sc_Escape ) ) G_GameExit(" ");
-
-    FX_StopAllSounds();
-    S_ClearSoundLocks();
-
-    OSD_Exec("autoexec.cfg");
-
-    {
-        char *ptr = Bstrdup(setupfilename);
-        Bsprintf(tempbuf,"%s_binds.cfg",strtok(ptr,"."));
-        Bfree(ptr);
-    }
-
-    OSD_Exec(tempbuf);
 
     if (ud.warp_on > 1 && ud.multimode < 2)
     {
@@ -11592,6 +11591,11 @@ CLEAN_DIRECTORY:
         if (G_LoadPlayer(ud.warp_on-2))
             ud.warp_on = 0;
     }
+
+    //    if(KB_KeyPressed( sc_Escape ) ) G_GameExit(" ");
+
+    FX_StopAllSounds();
+    S_ClearSoundLocks();
 
     //    getpackets();
 

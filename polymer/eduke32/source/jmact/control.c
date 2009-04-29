@@ -27,7 +27,7 @@ uint64  CONTROL_ButtonState = 0;
 uint64  CONTROL_ButtonHeldState = 0;
 
 // static int32_t CONTROL_UserInputDelay = -1;
-static int32_t CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
+float  CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
 static int32_t CONTROL_NumMouseButtons = 0;
 static int32_t CONTROL_NumMouseAxes = 0;
 static int32_t CONTROL_NumJoyButtons = 0;
@@ -69,25 +69,15 @@ void CONTROL_GetMouseDelta(void)
     {
         static int32_t lastx = 0, lasty = 0;
 
-        CONTROL_MouseAxes[0].analog = (((x + lastx) / 2) * (CONTROL_MouseSensitivity<<1));
-        CONTROL_MouseAxes[1].analog = (((y + lasty) / 2) * (CONTROL_MouseSensitivity<<1))<<1;
+        CONTROL_MouseAxes[0].analog = (((x + lastx) / 2.0f) * 4.0f * CONTROL_MouseSensitivity);
+        CONTROL_MouseAxes[1].analog = (((y + lasty) / 2.0f) * 4.0f * CONTROL_MouseSensitivity) * 2.0f;
         lastx = x;
         lasty = y;
         return;
     }
 
-    CONTROL_MouseAxes[0].analog = (x * (CONTROL_MouseSensitivity<<1));
-    CONTROL_MouseAxes[1].analog = (y * (CONTROL_MouseSensitivity<<1))<<1;
-}
-
-int32_t CONTROL_GetMouseSensitivity(void)
-{
-    return (CONTROL_MouseSensitivity);
-}
-
-void CONTROL_SetMouseSensitivity(int32_t newsensitivity)
-{
-    CONTROL_MouseSensitivity = newsensitivity;
+    CONTROL_MouseAxes[0].analog = (x * 4.0f * CONTROL_MouseSensitivity);
+    CONTROL_MouseAxes[1].analog = (y * 4.0f * CONTROL_MouseSensitivity) * 2.0f;
 }
 
 int32_t CONTROL_StartMouse(void)

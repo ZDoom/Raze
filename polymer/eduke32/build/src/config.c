@@ -137,7 +137,9 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "mouse", val, VL) > 0) { if (Batoi(val) != 0) option[3] = 1; else option[3] = 0; }
     if (readconfig(fp, "bpp", val, VL) > 0) bppgame = Batoi(val);
     if (readconfig(fp, "editorgridextent", val, VL) > 0) editorgridextent = max(min(524288,Batoi(val)),65536);
+#ifdef POLYMER
     if (readconfig(fp, "rendmode", val, VL) > 0) { i = Batoi(val); glrendmode = i; }
+#endif
     if (readconfig(fp, "brightness", val, VL) > 0)
     {
         brightness = min(max(Batoi(val),0),15);
@@ -296,9 +298,11 @@ int32_t writesetup(const char *fn)
              "; 3D-mode colour depth\n"
              "bpp = %d\n"
              "\n"
+#ifdef POLYMER
              "; Rendering mode\n"
              "rendmode = %d\n"
              "\n"
+#endif
              "; Grid limits\n"
              "editorgridextent = %d\n"
              "\n"
@@ -441,7 +445,10 @@ int32_t writesetup(const char *fn)
              "; remap = 10-3A,31-B8\n"
              "remap = ",
 
-             forcesetup, fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame, glrendmode,
+             forcesetup, fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame,
+#ifdef POLYMER
+             glrendmode,
+#endif
              editorgridextent,
 #if defined(POLYMOST) && defined(USE_OPENGL)
              glusetexcache, glusetexcachecompression, gltexfiltermode, glanisotropy,

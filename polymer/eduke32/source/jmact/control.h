@@ -163,8 +163,7 @@ void CONTROL_ClearButton( int32_t whichbutton );
 void CONTROL_ClearUserInput( UserInput *info );
 void CONTROL_WaitRelease( void );
 void CONTROL_Ack( void );
-int32_t CONTROL_GetMouseSensitivity( void );
-void CONTROL_SetMouseSensitivity( int32_t newsensitivity );
+float CONTROL_MouseSensitivity;
 int32_t CONTROL_Startup
    (
    controltype which,

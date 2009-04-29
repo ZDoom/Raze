@@ -5874,40 +5874,10 @@ static int32_t gltexturemode(const osdfuncparm_t *parm)
         else if (m >= (int32_t)numglfiltermodes) m = numglfiltermodes - 1;
     }
 
-    if (m != gltexfiltermode)
-    {
-        gltexfiltermode = m;
-        gltexapplyprops();
-    }
+    gltexfiltermode = m;
+    gltexapplyprops();
 
     OSD_Printf("Texture filtering mode changed to %s\n", glfiltermodes[gltexfiltermode].name);
-
-    return OSDCMD_OK;
-}
-
-static int32_t gltextureanisotropy(const osdfuncparm_t *parm)
-{
-    int32_t l;
-    const char *p;
-
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("Current texture anisotropy is %d\n", glanisotropy);
-        OSD_Printf("  Maximum is %d\n", (int32_t)glinfo.maxanisotropy);
-
-        return OSDCMD_OK;
-    }
-
-    l = Bstrtoul(parm->parms[0], (char **)&p, 10);
-    if (l < 0 || l > (int32_t)glinfo.maxanisotropy) l = 0;
-
-    if (l != gltexfiltermode)
-    {
-        glanisotropy = l;
-        gltexapplyprops();
-    }
-
-    OSD_Printf("Texture anisotropy changed to %d\n", glanisotropy);
 
     return OSDCMD_OK;
 }
@@ -5931,6 +5901,17 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
             OSD_Printf("restartvid: Reset failed...\n");
         return r;
     }
+    else if (!Bstrcasecmp(parm->name, "r_textureanisotropy"))
+    {
+        gltexapplyprops();
+        return r;
+    }
+    else if (!Bstrcasecmp(parm->name, "r_texturemode"))
+    {
+        gltexturemode(parm);
+        return r;
+    }
+
 #endif
     return r;
 }
@@ -5963,10 +5944,10 @@ void polymost_initosdfuncs(void)
         { "r_texcachecompression","r_texcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",(void *)&glusetexcachecompression, CVAR_BOOL, 0, 0, 1 },
         { "r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",(void *)&glusetexcache, CVAR_BOOL, 0, 0, 1 },
         { "r_texcompr","r_texcompr: enable/disable OpenGL texture compression",(void *)&glusetexcompr, CVAR_BOOL, 0, 0, 1 }, 
-        { "r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", (void *)&gltextureanisotropy, CVAR_INT, 0, 0, 16 },
+        { "r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", (void *)&glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 0, 16 },
         { "r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",(void *)&gltexmaxsize, CVAR_INT, 0, 0, 4096 },
         { "r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",(void *)&gltexmiplevel, CVAR_INT, 0, 0, 6 },
-        { "r_texturemode", "r_texturemode: changes the texture filtering settings", (void *)&gltexturemode, CVAR_INT, 0, 0, 5 },
+        { "r_texturemode", "r_texturemode: changes the texture filtering settings", (void *)&gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 0, 5 },
         { "r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",(void *)&r_vbocount, CVAR_INT, 0, 1, 256 },
         { "r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",(void *)&r_vbos, CVAR_BOOL, 0, 0, 1 },
         { "r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",(void *)&r_vertexarrays, CVAR_BOOL, 0, 0, 1 },

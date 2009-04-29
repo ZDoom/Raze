@@ -543,6 +543,8 @@ void G_UpdateScreenArea(void)
 {
     int32_t i, j, ss, x1, x2, y1, y2;
 
+    if (qsetmode != 200) return;
+
     if (ud.screen_size < 0) ud.screen_size = 0;
     if (ud.screen_size > 64) ud.screen_size = 64;
     if (ud.screen_size == 0) flushperms();
