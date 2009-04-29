@@ -5913,230 +5913,27 @@ static int32_t gltextureanisotropy(const osdfuncparm_t *parm)
 }
 #endif
 
-static int32_t osdcmd_polymostvars(const osdfuncparm_t *parm)
+static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
 {
-    int32_t showval = (parm->numparms < 1), val = 0;
+    int32_t r = osdcmd_cvar_set(parm);
 
-    if (!showval) val = atoi(parm->parms[0]);
-    if (!Bstrcasecmp(parm->name, "r_models"))
-    {
-        if (showval) { OSD_Printf("r_models is %d\n", usemodels); }
-        else usemodels = (val != 0);
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_hightile"))
-    {
-        if (showval) { OSD_Printf("r_hightile is %d\n", usehightile); }
-        else usehightile = (val != 0);
-        return OSDCMD_OK;
-    }
 #ifdef USE_OPENGL
-    else if (!Bstrcasecmp(parm->name, "r_texcompr"))
+    if (!Bstrcasecmp(parm->name, "r_swapinterval"))
     {
-        if (showval) { OSD_Printf("r_texcompr is %d\n", glusetexcompr); }
-        else glusetexcompr = (val != 0);
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_redbluemode"))
-    {
-        if (showval) { OSD_Printf("r_redbluemode is %d\n", glredbluemode); }
-        else glredbluemode = (val != 0);
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_texturemaxsize"))
-    {
-        if (showval) { OSD_Printf("r_texturemaxsize is %d\n", gltexmaxsize); }
-        else gltexmaxsize = val;
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_texturemiplevel"))
-    {
-        if (showval) { OSD_Printf("r_texturemiplevel is %d\n", gltexmiplevel); }
-        else gltexmiplevel = val;
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_detailmapping"))
-    {
-        if (showval) { OSD_Printf("r_detailmapping is %d\n", r_detailmapping); }
-        else
-        {
-            if (!glinfo.multitex || !glinfo.envcombine)
-            {
-                OSD_Printf("Your OpenGL implementation doesn't support detail mapping.\n");
-                r_detailmapping = 0;
-                return OSDCMD_OK;
-            }
-            r_detailmapping = (val != 0);
-        }
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_glowmapping"))
-    {
-        if (showval) { OSD_Printf("r_glowmapping is %d\n", r_glowmapping); }
-        else
-        {
-            if (!glinfo.multitex || !glinfo.envcombine)
-            {
-                OSD_Printf("Your OpenGL implementation doesn't support glow mapping.\n");
-                r_glowmapping = 0;
-                return OSDCMD_OK;
-            }
-            r_glowmapping = (val != 0);
-        }
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_vertexarrays"))
-    {
-        if (showval) { OSD_Printf("r_vertexarrays is %d\n", r_vertexarrays); }
-        else r_vertexarrays = (val != 0);
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_vbos"))
-    {
-        if (showval) { OSD_Printf("r_vbos is %d\n", r_vbos); }
-        else
-        {
-            if (!glinfo.vbos)
-            {
-                OSD_Printf("Your OpenGL implementation doesn't support Vertex Buffer Objects.\n");
-                r_vbos = 0;
-                return OSDCMD_OK;
-            }
-            r_vbos = (val != 0);
-        }
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_vbocount"))
-    {
-        if (showval) { OSD_Printf("r_vbocount is %d\n", r_vbocount); }
-        else if (val < 1) { OSD_Printf("Value out of range.\n"); }
-        else r_vbocount = val;
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_animsmoothing"))
-    {
-        if (showval) { OSD_Printf("r_animsmoothing is %d\n", r_animsmoothing); }
-        else r_animsmoothing = (val != 0);
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_parallaxskyclamping"))
-    {
-        if (showval) { OSD_Printf("r_parallaxskyclamping is %d\n", r_parallaxskyclamping); }
-        else r_parallaxskyclamping = (val != 0);
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_parallaxskypanning"))
-    {
-        if (showval) { OSD_Printf("r_parallaxskypanning is %d\n", r_parallaxskypanning); }
-        else r_parallaxskypanning = (val != 0);
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_polygonmode"))
-    {
-        if (showval) { OSD_Printf("r_polygonmode is %d\n", glpolygonmode); }
-        else glpolygonmode = val;
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_texcache"))
-    {
-        if (showval) { OSD_Printf("r_texcache is %d\n", glusetexcache); }
-        else glusetexcache = (val != 0);
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_texcachecompression"))
-    {
-        if (showval) { OSD_Printf("r_texcachecompression is %d\n", glusetexcachecompression); }
-        else glusetexcachecompression = (val != 0);
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_multisample"))
-    {
-        if (showval) { OSD_Printf("r_multisample is %d\n", glmultisample); }
-        else glmultisample = max(0,val);
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_nvmultisamplehint"))
-    {
-        if (showval) { OSD_Printf("r_nvmultisamplehint is %d\n", glnvmultisamplehint); }
-        else glnvmultisamplehint = (val != 0);
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_shadescale"))
-    {
-        if (showval) { OSD_Printf("r_shadescale is %g\n", shadescale); }
-        else
-        {
-            float fval = atof(parm->parms[0]);
-            shadescale = fval;
-        }
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_modelocclusionchecking"))
-    {
-        if (showval) { OSD_Printf("r_modelocclusionchecking is %d\n", r_modelocclusionchecking); }
-        else r_modelocclusionchecking = max(0,min(val,2));
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_fullbrights"))
-    {
-        if (showval) { OSD_Printf("r_fullbrights is %d\n", r_fullbrights); }
-        else r_fullbrights = (val != 0);
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_swapinterval"))
-    {
-        if (showval) { OSD_Printf("r_swapinterval is %d\n", vsync); }
-//        else vsync = (val != 0);
-        else setvsync(val != 0);
-        return OSDCMD_OK;
+        setvsync(vsync);
+        return r;
     }
     else if (!Bstrcasecmp(parm->name, "r_downsize"))
     {
-        if (showval) { OSD_Printf("r_downsize is %d\n", r_downsize); }
-        else if (val < 0 || val > 5) { OSD_Printf("Value out of range.\n"); }
-        else
-        {
-            r_downsize = val;
-            invalidatecache();
-            resetvideomode();
-            if (setgamemode(fullscreen,xdim,ydim,bpp))
-                OSD_Printf("restartvid: Reset failed...\n");
-        }
-        return OSDCMD_OK;
+        invalidatecache();
+        resetvideomode();
+        if (setgamemode(fullscreen,xdim,ydim,bpp))
+            OSD_Printf("restartvid: Reset failed...\n");
+        return r;
     }
 #endif
-    return OSDCMD_SHOWHELP;
+    return r;
 }
-
-#if 0
-// because I'm lazy
-static int32_t dumptexturedefs(const osdfuncparm_t *parm)
-{
-    hicreplctyp *hr;
-    int32_t i;
-
-    if (!hicfirstinit) return OSDCMD_OK;
-
-    initprintf("// Begin Texture Dump\n");
-    for (i=0; i<MAXTILES; i++)
-    {
-        hr = hicreplc[i];
-        if (!hr) continue;
-        initprintf("texture %d {\n", i);
-        for (; hr; hr = hr->next)
-        {
-            if (!hr->filename) continue;
-            initprintf("    pal %d { name \"%s\" ", hr->palnum, hr->filename);
-            if (hr->alphacut >= 0.0) initprintf("alphacut %g ", hr->alphacut);
-            initprintf("}\n");
-        }
-        initprintf("}\n");
-    }
-    initprintf("// End Texture Dump\n");
-
-    return OSDCMD_OK;	// no replacement found
-}
-#endif
 
 void polymost_initosdfuncs(void)
 {
@@ -6145,30 +5942,34 @@ void polymost_initosdfuncs(void)
     cvar_t cvars_polymost[] =
     {
 #ifdef USE_OPENGL
-        { "r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_modelocclusionchecking","r_modelocclusionchecking: enable/disable hack to cull \"obstructed\" models",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_detailmapping","r_detailmapping: enable/disable detail mapping",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_downsize","r_downsize: controls downsizing factor for hires textures",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_fullbrights","r_fullbrights: enable/disable fullbright textures",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_glowmapping","r_glowmapping: enable/disable glow mapping",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_polygonmode","r_polygonmode: debugging feature",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 }, //FUK
-        { "r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_shadescale","r_shadescale: multiplier for lighting",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_swapinterval","r_swapinterval: sets the GL swap interval (VSync)",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_texcachecompression","r_texcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_texcompr","r_texcompr: enable/disable OpenGL texture compression",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", gltextureanisotropy, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_texturemode", "r_texturemode: changes the texture filtering settings", gltexturemode, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",(void *)&r_animsmoothing, CVAR_BOOL, 0, 0, 1 },
+        { "r_modelocclusionchecking","r_modelocclusionchecking: enable/disable hack to cull \"obstructed\" models",(void *)&r_modelocclusionchecking, CVAR_INT, 0, 0, 2 },
+        { "r_detailmapping","r_detailmapping: enable/disable detail mapping",(void *)&r_detailmapping, CVAR_BOOL, 0, 0, 1 },
+        { "r_downsize","r_downsize: controls downsizing factor for hires textures",(void *)&r_downsize, CVAR_INT|CVAR_FUNCPTR, 0, 0, 5 },
+        { "r_fullbrights","r_fullbrights: enable/disable fullbright textures",(void *)&r_fullbrights, CVAR_BOOL, 0, 0, 1 },
+        { "r_glowmapping","r_glowmapping: enable/disable glow mapping",(void *)&r_glowmapping, CVAR_BOOL, 0, 0, 1 },
+/*
+        { "r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",(void *)&r_glowmapping, CVAR_BOOL, 0, 0, 1 }
+        { "r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",(void *)&glnvmultisamplehint, CVAR_BOOL, 0, 0, 1 }
+*/
+        { "r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",
+                (void *)&r_parallaxskyclamping, CVAR_BOOL, 0, 0, 1 },
+        { "r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",
+                (void *)&r_parallaxskypanning, CVAR_BOOL, 0, 0, 1 },
+        { "r_polygonmode","r_polygonmode: debugging feature",(void *)&glpolygonmode, CVAR_INT, 0, 0, 3 },
+        { "r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",(void *)&glredbluemode, CVAR_BOOL, 0, 0, 1 },
+        { "r_shadescale","r_shadescale: multiplier for lighting",(void *)&shadescale, CVAR_FLOAT, 0, 0, 10 },
+        { "r_swapinterval","r_swapinterval: sets the GL swap interval (VSync)",(void *)&vsync, CVAR_BOOL|CVAR_FUNCPTR, 0, 0, 1 },
+        { "r_texcachecompression","r_texcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",(void *)&glusetexcachecompression, CVAR_BOOL, 0, 0, 1 },
+        { "r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",(void *)&glusetexcache, CVAR_BOOL, 0, 0, 1 },
+        { "r_texcompr","r_texcompr: enable/disable OpenGL texture compression",(void *)&glusetexcompr, CVAR_BOOL, 0, 0, 1 }, 
+        { "r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", (void *)&gltextureanisotropy, CVAR_INT, 0, 0, 16 },
+        { "r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",(void *)&gltexmaxsize, CVAR_INT, 0, 0, 4096 },
+        { "r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",(void *)&gltexmiplevel, CVAR_INT, 0, 0, 6 },
+        { "r_texturemode", "r_texturemode: changes the texture filtering settings", (void *)&gltexturemode, CVAR_INT, 0, 0, 5 },
+        { "r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",(void *)&r_vbocount, CVAR_INT, 0, 1, 256 },
+        { "r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",(void *)&r_vbos, CVAR_BOOL, 0, 0, 1 },
+        { "r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",(void *)&r_vertexarrays, CVAR_BOOL, 0, 0, 1 },
         { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
         { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_INT, 0, 0, 2 },
 
@@ -6196,15 +5997,16 @@ void polymost_initosdfuncs(void)
         { "r_pr_specularfactor", "r_pr_specularfactor: overriden specular material factor", (void*)&pr_specularfactor, CVAR_FLOAT, 0, -10, 1000 },
 #endif
 
-        { "r_models","r_models: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
-        { "r_hightile","r_hightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_models","r_models: enable/disable model rendering in >8-bit mode",(void *)&usemodels, CVAR_BOOL, 0, 0, 1 },
+        { "r_hightile","r_hightile: enable/disable hightile texture rendering in >8-bit mode",(void *)&usehightile, CVAR_BOOL, 0, 0, 1 },
 #endif
     };
 
     for (i=0; i<sizeof(cvars_polymost)/sizeof(cvars_polymost[0]); i++)
     {
         OSD_RegisterCvar(&cvars_polymost[i]);
-        if (cvars_polymost[i].type == CVAR_FUNCPTR) OSD_RegisterFunction(cvars_polymost[i].name, cvars_polymost[i].helpstr, cvars_polymost[i].var);
+        // this is a little different than elsewhere
+        if (cvars_polymost[i].type & CVAR_FUNCPTR) OSD_RegisterFunction(cvars_polymost[i].name, cvars_polymost[i].helpstr, osdcmd_cvar_set_polymost);
         else OSD_RegisterFunction(cvars_polymost[i].name, cvars_polymost[i].helpstr, osdcmd_cvar_set);
     }
 

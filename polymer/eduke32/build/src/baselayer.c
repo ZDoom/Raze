@@ -212,18 +212,6 @@ static int32_t osdcmd_vars(const osdfuncparm_t *parm)
         }
         return OSDCMD_OK;
     }
-#ifdef SUPERBUILD
-    else if (!Bstrcasecmp(parm->name, "r_novoxmips"))
-    {
-        if (showval) { OSD_Printf("r_novoxmips is %d\n", novoxmips); }
-        else { novoxmips = (atoi(parm->parms[0]) != 0); }
-    }
-    else if (!Bstrcasecmp(parm->name, "r_voxels"))
-    {
-        if (showval) { OSD_Printf("r_voxels is %d\n", usevoxels); }
-        else { usevoxels = (atoi(parm->parms[0]) != 0); }
-    }
-#endif
     return OSDCMD_SHOWHELP;
 }
 
@@ -234,9 +222,9 @@ int32_t baselayer_init(void)
     cvar_t cvars_engine[] =
     {
 #ifdef SUPERBUILD
-        { "r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",osdcmd_vars, CVAR_FUNCPTR, 0, 0,0 },
-        { "r_voxels","r_voxels: enable/disable automatic sprite->voxel rendering",osdcmd_vars, CVAR_FUNCPTR, 0, 0,0 },
-        { "r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars, CVAR_FUNCPTR, 0, 0,0 },
+        { "r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",(void *)&novoxmips, CVAR_BOOL, 0, 0, 1 },
+        { "r_voxels","r_voxels: enable/disable automatic sprite->voxel rendering",(void *)&usevoxels, CVAR_BOOL, 0, 0, 1 },
+        { "r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars, CVAR_FUNCPTR, 0, 0, 0 },
 #endif
     };
 
