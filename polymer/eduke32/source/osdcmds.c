@@ -1326,6 +1326,13 @@ static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int32_t osdcmd_cvar_set_multi(const osdfuncparm_t *parm)
+{
+    int32_t r = osdcmd_cvar_set(parm);
+    G_UpdatePlayerFromMenu();
+
+    return r;
+}
 
 int32_t registerosdcommands(void)
 {
@@ -1406,6 +1413,7 @@ int32_t registerosdcommands(void)
     {
         OSD_RegisterCvar(&cvars_game[i]);
         if (cvars_game[i].type == CVAR_FUNCPTR) OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, cvars_game[i].var);
+        else if (cvars_game[i].type & CVAR_MULTI) OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set_multi);
         else OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set);
     }
 
