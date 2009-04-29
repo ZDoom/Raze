@@ -5887,31 +5887,36 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
 {
     int32_t r = osdcmd_cvar_set(parm);
 
-#ifdef USE_OPENGL
-    if (!Bstrcasecmp(parm->name, "r_swapinterval"))
-    {
-        setvsync(vsync);
+    if (xdim == 0 || ydim == 0 || bpp == 0) // video not set up yet
         return r;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_downsize"))
-    {
-        invalidatecache();
-        resetvideomode();
-        if (setgamemode(fullscreen,xdim,ydim,bpp))
-            OSD_Printf("restartvid: Reset failed...\n");
-        return r;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_textureanisotropy"))
-    {
-        gltexapplyprops();
-        return r;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_texturemode"))
-    {
-        gltexturemode(parm);
-        return r;
-    }
 
+#ifdef USE_OPENGL
+    if (r == OSDCMD_OK)
+    {
+        if (!Bstrcasecmp(parm->name, "r_swapinterval"))
+        {
+            setvsync(vsync);
+            return r;
+        }
+        else if (!Bstrcasecmp(parm->name, "r_downsize"))
+        {
+            invalidatecache();
+            resetvideomode();
+            if (setgamemode(fullscreen,xdim,ydim,bpp))
+                OSD_Printf("restartvid: Reset failed...\n");
+            return r;
+        }
+        else if (!Bstrcasecmp(parm->name, "r_textureanisotropy"))
+        {
+            gltexapplyprops();
+            return r;
+        }
+        else if (!Bstrcasecmp(parm->name, "r_texturemode"))
+        {
+            gltexturemode(parm);
+            return r;
+        }
+    }
 #endif
     return r;
 }
