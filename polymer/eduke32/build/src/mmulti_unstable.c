@@ -142,7 +142,7 @@ void deinit_network_transport(gcomtype *gcom);
 void mmulti_dosendpackets(int32_t other);
 
 
-void initcrc(void)
+static void initcrc(void)
 {
     int32_t i, j, k, a;
 

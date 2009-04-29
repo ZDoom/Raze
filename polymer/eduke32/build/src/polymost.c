@@ -6140,35 +6140,74 @@ static int32_t dumptexturedefs(const osdfuncparm_t *parm)
 
 void polymost_initosdfuncs(void)
 {
+    uint32_t i;
+
+    cvar_t cvars_polymost[] =
+    {
 #ifdef USE_OPENGL
-    OSD_RegisterFunction("r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_modelocclusionchecking","r_modelocclusionchecking: enable/disable hack to cull \"obstructed\" models",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_detailmapping","r_detailmapping: enable/disable detail mapping",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_downsize","r_downsize: controls downsizing factor for hires textures",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_fullbrights","r_fullbrights: enable/disable fullbright textures",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_glowmapping","r_glowmapping: enable/disable glow mapping",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_polygonmode","r_polygonmode: debugging feature",osdcmd_polymostvars); //FUK
-    OSD_RegisterFunction("r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_shadescale","r_shadescale: multiplier for lighting",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_swapinterval","r_swapinterval: sets the GL swap interval (VSync)",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_texcachecompression","r_texcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_texcompr","r_texcompr: enable/disable OpenGL texture compression",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", gltextureanisotropy);
-    OSD_RegisterFunction("r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_texturemode", "r_texturemode: changes the texture filtering settings", gltexturemode);
-    OSD_RegisterFunction("r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",osdcmd_polymostvars);
+        { "r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_modelocclusionchecking","r_modelocclusionchecking: enable/disable hack to cull \"obstructed\" models",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_detailmapping","r_detailmapping: enable/disable detail mapping",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_downsize","r_downsize: controls downsizing factor for hires textures",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_fullbrights","r_fullbrights: enable/disable fullbright textures",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_glowmapping","r_glowmapping: enable/disable glow mapping",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_polygonmode","r_polygonmode: debugging feature",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 }, //FUK
+        { "r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_shadescale","r_shadescale: multiplier for lighting",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_swapinterval","r_swapinterval: sets the GL swap interval (VSync)",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_texcachecompression","r_texcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_texcompr","r_texcompr: enable/disable OpenGL texture compression",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", gltextureanisotropy, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_texturemode", "r_texturemode: changes the texture filtering settings", gltexturemode, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
+        { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_INT, 0, 0, 2 },
+
+#ifdef POLYMER
+        // polymer cvars
+        { "r_pr_lighting", "r_pr_lighting: enable/disable dynamic lights", (void*)&pr_lighting, CVAR_BOOL, 0, 0, 1 },
+        { "r_pr_normalmapping", "r_pr_normalmapping: enable/disable virtual displacement mapping", (void*)&pr_normalmapping, CVAR_BOOL, 0, 0, 1 },
+        { "r_pr_specularmapping", "r_pr_specularmapping: enable/disable specular mapping", (void*)&pr_specularmapping, CVAR_BOOL, 0, 0, 1 },
+        { "r_pr_shadows", "r_pr_shadows: enable/disable dynamic shadows", (void*)&pr_shadows, CVAR_BOOL, 0, 0, 1 },
+        { "r_pr_shadowcount", "r_pr_shadowcount: maximal amount of shadow emitting lights on screen - you need to restart the renderer for it to take effect", (void*)&pr_shadowcount, CVAR_INT, 0, 0, 64 },
+        { "r_pr_shadowdetail", "r_pr_shadowdetail: sets the shadow map resolution - you need to restart the renderer for it to take effect", (void*)&pr_shadowdetail, CVAR_INT, 0, 0, 5 },
+        { "r_pr_maxlightpasses", "r_pr_maxlightpasses: the maximal amount of lights a single object can by affected by", (void*)&pr_maxlightpasses, CVAR_INT, 0, 0, 512 },
+        { "r_pr_maxlightpriority", "r_pr_maxlightpriority: lowering that value removes less meaningful lights from the scene", (void*)&pr_maxlightpriority, CVAR_INT, 0, 0, PR_MAXLIGHTPRIORITY },
+        { "r_pr_fov", "r_pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_INT, 0, 0, 1023},
+        { "r_pr_billboardingmode", "r_pr_billboardingmode: face sprite display method. 0: classic mode; 1: polymost mode", (void*)&pr_billboardingmode, CVAR_INT, 0, 0, 1 },
+        { "r_pr_verbosity", "r_pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },
+        { "r_pr_wireframe", "r_pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_INT, 0, 0, 1 },
+        { "r_pr_vbos", "r_pr_vbos: contols Vertex Buffer Object usage. 0: no VBOs. 1: VBOs for map data. 2: VBOs for model data.", (void*)&pr_vbos, CVAR_INT, 0, 0, 2 },
+        { "r_pr_gpusmoothing", "r_pr_gpusmoothing: toggles model animation interpolation", (void*)&pr_gpusmoothing, CVAR_INT, 0, 0, 1 },
+        { "r_pr_overrideparallax", "r_pr_overrideparallax: overrides parallax mapping scale and bias values with values from the pr_parallaxscale and pr_parallaxbias cvars; use it to fine-tune DEF tokens", (void*)&pr_overrideparallax, CVAR_BOOL, 0, 0, 1 },
+        { "r_pr_parallaxscale", "r_pr_parallaxscale: overriden parallax mapping offset scale", (void*)&pr_parallaxscale, CVAR_FLOAT, 0, -10, 10 },
+        { "r_pr_parallaxbias", "r_pr_parallaxbias: overriden parallax mapping offset bias", (void*)&pr_parallaxbias, CVAR_FLOAT, 0, -10, 10 },
+        { "r_pr_overridespecular", "r_pr_overridespecular: overrides specular material power and factor values with values from the pr_specularpower and pr_specularfactor cvars; use it to fine-tune DEF tokens", (void*)&pr_overridespecular, CVAR_BOOL, 0, 0, 1 },
+        { "r_pr_specularpower", "r_pr_specularpower: overriden specular material power", (void*)&pr_specularpower, CVAR_FLOAT, 0, -10, 1000 },
+        { "r_pr_specularfactor", "r_pr_specularfactor: overriden specular material factor", (void*)&pr_specularfactor, CVAR_FLOAT, 0, -10, 1000 },
 #endif
-    OSD_RegisterFunction("r_models","r_models: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_hightile","r_hightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);
-    //OSD_RegisterFunction("dumptexturedefs","dumptexturedefs: dumps all texture definitions in the new style",dumptexturedefs);
+
+        { "r_models","r_models: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_hightile","r_hightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars, CVAR_FUNCPTR, 0, 0, 0 },
+#endif
+    };
+
+    for (i=0; i<sizeof(cvars_polymost)/sizeof(cvars_polymost[0]); i++)
+    {
+        OSD_RegisterCvar(&cvars_polymost[i]);
+        if (cvars_polymost[i].type == CVAR_FUNCPTR) OSD_RegisterFunction(cvars_polymost[i].name, cvars_polymost[i].helpstr, cvars_polymost[i].var);
+        else OSD_RegisterFunction(cvars_polymost[i].name, cvars_polymost[i].helpstr, osdcmd_cvar_set);
+    }
+
 }
 
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)

@@ -5652,10 +5652,6 @@ int32_t initengine(void)
     clearbuf(&voxscale[0],sizeof(voxscale)>>2,65536L);
 #endif
 
-#ifdef POLYMOST
-    polymost_initosdfuncs();
-#endif
-
     paletteloaded = 0;
 
     searchit = 0; searchstat = -1;

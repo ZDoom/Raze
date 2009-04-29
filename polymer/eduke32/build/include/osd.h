@@ -23,7 +23,33 @@ typedef struct _symbol
 } symbol_t;
 
 symbol_t *symbols;
+
 const char *stripcolorcodes(char *out, const char *in);
+
+enum cvartypes
+{
+    CVAR_FLOAT,
+    CVAR_INT,
+    CVAR_UNSIGNEDINT,
+    CVAR_BOOL,
+    CVAR_STRING,
+    CVAR_NOMULTI = 128,
+    CVAR_MULTI = 256,
+    CVAR_NOSAVE = 512,
+    CVAR_FUNCPTR = 1024,
+};
+
+typedef struct
+{
+    char *name;
+    char *helpstr;
+    void *var;
+    int32_t type;       // 0 = integer, 1 = unsigned integer, 2 = boolean, 3 = string, |128 = not in multiplayer, |256 = update multi
+    int32_t extra;      // for string, is the length
+    int32_t min;
+    int32_t max;
+} cvar_t;
+
 
 #define OSD_ALIAS 1337
 #define OSD_UNALIASED 1338
@@ -108,6 +134,11 @@ int32_t OSD_Dispatch(const char *cmd);
 //   help = a short help string
 //   func = the entry point to the function
 int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)(const osdfuncparm_t*));
+
+int32_t osdcmd_cvar_set(const osdfuncparm_t *parm);
+int32_t OSD_RegisterCvar(const cvar_t *cvar);
+
+cvar_t *cvars;
 
 // these correspond to the Duke palettes, so they shouldn't really be here
 // ...but I don't care

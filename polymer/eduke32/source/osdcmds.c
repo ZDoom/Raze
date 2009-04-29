@@ -23,8 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "compat.h"
-#include "osdcmds.h"
 #include "osd.h"
+#include "osdcmds.h"
 #include "baselayer.h"
 #include "duke3d.h"
 #include "crc32.h"
@@ -382,6 +382,7 @@ static int32_t osdcmd_fileinfo(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+/*
 static int32_t osdcmd_rate(const osdfuncparm_t *parm)
 {
 #ifndef RANCID_NETWORKING
@@ -406,6 +407,7 @@ static int32_t osdcmd_rate(const osdfuncparm_t *parm)
     UNREFERENCED_PARAMETER(parm);
     return OSDCMD_OK;
 }
+*/
 
 static int32_t osdcmd_restartsound(const osdfuncparm_t *parm)
 {
@@ -717,170 +719,37 @@ static int32_t osdcmd_cmenu(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-cvar_t cvars[] =
+static int32_t osdcmd_setcrosshairscale(const osdfuncparm_t *parm)
 {
-    { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_BOOL, 0, 0, 1 },
-
-    { "hud_althud", "hud_althud: enable/disable alternate mini-hud", (void*)&ud.althud, CVAR_BOOL, 0, 0, 1 },
-    { "hud_messagetime", "hud_messagetime: length of time to display multiplayer chat messages", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
-    { "hud_numbertile", "hud_numbertile: first tile in alt hud number set", (void*)&althud_numbertile, CVAR_INT, 0, 0, MAXTILES-10 },
-    { "hud_numberpal", "hud_numberpal: pal for alt hud numbers", (void*)&althud_numberpal, CVAR_INT, 0, 0, MAXPALOOKUPS },
-    { "hud_shadows", "hud_shadows: enable/disable althud shadows", (void*)&althud_shadows, CVAR_BOOL, 0, 0, 1 },
-    { "hud_flashing", "hud_flashing: enable/disable althud flashing", (void*)&althud_flashing, CVAR_BOOL, 0, 0, 1 },
-    { "hud_glowingquotes", "hud_glowingquotes: enable/disable \"glowing\" quote text", (void*)&hud_glowingquotes, CVAR_BOOL, 0, 0, 1 },
-    { "hud_showmapname", "hud_showmapname: enable/disable map name display on load", (void*)&hud_showmapname, CVAR_BOOL, 0, 0, 1 },
-    { "hud_stats", "hud_stats: enable/disable level statistics display", (void*)&ud.levelstats, CVAR_BOOL, 0, 0, 1 },
-    { "hud_textscale", "hud_textscale: sets multiplayer chat message size", (void*)&ud.textscale, CVAR_INT, 0, 100, 400 },
-
-    { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&ud.config.AutoAim, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
-    { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
-    { "cl_autovote", "cl_autovote: enable/disable automatic voting", (void*)&ud.autovote, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
-
-    { "cl_obituaries", "cl_obituaries: enable/disable multiplayer death messages", (void*)&ud.obituaries, CVAR_BOOL, 0, 0, 1 },
-    { "cl_democams", "cl_democams: enable/disable demo playback cameras", (void*)&ud.democams, CVAR_BOOL, 0, 0, 1 },
-
-    { "cl_idplayers", "cl_idplayers: enable/disable name display when aiming at opponents", (void*)&ud.idplayers, CVAR_BOOL, 0, 0, 1 },
-
-    { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
-
-    { "cl_viewbob", "cl_viewbob: enable/disable player head bobbing", (void*)&ud.viewbob, CVAR_BOOL, 0, 0, 1 },
-
-    { "cl_weaponsway", "cl_weaponsway: enable/disable player weapon swaying", (void*)&ud.weaponsway, CVAR_BOOL, 0, 0, 1 },
-    { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|CVAR_MULTI, 0, 0, 3 },
-    { "cl_angleinterpolation", "cl_angleinterpolation: enable/disable angle interpolation", (void*)&ud.angleinterpolation, CVAR_INT, 0, 0, 256 },
-
-    { "in_mousebias", "in_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time", (void*)&ud.config.MouseBias, CVAR_INT, 0, 0, 32 },
-    { "in_mousedeadzone", "in_mousedeadzone: amount of mouse movement to filter out", (void*)&ud.config.MouseDeadZone, CVAR_INT, 0, 0, 512 },
-    { "in_mousesmoothing", "in_mousesmoothing: enable/disable mouse input smoothing", (void*)&ud.config.SmoothInput, CVAR_BOOL, 0, 0, 1 },
-
-#if defined(POLYMOST) && defined(USE_OPENGL)
-    { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
-    { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_INT, 0, 0, 2 },
-# ifdef POLYMER
-    // polymer cvars
-    { "r_pr_lighting", "r_pr_lighting: enable/disable dynamic lights", (void*)&pr_lighting, CVAR_BOOL, 0, 0, 1 },
-    { "r_pr_normalmapping", "r_pr_normalmapping: enable/disable virtual displacement mapping", (void*)&pr_normalmapping, CVAR_BOOL, 0, 0, 1 },
-    { "r_pr_specularmapping", "r_pr_specularmapping: enable/disable specular mapping", (void*)&pr_specularmapping, CVAR_BOOL, 0, 0, 1 },
-    { "r_pr_shadows", "r_pr_shadows: enable/disable dynamic shadows", (void*)&pr_shadows, CVAR_BOOL, 0, 0, 1 },
-    { "r_pr_shadowcount", "r_pr_shadowcount: maximal amount of shadow emitting lights on screen - you need to restart the renderer for it to take effect", (void*)&pr_shadowcount, CVAR_INT, 0, 0, 64 },
-    { "r_pr_shadowdetail", "r_pr_shadowdetail: sets the shadow map resolution - you need to restart the renderer for it to take effect", (void*)&pr_shadowdetail, CVAR_INT, 0, 0, 5 },
-    { "r_pr_maxlightpasses", "r_pr_maxlightpasses: the maximal amount of lights a single object can by affected by", (void*)&pr_maxlightpasses, CVAR_INT, 0, 0, 512 },
-    { "r_pr_maxlightpriority", "r_pr_maxlightpriority: lowering that value removes less meaningful lights from the scene", (void*)&pr_maxlightpriority, CVAR_INT, 0, 0, PR_MAXLIGHTPRIORITY },
-    { "r_pr_fov", "r_pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_INT, 0, 0, 1023},
-    { "r_pr_billboardingmode", "r_pr_billboardingmode: face sprite display method. 0: classic mode; 1: polymost mode", (void*)&pr_billboardingmode, CVAR_INT, 0, 0, 1 },
-    { "r_pr_verbosity", "r_pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },
-    { "r_pr_wireframe", "r_pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_INT, 0, 0, 1 },
-    { "r_pr_vbos", "r_pr_vbos: contols Vertex Buffer Object usage. 0: no VBOs. 1: VBOs for map data. 2: VBOs for model data.", (void*)&pr_vbos, CVAR_INT, 0, 0, 2 },
-    { "r_pr_gpusmoothing", "r_pr_gpusmoothing: toggles model animation interpolation", (void*)&pr_gpusmoothing, CVAR_INT, 0, 0, 1 },
-    { "r_pr_overrideparallax", "r_pr_overrideparallax: overrides parallax mapping scale and bias values with values from the pr_parallaxscale and pr_parallaxbias cvars; use it to fine-tune DEF tokens", (void*)&pr_overrideparallax, CVAR_BOOL, 0, 0, 1 },
-    { "r_pr_parallaxscale", "r_pr_parallaxscale: overriden parallax mapping offset scale", (void*)&pr_parallaxscale, CVAR_FLOAT, 0, -10, 10 },
-    { "r_pr_parallaxbias", "r_pr_parallaxbias: overriden parallax mapping offset bias", (void*)&pr_parallaxbias, CVAR_FLOAT, 0, -10, 10 },
-    { "r_pr_overridespecular", "r_pr_overridespecular: overrides specular material power and factor values with values from the pr_specularpower and pr_specularfactor cvars; use it to fine-tune DEF tokens", (void*)&pr_overridespecular, CVAR_BOOL, 0, 0, 1 },
-    { "r_pr_specularpower", "r_pr_specularpower: overriden specular material power", (void*)&pr_specularpower, CVAR_FLOAT, 0, -10, 1000 },
-    { "r_pr_specularfactor", "r_pr_specularfactor: overriden specular material factor", (void*)&pr_specularfactor, CVAR_FLOAT, 0, -10, 1000 },
-#endif
-#endif
-    { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
-    { "osdhightile", "osdhightile: enable/disable hires art replacements for console text", (void*)&osdhightile, CVAR_BOOL, 0, 0, 1 },
-    { "r_showfps", "r_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_INT, 0, 0, 2 },
-    { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void*)&ud.shadows, CVAR_BOOL, 0, 0, 1 },
-    { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 0, 1 },
-
-    { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
-    { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&ud.config.VoiceToggle, CVAR_INT, 0, 0, 5 },
-    { "snd_fxvolume", "snd_fxvolume: volume of sound effects", (void*)&ud.config.FXVolume, CVAR_INT, 0, 0, 255 },
-    { "snd_mixrate", "snd_mixrate: sound mixing rate", (void*)&ud.config.MixRate, CVAR_INT, 0, 0, 48000 },
-    { "snd_musvolume", "snd_musvolume: volume of midi music", (void*)&ud.config.MusicVolume, CVAR_INT, 0, 0, 255 },
-    { "snd_numbits", "snd_numbits: sound bits", (void*)&ud.config.NumBits, CVAR_INT, 0, 8, 16 },
-    { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&ud.config.NumChannels, CVAR_INT, 0, 0, 2 },
-    { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&ud.config.NumVoices, CVAR_INT, 0, 0, 32 },
-    { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&ud.config.ReverseStereo, CVAR_BOOL, 0, 0, 16 },
-};
-
-static int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
-{
-    int32_t showval = (parm->numparms == 0);
-    uint32_t i;
-
-    for (i = 0; i < sizeof(cvars)/sizeof(cvar_t); i++)
+    if (parm->numparms == 0)
     {
-        if (!Bstrcasecmp(parm->name, cvars[i].name))
-        {
-            if ((cvars[i].type & CVAR_NOMULTI) && numplayers > 1)
-            {
-                // sound the alarm
-                OSD_Printf("Cvar \"%s\" locked in multiplayer.\n",cvars[i].name);
-                return OSDCMD_OK;
-            }
-            else
-                switch (cvars[i].type&0x7f)
-                {
-                case CVAR_FLOAT:
-                {
-                    float val;
-                    if (showval)
-                    {
-                        OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(float*)cvars[i].var,(char*)cvars[i].helpstr);
-                        return OSDCMD_OK;
-                    }
-
-                    sscanf(parm->parms[0], "%f", &val);
-
-                    if (val < cvars[i].min || val > cvars[i].max)
-                    {
-                        OSD_Printf("%s value out of range\n",cvars[i].name);
-                        return OSDCMD_OK;
-                    }
-                    *(float*)cvars[i].var = val;
-                    OSD_Printf("%s %f",cvars[i].name,val);
-                }
-                break;
-                case CVAR_INT:
-                case CVAR_UNSIGNEDINT:
-                case CVAR_BOOL:
-                {
-                    int32_t val;
-                    if (showval)
-                    {
-                        OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvars[i].name,*(int32_t*)cvars[i].var,(char*)cvars[i].helpstr);
-                        return OSDCMD_OK;
-                    }
-
-                    val = atoi(parm->parms[0]);
-                    if (cvars[i].type == CVAR_BOOL) val = val != 0;
-
-                    if (val < cvars[i].min || val > cvars[i].max)
-                    {
-                        OSD_Printf("%s value out of range\n",cvars[i].name);
-                        return OSDCMD_OK;
-                    }
-                    *(int32_t*)cvars[i].var = val;
-                    OSD_Printf("%s %d",cvars[i].name,val);
-                }
-                break;
-                case CVAR_STRING:
-                {
-                    if (showval)
-                    {
-                        OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvars[i].name,(char*)cvars[i].var,(char*)cvars[i].helpstr);
-                        return OSDCMD_OK;
-                    }
-                    else
-                    {
-                        Bstrncpy((char*)cvars[i].var, parm->parms[0], cvars[i].extra-1);
-                        ((char*)cvars[i].var)[cvars[i].extra-1] = 0;
-                        OSD_Printf("%s %s",cvars[i].name,(char*)cvars[i].var);
-                    }
-                }
-                break;
-                default:
-                    break;
-                }
-            if (cvars[i].type&CVAR_MULTI)
-                G_UpdatePlayerFromMenu();
-        }
+        OSD_Printf("\"crosshairscale\" is \"%d\"\n", ud.crosshairscale);
+        return OSDCMD_SHOWHELP;
     }
-    OSD_Printf("\n");
+    else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    ud.crosshairscale = min(100,max(10,Batol(parm->parms[0])));
+    OSD_Printf("%s\n", parm->raw);
+    return OSDCMD_OK;
+}
+
+extern void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b);
+extern palette_t CrosshairColors;
+
+static int32_t osdcmd_crosshaircolor(const osdfuncparm_t *parm)
+{
+    int32_t r, g, b;
+
+    if (parm->numparms != 3)
+    {
+        OSD_Printf("crosshaircolor: r:%d g:%d b:%d\n",CrosshairColors.r,CrosshairColors.g,CrosshairColors.b);
+        return OSDCMD_SHOWHELP;
+    }
+    r = atol(parm->parms[0]);
+    g = atol(parm->parms[1]);
+    b = atol(parm->parms[2]);
+    G_SetCrosshairColor(r,g,b);
+    OSD_Printf("%s\n", parm->raw);
     return OSDCMD_OK;
 }
 
@@ -1404,40 +1273,6 @@ static int32_t osdcmd_vid_contrast(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_setcrosshairscale(const osdfuncparm_t *parm)
-{
-    if (parm->numparms == 0)
-    {
-        OSD_Printf("\"crosshairscale\" is \"%d\"\n", ud.crosshairscale);
-        return OSDCMD_SHOWHELP;
-    }
-    else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-    ud.crosshairscale = min(100,max(10,Batol(parm->parms[0])));
-    OSD_Printf("%s\n", parm->raw);
-    return OSDCMD_OK;
-}
-
-extern void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b);
-extern palette_t CrosshairColors;
-
-static int32_t osdcmd_crosshaircolor(const osdfuncparm_t *parm)
-{
-    int32_t r, g, b;
-
-    if (parm->numparms != 3)
-    {
-        OSD_Printf("crosshaircolor: r:%d g:%d b:%d\n",CrosshairColors.r,CrosshairColors.g,CrosshairColors.b);
-        return OSDCMD_SHOWHELP;
-    }
-    r = atol(parm->parms[0]);
-    g = atol(parm->parms[1]);
-    b = atol(parm->parms[2]);
-    G_SetCrosshairColor(r,g,b);
-    OSD_Printf("%s\n", parm->raw);
-    return OSDCMD_OK;
-}
-
 static int32_t osdcmd_visibility(const osdfuncparm_t *parm)
 {
     float f;
@@ -1495,12 +1330,83 @@ static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
 int32_t registerosdcommands(void)
 {
     uint32_t i;
-
     osdcmd_cheatsinfo_stat.cheatnum = -1;
 
-    for (i=0; i<sizeof(cvars)/sizeof(cvars[0]); i++)
+    cvar_t cvars_game[] =
     {
-        OSD_RegisterFunction(cvars[i].name, cvars[i].helpstr, osdcmd_cvar_set);
+        { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_BOOL, 0, 0, 1 },
+
+        { "hud_althud", "hud_althud: enable/disable alternate mini-hud", (void*)&ud.althud, CVAR_BOOL, 0, 0, 1 },
+        { "hud_messagetime", "hud_messagetime: length of time to display multiplayer chat messages", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
+        { "hud_numbertile", "hud_numbertile: first tile in alt hud number set", (void*)&althud_numbertile, CVAR_INT, 0, 0, MAXTILES-10 },
+        { "hud_numberpal", "hud_numberpal: pal for alt hud numbers", (void*)&althud_numberpal, CVAR_INT, 0, 0, MAXPALOOKUPS },
+        { "hud_shadows", "hud_shadows: enable/disable althud shadows", (void*)&althud_shadows, CVAR_BOOL, 0, 0, 1 },
+        { "hud_flashing", "hud_flashing: enable/disable althud flashing", (void*)&althud_flashing, CVAR_BOOL, 0, 0, 1 },
+        { "hud_glowingquotes", "hud_glowingquotes: enable/disable \"glowing\" quote text", (void*)&hud_glowingquotes, CVAR_BOOL, 0, 0, 1 },
+        { "hud_scale","hud_scale: changes the hud scale", osdcmd_setstatusbarscale, CVAR_FUNCPTR, 0, 0, 0 },
+        { "hud_showmapname", "hud_showmapname: enable/disable map name display on load", (void*)&hud_showmapname, CVAR_BOOL, 0, 0, 1 },
+        { "hud_stats", "hud_stats: enable/disable level statistics display", (void*)&ud.levelstats, CVAR_BOOL, 0, 0, 1 },
+        { "hud_textscale", "hud_textscale: sets multiplayer chat message size", (void*)&ud.textscale, CVAR_INT, 0, 100, 400 },
+        { "hud_weaponscale","hud_scale: changes the weapon scale", osdcmd_setweaponscale, CVAR_FUNCPTR, 0, 0, 0 },
+
+        { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&ud.config.AutoAim, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
+        { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
+        { "cl_autovote", "cl_autovote: enable/disable automatic voting", (void*)&ud.autovote, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
+
+        { "cl_obituaries", "cl_obituaries: enable/disable multiplayer death messages", (void*)&ud.obituaries, CVAR_BOOL, 0, 0, 1 },
+        { "cl_democams", "cl_democams: enable/disable demo playback cameras", (void*)&ud.democams, CVAR_BOOL, 0, 0, 1 },
+
+        { "cl_idplayers", "cl_idplayers: enable/disable name display when aiming at opponents", (void*)&ud.idplayers, CVAR_BOOL, 0, 0, 1 },
+
+        { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
+
+        { "cl_viewbob", "cl_viewbob: enable/disable player head bobbing", (void*)&ud.viewbob, CVAR_BOOL, 0, 0, 1 },
+
+        { "cl_weaponsway", "cl_weaponsway: enable/disable player weapon swaying", (void*)&ud.weaponsway, CVAR_BOOL, 0, 0, 1 },
+        { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|CVAR_MULTI, 0, 0, 3 },
+        { "cl_angleinterpolation", "cl_angleinterpolation: enable/disable angle interpolation", (void*)&ud.angleinterpolation, CVAR_INT, 0, 0, 256 },
+
+        { "crosshairscale","crosshairscale: changes the crosshair scale", osdcmd_setcrosshairscale, CVAR_FUNCPTR, 0, 0, 0 },
+        { "crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor, CVAR_FUNCPTR, 0, 0, 0 },
+
+        { "in_joystick","in_joystick: enables input from the joystick if it is present",osdcmd_usemousejoy, CVAR_FUNCPTR, 0, 0, 0 },
+        { "in_mouse","in_mouse: enables input from the mouse if it is present",osdcmd_usemousejoy, CVAR_FUNCPTR, 0, 0, 0 },
+
+        { "in_mousebias", "in_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time", (void*)&ud.config.MouseBias, CVAR_INT, 0, 0, 32 },
+        { "in_mousedeadzone", "in_mousedeadzone: amount of mouse movement to filter out", (void*)&ud.config.MouseDeadZone, CVAR_INT, 0, 0, 512 },
+        { "in_mousesmoothing", "in_mousesmoothing: enable/disable mouse input smoothing", (void*)&ud.config.SmoothInput, CVAR_BOOL, 0, 0, 1 },
+
+        { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
+        { "osdhightile", "osdhightile: enable/disable hires art replacements for console text", (void*)&osdhightile, CVAR_BOOL, 0, 0, 1 },
+        { "r_showfps", "r_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_INT, 0, 0, 2 },
+        { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void*)&ud.shadows, CVAR_BOOL, 0, 0, 1 },
+        { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 0, 1 },
+
+        { "r_ambientlight", "r_ambientlight: sets the global map light level",osdcmd_visibility, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_maxfps", "r_maxfps: sets a framerate cap",osdcmd_maxfps, CVAR_FUNCPTR, 0, 0, 0 },
+
+        { "sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity, CVAR_FUNCPTR, 0, 0, 0 },
+
+        { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
+        { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&ud.config.VoiceToggle, CVAR_INT, 0, 0, 5 },
+        { "snd_fxvolume", "snd_fxvolume: volume of sound effects", (void*)&ud.config.FXVolume, CVAR_INT, 0, 0, 255 },
+        { "snd_mixrate", "snd_mixrate: sound mixing rate", (void*)&ud.config.MixRate, CVAR_INT, 0, 0, 48000 },
+        { "snd_musvolume", "snd_musvolume: volume of midi music", (void*)&ud.config.MusicVolume, CVAR_INT, 0, 0, 255 },
+        { "snd_numbits", "snd_numbits: sound bits", (void*)&ud.config.NumBits, CVAR_INT, 0, 8, 16 },
+        { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&ud.config.NumChannels, CVAR_INT, 0, 0, 2 },
+        { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&ud.config.NumVoices, CVAR_INT, 0, 0, 32 },
+        { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&ud.config.ReverseStereo, CVAR_BOOL, 0, 0, 16 },
+        { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",osdcmd_vid_gamma, CVAR_FUNCPTR, 0, 0, 0 },
+        { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",osdcmd_vid_contrast, CVAR_FUNCPTR, 0, 0, 0 },
+        { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",osdcmd_vid_brightness, CVAR_FUNCPTR, 0, 0, 0 },
+
+    };
+
+    for (i=0; i<sizeof(cvars_game)/sizeof(cvars_game[0]); i++)
+    {
+        OSD_RegisterCvar(&cvars_game[i]);
+        if (cvars_game[i].type == CVAR_FUNCPTR) OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, cvars_game[i].var);
+        else OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set);
     }
 
     if (VOLUMEONE)
@@ -1512,17 +1418,9 @@ int32_t registerosdcommands(void)
     }
 
     OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
-
     OSD_RegisterFunction("bind","bind <key> <string>: associates a keypress with a string of console input. Type \"bind showkeys\" for a list of keys and \"listsymbols\" for a list of valid console commands.", osdcmd_bind);
-
-    OSD_RegisterFunction("hud_scale","hud_scale: changes the hud scale", osdcmd_setstatusbarscale);
-    OSD_RegisterFunction("hud_weaponscale","hud_weaponscale: changes the weapon scale", osdcmd_setweaponscale);
-    OSD_RegisterFunction("crosshairscale","crosshairscale: changes the crosshair scale", osdcmd_setcrosshairscale);
-    OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes crosshair color", osdcmd_crosshaircolor);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
-
     OSD_RegisterFunction("echo","echo [text]: echoes text to the console", osdcmd_echo);
-
     OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
 
     for (i=0; i<NUMGAMEFUNCTIONS; i++)
@@ -1544,8 +1442,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
 
-    OSD_RegisterFunction("in_joystick","in_joystick: enables input from the joystick if it is present",osdcmd_usemousejoy);
-    OSD_RegisterFunction("in_mouse","in_mouse: enables input from the mouse if it is present",osdcmd_usemousejoy);
     OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
     OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
 
@@ -1557,14 +1453,10 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
     OSD_RegisterFunction("exit","exit: exits the game immediately", osdcmd_quit);
 
-    OSD_RegisterFunction("rate","rate: sets the multiplayer packet send rate, in packets/sec",osdcmd_rate);
+//    OSD_RegisterFunction("rate","rate: sets the multiplayer packet send rate, in packets/sec",osdcmd_rate);
     OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
     OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
 
-    OSD_RegisterFunction("r_ambientlight", "r_ambientlight: sets the global map light level",osdcmd_visibility);
-    OSD_RegisterFunction("r_maxfps", "r_maxfps: sets a framerate cap",osdcmd_maxfps);
-
-    OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
     OSD_RegisterFunction("addlogvar","addlogvar <gamevar>: prints the value of a gamevar", osdcmd_addlogvar);
     OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);
     OSD_RegisterFunction("setvarvar","setvarvar <gamevar1> <gamevar2>: sets the value of <gamevar1> to <gamevar2>", osdcmd_setvar);
@@ -1577,9 +1469,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("unbindall","unbindall: unbinds all keys", osdcmd_unbindall);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
-    OSD_RegisterFunction("vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",osdcmd_vid_gamma);
-    OSD_RegisterFunction("vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",osdcmd_vid_contrast);
-    OSD_RegisterFunction("vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",osdcmd_vid_brightness);
 //    OSD_RegisterFunction("savestate","",osdcmd_savestate);
 //    OSD_RegisterFunction("restorestate","",osdcmd_restorestate);
     //baselayer_onvideomodechange = onvideomodechange;

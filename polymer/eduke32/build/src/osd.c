@@ -8,6 +8,7 @@
 #include "baselayer.h"
 #include "cache1d.h"
 #include "pragmas.h"
+#include "mmulti.h"
 
 symbol_t *symbols = NULL;
 static symbol_t *addnewsymbol(const char *name);
@@ -123,10 +124,62 @@ static void (*_drawosdcursor)(int32_t, int32_t, int32_t, int32_t) = _internal_dr
 static int32_t (*_getcolumnwidth)(int32_t) = _internal_getcolumnwidth;
 static int32_t (*_getrowheight)(int32_t) = _internal_getrowheight;
 
+cvar_t *cvars = NULL;
+static uint32_t osdnumcvars = 0;
+static hashtable_t osdcvarsH      = { MAXSYMBOLS<<1, NULL };
+
 // color code format is as follows:
 // ^## sets a color, where ## is the palette number
 // ^S# sets a shade, range is 0-7 equiv to shades 0-14
 // ^O resets formatting to defaults
+
+int32_t OSD_RegisterCvar(const cvar_t *cvar)
+{
+    const char *cp;
+
+    if (!osdinited) OSD_Init();
+
+    if (!cvar->name)
+    {
+        OSD_Printf("OSD_RegisterCvar(): may not register a cvar with a null name\n");
+        return -1;
+    }
+    if (!cvar->name[0])
+    {
+        OSD_Printf("OSD_RegisterCvar(): may not register a cvar with no name\n");
+        return -1;
+    }
+
+    // check for illegal characters in name
+    for (cp = cvar->name; *cp; cp++)
+    {
+        if ((cp == cvar->name) && (*cp >= '0') && (*cp <= '9'))
+        {
+            OSD_Printf("OSD_RegisterCvar(): first character of cvar name \"%s\" must not be a numeral\n", cvar->name);
+            return -1;
+        }
+        if ((*cp < '0') ||
+            (*cp > '9' && *cp < 'A') ||
+            (*cp > 'Z' && *cp < 'a' && *cp != '_') ||
+            (*cp > 'z'))
+        {
+            OSD_Printf("OSD_RegisterCvar(): illegal character in cvar name \"%s\"\n", cvar->name);
+            return -1;
+        }
+    }
+
+    if (!cvar->var)
+    {
+        OSD_Printf("OSD_RegisterCvar(): may not register a null cvar\n");
+        return -1;
+    }
+
+    cvars = Brealloc(cvars, (osdnumcvars + 1) * sizeof(cvar_t));
+    hash_add(&osdcvarsH, cvar->name, osdnumcvars);
+    Bmemcpy(&cvars[osdnumcvars++], cvar, sizeof(cvar_t));
+
+    return 0;
+}
 
 const char *stripcolorcodes(char *out, const char *in)
 {
@@ -624,6 +677,7 @@ void OSD_Cleanup(void)
     symbol_t *s;
 
     hash_free(&osdsymbolsH);
+    hash_free(&osdcvarsH);
 
     for (; symbols; symbols=s)
     {
@@ -633,6 +687,12 @@ void OSD_Cleanup(void)
 
     if (osdlog) Bfclose(osdlog);
     osdlog = NULL;
+
+    if (cvars)
+    {
+        Bfree(cvars);
+        cvars = NULL;
+    }
 
     osdinited=0;
 }
@@ -647,9 +707,10 @@ void OSD_Init(void)
     Bmemset(osdfmt, osdtextpal+(osdtextshade<<5), TEXTSIZE);
     Bmemset(osdsymbptrs, 0, sizeof(osdsymbptrs));
 
-    osdnumsymbols = 0;
+    osdnumsymbols = osdnumcvars = 0;
 
     hash_init(&osdsymbolsH);
+    hash_init(&osdcvarsH);
 
     osdlines=1;
 
@@ -1872,5 +1933,96 @@ static symbol_t *findexactsymbol(const char *name)
     if (i > -1)
         return osdsymbptrs[i];
     return NULL;
+}
+
+int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
+{
+    int32_t showval = (parm->numparms == 0);
+    int32_t i;
+
+    i = hash_find(&osdcvarsH, parm->name);
+
+
+    if (i < 0)
+        for (i = osdnumcvars-1; i >= 0; i--)
+            if (!Bstrcasecmp(parm->name, cvars[i].name)) break;
+
+    if (i > -1)
+    {
+        if ((cvars[i].type & CVAR_NOMULTI) && numplayers > 1)
+        {
+            // sound the alarm
+            OSD_Printf("Cvar \"%s\" locked in multiplayer.\n",cvars[i].name);
+            return OSDCMD_OK;
+        }
+        else
+            switch (cvars[i].type&0x7f)
+        {
+            case CVAR_FLOAT:
+                {
+                    float val;
+                    if (showval)
+                    {
+                        OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(float*)cvars[i].var,(char*)cvars[i].helpstr);
+                        return OSDCMD_OK;
+                    }
+
+                    sscanf(parm->parms[0], "%f", &val);
+
+                    if (val < cvars[i].min || val > cvars[i].max)
+                    {
+                        OSD_Printf("%s value out of range\n",cvars[i].name);
+                        return OSDCMD_OK;
+                    }
+                    *(float*)cvars[i].var = val;
+                    OSD_Printf("%s %f",cvars[i].name,val);
+                }
+                break;
+            case CVAR_INT:
+            case CVAR_UNSIGNEDINT:
+            case CVAR_BOOL:
+                {
+                    int32_t val;
+                    if (showval)
+                    {
+                        OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvars[i].name,*(int32_t*)cvars[i].var,(char*)cvars[i].helpstr);
+                        return OSDCMD_OK;
+                    }
+
+                    val = atoi(parm->parms[0]);
+                    if (cvars[i].type == CVAR_BOOL) val = val != 0;
+
+                    if (val < cvars[i].min || val > cvars[i].max)
+                    {
+                        OSD_Printf("%s value out of range\n",cvars[i].name);
+                        return OSDCMD_OK;
+                    }
+                    *(int32_t*)cvars[i].var = val;
+                    OSD_Printf("%s %d",cvars[i].name,val);
+                }
+                break;
+            case CVAR_STRING:
+                {
+                    if (showval)
+                    {
+                        OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvars[i].name,(char*)cvars[i].var,(char*)cvars[i].helpstr);
+                        return OSDCMD_OK;
+                    }
+                    else
+                    {
+                        Bstrncpy((char*)cvars[i].var, parm->parms[0], cvars[i].extra-1);
+                        ((char*)cvars[i].var)[cvars[i].extra-1] = 0;
+                        OSD_Printf("%s %s",cvars[i].name,(char*)cvars[i].var);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        //            if (cvars[i].type&CVAR_MULTI)
+        //                G_UpdatePlayerFromMenu();
+    }
+    OSD_Printf("\n");
+    return OSDCMD_OK;
 }
 

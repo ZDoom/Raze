@@ -4,7 +4,6 @@
 #include "compat.h"
 
 void callcommit(void);
-void initcrc(void);
 int32_t getcrc(char *buffer, int32_t bufleng);
 void mmulti_initmultiplayers(int32_t argc, char **argv);
 void mmulti_sendpacket(int32_t other, char *bufptr, int32_t messleng);

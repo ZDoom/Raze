@@ -229,6 +229,24 @@ static int32_t osdcmd_vars(const osdfuncparm_t *parm)
 
 int32_t baselayer_init(void)
 {
+    uint32_t i;
+
+    cvar_t cvars_engine[] =
+    {
+#ifdef SUPERBUILD
+        { "r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",osdcmd_vars, CVAR_FUNCPTR, 0, 0,0 },
+        { "r_voxels","r_voxels: enable/disable automatic sprite->voxel rendering",osdcmd_vars, CVAR_FUNCPTR, 0, 0,0 },
+        { "r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars, CVAR_FUNCPTR, 0, 0,0 },
+#endif
+    };
+
+    for (i=0; i<sizeof(cvars_engine)/sizeof(cvars_engine[0]); i++)
+    {
+        OSD_RegisterCvar(&cvars_engine[i]);
+        if (cvars_engine[i].type == CVAR_FUNCPTR) OSD_RegisterFunction(cvars_engine[i].name, cvars_engine[i].helpstr, cvars_engine[i].var);
+        else OSD_RegisterFunction(cvars_engine[i].name, cvars_engine[i].helpstr, osdcmd_cvar_set);
+    }
+
 #ifdef POLYMOST
     OSD_RegisterFunction("setrendermode","setrendermode <number>: sets the engine's rendering mode.\n"
                          "Mode numbers are:\n"
@@ -241,18 +259,15 @@ int32_t baselayer_init(void)
 #endif
                          ,
                          osdfunc_setrendermode);
-#endif
-    OSD_RegisterFunction("r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars);
-#ifdef SUPERBUILD
-    OSD_RegisterFunction("r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",osdcmd_vars);
-    OSD_RegisterFunction("r_voxels","r_voxels: enable/disable automatic sprite->voxel rendering",osdcmd_vars);
-#endif
-#if defined(POLYMOST) && defined(USE_OPENGL)
+
 #ifdef DEBUGGINGAIDS
     OSD_RegisterFunction("hicsetpalettetint","hicsetpalettetint: sets palette tinting values",osdcmd_hicsetpalettetint);
 #endif
+
     OSD_RegisterFunction("glinfo","glinfo: shows OpenGL information about the current OpenGL mode",osdcmd_glinfo);
+    polymost_initosdfuncs();
 #endif
+
     return 0;
 }
 
