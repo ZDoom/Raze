@@ -179,6 +179,7 @@ int32_t r_fullbrights = 1;
 // texture downsizing
 // is medium quality a good default?
 int32_t r_downsize = 1;
+int32_t r_downsizevar = 1;
 
 // used for fogcalc
 float fogresult, fogcol[4], fogtable[4*MAXPALOOKUPS];
@@ -828,6 +829,8 @@ void polymost_glinit()
 void invalidatecache(void)
 {
     int32_t i;
+
+    r_downsizevar = r_downsize; // update the cvar representation when the menu changes r_downsize
 
     polymost_glreset();
     if (cachefilehandle != -1)
@@ -5900,10 +5903,14 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
         }
         else if (!Bstrcasecmp(parm->name, "r_downsize"))
         {
-            invalidatecache();
-            resetvideomode();
-            if (setgamemode(fullscreen,xdim,ydim,bpp))
-                OSD_Printf("restartvid: Reset failed...\n");
+            if (r_downsize != r_downsizevar)
+            {
+                invalidatecache();
+                resetvideomode();
+                if (setgamemode(fullscreen,xdim,ydim,bpp))
+                    OSD_Printf("restartvid: Reset failed...\n");
+            }
+            r_downsize = r_downsizevar;
             return r;
         }
         else if (!Bstrcasecmp(parm->name, "r_textureanisotropy"))
@@ -5931,7 +5938,7 @@ void polymost_initosdfuncs(void)
         { "r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",(void *)&r_animsmoothing, CVAR_BOOL, 0, 0, 1 },
         { "r_modelocclusionchecking","r_modelocclusionchecking: enable/disable hack to cull \"obstructed\" models",(void *)&r_modelocclusionchecking, CVAR_INT, 0, 0, 2 },
         { "r_detailmapping","r_detailmapping: enable/disable detail mapping",(void *)&r_detailmapping, CVAR_BOOL, 0, 0, 1 },
-        { "r_downsize","r_downsize: controls downsizing factor for hires textures",(void *)&r_downsize, CVAR_INT|CVAR_FUNCPTR, 0, 0, 5 },
+        { "r_downsize","r_downsize: controls downsizing factor for hires textures",(void *)&r_downsizevar, CVAR_INT|CVAR_FUNCPTR, 0, 0, 5 },
         { "r_fullbrights","r_fullbrights: enable/disable fullbright textures",(void *)&r_fullbrights, CVAR_BOOL, 0, 0, 1 },
         { "r_glowmapping","r_glowmapping: enable/disable glow mapping",(void *)&r_glowmapping, CVAR_BOOL, 0, 0, 1 },
 /*

@@ -23,11 +23,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "compat.h"
-#include "osd.h"
 #include "osdcmds.h"
 #include "baselayer.h"
 #include "duke3d.h"
 #include "crc32.h"
+#include "osd.h"
 #include "osdfuncs.h"
 #include <ctype.h>
 #include <limits.h>
@@ -1246,7 +1246,6 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
 int32_t registerosdcommands(void)
 {
     uint32_t i;
-    osdcmd_cheatsinfo_stat.cheatnum = -1;
 
     cvar_t cvars_game[] =
     {
@@ -1316,6 +1315,8 @@ int32_t registerosdcommands(void)
         { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",(void*)&vid_brightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 0, 10 },
 
     };
+
+    osdcmd_cheatsinfo_stat.cheatnum = -1;
 
     for (i=0; i<sizeof(cvars_game)/sizeof(cvars_game[0]); i++)
     {

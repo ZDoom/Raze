@@ -793,6 +793,7 @@ int32_t CONFIG_ReadSetup(void)
         else glrendmode = 3;
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLTextureMode", &gltexfiltermode);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLTextureQuality", &r_downsize);
+        r_downsizevar = r_downsize;
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLUseCompressedTextureCache", &glusetexcache);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLUseTextureCacheCompression", &glusetexcachecompression);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLUseTextureCompr", &glusetexcompr);

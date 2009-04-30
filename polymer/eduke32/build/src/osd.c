@@ -159,9 +159,9 @@ int32_t OSD_RegisterCvar(const cvar_t *cvar)
             return -1;
         }
         if ((*cp < '0') ||
-            (*cp > '9' && *cp < 'A') ||
-            (*cp > 'Z' && *cp < 'a' && *cp != '_') ||
-            (*cp > 'z'))
+                (*cp > '9' && *cp < 'A') ||
+                (*cp > 'Z' && *cp < 'a' && *cp != '_') ||
+                (*cp > 'z'))
         {
             OSD_Printf("OSD_RegisterCvar(): illegal character in cvar name \"%s\"\n", cvar->name);
             return -1;
@@ -479,119 +479,6 @@ static int32_t _internal_osdfunc_unalias(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t _internal_osdfunc_vars(const osdfuncparm_t *parm)
-{
-    int32_t showval = (parm->numparms < 1);
-
-    if (!Bstrcasecmp(parm->name, "osdrows"))
-    {
-        if (showval) { OSD_Printf("osdrows is %d\n", osdrows); return OSDCMD_OK; }
-        else
-        {
-            osdrows = atoi(parm->parms[0]);
-            if (osdrows < 1) osdrows = 1;
-            else if (osdrows > osdmaxrows) osdrows = osdmaxrows;
-            if (osdrowscur!=-1)osdrowscur = osdrows;
-            OSD_Printf("%s\n",parm->raw);
-            return OSDCMD_OK;
-        }
-    }
-    else if (!Bstrcasecmp(parm->name, "osdpromptshade"))
-    {
-        if (showval) { OSD_Printf("osdpromptshade is %d\n", osdpromptshade); return OSDCMD_OK; }
-        else
-        {
-            osdpromptshade = atoi(parm->parms[0]);
-            if (osdpromptshade < -128) osdpromptshade = -128;
-            else if (osdpromptshade > 127) osdpromptshade = 127;
-            OSD_Printf("%s\n",parm->raw);
-            return OSDCMD_OK;
-        }
-    }
-    else if (!Bstrcasecmp(parm->name, "osdeditshade"))
-    {
-        if (showval) { OSD_Printf("osdeditshade is %d\n", osdeditshade); return OSDCMD_OK; }
-        else
-        {
-            osdeditshade = atoi(parm->parms[0]);
-            if (osdeditshade < 0) osdeditshade = 0;
-            else if (osdeditshade > 7) osdeditshade = 7;
-            OSD_Printf("%s\n",parm->raw);
-            return OSDCMD_OK;
-        }
-    }
-    else if (!Bstrcasecmp(parm->name, "osdtextshade"))
-    {
-        if (showval) { OSD_Printf("osdtextshade is %d\n", osdtextshade); return OSDCMD_OK; }
-        else
-        {
-            osdtextshade = atoi(parm->parms[0]);
-            if (osdtextshade < 0) osdtextshade = 0;
-            else if (osdtextshade > 7) osdtextshade = 7;
-            OSD_Printf("%s\n",parm->raw);
-            return OSDCMD_OK;
-        }
-    }
-
-    else if (!Bstrcasecmp(parm->name, "osdpromptpal"))
-    {
-        if (showval) { OSD_Printf("osdpromptpal is %d\n", osdpromptpal); return OSDCMD_OK; }
-        else
-        {
-            osdpromptpal = atoi(parm->parms[0]);
-            if (osdpromptpal < 0) osdpromptpal = 0;
-            else if (osdpromptpal > MAXPALOOKUPS-1) osdpromptpal = MAXPALOOKUPS;
-            OSD_Printf("%s\n",parm->raw);
-            return OSDCMD_OK;
-        }
-    }
-    else if (!Bstrcasecmp(parm->name, "osdeditpal"))
-    {
-        if (showval) { OSD_Printf("osdeditpal is %d\n", osdeditpal); return OSDCMD_OK; }
-        else
-        {
-            osdeditpal = atoi(parm->parms[0]);
-            if (osdeditpal < 0) osdeditpal = 0;
-            else if (osdeditpal > MAXPALOOKUPS-1) osdeditpal = MAXPALOOKUPS;
-            OSD_Printf("%s\n",parm->raw);
-            return OSDCMD_OK;
-        }
-    }
-    else if (!Bstrcasecmp(parm->name, "osdtextpal"))
-    {
-        if (showval) { OSD_Printf("osdtextpal is %d\n", osdtextpal); return OSDCMD_OK; }
-        else
-        {
-            osdtextpal = atoi(parm->parms[0]);
-            if (osdtextpal < 0) osdtextpal = 0;
-            else if (osdtextpal > MAXPALOOKUPS-1) osdtextpal = MAXPALOOKUPS;
-            OSD_Printf("%s\n",parm->raw);
-            return OSDCMD_OK;
-        }
-    }
-    else if (!Bstrcasecmp(parm->name, "osdtextmode"))
-    {
-        if (showval) { OSD_Printf("osdtextmode is %d\n", osdtextmode); return OSDCMD_OK; }
-        else
-        {
-            OSD_SetTextMode(atoi(parm->parms[0]) != 0);
-            OSD_Printf("%s\n",parm->raw);
-            return OSDCMD_OK;
-        }
-    }
-    else if (!Bstrcasecmp(parm->name, "logcutoff"))
-    {
-        if (showval) { OSD_Printf("logcutoff is %d\n", logcutoff); return OSDCMD_OK; }
-        else
-        {
-            logcutoff = atoi(parm->parms[0]);
-            OSD_Printf("%s\n",parm->raw);
-            return OSDCMD_OK;
-        }
-    }
-    return OSDCMD_SHOWHELP;
-}
-
 static int32_t _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
 {
     symbol_t *i;
@@ -698,23 +585,62 @@ void OSD_Cleanup(void)
 }
 
 
+static int32_t osdcmd_cvar_set_osd(const osdfuncparm_t *parm)
+{
+    int32_t r = osdcmd_cvar_set(parm);
+
+    if (r == OSDCMD_OK)
+    {
+        if (!Bstrcasecmp(parm->name, "osdrows"))
+        {
+            if (osdrows > osdmaxrows) osdrows = osdmaxrows;
+            if (osdrowscur!=-1)osdrowscur = osdrows;
+            return r;
+        }
+        else if (!Bstrcasecmp(parm->name, "osdtextmode"))
+        {
+            OSD_SetTextMode(osdtextmode);
+            return r;
+        }
+    }
+    return r;
+}
+
 //
 // OSD_Init() -- Initializes the on-screen display
 //
 void OSD_Init(void)
 {
+    uint32_t i;
+    cvar_t cvars_osd[] =
+    {
+        { "osdeditpal","osdeditpal: sets the palette of the OSD input text",(void *)&osdeditpal, CVAR_INT, 0, 0, MAXPALOOKUPS-1 },
+        { "osdpromptpal","osdpromptpal: sets the palette of the OSD prompt",(void *)&osdpromptpal, CVAR_INT, 0, 0, MAXPALOOKUPS-1 },
+        { "osdtextpal","osdtextpal: sets the palette of the OSD text",(void *)&osdtextpal, CVAR_INT, 0, 0, MAXPALOOKUPS-1 },
+        { "osdeditshade","osdeditshade: sets the shade of the OSD input text",(void *)&osdeditshade, CVAR_INT, 0, 0, 7 },
+        { "osdtextshade","osdtextshade: sets the shade of the OSD text",(void *)&osdtextshade, CVAR_INT, 0, 0, 7 },
+        { "osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",(void *)&osdpromptshade, CVAR_INT, 0, -128, 127 },
+        { "logcutoff","logcutoff: sets the maximal line count of the log file",(void *)&logcutoff, CVAR_INT, 0, 0, 262144 },
+        { "osdrows","osdrows: sets the number of visible lines of the OSD",(void *)&osdrows, CVAR_INT|CVAR_FUNCPTR, 0, 0, MAXPALOOKUPS-1 },
+        { "osdtextmode","osdtextmode: set OSD text mode (0:graphical, 1:fast)",(void *)&osdtextmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 0, 1 },
+    };
+
     Bmemset(osdtext, 32, TEXTSIZE);
     Bmemset(osdfmt, osdtextpal+(osdtextshade<<5), TEXTSIZE);
     Bmemset(osdsymbptrs, 0, sizeof(osdsymbptrs));
 
     osdnumsymbols = osdnumcvars = 0;
+    osdlines = osdinited = 1;
 
     hash_init(&osdsymbolsH);
     hash_init(&osdcvarsH);
 
-    osdlines=1;
-
-    osdinited=1;
+    for (i=0; i<sizeof(cvars_osd)/sizeof(cvars_osd[0]); i++)
+    {
+        OSD_RegisterCvar(&cvars_osd[i]);
+        if (cvars_osd[i].type & CVAR_FUNCPTR) OSD_RegisterFunction(cvars_osd[i].name, cvars_osd[i].helpstr, osdcmd_cvar_set_osd);
+        else OSD_RegisterFunction(cvars_osd[i].name, cvars_osd[i].helpstr, osdcmd_cvar_set);
+    }
 
     OSD_RegisterFunction("alias","alias: creates an alias for calling multiple commands",_internal_osdfunc_alias);
     OSD_RegisterFunction("clear","clear: clears the console text buffer",_internal_osdfunc_clear);
@@ -722,15 +648,6 @@ void OSD_Init(void)
     OSD_RegisterFunction("help","help: displays help for the specified cvar or command; \"listsymbols\" to show all commands",_internal_osdfunc_help);
     OSD_RegisterFunction("history","history: displays the console command history",_internal_osdfunc_history);
     OSD_RegisterFunction("listsymbols","listsymbols: lists all the recognized symbols",_internal_osdfunc_listsymbols);
-    OSD_RegisterFunction("logcutoff","logcutoff: sets the maximal line count of the log file",_internal_osdfunc_vars);
-    OSD_RegisterFunction("osdeditpal","osdeditpal: sets the palette of the OSD input text",_internal_osdfunc_vars);
-    OSD_RegisterFunction("osdeditshade","osdeditshade: sets the shade of the OSD input text",_internal_osdfunc_vars);
-    OSD_RegisterFunction("osdpromptpal","osdpromptpal: sets the palette of the OSD prompt",_internal_osdfunc_vars);
-    OSD_RegisterFunction("osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",_internal_osdfunc_vars);
-    OSD_RegisterFunction("osdrows","osdrows: sets the number of visible lines of the OSD",_internal_osdfunc_vars);
-    OSD_RegisterFunction("osdtextmode","osdtextmode: set OSD text mode (0:graphical, 1:fast)",_internal_osdfunc_vars);
-    OSD_RegisterFunction("osdtextpal","osdtextpal: sets the palette of the OSD text",_internal_osdfunc_vars);
-    OSD_RegisterFunction("osdtextshade","osdtextshade: sets the shade of the OSD text",_internal_osdfunc_vars);
     OSD_RegisterFunction("unalias","unalias: removes an alias created with \"alias\"",_internal_osdfunc_unalias);
 
     atexit(OSD_Cleanup);
@@ -1957,69 +1874,69 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         }
         else
             switch (cvars[i].type&0x7f)
-        {
+            {
             case CVAR_FLOAT:
+            {
+                float val;
+                if (showval)
                 {
-                    float val;
-                    if (showval)
-                    {
-                        OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(float*)cvars[i].var,(char*)cvars[i].helpstr);
-                        return OSDCMD_OK;
-                    }
-
-                    sscanf(parm->parms[0], "%f", &val);
-
-                    if (val < cvars[i].min || val > cvars[i].max)
-                    {
-                        OSD_Printf("%s value out of range\n",cvars[i].name);
-                        return OSDCMD_OK;
-                    }
-                    *(float*)cvars[i].var = val;
-                    if (!OSD_ParsingScript())
-                        OSD_Printf("%s %f",cvars[i].name,val);
+                    OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(float*)cvars[i].var,(char*)cvars[i].helpstr);
+                    return OSDCMD_OK;
                 }
-                break;
+
+                sscanf(parm->parms[0], "%f", &val);
+
+                if (val < cvars[i].min || val > cvars[i].max)
+                {
+                    OSD_Printf("%s value out of range\n",cvars[i].name);
+                    return OSDCMD_OK;
+                }
+                *(float*)cvars[i].var = val;
+                if (!OSD_ParsingScript())
+                    OSD_Printf("%s %f",cvars[i].name,val);
+            }
+            break;
             case CVAR_INT:
             case CVAR_UNSIGNEDINT:
             case CVAR_BOOL:
+            {
+                int32_t val;
+                if (showval)
                 {
-                    int32_t val;
-                    if (showval)
-                    {
-                        OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvars[i].name,*(int32_t*)cvars[i].var,(char*)cvars[i].helpstr);
-                        return OSDCMD_OK;
-                    }
-
-                    val = atoi(parm->parms[0]);
-                    if (cvars[i].type == CVAR_BOOL) val = val != 0;
-
-                    if (val < cvars[i].min || val > cvars[i].max)
-                    {
-                        OSD_Printf("%s value out of range\n",cvars[i].name);
-                        return OSDCMD_OK;
-                    }
-                    *(int32_t*)cvars[i].var = val;
-                    if (!OSD_ParsingScript())
-                        OSD_Printf("%s %d",cvars[i].name,val);
+                    OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvars[i].name,*(int32_t*)cvars[i].var,(char*)cvars[i].helpstr);
+                    return OSDCMD_OK;
                 }
-                break;
+
+                val = atoi(parm->parms[0]);
+                if (cvars[i].type == CVAR_BOOL) val = val != 0;
+
+                if (val < cvars[i].min || val > cvars[i].max)
+                {
+                    OSD_Printf("%s value out of range\n",cvars[i].name);
+                    return OSDCMD_OK;
+                }
+                *(int32_t*)cvars[i].var = val;
+                if (!OSD_ParsingScript())
+                    OSD_Printf("%s %d",cvars[i].name,val);
+            }
+            break;
             case CVAR_STRING:
+            {
+                if (showval)
                 {
-                    if (showval)
-                    {
-                        OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvars[i].name,(char*)cvars[i].var,(char*)cvars[i].helpstr);
-                        return OSDCMD_OK;
-                    }
-
-                    Bstrncpy((char*)cvars[i].var, parm->parms[0], cvars[i].extra-1);
-                    ((char*)cvars[i].var)[cvars[i].extra-1] = 0;
-                    if (!OSD_ParsingScript())
-                        OSD_Printf("%s %s",cvars[i].name,(char*)cvars[i].var);
+                    OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvars[i].name,(char*)cvars[i].var,(char*)cvars[i].helpstr);
+                    return OSDCMD_OK;
                 }
-                break;
+
+                Bstrncpy((char*)cvars[i].var, parm->parms[0], cvars[i].extra-1);
+                ((char*)cvars[i].var)[cvars[i].extra-1] = 0;
+                if (!OSD_ParsingScript())
+                    OSD_Printf("%s %s",cvars[i].name,(char*)cvars[i].var);
+            }
+            break;
             default:
                 break;
-        }
+            }
         //            if (cvars[i].type&CVAR_MULTI)
         //                G_UpdatePlayerFromMenu();
     }
@@ -2045,22 +1962,22 @@ void OSD_WriteCvars(const char *setupfilename)
         for (i=0; i<osdnumcvars; i++)
         {
             if (!(cvars[i].type & CVAR_NOSAVE) && cvars[i].type != CVAR_FUNCPTR)
-            switch (cvars[i].type&0x7f)
-            {
-            case CVAR_FLOAT:
-                fprintf(fp,"%s \"%f\"\n",cvars[i].name,*(float*)cvars[i].var);
-                break;
-            case CVAR_INT:
-            case CVAR_UNSIGNEDINT:
-            case CVAR_BOOL:
-                fprintf(fp,"%s \"%d\"\n",cvars[i].name,*(int32_t *)cvars[i].var);
-                break;
-            case CVAR_STRING:
-                fprintf(fp,"%s \"%s\"\n",cvars[i].name,(char*)cvars[i].var);
-                break;
-            default:
-                break;
-            }
+                switch (cvars[i].type&0x7f)
+                {
+                case CVAR_FLOAT:
+                    fprintf(fp,"%s \"%f\"\n",cvars[i].name,*(float*)cvars[i].var);
+                    break;
+                case CVAR_INT:
+                case CVAR_UNSIGNEDINT:
+                case CVAR_BOOL:
+                    fprintf(fp,"%s \"%d\"\n",cvars[i].name,*(int32_t *)cvars[i].var);
+                    break;
+                case CVAR_STRING:
+                    fprintf(fp,"%s \"%s\"\n",cvars[i].name,(char*)cvars[i].var);
+                    break;
+                default:
+                    break;
+                }
         }
 
         fclose(fp);
