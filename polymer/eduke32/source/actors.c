@@ -598,7 +598,7 @@ static void G_MoveZombieActors(void)
                 case FLOORFLAME__STATIC:
                 case FIREBARREL__STATIC:
                 case FIREVASE__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(80<<8),PR_LIGHT_PRIO_MAX_GAME);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
                     break;
                 case ATOMICHEALTH__STATIC:
                     G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
@@ -610,7 +610,7 @@ static void G_MoveZombieActors(void)
                                         if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
                                         if (s->z > ActorExtra[i].floorz+2048) break;
                     */
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(80<<8),PR_LIGHT_PRIO_MAX_GAME);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
                     break;
                 case BURNING__STATIC:
                 case BURNING2__STATIC:
@@ -618,11 +618,11 @@ static void G_MoveZombieActors(void)
                                         if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
                                         if (s->z > ActorExtra[i].floorz + 2048) break;
                     */
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(80<<8),PR_LIGHT_PRIO_MAX_GAME);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
                     break;
 
                 case EXPLOSION2__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(80<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
                 case FORCERIPPLE__STATIC:
                     //                    case TRANSPORTERSTAR__STATIC:
@@ -2181,7 +2181,7 @@ CLEAR_THE_BOLT:
         case FLOORFLAME__STATIC:
         case FIREBARREL__STATIC:
         case FIREVASE__STATIC:
-            G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(80<<8),PR_LIGHT_PRIO_MAX_GAME);
+            G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
         case EXPLODINGBARREL__STATIC:
         case WOODENHORSE__STATIC:
         case HORSEONSIDE__STATIC:
@@ -2742,10 +2742,10 @@ static void G_MoveWeapons(void)
                     G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
                 case FIRELASER__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(80<<8),PR_LIGHT_PRIO_LOW_GAME);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
                     break;
                 case RPG__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(80<<8),PR_LIGHT_PRIO_LOW_GAME);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
 
                     if (DynamicTileMap[s->picnum] == RPG__STATIC && ActorExtra[i].picnum != BOSS2 &&
                             s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
@@ -3400,7 +3400,7 @@ static void G_MoveActors(void)
                         if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
                         if (s->z > ActorExtra[i].floorz+2048) break;
             */
-            G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(80<<8),PR_LIGHT_PRIO_MAX_GAME);
+            G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
             break;
 
         case DUCK__STATIC:
@@ -4900,8 +4900,8 @@ static void G_MoveMisc(void)  // STATNUM 5
                 }
 
             case FIRELASER__STATIC:
-                if (s->extra != 999)
-                    s->extra = 999;
+                if (s->extra != 5)
+                    s->extra = 5;
                 else KILLIT(i);
                 break;
             case TONGUE__STATIC:
@@ -5155,12 +5155,12 @@ static void G_MoveMisc(void)  // STATNUM 5
                                         if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
                                         if (s->z > ActorExtra[i].floorz + 2048) break;
                     */
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(80<<8),PR_LIGHT_PRIO_MAX_GAME);
+                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
                     break;
 
                 case EXPLOSION2__STATIC:
                     G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1),
-                                   (512 * s->yrepeat) / (ActorExtra[i].temp_data[2]+1), 255+(80<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                                   (512 * s->yrepeat) / (ActorExtra[i].temp_data[2]+1), 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
                 case FORCERIPPLE__STATIC:
 //                    case TRANSPORTERSTAR__STATIC:

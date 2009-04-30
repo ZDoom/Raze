@@ -28,11 +28,12 @@ const char *stripcolorcodes(char *out, const char *in);
 
 enum cvartypes
 {
-    CVAR_FLOAT,
-    CVAR_INT,
-    CVAR_UNSIGNEDINT,
-    CVAR_BOOL,
-    CVAR_STRING,
+    CVAR_FLOAT = 1,
+    CVAR_INT = 2,
+    CVAR_UINT = 4,
+    CVAR_BOOL = 8,
+    CVAR_STRING = 16,
+    CVAR_DOUBLE = 32,
     CVAR_NOMULTI = 128,
     CVAR_MULTI = 256,
     CVAR_NOSAVE = 512,
@@ -137,7 +138,7 @@ int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)
 
 int32_t osdcmd_cvar_set(const osdfuncparm_t *parm);
 int32_t OSD_RegisterCvar(const cvar_t *cvar);
-void OSD_WriteCvars(const char *setupfilename);
+void OSD_WriteCvars(FILE *fp);
 
 // these correspond to the Duke palettes, so they shouldn't really be here
 // ...but I don't care

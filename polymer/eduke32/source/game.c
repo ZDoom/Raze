@@ -5535,7 +5535,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
 
         case EXPLOSION2__STATIC:
-            G_AddGameLight(0, sp->sectnum, sp->x, sp->y, sp->z-((sp->yrepeat*tilesizy[sp->picnum])<<1), 8192, 255+(80<<8),PR_LIGHT_PRIO_MAX_GAME);
+            G_AddGameLight(0, sp->sectnum, sp->x, sp->y, sp->z-((sp->yrepeat*tilesizy[sp->picnum])<<1), 8192, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
         case EXPLOSION2BOT__STATIC:
         case BURNING__STATIC:
         case BURNING2__STATIC:
@@ -11524,8 +11524,6 @@ CLEAN_DIRECTORY:
     {
         char *ptr = Bstrdup(setupfilename), *p = strtok(ptr,".");
         Bsprintf(tempbuf,"%s_binds.cfg",p);
-        OSD_Exec(tempbuf);
-        Bsprintf(tempbuf,"%s_cvars.cfg",p);
         OSD_Exec(tempbuf);
         Bfree(ptr);
     }

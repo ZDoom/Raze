@@ -70,7 +70,6 @@ static void P_IncurDamage(DukePlayer_t *p)
         X_OnEvent(EVENT_INCURDAMAGE, p->i, sprite[p->i].yvel, -1);
 
     if (aGameVars[g_iReturnVarID].val.lValue == 0)
-
     {
         sprite[p->i].extra -= p->extra_extra8>>8;
 
@@ -355,7 +354,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
         case RPG__STATIC:
         case MORTER__STATIC:
             G_AddGameLight(0, s->sectnum, s->x+((sintable[(s->ang+512)&2047])>>7),
-                           s->y+((sintable[(s->ang)&2047])>>7), s->z-PHEIGHT, 8192, 255+(80<<8),PR_LIGHT_PRIO_MAX_GAME);
+                           s->y+((sintable[(s->ang)&2047])>>7), s->z-PHEIGHT, 8192, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
 
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>4);

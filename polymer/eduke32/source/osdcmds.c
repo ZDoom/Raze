@@ -1310,9 +1310,9 @@ int32_t registerosdcommands(void)
         { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&ud.config.NumChannels, CVAR_INT, 0, 0, 2 },
         { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&ud.config.NumVoices, CVAR_INT, 0, 0, 32 },
         { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&ud.config.ReverseStereo, CVAR_BOOL, 0, 0, 16 },
-        { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",(void*)&vid_gamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 0, 10 },
-        { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void*)&vid_contrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 0, 10 },
-        { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",(void*)&vid_brightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 0, 10 },
+        { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",(void*)&vid_gamma, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 0, 10 },
+        { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void*)&vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 0, 10 },
+        { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",(void*)&vid_brightness, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 0, 10 },
 
     };
 
