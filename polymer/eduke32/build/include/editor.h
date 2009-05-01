@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define VERSION " 1.3.0devel"
+
 // Build keys
 #define BK_MOVEFORWARD   0
 #define BK_MOVEBACKWARD  1

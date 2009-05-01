@@ -2531,10 +2531,12 @@ static void G_MoveWeapons(void)
                             if (ActorExtra[i].projectile.isound >= 0)
                                 A_PlaySound(ActorExtra[i].projectile.isound,i);
 
-                            if (!(ActorExtra[i].projectile.workslike & PROJECTILE_FORCEIMPACT))KILLIT(i);
+                            if (!(ActorExtra[i].projectile.workslike & PROJECTILE_FORCEIMPACT))
+                                KILLIT(i);
 
                         }
-                        if (ActorExtra[i].projectile.workslike & PROJECTILE_FORCEIMPACT)goto BOLT;
+                        if (ActorExtra[i].projectile.workslike & PROJECTILE_FORCEIMPACT)
+                            goto BOLT;
 
                     }
                     else if ((j&49152) == 32768)
@@ -2611,18 +2613,6 @@ static void G_MoveWeapons(void)
                         }
                     }
 
-                    if (ActorExtra[i].projectile.workslike & PROJECTILE_RPG && ActorExtra[i].projectile.spawns > 0)
-                    {
-                        k = A_Spawn(i,ActorExtra[i].projectile.spawns);
-                        Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
-
-                        if (ActorExtra[i].projectile.sxrepeat > 4)
-                            sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
-                        if (ActorExtra[i].projectile.syrepeat > 4)
-                            sprite[k].yrepeat=ActorExtra[i].projectile.syrepeat;
-                    }
-
-
                     if (ActorExtra[i].projectile.workslike & PROJECTILE_HITSCAN)
                     {
                         if (!actorscrptr[sprite[i].picnum])
@@ -2634,6 +2624,17 @@ static void G_MoveWeapons(void)
 
                     if (ActorExtra[i].projectile.workslike & PROJECTILE_RPG)
                     {
+                        if (ActorExtra[i].projectile.spawns > 0)
+                        {
+                            k = A_Spawn(i,ActorExtra[i].projectile.spawns);
+                            Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
+
+                            if (ActorExtra[i].projectile.sxrepeat > 4)
+                                sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
+                            if (ActorExtra[i].projectile.syrepeat > 4)
+                                sprite[k].yrepeat=ActorExtra[i].projectile.syrepeat;
+                        }
+
                         if (ActorExtra[i].projectile.isound >= 0)
                             A_PlaySound(ActorExtra[i].projectile.isound,i);
 

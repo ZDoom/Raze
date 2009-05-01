@@ -50,7 +50,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #define BUILDDATE " 20090430"
-#define VERSION " 1.3.0devel"
 
 static int32_t floor_over_floor;
 
@@ -7192,10 +7191,6 @@ static void Keys2d(void)
     }}
     */
 
-    Bsprintf(tempbuf, "Mapster32" VERSION);
-    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-3,ydim2d-STATUS2DSIZ2+10L,editorcolors[4],-1,tempbuf,0);
-    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-2,ydim2d-STATUS2DSIZ2+9L,editorcolors[12],-1,tempbuf,0);
-
     cursectornum = -1;
 
     for (i=0; i<numsectors; i++)
@@ -7207,36 +7202,37 @@ static void Keys2d(void)
 
     searchsector=cursectornum;
 
-//    if (bstatus&1 || opointhighlight != pointhighlight || olinehighlight != linehighlight || ocursectornum != cursectornum)
     if (keystatus[KEYSC_TAB])  //TAB
     {
         if (cursectornum >= 0)
             showsectordata((int16_t)i+16384);
-//        keystatus[KEYSC_TAB] = 0;
     }
-    else
+    else if (!(keystatus[KEYSC_F7]|keystatus[KEYSC_F8]))
     {
         if (pointhighlight >= 16384)
         {
             i = pointhighlight-16384;
-//            clearmidstatbar16();
             showspritedata((int16_t)i+16384);
+
+            if (sprite[i].picnum==SECTOREFFECTOR)
+            {
+                char buffer[80];
+
+                Bsprintf(buffer,"^10%s",SectorEffectorText(i));
+                _printmessage16(buffer);
+            }
         }
         else if ((linehighlight >= 0) && (bstatus&1 || sectorofwall(linehighlight) == cursectornum))
         {
-//            clearmidstatbar16();
             showwalldata((int16_t)linehighlight+16384);
         }
         else if (cursectornum >= 0)
         {
-//            clearmidstatbar16();
             showsectordata((int16_t)cursectornum+16384);
         }
-//        else clearmidstatbar16();
         if (totalclock < (lastpm16time + 120*3))
             _printmessage16(lastpm16buf);
     }
-
     /*
         if ((totalclock > getmessagetimeoff) && (totalclock > (lastpm16time + 120*3)))
         {

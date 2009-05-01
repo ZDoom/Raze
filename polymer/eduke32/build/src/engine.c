@@ -6432,6 +6432,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     cx1 = (windowx1<<12); cy1 = (windowy1<<12);
     cx2 = ((windowx2+1)<<12)-1; cy2 = ((windowy2+1)<<12)-1;
+    if (zoome == 2048) zoome = 2047; // FIXME
     zoome <<= 8;
     bakgxvect = divscale28(sintable[(1536-ang)&2047],zoome);
     bakgyvect = divscale28(sintable[(2048-ang)&2047],zoome);

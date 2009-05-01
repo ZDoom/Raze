@@ -12,8 +12,6 @@
 #include "cache1d.h"
 #include "editor.h"
 
-#define VERSION "("__DATE__" "__TIME__")"
-
 #include "baselayer.h"
 #ifdef RENDERTYPEWIN
 #include "winlayer.h"
@@ -376,15 +374,6 @@ int32_t app_main(int32_t argc, const char **argv)
 
     if (!loaddefinitionsfile(defsfilename)) initprintf("Definitions file loaded.\n");
 
-    if (setgamemode(fullscreen,xdimgame,ydimgame,bppgame) < 0)
-    {
-        ExtUnInit();
-        uninitengine();
-        Bprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
-        exit(0);
-    }
-    setbrightness(brightness,palette,0);
-
     k = 0;
     for (i=0; i<256; i++)
     {
@@ -436,6 +425,17 @@ int32_t app_main(int32_t argc, const char **argv)
         overheadeditor();
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
         vid_gamma = gamma;
+        setbrightness(brightness,palette,0);
+    }
+    else
+    {
+        if (setgamemode(fullscreen,xdimgame,ydimgame,bppgame) < 0)
+        {
+            ExtUnInit();
+            uninitengine();
+            Bprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
+            exit(0);
+        }
         setbrightness(brightness,palette,0);
     }
 CANCEL:
@@ -5048,6 +5048,28 @@ void clearmidstatbar16(void)
     enddrawing();
 }
 
+void clearministatbar16(void)
+{
+    int32_t i, col = whitecol - 16;
+    begindrawing();
+
+    for (i=ydim-STATUS2DSIZ2; i<ydim; i++)
+    {
+//        drawline256(0, i<<12, xdim<<12, i<<12, col);
+        clearbufbyte((char *)(frameplace + (i*bytesperline)), (bytesperline), ((int32_t)col<<24)|((int32_t)col<<16)|((int32_t)col<<8)|col);
+        col--;
+        if (col <= 0) break;
+    }
+
+    clearbufbyte((char *)(frameplace + (i*bytesperline)), (ydim-i)*(bytesperline), 0);
+
+    Bsprintf(tempbuf, "Mapster32" VERSION);
+    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-3,ydim2d-STATUS2DSIZ2+10L,editorcolors[4],-1,tempbuf,0);
+    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-2,ydim2d-STATUS2DSIZ2+9L,editorcolors[12],-1,tempbuf,0);
+
+    enddrawing();
+}
+
 int16_t loopinside(int32_t x, int32_t y, int16_t startwall)
 {
     int32_t x1, y1, x2, y2, tempint;
@@ -5115,7 +5137,7 @@ int32_t _getnumber16(char *namestart, int32_t num, int32_t maxnumber, char sign,
         {
             Bsprintf(buffer,"^011%s",(char *)func((int32_t)danum));
             // printext16(200L-24, ydim-STATUS2DSIZ+20L, editorcolors[9], editorcolors[0], buffer, 0);
-            printext16(n<<3, ydim-STATUS2DSIZ+128, editorcolors[9], editorcolors[0], buffer,0);
+            printext16(n<<3, ydim-STATUS2DSIZ+128, editorcolors[9], -1, buffer,0);
         }
 
         showframe(1);
@@ -5888,7 +5910,9 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
     }
     snotbuf[30] = 0;
 
-    printext16(8, ydim-STATUS2DSIZ+128, editorcolors[9], editorcolors[0], snotbuf,0);
+    clearministatbar16();
+
+    printext16(8, ydim-STATUS2DSIZ+128, whitecol, -1, snotbuf,0);
 
     m = (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 || numsprites > MAXSPRITESV7);
 
@@ -5907,7 +5931,7 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
     }
     snotbuf[46] = 0;
 
-    printext16(264, ydim-STATUS2DSIZ+128, editorcolors[9+m], editorcolors[0], snotbuf,0);
+    printext16(264, ydim-STATUS2DSIZ+128, m?editorcolors[10]:whitecol, -1, snotbuf,0);
 }
 
 void updatenumsprites(void)
@@ -6232,27 +6256,16 @@ void _printmessage16(const char *fmt, ...)
         snotbuf[i] = tmpstr[i];
         i++;
     }
-    while (i < 94)
-    {
-        snotbuf[i] = 32;
-        i++;
-    }
-    snotbuf[94] = 0;
+    snotbuf[i] = 0;
     if (lastpm16time == totalclock)
         Bstrcpy(lastpm16buf, snotbuf);
+
+    clearministatbar16();
+
     begindrawing();
     ybase = (overridepm16y >= 0) ? ydim-overridepm16y : ydim-STATUS2DSIZ+128-8;
-    printext16((overridepm16y >= 0) ? 200L-24 : 8, ybase+8L, editorcolors[9], editorcolors[0], snotbuf, 0);
-    /*
-        i = 0;
-        while (i < 54)
-        {
-            snotbuf[i] = 32;
-            i++;
-        }
-        snotbuf[54] = 0;
-        printext16(200L-24, ybase+20L, editorcolors[9], editorcolors[0], snotbuf, 0);
-    */
+
+    printext16((overridepm16y >= 0) ? 200L-24 : 8, ybase+8L, whitecol, -1, snotbuf, 0);
     enddrawing();
 }
 
