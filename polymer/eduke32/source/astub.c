@@ -49,8 +49,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20090426"
-#define VERSION " 1.2.0devel"
+#define BUILDDATE " 20090430"
+#define VERSION " 1.3.0devel"
 
 static int32_t floor_over_floor;
 
@@ -1599,7 +1599,7 @@ ENDFOR1:
         ydim16=ydim;
         drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
         ydim16=i;
-        printmessage16("");
+        // printmessage16("");
         showframe(1);
 
         keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F1] = 0;
@@ -1943,7 +1943,7 @@ static void SoundDisplay()
         ydim16=ydim;
         drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
         ydim16=i;
-        printmessage16("");
+        // printmessage16("");
         showframe(1);
 
         FX_StopAllSounds();
@@ -7185,7 +7185,7 @@ static void Keys2d(void)
     int32_t i=0, j,k;
     int32_t smooshyalign,changedir;
     static int32_t repeatcountx=0,repeatcounty=0;
-    static int32_t opointhighlight=-1, olinehighlight=-1, ocursectornum=-1;
+
     /*
        for(i=0;i<0x50;i++)
        {if(keystatus[i]==1) {Bsprintf(tempbuf,"key %d",i); printmessage16(tempbuf);
@@ -7193,66 +7193,83 @@ static void Keys2d(void)
     */
 
     Bsprintf(tempbuf, "Mapster32" VERSION);
-    printext16(9L,ydim2d-STATUS2DSIZ+9L,editorcolors[4],-1,tempbuf,0);
-    printext16(8L,ydim2d-STATUS2DSIZ+8L,editorcolors[12],-1,tempbuf,0);
+    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-3,ydim2d-STATUS2DSIZ2+10L,editorcolors[4],-1,tempbuf,0);
+    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-2,ydim2d-STATUS2DSIZ2+9L,editorcolors[12],-1,tempbuf,0);
 
-    updatesector(mousxplc,mousyplc,&cursectornum);
+    cursectornum = -1;
+
+    for (i=0; i<numsectors; i++)
+        if (inside(mousxplc,mousyplc,i) == 1)
+        {
+            cursectornum = i;
+            break;
+        }
+
     searchsector=cursectornum;
-    if ((totalclock > getmessagetimeoff) && (totalclock > (lastpm16time + 120*3)))
-    {
-        if (pointhighlight >= 16384)
-        {
-            char tmpbuf[2048];
-            i = pointhighlight-16384;
-            if (strlen(names[sprite[i].picnum]) > 0)
-            {
-                if (sprite[i].picnum==SECTOREFFECTOR)
-                    Bsprintf(tmpbuf,"Sprite %d %s, hi:%d ex:%d",i,SectorEffectorText(i),sprite[i].hitag,sprite[i].extra);
-                else Bsprintf(tmpbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",i,names[sprite[i].picnum],sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
-            }
-            else Bsprintf(tmpbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",i,sprite[i].picnum,sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
-            _printmessage16(tmpbuf);
-        }
-        else if ((linehighlight >= 0) && (sectorofwall(linehighlight) == cursectornum))
-        {
-            int32_t dax, day, dist;
-            dax = wall[linehighlight].x-wall[wall[linehighlight].point2].x;
-            day = wall[linehighlight].y-wall[wall[linehighlight].point2].y;
-            dist = ksqrt(dax*dax+day*day);
-            Bsprintf(tempbuf,"Wall %d: length:%d lo:%d hi:%d ex:%d",linehighlight,dist,wall[linehighlight].lotag,wall[linehighlight].hitag,wall[linehighlight].extra);
-            _printmessage16(tempbuf);
-        }
-        else if (cursectornum >= 0)
-        {
-            Bsprintf(tempbuf,"Sector %d: lo:%d hi:%d ex:%d",cursectornum,sector[cursectornum].lotag,sector[cursectornum].hitag,sector[cursectornum].extra);
-            _printmessage16(tempbuf);
-        }
-        else _printmessage16("");
-    }
 
-    if (bstatus&1 || opointhighlight != pointhighlight || olinehighlight != linehighlight || ocursectornum != cursectornum)
+//    if (bstatus&1 || opointhighlight != pointhighlight || olinehighlight != linehighlight || ocursectornum != cursectornum)
+    if (keystatus[KEYSC_TAB])  //TAB
+    {
+        if (cursectornum >= 0)
+            showsectordata((int16_t)i+16384);
+//        keystatus[KEYSC_TAB] = 0;
+    }
+    else
     {
         if (pointhighlight >= 16384)
         {
             i = pointhighlight-16384;
-            clearmidstatbar16();
-            showspritedata((int16_t)i);
+//            clearmidstatbar16();
+            showspritedata((int16_t)i+16384);
         }
         else if ((linehighlight >= 0) && (bstatus&1 || sectorofwall(linehighlight) == cursectornum))
         {
-            clearmidstatbar16();
-            showwalldata((int16_t)linehighlight);
+//            clearmidstatbar16();
+            showwalldata((int16_t)linehighlight+16384);
         }
         else if (cursectornum >= 0)
         {
-            clearmidstatbar16();
-            showsectordata((int16_t)cursectornum);
+//            clearmidstatbar16();
+            showsectordata((int16_t)cursectornum+16384);
         }
-        else clearmidstatbar16();
-        opointhighlight = pointhighlight;
-        olinehighlight = linehighlight;
-        ocursectornum = cursectornum;
+//        else clearmidstatbar16();
+        if (totalclock < (lastpm16time + 120*3))
+            _printmessage16(lastpm16buf);
     }
+
+    /*
+        if ((totalclock > getmessagetimeoff) && (totalclock > (lastpm16time + 120*3)))
+        {
+            if (pointhighlight >= 16384)
+            {
+                char tmpbuf[2048];
+                i = pointhighlight-16384;
+                if (strlen(names[sprite[i].picnum]) > 0)
+                {
+                    if (sprite[i].picnum==SECTOREFFECTOR)
+                        Bsprintf(tmpbuf,"Sprite %d %s, hi:%d ex:%d",i,SectorEffectorText(i),sprite[i].hitag,sprite[i].extra);
+                    else Bsprintf(tmpbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",i,names[sprite[i].picnum],sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
+                }
+                else Bsprintf(tmpbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",i,sprite[i].picnum,sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
+                _printmessage16(tmpbuf);
+            }
+            else if ((linehighlight >= 0) && (sectorofwall(linehighlight) == cursectornum))
+            {
+                int32_t dax, day, dist;
+                dax = wall[linehighlight].x-wall[wall[linehighlight].point2].x;
+                day = wall[linehighlight].y-wall[wall[linehighlight].point2].y;
+                dist = ksqrt(dax*dax+day*day);
+                Bsprintf(tempbuf,"Wall %d: length:%d lo:%d hi:%d ex:%d",linehighlight,dist,wall[linehighlight].lotag,wall[linehighlight].hitag,wall[linehighlight].extra);
+                _printmessage16(tempbuf);
+            }
+            else if (cursectornum >= 0)
+            {
+                Bsprintf(tempbuf,"Sector %d: lo:%d hi:%d ex:%d",cursectornum,sector[cursectornum].lotag,sector[cursectornum].hitag,sector[cursectornum].extra);
+                _printmessage16(tempbuf);
+            }
+            else _printmessage16("");
+        }
+    */
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_Z]) // ' z
     {
@@ -7260,7 +7277,7 @@ static void Keys2d(void)
 
         editorzrange[0]=getnumber16("Upper Z range: ",editorzrange[0],INT32_MAX,1);
         editorzrange[1]=getnumber16("Lower Z range: ",editorzrange[1],INT32_MAX,1);
-        printmessage16("");
+        // printmessage16("");
     }
 
     if (keystatus[0x14])  // T (tag)
@@ -7298,7 +7315,7 @@ static void Keys2d(void)
                 clearmidstatbar16();
                 showwalldata((int16_t)i);
             }
-            printmessage16("");
+            // printmessage16("");
         }
         else
         {
@@ -7314,7 +7331,7 @@ static void Keys2d(void)
                     showsectordata((int16_t)i);
                     break;
                 }
-            printmessage16("");
+            // printmessage16("");
         }
     }
 
@@ -7397,7 +7414,7 @@ static void Keys2d(void)
                 clearmidstatbar16();
                 showwalldata((int16_t)i);
             }
-            printmessage16("");
+            // printmessage16("");
         }
         else
         {
@@ -7410,7 +7427,7 @@ static void Keys2d(void)
                     showsectordata((int16_t)i);
                     break;
                 }
-            printmessage16("");
+            // printmessage16("");
         }
     }
 
@@ -10343,7 +10360,6 @@ void ExtCheckKeys(void)
         }
     }
     readmousebstatus(&bstatus);
-    Keys2d3d();
     if (qsetmode == 200)    //In 3D mode
     {
         Keys3d();
@@ -10355,6 +10371,7 @@ void ExtCheckKeys(void)
         return;
     }
     Keys2d();
+    Keys2d3d();
 }
 
 void faketimerhandler(void)
@@ -10510,7 +10527,7 @@ static void EditSectorData(int16_t sectnum)
     char disptext[80];
     char edittext[80];
     int32_t col=1, row=0, rowmax = 6, dispwidth = 24, editval = 0, i = -1;
-    int32_t xpos = 200, ypos = ydim-STATUS2DSIZ+48;
+    int32_t xpos = 208, ypos = ydim-STATUS2DSIZ+48;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();
@@ -10524,7 +10541,7 @@ static void EditSectorData(int16_t sectnum)
             if (quitevent) quitevent = 0;
         }
         idle();
-        printmessage16("Edit mode, press <Esc> to exit");
+        _printmessage16("Edit mode, press <Esc> to exit");
         if (keystatus[KEYSC_DOWN])
         {
             if (row < rowmax)
@@ -10549,7 +10566,7 @@ static void EditSectorData(int16_t sectnum)
             {
                 printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 col = 1;
-                xpos = 200;
+                xpos = 208;
                 rowmax = 6;
                 dispwidth = 24;
                 disptext[dispwidth] = 0;
@@ -10563,7 +10580,7 @@ static void EditSectorData(int16_t sectnum)
             {
                 printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 col = 2;
-                xpos = 400;
+                xpos = 408;
                 rowmax = 6;
                 dispwidth = 24;
                 disptext[dispwidth] = 0;
@@ -10737,7 +10754,7 @@ static void EditSectorData(int16_t sectnum)
         showframe(1);
     }
     printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-    printmessage16("");
+    // printmessage16("");
     enddrawing();
     showframe(1);
     keystatus[KEYSC_ESC] = 0;
@@ -10748,7 +10765,7 @@ static void EditWallData(int16_t wallnum)
     char disptext[80];
     char edittext[80];
     int32_t row=0, dispwidth = 24, editval = 0, i = -1;
-    int32_t xpos = 200, ypos = ydim-STATUS2DSIZ+48;
+    int32_t xpos = 208, ypos = ydim-STATUS2DSIZ+48;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();
@@ -10761,7 +10778,7 @@ static void EditWallData(int16_t wallnum)
             if (quitevent) quitevent = 0;
         }
         idle();
-        printmessage16("Edit mode, press <Esc> to exit");
+        _printmessage16("Edit mode, press <Esc> to exit");
         if (keystatus[KEYSC_DOWN])
         {
             if (row < 6)
@@ -10863,14 +10880,14 @@ static void EditWallData(int16_t wallnum)
         {
             editval = 0;
             //showwalldata(wallnum);
-            //printmessage16("");
+            //// printmessage16("");
         }
         //enddrawing();
         showframe(1);
     }
     //begindrawing();
     printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-    printmessage16("");
+    // printmessage16("");
     enddrawing();
     showframe(1);
     keystatus[KEYSC_ESC] = 0;
@@ -10895,7 +10912,7 @@ static void EditSpriteData(int16_t spritenum)
             if (quitevent) quitevent = 0;
         }
         idle();
-        printmessage16("Edit mode, press <Esc> to exit");
+        _printmessage16("Edit mode, press <Esc> to exit");
         if (keystatus[KEYSC_DOWN])
         {
             if (row < rowmax)
@@ -10933,7 +10950,7 @@ static void EditSpriteData(int16_t spritenum)
             {
                 printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 col = 1;
-                xpos = 200;
+                xpos = 208;
                 rowmax = 5;
                 dispwidth = 24;
                 disptext[dispwidth] = 0;
@@ -10951,7 +10968,7 @@ static void EditSpriteData(int16_t spritenum)
             {
                 printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 col = 1;
-                xpos = 200;
+                xpos = 208;
                 rowmax = 5;
                 dispwidth = 24;
                 disptext[dispwidth] = 0;
@@ -10962,7 +10979,7 @@ static void EditSpriteData(int16_t spritenum)
             {
                 printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
                 col = 2;
-                xpos = 400;
+                xpos = 408;
                 rowmax = 6;
                 dispwidth = 26;
                 disptext[dispwidth] = 0;
@@ -11220,7 +11237,7 @@ static void EditSpriteData(int16_t spritenum)
     }
     begindrawing();
     printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-    printmessage16("");
+    // printmessage16("");
     enddrawing();
     showframe(1);
     keystatus[KEYSC_ESC] = 0;

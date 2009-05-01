@@ -10941,12 +10941,12 @@ void qsetmodeany(int32_t daxdim, int32_t daydim)
 
 //        setvgapalette();
 
-        ydim16 = yres - STATUS2DSIZ;
+        ydim16 = yres - STATUS2DSIZ2;
         halfxdim16 = xres >> 1;
-        midydim16 = scale(200,yres,480);
+        midydim16 = ydim16 >> 1; // scale(200,yres,480);
 
         begindrawing(); //{{{
-        clearbuf((char *)(frameplace + (ydim16*bytesperline)), (bytesperline*STATUS2DSIZ) >> 2, 0x08080808l);
+        clearbuf((char *)(frameplace + (ydim16*bytesperline)), (bytesperline*STATUS2DSIZ2) >> 2, 0x08080808l);
         clearbuf((char *)frameplace, (ydim16*bytesperline) >> 2, 0L);
         enddrawing();   //}}}
     }
@@ -10966,7 +10966,7 @@ void clear2dscreen(void)
     if (qsetmode == 350) clearsz = 350;
     else
     {
-        if (ydim16 <= yres-STATUS2DSIZ) clearsz = yres - STATUS2DSIZ;
+        if (ydim16 <= yres-STATUS2DSIZ2) clearsz = yres - STATUS2DSIZ2;
         else clearsz = yres;
     }
     clearbuf((char *)frameplace, (bytesperline*clearsz) >> 2, 0);
@@ -11463,7 +11463,8 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, cha
     char smallbuf[4];
     stx = xpos;
 
-    if (fontsize) { fontptr = smalltextfont; charxsiz = 4; }
+    if (fontsize & 2) printext16(xpos+1, ypos+1, 0, -1, name, (fontsize & ~2) | 4);
+    if (fontsize & 1) { fontptr = smalltextfont; charxsiz = 4; }
     else { fontptr = textfont; charxsiz = 8; }
 
     begindrawing(); //{{{
@@ -11474,8 +11475,10 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, cha
             i++;
             if (name[i] == 'O') // ^O resets formatting
             {
-                col = editorcolors[ocol];
-                backcol = editorcolors[obackcol];
+                if (fontsize & 4) continue;
+
+                col = ocol;
+                backcol = obackcol;
                 continue;
             }
             if (isdigit(name[i]))
@@ -11500,7 +11503,8 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, cha
                     smallbuf[0] = name[i];
                     smallbuf[1] = '\0';
                 }
-                col = editorcolors[atol(smallbuf)];
+                if (!(fontsize & 4))
+                    col = editorcolors[atol(smallbuf)];
 
                 if (name[i+1] == ',' && isdigit(name[i+2]))
                 {
@@ -11525,19 +11529,21 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, cha
                         smallbuf[0] = name[i];
                         smallbuf[1] = '\0';
                     }
-                    backcol = editorcolors[atol(smallbuf)];
+
+                    if (!(fontsize & 4))
+                        backcol = editorcolors[atol(smallbuf)];
                 }
                 continue;
             }
         }
 
         letptr = &fontptr[name[i]<<3];
-        ptr = (char *)(bytesperline*(ypos+7)+(stx-fontsize)+frameplace);
+        ptr = (char *)(bytesperline*(ypos+7)+(stx-(fontsize&1))+frameplace);
         for (y=7; y>=0; y--)
         {
             for (x=charxsiz-1; x>=0; x--)
             {
-                if (letptr[y]&pow2char[7-fontsize-x])
+                if (letptr[y]&pow2char[7-(fontsize&1)-x])
                     ptr[x] = (uint8_t)col;
                 else if (backcol >= 0)
                     ptr[x] = (uint8_t)backcol;
