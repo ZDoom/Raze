@@ -217,6 +217,7 @@ int32_t menuselect_pk(int32_t); //PK
 int32_t getfilenames(char *path, char *kind);
 void clearfilenames(void);
 void loadmhk();
+extern int32_t map_revision;
 
 void clearkeys(void) { memset(keystatus,0,sizeof(keystatus)); }
 
@@ -5733,58 +5734,6 @@ int16_t whitelinescan(int16_t dalinehighlight)
     else
         return(newnumwalls);
 }
-/*
-#define loadbyte(fil,tempbuf,bufplc,dat)        \
-{                                               \
-	if (bufplc == 0)                             \
-	{                                            \
-		for(bufplc=0;bufplc<4096;bufplc++)        \
-			tempbuf[bufplc] = 0;                   \
-		bufplc = 0;                               \
-		read(fil,tempbuf,4096);                   \
-	}                                            \
-	dat = tempbuf[bufplc];                       \
-	bufplc = ((bufplc+1)&4095);                  \
-}                                               \
-
-int32_t loadnames(void)
-{
-	char buffer[80], firstch, ch;
-	int32_t fil, i, num, buffercnt, bufplc;
-
-	if ((fil = open("names.h",O_BINARY|O_RDWR,S_IREAD)) == -1) return(-1);
-	bufplc = 0;
-	do { loadbyte(fil,tempbuf,bufplc,firstch); } while (firstch != '#');
-
-	while ((firstch == '#') || (firstch == '/'))
-	{
-		do { loadbyte(fil,tempbuf,bufplc,ch); } while (ch > 32);
-
-		buffercnt = 0;
-		do
-		{
-			loadbyte(fil,tempbuf,bufplc,ch);
-			if (ch > 32) buffer[buffercnt++] = ch;
-		}
-		while (ch > 32);
-
-		num = 0;
-		do
-		{
-			loadbyte(fil,tempbuf,bufplc,ch);
-			if ((ch >= 48) && (ch <= 57)) num = num*10+(ch-48);
-		}
-		while (ch != 13);
-		for(i=0;i<buffercnt;i++) names[num][i] = buffer[i];
-		names[num][buffercnt] = 0;
-
-		loadbyte(fil,tempbuf,bufplc,firstch);
-		if (firstch == 10) loadbyte(fil,tempbuf,bufplc,firstch);
-	}
-	close(fil);
-	return(0);
-}
-*/
 
 int32_t loadnames(void)
 {
@@ -5912,16 +5861,16 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
     char snotbuf[80];
     int32_t i,m;
 
-    Bsprintf(snotbuf,"x:%d y:%d ang:%d",posxe,posye,ange);
+    Bsprintf(snotbuf,"x:%d y:%d ang:%d r%d",posxe,posye,ange,map_revision-1);
     i = 0;
-    while ((snotbuf[i] != 0) && (i < 30))
+    while ((snotbuf[i] != 0) && (i < 33))
         i++;
-    while (i < 30)
+    while (i < 33)
     {
         snotbuf[i] = 32;
         i++;
     }
-    snotbuf[30] = 0;
+    snotbuf[33] = 0;
 
     clearministatbar16();
 
