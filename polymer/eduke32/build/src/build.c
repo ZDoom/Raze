@@ -218,6 +218,7 @@ int32_t getfilenames(char *path, char *kind);
 void clearfilenames(void);
 void loadmhk();
 extern int32_t map_revision;
+extern int32_t map_undoredo(int32_t dir);
 
 void clearkeys(void) { memset(keystatus,0,sizeof(keystatus)); }
 
@@ -4148,8 +4149,7 @@ CANCEL:
         if (keystatus[1])
         {
             keystatus[1] = 0;
-            _printmessage16("(N)ew, (L)oad, (S)ave, save (A)s, (T)est map, (Q)uit");
-//            printext16(200L+248, ydim-STATUS2DSIZ+20L, 9, 0, "(U)ndo, (R)edo", 0);
+            _printmessage16("(N)ew, (L)oad, (S)ave, save (A)s, (T)est map, (U)ndo, (R)edo, (Q)uit");
             showframe(1);
             bflushchars();
             bad = 1;
@@ -4510,6 +4510,18 @@ CANCEL:
                 else if (ch == 't' || ch == 'T')
                 {
                     test_map(0);
+                }
+                else if (ch == 'u' || ch == 'U')
+                {
+                    bad = 0;
+                    if (map_undoredo(0)) printmessage16("Nothing to undo!");
+                    else printmessage16("Revision %d undone",map_revision);
+                }
+                else if (ch == 'r' || ch == 'R')
+                {
+                    bad = 0;
+                    if (map_undoredo(1)) printmessage16("Nothing to redo!");
+                    else printmessage16("Restored revision %d",map_revision-1);
                 }
                 else if (ch == 'q' || ch == 'Q')  //Q
                 {

@@ -253,48 +253,24 @@ void create_map_snapshot(void)
     mapstate = mapstate->next;
 }
 
-int32_t map_undo(void)
+int32_t map_undoredo(int32_t dir)
 {
     int32_t i;
 
-    if (mapstate == NULL || mapstate->prev == NULL || !mapstate->prev->numsectors) return 1;
-
-    mapstate = mapstate->prev;
-
-    numsectors = mapstate->numsectors;
-    numwalls = mapstate->numwalls;
-    numsprites = mapstate->numsprites;
-
-    initspritelists();
-
-    lzf_decompress(&mapstate->sectors[0],  mapstate->sectsiz, &sector[0], sizeof(sectortype) * numsectors);
-    lzf_decompress(&mapstate->walls[0],  mapstate->wallsiz, &wall[0], sizeof(walltype) * numwalls);
-    lzf_decompress(&mapstate->sprites[0],  mapstate->spritesiz, &sprite[0], sizeof(spritetype) * numsprites);
-
-    updatenumsprites();
-
-    for (i=0; i<numsprites; i++)
+    if (dir)
     {
-        if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
-        insertsprite(sprite[i].sectnum,sprite[i].statnum);
+        if (mapstate == NULL || mapstate->next == NULL || !mapstate->next->numsectors) return 1;
+
+        while (map_revision+1 != mapstate->revision)
+            mapstate = mapstate->next;
     }
+    else
+    {
+        if (mapstate == NULL || mapstate->prev == NULL || !mapstate->prev->numsectors) return 1;
 
-    map_revision = mapstate->revision;
-
-#ifdef POLYMER
-    if (qsetmode == 200 && rendmode == 4)
-        polymer_loadboard();
-#endif
-    return 0;
-}
-
-int32_t map_redo(void)
-{
-    int32_t i;
-
-    if (mapstate == NULL || mapstate->next == NULL || !mapstate->next->numsectors) return 1;
-
-    mapstate = mapstate->next;
+        while (map_revision-1 != mapstate->revision)
+            mapstate = mapstate->prev;
+    }
 
     numsectors = mapstate->numsectors;
     numwalls = mapstate->numwalls;
@@ -9845,7 +9821,6 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
     if (qsetmode == 200)    //In 3D mode
     {
-
         if (shadepreview)
         {
             int32_t i = 0;
@@ -10022,6 +9997,8 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
             xp1 += halfxdim16;
             yp1 += midydim16;
+
+            ydim16 = ydim-STATUS2DSIZ2;
 
             if (xp1 < 4 || xp1 > xdim-6 || yp1 < 4 || yp1 > ydim16-6)
                 continue;
@@ -10315,13 +10292,13 @@ static void Keys2d3d(void)
         keystatus[KEYSC_Z] = 0;
         if (eitherSHIFT)
         {
-            if (map_redo()) message("Nothing to redo!");
-            else message("Restored undo rev %d",map_revision-1);
+            if (map_undoredo(1)) message("Nothing to redo!");
+            else message("Restored revision %d",map_revision-1);
         }
         else
         {
-            if (map_undo()) message("Nothing to undo!");
-            else message("Restored undo rev %d",map_revision-1);
+            if (map_undoredo(0)) printmessage16("Nothing to undo!");
+            else message("Revision %d undone",map_revision);
         }
     }
 
