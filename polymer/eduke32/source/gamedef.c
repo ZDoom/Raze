@@ -44,7 +44,7 @@ static int32_t g_checkingSwitch = 0, g_currentEvent = -1;
 static int32_t g_labelsOnly = 0, g_skipKeywordCheck = 0, g_dynamicTileMapping = 0;
 static int32_t g_numBraces = 0;
 
-static int32_t C_IncreaseScriptSize(int32_t size);
+static int32_t C_SetScriptSize(int32_t size);
 
 int32_t g_numQuoteRedefinitions = 0;
 
@@ -1014,7 +1014,7 @@ void C_FreeHashes(void)
 #define IFELSE_MAGIC 31337
 static int32_t g_ifElseAborted;
 
-static int32_t C_IncreaseScriptSize(int32_t size)
+static int32_t C_SetScriptSize(int32_t size)
 {
     intptr_t oscriptPtr = (unsigned)(g_scriptPtr-script);
     intptr_t ocaseScriptPtr = (unsigned)(g_caseScriptPtr-script);
@@ -1216,7 +1216,7 @@ static int32_t C_SkipComments(void)
     while ((c = *textptr));
 
     if ((unsigned)(g_scriptPtr-script) > (unsigned)(g_scriptSize-32))
-        return C_IncreaseScriptSize(g_scriptSize<<1);
+        return C_SetScriptSize(g_scriptSize<<1);
 
     return 0;
 }
@@ -5544,7 +5544,7 @@ repeatcase:
         j = *(g_scriptPtr-1);
         g_scriptPtr--;
         C_SkipComments();
-        return C_IncreaseScriptSize(j);
+        return C_SetScriptSize(j);
 
     case CON_FALL:
     case CON_TIP:
@@ -5802,6 +5802,7 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("PROJ_DROP",PROJ_DROP,LABEL_DEFINE);
     C_AddDefinition("PROJ_EXTRA",PROJ_EXTRA,LABEL_DEFINE);
     C_AddDefinition("PROJ_EXTRA_RAND",PROJ_EXTRA_RAND,LABEL_DEFINE);
+    C_AddDefinition("PROJ_FLASH_COLOR",PROJ_FLASH_COLOR,LABEL_DEFINE);
     C_AddDefinition("PROJ_HITRADIUS",PROJ_HITRADIUS,LABEL_DEFINE);
     C_AddDefinition("PROJ_ISOUND",PROJ_ISOUND,LABEL_DEFINE);
     C_AddDefinition("PROJ_OFFSET",PROJ_OFFSET,LABEL_DEFINE);
@@ -5944,24 +5945,6 @@ void C_Compile(const char *filenam)
     if (g_numCompilerWarnings|g_numCompilerErrors)
         initprintf("Found %d warning(s), %d error(s).\n",g_numCompilerWarnings,g_numCompilerErrors);
 
-    /*    if (error == 0 && warning != 0)
-        {
-            if (g_groupFileHandle != -1 && g_loadFromGroupOnly == 0)
-            {
-                initprintf("Warning(s) found in file `%s'.  Do you want to use the INTERNAL DEFAULTS (y/N)?",filenam);
-
-                i=wm_ynbox("CON File Compilation Warning", "Warning(s) found in file `%s'. Do you want to use the "
-                           "INTERNAL DEFAULTS?",filenam);
-                if (i) i = 'y';
-                if (i == 'y' || i == 'Y')
-                {
-                    g_loadFromGroupOnly = 1;
-                    initprintf(" Yes\n");
-                    return;
-                }
-            }
-        } */
-
     if (g_numCompilerErrors)
     {
         if (g_loadFromGroupOnly)
@@ -6014,7 +5997,7 @@ void C_Compile(const char *filenam)
 
         g_totalLines += g_lineNumber;
 
-        C_IncreaseScriptSize(g_scriptPtr-script+8);
+        C_SetScriptSize(g_scriptPtr-script+8);
 
         flushlogwindow = 0;
 

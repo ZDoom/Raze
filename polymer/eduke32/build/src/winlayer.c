@@ -866,6 +866,7 @@ void setjoypresscallback(void (*callback)(int32_t, int32_t)) { joypresscallback 
 
 DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
 {
+    UNREFERENCED_PARAMETER(lpThreadParameter);
     while (moustat && lpDID[MOUSE])
     {
         if (!appactive)
@@ -876,7 +877,7 @@ DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
         if ((WaitForSingleObject(inputevt[MOUSE], INFINITE)) != WAIT_OBJECT_0)
             continue;
         {
-            DWORD i;
+            /*DWORD i;*/
             uint32_t t;
             int32_t result;
             DIDEVICEOBJECTDATA didod;
@@ -1405,7 +1406,7 @@ static BOOL InitDirectInput(void)
         *devicedef[devn].did = NULL;
 
 //        initprintf("  - Creating %s device\n", devicedef[devn].name);
-        result = IDirectInput7_CreateDeviceEx(lpDI, &guidDevs[devn], &IID_IDirectInputDevice7, &dev, NULL);
+        result = IDirectInput7_CreateDeviceEx(lpDI, &guidDevs[devn], &IID_IDirectInputDevice7, (void *)&dev, NULL);
         if FAILED(result) { HorribleDInputDeath("Failed creating device", result); }
         else if (result != DI_OK) initprintf("    Created device with warning: %s\n",GetDInputError(result));
 
@@ -2846,6 +2847,7 @@ static BOOL WINAPI InitDirectDraw_enum(GUID *lpGUID, LPSTR lpDesc, LPSTR lpName,
     UNREFERENCED_PARAMETER(lpGUID);
     UNREFERENCED_PARAMETER(lpName);
     UNREFERENCED_PARAMETER(lpContext);
+    UNREFERENCED_PARAMETER(lpDesc);
 //    initprintf("    * %s\n", lpDesc);
     return 1;
 }
@@ -3400,9 +3402,9 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         glinfo.texcompr = 0;
 
         // process the extensions string and flag stuff we recognize
-        p = (char *)Bstrdup(glinfo.extensions);
+        p = (GLubyte *)Bstrdup(glinfo.extensions);
         p3 = p;
-        while ((p2 = (char *)Bstrtoken(p3==p?(char *)p:NULL, " ", (char**)&p3, 1)) != NULL)
+        while ((p2 = (GLubyte *)Bstrtoken(p3==p?(char *)p:NULL, " ", (char**)&p3, 1)) != NULL)
         {
             if (!Bstrcmp((char *)p2, "GL_EXT_texture_filter_anisotropic"))
             {

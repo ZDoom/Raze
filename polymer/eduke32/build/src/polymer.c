@@ -553,7 +553,7 @@ int32_t             polymer_init(void)
 {
     int32_t         i;
 
-    if (pr_verbosity >= 1) OSD_Printf("Initalizing Polymer subsystem...\n");
+    if (pr_verbosity >= 1) OSD_Printf("Initializing Polymer subsystem...\n");
 
     Bmemset(&prsectors[0], 0, sizeof(prsectors[0]) * MAXSECTORS);
     Bmemset(&prwalls[0], 0, sizeof(prwalls[0]) * MAXWALLS);
@@ -561,7 +561,7 @@ int32_t             polymer_init(void)
     prtess = bgluNewTess();
     if (prtess == 0)
     {
-        OSD_Printf("PR : Tesselator initialization failed.\n");
+        OSD_Printf("PR : Tessellation object initialization failed!\n");
         return (0);
     }
 

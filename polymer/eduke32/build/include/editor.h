@@ -54,6 +54,10 @@ extern int32_t autosave;
 extern int32_t mlook;
 extern int16_t prefixtiles[16];
 
+extern char program_origcwd[BMAX_PATH];
+extern char *mapster32_fullpath;
+extern char *testplay_addparam;
+
 extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);
 extern void ExtUnInit(void);
@@ -106,6 +110,8 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point);
 #define DEFAULT_GAME_EXEC "eduke32"
 #define DEFAULT_GAME_LOCAL_EXEC "./eduke32"
 #endif
+
+void test_map(int32_t mode);
 
 #ifdef __cplusplus
 }
