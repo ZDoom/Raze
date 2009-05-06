@@ -428,6 +428,13 @@ int32_t app_main(int32_t argc, const char **argv)
         double gamma = vid_gamma;
         vid_gamma = 1.0;
         setbrightness(0,palette,0);
+        if (setgamemode(fullscreen, xdim2d, ydim2d, 8) < 0)
+        {
+            ExtUnInit();
+            uninitengine();
+            Bprintf("%d * %d not supported in this graphics mode\n",xdim2d,ydim2d);
+            exit(0);
+        }
         overheadeditor();
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
         vid_gamma = gamma;
@@ -435,7 +442,7 @@ int32_t app_main(int32_t argc, const char **argv)
     }
     else
     {
-        if (setgamemode(fullscreen,xdimgame,ydimgame,bppgame) < 0)
+        if (setgamemode(fullscreen, xdimgame, ydimgame, bppgame) < 0)
         {
             ExtUnInit();
             uninitengine();
@@ -1180,11 +1187,6 @@ void overheadeditor(void)
         drawline16(xdim-1,ydim-STATUS2DSIZ,xdim-1,ydim-1,1);
         drawline16(0,ydim-STATUS2DSIZ+24,xdim-1,ydim-STATUS2DSIZ+24,1);
         drawline16(192-24,ydim-STATUS2DSIZ,192-24,ydim-STATUS2DSIZ+24,1); */
-    if (totalclock < 120*5)
-    {
-        printmessage16("Press F1 for help.  This is a test release, expect bugs!");
-        printext16(8L,ydim-STATUS2DSIZ+32L,editorcolors[9],-1,kensig,0);
-    }
 
     //  printmessage16("Version: "VERSION);
 //    drawline16(0,ydim-1-20,xdim-1,ydim-1-20,1);
@@ -1247,6 +1249,14 @@ void overheadeditor(void)
         if (!graphicsmode)
             idle();
         OSD_DispatchQueued();
+
+        if (totalclock < 120*3)
+            printmessage16("Based on BUILD by Ken Silverman.");
+        else if (totalclock < 120*6)
+        {
+            printmessage16("Press F1 for help.  This is a test release; always keep backups of your maps.");
+            //        printext16(8L,ydim-STATUS2DSIZ+32L,editorcolors[9],-1,kensig,0);
+        }
 
         oldmousebstatus = bstatus;
         getmousevalues(&mousx,&mousy,&bstatus);
@@ -5350,7 +5360,7 @@ int32_t menuselect_pk(int32_t direction) // 20080104: jump to next (direction!=0
 
 int32_t menuselect(void)
 {
-    int32_t listsize = (ydim16-32)/8;
+    int32_t listsize = (ydim16-32)/9;
     int32_t i;
     char ch, buffer[96], /*PK*/ *chptr;
     static char oldpath[BMAX_PATH];
@@ -5419,12 +5429,12 @@ int32_t menuselect(void)
                     buffer[21] = buffer[22] = buffer[23] = '.', buffer[24] = 0;
                 if (dir == finddirshigh)
                 {
-                    if (currentlist == 0) printext16(8,16+8*i,editorcolors[c|8],editorcolors[0],"->",0);
-                    printext16(32,16+8*i,editorcolors[c|8],editorcolors[0],buffer,0);
+                    if (currentlist == 0) printext16(8,16+9*i,editorcolors[c|8],editorcolors[0],"->",0);
+                    printext16(32,16+9*i,editorcolors[c|8],editorcolors[0],buffer,0);
                 }
                 else
                 {
-                    printext16(32,16+8*i,editorcolors[c],editorcolors[0],buffer,0);
+                    printext16(32,16+9*i,editorcolors[c],editorcolors[0],buffer,0);
                 }
             }
         }
@@ -5441,12 +5451,12 @@ int32_t menuselect(void)
             {
                 if (dir == findfileshigh)
                 {
-                    if (currentlist == 1) printext16(240,16+8*i,editorcolors[7|8],editorcolors[0],"->",0);
-                    printext16(240+24,16+8*i,editorcolors[7|8],editorcolors[0],dir->name,0);
+                    if (currentlist == 1) printext16(240,16+9*i,editorcolors[7|8],editorcolors[0],"->",0);
+                    printext16(240+24,16+9*i,editorcolors[7|8],editorcolors[0],dir->name,0);
                 }
                 else
                 {
-                    printext16(240+24,16+8*i,editorcolors[7],editorcolors[0],dir->name,0);
+                    printext16(240+24,16+9*i,editorcolors[7],editorcolors[0],dir->name,0);
                 }
             }
         }

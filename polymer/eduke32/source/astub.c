@@ -261,14 +261,14 @@ int32_t map_undoredo(int32_t dir)
     {
         if (mapstate == NULL || mapstate->next == NULL || !mapstate->next->numsectors) return 1;
 
-        while (map_revision+1 != mapstate->revision)
+        while (map_revision+1 != mapstate->revision && mapstate->next)
             mapstate = mapstate->next;
     }
     else
     {
         if (mapstate == NULL || mapstate->prev == NULL || !mapstate->prev->numsectors) return 1;
 
-        while (map_revision-1 != mapstate->revision)
+        while (map_revision-1 != mapstate->revision && mapstate->prev)
             mapstate = mapstate->prev;
     }
 
@@ -9538,18 +9538,6 @@ int32_t loadconsounds(char *fn)
 
 void ExtPreLoadMap(void)
 {
-    static int32_t soundinit = 0;
-    if (!soundinit)
-    {
-        g_numsounds = 0;
-        loadconsounds(gamecon);
-        if (g_numsounds > 0)
-        {
-            if (S_SoundStartup() != 0)
-                S_SoundShutdown();
-        }
-        soundinit = 1;
-    }
 }
 
 /// ^^^
@@ -10255,6 +10243,7 @@ static void Keys2d3d(void)
     if (mapstate == NULL)
     {
         mapstate = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
+        map_revision = 0;
         create_map_snapshot(); // initial map state
         Bfree(mapstate->next);
         mapstate = mapstate->prev;
@@ -10297,7 +10286,7 @@ static void Keys2d3d(void)
         }
         else
         {
-            if (map_undoredo(0)) printmessage16("Nothing to undo!");
+            if (map_undoredo(0)) message("Nothing to undo!");
             else message("Revision %d undone",map_revision);
         }
     }
@@ -10451,6 +10440,19 @@ static void Keys2d3d(void)
 
 void ExtCheckKeys(void)
 {
+    static int32_t soundinit = 0;
+    if (!soundinit)
+    {
+        g_numsounds = 0;
+        loadconsounds(gamecon);
+        if (g_numsounds > 0)
+        {
+            if (S_SoundStartup() != 0)
+                S_SoundShutdown();
+        }
+        soundinit = 1;
+    }
+
     if (qsetmode == 200)
     {
         if (shadepreview)
@@ -10509,9 +10511,8 @@ void ExtCheckKeys(void)
             editinput();
             if (infobox&2)m32_showmouse();
         }
-        return;
     }
-    Keys2d();
+    else Keys2d();
 
     if (asksave == 1 && bstatus == 0 && mapstate)
     {
