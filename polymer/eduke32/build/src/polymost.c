@@ -4568,7 +4568,7 @@ char cullmodel[MAXSPRITES];
 int32_t cullcheckcnt = 0;
 
 #ifndef _MSC_VER
-#ifdef __GNUC__
+#if defined (__GNUC__) && defined(__i386__)
 #ifndef __fastcall
 #define __fastcall __attribute__((fastcall))
 #endif
