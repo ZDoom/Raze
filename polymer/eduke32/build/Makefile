@@ -29,6 +29,10 @@ LINKED_GTK ?= 0
 BUILD32_ON_64 ?= 0
 RANCID_NETWORKING ?= 0
 
+ifeq (0,$(USE_OPENGL))
+	POLYMER = 0
+endif
+
 # Debugging/Build options
 #  RELEASE - 1 = no debugging
 #  EFENCE  - 1 = compile with Electric Fence for malloc() debugging
@@ -121,10 +125,8 @@ ENGINEOBJS+= \
 	$(OBJ)/engine.$o \
 	$(OBJ)/polymost.$o \
 	$(OBJ)/hightile.$o \
-	$(OBJ)/mdsprite.$o \
 	$(OBJ)/textfont.$o \
 	$(OBJ)/smalltextfont.$o \
-	$(OBJ)/glbuild.$o \
 	$(OBJ)/kplib.$o \
 	$(OBJ)/lzf_c.$o \
 	$(OBJ)/lzf_d.$o \
@@ -132,6 +134,11 @@ ENGINEOBJS+= \
 	$(OBJ)/osd.$o \
 	$(OBJ)/pragmas.$o \
 	$(OBJ)/scriptfile.$o
+
+ifeq (1,$(USE_OPENGL))
+	ENGINEOBJS+=  $(OBJ)/mdsprite.$o
+	ENGINEOBJS+=  $(OBJ)/glbuild.$o
+endif
 
 ifeq (1,$(POLYMER))
 	ENGINEOBJS+=  $(OBJ)/polymer.$o

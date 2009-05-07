@@ -24,12 +24,12 @@
 #ifdef POLYMOST
 # ifdef USE_OPENGL
 #  include "glbuild.h"
+#  include "mdsprite.h"
 #  ifdef POLYMER
 #   include "polymer.h"
 #  endif
 # endif
 # include "hightile.h"
-# include "mdsprite.h"
 # include "polymost.h"
 # ifdef _WIN32
 #  define WIN32_LEAN_AND_MEAN
@@ -7787,7 +7787,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     j = bpp;
     if (setvideomode(daxdim,daydim,dabpp,davidoption) < 0) return(-1);
 
-#ifdef POLYMOST
+#if defined(POLYMOST) && defined(USE_OPENGL)
     if (dabpp > 8) rendmode = glrendmode;    // GL renderer
     else if (dabpp == 8 && j > 8) rendmode = 0; // going from GL to software activates softpolymost
 #endif
@@ -12032,7 +12032,7 @@ int32_t screencapture(char *filename, char inverseit)
 int32_t setrendermode(int32_t renderer)
 {
     UNREFERENCED_PARAMETER(renderer);
-#ifdef POLYMOST
+#if defined(POLYMOST) && defined(USE_OPENGL)
     if (bpp == 8) renderer = 0;
     else renderer = min(4,max(3,renderer));
 # ifdef POLYMER

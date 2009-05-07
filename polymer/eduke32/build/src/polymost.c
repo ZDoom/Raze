@@ -70,13 +70,17 @@ Low priority:
 
 #include "compat.h"
 #include "build.h"
-#include "glbuild.h"
+
+#ifdef USE_OPENGL
+# include "glbuild.h"
+# include "mdsprite.h"
+#endif
+
 #include "pragmas.h"
 #include "baselayer.h"
 #include "osd.h"
 #include "engine_priv.h"
 #include "hightile.h"
-#include "mdsprite.h"
 #include "polymost.h"
 #include "scriptfile.h"
 #include "cache1d.h"
@@ -4254,6 +4258,7 @@ void polymost_drawrooms()
         vec3_t vect;
         double ratio = 1.05;
 
+#ifdef USE_OPENGL
         if (glwidescreen == 1)
             ratio = 1.2f;
         else if (glprojectionhacks == 1)
@@ -4268,6 +4273,7 @@ void polymost_drawrooms()
             if (gshang < -0.7f)
                 ratio += 4.f*(-gshang-0.7f);
         }
+#endif
 
         ox2 = (searchx-ghalfx)/ratio; oy2 = (searchy-ghoriz)/ ratio; oz2 = ghalfx;
 

@@ -3326,11 +3326,11 @@ cheat_for_port_credits:
                 nfs   = newfullscreen;
                 nbpp  = (newvidmode==validmodecnt)?bpp:validmode[newvidmode].bpp;
                 nrend = (vidsets[newvidset] & 0x20000) ? (nbpp==8?2:
-#ifdef POLYMOST
+#if defined(POLYMOST) && defined(USE_OPENGL)
                         glrendmode
 #else
                         0
-#endif // POLYMOST
+#endif
 
                                                          ) : 0;
 
