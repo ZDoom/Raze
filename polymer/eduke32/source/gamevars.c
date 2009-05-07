@@ -1606,8 +1606,9 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("NUMSECTORS",(intptr_t)&numsectors, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_READONLY);
 
     Gv_NewVar("lastsavepos",(intptr_t)&g_lastSaveSlot, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-
+#ifdef POLYMOST
     Gv_NewVar("rendmode",(int32_t)&rendmode, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
+#endif
 }
 
 void Gv_Init(void)
@@ -1760,5 +1761,7 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("NUMSECTORS")].val.lValue = (intptr_t)&numsectors;
 
     aGameVars[Gv_GetVarIndex("lastsavepos")].val.lValue = (intptr_t)&g_lastSaveSlot;
+#ifdef POLYMOST
     aGameVars[Gv_GetVarIndex("rendmode")].val.lValue = (int32_t)&rendmode;
+#endif
 }
