@@ -1029,7 +1029,7 @@ void                polymer_drawsprite(int32_t snum)
     xoff = tilexoff * xratio;
     yoff = tileyoff * yratio;
 
-    if (tspr->cstat & 128)
+    if ((tspr->cstat & 128) && (((tspr->cstat>>4) & 3) != 2))
         yoff -= ysize / 2;
 
     spos[0] = tspr->y;
