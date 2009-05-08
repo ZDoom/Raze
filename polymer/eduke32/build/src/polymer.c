@@ -51,14 +51,14 @@ static GLfloat  vertsprite[4 * 5] =
 
 static GLfloat  horizsprite[4 * 5] =
 {
-    -0.5f, 0.0f, -0.5f,
-    0.0f, 1.0f,
-    0.5f, 0.0f, -0.5f,
-    1.0f, 1.0f,
-    0.5f, 0.0f, 0.5f,
-    1.0f, 0.0f,
     -0.5f, 0.0f, 0.5f,
     0.0f, 0.0f,
+    0.5f, 0.0f, 0.5f,
+    1.0f, 0.0f,
+    0.5f, 0.0f, -0.5f,
+    1.0f, 1.0f,
+    -0.5f, 0.0f, -0.5f,
+    0.0f, 1.0f,
 };
 
 static GLfloat  skyboxdata[4 * 5 * 6] =
@@ -573,8 +573,6 @@ int32_t             polymer_init(void)
     if (spriteplane.buffer == NULL) {
         spriteplane.buffer = Bcalloc(4, sizeof(GLfloat) * 5);
         spriteplane.vertcount = 4;
-
-        Bmemcpy(spriteplane.buffer, horizsprite, sizeof(GLfloat) * 4 * 5);
     }
 
     i = 0;
@@ -1080,6 +1078,10 @@ void                polymer_drawsprite(int32_t snum)
 
         bglTranslatef(spos[0], spos[1], spos[2]);
         bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+        if (tspr->cstat & 8) {
+            bglRotatef(-180.0, 0.0f, 0.0f, 1.0f);
+            spriteplane.material.diffusescale[0] = -spriteplane.material.diffusescale[0];
+        }
         bglTranslatef((float)(-xoff), 1.0f, (float)(yoff));
         bglScalef((float)(xsize), 1.0f, (float)(ysize));
 
@@ -1091,14 +1093,18 @@ void                polymer_drawsprite(int32_t snum)
         break;
     }
 
-    if ((tspr->cstat & 4) || (((tspr->cstat>>4) & 3) == 2))
+    if ((tspr->cstat & 4) && (((tspr->cstat>>4) & 3) != 2))
+        spriteplane.material.diffusescale[0] = -spriteplane.material.diffusescale[0];
+    if (!(tspr->cstat & 4) && (((tspr->cstat>>4) & 3) == 2))
         spriteplane.material.diffusescale[0] = -spriteplane.material.diffusescale[0];
 
-    if (tspr->cstat & 8)
+    if ((tspr->cstat & 8) && (((tspr->cstat>>4) & 3) != 2))
         spriteplane.material.diffusescale[1] = -spriteplane.material.diffusescale[1];
 
     bglGetFloatv(GL_MODELVIEW_MATRIX, spritemodelview);
     bglPopMatrix();
+
+    Bmemcpy(spriteplane.buffer, inbuffer, sizeof(GLfloat) * 4 * 5);
 
     i = 0;
     while (i < 4)
@@ -1121,7 +1127,7 @@ void                polymer_drawsprite(int32_t snum)
         i++;
     }
 
-    if ((tspr->cstat & 64) && (((tspr->cstat>>4) & 3) == 1))
+    if ((tspr->cstat & 64) && ((tspr->cstat>>4) & 3))
         bglEnable(GL_CULL_FACE);
 
     if (!depth || mirrors[depth-1].plane)
@@ -1132,7 +1138,7 @@ void                polymer_drawsprite(int32_t snum)
     if (!depth || mirrors[depth-1].plane)
         bglDisable(GL_POLYGON_OFFSET_FILL);
 
-    if ((tspr->cstat & 64) && (((tspr->cstat>>4) & 3) == 1))
+    if ((tspr->cstat & 64) && ((tspr->cstat>>4) & 3))
         bglDisable(GL_CULL_FACE);
 
 }
