@@ -177,7 +177,7 @@ int32_t pk_turnaccel=16;
 int32_t pk_turndecel=12;
 int32_t pk_uedaccel=3;
 
-char lastpm16buf[60];
+char lastpm16buf[156];
 
 char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck);
 int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls);
@@ -6279,16 +6279,16 @@ void keytimerstuff(void)
 void _printmessage16(const char *fmt, ...)
 {
     int32_t i, ybase;
-    char snotbuf[100];
-    char tmpstr[104];
+    char snotbuf[156];
+    char tmpstr[160];
     va_list va;
 
     va_start(va, fmt);
-    Bvsnprintf(tmpstr, 104, fmt, va);
+    Bvsnprintf(tmpstr, 156, fmt, va);
     va_end(va);
 
     i = 0;
-    while ((tmpstr[i] != 0) && (i < 94))
+    while ((tmpstr[i] != 0) && (i < 146))
     {
         snotbuf[i] = tmpstr[i];
         i++;
