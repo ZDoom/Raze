@@ -1755,6 +1755,8 @@ static void G_MoveStandables(void)
 
         if (s->picnum == OOZFILTER || s->picnum == SEENINE || s->picnum == SEENINEDEAD || s->picnum == (SEENINEDEAD+1))
         {
+            if (s->picnum == OOZFILTER && s->xrepeat)
+                G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 6144, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
             if (s->shade != -32 && s->shade != -33)
             {
                 if (s->xrepeat)
