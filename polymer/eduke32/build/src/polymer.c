@@ -530,6 +530,8 @@ _prrt           *prrts;
 GLfloat         spritemodelview[16];
 GLfloat         rootmodelviewmatrix[16];
 GLfloat         *curmodelviewmatrix;
+GLfloat         rootskymodelviewmatrix[16];
+GLfloat         *curskymodelviewmatrix;
 
 static int16_t  sectorqueue[MAXSECTORS];
 static int16_t  querydelay[MAXSECTORS];
@@ -814,10 +816,18 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     bglRotatef(horizang, 1.0f, 0.0f, 0.0f);
     bglRotatef(ang, 0.0f, 1.0f, 0.0f);
 
-    bglDisable(GL_DEPTH_TEST);
-    bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    polymer_drawsky(cursky);
-    bglEnable(GL_DEPTH_TEST);
+    bglScalef(1.0f / 1000.0f, 1.0f / 1000.0f, 1.0f / 1000.0f);
+    bglTranslatef(-pos[0], -pos[1], -pos[2]);
+
+    bglGetFloatv(GL_MODELVIEW_MATRIX, rootskymodelviewmatrix);
+    curskymodelviewmatrix = rootskymodelviewmatrix;
+
+    bglMatrixMode(GL_MODELVIEW);
+    bglLoadIdentity();
+
+    bglRotatef(tiltang, 0.0f, 0.0f, -1.0f);
+    bglRotatef(horizang, 1.0f, 0.0f, 0.0f);
+    bglRotatef(ang, 0.0f, 1.0f, 0.0f);
 
     bglScalef(1.0f / 1000.0f, 1.0f / 1000.0f, 1.0f / 1000.0f);
     bglTranslatef(-pos[0], -pos[1], -pos[2]);
@@ -1161,6 +1171,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     int16_t         doquery;
     int32_t         front;
     int32_t         back;
+    GLfloat         localskymodelviewmatrix[16];
     GLfloat         localmodelviewmatrix[16];
     GLfloat         localprojectionmatrix[16];
     float           frustum[5 * 4];
@@ -1192,6 +1203,11 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     localspritesortcnt = localmaskwallcnt = 0;
 
     mirrorcount = 0;
+
+    bglDisable(GL_DEPTH_TEST);
+    bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    polymer_drawsky(cursky);
+    bglEnable(GL_DEPTH_TEST);
 
     // depth-only occlusion testing pass
 //     overridematerial = 0;
@@ -1373,6 +1389,9 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
         bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        Bmemcpy(localskymodelviewmatrix, curskymodelviewmatrix, sizeof(GLfloat) * 16);
+        curskymodelviewmatrix = localskymodelviewmatrix;
+
         bglMatrixMode(GL_MODELVIEW);
         bglPushMatrix();
 
@@ -1384,7 +1403,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         bglClipPlane(GL_CLIP_PLANE0, plane);
         polymer_inb4mirror(mirrorlist[i].plane->buffer, mirrorlist[i].plane->plane);
         bglCullFace(GL_FRONT);
-        bglEnable(GL_CLIP_PLANE0);
+        //bglEnable(GL_CLIP_PLANE0);
 
         if (mirrorlist[i].wallnum >= 0)
             preparemirror(globalposx, globalposy, 0, globalang, 0,
@@ -1594,6 +1613,12 @@ static inline void  polymer_inb4mirror(GLfloat* buffer, GLfloat* plane)
     reflectionmatrix[15] = 1;
 
     bglMultMatrixf(reflectionmatrix);
+
+    bglPushMatrix();
+    bglLoadMatrixf(curskymodelviewmatrix);
+    bglMultMatrixf(reflectionmatrix);
+    bglGetFloatv(GL_MODELVIEW_MATRIX, curskymodelviewmatrix);
+    bglPopMatrix();
 }
 
 static void         polymer_animatesprites(void)
@@ -2791,7 +2816,19 @@ static void         polymer_getsky(void)
 
 static void         polymer_drawsky(int16_t tilenum)
 {
+    float           pos[3];
     pthtyp*         pth;
+
+    pos[0] = globalposy;
+    pos[1] = -(float)(globalposz) / 16.0f;
+    pos[2] = -globalposx;
+
+    bglPushMatrix();
+    bglLoadIdentity();
+    bglLoadMatrixf(curskymodelviewmatrix);
+
+    bglTranslatef(pos[0], pos[1], pos[2]);
+    bglScalef(1000.0f, 1000.0f, 1000.0f);
 
     drawingskybox = 1;
     pth = gltexcache(tilenum,0,0);
@@ -2801,6 +2838,8 @@ static void         polymer_drawsky(int16_t tilenum)
         polymer_drawskybox(tilenum);
     else
         polymer_drawartsky(tilenum);
+
+    bglPopMatrix();
 }
 
 static void         polymer_initartsky(void)
