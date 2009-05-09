@@ -775,8 +775,9 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
 {
     int16_t         cursectnum;
     int32_t         i, cursectflorz, cursectceilz;
-    float           ang, tiltang;
+    float           skyhoriz, ang, tiltang;
     float           pos[3];
+    pthtyp*         pth;
 
     if (!rendmode) return;
 
@@ -809,11 +810,26 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     if (pr_shadows && lightcount && (pr_shadowcount > 0))
         polymer_prepareshadows();
 
+    // hack for parallax skies
+    skyhoriz = horizang;
+    if (skyhoriz < -180.0f)
+        skyhoriz += 360.0f;
+
+    drawingskybox = 1;
+    pth = gltexcache(cursky,0,0);
+    drawingskybox = 0;
+
+    // if it's not a skybox, make the sky parallax
+    // the angle factor is computed from eyeballed values
+    // need to recompute it if we ever change the max horiz amplitude
+    if (!pth || !(pth->flags & 4))
+        skyhoriz /= 4.3027;
+
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
 
     bglRotatef(tiltang, 0.0f, 0.0f, -1.0f);
-    bglRotatef(horizang, 1.0f, 0.0f, 0.0f);
+    bglRotatef(skyhoriz, 1.0f, 0.0f, 0.0f);
     bglRotatef(ang, 0.0f, 1.0f, 0.0f);
 
     bglScalef(1.0f / 1000.0f, 1.0f / 1000.0f, 1.0f / 1000.0f);
