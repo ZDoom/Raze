@@ -1733,15 +1733,15 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
     if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll || m->head.flags == 1337)
     {
         if (spriteext[tspr->owner].xoff)
-            a0.x = (int32_t)(spriteext[tspr->owner].xoff / (2048 * (m0.x+m1.x)));
+            a0.x = (int32_t)(spriteext[tspr->owner].xoff / (2560 * (m0.x+m1.x)));
         else
             a0.x = 0;
         if (spriteext[tspr->owner].yoff)
-            a0.y = (int32_t)(spriteext[tspr->owner].yoff / (2048 * (m0.x+m1.x)));
+            a0.y = (int32_t)(spriteext[tspr->owner].yoff / (2560 * (m0.x+m1.x)));
         else
             a0.y = 0;
         if ((spriteext[tspr->owner].zoff) && !(tspr->cstat&1024))
-            a0.z = (int32_t)(spriteext[tspr->owner].zoff / (524288 * (m0.z+m1.z)));
+            a0.z = (int32_t)(spriteext[tspr->owner].zoff / (655360 * (m0.z+m1.z)));
         else
             a0.z = 0;
         k0 = (float)sintable[(spriteext[tspr->owner].pitch+512)&2047] / 16384.0;

@@ -3036,8 +3036,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         pitchang = (float)(spriteext[tspr->owner].pitch) / (2048.0f / 360.0f);
         rollang = (float)(spriteext[tspr->owner].roll) / (2048.0f / 360.0f);
 
-        offsets[0] = spriteext[tspr->owner].xoff / (scale * tspr->xrepeat);
-        offsets[1] = spriteext[tspr->owner].yoff / (scale * tspr->xrepeat);
+        offsets[0] = -spriteext[tspr->owner].xoff / (scale * tspr->xrepeat);
+        offsets[1] = -spriteext[tspr->owner].yoff / (scale * tspr->xrepeat);
         offsets[2] = (float)(spriteext[tspr->owner].zoff) / 16.0f / (scale * tspr->yrepeat);
 
         bglTranslatef(-offsets[0], -offsets[1], -offsets[2]);
