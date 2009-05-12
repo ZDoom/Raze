@@ -393,6 +393,19 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
     },
     {
+        1 << PR_BIT_LIGHT_MAP,
+        // vert_def
+        "",
+        // vert_prog
+        "",
+        // frag_def
+        "uniform sampler2D lightMap;\n"
+        "\n",
+        // frag_prog
+        "  lightTexel = texture2D(lightMap, gl_TexCoord[2].st / gl_TexCoord[2].q).rgb;\n"
+        "\n",
+    },
+    {
         1 << PR_BIT_SPOT_LIGHT,
         // vert_def
         "",
@@ -475,10 +488,10 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n"
         "  lightDiffuse = diffuseTexel.a * gl_Color.a * diffuseTexel.rgb * shadowResult *\n"
         "                 gl_LightSource[0].diffuse.rgb * lightAttenuation * spotAttenuation;\n"
-        "  result += vec4(lightDiffuse * NdotL, 0.0);\n"
+        "  result += vec4(lightDiffuse * lightTexel * NdotL, 0.0);\n"
         "\n"
         "  lightSpecular = pow( max(dot(R, E), 0.0), specularMaterial.x * specTexel.a) * specularMaterial.y;\n"
-        "  result += vec4(lightDiffuse * specTexel.rgb * lightSpecular, 0.0);\n"
+        "  result += vec4(lightDiffuse * lightTexel * specTexel.rgb * lightSpecular, 0.0);\n"
         "\n",
     },
     {
@@ -512,6 +525,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  vec2 spotCosRadius;\n"
         "  float shadowResult = 1.0;\n"
         "  vec2 specularMaterial = vec2(15.0, 1.0);\n"
+        "  vec3 lightTexel = vec3(1.0, 1.0, 1.0);\n"
         "\n",
         // frag_prog
         "  gl_FragColor = result;\n"
@@ -3533,8 +3547,12 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
         if (prlights[lights[curlight]].radius) {
             programbits |= prprogrambits[PR_BIT_SPOT_LIGHT].bit;
             // PR_BIT_SHADOW_MAP
-            if (prlights[lights[curlight]].rtindex != -1)
+            if (prlights[lights[curlight]].rtindex != -1) {
                 programbits |= prprogrambits[PR_BIT_SHADOW_MAP].bit;
+                // PR_BIT_LIGHT_MAP
+                if (prlights[lights[curlight]].lightmap)
+                    programbits |= prprogrambits[PR_BIT_LIGHT_MAP].bit;
+            }
         }
     }
 
@@ -3758,6 +3776,17 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
                 bglUniformMatrix4fvARB(prprograms[programbits].uniform_shadowProjMatrix, 1, GL_FALSE, matrix);
 
                 texunit++;
+
+                // PR_BIT_LIGHT_MAP
+                if (programbits & prprogrambits[PR_BIT_LIGHT_MAP].bit)
+                {
+                    bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
+                    bglBindTexture(GL_TEXTURE_2D, prlights[lights[curlight]].lightmap);
+
+                    bglUniform1iARB(prprograms[programbits].uniform_lightMap, texunit);
+
+                    texunit++;
+                }
             }
         }
 
@@ -3944,6 +3973,12 @@ static void         polymer_compileprogram(int32_t programbits)
         prprograms[programbits].uniform_shadowProjMatrix = bglGetUniformLocationARB(program, "shadowProjMatrix");
     }
 
+    // PR_BIT_LIGHT_MAP
+    if (programbits & prprogrambits[PR_BIT_LIGHT_MAP].bit)
+    {
+        prprograms[programbits].uniform_lightMap = bglGetUniformLocationARB(program, "lightMap");
+    }
+
     // PR_BIT_SPOT_LIGHT
     if (programbits & prprogrambits[PR_BIT_SPOT_LIGHT].bit)
     {
@@ -3995,7 +4030,8 @@ static void         polymer_addlight(_prlight light)
         prlights[lightcount] = light;
 
         if (light.radius) {
-            float radius, ang, horizang, lightpos[3];
+            float           radius, ang, horizang, lightpos[3];
+            pthtyp*         pth;
 
             // hack to avoid lights beams perpendicular to walls
             if ((light.horiz <= 100) && (light.horiz > 90))
@@ -4032,6 +4068,20 @@ static void         polymer_addlight(_prlight light)
             polymer_extractfrustum(prlights[lightcount].transform, prlights[lightcount].proj, prlights[lightcount].frustum);
 
             prlights[lightcount].rtindex = -1;
+
+            // get the texture handle for the lightmap
+            prlights[lightcount].lightmap = 0;
+            if (prlights[lightcount].tilenum)
+            {
+                if (!waloff[prlights[lightcount].tilenum])
+                    loadtile(prlights[lightcount].tilenum);
+
+                pth = NULL;
+                pth = gltexcache(prlights[lightcount].tilenum, 0, 0);
+
+                if (pth)
+                    prlights[lightcount].lightmap = pth->glpic;
+            }
         }
 
         prlights[lightcount].isinview = 0;

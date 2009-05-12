@@ -66,6 +66,7 @@ typedef enum {
                     PR_BIT_FOG,
                     PR_BIT_GLOW_MAP,
                     PR_BIT_SHADOW_MAP,
+                    PR_BIT_LIGHT_MAP,
                     PR_BIT_SPOT_LIGHT,
                     PR_BIT_POINT_LIGHT,
                     PR_BIT_FOOTER,              // must be just before last
@@ -130,6 +131,8 @@ typedef struct      s_prrograminfo {
     // PR_BIT_SHADOW_MAP
     GLint           uniform_shadowMap;
     GLint           uniform_shadowProjMatrix;
+    // PR_BIT_LIGHT_MAP
+    GLint           uniform_lightMap;
     // PR_BIT_SPOT_LIGHT
     GLint           uniform_spotDir;
     GLint           uniform_spotRadius;
@@ -155,11 +158,14 @@ typedef struct      s_prlight {
     int16_t         angle, faderadius, radius, sector;
     uint8_t         color[3], priority;
     int8_t          minshade, maxshade;
+    int16_t         tilenum;
+    // internal members
     GLfloat         proj[16];
     GLfloat         transform[16];
     float           frustum[5 * 4];
     int32_t         rtindex;
     char            isinview;
+    GLuint          lightmap;
 }                   _prlight;
 
 extern _prlight     staticlights[PR_MAXLIGHTS];

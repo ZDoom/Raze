@@ -7528,7 +7528,7 @@ int32_t loadmaphack(char *filename)
             spriteext[whichsprite].flags |= SPREXT_AWAY2;
             break;
 #ifdef POLYMER
-        case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority
+        case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority tilenum
         {
             int32_t value;
 
@@ -7562,6 +7562,8 @@ int32_t loadmaphack(char *filename)
             staticlights[staticlightcount].maxshade = value;
             scriptfile_getnumber(script, &value);
             staticlights[staticlightcount].priority = value;
+            scriptfile_getnumber(script, &value);
+            staticlights[staticlightcount].tilenum = value;
 
             staticlightcount++;
             break;
