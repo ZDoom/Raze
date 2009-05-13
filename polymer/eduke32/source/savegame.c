@@ -234,15 +234,15 @@ int32_t G_LoadPlayer(int32_t spot)
     if (kdfread((char *)waloff[TILE_LOADSHOT],320,200,fil) != 200) goto corrupt;
     invalidatetile(TILE_LOADSHOT,0,255);
 
-    if (kdfread(&numwalls,2,1,fil) != 1) goto corrupt;
+    if (kdfread(&numwalls,sizeof(numwalls),1,fil) != 1) goto corrupt;
     if (kdfread(&wall[0],sizeof(walltype),MAXWALLS,fil) != MAXWALLS) goto corrupt;
-    if (kdfread(&numsectors,2,1,fil) != 1) goto corrupt;
+    if (kdfread(&numsectors,sizeof(numsectors),1,fil) != 1) goto corrupt;
     if (kdfread(&sector[0],sizeof(sectortype),MAXSECTORS,fil) != MAXSECTORS) goto corrupt;
     if (kdfread(&sprite[0],sizeof(spritetype),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
     if (kdfread(&spriteext[0],sizeof(spriteext_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
 #ifdef POLYMER
-    if (kdfread(&staticlightcount,sizeof(int32_t),1,fil) != 1) goto corrupt;
+    if (kdfread(&staticlightcount,sizeof(staticlightcount),1,fil) != 1) goto corrupt;
     if (kdfread(&staticlights[0],sizeof(_prlight),staticlightcount,fil) != staticlightcount) goto corrupt;
 #else
     if (kdfread(&i,sizeof(int32_t),1,fil) != 1) goto corrupt;
@@ -253,14 +253,14 @@ int32_t G_LoadPlayer(int32_t spot)
         if (spriteext[i].mdanimtims)
             spriteext[i].mdanimtims+=mdtims;
 #endif
-    if (kdfread(&headspritesect[0],2,MAXSECTORS+1,fil) != MAXSECTORS+1) goto corrupt;
-    if (kdfread(&prevspritesect[0],2,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
-    if (kdfread(&nextspritesect[0],2,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
-    if (kdfread(&headspritestat[STAT_DEFAULT],2,MAXSTATUS+1,fil) != MAXSTATUS+1) goto corrupt;
-    if (kdfread(&prevspritestat[STAT_DEFAULT],2,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
-    if (kdfread(&nextspritestat[STAT_DEFAULT],2,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+    if (kdfread(&headspritesect[0],sizeof(headspritesect[0]),MAXSECTORS+1,fil) != MAXSECTORS+1) goto corrupt;
+    if (kdfread(&prevspritesect[0],sizeof(prevspritesect[0]),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+    if (kdfread(&nextspritesect[0],sizeof(nextspritesect[0]),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+    if (kdfread(&headspritestat[STAT_DEFAULT],sizeof(headspritestat[STAT_DEFAULT]),MAXSTATUS+1,fil) != MAXSTATUS+1) goto corrupt;
+    if (kdfread(&prevspritestat[STAT_DEFAULT],sizeof(prevspritestat[STAT_DEFAULT]),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+    if (kdfread(&nextspritestat[STAT_DEFAULT],sizeof(nextspritestat[STAT_DEFAULT]),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
     if (kdfread(&g_numCyclers,sizeof(g_numCyclers),1,fil) != 1) goto corrupt;
-    if (kdfread(&cyclers[0][0],12,MAXCYCLERS,fil) != MAXCYCLERS) goto corrupt;
+    if (kdfread(&cyclers[0][0],sizeof(cyclers[0][0])*6,MAXCYCLERS,fil) != MAXCYCLERS) goto corrupt;
     for (i=0; i<nump; i++)
         if (kdfread(g_player[i].ps,sizeof(DukePlayer_t),1,fil) != 1) goto corrupt;
     if (kdfread(&g_playerSpawnPoints,sizeof(g_playerSpawnPoints),1,fil) != 1) goto corrupt;
@@ -299,14 +299,14 @@ int32_t G_LoadPlayer(int32_t spot)
             script[i] = j;
         }
 
-    if (kdfread(&actorscrptr[0],4,MAXTILES,fil) != MAXTILES) goto corrupt;
+    if (kdfread(&actorscrptr[0],sizeof(actorscrptr[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
     for (i=0; i<MAXTILES; i++)
         if (actorscrptr[i])
         {
             j = (intptr_t)actorscrptr[i]+(intptr_t)&script[0];
             actorscrptr[i] = (intptr_t *)j;
         }
-    if (kdfread(&actorLoadEventScrptr[0],4,MAXTILES,fil) != MAXTILES) goto corrupt;
+    if (kdfread(&actorLoadEventScrptr[0],sizeof(&actorLoadEventScrptr[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
     for (i=0; i<MAXTILES; i++)
         if (actorLoadEventScrptr[i])
         {
@@ -332,11 +332,11 @@ int32_t G_LoadPlayer(int32_t spot)
     if (kdfread(&pskyoff[0],sizeof(pskyoff[0]),MAXPSKYTILES,fil) != MAXPSKYTILES) goto corrupt;
 
     if (kdfread(&g_animateCount,sizeof(g_animateCount),1,fil) != 1) goto corrupt;
-    if (kdfread(&animatesect[0],2,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
-    if (kdfread(&animateptr[0],sizeof(int32_t),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
-    for (i = g_animateCount-1; i>=0; i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
-    if (kdfread(&animategoal[0],4,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
-    if (kdfread(&animatevel[0],4,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
+    if (kdfread(&animatesect[0],sizeof(animatesect[0]),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
+    if (kdfread(&animateptr[0],sizeof(animateptr[0]),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
+    for (i = g_animateCount-1; i>=0; i--) animateptr[i] = (int32_t*)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+    if (kdfread(&animategoal[0],sizeof(animategoal[0]),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
+    if (kdfread(&animatevel[0],sizeof(animatevel[0]),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
 
     if (kdfread(&g_earthquakeTime,sizeof(g_earthquakeTime),1,fil) != 1) goto corrupt;
     if (kdfread(&ud.from_bonus,sizeof(ud.from_bonus),1,fil) != 1) goto corrupt;
@@ -671,9 +671,9 @@ int32_t G_SavePlayer(int32_t spot)
     }
     dfwrite((char *)waloff[TILE_SAVESHOT],320,200,fil);
 
-    dfwrite(&numwalls,2,1,fil);
+    dfwrite(&numwalls,sizeof(numwalls),1,fil);
     dfwrite(&wall[0],sizeof(walltype),MAXWALLS,fil);
-    dfwrite(&numsectors,2,1,fil);
+    dfwrite(&numsectors,sizeof(numsectors),1,fil);
     dfwrite(&sector[0],sizeof(sectortype),MAXSECTORS,fil);
     dfwrite(&sprite[0],sizeof(spritetype),MAXSPRITES,fil);
 #if defined(POLYMOST) && defined(USE_OPENGL)
@@ -688,7 +688,7 @@ int32_t G_SavePlayer(int32_t spot)
     dfwrite(&spriteext[0],sizeof(spriteext_t),MAXSPRITES,fil);
 
 #ifdef POLYMER
-    dfwrite(&staticlightcount,sizeof(int32_t),1,fil);
+    dfwrite(&staticlightcount,sizeof(staticlightcount),1,fil);
     dfwrite(&staticlights[0],sizeof(_prlight),staticlightcount,fil);
 #else
     i = 0;
@@ -698,14 +698,14 @@ int32_t G_SavePlayer(int32_t spot)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     for (i=0; i<MAXSPRITES; i++)if (spriteext[i].mdanimtims)spriteext[i].mdanimtims+=mdtims;
 #endif
-    dfwrite(&headspritesect[0],2,MAXSECTORS+1,fil);
-    dfwrite(&prevspritesect[0],2,MAXSPRITES,fil);
-    dfwrite(&nextspritesect[0],2,MAXSPRITES,fil);
+    dfwrite(&headspritesect[0],sizeof(headspritesect[0]),MAXSECTORS+1,fil);
+    dfwrite(&prevspritesect[0],sizeof(prevspritesect[0]),MAXSPRITES,fil);
+    dfwrite(&nextspritesect[0],sizeof(nextspritesect[0]),MAXSPRITES,fil);
     dfwrite(&headspritestat[STAT_DEFAULT],2,MAXSTATUS+1,fil);
     dfwrite(&prevspritestat[STAT_DEFAULT],2,MAXSPRITES,fil);
     dfwrite(&nextspritestat[STAT_DEFAULT],2,MAXSPRITES,fil);
     dfwrite(&g_numCyclers,sizeof(g_numCyclers),1,fil);
-    dfwrite(&cyclers[0][0],12,MAXCYCLERS,fil);
+    dfwrite(&cyclers[0][0],sizeof(cyclers[0][0])*6,MAXCYCLERS,fil);
     for (i=0; i<ud.multimode; i++)
         dfwrite(g_player[i].ps,sizeof(DukePlayer_t),1,fil);
     dfwrite(&g_playerSpawnPoints,sizeof(g_playerSpawnPoints),1,fil);
@@ -757,7 +757,7 @@ int32_t G_SavePlayer(int32_t spot)
             j = (intptr_t)actorscrptr[i]-(intptr_t)&script[0];
             actorscrptr[i] = (intptr_t *)j;
         }
-    dfwrite(&actorscrptr[0],4,MAXTILES,fil);
+    dfwrite(&actorscrptr[0],sizeof(actorscrptr[0]),MAXTILES,fil);
     for (i=0; i<MAXTILES; i++)
         if (actorscrptr[i])
         {
@@ -771,7 +771,7 @@ int32_t G_SavePlayer(int32_t spot)
             j = (intptr_t)actorLoadEventScrptr[i]-(intptr_t)&script[0];
             actorLoadEventScrptr[i] = (intptr_t *)j;
         }
-    dfwrite(&actorLoadEventScrptr[0],4,MAXTILES,fil);
+    dfwrite(&actorLoadEventScrptr[0],sizeof(actorLoadEventScrptr[0]),MAXTILES,fil);
     for (i=0; i<MAXTILES; i++)
         if (actorLoadEventScrptr[i])
         {
@@ -827,12 +827,12 @@ int32_t G_SavePlayer(int32_t spot)
     dfwrite(&pskybits,sizeof(pskybits),1,fil);
     dfwrite(&pskyoff[0],sizeof(pskyoff[0]),MAXPSKYTILES,fil);
     dfwrite(&g_animateCount,sizeof(g_animateCount),1,fil);
-    dfwrite(&animatesect[0],2,MAXANIMATES,fil);
+    dfwrite(&animatesect[0],sizeof(animatesect[0]),MAXANIMATES,fil);
     for (i = g_animateCount-1; i>=0; i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]-(intptr_t)(&sector[0]));
-    dfwrite(&animateptr[0],4,MAXANIMATES,fil);
+    dfwrite(&animateptr[0],sizeof(animateptr[0]),MAXANIMATES,fil);
     for (i = g_animateCount-1; i>=0; i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
-    dfwrite(&animategoal[0],4,MAXANIMATES,fil);
-    dfwrite(&animatevel[0],4,MAXANIMATES,fil);
+    dfwrite(&animategoal[0],sizeof(animategoal[0]),MAXANIMATES,fil);
+    dfwrite(&animatevel[0],sizeof(animatevel[0]),MAXANIMATES,fil);
 
     dfwrite(&g_earthquakeTime,sizeof(g_earthquakeTime),1,fil);
     dfwrite(&ud.from_bonus,sizeof(ud.from_bonus),1,fil);
