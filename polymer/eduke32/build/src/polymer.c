@@ -255,6 +255,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
         // frag_prog
         "  diffuseTexel = texture2D(diffuseMap, commonTexCoord.st);\n"
+        "  specTexel = diffuseTexel;\n"
         "  if (isLightingPass == 0)\n"
         "    result *= diffuseTexel;\n"
         "\n",
@@ -486,12 +487,12 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n"
         "  R = reflect(-L, N);\n"
         "\n"
-        "  lightDiffuse = diffuseTexel.a * gl_Color.a * diffuseTexel.rgb * shadowResult *\n"
+        "  lightDiffuse = diffuseTexel.a * gl_Color.a * shadowResult * lightTexel *\n"
         "                 gl_LightSource[0].diffuse.rgb * lightAttenuation * spotAttenuation;\n"
-        "  result += vec4(lightDiffuse * lightTexel * NdotL, 0.0);\n"
+        "  result += vec4(lightDiffuse * diffuseTexel.rgb * NdotL, 0.0);\n"
         "\n"
         "  lightSpecular = pow( max(dot(R, E), 0.0), specularMaterial.x * specTexel.a) * specularMaterial.y;\n"
-        "  result += vec4(lightDiffuse * lightTexel * specTexel.rgb * lightSpecular, 0.0);\n"
+        "  result += vec4(lightDiffuse * specTexel.rgb * lightSpecular, 0.0);\n"
         "\n",
     },
     {
