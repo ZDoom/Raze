@@ -664,9 +664,58 @@ void                polymer_glinit(void)
     bglCullFace(GL_BACK);
 }
 
+void                polymer_clearmapdata(void)
+{
+    int32_t         i;
+
+    i = 0;
+    while (i < MAXSECTORS)
+    {
+        if (prsectors[i])
+        {
+            if (prsectors[i]->verts) Bfree(prsectors[i]->verts);
+            if (prsectors[i]->floor.buffer) Bfree(prsectors[i]->floor.buffer);
+            if (prsectors[i]->ceil.buffer) Bfree(prsectors[i]->ceil.buffer);
+            if (prsectors[i]->floor.indices) Bfree(prsectors[i]->floor.indices);
+            if (prsectors[i]->ceil.indices) Bfree(prsectors[i]->ceil.indices);
+            if (prsectors[i]->ceil.vbo) bglDeleteBuffersARB(1, &prsectors[i]->ceil.vbo);
+            if (prsectors[i]->ceil.ivbo) bglDeleteBuffersARB(1, &prsectors[i]->ceil.ivbo);
+            if (prsectors[i]->floor.vbo) bglDeleteBuffersARB(1, &prsectors[i]->floor.vbo);
+            if (prsectors[i]->floor.ivbo) bglDeleteBuffersARB(1, &prsectors[i]->floor.ivbo);
+
+            Bfree(prsectors[i]);
+            prsectors[i] = NULL;
+        }
+
+        i++;
+    }
+
+    i = 0;
+    while (i < MAXWALLS)
+    {
+        if (prwalls[i])
+        {
+            if (prwalls[i]->bigportal) Bfree(prwalls[i]->bigportal);
+            if (prwalls[i]->mask.buffer) Bfree(prwalls[i]->mask.buffer);
+            if (prwalls[i]->cap) Bfree(prwalls[i]->cap);
+            if (prwalls[i]->wall.vbo) bglDeleteBuffersARB(1, &prwalls[i]->wall.vbo);
+            if (prwalls[i]->over.vbo) bglDeleteBuffersARB(1, &prwalls[i]->over.vbo);
+            if (prwalls[i]->mask.vbo) bglDeleteBuffersARB(1, &prwalls[i]->mask.vbo);
+            if (prwalls[i]->stuffvbo) bglDeleteBuffersARB(1, &prwalls[i]->stuffvbo);
+
+            Bfree(prwalls[i]);
+            prwalls[i] = NULL;
+        }
+
+        i++;
+    }
+}
+
 void                polymer_loadboard(void)
 {
     int32_t         i;
+
+    polymer_clearmapdata();
 
     i = 0;
     while (i < numsectors)
