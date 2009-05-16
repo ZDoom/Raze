@@ -1019,7 +1019,7 @@ int32_t initmouse(void)
         return 0;
     }
 
-    SetThreadPriority(mousethread, THREAD_PRIORITY_HIGHEST);
+    SetThreadPriority(mousethread, THREAD_PRIORITY_ABOVE_NORMAL);
     ResumeThread(mousethread);
 //    initprintf("OK\n");
 
@@ -1627,7 +1627,7 @@ static void AcquireInputDevices(char acquire, int8_t device)
 
             IDirectInputDevice7_Unacquire(*devicedef[i].did);
 
-            if (i == MOUSE/* && fullscreen*/) flags = DISCL_FOREGROUND|DISCL_EXCLUSIVE;
+            if (i == MOUSE /*&& fullscreen*/) flags = DISCL_FOREGROUND|DISCL_EXCLUSIVE;
             else flags = DISCL_FOREGROUND|DISCL_NONEXCLUSIVE;
 
             result = IDirectInputDevice7_SetCooperativeLevel(*devicedef[i].did, hWindow, flags);
@@ -2176,8 +2176,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     char i,inp[NUM_INPUTS];
     int32_t modenum;
 
-    if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) &&
-            !videomodereset)
+    if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) && !videomodereset)
     {
         OSD_ResizeDisplay(xres,yres);
         return 0;
@@ -4195,9 +4194,17 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
             }
         }
 #endif
+
         if (backgroundidle)
             SetPriorityClass(GetCurrentProcess(),
                              appactive ? NORMAL_PRIORITY_CLASS : IDLE_PRIORITY_CLASS);
+
+        if (appactive)
+        {
+            SetForegroundWindow(hWindow);
+            SetFocus(hWindow);
+        }
+        AcquireInputDevices(appactive,-1);
         break;
     }
     case WM_ACTIVATE:
@@ -4214,6 +4221,12 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
                 RestoreSystemColours();
                 //					initprintf("Resetting system colours.\n");
             }
+        }
+
+        if (appactive)
+        {
+            SetForegroundWindow(hWindow);
+            SetFocus(hWindow);
         }
 
         AcquireInputDevices(appactive,-1);

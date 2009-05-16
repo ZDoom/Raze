@@ -50,7 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20090430"
+#define BUILDDATE " 20090512"
 
 static int32_t floor_over_floor;
 
@@ -81,8 +81,6 @@ static struct strllist
     char *str;
 }
 *CommandPaths = NULL, *CommandGrps = NULL;
-
-#define MAXHELP2D (int32_t)(sizeof(Help2d)/sizeof(Help2d[0]))
 
 #define eitherALT   (keystatus[KEYSC_LALT]|  keystatus[KEYSC_RALT])
 #define eitherCTRL  (keystatus[KEYSC_LCTRL]| keystatus[KEYSC_RCTRL])
@@ -253,6 +251,35 @@ void create_map_snapshot(void)
     mapstate = mapstate->next;
 }
 
+void map_undoredo_free(void)
+{
+    if (mapstate)
+    {
+        if (mapstate->next != NULL)
+        {
+            mapundo_t *next = mapstate->next;
+
+            while (next->next)
+                next = next->next;
+
+            while (next->prev)
+            {
+                next = next->prev;
+                if (next->next->sectors && next->next->sectors != next->sectors) Bfree(next->next->sectors);
+                if (next->next->walls && next->next->walls != next->walls) Bfree(next->next->walls);
+                if (next->next->sprites && next->next->sprites != next->sprites) Bfree(next->next->sprites);
+                Bfree(next->next);
+            }
+        }
+
+        Bfree(mapstate);
+        mapstate = NULL;
+    }
+
+    map_revision = 0;
+
+}
+
 int32_t map_undoredo(int32_t dir)
 {
     int32_t i;
@@ -278,6 +305,10 @@ int32_t map_undoredo(int32_t dir)
 
     initspritelists();
 
+    clearbuf(&show2dsector[0],(int32_t)((MAXSECTORS+3)>>5),0L);
+    clearbuf(&show2dsprite[0],(int32_t)((MAXSPRITES+3)>>5),0L);
+    clearbuf(&show2dwall[0],(int32_t)((MAXWALLS+3)>>5),0L);
+
     lzf_decompress(&mapstate->sectors[0],  mapstate->sectsiz, &sector[0], sizeof(sectortype) * numsectors);
     lzf_decompress(&mapstate->walls[0],  mapstate->wallsiz, &wall[0], sizeof(walltype) * numwalls);
     lzf_decompress(&mapstate->sprites[0],  mapstate->spritesiz, &sprite[0], sizeof(spritetype) * numsprites);
@@ -298,29 +329,6 @@ int32_t map_undoredo(int32_t dir)
 #endif
     return 0;
 }
-
-static char *Help2d[]=
-{
-    " 'A = Autosave toggle",
-    " 'J = Jump to location",
-    " 'L = Adjust sprite/wall coords",
-    " 'S = Sprite size",
-    " '3 = Caption mode",
-    " '7 = Swap tags",
-    " 'F = Special functions",
-    " X  = Horiz. flip selected sects",
-    " Y  = Vert. flip selected sects",
-    " F5 = Item count",
-    " F6 = Actor count/SE help",
-    " F7 = Edit sector",
-    " F8 = Edit wall/sprite",
-    " F9 = Sector tag help",
-    " Ctrl-S = Quick save",
-    " Alt-F7 = Search sector lotag",
-    " Alt-F8 = Search wall/sprite tags",
-    " [      = Search forward",
-    " ]      = Search backward",
-};
 
 static char *SpriteMode[]=
 {
@@ -527,31 +535,7 @@ void ExtLoadMap(const char *mapname)
     parallaxtype=0;
     Bsprintf(tempbuf, "Mapster32 - %s",mapname);
 
-    if (mapstate)
-    {
-        if (mapstate->next != NULL)
-        {
-            mapundo_t *next = mapstate->next;
-
-            while (next->next)
-                next = next->next;
-
-            while (next->prev)
-            {
-                next = next->prev;
-                if (next->next->sectors && next->next->sectors != next->sectors) Bfree(next->next->sectors);
-                if (next->next->walls && next->next->walls != next->walls) Bfree(next->next->walls);
-                if (next->next->sprites && next->next->sprites != next->sprites) Bfree(next->next->sprites);
-                Bfree(next->next);
-            }
-        }
-
-        Bfree(mapstate);
-        mapstate = NULL;
-    }
-
-    map_revision = 0;
-
+    map_undoredo_free();
     wm_setapptitle(tempbuf);
 }
 
@@ -2172,7 +2156,7 @@ static void SoundDisplay()
                          k, snd->ps, snd->pe, snd->pr,
                          snd->m&1 ? 'R':'-', snd->m&2 ? 'M':'-', snd->m&4 ? 'D':'-',
                          snd->m&8 ? 'P':'-', snd->m&16 ? 'G':'-', snd->vo);
-                for (l = Bsnprintf(disptext[i]+5, 20, snd->definedname); l<20; l++)
+                for (l = Bsnprintf(disptext[i]+5, 20, "%s", snd->definedname); l<20; l++)
                     disptext[i][5+l] = ' ';
                 if (snd->filename)
                 {
@@ -2181,7 +2165,7 @@ static void SoundDisplay()
                         cp = snd->filename;
                     else
                         cp = snd->filename + l-15;
-                    for (m = Bsnprintf(disptext[i]+26, 16, cp); m<16; m++)
+                    for (m = Bsnprintf(disptext[i]+26, 16, "%s", cp); m<16; m++)
                         disptext[i][26+m] = ' ';
                     if (l>16)
                         disptext[i][26] = disptext[i][27] = disptext[i][28] = '.';
@@ -7573,32 +7557,14 @@ static void Keys2d(void)
     if (keystatus[KEYSC_F1] || (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_TILDE])) //F1 or ' ~
     {
         keystatus[KEYSC_F1]=0;
-        clearmidstatbar16();
-
 // PK_
         if (numhelppages>0) IntegratedHelp();
-        else
-        {
-            begindrawing();
-            for (i=0; i<MAXHELP2D; i++)
-            {
-                k = 0;
-                j = 0;
-                if (i > 9)
-                {
-                    j = 256;
-                    k = 90;
-                }
-                printext16(j,ydim16+32+(i*9)-k,editorcolors[11],-1,Help2d[i],0);
-            }
-            enddrawing();
-        }
+        else printmessage16("m32help.hlp invalid or not found!");
     }
 
     if (keystatus[KEYSC_F2])
     {
         keystatus[KEYSC_F2]=0;
-        clearmidstatbar16();
 
         if (g_numsounds > 0)
             SoundDisplay();
@@ -10306,7 +10272,8 @@ static void Keys2d3d(void)
         if (keystatus[KEYSC_P]) // Ctrl-P: Map playtesting
         {
             keystatus[KEYSC_P] = 0;
-            test_map(eitherALT);
+            if (qsetmode != 200)
+                test_map(eitherALT);
         }
 
         if (keystatus[KEYSC_S]) // S

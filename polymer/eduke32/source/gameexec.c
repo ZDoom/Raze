@@ -4531,7 +4531,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     /* Qbix: Changed variables to be aware of the sizeof *insptr
      * (wether it is int32_t vs intptr_t), Although it is specificly cast to intptr_t*
      * which might be corrected if the code is converted to use offsets */
-    if (vm.g_t[4])
+    if (vm.g_t[4] && vm.g_t[4] != 1) // FIXME
     {
         vm.g_sp->lotag += TICSPERFRAME;
 

@@ -6739,9 +6739,9 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
 #define MYMAXWALLS   (mapversion==7l?MAXWALLSV7:MAXWALLSV8)
 #define MYMAXSPRITES (mapversion==7l?MAXSPRITESV7:MAXSPRITESV8)
 
-    clearbuf(&show2dsector[0],(int32_t)((MYMAXSECTORS+3)>>5),0L);
-    clearbuf(&show2dsprite[0],(int32_t)((MYMAXSPRITES+3)>>5),0L);
-    clearbuf(&show2dwall[0],(int32_t)((MYMAXWALLS+3)>>5),0L);
+    clearbuf(&show2dsector[0],(int32_t)((MAXSECTORS+3)>>5),0L);
+    clearbuf(&show2dsprite[0],(int32_t)((MAXSPRITES+3)>>5),0L);
+    clearbuf(&show2dwall[0],(int32_t)((MAXWALLS+3)>>5),0L);
 
     kread(fil,daposx,4); *daposx = B_LITTLE32(*daposx);
     kread(fil,daposy,4); *daposy = B_LITTLE32(*daposy);

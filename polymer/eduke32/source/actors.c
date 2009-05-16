@@ -5662,7 +5662,10 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 j = headspritesect[s->sectnum];
                 while (j >= 0)
                 {
-                    if (sprite[j].statnum != 10 && sector[sprite[j].sectnum].lotag != 2 && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+                    if (sprite[j].statnum != 10 && sector[sprite[j].sectnum].lotag != 2 && 
+                        (sprite[j].picnum != SECTOREFFECTOR ||
+                        (sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 49||sprite[j].lotag == 50)) )
+                        && sprite[j].picnum != LOCATORS)
                     {
                         rotatepoint(s->x,s->y,sprite[j].x,sprite[j].y,q,&sprite[j].x,&sprite[j].y);
 

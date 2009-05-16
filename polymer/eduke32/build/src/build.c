@@ -219,6 +219,7 @@ void clearfilenames(void);
 void loadmhk();
 extern int32_t map_revision;
 extern int32_t map_undoredo(int32_t dir);
+extern void map_undoredo_free(void);
 
 void clearkeys(void) { memset(keystatus,0,sizeof(keystatus)); }
 
@@ -4231,6 +4232,7 @@ CANCEL:
                             cursectnum = -1;
                             initspritelists();
                             Bstrcpy(boardfilename,"newboard.map");
+                            map_undoredo_free();
                             break;
                         }
                         else if (ch == 'N' || ch == 'n' || ch == 13 || ch == ' ')

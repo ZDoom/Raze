@@ -185,8 +185,19 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
     }
 
     external_midi = (command != NULL && command[0] != 0);
+
     if (external_midi)
         Mix_SetMusicCMD(command);
+    else
+    {
+        FILE *fp = fopen("/etc/timidity.cfg", "r");
+        if (fp == NULL)
+        {
+            initprintf("Error opening /etc/timidity.cfg: %s\n",strerror(errno));
+            return MUSIC_Error;
+        }
+        Bfclose(fp);
+    }
 
     init_debugging();
 
