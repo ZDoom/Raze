@@ -255,7 +255,6 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
         // frag_prog
         "  diffuseTexel = texture2D(diffuseMap, commonTexCoord.st);\n"
-        "  specTexel.rgb = diffuseTexel.rgb * diffuseTexel.a;\n"
         "  if (isLightingPass == 0)\n"
         "    result *= diffuseTexel;\n"
         "\n",
@@ -308,6 +307,8 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
         // frag_prog
         "  specTexel = texture2D(specMap, commonTexCoord.st);\n"
+        "\n"
+        "  isSpecularMapped = 1;\n"
         "\n",
     },
     {
@@ -491,6 +492,9 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "                 gl_LightSource[0].diffuse.rgb * lightAttenuation * spotAttenuation;\n"
         "  result += vec4(lightDiffuse * diffuseTexel.a * diffuseTexel.rgb * NdotL, 0.0);\n"
         "\n"
+        "  if (isSpecularMapped == 1)\n"
+        "    specTexel.rgb = diffuseTexel.rgb * diffuseTexel.a;\n"
+        "\n"
         "  lightSpecular = pow( max(dot(R, E), 0.0), specularMaterial.x * specTexel.a) * specularMaterial.y;\n"
         "  result += vec4(lightDiffuse * specTexel.rgb * lightSpecular, 0.0);\n"
         "\n",
@@ -520,6 +524,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  vec4 normalTexel;\n"
         "  int isLightingPass = 0;\n"
         "  int isNormalMapped = 0;\n"
+        "  int isSpecularMapped = 0;\n"
         "  vec3 eyeVec;\n"
         "  int isSpotLight = 0;\n"
         "  vec3 spotVector;\n"
