@@ -492,7 +492,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "                 gl_LightSource[0].diffuse.rgb * lightAttenuation * spotAttenuation;\n"
         "  result += vec4(lightDiffuse * diffuseTexel.a * diffuseTexel.rgb * NdotL, 0.0);\n"
         "\n"
-        "  if (isSpecularMapped == 1)\n"
+        "  if (isSpecularMapped == 0)\n"
         "    specTexel.rgb = diffuseTexel.rgb * diffuseTexel.a;\n"
         "\n"
         "  lightSpecular = pow( max(dot(R, E), 0.0), specularMaterial.x * specTexel.a) * specularMaterial.y;\n"
