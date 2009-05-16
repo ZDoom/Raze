@@ -698,6 +698,7 @@ void                polymer_clearmapdata(void)
             if (prwalls[i]->bigportal) Bfree(prwalls[i]->bigportal);
             if (prwalls[i]->mask.buffer) Bfree(prwalls[i]->mask.buffer);
             if (prwalls[i]->cap) Bfree(prwalls[i]->cap);
+            if (prwalls[i]->wall.buffer) Bfree(prwalls[i]->wall.buffer);
             if (prwalls[i]->wall.vbo) bglDeleteBuffersARB(1, &prwalls[i]->wall.vbo);
             if (prwalls[i]->over.vbo) bglDeleteBuffersARB(1, &prwalls[i]->over.vbo);
             if (prwalls[i]->mask.vbo) bglDeleteBuffersARB(1, &prwalls[i]->mask.vbo);
