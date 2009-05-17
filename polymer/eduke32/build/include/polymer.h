@@ -284,6 +284,8 @@ static void         polymer_displayrooms(int16_t sectnum);
 static void         polymer_drawplane(_prplane* plane);
 static inline void  polymer_inb4mirror(GLfloat* buffer, GLfloat* plane);
 static void         polymer_animatesprites(void);
+static void         polymer_clearmapdata(void);
+static void         polymer_editorselect(void);
 // SECTORS
 static int32_t      polymer_initsector(int16_t sectnum);
 static int32_t      polymer_updatesector(int16_t sectnum);
