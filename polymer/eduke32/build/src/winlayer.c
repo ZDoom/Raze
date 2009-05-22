@@ -38,7 +38,7 @@
 #include "build.h"
 #include "a.h"
 #include "osd.h"
-
+#include "mmulti.h"
 
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE
@@ -626,7 +626,7 @@ void initprintf(const char *f, ...)
 
     Bstrcat(dabuf,buf);
 
-    if (++cnt < 16 || flushlogwindow || Bstrlen(dabuf) > 768)
+    if (++cnt < 16 || flushlogwindow || Bstrlen(dabuf) > 768 || numplayers > 1)
     {
         startwin_puts(dabuf);
         handleevents();

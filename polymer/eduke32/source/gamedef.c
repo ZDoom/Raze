@@ -1011,6 +1011,7 @@ void C_FreeHashes(void)
     hash_free(&labelH);
 }
 
+// "magic" number for { and }, overrides line number in compiled code for later detection
 #define IFELSE_MAGIC 31337
 static int32_t g_ifElseAborted;
 
@@ -1097,12 +1098,17 @@ static int32_t C_SetScriptSize(int32_t size)
 //        Bmemset(&bitptr[osize],0,size-osize);
         Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) *((osize+7)>>3));
     }
-    else if (size < osize)
+    else
         Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) *((size+7)>>3));
 
     Bfree(bitptr);
     bitptr = newbitptr;
-    script = newscript;
+    if (script != newscript)
+    {
+        initprintf("Relocating compiled code from to 0x%x to 0x%x\n", script, newscript);
+        script = newscript;
+    }
+
     g_scriptPtr = (intptr_t *)(script+oscriptPtr);
 //    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
@@ -1122,7 +1128,7 @@ static int32_t C_SetScriptSize(int32_t size)
         }
     }
 
-    if (size > osize)
+    if (size >= osize)
     {
         for (i=g_scriptSize-(size-osize)-1; i>=0; i--)
             if (scriptptrs[i])

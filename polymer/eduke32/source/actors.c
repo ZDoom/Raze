@@ -2285,6 +2285,8 @@ static void G_MoveWeapons(void)
                 //                if( g_sounds[WIERDSHOT_FLY].num == 0 )
                 //                    A_PlaySound(WIERDSHOT_FLY,i);
 
+                Bmemcpy(&davect,s,sizeof(vec3_t));
+
                 if (ActorExtra[i].projectile.flashcolor)
                     G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, ActorExtra[i].projectile.flashcolor,PR_LIGHT_PRIO_LOW_GAME);
 
@@ -2299,7 +2301,7 @@ static void G_MoveWeapons(void)
                         {
                             k = A_Spawn(i,ActorExtra[i].projectile.spawns);
 
-                            Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
+//                            Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
                             /*
                             sprite[k].x = dax;
                             sprite[k].y = day;
@@ -2349,8 +2351,6 @@ static void G_MoveWeapons(void)
                     k = s->xvel>>1;
                     ll = s->zvel>>1;
                 }
-
-                Bmemcpy(&davect,s,sizeof(vec3_t));
 
                 A_GetZLimits(i);
                 qq = CLIPMASK1;

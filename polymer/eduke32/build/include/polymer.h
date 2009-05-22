@@ -268,6 +268,7 @@ typedef struct      s_pranimatespritesinfo {
 
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void);
+void                polymer_uninit(void);
 void                polymer_glinit(void);
 void                polymer_loadboard(void);
 void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum);
@@ -284,7 +285,7 @@ static void         polymer_displayrooms(int16_t sectnum);
 static void         polymer_drawplane(_prplane* plane);
 static inline void  polymer_inb4mirror(GLfloat* buffer, GLfloat* plane);
 static void         polymer_animatesprites(void);
-static void         polymer_clearmapdata(void);
+static void         polymer_freeboard(void);
 static void         polymer_editorselect(void);
 // SECTORS
 static int32_t      polymer_initsector(int16_t sectnum);

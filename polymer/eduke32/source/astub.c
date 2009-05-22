@@ -50,7 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20090512"
+#define BUILDDATE " 20090522"
 
 static int32_t floor_over_floor;
 
@@ -166,10 +166,11 @@ void create_map_snapshot(void)
         while (next->prev)
         {
             next = next->prev;
-            if (next->next->sectors && next->next->sectors != next->sectors) Bfree(next->next->sectors);
-            if (next->next->walls && next->next->walls != next->walls) Bfree(next->next->walls);
-            if (next->next->sprites && next->next->sprites != next->sprites) Bfree(next->next->sprites);
+            if (next->next->sectors && (next->next->sectors != next->sectors)) Bfree(next->next->sectors);
+            if (next->next->walls && (next->next->walls != next->walls)) Bfree(next->next->walls);
+            if (next->next->sprites && (next->next->sprites != next->sprites)) Bfree(next->next->sprites);
             Bfree(next->next);
+            next->next = NULL;
         }
     }
 
@@ -265,14 +266,18 @@ void map_undoredo_free(void)
             while (next->prev)
             {
                 next = next->prev;
-                if (next->next->sectors && next->next->sectors != next->sectors) Bfree(next->next->sectors);
-                if (next->next->walls && next->next->walls != next->walls) Bfree(next->next->walls);
-                if (next->next->sprites && next->next->sprites != next->sprites) Bfree(next->next->sprites);
+                if (next->next->sectors && (next->next->sectors != next->sectors)) Bfree(next->next->sectors);
+                if (next->next->walls && (next->next->walls != next->walls)) Bfree(next->next->walls);
+                if (next->next->sprites && (next->next->sprites != next->sprites)) Bfree(next->next->sprites);
+                if (next->next == mapstate)
+                    mapstate = NULL;
                 Bfree(next->next);
+                next->next = NULL;
             }
         }
 
-        Bfree(mapstate);
+        if (mapstate)
+            Bfree(mapstate);
         mapstate = NULL;
     }
 

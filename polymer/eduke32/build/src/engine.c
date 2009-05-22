@@ -5698,6 +5698,9 @@ void uninitengine(void)
     polymost_glreset();
     hicinit();
     freeallmodels();
+#ifdef POLYMER
+    polymer_uninit();
+#endif
     /*    if (cachefilehandle > -1)
             Bclose(cachefilehandle);
         if (cacheindexptr != NULL)

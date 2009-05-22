@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 #include "duke3d.h"
 
-const char *s_buildDate = "20090512";
+const char *s_buildDate = "20090522";
 char *MusicPtr = NULL;
 int32_t g_musicSize;
 
@@ -115,7 +115,7 @@ char *label;
 char ActorType[MAXTILES];
 intptr_t *script = NULL;
 
-int32_t g_scriptSize = 16384;
+int32_t g_scriptSize = 1048576;
 
 char typebuflen,typebuf[141];
 

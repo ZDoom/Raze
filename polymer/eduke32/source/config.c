@@ -196,7 +196,7 @@ void CONFIG_SetDefaults(void)
 #endif
     ud.config.useprecache = 1;
     ud.config.ForceSetup = 1;
-    ud.config.NoAutoLoad = 0;
+    ud.config.NoAutoLoad = 1;
     ud.config.AmbienceToggle = 1;
     ud.config.AutoAim = 1;
     ud.config.FXDevice = 0;

@@ -625,6 +625,11 @@ int32_t             polymer_init(void)
     return (1);
 }
 
+void                polymer_uninit(void)
+{
+    polymer_freeboard();
+}
+
 void                polymer_glinit(void)
 {
     bglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -668,7 +673,7 @@ void                polymer_loadboard(void)
 {
     int32_t         i;
 
-    polymer_clearmapdata();
+    polymer_freeboard();
 
     i = 0;
     while (i < numsectors)
@@ -1563,7 +1568,7 @@ static void         polymer_animatesprites(void)
         asi.animatesprites(globalposx, globalposy, viewangle, asi.smoothratio);
 }
 
-static void         polymer_clearmapdata(void)
+static void         polymer_freeboard(void)
 {
     int32_t         i;
 
