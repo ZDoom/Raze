@@ -11439,7 +11439,7 @@ static void GenSearchSprite()
     char disptext[80];
     char edittext[80];
     static int32_t col=0, row=0;
-    int32_t i, j, k;
+    int32_t i, j, k, color;
     int32_t rowmax[3]={6,5,6}, dispwidth[3] = {24,24,28};
     int32_t xpos[3] = {8,200,400}, ypos = ydim-STATUS2DSIZ+48;
 
@@ -11479,6 +11479,17 @@ static void GenSearchSprite()
     }
 
     clearmidstatbar16();
+
+    color = whitecol-16;
+    begindrawing();
+    for (i=ydim-STATUS2DSIZ+16; i<ydim; i++)
+    {
+        clearbufbyte((char *)(frameplace + (i*bytesperline)), bytesperline, ((int32_t)color<<24)|((int32_t)color<<16)|((int32_t)color<<8)|color);
+        color--;
+        if (color <= 0) break;
+    }
+    clearbufbyte((char *)(frameplace + (i*bytesperline)), (ydim-i)*(bytesperline), 0);
+    enddrawing();
 
     printext16(xpos[0], ypos-2*8, editorcolors[10], editorcolors[0], "Sprite search", 0);
 

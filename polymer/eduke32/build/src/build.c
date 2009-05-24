@@ -1997,8 +1997,8 @@ void overheadeditor(void)
                     mouseb &= ~32;
                     bstatus &= ~32;
 
-                    clearmidstatbar16();
-                    showspritedata((int16_t)pointhighlight-16384);
+//                    clearmidstatbar16();
+//                    showspritedata((int16_t)pointhighlight-16384);
                 }
             }
         }
@@ -2096,8 +2096,8 @@ void overheadeditor(void)
 
                     mouseb &= ~16;
                     bstatus &= ~16;
-                    clearmidstatbar16();
-                    showspritedata((int16_t)pointhighlight-16384);
+//                    clearmidstatbar16();
+//                    showspritedata((int16_t)pointhighlight-16384);
                 }
             }
         }
