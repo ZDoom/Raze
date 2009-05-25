@@ -949,7 +949,7 @@ void ExtShowSectorData(int16_t sectnum)   //F5
 {
     int16_t statnum=0;
     int32_t x,x2,y;
-    int32_t i;
+    int32_t i,color;
     int32_t secrets=0;
     int32_t totalactors1=0,totalactors2=0,totalactors3=0,totalactors4=0;
     int32_t totalrespawn=0;
@@ -992,9 +992,24 @@ void ExtShowSectorData(int16_t sectnum)   //F5
     }
 
     clearmidstatbar16();             //Clear middle of status bar
+
+    ydim -= 8;
+    color = whitecol-16;
+    begindrawing();
+    for (i=ydim-STATUS2DSIZ+16; i<ydim; i++)
+    {
+        clearbufbyte((char *)(frameplace + (i*bytesperline)), bytesperline, ((int32_t)color<<24)|((int32_t)color<<16)|((int32_t)color<<8)|color);
+        color--;
+        if (color <= 0) break;
+    }
+    clearbufbyte((char *)(frameplace + (i*bytesperline)), (ydim-i)*(bytesperline), 0);
+    enddrawing();
+    ydim += 8;
+
     Bsprintf(tempbuf,"Level %s",levelname);
     printmessage16(tempbuf);
 
+    ydim -= 8; // reset at end!!
     x=1;
     x2=14;
     y=4;
@@ -1094,12 +1109,13 @@ void ExtShowSectorData(int16_t sectnum)   //F5
     PrintStatus("Skill 3 =",totalactors3,65,12,11);
     PrintStatus("Skill 4 =",totalactors4,65,13,11);
     PrintStatus("Respawn =",totalrespawn,65,14,11);
+    ydim += 8; // see above!
 
 }// end ExtShowSectorData
 
 void ExtShowWallData(int16_t wallnum)       //F6
 {
-    int32_t i,nextfreetag=0,total=0;
+    int32_t i,nextfreetag=0,total=0,color;
     char x,y;
 
     UNREFERENCED_PARAMETER(wallnum);
@@ -1253,6 +1269,17 @@ void ExtShowWallData(int16_t wallnum)       //F6
 
     clearmidstatbar16();
 
+    color = whitecol-16;
+    begindrawing();
+    for (i=ydim-STATUS2DSIZ+16; i<ydim; i++)
+    {
+        clearbufbyte((char *)(frameplace + (i*bytesperline)), bytesperline, ((int32_t)color<<24)|((int32_t)color<<16)|((int32_t)color<<8)|color);
+        color--;
+        if (color <= 0) break;
+    }
+    clearbufbyte((char *)(frameplace + (i*bytesperline)), (ydim-i)*(bytesperline), 0);
+    enddrawing();
+
     Bsprintf(tempbuf,"Level %s next tag %d",levelname,nextfreetag);
     printmessage16(tempbuf);
 
@@ -1373,13 +1400,25 @@ void ExtShowWallData(int16_t wallnum)       //F6
 
 static void Show2dText(char *name)
 {
-    int32_t fp,t;
+    int32_t fp,t,i,color;
     uint8_t x=0,y=4,xmax=0,xx=0,col=0;
     clearmidstatbar16();
+
+    color = whitecol-16;
+    begindrawing();
+    for (i=ydim-STATUS2DSIZ+16; i<ydim; i++)
+    {
+        clearbufbyte((char *)(frameplace + (i*bytesperline)), bytesperline, ((int32_t)color<<24)|((int32_t)color<<16)|((int32_t)color<<8)|color);
+        color--;
+        if (color <= 0) break;
+    }
+    clearbufbyte((char *)(frameplace + (i*bytesperline)), (ydim-i)*(bytesperline), 0);
+    enddrawing();
+
     if ((fp=kopen4load(name,0)) == -1)
     {
         begindrawing();
-        printext16(1*4,ydim16+4*8,editorcolors[11],-1,"ERROR: file not found.",0);
+        printext16(1*4,ydim-STATUS2DSIZ+4*8,editorcolors[11],-1,"ERROR: file not found.",0);
         enddrawing();
         return;
     }
@@ -1400,7 +1439,7 @@ static void Show2dText(char *name)
             if (x>xmax) xmax=x;
         }
         tempbuf[x]=0;
-        printext16(xx*4,ydim16+(y*6)+2,editorcolors[11],-1,tempbuf,1);
+        printext16(xx*4,ydim-STATUS2DSIZ+(y*6)+2,editorcolors[11],-1,tempbuf,1);
         x=0;
         y++;
         if (y>18)

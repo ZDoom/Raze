@@ -2116,13 +2116,13 @@ void overheadeditor(void)
         {
 //            keystatus[0x3f] = 0;
 
-            for (i=0; i<numsectors; i++)
-                if (inside(mousxplc,mousyplc,i) == 1)
+//            for (i=0; i<numsectors; i++)
+//                if (inside(mousxplc,mousyplc,i) == 1)
                 {
                     ydim16 = STATUS2DSIZ;
-                    ExtShowSectorData((int16_t)i);
+                    ExtShowSectorData((int16_t)0/*i*/);
                     ydim16 = ydim-STATUS2DSIZ2;
-                    break;
+//                    break;
                 }
         }
         if (keystatus[0x40])  //F6
@@ -2143,6 +2143,12 @@ void overheadeditor(void)
 
                 ydim16 = STATUS2DSIZ;
                 ExtShowWallData((int16_t)i);
+                ydim16 = ydim-STATUS2DSIZ2;
+            }
+            else
+            {
+                ydim16 = STATUS2DSIZ;
+                ExtShowWallData((int16_t)0);
                 ydim16 = ydim-STATUS2DSIZ2;
             }
         }
