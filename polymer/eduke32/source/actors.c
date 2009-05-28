@@ -7832,13 +7832,13 @@ void G_MoveWorld(void)
 
             while (i >= 0)
             {
-                j = nextspritestat[i];
-
                 if (A_CheckSpriteFlags(i, SPRITE_NOEVENTCODE))
                 {
-                    i = j;
+                    i = nextspritestat[i];
                     continue;
                 }
+
+                j = nextspritestat[i];
 
                 pl = A_FindPlayer(&sprite[i],&p);
                 X_OnEvent(EVENT_GAME,i, pl, p);

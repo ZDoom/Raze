@@ -672,13 +672,13 @@ int32_t CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Setup","ForceSetup",&ud.config.ForceSetup);
         SCRIPT_GetNumber(ud.config.scripthandle, "Setup","NoAutoLoad",&ud.config.NoAutoLoad);
 
-#ifdef _WIN32
+// #ifdef _WIN32
         if (g_noSetup == 0 && mod_dir[0] == '/')
         {
             struct stat st;
             SCRIPT_GetString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
 
-            if (stat(mod_dir, &st) >= 0)
+            if (stat(mod_dir, &st))
             {
                 if ((st.st_mode & S_IFDIR) != S_IFDIR)
                 {
@@ -687,7 +687,7 @@ int32_t CONFIG_ReadSetup(void)
                 }
             }
         }
-#endif
+// #endif
 
         {
             extern char defaultduke3dgrp[BMAX_PATH];
@@ -1249,10 +1249,10 @@ void CONFIG_WriteSetup(void)
 
     SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",&duke3dgrp[0]);
 
-#ifdef _WIN32
+// #ifdef _WIN32
     if (g_noSetup == 0)
         SCRIPT_PutString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
-#endif
+// #endif
 
     {
         char commmacro[] = "CommbatMacro# ";

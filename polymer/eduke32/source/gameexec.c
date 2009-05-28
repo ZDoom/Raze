@@ -2756,7 +2756,7 @@ static int32_t X_DoExecute(void)
     break;
 
     case CON_IFONWATER:
-        X_DoConditional(klabs(vm.g_sp->z-sector[vm.g_sp->sectnum].floorz) < (32<<8) && sector[vm.g_sp->sectnum].lotag == 1);
+        X_DoConditional(sector[vm.g_sp->sectnum].lotag == 1 && klabs(vm.g_sp->z-sector[vm.g_sp->sectnum].floorz) < (32<<8));
         break;
 
     case CON_IFINWATER:
@@ -2788,23 +2788,23 @@ static int32_t X_DoExecute(void)
             break;
 
         case GET_SHIELD:
-            g_player[vm.g_p].ps->shield_amount +=          *insptr;// 100;
+            g_player[vm.g_p].ps->shield_amount += *insptr;// 100;
             if (g_player[vm.g_p].ps->shield_amount > g_player[vm.g_p].ps->max_shield_amount)
                 g_player[vm.g_p].ps->shield_amount = g_player[vm.g_p].ps->max_shield_amount;
             break;
 
         case GET_SCUBA:
-            g_player[vm.g_p].ps->scuba_amount =             *insptr;// 1600;
+            g_player[vm.g_p].ps->scuba_amount = *insptr;// 1600;
             g_player[vm.g_p].ps->inven_icon = 6;
             break;
 
         case GET_HOLODUKE:
-            g_player[vm.g_p].ps->holoduke_amount =          *insptr;// 1600;
+            g_player[vm.g_p].ps->holoduke_amount = *insptr;// 1600;
             g_player[vm.g_p].ps->inven_icon = 3;
             break;
 
         case GET_JETPACK:
-            g_player[vm.g_p].ps->jetpack_amount =           *insptr;// 1600;
+            g_player[vm.g_p].ps->jetpack_amount = *insptr;// 1600;
             g_player[vm.g_p].ps->inven_icon = 4;
             break;
 
@@ -2921,9 +2921,8 @@ static int32_t X_DoExecute(void)
         break;
 
     case CON_GUTS:
-        insptr += 2;
-        A_DoGuts(vm.g_i,*(insptr-1),*insptr);
-        insptr++;
+        A_DoGuts(vm.g_i,*(insptr+1),*(insptr+2));
+        insptr += 3;
         break;
 
     case CON_IFSPAWNEDBY:
@@ -3626,7 +3625,6 @@ static int32_t X_DoExecute(void)
                 P_CheckWeapon(g_player[j].ps);
             else P_SelectNextInvItem(g_player[j].ps);
         }
-
         break;
 
     case CON_GETPLAYERANGLE:
@@ -3664,7 +3662,6 @@ static int32_t X_DoExecute(void)
             int32_t index = Gv_GetVarX(*insptr++);
             int32_t value = Gv_GetVarX(*insptr++);
 
-//            SetGameArrayID(j,index,value);
             if (j<0 || j >= g_gameArrayCount || index >= aGameArrays[j].size || index < 0)
             {
                 OSD_Printf(OSD_ERROR "Gv_SetVar(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",j,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
@@ -3749,18 +3746,16 @@ static int32_t X_DoExecute(void)
         insptr++;
         {
             int32_t j=*insptr++;
-            {
-                int32_t index = Gv_GetVar(*insptr++, vm.g_i, vm.g_p);
-                int32_t j1=*insptr++;
-                int32_t index1 = Gv_GetVar(*insptr++, vm.g_i, vm.g_p);
-                int32_t value = Gv_GetVar(*insptr++, vm.g_i, vm.g_p);
-                if (index>aGameArrays[j].size) break;
-                if (index1>aGameArrays[j1].size) break;
-                if ((index+value)>aGameArrays[j].size) value=aGameArrays[j].size-index;
-                if ((index1+value)>aGameArrays[j1].size) value=aGameArrays[j1].size-index1;
-                memcpy(aGameArrays[j1].plValues+index1,aGameArrays[j].plValues+index,value*sizeof(int));
-                break;
-            }
+            int32_t index = Gv_GetVar(*insptr++, vm.g_i, vm.g_p);
+            int32_t j1=*insptr++;
+            int32_t index1 = Gv_GetVar(*insptr++, vm.g_i, vm.g_p);
+            int32_t value = Gv_GetVar(*insptr++, vm.g_i, vm.g_p);
+
+            if (index > aGameArrays[j].size || index1 > aGameArrays[j1].size) break;
+            if ((index+value)>aGameArrays[j].size) value=aGameArrays[j].size-index;
+            if ((index1+value)>aGameArrays[j1].size) value=aGameArrays[j1].size-index1;
+            Bmemcpy(aGameArrays[j1].plValues+index1, aGameArrays[j].plValues+index, value * sizeof(intptr_t));
+            break;
         }
 
     case CON_RANDVAR:

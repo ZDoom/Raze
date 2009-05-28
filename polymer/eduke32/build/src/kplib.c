@@ -3366,18 +3366,20 @@ void kzclose()
 
 //====================== ZIP decompression code ends =========================
 //===================== HANDY PICTURE function begins ========================
+#include "cache1d.h"
 
 void kpzload(const char *filnam, intptr_t *pic, int32_t *bpl, int32_t *xsiz, int32_t *ysiz)
 {
     char *buf;
     int32_t leng;
+    int32_t handle = kopen4load((char *)filnam, 0);
 
     (*pic) = 0;
-    if (!kzopen(filnam)) return;
-    leng = kzfilelength();
+    if (handle < 0) return;
+    leng = kfilelength(handle);
     buf = (char *)malloc(leng); if (!buf) return;
-    kzread(buf,leng);
-    kzclose();
+    kread(handle,buf,leng);
+    kclose(handle);
 
     kpgetdim(buf,leng,xsiz,ysiz);
     (*bpl) = ((*xsiz)<<2);

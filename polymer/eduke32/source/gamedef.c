@@ -1515,9 +1515,11 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
         if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
             *g_scriptPtr = i + (IFELSE_MAGIC<<12);
         else *g_scriptPtr = i + (g_lineNumber<<12);
+
         bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));
         textptr += l;
         g_scriptPtr++;
+
         if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
             initprintf("%s:%d: debug: translating keyword `%s'.\n",g_szScriptFileName,g_lineNumber,keyw[i]);
         return i;
@@ -2362,30 +2364,31 @@ static int32_t C_ParseCommand(void)
                 return 0;
             }
 
-            i = hash_find(&gamevarH,label+(g_numLabels<<6));
-            if (i>=0)
+            if (hash_find(&gamevarH,label+(g_numLabels<<6))>=0)
             {
                 g_numCompilerWarnings++;
                 C_ReportError(WARNING_NAMEMATCHESVAR);
             }
 
-            i = hash_find(&labelH,label+(g_numLabels<<6));
-            if (i>=0)
+            if ((i = hash_find(&labelH,label+(g_numLabels<<6))) >= 0)
             {
                 g_numCompilerWarnings++;
                 initprintf("%s:%d: warning: duplicate move `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
             }
+
             if (i == -1)
             {
                 hash_add(&labelH,label+(g_numLabels<<6),g_numLabels);
                 labeltype[g_numLabels] = LABEL_MOVE;
                 labelcode[g_numLabels++] = (intptr_t) g_scriptPtr;
             }
+
             for (j=1; j>=0; j--)
             {
                 if (C_GetKeyword() >= 0) break;
                 C_GetNextValue(LABEL_DEFINE);
             }
+
             for (k=j; k>=0; k--)
             {
                 bitptr[(g_scriptPtr-script)>>3] &= ~(1<<((g_scriptPtr-script)&7));

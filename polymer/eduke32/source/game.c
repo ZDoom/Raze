@@ -7179,9 +7179,15 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                 if (s->owner >= 0 && display_mirror == 0 && g_player[p].ps->over_shoulder_on == 0)
                     if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
                     {
-//                         t->owner = -1;
-//                         t->xrepeat = t->yrepeat = 0;
-                        t->cstat |= 16384;
+                        if (getrendermode() == 4)
+                            t->cstat |= 16384;
+                        else
+                        {
+                            t->owner = -1;
+                            t->xrepeat = t->yrepeat = 0;
+                            continue;
+                        }
+
 #if defined(POLYMOST) && defined(USE_OPENGL)
                         if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                         {

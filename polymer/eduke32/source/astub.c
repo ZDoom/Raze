@@ -7469,6 +7469,21 @@ static void Keys2d(void)
 
     searchsector=cursectornum;
 
+    if (eitherCTRL && keystatus[KEYSC_Z]) // CTRL+Z
+    {
+        keystatus[KEYSC_Z] = 0;
+        if (eitherSHIFT)
+        {
+            if (map_undoredo(1)) message("Nothing to redo!");
+            else message("Restored revision %d",map_revision-1);
+        }
+        else
+        {
+            if (map_undoredo(0)) message("Nothing to undo!");
+            else message("Revision %d undone",map_revision);
+        }
+    }
+
     if (keystatus[KEYSC_TAB])  //TAB
     {
         if (cursectornum >= 0)
@@ -10284,21 +10299,6 @@ static void Keys2d3d(void)
         spnoclip=!spnoclip;
         if (spnoclip) message("Sprite clipping disabled");
         else message("Sprite clipping enabled");
-    }
-
-    if (eitherCTRL && keystatus[KEYSC_Z]) // CTRL+Z
-    {
-        keystatus[KEYSC_Z] = 0;
-        if (eitherSHIFT)
-        {
-            if (map_undoredo(1)) message("Nothing to redo!");
-            else message("Restored revision %d",map_revision-1);
-        }
-        else
-        {
-            if (map_undoredo(0)) message("Nothing to undo!");
-            else message("Revision %d undone",map_revision);
-        }
     }
 
     if (eitherCTRL)  //CTRL
