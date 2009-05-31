@@ -556,7 +556,7 @@ typedef struct  s_equation {
 typedef struct  s_point2d {
     float       x, y;
 }               _point2d;
-int32_t             wallvisible(int16_t wallnum);
+int32_t             wallvisible(int32_t x, int32_t y, int16_t wallnum);
 
 #define STATUS2DSIZ 144
 #define STATUS2DSIZ2 26

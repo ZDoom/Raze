@@ -1180,7 +1180,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         while (i < sec->wallnum)
         {
             if ((wall[sec->wallptr + i].nextsector != -1) &&
-                (wallvisible(sec->wallptr + i)) &&
+                (wallvisible(globalposx, globalposy, sec->wallptr + i)) &&
                 (polymer_planeinfrustum(&prwalls[sec->wallptr + i]->mask, frustum)))
             {
                 if ((prwalls[sec->wallptr + i]->mask.vertcount == 4) &&
@@ -4244,7 +4244,8 @@ static inline void  polymer_culllight(char lightindex)
                 if (w->over.drawn)
                     light->isinview = 1;
             }
-            if (polymer_planeinlight(&w->mask, light)) {
+            if (wallvisible(light->x, light->y, sec->wallptr + i) &&
+                polymer_planeinlight(&w->mask, light)) {
                 if ((w->mask.vertcount == 4) &&
                     (w->mask.buffer[(0 * 5) + 1] >= w->mask.buffer[(3 * 5) + 1]) &&
                     (w->mask.buffer[(1 * 5) + 1] >= w->mask.buffer[(2 * 5) + 1]))

@@ -5970,7 +5970,7 @@ static inline _equation       equation(float x1, float y1, float x2, float y2)
     return (ret);
 }
 
-int32_t                 wallvisible(int16_t wallnum)
+int32_t                 wallvisible(int32_t x, int32_t y, int16_t wallnum)
 {
     // 1 if wall is in front of player 0 otherwise
     int32_t            a1, a2;
@@ -5979,8 +5979,8 @@ int32_t                 wallvisible(int16_t wallnum)
     w1 = &wall[wallnum];
     w2 = &wall[w1->point2];
 
-    a1 = getangle(w1->x - globalposx, w1->y - globalposy);
-    a2 = getangle(w2->x - globalposx, w2->y - globalposy);
+    a1 = getangle(w1->x - x, w1->y - y);
+    a2 = getangle(w2->x - x, w2->y - y);
 
     //if ((wallnum == 23) || (wallnum == 9))
     //    OSD_Printf("Wall %d : %d - sector %d - x %d - y %d.\n", wallnum, (a2 + (2048 - a1)) & 2047, globalcursectnum, globalposx, globalposy);
