@@ -2202,6 +2202,8 @@ static void         polymer_updatewall(int16_t wallnum)
     // it also works, bitches
     wal = &wall[wallnum];
     nwallnum = wal->nextwall;
+    if (sectorofwall(wallnum) == -1)
+        return; // yay, corrupt map
     sec = &sector[sectorofwall(wallnum)];
     if (sec->wallptr > wallnum)
         return; // the map is horribly corrupt
