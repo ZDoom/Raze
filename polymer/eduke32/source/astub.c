@@ -1600,7 +1600,7 @@ HELPFILE_ERROR:
 }
 
 // why can't MSVC allocate an array of variable size?!
-#define IHELP_NUMDISPLINES 100 // ((overridepm16y>>4)+(overridepm16y>>5)+(overridepm16y>>7)-2)
+#define IHELP_NUMDISPLINES 110 // ((overridepm16y>>4)+(overridepm16y>>5)+(overridepm16y>>7)-2)
 #define IHELP_PATLEN 45
 extern int32_t overridepm16y;  // influences printmessage16() and clearmidstatbar16()
 
@@ -1871,12 +1871,12 @@ ENDFOR1:
         }
 
         overridepm16y = -1;
-        i=ydim16;
-        ydim16=ydim;
+//        i=ydim16;
+//        ydim16=ydim;
 //        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
-        ydim16=i;
-        // printmessage16("");
-        showframe(1);
+//        ydim16=i;
+//        // printmessage16("");
+//        showframe(1);
 
         keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F1] = 0;
     }
@@ -2225,12 +2225,12 @@ static void SoundDisplay()
         }
 
         overridepm16y = -1;
-        i=ydim16;
-        ydim16=ydim;
-        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
-        ydim16=i;
-        // printmessage16("");
-        showframe(1);
+//        i=ydim16;
+//        ydim16=ydim;
+//        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
+//        ydim16=i;
+//        // printmessage16("");
+//        showframe(1);
 
         FX_StopAllSounds();
         S_ClearSoundLocks();
