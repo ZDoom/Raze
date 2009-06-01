@@ -4506,7 +4506,7 @@ static void         polymer_prepareshadows(void)
         {
             prlights[i].flags.isinview = 0;
             prlights[i].rtindex = j + 1;
-            if (pr_verbosity >= 1) OSD_Printf("PR : Drawing shadow %i...\n", i);
+            if (pr_verbosity >= 3) OSD_Printf("PR : Drawing shadow %i...\n", i);
 
             bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prrts[prlights[i].rtindex].fbo);
             bglPushAttrib(GL_VIEWPORT_BIT);
