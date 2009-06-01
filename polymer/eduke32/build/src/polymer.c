@@ -132,6 +132,7 @@ GLfloat         artskydata[16];
 _prlight        prlights[PR_MAXLIGHTS];
 int32_t         lightcount;
 int32_t         curlight;
+int32_t         curlightcount;
 
 _prlight        staticlights[PR_MAXLIGHTS];
 int32_t         staticlightcount;
@@ -693,6 +694,8 @@ void                polymer_loadboard(void)
 
     polymer_getsky();
 
+    polymer_resetlights();
+
     if (pr_verbosity >= 1) OSD_Printf("PR : Board loaded.\n");
 }
 
@@ -726,9 +729,11 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     pos[1] = -(float)(daposz) / 16.0f;
     pos[2] = -daposx;
 
-    polymer_resetlights();
-    if (pr_lighting)
-        polymer_applylights();
+    polymer_updatelights();
+
+//     polymer_resetlights();
+//     if (pr_lighting)
+//         polymer_applylights();
 
     depth = 0;
 
@@ -786,8 +791,6 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     while (i < numsectors)
     {
         prsectors[i]->controlstate = 0;
-        prsectors[i]->ceil.drawn = 0;
-        prsectors[i]->floor.drawn = 0;
         prsectors[i]->wallsproffset = 0.0f;
         prsectors[i]->floorsproffset = 0.0f;
         i++;
@@ -796,9 +799,6 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     while (i < numwalls)
     {
         prwalls[i]->controlstate = 0;
-        prwalls[i]->wall.drawn = 0;
-        prwalls[i]->over.drawn = 0;
-        prwalls[i]->mask.drawn = 0;
         i++;
     }
 
@@ -912,7 +912,7 @@ void                polymer_drawmaskwall(int32_t damaskwallcnt)
 
 void                polymer_drawsprite(int32_t snum)
 {
-    int32_t         curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff, i;
+    int32_t         curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff, i, j;
     spritetype      *tspr;
     float           xratio, yratio, ang;
     float           spos[3];
@@ -1067,15 +1067,21 @@ void                polymer_drawsprite(int32_t snum)
     polymer_computeplane(&spriteplane);
 
     spriteplane.lightcount = 0;
-    i = 0;
-    while (i < lightcount)
+
+    i = j = 0;
+    while (j < lightcount)
     {
+        while (prlights[i].flags.active == 0) {
+            i++;
+        }
+
         if (polymer_planeinlight(&spriteplane, &prlights[i]))
         {
             spriteplane.lights[spriteplane.lightcount] = i;
             spriteplane.lightcount++;
         }
         i++;
+        j++;
     }
 
     if ((tspr->cstat & 64) && ((tspr->cstat>>4) & 3))
@@ -1101,6 +1107,48 @@ void                polymer_setanimatesprites(animatespritesptr animatesprites, 
     asi.y = y;
     asi.a = a;
     asi.smoothratio = smoothratio;
+}
+
+int16_t             polymer_addlight(_prlight* light)
+{
+    int16_t         lighti;
+
+    if ((light->sector == -1) || (light->sector >= numsectors))
+        return (-1);
+
+    if (lightcount >= PR_MAXLIGHTS)
+        return (-1);
+
+    lighti = 0;
+    while ((lighti < PR_MAXLIGHTS) && (prlights[lighti].flags.active)) {
+        lighti++;
+    }
+
+    if (lighti == PR_MAXLIGHTS)
+        return (-1);
+
+    memcpy(&prlights[lighti], light, sizeof(_prlight));
+
+    if (light->radius)
+        polymer_processspotlight(&prlights[lighti]);
+
+    prlights[lighti].flags.isinview = 0;
+    prlights[lighti].flags.active = 1;
+
+    polymer_culllight(lighti);
+
+    lightcount++;
+
+    return (lighti);
+}
+
+void                polymer_deletelight(int16_t lighti)
+{
+    polymer_removelight(lighti);
+
+    prlights[lighti].flags.active = 0;
+
+    lightcount--;
 }
 
 // CORE
@@ -1487,10 +1535,13 @@ static void         polymer_drawplane(_prplane* plane)
         bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &plane->buffer[3]);
     }
 
-    curlight = 0;
-
-    while ((curlight == 0) || ((curlight < plane->lightcount) && (curlight < pr_maxlightpasses)))
+    curlight = curlightcount = 0;
+    while ((curlight == 0) || ((curlightcount < plane->lightcount) && (curlightcount < pr_maxlightpasses)))
     {
+        while (plane->lightcount && plane->lights[curlight] == -1) {
+            curlight++;
+        }
+
         materialbits = polymer_bindmaterial(plane->material, plane->lights, plane->lightcount);
 
         if (materialbits & prprogrambits[PR_BIT_NORMAL_MAP].bit)
@@ -1511,7 +1562,11 @@ static void         polymer_drawplane(_prplane* plane)
 
         polymer_unbindmaterial(materialbits);
 
+        if (plane->lightcount && (!depth || mirrors[depth-1].plane))
+            prlights[plane->lights[curlight]].flags.isinview = 1;
+
         curlight++;
+        curlightcount++;
     }
 
     if (plane->vbo && (pr_vbos > 0))
@@ -1520,8 +1575,6 @@ static void         polymer_drawplane(_prplane* plane)
         if (plane->indices)
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
     }
-
-    plane->drawn = 1;
 }
 
 static inline void  polymer_inb4mirror(GLfloat* buffer, GLfloat* plane)
@@ -2279,6 +2332,8 @@ static void         polymer_updatewall(int16_t wallnum)
             w->nwallcstat = wall[nwallnum].cstat;
         }
     }
+
+    polymer_invalidatesectorlights(sectorofwall(wallnum));
 
     w->underover = underwall = overwall = 0;
 
@@ -3049,11 +3104,11 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     float           spos[3], tspos[3], lpos[3], tlpos[3], vec[3];
     float           ang;
     float           scale;
-    int32_t         surfi, i;
+    int32_t         surfi, i, j;
     GLfloat*        color;
     int32_t         materialbits;
     float           sradius, lradius;
-    char            modellights[PR_MAXLIGHTS];
+    int16_t         modellights[PR_MAXLIGHTS];
     char            modellightcount;
 
     m = (md3model_t*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
@@ -3221,9 +3276,13 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         polymer_transformpoint(spos, tspos, spritemodelview);
         polymer_transformpoint(tspos, spos, rootmodelviewmatrix);
 
-        i = 0;
-        while (i < lightcount)
+        i = j = 0;
+        while (j < lightcount)
         {
+            while (prlights[i].flags.active == 0) {
+                i++;
+            }
+
             lradius = prlights[i].range / 1000.0f;
 
             lpos[0] = prlights[i].y;
@@ -3246,6 +3305,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 modellightcount++;
             }
             i++;
+            j++;
         }
 
     }
@@ -3328,14 +3388,19 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[surfi]);
 
-            curlight = 0;
-            while ((curlight == 0) || ((curlight < modellightcount) && (curlight < pr_maxlightpasses)))
+            curlight = curlightcount = 0;
+            while ((curlight == 0) || ((curlightcount < modellightcount) && (curlightcount < pr_maxlightpasses)))
             {
+                while (modellights[curlight] == -1) {
+                    curlight++;
+                }
+
                 materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
                 bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
                 polymer_unbindmaterial(materialbits);
 
                 curlight++;
+                curlightcount++;
             }
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
@@ -3353,14 +3418,19 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 mdspritematerial.nextframedatastride = sizeof(float) * 6;
             }
 
-            curlight = 0;
-            while ((curlight == 0) || ((curlight < modellightcount) && (curlight < pr_maxlightpasses)))
+            curlight = curlightcount = 0;
+            while ((curlight == 0) || ((curlightcount < modellightcount) && (curlightcount < pr_maxlightpasses)))
             {
+                while (modellights[curlight] == -1) {
+                    curlight++;
+                }
+
                 materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
                 bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
                 polymer_unbindmaterial(materialbits);
 
                 curlight++;
+                curlightcount++;
             }
         }
 
@@ -3551,7 +3621,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 }
 
-static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int lightcount)
+static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, int matlightcount)
 {
     int32_t         programbits;
     int32_t         texunit;
@@ -3565,7 +3635,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
         programbits |= prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit;
 
     // PR_BIT_LIGHTING_PASS
-    if (curlight && lightcount)
+    if (curlightcount && matlightcount)
         programbits |= prprogrambits[PR_BIT_LIGHTING_PASS].bit;
 
     // PR_BIT_NORMAL_MAP
@@ -3577,7 +3647,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP].bit;
 
     // PR_BIT_DIFFUSE_DETAIL_MAP
-    if (!curlight && r_detailmapping && material.detailmap)
+    if (!curlightcount && r_detailmapping && material.detailmap)
         programbits |= prprogrambits[PR_BIT_DIFFUSE_DETAIL_MAP].bit;
 
     // PR_BIT_DIFFUSE_MODULATION
@@ -3592,18 +3662,18 @@ static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int
         programbits |= prprogrambits[PR_BIT_SPECULAR_MATERIAL].bit;
 
     // PR_BIT_MIRROR_MAP
-    if (!curlight && material.mirrormap)
+    if (!curlightcount && material.mirrormap)
         programbits |= prprogrambits[PR_BIT_MIRROR_MAP].bit;
 
     // PR_BIT_FOG
     programbits |= prprogrambits[PR_BIT_FOG].bit;
 
     // PR_BIT_GLOW_MAP
-    if (!curlight && r_glowmapping && material.glowmap)
+    if (!curlightcount && r_glowmapping && material.glowmap)
         programbits |= prprogrambits[PR_BIT_GLOW_MAP].bit;
 
     // PR_BIT_POINT_LIGHT
-    if (lightcount) {
+    if (matlightcount) {
         programbits |= prprogrambits[PR_BIT_POINT_LIGHT].bit;
         // PR_BIT_SPOT_LIGHT
         if (prlights[lights[curlight]].radius) {
@@ -4050,6 +4120,62 @@ static void         polymer_compileprogram(int32_t programbits)
 }
 
 // LIGHTS
+
+static void         polymer_removelight(int16_t lighti)
+{
+    int32_t         i;
+    _prsector       *s;
+    _prwall         *w;
+
+    // XXX: might need to store a list of affected planes in the light record
+    // if this loop ends up consuming too much cycles
+    i = 0;
+    while (i < numsectors)
+    {
+        s = prsectors[i];
+
+        polymer_deleteplanelight(&s->floor, lighti);
+        polymer_deleteplanelight(&s->ceil, lighti);
+
+        i++;
+    }
+
+    i = 0;
+    while (i < numwalls)
+    {
+        w = prwalls[i];
+
+        polymer_deleteplanelight(&w->wall, lighti);
+        polymer_deleteplanelight(&w->over, lighti);
+        polymer_deleteplanelight(&w->mask, lighti);
+
+        i++;
+    }
+}
+
+static void         polymer_updatelights(void)
+{
+    int32_t         i;
+
+    while (i < PR_MAXLIGHTS)
+    {
+        if (prlights[i].flags.active && prlights[i].flags.invalidate) {
+            // highly suboptimal
+            polymer_removelight(i);
+
+            if (prlights[i].radius)
+                polymer_processspotlight(&prlights[i]);
+            polymer_culllight(i);
+
+            prlights[i].flags.invalidate = 0;
+        }
+
+        if (prlights[i].flags.active)
+            prlights[i].rtindex = -1;
+        i++;
+    }
+}
+
 static void         polymer_resetlights(void)
 {
     int32_t         i;
@@ -4061,8 +4187,8 @@ static void         polymer_resetlights(void)
     {
         s = prsectors[i];
 
-        s->floor.lightcount = 0;
-        s->ceil.lightcount = 0;
+        polymer_resetplanelights(&s->floor);
+        polymer_resetplanelights(&s->ceil);
 
         i++;
     }
@@ -4072,85 +4198,68 @@ static void         polymer_resetlights(void)
     {
         w = prwalls[i];
 
-        w->wall.lightcount = 0;
-        w->over.lightcount = 0;
-        w->mask.lightcount = 0;
+        polymer_resetplanelights(&w->wall);
+        polymer_resetplanelights(&w->over);
+        polymer_resetplanelights(&w->mask);
 
+        i++;
+    }
+
+    i = 0;
+    while (i < PR_MAXLIGHTS)
+    {
+        prlights[i].flags.active = 0;
         i++;
     }
 
     lightcount = 0;
 }
 
-static void         polymer_addlight(_prlight light)
+static void         polymer_resetplanelights(_prplane* plane)
 {
-    if ((light.sector == -1) || (light.sector >= numsectors))
-        return;
+    int32_t         i;
 
-    if (lightcount < PR_MAXLIGHTS)
+    i = 0;
+    while (i < PR_MAXLIGHTS)
     {
-        prlights[lightcount] = light;
+        plane->lights[i] = -1;
+        i++;
+    }
 
-        if (light.radius) {
-            float           radius, ang, horizang, lightpos[3];
-            pthtyp*         pth;
+    plane->lightcount = 0;
+}
 
-            // hack to avoid lights beams perpendicular to walls
-            if ((light.horiz <= 100) && (light.horiz > 90))
-                light.horiz = 90;
-            if ((light.horiz > 100) && (light.horiz < 110))
-                light.horiz = 110;
+static void         polymer_addplanelight(_prplane* plane, int16_t lighti)
+{
+    int16_t         i;
 
-            lightpos[0] = light.y;
-            lightpos[1] = -light.z / 16.0f;
-            lightpos[2] = -light.x;
-
-            // calculate the spot light transformations and matrices
-            radius = (float)(light.radius) / (2048.0f / 360.0f);
-            ang = (float)(light.angle) / (2048.0f / 360.0f);
-            horizang = (float)(-getangle(128, light.horiz-100)) / (2048.0f / 360.0f);
-
-            bglMatrixMode(GL_PROJECTION);
-            bglPushMatrix();
-            bglLoadIdentity();
-            bgluPerspective(radius * 2, 1, 0.1f, light.range / 1000.0f);
-            bglGetFloatv(GL_PROJECTION_MATRIX, prlights[lightcount].proj);
-            bglPopMatrix();
-
-            bglMatrixMode(GL_MODELVIEW);
-            bglPushMatrix();
-            bglLoadIdentity();
-            bglRotatef(horizang, 1.0f, 0.0f, 0.0f);
-            bglRotatef(ang, 0.0f, 1.0f, 0.0f);
-            bglScalef(1.0f / 1000.0f, 1.0f / 1000.0f, 1.0f / 1000.0f);
-            bglTranslatef(-lightpos[0], -lightpos[1], -lightpos[2]);
-            bglGetFloatv(GL_MODELVIEW_MATRIX, prlights[lightcount].transform);
-            bglPopMatrix();
-
-            polymer_extractfrustum(prlights[lightcount].transform, prlights[lightcount].proj, prlights[lightcount].frustum);
-
-            prlights[lightcount].rtindex = -1;
-
-            // get the texture handle for the lightmap
-            prlights[lightcount].lightmap = 0;
-            if (prlights[lightcount].tilenum)
-            {
-                if (!waloff[prlights[lightcount].tilenum])
-                    loadtile(prlights[lightcount].tilenum);
-
-                pth = NULL;
-                pth = gltexcache(prlights[lightcount].tilenum, 0, 0);
-
-                if (pth)
-                    prlights[lightcount].lightmap = pth->glpic;
-            }
+    i = 0;
+    while (i < PR_MAXLIGHTS)
+    {
+        if (plane->lights[i] == -1)
+        {
+            plane->lights[i] = lighti;
+            plane->lightcount++;
+            return;
         }
+        i++;
+    }
+}
 
-        prlights[lightcount].isinview = 0;
+static void         polymer_deleteplanelight(_prplane* plane, int16_t lighti)
+{
+    int16_t         i;
 
-        polymer_culllight(lightcount);
-
-        lightcount++;
+    i = 0;
+    while (i < PR_MAXLIGHTS)
+    {
+        if (plane->lights[i] == lighti)
+        {
+            plane->lights[i] = -1;
+            plane->lightcount--;
+            return;
+        }
+        i++;
     }
 }
 
@@ -4191,7 +4300,111 @@ static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
     return 1;
 }
 
-static inline void  polymer_culllight(char lightindex)
+static void         polymer_invalidateplanelights(_prplane* plane)
+{
+    int32_t         i;
+
+    i = 0;
+    while (i < PR_MAXLIGHTS)
+    {
+        if (plane && (plane->lights[i] != -1) && (prlights[plane->lights[i]].flags.active))
+            prlights[plane->lights[i]].flags.invalidate = 1;
+
+        i++;
+    }
+}
+
+static void         polymer_invalidatesectorlights(int16_t sectnum)
+{
+    int32_t         i;
+    _prsector       *s;
+    _prwall         *w;
+    sectortype      *sec;
+
+    s = prsectors[sectnum];
+    sec = &sector[sectnum];
+
+    if (!s)
+        return;
+
+    polymer_invalidateplanelights(&s->floor);
+    polymer_invalidateplanelights(&s->ceil);
+
+    i = 0;
+    while (i < sec->wallnum)
+    {
+        w = prwalls[sec->wallptr + i];
+
+        if (!w) {
+            i++;
+            continue;
+        }
+
+        polymer_invalidateplanelights(&w->wall);
+        polymer_invalidateplanelights(&w->over);
+        polymer_invalidateplanelights(&w->mask);
+
+        i++;
+    }
+}
+
+static void         polymer_processspotlight(_prlight* light)
+{
+    float           radius, ang, horizang, lightpos[3];
+    pthtyp*         pth;
+
+    // hack to avoid lights beams perpendicular to walls
+    if ((light->horiz <= 100) && (light->horiz > 90))
+        light->horiz = 90;
+    if ((light->horiz > 100) && (light->horiz < 110))
+        light->horiz = 110;
+
+    lightpos[0] = light->y;
+    lightpos[1] = -light->z / 16.0f;
+    lightpos[2] = -light->x;
+
+        // calculate the spot light transformations and matrices
+    radius = (float)(light->radius) / (2048.0f / 360.0f);
+    ang = (float)(light->angle) / (2048.0f / 360.0f);
+    horizang = (float)(-getangle(128, light->horiz-100)) / (2048.0f / 360.0f);
+
+    bglMatrixMode(GL_PROJECTION);
+    bglPushMatrix();
+    bglLoadIdentity();
+    bgluPerspective(radius * 2, 1, 0.1f, light->range / 1000.0f);
+    bglGetFloatv(GL_PROJECTION_MATRIX, light->proj);
+    bglPopMatrix();
+
+    bglMatrixMode(GL_MODELVIEW);
+    bglPushMatrix();
+    bglLoadIdentity();
+    bglRotatef(horizang, 1.0f, 0.0f, 0.0f);
+    bglRotatef(ang, 0.0f, 1.0f, 0.0f);
+    bglScalef(1.0f / 1000.0f, 1.0f / 1000.0f, 1.0f / 1000.0f);
+    bglTranslatef(-lightpos[0], -lightpos[1], -lightpos[2]);
+    bglGetFloatv(GL_MODELVIEW_MATRIX, light->transform);
+    bglPopMatrix();
+
+    polymer_extractfrustum(light->transform, light->proj, light->frustum);
+
+    light->rtindex = -1;
+
+    // get the texture handle for the lightmap
+    light->lightmap = 0;
+    if (light->tilenum)
+    {
+        if (!waloff[light->tilenum])
+            loadtile(light->tilenum);
+
+        pth = NULL;
+        pth = gltexcache(light->tilenum, 0, 0);
+
+        if (pth)
+            light->lightmap = pth->glpic;
+    }
+}
+
+static inline void  polymer_culllight(int16_t lighti)
 {
     _prlight*       light;
     int32_t         front;
@@ -4201,7 +4414,7 @@ static inline void  polymer_culllight(char lightindex)
     _prwall         *w;
     sectortype      *sec;
 
-    light = &prlights[lightindex];
+    light = &prlights[lighti];
     front = 0;
     back = 1;
     Bmemset(drawingstate, 0, sizeof(int16_t) * numsectors);
@@ -4217,16 +4430,10 @@ static inline void  polymer_culllight(char lightindex)
         polymer_pokesector(sectorqueue[front]);
 
         if (polymer_planeinlight(&s->floor, light)) {
-            s->floor.lights[s->floor.lightcount] = lightindex;
-            s->floor.lightcount++;
-            if (s->floor.drawn)
-                light->isinview = 1;
+            polymer_addplanelight(&s->floor, lighti);
         }
         if (polymer_planeinlight(&s->ceil, light)) {
-            s->ceil.lights[s->ceil.lightcount] = lightindex;
-            s->ceil.lightcount++;
-            if (s->ceil.drawn)
-                light->isinview = 1;
+            polymer_addplanelight(&s->ceil, lighti);
         }
 
         i = 0;
@@ -4235,16 +4442,10 @@ static inline void  polymer_culllight(char lightindex)
             w = prwalls[sec->wallptr + i];
 
             if (polymer_planeinlight(&w->wall, light)) {
-                w->wall.lights[w->wall.lightcount] = lightindex;
-                w->wall.lightcount++;
-                if (w->wall.drawn)
-                    light->isinview = 1;
+                polymer_addplanelight(&w->wall, lighti);
             }
             if (polymer_planeinlight(&w->over, light)) {
-                w->over.lights[w->over.lightcount] = lightindex;
-                w->over.lightcount++;
-                if (w->over.drawn)
-                    light->isinview = 1;
+                polymer_addplanelight(&w->over, lighti);
             }
             if (wallvisible(light->x, light->y, sec->wallptr + i) &&
                 polymer_planeinlight(&w->mask, light)) {
@@ -4256,10 +4457,7 @@ static inline void  polymer_culllight(char lightindex)
                     continue;
                 }
 
-                w->mask.lights[w->mask.lightcount] = lightindex;
-                w->mask.lightcount++;
-                if (w->mask.drawn)
-                    light->isinview = 1;
+                polymer_addplanelight(&w->mask, lighti);
 
                 if ((wall[sec->wallptr + i].nextsector != -1) &&
                     (!drawingstate[wall[sec->wallptr + i].nextsector])) {
@@ -4280,7 +4478,7 @@ static void         polymer_prepareshadows(void)
     int16_t         oviewangle, oglobalang;
     int32_t         ocosglobalang, osinglobalang;
     int32_t         ocosviewingrangeglobalang, osinviewingrangeglobalang;
-    int32_t         i, j;
+    int32_t         i, j, k;
     int32_t         gx, gy, gz;
     int32_t         oldoverridematerial;
 
@@ -4296,13 +4494,19 @@ static void         polymer_prepareshadows(void)
     ocosviewingrangeglobalang = cosviewingrangeglobalang;
     osinviewingrangeglobalang = sinviewingrangeglobalang;
 
-    i = j = 0;
+    i = j = k = 0;
 
-    while ((i < lightcount) && (j < pr_shadowcount))
+    while ((k < lightcount) && (j < pr_shadowcount))
     {
-        if (prlights[i].radius && prlights[i].isinview)
+        while (prlights[i].flags.active == 0) {
+            i++;
+        }
+
+        if (prlights[i].radius && prlights[i].flags.isinview)
         {
+            prlights[i].flags.isinview = 0;
             prlights[i].rtindex = j + 1;
+            if (pr_verbosity >= 1) OSD_Printf("PR : Drawing shadow %i...\n", i);
 
             bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prrts[prlights[i].rtindex].fbo);
             bglPushAttrib(GL_VIEWPORT_BIT);
@@ -4355,6 +4559,7 @@ static void         polymer_prepareshadows(void)
             j++;
         }
         i++;
+        k++;
     }
 
     globalposx = gx;
@@ -4389,7 +4594,7 @@ static void         polymer_applylights(void)
             }
 
             if (staticlights[i].minshade == staticlights[i].maxshade)
-                polymer_addlight(staticlights[i]);
+                polymer_addlight(&staticlights[i]);
             else {
                 light = staticlights[i];
 
@@ -4406,7 +4611,7 @@ static void         polymer_applylights(void)
                 light.color[1] *= fade;
                 light.color[2] *= fade;
 
-                polymer_addlight(light);
+                polymer_addlight(&light);
             }
             i++;
         }
@@ -4421,7 +4626,7 @@ static void         polymer_applylights(void)
                 continue;
             }
 
-            polymer_addlight(gamelights[i]);
+            polymer_addlight(&gamelights[i]);
             i++;
         }
 
@@ -4435,7 +4640,7 @@ static void         polymer_applylights(void)
                 continue;
             }
 
-            polymer_addlight(framelights[i]);
+            polymer_addlight(&framelights[i]);
             i++;
         }
         curpriority++;

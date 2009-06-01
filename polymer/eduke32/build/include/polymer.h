@@ -164,7 +164,11 @@ typedef struct      s_prlight {
     GLfloat         transform[16];
     float           frustum[5 * 4];
     int32_t         rtindex;
-    char            isinview;
+    struct          {
+        int32_t     active      : 1;
+        int32_t     invalidate  : 1;
+        int32_t     isinview    : 1;
+    }               flags;
     GLuint          lightmap;
 }                   _prlight;
 
@@ -203,9 +207,8 @@ typedef struct      s_prplane {
     int32_t         indicescount;
     GLuint          ivbo;
     // lights
-    char            lights[PR_MAXLIGHTS];
-    char            lightcount;
-    char            drawn;
+    int16_t         lights[PR_MAXLIGHTS];
+    int16_t         lightcount;
 }                   _prplane;
 
 typedef struct      s_prsector {
@@ -277,6 +280,8 @@ void                polymer_rotatesprite(int32_t sx, int32_t sy, int32_t z, int1
 void                polymer_drawmaskwall(int32_t damaskwallcnt);
 void                polymer_drawsprite(int32_t snum);
 void                polymer_setanimatesprites(animatespritesptr animatesprites, int32_t x, int32_t y, int32_t a, int32_t smoothratio);
+int16_t             polymer_addlight(_prlight* light);
+void                polymer_deletelight(int16_t lighti);
 
 # ifdef POLYMER_C
 
@@ -320,14 +325,21 @@ static void         polymer_loadmodelvbos(md3model_t* m);
 // MATERIALS
 static void         polymer_getscratchmaterial(_prmaterial* material);
 static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade);
-static int32_t      polymer_bindmaterial(_prmaterial material, char* lights, int lightcount);
+static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, int lightcount);
 static void         polymer_unbindmaterial(int32_t programbits);
 static void         polymer_compileprogram(int32_t programbits);
 // LIGHTS
+static void         polymer_removelight(int16_t lighti);
+static void         polymer_updatelights(void);
 static void         polymer_resetlights(void);
-static void         polymer_addlight(_prlight light);
+static void         polymer_resetplanelights(_prplane* plane);
+static void         polymer_addplanelight(_prplane* plane, int16_t lighti);
+static void         polymer_deleteplanelight(_prplane* plane, int16_t lighti);
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light);
-static inline void  polymer_culllight(char lightindex);
+static void         polymer_invalidateplanelights(_prplane* plane);
+static void         polymer_invalidatesectorlights(int16_t sectnum);
+static void         polymer_processspotlight(_prlight* light);
+static inline void  polymer_culllight(int16_t lighti);
 static void         polymer_prepareshadows(void);
 static void         polymer_applylights(void);
 // RENDER TARGETS

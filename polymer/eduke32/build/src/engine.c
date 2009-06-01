@@ -7534,41 +7534,43 @@ int32_t loadmaphack(char *filename)
         case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority tilenum
         {
             int32_t value;
+            _prlight light;
 
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].sector = value;
+            light.sector = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].x = value;
+            light.x = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].y = value;
+            light.y = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].z = value;
+            light.z = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].range = value;
+            light.range = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].color[0] = value;
+            light.color[0] = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].color[1] = value;
+            light.color[1] = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].color[2] = value;
+            light.color[2] = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].radius = value;
+            light.radius = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].faderadius = value;
+            light.faderadius = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].angle = value;
+            light.angle = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].horiz = value;
+            light.horiz = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].minshade = value;
+            light.minshade = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].maxshade = value;
+            light.maxshade = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].priority = value;
+            light.priority = value;
             scriptfile_getnumber(script, &value);
-            staticlights[staticlightcount].tilenum = value;
+            light.tilenum = value;
 
-            staticlightcount++;
+            polymer_addlight(&light);
+
             break;
         }
 #endif // POLYMER
