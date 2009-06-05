@@ -10,7 +10,7 @@
 struct sdlappicon {
 	int32_t width,height;
 	uint32_t *pixels;
-	unsigned char *mask;
+	uint8_t *mask;
 };
 
 #else

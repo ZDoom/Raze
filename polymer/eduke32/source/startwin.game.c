@@ -79,6 +79,10 @@ extern char TEXCACHEFILE[];
 
 extern int32_t g_noSetup;
 
+#ifdef INPUT_MOUSE
+#undef INPUT_MOUSE
+#endif
+
 #define INPUT_KB 0
 #define INPUT_MOUSE 1
 #define INPUT_JOYSTICK 2

@@ -114,7 +114,7 @@ typedef struct
    char *loopstart;
    int16_t          loopcount;
    int16_t          RunningStatus;
-   unsigned       time;
+   uint32_t         time;
    int32_t           FPSecondsPerTick;
    int16_t          tick;
    int16_t          beat;

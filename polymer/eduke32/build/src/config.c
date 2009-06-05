@@ -16,7 +16,7 @@ static int32_t vesares[13][2] = {{320,200},{360,200},{320,240},{360,240},{320,40
     {1024,768},{1280,1024},{1600,1200}
 };
 
-static int32_t readconfig(BFILE *fp, const char *key, char *value, unsigned len)
+static int32_t readconfig(BFILE *fp, const char *key, char *value, uint32_t len)
 {
     char buf[1000], *k, *v, *eq;
     int32_t x=0;

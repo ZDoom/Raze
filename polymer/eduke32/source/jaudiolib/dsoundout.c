@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
-#include "dsound.h"
+#include <dsound.h>
 #include "dsoundout.h"
 
 #define WIN32_LEAN_AND_MEAN

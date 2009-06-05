@@ -252,9 +252,9 @@ char *MV_ErrorString(int32_t ErrorNumber)
 ---------------------------------------------------------------------*/
 #if defined(_WIN32)
 #define BASEBUFSZ (512+128)
-static uint32_t MV_GetBufferSize(unsigned samplerate)
+static uint32_t MV_GetBufferSize(uint32_t samplerate)
 {
-    static unsigned lastsr = 0, lastbufsz = 0;
+    static uint32_t lastsr = 0, lastbufsz = 0;
 
     if (samplerate == lastsr) return lastbufsz;
 
@@ -370,7 +370,7 @@ static void MV_Mix(VoiceNode *voice, int32_t buffer)
 
 void MV_PlayVoice(VoiceNode *voice)
 {
-    unsigned flags;
+    uint32_t flags;
 
     flags = DisableInterrupts();
     LL_SortedInsertion(&VoiceList, voice, prev, next, VoiceNode, priority);
@@ -543,9 +543,9 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
     int32_t packtype;
     int32_t voicemode;
     int32_t done;
-    unsigned       BitsPerSample;
-    unsigned       Channels;
-    unsigned       Format;
+    uint32_t       BitsPerSample;
+    uint32_t       Channels;
+    uint32_t       Format;
 
     if (voice->BlockLength > 0)
     {
@@ -1007,7 +1007,7 @@ static void MV_ServiceRecord(void)
 VoiceNode *MV_GetVoice(int32_t handle)
 {
     VoiceNode *voice;
-    unsigned  flags;
+    uint32_t  flags;
 
     flags = DisableInterrupts();
 
@@ -1092,7 +1092,7 @@ int32_t MV_KillAllVoices(void)
 int32_t MV_Kill(int32_t handle)
 {
     VoiceNode *voice;
-    unsigned  flags;
+    uint32_t  flags;
     uint32_t callbackval;
 
     if (!MV_Installed)
@@ -1136,7 +1136,7 @@ int32_t MV_VoicesPlaying(void)
 {
     VoiceNode   *voice;
     int32_t NumVoices = 0;
-    unsigned    flags;
+    uint32_t    flags;
 
     if (!MV_Installed)
     {
@@ -1167,7 +1167,7 @@ VoiceNode *MV_AllocVoice(int32_t priority)
 {
     VoiceNode   *voice;
     VoiceNode   *node;
-    unsigned    flags;
+    uint32_t    flags;
 
 //return(NULL);
     if (MV_Recording)
@@ -1235,7 +1235,7 @@ int32_t MV_VoiceAvailable(int32_t priority)
 {
     VoiceNode   *voice;
     VoiceNode   *node;
-    unsigned    flags;
+    uint32_t    flags;
 
     // Check if we have any free voices
     if (!LL_Empty(&VoicePool, next, prev))
@@ -1370,7 +1370,7 @@ static int16_t *MV_GetVolumeTable(int32_t vol)
 
 static void MV_SetVoiceMixMode(VoiceNode *voice)
 {
-    unsigned flags;
+    uint32_t flags;
     int32_t test;
 
     flags = DisableInterrupts();
@@ -1524,7 +1524,7 @@ void MV_SetVoiceVolume(VoiceNode *voice, int32_t vol, int32_t left, int32_t righ
 int32_t MV_EndLooping(int32_t handle)
 {
     VoiceNode *voice;
-    unsigned flags;
+    uint32_t flags;
 
     if (!MV_Installed)
     {
@@ -1865,7 +1865,7 @@ void MV_StopPlayback(void)
 {
     VoiceNode   *voice;
     VoiceNode   *next;
-    unsigned    flags;
+    uint32_t    flags;
 
     // Stop sound playback
 #if defined(_WIN32)
@@ -2030,7 +2030,7 @@ int32_t MV_StartDemandFeedPlayback(void(*function)(char **ptr, uint32_t *length)
    priority.
 ---------------------------------------------------------------------*/
 
-int32_t MV_PlayRaw(char *ptr, uint32_t length, unsigned rate, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
+int32_t MV_PlayRaw(char *ptr, uint32_t length, uint32_t rate, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
 {
     int32_t status;
 
@@ -2047,7 +2047,7 @@ int32_t MV_PlayRaw(char *ptr, uint32_t length, unsigned rate, int32_t pitchoffse
    priority.
 ---------------------------------------------------------------------*/
 
-int32_t MV_PlayLoopedRaw(char *ptr, int32_t length, char *loopstart, char *loopend, unsigned rate, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
+int32_t MV_PlayLoopedRaw(char *ptr, int32_t length, char *loopstart, char *loopend, uint32_t rate, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
 {
     VoiceNode *voice;
 
@@ -2732,7 +2732,7 @@ int32_t MV_GetReverseStereo(void)
 
 int32_t MV_TestPlayback(void)
 {
-    unsigned flags;
+    uint32_t flags;
     int32_t time;
     int32_t start;
     int32_t status;
@@ -2935,7 +2935,7 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
 int32_t MV_Shutdown(void)
 {
     int32_t buffer;
-    unsigned flags;
+    uint32_t flags;
 
     if (!MV_Installed)
     {

@@ -83,7 +83,7 @@ char *FX_ErrorString( int32_t ErrorNumber );
 //int32_t   FX_SetupCard( int32_t SoundCard, fx_device *device );
 //int32_t   FX_GetBlasterSettings( fx_blaster_config *blaster );
 //int32_t   FX_SetupSoundBlaster( fx_blaster_config blaster, int32_t *MaxVoices, int32_t *MaxSampleBits, int32_t *MaxChannels );
-int32_t   FX_Init( int32_t SoundCard, int32_t numvoices, int32_t numchannels, int32_t samplebits, unsigned mixrate );
+int32_t   FX_Init( int32_t SoundCard, int32_t numvoices, int32_t numchannels, int32_t samplebits, uint32_t mixrate );
 int32_t   FX_Shutdown( void );
 int32_t   FX_SetCallBack( void ( *function )( uint32_t ) );
 void  FX_SetVolume( int32_t volume );
@@ -122,11 +122,11 @@ int32_t FX_PlayVOC3D( char *ptr, int32_t pitchoffset, int32_t angle, int32_t dis
        int32_t priority, uint32_t callbackval );
 int32_t FX_PlayWAV3D( char *ptr, int32_t pitchoffset, int32_t angle, int32_t distance,
        int32_t priority, uint32_t callbackval );
-int32_t FX_PlayRaw( char *ptr, uint32_t length, unsigned rate,
+int32_t FX_PlayRaw( char *ptr, uint32_t length, uint32_t rate,
        int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority,
        uint32_t callbackval );
 int32_t FX_PlayLoopedRaw( char *ptr, uint32_t length, char *loopstart,
-       char *loopend, unsigned rate, int32_t pitchoffset, int32_t vol, int32_t left,
+       char *loopend, uint32_t rate, int32_t pitchoffset, int32_t vol, int32_t left,
        int32_t right, int32_t priority, uint32_t callbackval );
 int32_t FX_Pan3D( int32_t handle, int32_t angle, int32_t distance );
 int32_t FX_SoundActive( int32_t handle );

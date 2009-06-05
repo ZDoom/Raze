@@ -1295,7 +1295,7 @@ void OSD_ShowDisplay(int32_t onf)
 
 void OSD_Draw(void)
 {
-    unsigned topoffs;
+    uint32_t topoffs;
     int32_t row, lines, x, len;
 
     if (!osdinited) return;

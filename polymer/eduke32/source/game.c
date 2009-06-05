@@ -4709,6 +4709,9 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     ActorExtra[i].tempang = 0;
     ActorExtra[i].dispicnum = 0;
 
+    ActorExtra[i].lightptr = NULL;
+    ActorExtra[i].lightId = -1;
+
     T1=T3=T4=T6=T7=T8=T9=0;
 
     ActorExtra[i].flags = 0;
@@ -4792,6 +4795,9 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         ActorExtra[i].lastvx = 0;
         ActorExtra[i].lastvy = 0;
         ActorExtra[i].actorstayput = -1;
+
+        ActorExtra[i].lightptr = NULL;
+        ActorExtra[i].lightId = -1;
 
         T1 = T2 = T3 = T4 = T5 = T6 = T7 = T8 = T9 = 0;
 

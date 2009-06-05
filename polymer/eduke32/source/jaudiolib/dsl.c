@@ -171,7 +171,7 @@ static void mixer_callback(int32_t chan, void *stream, int32_t len, void *udata)
 }
 
 //int32_t   DSL_BeginBufferedPlayback(char *BufferStart,
-  //                              int32_t BufferSize, int32_t NumDivisions, unsigned SampleRate,
+  //                              int32_t BufferSize, int32_t NumDivisions, uint32_t SampleRate,
     //                            int32_t MixMode, void(*CallBackFunc)(void))
 int32_t DSL_BeginBufferedPlayback(char *BufferStart, int32_t(*CallBackFunc)(int32_t), int32_t BufferSize, int32_t NumDivisions)
 {
@@ -255,7 +255,7 @@ void DSL_StopPlayback(void)
     mixer_initialized = 0;
 }
 
-unsigned DSL_GetPlaybackRate(void)
+uint32_t DSL_GetPlaybackRate(void)
 {
     return _DSL_SampleRate;
 }

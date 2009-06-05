@@ -113,7 +113,7 @@ typedef struct VoiceNode
     char         *NextBlock;
     char         *LoopStart;
     char         *LoopEnd;
-    unsigned      LoopCount;
+    uint32_t LoopCount;
     uint32_t LoopSize;
     uint32_t BlockLength;
 
@@ -202,7 +202,7 @@ typedef struct
 typedef char HARSH_CLIP_TABLE_8[ MV_NumVoices * 256 ];
 
 #if defined(_WIN32)
-static uint32_t MV_GetBufferSize(unsigned);
+static uint32_t MV_GetBufferSize(uint32_t);
 #endif
 static void MV_Mix(VoiceNode *voice, int32_t buffer);
 static void MV_PlayVoice(VoiceNode *voice);
@@ -227,24 +227,6 @@ static void       MV_CalcVolume(int32_t MaxLevel);
 static void       MV_CalcPanTable(void);
 
 static void ClearBuffer_DW(void *ptr, int32_t data, int32_t length);
-
-/*
-#define ClearBuffer_DW( ptr, data, length ) \
-	({ void *__ptr=(ptr); unsigned __data=(data); int32_t __length=(length); \
-	__asm__ __volatile__ ("rep; stosl" \
-		: "+c" (__length), "+D" (__ptr) : "a" (__data) : "memory", "cc"); \
-	0; })
-*/
-/*
-#pragma aux ClearBuffer_DW = \
-   "cld",                    \
-   "push   es",              \
-   "push   ds",              \
-   "pop    es",              \
-   "rep    stosd",           \
-   "pop    es",              \
-parm [ edi ] [ eax ] [ ecx ] modify exact [ ecx edi ];
-*/
 
 #if defined(__WATCOMC__)
 

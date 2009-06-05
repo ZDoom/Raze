@@ -407,6 +407,7 @@ void A_DeleteSprite(int32_t s)
         OSD_Printf(OSD_ERROR "A_DeleteSprite(): tried to remove sprite %d in EVENT_EGS\n",s);
         return;
     }
+
     if (apScriptGameEvent[EVENT_KILLIT])
     {
         int32_t p, pl=A_FindPlayer(&sprite[s],&p);
@@ -416,6 +417,12 @@ void A_DeleteSprite(int32_t s)
         if (aGameVars[g_iReturnVarID].val.lValue)
             return;
     }
+
+#ifdef POLYMER
+    if (getrendermode() == 4 && ActorExtra[s].lightId != -1)
+        polymer_deletelight(ActorExtra[s].lightId);
+#endif
+
     deletesprite(s);
 }
 #define deletesprite A_DeleteSprite

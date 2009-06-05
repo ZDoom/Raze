@@ -3718,7 +3718,7 @@ cheat_for_port_credits:
         mgametextpal(40,118+9+9+9+9,"Advanced mouse setup",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+2),10);
 
         {
-            int32_t sense = CONTROL_MouseSensitivity * 2;
+            int32_t sense = (int32_t)(CONTROL_MouseSensitivity * 2.0f);
             barsm(248,126,&sense,2,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
             CONTROL_MouseSensitivity = sense / 2.0f;
         }

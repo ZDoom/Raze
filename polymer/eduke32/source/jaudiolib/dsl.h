@@ -45,7 +45,7 @@ int32_t RestoreInterrupts(int32_t);
 
 int32_t   DSL_Init(int32_t soundcard, int32_t mixrate, int32_t numchannels, int32_t samplebits, int32_t buffersize);
 void  DSL_StopPlayback( void );
-unsigned DSL_GetPlaybackRate( void );
+uint32_t DSL_GetPlaybackRate( void );
 int32_t   DSL_BeginBufferedPlayback(char *BufferStart, int32_t (*CallBackFunc)(int32_t), int32_t buffersize, int32_t numdivisions);
 void  DSL_Shutdown( void );
 

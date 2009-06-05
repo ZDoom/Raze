@@ -20,9 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifdef _WIN32
-#include "dsound.h"
-#endif
 
 #include "baselayer.h"
 #include "compat.h"

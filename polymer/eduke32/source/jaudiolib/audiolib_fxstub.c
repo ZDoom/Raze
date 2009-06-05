@@ -90,7 +90,7 @@ int32_t FX_Init
     int32_t numvoices,
     int32_t numchannels,
     int32_t samplebits,
-    unsigned mixrate
+    uint32_t mixrate
 )
 
 {

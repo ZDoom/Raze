@@ -546,6 +546,10 @@ typedef struct {
     char cgg;
     char filler;
     projectile_t projectile;
+#ifdef POLYMER
+    int16_t lightId;
+    _prlight *lightptr;
+#endif
 } ActorData_t;
 
 extern ActorData_t ActorExtra[MAXSPRITES];

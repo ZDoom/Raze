@@ -62,7 +62,7 @@ void Bfree(void *ptr)
     free(ptr);
 }
 
-int32_t Bopen(const char *pathname, int32_t flags, unsigned mode)
+int32_t Bopen(const char *pathname, int32_t flags, uint32_t mode)
 {
     int32_t n=0,o=0;
 

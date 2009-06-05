@@ -42,9 +42,9 @@ int32_t openal_disabled;
 
 typedef struct sounddef
 {
-        unsigned pos;
+        uint32_t pos;
         char *ptrsnd;
-        unsigned size;
+        uint32_t size;
         OggVorbis_File  oggStream;
 } sounddef;
 #endif

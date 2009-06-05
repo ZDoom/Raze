@@ -123,7 +123,7 @@ static char *OutputType(int32_t a)
     }
 }
 
-int32_t FX_Init(int32_t SoundCard, int32_t numvoices, int32_t numchannels, int32_t samplebits, unsigned mixrate)
+int32_t FX_Init(int32_t SoundCard, int32_t numvoices, int32_t numchannels, int32_t samplebits, uint32_t mixrate)
 {
     FSOUND_Close();
 

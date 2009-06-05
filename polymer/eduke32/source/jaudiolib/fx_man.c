@@ -41,7 +41,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #define FALSE ( !TRUE )
 #endif
 
-static unsigned FX_MixRate;
+static uint32_t FX_MixRate;
 
 static char tempbuf[2048];
 extern void initprintf(const char *, ...);
@@ -255,7 +255,7 @@ int32_t FX_Init
     int32_t numvoices,
     int32_t numchannels,
     int32_t samplebits,
-    unsigned mixrate
+    uint32_t mixrate
 )
 
 {
@@ -895,7 +895,7 @@ int32_t FX_PlayRaw
 (
     char *ptr,
     uint32_t length,
-    unsigned rate,
+    uint32_t rate,
     int32_t pitchoffset,
     int32_t vol,
     int32_t left,
@@ -931,7 +931,7 @@ int32_t FX_PlayLoopedRaw
     uint32_t length,
     char *loopstart,
     char *loopend,
-    unsigned rate,
+    uint32_t rate,
     int32_t pitchoffset,
     int32_t vol,
     int32_t left,

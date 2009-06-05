@@ -2136,9 +2136,9 @@ static int32_t mytexo5, *zbit, gmaxx, gmaxy, garea, pow2m1[33];
 static voxmodel_t *gvox;
 
 //pitch must equal xsiz*4
-unsigned gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
+uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
 {
-    unsigned rtexid;
+    uint32_t rtexid;
     coltype *pic, *pic2;
     char *cptr;
     int32_t i;

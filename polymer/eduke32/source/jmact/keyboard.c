@@ -235,7 +235,7 @@ void KB_ClearKeysDown(void)
 
 char *KB_ScanCodeToString(kb_scancode scancode)
 {
-    unsigned s;
+    uint32_t s;
 
     for (s=0; s < (sizeof(sctokeylut)/sizeof(sctokeylut[0])); s++)
         if (sctokeylut[s].sc == scancode) return sctokeylut[s].key;
@@ -245,7 +245,7 @@ char *KB_ScanCodeToString(kb_scancode scancode)
 
 kb_scancode KB_StringToScanCode(char * string)
 {
-    unsigned s;
+    uint32_t s;
 
     for (s=0; s < (sizeof(sctokeylut)/sizeof(sctokeylut[0])); s++)
         if (!Bstrcasecmp(sctokeylut[s].key, string)) return sctokeylut[s].sc;
