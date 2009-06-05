@@ -46,9 +46,9 @@ ASFLAGS=/nologo /coff /c
 EXESUFFIX=.exe
 !ifdef DEBUG
 CFLAGS=$(CFLAGS) /DDEBUGGINGAIDS
-LIBS=$(LIBS) /NODEFAULTLIB:libcmt.lib
+LIBS=$(LIBS) /NODEFAULTLIB:libcmt.lib libcmtd.lib
 !else
-LIBS=$(LIBS) /NODEFAULTLIB:libcmtd.lib
+LIBS=$(LIBS) /NODEFAULTLIB:libcmtd.lib libcmt.lib
 !endif
 
 JMACTOBJ=$(OBJ)\util_lib.$o \
