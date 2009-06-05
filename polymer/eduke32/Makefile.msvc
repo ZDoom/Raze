@@ -150,11 +150,11 @@ all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) # duke3d_w32$(EXESUFFIX);
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
-	$(MT) -manifest $@.manifest $(RSRC)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
+	$(MT) -manifest $(RSRC)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
-	$(MT) -manifest $@.manifest $(RSRC)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
+	$(MT) -manifest $(RSRC)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 duke3d_w32$(EXESUFFIX): $(OBJ)/wrapper.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
