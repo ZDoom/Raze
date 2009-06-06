@@ -452,7 +452,6 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "varying vec3 tangentSpaceLightVector;\n"
         "\n",
         // frag_prog
-        "  vec2 lightRange;\n"
         "  float pointLightDistance;\n"
         "  float lightAttenuation;\n"
         "  float spotAttenuation;\n"
@@ -464,11 +463,8 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n"
         "  L = normalize(lightVector);\n"
         "\n"
-        "  pointLightDistance = length(lightVector);\n"
-        "  lightRange.x = gl_LightSource[0].constantAttenuation;\n"
-        "  lightRange.y = gl_LightSource[0].linearAttenuation;\n"
-        "\n"
-        "  lightAttenuation = clamp(1.0 - pointLightDistance * lightRange.y, 0.0, 1.0);\n"
+        "  pointLightDistance = dot(lightVector,lightVector);\n"
+        "  lightAttenuation = clamp(1.0 - pointLightDistance * gl_LightSource[0].linearAttenuation, 0.0, 1.0);\n"
         "  spotAttenuation = 1.0;\n"
         "\n"
         "  if (isSpotLight == 1) {\n"
@@ -3954,7 +3950,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         }
 
         range[0] = prlights[lights[curlight]].range  / 1000.0f;
-        range[1] = 1 / range[0];
+        range[1] = 1 / (range[0] * range[0]);
 
         color[0] = prlights[lights[curlight]].color[0]   / 255.0f;
         color[1] = prlights[lights[curlight]].color[1]   / 255.0f;
@@ -3963,7 +3959,6 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         bglLightfv(GL_LIGHT0, GL_AMBIENT, pos);
         bglLightfv(GL_LIGHT0, GL_DIFFUSE, color);
         bglLightfv(GL_LIGHT0, GL_SPECULAR, inpos);
-        bglLightfv(GL_LIGHT0, GL_CONSTANT_ATTENUATION, &range[0]);
         bglLightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, &range[1]);
     }
 
