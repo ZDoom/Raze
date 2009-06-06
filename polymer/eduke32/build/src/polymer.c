@@ -4277,7 +4277,7 @@ static void         polymer_addplanelight(_prplane* plane, int16_t lighti)
         i++;
     }
 
-    memcpy(&plane->lights[i+1], &plane->lights[i], sizeof(int16_t) * (PR_MAXLIGHTS - (i+1)));
+    memmove(&plane->lights[i+1], &plane->lights[i], sizeof(int16_t) * (PR_MAXLIGHTS - (i+1)));
 
     plane->lights[i] = lighti;
     plane->lightcount++;
