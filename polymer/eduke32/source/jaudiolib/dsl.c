@@ -23,8 +23,8 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #include <stdlib.h>
 #include <string.h>
 
-#include "dsl.h"
 #include "compat.h"
+#include "dsl.h"
 #include "pragmas.h"
 
 #define _NEED_SDLMIXER	1
