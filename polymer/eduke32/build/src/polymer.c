@@ -136,14 +136,8 @@ int32_t         lightcount;
 int32_t         curlight;
 int32_t         curlightcount;
 
-_prlight        staticlights[PR_MAXLIGHTS];
-int32_t         staticlightcount;
-
 _prlight        gamelights[PR_MAXLIGHTS];
 int32_t         gamelightcount;
-
-_prlight        framelights[PR_MAXLIGHTS];
-int32_t         framelightcount;
 
 static GLfloat  shadowBias[] =
 {
@@ -4152,38 +4146,20 @@ static void         polymer_compileprogram(int32_t programbits)
 static void         polymer_removelight(int16_t lighti)
 {
     int32_t         i;
-    _prsector       *s;
-    _prwall         *w;
 
     // XXX: might need to store a list of affected planes in the light record
     // if this loop ends up consuming too much cycles
-    i = 0;
-    while (i < numsectors)
+    i = prlights[lighti].planecnt-1;
+    while (i >= 0)
     {
-        s = prsectors[i];
-
-        polymer_deleteplanelight(&s->floor, lighti);
-        polymer_deleteplanelight(&s->ceil, lighti);
-
-        i++;
-    }
-
-    i = 0;
-    while (i < numwalls)
-    {
-        w = prwalls[i];
-
-        polymer_deleteplanelight(&w->wall, lighti);
-        polymer_deleteplanelight(&w->over, lighti);
-        polymer_deleteplanelight(&w->mask, lighti);
-
-        i++;
+        polymer_deleteplanelight(prlights[lighti].myplanes[i], lighti);
+        i--;
     }
 }
 
 static void         polymer_updatelights(void)
 {
-    int32_t         i;
+    int32_t         i = 0;
 
     while (i < PR_MAXLIGHTS)
     {
@@ -4261,31 +4237,30 @@ static void         polymer_addplanelight(_prplane* plane, int16_t lighti)
 {
     int16_t         i;
 
-    if (plane->lightcount == PR_MAXLIGHTS)
+    if (plane->lightcount == PR_MAXLIGHTS-1 || prlights[lighti].planecnt == (PR_MAXLIGHTS<<1)-1)
         return;
 
     i = 0;
     while (i < PR_MAXLIGHTS)
     {
-        if ((plane->lights[i] != -1) && (prlights[plane->lights[i]].priority > prlights[lighti].priority))
+        if ((plane->lights[i] != -1) && (prlights[plane->lights[i]].priority >= prlights[lighti].priority))
             break;
 
         if (plane->lights[i] == -1)
         {
+            memmove(&plane->lights[i+1], &plane->lights[i], sizeof(int16_t) * (PR_MAXLIGHTS - (i+1)));
+
             plane->lights[i] = lighti;
             plane->lightcount++;
+            prlights[lighti].myplanes[prlights[lighti].planecnt] = plane;
+            prlights[lighti].planecnt++;
             return;
         }
         i++;
     }
-
-    memmove(&plane->lights[i+1], &plane->lights[i], sizeof(int16_t) * (PR_MAXLIGHTS - (i+1)));
-
-    plane->lights[i] = lighti;
-    plane->lightcount++;
 }
 
-static void         polymer_deleteplanelight(_prplane* plane, int16_t lighti)
+static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti)
 {
     int16_t         i;
 
@@ -4294,7 +4269,9 @@ static void         polymer_deleteplanelight(_prplane* plane, int16_t lighti)
     {
         if (plane->lights[i] == lighti)
         {
-            plane->lights[i] = -1;
+            memmove(&plane->lights[i], &plane->lights[i+1], sizeof(int16_t) * (PR_MAXLIGHTS - (i)));
+            plane->lights[PR_MAXLIGHTS-1] = -1;
+            
             plane->lightcount--;
             return;
         }
@@ -4458,6 +4435,9 @@ static inline void  polymer_culllight(int16_t lighti)
     back = 1;
     Bmemset(drawingstate, 0, sizeof(int16_t) * numsectors);
     drawingstate[light->sector] = 1;
+
+    prlights[lighti].planecnt = 0;
+    Bmemset(prlights[lighti].myplanes, 0, sizeof(intptr_t) * (PR_MAXLIGHTS<<1));
 
     sectorqueue[0] = light->sector;
 

@@ -242,8 +242,8 @@ int32_t G_LoadPlayer(int32_t spot)
     if (kdfread(&spriteext[0],sizeof(spriteext_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
 #ifdef POLYMER
-    if (kdfread(&staticlightcount,sizeof(staticlightcount),1,fil) != 1) goto corrupt;
-    if (kdfread(&staticlights[0],sizeof(_prlight),staticlightcount,fil) != staticlightcount) goto corrupt;
+    if (kdfread(&lightcount,sizeof(lightcount),1,fil) != 1) goto corrupt;
+    if (kdfread(&prlights[0],sizeof(_prlight),lightcount,fil) != lightcount) goto corrupt;
 #else
     if (kdfread(&i,sizeof(int32_t),1,fil) != 1) goto corrupt;
 #endif // POLYMER
@@ -688,8 +688,8 @@ int32_t G_SavePlayer(int32_t spot)
     dfwrite(&spriteext[0],sizeof(spriteext_t),MAXSPRITES,fil);
 
 #ifdef POLYMER
-    dfwrite(&staticlightcount,sizeof(staticlightcount),1,fil);
-    dfwrite(&staticlights[0],sizeof(_prlight),staticlightcount,fil);
+    dfwrite(&lightcount,sizeof(lightcount),1,fil);
+    dfwrite(&prlights[0],sizeof(_prlight),lightcount,fil);
 #else
     i = 0;
     dfwrite(&i,sizeof(int32_t),1,fil);

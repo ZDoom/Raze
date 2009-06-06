@@ -2195,13 +2195,7 @@ void P_FireWeapon(DukePlayer_t *p)
 #ifdef POLYMER
             spritetype *s = &sprite[p->i];
             int32_t x = ((sintable[(s->ang+512)&2047])>>7), y = ((sintable[(s->ang)&2047])>>7);
-#endif // POLYMER
 
-
-            lastvisinc = totalclock+32;
-            p->visibility = 0;
-
-#ifdef POLYMER
             s->x += x;
             s->y += y;
             G_AddGameLight(0, p->i, PHEIGHT, 8192, aplWeaponFlashColor[p->curr_weapon][snum],PR_LIGHT_PRIO_MAX_GAME);
@@ -2231,6 +2225,8 @@ void P_FireWeapon(DukePlayer_t *p)
                 gamelightcount++;
 */
 #endif // POLYMER
+            lastvisinc = totalclock+32;
+            p->visibility = 0;
         }
 
         /*        if( //!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_CHECKATRELOAD) &&

@@ -7426,87 +7426,8 @@ PALONLY:
                     }
                 }
 
-#ifdef POLYMER
-        switch (DynamicTileMap[s->picnum-1])
-        {
-        case DIPSWITCH__STATIC:
-        case DIPSWITCH2__STATIC:
-        case DIPSWITCH3__STATIC:
-        case PULLSWITCH__STATIC:
-        case SLOTDOOR__STATIC:
-        case LIGHTSWITCH__STATIC:
-        case SPACELIGHTSWITCH__STATIC:
-        case SPACEDOORSWITCH__STATIC:
-        case FRANKENSTINESWITCH__STATIC:
-        case POWERSWITCH1__STATIC:
-        case LOCKSWITCH1__STATIC:
-        case POWERSWITCH2__STATIC:
-        case TECHSWITCH__STATIC:
-        case ACCESSSWITCH__STATIC:
-        case ACCESSSWITCH2__STATIC:
-            if (!inside(t->x+((sintable[(t->ang+512)&2047])>>9), t->y+((sintable[(t->ang)&2047])>>9), t->sectnum))
-                break;
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].radius = 0;
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].sector = t->sectnum;
-
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].x = t->x+((sintable[(t->ang+512)&2047])>>7);
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].y = t->y+((sintable[(t->ang)&2047])>>7);
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].z = t->z-((t->yrepeat*tilesizy[t->picnum])<<1);
-
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].range = 1024;
-
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].color[0] = 48;
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].color[1] = 255;
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].color[2] = 48;
-
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_LOW_GAME;
-
-            if (framelightcount < PR_MAXLIGHTS)
-                framelightcount++;
-
-            break;
-        }
-#endif
         switch (DynamicTileMap[s->picnum])
         {
-#ifdef POLYMER
-        case DIPSWITCH__STATIC:
-        case DIPSWITCH2__STATIC:
-        case DIPSWITCH3__STATIC:
-        case PULLSWITCH__STATIC:
-        case SLOTDOOR__STATIC:
-        case LIGHTSWITCH__STATIC:
-        case SPACELIGHTSWITCH__STATIC:
-        case SPACEDOORSWITCH__STATIC:
-        case FRANKENSTINESWITCH__STATIC:
-        case POWERSWITCH1__STATIC:
-        case LOCKSWITCH1__STATIC:
-        case POWERSWITCH2__STATIC:
-        case TECHSWITCH__STATIC:
-        case ACCESSSWITCH__STATIC:
-        case ACCESSSWITCH2__STATIC:
-            if (!inside(t->x+((sintable[(t->ang+512)&2047])>>9), t->y+((sintable[(t->ang)&2047])>>9), t->sectnum))
-                break;
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].radius = 0;
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].sector = t->sectnum;
-
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].x = t->x+((sintable[(t->ang+512)&2047])>>7);
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].y = t->y+((sintable[(t->ang)&2047])>>7);
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].z = t->z-((t->yrepeat*tilesizy[t->picnum])<<1);
-
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].range = 1024;
-
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].color[0] = 255;
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].color[1] = 48;
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].color[2] = 48;
-
-            framelights[framelightcount & (PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_LOW_GAME;
-
-            if (framelightcount < PR_MAXLIGHTS)
-                framelightcount++;
-
-            break;
-#endif
         case LASERLINE__STATIC:
             if (sector[t->sectnum].lotag == 2) t->pal = 8;
             t->z = sprite[s->owner].z-(3<<8);

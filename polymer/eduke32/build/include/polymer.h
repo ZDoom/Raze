@@ -151,7 +151,7 @@ typedef struct      s_prprogrambit {
 }                   _prprogrambit;
 
 // LIGHTS
-#define             PR_MAXLIGHTS            128
+#define             PR_MAXLIGHTS            256
 #define             SHADOW_DEPTH_OFFSET     30
 #define             PR_MAXLIGHTPRIORITY     6
 
@@ -172,18 +172,15 @@ typedef struct      s_prlight {
         int32_t     isinview    : 1;
     }               flags;
     GLuint          lightmap;
+    void*           myplanes[PR_MAXLIGHTS<<1];
+    int32_t         planecnt;
 }                   _prlight;
 
 extern _prlight     prlights[PR_MAXLIGHTS];
-
-extern _prlight     staticlights[PR_MAXLIGHTS];
-extern int32_t      staticlightcount;
+extern int32_t      lightcount;
 
 extern _prlight     gamelights[PR_MAXLIGHTS];
 extern int32_t      gamelightcount;
-
-extern _prlight     framelights[PR_MAXLIGHTS];
-extern int32_t      framelightcount;
 
 // RENDER TARGETS
 typedef struct      s_prrt {
@@ -338,7 +335,7 @@ static void         polymer_updatelights(void);
 static void         polymer_resetlights(void);
 static void         polymer_resetplanelights(_prplane* plane);
 static void         polymer_addplanelight(_prplane* plane, int16_t lighti);
-static void         polymer_deleteplanelight(_prplane* plane, int16_t lighti);
+static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti);
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light);
 static void         polymer_invalidateplanelights(_prplane* plane);
 static void         polymer_invalidatesectorlights(int16_t sectnum);

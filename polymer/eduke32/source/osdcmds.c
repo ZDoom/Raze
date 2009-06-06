@@ -803,6 +803,24 @@ void onvideomodechange(int32_t newmode)
         pal = g_player[screenpeek].ps->palette;
     }
 
+#ifdef POLYMER
+    if (getrendermode() == 4)
+    {
+        int32_t i = 0;
+
+        while (i < MAXSPRITES)
+        {
+            if (ActorExtra[i].lightptr)
+            {
+                polymer_deletelight(ActorExtra[i].lightId);
+                ActorExtra[i].lightptr = NULL;
+                ActorExtra[i].lightId = -1;
+            }
+            i++;
+        }
+    }
+#endif
+
     setbrightness(ud.brightness>>2, pal, 0);
     g_restorePalette = 1;
     g_crosshairSum = 0;
