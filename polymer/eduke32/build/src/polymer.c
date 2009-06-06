@@ -1071,7 +1071,7 @@ void                polymer_drawsprite(int32_t snum)
     i = j = 0;
     while (j < lightcount)
     {
-        while (prlights[i].flags.active == 0 || prlights[i].flags.display == 0) {
+        while (prlights[i].flags.active == 0) {
             i++;
         }
 
@@ -1144,6 +1144,9 @@ int16_t             polymer_addlight(_prlight* light)
 
 void                polymer_deletelight(int16_t lighti)
 {
+    if (!prlights[lighti].flags.active)
+        return;
+
     polymer_removelight(lighti);
 
     prlights[lighti].flags.active = 0;
@@ -3279,7 +3282,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         i = j = 0;
         while (j < lightcount)
         {
-            while (prlights[i].flags.active == 0 || prlights[i].flags.display == 0) {
+            while (prlights[i].flags.active == 0) {
                 i++;
             }
 
@@ -3608,10 +3611,8 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 
     // PR_BIT_GLOW_MAP
-/*
     if (r_fullbrights && pth && pth->flags & 16)
         material->glowmap = pth->ofb->glpic;
-*/
 
     if (hicfindsubst(tilenum, GLOWPAL, 0))
     {
@@ -4123,13 +4124,117 @@ static void         polymer_compileprogram(int32_t programbits)
 
 // LIGHTS
 
+static void         polymer_removelight(int16_t lighti)
+{
+    int32_t         i;
+    _prsector       *s;
+    _prwall         *w;
+
+    // XXX: might need to store a list of affected planes in the light record
+    // if this loop ends up consuming too much cycles
+    i = 0;
+    while (i < numsectors)
+    {
+        s = prsectors[i];
+
+        polymer_deleteplanelight(&s->floor, lighti);
+        polymer_deleteplanelight(&s->ceil, lighti);
+
+        i++;
+    }
+
+    i = 0;
+    while (i < numwalls)
+    {
+        w = prwalls[i];
+
+        polymer_deleteplanelight(&w->wall, lighti);
+        polymer_deleteplanelight(&w->over, lighti);
+        polymer_deleteplanelight(&w->mask, lighti);
+
+        i++;
+    }
+}
+
+static void         polymer_updatelights(void)
+{
+    int32_t         i;
+
+    while (i < PR_MAXLIGHTS)
+    {
+        if (prlights[i].flags.active && prlights[i].flags.invalidate) {
+            // highly suboptimal
+            polymer_removelight(i);
+
+            if (prlights[i].radius)
+                polymer_processspotlight(&prlights[i]);
+            polymer_culllight(i);
+
+            prlights[i].flags.invalidate = 0;
+        }
+
+        if (prlights[i].flags.active)
+            prlights[i].rtindex = -1;
+        i++;
+    }
+}
+
+static void         polymer_resetlights(void)
+{
+    int32_t         i;
+    _prsector       *s;
+    _prwall         *w;
+
+    i = 0;
+    while (i < numsectors)
+    {
+        s = prsectors[i];
+
+        polymer_resetplanelights(&s->floor);
+        polymer_resetplanelights(&s->ceil);
+
+        i++;
+    }
+
+    i = 0;
+    while (i < numwalls)
+    {
+        w = prwalls[i];
+
+        polymer_resetplanelights(&w->wall);
+        polymer_resetplanelights(&w->over);
+        polymer_resetplanelights(&w->mask);
+
+        i++;
+    }
+
+    i = 0;
+    while (i < PR_MAXLIGHTS)
+    {
+        prlights[i].flags.active = 0;
+        i++;
+    }
+
+    lightcount = 0;
+}
+
+static void         polymer_resetplanelights(_prplane* plane)
+{
+    int32_t         i;
+
+    i = 0;
+    while (i < PR_MAXLIGHTS)
+    {
+        plane->lights[i] = -1;
+        i++;
+    }
+
+    plane->lightcount = 0;
+}
 
 static void         polymer_addplanelight(_prplane* plane, int16_t lighti)
 {
     int16_t         i;
-
-    if (prlights[lighti].planecnt >= PR_MAXLIGHTS-1)
-        return;
 
     i = 0;
     while (i < PR_MAXLIGHTS)
@@ -4138,15 +4243,13 @@ static void         polymer_addplanelight(_prplane* plane, int16_t lighti)
         {
             plane->lights[i] = lighti;
             plane->lightcount++;
-            prlights[lighti].myplanes[prlights[lighti].planecnt] = plane;
-            prlights[lighti].planecnt++;
             return;
         }
         i++;
     }
 }
 
-static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti)
+static void         polymer_deleteplanelight(_prplane* plane, int16_t lighti)
 {
     int16_t         i;
 
@@ -4212,118 +4315,6 @@ static void         polymer_invalidateplanelights(_prplane* plane)
 
         i++;
     }
-}
-
-
-static void         polymer_removelight(int16_t lighti)
-{
-    int32_t         i;
-
-    // XXX: might need to store a list of affected planes in the light record
-    // if this loop ends up consuming too much cycles
-    i = prlights[lighti].planecnt-1;
-    while (i >= 0)
-    {
-        polymer_deleteplanelight(prlights[lighti].myplanes[i], lighti);
-        i--;
-    }
-}
-
-static void         polymer_updatelights(void)
-{
-    int32_t         i, curpriority;
-
-    i = 0;
-    while (i < PR_MAXLIGHTS)
-        prlights[i++].flags.display = 0;
-
-    curpriority = 0;
-    while (curpriority < pr_maxlightpriority)
-    {
-        i = 0;
-        do
-        {
-            while (prlights[i].priority != curpriority && i < PR_MAXLIGHTS)
-                i++;
-
-            if (i == PR_MAXLIGHTS)
-                break;
-
-            if (prlights[i].flags.active)
-            {
-                prlights[i].flags.display = 1;
-
-                if (prlights[i].flags.invalidate)
-                {
-                    // highly suboptimal
-                    polymer_removelight(i);
-
-                    if (prlights[i].radius)
-                        polymer_processspotlight(&prlights[i]);
-                    polymer_culllight(i);
-
-                    prlights[i].flags.invalidate = 0;
-                    prlights[i].rtindex = -1;
-                }
-            }
-            i++;
-        }
-        while (1);
-        curpriority++;
-    }
-}
-
-static void         polymer_resetlights(void)
-{
-    int32_t         i;
-    _prsector       *s;
-    _prwall         *w;
-
-    i = 0;
-    while (i < numsectors)
-    {
-        s = prsectors[i];
-
-        polymer_resetplanelights(&s->floor);
-        polymer_resetplanelights(&s->ceil);
-
-        i++;
-    }
-
-    i = 0;
-    while (i < numwalls)
-    {
-        w = prwalls[i];
-
-        polymer_resetplanelights(&w->wall);
-        polymer_resetplanelights(&w->over);
-        polymer_resetplanelights(&w->mask);
-
-        i++;
-    }
-
-    i = 0;
-    while (i < PR_MAXLIGHTS)
-    {
-        prlights[i].flags.active = 0;
-        i++;
-    }
-
-    lightcount = 0;
-}
-
-static void         polymer_resetplanelights(_prplane* plane)
-{
-    int32_t         i;
-
-    i = 0;
-    while (i < PR_MAXLIGHTS)
-    {
-        plane->lights[i] = -1;
-        i++;
-    }
-
-    plane->lightcount = 0;
 }
 
 static void         polymer_invalidatesectorlights(int16_t sectnum)
@@ -4432,9 +4423,6 @@ static inline void  polymer_culllight(int16_t lighti)
     Bmemset(drawingstate, 0, sizeof(int16_t) * numsectors);
     drawingstate[light->sector] = 1;
 
-    prlights[lighti].planecnt = 0;
-    Bmemset(prlights[lighti].myplanes, 0, sizeof(intptr_t) * PR_MAXLIGHTS);
-
     sectorqueue[0] = light->sector;
 
     while (front != back)
@@ -4493,7 +4481,7 @@ static void         polymer_prepareshadows(void)
     int16_t         oviewangle, oglobalang;
     int32_t         ocosglobalang, osinglobalang;
     int32_t         ocosviewingrangeglobalang, osinviewingrangeglobalang;
-    int32_t         i, j;
+    int32_t         i, j, k;
     int32_t         gx, gy, gz;
     int32_t         oldoverridematerial;
 
@@ -4509,11 +4497,11 @@ static void         polymer_prepareshadows(void)
     ocosviewingrangeglobalang = cosviewingrangeglobalang;
     osinviewingrangeglobalang = sinviewingrangeglobalang;
 
-    i = j = 0;
+    i = j = k = 0;
 
-    while ((i < lightcount) && (j < pr_shadowcount))
+    while ((k < lightcount) && (j < pr_shadowcount))
     {
-        while ((prlights[i].flags.active == 0 || prlights[i].flags.display == 0) && i < lightcount) {
+        while (prlights[i].flags.active == 0) {
             i++;
         }
 
@@ -4574,6 +4562,7 @@ static void         polymer_prepareshadows(void)
             j++;
         }
         i++;
+        k++;
     }
 
     globalposx = gx;
@@ -4586,79 +4575,6 @@ static void         polymer_prepareshadows(void)
     singlobalang = osinglobalang;
     cosviewingrangeglobalang = ocosviewingrangeglobalang;
     sinviewingrangeglobalang = osinviewingrangeglobalang;
-}
-
-static void         polymer_applylights(void)
-{
-    int32_t         i, curpriority;
-    _prlight        light;
-    float           fade;
-
-    curpriority = 0;
-    while (curpriority < PR_MAXLIGHTPRIORITY)
-    {
-        i = 0;
-        while (i < staticlightcount)
-        {
-            if ((staticlights[i].priority != curpriority) ||
-                (staticlights[i].priority > pr_maxlightpriority))
-            {
-                i++;
-                continue;
-            }
-
-            if (staticlights[i].minshade == staticlights[i].maxshade)
-                polymer_addlight(&staticlights[i]);
-            else {
-                light = staticlights[i];
-
-                fade = sector[light.sector].floorshade;
-                fade -= light.minshade;
-                fade /= light.maxshade - light.minshade;
-
-                if (fade < 0.0f)
-                    fade = 0.0f;
-                if (fade > 1.0f)
-                    fade = 1.0f;
-
-                light.color[0] *= fade;
-                light.color[1] *= fade;
-                light.color[2] *= fade;
-
-                polymer_addlight(&light);
-            }
-            i++;
-        }
-
-        i = 0;
-        while (i < gamelightcount)
-        {
-            if ((gamelights[i].priority != curpriority) ||
-                (gamelights[i].priority > pr_maxlightpriority))
-            {
-                i++;
-                continue;
-            }
-
-            polymer_addlight(&gamelights[i]);
-            i++;
-        }
-
-        i = 0;
-        while (i < framelightcount)
-        {
-            if ((framelights[i].priority != curpriority) ||
-                (framelights[i].priority > pr_maxlightpriority))
-            {
-                i++;
-                continue;
-            }
-
-            polymer_addlight(&framelights[i]);
-            i++;
-        }
-        curpriority++;
-    }
 }
 
 // RENDER TARGETS
