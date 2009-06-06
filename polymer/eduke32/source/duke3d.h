@@ -548,6 +548,7 @@ typedef struct {
     projectile_t projectile;
 #ifdef POLYMER
     int16_t lightId;
+    int16_t lightcount; // how many tics until light is killed
     _prlight *lightptr;
 #endif
 } ActorData_t;

@@ -4541,9 +4541,6 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
         }
 #endif
         drawrooms(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,ud.camerasect);
-#ifdef POLYMER
-        framelightcount = 0;
-#endif
         G_DoSpriteAnimations(ud.camerax,ud.cameray,ud.cameraang,smoothratio);
         drawmasks();
 
@@ -5541,7 +5538,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
 
         case EXPLOSION2__STATIC:
-            G_AddGameLight(0, sp->sectnum, sp->x, sp->y, sp->z-((sp->yrepeat*tilesizy[sp->picnum])<<1), 8192, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+            G_AddGameLight(0, i, ((sp->yrepeat*tilesizy[sp->picnum])<<1), 8192, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
         case EXPLOSION2BOT__STATIC:
         case BURNING__STATIC:
         case BURNING2__STATIC:

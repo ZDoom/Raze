@@ -6225,8 +6225,8 @@ killsprite:
         curpolygonoffset = 0;
         cullcheckcnt = 0;
 #endif
-        pos.x = globalposx;
-        pos.y = globalposy;
+        pos.x = (float)globalposx;
+        pos.y = (float)globalposy;
 
         while (maskwallcnt)
         {
@@ -6234,18 +6234,18 @@ killsprite:
 #if defined(USE_OPENGL) && defined(POLYMER)
             if (rendmode == 4)
             {
-                dot.x = wall[maskwall[maskwallcnt]].x;
-                dot.y = wall[maskwall[maskwallcnt]].y;
-                dot2.x = wall[wall[maskwall[maskwallcnt]].point2].x;
-                dot2.y = wall[wall[maskwall[maskwallcnt]].point2].y;
+                dot.x = (float)wall[maskwall[maskwallcnt]].x;
+                dot.y = (float)wall[maskwall[maskwallcnt]].y;
+                dot2.x = (float)wall[wall[maskwall[maskwallcnt]].point2].x;
+                dot2.y = (float)wall[wall[maskwall[maskwallcnt]].point2].y;
             }
             else
 #endif
             {
-                dot.x = wall[thewall[maskwall[maskwallcnt]]].x;
-                dot.y = wall[thewall[maskwall[maskwallcnt]]].y;
-                dot2.x = wall[wall[thewall[maskwall[maskwallcnt]]].point2].x;
-                dot2.y = wall[wall[thewall[maskwall[maskwallcnt]]].point2].y;
+                dot.x = (float)wall[thewall[maskwall[maskwallcnt]]].x;
+                dot.y = (float)wall[thewall[maskwall[maskwallcnt]]].y;
+                dot2.x = (float)wall[wall[thewall[maskwall[maskwallcnt]]].point2].x;
+                dot2.y = (float)wall[wall[thewall[maskwall[maskwallcnt]]].point2].y;
             }
 
             maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
@@ -6261,8 +6261,8 @@ killsprite:
                 i--;
                 if (tspriteptr[i] != NULL)
                 {
-                    spr.x = tspriteptr[i]->x;
-                    spr.y = tspriteptr[i]->y;
+                    spr.x = (float)tspriteptr[i]->x;
+                    spr.y = (float)tspriteptr[i]->y;
 
                     if ((sameside(&maskeq, &spr, &pos) == 0) && sameside(&p1eq, &middle, &spr) && sameside(&p2eq, &middle, &spr))
                     {

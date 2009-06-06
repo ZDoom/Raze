@@ -353,9 +353,17 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
         case CHAINGUN__STATIC:
         case RPG__STATIC:
         case MORTER__STATIC:
-            G_AddGameLight(0, s->sectnum, s->x+((sintable[(s->ang+512)&2047])>>7),
-                           s->y+((sintable[(s->ang)&2047])>>7), s->z-PHEIGHT, 8192, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+            {
+                int32_t x = ((sintable[(s->ang+512)&2047])>>7), y = ((sintable[(s->ang)&2047])>>7);
+                s-> x += x;
+                s-> y += y;
+                G_AddGameLight(0, i, PHEIGHT, 8192, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                ActorExtra[i].lightcount = 2;
+                s-> x -= x;
+                s-> y -= y;
+            }
 
+/*
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>4);
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>4);
@@ -376,6 +384,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
 
             if (gamelightcount < PR_MAXLIGHTS)
                 gamelightcount++;
+*/
             break;
         }
 #endif // POLYMER
@@ -388,8 +397,16 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
 #ifdef POLYMER
         if (ProjectileData[atwith].flashcolor)
         {
-            G_AddGameLight(0, s->sectnum, s->x+((sintable[(s->ang+512)&2047])>>7),
-                           s->y+((sintable[(s->ang)&2047])>>7), s->z-PHEIGHT, 8192, ProjectileData[atwith].flashcolor,PR_LIGHT_PRIO_MAX_GAME);
+            int32_t x = ((sintable[(s->ang+512)&2047])>>7), y = ((sintable[(s->ang)&2047])>>7);
+
+            s-> x += x;
+            s-> y += y;
+            G_AddGameLight(0, i, PHEIGHT, 8192, ProjectileData[atwith].flashcolor,PR_LIGHT_PRIO_MAX_GAME);
+            ActorExtra[i].lightcount = 2;
+            s-> x -= x;
+            s-> y -= y;
+
+/*
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>4);
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>4);
@@ -410,6 +427,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
 
             if (gamelightcount < PR_MAXLIGHTS)
                 gamelightcount++;
+*/
         }
 #endif // POLYMER
 
@@ -2176,6 +2194,7 @@ void P_FireWeapon(DukePlayer_t *p)
         {
 #ifdef POLYMER
             spritetype *s = &sprite[p->i];
+            int32_t x = ((sintable[(s->ang+512)&2047])>>7), y = ((sintable[(s->ang)&2047])>>7);
 #endif // POLYMER
 
 
@@ -2183,9 +2202,13 @@ void P_FireWeapon(DukePlayer_t *p)
             p->visibility = 0;
 
 #ifdef POLYMER
-            G_AddGameLight(0, s->sectnum, s->x+((sintable[(p->ang+512)&2047])>>7), s->y+((sintable[(p->ang)&2047])>>7),
-                           s->z-PHEIGHT, 8192, aplWeaponFlashColor[p->curr_weapon][snum],PR_LIGHT_PRIO_MAX_GAME);
-
+            s->x += x;
+            s->y += y;
+            G_AddGameLight(0, p->i, PHEIGHT, 8192, aplWeaponFlashColor[p->curr_weapon][snum],PR_LIGHT_PRIO_MAX_GAME);
+            ActorExtra[p->i].lightcount = 2;
+            s->x -= x;
+            s->y -= y;
+/*
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(p->ang+512)&2047])>>4);
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(p->ang)&2047])>>4);
@@ -2206,6 +2229,7 @@ void P_FireWeapon(DukePlayer_t *p)
 
             if (gamelightcount < PR_MAXLIGHTS)
                 gamelightcount++;
+*/
 #endif // POLYMER
         }
 

@@ -4541,6 +4541,18 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
             vm.g_t[3] = 0;
     }
 
+#ifdef POLYMER
+    if (getrendermode() == 4 && ActorExtra[vm.g_i].lightptr != NULL && ActorExtra[vm.g_i].lightcount)
+    {
+        if (!(--ActorExtra[vm.g_i].lightcount))
+        {
+            polymer_deletelight(ActorExtra[vm.g_i].lightId);
+            ActorExtra[vm.g_i].lightId = -1;
+            ActorExtra[vm.g_i].lightptr = NULL;
+        }
+    }
+#endif
+
     while (!X_DoExecute());
 
     if (vm.g_killitFlag == 1)

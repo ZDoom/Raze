@@ -419,8 +419,12 @@ void A_DeleteSprite(int32_t s)
     }
 
 #ifdef POLYMER
-    if (getrendermode() == 4 && ActorExtra[s].lightId != -1)
+    if (getrendermode() == 4 && ActorExtra[s].lightptr != NULL)
+    {
         polymer_deletelight(ActorExtra[s].lightId);
+        ActorExtra[s].lightId = -1;
+        ActorExtra[s].lightptr = NULL;
+    }
 #endif
 
     deletesprite(s);
@@ -578,6 +582,56 @@ static void ms(int32_t i)
     }
 }
 
+inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority)
+{
+#ifdef POLYMER
+    spritetype *s = &sprite[srcsprite];
+    if (ActorExtra[srcsprite].lightptr == NULL)
+    {
+        _prlight mylight;
+
+        mylight.sector = s->sectnum;
+        mylight.x = s->x;
+        mylight.y = s->y;
+        mylight.z = s->z-zoffset;
+        mylight.color[0] = color&255;
+        mylight.color[1] = (color>>8)&255;
+        mylight.color[2] = (color>>16)&255;
+        mylight.radius = radius;
+        mylight.range = range;
+
+        mylight.priority = priority;
+
+        ActorExtra[srcsprite].lightId = polymer_addlight(&mylight);
+        ActorExtra[srcsprite].lightptr = &prlights[ActorExtra[srcsprite].lightId];
+        return;
+    }
+
+    s->z -= zoffset;
+    if (radius != prlights[ActorExtra[srcsprite].lightId].radius ||
+        range != prlights[ActorExtra[srcsprite].lightId].range ||
+        Bmemcmp(&sprite[srcsprite], ActorExtra[srcsprite].lightptr, sizeof(int32_t) * 3))
+    {
+        Bmemcpy(ActorExtra[srcsprite].lightptr, &sprite[srcsprite], sizeof(int32_t) * 3);
+        ActorExtra[srcsprite].lightptr->sector = s->sectnum;
+        ActorExtra[srcsprite].lightptr->radius = radius;
+        ActorExtra[srcsprite].lightptr->range = range;
+        ActorExtra[srcsprite].lightptr->flags.invalidate = 1;
+    }
+    s->z += zoffset;
+
+#else
+    UNREFERENCED_PARAMETER(radius);
+    UNREFERENCED_PARAMETER(sector);
+    UNREFERENCED_PARAMETER(x);
+    UNREFERENCED_PARAMETER(y);
+    UNREFERENCED_PARAMETER(z);
+    UNREFERENCED_PARAMETER(range);
+    UNREFERENCED_PARAMETER(color);
+    UNREFERENCED_PARAMETER(priority);
+#endif
+}
+
 // sleeping monsters, etc
 static void G_MoveZombieActors(void)
 {
@@ -605,10 +659,10 @@ static void G_MoveZombieActors(void)
                 case FLOORFLAME__STATIC:
                 case FIREBARREL__STATIC:
                 case FIREVASE__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
                     break;
                 case ATOMICHEALTH__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
 
                 case FIRE__STATIC:
@@ -617,7 +671,7 @@ static void G_MoveZombieActors(void)
                                         if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
                                         if (s->z > ActorExtra[i].floorz+2048) break;
                     */
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
                     break;
                 case BURNING__STATIC:
                 case BURNING2__STATIC:
@@ -625,19 +679,19 @@ static void G_MoveZombieActors(void)
                                         if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
                                         if (s->z > ActorExtra[i].floorz + 2048) break;
                     */
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
                     break;
 
                 case EXPLOSION2__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
                 case FORCERIPPLE__STATIC:
                     //                    case TRANSPORTERSTAR__STATIC:
                 case TRANSPORTERBEAM__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
                     break;
                 case SHRINKEREXPLOSION__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
 
                 }
@@ -1763,7 +1817,7 @@ static void G_MoveStandables(void)
         if (s->picnum == OOZFILTER || s->picnum == SEENINE || s->picnum == SEENINEDEAD || s->picnum == (SEENINEDEAD+1))
         {
             if (s->picnum == OOZFILTER && s->xrepeat)
-                G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 6144, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 6144, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
             if (s->shade != -32 && s->shade != -33)
             {
                 if (s->xrepeat)
@@ -2190,7 +2244,7 @@ CLEAR_THE_BOLT:
         case FLOORFLAME__STATIC:
         case FIREBARREL__STATIC:
         case FIREVASE__STATIC:
-            G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
         case EXPLODINGBARREL__STATIC:
         case WOODENHORSE__STATIC:
         case HORSEONSIDE__STATIC:
@@ -2295,7 +2349,7 @@ static void G_MoveWeapons(void)
                 Bmemcpy(&davect,s,sizeof(vec3_t));
 
                 if (ActorExtra[i].projectile.flashcolor)
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, ActorExtra[i].projectile.flashcolor,PR_LIGHT_PRIO_LOW_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, ActorExtra[i].projectile.flashcolor,PR_LIGHT_PRIO_LOW_GAME);
 
                 if (ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFWALLS)
                 {
@@ -2741,21 +2795,21 @@ static void G_MoveWeapons(void)
                 switch (DynamicTileMap[s->picnum])
                 {
                 case FREEZEBLAST__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
 
                 case COOLEXPLOSION1__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
 
                 case SHRINKSPARK__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
                 case FIRELASER__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
                     break;
                 case RPG__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
 
                     if (DynamicTileMap[s->picnum] == RPG__STATIC && ActorExtra[i].picnum != BOSS2 &&
                             s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
@@ -3401,7 +3455,7 @@ static void G_MoveActors(void)
         switch (DynamicTileMap[switchpicnum])
         {
         case ATOMICHEALTH__STATIC:
-            G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
             break;
 
         case FIRE__STATIC:
@@ -3410,7 +3464,7 @@ static void G_MoveActors(void)
                         if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
                         if (s->z > ActorExtra[i].floorz+2048) break;
             */
-            G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->xrepeat, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
             break;
 
         case DUCK__STATIC:
@@ -5165,20 +5219,20 @@ static void G_MoveMisc(void)  // STATNUM 5
                                         if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
                                         if (s->z > ActorExtra[i].floorz + 2048) break;
                     */
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
                     break;
 
                 case EXPLOSION2__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1),
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1),
                                    (512 * s->yrepeat) / (ActorExtra[i].temp_data[2]+1), 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
                 case FORCERIPPLE__STATIC:
 //                    case TRANSPORTERSTAR__STATIC:
                 case TRANSPORTERBEAM__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
                     break;
                 case SHRINKEREXPLOSION__STATIC:
-                    G_AddGameLight(0, s->sectnum, s->x, s->y, s->z-((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
                 }
                 if (!actorscrptr[sprite[i].picnum])
@@ -7535,81 +7589,108 @@ static void G_MoveEffectors(void)   //STATNUM 3
 #ifdef POLYMER
         case 49:
         {
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = SECT;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = SX;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = SY;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = SZ;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = SHT;
-            if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
+            if (ActorExtra[i].lightptr == NULL)
             {
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = sprite[i].xvel;
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = sprite[i].yvel;
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = sprite[i].zvel;
-            }
-            else
-            {
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = hictinting[PL].r;
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = hictinting[PL].g;
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = hictinting[PL].b;
-            }
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 0;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = SA;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = SH;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].minshade = sprite[i].xoffset;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].maxshade = sprite[i].yoffset;
+                _prlight mylight;
 
-            if (CS & 2)
-            {
-                if (CS & 512)
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_LOW;
+                mylight.sector = SECT;
+                mylight.x = SX;
+                mylight.y = SY;
+                mylight.z = SZ;
+                mylight.range = SHT;
+                if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
+                {
+                    mylight.color[0] = sprite[i].xvel;
+                    mylight.color[1] = sprite[i].yvel;
+                    mylight.color[2] = sprite[i].zvel;
+                }
                 else
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_HIGH;
-            }
-            else
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX;
+                {
+                    mylight.color[0] = hictinting[PL].r;
+                    mylight.color[1] = hictinting[PL].g;
+                    mylight.color[2] = hictinting[PL].b;
+                }
+                mylight.radius = 0;
+                mylight.angle = SA;
+                mylight.horiz = SH;
+                mylight.minshade = sprite[i].xoffset;
+                mylight.maxshade = sprite[i].yoffset;
 
-            if (gamelightcount < PR_MAXLIGHTS)
-                gamelightcount++;
+                if (CS & 2)
+                {
+                    if (CS & 512)
+                        mylight.priority = PR_LIGHT_PRIO_LOW;
+                    else
+                        mylight.priority = PR_LIGHT_PRIO_HIGH;
+                }
+                else
+                    mylight.priority = PR_LIGHT_PRIO_MAX;
+
+                ActorExtra[i].lightId = polymer_addlight(&mylight);
+                ActorExtra[i].lightptr = &prlights[ActorExtra[i].lightId];
+                break;
+            }
+
+            if (Bmemcmp(&sprite[i], ActorExtra[i].lightptr, sizeof(int32_t) * 3))
+            {
+                Bmemcpy(ActorExtra[i].lightptr, &sprite[i], sizeof(int32_t) * 3);
+                ActorExtra[i].lightptr->sector = sprite[i].sectnum;
+                ActorExtra[i].lightptr->flags.invalidate = 1;
+            }
             break;
         }
         case 50:
         {
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = SECT;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = SX;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = SY;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = SZ;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = SHT;
-            if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
+            if (ActorExtra[i].lightptr == NULL)
             {
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = sprite[i].xvel;
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = sprite[i].yvel;
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = sprite[i].zvel;
-            }
-            else
-            {
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = hictinting[PL].r;
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = hictinting[PL].g;
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = hictinting[PL].b;
-            }
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = (256-(SS+128))<<1;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius * 0.75;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = SA;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = SH;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].minshade = sprite[i].xoffset;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].maxshade = sprite[i].yoffset;
+                _prlight mylight;
 
-            if (CS & 2)
-            {
-                if (CS & 512)
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_LOW;
+                mylight.sector = SECT;
+                mylight.x = SX;
+                mylight.y = SY;
+                mylight.z = SZ;
+                mylight.range = SHT;
+                if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
+                {
+                    mylight.color[0] = sprite[i].xvel;
+                    mylight.color[1] = sprite[i].yvel;
+                    mylight.color[2] = sprite[i].zvel;
+                }
                 else
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_HIGH;
-            }
-            else
-                gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX;
+                {
+                    mylight.color[0] = hictinting[PL].r;
+                    mylight.color[1] = hictinting[PL].g;
+                    mylight.color[2] = hictinting[PL].b;
+                }
+                mylight.radius = (256-(SS+128))<<1;
+                mylight.faderadius = (int16_t)(mylight.radius * 0.75);
+                mylight.angle = SA;
+                mylight.horiz = SH;
+                mylight.minshade = sprite[i].xoffset;
+                mylight.maxshade = sprite[i].yoffset;
 
-            if (gamelightcount < PR_MAXLIGHTS)
-                gamelightcount++;
+                if (CS & 2)
+                {
+                    if (CS & 512)
+                        mylight.priority = PR_LIGHT_PRIO_LOW;
+                    else
+                        mylight.priority = PR_LIGHT_PRIO_HIGH;
+                }
+                else
+                    mylight.priority = PR_LIGHT_PRIO_MAX;
+
+                ActorExtra[i].lightId = polymer_addlight(&mylight);
+                ActorExtra[i].lightptr = &prlights[ActorExtra[i].lightId];
+                break;
+            }
+
+            if (Bmemcmp(&sprite[i], ActorExtra[i].lightptr, sizeof(int32_t) * 3))
+            {
+                Bmemcpy(ActorExtra[i].lightptr, &sprite[i], sizeof(int32_t) * 3);
+                ActorExtra[i].lightptr->sector = sprite[i].sectnum;
+                ActorExtra[i].lightptr->flags.invalidate = 1;
+            }
+
             break;
         }
 #endif // POLYMER

@@ -276,38 +276,7 @@ static inline int32_t G_GetTeamPalette(int32_t team)
     return 0;
 }
 
-static inline void G_AddGameLight(int32_t radius, int32_t sector, int32_t x, int32_t y, int32_t z, int32_t range, int32_t color, int32_t priority)
-{
-#ifdef POLYMER
-    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = radius;
-    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = sector;
-
-    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = x;
-    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = y;
-    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = z;
-
-    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = range;
-    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range -= rand()%((gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range>>3)+1);
-
-    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = color&255;
-    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = (color>>8)&255;
-    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = (color>>16)&255;
-
-    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = priority;
-
-    if (gamelightcount < PR_MAXLIGHTS)
-        gamelightcount++;
-#else
-    UNREFERENCED_PARAMETER(radius);
-    UNREFERENCED_PARAMETER(sector);
-    UNREFERENCED_PARAMETER(x);
-    UNREFERENCED_PARAMETER(y);
-    UNREFERENCED_PARAMETER(z);
-    UNREFERENCED_PARAMETER(range);
-    UNREFERENCED_PARAMETER(color);
-    UNREFERENCED_PARAMETER(priority);
-#endif
-}
+extern inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority);
 
 extern void se40code(int32_t x,int32_t y,int32_t z,int32_t a,int32_t h, int32_t smoothratio);
 
