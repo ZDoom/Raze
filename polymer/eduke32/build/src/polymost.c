@@ -5980,6 +5980,7 @@ void polymost_initosdfuncs(void)
         { "r_pr_shadows", "r_pr_shadows: enable/disable dynamic shadows", (void*)&pr_shadows, CVAR_BOOL, 0, 0, 1 },
         { "r_pr_shadowcount", "r_pr_shadowcount: maximal amount of shadow emitting lights on screen - you need to restart the renderer for it to take effect", (void*)&pr_shadowcount, CVAR_INT, 0, 0, 64 },
         { "r_pr_shadowdetail", "r_pr_shadowdetail: sets the shadow map resolution - you need to restart the renderer for it to take effect", (void*)&pr_shadowdetail, CVAR_INT, 0, 0, 5 },
+        { "r_pr_shadowfiltering", "r_pr_shadowfiltering: enable/disable shadow edges filtering - you need to restart the renderer for it to take effect", (void*)&pr_shadowfiltering, CVAR_BOOL, 0, 0, 1 },
         { "r_pr_maxlightpasses", "r_pr_maxlightpasses: the maximal amount of lights a single object can by affected by", (void*)&pr_maxlightpasses, CVAR_INT, 0, 0, 512 },
         { "r_pr_maxlightpriority", "r_pr_maxlightpriority: lowering that value removes less meaningful lights from the scene", (void*)&pr_maxlightpriority, CVAR_INT, 0, 0, PR_MAXLIGHTPRIORITY },
         { "r_pr_fov", "r_pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_INT, 0, 0, 1023},
@@ -5994,6 +5995,7 @@ void polymost_initosdfuncs(void)
         { "r_pr_overridespecular", "r_pr_overridespecular: overrides specular material power and factor values with values from the pr_specularpower and pr_specularfactor cvars; use it to fine-tune DEF tokens", (void*)&pr_overridespecular, CVAR_BOOL | CVAR_NOSAVE, 0, 0, 1 },
         { "r_pr_specularpower", "r_pr_specularpower: overriden specular material power", (void*)&pr_specularpower, CVAR_FLOAT | CVAR_NOSAVE, 0, -10, 1000 },
         { "r_pr_specularfactor", "r_pr_specularfactor: overriden specular material factor", (void*)&pr_specularfactor, CVAR_FLOAT | CVAR_NOSAVE, 0, -10, 1000 },
+        { "r_pr_atiworkaround", "r_pr_atiworkaround: enable this to workaround an ATI driver bug that causes sprite shadows to be square - you need to restart the renderer for it to take effect", (void*)&pr_atiworkaround, CVAR_BOOL, 0, 0, 1 },
 #endif
 
         { "r_models","r_models: enable/disable model rendering in >8-bit mode",(void *)&usemodels, CVAR_BOOL, 0, 0, 1 },

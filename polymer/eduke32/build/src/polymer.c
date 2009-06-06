@@ -12,6 +12,7 @@ int32_t         pr_specularmapping = 1;
 int32_t         pr_shadows = 1;
 int32_t         pr_shadowcount = 5;
 int32_t         pr_shadowdetail = 4;
+int32_t         pr_shadowfiltering = 1;
 int32_t         pr_maxlightpasses = 5;
 int32_t         pr_maxlightpriority = PR_MAXLIGHTPRIORITY;
 int32_t         pr_fov = 426;           // appears to be the classic setting.
@@ -26,6 +27,7 @@ float           pr_parallaxbias = 0.0f;
 int32_t         pr_overridespecular = 0;
 float           pr_specularpower = 15.0f;
 float           pr_specularfactor = 1.0f;
+int32_t         pr_atiworkaround = 0;
 
 GLenum          mapvbousage = GL_STREAM_DRAW_ARB;
 GLenum          modelvbousage = GL_STATIC_DRAW_ARB;
@@ -4640,22 +4642,24 @@ static void         polymer_initrendertargets(int32_t count)
             prrts[i].ydim = 128 << pr_shadowdetail;
             prrts[i].color = 0;
 
-            bglGenTextures(1, &prrts[i].color);
-            bglBindTexture(prrts[i].target, prrts[i].color);
+            if (pr_atiworkaround) {
+                bglGenTextures(1, &prrts[i].color);
+                bglBindTexture(prrts[i].target, prrts[i].color);
 
-            bglTexImage2D(prrts[i].target, 0, GL_RGBA, prrts[i].xdim, prrts[i].ydim, 0, GL_RGBA, GL_SHORT, NULL);
-            bglTexParameteri(prrts[i].target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            bglTexParameteri(prrts[i].target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_S, GL_CLAMP);
-            bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                bglTexImage2D(prrts[i].target, 0, GL_RGBA, prrts[i].xdim, prrts[i].ydim, 0, GL_RGBA, GL_SHORT, NULL);
+                bglTexParameteri(prrts[i].target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                bglTexParameteri(prrts[i].target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_S, GL_CLAMP);
+                bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_T, GL_CLAMP);
+            }
         }
 
         bglGenTextures(1, &prrts[i].z);
         bglBindTexture(prrts[i].target, prrts[i].z);
 
         bglTexImage2D(prrts[i].target, 0, GL_DEPTH_COMPONENT, prrts[i].xdim, prrts[i].ydim, 0, GL_DEPTH_COMPONENT, GL_SHORT, NULL);
-        bglTexParameteri(prrts[i].target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        bglTexParameteri(prrts[i].target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        bglTexParameteri(prrts[i].target, GL_TEXTURE_MIN_FILTER, pr_shadowfiltering ? GL_LINEAR : GL_NEAREST);
+        bglTexParameteri(prrts[i].target, GL_TEXTURE_MAG_FILTER, pr_shadowfiltering ? GL_LINEAR : GL_NEAREST);
         bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_S, GL_CLAMP);
         bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_T, GL_CLAMP);
         bglTexParameteri(prrts[i].target, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);

@@ -36,6 +36,7 @@ extern int32_t      pr_specularmapping;
 extern int32_t      pr_shadows;
 extern int32_t      pr_shadowcount;
 extern int32_t      pr_shadowdetail;
+extern int32_t      pr_shadowfiltering;
 extern int32_t      pr_maxlightpasses;
 extern int32_t      pr_maxlightpriority;
 extern int32_t      pr_fov;
@@ -50,6 +51,7 @@ extern float        pr_parallaxbias;
 extern int32_t      pr_overridespecular;
 extern float        pr_specularpower;
 extern float        pr_specularfactor;
+extern int32_t      pr_atiworkaround;
 
 // MATERIAL
 typedef enum {

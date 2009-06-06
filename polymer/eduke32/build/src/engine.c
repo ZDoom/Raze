@@ -7569,7 +7569,8 @@ int32_t loadmaphack(char *filename)
             scriptfile_getnumber(script, &value);
             light.tilenum = value;
 
-            polymer_addlight(&light);
+            if (rendmode == 4)
+                polymer_addlight(&light);
 
             break;
         }
