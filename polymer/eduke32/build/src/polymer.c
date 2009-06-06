@@ -917,6 +917,7 @@ void                polymer_drawsprite(int32_t snum)
     float           xratio, yratio, ang;
     float           spos[3];
     GLfloat         *inbuffer;
+    uint8_t         curpriority;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
 
@@ -1068,20 +1069,32 @@ void                polymer_drawsprite(int32_t snum)
 
     spriteplane.lightcount = 0;
 
-    i = j = 0;
-    while (j < lightcount)
-    {
-        while (prlights[i].flags.active == 0) {
-            i++;
-        }
+    curpriority = 0;
 
-        if (polymer_planeinlight(&spriteplane, &prlights[i]))
+    while (curpriority < pr_maxlightpriority)
+    {
+        i = j = 0;
+        while (j < lightcount)
         {
-            spriteplane.lights[spriteplane.lightcount] = i;
-            spriteplane.lightcount++;
+            while (prlights[i].flags.active == 0) {
+                i++;
+            }
+
+            if (prlights[i].priority != curpriority) {
+                i++;
+                j++;
+                continue;
+            }
+
+            if (polymer_planeinlight(&spriteplane, &prlights[i]))
+            {
+                spriteplane.lights[spriteplane.lightcount] = i;
+                spriteplane.lightcount++;
+            }
+            i++;
+            j++;
         }
-        i++;
-        j++;
+        curpriority++;
     }
 
     if ((tspr->cstat & 64) && ((tspr->cstat>>4) & 3))
@@ -1117,6 +1130,9 @@ int16_t             polymer_addlight(_prlight* light)
         return (-1);
 
     if (lightcount >= PR_MAXLIGHTS)
+        return (-1);
+
+    if (light->priority > pr_maxlightpriority)
         return (-1);
 
     lighti = 0;
@@ -2317,6 +2333,9 @@ static void         polymer_updatewall(int16_t wallnum)
     }
     else
     {
+        if (w->invalidid != invalid)
+            polymer_invalidatesectorlights(sectorofwall(wallnum));
+
         w->invalidid = invalid;
         w->cstat = wal->cstat;
         w->picnum = wallpicnum;
@@ -2335,8 +2354,6 @@ static void         polymer_updatewall(int16_t wallnum)
             w->nwallcstat = wall[nwallnum].cstat;
         }
     }
-
-    polymer_invalidatesectorlights(sectorofwall(wallnum));
 
     w->underover = underwall = overwall = 0;
 
@@ -3113,6 +3130,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     float           sradius, lradius;
     int16_t         modellights[PR_MAXLIGHTS];
     char            modellightcount;
+    uint8_t         curpriority;
 
     m = (md3model_t*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
     updateanimation((md2model_t *)m,tspr);
@@ -3259,6 +3277,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     mdspritematerial.mdspritespace = GL_TRUE;
 
     modellightcount = 0;
+    curpriority = 0;
 
     // light culling
     if (lightcount)
@@ -3279,38 +3298,47 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         polymer_transformpoint(spos, tspos, spritemodelview);
         polymer_transformpoint(tspos, spos, rootmodelviewmatrix);
 
-        i = j = 0;
-        while (j < lightcount)
+        while (curpriority < pr_maxlightpriority)
         {
-            while (prlights[i].flags.active == 0) {
-                i++;
-            }
-
-            lradius = prlights[i].range / 1000.0f;
-
-            lpos[0] = prlights[i].y;
-            lpos[1] = -prlights[i].z / 16.0f;
-            lpos[2] = -prlights[i].x;
-
-            polymer_transformpoint(lpos, tlpos, rootmodelviewmatrix);
-
-            vec[0] = tlpos[0] - spos[0];
-            vec[0] *= vec[0];
-            vec[1] = tlpos[1] - spos[1];
-            vec[1] *= vec[1];
-            vec[2] = tlpos[2] - spos[2];
-            vec[2] *= vec[2];
-
-            if ((vec[0] + vec[1] + vec[2]) <=
-                ((sradius+lradius) * (sradius+lradius)))
+            i = j = 0;
+            while (j < lightcount)
             {
-                modellights[modellightcount] = i;
-                modellightcount++;
-            }
-            i++;
-            j++;
-        }
+                while (prlights[i].flags.active == 0) {
+                    i++;
+                }
 
+                if (prlights[i].priority != curpriority) {
+                    i++;
+                    j++;
+                    continue;
+                }
+
+                lradius = prlights[i].range / 1000.0f;
+
+                lpos[0] = prlights[i].y;
+                lpos[1] = -prlights[i].z / 16.0f;
+                lpos[2] = -prlights[i].x;
+
+                polymer_transformpoint(lpos, tlpos, rootmodelviewmatrix);
+
+                vec[0] = tlpos[0] - spos[0];
+                vec[0] *= vec[0];
+                vec[1] = tlpos[1] - spos[1];
+                vec[1] *= vec[1];
+                vec[2] = tlpos[2] - spos[2];
+                vec[2] *= vec[2];
+
+                if ((vec[0] + vec[1] + vec[2]) <=
+                     ((sradius+lradius) * (sradius+lradius)))
+                {
+                    modellights[modellightcount] = i;
+                    modellightcount++;
+                }
+                i++;
+                j++;
+            }
+            curpriority++;
+        }
     }
 
     for (surfi=0;surfi<m->head.numsurfs;surfi++)
@@ -4236,9 +4264,15 @@ static void         polymer_addplanelight(_prplane* plane, int16_t lighti)
 {
     int16_t         i;
 
+    if (plane->lightcount == PR_MAXLIGHTS)
+        return;
+
     i = 0;
     while (i < PR_MAXLIGHTS)
     {
+        if ((plane->lights[i] != -1) && (prlights[plane->lights[i]].priority > prlights[lighti].priority))
+            break;
+
         if (plane->lights[i] == -1)
         {
             plane->lights[i] = lighti;
@@ -4247,6 +4281,11 @@ static void         polymer_addplanelight(_prplane* plane, int16_t lighti)
         }
         i++;
     }
+
+    memcpy(&plane->lights[i+1], &plane->lights[i], sizeof(int16_t) * (PR_MAXLIGHTS - (i+1)));
+
+    plane->lights[i] = lighti;
+    plane->lightcount++;
 }
 
 static void         polymer_deleteplanelight(_prplane* plane, int16_t lighti)
