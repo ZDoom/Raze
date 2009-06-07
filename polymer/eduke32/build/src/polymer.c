@@ -4324,7 +4324,7 @@ static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti)
     int16_t         i;
 
     i = 0;
-    do
+    while (i < plane->lightcount)
     {
         if (plane->lights[i] == lighti)
         {
@@ -4336,7 +4336,6 @@ static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti)
         }
         i++;
     }
-    while (i < PR_MAXLIGHTS);
 }
 
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
@@ -4383,7 +4382,7 @@ static void         polymer_invalidateplanelights(_prplane* plane)
     int32_t         i;
 
     i = 0;
-    while (i < PR_MAXLIGHTS)
+    while (i < plane->lightcount)
     {
         if (plane && (plane->lights[i] != -1) && (prlights[plane->lights[i]].flags.active))
             prlights[plane->lights[i]].flags.invalidate = 1;
