@@ -588,6 +588,9 @@ static void ms(int32_t i)
 inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority)
 {
 #ifdef POLYMER
+    if (rendmode != 4)
+        return;
+
     spritetype *s = &sprite[srcsprite];
     if (ActorExtra[srcsprite].lightptr == NULL)
     {
