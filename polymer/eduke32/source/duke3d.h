@@ -546,11 +546,13 @@ typedef struct {
     char cgg;
     char filler;
     projectile_t projectile;
-#ifdef POLYMER
     int16_t lightId;
     int16_t lightcount; // how many tics until light is killed
-    int16_t maxrange;
+    int16_t lightmaxrange;
+#ifdef POLYMER
     _prlight *lightptr;
+#else
+    void *lightptr;
 #endif
 } ActorData_t;
 

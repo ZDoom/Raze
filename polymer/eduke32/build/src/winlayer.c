@@ -3367,8 +3367,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         glinfo.extensions = (char *)bglGetString(GL_EXTENSIONS);
 
         // GL driver blacklist
-        if (!forcegl)
-        {
+        
             if (!Bstrcmp(glinfo.vendor,"Microsoft Corporation")) err = 1;
             else if (!Bstrcmp(glinfo.vendor,"SiS")) err = 1;
             else if (!Bstrcmp(glinfo.vendor,"3Dfx Interactive Inc.")) err = 1;
@@ -3382,8 +3381,15 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                     err = 0;
                 else err = 1;
             }
-
-            if (err)
+#ifdef POLYMER
+            else
+            {
+                if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
+                    pr_atiworkaround = 1;
+                else pr_atiworkaround = 0;
+            }
+#endif
+            if (!forcegl && err)
             {
                 OSD_Printf("Unsupported OpenGL driver detected. GL modes will be unavailable. Use -forcegl to override.\n");
                 wm_msgbox("Unsupported OpenGL driver", "Unsupported OpenGL driver detected.  GL modes will be unavailable.");
@@ -3394,7 +3400,6 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 getvalidmodes();
                 return TRUE;
             }
-        }
 
         glinfo.maxanisotropy = 1.0;
         glinfo.bgra = 0;

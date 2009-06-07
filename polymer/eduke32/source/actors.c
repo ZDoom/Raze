@@ -601,7 +601,7 @@ inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, i
         mylight.color[1] = (color>>8)&255;
         mylight.color[2] = (color>>16)&255;
         mylight.radius = radius;
-        ActorExtra[srcsprite].maxrange = mylight.range = range;
+        ActorExtra[srcsprite].lightmaxrange = mylight.range = range;
 
         mylight.priority = priority;
 
@@ -612,11 +612,11 @@ inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, i
     }
 
     s->z -= zoffset;
-    if (range > ActorExtra[srcsprite].maxrange ||
+    if (range > ActorExtra[srcsprite].lightmaxrange ||
         Bmemcmp(&sprite[srcsprite], ActorExtra[srcsprite].lightptr, sizeof(int32_t) * 3))
     {
-        if (range > ActorExtra[srcsprite].maxrange)
-            ActorExtra[srcsprite].maxrange = range;
+        if (range > ActorExtra[srcsprite].lightmaxrange)
+            ActorExtra[srcsprite].lightmaxrange = range;
 
         Bmemcpy(ActorExtra[srcsprite].lightptr, &sprite[srcsprite], sizeof(int32_t) * 3);
         ActorExtra[srcsprite].lightptr->sector = s->sectnum;

@@ -4438,7 +4438,7 @@ static inline void  polymer_culllight(int16_t lighti)
     drawingstate[light->sector] = 1;
 
     prlights[lighti].planecnt = 0;
-    Bmemset(prlights[lighti].myplanes, 0, sizeof(intptr_t) * (PR_MAXLIGHTS<<1));
+//    Bmemset(prlights[lighti].myplanes, 0, sizeof(intptr_t) * (PR_MAXLIGHTS<<1));
 
     sectorqueue[0] = light->sector;
 
@@ -4452,16 +4452,16 @@ static inline void  polymer_culllight(int16_t lighti)
         j = 0;
 
         if (polymer_planeinlight(&s->floor, light)) {
-            // this lets us skip the polymer_planeinlight check for the ceiling when we know it will pass
-            // I doubt this saves us much but it might be faster on complex sectors than the loop
-            if (!light->radius &&
-                ((light->z - getceilzofslope(light->sector, light->x, light->y)) >> 4) < light->range)
-                j++;
+            // this lets us skip the polymer_planeinlight check for the ceiling when we know the result already
+            // I doubt this saves us much but it might be faster on complex sectors than the planeinlight loop
+            if (!light->radius && ((light->z - getceilzofslope(light->sector, light->x, light->y)) >> 4) < light->range)
+                j = 1;
+            else j = 2;
 
             polymer_addplanelight(&s->floor, lighti);
         }
 
-        if (j /*|| polymer_planeinlight(&s->ceil, light)*/) {
+        if (j == 1 || (j == 0 && polymer_planeinlight(&s->ceil, light))) {
             polymer_addplanelight(&s->ceil, lighti);
         }
 
