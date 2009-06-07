@@ -1117,6 +1117,9 @@ int16_t             polymer_addlight(_prlight* light)
 {
     int16_t         lighti;
 
+    if (!pr_lighting)
+        return (-1);
+
     if ((light->sector == -1) || (light->sector >= numsectors))
         return (-1);
 
