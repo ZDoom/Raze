@@ -4489,6 +4489,7 @@ static inline void  polymer_culllight(int16_t lighti)
     int32_t         back;
     int32_t         i;
     int32_t         j;
+    int32_t         zdiff;
     _prsector       *s;
     _prwall         *w;
     sectortype      *sec;
@@ -4508,13 +4509,27 @@ static inline void  polymer_culllight(int16_t lighti)
 
         polymer_pokesector(sectorqueue[front]);
 
-        if (polymer_planeinlight(&s->floor, light)) {
-            polymer_addplanelight(&s->floor, lighti);
-        }
+        zdiff = light->z - s->floorz;
+        if (zdiff < 0)
+            zdiff = -zdiff;
+        zdiff >>= 4;
 
-        if (polymer_planeinlight(&s->ceil, light)) {
+        if (!light->radius && !sec->floorheinum) {
+            if (zdiff < light->range)
+                polymer_addplanelight(&s->floor, lighti);
+        } else if (polymer_planeinlight(&s->floor, light))
+            polymer_addplanelight(&s->floor, lighti);
+
+        zdiff = light->z - s->ceilingz;
+        if (zdiff < 0)
+            zdiff = -zdiff;
+        zdiff >>= 4;
+
+        if (!light->radius && !sec->ceilingheinum) {
+            if (zdiff < light->range)
+                polymer_addplanelight(&s->ceil, lighti);
+        } else if (polymer_planeinlight(&s->ceil, light))
             polymer_addplanelight(&s->ceil, lighti);
-        }
 
         i = 0;
         while (i < sec->wallnum)
