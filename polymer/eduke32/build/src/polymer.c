@@ -134,7 +134,6 @@ GLfloat         artskydata[16];
 _prlight        prlights[PR_MAXLIGHTS];
 int32_t         lightcount;
 int32_t         curlight;
-int32_t         curlightcount;
 
 _prlight        gamelights[PR_MAXLIGHTS];
 int32_t         gamelightcount;
@@ -1143,6 +1142,9 @@ int16_t             polymer_addlight(_prlight* light)
     prlights[lighti].flags.isinview = 0;
     prlights[lighti].flags.active = 1;
 
+    prlights[lighti].planecount = 0;
+    prlights[lighti].planelist = NULL;
+
     polymer_culllight(lighti);
 
     lightcount++;
@@ -1227,14 +1229,12 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         {
             // this is a couple of fps faster for me... does it mess anything up?
             if (wallvisible(globalposx, globalposy, sec->wallptr + i))
-            {
                 polymer_drawwall(sectorqueue[front], sec->wallptr + i);
 
-                // if we have a level boundary somewhere in the sector,
-                // consider these walls as visportals
-                if (wall[sec->wallptr + i].nextsector == -1)
-                    doquery = 1;
-            }
+            // if we have a level boundary somewhere in the sector,
+            // consider these walls as visportals
+            if (wall[sec->wallptr + i].nextsector == -1)
+                doquery = 1;
 
             i++;
         }
@@ -1552,14 +1552,8 @@ static void         polymer_drawplane(_prplane* plane)
         bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &plane->buffer[3]);
     }
 
-    curlight = curlightcount = 0;
-    while ((curlight == 0) || ((curlightcount < plane->lightcount) && (curlightcount < pr_maxlightpasses)))
-    {
-/*
-        while (plane->lightcount && plane->lights[curlight] == -1) {
-            curlight++;
-        }
-*/
+    curlight = 0;
+    do {
         materialbits = polymer_bindmaterial(plane->material, plane->lights, plane->lightcount);
 
         if (materialbits & prprogrambits[PR_BIT_NORMAL_MAP].bit)
@@ -1584,8 +1578,7 @@ static void         polymer_drawplane(_prplane* plane)
             prlights[plane->lights[curlight]].flags.isinview = 1;
 
         curlight++;
-        curlightcount++;
-    }
+    } while ((curlight < plane->lightcount) && (curlight < pr_maxlightpasses));
 
     if (plane->vbo && (pr_vbos > 0))
     {
@@ -3421,20 +3414,14 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[surfi]);
 
-            curlight = curlightcount = 0;
-            while ((curlight == 0) || ((curlightcount < modellightcount) && (curlightcount < pr_maxlightpasses)))
-            {
-                while (modellights[curlight] == -1) {
-                    curlight++;
-                }
-
+            curlight = 0;
+            do {
                 materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
                 bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
                 polymer_unbindmaterial(materialbits);
 
                 curlight++;
-                curlightcount++;
-            }
+            } while ((curlight < modellightcount) && (curlight < pr_maxlightpasses));
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
@@ -3451,20 +3438,14 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                 mdspritematerial.nextframedatastride = sizeof(float) * 6;
             }
 
-            curlight = curlightcount = 0;
-            while ((curlight == 0) || ((curlightcount < modellightcount) && (curlightcount < pr_maxlightpasses)))
-            {
-                while (modellights[curlight] == -1) {
-                    curlight++;
-                }
-
+            curlight = 0;
+            do {
                 materialbits = polymer_bindmaterial(mdspritematerial, modellights, modellightcount);
                 bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
                 polymer_unbindmaterial(materialbits);
 
                 curlight++;
-                curlightcount++;
-            }
+            } while ((curlight < modellightcount) && (curlight < pr_maxlightpasses));
         }
 
         bglDisableClientState(GL_NORMAL_ARRAY);
@@ -3668,7 +3649,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         programbits |= prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit;
 
     // PR_BIT_LIGHTING_PASS
-    if (curlightcount && matlightcount)
+    if (curlight && matlightcount)
         programbits |= prprogrambits[PR_BIT_LIGHTING_PASS].bit;
 
     // PR_BIT_NORMAL_MAP
@@ -3680,7 +3661,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP].bit;
 
     // PR_BIT_DIFFUSE_DETAIL_MAP
-    if (!curlightcount && r_detailmapping && material.detailmap)
+    if (!curlight && r_detailmapping && material.detailmap)
         programbits |= prprogrambits[PR_BIT_DIFFUSE_DETAIL_MAP].bit;
 
     // PR_BIT_DIFFUSE_MODULATION
@@ -3695,14 +3676,14 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         programbits |= prprogrambits[PR_BIT_SPECULAR_MATERIAL].bit;
 
     // PR_BIT_MIRROR_MAP
-    if (!curlightcount && material.mirrormap)
+    if (!curlight && material.mirrormap)
         programbits |= prprogrambits[PR_BIT_MIRROR_MAP].bit;
 
     // PR_BIT_FOG
     programbits |= prprogrambits[PR_BIT_FOG].bit;
 
     // PR_BIT_GLOW_MAP
-    if (!curlightcount && r_glowmapping && material.glowmap)
+    if (!curlight && r_glowmapping && material.glowmap)
         programbits |= prprogrambits[PR_BIT_GLOW_MAP].bit;
 
     // PR_BIT_POINT_LIGHT
@@ -4155,14 +4136,16 @@ static void         polymer_compileprogram(int32_t programbits)
 
 static void         polymer_removelight(int16_t lighti)
 {
-    int32_t         i;
+    _prplanelist*   oldhead;
 
-    i = prlights[lighti].planecnt-1;
-    while (i >= 0)
+    while (prlights[lighti].planelist)
     {
-        polymer_deleteplanelight(prlights[lighti].myplanes[i], lighti);
-        i--;
+        polymer_deleteplanelight(prlights[lighti].planelist->plane, lighti);
+        oldhead = prlights[lighti].planelist;
+        prlights[lighti].planelist = prlights[lighti].planelist->n;
+        Bfree(oldhead);
     }
+    prlights[lighti].planecount = 0;
 }
 
 static void         polymer_updatelights(void)
@@ -4244,23 +4227,32 @@ static void         polymer_resetplanelights(_prplane* plane)
 static void         polymer_addplanelight(_prplane* plane, int16_t lighti)
 {
     int16_t         i;
+    _prplanelist*   oldhead;
 
-    if (plane->lightcount == PR_MAXLIGHTS-1 || prlights[lighti].planecnt == (PR_MAXLIGHTS<<1)-1)
+    if (plane->lightcount == PR_MAXLIGHTS - 1)
         return;
 
     i = 0;
     do
     {
         if ((plane->lights[i] != -1) && (prlights[plane->lights[i]].priority < prlights[lighti].priority))
-            { i++; continue; }
+        {
+            i++;
+            continue;
+        }
 
         if (plane->lights[i] != -1)
-            memmove(&plane->lights[i+1], &plane->lights[i], sizeof(int16_t) * (PR_MAXLIGHTS - (i+1)));
+            memmove(&plane->lights[i+1], &plane->lights[i], sizeof(int16_t) * (PR_MAXLIGHTS - (i + 1)));
 
         plane->lights[i] = lighti;
         plane->lightcount++;
-        prlights[lighti].myplanes[prlights[lighti].planecnt] = plane;
-        prlights[lighti].planecnt++;
+
+        oldhead = prlights[lighti].planelist;
+        prlights[lighti].planelist = Bcalloc(sizeof(_prplanelist), 1);
+        prlights[lighti].planelist->n = oldhead;
+
+        prlights[lighti].planelist->plane = plane;
+        prlights[lighti].planecount++;
         return;
     }
     while (i < PR_MAXLIGHTS);
@@ -4275,9 +4267,9 @@ static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti)
     {
         if (plane->lights[i] == lighti)
         {
-            memmove(&plane->lights[i], &plane->lights[i+1], sizeof(int16_t) * (PR_MAXLIGHTS - (i)));
+            memmove(&plane->lights[i], &plane->lights[i+1], sizeof(int16_t) * (PR_MAXLIGHTS - (i + 1)));
             plane->lights[PR_MAXLIGHTS-1] = -1;
-            
+
             plane->lightcount--;
             return;
         }
@@ -4447,9 +4439,6 @@ static inline void  polymer_culllight(int16_t lighti)
     Bmemset(drawingstate, 0, sizeof(int16_t) * numsectors);
     drawingstate[light->sector] = 1;
 
-    prlights[lighti].planecnt = 0;
-//    Bmemset(prlights[lighti].myplanes, 0, sizeof(intptr_t) * (PR_MAXLIGHTS<<1));
-
     sectorqueue[0] = light->sector;
 
     while (front != back)
@@ -4459,19 +4448,11 @@ static inline void  polymer_culllight(int16_t lighti)
 
         polymer_pokesector(sectorqueue[front]);
 
-        j = 0;
-
         if (polymer_planeinlight(&s->floor, light)) {
-            // this lets us skip the polymer_planeinlight check for the ceiling when we know the result already
-            // I doubt this saves us much but it might be faster on complex sectors than the planeinlight loop
-            if (!light->radius && ((light->z - getceilzofslope(light->sector, light->x, light->y)) >> 4) < light->range)
-                j = 1;
-            else j = 2;
-
             polymer_addplanelight(&s->floor, lighti);
         }
 
-        if (j == 1 || (j == 0 && polymer_planeinlight(&s->ceil, light))) {
+        if (polymer_planeinlight(&s->ceil, light)) {
             polymer_addplanelight(&s->ceil, lighti);
         }
 
