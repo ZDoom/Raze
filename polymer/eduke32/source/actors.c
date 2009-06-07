@@ -601,7 +601,7 @@ inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, i
         mylight.color[1] = (color>>8)&255;
         mylight.color[2] = (color>>16)&255;
         mylight.radius = radius;
-        mylight.range = range;
+        ActorExtra[srcsprite].maxrange = mylight.range = range;
 
         mylight.priority = priority;
 
@@ -612,8 +612,12 @@ inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, i
     }
 
     s->z -= zoffset;
-    if (Bmemcmp(&sprite[srcsprite], ActorExtra[srcsprite].lightptr, sizeof(int32_t) * 3))
+    if (range > ActorExtra[srcsprite].maxrange ||
+        Bmemcmp(&sprite[srcsprite], ActorExtra[srcsprite].lightptr, sizeof(int32_t) * 3))
     {
+        if (range > ActorExtra[srcsprite].maxrange)
+            ActorExtra[srcsprite].maxrange = range;
+
         Bmemcpy(ActorExtra[srcsprite].lightptr, &sprite[srcsprite], sizeof(int32_t) * 3);
         ActorExtra[srcsprite].lightptr->sector = s->sectnum;
         ActorExtra[srcsprite].lightptr->flags.invalidate = 1;
@@ -665,7 +669,7 @@ static void G_MoveZombieActors(void)
                 case FLOORFLAME__STATIC:
                 case FIREBARREL__STATIC:
                 case FIREVASE__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
                 case ATOMICHEALTH__STATIC:
                     G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
@@ -677,7 +681,7 @@ static void G_MoveZombieActors(void)
                                         if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
                                         if (s->z > ActorExtra[i].floorz+2048) break;
                     */
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
                 case BURNING__STATIC:
                 case BURNING2__STATIC:
@@ -685,7 +689,7 @@ static void G_MoveZombieActors(void)
                                         if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
                                         if (s->z > ActorExtra[i].floorz + 2048) break;
                     */
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
 
                 case EXPLOSION2__STATIC:
@@ -2250,7 +2254,7 @@ CLEAR_THE_BOLT:
         case FLOORFLAME__STATIC:
         case FIREBARREL__STATIC:
         case FIREVASE__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
         case EXPLODINGBARREL__STATIC:
         case WOODENHORSE__STATIC:
         case HORSEONSIDE__STATIC:
@@ -3470,7 +3474,7 @@ static void G_MoveActors(void)
                         if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
                         if (s->z > ActorExtra[i].floorz+2048) break;
             */
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
             break;
 
         case DUCK__STATIC:
@@ -5225,7 +5229,7 @@ static void G_MoveMisc(void)  // STATNUM 5
                                         if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
                                         if (s->z > ActorExtra[i].floorz + 2048) break;
                     */
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
 
                 case EXPLOSION2__STATIC:

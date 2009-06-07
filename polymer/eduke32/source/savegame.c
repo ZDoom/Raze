@@ -587,8 +587,22 @@ int32_t G_LoadPlayer(int32_t spot)
     G_ResetTimers();
 
 #ifdef POLYMER
-    if (getrendermode() >= 4)
+    if (getrendermode() == 4)
+    {
+        int32_t i = 0;
+
         polymer_loadboard();
+        while (i < MAXSPRITES)
+        {
+            if (ActorExtra[i].lightptr)
+            {
+                polymer_deletelight(ActorExtra[i].lightId);
+                ActorExtra[i].lightptr = NULL;
+                ActorExtra[i].lightId = -1;
+            }
+            i++;
+        }
+    }
 #endif
 
     return(0);

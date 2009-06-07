@@ -4147,8 +4147,6 @@ static void         polymer_removelight(int16_t lighti)
 {
     int32_t         i;
 
-    // XXX: might need to store a list of affected planes in the light record
-    // if this loop ends up consuming too much cycles
     i = prlights[lighti].planecnt-1;
     while (i >= 0)
     {
@@ -4241,23 +4239,21 @@ static void         polymer_addplanelight(_prplane* plane, int16_t lighti)
         return;
 
     i = 0;
-    while (i < PR_MAXLIGHTS)
+    do
     {
-        if ((plane->lights[i] != -1) && (prlights[plane->lights[i]].priority >= prlights[lighti].priority))
-            break;
+        if ((plane->lights[i] != -1) && (prlights[plane->lights[i]].priority < prlights[lighti].priority))
+            { i++; continue; }
 
-        if (plane->lights[i] == -1)
-        {
+        if (plane->lights[i] != -1)
             memmove(&plane->lights[i+1], &plane->lights[i], sizeof(int16_t) * (PR_MAXLIGHTS - (i+1)));
 
-            plane->lights[i] = lighti;
-            plane->lightcount++;
-            prlights[lighti].myplanes[prlights[lighti].planecnt] = plane;
-            prlights[lighti].planecnt++;
-            return;
-        }
-        i++;
+        plane->lights[i] = lighti;
+        plane->lightcount++;
+        prlights[lighti].myplanes[prlights[lighti].planecnt] = plane;
+        prlights[lighti].planecnt++;
+        return;
     }
+    while (i < PR_MAXLIGHTS);
 }
 
 static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti)
@@ -4265,7 +4261,7 @@ static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti)
     int16_t         i;
 
     i = 0;
-    while (i < PR_MAXLIGHTS)
+    do
     {
         if (plane->lights[i] == lighti)
         {
@@ -4277,6 +4273,7 @@ static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti)
         }
         i++;
     }
+    while (i < PR_MAXLIGHTS);
 }
 
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
@@ -4296,22 +4293,24 @@ static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
 
     i = 0;
 
-    while (i < 3)
+    do
     {
         j = k = l = 0;
 
-        while (j < plane->vertcount)
+        do
         {
             if (plane->buffer[(j * 5) + i] > (lightpos[i] + light->range)) k++;
             if (plane->buffer[(j * 5) + i] < (lightpos[i] - light->range)) l++;
             j++;
         }
+        while (j < plane->vertcount);
 
         if ((k == plane->vertcount) || (l == plane->vertcount))
             return 0;
 
         i++;
     }
+    while (i < 3);
 
     return 1;
 }
@@ -4420,12 +4419,14 @@ static void         polymer_processspotlight(_prlight* light)
     }
 }
 
+
 static inline void  polymer_culllight(int16_t lighti)
 {
     _prlight*       light;
     int32_t         front;
     int32_t         back;
     int32_t         i;
+    int32_t         j;
     _prsector       *s;
     _prwall         *w;
     sectortype      *sec;
@@ -4448,10 +4449,19 @@ static inline void  polymer_culllight(int16_t lighti)
 
         polymer_pokesector(sectorqueue[front]);
 
+        j = 0;
+
         if (polymer_planeinlight(&s->floor, light)) {
+            // this lets us skip the polymer_planeinlight check for the ceiling when we know it will pass
+            // I doubt this saves us much but it might be faster on complex sectors than the loop
+            if (!light->radius &&
+                ((light->z - getceilzofslope(light->sector, light->x, light->y)) >> 4) < light->range)
+                j++;
+
             polymer_addplanelight(&s->floor, lighti);
         }
-        if (polymer_planeinlight(&s->ceil, light)) {
+
+        if (j /*|| polymer_planeinlight(&s->ceil, light)*/) {
             polymer_addplanelight(&s->ceil, lighti);
         }
 
@@ -4460,14 +4470,21 @@ static inline void  polymer_culllight(int16_t lighti)
         {
             w = prwalls[sec->wallptr + i];
 
+            j = 0;
+
             if (polymer_planeinlight(&w->wall, light)) {
                 polymer_addplanelight(&w->wall, lighti);
+                j++;
             }
+
             if (polymer_planeinlight(&w->over, light)) {
                 polymer_addplanelight(&w->over, lighti);
+                j++;
             }
+
+            // assume the light hits the middle section if it hits the top and bottom
             if (wallvisible(light->x, light->y, sec->wallptr + i) &&
-                polymer_planeinlight(&w->mask, light)) {
+                (j == 2 || polymer_planeinlight(&w->mask, light))) {
                 if ((w->mask.vertcount == 4) &&
                     (w->mask.buffer[(0 * 5) + 1] >= w->mask.buffer[(3 * 5) + 1]) &&
                     (w->mask.buffer[(1 * 5) + 1] >= w->mask.buffer[(2 * 5) + 1]))

@@ -10380,15 +10380,18 @@ int32_t sectorofwall(int16_t theline)
 //
 int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
-    int32_t dx, dy, i, j;
-    walltype *wal;
-
     if (!(sector[sectnum].ceilingstat&2)) return(sector[sectnum].ceilingz);
-    wal = &wall[sector[sectnum].wallptr];
-    dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
-    i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return(sector[sectnum].ceilingz);
-    j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
-    return(sector[sectnum].ceilingz+(scale(sector[sectnum].ceilingheinum,j>>1,i)<<1));
+
+    {
+        int32_t dx, dy, i, j;
+        walltype *wal;
+
+        wal = &wall[sector[sectnum].wallptr];
+        dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
+        i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return(sector[sectnum].ceilingz);
+        j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
+        return(sector[sectnum].ceilingz+(scale(sector[sectnum].ceilingheinum,j>>1,i)<<1));
+    }
 }
 
 
@@ -10397,15 +10400,18 @@ int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 //
 int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
-    int32_t dx, dy, i, j;
-    walltype *wal;
-
     if (!(sector[sectnum].floorstat&2)) return(sector[sectnum].floorz);
-    wal = &wall[sector[sectnum].wallptr];
-    dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
-    i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return(sector[sectnum].floorz);
-    j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
-    return(sector[sectnum].floorz+(scale(sector[sectnum].floorheinum,j>>1,i)<<1));
+
+    {
+        int32_t dx, dy, i, j;
+        walltype *wal;
+
+        wal = &wall[sector[sectnum].wallptr];
+        dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
+        i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return(sector[sectnum].floorz);
+        j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
+        return(sector[sectnum].floorz+(scale(sector[sectnum].floorheinum,j>>1,i)<<1));
+    }
 }
 
 
