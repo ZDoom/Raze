@@ -4421,7 +4421,6 @@ static void         polymer_processspotlight(_prlight* light)
     }
 }
 
-
 static inline void  polymer_culllight(int16_t lighti)
 {
     _prlight*       light;
