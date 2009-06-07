@@ -1062,7 +1062,7 @@ void                polymer_drawsprite(int32_t snum)
 
     curpriority = 0;
 
-    while (curpriority < pr_maxlightpriority)
+    while ((curpriority < pr_maxlightpriority) && (!depth || mirrors[depth-1].plane))
     {
         i = j = 0;
         while (j < lightcount)
@@ -1578,7 +1578,7 @@ static void         polymer_drawplane(_prplane* plane)
             prlights[plane->lights[curlight]].flags.isinview = 1;
 
         curlight++;
-    } while ((curlight < plane->lightcount) && (curlight < pr_maxlightpasses));
+    } while ((curlight < plane->lightcount) && (curlight < pr_maxlightpasses) && (!depth || mirrors[depth-1].plane));
 
     if (plane->vbo && (pr_vbos > 0))
     {
@@ -3275,7 +3275,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     curpriority = 0;
 
     // light culling
-    if (lightcount)
+    if (lightcount && (!depth || mirrors[depth-1].plane))
     {
         sradius = (m->head.frames[m->cframe].r * (1 - m->interpol)) +
                   (m->head.frames[m->nframe].r * m->interpol);
