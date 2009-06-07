@@ -1223,17 +1223,22 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         doquery = 0;
 
         i = 0;
-        while (i < sec->wallnum)
+        do
         {
-            polymer_drawwall(sectorqueue[front], sec->wallptr + i);
+            // this is a couple of fps faster for me... does it mess anything up?
+            if (wallvisible(globalposx, globalposy, sec->wallptr + i))
+            {
+                polymer_drawwall(sectorqueue[front], sec->wallptr + i);
 
-            // if we have a level boundary somewhere in the sector,
-            // consider these walls as visportals
-            if (wall[sec->wallptr + i].nextsector == -1)
-                doquery = 1;
+                // if we have a level boundary somewhere in the sector,
+                // consider these walls as visportals
+                if (wall[sec->wallptr + i].nextsector == -1)
+                    doquery = 1;
+            }
 
             i++;
         }
+        while (i < sec->wallnum);
 
         i = 0;
         while (i < sec->wallnum)
@@ -1327,7 +1332,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         }
 
         i = 0;
-        while (i < sec->wallnum)
+        do
         {
             if ((queryid[sec->wallptr + i]) &&
                 (!drawingstate[wall[sec->wallptr + i].nextsector]))
@@ -1354,6 +1359,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
             i++;
         }
+        while (i < sec->wallnum);
 
         front++;
     }
@@ -1549,10 +1555,11 @@ static void         polymer_drawplane(_prplane* plane)
     curlight = curlightcount = 0;
     while ((curlight == 0) || ((curlightcount < plane->lightcount) && (curlightcount < pr_maxlightpasses)))
     {
+/*
         while (plane->lightcount && plane->lights[curlight] == -1) {
             curlight++;
         }
-
+*/
         materialbits = polymer_bindmaterial(plane->material, plane->lights, plane->lightcount);
 
         if (materialbits & prprogrambits[PR_BIT_NORMAL_MAP].bit)
@@ -2261,18 +2268,20 @@ static void         polymer_updatewall(int16_t wallnum)
     float           ypancoef, dist;
     int32_t         i;
     uint32_t        invalid;
+    int32_t         sectofwall = sectorofwall(wallnum);
 
     // yes, this function is messy and unefficient
     // it also works, bitches
     wal = &wall[wallnum];
     nwallnum = wal->nextwall;
-    if (sectorofwall(wallnum) == -1)
+
+    if (sectofwall == -1)
         return; // yay, corrupt map
-    sec = &sector[sectorofwall(wallnum)];
+    sec = &sector[sectofwall];
     if (sec->wallptr > wallnum)
         return; // the map is horribly corrupt
     w = prwalls[wallnum];
-    s = prsectors[sectorofwall(wallnum)];
+    s = prsectors[sectofwall];
     invalid = s->invalidid;
     if (nwallnum != -1)
     {
@@ -2326,7 +2335,7 @@ static void         polymer_updatewall(int16_t wallnum)
     else
     {
         if (w->invalidid != invalid)
-            polymer_invalidatesectorlights(sectorofwall(wallnum));
+            polymer_invalidatesectorlights(sectofwall);
 
         w->invalidid = invalid;
         w->cstat = wal->cstat;
@@ -2897,7 +2906,7 @@ static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projecti
     bglMatrixMode(GL_MODELVIEW);
 
     i = 0;
-    while (i < 4)
+    do
     {
         frustum[i] = matrix[(4 * i) + 3] + matrix[4 * i];               // left
         frustum[i + 4] = matrix[(4 * i) + 3] - matrix[4 * i];           // right
@@ -2906,6 +2915,7 @@ static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projecti
         frustum[i + 16] = matrix[(4 * i) + 3] - matrix[(4 * i) + 2];    // far
         i++;
     }
+    while (i < 4);
     i = 0;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Frustum extracted.\n");

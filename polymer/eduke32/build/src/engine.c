@@ -5987,8 +5987,7 @@ int32_t                 wallvisible(int32_t x, int32_t y, int16_t wallnum)
 
     if (((a2 + (2048 - a1)) & 2047) <= 1024)
         return (1);
-    else
-        return (0);
+    return (0);
 }
 /*
 // returns the intersection point between two lines
