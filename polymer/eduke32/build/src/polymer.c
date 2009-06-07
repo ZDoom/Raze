@@ -559,6 +559,8 @@ _prmirror       mirrors[10];
 GLUtesselator*  prtess;
 
 int16_t         cursky;
+char            curskypal;
+int8_t          curskyshade;
 
 _pranimatespritesinfo asi;
 
@@ -1211,7 +1213,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
     bglDisable(GL_DEPTH_TEST);
     bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    polymer_drawsky(cursky);
+    polymer_drawsky(cursky, curskypal, curskyshade);
     bglEnable(GL_DEPTH_TEST);
 
     // depth-only occlusion testing pass
@@ -2973,13 +2975,15 @@ static void         polymer_getsky(void)
         if (sector[i].ceilingstat & 1)
         {
             cursky = sector[i].ceilingpicnum;
+            curskypal = sector[i].ceilingpal;
+            curskyshade = sector[i].ceilingshade;
             return;
         }
         i++;
     }
 }
 
-static void         polymer_drawsky(int16_t tilenum)
+static void         polymer_drawsky(int16_t tilenum, char palnum, int8_t shade)
 {
     float           pos[3];
     pthtyp*         pth;
@@ -3000,9 +3004,9 @@ static void         polymer_drawsky(int16_t tilenum)
     drawingskybox = 0;
 
     if (pth && (pth->flags & 4))
-        polymer_drawskybox(tilenum);
+        polymer_drawskybox(tilenum, palnum, shade);
     else
-        polymer_drawartsky(tilenum);
+        polymer_drawartsky(tilenum, palnum, shade);
 
     bglPopMatrix();
 }
@@ -3021,20 +3025,47 @@ static void         polymer_initartsky(void)
     artskydata[14] = -halfsqrt2;    artskydata[15] = -halfsqrt2;    // 7
 }
 
-static void         polymer_drawartsky(int16_t tilenum)
+static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shade)
 {
     pthtyp*         pth;
     GLuint          glpics[5];
+    GLfloat         glcolors[5][3];
     int32_t         i, j;
     GLfloat         height = 2.45f / 2.0f;
+    int16_t         picnum;
 
     i = 0;
     while (i < 5)
     {
-        if (!waloff[tilenum + i])
-            loadtile(tilenum + i);
-        pth = gltexcache(tilenum + i, 0, 0);
+        picnum = tilenum + i;
+        if (picanm[picnum]&192) picnum += animateoffs(picnum,0);
+        if (!waloff[picnum])
+            loadtile(picnum);
+        pth = gltexcache(picnum, palnum, 0);
         glpics[i] = pth ? pth->glpic : 0;
+
+        glcolors[i][0] = glcolors[i][1] = glcolors[i][2] =
+                ((float)(numpalookups-min(max(shade*shadescale,0),numpalookups)))/((float)numpalookups);
+
+        if (pth && (pth->flags & 2))
+        {
+            if (pth->palnum != palnum)
+            {
+                glcolors[i][0] *= (float)hictinting[palnum].r / 255.0;
+                glcolors[i][1] *= (float)hictinting[palnum].g / 255.0;
+                glcolors[i][2] *= (float)hictinting[palnum].b / 255.0;
+            }
+
+            if (hictinting[MAXPALOOKUPS-1].r != 255 ||
+                hictinting[MAXPALOOKUPS-1].g != 255 ||
+                hictinting[MAXPALOOKUPS-1].b != 255)
+            {
+                glcolors[i][0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
+                glcolors[i][1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
+                glcolors[i][2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
+            }
+        }
+
         i++;
     }
 
@@ -3042,6 +3073,7 @@ static void         polymer_drawartsky(int16_t tilenum)
     j = (1<<pskybits);
     while (i < j)
     {
+        bglColor4f(glcolors[pskyoff[i]][0], glcolors[pskyoff[i]][1], glcolors[pskyoff[i]][2], 1.0f);
         bglBindTexture(GL_TEXTURE_2D, glpics[pskyoff[i]]);
         polymer_drawartskyquad(i, (i + 1) & (j - 1), height);
         i++;
@@ -3066,10 +3098,11 @@ static void         polymer_drawartskyquad(int32_t p1, int32_t p2, GLfloat heigh
     bglEnd();
 }
 
-static void         polymer_drawskybox(int16_t tilenum)
+static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shade)
 {
     pthtyp*         pth;
     int32_t         i;
+    GLfloat         color[3];
 
     if ((pr_vbos > 0) && (skyboxdatavbo == 0))
     {
@@ -3084,12 +3117,37 @@ static void         polymer_drawskybox(int16_t tilenum)
     if (pr_vbos > 0)
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, skyboxdatavbo);
 
+    if (picanm[tilenum]&192) tilenum += animateoffs(tilenum,0);
+
     i = 0;
     while (i < 6)
     {
         drawingskybox = i + 1;
-        pth = gltexcache(tilenum, 0, 4);
+        pth = gltexcache(tilenum, palnum, 4);
 
+        color[0] = color[1] = color[2] =
+                ((float)(numpalookups-min(max(shade*shadescale,0),numpalookups)))/((float)numpalookups);
+
+        if (pth && (pth->flags & 2))
+        {
+            if (pth->palnum != palnum)
+            {
+                color[0] *= (float)hictinting[palnum].r / 255.0;
+                color[1] *= (float)hictinting[palnum].g / 255.0;
+                color[2] *= (float)hictinting[palnum].b / 255.0;
+            }
+
+            if (hictinting[MAXPALOOKUPS-1].r != 255 ||
+                hictinting[MAXPALOOKUPS-1].g != 255 ||
+                hictinting[MAXPALOOKUPS-1].b != 255)
+            {
+                color[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
+                color[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
+                color[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
+            }
+        }
+
+        bglColor4f(color[0], color[1], color[2], 1.0);
         bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
         if (pr_vbos > 0)
         {

@@ -320,11 +320,11 @@ static int32_t      polymer_planeinfrustum(_prplane *plane, float* frustum);
 static inline void  polymer_scansprites(int16_t sectnum, spritetype* tsprite, int32_t* spritesortcnt);
 // SKIES
 static void         polymer_getsky(void);
-static void         polymer_drawsky(int16_t tilenum);
+static void         polymer_drawsky(int16_t tilenum, char palnum, int8_t shade);
 static void         polymer_initartsky(void);
-static void         polymer_drawartsky(int16_t tilenum);
+static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shade);
 static void         polymer_drawartskyquad(int32_t p1, int32_t p2, GLfloat height);
-static void         polymer_drawskybox(int16_t tilenum);
+static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shade);
 // MDSPRITES
 static void         polymer_drawmdsprite(spritetype *tspr);
 static void         polymer_loadmodelvbos(md3model_t* m);
