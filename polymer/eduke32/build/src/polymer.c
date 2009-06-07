@@ -3303,13 +3303,6 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             color[0] *= (float)hictinting[tspr->pal].r / 255.0;
             color[1] *= (float)hictinting[tspr->pal].g / 255.0;
             color[2] *= (float)hictinting[tspr->pal].b / 255.0;
-
-            if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
-            {
-                color[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
-                color[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
-                color[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
-            }
         }
         else globalnoeffect=1; //mdloadskin reads this
     }
@@ -3654,13 +3647,6 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
             material->diffusemodulation[1] *= (float)hictinting[pal].g / 255.0;
             material->diffusemodulation[2] *= (float)hictinting[pal].b / 255.0;
         }
-
-        if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
-        {
-            material->diffusemodulation[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
-            material->diffusemodulation[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
-            material->diffusemodulation[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
-        }
     }
 
 
@@ -3868,10 +3854,26 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     // PR_BIT_DIFFUSE_MODULATION
     if (programbits & prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit)
     {
-        bglColor4f(material.diffusemodulation[0],
-                   material.diffusemodulation[1],
-                   material.diffusemodulation[2],
-                   material.diffusemodulation[3]);
+        // build-specific hack for fullscreen tint on global palette change
+        if (hictinting[MAXPALOOKUPS-1].r != 255 ||
+            hictinting[MAXPALOOKUPS-1].g != 255 ||
+            hictinting[MAXPALOOKUPS-1].b != 255)
+        {
+            GLfloat color[3];
+
+            color[0] = material.diffusemodulation[0] * (hictinting[MAXPALOOKUPS-1].r / 255.0);
+            color[1] = material.diffusemodulation[1] * (hictinting[MAXPALOOKUPS-1].g / 255.0);
+            color[2] = material.diffusemodulation[2] * (hictinting[MAXPALOOKUPS-1].b / 255.0);
+
+            bglColor4f(color[0],
+                       color[1],
+                       color[2],
+                       material.diffusemodulation[3]);
+        } else
+            bglColor4f(material.diffusemodulation[0],
+                       material.diffusemodulation[1],
+                       material.diffusemodulation[2],
+                       material.diffusemodulation[3]);
     }
 
     // PR_BIT_SPECULAR_MAP
