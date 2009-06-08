@@ -338,7 +338,7 @@ static void         polymer_compileprogram(int32_t programbits);
 static void         polymer_removelight(int16_t lighti);
 static void         polymer_updatelights(void);
 static void         polymer_resetlights(void);
-static void         polymer_resetplanelights(_prplane* plane);
+static inline void  polymer_resetplanelights(_prplane* plane);
 static void         polymer_addplanelight(_prplane* plane, int16_t lighti);
 static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti);
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light);

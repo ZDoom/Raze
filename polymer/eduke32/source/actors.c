@@ -588,10 +588,11 @@ static void ms(int32_t i)
 inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority)
 {
 #ifdef POLYMER
-    if (rendmode != 4)
+    spritetype *s = &sprite[srcsprite];
+
+    if (getrendermode() != 4)
         return;
 
-    spritetype *s = &sprite[srcsprite];
     if (ActorExtra[srcsprite].lightptr == NULL)
     {
         _prlight mylight;
@@ -7602,108 +7603,114 @@ static void G_MoveEffectors(void)   //STATNUM 3
 #ifdef POLYMER
         case 49:
         {
-            if (ActorExtra[i].lightptr == NULL)
+            if (getrendermode() == 4)
             {
-                _prlight mylight;
+                if (ActorExtra[i].lightptr == NULL)
+                {
+                    _prlight mylight;
 
-                mylight.sector = SECT;
-                mylight.x = SX;
-                mylight.y = SY;
-                mylight.z = SZ;
-                mylight.range = SHT;
-                if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
-                {
-                    mylight.color[0] = sprite[i].xvel;
-                    mylight.color[1] = sprite[i].yvel;
-                    mylight.color[2] = sprite[i].zvel;
-                }
-                else
-                {
-                    mylight.color[0] = hictinting[PL].r;
-                    mylight.color[1] = hictinting[PL].g;
-                    mylight.color[2] = hictinting[PL].b;
-                }
-                mylight.radius = 0;
-                mylight.angle = SA;
-                mylight.horiz = SH;
-                mylight.minshade = sprite[i].xoffset;
-                mylight.maxshade = sprite[i].yoffset;
-
-                if (CS & 2)
-                {
-                    if (CS & 512)
-                        mylight.priority = PR_LIGHT_PRIO_LOW;
+                    mylight.sector = SECT;
+                    mylight.x = SX;
+                    mylight.y = SY;
+                    mylight.z = SZ;
+                    mylight.range = SHT;
+                    if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
+                    {
+                        mylight.color[0] = sprite[i].xvel;
+                        mylight.color[1] = sprite[i].yvel;
+                        mylight.color[2] = sprite[i].zvel;
+                    }
                     else
-                        mylight.priority = PR_LIGHT_PRIO_HIGH;
+                    {
+                        mylight.color[0] = hictinting[PL].r;
+                        mylight.color[1] = hictinting[PL].g;
+                        mylight.color[2] = hictinting[PL].b;
+                    }
+                    mylight.radius = 0;
+                    mylight.angle = SA;
+                    mylight.horiz = SH;
+                    mylight.minshade = sprite[i].xoffset;
+                    mylight.maxshade = sprite[i].yoffset;
+
+                    if (CS & 2)
+                    {
+                        if (CS & 512)
+                            mylight.priority = PR_LIGHT_PRIO_LOW;
+                        else
+                            mylight.priority = PR_LIGHT_PRIO_HIGH;
+                    }
+                    else
+                        mylight.priority = PR_LIGHT_PRIO_MAX;
+
+                    ActorExtra[i].lightId = polymer_addlight(&mylight);
+                    if (ActorExtra[i].lightId >= 0)
+                        ActorExtra[i].lightptr = &prlights[ActorExtra[i].lightId];
+                    break;
                 }
-                else
-                    mylight.priority = PR_LIGHT_PRIO_MAX;
 
-                ActorExtra[i].lightId = polymer_addlight(&mylight);
-                if (ActorExtra[i].lightId >= 0)
-                    ActorExtra[i].lightptr = &prlights[ActorExtra[i].lightId];
-                break;
-            }
-
-            if (Bmemcmp(&sprite[i], ActorExtra[i].lightptr, sizeof(int32_t) * 3))
-            {
-                Bmemcpy(ActorExtra[i].lightptr, &sprite[i], sizeof(int32_t) * 3);
-                ActorExtra[i].lightptr->sector = sprite[i].sectnum;
-                ActorExtra[i].lightptr->flags.invalidate = 1;
+                if (Bmemcmp(&sprite[i], ActorExtra[i].lightptr, sizeof(int32_t) * 3))
+                {
+                    Bmemcpy(ActorExtra[i].lightptr, &sprite[i], sizeof(int32_t) * 3);
+                    ActorExtra[i].lightptr->sector = sprite[i].sectnum;
+                    ActorExtra[i].lightptr->flags.invalidate = 1;
+                }
             }
             break;
         }
         case 50:
         {
-            if (ActorExtra[i].lightptr == NULL)
+            if (getrendermode() == 4)
             {
-                _prlight mylight;
+                if (ActorExtra[i].lightptr == NULL)
+                {
+                    _prlight mylight;
 
-                mylight.sector = SECT;
-                mylight.x = SX;
-                mylight.y = SY;
-                mylight.z = SZ;
-                mylight.range = SHT;
-                if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
-                {
-                    mylight.color[0] = sprite[i].xvel;
-                    mylight.color[1] = sprite[i].yvel;
-                    mylight.color[2] = sprite[i].zvel;
-                }
-                else
-                {
-                    mylight.color[0] = hictinting[PL].r;
-                    mylight.color[1] = hictinting[PL].g;
-                    mylight.color[2] = hictinting[PL].b;
-                }
-                mylight.radius = (256-(SS+128))<<1;
-                mylight.faderadius = (int16_t)(mylight.radius * 0.75);
-                mylight.angle = SA;
-                mylight.horiz = SH;
-                mylight.minshade = sprite[i].xoffset;
-                mylight.maxshade = sprite[i].yoffset;
-
-                if (CS & 2)
-                {
-                    if (CS & 512)
-                        mylight.priority = PR_LIGHT_PRIO_LOW;
+                    mylight.sector = SECT;
+                    mylight.x = SX;
+                    mylight.y = SY;
+                    mylight.z = SZ;
+                    mylight.range = SHT;
+                    if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
+                    {
+                        mylight.color[0] = sprite[i].xvel;
+                        mylight.color[1] = sprite[i].yvel;
+                        mylight.color[2] = sprite[i].zvel;
+                    }
                     else
-                        mylight.priority = PR_LIGHT_PRIO_HIGH;
+                    {
+                        mylight.color[0] = hictinting[PL].r;
+                        mylight.color[1] = hictinting[PL].g;
+                        mylight.color[2] = hictinting[PL].b;
+                    }
+                    mylight.radius = (256-(SS+128))<<1;
+                    mylight.faderadius = (int16_t)(mylight.radius * 0.75);
+                    mylight.angle = SA;
+                    mylight.horiz = SH;
+                    mylight.minshade = sprite[i].xoffset;
+                    mylight.maxshade = sprite[i].yoffset;
+
+                    if (CS & 2)
+                    {
+                        if (CS & 512)
+                            mylight.priority = PR_LIGHT_PRIO_LOW;
+                        else
+                            mylight.priority = PR_LIGHT_PRIO_HIGH;
+                    }
+                    else
+                        mylight.priority = PR_LIGHT_PRIO_MAX;
+
+                    ActorExtra[i].lightId = polymer_addlight(&mylight);
+                    if (ActorExtra[i].lightId >= 0)
+                        ActorExtra[i].lightptr = &prlights[ActorExtra[i].lightId];
+                    break;
                 }
-                else
-                    mylight.priority = PR_LIGHT_PRIO_MAX;
 
-                ActorExtra[i].lightId = polymer_addlight(&mylight);
-                if (ActorExtra[i].lightId >= 0)
-                    ActorExtra[i].lightptr = &prlights[ActorExtra[i].lightId];
-                break;
-            }
-
-            if (Bmemcmp(&sprite[i], ActorExtra[i].lightptr, sizeof(int32_t) * 3))
-            {
-                Bmemcpy(ActorExtra[i].lightptr, &sprite[i], sizeof(int32_t) * 3);
-                ActorExtra[i].lightptr->sector = sprite[i].sectnum;
-                ActorExtra[i].lightptr->flags.invalidate = 1;
+                if (Bmemcmp(&sprite[i], ActorExtra[i].lightptr, sizeof(int32_t) * 3))
+                {
+                    Bmemcpy(ActorExtra[i].lightptr, &sprite[i], sizeof(int32_t) * 3);
+                    ActorExtra[i].lightptr->sector = sprite[i].sectnum;
+                    ActorExtra[i].lightptr->flags.invalidate = 1;
+                }
             }
 
             break;

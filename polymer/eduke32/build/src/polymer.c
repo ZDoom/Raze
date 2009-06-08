@@ -4275,17 +4275,9 @@ static void         polymer_resetlights(void)
     lightcount = 0;
 }
 
-static void         polymer_resetplanelights(_prplane* plane)
+static inline void  polymer_resetplanelights(_prplane* plane)
 {
-    int32_t         i;
-
-    i = 0;
-    while (i < PR_MAXLIGHTS)
-    {
-        plane->lights[i] = -1;
-        i++;
-    }
-
+    Bmemset(&plane->lights[0], -1, sizeof(plane->lights[0]) * PR_MAXLIGHTS);
     plane->lightcount = 0;
 }
 
@@ -4327,8 +4319,8 @@ static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti)
 {
     int16_t         i;
 
-    i = 0;
-    while (i < plane->lightcount)
+    i = plane->lightcount-1;
+    while (i >= 0)
     {
         if (plane->lights[i] == lighti)
         {
@@ -4338,7 +4330,7 @@ static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti)
             plane->lightcount--;
             return;
         }
-        i++;
+        i--;
     }
 }
 
@@ -4517,7 +4509,7 @@ static inline void  polymer_culllight(int16_t lighti)
             zdiff = -zdiff;
         zdiff >>= 4;
 
-        if (!light->radius && !sec->floorheinum) {
+        if (!light->radius && !(sec->floorstat & 1)) {
             if (zdiff < light->range)
                 polymer_addplanelight(&s->floor, lighti);
         } else if (polymer_planeinlight(&s->floor, light))
@@ -4528,7 +4520,7 @@ static inline void  polymer_culllight(int16_t lighti)
             zdiff = -zdiff;
         zdiff >>= 4;
 
-        if (!light->radius && !sec->ceilingheinum) {
+        if (!light->radius && !(sec->ceilingstat & 1)) {
             if (zdiff < light->range)
                 polymer_addplanelight(&s->ceil, lighti);
         } else if (polymer_planeinlight(&s->ceil, light))
