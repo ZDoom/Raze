@@ -53,6 +53,8 @@ extern float        pr_specularpower;
 extern float        pr_specularfactor;
 extern int32_t      pr_atiworkaround;
 
+extern int32_t      r_pr_maxlightpasses;
+
 // MATERIAL
 typedef enum {
                     PR_BIT_HEADER,              // must be first
@@ -214,7 +216,7 @@ typedef struct      s_prplane {
     GLuint          ivbo;
     // lights
     int16_t         lights[PR_MAXLIGHTS];
-    int16_t         lightcount;
+    uint16_t        lightcount;
 }                   _prplane;
 
 typedef struct      s_prsector {
@@ -288,6 +290,7 @@ void                polymer_drawsprite(int32_t snum);
 void                polymer_setanimatesprites(animatespritesptr animatesprites, int32_t x, int32_t y, int32_t a, int32_t smoothratio);
 int16_t             polymer_addlight(_prlight* light);
 void                polymer_deletelight(int16_t lighti);
+void                polymer_invalidatelights(void);
 
 # ifdef POLYMER_C
 

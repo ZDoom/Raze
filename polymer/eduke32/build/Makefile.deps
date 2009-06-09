@@ -33,6 +33,7 @@ $(OBJ)/winlayer.$o: $(SRC)/winlayer.c $(INC)/compat.h $(INC)/winlayer.h $(INC)/b
 $(OBJ)/gtkbits.$o: $(SRC)/gtkbits.c $(INC)/baselayer.h $(INC)/build.h $(INC)/dynamicgtk.h
 $(OBJ)/dynamicgtk.$o: $(SRC)/dynamicgtk.c $(INC)/dynamicgtk.h
 $(OBJ)/polymer.$o: $(SRC)/polymer.c $(INC)/polymer.h $(INC)/compat.h $(INC)/build.h $(INC)/glbuild.h $(INC)/osd.h $(INC)/pragmas.h $(INC)/mdsprite.h $(INC)/polymost.h
+$(OBJ)/nedmalloc.$o: $(SRC)/nedmalloc.c $(INC)/nedmalloc.h $(INC)/malloc.c.h
 
 $(OBJ)/buildres.$(res): $(SRC)/misc/buildres.rc $(INC)/startwin.editor.h
 $(OBJ)/startwin.editor.$o: $(SRC)/startwin.editor.c $(INC)/build.h $(INC)/editor.h $(INC)/winlayer.h $(INC)/compat.h $(INC)/startwin.editor.h

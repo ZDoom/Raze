@@ -133,7 +133,8 @@ ENGINEOBJS+= \
 	$(OBJ)/md4.$o \
 	$(OBJ)/osd.$o \
 	$(OBJ)/pragmas.$o \
-	$(OBJ)/scriptfile.$o
+	$(OBJ)/scriptfile.$o \
+        $(OBJ)/nedmalloc.$o
 
 ifeq (1,$(USE_OPENGL))
 	ENGINEOBJS+=  $(OBJ)/mdsprite.$o

@@ -79,7 +79,8 @@ ENGINEOBJS= \
 	$(OBJ)\pragmas.$o \
 	$(OBJ)\scriptfile.$o \
 	$(OBJ)\winlayer.$o \
-        $(OBJ)\polymer.$o
+        $(OBJ)\polymer.$o \
+        $(OBJ)\nedmalloc.$o
 
 EDITOROBJS=$(OBJ)\build.$o \
 	$(OBJ)\startwin.editor.$o \

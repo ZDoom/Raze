@@ -25,6 +25,9 @@
 #  include "msvc/inttypes.h" // from http://code.google.com/p/msinttypes/
 #endif
 
+#define REPLACE_SYSTEM_ALLOCATOR
+#include "nedmalloc.h"
+
 #ifndef TRUE
 #define TRUE 1
 #endif
