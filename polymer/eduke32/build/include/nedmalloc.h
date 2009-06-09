@@ -29,6 +29,9 @@ DEALINGS IN THE SOFTWARE.
 #ifndef NEDMALLOC_H
 #define NEDMALLOC_H
 
+#ifndef UNREFERENCED_PARAMETER
+#define UNREFERENCED_PARAMETER(x) x=x
+#endif
 
 /* See malloc.c.h for what each function does.
 
