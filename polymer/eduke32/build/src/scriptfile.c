@@ -318,7 +318,7 @@ scriptfile *scriptfile_fromstring(char *string)
         return NULL;
     }
 
-    memcpy(tx, string, flen);
+    Bmemcpy(tx, string, flen);
     tx[flen] = tx[flen+1] = 0;
 
     scriptfile_preparse(sf,tx,flen);

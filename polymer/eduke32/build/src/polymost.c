@@ -425,7 +425,7 @@ pthtyp * gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
             {
                 if ((pth2->hicr) && (pth2->hicr->filename) && (Bstrcasecmp(pth2->hicr->filename, si->filename) == 0))
                 {
-                    memcpy(pth, pth2, sizeof(pthtyp));
+                    Bmemcpy(pth, pth2, sizeof(pthtyp));
                     pth->picnum = dapicnum;
                     pth->flags = ((dameth&4)>>2) + 2 + ((drawingskybox>0)<<2);
                     if (pth2->flags & 8) pth->flags |= 8; //hasalpha
@@ -1243,7 +1243,7 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth,
     pth->picnum = dapic;
     pth->palnum = dapal;
     pth->effects = 0;
-    pth->flags = ((dameth&4)>>2) | (hasalpha<<3) | (hasfullbright<<4);
+    pth->flags = ((dameth&4)>>2) | (hasalpha<<3);
     pth->hicr = NULL;
 
     if ((hasfullbright) && (!fullbrightloadingpass))
@@ -1252,6 +1252,7 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth,
         fullbrightloadingpass = 1;
         pth->ofb = (pthtyp *)calloc(1,sizeof(pthtyp));
         if (!pth->ofb) return 1;
+        pth->flags |= (hasfullbright<<4);
         if (gloadtile_art(dapic, dapal, dameth, pth->ofb, 1)) return 1;
 
         fullbrightloadingpass = 0;
@@ -1739,10 +1740,10 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             {
                 int32_t *lptr = (int32_t *)pic;
                 for (y=0; y<tsizy; y++,lptr+=xsiz)
-                    memcpy(&lptr[tsizx],lptr,(xsiz-tsizx)<<2);
+                    Bmemcpy(&lptr[tsizx],lptr,(xsiz-tsizx)<<2);
             }
             if (ysiz > tsizy)  //Copy top to bottom
-                memcpy(&pic[xsiz*tsizy],pic,(ysiz-tsizy)*xsiz<<2);
+                Bmemcpy(&pic[xsiz*tsizy],pic,(ysiz-tsizy)*xsiz<<2);
         }
         if (!glinfo.bgra)
         {
@@ -5929,6 +5930,17 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
             gltexturemode(parm);
             return r;
         }
+#ifdef POLYMER
+        else if (!Bstrcasecmp(parm->name, "r_pr_maxlightpasses"))
+        {
+            if (pr_maxlightpasses != r_pr_maxlightpasses)
+            {
+
+            }
+            pr_maxlightpasses = r_pr_maxlightpasses;
+            return r;
+        }
+#endif
     }
 #endif
     return r;
@@ -5981,7 +5993,7 @@ void polymost_initosdfuncs(void)
         { "r_pr_shadowcount", "r_pr_shadowcount: maximal amount of shadow emitting lights on screen - you need to restart the renderer for it to take effect", (void*)&pr_shadowcount, CVAR_INT, 0, 0, 64 },
         { "r_pr_shadowdetail", "r_pr_shadowdetail: sets the shadow map resolution - you need to restart the renderer for it to take effect", (void*)&pr_shadowdetail, CVAR_INT, 0, 0, 5 },
         { "r_pr_shadowfiltering", "r_pr_shadowfiltering: enable/disable shadow edges filtering - you need to restart the renderer for it to take effect", (void*)&pr_shadowfiltering, CVAR_BOOL, 0, 0, 1 },
-        { "r_pr_maxlightpasses", "r_pr_maxlightpasses: the maximal amount of lights a single object can by affected by", (void*)&pr_maxlightpasses, CVAR_INT, 0, 0, 512 },
+        { "r_pr_maxlightpasses", "r_pr_maxlightpasses: the maximal amount of lights a single object can by affected by", (void*)&r_pr_maxlightpasses, CVAR_INT|CVAR_FUNCPTR, 0, 0, PR_MAXLIGHTS },
         { "r_pr_maxlightpriority", "r_pr_maxlightpriority: lowering that value removes less meaningful lights from the scene", (void*)&pr_maxlightpriority, CVAR_INT, 0, 0, PR_MAXLIGHTPRIORITY },
         { "r_pr_fov", "r_pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_INT, 0, 0, 1023},
         { "r_pr_billboardingmode", "r_pr_billboardingmode: face sprite display method. 0: classic mode; 1: polymost mode", (void*)&pr_billboardingmode, CVAR_INT, 0, 0, 1 },

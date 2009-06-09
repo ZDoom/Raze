@@ -1235,7 +1235,7 @@ static BOOL CALLBACK InitDirectInput_enum(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRe
 
     UNREFERENCED_PARAMETER(pvRef);
 
-#define COPYGUID(d,s) memcpy(&d,&s,sizeof(GUID))
+#define COPYGUID(d,s) Bmemcpy(&d,&s,sizeof(GUID))
 
     switch (lpddi->dwDevType&0xff)
     {

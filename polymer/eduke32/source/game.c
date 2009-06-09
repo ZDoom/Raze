@@ -5538,7 +5538,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
 
         case EXPLOSION2__STATIC:
-            G_AddGameLight(0, i, ((sp->yrepeat*tilesizy[sp->picnum])<<1), 8192, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+            G_AddGameLight(0, i, ((sp->yrepeat*tilesizy[sp->picnum])<<1), 8192, 255+(95<<8),sp->yrepeat > 32 ? PR_LIGHT_PRIO_MAX_GAME : PR_LIGHT_PRIO_LOW_GAME);
         case EXPLOSION2BOT__STATIC:
         case BURNING__STATIC:
         case BURNING2__STATIC:
@@ -7080,7 +7080,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
             {
                 if (ud.showweapons && sprite[g_player[p].ps->i].extra > 0 && g_player[p].ps->curr_weapon > 0)
                 {
-                    memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
+                    Bmemcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
                     tsprite[spritesortcnt].statnum = TSPR_TEMP;
 
@@ -7112,7 +7112,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
                 if (g_player[p].sync->extbits & (1<<7) && !ud.pause_on)
                 {
-                    memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
+                    Bmemcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
                     tsprite[spritesortcnt].statnum = TSPR_TEMP;
 
@@ -7384,7 +7384,7 @@ PALONLY:
                         if ((s->z-daz) < (8<<8))
                             if (g_player[screenpeek].ps->posz < daz)
                             {
-                                memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
+                                Bmemcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
                                 tsprite[spritesortcnt].statnum = TSPR_TEMP;
 

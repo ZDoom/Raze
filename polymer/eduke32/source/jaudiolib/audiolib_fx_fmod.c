@@ -720,7 +720,7 @@ convertdata:
         }
         else
         {
-            memcpy(buf,data,br);
+            Bmemcpy(buf,data,br);
             buf += br;
             data += br;
         }

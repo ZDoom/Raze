@@ -1615,7 +1615,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                 ch = *kfileptr++; leng--;
                 if (ch >= 16) { index = ch-12; }
                 else { index = ch; }
-                memcpy((void *)&hufnumatbit[index][1],(void *)kfileptr,16); kfileptr += 16;
+                Bmemcpy((void *)&hufnumatbit[index][1],(void *)kfileptr,16); kfileptr += 16;
                 leng -= 16;
 
                 v = 0; hufcnt[index] = 0;
@@ -1624,7 +1624,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                 {
                     hufmaxatbit[index][i] = v+hufnumatbit[index][i];
                     hufvalatbit[index][i] = hufcnt[index]-v;
-                    memcpy((void *)&huftable[index][hufcnt[index]],(void *)kfileptr,(int32_t)hufnumatbit[index][i]);
+                    Bmemcpy((void *)&huftable[index][hufcnt[index]],(void *)kfileptr,(int32_t)hufnumatbit[index][i]);
                     if (i <= 10)
                         for (c=0; c<hufnumatbit[index][i]; c++)
                             for (j=(1<<(10-i)); j>0; j--)
@@ -2040,7 +2040,7 @@ static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
     for (i=lzcols-1; i>=0; i--) { suffix[i] = (uint8_t)(prefix[i] = i); }
     currstr = lzcols+2; numbits = startnumbits; numbitgoal = (lzcols<<1);
     blocklen = *ptr++;
-    memcpy(filbuffer,ptr,blocklen); ptr += blocklen;
+    Bmemcpy(filbuffer,ptr,blocklen); ptr += blocklen;
     bitcnt = 0;
     while (1)
     {
@@ -2051,7 +2051,7 @@ static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
             *(int16_t *)filbuffer = *(int16_t *)&filbuffer[bitcnt>>3];
             i = blocklen-(bitcnt>>3);
             blocklen = (int32_t)*ptr++;
-            memcpy(&filbuffer[i],ptr,blocklen); ptr += blocklen;
+            Bmemcpy(&filbuffer[i],ptr,blocklen); ptr += blocklen;
             bitcnt &= 7; blocklen += i;
         }
         if (dat == lzcols)
@@ -2489,7 +2489,7 @@ static int32_t kddsrend(const char *buf, int32_t leng,
         for (y=0; y<ysiz; y++,j+=bpl,buf+=xx)
         {
             if ((uint32_t)(y+yoff) >= (uint32_t)ydim) continue;
-            memcpy((void *)j,(void *)buf,xsiz);
+            Bmemcpy((void *)j,(void *)buf,xsiz);
         }
         return(0);
     }
@@ -2995,7 +2995,7 @@ int32_t kzfindfile(char *filnam)
                 if ((wildst[i] == '/') || (wildst[i] == '\\'))
                     wildstpathleng = i+1;
 
-            memcpy(filnam,wildst,wildstpathleng);
+            Bmemcpy(filnam,wildst,wildstpathleng);
 
 #if defined(__DOS__)
             if (_dos_findfirst(wildst,_A_SUBDIR,&findata))
@@ -3036,7 +3036,7 @@ int32_t kzfindfile(char *filnam)
     if (srchstat == -2)
         while (1)
         {
-            memcpy(filnam,wildst,wildstpathleng);
+            Bmemcpy(filnam,wildst,wildstpathleng);
 #if defined(__DOS__)
             if (_dos_findnext(&findata))
                 { if (!kzhashbuf) return(0); srchstat = kzlastfnam; break; }
@@ -3101,7 +3101,7 @@ static void putbuf4zip(const char *buf, int32_t uncomp0, int32_t uncomp1)
     //  &gzbufptr[kzfs.pos] ... &gzbufptr[kzfs.endpos];
     i0 = max(uncomp0,kzfs.pos);
     i1 = min(uncomp1,kzfs.endpos);
-    if (i0 < i1) memcpy(&gzbufptr[i0],&buf[i0-uncomp0],i1-i0);
+    if (i0 < i1) Bmemcpy(&gzbufptr[i0],&buf[i0-uncomp0],i1-i0);
 }
 
 //returns number of bytes copied

@@ -1551,7 +1551,7 @@ static void ReadHelpFile(const char *name)
                 if (tempbuf[charsread-2]==0x0d) tempbuf[charsread-2]=0;
             }
 
-            memcpy(hp->line[j], tempbuf, 80);
+            Bmemcpy(hp->line[j], tempbuf, 80);
 
             for (k=charsread; k<80; k++) hp->line[j][k]=0;
 
@@ -1811,7 +1811,7 @@ static void IntegratedHelp()
                     }
 ENDFOR1:
                     if (pattern[0])
-                        memcpy(oldpattern, pattern, IHELP_PATLEN+1);
+                        Bmemcpy(oldpattern, pattern, IHELP_PATLEN+1);
                 }
             }
             else    // '1'-'0' on the upper row

@@ -433,7 +433,7 @@ int32_t mmulti_getpacket(int32_t *other, char *bufptr)
         /* 2ND half of good double-packet */
         inlastpacket = 0;
         *other = lastpacketfrom;
-        memcpy(bufptr,lastpacket,lastpacketleng);
+        Bmemcpy(bufptr,lastpacket,lastpacketleng);
         return(lastpacketleng);
     }
 
@@ -499,7 +499,7 @@ int32_t mmulti_getpacket(int32_t *other, char *bufptr)
 #endif
                     messleng = ((int32_t)gcom->buffer[3]) + (((int32_t)gcom->buffer[4])<<8);
                     lastpacketleng = gcom->numbytes-7-messleng;
-                    memcpy(bufptr,&gcom->buffer[messleng+5],lastpacketleng);
+                    Bmemcpy(bufptr,&gcom->buffer[messleng+5],lastpacketleng);
                     incnt[*other]++;
                     return(lastpacketleng);
                 }
@@ -520,7 +520,7 @@ int32_t mmulti_getpacket(int32_t *other, char *bufptr)
 
         messleng = gcom->numbytes-5;
 
-        memcpy(bufptr,&gcom->buffer[3],messleng);
+        Bmemcpy(bufptr,&gcom->buffer[3],messleng);
 
         incnt[*other]++;
         return(messleng);
@@ -535,8 +535,8 @@ int32_t mmulti_getpacket(int32_t *other, char *bufptr)
     lastpacketleng = gcom->numbytes-7-messleng;
     inlastpacket = 1; lastpacketfrom = *other;
 
-    memcpy(bufptr,&gcom->buffer[5],messleng);
-    memcpy(lastpacket,&gcom->buffer[messleng+5],lastpacketleng);
+    Bmemcpy(bufptr,&gcom->buffer[5],messleng);
+    Bmemcpy(lastpacket,&gcom->buffer[messleng+5],lastpacketleng);
 
     incnt[*other] += 2;
     return(messleng);

@@ -340,7 +340,7 @@ static void _internal_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, in
     UNREFERENCED_PARAMETER(pal);
 
     if (len>1023) len=1023;
-    memcpy(st,ch,len);
+    Bmemcpy(st,ch,len);
     st[len]=0;
 
     if (white<0)
@@ -751,7 +751,7 @@ static void OSD_HistoryPrev(void)
     if (osdhistorypos >= osdhistorysize-1) return;
 
     osdhistorypos++;
-    memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
+    Bmemcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
     osdeditlen = osdeditcursor = 0;
     while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
     if (osdeditcursor<osdeditwinstart)
@@ -783,7 +783,7 @@ static void OSD_HistoryNext(void)
     }
 
     osdhistorypos--;
-    memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
+    Bmemcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
     osdeditlen = osdeditcursor = 0;
     while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
     if (osdeditcursor<osdeditwinstart)
@@ -1244,12 +1244,12 @@ void OSD_ResizeDisplay(int32_t w, int32_t h)
     memset(newtext, 32, TEXTSIZE);
     for (i=j-1; i>=0; i--)
     {
-        memcpy(newtext+newcols*i, osdtext+osdcols*i, k);
-        memcpy(newfmt+newcols*i, osdfmt+osdcols*i, k);
+        Bmemcpy(newtext+newcols*i, osdtext+osdcols*i, k);
+        Bmemcpy(newfmt+newcols*i, osdfmt+osdcols*i, k);
     }
 
-    memcpy(osdtext, newtext, TEXTSIZE);
-    memcpy(osdfmt, newfmt, TEXTSIZE);
+    Bmemcpy(osdtext, newtext, TEXTSIZE);
+    Bmemcpy(osdfmt, newfmt, TEXTSIZE);
     osdcols = newcols;
     osdmaxlines = newmaxlines;
     osdmaxrows = getrowheight(h)-2;

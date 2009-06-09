@@ -614,8 +614,8 @@ void CONTROL_ApplyAxis(int32_t axis, ControlInfo *info, controldevice device)
 
 void CONTROL_PollDevices(ControlInfo *info)
 {
-    memcpy(CONTROL_LastMouseAxes, CONTROL_MouseAxes, sizeof(CONTROL_MouseAxes));
-    memcpy(CONTROL_LastJoyAxes,   CONTROL_JoyAxes,   sizeof(CONTROL_JoyAxes));
+    Bmemcpy(CONTROL_LastMouseAxes, CONTROL_MouseAxes, sizeof(CONTROL_MouseAxes));
+    Bmemcpy(CONTROL_LastJoyAxes,   CONTROL_JoyAxes,   sizeof(CONTROL_JoyAxes));
 
     memset(CONTROL_MouseAxes, 0, sizeof(CONTROL_MouseAxes));
     memset(CONTROL_JoyAxes,   0, sizeof(CONTROL_JoyAxes));
@@ -848,9 +848,10 @@ void CONTROL_ClearButton(int32_t whichbutton)
     CONTROL_Flags[whichbutton].cleared = TRUE;
 }
 
-void CONTROL_ProcessBinds(void)
+inline void CONTROL_ProcessBinds(void)
 {
-    if (!bindsenabled) return;
+    if (!bindsenabled)
+        return;
 
     {
         int32_t i=MAXBOUNDKEYS-1;

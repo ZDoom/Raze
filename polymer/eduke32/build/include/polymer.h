@@ -277,6 +277,10 @@ typedef struct      s_pranimatespritesinfo {
     int32_t         x, y, a, smoothratio;
 }                   _pranimatespritesinfo;
 
+// MEMORY POOL
+#define             POLYMER_POOL_SIZE 65572864
+extern nedpool*     polymer_pool;
+
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void);
 void                polymer_uninit(void);

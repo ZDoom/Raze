@@ -312,7 +312,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
 
     map = (mdanim_t*)calloc(1,sizeof(mdanim_t));
     if (!map) return(-4);
-    memcpy(map, &ma, sizeof(ma));
+    Bmemcpy(map, &ma, sizeof(ma));
 
     map->next = m->animations;
     m->animations = map;
@@ -2356,10 +2356,10 @@ static void addquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, 
     //Extend borders vertically
     for (yy=0; yy<VOXBORDWIDTH; yy++)
     {
-        memcpy(&gvox->mytex[(shp[z].y+yy)*gvox->mytexx+shp[z].x],
+        Bmemcpy(&gvox->mytex[(shp[z].y+yy)*gvox->mytexx+shp[z].x],
                &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
                (x+(VOXBORDWIDTH<<1))<<2);
-        memcpy(&gvox->mytex[(shp[z].y+y+yy+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
+        Bmemcpy(&gvox->mytex[(shp[z].y+y+yy+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
                &gvox->mytex[(shp[z].y+y-1+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
                (x+(VOXBORDWIDTH<<1))<<2);
     }
@@ -2877,7 +2877,7 @@ int32_t voxdraw(voxmodel_t *m, spritetype *tspr)
     //------------
 
     //transform to Build coords
-    memcpy(omat,mat,sizeof(omat));
+    Bmemcpy(omat,mat,sizeof(omat));
     f = 1.f/64.f;
     g = m0.x*f; mat[0] *= g; mat[1] *= g; mat[2] *= g;
     g = m0.y*f; mat[4] = omat[8]*g; mat[5] = omat[9]*g; mat[6] = omat[10]*g;

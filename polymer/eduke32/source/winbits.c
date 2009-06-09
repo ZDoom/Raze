@@ -120,7 +120,7 @@ int32_t G_GetVersionFromWebsite(char *buffer)
     recv(mysock, (char *)&tempbuf, sizeof(tempbuf), 0);
     closesocket(mysock);
 
-    memcpy(&otherbuf,&tempbuf,sizeof(otherbuf));
+    Bmemcpy(&otherbuf,&tempbuf,sizeof(otherbuf));
 
     strtok(otherbuf," ");
     if (atol(strtok(NULL," ")) == 200)

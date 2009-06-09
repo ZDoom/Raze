@@ -395,7 +395,7 @@ int32_t startwin_puts(const char *buf)
         }
         q = p;
         while (*q && *q != '\n') q++;
-        memcpy(workbuf, p, q-p);
+        Bmemcpy(workbuf, p, q-p);
         if (*q == '\n')
         {
             if (!q[1])

@@ -616,7 +616,9 @@ inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, i
     }
 
     s->z -= zoffset;
+
     if (range > ActorExtra[srcsprite].lightmaxrange ||
+        priority != ActorExtra[srcsprite].lightptr->priority ||
         Bmemcmp(&sprite[srcsprite], ActorExtra[srcsprite].lightptr, sizeof(int32_t) * 3))
     {
         if (range > ActorExtra[srcsprite].lightmaxrange)
@@ -627,6 +629,7 @@ inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, i
         ActorExtra[srcsprite].lightptr->flags.invalidate = 1;
     }
 
+    ActorExtra[srcsprite].lightptr->priority = priority;
     ActorExtra[srcsprite].lightptr->range = range;
     ActorExtra[srcsprite].lightptr->color[0] = color&255;
     ActorExtra[srcsprite].lightptr->color[1] = (color>>8)&255;
@@ -697,7 +700,8 @@ static void G_MoveZombieActors(void)
                     break;
 
                 case EXPLOSION2__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),
+                        s->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
                     break;
                 case FORCERIPPLE__STATIC:
                     //                    case TRANSPORTERSTAR__STATIC:
@@ -2809,15 +2813,15 @@ static void G_MoveWeapons(void)
                 switch (DynamicTileMap[s->picnum])
                 {
                 case FREEZEBLAST__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
 
                 case COOLEXPLOSION1__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<2, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
 
                 case SHRINKSPARK__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
                 case FIRELASER__STATIC:
                     G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
@@ -3469,7 +3473,7 @@ static void G_MoveActors(void)
         switch (DynamicTileMap[switchpicnum])
         {
         case ATOMICHEALTH__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
             break;
 
         case FIRE__STATIC:
@@ -5238,15 +5242,16 @@ static void G_MoveMisc(void)  // STATNUM 5
 
                 case EXPLOSION2__STATIC:
                     G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1),
-                                   (512 * s->yrepeat) / (ActorExtra[i].temp_data[2]+1), 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                                   LIGHTRAD, 255+(95<<8),
+                                   s->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
                     break;
                 case FORCERIPPLE__STATIC:
 //                    case TRANSPORTERSTAR__STATIC:
                 case TRANSPORTERBEAM__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
                     break;
                 case SHRINKEREXPLOSION__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
                     break;
                 }
                 if (!actorscrptr[sprite[i].picnum])
@@ -7975,7 +7980,7 @@ void G_MoveWorld(void)
                             spritetype *s = &sprite[i];
                             int32_t x, y;
 
-                            if (!inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                            if (s->cstat & 32768 || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
                                 break;
 
                             x = ((sintable[(s->ang+512)&2047])>>7);
@@ -7984,7 +7989,7 @@ void G_MoveWorld(void)
                             s->x += x;
                             s->y += y;
 
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 48+(255<<8)+(48<<16),PR_LIGHT_PRIO_LOW_GAME);
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 48+(255<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
                             s->x -= x;
                             s->y -= y;
                         }
@@ -8011,7 +8016,7 @@ void G_MoveWorld(void)
                             spritetype *s = &sprite[i];
                             int32_t x, y;
 
-                            if (!inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                            if (s->cstat & 32768 || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
                                 break;
 
                             x = ((sintable[(s->ang+512)&2047])>>7);
@@ -8020,7 +8025,7 @@ void G_MoveWorld(void)
                             s->x += x;
                             s->y += y;
 
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 255+(48<<8)+(48<<16),PR_LIGHT_PRIO_LOW_GAME);
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 255+(48<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
                             s->x -= x;
                             s->y -= y;
                         }

@@ -289,10 +289,10 @@ int32_t netread(int32_t *other, char *dabuf, int32_t bufsiz)  //0:no packets in 
 
 #if (SIMLAG > 1)
     i = simlagcnt[*other]%(SIMLAG+1);
-    *(int16_t *)&simlagfif[*other][i][0] = bufsiz; memcpy(&simlagfif[*other][i][2],dabuf,bufsiz);
+    *(int16_t *)&simlagfif[*other][i][0] = bufsiz; Bmemcpy(&simlagfif[*other][i][2],dabuf,bufsiz);
     simlagcnt[*other]++; if (simlagcnt[*other] < SIMLAG+1) return(0);
     i = simlagcnt[*other]%(SIMLAG+1);
-    bufsiz = *(int16_t *)&simlagfif[*other][i][0]; memcpy(dabuf,&simlagfif[*other][i][2],bufsiz);
+    bufsiz = *(int16_t *)&simlagfif[*other][i][0]; Bmemcpy(dabuf,&simlagfif[*other][i][2],bufsiz);
 #endif
 
     return(1);
@@ -641,7 +641,7 @@ void mmulti_dosendpackets(int32_t other)  //Host to send intially, client to sen
 
         *(uint16_t *)&pakbuf[k] = (uint16_t)j; k += 2;
         *(int32_t *)&pakbuf[k] = i; k += 4;
-        memcpy(&pakbuf[k],&pakmem[opak[other][i&(FIFSIZ-1)]+2],j); k += j;
+        Bmemcpy(&pakbuf[k],&pakmem[opak[other][i&(FIFSIZ-1)]+2],j); k += j;
     }
     *(uint16_t *)&pakbuf[k] = 0; k += 2;
     *(uint16_t *)&pakbuf[0] = (uint16_t)k;
@@ -664,7 +664,7 @@ void mmulti_sendpacket(int32_t other, char *bufptr, int32_t messleng)
     if (pakmemi+messleng+2 > (int32_t)sizeof(pakmem)) pakmemi = 1;
     opak[other][ocnt1[other]&(FIFSIZ-1)] = pakmemi;
     *(int16_t *)&pakmem[pakmemi] = messleng;
-    memcpy(&pakmem[pakmemi+2],bufptr,messleng); pakmemi += messleng+2;
+    Bmemcpy(&pakmem[pakmemi+2],bufptr,messleng); pakmemi += messleng+2;
     ocnt1[other]++;
 
     //printf("Send: "); for(i=0;i<messleng;i++) printf("%02x ",bufptr[i]); printf("\n");
@@ -793,7 +793,7 @@ int32_t mmulti_getpacket(int32_t *retother, char *bufptr)
                         if (pakmemi+messleng+2 > (int32_t)sizeof(pakmem)) pakmemi = 1;
                         ipak[other][j&(FIFSIZ-1)] = pakmemi;
                         *(int16_t *)&pakmem[pakmemi] = messleng;
-                        memcpy(&pakmem[pakmemi+2],&pakbuf[k],messleng); pakmemi += messleng+2;
+                        Bmemcpy(&pakmem[pakmemi+2],&pakbuf[k],messleng); pakmemi += messleng+2;
                     }
                     k += messleng;
                     messleng = (int32_t)(*(uint16_t *)&pakbuf[k]); k += 2;
@@ -811,7 +811,7 @@ int32_t mmulti_getpacket(int32_t *retother, char *bufptr)
             j = ipak[i][icnt0[i]&(FIFSIZ-1)];
             if (j)
             {
-                messleng = *(int16_t *)&pakmem[j]; memcpy(bufptr,&pakmem[j+2],messleng);
+                messleng = *(int16_t *)&pakmem[j]; Bmemcpy(bufptr,&pakmem[j+2],messleng);
                 *retother = i; ipak[i][icnt0[i]&(FIFSIZ-1)] = 0; icnt0[i]++;
                 //printf("Recv: "); for(i=0;i<messleng;i++) printf("%02x ",bufptr[i]); printf("\n");
 

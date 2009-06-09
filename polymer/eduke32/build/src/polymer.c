@@ -29,6 +29,8 @@ float           pr_specularpower = 15.0f;
 float           pr_specularfactor = 1.0f;
 int32_t         pr_atiworkaround = 0;
 
+int32_t         r_pr_maxlightpasses = 5; // value of the cvar (not live value), used to detect changes
+
 GLenum          mapvbousage = GL_STREAM_DRAW_ARB;
 GLenum          modelvbousage = GL_STATIC_DRAW_ARB;
 
@@ -564,12 +566,17 @@ int8_t          curskyshade;
 
 _pranimatespritesinfo asi;
 
+// MEMORY POOL
+nedpool*        polymer_pool = NULL;
+
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void)
 {
     int32_t         i;
 
     if (pr_verbosity >= 1) OSD_Printf("Initializing Polymer subsystem...\n");
+
+    polymer_pool = nedcreatepool(POLYMER_POOL_SIZE, 0);
 
     Bmemset(&prsectors[0], 0, sizeof(prsectors[0]) * MAXSECTORS);
     Bmemset(&prwalls[0], 0, sizeof(prwalls[0]) * MAXWALLS);
@@ -587,7 +594,7 @@ int32_t             polymer_init(void)
     skyboxdatavbo = 0;
 
     if (spriteplane.buffer == NULL) {
-        spriteplane.buffer = Bcalloc(4, sizeof(GLfloat) * 5);
+        spriteplane.buffer = nedpmalloc(polymer_pool, 4 * sizeof(GLfloat) * 5);
         spriteplane.vertcount = 4;
     }
 
@@ -622,6 +629,7 @@ int32_t             polymer_init(void)
 void                polymer_uninit(void)
 {
     polymer_freeboard();
+    neddestroypool(polymer_pool);
 }
 
 void                polymer_glinit(void)
@@ -780,19 +788,19 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
         dacursectnum = cursectnum;
 
     // unflag all sectors
-    i = 0;
-    while (i < numsectors)
+    i = numsectors-1;
+    while (i >= 0)
     {
         prsectors[i]->controlstate = 0;
         prsectors[i]->wallsproffset = 0.0f;
         prsectors[i]->floorsproffset = 0.0f;
-        i++;
+        i--;
     }
-    i = 0;
-    while (i < numwalls)
+    i = numwalls-1;
+    while (i >= 0)
     {
         prwalls[i]->controlstate = 0;
-        i++;
+        i--;
     }
 
     getzsofslope(dacursectnum, daposx, daposy, &cursectceilz, &cursectflorz);
@@ -802,21 +810,21 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
             (daposz > cursectflorz) ||
             (daposz < cursectceilz))
     {
-        i = 0;
-        while (i < numsectors)
+        i = numsectors-1;
+        while (i >= 0)
         {
             polymer_updatesector(i);
             polymer_drawsector(i);
             polymer_scansprites(i, tsprite, &spritesortcnt);
-            i++;
+            i--;
         }
 
-        i = 0;
-        while (i < numwalls)
+        i = numwalls-1;
+        while (i >= 0)
         {
             polymer_updatewall(i);
             polymer_drawwall(sectorofwall(i), i);
-            i++;
+            i--;
         }
         viewangle = daang;
         enddrawing();
@@ -1119,16 +1127,10 @@ int16_t             polymer_addlight(_prlight* light)
 {
     int16_t         lighti;
 
-    if (!pr_lighting)
+    if (lightcount >= PR_MAXLIGHTS || light->priority > pr_maxlightpriority || !pr_lighting)
         return (-1);
 
     if ((light->sector == -1) || (light->sector >= numsectors))
-        return (-1);
-
-    if (lightcount >= PR_MAXLIGHTS)
-        return (-1);
-
-    if (light->priority > pr_maxlightpriority)
         return (-1);
 
     lighti = 0;
@@ -1139,7 +1141,7 @@ int16_t             polymer_addlight(_prlight* light)
     if (lighti == PR_MAXLIGHTS)
         return (-1);
 
-    memcpy(&prlights[lighti], light, sizeof(_prlight));
+    Bmemcpy(&prlights[lighti], light, sizeof(_prlight));
 
     if (light->radius)
         polymer_processspotlight(&prlights[lighti]);
@@ -1167,6 +1169,18 @@ void                polymer_deletelight(int16_t lighti)
     prlights[lighti].flags.active = 0;
 
     lightcount--;
+}
+
+void                polymer_invalidatelights(void)
+{
+    int32_t         i = PR_MAXLIGHTS-1;
+
+    do
+    {
+        if (prlights[i].flags.active)
+            prlights[i].flags.invalidate = 1;
+    }
+    while (i--);
 }
 
 // CORE
@@ -1229,7 +1243,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
         doquery = 0;
 
-        i = 0;
+        i = sec->wallnum-1;
         do
         {
             // this is a couple of fps faster for me... does it mess anything up?
@@ -1241,12 +1255,12 @@ static void         polymer_displayrooms(int16_t dacursectnum)
             if (wall[sec->wallptr + i].nextsector == -1)
                 doquery = 1;
 
-            i++;
+            i--;
         }
-        while (i < sec->wallnum);
+        while (i >= 0);
 
-        i = 0;
-        while (i < sec->wallnum)
+        i = sec->wallnum-1;
+        while (i >= 0)
         {
             if ((wall[sec->wallptr + i].nextsector != -1) &&
                 (wallvisible(globalposx, globalposy, sec->wallptr + i)) &&
@@ -1264,7 +1278,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                     if ((w->mask.buffer[(0 * 5) + 1] >= w->mask.buffer[(3 * 5) + 1]) &&
                         (w->mask.buffer[(1 * 5) + 1] >= w->mask.buffer[(2 * 5) + 1]))
                     {
-                        i++;
+                        i--;
                         continue;
                     }
                 }
@@ -1333,10 +1347,10 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                 }
             }
 
-            i++;
+            i--;
         }
 
-        i = 0;
+        i = sec->wallnum-1;
         do
         {
             if ((queryid[sec->wallptr + i]) &&
@@ -1362,9 +1376,9 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                 }
             }
 
-            i++;
+            i--;
         }
-        while (i < sec->wallnum);
+        while (i >= 0);
 
         front++;
     }
@@ -1391,8 +1405,8 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 //         front++;
 //     }
 
-    i = 0;
-    while (i < mirrorcount)
+    i = mirrorcount-1;
+    while (i >= 0)
     {
         bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prrts[0].fbo);
         bglPushAttrib(GL_VIEWPORT_BIT);
@@ -1469,7 +1483,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         polymer_drawplane(mirrorlist[i].plane);
         mirrorlist[i].plane->material.mirrormap = 0;
 
-        i++;
+        i--;
     }
 
     spritesortcnt = localspritesortcnt;
@@ -1495,7 +1509,6 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         drawmasks();
         bglEnable(GL_CULL_FACE);
     }
-
     return;
 }
 
@@ -1646,17 +1659,17 @@ static void         polymer_freeboard(void)
     {
         if (prsectors[i])
         {
-            if (prsectors[i]->verts) Bfree(prsectors[i]->verts);
-            if (prsectors[i]->floor.buffer) Bfree(prsectors[i]->floor.buffer);
-            if (prsectors[i]->ceil.buffer) Bfree(prsectors[i]->ceil.buffer);
-            if (prsectors[i]->floor.indices) Bfree(prsectors[i]->floor.indices);
-            if (prsectors[i]->ceil.indices) Bfree(prsectors[i]->ceil.indices);
+            if (prsectors[i]->verts) nedpfree(polymer_pool, prsectors[i]->verts);
+            if (prsectors[i]->floor.buffer) nedpfree(polymer_pool, prsectors[i]->floor.buffer);
+            if (prsectors[i]->ceil.buffer) nedpfree(polymer_pool, prsectors[i]->ceil.buffer);
+            if (prsectors[i]->floor.indices) nedpfree(polymer_pool, prsectors[i]->floor.indices);
+            if (prsectors[i]->ceil.indices) nedpfree(polymer_pool, prsectors[i]->ceil.indices);
             if (prsectors[i]->ceil.vbo) bglDeleteBuffersARB(1, &prsectors[i]->ceil.vbo);
             if (prsectors[i]->ceil.ivbo) bglDeleteBuffersARB(1, &prsectors[i]->ceil.ivbo);
             if (prsectors[i]->floor.vbo) bglDeleteBuffersARB(1, &prsectors[i]->floor.vbo);
             if (prsectors[i]->floor.ivbo) bglDeleteBuffersARB(1, &prsectors[i]->floor.ivbo);
 
-            Bfree(prsectors[i]);
+            nedpfree(polymer_pool, prsectors[i]);
             prsectors[i] = NULL;
         }
 
@@ -1668,16 +1681,16 @@ static void         polymer_freeboard(void)
     {
         if (prwalls[i])
         {
-            if (prwalls[i]->bigportal) Bfree(prwalls[i]->bigportal);
-            if (prwalls[i]->mask.buffer) Bfree(prwalls[i]->mask.buffer);
-            if (prwalls[i]->cap) Bfree(prwalls[i]->cap);
-            if (prwalls[i]->wall.buffer) Bfree(prwalls[i]->wall.buffer);
+            if (prwalls[i]->bigportal) nedpfree(polymer_pool, prwalls[i]->bigportal);
+            if (prwalls[i]->mask.buffer) nedpfree(polymer_pool, prwalls[i]->mask.buffer);
+            if (prwalls[i]->cap) nedpfree(polymer_pool, prwalls[i]->cap);
+            if (prwalls[i]->wall.buffer) nedpfree(polymer_pool, prwalls[i]->wall.buffer);
             if (prwalls[i]->wall.vbo) bglDeleteBuffersARB(1, &prwalls[i]->wall.vbo);
             if (prwalls[i]->over.vbo) bglDeleteBuffersARB(1, &prwalls[i]->over.vbo);
             if (prwalls[i]->mask.vbo) bglDeleteBuffersARB(1, &prwalls[i]->mask.vbo);
             if (prwalls[i]->stuffvbo) bglDeleteBuffersARB(1, &prwalls[i]->stuffvbo);
 
-            Bfree(prwalls[i]);
+            nedpfree(polymer_pool, prwalls[i]);
             prwalls[i] = NULL;
         }
 
@@ -1795,17 +1808,17 @@ static int32_t      polymer_initsector(int16_t sectnum)
     if (pr_verbosity >= 2) OSD_Printf("PR : Initalizing sector %i...\n", sectnum);
 
     sec = &sector[sectnum];
-    s = Bcalloc(1, sizeof(_prsector));
+    s = nedpcalloc(polymer_pool, 1, sizeof(_prsector));
     if (s == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize sector %i : Bmalloc failed.\n", sectnum);
         return (0);
     }
 
-    s->verts = Bcalloc(sec->wallnum, sizeof(GLdouble) * 3);
-    s->floor.buffer = Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
+    s->verts = nedpcalloc(polymer_pool, sec->wallnum, sizeof(GLdouble) * 3);
+    s->floor.buffer = nedpcalloc(polymer_pool, sec->wallnum, sizeof(GLfloat) * 5);
     s->floor.vertcount = sec->wallnum;
-    s->ceil.buffer = Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
+    s->ceil.buffer = nedpcalloc(polymer_pool, sec->wallnum, sizeof(GLfloat) * 5);
     s->ceil.vertcount = sec->wallnum;
     if ((s->verts == NULL) || (s->floor.buffer == NULL) || (s->ceil.buffer == NULL))
     {
@@ -2107,8 +2120,8 @@ void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
     {
         if (pr_verbosity >= 2) OSD_Printf("PR : Indice overflow, extending the indices list... !\n");
         s->indicescount++;
-        s->floor.indices = Brealloc(s->floor.indices, s->indicescount * sizeof(GLushort));
-        s->ceil.indices = Brealloc(s->ceil.indices, s->indicescount * sizeof(GLushort));
+        s->floor.indices = nedprealloc(polymer_pool, s->floor.indices, s->indicescount * sizeof(GLushort));
+        s->ceil.indices = nedprealloc(polymer_pool, s->ceil.indices, s->indicescount * sizeof(GLushort));
     }
     s->ceil.indices[s->curindice] = (intptr_t)vertex;
     s->curindice++;
@@ -2132,8 +2145,8 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
     if (s->floor.indices == NULL)
     {
         s->indicescount = (sec->wallnum - 2) * 3;
-        s->floor.indices = Bcalloc(s->indicescount, sizeof(GLushort));
-        s->ceil.indices = Bcalloc(s->indicescount, sizeof(GLushort));
+        s->floor.indices = nedpcalloc(polymer_pool, s->indicescount, sizeof(GLushort));
+        s->ceil.indices = nedpcalloc(polymer_pool, s->indicescount, sizeof(GLushort));
     }
 
     s->curindice = 0;
@@ -2209,7 +2222,7 @@ static int32_t      polymer_initwall(int16_t wallnum)
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Initalizing wall %i...\n", wallnum);
 
-    w = Bcalloc(1, sizeof(_prwall));
+    w = nedpcalloc(polymer_pool, 1, sizeof(_prwall));
     if (w == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize wall %i : Bmalloc failed.\n", wallnum);
@@ -2217,13 +2230,13 @@ static int32_t      polymer_initwall(int16_t wallnum)
     }
 
     if (w->mask.buffer == NULL) {
-        w->mask.buffer = Bcalloc(4, sizeof(GLfloat) * 5);
+        w->mask.buffer = nedpmalloc(polymer_pool, 4 * sizeof(GLfloat) * 5);
         w->mask.vertcount = 4;
     }
     if (w->bigportal == NULL)
-        w->bigportal = Bcalloc(4, sizeof(GLfloat) * 5);
+        w->bigportal = nedpmalloc(polymer_pool, 4 * sizeof(GLfloat) * 5);
     if (w->cap == NULL)
-        w->cap = Bcalloc(4, sizeof(GLfloat) * 3);
+        w->cap = nedpmalloc(polymer_pool, 4 * sizeof(GLfloat) * 3);
 
     bglGenBuffersARB(1, &w->wall.vbo);
     bglGenBuffersARB(1, &w->over.vbo);
@@ -2294,7 +2307,7 @@ static void         polymer_updatewall(int16_t wallnum)
     }
 
     if (w->wall.buffer == NULL) {
-        w->wall.buffer = Bcalloc(4, sizeof(GLfloat) * 5);
+        w->wall.buffer = nedpmalloc(polymer_pool, 4 * sizeof(GLfloat) * 5);
         w->wall.vertcount = 4;
     }
 
@@ -2508,7 +2521,7 @@ static void         polymer_updatewall(int16_t wallnum)
         if ((overwall) || (wal->cstat & 16) || (wal->cstat & 32))
         {
             if (w->over.buffer == NULL) {
-                w->over.buffer = Bcalloc(4, sizeof(GLfloat) * 5);
+                w->over.buffer = nedpmalloc(polymer_pool, 4 * sizeof(GLfloat) * 5);
                 w->over.vertcount = 4;
             }
 
@@ -2868,20 +2881,15 @@ static inline void  polymer_transformpoint(float* inpos, float* pos, float* matr
 
 static inline void  polymer_pokesector(int16_t sectnum)
 {
-    sectortype      *sec;
-    _prsector       *s;
-    walltype        *wal;
-    int32_t         i;
-
-    sec = &sector[sectnum];
-    s = prsectors[sectnum];
-    wal = &wall[sec->wallptr];
+    sectortype      *sec = &sector[sectnum];
+    _prsector       *s = prsectors[sectnum];
+    walltype        *wal = &wall[sec->wallptr];
+    int32_t         i = 0;
 
     if (!s->controlstate)
         polymer_updatesector(sectnum);
 
-    i = 0;
-    while (i < sec->wallnum)
+    do
     {
         if ((wal->nextsector != -1) && (!prsectors[wal->nextsector]->controlstate))
             polymer_updatesector(wal->nextsector);
@@ -2891,6 +2899,7 @@ static inline void  polymer_pokesector(int16_t sectnum)
         i++;
         wal = &wall[sec->wallptr + i];
     }
+    while (i < sec->wallnum);
 }
 
 static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projection, float* frustum)
@@ -3517,9 +3526,9 @@ static void         polymer_loadmodelvbos(md3model_t* m)
     int32_t         i;
     md3surf_t       *s;
 
-    m->indices = Bcalloc(m->head.numsurfs, sizeof(GLuint));
-    m->texcoords = Bcalloc(m->head.numsurfs, sizeof(GLuint));
-    m->geometry = Bcalloc(m->head.numsurfs, sizeof(GLuint));
+    m->indices = nedpmalloc(polymer_pool, m->head.numsurfs * sizeof(GLuint));
+    m->texcoords = nedpmalloc(polymer_pool, m->head.numsurfs * sizeof(GLuint));
+    m->geometry = nedpmalloc(polymer_pool, m->head.numsurfs * sizeof(GLuint));
 
     bglGenBuffersARB(m->head.numsurfs, m->indices);
     bglGenBuffersARB(m->head.numsurfs, m->texcoords);
@@ -4208,9 +4217,10 @@ static void         polymer_removelight(int16_t lighti)
         polymer_deleteplanelight(prlights[lighti].planelist->plane, lighti);
         oldhead = prlights[lighti].planelist;
         prlights[lighti].planelist = prlights[lighti].planelist->n;
-        Bfree(oldhead);
+        nedpfree(polymer_pool, oldhead);
     }
     prlights[lighti].planecount = 0;
+    prlights[lighti].planelist = NULL;
 }
 
 static void         polymer_updatelights(void)
@@ -4277,56 +4287,45 @@ static void         polymer_resetlights(void)
 
 static inline void  polymer_resetplanelights(_prplane* plane)
 {
-    Bmemset(&plane->lights[0], -1, sizeof(plane->lights[0]) * PR_MAXLIGHTS);
+    Bmemset(&plane->lights[0], -1, sizeof(plane->lights[0]) * plane->lightcount);
     plane->lightcount = 0;
 }
 
 static void         polymer_addplanelight(_prplane* plane, int16_t lighti)
 {
-    int16_t         i;
+    int32_t         i = 0;
     _prplanelist*   oldhead;
 
     if (plane->lightcount == PR_MAXLIGHTS - 1)
         return;
 
-    i = 0;
-    do
+    if (plane->lightcount)
     {
-        if ((plane->lights[i] != -1) && (prlights[plane->lights[i]].priority < prlights[lighti].priority))
-        {
+        while (i < plane->lightcount && prlights[plane->lights[i]].priority < prlights[lighti].priority)
             i++;
-            continue;
-        }
-
-        if (plane->lights[i] != -1)
-            memmove(&plane->lights[i+1], &plane->lights[i], sizeof(int16_t) * (PR_MAXLIGHTS - (i + 1)));
-
-        plane->lights[i] = lighti;
-        plane->lightcount++;
-
-        oldhead = prlights[lighti].planelist;
-        prlights[lighti].planelist = Bcalloc(sizeof(_prplanelist), 1);
-        prlights[lighti].planelist->n = oldhead;
-
-        prlights[lighti].planelist->plane = plane;
-        prlights[lighti].planecount++;
-        return;
+        memmove(&plane->lights[i+1], &plane->lights[i], sizeof(int16_t) * (plane->lightcount - i));
     }
-    while (i < PR_MAXLIGHTS);
+
+    plane->lights[i] = lighti;
+    plane->lightcount++;
+
+    oldhead = prlights[lighti].planelist;
+    prlights[lighti].planelist = nedpmalloc(polymer_pool, sizeof(_prplanelist));
+    prlights[lighti].planelist->n = oldhead;
+
+    prlights[lighti].planelist->plane = plane;
+    prlights[lighti].planecount++;
 }
 
 static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti)
 {
-    int16_t         i;
+    int32_t         i = plane->lightcount-1;
 
-    i = plane->lightcount-1;
     while (i >= 0)
     {
         if (plane->lights[i] == lighti)
         {
-            memmove(&plane->lights[i], &plane->lights[i+1], sizeof(int16_t) * (PR_MAXLIGHTS - (i + 1)));
-            plane->lights[PR_MAXLIGHTS-1] = -1;
-
+            memmove(&plane->lights[i], &plane->lights[i+1], sizeof(int16_t) * (plane->lightcount - i));
             plane->lightcount--;
             return;
         }
@@ -4337,7 +4336,7 @@ static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti)
 static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
 {
     float           lightpos[3];
-    int             i, j, k, l;
+    int32_t         i, j, k, l;
 
     if (!plane->vertcount)
         return 0;
@@ -4375,9 +4374,8 @@ static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
 
 static void         polymer_invalidateplanelights(_prplane* plane)
 {
-    int32_t         i;
+    int32_t         i = 0;
 
-    i = 0;
     while (i < plane->lightcount)
     {
         if (plane && (plane->lights[i] != -1) && (prlights[plane->lights[i]].flags.active))
@@ -4390,12 +4388,9 @@ static void         polymer_invalidateplanelights(_prplane* plane)
 static void         polymer_invalidatesectorlights(int16_t sectnum)
 {
     int32_t         i;
-    _prsector       *s;
+    _prsector       *s = prsectors[sectnum];
     _prwall         *w;
-    sectortype      *sec;
-
-    s = prsectors[sectnum];
-    sec = &sector[sectnum];
+    sectortype      *sec = &sector[sectnum];
 
     if (!s)
         return;
@@ -4479,9 +4474,9 @@ static void         polymer_processspotlight(_prlight* light)
 
 static inline void  polymer_culllight(int16_t lighti)
 {
-    _prlight*       light;
-    int32_t         front;
-    int32_t         back;
+    _prlight*       light = &prlights[lighti];
+    int32_t         front = 0;
+    int32_t         back = 1;
     int32_t         i;
     int32_t         j;
     int32_t         zdiff;
@@ -4489,9 +4484,6 @@ static inline void  polymer_culllight(int16_t lighti)
     _prwall         *w;
     sectortype      *sec;
 
-    light = &prlights[lighti];
-    front = 0;
-    back = 1;
     Bmemset(drawingstate, 0, sizeof(int16_t) * numsectors);
     drawingstate[light->sector] = 1;
 
@@ -4676,7 +4668,7 @@ static void         polymer_initrendertargets(int32_t count)
 {
     int32_t         i;
 
-    prrts = Bcalloc(count, sizeof(_prrt));
+    prrts = nedpcalloc(polymer_pool, count, sizeof(_prrt));
 
     i = 0;
     while (i < count)

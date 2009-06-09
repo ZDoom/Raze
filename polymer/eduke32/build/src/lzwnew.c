@@ -73,7 +73,7 @@ lzwcompbreak2b:
 
     lptr = (int32_t *)compbuf;
     if (((bitcnt+7)>>3) < ucompleng) { lptr[0] = LSWAPIB(numnodes); return((bitcnt+7)>>3); }
-    memcpy(compbuf,ucompbuf,ucompleng); return(ucompleng);
+    Bmemcpy(compbuf,ucompbuf,ucompleng); return(ucompleng);
 }
 
 int32_t lzwuncompress(char *compbuf, int32_t compleng, char *ucompbuf, int32_t ucompleng)
@@ -82,7 +82,7 @@ int32_t lzwuncompress(char *compbuf, int32_t compleng, char *ucompbuf, int32_t u
     char ch, *ucptr, *suffix;
     int32_t ucomp = (int32_t)ucompbuf;
 
-    if (compleng >= ucompleng) { memcpy(ucompbuf,compbuf,ucompleng); return ucompleng; }
+    if (compleng >= ucompleng) { Bmemcpy(ucompbuf,compbuf,ucompleng); return ucompleng; }
 
     totnodes = LSWAPIB(((int32_t *)compbuf)[0]); if (totnodes <= 0 || totnodes >= ucompleng+256) return 0;
 

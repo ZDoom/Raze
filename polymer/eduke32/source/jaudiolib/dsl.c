@@ -141,7 +141,7 @@ static void mixer_callback(int32_t chan, void *stream, int32_t len, void *udata)
         fxptr = (Uint8 *)(&_DSL_BufferStart[MV_MixPage *
                                         _DSL_BufferSize]);
 
-        memcpy(stptr, fxptr+(_DSL_BufferSize-_DSL_remainder), copysize);
+        Bmemcpy(stptr, fxptr+(_DSL_BufferSize-_DSL_remainder), copysize);
 
         len -= copysize;
         _DSL_remainder -= copysize;
@@ -160,7 +160,7 @@ static void mixer_callback(int32_t chan, void *stream, int32_t len, void *udata)
 
         copysize = min(len, _DSL_BufferSize);
 
-        memcpy(stptr, fxptr, copysize);
+        Bmemcpy(stptr, fxptr, copysize);
 
         len -= copysize;
 

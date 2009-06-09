@@ -74,7 +74,7 @@ OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	    -I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib -D_FORTIFY_SOURCE=2 \
 #        -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
-LIBS=-lm
+LIBS=-lm # -lprofiler
 
 NASMFLAGS	= -s
 EXESUFFIX=

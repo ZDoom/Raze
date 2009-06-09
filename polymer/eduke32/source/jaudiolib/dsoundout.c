@@ -467,7 +467,7 @@ static DWORD WINAPI isr(LPVOID parm)
                 0; })
                 */
                 //copybuf(_DSOUND_MixBuffer + p * _DSOUND_BufferLength, lockptr, _DSOUND_BufferLength >> 2);
-                memcpy(lockptr, _DSOUND_MixBuffer + p * _DSOUND_BufferLength, _DSOUND_BufferLength);
+                Bmemcpy(lockptr, _DSOUND_MixBuffer + p * _DSOUND_BufferLength, _DSOUND_BufferLength);
                 IDirectSoundBuffer_Unlock(lpDSBSecondary, lockptr, lockbytes, lockptr2, lockbytes2);
             }
 

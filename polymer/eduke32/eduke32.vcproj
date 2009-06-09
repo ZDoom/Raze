@@ -133,6 +133,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\build\include\malloc.c.h"
+					>
+				</File>
+				<File
 					RelativePath=".\build\include\md4.h"
 					>
 				</File>
@@ -150,6 +154,10 @@
 				</File>
 				<File
 					RelativePath=".\build\include\mmultimsgs.h"
+					>
+				</File>
+				<File
+					RelativePath=".\build\include\nedmalloc.h"
 					>
 				</File>
 				<File
@@ -297,6 +305,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\build\src\memcpy.c"
+					>
+				</File>
+				<File
 					RelativePath=".\build\src\mmulti.c"
 					>
 				</File>
@@ -306,6 +318,10 @@
 				</File>
 				<File
 					RelativePath=".\build\src\mmulti_unstable.c"
+					>
+				</File>
+				<File
+					RelativePath=".\build\src\nedmalloc.c"
 					>
 				</File>
 				<File
