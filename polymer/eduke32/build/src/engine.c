@@ -10015,6 +10015,8 @@ void setbrightness(char dabrightness, uint8_t *dapal, char noapply)
             gltexinvalidateall();
         if (!(noapply&8) && (newpalettesum != lastpalettesum))
             gltexinvalidate8();
+        if ((rendmode == 4) && (newpalettesum != lastpalettesum))
+            polymer_texinvalidate();
         lastpalettesum = newpalettesum;
     }
 #endif

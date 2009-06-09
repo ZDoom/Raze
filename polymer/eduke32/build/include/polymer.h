@@ -240,7 +240,11 @@ typedef struct      s_prsector {
     int8_t          floorshade;
     char            floorpal, floorxpanning, floorypanning;
 
-    char            controlstate; // 1: up to date, 2: just allocated
+    struct          {
+        int32_t     empty       : 1;
+        int32_t     uptodate    : 1;
+        int32_t     invalidtex  : 1;
+    }               flags;
     uint32_t        invalidid;
 }                   _prsector;
 
@@ -261,7 +265,11 @@ typedef struct      s_prwall {
 
     char            underover;
     uint32_t        invalidid;
-    char            controlstate;
+    struct          {
+        int32_t     empty       : 1;
+        int32_t     uptodate    : 1;
+        int32_t     invalidtex  : 1;
+    }               flags;
 }                   _prwall;
 
 typedef struct      s_prmirror {
@@ -295,6 +303,7 @@ void                polymer_setanimatesprites(animatespritesptr animatesprites, 
 int16_t             polymer_addlight(_prlight* light);
 void                polymer_deletelight(int16_t lighti);
 void                polymer_invalidatelights(void);
+void                polymer_texinvalidate(void);
 
 # ifdef POLYMER_C
 

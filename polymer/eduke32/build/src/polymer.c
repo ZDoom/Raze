@@ -629,7 +629,8 @@ int32_t             polymer_init(void)
 void                polymer_uninit(void)
 {
     polymer_freeboard();
-    neddestroypool(polymer_pool);
+    if (polymer_pool)
+        neddestroypool(polymer_pool);
 }
 
 void                polymer_glinit(void)
@@ -791,7 +792,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     i = numsectors-1;
     while (i >= 0)
     {
-        prsectors[i]->controlstate = 0;
+        prsectors[i]->flags.uptodate = 0;
         prsectors[i]->wallsproffset = 0.0f;
         prsectors[i]->floorsproffset = 0.0f;
         i--;
@@ -799,7 +800,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     i = numwalls-1;
     while (i >= 0)
     {
-        prwalls[i]->controlstate = 0;
+        prwalls[i]->flags.uptodate = 0;
         i--;
     }
 
@@ -1181,6 +1182,24 @@ void                polymer_invalidatelights(void)
             prlights[i].flags.invalidate = 1;
     }
     while (i--);
+}
+
+void                polymer_texinvalidate(void)
+{
+    int32_t         i;
+
+    i = numsectors-1;
+    while (i >= 0)
+    {
+        prsectors[i]->flags.invalidtex = 1;
+        i--;
+    }
+    i = numwalls-1;
+    while (i >= 0)
+    {
+        prwalls[i]->flags.invalidtex = 1;
+        i--;
+    }
 }
 
 // CORE
@@ -1838,7 +1857,7 @@ static int32_t      polymer_initsector(int16_t sectnum)
 
     bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
-    s->controlstate = 2; // let updatesector know that everything needs to go
+    s->flags.empty = 1; // let updatesector know that everything needs to go
 
     prsectors[sectnum] = s;
 
@@ -1894,7 +1913,7 @@ static int32_t      polymer_updatesector(int16_t sectnum)
         wal = &wall[sec->wallptr + i];
     }
 
-    if ((s->controlstate == 2) ||
+    if ((s->flags.empty) ||
             needfloor ||
             (sec->floorz != s->floorz) ||
             (sec->ceilingz != s->ceilingz) ||
@@ -1926,7 +1945,7 @@ static int32_t      polymer_updatesector(int16_t sectnum)
     ceilingpicnum = sec->ceilingpicnum;
     if (picanm[ceilingpicnum]&192) ceilingpicnum += animateoffs(ceilingpicnum,sectnum);
 
-    if ((s->controlstate != 2) && (!needfloor) &&
+    if ((!s->flags.empty) && (!needfloor) &&
             (sec->floorstat == s->floorstat) &&
             (sec->ceilingstat == s->ceilingstat) &&
             (floorpicnum == s->floorpicnum) &&
@@ -2045,7 +2064,7 @@ attributes:
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
     }
 
-    if ((s->controlstate != 2) &&
+    if ((!s->flags.empty) && (!s->flags.invalidtex) &&
             (sec->floorshade == s->floorshade) &&
             (sec->floorpal == s->floorpal) &&
             (floorpicnum == s->floorpicnum) &&
@@ -2054,6 +2073,8 @@ attributes:
 
     polymer_getbuildmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade);
     polymer_getbuildmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade);
+
+    s->flags.invalidtex = 0;
 
     s->floorshade = sec->floorshade;
     s->floorpal = sec->floorpal;
@@ -2090,7 +2111,8 @@ finish:
         polymer_computeplane(&s->ceil);
     }
 
-    s->controlstate = 1;
+    s->flags.empty = 0;
+    s->flags.uptodate = 1;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated sector %i.\n", sectnum);
 
@@ -2257,7 +2279,7 @@ static int32_t      polymer_initwall(int16_t wallnum)
 
     bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
-    w->controlstate = 2;
+    w->flags.empty = 1;
 
     prwalls[wallnum] = w;
 
@@ -2323,7 +2345,7 @@ static void         polymer_updatewall(int16_t wallnum)
     else
         nwallpicnum = 0;
 
-    if ((w->controlstate != 2) &&
+    if ((!w->flags.empty) && (!w->flags.invalidtex) &&
             (w->invalidid == invalid) &&
             (wal->cstat == w->cstat) &&
             (wallpicnum == w->picnum) &&
@@ -2340,7 +2362,7 @@ static void         polymer_updatewall(int16_t wallnum)
               (wall[nwallnum].ypanning == w->nwallypanning) &&
               (wall[nwallnum].cstat == w->nwallcstat))))
     {
-        w->controlstate = 1;
+        w->flags.uptodate = 1;
         return; // screw you guys I'm going home
     }
     else
@@ -2680,7 +2702,9 @@ static void         polymer_updatewall(int16_t wallnum)
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
     }
 
-    w->controlstate = 1;
+    w->flags.empty = 0;
+    w->flags.uptodate = 1;
+    w->flags.invalidtex = 0;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated wall %i.\n", wallnum);
 }
@@ -2886,14 +2910,14 @@ static inline void  polymer_pokesector(int16_t sectnum)
     walltype        *wal = &wall[sec->wallptr];
     int32_t         i = 0;
 
-    if (!s->controlstate)
+    if (!s->flags.uptodate)
         polymer_updatesector(sectnum);
 
     do
     {
-        if ((wal->nextsector != -1) && (!prsectors[wal->nextsector]->controlstate))
+        if ((wal->nextsector != -1) && (!prsectors[wal->nextsector]->flags.uptodate))
             polymer_updatesector(wal->nextsector);
-        if (!prwalls[sec->wallptr + i]->controlstate)
+        if (!prwalls[sec->wallptr + i]->flags.uptodate)
             polymer_updatewall(sec->wallptr + i);
 
         i++;
@@ -3318,6 +3342,16 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         else globalnoeffect=1; //mdloadskin reads this
     }
 
+    // fullscreen tint on global palette change
+    if (hictinting[MAXPALOOKUPS-1].r != 255 ||
+        hictinting[MAXPALOOKUPS-1].g != 255 ||
+        hictinting[MAXPALOOKUPS-1].b != 255)
+    {
+        color[0] *= hictinting[MAXPALOOKUPS-1].r / 255.0;
+        color[1] *= hictinting[MAXPALOOKUPS-1].g / 255.0;
+        color[2] *= hictinting[MAXPALOOKUPS-1].b / 255.0;
+    }
+
     if (tspr->cstat & 2)
     {
         if (!(tspr->cstat&512))
@@ -3658,6 +3692,15 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
             material->diffusemodulation[1] *= (float)hictinting[pal].g / 255.0;
             material->diffusemodulation[2] *= (float)hictinting[pal].b / 255.0;
         }
+        // fullscreen tint on global palette change
+        if (hictinting[MAXPALOOKUPS-1].r != 255 ||
+            hictinting[MAXPALOOKUPS-1].g != 255 ||
+            hictinting[MAXPALOOKUPS-1].b != 255)
+        {
+            material->diffusemodulation[0] *= hictinting[MAXPALOOKUPS-1].r / 255.0;
+            material->diffusemodulation[1] *= hictinting[MAXPALOOKUPS-1].g / 255.0;
+            material->diffusemodulation[2] *= hictinting[MAXPALOOKUPS-1].b / 255.0;
+        }
     }
 
 
@@ -3865,22 +3908,6 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     // PR_BIT_DIFFUSE_MODULATION
     if (programbits & prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit)
     {
-        // build-specific hack for fullscreen tint on global palette change
-        if (hictinting[MAXPALOOKUPS-1].r != 255 ||
-            hictinting[MAXPALOOKUPS-1].g != 255 ||
-            hictinting[MAXPALOOKUPS-1].b != 255)
-        {
-            GLfloat color[3];
-
-            color[0] = material.diffusemodulation[0] * (hictinting[MAXPALOOKUPS-1].r / 255.0);
-            color[1] = material.diffusemodulation[1] * (hictinting[MAXPALOOKUPS-1].g / 255.0);
-            color[2] = material.diffusemodulation[2] * (hictinting[MAXPALOOKUPS-1].b / 255.0);
-
-            bglColor4f(color[0],
-                       color[1],
-                       color[2],
-                       material.diffusemodulation[3]);
-        } else
             bglColor4f(material.diffusemodulation[0],
                        material.diffusemodulation[1],
                        material.diffusemodulation[2],
@@ -4207,7 +4234,6 @@ static void         polymer_compileprogram(int32_t programbits)
 }
 
 // LIGHTS
-
 static void         polymer_removelight(int16_t lighti)
 {
     _prplanelist*   oldhead;
