@@ -5935,14 +5935,7 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
         {
             if (pr_maxlightpasses != r_pr_maxlightpasses)
             {
-                int32_t i = 0;
-
-                while (i < PR_MAXLIGHTS)
-                {
-                    if (prlights[i].flags.active)
-                        prlights[i].flags.invalidate = 1;
-                    i++;
-                }
+                polymer_invalidatelights();
                 pr_maxlightpasses = r_pr_maxlightpasses;
             }
             return r;
