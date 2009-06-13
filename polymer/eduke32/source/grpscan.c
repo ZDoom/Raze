@@ -88,7 +88,7 @@ int32_t ScanGroups(void)
 #define BUFFER_SIZE (1024 * 1024 * 8)
     uint8_t *buf = Bmalloc(BUFFER_SIZE);
 
-    if (!buf || 1)
+    if (!buf)
     {
         initprintf("Error allocating %d byte buffer to scan GRPs!\n", BUFFER_SIZE);
         return 0;
