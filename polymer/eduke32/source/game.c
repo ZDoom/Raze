@@ -5538,7 +5538,11 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
 
         case EXPLOSION2__STATIC:
-            G_AddGameLight(0, i, ((sp->yrepeat*tilesizy[sp->picnum])<<1), 8192, 255+(95<<8),sp->yrepeat > 32 ? PR_LIGHT_PRIO_MAX_GAME : PR_LIGHT_PRIO_LOW_GAME);
+            if (sp->yrepeat > 32)
+            {
+                G_AddGameLight(0, i, ((sp->yrepeat*tilesizy[sp->picnum])<<1), 32768, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                ActorExtra[i].lightcount = 2;
+            }
         case EXPLOSION2BOT__STATIC:
         case BURNING__STATIC:
         case BURNING2__STATIC:
@@ -11263,7 +11267,9 @@ CLEAN_DIRECTORY:
         }
     }
 
+    flushlogwindow = 0;
     loaddefinitions_game(duke3ddef, TRUE);
+    flushlogwindow = 1;
 
     {
         struct strllist *s;
@@ -11346,6 +11352,7 @@ CLEAN_DIRECTORY:
     }
 
     if (quitevent) return;
+
     if (!loaddefinitionsfile(duke3ddef))
     {
         initprintf("Definitions file '%s' loaded.\n",duke3ddef);

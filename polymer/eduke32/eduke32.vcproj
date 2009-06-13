@@ -50,7 +50,7 @@
 				ReBuildCommandLine="nmake /f Makefile.msvc veryclean all"
 				CleanCommandLine="nmake /f Makefile.msvc veryclean"
 				Output="eduke32.exe"
-				PreprocessorDefinitions="WIN32;_DEBUG;SUPERBUILD;POLYMOST;USE_OPENGL;NOCOPYPROTECT;RENDERTYPEWIN"
+				PreprocessorDefinitions="WIN32;_DEBUG;SUPERBUILD;POLYMOST;POLYMER;USE_OPENGL;NOCOPYPROTECT;RENDERTYPEWIN"
 				IncludeSearchPath=""
 				ForcedIncludes=""
 				AssemblySearchPath=""
@@ -302,10 +302,6 @@
 				</File>
 				<File
 					RelativePath=".\build\src\mdsprite.c"
-					>
-				</File>
-				<File
-					RelativePath=".\build\src\memcpy.c"
 					>
 				</File>
 				<File

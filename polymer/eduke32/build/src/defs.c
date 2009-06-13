@@ -1815,12 +1815,17 @@ static int32_t defsparser(scriptfile *script)
 int32_t loaddefinitionsfile(char *fn)
 {
     scriptfile *script;
+    int32_t f = flushlogwindow;
 
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
 
+    flushlogwindow = 1;
+    initprintf("Loading '%s'\n",fn);
+    flushlogwindow = 0;
     defsparser(script);
 
+    flushlogwindow = f;
     scriptfile_close(script);
     scriptfile_clearsymbols();
 

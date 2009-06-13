@@ -171,6 +171,9 @@ int32_t main(int32_t argc, char *argv[])
     char *argp;
     FILE *fp;
 
+    nedcreatepool(SYSTEM_POOL_SIZE, -1);
+    atexit(neddestroysyspool);
+
     buildkeytranslationtable();
 
 #ifdef HAVE_GTK2
@@ -334,7 +337,6 @@ void initprintf(const char *f, ...)
     va_list va;
     char buf[1024];
     static char dabuf[1024];
-    static int32_t cnt = 0;
 
     va_start(va, f);
     Bvsnprintf(buf, 1024, f, va);
@@ -351,7 +353,7 @@ void initprintf(const char *f, ...)
 
     Bstrcat(dabuf,buf);
 
-    if (++cnt < 16 || flushlogwindow || Bstrlen(dabuf) > 768)
+    if (flushlogwindow || Bstrlen(dabuf) > 768)
     {
         startwin_puts(dabuf);
         startwin_idle(NULL);

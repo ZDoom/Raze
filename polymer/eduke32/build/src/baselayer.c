@@ -61,7 +61,7 @@ char *strtolower(char *str, int32_t len)
     return str;
 }
 
-int32_t flushlogwindow = 0;
+int32_t flushlogwindow = 1;
 
 static void onvideomodechange(int32_t newmode) { UNREFERENCED_PARAMETER(newmode); }
 void (*baselayer_onvideomodechange)(int32_t) = onvideomodechange;

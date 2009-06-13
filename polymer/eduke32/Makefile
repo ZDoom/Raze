@@ -26,8 +26,9 @@ RANCID_NETWORKING = 1
 RELEASE?=1
 DEBUGANYWAY?=0
 NOSOUND?=0
-USE_OPENAL	?= 1
+USE_OPENAL?=1
 OPTLEVEL?=2
+PROFILER?=0
 
 # Build locations
 SRC=source
@@ -74,7 +75,7 @@ OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	    -I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib -D_FORTIFY_SOURCE=2 \
 #        -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
-LIBS=-lm # -lprofiler
+LIBS=-lm
 
 NASMFLAGS	= -s
 EXESUFFIX=
@@ -85,6 +86,9 @@ include $(EROOT)/Makefile.shared
 	    OBJ=obj_win
 	    EOBJ=eobj_win
     else
+        ifeq (1,$(PROFILER))
+	  LIBS+= -lprofiler
+        endif
     	OBJ=obj
     	EOBJ=eobj
     endif

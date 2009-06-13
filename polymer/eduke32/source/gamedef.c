@@ -5902,6 +5902,8 @@ void C_Compile(const char *filenam)
 
     initprintf("Compiling: %s (%d bytes)\n",filenam,fs);
 
+    flushlogwindow = 0;
+
     startcompiletime = getticks();
 
     mptr = (char *)Bmalloc(fs+1);
@@ -6007,8 +6009,6 @@ void C_Compile(const char *filenam)
         g_totalLines += g_lineNumber;
 
         C_SetScriptSize(g_scriptPtr-script+8);
-
-        flushlogwindow = 0;
 
         initprintf("Script compiled in %dms\n", getticks() - startcompiletime);
 

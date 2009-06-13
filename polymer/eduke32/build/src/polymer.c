@@ -1188,6 +1188,9 @@ void                polymer_texinvalidate(void)
 {
     int32_t         i;
 
+    if (!prsectors[numsectors-1])
+        return;
+
     i = numsectors-1;
     while (i >= 0)
     {
@@ -2949,34 +2952,32 @@ static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projecti
         i++;
     }
     while (i < 4);
-    i = 0;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Frustum extracted.\n");
 }
 
-static int32_t      polymer_planeinfrustum(_prplane *plane, float* frustum)
+static inline int32_t polymer_planeinfrustum(_prplane *plane, float* frustum)
 {
     int32_t         i, j, k;
-    float           sqdist;
 
-    i = 0;
-    while (i < 5)
+    i = 4;
+    do
     {
-        j = k = 0;
-        while (j < plane->vertcount)
+        j = k = plane->vertcount - 1;
+        do
         {
-            sqdist = frustum[(i * 4) + 0] * plane->buffer[(j * 5) + 0] +
-                     frustum[(i * 4) + 1] * plane->buffer[(j * 5) + 1] +
-                     frustum[(i * 4) + 2] * plane->buffer[(j * 5) + 2] +
-                     frustum[(i * 4) + 3];
-            if (sqdist < 0)
-                k++;
-            j++;
+            k -= ((frustum[(i << 2) + 0] * plane->buffer[j + (j << 2) + 0] +
+                   frustum[(i << 2) + 1] * plane->buffer[j + (j << 2) + 1] +
+                   frustum[(i << 2) + 2] * plane->buffer[j + (j << 2) + 2] +
+                   frustum[(i << 2) + 3]) < 0.f);
+
         }
-        if (k == plane->vertcount)
+        while (j--);
+
+        if (k == -1)
             return (0); // OUT !
-        i++;
     }
+    while (i--);
 
     return (1);
 }
@@ -3781,7 +3782,8 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         programbits |= prprogrambits[PR_BIT_MIRROR_MAP].bit;
 
     // PR_BIT_FOG
-    programbits |= prprogrambits[PR_BIT_FOG].bit;
+    if (!material.mirrormap)
+        programbits |= prprogrambits[PR_BIT_FOG].bit;
 
     // PR_BIT_GLOW_MAP
     if (!curlight && r_glowmapping && material.glowmap)

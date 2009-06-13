@@ -85,6 +85,14 @@ int32_t ScanGroups(void)
     struct grpfile *grp;
     char *fn;
     struct Bstat st;
+#define BUFFER_SIZE (1024 * 1024 * 8)
+    uint8_t *buf = Bmalloc(BUFFER_SIZE);
+
+    if (!buf || 1)
+    {
+        initprintf("Error allocating %d byte buffer to scan GRPs!\n", BUFFER_SIZE);
+        return 0;
+    }
 
     initprintf("Scanning for GRP files...\n");
 
@@ -131,7 +139,6 @@ int32_t ScanGroups(void)
         {
             int32_t b, fh;
             int32_t crcval;
-            char buf[16*512];
 
             fh = openfrompath(sidx->name, BO_RDONLY|BO_BINARY, BS_IREAD);
             if (fh < 0) continue;
@@ -141,10 +148,10 @@ int32_t ScanGroups(void)
             crc32init((uint32_t *)&crcval);
             do
             {
-                b = read(fh, buf, sizeof(buf));
+                b = read(fh, buf, BUFFER_SIZE);
                 if (b > 0) crc32block((uint32_t *)&crcval, (uint8_t *)buf, b);
             }
-            while (b == sizeof(buf));
+            while (b == BUFFER_SIZE);
             crc32finish((uint32_t *)&crcval);
             close(fh);
             initprintf(" Done\n");
@@ -186,9 +193,13 @@ int32_t ScanGroups(void)
             fclose(fp);
         }
 //        initprintf("Found %d recognized GRP %s.\n",i,i>1?"files":"file");
+        if (buf)
+            Bfree(buf);
         return 0;
     }
     initprintf("Found no recognized GRP files!\n");
+    if (buf)
+        Bfree(buf);
     return 0;
 }
 

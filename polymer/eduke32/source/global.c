@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 #include "duke3d.h"
 
-const char *s_buildDate = "20090522";
+const char *s_buildDate = "20090613";
 char *MusicPtr = NULL;
 int32_t g_musicSize;
 

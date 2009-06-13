@@ -26,6 +26,7 @@
 #endif
 
 #define REPLACE_SYSTEM_ALLOCATOR
+#define THREADCACHEMAX 65536
 #include "nedmalloc.h"
 
 #ifndef TRUE

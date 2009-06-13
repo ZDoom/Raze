@@ -275,6 +275,9 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     FILE *fp;
     HDC hdc;
 
+    nedcreatepool(SYSTEM_POOL_SIZE, -1);
+    atexit(neddestroysyspool);
+
     UNREFERENCED_PARAMETER(lpCmdLine);
     UNREFERENCED_PARAMETER(nCmdShow);
 
@@ -610,7 +613,6 @@ void initprintf(const char *f, ...)
     va_list va;
     char buf[1024];
     static char dabuf[1024];
-    static int32_t cnt = 0;
 
     va_start(va, f);
     Bvsnprintf(buf, 1024, f, va);
@@ -618,7 +620,7 @@ void initprintf(const char *f, ...)
 
     OSD_Printf(buf);
 
-    if (Bstrlen(dabuf) + Bstrlen(buf) > 1022)
+    if ((Bstrlen(dabuf) + Bstrlen(buf) + 2) > sizeof(dabuf))
     {
         startwin_puts(dabuf);
         Bmemset(dabuf, 0, sizeof(dabuf));
@@ -626,7 +628,7 @@ void initprintf(const char *f, ...)
 
     Bstrcat(dabuf,buf);
 
-    if (++cnt < 16 || flushlogwindow || Bstrlen(dabuf) > 768 || numplayers > 1)
+    if (flushlogwindow || Bstrlen(dabuf) > 768)
     {
         startwin_puts(dabuf);
         handleevents();

@@ -332,7 +332,7 @@ static inline void  polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* 
 static inline void  polymer_transformpoint(float* inpos, float* pos, float* matrix);
 static inline void  polymer_pokesector(int16_t sectnum);
 static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projection, float* frustum);
-static int32_t      polymer_planeinfrustum(_prplane *plane, float* frustum);
+static inline int32_t polymer_planeinfrustum(_prplane *plane, float* frustum);
 static inline void  polymer_scansprites(int16_t sectnum, spritetype* tsprite, int32_t* spritesortcnt);
 // SKIES
 static void         polymer_getsky(void);

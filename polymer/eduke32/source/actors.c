@@ -584,6 +584,7 @@ static void ms(int32_t i)
 
 // this is the same crap as in game.c's tspr manipulation.  puke.
 #define LIGHTRAD (s->yrepeat * tilesizy[s->picnum+(T5?(*(intptr_t *)T5) + *(((intptr_t *)T5)+2) * T4:0)])
+#define LIGHTRAD2 (((s->yrepeat) + (rand()%(s->yrepeat>>2))) * tilesizy[s->picnum+(T5?(*(intptr_t *)T5) + *(((intptr_t *)T5)+2) * T4:0)])
 
 inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority)
 {
@@ -616,6 +617,9 @@ inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, i
     }
 
     s->z -= zoffset;
+
+    if (range < ActorExtra[srcsprite].lightmaxrange>>1)
+        ActorExtra[srcsprite].lightmaxrange = 0;
 
     if (range > ActorExtra[srcsprite].lightmaxrange ||
         priority != ActorExtra[srcsprite].lightptr->priority ||
@@ -670,51 +674,6 @@ static void G_MoveZombieActors(void)
         {
             if (x < 30000)
             {
-#ifdef POLYMER
-                switch (DynamicTileMap[s->picnum])
-                {
-                case FLOORFLAME__STATIC:
-                case FIREBARREL__STATIC:
-                case FIREVASE__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
-                    break;
-                case ATOMICHEALTH__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
-                    break;
-
-                case FIRE__STATIC:
-                case FIRE2__STATIC:
-                    /*
-                                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
-                                        if (s->z > ActorExtra[i].floorz+2048) break;
-                    */
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
-                    break;
-                case BURNING__STATIC:
-                case BURNING2__STATIC:
-                    /*
-                                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
-                                        if (s->z > ActorExtra[i].floorz + 2048) break;
-                    */
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
-                    break;
-
-                case EXPLOSION2__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),
-                        s->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
-                    break;
-                case FORCERIPPLE__STATIC:
-                    //                    case TRANSPORTERSTAR__STATIC:
-                case TRANSPORTERBEAM__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
-                    break;
-                case SHRINKEREXPLOSION__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
-                    break;
-
-                }
-#endif // POLYMER
-
                 ActorExtra[i].timetosleep++;
                 if (ActorExtra[i].timetosleep >= (x>>8))
                 {
@@ -1834,8 +1793,6 @@ static void G_MoveStandables(void)
 
         if (s->picnum == OOZFILTER || s->picnum == SEENINE || s->picnum == SEENINEDEAD || s->picnum == (SEENINEDEAD+1))
         {
-            if (s->picnum == OOZFILTER && s->xrepeat)
-                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 6144, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
             if (s->shade != -32 && s->shade != -33)
             {
                 if (s->xrepeat)
@@ -2262,7 +2219,6 @@ CLEAR_THE_BOLT:
         case FLOORFLAME__STATIC:
         case FIREBARREL__STATIC:
         case FIREVASE__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
         case EXPLODINGBARREL__STATIC:
         case WOODENHORSE__STATIC:
         case HORSEONSIDE__STATIC:
@@ -2812,23 +2768,7 @@ static void G_MoveWeapons(void)
 
                 switch (DynamicTileMap[s->picnum])
                 {
-                case FREEZEBLAST__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
-                    break;
-
-                case COOLEXPLOSION1__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<2, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
-                    break;
-
-                case SHRINKSPARK__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
-                    break;
-                case FIRELASER__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
-                    break;
                 case RPG__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
-
                     if (DynamicTileMap[s->picnum] == RPG__STATIC && ActorExtra[i].picnum != BOSS2 &&
                             s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
                     {
@@ -3472,19 +3412,6 @@ static void G_MoveActors(void)
         }
         switch (DynamicTileMap[switchpicnum])
         {
-        case ATOMICHEALTH__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
-            break;
-
-        case FIRE__STATIC:
-        case FIRE2__STATIC:
-            /*
-                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
-                        if (s->z > ActorExtra[i].floorz+2048) break;
-            */
-            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
-            break;
-
         case DUCK__STATIC:
         case TARGET__STATIC:
             if (s->cstat&32)
@@ -5229,31 +5156,6 @@ static void G_MoveMisc(void)  // STATNUM 5
             case TRANSPORTERSTAR__STATIC:
             case TRANSPORTERBEAM__STATIC:
             {
-                switch (DynamicTileMap[switchpicnum])
-                {
-                case BURNING__STATIC:
-                case BURNING2__STATIC:
-                    /*
-                                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
-                                        if (s->z > ActorExtra[i].floorz + 2048) break;
-                    */
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
-                    break;
-
-                case EXPLOSION2__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1),
-                                   LIGHTRAD, 255+(95<<8),
-                                   s->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
-                    break;
-                case FORCERIPPLE__STATIC:
-//                    case TRANSPORTERSTAR__STATIC:
-                case TRANSPORTERBEAM__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
-                    break;
-                case SHRINKEREXPLOSION__STATIC:
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
-                    break;
-                }
                 if (!actorscrptr[sprite[i].picnum])
                     goto BOLT;
                 p = A_FindPlayer(s,&x);
@@ -7949,6 +7851,8 @@ void G_MoveWorld(void)
 #ifdef POLYMER
                 if (getrendermode() == 4)
                 {
+                    spritetype *s = &sprite[i];
+
                     if(ActorExtra[i].lightptr != NULL && ActorExtra[i].lightcount)
                     {
                         if (!(--ActorExtra[i].lightcount))
@@ -7977,7 +7881,6 @@ void G_MoveWorld(void)
                     case ACCESSSWITCH__STATIC:
                     case ACCESSSWITCH2__STATIC:
                         {
-                            spritetype *s = &sprite[i];
                             int32_t x, y;
 
                             if (s->cstat & 32768 || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
@@ -7997,6 +7900,69 @@ void G_MoveWorld(void)
                     }
                     switch (DynamicTileMap[sprite[i].picnum])
                     {
+                    case ATOMICHEALTH__STATIC:
+                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                        break;
+
+                    case FIRE__STATIC:
+                    case FIRE2__STATIC:
+                        /*
+                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
+                        if (s->z > ActorExtra[i].floorz+2048) break;
+                        */
+                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                        break;
+
+                    case BURNING__STATIC:
+                    case BURNING2__STATIC:
+                        /*
+                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
+                        if (s->z > ActorExtra[i].floorz + 2048) break;
+                        */
+                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                        break;
+
+                    case OOZFILTER__STATIC:
+                        if (s->xrepeat > 4)
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 6144, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                        break;
+                    case FLOORFLAME__STATIC:
+                    case FIREBARREL__STATIC:
+                    case FIREVASE__STATIC:
+                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                        break;
+
+                    case EXPLOSION2__STATIC:
+                        if (!ActorExtra[i].lightcount)
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),
+                                s->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
+                        break;
+                    case FORCERIPPLE__STATIC:
+                        //                    case TRANSPORTERSTAR__STATIC:
+                    case TRANSPORTERBEAM__STATIC:
+                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
+                        break;
+                    case SHRINKEREXPLOSION__STATIC:
+                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                        break;
+                    case FREEZEBLAST__STATIC:
+                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                        break;
+
+                    case COOLEXPLOSION1__STATIC:
+                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<3, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                        break;
+
+                    case SHRINKSPARK__STATIC:
+                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                        break;
+                    case FIRELASER__STATIC:
+                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+                        break;
+                    case RPG__STATIC:
+                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+                        break;
+
                     case DIPSWITCH__STATIC:
                     case DIPSWITCH2__STATIC:
                     case DIPSWITCH3__STATIC:
@@ -8013,7 +7979,6 @@ void G_MoveWorld(void)
                     case ACCESSSWITCH__STATIC:
                     case ACCESSSWITCH2__STATIC:
                         {
-                            spritetype *s = &sprite[i];
                             int32_t x, y;
 
                             if (s->cstat & 32768 || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
