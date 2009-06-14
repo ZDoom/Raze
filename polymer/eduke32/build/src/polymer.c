@@ -927,6 +927,11 @@ void                polymer_drawsprite(int32_t snum)
 
     if (tspr->owner < 0 || tspr->picnum < 0) return;
 
+    if ((tspr->cstat & 8192) && (depth && !mirrors[depth-1].plane))
+        return;
+    if ((tspr->cstat & 16384) && (!depth || mirrors[depth-1].plane))
+        return;
+
     fogcalc(tspr->shade,sector[tspr->sectnum].visibility,sector[tspr->sectnum].floorpal);
     bglFogf(GL_FOG_DENSITY,fogresult);
     bglFogfv(GL_FOG_COLOR,fogcol);
@@ -2992,8 +2997,6 @@ static inline void  polymer_scansprites(int16_t sectnum, spritetype* localtsprit
                 (spr->xrepeat > 0) && (spr->yrepeat > 0) &&
                 (*localspritesortcnt < MAXSPRITESONSCREEN))
         {
-            if ((spr->cstat & 16384) && (!depth || mirrors[depth-1].plane))
-                continue;
             copybufbyte(spr,&localtsprite[*localspritesortcnt],sizeof(spritetype));
             localtsprite[(*localspritesortcnt)++].owner = i;
         }
