@@ -148,7 +148,8 @@ typedef struct BPACK
 //   bit 7: 1 = Real centered centering, 0 = foot center             "C"
 //   bit 8: 1 = Blocking sprite (use with hitscan / cliptype 1)      "H"
 //   bit 9: 1 = Transluscence reversing, 0 = normal                  "T"
-//   bits 10-14: reserved
+//   bits 10-13: reserved
+//   bit 14: 1 = invisible but casts shadow
 //   bit 15: 1 = Invisible sprite, 0 = not invisible
 
     //44 bytes

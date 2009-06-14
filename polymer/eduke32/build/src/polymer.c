@@ -952,8 +952,6 @@ void                polymer_drawsprite(int32_t snum)
 
     spriteplane.material.diffusemodulation[3] *=  (1.0f - spriteext[tspr->owner].alpha);
 
-    if (tspr->cstat & 16384) spriteplane.material.diffusemodulation[3] = 0.0f;
-
     if (((tspr->cstat>>4) & 3) == 0)
         xratio = (float)(tspr->xrepeat) * 0.20f; // 32 / 160
     else
@@ -2994,6 +2992,8 @@ static inline void  polymer_scansprites(int16_t sectnum, spritetype* localtsprit
                 (spr->xrepeat > 0) && (spr->yrepeat > 0) &&
                 (*localspritesortcnt < MAXSPRITESONSCREEN))
         {
+            if ((spr->cstat & 16384) && (!depth || mirrors[depth-1].plane))
+                continue;
             copybufbyte(spr,&localtsprite[*localspritesortcnt],sizeof(spritetype));
             localtsprite[(*localspritesortcnt)++].owner = i;
         }
@@ -3703,7 +3703,6 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
             material->diffusemodulation[2] *= hictinting[MAXPALOOKUPS-1].b / 255.0;
         }
     }
-
 
     // PR_BIT_SPECULAR_MAP
     if (hicfindsubst(tilenum, SPECULARPAL, 0))
