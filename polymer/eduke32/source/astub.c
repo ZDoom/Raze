@@ -50,7 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20090522"
+#define BUILDDATE " 20090616"
 
 static int32_t floor_over_floor;
 
@@ -192,10 +192,13 @@ void create_map_snapshot(void)
 
     tempcrc = crc32once((uint8_t *)&sector[0],sizeof(sectortype) * numsectors);
 
+
     if (mapstate->prev && mapstate->prev->numsectors == numsectors && mapstate->prev->sectcrc == tempcrc)
     {
         mapstate->sectors = mapstate->prev->sectors;
-        /*OSD_Printf("found a match between undo sectors\n");*/
+        mapstate->sectsiz = mapstate->prev->sectsiz;
+        mapstate->sectcrc = tempcrc;
+        /* OSD_Printf("found a match between undo sectors\n"); */
     }
     else
     {
@@ -208,10 +211,13 @@ void create_map_snapshot(void)
 
     tempcrc = crc32once((uint8_t *)&wall[0],sizeof(walltype) * numwalls);
 
+
     if (mapstate->prev && mapstate->prev->numwalls == numwalls && mapstate->prev->wallcrc == tempcrc)
     {
         mapstate->walls = mapstate->prev->walls;
-        /*OSD_Printf("found a match between undo walls\n");*/
+        mapstate->wallsiz = mapstate->prev->wallsiz;
+        mapstate->wallcrc = tempcrc;
+        /* OSD_Printf("found a match between undo walls\n"); */
     }
     else
     {
@@ -222,21 +228,24 @@ void create_map_snapshot(void)
         mapstate->wallcrc = tempcrc;
     }
 
-    tempcrc = crc32once((uint8_t *)&sprite[0],sizeof(spritetype) * numsprites);
+    tempcrc = crc32once((uint8_t *)&sprite[0],sizeof(spritetype) * MAXSPRITES);
 
     if (mapstate->prev && mapstate->prev->numsprites == numsprites && mapstate->prev->spritecrc == tempcrc)
     {
         mapstate->sprites = mapstate->prev->sprites;
+        mapstate->spritesiz = mapstate->prev->spritesiz;
+        mapstate->spritecrc = tempcrc;
         /*OSD_Printf("found a match between undo sprites\n");*/
     }
     else
     {
+        int32_t i = 0;
         spritetype *spri, *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites);
         mapstate->sprites = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites);
 
         spri = &tspri[0];
 
-        for (j=0; j<MAXSPRITES; j++)
+        for (j=0; j<MAXSPRITES && i < numsprites; j++,i++)
         {
             if (sprite[j].statnum != MAXSTATUS)
                 Bmemcpy(spri++,&sprite[j],sizeof(spritetype));
@@ -6906,7 +6915,7 @@ static void Keys3d(void)
             temphitag = sprite[searchwall].hitag;
             tempextra = sprite[searchwall].extra;
             tempxvel = sprite[searchwall].xvel;
-            tempyvel = sprite[searchwall].xvel;
+            tempyvel = sprite[searchwall].zvel;
             tempzvel = sprite[searchwall].xvel;
         }
         if (searchstat == 4)
@@ -10452,6 +10461,8 @@ static void Keys2d3d(void)
 void ExtCheckKeys(void)
 {
     static int32_t soundinit = 0;
+    static int32_t lastbstatus = 0;
+
     if (!soundinit)
     {
         g_numsounds = 0;
@@ -10510,6 +10521,7 @@ void ExtCheckKeys(void)
                 }
         }
     }
+    lastbstatus = bstatus;
     readmousebstatus(&bstatus);
 
     Keys2d3d();
@@ -10525,7 +10537,7 @@ void ExtCheckKeys(void)
     }
     else Keys2d();
 
-    if (asksave == 1 && bstatus == 0 && mapstate)
+    if (asksave == 1 && (bstatus + lastbstatus) == 0 && mapstate)
     {
 //        message("Saved undo rev %d",map_revision);
         create_map_snapshot();

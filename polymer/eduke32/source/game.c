@@ -11269,7 +11269,7 @@ CLEAN_DIRECTORY:
 
     flushlogwindow = 0;
     loaddefinitions_game(duke3ddef, TRUE);
-    flushlogwindow = 1;
+//    flushlogwindow = 1;
 
     {
         struct strllist *s;

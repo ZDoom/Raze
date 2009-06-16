@@ -52,7 +52,7 @@ extern "C" {
 #include "macros.h"
 
 #define APPNAME "EDuke32"
-#define VERSION " 2.0.0devel"
+#define VERSION " 2.0.0unstable"
 // this is checked against http://eduke32.com/VERSION
 extern const char *s_buildDate;
 #define HEAD2 APPNAME VERSION
@@ -225,15 +225,17 @@ enum PlayerActionFlags_t {
     pfacing         = 65536
 };
 
-enum InventoryItem_t {
+enum DukeInventory_t {
     GET_STEROIDS,
     GET_SHIELD,
     GET_SCUBA,
     GET_HOLODUKE,
     GET_JETPACK,
-    GET_ACCESS   = 6,
+    GET_DUMMY1,
+    GET_ACCESS,
     GET_HEATS,
-    GET_FIRSTAID = 9,
+    GET_DUMMY2,
+    GET_FIRSTAID,
     GET_BOOTS
 };
 
