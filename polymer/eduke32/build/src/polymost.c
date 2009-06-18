@@ -4568,16 +4568,6 @@ int32_t lastcullcheck = 0;
 char cullmodel[MAXSPRITES];
 int32_t cullcheckcnt = 0;
 
-#ifndef _MSC_VER
-#if defined (__GNUC__) && defined(__i386__)
-#ifndef __fastcall
-#define __fastcall __attribute__((fastcall))
-#endif
-#else
-#define __fastcall
-#endif
-#endif
-
 int32_t __fastcall polymost_checkcoordinates(int32_t x, int32_t y, spritetype *tspr)
 {
     int16_t datempsectnum = tspr->sectnum;

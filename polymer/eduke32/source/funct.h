@@ -25,16 +25,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __funct_h__
 #define __funct_h__
 
-#ifndef _MSC_VER
-  #if defined(__GNUC__) && defined(__i386__) 
-    #ifndef __fastcall
-      #define __fastcall __attribute__((fastcall))
-    #endif
-  #else
-    #define __fastcall
-  #endif
-#endif
-
 extern void sendscore(const char *s);
 extern void S_SoundStartup(void);
 extern void S_SoundShutdown(void);

@@ -4057,7 +4057,7 @@ static inline void X_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabe
     }
 }
 #else
-static int32_t X_AccessSpriteX(int32_t iActor, int32_t lLabelID, int32_t lParm2)
+static int32_t __fastcall X_AccessSpriteX(int32_t iActor, int32_t lLabelID, int32_t lParm2)
 {
     if ((ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) && g_scriptSanityChecks)
     {
@@ -4124,7 +4124,7 @@ static int32_t X_AccessSpriteX(int32_t iActor, int32_t lLabelID, int32_t lParm2)
     }
 }
 
-static int32_t X_AccessSectorX(int32_t iSector, int32_t lLabelID)
+static int32_t __fastcall X_AccessSectorX(int32_t iSector, int32_t lLabelID)
 {
     switch (lLabelID)
     {
@@ -4155,7 +4155,7 @@ static int32_t X_AccessSectorX(int32_t iSector, int32_t lLabelID)
     }
 }
 
-static int32_t X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int32_t lParm2)
+static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int32_t lParm2)
 {
     if ((PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) && g_scriptSanityChecks)
     {
@@ -4458,7 +4458,7 @@ static int32_t X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int32_t lParm2
     }
 }
 
-static int32_t X_AccessWallX(int32_t iWall, int32_t lLabelID)
+static int32_t __fastcall X_AccessWallX(int32_t iWall, int32_t lLabelID)
 {
     switch (lLabelID)
     {

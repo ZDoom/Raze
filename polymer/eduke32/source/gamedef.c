@@ -1896,6 +1896,25 @@ static int32_t C_GetNextValue(int32_t type)
     return 0;   // literal value
 }
 
+static int32_t C_CheckMalformedBranch(intptr_t lastScriptPtr)
+{
+    switch (C_GetKeyword())
+    {
+    case CON_RIGHTBRACE:
+    case CON_ENDA:
+    case CON_ENDEVENT:
+    case CON_ENDS:
+        g_scriptPtr = lastScriptPtr + &script[0];
+        g_ifElseAborted = 1;
+        C_ReportError(-1);
+        g_numCompilerWarnings++;
+        initprintf("%s:%d: warning: malformed `%s' branch\n",g_szScriptFileName,g_lineNumber,
+            keyw[*(g_scriptPtr) & 0xFFF]);
+        return 1;
+    }
+    return 0;
+}
+
 static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
 {
     // ifrnd and ifhitweapon actually do something when the condition is executed
@@ -1916,8 +1935,7 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
         g_scriptPtr = lastScriptPtr + &script[0];
         initprintf("%s:%d: warning: empty `%s' branch\n",g_szScriptFileName,g_lineNumber,
                    keyw[*(g_scriptPtr) & 0xFFF]);
-        if (g_ifElseAborted)
-            *(g_scriptPtr) = (CON_NULLOP + (IFELSE_MAGIC<<12));
+        *(g_scriptPtr) = (CON_NULLOP + (IFELSE_MAGIC<<12));
         return 1;
     }
     return 0;
@@ -3037,8 +3055,13 @@ static int32_t C_ParseCommand(void)
         {
             intptr_t offset;
             intptr_t lastScriptPtr = g_scriptPtr - &script[0] - 1;
+
             g_ifElseAborted = 0;
             g_checkingIfElse--;
+
+            if (C_CheckMalformedBranch(lastScriptPtr))
+                return 0;
+
             tempscrptr = g_scriptPtr;
             offset = (unsigned)(tempscrptr-script);
             g_scriptPtr++; //Leave a spot for the fail location
@@ -4183,6 +4206,10 @@ static int32_t C_ParseCommand(void)
         g_ifElseAborted = 0;
 
         C_GetManyVars(2);
+
+        if (C_CheckMalformedBranch(lastScriptPtr))
+            return 0;
+
         tempscrptr = g_scriptPtr;
         offset = (unsigned)(g_scriptPtr-script);
         g_scriptPtr++; // Leave a spot for the fail location
@@ -4237,6 +4264,9 @@ static int32_t C_ParseCommand(void)
         // get the ID of the DEF
         C_GetNextVar();
         C_GetNextValue(LABEL_DEFINE); // the number to check against...
+
+        if (C_CheckMalformedBranch(lastScriptPtr))
+            return 0;
 
         tempscrptr = g_scriptPtr;
         offset = (unsigned)(tempscrptr-script);
@@ -4781,6 +4811,9 @@ repeatcase:
             break;
         }
 
+        if (C_CheckMalformedBranch(lastScriptPtr))
+            return 0;
+
         tempscrptr = g_scriptPtr;
         offset = (unsigned)(tempscrptr-script);
 
@@ -4827,6 +4860,9 @@ repeatcase:
         intptr_t lastScriptPtr = (g_scriptPtr-&script[0]-1);
 
         g_ifElseAborted = 0;
+
+        if (C_CheckMalformedBranch(lastScriptPtr))
+            return 0;
 
         tempscrptr = g_scriptPtr;
         offset = (unsigned)(tempscrptr-script);

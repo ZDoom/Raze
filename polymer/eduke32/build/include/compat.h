@@ -25,6 +25,16 @@
 #  include "msvc/inttypes.h" // from http://code.google.com/p/msinttypes/
 #endif
 
+#ifndef _MSC_VER
+#if defined(__GNUC__) && defined(__i386__) 
+#ifndef __fastcall
+#define __fastcall __attribute__((fastcall))
+#endif
+#else
+#define __fastcall
+#endif
+#endif
+
 #define REPLACE_SYSTEM_ALLOCATOR
 #define THREADCACHEMAX 65536
 #include "nedmalloc.h"
