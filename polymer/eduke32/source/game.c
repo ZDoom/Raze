@@ -9685,6 +9685,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     continue;
                 }
 #endif
+/*
                 if (!Bstrcasecmp(c+1,"unstable"))
                 {
                     initprintf("WARNING WARNING WARNING WARNING\n"
@@ -9697,6 +9698,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     i++;
                     continue;
                 }
+*/
                 if (!Bstrcasecmp(c+1,"cachesize"))
                 {
                     if (argc > i+1)
