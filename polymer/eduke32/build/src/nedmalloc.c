@@ -34,7 +34,7 @@ DEALINGS IN THE SOFTWARE.
 /*#define FULLSANITYCHECKS*/
 
 #include "nedmalloc.h"
-#ifdef WIN32
+#ifdef _WIN32
  #include <malloc.h>
  #include <stddef.h>
 #endif
