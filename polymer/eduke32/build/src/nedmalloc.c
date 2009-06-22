@@ -33,6 +33,7 @@ DEALINGS IN THE SOFTWARE.
 
 /*#define FULLSANITYCHECKS*/
 
+#include "compat.h"  /* For unreferenced Parameter */
 #include "nedmalloc.h"
 #ifdef _WIN32
  #include <malloc.h>
