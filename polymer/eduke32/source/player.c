@@ -353,39 +353,39 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
         case CHAINGUN__STATIC:
         case RPG__STATIC:
         case MORTER__STATIC:
-            {
-                int32_t x = ((sintable[(s->ang+512)&2047])>>7), y = ((sintable[(s->ang)&2047])>>7);
-                s-> x += x;
-                s-> y += y;
-                G_AddGameLight(0, i, PHEIGHT, 8192, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
-                ActorExtra[i].lightcount = 2;
-                s-> x -= x;
-                s-> y -= y;
-            }
+        {
+            int32_t x = ((sintable[(s->ang+512)&2047])>>7), y = ((sintable[(s->ang)&2047])>>7);
+            s-> x += x;
+            s-> y += y;
+            G_AddGameLight(0, i, PHEIGHT, 8192, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+            ActorExtra[i].lightcount = 2;
+            s-> x -= x;
+            s-> y -= y;
+        }
 
-/*
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>4);
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>4);
+        /*
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>4);
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>4);
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = (s->ang+1024)&2047;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = (s->ang+1024)&2047;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = 255;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = 80;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = 0;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = 255;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = 80;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = 0;
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX_GAME;
+                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX_GAME;
 
-            if (gamelightcount < PR_MAXLIGHTS)
-                gamelightcount++;
-*/
-            break;
+                    if (gamelightcount < PR_MAXLIGHTS)
+                        gamelightcount++;
+        */
+        break;
         }
 #endif // POLYMER
     }
@@ -406,28 +406,28 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
             s-> x -= x;
             s-> y -= y;
 
-/*
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>4);
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>4);
+            /*
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>4);
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>4);
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = (s->ang+1024)&2047;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = (s->ang+1024)&2047;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = ProjectileData[atwith].flashcolor&255;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = (ProjectileData[atwith].flashcolor>>8)&255;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = (ProjectileData[atwith].flashcolor>>16)&255;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = ProjectileData[atwith].flashcolor&255;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = (ProjectileData[atwith].flashcolor>>8)&255;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = (ProjectileData[atwith].flashcolor>>16)&255;
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX_GAME;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX_GAME;
 
-            if (gamelightcount < PR_MAXLIGHTS)
-                gamelightcount++;
-*/
+                        if (gamelightcount < PR_MAXLIGHTS)
+                            gamelightcount++;
+            */
         }
 #endif // POLYMER
 
@@ -2202,28 +2202,28 @@ void P_FireWeapon(DukePlayer_t *p)
             ActorExtra[p->i].lightcount = 2;
             s->x -= x;
             s->y -= y;
-/*
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(p->ang+512)&2047])>>4);
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(p->ang)&2047])>>4);
+            /*
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(p->ang+512)&2047])>>4);
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(p->ang)&2047])>>4);
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = (s->ang+1024)&2047;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = (s->ang+1024)&2047;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = aplWeaponFlashColor[p->curr_weapon][snum]&255;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = (aplWeaponFlashColor[p->curr_weapon][snum]>>8)&255;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = (aplWeaponFlashColor[p->curr_weapon][snum]>>16)&255;;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = aplWeaponFlashColor[p->curr_weapon][snum]&255;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = (aplWeaponFlashColor[p->curr_weapon][snum]>>8)&255;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = (aplWeaponFlashColor[p->curr_weapon][snum]>>16)&255;;
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX_GAME;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX_GAME;
 
-            if (gamelightcount < PR_MAXLIGHTS)
-                gamelightcount++;
-*/
+                        if (gamelightcount < PR_MAXLIGHTS)
+                            gamelightcount++;
+            */
 #endif // POLYMER
             lastvisinc = totalclock+32;
             p->visibility = 0;

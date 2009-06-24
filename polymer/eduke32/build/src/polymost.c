@@ -5949,21 +5949,21 @@ void polymost_initosdfuncs(void)
         { "r_downsize","r_downsize: controls downsizing factor for hires textures",(void *)&r_downsizevar, CVAR_INT|CVAR_FUNCPTR, 0, 0, 5 },
         { "r_fullbrights","r_fullbrights: enable/disable fullbright textures",(void *)&r_fullbrights, CVAR_BOOL, 0, 0, 1 },
         { "r_glowmapping","r_glowmapping: enable/disable glow mapping",(void *)&r_glowmapping, CVAR_BOOL, 0, 0, 1 },
-/*
-        { "r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",(void *)&r_glowmapping, CVAR_BOOL, 0, 0, 1 }
-        { "r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",(void *)&glnvmultisamplehint, CVAR_BOOL, 0, 0, 1 }
-*/
+        /*
+                { "r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",(void *)&r_glowmapping, CVAR_BOOL, 0, 0, 1 }
+                { "r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",(void *)&glnvmultisamplehint, CVAR_BOOL, 0, 0, 1 }
+        */
         { "r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",
-                (void *)&r_parallaxskyclamping, CVAR_BOOL, 0, 0, 1 },
+          (void *)&r_parallaxskyclamping, CVAR_BOOL, 0, 0, 1 },
         { "r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",
-                (void *)&r_parallaxskypanning, CVAR_BOOL, 0, 0, 1 },
+          (void *)&r_parallaxskypanning, CVAR_BOOL, 0, 0, 1 },
         { "r_polygonmode","r_polygonmode: debugging feature",(void *)&glpolygonmode, CVAR_INT | CVAR_NOSAVE, 0, 0, 3 },
         { "r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",(void *)&glredbluemode, CVAR_BOOL, 0, 0, 1 },
         { "r_shadescale","r_shadescale: multiplier for lighting",(void *)&shadescale, CVAR_FLOAT, 0, 0, 10 },
         { "r_swapinterval","r_swapinterval: sets the GL swap interval (VSync)",(void *)&vsync, CVAR_BOOL|CVAR_FUNCPTR, 0, 0, 1 },
         { "r_texcachecompression","r_texcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",(void *)&glusetexcachecompression, CVAR_BOOL, 0, 0, 1 },
         { "r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",(void *)&glusetexcache, CVAR_BOOL, 0, 0, 1 },
-        { "r_texcompr","r_texcompr: enable/disable OpenGL texture compression",(void *)&glusetexcompr, CVAR_BOOL, 0, 0, 1 }, 
+        { "r_texcompr","r_texcompr: enable/disable OpenGL texture compression",(void *)&glusetexcompr, CVAR_BOOL, 0, 0, 1 },
         { "r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", (void *)&glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 0, 16 },
         { "r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",(void *)&gltexmaxsize, CVAR_INT, 0, 0, 4096 },
         { "r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",(void *)&gltexmiplevel, CVAR_INT, 0, 0, 6 },

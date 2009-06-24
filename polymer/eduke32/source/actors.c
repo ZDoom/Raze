@@ -622,8 +622,8 @@ inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, i
         ActorExtra[srcsprite].lightmaxrange = 0;
 
     if (range > ActorExtra[srcsprite].lightmaxrange ||
-        priority != ActorExtra[srcsprite].lightptr->priority ||
-        Bmemcmp(&sprite[srcsprite], ActorExtra[srcsprite].lightptr, sizeof(int32_t) * 3))
+            priority != ActorExtra[srcsprite].lightptr->priority ||
+            Bmemcmp(&sprite[srcsprite], ActorExtra[srcsprite].lightptr, sizeof(int32_t) * 3))
     {
         if (range > ActorExtra[srcsprite].lightmaxrange)
             ActorExtra[srcsprite].lightmaxrange = range;
@@ -5644,10 +5644,10 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 j = headspritesect[s->sectnum];
                 while (j >= 0)
                 {
-                    if (sprite[j].statnum != 10 && sector[sprite[j].sectnum].lotag != 2 && 
-                        (sprite[j].picnum != SECTOREFFECTOR ||
-                        (sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 49||sprite[j].lotag == 50)) )
-                        && sprite[j].picnum != LOCATORS)
+                    if (sprite[j].statnum != 10 && sector[sprite[j].sectnum].lotag != 2 &&
+                            (sprite[j].picnum != SECTOREFFECTOR ||
+                             (sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 49||sprite[j].lotag == 50)))
+                            && sprite[j].picnum != LOCATORS)
                     {
                         rotatepoint(s->x,s->y,sprite[j].x,sprite[j].y,q,&sprite[j].x,&sprite[j].y);
 
@@ -7853,7 +7853,7 @@ void G_MoveWorld(void)
                 {
                     spritetype *s = &sprite[i];
 
-                    if(ActorExtra[i].lightptr != NULL && ActorExtra[i].lightcount)
+                    if (ActorExtra[i].lightptr != NULL && ActorExtra[i].lightcount)
                     {
                         if (!(--ActorExtra[i].lightcount))
                         {
@@ -7880,23 +7880,23 @@ void G_MoveWorld(void)
                     case TECHSWITCH__STATIC:
                     case ACCESSSWITCH__STATIC:
                     case ACCESSSWITCH2__STATIC:
-                        {
-                            int32_t x, y;
+                    {
+                        int32_t x, y;
 
-                            if (s->cstat & 32768 || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
-                                break;
+                        if (s->cstat & 32768 || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                            break;
 
-                            x = ((sintable[(s->ang+512)&2047])>>7);
-                            y = ((sintable[(s->ang)&2047])>>7);
+                        x = ((sintable[(s->ang+512)&2047])>>7);
+                        y = ((sintable[(s->ang)&2047])>>7);
 
-                            s->x += x;
-                            s->y += y;
+                        s->x += x;
+                        s->y += y;
 
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 48+(255<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
-                            s->x -= x;
-                            s->y -= y;
-                        }
-                        break;
+                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 48+(255<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
+                        s->x -= x;
+                        s->y -= y;
+                    }
+                    break;
                     }
                     switch (DynamicTileMap[sprite[i].picnum])
                     {
@@ -7935,7 +7935,7 @@ void G_MoveWorld(void)
                     case EXPLOSION2__STATIC:
                         if (!ActorExtra[i].lightcount)
                             G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),
-                                s->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
+                                           s->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
                         break;
                     case FORCERIPPLE__STATIC:
                         //                    case TRANSPORTERSTAR__STATIC:
@@ -7978,23 +7978,23 @@ void G_MoveWorld(void)
                     case TECHSWITCH__STATIC:
                     case ACCESSSWITCH__STATIC:
                     case ACCESSSWITCH2__STATIC:
-                        {
-                            int32_t x, y;
+                    {
+                        int32_t x, y;
 
-                            if (s->cstat & 32768 || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
-                                break;
+                        if (s->cstat & 32768 || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                            break;
 
-                            x = ((sintable[(s->ang+512)&2047])>>7);
-                            y = ((sintable[(s->ang)&2047])>>7);
+                        x = ((sintable[(s->ang+512)&2047])>>7);
+                        y = ((sintable[(s->ang)&2047])>>7);
 
-                            s->x += x;
-                            s->y += y;
+                        s->x += x;
+                        s->y += y;
 
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 255+(48<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
-                            s->x -= x;
-                            s->y -= y;
-                        }
-                        break;
+                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 255+(48<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
+                        s->x -= x;
+                        s->y -= y;
+                    }
+                    break;
                     }
                 }
 #endif

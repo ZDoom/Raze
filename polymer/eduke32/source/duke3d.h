@@ -667,6 +667,8 @@ extern int32_t g_cameraDistance, g_cameraClock, g_playerFriction,g_showShareware
 extern int32_t g_networkBroadcastMode, g_movesPerPacket;
 extern int32_t g_gameQuit;
 
+extern int32_t playerswhenstarted;
+
 extern char pus,pub;
 extern int32_t g_damageCameras,g_freezerSelfDamage,g_tripbombLaserMode;
 

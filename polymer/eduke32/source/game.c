@@ -63,7 +63,6 @@ int32_t g_scriptSanityChecks = 1;
 #define TIMERUPDATESIZ 32
 
 int32_t g_cameraDistance = 0, g_cameraClock = 0;
-static int32_t playerswhenstarted;
 static int32_t qe,cp;
 static int32_t g_commandSetup = 0;
 int32_t g_noSetup = 0;
@@ -8892,7 +8891,7 @@ static void G_ShowDebugHelp(void)
               "-q#\t\tFake multiplayer with # (2-8) players\n"
               "-rmnet\t\tUse network config file (OBSOLETE, see -net)\n"
               "-stun\t\tUse UDP hole punching for multiplayer connections\n"
-              "-unstable   \tForce EDuke32 to execute unsafe CON commands (and crash)\n"
+              /*"-unstable   \tForce EDuke32 to execute unsafe CON commands (and crash)\n"*/
               "-w\t\tShow coordinates\n"
               "-z#/-condebug\tEnable line-by-line CON compile debugging at level #\n"
               ;
@@ -9685,20 +9684,20 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     continue;
                 }
 #endif
-/*
-                if (!Bstrcasecmp(c+1,"unstable"))
-                {
-                    initprintf("WARNING WARNING WARNING WARNING\n"
-                               "EDuke32's runtime script error detection has been disabled via "
-                               "the '-unstable' command line parameter.  Bug reports from this "
-                               "mode are NOT welcome and you should expect crashes in certain "
-                               "mods.  Please run EDuke32 without '-unstable' before sending "
-                               "any bug reports.\n");
-                    g_scriptSanityChecks = 0;
-                    i++;
-                    continue;
-                }
-*/
+                /*
+                                if (!Bstrcasecmp(c+1,"unstable"))
+                                {
+                                    initprintf("WARNING WARNING WARNING WARNING\n"
+                                               "EDuke32's runtime script error detection has been disabled via "
+                                               "the '-unstable' command line parameter.  Bug reports from this "
+                                               "mode are NOT welcome and you should expect crashes in certain "
+                                               "mods.  Please run EDuke32 without '-unstable' before sending "
+                                               "any bug reports.\n");
+                                    g_scriptSanityChecks = 0;
+                                    i++;
+                                    continue;
+                                }
+                */
                 if (!Bstrcasecmp(c+1,"cachesize"))
                 {
                     if (argc > i+1)
@@ -10379,7 +10378,8 @@ static void G_LoadExtraPalettes(void)
 
 #if defined(__APPLE__) && B_BIG_ENDIAN != 0
     // this is almost as bad as just setting the value to 25 :P
-    g_numRealPalettes = (g_numRealPalettes * (uint64)0x0202020202 & (uint64)0x010884422010) % 1023;
+    g_numRealPalettes = ((g_numRealPalettes * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
+
 #endif
 
     for (j = 0; j < 256; j++)
@@ -11135,9 +11135,22 @@ void app_main(int32_t argc,const char **argv)
 
     if (mod_dir[0] != '/')
     {
+        char cwd[BMAX_PATH];
+
         Bstrcat(root,mod_dir);
         addsearchpath(root);
 //        addsearchpath(mod_dir);
+
+        if (getcwd(cwd,BMAX_PATH))
+        {
+            Bsprintf(cwd,"%s/%s",cwd,mod_dir);
+            if (!Bstrcmp(root, cwd))
+            {
+                if (addsearchpath(cwd) == -2)
+                    if (Bmkdir(cwd,S_IRWXU) == 0) addsearchpath(cwd);
+            }
+        }
+
 #if defined(POLYMOST) && defined(USE_OPENGL)
         Bsprintf(tempbuf,"%s/%s",mod_dir,TEXCACHEFILE);
         Bstrcpy(TEXCACHEFILE,tempbuf);
@@ -11390,8 +11403,6 @@ CLEAN_DIRECTORY:
 
     if (ud.multimode > 1)
     {
-        playerswhenstarted = ud.multimode;
-
         if (ud.warp_on == 0)
         {
             ud.m_monsters_off = 1;
@@ -11399,6 +11410,7 @@ CLEAN_DIRECTORY:
         }
     }
 
+    playerswhenstarted = ud.multimode;
     ud.last_level = -1;
 
     if (Bstrcasecmp(ud.rtsname,"DUKE.RTS") == 0 ||

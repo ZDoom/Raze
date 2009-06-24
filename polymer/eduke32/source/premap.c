@@ -1868,7 +1868,10 @@ int32_t G_EnterLevel(int32_t g)
     }
 
     if ((g&MODE_GAME) || (g&MODE_EOL))
-        g_player[myconnectindex].ps->gm = MODE_GAME;
+    {
+        TRAVERSE_CONNECT(i)
+        g_player[i].ps->gm = MODE_GAME;
+    }
     else if (g&MODE_RESTART)
     {
         if (ud.recstat == 2)

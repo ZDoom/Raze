@@ -85,12 +85,12 @@ void freevbos()
             }
         }
 
-        if (allocvbos)
-        {
-            bglDeleteBuffersARB(allocvbos, indexvbos);
-            bglDeleteBuffersARB(allocvbos, vertvbos);
-            allocvbos = 0;
-        }
+    if (allocvbos)
+    {
+        bglDeleteBuffersARB(allocvbos, indexvbos);
+        bglDeleteBuffersARB(allocvbos, vertvbos);
+        allocvbos = 0;
+    }
 }
 
 void freeallmodels()
@@ -1458,7 +1458,9 @@ static void     md3postload(md3model_t* m)
                     m->head.frames[framei].max.x    = frameverts[verti].x;
                     m->head.frames[framei].max.y    = frameverts[verti].y;
                     m->head.frames[framei].max.z    = frameverts[verti].z;
-                } else {
+                }
+                else
+                {
                     if (m->head.frames[framei].min.x > frameverts[verti].x)
                         m->head.frames[framei].min.x = frameverts[verti].x;
                     if (m->head.frames[framei].max.x < frameverts[verti].x)
@@ -2354,11 +2356,11 @@ static void addquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, 
     for (yy=0; yy<VOXBORDWIDTH; yy++)
     {
         Bmemcpy(&gvox->mytex[(shp[z].y+yy)*gvox->mytexx+shp[z].x],
-               &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
-               (x+(VOXBORDWIDTH<<1))<<2);
+                &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
+                (x+(VOXBORDWIDTH<<1))<<2);
         Bmemcpy(&gvox->mytex[(shp[z].y+y+yy+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
-               &gvox->mytex[(shp[z].y+y-1+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
-               (x+(VOXBORDWIDTH<<1))<<2);
+                &gvox->mytex[(shp[z].y+y-1+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
+                (x+(VOXBORDWIDTH<<1))<<2);
     }
 
     qptr = &gvox->quad[gvox->qcnt];

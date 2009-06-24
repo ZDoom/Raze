@@ -192,7 +192,7 @@ extern void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,in
 extern void G_DrawTileSmall(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t orientation);
 extern void G_DrawTilePalSmall(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t orientation,int32_t p);
 extern void Gv_ResetVars(void);
-extern void A_ResetVars(int32_t iActor);
+extern void __fastcall A_ResetVars(register int32_t iActor);
 
 extern int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb);
 
@@ -219,10 +219,10 @@ extern void Gv_Init(void);
 extern void Gv_WriteSave(FILE *fil);
 extern int32_t Gv_ReadSave(int32_t fil);
 
-extern int32_t __fastcall Gv_GetVar(int32_t id, int32_t iActor, int32_t iPlayer);
-extern void __fastcall Gv_SetVar(int32_t id, int32_t lValue, int32_t iActor, int32_t iPlayer);
-extern int32_t __fastcall Gv_GetVarX(int32_t id);
-extern void __fastcall Gv_SetVarX(int32_t id, int32_t lValue);
+extern int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, register int32_t iPlayer);
+extern void __fastcall Gv_SetVar(register int32_t id, register int32_t lValue, register int32_t iActor, register int32_t iPlayer);
+extern int32_t __fastcall Gv_GetVarX(register int32_t id);
+extern void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue);
 
 // extern void SetGameArrayID(int32_t id,int32_t index, int32_t lValue);
 
@@ -232,7 +232,7 @@ extern void C_ReportError(int32_t iError);
 
 extern void onvideomodechange(int32_t newmode);
 
-extern void X_OnEvent(int32_t iEventID, int32_t sActor, int32_t sPlayer, int32_t lDist);
+extern void X_OnEvent(register int32_t iEventID, register int32_t sActor, register int32_t sPlayer, register int32_t lDist);
 
 extern int32_t A_CheckSoundPlaying(int32_t i, int32_t num);
 extern int32_t S_CheckSoundPlaying(int32_t i, int32_t num);

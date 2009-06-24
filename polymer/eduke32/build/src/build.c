@@ -1522,16 +1522,16 @@ void overheadeditor(void)
             drawlinepat = 0xffffffff;
 
             Bsprintf(tempbuf,"(%d,%d)",mousxplc,mousyplc);
-/*
-            i = (Bstrlen(tempbuf)<<3)+6;
-            if ((searchx+i) < (xdim2d-1))
-                i = 0;
-            else i = (searchx+i)-(xdim2d-1);
-            if ((searchy+16) < (ydim2d-STATUS2DSIZ2-1))
-                j = 0;
-            else j = (searchy+16)-(ydim2d-STATUS2DSIZ2-1);
-            printext16(searchx+6-i,searchy+6-j,editorcolors[11],-1,tempbuf,0);
-*/
+            /*
+                        i = (Bstrlen(tempbuf)<<3)+6;
+                        if ((searchx+i) < (xdim2d-1))
+                            i = 0;
+                        else i = (searchx+i)-(xdim2d-1);
+                        if ((searchy+16) < (ydim2d-STATUS2DSIZ2-1))
+                            j = 0;
+                        else j = (searchy+16)-(ydim2d-STATUS2DSIZ2-1);
+                        printext16(searchx+6-i,searchy+6-j,editorcolors[11],-1,tempbuf,0);
+            */
             _printmessage16(tempbuf);
         }
         drawline16(searchx,0,searchx,8,editorcolors[15]);
@@ -2115,12 +2115,12 @@ void overheadeditor(void)
 
 //            for (i=0; i<numsectors; i++)
 //                if (inside(mousxplc,mousyplc,i) == 1)
-                {
-                    ydim16 = STATUS2DSIZ;
-                    ExtShowSectorData((int16_t)0/*i*/);
-                    ydim16 = ydim-STATUS2DSIZ2;
+            {
+                ydim16 = STATUS2DSIZ;
+                ExtShowSectorData((int16_t)0/*i*/);
+                ydim16 = ydim-STATUS2DSIZ2;
 //                    break;
-                }
+            }
         }
         if (keystatus[0x40])  //F6
         {

@@ -5946,7 +5946,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 //     struct s_maskleaf*  branch[MAXWALLSB];
 //     int32_t                 drawing;
 // }                       _maskleaf;
-// 
+//
 // _maskleaf               maskleaves[MAXWALLSB];
 
 // returns equation of a line given two points
@@ -6826,7 +6826,7 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-    Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
+    Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
 
 # ifdef POLYMER
     if (rendmode == 4)
@@ -7309,7 +7309,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-    memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
+    memset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
 #endif
     guniqhudid = 0;
 
@@ -7372,7 +7372,7 @@ int32_t loadmaphack(char *filename)
     if (!script) return -1;
 
     memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-    memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
+    memset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
 
     while (1)
     {
@@ -7776,7 +7776,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 #ifdef POLYMER
             && glrendmode != 4
 #endif // POLYMER
-            )
+       )
         return(0);
 
     strcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI.  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");

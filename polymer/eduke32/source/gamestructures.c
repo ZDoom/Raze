@@ -30,14 +30,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // I got a 3-4 fps gain by inlining these...
 
 #ifndef _gamevars_c_
-static inline void X_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2)
+static void __fastcall X_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
 
     if (vm.g_p != myconnectindex)
     {
-//        if (lVar2 == MAXGAMEVARS)
-//            insptr++;
+        //        if (lVar2 == MAXGAMEVARS)
+        //            insptr++;
         insptr += (lVar2 == MAXGAMEVARS);
         return;
     }
@@ -911,16 +911,16 @@ static inline void X_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2
     }
 }
 
-static inline void X_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static void __fastcall X_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0,proj=vm.g_i;
 
     if (lVar1 != g_iThisActorID)
         proj=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
 
-    if ((proj < 0 || proj >= MAXSPRITES) && g_scriptSanityChecks)
+    if ((proj < 0 || proj >= MAXSPRITES) /* && g_scriptSanityChecks */)
     {
-//        OSD_Printf("X_AccessActiveProjectile(): invalid projectile (%d)\n",proj);
+        //        OSD_Printf("X_AccessActiveProjectile(): invalid projectile (%d)\n",proj);
         OSD_Printf(CON_ERROR "tried to %s %s on invalid target projectile (%d) %d %d from %s\n",g_errorLineNum,keyw[g_tw],
                    iSet?"set":"get",ProjectileLabels[lLabelID].name,proj,vm.g_i,vm.g_sp->picnum,
                    (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
@@ -1199,1365 +1199,659 @@ static inline void X_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int32_t
     }
 }
 
-static inline void X_AccessPlayer(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
+static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLabelID, register int32_t lVar2, int32_t lParm2)
 {
-    int32_t lValue=0;
-    int32_t iPlayer=vm.g_p;
+    register int32_t iPlayer=vm.g_p;
 
     if (lVar1 != g_iThisActorID)
         iPlayer=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
 
-    if ((iPlayer<0 || iPlayer >= ud.multimode) && g_scriptSanityChecks)
-    {
-//        OSD_Printf("X_AccessPlayer(): invalid target player (%d) %d\n",iPlayer,vm.g_i);
-        OSD_Printf(CON_ERROR "tried to %s %s on invalid target player (%d) from spr %d gv %s\n",g_errorLineNum,keyw[g_tw],
-                   iSet?"set":"get",PlayerLabels[lLabelID].name,iPlayer,vm.g_i,
-                   (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
-        insptr += (lVar2 == MAXGAMEVARS);
-        return;
-    }
+    if ((iPlayer<0 || iPlayer >= playerswhenstarted) /* && g_scriptSanityChecks */)
+        goto badplayer;
 
-    if ((PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) && g_scriptSanityChecks)
-    {
-        OSD_Printf(CON_ERROR "tried to %s invalid %s position %d on player (%d) from spr %d\n",g_errorLineNum,keyw[g_tw],
-                   iSet?"set":"get",PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
-        insptr += (lVar2 == MAXGAMEVARS);
-        return;
-    }
-
-    if (iSet)
-        lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
+    if ((PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+        goto badpos;
 
     switch (lLabelID)
     {
     case PLAYER_ZOOM:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->zoom=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->zoom, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->zoom, vm.g_i, vm.g_p); return;
     case PLAYER_EXITX:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->exitx=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->exitx, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->exitx, vm.g_i, vm.g_p); return;
     case PLAYER_EXITY:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->exity=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->exity, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->exity, vm.g_i, vm.g_p); return;
     case PLAYER_LOOGIEX:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->loogiex[lParm2]=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->loogiex[lParm2], vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->loogiex[lParm2], vm.g_i, vm.g_p); return;
     case PLAYER_LOOGIEY:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->loogiey[lParm2]=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->loogiey[lParm2], vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->loogiey[lParm2], vm.g_i, vm.g_p); return;
     case PLAYER_NUMLOOGS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->numloogs=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->numloogs, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->numloogs, vm.g_i, vm.g_p); return;
     case PLAYER_LOOGCNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->loogcnt=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->loogcnt, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->loogcnt, vm.g_i, vm.g_p); return;
     case PLAYER_POSX:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->posx=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posx, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->posx, vm.g_i, vm.g_p); return;
     case PLAYER_POSY:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->posy=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posy, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->posy, vm.g_i, vm.g_p); return;
     case PLAYER_POSZ:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->posz=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posz, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->posz, vm.g_i, vm.g_p); return;
     case PLAYER_HORIZ:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->horiz=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->horiz, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->horiz, vm.g_i, vm.g_p); return;
     case PLAYER_OHORIZ:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->ohoriz=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->ohoriz, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->ohoriz, vm.g_i, vm.g_p); return;
     case PLAYER_OHORIZOFF:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->ohorizoff=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->ohorizoff, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->ohorizoff, vm.g_i, vm.g_p); return;
     case PLAYER_INVDISPTIME:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->invdisptime=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->invdisptime, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->invdisptime, vm.g_i, vm.g_p); return;
     case PLAYER_BOBPOSX:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->bobposx=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->bobposx, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->bobposx, vm.g_i, vm.g_p); return;
     case PLAYER_BOBPOSY:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->bobposy=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->bobposy, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->bobposy, vm.g_i, vm.g_p); return;
     case PLAYER_OPOSX:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->oposx=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->oposx, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->oposx, vm.g_i, vm.g_p); return;
     case PLAYER_OPOSY:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->oposy=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->oposy, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->oposy, vm.g_i, vm.g_p); return;
     case PLAYER_OPOSZ:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->oposz=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->oposz, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->oposz, vm.g_i, vm.g_p); return;
     case PLAYER_PYOFF:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->pyoff=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->pyoff, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->pyoff, vm.g_i, vm.g_p); return;
     case PLAYER_OPYOFF:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->opyoff=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->opyoff, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->opyoff, vm.g_i, vm.g_p); return;
     case PLAYER_POSXV:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->posxv=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posxv, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->posxv, vm.g_i, vm.g_p); return;
     case PLAYER_POSYV:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->posyv=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posyv, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->posyv, vm.g_i, vm.g_p); return;
     case PLAYER_POSZV:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->poszv=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->poszv, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->poszv, vm.g_i, vm.g_p); return;
     case PLAYER_LAST_PISSED_TIME:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->last_pissed_time=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->last_pissed_time, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->last_pissed_time, vm.g_i, vm.g_p); return;
     case PLAYER_TRUEFZ:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->truefz=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->truefz, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->truefz, vm.g_i, vm.g_p); return;
     case PLAYER_TRUECZ:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->truecz=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->truecz, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->truecz, vm.g_i, vm.g_p); return;
     case PLAYER_PLAYER_PAR:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->player_par=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->player_par, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->player_par, vm.g_i, vm.g_p); return;
     case PLAYER_VISIBILITY:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->visibility=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->visibility, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->visibility, vm.g_i, vm.g_p); return;
     case PLAYER_BOBCOUNTER:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->bobcounter=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->bobcounter, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->bobcounter, vm.g_i, vm.g_p); return;
     case PLAYER_WEAPON_SWAY:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->weapon_sway=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_sway, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_sway, vm.g_i, vm.g_p); return;
     case PLAYER_PALS_TIME:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->pals_time=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->pals_time, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->pals_time, vm.g_i, vm.g_p); return;
     case PLAYER_RANDOMFLAMEX:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->randomflamex=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->randomflamex, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->randomflamex, vm.g_i, vm.g_p); return;
     case PLAYER_CRACK_TIME:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->crack_time=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->crack_time, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->crack_time, vm.g_i, vm.g_p); return;
     case PLAYER_AIM_MODE:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->aim_mode=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->aim_mode, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->aim_mode, vm.g_i, vm.g_p); return;
     case PLAYER_ANG:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->ang=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->ang, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->ang, vm.g_i, vm.g_p); return;
     case PLAYER_OANG:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->oang=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->oang, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->oang, vm.g_i, vm.g_p); return;
     case PLAYER_ANGVEL:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->angvel=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->angvel, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->angvel, vm.g_i, vm.g_p); return;
     case PLAYER_CURSECTNUM:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->cursectnum=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->cursectnum, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->cursectnum, vm.g_i, vm.g_p); return;
     case PLAYER_LOOK_ANG:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->look_ang=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->look_ang, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->look_ang, vm.g_i, vm.g_p); return;
     case PLAYER_LAST_EXTRA:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->last_extra=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->last_extra, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->last_extra, vm.g_i, vm.g_p); return;
     case PLAYER_SUBWEAPON:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->subweapon=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->subweapon, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->subweapon, vm.g_i, vm.g_p); return;
     case PLAYER_AMMO_AMOUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->ammo_amount[lParm2]=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->ammo_amount[lParm2], vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->ammo_amount[lParm2], vm.g_i, vm.g_p); return;
     case PLAYER_WACKEDBYACTOR:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->wackedbyactor=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->wackedbyactor, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->wackedbyactor, vm.g_i, vm.g_p); return;
     case PLAYER_FRAG:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->frag=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->frag, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->frag, vm.g_i, vm.g_p); return;
     case PLAYER_FRAGGEDSELF:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->fraggedself=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->fraggedself, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->fraggedself, vm.g_i, vm.g_p); return;
     case PLAYER_CURR_WEAPON:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->curr_weapon=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->curr_weapon, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->curr_weapon, vm.g_i, vm.g_p); return;
     case PLAYER_LAST_WEAPON:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->last_weapon=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->last_weapon, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->last_weapon, vm.g_i, vm.g_p); return;
     case PLAYER_TIPINCS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->tipincs=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->tipincs, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->tipincs, vm.g_i, vm.g_p); return;
     case PLAYER_HORIZOFF:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->horizoff=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->horizoff, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->horizoff, vm.g_i, vm.g_p); return;
     case PLAYER_WANTWEAPONFIRE:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->wantweaponfire=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->wantweaponfire, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->wantweaponfire, vm.g_i, vm.g_p); return;
     case PLAYER_HOLODUKE_AMOUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->holoduke_amount=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->holoduke_amount, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->holoduke_amount, vm.g_i, vm.g_p); return;
     case PLAYER_NEWOWNER:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->newowner=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->newowner, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->newowner, vm.g_i, vm.g_p); return;
     case PLAYER_HURT_DELAY:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->hurt_delay=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->hurt_delay, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->hurt_delay, vm.g_i, vm.g_p); return;
     case PLAYER_HBOMB_HOLD_DELAY:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->hbomb_hold_delay=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->hbomb_hold_delay, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->hbomb_hold_delay, vm.g_i, vm.g_p); return;
     case PLAYER_JUMPING_COUNTER:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->jumping_counter=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->jumping_counter, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->jumping_counter, vm.g_i, vm.g_p); return;
     case PLAYER_AIRLEFT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->airleft=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->airleft, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->airleft, vm.g_i, vm.g_p); return;
     case PLAYER_KNEE_INCS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->knee_incs=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->knee_incs, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->knee_incs, vm.g_i, vm.g_p); return;
     case PLAYER_ACCESS_INCS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->access_incs=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->access_incs, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->access_incs, vm.g_i, vm.g_p); return;
     case PLAYER_FTA:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->fta=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->fta, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->fta, vm.g_i, vm.g_p); return;
     case PLAYER_FTQ:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->ftq=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->ftq, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->ftq, vm.g_i, vm.g_p); return;
     case PLAYER_ACCESS_WALLNUM:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->access_wallnum=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->access_wallnum, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->access_wallnum, vm.g_i, vm.g_p); return;
     case PLAYER_ACCESS_SPRITENUM:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->access_spritenum=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->access_spritenum, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->access_spritenum, vm.g_i, vm.g_p); return;
     case PLAYER_KICKBACK_PIC:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->kickback_pic=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->kickback_pic, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->kickback_pic, vm.g_i, vm.g_p); return;
     case PLAYER_GOT_ACCESS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->got_access=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->got_access, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->got_access, vm.g_i, vm.g_p); return;
     case PLAYER_WEAPON_ANG:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->weapon_ang=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_ang, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_ang, vm.g_i, vm.g_p); return;
     case PLAYER_FIRSTAID_AMOUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->firstaid_amount=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->firstaid_amount, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->firstaid_amount, vm.g_i, vm.g_p); return;
     case PLAYER_SOMETHINGONPLAYER:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->somethingonplayer=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->somethingonplayer, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->somethingonplayer, vm.g_i, vm.g_p); return;
     case PLAYER_ON_CRANE:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->on_crane=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->on_crane, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->on_crane, vm.g_i, vm.g_p); return;
     case PLAYER_I:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->i=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->i, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->i, vm.g_i, vm.g_p); return;
     case PLAYER_ONE_PARALLAX_SECTNUM:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->one_parallax_sectnum=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->one_parallax_sectnum, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->one_parallax_sectnum, vm.g_i, vm.g_p); return;
     case PLAYER_OVER_SHOULDER_ON:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->over_shoulder_on=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->over_shoulder_on, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->over_shoulder_on, vm.g_i, vm.g_p); return;
     case PLAYER_RANDOM_CLUB_FRAME:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->random_club_frame=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->random_club_frame, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->random_club_frame, vm.g_i, vm.g_p); return;
     case PLAYER_FIST_INCS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->fist_incs=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->fist_incs, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->fist_incs, vm.g_i, vm.g_p); return;
     case PLAYER_ONE_EIGHTY_COUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->one_eighty_count=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->one_eighty_count, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->one_eighty_count, vm.g_i, vm.g_p); return;
     case PLAYER_CHEAT_PHASE:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->cheat_phase=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->cheat_phase, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->cheat_phase, vm.g_i, vm.g_p); return;
     case PLAYER_DUMMYPLAYERSPRITE:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->dummyplayersprite=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->dummyplayersprite, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->dummyplayersprite, vm.g_i, vm.g_p); return;
     case PLAYER_EXTRA_EXTRA8:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->extra_extra8=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->extra_extra8, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->extra_extra8, vm.g_i, vm.g_p); return;
     case PLAYER_QUICK_KICK:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->quick_kick=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->quick_kick, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->quick_kick, vm.g_i, vm.g_p); return;
     case PLAYER_HEAT_AMOUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->heat_amount=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->heat_amount, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->heat_amount, vm.g_i, vm.g_p); return;
     case PLAYER_ACTORSQU:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->actorsqu=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->actorsqu, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->actorsqu, vm.g_i, vm.g_p); return;
     case PLAYER_TIMEBEFOREEXIT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->timebeforeexit=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->timebeforeexit, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->timebeforeexit, vm.g_i, vm.g_p); return;
     case PLAYER_CUSTOMEXITSOUND:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->customexitsound=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->customexitsound, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->customexitsound, vm.g_i, vm.g_p); return;
     case PLAYER_WEAPRECS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->weaprecs[15]=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->weaprecs[15], vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->weaprecs[15], vm.g_i, vm.g_p); return;
     case PLAYER_WEAPRECCNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->weapreccnt=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->weapreccnt, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->weapreccnt, vm.g_i, vm.g_p); return;
     case PLAYER_INTERFACE_TOGGLE_FLAG:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->interface_toggle_flag=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->interface_toggle_flag, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->interface_toggle_flag, vm.g_i, vm.g_p); return;
     case PLAYER_ROTSCRNANG:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->rotscrnang=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->rotscrnang, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->rotscrnang, vm.g_i, vm.g_p); return;
     case PLAYER_DEAD_FLAG:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->dead_flag=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->dead_flag, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->dead_flag, vm.g_i, vm.g_p); return;
     case PLAYER_SHOW_EMPTY_WEAPON:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->show_empty_weapon=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->show_empty_weapon, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->show_empty_weapon, vm.g_i, vm.g_p); return;
     case PLAYER_SCUBA_AMOUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->scuba_amount=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->scuba_amount, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->scuba_amount, vm.g_i, vm.g_p); return;
     case PLAYER_JETPACK_AMOUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->jetpack_amount=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->jetpack_amount, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->jetpack_amount, vm.g_i, vm.g_p); return;
     case PLAYER_STEROIDS_AMOUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->steroids_amount=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->steroids_amount, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->steroids_amount, vm.g_i, vm.g_p); return;
     case PLAYER_SHIELD_AMOUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->shield_amount=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->shield_amount, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->shield_amount, vm.g_i, vm.g_p); return;
     case PLAYER_HOLODUKE_ON:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->holoduke_on=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->holoduke_on, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->holoduke_on, vm.g_i, vm.g_p); return;
     case PLAYER_PYCOUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->pycount=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->pycount, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->pycount, vm.g_i, vm.g_p); return;
     case PLAYER_WEAPON_POS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->weapon_pos=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_pos, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_pos, vm.g_i, vm.g_p); return;
     case PLAYER_FRAG_PS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->frag_ps=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->frag_ps, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->frag_ps, vm.g_i, vm.g_p); return;
     case PLAYER_TRANSPORTER_HOLD:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->transporter_hold=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->transporter_hold, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->transporter_hold, vm.g_i, vm.g_p); return;
     case PLAYER_LAST_FULL_WEAPON:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->last_full_weapon=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->last_full_weapon, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->last_full_weapon, vm.g_i, vm.g_p); return;
     case PLAYER_FOOTPRINTSHADE:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->footprintshade=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->footprintshade, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->footprintshade, vm.g_i, vm.g_p); return;
     case PLAYER_BOOT_AMOUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->boot_amount=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->boot_amount, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->boot_amount, vm.g_i, vm.g_p); return;
     case PLAYER_SCREAM_VOICE:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->scream_voice=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->scream_voice, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->scream_voice, vm.g_i, vm.g_p); return;
     case PLAYER_GM:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->gm=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->gm, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->gm, vm.g_i, vm.g_p); return;
     case PLAYER_ON_WARPING_SECTOR:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->on_warping_sector=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->on_warping_sector, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->on_warping_sector, vm.g_i, vm.g_p); return;
     case PLAYER_FOOTPRINTCOUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->footprintcount=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->footprintcount, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->footprintcount, vm.g_i, vm.g_p); return;
     case PLAYER_HBOMB_ON:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->hbomb_on=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->hbomb_on, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->hbomb_on, vm.g_i, vm.g_p); return;
     case PLAYER_JUMPING_TOGGLE:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->jumping_toggle=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->jumping_toggle, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->jumping_toggle, vm.g_i, vm.g_p); return;
     case PLAYER_RAPID_FIRE_HOLD:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->rapid_fire_hold=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->rapid_fire_hold, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->rapid_fire_hold, vm.g_i, vm.g_p); return;
     case PLAYER_ON_GROUND:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->on_ground=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->on_ground, vm.g_i, vm.g_p);
-        return;
-
-        /*    case PLAYER_NAME:
-                if (iSet)
-                {
-                    g_player[iPlayer].ps->name[32]=lValue;
-                    return;
-                }
-                Gv_SetVar(lVar2, g_player[iPlayer].ps->name[32], vm.g_i, vm.g_p);
-                return;*/
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->on_ground, vm.g_i, vm.g_p); return;
     case PLAYER_INVEN_ICON:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->inven_icon=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->inven_icon, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->inven_icon, vm.g_i, vm.g_p); return;
     case PLAYER_BUTTONPALETTE:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->buttonpalette=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->buttonpalette, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->buttonpalette, vm.g_i, vm.g_p); return;
     case PLAYER_JETPACK_ON:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->jetpack_on=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->jetpack_on, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->jetpack_on, vm.g_i, vm.g_p); return;
     case PLAYER_SPRITEBRIDGE:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->spritebridge=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->spritebridge, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->spritebridge, vm.g_i, vm.g_p); return;
     case PLAYER_LASTRANDOMSPOT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->lastrandomspot=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->lastrandomspot, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->lastrandomspot, vm.g_i, vm.g_p); return;
     case PLAYER_SCUBA_ON:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->scuba_on=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->scuba_on, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->scuba_on, vm.g_i, vm.g_p); return;
     case PLAYER_FOOTPRINTPAL:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->footprintpal=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->footprintpal, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->footprintpal, vm.g_i, vm.g_p); return;
     case PLAYER_HEAT_ON:
-        if (iSet)
-        {
-            {
-                if (g_player[iPlayer].ps->heat_on != lValue)
-                {
-                    g_player[iPlayer].ps->heat_on=lValue;
-                    P_UpdateScreenPal(g_player[iPlayer].ps);
-                }
-            }
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->heat_on, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->heat_on, vm.g_i, vm.g_p); return;
     case PLAYER_HOLSTER_WEAPON:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->holster_weapon=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->holster_weapon, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->holster_weapon, vm.g_i, vm.g_p); return;
     case PLAYER_FALLING_COUNTER:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->falling_counter=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->falling_counter, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->falling_counter, vm.g_i, vm.g_p); return;
     case PLAYER_GOTWEAPON:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->gotweapon[lParm2]=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->gotweapon[lParm2], vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->gotweapon[lParm2], vm.g_i, vm.g_p); return;
     case PLAYER_REFRESH_INVENTORY:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->refresh_inventory=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->refresh_inventory, vm.g_i, vm.g_p);
-        return;
-
-        //      case PLAYER_PALETTE:
-        //          if(iSet)
-        //          {
-        //              g_player[iPlayer].ps->palette=lValue;
-        //          }
-        //          return; }
-        //          {
-        //              Gv_SetVar(lVar2, g_player[iPlayer].ps->palette, vm.g_i, vm.g_p);
-        //          }
-        //          return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->refresh_inventory, vm.g_i, vm.g_p); return;
     case PLAYER_TOGGLE_KEY_FLAG:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->toggle_key_flag=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->toggle_key_flag, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->toggle_key_flag, vm.g_i, vm.g_p); return;
     case PLAYER_KNUCKLE_INCS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->knuckle_incs=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->knuckle_incs, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->knuckle_incs, vm.g_i, vm.g_p); return;
     case PLAYER_WALKING_SND_TOGGLE:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->walking_snd_toggle=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->walking_snd_toggle, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->walking_snd_toggle, vm.g_i, vm.g_p); return;
     case PLAYER_PALOOKUP:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->palookup=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->palookup, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->palookup, vm.g_i, vm.g_p); return;
     case PLAYER_HARD_LANDING:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->hard_landing=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->hard_landing, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->hard_landing, vm.g_i, vm.g_p); return;
     case PLAYER_MAX_SECRET_ROOMS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->max_secret_rooms=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_secret_rooms, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_secret_rooms, vm.g_i, vm.g_p); return;
     case PLAYER_SECRET_ROOMS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->secret_rooms=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->secret_rooms, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->secret_rooms, vm.g_i, vm.g_p); return;
     case PLAYER_PALS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->pals[lParm2]=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->pals[lParm2], vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->pals[lParm2], vm.g_i, vm.g_p); return;
     case PLAYER_MAX_ACTORS_KILLED:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->max_actors_killed=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_actors_killed, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_actors_killed, vm.g_i, vm.g_p); return;
     case PLAYER_ACTORS_KILLED:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->actors_killed=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->actors_killed, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->actors_killed, vm.g_i, vm.g_p); return;
     case PLAYER_RETURN_TO_CENTER:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->return_to_center=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->return_to_center, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->return_to_center, vm.g_i, vm.g_p); return;
     case PLAYER_RUNSPEED:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->runspeed=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->runspeed, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->runspeed, vm.g_i, vm.g_p); return;
     case PLAYER_SBS:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->sbs=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->sbs, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->sbs, vm.g_i, vm.g_p); return;
     case PLAYER_RELOADING:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->reloading=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->reloading, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->reloading, vm.g_i, vm.g_p); return;
     case PLAYER_AUTO_AIM:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->auto_aim=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->auto_aim, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->auto_aim, vm.g_i, vm.g_p); return;
     case PLAYER_MOVEMENT_LOCK:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->movement_lock=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->movement_lock, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->movement_lock, vm.g_i, vm.g_p); return;
     case PLAYER_SOUND_PITCH:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->sound_pitch=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->sound_pitch, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->sound_pitch, vm.g_i, vm.g_p); return;
     case PLAYER_WEAPONSWITCH:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->weaponswitch=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->weaponswitch, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->weaponswitch, vm.g_i, vm.g_p); return;
     case PLAYER_TEAM:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->team=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->team, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->team, vm.g_i, vm.g_p); return;
     case PLAYER_MAX_PLAYER_HEALTH:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->max_player_health = lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_player_health, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_player_health, vm.g_i, vm.g_p); return;
     case PLAYER_MAX_SHIELD_AMOUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->max_shield_amount = lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_shield_amount, vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_shield_amount, vm.g_i, vm.g_p); return;
     case PLAYER_MAX_AMMO_AMOUNT:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->max_ammo_amount[lParm2]=lValue;
-            return;
-        }
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_ammo_amount[lParm2], vm.g_i, vm.g_p);
-        return;
-
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_ammo_amount[lParm2], vm.g_i, vm.g_p); return;
     case PLAYER_LAST_QUICK_KICK:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->last_quick_kick=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, g_player[iPlayer].ps->last_quick_kick, vm.g_i, vm.g_p);
         return;
 
     default:
         return;
     }
+
+badplayer:
+    //        OSD_Printf("X_AccessPlayer(): invalid target player (%d) %d\n",iPlayer,vm.g_i);
+    OSD_Printf(CON_ERROR "tried to get %s on invalid target player (%d) from spr %d gv %s\n",g_errorLineNum,keyw[g_tw],
+               PlayerLabels[lLabelID].name,iPlayer,vm.g_i,
+               (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
+    return;
+
+badpos:
+    OSD_Printf(CON_ERROR "tried to get invalid %s position %d on player (%d) from spr %d\n",g_errorLineNum,keyw[g_tw],
+               PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
+    return;
 }
 
-static inline void X_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
+{
+    register int32_t iPlayer=vm.g_p;
+
+    if (lVar1 != g_iThisActorID)
+        iPlayer=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
+
+    if ((iPlayer<0 || iPlayer >= playerswhenstarted) /* && g_scriptSanityChecks */)
+        goto badplayer;
+
+    if ((PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+        goto badpos;
+
+    lVar1=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
+
+    switch (lLabelID)
+    {
+    case PLAYER_ZOOM:
+        g_player[iPlayer].ps->zoom=lVar1; return;
+    case PLAYER_EXITX:
+        g_player[iPlayer].ps->exitx=lVar1; return;
+    case PLAYER_EXITY:
+        g_player[iPlayer].ps->exity=lVar1; return;
+    case PLAYER_LOOGIEX:
+        g_player[iPlayer].ps->loogiex[lParm2]=lVar1; return;
+    case PLAYER_LOOGIEY:
+        g_player[iPlayer].ps->loogiey[lParm2]=lVar1; return;
+    case PLAYER_NUMLOOGS:
+        g_player[iPlayer].ps->numloogs=lVar1; return;
+    case PLAYER_LOOGCNT:
+        g_player[iPlayer].ps->loogcnt=lVar1; return;
+    case PLAYER_POSX:
+        g_player[iPlayer].ps->posx=lVar1; return;
+    case PLAYER_POSY:
+        g_player[iPlayer].ps->posy=lVar1; return;
+    case PLAYER_POSZ:
+        g_player[iPlayer].ps->posz=lVar1; return;
+    case PLAYER_HORIZ:
+        g_player[iPlayer].ps->horiz=lVar1; return;
+    case PLAYER_OHORIZ:
+        g_player[iPlayer].ps->ohoriz=lVar1; return;
+    case PLAYER_OHORIZOFF:
+        g_player[iPlayer].ps->ohorizoff=lVar1; return;
+    case PLAYER_INVDISPTIME:
+        g_player[iPlayer].ps->invdisptime=lVar1; return;
+    case PLAYER_BOBPOSX:
+        g_player[iPlayer].ps->bobposx=lVar1; return;
+    case PLAYER_BOBPOSY:
+        g_player[iPlayer].ps->bobposy=lVar1; return;
+    case PLAYER_OPOSX:
+        g_player[iPlayer].ps->oposx=lVar1; return;
+    case PLAYER_OPOSY:
+        g_player[iPlayer].ps->oposy=lVar1; return;
+    case PLAYER_OPOSZ:
+        g_player[iPlayer].ps->oposz=lVar1; return;
+    case PLAYER_PYOFF:
+        g_player[iPlayer].ps->pyoff=lVar1; return;
+    case PLAYER_OPYOFF:
+        g_player[iPlayer].ps->opyoff=lVar1; return;
+    case PLAYER_POSXV:
+        g_player[iPlayer].ps->posxv=lVar1; return;
+    case PLAYER_POSYV:
+        g_player[iPlayer].ps->posyv=lVar1; return;
+    case PLAYER_POSZV:
+        g_player[iPlayer].ps->poszv=lVar1; return;
+    case PLAYER_LAST_PISSED_TIME:
+        g_player[iPlayer].ps->last_pissed_time=lVar1; return;
+    case PLAYER_TRUEFZ:
+        g_player[iPlayer].ps->truefz=lVar1; return;
+    case PLAYER_TRUECZ:
+        g_player[iPlayer].ps->truecz=lVar1; return;
+    case PLAYER_PLAYER_PAR:
+        g_player[iPlayer].ps->player_par=lVar1; return;
+    case PLAYER_VISIBILITY:
+        g_player[iPlayer].ps->visibility=lVar1; return;
+    case PLAYER_BOBCOUNTER:
+        g_player[iPlayer].ps->bobcounter=lVar1; return;
+    case PLAYER_WEAPON_SWAY:
+        g_player[iPlayer].ps->weapon_sway=lVar1; return;
+    case PLAYER_PALS_TIME:
+        g_player[iPlayer].ps->pals_time=lVar1; return;
+    case PLAYER_RANDOMFLAMEX:
+        g_player[iPlayer].ps->randomflamex=lVar1; return;
+    case PLAYER_CRACK_TIME:
+        g_player[iPlayer].ps->crack_time=lVar1; return;
+    case PLAYER_AIM_MODE:
+        g_player[iPlayer].ps->aim_mode=lVar1; return;
+    case PLAYER_ANG:
+        g_player[iPlayer].ps->ang=lVar1; return;
+    case PLAYER_OANG:
+        g_player[iPlayer].ps->oang=lVar1; return;
+    case PLAYER_ANGVEL:
+        g_player[iPlayer].ps->angvel=lVar1; return;
+    case PLAYER_CURSECTNUM:
+        g_player[iPlayer].ps->cursectnum=lVar1; return;
+    case PLAYER_LOOK_ANG:
+        g_player[iPlayer].ps->look_ang=lVar1; return;
+    case PLAYER_LAST_EXTRA:
+        g_player[iPlayer].ps->last_extra=lVar1; return;
+    case PLAYER_SUBWEAPON:
+        g_player[iPlayer].ps->subweapon=lVar1; return;
+    case PLAYER_AMMO_AMOUNT:
+        g_player[iPlayer].ps->ammo_amount[lParm2]=lVar1; return;
+    case PLAYER_WACKEDBYACTOR:
+        g_player[iPlayer].ps->wackedbyactor=lVar1; return;
+    case PLAYER_FRAG:
+        g_player[iPlayer].ps->frag=lVar1; return;
+    case PLAYER_FRAGGEDSELF:
+        g_player[iPlayer].ps->fraggedself=lVar1; return;
+    case PLAYER_CURR_WEAPON:
+        g_player[iPlayer].ps->curr_weapon=lVar1; return;
+    case PLAYER_LAST_WEAPON:
+        g_player[iPlayer].ps->last_weapon=lVar1; return;
+    case PLAYER_TIPINCS:
+        g_player[iPlayer].ps->tipincs=lVar1; return;
+    case PLAYER_HORIZOFF:
+        g_player[iPlayer].ps->horizoff=lVar1; return;
+    case PLAYER_WANTWEAPONFIRE:
+        g_player[iPlayer].ps->wantweaponfire=lVar1; return;
+    case PLAYER_HOLODUKE_AMOUNT:
+        g_player[iPlayer].ps->holoduke_amount=lVar1; return;
+    case PLAYER_NEWOWNER:
+        g_player[iPlayer].ps->newowner=lVar1; return;
+    case PLAYER_HURT_DELAY:
+        g_player[iPlayer].ps->hurt_delay=lVar1; return;
+    case PLAYER_HBOMB_HOLD_DELAY:
+        g_player[iPlayer].ps->hbomb_hold_delay=lVar1; return;
+    case PLAYER_JUMPING_COUNTER:
+        g_player[iPlayer].ps->jumping_counter=lVar1; return;
+    case PLAYER_AIRLEFT:
+        g_player[iPlayer].ps->airleft=lVar1; return;
+    case PLAYER_KNEE_INCS:
+        g_player[iPlayer].ps->knee_incs=lVar1; return;
+    case PLAYER_ACCESS_INCS:
+        g_player[iPlayer].ps->access_incs=lVar1; return;
+    case PLAYER_FTA:
+        g_player[iPlayer].ps->fta=lVar1; return;
+    case PLAYER_FTQ:
+        g_player[iPlayer].ps->ftq=lVar1; return;
+    case PLAYER_ACCESS_WALLNUM:
+        g_player[iPlayer].ps->access_wallnum=lVar1; return;
+    case PLAYER_ACCESS_SPRITENUM:
+        g_player[iPlayer].ps->access_spritenum=lVar1; return;
+    case PLAYER_KICKBACK_PIC:
+        g_player[iPlayer].ps->kickback_pic=lVar1; return;
+    case PLAYER_GOT_ACCESS:
+        g_player[iPlayer].ps->got_access=lVar1; return;
+    case PLAYER_WEAPON_ANG:
+        g_player[iPlayer].ps->weapon_ang=lVar1; return;
+    case PLAYER_FIRSTAID_AMOUNT:
+        g_player[iPlayer].ps->firstaid_amount=lVar1; return;
+    case PLAYER_SOMETHINGONPLAYER:
+        g_player[iPlayer].ps->somethingonplayer=lVar1; return;
+    case PLAYER_ON_CRANE:
+        g_player[iPlayer].ps->on_crane=lVar1; return;
+    case PLAYER_I:
+        g_player[iPlayer].ps->i=lVar1; return;
+    case PLAYER_ONE_PARALLAX_SECTNUM:
+        g_player[iPlayer].ps->one_parallax_sectnum=lVar1; return;
+    case PLAYER_OVER_SHOULDER_ON:
+        g_player[iPlayer].ps->over_shoulder_on=lVar1; return;
+    case PLAYER_RANDOM_CLUB_FRAME:
+        g_player[iPlayer].ps->random_club_frame=lVar1; return;
+    case PLAYER_FIST_INCS:
+        g_player[iPlayer].ps->fist_incs=lVar1; return;
+    case PLAYER_ONE_EIGHTY_COUNT:
+        g_player[iPlayer].ps->one_eighty_count=lVar1; return;
+    case PLAYER_CHEAT_PHASE:
+        g_player[iPlayer].ps->cheat_phase=lVar1; return;
+    case PLAYER_DUMMYPLAYERSPRITE:
+        g_player[iPlayer].ps->dummyplayersprite=lVar1; return;
+    case PLAYER_EXTRA_EXTRA8:
+        g_player[iPlayer].ps->extra_extra8=lVar1; return;
+    case PLAYER_QUICK_KICK:
+        g_player[iPlayer].ps->quick_kick=lVar1; return;
+    case PLAYER_HEAT_AMOUNT:
+        g_player[iPlayer].ps->heat_amount=lVar1; return;
+    case PLAYER_ACTORSQU:
+        g_player[iPlayer].ps->actorsqu=lVar1; return;
+    case PLAYER_TIMEBEFOREEXIT:
+        g_player[iPlayer].ps->timebeforeexit=lVar1; return;
+    case PLAYER_CUSTOMEXITSOUND:
+        g_player[iPlayer].ps->customexitsound=lVar1; return;
+    case PLAYER_WEAPRECS:
+        g_player[iPlayer].ps->weaprecs[15]=lVar1; return;
+    case PLAYER_WEAPRECCNT:
+        g_player[iPlayer].ps->weapreccnt=lVar1; return;
+    case PLAYER_INTERFACE_TOGGLE_FLAG:
+        g_player[iPlayer].ps->interface_toggle_flag=lVar1; return;
+    case PLAYER_ROTSCRNANG:
+        g_player[iPlayer].ps->rotscrnang=lVar1; return;
+    case PLAYER_DEAD_FLAG:
+        g_player[iPlayer].ps->dead_flag=lVar1; return;
+    case PLAYER_SHOW_EMPTY_WEAPON:
+        g_player[iPlayer].ps->show_empty_weapon=lVar1; return;
+    case PLAYER_SCUBA_AMOUNT:
+        g_player[iPlayer].ps->scuba_amount=lVar1; return;
+    case PLAYER_JETPACK_AMOUNT:
+        g_player[iPlayer].ps->jetpack_amount=lVar1; return;
+    case PLAYER_STEROIDS_AMOUNT:
+        g_player[iPlayer].ps->steroids_amount=lVar1; return;
+    case PLAYER_SHIELD_AMOUNT:
+        g_player[iPlayer].ps->shield_amount=lVar1; return;
+    case PLAYER_HOLODUKE_ON:
+        g_player[iPlayer].ps->holoduke_on=lVar1; return;
+    case PLAYER_PYCOUNT:
+        g_player[iPlayer].ps->pycount=lVar1; return;
+    case PLAYER_WEAPON_POS:
+        g_player[iPlayer].ps->weapon_pos=lVar1; return;
+    case PLAYER_FRAG_PS:
+        g_player[iPlayer].ps->frag_ps=lVar1; return;
+    case PLAYER_TRANSPORTER_HOLD:
+        g_player[iPlayer].ps->transporter_hold=lVar1; return;
+    case PLAYER_LAST_FULL_WEAPON:
+        g_player[iPlayer].ps->last_full_weapon=lVar1; return;
+    case PLAYER_FOOTPRINTSHADE:
+        g_player[iPlayer].ps->footprintshade=lVar1; return;
+    case PLAYER_BOOT_AMOUNT:
+        g_player[iPlayer].ps->boot_amount=lVar1; return;
+    case PLAYER_SCREAM_VOICE:
+        g_player[iPlayer].ps->scream_voice=lVar1; return;
+    case PLAYER_GM:
+        g_player[iPlayer].ps->gm=lVar1; return;
+    case PLAYER_ON_WARPING_SECTOR:
+        g_player[iPlayer].ps->on_warping_sector=lVar1; return;
+    case PLAYER_FOOTPRINTCOUNT:
+        g_player[iPlayer].ps->footprintcount=lVar1; return;
+    case PLAYER_HBOMB_ON:
+        g_player[iPlayer].ps->hbomb_on=lVar1; return;
+    case PLAYER_JUMPING_TOGGLE:
+        g_player[iPlayer].ps->jumping_toggle=lVar1; return;
+    case PLAYER_RAPID_FIRE_HOLD:
+        g_player[iPlayer].ps->rapid_fire_hold=lVar1; return;
+    case PLAYER_ON_GROUND:
+        g_player[iPlayer].ps->on_ground=lVar1; return;
+    case PLAYER_INVEN_ICON:
+        g_player[iPlayer].ps->inven_icon=lVar1; return;
+    case PLAYER_BUTTONPALETTE:
+        g_player[iPlayer].ps->buttonpalette=lVar1; return;
+    case PLAYER_JETPACK_ON:
+        g_player[iPlayer].ps->jetpack_on=lVar1; return;
+    case PLAYER_SPRITEBRIDGE:
+        g_player[iPlayer].ps->spritebridge=lVar1; return;
+    case PLAYER_LASTRANDOMSPOT:
+        g_player[iPlayer].ps->lastrandomspot=lVar1; return;
+    case PLAYER_SCUBA_ON:
+        g_player[iPlayer].ps->scuba_on=lVar1; return;
+    case PLAYER_FOOTPRINTPAL:
+        g_player[iPlayer].ps->footprintpal=lVar1; return;
+    case PLAYER_HEAT_ON:
+        if (g_player[iPlayer].ps->heat_on != lVar1)
+        {
+            g_player[iPlayer].ps->heat_on=lVar1;
+            P_UpdateScreenPal(g_player[iPlayer].ps);
+        } return;
+    case PLAYER_HOLSTER_WEAPON:
+        g_player[iPlayer].ps->holster_weapon=lVar1; return;
+    case PLAYER_FALLING_COUNTER:
+        g_player[iPlayer].ps->falling_counter=lVar1; return;
+    case PLAYER_GOTWEAPON:
+        g_player[iPlayer].ps->gotweapon[lParm2]=lVar1; return;
+    case PLAYER_REFRESH_INVENTORY:
+        g_player[iPlayer].ps->refresh_inventory=lVar1; return;
+    case PLAYER_TOGGLE_KEY_FLAG:
+        g_player[iPlayer].ps->toggle_key_flag=lVar1; return;
+    case PLAYER_KNUCKLE_INCS:
+        g_player[iPlayer].ps->knuckle_incs=lVar1; return;
+    case PLAYER_WALKING_SND_TOGGLE:
+        g_player[iPlayer].ps->walking_snd_toggle=lVar1; return;
+    case PLAYER_PALOOKUP:
+        g_player[iPlayer].ps->palookup=lVar1; return;
+    case PLAYER_HARD_LANDING:
+        g_player[iPlayer].ps->hard_landing=lVar1; return;
+    case PLAYER_MAX_SECRET_ROOMS:
+        g_player[iPlayer].ps->max_secret_rooms=lVar1; return;
+    case PLAYER_SECRET_ROOMS:
+        g_player[iPlayer].ps->secret_rooms=lVar1; return;
+    case PLAYER_PALS:
+        g_player[iPlayer].ps->pals[lParm2]=lVar1; return;
+    case PLAYER_MAX_ACTORS_KILLED:
+        g_player[iPlayer].ps->max_actors_killed=lVar1; return;
+    case PLAYER_ACTORS_KILLED:
+        g_player[iPlayer].ps->actors_killed=lVar1; return;
+    case PLAYER_RETURN_TO_CENTER:
+        g_player[iPlayer].ps->return_to_center=lVar1; return;
+    case PLAYER_RUNSPEED:
+        g_player[iPlayer].ps->runspeed=lVar1; return;
+    case PLAYER_SBS:
+        g_player[iPlayer].ps->sbs=lVar1; return;
+    case PLAYER_RELOADING:
+        g_player[iPlayer].ps->reloading=lVar1; return;
+    case PLAYER_AUTO_AIM:
+        g_player[iPlayer].ps->auto_aim=lVar1; return;
+    case PLAYER_MOVEMENT_LOCK:
+        g_player[iPlayer].ps->movement_lock=lVar1; return;
+    case PLAYER_SOUND_PITCH:
+        g_player[iPlayer].ps->sound_pitch=lVar1; return;
+    case PLAYER_WEAPONSWITCH:
+        g_player[iPlayer].ps->weaponswitch=lVar1; return;
+    case PLAYER_TEAM:
+        g_player[iPlayer].ps->team=lVar1; return;
+    case PLAYER_MAX_PLAYER_HEALTH:
+        g_player[iPlayer].ps->max_player_health = lVar1; return;
+    case PLAYER_MAX_SHIELD_AMOUNT:
+        g_player[iPlayer].ps->max_shield_amount = lVar1; return;
+    case PLAYER_MAX_AMMO_AMOUNT:
+        g_player[iPlayer].ps->max_ammo_amount[lParm2]=lVar1; return;
+    case PLAYER_LAST_QUICK_KICK:
+        g_player[iPlayer].ps->last_quick_kick=lVar1;
+        return;
+
+    default:
+        return;
+    }
+
+badplayer:
+    //        OSD_Printf("X_AccessPlayer(): invalid target player (%d) %d\n",iPlayer,vm.g_i);
+    OSD_Printf(CON_ERROR "tried to set %s on invalid target player (%d) from spr %d gv %s\n",g_errorLineNum,keyw[g_tw],
+               PlayerLabels[lLabelID].name,iPlayer,vm.g_i,
+               (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
+    insptr += (lVar2 == MAXGAMEVARS);
+    return;
+
+badpos:
+    OSD_Printf(CON_ERROR "tried to set invalid %s position %d on player (%d) from spr %d\n",g_errorLineNum,keyw[g_tw],
+               PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
+    insptr += (lVar2 == MAXGAMEVARS);
+    return;
+}
+
+static void __fastcall X_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
     int32_t iPlayer=vm.g_p;
@@ -2565,12 +1859,8 @@ static inline void X_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t lLab
     if (lVar1 != g_iThisActorID)
         iPlayer=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
 
-    if ((iPlayer<0 || iPlayer >= ud.multimode) && g_scriptSanityChecks)
-    {
-        insptr += (lVar2 == MAXGAMEVARS);
-        OSD_Printf(CON_ERROR "invalid target player (%d) %d\n",g_errorLineNum,keyw[g_tw],iPlayer,vm.g_i);
-        return;
-    }
+    if ((iPlayer<0 || iPlayer >= playerswhenstarted) /* && g_scriptSanityChecks */)
+        goto badplayer;
 
     if (iSet)
         lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
@@ -2633,19 +1923,20 @@ static inline void X_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t lLab
     default:
         return;
     }
+
+badplayer:
+    insptr += (lVar2 == MAXGAMEVARS);
+    OSD_Printf(CON_ERROR "invalid target player (%d) %d\n",g_errorLineNum,keyw[g_tw],iPlayer,vm.g_i);
+    return;
 }
 
-static inline void X_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static void __fastcall X_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
     int32_t iWall = Gv_GetVar(lVar1, vm.g_i, vm.g_p);
 
-    if ((iWall<0 || iWall >= numwalls) && g_scriptSanityChecks)
-    {
-        insptr += (lVar2 == MAXGAMEVARS);
-        OSD_Printf(CON_ERROR "Invalid wall %d\n",g_errorLineNum,keyw[g_tw],iWall);
-        return;
-    }
+    if ((iWall<0 || iWall >= numwalls) /* && g_scriptSanityChecks */)
+        goto badwall;
 
     if (iSet)
         lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
@@ -2807,9 +2098,14 @@ static inline void X_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabelID, i
     default:
         return;
     }
+
+badwall:
+    insptr += (lVar2 == MAXGAMEVARS);
+    OSD_Printf(CON_ERROR "Invalid wall %d\n",g_errorLineNum,keyw[g_tw],iWall);
+    return;
 }
 
-static inline void X_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static void __fastcall X_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
     int32_t iSector=sprite[vm.g_i].sectnum;
@@ -2817,12 +2113,8 @@ static inline void X_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLabelID,
     if (lVar1 != g_iThisActorID)
         iSector=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
 
-    if ((iSector<0 || iSector >= numsectors) && g_scriptSanityChecks)
-    {
-        OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],iSector);
-        insptr += (lVar2 == MAXGAMEVARS);
-        return;
-    }
+    if ((iSector<0 || iSector >= numsectors) /* && g_scriptSanityChecks */)
+        goto badsector;
 
     if (iSet)
         lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
@@ -3039,512 +2331,500 @@ static inline void X_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLabelID,
     default:
         return;
     }
+
+badsector:
+    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],iSector);
+    insptr += (lVar2 == MAXGAMEVARS);
+    return;
 }
 
-static inline void X_AccessSprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
+static void __fastcall X_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
 {
-    int32_t lValue=0;
-    int32_t iActor=vm.g_i;
+    register int32_t iActor=vm.g_i;
 
     if (lVar1 != g_iThisActorID)
         iActor=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
 
-    if ((iActor < 0 || iActor >= MAXSPRITES) && g_scriptSanityChecks)
-    {
-        OSD_Printf(CON_ERROR "tried to %s %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",g_errorLineNum,keyw[g_tw],
-                   iSet?"set":"get",ActorLabels[lLabelID].name,iActor,vm.g_i,vm.g_sp->picnum,
-                   (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
-        insptr += (lVar2 == MAXGAMEVARS);
-        return;
-    }
+    if ((iActor < 0 || iActor >= MAXSPRITES) /* && g_scriptSanityChecks */)
+        goto badactor;
 
-    if ((ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) && g_scriptSanityChecks)
-    {
-        OSD_Printf(CON_ERROR "tried to %s invalid %s position %d on sprite (%d) from spr %d\n",g_errorLineNum,keyw[g_tw],
-                   iSet?"set":"get",ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
-        insptr += (lVar2 == MAXGAMEVARS);
-        return;
-    }
+    if ((ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+        goto badpos;
 
-    if (iSet)
-        lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
+    lVar1=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
 
     switch (lLabelID)
     {
     case ACTOR_X:
-        if (iSet)
-        {
-            sprite[iActor].x=lValue;
-            return;
-        }
+        sprite[iActor].x=lVar1;
+        return;
+
+    case ACTOR_Y:
+        sprite[iActor].y=lVar1;
+        return;
+
+    case ACTOR_Z:
+        sprite[iActor].z=lVar1;
+        return;
+
+    case ACTOR_CSTAT:
+        sprite[iActor].cstat=lVar1;
+        return;
+
+    case ACTOR_PICNUM:
+        sprite[iActor].picnum=lVar1;
+        return;
+
+    case ACTOR_SHADE:
+        sprite[iActor].shade=lVar1;
+        return;
+
+    case ACTOR_PAL:
+        sprite[iActor].pal=lVar1;
+        return;
+
+    case ACTOR_CLIPDIST:
+        sprite[iActor].clipdist=lVar1;
+        return;
+
+    case ACTOR_DETAIL:
+        sprite[iActor].filler=lVar1;
+        return;
+
+    case ACTOR_XREPEAT:
+        sprite[iActor].xrepeat=lVar1;
+        return;
+
+    case ACTOR_YREPEAT:
+        sprite[iActor].yrepeat=lVar1;
+        return;
+
+    case ACTOR_XOFFSET:
+        sprite[iActor].xoffset=lVar1;
+        return;
+
+    case ACTOR_YOFFSET:
+        sprite[iActor].yoffset=lVar1;
+        return;
+
+    case ACTOR_SECTNUM:
+        changespritesect(iActor,lVar1);
+        return;
+
+    case ACTOR_STATNUM:
+        changespritestat(iActor,lVar1);
+        return;
+
+    case ACTOR_ANG:
+        sprite[iActor].ang=lVar1;
+        return;
+
+    case ACTOR_OWNER:
+        sprite[iActor].owner=lVar1;
+        return;
+
+    case ACTOR_XVEL:
+        sprite[iActor].xvel=lVar1;
+        return;
+
+    case ACTOR_YVEL:
+        sprite[iActor].yvel=lVar1;
+        return;
+
+    case ACTOR_ZVEL:
+        sprite[iActor].zvel=lVar1;
+        return;
+
+    case ACTOR_LOTAG:
+        sprite[iActor].lotag=lVar1;
+        return;
+
+    case ACTOR_HITAG:
+        sprite[iActor].hitag=lVar1;
+        return;
+
+    case ACTOR_EXTRA:
+        sprite[iActor].extra=lVar1;
+        return;
+
+    case ACTOR_HTCGG:
+        ActorExtra[iActor].cgg=lVar1;
+        return;
+
+    case ACTOR_HTPICNUM :
+        ActorExtra[iActor].picnum=lVar1;
+        return;
+
+    case ACTOR_HTANG:
+        ActorExtra[iActor].ang=lVar1;
+        return;
+
+    case ACTOR_HTEXTRA:
+        ActorExtra[iActor].extra=lVar1;
+        return;
+
+    case ACTOR_HTOWNER:
+        ActorExtra[iActor].owner=lVar1;
+        return;
+
+    case ACTOR_HTMOVFLAG:
+        ActorExtra[iActor].movflag=lVar1;
+        return;
+
+    case ACTOR_HTTEMPANG:
+        ActorExtra[iActor].tempang=lVar1;
+        return;
+
+    case ACTOR_HTACTORSTAYPUT:
+        ActorExtra[iActor].actorstayput=lVar1;
+        return;
+
+    case ACTOR_HTDISPICNUM:
+        ActorExtra[iActor].dispicnum=lVar1;
+        return;
+
+    case ACTOR_HTTIMETOSLEEP:
+        ActorExtra[iActor].timetosleep=lVar1;
+        return;
+
+    case ACTOR_HTFLOORZ:
+        ActorExtra[iActor].floorz=lVar1;
+        return;
+
+    case ACTOR_HTCEILINGZ:
+        ActorExtra[iActor].ceilingz=lVar1;
+        return;
+
+    case ACTOR_HTLASTVX:
+        ActorExtra[iActor].lastvx=lVar1;
+        return;
+
+    case ACTOR_HTLASTVY:
+        ActorExtra[iActor].lastvy=lVar1;
+        return;
+
+    case ACTOR_HTBPOSX:
+        ActorExtra[iActor].bposx=lVar1;
+        return;
+
+    case ACTOR_HTBPOSY:
+        ActorExtra[iActor].bposy=lVar1;
+        return;
+
+    case ACTOR_HTBPOSZ:
+        ActorExtra[iActor].bposz=lVar1;
+        return;
+
+    case ACTOR_HTG_T:
+        ActorExtra[iActor].temp_data[lParm2]=lVar1;
+        return;
+
+    case ACTOR_ANGOFF:
+        spriteext[iActor].angoff=lVar1;
+        return;
+
+    case ACTOR_PITCH:
+        spriteext[iActor].pitch=lVar1;
+        return;
+
+    case ACTOR_ROLL:
+        spriteext[iActor].roll=lVar1;
+        return;
+
+    case ACTOR_MDXOFF:
+        spriteext[iActor].xoff=lVar1;
+        return;
+
+    case ACTOR_MDYOFF:
+        spriteext[iActor].yoff=lVar1;
+        return;
+
+    case ACTOR_MDZOFF:
+        spriteext[iActor].zoff=lVar1;
+        return;
+
+    case ACTOR_MDFLAGS:
+        spriteext[iActor].flags=lVar1;
+        return;
+
+    case ACTOR_XPANNING:
+        spriteext[iActor].xpanning=lVar1;
+        return;
+
+    case ACTOR_YPANNING:
+        spriteext[iActor].ypanning=lVar1;
+        return;
+
+    case ACTOR_HTFLAGS:
+        ActorExtra[iActor].flags=lVar1;
+        return;
+
+    case ACTOR_ALPHA:
+        spriteext[iActor].alpha=(float)(lVar1/255.0f);
+        return;
+
+    default:
+        return;
+    }
+
+badactor:
+    OSD_Printf(CON_ERROR "tried to set %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",g_errorLineNum,keyw[g_tw],
+               ActorLabels[lLabelID].name,iActor,vm.g_i,vm.g_sp->picnum,
+               (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
+    insptr += (lVar2 == MAXGAMEVARS);
+    return;
+
+badpos:
+    OSD_Printf(CON_ERROR "tried to set invalid %s position %d on sprite (%d) from spr %d\n",g_errorLineNum,keyw[g_tw],
+               ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
+    insptr += (lVar2 == MAXGAMEVARS);
+    return;
+}
+
+
+static void __fastcall X_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
+{
+    register int32_t iActor=vm.g_i;
+
+    if (lVar1 != g_iThisActorID)
+        iActor=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
+
+    if ((iActor < 0 || iActor >= MAXSPRITES) /* && g_scriptSanityChecks */)
+        goto badactor;
+
+    if ((ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+        goto badpos;
+
+    switch (lLabelID)
+    {
+    case ACTOR_X:
         Gv_SetVar(lVar2, sprite[iActor].x,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_Y:
-        if (iSet)
-        {
-            sprite[iActor].y=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].y,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_Z:
-        if (iSet)
-        {
-            sprite[iActor].z=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].z,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_CSTAT:
-        if (iSet)
-        {
-            sprite[iActor].cstat=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].cstat,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_PICNUM:
-        if (iSet)
-        {
-            sprite[iActor].picnum=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].picnum,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_SHADE:
-        if (iSet)
-        {
-            sprite[iActor].shade=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].shade,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_PAL:
-        if (iSet)
-        {
-            sprite[iActor].pal=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].pal,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_CLIPDIST:
-        if (iSet)
-        {
-            sprite[iActor].clipdist=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].clipdist,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_DETAIL:
-        if (iSet)
-        {
-            sprite[iActor].filler=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].filler,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_XREPEAT:
-        if (iSet)
-        {
-            sprite[iActor].xrepeat=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].xrepeat,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_YREPEAT:
-        if (iSet)
-        {
-            sprite[iActor].yrepeat=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].yrepeat,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_XOFFSET:
-        if (iSet)
-        {
-            sprite[iActor].xoffset=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].xoffset,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_YOFFSET:
-        if (iSet)
-        {
-            sprite[iActor].yoffset=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].yoffset,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_SECTNUM:
-        if (iSet)
-        {
-            changespritesect(iActor,lValue);
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].sectnum,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_STATNUM:
-        if (iSet)
-        {
-            changespritestat(iActor,lValue);
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].statnum,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_ANG:
-        if (iSet)
-        {
-            sprite[iActor].ang=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].ang,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_OWNER:
-        if (iSet)
-        {
-            sprite[iActor].owner=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].owner,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_XVEL:
-        if (iSet)
-        {
-            sprite[iActor].xvel=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].xvel,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_YVEL:
-        if (iSet)
-        {
-            sprite[iActor].yvel=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].yvel,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_ZVEL:
-        if (iSet)
-        {
-            sprite[iActor].zvel=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].zvel,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_LOTAG:
-        if (iSet)
-        {
-            sprite[iActor].lotag=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].lotag,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_HITAG:
-        if (iSet)
-        {
-            sprite[iActor].hitag=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].hitag,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_EXTRA:
-        if (iSet)
-        {
-            sprite[iActor].extra=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, sprite[iActor].extra,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_HTCGG:
-        if (iSet)
-        {
-            ActorExtra[iActor].cgg=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, ActorExtra[iActor].cgg, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTPICNUM :
-        if (iSet)
-        {
-            ActorExtra[iActor].picnum=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, ActorExtra[iActor].picnum, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTANG:
-        if (iSet)
-        {
-            ActorExtra[iActor].ang=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, ActorExtra[iActor].ang, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTEXTRA:
-        if (iSet)
-        {
-            ActorExtra[iActor].extra=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].extra, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTOWNER:
-        if (iSet)
-        {
-            ActorExtra[iActor].owner=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].owner, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTMOVFLAG:
-        if (iSet)
-        {
-            ActorExtra[iActor].movflag=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].movflag, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTTEMPANG:
-        if (iSet)
-        {
-            ActorExtra[iActor].tempang=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].tempang, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTACTORSTAYPUT:
-        if (iSet)
-        {
-            ActorExtra[iActor].actorstayput=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].actorstayput, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTDISPICNUM:
-        if (iSet)
-        {
-            ActorExtra[iActor].dispicnum=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].dispicnum, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTTIMETOSLEEP:
-        if (iSet)
-        {
-            ActorExtra[iActor].timetosleep=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].timetosleep, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTFLOORZ:
-        if (iSet)
-        {
-            ActorExtra[iActor].floorz=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].floorz, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTCEILINGZ:
-        if (iSet)
-        {
-            ActorExtra[iActor].ceilingz=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].ceilingz, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTLASTVX:
-        if (iSet)
-        {
-            ActorExtra[iActor].lastvx=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].lastvx, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTLASTVY:
-        if (iSet)
-        {
-            ActorExtra[iActor].lastvy=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].lastvy, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTBPOSX:
-        if (iSet)
-        {
-            ActorExtra[iActor].bposx=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].bposx, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTBPOSY:
-        if (iSet)
-        {
-            ActorExtra[iActor].bposy=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].bposy, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTBPOSZ:
-        if (iSet)
-        {
-            ActorExtra[iActor].bposz=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].bposz, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTG_T:
-        if (iSet)
-        {
-            ActorExtra[iActor].temp_data[lParm2]=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, ActorExtra[iActor].temp_data[lParm2], vm.g_i, vm.g_p);
         return;
 
     case ACTOR_ANGOFF:
-        if (iSet)
-        {
-            spriteext[iActor].angoff=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,spriteext[iActor].angoff, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_PITCH:
-        if (iSet)
-        {
-            spriteext[iActor].pitch=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,spriteext[iActor].pitch, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_ROLL:
-        if (iSet)
-        {
-            spriteext[iActor].roll=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,spriteext[iActor].roll, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_MDXOFF:
-        if (iSet)
-        {
-            spriteext[iActor].xoff=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,spriteext[iActor].xoff, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_MDYOFF:
-        if (iSet)
-        {
-            spriteext[iActor].yoff=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,spriteext[iActor].yoff, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_MDZOFF:
-        if (iSet)
-        {
-            spriteext[iActor].zoff=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,spriteext[iActor].zoff, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_MDFLAGS:
-        if (iSet)
-        {
-            spriteext[iActor].flags=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,spriteext[iActor].flags, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_XPANNING:
-        if (iSet)
-        {
-            spriteext[iActor].xpanning=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, spriteext[iActor].xpanning,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_YPANNING:
-        if (iSet)
-        {
-            spriteext[iActor].ypanning=lValue;
-            return;
-        }
         Gv_SetVar(lVar2, spriteext[iActor].ypanning,vm.g_i,vm.g_p);
         return;
 
     case ACTOR_HTFLAGS:
-        if (iSet)
-        {
-            ActorExtra[iActor].flags=lValue;
-            return;
-        }
         Gv_SetVar(lVar2,ActorExtra[iActor].flags, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_ALPHA:
-        if (iSet)
-        {
-            spriteext[iActor].alpha=(float)(lValue/255.0f);
-            return;
-        }
         Gv_SetVar(lVar2, (uint8_t)(spriteext[iActor].alpha * 255.0f), vm.g_i, vm.g_p);
         return;
 
     default:
         return;
     }
+
+badactor:
+    OSD_Printf(CON_ERROR "tried to get %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",g_errorLineNum,keyw[g_tw],
+               ActorLabels[lLabelID].name,iActor,vm.g_i,vm.g_sp->picnum,
+               (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
+    insptr += (lVar2 == MAXGAMEVARS);
+    return;
+
+badpos:
+    OSD_Printf(CON_ERROR "tried to get invalid %s position %d on sprite (%d) from spr %d\n",g_errorLineNum,keyw[g_tw],
+               ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
+    insptr += (lVar2 == MAXGAMEVARS);
+    return;
 }
 
-static inline void X_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+
+static void __fastcall X_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
     int32_t iActor=vm.g_i;
@@ -3553,20 +2833,13 @@ static inline void X_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLabelID
         iActor=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
 
     if ((iActor < 0 || iActor >= MAXSPRITES) && g_scriptSanityChecks)
-    {
-        OSD_Printf(CON_ERROR "invalid target sprite (%d) %d %d\n",g_errorLineNum,keyw[g_tw],iActor,vm.g_i,vm.g_sp->picnum);
-        insptr += (lVar2 == MAXGAMEVARS);
-        return;
-    }
+        goto badsprite;
 
     if (iSet)
         lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
 
     if ((!spriteext[iActor].tspr) && g_scriptSanityChecks)
-    {
-        OSD_Printf(CON_ERROR "Internal bug, tsprite is unavailable\n",g_errorLineNum,keyw[g_tw]);
-        return;
-    }
+        goto badtspr;
 
     switch (lLabelID)
     {
@@ -3782,18 +3055,23 @@ static inline void X_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLabelID
     default:
         return;
     }
+
+badsprite:
+    OSD_Printf(CON_ERROR "invalid target sprite (%d) %d %d\n",g_errorLineNum,keyw[g_tw],iActor,vm.g_i,vm.g_sp->picnum);
+    insptr += (lVar2 == MAXGAMEVARS);
+    return;
+
+badtspr:
+    OSD_Printf(CON_ERROR "Internal bug, tsprite is unavailable\n",g_errorLineNum,keyw[g_tw]);
+    return;
 }
 
-static inline void X_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static void __fastcall X_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
 
-    if ((lVar1 < 0 || lVar1 >= MAXTILES) && g_scriptSanityChecks)
-    {
-        OSD_Printf(CON_ERROR "invalid tile (%d)\n",g_errorLineNum,keyw[g_tw],lVar1);
-        insptr += (lVar2 == MAXGAMEVARS);
-        return;
-    }
+    if ((lVar1 < 0 || lVar1 >= MAXTILES) /* && g_scriptSanityChecks */)
+        goto badtile;
 
     if (iSet)
         lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
@@ -4055,16 +3333,17 @@ static inline void X_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabe
     default:
         return;
     }
+
+badtile:
+    OSD_Printf(CON_ERROR "invalid tile (%d)\n",g_errorLineNum,keyw[g_tw],lVar1);
+    insptr += (lVar2 == MAXGAMEVARS);
+    return;
 }
 #else
 static int32_t __fastcall X_AccessSpriteX(int32_t iActor, int32_t lLabelID, int32_t lParm2)
 {
-    if ((ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) && g_scriptSanityChecks)
-    {
-        OSD_Printf(CON_ERROR "tried to get invalid %s position %d on sprite (%d) from spr %d\n",
-                   g_errorLineNum,keyw[g_tw],ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
-        return -1;
-    }
+    if ((ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+        goto badpos;
 
     switch (lLabelID)
     {
@@ -4122,6 +3401,11 @@ static int32_t __fastcall X_AccessSpriteX(int32_t iActor, int32_t lLabelID, int3
     case ACTOR_ALPHA: return (uint8_t)(spriteext[iActor].alpha*255.0f);
     default: return -1;
     }
+
+badpos:
+    OSD_Printf(CON_ERROR "tried to get invalid %s position %d on sprite (%d) from spr %d\n",
+               g_errorLineNum,keyw[g_tw],ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
+    return -1;
 }
 
 static int32_t __fastcall X_AccessSectorX(int32_t iSector, int32_t lLabelID)
@@ -4157,11 +3441,8 @@ static int32_t __fastcall X_AccessSectorX(int32_t iSector, int32_t lLabelID)
 
 static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int32_t lParm2)
 {
-    if ((PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) && g_scriptSanityChecks)
-    {
-        OSD_Printf(CON_ERROR "tried to %s invalid %s position %d on player (%d) from spr %d\n",
-                   g_errorLineNum,keyw[g_tw],PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
-    }
+    if ((PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+        goto badpos;
 
     switch (lLabelID)
     {
@@ -4456,6 +3737,11 @@ static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int
     default:
         return -1;
     }
+
+badpos:
+    OSD_Printf(CON_ERROR "tried to get invalid %s position %d on player (%d) from spr %d\n",
+               g_errorLineNum,keyw[g_tw],PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
+    return -1;
 }
 
 static int32_t __fastcall X_AccessWallX(int32_t iWall, int32_t lLabelID)

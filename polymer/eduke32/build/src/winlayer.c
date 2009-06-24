@@ -3369,39 +3369,39 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         glinfo.extensions = (char *)bglGetString(GL_EXTENSIONS);
 
         // GL driver blacklist
-        
-            if (!Bstrcmp(glinfo.vendor,"Microsoft Corporation")) err = 1;
-            else if (!Bstrcmp(glinfo.vendor,"SiS")) err = 1;
-            else if (!Bstrcmp(glinfo.vendor,"3Dfx Interactive Inc.")) err = 1;
-            else if (!Bstrcmp(glinfo.vendor,"Intel"))
-            {
-                if (!Bstrcmp(glinfo.renderer,"Intel 865G"))
-                    err = 0;
-                else if (!Bstrcmp(glinfo.renderer,"Intel 945GM"))
-                    err = 0;
-                else if (!Bstrcmp(glinfo.renderer,"Intel 965/963 Graphics Media Accelerator"))
-                    err = 0;
-                else err = 1;
-            }
+
+        if (!Bstrcmp(glinfo.vendor,"Microsoft Corporation")) err = 1;
+        else if (!Bstrcmp(glinfo.vendor,"SiS")) err = 1;
+        else if (!Bstrcmp(glinfo.vendor,"3Dfx Interactive Inc.")) err = 1;
+        else if (!Bstrcmp(glinfo.vendor,"Intel"))
+        {
+            if (!Bstrcmp(glinfo.renderer,"Intel 865G"))
+                err = 0;
+            else if (!Bstrcmp(glinfo.renderer,"Intel 945GM"))
+                err = 0;
+            else if (!Bstrcmp(glinfo.renderer,"Intel 965/963 Graphics Media Accelerator"))
+                err = 0;
+            else err = 1;
+        }
 #ifdef POLYMER
-            else
-            {
-                if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
-                    pr_atiworkaround = 1;
-                else pr_atiworkaround = 0;
-            }
+        else
+        {
+            if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
+                pr_atiworkaround = 1;
+            else pr_atiworkaround = 0;
+        }
 #endif
-            if (!forcegl && err)
-            {
-                OSD_Printf("Unsupported OpenGL driver detected. GL modes will be unavailable. Use -forcegl to override.\n");
-                wm_msgbox("Unsupported OpenGL driver", "Unsupported OpenGL driver detected.  GL modes will be unavailable.");
-                ReleaseOpenGL();
-                unloadgldriver();
-                nogl = 1;
-                modeschecked = 0;
-                getvalidmodes();
-                return TRUE;
-            }
+        if (!forcegl && err)
+        {
+            OSD_Printf("Unsupported OpenGL driver detected. GL modes will be unavailable. Use -forcegl to override.\n");
+            wm_msgbox("Unsupported OpenGL driver", "Unsupported OpenGL driver detected.  GL modes will be unavailable.");
+            ReleaseOpenGL();
+            unloadgldriver();
+            nogl = 1;
+            modeschecked = 0;
+            getvalidmodes();
+            return TRUE;
+        }
 
         glinfo.maxanisotropy = 1.0;
         glinfo.bgra = 0;

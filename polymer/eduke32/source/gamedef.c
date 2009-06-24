@@ -1899,13 +1899,14 @@ static int32_t C_GetNextValue(int32_t type)
 
 static inline int32_t C_IntPow2(int32_t v)
 {
-    return ((v!=0) && (v&(v-1))==0);  
+    return ((v!=0) && (v&(v-1))==0);
 }
 
 static inline uint32_t C_Pow2IntLogBase2(int32_t v)
 {
-    static const uint32_t b[] = {0xAAAAAAAA, 0xCCCCCCCC, 0xF0F0F0F0, 
-        0xFF00FF00, 0xFFFF0000};
+    static const uint32_t b[] = {0xAAAAAAAA, 0xCCCCCCCC, 0xF0F0F0F0,
+                                 0xFF00FF00, 0xFFFF0000
+                                };
     register uint32_t r = (v & b[0]) != 0;
     int32_t i = 4;
 
@@ -1929,7 +1930,7 @@ static int32_t C_CheckMalformedBranch(intptr_t lastScriptPtr)
         C_ReportError(-1);
         g_numCompilerWarnings++;
         initprintf("%s:%d: warning: malformed `%s' branch\n",g_szScriptFileName,g_lineNumber,
-            keyw[*(g_scriptPtr) & 0xFFF]);
+                   keyw[*(g_scriptPtr) & 0xFFF]);
         return 1;
     }
     return 0;
@@ -3904,45 +3905,52 @@ static int32_t C_ParseCommand(void)
     case CON_SHIFTVARL:
     case CON_SHIFTVARR:
 
+    {
+        intptr_t *inst = g_scriptPtr-1;
+        char *tptr = textptr;
+        // syntax: [rand|add|set]var    <var1> <const1>
+        // sets var1 to const1
+        // adds const1 to var1 (const1 can be negative...)
+        //printf("Found [add|set]var at line= %d\n",g_lineNumber);
+
+        // get the ID of the DEF
+        if (tw != CON_ZSHOOT && tw != CON_EZSHOOT)
+            C_GetNextVarType(GAMEVAR_READONLY);
+        else C_GetNextVar();
+
+        C_GetNextValue(LABEL_DEFINE); // the number to check against...
+
+        if (tw == CON_MULVAR && *(g_scriptPtr-1) == -1)
         {
-            intptr_t *inst = g_scriptPtr-1;
-            char *tptr = textptr;
-            // syntax: [rand|add|set]var    <var1> <const1>
-            // sets var1 to const1
-            // adds const1 to var1 (const1 can be negative...)
-            //printf("Found [add|set]var at line= %d\n",g_lineNumber);
+            *inst = CON_INV;
+            g_scriptPtr--;
+            return 0;
+        }
 
-            // get the ID of the DEF
-            if (tw != CON_ZSHOOT && tw != CON_EZSHOOT)
-                C_GetNextVarType(GAMEVAR_READONLY);
-            else C_GetNextVar();
+        if (tw == CON_DIVVAR || (tw == CON_MULVAR && *(g_scriptPtr-1) > 0))
+        {
+            int32_t i = *(g_scriptPtr-1);
+            j = klabs(*(g_scriptPtr-1));
 
-            C_GetNextValue(LABEL_DEFINE); // the number to check against...
-
-            if (tw == CON_DIVVAR || (tw == CON_MULVAR && *(g_scriptPtr-1) > 0))
+            if (C_IntPow2(j))
             {
-                int32_t i = *(g_scriptPtr-1);
-                j = klabs(*(g_scriptPtr-1));
-
-                if (C_IntPow2(j))
-                {
-                    *inst = ((tw == CON_DIVVAR) ? CON_SHIFTVARR : CON_SHIFTVARL);
-                    *(g_scriptPtr-1) = C_Pow2IntLogBase2(j);
+                *inst = ((tw == CON_DIVVAR) ? CON_SHIFTVARR : CON_SHIFTVARL);
+                *(g_scriptPtr-1) = C_Pow2IntLogBase2(j);
 //                    initprintf("%s:%d: replacing multiply/divide with shift\n",g_szScriptFileName,g_lineNumber);
 
-                    if (i == j)
-                        return 0;
+                if (i == j)
+                    return 0;
 
-                    *g_scriptPtr++ = CON_INV + (g_lineNumber<<12);
-                    textptr = tptr;
-                    C_GetNextVarType(GAMEVAR_READONLY);
-                    C_GetNextValue(LABEL_DEFINE);
-                    g_scriptPtr--;
+                *g_scriptPtr++ = CON_INV + (g_lineNumber<<12);
+                textptr = tptr;
+                C_GetNextVarType(GAMEVAR_READONLY);
+                C_GetNextValue(LABEL_DEFINE);
+                g_scriptPtr--;
 //                    initprintf("%s:%d: adding inversion\n",g_szScriptFileName,g_lineNumber);
-                }
             }
         }
-        return 0;
+    }
+    return 0;
     case CON_WRITEARRAYTOFILE:
     case CON_READARRAYFROMFILE:
         C_GetNextLabelName();

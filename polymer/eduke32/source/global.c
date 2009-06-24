@@ -84,6 +84,8 @@ sound_t g_sounds[ MAXSOUNDS ];
 
 char g_numPlayerSprites,g_loadFromGroupOnly=0,g_earthquakeTime;
 
+int32_t playerswhenstarted;
+
 int32_t fricxv,fricyv;
 playerdata_t g_player[MAXPLAYERS];
 input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
