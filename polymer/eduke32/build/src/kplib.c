@@ -57,7 +57,7 @@ static uint16_t SSWAPIL(uint16_t a) { return((a>>8)+(a<<8)); }
 #if !defined(_WIN32) && !defined(__DOS__)
 #include <unistd.h>
 #include <dirent.h>
-typedef int32_t int32_t __int64;
+typedef long long  __int64;
 static __inline int32_t _lrotl(int32_t i, int sh)
 { return((i>>(-sh))|(i<<sh)); }
 static __inline int32_t filelength(int h)
@@ -2339,8 +2339,8 @@ static int32_t kpcxrend(const char *buf, int32_t fleng,
                         intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres,
                         int32_t daglobxoffs, int32_t daglobyoffs)
 {
-    int32_t i, j, x, y, nplanes, x0, x1, y0, y1, bpl, xsiz, ysiz;
-    intptr_t p;
+    int32_t  j, x, y, nplanes, x0, x1, y0, y1, bpl, xsiz, ysiz;
+    intptr_t p,i;
     uint8_t c, *cptr;
 
     if (*(int32_t *)buf != LSWAPIB(0x0801050a)) return(-1);
@@ -2466,7 +2466,7 @@ static int32_t kddsrend(const char *buf, int32_t leng,
         for (x=0; x<xsiz; x+=4)
         {
             if (dxt == 1) uptr = (uint8_t *)(((intptr_t)buf)+(x<<1));
-            else uptr = (uint8_t *)(((int32_t)buf)+(x<<2)+8);
+            else uptr = (uint8_t *)(((intptr_t)buf)+(x<<2)+8);
             c0 = SSWAPIB(*(uint16_t *)&uptr[0]);
             r[0] = ((c0>>8)&0xf8); g[0] = ((c0>>3)&0xfc); b[0] = ((c0<<3)&0xfc); a[0] = 255;
             c1 = SSWAPIB(*(uint16_t *)&uptr[2]);
@@ -2557,7 +2557,7 @@ void kpgetdim(const char *buf, int32_t leng, int32_t *xsiz, int32_t *ysiz)
         {
             if (lptr[1] == LSWAPIB(0x52444849)) //IHDR
                 {(*xsiz) = LSWAPIL(lptr[2]); (*ysiz) = LSWAPIL(lptr[3]); break; }
-            lptr = (int32_t *)((int32_t)lptr + LSWAPIL(lptr[0]) + 12);
+            lptr = (int32_t *)((intptr_t)lptr + LSWAPIL(lptr[0]) + 12);
         }
     }
     else if ((ubuf[0] == 0xff) && (ubuf[1] == 0xd8)) //.JPG
