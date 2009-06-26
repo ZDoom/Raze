@@ -88,10 +88,22 @@ DEALINGS IN THE SOFTWARE.
 #endif
 #if 1
 /* The number of cache entries for finer grained bins. This is (topbitpos(THREADCACHEMAX)-4)*2 */
+#if THREADCACHEMAX == 8192
 #define THREADCACHEMAXBINS ((13-4)*2)
+#elif THREADCACHEMAX == 65536
+#define THREADCACHEMAXBINS ((16-4)*2)
+#else
+#error undefined size
+#endif
 #else
 /* The number of cache entries. This is (topbitpos(THREADCACHEMAX)-4) */
+#if THREADCACHEMAX == 8192
 #define THREADCACHEMAXBINS (13-4)
+#elif THREADCACHEMAX == 65536
+#define THREADCACHEMAXBINS (16-4)
+#else 
+#error undefined size
+#endif
 #endif
 /* Point at which the free space in a thread cache is garbage collected */
 #ifndef THREADCACHEMAXFREESPACE
