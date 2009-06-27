@@ -8061,26 +8061,25 @@ void loadtile(int16_t tilenume)
         allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
     }
 
-    if (!faketile[tilenume])
-    {
-        if (artfilplc != tilefileoffs[tilenume])
-        {
-            klseek(artfil,tilefileoffs[tilenume]-artfilplc,BSEEK_CUR);
-            faketimerhandler();
-        }
-        ptr = (char *)waloff[tilenume];
-        kread(artfil,ptr,dasiz);
-        faketimerhandler();
-        artfilplc = tilefileoffs[tilenume]+dasiz;
-    }
-    else
+    if (faketile[tilenume])
     {
         if (faketile[tilenume] == 1 || (faketile[tilenume] == 2 && faketiledata[tilenume] == NULL))
             Bmemset((char *)waloff[tilenume],0,dasiz);
         else if (faketile[tilenume] == 2)
             Bmemcpy((char *)waloff[tilenume],faketiledata[tilenume],dasiz);
         faketimerhandler();
+        return;
     }
+
+    if (artfilplc != tilefileoffs[tilenume])
+    {
+        klseek(artfil,tilefileoffs[tilenume]-artfilplc,BSEEK_CUR);
+        faketimerhandler();
+    }
+    ptr = (char *)waloff[tilenume];
+    kread(artfil,ptr,dasiz);
+    faketimerhandler();
+    artfilplc = tilefileoffs[tilenume]+dasiz;
 }
 
 void checktile(int16_t tilenume)

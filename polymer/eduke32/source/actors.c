@@ -7981,8 +7981,16 @@ void G_MoveWorld(void)
                     {
                         int32_t x, y;
 
-                        if (s->cstat & 32768 || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                        if ((s->cstat & 32768) || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                        {
+                            if (ActorExtra[i].lightptr != NULL)
+                            {
+                                polymer_deletelight(ActorExtra[i].lightId);
+                                ActorExtra[i].lightId = -1;
+                                ActorExtra[i].lightptr = NULL;
+                            }
                             break;
+                        }
 
                         x = ((sintable[(s->ang+512)&2047])>>7);
                         y = ((sintable[(s->ang)&2047])>>7);

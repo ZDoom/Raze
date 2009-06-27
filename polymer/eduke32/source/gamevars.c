@@ -536,7 +536,7 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
     {
         register intptr_t negateResult = id&(MAXGAMEVARS<<1);
 
-        if (id >= g_gameVarCount || id < 0)
+        if (id >= g_gameVarCount)
         {
             if (id&(MAXGAMEVARS<<2)) // array
             {
@@ -682,7 +682,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
     {
         register intptr_t negateResult = id&(MAXGAMEVARS<<1);
 
-        if (id >= g_gameVarCount || id < 0)
+        if (id >= g_gameVarCount)
         {
             if (id&(MAXGAMEVARS<<2)) // array
             {

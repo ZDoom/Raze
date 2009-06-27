@@ -4812,7 +4812,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                         if ((ud.multimode < 2) || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_DMSWITCHES)))
                         {
                             sprite[i].xrepeat = sprite[i].yrepeat = 0;
-                            sprite[i].cstat = SLT = SHT = 0;
+                            SLT = SHT = 0;
+                            sprite[i].cstat = 32768;
                             return i;
                         }
                     }
