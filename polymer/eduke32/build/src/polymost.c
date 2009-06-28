@@ -5997,7 +5997,7 @@ void polymost_initosdfuncs(void)
         { "r_pr_overridespecular", "r_pr_overridespecular: overrides specular material power and factor values with values from the pr_specularpower and pr_specularfactor cvars; use it to fine-tune DEF tokens", (void*)&pr_overridespecular, CVAR_BOOL | CVAR_NOSAVE, 0, 0, 1 },
         { "r_pr_specularpower", "r_pr_specularpower: overriden specular material power", (void*)&pr_specularpower, CVAR_FLOAT | CVAR_NOSAVE, 0, -10, 1000 },
         { "r_pr_specularfactor", "r_pr_specularfactor: overriden specular material factor", (void*)&pr_specularfactor, CVAR_FLOAT | CVAR_NOSAVE, 0, -10, 1000 },
-        { "r_pr_atiworkaround", "r_pr_atiworkaround: enable this to workaround an ATI driver bug that causes sprite shadows to be square - you need to restart the renderer for it to take effect", (void*)&pr_atiworkaround, CVAR_BOOL | CVAR_NOSAVE, 0, 0, 1 },
+        { "r_pr_ati_fboworkaround", "r_pr_ati_fboworkaround: enable this to workaround an ATI driver bug that causes sprite shadows to be square - you need to restart the renderer for it to take effect", (void*)&pr_ati_fboworkaround, CVAR_BOOL | CVAR_NOSAVE, 0, 0, 1 },
 #endif
 
         { "r_models","r_models: enable/disable model rendering",(void *)&usemodels, CVAR_BOOL, 0, 0, 1 },

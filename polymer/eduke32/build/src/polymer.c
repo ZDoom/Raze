@@ -27,7 +27,7 @@ float           pr_parallaxbias = 0.0f;
 int32_t         pr_overridespecular = 0;
 float           pr_specularpower = 15.0f;
 float           pr_specularfactor = 1.0f;
-int32_t         pr_atiworkaround = 0;
+int32_t         pr_ati_fboworkaround = 0;
 
 int32_t         r_pr_maxlightpasses = 5; // value of the cvar (not live value), used to detect changes
 
@@ -4722,7 +4722,7 @@ static void         polymer_initrendertargets(int32_t count)
             prrts[i].ydim = 128 << pr_shadowdetail;
             prrts[i].color = 0;
 
-            if (pr_atiworkaround) {
+            if (pr_ati_fboworkaround) {
                 bglGenTextures(1, &prrts[i].color);
                 bglBindTexture(prrts[i].target, prrts[i].color);
 

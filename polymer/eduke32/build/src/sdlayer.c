@@ -1114,6 +1114,14 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         glinfo.version    = (const char *)bglGetString(GL_VERSION);
         glinfo.extensions = (const char *)bglGetString(GL_EXTENSIONS);
 
+#ifdef POLYMER
+        if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc.")) {
+            pr_ati_fboworkaround = 1;
+            initprintf("Enabling ATI FBO color attachment workaround.\n");
+        } else pr_ati_fboworkaround = 0;
+#endif
+
+
         glinfo.maxanisotropy = 1.0;
         glinfo.bgra = 0;
         glinfo.texcompr = 0;

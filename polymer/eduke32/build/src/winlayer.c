@@ -3386,9 +3386,11 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
 #ifdef POLYMER
         else
         {
-            if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
-                pr_atiworkaround = 1;
-            else pr_atiworkaround = 0;
+            if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc.")) {
+                pr_ati_fboworkaround = 1;
+                initprintf("Enabling ATI FBO color attachment workaround.\n");
+            }
+            else pr_ati_fboworkaround = 0;
         }
 #endif
         if (!forcegl && err)
