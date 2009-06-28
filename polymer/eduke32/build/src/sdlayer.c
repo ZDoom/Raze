@@ -1118,7 +1118,14 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc.")) {
             pr_ati_fboworkaround = 1;
             initprintf("Enabling ATI FBO color attachment workaround.\n");
-        } else pr_ati_fboworkaround = 0;
+
+            if (!Bstrncmp(glinfo.renderer,"Radeon X1", 9)) {
+                pr_ati_nodepthoffset = 1;
+                initprintf("Enabling ATI R520 polygon offset workaround.\n");
+            } else
+                pr_ati_nodepthoffset = 0;
+        } else
+            pr_ati_fboworkaround = 0;
 #endif
 
 

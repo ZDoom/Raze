@@ -28,6 +28,7 @@ int32_t         pr_overridespecular = 0;
 float           pr_specularpower = 15.0f;
 float           pr_specularfactor = 1.0f;
 int32_t         pr_ati_fboworkaround = 0;
+int32_t         pr_ati_nodepthoffset = 0;
 
 int32_t         r_pr_maxlightpasses = 5; // value of the cvar (not live value), used to detect changes
 
@@ -1105,12 +1106,12 @@ void                polymer_drawsprite(int32_t snum)
     if ((tspr->cstat & 64) && ((tspr->cstat>>4) & 3))
         bglEnable(GL_CULL_FACE);
 
-    if (!depth || mirrors[depth-1].plane)
+    if (!pr_ati_nodepthoffset && (!depth || mirrors[depth-1].plane))
         bglEnable(GL_POLYGON_OFFSET_FILL);
 
     polymer_drawplane(&spriteplane);
 
-    if (!depth || mirrors[depth-1].plane)
+    if (!pr_ati_nodepthoffset && (!depth || mirrors[depth-1].plane))
         bglDisable(GL_POLYGON_OFFSET_FILL);
 
     if ((tspr->cstat & 64) && ((tspr->cstat>>4) & 3))

@@ -3389,8 +3389,14 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
             if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc.")) {
                 pr_ati_fboworkaround = 1;
                 initprintf("Enabling ATI FBO color attachment workaround.\n");
-            }
-            else pr_ati_fboworkaround = 0;
+
+                if (!Bstrncmp(glinfo.renderer,"Radeon X1", 9)) {
+                    pr_ati_nodepthoffset = 1;
+                    initprintf("Enabling ATI R520 polygon offset workaround.\n");
+                } else
+                    pr_ati_nodepthoffset = 0;
+            } else
+                pr_ati_fboworkaround = 0;
         }
 #endif
         if (!forcegl && err)

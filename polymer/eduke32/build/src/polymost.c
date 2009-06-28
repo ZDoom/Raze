@@ -5998,6 +5998,7 @@ void polymost_initosdfuncs(void)
         { "r_pr_specularpower", "r_pr_specularpower: overriden specular material power", (void*)&pr_specularpower, CVAR_FLOAT | CVAR_NOSAVE, 0, -10, 1000 },
         { "r_pr_specularfactor", "r_pr_specularfactor: overriden specular material factor", (void*)&pr_specularfactor, CVAR_FLOAT | CVAR_NOSAVE, 0, -10, 1000 },
         { "r_pr_ati_fboworkaround", "r_pr_ati_fboworkaround: enable this to workaround an ATI driver bug that causes sprite shadows to be square - you need to restart the renderer for it to take effect", (void*)&pr_ati_fboworkaround, CVAR_BOOL | CVAR_NOSAVE, 0, 0, 1 },
+        { "r_pr_ati_nodepthoffset", "r_pr_ati_nodepthoffset: enable this to workaround an ATI driver bug that causes sprite drawing to freeze the game on Radeon X1x00 hardware - you need to restart the renderer for it to take effect", (void*)&pr_ati_nodepthoffset, CVAR_BOOL | CVAR_NOSAVE, 0, 0, 1 },
 #endif
 
         { "r_models","r_models: enable/disable model rendering",(void *)&usemodels, CVAR_BOOL, 0, 0, 1 },
