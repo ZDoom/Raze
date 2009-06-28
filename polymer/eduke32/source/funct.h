@@ -271,7 +271,7 @@ extern inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zof
 extern void se40code(int32_t x,int32_t y,int32_t z,int32_t a,int32_t h, int32_t smoothratio);
 
 extern void G_FreeMapState(int32_t mapnum);
-extern void G_FindLevelForFilename(const char *fn, char *volume, char *level);
+extern int32_t G_FindLevelForFilename(const char *fn);
 
 extern void G_GetCrosshairColor(void);
 extern void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b);

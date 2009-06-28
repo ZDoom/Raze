@@ -7853,6 +7853,17 @@ void G_MoveWorld(void)
                 {
                     spritetype *s = &sprite[i];
 
+                    if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT))
+                    {
+                        if (ActorExtra[i].lightptr != NULL)
+                        {
+                            polymer_deletelight(ActorExtra[i].lightId);
+                            ActorExtra[i].lightId = -1;
+                            ActorExtra[i].lightptr = NULL;
+                        }
+                        break;
+                    }
+
                     if (ActorExtra[i].lightptr != NULL && ActorExtra[i].lightcount)
                     {
                         if (!(--ActorExtra[i].lightcount))
@@ -7883,8 +7894,16 @@ void G_MoveWorld(void)
                     {
                         int32_t x, y;
 
-                        if (s->cstat & 32768 || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                        if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                        {
+                            if (ActorExtra[i].lightptr != NULL)
+                            {
+                                polymer_deletelight(ActorExtra[i].lightId);
+                                ActorExtra[i].lightId = -1;
+                                ActorExtra[i].lightptr = NULL;
+                            }
                             break;
+                        }
 
                         x = ((sintable[(s->ang+512)&2047])>>7);
                         y = ((sintable[(s->ang)&2047])>>7);
@@ -7981,7 +8000,7 @@ void G_MoveWorld(void)
                     {
                         int32_t x, y;
 
-                        if ((s->cstat & 32768) || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                        if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
                         {
                             if (ActorExtra[i].lightptr != NULL)
                             {

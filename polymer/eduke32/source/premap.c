@@ -742,7 +742,7 @@ void P_ResetWeapons(int32_t snum)
     p->curr_weapon = PISTOL_WEAPON;
     p->gotweapon[PISTOL_WEAPON] = 1;
     p->gotweapon[KNEE_WEAPON] = 1;
-    p->ammo_amount[PISTOL_WEAPON] = 48;
+    p->ammo_amount[PISTOL_WEAPON] = min(p->max_ammo_amount[PISTOL_WEAPON], 48);
     p->gotweapon[HANDREMOTE_WEAPON] = 1;
     p->last_weapon = -1;
 
@@ -1282,7 +1282,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
             {
                 p->curr_weapon = i;
                 p->gotweapon[i] = 1;
-                p->ammo_amount[i] = 48;
+                p->ammo_amount[i] = min(p->max_ammo_amount[i], 48);
             }
             else if (aplWeaponWorksLike[i][0]==KNEE_WEAPON)
                 p->gotweapon[i] = 1;
@@ -1625,19 +1625,20 @@ void Net_ResetPrediction(void)
 
 extern int32_t voting, vote_map, vote_episode;
 
-void G_FindLevelForFilename(const char *fn, char *volume, char *level)
+int32_t G_FindLevelForFilename(const char *fn)
 {
-    for (*volume=0; *volume<MAXVOLUMES; (*volume)++)
+    int32_t volume, level;
+
+    for (volume=0; volume<MAXVOLUMES; volume++)
     {
-        for (*level=0; *level<MAXLEVELS; (*level)++)
+        for (level=0; level<MAXLEVELS; level++)
         {
-            if (MapInfo[(*volume*MAXLEVELS)+*level].filename != NULL)
-                if (!Bstrcasecmp(fn, MapInfo[(*volume*MAXLEVELS)+*level].filename))
-                    break;
+            if (MapInfo[(volume*MAXLEVELS)+level].filename != NULL)
+                if (!Bstrcasecmp(fn, MapInfo[(volume*MAXLEVELS)+level].filename))
+                    return ((volume * MAXLEVELS) + level);
         }
-        if (*level != MAXLEVELS)
-            break;
     }
+    return MAXLEVELS;
 }
 
 int32_t G_EnterLevel(int32_t g)
@@ -1669,14 +1670,17 @@ int32_t G_EnterLevel(int32_t g)
 
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
-        char volume, level;
+        int32_t volume, level;
 
         Bcorrectfilename(boardfilename,0);
 
-        G_FindLevelForFilename(boardfilename,&volume,&level);
+        volume = level = G_FindLevelForFilename(boardfilename);
 
         if (level != MAXLEVELS)
         {
+            level &= MAXLEVELS-1;
+            volume = (volume - level) / MAXLEVELS;
+
             ud.level_number = ud.m_level_number = level;
             ud.volume_number = ud.m_volume_number = volume;
             boardfilename[0] = 0;

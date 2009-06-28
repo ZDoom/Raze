@@ -143,44 +143,61 @@ typedef struct _mapundo
 
 mapundo_t *mapstate = NULL;
 
-int32_t map_revision = 0;
+int32_t map_revision = 1;
 
 void create_map_snapshot(void)
 {
     int32_t j;
     uint32_t tempcrc;
 
-//    if (mapstate == NULL) mapstate = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
-
+    /*
     if (mapstate->prev == NULL && mapstate->next != NULL) // should be the first map version
-        mapstate = mapstate->next;
+    mapstate = mapstate->next;
+    */
 
-    if (mapstate->next != NULL)
+    if (mapstate == NULL)
     {
-        mapundo_t *next = mapstate->next;
-        next->prev = NULL;
-
-        while (next->next)
-            next = next->next;
-
-        while (next->prev)
-        {
-            next = next->prev;
-            if (next->next->sectors && (next->next->sectors != next->sectors)) Bfree(next->next->sectors);
-            if (next->next->walls && (next->next->walls != next->walls)) Bfree(next->next->walls);
-            if (next->next->sprites && (next->next->sprites != next->sprites)) Bfree(next->next->sprites);
-            Bfree(next->next);
-            next->next = NULL;
-        }
+        mapstate = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
+        mapstate->revision = map_revision = 1;
+        mapstate->prev = mapstate->next = NULL;
     }
+    else
+    {
+        if (mapstate->next != NULL)
+        {
+            mapundo_t *next = mapstate->next;
+            next->prev = NULL;
 
-    mapstate->next = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
-    mapstate->next->prev = mapstate;
+            while (next->next)
+                next = next->next;
+
+            do
+            {
+                if (next->sectors && (next->prev == NULL || (next->sectcrc != next->prev->sectcrc))) Bfree(next->sectors);
+                if (next->walls && (next->prev == NULL || (next->wallcrc != next->prev->wallcrc))) Bfree(next->walls);
+                if (next->sprites && (next->prev == NULL || (next->spritecrc != next->prev->spritecrc))) Bfree(next->sprites);
+                if (!next->prev)
+                {
+                    Bfree(next);
+                    break;
+                }
+                next = next->prev;
+                Bfree(next->next);
+            }
+            while (next);
+        }
+
+        mapstate->next = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
+        mapstate->next->prev = mapstate;
+
+        mapstate = mapstate->next;
+        mapstate->revision = ++map_revision;
+    }
 
     fixspritesectors();
 
     numsprites = 0;
-    for (j=0; j<MAXSPRITES; j++)
+    for (j=MAXSPRITES-1; j>=0; j--)
     {
         if (sprite[j].statnum != MAXSTATUS)
             numsprites++;
@@ -193,18 +210,18 @@ void create_map_snapshot(void)
     tempcrc = crc32once((uint8_t *)&sector[0],sizeof(sectortype) * numsectors);
 
 
-    if (mapstate->prev && mapstate->prev->numsectors == numsectors && mapstate->prev->sectcrc == tempcrc)
+    if (mapstate->prev && mapstate->prev->sectcrc == tempcrc)
     {
         mapstate->sectors = mapstate->prev->sectors;
         mapstate->sectsiz = mapstate->prev->sectsiz;
         mapstate->sectcrc = tempcrc;
         /* OSD_Printf("found a match between undo sectors\n"); */
     }
-    else
+    else    
     {
         mapstate->sectors = (sectortype *)Bcalloc(1, sizeof(sectortype) * numsectors);
         mapstate->sectsiz = j = lzf_compress(&sector[0], sizeof(sectortype) * numsectors,
-                                             &mapstate->sectors[0], sizeof(sectortype) * numsectors);
+            &mapstate->sectors[0], sizeof(sectortype) * numsectors);
         mapstate->sectors = (sectortype *)Brealloc(mapstate->sectors, j);
         mapstate->sectcrc = tempcrc;
     }
@@ -212,32 +229,32 @@ void create_map_snapshot(void)
     tempcrc = crc32once((uint8_t *)&wall[0],sizeof(walltype) * numwalls);
 
 
-    if (mapstate->prev && mapstate->prev->numwalls == numwalls && mapstate->prev->wallcrc == tempcrc)
+    if (mapstate->prev && mapstate->prev->wallcrc == tempcrc)
     {
         mapstate->walls = mapstate->prev->walls;
         mapstate->wallsiz = mapstate->prev->wallsiz;
         mapstate->wallcrc = tempcrc;
         /* OSD_Printf("found a match between undo walls\n"); */
     }
-    else
+    else    
     {
         mapstate->walls = (walltype *)Bcalloc(1, sizeof(walltype) * numwalls);
         mapstate->wallsiz = j = lzf_compress(&wall[0], sizeof(walltype) * numwalls,
-                                             &mapstate->walls[0], sizeof(walltype) * numwalls);
+            &mapstate->walls[0], sizeof(walltype) * numwalls);
         mapstate->walls = (walltype *)Brealloc(mapstate->walls, j);
         mapstate->wallcrc = tempcrc;
     }
 
     tempcrc = crc32once((uint8_t *)&sprite[0],sizeof(spritetype) * MAXSPRITES);
 
-    if (mapstate->prev && mapstate->prev->numsprites == numsprites && mapstate->prev->spritecrc == tempcrc)
+    if (mapstate->prev && mapstate->prev->spritecrc == tempcrc)
     {
         mapstate->sprites = mapstate->prev->sprites;
         mapstate->spritesiz = mapstate->prev->spritesiz;
         mapstate->spritecrc = tempcrc;
         /*OSD_Printf("found a match between undo sprites\n");*/
     }
-    else
+    else    
     {
         int32_t i = 0;
         spritetype *spri, *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites);
@@ -245,20 +262,20 @@ void create_map_snapshot(void)
 
         spri = &tspri[0];
 
-        for (j=0; j<MAXSPRITES && i < numsprites; j++,i++)
+        for (j=0; j<MAXSPRITES && i < numsprites; j++)
         {
             if (sprite[j].statnum != MAXSTATUS)
+            {
                 Bmemcpy(spri++,&sprite[j],sizeof(spritetype));
+                i++;
+            }
         }
         mapstate->spritesiz = j = lzf_compress(&tspri[0], sizeof(spritetype) * numsprites,
-                                               &mapstate->sprites[0], sizeof(spritetype) * numsprites);
+            &mapstate->sprites[0], sizeof(spritetype) * numsprites);
         mapstate->sprites = (spritetype *)Brealloc(mapstate->sprites, j);
         mapstate->spritecrc = tempcrc;
         Bfree(tspri);
     }
-
-    mapstate->revision = ++map_revision;
-    mapstate = mapstate->next;
 }
 
 void map_undoredo_free(void)
@@ -290,7 +307,7 @@ void map_undoredo_free(void)
         mapstate = NULL;
     }
 
-    map_revision = 0;
+    map_revision = 1;
 
 }
 
@@ -298,24 +315,27 @@ int32_t map_undoredo(int32_t dir)
 {
     int32_t i;
 
+    if (mapstate == NULL) return 1;
+
     if (dir)
     {
-        if (mapstate == NULL || mapstate->next == NULL || !mapstate->next->numsectors) return 1;
+        if (mapstate->next == NULL || !mapstate->next->numsectors) return 1;
 
-        while (map_revision+1 != mapstate->revision && mapstate->next)
-            mapstate = mapstate->next;
+        //        while (map_revision+1 != mapstate->revision && mapstate->next)
+        mapstate = mapstate->next;
     }
     else
     {
-        if (mapstate == NULL || mapstate->prev == NULL || !mapstate->prev->numsectors) return 1;
+        if (mapstate->prev == NULL || !mapstate->prev->numsectors) return 1;
 
-        while (map_revision-1 != mapstate->revision && mapstate->prev)
-            mapstate = mapstate->prev;
+        //        while (map_revision-1 != mapstate->revision && mapstate->prev)
+        mapstate = mapstate->prev;
     }
 
     numsectors = mapstate->numsectors;
     numwalls = mapstate->numwalls;
     numsprites = mapstate->numsprites;
+    map_revision = mapstate->revision;
 
     initspritelists();
 
@@ -334,8 +354,6 @@ int32_t map_undoredo(int32_t dir)
         if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
         insertsprite(sprite[i].sectnum,sprite[i].statnum);
     }
-
-    map_revision = mapstate->revision;
 
 #ifdef POLYMER
     if (qsetmode == 200 && rendmode == 4)
@@ -448,39 +466,39 @@ void ExtLoadMap(const char *mapname)
 
     // PreCache Wall Tiles
     /*
-        for(j=0;j<numwalls;j++)
-            if(waloff[wall[j].picnum] == 0)
-            {
-                loadtile(wall[j].picnum);
-                if (bpp != 8)
-                    polymost_precache(wall[j].picnum,wall[j].pal,0);
-            }
+    for(j=0;j<numwalls;j++)
+    if(waloff[wall[j].picnum] == 0)
+    {
+    loadtile(wall[j].picnum);
+    if (bpp != 8)
+    polymost_precache(wall[j].picnum,wall[j].pal,0);
+    }
 
-        for(j=0;j<numsectors;j++)
-            if(waloff[sector[j].floorpicnum] == 0 || waloff[sector[j].ceilingpicnum] == 0)
-            {
-                loadtile(sector[j].floorpicnum);
-                loadtile(sector[j].ceilingpicnum);
-                if (bpp != 8)
-                {
-                    polymost_precache(sector[j].floorpicnum,sector[j].floorpal,0);
-                    polymost_precache(sector[j].floorpicnum,sector[j].floorpal,0);
-                }
-            }
+    for(j=0;j<numsectors;j++)
+    if(waloff[sector[j].floorpicnum] == 0 || waloff[sector[j].ceilingpicnum] == 0)
+    {
+    loadtile(sector[j].floorpicnum);
+    loadtile(sector[j].ceilingpicnum);
+    if (bpp != 8)
+    {
+    polymost_precache(sector[j].floorpicnum,sector[j].floorpal,0);
+    polymost_precache(sector[j].floorpicnum,sector[j].floorpal,0);
+    }
+    }
 
-        for(j=0;j<numsprites;j++)
-            if(waloff[sprite[j].picnum] == 0)
-            {
-                loadtile(sprite[j].picnum);
-                if (bpp != 8)
-                    polymost_precache(sprite[j].picnum,sprite[j].pal,1);
-            }
+    for(j=0;j<numsprites;j++)
+    if(waloff[sprite[j].picnum] == 0)
+    {
+    loadtile(sprite[j].picnum);
+    if (bpp != 8)
+    polymost_precache(sprite[j].picnum,sprite[j].pal,1);
+    }
     */
     // Presize Sprites
     for (j=numsprites; j>=0; j--)
     {
         /*        if (tilesizx[sprite[j].picnum]==0 || tilesizy[sprite[j].picnum]==0)
-                    sprite[j].picnum=0; */
+        sprite[j].picnum=0; */
 
         if (sprite[j].picnum>=20 && sprite[j].picnum<=59)
         {
@@ -667,7 +685,7 @@ const char *ExtGetSectorType(int32_t lotag)
     default :
         if (lotag > 10000 && lotag < 32767)
             Bsprintf(tempbuf,"1 TIME SOUND");
-//        else  Bsprintf(tempbuf,"%hu",lotag);
+        //        else  Bsprintf(tempbuf,"%hu",lotag);
         break;
     }
     return(tempbuf);
@@ -1136,8 +1154,8 @@ void ExtShowWallData(int16_t wallnum)       //F6
     {
         if (sprite[i].statnum==0)
             switch (sprite[i].picnum)
-            {
-                //LOTAG
+        {
+            //LOTAG
             case ACTIVATOR:
             case ACTIVATORLOCKED:
             case TOUCHPLATE:
@@ -1174,7 +1192,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
             default:
                 break;
 
-            }
+        }
 
     } // end sprite loop
 
@@ -1187,7 +1205,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
         {
             if (sprite[i].pal!=0)
                 switch (sprite[i].picnum)
-                {
+            {
                 case LIZTROOP :
                 case LIZTROOPRUNNING :
                 case LIZTROOPSTAYPUT :
@@ -1213,10 +1231,10 @@ void ExtShowWallData(int16_t wallnum)       //F6
 
                 default:
                     break;
-                }
+            }
             else
                 switch (sprite[i].picnum)
-                {
+            {
                 case LIZTROOP :
                 case LIZTROOPRUNNING :
                 case LIZTROOPSTAYPUT :
@@ -1269,7 +1287,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
                 default:
                     break;
 
-                }// end switch
+            }// end switch
         }// end if
     }//end for
     total=0;
@@ -1646,7 +1664,7 @@ static void IntegratedHelp()
         enddrawing();
 
         memset(oldpattern, 0, sizeof(char));
-//    clearmidstatbar16();
+        //    clearmidstatbar16();
 
         while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F1]==0)
         {
@@ -1655,7 +1673,7 @@ static void IntegratedHelp()
                 if (quitevent) quitevent = 0;
             }
             idle();
-//        printmessage16("Help mode, press <Esc> to exit");
+            //        printmessage16("Help mode, press <Esc> to exit");
 
             if (keystatus[KEYSC_T])    // goto table of contents
             {
@@ -1866,26 +1884,26 @@ ENDFOR1:
             }
 
             for (i=0; j=(curhp==0)?(i+curline+1):(i+curline),
-                    i<IHELP_NUMDISPLINES && j<helppage[curhp]->numlines; i++)
+                i<IHELP_NUMDISPLINES && j<helppage[curhp]->numlines; i++)
             {
                 if (ydim-overridepm16y+28+i*9+32 >= ydim) break;
                 Bmemcpy(disptext[i], helppage[curhp]->line[j], 80);
                 printext16(8,ydim-overridepm16y+28+i*9,editorcolors[10],
-                           (j==highlightline && curhp==highlighthp
-                            && totalclock-lasthighlighttime<120*5)?editorcolors[1]:-1,
-                           disptext[i],0);
+                    (j==highlightline && curhp==highlighthp
+                    && totalclock-lasthighlighttime<120*5)?editorcolors[1]:-1,
+                    disptext[i],0);
             }
 
             showframe(1);
         }
 
         overridepm16y = -1;
-//        i=ydim16;
-//        ydim16=ydim;
-//        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
-//        ydim16=i;
-//        // printmessage16("");
-//        showframe(1);
+        //        i=ydim16;
+        //        ydim16=ydim;
+        //        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
+        //        ydim16=i;
+        //        // printmessage16("");
+        //        showframe(1);
 
         keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F1] = 0;
     }
@@ -2040,10 +2058,10 @@ static void SoundDisplay()
         static int32_t cursnd=0, curofs=0;
         char disptext[SOUND_NUMDISPLINES][80];
 
-//        SoundToggle = 1;
+        //        SoundToggle = 1;
 
         while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F2]==0
-                && keystatus[buildkeys[BK_MODE2D_3D]]==0)  // quickjump to 3d mode
+            && keystatus[buildkeys[BK_MODE2D_3D]]==0)  // quickjump to 3d mode
         {
             if (handleevents())
             {
@@ -2174,7 +2192,7 @@ static void SoundDisplay()
                     if (keystatus[1]) bad = 1;
 
                     else if (ch == 's' || ch == 'd' || ch == 'f' || ch == 'g' ||
-                             ch == '1' || ch == '2' || ch == '3' || ch == '4' || ch == '5')
+                        ch == '1' || ch == '2' || ch == '3' || ch == '4' || ch == '5')
                     {
                         bad = 2;
                         sort_sounds(ch);
@@ -2204,11 +2222,11 @@ static void SoundDisplay()
                 if (ydim-overridepm16y+28+i*9+32 >= ydim) break;
 
                 Bsprintf(disptext[i],
-                         "%4d .................... ................ %6d:%-6d %3d %c%c%c%c%c %6d",
-                         //   5678901234567890X23456789012345678901234567
-                         k, snd->ps, snd->pe, snd->pr,
-                         snd->m&1 ? 'R':'-', snd->m&2 ? 'M':'-', snd->m&4 ? 'D':'-',
-                         snd->m&8 ? 'P':'-', snd->m&16 ? 'G':'-', snd->vo);
+                    "%4d .................... ................ %6d:%-6d %3d %c%c%c%c%c %6d",
+                    //   5678901234567890X23456789012345678901234567
+                    k, snd->ps, snd->pe, snd->pr,
+                    snd->m&1 ? 'R':'-', snd->m&2 ? 'M':'-', snd->m&4 ? 'D':'-',
+                    snd->m&8 ? 'P':'-', snd->m&16 ? 'G':'-', snd->vo);
                 for (l = Bsnprintf(disptext[i]+5, 20, "%s", snd->definedname); l<20; l++)
                     disptext[i][5+l] = ' ';
                 if (snd->filename)
@@ -2225,25 +2243,25 @@ static void SoundDisplay()
                 }
 
                 printext16(8, ydim-overridepm16y+28+i*9,
-                           S_CheckSoundPlaying(-1, k) ? editorcolors[2] : editorcolors[10],
-                           j==cursnd+curofs ? editorcolors[1] : -1,
-                           disptext[i], 0);
+                    S_CheckSoundPlaying(-1, k) ? editorcolors[2] : editorcolors[10],
+                    j==cursnd+curofs ? editorcolors[1] : -1,
+                    disptext[i], 0);
             }
 
             showframe(1);
         }
 
         overridepm16y = -1;
-//        i=ydim16;
-//        ydim16=ydim;
-//        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
-//        ydim16=i;
-//        // printmessage16("");
-//        showframe(1);
+        //        i=ydim16;
+        //        ydim16=ydim;
+        //        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
+        //        ydim16=i;
+        //        // printmessage16("");
+        //        showframe(1);
 
         FX_StopAllSounds();
         S_ClearSoundLocks();
-//        SoundToggle = 0;
+        //        SoundToggle = 0;
 
         keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F2] = 0;
     }
@@ -2297,7 +2315,7 @@ static void M32_MoveFX(void)
             ht = s->hitag;
 
             if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 &&
-                    AmbienceToggle && sector[s->sectnum].floorz != sector[s->sectnum].ceilingz)
+                AmbienceToggle && sector[s->sectnum].floorz != sector[s->sectnum].ceilingz)
             {
                 if ((g_sounds[s->lotag].m&2))
                 {
@@ -2309,7 +2327,7 @@ static void M32_MoveFX(void)
                             for (j = headspritestat[0]; j >= 0; j = nextspritestat[j])
                             {
                                 if (s->picnum == MUSICANDSFX && j != i && sprite[j].lotag < 999 &&
-                                        (sprite[j].filler&1) == 1 && dist(&sprite[j],(spritetype*)&pos) > x)
+                                    (sprite[j].filler&1) == 1 && dist(&sprite[j],(spritetype*)&pos) > x)
                                 {
                                     S_StopEnvSound(sprite[j].lotag,j);
                                     break;
@@ -2392,11 +2410,11 @@ static void ShowHelpText(char *name)
         return;
     }
     /*
-        Bfgets(tempbuf,80,fp);
-        while(!Bfeof(fp) && Bstrcmp(tempbuf,"SectorEffector"))
-        {
-            Bfgets(tempbuf,80,fp);
-        }
+    Bfgets(tempbuf,80,fp);
+    while(!Bfeof(fp) && Bstrcmp(tempbuf,"SectorEffector"))
+    {
+    Bfgets(tempbuf,80,fp);
+    }
     */
     y=2;
     Bfgets(tempbuf,80,fp);
@@ -2420,11 +2438,11 @@ void ExtShowSpriteData(int16_t spritenum)   //F6
     if (qsetmode != 200)
         Show2dText("sehelp.hlp");
     /*    if (qsetmode == 200)                // In 3D mode
-            return;
+    return;
 
-        while (KEY_PRESSED(KEYSC_F6));
-        ResetKeys();
-        ContextHelp(spritenum);             // Get context sensitive help */
+    while (KEY_PRESSED(KEYSC_F6));
+    ResetKeys();
+    ContextHelp(spritenum);             // Get context sensitive help */
 }// end ExtShowSpriteData
 
 // Floor Over Floor (duke3d)
@@ -2492,7 +2510,7 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
     sprite[j].sectnum==sectnum &&
     sprite[j].picnum==1 &&
     sprite[j].lotag==110
-       ) { DrawFloorOverFloor(j); break;}
+    ) { DrawFloorOverFloor(j); break;}
     }
     */
 
@@ -2575,8 +2593,8 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
         for (j=0; j<MAXSPRITES; j++) // restore ceiling or floor for the draw both sectors
         {
             if (sprite[j].picnum==1 &&
-                    sprite[j].lotag==k+2 &&
-                    sprite[j].hitag==sprite[floor1].hitag)
+                sprite[j].lotag==k+2 &&
+                sprite[j].hitag==sprite[floor1].hitag)
             {
                 if (k==40)
                 {
@@ -2727,7 +2745,7 @@ static void ReadPaletteTable()
             return;
         }
     }
-//    initprintf("Loading palette lookups... ");
+    //    initprintf("Loading palette lookups... ");
     kread(fp,&num_tables,1);
     for (j=0; j<num_tables; j++)
     {
@@ -2749,7 +2767,7 @@ static void ReadPaletteTable()
     kread(fp,REALMSpalette,768);
     kread(fp,BOSS1palette,768);
     kclose(fp);
-//    initprintf("success.\n");
+    //    initprintf("success.\n");
 }// end ReadPaletteTable
 
 static void ReadGamePalette()
@@ -2763,11 +2781,11 @@ static void ReadGamePalette()
             wm_msgbox(tempbuf,"palette.dat not found");
             exit(0);
         }
-//    initprintf("Loading game palette... ");
-    kread(fp,GAMEpalette,768);
-    kclose(fp);
-//    initprintf("success.\n");
-    ReadPaletteTable();
+        //    initprintf("Loading game palette... ");
+        kread(fp,GAMEpalette,768);
+        kclose(fp);
+        //    initprintf("success.\n");
+        ReadPaletteTable();
 }
 
 static char lockbyte4094;
@@ -2939,8 +2957,8 @@ static int32_t m32gettile(int32_t idInitialTile)
     int32_t scrollmode;
     int32_t mousedx, mousedy, mtile, omousex=searchx, omousey=searchy, moffset=0;
 
-// Enable following line for testing. I couldn't work out how to change vidmode on the fly
-// s_Zoom = NUM_ZOOMS - 1;
+    // Enable following line for testing. I couldn't work out how to change vidmode on the fly
+    // s_Zoom = NUM_ZOOMS - 1;
 
     if (idInitialTile < 0)
     {
@@ -3123,7 +3141,7 @@ static int32_t m32gettile(int32_t idInitialTile)
             searchy += mousedy;
             searchx -= mousedx;
             if ((moffset < 0 && iTopLeftTile > localartlookupnum-nDisplayedTiles-1)
-                    || (moffset > 0 && iTopLeftTile==0))
+                || (moffset > 0 && iTopLeftTile==0))
             {
                 moffset=0;
                 searchy -= mousedy*2;
@@ -3177,7 +3195,7 @@ static int32_t m32gettile(int32_t idInitialTile)
 
         // Zoom in / out using numeric key pad's / and * keys
         if (((keystatus[KEYSC_gSLASH] || (!scrollmode && bstatus&16)) && s_Zoom<(signed)(NUM_ZOOMS-1))
-                || ((keystatus[KEYSC_gSTAR]  || (!scrollmode && bstatus&32)) && s_Zoom>0))
+            || ((keystatus[KEYSC_gSTAR]  || (!scrollmode && bstatus&32)) && s_Zoom>0))
         {
             if (keystatus[KEYSC_gSLASH] || (!scrollmode && bstatus&16))
             {
@@ -3188,7 +3206,7 @@ static int32_t m32gettile(int32_t idInitialTile)
                 // Watch out : If editor window is small, then the next zoom level
                 //  might get so large that even one tile might not fit !
                 if ((ZoomToThumbSize[s_Zoom+1] <= xdim)
-                        && (ZoomToThumbSize[s_Zoom+1] <= ydim))
+                    && (ZoomToThumbSize[s_Zoom+1] <= ydim))
                 {
                     // Phew, plenty of room.
                     s_Zoom++;
@@ -3618,7 +3636,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
                         MulInc = 1;
 
                         while ((TileSizeX/DivInc > TileDim)
-                                || (TileSizeY/DivInc) > TileDim)
+                            || (TileSizeY/DivInc) > TileDim)
                         {
                             DivInc++;
                         }
@@ -3626,7 +3644,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
                         if (DivInc == 1 && s_TileZoom)
                         {
                             while (((TileSizeX*(MulInc+1)) <= TileDim)
-                                    && ((TileSizeY*(MulInc+1)) <= TileDim))
+                                && ((TileSizeY*(MulInc+1)) <= TileDim))
                             {
                                 MulInc++;
                             }
@@ -3679,38 +3697,38 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
             }
         }
 
-    idTile = localartlookup[ iSelected ];
+        idTile = localartlookup[ iSelected ];
 
-    // Draw info bar at bottom.
+        // Draw info bar at bottom.
 
-    // Clear out behind the text for improved visibility.
-    //drawline256(0, (ydim-12)<<12, xdim<<12, (ydim-12)<<12, whitecol);
-    for (i=ydim-12; i<ydim; i++)
-    {
-        drawline256(0, i<<12, xdim<<12, i<<12, (ydim-i));
-    }
+        // Clear out behind the text for improved visibility.
+        //drawline256(0, (ydim-12)<<12, xdim<<12, (ydim-12)<<12, whitecol);
+        for (i=ydim-12; i<ydim; i++)
+        {
+            drawline256(0, i<<12, xdim<<12, i<<12, (ydim-i));
+        }
 
-    // Tile number on left.
-    Bsprintf(szT, "%d" , idTile);
-    printext256(1, ydim-10, whitecol, -1, szT, 0);
+        // Tile number on left.
+        Bsprintf(szT, "%d" , idTile);
+        printext256(1, ydim-10, whitecol, -1, szT, 0);
 
-    // Tile name on right.
-    printext256(xdim-(Bstrlen(names[idTile])<<3)-1,ydim-10,whitecol,-1,names[idTile],0);
+        // Tile name on right.
+        printext256(xdim-(Bstrlen(names[idTile])<<3)-1,ydim-10,whitecol,-1,names[idTile],0);
 
-    // Tile dimensions.
-    Bsprintf(szT,"%dx%d",tilesizx[idTile],tilesizy[idTile]);
-    printext256(xdim>>2,ydim-10,whitecol,-1,szT,0);
+        // Tile dimensions.
+        Bsprintf(szT,"%dx%d",tilesizx[idTile],tilesizy[idTile]);
+        printext256(xdim>>2,ydim-10,whitecol,-1,szT,0);
 
-    // EditArt animation flags.
-    Bsprintf(szT,"%d, %d",(picanm[idTile]>>8)&0xFF,(picanm[idTile]>>16)&0xFF);
-    printext256((xdim>>2)+100,ydim-10,whitecol,-1,szT,0);
+        // EditArt animation flags.
+        Bsprintf(szT,"%d, %d",(picanm[idTile]>>8)&0xFF,(picanm[idTile]>>16)&0xFF);
+        printext256((xdim>>2)+100,ydim-10,whitecol,-1,szT,0);
 
-    m32_showmouse();
+        m32_showmouse();
 
-    enddrawing();
-    showframe(1);
+        enddrawing();
+        showframe(1);
 
-    return(0);
+        return(0);
 
 }
 
@@ -3930,10 +3948,10 @@ static void DoSpriteOrnament(int32_t i)
     hitdata_t hitinfo;
 
     hitscan((const vec3_t *)&sprite[i],sprite[i].sectnum,
-            sintable[(sprite[i].ang+2560+1024)&2047],
-            sintable[(sprite[i].ang+2048+1024)&2047],
-            0,
-            &hitinfo,CLIPMASK1);
+        sintable[(sprite[i].ang+2560+1024)&2047],
+        sintable[(sprite[i].ang+2048+1024)&2047],
+        0,
+        &hitinfo,CLIPMASK1);
 
     sprite[i].x = hitinfo.pos.x;
     sprite[i].y = hitinfo.pos.y;
@@ -3941,7 +3959,7 @@ static void DoSpriteOrnament(int32_t i)
     changespritesect(i,hitinfo.hitsect);
     if (hitinfo.hitwall >= 0)
         sprite[i].ang = ((getangle(wall[wall[hitinfo.hitwall].point2].x-wall[hitinfo.hitwall].x,
-                                   wall[wall[hitinfo.hitwall].point2].y-wall[hitinfo.hitwall].y)+512)&2047);
+        wall[wall[hitinfo.hitwall].point2].y-wall[hitinfo.hitwall].y)+512)&2047);
 
     //Make sure sprite's in right sector
     if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
@@ -3955,7 +3973,7 @@ static void DoSpriteOrnament(int32_t i)
 int64 ldistsqr(spritetype *s1,spritetype *s2)
 {
     return (((int64)(s2->x - s1->x))*((int64)(s2->x - s1->x)) +
-            ((int64)(s2->y - s1->y))*((int64)(s2->y - s1->y)));
+        ((int64)(s2->y - s1->y))*((int64)(s2->y - s1->y)));
 }
 
 void rendertext(int16_t startspr)
@@ -3978,7 +3996,7 @@ void rendertext(int16_t startspr)
     }
 
     if (startspr<0 || startspr>=MAXSPRITES ||
-            sprite[startspr].statnum == MAXSTATUS)
+        sprite[startspr].statnum == MAXSTATUS)
         return;
 
     if (numalphabets == 0)
@@ -4120,11 +4138,11 @@ ENDFOR1:
 
         printmessage256(0,0,"^251Text entry mode.^31 Navigation keys change vars.");
         Bsprintf(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
-                 hgap, vgap, spcgap[alphidx], sprite[linebegspr].shade, sprite[linebegspr].pal);
+            hgap, vgap, spcgap[alphidx], sprite[linebegspr].shade, sprite[linebegspr].pal);
         printmessage256(0, 9, buffer);
         showframe(1);
 
-// ---
+        // ---
         sp = &sprite[curspr];
         if (!doingspace)
         {
@@ -4278,16 +4296,16 @@ static void Keys3d(void)
     /*
     if (sidemode != 0)
     {
-        setviewback();
-        rotatesprite(320<<15,200<<15,65536,(horiz-100)<<2,4094,0,0,2+4,0,0,0,0);
-        lockbyte4094 = 0;
-        searchx = ydim-1-searchx;
-        searchx ^= searchy;
-        searchy ^= searchx;
-        searchx ^= searchy;
+    setviewback();
+    rotatesprite(320<<15,200<<15,65536,(horiz-100)<<2,4094,0,0,2+4,0,0,0,0);
+    lockbyte4094 = 0;
+    searchx = ydim-1-searchx;
+    searchx ^= searchy;
+    searchy ^= searchx;
+    searchx ^= searchy;
 
-        //      overwritesprite(160L,170L,1153,0,1+2,0);
-        rotatesprite(160<<16,170<<16,65536,(100-horiz+1024)<<3,1153,0,0,2,0,0,0,0);
+    //      overwritesprite(160L,170L,1153,0,1+2,0);
+    rotatesprite(160<<16,170<<16,65536,(100-horiz+1024)<<3,1153,0,0,2,0,0,0,0);
 
     }
     */
@@ -4331,7 +4349,7 @@ static void Keys3d(void)
         drawtileinfo("Clipboard",3,124,temppicnum,tempshade,temppal,tempcstat,templotag,temphitag,tempextra);
     }// end if usedcount
 
-//    if (infobox&1)
+    //    if (infobox&1)
     {
         char lines[8][64];
         int32_t dax, day, dist, height1=0,height2=0,height3=0, num=0;
@@ -4345,8 +4363,8 @@ static void Keys3d(void)
             case 0:
             case 4:
                 drawtileinfo("Current",WIND1X,WIND1Y,wall[searchwall].picnum,wall[searchwall].shade,
-                             wall[searchwall].pal,wall[searchwall].cstat,wall[searchwall].lotag,
-                             wall[searchwall].hitag,wall[searchwall].extra);
+                    wall[searchwall].pal,wall[searchwall].cstat,wall[searchwall].lotag,
+                    wall[searchwall].hitag,wall[searchwall].extra);
 
                 dax = wall[searchwall].x-wall[wall[searchwall].point2].x;
                 day = wall[searchwall].y-wall[wall[searchwall].point2].y;
@@ -4372,8 +4390,8 @@ static void Keys3d(void)
                 break;
             case 1:
                 drawtileinfo("Current",WIND1X,WIND1Y,sector[searchsector].ceilingpicnum,sector[searchsector].ceilingshade,
-                             sector[searchsector].ceilingpal,sector[searchsector].ceilingstat,
-                             sector[searchsector].lotag,sector[searchsector].hitag,sector[searchsector].extra);
+                    sector[searchsector].ceilingpal,sector[searchsector].ceilingstat,
+                    sector[searchsector].lotag,sector[searchsector].hitag,sector[searchsector].extra);
 
                 Bsprintf(lines[num++],"Panning:  %d, %d",sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
                 Bsprintf(lines[num++],"CeilingZ: %d",sector[searchsector].ceilingz);
@@ -4386,8 +4404,8 @@ static void Keys3d(void)
                 break;
             case 2:
                 drawtileinfo("Current",WIND1X,WIND1Y,sector[searchsector].floorpicnum,sector[searchsector].floorshade,
-                             sector[searchsector].floorpal,sector[searchsector].floorstat,
-                             sector[searchsector].lotag,sector[searchsector].hitag,sector[searchsector].extra);
+                    sector[searchsector].floorpal,sector[searchsector].floorstat,
+                    sector[searchsector].lotag,sector[searchsector].hitag,sector[searchsector].extra);
 
                 Bsprintf(lines[num++],"Panning: %d,%d",sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
                 Bsprintf(lines[num++],"FloorZ:  %d",sector[searchsector].floorz);
@@ -4400,8 +4418,8 @@ static void Keys3d(void)
                 break;
             case 3:
                 drawtileinfo("Current",WIND1X,WIND1Y,sprite[searchwall].picnum,sprite[searchwall].shade,
-                             sprite[searchwall].pal,sprite[searchwall].cstat,sprite[searchwall].lotag,
-                             sprite[searchwall].hitag,sprite[searchwall].extra);
+                    sprite[searchwall].pal,sprite[searchwall].cstat,sprite[searchwall].lotag,
+                    sprite[searchwall].hitag,sprite[searchwall].extra);
 
                 Bsprintf(lines[num++],"Repeat:  %d,%d",sprite[searchwall].xrepeat,sprite[searchwall].yrepeat);
                 Bsprintf(lines[num++],"PosXY:   %d,%d",sprite[searchwall].x,sprite[searchwall].y);
@@ -4527,7 +4545,7 @@ static void Keys3d(void)
         keystatus[KEYSC_F4] = 0;
     }
 
-// PK
+    // PK
     if (keystatus[KEYSC_F5])
     {
         unrealedlook = !unrealedlook;
@@ -4589,17 +4607,17 @@ static void Keys3d(void)
                 {
                     wall[w].pal = pal[2];
                 }
-            if (pal[3] > -1)
-                for (k=0; k<highlightsectorcnt; k++)
-                {
-                    w = headspritesect[highlightsector[k]];
-                    while (w >= 0)
+                if (pal[3] > -1)
+                    for (k=0; k<highlightsectorcnt; k++)
                     {
-                        j = nextspritesect[w];
-                        sprite[w].pal = pal[3];
-                        w = j;
+                        w = headspritesect[highlightsector[k]];
+                        while (w >= 0)
+                        {
+                            j = nextspritesect[w];
+                            sprite[w].pal = pal[3];
+                            w = j;
+                        }
                     }
-                }
         }
         message("Palettes changed");
     }
@@ -4798,8 +4816,8 @@ static void Keys3d(void)
             sector[searchsector].extra = getnumber256(buffer,(int32_t)sector[searchsector].extra,65536L,1);
             break;
         case 3:
-//            strcpy(buffer,"Sprite extra: ");
-//            sprite[searchwall].extra = getnumber256(buffer,(int32_t)sprite[searchwall].extra,65536L,1);
+            //            strcpy(buffer,"Sprite extra: ");
+            //            sprite[searchwall].extra = getnumber256(buffer,(int32_t)sprite[searchwall].extra,65536L,1);
             getnumberptr256("Sprite extra: ",&sprite[searchwall].extra,sizeof(sprite[searchwall].extra),1024,1,NULL);
             break;
         }
@@ -4966,13 +4984,13 @@ static void Keys3d(void)
 
     if (!unrealedlook && (bstatus&4)) mlook = 2;
 
-//    if (bstatus&4)
+    //    if (bstatus&4)
     if ((bstatus&(16|32) && !(bstatus&(1|2|4))) || keystatus[KEYSC_gMINUS] || keystatus[KEYSC_gPLUS])  // PK: no btn: wheel changes shade
     {
-//        if (bstatus&1)
-//        {
-//            mlook = 2;
-//        }
+        //        if (bstatus&1)
+        //        {
+        //            mlook = 2;
+        //        }
         if (bstatus&32 || keystatus[KEYSC_gMINUS])  // -
         {
             keystatus[KEYSC_gMINUS]=0;
@@ -5006,16 +5024,16 @@ static void Keys3d(void)
                                 }
                                 break;
                             }
-                    while (k > 0)
-                    {
-                        sector[searchsector].visibility++;
-                        if (sector[searchsector].visibility == 240)
-                            sector[searchsector].visibility = 239;
-                        k--;
-                    }
-                    Bsprintf(getmessage,"Sector %d visibility %d",searchsector,sector[searchsector].visibility);
-                    message(getmessage);
-                    asksave = 1;
+                            while (k > 0)
+                            {
+                                sector[searchsector].visibility++;
+                                if (sector[searchsector].visibility == 240)
+                                    sector[searchsector].visibility = 239;
+                                k--;
+                            }
+                            Bsprintf(getmessage,"Sector %d visibility %d",searchsector,sector[searchsector].visibility);
+                            message(getmessage);
+                            asksave = 1;
                 }
             }
             else
@@ -5103,16 +5121,16 @@ static void Keys3d(void)
                                 }
                                 break;
                             }
-                    while (k > 0)
-                    {
-                        sector[searchsector].visibility--;
-                        if (sector[searchsector].visibility == 239)
-                            sector[searchsector].visibility = 240;
-                        k--;
-                    }
-                    Bsprintf(getmessage,"Sector %d visibility %d",searchsector,sector[searchsector].visibility);
-                    message(getmessage);
-                    asksave = 1;
+                            while (k > 0)
+                            {
+                                sector[searchsector].visibility--;
+                                if (sector[searchsector].visibility == 239)
+                                    sector[searchsector].visibility = 240;
+                                k--;
+                            }
+                            Bsprintf(getmessage,"Sector %d visibility %d",searchsector,sector[searchsector].visibility);
+                            message(getmessage);
+                            asksave = 1;
                 }
             }
             else
@@ -5169,7 +5187,7 @@ static void Keys3d(void)
         }
     }
 
-//    if ((keystatus[KEYSC_DASH]|keystatus[KEYSC_EQUAL]|((bstatus&(16|32)) && !(bstatus&2))) > 0) // mousewheel, -, and +, cycle picnum
+    //    if ((keystatus[KEYSC_DASH]|keystatus[KEYSC_EQUAL]|((bstatus&(16|32)) && !(bstatus&2))) > 0) // mousewheel, -, and +, cycle picnum
     if (keystatus[KEYSC_DASH] | keystatus[KEYSC_EQUAL] | (bstatus&(16|32) && (bstatus&1) && !(bstatus&2)))  // PK: lmb only & mousewheel, -, and +, cycle picnum
 
     {
@@ -5577,26 +5595,26 @@ static void Keys3d(void)
                             break;
                         }
 
-                if (k == 0)
-                {
-                    sprite[searchwall].z -= updownunits << ((eitherCTRL && mouseaction)*3);
-                    if (!spnoclip)sprite[searchwall].z = max(sprite[searchwall].z,spriteonceilingz(searchwall));
-                    Bsprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
-                    message(getmessage);
-
-                }
-                else
-                {
-                    for (i=0; i<highlightcnt; i++)
-                        if ((highlight[i]&0xc000) == 16384)
+                        if (k == 0)
                         {
-                            sprite[highlight[i]&16383].z -= updownunits;
-                            if (!spnoclip)sprite[highlight[i]&16383].z = max(sprite[highlight[i]&16383].z,spriteonceilingz(highlight[i]&16383));
-                        }
-                    Bsprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
-                    message(getmessage);
+                            sprite[searchwall].z -= updownunits << ((eitherCTRL && mouseaction)*3);
+                            if (!spnoclip)sprite[searchwall].z = max(sprite[searchwall].z,spriteonceilingz(searchwall));
+                            Bsprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
+                            message(getmessage);
 
-                }
+                        }
+                        else
+                        {
+                            for (i=0; i<highlightcnt; i++)
+                                if ((highlight[i]&0xc000) == 16384)
+                                {
+                                    sprite[highlight[i]&16383].z -= updownunits;
+                                    if (!spnoclip)sprite[highlight[i]&16383].z = max(sprite[highlight[i]&16383].z,spriteonceilingz(highlight[i]&16383));
+                                }
+                                Bsprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
+                                message(getmessage);
+
+                        }
             }
         }
         asksave = 1;
@@ -5724,26 +5742,26 @@ static void Keys3d(void)
                             break;
                         }
 
-                if (k == 0)
-                {
-                    sprite[searchwall].z += updownunits << ((eitherCTRL && mouseaction)*3);
-                    if (!spnoclip)sprite[searchwall].z = min(sprite[searchwall].z,spriteongroundz(searchwall));
-                    Bsprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
-                    message(getmessage);
-
-                }
-                else
-                {
-                    for (i=0; i<highlightcnt; i++)
-                        if ((highlight[i]&0xc000) == 16384)
+                        if (k == 0)
                         {
-                            sprite[highlight[i]&16383].z += updownunits;
-                            if (!spnoclip)sprite[highlight[i]&16383].z = min(sprite[highlight[i]&16383].z,spriteongroundz(highlight[i]&16383));
-                        }
-                    Bsprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
-                    message(getmessage);
+                            sprite[searchwall].z += updownunits << ((eitherCTRL && mouseaction)*3);
+                            if (!spnoclip)sprite[searchwall].z = min(sprite[searchwall].z,spriteongroundz(searchwall));
+                            Bsprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
+                            message(getmessage);
 
-                }
+                        }
+                        else
+                        {
+                            for (i=0; i<highlightcnt; i++)
+                                if ((highlight[i]&0xc000) == 16384)
+                                {
+                                    sprite[highlight[i]&16383].z += updownunits;
+                                    if (!spnoclip)sprite[highlight[i]&16383].z = min(sprite[highlight[i]&16383].z,spriteongroundz(highlight[i]&16383));
+                                }
+                                Bsprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
+                                message(getmessage);
+
+                        }
             }
         }
         asksave = 1;
@@ -5795,7 +5813,7 @@ static void Keys3d(void)
     if (bstatus&4 && !(bstatus&(1|2)) && !unrealedlook)  //PK
     {
         Bsprintf(tempbuf,"VIEW");
-//        else Bsprintf(tempbuf,"SHADE");
+        //        else Bsprintf(tempbuf,"SHADE");
     }
     else if (bstatus&2 && !(bstatus&1))
         Bsprintf(tempbuf,"Z");
@@ -5917,12 +5935,12 @@ static void Keys3d(void)
     }
 
     /* if(purpleon) {
-                begindrawing();
+    begindrawing();
     //          printext256(1*4,1*8,whitecol,-1,"Purple ON",0);
-                    sprintf(getmessage,"Purple ON");
-                    message(getmessage);
-                enddrawing();
-                }
+    sprintf(getmessage,"Purple ON");
+    message(getmessage);
+    enddrawing();
+    }
     */
     if (sector[cursectnum].lotag==2)
     {
@@ -5945,9 +5963,9 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_D]) // ' d
         /*
-            {
-                ShowHelpText("SectorEffector");
-            } */
+        {
+        ShowHelpText("SectorEffector");
+        } */
 
     {
         keystatus[KEYSC_D] = 0;
@@ -5958,13 +5976,13 @@ static void Keys3d(void)
     }
 
     /*    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_G]) // ' g <Unused>
-        {
-            keystatus[KEYSC_G] = 0;
-            tabgraphic++;
-            if (tabgraphic > 2) tabgraphic = 0;
-            if (tabgraphic) message("Graphics ON");
-            else message("Graphics OFF");
-    	}*/
+    {
+    keystatus[KEYSC_G] = 0;
+    tabgraphic++;
+    if (tabgraphic > 2) tabgraphic = 0;
+    if (tabgraphic) message("Graphics ON");
+    else message("Graphics OFF");
+    }*/
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_X]) // ' x
     {
@@ -5976,12 +5994,12 @@ static void Keys3d(void)
 
 
     /*    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_R]) // ' r <Handled already>
-        {
-            keystatus[KEYSC_R] = 0;
-            framerateon=!framerateon;
-            if (framerateon) message("Framerate ON");
-            else message("Framerate OFF");
-    	}*/
+    {
+    keystatus[KEYSC_R] = 0;
+    framerateon=!framerateon;
+    if (framerateon) message("Framerate ON");
+    else message("Framerate OFF");
+    }*/
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_W]) // ' w
     {
@@ -6025,11 +6043,11 @@ static void Keys3d(void)
                     {
                         sector[i].ceilingshade=tempshade;
                     }
-                if (searchstat==2)
-                    if (sector[i].floorpicnum==temppicnum)
-                    {
-                        sector[i].floorshade=tempshade;
-                    }
+                    if (searchstat==2)
+                        if (sector[i].floorpicnum==temppicnum)
+                        {
+                            sector[i].floorshade=tempshade;
+                        }
             }
             message("Sectors with picnum %d have shade of %d",temppicnum,tempshade);
             asksave=1;
@@ -6066,7 +6084,7 @@ static void Keys3d(void)
         case 3:
             if (sprite[searchwall].picnum == SECTOREFFECTOR)
                 sprite[searchwall].lotag =
-                    _getnumber256("Sprite lotag: ",sprite[searchwall].lotag,65536L,0,(void *)SectorEffectorTagText);
+                _getnumber256("Sprite lotag: ",sprite[searchwall].lotag,65536L,0,(void *)SectorEffectorTagText);
             else if (sprite[searchwall].picnum == MUSICANDSFX)
             {
                 int16_t oldtag = sprite[searchwall].lotag;
@@ -6080,7 +6098,7 @@ static void Keys3d(void)
             }
             else
                 sprite[searchwall].lotag =
-                    getnumber256("Sprite lotag: ",sprite[searchwall].lotag,65536L,0);
+                getnumber256("Sprite lotag: ",sprite[searchwall].lotag,65536L,0);
             break;
         }
     }
@@ -6377,7 +6395,7 @@ static void Keys3d(void)
             i = wall[searchwall].nextsector;
             if (i >= 0 && !mouseaction)
                 switch (searchstat)
-                {
+            {
                 case 0:
                 case 1:
                 case 4:
@@ -6388,7 +6406,7 @@ static void Keys3d(void)
                     alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
                     message("Sector %d align floor to wall %d",searchsector,searchwall);
                     break;
-                }
+            }
         }
         else
         {
@@ -6441,7 +6459,7 @@ static void Keys3d(void)
             i = wall[searchwall].nextsector;
             if (i >= 0 && !mouseaction)
                 switch (searchstat)
-                {
+            {
                 case 1:
                     alignceilslope(searchsector,wall[searchwall].x,wall[searchwall].y,getceilzofslope(i,wall[searchwall].x,wall[searchwall].y));
                     message("Sector %d align ceiling to wall %d",searchsector,searchwall);
@@ -6452,7 +6470,7 @@ static void Keys3d(void)
                     alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
                     message("Sector %d align floor to wall %d",searchsector,searchwall);
                     break;
-                }
+            }
         }
         else
         {
@@ -6506,7 +6524,7 @@ static void Keys3d(void)
         i = (i&0x4)+((i>>4)&3);
         if (stat&64) // align to first wall
             switch (i)
-            {
+        {
             case 0:break;
             case 1:ma=-ma; break;
             case 2:ma=1024-ma; break;
@@ -6515,10 +6533,10 @@ static void Keys3d(void)
             case 5:ma+=512; break;
             case 6:ma-=512; break;
             case 7:ma=512-ma; break;
-            }
+        }
         else
             switch (i)
-            {
+        {
             case 0:ma=-ma; break;
             case 1:break;
             case 2:ma+=1024; break;
@@ -6527,7 +6545,7 @@ static void Keys3d(void)
             case 5:ma=512-ma; break;
             case 6:ma=-512-ma; break;
             case 7:ma+=512; break;
-            }
+        }
 
         a=ksqrt(mouseax*mouseax+mouseay*mouseay);
         if (a)
@@ -6682,7 +6700,7 @@ static void Keys3d(void)
                         dayvect = yvect;
                     }
                     clipmove((vec3_t *)&sprite[searchwall],
-                             &cursectnum,daxvect,dayvect,128L,4L<<8,4L<<8,spnoclip?1:CLIPMASK0);
+                        &cursectnum,daxvect,dayvect,128L,4L<<8,4L<<8,spnoclip?1:CLIPMASK0);
                     setsprite(searchwall,(vec3_t *)&sprite[searchwall]);
                 }
                 else
@@ -6821,7 +6839,7 @@ static void Keys3d(void)
                         dayvect = yvect;
                     }
                     clipmove((vec3_t *)&sprite[searchwall],
-                             &cursectnum,daxvect,dayvect,128L,4L<<8,4L<<8,spnoclip?1:CLIPMASK0);
+                        &cursectnum,daxvect,dayvect,128L,4L<<8,4L<<8,spnoclip?1:CLIPMASK0);
                     setsprite(searchwall,(vec3_t *)&sprite[searchwall]);
                 }
                 else
@@ -7147,7 +7165,7 @@ static void Keys3d(void)
                             j = k;
                             break;
                         }
-                    sprite[searchwall].picnum = j;
+                        sprite[searchwall].picnum = j;
                 }
                 sprite[searchwall].shade = tempshade;
                 sprite[searchwall].pal = temppal;
@@ -7407,13 +7425,13 @@ static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
                     case 3:
                         k = gs_sprite[1][3];
                         if (k != sprite[gs_cursprite].xrepeat &&
-                                k != sprite[gs_cursprite].yrepeat)
+                            k != sprite[gs_cursprite].yrepeat)
                             goto NEXTSPRITE;
                         break;
                     case 4:
                         k = gs_sprite[1][4];
                         if (k != sprite[gs_cursprite].xoffset &&
-                                k != sprite[gs_cursprite].yoffset)
+                            k != sprite[gs_cursprite].yoffset)
                             goto NEXTSPRITE;
                         break;
                     case 5: k = sprite[gs_cursprite].picnum; break;
@@ -7436,18 +7454,18 @@ static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
                 if (k != gs_sprite[i][j]) goto NEXTSPRITE;
             }
 
-        // found matching sprite
-        pos.x = sprite[gs_cursprite].x;
-        pos.y = sprite[gs_cursprite].y;
-        ang = sprite[gs_cursprite].ang;
+            // found matching sprite
+            pos.x = sprite[gs_cursprite].x;
+            pos.y = sprite[gs_cursprite].y;
+            ang = sprite[gs_cursprite].ang;
 
-        printmessage16("%s Sprite seach%s: found sprite %d", dir<0 ? "<" : ">",
-                       did_wrap ? " (wrap)" : "", gs_cursprite);
-        did_wrap = 0;
-        return;
+            printmessage16("%s Sprite seach%s: found sprite %d", dir<0 ? "<" : ">",
+                did_wrap ? " (wrap)" : "", gs_cursprite);
+            did_wrap = 0;
+            return;
 
 NEXTSPRITE:
-        ;
+            ;
     }
     printmessage16("%s Sprite search: none found", dir<0 ? "<" : ">");
 }
@@ -7462,8 +7480,8 @@ static void Keys2d(void)
     static int32_t repeatcountx=0,repeatcounty=0;
 
     /*
-       for(i=0;i<0x50;i++)
-       {if(keystatus[i]==1) {Bsprintf(tempbuf,"key %d",i); printmessage16(tempbuf);
+    for(i=0;i<0x50;i++)
+    {if(keystatus[i]==1) {Bsprintf(tempbuf,"key %d",i); printmessage16(tempbuf);
     }}
     */
 
@@ -7476,673 +7494,673 @@ static void Keys2d(void)
             break;
         }
 
-    searchsector=cursectornum;
+        searchsector=cursectornum;
 
-    if (eitherCTRL && keystatus[KEYSC_Z]) // CTRL+Z
-    {
-        keystatus[KEYSC_Z] = 0;
-        if (eitherSHIFT)
+        if (eitherCTRL && keystatus[KEYSC_Z]) // CTRL+Z
         {
-            if (map_undoredo(1)) message("Nothing to redo!");
-            else message("Restored revision %d",map_revision-1);
-        }
-        else
-        {
-            if (map_undoredo(0)) message("Nothing to undo!");
-            else message("Revision %d undone",map_revision);
-        }
-    }
-
-    if (keystatus[KEYSC_TAB])  //TAB
-    {
-        if (cursectornum >= 0)
-            showsectordata((int16_t)i+16384);
-    }
-    else if (!(keystatus[KEYSC_F5]|keystatus[KEYSC_F6]|keystatus[KEYSC_F7]|keystatus[KEYSC_F8]))
-    {
-        if (pointhighlight >= 16384)
-        {
-            i = pointhighlight-16384;
-            showspritedata((int16_t)i+16384);
-
-            if (sprite[i].picnum==SECTOREFFECTOR)
+            keystatus[KEYSC_Z] = 0;
+            if (eitherSHIFT)
             {
-                char buffer[80];
-
-                Bsprintf(buffer,"^10%s",SectorEffectorText(i));
-                _printmessage16(buffer);
+                if (map_undoredo(1)) message("Nothing to redo!");
+                else message("Restored revision %d",map_revision-1);
+            }
+            else
+            {
+                if (map_undoredo(0)) message("Nothing to undo!");
+                else message("Revision %d undone",map_revision);
             }
         }
-        else if ((linehighlight >= 0) && (bstatus&1 || sectorofwall(linehighlight) == cursectornum))
+
+        if (keystatus[KEYSC_TAB])  //TAB
         {
-            showwalldata((int16_t)linehighlight+16384);
+            if (cursectornum >= 0)
+                showsectordata((int16_t)i+16384);
         }
-        else if (cursectornum >= 0)
-        {
-            showsectordata((int16_t)cursectornum+16384);
-        }
-        if (totalclock < (lastpm16time + 120*2))
-            _printmessage16(lastpm16buf);
-    }
-    /*
-        if ((totalclock > getmessagetimeoff) && (totalclock > (lastpm16time + 120*3)))
+        else if (!(keystatus[KEYSC_F5]|keystatus[KEYSC_F6]|keystatus[KEYSC_F7]|keystatus[KEYSC_F8]))
         {
             if (pointhighlight >= 16384)
             {
-                char tmpbuf[2048];
                 i = pointhighlight-16384;
-                if (strlen(names[sprite[i].picnum]) > 0)
+                showspritedata((int16_t)i+16384);
+
+                if (sprite[i].picnum==SECTOREFFECTOR)
                 {
-                    if (sprite[i].picnum==SECTOREFFECTOR)
-                        Bsprintf(tmpbuf,"Sprite %d %s, hi:%d ex:%d",i,SectorEffectorText(i),sprite[i].hitag,sprite[i].extra);
-                    else Bsprintf(tmpbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",i,names[sprite[i].picnum],sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
+                    char buffer[80];
+
+                    Bsprintf(buffer,"^10%s",SectorEffectorText(i));
+                    _printmessage16(buffer);
                 }
-                else Bsprintf(tmpbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",i,sprite[i].picnum,sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
-                _printmessage16(tmpbuf);
             }
-            else if ((linehighlight >= 0) && (sectorofwall(linehighlight) == cursectornum))
+            else if ((linehighlight >= 0) && (bstatus&1 || sectorofwall(linehighlight) == cursectornum))
             {
-                int32_t dax, day, dist;
-                dax = wall[linehighlight].x-wall[wall[linehighlight].point2].x;
-                day = wall[linehighlight].y-wall[wall[linehighlight].point2].y;
-                dist = ksqrt(dax*dax+day*day);
-                Bsprintf(tempbuf,"Wall %d: length:%d lo:%d hi:%d ex:%d",linehighlight,dist,wall[linehighlight].lotag,wall[linehighlight].hitag,wall[linehighlight].extra);
-                _printmessage16(tempbuf);
+                showwalldata((int16_t)linehighlight+16384);
             }
             else if (cursectornum >= 0)
             {
-                Bsprintf(tempbuf,"Sector %d: lo:%d hi:%d ex:%d",cursectornum,sector[cursectornum].lotag,sector[cursectornum].hitag,sector[cursectornum].extra);
-                _printmessage16(tempbuf);
+                showsectordata((int16_t)cursectornum+16384);
             }
-            else _printmessage16("");
+            if (totalclock < (lastpm16time + 120*2))
+                _printmessage16(lastpm16buf);
         }
-    */
-
-    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_Z]) // ' z
-    {
-        keystatus[KEYSC_Z] = 0;
-
-        editorzrange[0]=getnumber16("Upper Z range: ",editorzrange[0],INT32_MAX,1);
-        editorzrange[1]=getnumber16("Lower Z range: ",editorzrange[1],INT32_MAX,1);
-        // printmessage16("");
-    }
-
-    if (keystatus[0x14])  // T (tag)
-    {
-        char buffer[80];
-
-        keystatus[0x14] = 0;
-        if (keystatus[0x1d]|keystatus[0x9d])  //Ctrl-T
+        /*
+        if ((totalclock > getmessagetimeoff) && (totalclock > (lastpm16time + 120*3)))
         {
-            extern int16_t showtags;
+        if (pointhighlight >= 16384)
+        {
+        char tmpbuf[2048];
+        i = pointhighlight-16384;
+        if (strlen(names[sprite[i].picnum]) > 0)
+        {
+        if (sprite[i].picnum==SECTOREFFECTOR)
+        Bsprintf(tmpbuf,"Sprite %d %s, hi:%d ex:%d",i,SectorEffectorText(i),sprite[i].hitag,sprite[i].extra);
+        else Bsprintf(tmpbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",i,names[sprite[i].picnum],sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
+        }
+        else Bsprintf(tmpbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",i,sprite[i].picnum,sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
+        _printmessage16(tmpbuf);
+        }
+        else if ((linehighlight >= 0) && (sectorofwall(linehighlight) == cursectornum))
+        {
+        int32_t dax, day, dist;
+        dax = wall[linehighlight].x-wall[wall[linehighlight].point2].x;
+        day = wall[linehighlight].y-wall[wall[linehighlight].point2].y;
+        dist = ksqrt(dax*dax+day*day);
+        Bsprintf(tempbuf,"Wall %d: length:%d lo:%d hi:%d ex:%d",linehighlight,dist,wall[linehighlight].lotag,wall[linehighlight].hitag,wall[linehighlight].extra);
+        _printmessage16(tempbuf);
+        }
+        else if (cursectornum >= 0)
+        {
+        Bsprintf(tempbuf,"Sector %d: lo:%d hi:%d ex:%d",cursectornum,sector[cursectornum].lotag,sector[cursectornum].hitag,sector[cursectornum].extra);
+        _printmessage16(tempbuf);
+        }
+        else _printmessage16("");
+        }
+        */
 
-            showtags ^= 1;
-            if (showtags == 0)
-                printmessage16("Show tags OFF");
+        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_Z]) // ' z
+        {
+            keystatus[KEYSC_Z] = 0;
+
+            editorzrange[0]=getnumber16("Upper Z range: ",editorzrange[0],INT32_MAX,1);
+            editorzrange[1]=getnumber16("Lower Z range: ",editorzrange[1],INT32_MAX,1);
+            // printmessage16("");
+        }
+
+        if (keystatus[0x14])  // T (tag)
+        {
+            char buffer[80];
+
+            keystatus[0x14] = 0;
+            if (keystatus[0x1d]|keystatus[0x9d])  //Ctrl-T
+            {
+                extern int16_t showtags;
+
+                showtags ^= 1;
+                if (showtags == 0)
+                    printmessage16("Show tags OFF");
+                else
+                    printmessage16("Show tags ON");
+            }
+            else if (keystatus[0x38]|keystatus[0xb8])  //ALT
+            {
+                if (pointhighlight >= 16384)
+                {
+                    i = pointhighlight-16384;
+                    Bsprintf(buffer,"Sprite (%d) Lo-tag: ",i);
+                    if (sprite[i].picnum == SECTOREFFECTOR)
+                        sprite[i].lotag = _getnumber16(buffer,sprite[i].lotag,65536L,0,(void *)SectorEffectorTagText);
+                    else sprite[i].lotag = getnumber16(buffer,sprite[i].lotag,65536L,0);
+                    clearmidstatbar16();
+                    showspritedata((int16_t)i);
+                }
+                else if (linehighlight >= 0)
+                {
+                    i = linehighlight;
+                    Bsprintf(buffer,"Wall (%d) Lo-tag: ",i);
+                    wall[i].lotag = getnumber16(buffer,wall[i].lotag,65536L,0);
+                    clearmidstatbar16();
+                    showwalldata((int16_t)i);
+                }
+                // printmessage16("");
+            }
             else
-                printmessage16("Show tags ON");
+            {
+                for (i=0; i<numsectors; i++)
+                    if (inside(mousxplc,mousyplc,i) == 1)
+                    {
+                        Bsprintf(buffer,"Sector (%d) Lo-tag: ",i);
+                        j = qsetmode;
+                        qsetmode = 200;
+                        sector[i].lotag = _getnumber16(buffer,sector[i].lotag,65536L,0,(void *)ExtGetSectorType);
+                        qsetmode = j;
+                        clearmidstatbar16();
+                        showsectordata((int16_t)i);
+                        break;
+                    }
+                    // printmessage16("");
+            }
         }
-        else if (keystatus[0x38]|keystatus[0xb8])  //ALT
+
+        if (keystatus[KEYSC_F1] || (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_TILDE])) //F1 or ' ~
         {
-            if (pointhighlight >= 16384)
-            {
-                i = pointhighlight-16384;
-                Bsprintf(buffer,"Sprite (%d) Lo-tag: ",i);
-                if (sprite[i].picnum == SECTOREFFECTOR)
-                    sprite[i].lotag = _getnumber16(buffer,sprite[i].lotag,65536L,0,(void *)SectorEffectorTagText);
-                else sprite[i].lotag = getnumber16(buffer,sprite[i].lotag,65536L,0);
-                clearmidstatbar16();
-                showspritedata((int16_t)i);
-            }
-            else if (linehighlight >= 0)
-            {
-                i = linehighlight;
-                Bsprintf(buffer,"Wall (%d) Lo-tag: ",i);
-                wall[i].lotag = getnumber16(buffer,wall[i].lotag,65536L,0);
-                clearmidstatbar16();
-                showwalldata((int16_t)i);
-            }
-            // printmessage16("");
+            keystatus[KEYSC_F1]=0;
+            // PK_
+            if (numhelppages>0) IntegratedHelp();
+            else printmessage16("m32help.hlp invalid or not found!");
         }
-        else
+
+        if (keystatus[KEYSC_F2])
         {
-            for (i=0; i<numsectors; i++)
-                if (inside(mousxplc,mousyplc,i) == 1)
-                {
-                    Bsprintf(buffer,"Sector (%d) Lo-tag: ",i);
-                    j = qsetmode;
-                    qsetmode = 200;
-                    sector[i].lotag = _getnumber16(buffer,sector[i].lotag,65536L,0,(void *)ExtGetSectorType);
-                    qsetmode = j;
-                    clearmidstatbar16();
-                    showsectordata((int16_t)i);
-                    break;
-                }
-            // printmessage16("");
+            keystatus[KEYSC_F2]=0;
+
+            if (g_numsounds > 0)
+                SoundDisplay();
         }
-    }
 
-    if (keystatus[KEYSC_F1] || (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_TILDE])) //F1 or ' ~
-    {
-        keystatus[KEYSC_F1]=0;
-// PK_
-        if (numhelppages>0) IntegratedHelp();
-        else printmessage16("m32help.hlp invalid or not found!");
-    }
+        getpoint(searchx,searchy,&mousxplc,&mousyplc);
+        ppointhighlight = getpointhighlight(mousxplc,mousyplc, ppointhighlight);
 
-    if (keystatus[KEYSC_F2])
-    {
-        keystatus[KEYSC_F2]=0;
-
-        if (g_numsounds > 0)
-            SoundDisplay();
-    }
-
-    getpoint(searchx,searchy,&mousxplc,&mousyplc);
-    ppointhighlight = getpointhighlight(mousxplc,mousyplc, ppointhighlight);
-
-    if ((ppointhighlight&0xc000) == 16384)
-    {
-        //   sprite[ppointhighlight&16383].cstat ^= 1;
-        cursprite=(ppointhighlight&16383);
-    }
-
-    if (keystatus[KEYSC_F9]) // F9 f1=3b
-    {
-        keystatus[KEYSC_F9] = 0;
-        Show2dText("sthelp.hlp");
-    }
-
-    /* start Mapster32 */
-
-    if (keystatus[KEYSC_F4])
-    {
-        showfirstwall = !showfirstwall;
-        message("Sector firstwall highlight %s",showfirstwall?"enabled":"disabled");
-        keystatus[KEYSC_F4] = 0;
-    }
-
-    if (keystatus[KEYSC_M])  // M (tag)
-    {
-        keystatus[KEYSC_M] = 0;
-        if (eitherALT)  //ALT
-        {
-            if (pointhighlight >= 16384)
-            {
-                i = pointhighlight-16384;
-                Bsprintf(tempbuf,"Sprite %d Extra: ",i);
-                sprite[i].extra = getnumber16(tempbuf,sprite[i].extra,65536L,1);
-                clearmidstatbar16();
-                showspritedata((int16_t)i);
-            }
-            else if (linehighlight >= 0)
-            {
-                i = linehighlight;
-                Bsprintf(tempbuf,"Wall %d Extra: ",i);
-                wall[i].extra = getnumber16(tempbuf,wall[i].extra,65536L,1);
-                clearmidstatbar16();
-                showwalldata((int16_t)i);
-            }
-            // printmessage16("");
-        }
-        else
-        {
-            for (i=0; i<numsectors; i++)
-                if (inside(mousxplc,mousyplc,i) == 1)
-                {
-                    Bsprintf(tempbuf,"Sector %d Extra: ",i);
-                    sector[i].extra = getnumber16(tempbuf,sector[i].extra,65536L,1);
-                    clearmidstatbar16();
-                    showsectordata((int16_t)i);
-                    break;
-                }
-            // printmessage16("");
-        }
-    }
-
-    if (keystatus[KEYSC_E])  // E (expand)
-    {
-        for (i=0; i<numsectors; i++)
-            if (inside(mousxplc,mousyplc,i) == 1)
-            {
-                sector[i].floorstat ^= 8;
-                message("Sector %d floor texture expansion bit %s",i,sector[i].floorstat&8?"ON":"OFF");
-                asksave = 1;
-            }
-
-        keystatus[KEYSC_E] = 0;
-    }
-
-    if (keystatus[KEYSC_SLASH])  // /?     Reset panning&repeat to 0
-    {
         if ((ppointhighlight&0xc000) == 16384)
         {
-            if (eitherSHIFT)
+            //   sprite[ppointhighlight&16383].cstat ^= 1;
+            cursprite=(ppointhighlight&16383);
+        }
+
+        if (keystatus[KEYSC_F9]) // F9 f1=3b
+        {
+            keystatus[KEYSC_F9] = 0;
+            Show2dText("sthelp.hlp");
+        }
+
+        /* start Mapster32 */
+
+        if (keystatus[KEYSC_F4])
+        {
+            showfirstwall = !showfirstwall;
+            message("Sector firstwall highlight %s",showfirstwall?"enabled":"disabled");
+            keystatus[KEYSC_F4] = 0;
+        }
+
+        if (keystatus[KEYSC_M])  // M (tag)
+        {
+            keystatus[KEYSC_M] = 0;
+            if (eitherALT)  //ALT
             {
-                sprite[cursprite].xrepeat = sprite[cursprite].yrepeat;
+                if (pointhighlight >= 16384)
+                {
+                    i = pointhighlight-16384;
+                    Bsprintf(tempbuf,"Sprite %d Extra: ",i);
+                    sprite[i].extra = getnumber16(tempbuf,sprite[i].extra,65536L,1);
+                    clearmidstatbar16();
+                    showspritedata((int16_t)i);
+                }
+                else if (linehighlight >= 0)
+                {
+                    i = linehighlight;
+                    Bsprintf(tempbuf,"Wall %d Extra: ",i);
+                    wall[i].extra = getnumber16(tempbuf,wall[i].extra,65536L,1);
+                    clearmidstatbar16();
+                    showwalldata((int16_t)i);
+                }
+                // printmessage16("");
             }
             else
             {
-                sprite[cursprite].xrepeat = 64;
-                sprite[cursprite].yrepeat = 64;
+                for (i=0; i<numsectors; i++)
+                    if (inside(mousxplc,mousyplc,i) == 1)
+                    {
+                        Bsprintf(tempbuf,"Sector %d Extra: ",i);
+                        sector[i].extra = getnumber16(tempbuf,sector[i].extra,65536L,1);
+                        clearmidstatbar16();
+                        showsectordata((int16_t)i);
+                        break;
+                    }
+                    // printmessage16("");
             }
         }
-        else if (graphicsmode != 0)
+
+        if (keystatus[KEYSC_E])  // E (expand)
         {
             for (i=0; i<numsectors; i++)
                 if (inside(mousxplc,mousyplc,i) == 1)
                 {
-                    sector[i].floorxpanning = sector[i].floorypanning = 0;
-                    message("Sector %d floor panning reset", i);
+                    sector[i].floorstat ^= 8;
+                    message("Sector %d floor texture expansion bit %s",i,sector[i].floorstat&8?"ON":"OFF");
+                    asksave = 1;
                 }
+
+                keystatus[KEYSC_E] = 0;
         }
-        keystatus[KEYSC_SLASH] = 0;
-        asksave = 1;
-    }
 
-    if (keystatus[KEYSC_gLEFT] || keystatus[KEYSC_gRIGHT])  // 4 & 6 (keypad 2D)
-    {
-        smooshyalign = keystatus[KEYSC_gKP5];
-        if ((repeatcountx == 0) || (repeatcountx > 32))
+        if (keystatus[KEYSC_SLASH])  // /?     Reset panning&repeat to 0
         {
-            changedir = 0;
-            if (keystatus[KEYSC_gLEFT])  changedir = -1;
-            if (keystatus[KEYSC_gRIGHT]) changedir = 1;
-
-            if ((ppointhighlight&0xc000) == 16384 && (sprite[cursprite].cstat & 48))
+            if ((ppointhighlight&0xc000) == 16384)
             {
-                sprite[cursprite].xrepeat = changechar(sprite[cursprite].xrepeat,changedir,smooshyalign,1);
-                if (sprite[cursprite].xrepeat < 4)
-                    sprite[cursprite].xrepeat = 4;
-                message("Sprite %d repeat: %d, %d",cursprite,sprite[cursprite].xrepeat,sprite[cursprite].yrepeat);
+                if (eitherSHIFT)
+                {
+                    sprite[cursprite].xrepeat = sprite[cursprite].yrepeat;
+                }
+                else
+                {
+                    sprite[cursprite].xrepeat = 64;
+                    sprite[cursprite].yrepeat = 64;
+                }
             }
-            else
+            else if (graphicsmode != 0)
             {
                 for (i=0; i<numsectors; i++)
                     if (inside(mousxplc,mousyplc,i) == 1)
                     {
-                        sector[i].floorxpanning = changechar(sector[i].floorxpanning,changedir,smooshyalign,0);
-                        message("Sector %d floor panning: %d, %d",searchsector,sector[i].floorxpanning,sector[i].floorypanning);
+                        sector[i].floorxpanning = sector[i].floorypanning = 0;
+                        message("Sector %d floor panning reset", i);
                     }
             }
+            keystatus[KEYSC_SLASH] = 0;
             asksave = 1;
-            repeatcountx = max(1,repeatcountx-2);
         }
-        repeatcountx += synctics;
-    }
-    else
-        repeatcountx = 0;
 
-    if (keystatus[KEYSC_gUP] || keystatus[KEYSC_gDOWN])  // 2 & 8 (keypad 2D)
-    {
-        smooshyalign = keystatus[KEYSC_gKP5];
-        if ((repeatcounty == 0) || (repeatcounty > 32))
+        if (keystatus[KEYSC_gLEFT] || keystatus[KEYSC_gRIGHT])  // 4 & 6 (keypad 2D)
         {
-            changedir = 0;
-            if (keystatus[KEYSC_gUP])   changedir = -1;
-            if (keystatus[KEYSC_gDOWN]) changedir = 1;
-
-            if ((ppointhighlight&0xc000) == 16384 && (sprite[cursprite].cstat & 48))
+            smooshyalign = keystatus[KEYSC_gKP5];
+            if ((repeatcountx == 0) || (repeatcountx > 32))
             {
-                sprite[cursprite].yrepeat = changechar(sprite[cursprite].yrepeat,changedir,smooshyalign,1);
-                if (sprite[cursprite].yrepeat < 4)
-                    sprite[cursprite].yrepeat = 4;
-                message("Sprite %d repeat: %d, %d",cursprite,sprite[cursprite].xrepeat,sprite[cursprite].yrepeat);
+                changedir = 0;
+                if (keystatus[KEYSC_gLEFT])  changedir = -1;
+                if (keystatus[KEYSC_gRIGHT]) changedir = 1;
+
+                if ((ppointhighlight&0xc000) == 16384 && (sprite[cursprite].cstat & 48))
+                {
+                    sprite[cursprite].xrepeat = changechar(sprite[cursprite].xrepeat,changedir,smooshyalign,1);
+                    if (sprite[cursprite].xrepeat < 4)
+                        sprite[cursprite].xrepeat = 4;
+                    message("Sprite %d repeat: %d, %d",cursprite,sprite[cursprite].xrepeat,sprite[cursprite].yrepeat);
+                }
+                else
+                {
+                    for (i=0; i<numsectors; i++)
+                        if (inside(mousxplc,mousyplc,i) == 1)
+                        {
+                            sector[i].floorxpanning = changechar(sector[i].floorxpanning,changedir,smooshyalign,0);
+                            message("Sector %d floor panning: %d, %d",searchsector,sector[i].floorxpanning,sector[i].floorypanning);
+                        }
+                }
+                asksave = 1;
+                repeatcountx = max(1,repeatcountx-2);
             }
-            else
-            {
-                for (i=0; i<numsectors; i++)
-                    if (inside(mousxplc,mousyplc,i) == 1)
-                    {
-                        sector[i].floorypanning = changechar(sector[i].floorypanning,changedir,smooshyalign,0);
-                        message("Sector %d floor panning: %d, %d",searchsector,sector[i].floorxpanning,sector[i].floorypanning);
-                    }
-            }
-            asksave = 1;
-            repeatcounty = max(1,repeatcounty-2);
-        }
-        repeatcounty += synctics;
-        //}
-    }
-    else
-        repeatcounty = 0;
-
-    if (keystatus[KEYSC_R])  // R (relative alignment, rotation)
-    {
-        if (pointhighlight >= 16384)
-        {
-            i = sprite[cursprite].cstat;
-            if ((i&48) < 32) i += 16;
-
-            else i &= ~48;
-            sprite[cursprite].cstat = i;
-
-            if (sprite[cursprite].cstat&16)
-                Bsprintf(getmessage,"Sprite %d now wall aligned",cursprite);
-            else if (sprite[cursprite].cstat&32)
-                Bsprintf(getmessage,"Sprite %d now floor aligned",cursprite);
-            else
-                Bsprintf(getmessage,"Sprite %d now view aligned",cursprite);
-            message(getmessage);
-            asksave = 1;
-
-        }
-        keystatus[KEYSC_R] = 0;
-    }
-
-
-    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_S]) // ' S
-    {
-        if (pointhighlight >= 16384)
-        {
-            keystatus[KEYSC_S] = 0;
-            Bsprintf(tempbuf,"Sprite %d xrepeat: ",cursprite);
-            sprite[cursprite].xrepeat=getnumber16(tempbuf, sprite[cursprite].xrepeat, 256,0);
-            Bsprintf(tempbuf,"Sprite %d yrepeat: ",cursprite);
-            sprite[cursprite].yrepeat=getnumber16(tempbuf, sprite[cursprite].yrepeat, 256,0);
-            Bsprintf(tempbuf,"Sprite %d updated",i);
-            printmessage16(tempbuf);
-        }
-    }
-
-    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_F]) // ' F
-    {
-        keystatus[KEYSC_F] = 0;
-        FuncMenu();
-    }
-
-    if (keystatus[KEYSC_LBRACK]) // [     search backward
-    {
-        keystatus[KEYSC_LBRACK]=0;
-        if (wallsprite==0)
-        {
-            SearchSectorsBackward();
+            repeatcountx += synctics;
         }
         else
+            repeatcountx = 0;
 
-            if (wallsprite==1)
+        if (keystatus[KEYSC_gUP] || keystatus[KEYSC_gDOWN])  // 2 & 8 (keypad 2D)
+        {
+            smooshyalign = keystatus[KEYSC_gKP5];
+            if ((repeatcounty == 0) || (repeatcounty > 32))
             {
-                if (curwallnum>0) curwallnum--;
-                for (i=curwallnum; i>=0; i--)
+                changedir = 0;
+                if (keystatus[KEYSC_gUP])   changedir = -1;
+                if (keystatus[KEYSC_gDOWN]) changedir = 1;
+
+                if ((ppointhighlight&0xc000) == 16384 && (sprite[cursprite].cstat & 48))
+                {
+                    sprite[cursprite].yrepeat = changechar(sprite[cursprite].yrepeat,changedir,smooshyalign,1);
+                    if (sprite[cursprite].yrepeat < 4)
+                        sprite[cursprite].yrepeat = 4;
+                    message("Sprite %d repeat: %d, %d",cursprite,sprite[cursprite].xrepeat,sprite[cursprite].yrepeat);
+                }
+                else
+                {
+                    for (i=0; i<numsectors; i++)
+                        if (inside(mousxplc,mousyplc,i) == 1)
+                        {
+                            sector[i].floorypanning = changechar(sector[i].floorypanning,changedir,smooshyalign,0);
+                            message("Sector %d floor panning: %d, %d",searchsector,sector[i].floorxpanning,sector[i].floorypanning);
+                        }
+                }
+                asksave = 1;
+                repeatcounty = max(1,repeatcounty-2);
+            }
+            repeatcounty += synctics;
+            //}
+        }
+        else
+            repeatcounty = 0;
+
+        if (keystatus[KEYSC_R])  // R (relative alignment, rotation)
+        {
+            if (pointhighlight >= 16384)
+            {
+                i = sprite[cursprite].cstat;
+                if ((i&48) < 32) i += 16;
+
+                else i &= ~48;
+                sprite[cursprite].cstat = i;
+
+                if (sprite[cursprite].cstat&16)
+                    Bsprintf(getmessage,"Sprite %d now wall aligned",cursprite);
+                else if (sprite[cursprite].cstat&32)
+                    Bsprintf(getmessage,"Sprite %d now floor aligned",cursprite);
+                else
+                    Bsprintf(getmessage,"Sprite %d now view aligned",cursprite);
+                message(getmessage);
+                asksave = 1;
+
+            }
+            keystatus[KEYSC_R] = 0;
+        }
+
+
+        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_S]) // ' S
+        {
+            if (pointhighlight >= 16384)
+            {
+                keystatus[KEYSC_S] = 0;
+                Bsprintf(tempbuf,"Sprite %d xrepeat: ",cursprite);
+                sprite[cursprite].xrepeat=getnumber16(tempbuf, sprite[cursprite].xrepeat, 256,0);
+                Bsprintf(tempbuf,"Sprite %d yrepeat: ",cursprite);
+                sprite[cursprite].yrepeat=getnumber16(tempbuf, sprite[cursprite].yrepeat, 256,0);
+                Bsprintf(tempbuf,"Sprite %d updated",i);
+                printmessage16(tempbuf);
+            }
+        }
+
+        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_F]) // ' F
+        {
+            keystatus[KEYSC_F] = 0;
+            FuncMenu();
+        }
+
+        if (keystatus[KEYSC_LBRACK]) // [     search backward
+        {
+            keystatus[KEYSC_LBRACK]=0;
+            if (wallsprite==0)
+            {
+                SearchSectorsBackward();
+            }
+            else
+
+                if (wallsprite==1)
+                {
+                    if (curwallnum>0) curwallnum--;
+                    for (i=curwallnum; i>=0; i--)
+                    {
+                        if (
+                            (wall[i].picnum==wall[curwall].picnum)
+                            &&((search_lotag==0)||
+                            (search_lotag!=0 && search_lotag==wall[i].lotag))
+                            &&((search_hitag==0)||
+                            (search_hitag!=0 && search_hitag==wall[i].hitag))
+                            )
+                        {
+                            pos.x=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
+                            pos.y=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
+                            printmessage16("< Wall search: found");
+                            //                    curwallnum--;
+                            keystatus[KEYSC_LBRACK]=0;
+                            return;
+                        }
+                        curwallnum--;
+                    }
+                    printmessage16("< Wall search: none found");
+                }
+                else
+
+                    if (wallsprite==2)
+                        DoSpriteSearch(-1);
+#if 0
+            {
+                if (cursearchspritenum>0) cursearchspritenum--;
+                for (i=cursearchspritenum; i>=0; i--)
+                {
+
+                    if (
+                        (sprite[i].picnum==sprite[cursearchsprite].picnum &&
+                        sprite[i].statnum==0)
+                        &&((search_lotag==0)||
+                        (search_lotag!=0 && search_lotag==sprite[i].lotag))
+                        &&((search_hitag==0)||
+                        (search_hitag!=0 && search_hitag==sprite[i].hitag))
+                        )
+                    {
+                        pos.x=sprite[i].x;
+                        pos.y=sprite[i].y;
+                        ang= sprite[i].ang;
+                        printmessage16("< Sprite search: found");
+                        //                    curspritenum--;
+                        keystatus[KEYSC_LBRACK]=0;
+                        return;
+                    }
+                    cursearchspritenum--;
+                }
+                printmessage16("< Sprite search: none found");
+            }
+#endif
+        }
+
+
+        if (keystatus[KEYSC_RBRACK]) // ]     search forward
+        {
+            keystatus[KEYSC_RBRACK]=0;
+            if (wallsprite==0)
+            {
+                SearchSectorsForward();
+            }
+            else if (wallsprite==1)
+            {
+                if (curwallnum<MAXWALLS) curwallnum++;
+                for (i=curwallnum; i<=MAXWALLS; i++)
                 {
                     if (
                         (wall[i].picnum==wall[curwall].picnum)
                         &&((search_lotag==0)||
-                           (search_lotag!=0 && search_lotag==wall[i].lotag))
+                        (search_lotag!=0 && search_lotag==wall[i].lotag))
                         &&((search_hitag==0)||
-                           (search_hitag!=0 && search_hitag==wall[i].hitag))
-                    )
+                        (search_hitag!=0 && search_hitag==wall[i].hitag))
+                        )
                     {
                         pos.x=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
                         pos.y=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
-                        printmessage16("< Wall search: found");
-                        //                    curwallnum--;
-                        keystatus[KEYSC_LBRACK]=0;
+                        printmessage16("> Wall search: found");
+                        //                    curwallnum++;
+                        keystatus[KEYSC_RBRACK]=0;
                         return;
                     }
-                    curwallnum--;
+                    curwallnum++;
                 }
-                printmessage16("< Wall search: none found");
+                printmessage16("> Wall search: none found");
             }
-            else
-
-                if (wallsprite==2)
-                    DoSpriteSearch(-1);
+            else if (wallsprite==2)
+                DoSpriteSearch(1);
 #if 0
-        {
-            if (cursearchspritenum>0) cursearchspritenum--;
-            for (i=cursearchspritenum; i>=0; i--)
             {
-
-                if (
-                    (sprite[i].picnum==sprite[cursearchsprite].picnum &&
-                     sprite[i].statnum==0)
-                    &&((search_lotag==0)||
-                       (search_lotag!=0 && search_lotag==sprite[i].lotag))
-                    &&((search_hitag==0)||
-                       (search_hitag!=0 && search_hitag==sprite[i].hitag))
-                )
+                if (cursearchspritenum<MAXSPRITES) cursearchspritenum++;
+                for (i=cursearchspritenum; i<=MAXSPRITES; i++)
                 {
-                    pos.x=sprite[i].x;
-                    pos.y=sprite[i].y;
-                    ang= sprite[i].ang;
-                    printmessage16("< Sprite search: found");
-                    //                    curspritenum--;
-                    keystatus[KEYSC_LBRACK]=0;
-                    return;
-                }
-                cursearchspritenum--;
-            }
-            printmessage16("< Sprite search: none found");
-        }
-#endif
-    }
-
-
-    if (keystatus[KEYSC_RBRACK]) // ]     search forward
-    {
-        keystatus[KEYSC_RBRACK]=0;
-        if (wallsprite==0)
-        {
-            SearchSectorsForward();
-        }
-        else if (wallsprite==1)
-        {
-            if (curwallnum<MAXWALLS) curwallnum++;
-            for (i=curwallnum; i<=MAXWALLS; i++)
-            {
-                if (
-                    (wall[i].picnum==wall[curwall].picnum)
-                    &&((search_lotag==0)||
-                       (search_lotag!=0 && search_lotag==wall[i].lotag))
-                    &&((search_hitag==0)||
-                       (search_hitag!=0 && search_hitag==wall[i].hitag))
-                )
-                {
-                    pos.x=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
-                    pos.y=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
-                    printmessage16("> Wall search: found");
-                    //                    curwallnum++;
-                    keystatus[KEYSC_RBRACK]=0;
-                    return;
-                }
-                curwallnum++;
-            }
-            printmessage16("> Wall search: none found");
-        }
-        else if (wallsprite==2)
-            DoSpriteSearch(1);
-#if 0
-        {
-            if (cursearchspritenum<MAXSPRITES) cursearchspritenum++;
-            for (i=cursearchspritenum; i<=MAXSPRITES; i++)
-            {
-                if (
-                    (sprite[i].picnum==sprite[cursearchsprite].picnum &&
-                     sprite[i].statnum==0)
-                    &&((search_lotag==0)||
-                       (search_lotag!=0 && search_lotag==sprite[i].lotag))
-                    &&((search_hitag==0)||
-                       (search_hitag!=0 && search_hitag==sprite[i].hitag))
-                )
-                {
-                    pos.x=sprite[i].x;
-                    pos.y=sprite[i].y;
-                    ang= sprite[i].ang;
-                    printmessage16("> Sprite search: found");
-                    //                    curspritenum++;
-                    keystatus[KEYSC_RBRACK]=0;
-                    return;
-                }
-                cursearchspritenum++;
-            }
-            printmessage16("> Sprite search: none found");
-        }
-#endif
-    }
-
-    {
-        static int32_t autogrid = 0;
-
-        if (keystatus[KEYSC_G])  // G (grid on/off)
-        {
-            if (autogrid)
-            {
-                grid = 0;
-                if (eitherSHIFT)
-                    grid = 8;
-                autogrid = 0;
-            }
-            else
-            {
-                grid += eitherSHIFT?-1:1;
-                if (grid == -1 || grid == 9)
-                {
-                    switch (grid)
+                    if (
+                        (sprite[i].picnum==sprite[cursearchsprite].picnum &&
+                        sprite[i].statnum==0)
+                        &&((search_lotag==0)||
+                        (search_lotag!=0 && search_lotag==sprite[i].lotag))
+                        &&((search_hitag==0)||
+                        (search_hitag!=0 && search_hitag==sprite[i].hitag))
+                        )
                     {
-                    case -1:
-                        autogrid = 1;
+                        pos.x=sprite[i].x;
+                        pos.y=sprite[i].y;
+                        ang= sprite[i].ang;
+                        printmessage16("> Sprite search: found");
+                        //                    curspritenum++;
+                        keystatus[KEYSC_RBRACK]=0;
+                        return;
+                    }
+                    cursearchspritenum++;
+                }
+                printmessage16("> Sprite search: none found");
+            }
+#endif
+        }
+
+        {
+            static int32_t autogrid = 0;
+
+            if (keystatus[KEYSC_G])  // G (grid on/off)
+            {
+                if (autogrid)
+                {
+                    grid = 0;
+                    if (eitherSHIFT)
                         grid = 8;
-                        break;
-                    case 9:
-                        autogrid = 1;
-                        grid = 0;
-                        break;
+                    autogrid = 0;
+                }
+                else
+                {
+                    grid += eitherSHIFT?-1:1;
+                    if (grid == -1 || grid == 9)
+                    {
+                        switch (grid)
+                        {
+                        case -1:
+                            autogrid = 1;
+                            grid = 8;
+                            break;
+                        case 9:
+                            autogrid = 1;
+                            grid = 0;
+                            break;
+                        }
                     }
                 }
+                if (autogrid) Bsprintf(tempbuf,"Grid size: 9 (autosize)");
+                else if (!grid) Bsprintf(tempbuf,"Grid off");
+                else Bsprintf(tempbuf,"Grid size: %d (%d units)",grid,2048>>grid);
+                printmessage16(tempbuf);
+                keystatus[KEYSC_G] = 0;
             }
-            if (autogrid) Bsprintf(tempbuf,"Grid size: 9 (autosize)");
-            else if (!grid) Bsprintf(tempbuf,"Grid off");
-            else Bsprintf(tempbuf,"Grid size: %d (%d units)",grid,2048>>grid);
-            printmessage16(tempbuf);
-            keystatus[KEYSC_G] = 0;
+            if (autogrid)
+            {
+                grid = zoom+512;
+                if (grid > 16384) grid = 16384;
+                grid = scale(grid,6,6144);
+                if (grid > 7) grid = 7;
+                if (grid < 0) grid = 0;
+            }
         }
-        if (autogrid)
+
+        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_L]) // ' L
         {
-            grid = zoom+512;
-            if (grid > 16384) grid = 16384;
-            grid = scale(grid,6,6144);
-            if (grid > 7) grid = 7;
-            if (grid < 0) grid = 0;
-        }
-    }
+            if (pointhighlight >= 16384)
+            {
+                i = pointhighlight - 16384;
+                Bsprintf(tempbuf,"Sprite %d x: ",i);
+                sprite[i].x = getnumber16(tempbuf,sprite[i].x,editorgridextent-1,1);
+                Bsprintf(tempbuf,"Sprite %d y: ",i);
+                sprite[i].y = getnumber16(tempbuf,sprite[i].y,editorgridextent-1,1);
+                Bsprintf(tempbuf,"Sprite %d z: ",i);
+                sprite[i].z = getnumber16(tempbuf,sprite[i].z,8388608,1);
+                Bsprintf(tempbuf,"Sprite %d angle: ",i);
+                sprite[i].ang = getnumber16(tempbuf,sprite[i].ang,2048L,0);
+                Bsprintf(tempbuf,"Sprite %d updated",i);
+                printmessage16(tempbuf);
+            }
 
-    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_L]) // ' L
-    {
-        if (pointhighlight >= 16384)
+            else if (pointhighlight >= 0 /*<= 16383*/)
+            {
+                i = linehighlight;
+                j = wall[i].x;
+                k = wall[i].y;
+                Bsprintf(tempbuf,"Wall %d x: ",i);
+                j = getnumber16(tempbuf,j,editorgridextent,1);
+                Bsprintf(tempbuf,"Wall %d y: ",i);
+                k = getnumber16(tempbuf,k,editorgridextent,1);
+                dragpoint(i, j, k);
+                Bsprintf(tempbuf,"Wall %d updated",i);
+                printmessage16(tempbuf);
+            }
+
+            keystatus[KEYSC_L] = 0;
+        }
+
+
+        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_3]) // ' 3
         {
-            i = pointhighlight - 16384;
-            Bsprintf(tempbuf,"Sprite %d x: ",i);
-            sprite[i].x = getnumber16(tempbuf,sprite[i].x,editorgridextent-1,1);
-            Bsprintf(tempbuf,"Sprite %d y: ",i);
-            sprite[i].y = getnumber16(tempbuf,sprite[i].y,editorgridextent-1,1);
-            Bsprintf(tempbuf,"Sprite %d z: ",i);
-            sprite[i].z = getnumber16(tempbuf,sprite[i].z,8388608,1);
-            Bsprintf(tempbuf,"Sprite %d angle: ",i);
-            sprite[i].ang = getnumber16(tempbuf,sprite[i].ang,2048L,0);
-            Bsprintf(tempbuf,"Sprite %d updated",i);
+            onnames++;
+            if (onnames>8) onnames=0;
+            keystatus[KEYSC_3]=0;
+            Bsprintf(tempbuf,"Mode %d %s",onnames,SpriteMode[onnames]);
             printmessage16(tempbuf);
+            //   clearmidstatbar16();
+            //   for(i=0;i<MAXMODE32D;i++) {printext16(0*8,ydim16+32+(i*8),15,-1,SpriteMode[i],0);
         }
+        //   Ver();
 
-        else if (pointhighlight >= 0 /*<= 16383*/)
+        /*
+        if(keystatus[KEYSC_QUOTE] && keystatus[KEYSC_5]) // ' 5
         {
-            i = linehighlight;
-            j = wall[i].x;
-            k = wall[i].y;
-            Bsprintf(tempbuf,"Wall %d x: ",i);
-            j = getnumber16(tempbuf,j,editorgridextent,1);
-            Bsprintf(tempbuf,"Wall %d y: ",i);
-            k = getnumber16(tempbuf,k,editorgridextent,1);
-            dragpoint(i, j, k);
-            Bsprintf(tempbuf,"Wall %d updated",i);
-            printmessage16(tempbuf);
-        }
-
-        keystatus[KEYSC_L] = 0;
-    }
-
-
-    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_3]) // ' 3
-    {
-        onnames++;
-        if (onnames>8) onnames=0;
-        keystatus[KEYSC_3]=0;
-        Bsprintf(tempbuf,"Mode %d %s",onnames,SpriteMode[onnames]);
+        keystatus[KEYSC_5]=0;
+        sprintf(tempbuf,"Power-Up Ammo now equals Normal");
         printmessage16(tempbuf);
-        //   clearmidstatbar16();
-        //   for(i=0;i<MAXMODE32D;i++) {printext16(0*8,ydim16+32+(i*8),15,-1,SpriteMode[i],0);
-    }
-    //   Ver();
-
-    /*
-     if(keystatus[KEYSC_QUOTE] && keystatus[KEYSC_5]) // ' 5
-     {
-    	keystatus[KEYSC_5]=0;
-       sprintf(tempbuf,"Power-Up Ammo now equals Normal");
-       printmessage16(tempbuf);
         for(i=0;i<MAXSPRITES;i++)
-            {
-         if(sprite[i].picnum>=20 && sprite[i].picnum<=59)
-         {
-            sprite[i].xrepeat = 32;
-            sprite[i].yrepeat = 32;
-         }
-        }
-
-     }
-    */
-
-    //  What the fuck is this supposed to do?
-
-    /* Motorcycle ha ha ha
-    if(keystatus[KEYSC_QUOTE] && keystatus[KEYSC_5]) // ' 5
-    {
-    	keystatus[KEYSC_5]=0;
-            sidemode++; if (sidemode > 2) sidemode = 0;
-            if (sidemode == 1)
-            {
-                    editstatus = 0;
-                    zmode = 2;
-                    pos.z = ((sector[cursectnum].ceilingz+sector[cursectnum].floorz)>>1);
-            }
-            else
-            {
-                    editstatus = 1;
-                    zmode = 1;
-            }
-    }
-    */
-
-    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_7]) // ' 7 : swap hilo
-    {
-        keystatus[KEYSC_7]=0;
-
-        if (pointhighlight >= 16384)
         {
-            temp=sprite[cursprite].lotag;
-            sprite[cursprite].lotag=sprite[cursprite].hitag;
-            sprite[cursprite].hitag=temp;
-            Bsprintf(tempbuf,"Sprite %d tags swapped",cursprite);
-            printmessage16(tempbuf);
-        }
-        else if (linehighlight >= 0)
+        if(sprite[i].picnum>=20 && sprite[i].picnum<=59)
         {
-            temp=wall[linehighlight].lotag;
-            wall[linehighlight].lotag=wall[linehighlight].hitag;
-            wall[linehighlight].hitag=temp;
-            Bsprintf(tempbuf,"Wall %d tags swapped",linehighlight);
-            printmessage16(tempbuf);
+        sprite[i].xrepeat = 32;
+        sprite[i].yrepeat = 32;
         }
-    }
+        }
 
-    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_J]) // ' J
-    {
-        pos.x=getnumber16("X-coordinate:    ",pos.x,editorgridextent,1);
-        pos.y=getnumber16("Y-coordinate:    ",pos.y,editorgridextent,1);
-        Bsprintf(tempbuf,"Current pos now (%d, %d)",pos.x,pos.y);
-        printmessage16(tempbuf);
-        keystatus[KEYSC_J]=0;
-    }
+        }
+        */
+
+        //  What the fuck is this supposed to do?
+
+        /* Motorcycle ha ha ha
+        if(keystatus[KEYSC_QUOTE] && keystatus[KEYSC_5]) // ' 5
+        {
+        keystatus[KEYSC_5]=0;
+        sidemode++; if (sidemode > 2) sidemode = 0;
+        if (sidemode == 1)
+        {
+        editstatus = 0;
+        zmode = 2;
+        pos.z = ((sector[cursectnum].ceilingz+sector[cursectnum].floorz)>>1);
+        }
+        else
+        {
+        editstatus = 1;
+        zmode = 1;
+        }
+        }
+        */
+
+        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_7]) // ' 7 : swap hilo
+        {
+            keystatus[KEYSC_7]=0;
+
+            if (pointhighlight >= 16384)
+            {
+                temp=sprite[cursprite].lotag;
+                sprite[cursprite].lotag=sprite[cursprite].hitag;
+                sprite[cursprite].hitag=temp;
+                Bsprintf(tempbuf,"Sprite %d tags swapped",cursprite);
+                printmessage16(tempbuf);
+            }
+            else if (linehighlight >= 0)
+            {
+                temp=wall[linehighlight].lotag;
+                wall[linehighlight].lotag=wall[linehighlight].hitag;
+                wall[linehighlight].hitag=temp;
+                Bsprintf(tempbuf,"Wall %d tags swapped",linehighlight);
+                printmessage16(tempbuf);
+            }
+        }
+
+        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_J]) // ' J
+        {
+            pos.x=getnumber16("X-coordinate:    ",pos.x,editorgridextent,1);
+            pos.y=getnumber16("Y-coordinate:    ",pos.y,editorgridextent,1);
+            Bsprintf(tempbuf,"Current pos now (%d, %d)",pos.x,pos.y);
+            printmessage16(tempbuf);
+            keystatus[KEYSC_J]=0;
+        }
 
 }// end key2d
 
@@ -8150,26 +8168,26 @@ static void InitCustomColors(void)
 {
     /* blue */
     /*    vgapal16[9*4+0] = 63;
-        vgapal16[9*4+1] = 31;
-        vgapal16[9*4+2] = 7; */
+    vgapal16[9*4+1] = 31;
+    vgapal16[9*4+2] = 7; */
     int32_t i;
     palette_t *edcol;
     /*
 
     char vgapal16[4*256] =
     {
-        00,00,00,00, 42,00,00,00, 00,42,00,00, 42,42,00,00, 00,00,42,00,
-        42,00,42,00, 00,21,42,00, 42,42,42,00, 21,21,21,00, 63,21,21,00,
-        21,63,21,00, 63,63,21,00, 21,21,63,00, 63,21,63,00, 21,63,63,00,
-        63,63,63,00
+    00,00,00,00, 42,00,00,00, 00,42,00,00, 42,42,00,00, 00,00,42,00,
+    42,00,42,00, 00,21,42,00, 42,42,42,00, 21,21,21,00, 63,21,21,00,
+    21,63,21,00, 63,63,21,00, 21,21,63,00, 63,21,63,00, 21,63,63,00,
+    63,63,63,00
     };
     */
     /*    editorcolors[0] = getclosestcol(0,0,0);
-        editorcolors[1] = getclosestcol(0,0,42);
-        editorcolors[2] = getclosestcol(0,42,0);
-        editorcolors[3] = getclosestcol(0,42,42);
-        editorcolors[4] = getclosestcol(42,0,0);
-        editorcolors[5] = getclosestcol(0,0,0);
+    editorcolors[1] = getclosestcol(0,0,42);
+    editorcolors[2] = getclosestcol(0,42,0);
+    editorcolors[3] = getclosestcol(0,42,42);
+    editorcolors[4] = getclosestcol(42,0,0);
+    editorcolors[5] = getclosestcol(0,0,0);
     */
 
     vgapal16[9*4+0] = 63;
@@ -8264,18 +8282,18 @@ void ExtPreSaveMap(void)
 static void G_ShowParameterHelp(void)
 {
     char *s = "Usage: mapster32 [OPTIONS] [FILE]\n\n"
-              "-gFILE, -grp FILE\tUse extra group file FILE\n"
-              "-hFILE\t\tUse definitions file FILE\n"
-              "-jDIR, -game_dir DIR\n\t\tAdds DIR to the file path stack\n"
-              "-nocheck\t\tDisables map pointer checking when saving\n"
+        "-gFILE, -grp FILE\tUse extra group file FILE\n"
+        "-hFILE\t\tUse definitions file FILE\n"
+        "-jDIR, -game_dir DIR\n\t\tAdds DIR to the file path stack\n"
+        "-nocheck\t\tDisables map pointer checking when saving\n"
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
-              "-setup\t\tDisplays the configuration dialog\n"
+        "-setup\t\tDisplays the configuration dialog\n"
 #endif
 #if !defined(_WIN32)
-              "-usecwd\t\tRead game data and configuration file from working directory\n"
+        "-usecwd\t\tRead game data and configuration file from working directory\n"
 #endif
-              "\n-?, -help, --help\tDisplay this help message and exit"
-              ;
+        "\n-?, -help, --help\tDisplay this help message and exit"
+        ;
     wm_msgbox("Mapster32"VERSION BUILDDATE,s);
 }
 
@@ -8548,7 +8566,7 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
     OSD_SetLogFile("mapster32.log");
     OSD_SetVersionString("Mapster32"VERSION,0,2);
     initprintf("Mapster32"VERSION BUILDDATE"\n");
-//    initprintf("Copyright (c) 2008 EDuke32 team\n");
+    //    initprintf("Copyright (c) 2008 EDuke32 team\n");
 
     G_CheckCommandLine(argc,argv);
 
@@ -8653,9 +8671,9 @@ static int32_t osdcmd_fileinfo(const osdfuncparm_t *parm)
     kclose(i);
 
     OSD_Printf("fileinfo: %s\n"
-               "  File size: %d\n"
-               "  CRC-32:    %08X\n",
-               parm->parms[0], length, crc);
+        "  File size: %d\n"
+        "  CRC-32:    %08X\n",
+        parm->parms[0], length, crc);
 
     return OSDCMD_OK;
 }
@@ -8702,9 +8720,9 @@ static int32_t osdcmd_testplay_addparam(const osdfuncparm_t *parm)
     if (parm->numparms != 1)
     {
         OSD_Printf("additional parameters for test playing: %s%s%s\n",
-                   testplay_addparam ? "\"" : "",
-                   testplay_addparam ? testplay_addparam : "<empty>",
-                   testplay_addparam ? "\"" : "");
+            testplay_addparam ? "\"" : "",
+            testplay_addparam ? testplay_addparam : "<empty>",
+            testplay_addparam ? "\"" : "");
         return OSDCMD_OK;
     }
 
@@ -8740,8 +8758,8 @@ static int32_t osdcmd_showheightindicators(const osdfuncparm_t *parm)
         showheightindicators = min(max(atoi(parm->parms[0]),0),2);
 
     OSD_Printf("height indicators: %s\n",
-               showheightindicators==0 ? "none" :
-               (showheightindicators==1 ? "two-sided walls only" : "all"));
+        showheightindicators==0 ? "none" :
+        (showheightindicators==1 ? "two-sided walls only" : "all"));
 
     return OSDCMD_OK;
 }
@@ -8776,7 +8794,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
     else if (!Bstrcasecmp(parm->name, "pk_quickmapcycling"))
     {
         OSD_Printf("Quick map cycling ((LShift-)Ctrl-X): %s\n",
-                   (quickmapcycling = !quickmapcycling) ? "enabled":"disabled");
+            (quickmapcycling = !quickmapcycling) ? "enabled":"disabled");
     }
     else if (!Bstrcasecmp(parm->name, "pk_uedaccel"))
     {
@@ -8896,20 +8914,20 @@ void GAME_clearbackground(int32_t c, int32_t r)
     UNREFERENCED_PARAMETER(c);
     /*
     #ifdef _WIN32
-        if (qsetmode != 200)
-        {
-            OSD_SetFunctions(
-                NULL,
-                NULL,
-                NULL,
-                NULL,
-                NULL,
-                NULL,
-                (int32_t(*)(void))GetTime,
-                NULL
-            );
-            return;
-        }
+    if (qsetmode != 200)
+    {
+    OSD_SetFunctions(
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    (int32_t(*)(void))GetTime,
+    NULL
+    );
+    return;
+    }
     #endif
     */
     if (getrendermode() < 3) bits = BITS;
@@ -9018,49 +9036,49 @@ int32_t parsegroupfiles(scriptfile *script)
         switch (tokn)
         {
         case T_LOADGRP:
-        {
-            char *fn;
-
-            pathsearchmode = 1;
-            if (!scriptfile_getstring(script,&fn))
             {
-                int32_t j = initgroupfile(fn);
+                char *fn;
 
-                if (j == -1)
-                    initprintf("Could not find group file '%s'.\n",fn);
-                else
+                pathsearchmode = 1;
+                if (!scriptfile_getstring(script,&fn))
                 {
-                    initprintf("Using group file '%s'.\n",fn);
-                    if (!NoAutoLoad)
-                        DoAutoload(fn);
-                }
+                    int32_t j = initgroupfile(fn);
 
-            }
-            pathsearchmode = 0;
-        }
-        break;
-        case T_INCLUDE:
-        {
-            char *fn;
-            if (!scriptfile_getstring(script,&fn))
-            {
-                scriptfile *included;
+                    if (j == -1)
+                        initprintf("Could not find group file '%s'.\n",fn);
+                    else
+                    {
+                        initprintf("Using group file '%s'.\n",fn);
+                        if (!NoAutoLoad)
+                            DoAutoload(fn);
+                    }
 
-                included = scriptfile_fromfile(fn);
-                if (!included)
-                {
-                    initprintf("Warning: Failed including %s on line %s:%d\n",
-                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
                 }
-                else
-                {
-                    parsegroupfiles(included);
-                    scriptfile_close(included);
-                }
+                pathsearchmode = 0;
             }
             break;
-        }
-        break;
+        case T_INCLUDE:
+            {
+                char *fn;
+                if (!scriptfile_getstring(script,&fn))
+                {
+                    scriptfile *included;
+
+                    included = scriptfile_fromfile(fn);
+                    if (!included)
+                    {
+                        initprintf("Warning: Failed including %s on line %s:%d\n",
+                            fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                    }
+                    else
+                    {
+                        parsegroupfiles(included);
+                        scriptfile_close(included);
+                    }
+                }
+                break;
+            }
+            break;
         case T_NOAUTOLOAD:
             NoAutoLoad = 1;
             break;
@@ -9111,248 +9129,248 @@ int32_t parsetilegroups(scriptfile *script)
         switch (tokn)
         {
         case T_HOTKEY:
-        {
-            int32_t i, j;
-            if (scriptfile_getsymbol(script,&i)) break;
-            if (scriptfile_getsymbol(script,&j)) break;
-            if (i < 0 || i > 9 || j < 0 || j >= MAXTILES) break;
-            prefixtiles[i] = j;
-            break;
-        }
+            {
+                int32_t i, j;
+                if (scriptfile_getsymbol(script,&i)) break;
+                if (scriptfile_getsymbol(script,&j)) break;
+                if (i < 0 || i > 9 || j < 0 || j >= MAXTILES) break;
+                prefixtiles[i] = j;
+                break;
+            }
         case T_INCLUDE:
-        {
-            char *fn;
-            if (!scriptfile_getstring(script,&fn))
             {
-                scriptfile *included;
-
-                included = scriptfile_fromfile(fn);
-                if (!included)
+                char *fn;
+                if (!scriptfile_getstring(script,&fn))
                 {
-                    initprintf("Warning: Failed including %s on line %s:%d\n",
-                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
-                }
-                else
-                {
-                    parsetilegroups(included);
-                    scriptfile_close(included);
-                }
-            }
-            break;
-        }
-        case T_DEFINE:
-        {
-            char *name;
-            int32_t number;
+                    scriptfile *included;
 
-            if (scriptfile_getstring(script,&name)) break;
-            if (scriptfile_getsymbol(script,&number)) break;
-            if (scriptfile_addsymbolvalue(name,number) < 0)
-                initprintf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
-                           name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
-            break;
-        }
-        case T_TILEGROUP:
-        {
-            char *end, *name;
-            int32_t i;
-
-            if (tile_groups >= MAX_TILE_GROUPS) break;
-            if (scriptfile_getstring(script,&name)) break;
-            if (scriptfile_getbraces(script,&end)) break;
-
-            s_TileGroups[tile_groups].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES,sizeof(int32_t));
-            s_TileGroups[tile_groups].szText = Bstrdup(name);
-
-            while (script->textptr < end)
-            {
-                tokenlist tgtokens2[] =
-                {
-                    { "tilegroup",  T_TILEGROUP   },
-                    { "tile",       T_TILE        },
-                    { "tilerange",  T_TILERANGE   },
-                    { "hotkey",     T_HOTKEY      },
-                    { "tiles",      T_TILES       },
-                    { "colors",     T_COLORS      },
-                };
-
-                int32_t token = getatoken(script,tgtokens2,sizeof(tgtokens2)/sizeof(tokenlist));
-                switch (token)
-                {
-                case T_TILE:
-                {
-                    if (scriptfile_getsymbol(script,&i)) break;
-                    if (i >= 0 && i < MAXTILES && s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES)
-                        s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i;
-//                    OSD_Printf("added tile %d to group %d\n",i,g);
-                    break;
-                }
-                case T_TILERANGE:
-                {
-                    int32_t j;
-                    if (scriptfile_getsymbol(script,&i)) break;
-                    if (scriptfile_getsymbol(script,&j)) break;
-                    if (i < 0 || i >= MAXTILES || j < 0 || j >= MAXTILES) break;
-                    while (s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES && i <= j)
+                    included = scriptfile_fromfile(fn);
+                    if (!included)
                     {
-                        s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i++;
-//                        OSD_Printf("added tile %d to group %d\n",i,g);
-                    }
-                    break;
-                }
-                case T_COLORS:
-                {
-                    int32_t j;
-                    if (scriptfile_getsymbol(script, &i)) break;
-                    if (scriptfile_getsymbol(script, &j)) break;
-                    if (i < 0 || i >= 256 || j < 0 || j >= 256) break;
-                    s_TileGroups[tile_groups].color1 = i;
-                    s_TileGroups[tile_groups].color2 = j;
-                    break;
-                }
-                case T_HOTKEY:
-                {
-                    char *c;
-                    if (scriptfile_getstring(script,&c)) break;
-                    s_TileGroups[tile_groups].key1 = Btoupper(c[0]);
-                    s_TileGroups[tile_groups].key2 = Btolower(c[0]);
-                    break;
-                }
-                case T_TILES:
-                {
-                    char *end2;
-                    if (scriptfile_getbraces(script,&end2)) break;
-                    while (script->textptr < end2-1)
-                    {
-                        if (!scriptfile_getsymbol(script,&i))
-                        {
-                            if (i >= 0 && i < MAXTILES && s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES)
-                                s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i;
-                            //                    OSD_Printf("added tile %d to group %d\n",i,g);
-                        }
-                    }
-                    break;
-                }
-                }
-            }
-            s_TileGroups[tile_groups].pIds = Brealloc(s_TileGroups[tile_groups].pIds,s_TileGroups[tile_groups].nIds*sizeof(int32_t));
-            tile_groups++;
-            break;
-        }
-        case T_ALPHABET:
-        {
-            char *end;
-            int32_t i, j, k;
-
-            if (numalphabets >= MAX_ALPHABETS) break;
-            if (scriptfile_getbraces(script,&end)) break;
-
-            for (i=0; i<NUMPRINTABLES; i++)
-            {
-                alphabets[numalphabets].pic[i] = -1;
-                alphabets[numalphabets].xofs[i] = 0;
-                alphabets[numalphabets].yofs[i] = 0;
-            }
-
-            while (script->textptr < end)
-            {
-                tokenlist alphtokens2[] =
-                {
-                    { "map",        T_MAP         },
-                    { "mapa",       T_MAPA        },
-                    { "maprange",   T_MAPRANGE    },
-                    { "maprangea",  T_MAPRANGEA   },
-                    { "offset",     T_OFFSET      },
-                    { "offseta",    T_OFFSETA     },
-                };
-
-                int32_t token = getatoken(script,alphtokens2,sizeof(alphtokens2)/sizeof(tokenlist));
-                switch (token)
-                {
-                case T_MAP:  // map <ascii num> <start tilenum>, e.g. map 46 3002
-                {
-                    if (scriptfile_getnumber(script,&i)) break;
-                    if (scriptfile_getsymbol(script,&j)) break;
-
-                    if (i>=33 && i<=126 && j>= 0 && j<MAXTILES)
-                        alphabets[numalphabets].pic[i-33] = j;
-
-                    break;
-                }
-                case T_MAPA:  // mapa <ascii string> <start tilenum>, e.g. map ".,!?" 3002
-                {
-                    char *s;
-                    if (scriptfile_getstring(script,&s)) break;
-                    if (scriptfile_getsymbol(script,&i)) break;
-
-                    for (; *s; s++, i++)
-                    {
-                        if (*s>=33 && *s<=126 && i>= 0 && i<MAXTILES)
-                            alphabets[numalphabets].pic[(*s)-33] = i;
-                    }
-                    break;
-                }
-                // maprange <start ascii num> <end ascii num> <start tilenum>, e.g. map 33 126 STARTALPHANUM
-                // maprangea <start char> <end char> <start tilenum>, e.g. map "!" "~" STARTALPHANUM
-                case T_MAPRANGE:
-                case T_MAPRANGEA:
-                {
-                    if (token==T_MAPRANGE)
-                    {
-                        if (scriptfile_getnumber(script,&i)) break;
-                        if (scriptfile_getnumber(script,&j)) break;
+                        initprintf("Warning: Failed including %s on line %s:%d\n",
+                            fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
                     }
                     else
                     {
-                        char *c1, *c2;
-                        if (scriptfile_getstring(script,&c1)) break;
-                        if (scriptfile_getstring(script,&c2)) break;
-                        i=*c1;
-                        j=*c2;
+                        parsetilegroups(included);
+                        scriptfile_close(included);
                     }
-                    if (scriptfile_getsymbol(script,&k)) break;
-
-                    if (i>126 || j<33) break;
-                    for (; i<=j && k<MAXTILES; i++, k++)
-                    {
-                        if (i>=33 && i<=126)
-                            alphabets[numalphabets].pic[i-33] = k;
-                    }
-                    break;
                 }
-                case T_OFFSET:  // offset <ascii num> <xoffset> <yoffset>
-                {
-                    if (scriptfile_getnumber(script, &i)) break;
-                    if (scriptfile_getnumber(script, &j)) break;
-                    if (scriptfile_getnumber(script, &k)) break;
-
-                    if (i >= 33 && i <= 126)
-                    {
-                        alphabets[numalphabets].xofs[i-33] = j;
-                        alphabets[numalphabets].yofs[i-33] = k;
-                    }
-                    break;
-                }
-                case T_OFFSETA:  // offseta <ascii string> <xoffset> <yoffset>
-                {
-                    char *s;
-                    if (scriptfile_getstring(script, &s)) break;
-                    if (scriptfile_getnumber(script, &i)) break;
-                    if (scriptfile_getnumber(script, &j)) break;
-
-                    for (; *s; s++)
-                        if (*s >= 33 && *s <= 126)
-                        {
-                            alphabets[numalphabets].xofs[(*s)-33] = i;
-                            alphabets[numalphabets].yofs[(*s)-33] = j;
-                        }
-                    break;
-                }
-                }
+                break;
             }
-            numalphabets++;
-            break;
-        }
+        case T_DEFINE:
+            {
+                char *name;
+                int32_t number;
+
+                if (scriptfile_getstring(script,&name)) break;
+                if (scriptfile_getsymbol(script,&number)) break;
+                if (scriptfile_addsymbolvalue(name,number) < 0)
+                    initprintf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
+                    name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+        case T_TILEGROUP:
+            {
+                char *end, *name;
+                int32_t i;
+
+                if (tile_groups >= MAX_TILE_GROUPS) break;
+                if (scriptfile_getstring(script,&name)) break;
+                if (scriptfile_getbraces(script,&end)) break;
+
+                s_TileGroups[tile_groups].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES,sizeof(int32_t));
+                s_TileGroups[tile_groups].szText = Bstrdup(name);
+
+                while (script->textptr < end)
+                {
+                    tokenlist tgtokens2[] =
+                    {
+                        { "tilegroup",  T_TILEGROUP   },
+                        { "tile",       T_TILE        },
+                        { "tilerange",  T_TILERANGE   },
+                        { "hotkey",     T_HOTKEY      },
+                        { "tiles",      T_TILES       },
+                        { "colors",     T_COLORS      },
+                    };
+
+                    int32_t token = getatoken(script,tgtokens2,sizeof(tgtokens2)/sizeof(tokenlist));
+                    switch (token)
+                    {
+                    case T_TILE:
+                        {
+                            if (scriptfile_getsymbol(script,&i)) break;
+                            if (i >= 0 && i < MAXTILES && s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES)
+                                s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i;
+                            //                    OSD_Printf("added tile %d to group %d\n",i,g);
+                            break;
+                        }
+                    case T_TILERANGE:
+                        {
+                            int32_t j;
+                            if (scriptfile_getsymbol(script,&i)) break;
+                            if (scriptfile_getsymbol(script,&j)) break;
+                            if (i < 0 || i >= MAXTILES || j < 0 || j >= MAXTILES) break;
+                            while (s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES && i <= j)
+                            {
+                                s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i++;
+                                //                        OSD_Printf("added tile %d to group %d\n",i,g);
+                            }
+                            break;
+                        }
+                    case T_COLORS:
+                        {
+                            int32_t j;
+                            if (scriptfile_getsymbol(script, &i)) break;
+                            if (scriptfile_getsymbol(script, &j)) break;
+                            if (i < 0 || i >= 256 || j < 0 || j >= 256) break;
+                            s_TileGroups[tile_groups].color1 = i;
+                            s_TileGroups[tile_groups].color2 = j;
+                            break;
+                        }
+                    case T_HOTKEY:
+                        {
+                            char *c;
+                            if (scriptfile_getstring(script,&c)) break;
+                            s_TileGroups[tile_groups].key1 = Btoupper(c[0]);
+                            s_TileGroups[tile_groups].key2 = Btolower(c[0]);
+                            break;
+                        }
+                    case T_TILES:
+                        {
+                            char *end2;
+                            if (scriptfile_getbraces(script,&end2)) break;
+                            while (script->textptr < end2-1)
+                            {
+                                if (!scriptfile_getsymbol(script,&i))
+                                {
+                                    if (i >= 0 && i < MAXTILES && s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES)
+                                        s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i;
+                                    //                    OSD_Printf("added tile %d to group %d\n",i,g);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                s_TileGroups[tile_groups].pIds = Brealloc(s_TileGroups[tile_groups].pIds,s_TileGroups[tile_groups].nIds*sizeof(int32_t));
+                tile_groups++;
+                break;
+            }
+        case T_ALPHABET:
+            {
+                char *end;
+                int32_t i, j, k;
+
+                if (numalphabets >= MAX_ALPHABETS) break;
+                if (scriptfile_getbraces(script,&end)) break;
+
+                for (i=0; i<NUMPRINTABLES; i++)
+                {
+                    alphabets[numalphabets].pic[i] = -1;
+                    alphabets[numalphabets].xofs[i] = 0;
+                    alphabets[numalphabets].yofs[i] = 0;
+                }
+
+                while (script->textptr < end)
+                {
+                    tokenlist alphtokens2[] =
+                    {
+                        { "map",        T_MAP         },
+                        { "mapa",       T_MAPA        },
+                        { "maprange",   T_MAPRANGE    },
+                        { "maprangea",  T_MAPRANGEA   },
+                        { "offset",     T_OFFSET      },
+                        { "offseta",    T_OFFSETA     },
+                    };
+
+                    int32_t token = getatoken(script,alphtokens2,sizeof(alphtokens2)/sizeof(tokenlist));
+                    switch (token)
+                    {
+                    case T_MAP:  // map <ascii num> <start tilenum>, e.g. map 46 3002
+                        {
+                            if (scriptfile_getnumber(script,&i)) break;
+                            if (scriptfile_getsymbol(script,&j)) break;
+
+                            if (i>=33 && i<=126 && j>= 0 && j<MAXTILES)
+                                alphabets[numalphabets].pic[i-33] = j;
+
+                            break;
+                        }
+                    case T_MAPA:  // mapa <ascii string> <start tilenum>, e.g. map ".,!?" 3002
+                        {
+                            char *s;
+                            if (scriptfile_getstring(script,&s)) break;
+                            if (scriptfile_getsymbol(script,&i)) break;
+
+                            for (; *s; s++, i++)
+                            {
+                                if (*s>=33 && *s<=126 && i>= 0 && i<MAXTILES)
+                                    alphabets[numalphabets].pic[(*s)-33] = i;
+                            }
+                            break;
+                        }
+                        // maprange <start ascii num> <end ascii num> <start tilenum>, e.g. map 33 126 STARTALPHANUM
+                        // maprangea <start char> <end char> <start tilenum>, e.g. map "!" "~" STARTALPHANUM
+                    case T_MAPRANGE:
+                    case T_MAPRANGEA:
+                        {
+                            if (token==T_MAPRANGE)
+                            {
+                                if (scriptfile_getnumber(script,&i)) break;
+                                if (scriptfile_getnumber(script,&j)) break;
+                            }
+                            else
+                            {
+                                char *c1, *c2;
+                                if (scriptfile_getstring(script,&c1)) break;
+                                if (scriptfile_getstring(script,&c2)) break;
+                                i=*c1;
+                                j=*c2;
+                            }
+                            if (scriptfile_getsymbol(script,&k)) break;
+
+                            if (i>126 || j<33) break;
+                            for (; i<=j && k<MAXTILES; i++, k++)
+                            {
+                                if (i>=33 && i<=126)
+                                    alphabets[numalphabets].pic[i-33] = k;
+                            }
+                            break;
+                        }
+                    case T_OFFSET:  // offset <ascii num> <xoffset> <yoffset>
+                        {
+                            if (scriptfile_getnumber(script, &i)) break;
+                            if (scriptfile_getnumber(script, &j)) break;
+                            if (scriptfile_getnumber(script, &k)) break;
+
+                            if (i >= 33 && i <= 126)
+                            {
+                                alphabets[numalphabets].xofs[i-33] = j;
+                                alphabets[numalphabets].yofs[i-33] = k;
+                            }
+                            break;
+                        }
+                    case T_OFFSETA:  // offseta <ascii string> <xoffset> <yoffset>
+                        {
+                            char *s;
+                            if (scriptfile_getstring(script, &s)) break;
+                            if (scriptfile_getnumber(script, &i)) break;
+                            if (scriptfile_getnumber(script, &j)) break;
+
+                            for (; *s; s++)
+                                if (*s >= 33 && *s <= 126)
+                                {
+                                    alphabets[numalphabets].xofs[(*s)-33] = i;
+                                    alphabets[numalphabets].yofs[(*s)-33] = j;
+                                }
+                                break;
+                        }
+                    }
+                }
+                numalphabets++;
+                break;
+            }
         case T_EOF:
             return(0);
         default:
@@ -9427,113 +9445,113 @@ int32_t parseconsounds(scriptfile *script)
         switch (tokn)
         {
         case T_INCLUDE:
-        {
-            char *fn;
-            if (!scriptfile_getstring(script,&fn))
             {
-                scriptfile *included;
+                char *fn;
+                if (!scriptfile_getstring(script,&fn))
+                {
+                    scriptfile *included;
 
-                included = scriptfile_fromfile(fn);
-                if (!included)
-                {
-                    initprintf("Warning: Failed including %s on line %s:%d\n",
-                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                    included = scriptfile_fromfile(fn);
+                    if (!included)
+                    {
+                        initprintf("Warning: Failed including %s on line %s:%d\n",
+                            fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                    }
+                    else
+                    {
+                        int32_t tmp = parseconsounds(included);
+                        scriptfile_close(included);
+                        if (tmp < 0) return tmp;
+                    }
                 }
-                else
-                {
-                    int32_t tmp = parseconsounds(included);
-                    scriptfile_close(included);
-                    if (tmp < 0) return tmp;
-                }
+                break;
             }
-            break;
-        }
         case T_DEFINE:
-        {
-            char *name;
-            int32_t number;
+            {
+                char *name;
+                int32_t number;
 
-            if (scriptfile_getstring(script,&name)) break;
-            if (scriptfile_getsymbol(script,&number)) break;
-            if (scriptfile_addsymbolvalue(name,number) < 0)
-                initprintf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
-                           name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
-            break;
-        }
+                if (scriptfile_getstring(script,&name)) break;
+                if (scriptfile_getsymbol(script,&number)) break;
+                if (scriptfile_addsymbolvalue(name,number) < 0)
+                    initprintf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
+                    name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
         case T_DEFINESOUND:
-        {
-            char *definedname, *filename;
-            int32_t sndnum, ps, pe, pr, m, vo;
-            int32_t slen;
-
-            if (scriptfile_getsymbol(script, &sndnum)) break;
-
-            definedname = Bstrdup(script->ltextptr);
-            if (!definedname) return -1;
-
-            if (sndnum < 0 || sndnum >= MAXSOUNDS)
             {
-                initprintf("Warning: invalid sound definition %s (sound number < 0 or >= MAXSOUNDS) on line %s:%d\n",
-                           definedname, script->filename,scriptfile_getlinum(script,cmdtokptr));
-                num_invalidsounds++;
-                break;
-            }
+                char *definedname, *filename;
+                int32_t sndnum, ps, pe, pr, m, vo;
+                int32_t slen;
 
-            if (scriptfile_getstring(script, &filename))
-            {
-                Bfree(definedname);
-                num_invalidsounds++;
-                break;
-            }
+                if (scriptfile_getsymbol(script, &sndnum)) break;
 
-            slen = strlen(filename);
-            if (slen >= BMAX_PATH)
-            {
-                initprintf("Warning: invalid sound definition %s (filename too long) on line %s:%d\n",
-                           definedname, script->filename,scriptfile_getlinum(script,cmdtokptr));
-                Bfree(definedname);
-                num_invalidsounds++;
-                break;
-            }
+                definedname = Bstrdup(script->ltextptr);
+                if (!definedname) return -1;
 
-            if (g_sounds[sndnum].filename == NULL)
-                g_sounds[sndnum].filename = Bcalloc(slen+1,sizeof(uint8_t));
-            // Hopefully noone does memcpy(..., g_sounds[].filename, BMAX_PATH)
-            if (!g_sounds[sndnum].filename)
-            {
-                Bfree(definedname);
-                return -1;
-            }
-            Bmemcpy(g_sounds[sndnum].filename, filename, slen+1);
+                if (sndnum < 0 || sndnum >= MAXSOUNDS)
+                {
+                    initprintf("Warning: invalid sound definition %s (sound number < 0 or >= MAXSOUNDS) on line %s:%d\n",
+                        definedname, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                    num_invalidsounds++;
+                    break;
+                }
 
-            if (scriptfile_getnumber(script, &ps)) goto BAD;
-            if (scriptfile_getnumber(script, &pe)) goto BAD;
-            if (scriptfile_getnumber(script, &pr)) goto BAD;
-            if (scriptfile_getnumber(script, &m)) goto BAD;
-            if (ParentalLock && (m&8)) goto BAD;
-            if (scriptfile_getnumber(script, &vo)) goto BAD;
-            if (0)
-            {
+                if (scriptfile_getstring(script, &filename))
+                {
+                    Bfree(definedname);
+                    num_invalidsounds++;
+                    break;
+                }
+
+                slen = strlen(filename);
+                if (slen >= BMAX_PATH)
+                {
+                    initprintf("Warning: invalid sound definition %s (filename too long) on line %s:%d\n",
+                        definedname, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                    Bfree(definedname);
+                    num_invalidsounds++;
+                    break;
+                }
+
+                if (g_sounds[sndnum].filename == NULL)
+                    g_sounds[sndnum].filename = Bcalloc(slen+1,sizeof(uint8_t));
+                // Hopefully noone does memcpy(..., g_sounds[].filename, BMAX_PATH)
+                if (!g_sounds[sndnum].filename)
+                {
+                    Bfree(definedname);
+                    return -1;
+                }
+                Bmemcpy(g_sounds[sndnum].filename, filename, slen+1);
+
+                if (scriptfile_getnumber(script, &ps)) goto BAD;
+                if (scriptfile_getnumber(script, &pe)) goto BAD;
+                if (scriptfile_getnumber(script, &pr)) goto BAD;
+                if (scriptfile_getnumber(script, &m)) goto BAD;
+                if (ParentalLock && (m&8)) goto BAD;
+                if (scriptfile_getnumber(script, &vo)) goto BAD;
+                if (0)
+                {
 BAD:
-                Bfree(definedname);
-                Bfree(g_sounds[sndnum].filename);
-                g_sounds[sndnum].filename = NULL;
-                num_invalidsounds++;
+                    Bfree(definedname);
+                    Bfree(g_sounds[sndnum].filename);
+                    g_sounds[sndnum].filename = NULL;
+                    num_invalidsounds++;
+                    break;
+                }
+
+                g_sounds[sndnum].definedname = definedname;  // we want to keep it for display purposes
+                g_sounds[sndnum].ps = ps;
+                g_sounds[sndnum].pe = pe;
+                g_sounds[sndnum].pr = pr;
+                g_sounds[sndnum].m = m;
+                g_sounds[sndnum].vo = vo;
+                g_sndnum[g_numsounds] = g_definedsndnum[g_numsounds] = sndnum;
+                g_numsounds++;
+                if (g_numsounds == MAXSOUNDS)
+                    goto END;
                 break;
             }
-
-            g_sounds[sndnum].definedname = definedname;  // we want to keep it for display purposes
-            g_sounds[sndnum].ps = ps;
-            g_sounds[sndnum].pe = pe;
-            g_sounds[sndnum].pr = pr;
-            g_sounds[sndnum].m = m;
-            g_sounds[sndnum].vo = vo;
-            g_sndnum[g_numsounds] = g_definedsndnum[g_numsounds] = sndnum;
-            g_numsounds++;
-            if (g_numsounds == MAXSOUNDS)
-                goto END;
-            break;
-        }
         case T_EOF:
             goto END;
         default:
@@ -9633,13 +9651,13 @@ int32_t ExtInit(void)
         {
             Bsnprintf(cwd,sizeof(cwd),"%s/"
 #if defined(_WIN32)
-                      "EDuke32 Settings"
+                "EDuke32 Settings"
 #elif defined(__APPLE__)
-                      "Library/Application Support/EDuke32"
+                "Library/Application Support/EDuke32"
 #else
-                      ".eduke32"
+                ".eduke32"
 #endif
-                      ,homedir);
+                ,homedir);
             asperr = addsearchpath(cwd);
             if (asperr == -2)
             {
@@ -9718,8 +9736,8 @@ int32_t ExtInit(void)
         int32_t i;
 #if 0
         i=wm_ynbox("Texture Cache",
-                   "Would you like to enable the on-disk texture cache?\n\n"
-                   "You generally want to say 'yes' here, especially if using the HRP.");
+            "Would you like to enable the on-disk texture cache?\n\n"
+            "You generally want to say 'yes' here, especially if using the HRP.");
 #else
         i = 1;
 #endif
@@ -9756,15 +9774,15 @@ int32_t ExtInit(void)
 #if defined(_WIN32) && defined(DUKEOSD)
     OSD_SetFunctions(
         /*  	  GAME_drawosdchar,
-                GAME_drawosdstr,
-                GAME_drawosdcursor,
-                GAME_getcolumnwidth,
-        		GAME_getrowheight,*/
+        GAME_drawosdstr,
+        GAME_drawosdcursor,
+        GAME_getcolumnwidth,
+        GAME_getrowheight,*/
         0,0,0,0,0,
         GAME_clearbackground,
         (int32_t(*)(void))GetTime,
         NULL
-    );
+        );
 #endif
 
     OSD_SetParameters(0,2, 0,0, 4,0);
@@ -9835,7 +9853,7 @@ extern int32_t graphicsmode;
 
 void ExtPreCheckKeys(void) // just before drawrooms
 {
-    int32_t i = 0;
+    int32_t i = 0, ii;
     int32_t radius, xp1, yp1;
     int32_t col;
     int32_t picnum, frames;
@@ -9912,14 +9930,15 @@ void ExtPreCheckKeys(void) // just before drawrooms
     }
     begindrawing();
 
-//    if (cursectornum >= 0)
-//        fillsector(cursectornum, 31);
+    //    if (cursectornum >= 0)
+    //        fillsector(cursectornum, 31);
 
     if (graphicsmode && zoom >= 256)
     {
-        for (i=0; i<numsprites; i++)
+        for (i=ii=0; i<MAXSPRITES && ii < numsprites; i++)
         {
             if ((sprite[i].cstat & 48) != 0 || sprite[i].statnum == MAXSTATUS) continue;
+            ii++;
             picnum = sprite[i].picnum;
             ang = flags = frames = shade = 0;
 
@@ -9970,39 +9989,39 @@ void ExtPreCheckKeys(void) // just before drawrooms
             case LIZMANFEEDING :
             case LIZMANJUMP :
 
-            {
-                int32_t k;
-                if (frames!=0)
                 {
-                    if (frames==10) frames=0;
-                    k = 1536;//getangle(tspr->x-pos.x,tspr->y-pos.y);
-                    k = (((sprite[i].ang+3072+128-k)&2047)>>8)&7;
-                    //This guy has only 5 pictures for 8 angles (3 are x-flipped)
-                    if (k <= 4)
+                    int32_t k;
+                    if (frames!=0)
                     {
-                        picnum += k;
-                        ang = 0;
-                        flags &= ~4;
+                        if (frames==10) frames=0;
+                        k = 1536;//getangle(tspr->x-pos.x,tspr->y-pos.y);
+                        k = (((sprite[i].ang+3072+128-k)&2047)>>8)&7;
+                        //This guy has only 5 pictures for 8 angles (3 are x-flipped)
+                        if (k <= 4)
+                        {
+                            picnum += k;
+                            ang = 0;
+                            flags &= ~4;
+                        }
+                        else
+                        {
+                            picnum += 8-k;
+                            ang = 1024;
+                            flags |= 4;
+                        }
                     }
-                    else
+
+                    if (graphicsmode == 2)
                     {
-                        picnum += 8-k;
-                        ang = 1024;
-                        flags |= 4;
+                        if (frames==2) picnum+=((((4-(totalclock>>5)))&1)*5);
+                        if (frames==4) picnum+=((((4-(totalclock>>5)))&3)*5);
+                        if (frames==5) picnum+=(((totalclock>>5)%5))*5;
                     }
-                }
 
-                if (graphicsmode == 2)
-                {
-                    if (frames==2) picnum+=((((4-(totalclock>>5)))&1)*5);
-                    if (frames==4) picnum+=((((4-(totalclock>>5)))&3)*5);
-                    if (frames==5) picnum+=(((totalclock>>5)%5))*5;
+                    if (tilesizx[picnum] == 0)
+                        picnum -= 5;       //Hack, for actors
                 }
-
-                if (tilesizx[picnum] == 0)
-                    picnum -= 5;       //Hack, for actors
-            }
-            break;
+                break;
             default:
                 break;
 
@@ -10025,7 +10044,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
             if (xp1 < 4 || xp1 > xdim-6 || yp1 < 4 || yp1 > ydim16-6)
                 continue;
             rotatesprite(xp1<<16,yp1<<16,zoom<<5,ang,picnum,
-                         shade,sprite[i].pal,flags,0,0,xdim-1,ydim16-1);
+                shade,sprite[i].pal,flags,0,0,xdim-1,ydim16-1);
         }
     }
 
@@ -10042,11 +10061,11 @@ void ExtPreCheckKeys(void) // just before drawrooms
             drawlinepat = 0xf0f0f0f0;
             drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, editorcolors[(int32_t)col]);
             drawlinepat = 0xffffffff;
-//            radius = mulscale15(sprite[i].hitag,zoom);
+            //            radius = mulscale15(sprite[i].hitag,zoom);
             //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
         }
 
-    enddrawing();
+        enddrawing();
 }
 
 void ExtAnalyzeSprites(void)
@@ -10084,7 +10103,7 @@ void ExtAnalyzeSprites(void)
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = SH;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].minshade = sprite[i].xoffset;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].maxshade = sprite[i].yoffset;
-//            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = SS;
+            //            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = SS;
 
             if (CS & 2)
             {
@@ -10146,10 +10165,10 @@ void ExtAnalyzeSprites(void)
 
         if (nosprites==1||nosprites==3)
             switch (tspr->picnum)
-            {
+        {
             case SEENINE :
                 tspr->xrepeat=0;
-            }
+        }
 
         if (shadepreview && !(tspr->cstat & 16))
         {
@@ -10276,11 +10295,10 @@ static void Keys2d3d(void)
 
     if (mapstate == NULL)
     {
-        mapstate = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
-        map_revision = 0;
+        //        map_revision = 0;
         create_map_snapshot(); // initial map state
-        Bfree(mapstate->next);
-        mapstate = mapstate->prev;
+        //        Bfree(mapstate->next);
+        //        mapstate = mapstate->prev;
     }
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_A]) // ' a
@@ -10355,11 +10373,11 @@ static void Keys2d3d(void)
 
                 lastsave=totalclock;
                 highlightcnt = -1;
-//  			  sectorhighlightstat = -1;
-//  			  newnumwalls = -1;
-//  			  joinsector[0] = -1;
-//  			  circlewall = -1;
-//  			  circlepoints = 7;
+                //  			  sectorhighlightstat = -1;
+                //  			  newnumwalls = -1;
+                //  			  joinsector[0] = -1;
+                //  			  circlewall = -1;
+                //  			  circlepoints = 7;
 
                 for (i=MAXSECTORS-1; i>=0; i--) sector[i].extra = -1;
                 for (i=MAXWALLS-1; i>=0; i--) wall[i].extra = -1;
@@ -10404,50 +10422,50 @@ static void Keys2d3d(void)
                 NULL,
                 (int32_t(*)(void))GetTime,
                 NULL
-            );
+                );
         }
         else
         {
             OSD_SetFunctions(
                 /*  			  GAME_drawosdchar,
-                                GAME_drawosdstr,
-                                GAME_drawosdcursor,
-                                GAME_getcolumnwidth,
-                				GAME_getrowheight,*/
+                GAME_drawosdstr,
+                GAME_drawosdcursor,
+                GAME_getcolumnwidth,
+                GAME_getrowheight,*/
                 0,0,0,0,0,
                 GAME_clearbackground,
                 (int32_t(*)(void))GetTime,
                 NULL
-            );
+                );
         }
 #endif
     }
 
     if (getmessageleng > 0)
     {
-//        charsperline = 64;
+        //        charsperline = 64;
         //if (dimensionmode[snum] == 2) charsperline = 80;
         /*        if (qsetmode == 200)
-                {
-                    for (i=0;i<=getmessageleng;i+=charsperline)
-                    {
-                        for (j=0;j<charsperline;j++)
-                            tempbuf[j] = getmessage[i+j];
-                        if (getmessageleng < i+charsperline)
-                            tempbuf[(getmessageleng-i)] = 0;
-                        else
-                            tempbuf[charsperline] = 0;
-                        begindrawing();
-                        if (tempbuf[charsperline] != 0)
-                        {
-                            printext256((MESSAGEX*(xdimgame/320.))+2,(MESSAGEY*(ydimgame/200.))+2,0,-1,tempbuf,xdimgame>640?0:1);
-                            printext256(MESSAGEX*(xdimgame/320.),MESSAGEY*(ydimgame/200.),
-                                        (totalclock > (lastmessagetime + 120*5))?whitecol:256-5,-1,tempbuf,xdimgame>640?0:1);
-                        }
-                        enddrawing();
-                    }
-                }
-                else */
+        {
+        for (i=0;i<=getmessageleng;i+=charsperline)
+        {
+        for (j=0;j<charsperline;j++)
+        tempbuf[j] = getmessage[i+j];
+        if (getmessageleng < i+charsperline)
+        tempbuf[(getmessageleng-i)] = 0;
+        else
+        tempbuf[charsperline] = 0;
+        begindrawing();
+        if (tempbuf[charsperline] != 0)
+        {
+        printext256((MESSAGEX*(xdimgame/320.))+2,(MESSAGEY*(ydimgame/200.))+2,0,-1,tempbuf,xdimgame>640?0:1);
+        printext256(MESSAGEX*(xdimgame/320.),MESSAGEY*(ydimgame/200.),
+        (totalclock > (lastmessagetime + 120*5))?whitecol:256-5,-1,tempbuf,xdimgame>640?0:1);
+        }
+        enddrawing();
+        }
+        }
+        else */
         if (qsetmode != 200)
             printmessage16(getmessage);
         if (totalclock > getmessagetimeoff)
@@ -10496,14 +10514,14 @@ void ExtCheckKeys(void)
                             wallflag[w] = 0;
                         }
                         /*                        if (wall[w].nextwall >= 0)
-                                                {
-                                                    if (wallflag[wall[w].nextwall])
-                                                    {
-                                                        wall[wall[w].nextwall].shade = wallshades[wall[w].nextwall];
-                                                        wall[wall[w].nextwall].pal = wallpals[wall[w].nextwall];
-                                                        wallflag[wall[w].nextwall] = 0;
-                                                    }
-                                                } */
+                        {
+                        if (wallflag[wall[w].nextwall])
+                        {
+                        wall[wall[w].nextwall].shade = wallshades[wall[w].nextwall];
+                        wall[wall[w].nextwall].pal = wallpals[wall[w].nextwall];
+                        wallflag[wall[w].nextwall] = 0;
+                        }
+                        } */
                     }
                     sector[sprite[i].sectnum].floorshade = sectorshades[sprite[i].sectnum][0];
                     sector[sprite[i].sectnum].ceilingshade = sectorshades[sprite[i].sectnum][1];
@@ -10539,14 +10557,15 @@ void ExtCheckKeys(void)
 
     if (asksave == 1 && (bstatus + lastbstatus) == 0 && mapstate)
     {
-//        message("Saved undo rev %d",map_revision);
+        //        message("Saved undo rev %d",map_revision);
         create_map_snapshot();
-        asksave = 2;
+        asksave++;
     }
+    else if (asksave == 2) asksave++;
 
     if ((totalclock > autosavetimer) && (autosave))
     {
-        if (asksave == 2)
+        if (asksave == 3)
         {
             fixspritesectors();   //Do this before saving!
             //             updatesector(startposx,startposy,&startsectnum);
@@ -10554,7 +10573,7 @@ void ExtCheckKeys(void)
             saveboard("autosave.map",&startposx,&startposy,&startposz,&startang,&startsectnum);
             ExtSaveMap("autosave.map");
             message("Board autosaved to AUTOSAVE.MAP");
-            asksave = 3;
+            asksave = 4;
         }
         autosavetimer = totalclock+120*autosave;
     }
@@ -11125,7 +11144,7 @@ static void EditSpriteData(int16_t spritenum)
     int32_t xpos = 8, ypos = ydim-STATUS2DSIZ+48;
 
     disptext[dispwidth] = 0;
-//    clearmidstatbar16();
+    //    clearmidstatbar16();
 
     col = whitecol-16;
 
@@ -11178,27 +11197,27 @@ static void EditSpriteData(int16_t spritenum)
             switch (col)
             {
             case 1:
-            {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                col = 0;
-                xpos = 8;
-                rowmax = 4;
-                dispwidth = 23;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            }
-            break;
+                {
+                    printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                    col = 0;
+                    xpos = 8;
+                    rowmax = 4;
+                    dispwidth = 23;
+                    disptext[dispwidth] = 0;
+                    if (row > rowmax) row = rowmax;
+                }
+                break;
             case 2:
-            {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                col = 1;
-                xpos = 208;
-                rowmax = 5;
-                dispwidth = 24;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            }
-            break;
+                {
+                    printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                    col = 1;
+                    xpos = 208;
+                    rowmax = 5;
+                    dispwidth = 24;
+                    disptext[dispwidth] = 0;
+                    if (row > rowmax) row = rowmax;
+                }
+                break;
             }
             keystatus[KEYSC_LEFT] = 0;
         }
@@ -11207,27 +11226,27 @@ static void EditSpriteData(int16_t spritenum)
             switch (col)
             {
             case 0:
-            {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                col = 1;
-                xpos = 208;
-                rowmax = 5;
-                dispwidth = 24;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            }
-            break;
+                {
+                    printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                    col = 1;
+                    xpos = 208;
+                    rowmax = 5;
+                    dispwidth = 24;
+                    disptext[dispwidth] = 0;
+                    if (row > rowmax) row = rowmax;
+                }
+                break;
             case 1:
-            {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                col = 2;
-                xpos = 408;
-                rowmax = 6;
-                dispwidth = 26;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            }
-            break;
+                {
+                    printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                    col = 2;
+                    xpos = 408;
+                    rowmax = 6;
+                    dispwidth = 26;
+                    disptext[dispwidth] = 0;
+                    if (row > rowmax) row = rowmax;
+                }
+                break;
             }
             keystatus[KEYSC_RIGHT] = 0;
         }
@@ -11239,234 +11258,234 @@ static void EditSpriteData(int16_t spritenum)
         switch (col)
         {
         case 0:
-        {
-            switch (row)
             {
-            case 0:
-            {
-                for (i=Bsprintf(disptext,"X-coordinate: %d",sprite[spritenum].x); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d X-coordinate: ",spritenum);
-                if (editval)
+                switch (row)
                 {
-                    printmessage16(edittext);
-                    sprite[spritenum].x = getnumber16(edittext,sprite[spritenum].x,131072,1);
+                case 0:
+                    {
+                        for (i=Bsprintf(disptext,"X-coordinate: %d",sprite[spritenum].x); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d X-coordinate: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].x = getnumber16(edittext,sprite[spritenum].x,131072,1);
+                        }
+                    }
+                    break;
+                case 1:
+                    {
+                        for (i=Bsprintf(disptext,"Y-coordinate: %d",sprite[spritenum].y); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Y-coordinate: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].y = getnumber16(edittext,sprite[spritenum].y,131072,1);
+                        }
+                    }
+                    break;
+                case 2:
+                    {
+                        for (i=Bsprintf(disptext,"Z-coordinate: %d",sprite[spritenum].z); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Z-coordinate: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].z = getnumber16(edittext,sprite[spritenum].z,8388608,1); //2147483647L,-2147483648L
+                        }
+                    }
+                    break;
+                case 3:
+                    {
+                        for (i=Bsprintf(disptext,"Sectnum: %d",sprite[spritenum].sectnum); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Sectnum: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            i = getnumber16(edittext,sprite[spritenum].sectnum,MAXSECTORS-1,0);
+                            if (i != sprite[spritenum].sectnum)
+                                changespritesect(spritenum,i);
+                        }
+                    }
+                    break;
+                case 4:
+                    {
+                        for (i=Bsprintf(disptext,"Statnum: %d",sprite[spritenum].statnum); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Statnum: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            i = getnumber16(edittext,sprite[spritenum].statnum,MAXSTATUS-1,0);
+                            if (i != sprite[spritenum].statnum)
+                                changespritestat(spritenum,i);
+                        }
+                    }
+                    break;
                 }
             }
             break;
-            case 1:
-            {
-                for (i=Bsprintf(disptext,"Y-coordinate: %d",sprite[spritenum].y); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Y-coordinate: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].y = getnumber16(edittext,sprite[spritenum].y,131072,1);
-                }
-            }
-            break;
-            case 2:
-            {
-                for (i=Bsprintf(disptext,"Z-coordinate: %d",sprite[spritenum].z); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Z-coordinate: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].z = getnumber16(edittext,sprite[spritenum].z,8388608,1); //2147483647L,-2147483648L
-                }
-            }
-            break;
-            case 3:
-            {
-                for (i=Bsprintf(disptext,"Sectnum: %d",sprite[spritenum].sectnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Sectnum: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    i = getnumber16(edittext,sprite[spritenum].sectnum,MAXSECTORS-1,0);
-                    if (i != sprite[spritenum].sectnum)
-                        changespritesect(spritenum,i);
-                }
-            }
-            break;
-            case 4:
-            {
-                for (i=Bsprintf(disptext,"Statnum: %d",sprite[spritenum].statnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Statnum: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    i = getnumber16(edittext,sprite[spritenum].statnum,MAXSTATUS-1,0);
-                    if (i != sprite[spritenum].statnum)
-                        changespritestat(spritenum,i);
-                }
-            }
-            break;
-            }
-        }
-        break;
         case 1:
-        {
-            switch (row)
             {
-            case 0:
-            {
-                for (i=Bsprintf(disptext,"Flags (hex): %x",sprite[spritenum].cstat); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Flags: ",spritenum);
-                if (editval)
+                switch (row)
                 {
-                    printmessage16(edittext);
-                    sprite[spritenum].cstat = (int16_t)getnumber16(edittext,(int32_t)sprite[spritenum].cstat,65536L,0);
+                case 0:
+                    {
+                        for (i=Bsprintf(disptext,"Flags (hex): %x",sprite[spritenum].cstat); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Flags: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].cstat = (int16_t)getnumber16(edittext,(int32_t)sprite[spritenum].cstat,65536L,0);
+                        }
+                    }
+                    break;
+                case 1:
+                    {
+                        for (i=Bsprintf(disptext,"Shade: %d",sprite[spritenum].shade); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Shade: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].shade = (char)getnumber16(edittext,(int32_t)sprite[spritenum].shade,128,1);
+                        }
+                    }
+                    break;
+                case 2:
+                    {
+                        for (i=Bsprintf(disptext,"Pal: %d",sprite[spritenum].pal); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Pal: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].pal = (char)getnumber16(edittext,(int32_t)sprite[spritenum].pal,MAXPALOOKUPS,0);
+                        }
+                    }
+                    break;
+                case 3:
+                    {
+                        for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
+                        {
+                            Bsprintf(edittext,"Sprite %d X Repeat: ",spritenum);
+                            printmessage16(edittext);
+                            sprite[spritenum].xrepeat = (char)getnumber16(edittext,(int32_t)sprite[spritenum].xrepeat,256L,0);
+                            Bsprintf(edittext,"Sprite %d Y Repeat: ",spritenum);
+                            printmessage16(edittext);
+                            sprite[spritenum].yrepeat = (char)getnumber16(edittext,(int32_t)sprite[spritenum].yrepeat,256L,0);
+                        }
+                    }
+                    break;
+                case 4:
+                    {
+                        for (i=Bsprintf(disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
+                        {
+                            Bsprintf(edittext,"Sprite %d X Offset: ",spritenum);
+                            printmessage16(edittext);
+                            sprite[spritenum].xoffset = (char)getnumber16(edittext,(int32_t)sprite[spritenum].xoffset,128L,1);
+                            Bsprintf(edittext,"Sprite %d Y Offset: ",spritenum);
+                            printmessage16(edittext);
+                            sprite[spritenum].yoffset = (char)getnumber16(edittext,(int32_t)sprite[spritenum].yoffset,128L,1);
+                        }
+                    }
+                    break;
+                case 5:
+                    {
+                        for (i=Bsprintf(disptext,"Tile number: %d",sprite[spritenum].picnum); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Tile number: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].picnum = (int16_t)getnumber16(edittext,(int32_t)sprite[spritenum].picnum,MAXTILES,0);
+                        }
+                    }
+                    break;
                 }
             }
             break;
-            case 1:
-            {
-                for (i=Bsprintf(disptext,"Shade: %d",sprite[spritenum].shade); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Shade: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].shade = (char)getnumber16(edittext,(int32_t)sprite[spritenum].shade,128,1);
-                }
-            }
-            break;
-            case 2:
-            {
-                for (i=Bsprintf(disptext,"Pal: %d",sprite[spritenum].pal); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Pal: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].pal = (char)getnumber16(edittext,(int32_t)sprite[spritenum].pal,MAXPALOOKUPS,0);
-                }
-            }
-            break;
-            case 3:
-            {
-                for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    Bsprintf(edittext,"Sprite %d X Repeat: ",spritenum);
-                    printmessage16(edittext);
-                    sprite[spritenum].xrepeat = (char)getnumber16(edittext,(int32_t)sprite[spritenum].xrepeat,256L,0);
-                    Bsprintf(edittext,"Sprite %d Y Repeat: ",spritenum);
-                    printmessage16(edittext);
-                    sprite[spritenum].yrepeat = (char)getnumber16(edittext,(int32_t)sprite[spritenum].yrepeat,256L,0);
-                }
-            }
-            break;
-            case 4:
-            {
-                for (i=Bsprintf(disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    Bsprintf(edittext,"Sprite %d X Offset: ",spritenum);
-                    printmessage16(edittext);
-                    sprite[spritenum].xoffset = (char)getnumber16(edittext,(int32_t)sprite[spritenum].xoffset,128L,1);
-                    Bsprintf(edittext,"Sprite %d Y Offset: ",spritenum);
-                    printmessage16(edittext);
-                    sprite[spritenum].yoffset = (char)getnumber16(edittext,(int32_t)sprite[spritenum].yoffset,128L,1);
-                }
-            }
-            break;
-            case 5:
-            {
-                for (i=Bsprintf(disptext,"Tile number: %d",sprite[spritenum].picnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Tile number: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].picnum = (int16_t)getnumber16(edittext,(int32_t)sprite[spritenum].picnum,MAXTILES,0);
-                }
-            }
-            break;
-            }
-        }
-        break;
         case 2:
-        {
-            switch (row)
             {
-            case 0:
-            {
-                for (i=Bsprintf(disptext,"Angle (2048 degrees): %d",sprite[spritenum].ang); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Angle: ",spritenum);
-                if (editval)
+                switch (row)
                 {
-                    printmessage16(edittext);
-                    sprite[spritenum].ang = (int16_t)getnumber16(edittext,(int32_t)sprite[spritenum].ang,2048L,0);
+                case 0:
+                    {
+                        for (i=Bsprintf(disptext,"Angle (2048 degrees): %d",sprite[spritenum].ang); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Angle: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].ang = (int16_t)getnumber16(edittext,(int32_t)sprite[spritenum].ang,2048L,0);
+                        }
+                    }
+                    break;
+                case 1:
+                    {
+                        for (i=Bsprintf(disptext,"X-Velocity: %d",sprite[spritenum].xvel); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d X-Velocity: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].xvel = getnumber16(edittext,(int32_t)sprite[spritenum].xvel,65536,1);
+                        }
+                    }
+                    break;
+                case 2:
+                    {
+                        for (i=Bsprintf(disptext,"Y-Velocity: %d",sprite[spritenum].yvel); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Y-Velocity: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].yvel = getnumber16(edittext,(int32_t)sprite[spritenum].yvel,65536,1);
+                        }
+                    }
+                    break;
+                case 3:
+                    {
+                        for (i=Bsprintf(disptext,"Z-Velocity: %d",sprite[spritenum].zvel); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Z-Velocity: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].zvel = getnumber16(edittext,(int32_t)sprite[spritenum].zvel,65536,1);
+                        }
+                    }
+                    break;
+                case 4:
+                    {
+                        for (i=Bsprintf(disptext,"Owner: %d",sprite[spritenum].owner); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Owner: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].owner = getnumber16(edittext,(int32_t)sprite[spritenum].owner,MAXSPRITES,0);
+                        }
+                    }
+                    break;
+                case 5:
+                    {
+                        for (i=Bsprintf(disptext,"Clipdist: %d",sprite[spritenum].clipdist); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Clipdist: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].clipdist = (char)getnumber16(edittext,(int32_t)sprite[spritenum].clipdist,256,0);
+                        }
+                    }
+                    break;
+                case 6:
+                    {
+                        for (i=Bsprintf(disptext,"Extra: %d",sprite[spritenum].extra); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite %d Extra: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].extra = getnumber16(edittext,(int32_t)sprite[spritenum].extra,65536,1);
+                        }
+                    }
+                    break;
                 }
             }
             break;
-            case 1:
-            {
-                for (i=Bsprintf(disptext,"X-Velocity: %d",sprite[spritenum].xvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d X-Velocity: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].xvel = getnumber16(edittext,(int32_t)sprite[spritenum].xvel,65536,1);
-                }
-            }
-            break;
-            case 2:
-            {
-                for (i=Bsprintf(disptext,"Y-Velocity: %d",sprite[spritenum].yvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Y-Velocity: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].yvel = getnumber16(edittext,(int32_t)sprite[spritenum].yvel,65536,1);
-                }
-            }
-            break;
-            case 3:
-            {
-                for (i=Bsprintf(disptext,"Z-Velocity: %d",sprite[spritenum].zvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Z-Velocity: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].zvel = getnumber16(edittext,(int32_t)sprite[spritenum].zvel,65536,1);
-                }
-            }
-            break;
-            case 4:
-            {
-                for (i=Bsprintf(disptext,"Owner: %d",sprite[spritenum].owner); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Owner: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].owner = getnumber16(edittext,(int32_t)sprite[spritenum].owner,MAXSPRITES,0);
-                }
-            }
-            break;
-            case 5:
-            {
-                for (i=Bsprintf(disptext,"Clipdist: %d",sprite[spritenum].clipdist); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Clipdist: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].clipdist = (char)getnumber16(edittext,(int32_t)sprite[spritenum].clipdist,256,0);
-                }
-            }
-            break;
-            case 6:
-            {
-                for (i=Bsprintf(disptext,"Extra: %d",sprite[spritenum].extra); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Extra: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].extra = getnumber16(edittext,(int32_t)sprite[spritenum].extra,65536,1);
-                }
-            }
-            break;
-            }
-        }
-        break;
         }
 
         printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
@@ -11555,110 +11574,110 @@ static void GenSearchSprite()
 
             printext16(xpos[i], ypos+j*8, editorcolors[11], editorcolors[0], disptext, 0);
         }
-    for (k=0; k<80; k++) disptext[k] = 0;
+        for (k=0; k<80; k++) disptext[k] = 0;
 
-//    disptext[dispwidth[col]] = 0;
-//    showspritedata(spritenum);
-    wallsprite = 2;
+        //    disptext[dispwidth[col]] = 0;
+        //    showspritedata(spritenum);
+        wallsprite = 2;
 
-    while (keystatus[KEYSC_ESC] == 0)
-    {
-        begindrawing();
-        if (handleevents())
+        while (keystatus[KEYSC_ESC] == 0)
         {
-            if (quitevent) quitevent = 0;
-        }
-        idle();
-        printmessage16("Sprite search, press <Esc> to exit");
-
-        if (keystatus[KEYSC_DOWN])
-        {
-            keystatus[KEYSC_DOWN] = 0;
-            if (row < rowmax[col])
-            {
-                printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                row++;
-            }
-        }
-        if (keystatus[KEYSC_UP])
-        {
-            keystatus[KEYSC_UP] = 0;
-            if (row > 0)
-            {
-                printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                row--;
-            }
-        }
-        if (keystatus[KEYSC_LEFT])
-        {
-            keystatus[KEYSC_LEFT] = 0;
-            if (col > 0)
-            {
-                printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                col--;
-                disptext[dispwidth[col]] = 0;
-                if (row > rowmax[col]) row = rowmax[col];
-            }
-        }
-        if (keystatus[KEYSC_RIGHT])
-        {
-            keystatus[KEYSC_RIGHT] = 0;
-            if (col < 2)
-            {
-                printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                col++;
-                disptext[dispwidth[col]] = 0;
-                if (row > rowmax[col]) row = rowmax[col];
-            }
-        }
-        if (keystatus[KEYSC_ENTER])
-        {
-            keystatus[KEYSC_ENTER] = 0;
-            Bsprintf(edittext, "%s: ", labels[row][col]);
-            enddrawing();
-            printmessage16(edittext);
-            i = getnumber16(edittext, gs_spritewhat[col][row] ? gs_sprite[col][row] : 0,
-                            maxval[row][col], sign[row][col]);
-            if (col == 2 && row == 0) i = (i+2048)&2047;  // angle
-            gs_sprite[col][row] = i;
             begindrawing();
-            gs_spritewhat[col][row] = 1;
+            if (handleevents())
+            {
+                if (quitevent) quitevent = 0;
+            }
+            idle();
+            printmessage16("Sprite search, press <Esc> to exit");
 
-            if (col == 1 && row == 5)  // picnum
-                printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], names[i], 0);
-        }
-        if (keystatus[KEYSC_BS] || keystatus[KEYSC_DELETE])
-        {
-            keystatus[KEYSC_BS] = keystatus[KEYSC_DELETE] = 0;
-            gs_spritewhat[col][row] = 0;
+            if (keystatus[KEYSC_DOWN])
+            {
+                keystatus[KEYSC_DOWN] = 0;
+                if (row < rowmax[col])
+                {
+                    printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                    row++;
+                }
+            }
+            if (keystatus[KEYSC_UP])
+            {
+                keystatus[KEYSC_UP] = 0;
+                if (row > 0)
+                {
+                    printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                    row--;
+                }
+            }
+            if (keystatus[KEYSC_LEFT])
+            {
+                keystatus[KEYSC_LEFT] = 0;
+                if (col > 0)
+                {
+                    printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                    col--;
+                    disptext[dispwidth[col]] = 0;
+                    if (row > rowmax[col]) row = rowmax[col];
+                }
+            }
+            if (keystatus[KEYSC_RIGHT])
+            {
+                keystatus[KEYSC_RIGHT] = 0;
+                if (col < 2)
+                {
+                    printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                    col++;
+                    disptext[dispwidth[col]] = 0;
+                    if (row > rowmax[col]) row = rowmax[col];
+                }
+            }
+            if (keystatus[KEYSC_ENTER])
+            {
+                keystatus[KEYSC_ENTER] = 0;
+                Bsprintf(edittext, "%s: ", labels[row][col]);
+                enddrawing();
+                printmessage16(edittext);
+                i = getnumber16(edittext, gs_spritewhat[col][row] ? gs_sprite[col][row] : 0,
+                    maxval[row][col], sign[row][col]);
+                if (col == 2 && row == 0) i = (i+2048)&2047;  // angle
+                gs_sprite[col][row] = i;
+                begindrawing();
+                gs_spritewhat[col][row] = 1;
 
-            if (col == 1 && row == 5)  // picnum
-                printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], "                         ", 0);
-        }
+                if (col == 1 && row == 5)  // picnum
+                    printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], names[i], 0);
+            }
+            if (keystatus[KEYSC_BS] || keystatus[KEYSC_DELETE])
+            {
+                keystatus[KEYSC_BS] = keystatus[KEYSC_DELETE] = 0;
+                gs_spritewhat[col][row] = 0;
 
-        if (gs_spritewhat[col][row])
-        {
-            if (col == 1 && row == 0)  // flags
-                k = Bsprintf(disptext, "%s: %x", labels[row][col], gs_sprite[col][row]);
+                if (col == 1 && row == 5)  // picnum
+                    printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], "                         ", 0);
+            }
+
+            if (gs_spritewhat[col][row])
+            {
+                if (col == 1 && row == 0)  // flags
+                    k = Bsprintf(disptext, "%s: %x", labels[row][col], gs_sprite[col][row]);
+                else
+                    k = Bsprintf(disptext, "%s: %d", labels[row][col], gs_sprite[col][row]);
+            }
             else
-                k = Bsprintf(disptext, "%s: %d", labels[row][col], gs_sprite[col][row]);
+                k = Bsprintf(disptext, "%s: ^7any", labels[row][col]);
+            for (; k<dispwidth[col]; k++) disptext[k] = ' ';
+            disptext[k] = 0;
+
+            printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
+
+            enddrawing();
+            showframe(1);
         }
-        else
-            k = Bsprintf(disptext, "%s: ^7any", labels[row][col]);
-        for (; k<dispwidth[col]; k++) disptext[k] = ' ';
-        disptext[k] = 0;
-
-        printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
-
-        enddrawing();
+        //    begindrawing();
+        printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+        printmessage16("Search sprite");
+        //    enddrawing();
         showframe(1);
-    }
-//    begindrawing();
-    printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-    printmessage16("Search sprite");
-//    enddrawing();
-    showframe(1);
-    keystatus[KEYSC_ESC] = 0;
+        keystatus[KEYSC_ESC] = 0;
 }
 
 // Build edit
@@ -11685,24 +11704,24 @@ static void FuncMenuOpts(void)
     int32_t y = MENU_BASE_Y+16;
     int32_t i = 0;
     //  int32_t x2 = 0;
-//    static int32_t x2_max = 0;
+    //    static int32_t x2_max = 0;
 
     int32_t numopts = (sizeof(FuncMenuStrings)/sizeof(FuncMenuStrings[0]));
 
     do
     {
-//        x2 =
+        //        x2 =
         printext16(x,y,editorcolors[11],editorcolors[0],FuncMenuStrings[i],0);
         //    if (x2 > x2_max) x2_max = x2;
         y += MENU_Y_SPACING;
     }
     while (++i < numopts);
-//    drawline16(x-1,y,x2_max+1,y,1);
+    //    drawline16(x-1,y,x2_max+1,y,1);
     //  drawline16(x-1,MENU_BASE_Y-4,x-1,y,1);
 
-//    x2 =
+    //    x2 =
     printext16(x,MENU_BASE_Y,editorcolors[11],-1,"Special functions",0);
-//    drawline16(x-1,MENU_BASE_Y-4,x2+1,MENU_BASE_Y-4,1);
+    //    drawline16(x-1,MENU_BASE_Y-4,x2+1,MENU_BASE_Y-4,1);
     //  drawline16(x2_max+1,MENU_BASE_Y+16-4,x2_max+1,y-1,1);
     //drawline16(x2+1,MENU_BASE_Y+16-1,x2_max+1,MENU_BASE_Y+16-1,1);
 }
@@ -11714,7 +11733,7 @@ static void FuncMenu(void)
     int32_t xpos = 8, ypos = MENU_BASE_Y+16;
 
     disptext[dispwidth] = 0;
-//    clearmidstatbar16();
+    //    clearmidstatbar16();
 
     col = whitecol-16;
 
@@ -11764,16 +11783,16 @@ static void FuncMenu(void)
         if (keystatus[KEYSC_LEFT])
         {
             /*            if (col == 2)
-                        {
-                            printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
-                            col = 1;
-                            xpos = 200;
-                            rowmax = 6;
-                            dispwidth = 24;
-                            disptext[dispwidth] = 0;
-                            if (row > rowmax) row = rowmax;
-                        }
-                        else */
+            {
+            printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
+            col = 1;
+            xpos = 200;
+            rowmax = 6;
+            dispwidth = 24;
+            disptext[dispwidth] = 0;
+            if (row > rowmax) row = rowmax;
+            }
+            else */
             if (col == 1)
             {
                 printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
@@ -11800,15 +11819,15 @@ static void FuncMenu(void)
                 if (row > rowmax) row = rowmax;
             }
             /*            else if (col == 1)
-                        {
-                            printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
-                            col = 2;
-                            xpos = 400;
-                            rowmax = 6;
-                            dispwidth = 26;
-                            disptext[dispwidth] = 0;
-                            if (row > rowmax) row = rowmax;
-                        } */
+            {
+            printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
+            col = 2;
+            xpos = 400;
+            rowmax = 6;
+            dispwidth = 26;
+            disptext[dispwidth] = 0;
+            if (row > rowmax) row = rowmax;
+            } */
             keystatus[KEYSC_RIGHT] = 0;
         }
 #endif
@@ -11823,195 +11842,195 @@ static void FuncMenu(void)
             switch (row)
             {
             case 0:
-            {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
                 {
-                    j = 0;
-                    for (i=0; i<MAXSECTORS; i++)
+                    for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
-                        if (tilesizx[sector[i].ceilingpicnum] <= 0)
-                            sector[i].ceilingpicnum = 0,j++;
-                        if (tilesizx[sector[i].floorpicnum] <= 0)
-                            sector[i].floorpicnum = 0,j++;
-                    }
-                    for (i=0; i<MAXWALLS; i++)
-                    {
-                        if (tilesizx[wall[i].picnum] <= 0)
-                            wall[i].picnum = 0,j++;
-                        if (tilesizx[wall[i].overpicnum] <= 0)
-                            wall[i].overpicnum = 0,j++;
-                    }
-                    for (i=0; i<MAXSPRITES; i++)
-                    {
-                        if (tilesizx[sprite[i].picnum] <= 0)
-                            sprite[i].picnum = 0,j++;
-                    }
-                    Bsprintf(tempbuf,"Replaced %d invalid tiles",j);
-                    printmessage16(tempbuf);
-                }
-            }
-            break;
-            case 1:
-            {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    Bsprintf(tempbuf,"Delete all sprites of tile #: ");
-                    i = getnumber16(tempbuf,-1,MAXSPRITES-1,1);
-                    if (i >= 0)
-                    {
-                        int32_t k = 0;
-                        for (j=0; j<MAXSPRITES-1; j++)
-                            if (sprite[j].picnum == i)
-                                deletesprite(j), k++;
-                        Bsprintf(tempbuf,"%d sprite(s) deleted",k);
+                        j = 0;
+                        for (i=0; i<MAXSECTORS; i++)
+                        {
+                            if (tilesizx[sector[i].ceilingpicnum] <= 0)
+                                sector[i].ceilingpicnum = 0,j++;
+                            if (tilesizx[sector[i].floorpicnum] <= 0)
+                                sector[i].floorpicnum = 0,j++;
+                        }
+                        for (i=0; i<MAXWALLS; i++)
+                        {
+                            if (tilesizx[wall[i].picnum] <= 0)
+                                wall[i].picnum = 0,j++;
+                            if (tilesizx[wall[i].overpicnum] <= 0)
+                                wall[i].overpicnum = 0,j++;
+                        }
+                        for (i=0; i<MAXSPRITES; i++)
+                        {
+                            if (tilesizx[sprite[i].picnum] <= 0)
+                                sprite[i].picnum = 0,j++;
+                        }
+                        Bsprintf(tempbuf,"Replaced %d invalid tiles",j);
                         printmessage16(tempbuf);
                     }
-                    else printmessage16("Aborted");
                 }
-            }
-            break;
-            case 2:
-            {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                break;
+            case 1:
                 {
-                    j=getnumber16("Set map sky shade:    ",0,128,1);
-
-                    for (i=0; i<numsectors; i++)
+                    for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
-                        if (sector[i].ceilingstat&1)
-                            sector[i].ceilingshade = j;
+                        Bsprintf(tempbuf,"Delete all sprites of tile #: ");
+                        i = getnumber16(tempbuf,-1,MAXSPRITES-1,1);
+                        if (i >= 0)
+                        {
+                            int32_t k = 0;
+                            for (j=0; j<MAXSPRITES-1; j++)
+                                if (sprite[j].picnum == i)
+                                    deletesprite(j), k++;
+                            Bsprintf(tempbuf,"%d sprite(s) deleted",k);
+                            printmessage16(tempbuf);
+                        }
+                        else printmessage16("Aborted");
                     }
-                    printmessage16("All parallax skies adjusted");
                 }
-            }
-            break;
-            case 3:
-            {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                break;
+            case 2:
                 {
-                    j=getnumber16("Set map sky height:    ",0,16777216,1);
-                    if (j != 0)
+                    for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
+                        j=getnumber16("Set map sky shade:    ",0,128,1);
+
                         for (i=0; i<numsectors; i++)
                         {
                             if (sector[i].ceilingstat&1)
-                                sector[i].ceilingz = j;
+                                sector[i].ceilingshade = j;
                         }
                         printmessage16("All parallax skies adjusted");
                     }
-                    else printmessage16("Aborted");
                 }
-            }
-            break;
+                break;
+            case 3:
+                {
+                    for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
+                    {
+                        j=getnumber16("Set map sky height:    ",0,16777216,1);
+                        if (j != 0)
+                        {
+                            for (i=0; i<numsectors; i++)
+                            {
+                                if (sector[i].ceilingstat&1)
+                                    sector[i].ceilingz = j;
+                            }
+                            printmessage16("All parallax skies adjusted");
+                        }
+                        else printmessage16("Aborted");
+                    }
+                }
+                break;
             case 4:
-            {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
                 {
-                    j=getnumber16("Z offset:    ",0,16777216,1);
-                    if (j!=0)
+                    for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
-                        for (i=0; i<numsectors; i++)
+                        j=getnumber16("Z offset:    ",0,16777216,1);
+                        if (j!=0)
                         {
-                            sector[i].ceilingz += j;
-                            sector[i].floorz += j;
+                            for (i=0; i<numsectors; i++)
+                            {
+                                sector[i].ceilingz += j;
+                                sector[i].floorz += j;
+                            }
+                            for (i=0; i<MAXSPRITES; i++)
+                                sprite[i].z += j;
+                            printmessage16("Map adjusted");
                         }
-                        for (i=0; i<MAXSPRITES; i++)
-                            sprite[i].z += j;
-                        printmessage16("Map adjusted");
+                        else printmessage16("Aborted");
                     }
-                    else printmessage16("Aborted");
                 }
-            }
-            break;
+                break;
             case 5:
-            {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
                 {
-                    j=getnumber16("Percentage of original:    ",100,1000,0);
-                    if (j!=100)
+                    for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
-                        int32_t w, currsector, start_wall, end_wall;
-                        double size = (j/100.f);
-                        for (i = 0; i < highlightsectorcnt; i++)
+                        j=getnumber16("Percentage of original:    ",100,1000,0);
+                        if (j!=100)
                         {
-                            currsector = highlightsector[i];
-                            sector[currsector].ceilingz = (int32_t)(sector[currsector].ceilingz*size);
-                            sector[currsector].floorz = (int32_t)(sector[currsector].floorz*size);
-                            // Do all the walls in the sector
-                            start_wall = sector[currsector].wallptr;
-                            end_wall = start_wall + sector[currsector].wallnum;
-                            for (w = start_wall; w < end_wall; w++)
+                            int32_t w, currsector, start_wall, end_wall;
+                            double size = (j/100.f);
+                            for (i = 0; i < highlightsectorcnt; i++)
                             {
-                                wall[w].x = (int32_t)(wall[w].x*size);
-                                wall[w].y = (int32_t)(wall[w].y*size);
-                                wall[w].yrepeat = min((int32_t)(wall[w].yrepeat/size),255);
+                                currsector = highlightsector[i];
+                                sector[currsector].ceilingz = (int32_t)(sector[currsector].ceilingz*size);
+                                sector[currsector].floorz = (int32_t)(sector[currsector].floorz*size);
+                                // Do all the walls in the sector
+                                start_wall = sector[currsector].wallptr;
+                                end_wall = start_wall + sector[currsector].wallnum;
+                                for (w = start_wall; w < end_wall; w++)
+                                {
+                                    wall[w].x = (int32_t)(wall[w].x*size);
+                                    wall[w].y = (int32_t)(wall[w].y*size);
+                                    wall[w].yrepeat = min((int32_t)(wall[w].yrepeat/size),255);
+                                }
+                                w = headspritesect[highlightsector[i]];
+                                while (w >= 0)
+                                {
+                                    sprite[w].x = (int32_t)(sprite[w].x*size);
+                                    sprite[w].y = (int32_t)(sprite[w].y*size);
+                                    sprite[w].z = (int32_t)(sprite[w].z*size);
+                                    sprite[w].xrepeat = min(max((int32_t)(sprite[w].xrepeat*size),1),255);
+                                    sprite[w].yrepeat = min(max((int32_t)(sprite[w].yrepeat*size),1),255);
+                                    w = nextspritesect[w];
+                                }
                             }
-                            w = headspritesect[highlightsector[i]];
-                            while (w >= 0)
-                            {
-                                sprite[w].x = (int32_t)(sprite[w].x*size);
-                                sprite[w].y = (int32_t)(sprite[w].y*size);
-                                sprite[w].z = (int32_t)(sprite[w].z*size);
-                                sprite[w].xrepeat = min(max((int32_t)(sprite[w].xrepeat*size),1),255);
-                                sprite[w].yrepeat = min(max((int32_t)(sprite[w].yrepeat*size),1),255);
-                                w = nextspritesect[w];
-                            }
+                            printmessage16("Map scaled");
                         }
-                        printmessage16("Map scaled");
+                        else printmessage16("Aborted");
                     }
-                    else printmessage16("Aborted");
                 }
-            }
-            break;
+                break;
             case 6:
-            {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
                 {
-                    j=getnumber16("Shade divisor:    ",1,128,1);
-                    if (j!=1)
+                    for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
-                        for (i=0; i<numsectors; i++)
+                        j=getnumber16("Shade divisor:    ",1,128,1);
+                        if (j!=1)
                         {
-                            sector[i].ceilingshade /= j;
-                            sector[i].floorshade /= j;
+                            for (i=0; i<numsectors; i++)
+                            {
+                                sector[i].ceilingshade /= j;
+                                sector[i].floorshade /= j;
+                            }
+                            for (i=0; i<numwalls; i++)
+                                wall[i].shade /= j;
+                            for (i=0; i<MAXSPRITES; i++)
+                                sprite[i].shade /= j;
+                            printmessage16("Shades adjusted");
                         }
-                        for (i=0; i<numwalls; i++)
-                            wall[i].shade /= j;
-                        for (i=0; i<MAXSPRITES; i++)
-                            sprite[i].shade /= j;
-                        printmessage16("Shades adjusted");
+                        else printmessage16("Aborted");
                     }
-                    else printmessage16("Aborted");
                 }
-            }
-            break;
+                break;
             case 7:
-            {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
                 {
-                    j=getnumber16("Visibility divisor:    ",1,128,0);
-                    if (j!=1)
+                    for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
-                        for (i=0; i<numsectors; i++)
+                        j=getnumber16("Visibility divisor:    ",1,128,0);
+                        if (j!=1)
                         {
-                            if (sector[i].visibility < 240)
-                                sector[i].visibility /= j;
-                            else sector[i].visibility = 240 + (sector[i].visibility>>4)/j;
+                            for (i=0; i<numsectors; i++)
+                            {
+                                if (sector[i].visibility < 240)
+                                    sector[i].visibility /= j;
+                                else sector[i].visibility = 240 + (sector[i].visibility>>4)/j;
+                            }
+                            printmessage16("Visibility adjusted");
                         }
-                        printmessage16("Visibility adjusted");
+                        else printmessage16("Aborted");
                     }
-                    else printmessage16("Aborted");
                 }
-            }
-            break;
+                break;
             }
             break;
         }

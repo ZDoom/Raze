@@ -864,6 +864,7 @@ enum SpriteFlags_t {
     SPRITE_BADGUY       = 32,
     SPRITE_NOPAL        = 64,
     SPRITE_NOEVENTCODE  = 128,
+    SPRITE_NOLIGHT      = 256,
 };
 
 extern int16_t SpriteCacheList[MAXTILES][3];
