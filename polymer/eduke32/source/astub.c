@@ -210,71 +210,80 @@ void create_map_snapshot(void)
     tempcrc = crc32once((uint8_t *)&sector[0],sizeof(sectortype) * numsectors);
 
 
-    if (mapstate->prev && mapstate->prev->sectcrc == tempcrc)
+    if (numsectors)
     {
-        mapstate->sectors = mapstate->prev->sectors;
-        mapstate->sectsiz = mapstate->prev->sectsiz;
-        mapstate->sectcrc = tempcrc;
-        /* OSD_Printf("found a match between undo sectors\n"); */
-    }
-    else    
-    {
-        mapstate->sectors = (sectortype *)Bcalloc(1, sizeof(sectortype) * numsectors);
-        mapstate->sectsiz = j = lzf_compress(&sector[0], sizeof(sectortype) * numsectors,
-            &mapstate->sectors[0], sizeof(sectortype) * numsectors);
-        mapstate->sectors = (sectortype *)Brealloc(mapstate->sectors, j);
-        mapstate->sectcrc = tempcrc;
-    }
-
-    tempcrc = crc32once((uint8_t *)&wall[0],sizeof(walltype) * numwalls);
-
-
-    if (mapstate->prev && mapstate->prev->wallcrc == tempcrc)
-    {
-        mapstate->walls = mapstate->prev->walls;
-        mapstate->wallsiz = mapstate->prev->wallsiz;
-        mapstate->wallcrc = tempcrc;
-        /* OSD_Printf("found a match between undo walls\n"); */
-    }
-    else    
-    {
-        mapstate->walls = (walltype *)Bcalloc(1, sizeof(walltype) * numwalls);
-        mapstate->wallsiz = j = lzf_compress(&wall[0], sizeof(walltype) * numwalls,
-            &mapstate->walls[0], sizeof(walltype) * numwalls);
-        mapstate->walls = (walltype *)Brealloc(mapstate->walls, j);
-        mapstate->wallcrc = tempcrc;
-    }
-
-    tempcrc = crc32once((uint8_t *)&sprite[0],sizeof(spritetype) * MAXSPRITES);
-
-    if (mapstate->prev && mapstate->prev->spritecrc == tempcrc)
-    {
-        mapstate->sprites = mapstate->prev->sprites;
-        mapstate->spritesiz = mapstate->prev->spritesiz;
-        mapstate->spritecrc = tempcrc;
-        /*OSD_Printf("found a match between undo sprites\n");*/
-    }
-    else    
-    {
-        int32_t i = 0;
-        spritetype *spri, *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites);
-        mapstate->sprites = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites);
-
-        spri = &tspri[0];
-
-        for (j=0; j<MAXSPRITES && i < numsprites; j++)
+        if (mapstate->prev && mapstate->prev->sectcrc == tempcrc)
         {
-            if (sprite[j].statnum != MAXSTATUS)
+            mapstate->sectors = mapstate->prev->sectors;
+            mapstate->sectsiz = mapstate->prev->sectsiz;
+            mapstate->sectcrc = tempcrc;
+            /* OSD_Printf("found a match between undo sectors\n"); */
+        }
+        else
+        {
+            mapstate->sectors = (sectortype *)Bcalloc(1, sizeof(sectortype) * numsectors);
+            mapstate->sectsiz = j = lzf_compress(&sector[0], sizeof(sectortype) * numsectors,
+                &mapstate->sectors[0], sizeof(sectortype) * numsectors);
+            mapstate->sectors = (sectortype *)Brealloc(mapstate->sectors, j);
+            mapstate->sectcrc = tempcrc;
+        }
+
+        if (numwalls)
+        {
+            tempcrc = crc32once((uint8_t *)&wall[0],sizeof(walltype) * numwalls);
+
+
+            if (mapstate->prev && mapstate->prev->wallcrc == tempcrc)
             {
-                Bmemcpy(spri++,&sprite[j],sizeof(spritetype));
-                i++;
+                mapstate->walls = mapstate->prev->walls;
+                mapstate->wallsiz = mapstate->prev->wallsiz;
+                mapstate->wallcrc = tempcrc;
+                /* OSD_Printf("found a match between undo walls\n"); */
+            }
+            else
+            {
+                mapstate->walls = (walltype *)Bcalloc(1, sizeof(walltype) * numwalls);
+                mapstate->wallsiz = j = lzf_compress(&wall[0], sizeof(walltype) * numwalls,
+                    &mapstate->walls[0], sizeof(walltype) * numwalls);
+                mapstate->walls = (walltype *)Brealloc(mapstate->walls, j);
+                mapstate->wallcrc = tempcrc;
             }
         }
-        mapstate->spritesiz = j = lzf_compress(&tspri[0], sizeof(spritetype) * numsprites,
-            &mapstate->sprites[0], sizeof(spritetype) * numsprites);
-        mapstate->sprites = (spritetype *)Brealloc(mapstate->sprites, j);
-        mapstate->spritecrc = tempcrc;
-        Bfree(tspri);
+
+        if (numsprites)
+        {
+            tempcrc = crc32once((uint8_t *)&sprite[0],sizeof(spritetype) * MAXSPRITES);
+
+            if (mapstate->prev && mapstate->prev->spritecrc == tempcrc)
+            {
+                mapstate->sprites = mapstate->prev->sprites;
+                mapstate->spritesiz = mapstate->prev->spritesiz;
+                mapstate->spritecrc = tempcrc;
+                /*OSD_Printf("found a match between undo sprites\n");*/
+            }
+            else
+            {
+                int32_t i = 0;
+                spritetype *spri, *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites);
+                mapstate->sprites = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites);
+
+                spri = &tspri[0];
+
+                for (j=0; j<MAXSPRITES && i < numsprites; j++)
+                {
+                    if (sprite[j].statnum != MAXSTATUS)
+                    {
+                        Bmemcpy(spri++,&sprite[j],sizeof(spritetype));
+                        i++;
+                    }
+                }
+                mapstate->spritesiz = j = lzf_compress(&tspri[0], sizeof(spritetype) * numsprites,
+                    &mapstate->sprites[0], sizeof(spritetype) * numsprites);
+                mapstate->sprites = (spritetype *)Brealloc(mapstate->sprites, j);
+                mapstate->spritecrc = tempcrc;
+                Bfree(tspri);
+            }
+        }
     }
 }
 
@@ -282,33 +291,28 @@ void map_undoredo_free(void)
 {
     if (mapstate)
     {
-        if (mapstate->next != NULL)
+        while (mapstate->next)
+            mapstate = mapstate->next;
+
+        while (mapstate->prev)
         {
-            mapundo_t *next = mapstate->next;
-
-            while (next->next)
-                next = next->next;
-
-            while (next->prev)
-            {
-                next = next->prev;
-                if (next->next->sectors && (next->next->sectors != next->sectors)) Bfree(next->next->sectors);
-                if (next->next->walls && (next->next->walls != next->walls)) Bfree(next->next->walls);
-                if (next->next->sprites && (next->next->sprites != next->sprites)) Bfree(next->next->sprites);
-                if (next->next == mapstate)
-                    mapstate = NULL;
-                Bfree(next->next);
-                next->next = NULL;
-            }
+            mapundo_t *state = mapstate->prev;
+            if (mapstate->sectors && (mapstate->sectcrc != mapstate->prev->sectcrc)) Bfree(mapstate->sectors);
+            if (mapstate->walls && (mapstate->wallcrc != mapstate->prev->wallcrc)) Bfree(mapstate->walls);
+            if (mapstate->sprites && (mapstate->spritecrc != mapstate->prev->spritecrc)) Bfree(mapstate->sprites);
+            Bfree(mapstate);
+            mapstate = state;
         }
 
-        if (mapstate)
-            Bfree(mapstate);
+        if (mapstate->sectors) Bfree(mapstate->sectors);
+        if (mapstate->walls) Bfree(mapstate->walls);
+        if (mapstate->sprites) Bfree(mapstate->sprites);
+
+        Bfree(mapstate);
         mapstate = NULL;
     }
 
     map_revision = 1;
-
 }
 
 int32_t map_undoredo(int32_t dir)
@@ -343,9 +347,16 @@ int32_t map_undoredo(int32_t dir)
     clearbuf(&show2dsprite[0],(int32_t)((MAXSPRITES+3)>>5),0L);
     clearbuf(&show2dwall[0],(int32_t)((MAXWALLS+3)>>5),0L);
 
-    lzf_decompress(&mapstate->sectors[0],  mapstate->sectsiz, &sector[0], sizeof(sectortype) * numsectors);
-    lzf_decompress(&mapstate->walls[0],  mapstate->wallsiz, &wall[0], sizeof(walltype) * numwalls);
-    lzf_decompress(&mapstate->sprites[0],  mapstate->spritesiz, &sprite[0], sizeof(spritetype) * numsprites);
+    if (mapstate->numsectors)
+    {
+        lzf_decompress(&mapstate->sectors[0],  mapstate->sectsiz, &sector[0], sizeof(sectortype) * numsectors);
+
+        if (mapstate->numwalls)
+            lzf_decompress(&mapstate->walls[0],  mapstate->wallsiz, &wall[0], sizeof(walltype) * numwalls);
+
+        if (mapstate->numsprites)
+            lzf_decompress(&mapstate->sprites[0],  mapstate->spritesiz, &sprite[0], sizeof(spritetype) * numsprites);
+    }
 
     updatenumsprites();
 
