@@ -264,10 +264,9 @@ void create_map_snapshot(void)
             else
             {
                 int32_t i = 0;
-                spritetype *spri, *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites);
+                spritetype *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites),
+                    *spri = &tspri[0];
                 mapstate->sprites = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites);
-
-                spri = &tspri[0];
 
                 for (j=0; j<MAXSPRITES && i < numsprites; j++)
                 {
@@ -7499,35 +7498,50 @@ static void Keys2d(void)
     cursectornum = -1;
 
     for (i=0; i<numsectors; i++)
+    {
         if (inside(mousxplc,mousyplc,i) == 1)
         {
             cursectornum = i;
             break;
         }
+    }
 
-        searchsector=cursectornum;
+    searchsector=cursectornum;
 
-        if (eitherCTRL && keystatus[KEYSC_Z]) // CTRL+Z
+    if (eitherCTRL && keystatus[KEYSC_Z]) // CTRL+Z
+    {
+        keystatus[KEYSC_Z] = 0;
+        if (eitherSHIFT)
         {
-            keystatus[KEYSC_Z] = 0;
-            if (eitherSHIFT)
-            {
-                if (map_undoredo(1)) message("Nothing to redo!");
-                else message("Restored revision %d",map_revision-1);
-            }
-            else
-            {
-                if (map_undoredo(0)) message("Nothing to undo!");
-                else message("Revision %d undone",map_revision);
-            }
+            if (map_undoredo(1)) message("Nothing to redo!");
+            else message("Restored revision %d",map_revision-1);
         }
-
-        if (keystatus[KEYSC_TAB])  //TAB
+        else
         {
-            if (cursectornum >= 0)
-                showsectordata((int16_t)i+16384);
+            if (map_undoredo(0)) message("Nothing to undo!");
+            else message("Revision %d undone",map_revision);
         }
-        else if (!(keystatus[KEYSC_F5]|keystatus[KEYSC_F6]|keystatus[KEYSC_F7]|keystatus[KEYSC_F8]))
+    }
+
+    if (keystatus[KEYSC_TAB])  //TAB
+    {
+        if (cursectornum >= 0)
+            showsectordata((int16_t)i+16384);
+    }
+    else if (!(keystatus[KEYSC_F5]|keystatus[KEYSC_F6]|keystatus[KEYSC_F7]|keystatus[KEYSC_F8]))
+    {
+        static int32_t counter = 0;
+        static int32_t opointhighlight, olinehighlight, ocursectornum;
+
+        if (pointhighlight == opointhighlight && linehighlight == olinehighlight && cursectornum == ocursectornum)
+            counter++;
+        else counter = 0;
+
+        opointhighlight = pointhighlight;
+        olinehighlight = linehighlight;
+        ocursectornum = cursectornum;
+
+        if (counter >= 40)
         {
             if (pointhighlight >= 16384)
             {
@@ -7550,415 +7564,350 @@ static void Keys2d(void)
             {
                 showsectordata((int16_t)cursectornum+16384);
             }
-            if (totalclock < (lastpm16time + 120*2))
-                _printmessage16(lastpm16buf);
         }
-        /*
-        if ((totalclock > getmessagetimeoff) && (totalclock > (lastpm16time + 120*3)))
-        {
-        if (pointhighlight >= 16384)
-        {
-        char tmpbuf[2048];
-        i = pointhighlight-16384;
-        if (strlen(names[sprite[i].picnum]) > 0)
-        {
-        if (sprite[i].picnum==SECTOREFFECTOR)
-        Bsprintf(tmpbuf,"Sprite %d %s, hi:%d ex:%d",i,SectorEffectorText(i),sprite[i].hitag,sprite[i].extra);
-        else Bsprintf(tmpbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",i,names[sprite[i].picnum],sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
-        }
-        else Bsprintf(tmpbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",i,sprite[i].picnum,sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
-        _printmessage16(tmpbuf);
-        }
-        else if ((linehighlight >= 0) && (sectorofwall(linehighlight) == cursectornum))
-        {
-        int32_t dax, day, dist;
-        dax = wall[linehighlight].x-wall[wall[linehighlight].point2].x;
-        day = wall[linehighlight].y-wall[wall[linehighlight].point2].y;
-        dist = ksqrt(dax*dax+day*day);
-        Bsprintf(tempbuf,"Wall %d: length:%d lo:%d hi:%d ex:%d",linehighlight,dist,wall[linehighlight].lotag,wall[linehighlight].hitag,wall[linehighlight].extra);
-        _printmessage16(tempbuf);
-        }
-        else if (cursectornum >= 0)
-        {
-        Bsprintf(tempbuf,"Sector %d: lo:%d hi:%d ex:%d",cursectornum,sector[cursectornum].lotag,sector[cursectornum].hitag,sector[cursectornum].extra);
-        _printmessage16(tempbuf);
-        }
-        else _printmessage16("");
-        }
-        */
+        if (totalclock < (lastpm16time + 120*2))
+            _printmessage16(lastpm16buf);
+    }
+    /*
+    if ((totalclock > getmessagetimeoff) && (totalclock > (lastpm16time + 120*3)))
+    {
+    if (pointhighlight >= 16384)
+    {
+    char tmpbuf[2048];
+    i = pointhighlight-16384;
+    if (strlen(names[sprite[i].picnum]) > 0)
+    {
+    if (sprite[i].picnum==SECTOREFFECTOR)
+    Bsprintf(tmpbuf,"Sprite %d %s, hi:%d ex:%d",i,SectorEffectorText(i),sprite[i].hitag,sprite[i].extra);
+    else Bsprintf(tmpbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",i,names[sprite[i].picnum],sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
+    }
+    else Bsprintf(tmpbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",i,sprite[i].picnum,sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
+    _printmessage16(tmpbuf);
+    }
+    else if ((linehighlight >= 0) && (sectorofwall(linehighlight) == cursectornum))
+    {
+    int32_t dax, day, dist;
+    dax = wall[linehighlight].x-wall[wall[linehighlight].point2].x;
+    day = wall[linehighlight].y-wall[wall[linehighlight].point2].y;
+    dist = ksqrt(dax*dax+day*day);
+    Bsprintf(tempbuf,"Wall %d: length:%d lo:%d hi:%d ex:%d",linehighlight,dist,wall[linehighlight].lotag,wall[linehighlight].hitag,wall[linehighlight].extra);
+    _printmessage16(tempbuf);
+    }
+    else if (cursectornum >= 0)
+    {
+    Bsprintf(tempbuf,"Sector %d: lo:%d hi:%d ex:%d",cursectornum,sector[cursectornum].lotag,sector[cursectornum].hitag,sector[cursectornum].extra);
+    _printmessage16(tempbuf);
+    }
+    else _printmessage16("");
+    }
+    */
 
-        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_Z]) // ' z
-        {
-            keystatus[KEYSC_Z] = 0;
+    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_Z]) // ' z
+    {
+        keystatus[KEYSC_Z] = 0;
 
-            editorzrange[0]=getnumber16("Upper Z range: ",editorzrange[0],INT32_MAX,1);
-            editorzrange[1]=getnumber16("Lower Z range: ",editorzrange[1],INT32_MAX,1);
+        editorzrange[0]=getnumber16("Upper Z range: ",editorzrange[0],INT32_MAX,1);
+        editorzrange[1]=getnumber16("Lower Z range: ",editorzrange[1],INT32_MAX,1);
+        // printmessage16("");
+    }
+
+    if (keystatus[0x14])  // T (tag)
+    {
+        char buffer[80];
+
+        keystatus[0x14] = 0;
+        if (keystatus[0x1d]|keystatus[0x9d])  //Ctrl-T
+        {
+            extern int16_t showtags;
+
+            showtags ^= 1;
+            if (showtags == 0)
+                printmessage16("Show tags OFF");
+            else
+                printmessage16("Show tags ON");
+        }
+        else if (keystatus[0x38]|keystatus[0xb8])  //ALT
+        {
+            if (pointhighlight >= 16384)
+            {
+                i = pointhighlight-16384;
+                Bsprintf(buffer,"Sprite (%d) Lo-tag: ",i);
+                if (sprite[i].picnum == SECTOREFFECTOR)
+                    sprite[i].lotag = _getnumber16(buffer,sprite[i].lotag,65536L,0,(void *)SectorEffectorTagText);
+                else sprite[i].lotag = getnumber16(buffer,sprite[i].lotag,65536L,0);
+                clearmidstatbar16();
+                showspritedata((int16_t)i);
+            }
+            else if (linehighlight >= 0)
+            {
+                i = linehighlight;
+                Bsprintf(buffer,"Wall (%d) Lo-tag: ",i);
+                wall[i].lotag = getnumber16(buffer,wall[i].lotag,65536L,0);
+                clearmidstatbar16();
+                showwalldata((int16_t)i);
+            }
             // printmessage16("");
         }
-
-        if (keystatus[0x14])  // T (tag)
-        {
-            char buffer[80];
-
-            keystatus[0x14] = 0;
-            if (keystatus[0x1d]|keystatus[0x9d])  //Ctrl-T
-            {
-                extern int16_t showtags;
-
-                showtags ^= 1;
-                if (showtags == 0)
-                    printmessage16("Show tags OFF");
-                else
-                    printmessage16("Show tags ON");
-            }
-            else if (keystatus[0x38]|keystatus[0xb8])  //ALT
-            {
-                if (pointhighlight >= 16384)
-                {
-                    i = pointhighlight-16384;
-                    Bsprintf(buffer,"Sprite (%d) Lo-tag: ",i);
-                    if (sprite[i].picnum == SECTOREFFECTOR)
-                        sprite[i].lotag = _getnumber16(buffer,sprite[i].lotag,65536L,0,(void *)SectorEffectorTagText);
-                    else sprite[i].lotag = getnumber16(buffer,sprite[i].lotag,65536L,0);
-                    clearmidstatbar16();
-                    showspritedata((int16_t)i);
-                }
-                else if (linehighlight >= 0)
-                {
-                    i = linehighlight;
-                    Bsprintf(buffer,"Wall (%d) Lo-tag: ",i);
-                    wall[i].lotag = getnumber16(buffer,wall[i].lotag,65536L,0);
-                    clearmidstatbar16();
-                    showwalldata((int16_t)i);
-                }
-                // printmessage16("");
-            }
-            else
-            {
-                for (i=0; i<numsectors; i++)
-                    if (inside(mousxplc,mousyplc,i) == 1)
-                    {
-                        Bsprintf(buffer,"Sector (%d) Lo-tag: ",i);
-                        j = qsetmode;
-                        qsetmode = 200;
-                        sector[i].lotag = _getnumber16(buffer,sector[i].lotag,65536L,0,(void *)ExtGetSectorType);
-                        qsetmode = j;
-                        clearmidstatbar16();
-                        showsectordata((int16_t)i);
-                        break;
-                    }
-                    // printmessage16("");
-            }
-        }
-
-        if (keystatus[KEYSC_F1] || (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_TILDE])) //F1 or ' ~
-        {
-            keystatus[KEYSC_F1]=0;
-            // PK_
-            if (numhelppages>0) IntegratedHelp();
-            else printmessage16("m32help.hlp invalid or not found!");
-        }
-
-        if (keystatus[KEYSC_F2])
-        {
-            keystatus[KEYSC_F2]=0;
-
-            if (g_numsounds > 0)
-                SoundDisplay();
-        }
-
-        getpoint(searchx,searchy,&mousxplc,&mousyplc);
-        ppointhighlight = getpointhighlight(mousxplc,mousyplc, ppointhighlight);
-
-        if ((ppointhighlight&0xc000) == 16384)
-        {
-            //   sprite[ppointhighlight&16383].cstat ^= 1;
-            cursprite=(ppointhighlight&16383);
-        }
-
-        if (keystatus[KEYSC_F9]) // F9 f1=3b
-        {
-            keystatus[KEYSC_F9] = 0;
-            Show2dText("sthelp.hlp");
-        }
-
-        /* start Mapster32 */
-
-        if (keystatus[KEYSC_F4])
-        {
-            showfirstwall = !showfirstwall;
-            message("Sector firstwall highlight %s",showfirstwall?"enabled":"disabled");
-            keystatus[KEYSC_F4] = 0;
-        }
-
-        if (keystatus[KEYSC_M])  // M (tag)
-        {
-            keystatus[KEYSC_M] = 0;
-            if (eitherALT)  //ALT
-            {
-                if (pointhighlight >= 16384)
-                {
-                    i = pointhighlight-16384;
-                    Bsprintf(tempbuf,"Sprite %d Extra: ",i);
-                    sprite[i].extra = getnumber16(tempbuf,sprite[i].extra,65536L,1);
-                    clearmidstatbar16();
-                    showspritedata((int16_t)i);
-                }
-                else if (linehighlight >= 0)
-                {
-                    i = linehighlight;
-                    Bsprintf(tempbuf,"Wall %d Extra: ",i);
-                    wall[i].extra = getnumber16(tempbuf,wall[i].extra,65536L,1);
-                    clearmidstatbar16();
-                    showwalldata((int16_t)i);
-                }
-                // printmessage16("");
-            }
-            else
-            {
-                for (i=0; i<numsectors; i++)
-                    if (inside(mousxplc,mousyplc,i) == 1)
-                    {
-                        Bsprintf(tempbuf,"Sector %d Extra: ",i);
-                        sector[i].extra = getnumber16(tempbuf,sector[i].extra,65536L,1);
-                        clearmidstatbar16();
-                        showsectordata((int16_t)i);
-                        break;
-                    }
-                    // printmessage16("");
-            }
-        }
-
-        if (keystatus[KEYSC_E])  // E (expand)
+        else
         {
             for (i=0; i<numsectors; i++)
                 if (inside(mousxplc,mousyplc,i) == 1)
                 {
-                    sector[i].floorstat ^= 8;
-                    message("Sector %d floor texture expansion bit %s",i,sector[i].floorstat&8?"ON":"OFF");
-                    asksave = 1;
+                    Bsprintf(buffer,"Sector (%d) Lo-tag: ",i);
+                    j = qsetmode;
+                    qsetmode = 200;
+                    sector[i].lotag = _getnumber16(buffer,sector[i].lotag,65536L,0,(void *)ExtGetSectorType);
+                    qsetmode = j;
+                    clearmidstatbar16();
+                    showsectordata((int16_t)i);
+                    break;
                 }
-
-                keystatus[KEYSC_E] = 0;
+                // printmessage16("");
         }
+    }
 
-        if (keystatus[KEYSC_SLASH])  // /?     Reset panning&repeat to 0
+    if (keystatus[KEYSC_F1] || (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_TILDE])) //F1 or ' ~
+    {
+        keystatus[KEYSC_F1]=0;
+        // PK_
+        if (numhelppages>0) IntegratedHelp();
+        else printmessage16("m32help.hlp invalid or not found!");
+    }
+
+    if (keystatus[KEYSC_F2])
+    {
+        keystatus[KEYSC_F2]=0;
+
+        if (g_numsounds > 0)
+            SoundDisplay();
+    }
+
+    getpoint(searchx,searchy,&mousxplc,&mousyplc);
+    ppointhighlight = getpointhighlight(mousxplc,mousyplc, ppointhighlight);
+
+    if ((ppointhighlight&0xc000) == 16384)
+    {
+        //   sprite[ppointhighlight&16383].cstat ^= 1;
+        cursprite=(ppointhighlight&16383);
+    }
+
+    if (keystatus[KEYSC_F9]) // F9 f1=3b
+    {
+        keystatus[KEYSC_F9] = 0;
+        Show2dText("sthelp.hlp");
+    }
+
+    /* start Mapster32 */
+
+    if (keystatus[KEYSC_F4])
+    {
+        showfirstwall = !showfirstwall;
+        message("Sector firstwall highlight %s",showfirstwall?"enabled":"disabled");
+        keystatus[KEYSC_F4] = 0;
+    }
+
+    if (keystatus[KEYSC_M])  // M (tag)
+    {
+        keystatus[KEYSC_M] = 0;
+        if (eitherALT)  //ALT
         {
-            if ((ppointhighlight&0xc000) == 16384)
+            if (pointhighlight >= 16384)
             {
-                if (eitherSHIFT)
-                {
-                    sprite[cursprite].xrepeat = sprite[cursprite].yrepeat;
-                }
-                else
-                {
-                    sprite[cursprite].xrepeat = 64;
-                    sprite[cursprite].yrepeat = 64;
-                }
+                i = pointhighlight-16384;
+                Bsprintf(tempbuf,"Sprite %d Extra: ",i);
+                sprite[i].extra = getnumber16(tempbuf,sprite[i].extra,65536L,1);
+                clearmidstatbar16();
+                showspritedata((int16_t)i);
             }
-            else if (graphicsmode != 0)
+            else if (linehighlight >= 0)
+            {
+                i = linehighlight;
+                Bsprintf(tempbuf,"Wall %d Extra: ",i);
+                wall[i].extra = getnumber16(tempbuf,wall[i].extra,65536L,1);
+                clearmidstatbar16();
+                showwalldata((int16_t)i);
+            }
+            // printmessage16("");
+        }
+        else
+        {
+            for (i=0; i<numsectors; i++)
+                if (inside(mousxplc,mousyplc,i) == 1)
+                {
+                    Bsprintf(tempbuf,"Sector %d Extra: ",i);
+                    sector[i].extra = getnumber16(tempbuf,sector[i].extra,65536L,1);
+                    clearmidstatbar16();
+                    showsectordata((int16_t)i);
+                    break;
+                }
+                // printmessage16("");
+        }
+    }
+
+    if (keystatus[KEYSC_E])  // E (expand)
+    {
+        for (i=0; i<numsectors; i++)
+            if (inside(mousxplc,mousyplc,i) == 1)
+            {
+                sector[i].floorstat ^= 8;
+                message("Sector %d floor texture expansion bit %s",i,sector[i].floorstat&8?"ON":"OFF");
+                asksave = 1;
+            }
+
+            keystatus[KEYSC_E] = 0;
+    }
+
+    if (keystatus[KEYSC_SLASH])  // /?     Reset panning&repeat to 0
+    {
+        if ((ppointhighlight&0xc000) == 16384)
+        {
+            if (eitherSHIFT)
+            {
+                sprite[cursprite].xrepeat = sprite[cursprite].yrepeat;
+            }
+            else
+            {
+                sprite[cursprite].xrepeat = 64;
+                sprite[cursprite].yrepeat = 64;
+            }
+        }
+        else if (graphicsmode != 0)
+        {
+            for (i=0; i<numsectors; i++)
+                if (inside(mousxplc,mousyplc,i) == 1)
+                {
+                    sector[i].floorxpanning = sector[i].floorypanning = 0;
+                    message("Sector %d floor panning reset", i);
+                }
+        }
+        keystatus[KEYSC_SLASH] = 0;
+        asksave = 1;
+    }
+
+    if (keystatus[KEYSC_gLEFT] || keystatus[KEYSC_gRIGHT])  // 4 & 6 (keypad 2D)
+    {
+        smooshyalign = keystatus[KEYSC_gKP5];
+        if ((repeatcountx == 0) || (repeatcountx > 32))
+        {
+            changedir = 0;
+            if (keystatus[KEYSC_gLEFT])  changedir = -1;
+            if (keystatus[KEYSC_gRIGHT]) changedir = 1;
+
+            if ((ppointhighlight&0xc000) == 16384 && (sprite[cursprite].cstat & 48))
+            {
+                sprite[cursprite].xrepeat = changechar(sprite[cursprite].xrepeat,changedir,smooshyalign,1);
+                if (sprite[cursprite].xrepeat < 4)
+                    sprite[cursprite].xrepeat = 4;
+                message("Sprite %d repeat: %d, %d",cursprite,sprite[cursprite].xrepeat,sprite[cursprite].yrepeat);
+            }
+            else
             {
                 for (i=0; i<numsectors; i++)
                     if (inside(mousxplc,mousyplc,i) == 1)
                     {
-                        sector[i].floorxpanning = sector[i].floorypanning = 0;
-                        message("Sector %d floor panning reset", i);
+                        sector[i].floorxpanning = changechar(sector[i].floorxpanning,changedir,smooshyalign,0);
+                        message("Sector %d floor panning: %d, %d",searchsector,sector[i].floorxpanning,sector[i].floorypanning);
                     }
             }
-            keystatus[KEYSC_SLASH] = 0;
             asksave = 1;
+            repeatcountx = max(1,repeatcountx-2);
         }
+        repeatcountx += synctics;
+    }
+    else
+        repeatcountx = 0;
 
-        if (keystatus[KEYSC_gLEFT] || keystatus[KEYSC_gRIGHT])  // 4 & 6 (keypad 2D)
+    if (keystatus[KEYSC_gUP] || keystatus[KEYSC_gDOWN])  // 2 & 8 (keypad 2D)
+    {
+        smooshyalign = keystatus[KEYSC_gKP5];
+        if ((repeatcounty == 0) || (repeatcounty > 32))
         {
-            smooshyalign = keystatus[KEYSC_gKP5];
-            if ((repeatcountx == 0) || (repeatcountx > 32))
+            changedir = 0;
+            if (keystatus[KEYSC_gUP])   changedir = -1;
+            if (keystatus[KEYSC_gDOWN]) changedir = 1;
+
+            if ((ppointhighlight&0xc000) == 16384 && (sprite[cursprite].cstat & 48))
             {
-                changedir = 0;
-                if (keystatus[KEYSC_gLEFT])  changedir = -1;
-                if (keystatus[KEYSC_gRIGHT]) changedir = 1;
-
-                if ((ppointhighlight&0xc000) == 16384 && (sprite[cursprite].cstat & 48))
-                {
-                    sprite[cursprite].xrepeat = changechar(sprite[cursprite].xrepeat,changedir,smooshyalign,1);
-                    if (sprite[cursprite].xrepeat < 4)
-                        sprite[cursprite].xrepeat = 4;
-                    message("Sprite %d repeat: %d, %d",cursprite,sprite[cursprite].xrepeat,sprite[cursprite].yrepeat);
-                }
-                else
-                {
-                    for (i=0; i<numsectors; i++)
-                        if (inside(mousxplc,mousyplc,i) == 1)
-                        {
-                            sector[i].floorxpanning = changechar(sector[i].floorxpanning,changedir,smooshyalign,0);
-                            message("Sector %d floor panning: %d, %d",searchsector,sector[i].floorxpanning,sector[i].floorypanning);
-                        }
-                }
-                asksave = 1;
-                repeatcountx = max(1,repeatcountx-2);
-            }
-            repeatcountx += synctics;
-        }
-        else
-            repeatcountx = 0;
-
-        if (keystatus[KEYSC_gUP] || keystatus[KEYSC_gDOWN])  // 2 & 8 (keypad 2D)
-        {
-            smooshyalign = keystatus[KEYSC_gKP5];
-            if ((repeatcounty == 0) || (repeatcounty > 32))
-            {
-                changedir = 0;
-                if (keystatus[KEYSC_gUP])   changedir = -1;
-                if (keystatus[KEYSC_gDOWN]) changedir = 1;
-
-                if ((ppointhighlight&0xc000) == 16384 && (sprite[cursprite].cstat & 48))
-                {
-                    sprite[cursprite].yrepeat = changechar(sprite[cursprite].yrepeat,changedir,smooshyalign,1);
-                    if (sprite[cursprite].yrepeat < 4)
-                        sprite[cursprite].yrepeat = 4;
-                    message("Sprite %d repeat: %d, %d",cursprite,sprite[cursprite].xrepeat,sprite[cursprite].yrepeat);
-                }
-                else
-                {
-                    for (i=0; i<numsectors; i++)
-                        if (inside(mousxplc,mousyplc,i) == 1)
-                        {
-                            sector[i].floorypanning = changechar(sector[i].floorypanning,changedir,smooshyalign,0);
-                            message("Sector %d floor panning: %d, %d",searchsector,sector[i].floorxpanning,sector[i].floorypanning);
-                        }
-                }
-                asksave = 1;
-                repeatcounty = max(1,repeatcounty-2);
-            }
-            repeatcounty += synctics;
-            //}
-        }
-        else
-            repeatcounty = 0;
-
-        if (keystatus[KEYSC_R])  // R (relative alignment, rotation)
-        {
-            if (pointhighlight >= 16384)
-            {
-                i = sprite[cursprite].cstat;
-                if ((i&48) < 32) i += 16;
-
-                else i &= ~48;
-                sprite[cursprite].cstat = i;
-
-                if (sprite[cursprite].cstat&16)
-                    Bsprintf(getmessage,"Sprite %d now wall aligned",cursprite);
-                else if (sprite[cursprite].cstat&32)
-                    Bsprintf(getmessage,"Sprite %d now floor aligned",cursprite);
-                else
-                    Bsprintf(getmessage,"Sprite %d now view aligned",cursprite);
-                message(getmessage);
-                asksave = 1;
-
-            }
-            keystatus[KEYSC_R] = 0;
-        }
-
-
-        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_S]) // ' S
-        {
-            if (pointhighlight >= 16384)
-            {
-                keystatus[KEYSC_S] = 0;
-                Bsprintf(tempbuf,"Sprite %d xrepeat: ",cursprite);
-                sprite[cursprite].xrepeat=getnumber16(tempbuf, sprite[cursprite].xrepeat, 256,0);
-                Bsprintf(tempbuf,"Sprite %d yrepeat: ",cursprite);
-                sprite[cursprite].yrepeat=getnumber16(tempbuf, sprite[cursprite].yrepeat, 256,0);
-                Bsprintf(tempbuf,"Sprite %d updated",i);
-                printmessage16(tempbuf);
-            }
-        }
-
-        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_F]) // ' F
-        {
-            keystatus[KEYSC_F] = 0;
-            FuncMenu();
-        }
-
-        if (keystatus[KEYSC_LBRACK]) // [     search backward
-        {
-            keystatus[KEYSC_LBRACK]=0;
-            if (wallsprite==0)
-            {
-                SearchSectorsBackward();
+                sprite[cursprite].yrepeat = changechar(sprite[cursprite].yrepeat,changedir,smooshyalign,1);
+                if (sprite[cursprite].yrepeat < 4)
+                    sprite[cursprite].yrepeat = 4;
+                message("Sprite %d repeat: %d, %d",cursprite,sprite[cursprite].xrepeat,sprite[cursprite].yrepeat);
             }
             else
-
-                if (wallsprite==1)
-                {
-                    if (curwallnum>0) curwallnum--;
-                    for (i=curwallnum; i>=0; i--)
-                    {
-                        if (
-                            (wall[i].picnum==wall[curwall].picnum)
-                            &&((search_lotag==0)||
-                            (search_lotag!=0 && search_lotag==wall[i].lotag))
-                            &&((search_hitag==0)||
-                            (search_hitag!=0 && search_hitag==wall[i].hitag))
-                            )
-                        {
-                            pos.x=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
-                            pos.y=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
-                            printmessage16("< Wall search: found");
-                            //                    curwallnum--;
-                            keystatus[KEYSC_LBRACK]=0;
-                            return;
-                        }
-                        curwallnum--;
-                    }
-                    printmessage16("< Wall search: none found");
-                }
-                else
-
-                    if (wallsprite==2)
-                        DoSpriteSearch(-1);
-#if 0
             {
-                if (cursearchspritenum>0) cursearchspritenum--;
-                for (i=cursearchspritenum; i>=0; i--)
-                {
-
-                    if (
-                        (sprite[i].picnum==sprite[cursearchsprite].picnum &&
-                        sprite[i].statnum==0)
-                        &&((search_lotag==0)||
-                        (search_lotag!=0 && search_lotag==sprite[i].lotag))
-                        &&((search_hitag==0)||
-                        (search_hitag!=0 && search_hitag==sprite[i].hitag))
-                        )
+                for (i=0; i<numsectors; i++)
+                    if (inside(mousxplc,mousyplc,i) == 1)
                     {
-                        pos.x=sprite[i].x;
-                        pos.y=sprite[i].y;
-                        ang= sprite[i].ang;
-                        printmessage16("< Sprite search: found");
-                        //                    curspritenum--;
-                        keystatus[KEYSC_LBRACK]=0;
-                        return;
+                        sector[i].floorypanning = changechar(sector[i].floorypanning,changedir,smooshyalign,0);
+                        message("Sector %d floor panning: %d, %d",searchsector,sector[i].floorxpanning,sector[i].floorypanning);
                     }
-                    cursearchspritenum--;
-                }
-                printmessage16("< Sprite search: none found");
             }
-#endif
+            asksave = 1;
+            repeatcounty = max(1,repeatcounty-2);
         }
+        repeatcounty += synctics;
+        //}
+    }
+    else
+        repeatcounty = 0;
 
-
-        if (keystatus[KEYSC_RBRACK]) // ]     search forward
+    if (keystatus[KEYSC_R])  // R (relative alignment, rotation)
+    {
+        if (pointhighlight >= 16384)
         {
-            keystatus[KEYSC_RBRACK]=0;
-            if (wallsprite==0)
+            i = sprite[cursprite].cstat;
+            if ((i&48) < 32) i += 16;
+
+            else i &= ~48;
+            sprite[cursprite].cstat = i;
+
+            if (sprite[cursprite].cstat&16)
+                Bsprintf(getmessage,"Sprite %d now wall aligned",cursprite);
+            else if (sprite[cursprite].cstat&32)
+                Bsprintf(getmessage,"Sprite %d now floor aligned",cursprite);
+            else
+                Bsprintf(getmessage,"Sprite %d now view aligned",cursprite);
+            message(getmessage);
+            asksave = 1;
+
+        }
+        keystatus[KEYSC_R] = 0;
+    }
+
+
+    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_S]) // ' S
+    {
+        if (pointhighlight >= 16384)
+        {
+            keystatus[KEYSC_S] = 0;
+            Bsprintf(tempbuf,"Sprite %d xrepeat: ",cursprite);
+            sprite[cursprite].xrepeat=getnumber16(tempbuf, sprite[cursprite].xrepeat, 256,0);
+            Bsprintf(tempbuf,"Sprite %d yrepeat: ",cursprite);
+            sprite[cursprite].yrepeat=getnumber16(tempbuf, sprite[cursprite].yrepeat, 256,0);
+            Bsprintf(tempbuf,"Sprite %d updated",i);
+            printmessage16(tempbuf);
+        }
+    }
+
+    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_F]) // ' F
+    {
+        keystatus[KEYSC_F] = 0;
+        FuncMenu();
+    }
+
+    if (keystatus[KEYSC_LBRACK]) // [     search backward
+    {
+        keystatus[KEYSC_LBRACK]=0;
+        if (wallsprite==0)
+        {
+            SearchSectorsBackward();
+        }
+        else
+
+            if (wallsprite==1)
             {
-                SearchSectorsForward();
-            }
-            else if (wallsprite==1)
-            {
-                if (curwallnum<MAXWALLS) curwallnum++;
-                for (i=curwallnum; i<=MAXWALLS; i++)
+                if (curwallnum>0) curwallnum--;
+                for (i=curwallnum; i>=0; i--)
                 {
                     if (
                         (wall[i].picnum==wall[curwall].picnum)
@@ -7970,208 +7919,274 @@ static void Keys2d(void)
                     {
                         pos.x=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
                         pos.y=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
-                        printmessage16("> Wall search: found");
-                        //                    curwallnum++;
-                        keystatus[KEYSC_RBRACK]=0;
+                        printmessage16("< Wall search: found");
+                        //                    curwallnum--;
+                        keystatus[KEYSC_LBRACK]=0;
                         return;
                     }
-                    curwallnum++;
+                    curwallnum--;
                 }
-                printmessage16("> Wall search: none found");
+                printmessage16("< Wall search: none found");
             }
-            else if (wallsprite==2)
-                DoSpriteSearch(1);
+            else
+
+                if (wallsprite==2)
+                    DoSpriteSearch(-1);
 #if 0
-            {
-                if (cursearchspritenum<MAXSPRITES) cursearchspritenum++;
-                for (i=cursearchspritenum; i<=MAXSPRITES; i++)
-                {
-                    if (
-                        (sprite[i].picnum==sprite[cursearchsprite].picnum &&
-                        sprite[i].statnum==0)
-                        &&((search_lotag==0)||
-                        (search_lotag!=0 && search_lotag==sprite[i].lotag))
-                        &&((search_hitag==0)||
-                        (search_hitag!=0 && search_hitag==sprite[i].hitag))
-                        )
-                    {
-                        pos.x=sprite[i].x;
-                        pos.y=sprite[i].y;
-                        ang= sprite[i].ang;
-                        printmessage16("> Sprite search: found");
-                        //                    curspritenum++;
-                        keystatus[KEYSC_RBRACK]=0;
-                        return;
-                    }
-                    cursearchspritenum++;
-                }
-                printmessage16("> Sprite search: none found");
-            }
-#endif
-        }
-
         {
-            static int32_t autogrid = 0;
-
-            if (keystatus[KEYSC_G])  // G (grid on/off)
+            if (cursearchspritenum>0) cursearchspritenum--;
+            for (i=cursearchspritenum; i>=0; i--)
             {
-                if (autogrid)
+
+                if (
+                    (sprite[i].picnum==sprite[cursearchsprite].picnum &&
+                    sprite[i].statnum==0)
+                    &&((search_lotag==0)||
+                    (search_lotag!=0 && search_lotag==sprite[i].lotag))
+                    &&((search_hitag==0)||
+                    (search_hitag!=0 && search_hitag==sprite[i].hitag))
+                    )
                 {
-                    grid = 0;
-                    if (eitherSHIFT)
-                        grid = 8;
-                    autogrid = 0;
+                    pos.x=sprite[i].x;
+                    pos.y=sprite[i].y;
+                    ang= sprite[i].ang;
+                    printmessage16("< Sprite search: found");
+                    //                    curspritenum--;
+                    keystatus[KEYSC_LBRACK]=0;
+                    return;
                 }
-                else
-                {
-                    grid += eitherSHIFT?-1:1;
-                    if (grid == -1 || grid == 9)
-                    {
-                        switch (grid)
-                        {
-                        case -1:
-                            autogrid = 1;
-                            grid = 8;
-                            break;
-                        case 9:
-                            autogrid = 1;
-                            grid = 0;
-                            break;
-                        }
-                    }
-                }
-                if (autogrid) Bsprintf(tempbuf,"Grid size: 9 (autosize)");
-                else if (!grid) Bsprintf(tempbuf,"Grid off");
-                else Bsprintf(tempbuf,"Grid size: %d (%d units)",grid,2048>>grid);
-                printmessage16(tempbuf);
-                keystatus[KEYSC_G] = 0;
+                cursearchspritenum--;
             }
+            printmessage16("< Sprite search: none found");
+        }
+#endif
+    }
+
+
+    if (keystatus[KEYSC_RBRACK]) // ]     search forward
+    {
+        keystatus[KEYSC_RBRACK]=0;
+        if (wallsprite==0)
+        {
+            SearchSectorsForward();
+        }
+        else if (wallsprite==1)
+        {
+            if (curwallnum<MAXWALLS) curwallnum++;
+            for (i=curwallnum; i<=MAXWALLS; i++)
+            {
+                if (
+                    (wall[i].picnum==wall[curwall].picnum)
+                    &&((search_lotag==0)||
+                    (search_lotag!=0 && search_lotag==wall[i].lotag))
+                    &&((search_hitag==0)||
+                    (search_hitag!=0 && search_hitag==wall[i].hitag))
+                    )
+                {
+                    pos.x=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
+                    pos.y=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
+                    printmessage16("> Wall search: found");
+                    //                    curwallnum++;
+                    keystatus[KEYSC_RBRACK]=0;
+                    return;
+                }
+                curwallnum++;
+            }
+            printmessage16("> Wall search: none found");
+        }
+        else if (wallsprite==2)
+            DoSpriteSearch(1);
+#if 0
+        {
+            if (cursearchspritenum<MAXSPRITES) cursearchspritenum++;
+            for (i=cursearchspritenum; i<=MAXSPRITES; i++)
+            {
+                if (
+                    (sprite[i].picnum==sprite[cursearchsprite].picnum &&
+                    sprite[i].statnum==0)
+                    &&((search_lotag==0)||
+                    (search_lotag!=0 && search_lotag==sprite[i].lotag))
+                    &&((search_hitag==0)||
+                    (search_hitag!=0 && search_hitag==sprite[i].hitag))
+                    )
+                {
+                    pos.x=sprite[i].x;
+                    pos.y=sprite[i].y;
+                    ang= sprite[i].ang;
+                    printmessage16("> Sprite search: found");
+                    //                    curspritenum++;
+                    keystatus[KEYSC_RBRACK]=0;
+                    return;
+                }
+                cursearchspritenum++;
+            }
+            printmessage16("> Sprite search: none found");
+        }
+#endif
+    }
+
+    {
+        static int32_t autogrid = 0;
+
+        if (keystatus[KEYSC_G])  // G (grid on/off)
+        {
             if (autogrid)
             {
-                grid = zoom+512;
-                if (grid > 16384) grid = 16384;
-                grid = scale(grid,6,6144);
-                if (grid > 7) grid = 7;
-                if (grid < 0) grid = 0;
+                grid = 0;
+                if (eitherSHIFT)
+                    grid = 8;
+                autogrid = 0;
             }
-        }
-
-        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_L]) // ' L
-        {
-            if (pointhighlight >= 16384)
+            else
             {
-                i = pointhighlight - 16384;
-                Bsprintf(tempbuf,"Sprite %d x: ",i);
-                sprite[i].x = getnumber16(tempbuf,sprite[i].x,editorgridextent-1,1);
-                Bsprintf(tempbuf,"Sprite %d y: ",i);
-                sprite[i].y = getnumber16(tempbuf,sprite[i].y,editorgridextent-1,1);
-                Bsprintf(tempbuf,"Sprite %d z: ",i);
-                sprite[i].z = getnumber16(tempbuf,sprite[i].z,8388608,1);
-                Bsprintf(tempbuf,"Sprite %d angle: ",i);
-                sprite[i].ang = getnumber16(tempbuf,sprite[i].ang,2048L,0);
-                Bsprintf(tempbuf,"Sprite %d updated",i);
-                printmessage16(tempbuf);
+                grid += eitherSHIFT?-1:1;
+                if (grid == -1 || grid == 9)
+                {
+                    switch (grid)
+                    {
+                    case -1:
+                        autogrid = 1;
+                        grid = 8;
+                        break;
+                    case 9:
+                        autogrid = 1;
+                        grid = 0;
+                        break;
+                    }
+                }
             }
-
-            else if (pointhighlight >= 0 /*<= 16383*/)
-            {
-                i = linehighlight;
-                j = wall[i].x;
-                k = wall[i].y;
-                Bsprintf(tempbuf,"Wall %d x: ",i);
-                j = getnumber16(tempbuf,j,editorgridextent,1);
-                Bsprintf(tempbuf,"Wall %d y: ",i);
-                k = getnumber16(tempbuf,k,editorgridextent,1);
-                dragpoint(i, j, k);
-                Bsprintf(tempbuf,"Wall %d updated",i);
-                printmessage16(tempbuf);
-            }
-
-            keystatus[KEYSC_L] = 0;
-        }
-
-
-        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_3]) // ' 3
-        {
-            onnames++;
-            if (onnames>8) onnames=0;
-            keystatus[KEYSC_3]=0;
-            Bsprintf(tempbuf,"Mode %d %s",onnames,SpriteMode[onnames]);
+            if (autogrid) Bsprintf(tempbuf,"Grid size: 9 (autosize)");
+            else if (!grid) Bsprintf(tempbuf,"Grid off");
+            else Bsprintf(tempbuf,"Grid size: %d (%d units)",grid,2048>>grid);
             printmessage16(tempbuf);
-            //   clearmidstatbar16();
-            //   for(i=0;i<MAXMODE32D;i++) {printext16(0*8,ydim16+32+(i*8),15,-1,SpriteMode[i],0);
+            keystatus[KEYSC_G] = 0;
         }
-        //   Ver();
-
-        /*
-        if(keystatus[KEYSC_QUOTE] && keystatus[KEYSC_5]) // ' 5
+        if (autogrid)
         {
-        keystatus[KEYSC_5]=0;
-        sprintf(tempbuf,"Power-Up Ammo now equals Normal");
+            grid = zoom+512;
+            if (grid > 16384) grid = 16384;
+            grid = scale(grid,6,6144);
+            if (grid > 7) grid = 7;
+            if (grid < 0) grid = 0;
+        }
+    }
+
+    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_L]) // ' L
+    {
+        if (pointhighlight >= 16384)
+        {
+            i = pointhighlight - 16384;
+            Bsprintf(tempbuf,"Sprite %d x: ",i);
+            sprite[i].x = getnumber16(tempbuf,sprite[i].x,editorgridextent-1,1);
+            Bsprintf(tempbuf,"Sprite %d y: ",i);
+            sprite[i].y = getnumber16(tempbuf,sprite[i].y,editorgridextent-1,1);
+            Bsprintf(tempbuf,"Sprite %d z: ",i);
+            sprite[i].z = getnumber16(tempbuf,sprite[i].z,8388608,1);
+            Bsprintf(tempbuf,"Sprite %d angle: ",i);
+            sprite[i].ang = getnumber16(tempbuf,sprite[i].ang,2048L,0);
+            Bsprintf(tempbuf,"Sprite %d updated",i);
+            printmessage16(tempbuf);
+        }
+
+        else if (pointhighlight >= 0 /*<= 16383*/)
+        {
+            i = linehighlight;
+            j = wall[i].x;
+            k = wall[i].y;
+            Bsprintf(tempbuf,"Wall %d x: ",i);
+            j = getnumber16(tempbuf,j,editorgridextent,1);
+            Bsprintf(tempbuf,"Wall %d y: ",i);
+            k = getnumber16(tempbuf,k,editorgridextent,1);
+            dragpoint(i, j, k);
+            Bsprintf(tempbuf,"Wall %d updated",i);
+            printmessage16(tempbuf);
+        }
+
+        keystatus[KEYSC_L] = 0;
+    }
+
+
+    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_3]) // ' 3
+    {
+        onnames++;
+        if (onnames>8) onnames=0;
+        keystatus[KEYSC_3]=0;
+        Bsprintf(tempbuf,"Mode %d %s",onnames,SpriteMode[onnames]);
         printmessage16(tempbuf);
-        for(i=0;i<MAXSPRITES;i++)
-        {
-        if(sprite[i].picnum>=20 && sprite[i].picnum<=59)
-        {
-        sprite[i].xrepeat = 32;
-        sprite[i].yrepeat = 32;
-        }
-        }
+        //   clearmidstatbar16();
+        //   for(i=0;i<MAXMODE32D;i++) {printext16(0*8,ydim16+32+(i*8),15,-1,SpriteMode[i],0);
+    }
+    //   Ver();
 
-        }
-        */
+    /*
+    if(keystatus[KEYSC_QUOTE] && keystatus[KEYSC_5]) // ' 5
+    {
+    keystatus[KEYSC_5]=0;
+    sprintf(tempbuf,"Power-Up Ammo now equals Normal");
+    printmessage16(tempbuf);
+    for(i=0;i<MAXSPRITES;i++)
+    {
+    if(sprite[i].picnum>=20 && sprite[i].picnum<=59)
+    {
+    sprite[i].xrepeat = 32;
+    sprite[i].yrepeat = 32;
+    }
+    }
 
-        //  What the fuck is this supposed to do?
+    }
+    */
 
-        /* Motorcycle ha ha ha
-        if(keystatus[KEYSC_QUOTE] && keystatus[KEYSC_5]) // ' 5
-        {
-        keystatus[KEYSC_5]=0;
-        sidemode++; if (sidemode > 2) sidemode = 0;
-        if (sidemode == 1)
-        {
-        editstatus = 0;
-        zmode = 2;
-        pos.z = ((sector[cursectnum].ceilingz+sector[cursectnum].floorz)>>1);
-        }
-        else
-        {
-        editstatus = 1;
-        zmode = 1;
-        }
-        }
-        */
+    //  What the fuck is this supposed to do?
 
-        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_7]) // ' 7 : swap hilo
-        {
-            keystatus[KEYSC_7]=0;
+    /* Motorcycle ha ha ha
+    if(keystatus[KEYSC_QUOTE] && keystatus[KEYSC_5]) // ' 5
+    {
+    keystatus[KEYSC_5]=0;
+    sidemode++; if (sidemode > 2) sidemode = 0;
+    if (sidemode == 1)
+    {
+    editstatus = 0;
+    zmode = 2;
+    pos.z = ((sector[cursectnum].ceilingz+sector[cursectnum].floorz)>>1);
+    }
+    else
+    {
+    editstatus = 1;
+    zmode = 1;
+    }
+    }
+    */
 
-            if (pointhighlight >= 16384)
-            {
-                temp=sprite[cursprite].lotag;
-                sprite[cursprite].lotag=sprite[cursprite].hitag;
-                sprite[cursprite].hitag=temp;
-                Bsprintf(tempbuf,"Sprite %d tags swapped",cursprite);
-                printmessage16(tempbuf);
-            }
-            else if (linehighlight >= 0)
-            {
-                temp=wall[linehighlight].lotag;
-                wall[linehighlight].lotag=wall[linehighlight].hitag;
-                wall[linehighlight].hitag=temp;
-                Bsprintf(tempbuf,"Wall %d tags swapped",linehighlight);
-                printmessage16(tempbuf);
-            }
-        }
+    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_7]) // ' 7 : swap hilo
+    {
+        keystatus[KEYSC_7]=0;
 
-        if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_J]) // ' J
+        if (pointhighlight >= 16384)
         {
-            pos.x=getnumber16("X-coordinate:    ",pos.x,editorgridextent,1);
-            pos.y=getnumber16("Y-coordinate:    ",pos.y,editorgridextent,1);
-            Bsprintf(tempbuf,"Current pos now (%d, %d)",pos.x,pos.y);
+            temp=sprite[cursprite].lotag;
+            sprite[cursprite].lotag=sprite[cursprite].hitag;
+            sprite[cursprite].hitag=temp;
+            Bsprintf(tempbuf,"Sprite %d tags swapped",cursprite);
             printmessage16(tempbuf);
-            keystatus[KEYSC_J]=0;
         }
+        else if (linehighlight >= 0)
+        {
+            temp=wall[linehighlight].lotag;
+            wall[linehighlight].lotag=wall[linehighlight].hitag;
+            wall[linehighlight].hitag=temp;
+            Bsprintf(tempbuf,"Wall %d tags swapped",linehighlight);
+            printmessage16(tempbuf);
+        }
+    }
+
+    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_J]) // ' J
+    {
+        pos.x=getnumber16("X-coordinate:    ",pos.x,editorgridextent,1);
+        pos.y=getnumber16("Y-coordinate:    ",pos.y,editorgridextent,1);
+        Bsprintf(tempbuf,"Current pos now (%d, %d)",pos.x,pos.y);
+        printmessage16(tempbuf);
+        keystatus[KEYSC_J]=0;
+    }
 
 }// end key2d
 
