@@ -441,8 +441,10 @@ int32_t writesetup(const char *fn)
 #endif
 //             "; Console key scancode, in hex\n"
              "keyconsole = %X\n"
-             "; example: make 'Q' function as CapsLock and 'N' as AltGr:\n"
-             "; remap = 10-3A,31-B8\n"
+             "; example: make 'Q' function as CapsLock, KP. as AltGr\n"
+             "; and KP0 as KP5 (counters inability to pan using Shift-KP5-KP8/2\n"
+             "; in 3D mode)\n"
+             "; remap = 10-3A,52-4C,53-B8\n"
              "remap = ",
 
              forcesetup, fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame,

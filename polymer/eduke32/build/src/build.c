@@ -3958,55 +3958,73 @@ SKIP:
         }
 
         if (keystatus[0xd2] || keystatus[0x17])  //InsertPoint
-        {
+        {   
             if (highlightsectorcnt >= 0)
             {
-                newnumsectors = numsectors;
-                newnumwalls = numwalls;
+                int32_t newwalls = 0;
                 for (i=0; i<highlightsectorcnt; i++)
-                {
-                    copysector(highlightsector[i],newnumsectors,newnumwalls,1);
-                    newnumsectors++;
-                    newnumwalls += sector[highlightsector[i]].wallnum;
-                }
+                    newwalls += sector[highlightsector[i]].wallnum;
 
-                for (i=0; i<highlightsectorcnt; i++)
+                if (highlightsectorcnt + numsectors <= MAXSECTORS && numwalls+newwalls <= MAXWALLS)
                 {
-                    startwall = sector[highlightsector[i]].wallptr;
-                    endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                    for (j=startwall; j<=endwall; j++)
+                    newnumsectors = numsectors;
+                    newnumwalls = numwalls;
+                    for (i=0; i<highlightsectorcnt; i++)
                     {
-                        if (wall[j].nextwall >= 0)
-                            checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                        checksectorpointer((int16_t)j,highlightsector[i]);
+                        copysector(highlightsector[i],newnumsectors,newnumwalls,1);
+                        newnumsectors++;
+                        newnumwalls += sector[highlightsector[i]].wallnum;
                     }
-                    highlightsector[i] = numsectors+i;
+
+                    for (i=0; i<highlightsectorcnt; i++)
+                    {
+                        startwall = sector[highlightsector[i]].wallptr;
+                        endwall = startwall+sector[highlightsector[i]].wallnum-1;
+                        for (j=startwall; j<=endwall; j++)
+                        {
+                            if (wall[j].nextwall >= 0)
+                                checksectorpointer(wall[j].nextwall,wall[j].nextsector);
+                            checksectorpointer((int16_t)j,highlightsector[i]);
+                        }
+                        highlightsector[i] = numsectors+i;
+                    }
+                    numsectors = newnumsectors;
+                    numwalls = newnumwalls;
+
+                    newnumwalls = -1;
+                    newnumsectors = -1;
+
+                    updatenumsprites();
+                    printmessage16("Sectors duplicated and stamped.");
+                    asksave = 1;
                 }
-                numsectors = newnumsectors;
-                numwalls = newnumwalls;
-
-                newnumwalls = -1;
-                newnumsectors = -1;
-
-                updatenumsprites();
-                printmessage16("Sectors duplicated and stamped.");
-                asksave = 1;
+                else
+                {
+                    printmessage16("Copying sectors would exceed sector or wall limit.");
+                }
             }
             else if (highlightcnt >= 0)
             {
-                for (i=0; i<highlightcnt; i++)
-                    if ((highlight[i]&0xc000) == 16384)
-                    {
-                        //duplicate sprite
-                        k = (highlight[i]&16383);
-                        j = insertsprite(sprite[k].sectnum,sprite[k].statnum);
-                        Bmemcpy(&sprite[j],&sprite[k],sizeof(spritetype));
-                        sprite[j].sectnum = sprite[k].sectnum;   //Don't let memcpy overwrite sector!
-                        setsprite(j,(vec3_t *)&sprite[j]);
-                    }
-                updatenumsprites();
-                printmessage16("Sprites duplicated and stamped.");
-                asksave = 1;
+                if (highlightcnt + numsprites <= MAXSPRITES)
+                {
+                    for (i=0; i<highlightcnt; i++)
+                        if ((highlight[i]&0xc000) == 16384)
+                        {
+                            //duplicate sprite
+                            k = (highlight[i]&16383);
+                            j = insertsprite(sprite[k].sectnum,sprite[k].statnum);
+                            Bmemcpy(&sprite[j],&sprite[k],sizeof(spritetype));
+                            sprite[j].sectnum = sprite[k].sectnum;   //Don't let memcpy overwrite sector!
+                            setsprite(j,(vec3_t *)&sprite[j]);
+                        }
+                    updatenumsprites();
+                    printmessage16("Sprites duplicated and stamped.");
+                    asksave = 1;
+                }
+                else
+                {
+                    printmessage16("Copying sprites would exceed sprite limit.");
+                }
             }
             else if (linehighlight >= 0)
             {
