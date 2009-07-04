@@ -881,11 +881,13 @@ static inline void prelevel(char g)
     int32_t i, nexti, j, startwall, endwall, lotaglist;
     int32_t lotags[MAXSPRITES];
     int32_t switchpicnum;
-
+    extern char ror_protectedsectors[MAXSECTORS];
 
     clearbufbyte(show2dsector,sizeof(show2dsector),0L);
     clearbufbyte(show2dwall,sizeof(show2dwall),0L);
     clearbufbyte(show2dsprite,sizeof(show2dsprite),0L);
+
+    Bmemset(ror_protectedsectors, 0, MAXSECTORS);
 
     resetprestat(0,g);
     g_numClouds = 0;

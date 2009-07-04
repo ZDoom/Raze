@@ -2238,11 +2238,6 @@ static int32_t X_DoExecute(register int32_t once)
 #endif
                 G_DoInterpolations(smoothratio);
 
-#define SE40
-
-#ifdef SE40
-                se40code(x,y,z,a,horiz,smoothratio);
-#endif
                 if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
 #if defined(POLYMER) && defined(USE_OPENGL)
                         && (getrendermode() != 4)

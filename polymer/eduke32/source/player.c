@@ -3891,7 +3891,7 @@ void P_ProcessInput(int32_t snum)
     {
         j = lz&(MAXSPRITES-1);
 
-        if ((sprite[j].cstat&33) == 33)
+        if ((sprite[j].cstat&33) == 33 || (sprite[j].cstat&17) == 17)
         {
             psectlotag = 0;
             p->footprintcount = 0;
@@ -4356,7 +4356,7 @@ void P_ProcessInput(int32_t snum)
         if (p->posz > (fz-(15<<8)))
             p->posz += ((fz-(15<<8))-p->posz)>>1;
 
-        if (p->posz < (cz+(4<<8)))
+        if ((psectlotag != 2 || cz != sector[p->cursectnum].ceilingz) && p->posz < (cz+(4<<8)))
         {
             p->posz = cz+(4<<8);
             p->poszv = 0;
@@ -4456,10 +4456,12 @@ void P_ProcessInput(int32_t snum)
             {
                 if (p->on_ground == 1)
                 {
-                    if (p->dummyplayersprite == -1)
-                        p->dummyplayersprite =
-                            A_Spawn(pi,PLAYERONWATER);
-                    sprite[p->dummyplayersprite].pal = sprite[p->i].pal;
+                    /*
+                                        if (p->dummyplayersprite == -1)
+                                            p->dummyplayersprite =
+                                                A_Spawn(pi,PLAYERONWATER);
+                                        sprite[p->dummyplayersprite].pal = sprite[p->i].pal;
+                    */
                     p->footprintcount = 6;
                     if (sector[p->cursectnum].floorpicnum == FLOORSLIME)
                         p->footprintpal = 8;
@@ -4655,7 +4657,7 @@ void P_ProcessInput(int32_t snum)
 
         p->posz += p->poszv;
 
-        if (p->posz < (cz+(4<<8)))
+        if ((psectlotag != 2 || cz != sector[p->cursectnum].ceilingz) && p->posz < (cz+(4<<8)))
         {
             p->jumping_counter = 0;
             if (p->poszv < 0)

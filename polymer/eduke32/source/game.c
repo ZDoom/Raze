@@ -4117,189 +4117,166 @@ void G_DrawBackground(void)
     pus = pub = NUMPAGES;
 }
 
-#define SE40
-
-#ifdef SE40
-// Floor Over Floor
-
-// If standing in sector with SE42 or SE44
-// then draw viewing to SE41 and raise all =hi SE43 cielings.
-
-// If standing in sector with SE43 or SE45
-// then draw viewing to SE40 and lower all =hi SE42 floors.
-
-static void SE40_Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int32_t a,int32_t h,int32_t smoothratio)
-{
-    static int32_t tempsectorz[MAXSECTORS];
-    static int32_t tempsectorpicnum[MAXSECTORS];
-
-    int32_t i=0,j=0,k=0;
-    int32_t floor1=0,floor2=0,ok=0,fofmode=0,draw_both=0;
-    int32_t offx,offy,offz;
-
-    if (sprite[spnum].ang!=512) return;
-
-    // Things are a little different now, as we allow for masked transparent
-    // floors and ceilings. So the FOF textures is no longer required
-    // Additionally names.h also defines FOF as 13 which isn't useful for us
-    // so we'll use 562 instead
-    tilesizx[562] = 0;
-    tilesizy[562] = 0;
-
-    floor1=spnum;
-
-    if (sprite[spnum].lotag==42) fofmode=40;
-    if (sprite[spnum].lotag==43) fofmode=41;
-    if (sprite[spnum].lotag==44) fofmode=40;
-    if (sprite[spnum].lotag==45) fofmode=41;
-
-    // fofmode=sprite[spnum].lotag-2;
-
-    // sectnum=sprite[j].sectnum;
-    // sectnum=cursectnum;
-    ok++;
-
-    /*  recursive? - Not at the moment
-    for(j=0;j<MAXSPRITES;j++)
-    {
-    if(
-    sprite[j].sectnum==sectnum &&
-    sprite[j].picnum==1 &&
-    sprite[j].lotag==110
-      ) { DrawFloorOverFloor(j); break;}
-    }
-    */
-
-    // if(ok==0) { Message("no fof",RED); return; }
-
-    for (j=headspritestat[15]; j>=0; j=nextspritestat[j])
-    {
-        if (sprite[j].picnum==1 && sprite[j].lotag==fofmode && sprite[j].hitag==sprite[floor1].hitag)
-        {
-            floor1=j;
-            fofmode=sprite[j].lotag;
-            ok++;
-            break;
-        }
-    }
-    // if(ok==1) { Message("no floor1",RED); return; }
-
-    if (fofmode==40) k=41;
-    else k=40;
-
-    for (j=headspritestat[15]; j>=0; j=nextspritestat[j])
-    {
-        if (sprite[j].picnum==1 && sprite[j].lotag==k && sprite[j].hitag==sprite[floor1].hitag)
-        {
-            floor2=j;
-            ok++;
-            break;
-        }
-    }
-
-    i=floor1;
-    offx=sprite[floor2].x-sprite[floor1].x;
-    offy=sprite[floor2].y-sprite[floor1].y;
-    offz=0;
-
-    if (sprite[floor2].ang >= 1024)
-        offz = sprite[floor2].z;
-    else if (fofmode==41)
-        offz = sector[sprite[floor2].sectnum].floorz;
-    else
-        offz = sector[sprite[floor2].sectnum].ceilingz;
-
-    if (sprite[floor1].ang >= 1024)
-        offz -= sprite[floor1].z;
-    else if (fofmode==40)
-        offz -= sector[sprite[floor1].sectnum].floorz;
-    else
-        offz -= sector[sprite[floor1].sectnum].ceilingz;
-
-    // if(ok==2) { Message("no floor2",RED); return; }
-
-    for (j=headspritestat[15]; j>=0; j=nextspritestat[j]) // raise ceiling or floor
-    {
-        if (sprite[j].picnum==1 && sprite[j].lotag==k+2 && sprite[j].hitag==sprite[floor1].hitag)
-        {
-            if (k==40)
-            {
-                tempsectorz[sprite[j].sectnum]=sector[sprite[j].sectnum].floorz;
-                sector[sprite[j].sectnum].floorz+=(((z-sector[sprite[j].sectnum].floorz)/32768)+1)*32768;
-                tempsectorpicnum[sprite[j].sectnum]=sector[sprite[j].sectnum].floorpicnum;
-                sector[sprite[j].sectnum].floorpicnum=562;
-            }
-            else
-            {
-                tempsectorz[sprite[j].sectnum]=sector[sprite[j].sectnum].ceilingz;
-                sector[sprite[j].sectnum].ceilingz+=(((z-sector[sprite[j].sectnum].ceilingz)/32768)-1)*32768;
-                tempsectorpicnum[sprite[j].sectnum]=sector[sprite[j].sectnum].ceilingpicnum;
-                sector[sprite[j].sectnum].ceilingpicnum=562;
-            }
-            draw_both = 1;
-        }
-    }
-
-    drawrooms(x+offx,y+offy,z+offz,a,h,sprite[floor2].sectnum);
-    G_DoSpriteAnimations(x,y,a,smoothratio);
-    drawmasks();
-
-    if (draw_both)
-    {
-        for (j=headspritestat[15]; j>=0; j=nextspritestat[j]) // restore ceiling or floor for the draw both sectors
-        {
-            if (sprite[j].picnum==1 &&
-                    sprite[j].lotag==k+2 &&
-                    sprite[j].hitag==sprite[floor1].hitag)
-            {
-                if (k==40)
-                {
-                    sector[sprite[j].sectnum].floorz=tempsectorz[sprite[j].sectnum];
-                    sector[sprite[j].sectnum].floorpicnum=tempsectorpicnum[sprite[j].sectnum];
-                }
-                else
-                {
-                    sector[sprite[j].sectnum].ceilingz=tempsectorz[sprite[j].sectnum];
-                    sector[sprite[j].sectnum].ceilingpicnum=tempsectorpicnum[sprite[j].sectnum];
-                }
-            }// end if
-        }// end for
-
-        // Now re-draw
-        drawrooms(x+offx,y+offy,z+offz,a,h,sprite[floor2].sectnum);
-        G_DoSpriteAnimations(x,y,a,smoothratio);
-        drawmasks();
-    }
-} // end SE40
-
-void se40code(int32_t x,int32_t y,int32_t z,int32_t a,int32_t h, int32_t smoothratio)
-{
-    int32_t i= headspritestat[15];
-
-    while (i >= 0)
-    {
-        int32_t t = sprite[i].lotag;
-        switch (t)
-        {
-            //            case 40:
-            //            case 41:
-            //                SE40_Draw(i,x,y,a,smoothratio);
-            //                break;
-        case 42:
-        case 43:
-        case 44:
-        case 45:
-            if (g_player[screenpeek].ps->cursectnum == sprite[i].sectnum)
-                SE40_Draw(i,x,y,z,a,h,smoothratio);
-            break;
-        }
-        i = nextspritestat[i];
-    }
-}
-#endif /* SE40 */
+static int32_t ror_sprite = -1;
 
 static int32_t oyrepeat=-1;
 extern float r_ambientlight;
+
+char ror_protectedsectors[MAXSECTORS];
+int32_t drawing_ror = 0;
+
+void G_SE40(int32_t smoothratio)
+{
+    if (getrendermode() != 4 && ror_sprite != -1)
+    {
+        int32_t x, y, z;
+        int16_t sect;
+        int32_t level = 0;
+        spritetype *sp = &sprite[ror_sprite];
+        int32_t sprite2 = sp->yvel;
+
+        if (klabs(sector[sp->sectnum].floorz - sp->z) < klabs(sector[sprite[sprite2].sectnum].floorz - sprite[sprite2].z))
+            level = 1;
+
+        x = ud.camerax - sp->x;
+        y = ud.cameray - sp->y;
+        z = ud.cameraz - (level ? sector[sp->sectnum].floorz : sector[sp->sectnum].ceilingz);
+
+        sect = sprite[sprite2].sectnum;
+        updatesector(sprite[sprite2].x + x, sprite[sprite2].y + y, &sect);
+
+        if (sect != -1)
+        {
+            int32_t renderz, picnum;
+            int16_t backupstat[numsectors];
+            int32_t backupz[numsectors];
+            int32_t i;
+            int32_t pix_diff, newz;
+            //                initprintf("drawing ror\n");
+
+            if (level)
+            {
+                // renderz = sector[sprite[sprite2].sectnum].ceilingz;
+                renderz = sprite[sprite2].z - (sprite[sprite2].yrepeat * tilesizy[sprite[sprite2].picnum]<<1);
+                picnum = sector[sprite[sprite2].sectnum].ceilingpicnum;
+                sector[sprite[sprite2].sectnum].ceilingpicnum = 562;
+                tilesizx[562] = tilesizy[562] = 0;
+
+                pix_diff = klabs(z) >> 8;
+                newz = - ((pix_diff / 128) + 1) * (128<<8);
+
+                for (i = 0; i < numsectors; i++)
+                {
+                    backupstat[i] = sector[i].ceilingstat;
+                    backupz[i] = sector[i].ceilingz;
+                    if (!ror_protectedsectors[i] || (ror_protectedsectors[i] && sp->lotag == 41))
+                    {
+                        sector[i].ceilingstat = 1;
+                        sector[i].ceilingz += newz;
+                    }
+                }
+            }
+            else
+            {
+                // renderz = sector[sprite[sprite2].sectnum].floorz;
+                renderz = sprite[sprite2].z;
+                picnum = sector[sprite[sprite2].sectnum].floorpicnum;
+                sector[sprite[sprite2].sectnum].floorpicnum = 562;
+                tilesizx[562] = tilesizy[562] = 0;
+
+                pix_diff = klabs(z) >> 8;
+                newz = ((pix_diff / 128) + 1) * (128<<8);
+
+                for (i = 0; i < numsectors; i++)
+                {
+                    backupstat[i] = sector[i].floorstat;
+                    backupz[i] = sector[i].floorz;
+                    if (!ror_protectedsectors[i] || (ror_protectedsectors[i] && sp->lotag == 41))
+                    {
+                        sector[i].floorstat = 1;
+                        sector[i].floorz = +newz;
+                    }
+                }
+            }
+
+            drawrooms(sprite[sprite2].x + x, sprite[sprite2].y + y,
+                      z + renderz, ud.cameraang, ud.camerahoriz, sect);
+            drawing_ror = 1 + level;
+
+            // dupe the sprites touching the portal to the other sector
+
+            if (drawing_ror == 2) // viewing from top
+            {
+                int32_t k = headspritesect[sp->sectnum];
+
+                while (k != -1)
+                {
+                    if (sprite[k].picnum != SECTOREFFECTOR && (sprite[k].z >= sp->z))
+                    {
+                        Bmemcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)&sprite[k],sizeof(spritetype));
+
+                        tsprite[spritesortcnt].x += (sprite[sp->yvel].x-sp->x);
+                        tsprite[spritesortcnt].y += (sprite[sp->yvel].y-sp->y);
+                        tsprite[spritesortcnt].z = tsprite[spritesortcnt].z - sp->z + ActorExtra[sp->yvel].ceilingz;
+                        tsprite[spritesortcnt].sectnum = sprite[sp->yvel].sectnum;
+                        tsprite[spritesortcnt].owner = k;
+
+                        //OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
+                        spritesortcnt++;
+                    }
+                    k = nextspritesect[k];
+                }
+            }
+            /*
+                        else // viewing from bottom
+                        {
+                            int32_t k = headspritesect[sprite[sp->yvel].sectnum];
+
+                            while (k != -1)
+                            {
+                                if (sprite[k].picnum != SECTOREFFECTOR && (sprite[k].z >= sprite[sp->yvel].z))
+                                {
+                                    Bmemcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)&sprite[k],sizeof(spritetype));
+
+                                    tsprite[spritesortcnt].x -= (sprite[sp->yvel].x-sp->x);
+                                    tsprite[spritesortcnt].y -= (sprite[sp->yvel].y-sp->y);
+                                    tsprite[spritesortcnt].z = tsprite[spritesortcnt].z - sprite[sp->yvel].z + ActorExtra[ror_sprite].ceilingz;
+                                    tsprite[spritesortcnt].sectnum = sp->sectnum;
+                                    tsprite[spritesortcnt].owner = k;
+
+                                    //OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
+                                    spritesortcnt++;
+                                }
+                                k = nextspritesect[k];
+                            }
+                        }
+            */
+
+            G_DoSpriteAnimations(ud.camerax,ud.cameray,ud.cameraang,smoothratio);
+            drawmasks();
+
+            if (level)
+            {
+                sector[sprite[sprite2].sectnum].ceilingpicnum = picnum;
+                for (i = 0; i < numsectors; i++)
+                {
+                    sector[i].ceilingstat = backupstat[i];
+                    sector[i].ceilingz = backupz[i];
+                }
+            }
+            else
+            {
+                sector[sprite[sprite2].sectnum].floorpicnum = picnum;
+
+                for (i = 0; i < numsectors; i++)
+                {
+                    sector[i].floorstat = backupstat[i];
+                    sector[i].floorz = backupz[i];
+                }
+            }
+        }
+    }
+}
 
 void G_DrawRooms(int32_t snum,int32_t smoothratio)
 {
@@ -4343,13 +4320,13 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
         else if (s->yvel > 199) s->yvel = 300;
 
         ud.cameraang = ActorExtra[ud.camerasprite].tempang+mulscale16((int32_t)(((s->ang+1024-ActorExtra[ud.camerasprite].tempang)&2047)-1024),smoothratio);
-#ifdef SE40
-        se40code(s->x,s->y,s->z,ud.cameraang,s->yvel,smoothratio);
-#endif
 #ifdef POLYMER
         if (getrendermode() == 4)
             polymer_setanimatesprites(G_DoSpriteAnimations, s->x, s->y, ud.cameraang, smoothratio);
 #endif
+
+        G_SE40(smoothratio);
+
         drawrooms(s->x,s->y,s->z-(4<<8),ud.cameraang,s->yvel,s->sectnum);
         G_DoSpriteAnimations(s->x,s->y,ud.cameraang,smoothratio);
         drawmasks();
@@ -4495,9 +4472,6 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
         if (apScriptGameEvent[EVENT_DISPLAYROOMS])
             X_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1);
 
-#ifdef SE40
-        se40code(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,smoothratio);
-#endif
         if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
 #if defined(POLYMOST) && defined(USE_OPENGL)
                 && (getrendermode() != 4)
@@ -4539,8 +4513,43 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
             polymer_setanimatesprites(G_DoSpriteAnimations, ud.camerax,ud.cameray,ud.cameraang,smoothratio);
         }
 #endif
+        G_SE40(smoothratio);
+
         drawrooms(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,ud.camerasect);
+
+        // dupe the sprites touching the portal to the other sector
+
+        if (ror_sprite != -1)
+        {
+            spritetype *sp = &sprite[ror_sprite];
+
+            // viewing from bottom
+            if (drawing_ror == 1)
+            {
+                int32_t k = headspritesect[sp->sectnum];
+
+                while (k != -1)
+                {
+                    if (sprite[k].picnum != SECTOREFFECTOR && (sprite[k].z >= sp->z))
+                    {
+                        Bmemcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)&sprite[k],sizeof(spritetype));
+
+                        tsprite[spritesortcnt].x += (sprite[sp->yvel].x-sp->x);
+                        tsprite[spritesortcnt].y += (sprite[sp->yvel].y-sp->y);
+                        tsprite[spritesortcnt].z = tsprite[spritesortcnt].z - sp->z + ActorExtra[sp->yvel].ceilingz;
+                        tsprite[spritesortcnt].sectnum = sprite[sp->yvel].sectnum;
+                        tsprite[spritesortcnt].owner = k;
+
+                        OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
+                        spritesortcnt++;
+                    }
+                    k = nextspritesect[k];
+                }
+            }
+        }
+
         G_DoSpriteAnimations(ud.camerax,ud.cameray,ud.cameraang,smoothratio);
+        drawing_ror = 0;
         drawmasks();
 
         if (g_screenCapture == 1)
@@ -4582,7 +4591,7 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
 static void G_DumpDebugInfo(void)
 {
     int32_t i,j,x;
-//    FILE * fp=fopen("condebug.log","w");
+    //    FILE * fp=fopen("condebug.log","w");
 
     OSD_Printf("Current gamevar values:\n");
     for (i=0; i<MAX_WEAPONS; i++)
@@ -6098,7 +6107,23 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             switch (sp->lotag)
             {
-
+            case 40:
+            case 41:
+                sp->cstat = 32;
+                sp->xrepeat = sp->yrepeat = 64;
+                changespritestat(i, STAT_EFFECTOR);
+                for (j=0; j < MAXSPRITES; j++)
+                    if (sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 40 || sprite[j].lotag == 41) &&
+                            sprite[j].hitag == sp->hitag && i != j)
+                    {
+//                        initprintf("found ror match\n");
+                        sp->yvel = j;
+                        break;
+                    }
+                goto SPAWN_END;
+                break;
+            case 46:
+                ror_protectedsectors[sp->sectnum] = 1;
             case 49:
             case 50:
                 changespritestat(i, STAT_EFFECTOR);
@@ -6539,21 +6564,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 break;
             }
 
-            switch (sprite[i].lotag)
-            {
-            case 40:
-            case 41:
-            case 42:
-            case 43:
-            case 44:
-            case 45:
-                changespritestat(i,15);
-                break;
-            default:
-                changespritestat(i, STAT_EFFECTOR);
-                break;
-            }
-
+            changespritestat(i, STAT_EFFECTOR);
             break;
 
         case SEENINE__STATIC:
@@ -6676,6 +6687,36 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
     if (!spritesortcnt) return;
 
+    ror_sprite = -1;
+
+    for (j=spritesortcnt-1; j>=0; j--) //Between drawrooms() and drawmasks()
+    {
+        //is the perfect time to animate sprites
+        t = &tsprite[j];
+        i = t->owner;
+        s = &sprite[i];
+
+        switch (DynamicTileMap[s->picnum])
+        {
+        case SECTOREFFECTOR__STATIC:
+            if (s->lotag == 40 || s->lotag == 41)
+            {
+                t->cstat = 32768;
+
+                if (ror_sprite == -1) ror_sprite = i;
+            }
+
+            if (t->lotag == 27 && ud.recstat == 1)
+            {
+                t->picnum = 11+((totalclock>>3)&1);
+                t->cstat |= 128;
+            }
+            else
+                t->xrepeat = t->yrepeat = 0;
+            break;
+        }
+    }
+
     for (j=spritesortcnt-1; j>=0; j--)
     {
         t = &tsprite[j];
@@ -6779,15 +6820,6 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
         switch (DynamicTileMap[s->picnum])
         {
-        case SECTOREFFECTOR__STATIC:
-            if (t->lotag == 27 && ud.recstat == 1)
-            {
-                t->picnum = 11+((totalclock>>3)&1);
-                t->cstat |= 128;
-            }
-            else
-                t->xrepeat = t->yrepeat = 0;
-            break;
         case NATURALLIGHTNING__STATIC:
             t->shade = -127;
             break;
@@ -7290,7 +7322,7 @@ PALONLY:
             }
             */
 
-            if (t4)
+            if (t4 && t4 != 1)
             {
                 l = *(((intptr_t *)t4)+2); //For TerminX: was *(int32_t *)(t4+8)
 
@@ -12277,7 +12309,7 @@ static void Net_DoPrediction(void)
     if (lz >= 0 && (lz&49152) == 49152)
     {
         j = lz&(MAXSPRITES-1);
-        if ((sprite[j].cstat&33) == 33)
+        if ((sprite[j].cstat&33) == 33 || (sprite[j].cstat&17) == 17)
         {
             psectlotag = 0;
             spritebridge = 1;
@@ -12358,11 +12390,13 @@ static void Net_DoPrediction(void)
         if (my.z > (fz-(15<<8)))
             my.z += ((fz-(15<<8))-my.z)>>1;
 
-        if (my.z < (cz+(4<<8)))
-        {
-            my.z = cz+(4<<8);
-            myvel.z = 0;
-        }
+        /*
+                if (my.z < (cz+(4<<8)))
+                {
+                    my.z = cz+(4<<8);
+                    myvel.z = 0;
+                }
+        */
     }
 
     else if (p->jetpack_on)

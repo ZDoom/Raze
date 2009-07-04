@@ -365,7 +365,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 
         if (sprite[spritenum].statnum == 4)
             retval =
-                clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),8L,(4<<8),(4<<8),cliptype);
+                clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),(int32_t)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
         else
             retval =
                 clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),(int32_t)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
@@ -380,8 +380,60 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
     daz = sprite[spritenum].z + ((change->z*TICSPERFRAME)>>3);
     if ((daz > ActorExtra[spritenum].ceilingz) && (daz <= ActorExtra[spritenum].floorz))
         sprite[spritenum].z = daz;
-    else if (retval == 0)
-        return(16384+dasectnum);
+    else if (retval == 0) retval = 16384+dasectnum;
+
+    if (retval == (16384+dasectnum))
+        if (sprite[spritenum].statnum == STAT_PROJECTILE)
+        {
+            int32_t i, nexti;
+
+            TRAVERSE_SPRITE_STAT(headspritestat[STAT_TRANSPORT], i, nexti)
+            if (sprite[i].sectnum == dasectnum)
+            {
+                switch (sector[dasectnum].lotag)
+                {
+                case 1:
+                    if (daz >= ActorExtra[spritenum].floorz)
+                    {
+                        if (totalclock > ActorExtra[spritenum].temp_data[9])
+                        {
+                            ActorExtra[spritenum].temp_data[9] = totalclock + (TICSPERFRAME<<2);
+
+                            sprite[spritenum].x += (sprite[OW].x-SX);
+                            sprite[spritenum].y += (sprite[OW].y-SY);
+                            sprite[spritenum].z = sector[sprite[OW].sectnum].ceilingz - daz + sector[sprite[i].sectnum].floorz;
+
+                            ActorExtra[spritenum].bposx = sprite[spritenum].x;
+                            ActorExtra[spritenum].bposy = sprite[spritenum].y;
+                            ActorExtra[spritenum].bposz = sprite[spritenum].z;
+
+                            changespritesect(spritenum,sprite[OW].sectnum);
+                        }
+
+                        return 0;
+                    }
+                case 2:
+                    if (daz <= ActorExtra[spritenum].ceilingz)
+                    {
+                        if (totalclock > ActorExtra[spritenum].temp_data[9])
+                        {
+                            ActorExtra[spritenum].temp_data[9] = totalclock + (TICSPERFRAME<<2);
+                            sprite[spritenum].x += (sprite[OW].x-SX);
+                            sprite[spritenum].y += (sprite[OW].y-SY);
+                            sprite[spritenum].z = sector[sprite[OW].sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
+
+                            ActorExtra[spritenum].bposx = sprite[spritenum].x;
+                            ActorExtra[spritenum].bposy = sprite[spritenum].y;
+                            ActorExtra[spritenum].bposz = sprite[spritenum].z;
+
+                            changespritesect(spritenum,sprite[OW].sectnum);
+                        }
+
+                        return 0;
+                    }
+                }
+            }
+        }
 
     return(retval);
 }
@@ -2788,7 +2840,7 @@ static void G_MoveWeapons(void)
                 }
 
 
-                if (s->picnum == RPG && s->yvel >= 0 && sprite[s->yvel].sectnum < MAXSECTORS)
+                if (s->picnum == RPG && s->yvel >= 0)
                     if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
                         j = 49152|s->yvel;
 
@@ -3136,7 +3188,7 @@ static void G_MoveTransports(void)
                     k = 0;
 
                     if (onfloorz && sectlotag == 1 && g_player[p].ps->on_ground &&
-                            g_player[p].ps->posz > (sector[sect].floorz-1080) &&
+                            g_player[p].ps->posz >= sector[sect].floorz &&
                             (TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH) || g_player[p].ps->poszv > 2048))
                         //                        if( onfloorz && sectlotag == 1 && g_player[p].ps->posz > (sector[sect].floorz-(6<<8)) )
                     {
@@ -3151,12 +3203,15 @@ static void G_MoveTransports(void)
                         g_player[p].ps->oposz = g_player[p].ps->posz =
                                                     sector[sprite[OW].sectnum].ceilingz;
 
-                        g_player[p].ps->posxv = 4096-(krand()&8192);
-                        g_player[p].ps->posyv = 4096-(krand()&8192);
-                        //          g_player[p].ps->poszv += 1080;
+                        /*
+                                                g_player[p].ps->posxv = 4096-(krand()&8192);
+                                                g_player[p].ps->posyv = 4096-(krand()&8192);
+                        */
+                        if (TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH))
+                            g_player[p].ps->poszv += 512;
                     }
 
-                    if (onfloorz && sectlotag == 2 && g_player[p].ps->posz < (sector[sect].ceilingz+1080) && g_player[p].ps->poszv == 0)
+                    if (onfloorz && sectlotag == 2 && g_player[p].ps->posz <= sector[sect].ceilingz /*&& g_player[p].ps->poszv == 0*/)
                     {
                         k = 1;
                         //                            if( sprite[j].extra <= 0) break;
@@ -3172,14 +3227,15 @@ static void G_MoveTransports(void)
 
                         g_player[p].ps->jumping_toggle = 1;
                         g_player[p].ps->jumping_counter = 0;
+                        g_player[p].ps->poszv = 0;
                         //                        g_player[p].ps->poszv += 1024;
                     }
 
                     if (k == 1)
                     {
                         vec3_t vect;
-                        g_player[p].ps->oposx = g_player[p].ps->posx += sprite[OW].x-SX;
-                        g_player[p].ps->oposy = g_player[p].ps->posy += sprite[OW].y-SY;
+                        g_player[p].ps->bobposx = g_player[p].ps->oposx = g_player[p].ps->posx += sprite[OW].x-SX;
+                        g_player[p].ps->bobposy = g_player[p].ps->oposy = g_player[p].ps->posy += sprite[OW].y-SY;
 
                         if (sprite[OW].owner != OW)
                             g_player[p].ps->transporter_hold = -2;
@@ -3215,13 +3271,14 @@ static void G_MoveTransports(void)
                     if (sprite[j].extra > 0)
                         goto JBOLT;
                 }
-            case 4:
+//            case 4:
             case 5:
             case 12:
             case 13:
 
                 ll = klabs(sprite[j].zvel);
 
+                if (totalclock > ActorExtra[j].temp_data[9])
                 {
                     warpspriteto = 0;
                     if (ll && sectlotag == 2 && sprite[j].z < (sector[sect].ceilingz+ll))
@@ -3259,7 +3316,7 @@ static void G_MoveTransports(void)
                         case PLAYERONWATER__STATIC:
                             if (sectlotag == 2)
                             {
-                                sprite[j].cstat &= 32767;
+                                sprite[j].cstat &= 32768;
                                 break;
                             }
                         default:
@@ -3329,9 +3386,11 @@ static void G_MoveTransports(void)
                                 }
                                 break;
                             case 1:
+                                ActorExtra[j].temp_data[9] = totalclock + (TICSPERFRAME<<2);
+
                                 sprite[j].x += (sprite[OW].x-SX);
                                 sprite[j].y += (sprite[OW].y-SY);
-                                sprite[j].z = sector[sprite[OW].sectnum].ceilingz+ll;
+                                sprite[j].z = sector[sprite[OW].sectnum].ceilingz;
 
                                 ActorExtra[j].bposx = sprite[j].x;
                                 ActorExtra[j].bposy = sprite[j].y;
@@ -3341,9 +3400,10 @@ static void G_MoveTransports(void)
 
                                 break;
                             case 2:
+                                ActorExtra[j].temp_data[9] = totalclock + (TICSPERFRAME<<2);
                                 sprite[j].x += (sprite[OW].x-SX);
                                 sprite[j].y += (sprite[OW].y-SY);
-                                sprite[j].z = sector[sprite[OW].sectnum].floorz-ll;
+                                sprite[j].z = sector[sprite[OW].sectnum].floorz;
 
                                 ActorExtra[j].bposx = sprite[j].x;
                                 ActorExtra[j].bposy = sprite[j].y;
@@ -4302,7 +4362,7 @@ static void G_MoveActors(void)
                 if (j >= 0)
                 {
                     t[3] = 1;
-                    t[4] = 0;
+                    t[2] = 0;
                     l = 0;
                     s->xvel = 0;
                     goto DETONATEB;
@@ -4354,7 +4414,7 @@ static void G_MoveActors(void)
             if (t[3] == 0 && (s->picnum == BOUNCEMINE || s->picnum == MORTER) && (j || x < 844))
             {
                 t[3] = 1;
-                t[4] = 0;
+                t[2] = 0;
                 l = 0;
                 s->xvel = 0;
                 goto DETONATEB;
@@ -4423,9 +4483,9 @@ DETONATEB:
 
             if (t[6] == 3)
             {
-                t[4]++;
+                t[2]++;
 
-                if (t[4] == 2)
+                if (t[2] == 2)
                 {
                     x = s->extra;
                     m = 0;
@@ -4457,7 +4517,7 @@ DETONATEB:
                     goto BOLT;
                 }
 
-                if (t[4] > 20)
+                if (t[2] > 20)
                 {
                     if (s->owner != i || ud.respawn_items == 0)
                     {
@@ -7861,171 +7921,173 @@ void G_MoveWorld(void)
                             ActorExtra[i].lightId = -1;
                             ActorExtra[i].lightptr = NULL;
                         }
-                        break;
                     }
-
-                    if (ActorExtra[i].lightptr != NULL && ActorExtra[i].lightcount)
+                    else
                     {
-                        if (!(--ActorExtra[i].lightcount))
+
+                        if (ActorExtra[i].lightptr != NULL && ActorExtra[i].lightcount)
                         {
-                            polymer_deletelight(ActorExtra[i].lightId);
-                            ActorExtra[i].lightId = -1;
-                            ActorExtra[i].lightptr = NULL;
-                        }
-                    }
-
-                    switch (DynamicTileMap[sprite[i].picnum-1])
-                    {
-                    case DIPSWITCH__STATIC:
-                    case DIPSWITCH2__STATIC:
-                    case DIPSWITCH3__STATIC:
-                    case PULLSWITCH__STATIC:
-                    case SLOTDOOR__STATIC:
-                    case LIGHTSWITCH__STATIC:
-                    case SPACELIGHTSWITCH__STATIC:
-                    case SPACEDOORSWITCH__STATIC:
-                    case FRANKENSTINESWITCH__STATIC:
-                    case POWERSWITCH1__STATIC:
-                    case LOCKSWITCH1__STATIC:
-                    case POWERSWITCH2__STATIC:
-                    case TECHSWITCH__STATIC:
-                    case ACCESSSWITCH__STATIC:
-                    case ACCESSSWITCH2__STATIC:
-                    {
-                        int32_t x, y;
-
-                        if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
-                        {
-                            if (ActorExtra[i].lightptr != NULL)
+                            if (!(--ActorExtra[i].lightcount))
                             {
                                 polymer_deletelight(ActorExtra[i].lightId);
                                 ActorExtra[i].lightId = -1;
                                 ActorExtra[i].lightptr = NULL;
                             }
-                            break;
                         }
 
-                        x = ((sintable[(s->ang+512)&2047])>>7);
-                        y = ((sintable[(s->ang)&2047])>>7);
-
-                        s->x += x;
-                        s->y += y;
-
-                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 48+(255<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
-                        s->x -= x;
-                        s->y -= y;
-                    }
-                    break;
-                    }
-                    switch (DynamicTileMap[sprite[i].picnum])
-                    {
-                    case ATOMICHEALTH__STATIC:
-                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
-                        break;
-
-                    case FIRE__STATIC:
-                    case FIRE2__STATIC:
-                        /*
-                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
-                        if (s->z > ActorExtra[i].floorz+2048) break;
-                        */
-                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
-                        break;
-
-                    case BURNING__STATIC:
-                    case BURNING2__STATIC:
-                        /*
-                        if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
-                        if (s->z > ActorExtra[i].floorz + 2048) break;
-                        */
-                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
-                        break;
-
-                    case OOZFILTER__STATIC:
-                        if (s->xrepeat > 4)
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 6144, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
-                        break;
-                    case FLOORFLAME__STATIC:
-                    case FIREBARREL__STATIC:
-                    case FIREVASE__STATIC:
-                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
-                        break;
-
-                    case EXPLOSION2__STATIC:
-                        if (!ActorExtra[i].lightcount)
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),
-                                           s->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
-                        break;
-                    case FORCERIPPLE__STATIC:
-                        //                    case TRANSPORTERSTAR__STATIC:
-                    case TRANSPORTERBEAM__STATIC:
-                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
-                        break;
-                    case SHRINKEREXPLOSION__STATIC:
-                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
-                        break;
-                    case FREEZEBLAST__STATIC:
-                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
-                        break;
-
-                    case COOLEXPLOSION1__STATIC:
-                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<3, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
-                        break;
-
-                    case SHRINKSPARK__STATIC:
-                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
-                        break;
-                    case FIRELASER__STATIC:
-                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
-                        break;
-                    case RPG__STATIC:
-                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
-                        break;
-
-                    case DIPSWITCH__STATIC:
-                    case DIPSWITCH2__STATIC:
-                    case DIPSWITCH3__STATIC:
-                    case PULLSWITCH__STATIC:
-                    case SLOTDOOR__STATIC:
-                    case LIGHTSWITCH__STATIC:
-                    case SPACELIGHTSWITCH__STATIC:
-                    case SPACEDOORSWITCH__STATIC:
-                    case FRANKENSTINESWITCH__STATIC:
-                    case POWERSWITCH1__STATIC:
-                    case LOCKSWITCH1__STATIC:
-                    case POWERSWITCH2__STATIC:
-                    case TECHSWITCH__STATIC:
-                    case ACCESSSWITCH__STATIC:
-                    case ACCESSSWITCH2__STATIC:
-                    {
-                        int32_t x, y;
-
-                        if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                        switch (DynamicTileMap[sprite[i].picnum-1])
                         {
-                            if (ActorExtra[i].lightptr != NULL)
+                        case DIPSWITCH__STATIC:
+                        case DIPSWITCH2__STATIC:
+                        case DIPSWITCH3__STATIC:
+                        case PULLSWITCH__STATIC:
+                        case SLOTDOOR__STATIC:
+                        case LIGHTSWITCH__STATIC:
+                        case SPACELIGHTSWITCH__STATIC:
+                        case SPACEDOORSWITCH__STATIC:
+                        case FRANKENSTINESWITCH__STATIC:
+                        case POWERSWITCH1__STATIC:
+                        case LOCKSWITCH1__STATIC:
+                        case POWERSWITCH2__STATIC:
+                        case TECHSWITCH__STATIC:
+                        case ACCESSSWITCH__STATIC:
+                        case ACCESSSWITCH2__STATIC:
+                        {
+                            int32_t x, y;
+
+                            if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
                             {
-                                polymer_deletelight(ActorExtra[i].lightId);
-                                ActorExtra[i].lightId = -1;
-                                ActorExtra[i].lightptr = NULL;
+                                if (ActorExtra[i].lightptr != NULL)
+                                {
+                                    polymer_deletelight(ActorExtra[i].lightId);
+                                    ActorExtra[i].lightId = -1;
+                                    ActorExtra[i].lightptr = NULL;
+                                }
+                                break;
                             }
-                            break;
+
+                            x = ((sintable[(s->ang+512)&2047])>>7);
+                            y = ((sintable[(s->ang)&2047])>>7);
+
+                            s->x += x;
+                            s->y += y;
+
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 48+(255<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
+                            s->x -= x;
+                            s->y -= y;
+                        }
+                        break;
                         }
 
-                        x = ((sintable[(s->ang+512)&2047])>>7);
-                        y = ((sintable[(s->ang)&2047])>>7);
+                        switch (DynamicTileMap[sprite[i].picnum])
+                        {
+                        case ATOMICHEALTH__STATIC:
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                            break;
 
-                        s->x += x;
-                        s->y += y;
+                        case FIRE__STATIC:
+                        case FIRE2__STATIC:
+                            /*
+                            if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
+                            if (s->z > ActorExtra[i].floorz+2048) break;
+                            */
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                            break;
 
-                        G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 255+(48<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
-                        s->x -= x;
-                        s->y -= y;
-                    }
-                    break;
+                        case BURNING__STATIC:
+                        case BURNING2__STATIC:
+                            /*
+                            if (ActorExtra[i].floorz - ActorExtra[i].ceilingz < 128) break;
+                            if (s->z > ActorExtra[i].floorz + 2048) break;
+                            */
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                            break;
+
+                        case OOZFILTER__STATIC:
+                            if (s->xrepeat > 4)
+                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 6144, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                            break;
+                        case FLOORFLAME__STATIC:
+                        case FIREBARREL__STATIC:
+                        case FIREVASE__STATIC:
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                            break;
+
+                        case EXPLOSION2__STATIC:
+                            if (!ActorExtra[i].lightcount)
+                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),
+                                               s->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
+                            break;
+                        case FORCERIPPLE__STATIC:
+                            //                    case TRANSPORTERSTAR__STATIC:
+                        case TRANSPORTERBEAM__STATIC:
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
+                            break;
+                        case SHRINKEREXPLOSION__STATIC:
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                            break;
+                        case FREEZEBLAST__STATIC:
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                            break;
+
+                        case COOLEXPLOSION1__STATIC:
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<3, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                            break;
+
+                        case SHRINKSPARK__STATIC:
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                            break;
+                        case FIRELASER__STATIC:
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+                            break;
+                        case RPG__STATIC:
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+                            break;
+
+                        case DIPSWITCH__STATIC:
+                        case DIPSWITCH2__STATIC:
+                        case DIPSWITCH3__STATIC:
+                        case PULLSWITCH__STATIC:
+                        case SLOTDOOR__STATIC:
+                        case LIGHTSWITCH__STATIC:
+                        case SPACELIGHTSWITCH__STATIC:
+                        case SPACEDOORSWITCH__STATIC:
+                        case FRANKENSTINESWITCH__STATIC:
+                        case POWERSWITCH1__STATIC:
+                        case LOCKSWITCH1__STATIC:
+                        case POWERSWITCH2__STATIC:
+                        case TECHSWITCH__STATIC:
+                        case ACCESSSWITCH__STATIC:
+                        case ACCESSSWITCH2__STATIC:
+                        {
+                            int32_t x, y;
+
+                            if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                            {
+                                if (ActorExtra[i].lightptr != NULL)
+                                {
+                                    polymer_deletelight(ActorExtra[i].lightId);
+                                    ActorExtra[i].lightId = -1;
+                                    ActorExtra[i].lightptr = NULL;
+                                }
+                                break;
+                            }
+
+                            x = ((sintable[(s->ang+512)&2047])>>7);
+                            y = ((sintable[(s->ang)&2047])>>7);
+
+                            s->x += x;
+                            s->y += y;
+
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 255+(48<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
+                            s->x -= x;
+                            s->y -= y;
+                        }
+                        break;
+                        }
                     }
                 }
 #endif
-
                 if (!apScriptGameEvent[EVENT_GAME] || A_CheckSpriteFlags(i, SPRITE_NOEVENTCODE))
                 {
                     i = nextspritestat[i];
