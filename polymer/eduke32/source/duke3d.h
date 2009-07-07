@@ -540,7 +540,7 @@ spriteinterpolate sprpos[MAXSPRITES];
 typedef struct {
     int32_t bposx,bposy,bposz;
     int32_t floorz,ceilingz,lastvx,lastvy;
-    int32_t flags;
+    int32_t flags,lasttransport,shootzvel;
     intptr_t temp_data[10]; // sometimes used to hold pointers to con code
     int16_t picnum,ang,extra,owner,movflag;
     int16_t tempang,actorstayput,dispicnum;

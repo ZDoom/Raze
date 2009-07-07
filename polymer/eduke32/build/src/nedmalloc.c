@@ -101,7 +101,7 @@ DEALINGS IN THE SOFTWARE.
 #define THREADCACHEMAXBINS (13-4)
 #elif THREADCACHEMAX == 65536
 #define THREADCACHEMAXBINS (16-4)
-#else 
+#else
 #error undefined size
 #endif
 #endif
@@ -725,7 +725,7 @@ void *nedgetvalue(nedpool **p, void *mem) THROWSPEC
     return np->uservalue;
 }
 
-void neddisablethreadcache(nedpool *p) THROWSPEC
+void nedtrimthreadcache(nedpool *p, int disable) THROWSPEC
 {
     int mycache;
     if (!p)
@@ -736,7 +736,7 @@ void neddisablethreadcache(nedpool *p) THROWSPEC
     mycache=(int)(size_t) TLSGET(p->mycache);
     if (!mycache)
     {	/* Set to mspace 0 */
-        if (TLSSET(p->mycache, (void *)-1)) abort();
+        if (disable && TLSSET(p->mycache, (void *)-1)) abort();
     }
     else if (mycache>0)
     {	/* Set to last used mspace */
@@ -745,15 +745,22 @@ void neddisablethreadcache(nedpool *p) THROWSPEC
         printf("Threadcache utilisation: %lf%% in cache with %lf%% lost to other threads\n",
                100.0*tc->successes/tc->mallocs, 100.0*((double) tc->mallocs-tc->frees)/tc->mallocs);
 #endif
-        if (TLSSET(p->mycache, (void *)(size_t)(-tc->mymspace))) abort();
+        if (disable && TLSSET(p->mycache, (void *)(size_t)(-tc->mymspace))) abort();
         tc->frees++;
         RemoveCacheEntries(p, tc, 0);
         assert(!tc->freeInCache);
-        tc->mymspace=-1;
-        tc->threadid=0;
-        mspace_free(0, p->caches[mycache-1]);
-        p->caches[mycache-1]=0;
+        if (disable)
+        {
+            tc->mymspace=-1;
+            tc->threadid=0;
+            mspace_free(0, p->caches[mycache-1]);
+            p->caches[mycache-1]=0;
+        }
     }
+}
+void neddisablethreadcache(nedpool *p) THROWSPEC
+{
+    nedtrimthreadcache(p, 1);
 }
 
 #define GETMSPACE(m,p,tc,ms,s,action)           \
@@ -783,12 +790,12 @@ static FORCEINLINE void GetThreadCache(nedpool **p, threadcache **tc, int *mymsp
     }
     mycache=(int)(size_t) TLSGET((*p)->mycache);
     if (mycache>0)
-    {
+    {	/* Already have a cache */
         *tc=(*p)->caches[mycache-1];
         *mymspace=(*tc)->mymspace;
     }
     else if (!mycache)
-    {
+    {	/* Need to allocate a new cache */
         *tc=AllocCache(*p);
         if (!*tc)
         {	/* Disable */
@@ -799,12 +806,12 @@ static FORCEINLINE void GetThreadCache(nedpool **p, threadcache **tc, int *mymsp
             *mymspace=(*tc)->mymspace;
     }
     else
-    {
+    {	/* Cache disabled, but we do have an assigned thread pool */
         *tc=0;
         *mymspace=-mycache-1;
     }
     assert(*mymspace>=0);
-    assert((long)(size_t)CURRENT_THREAD==(*tc)->threadid);
+    assert(!(*tc) || (long)(size_t)CURRENT_THREAD==(*tc)->threadid);
 #ifdef FULLSANITYCHECKS
     if (*tc)
     {
@@ -918,7 +925,7 @@ void   nedpfree(nedpool *p, void *mem) THROWSPEC
 struct mallinfo nedpmallinfo(nedpool *p) THROWSPEC
 {
     int n;
-    struct mallinfo ret ={0,0,0,0,0,0,0,0,0,0};
+    struct mallinfo ret={0,0,0,0,0,0,0,0,0,0};
 if (!p) { p=&syspool; if (!syspool.threads) InitPool(&syspool, 0, -1); }
 for (n=0; p->m[n]; n++)
 {

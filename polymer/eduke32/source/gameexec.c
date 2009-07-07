@@ -2068,16 +2068,16 @@ static int32_t X_DoExecute(register int32_t once)
 
                 if (tw == CON_ZSHOOT || tw == CON_EZSHOOT)
                 {
-                    ActorExtra[vm.g_i].temp_data[9] = Gv_GetVarX(*insptr++);
-                    if (ActorExtra[vm.g_i].temp_data[9] == 0)
-                        ActorExtra[vm.g_i].temp_data[9] = 1;
+                    ActorExtra[vm.g_i].shootzvel = Gv_GetVarX(*insptr++);
+                    if (ActorExtra[vm.g_i].shootzvel == 0)
+                        ActorExtra[vm.g_i].shootzvel = 1;
                 }
 
                 if ((vm.g_sp->sectnum < 0 || vm.g_sp->sectnum >= numsectors) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->sectnum);
                     insptr++;
-                    ActorExtra[vm.g_i].temp_data[9]=0;
+                    ActorExtra[vm.g_i].shootzvel=0;
                     break;
                 }
 
@@ -2086,7 +2086,7 @@ static int32_t X_DoExecute(register int32_t once)
                 if (tw == CON_EZSHOOT || tw == CON_ESHOOT)
                     aGameVars[g_iReturnVarID].val.lValue = j;
 
-                ActorExtra[vm.g_i].temp_data[9]=0;
+                ActorExtra[vm.g_i].shootzvel=0;
             }
             break;
 
@@ -2102,23 +2102,23 @@ static int32_t X_DoExecute(register int32_t once)
 
             if (tw == CON_ZSHOOTVAR || tw == CON_EZSHOOTVAR)
             {
-                ActorExtra[vm.g_i].temp_data[9] = Gv_GetVarX(*insptr++);
-                if (ActorExtra[vm.g_i].temp_data[9] == 0)
-                    ActorExtra[vm.g_i].temp_data[9] = 1;
+                ActorExtra[vm.g_i].shootzvel = Gv_GetVarX(*insptr++);
+                if (ActorExtra[vm.g_i].shootzvel == 0)
+                    ActorExtra[vm.g_i].shootzvel = 1;
             }
             j=Gv_GetVarX(*insptr++);
 
             if ((vm.g_sp->sectnum < 0 || vm.g_sp->sectnum >= numsectors) /* && g_scriptSanityChecks */)
             {
                 OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->sectnum);
-                ActorExtra[vm.g_i].temp_data[9]=0;
+                ActorExtra[vm.g_i].shootzvel=0;
                 break;
             }
 
             lReturn = A_Shoot(vm.g_i, j);
             if (tw == CON_ESHOOTVAR || tw == CON_EZSHOOTVAR)
                 aGameVars[g_iReturnVarID].val.lValue = lReturn;
-            ActorExtra[vm.g_i].temp_data[9]=0;
+            ActorExtra[vm.g_i].shootzvel=0;
             break;
         }
 

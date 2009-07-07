@@ -166,6 +166,12 @@ Optionally can also retrieve pool.
 */
 EXTSPEC void *nedgetvalue(nedpool **p, void *mem) THROWSPEC;
 
+/* Trims the thread cache for the calling thread, returning any existing cache
+data to the central pool. Remember to ALWAYS call with zero if you used the
+system pool. Setting disable to non-zero replicates neddisablethreadcache().
+*/
+EXTSPEC void nedtrimthreadcache(nedpool *p, int disable) THROWSPEC;
+
 /* Disables the thread cache for the calling thread, returning any existing cache
 data to the central pool. Remember to ALWAYS call with zero if you used the
 system pool.

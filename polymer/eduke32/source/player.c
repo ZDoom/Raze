@@ -460,7 +460,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 }
             }
 
-            if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
+            if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
             hitscan((const vec3_t *)&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],zvel<<6,
@@ -682,7 +682,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                     if (!g_player[p].ps->auto_aim)
                     {
                         zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
-                        if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
+                        if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
                         hitscan((const vec3_t *)&srcvect,sect,sintable[(sa+512)&2047],sintable[sa&2047],
                                 zvel<<6,&hitinfo,CLIPMASK1);
                         if (hitinfo.hitsprite != -1)
@@ -734,7 +734,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
             if (ProjectileData[atwith].cstat >= 0) s->cstat &= ~ProjectileData[atwith].cstat;
             else s->cstat &= ~257;
 
-            if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
+            if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
             hitscan((const vec3_t *)&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
@@ -1038,7 +1038,7 @@ DOSKIPBULLETHOLE:
             sx+(sintable[(348+sa+512)&2047]/448),
             sy+(sintable[(sa+348)&2047]/448),
             sz-(1<<8),atwith,0,14,14,sa,vel,zvel,i,4);*/
-            if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
+            if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
             j = A_InsertSprite(sect,
                                srcvect.x+(sintable[(348+sa+512)&2047]/ProjectileData[atwith].offset),
                                srcvect.y+(sintable[(sa+348)&2047]/ProjectileData[atwith].offset),
@@ -1115,7 +1115,7 @@ DOSKIPBULLETHOLE:
                 }
             }
 
-            if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
+            if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
             hitscan((const vec3_t *)&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],zvel<<6,
@@ -1270,7 +1270,7 @@ DOSKIPBULLETHOLE:
                     if (!g_player[p].ps->auto_aim)
                     {
                         zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
-                        if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
+                        if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
                         hitscan((const vec3_t *)&srcvect,sect,sintable[(sa+512)&2047],sintable[sa&2047],
                                 zvel<<6,&hitinfo,CLIPMASK1);
                         if (hitinfo.hitsprite != -1)
@@ -1321,7 +1321,7 @@ DOSKIPBULLETHOLE:
             }
 
             s->cstat &= ~257;
-            if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
+            if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
             hitscan((const vec3_t *)&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
@@ -1558,7 +1558,7 @@ SKIPBULLETHOLE:
                 if (hitinfo.pos.x == 0) hitinfo.pos.x++;
                 zvel = ((g_player[j].ps->oposz - srcvect.z + (3<<8))*vel) / hitinfo.pos.x;
             }
-            if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
+            if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
             oldzvel = zvel;
 
             if (atwith == SPIT)
@@ -1681,7 +1681,7 @@ SKIPBULLETHOLE:
             if (p >= 0 && j >= 0)
                 l = j;
             else l = -1;
-            if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
+            if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
             j = A_InsertSprite(sect,
                                srcvect.x+(sintable[(348+sa+512)&2047]/448),
                                srcvect.y+(sintable[(sa+348)&2047]/448),
@@ -1766,7 +1766,7 @@ SKIPBULLETHOLE:
             if (p >= 0)
                 zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*32;
             else zvel = 0;
-            if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
+            if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
 
             srcvect.z -= g_player[p].ps->pyoff;
             hitscan((const vec3_t *)&srcvect,sect,
@@ -1830,7 +1830,7 @@ SKIPBULLETHOLE:
             if (zvel < -4096)
                 zvel = -2048;
             vel = x>>4;
-            if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
+            if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
             A_InsertSprite(sect,
                            srcvect.x+(sintable[(512+sa+512)&2047]>>8),
                            srcvect.y+(sintable[(sa+512)&2047]>>8),
@@ -1892,7 +1892,7 @@ SKIPBULLETHOLE:
             if (sect < 0) break;
 
             s->cstat &= ~257;
-            if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
+            if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
             hitscan((const vec3_t *)&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
@@ -1971,7 +1971,7 @@ SKIPBULLETHOLE:
                 zvel = ((g_player[j].ps->oposz-srcvect.z)*512) / l ;
             }
             else zvel = 0;
-            if (ActorExtra[i].temp_data[9]) zvel = ActorExtra[i].temp_data[9];
+            if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
             j = A_InsertSprite(sect,
                                srcvect.x+(sintable[(512+sa+512)&2047]>>12),
                                srcvect.y+(sintable[(sa+512)&2047]>>12),

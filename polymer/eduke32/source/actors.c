@@ -395,9 +395,9 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
                 case 1:
                     if (daz >= ActorExtra[spritenum].floorz)
                     {
-                        if (totalclock > ActorExtra[spritenum].temp_data[9])
+                        if (totalclock > ActorExtra[spritenum].lasttransport)
                         {
-                            ActorExtra[spritenum].temp_data[9] = totalclock + (TICSPERFRAME<<2);
+                            ActorExtra[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
 
                             sprite[spritenum].x += (sprite[OW].x-SX);
                             sprite[spritenum].y += (sprite[OW].y-SY);
@@ -415,9 +415,9 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
                 case 2:
                     if (daz <= ActorExtra[spritenum].ceilingz)
                     {
-                        if (totalclock > ActorExtra[spritenum].temp_data[9])
+                        if (totalclock > ActorExtra[spritenum].lasttransport)
                         {
-                            ActorExtra[spritenum].temp_data[9] = totalclock + (TICSPERFRAME<<2);
+                            ActorExtra[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
                             sprite[spritenum].x += (sprite[OW].x-SX);
                             sprite[spritenum].y += (sprite[OW].y-SY);
                             sprite[spritenum].z = sector[sprite[OW].sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
@@ -3278,7 +3278,7 @@ static void G_MoveTransports(void)
 
                 ll = klabs(sprite[j].zvel);
 
-                if (totalclock > ActorExtra[j].temp_data[9])
+                if (totalclock > ActorExtra[j].lasttransport)
                 {
                     warpspriteto = 0;
                     if (ll && sectlotag == 2 && sprite[j].z < (sector[sect].ceilingz+ll))
@@ -3386,7 +3386,7 @@ static void G_MoveTransports(void)
                                 }
                                 break;
                             case 1:
-                                ActorExtra[j].temp_data[9] = totalclock + (TICSPERFRAME<<2);
+                                ActorExtra[j].lasttransport = totalclock + (TICSPERFRAME<<2);
 
                                 sprite[j].x += (sprite[OW].x-SX);
                                 sprite[j].y += (sprite[OW].y-SY);
@@ -3400,7 +3400,7 @@ static void G_MoveTransports(void)
 
                                 break;
                             case 2:
-                                ActorExtra[j].temp_data[9] = totalclock + (TICSPERFRAME<<2);
+                                ActorExtra[j].lasttransport = totalclock + (TICSPERFRAME<<2);
                                 sprite[j].x += (sprite[OW].x-SX);
                                 sprite[j].y += (sprite[OW].y-SY);
                                 sprite[j].z = sector[sprite[OW].sectnum].floorz;

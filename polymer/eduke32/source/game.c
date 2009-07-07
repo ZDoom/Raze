@@ -4148,8 +4148,8 @@ void G_SE40(int32_t smoothratio)
         if (sect != -1)
         {
             int32_t renderz, picnum;
-            int16_t backupstat[numsectors];
-            int32_t backupz[numsectors];
+            int16_t backupstat[MAXSECTORS];
+            int32_t backupz[MAXSECTORS];
             int32_t i;
             int32_t pix_diff, newz;
             //                initprintf("drawing ror\n");
