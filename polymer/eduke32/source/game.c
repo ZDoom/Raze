@@ -6904,7 +6904,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         {
             t->x -= mulscale16(65536-smoothratio,g_player[s->yvel].ps->posx-g_player[s->yvel].ps->oposx);
             t->y -= mulscale16(65536-smoothratio,g_player[s->yvel].ps->posy-g_player[s->yvel].ps->oposy);
-            t->z = g_player[s->yvel].ps->oposz + mulscale16(smoothratio,g_player[s->yvel].ps->posz-g_player[s->yvel].ps->oposz);
+            t->z += /*g_player[s->yvel].ps->oposz +*/ mulscale16(smoothratio,g_player[s->yvel].ps->posz-g_player[s->yvel].ps->oposz) - PHEIGHT;
             t->z += (40<<8);
         }
         else if ((s->statnum == 0 && s->picnum != CRANEPOLE) || s->statnum == 10 || s->statnum == 6 || s->statnum == 4 || s->statnum == 5 || s->statnum == 1)
@@ -7190,7 +7190,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                     else t->cstat &= ~4;
                 }
 
-                if (sector[t->sectnum].lotag == 2) k += 1795-1405;
+                if (sector[s->sectnum].lotag == 2) k += 1795-1405;
                 else if ((ActorExtra[i].floorz-s->z) > (64<<8)) k += 60;
 
                 t->picnum += k;
