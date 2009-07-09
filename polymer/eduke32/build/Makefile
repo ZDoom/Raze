@@ -129,8 +129,7 @@ ENGINEOBJS+= \
 	$(OBJ)/textfont.$o \
 	$(OBJ)/smalltextfont.$o \
 	$(OBJ)/kplib.$o \
-	$(OBJ)/lzf_c.$o \
-	$(OBJ)/lzf_d.$o \
+	$(OBJ)/fastlz.$o \
 	$(OBJ)/md4.$o \
 	$(OBJ)/osd.$o \
 	$(OBJ)/pragmas.$o \

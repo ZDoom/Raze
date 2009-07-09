@@ -125,7 +125,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\build\include\lzf.h"
+					RelativePath=".\build\include\fastlz.h"
 					>
 				</File>
 				<File
@@ -277,15 +277,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\build\src\lzf_c.c"
-					>
-				</File>
-				<File
-					RelativePath=".\build\src\lzf_d.c"
-					>
-				</File>
-				<File
-					RelativePath=".\build\src\lzfP.h"
+					RelativePath=".\build\src\fastlz.c"
 					>
 				</File>
 				<File
