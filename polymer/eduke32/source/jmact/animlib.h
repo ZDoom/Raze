@@ -37,23 +37,11 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 extern "C" {
 #endif
 
-#ifdef __GNUC__
-# ifndef PACKED
-#  define PACKED __attribute__ ((packed))
-# endif
-#else
-# define PACKED
-# ifdef _MSC_VER
-#  pragma pack(1)
-# endif
-# ifdef __WATCOMC__
-#  pragma pack(push,1);
-# endif
-#endif
+# pragma pack(push,1)
 
 // structure declarations for deluxe animate large page files */
 
-typedef struct PACKED
+typedef struct
    {
    uint32_t id;                 // 4 character ID == "LPF " */
    uint16_t maxLps;                  // max # largePages allowed. 256 FOR NOW.   */
@@ -89,7 +77,7 @@ typedef struct PACKED
    } lpfileheader;
 
 // this is the format of a large page structure
-typedef struct PACKED
+typedef struct
    {
    uint16_t baseRecord;   // Number of first record in this large page.
    uint16_t nRecords;        // Number of records in lp.
@@ -98,13 +86,7 @@ typedef struct PACKED
    uint16_t nBytes;                  // Total number of bytes of contents, excluding header.
    } lp_descriptor;
 
-#undef PACKED
-#ifdef _MSC_VER
-# pragma pack()
-#endif
-#ifdef __WATCOMC__
-# pragma pack(pop);
-#endif
+#pragma pack(pop)
 
 typedef struct
    {

@@ -138,7 +138,7 @@ Useful for when you have nedmalloc in a DLL you're about to unload.
 If you call ANY nedmalloc functions after calling this you will
 get a fatal exception!
 */
-EXTSPEC void neddestroysyspool() THROWSPEC;
+EXTSPEC void neddestroysyspool(void) THROWSPEC;
 
 /* These are the pool functions */
 struct nedpool_t;

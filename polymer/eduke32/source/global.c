@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 #include "duke3d.h"
 
-const char *s_buildDate = "20090701";
+const char *s_buildDate = "20090708";
 char *MusicPtr = NULL;
 int32_t g_musicSize;
 
@@ -56,7 +56,12 @@ int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
 
 int32_t g_currentMenu;
 
+
+#pragma pack(push,1)
+
 map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
+sound_t g_sounds[ MAXSOUNDS ];
+#pragma pack(pop)
 
 char EpisodeNames[MAXVOLUMES][33] = { "L.A. MELTDOWN", "LUNAR APOCALYPSE", "SHRAPNEL CITY" };
 char SkillNames[5][33] = { "PIECE OF CAKE", "LET'S ROCK", "COME GET SOME", "DAMN I'M GOOD" };
@@ -79,8 +84,6 @@ char g_numVolumes = 3;
 
 int32_t g_timerTicsPerSecond=TICRATE;
 //fx_device device;
-
-sound_t g_sounds[ MAXSOUNDS ];
 
 char g_numPlayerSprites,g_loadFromGroupOnly=0,g_earthquakeTime;
 

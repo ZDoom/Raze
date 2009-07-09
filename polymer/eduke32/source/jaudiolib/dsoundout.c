@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "compat.h"
 #include "winlayer.h"
 
-#if defined(__WATCOMC__) || defined(_MSC_VER)
+#if defined(_MSC_VER)
 #include <malloc.h>
 #endif
 

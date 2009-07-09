@@ -5925,6 +5925,7 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("PROJ_YREPEAT",PROJ_YREPEAT,LABEL_DEFINE);
 }
 
+#pragma pack(push,1)
 static void C_InitProjectiles(void)
 {
     int32_t i;
@@ -5949,6 +5950,7 @@ static void C_InitProjectiles(void)
 
     Bmemcpy(&DefaultProjectileData[0], &ProjectileData[0], sizeof(ProjectileData));
 }
+#pragma pack(pop)
 
 extern int32_t g_numObituaries;
 extern int32_t g_numSelfObituaries;

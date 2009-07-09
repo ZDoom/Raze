@@ -66,7 +66,11 @@ int32_t spnoclip=1;
 // Sound in Mapster32
 static char defaultgamecon[BMAX_PATH] = "game.con";
 static char *gamecon = defaultgamecon;
+
+#pragma pack(push,1)
 sound_t g_sounds[MAXSOUNDS];
+#pragma pack(pop)
+
 static int16_t g_definedsndnum[MAXSOUNDS];  // maps parse order index to g_sounds index
 static int16_t g_sndnum[MAXSOUNDS];  // maps current order index to g_sounds index
 int32_t g_numsounds = 0;
@@ -95,7 +99,7 @@ static int32_t mouseaction=0, mouseax=0, mouseay=0;
 static int32_t repeatcountx, repeatcounty;
 static int32_t infobox=3; // bit0: current window, bit1: mouse pointer, the variable should be renamed
 
-extern char mskip;
+extern int32_t mskip;
 extern int16_t capturecount;
 extern int32_t editorgridextent;	// in engine.c
 extern char game_executable[BMAX_PATH];
@@ -10163,7 +10167,7 @@ void ExtAnalyzeSprites(void)
                 gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = hictinting[PL].b;
             }
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = (256-(SS+128))<<1;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius * 0.75;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = (int16_t)(gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius * 0.75f);
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = SA;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = SH;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].minshade = sprite[i].xoffset;

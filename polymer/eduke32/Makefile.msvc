@@ -18,8 +18,8 @@ flags_cl= /Od /Zi
 flags_link=/DEBUG
 !else
 # release options
-flags_cl=/Ox
-flags_link=/RELEASE
+flags_cl=/Ox /GL /arch:SSE
+flags_link=/RELEASE /LTCG
 !endif
 
 
@@ -35,7 +35,7 @@ LINK=link /nologo /opt:ref
 MT=mt
 CFLAGS= /MT /J /nologo $(flags_cl)  \
 	/I$(INC) /I$(EINC)\ /I$(SRC)\jmact /I$(SRC)\jaudiolib /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" \
- 	/DNOCOPYPROTECT  /D "_CRT_SECURE_NO_DEPRECATE" -W2 $(ENGINEOPTS) \
+ 	/DNOCOPYPROTECT  /D "_CRT_SECURE_NO_DEPRECATE" /W2 $(ENGINEOPTS) \
  	/I$(DXROOT)\include" /DRENDERTYPEWIN=1
 LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib wsock32.lib comctl32.lib \
         /NODEFAULTLIB:glu32.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:msvcrtd.lib

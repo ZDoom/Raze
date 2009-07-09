@@ -34,10 +34,12 @@ TARGETOPTS=/DNOASM
 # debugging options
 flags_cl=/Od /Zi
 flags_link=/DEBUG
+flags_lib=
 !else
 # release options
-flags_cl=/Ox
-flags_link=/RELEASE
+flags_cl=/Ox /GL /arch:SSE
+flags_link=/RELEASE /LTCG
+flags_lib=/LTCG
 !endif
 
 CC=cl
@@ -119,11 +121,11 @@ utils: $(UTILS) ;
 
 enginelib: $(OBJ)\$(ENGINELIB) ;
 $(OBJ)\$(ENGINELIB): $(ENGINEOBJS)
-	lib /out:$@ /nologo $**
+	lib $(flags_lib) /out:$@ /nologo $**
 
 editorlib: $(OBJ)\$(EDITORLIB) ;
 $(OBJ)\$(EDITORLIB): $(EDITOROBJS)
-	lib /out:$@ /nologo $**
+	lib $(flags_lib) /out:$@ /nologo $**
 
 # the tools
 kextract$(EXESUFFIX): $(OBJ)\kextract.$o $(OBJ)\compat.$o

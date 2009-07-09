@@ -679,7 +679,7 @@ void neddestroypool(nedpool *p) THROWSPEC
     if (TLSFREE(p->mycache)) abort();
     nedpfree(0, p);
 }
-void neddestroysyspool() THROWSPEC
+void neddestroysyspool(void) THROWSPEC
 {
     nedpool *p=&syspool;
     int n;

@@ -130,8 +130,8 @@ static inline void fogcalc(const int32_t shade, const int32_t vis, const int32_t
     float f = ((shade*shade)*0.125f);
 
     if (shade < 0) f = -f;
-    if (vis > 239) f = gvisibility*((vis-240+f)/(klabs(vis-256)));
-    else f = gvisibility*(vis+16+f);
+    if (vis > 239) f = (float)(gvisibility*((vis-240+f)/(klabs(vis-256))));
+    else f = (float)(gvisibility*(vis+16+f));
 
     fogresult = clamp(f, 0.01f, 10.f);
 

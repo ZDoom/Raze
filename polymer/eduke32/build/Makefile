@@ -102,6 +102,7 @@ endif
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Wno-char-subscripts \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
 	-DKSFORBUILD -I$(INC) -D_FORTIFY_SOURCE=2 \
+	-fjump-tables -fno-stack-protector
 #    -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
 LIBS=

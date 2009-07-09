@@ -228,25 +228,7 @@ static void       MV_CalcPanTable(void);
 
 static void ClearBuffer_DW(void *ptr, int32_t data, int32_t length);
 
-#if defined(__WATCOMC__)
-
-#pragma aux MV_Mix8BitMono parm [eax] [edx] [ebx] [ecx]
-#pragma aux MV_Mix8BitStereo parm [eax] [edx] [ebx] [ecx]
-#pragma aux MV_Mix16BitMono parm [eax] [edx] [ebx] [ecx]
-#pragma aux MV_Mix16BitStereo parm [eax] [edx] [ebx] [ecx]
-#pragma aux MV_Mix16BitMono16 parm [eax] [edx] [ebx] [ecx]
-#pragma aux MV_Mix8BitMono16 parm [eax] [edx] [ebx] [ecx]
-#pragma aux MV_Mix8BitStereo16 parm [eax] [edx] [ebx] [ecx]
-#pragma aux MV_Mix16BitStereo16 parm [eax] [edx] [ebx] [ecx]
-
-#pragma aux MV_16BitReverb parm [eax] [edx] [ebx] [ecx] modify exact [eax ebx ecx edx esi edi]
-#pragma aux MV_8BitReverb parm [eax] [edx] [ebx] [ecx] modify exact [eax ebx ecx edx esi edi]
-#pragma aux MV_16BitReverbFast parm [eax] [edx] [ebx] [ecx] modify exact [eax ebx ecx edx esi edi]
-#pragma aux MV_8BitReverbFast parm [eax] [edx] [ebx] [ecx] modify exact [eax ebx ecx edx esi edi]
-
-#define CDEC
-
-#elif defined(_MSC_VER)
+#if defined(_MSC_VER)
 
 #define CDEC _cdecl
 

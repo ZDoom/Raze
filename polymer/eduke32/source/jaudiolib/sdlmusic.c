@@ -37,7 +37,7 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #include "duke3d.h"
 #include "cache1d.h"
 
-#if (!defined __WATCOMC__)
+#ifndef _MSC_VER
 #define cdecl
 #endif
 

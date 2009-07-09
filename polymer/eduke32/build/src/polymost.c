@@ -104,7 +104,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
 
-float shadescale = 1.050;
+float shadescale = 1.050f;
 
 double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
 double gcosang, gsinang, gcosang2, gsinang2;
@@ -194,71 +194,6 @@ static char ptempbuf[MAXWALLSB<<1];
 // polymost ART sky control
 int32_t r_parallaxskyclamping = 1;
 int32_t r_parallaxskypanning = 0;
-
-#if defined(USE_MSC_PRAGMAS)
-static inline void ftol(float f, int32_t *a)
-{
-    _asm
-    {
-        mov eax, a
-        fld f
-        fistp dword ptr [eax]
-    }
-}
-
-static inline void dtol(double d, int32_t *a)
-{
-    _asm
-    {
-        mov eax, a
-        fld d
-        fistp dword ptr [eax]
-    }
-}
-#elif defined(USE_WATCOM_PRAGMAS)
-
-#pragma aux ftol =\
-	"fistp dword ptr [eax]",\
-	parm [eax 8087]
-#pragma aux dtol =\
-	"fistp dword ptr [eax]",\
-	parm [eax 8087]
-
-#elif defined(USE_GCC_PRAGMAS)
-
-static inline void ftol(float f, int32_t *a)
-{
-    __asm__ __volatile__(
-#if 0 //(__GNUC__ >= 3)
-        "flds %1; fistpl %0;"
-#else
-"flds %1; fistpl (%0);"
-#endif
-    : "=r"(a) : "m"(f) : "memory","cc");
-}
-
-static inline void dtol(double d, int32_t *a)
-{
-    __asm__ __volatile__(
-#if 0 //(__GNUC__ >= 3)
-        "fldl %1; fistpl %0;"
-#else
-"fldl %1; fistpl (%0);"
-#endif
-    : "=r"(a) : "m"(d) : "memory","cc");
-}
-
-#else
-static inline void ftol(float f, int32_t *a)
-{
-    *a = (int32_t)f;
-}
-
-static inline void dtol(double d, int32_t *a)
-{
-    *a = (int32_t)d;
-}
-#endif
 
 static inline int32_t imod(int32_t a, int32_t b)
 {
@@ -954,10 +889,10 @@ void resizeglcheck()
                 ratio += 4.f*(-gshang-0.7f);
         }
 
-        glox1 = windowx1; gloy1 = windowy1;
-        glox2 = windowx2; gloy2 = windowy2;
+        glox1 = (float)windowx1; gloy1 = (float)windowy1;
+        glox2 = (float)windowx2; gloy2 = (float)windowy2;
 
-        fovcorrect = glprojectionhacks?(glwidescreen?0:(((windowx2-windowx1+1) * ratio) - (windowx2-windowx1+1))):0;
+        fovcorrect = (int32_t)(glprojectionhacks?(glwidescreen?0:(((windowx2-windowx1+1) * ratio) - (windowx2-windowx1+1))):0);
 
         bglViewport(windowx1 - (fovcorrect / 2), yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect, windowy2-windowy1+1);
 
@@ -2104,13 +2039,13 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             {
             default:
             case 0:
-                pc[3] = 1.0; break;
+                pc[3] = 1.0f; break;
             case 1:
-                pc[3] = 1.0; break;
+                pc[3] = 1.0f; break;
             case 2:
-                pc[3] = 0.66; break;
+                pc[3] = 0.66f; break;
             case 3:
-                pc[3] = 0.33; break;
+                pc[3] = 0.33f; break;
             }
             // tinting happens only to hightile textures, and only if the texture we're
             // rendering isn't for the same palette as what we asked for
@@ -2784,7 +2719,7 @@ void domost(float x0, float y0, float x1, float y1)
     if (x0 < x1)
     {
         dir = 1; //clip dmost (floor)
-        y0 -= .01; y1 -= .01;
+        y0 -= .01f; y1 -= .01f;
     }
     else
     {
@@ -3866,7 +3801,7 @@ static void polymost_drawalls(int32_t bunch)
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 
                 ypan = wal->ypanning;
-                yoffs=(i-tilesizy[globalpicnum])*(255./i);
+                ftol((i-tilesizy[globalpicnum])*(255.f/i),&yoffs);
                 if (wal->cstat&4)
                 {
                     if (ypan>256-yoffs)
@@ -3923,7 +3858,7 @@ static void polymost_drawalls(int32_t bunch)
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 
                 ypan = nwal->ypanning;
-                yoffs=(i-tilesizy[globalpicnum])*(255./i);
+                ftol((i-tilesizy[globalpicnum])*(255.f/i),&yoffs);
                 if (!(nwal->cstat&4))
                 {
                     if (ypan>256-yoffs)
@@ -3978,7 +3913,7 @@ static void polymost_drawalls(int32_t bunch)
             i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 
             ypan = wal->ypanning;
-            yoffs=(i-tilesizy[globalpicnum])*(255./i);
+            ftol((i-tilesizy[globalpicnum])*(255.f/i),&yoffs);
             if (!(wal->cstat&4))
             {
                 if (ypan>256-yoffs)
@@ -4970,10 +4905,10 @@ void polymost_drawsprite(int32_t snum)
         i = (tspr->ang&2047);
         c = sintable[(i+512)&2047]/65536.0;
         s = sintable[i]/65536.0;
-        x0 = ((tsizx>>1)-xoff)*tspr->xrepeat;
-        y0 = ((tsizy>>1)-yoff)*tspr->yrepeat;
-        x1 = ((tsizx>>1)+xoff)*tspr->xrepeat;
-        y1 = ((tsizy>>1)+yoff)*tspr->yrepeat;
+        x0 = (float)((tsizx>>1)-xoff)*tspr->xrepeat;
+        y0 = (float)((tsizy>>1)-yoff)*tspr->yrepeat;
+        x1 = (float)((tsizx>>1)+xoff)*tspr->xrepeat;
+        y1 = (float)((tsizy>>1)+yoff)*tspr->yrepeat;
 
         //Project 3D to 2D
         for (j=0; j<4; j++)
@@ -5188,7 +5123,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 m[2][2] = 1.0; m[2][3] = (float)ydimen*(ratioratio >= 1.6?1.2:1);
                 m[3][2] =-1.0;
             }
-            else { m[0][0] = m[2][3] = 1.0; m[1][1] = ((float)xdim)/((float)ydim); m[2][2] = 1.0001; m[3][2] = 1-m[2][2]; }
+            else { m[0][0] = m[2][3] = 1.0f; m[1][1] = ((float)xdim)/((float)ydim); m[2][2] = 1.0001f; m[3][2] = 1-m[2][2]; }
             bglLoadMatrixf(&m[0][0]);
             bglMatrixMode(GL_MODELVIEW);
             bglLoadIdentity();
@@ -5255,7 +5190,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         bglViewport(0,0,xdim,ydim); glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
         bglMatrixMode(GL_PROJECTION);
         memset(m,0,sizeof(m));
-        m[0][0] = m[2][3] = 1.0; m[1][1] = ((float)xdim)/((float)ydim); m[2][2] = 1.0001; m[3][2] = 1-m[2][2];
+        m[0][0] = m[2][3] = 1.0f; m[1][1] = ((float)xdim)/((float)ydim); m[2][2] = 1.0001f; m[3][2] = 1-m[2][2];
         bglPushMatrix(); bglLoadMatrixf(&m[0][0]);
         bglMatrixMode(GL_MODELVIEW);
         bglLoadIdentity();
@@ -5599,11 +5534,11 @@ void polymost_fillpolygon(int32_t npoints)
     {
     case 0:
     case 1:
-        a = 1.0; bglDisable(GL_BLEND); break;
+        a = 1.0f; bglDisable(GL_BLEND); break;
     case 2:
-        a = 0.66; bglEnable(GL_BLEND); break;
+        a = 0.66f; bglEnable(GL_BLEND); break;
     case 3:
-        a = 0.33; bglEnable(GL_BLEND); break;
+        a = 0.33f; bglEnable(GL_BLEND); break;
     }
     bglColor4f(f,f,f,a);
 

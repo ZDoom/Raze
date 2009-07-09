@@ -67,19 +67,7 @@ extern "C" {
 #  define EXTERN extern
 #endif
 
-#ifdef __GNUC__
-#define BPACK __attribute__ ((packed))
-#else
-#define BPACK
-#endif
-
-#ifdef _MSC_VER
-#pragma pack(1)
-#endif
-
-#ifdef __WATCOMC__
-#pragma pack(push,1);
-#endif
+#pragma pack(push,1)
 
 //ceilingstat/floorstat:
 //   bit 0: 1 = parallaxing, 0 = not                                 "P"
@@ -97,7 +85,7 @@ extern "C" {
 //   bits 9-15: reserved
 
     //40 bytes
-typedef struct BPACK
+typedef struct
 {
     int16_t wallptr, wallnum;
     int32_t ceilingz, floorz;
@@ -126,7 +114,7 @@ typedef struct BPACK
 //   bits 10-15: reserved
 
     //32 bytes
-typedef struct BPACK
+typedef struct
 {
     int32_t x, y;
     int16_t point2, nextwall, nextsector, cstat;
@@ -154,7 +142,7 @@ typedef struct BPACK
 //   bit 15: 1 = Invisible sprite, 0 = not invisible
 
     //44 bytes
-typedef struct BPACK
+typedef struct
 {
     int32_t x, y, z;
     int16_t cstat, picnum;
@@ -167,7 +155,7 @@ typedef struct BPACK
     int16_t lotag, hitag, extra;
 } spritetype;
 
-typedef struct BPACK {
+typedef struct {
     uint32_t mdanimtims;
     int16_t mdanimcur;
     int16_t angoff;
@@ -180,7 +168,7 @@ typedef struct BPACK {
     spritetype *tspr;
 } spriteext_t;
 
-typedef struct BPACK {
+typedef struct {
     float smoothduration;
     int16_t mdcurframe, mdoldframe;
     int16_t mdsmooth;
@@ -418,9 +406,11 @@ OTHER VARIABLES:
             you call the loadboard function.
 ***************************************************************************/
 
-typedef struct BPACK {
+typedef struct {
     int32_t x, y, z;
 } vec3_t;
+
+#pragma pack(pop)
 
 typedef struct {
     vec3_t pos;
@@ -701,16 +691,6 @@ void hash_add(hashtable_t *t, const char *s, int32_t key);
 #ifdef POLYMER
 # include "polymer.h"
 #endif
-
-#ifdef _MSC_VER
-#pragma pack()
-#endif
-
-#ifdef __WATCOMC__
-#pragma pack(pop)
-#endif
-
-#undef BPACK
 
 #ifdef __cplusplus
 }

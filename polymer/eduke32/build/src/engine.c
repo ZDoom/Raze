@@ -125,97 +125,7 @@ extern char textfont[2048], smalltextfont[2048];
 static char kensmessage[128];
 char *engineerrstr = "No error";
 
-
-#if defined(__WATCOMC__) && !defined(NOASM)
-
-//
-// Watcom Inline Assembly Routines
-//
-
-#pragma aux nsqrtasm =\
-    "test eax, 0xff000000",\
-    "mov ebx, eax",\
-    "jnz short over24",\
-    "shr ebx, 12",\
-    "mov cx, word ptr shlookup[ebx*2]",\
-    "jmp short under24",\
-    "over24: shr ebx, 24",\
-    "mov cx, word ptr shlookup[ebx*2+8192]",\
-    "under24: shr eax, cl",\
-    "mov cl, ch",\
-    "mov ax, word ptr sqrtable[eax*2]",\
-    "shr eax, cl",\
-    parm nomemory [eax]\
-    modify exact [eax ebx ecx]
-uint32_t nsqrtasm(uint32_t);
-
-#pragma aux msqrtasm =\
-    "mov eax, 0x40000000",\
-    "mov ebx, 0x20000000",\
-    "begit: cmp ecx, eax",\
-    "jl skip",\
-    "sub ecx, eax",\
-    "lea eax, [eax+ebx*4]",\
-    "skip: sub eax, ebx",\
-    "shr eax, 1",\
-    "shr ebx, 2",\
-    "jnz begit",\
-    "cmp ecx, eax",\
-    "sbb eax, -1",\
-    "shr eax, 1",\
-    parm nomemory [ecx]\
-    modify exact [eax ebx ecx]
-int32_t msqrtasm(uint32_t);
-
-//0x007ff000 is (11<<13), 0x3f800000 is (127<<23)
-#pragma aux krecipasm =\
-    "mov fpuasm, eax",\
-    "fild dword ptr fpuasm",\
-    "add eax, eax",\
-    "fstp dword ptr fpuasm",\
-    "sbb ebx, ebx",\
-    "mov eax, fpuasm",\
-    "mov ecx, eax",\
-    "and eax, 0x007ff000",\
-    "shr eax, 10",\
-    "sub ecx, 0x3f800000",\
-    "shr ecx, 23",\
-    "mov eax, dword ptr reciptable[eax]",\
-    "sar eax, cl",\
-    "xor eax, ebx",\
-    parm [eax]\
-    modify exact [eax ebx ecx]
-int32_t krecipasm(int32_t);
-
-#pragma aux getclipmask =\
-    "sar eax, 31",\
-    "add ebx, ebx",\
-    "adc eax, eax",\
-    "add ecx, ecx",\
-    "adc eax, eax",\
-    "add edx, edx",\
-    "adc eax, eax",\
-    "mov ebx, eax",\
-    "shl ebx, 4",\
-    "or al, 0xf0",\
-    "xor eax, ebx",\
-    parm [eax][ebx][ecx][edx]\
-    modify exact [eax ebx ecx edx]
-int32_t getclipmask(int32_t,int32_t,int32_t,int32_t);
-
-#pragma aux getkensmessagecrc =\
-    "xor eax, eax",\
-    "mov ecx, 32",\
-    "beg: mov edx, dword ptr [ebx+ecx*4-4]",\
-    "ror edx, cl",\
-    "adc eax, edx",\
-    "bswap eax",\
-    "loop short beg",\
-    parm [ebx]\
-    modify exact [eax ebx ecx edx]
-int32_t getkensmessagecrc(int32_t);
-
-#elif defined(_MSC_VER) && !defined(NOASM)	// __WATCOMC__
+#if defined(_MSC_VER) && !defined(NOASM)
 
 //
 // Microsoft C Inline Assembly Routines
@@ -6848,20 +6758,8 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
 //
 // loadboardv5/6
 //
-#ifdef __GNUC__
-#define BPACK __attribute__ ((packed))
-#else
-#define BPACK
-#endif
-
-#ifdef _MSC_VER
-#pragma pack(1)
-#endif
-
-#ifdef __WATCOMC__
-#pragma pack(push,1);
-#endif
-struct BPACK sectortypev5
+#pragma pack(push,1)
+struct sectortypev5
 {
     uint16_t wallptr, wallnum;
     int16_t ceilingpicnum, floorpicnum;
@@ -6876,7 +6774,7 @@ struct BPACK sectortypev5
     int16_t lotag, hitag;
     int16_t extra;
 };
-struct BPACK walltypev5
+struct walltypev5
 {
     int32_t x, y;
     int16_t point2;
@@ -6889,7 +6787,7 @@ struct BPACK walltypev5
     int16_t lotag, hitag;
     int16_t extra;
 };
-struct BPACK spritetypev5
+struct spritetypev5
 {
     int32_t x, y, z;
     char cstat;
@@ -6900,7 +6798,7 @@ struct BPACK spritetypev5
     int16_t lotag, hitag;
     int16_t extra;
 };
-struct BPACK sectortypev6
+struct sectortypev6
 {
     uint16_t wallptr, wallnum;
     int16_t ceilingpicnum, floorpicnum;
@@ -6914,7 +6812,7 @@ struct BPACK sectortypev6
     char visibility;
     int16_t lotag, hitag, extra;
 };
-struct BPACK walltypev6
+struct walltypev6
 {
     int32_t x, y;
     int16_t point2, nextsector, nextwall;
@@ -6925,7 +6823,7 @@ struct BPACK walltypev6
     char xrepeat, yrepeat, xpanning, ypanning;
     int16_t lotag, hitag, extra;
 };
-struct BPACK spritetypev6
+struct spritetypev6
 {
     int32_t x, y, z;
     int16_t cstat;
@@ -6937,15 +6835,7 @@ struct BPACK spritetypev6
     int16_t sectnum, statnum;
     int16_t lotag, hitag, extra;
 };
-#ifdef _MSC_VER
-#pragma pack()
-#endif
-
-#ifdef __WATCOMC__
 #pragma pack(pop)
-#endif
-
-#undef BPACK
 
 static int16_t sectorofwallv5(int16_t theline)
 {

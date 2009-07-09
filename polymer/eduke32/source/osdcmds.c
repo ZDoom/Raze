@@ -38,7 +38,7 @@ float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
 extern int32_t althud_numbertile, althud_numberpal, althud_shadows, althud_flashing, hud_glowingquotes;
 extern int32_t hud_showmapname;
 extern int32_t r_maxfps;
-extern int32_t g_frameDelay;
+extern uint32_t g_frameDelay;
 
 static inline int32_t osdcmd_quit(const osdfuncparm_t *parm)
 {
@@ -416,9 +416,7 @@ static int32_t osdcmd_restartsound(const osdfuncparm_t *parm)
     S_SoundShutdown();
     S_MusicShutdown();
 
-    initprintf("Initializing music...\n");
     S_MusicStartup();
-    initprintf("Initializing sound...\n");
     S_SoundStartup();
 
     FX_StopAllSounds();

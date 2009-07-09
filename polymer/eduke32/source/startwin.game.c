@@ -136,6 +136,7 @@ static void PopulateForm(int32_t pgs)
 
     if (pgs & POPULATE_CONFIG)
     {
+/*
         struct audioenumdev *d;
         char *n;
 
@@ -164,16 +165,13 @@ static void PopulateForm(int32_t pgs)
                 d = d->next;
             }
         }
+*/
 
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.forcesetup ? BST_CHECKED : BST_UNCHECKED));
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCAUTOLOAD), (!(settings.flags & 4) ? BST_CHECKED : BST_UNCHECKED));
-        /*
-                Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTMOUSE), (settings.usemouse ? BST_CHECKED : BST_UNCHECKED));
-                Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTJOY), (settings.usejoy ? BST_CHECKED : BST_UNCHECKED));
-        */
 
         {
-            char *s[] = { "Keyboard only", "Keyboard and mouse", "Keyboard and joystick", "All supported devices" };
+            static const char *s[] = { "Keyboard only", "Keyboard and mouse", "Keyboard and joystick", "All supported devices" };
 
             hwnd = GetDlgItem(pages[TAB_CONFIG], IDCINPUT);
 
@@ -198,7 +196,7 @@ static void PopulateForm(int32_t pgs)
     {
         struct grpfile *fg;
         int32_t i, j;
-        char buf[128+BMAX_PATH];
+        char buf[1024];
 
         hwnd = GetDlgItem(pages[TAB_CONFIG], IDCDATA);
 

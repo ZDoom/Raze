@@ -5,10 +5,6 @@
 #define __EXPORT__
 #endif
 
-#if (defined __WATCOMC__)
-#define snprintf _snprintf
-#endif
-
 static __inline uint16_t _swap16(uint16_t D)
 {
 #if PLATFORM_MACOSX

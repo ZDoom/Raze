@@ -71,8 +71,9 @@ ifeq (4,$(GCC_MAJOR))
 endif
 
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
-		-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -DNOCOPYPROTECT \
-	    -I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib -D_FORTIFY_SOURCE=2 \
+	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -DNOCOPYPROTECT \
+	-I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib -D_FORTIFY_SOURCE=2 \
+	-fjump-tables -fno-stack-protector
 #        -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
 LIBS=-lm

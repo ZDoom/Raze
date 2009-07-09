@@ -53,21 +53,7 @@
 // library will need to wrap these functions with suitable emulations.
 #define __compat_h_macrodef__
 
-#if defined(__WATCOMC__) && ((__WATCOMC__ -0) < 1230)
-# define SCREWED_UP_CPP
-#endif
-
 #ifdef __cplusplus
-# ifdef SCREWED_UP_CPP
-// Old OpenWatcoms need some help
-#  include "watcomhax/cstdarg"
-#  ifdef __compat_h_macrodef__
-#   include "watcomhax/cstdio"
-#   include "watcomhax/cstring"
-#   include "watcomhax/cstdlib"
-#   include "watcomhax/ctime"
-#  endif
-# else
 #  include <cstdarg>
 #  ifdef __compat_h_macrodef__
 #   include <cstdio>
@@ -75,7 +61,6 @@
 #   include <cstdlib>
 #   include <ctime>
 #  endif
-# endif
 #else
 # include <stdarg.h>
 #endif
@@ -103,12 +88,7 @@
 # include <efence.h>
 #endif
 
-#if defined(__WATCOMC__)
-# define inline __inline
-# define int64 __int64
-# define uint64 unsigned __int64
-# define longlong(x) x##i64
-#elif defined(_MSC_VER)
+#if defined(_MSC_VER)
 # define inline __inline
 # define int64 __int64
 # define uint64 unsigned __int64
@@ -215,13 +195,67 @@ extern "C" {
 	// inline asm using bswap/xchg
 # elif defined(__GNUC__)
 	// inline asm using bswap/xchg
-# elif defined(__WATCOMC__)
-	// inline asm using bswap/xchg
 # endif
 #elif defined B_ENDIAN_C_INLINE
 static inline uint16_t B_SWAP16(uint16_t s) { return (s>>8)|(s<<8); }
 static inline uint32_t  B_SWAP32(uint32_t  l) { return ((l>>8)&0xff00)|((l&0xff00)<<8)|(l<<24)|(l>>24); }
 static inline uint64 B_SWAP64(uint64 l) { return (l>>56)|((l>>40)&0xff00)|((l>>24)&0xff0000)|((l>>8)&0xff000000)|((l&255)<<56)|((l&0xff00)<<40)|((l&0xff0000)<<24)|((l&0xff000000)<<8); }
+#endif
+
+#if defined(USE_MSC_PRAGMAS)
+static inline void ftol(float f, int32_t *a)
+{
+    _asm
+    {
+        mov eax, a
+            fld f
+            fistp dword ptr [eax]
+    }
+}
+
+static inline void dtol(double d, int32_t *a)
+{
+    _asm
+    {
+        mov eax, a
+            fld d
+            fistp dword ptr [eax]
+    }
+}
+#elif defined(USE_GCC_PRAGMAS)
+
+static inline void ftol(float f, int32_t *a)
+{
+    __asm__ __volatile__(
+#if 0 //(__GNUC__ >= 3)
+        "flds %1; fistpl %0;"
+#else
+        "flds %1; fistpl (%0);"
+#endif
+        : "=r"(a) : "m"(f) : "memory","cc");
+}
+
+static inline void dtol(double d, int32_t *a)
+{
+    __asm__ __volatile__(
+#if 0 //(__GNUC__ >= 3)
+        "fldl %1; fistpl %0;"
+#else
+        "fldl %1; fistpl (%0);"
+#endif
+        : "=r"(a) : "m"(d) : "memory","cc");
+}
+
+#else
+static inline void ftol(float f, int32_t *a)
+{
+    *a = (int32_t)f;
+}
+
+static inline void dtol(double d, int32_t *a)
+{
+    *a = (int32_t)d;
+}
 #endif
 
 #if B_LITTLE_ENDIAN == 1
@@ -374,17 +408,26 @@ int32_t		Bclosedir(BDIR *dir);
 # define Bfread fread
 # define Bfwrite fwrite
 # define Bfprintf fprintf
-# define Bstrdup strdup
+# if defined(_MSC_VER) 
+#  define Bstrdup _strdup
+# else
+#  define Bstrdup strdup
+# endif
 # define Bstrcpy strcpy
 # define Bstrncpy strncpy
 # define Bstrcmp strcmp
 # define Bstrncmp strncmp
-# if defined(__WATCOMC__) || defined(_MSC_VER) || defined(__QNX__)
+# if defined(_MSC_VER) 
+#  define Bstrcasecmp _stricmp
+#  define Bstrncasecmp _strnicmp
+# else
+# if defined(__QNX__)
 #  define Bstrcasecmp stricmp
 #  define Bstrncasecmp strnicmp
 # else
 #  define Bstrcasecmp strcasecmp
 #  define Bstrncasecmp strncasecmp
+# endif
 # endif
 # if defined(_WIN32)
 #  define Bstrlwr strlwr

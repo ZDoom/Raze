@@ -253,10 +253,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\build\src\enet_mmulti.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\build\src\engine.c"
 					>
 				</File>

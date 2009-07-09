@@ -63,7 +63,7 @@ int32_t g_scriptSanityChecks = 1;
 #define TIMERUPDATESIZ 32
 
 int32_t g_cameraDistance = 0, g_cameraClock = 0;
-static int32_t qe,cp;
+static int32_t qe;
 static int32_t g_commandSetup = 0;
 int32_t g_noSetup = 0;
 static int32_t g_noAutoLoad = 0;
@@ -1082,12 +1082,6 @@ void faketimerhandler(void)
 
     Net_GetPackets();
 
-//    if (getoutputcirclesize() >= 16) return;
-
-//    for (i=connecthead;i>=0;i=connectpoint2[i])
-//        if (i != myconnectindex)
-//            if (g_player[i].movefifoend < g_player[myconnectindex].movefifoend-200) return;
-
     if (g_player[myconnectindex].movefifoend - movefifoplc >= 100)
         return;
 
@@ -1099,6 +1093,7 @@ void faketimerhandler(void)
     avghorz += loc.horz;
     avgbits |= loc.bits;
     avgextbits |= loc.extbits;
+
     if (g_player[myconnectindex].movefifoend&(g_movesPerPacket-1))
     {
         copybufbyte(&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex],
@@ -1106,6 +1101,7 @@ void faketimerhandler(void)
         g_player[myconnectindex].movefifoend++;
         return;
     }
+
     nsyn = &inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex];
     nsyn[0].fvel = avgfvel/g_movesPerPacket;
     nsyn[0].svel = avgsvel/g_movesPerPacket;
@@ -1139,6 +1135,7 @@ void faketimerhandler(void)
         g_player[i].myminlag = min(g_player[i].myminlag,k);
         mymaxlag = max(mymaxlag,k);
     }
+
 #if 0
     if (((g_player[myconnectindex].movefifoend - 1) & (TIMERUPDATESIZ - 1)) == 0)
     {
@@ -1165,44 +1162,6 @@ void faketimerhandler(void)
         j = 1;
 
         //Fix timers and buffer/jitter value
-#if 0
-        if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
-        {
-            if (myconnectindex == connecthead)
-            {
-                for (i = connectpoint2[connecthead]; i >= 0; i = connectpoint2[i])
-                    packbuf[j++] = min(max(g_player[i].myminlag, -128), 127);
-            }
-            else
-            {
-                i = g_player[connecthead].myminlag - otherminlag;
-                if (klabs(i) > 2)
-                {
-                    ////DSPRINTF(ds,"lag correction: %d,%d,%d",i,Player[connecthead].myminlag,otherminlag);
-                    //MONO_PRINT(ds);
-
-                    if (klabs(i) > 8)
-                    {
-                        if (i < 0)
-                            i++;
-                        i >>= 1;
-                    }
-                    else
-                    {
-                        if (i < 0)
-                            i = -1;
-                        if (i > 0)
-                            i = 1;
-                    }
-                    totalclock -= TICSPERFRAME * i;
-                    otherminlag += i;
-                }
-            }
-
-            TRAVERSE_CONNECT(i)
-            g_player[i].myminlag = 0x7fffffff;
-        }
-#else
         if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
         {
             if (myconnectindex != connecthead)
@@ -1215,15 +1174,16 @@ void faketimerhandler(void)
                 totalclock -= TICSPERFRAME*i;
                 g_player[connecthead].myminlag -= i; otherminlag += i;
             }
-
-            if (myconnectindex == connecthead)
+            else
+            {
                 for (i=connectpoint2[connecthead]; i>=0; i=connectpoint2[i])
                     packbuf[j++] = min(max(g_player[i].myminlag,-128),127);
+            }
 
-            for (i=connecthead; i>=0; i=connectpoint2[i])
+            TRAVERSE_CONNECT(i)
                 g_player[i].myminlag = 0x7fffffff;
         }
-#endif
+
         osyn = (input_t *)&inputfifo[(g_player[myconnectindex].movefifoend-2)&(MOVEFIFOSIZ-1)][myconnectindex];
         nsyn = (input_t *)&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex];
 
@@ -1257,8 +1217,8 @@ void faketimerhandler(void)
             packbuf[j++] = (uint8_t)nsyn[0].horz;
             packbuf[k] |= 128;
         }
-//        k++;
         packbuf[++k] = 0;
+
         if (nsyn[0].extbits != osyn[0].extbits) packbuf[j++] = nsyn[0].extbits, packbuf[k] |= 1;
         /*        if ((nsyn[0].extbits^osyn[0].extbits)&0x000000ff) packbuf[j++] = (nsyn[0].extbits&255), packbuf[k] |= 1;
                 if ((nsyn[0].extbits^osyn[0].extbits)&0x0000ff00) packbuf[j++] = ((nsyn[0].extbits>>8)&255), packbuf[k] |= 2;
@@ -1284,30 +1244,16 @@ void faketimerhandler(void)
         //Fix timers and buffer/jitter value
         if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
         {
-            i = g_player[connecthead].myminlag - otherminlag;
-            if (klabs(i) > 2)
-            {
-                if (klabs(i) > 8)
-                {
-                    if (i < 0)
-                        i++;
-                    i >>= 1;
-                }
-                else
-                {
-                    if (i < 0)
-                        i = -1;
-                    if (i > 0)
-                        i = 1;
-                }
-                totalclock -= TICSPERFRAME * i;
-                otherminlag += i;
-            }
+            i = g_player[connecthead].myminlag-otherminlag;
+            if (klabs(i) > 8) i >>= 1;
+            else if (klabs(i) > 2) i = ksgn(i);
+            else i = 0;
+
+            totalclock -= TICSPERFRAME*i;
+            g_player[connecthead].myminlag -= i; otherminlag += i;
 
             TRAVERSE_CONNECT(i)
-            {
                 g_player[i].myminlag = 0x7fffffff;
-            }
         }
 
         packbuf[0] = PACKET_SLAVE_TO_MASTER;
@@ -1396,8 +1342,10 @@ void faketimerhandler(void)
         }
 
         k = j;
+
         TRAVERSE_CONNECT(i)
-        j += g_player[i].playerquitflag + g_player[i].playerquitflag;
+            j += g_player[i].playerquitflag + g_player[i].playerquitflag;
+
         TRAVERSE_CONNECT(i)
         {
             if (g_player[i].playerquitflag == 0) continue;
@@ -2847,7 +2795,7 @@ void G_GameExit(const char *t)
         if (frecfilep) fclose(frecfilep);
     } // JBF: fixes crash on demo playback
 
-    if (!qe && !cp)
+    if (!qe)
     {
         if (playerswhenstarted > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *t == ' ')
         {
@@ -4227,30 +4175,6 @@ void G_SE40(int32_t smoothratio)
                     k = nextspritesect[k];
                 }
             }
-            /*
-                        else // viewing from bottom
-                        {
-                            int32_t k = headspritesect[sprite[sp->yvel].sectnum];
-
-                            while (k != -1)
-                            {
-                                if (sprite[k].picnum != SECTOREFFECTOR && (sprite[k].z >= sprite[sp->yvel].z))
-                                {
-                                    Bmemcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)&sprite[k],sizeof(spritetype));
-
-                                    tsprite[spritesortcnt].x -= (sprite[sp->yvel].x-sp->x);
-                                    tsprite[spritesortcnt].y -= (sprite[sp->yvel].y-sp->y);
-                                    tsprite[spritesortcnt].z = tsprite[spritesortcnt].z - sprite[sp->yvel].z + ActorExtra[ror_sprite].ceilingz;
-                                    tsprite[spritesortcnt].sectnum = sp->sectnum;
-                                    tsprite[spritesortcnt].owner = k;
-
-                                    //OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
-                                    spritesortcnt++;
-                                }
-                                k = nextspritesect[k];
-                            }
-                        }
-            */
 
             G_DoSpriteAnimations(ud.camerax,ud.cameray,ud.cameraang,smoothratio);
             drawmasks();
@@ -4540,7 +4464,7 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
                         tsprite[spritesortcnt].sectnum = sprite[sp->yvel].sectnum;
                         tsprite[spritesortcnt].owner = k;
 
-                        OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
+                        //OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
                         spritesortcnt++;
                     }
                     k = nextspritesect[k];
@@ -4721,7 +4645,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 
     ActorExtra[i].flags = 0;
 
-    sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
+    // sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
 
     if (actorscrptr[s_pn])
     {
@@ -4808,7 +4732,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         ActorExtra[i].flags = 0;
 
-        sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
+//        sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
 
         if (PN != SPEAKER && PN != LETTER && PN != DUCK && PN != TARGET && PN != TRIPBOMB && PN != VIEWSCREEN && PN != VIEWSCREEN2 && (CS&48))
             if (!(PN >= CRACK1 && PN <= CRACK4))
@@ -6689,9 +6613,8 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
     ror_sprite = -1;
 
-    for (j=spritesortcnt-1; j>=0; j--) //Between drawrooms() and drawmasks()
+    for (j=spritesortcnt-1; j>=0; j--)
     {
-        //is the perfect time to animate sprites
         t = &tsprite[j];
         i = t->owner;
         s = &sprite[i];
@@ -6816,7 +6739,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         //is the perfect time to animate sprites
         t = &tsprite[j];
         i = t->owner;
-        s = &sprite[i];
+        s = (i < 0 ? &tsprite[j] : &sprite[i]);
 
         switch (DynamicTileMap[s->picnum])
         {
@@ -7016,22 +6939,18 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
             t->picnum = GROWSPARK+((totalclock>>4)&3);
             break;
         case RPG__STATIC:
-
 #if defined(POLYMOST) && defined(USE_OPENGL)
             if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 &&
                     !(spriteext[i].flags & SPREXT_NOTMD))
             {
                 int32_t v = getangle(t->xvel, t->zvel>>4);
 
-                if (v > 1023)
-                    v -= 2048;
-                spriteext[i].pitch = v;
+                spriteext[i].pitch = (v > 1023 ? v-2048 : v);
                 t->cstat &= ~4;
                 break;
             }
 #endif
-            k = getangle(s->x-x,s->y-y);
-            k = (((s->ang+3072+128-k)&2047)/170);
+            k = (((s->ang+3072+128-getangle(s->x-x,s->y-y))&2047)/170);
             if (k > 6)
             {
                 k = 12-k;
@@ -7050,10 +6969,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                 break;
             }
 #endif
-            k = getangle(s->x-x,s->y-y);
-            if (T1 < 4)
-                k = (((s->ang+3072+128-k)&2047)/170);
-            else k = (((s->ang+3072+128-k)&2047)/170);
+            k = (((s->ang+3072+128-getangle(s->x-x,s->y-y))&2047)/170);
 
             if (k>6)
             {
@@ -7751,7 +7667,7 @@ int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
 
 static void G_DoCheats(void)
 {
-    int16_t ch, i, j, k=0, weapon;
+    int32_t ch, i, j, k=0, weapon;
     static int32_t z=0;
     char consolecheat = 0;  // JBF 20030914
 
@@ -7789,7 +7705,7 @@ static void G_DoCheats(void)
                 return;
             }
 
-            cheatbuf[cheatbuflen++] = ch;
+            cheatbuf[cheatbuflen++] = (int8_t)ch;
             cheatbuf[cheatbuflen] = 0;
             //            KB_ClearKeysDown();
 
@@ -9489,7 +9405,7 @@ static void G_AddPath(const char *buffer)
 {
     struct strllist *s;
     s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
-    s->str = strdup(buffer);
+    s->str = Bstrdup(buffer);
 
     if (CommandPaths)
     {
@@ -10237,6 +10153,7 @@ static void G_DisplayLogo(void)
     clearview(0L);
 }
 
+/*
 static void loadtmb(void)
 {
     char tmb[8000];
@@ -10249,6 +10166,7 @@ static void loadtmb(void)
     MUSIC_RegisterTimbreBank(tmb);
     kclose(fil);
 }
+*/
 
 extern void C_FreeHashes();
 
@@ -10825,30 +10743,6 @@ void G_UpdatePlayerFromMenu(void)
     }
 }
 
-#if 0
-char testcd(char *fn, int32_t testsiz);
-
-// JBF: various hacks here
-static void copyprotect(void)
-{
-    //    FILE *fp;
-    //    char idfile[256];
-
-    cp = 0;
-
-#ifdef NOCOPYPROTECT
-    return;
-#endif
-    if (VOLUMEONE) return;
-
-    if (testcd(IDFILENAME, IDFSIZE))
-    {
-        cp = 1;
-        return;
-    }
-}
-#endif
-
 void G_BackToMenu(void)
 {
     boardfilename[0] = 0;
@@ -11350,11 +11244,6 @@ CLEAN_DIRECTORY:
         kclose(i);
     }
 
-#if 0
-    copyprotect();
-    if (cp) return;
-#endif
-
     if (netparamcount > 0) _buildargc = (argc -= netparamcount+1);  // crop off the net parameters
 
     // gotta set the proper title after we compile the CONs if this is the full version
@@ -11362,19 +11251,10 @@ CLEAN_DIRECTORY:
     Bsprintf(tempbuf,"%s - " APPNAME,duke3dgrpstring);
     wm_setapptitle(tempbuf);
 
-
-//    initprintf("\n");
-
     if (g_scriptDebug)
         initprintf("CON debugging activated (level %d).\n",g_scriptDebug);
 
     RegisterShutdownFunction(G_Shutdown);
-
-    if (VOLUMEONE)
-    {
-        initprintf("Distribution of shareware Duke Nukem 3D is restricted in certain ways.\n");
-        initprintf("Please read LICENSE.DOC for more details.\n");
-    }
 
     G_Startup(); // a bunch of stuff including compiling cons
 
@@ -11406,19 +11286,11 @@ CLEAN_DIRECTORY:
         initprintf("Definitions file '%s' loaded.\n",duke3ddef);
         loaddefinitions_game(duke3ddef, FALSE);
     }
-    //     initprintf("numplayers=%i\n",numplayers);
-
-    Net_SendVersion();
-    Net_SendPlayerName();
-
-#if 0
-    if (cp == 1 && numplayers < 2)
-        G_GameExit("Please put the Duke Nukem 3D Atomic Edition CD in the CD-ROM drive.");
-#endif
 
     if (numplayers > 1)
     {
-        mmulti_sendlogon();
+        Net_SendVersion();
+        Net_SendPlayerName();
         Net_SendPlayerOptions();
         Net_SendWeaponChoice();
         Net_SendUserMapName();
@@ -11479,7 +11351,7 @@ CLEAN_DIRECTORY:
 
     initprintf("Initializing OSD...\n");
 
-    Bsprintf(tempbuf,HEAD2 " %s",s_buildDate);
+    Bsprintf(tempbuf, HEAD2 " %s", s_buildDate);
     OSD_SetVersionString(tempbuf, 10,0);
     registerosdcommands();
 
@@ -11488,6 +11360,7 @@ CLEAN_DIRECTORY:
         uninitengine();
         exit(1);
     }
+
     G_SetupGameButtons();
     CONFIG_SetupMouse();
     CONFIG_SetupJoystick();
@@ -11554,11 +11427,9 @@ CLEAN_DIRECTORY:
 
     setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
 
-    initprintf("Initializing music...\n");
     S_MusicStartup();
-    initprintf("Initializing sound...\n");
     S_SoundStartup();
-    loadtmb();
+//    loadtmb();
 
     if (ud.warp_on > 1 && ud.multimode < 2)
     {
@@ -11573,8 +11444,6 @@ CLEAN_DIRECTORY:
         if (G_LoadPlayer(ud.warp_on-2))
             ud.warp_on = 0;
     }
-
-    //    if(KB_KeyPressed( sc_Escape ) ) G_GameExit(" ");
 
     FX_StopAllSounds();
     S_ClearSoundLocks();
@@ -11642,16 +11511,13 @@ MAIN_LOOP_RESTART:
     ud.warp_on = 0;
     KB_KeyDown[sc_Pause] = 0;   // JBF: I hate the pause key
 
-    while (!(g_player[myconnectindex].ps->gm&MODE_END)) //The whole loop!!!!!!!!!!!!!!!!!!
+    do //main loop
     {
-        if (handleevents())
+        if (handleevents() && quitevent)
         {
             // JBF
-            if (quitevent)
-            {
-                KB_KeyDown[sc_Escape] = 1;
-                quitevent = 0;
-            }
+            KB_KeyDown[sc_Escape] = 1;
+            quitevent = 0;
         }
 
         AudioUpdate();
@@ -11661,11 +11527,11 @@ MAIN_LOOP_RESTART:
 
         OSD_DispatchQueued();
 
-        if (ud.recstat == 2 || ud.multimode > 1 || (ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU))
-            if (g_player[myconnectindex].ps->gm&MODE_GAME)
-                if (G_MoveLoop()) continue;
+        if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || ud.multimode > 1) &&
+            (g_player[myconnectindex].ps->gm&MODE_GAME) && G_MoveLoop())
+            continue;
 
-        if (g_player[myconnectindex].ps->gm&MODE_EOL || g_player[myconnectindex].ps->gm&MODE_RESTART)
+        if (g_player[myconnectindex].ps->gm & (MODE_EOL|MODE_RESTART))
         {
             P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);
             P_UpdateScreenPal(g_player[myconnectindex].ps);
@@ -11691,9 +11557,7 @@ MAIN_LOOP_RESTART:
                     if (ud.multimode < 2)
                     {
                         if (!VOLUMEALL)
-                        {
                             G_DoOrderScreen();
-                        }
                         g_player[myconnectindex].ps->gm = MODE_MENU;
                         ChangeToMenu(0);
                         probey = 0;
@@ -11761,7 +11625,6 @@ MAIN_LOOP_RESTART:
 
                 if (debug_on) G_ShowCacheLocks();
 
-//                checksync();
                 Net_DisplaySyncMsg();
 
                 if (VOLUMEONE)
@@ -11780,6 +11643,7 @@ MAIN_LOOP_RESTART:
         while (!(g_player[myconnectindex].ps->gm&MODE_MENU) && ready2send && totalclock >= ototalclock+TICSPERFRAME)
             faketimerhandler();
     }
+    while (!(g_player[myconnectindex].ps->gm&MODE_END));
 
     G_GameExit(" ");
 }

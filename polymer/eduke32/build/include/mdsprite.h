@@ -241,5 +241,4 @@ void voxfree(voxmodel_t *m);
 voxmodel_t *voxload(const char *filnam);
 int32_t voxdraw(voxmodel_t *m, spritetype *tspr);
 
-
 #endif // !_mdsprite_h_

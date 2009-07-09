@@ -34,9 +34,7 @@
 #endif
 #endif
 
-#if defined(__WATCOMC__)
-# include <direct.h>
-#elif defined(_MSC_VER)
+#if defined(_MSC_VER)
 # include <io.h>
 #else
 # include <dirent.h>

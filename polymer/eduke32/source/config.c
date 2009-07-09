@@ -708,7 +708,7 @@ int32_t CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Detail",&ud.detail);
 
         {
-            extern int32_t g_frameDelay;
+            extern uint32_t g_frameDelay;
 
             SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "MaxFPS",&r_maxfps);
             r_maxfps = max(0,min(1000,r_maxfps));

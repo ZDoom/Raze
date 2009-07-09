@@ -807,7 +807,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
     if (glinfo.maxanisotropy > 1.0)
-        bglTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
+        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
@@ -906,7 +906,7 @@ void updateanimation(md2model_t *m, spritetype *tspr)
     }
 
     if (spritesmooth[tspr->owner].mdsmooth)
-        fps = (1.0f / (float)(tile2model[Ptile2tile(tspr->picnum,lpal)].smoothduration)) * 66;
+        ftol((1.0f / (float)(tile2model[Ptile2tile(tspr->picnum,lpal)].smoothduration)) * 66.f, &fps);
     else
         fps = anim->fpssc;
 
@@ -1160,9 +1160,9 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
                 }
                 else
                 {
-                    s->xyzn[(k*s->numverts) + (i*3) + j].x = ((f->verts[m->tris[i].v[j]].v[0] * f->mul.x) + f->add.x) * 64;
-                    s->xyzn[(k*s->numverts) + (i*3) + j].y = ((f->verts[m->tris[i].v[j]].v[1] * f->mul.y) + f->add.y) * 64;
-                    s->xyzn[(k*s->numverts) + (i*3) + j].z = ((f->verts[m->tris[i].v[j]].v[2] * f->mul.z) + f->add.z) * 64;
+                    s->xyzn[(k*s->numverts) + (i*3) + j].x = (int16_t)(((f->verts[m->tris[i].v[j]].v[0] * f->mul.x) + f->add.x) * 64.f);
+                    s->xyzn[(k*s->numverts) + (i*3) + j].y = (int16_t)(((f->verts[m->tris[i].v[j]].v[1] * f->mul.y) + f->add.y) * 64.f);
+                    s->xyzn[(k*s->numverts) + (i*3) + j].z = (int16_t)(((f->verts[m->tris[i].v[j]].v[2] * f->mul.z) + f->add.z) * 64.f);
                 }
 
                 k++;
@@ -1260,7 +1260,7 @@ static md3model_t *md3load(int32_t fil)
     md3surf_t *s;
 
     m = (md3model_t *)nedpcalloc(model_data_pool, 1,sizeof(md3model_t)); if (!m) return(0);
-    m->mdnum = 3; m->texid = 0; m->scale = .01;
+    m->mdnum = 3; m->texid = 0; m->scale = .01f;
 
     m->muladdframes = NULL;
 
@@ -1607,7 +1607,7 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
 
 
     // Parkar: Moved up to be able to use k0 for the y-flipping code
-    k0 = tspr->z;
+    k0 = (float)tspr->z;
     if ((globalorientation&128) && !((globalorientation&48)==32)) k0 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<1);
 
     // Parkar: Changed to use the same method as centeroriented sprites
@@ -1625,7 +1625,7 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
     m0.z *= f; m1.z *= f; a0.z *= f;
 
     // floor aligned
-    k1 = tspr->y;
+    k1 = (float)tspr->y;
     if ((globalorientation&48)==32)
     {
         m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
@@ -1695,15 +1695,15 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
             pc[2] *= (float)hictinting[globalpal].b / 255.0;
             if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
             {
-                pc[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
-                pc[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
-                pc[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
+                pc[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0f;
+                pc[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0f;
+                pc[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0f;
             }
         }
         else globalnoeffect=1;
     }
 
-    if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; }
+    if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66f; else pc[3] = 0.33f; }
     else pc[3] = 1.0;
     if (m->usesalpha) //Sprites with alpha in texture
     {
@@ -1732,15 +1732,15 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
     if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll || m->head.flags == 1337)
     {
         if (spriteext[tspr->owner].xoff)
-            a0.x = (int32_t)(spriteext[tspr->owner].xoff / (2560 * (m0.x+m1.x)));
+            a0.x = (float)(spriteext[tspr->owner].xoff / (2560 * (m0.x+m1.x)));
         else
             a0.x = 0;
         if (spriteext[tspr->owner].yoff)
-            a0.y = (int32_t)(spriteext[tspr->owner].yoff / (2560 * (m0.x+m1.x)));
+            a0.y = (float)(spriteext[tspr->owner].yoff / (2560 * (m0.x+m1.x)));
         else
             a0.y = 0;
         if ((spriteext[tspr->owner].zoff) && !(tspr->cstat&1024))
-            a0.z = (int32_t)(spriteext[tspr->owner].zoff / (655360 * (m0.z+m1.z)));
+            a0.z = (float)(spriteext[tspr->owner].zoff / (655360 * (m0.z+m1.z)));
         else
             a0.z = 0;
         k0 = (float)sintable[(spriteext[tspr->owner].pitch+512)&2047] / 16384.0;
@@ -2820,7 +2820,7 @@ int32_t voxdraw(voxmodel_t *m, spritetype *tspr)
     f = ((float)tspr->yrepeat)/64.0*m->bscale;
     m0.z *= f; a0.z *= f;
 
-    k0 = tspr->z;
+    k0 = (float)tspr->z;
     if (globalorientation&128) k0 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<1);
 
     f = (65536.0*512.0)/((float)xdimen*viewingrange);
@@ -2870,7 +2870,7 @@ int32_t voxdraw(voxmodel_t *m, spritetype *tspr)
     pc[0] *= (float)hictinting[globalpal].r / 255.0;
     pc[1] *= (float)hictinting[globalpal].g / 255.0;
     pc[2] *= (float)hictinting[globalpal].b / 255.0;
-    if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; }
+    if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66f; else pc[3] = 0.33f; }
     else pc[3] = 1.0;
     if (tspr->cstat&2/* && (!peelcompiling)*/) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
     //------------

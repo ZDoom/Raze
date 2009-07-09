@@ -57,6 +57,8 @@ void S_SoundStartup(void)
     // if they chose None lets return
     if (ud.config.FXDevice < 0) return;
 
+    initprintf("Initializing sound...\n");
+
 RETRY:
     status = FX_Init(ud.config.FXDevice, ud.config.NumVoices, ud.config.NumChannels, ud.config.NumBits, ud.config.MixRate);
     if (status == FX_Ok)
@@ -129,6 +131,8 @@ void S_MusicStartup(void)
     // if they chose None lets return
     if (ud.config.MusicDevice < 0)
         return;
+
+    initprintf("Initializing music...\n");
 
     status = MUSIC_Init(ud.config.MusicDevice, 0);
 

@@ -4456,12 +4456,12 @@ void P_ProcessInput(int32_t snum)
             {
                 if (p->on_ground == 1)
                 {
-                    /*
-                                        if (p->dummyplayersprite == -1)
-                                            p->dummyplayersprite =
-                                                A_Spawn(pi,PLAYERONWATER);
-                                        sprite[p->dummyplayersprite].pal = sprite[p->i].pal;
-                    */
+                    if (p->dummyplayersprite == -1)
+                        p->dummyplayersprite =
+                        A_Spawn(pi,PLAYERONWATER);
+                    sprite[p->dummyplayersprite].pal = sprite[p->i].pal;
+                    sprite[p->dummyplayersprite].cstat |= 32768;
+
                     p->footprintcount = 6;
                     if (sector[p->cursectnum].floorpicnum == FLOORSLIME)
                         p->footprintpal = 8;
@@ -5184,7 +5184,24 @@ SHOOTINCODE:
     }
 
     if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_GLOWS)
+    {
         p->random_club_frame += 64; // Glowing
+
+        if (p->kickback_pic == 0)
+        {
+            spritetype *s = &sprite[p->i];
+            int32_t x = ((sintable[(s->ang+512)&2047])>>7), y = ((sintable[(s->ang)&2047])>>7);
+            int32_t r = 1024+(sintable[p->random_club_frame&2047]>>3);
+
+            s->x += x;
+            s->y += y;
+            G_AddGameLight(0, p->i, PHEIGHT, max(r, 0), aplWeaponFlashColor[p->curr_weapon][snum],PR_LIGHT_PRIO_HIGH_GAME);
+            ActorExtra[p->i].lightcount = 2;
+            s->x -= x;
+            s->y -= y;
+        }
+       
+    }
 
     // this is a hack for WEAPON_FIREEVERYOTHER
     if (ActorExtra[p->i].temp_data[7])

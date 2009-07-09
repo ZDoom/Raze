@@ -190,59 +190,7 @@ static int32_t gotcmov = -2, abstab10[1024] ASMNAME("abstab10");
 static int32_t qhufval0[1<<LOGQHUFSIZ0], qhufval1[1<<LOGQHUFSIZ1];
 static uint8_t qhufbit0[1<<LOGQHUFSIZ0], qhufbit1[1<<LOGQHUFSIZ1];
 
-#if defined(__WATCOMC__) && !defined(NOASM)
-
-int32_t bswap(int32_t);
-#pragma aux bswap =\
-	".586"\
-	"bswap eax"\
-	parm [eax]\
-	modify nomemory exact [eax]\
-	value [eax]
-
-int32_t bitrev(int32_t, int32_t);
-#pragma aux bitrev =\
-	"xor eax, eax"\
-	"beg: shr ebx, 1"\
-	"adc eax, eax"\
-	"dec ecx"\
-	"jnz short beg"\
-	parm [ebx][ecx]\
-	modify nomemory exact [eax ebx ecx]\
-	value [eax]
-
-int32_t testflag(int32_t);
-#pragma aux testflag =\
-	"pushfd"\
-	"pop eax"\
-	"mov ebx, eax"\
-	"xor eax, ecx"\
-	"push eax"\
-	"popfd"\
-	"pushfd"\
-	"pop eax"\
-	"xor eax, ebx"\
-	"mov eax, 1"\
-	"jne menostinx"\
-	"xor eax, eax"\
-	"menostinx:"\
-	parm nomemory [ecx]\
-	modify exact [eax ebx]\
-	value [eax]
-
-void cpuid(int32_t, int32_t *);
-#pragma aux cpuid =\
-	".586"\
-	"cpuid"\
-	"mov dword ptr [esi], eax"\
-	"mov dword ptr [esi+4], ebx"\
-	"mov dword ptr [esi+8], ecx"\
-	"mov dword ptr [esi+12], edx"\
-	parm [eax][esi]\
-	modify exact [eax ebx ecx edx]\
-	value
-
-#elif defined(_MSC_VER) && !defined(NOASM)
+#if defined(_MSC_VER) && !defined(NOASM)
 
 static _inline uint32_t bswap(uint32_t a)
 {
@@ -577,73 +525,7 @@ static int32_t Paeth(int32_t a, int32_t b, int32_t c)
     if (pb <= pc) return(b); else return(c);
 }
 
-#if defined(__WATCOMC__) && !defined(NOASM)
-
-//NOTE: cmov now has correctly ordered registers (thx to bug fix in 11.0c!)
-int32_t Paeth686(int32_t, int32_t, int32_t);
-#pragma aux Paeth686 =\
-	".686"\
-	"mov edx, ecx"\
-	"sub edx, eax"\
-	"sub edx, ebx"\
-	"lea edx, abstab10[edx*4+2048]"\
-	"mov esi, [ebx*4+edx]"\
-	"mov edi, [ecx*4+edx]"\
-	"cmp edi, esi"\
-	"cmovge edi, esi"\
-	"cmovge ecx, ebx"\
-	"cmp edi, [eax*4+edx]"\
-	"cmovge ecx, eax"\
-	parm nomemory [eax][ebx][ecx]\
-	modify exact [ecx edx esi edi]\
-	value [ecx]
-
-//Note: "cmove eax,?" may be faster than "jne ?:and eax,?" but who cares
-void rgbhlineasm(int32_t, int32_t, int32_t, int32_t);
-#pragma aux rgbhlineasm =\
-	"sub ecx, edx"\
-	"jle short endit"\
-	"add edx, offset olinbuf"\
-	"cmp dword ptr trnsrgb, 0"\
-	"jz short begit2"\
-	"begit: mov eax, dword ptr [ecx+edx]"\
-	"or eax, 0xff000000"\
-	"cmp eax, dword ptr trnsrgb"\
-	"jne short skipit"\
-	"and eax, 0xffffff"\
-	"skipit: sub ecx, 3"\
-	"mov [edi], eax"\
-	"lea edi, [edi+ebx]"\
-	"jnz short begit"\
-	"jmp short endit"\
-	"begit2: mov eax, dword ptr [ecx+edx]"\
-	"or eax, 0xff000000"\
-	"sub ecx, 3"\
-	"mov [edi], eax"\
-	"lea edi, [edi+ebx]"\
-	"jnz short begit2"\
-	"endit:"\
-	parm [ecx][edx][edi][ebx]\
-	modify exact [eax ecx edi]\
-	value
-
-void pal8hlineasm(int32_t, int32_t, int32_t, int32_t);
-#pragma aux pal8hlineasm =\
-	"sub ecx, edx"\
-	"jle short endit"\
-	"add edx, offset olinbuf"\
-	"begit: movzx eax, byte ptr [ecx+edx]"\
-	"mov eax, dword ptr palcol[eax*4]"\
-	"dec ecx"\
-	"mov [edi], eax"\
-	"lea edi, [edi+ebx]"\
-	"jnz short begit"\
-	"endit:"\
-	parm [ecx][edx][edi][ebx]\
-	modify exact [eax ecx edi]\
-	value
-
-#elif defined(_MSC_VER) && !defined(NOASM)
+#if defined(_MSC_VER) && !defined(NOASM)
 
 static _inline int32_t Paeth686(int32_t a, int32_t b, int32_t c)
 {
@@ -1256,23 +1138,7 @@ static int32_t lcomphvsamp0, lcomphsampshift0, lcompvsampshift0;
 static int32_t colclip[1024], colclipup8[1024], colclipup16[1024];
 /*static uint8_t pow2char[8] = {1,2,4,8,16,32,64,128};*/
 
-#if defined(__WATCOMC__) && !defined(NOASM)
-
-int32_t mulshr24(int32_t, int32_t);
-#pragma aux mulshr24 =\
-	"imul edx"\
-	"shrd eax, edx, 24"\
-	parm nomemory [eax][edx]\
-	modify exact [eax edx]
-
-int32_t mulshr32(int32_t, int32_t);
-#pragma aux mulshr32 =\
-	"imul edx"\
-	parm nomemory [eax][edx]\
-	modify exact [eax edx]\
-	value [edx]
-
-#elif defined(_MSC_VER) && !defined(NOASM)
+#if defined(_MSC_VER) && !defined(NOASM)
 
 static _inline int32_t mulshr24(int32_t a, int32_t d)
 {

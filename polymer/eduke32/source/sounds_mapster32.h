@@ -3,6 +3,8 @@
 
 #include "build.h"
 
+#pragma pack(push,1)
+
 /// vvv sound structs from duke3d.h
 typedef struct {
     int32_t voice;
@@ -31,6 +33,8 @@ void S_Pan3D(void);
 int32_t A_CheckSoundPlaying(int32_t i, int32_t num);
 int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
 void S_ClearSoundLocks(void);
+
+#pragma pack(pop)
 
 #define MAXSOUNDS 2560
 

@@ -258,6 +258,8 @@ enum DukeWeapon_t {
 #define deletesprite A_DeleteSprite
 void A_DeleteSprite(int32_t s);
 
+#pragma pack(push,1)
+
 typedef struct {
     uint32_t bits;
     int16_t fvel, svel;
@@ -535,7 +537,7 @@ typedef struct {
     int16_t ang, oldang, angdir, angdif;
 } spriteinterpolate;
 
-spriteinterpolate sprpos[MAXSPRITES];
+// spriteinterpolate sprpos[MAXSPRITES];
 
 typedef struct {
     int32_t bposx,bposy,bposz;
@@ -1101,6 +1103,8 @@ enum DukePacket_t
     PACKET_PLAYER_READY,
     PACKET_QUIT = 255 // should match mmulti I think
 };
+
+#pragma pack(pop)
 
 #ifdef __cplusplus
 }

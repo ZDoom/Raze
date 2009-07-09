@@ -69,15 +69,15 @@ void CONTROL_GetMouseDelta(void)
     {
         static int32_t lastx = 0, lasty = 0;
 
-        CONTROL_MouseAxes[0].analog = (((x + lastx) / 2.0f) * 4.0f * CONTROL_MouseSensitivity);
-        CONTROL_MouseAxes[1].analog = (((y + lasty) / 2.0f) * 4.0f * CONTROL_MouseSensitivity) * 2.0f;
+        CONTROL_MouseAxes[0].analog = (int32_t)(((x + lastx) / 2.0f) * 4.0f * CONTROL_MouseSensitivity);
+        CONTROL_MouseAxes[1].analog = (int32_t)((((y + lasty) / 2.0f) * 4.0f * CONTROL_MouseSensitivity) * 2.0f);
         lastx = x;
         lasty = y;
         return;
     }
 
-    CONTROL_MouseAxes[0].analog = (x * 4.0f * CONTROL_MouseSensitivity);
-    CONTROL_MouseAxes[1].analog = (y * 4.0f * CONTROL_MouseSensitivity) * 2.0f;
+    CONTROL_MouseAxes[0].analog = (int32_t)(x * 4.0f * CONTROL_MouseSensitivity);
+    CONTROL_MouseAxes[1].analog = (int32_t)((y * 4.0f * CONTROL_MouseSensitivity) * 2.0f);
 }
 
 int32_t CONTROL_StartMouse(void)

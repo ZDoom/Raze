@@ -63,6 +63,7 @@ struct glinfo {
     char sm4;
     char dumped;
 };
+
 extern struct glinfo glinfo;
 extern void setvsync(int32_t sync);
 #endif
