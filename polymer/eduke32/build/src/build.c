@@ -240,18 +240,22 @@ static int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
 
 static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 {
-    int32_t newx = xdim, newy = ydim, newbpp = bpp, newfullscreen = fullscreen;
+    int32_t newx = xdim, newy = ydim, newbpp = bpp, newfullscreen = fullscreen, tmp;
     extern int32_t qsetmode;
 
     switch (parm->numparms)
     {
     case 1:	// bpp switch
-        newbpp = Batol(parm->parms[0]);
+        tmp = Batol(parm->parms[0]);
+        if (tmp==8 || tmp==16 || tmp==32)
+            newbpp = tmp;
         break;
     case 4:	// fs, res, bpp switch
         newfullscreen = (Batol(parm->parms[3]) != 0);
     case 3:	// res & bpp switch
-        newbpp = Batol(parm->parms[2]);
+        tmp = Batol(parm->parms[2]);
+        if (tmp==8 || tmp==16 || tmp==32)
+            newbpp = tmp;
     case 2: // res switch
         newx = Batol(parm->parms[0]);
         newy = Batol(parm->parms[1]);
@@ -293,6 +297,38 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 extern int32_t startwin_run(void);
 
 extern char *defsfilename;	// set in bstub.c
+
+
+#ifdef M32_SHOWDEBUG
+extern char m32_debugstr[64][128];
+extern int32_t m32_numdebuglines;
+
+void M32_drawdebug(void)
+{
+    int i;
+    int x=4, y=8;
+    char tstr[64];
+
+    static int inited = 0;
+    if (!inited)
+    {
+        Bmemset(m32_debugstr, 0, sizeof(m32_debugstr));
+        inited = 1;
+    }
+
+    begindrawing();
+    Bsprintf(tstr, "searchstat=%d, searchsector=%d, searchwall=%d",
+             searchstat, searchsector, searchwall);  
+    printext256(x,y,whitecol,0,tstr,xdimgame>640?0:1);
+    for (i=0; i<m32_numdebuglines; i++)
+    {
+        y+=8;
+        printext256(x,y,whitecol,0,m32_debugstr[i],xdimgame>640?0:1);
+    }
+    enddrawing();
+    m32_numdebuglines=0;
+}
+#endif
 
 int32_t app_main(int32_t argc, const char **argv)
 {
@@ -474,7 +510,9 @@ CANCEL:
         ExtAnalyzeSprites();
 #endif
         drawmasks();
-
+#ifdef M32_SHOWDEBUG
+        M32_drawdebug();
+#endif
         ExtCheckKeys();
 
         nextpage();

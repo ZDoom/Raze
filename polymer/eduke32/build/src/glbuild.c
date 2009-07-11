@@ -265,6 +265,8 @@ void (APIENTRY * bgluPerspective)(GLdouble fovy, GLdouble aspect, GLdouble zNear
 const GLubyte *(APIENTRY * bgluErrorString)(GLenum error);
 
 GLint(APIENTRY * bgluProject)(GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint	*view, GLdouble* winX, GLdouble* winY, GLdouble* winZ);
+GLint (APIENTRY * bgluUnProject)(GLdouble winX, GLdouble winY, GLdouble winZ, const GLdouble * model, const GLdouble * proj, const GLint * view, GLdouble* objX, GLdouble* objY, GLdouble* objZ);
+
 
 #ifdef RENDERTYPEWIN
 // Windows
@@ -945,6 +947,7 @@ int32_t loadglulibrary(const char *driver)
     bgluErrorString = GLUGETPROC("gluErrorString");
 
     bgluProject = GLUGETPROC("gluProject");
+    bgluUnProject = GLUGETPROC("gluUnProject");
 
     if (err) unloadglulibrary();
     return err;
@@ -982,6 +985,7 @@ int32_t unloadglulibrary(void)
     bgluErrorString         = NULL;
 
     bgluProject             = NULL;
+    bgluUnProject             = NULL;
 
     return 0;
 }

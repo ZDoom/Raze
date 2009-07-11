@@ -570,6 +570,8 @@ _pranimatespritesinfo asi;
 // MEMORY POOL
 nedpool*        polymer_pool = NULL;
 
+void polymer_alt_editorselect(void);
+
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void)
 {
@@ -837,6 +839,11 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     polymer_displayrooms(dacursectnum);
 
     curmodelviewmatrix = rootmodelviewmatrix;
+
+#ifdef M32_ALTAIMING
+    // only showcase for now...
+    polymer_alt_editorselect();
+#endif
 
     // build globals used by rotatesprite
     viewangle = daang;
@@ -1538,6 +1545,13 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     return;
 }
 
+#ifdef M32_SHOWDEBUG
+#define QNUM 128
+GLfloat qverts[QNUM*3];
+GLfloat qcolors[QNUM*3];
+int qvertcount = 0;
+#endif
+
 static void         polymer_drawplane(_prplane* plane)
 {
     int32_t         materialbits;
@@ -1581,6 +1595,32 @@ static void         polymer_drawplane(_prplane* plane)
 //                 plane->buffer[2] + plane->plane[2] * 50);
 //     bglEnd();
 //     bglEnable(GL_TEXTURE_2D);
+
+#ifdef M32_SHOWDEBUG
+    // debug code for new Mapster32 mouse aim
+    if (qvertcount > 0)
+    {
+        bglPushAttrib(GL_ENABLE_BIT);
+        bglDisable(GL_TEXTURE_2D);
+        bglDisable(GL_DEPTH_TEST);
+        int ii;
+        bglBegin(GL_LINE_LOOP);
+        for (ii=0; ii<qvertcount; ii++)
+        {
+            if (qverts[3*ii]==0 && qverts[3*ii+1]==0 && qverts[3*ii+2]==0)
+            {
+                bglEnd();
+                bglBegin(GL_LINE_LOOP);
+                continue;
+            }   
+            bglColor4f(qcolors[(3*ii)+0],qcolors[(3*ii)+1],qcolors[(3*ii)+2],1.0);
+            bglVertex3f(qverts[(3*ii)+0],qverts[(3*ii)+1],qverts[(3*ii)+2]);
+        }
+        qvertcount=0;
+        bglEnd();
+        bglPopAttrib();
+    }
+#endif
 
     bglNormal3f((float)(plane->plane[0]), (float)(plane->plane[1]), (float)(plane->plane[2]));
 
@@ -1726,8 +1766,8 @@ static void         polymer_freeboard(void)
 
 static void         polymer_editorselect(void)
 {
-        int32_t     i, n;
-        double      ox, oy, oz, ox2, oy2, oz2, px[6], py[6], pz[6];
+//        int32_t     i, n;
+        double      ox, oy, oz, ox2, oy2, oz2, r;
 
         //Polymost supports true look up/down :) Here, we convert horizon to angle.
         //gchang&gshang are cos&sin of this angle (respectively)
@@ -1736,6 +1776,10 @@ static void         polymer_editorselect(void)
 
         gvisibility = ((float)globalvisibility)*FOGSCALE;
 
+        //global cos/sin height angle
+        r = (double)((ydimen>>1)-ghoriz);
+        gshang = r/sqrt(r*r+ghalfx*ghalfx);
+        gchang = sqrt(1.0-gshang*gshang);
         ghoriz = (double)(ydimen>>1);
 
         //global cos/sin tilt angle
@@ -1743,24 +1787,6 @@ static void         polymer_editorselect(void)
         gstang = sin(gtang);
         if (fabs(gstang) < .001) //This hack avoids nasty precision bugs in domost()
         { gstang = 0; if (gctang > 0) gctang = 1.0; else gctang = -1.0; }
-
-        //Generate viewport trapezoid (for handling screen up/down)
-        px[0] = px[3] = 0-1; px[1] = px[2] = windowx2+1-windowx1+2;
-        py[0] = py[1] = 0-1; py[2] = py[3] = windowy2+1-windowy1+2; n = 4;
-        for (i=0; i<n; i++)
-        {
-            ox = px[i]-ghalfx; oy = py[i]-ghoriz; oz = ghalfx;
-
-            //Tilt rotation (backwards)
-            ox2 = ox*gctang + oy*gstang;
-            oy2 = oy*gctang - ox*gstang;
-            oz2 = oz;
-
-            //Up/down rotation (backwards)
-            px[i] = ox2;
-            py[i] = oy2*gchang + oz2*gshang;
-            pz[i] = oz2*gchang - oy2*gshang;
-        }
 
         if (searchit == 2)
         {
@@ -1823,6 +1849,343 @@ static void         polymer_editorselect(void)
             }
             searchit = 0;
         }
+}
+
+
+// vvv --- improved editor aiming
+static inline GLfloat dot2f(GLfloat *v1, GLfloat *v2)
+{
+    return v1[0]*v2[0] + v1[1]*v2[1];
+}
+static inline GLfloat dot3f(GLfloat *v1, GLfloat *v2)
+{
+    return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
+}
+static inline void relvec2f(GLfloat *v1, GLfloat *v2, GLfloat *out)
+{
+    out[0] = v2[0]-v1[0];
+    out[1] = v2[1]-v1[1];
+}
+static inline void relvec3f(GLfloat *v1, GLfloat *v2, GLfloat *out)
+{
+    out[0] = v2[0]-v1[0];
+    out[1] = v2[1]-v1[1];
+    out[2] = v2[2]-v1[2];
+}
+static inline void addvec3f(GLfloat *v1, GLfloat *v2, GLfloat *out)
+{
+    out[0] = v1[0]+v2[0];
+    out[1] = v1[1]+v2[1];
+    out[2] = v1[2]+v2[2];
+}
+static void cross3f(GLfloat* va, GLfloat* vb, GLfloat* out)
+{
+    GLfloat out0 = va[1]*vb[2] - va[2]*vb[1];
+    GLfloat out1 = va[2]*vb[0] - va[0]*vb[2];
+    GLfloat out2 = va[0]*vb[1] - va[1]*vb[0];
+    out[0]=out0, out[1]=out1, out[2]=out2;
+}
+
+#ifdef M32_SHOWDEBUG
+char m32_debugstr[64][128];
+int32_t m32_numdebuglines=0;
+#endif
+
+void polymer_alt_editorselect(void)
+{
+    int i,j;
+
+    GLdouble model[16];
+    GLdouble proj[16];
+    GLint view[4];
+
+    bglGetDoublev(GL_MODELVIEW_MATRIX, model);
+    bglGetDoublev(GL_PROJECTION_MATRIX, proj);
+    bglGetIntegerv(GL_VIEWPORT, view);
+
+    GLdouble x,y,z, viewx,viewy,viewz;
+    GLfloat dadepth;
+
+    bglReadPixels(searchx, ydimen-searchy, 1,1, GL_DEPTH_COMPONENT, GL_FLOAT, &dadepth);
+    bgluUnProject(searchx, ydimen-searchy, dadepth,  model, proj, view,  &x, &y, &z);
+    bgluUnProject(searchx, ydimen-searchy, 0.0,  model, proj, view,  &viewx, &viewy, &viewz);
+
+    int8_t bestwhat = -1;
+    int16_t bestsec = -1;
+    int16_t bestwall = -1;
+    GLfloat bestdist = 1000; //todo: tweak...
+
+#ifdef M32_SHOWDEBUG
+    GLfloat col1[3]={1.0,0.0,0.0};
+    GLfloat col2[3]={0.0,1.0,0.0};
+    GLfloat col3[3]={0.0,0.0,1.0};
+    GLfloat col4[3]={0.0,1.0,1.0};
+    GLfloat dummyvert[3] = {0,0,0};
+    qvertcount=0;
+#endif
+
+    for (i=0; i<numwalls; i++)
+    {
+        _prwall *w = prwalls[i];
+        walltype *wal = &wall[i];
+
+        if (!w->flags.uptodate)
+            continue;
+
+        _prplane *wp = &w->wall;
+        int8_t what;
+
+        GLfloat *pl = wp->plane;
+        GLdouble a=pl[0], b=pl[1], c=pl[2], d=pl[3];
+        GLdouble nnormsq, nnorm, dist;
+
+        nnormsq = a*a + b*b + c*c;
+        nnorm = sqrt(nnormsq);
+        GLfloat npl[3] = {a/nnorm, b/nnorm, c/nnorm};
+        GLfloat scrv[3] = {x-viewx, y-viewy, z-viewz};
+        if (-dot3f(scrv,pl)<0)
+            continue;
+
+        GLfloat coeff = -d/nnormsq;
+        GLfloat pointonplane[3] = {coeff*a, coeff*b, coeff*c};
+        GLfloat vec[3] = {x-pointonplane[0], y-pointonplane[1], z-pointonplane[2]};
+        dist = fabs((a*vec[0] + b*vec[1] + c*vec[2])/nnorm);
+        if (dist > bestdist)
+            continue;
+
+        _prplane *pp;
+        // TODO: the parallax cases...
+        for (what=0; what < (wal->nextsector>=0?2:1); what++)
+        {
+            pp=wp;
+            if (what==0)
+            {
+                if (wal->nextsector>=0 && !(w->underover&1))
+                    continue;
+            }
+            else if (what==1)
+            {    
+                if (!(w->underover&2))
+                    continue;
+                pp=&w->over;
+            }
+/*
+            else if (what==2)
+            {
+                if (!(wal->cstat&16) && !(wal->cstat&32))
+                    continue;
+                pp=&w->mask;
+            }
+*/
+            GLfloat v1[3], v2[3], v3[3], v4[3], v12[3], v34[3], v1p_r[3], v3p_r[3];
+            GLfloat v23[3], v41[3], v2p_r[3], v4p_r[3];
+            GLfloat tp[3]={x,y,z};
+            Bmemcpy(v1, &pp->buffer[0], 3*sizeof(GLfloat));
+            Bmemcpy(v2, &pp->buffer[5], 3*sizeof(GLfloat));
+            Bmemcpy(v3, &pp->buffer[10], 3*sizeof(GLfloat));
+            Bmemcpy(v4, &pp->buffer[15], 3*sizeof(GLfloat));
+            relvec3f(v1,v2, v12);
+            relvec3f(v3,v4, v34);
+            relvec3f(v1,tp, v1p_r);
+            relvec3f(v3,tp, v3p_r);
+            cross3f(npl,v1p_r, v1p_r);
+            cross3f(npl,v3p_r, v3p_r);
+
+            relvec3f(v2,v3, v23);
+            relvec3f(v4,v1, v41);
+
+            relvec3f(v2,tp, v2p_r);
+            relvec3f(v4,tp, v4p_r);
+            cross3f(npl,v2p_r, v2p_r);
+            cross3f(npl,v4p_r, v4p_r);
+
+            if (dot3f(v12,v12)>0.25 && dot3f(v34,v34)>0.25  
+                && (v23[1]<0 || dot3f(v23,v23)<=0.25 || dot3f(v23,v2p_r) < 0)
+                && (dot3f(v41,v41)<=0.25 || dot3f(v41,v4p_r) < 0)
+                && dot3f(v12,v1p_r) < 0 && dot3f(v34,v3p_r) < 0)
+            {
+                bestwhat = (what==2)?4:0;
+                bestwall = i;
+                bestdist = dist;
+                bestsec = sectorofwall(i);
+#ifdef M32_SHOWDEBUG
+                if (m32_numdebuglines<64)
+                {
+                    Bsprintf(m32_debugstr[m32_numdebuglines++], "what=wall %d, dist=%.02f, sec=%d",
+                             bestwall, bestdist, bestsec);
+                }
+                if (qvertcount<QNUM-3)
+                {
+                    Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
+                    Bmemcpy(&qverts[3*qvertcount++],v1, 3*sizeof(GLfloat));
+                    Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col2));
+                    Bmemcpy(&qverts[3*qvertcount++],v2, 3*sizeof(GLfloat));
+                    Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col3));
+                    Bmemcpy(&qverts[3*qvertcount++],v3, 3*sizeof(GLfloat));
+                    Bmemcpy(&qcolors[3*qvertcount],col4,sizeof(col4));
+                    Bmemcpy(&qverts[3*qvertcount++],v4, 3*sizeof(GLfloat));
+
+                    Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
+                }
+#endif
+            }
+        }
+    }
+
+    for (i=0; i<numsectors; i++)
+    {
+        _prsector *s = prsectors[i];
+        sectortype *sec = &sector[i];
+
+        if (!s->flags.uptodate)
+            continue;
+        
+        _prplane *cfp;
+        int8_t what = 1;
+
+        for (what=1; what<=2; what++)
+        {
+            if (what==1)
+                cfp = &s->ceil;
+            else
+                cfp = &s->floor;
+
+            GLfloat *pl = cfp->plane;
+            GLdouble a=pl[0], b=pl[1], c=pl[2], d=pl[3];
+            GLfloat scrv[3] = {x-viewx, y-viewy, z-viewz};
+            if (-dot3f(scrv,pl)<0)
+                continue;
+
+            GLdouble nnormsq, nnorm, dist;
+            nnormsq = a*a + b*b + c*c;
+            nnorm = sqrt(nnormsq);
+
+            GLfloat coeff = -d/nnormsq;
+            GLfloat pointonplane[3] = {coeff*a, coeff*b, coeff*c};
+            GLfloat vec[3] = {x-pointonplane[0], y-pointonplane[1], z-pointonplane[2]};
+            dist = fabs((a*vec[0] + b*vec[1] + c*vec[2])/nnorm);
+            if (dist > bestdist)
+                continue;
+
+            // projected point
+            GLfloat p[2] =
+                {
+                    //x,
+                    ((b*b+c*c)*x - a*b*y - a*c*z - a*d)/nnormsq,
+
+                    //y,
+                    //(-a*b*x + (a*a+c*c)*y - b*c*z - b*d)/nnormsq,
+
+                    //z
+                    (-a*c*x - b*c*y + (a*a+b*b)*z - c*d)/nnormsq
+                };
+
+            // implementation using a loop over all triangles
+            for (j=0; j<s->indicescount; j+=3)
+            {
+                GLushort idx[3] = {cfp->indices[j], cfp->indices[j+1], cfp->indices[j+2]};
+                GLfloat v1[2] = {cfp->buffer[(idx[0]*5)], cfp->buffer[(idx[0]*5)+2]};
+                GLfloat v2[2] = {cfp->buffer[(idx[1]*5)], cfp->buffer[(idx[1]*5)+2]};
+                GLfloat v3[2] = {cfp->buffer[(idx[2]*5)], cfp->buffer[(idx[2]*5)+2]};
+                GLfloat v12[2] = {v2[0]-v1[0], v2[1]-v1[1]};
+                GLfloat v23[2] = {v3[0]-v2[0], v3[1]-v2[1]};
+                GLfloat v31[2] = {v1[0]-v3[0], v1[1]-v3[1]};
+                int rotsign = (what==1)?-1:1;
+                GLfloat v1p_r[2] = {rotsign*(p[1]-v1[1]), -rotsign*(p[0]-v1[0])};
+                GLfloat v2p_r[2] = {rotsign*(p[1]-v2[1]), -rotsign*(p[0]-v2[0])};
+                GLfloat v3p_r[2] = {rotsign*(p[1]-v3[1]), -rotsign*(p[0]-v3[0])};
+
+                if (dot2f(v12,v12)>0.25 && dot2f(v23,v23)>0.25 && dot2f(v31,v31)>0.25
+                    && dot2f(v12,v1p_r) < 0 && dot2f(v23,v2p_r) < 0 && dot2f(v31,v3p_r) < 0)
+                {
+                    bestwhat = what;
+                    bestsec = i;
+                    bestdist = dist;
+#ifdef M32_SHOWDEBUG
+                    if (qvertcount<QNUM-3)
+                    {
+                        Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
+                        qverts[(3*qvertcount)+0] = v1[0];
+                        qverts[(3*qvertcount)+1] = cfp->buffer[(idx[0]*5+1)];
+                        qverts[(3*qvertcount)+2] = v1[1];
+                        qvertcount++;
+
+                        Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col1));
+                        qverts[(3*qvertcount)+0] = v2[0];
+                        qverts[(3*qvertcount)+1] = cfp->buffer[(idx[1]*5+1)];
+                        qverts[(3*qvertcount)+2] = v2[1];
+                        qvertcount++;
+
+                        Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col1));
+                        qverts[(3*qvertcount)+0] = v3[0];
+                        qverts[(3*qvertcount)+1] = cfp->buffer[(idx[2]*5+1)];
+                        qverts[(3*qvertcount)+2] = v3[1];
+                        qvertcount++;
+
+                        Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
+                    }
+#endif
+                    goto nextsector;
+                }
+            }  // loop over triangles
+/*
+            // implementation using inside() (less precise)
+            if (inside(-p[1],p[0],i))
+            {
+                bestwhat = what;
+                bestsec = i;
+                bestdist = dist;
+            }
+*/
+nextsector:
+            if (bestsec==i)
+            {
+                int16_t k, bestk=0;
+                GLfloat bestwdistsq = 1e60, wdistsq, wnorm;
+                GLfloat w1[2], w2[2], w21[2], pw1[2], pw2[2];
+                GLfloat ptonline[2];
+                GLfloat scrvxz[2]={scrv[0],scrv[2]};
+                GLfloat scrvxznorm, scrvxzn[2];
+                GLfloat w1d, w2d;
+                walltype *wal = &wall[sec->wallptr];
+                for (k=0; k<sec->wallnum; k++)
+                {
+                    w1[1] = -wal[k].x;
+                    w1[0] = wal[k].y;
+                    w2[1] = -wall[wal[k].point2].x;
+                    w2[0] = wall[wal[k].point2].y;
+
+                    scrvxznorm = sqrt(dot2f(scrvxz,scrvxz));
+                    scrvxzn[0] = scrvxz[1]/scrvxznorm;
+                    scrvxzn[1] = -scrvxz[0]/scrvxznorm;
+
+                    relvec2f(p,w1, pw1);
+                    relvec2f(p,w2, pw2);
+                    relvec2f(w2,w1, w21);
+                    w1d = dot2f(scrvxzn,pw1);
+                    w2d = dot2f(scrvxzn,pw2);
+                    w2d = -w2d;
+                    if (w1d < 0 || w2d < 0 || w1d + w2d < 0.01)
+                        continue;
+                    wnorm = sqrt(dot2f(w21,w21));
+                    ptonline[0] = w2[0]+(wnorm*w2d/(w1d+w2d))*w21[0];
+                    ptonline[1] = w2[1]+(wnorm*w2d/(w1d+w2d))*w21[1];
+
+                    wdistsq = (ptonline[0]-p[0])*(ptonline[0]-p[0]) + (ptonline[1]-p[1])*(ptonline[1]-p[1]);
+                    if (wdistsq < bestwdistsq)
+                    {
+                        bestk = k;
+                        bestwdistsq = wdistsq;
+                    }
+                }
+                bestwall = sec->wallptr+bestk;
+#ifdef M32_SHOWDEBUG
+                if (m32_numdebuglines<64)
+                    Bsprintf(m32_debugstr[m32_numdebuglines++], "what=sec %d, dist=%.02f, wall=%d", bestsec, bestdist, bestwall);
+#endif
+            }  // determine searchwall
+        }  // ceiling or floor
+    }  // loop over sectors
 }
 
 // SECTORS

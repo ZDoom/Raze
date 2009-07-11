@@ -5725,6 +5725,9 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
         bglEnd();
     }
 
+    bglPushAttrib(GL_POLYGON_BIT);  // we want to have readable text in wireframe mode, too
+    bglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     bglEnable(GL_TEXTURE_2D);
     bglEnable(GL_BLEND);
     bglColor4ub(p.r,p.g,p.b,255);
@@ -5771,6 +5774,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     bglEnd();
 
     bglDepthMask(GL_TRUE);	// re-enable writing to the z-buffer
+    bglPopAttrib();
 
     return 0;
 #endif

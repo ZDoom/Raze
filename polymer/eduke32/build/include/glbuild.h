@@ -298,7 +298,7 @@ extern void             (APIENTRY * bgluPerspective) (GLdouble fovy, GLdouble as
 extern const GLubyte *  (APIENTRY * bgluErrorString) (GLenum error);
 
 extern GLint            (APIENTRY * bgluProject)(GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint	*view, GLdouble* winX, GLdouble* winY, GLdouble* winZ);
-
+extern GLint            (APIENTRY * bgluUnProject)(GLdouble winX, GLdouble winY, GLdouble winZ, const GLdouble * model, const GLdouble * proj, const GLint * view, GLdouble* objX, GLdouble* objY, GLdouble* objZ);
 
 #ifdef RENDERTYPEWIN
 // Windows
