@@ -585,7 +585,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 if (hitinfo.hitwall >= 0 || hitinfo.hitsprite >= 0)
                 {
                     j = A_InsertSprite(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,atwith,-15,0,0,sa,32,0,i,4);
-                    ActorExtra[j].projectile.workslike = ProjectileData[sprite[j].picnum].workslike;
+                    ActorExtra[j].projectile->workslike = ProjectileData[sprite[j].picnum].workslike;
                     sprite[j].extra = ProjectileData[atwith].extra;
                     if (ProjectileData[atwith].extra_rand > 0)
                         sprite[j].extra += (krand()&ProjectileData[atwith].extra_rand);
@@ -4458,7 +4458,7 @@ void P_ProcessInput(int32_t snum)
                 {
                     if (p->dummyplayersprite == -1)
                         p->dummyplayersprite =
-                        A_Spawn(pi,PLAYERONWATER);
+                            A_Spawn(pi,PLAYERONWATER);
                     sprite[p->dummyplayersprite].pal = sprite[p->i].pal;
                     sprite[p->dummyplayersprite].cstat |= 32768;
 
@@ -5168,6 +5168,22 @@ SHOOTINCODE:
         X_OnEvent(EVENT_HOLSTER, pi, snum, -1);
         if (aGameVars[g_iReturnVarID].val.lValue == 0)
         {
+            if (p->curr_weapon > KNEE_WEAPON)
+            {
+                if (p->holster_weapon == 0 && p->weapon_pos == 0)
+                {
+                    p->holster_weapon = 1;
+                    p->weapon_pos = -1;
+                    P_DoQuote(73,p);
+                }
+                else if (p->holster_weapon == 1 && p->weapon_pos == -9)
+                {
+                    p->holster_weapon = 0;
+                    p->weapon_pos = 10;
+                    P_DoQuote(74,p);
+                }
+            }
+
             if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_HOLSTER_CLEARS_CLIP)
             {
                 if (p->ammo_amount[p->curr_weapon] > aplWeaponClip[p->curr_weapon][snum]
@@ -5200,7 +5216,7 @@ SHOOTINCODE:
             s->x -= x;
             s->y -= y;
         }
-       
+
     }
 
     // this is a hack for WEAPON_FIREEVERYOTHER

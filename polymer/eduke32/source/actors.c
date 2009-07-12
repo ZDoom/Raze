@@ -204,7 +204,7 @@ SKIPWALLCHECK:
 
                     if (s->picnum == RPG && sj->extra > 0)
                         ActorExtra[j].picnum = RPG;
-                    else if (A_CheckSpriteFlags(i,SPRITE_PROJECTILE) && ActorExtra[i].projectile.workslike & PROJECTILE_RADIUS_PICNUM && sj->extra > 0)
+                    else if (A_CheckSpriteFlags(i,SPRITE_PROJECTILE) && SpriteProjectile[i].workslike & PROJECTILE_RADIUS_PICNUM && sj->extra > 0)
                         ActorExtra[j].picnum = s->picnum;
                     else
                     {
@@ -648,7 +648,9 @@ inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, i
 
     if (ActorExtra[srcsprite].lightptr == NULL)
     {
+#pragma pack(push,1)
         _prlight mylight;
+#pragma pack(pop)
 
         mylight.sector = s->sectnum;
         mylight.x = s->x;
@@ -780,6 +782,8 @@ static void G_MoveZombieActors(void)
                         case RECON__STATIC:
                             CS |= 257;
                         default:
+                            if (A_CheckSpriteFlags(i, SPRITE_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384)
+                                break;
                             ActorExtra[i].timetosleep = 0;
                             A_PlayAlertSound(i);
                             changespritestat(i, STAT_ACTOR);
@@ -861,7 +865,7 @@ int32_t A_IncurDamage(int32_t sn)
                     }
                 }
 
-                if (A_CheckSpriteTileFlags(ActorExtra[sn].picnum,SPRITE_PROJECTILE) && (ActorExtra[sn].projectile.workslike & PROJECTILE_RPG))
+                if (A_CheckSpriteTileFlags(ActorExtra[sn].picnum,SPRITE_PROJECTILE) && (ActorExtra[sn].projectile->workslike & PROJECTILE_RPG))
                 {
                     g_player[p].ps->posxv +=
                         ActorExtra[sn].extra*(sintable[(ActorExtra[sn].ang+512)&2047])<<2;
@@ -2360,33 +2364,33 @@ static void G_MoveWeapons(void)
         {
             /* Custom projectiles.  This is a big hack. */
 
-            if (ActorExtra[i].projectile.pal >= 0)
-                s->pal=ActorExtra[i].projectile.pal;
+            if (SpriteProjectile[i].pal >= 0)
+                s->pal=SpriteProjectile[i].pal;
 
-            if (ActorExtra[i].projectile.workslike & PROJECTILE_KNEE)
+            if (SpriteProjectile[i].workslike & PROJECTILE_KNEE)
                 KILLIT(i);
 
-            if (ActorExtra[i].projectile.workslike & PROJECTILE_RPG)
+            if (SpriteProjectile[i].workslike & PROJECTILE_RPG)
             {
-                //  if (ActorExtra[i].projectile.workslike & COOLEXPLOSION1)
+                //  if (SpriteProjectile[i].workslike & COOLEXPLOSION1)
                 //                if( g_sounds[WIERDSHOT_FLY].num == 0 )
                 //                    A_PlaySound(WIERDSHOT_FLY,i);
 
                 Bmemcpy(&davect,s,sizeof(vec3_t));
 
-                if (ActorExtra[i].projectile.flashcolor)
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, ActorExtra[i].projectile.flashcolor,PR_LIGHT_PRIO_LOW_GAME);
+                if (SpriteProjectile[i].flashcolor)
+                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, SpriteProjectile[i].flashcolor,PR_LIGHT_PRIO_LOW_GAME);
 
-                if (ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFWALLS)
+                if (SpriteProjectile[i].workslike & PROJECTILE_BOUNCESOFFWALLS)
                 {
                     /*                    if(s->yvel < 1 || s->extra < 2 || (s->xvel|s->zvel) == 0)
                     Did this cause the bug with prematurely exploding projectiles? */
                     if (s->yvel < 1)
                     {
 
-                        if (ActorExtra[i].projectile.spawns >= 0)
+                        if (SpriteProjectile[i].spawns >= 0)
                         {
-                            k = A_Spawn(i,ActorExtra[i].projectile.spawns);
+                            k = A_Spawn(i,SpriteProjectile[i].spawns);
 
 //                            Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
                             /*
@@ -2395,21 +2399,21 @@ static void G_MoveWeapons(void)
                             sprite[k].z = daz;
                             */
 
-                            if (ActorExtra[i].projectile.sxrepeat > 4)
-                                sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
-                            if (ActorExtra[i].projectile.syrepeat > 4)
-                                sprite[k].yrepeat=ActorExtra[i].projectile.syrepeat;
+                            if (SpriteProjectile[i].sxrepeat > 4)
+                                sprite[k].xrepeat=SpriteProjectile[i].sxrepeat;
+                            if (SpriteProjectile[i].syrepeat > 4)
+                                sprite[k].yrepeat=SpriteProjectile[i].syrepeat;
                         }
-                        if (ActorExtra[i].projectile.isound >= 0)
-                            A_PlaySound(ActorExtra[i].projectile.isound,i);
+                        if (SpriteProjectile[i].isound >= 0)
+                            A_PlaySound(SpriteProjectile[i].isound,i);
 
-                        s->extra=ActorExtra[i].projectile.extra;
+                        s->extra=SpriteProjectile[i].extra;
 
-                        if (ActorExtra[i].projectile.extra_rand > 0)
-                            s->extra += (krand()&ActorExtra[i].projectile.extra_rand);
+                        if (SpriteProjectile[i].extra_rand > 0)
+                            s->extra += (krand()&SpriteProjectile[i].extra_rand);
 
                         x = s->extra;
-                        A_RadiusDamage(i,ActorExtra[i].projectile.hitradius, x>>2,x>>1,x-(x>>2),x);
+                        A_RadiusDamage(i,SpriteProjectile[i].hitradius, x>>2,x>>1,x-(x>>2),x);
 
                         KILLIT(i);
                     }
@@ -2417,16 +2421,16 @@ static void G_MoveWeapons(void)
 
                 p = -1;
 
-                if (ActorExtra[i].projectile.workslike & PROJECTILE_COOLEXPLOSION1)
+                if (SpriteProjectile[i].workslike & PROJECTILE_COOLEXPLOSION1)
                 {
                     s->shade++;
                     if (s->shade >= 40) KILLIT(i);
                 }
 
-                if (ActorExtra[i].projectile.drop)
-                    s->zvel -= ActorExtra[i].projectile.drop;
+                if (SpriteProjectile[i].drop)
+                    s->zvel -= SpriteProjectile[i].drop;
 
-                if (ActorExtra[i].projectile.workslike & PROJECTILE_SPIT)
+                if (SpriteProjectile[i].workslike & PROJECTILE_SPIT)
                     if (s->zvel < 6144)
                         s->zvel += g_spriteGravity-112;
 
@@ -2442,21 +2446,21 @@ static void G_MoveWeapons(void)
                 A_GetZLimits(i);
                 qq = CLIPMASK1;
 
-                if (ActorExtra[i].projectile.trail >= 0)
+                if (SpriteProjectile[i].trail >= 0)
                 {
-                    for (f=0; f<=ActorExtra[i].projectile.tnum; f++)
+                    for (f=0; f<=SpriteProjectile[i].tnum; f++)
                     {
-                        j = A_Spawn(i,ActorExtra[i].projectile.trail);
-                        if (ActorExtra[i].projectile.toffset != 0)
-                            sprite[j].z += (ActorExtra[i].projectile.toffset<<8);
-                        if (ActorExtra[i].projectile.txrepeat >= 0)
-                            sprite[j].xrepeat=ActorExtra[i].projectile.txrepeat;
-                        if (ActorExtra[i].projectile.tyrepeat >= 0)
-                            sprite[j].yrepeat=ActorExtra[i].projectile.tyrepeat;
+                        j = A_Spawn(i,SpriteProjectile[i].trail);
+                        if (SpriteProjectile[i].toffset != 0)
+                            sprite[j].z += (SpriteProjectile[i].toffset<<8);
+                        if (SpriteProjectile[i].txrepeat >= 0)
+                            sprite[j].xrepeat=SpriteProjectile[i].txrepeat;
+                        if (SpriteProjectile[i].tyrepeat >= 0)
+                            sprite[j].yrepeat=SpriteProjectile[i].tyrepeat;
                     }
                 }
 
-                for (f=1; f<=ActorExtra[i].projectile.velmult; f++)
+                for (f=1; f<=SpriteProjectile[i].velmult; f++)
                 {
                     vec3_t tmpvect;
                     Bmemcpy(&davect,s,sizeof(vec3_t));
@@ -2470,7 +2474,7 @@ static void G_MoveWeapons(void)
                         break;
                 }
 
-                if (!(ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFWALLS) &&
+                if (!(SpriteProjectile[i].workslike & PROJECTILE_BOUNCESOFFWALLS) &&
                         s->yvel >= 0 && sprite[s->yvel].sectnum < MAXSECTORS)
                     if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
                         j = 49152|s->yvel;
@@ -2482,45 +2486,45 @@ static void G_MoveWeapons(void)
                     KILLIT(i);
                 }
 
-                if (ActorExtra[i].projectile.workslike & PROJECTILE_TIMED && ActorExtra[i].projectile.range > 0)
+                if (SpriteProjectile[i].workslike & PROJECTILE_TIMED && SpriteProjectile[i].range > 0)
                 {
                     if (!(ActorExtra[i].temp_data[8]))
                         ActorExtra[i].temp_data[8] = 1;
                     else
                         ActorExtra[i].temp_data[8]++;
 
-                    if (ActorExtra[i].temp_data[8] > ActorExtra[i].projectile.range)
+                    if (ActorExtra[i].temp_data[8] > SpriteProjectile[i].range)
                     {
-                        if (ActorExtra[i].projectile.workslike & PROJECTILE_EXPLODEONTIMER)
+                        if (SpriteProjectile[i].workslike & PROJECTILE_EXPLODEONTIMER)
                         {
-                            if (ActorExtra[i].projectile.spawns >= 0)
+                            if (SpriteProjectile[i].spawns >= 0)
                             {
-                                k = A_Spawn(i,ActorExtra[i].projectile.spawns);
+                                k = A_Spawn(i,SpriteProjectile[i].spawns);
 
                                 Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
 
-                                if (ActorExtra[i].projectile.sxrepeat > 4)
-                                    sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
-                                if (ActorExtra[i].projectile.syrepeat > 4)
-                                    sprite[k].yrepeat=ActorExtra[i].projectile.syrepeat;
+                                if (SpriteProjectile[i].sxrepeat > 4)
+                                    sprite[k].xrepeat=SpriteProjectile[i].sxrepeat;
+                                if (SpriteProjectile[i].syrepeat > 4)
+                                    sprite[k].yrepeat=SpriteProjectile[i].syrepeat;
                             }
-                            if (ActorExtra[i].projectile.isound >= 0)
-                                A_PlaySound(ActorExtra[i].projectile.isound,i);
+                            if (SpriteProjectile[i].isound >= 0)
+                                A_PlaySound(SpriteProjectile[i].isound,i);
 
-                            s->extra=ActorExtra[i].projectile.extra;
+                            s->extra=SpriteProjectile[i].extra;
 
-                            if (ActorExtra[i].projectile.extra_rand > 0)
-                                s->extra += (krand()&ActorExtra[i].projectile.extra_rand);
+                            if (SpriteProjectile[i].extra_rand > 0)
+                                s->extra += (krand()&SpriteProjectile[i].extra_rand);
 
                             x = s->extra;
-                            A_RadiusDamage(i,ActorExtra[i].projectile.hitradius, x>>2,x>>1,x-(x>>2),x);
+                            A_RadiusDamage(i,SpriteProjectile[i].hitradius, x>>2,x>>1,x-(x>>2),x);
                         }
                         KILLIT(i);
                     }
                 }
 
                 if ((j&49152) != 49152)
-                    if (!(ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFWALLS))
+                    if (!(SpriteProjectile[i].workslike & PROJECTILE_BOUNCESOFFWALLS))
                     {
                         if (s->z < ActorExtra[i].ceilingz)
                         {
@@ -2536,13 +2540,13 @@ static void G_MoveWeapons(void)
                         }
                     }
 
-                if (ActorExtra[i].projectile.workslike & PROJECTILE_WATERBUBBLES &&
+                if (SpriteProjectile[i].workslike & PROJECTILE_WATERBUBBLES &&
                         sector[s->sectnum].lotag == 2 && rnd(140))
                     A_Spawn(i,WATERBUBBLE);
 
                 if (j != 0)
                 {
-                    if (ActorExtra[i].projectile.workslike & PROJECTILE_COOLEXPLOSION1)
+                    if (SpriteProjectile[i].workslike & PROJECTILE_COOLEXPLOSION1)
                     {
                         s->xvel = 0;
                         s->zvel = 0;
@@ -2552,22 +2556,22 @@ static void G_MoveWeapons(void)
                     {
                         j &= (MAXSPRITES-1);
 
-                        if (ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFSPRITES)
+                        if (SpriteProjectile[i].workslike & PROJECTILE_BOUNCESOFFSPRITES)
                         {
                             s->yvel--;
 
                             k = getangle(sprite[j].x-s->x,sprite[j].y-s->y)+(sprite[j].cstat&16?0:512);
                             s->ang = ((k<<1) - s->ang)&2047;
 
-                            if (ActorExtra[i].projectile.bsound >= 0)
-                                A_PlaySound(ActorExtra[i].projectile.bsound,i);
+                            if (SpriteProjectile[i].bsound >= 0)
+                                A_PlaySound(SpriteProjectile[i].bsound,i);
 
-                            if (ActorExtra[i].projectile.workslike & PROJECTILE_LOSESVELOCITY)
+                            if (SpriteProjectile[i].workslike & PROJECTILE_LOSESVELOCITY)
                             {
                                 s->xvel=s->xvel>>1;
                                 s->zvel=s->zvel>>1;
                             }
-                            if (!(ActorExtra[i].projectile.workslike & PROJECTILE_FORCEIMPACT))goto BOLT;
+                            if (!(SpriteProjectile[i].workslike & PROJECTILE_FORCEIMPACT))goto BOLT;
                         }
 
                         A_DamageObject(j,i);
@@ -2577,7 +2581,7 @@ static void G_MoveWeapons(void)
                             p = sprite[j].yvel;
                             A_PlaySound(PISTOL_BODYHIT,j);
 
-                            if (ActorExtra[i].projectile.workslike & PROJECTILE_SPIT)
+                            if (SpriteProjectile[i].workslike & PROJECTILE_SPIT)
                             {
                                 g_player[p].ps->horiz += 32;
                                 g_player[p].ps->return_to_center = 8;
@@ -2599,32 +2603,32 @@ static void G_MoveWeapons(void)
                             }
                         }
 
-                        if (ActorExtra[i].projectile.workslike & PROJECTILE_RPG_IMPACT)
+                        if (SpriteProjectile[i].workslike & PROJECTILE_RPG_IMPACT)
                         {
 
                             ActorExtra[j].owner = s->owner;
                             ActorExtra[j].picnum = s->picnum;
-                            ActorExtra[j].extra += ActorExtra[i].projectile.extra;
+                            ActorExtra[j].extra += SpriteProjectile[i].extra;
 
-                            if (ActorExtra[i].projectile.spawns >= 0)
+                            if (SpriteProjectile[i].spawns >= 0)
                             {
-                                k = A_Spawn(i,ActorExtra[i].projectile.spawns);
+                                k = A_Spawn(i,SpriteProjectile[i].spawns);
                                 Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
 
-                                if (ActorExtra[i].projectile.sxrepeat > 4)
-                                    sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
-                                if (ActorExtra[i].projectile.syrepeat > 4)
-                                    sprite[k].yrepeat=ActorExtra[i].projectile.syrepeat;
+                                if (SpriteProjectile[i].sxrepeat > 4)
+                                    sprite[k].xrepeat=SpriteProjectile[i].sxrepeat;
+                                if (SpriteProjectile[i].syrepeat > 4)
+                                    sprite[k].yrepeat=SpriteProjectile[i].syrepeat;
                             }
 
-                            if (ActorExtra[i].projectile.isound >= 0)
-                                A_PlaySound(ActorExtra[i].projectile.isound,i);
+                            if (SpriteProjectile[i].isound >= 0)
+                                A_PlaySound(SpriteProjectile[i].isound,i);
 
-                            if (!(ActorExtra[i].projectile.workslike & PROJECTILE_FORCEIMPACT))
+                            if (!(SpriteProjectile[i].workslike & PROJECTILE_FORCEIMPACT))
                                 KILLIT(i);
 
                         }
-                        if (ActorExtra[i].projectile.workslike & PROJECTILE_FORCEIMPACT)
+                        if (SpriteProjectile[i].workslike & PROJECTILE_FORCEIMPACT)
                             goto BOLT;
 
                     }
@@ -2632,7 +2636,7 @@ static void G_MoveWeapons(void)
                     {
                         j &= (MAXWALLS-1);
 
-                        if (ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFMIRRORS &&
+                        if (SpriteProjectile[i].workslike & PROJECTILE_BOUNCESOFFMIRRORS &&
                                 (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
                         {
                             k = getangle(
@@ -2648,7 +2652,7 @@ static void G_MoveWeapons(void)
                             setsprite(i,&davect);
                             A_DamageWall(i,j,(vec3_t *)s,s->picnum);
 
-                            if (ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFWALLS)
+                            if (SpriteProjectile[i].workslike & PROJECTILE_BOUNCESOFFWALLS)
                             {
                                 if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
                                     s->yvel--;
@@ -2658,10 +2662,10 @@ static void G_MoveWeapons(void)
                                         wall[wall[j].point2].y-wall[j].y);
                                 s->ang = ((k<<1) - s->ang)&2047;
 
-                                if (ActorExtra[i].projectile.bsound >= 0)
-                                    A_PlaySound(ActorExtra[i].projectile.bsound,i);
+                                if (SpriteProjectile[i].bsound >= 0)
+                                    A_PlaySound(SpriteProjectile[i].bsound,i);
 
-                                if (ActorExtra[i].projectile.workslike & PROJECTILE_LOSESVELOCITY)
+                                if (SpriteProjectile[i].workslike & PROJECTILE_LOSESVELOCITY)
                                 {
                                     s->xvel=s->xvel>>1;
                                     s->zvel=s->zvel>>1;
@@ -2682,17 +2686,17 @@ static void G_MoveWeapons(void)
                             Sect_DamageCeiling(s->sectnum);
                         }
 
-                        if (ActorExtra[i].projectile.workslike & PROJECTILE_BOUNCESOFFWALLS)
+                        if (SpriteProjectile[i].workslike & PROJECTILE_BOUNCESOFFWALLS)
                         {
                             A_DoProjectileBounce(i);
                             A_SetSprite(i,qq);
 
                             s->yvel--;
 
-                            if (ActorExtra[i].projectile.bsound >= 0)
-                                A_PlaySound(ActorExtra[i].projectile.bsound,i);
+                            if (SpriteProjectile[i].bsound >= 0)
+                                A_PlaySound(SpriteProjectile[i].bsound,i);
 
-                            if (ActorExtra[i].projectile.workslike & PROJECTILE_LOSESVELOCITY)
+                            if (SpriteProjectile[i].workslike & PROJECTILE_LOSESVELOCITY)
                             {
                                 s->xvel=s->xvel>>1;
                                 s->zvel=s->zvel>>1;
@@ -2702,7 +2706,7 @@ static void G_MoveWeapons(void)
                         }
                     }
 
-                    if (ActorExtra[i].projectile.workslike & PROJECTILE_HITSCAN)
+                    if (SpriteProjectile[i].workslike & PROJECTILE_HITSCAN)
                     {
                         if (!actorscrptr[sprite[i].picnum])
                             goto BOLT;
@@ -2711,27 +2715,27 @@ static void G_MoveWeapons(void)
                         goto BOLT;
                     }
 
-                    if (ActorExtra[i].projectile.workslike & PROJECTILE_RPG)
+                    if (SpriteProjectile[i].workslike & PROJECTILE_RPG)
                     {
-                        if (ActorExtra[i].projectile.spawns > 0)
+                        if (SpriteProjectile[i].spawns > 0)
                         {
-                            k = A_Spawn(i,ActorExtra[i].projectile.spawns);
+                            k = A_Spawn(i,SpriteProjectile[i].spawns);
                             Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
 
-                            if (ActorExtra[i].projectile.sxrepeat > 4)
-                                sprite[k].xrepeat=ActorExtra[i].projectile.sxrepeat;
-                            if (ActorExtra[i].projectile.syrepeat > 4)
-                                sprite[k].yrepeat=ActorExtra[i].projectile.syrepeat;
+                            if (SpriteProjectile[i].sxrepeat > 4)
+                                sprite[k].xrepeat=SpriteProjectile[i].sxrepeat;
+                            if (SpriteProjectile[i].syrepeat > 4)
+                                sprite[k].yrepeat=SpriteProjectile[i].syrepeat;
                         }
 
-                        if (ActorExtra[i].projectile.isound >= 0)
-                            A_PlaySound(ActorExtra[i].projectile.isound,i);
+                        if (SpriteProjectile[i].isound >= 0)
+                            A_PlaySound(SpriteProjectile[i].isound,i);
 
-                        s->extra=ActorExtra[i].projectile.extra;
-                        if (ActorExtra[i].projectile.extra_rand > 0)
-                            s->extra += (krand()&ActorExtra[i].projectile.extra_rand);
+                        s->extra=SpriteProjectile[i].extra;
+                        if (SpriteProjectile[i].extra_rand > 0)
+                            s->extra += (krand()&SpriteProjectile[i].extra_rand);
 
-                        A_RadiusDamage(i,ActorExtra[i].projectile.hitradius,
+                        A_RadiusDamage(i,SpriteProjectile[i].hitradius,
                                        s->extra>>2,s->extra>>1,s->extra-(s->extra>>2),s->extra);
                         KILLIT(i);
                     }
@@ -6583,87 +6587,87 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 j = nextspritesect[j];
             }
 
-            if (t[0])                if (t[0])   //If in motion
+            if (t[0]) //If in motion
+            {
+                if (klabs(sc->floorz-t[2]) <= SP)
                 {
-                    if (klabs(sc->floorz-t[2]) <= SP)
-                    {
-                        G_ActivateWarpElevators(i,0);
-                        break;
-                    }
-
-                    if (t[0]==-1)
-                    {
-                        if (sc->floorz > t[3])
-                            break;
-                    }
-                    else if (sc->ceilingz < t[4]) break;
-
-                    if (t[1] == 0) break;
-                    t[1] = 0;
-
-                    j = headspritestat[STAT_EFFECTOR];
-                    while (j >= 0)
-                    {
-                        if (i != j && (sprite[j].lotag) == 17)
-                            if ((sc->hitag-t[0]) ==
-                                    (sector[sprite[j].sectnum].hitag)
-                                    && sh == (sprite[j].hitag))
-                                break;
-                        j = nextspritestat[j];
-                    }
-
-                    if (j == -1) break;
-
-                    k = headspritesect[s->sectnum];
-                    while (k >= 0)
-                    {
-                        nextk = nextspritesect[k];
-
-                        if (sprite[k].statnum == 10 && sprite[k].owner >= 0)
-                        {
-                            p = sprite[k].yvel;
-
-                            g_player[p].ps->posx += sprite[j].x-s->x;
-                            g_player[p].ps->posy += sprite[j].y-s->y;
-                            g_player[p].ps->posz = sector[sprite[j].sectnum].floorz-(sc->floorz-g_player[p].ps->posz);
-
-                            ActorExtra[k].floorz = sector[sprite[j].sectnum].floorz;
-                            ActorExtra[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
-
-                            g_player[p].ps->bobposx = g_player[p].ps->oposx = g_player[p].ps->posx;
-                            g_player[p].ps->bobposy = g_player[p].ps->oposy = g_player[p].ps->posy;
-                            g_player[p].ps->oposz = g_player[p].ps->posz;
-
-                            g_player[p].ps->truefz = ActorExtra[k].floorz;
-                            g_player[p].ps->truecz = ActorExtra[k].ceilingz;
-                            g_player[p].ps->bobcounter = 0;
-
-                            changespritesect(k,sprite[j].sectnum);
-                            g_player[p].ps->cursectnum = sprite[j].sectnum;
-                        }
-                        else if (sprite[k].statnum != 3)
-                        {
-                            sprite[k].x +=
-                                sprite[j].x-s->x;
-                            sprite[k].y +=
-                                sprite[j].y-s->y;
-                            sprite[k].z = sector[sprite[j].sectnum].floorz-
-                                          (sc->floorz-sprite[k].z);
-
-                            ActorExtra[k].bposx = sprite[k].x;
-                            ActorExtra[k].bposy = sprite[k].y;
-                            ActorExtra[k].bposz = sprite[k].z;
-
-                            changespritesect(k,sprite[j].sectnum);
-                            setsprite(k,(vec3_t *)&sprite[k]);
-
-                            ActorExtra[k].floorz = sector[sprite[j].sectnum].floorz;
-                            ActorExtra[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
-
-                        }
-                        k = nextk;
-                    }
+                    G_ActivateWarpElevators(i,0);
+                    break;
                 }
+
+                if (t[0]==-1)
+                {
+                    if (sc->floorz > t[3])
+                        break;
+                }
+                else if (sc->ceilingz < t[4]) break;
+
+                if (t[1] == 0) break;
+                t[1] = 0;
+
+                j = headspritestat[STAT_EFFECTOR];
+                while (j >= 0)
+                {
+                    if (i != j && (sprite[j].lotag) == 17)
+                        if ((sc->hitag-t[0]) ==
+                                (sector[sprite[j].sectnum].hitag)
+                                && sh == (sprite[j].hitag))
+                            break;
+                    j = nextspritestat[j];
+                }
+
+                if (j == -1) break;
+
+                k = headspritesect[s->sectnum];
+                while (k >= 0)
+                {
+                    nextk = nextspritesect[k];
+
+                    if (sprite[k].statnum == 10 && sprite[k].owner >= 0)
+                    {
+                        p = sprite[k].yvel;
+
+                        g_player[p].ps->posx += sprite[j].x-s->x;
+                        g_player[p].ps->posy += sprite[j].y-s->y;
+                        g_player[p].ps->posz = sector[sprite[j].sectnum].floorz-(sc->floorz-g_player[p].ps->posz);
+
+                        ActorExtra[k].floorz = sector[sprite[j].sectnum].floorz;
+                        ActorExtra[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
+
+                        g_player[p].ps->bobposx = g_player[p].ps->oposx = g_player[p].ps->posx;
+                        g_player[p].ps->bobposy = g_player[p].ps->oposy = g_player[p].ps->posy;
+                        g_player[p].ps->oposz = g_player[p].ps->posz;
+
+                        g_player[p].ps->truefz = ActorExtra[k].floorz;
+                        g_player[p].ps->truecz = ActorExtra[k].ceilingz;
+                        g_player[p].ps->bobcounter = 0;
+
+                        changespritesect(k,sprite[j].sectnum);
+                        g_player[p].ps->cursectnum = sprite[j].sectnum;
+                    }
+                    else if (sprite[k].statnum != 3)
+                    {
+                        sprite[k].x +=
+                            sprite[j].x-s->x;
+                        sprite[k].y +=
+                            sprite[j].y-s->y;
+                        sprite[k].z = sector[sprite[j].sectnum].floorz-
+                                      (sc->floorz-sprite[k].z);
+
+                        ActorExtra[k].bposx = sprite[k].x;
+                        ActorExtra[k].bposy = sprite[k].y;
+                        ActorExtra[k].bposz = sprite[k].z;
+
+                        changespritesect(k,sprite[j].sectnum);
+                        setsprite(k,(vec3_t *)&sprite[k]);
+
+                        ActorExtra[k].floorz = sector[sprite[j].sectnum].floorz;
+                        ActorExtra[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
+
+                    }
+                    k = nextk;
+                }
+            }
             break;
 
         case 18:
@@ -7570,29 +7574,20 @@ static void G_MoveEffectors(void)   //STATNUM 3
 #ifdef POLYMER
         case 49:
         {
-            if (getrendermode() == 4)
+            if (!A_CheckSpriteFlags(i, SPRITE_NOLIGHT) && getrendermode() == 4 &&
+                    !(A_CheckSpriteFlags(i, SPRITE_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
             {
                 if (ActorExtra[i].lightptr == NULL)
                 {
+#pragma pack(push,1)
                     _prlight mylight;
-
+#pragma pack(pop)
                     mylight.sector = SECT;
-                    mylight.x = SX;
-                    mylight.y = SY;
-                    mylight.z = SZ;
+                    Bmemcpy(&mylight, &sprite[i], sizeof(int32_t) * 3);
                     mylight.range = SHT;
-                    if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
-                    {
-                        mylight.color[0] = sprite[i].xvel;
-                        mylight.color[1] = sprite[i].yvel;
-                        mylight.color[2] = sprite[i].zvel;
-                    }
-                    else
-                    {
-                        mylight.color[0] = hictinting[PL].r;
-                        mylight.color[1] = hictinting[PL].g;
-                        mylight.color[2] = hictinting[PL].b;
-                    }
+                    mylight.color[0] = sprite[i].xvel;
+                    mylight.color[1] = sprite[i].yvel;
+                    mylight.color[2] = sprite[i].zvel;
                     mylight.radius = 0;
                     mylight.angle = SA;
                     mylight.horiz = SH;
@@ -7626,31 +7621,23 @@ static void G_MoveEffectors(void)   //STATNUM 3
         }
         case 50:
         {
-            if (getrendermode() == 4)
+            if (!A_CheckSpriteFlags(i, SPRITE_NOLIGHT) && getrendermode() == 4 &&
+                    !(A_CheckSpriteFlags(i, SPRITE_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
             {
                 if (ActorExtra[i].lightptr == NULL)
                 {
+#pragma pack(push,1)
                     _prlight mylight;
+#pragma pack(pop)
 
                     mylight.sector = SECT;
-                    mylight.x = SX;
-                    mylight.y = SY;
-                    mylight.z = SZ;
+                    Bmemcpy(&mylight, &sprite[i], sizeof(int32_t) * 3);
                     mylight.range = SHT;
-                    if ((sprite[i].xvel | sprite[i].yvel | sprite[i].zvel) != 0)
-                    {
-                        mylight.color[0] = sprite[i].xvel;
-                        mylight.color[1] = sprite[i].yvel;
-                        mylight.color[2] = sprite[i].zvel;
-                    }
-                    else
-                    {
-                        mylight.color[0] = hictinting[PL].r;
-                        mylight.color[1] = hictinting[PL].g;
-                        mylight.color[2] = hictinting[PL].b;
-                    }
+                    mylight.color[0] = sprite[i].xvel;
+                    mylight.color[1] = sprite[i].yvel;
+                    mylight.color[2] = sprite[i].zvel;
                     mylight.radius = (256-(SS+128))<<1;
-                    mylight.faderadius = (int16_t)(mylight.radius * 0.75);
+                    mylight.faderadius = (int16_t)(mylight.radius * 0.75f);
                     mylight.angle = SA;
                     mylight.horiz = SH;
                     mylight.minshade = sprite[i].xoffset;
@@ -7913,7 +7900,8 @@ void G_MoveWorld(void)
                 {
                     spritetype *s = &sprite[i];
 
-                    if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT))
+                    if ((sprite[i].picnum != SECTOREFFECTOR && (s->cstat & 32768)) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) ||
+                            (A_CheckSpriteFlags(i, SPRITE_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
                     {
                         if (ActorExtra[i].lightptr != NULL)
                         {

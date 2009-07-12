@@ -6060,7 +6060,7 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     {
 #ifdef USELZF
         cleng = fastlz_compress(pic, miplen, packbuf/*, miplen-1*/);
-        if (cleng == 0)
+        if (cleng == 0 || cleng > j-1)
         {
             // failed to compress
             cleng = miplen;
@@ -6100,26 +6100,26 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
         if (glusetexcachecompression)
         {
 #ifdef USELZF
-            j = (miplen/stride)*8;
+            j = (miplen/stride)<<3;
             cleng = fastlz_compress(midbuf,j,packbuf/*,j-1*/);
-            if (cleng == 0)
+            if (cleng == 0 || cleng > j-1)
             {
                 cleng = j;
                 writebuf = midbuf;
             }
             else writebuf = packbuf;
 #else
-    cleng = lzwcompress(midbuf,(miplen/stride)*8,packbuf);
-    writebuf = packbuf;
+            cleng = lzwcompress(midbuf,(miplen/stride)*8,packbuf);
+            writebuf = packbuf;
 #endif
         }
         else
         {
-            cleng = (miplen/stride)*8;
+            cleng = (miplen/stride)<<3;
             writebuf = midbuf;
         }
         j = B_LITTLE32(cleng);
-        Bwrite(fil,&j,4);
+        Bwrite(fil,&j,sizeof(j));
         Bwrite(fil,writebuf,cleng);
     }
 
@@ -6131,26 +6131,26 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     if (glusetexcachecompression)
     {
 #ifdef USELZF
-        j = (miplen/stride)*4;
+        j = (miplen/stride)<<2;
         cleng = fastlz_compress(midbuf,j,packbuf/*,j-1*/);
-        if (cleng == 0)
+        if (cleng == 0 || cleng > j-1)
         {
             cleng = j;
             writebuf = midbuf;
         }
         else writebuf = packbuf;
 #else
-    cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
-    writebuf = packbuf;
+        cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
+        writebuf = packbuf;
 #endif
     }
     else
     {
-        cleng = (miplen/stride)*4;
+        cleng = (miplen/stride)<<2;
         writebuf = midbuf;
     }
     j = B_LITTLE32(cleng);
-    Bwrite(fil,&j,4);
+    Bwrite(fil,&j,sizeof(j));
     Bwrite(fil,writebuf,cleng);
 
     //index_4x4
@@ -6167,26 +6167,26 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     if (glusetexcachecompression)
     {
 #ifdef USELZF
-        j = (miplen/stride)*4;
+        j = (miplen/stride)<<2;
         cleng = fastlz_compress(midbuf,j,packbuf/*,j-1*/);
-        if (cleng == 0)
+        if (cleng == 0 || cleng > j-1)
         {
             cleng = j;
             writebuf = midbuf;
         }
         else writebuf = packbuf;
 #else
-    cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
-    writebuf = packbuf;
+        cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
+        writebuf = packbuf;
 #endif
     }
     else
     {
-        cleng = (miplen/stride)*4;
+        cleng = (miplen/stride)<<2;
         writebuf = midbuf;
     }
     j = B_LITTLE32(cleng);
-    Bwrite(fil,&j,4);
+    Bwrite(fil,&j,sizeof(j));
     Bwrite(fil,writebuf,cleng);
 #endif
     return 0;

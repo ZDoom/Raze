@@ -490,6 +490,8 @@ const char *keyw[] =
     "savenn",                   // 344
     "copy",                     // 345
     "<null>",                   // 346 internal inversion function
+    "sectorofwall",             // 347
+    "qstrncat",                 // 348
     "<null>"
 };
 
@@ -1404,7 +1406,8 @@ static inline int32_t ispecial(const char c)
         return 1;
     }
 
-    if (c == ' ' || c == 0x0d)
+    if (c == ' ' || c == 0x0d || c == '(' || c == ')' ||
+        c == ',' || c == ';')
         return 1;
 
     return 0;
@@ -2970,20 +2973,13 @@ static int32_t C_ParseCommand(void)
     case CON_QSPRINTF:
         C_GetNextValue(LABEL_DEFINE);
         C_GetNextValue(LABEL_DEFINE);
-        for (j=3; j>=0; j--)
-        {
-            if (C_GetKeyword() == -1)
-                C_GetNextVar();
-            else break;
-        }
 
-        while (j > -1)
-        {
-            bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-            *g_scriptPtr = 0;
-            g_scriptPtr++;
-            j--;
-        }
+        j = 0;
+
+        while (C_GetKeyword() == -1 && j < 32)
+            C_GetNextVar(), j++;
+
+        *g_scriptPtr++ = CON_NULLOP + (g_lineNumber<<12);
         return 0;
 
     case CON_ESPAWN:
@@ -3809,6 +3805,11 @@ static int32_t C_ParseCommand(void)
             C_GetNextVar();
         break;
     }
+
+    case CON_SECTOROFWALL:
+        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVar();
+        return 0;
 
     case CON_GETTICKS:
         if (C_CheckEventSync(g_currentEvent))
@@ -4737,6 +4738,9 @@ repeatcase:
         return 1;      // end of block
         break;
 
+    case CON_QSTRNCAT:
+        C_GetManyVars(3);
+        return 0;
     case CON_CHANGESPRITESTAT:
     case CON_CHANGESPRITESECT:
     case CON_ZSHOOTVAR:
@@ -5449,13 +5453,15 @@ repeatcase:
 
         while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
         {
-            if (*textptr == '%' && *(textptr+1) == 's')
-            {
-                initprintf("%s:%d: error: quote text contains string identifier.\n",g_szScriptFileName,g_lineNumber);
-                g_numCompilerErrors++;
-                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
-                break;
-            }
+            /*
+                        if (*textptr == '%' && *(textptr+1) == 's')
+                        {
+                            initprintf("%s:%d: error: quote text contains string identifier.\n",g_szScriptFileName,g_lineNumber);
+                            g_numCompilerErrors++;
+                            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                            break;
+                        }
+            */
             if (tw == CON_DEFINEQUOTE)
                 *(ScriptQuotes[k]+i) = *textptr;
             else
@@ -5931,14 +5937,20 @@ static void C_InitProjectiles(void)
     int32_t i;
     struct
     {
-        int32_t workslike, extra, cstat, extra_rand, hitradius, range, flashcolor;
-        int16_t spawns, sound, isound, vel, decal, trail, tnum, drop, clipdist, offset, bounces, bsound, toffset;
-        int8_t sxrepeat, syrepeat, txrepeat, tyrepeat, shade, xrepeat, yrepeat, pal, velmult;
+        int32_t workslike, extra, cstat, extra_rand; // 16b
+        int32_t hitradius, range, flashcolor; // 12b
+        int16_t spawns, sound, isound, vel; // 8b
+        int16_t decal, trail, tnum, drop; // 8b
+        int16_t clipdist, offset, bounces, bsound; // 8b
+        int16_t toffset; // 2b
+        int8_t sxrepeat, syrepeat, txrepeat, tyrepeat; // 4b
+        int8_t shade, xrepeat, yrepeat, pal; // 4b
+        int8_t velmult, filler; // 2b
     } DefaultProjectile =
     {
         1, 100, -1, -1, 2048, 0, 0,
         SMALLSMOKE, -1, -1, 600, BULLETHOLE, -1, 0, 0, 32, 448, g_numFreezeBounces, PIPEBOMB_BOUNCE, 1,
-        -1, -1, -1, -1, -96, 18, 18, 0, 1
+        -1, -1, -1, -1, -96, 18, 18, 0, 1, 0
     };
 
     // this will only happen if I forget to update this function...

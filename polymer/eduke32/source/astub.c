@@ -227,7 +227,7 @@ void create_map_snapshot(void)
         {
             mapstate->sectors = (sectortype *)Bcalloc(1, sizeof(sectortype) * numsectors);
             mapstate->sectsiz = j = fastlz_compress(&sector[0], sizeof(sectortype) * numsectors,
-                                                 &mapstate->sectors[0]/*, sizeof(sectortype) * numsectors*/);
+                                                    &mapstate->sectors[0]/*, sizeof(sectortype) * numsectors*/);
             mapstate->sectors = (sectortype *)Brealloc(mapstate->sectors, j);
             mapstate->sectcrc = tempcrc;
         }
@@ -248,7 +248,7 @@ void create_map_snapshot(void)
             {
                 mapstate->walls = (walltype *)Bcalloc(1, sizeof(walltype) * numwalls);
                 mapstate->wallsiz = j = fastlz_compress(&wall[0], sizeof(walltype) * numwalls,
-                                                     &mapstate->walls[0]/*, sizeof(walltype) * numwalls*/);
+                                                        &mapstate->walls[0]/*, sizeof(walltype) * numwalls*/);
                 mapstate->walls = (walltype *)Brealloc(mapstate->walls, j);
                 mapstate->wallcrc = tempcrc;
             }
@@ -281,7 +281,7 @@ void create_map_snapshot(void)
                     }
                 }
                 mapstate->spritesiz = j = fastlz_compress(&tspri[0], sizeof(spritetype) * numsprites,
-                                                       &mapstate->sprites[0]/*, sizeof(spritetype) * numsprites*/);
+                                          &mapstate->sprites[0]/*, sizeof(spritetype) * numsprites*/);
                 mapstate->sprites = (spritetype *)Brealloc(mapstate->sprites, j);
                 mapstate->spritecrc = tempcrc;
                 Bfree(tspri);

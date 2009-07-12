@@ -26,10 +26,10 @@ struct grpfile *foundgrps = NULL;
 static struct grpcache
 {
     struct grpcache *next;
-    char name[BMAX_PATH+1];
     int32_t size;
     int32_t mtime;
     int32_t crcval;
+    char name[BMAX_PATH];
 }
 *grpcache = NULL, *usedgrpcache = NULL;
 

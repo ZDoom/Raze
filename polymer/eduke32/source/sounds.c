@@ -292,9 +292,9 @@ int32_t S_LoadSound(uint32_t num)
     l = kfilelength(fp);
     g_sounds[num].soundsiz = l;
 
-    g_sounds[num].lock = 200;
+    g_soundlocks[num] = 200;
 
-    allocache((intptr_t *)&g_sounds[num].ptr,l,(char *)&g_sounds[num].lock);
+    allocache((intptr_t *)&g_sounds[num].ptr,l,(char *)&g_soundlocks[num]);
     kread(fp, g_sounds[num].ptr , l);
     kclose(fp);
     return 1;
@@ -410,9 +410,9 @@ int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
     }
     else
     {
-        if (g_sounds[num].lock < 200)
-            g_sounds[num].lock = 200;
-        else g_sounds[num].lock++;
+        if (g_soundlocks[num] < 200)
+            g_soundlocks[num] = 200;
+        else g_soundlocks[num]++;
     }
 
     if (g_sounds[num].m&16) sndist = 0;
@@ -454,7 +454,7 @@ int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
         g_sounds[num].SoundOwner[g_sounds[num].num].voice = voice;
         g_sounds[num].num++;
     }
-    else g_sounds[num].lock--;
+    else g_soundlocks[num]--;
     return (voice);
 }
 
@@ -493,9 +493,9 @@ void S_PlaySound(int32_t num)
     }
     else
     {
-        if (g_sounds[num].lock < 200)
-            g_sounds[num].lock = 200;
-        else g_sounds[num].lock++;
+        if (g_soundlocks[num] < 200)
+            g_soundlocks[num] = 200;
+        else g_soundlocks[num]++;
     }
 
     if (g_sounds[num].m&1)
@@ -530,7 +530,7 @@ void S_PlaySound(int32_t num)
     }
 
     if (voice > FX_Ok) return;
-    g_sounds[num].lock--;
+    g_soundlocks[num]--;
 }
 
 int32_t A_PlaySound(uint32_t num, int32_t i)
@@ -698,7 +698,7 @@ void S_TestSoundCallback(uint32_t num)
         g_sounds[num].SoundOwner[tempk-1].i = -1;
     }
 
-    g_sounds[num].lock--;
+    g_soundlocks[num]--;
 }
 
 void S_ClearSoundLocks(void)
@@ -706,8 +706,8 @@ void S_ClearSoundLocks(void)
     int32_t i;
 
     for (i=0; i<MAXSOUNDS; i++)
-        if (g_sounds[i].lock >= 200)
-            g_sounds[i].lock = 199;
+        if (g_soundlocks[i] >= 200)
+            g_soundlocks[i] = 199;
 
     for (i=0; i<11; i++)
         if (lumplockbyte[i] >= 200)
@@ -725,7 +725,7 @@ int32_t S_CheckSoundPlaying(int32_t i, int32_t num)
 {
     if (i == -1)
     {
-        if (g_sounds[num].lock == 200)
+        if (g_soundlocks[num] == 200)
             return 1;
         return 0;
     }

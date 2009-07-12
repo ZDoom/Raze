@@ -380,7 +380,7 @@ int32_t app_main(int32_t argc, const char **argv)
         }
         if (!boardfilename[0])
         {
-            Bstrncpy(boardfilename, argv[i], BMAX_PATH-4-1);
+            Bstrncpy(boardfilename, argv[i], BMAX_PATH);
             boardfilename[i-BMAX_PATH] = 0;
         }
     }

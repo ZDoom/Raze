@@ -653,7 +653,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 {
     int32_t i,j, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
     intptr_t fptr=0;
-    char *skinfile, hasalpha, fn[BMAX_PATH+65];
+    char *skinfile, hasalpha, fn[BMAX_PATH];
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
     int32_t doalloc = 1, filh;
@@ -672,7 +672,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         {
             skinfile = sk->fn;
             texidx = &sk->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
-            strcpy(fn,skinfile);
+            strncpy(fn,skinfile,BMAX_PATH);
             //OSD_Printf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
             break;
         }
@@ -692,7 +692,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         {
             skinfile = skzero->fn;
             texidx = &skzero->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
-            strcpy(fn,skinfile);
+            strncpy(fn,skinfile,BMAX_PATH);
             //OSD_Printf("Using def skin 0,0 as fallback, pal=%d\n", pal);
         }
         else
@@ -700,7 +700,9 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             if ((unsigned)number >= (unsigned)m->numskins) number = 0;
             skinfile = m->skinfn + number*64;
             texidx = &m->texid[ number * (HICEFFECTMASK+1) + (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
-            strcpy(fn,m->basepath); strcat(fn,skinfile);
+            strncpy(fn,m->basepath,BMAX_PATH);
+            if ((Bstrlen(fn) + Bstrlen(skinfile)) < BMAX_PATH)
+                strcat(fn,skinfile);
             //OSD_Printf("Using MD2/MD3 skin (%d) %s, pal=%d\n",number,skinfile,pal);
         }
     }

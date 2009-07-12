@@ -1181,7 +1181,7 @@ void faketimerhandler(void)
             }
 
             TRAVERSE_CONNECT(i)
-                g_player[i].myminlag = 0x7fffffff;
+            g_player[i].myminlag = 0x7fffffff;
         }
 
         osyn = (input_t *)&inputfifo[(g_player[myconnectindex].movefifoend-2)&(MOVEFIFOSIZ-1)][myconnectindex];
@@ -1253,7 +1253,7 @@ void faketimerhandler(void)
             g_player[connecthead].myminlag -= i; otherminlag += i;
 
             TRAVERSE_CONNECT(i)
-                g_player[i].myminlag = 0x7fffffff;
+            g_player[i].myminlag = 0x7fffffff;
         }
 
         packbuf[0] = PACKET_SLAVE_TO_MASTER;
@@ -1344,7 +1344,7 @@ void faketimerhandler(void)
         k = j;
 
         TRAVERSE_CONNECT(i)
-            j += g_player[i].playerquitflag + g_player[i].playerquitflag;
+        j += g_player[i].playerquitflag + g_player[i].playerquitflag;
 
         TRAVERSE_CONNECT(i)
         {
@@ -4594,6 +4594,8 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
         G_GameExit("Too many sprites spawned.");
     }
 
+    ActorExtra[i].projectile = &SpriteProjectile[i];
+
     ActorExtra[i].bposx = s_x;
     ActorExtra[i].bposy = s_y;
     ActorExtra[i].bposz = s_z;
@@ -4708,6 +4710,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         ActorExtra[i].picnum = PN;
         ActorExtra[i].timetosleep = 0;
         ActorExtra[i].extra = -1;
+
+        ActorExtra[i].projectile = &SpriteProjectile[i];
 
         ActorExtra[i].bposx = SX;
         ActorExtra[i].bposy = SY;
@@ -6050,9 +6054,16 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 ror_protectedsectors[sp->sectnum] = 1;
             case 49:
             case 50:
-                changespritestat(i, STAT_EFFECTOR);
-                goto SPAWN_END;
-                break;
+            {
+                int32_t j, nextj;
+
+                TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], j, nextj)
+                if (sprite[j].picnum == ACTIVATOR || sprite[j].picnum == ACTIVATORLOCKED)
+                    ActorExtra[i].flags |= SPRITE_USEACTIVATOR;
+            }
+            changespritestat(i, STAT_EFFECTOR);
+            goto SPAWN_END;
+            break;
             }
 
             sp->yvel = sector[sect].extra;
@@ -11528,7 +11539,7 @@ MAIN_LOOP_RESTART:
         OSD_DispatchQueued();
 
         if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || ud.multimode > 1) &&
-            (g_player[myconnectindex].ps->gm&MODE_GAME) && G_MoveLoop())
+                (g_player[myconnectindex].ps->gm&MODE_GAME) && G_MoveLoop())
             continue;
 
         if (g_player[myconnectindex].ps->gm & (MODE_EOL|MODE_RESTART))
@@ -11779,7 +11790,7 @@ void G_OpenDemoWrite(void)
     }
 
     if ((frecfilep = fopen(d,"wb")) == NULL) return;
-    fwrite(&dummylong,4,1,frecfilep);
+    fwrite(&dummylong,sizeof(dummylong),1,frecfilep);
     fwrite(&ver,sizeof(uint8_t),1,frecfilep);
     fwrite((char *)&ud.volume_number,sizeof(uint8_t),1,frecfilep);
     fwrite((char *)&ud.level_number,sizeof(uint8_t),1,frecfilep);

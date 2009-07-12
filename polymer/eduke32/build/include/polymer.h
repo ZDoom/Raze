@@ -163,6 +163,7 @@ typedef struct      s_prplanelist {
     struct s_prplanelist*   n;
 }                   _prplanelist;
 
+#pragma pack(push,1)
 typedef struct      s_prlight {
     int32_t         x, y, z, horiz, range;
     int16_t         angle, faderadius, radius, sector;
@@ -189,6 +190,7 @@ extern int32_t      lightcount;
 
 extern _prlight     gamelights[PR_MAXLIGHTS];
 extern int32_t      gamelightcount;
+#pragma pack(pop)
 
 // RENDER TARGETS
 typedef struct      s_prrt {

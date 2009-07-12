@@ -1015,7 +1015,7 @@ void G_OperateActivators(int32_t low,int32_t snum)
             if (sprite[i].picnum == ACTIVATORLOCKED)
             {
                 if (sector[SECT].lotag&16384)
-                    sector[SECT].lotag &= 65535-16384;
+                    sector[SECT].lotag &= ~16384;
                 else
                     sector[SECT].lotag |= 16384;
 
@@ -1611,7 +1611,7 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
     int32_t j, i, darkestwall;
     walltype *wal = &wall[dawallnum];
 
-    if (wal->overpicnum == MIRROR && wal->pal != 4 && A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) && (ActorExtra[spr].projectile.workslike & PROJECTILE_RPG))
+    if (wal->overpicnum == MIRROR && wal->pal != 4 && A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) && (ActorExtra[spr].projectile->workslike & PROJECTILE_RPG))
     {
         if (wal->nextwall == -1 || wall[wal->nextwall].pal != 4)
         {
@@ -1950,7 +1950,7 @@ void A_DamageObject(int32_t i,int32_t sn)
     i &= (MAXSPRITES-1);
 
     if (A_CheckSpriteFlags(sn,SPRITE_PROJECTILE))
-        if (ActorExtra[sn].projectile.workslike & PROJECTILE_RPG)
+        if (ActorExtra[sn].projectile->workslike & PROJECTILE_RPG)
             rpg = 1;
     switchpicnum = PN;
     if ((PN > WATERFOUNTAIN)&&(PN < WATERFOUNTAIN+3))
@@ -2445,7 +2445,7 @@ void allignwarpelevators(void)
 
 void G_HandleSharedKeys(int32_t snum)
 {
-    int32_t i, k, dainv;
+    int32_t i, k = 0, dainv;
     uint32_t sb_snum = g_player[snum].sync->bits, j;
     DukePlayer_t *p = g_player[snum].ps;
 
@@ -2822,8 +2822,6 @@ CHECKINV1:
                     }
                 }
 
-                k = -1;
-
                 Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum],p->i,snum);
                 Gv_SetVar(g_iWeaponVarID,j, p->i, snum);
                 aGameVars[g_iReturnVarID].val.lValue = 0;
@@ -2964,24 +2962,6 @@ CHECKINV1:
                         }
                 }
 
-            }
-            if (TEST_SYNC_KEY(sb_snum, SK_HOLSTER))
-            {
-                if (p->curr_weapon > KNEE_WEAPON)
-                {
-                    if (p->holster_weapon == 0 && p->weapon_pos == 0)
-                    {
-                        p->holster_weapon = 1;
-                        p->weapon_pos = -1;
-                        P_DoQuote(73,p);
-                    }
-                    else if (p->holster_weapon == 1 && p->weapon_pos == -9)
-                    {
-                        p->holster_weapon = 0;
-                        p->weapon_pos = 10;
-                        P_DoQuote(74,p);
-                    }
-                }
             }
         }
 

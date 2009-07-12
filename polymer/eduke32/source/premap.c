@@ -301,8 +301,8 @@ static int32_t G_CacheSound(uint32_t num)
     if ((ud.level_number == 0 && ud.volume_number == 0 && (num == 189 || num == 232 || num == 99 || num == 233 || num == 17)) ||
             (l < 12288))
     {
-        g_sounds[num].lock = 199;
-        allocache((intptr_t *)&g_sounds[num].ptr,l,(char *)&g_sounds[num].lock);
+        g_soundlocks[num] = 199;
+        allocache((intptr_t *)&g_sounds[num].ptr,l,(char *)&g_soundlocks[num]);
         if (g_sounds[num].ptr != NULL)
             kread(fp, g_sounds[num].ptr , l);
     }
@@ -1318,13 +1318,14 @@ static void resetpspritevars(char g)
     int16_t i, j, nexti,circ;
 //    int32_t firstx,firsty;
     spritetype *s;
-    char aimmode[MAXPLAYERS],autoaim[MAXPLAYERS],weaponswitch[MAXPLAYERS];
-    STATUSBARTYPE tsbar[MAXPLAYERS];
+    uint8_t aimmode[MAXPLAYERS],autoaim[MAXPLAYERS],weaponswitch[MAXPLAYERS];
+    DukeStatus_t tsbar[MAXPLAYERS];
 
     A_InsertSprite(g_player[0].ps->cursectnum,g_player[0].ps->posx,g_player[0].ps->posy,g_player[0].ps->posz,
                    APLAYER,0,0,0,g_player[0].ps->ang,0,0,0,10);
 
-    if (ud.recstat != 2) for (i=0; i<ud.multimode; i++)
+    if (ud.recstat != 2)
+        for (i=0; i<ud.multimode; i++)
         {
             aimmode[i] = g_player[i].ps->aim_mode;
             autoaim[i] = g_player[i].ps->auto_aim;

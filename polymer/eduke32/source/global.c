@@ -56,12 +56,9 @@ int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
 
 int32_t g_currentMenu;
 
-
-#pragma pack(push,1)
-
 map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
 sound_t g_sounds[ MAXSOUNDS ];
-#pragma pack(pop)
+volatile char g_soundlocks[MAXSOUNDS];
 
 char EpisodeNames[MAXVOLUMES][33] = { "L.A. MELTDOWN", "LUNAR APOCALYPSE", "SHRAPNEL CITY" };
 char SkillNames[5][33] = { "PIECE OF CAKE", "LET'S ROCK", "COME GET SOME", "DAMN I'M GOOD" };
@@ -169,7 +166,7 @@ int32_t g_damageCameras,g_freezerSelfDamage=0,g_tripbombLaserMode=0;
 int32_t g_networkBroadcastMode = 255, g_movesPerPacket = 1,g_gameQuit = 0,everyothertime;
 int32_t g_numFreezeBounces=3,g_rpgBlastRadius,g_pipebombBlastRadius,g_tripbombBlastRadius,
                            g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
-STATUSBARTYPE sbar;
+DukeStatus_t sbar;
 
 int32_t mymaxlag, otherminlag, bufferjitter = 1;
 int16_t g_numClouds,clouds[128],cloudx[128],cloudy[128];
@@ -183,7 +180,7 @@ int32_t nextvoxid = 0;
 
 int32_t SpriteFlags[MAXTILES];
 
-projectile_t ProjectileData[MAXTILES], DefaultProjectileData[MAXTILES];
+projectile_t ProjectileData[MAXTILES], DefaultProjectileData[MAXTILES], SpriteProjectile[MAXSPRITES];
 
 char CheatKeys[2] = { sc_D, sc_N };
 char setupfilename[BMAX_PATH]= SETUPFILENAME;

@@ -13,15 +13,13 @@
 
 // config page
 #define IDCFULLSCREEN	100
-#define IDCVMODE	101
-#define IDCSOUNDDRV	102
-#define IDCMIDIDEV	103
-#define IDCCDADEV	104
-// #define IDCINPUTMOUSE	105
-// #define IDCINPUTJOY	106
-#define IDCALWAYSSHOW	107
-#define IDCDATA         108
-#define IDCGAMEDIR      109
-#define IDCPOLYMER      110
-#define IDCAUTOLOAD     111
-#define IDCINPUT	112
+#define IDCVMODE	    101
+#define IDCSOUNDDRV	    102
+#define IDCMIDIDEV	    103
+#define IDCCDADEV	    104
+#define IDCALWAYSSHOW	105
+#define IDCDATA         106
+#define IDCGAMEDIR      107
+#define IDCPOLYMER      108
+#define IDCAUTOLOAD     109
+#define IDCINPUT	    110

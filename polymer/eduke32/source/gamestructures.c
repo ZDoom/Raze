@@ -936,262 +936,262 @@ static void __fastcall X_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int
     case PROJ_WORKSLIKE:
         if (iSet)
         {
-            ActorExtra[proj].projectile.workslike=lValue;
+            SpriteProjectile[proj].workslike=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.workslike, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].workslike, vm.g_i, vm.g_p);
         return;
 
     case PROJ_SPAWNS:
         if (iSet)
         {
-            ActorExtra[proj].projectile.spawns=lValue;
+            SpriteProjectile[proj].spawns=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.spawns, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].spawns, vm.g_i, vm.g_p);
         return;
 
     case PROJ_SXREPEAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.sxrepeat=lValue;
+            SpriteProjectile[proj].sxrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.sxrepeat, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].sxrepeat, vm.g_i, vm.g_p);
         return;
 
     case PROJ_SYREPEAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.syrepeat=lValue;
+            SpriteProjectile[proj].syrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.syrepeat, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].syrepeat, vm.g_i, vm.g_p);
         return;
 
     case PROJ_SOUND:
         if (iSet)
         {
-            ActorExtra[proj].projectile.sound=lValue;
+            SpriteProjectile[proj].sound=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.sound, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].sound, vm.g_i, vm.g_p);
         return;
 
     case PROJ_ISOUND:
         if (iSet)
         {
-            ActorExtra[proj].projectile.isound=lValue;
+            SpriteProjectile[proj].isound=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.isound, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].isound, vm.g_i, vm.g_p);
         return;
 
     case PROJ_VEL:
         if (iSet)
         {
-            ActorExtra[proj].projectile.vel=lValue;
+            SpriteProjectile[proj].vel=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.vel, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].vel, vm.g_i, vm.g_p);
         return;
 
     case PROJ_EXTRA:
         if (iSet)
         {
-            ActorExtra[proj].projectile.extra=lValue;
+            SpriteProjectile[proj].extra=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.extra, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].extra, vm.g_i, vm.g_p);
         return;
 
     case PROJ_DECAL:
         if (iSet)
         {
-            ActorExtra[proj].projectile.decal=lValue;
+            SpriteProjectile[proj].decal=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.decal, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].decal, vm.g_i, vm.g_p);
         return;
 
     case PROJ_TRAIL:
         if (iSet)
         {
-            ActorExtra[proj].projectile.trail=lValue;
+            SpriteProjectile[proj].trail=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.trail, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].trail, vm.g_i, vm.g_p);
         return;
 
     case PROJ_TXREPEAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.txrepeat=lValue;
+            SpriteProjectile[proj].txrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.txrepeat, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].txrepeat, vm.g_i, vm.g_p);
         return;
 
     case PROJ_TYREPEAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.tyrepeat=lValue;
+            SpriteProjectile[proj].tyrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.tyrepeat, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].tyrepeat, vm.g_i, vm.g_p);
         return;
 
     case PROJ_TOFFSET:
         if (iSet)
         {
-            ActorExtra[proj].projectile.toffset=lValue;
+            SpriteProjectile[proj].toffset=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.toffset, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].toffset, vm.g_i, vm.g_p);
         return;
 
     case PROJ_TNUM:
         if (iSet)
         {
-            ActorExtra[proj].projectile.tnum=lValue;
+            SpriteProjectile[proj].tnum=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.tnum, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].tnum, vm.g_i, vm.g_p);
         return;
 
     case PROJ_DROP:
         if (iSet)
         {
-            ActorExtra[proj].projectile.drop=lValue;
+            SpriteProjectile[proj].drop=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.drop, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].drop, vm.g_i, vm.g_p);
         return;
 
     case PROJ_CSTAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.cstat=lValue;
+            SpriteProjectile[proj].cstat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.cstat, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].cstat, vm.g_i, vm.g_p);
         return;
 
     case PROJ_CLIPDIST:
         if (iSet)
         {
-            ActorExtra[proj].projectile.clipdist=lValue;
+            SpriteProjectile[proj].clipdist=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.clipdist, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].clipdist, vm.g_i, vm.g_p);
         return;
 
     case PROJ_SHADE:
         if (iSet)
         {
-            ActorExtra[proj].projectile.shade=lValue;
+            SpriteProjectile[proj].shade=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.shade, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].shade, vm.g_i, vm.g_p);
         return;
 
     case PROJ_XREPEAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.xrepeat=lValue;
+            SpriteProjectile[proj].xrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.xrepeat, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].xrepeat, vm.g_i, vm.g_p);
         return;
 
     case PROJ_YREPEAT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.yrepeat=lValue;
+            SpriteProjectile[proj].yrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.yrepeat, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].yrepeat, vm.g_i, vm.g_p);
         return;
 
     case PROJ_PAL:
         if (iSet)
         {
-            ActorExtra[proj].projectile.pal=lValue;
+            SpriteProjectile[proj].pal=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.pal, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].pal, vm.g_i, vm.g_p);
         return;
 
     case PROJ_EXTRA_RAND:
         if (iSet)
         {
-            ActorExtra[proj].projectile.extra_rand=lValue;
+            SpriteProjectile[proj].extra_rand=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.extra_rand, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].extra_rand, vm.g_i, vm.g_p);
         return;
 
     case PROJ_HITRADIUS:
         if (iSet)
         {
-            ActorExtra[proj].projectile.hitradius=lValue;
+            SpriteProjectile[proj].hitradius=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.hitradius, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].hitradius, vm.g_i, vm.g_p);
         return;
 
     case PROJ_VEL_MULT:
         if (iSet)
         {
-            ActorExtra[proj].projectile.velmult=lValue;
+            SpriteProjectile[proj].velmult=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.velmult, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].velmult, vm.g_i, vm.g_p);
         return;
 
     case PROJ_OFFSET:
         if (iSet)
         {
-            ActorExtra[proj].projectile.offset=lValue;
+            SpriteProjectile[proj].offset=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.offset, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].offset, vm.g_i, vm.g_p);
         return;
 
     case PROJ_BOUNCES:
         if (iSet)
         {
-            ActorExtra[proj].projectile.bounces=lValue;
+            SpriteProjectile[proj].bounces=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.bounces, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].bounces, vm.g_i, vm.g_p);
         return;
 
     case PROJ_BSOUND:
         if (iSet)
         {
-            ActorExtra[proj].projectile.bsound=lValue;
+            SpriteProjectile[proj].bsound=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.bsound, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].bsound, vm.g_i, vm.g_p);
         return;
 
     case PROJ_RANGE:
         if (iSet)
         {
-            ActorExtra[proj].projectile.range=lValue;
+            SpriteProjectile[proj].range=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.range, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].range, vm.g_i, vm.g_p);
         return;
 
     case PROJ_FLASH_COLOR:
         if (iSet)
         {
-            ActorExtra[proj].projectile.flashcolor=lValue;
+            SpriteProjectile[proj].flashcolor=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ActorExtra[proj].projectile.flashcolor, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, SpriteProjectile[proj].flashcolor, vm.g_i, vm.g_p);
         return;
 
     default:

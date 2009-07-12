@@ -7419,8 +7419,9 @@ int32_t loadmaphack(char *filename)
         case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority tilenum
         {
             int32_t value;
+#pragma pack(push,1)
             _prlight light;
-
+#pragma pack(pop)
             scriptfile_getnumber(script, &value);
             light.sector = value;
             scriptfile_getnumber(script, &value);

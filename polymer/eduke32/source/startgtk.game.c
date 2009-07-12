@@ -29,9 +29,9 @@ static struct
     int32_t xdim3d, ydim3d, bpp3d;
     int32_t forcesetup;
     int32_t usemouse, usejoy;
-    char selectedgrp[BMAX_PATH+1];
     int32_t game;
     int32_t crcval;
+    char selectedgrp[BMAX_PATH];
 } settings;
 
 extern int32_t gtkenabled;

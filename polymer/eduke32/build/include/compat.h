@@ -351,7 +351,7 @@ static inline void dtol(double d, int32_t *a)
 #endif
 
 
-#define BMAX_PATH 260
+#define BMAX_PATH 256
 
 
 struct Bdirent {

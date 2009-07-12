@@ -180,13 +180,13 @@ int32_t Gv_ReadSave(int32_t fil)
                 if (aGameVars[j].dwFlags & GAMEVAR_PERPLAYER)
                 {
 //                    if (!MapInfo[i].savedstate->vars[j])
-                        MapInfo[i].savedstate->vars[j] = Bcalloc(MAXPLAYERS,sizeof(intptr_t));
+                    MapInfo[i].savedstate->vars[j] = Bcalloc(MAXPLAYERS,sizeof(intptr_t));
                     if (kdfread(&MapInfo[i].savedstate->vars[j][0],sizeof(intptr_t) * MAXPLAYERS, 1, fil) != 1) goto corrupt;
                 }
                 else if (aGameVars[j].dwFlags & GAMEVAR_PERACTOR)
                 {
 //                    if (!MapInfo[i].savedstate->vars[j])
-                        MapInfo[i].savedstate->vars[j] = Bcalloc(MAXSPRITES,sizeof(intptr_t));
+                    MapInfo[i].savedstate->vars[j] = Bcalloc(MAXSPRITES,sizeof(intptr_t));
                     if (kdfread(&MapInfo[i].savedstate->vars[j][0],sizeof(intptr_t), MAXSPRITES, fil) != MAXSPRITES) goto corrupt;
                 }
             }

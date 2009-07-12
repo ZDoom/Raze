@@ -20,7 +20,7 @@
 static intptr_t kzipopen(char *filnam)
 {
     uint32_t i;
-    char newst[BMAX_PATH+4];
+    char newst[BMAX_PATH];
 
     newst[0] = '|';
     for (i=0; filnam[i] && (i < sizeof(newst)-2); i++) newst[i+1] = filnam[i];

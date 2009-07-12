@@ -1632,6 +1632,7 @@ static int32_t X_DoExecute(register int32_t once)
             }
 
         case CON_GETPNAME:
+        case CON_QSTRNCAT:
         case CON_QSTRCAT:
         case CON_QSTRCPY:
         case CON_QGETSYSSTR:
@@ -1690,25 +1691,25 @@ static int32_t X_DoExecute(register int32_t once)
                     }
                     break;
                 case CON_QSTRCAT:
-                    if ((ScriptQuotes[i] == NULL || ScriptQuotes[j] == NULL) /* && g_scriptSanityChecks */)
-                    {
-                        OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],ScriptQuotes[i] ? j : i);
-                        break;
-                    }
+                    if ((ScriptQuotes[i] == NULL || ScriptQuotes[j] == NULL) /* && g_scriptSanityChecks */) goto nullquote;
                     Bstrncat(ScriptQuotes[i],ScriptQuotes[j],(MAXQUOTELEN-1)-Bstrlen(ScriptQuotes[i]));
                     break;
+                case CON_QSTRNCAT:
+                    if ((ScriptQuotes[i] == NULL || ScriptQuotes[j] == NULL) /* && g_scriptSanityChecks */) goto nullquote;
+                    Bstrncat(ScriptQuotes[i],ScriptQuotes[j],Gv_GetVarX(*insptr++));
+                    break;
                 case CON_QSTRCPY:
-                    if ((ScriptQuotes[i] == NULL || ScriptQuotes[j] == NULL) /* && g_scriptSanityChecks */)
-                    {
-                        OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],ScriptQuotes[i] ? j : i);
-                        break;
-                    }
+                    if ((ScriptQuotes[i] == NULL || ScriptQuotes[j] == NULL) /* && g_scriptSanityChecks */) goto nullquote;
                     Bstrcpy(ScriptQuotes[i],ScriptQuotes[j]);
                     break;
                 case CON_CHANGESPRITESECT:
                     if ((i<0 || i>=MAXSPRITES) /* && g_scriptSanityChecks */) {OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],i); break;}
                     if ((j<0 || j>=numsectors) /* && g_scriptSanityChecks */) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],j); break;}
                     changespritesect(i,j);
+                    break;
+                default:
+nullquote:
+                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],ScriptQuotes[i] ? j : i);
                     break;
                 }
                 break;
@@ -3104,6 +3105,15 @@ static int32_t X_DoExecute(register int32_t once)
             }
             break;
 
+        case CON_SECTOROFWALL:
+            insptr++;
+            {
+                int32_t j = *insptr++;
+
+                Gv_SetVarX(j, sectorofwall(Gv_GetVarX(*insptr++)));
+            }
+            break;
+
         case CON_QSPRINTF:
             insptr++;
             {
@@ -3116,10 +3126,55 @@ static int32_t X_DoExecute(register int32_t once)
                 }
 
                 {
-                    int32_t var1 = Gv_GetVarX(*insptr++), var2 = Gv_GetVarX(*insptr++);
-                    int32_t var3 = Gv_GetVarX(*insptr++), var4 = Gv_GetVarX(*insptr++);
-                    Bstrcpy(tempbuf,ScriptQuotes[sq]);
-                    Bsprintf(ScriptQuotes[dq],tempbuf,var1,var2,var3,var4);
+                    int32_t arg[32], i = 0, j = 0, k = 0;
+                    int32_t len = Bstrlen(ScriptQuotes[sq]);
+                    char tempbuf[MAXQUOTELEN];
+
+                    while ((*insptr & 0xFFF) != CON_NULLOP)
+                        arg[i++] = Gv_GetVarX(*insptr++);
+
+                    insptr++; // skip the NOP
+
+                    i = 0;
+
+                    do
+                    {
+                        while (k < len && j < MAXQUOTELEN && ScriptQuotes[sq][k] != '%')
+                            tempbuf[j++] = ScriptQuotes[sq][k++];
+
+                        if (ScriptQuotes[sq][k] == '%')
+                        {
+                            k++;
+                            switch (ScriptQuotes[sq][k])
+                            {
+                            case 'l':
+                                k++;
+                            case 'd':
+                            {
+                                char buf[16];
+
+                                Bstrcat(tempbuf, itoa(arg[i++], buf, 10));
+                                j += Bstrlen(buf);
+                                k++;
+                            }
+                            break;
+
+                            case 's':
+                                Bstrcat(tempbuf, ScriptQuotes[arg[i]]);
+                                j += Bstrlen(ScriptQuotes[arg[i++]]);
+                                k++;
+                                break;
+
+                            default:
+                                tempbuf[j++] = ScriptQuotes[sq][k++];
+                                break;
+                            }
+                        }
+                    }
+                    while (k < len && j < MAXQUOTELEN);
+
+                    tempbuf[j] = '\0';
+                    Bstrcpy(ScriptQuotes[dq], tempbuf);
                     break;
                 }
             }
@@ -3441,6 +3496,7 @@ static int32_t X_DoExecute(register int32_t once)
                         j = nextspritestat[j];
                     }
                     while (j>=0);
+
                     if (tw==CON_FINDNEARACTORZ || j == MAXSPRITES)
                         break;
                 }
@@ -4664,7 +4720,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
             if (ActorExtra[vm.g_i].timetosleep > 1)
                 ActorExtra[vm.g_i].timetosleep--;
             else if (ActorExtra[vm.g_i].timetosleep == 1)
-                changespritestat(vm.g_i,2);
+                changespritestat(vm.g_i,STAT_ZOMBIEACTOR);
         default:
             return;
         }
@@ -4679,10 +4735,12 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     }
     else if (ud.respawn_items == 1 && (vm.g_sp->cstat&32768)) return;
 
-    if (ActorExtra[vm.g_i].timetosleep > 1)
+    if (A_CheckSpriteFlags(vm.g_i, SPRITE_USEACTIVATOR) && sector[vm.g_sp->sectnum].lotag & 16384)
+        changespritestat(vm.g_i,STAT_ZOMBIEACTOR);
+    else if (ActorExtra[vm.g_i].timetosleep > 1)
         ActorExtra[vm.g_i].timetosleep--;
     else if (ActorExtra[vm.g_i].timetosleep == 1)
-        changespritestat(vm.g_i,2);
+        changespritestat(vm.g_i,STAT_ZOMBIEACTOR);
 }
 
 void G_SaveMapState(mapstate_t *save)

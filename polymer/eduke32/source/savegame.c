@@ -51,7 +51,7 @@ void ReadSaveGameHeaders(void)
             kclose(fil);
             continue;
         }
-        if (kdfread(&dummy,4,1,fil) != 1)
+        if (kdfread(&dummy,sizeof(dummy),1,fil) != 1)
         {
             kclose(fil);
             continue;
@@ -61,7 +61,7 @@ void ReadSaveGameHeaders(void)
             kclose(fil);
             continue;
         }
-        if (kdfread(&dummy,4,1,fil) != 1)
+        if (kdfread(&dummy,sizeof(dummy),1,fil) != 1)
         {
             kclose(fil);
             continue;
@@ -92,7 +92,7 @@ int32_t G_LoadSaveHeader(char spot,struct savehead *saveh)
     g_szBuf[bv]=0;
     //    AddLog(g_szBuf);
 
-    if (kdfread(&bv,4,1,fil) != 1) goto corrupt;
+    if (kdfread(&bv,sizeof(bv),1,fil) != 1) goto corrupt;
     /*    if (bv != BYTEVERSION)
         {
             P_DoQuote(114,g_player[myconnectindex].ps);
@@ -170,7 +170,7 @@ int32_t G_LoadPlayer(int32_t spot)
     g_szBuf[bv]=0;
     //    AddLog(g_szBuf);
 
-    if (kdfread(&bv,4,1,fil) != 1) return -1;
+    if (kdfread(&bv,sizeof(bv),1,fil) != 1) return -1;
     if (bv != BYTEVERSION)
     {
         P_DoQuote(114,g_player[myconnectindex].ps);
@@ -325,6 +325,7 @@ int32_t G_LoadPlayer(int32_t spot)
         if (scriptptrs[i]&1) T2 += j;
         if (scriptptrs[i]&2) T5 += j;
         if (scriptptrs[i]&4) T6 += j;
+        ActorExtra[i].projectile = &SpriteProjectile[i];
     }
 
     if (kdfread(&lockclock,sizeof(lockclock),1,fil) != 1) goto corrupt;
@@ -374,6 +375,7 @@ int32_t G_LoadPlayer(int32_t spot)
     if (kdfread(&g_globalRandom,sizeof(g_globalRandom),1,fil) != 1) goto corrupt;
     if (kdfread(&parallaxyscale,sizeof(parallaxyscale),1,fil) != 1) goto corrupt;
 
+    if (kdfread(&SpriteProjectile[0],sizeof(projectile_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
     if (kdfread(&ProjectileData[0],sizeof(projectile_t),MAXTILES,fil) != MAXTILES) goto corrupt;
     if (kdfread(&DefaultProjectileData[0],sizeof(projectile_t),MAXTILES,fil) != MAXTILES) goto corrupt;
 
@@ -668,7 +670,7 @@ int32_t G_SavePlayer(int32_t spot)
     dfwrite(&i,sizeof(i),1,fil);
     dfwrite(g_szBuf,i,1,fil);
 
-    dfwrite(&bv,4,1,fil);
+    dfwrite(&bv,sizeof(bv),1,fil);
     dfwrite(&ud.multimode,sizeof(ud.multimode),1,fil);
 
     dfwrite(&ud.savegame[spot][0],19,1,fil);
@@ -715,9 +717,9 @@ int32_t G_SavePlayer(int32_t spot)
     dfwrite(&headspritesect[0],sizeof(headspritesect[0]),MAXSECTORS+1,fil);
     dfwrite(&prevspritesect[0],sizeof(prevspritesect[0]),MAXSPRITES,fil);
     dfwrite(&nextspritesect[0],sizeof(nextspritesect[0]),MAXSPRITES,fil);
-    dfwrite(&headspritestat[STAT_DEFAULT],2,MAXSTATUS+1,fil);
-    dfwrite(&prevspritestat[STAT_DEFAULT],2,MAXSPRITES,fil);
-    dfwrite(&nextspritestat[STAT_DEFAULT],2,MAXSPRITES,fil);
+    dfwrite(&headspritestat[STAT_DEFAULT],sizeof(headspritestat[0]),MAXSTATUS+1,fil);
+    dfwrite(&prevspritestat[STAT_DEFAULT],sizeof(prevspritestat[0]),MAXSPRITES,fil);
+    dfwrite(&nextspritestat[STAT_DEFAULT],sizeof(nextspritestat[0]),MAXSPRITES,fil);
     dfwrite(&g_numCyclers,sizeof(g_numCyclers),1,fil);
     dfwrite(&cyclers[0][0],sizeof(cyclers[0][0])*6,MAXCYCLERS,fil);
     for (i=0; i<ud.multimode; i++)
@@ -755,8 +757,8 @@ int32_t G_SavePlayer(int32_t spot)
     }
 
 //    dfwrite(&scriptptrs[0],sizeof(scriptptrs),g_scriptSize,fil);
-    dfwrite(&bitptr[0],sizeof(uint8_t),(g_scriptSize+7)>>3,fil);
-    dfwrite(&script[0],sizeof(script),g_scriptSize,fil);
+    dfwrite(&bitptr[0],sizeof(bitptr[0]),(g_scriptSize+7)>>3,fil);
+    dfwrite(&script[0],sizeof(script[0]),g_scriptSize,fil);
 
     for (i=0; i<g_scriptSize; i++)
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
@@ -874,6 +876,7 @@ int32_t G_SavePlayer(int32_t spot)
     dfwrite(&g_globalRandom,sizeof(g_globalRandom),1,fil);
     dfwrite(&parallaxyscale,sizeof(parallaxyscale),1,fil);
 
+    dfwrite(&SpriteProjectile[0],sizeof(projectile_t),MAXSPRITES,fil);
     dfwrite(&ProjectileData[0],sizeof(projectile_t),MAXTILES,fil);
     dfwrite(&DefaultProjectileData[0],sizeof(projectile_t),MAXTILES,fil);
 

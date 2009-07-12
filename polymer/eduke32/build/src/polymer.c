@@ -4,6 +4,7 @@
 #define POLYMER_C
 #include "polymer.h"
 #include "engine_priv.h"
+#include <float.h>
 
 // CVARS
 int32_t         pr_lighting = 1;
@@ -134,12 +135,14 @@ GLuint          skyboxdatavbo;
 GLfloat         artskydata[16];
 
 // LIGHTS
+#pragma pack(push,1)
 _prlight        prlights[PR_MAXLIGHTS];
 int32_t         lightcount;
 int32_t         curlight;
 
 _prlight        gamelights[PR_MAXLIGHTS];
 int32_t         gamelightcount;
+#pragma pack(pop)
 
 static GLfloat  shadowBias[] =
 {
@@ -728,11 +731,11 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     horizang = (float)(-getangle(128, dahoriz-100)) / (2048.0f / 360.0f);
     tiltang = (gtang * 90.0f);
 
-    if (searchit == 2) polymer_editorselect();
+//    if (searchit == 2) polymer_editorselect();
 
-    pos[0] = daposy;
+    pos[0] = (float)daposy;
     pos[1] = -(float)(daposz) / 16.0f;
-    pos[2] = -daposx;
+    pos[2] = -(float)daposx;
 
     polymer_updatelights();
 
@@ -758,7 +761,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     // the angle factor is computed from eyeballed values
     // need to recompute it if we ever change the max horiz amplitude
     if (!pth || !(pth->flags & 4))
-        skyhoriz /= 4.3027;
+        skyhoriz /= 4.3027f;
 
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
@@ -840,10 +843,10 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
 
     curmodelviewmatrix = rootmodelviewmatrix;
 
-#ifdef M32_ALTAIMING
+// #ifdef M32_ALTAIMING
     // only showcase for now...
-    polymer_alt_editorselect();
-#endif
+    if (searchit == 2) polymer_alt_editorselect();
+// #endif
 
     // build globals used by rotatesprite
     viewangle = daang;
@@ -981,23 +984,23 @@ void                polymer_drawsprite(int32_t snum)
         ysize = h_ysize[curpicnum];
     }
 
-    xsize *= xratio;
-    ysize *= yratio;
+    xsize = (int32_t)(xsize * xratio);
+    ysize = (int32_t)(ysize * yratio);
 
     tilexoff = (int32_t)tspr->xoffset;
     tileyoff = (int32_t)tspr->yoffset;
     tilexoff += (int8_t)((usehightile&&h_xsize[curpicnum])?(h_xoffs[curpicnum]):((picanm[curpicnum]>>8)&255));
     tileyoff += (int8_t)((usehightile&&h_xsize[curpicnum])?(h_yoffs[curpicnum]):((picanm[curpicnum]>>16)&255));
 
-    xoff = tilexoff * xratio;
-    yoff = tileyoff * yratio;
+    xoff = (int32_t)(tilexoff * xratio);
+    yoff = (int32_t)(tileyoff * yratio);
 
     if ((tspr->cstat & 128) && (((tspr->cstat>>4) & 3) != 2))
         yoff -= ysize / 2;
 
-    spos[0] = tspr->y;
+    spos[0] = (float)tspr->y;
     spos[1] = -(float)(tspr->z) / 16.0f;
-    spos[2] = -tspr->x;
+    spos[2] = -(float)tspr->x;
 
     bglMatrixMode(GL_MODELVIEW);
     bglPushMatrix();
@@ -1137,7 +1140,7 @@ void                polymer_setanimatesprites(animatespritesptr animatesprites, 
 
 int16_t             polymer_addlight(_prlight* light)
 {
-    int16_t         lighti;
+    int32_t         lighti;
 
     if (lightcount >= PR_MAXLIGHTS || light->priority > pr_maxlightpriority || !pr_lighting)
         return (-1);
@@ -1335,9 +1338,9 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                         float pos[3], sqdist;
                         int32_t oldoverridematerial;
 
-                        pos[0] = globalposy;
+                        pos[0] = (float)globalposy;
                         pos[1] = -(float)(globalposz) / 16.0f;
-                        pos[2] = -globalposx;
+                        pos[2] = -(float)globalposx;
 
                         sqdist = prwalls[sec->wallptr + i]->mask.plane[0] * pos[0] +
                                  prwalls[sec->wallptr + i]->mask.plane[1] * pos[1] +
@@ -1487,9 +1490,9 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                          mirrorlist[i].plane->plane[1] * mirrorlist[i].plane->plane[1] +
                          mirrorlist[i].plane->plane[2] * mirrorlist[i].plane->plane[2]);
 
-        px = -coeff*mirrorlist[i].plane->plane[0]*2 + px;
-        py = -coeff*mirrorlist[i].plane->plane[1]*2 + py;
-        pz = -coeff*mirrorlist[i].plane->plane[2]*2 + pz;
+        px = (int32_t)(-coeff*mirrorlist[i].plane->plane[0]*2 + px);
+        py = (int32_t)(-coeff*mirrorlist[i].plane->plane[1]*2 + py);
+        pz = (int32_t)(-coeff*mirrorlist[i].plane->plane[2]*2 + pz);
 
         // map back from polymer to build
         globalposx = -pz;
@@ -1899,16 +1902,8 @@ void polymer_alt_editorselect(void)
     GLdouble proj[16];
     GLint view[4];
 
-    bglGetDoublev(GL_MODELVIEW_MATRIX, model);
-    bglGetDoublev(GL_PROJECTION_MATRIX, proj);
-    bglGetIntegerv(GL_VIEWPORT, view);
-
     GLdouble x,y,z, viewx,viewy,viewz;
     GLfloat dadepth;
-
-    bglReadPixels(searchx, ydimen-searchy, 1,1, GL_DEPTH_COMPONENT, GL_FLOAT, &dadepth);
-    bgluUnProject(searchx, ydimen-searchy, dadepth,  model, proj, view,  &x, &y, &z);
-    bgluUnProject(searchx, ydimen-searchy, 0.0,  model, proj, view,  &viewx, &viewy, &viewz);
 
     int8_t bestwhat = -1;
     int16_t bestsec = -1;
@@ -1924,6 +1919,14 @@ void polymer_alt_editorselect(void)
     qvertcount=0;
 #endif
 
+    bglGetDoublev(GL_MODELVIEW_MATRIX, model);
+    bglGetDoublev(GL_PROJECTION_MATRIX, proj);
+    bglGetIntegerv(GL_VIEWPORT, view);
+
+    bglReadPixels(searchx, ydimen-searchy, 1,1, GL_DEPTH_COMPONENT, GL_FLOAT, &dadepth);
+    bgluUnProject(searchx, ydimen-searchy, dadepth,  model, proj, view,  &x, &y, &z);
+    bgluUnProject(searchx, ydimen-searchy, 0.0,  model, proj, view,  &viewx, &viewy, &viewz);
+
     for (i=0; i<numwalls; i++)
     {
         _prwall *w = prwalls[i];
@@ -1932,102 +1935,110 @@ void polymer_alt_editorselect(void)
         if (!w->flags.uptodate)
             continue;
 
-        _prplane *wp = &w->wall;
-        int8_t what;
-
-        GLfloat *pl = wp->plane;
-        GLdouble a=pl[0], b=pl[1], c=pl[2], d=pl[3];
-        GLdouble nnormsq, nnorm, dist;
-
-        nnormsq = a*a + b*b + c*c;
-        nnorm = sqrt(nnormsq);
-        GLfloat npl[3] = {a/nnorm, b/nnorm, c/nnorm};
-        GLfloat scrv[3] = {x-viewx, y-viewy, z-viewz};
-        if (-dot3f(scrv,pl)<0)
-            continue;
-
-        GLfloat coeff = -d/nnormsq;
-        GLfloat pointonplane[3] = {coeff*a, coeff*b, coeff*c};
-        GLfloat vec[3] = {x-pointonplane[0], y-pointonplane[1], z-pointonplane[2]};
-        dist = fabs((a*vec[0] + b*vec[1] + c*vec[2])/nnorm);
-        if (dist > bestdist)
-            continue;
-
-        _prplane *pp;
-        // TODO: the parallax cases...
-        for (what=0; what < (wal->nextsector>=0?2:1); what++)
         {
-            pp=wp;
-            if (what==0)
-            {
-                if (wal->nextsector>=0 && !(w->underover&1))
-                    continue;
-            }
-            else if (what==1)
-            {    
-                if (!(w->underover&2))
-                    continue;
-                pp=&w->over;
-            }
-/*
-            else if (what==2)
-            {
-                if (!(wal->cstat&16) && !(wal->cstat&32))
-                    continue;
-                pp=&w->mask;
-            }
-*/
-            GLfloat v1[3], v2[3], v3[3], v4[3], v12[3], v34[3], v1p_r[3], v3p_r[3];
-            GLfloat v23[3], v41[3], v2p_r[3], v4p_r[3];
-            GLfloat tp[3]={x,y,z};
-            Bmemcpy(v1, &pp->buffer[0], 3*sizeof(GLfloat));
-            Bmemcpy(v2, &pp->buffer[5], 3*sizeof(GLfloat));
-            Bmemcpy(v3, &pp->buffer[10], 3*sizeof(GLfloat));
-            Bmemcpy(v4, &pp->buffer[15], 3*sizeof(GLfloat));
-            relvec3f(v1,v2, v12);
-            relvec3f(v3,v4, v34);
-            relvec3f(v1,tp, v1p_r);
-            relvec3f(v3,tp, v3p_r);
-            cross3f(npl,v1p_r, v1p_r);
-            cross3f(npl,v3p_r, v3p_r);
+            _prplane *wp = &w->wall;
+            int8_t what;
 
-            relvec3f(v2,v3, v23);
-            relvec3f(v4,v1, v41);
+            GLfloat *pl = wp->plane;
+            GLdouble a=pl[0], b=pl[1], c=pl[2], d=pl[3];
+            GLdouble nnormsq = a*a + b*b + c*c;
+            GLdouble nnorm = sqrt(nnormsq);
+            GLdouble dist;
 
-            relvec3f(v2,tp, v2p_r);
-            relvec3f(v4,tp, v4p_r);
-            cross3f(npl,v2p_r, v2p_r);
-            cross3f(npl,v4p_r, v4p_r);
+            GLfloat npl[3] = {a/nnorm, b/nnorm, c/nnorm};
+            GLfloat scrv[3] = {x-viewx, y-viewy, z-viewz};
 
-            if (dot3f(v12,v12)>0.25 && dot3f(v34,v34)>0.25  
-                && (v23[1]<0 || dot3f(v23,v23)<=0.25 || dot3f(v23,v2p_r) < 0)
-                && (dot3f(v41,v41)<=0.25 || dot3f(v41,v4p_r) < 0)
-                && dot3f(v12,v1p_r) < 0 && dot3f(v34,v3p_r) < 0)
+            if (-dot3f(scrv,pl)<0)
+                continue;
+
             {
-                bestwhat = (what==2)?4:0;
-                bestwall = i;
-                bestdist = dist;
-                bestsec = sectorofwall(i);
+                GLfloat coeff = -d/nnormsq;
+                GLfloat pointonplane[3] = {coeff*a, coeff*b, coeff*c};
+                GLfloat vec[3] = {x-pointonplane[0], y-pointonplane[1], z-pointonplane[2]};
+                _prplane *pp;
+
+                dist = fabs((a*vec[0] + b*vec[1] + c*vec[2])/nnorm);
+
+                if (dist > bestdist)
+                    continue;
+
+                // TODO: the parallax cases...
+                for (what=0; what < (wal->nextsector>=0?2:1); what++)
+                {
+                    GLfloat v1[3], v2[3], v3[3], v4[3], v12[3], v34[3], v1p_r[3], v3p_r[3];
+                    GLfloat v23[3], v41[3], v2p_r[3], v4p_r[3];
+                    GLfloat tp[3]={x,y,z};
+
+                    pp=wp;
+                    if (what==0)
+                    {
+                        if (wal->nextsector>=0 && !(w->underover&1))
+                            continue;
+                    }
+                    else if (what==1)
+                    {    
+                        if (!(w->underover&2))
+                            continue;
+                        pp=&w->over;
+                    }
+                    /*
+                    else if (what==2)
+                    {
+                    if (!(wal->cstat&16) && !(wal->cstat&32))
+                    continue;
+                    pp=&w->mask;
+                    }
+                    */
+                    Bmemcpy(v1, &pp->buffer[0], 3*sizeof(GLfloat));
+                    Bmemcpy(v2, &pp->buffer[5], 3*sizeof(GLfloat));
+                    Bmemcpy(v3, &pp->buffer[10], 3*sizeof(GLfloat));
+                    Bmemcpy(v4, &pp->buffer[15], 3*sizeof(GLfloat));
+                    relvec3f(v1,v2, v12);
+                    relvec3f(v3,v4, v34);
+                    relvec3f(v1,tp, v1p_r);
+                    relvec3f(v3,tp, v3p_r);
+                    cross3f(npl,v1p_r, v1p_r);
+                    cross3f(npl,v3p_r, v3p_r);
+
+                    relvec3f(v2,v3, v23);
+                    relvec3f(v4,v1, v41);
+
+                    relvec3f(v2,tp, v2p_r);
+                    relvec3f(v4,tp, v4p_r);
+                    cross3f(npl,v2p_r, v2p_r);
+                    cross3f(npl,v4p_r, v4p_r);
+
+                    if (dot3f(v12,v12)>0.25 && dot3f(v34,v34)>0.25  
+                        && (v23[1]<0 || dot3f(v23,v23)<=0.25 || dot3f(v23,v2p_r) < 0)
+                        && (dot3f(v41,v41)<=0.25 || dot3f(v41,v4p_r) < 0)
+                        && dot3f(v12,v1p_r) < 0 && dot3f(v34,v3p_r) < 0)
+                    {
+                        bestwhat = (what==2)?4:0;
+                        bestwall = i;
+                        bestdist = dist;
+                        bestsec = sectorofwall(i);
 #ifdef M32_SHOWDEBUG
-                if (m32_numdebuglines<64)
-                {
-                    Bsprintf(m32_debugstr[m32_numdebuglines++], "what=wall %d, dist=%.02f, sec=%d",
-                             bestwall, bestdist, bestsec);
-                }
-                if (qvertcount<QNUM-3)
-                {
-                    Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
-                    Bmemcpy(&qverts[3*qvertcount++],v1, 3*sizeof(GLfloat));
-                    Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col2));
-                    Bmemcpy(&qverts[3*qvertcount++],v2, 3*sizeof(GLfloat));
-                    Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col3));
-                    Bmemcpy(&qverts[3*qvertcount++],v3, 3*sizeof(GLfloat));
-                    Bmemcpy(&qcolors[3*qvertcount],col4,sizeof(col4));
-                    Bmemcpy(&qverts[3*qvertcount++],v4, 3*sizeof(GLfloat));
+                        if (m32_numdebuglines<64)
+                        {
+                            Bsprintf(m32_debugstr[m32_numdebuglines++], "what=wall %d, dist=%.02f, sec=%d",
+                                bestwall, bestdist, bestsec);
+                        }
+                        if (qvertcount<QNUM-3)
+                        {
+                            Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
+                            Bmemcpy(&qverts[3*qvertcount++],v1, 3*sizeof(GLfloat));
+                            Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col2));
+                            Bmemcpy(&qverts[3*qvertcount++],v2, 3*sizeof(GLfloat));
+                            Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col3));
+                            Bmemcpy(&qverts[3*qvertcount++],v3, 3*sizeof(GLfloat));
+                            Bmemcpy(&qcolors[3*qvertcount],col4,sizeof(col4));
+                            Bmemcpy(&qverts[3*qvertcount++],v4, 3*sizeof(GLfloat));
 
-                    Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
-                }
+                            Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
+                        }
 #endif
+                    }
+                }
             }
         }
     }
@@ -2036,156 +2047,165 @@ void polymer_alt_editorselect(void)
     {
         _prsector *s = prsectors[i];
         sectortype *sec = &sector[i];
-
-        if (!s->flags.uptodate)
-            continue;
-        
         _prplane *cfp;
         int8_t what = 1;
 
+        if (!s->flags.uptodate)
+            continue;
+
+
         for (what=1; what<=2; what++)
         {
+            GLfloat *pl;
+            GLdouble a, b, c, d;
+            GLfloat scrv[3] = {x-viewx, y-viewy, z-viewz};
+
             if (what==1)
                 cfp = &s->ceil;
             else
                 cfp = &s->floor;
 
-            GLfloat *pl = cfp->plane;
-            GLdouble a=pl[0], b=pl[1], c=pl[2], d=pl[3];
-            GLfloat scrv[3] = {x-viewx, y-viewy, z-viewz};
+            pl = cfp->plane;
+
             if (-dot3f(scrv,pl)<0)
                 continue;
 
-            GLdouble nnormsq, nnorm, dist;
-            nnormsq = a*a + b*b + c*c;
-            nnorm = sqrt(nnormsq);
+            a=pl[0], b=pl[1], c=pl[2], d=pl[3];
 
-            GLfloat coeff = -d/nnormsq;
-            GLfloat pointonplane[3] = {coeff*a, coeff*b, coeff*c};
-            GLfloat vec[3] = {x-pointonplane[0], y-pointonplane[1], z-pointonplane[2]};
-            dist = fabs((a*vec[0] + b*vec[1] + c*vec[2])/nnorm);
-            if (dist > bestdist)
-                continue;
-
-            // projected point
-            GLfloat p[2] =
-                {
-                    //x,
-                    ((b*b+c*c)*x - a*b*y - a*c*z - a*d)/nnormsq,
-
-                    //y,
-                    //(-a*b*x + (a*a+c*c)*y - b*c*z - b*d)/nnormsq,
-
-                    //z
-                    (-a*c*x - b*c*y + (a*a+b*b)*z - c*d)/nnormsq
-                };
-
-            // implementation using a loop over all triangles
-            for (j=0; j<s->indicescount; j+=3)
             {
-                GLushort idx[3] = {cfp->indices[j], cfp->indices[j+1], cfp->indices[j+2]};
-                GLfloat v1[2] = {cfp->buffer[(idx[0]*5)], cfp->buffer[(idx[0]*5)+2]};
-                GLfloat v2[2] = {cfp->buffer[(idx[1]*5)], cfp->buffer[(idx[1]*5)+2]};
-                GLfloat v3[2] = {cfp->buffer[(idx[2]*5)], cfp->buffer[(idx[2]*5)+2]};
-                GLfloat v12[2] = {v2[0]-v1[0], v2[1]-v1[1]};
-                GLfloat v23[2] = {v3[0]-v2[0], v3[1]-v2[1]};
-                GLfloat v31[2] = {v1[0]-v3[0], v1[1]-v3[1]};
-                int rotsign = (what==1)?-1:1;
-                GLfloat v1p_r[2] = {rotsign*(p[1]-v1[1]), -rotsign*(p[0]-v1[0])};
-                GLfloat v2p_r[2] = {rotsign*(p[1]-v2[1]), -rotsign*(p[0]-v2[0])};
-                GLfloat v3p_r[2] = {rotsign*(p[1]-v3[1]), -rotsign*(p[0]-v3[0])};
+                GLdouble nnormsq = a*a + b*b + c*c;
+                GLdouble nnorm = sqrt(nnormsq);
+                GLfloat coeff = -d/nnormsq;
+                GLfloat pointonplane[3] = {coeff*a, coeff*b, coeff*c};
+                GLfloat vec[3] = {x-pointonplane[0], y-pointonplane[1], z-pointonplane[2]};
+                GLdouble dist = fabs((a*vec[0] + b*vec[1] + c*vec[2])/nnorm);
 
-                if (dot2f(v12,v12)>0.25 && dot2f(v23,v23)>0.25 && dot2f(v31,v31)>0.25
-                    && dot2f(v12,v1p_r) < 0 && dot2f(v23,v2p_r) < 0 && dot2f(v31,v3p_r) < 0)
+                if (dist > bestdist)
+                    continue;
+
                 {
+                    // projected point
+                    GLfloat p[2] =
+                    {
+                        //x,
+                        ((b*b+c*c)*x - a*b*y - a*c*z - a*d)/nnormsq,
+
+                        //y,
+                        //(-a*b*x + (a*a+c*c)*y - b*c*z - b*d)/nnormsq,
+
+                        //z
+                        (-a*c*x - b*c*y + (a*a+b*b)*z - c*d)/nnormsq
+                    };
+
+                    // implementation using a loop over all triangles
+                    for (j=0; j<s->indicescount; j+=3)
+                    {
+                        GLushort idx[3] = {cfp->indices[j], cfp->indices[j+1], cfp->indices[j+2]};
+                        GLfloat v1[2] = {cfp->buffer[(idx[0]*5)], cfp->buffer[(idx[0]*5)+2]};
+                        GLfloat v2[2] = {cfp->buffer[(idx[1]*5)], cfp->buffer[(idx[1]*5)+2]};
+                        GLfloat v3[2] = {cfp->buffer[(idx[2]*5)], cfp->buffer[(idx[2]*5)+2]};
+                        GLfloat v12[2] = {v2[0]-v1[0], v2[1]-v1[1]};
+                        GLfloat v23[2] = {v3[0]-v2[0], v3[1]-v2[1]};
+                        GLfloat v31[2] = {v1[0]-v3[0], v1[1]-v3[1]};
+                        int rotsign = (what==1)?-1:1;
+                        GLfloat v1p_r[2] = {rotsign*(p[1]-v1[1]), -rotsign*(p[0]-v1[0])};
+                        GLfloat v2p_r[2] = {rotsign*(p[1]-v2[1]), -rotsign*(p[0]-v2[0])};
+                        GLfloat v3p_r[2] = {rotsign*(p[1]-v3[1]), -rotsign*(p[0]-v3[0])};
+
+                        if (dot2f(v12,v12)>0.25 && dot2f(v23,v23)>0.25 && dot2f(v31,v31)>0.25
+                            && dot2f(v12,v1p_r) < 0 && dot2f(v23,v2p_r) < 0 && dot2f(v31,v3p_r) < 0)
+                        {
+                            bestwhat = what;
+                            bestsec = i;
+                            bestdist = dist;
+#ifdef M32_SHOWDEBUG
+                            if (qvertcount<QNUM-3)
+                            {
+                                Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
+                                qverts[(3*qvertcount)+0] = v1[0];
+                                qverts[(3*qvertcount)+1] = cfp->buffer[(idx[0]*5+1)];
+                                qverts[(3*qvertcount)+2] = v1[1];
+                                qvertcount++;
+
+                                Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col1));
+                                qverts[(3*qvertcount)+0] = v2[0];
+                                qverts[(3*qvertcount)+1] = cfp->buffer[(idx[1]*5+1)];
+                                qverts[(3*qvertcount)+2] = v2[1];
+                                qvertcount++;
+
+                                Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col1));
+                                qverts[(3*qvertcount)+0] = v3[0];
+                                qverts[(3*qvertcount)+1] = cfp->buffer[(idx[2]*5+1)];
+                                qverts[(3*qvertcount)+2] = v3[1];
+                                qvertcount++;
+
+                                Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
+                            }
+#endif
+                            goto nextsector;
+                        }
+                    }  // loop over triangles
+                    /*
+                    // implementation using inside() (less precise)
+                    if (inside(-p[1],p[0],i))
+                    {
                     bestwhat = what;
                     bestsec = i;
                     bestdist = dist;
-#ifdef M32_SHOWDEBUG
-                    if (qvertcount<QNUM-3)
-                    {
-                        Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
-                        qverts[(3*qvertcount)+0] = v1[0];
-                        qverts[(3*qvertcount)+1] = cfp->buffer[(idx[0]*5+1)];
-                        qverts[(3*qvertcount)+2] = v1[1];
-                        qvertcount++;
-
-                        Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col1));
-                        qverts[(3*qvertcount)+0] = v2[0];
-                        qverts[(3*qvertcount)+1] = cfp->buffer[(idx[1]*5+1)];
-                        qverts[(3*qvertcount)+2] = v2[1];
-                        qvertcount++;
-
-                        Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col1));
-                        qverts[(3*qvertcount)+0] = v3[0];
-                        qverts[(3*qvertcount)+1] = cfp->buffer[(idx[2]*5+1)];
-                        qverts[(3*qvertcount)+2] = v3[1];
-                        qvertcount++;
-
-                        Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
                     }
-#endif
-                    goto nextsector;
-                }
-            }  // loop over triangles
-/*
-            // implementation using inside() (less precise)
-            if (inside(-p[1],p[0],i))
-            {
-                bestwhat = what;
-                bestsec = i;
-                bestdist = dist;
-            }
-*/
+                    */
 nextsector:
-            if (bestsec==i)
-            {
-                int16_t k, bestk=0;
-                GLfloat bestwdistsq = 1e60, wdistsq, wnorm;
-                GLfloat w1[2], w2[2], w21[2], pw1[2], pw2[2];
-                GLfloat ptonline[2];
-                GLfloat scrvxz[2]={scrv[0],scrv[2]};
-                GLfloat scrvxznorm, scrvxzn[2];
-                GLfloat w1d, w2d;
-                walltype *wal = &wall[sec->wallptr];
-                for (k=0; k<sec->wallnum; k++)
-                {
-                    w1[1] = -wal[k].x;
-                    w1[0] = wal[k].y;
-                    w2[1] = -wall[wal[k].point2].x;
-                    w2[0] = wall[wal[k].point2].y;
-
-                    scrvxznorm = sqrt(dot2f(scrvxz,scrvxz));
-                    scrvxzn[0] = scrvxz[1]/scrvxznorm;
-                    scrvxzn[1] = -scrvxz[0]/scrvxznorm;
-
-                    relvec2f(p,w1, pw1);
-                    relvec2f(p,w2, pw2);
-                    relvec2f(w2,w1, w21);
-                    w1d = dot2f(scrvxzn,pw1);
-                    w2d = dot2f(scrvxzn,pw2);
-                    w2d = -w2d;
-                    if (w1d < 0 || w2d < 0 || w1d + w2d < 0.01)
-                        continue;
-                    wnorm = sqrt(dot2f(w21,w21));
-                    ptonline[0] = w2[0]+(wnorm*w2d/(w1d+w2d))*w21[0];
-                    ptonline[1] = w2[1]+(wnorm*w2d/(w1d+w2d))*w21[1];
-
-                    wdistsq = (ptonline[0]-p[0])*(ptonline[0]-p[0]) + (ptonline[1]-p[1])*(ptonline[1]-p[1]);
-                    if (wdistsq < bestwdistsq)
+                    if (bestsec==i)
                     {
-                        bestk = k;
-                        bestwdistsq = wdistsq;
-                    }
-                }
-                bestwall = sec->wallptr+bestk;
+                        int16_t k, bestk=0;
+                        GLfloat bestwdistsq = FLT_MAX, wdistsq, wnorm;
+                        GLfloat w1[2], w2[2], w21[2], pw1[2], pw2[2];
+                        GLfloat ptonline[2];
+                        GLfloat scrvxz[2]={scrv[0],scrv[2]};
+                        GLfloat scrvxznorm, scrvxzn[2];
+                        GLfloat w1d, w2d;
+                        walltype *wal = &wall[sec->wallptr];
+                        for (k=0; k<sec->wallnum; k++)
+                        {
+                            w1[1] = -(float)wal[k].x;
+                            w1[0] = (float)wal[k].y;
+                            w2[1] = -(float)wall[wal[k].point2].x;
+                            w2[0] = (float)wall[wal[k].point2].y;
+
+                            scrvxznorm = sqrt(dot2f(scrvxz,scrvxz));
+                            scrvxzn[0] = scrvxz[1]/scrvxznorm;
+                            scrvxzn[1] = -scrvxz[0]/scrvxznorm;
+
+                            relvec2f(p,w1, pw1);
+                            relvec2f(p,w2, pw2);
+                            relvec2f(w2,w1, w21);
+                            w1d = dot2f(scrvxzn,pw1);
+                            w2d = dot2f(scrvxzn,pw2);
+                            w2d = -w2d;
+                            if (w1d < 0 || w2d < 0 || w1d + w2d < 0.01)
+                                continue;
+                            wnorm = sqrt(dot2f(w21,w21));
+                            ptonline[0] = w2[0]+(wnorm*w2d/(w1d+w2d))*w21[0];
+                            ptonline[1] = w2[1]+(wnorm*w2d/(w1d+w2d))*w21[1];
+
+                            wdistsq = (ptonline[0]-p[0])*(ptonline[0]-p[0]) + (ptonline[1]-p[1])*(ptonline[1]-p[1]);
+                            if (wdistsq < bestwdistsq)
+                            {
+                                bestk = k;
+                                bestwdistsq = wdistsq;
+                            }
+                        }
+                        bestwall = sec->wallptr+bestk;
 #ifdef M32_SHOWDEBUG
-                if (m32_numdebuglines<64)
-                    Bsprintf(m32_debugstr[m32_numdebuglines++], "what=sec %d, dist=%.02f, wall=%d", bestsec, bestdist, bestwall);
+                        if (m32_numdebuglines<64)
+                            Bsprintf(m32_debugstr[m32_numdebuglines++], "what=sec %d, dist=%.02f, wall=%d", bestsec, bestdist, bestwall);
 #endif
-            }  // determine searchwall
-        }  // ceiling or floor
-    }  // loop over sectors
+                    }  // determine searchwall
+                }  // ceiling or floor
+            }  // loop over sectors
+        }
+    }
+
 }
 
 // SECTORS
@@ -2270,12 +2290,12 @@ static int32_t      polymer_updatesector(int16_t sectnum)
     {
         if ((-wal->x != s->verts[(i*3)+2]))
         {
-            s->verts[(i*3)+2] = s->floor.buffer[(i*5)+2] = s->ceil.buffer[(i*5)+2] = -wal->x;
+            s->verts[(i*3)+2] = s->floor.buffer[(i*5)+2] = s->ceil.buffer[(i*5)+2] = -(float)wal->x;
             needfloor = wallinvalidate = 1;
         }
         if ((wal->y != s->verts[i*3]))
         {
-            s->verts[i*3] = s->floor.buffer[i*5] = s->ceil.buffer[i*5] = wal->y;
+            s->verts[i*3] = s->floor.buffer[i*5] = s->ceil.buffer[i*5] = (float)wal->y;
             needfloor = wallinvalidate = 1;
         }
 
@@ -2362,11 +2382,11 @@ static int32_t      polymer_updatesector(int16_t sectnum)
             // relative texturing
             if (curstat & 64)
             {
-                xpancoef = wal->x - wall[sec->wallptr].x;
-                ypancoef = wall[sec->wallptr].y - wal->y;
+                xpancoef = (float)(wal->x - wall[sec->wallptr].x);
+                ypancoef = (float)(wall[sec->wallptr].y - wal->y);
 
-                tex = xpancoef * secangsin + ypancoef * secangcos;
-                tey = xpancoef * secangcos - ypancoef * secangsin;
+                tex = (int32_t)(xpancoef * secangsin + ypancoef * secangcos);
+                tey = (int32_t)(xpancoef * secangcos - ypancoef * secangsin);
             } else {
                 tex = wal->x;
                 tey = -wal->y;
@@ -2374,12 +2394,12 @@ static int32_t      polymer_updatesector(int16_t sectnum)
 
             if ((curstat & (2+64)) == (2+64))
             {
-                heidiff = curbuffer[(i*5)+1] - curbuffer[1];
+                heidiff = (int32_t)(curbuffer[(i*5)+1] - curbuffer[1]);
                 // don't forget the sign, tey could be negative with concave sectors
                 if (tey >= 0)
-                    tey = sqrt((tey * tey) + (heidiff * heidiff));
+                    tey = (int32_t)sqrt((tey * tey) + (heidiff * heidiff));
                 else
-                    tey = -sqrt((tey * tey) + (heidiff * heidiff));
+                    tey = -(int32_t)sqrt((tey * tey) + (heidiff * heidiff));
             }
 
             if (curstat & 4)
@@ -2807,9 +2827,9 @@ static void         polymer_updatewall(int16_t wallnum)
         while (i < 4)
         {
             if ((i == 0) || (i == 3))
-                dist = xref;
+                dist = (float)xref;
             else
-                dist = (xref == 0);
+                dist = (float)(xref == 0);
 
             w->wall.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesizx[curpicnum]);
             w->wall.buffer[(i * 5) + 4] = (-(float)(yref + (w->wall.buffer[(i * 5) + 1] * 16)) / ((tilesizy[curpicnum] * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
@@ -2877,9 +2897,9 @@ static void         polymer_updatewall(int16_t wallnum)
             while (i < 4)
             {
                 if ((i == 0) || (i == 3))
-                    dist = xref;
+                    dist = (float)xref;
                 else
-                    dist = (xref == 0);
+                    dist = (float)(xref == 0);
 
                 w->wall.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + curxpanning) / (float)(tilesizx[curpicnum]);
                 w->wall.buffer[(i * 5) + 4] = (-(float)(yref + (w->wall.buffer[(i * 5) + 1] * 16)) / ((tilesizy[curpicnum] * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
@@ -2964,9 +2984,9 @@ static void         polymer_updatewall(int16_t wallnum)
             while (i < 4)
             {
                 if ((i == 0) || (i == 3))
-                    dist = xref;
+                    dist = (float)xref;
                 else
-                    dist = (xref == 0);
+                    dist = (float)(xref == 0);
 
                 w->over.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesizx[curpicnum]);
                 w->over.buffer[(i * 5) + 4] = (-(float)(yref + (w->over.buffer[(i * 5) + 1] * 16)) / ((tilesizy[curpicnum] * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
@@ -3017,9 +3037,9 @@ static void         polymer_updatewall(int16_t wallnum)
                 while (i < 4)
                 {
                     if ((i == 0) || (i == 3))
-                        dist = xref;
+                        dist = (float)xref;
                     else
-                        dist = (xref == 0);
+                        dist = (float)(xref == 0);
 
                     w->mask.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesizx[curpicnum]);
                     w->mask.buffer[(i * 5) + 4] = (-(float)(yref + (w->mask.buffer[(i * 5) + 1] * 16)) / ((tilesizy[curpicnum] * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
@@ -3391,9 +3411,9 @@ static void         polymer_drawsky(int16_t tilenum, char palnum, int8_t shade)
     float           pos[3];
     pthtyp*         pth;
 
-    pos[0] = globalposy;
+    pos[0] = (float)globalposy;
     pos[1] = -(float)(globalposz) / 16.0f;
-    pos[2] = -globalposx;
+    pos[2] = -(float)globalposx;
 
     bglPushMatrix();
     bglLoadIdentity();
@@ -3599,9 +3619,9 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     if ((pr_vbos > 1) && (m->indices == NULL))
         polymer_loadmodelvbos(m);
 
-    spos[0] = tspr->y;
+    spos[0] = (float)tspr->y;
     spos[1] = -(float)(tspr->z) / 16.0f;
-    spos[2] = -tspr->x;
+    spos[2] = -(float)tspr->x;
     ang = (float)((tspr->ang+spriteext[tspr->owner].angoff) & 2047) / (2048.0f / 360.0f);
     ang -= 90.0f;
     if (((tspr->cstat>>4) & 3) == 2)
@@ -3723,11 +3743,11 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     if (tspr->cstat & 2)
     {
         if (!(tspr->cstat&512))
-            color[3] = 0.66;
+            color[3] = 0.66f;
         else
-            color[3] = 0.33;
+            color[3] = 0.33f;
     } else
-        color[3] = 1.0;
+        color[3] = 1.0f;
 
     color[3] *=  (1.0f - spriteext[tspr->owner].alpha);
 
@@ -3777,9 +3797,9 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
                 lradius = prlights[i].range / 1000.0f;
 
-                lpos[0] = prlights[i].y;
-                lpos[1] = -prlights[i].z / 16.0f;
-                lpos[2] = -prlights[i].x;
+                lpos[0] = (float)prlights[i].y;
+                lpos[1] = -(float)prlights[i].z / 16.0f;
+                lpos[2] = -(float)prlights[i].x;
 
                 polymer_transformpoint(lpos, tlpos, rootmodelviewmatrix);
 
@@ -4218,9 +4238,9 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     {
         float pos[3], bias[2];
 
-        pos[0] = globalposy;
+        pos[0] = (float)globalposy;
         pos[1] = -(float)(globalposz) / 16.0f;
-        pos[2] = -globalposx;
+        pos[2] = -(float)globalposx;
 
         bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
         bglBindTexture(GL_TEXTURE_2D, material.normalmap);
@@ -4335,9 +4355,9 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         float range[2];
         float color[4];
 
-        inpos[0] = prlights[lights[curlight]].y;
-        inpos[1] = -prlights[lights[curlight]].z / 16.0f;
-        inpos[2] = -prlights[lights[curlight]].x;
+        inpos[0] = (float)prlights[lights[curlight]].y;
+        inpos[1] = -(float)prlights[lights[curlight]].z / 16.0f;
+        inpos[2] = -(float)prlights[lights[curlight]].x;
 
         polymer_transformpoint(inpos, pos, curmodelviewmatrix);
 
@@ -4738,9 +4758,9 @@ static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
     if (light->radius)
         return polymer_planeinfrustum(plane, light->frustum);
 
-    lightpos[0] = light->y;
-    lightpos[1] = -light->z / 16.0f;
-    lightpos[2] = -light->x;
+    lightpos[0] = (float)light->y;
+    lightpos[1] = -(float)light->z / 16.0f;
+    lightpos[2] = -(float)light->x;
 
     i = 0;
 
@@ -4821,9 +4841,9 @@ static void         polymer_processspotlight(_prlight* light)
     if ((light->horiz > 100) && (light->horiz < 110))
         light->horiz = 110;
 
-    lightpos[0] = light->y;
-    lightpos[1] = -light->z / 16.0f;
-    lightpos[2] = -light->x;
+    lightpos[0] = (float)light->y;
+    lightpos[1] = -(float)light->z / 16.0f;
+    lightpos[2] = -(float)light->x;
 
         // calculate the spot light transformations and matrices
     radius = (float)(light->radius) / (2048.0f / 360.0f);

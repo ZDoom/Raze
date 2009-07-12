@@ -904,6 +904,8 @@ enum ScriptKeywords_t
     CON_SAVENN,             // 344
     CON_COPY,               // 345
     CON_INV,                // 346
+    CON_SECTOROFWALL,       // 347
+    CON_QSTRNCAT,           // 348
     CON_END
 };
 #endif

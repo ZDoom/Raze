@@ -261,10 +261,10 @@ void A_DeleteSprite(int32_t s);
 #pragma pack(push,1)
 
 typedef struct {
-    uint32_t bits;
-    int16_t fvel, svel;
-    int8_t avel, horz;
-    char extbits;
+    uint32_t bits; // 4b
+    int16_t fvel, svel; // 4b
+    int8_t avel, horz; // 2b
+    int8_t extbits, filler; // 2b
 } input_t;
 
 #define sync dsync  // JBF 20040604: sync is a function on some platforms
@@ -278,14 +278,14 @@ typedef struct {
 } SOUNDOWNER;
 
 typedef struct {
-    int32_t  length, num, soundsiz;
-    char *filename, *ptr, *filename1;
-    SOUNDOWNER SoundOwner[4];
-    int16_t ps,pe,vo;
-    char pr,m;
-    volatile char lock;
+    int32_t  length, num, soundsiz; // 12b
+    char *filename, *ptr, *filename1; // 12b/24b
+    SOUNDOWNER SoundOwner[4]; // 32b
+    int16_t ps,pe,vo; // 6b
+    char pr,m; // 2b
 } sound_t;
 
+extern volatile char g_soundlocks[MAXSOUNDS];
 extern sound_t g_sounds[MAXSOUNDS];
 
 typedef struct {
@@ -310,69 +310,9 @@ struct savehead {
     int32_t numplr,volnum,levnum,plrskl;
     char boardfn[BMAX_PATH];
 };
-
-typedef struct {
-    int32_t UseJoystick;
-    int32_t UseMouse;
-    int32_t RunMode;
-    int32_t AutoAim;
-    int32_t ShowOpponentWeapons;
-    int32_t MouseDeadZone,MouseBias;
-    int32_t SmoothInput;
-
-    // JBF 20031211: Store the input settings because
-    // (currently) jmact can't regurgitate them
-    int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
-    int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
-    int32_t MouseAnalogueAxes[MAXMOUSEAXES];
-    int32_t MouseAnalogueScale[MAXMOUSEAXES];
-    int32_t JoystickFunctions[MAXJOYBUTTONS][2];
-    int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
-    int32_t JoystickAnalogueAxes[MAXJOYAXES];
-    int32_t JoystickAnalogueScale[MAXJOYAXES];
-    int32_t JoystickAnalogueDead[MAXJOYAXES];
-    int32_t JoystickAnalogueSaturate[MAXJOYAXES];
-    uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
-
-    //
-    // Sound variables
-    //
-    int32_t FXDevice;
-    int32_t MusicDevice;
-    int32_t FXVolume;
-    int32_t MusicVolume;
-    int32_t SoundToggle;
-    int32_t MusicToggle;
-    int32_t VoiceToggle;
-    int32_t AmbienceToggle;
-
-    int32_t NumVoices;
-    int32_t NumChannels;
-    int32_t NumBits;
-    int32_t MixRate;
-    
-    int32_t ReverseStereo;
-
-    //
-    // Screen variables
-    //
-
-    int32_t ScreenMode;
-
-    int32_t ScreenWidth;
-    int32_t ScreenHeight;
-    int32_t ScreenBPP;
-
-    int32_t ForceSetup;
-    int32_t NoAutoLoad;
-
-    int32_t scripthandle;
-    int32_t setupread;
-
-    int32_t CheckForUpdates;
-    int32_t LastUpdateCheck;
-    int32_t useprecache;
-} config_t;
+#pragma pack(pop)
+// the following struct is never saved off anywhere
+// so we don't need to fuck with its packing
 
 typedef struct {
     int32_t camerax,cameray,cameraz;
@@ -410,8 +350,71 @@ typedef struct {
     char display_bonus_screen;
     char show_level_text;
 
-    config_t config;
+    struct {
+        int32_t UseJoystick;
+        int32_t UseMouse;
+        int32_t RunMode;
+        int32_t AutoAim;
+        int32_t ShowOpponentWeapons;
+        int32_t MouseDeadZone,MouseBias;
+        int32_t SmoothInput;
+
+        // JBF 20031211: Store the input settings because
+        // (currently) jmact can't regurgitate them
+        int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
+        int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
+        int32_t MouseAnalogueAxes[MAXMOUSEAXES];
+        int32_t MouseAnalogueScale[MAXMOUSEAXES];
+        int32_t JoystickFunctions[MAXJOYBUTTONS][2];
+        int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
+        int32_t JoystickAnalogueAxes[MAXJOYAXES];
+        int32_t JoystickAnalogueScale[MAXJOYAXES];
+        int32_t JoystickAnalogueDead[MAXJOYAXES];
+        int32_t JoystickAnalogueSaturate[MAXJOYAXES];
+        uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
+
+        //
+        // Sound variables
+        //
+        int32_t FXDevice;
+        int32_t MusicDevice;
+        int32_t FXVolume;
+        int32_t MusicVolume;
+        int32_t SoundToggle;
+        int32_t MusicToggle;
+        int32_t VoiceToggle;
+        int32_t AmbienceToggle;
+
+        int32_t NumVoices;
+        int32_t NumChannels;
+        int32_t NumBits;
+        int32_t MixRate;
+
+        int32_t ReverseStereo;
+
+        //
+        // Screen variables
+        //
+
+        int32_t ScreenMode;
+
+        int32_t ScreenWidth;
+        int32_t ScreenHeight;
+        int32_t ScreenBPP;
+
+        int32_t ForceSetup;
+        int32_t NoAutoLoad;
+
+        int32_t scripthandle;
+        int32_t setupread;
+
+        int32_t CheckForUpdates;
+        int32_t LastUpdateCheck;
+        int32_t useprecache;
+    } config;
 } user_defs;
+
+#pragma pack(push,1)
 
 typedef struct {
     int32_t ox,oy,oz;
@@ -523,9 +526,15 @@ extern char EnvMusicFilename[MAXVOLUMES+1][BMAX_PATH];
 extern int16_t camsprite;
 
 typedef struct {
-    int32_t workslike, extra, cstat, extra_rand, hitradius, range, flashcolor;
-    int16_t spawns, sound, isound, vel, decal, trail, tnum, drop, clipdist, offset, bounces, bsound, toffset;
-    int8_t sxrepeat, syrepeat, txrepeat, tyrepeat, shade, xrepeat, yrepeat, pal, velmult;
+    int32_t workslike, extra, cstat, extra_rand; // 16b
+    int32_t hitradius, range, flashcolor; // 12b
+    int16_t spawns, sound, isound, vel; // 8b
+    int16_t decal, trail, tnum, drop; // 8b
+    int16_t clipdist, offset, bounces, bsound; // 8b
+    int16_t toffset; // 2b
+    int8_t sxrepeat, syrepeat, txrepeat, tyrepeat; // 4b
+    int8_t shade, xrepeat, yrepeat, pal; // 4b
+    int8_t velmult, filler; // 2b
 } projectile_t;
 
 // extern char gotz;
@@ -540,24 +549,27 @@ typedef struct {
 // spriteinterpolate sprpos[MAXSPRITES];
 
 typedef struct {
-    int32_t bposx,bposy,bposz;
-    int32_t floorz,ceilingz,lastvx,lastvy;
-    int32_t flags,lasttransport,shootzvel;
-    intptr_t temp_data[10]; // sometimes used to hold pointers to con code
-    int16_t picnum,ang,extra,owner,movflag;
-    int16_t tempang,actorstayput,dispicnum;
-    int16_t timetosleep;
-    char cgg;
-    char filler;
-    projectile_t projectile;
-    int16_t lightId;
-    int16_t lightcount; // how many tics until light is killed
-    int16_t lightmaxrange;
+    int32_t bposx,bposy,bposz,flags; //16b
+    int32_t floorz,ceilingz,lastvx,lastvy; //16b
+    int32_t lasttransport; //4b
+
+    int16_t timetosleep, shootzvel; //4b
+
+    intptr_t temp_data[10]; // 40b/80b sometimes used to hold pointers to con code
+
+    int16_t picnum,ang,extra,owner; //8b
+    int16_t movflag,tempang,actorstayput,dispicnum; //8b
+    int16_t lightId, lightcount, lightmaxrange, cgg; //8b
+
 #ifdef POLYMER
-    _prlight *lightptr;
+    _prlight *lightptr; //4b/8b
 #else
     void *lightptr;
 #endif
+
+    int8_t filler[16]; // pad struct to 128 bytes
+
+    projectile_t *projectile; //4b/8b
 } ActorData_t;
 
 extern ActorData_t ActorExtra[MAXSPRITES];
@@ -655,6 +667,8 @@ extern int16_t myangbak[MOVEFIFOSIZ];
 extern int16_t BlimpSpawnSprites[15];
 
 //DUKE3D.H:
+
+#pragma pack(pop)
 typedef struct {
     int16_t got_access, last_extra, shield_amount, curr_weapon, holoduke_on;
     int16_t firstaid_amount, steroids_amount, holoduke_amount, jetpack_amount;
@@ -662,9 +676,10 @@ typedef struct {
     int16_t last_weapon, weapon_pos, kickback_pic;
     int16_t ammo_amount[MAX_WEAPONS], frag[MAXPLAYERS];
     char inven_icon, jetpack_on, heat_on, gotweapon[MAX_WEAPONS];
-} STATUSBARTYPE;
+} DukeStatus_t;
+#pragma pack(push,1)
 
-extern STATUSBARTYPE sbar;
+extern DukeStatus_t sbar;
 extern int32_t g_cameraDistance, g_cameraClock, g_playerFriction,g_showShareware;
 extern int32_t g_networkBroadcastMode, g_movesPerPacket;
 extern int32_t g_gameQuit;
@@ -839,15 +854,15 @@ typedef struct {
         intptr_t *plValues;     // array of values when 'per-player', or 'per-actor'
     } val;
     intptr_t lDefault;
-    uint32_t dwFlags;
+    uintptr_t dwFlags;
     char *szLabel;
 } gamevar_t;
 
 typedef struct {
     char *szLabel;
     int32_t *plValues;     // array of values
-    int32_t size;
-    char bReset;
+    intptr_t size;
+    intptr_t bReset;
 } gamearray_t;
 
 extern gamevar_t aGameVars[MAXGAMEVARS];
@@ -867,6 +882,7 @@ enum SpriteFlags_t {
     SPRITE_NOPAL        = 64,
     SPRITE_NOEVENTCODE  = 128,
     SPRITE_NOLIGHT      = 256,
+    SPRITE_USEACTIVATOR = 512,
 };
 
 extern int16_t SpriteCacheList[MAXTILES][3];
@@ -885,7 +901,7 @@ extern char g_bEnhanced;    // are we 'enhanced' (more minerals, etc)
 
 extern char g_szBuf[1024];
 
-#define NAM_GRENADE_LIFETIME    120
+#define NAM_GRENADE_LIFETIME        120
 #define NAM_GRENADE_LIFETIME_VAR    30
 
 extern intptr_t *aplWeaponClip[MAX_WEAPONS];            // number of items in clip
@@ -961,7 +977,7 @@ enum ProjectileFlags_t {
     PROJECTILE_FORCEIMPACT         = 262144
 };
 
-extern projectile_t ProjectileData[MAXTILES], DefaultProjectileData[MAXTILES];
+extern projectile_t ProjectileData[MAXTILES], DefaultProjectileData[MAXTILES], SpriteProjectile[MAXSPRITES];
 
 // logo control
 
@@ -996,39 +1012,42 @@ extern char setupfilename[BMAX_PATH];
 typedef struct {
 // this needs to have a copy of everything related to the map/actor state
 // see savegame.c
-    int16_t numwalls;
-    walltype wall[MAXWALLS];
-    int16_t numsectors;
-    sectortype sector[MAXSECTORS];
-    spritetype sprite[MAXSPRITES];
-    spriteext_t spriteext[MAXSPRITES];
-    int16_t headspritesect[MAXSECTORS+1];
-    int16_t prevspritesect[MAXSPRITES];
-    int16_t nextspritesect[MAXSPRITES];
-    int16_t headspritestat[MAXSTATUS+1];
-    int16_t prevspritestat[MAXSPRITES];
-    int16_t nextspritestat[MAXSPRITES];
-    int16_t g_numCyclers;
-    int16_t cyclers[MAXCYCLERS][6];
-    PlayerSpawn_t g_playerSpawnPoints[MAXPLAYERS];
-    int16_t g_numAnimWalls;
-    int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos;
-    animwalltype animwall[MAXANIMWALLS];
-    int32_t msx[2048], msy[2048];
-    int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
-    uint8_t show2dsector[(MAXSECTORS+7)>>3];
-    int16_t g_numClouds,clouds[128],cloudx[128],cloudy[128];
-    ActorData_t ActorExtra[MAXSPRITES];
-    int16_t pskyoff[MAXPSKYTILES], pskybits;
     int32_t animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;
-    int16_t animatesect[MAXANIMATES];
     int32_t animateptr[MAXANIMATES];
-    uint8_t g_numPlayerSprites;
-    uint8_t g_earthquakeTime;
     int32_t lockclock;
+    int32_t msx[2048], msy[2048];
     int32_t randomseed, g_globalRandom;
-    uint8_t scriptptrs[MAXSPRITES];
     intptr_t *vars[MAXGAMEVARS];
+
+    int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos;
+    int16_t animatesect[MAXANIMATES];
+    int16_t cyclers[MAXCYCLERS][6];
+    int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
+    int16_t g_numAnimWalls;
+    int16_t g_numClouds,clouds[128],cloudx[128],cloudy[128];
+    int16_t g_numCyclers;
+    int16_t headspritesect[MAXSECTORS+1];
+    int16_t headspritestat[MAXSTATUS+1];
+    int16_t nextspritesect[MAXSPRITES];
+    int16_t nextspritestat[MAXSPRITES];
+    int16_t numsectors;
+    int16_t numwalls;
+    int16_t prevspritesect[MAXSPRITES];
+    int16_t prevspritestat[MAXSPRITES];
+    int16_t pskyoff[MAXPSKYTILES], pskybits;
+
+    uint8_t g_earthquakeTime;
+    uint8_t g_numPlayerSprites;
+    uint8_t scriptptrs[MAXSPRITES];
+    uint8_t show2dsector[(MAXSECTORS+7)>>3];
+
+    ActorData_t ActorExtra[MAXSPRITES];
+    PlayerSpawn_t g_playerSpawnPoints[MAXPLAYERS];
+    animwalltype animwall[MAXANIMWALLS];
+    sectortype sector[MAXSECTORS];
+    spriteext_t spriteext[MAXSPRITES];
+    spritetype sprite[MAXSPRITES];
+    walltype wall[MAXWALLS];
 } mapstate_t;
 
 typedef struct {

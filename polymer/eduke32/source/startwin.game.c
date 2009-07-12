@@ -34,10 +34,10 @@ static struct
     int32_t xdim, ydim, bpp;
     int32_t forcesetup;
     int32_t usemouse, usejoy;
-    char selectedgrp[BMAX_PATH+1];
     int32_t game;
     int32_t crcval; // for finding the grp in the list again
     char *gamedir;
+    char selectedgrp[BMAX_PATH];
 }
 settings;
 
@@ -51,14 +51,14 @@ static int32_t done = -1, mode = TAB_CONFIG;
 static CACHE1D_FIND_REC *finddirs=NULL;
 static int32_t numdirs=0;
 
-static void clearfilenames(void)
+static inline void clearfilenames(void)
 {
     klistfree(finddirs);
     finddirs = NULL;
     numdirs = 0;
 }
 
-static int32_t getfilenames(char *path)
+static inline int32_t getfilenames(char *path)
 {
     CACHE1D_FIND_REC *r;
 
@@ -88,11 +88,33 @@ extern int32_t g_noSetup;
 #define INPUT_JOYSTICK 2
 #define INPUT_ALL 3
 
+const char *controlstrings[] = { "Keyboard only", "Keyboard and mouse", "Keyboard and joystick", "All supported devices" };
+
 static void PopulateForm(int32_t pgs)
 {
     HWND hwnd;
-    char buf[256];
+    char buf[512];
     int32_t i,j;
+
+    if (pgs & POPULATE_GAMEDIRS)
+    {
+        CACHE1D_FIND_REC *dirs = NULL;
+
+        hwnd = GetDlgItem(pages[TAB_CONFIG], IDCGAMEDIR);
+
+        getfilenames("/");
+        (void)ComboBox_ResetContent(hwnd);
+        j = ComboBox_AddString(hwnd, "None");
+        (void)ComboBox_SetItemData(hwnd, j, 0);
+        (void)ComboBox_SetCurSel(hwnd, j);
+        for (dirs=finddirs,i=1; dirs != NULL; dirs=dirs->next,i++)
+        {
+            (void)ComboBox_AddString(hwnd, dirs->name);
+            (void)ComboBox_SetItemData(hwnd, i, i);
+            if (Bstrcasecmp(dirs->name,settings.gamedir) == 0)
+                (void)ComboBox_SetCurSel(hwnd, i);
+        }
+    }
 
     if (pgs & POPULATE_VIDEO)
     {
@@ -120,7 +142,9 @@ static void PopulateForm(int32_t pgs)
 
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), ((settings.flags&1) ? BST_CHECKED : BST_UNCHECKED));
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCPOLYMER), ((settings.flags&2) ? BST_CHECKED : BST_UNCHECKED));
+
         (void)ComboBox_ResetContent(hwnd);
+
         for (i=0; i<validmodecnt; i++)
         {
             if (validmode[i].fs != (settings.flags & 1)) continue;
@@ -136,7 +160,7 @@ static void PopulateForm(int32_t pgs)
 
     if (pgs & POPULATE_CONFIG)
     {
-/*
+#if 0
         struct audioenumdev *d;
         char *n;
 
@@ -165,31 +189,34 @@ static void PopulateForm(int32_t pgs)
                 d = d->next;
             }
         }
-*/
+#endif
 
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.forcesetup ? BST_CHECKED : BST_UNCHECKED));
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCAUTOLOAD), (!(settings.flags & 4) ? BST_CHECKED : BST_UNCHECKED));
 
+        hwnd = GetDlgItem(pages[TAB_CONFIG], IDCINPUT);
+
+        (void)ComboBox_ResetContent(hwnd);
+        (void)ComboBox_SetCurSel(hwnd, 0);
+
+        for (i=0; i<4; i++)
         {
-            static const char *s[] = { "Keyboard only", "Keyboard and mouse", "Keyboard and joystick", "All supported devices" };
+            (void)ComboBox_InsertString(hwnd, i, controlstrings[i]);
+            (void)ComboBox_SetItemData(hwnd, i, i);
 
-            hwnd = GetDlgItem(pages[TAB_CONFIG], IDCINPUT);
-
-            (void)ComboBox_ResetContent(hwnd);
-            j = ComboBox_AddString(hwnd, s[INPUT_KB]);
-            (void)ComboBox_SetItemData(hwnd, j, INPUT_KB);
-            (void)ComboBox_SetCurSel(hwnd, j);
-            for (i=1; i<4; i++)
+            switch (i)
             {
-                j = ComboBox_AddString(hwnd, s[i]);
-                (void)ComboBox_SetItemData(hwnd, j, i);
-                if ((settings.usemouse && !settings.usejoy && i == INPUT_MOUSE) ||
-                        (!settings.usemouse && settings.usejoy && i == INPUT_JOYSTICK) ||
-                        (settings.usemouse && settings.usejoy && i == INPUT_ALL))
-                    (void)ComboBox_SetCurSel(hwnd, j);
+            case INPUT_MOUSE:
+                if (settings.usemouse && !settings.usejoy)(void)ComboBox_SetCurSel(hwnd, i);
+                break;
+            case INPUT_JOYSTICK:
+                if (!settings.usemouse && settings.usejoy)(void)ComboBox_SetCurSel(hwnd, i);
+                break;
+            case INPUT_ALL:
+                if (settings.usemouse && settings.usejoy)(void)ComboBox_SetCurSel(hwnd, i);
+                break;
             }
         }
-
     }
 
     if (pgs & POPULATE_GAME)
@@ -208,29 +235,6 @@ static void PopulateForm(int32_t pgs)
             j = ListBox_AddString(hwnd, buf);
             (void)ListBox_SetItemData(hwnd, j, (LPARAM)fg);
             if (!Bstrcasecmp(fg->name, settings.selectedgrp))(void)ListBox_SetCurSel(hwnd, j);
-        }
-    }
-
-    if (pgs & POPULATE_GAMEDIRS)
-    {
-        CACHE1D_FIND_REC *dirs = NULL;
-
-        hwnd = GetDlgItem(pages[TAB_CONFIG], IDCGAMEDIR);
-
-        getfilenames("/");
-        (void)ComboBox_ResetContent(hwnd);
-        j = ComboBox_AddString(hwnd, "None");
-        (void)ComboBox_SetItemData(hwnd, j, 0);
-        (void)ComboBox_SetCurSel(hwnd, j);
-        for (dirs=finddirs,i=1; dirs != NULL; dirs=dirs->next,i++)
-        {
-#if defined(POLYMOST) && defined(USE_OPENGL)
-            if (Bstrcasecmp(TEXCACHEFILE,dirs->name) == 0) continue;
-#endif
-            j = ComboBox_AddString(hwnd, dirs->name);
-            (void)ComboBox_SetItemData(hwnd, j, i);
-            if (Bstrcasecmp(dirs->name,settings.gamedir) == 0)
-                (void)ComboBox_SetCurSel(hwnd, j);
         }
     }
 }
@@ -275,14 +279,6 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
                 settings.flags &= ~4;
             else settings.flags |= 4;
             return TRUE;
-            /*
-                    case IDCINPUTMOUSE:
-                        settings.usemouse = IsDlgButtonChecked(hwndDlg, IDCINPUTMOUSE) == BST_CHECKED;
-                        return TRUE;
-                    case IDCINPUTJOY:
-                        settings.usejoy = IsDlgButtonChecked(hwndDlg, IDCINPUTJOY) == BST_CHECKED;
-                        return TRUE;
-            */
         case IDCINPUT:
             if (HIWORD(wParam) == CBN_SELCHANGE)
             {
@@ -381,10 +377,6 @@ static void EnableConfig(int32_t n)
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCPOLYMER), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCVMODE), n);
-    /*
-        EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUTMOUSE), n);
-        EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUTJOY), n);
-    */
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUT), n);
 
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCDATA), n);
