@@ -2053,7 +2053,6 @@ void polymer_alt_editorselect(void)
         if (!s->flags.uptodate)
             continue;
 
-
         for (what=1; what<=2; what++)
         {
             GLfloat *pl;

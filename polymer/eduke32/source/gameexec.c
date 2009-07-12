@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include <time.h>
+#include <stdlib.h>
 
 #include "duke3d.h"
 #include "gamedef.h"
@@ -39,7 +40,7 @@ vmstate_t vm;
 int32_t g_errorLineNum;
 int32_t g_tw;
 
-static int32_t X_DoExecute(register int32_t once);
+static int32_t X_DoExecute(int32_t once);
 
 #include "gamestructures.c"
 
@@ -664,16 +665,21 @@ static inline void __fastcall X_DoConditional(register int32_t condition)
     }
 }
 
-static int32_t X_DoExecute(register int32_t once)
+static int32_t X_DoExecute(int32_t once)
 {
-    register int32_t tw;
+    register int32_t tw = *insptr;
 
-    do
+    // jump directly into the loop, saving us from the checks during the first iteration
+    goto skip_check;
+
+    while (!once)
     {
+        if (vm.g_killitFlag + vm.g_returnFlag)
+            return 1;
+
         tw = *insptr;
 
-        if (vm.g_killitFlag + vm.g_killitFlag) return 1;
-
+skip_check:
         //      Bsprintf(g_szBuf,"Parsing: %d",*insptr);
         //      AddLog(g_szBuf);
 
@@ -692,7 +698,7 @@ static int32_t X_DoExecute(register int32_t once)
                     break;
                 }
                 Bstrcpy(ScriptQuotes[q],ScriptQuoteRedefinitions[i]);
-                break;
+                continue;
             }
 
         case CON_GETTHISPROJECTILE:
@@ -704,12 +710,12 @@ static int32_t X_DoExecute(register int32_t once)
                 int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
 
                 X_AccessActiveProjectile(tw==CON_SETTHISPROJECTILE,lVar1,lLabelID,lVar2);
-                break;
+                continue;
             }
 
         case CON_IFRND:
             X_DoConditional(rnd(*(++insptr)));
-            break;
+            continue;
 
         case CON_IFCANSHOOTTARGET:
         {
@@ -767,7 +773,7 @@ static int32_t X_DoExecute(register int32_t once)
 
             X_DoConditional(j);
         }
-        break;
+        continue;
 
         case CON_IFCANSEETARGET:
         {
@@ -777,11 +783,11 @@ static int32_t X_DoExecute(register int32_t once)
             X_DoConditional(j);
             if (j) ActorExtra[vm.g_i].timetosleep = SLEEPTIME;
         }
-        break;
+        continue;
 
         case CON_IFACTORNOTSTAYPUT:
             X_DoConditional(ActorExtra[vm.g_i].actorstayput == -1);
-            break;
+            continue;
 
         case CON_IFCANSEE:
         {
@@ -843,23 +849,23 @@ static int32_t X_DoExecute(register int32_t once)
                 ActorExtra[vm.g_i].timetosleep = SLEEPTIME;
 
             X_DoConditional(j);
-            break;
+            continue;
         }
 
         case CON_IFHITWEAPON:
             X_DoConditional(A_IncurDamage(vm.g_i) >= 0);
-            break;
+            continue;
 
         case CON_IFSQUISHED:
             X_DoConditional(A_CheckSquished(vm.g_i, vm.g_p));
-            break;
+            continue;
 
         case CON_IFDEAD:
             //        j = vm.g_sp->extra;
             //        if (vm.g_sp->picnum == APLAYER)
             //            j--;
             X_DoConditional(vm.g_sp->extra <= 0);
-            break;
+            continue;
 
         case CON_AI:
             insptr++;
@@ -870,44 +876,44 @@ static int32_t X_DoExecute(register int32_t once)
             vm.g_sp->hitag = *(((intptr_t *)vm.g_t[5])+2);    // move flags
             vm.g_t[0] = vm.g_t[2] = vm.g_t[3] = 0; // count, actioncount... vm.g_t[3] = ???
             if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0) // hack
-                break;
+                continue;
             if (vm.g_sp->hitag&random_angle)
                 vm.g_sp->ang = krand()&2047;
-            break;
+            continue;
 
         case CON_ACTION:
             insptr++;
             vm.g_t[2] = vm.g_t[3] = 0;
             vm.g_t[4] = *insptr++;
-            break;
+            continue;
 
         case CON_IFPDISTL:
             insptr++;
             X_DoConditional(vm.g_x < *insptr);
             if (vm.g_x > MAXSLEEPDIST && ActorExtra[vm.g_i].timetosleep == 0)
                 ActorExtra[vm.g_i].timetosleep = SLEEPTIME;
-            break;
+            continue;
 
         case CON_IFPDISTG:
             insptr++;
             X_DoConditional(vm.g_x > *insptr);
             if (vm.g_x > MAXSLEEPDIST && ActorExtra[vm.g_i].timetosleep == 0)
                 ActorExtra[vm.g_i].timetosleep = SLEEPTIME;
-            break;
+            continue;
 
         case CON_ELSE:
             insptr = (intptr_t *) *(insptr+1);
-            break;
+            continue;
 
         case CON_ADDSTRENGTH:
             insptr++;
             vm.g_sp->extra += *insptr++;
-            break;
+            continue;
 
         case CON_STRENGTH:
             insptr++;
             vm.g_sp->extra = *insptr++;
-            break;
+            continue;
 
         case CON_IFGOTWEAPONCE:
             insptr++;
@@ -931,7 +937,7 @@ static int32_t X_DoExecute(register int32_t once)
                 else X_DoConditional(0);
             }
             else X_DoConditional(0);
-            break;
+            continue;
 
         case CON_GETLASTPAL:
             insptr++;
@@ -944,16 +950,16 @@ static int32_t X_DoExecute(register int32_t once)
                 vm.g_sp->pal = ActorExtra[vm.g_i].tempang;
             }
             ActorExtra[vm.g_i].tempang = 0;
-            break;
+            continue;
 
         case CON_TOSSWEAPON:
             insptr++;
             P_DropWeapon(g_player[vm.g_sp->yvel].ps);
-            break;
+            continue;
 
         case CON_NULLOP:
             insptr++;
-            break;
+            continue;
 
         case CON_MIKESND:
             insptr++;
@@ -961,11 +967,11 @@ static int32_t X_DoExecute(register int32_t once)
             {
                 OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->yvel);
                 insptr++;
-                break;
+                continue;
             }
             if (!A_CheckSoundPlaying(vm.g_i,vm.g_sp->yvel))
                 A_PlaySound(vm.g_sp->yvel,vm.g_i);
-            break;
+            continue;
 
         case CON_PKICK:
             insptr++;
@@ -977,7 +983,7 @@ static int32_t X_DoExecute(register int32_t once)
             }
             else if (vm.g_sp->picnum != APLAYER && g_player[vm.g_p].ps->quick_kick == 0)
                 g_player[vm.g_p].ps->quick_kick = 14;
-            break;
+            continue;
 
         case CON_SIZETO:
             insptr++;
@@ -994,29 +1000,29 @@ static int32_t X_DoExecute(register int32_t once)
             }
             insptr++;
 
-            break;
+            continue;
 
         case CON_SIZEAT:
             insptr++;
             vm.g_sp->xrepeat = (uint8_t) *insptr++;
             vm.g_sp->yrepeat = (uint8_t) *insptr++;
-            break;
+            continue;
 
         case CON_SHOOT:
             insptr++;
             A_Shoot(vm.g_i,*insptr++);
-            break;
+            continue;
 
         case CON_SOUNDONCE:
             insptr++;
             if ((*insptr<0 || *insptr>=MAXSOUNDS) /* && g_scriptSanityChecks */)
             {
                 OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr++);
-                break;
+                continue;
             }
             if (!A_CheckSoundPlaying(vm.g_i,*insptr++))
                 A_PlaySound(*(insptr-1),vm.g_i);
-            break;
+            continue;
 
         case CON_IFSOUND:
             insptr++;
@@ -1024,50 +1030,53 @@ static int32_t X_DoExecute(register int32_t once)
             {
                 OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr);
                 insptr++;
-                break;
+                continue;
             }
             X_DoConditional(A_CheckSoundPlaying(vm.g_i,*insptr));
             //    X_DoConditional(SoundOwner[*insptr][0].i == vm.g_i);
-            break;
+            continue;
 
         case CON_STOPSOUND:
             insptr++;
             if ((*insptr<0 || *insptr>=MAXSOUNDS) /* && g_scriptSanityChecks */)
             {
                 OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr);
-                insptr++; break;
+                insptr++;
+                continue;
             }
             if (A_CheckSoundPlaying(vm.g_i,*insptr))
                 A_StopSound((int16_t)*insptr,vm.g_i);
             insptr++;
-            break;
+            continue;
 
         case CON_GLOBALSOUND:
             insptr++;
             if ((*insptr<0 || *insptr>=MAXSOUNDS) /* && g_scriptSanityChecks */)
             {
                 OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr);
-                insptr++; break;
+                insptr++;
+                continue;
             }
             if (vm.g_p == screenpeek || (GametypeFlags[ud.coop]&GAMETYPE_COOPSOUND))
                 A_PlaySound((int16_t) *insptr,g_player[screenpeek].ps->i);
             insptr++;
-            break;
+            continue;
 
         case CON_SOUND:
             insptr++;
             if ((*insptr<0 || *insptr>=MAXSOUNDS) /* && g_scriptSanityChecks */)
             {
                 OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr);
-                insptr++; break;
+                insptr++;
+                continue;
             }
             A_PlaySound((int16_t) *insptr++,vm.g_i);
-            break;
+            continue;
 
         case CON_TIP:
             insptr++;
             g_player[vm.g_p].ps->tipincs = GAMETICSPERSEC;
-            break;
+            continue;
 
         case CON_FALL:
             insptr++;
@@ -1093,7 +1102,7 @@ static int32_t X_DoExecute(register int32_t once)
 
                     if (vm.g_sp->z > (ActorExtra[vm.g_i].floorz - FOURSLEIGHT))
                         vm.g_sp->z = (ActorExtra[vm.g_i].floorz - FOURSLEIGHT);
-                    break;
+                    continue;
                 }
                 vm.g_sp->z = ActorExtra[vm.g_i].floorz - FOURSLEIGHT;
 
@@ -1127,7 +1136,7 @@ static int32_t X_DoExecute(register int32_t once)
                 A_GetZLimits(vm.g_i);
                 if (ActorExtra[vm.g_i].floorz != sector[vm.g_sp->sectnum].floorz)
                     vm.g_sp->z = (ActorExtra[vm.g_i].floorz - FOURSLEIGHT);
-                break;
+                continue;
             }
             else if (sector[vm.g_sp->sectnum].lotag == 1)
             {
@@ -1149,10 +1158,10 @@ static int32_t X_DoExecute(register int32_t once)
                 case DRONE__STATIC:
                     break;
                 }
-                break;
+                continue;
             }
             vm.g_sp->zvel = 0;
-            break;
+            continue;
 
         case CON_RETURN:
             vm.g_returnFlag = 1;
@@ -1183,50 +1192,51 @@ static int32_t X_DoExecute(register int32_t once)
                 else P_AddWeapon(g_player[vm.g_p].ps, *insptr);
             }
             insptr += 2;
-            break;
+            continue;
 
         case CON_MONEY:
             insptr++;
             A_SpawnMultiple(vm.g_i, MONEY, *insptr++);
-            break;
+            continue;
 
         case CON_MAIL:
             insptr++;
             A_SpawnMultiple(vm.g_i, MAIL, *insptr++);
-            break;
+            continue;
 
         case CON_SLEEPTIME:
             insptr++;
             ActorExtra[vm.g_i].timetosleep = (int16_t)*insptr++;
-            break;
+            continue;
 
         case CON_PAPER:
             insptr++;
             A_SpawnMultiple(vm.g_i, PAPER, *insptr++);
-            break;
+            continue;
 
         case CON_ADDKILLS:
             insptr++;
             g_player[vm.g_p].ps->actors_killed += *insptr++;
             ActorExtra[vm.g_i].actorstayput = -1;
-            break;
+            continue;
 
         case CON_LOTSOFGLASS:
             insptr++;
             A_SpawnGlass(vm.g_i,*insptr++);
-            break;
+            continue;
 
         case CON_KILLIT:
             insptr++;
             vm.g_killitFlag = 1;
-            break;
+            continue;
 
         case CON_ADDWEAPON:
             insptr++;
             if ((*insptr<0 ||*insptr>=MAX_WEAPONS) /* && g_scriptSanityChecks */)
             {
                 OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],*insptr);
-                insptr+=2; break;
+                insptr+=2; 
+                continue;
             }
             if (g_player[vm.g_p].ps->gotweapon[*insptr] == 0)
             {
@@ -1236,7 +1246,7 @@ static int32_t X_DoExecute(register int32_t once)
             else if (g_player[vm.g_p].ps->ammo_amount[*insptr] >= g_player[vm.g_p].ps->max_ammo_amount[*insptr])
             {
                 vm.g_killitFlag = 2;
-                break;
+                continue;
             }
             P_AddAmmo(*insptr, g_player[vm.g_p].ps, *(insptr+1));
             if (g_player[vm.g_p].ps->curr_weapon == KNEE_WEAPON && g_player[vm.g_p].ps->gotweapon[*insptr])
@@ -1245,19 +1255,19 @@ static int32_t X_DoExecute(register int32_t once)
                 else P_AddWeapon(g_player[vm.g_p].ps, *insptr);
             }
             insptr+=2;
-            break;
+            continue;
 
         case CON_DEBUG:
             insptr++;
             initprintf("%d\n",*insptr++);
-            break;
+            continue;
 
         case CON_ENDOFGAME:
             insptr++;
             g_player[vm.g_p].ps->timebeforeexit = *insptr++;
             g_player[vm.g_p].ps->customexitsound = -1;
             ud.eog = 1;
-            break;
+            continue;
 
         case CON_ADDPHEALTH:
             insptr++;
@@ -1291,7 +1301,7 @@ static int32_t X_DoExecute(register int32_t once)
                     if (j > g_player[vm.g_p].ps->max_player_health && *insptr > 0)
                     {
                         insptr++;
-                        break;
+                        continue;
                     }
                     else
                     {
@@ -1327,7 +1337,7 @@ static int32_t X_DoExecute(register int32_t once)
             }
 
             insptr++;
-            break;
+            continue;
 
         case CON_STATE:
         {
@@ -1337,12 +1347,12 @@ static int32_t X_DoExecute(register int32_t once)
             X_DoExecute(0);
             insptr = tempscrptr;
         }
-        break;
+        continue;
 
         case CON_LEFTBRACE:
             insptr++;
             X_DoExecute(0);
-            break;
+            continue;
 
         case CON_MOVE:
             insptr++;
@@ -1350,10 +1360,10 @@ static int32_t X_DoExecute(register int32_t once)
             vm.g_t[1] = *insptr++;
             vm.g_sp->hitag = *insptr++;
             if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0) // hack
-                break;
+                continue;
             if (vm.g_sp->hitag&random_angle)
                 vm.g_sp->ang = krand()&2047;
-            break;
+            continue;
 
         case CON_ADDWEAPONVAR:
             insptr++;
@@ -1365,7 +1375,7 @@ static int32_t X_DoExecute(register int32_t once)
             else if (g_player[vm.g_p].ps->ammo_amount[Gv_GetVarX(*(insptr))] >= g_player[vm.g_p].ps->max_ammo_amount[Gv_GetVarX(*(insptr))])
             {
                 vm.g_killitFlag = 2;
-                break;
+                continue;
             }
             P_AddAmmo(Gv_GetVarX(*(insptr)), g_player[vm.g_p].ps, Gv_GetVarX(*(insptr+1)));
             if (g_player[vm.g_p].ps->curr_weapon == KNEE_WEAPON && g_player[vm.g_p].ps->gotweapon[Gv_GetVarX(*(insptr))])
@@ -1374,7 +1384,7 @@ static int32_t X_DoExecute(register int32_t once)
                 else P_AddWeapon(g_player[vm.g_p].ps, Gv_GetVarX(*(insptr)));
             }
             insptr+=2;
-            break;
+            continue;
 
         case CON_ACTIVATEBYSECTOR:
         case CON_OPERATESECTORS:
@@ -1413,7 +1423,7 @@ static int32_t X_DoExecute(register int32_t once)
                     A_SetSprite(var1, var2);
                     break;
                 }
-                break;
+                continue;
             }
 
         case CON_CANSEESPR:
@@ -1430,7 +1440,7 @@ static int32_t X_DoExecute(register int32_t once)
                                     sprite[lVar2].x,sprite[lVar2].y,sprite[lVar2].z,sprite[lVar2].sectnum);
 
                 Gv_SetVarX(*insptr++, res);
-                break;
+                continue;
             }
 
         case CON_OPERATERESPAWNS:
@@ -1452,13 +1462,13 @@ static int32_t X_DoExecute(register int32_t once)
                     Gv_SetVarX(g_iReturnVarID, G_CheckActivatorMotion(var1));
                     break;
                 }
-                break;
+                continue;
             }
 
         case CON_INSERTSPRITEQ:
             insptr++;
             A_AddToDeleteQueue(vm.g_i);
-            break;
+            continue;
 
         case CON_QSTRLEN:
             insptr++;
@@ -1469,10 +1479,10 @@ static int32_t X_DoExecute(register int32_t once)
                 {
                     OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],j);
                     Gv_SetVarX(i,-1);
-                    break;
+                    continue;
                 }
                 Gv_SetVarX(i,Bstrlen(ScriptQuotes[j]));
-                break;
+                continue;
             }
 
         case CON_HEADSPRITESTAT:
@@ -1483,10 +1493,10 @@ static int32_t X_DoExecute(register int32_t once)
                 if ((j < 0 || j > MAXSTATUS) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "invalid status list %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
+                    continue;
                 }
                 Gv_SetVarX(i,headspritestat[j]);
-                break;
+                continue;
             }
 
         case CON_PREVSPRITESTAT:
@@ -1497,10 +1507,10 @@ static int32_t X_DoExecute(register int32_t once)
                 if ((j < 0 || j >= MAXSPRITES) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
+                    continue;
                 }
                 Gv_SetVarX(i,prevspritestat[j]);
-                break;
+                continue;
             }
 
         case CON_NEXTSPRITESTAT:
@@ -1511,10 +1521,10 @@ static int32_t X_DoExecute(register int32_t once)
                 if ((j < 0 || j >= MAXSPRITES) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
+                    continue;
                 }
                 Gv_SetVarX(i,nextspritestat[j]);
-                break;
+                continue;
             }
 
         case CON_HEADSPRITESECT:
@@ -1525,10 +1535,10 @@ static int32_t X_DoExecute(register int32_t once)
                 if ((j < 0 || j > numsectors) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "invalid sector %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
+                    continue;
                 }
                 Gv_SetVarX(i,headspritesect[j]);
-                break;
+                continue;
             }
 
         case CON_PREVSPRITESECT:
@@ -1539,10 +1549,10 @@ static int32_t X_DoExecute(register int32_t once)
                 if ((j < 0 || j >= MAXSPRITES) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
+                    continue;
                 }
                 Gv_SetVarX(i,prevspritesect[j]);
-                break;
+                continue;
             }
 
         case CON_NEXTSPRITESECT:
@@ -1553,10 +1563,10 @@ static int32_t X_DoExecute(register int32_t once)
                 if ((j < 0 || j >= MAXSPRITES) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
+                    continue;
                 }
                 Gv_SetVarX(i,nextspritesect[j]);
-                break;
+                continue;
             }
 
         case CON_GETKEYNAME:
@@ -1585,7 +1595,7 @@ static int32_t X_DoExecute(register int32_t once)
 
                 if (*tempbuf)
                     Bstrcpy(ScriptQuotes[i],tempbuf);
-                break;
+                continue;
             }
         case CON_QSUBSTR:
             insptr++;
@@ -1598,22 +1608,22 @@ static int32_t X_DoExecute(register int32_t once)
                 if ((q1<0 || q1>=MAXQUOTES) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],q1);
-                    break;
+                    continue;
                 }
                 if ((ScriptQuotes[q1] == NULL) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q1);
-                    break;
+                    continue;
                 }
                 if ((q2<0 || q2>=MAXQUOTES) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],q2);
-                    break;
+                    continue;
                 }
                 if ((ScriptQuotes[q2] == NULL) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q2);
-                    break;
+                    continue;
                 }
 
                 {
@@ -1628,7 +1638,7 @@ static int32_t X_DoExecute(register int32_t once)
                     }
                     *s1=0;
                 }
-                break;
+                continue;
             }
 
         case CON_GETPNAME:
@@ -1712,7 +1722,7 @@ nullquote:
                     OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],ScriptQuotes[i] ? j : i);
                     break;
                 }
-                break;
+                continue;
             }
 
         case CON_CHANGESPRITESTAT:
@@ -1724,14 +1734,14 @@ nullquote:
                 if ((i<0 || i>=MAXSPRITES) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "Invalid sprite: %d\n",g_errorLineNum,keyw[g_tw],i);
-                    break;
+                    continue;
                 }
                 if ((j<0 || j>=MAXSTATUS) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "Invalid statnum: %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
+                    continue;
                 }
-                if (sprite[i].statnum == j) break;
+                if (sprite[i].statnum == j) continue;
 
                 /* initialize actor data when changing to an actor statnum because there's usually
                 garbage left over from being handled as a hard coded object */
@@ -1758,7 +1768,7 @@ nullquote:
                     }
                 }
                 changespritestat(i,j);
-                break;
+                continue;
             }
 
         case CON_STARTLEVEL:
@@ -1770,13 +1780,13 @@ nullquote:
                 if ((volnume > MAXVOLUMES-1 || volnume < 0) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "invalid volume (%d)\n",g_errorLineNum,keyw[g_tw],volnume);
-                    break;
+                    continue;
                 }
 
                 if ((levnume > MAXLEVELS-1 || levnume < 0) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "invalid level (%d)\n",g_errorLineNum,keyw[g_tw],levnume);
-                    break;
+                    continue;
                 }
 
                 ud.m_volume_number = ud.volume_number = volnume;
@@ -1789,7 +1799,7 @@ nullquote:
                     ud.display_bonus_screen = 0;
                 } // MODE_RESTART;
 
-                break;
+                continue;
             }
 
         case CON_MYOSX:
@@ -1822,7 +1832,7 @@ nullquote:
                     break;
                 }
                 }
-                break;
+                continue;
             }
 
         case CON_SWITCH:
@@ -1892,7 +1902,7 @@ nullquote:
                 //AddLog(g_szBuf);
                 //AddLog("Done Processing Switch");
 
-                break;
+                continue;
             }
 
         case CON_ENDSWITCH:
@@ -1903,7 +1913,7 @@ nullquote:
         case CON_DISPLAYRAND:
             insptr++;
             Gv_SetVarX(*insptr++, rand());
-            break;
+            continue;
 
         case CON_DRAGPOINT:
             insptr++;
@@ -1913,10 +1923,10 @@ nullquote:
                 if ((wallnum<0 || wallnum>=numwalls) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "Invalid wall %d\n",g_errorLineNum,keyw[g_tw],wallnum);
-                    break;
+                    continue;
                 }
                 dragpoint(wallnum,newx,newy);
-                break;
+                continue;
             }
 
         case CON_LDIST:
@@ -1927,11 +1937,11 @@ nullquote:
                 if ((xvar < 0 || yvar < 0 || xvar >= MAXSPRITES || yvar >= MAXSPRITES) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "invalid sprite\n",g_errorLineNum,keyw[g_tw]);
-                    break;
+                    continue;
                 }
 
                 Gv_SetVarX(distvar, ldist(&sprite[xvar],&sprite[yvar]));
-                break;
+                continue;
             }
 
         case CON_DIST:
@@ -1942,11 +1952,11 @@ nullquote:
                 if ((xvar < 0 || yvar < 0 || xvar >= MAXSPRITES || yvar >= MAXSPRITES) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "invalid sprite\n",g_errorLineNum,keyw[g_tw]);
-                    break;
+                    continue;
                 }
 
                 Gv_SetVarX(distvar, dist(&sprite[xvar],&sprite[yvar]));
-                break;
+                continue;
             }
 
         case CON_GETANGLE:
@@ -1957,7 +1967,7 @@ nullquote:
                 int32_t yvar = Gv_GetVarX(*insptr++);
 
                 Gv_SetVarX(angvar, getangle(xvar,yvar));
-                break;
+                continue;
             }
 
         case CON_GETINCANGLE:
@@ -1968,7 +1978,7 @@ nullquote:
                 int32_t yvar = Gv_GetVarX(*insptr++);
 
                 Gv_SetVarX(angvar, G_GetAngleDelta(xvar,yvar));
-                break;
+                continue;
             }
 
         case CON_MULSCALE:
@@ -1978,7 +1988,7 @@ nullquote:
                 int32_t var3 = Gv_GetVarX(*insptr++), var4 = Gv_GetVarX(*insptr++);
 
                 Gv_SetVarX(var1, mulscale(var2, var3, var4));
-                break;
+                continue;
             }
 
         case CON_INITTIMER:
@@ -1986,16 +1996,16 @@ nullquote:
             {
                 int32_t j = Gv_GetVarX(*insptr++);
                 if (g_timerTicsPerSecond == j)
-                    break;
+                    continue;
                 uninittimer();
                 inittimer(j);
                 g_timerTicsPerSecond = j;
             }
-            break;
+            continue;
 
         case CON_TIME:
             insptr += 2;
-            break;
+            continue;
 
         case CON_ESPAWNVAR:
         case CON_EQSPAWNVAR:
@@ -2007,7 +2017,7 @@ nullquote:
                 if ((vm.g_sp->sectnum < 0 || vm.g_sp->sectnum >= numsectors) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->sectnum);
-                    break;
+                    continue;
                 }
                 j = A_Spawn(vm.g_i, lIn);
                 switch (tw)
@@ -2023,7 +2033,7 @@ nullquote:
                         A_AddToDeleteQueue(j);
                     break;
                 }
-                break;
+                continue;
             }
 
         case CON_ESPAWN:
@@ -2038,7 +2048,7 @@ nullquote:
                 {
                     OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->sectnum);
                     insptr++;
-                    break;
+                    continue;
                 }
 
                 j = A_Spawn(vm.g_i,*insptr++);
@@ -2057,7 +2067,7 @@ nullquote:
                     break;
                 }
             }
-            break;
+            continue;
 
         case CON_ESHOOT:
         case CON_EZSHOOT:
@@ -2079,7 +2089,7 @@ nullquote:
                     OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->sectnum);
                     insptr++;
                     ActorExtra[vm.g_i].shootzvel=0;
-                    break;
+                    continue;
                 }
 
                 j = A_Shoot(vm.g_i,*insptr++);
@@ -2089,7 +2099,7 @@ nullquote:
 
                 ActorExtra[vm.g_i].shootzvel=0;
             }
-            break;
+            continue;
 
         case CON_SHOOTVAR:
         case CON_ESHOOTVAR:
@@ -2113,20 +2123,20 @@ nullquote:
             {
                 OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->sectnum);
                 ActorExtra[vm.g_i].shootzvel=0;
-                break;
+                continue;
             }
 
             lReturn = A_Shoot(vm.g_i, j);
             if (tw == CON_ESHOOTVAR || tw == CON_EZSHOOTVAR)
                 aGameVars[g_iReturnVarID].val.lValue = lReturn;
             ActorExtra[vm.g_i].shootzvel=0;
-            break;
+            continue;
         }
 
         case CON_CMENU:
             insptr++;
             ChangeToMenu(Gv_GetVarX(*insptr++));
-            break;
+            continue;
 
         case CON_SOUNDVAR:
         case CON_STOPSOUNDVAR:
@@ -2158,7 +2168,7 @@ nullquote:
                     break;
                 }
             }
-            break;
+            continue;
 
         case CON_GUNIQHUDID:
             insptr++;
@@ -2168,7 +2178,7 @@ nullquote:
                     guniqhudid = j;
                 else
                     OSD_Printf(CON_ERROR "Invalid ID %d\n",g_errorLineNum,keyw[g_tw],j);
-                break;
+                continue;
             }
 
         case CON_SAVEGAMEVAR:
@@ -2179,7 +2189,7 @@ nullquote:
             if (ud.config.scripthandle < 0)
             {
                 insptr++;
-                break;
+                continue;
             }
             switch (tw)
             {
@@ -2192,7 +2202,7 @@ nullquote:
                 Gv_SetVarX(*insptr++, i);
                 break;
             }
-            break;
+            continue;
         }
 
         case CON_SHOWVIEW:
@@ -2219,12 +2229,12 @@ nullquote:
                 if ((x1 < 0 || y1 < 0 || x2 > xdim-1 || y2 > ydim-1 || x2-x1 < 2 || y2-y1 < 2) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "incorrect coordinates\n",g_errorLineNum,keyw[g_tw]);
-                    break;
+                    continue;
                 }
                 if ((sect<0 || sect>=numsectors) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sect);
-                    break;
+                    continue;
                 }
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
@@ -2291,7 +2301,7 @@ nullquote:
 #if defined(USE_OPENGL) && defined(POLYMOST)
                 glprojectionhacks = j;
 #endif
-                break;
+                continue;
             }
 
         case CON_ROTATESPRITE16:
@@ -2306,7 +2316,7 @@ nullquote:
 
                 if (tw == CON_ROTATESPRITE && !(orientation & 256)) {x<<=16; y<<=16;}
                 rotatesprite(x,y,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
-                break;
+                continue;
             }
 
         case CON_MINITEXT:
@@ -2335,32 +2345,32 @@ nullquote:
                             OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q);
                             if (tw == CON_GAMETEXTZ)
                                 insptr++;
-                            break;
+                            continue;
                         }
                         if (tw == CON_GAMETEXTZ)
                             z = Gv_GetVarX(*insptr++);
                         gametext_z(0,tilenum,x>>1,y,ScriptQuotes[q],shade,pal,orientation,x1,y1,x2,y2,z);
-                        break;
+                        continue;
                     }
                     if (tw == CON_DIGITALNUMBERZ)
                         z= Gv_GetVarX(*insptr++);
                     G_DrawTXDigiNumZ(tilenum,x,y,q,shade,pal,orientation,x1,y1,x2,y2,z);
-                    break;
+                    continue;
                 }
 
                 if ((ScriptQuotes[q] == NULL) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q);
-                    break;
+                    continue;
                 }
                 minitextshade(x,y,ScriptQuotes[q],shade,pal,26);
-                break;
+                continue;
             }
 
         case CON_ANGOFF:
             insptr++;
             spriteext[vm.g_i].angoff=*insptr++;
-            break;
+            continue;
 
         case CON_GETZRANGE:
             insptr++;
@@ -2381,7 +2391,7 @@ nullquote:
                     if ((sectnum<0 || sectnum>=numsectors) /* && g_scriptSanityChecks */)
                     {
                         OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
-                        break;
+                        continue;
                     }
                     getzrange(&vect, sectnum, &ceilz, &ceilhit, &florz, &florhit, walldist, clipmask);
                     Gv_SetVarX(ceilzvar, ceilz);
@@ -2389,7 +2399,7 @@ nullquote:
                     Gv_SetVarX(florzvar, florz);
                     Gv_SetVarX(florhitvar, florhit);
                 }
-                break;
+                continue;
             }
 
         case CON_HITSCAN:
@@ -2411,7 +2421,7 @@ nullquote:
                     if ((sectnum<0 || sectnum>=numsectors) /* && g_scriptSanityChecks */)
                     {
                         OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
-                        break;
+                        continue;
                     }
                     hitscan((const vec3_t *)&vect, sectnum, vx, vy, vz, &hitinfo, cliptype);
                     Gv_SetVarX(hitsectvar, hitinfo.hitsect);
@@ -2421,7 +2431,7 @@ nullquote:
                     Gv_SetVarX(hityvar, hitinfo.pos.y);
                     Gv_SetVarX(hitzvar, hitinfo.pos.z);
                 }
-                break;
+                continue;
             }
 
         case CON_CANSEE:
@@ -2439,7 +2449,7 @@ nullquote:
                 }
 
                 Gv_SetVarX(rvar, cansee(x1,y1,z1,sect1,x2,y2,z2,sect2));
-                break;
+                continue;
             }
 
         case CON_ROTATEPOINT:
@@ -2453,7 +2463,7 @@ nullquote:
                 rotatepoint(xpivot,ypivot,x,y,daang,&x2,&y2);
                 Gv_SetVarX(x2var, x2);
                 Gv_SetVarX(y2var, y2);
-                break;
+                continue;
             }
 
         case CON_NEARTAG:
@@ -2475,7 +2485,7 @@ nullquote:
                 if ((sectnum<0 || sectnum>=numsectors) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
-                    break;
+                    continue;
                 }
                 neartag(x, y, z, sectnum, ang, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, neartagrange, tagsearch);
 
@@ -2483,7 +2493,7 @@ nullquote:
                 Gv_SetVarX(neartagwallvar, neartagwall);
                 Gv_SetVarX(neartagspritevar, neartagsprite);
                 Gv_SetVarX(neartaghitdistvar, neartaghitdist);
-                break;
+                continue;
             }
 
         case CON_GETTIMEDATE:
@@ -2505,7 +2515,7 @@ nullquote:
                 Gv_SetVarX(v6, ti->tm_year+1900);
                 Gv_SetVarX(v7, ti->tm_wday);
                 Gv_SetVarX(v8, ti->tm_yday);
-                break;
+                continue;
             }
 
         case CON_MOVESPRITE:
@@ -2524,10 +2534,10 @@ nullquote:
                     if ((spritenum < 0 || spritenum >= MAXSPRITES) /* && g_scriptSanityChecks */)
                     {
                         OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],spritenum);
-                        break;
+                        continue;
                     }
                     setsprite(spritenum, &davector);
-                    break;
+                    continue;
                 }
 
                 {
@@ -2537,10 +2547,10 @@ nullquote:
                     {
                         OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],spritenum);
                         insptr++;
-                        break;
+                        continue;
                     }
                     Gv_SetVarX(*insptr++, A_MoveSprite(spritenum, &davector, cliptype));
-                    break;
+                    continue;
                 }
             }
 
@@ -2553,16 +2563,16 @@ nullquote:
                 {
                     OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
                     insptr++;
-                    break;
+                    continue;
                 }
 
                 if (tw == CON_GETFLORZOFSLOPE)
                 {
                     Gv_SetVarX(*insptr++, getflorzofslope(sectnum,x,y));
-                    break;
+                    continue;
                 }
                 Gv_SetVarX(*insptr++, getceilzofslope(sectnum,x,y));
-                break;
+                continue;
             }
 
         case CON_UPDATESECTOR:
@@ -2578,7 +2588,7 @@ nullquote:
                 else updatesectorz(x,y,z,&w);
 
                 Gv_SetVarX(var, w);
-                break;
+                continue;
             }
 
         case CON_SPAWN:
@@ -2586,32 +2596,32 @@ nullquote:
             if (vm.g_sp->sectnum >= 0 && vm.g_sp->sectnum < MAXSECTORS)
                 A_Spawn(vm.g_i,*insptr);
             insptr++;
-            break;
+            continue;
 
         case CON_IFWASWEAPON:
             insptr++;
             X_DoConditional(ActorExtra[vm.g_i].picnum == *insptr);
-            break;
+            continue;
 
         case CON_IFAI:
             insptr++;
             X_DoConditional(vm.g_t[5] == *insptr);
-            break;
+            continue;
 
         case CON_IFACTION:
             insptr++;
             X_DoConditional(vm.g_t[4] == *insptr);
-            break;
+            continue;
 
         case CON_IFACTIONCOUNT:
             insptr++;
             X_DoConditional(vm.g_t[2] >= *insptr);
-            break;
+            continue;
 
         case CON_RESETACTIONCOUNT:
             insptr++;
             vm.g_t[2] = 0;
-            break;
+            continue;
 
         case CON_DEBRIS:
             insptr++;
@@ -2638,27 +2648,27 @@ nullquote:
                     }
                 insptr++;
             }
-            break;
+            continue;
 
         case CON_COUNT:
             insptr++;
             vm.g_t[0] = (int16_t) *insptr++;
-            break;
+            continue;
 
         case CON_CSTATOR:
             insptr++;
             vm.g_sp->cstat |= (int16_t) *insptr++;
-            break;
+            continue;
 
         case CON_CLIPDIST:
             insptr++;
             vm.g_sp->clipdist = (int16_t) *insptr++;
-            break;
+            continue;
 
         case CON_CSTAT:
             insptr++;
             vm.g_sp->cstat = (int16_t) *insptr++;
-            break;
+            continue;
         case CON_SAVENN:
         case CON_SAVE:
             insptr++;
@@ -2668,7 +2678,7 @@ nullquote:
                 g_lastSaveSlot = *insptr++;
 
                 if ((g_movesPerPacket == 4 && connecthead != myconnectindex) || g_lastSaveSlot > 9)
-                    break;
+                    continue;
                 if ((tw == CON_SAVE) || !(ud.savegame[g_lastSaveSlot][0]))
                 {
                     curtime = time(NULL);
@@ -2692,19 +2702,19 @@ nullquote:
                     G_SavePlayer(-1-(g_lastSaveSlot));
                 else G_SavePlayer(g_lastSaveSlot);
 
-                break;
+                continue;
             }
 
         case CON_QUAKE:
             insptr++;
             g_earthquakeTime = (uint8_t)Gv_GetVarX(*insptr++);
             A_PlaySound(EARTHQUAKE,g_player[screenpeek].ps->i);
-            break;
+            continue;
 
         case CON_IFMOVE:
             insptr++;
             X_DoConditional(vm.g_t[1] == *insptr);
-            break;
+            continue;
 
         case CON_RESETPLAYER:
         {
@@ -2790,30 +2800,30 @@ nullquote:
             P_UpdateScreenPal(g_player[vm.g_p].ps);
             //AddLog("EOF: resetplayer");
         }
-        break;
+        continue;
 
         case CON_IFONWATER:
             X_DoConditional(sector[vm.g_sp->sectnum].lotag == 1 && klabs(vm.g_sp->z-sector[vm.g_sp->sectnum].floorz) < (32<<8));
-            break;
+            continue;
 
         case CON_IFINWATER:
             X_DoConditional(sector[vm.g_sp->sectnum].lotag == 2);
-            break;
+            continue;
 
         case CON_IFCOUNT:
             insptr++;
             X_DoConditional(vm.g_t[0] >= *insptr);
-            break;
+            continue;
 
         case CON_IFACTOR:
             insptr++;
             X_DoConditional(vm.g_sp->picnum == *insptr);
-            break;
+            continue;
 
         case CON_RESETCOUNT:
             insptr++;
             vm.g_t[0] = 0;
-            break;
+            continue;
 
         case CON_ADDINVENTORY:
             insptr+=2;
@@ -2879,7 +2889,7 @@ nullquote:
                 break;
             }
             insptr++;
-            break;
+            continue;
 
         case CON_HITRADIUSVAR:
             insptr++;
@@ -2888,12 +2898,12 @@ nullquote:
                 int32_t v4=Gv_GetVarX(*insptr++),v5=Gv_GetVarX(*insptr++);
                 A_RadiusDamage(vm.g_i,v1,v2,v3,v4,v5);
             }
-            break;
+            continue;
 
         case CON_HITRADIUS:
             A_RadiusDamage(vm.g_i,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5));
             insptr+=6;
-            break;
+            continue;
 
         case CON_IFP:
         {
@@ -2950,47 +2960,47 @@ nullquote:
             }
             X_DoConditional((intptr_t) j);
         }
-        break;
+        continue;
 
         case CON_IFSTRENGTH:
             insptr++;
             X_DoConditional(vm.g_sp->extra <= *insptr);
-            break;
+            continue;
 
         case CON_GUTS:
             A_DoGuts(vm.g_i,*(insptr+1),*(insptr+2));
             insptr += 3;
-            break;
+            continue;
 
         case CON_IFSPAWNEDBY:
             insptr++;
             X_DoConditional(ActorExtra[vm.g_i].picnum == *insptr);
-            break;
+            continue;
 
         case CON_WACKPLAYER:
             insptr++;
             P_ForceAngle(g_player[vm.g_p].ps);
-            break;
+            continue;
 
         case CON_FLASH:
             insptr++;
             sprite[vm.g_i].shade = -127;
             g_player[vm.g_p].ps->visibility = -127;
             lastvisinc = totalclock+32;
-            break;
+            continue;
 
         case CON_SAVEMAPSTATE:
             if (MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate == NULL)
                 MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate = Bcalloc(1,sizeof(mapstate_t));
             G_SaveMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
             insptr++;
-            break;
+            continue;
 
         case CON_LOADMAPSTATE:
             if (MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate)
                 G_RestoreMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
             insptr++;
-            break;
+            continue;
 
         case CON_CLEARMAPSTATE:
             insptr++;
@@ -2999,18 +3009,18 @@ nullquote:
                 if ((j < 0 || j >= MAXVOLUMES*MAXLEVELS) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "Invalid map number: %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
+                    continue;
                 }
                 if (MapInfo[j].savedstate)
                     G_FreeMapState(j);
             }
-            break;
+            continue;
 
         case CON_STOPALLSOUNDS:
             insptr++;
             if (screenpeek == vm.g_p)
                 FX_StopAllSounds();
-            break;
+            continue;
 
         case CON_IFGAPZL:
             insptr++;
@@ -3019,19 +3029,19 @@ nullquote:
             if (sprite[vm.g_i].sectnum == g_player[vm.g_p].ps->cursectnum)
             OSD_Printf("%d %d\n",ActorExtra[vm.g_i].floorz,ActorExtra[vm.g_i].ceilingz);
             */
-            break;
+            continue;
 
         case CON_IFHITSPACE:
             X_DoConditional(TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_OPEN));
-            break;
+            continue;
 
         case CON_IFOUTSIDE:
             X_DoConditional(sector[vm.g_sp->sectnum].ceilingstat&1);
-            break;
+            continue;
 
         case CON_IFMULTIPLAYER:
             X_DoConditional(ud.multimode > 1);
-            break;
+            continue;
 
         case CON_OPERATE:
             insptr++;
@@ -3054,27 +3064,27 @@ nullquote:
                                     G_OperateSectors(neartagsector,vm.g_i);
                             }
             }
-            break;
+            continue;
 
         case CON_IFINSPACE:
             X_DoConditional(G_CheckForSpaceCeiling(vm.g_sp->sectnum));
-            break;
+            continue;
 
         case CON_SPRITEPAL:
             insptr++;
             if (vm.g_sp->picnum != APLAYER)
                 ActorExtra[vm.g_i].tempang = vm.g_sp->pal;
             vm.g_sp->pal = *insptr++;
-            break;
+            continue;
 
         case CON_CACTOR:
             insptr++;
             vm.g_sp->picnum = *insptr++;
-            break;
+            continue;
 
         case CON_IFBULLETNEAR:
             X_DoConditional(A_Dodge(vm.g_sp) == 1);
-            break;
+            continue;
 
         case CON_IFRESPAWN:
             if (A_CheckEnemySprite(vm.g_sp))
@@ -3083,17 +3093,17 @@ nullquote:
                 X_DoConditional(ud.respawn_inventory);
             else
                 X_DoConditional(ud.respawn_items);
-            break;
+            continue;
 
         case CON_IFFLOORDISTL:
             insptr++;
             X_DoConditional((ActorExtra[vm.g_i].floorz - vm.g_sp->z) <= ((*insptr)<<8));
-            break;
+            continue;
 
         case CON_IFCEILINGDISTL:
             insptr++;
             X_DoConditional((vm.g_sp->z - ActorExtra[vm.g_i].ceilingz) <= ((*insptr)<<8));
-            break;
+            continue;
 
         case CON_PALFROM:
             insptr++;
@@ -3103,7 +3113,7 @@ nullquote:
                 for (; j>=0; j--)
                     g_player[vm.g_p].ps->pals[2-j] = *insptr++;
             }
-            break;
+            continue;
 
         case CON_SECTOROFWALL:
             insptr++;
@@ -3112,7 +3122,7 @@ nullquote:
 
                 Gv_SetVarX(j, sectorofwall(Gv_GetVarX(*insptr++)));
             }
-            break;
+            continue;
 
         case CON_QSPRINTF:
             insptr++;
@@ -3122,7 +3132,7 @@ nullquote:
                 {
                     OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],ScriptQuotes[sq] ? dq : sq);
                     insptr += 4;
-                    break;
+                    continue;
                 }
 
                 {
@@ -3153,7 +3163,8 @@ nullquote:
                             {
                                 char buf[16];
 
-                                Bstrcat(tempbuf, itoa(arg[i++], buf, 10));
+                                Bsprintf(buf, "%d", arg[i++]);
+                                Bstrcat(tempbuf, buf);
                                 j += Bstrlen(buf);
                                 k++;
                             }
@@ -3175,7 +3186,7 @@ nullquote:
 
                     tempbuf[j] = '\0';
                     Bstrcpy(ScriptQuotes[dq], tempbuf);
-                    break;
+                    continue;
                 }
             }
 
@@ -3184,7 +3195,7 @@ nullquote:
             insptr++;
 
             OSD_Printf(OSDTEXT_GREEN "CONLOG: L=%d\n",g_errorLineNum);
-            break;
+            continue;
         }
 
         case CON_ADDLOGVAR:
@@ -3218,12 +3229,12 @@ nullquote:
                         {
                             OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n",keyw[g_tw],g_errorLineNum,
                                        aGameArrays[lVarID].szLabel,index,m*aGameArrays[lVarID].plValues[index]);
-                            break;
+                            continue;
                         }
                         else
                         {
                             OSD_Printf(CON_ERROR "invalid array index\n",g_errorLineNum,keyw[g_tw]);
-                            break;
+                            continue;
                         }
                     }
                     else if (*insptr&(MAXGAMEVARS<<3))
@@ -3238,10 +3249,10 @@ nullquote:
                             {
                                 OSD_Printf(CON_ERROR "invalid array index\n",g_errorLineNum,keyw[g_tw]);
                                 Gv_GetVarX(*insptr++);
-                                break;
+                                continue;
                             }
                             OSD_Printf(OSDTEXT_GREEN "%s: L=%d %d %d\n",keyw[g_tw],g_errorLineNum,index,Gv_GetVar(*insptr++,index,vm.g_p));
-                            break;
+                            continue;
                         }
                     }
                     else if (*insptr&(MAXGAMEVARS<<1))
@@ -3254,7 +3265,7 @@ nullquote:
                         // invalid varID
                         insptr++;
                         OSD_Printf(CON_ERROR "invalid variable\n",g_errorLineNum,keyw[g_tw]);
-                        break;  // out of switch
+                        continue;  // out of switch
                     }
                 }
                 Bsprintf(szBuf,"CONLOGVAR: L=%d %s ",g_errorLineNum, aGameVars[lVarID].szLabel);
@@ -3282,7 +3293,7 @@ nullquote:
                 Bstrcat(g_szBuf,szBuf);
                 OSD_Printf(OSDTEXT_GREEN "%s",g_szBuf);
                 insptr++;
-                break;
+                continue;
             }
 
         case CON_SETSECTOR:
@@ -3294,7 +3305,7 @@ nullquote:
                 int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
 
                 X_AccessSector(tw==CON_SETSECTOR, lVar1, lLabelID, lVar2);
-                break;
+                continue;
             }
 
         case CON_SQRT:
@@ -3304,7 +3315,7 @@ nullquote:
                 int32_t lInVarID=*insptr++, lOutVarID=*insptr++;
 
                 Gv_SetVarX(lOutVarID, ksqrt(Gv_GetVarX(lInVarID)));
-                break;
+                continue;
             }
 
         case CON_FINDNEARACTOR:
@@ -3359,7 +3370,7 @@ nullquote:
                 }
                 while (k--);
                 Gv_SetVarX(lVarID, lFound);
-                break;
+                continue;
             }
 
         case CON_FINDNEARACTORVAR:
@@ -3415,7 +3426,7 @@ nullquote:
                 }
                 while (k--);
                 Gv_SetVarX(lVarID, lFound);
-                break;
+                continue;
             }
 
         case CON_FINDNEARACTORZVAR:
@@ -3459,7 +3470,7 @@ nullquote:
                 while (k--);
                 Gv_SetVarX(lVarID, lFound);
 
-                break;
+                continue;
             }
 
         case CON_FINDNEARACTORZ:
@@ -3502,7 +3513,7 @@ nullquote:
                 }
                 while (k--);
                 Gv_SetVarX(lVarID, lFound);
-                break;
+                continue;
             }
 
         case CON_FINDPLAYER:
@@ -3513,7 +3524,7 @@ nullquote:
                 aGameVars[g_iReturnVarID].val.lValue = A_FindPlayer(&sprite[vm.g_i],&j);
                 Gv_SetVarX(*insptr++, j);
             }
-            break;
+            continue;
 
         case CON_FINDOTHERPLAYER:
             insptr++;
@@ -3523,7 +3534,7 @@ nullquote:
                 aGameVars[g_iReturnVarID].val.lValue = P_FindOtherPlayer(vm.g_p,&j);
                 Gv_SetVarX(*insptr++, j);
             }
-            break;
+            continue;
 
         case CON_SETPLAYER:
             insptr++;
@@ -3538,7 +3549,7 @@ nullquote:
                 lVar2=*insptr++;
 
                 X_SetPlayer(lVar1, lLabelID, lVar2, lParm2);
-                break;
+                continue;
             }
 
 
@@ -3555,7 +3566,7 @@ nullquote:
                 lVar2=*insptr++;
 
                 X_GetPlayer(lVar1, lLabelID, lVar2, lParm2);
-                break;
+                continue;
             }
 
         case CON_SETINPUT:
@@ -3567,7 +3578,7 @@ nullquote:
                 int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
 
                 X_AccessPlayerInput(tw==CON_SETINPUT, lVar1, lLabelID, lVar2);
-                break;
+                continue;
             }
 
         case CON_GETUSERDEF:
@@ -3579,7 +3590,7 @@ nullquote:
                 int32_t lLabelID=*insptr++, lVar2=*insptr++;
 
                 X_AccessUserdef(tw==CON_SETUSERDEF, lLabelID, lVar2);
-                break;
+                continue;
             }
 
         case CON_GETPROJECTILE:
@@ -3591,7 +3602,7 @@ nullquote:
                 int32_t lVar1=Gv_GetVarX(*insptr++), lLabelID=*insptr++, lVar2=*insptr++;
 
                 X_AccessProjectile(tw==CON_SETPROJECTILE,lVar1,lLabelID,lVar2);
-                break;
+                continue;
             }
 
         case CON_SETWALL:
@@ -3603,7 +3614,7 @@ nullquote:
                 int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
 
                 X_AccessWall(tw==CON_SETWALL, lVar1, lLabelID, lVar2);
-                break;
+                continue;
             }
 
         case CON_SETACTORVAR:
@@ -3621,16 +3632,16 @@ nullquote:
                     OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],lSprite);
                     if (lVar1 == MAXGAMEVARS || lVar1 & ((MAXGAMEVARS<<2)|(MAXGAMEVARS<<3))) insptr++;
                     if (lVar2 == MAXGAMEVARS || lVar2 & ((MAXGAMEVARS<<2)|(MAXGAMEVARS<<3))) insptr++;
-                    break;
+                    continue;
                 }
 
                 if (tw == CON_SETACTORVAR)
                 {
                     Gv_SetVar(lVar1, Gv_GetVarX(lVar2), lSprite, vm.g_p);
-                    break;
+                    continue;
                 }
                 Gv_SetVarX(lVar2, Gv_GetVar(lVar1, lSprite, vm.g_p));
-                break;
+                continue;
             }
 
         case CON_SETPLAYERVAR:
@@ -3651,16 +3662,16 @@ nullquote:
                         OSD_Printf(CON_ERROR "invalid player ID %d\n",g_errorLineNum,keyw[g_tw],iPlayer);
                         if (lVar1 == MAXGAMEVARS || lVar1 & ((MAXGAMEVARS<<2)|(MAXGAMEVARS<<3))) insptr++;
                         if (lVar2 == MAXGAMEVARS || lVar2 & ((MAXGAMEVARS<<2)|(MAXGAMEVARS<<3))) insptr++;
-                        break;
+                        continue;
                     }
 
                     if (tw == CON_SETPLAYERVAR)
                     {
                         Gv_SetVar(lVar1, Gv_GetVarX(lVar2), vm.g_i, iPlayer);
-                        break;
+                        continue;
                     }
                     Gv_SetVarX(lVar2, Gv_GetVar(lVar1, vm.g_i, iPlayer));
-                    break;
+                    continue;
                 }
             }
 
@@ -3680,7 +3691,7 @@ nullquote:
 
                     X_SetSprite(lVar1, lLabelID, lVar2, lParm2);
                 }
-                break;
+                continue;
             }
 
         case CON_GETACTOR:
@@ -3699,7 +3710,7 @@ nullquote:
 
                     X_GetSprite(lVar1, lLabelID, lVar2, lParm2);
                 }
-                break;
+                continue;
             }
 
         case CON_SETTSPR:
@@ -3712,24 +3723,24 @@ nullquote:
                 int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
 
                 X_AccessTsprite(tw==CON_SETTSPR, lVar1, lLabelID, lVar2);
-                break;
+                continue;
             }
 
         case CON_GETANGLETOTARGET:
             insptr++;
             // ActorExtra[vm.g_i].lastvx and lastvy are last known location of target.
             Gv_SetVarX(*insptr++, getangle(ActorExtra[vm.g_i].lastvx-vm.g_sp->x,ActorExtra[vm.g_i].lastvy-vm.g_sp->y));
-            break;
+            continue;
 
         case CON_ANGOFFVAR:
             insptr++;
             spriteext[vm.g_i].angoff=Gv_GetVarX(*insptr++);
-            break;
+            continue;
 
         case CON_LOCKPLAYER:
             insptr++;
             g_player[vm.g_p].ps->transporter_hold=Gv_GetVarX(*insptr++);
-            break;
+            continue;
 
         case CON_CHECKAVAILWEAPON:
         case CON_CHECKAVAILINVEN:
@@ -3745,42 +3756,42 @@ nullquote:
                 if ((j < 0 || j >= playerswhenstarted) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "Invalid player ID %d\n",g_errorLineNum,keyw[g_tw],j);
-                    break;
+                    continue;
                 }
 
                 if (tw == CON_CHECKAVAILWEAPON)
                     P_CheckWeapon(g_player[j].ps);
                 else P_SelectNextInvItem(g_player[j].ps);
             }
-            break;
+            continue;
 
         case CON_GETPLAYERANGLE:
             insptr++;
             Gv_SetVarX(*insptr++, g_player[vm.g_p].ps->ang);
-            break;
+            continue;
 
         case CON_SETPLAYERANGLE:
             insptr++;
             g_player[vm.g_p].ps->ang=Gv_GetVarX(*insptr++);
             g_player[vm.g_p].ps->ang &= 2047;
-            break;
+            continue;
 
         case CON_GETACTORANGLE:
             insptr++;
             Gv_SetVarX(*insptr++, vm.g_sp->ang);
-            break;
+            continue;
 
         case CON_SETACTORANGLE:
             insptr++;
             vm.g_sp->ang=Gv_GetVarX(*insptr++);
             vm.g_sp->ang &= 2047;
-            break;
+            continue;
 
         case CON_SETVAR:
             insptr++;
             Gv_SetVarX(*insptr, *(insptr+1));
             insptr += 2;
-            break;
+            continue;
 
         case CON_SETARRAY:
             insptr++;
@@ -3792,10 +3803,10 @@ nullquote:
                 if (j<0 || j >= g_gameArrayCount || index >= aGameArrays[j].size || index < 0)
                 {
                     OSD_Printf(OSD_ERROR "Gv_SetVar(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",j,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
-                    break;
+                    continue;
                 }
                 aGameArrays[j].plValues[index]=value;
-                break;
+                continue;
             }
         case CON_WRITEARRAYTOFILE:
         case CON_READARRAYFROMFILE:
@@ -3808,7 +3819,7 @@ nullquote:
                     if (ScriptQuotes[q] == NULL)
                     {
                         OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q);
-                        break;
+                        continue;
                     }
 
                     if (tw == CON_READARRAYFROMFILE)
@@ -3817,7 +3828,7 @@ nullquote:
                         int32_t asize;
 
                         if (fil < 0)
-                            break;
+                            continue;
 
                         asize = kfilelength(fil);
 
@@ -3838,12 +3849,12 @@ nullquote:
                         if (mod_dir[0] != '/')
                             Bsprintf(temp,"%s/%s",mod_dir,ScriptQuotes[q]);
                         else Bsprintf(temp,"%s",ScriptQuotes[q]);
-                        if ((fil = fopen(temp,"wb")) == 0) break;
+                        if ((fil = fopen(temp,"wb")) == 0) continue;
 
                         fwrite(aGameArrays[j].plValues,1,sizeof(int) * aGameArrays[j].size,fil);
                         fclose(fil);
                     }
-                    break;
+                    continue;
                 }
             }
 
@@ -3853,7 +3864,7 @@ nullquote:
                 int32_t j=*insptr++;
                 Gv_SetVarX(*insptr++,aGameArrays[j].size);
             }
-            break;
+            continue;
 
         case CON_RESIZEARRAY:
             insptr++;
@@ -3866,7 +3877,7 @@ nullquote:
                     aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, sizeof(int32_t) * asize);
                     aGameArrays[j].size = asize;
                 }
-                break;
+                continue;
             }
 
         case CON_COPY:
@@ -3878,35 +3889,35 @@ nullquote:
                 int32_t index1 = Gv_GetVar(*insptr++, vm.g_i, vm.g_p);
                 int32_t value = Gv_GetVar(*insptr++, vm.g_i, vm.g_p);
 
-                if (index > aGameArrays[j].size || index1 > aGameArrays[j1].size) break;
+                if (index > aGameArrays[j].size || index1 > aGameArrays[j1].size) continue;
                 if ((index+value)>aGameArrays[j].size) value=aGameArrays[j].size-index;
                 if ((index1+value)>aGameArrays[j1].size) value=aGameArrays[j1].size-index1;
                 Bmemcpy(aGameArrays[j1].plValues+index1, aGameArrays[j].plValues+index, value * sizeof(intptr_t));
-                break;
+                continue;
             }
 
         case CON_RANDVAR:
             insptr++;
             Gv_SetVarX(*insptr, mulscale16(krand(), *(insptr+1)+1));
             insptr += 2;
-            break;
+            continue;
 
         case CON_DISPLAYRANDVAR:
             insptr++;
             Gv_SetVarX(*insptr, mulscale15((uint16_t)rand(), *(insptr+1)+1));
             insptr += 2;
-            break;
+            continue;
 
         case CON_INV:
             Gv_SetVarX(*(insptr+1), -Gv_GetVarX(*(insptr+1)));
             insptr += 2;
-            break;
+            continue;
 
         case CON_MULVAR:
             insptr++;
             Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) * *(insptr+1));
             insptr += 2;
-            break;
+            continue;
 
         case CON_DIVVAR:
             insptr++;
@@ -3914,11 +3925,11 @@ nullquote:
             {
                 OSD_Printf(CON_ERROR "Divide by zero.\n",g_errorLineNum,keyw[g_tw]);
                 insptr += 2;
-                break;
+                continue;
             }
             Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) / *(insptr+1));
             insptr += 2;
-            break;
+            continue;
 
         case CON_MODVAR:
             insptr++;
@@ -3926,29 +3937,29 @@ nullquote:
             {
                 OSD_Printf(CON_ERROR "Mod by zero.\n",g_errorLineNum,keyw[g_tw]);
                 insptr += 2;
-                break;
+                continue;
             }
             Gv_SetVarX(*insptr,Gv_GetVarX(*insptr)%*(insptr+1));
             insptr += 2;
-            break;
+            continue;
 
         case CON_ANDVAR:
             insptr++;
             Gv_SetVarX(*insptr,Gv_GetVarX(*insptr) & *(insptr+1));
             insptr += 2;
-            break;
+            continue;
 
         case CON_ORVAR:
             insptr++;
             Gv_SetVarX(*insptr,Gv_GetVarX(*insptr) | *(insptr+1));
             insptr += 2;
-            break;
+            continue;
 
         case CON_XORVAR:
             insptr++;
             Gv_SetVarX(*insptr,Gv_GetVarX(*insptr) ^ *(insptr+1));
             insptr += 2;
-            break;
+            continue;
 
         case CON_SETVARVAR:
             insptr++;
@@ -3956,7 +3967,7 @@ nullquote:
                 int32_t j=*insptr++;
                 Gv_SetVarX(j, Gv_GetVarX(*insptr++));
             }
-            break;
+            continue;
 
         case CON_RANDVARVAR:
             insptr++;
@@ -3964,7 +3975,7 @@ nullquote:
                 int32_t j=*insptr++;
                 Gv_SetVarX(j,mulscale(krand(), Gv_GetVarX(*insptr++)+1, 16));
             }
-            break;
+            continue;
 
         case CON_DISPLAYRANDVARVAR:
             insptr++;
@@ -3972,7 +3983,7 @@ nullquote:
                 int32_t j=*insptr++;
                 Gv_SetVarX(j,mulscale((uint16_t)rand(), Gv_GetVarX(*insptr++)+1, 15));
             }
-            break;
+            continue;
 
         case CON_GMAXAMMO:
             insptr++;
@@ -3982,11 +3993,11 @@ nullquote:
                 {
                     OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],j);
                     insptr++;
-                    break;
+                    continue;
                 }
                 Gv_SetVarX(*insptr++, g_player[vm.g_p].ps->max_ammo_amount[j]);
             }
-            break;
+            continue;
 
         case CON_SMAXAMMO:
             insptr++;
@@ -3996,11 +4007,11 @@ nullquote:
                 {
                     OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],j);
                     insptr++;
-                    break;
+                    continue;
                 }
                 g_player[vm.g_p].ps->max_ammo_amount[j]=Gv_GetVarX(*insptr++);
             }
-            break;
+            continue;
 
         case CON_MULVARVAR:
             insptr++;
@@ -4008,7 +4019,7 @@ nullquote:
                 int32_t j=*insptr++;
                 Gv_SetVarX(j, Gv_GetVarX(j)*Gv_GetVarX(*insptr++));
             }
-            break;
+            continue;
 
         case CON_DIVVARVAR:
             insptr++;
@@ -4019,10 +4030,10 @@ nullquote:
                 if (l2==0)
                 {
                     OSD_Printf(CON_ERROR "Divide by zero.\n",g_errorLineNum,keyw[g_tw]);
-                    break;
+                    continue;
                 }
                 Gv_SetVarX(j, Gv_GetVarX(j)/l2);
-                break;
+                continue;
             }
 
         case CON_MODVARVAR:
@@ -4034,11 +4045,11 @@ nullquote:
                 if (l2==0)
                 {
                     OSD_Printf(CON_ERROR "Mod by zero.\n",g_errorLineNum,keyw[g_tw]);
-                    break;
+                    continue;
                 }
 
                 Gv_SetVarX(j, Gv_GetVarX(j) % l2);
-                break;
+                continue;
             }
 
         case CON_ANDVARVAR:
@@ -4047,7 +4058,7 @@ nullquote:
                 int32_t j=*insptr++;
                 Gv_SetVarX(j, Gv_GetVarX(j) & Gv_GetVarX(*insptr++));
             }
-            break;
+            continue;
 
         case CON_XORVARVAR:
             insptr++;
@@ -4055,7 +4066,7 @@ nullquote:
                 int32_t j=*insptr++;
                 Gv_SetVarX(j, Gv_GetVarX(j) ^ Gv_GetVarX(*insptr++));
             }
-            break;
+            continue;
 
         case CON_ORVARVAR:
             insptr++;
@@ -4063,13 +4074,13 @@ nullquote:
                 int32_t j=*insptr++;
                 Gv_SetVarX(j, Gv_GetVarX(j) | Gv_GetVarX(*insptr++));
             }
-            break;
+            continue;
 
         case CON_SUBVAR:
             insptr++;
             Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) - *(insptr+1));
             insptr += 2;
-            break;
+            continue;
 
         case CON_SUBVARVAR:
             insptr++;
@@ -4077,37 +4088,37 @@ nullquote:
                 int32_t j=*insptr++;
                 Gv_SetVarX(j, Gv_GetVarX(j) - Gv_GetVarX(*insptr++));
             }
-            break;
+            continue;
 
         case CON_ADDVAR:
             insptr++;
             Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) + *(insptr+1));
             insptr += 2;
-            break;
+            continue;
 
         case CON_SHIFTVARL:
             insptr++;
             Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) << *(insptr+1));
             insptr += 2;
-            break;
+            continue;
 
         case CON_SHIFTVARR:
             insptr++;
             Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) >> *(insptr+1));
             insptr += 2;
-            break;
+            continue;
 
         case CON_SIN:
             insptr++;
             Gv_SetVarX(*insptr, sintable[Gv_GetVarX(*(insptr+1))&2047]);
             insptr += 2;
-            break;
+            continue;
 
         case CON_COS:
             insptr++;
             Gv_SetVarX(*insptr, sintable[(Gv_GetVarX(*(insptr+1))+512)&2047]);
             insptr += 2;
-            break;
+            continue;
 
         case CON_ADDVARVAR:
             insptr++;
@@ -4115,32 +4126,32 @@ nullquote:
                 int32_t j=*insptr++;
                 Gv_SetVarX(j, Gv_GetVarX(j) + Gv_GetVarX(*insptr++));
             }
-            break;
+            continue;
 
         case CON_SPGETLOTAG:
             insptr++;
             Gv_SetVarX(g_iLoTagID, vm.g_sp->lotag);
-            break;
+            continue;
 
         case CON_SPGETHITAG:
             insptr++;
             Gv_SetVarX(g_iHiTagID, vm.g_sp->hitag);
-            break;
+            continue;
 
         case CON_SECTGETLOTAG:
             insptr++;
             Gv_SetVarX(g_iLoTagID, sector[vm.g_sp->sectnum].lotag);
-            break;
+            continue;
 
         case CON_SECTGETHITAG:
             insptr++;
             Gv_SetVarX(g_iHiTagID, sector[vm.g_sp->sectnum].hitag);
-            break;
+            continue;
 
         case CON_GETTEXTUREFLOOR:
             insptr++;
             Gv_SetVarX(g_iTextureID, sector[vm.g_sp->sectnum].floorpicnum);
-            break;
+            continue;
 
         case CON_STARTTRACK:
         case CON_STARTTRACKVAR:
@@ -4151,10 +4162,10 @@ nullquote:
             {
                 OSD_Printf(CON_ERROR "null music for map %d\n",g_errorLineNum,keyw[g_tw],g_musicIndex);
                 insptr++;
-                break;
+                continue;
             }
             S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);
-            break;
+            continue;
 
         case CON_ACTIVATECHEAT:
             insptr++;
@@ -4163,11 +4174,11 @@ nullquote:
                 if (numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
                 {
                     OSD_Printf(CON_ERROR "not in a single-player game.\n",g_errorLineNum,keyw[g_tw]);
-                    break;
+                    continue;
                 }
                 osdcmd_cheatsinfo_stat.cheatnum = j;
             }
-            break;
+            continue;
 
         case CON_SETGAMEPALETTE:
             insptr++;
@@ -4182,12 +4193,12 @@ nullquote:
             case 5:P_SetGamePalette(g_player[vm.g_p].ps,endingpal,0); break;
             case 6:P_SetGamePalette(g_player[vm.g_p].ps,animpal  ,0); break;
             }
-            break;
+            continue;
 
         case CON_GETTEXTURECEILING:
             insptr++;
             Gv_SetVarX(g_iTextureID, sector[vm.g_sp->sectnum].ceilingpicnum);
-            break;
+            continue;
 
         case CON_IFVARVARAND:
             insptr++;
@@ -4197,7 +4208,7 @@ nullquote:
                 insptr--;
                 X_DoConditional(j);
             }
-            break;
+            continue;
 
         case CON_IFVARVAROR:
             insptr++;
@@ -4207,7 +4218,7 @@ nullquote:
                 insptr--;
                 X_DoConditional(j);
             }
-            break;
+            continue;
 
         case CON_IFVARVARXOR:
             insptr++;
@@ -4217,7 +4228,7 @@ nullquote:
                 insptr--;
                 X_DoConditional(j);
             }
-            break;
+            continue;
 
         case CON_IFVARVAREITHER:
             insptr++;
@@ -4227,7 +4238,7 @@ nullquote:
                 insptr--;
                 X_DoConditional(j || l);
             }
-            break;
+            continue;
 
         case CON_IFVARVARN:
             insptr++;
@@ -4237,7 +4248,7 @@ nullquote:
                 insptr--;
                 X_DoConditional(j);
             }
-            break;
+            continue;
 
         case CON_IFVARVARE:
             insptr++;
@@ -4247,7 +4258,7 @@ nullquote:
                 insptr--;
                 X_DoConditional(j);
             }
-            break;
+            continue;
 
         case CON_IFVARVARG:
             insptr++;
@@ -4257,7 +4268,7 @@ nullquote:
                 insptr--;
                 X_DoConditional(j);
             }
-            break;
+            continue;
 
         case CON_IFVARVARL:
             insptr++;
@@ -4267,7 +4278,7 @@ nullquote:
                 insptr--;
                 X_DoConditional(j);
             }
-            break;
+            continue;
 
         case CON_IFVARE:
             insptr++;
@@ -4275,7 +4286,7 @@ nullquote:
                 int32_t j=Gv_GetVarX(*insptr++);
                 X_DoConditional(j == *insptr);
             }
-            break;
+            continue;
 
         case CON_IFVARN:
             insptr++;
@@ -4283,7 +4294,7 @@ nullquote:
                 int32_t j=Gv_GetVarX(*insptr++);
                 X_DoConditional(j != *insptr);
             }
-            break;
+            continue;
 
         case CON_WHILEVARN:
         {
@@ -4296,7 +4307,7 @@ nullquote:
                 X_DoConditional(j);
             }
             while (j);
-            break;
+            continue;
         }
 
         case CON_WHILEVARVARN:
@@ -4312,7 +4323,7 @@ nullquote:
                 X_DoConditional(j);
             }
             while (j);
-            break;
+            continue;
         }
 
         case CON_IFVARAND:
@@ -4321,7 +4332,7 @@ nullquote:
                 int32_t j=Gv_GetVarX(*insptr++);
                 X_DoConditional(j & *insptr);
             }
-            break;
+            continue;
 
         case CON_IFVAROR:
             insptr++;
@@ -4329,7 +4340,7 @@ nullquote:
                 int32_t j=Gv_GetVarX(*insptr++);
                 X_DoConditional(j | *insptr);
             }
-            break;
+            continue;
 
         case CON_IFVARXOR:
             insptr++;
@@ -4337,7 +4348,7 @@ nullquote:
                 int32_t j=Gv_GetVarX(*insptr++);
                 X_DoConditional(j ^ *insptr);
             }
-            break;
+            continue;
 
         case CON_IFVAREITHER:
             insptr++;
@@ -4345,7 +4356,7 @@ nullquote:
                 int32_t j=Gv_GetVarX(*insptr++);
                 X_DoConditional(j || *insptr);
             }
-            break;
+            continue;
 
         case CON_IFVARG:
             insptr++;
@@ -4353,7 +4364,7 @@ nullquote:
                 int32_t j=Gv_GetVarX(*insptr++);
                 X_DoConditional(j > *insptr);
             }
-            break;
+            continue;
 
         case CON_IFVARL:
             insptr++;
@@ -4361,12 +4372,12 @@ nullquote:
                 int32_t j=Gv_GetVarX(*insptr++);
                 X_DoConditional(j < *insptr);
             }
-            break;
+            continue;
 
         case CON_IFPHEALTHL:
             insptr++;
             X_DoConditional(sprite[g_player[vm.g_p].ps->i].extra < *insptr);
-            break;
+            continue;
 
         case CON_IFPINVENTORY:
             insptr++;
@@ -4419,7 +4430,7 @@ nullquote:
                 }
 
                 X_DoConditional(j);
-                break;
+                continue;
             }
 
         case CON_PSTOMP:
@@ -4441,7 +4452,7 @@ nullquote:
                         g_player[vm.g_p].ps->actorsqu = vm.g_i;
                     }
                 }
-            break;
+            continue;
 
         case CON_IFAWAYFROMWALL:
         {
@@ -4465,7 +4476,7 @@ nullquote:
             }
             X_DoConditional(j);
         }
-        break;
+        continue;
 
         case CON_QUOTE:
             insptr++;
@@ -4474,18 +4485,18 @@ nullquote:
             {
                 OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],*insptr);
                 insptr++;
-                break;
+                continue;
             }
 
             if ((vm.g_p < 0 || vm.g_p >= MAXPLAYERS) /* && g_scriptSanityChecks */)
             {
                 OSD_Printf(CON_ERROR "bad player for quote %d: (%d)\n",g_errorLineNum,keyw[g_tw],*insptr,vm.g_p);
                 insptr++;
-                break;
+                continue;
             }
 
             P_DoQuote(*(insptr++)|MAXQUOTES,g_player[vm.g_p].ps);
-            break;
+            continue;
 
         case CON_USERQUOTE:
             insptr++;
@@ -4495,19 +4506,19 @@ nullquote:
                 if ((ScriptQuotes[i] == NULL) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],i);
-                    break;
+                    continue;
                 }
                 G_AddUserQuote(ScriptQuotes[i]);
             }
-            break;
+            continue;
 
         case CON_IFINOUTERSPACE:
             X_DoConditional(G_CheckForSpaceFloor(vm.g_sp->sectnum));
-            break;
+            continue;
 
         case CON_IFNOTMOVING:
             X_DoConditional((ActorExtra[vm.g_i].movflag&49152) > 16384);
-            break;
+            continue;
 
         case CON_RESPAWNHITAG:
             insptr++;
@@ -4532,12 +4543,12 @@ nullquote:
                 if (vm.g_sp->hitag >= 0) G_OperateRespawns(vm.g_sp->hitag);
                 break;
             }
-            break;
+            continue;
 
         case CON_IFSPRITEPAL:
             insptr++;
             X_DoConditional(vm.g_sp->pal == *insptr);
-            break;
+            continue;
 
         case CON_IFANGDIFFL:
             insptr++;
@@ -4545,7 +4556,7 @@ nullquote:
                 int32_t j = klabs(G_GetAngleDelta(g_player[vm.g_p].ps->ang,vm.g_sp->ang));
                 X_DoConditional(j <= *insptr);
             }
-            break;
+            continue;
 
         case CON_IFNOSOUNDS:
         {
@@ -4556,12 +4567,12 @@ nullquote:
 
             X_DoConditional(j < 0);
         }
-        break;
+        continue;
 
         case CON_SPRITEFLAGS:
             insptr++;
             ActorExtra[vm.g_i].flags = Gv_GetVarX(*insptr++);
-            break;
+            continue;
 
         case CON_GETTICKS:
             insptr++;
@@ -4569,7 +4580,7 @@ nullquote:
                 int32_t j=*insptr++;
                 Gv_SetVarX(j, getticks());
             }
-            break;
+            continue;
 
         case CON_GETCURRADDRESS:
             insptr++;
@@ -4577,7 +4588,7 @@ nullquote:
                 int32_t j=*insptr++;
                 Gv_SetVarX(j, (intptr_t)(insptr-script));
             }
-            break;
+            continue;
 
         case CON_JUMP:
             insptr++;
@@ -4585,7 +4596,7 @@ nullquote:
                 int32_t j = Gv_GetVarX(*insptr++);
                 insptr = (intptr_t *)(j+script);
             }
-            break;
+            continue;
 
         default:
             X_ScriptInfo();
@@ -4599,7 +4610,7 @@ nullquote:
             break;
         }
     }
-    while (!once);
+    
     return 0;
 }
 

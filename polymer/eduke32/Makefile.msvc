@@ -35,7 +35,7 @@ LINK=link /nologo /opt:ref
 MT=mt
 CFLAGS= /MT /J /nologo $(flags_cl)  \
 	/I$(INC) /I$(EINC)\ /I$(SRC)\jmact /I$(SRC)\jaudiolib /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" \
- 	/DNOCOPYPROTECT  /D "_CRT_SECURE_NO_DEPRECATE" /W2 $(ENGINEOPTS) \
+ 	/D "_CRT_SECURE_NO_DEPRECATE" /W2 $(ENGINEOPTS) \
  	/I$(DXROOT)\include" /DRENDERTYPEWIN=1
 LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib wsock32.lib comctl32.lib \
         /NODEFAULTLIB:glu32.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:msvcrtd.lib
@@ -93,7 +93,6 @@ GAMEOBJS=$(OBJ)\game.$o \
 	$(OBJ)\rts.$o \
 	$(OBJ)\config.$o \
 	$(OBJ)\animlib.$o\
-	$(OBJ)\testcd.$o \
 	$(OBJ)\osdfuncs.$o \
  	$(OBJ)\osdcmds.$o \
 	$(OBJ)\grpscan.$o \

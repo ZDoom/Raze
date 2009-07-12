@@ -71,7 +71,7 @@ ifeq (4,$(GCC_MAJOR))
 endif
 
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
-	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -DNOCOPYPROTECT \
+	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
 	-I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib -D_FORTIFY_SOURCE=2 \
 	-fjump-tables -fno-stack-protector
 #        -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
@@ -154,7 +154,6 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/savegame.$o \
 	$(OBJ)/sector.$o \
 	$(OBJ)/rts.$o \
-	$(OBJ)/testcd.$o \
 	$(OBJ)/osdfuncs.$o \
 	$(OBJ)/osdcmds.$o \
 	$(OBJ)/grpscan.$o \

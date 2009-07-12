@@ -109,6 +109,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\build\include\fastlz.h"
+					>
+				</File>
+				<File
 					RelativePath=".\build\include\glbuild.h"
 					>
 				</File>
@@ -122,10 +126,6 @@
 				</File>
 				<File
 					RelativePath=".\build\include\kplib.h"
-					>
-				</File>
-				<File
-					RelativePath=".\build\include\fastlz.h"
 					>
 				</File>
 				<File
@@ -261,6 +261,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\build\src\fastlz.c"
+					>
+				</File>
+				<File
 					RelativePath=".\build\src\glbuild.c"
 					>
 				</File>
@@ -274,10 +278,6 @@
 				</File>
 				<File
 					RelativePath=".\build\src\kplib.c"
-					>
-				</File>
-				<File
-					RelativePath=".\build\src\fastlz.c"
 					>
 				</File>
 				<File
@@ -462,10 +462,6 @@
 				</File>
 				<File
 					RelativePath=".\source\sync.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\testcd.c"
 					>
 				</File>
 				<File
