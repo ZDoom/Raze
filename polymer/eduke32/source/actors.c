@@ -7616,6 +7616,19 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     ActorExtra[i].lightptr->sector = sprite[i].sectnum;
                     ActorExtra[i].lightptr->flags.invalidate = 1;
                 }
+                if (SHT != ActorExtra[i].lightptr->range)
+                {
+                    ActorExtra[i].lightptr->range = SHT;
+                    ActorExtra[i].lightptr->flags.invalidate = 1;
+                }
+                if ((sprite[i].xvel != ActorExtra[i].lightptr->color[0]) ||
+                    (sprite[i].yvel != ActorExtra[i].lightptr->color[1]) ||
+                    (sprite[i].zvel != ActorExtra[i].lightptr->color[2]))
+                {
+                    ActorExtra[i].lightptr->color[0] = sprite[i].xvel;
+                    ActorExtra[i].lightptr->color[1] = sprite[i].yvel;
+                    ActorExtra[i].lightptr->color[2] = sprite[i].zvel;
+                }
             }
             break;
         }
@@ -7663,6 +7676,35 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 {
                     Bmemcpy(ActorExtra[i].lightptr, &sprite[i], sizeof(int32_t) * 3);
                     ActorExtra[i].lightptr->sector = sprite[i].sectnum;
+                    ActorExtra[i].lightptr->flags.invalidate = 1;
+                }
+                if (SHT != ActorExtra[i].lightptr->range)
+                {
+                    ActorExtra[i].lightptr->range = SHT;
+                    ActorExtra[i].lightptr->flags.invalidate = 1;
+                }
+                if ((sprite[i].xvel != ActorExtra[i].lightptr->color[0]) ||
+                    (sprite[i].yvel != ActorExtra[i].lightptr->color[1]) ||
+                    (sprite[i].zvel != ActorExtra[i].lightptr->color[2]))
+                {
+                    ActorExtra[i].lightptr->color[0] = sprite[i].xvel;
+                    ActorExtra[i].lightptr->color[1] = sprite[i].yvel;
+                    ActorExtra[i].lightptr->color[2] = sprite[i].zvel;
+                }
+                if (((256-(SS+128))<<1) != ActorExtra[i].lightptr->radius)
+                {
+                    ActorExtra[i].lightptr->radius = (256-(SS+128))<<1;
+                    ActorExtra[i].lightptr->faderadius = (int16_t)(ActorExtra[i].lightptr->radius * 0.75f);
+                    ActorExtra[i].lightptr->flags.invalidate = 1;
+                }
+                if (SA != ActorExtra[i].lightptr->angle)
+                {
+                    ActorExtra[i].lightptr->angle = SA;
+                    ActorExtra[i].lightptr->flags.invalidate = 1;
+                }
+                if (SH != ActorExtra[i].lightptr->horiz)
+                {
+                    ActorExtra[i].lightptr->horiz = SH;
                     ActorExtra[i].lightptr->flags.invalidate = 1;
                 }
             }
