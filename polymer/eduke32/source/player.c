@@ -585,7 +585,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 if (hitinfo.hitwall >= 0 || hitinfo.hitsprite >= 0)
                 {
                     j = A_InsertSprite(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,atwith,-15,0,0,sa,32,0,i,4);
-                    ActorExtra[j].projectile->workslike = ProjectileData[sprite[j].picnum].workslike;
+                    SpriteProjectile[j].workslike = ProjectileData[sprite[j].picnum].workslike;
                     sprite[j].extra = ProjectileData[atwith].extra;
                     if (ProjectileData[atwith].extra_rand > 0)
                         sprite[j].extra += (krand()&ProjectileData[atwith].extra_rand);
@@ -1076,7 +1076,7 @@ DOSKIPBULLETHOLE:
             if (ProjectileData[atwith].clipdist >= 0) sprite[j].clipdist = ProjectileData[atwith].clipdist;
             else sprite[j].clipdist = 40;
 
-            Bmemcpy(&ActorExtra[j].projectile, &ProjectileData[sprite[j].picnum], sizeof(ProjectileData[sprite[j].picnum]));
+            Bmemcpy(&SpriteProjectile[j], &ProjectileData[sprite[j].picnum], sizeof(ProjectileData[sprite[j].picnum]));
 
             //            sa = s->ang+32-(krand()&63);
             //            zvel = oldzvel+512-(krand()&1023);

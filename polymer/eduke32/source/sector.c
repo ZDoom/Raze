@@ -1611,7 +1611,7 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
     int32_t j, i, darkestwall;
     walltype *wal = &wall[dawallnum];
 
-    if (wal->overpicnum == MIRROR && wal->pal != 4 && A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) && (ActorExtra[spr].projectile->workslike & PROJECTILE_RPG))
+    if (wal->overpicnum == MIRROR && wal->pal != 4 && A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) && (SpriteProjectile[spr].workslike & PROJECTILE_RPG))
     {
         if (wal->nextwall == -1 || wall[wal->nextwall].pal != 4)
         {
@@ -1950,7 +1950,7 @@ void A_DamageObject(int32_t i,int32_t sn)
     i &= (MAXSPRITES-1);
 
     if (A_CheckSpriteFlags(sn,SPRITE_PROJECTILE))
-        if (ActorExtra[sn].projectile->workslike & PROJECTILE_RPG)
+        if (SpriteProjectile[sn].workslike & PROJECTILE_RPG)
             rpg = 1;
     switchpicnum = PN;
     if ((PN > WATERFOUNTAIN)&&(PN < WATERFOUNTAIN+3))

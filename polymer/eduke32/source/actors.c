@@ -865,7 +865,7 @@ int32_t A_IncurDamage(int32_t sn)
                     }
                 }
 
-                if (A_CheckSpriteTileFlags(ActorExtra[sn].picnum,SPRITE_PROJECTILE) && (ActorExtra[sn].projectile->workslike & PROJECTILE_RPG))
+                if (A_CheckSpriteTileFlags(ActorExtra[sn].picnum,SPRITE_PROJECTILE) && (SpriteProjectile[sn].workslike & PROJECTILE_RPG))
                 {
                     g_player[p].ps->posxv +=
                         ActorExtra[sn].extra*(sintable[(ActorExtra[sn].ang+512)&2047])<<2;
