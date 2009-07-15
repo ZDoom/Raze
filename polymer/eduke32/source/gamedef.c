@@ -492,6 +492,8 @@ const char *keyw[] =
     "<null>",                   // 346 internal inversion function
     "sectorofwall",             // 347
     "qstrncat",                 // 348
+    "ifactorsound",             // 349
+    "stopactorsound",           // 350
     "<null>"
 };
 
@@ -3806,6 +3808,10 @@ static int32_t C_ParseCommand(void)
         break;
     }
 
+    case CON_STOPACTORSOUND:
+        C_GetManyVars(2);
+        break;
+
     case CON_SECTOROFWALL:
         C_GetNextVarType(GAMEVAR_READONLY);
         C_GetNextVar();
@@ -4246,6 +4252,7 @@ static int32_t C_ParseCommand(void)
         return 0;
     }
 
+    case CON_IFACTORSOUND:
     case CON_IFVARVARG:
     case CON_IFVARVARL:
     case CON_IFVARVARE:
@@ -4860,6 +4867,7 @@ repeatcase:
             g_scriptPtr++;
             break;
         case CON_IFSOUND:
+        case CON_IFACTORSOUND:
             if (C_CheckEventSync(g_currentEvent))
             {
                 C_ReportError(WARNING_REVEVENTSYNC);

@@ -34,7 +34,7 @@ extern void S_MenuSound(void);
 extern int32_t S_PlayMusic(const char *fn, const int32_t sel);
 extern int32_t S_LoadSound(unsigned num);
 extern int32_t S_PlaySoundXYZ(int32_t num,int32_t i,const vec3_t *pos);
-extern void S_PlaySound(int32_t num);
+extern int32_t S_PlaySound(int32_t num);
 extern int32_t A_PlaySound(uint32_t num,int32_t i);
 extern void S_StopSound(int32_t num);
 extern void S_StopEnvSound(int32_t num,int32_t i);

@@ -5647,7 +5647,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 }
 
                 if (s->xvel <= 64 && (sc->floorstat&1) == 0 && (sc->ceilingstat&1) == 0)
-                    A_StopSound(ActorExtra[i].lastvx,i);
+                    S_StopEnvSound(ActorExtra[i].lastvx,i);
 
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                 {
@@ -7622,8 +7622,8 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     ActorExtra[i].lightptr->flags.invalidate = 1;
                 }
                 if ((sprite[i].xvel != ActorExtra[i].lightptr->color[0]) ||
-                    (sprite[i].yvel != ActorExtra[i].lightptr->color[1]) ||
-                    (sprite[i].zvel != ActorExtra[i].lightptr->color[2]))
+                        (sprite[i].yvel != ActorExtra[i].lightptr->color[1]) ||
+                        (sprite[i].zvel != ActorExtra[i].lightptr->color[2]))
                 {
                     ActorExtra[i].lightptr->color[0] = sprite[i].xvel;
                     ActorExtra[i].lightptr->color[1] = sprite[i].yvel;
@@ -7684,8 +7684,8 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     ActorExtra[i].lightptr->flags.invalidate = 1;
                 }
                 if ((sprite[i].xvel != ActorExtra[i].lightptr->color[0]) ||
-                    (sprite[i].yvel != ActorExtra[i].lightptr->color[1]) ||
-                    (sprite[i].zvel != ActorExtra[i].lightptr->color[2]))
+                        (sprite[i].yvel != ActorExtra[i].lightptr->color[1]) ||
+                        (sprite[i].zvel != ActorExtra[i].lightptr->color[2]))
                 {
                     ActorExtra[i].lightptr->color[0] = sprite[i].xvel;
                     ActorExtra[i].lightptr->color[1] = sprite[i].yvel;

@@ -1324,7 +1324,7 @@ int32_t registerosdcommands(void)
         { "snd_musvolume", "snd_musvolume: volume of midi music", (void*)&ud.config.MusicVolume, CVAR_INT, 0, 0, 255 },
         { "snd_numbits", "snd_numbits: sound bits", (void*)&ud.config.NumBits, CVAR_INT, 0, 8, 16 },
         { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&ud.config.NumChannels, CVAR_INT, 0, 0, 2 },
-        { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&ud.config.NumVoices, CVAR_INT, 0, 0, 32 },
+        { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&ud.config.NumVoices, CVAR_INT, 0, 0, 96 },
         { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&ud.config.ReverseStereo, CVAR_BOOL, 0, 0, 16 },
         { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",(void*)&vid_gamma, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 0, 10 },
         { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void*)&vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 0, 10 },

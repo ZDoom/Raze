@@ -969,7 +969,7 @@ skip_check:
                 insptr++;
                 continue;
             }
-            if (!A_CheckSoundPlaying(vm.g_i,vm.g_sp->yvel))
+            if (!S_CheckSoundPlaying(vm.g_i,vm.g_sp->yvel))
                 A_PlaySound(vm.g_sp->yvel,vm.g_i);
             continue;
 
@@ -1020,8 +1020,24 @@ skip_check:
                 OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr++);
                 continue;
             }
-            if (!A_CheckSoundPlaying(vm.g_i,*insptr++))
+            if (!S_CheckSoundPlaying(vm.g_i,*insptr++))
                 A_PlaySound(*(insptr-1),vm.g_i);
+            continue;
+
+        case CON_IFACTORSOUND:
+            insptr++;
+            {
+                int32_t i = Gv_GetVarX(*insptr++), j = Gv_GetVarX(*insptr++);
+
+                if ((j<0 || j>=MAXSOUNDS) /* && g_scriptSanityChecks */)
+                {
+                    OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);
+                    insptr++;
+                    continue;
+                }
+                insptr--;
+                X_DoConditional(A_CheckSoundPlaying(i,j));
+            }
             continue;
 
         case CON_IFSOUND:
@@ -1032,7 +1048,7 @@ skip_check:
                 insptr++;
                 continue;
             }
-            X_DoConditional(A_CheckSoundPlaying(vm.g_i,*insptr));
+            X_DoConditional(S_CheckSoundPlaying(vm.g_i,*insptr));
             //    X_DoConditional(SoundOwner[*insptr][0].i == vm.g_i);
             continue;
 
@@ -1044,10 +1060,27 @@ skip_check:
                 insptr++;
                 continue;
             }
-            if (A_CheckSoundPlaying(vm.g_i,*insptr))
+            if (S_CheckSoundPlaying(vm.g_i,*insptr))
                 A_StopSound((int16_t)*insptr,vm.g_i);
             insptr++;
             continue;
+
+        case CON_STOPACTORSOUND:
+            insptr++;
+            {
+                int32_t i = Gv_GetVarX(*insptr++), j = Gv_GetVarX(*insptr++);
+
+                if ((j<0 || j>=MAXSOUNDS) /* && g_scriptSanityChecks */)
+                {
+                    OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);
+                    continue;
+                }
+
+                if (A_CheckSoundPlaying(i,j))
+                    S_StopEnvSound(j,i);
+
+                continue;
+            }
 
         case CON_GLOBALSOUND:
             insptr++;
@@ -1058,7 +1091,7 @@ skip_check:
                 continue;
             }
             if (vm.g_p == screenpeek || (GametypeFlags[ud.coop]&GAMETYPE_COOPSOUND))
-                A_PlaySound((int16_t) *insptr,g_player[screenpeek].ps->i);
+                A_PlaySound(*insptr,g_player[screenpeek].ps->i);
             insptr++;
             continue;
 
@@ -1070,7 +1103,7 @@ skip_check:
                 insptr++;
                 continue;
             }
-            A_PlaySound((int16_t) *insptr++,vm.g_i);
+            A_PlaySound(*insptr++,vm.g_i);
             continue;
 
         case CON_TIP:
@@ -1235,7 +1268,7 @@ skip_check:
             if ((*insptr<0 ||*insptr>=MAX_WEAPONS) /* && g_scriptSanityChecks */)
             {
                 OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],*insptr);
-                insptr+=2; 
+                insptr+=2;
                 continue;
             }
             if (g_player[vm.g_p].ps->gotweapon[*insptr] == 0)
@@ -2150,7 +2183,7 @@ nullquote:
                 {
                 case CON_SOUNDONCEVAR:
                     if ((j<0 || j>=MAXSOUNDS) /* && g_scriptSanityChecks */) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j); break;}
-                    if (!A_CheckSoundPlaying(vm.g_i,j))
+                    if (!S_CheckSoundPlaying(vm.g_i,j))
                         A_PlaySound((int16_t)j,vm.g_i);
                     break;
                 case CON_GLOBALSOUNDVAR:
@@ -2159,7 +2192,7 @@ nullquote:
                     break;
                 case CON_STOPSOUNDVAR:
                     if ((j<0 || j>=MAXSOUNDS) /* && g_scriptSanityChecks */) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j); break;}
-                    if (A_CheckSoundPlaying(vm.g_i,j))
+                    if (S_CheckSoundPlaying(vm.g_i,j))
                         A_StopSound((int16_t)j,vm.g_i);
                     break;
                 case CON_SOUNDVAR:
@@ -3131,7 +3164,10 @@ nullquote:
                 if ((ScriptQuotes[sq] == NULL || ScriptQuotes[dq] == NULL) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],ScriptQuotes[sq] ? dq : sq);
-                    insptr += 4;
+                    while ((*insptr & 0xFFF) != CON_NULLOP)
+                        Gv_GetVarX(*insptr++);
+
+                    insptr++; // skip the NOP
                     continue;
                 }
 
@@ -3140,8 +3176,10 @@ nullquote:
                     int32_t len = Bstrlen(ScriptQuotes[sq]);
                     char tempbuf[MAXQUOTELEN];
 
-                    while ((*insptr & 0xFFF) != CON_NULLOP)
+                    while ((*insptr & 0xFFF) != CON_NULLOP && i < 32)
+                    {
                         arg[i++] = Gv_GetVarX(*insptr++);
+                    }
 
                     insptr++; // skip the NOP
 
@@ -3158,26 +3196,40 @@ nullquote:
                             switch (ScriptQuotes[sq][k])
                             {
                             case 'l':
+                                if (ScriptQuotes[sq][k+1] != 'd')
+                                {
+                                    // write the % and l
+                                    tempbuf[j++] = ScriptQuotes[sq][k-1];
+                                    tempbuf[j++] = ScriptQuotes[sq][k++];
+                                    break;
+                                }
                                 k++;
                             case 'd':
                             {
                                 char buf[16];
+                                int32_t ii = 0;
 
                                 Bsprintf(buf, "%d", arg[i++]);
-                                Bstrcat(tempbuf, buf);
-                                j += Bstrlen(buf);
+
+                                ii = Bstrlen(buf);
+                                Bmemcpy(&tempbuf[j], buf, ii);
+                                j += ii;
                                 k++;
                             }
                             break;
 
                             case 's':
-                                Bstrcat(tempbuf, ScriptQuotes[arg[i]]);
-                                j += Bstrlen(ScriptQuotes[arg[i++]]);
+                            {
+                                int32_t ii = Bstrlen(ScriptQuotes[arg[i]]);
+
+                                Bmemcpy(&tempbuf[j], ScriptQuotes[arg[i]], ii);
+                                j += ii;
                                 k++;
-                                break;
+                            }
+                            break;
 
                             default:
-                                tempbuf[j++] = ScriptQuotes[sq][k++];
+                                tempbuf[j++] = ScriptQuotes[sq][k-1];
                                 break;
                             }
                         }
@@ -4610,7 +4662,7 @@ nullquote:
             break;
         }
     }
-    
+
     return 0;
 }
 

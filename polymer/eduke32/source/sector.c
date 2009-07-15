@@ -53,7 +53,7 @@ int32_t A_CallSound(int32_t sn,int32_t whatsprite)
                     {
                         A_PlaySound(SLT,whatsprite);
                         if (SHT && SLT != SHT && SHT < MAXSOUNDS)
-                            A_StopSound(SHT,T6);
+                            S_StopEnvSound(SHT,T6);
                         T6 = whatsprite;
                     }
 
@@ -65,7 +65,7 @@ int32_t A_CallSound(int32_t sn,int32_t whatsprite)
             {
                 if (SHT) A_PlaySound(SHT,whatsprite);
                 if ((g_sounds[SLT].m&1) || (SHT && SHT != SLT))
-                    A_StopSound(SLT,T6);
+                    S_StopEnvSound(SLT,T6);
                 T6 = whatsprite;
                 T1 = 0;
             }
@@ -3060,8 +3060,8 @@ CHECKINV1:
                         p->hard_landing = 0;
                         p->poszv = 0;
                         A_PlaySound(DUKE_JETPACK_OFF,p->i);
-                        A_StopSound(DUKE_JETPACK_IDLE,p->i);
-                        A_StopSound(DUKE_JETPACK_ON,p->i);
+                        S_StopEnvSound(DUKE_JETPACK_IDLE,p->i);
+                        S_StopEnvSound(DUKE_JETPACK_ON,p->i);
                         P_DoQuote(53,p);
                     }
                 }

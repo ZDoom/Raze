@@ -3404,8 +3404,8 @@ static int32_t P_DoCounters(DukePlayer_t *p)
             p->jetpack_on = 0;
             P_SelectNextInvItem(p);
             A_PlaySound(DUKE_JETPACK_OFF,p->i);
-            A_StopSound(DUKE_JETPACK_IDLE,p->i);
-            A_StopSound(DUKE_JETPACK_ON,p->i);
+            S_StopEnvSound(DUKE_JETPACK_IDLE,p->i);
+            S_StopEnvSound(DUKE_JETPACK_ON,p->i);
         }
     }
 
@@ -3567,7 +3567,7 @@ void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
     }
 
     if (aplWeaponSelectSound[p->curr_weapon][snum])
-        A_StopSound(aplWeaponSelectSound[p->curr_weapon][snum],p->i);
+        S_StopEnvSound(aplWeaponSelectSound[p->curr_weapon][snum],p->i);
     if (aplWeaponSelectSound[weapon][snum])
         A_PlaySound(aplWeaponSelectSound[weapon][snum],p->i);
 }
@@ -4064,7 +4064,7 @@ void P_ProcessInput(int32_t snum)
             p->jetpack_on = 0;
             p->holoduke_on = -1;
 
-            A_StopSound(DUKE_JETPACK_IDLE,p->i);
+            S_StopEnvSound(DUKE_JETPACK_IDLE,p->i);
             if (p->scream_voice > FX_Ok)
             {
                 FX_StopSound(p->scream_voice);

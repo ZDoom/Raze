@@ -273,14 +273,16 @@ extern input_t recsync[RECSYNCBUFSIZ];
 extern int32_t movefifosendplc;
 
 typedef struct {
-    int32_t voice;
-    int32_t i;
+    int16_t voice;
+    int16_t i;
 } SOUNDOWNER;
+
+#define SOUNDMAX 8
 
 typedef struct {
     int32_t  length, num, soundsiz; // 12b
     char *filename, *ptr, *filename1; // 12b/24b
-    SOUNDOWNER SoundOwner[4]; // 32b
+    SOUNDOWNER SoundOwner[SOUNDMAX]; // 32b
     int16_t ps,pe,vo; // 6b
     char pr,m; // 2b
 } sound_t;
