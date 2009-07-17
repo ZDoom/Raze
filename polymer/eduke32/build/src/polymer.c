@@ -843,11 +843,6 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
 
     curmodelviewmatrix = rootmodelviewmatrix;
 
-// #ifdef M32_ALTAIMING
-    // only showcase for now...
-    if (searchit == 2) polymer_alt_editorselect();
-// #endif
-
     // build globals used by rotatesprite
     viewangle = daang;
     globalang = (daang&2047);
@@ -1553,6 +1548,33 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 GLfloat qverts[QNUM*3];
 GLfloat qcolors[QNUM*3];
 int qvertcount = 0;
+
+static void polymer_m32_debug()
+{
+    // debug code for new Mapster32 mouse aim
+    if (qvertcount > 0)
+    {
+        int ii;
+        bglPushAttrib(GL_ENABLE_BIT);
+        bglDisable(GL_TEXTURE_2D);
+        bglDisable(GL_DEPTH_TEST);
+        bglBegin(GL_LINE_LOOP);
+        for (ii=0; ii<qvertcount; ii++)
+        {
+            if (qverts[3*ii]==0 && qverts[3*ii+1]==0 && qverts[3*ii+2]==0)
+            {
+                bglEnd();
+                bglBegin(GL_LINE_LOOP);
+                continue;
+            }   
+            bglColor4f(qcolors[(3*ii)+0],qcolors[(3*ii)+1],qcolors[(3*ii)+2],1.0);
+            bglVertex3f(qverts[(3*ii)+0],qverts[(3*ii)+1],qverts[(3*ii)+2]);
+        }
+        qvertcount=0;
+        bglEnd();
+        bglPopAttrib();
+    }
+}
 #endif
 
 static void         polymer_drawplane(_prplane* plane)
@@ -1598,32 +1620,6 @@ static void         polymer_drawplane(_prplane* plane)
 //                 plane->buffer[2] + plane->plane[2] * 50);
 //     bglEnd();
 //     bglEnable(GL_TEXTURE_2D);
-
-#ifdef M32_SHOWDEBUG
-    // debug code for new Mapster32 mouse aim
-    if (qvertcount > 0)
-    {
-        bglPushAttrib(GL_ENABLE_BIT);
-        bglDisable(GL_TEXTURE_2D);
-        bglDisable(GL_DEPTH_TEST);
-        int ii;
-        bglBegin(GL_LINE_LOOP);
-        for (ii=0; ii<qvertcount; ii++)
-        {
-            if (qverts[3*ii]==0 && qverts[3*ii+1]==0 && qverts[3*ii+2]==0)
-            {
-                bglEnd();
-                bglBegin(GL_LINE_LOOP);
-                continue;
-            }   
-            bglColor4f(qcolors[(3*ii)+0],qcolors[(3*ii)+1],qcolors[(3*ii)+2],1.0);
-            bglVertex3f(qverts[(3*ii)+0],qverts[(3*ii)+1],qverts[(3*ii)+2]);
-        }
-        qvertcount=0;
-        bglEnd();
-        bglPopAttrib();
-    }
-#endif
 
     bglNormal3f((float)(plane->plane[0]), (float)(plane->plane[1]), (float)(plane->plane[2]));
 
@@ -1952,18 +1948,15 @@ void polymer_alt_editorselect(void)
                 continue;
 
             {
-                GLfloat coeff = -d/nnormsq;
-                GLfloat pointonplane[3] = {coeff*a, coeff*b, coeff*c};
-                GLfloat vec[3] = {x-pointonplane[0], y-pointonplane[1], z-pointonplane[2]};
                 _prplane *pp;
 
-                dist = fabs((a*vec[0] + b*vec[1] + c*vec[2])/nnorm);
+                dist = fabs(a*x + b*y + c*z + d);
 
                 if (dist > bestdist)
                     continue;
 
                 // TODO: the parallax cases...
-                for (what=0; what < (wal->nextsector>=0?2:1); what++)
+                for (what=0; what < (wal->nextsector>=0?3:1); what++)
                 {
                     GLfloat v1[3], v2[3], v3[3], v4[3], v12[3], v34[3], v1p_r[3], v3p_r[3];
                     GLfloat v23[3], v41[3], v2p_r[3], v4p_r[3];
@@ -1981,14 +1974,13 @@ void polymer_alt_editorselect(void)
                             continue;
                         pp=&w->over;
                     }
-                    /*
                     else if (what==2)
                     {
-                    if (!(wal->cstat&16) && !(wal->cstat&32))
-                    continue;
-                    pp=&w->mask;
+                        if (!(wal->cstat&16) && !(wal->cstat&32))
+                            continue;
+                        pp=&w->mask;
                     }
-                    */
+                    
                     Bmemcpy(v1, &pp->buffer[0], 3*sizeof(GLfloat));
                     Bmemcpy(v2, &pp->buffer[5], 3*sizeof(GLfloat));
                     Bmemcpy(v3, &pp->buffer[10], 3*sizeof(GLfloat));
@@ -2073,11 +2065,8 @@ void polymer_alt_editorselect(void)
 
             {
                 GLdouble nnormsq = a*a + b*b + c*c;
-                GLdouble nnorm = sqrt(nnormsq);
-                GLfloat coeff = -d/nnormsq;
-                GLfloat pointonplane[3] = {coeff*a, coeff*b, coeff*c};
-                GLfloat vec[3] = {x-pointonplane[0], y-pointonplane[1], z-pointonplane[2]};
-                GLdouble dist = fabs((a*vec[0] + b*vec[1] + c*vec[2])/nnorm);
+//                GLdouble nnorm = sqrt(nnormsq);
+                GLdouble dist = dist = fabs(a*x + b*y + c*z + d);
 
                 if (dist > bestdist)
                     continue;
@@ -2157,11 +2146,11 @@ nextsector:
                     if (bestsec==i)
                     {
                         int16_t k, bestk=0;
-                        GLfloat bestwdistsq = FLT_MAX, wdistsq, wnorm;
+                        GLfloat bestwdistsq = FLT_MAX, wdistsq;
                         GLfloat w1[2], w2[2], w21[2], pw1[2], pw2[2];
                         GLfloat ptonline[2];
                         GLfloat scrvxz[2]={scrv[0],scrv[2]};
-                        GLfloat scrvxznorm, scrvxzn[2];
+                        GLfloat scrvxznorm, scrvxzn[2], scrpxz[2];
                         GLfloat w1d, w2d;
                         walltype *wal = &wall[sec->wallptr];
                         for (k=0; k<sec->wallnum; k++)
@@ -2181,13 +2170,14 @@ nextsector:
                             w1d = dot2f(scrvxzn,pw1);
                             w2d = dot2f(scrvxzn,pw2);
                             w2d = -w2d;
-                            if (w1d < 0 || w2d < 0 || w1d + w2d < 0.01)
+                            if (w1d <= 0 || w2d <= 0)
                                 continue;
-                            wnorm = sqrt(dot2f(w21,w21));
-                            ptonline[0] = w2[0]+(wnorm*w2d/(w1d+w2d))*w21[0];
-                            ptonline[1] = w2[1]+(wnorm*w2d/(w1d+w2d))*w21[1];
-
-                            wdistsq = (ptonline[0]-p[0])*(ptonline[0]-p[0]) + (ptonline[1]-p[1])*(ptonline[1]-p[1]);
+                            ptonline[0] = w2[0]+(w2d/(w1d+w2d))*w21[0];
+                            ptonline[1] = w2[1]+(w2d/(w1d+w2d))*w21[1];
+                            relvec2f(p,ptonline, scrpxz);
+                            if (dot2f(scrvxz,scrpxz)<0)
+                                continue;
+                            wdistsq = dot2f(scrpxz,scrpxz);
                             if (wdistsq < bestwdistsq)
                             {
                                 bestk = k;
@@ -2205,6 +2195,17 @@ nextsector:
         }
     }
 
+    if (bestwhat >= 0)
+    {
+        searchstat = bestwhat;
+        searchsector = bestsec;
+        searchwall = bestwall;
+        searchit = 0;
+    }
+
+#ifdef M32_SHOWDEBUG
+    polymer_m32_debug();
+#endif
 }
 
 // SECTORS

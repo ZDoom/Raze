@@ -510,6 +510,15 @@ CANCEL:
         ExtAnalyzeSprites();
 #endif
         drawmasks();
+#ifdef POLYMER
+        if (rendmode == 4)
+        {
+            extern void polymer_alt_editorselect(void);
+            if (searchit==2)
+                polymer_alt_editorselect();
+        }
+#endif
+
 #ifdef M32_SHOWDEBUG
         M32_drawdebug();
 #endif

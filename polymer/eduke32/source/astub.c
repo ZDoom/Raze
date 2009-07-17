@@ -4376,7 +4376,9 @@ static void Keys3d(void)
             {
             case 0:
             case 4:
-                drawtileinfo("Current",WIND1X,WIND1Y,wall[searchwall].picnum,wall[searchwall].shade,
+                drawtileinfo("Current",WIND1X,WIND1Y,
+                             searchstat==0 ? wall[searchwall].picnum : wall[searchwall].overpicnum,
+                             wall[searchwall].shade,
                              wall[searchwall].pal,wall[searchwall].cstat,wall[searchwall].lotag,
                              wall[searchwall].hitag,wall[searchwall].extra);
 
