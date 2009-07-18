@@ -574,6 +574,13 @@ _pranimatespritesinfo asi;
 nedpool*        polymer_pool = NULL;
 
 void polymer_alt_editorselect(void);
+static int32_t m32_numdrawnsprites = 0;
+static struct
+{
+    GLfloat verts[4*3];
+    GLfloat plane[4];
+    int16_t owner;
+} m32_drawnsprites[MAXSPRITESONSCREEN];
 
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void)
@@ -1077,6 +1084,20 @@ void                polymer_drawsprite(int32_t snum)
     }
 
     polymer_computeplane(&spriteplane);
+
+    if (searchit==2)
+    {
+        if (m32_numdrawnsprites<MAXSPRITESONSCREEN)
+        {
+            Bmemcpy(&m32_drawnsprites[m32_numdrawnsprites].verts[0], &spriteplane.buffer[0], 3*sizeof(GLfloat));
+            Bmemcpy(&m32_drawnsprites[m32_numdrawnsprites].verts[3], &spriteplane.buffer[5], 3*sizeof(GLfloat));
+            Bmemcpy(&m32_drawnsprites[m32_numdrawnsprites].verts[6], &spriteplane.buffer[10], 3*sizeof(GLfloat));
+            Bmemcpy(&m32_drawnsprites[m32_numdrawnsprites].verts[9], &spriteplane.buffer[15], 3*sizeof(GLfloat));
+            Bmemcpy(&m32_drawnsprites[m32_numdrawnsprites].plane, spriteplane.plane, 4*sizeof(GLfloat));
+            m32_drawnsprites[m32_numdrawnsprites].owner = (tspr->owner&(MAXSPRITES-1));
+            m32_numdrawnsprites++;
+        }
+    }
 
     spriteplane.lightcount = 0;
 
@@ -1944,95 +1965,92 @@ void polymer_alt_editorselect(void)
             GLfloat npl[3] = {a/nnorm, b/nnorm, c/nnorm};
             GLfloat scrv[3] = {x-viewx, y-viewy, z-viewz};
 
-            if (-dot3f(scrv,pl)<0)
+            dist = fabs(a*x + b*y + c*z + d)/nnorm;
+
+            if (dist > bestdist)
                 continue;
 
+            // TODO: the parallax cases...
+            for (what=(wal->nextsector>=0?2:0); what>=0; what--)
             {
+                GLfloat v1[3], v2[3], v3[3], v4[3], v12[3], v34[3], v1p_r[3], v3p_r[3];
+                GLfloat v23[3], v41[3], v2p_r[3], v4p_r[3];
+                GLfloat tp[3]={x,y,z};
                 _prplane *pp;
 
-                dist = fabs(a*x + b*y + c*z + d);
-
-                if (dist > bestdist)
-                    continue;
-
-                // TODO: the parallax cases...
-                for (what=0; what < (wal->nextsector>=0?3:1); what++)
+                pp=wp;
+                if (what==0)
                 {
-                    GLfloat v1[3], v2[3], v3[3], v4[3], v12[3], v34[3], v1p_r[3], v3p_r[3];
-                    GLfloat v23[3], v41[3], v2p_r[3], v4p_r[3];
-                    GLfloat tp[3]={x,y,z};
+                    if (wal->nextsector>=0 && !(w->underover&1))
+                        continue;
+                }
+                else if (what==1)
+                {    
+                    if (!(w->underover&2))
+                        continue;
+                    pp=&w->over;
+                }
+                else if (what==2)
+                {
+                    if (!(wal->cstat&16) && !(wal->cstat&32))
+                        continue;
+                    pp=&w->mask;
+                }
 
-                    pp=wp;
-                    if (what==0)
-                    {
-                        if (wal->nextsector>=0 && !(w->underover&1))
-                            continue;
-                    }
-                    else if (what==1)
-                    {    
-                        if (!(w->underover&2))
-                            continue;
-                        pp=&w->over;
-                    }
-                    else if (what==2)
-                    {
-                        if (!(wal->cstat&16) && !(wal->cstat&32))
-                            continue;
-                        pp=&w->mask;
-                    }
+                if (-dot3f(scrv,pl)<0 && !(what==2 && (wal->cstat&16)))
+                    goto nextwall;
                     
-                    Bmemcpy(v1, &pp->buffer[0], 3*sizeof(GLfloat));
-                    Bmemcpy(v2, &pp->buffer[5], 3*sizeof(GLfloat));
-                    Bmemcpy(v3, &pp->buffer[10], 3*sizeof(GLfloat));
-                    Bmemcpy(v4, &pp->buffer[15], 3*sizeof(GLfloat));
-                    relvec3f(v1,v2, v12);
-                    relvec3f(v3,v4, v34);
-                    relvec3f(v1,tp, v1p_r);
-                    relvec3f(v3,tp, v3p_r);
-                    cross3f(npl,v1p_r, v1p_r);
-                    cross3f(npl,v3p_r, v3p_r);
+                Bmemcpy(v1, &pp->buffer[0], 3*sizeof(GLfloat));
+                Bmemcpy(v2, &pp->buffer[5], 3*sizeof(GLfloat));
+                Bmemcpy(v3, &pp->buffer[10], 3*sizeof(GLfloat));
+                Bmemcpy(v4, &pp->buffer[15], 3*sizeof(GLfloat));
+                relvec3f(v1,v2, v12);
+                relvec3f(v3,v4, v34);
+                relvec3f(v1,tp, v1p_r);
+                relvec3f(v3,tp, v3p_r);
+                cross3f(npl,v1p_r, v1p_r);
+                cross3f(npl,v3p_r, v3p_r);
 
-                    relvec3f(v2,v3, v23);
-                    relvec3f(v4,v1, v41);
+                relvec3f(v2,v3, v23);
+                relvec3f(v4,v1, v41);
 
-                    relvec3f(v2,tp, v2p_r);
-                    relvec3f(v4,tp, v4p_r);
-                    cross3f(npl,v2p_r, v2p_r);
-                    cross3f(npl,v4p_r, v4p_r);
+                relvec3f(v2,tp, v2p_r);
+                relvec3f(v4,tp, v4p_r);
+                cross3f(npl,v2p_r, v2p_r);
+                cross3f(npl,v4p_r, v4p_r);
 
-                    if (dot3f(v12,v12)>0.25 && dot3f(v34,v34)>0.25  
-                        && (v23[1]<0 || dot3f(v23,v23)<=0.25 || dot3f(v23,v2p_r) < 0)
-                        && (dot3f(v41,v41)<=0.25 || dot3f(v41,v4p_r) < 0)
-                        && dot3f(v12,v1p_r) < 0 && dot3f(v34,v3p_r) < 0)
-                    {
-                        bestwhat = (what==2)?4:0;
-                        bestwall = i;
-                        bestdist = dist;
-                        bestsec = sectorofwall(i);
+                if (dot3f(v12,v12)>0.25 && dot3f(v34,v34)>0.25
+                    && (v23[1]<0 || dot3f(v23,v23)<=0.25 || dot3f(v23,v2p_r) <= 0)
+                    && (dot3f(v41,v41)<=0.25 || dot3f(v41,v4p_r) <= 0)
+                    && dot3f(v12,v1p_r) <= 0 && dot3f(v34,v3p_r) <= 0)
+                {
+                    bestwhat = (what==2)?4:0;
+                    bestwall = i;
+                    bestdist = dist;
 #ifdef M32_SHOWDEBUG
-                        if (m32_numdebuglines<64)
-                        {
-                            Bsprintf(m32_debugstr[m32_numdebuglines++], "what=wall %d, dist=%.02f, sec=%d",
-                                bestwall, bestdist, bestsec);
-                        }
-                        if (qvertcount<QNUM-3)
-                        {
-                            Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
-                            Bmemcpy(&qverts[3*qvertcount++],v1, 3*sizeof(GLfloat));
-                            Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col2));
-                            Bmemcpy(&qverts[3*qvertcount++],v2, 3*sizeof(GLfloat));
-                            Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col3));
-                            Bmemcpy(&qverts[3*qvertcount++],v3, 3*sizeof(GLfloat));
-                            Bmemcpy(&qcolors[3*qvertcount],col4,sizeof(col4));
-                            Bmemcpy(&qverts[3*qvertcount++],v4, 3*sizeof(GLfloat));
-
-                            Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
-                        }
-#endif
+                    if (m32_numdebuglines<64)
+                    {
+                        Bsprintf(m32_debugstr[m32_numdebuglines++], "what=wall %d, dist=%.02f, sec=%d",
+                                 bestwall, bestdist, bestsec);
                     }
+                    if (qvertcount<QNUM-4)
+                    {
+                        Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
+                        Bmemcpy(&qverts[3*qvertcount++],v1, 3*sizeof(GLfloat));
+                        Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col2));
+                        Bmemcpy(&qverts[3*qvertcount++],v2, 3*sizeof(GLfloat));
+                        Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col3));
+                        Bmemcpy(&qverts[3*qvertcount++],v3, 3*sizeof(GLfloat));
+                        Bmemcpy(&qcolors[3*qvertcount],col4,sizeof(col4));
+                        Bmemcpy(&qverts[3*qvertcount++],v4, 3*sizeof(GLfloat));
+
+                        Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
+                    }
+#endif
                 }
             }
         }
+nextwall:;
     }
 
     for (i=0; i<numsectors; i++)
@@ -2065,8 +2083,8 @@ void polymer_alt_editorselect(void)
 
             {
                 GLdouble nnormsq = a*a + b*b + c*c;
-//                GLdouble nnorm = sqrt(nnormsq);
-                GLdouble dist = dist = fabs(a*x + b*y + c*z + d);
+                GLdouble nnorm = sqrt(nnormsq);
+                GLdouble dist = dist = fabs(a*x + b*y + c*z + d)/nnorm;
 
                 if (dist > bestdist)
                     continue;
@@ -2195,11 +2213,68 @@ nextsector:
         }
     }
 
+    for (i=0; i<m32_numdrawnsprites; i++)
+    {
+        GLfloat *pl = m32_drawnsprites[i].plane;
+        GLdouble a=pl[0], b=pl[1], c=pl[2], d=pl[3];
+        GLdouble nnormsq = a*a + b*b + c*c;
+        GLdouble nnorm = sqrt(nnormsq);
+        GLdouble dist = fabs(a*x + b*y + c*z + d)/nnorm;
+        GLfloat scrv[3] = {x-viewx, y-viewy, z-viewz};
+        int16_t sn = m32_drawnsprites[i].owner;
+
+        if (dist > bestdist+1.01 || ((sprite[sn].cstat&64) && -dot3f(scrv,pl)<0))
+            continue;
+
+        {
+            GLfloat tp[3] = {x,y,z};
+            GLfloat *v = m32_drawnsprites[i].verts;
+            GLfloat v12_r[3], v23_r[3], v34_r[3], v41_r[3];
+            GLfloat v1p[3], v2p[3], v3p[3], v4p[3];
+            relvec3f(&v[3*3],&v[0*3], v12_r);
+            relvec3f(&v[0*3],&v[1*3], v23_r);
+            relvec3f(&v[1*3],&v[2*3], v34_r);
+            relvec3f(&v[2*3],&v[3*3], v41_r);
+            relvec3f(&v[0*3],tp, v1p);
+            relvec3f(&v[1*3],tp, v2p);
+            relvec3f(&v[2*3],tp, v3p);
+            relvec3f(&v[3*3],tp, v4p);
+            if (dot3f(v1p,v12_r)<=0 && dot3f(v2p,v23_r)<=0
+                && dot3f(v3p,v34_r)<=0 && dot3f(v4p,v41_r)<=0)
+            {
+                bestwhat = 3;
+                bestdist = dist;
+                bestwall = m32_drawnsprites[i].owner;
+#ifdef M32_SHOWDEBUG
+                if (m32_numdebuglines<64)
+                {
+                    Bsprintf(m32_debugstr[m32_numdebuglines++], "what=spr %d, dist=%.02f",
+                             bestwall, bestdist);
+                }
+                if (qvertcount<QNUM-4)
+                {
+                    Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
+                    Bmemcpy(&qcolors[3*(qvertcount+1)],col2,sizeof(col1));
+                    Bmemcpy(&qcolors[3*(qvertcount+2)],col3,sizeof(col1));
+                    Bmemcpy(&qcolors[3*(qvertcount+3)],col4,sizeof(col1));
+                    Bmemcpy(&qverts[3*qvertcount],v, 3*4*sizeof(GLfloat));
+                    qvertcount += 4;
+                    Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
+                }
+#endif
+            }
+        }
+    }
+    m32_numdrawnsprites = 0;
+
     if (bestwhat >= 0)
     {
         searchstat = bestwhat;
-        searchsector = bestsec;
         searchwall = bestwall;
+        if (searchstat==0 || searchstat==4)
+            searchsector = sectorofwall(searchwall);
+        else
+            searchsector = bestsec;
         searchit = 0;
     }
 
