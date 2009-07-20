@@ -1919,13 +1919,15 @@ void polymer_alt_editorselect(void)
     GLdouble proj[16];
     GLint view[4];
 
-    GLdouble x,y,z, viewx,viewy,viewz;
+    GLdouble x,y,z;
+    GLdouble scrx,scry,scrz;
+    GLfloat scr[3], scrv[3];
     GLfloat dadepth;
 
     int8_t bestwhat = -1;
     int16_t bestsec = -1;
     int16_t bestwall = -1;
-    GLfloat bestdist = 1000; //todo: tweak...
+    GLfloat bestdist = FLT_MAX;
 
 #ifdef M32_SHOWDEBUG
     GLfloat col1[3]={1.0,0.0,0.0};
@@ -1942,7 +1944,18 @@ void polymer_alt_editorselect(void)
 
     bglReadPixels(searchx, ydimen-searchy, 1,1, GL_DEPTH_COMPONENT, GL_FLOAT, &dadepth);
     bgluUnProject(searchx, ydimen-searchy, dadepth,  model, proj, view,  &x, &y, &z);
-    bgluUnProject(searchx, ydimen-searchy, 0.0,  model, proj, view,  &viewx, &viewy, &viewz);
+    bgluUnProject(searchx, ydimen-searchy, 0.0,  model, proj, view,  &scrx, &scry, &scrz);
+
+#ifdef M32_SHOWDEBUG
+    if (m32_numdebuglines < 64)
+        Bsprintf(m32_debugstr[m32_numdebuglines++], "x=%.02f, y=%.02f, z/16=%.02f (BUILD)", -z, x, -y);
+#endif
+
+    scr[0]=scrx, scr[1]=scry, scr[2]=scrz;
+
+    scrv[0] = x-scrx;
+    scrv[1] = y-scry;
+    scrv[2] = z-scrz;
 
     for (i=0; i<numwalls; i++)
     {
@@ -1960,23 +1973,32 @@ void polymer_alt_editorselect(void)
             GLdouble a=pl[0], b=pl[1], c=pl[2], d=pl[3];
             GLdouble nnormsq = a*a + b*b + c*c;
             GLdouble nnorm = sqrt(nnormsq);
-            GLdouble dist;
+            GLfloat t, svcoeff, dist;
 
             GLfloat npl[3] = {a/nnorm, b/nnorm, c/nnorm};
-            GLfloat scrv[3] = {x-viewx, y-viewy, z-viewz};
 
-            dist = fabs(a*x + b*y + c*z + d)/nnorm;
+            t = dot3f(pl,scrv);
+            if (t==0)
+                continue;
 
+            svcoeff = -(dot3f(pl,scr)+d)/t;
+            if (svcoeff < 0)
+                continue;
+
+            dist = svcoeff * sqrt(dot3f(scrv,scrv));
             if (dist > bestdist)
                 continue;
 
-            // TODO: the parallax cases...
             for (what=(wal->nextsector>=0?2:0); what>=0; what--)
             {
                 GLfloat v1[3], v2[3], v3[3], v4[3], v12[3], v34[3], v1p_r[3], v3p_r[3];
                 GLfloat v23[3], v41[3], v2p_r[3], v4p_r[3];
-                GLfloat tp[3]={x,y,z};
+                GLfloat tp[3];
                 _prplane *pp;
+
+                tp[0] = scrx + svcoeff*scrv[0];
+                tp[1] = scry + svcoeff*scrv[1];
+                tp[2] = scrz + svcoeff*scrv[2];
 
                 pp=wp;
                 if (what==0)
@@ -1997,7 +2019,7 @@ void polymer_alt_editorselect(void)
                     pp=&w->mask;
                 }
 
-                if (-dot3f(scrv,pl)<0 && !(what==2 && (wal->cstat&16)))
+                if (-t<0 && !(what==2 && (wal->cstat&16)))
                     goto nextwall;
                     
                 Bmemcpy(v1, &pp->buffer[0], 3*sizeof(GLfloat));
@@ -2066,8 +2088,7 @@ nextwall:;
         for (what=1; what<=2; what++)
         {
             GLfloat *pl;
-            GLdouble a, b, c, d;
-            GLfloat scrv[3] = {x-viewx, y-viewy, z-viewz};
+            GLfloat t, svcoeff, dist, p[2];
 
             if (what==1)
                 cfp = &s->ceil;
@@ -2076,161 +2097,158 @@ nextwall:;
 
             pl = cfp->plane;
 
-            if (-dot3f(scrv,pl)<0)
+            t = dot3f(pl,scrv);
+            if (-t<=0)
                 continue;
 
-            a=pl[0], b=pl[1], c=pl[2], d=pl[3];
+            svcoeff = -(dot3f(pl,scr)+pl[3])/t;
+            if (svcoeff < 0)
+                continue;
 
+            dist = svcoeff * sqrt(dot3f(scrv,scrv));
+            if (dist > bestdist)
+                continue;
+
+            // point on plane (x and z)
+            p[0] = scrx + svcoeff*scrv[0];
+            p[1] = scrz + svcoeff*scrv[2];
+
+            // implementation using a loop over all triangles
+            for (j=0; j<s->indicescount; j+=3)
             {
-                GLdouble nnormsq = a*a + b*b + c*c;
-                GLdouble nnorm = sqrt(nnormsq);
-                GLdouble dist = dist = fabs(a*x + b*y + c*z + d)/nnorm;
+                GLushort idx[3] = {cfp->indices[j], cfp->indices[j+1], cfp->indices[j+2]};
+                GLfloat v1[2] = {cfp->buffer[(idx[0]*5)], cfp->buffer[(idx[0]*5)+2]};
+                GLfloat v2[2] = {cfp->buffer[(idx[1]*5)], cfp->buffer[(idx[1]*5)+2]};
+                GLfloat v3[2] = {cfp->buffer[(idx[2]*5)], cfp->buffer[(idx[2]*5)+2]};
+                GLfloat v12[2] = {v2[0]-v1[0], v2[1]-v1[1]};
+                GLfloat v23[2] = {v3[0]-v2[0], v3[1]-v2[1]};
+                GLfloat v31[2] = {v1[0]-v3[0], v1[1]-v3[1]};
+                int rotsign = (what==1)?-1:1;
+                GLfloat v1p_r[2] = {rotsign*(p[1]-v1[1]), -rotsign*(p[0]-v1[0])};
+                GLfloat v2p_r[2] = {rotsign*(p[1]-v2[1]), -rotsign*(p[0]-v2[0])};
+                GLfloat v3p_r[2] = {rotsign*(p[1]-v3[1]), -rotsign*(p[0]-v3[0])};
 
-                if (dist > bestdist)
-                    continue;
-
+                if (dot2f(v12,v12)>0.25 && dot2f(v23,v23)>0.25 && dot2f(v31,v31)>0.25
+                    && dot2f(v12,v1p_r) < 0 && dot2f(v23,v2p_r) < 0 && dot2f(v31,v3p_r) < 0)
                 {
-                    // projected point
-                    GLfloat p[2] =
-                    {
-                        //x,
-                        ((b*b+c*c)*x - a*b*y - a*c*z - a*d)/nnormsq,
-
-                        //y,
-                        //(-a*b*x + (a*a+c*c)*y - b*c*z - b*d)/nnormsq,
-
-                        //z
-                        (-a*c*x - b*c*y + (a*a+b*b)*z - c*d)/nnormsq
-                    };
-
-                    // implementation using a loop over all triangles
-                    for (j=0; j<s->indicescount; j+=3)
-                    {
-                        GLushort idx[3] = {cfp->indices[j], cfp->indices[j+1], cfp->indices[j+2]};
-                        GLfloat v1[2] = {cfp->buffer[(idx[0]*5)], cfp->buffer[(idx[0]*5)+2]};
-                        GLfloat v2[2] = {cfp->buffer[(idx[1]*5)], cfp->buffer[(idx[1]*5)+2]};
-                        GLfloat v3[2] = {cfp->buffer[(idx[2]*5)], cfp->buffer[(idx[2]*5)+2]};
-                        GLfloat v12[2] = {v2[0]-v1[0], v2[1]-v1[1]};
-                        GLfloat v23[2] = {v3[0]-v2[0], v3[1]-v2[1]};
-                        GLfloat v31[2] = {v1[0]-v3[0], v1[1]-v3[1]};
-                        int rotsign = (what==1)?-1:1;
-                        GLfloat v1p_r[2] = {rotsign*(p[1]-v1[1]), -rotsign*(p[0]-v1[0])};
-                        GLfloat v2p_r[2] = {rotsign*(p[1]-v2[1]), -rotsign*(p[0]-v2[0])};
-                        GLfloat v3p_r[2] = {rotsign*(p[1]-v3[1]), -rotsign*(p[0]-v3[0])};
-
-                        if (dot2f(v12,v12)>0.25 && dot2f(v23,v23)>0.25 && dot2f(v31,v31)>0.25
-                            && dot2f(v12,v1p_r) < 0 && dot2f(v23,v2p_r) < 0 && dot2f(v31,v3p_r) < 0)
-                        {
-                            bestwhat = what;
-                            bestsec = i;
-                            bestdist = dist;
-#ifdef M32_SHOWDEBUG
-                            if (qvertcount<QNUM-3)
-                            {
-                                Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
-                                qverts[(3*qvertcount)+0] = v1[0];
-                                qverts[(3*qvertcount)+1] = cfp->buffer[(idx[0]*5+1)];
-                                qverts[(3*qvertcount)+2] = v1[1];
-                                qvertcount++;
-
-                                Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col1));
-                                qverts[(3*qvertcount)+0] = v2[0];
-                                qverts[(3*qvertcount)+1] = cfp->buffer[(idx[1]*5+1)];
-                                qverts[(3*qvertcount)+2] = v2[1];
-                                qvertcount++;
-
-                                Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col1));
-                                qverts[(3*qvertcount)+0] = v3[0];
-                                qverts[(3*qvertcount)+1] = cfp->buffer[(idx[2]*5+1)];
-                                qverts[(3*qvertcount)+2] = v3[1];
-                                qvertcount++;
-
-                                Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
-                            }
-#endif
-                            goto nextsector;
-                        }
-                    }  // loop over triangles
-                    /*
-                    // implementation using inside() (less precise)
-                    if (inside(-p[1],p[0],i))
-                    {
                     bestwhat = what;
                     bestsec = i;
                     bestdist = dist;
-                    }
-                    */
-nextsector:
-                    if (bestsec==i)
-                    {
-                        int16_t k, bestk=0;
-                        GLfloat bestwdistsq = FLT_MAX, wdistsq;
-                        GLfloat w1[2], w2[2], w21[2], pw1[2], pw2[2];
-                        GLfloat ptonline[2];
-                        GLfloat scrvxz[2]={scrv[0],scrv[2]};
-                        GLfloat scrvxznorm, scrvxzn[2], scrpxz[2];
-                        GLfloat w1d, w2d;
-                        walltype *wal = &wall[sec->wallptr];
-                        for (k=0; k<sec->wallnum; k++)
-                        {
-                            w1[1] = -(float)wal[k].x;
-                            w1[0] = (float)wal[k].y;
-                            w2[1] = -(float)wall[wal[k].point2].x;
-                            w2[0] = (float)wall[wal[k].point2].y;
-
-                            scrvxznorm = sqrt(dot2f(scrvxz,scrvxz));
-                            scrvxzn[0] = scrvxz[1]/scrvxznorm;
-                            scrvxzn[1] = -scrvxz[0]/scrvxznorm;
-
-                            relvec2f(p,w1, pw1);
-                            relvec2f(p,w2, pw2);
-                            relvec2f(w2,w1, w21);
-                            w1d = dot2f(scrvxzn,pw1);
-                            w2d = dot2f(scrvxzn,pw2);
-                            w2d = -w2d;
-                            if (w1d <= 0 || w2d <= 0)
-                                continue;
-                            ptonline[0] = w2[0]+(w2d/(w1d+w2d))*w21[0];
-                            ptonline[1] = w2[1]+(w2d/(w1d+w2d))*w21[1];
-                            relvec2f(p,ptonline, scrpxz);
-                            if (dot2f(scrvxz,scrpxz)<0)
-                                continue;
-                            wdistsq = dot2f(scrpxz,scrpxz);
-                            if (wdistsq < bestwdistsq)
-                            {
-                                bestk = k;
-                                bestwdistsq = wdistsq;
-                            }
-                        }
-                        bestwall = sec->wallptr+bestk;
 #ifdef M32_SHOWDEBUG
-                        if (m32_numdebuglines<64)
-                            Bsprintf(m32_debugstr[m32_numdebuglines++], "what=sec %d, dist=%.02f, wall=%d", bestsec, bestdist, bestwall);
+                    if (qvertcount<QNUM-3)
+                    {
+                        Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
+                        qverts[(3*qvertcount)+0] = v1[0];
+                        qverts[(3*qvertcount)+1] = cfp->buffer[(idx[0]*5+1)];
+                        qverts[(3*qvertcount)+2] = v1[1];
+                        qvertcount++;
+
+                        Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col1));
+                        qverts[(3*qvertcount)+0] = v2[0];
+                        qverts[(3*qvertcount)+1] = cfp->buffer[(idx[1]*5+1)];
+                        qverts[(3*qvertcount)+2] = v2[1];
+                        qvertcount++;
+
+                        Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col1));
+                        qverts[(3*qvertcount)+0] = v3[0];
+                        qverts[(3*qvertcount)+1] = cfp->buffer[(idx[2]*5+1)];
+                        qverts[(3*qvertcount)+2] = v3[1];
+                        qvertcount++;
+
+                        Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
+                    }
 #endif
-                    }  // determine searchwall
-                }  // ceiling or floor
-            }  // loop over sectors
-        }
-    }
+                    goto nextsector;
+                }
+            }  // loop over triangles
+            /*
+            // implementation using inside() (less precise)
+            if (inside(-p[1],p[0],i))
+            {
+            bestwhat = what;
+            bestsec = i;
+            bestdist = dist;
+            }
+            */
+nextsector:
+            if (bestsec==i)
+            {
+                int16_t k, bestk=0;
+                GLfloat bestwdistsq = FLT_MAX, wdistsq;
+                GLfloat w1[2], w2[2], w21[2], pw1[2], pw2[2];
+                GLfloat ptonline[2];
+                GLfloat scrvxz[2]={scrv[0],scrv[2]};
+                GLfloat scrvxznorm, scrvxzn[2], scrpxz[2];
+                GLfloat w1d, w2d;
+                walltype *wal = &wall[sec->wallptr];
+                for (k=0; k<sec->wallnum; k++)
+                {
+                    w1[1] = -(float)wal[k].x;
+                    w1[0] = (float)wal[k].y;
+                    w2[1] = -(float)wall[wal[k].point2].x;
+                    w2[0] = (float)wall[wal[k].point2].y;
+
+                    scrvxznorm = sqrt(dot2f(scrvxz,scrvxz));
+                    scrvxzn[0] = scrvxz[1]/scrvxznorm;
+                    scrvxzn[1] = -scrvxz[0]/scrvxznorm;
+
+                    relvec2f(p,w1, pw1);
+                    relvec2f(p,w2, pw2);
+                    relvec2f(w2,w1, w21);
+                    w1d = dot2f(scrvxzn,pw1);
+                    w2d = dot2f(scrvxzn,pw2);
+                    w2d = -w2d;
+                    if (w1d <= 0 || w2d <= 0)
+                        continue;
+                    ptonline[0] = w2[0]+(w2d/(w1d+w2d))*w21[0];
+                    ptonline[1] = w2[1]+(w2d/(w1d+w2d))*w21[1];
+                    relvec2f(p,ptonline, scrpxz);
+                    if (dot2f(scrvxz,scrpxz)<0)
+                        continue;
+                    wdistsq = dot2f(scrpxz,scrpxz);
+                    if (wdistsq < bestwdistsq)
+                    {
+                        bestk = k;
+                        bestwdistsq = wdistsq;
+                    }
+                }
+                bestwall = sec->wallptr+bestk;
+#ifdef M32_SHOWDEBUG
+                if (m32_numdebuglines<64)
+                    Bsprintf(m32_debugstr[m32_numdebuglines++], "what=sec %d, dist=%.02f, wall=%d", bestsec, bestdist, bestwall);
+#endif
+            }  // determine searchwall
+        } // ceiling or floor
+    } // loop over sectors
 
     for (i=0; i<m32_numdrawnsprites; i++)
     {
         GLfloat *pl = m32_drawnsprites[i].plane;
-        GLdouble a=pl[0], b=pl[1], c=pl[2], d=pl[3];
-        GLdouble nnormsq = a*a + b*b + c*c;
-        GLdouble nnorm = sqrt(nnormsq);
-        GLdouble dist = fabs(a*x + b*y + c*z + d)/nnorm;
-        GLfloat scrv[3] = {x-viewx, y-viewy, z-viewz};
+        GLfloat t, svcoeff, dist;
         int16_t sn = m32_drawnsprites[i].owner;
 
-        if (dist > bestdist+1.01 || ((sprite[sn].cstat&64) && -dot3f(scrv,pl)<0))
+        t = dot3f(pl,scrv);
+        if (t==0 || ((sprite[sn].cstat&64) && -t<0))
             continue;
 
+        svcoeff = -(dot3f(pl,scr)+pl[3])/t;
+        if (svcoeff < 0)
+            continue;
+
+        dist = svcoeff * sqrt(dot3f(scrv,scrv));
+        if (dist > bestdist+1.01)
+                continue;
+
         {
-            GLfloat tp[3] = {x,y,z};
             GLfloat *v = m32_drawnsprites[i].verts;
             GLfloat v12_r[3], v23_r[3], v34_r[3], v41_r[3];
             GLfloat v1p[3], v2p[3], v3p[3], v4p[3];
+            GLfloat tp[3];
+
+            tp[0] = scrx + svcoeff*scrv[0];
+            tp[1] = scry + svcoeff*scrv[1];
+            tp[2] = scrz + svcoeff*scrv[2];
+
             relvec3f(&v[3*3],&v[0*3], v12_r);
             relvec3f(&v[0*3],&v[1*3], v23_r);
             relvec3f(&v[1*3],&v[2*3], v34_r);
