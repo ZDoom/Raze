@@ -2680,29 +2680,9 @@ CHECKINV1:
 
                 p->inven_icon = dainv;
 
-                switch (dainv)
                 {
-                case 1:
-                    P_DoQuote(3,p);
-                    break;
-                case 2:
-                    P_DoQuote(90,p);
-                    break;
-                case 3:
-                    P_DoQuote(91,p);
-                    break;
-                case 4:
-                    P_DoQuote(88,p);
-                    break;
-                case 5:
-                    P_DoQuote(101,p);
-                    break;
-                case 6:
-                    P_DoQuote(89,p);
-                    break;
-                case 7:
-                    P_DoQuote(6,p);
-                    break;
+                    static const int32_t i[8] = { 3, 90, 91, 88, 101, 89, 6, 0 };
+                    P_DoQuote(i[dainv], p);
                 }
             }
 
@@ -2713,34 +2693,16 @@ CHECKINV1:
         switch (j)
         {
         case 0:
-            X_OnEvent(EVENT_WEAPKEY1,p->i,snum, -1);
-            break;
         case 1:
-            X_OnEvent(EVENT_WEAPKEY2,p->i,snum, -1);
-            break;
         case 2:
-            X_OnEvent(EVENT_WEAPKEY3,p->i,snum, -1);
-            break;
         case 3:
-            X_OnEvent(EVENT_WEAPKEY4,p->i,snum, -1);
-            break;
         case 4:
-            X_OnEvent(EVENT_WEAPKEY5,p->i,snum, -1);
-            break;
         case 5:
-            X_OnEvent(EVENT_WEAPKEY6,p->i,snum, -1);
-            break;
         case 6:
-            X_OnEvent(EVENT_WEAPKEY7,p->i,snum, -1);
-            break;
         case 7:
-            X_OnEvent(EVENT_WEAPKEY8,p->i,snum, -1);
-            break;
         case 8:
-            X_OnEvent(EVENT_WEAPKEY9,p->i,snum, -1);
-            break;
         case 9:
-            X_OnEvent(EVENT_WEAPKEY10,p->i,snum, -1);
+            X_OnEvent(EVENT_WEAPKEY1+j,p->i,snum, -1);
             break;
         case 10:
             X_OnEvent(EVENT_PREVIOUSWEAPON,p->i,snum, -1);
@@ -2750,17 +2712,16 @@ CHECKINV1:
             break;
         }
 
-        if ((uint32_t) aGameVars[g_iReturnVarID].val.lValue != j)
-            j = (uint32_t) aGameVars[g_iReturnVarID].val.lValue;
+        j = (uint32_t) aGameVars[g_iReturnVarID].val.lValue;
 
         if (p->reloading == 1)
             j = -1;
-        else if (j > 0 && p->kickback_pic == 1 && p->weapon_pos == 1)
+        else if ((int32_t)j != -1 && p->kickback_pic == 1 && p->weapon_pos == 1)
         {
             p->wantweaponfire = j;
             p->kickback_pic = 0;
         }
-        if (p->last_pissed_time <= (GAMETICSPERSEC*218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
+        if ((int32_t)j != -1 && p->last_pissed_time <= (GAMETICSPERSEC*218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
         {
             //            if(  ( p->weapon_pos == 0 || ( p->holster_weapon && p->weapon_pos == -9 ) ))
             {
@@ -2774,10 +2735,9 @@ CHECKINV1:
                     {
                         if (k == GROW_WEAPON)   // JBF: this is handling next/previous with the grower selected
                         {
-                            if (j == (uint32_t)-1)
+                            if ((int32_t)j == -1)
                                 k = 5;
                             else k = 7;
-
                         }
                         else
                         {
@@ -2824,9 +2784,10 @@ CHECKINV1:
 
                 Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum],p->i,snum);
                 Gv_SetVar(g_iWeaponVarID,j, p->i, snum);
-                aGameVars[g_iReturnVarID].val.lValue = 0;
+                aGameVars[g_iReturnVarID].val.lValue = j;
                 X_OnEvent(EVENT_SELECTWEAPON,p->i,snum, -1);
-                if (aGameVars[g_iReturnVarID].val.lValue == 0)
+                j = aGameVars[g_iReturnVarID].val.lValue;
+                if ((int32_t)j != -1 && j <= MAX_WEAPONS)
                 {
                     if (j == HANDBOMB_WEAPON && p->ammo_amount[HANDBOMB_WEAPON] == 0)
                     {
@@ -2879,95 +2840,42 @@ CHECKINV1:
                     else if ((int32_t)j >= 0 && p->gotweapon[j] && (uint32_t)p->curr_weapon != j)
                         switch (j)
                         {
-                        case KNEE_WEAPON:
-                            P_AddWeapon(p, KNEE_WEAPON);
-                            break;
                         case PISTOL_WEAPON:
-                            if (p->ammo_amount[PISTOL_WEAPON] == 0)
-                                if (p->show_empty_weapon == 0)
-                                {
-                                    p->last_full_weapon = p->curr_weapon;
-                                    p->show_empty_weapon = 32;
-                                }
-                            P_AddWeapon(p, PISTOL_WEAPON);
-                            break;
                         case SHOTGUN_WEAPON:
-                            if (p->ammo_amount[SHOTGUN_WEAPON] == 0 && p->show_empty_weapon == 0)
-                            {
-                                p->last_full_weapon = p->curr_weapon;
-                                p->show_empty_weapon = 32;
-                            }
-                            P_AddWeapon(p, SHOTGUN_WEAPON);
-                            break;
                         case CHAINGUN_WEAPON:
-                            if (p->ammo_amount[CHAINGUN_WEAPON] == 0 && p->show_empty_weapon == 0)
-                            {
-                                p->last_full_weapon = p->curr_weapon;
-                                p->show_empty_weapon = 32;
-                            }
-                            P_AddWeapon(p, CHAINGUN_WEAPON);
-                            break;
                         case RPG_WEAPON:
-                            if (p->ammo_amount[RPG_WEAPON] == 0)
-                                if (p->show_empty_weapon == 0)
-                                {
-                                    p->last_full_weapon = p->curr_weapon;
-                                    p->show_empty_weapon = 32;
-                                }
-                            P_AddWeapon(p, RPG_WEAPON);
-                            break;
                         case DEVISTATOR_WEAPON:
-                            if (p->ammo_amount[DEVISTATOR_WEAPON] == 0 && p->show_empty_weapon == 0)
-                            {
-                                p->last_full_weapon = p->curr_weapon;
-                                p->show_empty_weapon = 32;
-                            }
-                            P_AddWeapon(p, DEVISTATOR_WEAPON);
-                            break;
                         case FREEZE_WEAPON:
-                            if (p->ammo_amount[FREEZE_WEAPON] == 0 && p->show_empty_weapon == 0)
-                            {
-                                p->last_full_weapon = p->curr_weapon;
-                                p->show_empty_weapon = 32;
-                            }
-                            P_AddWeapon(p, FREEZE_WEAPON);
-                            break;
                         case GROW_WEAPON:
                         case SHRINKER_WEAPON:
-
                             if (p->ammo_amount[j] == 0 && p->show_empty_weapon == 0)
                             {
-                                p->show_empty_weapon = 32;
                                 p->last_full_weapon = p->curr_weapon;
+                                p->show_empty_weapon = 32;
                             }
-
+                        case KNEE_WEAPON:
                             P_AddWeapon(p, j);
                             break;
                         case HANDREMOTE_WEAPON:
                             if (k >= 0) // Found in list of [1]'s
                             {
-                                p->curr_weapon = HANDREMOTE_WEAPON;
+                                p->curr_weapon = j;
                                 p->last_weapon = -1;
                                 p->weapon_pos = 10;
                             }
                             break;
                         case HANDBOMB_WEAPON:
-                            if (p->ammo_amount[HANDBOMB_WEAPON] > 0 && p->gotweapon[HANDBOMB_WEAPON])
-                                P_AddWeapon(p, HANDBOMB_WEAPON);
-                            break;
                         case TRIPBOMB_WEAPON:
-                            if (p->ammo_amount[TRIPBOMB_WEAPON] > 0 && p->gotweapon[TRIPBOMB_WEAPON])
-                                P_AddWeapon(p, TRIPBOMB_WEAPON);
+                            if (p->ammo_amount[j] > 0 && p->gotweapon[j])
+                                P_AddWeapon(p, j);
                             break;
                         }
                 }
-
             }
         }
 
         if (TEST_SYNC_KEY(sb_snum, SK_HOLODUKE) && p->newowner == -1)
         {
-
             if (p->holoduke_on == -1)
             {
                 aGameVars[g_iReturnVarID].val.lValue = 0;
@@ -3044,11 +2952,11 @@ CHECKINV1:
                     if (p->jetpack_on)
                     {
                         p->inven_icon = 4;
-                        if (p->scream_voice > FX_Ok)
+                        if (p->scream_voice >= FX_Ok)
                         {
                             FX_StopSound(p->scream_voice);
                             S_TestSoundCallback(DUKE_SCREAM);
-                            p->scream_voice = FX_Ok;
+                            p->scream_voice = -1;
                         }
 
                         A_PlaySound(DUKE_JETPACK_ON,p->i);

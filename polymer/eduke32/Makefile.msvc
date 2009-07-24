@@ -61,7 +61,6 @@ JMACTOBJ=$(OBJ)\util_lib.$o \
 
 AUDIOLIB_FX_STUB=$(OBJ)\jaudiolib_fxstub.$o
 AUDIOLIB_MUSIC_STUB=$(OBJ)\jaudiolib_musicstub.$o
-#AUDIOLIB_FX=$(OBJ)\jaudiolib_fx_fmod.$o
 AUDIOLIB_FX=$(OBJ)\mv_mix.$o \
 	  $(OBJ)\mv_mix16.$o \
 	  $(OBJ)\mvreverb.$o \

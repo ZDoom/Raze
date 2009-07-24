@@ -103,6 +103,8 @@ int32_t g_numCompilerErrors,g_numCompilerWarnings;
 extern char *duke3dgrpstring;
 extern char *duke3ddef;
 
+extern int32_t g_maxSoundPos;
+
 enum ScriptLabel_t
 {
     LABEL_ANY    = -1,
@@ -1402,14 +1404,8 @@ static int32_t C_CheckEventSync(int32_t iEventID)
 
 static inline int32_t ispecial(const char c)
 {
-    if (c == 0x0a)
-    {
-        g_lineNumber++;
-        return 1;
-    }
-
     if (c == ' ' || c == 0x0d || c == '(' || c == ')' ||
-        c == ',' || c == ';')
+        c == ',' || c == ';' || (c == 0x0a && ++g_lineNumber))
         return 1;
 
     return 0;
@@ -2973,8 +2969,7 @@ static int32_t C_ParseCommand(void)
         return 0;
 
     case CON_QSPRINTF:
-        C_GetNextValue(LABEL_DEFINE);
-        C_GetNextValue(LABEL_DEFINE);
+        C_GetManyVars(2);
 
         j = 0;
 
@@ -5585,6 +5580,9 @@ repeatcase:
         C_GetNextValue(LABEL_DEFINE);
         g_sounds[k].vo = *(g_scriptPtr-1);
         g_scriptPtr--;
+
+        if (k > g_maxSoundPos)
+            g_maxSoundPos = k;
         return 0;
 
     case CON_ENDEVENT:

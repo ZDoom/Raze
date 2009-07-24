@@ -312,12 +312,9 @@ struct savehead {
     int32_t numplr,volnum,levnum,plrskl;
     char boardfn[BMAX_PATH];
 };
-#pragma pack(pop)
-// the following struct is never saved off anywhere
-// so we don't need to fuck with its packing
 
 typedef struct {
-    int32_t camerax,cameray,cameraz;
+    vec3_t camera;
     int32_t const_visibility,uw_framerate;
     int32_t camera_time,folfvel,folavel,folx,foly,fola;
     int32_t reccnt,crosshairscale;
@@ -342,15 +339,6 @@ typedef struct {
     int16_t pause_on,from_bonus;
     int16_t camerasprite,last_camsprite;
     int16_t last_level,secretlevel;
-
-    char overhead_on,last_overhead,showweapons;
-    char god,warp_on,cashman,eog,showallmap;
-    char show_help,scrollmode,clipping;
-    char ridecule[10][40];
-    char savegame[10][22];
-    char pwlockout[128],rtsname[128];
-    char display_bonus_screen;
-    char show_level_text;
 
     struct {
         int32_t UseJoystick;
@@ -414,9 +402,16 @@ typedef struct {
         int32_t LastUpdateCheck;
         int32_t useprecache;
     } config;
-} user_defs;
 
-#pragma pack(push,1)
+    char overhead_on,last_overhead,showweapons;
+    char god,warp_on,cashman,eog,showallmap;
+    char show_help,scrollmode,clipping;
+    char ridecule[10][40];
+    char savegame[10][22];
+    char pwlockout[128],rtsname[128];
+    char display_bonus_screen;
+    char show_level_text;
+} user_defs;
 
 typedef struct {
     int32_t ox,oy,oz;

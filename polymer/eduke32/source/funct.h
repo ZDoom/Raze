@@ -236,7 +236,6 @@ extern void X_OnEvent(register int32_t iEventID, register int32_t sActor, regist
 
 extern int32_t A_CheckSoundPlaying(int32_t i, int32_t num);
 extern int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
-extern void A_StopSound(int32_t num, int32_t i);
 extern void G_UpdatePlayerFromMenu(void);
 extern void Net_SendPlayerName(void);
 extern void Net_SendUserMapName(void);

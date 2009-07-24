@@ -56,7 +56,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #define T_RIGHTQUIET  16
 #define T_DEFAULT     T_SIXTEENBIT_STEREO
 
-#define MV_MaxPanPosition  31
+#define MV_MaxPanPosition  127
 #define MV_NumPanPositions ( MV_MaxPanPosition + 1 )
 #define MV_MaxTotalVolume  255
 //#define MV_MaxVolume       63

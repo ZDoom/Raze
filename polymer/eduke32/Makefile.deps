@@ -49,8 +49,6 @@ $(OBJ)/scriplib.$o: $(SRC)/jmact/scriplib.c $(SRC)/jmact/scriplib.h $(SRC)/jmact
 $(OBJ)/audiolib_fxstub.$o: $(SRC)/jaudiolib/audiolib_fxstub.c $(SRC)/jaudiolib/fx_man.h
 $(OBJ)/audiolib_musicstub.$o: $(SRC)/jaudiolib/audiolib_musicstub.c $(SRC)/jaudiolib/music.h
 
-$(OBJ)/audiolib_fx_fmod.$o: $(SRC)/jaudiolib/audiolib_fx_fmod.c $(SRC)/jaudiolib/fx_man_fmod.h $(INC)/duke3d.h
-
 $(OBJ)/mv_mix.$o: $(SRC)/jaudiolib/mv_mix.nasm
 $(OBJ)/mv_mix16.$o: $(SRC)/jaudiolib/mv_mix16.nasm
 $(OBJ)/mvreverb.$o: $(SRC)/jaudiolib/mvreverb.nasm

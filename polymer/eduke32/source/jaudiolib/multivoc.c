@@ -67,10 +67,10 @@ static int32_t MV_ReverbDelay;
 static VOLUME16 *MV_ReverbTable = NULL;
 
 //static signed short MV_VolumeTable[ MV_MaxVolume + 1 ][ 256 ];
-static int16_t MV_VolumeTable[ 63 + 1 ][ 256 ];
+static int16_t MV_VolumeTable[ 255 + 1 ][ 256 ];
 
 //static Pan MV_PanTable[ MV_NumPanPositions ][ MV_MaxVolume + 1 ];
-static Pan MV_PanTable[ MV_NumPanPositions ][ 63 + 1 ];
+static Pan MV_PanTable[ MV_NumPanPositions ][ 255 + 1 ];
 
 static int32_t MV_Installed   = FALSE;
 static int32_t MV_SoundCard   = -1;
@@ -113,7 +113,7 @@ static void(*MV_CallBackFunc)(uint32_t) = NULL;
 static void(*MV_RecordFunc)(char *ptr, int32_t length) = NULL;
 static void(*MV_MixFunction)(VoiceNode *voice, int32_t buffer);
 
-static int32_t MV_MaxVolume = 63;
+static int32_t MV_MaxVolume = 255;
 
 char  *MV_HarshClipTable;
 char  *MV_MixDestination;

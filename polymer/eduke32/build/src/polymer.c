@@ -1784,6 +1784,7 @@ static void         polymer_freeboard(void)
     }
 }
 
+#if 0
 static void         polymer_editorselect(void)
 {
 //        int32_t     i, n;
@@ -1870,6 +1871,7 @@ static void         polymer_editorselect(void)
             searchit = 0;
         }
 }
+#endif // 0
 
 
 // vvv --- improved editor aiming
@@ -5191,8 +5193,8 @@ static void         polymer_initrendertargets(int32_t count)
             bglTexImage2D(prrts[i].target, 0, GL_RGBA, prrts[i].xdim, prrts[i].ydim, 0, GL_RGBA, GL_SHORT, NULL);
             bglTexParameteri(prrts[i].target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             bglTexParameteri(prrts[i].target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_S, GL_CLAMP);
-            bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_T, GL_CLAMP);
+            bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+            bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
         } else {
             prrts[i].target = GL_TEXTURE_2D;
             prrts[i].xdim = 128 << pr_shadowdetail;
@@ -5206,8 +5208,8 @@ static void         polymer_initrendertargets(int32_t count)
                 bglTexImage2D(prrts[i].target, 0, GL_RGBA, prrts[i].xdim, prrts[i].ydim, 0, GL_RGBA, GL_SHORT, NULL);
                 bglTexParameteri(prrts[i].target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                 bglTexParameteri(prrts[i].target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_S, GL_CLAMP);
-                bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+                bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
             }
         }
 
@@ -5217,8 +5219,8 @@ static void         polymer_initrendertargets(int32_t count)
         bglTexImage2D(prrts[i].target, 0, GL_DEPTH_COMPONENT, prrts[i].xdim, prrts[i].ydim, 0, GL_DEPTH_COMPONENT, GL_SHORT, NULL);
         bglTexParameteri(prrts[i].target, GL_TEXTURE_MIN_FILTER, pr_shadowfiltering ? GL_LINEAR : GL_NEAREST);
         bglTexParameteri(prrts[i].target, GL_TEXTURE_MAG_FILTER, pr_shadowfiltering ? GL_LINEAR : GL_NEAREST);
-        bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+        bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
         bglTexParameteri(prrts[i].target, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
         bglTexParameteri(prrts[i].target, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
         bglTexParameteri(prrts[i].target, GL_DEPTH_TEXTURE_MODE_ARB, GL_ALPHA);

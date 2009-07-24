@@ -17,7 +17,6 @@
 #include "compat.h"
 #include "baselayer.h"
 
-
 //STL
 //#include <vector>
 //#include "buildqueue.h"
@@ -28,6 +27,18 @@
 #define PLATFORM_WIN32 1
 #else
 #define PLATFORM_UNIX 1
+
+#include <sys/time.h>
+static int32_t GetTickCount(void)
+{
+    struct timeval tv;
+    int32_t ti;
+    if (gettimeofday(&tv,NULL) < 0) return 0;
+    // tv is sec.usec, GTC gives msec
+    ti = tv.tv_sec * 1000;
+    ti += tv.tv_usec / 1000;
+    return ti;
+}
 #endif
 
 #define UDP_NETWORKING 1
@@ -1209,10 +1220,8 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
 
     while (my_id == 0)  /* player number is based on id, low to high. */
     {
-        /*        struct timeval tv;
-                gettimeofday(&tv, NULL);
-                my_id = (unsigned short)tv.tv_usec; //HACK */
-        my_id = (uint16_t) rand();
+        my_id = (unsigned short)GetTickCount();
+        // my_id = (uint16_t) rand();
     }
 
     initprintf("network: Using 0x%X as client ID\n", my_id);

@@ -5155,7 +5155,7 @@ void clearmidstatbar16(void)
 
 void clearministatbar16(void)
 {
-    int32_t i, col = whitecol - 16;
+    int32_t i, col = whitecol - 21;
     char tempbuf[32];
     begindrawing();
 
@@ -6065,7 +6065,7 @@ void showsectordata(int16_t sectnum)
 
         row = 2;
         begindrawing();
-        col = whitecol - 16;
+        col = whitecol - 21;
         for (i=ydim-(row*96)-STATUS2DSIZ+16; i<ydim-STATUS2DSIZ2-8; i++)
         {
             //        drawline256(0, i<<12, xdim<<12, i<<12, col);
@@ -6153,7 +6153,7 @@ void showwalldata(int16_t wallnum)
 
         row = 2;
         begindrawing();
-        col = whitecol - 16;
+        col = whitecol - 21;
         for (i=ydim-(row*80)-STATUS2DSIZ+16; i<ydim-STATUS2DSIZ2-8; i++)
         {
             //        drawline256(0, i<<12, xdim<<12, i<<12, col);
@@ -6243,7 +6243,7 @@ void showspritedata(int16_t spritenum)
 
         row = 2;
         begindrawing();
-        col = whitecol - 16;
+        col = whitecol - 21;
         for (i=ydim-(row*80)-STATUS2DSIZ+16; i<ydim-STATUS2DSIZ2-8; i++)
         {
             //        drawline256(0, i<<12, xdim<<12, i<<12, col);

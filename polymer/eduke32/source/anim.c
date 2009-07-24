@@ -263,7 +263,7 @@ void G_PlayAnim(const char *fn,char t)
 
     for (i=1; i<numframes; i++)
     {
-        if ((i > 4) && (totalclock > frametime + 45))
+        if ((i > 4) && (totalclock > frametime + 60))
         {
             OSD_Printf("WARNING: slowdown in %s, skipping playback\n",fn);
             goto ENDOFANIMLOOP;

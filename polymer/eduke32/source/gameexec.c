@@ -1061,7 +1061,7 @@ skip_check:
                 continue;
             }
             if (S_CheckSoundPlaying(vm.g_i,*insptr))
-                A_StopSound((int16_t)*insptr,vm.g_i);
+                S_StopSound((int16_t)*insptr);
             insptr++;
             continue;
 
@@ -2193,7 +2193,7 @@ nullquote:
                 case CON_STOPSOUNDVAR:
                     if ((j<0 || j>=MAXSOUNDS) /* && g_scriptSanityChecks */) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j); break;}
                     if (S_CheckSoundPlaying(vm.g_i,j))
-                        A_StopSound((int16_t)j,vm.g_i);
+                        S_StopSound((int16_t)j);
                     break;
                 case CON_SOUNDVAR:
                     if ((j<0 || j>=MAXSOUNDS) /* && g_scriptSanityChecks */) {OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j); break;}
@@ -3160,7 +3160,7 @@ nullquote:
         case CON_QSPRINTF:
             insptr++;
             {
-                int32_t dq = *insptr++, sq = *insptr++;
+                int32_t dq = Gv_GetVarX(*insptr++), sq = Gv_GetVarX(*insptr++);
                 if ((ScriptQuotes[sq] == NULL || ScriptQuotes[dq] == NULL) /* && g_scriptSanityChecks */)
                 {
                     OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],ScriptQuotes[sq] ? dq : sq);

@@ -4065,11 +4065,11 @@ void P_ProcessInput(int32_t snum)
             p->holoduke_on = -1;
 
             S_StopEnvSound(DUKE_JETPACK_IDLE,p->i);
-            if (p->scream_voice > FX_Ok)
+            if (p->scream_voice >= FX_Ok)
             {
                 FX_StopSound(p->scream_voice);
                 S_TestSoundCallback(DUKE_SCREAM);
-                p->scream_voice = FX_Ok;
+                p->scream_voice = -1;
             }
 
             if (s->pal != 1 && (s->cstat&32768) == 0) s->cstat = 0;
@@ -4512,7 +4512,8 @@ void P_ProcessInput(int32_t snum)
 
             // not jumping or crouching
 
-            if (!TEST_SYNC_KEY(sb_snum, SK_JUMP) && !TEST_SYNC_KEY(sb_snum, SK_CROUCH) && p->on_ground && (sector[psect].floorstat&2) && p->posz >= (fz-(i<<8)-(16<<8)))
+            if (!TEST_SYNC_KEY(sb_snum, SK_JUMP) && !TEST_SYNC_KEY(sb_snum, SK_CROUCH) &&
+                p->on_ground && (sector[psect].floorstat&2) && p->posz >= (fz-(i<<8)-(16<<8)))
                 p->posz = fz-(i<<8);
             else
             {
@@ -4522,7 +4523,7 @@ void P_ProcessInput(int32_t snum)
                 if (p->poszv > 2400 && p->falling_counter < 255)
                 {
                     p->falling_counter++;
-                    if (p->falling_counter == 38)
+                    if (p->falling_counter >= 38 && p->scream_voice == -1)
                         p->scream_voice = A_PlaySound(DUKE_SCREAM,pi);
                 }
 
@@ -4533,8 +4534,7 @@ void P_ProcessInput(int32_t snum)
 
                         else if (p->falling_counter > 9)
                         {
-                            j = p->falling_counter;
-                            s->extra -= j-(krand()&3);
+                            s->extra -= p->falling_counter-(krand()&3);
                             if (s->extra <= 0)
                             {
                                 A_PlaySound(SQUISHED,pi);
@@ -4562,10 +4562,10 @@ void P_ProcessInput(int32_t snum)
         else
         {
             p->falling_counter = 0;
-            if (p->scream_voice > FX_Ok)
+            if (p->scream_voice >= FX_Ok)
             {
                 FX_StopSound(p->scream_voice);
-                p->scream_voice = FX_Ok;
+                p->scream_voice = -1;
             }
 
             if (psectlotag != 1 && psectlotag != 2 && p->on_ground == 0 && p->poszv > (6144>>1))

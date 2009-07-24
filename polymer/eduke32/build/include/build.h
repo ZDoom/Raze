@@ -410,12 +410,12 @@ typedef struct {
     int32_t x, y, z;
 } vec3_t;
 
-#pragma pack(pop)
-
 typedef struct {
     vec3_t pos;
     int16_t hitsprite, hitwall, hitsect;
 } hitdata_t;
+
+#pragma pack(pop)
 
 int32_t    preinitengine(void);	// a partial setup of the engine used for launch windows
 int32_t    initengine(void);

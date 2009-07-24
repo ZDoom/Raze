@@ -597,10 +597,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\fx_man_fmod.h"
-					>
-				</File>
-				<File
 					RelativePath=".\source\jaudiolib\interrup.h"
 					>
 				</File>
@@ -656,10 +652,6 @@
 			<Filter
 				Name="Source Files"
 				>
-				<File
-					RelativePath=".\source\jaudiolib\audiolib_fx_fmod.c"
-					>
-				</File>
 				<File
 					RelativePath=".\source\jaudiolib\audiolib_fxstub.c"
 					>

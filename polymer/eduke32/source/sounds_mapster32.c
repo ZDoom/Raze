@@ -312,7 +312,7 @@ int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
             voice = FX_PlayWAV3D(g_sounds[ num ].ptr,pitch,sndang>>6,sndist>>6, g_sounds[num].pr, num);
     }
 
-    if (voice > FX_Ok)
+    if (voice >= FX_Ok)
     {
         g_sounds[num].SoundOwner[g_sounds[num].num].i = i;
         g_sounds[num].SoundOwner[g_sounds[num].num].voice = voice;
@@ -392,7 +392,7 @@ void S_PlaySound(int32_t num)
             voice = FX_PlayWAV3D(g_sounds[ num ].ptr, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
     }
 
-    if (voice > FX_Ok)// return;
+    if (voice >= FX_Ok)// return;
     {
         g_sounds[num].SoundOwner[g_sounds[num].num].voice = voice;
         g_sounds[num].num++;
@@ -411,12 +411,6 @@ int32_t A_PlaySound(uint32_t num, int32_t i)
     }
 
     return S_PlaySoundXYZ(num,i, (vec3_t *)&sprite[i]);
-}
-
-void A_StopSound(int32_t num, int32_t i)
-{
-    UNREFERENCED_PARAMETER(i);
-    if (num >= 0 && num < MAXSOUNDS) S_StopSound(num);
 }
 
 void S_StopSound(int32_t num)
