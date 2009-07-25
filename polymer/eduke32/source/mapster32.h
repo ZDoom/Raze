@@ -43,6 +43,7 @@ extern int32_t zmode, kensplayerheight, zlock;
 extern int16_t editstatus, searchit;
 extern int32_t searchx, searchy, osearchx, osearchy;      //search input
 extern int16_t searchsector, searchwall, searchstat;     //search output
+extern int16_t searchbottomwall;
 
 #define COLOR_RED 248
 #define COLOR_WHITE 31

@@ -520,6 +520,8 @@ int16_t editstatus = 0;
 int16_t searchit;
 int32_t searchx = -1, searchy;                          //search input
 int16_t searchsector, searchwall, searchstat;     //search output
+// nextwall if aiming at bottom w/ swapped walls, else searchwall; only valid for searchstat==0:
+int16_t searchbottomwall;
 double msens = 1.0;
 
 static char artfilename[20];
@@ -2507,7 +2509,7 @@ static void drawalls(int32_t bunch)
                     if ((searchit == 2) && (searchx >= x1) && (searchx <= x2))
                         if (searchy <= dwall[searchx]) //wall
                         {
-                            searchsector = sectnum; searchwall = wallnum;
+                            searchsector = sectnum; searchbottomwall = searchwall = wallnum;
                             searchstat = 0; searchit = 1;
                         }
 
@@ -2596,8 +2598,8 @@ static void drawalls(int32_t bunch)
                     if ((searchit == 2) && (searchx >= x1) && (searchx <= x2))
                         if (searchy >= uwall[searchx]) //wall
                         {
-                            searchsector = sectnum; searchwall = wallnum;
-                            if ((wal->cstat&2) > 0) searchwall = wal->nextwall;
+                            searchsector = sectnum; searchbottomwall = searchwall = wallnum;
+                            if ((wal->cstat&2) > 0) searchbottomwall = wal->nextwall;
                             searchstat = 0; searchit = 1;
                         }
 
@@ -2747,7 +2749,7 @@ static void drawalls(int32_t bunch)
 
             if ((searchit == 2) && (searchx >= x1) && (searchx <= x2))
             {
-                searchit = 1; searchsector = sectnum; searchwall = wallnum;
+                searchit = 1; searchsector = sectnum; searchbottomwall = searchwall = wallnum;
                 if (nextsectnum < 0) searchstat = 0; else searchstat = 4;
             }
         }

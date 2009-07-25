@@ -4368,6 +4368,7 @@ static void Keys3d(void)
         char lines[8][64];
         int32_t dax, day, dist, height1=0,height2=0,height3=0, num=0;
         int32_t x,y;
+        int16_t w;
 
         if (infobox&1)
         {
@@ -4376,10 +4377,11 @@ static void Keys3d(void)
             {
             case 0:
             case 4:
+                w = (searchstat==0)?searchbottomwall:searchwall;
                 drawtileinfo("Current",WIND1X,WIND1Y,
-                             searchstat==0 ? wall[searchwall].picnum : wall[searchwall].overpicnum,
-                             wall[searchwall].shade,
-                             wall[searchwall].pal,wall[searchwall].cstat,wall[searchwall].lotag,
+                             searchstat==0 ? wall[w].picnum : wall[w].overpicnum,
+                             wall[w].shade,
+                             wall[w].pal,wall[searchwall].cstat,wall[searchwall].lotag,
                              wall[searchwall].hitag,wall[searchwall].extra);
 
                 dax = wall[searchwall].x-wall[wall[searchwall].point2].x;
@@ -4392,7 +4394,7 @@ static void Keys3d(void)
                     height2=sector[nextsect].floorz-sector[nextsect].ceilingz;
                     height3=sector[nextsect].ceilingz-sector[searchsector].ceilingz;
                 }
-                Bsprintf(lines[num++],"Panning: %d, %d",wall[searchwall].xpanning,wall[searchwall].ypanning);
+                Bsprintf(lines[num++],"Panning: %d, %d",wall[w].xpanning,wall[w].ypanning);
                 Bsprintf(lines[num++],"Repeat:  %d, %d",wall[searchwall].xrepeat,wall[searchwall].yrepeat);
                 Bsprintf(lines[num++],"Overpic: %d",wall[searchwall].overpicnum);
                 lines[num++][0]=0;
@@ -4513,14 +4515,14 @@ static void Keys3d(void)
     if (keystatus[KEYSC_V])  //V
     {
         int32_t oldtile;
-        if (searchstat == 0) tempint = wall[searchwall].picnum;
+        if (searchstat == 0) tempint = wall[searchbottomwall].picnum;
         if (searchstat == 1) tempint = sector[searchsector].ceilingpicnum;
         if (searchstat == 2) tempint = sector[searchsector].floorpicnum;
         if (searchstat == 3) tempint = sprite[searchwall].picnum;
         if (searchstat == 4) tempint = wall[searchwall].overpicnum;
         oldtile = tempint;
         tempint = m32gettile(tempint);
-        if (searchstat == 0) wall[searchwall].picnum = tempint;
+        if (searchstat == 0) wall[searchbottomwall].picnum = tempint;
         if (searchstat == 1) sector[searchsector].ceilingpicnum = tempint;
         if (searchstat == 2) sector[searchsector].floorpicnum = tempint;
         if (searchstat == 3) sprite[searchwall].picnum = tempint;
@@ -4883,8 +4885,9 @@ static void Keys3d(void)
     {
         if ((searchstat == 0) || (searchstat == 4))
         {
-            wall[searchwall].cstat ^= 4;
-            Bsprintf(getmessage,"Wall %d %s orientation",searchwall,wall[searchwall].cstat&4?"bottom":"top");
+            int16_t w = (searchstat==0)?searchbottomwall:searchwall;
+            wall[w].cstat ^= 4;
+            Bsprintf(getmessage,"Wall %d %s orientation",w,wall[w].cstat&4?"bottom":"top");
             message(getmessage);
             asksave = 1;
         }
@@ -5068,7 +5071,7 @@ static void Keys3d(void)
                 if (k == 0)
                 {
                     int32_t shade=-1, i=-1;
-                    if (searchstat == 0) shade=++wall[i=searchwall].shade;
+                    if (searchstat == 0) shade=++wall[i=searchbottomwall].shade;
                     if (searchstat == 1) shade=++sector[i=searchsector].ceilingshade;
                     if (searchstat == 2) shade=++sector[i=searchsector].floorshade;
                     if (searchstat == 3) shade=++sprite[i=searchwall].shade;
@@ -5165,7 +5168,7 @@ static void Keys3d(void)
                 if (k == 0)
                 {
                     int32_t shade=-1, i=-1;
-                    if (searchstat == 0) shade=--wall[i=searchwall].shade;
+                    if (searchstat == 0) shade=--wall[i=searchbottomwall].shade;
                     if (searchstat == 1) shade=--sector[i=searchsector].ceilingshade;
                     if (searchstat == 2) shade=--sector[i=searchsector].floorshade;
                     if (searchstat == 3) shade=--sprite[i=searchwall].shade;
@@ -5345,7 +5348,7 @@ static void Keys3d(void)
         {
             if ((searchstat == 0) || (searchstat == 4))
             {
-                i = wall[searchwall].cstat;
+                i = wall[searchbottomwall].cstat;
                 i = ((i>>3)&1)+((i>>7)&2);    //3-x,8-y
                 switch (i)
                 {
@@ -5365,8 +5368,8 @@ static void Keys3d(void)
                 Bsprintf(getmessage,"Wall %d flip %d",searchwall,i);
                 message(getmessage);
                 i = ((i&1)<<3)+((i&2)<<7);
-                wall[searchwall].cstat &= ~0x0108;
-                wall[searchwall].cstat |= i;
+                wall[searchbottomwall].cstat &= ~0x0108;
+                wall[searchbottomwall].cstat |= i;
                 asksave = 1;
             }
             if (searchstat == 1)         //8-way ceiling flipping (bits 2,4,5)
@@ -5843,47 +5846,29 @@ static void Keys3d(void)
         {
         case 0:
         case 4:
-            if (eitherSHIFT)
-            {
-                Bsprintf(tempbuf,"PAN");
-                if (eitherCTRL)
-                    Bstrcat(tempbuf, " 8");
-            }
-            if (eitherCTRL && !eitherALT && !eitherSHIFT)
-                Bsprintf(tempbuf,"SCALE");
             if (eitherALT)
-            {
-                Bsprintf(tempbuf,"Z");
-                if (eitherCTRL)
-                    Bstrcat(tempbuf, " 512");
-            }
+                Bsprintf(tempbuf,"CEILING Z %s", eitherCTRL?"512":"");
+            else if (eitherSHIFT)
+                Bsprintf(tempbuf,"PAN %s", eitherCTRL?"8":"");
+            else if (eitherCTRL)
+                Bsprintf(tempbuf,"SCALE");
             break;
         case 1:
         case 2:
-            if (eitherSHIFT) Bsprintf(tempbuf,"PAN");
-            if (eitherCTRL && !eitherALT) Bsprintf(tempbuf,"SLOPE");
             if (eitherALT)
-            {
-                Bsprintf(tempbuf,"Z");
-                if (eitherCTRL)
-                    Bstrcat(tempbuf, " 512");
-            }
+                Bsprintf(tempbuf,"%s Z %s", searchstat==1?"CEILING":"FLOOR", eitherCTRL?"512":"");
+            else if (eitherSHIFT)
+                Bsprintf(tempbuf,"PAN");
+            else if (eitherCTRL)
+                Bsprintf(tempbuf,"SLOPE");
             break;
         case 3:
-            if (eitherSHIFT)
-            {
-                Bsprintf(tempbuf,"MOVE XY");
-                if (eitherCTRL)
-                    Bstrcat(tempbuf, " GRID");
-            }
-            if (eitherCTRL && !eitherALT && !eitherSHIFT)
-                Bsprintf(tempbuf,"SIZE");
             if (eitherALT)
-            {
-                Bsprintf(tempbuf,"MOVE Z");
-                if (eitherCTRL)
-                    Bstrcat(tempbuf, " 1024");
-            }
+                Bsprintf(tempbuf,"MOVE Z %s", eitherCTRL?"1024":"");
+            else if (eitherSHIFT)
+                Bsprintf(tempbuf,"MOVE XY %s", eitherCTRL?"GRID":"");
+            else if (eitherCTRL)
+                Bsprintf(tempbuf,"SIZE");
             break;
         }
     }
@@ -6148,7 +6133,7 @@ static void Keys3d(void)
         {
         case 0:
         case 4:
-            getnumberptr256("Wall shade: ",&wall[searchwall].shade,sizeof(wall[searchwall].shade),128L,1,NULL);
+            getnumberptr256("Wall shade: ",&wall[searchbottomwall].shade,sizeof(wall[searchbottomwall].shade),128L,1,NULL);
             break;
         case 1:
             getnumberptr256("Ceiling shade: ",&sector[searchsector].ceilingshade,sizeof(sector[searchsector].ceilingshade),128L,1,NULL);
@@ -6214,7 +6199,7 @@ static void Keys3d(void)
         switch (searchstat)
         {
         case 0:
-            getnumberptr256("Wall picnum: ",&wall[searchwall].picnum,sizeof(wall[searchwall].picnum),MAXTILES-1,0,NULL);
+            getnumberptr256("Wall picnum: ",&wall[searchbottomwall].picnum,sizeof(wall[searchbottomwall].picnum),MAXTILES-1,0,NULL);
             break;
         case 1:
             getnumberptr256("Sector ceiling picnum: ",&sector[searchsector].ceilingpicnum,sizeof(sector[searchsector].ceilingpicnum),MAXTILES-1,0,NULL);
@@ -6371,7 +6356,7 @@ static void Keys3d(void)
         switch (searchstat)
         {
         case 0 :
-            wall[searchwall].picnum = temppicnum;
+            wall[searchbottomwall].picnum = temppicnum;
             break;
         case 1 :
             sector[searchsector].ceilingpicnum = temppicnum;
@@ -6393,7 +6378,7 @@ static void Keys3d(void)
     if (keystatus[KEYSC_RSHIFT]) i = 8;
     if (keystatus[KEYSC_LSHIFT]) i = 1;
     mouseaction=0;
-    if (eitherCTRL && bstatus&1 && (searchstat == 1 || searchstat == 2))
+    if (eitherCTRL && !eitherSHIFT && bstatus&1 && (searchstat == 1 || searchstat == 2))
     {
         mousex=0; mskip=1;
         if (mousey<0)
@@ -6458,7 +6443,7 @@ static void Keys3d(void)
     if (keystatus[KEYSC_RSHIFT]) i = 8;
     if (keystatus[KEYSC_LSHIFT]) i = 1;
     mouseaction=0;
-    if (eitherCTRL && bstatus&1 && (searchstat == 1 || searchstat == 2))
+    if (eitherCTRL && !eitherSHIFT && bstatus&1 && (searchstat == 1 || searchstat == 2))
     {
         mousex=0; mskip=1;
         if (mousey>0)
@@ -6614,7 +6599,7 @@ static void Keys3d(void)
                 if (updownunits) {mouseax=0;}
             }
         }
-        else if (eitherCTRL && !eitherSHIFT)
+        else if (eitherCTRL && !eitherALT)
         {
             mskip=1;
             if (mousex!=0)
@@ -6652,15 +6637,16 @@ static void Keys3d(void)
                 }
                 else
                 {
+                    int16_t w = (searchstat==0)?searchbottomwall:searchwall;
                     if (mouseaction)
                     {
-                        i=wall[searchwall].cstat;
+                        i=wall[w].cstat;
                         i=((i>>3)&1)+((i>>7)&2);
                         if (i==1||i==3)changedir*=-1;
                         if (eitherCTRL) updownunits *= 8;
                     }
-                    while (updownunits--)wall[searchwall].xpanning = changechar(wall[searchwall].xpanning,changedir,smooshyalign,0);
-                    message("Wall %d panning: %d, %d",searchwall,wall[searchwall].xpanning,wall[searchwall].ypanning);
+                    while (updownunits--)wall[w].xpanning = changechar(wall[w].xpanning,changedir,smooshyalign,0);
+                    message("Wall %d panning: %d, %d",w,wall[w].xpanning,wall[w].ypanning);
                 }
             }
             if ((searchstat == 1) || (searchstat == 2))
@@ -6754,7 +6740,7 @@ static void Keys3d(void)
                 }
             }
         }
-        else if (eitherCTRL)
+        else if (eitherCTRL && !eitherALT)
         {
             mskip=1;
             if (mousey!=0)
@@ -6793,11 +6779,12 @@ static void Keys3d(void)
                 }
                 else
                 {
+                    int16_t w = (searchstat==0)?searchbottomwall:searchwall;
                     if (mouseaction && eitherCTRL)
                         updownunits *= 8;
                     while (updownunits--)
-                        wall[searchwall].ypanning = changechar(wall[searchwall].ypanning,changedir,smooshyalign,0);
-                    message("Wall %d panning: %d, %d",searchwall,wall[searchwall].xpanning,wall[searchwall].ypanning);
+                        wall[w].ypanning = changechar(wall[w].ypanning,changedir,smooshyalign,0);
+                    message("Wall %d panning: %d, %d",w,wall[w].xpanning,wall[w].ypanning);
                 }
             }
             if ((searchstat == 1) || (searchstat == 2))
@@ -6901,15 +6888,15 @@ static void Keys3d(void)
     {
         if (searchstat == 0)
         {
-            temppicnum = wall[searchwall].picnum;
-            tempshade = wall[searchwall].shade;
-            temppal = wall[searchwall].pal;
-            tempxrepeat = wall[searchwall].xrepeat;
-            tempyrepeat = wall[searchwall].yrepeat;
-            tempcstat = wall[searchwall].cstat;
-            templotag = wall[searchwall].lotag;
-            temphitag = wall[searchwall].hitag;
-            tempextra = wall[searchwall].extra;
+            temppicnum = wall[searchbottomwall].picnum;
+            tempshade = wall[searchbottomwall].shade;
+            temppal = wall[searchbottomwall].pal;
+            tempxrepeat = wall[searchbottomwall].xrepeat;
+            tempyrepeat = wall[searchbottomwall].yrepeat;
+            tempcstat = wall[searchbottomwall].cstat;
+            templotag = wall[searchbottomwall].lotag;
+            temphitag = wall[searchbottomwall].hitag;
+            tempextra = wall[searchbottomwall].extra;
         }
         if (searchstat == 1)
         {
@@ -7006,7 +6993,11 @@ static void Keys3d(void)
             }
             else if (somethingintab < 255)
             {
-                if (searchstat == 0) wall[searchwall].shade = tempshade, wall[searchwall].pal = temppal;
+                if (searchstat == 0)
+                {
+                    wall[searchbottomwall].shade = tempshade;
+                    wall[searchbottomwall].pal = temppal;
+                }
                 if (searchstat == 1)
                 {
                     sector[searchsector].ceilingshade = tempshade, sector[searchsector].ceilingpal = temppal;
@@ -7123,10 +7114,10 @@ static void Keys3d(void)
         {
             if (searchstat == 0)
             {
-                wall[searchwall].picnum = temppicnum;
-                wall[searchwall].shade = tempshade;
-                wall[searchwall].pal = temppal;
-                if (somethingintab == 0)
+                wall[searchbottomwall].picnum = temppicnum;
+                wall[searchbottomwall].shade = tempshade;
+                wall[searchbottomwall].pal = temppal;
+                if (somethingintab == 0 && searchwall==searchbottomwall)
                 {
                     wall[searchwall].xrepeat = tempxrepeat;
                     wall[searchwall].yrepeat = tempyrepeat;
@@ -7234,7 +7225,7 @@ static void Keys3d(void)
                 switch (searchstat)
                 {
                 case 0:
-                    j = wall[searchwall].picnum;
+                    j = wall[searchbottomwall].picnum;
                     for (i=0; i<numwalls; i++)
                         if (wall[i].picnum == j) wall[i].picnum = temppicnum;
                     break;
@@ -7279,11 +7270,12 @@ static void Keys3d(void)
     {
         if ((searchstat == 0) || (searchstat == 4))
         {
-            wall[searchwall].xpanning = 0;
-            wall[searchwall].ypanning = 0;
-            wall[searchwall].xrepeat = 8;
-            wall[searchwall].yrepeat = 8;
-            wall[searchwall].cstat = 0;
+            int16_t w = (searchstat==0)?searchbottomwall:searchwall;
+            wall[w].xpanning = 0;
+            wall[w].ypanning = 0;
+            wall[w].xrepeat = 8;
+            wall[w].yrepeat = 8;
+            wall[w].cstat = 0;
             fixrepeats((int16_t)searchwall);
         }
         if (searchstat == 1)
@@ -7332,6 +7324,9 @@ static void Keys3d(void)
             switch (searchstat)
             {
             case 0:
+                Bstrcpy(buffer,"Wall pal: ");
+                getnumberptr256(buffer,&wall[searchbottomwall].pal,sizeof(wall[searchbottomwall].pal),256L,0,NULL);
+                break;
             case 4:
                 Bstrcpy(buffer,"Wall pal: ");
                 getnumberptr256(buffer,&wall[searchwall].pal,sizeof(wall[searchwall].pal),256L,0,NULL);

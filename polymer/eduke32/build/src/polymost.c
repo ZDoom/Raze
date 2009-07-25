@@ -4241,7 +4241,7 @@ void polymost_drawrooms()
         searchsector = hitinfo.hitsect;
         if (hitinfo.pos.z<cz) searchstat = 1; else if (hitinfo.pos.z>fz) searchstat = 2; else if (hitinfo.hitwall >= 0)
         {
-            searchwall = hitinfo.hitwall; searchstat = 0;
+            searchbottomwall = searchwall = hitinfo.hitwall; searchstat = 0;
             if (wall[hitinfo.hitwall].nextwall >= 0)
             {
                 int32_t cz, fz;
@@ -4249,7 +4249,7 @@ void polymost_drawrooms()
                 if (hitinfo.pos.z > fz)
                 {
                     if (wall[hitinfo.hitwall].cstat&2) //'2' bottoms of walls
-                        searchwall = wall[hitinfo.hitwall].nextwall;
+                        searchbottomwall = wall[hitinfo.hitwall].nextwall;
                 }
                 else if ((hitinfo.pos.z > cz) && (wall[hitinfo.hitwall].cstat&(16+32))) //masking or 1-way
                     searchstat = 4;

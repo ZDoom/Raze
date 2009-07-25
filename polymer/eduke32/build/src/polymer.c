@@ -1846,7 +1846,7 @@ static void         polymer_editorselect(void)
             searchsector = hitinfo.hitsect;
             if (hitinfo.pos.z<cz) searchstat = 1; else if (hitinfo.pos.z>fz) searchstat = 2; else if (hitinfo.hitwall >= 0)
             {
-                searchwall = hitinfo.hitwall; searchstat = 0;
+                searchbottomwall = searchwall = hitinfo.hitwall; searchstat = 0;
                 if (wall[hitinfo.hitwall].nextwall >= 0)
                 {
                     int32_t cz, fz;
@@ -1854,7 +1854,7 @@ static void         polymer_editorselect(void)
                     if (hitinfo.pos.z > fz)
                     {
                         if (wall[hitinfo.hitwall].cstat&2) //'2' bottoms of walls
-                            searchwall = wall[hitinfo.hitwall].nextwall;
+                            searchbottomwall = wall[hitinfo.hitwall].nextwall;
                     }
                     else if ((hitinfo.pos.z > cz) && (wall[hitinfo.hitwall].cstat&(16+32))) //masking or 1-way
                         searchstat = 4;
@@ -1928,7 +1928,7 @@ void polymer_alt_editorselect(void)
 
     int8_t bestwhat = -1;
     int16_t bestsec = -1;
-    int16_t bestwall = -1;
+    int16_t bestbottomwall = -1, bestwall = -1;
     GLfloat bestdist = FLT_MAX;
 
 #ifdef M32_SHOWDEBUG
@@ -2049,7 +2049,9 @@ void polymer_alt_editorselect(void)
                     && dot3f(v12,v1p_r) <= 0 && dot3f(v34,v3p_r) <= 0)
                 {
                     bestwhat = (what==2)?4:0;
-                    bestwall = i;
+                    bestbottomwall = bestwall = i;
+                    if (what==0 && (wal->cstat&2))
+                        bestbottomwall = wal->nextwall;
                     bestdist = dist;
 #ifdef M32_SHOWDEBUG
                     if (m32_numdebuglines<64)
@@ -2291,6 +2293,7 @@ nextsector:
     {
         searchstat = bestwhat;
         searchwall = bestwall;
+        searchbottomwall = bestbottomwall;
         if (searchstat==0 || searchstat==4)
             searchsector = sectorofwall(searchwall);
         else
