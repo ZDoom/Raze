@@ -294,22 +294,22 @@ int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
 
         if (*g_sounds[num].ptr == 'C')
             voice = FX_PlayLoopedVOC(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
-                                     pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,num);
+                                     pitch,sndist>>4,sndist>>6,0,g_sounds[num].pr,num);
         else if (*g_sounds[num].ptr == 'O')
             voice = FX_PlayLoopedOGG(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
-                                     pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,num);
+                                     pitch,sndist>>4,sndist>>6,0,g_sounds[num].pr,num);
         else
             voice = FX_PlayLoopedWAV(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
-                                     pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,num);
+                                     pitch,sndist>>4,sndist>>6,0,g_sounds[num].pr,num);
     }
     else
     {
         if (*g_sounds[num].ptr == 'C')
-            voice = FX_PlayVOC3D(g_sounds[ num ].ptr,pitch,sndang>>6,sndist>>6, g_sounds[num].pr, num);
+            voice = FX_PlayVOC3D(g_sounds[ num ].ptr,pitch,sndang>>4,sndist>>6, g_sounds[num].pr, num);
         else if (*g_sounds[num].ptr == 'O')
-            voice = FX_PlayOGG3D(g_sounds[ num ].ptr,pitch,sndang>>6,sndist>>6, g_sounds[num].pr, num);
+            voice = FX_PlayOGG3D(g_sounds[ num ].ptr,pitch,sndang>>4,sndist>>6, g_sounds[num].pr, num);
         else
-            voice = FX_PlayWAV3D(g_sounds[ num ].ptr,pitch,sndang>>6,sndist>>6, g_sounds[num].pr, num);
+            voice = FX_PlayWAV3D(g_sounds[ num ].ptr,pitch,sndang>>4,sndist>>6, g_sounds[num].pr, num);
     }
 
     if (voice >= FX_Ok)
@@ -499,7 +499,7 @@ void S_Pan3D(void)
             if (sndist < ((255-LOUDESTVOLUME)<<6))
                 sndist = ((255-LOUDESTVOLUME)<<6);
 
-            FX_Pan3D(g_sounds[j].SoundOwner[k].voice,sndang>>6,sndist>>6);
+            FX_Pan3D(g_sounds[j].SoundOwner[k].voice,sndang>>4,sndist>>6);
         }
 }
 
