@@ -10,8 +10,6 @@ PRETTY_OUTPUT = 1
 # SDK locations - adjust to match your setup
 DXROOT=../sdk/dx
 
-ALROOT		= AL
-
 # Engine options
 SUPERBUILD = 1
 POLYMOST = 1
@@ -124,7 +122,6 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/osdcmds.$o \
 	$(OBJ)/grpscan.$o \
 	$(OBJ)/sounds.$o \
-	$(OBJ)/audiolib_musicstub.$o \
 	$(JMACTOBJ)
 
 EDITOROBJS=$(OBJ)/astub.$o \
@@ -139,20 +136,19 @@ ifeq ($(PLATFORM),LINUX)
 endif
 
 ifeq ($(PLATFORM),DARWIN)
-	ALROOT = Apple
 	ifeq (1,$(SDL_FRAMEWORK))
-		OURCFLAGS	+= -fno-pic -I$(ALROOT)/include -I/Library/Frameworks/SDL.framework/Headers \
+		OURCFLAGS	+= -fno-pic -IApple/include -I/Library/Frameworks/SDL.framework/Headers \
 				-I-I/Library/Frameworks/SDL_mixer.framework/Headers
-		LIBS		+= -read_only_relocs suppress -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg -lm \
-				-Wl,-framework,SDL -Wl,-framework,SDL_mixer $(ALROOT)/lib/libSDLmain.a \
+		LIBS		+= -read_only_relocs suppress -LApple/lib -lvorbisfile -lvorbis -logg -lm \
+				-Wl,-framework,SDL -Wl,-framework,SDL_mixer Apple/lib/libSDLmain.a \
 				-Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
 				-Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
 				-Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
 				-Wl,-framework,QuickTime -lm
 
 	else
-		OURCFLAGS	+= -fno-pic -I$(ALROOT)/include -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
-		LIBS		+= -read_only_relocs suppress -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg -lm -lSDL_mixer \
+		OURCFLAGS	+= -fno-pic -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
+		LIBS		+= -read_only_relocs suppress -lvorbisfile -lvorbis -logg -lm -lSDL_mixer \
 				-Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
 				-Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
 				-Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
@@ -162,12 +158,14 @@ ifeq ($(PLATFORM),DARWIN)
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
-	OURCFLAGS	+= -fno-pic -DUNDERSCORES -I$(DXROOT)/include -I$(ALROOT)/include # -I$(ENETROOT)/include
+	OURCFLAGS	+= -fno-pic -DUNDERSCORES -I$(DXROOT)/include
 	NASMFLAGS+= -DUNDERSCORES -f win32
 	LIBS		+= -L$(JAUDIOLIBDIR)/third-party/mingw32/lib -lvorbisfile -lvorbis -logg -lwsock32 -lws2_32 -lwinmm -ldsound
-	GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o
+	GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o $(OBJ)/music.$o $(OBJ)/midi.$o $(OBJ)/mpu401.$o
 	EDITOROBJS+= $(OBJ)/buildres.$o
     JAUDIOLIB=libjfaudiolib_win32.a
+else
+    GAMEOBJS+= $(OBJ)/audiolib_musicstub.$o
 endif
 
 ifeq ($(RENDERTYPE),SDL)

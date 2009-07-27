@@ -39,7 +39,7 @@ int32_t backflag,g_numEnvSoundsPlaying,g_maxSoundPos = 0;
 #define MUSIC_ID  -65536
 
 static int32_t MusicIsWaveform = 0;
-static uint8_t * MusicPtr = 0;
+static char * MusicPtr = 0;
 static int32_t MusicLen = 0;
 static int32_t MusicVoice = -1;
 static int32_t MusicPaused = 0;
@@ -156,9 +156,9 @@ void S_MusicStartup(void)
         {
             MUSIC_SetVolume(ud.config.MusicVolume);
         }
-        /*
+        
                 initprintf("Couldn't find selected sound card, or, error w/ sound card itself.\n");
-
+/*
                 S_SoundShutdown();
                 uninittimer();
                 uninitengine();
@@ -343,11 +343,11 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     S_StopMusic();
 
     MusicLen = kfilelength(fp);
-    MusicPtr = (uint8_t *) Bmalloc(MusicLen);
+    MusicPtr = (char *) Bmalloc(MusicLen);
     kread(fp, MusicPtr, MusicLen);
     kclose(fp);
 
-    if (!memcmp(MusicPtr, "MThd", 4))
+    if (!Bmemcmp(MusicPtr, "MThd", 4))
     {
         MUSIC_PlaySong(MusicPtr, MUSIC_LoopSong);
         MusicIsWaveform = 0;
@@ -369,10 +369,8 @@ void S_StopMusic(void)
         FX_StopSound(MusicVoice);
         MusicVoice = -1;
     }
-    else if (!MusicIsWaveform)
-    {
-        MUSIC_StopSong();
-    }
+
+    MUSIC_StopSong();
 
     if (MusicPtr)
     {

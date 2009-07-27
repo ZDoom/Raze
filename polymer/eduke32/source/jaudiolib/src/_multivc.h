@@ -229,29 +229,12 @@ typedef char HARSH_CLIP_TABLE_8[ MV_NumVoices * 256 ];
 #define MV_SetErrorCode( status ) \
    MV_ErrorCode   = ( status );
 
-static void MV_Mix( VoiceNode *voice, int32_t buffer );
 void MV_PlayVoice( VoiceNode *voice );
-static void MV_StopVoice( VoiceNode *voice );
-static void MV_ServiceVoc( void );
 
-static playbackstatus MV_GetNextVOCBlock( VoiceNode *voice );
-static playbackstatus MV_GetNextDemandFeedBlock( VoiceNode *voice );
-static playbackstatus MV_GetNextRawBlock( VoiceNode *voice );
-static playbackstatus MV_GetNextWAVBlock( VoiceNode *voice );
-static playbackstatus MV_GetNextVorbisBlock( VoiceNode *voice );
-
-static void       MV_ServiceRecord( void );
-static VoiceNode *MV_GetVoice( int32_t handle );
 VoiceNode *MV_AllocVoice( int32_t priority );
-
-static int16_t     *MV_GetVolumeTable( int32_t vol );
 
 void MV_SetVoiceMixMode( VoiceNode *voice );
 void MV_SetVoiceVolume ( VoiceNode *voice, int32_t vol, int32_t left, int32_t right );
-
-static void       MV_SetVoicePitch( VoiceNode *voice, uint32_t rate, int32_t pitchoffset );
-static void       MV_CalcVolume( int32_t MaxLevel );
-static void       MV_CalcPanTable( void );
 
 void MV_ReleaseVorbisVoice( VoiceNode * voice );
 

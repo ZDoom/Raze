@@ -413,6 +413,18 @@
 					>
 				</File>
 				<File
+					RelativePath=".\source\midi.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\mpu401.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\music.c"
+					>
+				</File>
+				<File
 					RelativePath=".\source\namesdyn.c"
 					>
 				</File>

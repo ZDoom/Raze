@@ -61,7 +61,7 @@ $(OBJ)/dsoundout.$o: $(SRC)/jaudiolib/dsoundout.c $(SRC)/jaudiolib/dsoundout.h
 $(OBJ)/openal.$o: $(SRC)/jaudiolib/openal.c $(SRC)/jaudiolib/openal.h
 $(OBJ)/dsl.$o: $(SRC)/jaudiolib/dsl.c $(SRC)/jaudiolib/dsl.h $(EINC)/compat.h
 
-$(OBJ)/midi.$o: $(SRC)/jaudiolib/midi.c $(SRC)/jaudiolib/standard.h $(SRC)/jaudiolib/music.h $(SRC)/jaudiolib/_midi.h $(SRC)/jaudiolib/midi.h
-$(OBJ)/mpu401.$o: $(SRC)/jaudiolib/mpu401.c $(SRC)/jaudiolib/mpu401.h
-$(OBJ)/music.$o: $(SRC)/jaudiolib/music.c $(SRC)/jaudiolib/music.h $(SRC)/jaudiolib/midi.h $(SRC)/jaudiolib/mpu401.h
+$(OBJ)/midi.$o: $(SRC)/midi.c $(SRC)/_midi.h $(SRC)/midi.h $(JAUDIOLIBDIR)/include/music.h
+$(OBJ)/mpu401.$o: $(SRC)/mpu401.c $(SRC)/mpu401.h $(JAUDIOLIBDIR)/include/music.h
+$(OBJ)/music.$o: $(SRC)/music.c $(SRC)/midi.h $(SRC)/mpu401.h $(JAUDIOLIBDIR)/include/music.h
 

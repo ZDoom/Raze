@@ -49,6 +49,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define LITTLE32
 #endif
 
+static void MV_Mix( VoiceNode *voice, int32_t buffer );
+static void MV_StopVoice( VoiceNode *voice );
+static void MV_ServiceVoc( void );
+
+static playbackstatus MV_GetNextVOCBlock( VoiceNode *voice );
+static playbackstatus MV_GetNextDemandFeedBlock( VoiceNode *voice );
+static playbackstatus MV_GetNextRawBlock( VoiceNode *voice );
+static playbackstatus MV_GetNextWAVBlock( VoiceNode *voice );
+
+static VoiceNode *MV_GetVoice( int32_t handle );
+
+static int16_t     *MV_GetVolumeTable( int32_t vol );
+
+static void       MV_SetVoicePitch( VoiceNode *voice, uint32_t rate, int32_t pitchoffset );
+static void       MV_CalcVolume( int32_t MaxLevel );
+static void       MV_CalcPanTable( void );
+
 static inline uint16_t SWAP16(uint16_t s)
 {
     return (s >> 8) | (s << 8);
@@ -399,7 +416,6 @@ void MV_ServiceVoc
 {
     VoiceNode *voice;
     VoiceNode *next;
-    char      *buffer;
     //int32_t        flags;
 
     // Toggle which buffer we'll mix next
@@ -528,7 +544,7 @@ playbackstatus MV_GetNextVOCBlock
     int32_t            lastblocktype;
     uint32_t   blocklength;
     uint32_t   samplespeed;
-    uint32_t   tc;
+    uint32_t   tc = 0;
     int32_t            packtype;
     int32_t            voicemode;
     int32_t            done;
@@ -898,6 +914,7 @@ playbackstatus MV_GetNextWAVBlock
    Starts recording of the waiting buffer.
 ---------------------------------------------------------------------*/
 
+/*
 static void MV_ServiceRecord
 (
     void
@@ -917,6 +934,7 @@ static void MV_ServiceRecord
         MV_MixPage = 0;
     }
 }
+*/
 
 
 /*---------------------------------------------------------------------

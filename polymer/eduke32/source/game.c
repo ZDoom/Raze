@@ -579,6 +579,7 @@ void Net_GetPackets(void)
     input_t *osyn, *nsyn;
 
     sampletimer();
+    MUSIC_Update();
 
     G_HandleSpecialKeys();
 
@@ -1072,6 +1073,7 @@ void faketimerhandler(void)
     }
 
     sampletimer();
+    MUSIC_Update();
 
     if ((totalclock < ototalclock+TICSPERFRAME) || (ready2send == 0)) return;
     ototalclock += TICSPERFRAME;
@@ -11525,6 +11527,8 @@ MAIN_LOOP_RESTART:
             quitevent = 0;
         }
 
+        MUSIC_Update();
+
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         bindsenabled = (g_player[myconnectindex].ps->gm == MODE_GAME || g_player[myconnectindex].ps->gm == MODE_DEMO);
 
@@ -13325,6 +13329,7 @@ FRAGBONUS:
 
         Net_GetPackets();
         handleevents();
+        MUSIC_Update();
 
         if (g_player[myconnectindex].ps->gm&MODE_EOL)
         {

@@ -109,7 +109,7 @@ static int32_t close_vorbis(void * datasource)
    return 0;
 }
 
-static int32_t tell_vorbis(void * datasource)
+static long tell_vorbis(void * datasource)
 {
    vorbis_data * vorb = (vorbis_data *) datasource;
    

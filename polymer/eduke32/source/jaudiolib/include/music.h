@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 */
 /**********************************************************************
    module: MUSIC.H
@@ -31,8 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __MUSIC_H
 #define __MUSIC_H
 
-#include "inttypes.h"
-#include "sndcards.h"
+#include "compat.h"
 
 extern int32_t MUSIC_ErrorCode;
 
@@ -47,7 +47,6 @@ enum MUSIC_ERRORS
    MUSIC_InvalidCard,
    MUSIC_MidiError,
    MUSIC_TaskManError,
-   MUSIC_FMNotDetected,
    MUSIC_DPMI_Error
    };
 
@@ -66,7 +65,6 @@ typedef struct
 char *MUSIC_ErrorString( int32_t ErrorNumber );
 int32_t   MUSIC_Init( int32_t SoundCard, int32_t Address );
 int32_t   MUSIC_Shutdown( void );
-void  MUSIC_SetMaxFMMidiChannel( int32_t channel );
 void  MUSIC_SetVolume( int32_t volume );
 void  MUSIC_SetMidiChannelVolume( int32_t channel, int32_t volume );
 void  MUSIC_ResetMidiChannelVolumes( void );
@@ -76,7 +74,7 @@ int32_t   MUSIC_SongPlaying( void );
 void  MUSIC_Continue( void );
 void  MUSIC_Pause( void );
 int32_t   MUSIC_StopSong( void );
-int32_t   MUSIC_PlaySong( uint8_t *song, int32_t loopflag );
+int32_t   MUSIC_PlaySong( char *song, int32_t loopflag );
 void  MUSIC_SetContext( int32_t context );
 int32_t   MUSIC_GetContext( void );
 void  MUSIC_SetSongTick( uint32_t PositionInTicks );
@@ -88,6 +86,7 @@ int32_t   MUSIC_FadeVolume( int32_t tovolume, int32_t milliseconds );
 int32_t   MUSIC_FadeActive( void );
 void  MUSIC_StopFade( void );
 void  MUSIC_RerouteMidiChannel( int32_t channel, int32_t ( *function )( int32_t event, int32_t c1, int32_t c2 ) );
-void  MUSIC_RegisterTimbreBank( uint8_t *timbres );
+void  MUSIC_RegisterTimbreBank( char *timbres );
+void  MUSIC_Update(void);
 
 #endif
