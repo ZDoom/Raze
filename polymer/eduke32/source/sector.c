@@ -2517,13 +2517,13 @@ void G_HandleSharedKeys(int32_t snum)
             else ud.pause_on = 1+SHIFTS_IS_PRESSED;
             if (ud.pause_on)
             {
-                MUSIC_Pause();
+                S_PauseMusic(1);
                 FX_StopAllSounds();
                 S_ClearSoundLocks();
             }
             else
             {
-                if (ud.config.MusicToggle) MUSIC_Continue();
+                if (ud.config.MusicToggle) S_PauseMusic(0);
                 pub = NUMPAGES;
                 pus = NUMPAGES;
             }

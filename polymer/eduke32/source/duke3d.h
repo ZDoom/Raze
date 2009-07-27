@@ -301,7 +301,6 @@ extern int32_t probey;
 
 extern char typebuflen;
 extern char typebuf[141];
-extern char *MusicPtr;
 extern int32_t g_musicSize;
 extern int32_t msx[2048],msy[2048];
 extern int16_t cyclers[MAXCYCLERS][6],g_numCyclers;

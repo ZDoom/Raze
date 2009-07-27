@@ -490,10 +490,10 @@ int32_t G_LoadPlayer(int32_t spot)
 
     if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL && (i != g_musicIndex || MapInfo[MAXVOLUMES*MAXLEVELS+2].musicfn1))
     {
-        MUSIC_StopSong();
+        S_StopMusic();
         S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);
     }
-    MUSIC_Continue();
+    S_PauseMusic(0);
 
     g_player[myconnectindex].ps->gm = MODE_GAME;
     ud.recstat = 0;

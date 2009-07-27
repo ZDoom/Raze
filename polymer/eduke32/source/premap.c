@@ -426,10 +426,10 @@ void G_CacheMapData(void)
     if (ud.recstat == 2)
         return;
 
-    MUSIC_Pause();
+    S_PauseMusic(1);
     if (MapInfo[MAXVOLUMES*MAXLEVELS+2].musicfn1)
     {
-        MUSIC_StopSong();
+        S_StopMusic();
         S_PlayMusic(&EnvMusicFilename[2][0],MAXVOLUMES*MAXLEVELS+2); // loadmus
     }
 

@@ -28,23 +28,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <string.h>
 
+#include "compat.h"
+
 #include "fx_man.h"
 //#include "music.h"
 //#include "duke3d.h"
-//#include "util_lib.h"
+#include "util_lib.h"
 #include "osd.h"
 
-//#include "compat.h"
 #include "cache1d.h"
 #include "macros.h"
 #include "mathutil.h"
 #include "build.h"  // vec3_t
-
-#ifdef _WIN32
-#ifdef USE_OPENAL
-#include "openal.h"
-#endif
-#endif
 
 #include "sounds_mapster32.h"
 
@@ -75,9 +70,12 @@ extern void initprintf(const char *f, ...);
 ===================
 */
 
+
 int32_t S_SoundStartup(void)
 {
-    int32_t status, err = 0;
+    int32_t status;
+    int32_t fxdevicetype;
+    void * initdata = 0;
 
     // TODO: read config
     int32_t FXVolume=220, /*NumVoices=32,*/ NumChannels=2, NumBits=16, MixRate, ReverseStereo=0;
@@ -86,43 +84,28 @@ int32_t S_SoundStartup(void)
 #else
     MixRate = 48000;
 #endif
+    fxdevicetype = ASS_AutoDetect;
 
-    // if they chose None lets return
-    if (0) return -1;  // TODO: read config
+#ifdef WIN32
+    initdata = (void *) win_gethwnd();
+#endif
 
-RETRY:
-    status = FX_Init(0, NumVoices, NumChannels, NumBits, MixRate);
+    status = FX_Init(fxdevicetype, NumVoices, NumChannels, NumBits, MixRate, initdata);
     if (status == FX_Ok)
     {
         FX_SetVolume(FXVolume);
-        if (ReverseStereo == 1)
-        {
-            FX_SetReverseStereo(!FX_GetReverseStereo());
-        }
+        FX_SetReverseStereo(ReverseStereo);
         status = FX_SetCallBack(S_TestSoundCallback);
     }
 
     if (status != FX_Ok)
     {
-        if (!err)
-        {
-#if defined(_WIN32)
-            MixRate = 44100;
-#else
-            MixRate = 48000;
-#endif
-            NumBits = 16;
-            NumChannels = 2;
-            NumVoices = 32;
-            ReverseStereo = 0;
-            err = 1;
-            goto RETRY;
-        }
         initprintf("Sound startup error: %s", FX_ErrorString(FX_Error));
         return -2;
     }
 
     SM32_havesound = 1;
+
     return 0;
 }
 
@@ -286,30 +269,14 @@ int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
 
     if (g_sounds[num].m&1)
     {
-        uint16_t start;
-
         if (g_sounds[num].num > 0) return -1;
 
-        start = *(uint16_t *)(g_sounds[num].ptr + 0x14);
-
-        if (*g_sounds[num].ptr == 'C')
-            voice = FX_PlayLoopedVOC(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
-                                     pitch,sndist>>4,sndist>>6,0,g_sounds[num].pr,num);
-        else if (*g_sounds[num].ptr == 'O')
-            voice = FX_PlayLoopedOGG(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
-                                     pitch,sndist>>4,sndist>>6,0,g_sounds[num].pr,num);
-        else
-            voice = FX_PlayLoopedWAV(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
-                                     pitch,sndist>>4,sndist>>6,0,g_sounds[num].pr,num);
+        voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
+                                  pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,num);
     }
     else
     {
-        if (*g_sounds[num].ptr == 'C')
-            voice = FX_PlayVOC3D(g_sounds[ num ].ptr,pitch,sndang>>4,sndist>>6, g_sounds[num].pr, num);
-        else if (*g_sounds[num].ptr == 'O')
-            voice = FX_PlayOGG3D(g_sounds[ num ].ptr,pitch,sndang>>4,sndist>>6, g_sounds[num].pr, num);
-        else
-            voice = FX_PlayWAV3D(g_sounds[ num ].ptr,pitch,sndang>>4,sndist>>6, g_sounds[num].pr, num);
+        voice = FX_PlayAuto3D(g_sounds[ num ].ptr, g_sounds[num].soundsiz, pitch,sndang>>4,sndist>>6, g_sounds[num].pr, num);
     }
 
     if (voice >= FX_Ok)
@@ -326,7 +293,6 @@ void S_PlaySound(int32_t num)
 {
     int32_t pitch,pitche,pitchs,cx;
     int32_t voice;
-    int32_t start;
 
     if (!SM32_havesound) return;
     if (SoundToggle==0) return;
@@ -363,33 +329,12 @@ void S_PlaySound(int32_t num)
 
     if (g_sounds[num].m&1)
     {
-        if (*g_sounds[num].ptr == 'C')
-        {
-            start = (int32_t)*(uint16_t *)(g_sounds[num].ptr + 0x14);
-            voice = FX_PlayLoopedVOC(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
-                                     pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
-        }
-        else if (*g_sounds[num].ptr == 'O')
-        {
-            start = (int32_t)*(uint16_t *)(g_sounds[num].ptr + 0x14);
-            voice = FX_PlayLoopedOGG(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
-                                     pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
-        }
-        else
-        {
-            start = (int32_t)*(uint16_t *)(g_sounds[num].ptr + 0x14);
-            voice = FX_PlayLoopedWAV(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
-                                     pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
-        }
+        voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
+                                  pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].soundsiz,num);
     }
     else
     {
-        if (*g_sounds[num].ptr == 'C')
-            voice = FX_PlayVOC3D(g_sounds[ num ].ptr, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
-        else if (*g_sounds[num].ptr == 'O')
-            voice = FX_PlayOGG3D(g_sounds[ num ].ptr, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
-        else
-            voice = FX_PlayWAV3D(g_sounds[ num ].ptr, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
+        voice = FX_PlayAuto3D(g_sounds[ num ].ptr, g_sounds[num].soundsiz, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
     }
 
     if (voice >= FX_Ok)// return;

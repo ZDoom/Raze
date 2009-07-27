@@ -579,7 +579,6 @@ void Net_GetPackets(void)
     input_t *osyn, *nsyn;
 
     sampletimer();
-    AudioUpdate();
 
     G_HandleSpecialKeys();
 
@@ -902,10 +901,7 @@ void Net_GetPackets(void)
                 if (ud.config.SoundToggle == 0 || ud.lockout == 1 || ud.config.FXDevice < 0 || !(ud.config.VoiceToggle & 4))
                     break;
                 rtsptr = (char *)RTS_GetSound(packbuf[1]-1);
-                if (*rtsptr == 'C')
-                    FX_PlayVOC3D(rtsptr,0,0,0,255,-packbuf[1]);
-                else
-                    FX_PlayWAV3D(rtsptr,0,0,0,255,-packbuf[1]);
+                FX_PlayAuto3D(rtsptr,RTS_SoundLength(packbuf[1]-1),0,0,0,255,-packbuf[1]);
                 g_RTSPlaying = 7;
                 break;
 
@@ -1076,7 +1072,7 @@ void faketimerhandler(void)
     }
 
     sampletimer();
-    AudioUpdate();
+
     if ((totalclock < ototalclock+TICSPERFRAME) || (ready2send == 0)) return;
     ototalclock += TICSPERFRAME;
 
@@ -2703,7 +2699,7 @@ static void G_DisplayExtraScreens(void)
 {
     int32_t flags = Gv_GetVarByLabel("LOGO_FLAGS",255, -1, -1);
 
-    MUSIC_StopSong();
+    S_StopMusic();
     FX_StopAllSounds();
 
     if (!VOLUMEALL || flags & LOGO_SHAREWARESCREENS)
@@ -8455,9 +8451,7 @@ static void G_HandleLocalKeys(void)
                 if (ud.config.SoundToggle && ALT_IS_PRESSED && (RTS_NumSounds() > 0) && g_RTSPlaying == 0 && (ud.config.VoiceToggle & 1))
                 {
                     rtsptr = (char *)RTS_GetSound(i-1);
-                    if (*rtsptr == 'C')
-                        FX_PlayVOC3D(rtsptr,0,0,0,255,-i);
-                    else FX_PlayWAV3D(rtsptr,0,0,0,255,-i);
+                    FX_PlayAuto3D(rtsptr,RTS_SoundLength(i-1),0,0,0,255,-i);
 
                     g_RTSPlaying = 7;
 
@@ -10011,7 +10005,7 @@ static void G_DisplayLogo(void)
     Bsprintf(tempbuf,"%s - " APPNAME,duke3dgrpstring);
     wm_setapptitle(tempbuf);
 
-    MUSIC_StopSong();
+    S_StopMusic();
     FX_StopAllSounds(); // JBF 20031228
     S_ClearSoundLocks();  // JBF 20031228
     if (ud.multimode < 2 && (logoflags & LOGO_ENABLED) && !g_noLogo)
@@ -11531,8 +11525,6 @@ MAIN_LOOP_RESTART:
             quitevent = 0;
         }
 
-        AudioUpdate();
-
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         bindsenabled = (g_player[myconnectindex].ps->gm == MODE_GAME || g_player[myconnectindex].ps->gm == MODE_DEMO);
 
@@ -12971,12 +12963,12 @@ void G_BonusScreen(int32_t bonusonly)
                 Net_GetPackets();
             }
             fadepal(0,0,0, 0,64,1);
-            MUSIC_StopSong();
+            S_StopMusic();
             FX_StopAllSounds();
             S_ClearSoundLocks();
             break;
         case 1:
-            MUSIC_StopSong();
+            S_StopMusic();
             clearview(0L);
             nextpage();
 
@@ -13011,7 +13003,7 @@ void G_BonusScreen(int32_t bonusonly)
 
             setview(0,0,xdim-1,ydim-1);
 
-            MUSIC_StopSong();
+            S_StopMusic();
             clearview(0L);
             nextpage();
 
@@ -13080,7 +13072,7 @@ void G_BonusScreen(int32_t bonusonly)
 
         case 2:
 
-            MUSIC_StopSong();
+            S_StopMusic();
             clearview(0L);
             nextpage();
             if (ud.lockout == 0)
@@ -13172,7 +13164,7 @@ FRAGBONUS:
     tinc = 0;
     bonuscnt = 0;
 
-    MUSIC_StopSong();
+    S_StopMusic();
     FX_StopAllSounds();
     S_ClearSoundLocks();
 
@@ -13333,7 +13325,6 @@ FRAGBONUS:
 
         Net_GetPackets();
         handleevents();
-        AudioUpdate();
 
         if (g_player[myconnectindex].ps->gm&MODE_EOL)
         {

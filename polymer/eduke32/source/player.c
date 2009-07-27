@@ -4513,7 +4513,7 @@ void P_ProcessInput(int32_t snum)
             // not jumping or crouching
 
             if (!TEST_SYNC_KEY(sb_snum, SK_JUMP) && !TEST_SYNC_KEY(sb_snum, SK_CROUCH) &&
-                p->on_ground && (sector[psect].floorstat&2) && p->posz >= (fz-(i<<8)-(16<<8)))
+                    p->on_ground && (sector[psect].floorstat&2) && p->posz >= (fz-(i<<8)-(16<<8)))
                 p->posz = fz-(i<<8);
             else
             {

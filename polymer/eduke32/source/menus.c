@@ -4533,7 +4533,7 @@ cheat_for_port_credits:
                             ud.config.MusicToggle = 1-ud.config.MusicToggle;
                         if (i != ud.config.MusicToggle)
                         {
-                            if (ud.config.MusicToggle == 0) MUSIC_Pause();
+                            if (ud.config.MusicToggle == 0) S_PauseMusic(1);
                             else
                             {
                                 if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
@@ -4543,7 +4543,7 @@ cheat_for_port_credits:
                                 }
                                 else S_PlayMusic(&EnvMusicFilename[0][0],MAXVOLUMES*MAXLEVELS);
 
-                                MUSIC_Continue();
+                                S_PauseMusic(0);
                             }
                         }
                     }
@@ -4557,7 +4557,7 @@ cheat_for_port_credits:
                     _bar(1,d+8,yy+7, &ud.config.MusicVolume,4,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,64);
                     ud.config.MusicVolume <<= 2;
                     if (l != ud.config.MusicVolume)
-                        MUSIC_SetVolume((int16_t) ud.config.MusicVolume);
+                        S_MusicVolume((int16_t) ud.config.MusicVolume);
                 }
                 break;
                 case 4:
