@@ -26,7 +26,6 @@ RANCID_NETWORKING = 1
 RELEASE?=1
 DEBUGANYWAY?=0
 NOSOUND?=0
-USE_OPENAL?=1
 OPTLEVEL?=2
 PROFILER?=0
 
@@ -52,6 +51,9 @@ ifneq (0,$(DEBUGANYWAY))
   debug+=-ggdb
 endif
 
+JAUDIOLIBDIR=$(SRC)/jaudiolib
+JAUDIOLIB=libjfaudiolib.a
+
 CC=gcc
 CXX=g++
 AS=nasm
@@ -72,7 +74,7 @@ endif
 
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
-	-I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib -D_FORTIFY_SOURCE=2 \
+	-I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(JAUDIOLIBDIR)/include -D_FORTIFY_SOURCE=2 \
 	-fjump-tables -fno-stack-protector
 #        -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
@@ -103,42 +105,6 @@ JMACTOBJ=$(OBJ)/util_lib.$o \
 	$(OBJ)/scriplib.$o \
 	$(OBJ)/animlib.$o
 
-AUDIOLIB_FX_STUB=$(OBJ)/audiolib_fxstub.$o
-AUDIOLIB_MUSIC_STUB=$(OBJ)/audiolib_musicstub.$o
-
-AUDIOLIB_FX_SDL=$(OBJ)/ll_man.$o \
-	  $(OBJ)/fx_man.$o \
-	  $(OBJ)/dsl.$o \
-	  $(OBJ)/pitch.$o \
-      $(OBJ)/multivoc.$o
-
-AUDIOLIB_MUSIC_SDL=$(OBJ)/sdlmusic.$o
-
-AUDIOLIB_FX=$(OBJ)/pitch.$o \
-	  $(OBJ)/multivoc.$o \
-	  $(OBJ)/ll_man.$o \
-	  $(OBJ)/fx_man.$o \
-      $(OBJ)/dsoundout.$o
-      
-ifeq ($(USE_OPENAL),1)
-	AUDIOLIB_FX += $(OBJ)/openal.$o
-endif
-      
-AUDIOLIB_MUSIC=$(OBJ)/midi.$o \
-	  $(OBJ)/mpu401.$o \
-	  $(OBJ)/music.$o
-
-ifeq (0,$(NOASM))
-  # Assembly sound mixing code
-  AUDIOLIB_FX_SDL += $(OBJ)/mv_mix.$o $(OBJ)/mv_mix16.$o $(OBJ)/mvreverb.$o
-  AUDIOLIB_FX     += $(OBJ)/mv_mix.$o $(OBJ)/mv_mix16.$o $(OBJ)/mvreverb.$o
-else
-  # C fallbacks for sound mixing code
-  AUDIOLIB_FX_SDL += $(OBJ)/mv_mix-c.$o $(OBJ)/mvreverb-c.$o
-  AUDIOLIB_FX     += $(OBJ)/mv_mix-c.$o $(OBJ)/mvreverb-c.$o
-endif
-
-
 GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/actors.$o \
 	$(OBJ)/anim.$o \
@@ -157,6 +123,8 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/osdfuncs.$o \
 	$(OBJ)/osdcmds.$o \
 	$(OBJ)/grpscan.$o \
+	$(OBJ)/sounds.$o \
+	$(OBJ)/audiolib_musicstub.$o \
 	$(JMACTOBJ)
 
 EDITOROBJS=$(OBJ)/astub.$o \
@@ -168,7 +136,6 @@ ifeq ($(PLATFORM),LINUX)
 	OURCFLAGS	+= -fno-pic
 	NASMFLAGS	+= -f elf
 	LIBS		+= -lvorbisfile -lvorbis -logg 
-	USE_OPENAL	= 0
 endif
 
 ifeq ($(PLATFORM),DARWIN)
@@ -197,9 +164,10 @@ endif
 ifeq ($(PLATFORM),WINDOWS)
 	OURCFLAGS	+= -fno-pic -DUNDERSCORES -I$(DXROOT)/include -I$(ALROOT)/include # -I$(ENETROOT)/include
 	NASMFLAGS+= -DUNDERSCORES -f win32
-	LIBS		+= -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg -lwsock32 -lws2_32 -lwinmm #-L$(ENETROOT)
+	LIBS		+= -L$(JAUDIOLIBDIR)/third-party/mingw32/lib -lvorbisfile -lvorbis -logg -lwsock32 -lws2_32 -lwinmm -ldsound
 	GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o
 	EDITOROBJS+= $(OBJ)/buildres.$o
+    JAUDIOLIB=libjfaudiolib_win32.a
 endif
 
 ifeq ($(RENDERTYPE),SDL)
@@ -208,17 +176,6 @@ ifeq ($(RENDERTYPE),SDL)
 	else
 		OURCFLAGS	+= -DSDL_FRAMEWORK
 	endif
-
-		ifneq ($(PLATFORM),WINDOWS)
-			AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_SDL) $(AUDIOLIB_FX_SDL) $(OBJ)/sounds.$o
-			AUDIOLIBOBJ_M32=$(AUDIOLIB_FX_SDL) $(OBJ)/sounds_mapster32.$o
-		ifeq (0,$(SDL_FRAMEWORK))
-			LIBS+= -lSDL_mixer
-		endif
-		else
-			AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_STUB) $(AUDIOLIB_FX_STUB) $(OBJ)/sounds.$o
-			AUDIOLIBOBJ_M32=$(AUDIOLIB_FX_STUB) $(OBJ)/sounds_mapster32.$o
-		endif
 
 	ifeq (1,$(HAVE_GTK2))
 		OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
@@ -230,29 +187,14 @@ ifeq ($(RENDERTYPE),SDL)
 	EDITOROBJS+= $(OBJ)/build_icon.$o
 endif
 
-ifeq ($(RENDERTYPE),WIN)
-	AUDIOLIBOBJ=$(AUDIOLIB_MUSIC) $(AUDIOLIB_FX) $(OBJ)/sounds.$o
-    AUDIOLIBOBJ_M32=$(AUDIOLIB_FX) $(OBJ)/sounds_mapster32.$o
-endif
-
-ifeq ($(NOSOUND),1)
-    AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_STUB) $(AUDIOLIB_FX_STUB) $(OBJ)/sounds.$o
-    AUDIOLIBOBJ_M32=$(AUDIOLIB_FX_STUB) $(OBJ)/sounds_mapster32.$o
-endif
-
-GAMEOBJS+= $(AUDIOLIBOBJ)
-EDITOROBJS+= $(AUDIOLIBOBJ_M32)
+EDITOROBJS+= $(OBJ)/sounds_mapster32.$o
 OURCFLAGS+= $(BUILDCFLAGS)
 OURCXXFLAGS+= $(BUILDCFLAGS)
-
-ifeq ($(USE_OPENAL),1)
-    OURCFLAGS+= -DUSE_OPENAL
-endif
 
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:
 endif
-.PHONY: clean all engine $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB)
+.PHONY: clean all engine $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
 
 # TARGETS
 
@@ -266,7 +208,7 @@ all:
 notice:
 	$(BUILD_STARTED)
 	
-eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB)
+eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
 	$(LINK_STATUS)
 	if $(CC) -o $@ $^ $(LIBS) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
@@ -275,7 +217,7 @@ ifeq (1,$(RELEASE))
   endif
 endif
 	
-mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB)
+mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
 	$(LINK_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
@@ -317,12 +259,17 @@ endif
 	
 $(EOBJ)/$(ENGINELIB): enginelib
 $(EOBJ)/$(EDITORLIB): editorlib
+$(JAUDIOLIBDIR)/$(JAUDIOLIB):
+ifeq ($(PRETTY_OUTPUT),1)	
+	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)/$(JAUDIOLIBDIR)\033[0;35m \033[0m\n"
+endif	
+	$(MAKE) -C $(JAUDIOLIBDIR) PRETTY_OUTPUT=$(PRETTY_OUTPUT) EROOT=$(EROOT)
+ifeq ($(PRETTY_OUTPUT),1)		
+	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)\033[0;35m \033[0m\n"
+endif	
 
 # RULES
 $(OBJ)/%.$o: $(SRC)/%.nasm
-	$(COMPILE_STATUS)
-	$(AS) $(NASMFLAGS) $< -o $@
-$(OBJ)/%.$o: $(SRC)/jaudiolib/%.nasm
 	$(COMPILE_STATUS)
 	$(AS) $(NASMFLAGS) $< -o $@
  
@@ -335,9 +282,6 @@ $(OBJ)/%.$o: $(SRC)/%.cpp
 	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/jmact/%.c
-	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
-$(OBJ)/%.$o: $(SRC)/jaudiolib/%.c
 	$(COMPILE_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 

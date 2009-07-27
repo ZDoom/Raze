@@ -573,79 +573,55 @@
 				Name="Header Files"
 				>
 				<File
-					RelativePath=".\source\jaudiolib\_midi.h"
+					RelativePath=".\source\jaudiolib\src\_multivc.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\_multivc.h"
+					RelativePath=".\source\jaudiolib\src\driver_coreaudio.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\debugio.h"
+					RelativePath=".\source\jaudiolib\src\driver_directsound.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\dsl.h"
+					RelativePath=".\source\jaudiolib\src\driver_nosound.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\dsoundout.h"
+					RelativePath=".\source\jaudiolib\src\driver_sdl.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\fx_man.h"
+					RelativePath=".\source\jaudiolib\src\drivers.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\interrup.h"
+					RelativePath=".\source\jaudiolib\include\fx_man.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\linklist.h"
+					RelativePath=".\source\jaudiolib\src\linklist.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\ll_man.h"
+					RelativePath=".\source\jaudiolib\src\ll_man.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\midi.h"
+					RelativePath=".\source\jaudiolib\src\multivoc.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\mpu401.h"
+					RelativePath=".\source\jaudiolib\include\music.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\multivoc.h"
+					RelativePath=".\source\jaudiolib\src\pitch.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\music.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\openal.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\pitch.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\platform.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\sdlout.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\standard.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\usrhooks.h"
+					RelativePath=".\source\jaudiolib\include\sndcards.h"
 					>
 				</File>
 			</Filter>
@@ -653,63 +629,47 @@
 				Name="Source Files"
 				>
 				<File
-					RelativePath=".\source\jaudiolib\audiolib_fxstub.c"
+					RelativePath=".\source\jaudiolib\src\driver_coreaudio.c"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\audiolib_musicstub.c"
+					RelativePath=".\source\jaudiolib\src\driver_directsound.c"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\dsl.c"
+					RelativePath=".\source\jaudiolib\src\driver_nosound.c"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\dsoundout.c"
+					RelativePath=".\source\jaudiolib\src\driver_sdl.c"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\fx_man.c"
+					RelativePath=".\source\jaudiolib\src\drivers.c"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\ll_man.c"
+					RelativePath=".\source\jaudiolib\src\fx_man.c"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\midi.c"
+					RelativePath=".\source\jaudiolib\src\mix.c"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\mpu401.c"
+					RelativePath=".\source\jaudiolib\src\mixst.c"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\multivoc.c"
+					RelativePath=".\source\jaudiolib\src\multivoc.c"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\music.c"
+					RelativePath=".\source\jaudiolib\src\pitch.c"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\mv_mix-c.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\openal.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\pitch.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\sdlmusic.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\sdlout.c"
+					RelativePath=".\source\jaudiolib\src\vorbis.c"
 					>
 				</File>
 			</Filter>
