@@ -293,8 +293,8 @@ void _playmusic(const char *fn)
 int32_t S_PlayMusic(const char *fn, const int32_t sel)
 {
     g_musicSize=0;
-    if (MapInfo[sel].musicfn1 != NULL)
-        _playmusic(MapInfo[sel].musicfn1);
+    if (MapInfo[sel].alt_musicfn != NULL)
+        _playmusic(MapInfo[sel].alt_musicfn);
     if (!g_musicSize)
     {
         _playmusic(fn);
@@ -306,11 +306,17 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
 
 int32_t S_PlayMusic(const char *fn, const int32_t sel)
 {
+    char *ofn = (char *)fn;
     int32_t fp;
     char * testfn, * extension;
+    int32_t alt = 0;
 
     if (ud.config.MusicToggle == 0) return 0;
     if (ud.config.MusicDevice < 0) return 0;
+
+    if (MapInfo[sel].alt_musicfn != NULL)
+        alt = (int32_t)(fn = MapInfo[sel].alt_musicfn);
+        
 
     testfn = (char *) malloc(strlen(fn) + 5);
     strcpy(testfn, fn);
@@ -335,6 +341,9 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
 
         // just use what we've been given
         fp = kopen4loadfrommod((char *)fn, 0);
+
+        if (alt && fp < 0)
+            fp = kopen4loadfrommod(ofn, 0);
     }
     while (0);
 
@@ -359,7 +368,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
                                        FX_MUSIC_PRIORITY, MUSIC_ID);
         MusicIsWaveform = 1;
     }
-    return 0;
+    return (alt != 0);
 }
 
 void S_StopMusic(void)

@@ -427,7 +427,7 @@ void G_CacheMapData(void)
         return;
 
     S_PauseMusic(1);
-    if (MapInfo[MAXVOLUMES*MAXLEVELS+2].musicfn1)
+    if (MapInfo[MAXVOLUMES*MAXLEVELS+2].alt_musicfn)
     {
         S_StopMusic();
         S_PlayMusic(&EnvMusicFilename[2][0],MAXVOLUMES*MAXLEVELS+2); // loadmus
@@ -1770,16 +1770,16 @@ int32_t G_EnterLevel(int32_t g)
                     if (fil > -1)
                     {
                         kclose(fil);
-                        if (MapInfo[ud.m_level_number].musicfn1 == NULL)
-                            MapInfo[ud.m_level_number].musicfn1 = Bcalloc(Bstrlen(levname)+1,sizeof(uint8_t));
-                        else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.m_level_number].musicfn1))
-                            MapInfo[ud.m_level_number].musicfn1 = Brealloc(MapInfo[ud.m_level_number].musicfn1,(Bstrlen(levname)+1));
-                        Bstrcpy(MapInfo[ud.m_level_number].musicfn1,levname);
+                        if (MapInfo[ud.m_level_number].alt_musicfn == NULL)
+                            MapInfo[ud.m_level_number].alt_musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(uint8_t));
+                        else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.m_level_number].alt_musicfn))
+                            MapInfo[ud.m_level_number].alt_musicfn = Brealloc(MapInfo[ud.m_level_number].alt_musicfn,(Bstrlen(levname)+1));
+                        Bstrcpy(MapInfo[ud.m_level_number].alt_musicfn,levname);
                     }
-                    else if (MapInfo[ud.m_level_number].musicfn1 != NULL)
+                    else if (MapInfo[ud.m_level_number].alt_musicfn != NULL)
                     {
-                        Bfree(MapInfo[ud.m_level_number].musicfn1);
-                        MapInfo[ud.m_level_number].musicfn1 = NULL;
+                        Bfree(MapInfo[ud.m_level_number].alt_musicfn);
+                        MapInfo[ud.m_level_number].alt_musicfn = NULL;
                     }
 
                     p[1]='m';

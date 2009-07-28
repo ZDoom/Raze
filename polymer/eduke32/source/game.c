@@ -8416,7 +8416,7 @@ static void G_HandleLocalKeys(void)
                     if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
                     {
                         if (S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex))
-                            Bsprintf(ScriptQuotes[26],"PLAYING %s",&MapInfo[(uint8_t)g_musicIndex].musicfn1[0]);
+                            Bsprintf(ScriptQuotes[26],"PLAYING %s",&MapInfo[(uint8_t)g_musicIndex].alt_musicfn[0]);
                         else
                             Bsprintf(ScriptQuotes[26],"PLAYING %s",&MapInfo[(uint8_t)g_musicIndex].musicfn[0]);
                         P_DoQuote(26,g_player[myconnectindex].ps);
@@ -8636,8 +8636,8 @@ FAKE_F3:
         if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicDevice >= 0)
         {
             KB_ClearKeyDown(sc_F5);
-            if (MapInfo[(uint8_t)g_musicIndex].musicfn1 != NULL)
-                Bstrcpy(ScriptQuotes[26],&MapInfo[(uint8_t)g_musicIndex].musicfn1[0]);
+            if (MapInfo[(uint8_t)g_musicIndex].alt_musicfn != NULL)
+                Bstrcpy(ScriptQuotes[26],&MapInfo[(uint8_t)g_musicIndex].alt_musicfn[0]);
             else if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
             {
                 Bstrcpy(ScriptQuotes[26],&MapInfo[(uint8_t)g_musicIndex].musicfn[0]);
@@ -9166,9 +9166,9 @@ static int32_t AL_DefineMusic(char *ID,char *name)
         ID=MapInfo[sel].musicfn;
     }
 
-    MapInfo[sel].musicfn1=makename(MapInfo[sel].musicfn1,name,ID);
+    MapInfo[sel].alt_musicfn=makename(MapInfo[sel].alt_musicfn,name,ID);
 //    initprintf("%-15s | ",ID);
-//    initprintf("%3d %2d %2d | %s\n",sel,ep,lev,MapInfo[sel].musicfn1);
+//    initprintf("%3d %2d %2d | %s\n",sel,ep,lev,MapInfo[sel].alt_musicfn);
 //    S_PlayMusic(ID,sel);
     return 0;
 }
@@ -10187,7 +10187,7 @@ static void G_FreeMemory(void)
         if (MapInfo[i].name != NULL) Bfree(MapInfo[i].name);
         if (MapInfo[i].filename != NULL) Bfree(MapInfo[i].filename);
         if (MapInfo[i].musicfn != NULL) Bfree(MapInfo[i].musicfn);
-        if (MapInfo[i].musicfn1 != NULL) Bfree(MapInfo[i].musicfn1);
+        if (MapInfo[i].alt_musicfn != NULL) Bfree(MapInfo[i].alt_musicfn);
         if (MapInfo[i].savedstate != NULL) G_FreeMapState(i);
     }
 

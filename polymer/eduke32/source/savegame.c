@@ -458,16 +458,16 @@ int32_t G_LoadPlayer(int32_t spot)
         if (fil > -1)
         {
             kclose(fil);
-            if (MapInfo[ud.level_number].musicfn1 == NULL)
-                MapInfo[ud.level_number].musicfn1 = Bcalloc(Bstrlen(levname)+1,sizeof(uint8_t));
-            else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.level_number].musicfn1))
-                MapInfo[ud.level_number].musicfn1 = Brealloc(MapInfo[ud.level_number].musicfn1,(Bstrlen(levname)+1));
-            Bstrcpy(MapInfo[ud.level_number].musicfn1,levname);
+            if (MapInfo[ud.level_number].alt_musicfn == NULL)
+                MapInfo[ud.level_number].alt_musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(uint8_t));
+            else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.level_number].alt_musicfn))
+                MapInfo[ud.level_number].alt_musicfn = Brealloc(MapInfo[ud.level_number].alt_musicfn,(Bstrlen(levname)+1));
+            Bstrcpy(MapInfo[ud.level_number].alt_musicfn,levname);
         }
-        else if (MapInfo[ud.level_number].musicfn1 != NULL)
+        else if (MapInfo[ud.level_number].alt_musicfn != NULL)
         {
-            Bfree(MapInfo[ud.level_number].musicfn1);
-            MapInfo[ud.level_number].musicfn1 = NULL;
+            Bfree(MapInfo[ud.level_number].alt_musicfn);
+            MapInfo[ud.level_number].alt_musicfn = NULL;
         }
 
         p[1]='m';
@@ -488,7 +488,7 @@ int32_t G_LoadPlayer(int32_t spot)
         Bstrcpy(MapInfo[ud.level_number].musicfn,levname);
     }
 
-    if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL && (i != g_musicIndex || MapInfo[MAXVOLUMES*MAXLEVELS+2].musicfn1))
+    if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL && (i != g_musicIndex || MapInfo[MAXVOLUMES*MAXLEVELS+2].alt_musicfn))
     {
         S_StopMusic();
         S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);

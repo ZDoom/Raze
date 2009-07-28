@@ -1048,7 +1048,7 @@ typedef struct {
 
 typedef struct {
     int32_t partime, designertime;
-    char *name, *filename, *musicfn, *musicfn1;
+    char *name, *filename, *musicfn, *alt_musicfn;
     mapstate_t *savedstate;
 } map_t;
 
