@@ -324,7 +324,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
             // let's see if there's an ogg with the same base name
             // lying around
             strcpy(extension, ".ogg");
-            fp = kopen4load(testfn, 0);
+            fp = kopen4loadfrommod(testfn, 0);
             if (fp >= 0)
             {
                 free(testfn);
@@ -334,7 +334,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
         free(testfn);
 
         // just use what we've been given
-        fp = kopen4load((char *)fn, 0);
+        fp = kopen4loadfrommod((char *)fn, 0);
     }
     while (0);
 
@@ -342,7 +342,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
 
     S_StopMusic();
 
-    MusicLen = kfilelength(fp);
+    g_musicSize = MusicLen = kfilelength(fp);
     MusicPtr = (char *) Bmalloc(MusicLen);
     kread(fp, MusicPtr, MusicLen);
     kclose(fp);
@@ -376,7 +376,7 @@ void S_StopMusic(void)
     {
         Bfree(MusicPtr);
         MusicPtr = 0;
-        MusicLen = 0;
+        g_musicSize = MusicLen = 0;
     }
 }
 
@@ -635,7 +635,7 @@ int32_t A_PlaySound(uint32_t num, int32_t i)
     return S_PlaySoundXYZ(num, i, (vec3_t *)&sprite[i]);
 }
 
-inline void S_StopSound(int32_t num)
+void S_StopSound(int32_t num)
 {
     if (num >= 0 && num < MAXSOUNDS && g_sounds[num].num > 0)
     {

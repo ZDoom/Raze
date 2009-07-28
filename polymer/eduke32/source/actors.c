@@ -3268,6 +3268,8 @@ static void G_MoveTransports(void)
                 }
                 break;
 
+            case 4:
+                if (sectlotag != 0) goto JBOLT;
             case 1:
                 if ((sprite[j].picnum == SHARK) || (sprite[j].picnum == COMMANDER) || (sprite[j].picnum == OCTABRAIN)
                         || ((sprite[j].picnum >= GREENSLIME) && (sprite[j].picnum <= GREENSLIME+7)))
@@ -3275,7 +3277,6 @@ static void G_MoveTransports(void)
                     if (sprite[j].extra > 0)
                         goto JBOLT;
                 }
-//            case 4:
             case 5:
             case 12:
             case 13:

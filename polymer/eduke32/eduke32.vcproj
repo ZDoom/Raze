@@ -453,6 +453,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\source\sdlmusic.c"
+					>
+				</File>
+				<File
 					RelativePath=".\source\sector.c"
 					>
 				</File>

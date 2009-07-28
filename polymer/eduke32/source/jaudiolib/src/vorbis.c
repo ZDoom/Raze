@@ -95,7 +95,7 @@ static int32_t seek_vorbis(void * datasource, ogg_int64_t offset, int32_t whence
    }
    
    vorb->pos += offset;
-   if (vorb->pos < 0) {
+   if ((int32_t)vorb->pos < 0) {
       vorb->pos = 0;
    } else if (vorb->pos > vorb->length) {
       vorb->pos = vorb->length;
@@ -176,7 +176,7 @@ playbackstatus MV_GetNextVorbisBlock
       }
 
       bytesread += bytes;
-   } while (bytesread < sizeof(vd->block));
+   } while (bytesread < (signed)sizeof(vd->block));
 
    if (bytesread == 0) {
       voice->Playing = FALSE;

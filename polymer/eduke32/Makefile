@@ -165,25 +165,27 @@ ifeq ($(PLATFORM),WINDOWS)
 	EDITOROBJS+= $(OBJ)/buildres.$o
     JAUDIOLIB=libjfaudiolib_win32.a
 else
-    GAMEOBJS+= $(OBJ)/audiolib_musicstub.$o
+    ifeq ($(RENDERTYPE),SDL)
+    	ifeq (0,$(SDL_FRAMEWORK))
+    		OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
+            LIBS+= -lSDL_mixer
+    	else
+    		OURCFLAGS	+= -DSDL_FRAMEWORK
+    	endif
+
+    	ifeq (1,$(HAVE_GTK2))
+    		OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
+    		GAMEOBJS+= $(OBJ)/game_banner.$o $(OBJ)/startgtk.game.$o
+    		EDITOROBJS+= $(OBJ)/editor_banner.$o
+    	endif
+
+    	GAMEOBJS+= $(OBJ)/game_icon.$o $(OBJ)/sdlmusic.$o
+    	EDITOROBJS+= $(OBJ)/build_icon.$o
+    else
+        GAMEOBJS+= $(OBJ)/audiolib_musicstub.$o
+    endif
 endif
 
-ifeq ($(RENDERTYPE),SDL)
-	ifeq (0,$(SDL_FRAMEWORK))
-		OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
-	else
-		OURCFLAGS	+= -DSDL_FRAMEWORK
-	endif
-
-	ifeq (1,$(HAVE_GTK2))
-		OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
-		GAMEOBJS+= $(OBJ)/game_banner.$o $(OBJ)/startgtk.game.$o
-		EDITOROBJS+= $(OBJ)/editor_banner.$o
-	endif
-
-	GAMEOBJS+= $(OBJ)/game_icon.$o
-	EDITOROBJS+= $(OBJ)/build_icon.$o
-endif
 
 EDITOROBJS+= $(OBJ)/sounds_mapster32.$o
 OURCFLAGS+= $(BUILDCFLAGS)
@@ -261,7 +263,7 @@ $(JAUDIOLIBDIR)/$(JAUDIOLIB):
 ifeq ($(PRETTY_OUTPUT),1)	
 	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)/$(JAUDIOLIBDIR)\033[0;35m \033[0m\n"
 endif	
-	$(MAKE) -C $(JAUDIOLIBDIR) PRETTY_OUTPUT=$(PRETTY_OUTPUT) EROOT=$(EROOT)
+	$(MAKE) -C $(JAUDIOLIBDIR) PRETTY_OUTPUT=$(PRETTY_OUTPUT) EROOT=$(EROOT) RELEASE=$(RELEASE) OPTLEVEL=$(OPTLEVEL) 
 ifeq ($(PRETTY_OUTPUT),1)		
 	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)\033[0;35m \033[0m\n"
 endif	

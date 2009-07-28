@@ -502,6 +502,8 @@ void G_CacheMapData(void)
         }
         else continue;
 
+        MUSIC_Update();
+
         if ((j&7) == 0)
         {
             handleevents();
@@ -1641,7 +1643,7 @@ int32_t G_FindLevelForFilename(const char *fn)
                     return ((volume * MAXLEVELS) + level);
         }
     }
-    return MAXLEVELS;
+    return MAXLEVELS*MAXVOLUMES;
 }
 
 int32_t G_EnterLevel(int32_t g)
@@ -1679,7 +1681,7 @@ int32_t G_EnterLevel(int32_t g)
 
         volume = level = G_FindLevelForFilename(boardfilename);
 
-        if (level != MAXLEVELS)
+        if (level != MAXLEVELS*MAXVOLUMES)
         {
             level &= MAXLEVELS-1;
             volume = (volume - level) / MAXLEVELS;

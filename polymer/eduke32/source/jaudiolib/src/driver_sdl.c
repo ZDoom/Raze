@@ -24,7 +24,12 @@
 
 
 #include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
 #include "driver_sdl.h"
+
+#ifndef UNREFERENCED_PARAMETER
+#define UNREFERENCED_PARAMETER(P) (P)=(P)
+#endif
 
 enum {
    SDLErr_Warning = -2,
@@ -47,10 +52,17 @@ static int32_t MixBufferCurrent = 0;
 static int32_t MixBufferUsed = 0;
 static void ( *MixCallBack )( void ) = 0;
 
-static void fillData(void * userdata, Uint8 * ptr, int32_t remaining)
+static Mix_Chunk *DummyChunk = NULL;
+static uint8_t *DummyBuffer = NULL;
+// static int32_t InterruptsDisabled = 0;
+
+static void fillData(int32_t chan, void *ptr, int32_t remaining, void *udata)
 {
 	int32_t len;
 	char *sptr;
+
+    UNREFERENCED_PARAMETER(chan);
+    UNREFERENCED_PARAMETER(udata);
 
 	while (remaining > 0) {
 		if (MixBufferUsed == MixBufferSize) {
@@ -123,8 +135,9 @@ const char *SDLDrv_ErrorString( int32_t ErrorNumber )
 int32_t SDLDrv_Init(int32_t mixrate, int32_t numchannels, int32_t samplebits, void * initdata)
 {
     Uint32 inited;
-    Uint32 err = 0;
-    SDL_AudioSpec spec;
+    int32_t err = 0;
+
+    UNREFERENCED_PARAMETER(initdata);
 
     if (Initialised) {
         SDLDrv_Shutdown();
@@ -146,18 +159,29 @@ int32_t SDLDrv_Init(int32_t mixrate, int32_t numchannels, int32_t samplebits, vo
         return SDLErr_Error;
     }
 
-    spec.freq = mixrate;
-    spec.format = (samplebits == 8) ? AUDIO_U8 : AUDIO_S16SYS;
-    spec.channels = numchannels;
-    spec.samples = 256;
-    spec.callback = fillData;
-    spec.userdata = 0;
+    // same problem occurs here as in the icculus driver...
+    // we need a dummy channel so we don't fuck up the music
+    // thus numchannels + 1 here
 
-    err = SDL_OpenAudio(&spec, NULL);
+    err = Mix_OpenAudio(mixrate, (samplebits == 8) ? AUDIO_U8 : AUDIO_S16SYS, numchannels + 1, 512);
+
     if (err < 0) {
         ErrorCode = SDLErr_OpenAudio;
         return SDLErr_Error;
     }
+
+    //Mix_SetPostMix(fillData, NULL);
+
+    // channel 0 and 1 are actual sounds
+    // dummy channel 2 runs our fillData() callback as an effect
+    Mix_RegisterEffect(2, fillData, NULL, NULL);
+
+    DummyBuffer = (uint8_t *) malloc(sizeof(intptr_t));
+    memset(DummyBuffer, 0, sizeof(intptr_t));
+
+    DummyChunk = Mix_QuickLoad_RAW(DummyBuffer, sizeof(intptr_t));
+
+    Mix_PlayChannel(2, DummyChunk, -1);
 
     Initialised = 1;
 
@@ -171,10 +195,38 @@ void SDLDrv_Shutdown(void)
     }
 
     if (StartedSDL > 0) {
+        if (Initialised)
+        {
+            Mix_HaltChannel(0);
+        }
+
+        if (DummyChunk != NULL)
+        {
+            Mix_FreeChunk(DummyChunk);
+        }
+
+        DummyChunk = NULL;
+
+        if (DummyBuffer  != NULL)
+        {
+            free(DummyBuffer);
+        }
+
+        DummyBuffer = NULL;
+
+        if (Initialised)
+        {
+            Mix_CloseAudio();
+        }
+
+        Initialised = 0;
+
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
-    } else if (StartedSDL == 0) {
+    } 
+    else if (StartedSDL == 0) {
         SDL_Quit();
     }
+
 
     StartedSDL = -1;
 }
@@ -201,7 +253,7 @@ int32_t SDLDrv_BeginPlayback(char *BufferStart, int32_t BufferSize,
 	// prime the buffer
 	MixCallBack();
     
-	SDL_PauseAudio(0);
+	Mix_Resume(-1);
     
     Playing = 1;
     
@@ -214,18 +266,28 @@ void SDLDrv_StopPlayback(void)
 		return;
 	}
 
-    SDL_PauseAudio(1);
+    Mix_Pause(-1);
 	
 	Playing = 0;
 }
 
 void SDLDrv_Lock(void)
 {
-    SDL_LockAudio();
+/*
+        if (InterruptsDisabled++)
+            return;
+    
+        SDL_LockAudio();*/
+    
 }
 
 void SDLDrv_Unlock(void)
 {
-    SDL_UnlockAudio();
+/*
+        if (--InterruptsDisabled)
+            return;
+    
+        SDL_UnlockAudio();*/
+    
 }
 

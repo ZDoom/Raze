@@ -48,16 +48,7 @@ static const int32_t _MIDI_CommandLengths[ NUM_MIDI_CHANNELS ] =
     0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 1, 2, 0
 };
 
-static int32_t(*_MIDI_RerouteFunctions[ NUM_MIDI_CHANNELS ])
-(
-    int32_t event,
-    int32_t c1,
-    int32_t c2
-) =
-{
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-};
+static int32_t (*_MIDI_RerouteFunctions[ NUM_MIDI_CHANNELS ]) ( int32_t event, int32_t c1, int32_t c2 );
 
 static track *_MIDI_TrackPtr = NULL;
 static int32_t    _MIDI_TrackMemSize;
