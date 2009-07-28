@@ -134,9 +134,11 @@ const char *SDLDrv_ErrorString( int32_t ErrorNumber )
 
 int32_t SDLDrv_Init(int32_t mixrate, int32_t numchannels, int32_t samplebits, void * initdata)
 {
-    Uint32 inited;
+    uint32_t inited;
     int32_t err = 0;
+    int32_t chunksize;
 
+    UNREFERENCED_PARAMETER(numchannels);
     UNREFERENCED_PARAMETER(initdata);
 
     if (Initialised) {
@@ -159,11 +161,13 @@ int32_t SDLDrv_Init(int32_t mixrate, int32_t numchannels, int32_t samplebits, vo
         return SDLErr_Error;
     }
 
-    // same problem occurs here as in the icculus driver...
-    // we need a dummy channel so we don't fuck up the music
-    // thus numchannels + 1 here
+    chunksize = 512;
 
-    err = Mix_OpenAudio(mixrate, (samplebits == 8) ? AUDIO_U8 : AUDIO_S16SYS, numchannels + 1, 512);
+    if (mixrate >= 16000) chunksize *= 2;
+    if (mixrate >= 32000) chunksize *= 2;
+
+    // allocate 4 channels: 2 for the game's SFX, 1 for music, and 1 for fillData()
+    err = Mix_OpenAudio(mixrate, (samplebits == 8) ? AUDIO_U8 : AUDIO_S16SYS, 4, chunksize);
 
     if (err < 0) {
         ErrorCode = SDLErr_OpenAudio;
@@ -176,10 +180,10 @@ int32_t SDLDrv_Init(int32_t mixrate, int32_t numchannels, int32_t samplebits, vo
     // dummy channel 2 runs our fillData() callback as an effect
     Mix_RegisterEffect(2, fillData, NULL, NULL);
 
-    DummyBuffer = (uint8_t *) malloc(sizeof(intptr_t));
-    memset(DummyBuffer, 0, sizeof(intptr_t));
+    DummyBuffer = (uint8_t *) malloc(chunksize);
+    memset(DummyBuffer, 0, chunksize);
 
-    DummyChunk = Mix_QuickLoad_RAW(DummyBuffer, sizeof(intptr_t));
+    DummyChunk = Mix_QuickLoad_RAW(DummyBuffer, chunksize);
 
     Mix_PlayChannel(2, DummyChunk, -1);
 
