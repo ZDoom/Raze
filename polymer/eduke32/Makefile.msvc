@@ -43,7 +43,7 @@ CFLAGS= /MT /J /nologo $(flags_cl)  \
 LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib wsock32.lib comctl32.lib \
         /NODEFAULTLIB:glu32.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:msvcrtd.lib
 
-LIBS=vorbisfile_static.lib vorbis_static.lib ogg_static.lib $(LIBS)
+LIBS=vorbisfile_static.lib vorbis_static.lib ogg_static.lib dsound.lib $(LIBS)
 
 ASFLAGS=/nologo /coff /c
 EXESUFFIX=.exe

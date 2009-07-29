@@ -56,7 +56,7 @@ typedef struct {
    int32_t lastbitstream;
 } vorbis_data;
 
-static size_t read_vorbis(char * ptr, size_t size, size_t nmemb, void * datasource)
+static size_t read_vorbis(void * ptr, size_t size, size_t nmemb, void * datasource)
 {
    vorbis_data * vorb = (vorbis_data *) datasource;
    size_t nread = 0;
@@ -74,9 +74,9 @@ static size_t read_vorbis(char * ptr, size_t size, size_t nmemb, void * datasour
          bytes = size;
       }
       
-      memcpy(ptr, (char *)vorb->ptr + vorb->pos, bytes);
+      memcpy(ptr, (uint8_t *)vorb->ptr + vorb->pos, bytes);
       vorb->pos += bytes;
-      ptr += bytes;
+      ptr = (uint8_t *)ptr + bytes;
       
       if (vorb->length == vorb->pos) {
          nread++;

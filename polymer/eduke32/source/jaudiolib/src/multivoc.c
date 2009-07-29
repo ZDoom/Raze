@@ -80,8 +80,12 @@ static inline uint32_t SWAP32(uint32_t s)
     return (s >> 24) | (s << 24) | ((s&0xff00) << 8) | ((s & 0xff0000) >> 8);
 }
 
+#ifndef min
 #define min(x,y) ((x) < (y) ? (x) : (y))
+#endif
+#ifndef max
 #define max(x,y) ((x) > (y) ? (x) : (y))
+#endif
 
 #define RoundFixed( fixedval, bits )            \
         (                                       \
@@ -1028,12 +1032,15 @@ int32_t MV_KillAllVoices
 
 {
     VoiceNode * voice, * next;
+    int32_t     flags;
 
     if (!MV_Installed)
     {
         MV_SetErrorCode(MV_NotInstalled);
         return(MV_Error);
     }
+
+    flags = DisableInterrupts();
 
     // Remove all the voices from the list
     for (voice = VoiceList.next; voice != &VoiceList; voice = next)
@@ -1044,6 +1051,8 @@ int32_t MV_KillAllVoices
             MV_Kill(voice->handle);
         }
     }
+
+    RestoreInterrupts(flags);
 
     return(MV_Ok);
 }
