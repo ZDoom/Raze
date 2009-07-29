@@ -20,7 +20,7 @@
 static intptr_t kzipopen(char *filnam)
 {
     uint32_t i;
-    char newst[BMAX_PATH];
+    char newst[BMAX_PATH+8];
 
     newst[0] = '|';
     for (i=0; filnam[i] && (i < sizeof(newst)-2); i++) newst[i+1] = filnam[i];
@@ -979,7 +979,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
 
     if (!pathsearchmode)  	// next, zip files
     {
-        char buf[BMAX_PATH];
+        char buf[BMAX_PATH+4];
         int32_t i, j, ftype;
         strcpy(buf,path);
         if (*path) strcat(buf,"/");

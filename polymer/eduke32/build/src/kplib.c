@@ -54,7 +54,7 @@ static uint32_t LSWAPIL(uint32_t a) { return(((a>>8)&0xff00)+((a&0xff00)<<8)+(a<
 static uint16_t SSWAPIL(uint16_t a) { return((a>>8)+(a<<8)); }
 #endif
 
-#if !defined(_WIN32) && !defined(__DOS__)
+#if !defined(_WIN32)
 #include <unistd.h>
 #include <dirent.h>
 typedef long long  __int64;
@@ -71,9 +71,7 @@ static __inline int32_t filelength(int h)
 #include <io.h>
 #endif
 
-#if defined(__DOS__)
-#include <dos.h>
-#elif defined(_WIN32)
+#if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
@@ -2836,7 +2834,7 @@ intptr_t kzopen(const char *filnam)
         j = strlen(tempbuf);
         if (strlen(filnam)+1+j >= sizeof(tempbuf)) continue; //don't allow int32_t filenames to buffer overrun
         if ((j) && (tempbuf[j-1] != '/') && (tempbuf[j-1] != '\\') && (filnam[0] != '/') && (filnam[0] != '\\'))
-#if (defined(__DOS__) || defined(_WIN32))
+#if defined(_WIN32)
             strcat(tempbuf,"\\");
 #else
             strcat(tempbuf,"/");
@@ -2859,10 +2857,7 @@ intptr_t kzopen(const char *filnam)
 
 // --------------------------------------------------------------------------
 
-#if defined(__DOS__)
-#define MAX_PATH 260
-static struct find_t findata;
-#elif defined(_WIN32)
+#if defined(_WIN32)
 static HANDLE hfind = INVALID_HANDLE_VALUE;
 static WIN32_FIND_DATA findata;
 #else
@@ -2883,8 +2878,7 @@ static char wildst[MAX_PATH] = "", newildst[MAX_PATH] = "";
 
 void kzfindfilestart(const char *st)
 {
-#if defined(__DOS__)
-#elif defined(_WIN32)
+#if defined(_WIN32)
     if (hfind != INVALID_HANDLE_VALUE)
         { FindClose(hfind); hfind = INVALID_HANDLE_VALUE; }
 #else
@@ -2915,15 +2909,7 @@ kzfindfile_beg:;
 
             Bmemcpy(filnam,newildst,wildstpathleng);
 
-#if defined(__DOS__)
-            if (_dos_findfirst(newildst,_A_SUBDIR,&findata))
-                { if (!kzhashbuf) return(0); srchstat = 2; continue; }
-            i = wildstpathleng;
-            if (findata.attrib&16)
-                if ((findata.name[0] == '.') && (!findata.name[1])) continue;
-            strcpy(&filnam[i],findata.name);
-            if (findata.attrib&16) strcat(&filnam[i],"\\");
-#elif defined(_WIN32)
+#if defined(_WIN32)
             hfind = FindFirstFile(newildst,&findata);
             if (hfind == INVALID_HANDLE_VALUE)
                 { if (!kzhashbuf) return(0); srchstat = 2; continue; }
@@ -2956,17 +2942,9 @@ kzfindfile_beg:;
         while (1)
         {
             Bmemcpy(filnam,newildst,wildstpathleng);
-#if defined(__DOS__)
-            if (_dos_findnext(&findata))
-                { if (!kzhashbuf) return(0); srchstat = 2; break; }
-            i = wildstpathleng;
-            if (findata.attrib&16)
-                if ((findata.name[0] == '.') && (!findata.name[1])) continue;
-            strcpy(&filnam[i],findata.name);
-            if (findata.attrib&16) strcat(&filnam[i],"\\");
-#elif defined(_WIN32)
+#if defined(_WIN32)
             if (!FindNextFile(hfind,&findata))
-                { FindClose(hfind); if (!kzhashbuf) return(0); srchstat = 2; break; }
+                { FindClose(hfind); hfind = INVALID_HANDLE_VALUE; if (!kzhashbuf) return(0); srchstat = 2; break; }
             if (findata.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN) continue;
             i = wildstpathleng;
             if (findata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
@@ -3007,7 +2985,7 @@ kzfindfile_beg:;
         strcpy(newildst,&kzhashbuf[srchdoff+4]);
         i = strlen(newildst);
         if ((i) && (newildst[i-1] != '/') && (newildst[i-1] != '\\') && (filnam[0] != '/') && (filnam[0] != '\\'))
-#if (defined(__DOS__) || defined(_WIN32))
+#if defined(_WIN32)
             strcat(newildst,"\\");
 #else
             strcat(newildst,"/");

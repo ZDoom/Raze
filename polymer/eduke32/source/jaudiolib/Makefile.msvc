@@ -46,5 +46,5 @@ $(JFAUDIOLIB): $(OBJECTS)
 	lib $(flags_lib) /out:$@ /nologo $**
 
 clean:
-	-del /Q $(OBJECTS) $(JFAUDIOLIB)
+	-del /Q $(OBJ)\* $(JFAUDIOLIB)
 
