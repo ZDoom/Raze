@@ -309,7 +309,7 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 # PHONIES	
 
 clean:
-	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) core* duke3d_w32$(EXESUFFIX)
+	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean
 
 veryclean: clean
 	-rm -f $(EOBJ)/*

@@ -152,7 +152,7 @@ wad2art$(EXESUFFIX): $(OBJ)\wad2art.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o
 
 # PHONIES	
 clean:
-	-del $(ENGINEOBJS) $(EDITOROBJS) $(OBJ)\kextract.$o $(OBJ)\kgroup.$o $(OBJ)\transpal.$o $(OBJ)\wad2map.$o $(OBJ)\wad2art.$o
+	-del /Q $(ENGINEOBJS) $(EDITOROBJS) $(OBJ)\kextract.$o $(OBJ)\kgroup.$o $(OBJ)\transpal.$o $(OBJ)\wad2map.$o $(OBJ)\wad2art.$o
 veryclean: clean
 	-del /Q $(OBJ)\$(ENGINELIB) $(OBJ)\$(EDITORLIB) $(UTILS) *.map *.manifest *.pdb
 

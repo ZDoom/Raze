@@ -31,15 +31,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
+// #include <unistd.h>
 #include <errno.h>
 #include "pitch.h"
 #include "multivoc.h"
 #include "_multivc.h"
 
+#ifndef min
 #define min(x,y) ((x) < (y) ? (x) : (y))
+#endif
+#ifndef max
 #define max(x,y) ((x) > (y) ? (x) : (y))
-
+#endif
 
 typedef struct {
    void * ptr;
@@ -53,7 +56,7 @@ typedef struct {
    int32_t lastbitstream;
 } vorbis_data;
 
-static size_t read_vorbis(void * ptr, size_t size, size_t nmemb, void * datasource)
+static size_t read_vorbis(char * ptr, size_t size, size_t nmemb, void * datasource)
 {
    vorbis_data * vorb = (vorbis_data *) datasource;
    size_t nread = 0;
@@ -71,7 +74,7 @@ static size_t read_vorbis(void * ptr, size_t size, size_t nmemb, void * datasour
          bytes = size;
       }
       
-      memcpy(ptr, vorb->ptr + vorb->pos, bytes);
+      memcpy(ptr, (char *)vorb->ptr + vorb->pos, bytes);
       vorb->pos += bytes;
       ptr += bytes;
       
@@ -396,6 +399,8 @@ int32_t MV_PlayLoopedVorbis
    voice->LoopStart   = (char *) (loopstart >= 0 ? TRUE : FALSE);
    voice->LoopEnd     = 0;
    voice->LoopSize    = 0;
+   voice->Playing     = TRUE;
+   voice->Paused      = FALSE;
    
    voice->SamplingRate = vi->rate;
    voice->RateScale    = ( voice->SamplingRate * voice->PitchScale ) / MV_MixRate;

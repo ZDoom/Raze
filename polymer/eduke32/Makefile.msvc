@@ -9,6 +9,9 @@ INC=$(SRC)
 RSRC=rsrc
 o=obj
 
+JAUDIOLIBDIR=$(SRC)\jaudiolib
+JAUDIOLIB=libjfaudiolib.lib
+
 ENGINELIB=engine.lib
 EDITORLIB=build.lib
 
@@ -34,7 +37,7 @@ AS=ml
 LINK=link /nologo /opt:ref
 MT=mt
 CFLAGS= /MT /J /nologo $(flags_cl)  \
-	/I$(INC) /I$(EINC)\ /I$(SRC)\jmact /I$(SRC)\jaudiolib /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" \
+	/I$(INC) /I$(EINC)\msvc /I$(EINC)\ /I$(SRC)\jmact /I$(JAUDIOLIBDIR)\include /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" \
  	/D "_CRT_SECURE_NO_DEPRECATE" /W2 $(ENGINEOPTS) \
  	/I$(DXROOT)\include" /DRENDERTYPEWIN=1
 LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib wsock32.lib comctl32.lib \
@@ -59,22 +62,7 @@ JMACTOBJ=$(OBJ)\util_lib.$o \
 	$(OBJ)\mathutil.$o \
 	$(OBJ)\scriplib.$o
 
-AUDIOLIB_FX_STUB=$(OBJ)\jaudiolib_fxstub.$o
-AUDIOLIB_MUSIC_STUB=$(OBJ)\jaudiolib_musicstub.$o
-AUDIOLIB_FX=$(OBJ)\mv_mix.$o \
-	  $(OBJ)\mv_mix16.$o \
-	  $(OBJ)\mvreverb.$o \
-	  $(OBJ)\pitch.$o \
-	  $(OBJ)\multivoc.$o \
-          $(OBJ)\openal.$o \
-	  $(OBJ)\ll_man.$o \
-	  $(OBJ)\fx_man.$o \
- 	  $(OBJ)\dsoundout.$o
-AUDIOLIB_MUSIC=$(OBJ)\midi.$o \
- 	  $(OBJ)\mpu401.$o \
- 	  $(OBJ)\music.$o
-
-AUDIOLIBOBJ=$(AUDIOLIB_MUSIC) $(AUDIOLIB_FX)
+AUDIOLIBOBJ=$(OBJ)\midi.$o $(OBJ)\music.$o $(OBJ)\mpu401.$o
  
 GAMEOBJS=$(OBJ)\game.$o \
 	$(OBJ)\actors.$o \
@@ -121,13 +109,7 @@ EDITOROBJS=$(OBJ)\astub.$o \
 {$(SRC)\}.masm{$(OBJ)\}.$o:
 	$(AS) /c $(ASFLAGS) /Fo$@ $<
 
-{$(SRC)\jaudiolib}.masm{$(OBJ)\}.$o:
-	$(AS) /c $(ASFLAGS) /Fo$@ $<
-
 {$(SRC)\jmact}.c{$(OBJ)\}.$o:
-	$(CC) /c $(CFLAGS) /Fo$@ $<
-
-{$(SRC)\jaudiolib}.c{$(OBJ)\}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
 {$(SRC)\util}.c{$(OBJ)\}.$o:
@@ -146,11 +128,11 @@ EDITOROBJS=$(OBJ)\astub.$o \
 # TARGETS
 all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) # duke3d_w32$(EXESUFFIX);
 
-eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB)
+eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $(RSRC)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
-mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB)
+mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $(RSRC)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
@@ -168,14 +150,24 @@ enginelib editorlib: AlwaysBuild
 	nmake /f Makefile.msvc "OVERRIDES=$(MAKEDIR)\$(EOBJ)\overrides.mak" $@
 	cd $(MAKEDIR)
 
+jaudiolib:
+	cd $(JAUDIOLIBDIR)
+	nmake /f Makefile.msvc
+	cd $(MAKEDIR)
+
+
 AlwaysBuild: ;
 $(EOBJ)\$(EDITORLIB): editorlib ;
 $(EOBJ)\$(ENGINELIB): enginelib ;
+$(JAUDIOLIBDIR)\$(JAUDIOLIB): jaudiolib ;
 
 # PHONIES	
 clean:
 	-del /Q $(OBJ)\* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) duke3d_w32$(EXESUFFIX) \
             *.pdb *.map *.manifest
+	cd $(JAUDIOLIBDIR)
+	nmake /f Makefile.msvc clean
+	cd $(MAKEDIR)
 	
 veryclean: clean
 	-del /Q $(EOBJ)\*

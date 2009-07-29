@@ -41,6 +41,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "multivoc.h"
 #include "_multivc.h"
 
+#ifdef _MSC_VER
+#define inline __inline
+#endif
+
 #ifdef __POWERPC__
 #define LITTLE16 SWAP16
 #define LITTLE32 SWAP32
@@ -500,16 +504,21 @@ void MV_ServiceVoc
 
     for (voice = VoiceList.next; voice != &VoiceList; voice = next)
     {
+        if ( voice->Paused )
+        {
+            next = voice->next;
+            continue;
+        }
 
         MV_BufferEmpty[ MV_MixPage ] = FALSE;
 
-        if (!voice->Paused)
+//        if (!voice->Paused)
             MV_MixFunction(voice, MV_MixPage);
 
         next = voice->next;
 
         // Is this voice done?
-        if (!voice->Playing && !voice->Paused)
+        if (!voice->Playing/* && !voice->Paused*/)
         {
             //JBF: prevent a deadlock caused by MV_StopVoice grabbing the mutex again
             //MV_StopVoice( voice );
@@ -2360,6 +2369,7 @@ int32_t MV_PlayLoopedWAV
     }
 
     voice->Playing     = TRUE;
+    voice->Paused      = FALSE;
     voice->DemandFeed  = NULL;
     voice->LoopStart   = NULL;
     voice->LoopCount   = 0;
@@ -2781,7 +2791,7 @@ int32_t MV_Init
     MV_SetErrorCode(MV_Ok);
 
     MV_TotalMemory = Voices * sizeof(VoiceNode) + sizeof(HARSH_CLIP_TABLE_8) + TotalBufferSize;
-    ptr = (char *) malloc(MV_TotalMemory);
+    ptr = (char *) calloc(1, MV_TotalMemory);
     if (!ptr)
     {
         MV_SetErrorCode(MV_NoMem);
