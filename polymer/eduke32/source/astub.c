@@ -6936,8 +6936,8 @@ static void Keys3d(void)
             temphitag = sprite[searchwall].hitag;
             tempextra = sprite[searchwall].extra;
             tempxvel = sprite[searchwall].xvel;
-            tempyvel = sprite[searchwall].zvel;
-            tempzvel = sprite[searchwall].xvel;
+            tempyvel = sprite[searchwall].yvel;
+            tempzvel = sprite[searchwall].zvel;
         }
         if (searchstat == 4)
         {
