@@ -21,10 +21,10 @@
 
 int32_t SDLDrv_GetError(void);
 const char *SDLDrv_ErrorString( int32_t ErrorNumber );
-int32_t SDLDrv_Init(int32_t mixrate, int32_t numchannels, int32_t samplebits, void * initdata);
-void SDLDrv_Shutdown(void);
-int32_t SDLDrv_BeginPlayback(char *BufferStart, int32_t BufferSize,
+int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t *samplebits, void * initdata);
+void SDLDrv_PCM_Shutdown(void);
+int32_t SDLDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize,
                  int32_t NumDivisions, void ( *CallBackFunc )( void ) );
-void SDLDrv_StopPlayback(void);
-void SDLDrv_Lock(void);
-void SDLDrv_Unlock(void);
+void SDLDrv_PCM_StopPlayback(void);
+void SDLDrv_PCM_Lock(void);
+void SDLDrv_PCM_Unlock(void);

@@ -31,10 +31,6 @@
 # include "driver_sdl.h"
 #endif
 
-#ifdef __APPLE__
-# include "driver_coreaudio.h"
-#endif
-
 #ifdef WIN32
 # include "driver_directsound.h"
 #endif
@@ -46,7 +42,7 @@ int32_t ASS_SoundDriver = -1;
 static struct {
 	int32_t          (* GetError)(void);
 	const char * (* ErrorString)(int32_t);
-	int32_t          (* Init)(int32_t, int32_t, int32_t, void *);
+	int32_t          (* Init)(int32_t *, int32_t *, int32_t *, void *);
 	void         (* Shutdown)(void);
 	int32_t          (* BeginPlayback)(char *, int32_t, int32_t, void ( * )(void) );
 	void         (* StopPlayback)(void);
@@ -58,12 +54,12 @@ static struct {
 	{
 		NoSoundDrv_GetError,
 		NoSoundDrv_ErrorString,
-		NoSoundDrv_Init,
-		NoSoundDrv_Shutdown,
-		NoSoundDrv_BeginPlayback,
-		NoSoundDrv_StopPlayback,
-		NoSoundDrv_Lock,
-		NoSoundDrv_Unlock,
+		NoSoundDrv_PCM_Init,
+		NoSoundDrv_PCM_Shutdown,
+		NoSoundDrv_PCM_BeginPlayback,
+		NoSoundDrv_PCM_StopPlayback,
+		NoSoundDrv_PCM_Lock,
+		NoSoundDrv_PCM_Unlock,
 	},
 	
 	// Simple DirectMedia Layer
@@ -71,28 +67,12 @@ static struct {
 	{
 		SDLDrv_GetError,
 		SDLDrv_ErrorString,
-		SDLDrv_Init,
-		SDLDrv_Shutdown,
-		SDLDrv_BeginPlayback,
-		SDLDrv_StopPlayback,
-		SDLDrv_Lock,
-		SDLDrv_Unlock,
-	},
-	#else
-		UNSUPPORTED
-	#endif
-	
-	// OS X CoreAudio
-	#ifdef __APPLE__
-	{
-		CoreAudioDrv_GetError,
-		CoreAudioDrv_ErrorString,
-		CoreAudioDrv_Init,
-		CoreAudioDrv_Shutdown,
-		CoreAudioDrv_BeginPlayback,
-		CoreAudioDrv_StopPlayback,
-		CoreAudioDrv_Lock,
-		CoreAudioDrv_Unlock,
+		SDLDrv_PCM_Init,
+		SDLDrv_PCM_Shutdown,
+		SDLDrv_PCM_BeginPlayback,
+		SDLDrv_PCM_StopPlayback,
+		SDLDrv_PCM_Lock,
+		SDLDrv_PCM_Unlock,
 	},
 	#else
 		UNSUPPORTED
@@ -103,12 +83,12 @@ static struct {
 	{
 		DirectSoundDrv_GetError,
 		DirectSoundDrv_ErrorString,
-		DirectSoundDrv_Init,
-		DirectSoundDrv_Shutdown,
-		DirectSoundDrv_BeginPlayback,
-		DirectSoundDrv_StopPlayback,
-		DirectSoundDrv_Lock,
-		DirectSoundDrv_Unlock,
+		DirectSoundDrv_PCM_Init,
+		DirectSoundDrv_PCM_Shutdown,
+		DirectSoundDrv_PCM_BeginPlayback,
+		DirectSoundDrv_PCM_StopPlayback,
+		DirectSoundDrv_PCM_Lock,
+		DirectSoundDrv_PCM_Unlock,
 	},
 	#else
 		UNSUPPORTED
@@ -141,7 +121,7 @@ const char * SoundDriver_ErrorString( int32_t ErrorNumber )
 	return SoundDrivers[ASS_SoundDriver].ErrorString(ErrorNumber);
 }
 
-int32_t SoundDriver_Init(int32_t mixrate, int32_t numchannels, int32_t samplebits, void * initdata)
+int32_t SoundDriver_Init(int32_t *mixrate, int32_t *numchannels, int32_t *samplebits, void * initdata)
 {
 	return SoundDrivers[ASS_SoundDriver].Init(mixrate, numchannels, samplebits, initdata);
 }

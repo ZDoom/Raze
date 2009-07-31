@@ -37,7 +37,6 @@ typedef enum
    {
    ASS_NoSound,
    ASS_SDL,
-   ASS_CoreAudio,
    ASS_DirectSound,
    ASS_NumSoundCards,
 	ASS_AutoDetect = -2

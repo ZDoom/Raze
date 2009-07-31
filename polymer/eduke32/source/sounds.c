@@ -204,10 +204,13 @@ void S_PauseMusic(int32_t onf)
 
     if (MusicIsWaveform)
         FX_PauseVoice(MusicVoice, onf);
-    else if (onf)
-        MUSIC_Pause();
     else
-        MUSIC_Continue();
+    {
+        if (onf)
+            MUSIC_Pause();
+        else
+            MUSIC_Continue();
+    }
 
     MusicPaused = onf;
 }

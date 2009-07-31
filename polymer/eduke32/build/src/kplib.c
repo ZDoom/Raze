@@ -1610,7 +1610,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                 //Get DC
                                 if (!Ss)
                                 {
-                                    while (curbits < 24) //Getbits
+                                    while (curbits < 16) //Getbits
                                     {
                                         ch = *kfileptr++; if (ch == 255) kfileptr++;
                                         num = (num<<8)+((int32_t)ch); curbits += 8;
@@ -1625,7 +1625,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
 
                                         if (daval)
                                         {
-                                            while (curbits < 24) //Getbits
+                                            while (curbits < daval) //Getbits
                                             {
                                                 ch = *kfileptr++; if (ch == 255) kfileptr++;
                                                 num = (num<<8)+((int32_t)ch); curbits += 8;
@@ -1647,7 +1647,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                 {
                                     for (; z<=Se; z++)
                                     {
-                                        while (curbits < 24) //Getbits
+                                        while (curbits < 16) //Getbits
                                         {
                                             ch = *kfileptr++; if (ch == 255) kfileptr++;
                                             num = (num<<8)+((int32_t)ch); curbits += 8;
@@ -1662,7 +1662,11 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                         {
                                             if (Ah)
                                             {
-                                                //NOTE: Getbits not needed here - buffer should have enough bits
+												if (curbits < 8) //Getbits
+												{
+													ch = *kfileptr++; if (ch == 255) kfileptr++;
+													num = (num<<8)+((long)ch); curbits += 8;
+												}
                                                 if (num&(pow2long[--curbits])) daval = Alut[0]; else daval = Alut[1];
                                             }
                                         }
@@ -1671,7 +1675,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                             eobrun = pow2long[zz];
                                             if (zz)
                                             {
-                                                while (curbits < 24) //Getbits
+                                                while (curbits < zz) //Getbits
                                                 {
                                                     ch = *kfileptr++; if (ch == 255) kfileptr++;
                                                     num = (num<<8)+((int32_t)ch); curbits += 8;
@@ -1687,7 +1691,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                             {
                                                 if (dcs[z])
                                                 {
-                                                    while (curbits < 24) //Getbits
+                                                    if (curbits < 8) //Getbits
                                                     {
                                                         ch = *kfileptr++; if (ch == 255) kfileptr++;
                                                         num = (num<<8)+((int32_t)ch); curbits += 8;
@@ -1704,7 +1708,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                         {
                                             z += zz; if (z > Se) break;
 
-                                            while (curbits < 24) //Getbits
+                                            while (curbits < daval) //Getbits
                                             {
                                                 ch = *kfileptr++; if (ch == 255) kfileptr++;
                                                 num = (num<<8)+((int32_t)ch); curbits += 8;
@@ -1723,7 +1727,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                     for (; z<=Se; z++)
                                     {
                                         if (!dcs[z]) continue;
-                                        while (curbits < 24) //Getbits
+                                        if (curbits < 8) //Getbits
                                         {
                                             ch = *kfileptr++; if (ch == 255) kfileptr++;
                                             num = (num<<8)+((int32_t)ch); curbits += 8;
@@ -1996,7 +2000,7 @@ static int32_t ktgarend(const char *header, int32_t fleng,
     const uint8_t *fptr, *cptr, *nptr;
 
     //Ugly and unreliable identification for .TGA!
-    if ((fleng < 20) || (header[1]&0xfe)) return(-1);
+    if ((fleng < 19) || (header[1]&0xfe)) return(-1);
     if ((header[2] >= 12) || (!((1<<header[2])&0xe0e))) return(-1);
     if ((header[16]&7) || (header[16] == 0) || (header[16] > 32)) return(-1);
     if (header[17]&0xc0) return(-1);
@@ -2476,7 +2480,7 @@ void kpgetdim(const char *buf, int32_t leng, int32_t *xsiz, int32_t *ysiz)
     }
     else
     {     //Unreliable .TGA identification - this MUST be final case!
-        if ((leng >= 20) && (!(ubuf[1]&0xfe)))
+        if ((leng >= 19) && (!(ubuf[1]&0xfe)))
             if ((ubuf[2] < 12) && ((1<<ubuf[2])&0xe0e))
                 if ((!(ubuf[16]&7)) && (ubuf[16] != 0) && (ubuf[16] <= 32))
                     if (!(buf[17]&0xc0))
@@ -2516,7 +2520,7 @@ int32_t kprender(const char *buf, int32_t leng, intptr_t frameptr, int32_t bpl,
         return(kddsrend(buf,leng,frameptr,bpl,xdim,ydim,xoff,yoff));
 
     //Unreliable .TGA identification - this MUST be final case!
-    if ((leng >= 20) && (!(ubuf[1]&0xfe)))
+    if ((leng >= 19) && (!(ubuf[1]&0xfe)))
         if ((ubuf[2] < 12) && ((1<<ubuf[2])&0xe0e))
             if ((!(ubuf[16]&7)) && (ubuf[16] != 0) && (ubuf[16] <= 32))
                 if (!(ubuf[17]&0xc0))

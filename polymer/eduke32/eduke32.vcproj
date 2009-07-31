@@ -593,10 +593,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\src\driver_coreaudio.h"
-					>
-				</File>
-				<File
 					RelativePath=".\source\jaudiolib\src\driver_directsound.h"
 					>
 				</File>
@@ -644,10 +640,6 @@
 			<Filter
 				Name="Source Files"
 				>
-				<File
-					RelativePath=".\source\jaudiolib\src\driver_coreaudio.c"
-					>
-				</File>
 				<File
 					RelativePath=".\source\jaudiolib\src\driver_directsound.c"
 					>

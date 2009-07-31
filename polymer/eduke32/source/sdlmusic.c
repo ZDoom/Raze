@@ -255,9 +255,8 @@ int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
     music_musicchunk = Mix_LoadMUS_RW(SDL_RWFromMem((char *) song, g_musicSize));
 
     if (music_musicchunk != NULL)
-    {
         Mix_PlayMusic(music_musicchunk, (loopflag == MUSIC_LoopSong)?-1:0);
-    }
+
     return MUSIC_Ok;
 }
 

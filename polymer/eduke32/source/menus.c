@@ -4610,10 +4610,10 @@ cheat_for_port_credits:
                     if (x==io)
                     {
                         ud.config.NumVoices++;
-                        if (ud.config.NumVoices > 32)
+                        if (ud.config.NumVoices > 96)
                             ud.config.NumVoices = 4;
                     }
-                    modval(4,32,(int32_t *)&ud.config.NumVoices,1,probey==io);
+                    modval(4,96,(int32_t *)&ud.config.NumVoices,1,probey==io);
                     if (ud.config.NumVoices != i)
                         changesmade |= 8;
                     Bsprintf(tempbuf,"%d",ud.config.NumVoices);

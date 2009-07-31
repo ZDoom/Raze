@@ -43,7 +43,7 @@ enum {
 static int32_t ErrorCode = SDLErr_Ok;
 static int32_t Initialised = 0;
 static int32_t Playing = 0;
-static int32_t StartedSDL = -1;
+// static int32_t StartedSDL = -1;
 
 static char *MixBuffer = 0;
 static int32_t MixBufferSize = 0;
@@ -132,19 +132,21 @@ const char *SDLDrv_ErrorString( int32_t ErrorNumber )
     return ErrorString;
 }
 
-int32_t SDLDrv_Init(int32_t mixrate, int32_t numchannels, int32_t samplebits, void * initdata)
+int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t *samplebits, void * initdata)
 {
-    uint32_t inited;
+//    uint32_t inited;
     int32_t err = 0;
     int32_t chunksize;
+    uint16_t fmt;
 
     UNREFERENCED_PARAMETER(numchannels);
     UNREFERENCED_PARAMETER(initdata);
 
     if (Initialised) {
-        SDLDrv_Shutdown();
+        SDLDrv_PCM_Shutdown();
     }
 
+/*
     inited = SDL_WasInit(SDL_INIT_EVERYTHING);
 
     if (inited == 0) {
@@ -160,19 +162,25 @@ int32_t SDLDrv_Init(int32_t mixrate, int32_t numchannels, int32_t samplebits, vo
         ErrorCode = SDLErr_InitSubSystem;
         return SDLErr_Error;
     }
+*/
 
     chunksize = 512;
 
-    if (mixrate >= 16000) chunksize *= 2;
-    if (mixrate >= 32000) chunksize *= 2;
+    if (*mixrate >= 16000) chunksize *= 2;
+    if (*mixrate >= 32000) chunksize *= 2;
 
     // allocate 4 channels: 2 for the game's SFX, 1 for music, and 1 for fillData()
-    err = Mix_OpenAudio(mixrate, (samplebits == 8) ? AUDIO_U8 : AUDIO_S16SYS, 4, chunksize);
+    err = Mix_OpenAudio(*mixrate, (*samplebits == 8) ? AUDIO_U8 : AUDIO_S16SYS, 4, chunksize);
 
     if (err < 0) {
         ErrorCode = SDLErr_OpenAudio;
         return SDLErr_Error;
     }
+
+    Mix_QuerySpec(mixrate, &fmt, numchannels);
+
+    if (fmt == AUDIO_U8) *samplebits = 8;
+    else *samplebits = 16;
 
     //Mix_SetPostMix(fillData, NULL);
 
@@ -192,39 +200,38 @@ int32_t SDLDrv_Init(int32_t mixrate, int32_t numchannels, int32_t samplebits, vo
     return SDLErr_Ok;
 }
 
-void SDLDrv_Shutdown(void)
+void SDLDrv_PCM_Shutdown(void)
 {
     if (!Initialised) {
         return;
     }
 
-    if (StartedSDL > 0) {
+//    if (StartedSDL > 0) {
         if (Initialised)
         {
-            Mix_HaltChannel(0);
+            Mix_HaltChannel(-1);
         }
 
         if (DummyChunk != NULL)
         {
             Mix_FreeChunk(DummyChunk);
+            DummyChunk = NULL;
         }
-
-        DummyChunk = NULL;
 
         if (DummyBuffer  != NULL)
         {
             free(DummyBuffer);
+            DummyBuffer = NULL;
         }
 
-        DummyBuffer = NULL;
 
         if (Initialised)
         {
             Mix_CloseAudio();
+            Initialised = 0;
         }
 
-        Initialised = 0;
-
+/*
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
     } 
     else if (StartedSDL == 0) {
@@ -233,9 +240,10 @@ void SDLDrv_Shutdown(void)
 
 
     StartedSDL = -1;
+*/
 }
 
-int32_t SDLDrv_BeginPlayback(char *BufferStart, int32_t BufferSize,
+int32_t SDLDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize,
 						int32_t NumDivisions, void ( *CallBackFunc )( void ) )
 {
 	if (!Initialised) {
@@ -244,7 +252,7 @@ int32_t SDLDrv_BeginPlayback(char *BufferStart, int32_t BufferSize,
 	}
 	
 	if (Playing) {
-		SDLDrv_StopPlayback();
+		SDLDrv_PCM_StopPlayback();
 	}
     
 	MixBuffer = BufferStart;
@@ -264,7 +272,7 @@ int32_t SDLDrv_BeginPlayback(char *BufferStart, int32_t BufferSize,
 	return SDLErr_Ok;
 }
 
-void SDLDrv_StopPlayback(void)
+void SDLDrv_PCM_StopPlayback(void)
 {
 	if (!Initialised || !Playing) {
 		return;
@@ -275,7 +283,7 @@ void SDLDrv_StopPlayback(void)
 	Playing = 0;
 }
 
-void SDLDrv_Lock(void)
+void SDLDrv_PCM_Lock(void)
 {
 /*
         if (InterruptsDisabled++)
@@ -285,7 +293,7 @@ void SDLDrv_Lock(void)
     
 }
 
-void SDLDrv_Unlock(void)
+void SDLDrv_PCM_Unlock(void)
 {
 /*
         if (--InterruptsDisabled)

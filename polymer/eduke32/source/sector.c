@@ -3275,7 +3275,7 @@ void P_CheckSectors(int32_t snum)
                     if (PN == CAMERA1 && SP == 0 && sprite[neartagsprite].hitag == SLT)
                     {
                         SP = 1; //Using this camera
-                        A_PlaySound(MONITOR_ACTIVE,neartagsprite);
+                        A_PlaySound(MONITOR_ACTIVE,p->i);
 
                         sprite[neartagsprite].owner = i;
                         sprite[neartagsprite].yvel = 1;

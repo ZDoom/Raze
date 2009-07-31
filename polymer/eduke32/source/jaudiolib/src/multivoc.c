@@ -2829,7 +2829,7 @@ int32_t MV_Init
     ASS_SoundDriver = soundcard;
 
     // Initialize the sound card
-    status = SoundDriver_Init(MixRate, numchannels, samplebits, initdata);
+    status = SoundDriver_Init(&MixRate, &numchannels, &samplebits, initdata);
     if (status != MV_Ok)
     {
         MV_SetErrorCode(MV_DriverError);

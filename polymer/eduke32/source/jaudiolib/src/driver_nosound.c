@@ -34,29 +34,29 @@ const char *NoSoundDrv_ErrorString( int32_t ErrorNumber )
 	return "No sound, Ok.";
 }
 
-int32_t NoSoundDrv_Init(int32_t mixrate, int32_t numchannels, int32_t samplebits, void * initdata)
+int32_t NoSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t *samplebits, void * initdata)
 {
 	return 0;
 }
 
-void NoSoundDrv_Shutdown(void)
+void NoSoundDrv_PCM_Shutdown(void)
 {
 }
 
-int32_t NoSoundDrv_BeginPlayback(char *BufferStart, int32_t BufferSize,
+int32_t NoSoundDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize,
 						int32_t NumDivisions, void ( *CallBackFunc )( void ) )
 {
 	return 0;
 }
 
-void NoSoundDrv_StopPlayback(void)
+void NoSoundDrv_PCM_StopPlayback(void)
 {
 }
 
-void NoSoundDrv_Lock(void)
+void NoSoundDrv_PCM_Lock(void)
 {
 }
 
-void NoSoundDrv_Unlock(void)
+void NoSoundDrv_PCM_Unlock(void)
 {
 }
