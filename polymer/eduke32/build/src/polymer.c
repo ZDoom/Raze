@@ -1970,22 +1970,38 @@ void polymer_alt_editorselect(void)
             continue;
 
         {
-            _prplane *wp = &w->wall;
             int8_t what;
 
-            GLfloat *pl = wp->plane;
-            GLdouble a=pl[0], b=pl[1], c=pl[2], d=pl[3];
-            GLdouble nnormsq = a*a + b*b + c*c;
-            GLdouble nnorm = sqrt(nnormsq);
+            GLfloat *pl = NULL;
+            GLfloat nnormsq, nnorm, npl[3];
             GLfloat t, svcoeff, dist;
 
-            GLfloat npl[3] = {a/nnorm, b/nnorm, c/nnorm};
+            j = 0;
+            do
+            {
+                if (j==0 && (w->underover&1))
+                    pl = w->wall.plane;
+                else if (j==1 && (w->underover&2))
+                    pl = w->over.plane;
+                else if (j==2 && ((wal->cstat&16) || (wal->cstat&32)))
+                    pl = w->mask.plane;
+                j++;
+            }
+            while (j<3 && (!pl || dot3f(pl,pl)==0.0));
+
+            if (!pl || (nnormsq = dot3f(pl,pl))==0.0)
+                continue;
+
+            nnorm = sqrt(nnormsq);
+            npl[0]=pl[0]/nnorm;
+            npl[1]=pl[1]/nnorm;
+            npl[2]=pl[2]/nnorm;
 
             t = dot3f(pl,scrv);
             if (t==0)
                 continue;
 
-            svcoeff = -(dot3f(pl,scr)+d)/t;
+            svcoeff = -(dot3f(pl,scr)+pl[3])/t;
             if (svcoeff < 0)
                 continue;
 
@@ -2004,10 +2020,10 @@ void polymer_alt_editorselect(void)
                 tp[1] = scry + svcoeff*scrv[1];
                 tp[2] = scrz + svcoeff*scrv[2];
 
-                pp=wp;
+                pp=&w->wall;
                 if (what==0)
                 {
-                    if (wal->nextsector>=0 && !(w->underover&1))
+                    if (!(w->underover&1))
                         continue;
                 }
                 else if (what==1)
