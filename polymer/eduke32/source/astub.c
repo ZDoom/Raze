@@ -1035,7 +1035,7 @@ void ExtShowSectorData(int16_t sectnum)   //F5
     clearmidstatbar16();             //Clear middle of status bar
 
     ydim -= 8;
-    color = whitecol-16;
+    color = whitecol-21;
     begindrawing();
     for (i=ydim-STATUS2DSIZ+16; i<ydim; i++)
     {
@@ -1310,7 +1310,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
 
     clearmidstatbar16();
 
-    color = whitecol-16;
+    color = whitecol-21;
     begindrawing();
     for (i=ydim-STATUS2DSIZ+16; i<ydim; i++)
     {
@@ -1445,7 +1445,7 @@ static void Show2dText(char *name)
     uint8_t x=0,y=4,xmax=0,xx=0,col=0;
     clearmidstatbar16();
 
-    color = whitecol-16;
+    color = whitecol-21;
     begindrawing();
     for (i=ydim-STATUS2DSIZ+16; i<ydim; i++)
     {
@@ -1660,7 +1660,7 @@ static void IntegratedHelp()
 
         begindrawing();
 
-        col = whitecol-16;
+        col = whitecol-21;
 
         for (i=ydim-overridepm16y; i<ydim; i++)
         {
@@ -1867,7 +1867,7 @@ ENDFOR1:
             }
 
             {
-                int32_t col = whitecol-16;
+                int32_t col = whitecol-21;
 
                 begindrawing();
                 for (i=ydim-overridepm16y; i<ydim; i++)
@@ -2084,7 +2084,7 @@ static void SoundDisplay()
             idle();
 
             {
-                int32_t col = whitecol-16;
+                int32_t col = whitecol-21;
 
                 begindrawing();
                 for (i=ydim-overridepm16y; i<ydim; i++)
@@ -10769,7 +10769,7 @@ static void EditSectorData(int16_t sectnum)
     int32_t xpos = 208, ypos = ydim-STATUS2DSIZ+48;
 
     disptext[dispwidth] = 0;
-    col = whitecol-16;
+    col = whitecol-21;
 
     begindrawing();
     for (i=ydim-STATUS2DSIZ+16; i<ydim; i++)
@@ -11024,7 +11024,7 @@ static void EditWallData(int16_t wallnum)
     int32_t col;
 
     disptext[dispwidth] = 0;
-    col = whitecol-16;
+    col = whitecol-21;
 
     begindrawing();
     for (i=ydim-STATUS2DSIZ+16; i<ydim; i++)
@@ -11173,7 +11173,7 @@ static void EditSpriteData(int16_t spritenum)
     disptext[dispwidth] = 0;
     //    clearmidstatbar16();
 
-    col = whitecol-16;
+    col = whitecol-21;
 
     begindrawing();
     for (i=ydim-STATUS2DSIZ+16; i<ydim; i++)
@@ -11577,7 +11577,7 @@ static void GenSearchSprite()
 
     clearmidstatbar16();
 
-    color = whitecol-16;
+    color = whitecol-21;
     begindrawing();
     for (i=ydim-STATUS2DSIZ+16; i<ydim; i++)
     {
@@ -11762,7 +11762,7 @@ static void FuncMenu(void)
     disptext[dispwidth] = 0;
     //    clearmidstatbar16();
 
-    col = whitecol-16;
+    col = whitecol-21;
 
     begindrawing();
     for (i=ydim-STATUS2DSIZ+16; i<ydim; i++)

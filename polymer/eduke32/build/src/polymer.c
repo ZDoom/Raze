@@ -580,6 +580,7 @@ static struct
     GLfloat verts[4*3];
     GLfloat plane[4];
     int16_t owner;
+    int8_t type; // 0: planar sprite, 1: model sprite
 } m32_drawnsprites[MAXSPRITESONSCREEN];
 
 // EXTERNAL FUNCTIONS
@@ -1095,6 +1096,7 @@ void                polymer_drawsprite(int32_t snum)
             Bmemcpy(&m32_drawnsprites[m32_numdrawnsprites].verts[9], &spriteplane.buffer[15], 3*sizeof(GLfloat));
             Bmemcpy(&m32_drawnsprites[m32_numdrawnsprites].plane, spriteplane.plane, 4*sizeof(GLfloat));
             m32_drawnsprites[m32_numdrawnsprites].owner = (tspr->owner&(MAXSPRITES-1));
+            m32_drawnsprites[m32_numdrawnsprites].type = 0;
             m32_numdrawnsprites++;
         }
     }
@@ -2227,63 +2229,159 @@ nextsector:
 
     for (i=0; i<m32_numdrawnsprites; i++)
     {
-        GLfloat *pl = m32_drawnsprites[i].plane;
-        GLfloat t, svcoeff, dist;
-        int16_t sn = m32_drawnsprites[i].owner;
+        if (m32_drawnsprites[i].type == 0)
+        {
+            GLfloat *pl = m32_drawnsprites[i].plane;
+            GLfloat t, svcoeff, dist;
+            int16_t sn = m32_drawnsprites[i].owner;
 
-        t = dot3f(pl,scrv);
-        if (t==0 || ((sprite[sn].cstat&64) && -t<0))
-            continue;
-
-        svcoeff = -(dot3f(pl,scr)+pl[3])/t;
-        if (svcoeff < 0)
-            continue;
-
-        dist = svcoeff * sqrt(dot3f(scrv,scrv));
-        if (dist > bestdist+1.01)
+            t = dot3f(pl,scrv);
+            if (t==0 || ((sprite[sn].cstat&64) && -t<0))
                 continue;
 
-        {
-            GLfloat *v = m32_drawnsprites[i].verts;
-            GLfloat v12_r[3], v23_r[3], v34_r[3], v41_r[3];
-            GLfloat v1p[3], v2p[3], v3p[3], v4p[3];
-            GLfloat tp[3];
+            svcoeff = -(dot3f(pl,scr)+pl[3])/t;
+            if (svcoeff < 0)
+                continue;
 
-            tp[0] = scrx + svcoeff*scrv[0];
-            tp[1] = scry + svcoeff*scrv[1];
-            tp[2] = scrz + svcoeff*scrv[2];
+            dist = svcoeff * sqrt(dot3f(scrv,scrv));
+            if (dist > bestdist+1.01)
+                continue;
 
-            relvec3f(&v[3*3],&v[0*3], v12_r);
-            relvec3f(&v[0*3],&v[1*3], v23_r);
-            relvec3f(&v[1*3],&v[2*3], v34_r);
-            relvec3f(&v[2*3],&v[3*3], v41_r);
-            relvec3f(&v[0*3],tp, v1p);
-            relvec3f(&v[1*3],tp, v2p);
-            relvec3f(&v[2*3],tp, v3p);
-            relvec3f(&v[3*3],tp, v4p);
-            if (dot3f(v1p,v12_r)<=0 && dot3f(v2p,v23_r)<=0
-                && dot3f(v3p,v34_r)<=0 && dot3f(v4p,v41_r)<=0)
             {
-                bestwhat = 3;
-                bestdist = dist;
-                bestwall = m32_drawnsprites[i].owner;
+                GLfloat *v = m32_drawnsprites[i].verts;
+                GLfloat v12_r[3], v23_r[3], v34_r[3], v41_r[3];
+                GLfloat v1p[3], v2p[3], v3p[3], v4p[3];
+                GLfloat tp[3];
+
+                tp[0] = scrx + svcoeff*scrv[0];
+                tp[1] = scry + svcoeff*scrv[1];
+                tp[2] = scrz + svcoeff*scrv[2];
+
+                relvec3f(&v[3*3],&v[0*3], v12_r);
+                relvec3f(&v[0*3],&v[1*3], v23_r);
+                relvec3f(&v[1*3],&v[2*3], v34_r);
+                relvec3f(&v[2*3],&v[3*3], v41_r);
+                relvec3f(&v[0*3],tp, v1p);
+                relvec3f(&v[1*3],tp, v2p);
+                relvec3f(&v[2*3],tp, v3p);
+                relvec3f(&v[3*3],tp, v4p);
+                if (dot3f(v1p,v12_r)<=0 && dot3f(v2p,v23_r)<=0
+                    && dot3f(v3p,v34_r)<=0 && dot3f(v4p,v41_r)<=0)
+                {
+                    bestwhat = 3;
+                    bestdist = dist;
+                    bestwall = m32_drawnsprites[i].owner;
 #ifdef M32_SHOWDEBUG
-                if (m32_numdebuglines<64)
-                {
-                    Bsprintf(m32_debugstr[m32_numdebuglines++], "what=spr %d, dist=%.02f",
-                             bestwall, bestdist);
-                }
-                if (qvertcount<QNUM-4)
-                {
-                    Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
-                    Bmemcpy(&qcolors[3*(qvertcount+1)],col2,sizeof(col1));
-                    Bmemcpy(&qcolors[3*(qvertcount+2)],col3,sizeof(col1));
-                    Bmemcpy(&qcolors[3*(qvertcount+3)],col4,sizeof(col1));
-                    Bmemcpy(&qverts[3*qvertcount],v, 3*4*sizeof(GLfloat));
-                    qvertcount += 4;
-                    Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
-                }
+                    if (m32_numdebuglines<64)
+                    {
+                        Bsprintf(m32_debugstr[m32_numdebuglines++], "what=spr %d, dist=%.02f",
+                                 bestwall, bestdist);
+                    }
+                    if (qvertcount<QNUM-4)
+                    {
+                        Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
+                        Bmemcpy(&qcolors[3*(qvertcount+1)],col2,sizeof(col1));
+                        Bmemcpy(&qcolors[3*(qvertcount+2)],col3,sizeof(col1));
+                        Bmemcpy(&qcolors[3*(qvertcount+3)],col4,sizeof(col1));
+                        Bmemcpy(&qverts[3*qvertcount],v, 3*4*sizeof(GLfloat));
+                        qvertcount += 4;
+                        Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
+                    }
 #endif
+                }
+            }
+        }
+        else if (m32_drawnsprites[i].type == 1)
+        {
+            GLfloat pl[4], nnorm;
+            GLfloat *verts = m32_drawnsprites[i].verts;
+            GLfloat t, svcoeff, dist;
+
+            for (j=1; j<=3; j++)
+            {
+                relvec3f(&verts[0], &verts[3*j], pl);
+                nnorm = sqrt(dot3f(pl,pl));
+                if (nnorm == 0)
+                    continue;
+                pl[0]/=nnorm, pl[1]/=nnorm, pl[2]/=nnorm;
+
+                t = dot3f(pl,scrv);
+                if (t == 0)
+                    continue;
+
+                if (-t > 0)
+                    pl[3] = -dot3f(pl, &verts[3*j]);
+                else
+                    pl[3] = -dot3f(pl, &verts[0]);
+
+                svcoeff = -(dot3f(pl,scr)+pl[3])/t;
+                if (svcoeff < 0)
+                    continue;
+
+                dist = svcoeff * sqrt(dot3f(scrv,scrv));
+                if (dist > bestdist)
+                    continue;
+
+                {
+                    GLfloat vrel[3*2];
+                    GLfloat v[3*4];
+                    GLfloat v1p[3], v2p[3], v3p[3], v4p[3];
+                    GLfloat tp[3];
+                    int k, l=0;
+
+                    for (k=1; k<=3; k++)
+                    {
+                        if (k==j)
+                            continue;
+                        relvec3f(&verts[0], &verts[3*k], &vrel[3*l]);
+                        l++;
+                    }
+
+                    if (-t > 0)
+                        Bmemcpy(&v[0], &verts[3*j], 3*sizeof(GLfloat));
+                    else
+                        Bmemcpy(&v[0], &verts[0], 3*sizeof(GLfloat));
+
+                    addvec3f(&v[3*0], &vrel[3*0], &v[3*1]);
+                    addvec3f(&v[3*1], &vrel[3*1], &v[3*2]);
+                    relvec3f(&vrel[0], &v[3*2], &v[3*3]);
+
+                    tp[0] = scrx + svcoeff*scrv[0];
+                    tp[1] = scry + svcoeff*scrv[1];
+                    tp[2] = scrz + svcoeff*scrv[2];
+
+                    relvec3f(&v[0*3],tp, v1p);
+                    relvec3f(&v[1*3],tp, v2p);
+                    relvec3f(&v[2*3],tp, v3p);
+                    relvec3f(&v[3*3],tp, v4p);
+
+                    if (dot3f(&vrel[3*1], v1p)>0 && dot3f(&vrel[3*1], v3p)<0
+                        && dot3f(&vrel[0], v2p)<0 && dot3f(&vrel[0], v4p)>0)
+                    {
+                        bestwhat = 3;
+                        bestdist = dist;
+                        bestwall = m32_drawnsprites[i].owner;
+#ifdef M32_SHOWDEBUG
+                        if (m32_numdebuglines<64)
+                        {
+                            Bsprintf(m32_debugstr[m32_numdebuglines++], "what=spr %d (model), dist=%.02f",
+                                     bestwall, bestdist);
+                        }
+                        if (qvertcount<QNUM-4)
+                        {
+                            Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
+                            Bmemcpy(&qverts[3*qvertcount++],&v[0],3*sizeof(GLfloat));
+                            Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col1));
+                            Bmemcpy(&qverts[3*qvertcount++],&v[3],3*sizeof(GLfloat));
+                            Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col1));
+                            Bmemcpy(&qverts[3*qvertcount++],&v[6],3*sizeof(GLfloat));
+                            Bmemcpy(&qcolors[3*qvertcount],col4,sizeof(col1));
+                            Bmemcpy(&qverts[3*qvertcount++],&v[9],3*sizeof(GLfloat));
+                            Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
+                        }
+#endif
+                    }
+                }
             }
         }
     }
@@ -3809,6 +3907,30 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 //                 m->head.frames[m->cframe].cen.z + m->head.frames[m->cframe].r);
 //     bglEnd();
 //     bglEnable(GL_TEXTURE_2D);
+
+    if (searchit == 2)
+    {
+        if (m32_numdrawnsprites < MAXSPRITESONSCREEN)
+        {
+            point3d *mi = &m->head.frames[m->cframe].min;
+            point3d *ma = &m->head.frames[m->cframe].max;
+            float fverts[3*4] = {mi->x,mi->y,mi->z, ma->x,mi->y,mi->z, 
+                                 mi->x,ma->y,mi->z, mi->x,mi->y,ma->z};
+            float tfverts[3*4];
+            GLfloat gtfverts[3*4];
+            int i;
+
+            for (i=0; i<4; i++)
+                polymer_transformpoint(&fverts[i*3], &tfverts[i*3], spritemodelview);
+            for (i=0; i<12; i++)
+                gtfverts[i] = tfverts[i];
+
+            Bmemcpy(m32_drawnsprites[m32_numdrawnsprites].verts, gtfverts, 12*sizeof(GLfloat));
+            m32_drawnsprites[m32_numdrawnsprites].type = 1;
+            m32_drawnsprites[m32_numdrawnsprites].owner = (tspr->owner&(MAXSPRITES-1));
+            m32_numdrawnsprites++;
+        }
+    }
 
     polymer_getscratchmaterial(&mdspritematerial);
 
