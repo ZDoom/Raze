@@ -4263,6 +4263,46 @@ void polymost_drawrooms()
             if ((hitinfo.pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
             //if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
         }
+
+        if ((searchstat==1 || searchstat==2) && searchsector>=0)
+        {
+            int32_t scrv[2] = {(vx>>12), (vy>>12)};
+            int32_t scrv_r[2] = {scrv[1], -scrv[0]};
+            walltype *wal = &wall[sector[searchsector].wallptr];
+            int32_t wdistsq, bestwdistsq=0x7fffffff;
+            int16_t k, bestk=-1;
+
+            for (k=0; k<sector[searchsector].wallnum; k++)
+            {
+                int32_t w1[2] = {wal[k].x, wal[k].y};
+                int32_t w2[2] = {wall[wal[k].point2].x, wall[wal[k].point2].y};
+                int32_t w21[2] = {w1[0]-w2[0], w1[1]-w2[1]};
+                int32_t pw1[2] = {w1[0]-hitinfo.pos.x, w1[1]-hitinfo.pos.y};
+                int32_t pw2[2] = {w2[0]-hitinfo.pos.x, w2[1]-hitinfo.pos.y};
+                float w1d = (float)(scrv_r[0]*pw1[0] + scrv_r[1]*pw1[1]);
+                float w2d = (float)(scrv_r[0]*pw2[0] + scrv_r[1]*pw2[1]);
+                int32_t ptonline[2], scrp[2];
+
+                w2d = -w2d;
+                if ((w1d==0 && w2d==0) || (w1d<0 || w2d<0))
+                    continue;
+                ptonline[0] = w2[0]+(w2d/(w1d+w2d))*w21[0];
+                ptonline[1] = w2[1]+(w2d/(w1d+w2d))*w21[1];
+                scrp[0] = ptonline[0]-vect.x;
+                scrp[1] = ptonline[1]-vect.y;
+                if (scrv[0]*scrp[0] + scrv[1]*scrp[1] <= 0)
+                    continue;
+                wdistsq = scrp[0]*scrp[0] + scrp[1]*scrp[1];
+                if (wdistsq < bestwdistsq)
+                {
+                    bestk = k;
+                    bestwdistsq = wdistsq;
+                }
+            }
+
+            if (bestk >= 0)
+                searchwall = sector[searchsector].wallptr + bestk;
+        }
         searchit = 0;
     }
 
