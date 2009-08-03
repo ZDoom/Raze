@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <signal.h>
 #include "sdl_inc.h"
 #include "compat.h"
 #include "sdlayer.h"
@@ -224,6 +225,20 @@ void setvsync(int32_t sync)
 }
 #endif
 
+static void attach_debugger_here(void){}
+
+static void sighandler(int signum)
+{
+    if (signum==SIGSEGV)
+    {
+        SDL_WM_GrabInput(SDL_GRAB_OFF);
+        SDL_ShowCursor(SDL_ENABLE);
+        attach_debugger_here();
+        uninitsystem();
+        exit(1);
+    }
+}
+
 //
 // initsystem() -- init SDL systems
 //
@@ -261,6 +276,8 @@ int32_t initsystem(void)
         initprintf("Initialization failed! (%s)\n", SDL_GetError());
         return -1;
     }
+
+    signal(SIGSEGV, sighandler);
 
     atexit(uninitsystem);
 
