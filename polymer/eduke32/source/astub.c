@@ -1682,11 +1682,11 @@ static void IntegratedHelp()
 
         while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F1]==0)
         {
+            idle_waitevent();
             if (handleevents())
             {
                 if (quitevent) quitevent = 0;
             }
-            idle();
             //        printmessage16("Help mode, press <Esc> to exit");
 
             if (keystatus[KEYSC_T])    // goto table of contents
@@ -1796,11 +1796,11 @@ static void IntegratedHelp()
                     _printmessage16(tempbuf);
                     showframe(1);
 
+                    idle_waitevent();
                     if (handleevents())
                     {
                         if (quitevent) quitevent = 0;
                     }
-                    idle();
 
                     ch = bgetchar();
 
@@ -2077,11 +2077,11 @@ static void SoundDisplay()
         while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F2]==0
                 && keystatus[buildkeys[BK_MODE2D_3D]]==0)  // quickjump to 3d mode
         {
+            idle_waitevent();
             if (handleevents())
             {
                 if (quitevent) quitevent = 0;
             }
-            idle();
 
             {
                 int32_t col = whitecol-21;
@@ -2195,11 +2195,11 @@ static void SoundDisplay()
                     _printmessage16(tempbuf);
                     showframe(1);
 
+                    idle_waitevent();
                     if (handleevents())
                     {
                         if (quitevent) quitevent = 0;
                     }
-                    idle();
 
                     ch = bgetchar();
 
@@ -3197,11 +3197,14 @@ static int32_t m32gettile(int32_t idInitialTile)
             mtile=iTile;
         }
 
+        if (bpp==8)  // no idea why, but it breaks the mousewheel else :/
+            idle_waitevent();
+        else
+            idle();
         if (handleevents())
         {
             if (quitevent) quitevent = 0;
         }
-        idle();
 
         // These two lines are so obvious I don't need to comment them ...;-)
         synctics = totalclock-lockclock;
@@ -10791,11 +10794,12 @@ static void EditSectorData(int16_t sectnum)
     begindrawing();
     while (keystatus[KEYSC_ESC] == 0)
     {
+        idle_waitevent();
         if (handleevents())
         {
             if (quitevent) quitevent = 0;
         }
-        idle();
+
         _printmessage16("Edit mode, press <Esc> to exit");
         if (keystatus[KEYSC_DOWN])
         {
@@ -11043,11 +11047,12 @@ static void EditWallData(int16_t wallnum)
     begindrawing();
     while (keystatus[KEYSC_ESC] == 0)
     {
+        idle_waitevent();
         if (handleevents())
         {
             if (quitevent) quitevent = 0;
         }
-        idle();
+
         _printmessage16("Edit mode, press <Esc> to exit");
         if (keystatus[KEYSC_DOWN])
         {
@@ -11194,12 +11199,13 @@ static void EditSpriteData(int16_t spritenum)
 
     while (keystatus[KEYSC_ESC] == 0)
     {
+        idle_waitevent();
         begindrawing();
         if (handleevents())
         {
             if (quitevent) quitevent = 0;
         }
-        idle();
+
         _printmessage16("Edit mode, press <Esc> to exit");
         if (keystatus[KEYSC_DOWN])
         {
@@ -11609,12 +11615,13 @@ static void GenSearchSprite()
 
     while (keystatus[KEYSC_ESC] == 0)
     {
-        begindrawing();
+        idle_waitevent();
         if (handleevents())
         {
             if (quitevent) quitevent = 0;
         }
-        idle();
+
+        begindrawing();
         printmessage16("Sprite search, press <Esc> to exit");
 
         if (keystatus[KEYSC_DOWN])
@@ -11781,12 +11788,13 @@ static void FuncMenu(void)
 
     while (!editval && keystatus[KEYSC_ESC] == 0)
     {
-        begindrawing();
+        idle_waitevent();
         if (handleevents())
         {
             if (quitevent) quitevent = 0;
         }
-        idle();
+
+        begindrawing();
         _printmessage16("Select an option, press <Esc> to exit");
         if (keystatus[KEYSC_DOWN])
         {

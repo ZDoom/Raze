@@ -1809,7 +1809,12 @@ int32_t handleevents(void)
 
 inline void idle(void)
 {
-    usleep(1);
+    usleep(1000);
+}
+
+inline void idle_waitevent(void)
+{
+    SDL_WaitEvent(NULL);
 }
 
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2

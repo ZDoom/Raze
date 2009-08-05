@@ -541,6 +541,7 @@ CANCEL:
 
             while ((keystatus[1]|keystatus[0x1c]|keystatus[0x39]|keystatus[0x31]) == 0)
             {
+                idle_waitevent();
                 if (handleevents())
                 {
                     if (quitevent)
@@ -549,7 +550,6 @@ CANCEL:
                         break;
                     }
                 }
-                idle();
 
                 if (keystatus[0x15]||keystatus[0x1c]) // Y or ENTER
                 {
@@ -575,8 +575,8 @@ CANCEL:
 
         while ((keystatus[1]|keystatus[0x1c]|keystatus[0x39]|keystatus[0x31]|keystatus[0x2e]) == 0)
         {
+            idle_waitevent();
             if (handleevents()) { if (quitevent) break;	} // like saying no
-            idle();
 
             if (keystatus[0x15] || keystatus[0x1c]) // Y or ENTER
             {

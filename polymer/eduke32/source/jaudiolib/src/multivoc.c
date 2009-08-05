@@ -278,7 +278,9 @@ static void MV_Mix
     uint32_t   rate;
     uint32_t   FixedPointBufferSize;
 
-    if ((voice->length == 0) && (voice->GetSound(voice) != KeepPlaying))
+    // cheap fix for a crash under 64-bit linux --\
+    //                                            v
+    if ((voice->length == 0) && ((voice->GetSound == NULL) || (voice->GetSound(voice) != KeepPlaying)))
     {
         return;
     }
