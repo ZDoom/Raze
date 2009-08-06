@@ -23,7 +23,7 @@ typedef struct {
 
 int32_t S_SoundStartup(void);
 void S_SoundShutdown(void);
-int32_t S_PlaySoundXYZ(int32_t, int32_t, const vec3_t*);
+int32_t S_PlaySound3D(int32_t, int32_t, const vec3_t*);
 void S_PlaySound(int32_t);
 int32_t A_PlaySound(uint32_t num, int32_t i);
 void S_StopSound(int32_t num);

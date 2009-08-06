@@ -4951,7 +4951,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             }
             else
             {
-                if (sprite[j].statnum == 4)
+                if (sprite[j].statnum == STAT_PROJECTILE)
                 {
                     sp->xrepeat = 8;
                     sp->yrepeat = 8;
@@ -4960,7 +4960,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 {
                     sp->xrepeat = 48;
                     sp->yrepeat = 64;
-                    if (sprite[j].statnum == 10 || A_CheckEnemySprite(&sprite[j]))
+                    if (sprite[j].statnum == STAT_PLAYER || A_CheckEnemySprite(&sprite[j]))
                         sp->z -= (32<<8);
                 }
             }
@@ -5608,7 +5608,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
 
         case WATERDRIP__STATIC:
-            if (j >= 0 && (sprite[j].statnum == 10 || sprite[j].statnum == 1))
+            if (j >= 0 && (sprite[j].statnum == STAT_PLAYER || sprite[j].statnum == STAT_ACTOR))
             {
                 sp->shade = 32;
                 if (sprite[j].pal != 1)
@@ -6725,7 +6725,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                 //case GREENSLIME+7:
                 //    break;
             default:
-                if (((t->cstat&16)) || (A_CheckEnemySprite(t) && t->extra > 0) || t->statnum == 10)
+                if (((t->cstat&16)) || (A_CheckEnemySprite(t) && t->extra > 0) || t->statnum == STAT_PLAYER)
                     continue;
             }
 
@@ -6832,14 +6832,15 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         }
 
         if (t->statnum == TSPR_TEMP) continue;
-        if (s->statnum != 1 && s->picnum == APLAYER && g_player[s->yvel].ps->newowner == -1 && s->owner >= 0)
+        if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && g_player[s->yvel].ps->newowner == -1 && s->owner >= 0)
         {
             t->x -= mulscale16(65536-smoothratio,g_player[s->yvel].ps->posx-g_player[s->yvel].ps->oposx);
             t->y -= mulscale16(65536-smoothratio,g_player[s->yvel].ps->posy-g_player[s->yvel].ps->oposy);
             t->z += /*g_player[s->yvel].ps->oposz +*/ mulscale16(smoothratio,g_player[s->yvel].ps->posz-g_player[s->yvel].ps->oposz) - PHEIGHT;
             t->z += (40<<8);
         }
-        else if ((s->statnum == 0 && s->picnum != CRANEPOLE) || s->statnum == 10 || s->statnum == 6 || s->statnum == 4 || s->statnum == 5 || s->statnum == 1)
+        else if ((s->statnum == STAT_DEFAULT && s->picnum != CRANEPOLE) || s->statnum == STAT_PLAYER ||
+            s->statnum == STAT_STANDABLE || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC || s->statnum == STAT_ACTOR)
         {
             t->x -= mulscale16(65536-smoothratio,s->x-ActorExtra[i].bposx);
             t->y -= mulscale16(65536-smoothratio,s->y-ActorExtra[i].bposy);
@@ -6905,7 +6906,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
             continue;
         case BURNING__STATIC:
         case BURNING2__STATIC:
-            if (sprite[s->owner].statnum == 10)
+            if (sprite[s->owner].statnum == STAT_PLAYER)
             {
                 if (display_mirror == 0 && sprite[s->owner].yvel == screenpeek && g_player[sprite[s->owner].yvel].ps->over_shoulder_on == 0)
                     t->xrepeat = 0;
@@ -7318,13 +7319,13 @@ PALONLY:
         }
 
         if (g_player[screenpeek].ps->heat_amount > 0 && g_player[screenpeek].ps->heat_on &&
-                (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_NVG) || s->picnum == APLAYER || s->statnum == 13))
+                (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
         {
             t->pal = 6;
             t->shade = 0;
         }
 
-        if (s->statnum == 13 || A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
+        if (s->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
             if (t->statnum != TSPR_TEMP && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE)
                 if (s->picnum != HOTMEAT)
                 {
@@ -7337,7 +7338,7 @@ PALONLY:
                     {
                         int32_t daz,xrep,yrep;
 
-                        if ((sector[sect].lotag&0xff) > 2 || s->statnum == 4 || s->statnum == 5 || s->picnum == DRONE || s->picnum == COMMANDER)
+                        if ((sector[sect].lotag&0xff) > 2 || s->statnum == STAT_PROJECTILE || s->statnum == 5 || s->picnum == DRONE || s->picnum == COMMANDER)
                             daz = sector[sect].floorz;
                         else
                             daz = ActorExtra[i].floorz;
@@ -8318,8 +8319,7 @@ static void G_HandleLocalKeys(void)
     if (ud.multimode > 1 && BUTTON(gamefunc_Show_Opponents_Weapon))
     {
         CONTROL_ClearButton(gamefunc_Show_Opponents_Weapon);
-        ud.showweapons = 1-ud.showweapons;
-        ud.config.ShowOpponentWeapons = ud.showweapons;
+        ud.config.ShowOpponentWeapons = ud.showweapons = 1-ud.showweapons;
         P_DoQuote(82-ud.showweapons,g_player[screenpeek].ps);
     }
 
@@ -8327,9 +8327,7 @@ static void G_HandleLocalKeys(void)
     {
         CONTROL_ClearButton(gamefunc_Toggle_Crosshair);
         ud.crosshair = !ud.crosshair;
-        if (ud.crosshair)
-            P_DoQuote(20,g_player[screenpeek].ps);
-        else P_DoQuote(21,g_player[screenpeek].ps);
+        P_DoQuote(21-ud.crosshair,g_player[screenpeek].ps);
     }
 
     if (ud.overhead_on && BUTTON(gamefunc_Map_Follow_Mode))
@@ -8348,57 +8346,18 @@ static void G_HandleLocalKeys(void)
     if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED)
     {
         i = 0;
-        if (KB_UnBoundKeyPressed(sc_F1))
-        {
-            KB_ClearKeyDown(sc_F1);
-            i = 1;
-        }
-        if (KB_UnBoundKeyPressed(sc_F2))
-        {
-            KB_ClearKeyDown(sc_F2);
-            i = 2;
-        }
-        if (KB_UnBoundKeyPressed(sc_F3))
-        {
-            KB_ClearKeyDown(sc_F3);
-            i = 3;
-        }
-        if (KB_UnBoundKeyPressed(sc_F4))
-        {
-            KB_ClearKeyDown(sc_F4);
-            i = 4;
-        }
-        if (KB_UnBoundKeyPressed(sc_F5))
-        {
-            KB_ClearKeyDown(sc_F5);
-            i = 5;
-        }
-        if (KB_UnBoundKeyPressed(sc_F6))
-        {
-            KB_ClearKeyDown(sc_F6);
-            i = 6;
-        }
-        if (KB_UnBoundKeyPressed(sc_F7))
-        {
-            KB_ClearKeyDown(sc_F7);
-            i = 7;
-        }
-        if (KB_UnBoundKeyPressed(sc_F8))
-        {
-            KB_ClearKeyDown(sc_F8);
-            i = 8;
-        }
-        if (KB_UnBoundKeyPressed(sc_F9))
-        {
-            KB_ClearKeyDown(sc_F9);
-            i = 9;
-        }
-        if (KB_UnBoundKeyPressed(sc_F10))
-        {
-            KB_ClearKeyDown(sc_F10);
-            i = 10;
-        }
+        j = sc_F1;
 
+        do 
+        {
+            if (KB_UnBoundKeyPressed(j))
+            {
+                KB_ClearKeyDown(j);
+                i = j - sc_F1 + 1;
+            }
+        }
+        while (++j < sc_F11);
+        
         if (i)
         {
             if (SHIFTS_IS_PRESSED)
@@ -8858,193 +8817,6 @@ static void G_ShowDebugHelp(void)
     initprintf("%s\n",s);
 #endif
 }
-
-#ifndef RANCID_NETWORKING
-static int32_t rancid_players = 0;
-static char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
-
-extern int32_t getexternaladdress(char *buffer, const char *host, int32_t port);
-
-static int32_t load_rancid_net(const char *fn)
-{
-    int32_t tokn;
-    char *cmdtokptr;
-
-    tokenlist rancidtokens[] =
-    {
-        { "interface",       T_INTERFACE       },
-        { "mode",            T_MODE            },
-        { "allow",           T_ALLOW           },
-    };
-
-    scriptfile *script;
-
-    script = scriptfile_fromfile((char *)fn);
-    if (!script) return -1;
-
-    while (1)
-    {
-        tokn = getatoken(script,rancidtokens,sizeof(rancidtokens)/sizeof(tokenlist));
-        cmdtokptr = script->ltextptr;
-        switch (tokn)
-        {
-        case T_INTERFACE:
-        {
-            char *ip;
-
-            if (scriptfile_getstring(script,&ip)) break;
-            Bstrcpy(rancid_ip_strings[MAXPLAYERS-1],ip);
-            Bstrcpy(rancid_ip_strings[rancid_players++],ip);
-            if (strtok(ip,":"))
-            {
-                char *p = strtok(NULL,":");
-
-                if (p != NULL)
-                {
-                    if (atoi(p) > 1024)
-                        Bsprintf(rancid_local_port_string,"-p %s",p);
-                }
-            }
-        }
-        break;
-        case T_MODE:
-        {
-            char *mode;
-
-            if (scriptfile_getstring(script,&mode)) break;
-        }
-        break;
-        case T_ALLOW:
-        {
-            char *ip;
-
-            if (scriptfile_getstring(script,&ip)) break;
-            Bstrcpy(rancid_ip_strings[rancid_players++],ip);
-        }
-        break;
-        case T_EOF:
-            return(0);
-        default:
-            break;
-        }
-    }
-
-    scriptfile_close(script);
-    scriptfile_clearsymbols();
-
-    return 0;
-}
-
-static inline int32_t stringsort(const char *p1, const char *p2)
-{
-    return Bstrcmp(&p1[0],&p2[0]);
-}
-
-// Not supported with the enet network backend currently
-static void setup_rancid_net(const char *fn)
-{
-    int32_t i;
-
-    if (load_rancid_net(fn) != -1)
-    {
-        char tmp[32];
-
-        if (!Bstrlen(rancid_ip_strings[MAXPLAYERS-1])||!Bstrlen(rancid_ip_strings[1]))
-        {
-            if (!Bstrlen(rancid_ip_strings[MAXPLAYERS-1]))
-                initprintf("rmnet: Interface not defined!\n");
-            if (!Bstrlen(rancid_ip_strings[1]))
-                initprintf("rmnet: No peers configured!\n");
-            G_GameExit("Malformed network configuration file!");
-            return;
-        }
-
-        if (g_keepAddr == 0)
-        {
-            for (i=0; i<rancid_players; i++)
-            {
-                if (Bstrcmp(rancid_ip_strings[i],rancid_ip_strings[MAXPLAYERS-1]))
-                {
-                    Bstrncpy(tempbuf,rancid_ip_strings[i], 8);
-                    Bstrcpy(tmp,strtok(tempbuf,"."));
-                    if (Bstrcmp(tmp,"10") == 0)
-                    {
-                        i = 0;
-                        break;
-                    }
-                    else if (Bstrcmp(tmp,"192") == 0)
-                    {
-                        Bstrcpy(tmp,strtok(NULL,"."));
-                        if (Bstrcmp(tmp,"168") == 0)
-                        {
-                            i = 0;
-                            break;
-                        }
-                    }
-                    else if (Bstrcmp(tmp,"172") == 0)
-                    {
-                        Bstrcpy(tmp,strtok(NULL,"."));
-                        if (Bstrcmp(tmp,"16") == 0)
-                        {
-                            i = 0;
-                            break;
-                        }
-                    }
-                    else if (Bstrcmp(tmp,"169") == 0)
-                    {
-                        Bstrcpy(tmp,strtok(NULL,"."));
-                        if (Bstrcmp(tmp,"254") == 0)
-                        {
-                            i = 0;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            Bstrcpy(tempbuf,rancid_ip_strings[MAXPLAYERS-1]);
-            Bstrcpy(tmp,strtok(tempbuf,"."));
-            if (i == rancid_players && ((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0) || (Bstrcmp(tmp,"169") == 0) || (Bstrcmp(tmp,"10") == 0)))
-            {
-                int32_t ii = getexternaladdress(tempbuf, "checkip.dyndns.org", 8245);
-                if (!ii) ii = getexternaladdress(tempbuf, "checkip.dyndns.org", 80);
-                if (ii)
-                {
-                    if (tempbuf[0])
-                    {
-                        for (i=0; i<rancid_players; i++)
-                        {
-                            if (Bstrcmp(rancid_ip_strings[i],rancid_ip_strings[MAXPLAYERS-1]) == 0)
-                            {
-                                Bstrcpy(rancid_ip_strings[MAXPLAYERS-1],tempbuf);
-                                Bstrcpy(rancid_ip_strings[i],tempbuf);
-                            }
-                        }
-                    }
-                }
-                else initprintf("rmnet: Unable to get external interface address!  Expect problems...\n");
-            }
-        }
-        qsort((char *)rancid_ip_strings, rancid_players, sizeof(rancid_ip_strings[0]), (int32_t(*)(const void*,const void*))stringsort);
-
-        g_networkBroadcastMode = 1;
-        netparamcount = rancid_players;
-        if (rancid_local_port_string[0] == '-')
-            netparamcount++;
-        netparam = (char **)Bcalloc(netparamcount, sizeof(char **));
-
-        for (i=0; i<rancid_players; i++)
-        {
-            if (Bstrcmp(rancid_ip_strings[i],rancid_ip_strings[MAXPLAYERS-1]) == 0)
-                Bsprintf(rancid_ip_strings[i],"/n1");
-            netparam[i] = (char *)&rancid_ip_strings[i];
-        }
-        if (i != netparamcount)
-            netparam[i] = (char *)&rancid_local_port_string;
-    }
-}
-#endif
-
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
 static int32_t numdirs=0, numfiles=0;
@@ -12171,7 +11943,7 @@ static void Net_DoPrediction(void)
     if (hz >= 0 && (hz&49152) == 49152)
     {
         hz &= (MAXSPRITES-1);
-        if (sprite[hz].statnum == 1 && sprite[hz].extra >= 0)
+        if (sprite[hz].statnum == STAT_ACTOR && sprite[hz].extra >= 0)
         {
             hz = 0;
             cz = getceilzofslope(psect,my.x,my.y);

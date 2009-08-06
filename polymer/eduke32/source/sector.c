@@ -1471,17 +1471,17 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
             if (picnum == ALIENSWITCH || picnum == ALIENSWITCH+1)
             {
                 if (switchtype == 1)
-                    S_PlaySoundXYZ(ALIEN_SWITCH1, w, &davector);
-                else S_PlaySoundXYZ(ALIEN_SWITCH1,g_player[snum].ps->i,&davector);
+                    S_PlaySound3D(ALIEN_SWITCH1, w, &davector);
+                else S_PlaySound3D(ALIEN_SWITCH1,g_player[snum].ps->i,&davector);
             }
             else
             {
                 if (switchtype == 1)
-                    S_PlaySoundXYZ(SWITCH_ON, w, &davector);
-                else S_PlaySoundXYZ(SWITCH_ON,g_player[snum].ps->i,&davector);
+                    S_PlaySound3D(SWITCH_ON, w, &davector);
+                else S_PlaySound3D(SWITCH_ON,g_player[snum].ps->i,&davector);
             }
             if (numdips != correctdips) break;
-            S_PlaySoundXYZ(END_OF_LEVEL_WARN,g_player[snum].ps->i,&davector);
+            S_PlaySound3D(END_OF_LEVEL_WARN,g_player[snum].ps->i,&davector);
         }
     case DIPSWITCH2__STATIC:
         //case DIPSWITCH2+1:
@@ -1561,13 +1561,13 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
         if (hitag == 0 && CheckDoorTile(picnum) == 0)
         {
             if (switchtype == 1)
-                S_PlaySoundXYZ(SWITCH_ON,w,&davector);
-            else S_PlaySoundXYZ(SWITCH_ON,g_player[snum].ps->i,&davector);
+                S_PlaySound3D(SWITCH_ON,w,&davector);
+            else S_PlaySound3D(SWITCH_ON,g_player[snum].ps->i,&davector);
         }
         else if (hitag != 0)
         {
             if (switchtype == 1 && (g_sounds[hitag].m&4) == 0)
-                S_PlaySoundXYZ(hitag,w,&davector);
+                S_PlaySound3D(hitag,w,&davector);
             else A_PlaySound(hitag,g_player[snum].ps->i);
         }
 
@@ -2315,7 +2315,7 @@ void A_DamageObject(int32_t i,int32_t sn)
     case PLAYERONWATER__STATIC:
         i = OW;
     default:
-        if ((sprite[i].cstat&16) && SHT == 0 && SLT == 0 && sprite[i].statnum == 0)
+        if ((sprite[i].cstat&16) && SHT == 0 && SLT == 0 && sprite[i].statnum == STAT_DEFAULT)
             break;
 
         if ((sprite[sn].picnum == FREEZEBLAST || sprite[sn].owner != i) && sprite[i].statnum != 4)
@@ -2362,7 +2362,7 @@ void A_DamageObject(int32_t i,int32_t sn)
                     }
                 }
 
-                if (sprite[i].statnum == 2)
+                if (sprite[i].statnum == STAT_ZOMBIEACTOR)
                 {
                     changespritestat(i, STAT_ACTOR);
                     ActorExtra[i].timetosleep = SLEEPTIME;
@@ -2370,7 +2370,7 @@ void A_DamageObject(int32_t i,int32_t sn)
                 if ((RX < 24 || PN == SHARK) && sprite[sn].picnum == SHRINKSPARK) return;
             }
 
-            if (sprite[i].statnum != 2)
+            if (sprite[i].statnum != STAT_ZOMBIEACTOR)
             {
                 if (sprite[sn].picnum == FREEZEBLAST && ((PN == APLAYER && sprite[i].pal == 1) || (g_freezerSelfDamage == 0 && sprite[sn].owner == i)))
                     return;
@@ -2381,7 +2381,7 @@ void A_DamageObject(int32_t i,int32_t sn)
                 ActorExtra[i].owner = sprite[sn].owner;
             }
 
-            if (sprite[i].statnum == 10)
+            if (sprite[i].statnum == STAT_PLAYER)
             {
                 p = sprite[i].yvel;
                 if (g_player[p].ps->newowner >= 0)
@@ -2670,7 +2670,7 @@ CHECKINV1:
                     X_OnEvent(EVENT_INVENTORYLEFT,g_player[snum].ps->i,snum, -1);
                     dainv=aGameVars[g_iReturnVarID].val.lValue;
                 }
-                if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT))   // Inventory_Right
+                else if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT))   // Inventory_Right
                 {
                     /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
                     aGameVars[g_iReturnVarID].val.lValue = dainv;
@@ -2678,11 +2678,15 @@ CHECKINV1:
                     dainv=aGameVars[g_iReturnVarID].val.lValue;
                 }
 
-                p->inven_icon = dainv;
-
+                if (dainv > -1)
                 {
-                    static const int32_t i[8] = { 3, 90, 91, 88, 101, 89, 6, 0 };
-                    P_DoQuote(i[dainv], p);
+                    p->inven_icon = dainv;
+
+                    if (dainv || p->firstaid_amount)
+                    {
+                        static const int32_t i[8] = { 3, 90, 91, 88, 101, 89, 6, 0 };
+                        P_DoQuote(i[dainv], p);
+                    }
                 }
             }
 

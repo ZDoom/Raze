@@ -164,7 +164,7 @@ int32_t S_LoadSound(uint32_t num)
 extern vec3_t pos;
 extern int16_t ang, cursectnum;
 
-int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
+int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 {
     int32_t sndist, cx, cy, cz, j/*,k*/;
     int32_t pitche,pitchs,cs;
@@ -355,7 +355,7 @@ int32_t A_PlaySound(uint32_t num, int32_t i)
         return 0;
     }
 
-    return S_PlaySoundXYZ(num,i, (vec3_t *)&sprite[i]);
+    return S_PlaySound3D(num,i, (vec3_t *)&sprite[i]);
 }
 
 void S_StopSound(int32_t num)

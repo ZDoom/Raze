@@ -134,7 +134,6 @@ const char *SDLDrv_ErrorString( int32_t ErrorNumber )
 
 int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t *samplebits, void * initdata)
 {
-//    uint32_t inited;
     int32_t err = 0;
     int32_t chunksize;
     uint16_t fmt;
@@ -146,41 +145,23 @@ int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t *sampleb
         SDLDrv_PCM_Shutdown();
     }
 
-/*
-    inited = SDL_WasInit(SDL_INIT_EVERYTHING);
-
-    if (inited == 0) {
-        // nothing was initialised
-        err = SDL_Init(SDL_INIT_AUDIO);
-        StartedSDL = 0;
-    } else if (inited & SDL_INIT_AUDIO) {
-        err = SDL_InitSubSystem(SDL_INIT_AUDIO);
-        StartedSDL = 1;
-    }
-
-    if (err < 0) {
-        ErrorCode = SDLErr_InitSubSystem;
-        return SDLErr_Error;
-    }
-*/
-
     chunksize = 512;
 
     if (*mixrate >= 16000) chunksize *= 2;
     if (*mixrate >= 32000) chunksize *= 2;
 
-    // allocate 4 channels: 2 for the game's SFX, 1 for music, and 1 for fillData()
-    err = Mix_OpenAudio(*mixrate, (*samplebits == 8) ? AUDIO_U8 : AUDIO_S16SYS, 4, chunksize);
+    err = Mix_OpenAudio(*mixrate, (*samplebits == 8) ? AUDIO_U8 : AUDIO_S16SYS, *numchannels, chunksize);
 
     if (err < 0) {
         ErrorCode = SDLErr_OpenAudio;
         return SDLErr_Error;
     }
 
-    Mix_QuerySpec(mixrate, &fmt, numchannels);
-
-    if (fmt == AUDIO_U8) *samplebits = 8;
-    else *samplebits = 16;
+    if (Mix_QuerySpec(mixrate, &fmt, numchannels))
+    {
+        if (fmt == AUDIO_U8 || fmt == AUDIO_S8) *samplebits = 8;
+        else *samplebits = 16;
+    }
 
     //Mix_SetPostMix(fillData, NULL);
 
@@ -202,45 +183,24 @@ int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t *sampleb
 
 void SDLDrv_PCM_Shutdown(void)
 {
-    if (!Initialised) {
+    if (!Initialised)
         return;
+    else Mix_HaltChannel(-1);
+
+    if (DummyChunk != NULL)
+    {
+        Mix_FreeChunk(DummyChunk);
+        DummyChunk = NULL;
     }
 
-//    if (StartedSDL > 0) {
-        if (Initialised)
-        {
-            Mix_HaltChannel(-1);
-        }
-
-        if (DummyChunk != NULL)
-        {
-            Mix_FreeChunk(DummyChunk);
-            DummyChunk = NULL;
-        }
-
-        if (DummyBuffer  != NULL)
-        {
-            free(DummyBuffer);
-            DummyBuffer = NULL;
-        }
-
-
-        if (Initialised)
-        {
-            Mix_CloseAudio();
-            Initialised = 0;
-        }
-
-/*
-        SDL_QuitSubSystem(SDL_INIT_AUDIO);
-    } 
-    else if (StartedSDL == 0) {
-        SDL_Quit();
+    if (DummyBuffer  != NULL)
+    {
+        free(DummyBuffer);
+        DummyBuffer = NULL;
     }
 
-
-    StartedSDL = -1;
-*/
+    Mix_CloseAudio();
+    Initialised = 0;
 }
 
 int32_t SDLDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize,

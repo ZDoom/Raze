@@ -271,14 +271,14 @@ void A_GetZLimits(int32_t iActor)
 {
     spritetype *s = &sprite[iActor];
 
-    if (s->statnum == 10 || s->statnum == 6 || s->statnum == 2 || s->statnum == 1 || s->statnum == 4)
+    if (s->statnum == STAT_PLAYER || s->statnum == STAT_STANDABLE || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_ACTOR || s->statnum == STAT_PROJECTILE)
     {
         int32_t hz,lz,zr = 127L;
         int32_t cstat = s->cstat;
 
         s->cstat = 0;
 
-        if (s->statnum == 4)
+        if (s->statnum == STAT_PROJECTILE)
             zr = 4L;
 
         s->z -= FOURSLEIGHT;
@@ -305,7 +305,7 @@ void A_GetZLimits(int32_t iActor)
                 s->xvel = -256;
                 A_SetSprite(iActor,CLIPMASK0);
             }
-            else if (s->statnum == 4 && sprite[lz].picnum == APLAYER)
+            else if (s->statnum == STAT_PROJECTILE && sprite[lz].picnum == APLAYER)
                 if (s->owner == lz)
                 {
                     ActorExtra[iActor].ceilingz = sector[s->sectnum].ceilingz;
@@ -333,7 +333,7 @@ void A_Fall(int32_t iActor)
             c = g_spriteGravity/6;
     }
 
-    if ((s->statnum == 1 || s->statnum == 10 || s->statnum == 2 || s->statnum == 6))
+    if ((s->statnum == STAT_ACTOR || s->statnum == STAT_PLAYER || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_STANDABLE))
     {
         int32_t cstat = s->cstat;
         s->cstat = 0;
@@ -845,7 +845,7 @@ skip_check:
                 ActorExtra[vm.g_i].lastvy = s->y;
             }
 
-            if (j && (vm.g_sp->statnum == 1 || vm.g_sp->statnum == 6))
+            if (j && (vm.g_sp->statnum == STAT_ACTOR || vm.g_sp->statnum == STAT_STANDABLE))
                 ActorExtra[vm.g_i].timetosleep = SLEEPTIME;
 
             X_DoConditional(j);
@@ -4766,7 +4766,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
                 }
             }
       */
-    if (vm.g_sp->statnum == 6)
+    if (vm.g_sp->statnum == STAT_STANDABLE)
         switch (DynamicTileMap[vm.g_sp->picnum])
         {
         case RUBBERCAN__STATIC:

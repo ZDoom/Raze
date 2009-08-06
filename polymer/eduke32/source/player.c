@@ -687,7 +687,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                 zvel<<6,&hitinfo,CLIPMASK1);
                         if (hitinfo.hitsprite != -1)
                         {
-                            if (sprite[hitinfo.hitsprite].statnum == 1 || sprite[hitinfo.hitsprite].statnum == 2 || sprite[hitinfo.hitsprite].statnum == 10 || sprite[hitinfo.hitsprite].statnum == 13)
+                            if (sprite[hitinfo.hitsprite].statnum == STAT_ACTOR || sprite[hitinfo.hitsprite].statnum == STAT_ZOMBIEACTOR || sprite[hitinfo.hitsprite].statnum == STAT_PLAYER || sprite[hitinfo.hitsprite].statnum == STAT_DUMMYPLAYER)
                                 j = hitinfo.hitsprite;
                         }
                     }
@@ -962,7 +962,7 @@ DOSKIPBULLETHOLE:
             if ((krand()&255) < 4)
                 if (ProjectileData[atwith].isound >= 0)
                 {
-                    S_PlaySoundXYZ(ProjectileData[atwith].isound,k,&hitinfo.pos);
+                    S_PlaySound3D(ProjectileData[atwith].isound,k,&hitinfo.pos);
                 }
 
             return -1;
@@ -1275,7 +1275,7 @@ DOSKIPBULLETHOLE:
                                 zvel<<6,&hitinfo,CLIPMASK1);
                         if (hitinfo.hitsprite != -1)
                         {
-                            if (sprite[hitinfo.hitsprite].statnum == 1 || sprite[hitinfo.hitsprite].statnum == 2 || sprite[hitinfo.hitsprite].statnum == 10 || sprite[hitinfo.hitsprite].statnum == 13)
+                            if (sprite[hitinfo.hitsprite].statnum == STAT_ACTOR || sprite[hitinfo.hitsprite].statnum == STAT_ZOMBIEACTOR || sprite[hitinfo.hitsprite].statnum == STAT_PLAYER || sprite[hitinfo.hitsprite].statnum == STAT_DUMMYPLAYER)
                                 j = hitinfo.hitsprite;
                         }
                     }
@@ -1499,7 +1499,7 @@ SKIPBULLETHOLE:
             }
 
             if ((krand()&255) < 4)
-                S_PlaySoundXYZ(PISTOL_RICOCHET,k, &hitinfo.pos);
+                S_PlaySound3D(PISTOL_RICOCHET,k, &hitinfo.pos);
 
             return -1;
 
@@ -3880,7 +3880,7 @@ void P_ProcessInput(int32_t snum)
     {
         hz &= (MAXSPRITES-1);
 
-        if (sprite[hz].statnum == 1 && sprite[hz].extra >= 0)
+        if (sprite[hz].statnum == STAT_ACTOR && sprite[hz].extra >= 0)
         {
             hz = 0;
             cz = p->truecz;

@@ -292,7 +292,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
     int32_t bg = A_CheckEnemySprite(&sprite[spritenum]);
     int32_t daz;
 
-    if (sprite[spritenum].statnum == 5 || (bg && sprite[spritenum].xrepeat < 4))
+    if (sprite[spritenum].statnum == STAT_MISC || (bg && sprite[spritenum].xrepeat < 4))
     {
         sprite[spritenum].x += (change->x*TICSPERFRAME)>>2;
         sprite[spritenum].y += (change->y*TICSPERFRAME)>>2;
@@ -363,9 +363,9 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
         int32_t oz = sprite[spritenum].z;
         sprite[spritenum].z = daz;
 
-        if (sprite[spritenum].statnum == 4)
+        if (sprite[spritenum].statnum == STAT_PROJECTILE && (SpriteProjectile[spritenum].workslike & PROJECTILE_REALCLIPDIST) == 0)
             retval =
-                clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),(int32_t)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
+                clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),8L,(4<<8),(4<<8),cliptype);
         else
             retval =
                 clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),(int32_t)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
@@ -1375,10 +1375,10 @@ static void G_MoveStandables(void)
                     nextj = nextspritesect[j];
                     switch (sprite[j].statnum)
                     {
-                    case 1:
-                    case 2:
-                    case 6:
-                    case 10:
+                    case STAT_ACTOR:
+                    case STAT_ZOMBIEACTOR:
+                    case STAT_STANDABLE:
+                    case STAT_PLAYER:
                     {
                         vec3_t vect;
 
@@ -1459,8 +1459,8 @@ static void G_MoveStandables(void)
                         {
                             switch (sprite[j].statnum)
                             {
-                            case 1:
-                            case 6:
+                            case STAT_ACTOR:
+                            case STAT_STANDABLE:
                                 s->owner = j;
                                 break;
                             }
@@ -1966,7 +1966,7 @@ DETONATE:
                     j = headspritesect[sect];
                     while (j >= 0)
                     {
-                        if (sprite[j].statnum == 3)
+                        if (sprite[j].statnum == STAT_EFFECTOR)
                         {
                             switch (sprite[j].lotag)
                             {
@@ -1982,7 +1982,7 @@ DETONATE:
                                 break;
                             }
                         }
-                        else if (sprite[j].statnum == 6)
+                        else if (sprite[j].statnum == STAT_STANDABLE)
                         {
                             switch (DynamicTileMap[sprite[j].picnum])
                             {
@@ -3115,7 +3115,7 @@ static void G_MoveTransports(void)
 
             switch (sprite[j].statnum)
             {
-            case 10:    // Player
+            case STAT_PLAYER:
 
                 if (sprite[j].owner != -1)
                 {
@@ -3268,18 +3268,18 @@ static void G_MoveTransports(void)
                 }
                 break;
 
-            case 4:
+            case STAT_PROJECTILE:
                 if (sectlotag != 0) goto JBOLT;
-            case 1:
+            case STAT_ACTOR:
                 if ((sprite[j].picnum == SHARK) || (sprite[j].picnum == COMMANDER) || (sprite[j].picnum == OCTABRAIN)
                         || ((sprite[j].picnum >= GREENSLIME) && (sprite[j].picnum <= GREENSLIME+7)))
                 {
                     if (sprite[j].extra > 0)
                         goto JBOLT;
                 }
-            case 5:
-            case 12:
-            case 13:
+            case STAT_MISC:
+            case STAT_FALLER:
+            case STAT_DUMMYPLAYER:
 
                 ll = klabs(sprite[j].zvel);
 
@@ -3294,7 +3294,7 @@ static void G_MoveTransports(void)
 
                     if (sectlotag == 0 && (onfloorz || klabs(sprite[j].z-SZ) < 4096))
                     {
-                        if (sprite[OW].owner != OW && onfloorz && T1 > 0 && sprite[j].statnum != 5)
+                        if (sprite[OW].owner != OW && onfloorz && T1 > 0 && sprite[j].statnum != STAT_MISC)
                         {
                             T1++;
                             goto BOLT;
@@ -3325,7 +3325,7 @@ static void G_MoveTransports(void)
                                 break;
                             }
                         default:
-                            if (sprite[j].statnum == 5 && !(sectlotag == 1 || sectlotag == 2))
+                            if (sprite[j].statnum == STAT_MISC && !(sectlotag == 1 || sectlotag == 2))
                                 break;
 
                         case WATERBUBBLE__STATIC:
@@ -3335,7 +3335,7 @@ static void G_MoveTransports(void)
                             if (sectlotag > 0)
                             {
                                 k = A_Spawn(j,WATERSPLASH2);
-                                if (sectlotag == 1 && sprite[j].statnum == 4)
+                                if (sectlotag == 1 && sprite[j].statnum == STAT_PROJECTILE)
                                 {
                                     sprite[k].xvel = sprite[j].xvel>>1;
                                     sprite[k].ang = sprite[j].ang;
@@ -3348,7 +3348,8 @@ static void G_MoveTransports(void)
                             case 0:
                                 if (onfloorz)
                                 {
-                                    if (sprite[j].statnum == 4 || (G_CheckPlayerInSector(sect) == -1 && G_CheckPlayerInSector(sprite[OW].sectnum)  == -1))
+                                    if (sprite[j].statnum == STAT_PROJECTILE ||
+                                        (G_CheckPlayerInSector(sect) == -1 && G_CheckPlayerInSector(sprite[OW].sectnum)  == -1))
                                     {
                                         sprite[j].x += (sprite[OW].x-SX);
                                         sprite[j].y += (sprite[OW].y-SY);
@@ -5508,7 +5509,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 p = headspritesect[s->sectnum];
                 while (p >= 0)
                 {
-                    if (sprite[p].statnum != 3 && sprite[p].statnum != 4)
+                    if (sprite[p].statnum != STAT_EFFECTOR && sprite[p].statnum != STAT_PROJECTILE)
                         if (sprite[p].picnum != LASERLINE)
                         {
                             if (sprite[p].picnum == APLAYER && sprite[p].owner >= 0)
@@ -5709,7 +5710,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 j = headspritesect[s->sectnum];
                 while (j >= 0)
                 {
-                    if (sprite[j].statnum != 10 && sector[sprite[j].sectnum].lotag != 2 &&
+                    if (sprite[j].statnum != STAT_PLAYER && sector[sprite[j].sectnum].lotag != 2 &&
                             (sprite[j].picnum != SECTOREFFECTOR ||
                              (sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 49||sprite[j].lotag == 50)))
                             && sprite[j].picnum != LOCATORS)
@@ -5756,7 +5757,8 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     while (j >= 0)
                     {
                         l = nextspritesect[j];
-                        if (sprite[j].statnum == 1 && A_CheckEnemySprite(&sprite[j]) && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+                        if (sprite[j].statnum == STAT_ACTOR && A_CheckEnemySprite(&sprite[j]) &&
+                            sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
                         {
                             k = sprite[j].sectnum;
                             updatesector(sprite[j].x,sprite[j].y,&k);
@@ -5928,7 +5930,8 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     while (j >= 0)
                     {
                         l = nextspritesect[j];
-                        if (sprite[j].statnum == 1 && A_CheckEnemySprite(&sprite[j]) && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+                        if (sprite[j].statnum == STAT_ACTOR && A_CheckEnemySprite(&sprite[j]) &&
+                            sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
                         {
                             //                    if(sprite[j].sectnum != s->sectnum)
                             {
@@ -6565,7 +6568,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
             j = headspritesect[s->sectnum];
             while (j >= 0)
             {
-                if (sprite[j].statnum == 10 && sprite[j].owner >= 0)
+                if (sprite[j].statnum == STAT_PLAYER && sprite[j].owner >= 0)
                 {
                     p = sprite[j].yvel;
                     if (numplayers < 2)
@@ -6576,7 +6579,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     if (numplayers > 1)
                         g_player[p].ps->oposz = g_player[p].ps->posz;
                 }
-                if (sprite[j].statnum != 3)
+                if (sprite[j].statnum != STAT_EFFECTOR)
                 {
                     ActorExtra[j].bposz = sprite[j].z;
                     sprite[j].z += q;
@@ -6624,7 +6627,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 {
                     nextk = nextspritesect[k];
 
-                    if (sprite[k].statnum == 10 && sprite[k].owner >= 0)
+                    if (sprite[k].statnum == STAT_PLAYER && sprite[k].owner >= 0)
                     {
                         p = sprite[k].yvel;
 
@@ -6646,7 +6649,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                         changespritesect(k,sprite[j].sectnum);
                         g_player[p].ps->cursectnum = sprite[j].sectnum;
                     }
-                    else if (sprite[k].statnum != 3)
+                    else if (sprite[k].statnum != STAT_EFFECTOR)
                     {
                         sprite[k].x +=
                             sprite[j].x-s->x;
@@ -6694,7 +6697,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                             if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
                                 if (g_player[sprite[j].yvel].ps->on_ground == 1)
                                     g_player[sprite[j].yvel].ps->posz += sc->extra;
-                            if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                            if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
                             {
                                 ActorExtra[j].bposz = sprite[j].z += sc->extra;
                                 ActorExtra[j].floorz = sc->floorz;
@@ -6728,7 +6731,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                             if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
                                 if (g_player[sprite[j].yvel].ps->on_ground == 1)
                                     g_player[sprite[j].yvel].ps->posz -= sc->extra;
-                            if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                            if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
                             {
                                 ActorExtra[j].bposz = sprite[j].z -= sc->extra;
                                 ActorExtra[j].floorz = sc->floorz;
@@ -6874,13 +6877,13 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 {
                     nextj = nextspritesect[j];
 
-                    if (sprite[j].statnum != 3 && sprite[j].zvel == 0)
+                    if (sprite[j].statnum != STAT_EFFECTOR && sprite[j].zvel == 0)
                     {
                         sprite[j].x += x;
                         sprite[j].y += l;
                         setsprite(j,(vec3_t *)&sprite[j]);
                         if (sector[sprite[j].sectnum].floorstat&2)
-                            if (sprite[j].statnum == 2)
+                            if (sprite[j].statnum == STAT_ZOMBIEACTOR)
                                 A_Fall(j);
                     }
                     j = nextj;
@@ -6967,7 +6970,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 if (sprite[j].zvel >= 0)
                     switch (sprite[j].statnum)
                     {
-                    case 5:
+                    case STAT_MISC:
                         switch (DynamicTileMap[sprite[j].picnum])
                         {
                         case BLOODPOOL__STATIC:
@@ -6988,10 +6991,10 @@ static void G_MoveEffectors(void)   //STATNUM 3
                             j = nextj;
                             continue;
                         }
-                    case 6:
+                    case STAT_STANDABLE:
                         if (sprite[j].picnum == TRIPBOMB) break;
-                    case 1:
-                    case 0:
+                    case STAT_ACTOR:
+                    case STAT_DEFAULT:
                         if (
                             sprite[j].picnum == BOLT1 ||
                             sprite[j].picnum == BOLT1+1 ||
@@ -7018,7 +7021,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                                 setsprite(j,(vec3_t *)&sprite[j]);
 
                                 if (sector[sprite[j].sectnum].floorstat&2)
-                                    if (sprite[j].statnum == 2)
+                                    if (sprite[j].statnum == STAT_ZOMBIEACTOR)
                                         A_Fall(j);
                             }
                         }
@@ -7117,7 +7120,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
             while (j >= 0)
             {
                 nextj = nextspritesect[j];
-                if (sprite[j].statnum != 3 && sprite[j].statnum != 10)
+                if (sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PLAYER)
                 {
                     ActorExtra[j].bposx = sprite[j].x;
                     ActorExtra[j].bposy = sprite[j].y;
@@ -7323,7 +7326,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                                 if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
                                     if (g_player[sprite[j].yvel].ps->on_ground == 1)
                                         g_player[sprite[j].yvel].ps->posz += l;
-                                if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                                if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
                                 {
                                     ActorExtra[j].bposz = sprite[j].z += l;
                                     ActorExtra[j].floorz = sc->floorz;
@@ -7353,7 +7356,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                                 if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
                                     if (g_player[sprite[j].yvel].ps->on_ground == 1)
                                         g_player[sprite[j].yvel].ps->posz += l;
-                                if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                                if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
                                 {
                                     ActorExtra[j].bposz = sprite[j].z += l;
                                     ActorExtra[j].floorz = sc->floorz;
@@ -7385,7 +7388,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                             if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
                                 if (g_player[sprite[j].yvel].ps->on_ground == 1)
                                     g_player[sprite[j].yvel].ps->posz += l;
-                            if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                            if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
                             {
                                 ActorExtra[j].bposz = sprite[j].z += l;
                                 ActorExtra[j].floorz = sc->floorz;
@@ -7414,7 +7417,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                             if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
                                 if (g_player[sprite[j].yvel].ps->on_ground == 1)
                                     g_player[sprite[j].yvel].ps->posz -= l;
-                            if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                            if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
                             {
                                 ActorExtra[j].bposz = sprite[j].z -= l;
                                 ActorExtra[j].floorz = sc->floorz;

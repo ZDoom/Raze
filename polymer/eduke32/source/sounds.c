@@ -58,31 +58,17 @@ void S_SoundStartup(void)
     int32_t fxdevicetype;
     void * initdata = 0;
 
-    // if they chose None lets return
-    if (ud.config.FXDevice < 0)
-    {
-        return;
-    }
-    else if (ud.config.FXDevice == 0)
-    {
+    if (ud.config.FXDevice >= 0)
         fxdevicetype = ASS_AutoDetect;
-    }
-    else
-    {
-        fxdevicetype = ud.config.FXDevice - 1;
-    }
+    else return;
 
 #ifdef WIN32
     initdata = (void *) win_gethwnd();
 #endif
 
+    initprintf("Initializing sound...\n");
+
     status = FX_Init(fxdevicetype, ud.config.NumVoices, ud.config.NumChannels, ud.config.NumBits, ud.config.MixRate, initdata);
-    if (status == FX_Ok)
-    {
-        FX_SetVolume(ud.config.FXVolume);
-        FX_SetReverseStereo(ud.config.ReverseStereo);
-        status = FX_SetCallBack(S_TestSoundCallback);
-    }
 
     if (status != FX_Ok)
     {
@@ -90,7 +76,9 @@ void S_SoundStartup(void)
         G_GameExit(tempbuf);
     }
 
-    ud.config.FXDevice = 0;
+    FX_SetVolume(ud.config.FXVolume);
+    FX_SetReverseStereo(ud.config.ReverseStereo);
+    status = FX_SetCallBack(S_TestSoundCallback);
 }
 
 /*
@@ -366,8 +354,8 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     }
     else
     {
-        MusicVoice = FX_PlayLoopedAuto(MusicPtr, MusicLen, 0, 0, 0,
-                                       ud.config.MusicVolume, ud.config.MusicVolume, ud.config.MusicVolume,
+        MusicVoice = FX_PlayLoopedAuto(MusicPtr, MusicLen, 0, 0, 0, ud.config.MusicVolume,
+                                       ud.config.MusicVolume, ud.config.MusicVolume,
                                        FX_MUSIC_PRIORITY, MUSIC_ID);
         MusicIsWaveform = 1;
     }
@@ -387,7 +375,7 @@ void S_StopMusic(void)
     if (MusicPtr)
     {
         Bfree(MusicPtr);
-        MusicPtr = 0;
+        MusicPtr = NULL;
         g_musicSize = MusicLen = 0;
     }
 }
@@ -427,7 +415,7 @@ int32_t S_LoadSound(uint32_t num)
     return 1;
 }
 
-int32_t S_PlaySoundXYZ(int32_t num, int32_t i, const vec3_t *pos)
+int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 {
     vec3_t c;
     int32_t sndist,j,k;
@@ -644,7 +632,7 @@ int32_t A_PlaySound(uint32_t num, int32_t i)
         return 0;
     }
 
-    return S_PlaySoundXYZ(num, i, (vec3_t *)&sprite[i]);
+    return S_PlaySound3D(num, i, (vec3_t *)&sprite[i]);
 }
 
 void S_StopSound(int32_t num)
@@ -771,8 +759,8 @@ void S_TestSoundCallback(uint32_t num)
 
     if((int32_t)num < 0)
     {
-        if(lumplockbyte[-num] >= 200)
-            lumplockbyte[-num]--;
+        if(lumplockbyte[-(int32_t)num] >= 200)
+            lumplockbyte[-(int32_t)num]--;
         return;
     }
 

@@ -1810,7 +1810,7 @@ struct win32_mlock_t {
 };
 
 #define MLOCK_T               struct win32_mlock_t
-#define CURRENT_THREAD        GetCurrentThreadId()
+#define CURRENT_THREAD        ((long)GetCurrentThreadId())
 #define INITIAL_LOCK(sl)      ((sl)->threadid = 0, (sl)->l = (sl)->c = 0, 0)
 #define ACQUIRE_LOCK(sl)      win32_acquire_lock(sl)
 #define RELEASE_LOCK(sl)      win32_release_lock(sl)

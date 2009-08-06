@@ -35,8 +35,8 @@ extern void S_MenuSound(void);
 extern int32_t S_PlayMusic(const char *fn, const int32_t sel);
 extern void S_StopMusic(void);
 extern void S_PauseMusic(int32_t);
-extern int32_t S_LoadSound(unsigned num);
-extern int32_t S_PlaySoundXYZ(int32_t num,int32_t i,const vec3_t *pos);
+extern int32_t S_LoadSound(uint32_t num);
+extern int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos);
 extern int32_t S_PlaySound(int32_t num);
 extern int32_t A_PlaySound(uint32_t num,int32_t i);
 extern void S_StopSound(int32_t num);
@@ -254,18 +254,12 @@ extern int32_t SpriteFlags[MAXTILES];
 
 static inline int32_t G_GetTeamPalette(int32_t team)
 {
-    switch (team)
-    {
-    case 0:
-        return 3;
-    case 1:
-        return 10;
-    case 2:
-        return 11;
-    case 3:
-        return 12;
-    }
-    return 0;
+    int8_t pal[] = { 3, 10, 11, 12 };
+
+    if (team > (int32_t)(sizeof(pal)/sizeof(pal[0])) || team < 0)
+        return 0;
+
+    return pal[team];
 }
 
 extern inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority);

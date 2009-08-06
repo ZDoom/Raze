@@ -977,17 +977,25 @@ int32_t FX_PlayAuto(char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol
 {
     int32_t handle = -1;
 
-    if (!memcmp("Creative Voice File\x1a", ptr, 20))
+    switch (*(int32_t *)ptr)
     {
+    case 'C'+('r'<<8)+('e'<<16)+('a'<<24):
         handle = MV_PlayVOC(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
-    }
-    else if (!memcmp("RIFF", ptr, 4) && !memcmp("WAVE", ptr + 8, 4))
-    {
+        break;
+    case 'R'+('I'<<8)+('F'<<16)+('F'<<24):
         handle = MV_PlayWAV(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
-    }
-    else if (!memcmp("OggS", ptr, 4))
-    {
+        break;
+    case 'O'+('g'<<8)+('g'<<16)+('S'<<24):
         handle = MV_PlayVorbis(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
+        break;
+    default:
+        switch (*(int32_t *)(ptr + 8))
+        {
+        case 'W'+('A'<<8)+('V'<<16)+('E'<<24):
+            handle = MV_PlayWAV(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
+            break;
+        }
+        break;
     }
 
     if (handle < MV_Ok)
@@ -1010,21 +1018,27 @@ int32_t FX_PlayLoopedAuto(char *ptr, uint32_t length, int32_t loopstart, int32_t
 {
     int32_t handle = -1;
 
-    if (!memcmp("Creative Voice File\x1a", ptr, 20))
+    switch (*(int32_t *)ptr)
     {
-        handle = MV_PlayLoopedVOC(ptr, length, loopstart, loopend, pitchoffset,
-                                  vol, left, right, priority, callbackval);
+    case 'C'+('r'<<8)+('e'<<16)+('a'<<24):
+        handle = MV_PlayLoopedVOC(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
+        break;
+    case 'R'+('I'<<8)+('F'<<16)+('F'<<24):
+        handle = MV_PlayLoopedWAV(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
+        break;
+    case 'O'+('g'<<8)+('g'<<16)+('S'<<24):
+        handle = MV_PlayLoopedVorbis(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
+        break;
+    default:
+        switch (*(int32_t *)(ptr + 8))
+        {
+        case 'W'+('A'<<8)+('V'<<16)+('E'<<24):
+            handle = MV_PlayLoopedWAV(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
+            break;
+        }
+        break;
     }
-    else if (!memcmp("RIFF", ptr, 4) && !memcmp("WAVE", ptr + 8, 4))
-    {
-        handle = MV_PlayLoopedWAV(ptr, length, loopstart, loopend, pitchoffset,
-                                  vol, left, right, priority, callbackval);
-    }
-    else if (!memcmp("OggS", ptr, 4))
-    {
-        handle = MV_PlayLoopedVorbis(ptr, length, loopstart, loopend, pitchoffset,
-                                     vol, left, right, priority, callbackval);
-    }
+
 
     if (handle < MV_Ok)
     {
@@ -1045,17 +1059,25 @@ int32_t FX_PlayAuto3D(char *ptr, uint32_t length, int32_t pitchoffset, int32_t a
 {
     int32_t handle = -1;
 
-    if (!memcmp("Creative Voice File\x1a", ptr, 20))
+    switch (*(int32_t *)ptr)
     {
+    case 'C'+('r'<<8)+('e'<<16)+('a'<<24): // Crea
         handle = MV_PlayVOC3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
-    }
-    else if (!memcmp("RIFF", ptr, 4) && !memcmp("WAVE", ptr + 8, 4))
-    {
+        break;
+    case 'R'+('I'<<8)+('F'<<16)+('F'<<24): // RIFF
         handle = MV_PlayWAV3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
-    }
-    else if (!memcmp("OggS", ptr, 4))
-    {
+        break;
+    case 'O'+('g'<<8)+('g'<<16)+('S'<<24): // OggS
         handle = MV_PlayVorbis3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
+        break;
+    default:
+        switch (*(int32_t *)(ptr + 8))
+        {
+        case 'W'+('A'<<8)+('V'<<16)+('E'<<24): // WAVE
+            handle = MV_PlayWAV3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
+            break;
+        }
+        break;
     }
 
     if (handle < MV_Ok)

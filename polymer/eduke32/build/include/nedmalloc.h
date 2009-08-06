@@ -53,13 +53,13 @@ ACQUIRE_LOCK, RELEASE_LOCK, TRY_LOCK, IS_LOCKED and NULL_LOCK_INITIALIZER.
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER>=1400
- #define MALLOCATTR __declspec(restrict)
+ #define NEDMALLOCPTRATTR __declspec(restrict)
 #endif
 #ifdef __GNUC__
- #define MALLOCATTR __attribute__ ((malloc))
+ #define NEDMALLOCPTRATTR __attribute__ ((malloc))
 #endif
-#ifndef MALLOCATTR
- #define MALLOCATTR
+#ifndef NEDMALLOCPTRATTR
+ #define NEDMALLOCPTRATTR
 #endif
 
 #ifdef REPLACE_SYSTEM_ALLOCATOR
@@ -120,11 +120,11 @@ EXTSPEC size_t nedblksize(void *mem) THROWSPEC;
 
 EXTSPEC void nedsetvalue(void *v) THROWSPEC;
 
-EXTSPEC MALLOCATTR void * nedmalloc(size_t size) THROWSPEC;
-EXTSPEC MALLOCATTR void * nedcalloc(size_t no, size_t size) THROWSPEC;
-EXTSPEC MALLOCATTR void * nedrealloc(void *mem, size_t size) THROWSPEC;
+EXTSPEC NEDMALLOCPTRATTR void * nedmalloc(size_t size) THROWSPEC;
+EXTSPEC NEDMALLOCPTRATTR void * nedcalloc(size_t no, size_t size) THROWSPEC;
+EXTSPEC NEDMALLOCPTRATTR void * nedrealloc(void *mem, size_t size) THROWSPEC;
 EXTSPEC void   nedfree(void *mem) THROWSPEC;
-EXTSPEC MALLOCATTR void * nedmemalign(size_t alignment, size_t bytes) THROWSPEC;
+EXTSPEC NEDMALLOCPTRATTR void * nedmemalign(size_t alignment, size_t bytes) THROWSPEC;
 #if !NO_MALLINFO
 EXTSPEC struct mallinfo nedmallinfo(void) THROWSPEC;
 #endif
@@ -132,8 +132,8 @@ EXTSPEC int    nedmallopt(int parno, int value) THROWSPEC;
 EXTSPEC int    nedmalloc_trim(size_t pad) THROWSPEC;
 EXTSPEC void   nedmalloc_stats(void) THROWSPEC;
 EXTSPEC size_t nedmalloc_footprint(void) THROWSPEC;
-EXTSPEC MALLOCATTR void **nedindependent_calloc(size_t elemsno, size_t elemsize, void **chunks) THROWSPEC;
-EXTSPEC MALLOCATTR void **nedindependent_comalloc(size_t elems, size_t *sizes, void **chunks) THROWSPEC;
+EXTSPEC NEDMALLOCPTRATTR void **nedindependent_calloc(size_t elemsno, size_t elemsize, void **chunks) THROWSPEC;
+EXTSPEC NEDMALLOCPTRATTR void **nedindependent_comalloc(size_t elems, size_t *sizes, void **chunks) THROWSPEC;
 
 /* Destroys the system memory pool used by the functions above.
 Useful for when you have nedmalloc in a DLL you're about to unload.
@@ -153,7 +153,7 @@ will *normally* be accessing the pool concurrently. Setting this to zero means i
 extends on demand, but be careful of this as it can rapidly consume system resources
 where bursts of concurrent threads use a pool at once.
 */
-EXTSPEC MALLOCATTR nedpool *nedcreatepool(size_t capacity, int threads) THROWSPEC;
+EXTSPEC NEDMALLOCPTRATTR nedpool *nedcreatepool(size_t capacity, int threads) THROWSPEC;
 
 /* Destroys a memory pool previously created by nedcreatepool().
 */
@@ -180,11 +180,11 @@ system pool.
 */
 EXTSPEC void neddisablethreadcache(nedpool *p) THROWSPEC;
 
-EXTSPEC MALLOCATTR void * nedpmalloc(nedpool *p, size_t size) THROWSPEC;
-EXTSPEC MALLOCATTR void * nedpcalloc(nedpool *p, size_t no, size_t size) THROWSPEC;
-EXTSPEC MALLOCATTR void * nedprealloc(nedpool *p, void *mem, size_t size) THROWSPEC;
+EXTSPEC NEDMALLOCPTRATTR void * nedpmalloc(nedpool *p, size_t size) THROWSPEC;
+EXTSPEC NEDMALLOCPTRATTR void * nedpcalloc(nedpool *p, size_t no, size_t size) THROWSPEC;
+EXTSPEC NEDMALLOCPTRATTR void * nedprealloc(nedpool *p, void *mem, size_t size) THROWSPEC;
 EXTSPEC void   nedpfree(nedpool *p, void *mem) THROWSPEC;
-EXTSPEC MALLOCATTR void * nedpmemalign(nedpool *p, size_t alignment, size_t bytes) THROWSPEC;
+EXTSPEC NEDMALLOCPTRATTR void * nedpmemalign(nedpool *p, size_t alignment, size_t bytes) THROWSPEC;
 #if !NO_MALLINFO
 EXTSPEC struct mallinfo nedpmallinfo(nedpool *p) THROWSPEC;
 #endif
@@ -192,14 +192,13 @@ EXTSPEC int    nedpmallopt(nedpool *p, int parno, int value) THROWSPEC;
 EXTSPEC int    nedpmalloc_trim(nedpool *p, size_t pad) THROWSPEC;
 EXTSPEC void   nedpmalloc_stats(nedpool *p) THROWSPEC;
 EXTSPEC size_t nedpmalloc_footprint(nedpool *p) THROWSPEC;
-EXTSPEC MALLOCATTR void **nedpindependent_calloc(nedpool *p, size_t elemsno, size_t elemsize, void **chunks) THROWSPEC;
-EXTSPEC MALLOCATTR void **nedpindependent_comalloc(nedpool *p, size_t elems, size_t *sizes, void **chunks) THROWSPEC;
+EXTSPEC NEDMALLOCPTRATTR void **nedpindependent_calloc(nedpool *p, size_t elemsno, size_t elemsize, void **chunks) THROWSPEC;
+EXTSPEC NEDMALLOCPTRATTR void **nedpindependent_comalloc(nedpool *p, size_t elems, size_t *sizes, void **chunks) THROWSPEC;
 
 #if defined(__cplusplus)
 }
 #endif
 
-#undef MALLOCATTR
 #undef EXTSPEC
 
 #endif
