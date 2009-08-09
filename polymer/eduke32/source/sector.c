@@ -2959,7 +2959,7 @@ CHECKINV1:
                         if (p->scream_voice >= FX_Ok)
                         {
                             FX_StopSound(p->scream_voice);
-                            S_TestSoundCallback(DUKE_SCREAM);
+//                            S_TestSoundCallback(DUKE_SCREAM);
                             p->scream_voice = -1;
                         }
 
@@ -3106,7 +3106,6 @@ void P_CheckSectors(int32_t snum)
 
     if (!TEST_SYNC_KEY(g_player[snum].sync->bits, SK_OPEN) && !TEST_SYNC_KEY(g_player[snum].sync->bits, SK_ESCAPE))
         p->toggle_key_flag = 0;
-
     else if (!p->toggle_key_flag)
     {
 

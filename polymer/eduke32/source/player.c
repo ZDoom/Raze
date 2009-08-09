@@ -172,8 +172,10 @@ static void A_HitscanProjTrail(const vec3_t *sv, const vec3_t *dv, int32_t ang, 
         srcvect.y += destvect.y;
         srcvect.z += destvect.z;
         updatesector(srcvect.x,srcvect.y,&sect);
+        if (sect < 0)
+            break;
         getzsofslope(sect,srcvect.x,srcvect.y,&n,&j);
-        if (sect < 0 || srcvect.z > j || srcvect.z < n)
+        if (srcvect.z > j || srcvect.z < n)
             break;
         j = A_InsertSprite(sect,srcvect.x,srcvect.y,srcvect.z,ProjectileData[atwith].trail,-32,ProjectileData[atwith].txrepeat,ProjectileData[atwith].tyrepeat,ang,0,0,g_player[0].ps->i,0);
         changespritestat(j,1);
@@ -4068,7 +4070,7 @@ void P_ProcessInput(int32_t snum)
             if (p->scream_voice >= FX_Ok)
             {
                 FX_StopSound(p->scream_voice);
-                S_TestSoundCallback(DUKE_SCREAM);
+//                S_TestSoundCallback(DUKE_SCREAM);
                 p->scream_voice = -1;
             }
 

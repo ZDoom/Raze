@@ -9907,8 +9907,10 @@ void setbrightness(char dabrightness, uint8_t *dapal, char noapply)
             gltexinvalidateall();
         if (!(noapply&8) && (newpalettesum != lastpalettesum))
             gltexinvalidate8();
+#ifdef POLYMER
         if ((rendmode == 4) && (newpalettesum != lastpalettesum))
             polymer_texinvalidate();
+#endif
         lastpalettesum = newpalettesum;
     }
 #endif
@@ -11937,13 +11939,13 @@ int32_t setrendermode(int32_t renderer)
     UNREFERENCED_PARAMETER(renderer);
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (bpp == 8) renderer = 0;
-    else renderer = min(4,max(3,renderer));
 # ifdef POLYMER
+    else renderer = min(4,max(3,renderer));
+
     if (renderer == 4)
         polymer_init();
 # else
-    if (renderer == 4)
-        renderer = 3;
+    else renderer = 3;
 # endif
 
     rendmode = renderer;

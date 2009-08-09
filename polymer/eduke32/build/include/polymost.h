@@ -3,6 +3,8 @@
 
 #ifdef POLYMOST
 
+#include "hightile.h"
+
 #define CULL_OFFSET 384
 #define CULL_DELAY 2
 #define MAXCULLCHECKS 1024

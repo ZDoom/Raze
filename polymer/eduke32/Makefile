@@ -287,7 +287,7 @@ $(OBJ)/%.$o: $(SRC)/jmact/%.c
 
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
 	$(COMPILE_STATUS)
-	if windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC); then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC) -DPOLYMER=$(POLYMER); then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/util/%.c
 	$(COMPILE_STATUS)

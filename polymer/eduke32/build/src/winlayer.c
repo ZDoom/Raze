@@ -812,12 +812,15 @@ int32_t initinput(void)
     joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
 
     {
-        TCHAR layoutname[KL_NAMELENGTH];
-//        GetKeyboardLayoutName(layoutname);
-//        initprintf("    * Keyboard layout: %s\n",layoutname);
-        LoadKeyboardLayout("00000409", KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
+        char layoutname[KL_NAMELENGTH];
         GetKeyboardLayoutName(layoutname);
-        initprintf("Using keyboard layout %s\n",layoutname);
+        if (Bstrcmp(layoutname, "00000409"))
+        {
+            initprintf("Switching kb layout from %s ",layoutname);
+            i = LoadKeyboardLayout("00000409", KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
+            GetKeyboardLayoutName(layoutname);
+            initprintf("to %s\n",layoutname);
+        }
     }
 
     if (InitDirectInput())

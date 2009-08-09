@@ -338,13 +338,25 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     }
     while (0);
 
-    if (fp < 0) return 0;
+    if (fp < 0)
+    {
+        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open '%s' for playback!",fn);
+        return 0;
+    }
 
     S_StopMusic();
 
-    g_musicSize = MusicLen = kfilelength(fp);
+    MusicLen = kfilelength(fp);
     MusicPtr = (char *) Bmalloc(MusicLen);
-    kread(fp, MusicPtr, MusicLen);
+
+    if ((g_musicSize = kread(fp, (char *)MusicPtr, MusicLen)) != MusicLen)
+    {
+        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: read %d bytes from '%s', needed %d\n",g_musicSize, fn, MusicLen);
+        kclose(fp);
+        g_musicSize = 0;
+        return 0;
+    }
+
     kclose(fp);
 
     if (!Bmemcmp(MusicPtr, "MThd", 4))
@@ -354,20 +366,23 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     }
     else
     {
-        MusicVoice = FX_PlayLoopedAuto(MusicPtr, MusicLen, 0, 0, 0, ud.config.MusicVolume,
-                                       ud.config.MusicVolume, ud.config.MusicVolume,
-                                       FX_MUSIC_PRIORITY, MUSIC_ID);
-        MusicIsWaveform = 1;
+        if ((MusicVoice = FX_PlayLoopedAuto(MusicPtr, MusicLen, 0, 0, 0, ud.config.MusicVolume,
+            ud.config.MusicVolume, ud.config.MusicVolume,
+            FX_MUSIC_PRIORITY, MUSIC_ID)) >= FX_Ok)
+            MusicIsWaveform = 1;
     }
     return (alt != 0);
 }
 
 void S_StopMusic(void)
 {
+    MusicPaused = 0;
+
     if (MusicIsWaveform && MusicVoice >= 0)
     {
         FX_StopSound(MusicVoice);
         MusicVoice = -1;
+        MusicIsWaveform = 0;
     }
 
     MUSIC_StopSong();
@@ -437,7 +452,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     {
         voice = S_PlaySound(num);
 
-        if (voice >= FX_Ok && g_sounds[num].num < SOUNDMAX)
+        if (voice >= FX_Ok && g_sounds[num].num < SOUNDMAX && i >= 0 && i < MAXSPRITES)
         {
             g_sounds[num].SoundOwner[g_sounds[num].num].i = i;
             g_sounds[num].SoundOwner[g_sounds[num].num].voice = voice;
@@ -640,7 +655,7 @@ void S_StopSound(int32_t num)
     if (num >= 0 && num < MAXSOUNDS && g_sounds[num].num > 0)
     {
         FX_StopSound(g_sounds[num].SoundOwner[g_sounds[num].num-1].voice);
-        S_TestSoundCallback(num);
+//        S_TestSoundCallback(num);
     }
 }
 
@@ -657,7 +672,7 @@ void S_StopEnvSound(int32_t num,int32_t i)
                 if (g_sounds[num].SoundOwner[j].i == i)
                 {
                     FX_StopSound(g_sounds[num].SoundOwner[j].voice);
-                    S_TestSoundCallback(num);
+//                    S_TestSoundCallback(num);
                     return;
                 }
             }
@@ -694,6 +709,13 @@ void S_Pan3D(void)
         {
             i = g_sounds[j].SoundOwner[k].i;
 
+            if (i < 0 || i >= MAXSPRITES)
+            {
+                OSD_Printf(OSD_ERROR "S_Pan3D(): INTERNAL ERROR: invalid id %d!\n",i);
+                k--;
+                continue;
+            }
+            
             Bmemcpy(&s, &sprite[i], sizeof(vec3_t));
 
             if (PN == APLAYER && sprite[i].yvel == screenpeek)

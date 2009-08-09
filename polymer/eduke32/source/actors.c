@@ -697,10 +697,8 @@ inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, i
 
 #else
     UNREFERENCED_PARAMETER(radius);
-    UNREFERENCED_PARAMETER(sector);
-    UNREFERENCED_PARAMETER(x);
-    UNREFERENCED_PARAMETER(y);
-    UNREFERENCED_PARAMETER(z);
+    UNREFERENCED_PARAMETER(srcsprite);
+    UNREFERENCED_PARAMETER(zoffset);
     UNREFERENCED_PARAMETER(range);
     UNREFERENCED_PARAMETER(color);
     UNREFERENCED_PARAMETER(priority);

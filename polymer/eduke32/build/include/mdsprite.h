@@ -1,6 +1,8 @@
 #ifndef _mdsprite_h_
 # define _mdsprite_h_
 
+#include "hightile.h"
+
 #ifdef __POWERPC__
 #define SHIFTMOD32(a) ((a)&31)
 #else
