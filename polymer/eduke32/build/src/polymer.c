@@ -5331,7 +5331,7 @@ static void         polymer_initrendertargets(int32_t count)
             bglGenTextures(1, &prrts[i].color);
             bglBindTexture(prrts[i].target, prrts[i].color);
 
-            bglTexImage2D(prrts[i].target, 0, GL_RGBA, prrts[i].xdim, prrts[i].ydim, 0, GL_RGBA, GL_SHORT, NULL);
+            bglTexImage2D(prrts[i].target, 0, GL_RGB, prrts[i].xdim, prrts[i].ydim, 0, GL_RGB, GL_SHORT, NULL);
             bglTexParameteri(prrts[i].target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             bglTexParameteri(prrts[i].target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
@@ -5346,7 +5346,7 @@ static void         polymer_initrendertargets(int32_t count)
                 bglGenTextures(1, &prrts[i].color);
                 bglBindTexture(prrts[i].target, prrts[i].color);
 
-                bglTexImage2D(prrts[i].target, 0, GL_RGBA, prrts[i].xdim, prrts[i].ydim, 0, GL_RGBA, GL_SHORT, NULL);
+                bglTexImage2D(prrts[i].target, 0, GL_RGB, prrts[i].xdim, prrts[i].ydim, 0, GL_RGB, GL_SHORT, NULL);
                 bglTexParameteri(prrts[i].target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                 bglTexParameteri(prrts[i].target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                 bglTexParameteri(prrts[i].target, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
