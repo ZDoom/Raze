@@ -1,3 +1,4 @@
+#include "inttypes.h"
 #include "kplib.h"
 #include "compat.h"
 

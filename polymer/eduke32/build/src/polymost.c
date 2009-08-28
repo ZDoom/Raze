@@ -648,7 +648,7 @@ void polymost_glinit()
         bglHint(GL_FOG_HINT,GL_DONT_CARE);
     }
 
-    bglFogi(GL_FOG_MODE,GL_EXP2);
+    bglFogi(GL_FOG_MODE, GL_EXP2);
     bglFogf(GL_FOG_DENSITY,1.0); //must be > 0, default is 1
     /*    bglFogf(GL_FOG_START,0.0); //default is 0
         bglFogf(GL_FOG_END,1.0); //default is 1 */

@@ -652,10 +652,18 @@ int32_t A_PlaySound(uint32_t num, int32_t i)
 
 void S_StopSound(int32_t num)
 {
-    if (num >= 0 && num < MAXSOUNDS && g_sounds[num].num > 0)
+    if (num >= 0 && num < MAXSOUNDS)
     {
-        FX_StopSound(g_sounds[num].SoundOwner[g_sounds[num].num-1].voice);
-//        S_TestSoundCallback(num);
+        if (g_sounds[num].num > 0)
+        {
+            int32_t j=g_sounds[num].num-1;
+
+            for (; j>=0; j--)
+            {
+                FX_StopSound(g_sounds[num].SoundOwner[j].voice);
+                //                    S_TestSoundCallback(num);
+            }
+        }
     }
 }
 
@@ -673,7 +681,6 @@ void S_StopEnvSound(int32_t num,int32_t i)
                 {
                     FX_StopSound(g_sounds[num].SoundOwner[j].voice);
 //                    S_TestSoundCallback(num);
-                    return;
                 }
             }
         }
@@ -772,44 +779,35 @@ void S_Pan3D(void)
 
 void S_TestSoundCallback(uint32_t num)
 {
-    int32_t tempi,tempj,tempk;
-
-    if ((int32_t) num == MUSIC_ID)
-    {
+    if ((int32_t)num == MUSIC_ID)
         return;
-    }
 
-    if((int32_t)num < 0)
+    if ((int32_t)num < 0)
     {
-        if(lumplockbyte[-(int32_t)num] >= 200)
+        if (lumplockbyte[-(int32_t)num] >= 200)
             lumplockbyte[-(int32_t)num]--;
         return;
     }
 
-    tempk = g_sounds[num].num;
-
-    if (tempk > 0)
     {
-        if ((g_sounds[num].m&16) == 0)
-            for (tempj=0; tempj<tempk; tempj++)
+        int32_t j = 0;
+
+        while (j < g_sounds[num].num)
+        {
+            if (!FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
             {
-                tempi = g_sounds[num].SoundOwner[tempj].i;
-                if (sprite[tempi].picnum == MUSICANDSFX && sector[sprite[tempi].sectnum].lotag < 3 && sprite[tempi].lotag < 999)
-                {
-                    ActorExtra[tempi].temp_data[0] = 0;
-                    if ((tempj + 1) < tempk)
-                    {
-                        g_sounds[num].SoundOwner[tempj].voice = g_sounds[num].SoundOwner[tempk-1].voice;
-                        g_sounds[num].SoundOwner[tempj].i     = g_sounds[num].SoundOwner[tempk-1].i;
-                    }
-                    break;
-                }
+                int32_t i = g_sounds[num].SoundOwner[j].i;
+
+                g_sounds[num].num--;
+                //            OSD_Printf("removing sound %d from spr %d\n",num,i);
+                if (sprite[i].picnum == MUSICANDSFX && sector[sprite[i].sectnum].lotag < 3 && sprite[i].lotag < 999)
+                    ActorExtra[i].temp_data[0] = 0;
+                Bmemmove(&g_sounds[num].SoundOwner[j], &g_sounds[num].SoundOwner[j+1], sizeof(SOUNDOWNER) * (SOUNDMAX-j-1));
+                break;
             }
-
-        g_sounds[num].num--;
-        g_sounds[num].SoundOwner[tempk-1].i = -1;
+            j++;
+        }
     }
-
     g_soundlocks[num]--;
 }
 

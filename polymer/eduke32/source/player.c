@@ -133,13 +133,13 @@ static void A_DoWaterTracers(int32_t x1,int32_t y1,int32_t z1,int32_t x2,int32_t
         y1 += yv;
         z1 += zv;
         updatesector(x1,y1,&sect);
-        if (sect >= 0)
-        {
-            if (sector[sect].lotag == 2)
-                A_InsertSprite(sect,x1,y1,z1,WATERBUBBLE,-32,4+(krand()&3),4+(krand()&3),krand()&2047,0,0,g_player[0].ps->i,5);
-            else
-                A_InsertSprite(sect,x1,y1,z1,SMALLSMOKE,-32,14,14,0,0,0,g_player[0].ps->i,5);
-        }
+        if (sect < 0)
+            break;
+
+        if (sector[sect].lotag == 2)
+            A_InsertSprite(sect,x1,y1,z1,WATERBUBBLE,-32,4+(krand()&3),4+(krand()&3),krand()&2047,0,0,g_player[0].ps->i,5);
+        else
+            A_InsertSprite(sect,x1,y1,z1,SMALLSMOKE,-32,14,14,0,0,0,g_player[0].ps->i,5);
     }
 }
 
@@ -696,20 +696,26 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
 
                     if (j == -1)
                     {
-                        sa += (angRange/2)-(krand()&(angRange-1));
                         zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
-                        zvel += (zRange/2)-(krand()&(zRange-1));
+                        if (!(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE))
+                        {
+                            sa += (angRange/2)-(krand()&(angRange-1));
+                            zvel += (zRange/2)-(krand()&(zRange-1));
+                        }
                     }
                 }
                 else
                 {
-                    sa += (angRange/2)-(krand()&(angRange-1));
                     if (j == -1)
                     {
                         // no target
                         zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
                     }
-                    zvel += (zRange/2)-(krand()&(zRange-1));
+                    if (!(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE))
+                    {
+                        sa += (angRange/2)-(krand()&(angRange-1));
+                        zvel += (zRange/2)-(krand()&(zRange-1));
+                    }
                 }
                 srcvect.z -= (2<<8);
             }
@@ -723,13 +729,21 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 zvel = ((g_player[j].ps->posz-srcvect.z) <<8) / hitinfo.pos.x;
                 if (s->picnum != BOSS1)
                 {
-                    zvel += 128-(krand()&255);
-                    sa += 32-(krand()&63);
+                    if (!(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE))
+                    {
+                        zvel += 128-(krand()&255);
+                        sa += 32-(krand()&63);
+                    }
                 }
                 else
                 {
-                    zvel += 128-(krand()&255);
-                    sa = getangle(g_player[j].ps->posx-srcvect.x,g_player[j].ps->posy-srcvect.y)+64-(krand()&127);
+                    sa = getangle(g_player[j].ps->posx-srcvect.x,g_player[j].ps->posy-srcvect.y);
+
+                    if (!(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE))
+                    {
+                        zvel += 128-(krand()&255);
+                        sa += 64-(krand()&127);
+                    }
                 }
             }
 
@@ -753,9 +767,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 return -1;
 
             if (ProjectileData[atwith].trail >= 0)
-            {
                 A_HitscanProjTrail(&srcvect,&hitinfo.pos,sa,atwith);
-            }
 
             if (ProjectileData[atwith].workslike & PROJECTILE_WATERBUBBLES)
             {

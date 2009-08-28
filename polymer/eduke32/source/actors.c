@@ -286,104 +286,116 @@ BOLT:
 
 int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 {
-    int32_t oldx, oldy;
-    int32_t retval;
+    spritetype *spr = &sprite[spritenum];
+    int32_t retval, daz;
     int16_t dasectnum, cd;
-    int32_t bg = A_CheckEnemySprite(&sprite[spritenum]);
-    int32_t daz;
+    int32_t bg = A_CheckEnemySprite(spr);
+    int32_t oldx = spr->x, oldy = spr->y;
+    /*int32_t osectnum = spr->sectnum;*/
 
-    if (sprite[spritenum].statnum == STAT_MISC || (bg && sprite[spritenum].xrepeat < 4))
+
+    if (spr->statnum == STAT_MISC || (bg && spr->xrepeat < 4))
     {
-        sprite[spritenum].x += (change->x*TICSPERFRAME)>>2;
-        sprite[spritenum].y += (change->y*TICSPERFRAME)>>2;
-        sprite[spritenum].z += (change->z*TICSPERFRAME)>>2;
+        spr->x += (change->x*TICSPERFRAME)>>2;
+        spr->y += (change->y*TICSPERFRAME)>>2;
+        spr->z += (change->z*TICSPERFRAME)>>2;
         if (bg)
-            setsprite(spritenum,(vec3_t *)&sprite[spritenum]);
+            setsprite(spritenum,(vec3_t *)spr);
         return 0;
     }
 
-    dasectnum = sprite[spritenum].sectnum;
+    dasectnum = spr->sectnum;
 
-    daz = sprite[spritenum].z - ((tilesizy[sprite[spritenum].picnum]*sprite[spritenum].yrepeat)<<1);
+    daz = spr->z - ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
 
     if (bg)
     {
-        oldx = sprite[spritenum].x;
-        oldy = sprite[spritenum].y;
-
-        if (sprite[spritenum].xrepeat > 60)
+        if (spr->xrepeat > 60)
         {
-            int32_t oz = sprite[spritenum].z;
-            sprite[spritenum].z = daz;
-            retval = clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),1024L,(4<<8),(4<<8),cliptype);
-            daz = sprite[spritenum].z;
-            sprite[spritenum].z = oz;
+            int32_t oz = spr->z;
+            spr->z = daz;
+            retval = clipmove((vec3_t *)spr,&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),1024L,(4<<8),(4<<8),cliptype);
+            daz = spr->z;
+            spr->z = oz;
         }
         else
         {
-            int32_t oz = sprite[spritenum].z;
+            int32_t oz = spr->z;
 
-            if (sprite[spritenum].picnum == LIZMAN)
+            if (spr->picnum == LIZMAN)
                 cd = 292L;
-            else if ((ActorType[sprite[spritenum].picnum]&3))
-                cd = sprite[spritenum].clipdist<<2;
+            else if ((ActorType[spr->picnum]&3))
+                cd = spr->clipdist<<2;
             else
                 cd = 192L;
 
-            sprite[spritenum].z = daz;
-            retval = clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),cd,(4<<8),(4<<8),cliptype);
-            daz = sprite[spritenum].z;
-            sprite[spritenum].z = oz;
+            spr->z = daz;
+            retval = clipmove((vec3_t *)spr,&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),cd,(4<<8),(4<<8),cliptype);
+            daz = spr->z;
+            spr->z = oz;
         }
 
         if (dasectnum < 0 || (dasectnum >= 0 &&
                               ((ActorExtra[spritenum].actorstayput >= 0 && ActorExtra[spritenum].actorstayput != dasectnum) ||
-                               ((sprite[spritenum].picnum == BOSS2) && sprite[spritenum].pal == 0 && sector[dasectnum].lotag != 3) ||
-                               ((sprite[spritenum].picnum == BOSS1 || sprite[spritenum].picnum == BOSS2) && sector[dasectnum].lotag == 1) /*||
-                               (sector[dasectnum].lotag == 1 && (sprite[spritenum].picnum == LIZMAN || (sprite[spritenum].picnum == LIZTROOP && sprite[spritenum].zvel == 0)))*/
+                               ((spr->picnum == BOSS2) && spr->pal == 0 && sector[dasectnum].lotag != 3) ||
+                               ((spr->picnum == BOSS1 || spr->picnum == BOSS2) && sector[dasectnum].lotag == 1) /*||
+                               (sector[dasectnum].lotag == 1 && (spr->picnum == LIZMAN || (spr->picnum == LIZTROOP && spr->zvel == 0)))*/
                               ))
            )
         {
-            sprite[spritenum].x = oldx;
-            sprite[spritenum].y = oldy;
+            spr->x = oldx;
+            spr->y = oldy;
             /*
-            if (dasectnum >= 0 && sector[dasectnum].lotag == 1 && sprite[spritenum].picnum == LIZMAN)
-            sprite[spritenum].ang = (krand()&2047);
-            else if ((ActorExtra[spritenum].temp_data[0]&3) == 1 && sprite[spritenum].picnum != COMMANDER)
-            sprite[spritenum].ang = (krand()&2047);
+            if (dasectnum >= 0 && sector[dasectnum].lotag == 1 && spr->picnum == LIZMAN)
+            spr->ang = (krand()&2047);
+            else if ((ActorExtra[spritenum].temp_data[0]&3) == 1 && spr->picnum != COMMANDER)
+            spr->ang = (krand()&2047);
             */
-            setsprite(spritenum,(vec3_t *)&sprite[spritenum]);
+            setsprite(spritenum,(vec3_t *)spr);
             if (dasectnum < 0) dasectnum = 0;
             return (16384+dasectnum);
         }
-        if ((retval&49152) >= 32768 && (ActorExtra[spritenum].cgg==0)) sprite[spritenum].ang += 768;
+        if ((retval&49152) >= 32768 && (ActorExtra[spritenum].cgg==0)) spr->ang += 768;
     }
     else
     {
-        int32_t oz = sprite[spritenum].z;
-        sprite[spritenum].z = daz;
+        int32_t oz = spr->z;
+        spr->z = daz;
 
-        if (sprite[spritenum].statnum == STAT_PROJECTILE && (SpriteProjectile[spritenum].workslike & PROJECTILE_REALCLIPDIST) == 0)
+        if (spr->statnum == STAT_PROJECTILE && (SpriteProjectile[spritenum].workslike & PROJECTILE_REALCLIPDIST) == 0)
             retval =
                 clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),8L,(4<<8),(4<<8),cliptype);
         else
             retval =
-                clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),(int32_t)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
-        daz = sprite[spritenum].z;
-        sprite[spritenum].z = oz;
-
+                clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),(int32_t)(spr->clipdist<<2),(4<<8),(4<<8),cliptype);
+        daz = spr->z;
+        spr->z = oz;
     }
 
-    if (dasectnum >= 0)
-        if ((dasectnum != sprite[spritenum].sectnum))
-            changespritesect(spritenum,dasectnum);
-    daz = sprite[spritenum].z + ((change->z*TICSPERFRAME)>>3);
-    if ((daz > ActorExtra[spritenum].ceilingz) && (daz <= ActorExtra[spritenum].floorz))
-        sprite[spritenum].z = daz;
+    if (dasectnum == -1)
+    {
+        dasectnum = spr->sectnum;
+        /*OSD_Printf("%s:%d wtf\n",__FILE__,__LINE__);*/
+    }
+
+    if ((dasectnum != spr->sectnum))
+    {
+        changespritesect(spritenum,dasectnum);
+        A_GetZLimits(spritenum);
+    }
+
+    daz = spr->z + ((change->z*TICSPERFRAME)>>3);
+
+    bg = (tilesizy[spr->picnum]*spr->yrepeat)>>1;
+    if ((daz > ActorExtra[spritenum].ceilingz) && (daz <= ActorExtra[spritenum].floorz)/*
+         &&
+                (osectnum == dasectnum || cansee(oldx, oldy, spr->z - bg, osectnum, spr->x, spr->y, daz - bg, dasectnum))*/
+        )
+        spr->z = daz;
     else if (retval == 0) retval = 16384+dasectnum;
 
     if (retval == (16384+dasectnum))
-        if (sprite[spritenum].statnum == STAT_PROJECTILE)
+        if (spr->statnum == STAT_PROJECTILE)
         {
             int32_t i, nexti;
 
@@ -399,14 +411,11 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
                         {
                             ActorExtra[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
 
-                            sprite[spritenum].x += (sprite[OW].x-SX);
-                            sprite[spritenum].y += (sprite[OW].y-SY);
-                            sprite[spritenum].z = sector[sprite[OW].sectnum].ceilingz - daz + sector[sprite[i].sectnum].floorz;
+                            spr->x += (sprite[OW].x-SX);
+                            spr->y += (sprite[OW].y-SY);
+                            spr->z = sector[sprite[OW].sectnum].ceilingz - daz + sector[sprite[i].sectnum].floorz;
 
-                            ActorExtra[spritenum].bposx = sprite[spritenum].x;
-                            ActorExtra[spritenum].bposy = sprite[spritenum].y;
-                            ActorExtra[spritenum].bposz = sprite[spritenum].z;
-
+                            Bmemcpy(&ActorExtra[spritenum].bposx, &sprite[spritenum], sizeof(vec3_t));
                             changespritesect(spritenum,sprite[OW].sectnum);
                         }
 
@@ -418,14 +427,11 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
                         if (totalclock > ActorExtra[spritenum].lasttransport)
                         {
                             ActorExtra[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
-                            sprite[spritenum].x += (sprite[OW].x-SX);
-                            sprite[spritenum].y += (sprite[OW].y-SY);
-                            sprite[spritenum].z = sector[sprite[OW].sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
+                            spr->x += (sprite[OW].x-SX);
+                            spr->y += (sprite[OW].y-SY);
+                            spr->z = sector[sprite[OW].sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
 
-                            ActorExtra[spritenum].bposx = sprite[spritenum].x;
-                            ActorExtra[spritenum].bposy = sprite[spritenum].y;
-                            ActorExtra[spritenum].bposz = sprite[spritenum].z;
-
+                            Bmemcpy(&ActorExtra[spritenum].bposx, &sprite[spritenum], sizeof(vec3_t));
                             changespritesect(spritenum,sprite[OW].sectnum);
                         }
 
@@ -438,20 +444,17 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
     return(retval);
 }
 
-inline int32_t A_SetSprite(int32_t i,uint32_t cliptype) //The set sprite function
+inline int32_t A_SetSprite(int32_t i,uint32_t cliptype)
 {
-    vec3_t davect;
-
-    davect.x = (sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14;
-    davect.y = (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14;
-    davect.z = sprite[i].zvel;
+    vec3_t davect = { (sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
+                      (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14, 
+                       sprite[i].zvel };
     return (A_MoveSprite(i,&davect,cliptype)==0);
 }
 
-#undef deletesprite
-
 int32_t block_deletesprite = 0;
 
+// all calls to deletesprite() from the game are wrapped by this function
 void A_DeleteSprite(int32_t s)
 {
     if (block_deletesprite)
@@ -479,9 +482,10 @@ void A_DeleteSprite(int32_t s)
     }
 #endif
 
+#undef deletesprite
     deletesprite(s);
-}
 #define deletesprite A_DeleteSprite
+}
 
 void A_AddToDeleteQueue(int32_t i)
 {
@@ -1002,7 +1006,7 @@ BOLT:
 
 int32_t otherp;
 
-static void G_MovePlayers(void) //Players
+static void G_MovePlayers(void)
 {
     int32_t i = headspritestat[STAT_PLAYER], nexti;
     int32_t otherx;
@@ -1091,10 +1095,7 @@ static void G_MovePlayers(void) //Players
             if (p->holoduke_on == -1)
                 KILLIT(i);
 
-            ActorExtra[i].bposx = s->x;
-            ActorExtra[i].bposy = s->y;
-            ActorExtra[i].bposz = s->z;
-
+            Bmemcpy(&ActorExtra[i].bposx, s, sizeof(vec3_t));
             s->cstat = 0;
 
             if (s->xrepeat < 42)
@@ -1354,9 +1355,7 @@ static void G_MoveStandables(void)
 
         if (sect < 0) KILLIT(i);
 
-        ActorExtra[i].bposx = s->x;
-        ActorExtra[i].bposy = s->y;
-        ActorExtra[i].bposz = s->z;
+        Bmemcpy(&ActorExtra[i].bposx, s, sizeof(vec3_t));
 
         IFWITHIN(CRANE,CRANE+3)
         {
@@ -1530,9 +1529,7 @@ static void G_MoveStandables(void)
                 {
                     setsprite(s->owner,(vec3_t *)s);
 
-                    ActorExtra[s->owner].bposx = s->x;
-                    ActorExtra[s->owner].bposy = s->y;
-                    ActorExtra[s->owner].bposz = s->z;
+                    Bmemcpy(&ActorExtra[s->owner].bposx, s, sizeof(vec3_t));
 
                     s->zvel = 0;
                 }
@@ -2353,9 +2350,7 @@ static void G_MoveWeapons(void)
 
         if (s->sectnum < 0) KILLIT(i);
 
-        ActorExtra[i].bposx = s->x;
-        ActorExtra[i].bposy = s->y;
-        ActorExtra[i].bposz = s->z;
+        Bmemcpy(&ActorExtra[i].bposx, s, sizeof(vec3_t));
         // here
 
         if (A_CheckSpriteFlags(i,SPRITE_PROJECTILE))
@@ -3354,9 +3349,7 @@ static void G_MoveTransports(void)
                                         sprite[j].z -= SZ - sector[sprite[OW].sectnum].floorz;
                                         sprite[j].ang = sprite[OW].ang;
 
-                                        ActorExtra[j].bposx = sprite[j].x;
-                                        ActorExtra[j].bposy = sprite[j].y;
-                                        ActorExtra[j].bposz = sprite[j].z;
+                                        Bmemcpy(&ActorExtra[j].bposx, &sprite[j], sizeof(vec3_t));
 
                                         if (sprite[i].pal == 0)
                                         {
@@ -3382,9 +3375,7 @@ static void G_MoveTransports(void)
                                     sprite[j].y += (sprite[OW].y-SY);
                                     sprite[j].z = sprite[OW].z+4096;
 
-                                    ActorExtra[j].bposx = sprite[j].x;
-                                    ActorExtra[j].bposy = sprite[j].y;
-                                    ActorExtra[j].bposz = sprite[j].z;
+                                    Bmemcpy(&ActorExtra[j].bposx, &sprite[j], sizeof(vec3_t));
 
                                     changespritesect(j,sprite[OW].sectnum);
                                 }
@@ -3396,9 +3387,8 @@ static void G_MoveTransports(void)
                                 sprite[j].y += (sprite[OW].y-SY);
                                 sprite[j].z = sector[sprite[OW].sectnum].ceilingz;
 
-                                ActorExtra[j].bposx = sprite[j].x;
-                                ActorExtra[j].bposy = sprite[j].y;
-                                ActorExtra[j].bposz = sprite[j].z;
+
+                                Bmemcpy(&ActorExtra[j].bposx, &sprite[j], sizeof(vec3_t));
 
                                 changespritesect(j,sprite[OW].sectnum);
 
@@ -3409,9 +3399,7 @@ static void G_MoveTransports(void)
                                 sprite[j].y += (sprite[OW].y-SY);
                                 sprite[j].z = sector[sprite[OW].sectnum].floorz;
 
-                                ActorExtra[j].bposx = sprite[j].x;
-                                ActorExtra[j].bposy = sprite[j].y;
-                                ActorExtra[j].bposz = sprite[j].z;
+                                Bmemcpy(&ActorExtra[j].bposx, &sprite[j], sizeof(vec3_t));
 
                                 changespritesect(j,sprite[OW].sectnum);
 
@@ -3466,9 +3454,8 @@ static void G_MoveActors(void)
 
         t = &ActorExtra[i].temp_data[0];
 
-        ActorExtra[i].bposx = s->x;
-        ActorExtra[i].bposy = s->y;
-        ActorExtra[i].bposz = s->z;
+        Bmemcpy(&ActorExtra[i].bposx, s, sizeof(vec3_t));
+
         switchpicnum=s->picnum;
         if ((s->picnum > GREENSLIME)&&(s->picnum <= GREENSLIME+7))
         {
@@ -4814,9 +4801,8 @@ static void G_MoveMisc(void)  // STATNUM 5
 
         if (sect < 0 || s->xrepeat == 0) KILLIT(i);
 
-        ActorExtra[i].bposx = s->x;
-        ActorExtra[i].bposy = s->y;
-        ActorExtra[i].bposz = s->z;
+        Bmemcpy(&ActorExtra[i].bposx, s, sizeof(vec3_t));
+
         switchpicnum = s->picnum;
         if ((s->picnum > NUKEBUTTON)&&(s->picnum <= NUKEBUTTON+3))
         {
@@ -6656,9 +6642,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                         sprite[k].z = sector[sprite[j].sectnum].floorz-
                                       (sc->floorz-sprite[k].z);
 
-                        ActorExtra[k].bposx = sprite[k].x;
-                        ActorExtra[k].bposy = sprite[k].y;
-                        ActorExtra[k].bposz = sprite[k].z;
+                        Bmemcpy(&ActorExtra[k].bposx, &sprite[k], sizeof(vec3_t));
 
                         changespritesect(k,sprite[j].sectnum);
                         setsprite(k,(vec3_t *)&sprite[k]);

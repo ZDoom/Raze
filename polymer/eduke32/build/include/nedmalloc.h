@@ -29,6 +29,9 @@ DEALINGS IN THE SOFTWARE.
 #ifndef NEDMALLOC_H
 #define NEDMALLOC_H
 
+#define THREADCACHEMAX 65536
+#define THREADCACHEMAXFREESPACE (1024*1024*4)
+
 /* See malloc.c.h for what each function does.
 
 REPLACE_SYSTEM_ALLOCATOR causes nedalloc's functions to be called malloc,

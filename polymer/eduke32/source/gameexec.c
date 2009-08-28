@@ -333,7 +333,7 @@ void A_Fall(int32_t iActor)
             c = g_spriteGravity/6;
     }
 
-    if ((s->statnum == STAT_ACTOR || s->statnum == STAT_PLAYER || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_STANDABLE))
+    if (s->statnum == STAT_ACTOR || s->statnum == STAT_PLAYER || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_STANDABLE)
     {
         int32_t cstat = s->cstat;
         s->cstat = 0;
@@ -2251,7 +2251,7 @@ nullquote:
                 int32_t y1=scale(Gv_GetVarX(*insptr++),ydim,200);
                 int32_t x2=scale(Gv_GetVarX(*insptr++),xdim,320);
                 int32_t y2=scale(Gv_GetVarX(*insptr++),ydim,200);
-                int32_t smoothratio = min(max((totalclock - ototalclock) * (65536 / TICSPERFRAME),0),65536);
+                int32_t smoothratio = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
 #if defined(USE_OPENGL) && defined(POLYMOST)
                 int32_t j;
 #endif
@@ -4822,9 +4822,9 @@ void G_SaveMapState(mapstate_t *save)
         Bmemcpy(&save->headspritesect[0],&headspritesect[0],sizeof(headspritesect));
         Bmemcpy(&save->prevspritesect[0],&prevspritesect[0],sizeof(prevspritesect));
         Bmemcpy(&save->nextspritesect[0],&nextspritesect[0],sizeof(nextspritesect));
-        Bmemcpy(&save->headspritestat[STAT_DEFAULT],&headspritestat[STAT_DEFAULT],sizeof(headspritestat));
-        Bmemcpy(&save->prevspritestat[STAT_DEFAULT],&prevspritestat[STAT_DEFAULT],sizeof(prevspritestat));
-        Bmemcpy(&save->nextspritestat[STAT_DEFAULT],&nextspritestat[STAT_DEFAULT],sizeof(nextspritestat));
+        Bmemcpy(&save->headspritestat[0],&headspritestat[0],sizeof(headspritestat));
+        Bmemcpy(&save->prevspritestat[0],&prevspritestat[0],sizeof(prevspritestat));
+        Bmemcpy(&save->nextspritestat[0],&nextspritestat[0],sizeof(nextspritestat));
 
         for (i=MAXSPRITES-1; i>=0; i--)
         {
@@ -4946,9 +4946,9 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(&headspritesect[0],&save->headspritesect[0],sizeof(headspritesect));
         Bmemcpy(&prevspritesect[0],&save->prevspritesect[0],sizeof(prevspritesect));
         Bmemcpy(&nextspritesect[0],&save->nextspritesect[0],sizeof(nextspritesect));
-        Bmemcpy(&headspritestat[STAT_DEFAULT],&save->headspritestat[STAT_DEFAULT],sizeof(headspritestat));
-        Bmemcpy(&prevspritestat[STAT_DEFAULT],&save->prevspritestat[STAT_DEFAULT],sizeof(prevspritestat));
-        Bmemcpy(&nextspritestat[STAT_DEFAULT],&save->nextspritestat[STAT_DEFAULT],sizeof(nextspritestat));
+        Bmemcpy(&headspritestat[0],&save->headspritestat[0],sizeof(headspritestat));
+        Bmemcpy(&prevspritestat[0],&save->prevspritestat[0],sizeof(prevspritestat));
+        Bmemcpy(&nextspritestat[0],&save->nextspritestat[0],sizeof(nextspritestat));
         Bmemcpy(&ActorExtra[0],&save->ActorExtra[0],sizeof(ActorData_t)*MAXSPRITES);
 
         for (i=MAXSPRITES-1; i>=0; i--)

@@ -890,6 +890,7 @@ void Net_GetPackets(void)
                 for (; i-j<10; i++) g_player[other].wchoice[i-j] = packbuf[i];
 
                 break;
+
             case PACKET_RTS:
                 //slaves in M/S mode only send to master
                 //Master re-transmits message to all others
@@ -904,6 +905,7 @@ void Net_GetPackets(void)
                 rtsptr = (char *)RTS_GetSound(packbuf[1]-1);
                 FX_PlayAuto3D(rtsptr,RTS_SoundLength(packbuf[1]-1),0,0,0,255,-packbuf[1]);
                 g_RTSPlaying = 7;
+
                 break;
 
             case PACKET_MENU_LEVEL_QUIT:
@@ -1406,12 +1408,7 @@ void faketimerhandler(void)
 }
 
 extern int32_t cacnum;
-typedef struct
-{
-    int32_t *hand, leng;
-    char *lock ;
-}
-cactype;
+typedef struct { intptr_t *hand; int32_t leng; char *lock ; } cactype;
 extern cactype cac[];
 
 static void G_ShowCacheLocks(void)
@@ -1965,7 +1962,11 @@ static void G_DrawStatusBar(int32_t snum)
                 rotatesprite(sbarx(62+1),sbary(200-25+1),sbarsc(49152L),0,SHIELD,0,4,10+16+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
             rotatesprite(sbarx(62),sbary(200-25),sbarsc(49152L),0,SHIELD,0,0,10+16,0,0,xdim-1,ydim-1);
 
-            G_DrawAltDigiNum(105,-(200-22),p->shield_amount,-16,10+16);
+            {
+                int32_t lAmount=Gv_GetVarByLabel("PLR_MORALE",-1, p->i, snum);
+                if (lAmount == -1) lAmount = p->shield_amount;
+                G_DrawAltDigiNum(105,-(200-22),lAmount,-16,10+16);
+            }
 
             if (getrendermode() >= 3 && althud_shadows)
             {
@@ -3411,11 +3412,10 @@ void G_GetCrosshairColor(void)
             ptr++;
             ii--;
         }
-        while (ii > 0);
+        while (ii);
 
-        DefaultCrosshairColors.r = CrosshairColors.r = curpalette[bri].r;
-        DefaultCrosshairColors.g = CrosshairColors.g = curpalette[bri].g;
-        DefaultCrosshairColors.b = CrosshairColors.b = curpalette[bri].b;
+        Bmemcpy(&CrosshairColors, &curpalette[bri], sizeof(palette_t));
+        Bmemcpy(&DefaultCrosshairColors, &curpalette[bri], sizeof(palette_t));
         DefaultCrosshairColors.f = 1; // this flag signifies that the color has been detected
     }
 }
@@ -3431,7 +3431,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     CrosshairColors.r = r;
     CrosshairColors.g = g;
     CrosshairColors.b = b;
-
+    
     if (waloff[CROSSHAIR] == 0)
     {
         loadtile(CROSSHAIR);
@@ -3452,7 +3452,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
         ptr++;
         ii--;
     }
-    while (ii > 0);
+    while (ii);
 
     for (i = 255; i >= 0; i--)
         tempbuf[i] = i;
@@ -3460,9 +3460,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     makepalookup(CROSSHAIR_PAL,tempbuf,CrosshairColors.r>>2, CrosshairColors.g>>2, CrosshairColors.b>>2,1);
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
-    hictinting[CROSSHAIR_PAL].r = CrosshairColors.r;
-    hictinting[CROSSHAIR_PAL].g = CrosshairColors.g;
-    hictinting[CROSSHAIR_PAL].b = CrosshairColors.b;
+    Bmemcpy(&hictinting[CROSSHAIR_PAL], &CrosshairColors, sizeof(palette_t));
     hictinting[CROSSHAIR_PAL].f = 9;
 #endif
     invalidatetile(CROSSHAIR, -1, -1);
@@ -3471,19 +3469,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
 void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e)
 {
     int32_t tc;
-    /*
-        for(i=0;i<768;i+=3)
-        {
-            temparray[i  ] =
-                g_player[myconnectindex].ps->palette[i+0]+((((int32_t)r-(int32_t)g_player[myconnectindex].ps->palette[i+0])*(int32_t)(e&127))>>6);
-            temparray[i+1] =
-                g_player[myconnectindex].ps->palette[i+1]+((((int32_t)g-(int32_t)g_player[myconnectindex].ps->palette[i+1])*(int32_t)(e&127))>>6);
-            temparray[i+2] =
-                g_player[myconnectindex].ps->palette[i+2]+((((int32_t)b-(int32_t)g_player[myconnectindex].ps->palette[i+2])*(int32_t)(e&127))>>6);
-        }
-    */
 
-    //setbrightness(ud.brightness>>2,temparray);
     setpalettefade(r,g,b,e&127);
     if (getrendermode() >= 3) pus = pub = NUMPAGES; // JBF 20040110: redraw the status bar next time
     if ((e&128) == 0)
@@ -3508,45 +3494,36 @@ void G_DisplayRest(int32_t smoothratio)
     // this takes care of fullscreen tint for OpenGL
     if (getrendermode() >= 3)
     {
-#if 0
-        if (pp->palette == waterpal) tintr=0,tintg=0,tintb=63,tintf=8;
-        else if (pp->palette == slimepal) tintr=20,tintg=63,tintb=20,tintf=8;
-#else
         if (pp->palette == waterpal)
         {
-            if (hictinting[MAXPALOOKUPS-2].r == 255 && hictinting[MAXPALOOKUPS-2].g == 255 && hictinting[MAXPALOOKUPS-2].b == 255)
+//            if ((*(uint32_t *)&hictinting[MAXPALOOKUPS-2].r)|0x000000FF) == 0xFFFFFFFF)
             {
-                hictinting[MAXPALOOKUPS-1].r = 192;
-                hictinting[MAXPALOOKUPS-1].g = 192;
-                hictinting[MAXPALOOKUPS-1].b = 255;
+                static palette_t wp = { 224, 192, 255, 0 };
+                Bmemcpy(&hictinting[MAXPALOOKUPS-1], &wp, sizeof(palette_t));
             }
-            else Bmemcpy(&hictinting[MAXPALOOKUPS-1],&hictinting[MAXPALOOKUPS-2],sizeof(hictinting[0]));
+//            else Bmemcpy(&hictinting[MAXPALOOKUPS-1], &hictinting[MAXPALOOKUPS-2], sizeof(palette_t));
         }
         else if (pp->palette == slimepal)
         {
-            if (hictinting[MAXPALOOKUPS-3].r == 255 && hictinting[MAXPALOOKUPS-3].g == 255 && hictinting[MAXPALOOKUPS-3].b == 255)
-            {
-                hictinting[MAXPALOOKUPS-1].r = 208;
-                hictinting[MAXPALOOKUPS-1].g = 255;
-                hictinting[MAXPALOOKUPS-1].b = 192;
-            }
-            else Bmemcpy(&hictinting[MAXPALOOKUPS-1],&hictinting[MAXPALOOKUPS-3],sizeof(hictinting[0]));
+//            if ((*(uint32_t *)&hictinting[MAXPALOOKUPS-3].r)|0x000000FF) == 0xFFFFFFFF)
+                {
+                    static palette_t sp = { 208, 255, 192, 0 };
+                    Bmemcpy(&hictinting[MAXPALOOKUPS-1], &sp, sizeof(palette_t));
+                }
+
+//            else Bmemcpy(&hictinting[MAXPALOOKUPS-1], &hictinting[MAXPALOOKUPS-3], sizeof(palette_t));
         }
         else
         {
-            hictinting[MAXPALOOKUPS-1].r = 255;
-            hictinting[MAXPALOOKUPS-1].g = 255;
-            hictinting[MAXPALOOKUPS-1].b = 255;
+            *(uint32_t *)&hictinting[MAXPALOOKUPS-1].r = 0xFFFFFFFF;
         }
-#endif
     }
 #endif /* USE_OPENGL && POLYMOST */
     // this does pain tinting etc from the CON
     if (pp->pals_time >= 0 && pp->loogcnt == 0) // JBF 20040101: pals_time > 0 now >= 0
     {
-        tempFade.r = pp->pals[0];
-        tempFade.g = pp->pals[1];
-        tempFade.b = pp->pals[2];
+//        tempFade = (palette_t) { pp->pals[0], pp->pals[1], pp->pals[2], pp->pals_time };
+        Bmemcpy(&tempFade, &pp->pals, sizeof(palette_t));
         tempFade.f = pp->pals_time;
         g_restorePalette = 1;     // JBF 20040101
         applyTint = 1;
@@ -3562,19 +3539,12 @@ void G_DisplayRest(int32_t smoothratio)
     else if (pp->loogcnt > 0)
     {
         //G_FadePalette(0,64,0,(pp->loogcnt>>1)+128);
-        tempFade.r = 0;
-        tempFade.g = 64;
-        tempFade.b = 0;
-        tempFade.f = pp->loogcnt>>1;
+        palette_t lp = { 0, 64, 0, pp->loogcnt>>1 };
+        Bmemcpy(&tempFade, &lp, sizeof(palette_t));
         applyTint = 1;
     }
     if (tempFade.f > tempTint.f)
-    {
-        tempTint.r = tempFade.r;
-        tempTint.g = tempFade.g;
-        tempTint.b = tempFade.b;
-        tempTint.f = tempFade.f;
-    }
+        Bmemcpy(&tempTint, &tempFade, sizeof(palette_t));
 
     if (ud.show_help)
     {
@@ -3639,7 +3609,7 @@ void G_DisplayRest(int32_t smoothratio)
         if (ud.overhead_on > 0)
         {
             // smoothratio = min(max(smoothratio,0),65536);
-            smoothratio = min(max((totalclock - ototalclock) * (65536 / TICSPERFRAME),0),65536);
+            smoothratio = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
             G_DoInterpolations(smoothratio);
             if (ud.scrollmode == 0)
             {
@@ -3711,11 +3681,11 @@ void G_DisplayRest(int32_t smoothratio)
     {
         int32_t bits = 10+16;
 
-        if (g_levelTextTime > 4)
-            bits = bits;
-        else if (g_levelTextTime > 2)
+        if (g_levelTextTime < 3)
+            bits |= 1+32;
+        else if (g_levelTextTime < 5)
             bits |= 1;
-        else bits |= 1+32;
+
         if (MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
         {
             if (currentboardfilename[0] != 0 && ud.volume_number == 0 && ud.level_number == 7)
@@ -3869,8 +3839,8 @@ static void G_DoThirdPerson(DukePlayer_t *pp, vec3_t *vect,int16_t *vsectnum, in
     int32_t nx = (sintable[(ang+1536)&2047]>>4);
     int32_t ny = (sintable[(ang+1024)&2047]>>4);
     int32_t nz = (horiz-100)*128;
-    int16_t daang;
-    int16_t bakcstat = sp->cstat;
+    int32_t daang;
+    int32_t bakcstat = sp->cstat;
     hitdata_t hitinfo;
 
     sp->cstat &= (int16_t)~0x101;
@@ -4200,7 +4170,7 @@ void G_SE40(int32_t smoothratio)
     }
 }
 
-void G_DrawRooms(int32_t snum,int32_t smoothratio)
+void G_DrawRooms(int32_t snum, int32_t smoothratio)
 {
     int32_t dst,j,fz,cz;
     int32_t tposx,tposy,i;
@@ -4220,7 +4190,7 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
         return;
 
 //    smoothratio = min(max(smoothratio,0),65536);
-    smoothratio = min(max((totalclock - ototalclock) * (65536 / TICSPERFRAME),0),65536);
+    smoothratio = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
 
     visibility = (int32_t)(p->visibility*(numplayers>1?1.f:r_ambientlightrecip));
 
@@ -4323,18 +4293,22 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
 
         if ((snum == myconnectindex) && (numplayers > 1))
         {
-            ud.camera.x = omy.x+mulscale16((int32_t)(my.x-omy.x),smoothratio);
-            ud.camera.y = omy.y+mulscale16((int32_t)(my.y-omy.y),smoothratio);
-            ud.camera.z = omy.z+mulscale16((int32_t)(my.z-omy.z),smoothratio);
+            vec3_t cam = { omy.x+mulscale16((int32_t)(my.x-omy.x),smoothratio),
+                                   omy.y+mulscale16((int32_t)(my.y-omy.y),smoothratio),
+                                   omy.z+mulscale16((int32_t)(my.z-omy.z),smoothratio) };
+
+            Bmemcpy(&ud.camera, &cam, sizeof(vec3_t));
             ud.cameraang = omyang+mulscale16((int32_t)(((myang+1024-omyang)&2047)-1024),smoothratio);
             ud.camerahoriz = omyhoriz+omyhorizoff+mulscale16((int32_t)(myhoriz+myhorizoff-omyhoriz-omyhorizoff),smoothratio);
             ud.camerasect = mycursectnum;
         }
         else
         {
-            ud.camera.x = p->oposx+mulscale16((int32_t)(p->posx-p->oposx),smoothratio);
-            ud.camera.y = p->oposy+mulscale16((int32_t)(p->posy-p->oposy),smoothratio);
-            ud.camera.z = p->oposz+mulscale16((int32_t)(p->posz-p->oposz),smoothratio);
+            vec3_t cam = { p->oposx+mulscale16((int32_t)(p->posx-p->oposx),smoothratio),
+                                   p->oposy+mulscale16((int32_t)(p->posy-p->oposy),smoothratio),
+                                   p->oposz+mulscale16((int32_t)(p->posz-p->oposz),smoothratio) };
+
+            Bmemcpy(&ud.camera, &cam, sizeof(vec3_t));
             ud.cameraang = p->oang+mulscale16((int32_t)(((p->ang+1024-p->oang)&2047)-1024),smoothratio);
             ud.camerahoriz = p->ohoriz+p->ohorizoff+mulscale16((int32_t)(p->horiz+p->horizoff-p->ohoriz-p->ohorizoff),smoothratio);
         }
@@ -4344,9 +4318,7 @@ void G_DrawRooms(int32_t snum,int32_t smoothratio)
         {
             ud.cameraang = p->ang+p->look_ang;
             ud.camerahoriz = p->horiz+p->horizoff;
-            ud.camera.x = p->posx;
-            ud.camera.y = p->posy;
-            ud.camera.z = p->posz;
+            Bmemcpy(&ud.camera, p, sizeof(vec3_t));
             ud.camerasect = sprite[p->newowner].sectnum;
             smoothratio = 65536L;
         }
@@ -4581,43 +4553,24 @@ static void G_DumpDebugInfo(void)
 
 int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss)
 {
-    int32_t i = insertsprite(whatsect,s_ss);
-    int32_t p;
+    int32_t p, i = insertsprite(whatsect,s_ss);
     spritetype *s = &sprite[i];
+    spritetype spr_temp = { s_x, s_y, s_z, 0, s_pn, s_s, 0, 0, 0, s_xr, s_yr, 0, 0,
+        whatsect, s_ss, s_a, s_ow, s_ve, 0, s_zv, 0, 0, 0 };
 
     if (i < 0)
     {
         G_DumpDebugInfo();
-        OSD_Printf("Failed spawning sprite with tile %d from sprite %d (%d) at x:%d,y:%d,z:%d,sector:%d\n",s_pn,s_ow,sprite[s_ow].picnum,s_x,s_y,s_z,whatsect);
+        OSD_Printf("Failed spawning pic %d spr from pic %d spr %d at x:%d,y:%d,z:%d,sect:%d\n",
+            s_pn,sprite[s_ow].picnum,s_ow,s_x,s_y,s_z,whatsect);
         G_GameExit("Too many sprites spawned.");
     }
 
+    Bmemcpy(s, &spr_temp, sizeof(spritetype));
+    Bmemset(&ActorExtra[i], 0, sizeof(ActorData_t));
+    Bmemcpy(&ActorExtra[i].bposx, s, sizeof(vec3_t)); // update bposx/y/z
+
     ActorExtra[i].projectile = &SpriteProjectile[i];
-
-    ActorExtra[i].bposx = s_x;
-    ActorExtra[i].bposy = s_y;
-    ActorExtra[i].bposz = s_z;
-
-    s->x = s_x;
-    s->y = s_y;
-    s->z = s_z;
-    s->cstat = 0;
-    s->picnum = s_pn;
-    s->shade = s_s;
-    s->xrepeat = s_xr;
-    s->yrepeat = s_yr;
-    s->pal = 0;
-
-    s->ang = s_a;
-    s->xvel = s_ve;
-    s->zvel = s_zv;
-    s->owner = s_ow;
-    s->xoffset = 0;
-    s->yoffset = 0;
-    s->yvel = 0;
-    s->clipdist = 0;
-    s->pal = 0;
-    s->lotag = 0;
 
     if (s_ow > -1 && s_ow < MAXSPRITES)
     {
@@ -4626,24 +4579,8 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
         ActorExtra[i].ceilingz = ActorExtra[s_ow].ceilingz;
     }
 
-    ActorExtra[i].lastvx = 0;
-    ActorExtra[i].lastvy = 0;
-
-    ActorExtra[i].timetosleep = 0;
-    ActorExtra[i].actorstayput = -1;
-    ActorExtra[i].extra = -1;
+    ActorExtra[i].actorstayput = ActorExtra[i].extra = ActorExtra[i].lightId = -1;
     ActorExtra[i].owner = s_ow;
-    ActorExtra[i].cgg = 0;
-    ActorExtra[i].movflag = 0;
-    ActorExtra[i].tempang = 0;
-    ActorExtra[i].dispicnum = 0;
-
-    ActorExtra[i].lightptr = NULL;
-    ActorExtra[i].lightId = -1;
-
-    T1=T3=T4=T6=T7=T8=T9=0;
-
-    ActorExtra[i].flags = 0;
 
     // sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
 
@@ -4654,12 +4591,6 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
         T2 = *(actorscrptr[s_pn]+2);
         s->hitag = *(actorscrptr[s_pn]+3);
     }
-    else
-    {
-        T2=T5=0;
-        s->extra = 0;
-        s->hitag = 0;
-    }
 
     if (show2dsector[SECT>>3]&(1<<(SECT&7))) show2dsprite[i>>3] |= (1<<(i&7));
     else show2dsprite[i>>3] &= ~(1<<(i&7));
@@ -4667,23 +4598,15 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     clearbufbyte(&spriteext[i], sizeof(spriteext_t), 0);
     clearbufbyte(&spritesmooth[i], sizeof(spritesmooth_t), 0);
 
-    /*
-        if(s->sectnum < 0)
-        {
-            s->xrepeat = s->yrepeat = 0;
-            changespritestat(i,5);
-        }
-    */
     A_ResetVars(i);
-    ActorExtra[i].flags = 0;
 
     if (apScriptGameEvent[EVENT_EGS])
     {
         extern int32_t block_deletesprite;
-        int32_t pl=A_FindPlayer(&sprite[i],&p);
+        int32_t pl=A_FindPlayer(s, &p);
 
         block_deletesprite++;
-        X_OnEvent(EVENT_EGS,i, pl, p);
+        X_OnEvent(EVENT_EGS, i, pl, p);
         block_deletesprite--;
     }
 
@@ -4705,34 +4628,19 @@ int32_t A_Spawn(int32_t j, int32_t pn)
     else
     {
         i = pn;
+
+        Bmemset(&ActorExtra[i], 0, sizeof(ActorData_t));
+        Bmemcpy(&ActorExtra[i].bposx, &sprite[i], sizeof(vec3_t));
+
         ActorExtra[i].picnum = PN;
-        ActorExtra[i].timetosleep = 0;
-        ActorExtra[i].extra = -1;
 
         ActorExtra[i].projectile = &SpriteProjectile[i];
 
-        ActorExtra[i].bposx = SX;
-        ActorExtra[i].bposy = SY;
-        ActorExtra[i].bposz = SZ;
-
         OW = ActorExtra[i].owner = i;
-        ActorExtra[i].cgg = 0;
-        ActorExtra[i].movflag = 0;
-        ActorExtra[i].tempang = 0;
-        ActorExtra[i].dispicnum = 0;
         ActorExtra[i].floorz = sector[SECT].floorz;
         ActorExtra[i].ceilingz = sector[SECT].ceilingz;
 
-        ActorExtra[i].lastvx = 0;
-        ActorExtra[i].lastvy = 0;
-        ActorExtra[i].actorstayput = -1;
-
-        ActorExtra[i].lightptr = NULL;
-        ActorExtra[i].lightId = -1;
-
-        T1 = T2 = T3 = T4 = T5 = T6 = T7 = T8 = T9 = 0;
-
-        ActorExtra[i].flags = 0;
+        ActorExtra[i].actorstayput = ActorExtra[i].lightId = ActorExtra[i].extra = -1;
 
 //        sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
 
@@ -4806,7 +4714,6 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         {
             sp->xrepeat = sp->yrepeat = 0;
             changespritestat(i,5);
-
         }
         else
         {
@@ -4952,10 +4859,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             else
             {
                 if (sprite[j].statnum == STAT_PROJECTILE)
-                {
-                    sp->xrepeat = 8;
-                    sp->yrepeat = 8;
-                }
+                    sp->xrepeat = sp->yrepeat = 8;
                 else
                 {
                     sp->xrepeat = 48;
@@ -5130,8 +5034,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->xrepeat=4;
             sp->yrepeat=5;
 
-            sp->owner = i;
-            sp->hitag = i;
+            sp->owner = sp->hitag = i;
 
             sp->xvel = 16;
             A_SetSprite(i,CLIPMASK0);
@@ -5409,8 +5312,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case VIEWSCREEN__STATIC:
         case VIEWSCREEN2__STATIC:
             sp->owner = i;
-            sp->lotag = 1;
-            sp->extra = 1;
+            sp->lotag = sp->extra = 1;
             changespritestat(i,6);
             break;
 
@@ -5494,27 +5396,19 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             if (sp->picnum == EXPLOSION2 || sp->picnum == EXPLOSION2BOT)
             {
-                sp->xrepeat = 48;
-                sp->yrepeat = 48;
+                sp->xrepeat = sp->yrepeat = 48;
                 sp->shade = -127;
                 sp->cstat |= 128;
             }
             else if (sp->picnum == SHRINKEREXPLOSION)
-            {
-                sp->xrepeat = 32;
-                sp->yrepeat = 32;
-            }
+                sp->xrepeat = sp->yrepeat = 32;
             else if (sp->picnum == SMALLSMOKE)
             {
                 // 64 "money"
-                sp->xrepeat = 24;
-                sp->yrepeat = 24;
+                sp->xrepeat = sp->yrepeat = 24;
             }
             else if (sp->picnum == BURNING || sp->picnum == BURNING2)
-            {
-                sp->xrepeat = 4;
-                sp->yrepeat = 4;
-            }
+                sp->xrepeat = sp->yrepeat = 4;
 
             if (j >= 0)
             {
@@ -5633,10 +5527,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->ang = krand()&2047;
 
         case WATERDRIPSPLASH__STATIC:
-
-            sp->xrepeat = 24;
-            sp->yrepeat = 24;
-
+            sp->xrepeat = sp->yrepeat = 24;
             changespritestat(i,6);
             break;
 
@@ -5748,13 +5639,11 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 if (sp->pal)
                 {
                     sp->clipdist = 80;
-                    sp->xrepeat = 40;
-                    sp->yrepeat = 40;
+                    sp->xrepeat = sp->yrepeat = 40;
                 }
                 else
                 {
-                    sp->xrepeat = 80;
-                    sp->yrepeat = 80;
+                    sp->xrepeat = sp->yrepeat = 80;
                     sp->clipdist = 164;
                 }
             }
@@ -5762,14 +5651,12 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             {
                 if (sp->picnum != SHARK)
                 {
-                    sp->xrepeat = 40;
-                    sp->yrepeat = 40;
+                    sp->xrepeat = sp->yrepeat = 40;
                     sp->clipdist = 80;
                 }
                 else
                 {
-                    sp->xrepeat = 60;
-                    sp->yrepeat = 60;
+                    sp->xrepeat = sp->yrepeat = 60;
                     sp->clipdist = 40;
                 }
             }
@@ -6502,7 +6389,6 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         case SEENINE__STATIC:
         case OOZFILTER__STATIC:
-
             sp->shade = -16;
             if (sp->xrepeat <= 8)
             {
@@ -6553,6 +6439,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->clipdist = 8;
             sp->owner = i;
             break;
+
         case CANWITHSOMETHING__STATIC:
         case CANWITHSOMETHING2__STATIC:
         case CANWITHSOMETHING3__STATIC:
@@ -6567,7 +6454,6 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case NUKEBARRELDENTED__STATIC:
         case NUKEBARRELLEAKED__STATIC:
         case WOODENHORSE__STATIC:
-
             if (j >= 0)
                 sp->xrepeat = sp->yrepeat = 32;
             sp->clipdist = 72;
@@ -6589,6 +6475,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 changespritestat(i, STAT_ZOMBIEACTOR);
             }
             break;
+
         case TOILETWATER__STATIC:
             sp->shade = -16;
             changespritestat(i,6);
@@ -6605,7 +6492,7 @@ SPAWN_END:
     return i;
 }
 
-#ifdef _MSC_VER
+#if 0 // def _MSC_VER
 // Visual C thought this was a bit too hard to optimise so we'd better
 // tell it not to try... such a pussy it is.
 //#pragma auto_inline(off)
@@ -7050,8 +6937,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                                         if (t->yrepeat < 4) t->yrepeat = 4; */
 
                     tsprite[spritesortcnt].shade = t->shade;
-                    tsprite[spritesortcnt].cstat = 0;
-                    tsprite[spritesortcnt].pal = 0;
+                    tsprite[spritesortcnt].cstat = tsprite[spritesortcnt].pal = 0;
 
                     tsprite[spritesortcnt].picnum = (g_player[p].ps->curr_weapon==GROW_WEAPON?GROWSPRITEICON:WeaponPickupSprites[g_player[p].ps->curr_weapon]);
 
@@ -7060,15 +6946,10 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                     else tsprite[spritesortcnt].z = s->z-(51<<8);
 
                     if (tsprite[spritesortcnt].picnum == HEAVYHBOMB)
-                    {
-                        tsprite[spritesortcnt].xrepeat = 10;
-                        tsprite[spritesortcnt].yrepeat = 10;
-                    }
+                        tsprite[spritesortcnt].xrepeat = tsprite[spritesortcnt].yrepeat = 10;
                     else
-                    {
-                        tsprite[spritesortcnt].xrepeat = 16;
-                        tsprite[spritesortcnt].yrepeat = 16;
-                    }
+                        tsprite[spritesortcnt].xrepeat = tsprite[spritesortcnt].yrepeat = 16;
+
                     spritesortcnt++;
                 }
 
@@ -7079,17 +6960,17 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                     tsprite[spritesortcnt].statnum = TSPR_TEMP;
 
                     tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
-                    if (t->yrepeat < 4) t->yrepeat = 4;
+                    if (tsprite[spritesortcnt].yrepeat < 4) tsprite[spritesortcnt].yrepeat = 4;
 
                     tsprite[spritesortcnt].cstat = 0;
-
                     tsprite[spritesortcnt].picnum = RESPAWNMARKERGREEN;
 
                     if (s->owner >= 0)
                         tsprite[spritesortcnt].z = g_player[p].ps->posz-(20<<8);
-                    else tsprite[spritesortcnt].z = s->z-(96<<8);
-                    tsprite[spritesortcnt].xrepeat = 32;
-                    tsprite[spritesortcnt].yrepeat = 32;
+                    else
+                        tsprite[spritesortcnt].z = s->z-(96<<8);
+
+                    tsprite[spritesortcnt].xrepeat = tsprite[spritesortcnt].yrepeat = 32;
                     tsprite[spritesortcnt].pal = 20;
                     spritesortcnt++;
                 }
@@ -7539,7 +7420,7 @@ PALONLY:
         }
     }
 }
-#ifdef _MSC_VER
+#if 0 // def _MSC_VER
 //#pragma auto_inline()
 #pragma optimize("",on)
 #endif
@@ -8243,7 +8124,7 @@ static void G_HandleLocalKeys(void)
         {
             tempbuf[0] = PACKET_MAP_VOTE;
             tempbuf[1] = myconnectindex;
-            tempbuf[2] = (KB_UnBoundKeyPressed(sc_F1) || ud.autovote?ud.autovote-1:0);
+            tempbuf[2] = (KB_UnBoundKeyPressed(sc_F1) || ud.autovote ? ud.autovote-1 : 0);
 
             TRAVERSE_CONNECT(i)
             {
@@ -8956,7 +8837,7 @@ static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
         { "#include",        T_INCLUDE          },
         { "loadgrp",         T_LOADGRP          },
         { "cachesize",       T_CACHESIZE        },
-        { "noautload",       T_NOAUTOLOAD       },
+        { "noautoload",      T_NOAUTOLOAD       },
         { "music",           T_MUSIC            },
         { "sound",           T_SOUND            },
     };
@@ -9199,12 +9080,9 @@ static void G_AddPath(const char *buffer)
 
 static void G_CheckCommandLine(int32_t argc, const char **argv)
 {
-    int16_t i, j;
-    char *c;
     int32_t firstnet = 0;
-    char *k;
-
-    i = 1;
+    int16_t i = 1, j;
+    char *c, *k;
 
     ud.fta_on = 1;
     ud.god = 0;
@@ -9478,15 +9356,13 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             if ((*c == '/') || (*c == '-'))
             {
                 c++;
-                switch (*c)
+                switch (Btolower(*c))
                 {
                 case 'a':
-                case 'A':
                     ud.playerai = 1;
                     initprintf("Other player AI.\n");
                     break;
                 case 'c':
-                case 'C':
 
                     c++;
                     //if(*c == '1' || *c == '2' || *c == '3')
@@ -9515,7 +9391,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     //}
                     break;
                 case 'd':
-                case 'D':
                     c++;
                     if (strchr(c,'.') == 0)
                         Bstrcat(c,".dmo");
@@ -9523,7 +9398,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     Bstrcpy(firstdemofile,c);
                     break;
                 case 'f':
-                case 'F':
                     c++;
                     if (*c == '1')
                         g_movesPerPacket = 1;
@@ -9536,13 +9410,11 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     }
                     break;
                 case 'g':
-                case 'G':
                     c++;
                     if (!*c) break;
                     G_AddGroup(c);
                     break;
                 case 'h':
-                case 'H':
                     c++;
                     if (*c)
                     {
@@ -9551,26 +9423,22 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     }
                     break;
                 case 'i':
-                case 'I':
                     c++;
                     if (*c == '0') g_networkBroadcastMode = 0;
                     if (*c == '1') g_networkBroadcastMode = 1;
                     initprintf("Network Mode %d\n",g_networkBroadcastMode);
                     break;
                 case 'j':
-                case 'J':
                     c++;
                     if (!*c) break;
                     G_AddPath(c);
                     break;
                 case 'l':
-                case 'L':
                     ud.warp_on = 1;
                     c++;
                     ud.m_level_number = ud.level_number = (atoi(c)-1)%MAXLEVELS;
                     break;
                 case 'm':
-                case 'M':
                     if (*(c+1) != 'a' && *(c+1) != 'A')
                     {
                         ud.m_monsters_off = 1;
@@ -9579,7 +9447,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     }
                     break;
                 case 'n':
-                case 'N':
                     c++;
                     if (*c == 's' || *c == 'S')
                     {
@@ -9608,7 +9475,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     }
                     break;
                 case 'q':
-                case 'Q':
                     initprintf("Fake multiplayer mode.\n");
                     if (*(++c) == 0) ud.multimode = 1;
                     else ud.multimode = atoi(c)%17;
@@ -9619,19 +9485,16 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     ud.m_respawn_inventory = ud.respawn_inventory = 1;
                     break;
                 case 'r':
-                case 'R':
                     ud.m_recstat = 1;
                     initprintf("Demo record mode on.\n");
                     break;
                 case 's':
-                case 'S':
                     c++;
                     ud.m_player_skill = ud.player_skill = (atoi(c)%5);
                     if (ud.m_player_skill == 4)
                         ud.m_respawn_monsters = ud.respawn_monsters = 1;
                     break;
                 case 't':
-                case 'T':
                     c++;
                     if (*c == '1') ud.m_respawn_monsters = 1;
                     else if (*c == '2') ud.m_respawn_items = 1;
@@ -9645,7 +9508,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     initprintf("Respawn on.\n");
                     break;
                 case 'u':
-                case 'U':
                     CommandWeaponChoice = 1;
                     c++;
                     j = 0;
@@ -9684,17 +9546,14 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     }
                     break;
                 case 'v':
-                case 'V':
                     c++;
                     ud.warp_on = 1;
                     ud.m_volume_number = ud.volume_number = atoi(c)-1;
                     break;
                 case 'w':
-                case 'W':
                     ud.coords = 1;
                     break;
                 case 'x':
-                case 'X':
                     c++;
                     if (*c)
                     {
@@ -9716,7 +9575,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     ud.warp_on = 2 + (*c) - '0';
                     break;
                 case 'z':
-                case 'Z':
                     c++;
                     g_scriptDebug = atoi(c);
                     if (!g_scriptDebug)
@@ -10023,7 +9881,8 @@ void G_Shutdown(void)
 static void G_CompileScripts(void)
 {
     int32_t i, psm = pathsearchmode;
-    label     = (char *)&sprite[0]; // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
+
+    label     = (char *)&sprite[0];     // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
     labelcode = (intptr_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
     labeltype = (intptr_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
 
@@ -10083,7 +9942,7 @@ static void G_CompileScripts(void)
     pathsearchmode = psm;
 }
 
-static void G_CheckGametype(void)
+static inline void G_CheckGametype(void)
 {
     //    initprintf("ud.m_coop=%i before sanitization\n",ud.m_coop);
     ud.m_coop = clamp(ud.m_coop, 0, g_numGametypes-1);
@@ -11095,38 +10954,30 @@ CLEAN_DIRECTORY:
     }
 
     playerswhenstarted = ud.multimode;
-    ud.last_level = -1;
+    ud.last_level = 0;
 
-    if (Bstrcasecmp(ud.rtsname,"DUKE.RTS") == 0 ||
-            Bstrcasecmp(ud.rtsname,"WW2GI.RTS") == 0 ||
-            Bstrcasecmp(ud.rtsname,"NAM.RTS") == 0)
+    if (!Bstrcasecmp(ud.rtsname,"DUKE.RTS") ||
+        !Bstrcasecmp(ud.rtsname,"WW2GI.RTS") ||
+        !Bstrcasecmp(ud.rtsname,"NAM.RTS"))
     {
         // ud.last_level is used as a flag here to reset the string to DUKE.RTS after load
         if (WW2GI)
-        {
-            ud.last_level = 1;
-            Bstrcpy(ud.rtsname, "WW2GI.RTS");
-        }
+            ud.last_level = (int32_t)Bstrcpy(ud.rtsname, "WW2GI.RTS");
         else if (NAM)
-        {
-            ud.last_level = 1;
-            Bstrcpy(ud.rtsname, "NAM.RTS");
-        }
+            ud.last_level = (int32_t)Bstrcpy(ud.rtsname, "NAM.RTS");
         else
-        {
-            ud.last_level = 1;
-            Bstrcpy(ud.rtsname, "DUKE.RTS");
-        }
+            ud.last_level = (int32_t)Bstrcpy(ud.rtsname, "DUKE.RTS");
     }
 
     RTS_Init(ud.rtsname);
-    if (numlumps) initprintf("Using .RTS file '%s'\n",ud.rtsname);
 
-    if (ud.last_level == 1)
-    {
-        ud.last_level = -1;
+    if (numlumps)
+        initprintf("Using .RTS file '%s'\n",ud.rtsname);
+
+    if (ud.last_level)
         Bstrcpy(ud.rtsname, "DUKE.RTS");
-    }
+
+    ud.last_level = -1;
 
     initprintf("Initializing OSD...\n");
 
@@ -11150,12 +11001,6 @@ CLEAN_DIRECTORY:
     // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
     for (i=0; i<joynumaxes; i++)
         setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
-
-    /*    if (VOLUMEONE)
-        {
-            if (numplayers > 4 || ud.multimode > 4)
-                G_GameExit(" The full version of Duke Nukem 3D supports 5 or more players.");
-        } */
 
     {
         char *ptr = Bstrdup(setupfilename), *p = strtok(ptr,".");
@@ -11255,6 +11100,14 @@ MAIN_LOOP_RESTART:
             if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
         }
         else G_DisplayLogo();
+
+        if (G_PlaybackDemo())
+        {
+            FX_StopAllSounds();
+            S_ClearSoundLocks();
+            g_noLogoAnim = 1;
+            goto MAIN_LOOP_RESTART;
+        }
     }
     else if (ud.warp_on == 1)
     {
@@ -11263,14 +11116,6 @@ MAIN_LOOP_RESTART:
         if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
     }
     else G_UpdateScreenArea();
-
-    if (ud.warp_on == 0 && G_PlaybackDemo())
-    {
-        FX_StopAllSounds();
-        S_ClearSoundLocks();
-        g_noLogoAnim = 1;
-        goto MAIN_LOOP_RESTART;
-    }
 
     ud.auto_run = ud.config.RunMode;
     ud.showweapons = ud.config.ShowOpponentWeapons;
@@ -11721,7 +11566,7 @@ RECHECK:
             G_HandleLocalKeys();
 
 //            j = min(max((totalclock-lockclock)*(65536/TICSPERFRAME),0),65536);
-            j = min(max((totalclock - ototalclock) * (65536 / TICSPERFRAME),0),65536);
+            j = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
             G_DrawRooms(screenpeek,j);
             G_DisplayRest(j);
 
@@ -11846,17 +11691,13 @@ static void Net_CorrectPrediction(void)
     p = g_player[myconnectindex].ps;
 
     if (p->posx == myxbak[i] && p->posy == myybak[i] && p->posz == myzbak[i]
-            && p->horiz == myhorizbak[i] && p->ang == myangbak[i]) return;
+    && p->horiz == myhorizbak[i] && p->ang == myangbak[i])
+        return;
 
-    my.x = p->posx;
-    omy.x = p->oposx;
-    myvel.x = p->posxv;
-    my.y = p->posy;
-    omy.y = p->oposy;
-    myvel.y = p->posyv;
-    my.z = p->posz;
-    omy.z = p->oposz;
-    myvel.z = p->poszv;
+    Bmemcpy(&my, p, sizeof(vec3_t));
+    Bmemcpy(&omy, &p->oposx, sizeof(vec3_t));
+    Bmemcpy(&myvel, &p->posxv, sizeof(vec3_t));
+
     myang = p->ang;
     omyang = p->oang;
     mycursectnum = p->cursectnum;

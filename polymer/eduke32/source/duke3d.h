@@ -972,6 +972,7 @@ enum ProjectileFlags_t {
     PROJECTILE_ACCURATE_AUTOAIM    = 131072,
     PROJECTILE_FORCEIMPACT         = 262144,
     PROJECTILE_REALCLIPDIST        = 524288,
+    PROJECTILE_ACCURATE            = 1048576,
 };
 
 extern projectile_t ProjectileData[MAXTILES], DefaultProjectileData[MAXTILES], SpriteProjectile[MAXSPRITES];

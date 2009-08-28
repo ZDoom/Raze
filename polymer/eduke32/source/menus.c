@@ -648,7 +648,7 @@ void M_DisplayMenus(void)
 
         mgametext(160,104+8,"PLEASE READ THE 'HOW TO ORDER' ITEM",0,2+8+16);
         mgametext(160,113+8,"ON THE MAIN MENU OR VISIT",0,2+8+16);
-        mgametext(160,122+8,"HTTP://WWW.BUY3DREALMS.COM",0,2+8+16);
+        mgametext(160,122+8,"HTTP://WWW.EDUKE32.COM",0,2+8+16);
         mgametext(160,131+8,"TO UPGRADE TO THE FULL REGISTERED",0,2+8+16);
         mgametext(160,139+8,"VERSION OF DUKE NUKEM 3D.",0,2+8+16);
         mgametext(160,148+16,"PRESS ANY KEY...",0,2+8+16);
@@ -694,9 +694,6 @@ void M_DisplayMenus(void)
                 "-",
                 "Switch weapons on pickup",
                 "Switch weapons when empty",
-                "-",
-                "-",
-                "Net packets per second",
                 "-",
                 "-",
                 "Multiplayer macros",
@@ -825,14 +822,7 @@ void M_DisplayMenus(void)
                             G_UpdatePlayerFromMenu();
                         }
                         break;
-#ifndef RANCID_NETWORKING
                     case 7:
-                        if (x == io)
-                            packetrate = min(max(((packetrate/50)*50)+50,50),1000);
-                        modval(50,1000,(int32_t *)&packetrate,10,probey==7?2:0);
-                        break;
-#endif
-                    case 8:
                         if (x == io)
                         {
                             ChangeToMenu(20004);

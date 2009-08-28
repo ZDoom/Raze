@@ -122,7 +122,7 @@ EDITOROBJS=$(OBJ)\astub.$o \
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
 {$(SRC)\misc}.rc{$(OBJ)\}.res:
-	$(RC) /i$(EINC)\ /i$(SRC)\ /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" /fo$@ /r $<
+	$(RC) /i$(EINC)\ /i$(SRC)\ /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" /DPOLYMER /fo$@ /r $<
 
 
 # TARGETS

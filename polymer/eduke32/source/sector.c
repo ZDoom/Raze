@@ -357,10 +357,7 @@ int32_t SetAnimation(int32_t animsect,int32_t *animptr, int32_t thegoal, int32_t
     animatesect[j] = animsect;
     animateptr[j] = animptr;
     animategoal[j] = thegoal;
-    if (thegoal >= *animptr)
-        animatevel[j] = thevel;
-    else
-        animatevel[j] = -thevel;
+    animatevel[j] = (thegoal >= *animptr) ? thevel : -thevel;
 
     if (j == g_animateCount) g_animateCount++;
 
@@ -375,13 +372,13 @@ void G_AnimateCamSprite(void)
 
     if (camsprite <= 0) return;
 
-    if (T1 >= 11)
+    if (T1 >= 4)
     {
         T1 = 0;
 
         if (g_player[screenpeek].ps->newowner >= 0)
             OW = g_player[screenpeek].ps->newowner;
-        else if (OW >= 0 && dist(&sprite[g_player[screenpeek].ps->i],&sprite[i]) < 2048)
+        else if (OW >= 0 && dist(&sprite[g_player[screenpeek].ps->i],&sprite[i]) < 8192)
         {
             if (waloff[TILE_VIEWSCR] == 0)
                 allocatepermanenttile(TILE_VIEWSCR,tilesizx[PN],tilesizy[PN]);
@@ -1008,6 +1005,7 @@ void G_OperateActivators(int32_t low,int32_t snum)
 
     i = headspritestat[STAT_ACTIVATOR];
     k = -1;
+
     while (i >= 0)
     {
         if (sprite[i].lotag == low)
@@ -1129,13 +1127,15 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
 
     if (switchtype == 1) // A wall sprite
     {
+        if (ActorExtra[w].lasttransport == totalclock) return 0;
+        ActorExtra[w].lasttransport = totalclock;
         lotag = sprite[w].lotag;
         if (lotag == 0) return 0;
         hitag = sprite[w].hitag;
 
 //        sx = sprite[w].x;
 //        sy = sprite[w].y;
-        Bmemcpy(&davector, &sprite[w], sizeof(int32_t) * 3);
+        Bmemcpy(&davector, &sprite[w], sizeof(vec3_t));
         picnum = sprite[w].picnum;
         switchpal = sprite[w].pal;
     }
@@ -2619,26 +2619,26 @@ CHECKINV1:
                     case 4:
                         if (p->jetpack_amount > 0 && i > 1)
                             break;
-                        if (k) dainv = 5;
-                        else dainv = 3;
+                        if (k) dainv++;
+                        else dainv--;
                         goto CHECKINV1;
                     case 6:
                         if (p->scuba_amount > 0 && i > 1)
                             break;
-                        if (k) dainv = 7;
-                        else dainv = 5;
+                        if (k) dainv++;
+                        else dainv--;
                         goto CHECKINV1;
                     case 2:
                         if (p->steroids_amount > 0 && i > 1)
                             break;
-                        if (k) dainv = 3;
-                        else dainv = 1;
+                        if (k) dainv++;
+                        else dainv--;
                         goto CHECKINV1;
                     case 3:
                         if (p->holoduke_amount > 0 && i > 1)
                             break;
-                        if (k) dainv = 4;
-                        else dainv = 2;
+                        if (k) dainv++;
+                        else dainv--;
                         goto CHECKINV1;
                     case 0:
                     case 1:
@@ -2650,8 +2650,8 @@ CHECKINV1:
                     case 5:
                         if (p->heat_amount > 0 && i > 1)
                             break;
-                        if (k) dainv = 6;
-                        else dainv = 4;
+                        if (k) dainv++;
+                        else dainv--;
                         goto CHECKINV1;
                     case 7:
                         if (p->boot_amount > 0 && i > 1)
@@ -2678,14 +2678,14 @@ CHECKINV1:
                     dainv=aGameVars[g_iReturnVarID].val.lValue;
                 }
 
-                if (dainv > -1)
+                if (dainv >= 1)
                 {
                     p->inven_icon = dainv;
 
                     if (dainv || p->firstaid_amount)
                     {
                         static const int32_t i[8] = { 3, 90, 91, 88, 101, 89, 6, 0 };
-                        P_DoQuote(i[dainv], p);
+                        P_DoQuote(i[dainv-1], p);
                     }
                 }
             }
@@ -3007,8 +3007,8 @@ int32_t A_CheckHitSprite(int32_t i, int16_t *hitsp)
             sintable[(SA+512)&2047],
             sintable[SA&2047],
             0,&hitinfo,CLIPMASK1);
-
     SZ += zoff;
+
     *hitsp = hitinfo.hitsprite;
     if (hitinfo.hitwall >= 0 && (wall[hitinfo.hitwall].cstat&16) && A_CheckEnemySprite(&sprite[i]))
         return((1<<30));
@@ -3048,7 +3048,7 @@ void P_CheckSectors(int32_t snum)
             return;
         case -1:
             TRAVERSE_CONNECT(i)
-            g_player[i].ps->gm = MODE_EOL;
+                g_player[i].ps->gm = MODE_EOL;
             sector[p->cursectnum].lotag = 0;
             if (ud.from_bonus)
             {
@@ -3226,13 +3226,13 @@ void P_CheckSectors(int32_t snum)
                 return;
 
             case NUKEBUTTON__STATIC:
-
                 hitawall(p,&j);
                 if (j >= 0 && wall[j].overpicnum == 0)
                     if (ActorExtra[neartagsprite].temp_data[0] == 0)
                     {
                         if (ud.noexits && ud.multimode > 1)
                         {
+                            // NUKEBUTTON frags the player
                             ActorExtra[p->i].picnum = NUKEBUTTON;
                             ActorExtra[p->i].extra = 250;
                         }
@@ -3247,6 +3247,7 @@ void P_CheckSectors(int32_t snum)
                         }
                     }
                 return;
+
             case WATERFOUNTAIN__STATIC:
                 if (ActorExtra[neartagsprite].temp_data[0] != 1)
                 {
@@ -3260,6 +3261,7 @@ void P_CheckSectors(int32_t snum)
                     }
                 }
                 return;
+
             case PLUG__STATIC:
                 A_PlaySound(SHORT_CIRCUIT,p->i);
                 sprite[p->i].extra -= 2+(krand()&3);
@@ -3268,6 +3270,7 @@ void P_CheckSectors(int32_t snum)
                 p->pals[2] = 64;
                 p->pals_time = 32;
                 break;
+
             case VIEWSCREEN__STATIC:
             case VIEWSCREEN2__STATIC:
             {
@@ -3301,9 +3304,7 @@ CLEARCAMERAS:
 
             if (i < 0)
             {
-                p->posx = p->oposx;
-                p->posy = p->oposy;
-                p->posz = p->oposz;
+                Bmemcpy(p, &p->oposx, sizeof(vec3_t));
                 p->ang = p->oang;
                 p->newowner = -1;
 

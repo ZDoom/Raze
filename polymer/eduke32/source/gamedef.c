@@ -3963,7 +3963,11 @@ static int32_t C_ParseCommand(void)
             *g_scriptPtr++=i;
         }
         else
+        {
+            g_numCompilerErrors++;
             C_ReportError(ERROR_NOTAGAMEARRAY);
+            return 1;
+        }
         C_GetNextValue(LABEL_DEFINE);
         return 0;
     case CON_COPY:
@@ -3975,9 +3979,14 @@ static int32_t C_ParseCommand(void)
             *g_scriptPtr++=i;
         }
         else
+        {
+            g_numCompilerErrors++;
             C_ReportError(ERROR_NOTAGAMEARRAY);
+            return 1;
+        }
         C_SkipComments();// skip comments and whitespace
         if (*textptr != '[')
+
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_GAMEARRAYBNO);
@@ -4002,7 +4011,12 @@ static int32_t C_ParseCommand(void)
             *g_scriptPtr++=i;
         }
         else
+        {
+            g_numCompilerErrors++;
             C_ReportError(ERROR_NOTAGAMEARRAY);
+            return 1;
+        }
+            
         C_SkipComments();// skip comments and whitespace
         if (*textptr != '[')
         {
@@ -4032,7 +4046,11 @@ static int32_t C_ParseCommand(void)
             *g_scriptPtr++=i;
         }
         else
+        {
+            g_numCompilerErrors++;
             C_ReportError(ERROR_NOTAGAMEARRAY);
+            return 1;
+        }
         C_SkipComments();
         C_GetNextVar();
         return 0;

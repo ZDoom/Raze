@@ -1613,10 +1613,10 @@ void clearfifo(void)
 
 void Net_ResetPrediction(void)
 {
-    my.x = omy.x = g_player[myconnectindex].ps->posx;
-    my.y = omy.y = g_player[myconnectindex].ps->posy;
-    my.z = omy.z = g_player[myconnectindex].ps->posz;
-    myvel.x = myvel.y = myvel.z = 0;
+    Bmemcpy(&my, &g_player[myconnectindex].ps, sizeof(vec3_t));
+    Bmemcpy(&omy, &g_player[myconnectindex].ps, sizeof(vec3_t));
+    Bmemset(&myvel, 0, sizeof(vec3_t));
+
     myang = omyang = g_player[myconnectindex].ps->ang;
     myhoriz = omyhoriz = g_player[myconnectindex].ps->horiz;
     myhorizoff = omyhorizoff = g_player[myconnectindex].ps->horizoff;

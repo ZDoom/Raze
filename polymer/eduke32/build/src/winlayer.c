@@ -817,7 +817,7 @@ int32_t initinput(void)
         if (Bstrcmp(layoutname, "00000409"))
         {
             initprintf("Switching kb layout from %s ",layoutname);
-            i = LoadKeyboardLayout("00000409", KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
+            LoadKeyboardLayout("00000409", KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
             GetKeyboardLayoutName(layoutname);
             initprintf("to %s\n",layoutname);
         }

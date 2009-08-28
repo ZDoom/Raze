@@ -1818,8 +1818,7 @@ static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
 
     coltype = 3; bitdepth = 8; //For PNGOUT
 
-    if ((kfilebuf[0] != 'G') || (kfilebuf[1] != 'I') ||
-            (kfilebuf[2] != 'F') || (kfilebuf[12])) return(-1);
+    if ((kfilebuf[0] != 'G') || (kfilebuf[1] != 'I') || (kfilebuf[2] != 'F')) return(-1);
     paleng = (1<<((kfilebuf[10]&7)+1));
     ptr = (uint8_t *)&kfilebuf[13];
     if (kfilebuf[10]&128) { cptr = ptr; ptr += paleng*3; }
@@ -2443,7 +2442,7 @@ void kpgetdim(const char *buf, int32_t leng, int32_t *xsiz, int32_t *ysiz)
             cptr = &cptr[SSWAPIL(*(uint16_t *)&cptr[2])+2];
         }
     }
-    else if ((ubuf[0] == 'G') && (ubuf[1] == 'I') && (ubuf[2] == 'F') && (ubuf[12] == 0)) //.GIF
+    else if ((ubuf[0] == 'G') && (ubuf[1] == 'I') && (ubuf[2] == 'F')) //.GIF
     {
         (*xsiz) = (int32_t)SSWAPIB(*(uint16_t *)&buf[6]);
         (*ysiz) = (int32_t)SSWAPIB(*(uint16_t *)&buf[8]);
