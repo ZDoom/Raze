@@ -8068,7 +8068,7 @@ static void Keys2d(void)
         if (autogrid)
         {
             grid = zoom+512;
-            if (grid > 16384) grid = 16384;
+            if (grid > 65536) grid = 65536;
             grid = scale(grid,6,6144);
             if (grid > 7) grid = 7;
             if (grid < 0) grid = 0;

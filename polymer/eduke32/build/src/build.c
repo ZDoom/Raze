@@ -111,7 +111,7 @@ extern int16_t searchsector, searchwall, searchstat;     //search output
 int32_t osearchx, osearchy;                               //old search input
 
 extern int16_t pointhighlight, linehighlight, highlightcnt;
-int16_t grid = 3, gridlock = 1, showtags = 1;
+int32_t grid = 3, gridlock = 1, showtags = 1;
 int32_t zoom = 768, gettilezoom = 1;
 int32_t lastpm16time = 0;
 
@@ -2833,7 +2833,7 @@ SKIP:
             bstatus &= ~16;
         }
 
-        if ((keystatus[buildkeys[BK_MOVEUP]] || (bstatus&16)) && (zoom < 16384))
+        if ((keystatus[buildkeys[BK_MOVEUP]] || (bstatus&16)) && (zoom < 65536))
         {
             zoom += synctics*(zoom>>4);
             if (zoom < 24) zoom += 2;
@@ -2844,7 +2844,7 @@ SKIP:
                 pos.x = mousxplc;
                 pos.y = mousyplc;
             }
-            if (zoom > 16384) zoom = 16384;
+            if (zoom > 65536) zoom = 65536;
             _printmessage16("Zoom: %d",zoom);
         }
         if ((keystatus[buildkeys[BK_MOVEDOWN]] || (bstatus&32)) && (zoom > 8))
