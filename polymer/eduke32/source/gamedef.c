@@ -27,6 +27,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "osd.h"
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <shellapi.h>
+#endif
+
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
@@ -60,7 +66,7 @@ intptr_t *aplWeaponSpawnTime[MAX_WEAPONS];      // the frame at which to spawn a
 intptr_t *aplWeaponSpawn[MAX_WEAPONS];      // the item to spawn
 intptr_t *aplWeaponShotsPerBurst[MAX_WEAPONS];  // number of shots per 'burst' (one ammo per 'burst'
 intptr_t *aplWeaponWorksLike[MAX_WEAPONS];      // What original the weapon works like
-intptr_t *aplWeaponInitialSound[MAX_WEAPONS];   // Sound made when initialy firing. zero for no sound
+intptr_t *aplWeaponInitialSound[MAX_WEAPONS];   // Sound made when weapon starts firing. zero for no sound
 intptr_t *aplWeaponFireSound[MAX_WEAPONS];      // Sound made when firing (each time for automatic)
 intptr_t *aplWeaponSound2Time[MAX_WEAPONS];     // Alternate sound time
 intptr_t *aplWeaponSound2Sound[MAX_WEAPONS];    // Alternate sound sound ID
@@ -3616,7 +3622,6 @@ static int32_t C_ParseCommand(void)
                 C_ReportError(-1);
                 initprintf("%s:%d: error: variable `%s' is not per-actor.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
                 return 0;
-
             }
             break;
         }
@@ -3628,7 +3633,6 @@ static int32_t C_ParseCommand(void)
                 C_ReportError(-1);
                 initprintf("%s:%d: error: variable `%s' is not per-player.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
                 return 0;
-
             }
             break;
         }
@@ -6009,19 +6013,44 @@ void C_Compile(const char *filenam)
     {
         extern int32_t numgroupfiles;
 
-        if (g_loadFromGroupOnly == 1)
+        if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
         {
-            Bsprintf(tempbuf,"'%s' missing CON files, reinstall Duke Nukem 3D.",duke3dgrp);
-        }
-        else if (numgroupfiles == 0)
-        {
-            Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A copy of '%s' or other compatible data is needed to run EDuke32.\n"
+#ifdef WIN32
+            Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of '%s' or other compatible data is needed to run EDuke32.\n\n"
+                "You can find '%s' in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation CD.\n\n"
+                "If you don't already own a copy of Duke, you can get Duke Nukem 3D: Atomic Edition for only $5.99 through our partnership with GOG.com.\n\nGet Duke now?",
+                duke3dgrp,duke3dgrp);
+
+            if (wm_ynbox("EDuke32",tempbuf))
+            {
+                SHELLEXECUTEINFOA sinfo;
+                char *p = "http://www.gog.com/en/gamecard/duke_nukem_3d_atomic_edition/pp/6c1e671f9af5b46d9c1a52067bdf0e53685674f7";
+
+                Bmemset(&sinfo, 0, sizeof(sinfo));
+                sinfo.cbSize = sizeof(sinfo);
+                sinfo.fMask = SEE_MASK_CLASSNAME;
+                sinfo.lpVerb = "open";
+                sinfo.lpFile = p;
+                sinfo.nShow = SW_SHOWNORMAL;
+                sinfo.lpClass = "http";
+
+                if (!ShellExecuteExA(&sinfo))
+                    initprintf("gog: error launching browser!\n");
+            }
+            G_GameExit("");
+#else
+            Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of '%s' or other compatible data is needed to run EDuke32.\n"
                      "You can find '%s' in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation CD-ROM.\n\n"
                      "EDuke32 will now close.",
                      duke3dgrp,duke3dgrp);
+            G_GameExit(tempbuf);
+#endif
         }
-        else Bsprintf(tempbuf,"CON file `%s' missing.", filenam);
-        G_GameExit(tempbuf);
+        else
+        {
+            Bsprintf(tempbuf,"CON file `%s' missing.", filenam);
+            G_GameExit(tempbuf);
+        }
 
         //g_loadFromGroupOnly = 1;
         return; //Not there
@@ -6211,11 +6240,13 @@ void C_Compile(const char *filenam)
                 "^02%s^02 mutilated %s",
                 "^02%s^02 murdered %s",
                 "^02%s^02 neutered %s",
+                "^02%s^02 punted %s",
                 "^02%s^02 reamed %s",
                 "^02%s^02 ripped %s^02 a new orifice",
                 "^02%s^02 rocked %s",
                 "^02%s^02 sent %s^02 to hell",
                 "^02%s^02 shredded %s",
+                "^02%s^02 slashed %s",
                 "^02%s^02 slaughtered %s",
                 "^02%s^02 sliced %s",
                 "^02%s^02 smacked %s around",

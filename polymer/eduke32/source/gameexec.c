@@ -2377,7 +2377,7 @@ nullquote:
                         {
                             OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q);
                             if (tw == CON_GAMETEXTZ)
-                                insptr++;
+                                Gv_GetVarX(*insptr++);
                             continue;
                         }
                         if (tw == CON_GAMETEXTZ)

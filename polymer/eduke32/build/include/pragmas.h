@@ -9,7 +9,38 @@
 extern "C" {
 #endif
 
+#include <limits.h>
+
 extern int32_t dmval;
+
+// break the C version of divscale out from the others
+// because asm version overflows in drawmapview()
+
+#define qw(x)	((int64_t)(x))		// quadword cast
+#define dw(x)	((int32_t)(x))		// doubleword cast
+#define by(x)	((uint8_t)(x))		// byte cast
+
+#define _scaler(a) \
+    static inline int32_t divscale##a(int32_t eax, int32_t ebx) \
+{ \
+    return dw((qw(eax) << a) / qw(ebx)); \
+} \
+
+_scaler(1)	_scaler(2)	_scaler(3)	_scaler(4)
+_scaler(5)	_scaler(6)	_scaler(7)	_scaler(8)
+_scaler(9)	_scaler(10)	_scaler(11)	_scaler(12)
+_scaler(13)	_scaler(14)	_scaler(15)	_scaler(16)
+_scaler(17)	_scaler(18)	_scaler(19)	_scaler(20)
+_scaler(21)	_scaler(22)	_scaler(23)	_scaler(24)
+_scaler(25)	_scaler(26)	_scaler(27)	_scaler(28)
+_scaler(29)	_scaler(30)	_scaler(31)	_scaler(32)
+
+static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return dw((qw(eax) << by(ecx)) / qw(ebx)); }
+
+#undef qw
+#undef dw
+#undef by
+#undef _scaler
 
 #if defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 
@@ -740,6 +771,7 @@ void copybufreverse(void *S, void *D, int32_t c);
 		: "a" (__a), "d" (__d), "b" (__b), "c" (__c), "S" (__S), "D" (__D) : "cc"); \
 	 __d; })
 
+#if 0
 #define divscale(a,b,c) \
 	({ int32_t __a=(a), __b=(b), __c=(c); \
 	   __asm__ __volatile__ ("movl %%eax, %%edx; shll %%cl, %%eax; negb %%cl; sarl %%cl, %%edx; idivl %%ebx" \
@@ -905,7 +937,7 @@ void copybufreverse(void *S, void *D, int32_t c);
 	   __asm__ __volatile__ ("xorl %%eax, %%eax; idivl %%ebx" \
 		: "=a" (__r), "=d" (__d) : "d" (__d), "b" (__b) : "cc"); \
 	 __r; })
-
+#endif
 #define readpixel(D) \
 	({ void *__D=(D); int32_t __a; \
 	   __asm__ __volatile__ ("movb (%%edi), %%al" \
@@ -1252,7 +1284,7 @@ static __inline int32_t boundmulscale(int32_t a, int32_t b, int32_t c)
 	skipboundit:
 	}
 }
-
+#if 0
 static __inline int32_t divscale(int32_t a, int32_t b, int32_t c)
 {
 	_asm {
@@ -1324,7 +1356,7 @@ static __inline int32_t divscale32(int32_t d, int32_t b)
 		idiv b
 	}
 }
-
+#endif
 static __inline char readpixel(void *d)
 {
 	_asm {
@@ -1780,7 +1812,7 @@ static __inline void swapchar2(void *a, void *b, int32_t s)
 // Generic C
 //
 
-#define qw(x)	((int64)(x))		// quadword cast
+#define qw(x)	((int64_t)(x))		// quadword cast
 #define dw(x)	((int32_t)(x))		// doubleword cast
 #define wo(x)	((int16_t)(x))		// word cast
 #define by(x)	((uint8_t)(x))		// byte cast
@@ -1789,11 +1821,6 @@ static __inline void swapchar2(void *a, void *b, int32_t s)
 static inline int32_t mulscale##a(int32_t eax, int32_t edx) \
 { \
 	return dw((qw(eax) * qw(edx)) >> a); \
-} \
-\
-static inline int32_t divscale##a(int32_t eax, int32_t ebx) \
-{ \
-	return dw((qw(eax) << a) / qw(ebx)); \
 } \
 \
 static inline int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi) \
@@ -1819,7 +1846,7 @@ static inline void swapchar(void* a, void* b)  { char t = *((char*)b); *((char*)
 static inline void swapchar2(void* a, void* b, int32_t s) { swapchar(a,b); swapchar((char*)a+1,(char*)b+s); }
 static inline void swapshort(void* a, void* b) { int16_t t = *((int16_t*)b); *((int16_t*)b) = *((int16_t*)a); *((int16_t*)a) = t; }
 static inline void swaplong(void* a, void* b)  { int32_t t = *((int32_t*)b); *((int32_t*)b) = *((int32_t*)a); *((int32_t*)a) = t; }
-static inline void swap64bit(void* a, void* b) { int64 t = *((int64*)b); *((int64*)b) = *((int64*)a); *((int64*)a) = t; }
+static inline void swap64bit(void* a, void* b) { int64_t t = *((int64_t*)b); *((int64_t*)b) = *((int64_t*)a); *((int64_t*)a) = t; }
 
 static inline char readpixel(void* s)    { return (*((char*)(s))); }
 static inline void drawpixel(void* s, char a)    { *((char*)(s)) = a; }
@@ -1844,15 +1871,14 @@ static inline int32_t kmax(int32_t a, int32_t b) { if ((int32_t)a < (int32_t)b) 
 static inline int32_t sqr(int32_t eax) { return (eax) * (eax); }
 static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * qw(edx)) / qw(ecx)); }
 static inline int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * qw(edx)) >> by(ecx)); }
-static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return dw((qw(eax) << by(ecx)) / qw(ebx)); }
 static inline int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx) { return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> by(ecx)); }
 
 static inline int32_t boundmulscale(int32_t a, int32_t d, int32_t c)
 { // courtesy of Ken
-    int64 p;
-    p = (((int64)a)*((int64)d))>>c;
-    if (p >= longlong(2147483647)) p = longlong(2147483647);
-    if (p < longlong(-2147483648)) p = longlong(-2147483648);
+    int64_t p; 
+    p = (((int64_t)a)*((int64_t)d))>>c;
+    if (p >= INT_MAX) p = INT_MAX;
+    if (p < INT_MIN) p = INT_MIN;
     return((int32_t)p);
 }
 

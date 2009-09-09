@@ -3832,9 +3832,9 @@ static inline void getnumber_doint32(int32_t *ptr, int32_t num)
     *ptr = (int32_t) num;
 }
 
-static inline void getnumber_doint64(int64 *ptr, int32_t num)
+static inline void getnumber_doint64(int64_t *ptr, int32_t num)
 {
-    *ptr = (int64) num;
+    *ptr = (int64_t) num;
 }
 
 void getnumberptr256(char *namestart, void *num, int32_t bytes, int32_t maxnumber, char sign, void *(func)(int32_t))
@@ -3854,7 +3854,7 @@ void getnumberptr256(char *namestart, void *num, int32_t bytes, int32_t maxnumbe
         danum = *(int32_t *)num;
         break;
     case 8:
-        danum = *(int64 *)num;
+        danum = *(int64_t *)num;
         break;
     }
 
@@ -3987,10 +3987,10 @@ static void DoSpriteOrnament(int32_t i)
     }
 }
 
-int64 ldistsqr(spritetype *s1,spritetype *s2)
+int64_t ldistsqr(spritetype *s1,spritetype *s2)
 {
-    return (((int64)(s2->x - s1->x))*((int64)(s2->x - s1->x)) +
-            ((int64)(s2->y - s1->y))*((int64)(s2->y - s1->y)));
+    return (((int64_t)(s2->x - s1->x))*((int64_t)(s2->x - s1->x)) +
+            ((int64_t)(s2->y - s1->y))*((int64_t)(s2->y - s1->y)));
 }
 
 void rendertext(int16_t startspr)
@@ -4574,7 +4574,7 @@ static void Keys3d(void)
         keystatus[KEYSC_F5] = 0;
     }
 
-    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_BS]) // ' del
+    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_DELETE]) // ' del
     {
         keystatus[KEYSC_BS] = 0;
         switch (searchstat)
@@ -10252,11 +10252,11 @@ void ExtAnalyzeSprites(void)
         case TANK :
         case RECON :
             if (frames==0) frames = 10;
+        case ROTATEGUN :
         case CAMERA1:
         case APLAYER :
             if (frames==0) frames=1;
         case GREENSLIME :
-        case EGG :
         case PIGCOPSTAYPUT :
         case LIZMANSTAYPUT:
         case LIZTROOPSTAYPUT :

@@ -89,13 +89,9 @@
 
 #if defined(_MSC_VER)
 # define inline __inline
-# define int64 __int64
-# define uint64 unsigned __int64
 # define longlong(x) x##i64
 #else
 # define longlong(x) x##ll
-typedef long long int int64;
-typedef unsigned long long uint64;
 #endif
 
 #ifndef NULL
@@ -198,7 +194,7 @@ extern "C" {
 #elif defined B_ENDIAN_C_INLINE
 static inline uint16_t B_SWAP16(uint16_t s) { return (s>>8)|(s<<8); }
 static inline uint32_t  B_SWAP32(uint32_t  l) { return ((l>>8)&0xff00)|((l&0xff00)<<8)|(l<<24)|(l>>24); }
-static inline uint64 B_SWAP64(uint64 l) { return (l>>56)|((l>>40)&0xff00)|((l>>24)&0xff0000)|((l>>8)&0xff000000)|((l&255)<<56)|((l&0xff00)<<40)|((l&0xff0000)<<24)|((l&0xff000000)<<8); }
+static inline uint64_t B_SWAP64(uint64_t l) { return (l>>56)|((l>>40)&0xff00)|((l>>24)&0xff0000)|((l>>8)&0xff000000)|((l&255)<<56)|((l&0xff00)<<40)|((l&0xff0000)<<24)|((l&0xff000000)<<8); }
 #endif
 
 #if defined(USE_MSC_PRAGMAS)

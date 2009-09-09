@@ -23,8 +23,8 @@ int32_t CONTROL_JoyPresent = FALSE;
 int32_t CONTROL_JoystickEnabled = FALSE;
 int32_t CONTROL_MousePresent = FALSE;
 int32_t CONTROL_MouseEnabled = FALSE;
-uint64  CONTROL_ButtonState = 0;
-uint64  CONTROL_ButtonHeldState = 0;
+uint64_t  CONTROL_ButtonState = 0;
+uint64_t  CONTROL_ButtonHeldState = 0;
 
 // static int32_t CONTROL_UserInputDelay = -1;
 float  CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;

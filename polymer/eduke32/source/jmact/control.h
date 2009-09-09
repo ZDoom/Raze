@@ -46,8 +46,8 @@ extern "C" {
 
 #define MAXGAMEBUTTONS      64
 
-#define BUTTON(x) ((CONTROL_ButtonState>> ((uint64)(x)) ) & 1)
-#define BUTTONHELD(x) ((CONTROL_ButtonHeldState>> ((uint64)(x)) ) & 1)
+#define BUTTON(x) ((CONTROL_ButtonState>> ((uint64_t)(x)) ) & 1)
+#define BUTTONHELD(x) ((CONTROL_ButtonHeldState>> ((uint64_t)(x)) ) & 1)
 
 #define BUTTONJUSTPRESSED(x) \
     ( BUTTON( x ) && !BUTTONHELD( x ) )
@@ -136,8 +136,8 @@ extern int32_t  CONTROL_MousePresent;
 extern int32_t  CONTROL_JoyPresent;
 extern int32_t  CONTROL_MouseEnabled;
 extern int32_t  CONTROL_JoystickEnabled;
-extern uint64   CONTROL_ButtonState;
-extern uint64   CONTROL_ButtonHeldState;
+extern uint64_t   CONTROL_ButtonState;
+extern uint64_t   CONTROL_ButtonHeldState;
 
 
 //***************************************************************************

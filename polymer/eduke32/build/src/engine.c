@@ -6346,8 +6346,9 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     cx1 = (windowx1<<12); cy1 = (windowy1<<12);
     cx2 = ((windowx2+1)<<12)-1; cy2 = ((windowy2+1)<<12)-1;
-    if (zoome == 2048) zoome = 2047; // FIXME
+
     zoome <<= 8;
+
     bakgxvect = divscale28(sintable[(1536-ang)&2047],zoome);
     bakgyvect = divscale28(sintable[(2048-ang)&2047],zoome);
     xvect = mulscale8(sintable[(2048-ang)&2047],zoome);
@@ -10884,7 +10885,7 @@ void clear2dscreen(void)
 //
 void draw2dgrid(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int16_t gride)
 {
-    int64 i, xp1, yp1, xp2=0, yp2, tempy;
+    int64_t i, xp1, yp1, xp2=0, yp2, tempy;
 
     UNREFERENCED_PARAMETER(ange);
 
@@ -10972,7 +10973,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
     faketimerhandler();
     for (i=numwalls-1,wal=&wall[i]; i>=0; i--,wal--)
     {
-        int64 dist,dx,dy;
+        int64_t dist,dx,dy;
         if (editstatus == 0)
         {
             if ((show2dwall[i>>3]&pow2char[i&7]) == 0) continue;

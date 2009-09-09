@@ -289,7 +289,7 @@ typedef struct      s_pranimatespritesinfo {
 }                   _pranimatespritesinfo;
 
 // MEMORY POOL
-#define             POLYMER_POOL_SIZE 33554432
+#define             POLYMER_POOL_SIZE 67108864
 extern nedpool*     polymer_pool;
 
 // EXTERNAL FUNCTIONS

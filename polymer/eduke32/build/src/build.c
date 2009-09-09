@@ -1391,7 +1391,7 @@ void overheadeditor(void)
             if (graphicsmode == 2)
                 totalclocklock = totalclock;
 
-            drawmapview(pos.x, pos.y + scale((57344/zoom), ydim, 200), zoom, 1536);
+            drawmapview(pos.x, pos.y + scale((65536/zoom), ydim, 200), zoom, 1536);
             yxaspect = i;
             xyaspect = ii;
         }
@@ -6402,7 +6402,7 @@ void printmessage256(int32_t x, int32_t y, char *name)
 void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny)
 {
     walltype *wal;
-    int64 i, j, dx, dy;
+    int64_t i, j, dx, dy;
 
     wal = &wall[dawall];
     dx = wall[wal->point2].x-wal->x;

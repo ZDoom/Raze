@@ -1951,7 +1951,7 @@ static const char * GetDInputError(HRESULT code)
 //  TIMER
 //=================================================================================================
 
-static int64 timerfreq=0;
+static int64_t timerfreq=0;
 static int32_t timerlastsample=0;
 int32_t timerticspersec=0;
 static void (*usertimercallback)(void) = NULL;
@@ -1977,7 +1977,7 @@ void (*installusertimercallback(void (*callback)(void)))(void)
 //
 int32_t inittimer(int32_t tickspersecond)
 {
-    int64 t;
+    int64_t t;
 
     if (timerfreq) return 0;	// already installed
 
@@ -2017,7 +2017,7 @@ void uninittimer(void)
 //
 inline void sampletimer(void)
 {
-    int64 i;
+    int64_t i;
     int32_t n;
 
     if (!timerfreq) return;
@@ -2039,7 +2039,7 @@ inline void sampletimer(void)
 //
 uint32_t getticks(void)
 {
-    int64 i;
+    int64_t i;
     if (timerfreq == 0) return 0;
     QueryPerformanceCounter((LARGE_INTEGER*)&i);
     return (uint32_t)(i*longlong(1000)/timerfreq);

@@ -849,7 +849,7 @@ int32_t S_CheckSoundPlaying(int32_t i, int32_t num)
 
     if (i == -1)
     {
-        if (g_soundlocks[num] == 200)
+        if (g_soundlocks[num] >= 200)
             return 1;
         return 0;
     }
