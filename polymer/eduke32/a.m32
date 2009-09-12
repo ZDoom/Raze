@@ -1,0 +1,47 @@
+// m32 script test & show-off file
+// do "include a" in the console
+
+include names.h
+
+gamevar i 0 1  // per-block (top-level, event, or state) variable
+gamevar j 0 1
+
+gamevar davr 65536 0
+gamevar dayx 65536 0
+
+definequote 0 OK
+definequote 1 DAMN
+
+gamearray ar 128
+gamearray parm 8
+
+defstate artest
+    for j range 128
+        set ar[j] j
+    set i 0
+    for j range 128
+        add i ar[j]
+    ife i 8128 quote 0 else quote 1
+ends
+
+defstate setas
+    set j dayx
+    mul j ydim  mul j 8
+    div j xdim  div j 5
+    setaspect davr j
+ends
+
+onevent EVENT_ANALYZESPRITES
+    for i drawnsprites
+        ifactor LIZTROOP spritepal 6
+endevent
+
+onevent EVENT_ENTER3DMODE
+    state setas
+endevent
+
+defstate itertest
+    for i spritesofsector searchsector
+//        ife sprite[i].picnum AMMO set sprite[i].picnum BATTERYAMMO
+        ifactor parm[0] cactor parm[1]
+ends
