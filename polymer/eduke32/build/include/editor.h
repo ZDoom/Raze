@@ -97,6 +97,7 @@ int32_t _getnumber16(char *namestart, int32_t num, int32_t maxnumber, char sign,
 void printmessage256(int32_t x, int32_t y, char *name);
 void _printmessage16(const char *fmt, ...);
 
+extern int32_t lastpm16time;
 #define printmessage16(fmt, ...) lastpm16time = totalclock, _printmessage16(fmt, ## __VA_ARGS__)
 
 extern char lastpm16buf[156];

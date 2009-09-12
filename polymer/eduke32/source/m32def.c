@@ -1,0 +1,3221 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 1996, 2003 - 3D Realms Entertainment
+Copyright (C) 2000, 2003 - Matt Saettler (EDuke Enhancements)
+Copyright (C) 2004, 2007 - EDuke32 developers
+
+This file is part of EDuke32
+
+EDuke32 is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+*/
+//-------------------------------------------------------------------------
+
+#include "m32script.h"
+#include "m32def.h"
+#include "cache1d.h"
+
+#include "osd.h"
+
+char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
+static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
+
+int32_t g_totalLines, g_lineNumber;
+static int32_t g_checkingIfElse, g_currentStateIdx = -1;
+
+static instype *g_caseScriptPtr = NULL;  // the pointer to the start of the case table in a switch statement
+// first entry is 'default' code.
+static instype *g_caseCodePtr = NULL;  // the pointer to the start of the different cases' code
+static ofstype g_currentStateOfs = -1;  // the offset to the start of the currently parsed states' code
+static int32_t g_numCases = 0;
+static int32_t g_checkingSwitch = 0, g_currentEvent = -1;
+static int32_t g_labelsOnly = 0;
+static int32_t g_numBraces = 0;
+
+instype *script = NULL;
+instype *g_scriptPtr;
+int32_t g_scriptSize = 65536;
+
+char *label;
+int32_t *labelval;
+uint8_t *labeltype;
+int32_t g_numLabels=0, g_numDefaultLabels=0;
+static int32_t label_allocsize = 512;
+
+int32_t g_stateCount = 0;
+statesinfo_t *statesinfo = NULL;
+static int32_t statesinfo_allocsize = 512;
+
+static char tempbuf[2048];
+static char tlabel[MAXLABELLEN];
+
+int32_t g_iReturnVarID=-1;      // var ID of "RETURN"
+int32_t g_iLoTagID=-1;          // var ID of "LOTAG"
+int32_t g_iHiTagID=-1;          // var ID of "HITAG"
+int32_t g_iTextureID=-1;        // var ID of "TEXTURE"
+
+int32_t g_iThisActorID=-1;        // var ID of "I"  ///"THISACTOR"
+
+int32_t g_iSpriteVarID=-1;
+int32_t g_iSectorVarID=-1;
+int32_t g_iWallVarID=-1;
+
+char *ScriptQuotes[MAXQUOTES+1], *ScriptQuoteRedefinitions[MAXQUOTES+1];
+int32_t g_numQuoteRedefinitions = 0;
+
+ofstype aEventOffsets[MAXEVENTS];
+static int32_t aEventSizes[MAXEVENTS];
+static ofstype g_parsingEventOfs = -1;
+
+gamevar_t aGameVars[MAXGAMEVARS];
+gamearray_t aGameArrays[MAXGAMEARRAYS];
+int32_t g_gameVarCount=0, g_systemVarCount=0;
+int32_t g_gameArrayCount=0, g_systemArrayCount=0;
+
+static const char *textptr;
+int32_t g_numCompilerErrors, g_numCompilerWarnings;
+static int32_t g_noConstBitwidthWarning=0;
+
+// "magic" number for { and }, overrides line number in compiled code for later detection
+#define IFELSE_MAGIC 31337
+static int32_t g_ifElseAborted;
+
+
+void C_ReportError(int32_t iError);
+
+
+enum ScriptLabel_t
+{
+    LABEL_ANY    = -1,
+    LABEL_DEFINE = 1,
+    LABEL_EVENT  = 2,
+};
+
+static const char *LabelTypeText[] =
+{
+    "define",
+    "event",
+};
+
+static const char *C_GetLabelType(int32_t type)
+{
+    uint32_t i;
+    char x[64];
+
+    x[0] = 0;
+    for (i=0; i<sizeof(LabelTypeText)/sizeof(char*); i++)
+    {
+        if (!(type & (1<<i))) continue;
+        if (x[0]) Bstrcat(x, " or ");
+        Bstrcat(x, LabelTypeText[i]);
+    }
+    return strdup(x);
+}
+
+#define NUMKEYWORDS (int32_t)(sizeof(keyw)/sizeof(keyw[0]))
+#define NUMALTKEYWORDS (int32_t)(sizeof(altkeyw)/sizeof(altkeyw[0]))
+
+const tokenmap_t altkeyw[] =
+{
+    { "#define", CON_DEFINE },
+    { "al", CON_ADDLOGVAR },
+    { "var", CON_GAMEVAR },
+    { "array", CON_GAMEARRAY },
+    { "shiftl", CON_SHIFTVARL },
+    { "shiftr", CON_SHIFTVARR },
+    { "rand", CON_RANDVARVAR },
+    { "set", CON_SETVARVAR },
+    { "add", CON_ADDVARVAR },
+    { "sub", CON_SUBVARVAR },
+    { "mul", CON_MULVARVAR },
+    { "div", CON_DIVVARVAR },
+    { "mod", CON_MODVARVAR },
+    { "add", CON_ADDVARVAR },
+    { "or", CON_ORVARVAR },
+    { "xor", CON_XORVARVAR },
+    { "ifl", CON_IFVARVARL },
+    { "ifle", CON_IFVARVARLE },
+    { "ifg", CON_IFVARVARG },
+    { "ifge", CON_IFVARVARGE },
+    { "ife", CON_IFVARVARE },
+    { "ifn", CON_IFVARVARN },
+    { "ifand", CON_IFVARVARAND },
+    { "ifor", CON_IFVARVAROR },
+    { "ifxor", CON_IFVARVARXOR },
+    { "ifeither", CON_IFVARVAREITHER },
+    { "ifboth", CON_IFVARVARBOTH },
+    { "whilen", CON_WHILEVARVARN },
+    { "whilel", CON_WHILEVARVARL },
+};
+
+const char *keyw[] =
+{
+    "nullop",
+    "define",
+    "include",
+    "defstate",  // *
+    "ends",
+    "state",
+    "onevent",
+    "endevent",
+    "gamevar",
+
+    "else",
+    "return",
+    "break",
+    "switch",
+    "case",
+    "default",
+    "endswitch",
+    "getcurraddress",
+    "jump",
+    "{",
+    "}",
+
+    "setsector",
+    "getsector",
+    "setwall",
+    "getwall",
+    "setsprite", 
+    "getsprite", 
+    "gettspr",
+    "settspr",
+
+    "gamearray",
+    "setarray",
+    "getarraysize",
+    "resizearray",
+    "copy",
+
+    "randvar",
+    "displayrandvar",
+    "setvar",
+    "addvar",
+    "subvar",
+    "mulvar",
+    "divvar",
+    "modvar",
+    "andvar",
+    "orvar",
+    "xorvar",
+    "shiftvarl",
+    "shiftvarr",
+
+    "randvarvar",
+    "displayrandvarvar",
+    "setvarvar",  // *
+    "addvarvar",
+    "subvarvar",
+    "mulvarvar",
+    "divvarvar",
+    "modvarvar",
+    "andvarvar",
+    "orvarvar",
+    "xorvarvar",
+    "sin",
+    "cos",
+
+    "displayrand",
+
+    "inv",  //  inversion function.. not internal
+    "sqrt",
+    "mulscale",
+    "dist",
+    "ldist",
+    "getangle",
+    "getincangle",
+
+    "for",  // *
+
+    "ifvarl",
+    "ifvarle",
+    "ifvarg",
+    "ifvarge",
+    "ifvare",
+    "ifvarn",
+    "ifvarand",
+    "ifvaror",
+    "ifvarxor",
+    "ifvareither",
+    "ifvarboth",
+    "whilevarn",
+    "whilevarl",
+
+    "ifvarvarl",
+    "ifvarvarle",
+    "ifvarvarg",
+    "ifvarvarge",
+    "ifvarvare",
+    "ifvarvarn",
+    "ifvarvarand",
+    "ifvarvaror",
+    "ifvarvarxor",
+    "ifvarvareither",
+    "ifvarvarboth",
+    "whilevarvarn",
+    "whilevarvarl",
+
+    "ifrnd",
+    "ifangdiffl",
+    "ifspritepal",
+    "ifactor",
+    "ifpdistl",
+    "ifpdistg",
+
+    "ifinside",
+
+    "ifawayfromwall",
+    "ifcansee",
+    "ifonwater",
+    "ifinwater",
+    "ifoutside",
+
+// BUILD functions
+    "insertsprite",
+    "dupsprite",
+    "deletesprite",
+    "lastwall",
+    "updatesector",
+    "updatesectorz",
+    "getzrange",
+    "hitscan",
+    "cansee",
+    "canseespr",
+    "neartag",
+    "rotatepoint",
+    "dragpoint",
+    "getceilzofslope",
+    "getflorzofslope",
+    "bsetsprite",  // *
+    "changespritestat",
+    "changespritesect",
+    "headspritestat",
+    "prevspritestat",
+    "nextspritestat",
+    "headspritesect",
+    "prevspritesect",
+    "nextspritesect",
+    "sectorofwall",
+
+    "addlogvar",
+    "addlog",
+    "debug",
+
+    "definequote",
+    "redefinequote",
+    "quote",
+    "error",
+    "printmessage16",
+    "printmessage256",
+    "printext256",
+    "qsprintf",
+    "qstrcat",
+    "qstrcpy",
+    "qstrlen",
+//    "qgetsysstr",
+    "qstrncat",
+    "qsubstr",
+
+    "findnearsprite",
+    "findnearspritevar",
+    "findnearsprite3d",
+    "findnearsprite3dvar",
+    "findnearspritez",
+    "findnearspritezvar",
+
+    "getticks",
+    "gettimedate",
+    "setaspect",
+
+    "seti",
+    "sizeat",
+    "cstat",
+    "cstator",
+    "clipdist",
+    "spritepal",
+    "cactor",
+    "spgetlotag",
+    "spgethitag",
+    "sectgetlotag",
+    "sectgethitag",
+    "gettexturefloor",
+    "gettextureceiling",
+
+///    "killit",
+
+    "rotatesprite16",
+    "rotatesprite",
+    "setgamepalette",
+
+    "<null>"
+};
+
+const memberlabel_t SectorLabels[]=
+{
+    { "wallptr", SECTOR_WALLPTR, 1, 0, 0 },
+    { "wallnum", SECTOR_WALLNUM, 1, 0, 0 },
+    { "ceilingz", SECTOR_CEILINGZ, 0, 0, 0 },
+    { "floorz", SECTOR_FLOORZ, 0, 0, 0 },
+    { "ceilingstat", SECTOR_CEILINGSTAT, 0, 0, 0 },
+    { "floorstat", SECTOR_FLOORSTAT, 0, 0, 0 },
+    { "ceilingpicnum", SECTOR_CEILINGPICNUM, 0, 0, MAXTILES-1 },
+    { "ceilingslope", SECTOR_CEILINGSLOPE, 0, 0, 0},
+    { "ceilingshade", SECTOR_CEILINGSHADE, 0, 0, 0 },
+    { "ceilingpal", SECTOR_CEILINGPAL, 0, 0, 0 },
+    { "ceilingxpanning", SECTOR_CEILINGXPANNING, 0, 0, 0 },
+    { "ceilingypanning", SECTOR_CEILINGYPANNING, 0, 0, 0 },
+    { "floorpicnum", SECTOR_FLOORPICNUM, 0, 0, MAXTILES-1 },
+    { "floorslope", SECTOR_FLOORSLOPE, 0, 0, 0 },
+    { "floorshade", SECTOR_FLOORSHADE, 0, 0, 0 },
+    { "floorpal", SECTOR_FLOORPAL, 0, 0, 0 },
+    { "floorxpanning", SECTOR_FLOORXPANNING, 0, 0, 0 },
+    { "floorypanning", SECTOR_FLOORYPANNING, 0, 0, 0 },
+    { "visibility", SECTOR_VISIBILITY, 0, 0, 0 },
+    { "alignto", SECTOR_ALIGNTO, 0, 0, 0 }, // aka filler, not used
+    { "lotag", SECTOR_LOTAG, 0, 0, 0 },
+    { "hitag", SECTOR_HITAG, 0, 0, 0 },
+    { "extra", SECTOR_EXTRA, 0, 0, 0 },
+    { "", -1, 0, 0, 0  }     // END OF LIST
+};
+
+const memberlabel_t WallLabels[]=
+{
+    { "x", WALL_X, 0, -524288, 524288 },
+    { "y", WALL_Y, 0, -524288, 524288 },
+    { "point2", WALL_POINT2, 1, 0, 0 },
+    { "nextwall", WALL_NEXTWALL, 1, 0, 0 },
+    { "nextsector", WALL_NEXTSECTOR, 1, 0, 0 },
+    { "cstat", WALL_CSTAT, 0, 0, 0 },
+    { "picnum", WALL_PICNUM, 0, 0, MAXTILES-1 },
+    { "overpicnum", WALL_OVERPICNUM, 0, 0, MAXTILES-1 },
+    { "shade", WALL_SHADE, 0, 0, 0 },
+    { "pal", WALL_PAL, 0, 0, 0 },
+    { "xrepeat", WALL_XREPEAT, 0, 0, 0 },
+    { "yrepeat", WALL_YREPEAT, 0, 0, 0 },
+    { "xpanning", WALL_XPANNING, 0, 0, 0 },
+    { "ypanning", WALL_YPANNING, 0, 0, 0 },
+    { "lotag", WALL_LOTAG, 0, 0, 0 },
+    { "hitag", WALL_HITAG, 0, 0, 0 },
+    { "extra", WALL_EXTRA, 0, 0, 0 },
+    { "", -1, 0, 0, 0  }     // END OF LIST
+};
+
+const memberlabel_t SpriteLabels[]=
+{
+    { "x", SPRITE_X, 0, -524288, 524288 },
+    { "y", SPRITE_Y, 0, -524288, 524288 },
+    { "z", SPRITE_Z, 0, 0, 0 },
+    { "cstat", SPRITE_CSTAT, 0, 0, 0 },
+    { "picnum", SPRITE_PICNUM, 0, 0, MAXTILES-1 },
+    { "shade", SPRITE_SHADE, 0, 0, 0 },
+    { "pal", SPRITE_PAL, 0, 0, 0 },
+    { "clipdist", SPRITE_CLIPDIST, 0, 0, 0 },
+    { "detail", SPRITE_DETAIL, 1, 0, 0 }, // aka filler, not used
+    { "xrepeat", SPRITE_XREPEAT, 0, 0, 0 },
+    { "yrepeat", SPRITE_YREPEAT, 0, 0, 0 },
+    { "xoffset", SPRITE_XOFFSET, 0, 0, 0 },
+    { "yoffset", SPRITE_YOFFSET, 0, 0, 0 },
+    { "sectnum", SPRITE_SECTNUM, 1, 0, 0 },
+    { "statnum", SPRITE_STATNUM, 1, 0, 0 },
+    { "ang", SPRITE_ANG, 0, 0, 0 },
+    { "owner", SPRITE_OWNER, 0, 0, 0 },
+    { "xvel", SPRITE_XVEL, 0, 0, 0 },
+    { "yvel", SPRITE_YVEL, 0, 0, 0 },
+    { "zvel", SPRITE_ZVEL, 0, 0, 0 },
+    { "lotag", SPRITE_LOTAG, 0, 0, 0 },
+    { "hitag", SPRITE_HITAG, 0, 0, 0 },
+    { "extra", SPRITE_EXTRA, 0, 0, 0 },
+    { "", -1, 0, 0, 0 }     // END OF LIST
+};
+
+const tokenmap_t iter_tokens[] =
+{
+    { "allsprites", ITER_ALLSPRITES },
+    { "allsectors", ITER_ALLSECTORS },
+    { "allwalls", ITER_ALLWALLS },
+    { "selsprites", ITER_SELSPRITES },
+    { "selsectors", ITER_SELSECTORS },
+    { "selwalls", ITER_SELWALLS },
+    { "drawnsprites", ITER_DRAWNSPRITES },
+    { "spritesofsector", ITER_SPRITESOFSECTOR },
+    { "wallsofsector", ITER_WALLSOFSECTOR },
+    { "range", ITER_RANGE },
+// vvv alternatives go here vvv
+    { "selspr", ITER_SELSPRITES },
+    { "selsec", ITER_SELSECTORS },
+    { "sprofsec", ITER_SPRITESOFSECTOR },
+    { "walofsec", ITER_WALLSOFSECTOR },
+    { "", -1 }     // END OF LIST
+};
+
+
+hashtable_t gamevarH = { MAXGAMEVARS>>1, NULL };
+hashtable_t arrayH   = { MAXGAMEARRAYS>>1, NULL };
+hashtable_t labelH   = { 11262>>1, NULL };
+hashtable_t stateH   = { 1264>>1, NULL };
+hashtable_t keywH    = { CON_END>>1, NULL };
+hashtable_t iterH    = { ITER_END, NULL };
+
+hashtable_t sectorH  = { SECTOR_END>>1, NULL };
+hashtable_t wallH    = { WALL_END>>1, NULL };
+hashtable_t spriteH  = { SPRITE_END>>1, NULL };
+
+
+static void C_InitHashes()
+{
+    int32_t i;
+
+    hash_init(&gamevarH);
+    hash_init(&arrayH);
+    hash_init(&labelH);
+    hash_init(&stateH);
+
+    hash_init(&keywH);
+    for (i=NUMKEYWORDS-1; i>=0; i--)
+        hash_add(&keywH, keyw[i], i);
+    for (i=0; i<NUMALTKEYWORDS; i++)
+        hash_add(&keywH, altkeyw[i].token, altkeyw[i].val);
+
+    hash_init(&sectorH);
+    for (i=0; SectorLabels[i].lId >=0; i++)
+        hash_add(&sectorH,SectorLabels[i].name,i);
+    hash_add(&sectorH,"filler",SECTOR_ALIGNTO);
+
+    hash_init(&wallH);
+    for (i=0; WallLabels[i].lId >=0; i++)
+        hash_add(&wallH,WallLabels[i].name,i);
+
+    hash_init(&spriteH);
+    for (i=0; SpriteLabels[i].lId >=0; i++)
+        hash_add(&spriteH,SpriteLabels[i].name,i);
+    hash_add(&spriteH,"filler",SPRITE_DETAIL);
+
+    hash_init(&iterH);
+    for (i=0; iter_tokens[i].val >=0; i++)
+        hash_add(&iterH, iter_tokens[i].token, iter_tokens[i].val);
+}
+
+static int32_t C_SetScriptSize(int32_t size)
+{
+    ofstype oscriptOfs = (unsigned)(g_scriptPtr-script);
+    ofstype ocaseScriptOfs = (unsigned)(g_caseScriptPtr-script);
+    ofstype ocaseCodeOfs = (unsigned)(g_caseCodePtr-script);
+
+    instype *newscript;
+    int32_t osize = g_scriptSize;
+
+    if (g_scriptSize >= size)
+        return 0;
+
+    //initprintf("offset: %d\n",(unsigned)(g_scriptPtr-script));
+    g_scriptSize = size;
+    initprintf("Resizing code buffer to %d*%d bytes\n",g_scriptSize, sizeof(instype));
+
+    newscript = (instype *)Brealloc(script, g_scriptSize * sizeof(instype));
+
+    if (newscript == NULL)
+    {
+        C_ReportError(-1);
+        initprintf("%s:%d: out of memory: Aborted (%ud)\n",g_szScriptFileName,g_lineNumber,(unsigned)(g_scriptPtr-script));
+        initprintf(tempbuf);
+        g_numCompilerErrors++;
+        return 1;
+    }
+
+    if (size >= osize)
+        Bmemset(&newscript[osize], 0, (size-osize) * sizeof(instype));
+
+    if (script != newscript)
+    {
+        initprintf("Relocating compiled code from to 0x%x to 0x%x\n", script, newscript);
+        script = newscript;
+    }
+
+    g_scriptPtr = (instype *)(script+oscriptOfs);
+//    initprintf("script: %d, \n",script); initprintf("offset: %d\n",(unsigned)(g_scriptPtr-script));
+
+    if (g_caseScriptPtr != NULL)
+        g_caseScriptPtr = (instype *)(script+ocaseScriptOfs);
+    if (g_caseCodePtr != NULL)
+        g_caseCodePtr = (instype *)(script+ocaseCodeOfs);
+
+    return 0;
+}
+
+static int32_t C_SkipComments(void)
+{
+    char c = *textptr;
+
+    do
+    {
+        if (c == ' ' || c == '\t' || c == '\r')
+            textptr++;
+        else if (c == '\n')
+        {
+            g_lineNumber++;
+            textptr++;
+        }
+        else if (c == '/' && textptr[1] == '/')
+        {
+//            if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
+//                initprintf("%s:%d: debug: got comment.\n",g_szScriptFileName,g_lineNumber);
+
+            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+                textptr++;
+        }
+        else if (c == '/' && textptr[1] == '*')
+        {
+//            if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
+//                initprintf("%s:%d: debug: got start of comment block.\n",g_szScriptFileName,g_lineNumber);
+
+            while (*textptr && !(textptr[0] == '*' && textptr[1] == '/'))
+            {
+                if (*textptr == '\n')
+                    g_lineNumber++;
+                textptr++;
+            }
+
+//            if ((!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1) && (textptr[0] == '*' && textptr[1] == '/'))
+//                initprintf("%s:%d: debug: got end of comment block.\n",g_szScriptFileName,g_lineNumber);
+
+            if (!*textptr)
+            {
+//                if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
+//                    initprintf("%s:%d: debug: EOF in comment!\n",g_szScriptFileName,g_lineNumber);
+                C_ReportError(-1);
+                initprintf("%s:%d: error: found `/*' with no `*/'.\n",g_szScriptFileName,g_lineNumber);
+                g_numBraces = 0;
+                g_currentStateIdx = -1;
+                g_numCompilerErrors++;
+                break;
+            }
+            else textptr += 2;
+        }
+        else break;
+    }
+    while ((c = *textptr));
+
+    if ((unsigned)(g_scriptPtr-script) > (unsigned)(g_scriptSize-32))
+        return C_SetScriptSize(g_scriptSize<<1);
+
+    return 0;
+}
+
+static inline int32_t ispecial(const char c)
+{
+    if (c == ' ' || c == 0x0d || c == '(' || c == ')' ||
+            c == ',' || c == ';' || (c == 0x0a && ++g_lineNumber))
+        return 1;
+
+    return 0;
+}
+
+static inline int32_t isaltok(const char c)
+{
+    return (isalnum(c) || c == '#' || c == '{' || c == '}' || c == '/' || c == '\\' ||
+            c == '*' || c == '-' || c == '_' || c == '.');
+}
+
+static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, hashtable_t *tH, const char *psz)
+{
+    // find the label psz in the table pLabel.
+    // returns the ID for the label, or -1
+
+    int32_t l=-1;
+
+    l = hash_findcase(tH,psz);
+    if (l>=0) l=pLabel[l].lId;
+
+    return l;
+}
+
+static void C_GetNextLabelName(void)
+{
+    int32_t i;
+
+    C_SkipComments();
+
+    while (isalnum(*textptr) == 0)
+    {
+        if (*textptr == 0x0a) g_lineNumber++;
+        textptr++;
+        if (*textptr == 0)
+            return;
+    }
+
+    i = 0;
+    while (!ispecial(*textptr) && *textptr!='['&& *textptr!=']' && *textptr!='\t' && *textptr!='\n' && *textptr!='\r')
+    {
+        if (i < MAXLABELLEN-1)
+            tlabel[i++] = *(textptr++);
+        else
+            i++, textptr++;
+    }
+
+    if (i >= MAXLABELLEN-1)
+        i = MAXLABELLEN-1;
+    tlabel[i] = 0;
+//    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
+//        initprintf("%s:%d: debug: got label `%s'.\n",g_szScriptFileName,g_lineNumber,tlabel);
+}
+
+static int32_t C_CopyLabel(void)
+{
+    if (g_numLabels >= label_allocsize)
+    {
+        label = Brealloc(label, 2*label_allocsize*MAXLABELLEN*sizeof(char));
+        labelval = Brealloc(labelval, 2*label_allocsize*sizeof(labelval[0]));
+        labeltype = Brealloc(labeltype, 2*label_allocsize*sizeof(labeltype[0]));
+        if (label==NULL || labelval==NULL || labeltype==NULL)
+        {
+            label_allocsize = 0;
+            initprintf("Out of memory!");
+            return 1;
+        }
+        label_allocsize *= 2;
+    }
+
+    Bmemcpy(label+(g_numLabels*MAXLABELLEN), tlabel, MAXLABELLEN);
+    return 0;
+}
+
+static int32_t C_GetKeyword(void)
+{
+    int32_t i;
+    const char *temptextptr;
+
+    C_SkipComments();
+
+    temptextptr = textptr;
+
+    while (isaltok(*temptextptr) == 0)
+    {
+        temptextptr++;
+        if (*temptextptr == 0)
+            return 0;
+    }
+
+    i = 0;
+    while (isaltok(*temptextptr))
+        tempbuf[i++] = *(temptextptr++);
+    tempbuf[i] = 0;
+    return hash_find(&keywH, tempbuf);
+}
+
+static int32_t C_GetNextKeyword(void)  //Returns its code #
+{
+    int32_t i, l;
+
+    C_SkipComments();
+
+    while (isaltok(*textptr) == 0)
+    {
+        if (*textptr == 0x0a) g_lineNumber++;
+        if (*textptr == 0)
+            return -1;
+        textptr++;
+    }
+
+    l = 0;
+    while (isaltok(*(textptr+l)) && !(*(textptr + l) == '.'))
+    {
+        tempbuf[l] = textptr[l];
+        l++;
+    }
+    while (isaltok(*(textptr+l)))
+    {
+        tempbuf[l] = textptr[l];
+        l++;
+    }
+    tempbuf[l] = 0;
+
+    i = hash_find(&keywH, tempbuf);
+    if (i>=0)
+    {
+        if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
+            *g_scriptPtr = i + (IFELSE_MAGIC<<12);
+        else *g_scriptPtr = i + (g_lineNumber<<12);
+
+        textptr += l;
+        g_scriptPtr++;
+
+//        if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
+//            initprintf("%s:%d: debug: translating keyword `%s'.\n",g_szScriptFileName,g_lineNumber,keyw[i]);
+        return i;
+    }
+
+    textptr += l;
+
+    if (tempbuf[0] == '{' && tempbuf[1] != 0)
+    {
+        C_ReportError(-1);
+        initprintf("%s:%d: error: expected whitespace between `{' and `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf+1);
+    }
+    else if (tempbuf[0] == '}' && tempbuf[1] != 0)
+    {
+        C_ReportError(-1);
+        initprintf("%s:%d: error: expected whitespace between `}' and `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf+1);
+    }
+    else C_ReportError(ERROR_EXPECTEDKEYWORD);
+    g_numCompilerErrors++;
+    return -1;
+}
+
+#define GetGamevarID(szGameLabel) hash_find(&gamevarH, szGameLabel)
+#define GetGamearrayID(szGameLabel) hash_find(&arrayH, szGameLabel)
+
+static void C_GetNextVarType(int32_t type)
+{
+    int32_t id=0, flags=0, num;
+
+    C_SkipComments();
+
+    // constant where gamevar expected
+    if ((type==0 || type==GAMEVAR_SPECIAL) && !g_labelsOnly &&
+        (isdigit(*textptr) || ((*textptr == '-') && isdigit(*(textptr+1)))))
+    {
+//        if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
+//            initprintf("%s:%d: debug: accepted constant %d in place of gamevar.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
+
+        if (tolower(textptr[1])=='x')
+            sscanf(textptr+2, "%" SCNx32, &num);
+        else
+            num = atoi(textptr);
+
+        if (type==GAMEVAR_SPECIAL && (int16_t)num < 0)
+        {
+            C_ReportError(-1);
+            initprintf("%s:%d: error: negative array index.\n",g_szScriptFileName,g_lineNumber);
+            g_numCompilerErrors++;
+        }
+
+        if (num != (int16_t)num)
+        {
+            if (!g_noConstBitwidthWarning)
+                C_ReportError(WARNING_CONSTANTBITSIZE);
+            g_numCompilerWarnings++;
+        }
+
+        *g_scriptPtr++ = MAXGAMEVARS | (num<<16);
+
+        while (!ispecial(*textptr) && *textptr != ']') textptr++;
+
+        return;
+    }
+    else if (*textptr == '-' /* && !isdigit(*(textptr+1))*/)
+    {
+        if (type==0)
+        {
+//            if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
+//                initprintf("%s:%d: debug: flagging gamevar as negative.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
+            flags = (MAXGAMEVARS<<1);
+        }
+        else
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_SYNTAXERROR);
+            C_GetNextLabelName();
+            return;
+        }
+    }
+
+    C_GetNextLabelName();
+    if (hash_find(&keywH, tlabel)>=0)
+    {
+        g_numCompilerErrors++;
+        C_ReportError(ERROR_ISAKEYWORD);
+        return;
+    }
+
+    C_SkipComments();  //skip comments and whitespace
+    if (*textptr == '[')  //read of array as a gamevar
+    {
+        int32_t lLabelID = -1, aridx;
+
+        textptr++;
+        flags |= (MAXGAMEVARS<<2);
+
+        if (type & GAMEVAR_SPECIAL)
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_EXPECTEDSIMPLEVAR);
+            return;
+        }
+
+        id = GetGamearrayID(tlabel);
+        if (id < 0)
+        {
+            id = GetGamevarID(tlabel);
+            if (id >= 4)
+                id = -1;
+
+            if (id < 0)
+            {
+                g_numCompilerErrors++;
+                C_ReportError(ERROR_NOTAGAMEARRAY);
+                return;
+            }
+            flags &= ~(MAXGAMEVARS<<2); // not an array
+            flags |= (MAXGAMEVARS<<3);
+        }
+
+        C_GetNextVarType(GAMEVAR_SPECIAL);  // _SPECIAL signifies that we want only simple vars or a constant
+        g_scriptPtr--;
+        aridx = *g_scriptPtr;
+
+        C_SkipComments();
+
+        if (*textptr != ']')
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_GAMEARRAYBNC);
+            return;
+        }
+        textptr++;
+
+        // writing arrays in this way is not supported because it would
+        // require too many changes to other code
+//        if (type)
+//        {
+//            g_numCompilerErrors++;
+//            C_ReportError(ERROR_INVALIDARRAYWRITE);
+//            return;
+//        }
+
+        if (flags & (MAXGAMEVARS<<3))
+        {
+            while (*textptr && *textptr != 0x0a && *textptr != '.')
+                textptr++;
+
+            if (*textptr != '.')
+            {
+                g_numCompilerErrors++;
+                C_ReportError(ERROR_SYNTAXERROR);
+                return;
+            }
+            textptr++;
+            /// now pointing at 'xxx'
+            C_GetNextLabelName();
+                                                                                  /*initprintf("found xxx label of '%s'\n",   label+(g_numLabels*MAXLABELLEN));*/
+            if (id == g_iSpriteVarID || id==3)
+                lLabelID = C_GetLabelNameID(SpriteLabels, &spriteH, strtolower(tlabel,Bstrlen(tlabel)));
+            else if (id == g_iSectorVarID)
+                lLabelID = C_GetLabelNameID(SectorLabels, &sectorH, strtolower(tlabel,Bstrlen(tlabel)));
+            else if (id == g_iWallVarID)
+                lLabelID = C_GetLabelNameID(WallLabels, &wallH, strtolower(tlabel,Bstrlen(tlabel)));
+                                                                                  //printf("LabelID is %d\n",lLabelID);
+            if (lLabelID == -1)
+            {
+                g_numCompilerErrors++;
+                C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+                return;
+            }
+
+            if ((aridx & 0x0000FFFF) == MAXGAMEVARS)  // constant
+                *g_scriptPtr++ = (aridx | id | (lLabelID<<2) | flags);
+            else  // simple gamevar
+                *g_scriptPtr++ = (aridx<<16 | id | (lLabelID<<2) | flags);
+        }
+        else
+        {
+            if ((aridx & 0x0000FFFF) == MAXGAMEVARS)  // constant
+                *g_scriptPtr++ = (aridx | id | flags);
+            else  // simple gamevar
+                *g_scriptPtr++ = (aridx<<16 | id | flags);
+        }
+        return;
+    }
+
+//    initprintf("not an array");
+    id = GetGamevarID(tlabel);
+    if (id < 0)   //gamevar not found
+    {
+        if (!type && !g_labelsOnly)
+        {
+            //try looking for a define instead
+            id = hash_find(&labelH, tlabel);
+            if (id>=0 && labeltype[id]==LABEL_DEFINE)
+            {
+//                if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
+//                    initprintf("%s:%d: debug: accepted defined label `%s' instead of gamevar.\n",g_szScriptFileName,g_lineNumber,label+(id*MAXLABELLEN));
+
+                *g_scriptPtr++ = MAXGAMEVARS | (labelval[id]<<16);
+                if (labelval[id] != (int16_t)labelval[id])
+                {
+                    if (!g_noConstBitwidthWarning)
+                        C_ReportError(WARNING_CONSTANTBITSIZE);
+                    g_numCompilerWarnings++;
+                }
+
+                return;
+            }
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_NOTAGAMEVAR);
+            return;
+        }
+        g_numCompilerErrors++;
+        C_ReportError(ERROR_NOTAGAMEVAR);
+        textptr++;
+        return;
+    }
+
+    if (type == GAMEVAR_READONLY && aGameVars[id].dwFlags & GAMEVAR_READONLY)
+    {
+        g_numCompilerErrors++;
+        C_ReportError(ERROR_VARREADONLY);
+        return;
+    }
+    else if (aGameVars[id].dwFlags & type)
+    {
+        g_numCompilerErrors++;
+        C_ReportError(ERROR_VARTYPEMISMATCH);
+        return;
+    }
+//    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
+//        initprintf("%s:%d: debug: accepted gamevar `%s'.\n",g_szScriptFileName,g_lineNumber,tlabel);
+
+    *g_scriptPtr++ = (id|flags);
+}
+
+#define C_GetNextVar() C_GetNextVarType(0)
+
+static inline void C_GetManyVarsType(int32_t type, int32_t num)
+{
+    int32_t i;
+    for (i=num-1; i>=0; i--)
+        C_GetNextVarType(type);
+}
+
+#define C_GetManyVars(num) C_GetManyVarsType(0,num)
+
+static int32_t C_GetNextValue(int32_t type)
+{
+    int32_t i, l;
+
+    C_SkipComments();
+
+    while (isaltok(*textptr) == 0)
+    {
+        if (*textptr == 0x0a) g_lineNumber++;
+        textptr++;
+        if (*textptr == 0)
+            return -1; // eof
+    }
+
+    l = 0;
+    while (isaltok(*(textptr+l)))
+    {
+        tempbuf[l] = textptr[l];
+        l++;
+    }
+    tempbuf[l] = 0;
+
+    if (hash_find(&keywH, tempbuf)>=0)
+    {
+        g_numCompilerErrors++;
+        C_ReportError(ERROR_ISAKEYWORD);
+        textptr+=l;
+    }
+
+    i = hash_find(&labelH, tempbuf);
+    if (i >= 0)
+    {
+        char *el,*gl;
+
+        if (labeltype[i] & type)
+        {
+//            if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
+//            {
+//                gl = (char *)C_GetLabelType(labeltype[i]);
+//                initprintf("%s:%d: debug: accepted %s label `%s'.\n",g_szScriptFileName,g_lineNumber,gl,label+(i*MAXLABELLEN));
+//                Bfree(gl);
+//            }
+
+            *(g_scriptPtr++) = labelval[i];
+
+            textptr += l;
+            return labeltype[i];
+        }
+
+        *(g_scriptPtr++) = 0;
+        textptr += l;
+        el = (char *)C_GetLabelType(type);
+        gl = (char *)C_GetLabelType(labeltype[i]);
+        C_ReportError(-1);
+        initprintf("%s:%d: error: expected %s, found %s.\n",g_szScriptFileName,g_lineNumber,el,gl);
+        initprintf("i=%d, %s!!! lt:%d t:%d\n", i, label+(i*MAXLABELLEN), labeltype[i], type);
+        g_numCompilerErrors++;
+        Bfree(el);
+        Bfree(gl);
+        return -1;  // valid label name, but wrong type
+    }
+
+    if (isdigit(*textptr) == 0 && *textptr != '-')
+    {
+        C_ReportError(ERROR_PARAMUNDEFINED);
+        g_numCompilerErrors++;
+        *g_scriptPtr = 0;
+        g_scriptPtr++;
+        textptr += l;
+        return -1; // error!
+    }
+
+    if (isdigit(*textptr) && g_labelsOnly)
+    {
+        C_ReportError(WARNING_LABELSONLY);
+        g_numCompilerWarnings++;
+    }
+
+    i = l-1;
+    do
+    {
+        // FIXME: check for 0-9 A-F for hex
+        if (textptr[0] == '0' && textptr[1] == 'x') break; // kill the warning for hex
+        if (!isdigit(textptr[i--]))
+        {
+            C_ReportError(-1);
+            initprintf("%s:%d: warning: invalid character `%c' in definition!\n",g_szScriptFileName,g_lineNumber,textptr[i+1]);
+            g_numCompilerWarnings++;
+            break;
+        }
+    }
+    while (i > 0);
+
+//    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
+//        initprintf("%s:%d: debug: accepted constant %d.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
+
+    if (tolower(textptr[1])=='x')
+        sscanf(textptr+2,"%" SCNx32 "",g_scriptPtr);
+    else
+        *g_scriptPtr = atol(textptr);
+
+    g_scriptPtr++;
+
+    textptr += l;
+
+    return 0;   // literal value
+}
+
+static inline int32_t C_IntPow2(int32_t v)
+{
+    return ((v!=0) && (v&(v-1))==0);
+}
+
+static inline uint32_t C_Pow2IntLogBase2(int32_t v)
+{
+    static const uint32_t b[] = {0xAAAAAAAA, 0xCCCCCCCC, 0xF0F0F0F0,
+                                 0xFF00FF00, 0xFFFF0000
+                                };
+    register uint32_t r = (v & b[0]) != 0;
+    int32_t i = 4;
+
+    for (; i > 0; i--)
+        r |= ((v & b[i]) != 0) << i;
+
+    return r;
+}
+
+static int32_t C_CheckMalformedBranch(ofstype lastScriptOfs)
+{
+    switch (C_GetKeyword())
+    {
+    case CON_RIGHTBRACE:
+    case CON_ENDEVENT:
+    case CON_ENDS:
+    case CON_ELSE:
+        g_scriptPtr = script + lastScriptOfs;
+        g_ifElseAborted = 1;
+        C_ReportError(-1);
+        g_numCompilerWarnings++;
+        initprintf("%s:%d: warning: malformed `%s' branch\n", g_szScriptFileName, g_lineNumber,
+                   keyw[*(g_scriptPtr) & 0xFFF]);
+        return 1;
+    }
+    return 0;
+}
+
+static int32_t C_CheckEmptyBranch(int32_t tw, ofstype lastScriptOfs)
+{
+    // ifrnd actually does something when the condition is executed
+    if ((Bstrncmp(keyw[tw], "if", 2) && tw != CON_ELSE) || tw == CON_IFRND)
+    {
+        g_ifElseAborted = 0;
+        return 0;
+    }
+
+    if ((*(g_scriptPtr) & 0xFFF) != CON_NULLOP || *(g_scriptPtr)>>12 != IFELSE_MAGIC)
+        g_ifElseAborted = 0;
+
+    if (g_ifElseAborted)
+    {
+        C_ReportError(-1);
+        g_numCompilerWarnings++;
+        g_scriptPtr = script + lastScriptOfs;
+        initprintf("%s:%d: warning: empty `%s' branch\n",g_szScriptFileName,g_lineNumber,
+                   keyw[*(g_scriptPtr) & 0xFFF]);
+        *(g_scriptPtr) = (CON_NULLOP + (IFELSE_MAGIC<<12));
+        return 1;
+    }
+    return 0;
+}
+
+static int32_t C_ParseCommand(void);
+
+static int32_t C_CountCaseStatements()
+{
+    int32_t lCount;
+    const char *temptextptr = textptr;
+    int32_t temp_ScriptLineNumber = g_lineNumber;
+    ofstype scriptoffset = (unsigned)(g_scriptPtr-script);
+    ofstype caseoffset = (unsigned)(g_caseScriptPtr-script);
+
+    g_numCases=0;
+    g_caseScriptPtr=NULL;
+    //Bsprintf(g_szBuf,"CSS: %.12s",textptr); AddLog(g_szBuf);
+    while (C_ParseCommand() == 0)
+    {
+        //Bsprintf(g_szBuf,"CSSL: %.20s",textptr); AddLog(g_szBuf);
+        ;
+    }
+    // since we processed the endswitch, we need to re-increment g_checkingSwitch
+    g_checkingSwitch++;
+
+    textptr = temptextptr;
+    g_scriptPtr = (instype *)(script+scriptoffset);
+
+    g_lineNumber = temp_ScriptLineNumber;
+
+    lCount = g_numCases;
+    g_numCases = 0;
+    g_caseScriptPtr = (instype *)(script+caseoffset);
+    return lCount;
+}
+
+static int32_t C_ParseCommand(void)
+{
+    int32_t i, j=0, k=0, done, tw;
+    const char *temptextptr;
+    instype *tempscrptr = NULL;
+
+    if (quitevent)
+    {
+///        initprintf("Aborted.\n");
+///        return 1;
+    }
+
+    if (g_numCompilerErrors >= ABORTERRCNT || (*textptr == '\0') || (*(textptr+1) == '\0'))
+        return 1;
+
+//    if (g_scriptDebug)
+//        C_ReportError(-1);
+
+///    if (g_checkingSwitch > 0)
+///        Bsprintf(g_szBuf,"PC(): '%.25s'",textptr); AddLog(g_szBuf);
+
+    tw = C_GetNextKeyword();
+    //    Bsprintf(tempbuf,"%s",keyw[tw]); AddLog(tempbuf);
+
+    if (C_SkipComments())
+        return 1;
+
+    switch (tw)
+    {
+    default:
+    case -1:
+        return 0; //End
+
+// *** basic commands
+    case CON_NULLOP:
+        if (C_GetKeyword() != CON_ELSE)
+        {
+            C_ReportError(-1);
+            g_numCompilerWarnings++;
+            initprintf("%s:%d: warning: `nullop' found without `else'\n",g_szScriptFileName,g_lineNumber);
+            g_scriptPtr--;
+            g_ifElseAborted = 1;
+        }
+        return 0;
+
+    case CON_DEFINE:
+    {
+        C_GetNextLabelName();
+
+        if (hash_find(&keywH, tlabel) >= 0)
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_ISAKEYWORD);
+            return 0;
+        }
+
+        // Check to see it's already defined
+        i = hash_find(&gamevarH, tlabel);
+        if (i>=0)
+        {
+            g_numCompilerWarnings++;
+            C_ReportError(WARNING_NAMEMATCHESVAR);
+        }
+
+        if (hash_find(&stateH, tlabel) >= 0)
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_LABELINUSE);
+            return 1;
+        }
+
+        C_GetNextValue(LABEL_DEFINE);
+
+        i = hash_find(&labelH, tlabel);
+        if (i == -1)
+        {
+            // printf("Defining Definition '%s' to be '%d'\n",label+(g_numLabels*MAXLABELLEN),*(g_scriptPtr-1));
+//            Bmemcpy(label+(g_numLabels*MAXLABELLEN), tlabel, MAXLABELLEN);
+            C_CopyLabel();
+            hash_add(&labelH, label+(g_numLabels*MAXLABELLEN), g_numLabels);
+            labeltype[g_numLabels] = LABEL_DEFINE;
+            labelval[g_numLabels++] = *(g_scriptPtr-1);
+        }
+//        else if (i>=g_numDefaultLabels)
+//        {
+//            if (labeltype[i] == LABEL_DEFINE)
+//                labelval[i] = *(g_scriptPtr-1);
+//        }
+
+        g_scriptPtr -= 2;
+        return 0;
+    }
+
+    case CON_INCLUDE:
+        g_scriptPtr--;
+        while (!isaltok(*textptr))
+        {
+            if (*textptr == 0x0a) g_lineNumber++;
+            textptr++;
+            if (*textptr == 0) break;
+        }
+
+        j = 0;
+        while (isaltok(*textptr))
+        {
+            tempbuf[j] = *(textptr++);
+            j++;
+        }
+        tempbuf[j] = '\0';
+
+        {
+            int32_t temp_ScriptLineNumber;
+            int32_t  temp_ifelse_check;
+            const char *origtptr;
+            char *mptr;
+            char parentScriptFileName[255];
+            int32_t fp;
+
+            fp = kopen4load(tempbuf, 0 /*g_loadFromGroupOnly*/);
+            if (fp < 0)
+            {
+                g_numCompilerErrors++;
+                initprintf("%s:%d: error: could not find file `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+                return 1;
+            }
+
+            j = kfilelength(fp);
+
+            mptr = (char *)Bmalloc(j+1);
+            if (!mptr)
+            {
+                kclose(fp);
+                g_numCompilerErrors++;
+                initprintf("%s:%d: error: could not allocate %d bytes to include `%s'.\n",
+                           g_lineNumber,g_szScriptFileName,j,tempbuf);
+                return 1;
+            }
+
+            initprintf("  Including: %s (%d bytes)\n", tempbuf, j);
+            kread(fp, mptr, j);
+            kclose(fp);
+            mptr[j] = 0;
+
+            if (*textptr == '"') // skip past the closing quote if it's there so we don't screw up the next line
+                textptr++;
+            origtptr = textptr;
+
+            Bstrcpy(parentScriptFileName, g_szScriptFileName);
+            Bstrcpy(g_szScriptFileName, tempbuf);
+            temp_ScriptLineNumber = g_lineNumber;
+            g_lineNumber = 1;
+            temp_ifelse_check = g_checkingIfElse;
+            g_checkingIfElse = 0;
+
+            textptr = mptr;
+            do done = C_ParseCommand();
+            while (!done);
+
+            Bstrcpy(g_szScriptFileName, parentScriptFileName);
+            g_totalLines += g_lineNumber;
+            g_lineNumber = temp_ScriptLineNumber;
+            g_checkingIfElse = temp_ifelse_check;
+
+            textptr = origtptr;
+
+            Bfree(mptr);
+        }
+        return 0;
+
+    case CON_DEFSTATE:
+        g_scriptPtr--;
+        if (g_parsingEventOfs < 0  && g_currentStateIdx < 0)
+        {
+            C_GetNextLabelName();
+
+            if (hash_find(&keywH, tlabel)>=0)
+            {
+                g_numCompilerErrors++;
+                C_ReportError(ERROR_ISAKEYWORD);
+                return 1;
+            }
+
+            if (hash_find(&gamevarH, tlabel)>=0)
+            {
+                g_numCompilerWarnings++;
+                C_ReportError(WARNING_NAMEMATCHESVAR);
+            }
+
+            j = hash_find(&labelH, tlabel);
+            if (j>=0)
+            {
+                g_numCompilerErrors++;
+                C_ReportError(ERROR_LABELINUSE);
+                return 1;
+            }
+
+            j = hash_find(&stateH, tlabel);
+            if (j>=0)  // only redefining
+            {
+                g_currentStateIdx = j;
+                g_currentStateOfs = (g_scriptPtr-script);
+
+                Bsprintf(g_szCurrentBlockName, "%s", statesinfo[j].name);
+            }
+            else  // new state definition
+            {
+                g_currentStateIdx = j = g_stateCount;
+                g_currentStateOfs = (g_scriptPtr-script);
+
+                if (g_stateCount >= statesinfo_allocsize)
+                {
+                    statesinfo_allocsize *= 2;
+                    statesinfo = Brealloc(statesinfo, statesinfo_allocsize);
+                    if (!statesinfo)
+                    {
+                        initprintf("C_ParseCommand(): ERROR: out of memory!\n");
+                        g_numCompilerErrors++;
+                        return 1;
+                    }
+                }
+
+                Bmemcpy(statesinfo[j].name, tlabel, MAXLABELLEN);
+                Bsprintf(g_szCurrentBlockName, "%s", tlabel);
+                hash_add(&stateH, tlabel, j);
+            }
+
+            return 0;
+        }
+
+        g_numCompilerErrors++;
+        C_ReportError(ERROR_FOUNDWITHIN);
+        return 1;
+
+    case CON_ENDS:
+        if (g_currentStateIdx < 0)
+        {
+            C_ReportError(-1);
+            initprintf("%s:%d: error: found `ends' without open `state'.\n",g_szScriptFileName,g_lineNumber);
+            g_numCompilerErrors++;
+            return 1; //+
+        }
+        else
+        {
+            if (g_numBraces > 0)
+            {
+                C_ReportError(ERROR_OPENBRACKET);
+                g_numCompilerErrors++;
+            }
+            if (g_numBraces < 0)
+            {
+                C_ReportError(ERROR_CLOSEBRACKET);
+                g_numCompilerErrors++;
+            }
+            if (g_checkingSwitch > 0)
+            {
+                C_ReportError(ERROR_NOENDSWITCH);
+                g_numCompilerErrors++;
+
+                g_checkingSwitch = 0; // can't be checking anymore...
+            }
+            if (g_numCompilerErrors)
+            {
+                g_currentStateOfs = -1;
+                g_currentStateIdx = -1;
+                Bsprintf(g_szCurrentBlockName,"(none)");
+                return 0;
+            }
+
+            j = g_currentStateIdx;
+
+            if (g_currentStateIdx == g_stateCount)  // we were defining a new state
+            {
+                statesinfo[j].ofs = g_currentStateOfs;
+                statesinfo[j].codesize = (g_scriptPtr-script) - g_currentStateOfs;
+
+                g_stateCount++;
+
+                initprintf("  Defined state `%s' (index %d).\n", g_szCurrentBlockName, j);
+            }
+            else  // we were redefining a state
+            {
+                int32_t oofs = statesinfo[j].ofs;
+                int32_t nofs = g_currentStateOfs;
+                int32_t osize = statesinfo[j].codesize;
+                int32_t nsize = (g_scriptPtr-script) - nofs;
+
+                if (nsize == osize)
+                {
+                    int ii, equal=1;
+
+                    for (ii=0; ii<nsize; ii++)
+                        if (*(script+oofs+ii) != *(script+nofs+ii))
+                        {
+                            equal = 0;
+                            break;
+                        }
+
+                    if (!equal)
+                    {
+                        Bmemcpy(script+oofs, script+nofs, nsize*sizeof(instype));
+                        initprintf("  Redefined state `%s' (index %d).\n", g_szCurrentBlockName, j);
+                    }
+                }
+                else
+                {
+                    int32_t ii;
+                    uint32_t movedcodesize = g_scriptPtr - (script+oofs+osize);
+
+                    Bmemmove(script+oofs, script+oofs+osize, movedcodesize*sizeof(instype));
+
+                    for (ii=0; ii<g_stateCount; ii++)
+                    {
+                        if (statesinfo[ii].ofs > oofs)
+                            statesinfo[ii].ofs -= osize;
+                    }
+                    for (ii=0; ii<MAXEVENTS; ii++)
+                        if (/*ii != j &&*/ aEventOffsets[ii] > oofs)
+                            aEventOffsets[ii] -= osize;
+
+                    statesinfo[j].ofs = nofs-osize;
+                    statesinfo[j].codesize = nsize;
+
+                    initprintf("  Redefined state `%s' (index %d).\n", g_szCurrentBlockName, j);
+                }
+                g_scriptPtr -= osize;
+            }
+
+            g_currentStateOfs = -1;
+            g_currentStateIdx = -1;
+
+            Bsprintf(g_szCurrentBlockName,"(none)");
+        }
+        return 0;
+
+    case CON_STATE:
+        C_GetNextLabelName();
+
+        if (hash_find(&keywH, tlabel)>=0)
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_ISAKEYWORD);
+            return 1;
+        }
+
+        if (hash_find(&gamevarH, tlabel)>=0)
+        {
+            g_numCompilerWarnings++;
+            C_ReportError(WARNING_NAMEMATCHESVAR);
+        }
+
+        j = hash_find(&stateH, tlabel);
+        if (j>=0)
+        {
+//            if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
+//                initprintf("%s:%d: debug: accepted state label `%s'.\n",g_szScriptFileName,g_lineNumber,label+(k*MAXLABELLEN));
+            *g_scriptPtr++ = j;
+            return 0;
+        }
+        
+        C_ReportError(-1);
+        initprintf("%s:%d: error: state `%s' not found.\n",g_szScriptFileName,g_lineNumber,tlabel);
+        g_numCompilerErrors++;
+        g_scriptPtr++;
+        return 0;
+
+    case CON_ONEVENT:
+        if (g_currentStateIdx >= 0 || g_parsingEventOfs >= 0)
+        {
+            C_ReportError(ERROR_FOUNDWITHIN);
+            g_numCompilerErrors++;
+        }
+
+        g_scriptPtr--;
+        g_numBraces = 0;
+
+        C_SkipComments();
+        j = 0;
+        while (isaltok(*(textptr+j)))
+        {
+            g_szCurrentBlockName[j] = textptr[j];
+            j++;
+        }
+        g_szCurrentBlockName[j] = 0;
+
+        g_labelsOnly = 1;
+        C_GetNextValue(LABEL_EVENT);
+        g_labelsOnly = 0;
+
+        g_scriptPtr--;
+        j = *g_scriptPtr;  // event number
+
+        g_currentEvent = j;
+        g_parsingEventOfs = g_scriptPtr-script;
+                                                                              //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, g_parsingEventPtr); AddLog(g_szBuf);
+        if (j<0 || j >= MAXEVENTS)
+        {
+            initprintf("%s:%d: error: invalid event ID.\n",g_szScriptFileName,g_lineNumber);
+            g_numCompilerErrors++;
+            return 0;
+        }
+
+        g_checkingIfElse = 0;
+        return 0;
+
+    case CON_ENDEVENT:
+        if (g_parsingEventOfs < 0)
+        {
+            C_ReportError(-1);
+            initprintf("%s:%d: error: found `endevent' without open `onevent'.\n",g_szScriptFileName,g_lineNumber);
+            g_numCompilerErrors++;
+            return 1;
+        }
+        if (g_numBraces > 0)
+        {
+            C_ReportError(ERROR_OPENBRACKET);
+            g_numCompilerErrors++;
+        }
+        if (g_numBraces < 0)
+        {
+            C_ReportError(ERROR_CLOSEBRACKET);
+            g_numCompilerErrors++;
+        }
+        if (g_numCompilerErrors)
+        {
+            g_parsingEventOfs = -1;
+            g_currentEvent = -1;
+            Bsprintf(g_szCurrentBlockName,"(none)");
+            return 0;
+        }
+
+        j = g_currentEvent;
+        if (aEventOffsets[j] >= 0)  // if event was previously declared, overwrite it
+        {
+            int32_t oofs = aEventOffsets[j], nofs = g_parsingEventOfs;
+            int32_t osize = aEventSizes[j], nsize = (g_scriptPtr-script) - nofs;
+
+            if (osize == nsize)
+            {
+                    int ii, equal=1;
+
+                    for (ii=0; ii<nsize; ii++)
+                        if (*(script+oofs+ii) != *(script+nofs+ii))
+                        {
+                            equal = 0;
+                            break;
+                        }
+
+                    if (!equal)
+                    {
+                        Bmemcpy(script+oofs, script+nofs, nsize*sizeof(instype));
+                        initprintf("  Redefined event `%s' (index %d).\n", g_szCurrentBlockName, j);
+                    }
+            }
+            else
+            {
+                int32_t ii;
+                uint32_t movedcodesize = g_scriptPtr - (script+oofs + osize);
+
+                Bmemmove(script+oofs, script+oofs + osize, movedcodesize*sizeof(instype));
+
+                for (ii=0; ii<g_stateCount; ii++)
+                {
+                    if (statesinfo[ii].ofs > oofs)
+                        statesinfo[ii].ofs -= osize;
+                }
+                for (ii=0; ii<MAXEVENTS; ii++)
+                    if (/*ii != j &&*/ aEventOffsets[ii] > oofs)
+                        aEventOffsets[ii] -= osize;
+
+                aEventOffsets[j] = nofs - osize;
+                aEventSizes[j] = nsize;
+
+                initprintf("  Redefined event `%s' (index %d).\n", g_szCurrentBlockName, j);
+            }
+            g_scriptPtr -= osize;
+        }
+        else  // event defined for the first time
+        {
+            aEventOffsets[j] = g_parsingEventOfs;
+            aEventSizes[j] = (g_scriptPtr-script) - g_parsingEventOfs;
+
+            initprintf("  Defined event `%s' (index %d).\n", g_szCurrentBlockName, j);
+        }
+
+        g_parsingEventOfs = -1;
+        g_currentEvent = -1;
+        Bsprintf(g_szCurrentBlockName,"(none)");
+
+        return 0;
+
+// *** control flow
+    case CON_ELSE:
+        if (g_checkingIfElse)
+        {
+            ofstype offset;
+            ofstype lastScriptOfs = (g_scriptPtr-script) - 1;
+            instype *tscrptr;
+
+            g_ifElseAborted = 0;
+            g_checkingIfElse--;
+
+            if (C_CheckMalformedBranch(lastScriptOfs))
+                return 0;
+
+            offset = (unsigned)(g_scriptPtr-script);
+
+            g_scriptPtr++; //Leave a spot for the fail location
+            C_ParseCommand();
+
+            if (C_CheckEmptyBranch(tw, lastScriptOfs))
+                return 0;
+
+            tscrptr = (instype *)script+offset;
+            *tscrptr = (ofstype) (g_scriptPtr-script)-offset;  // relative offset
+        }
+        else
+        {
+            instype *tscrptr;
+
+            g_scriptPtr--;
+            tscrptr = g_scriptPtr;
+
+            g_numCompilerWarnings++;
+            C_ReportError(-1);
+            initprintf("%s:%d: warning: found `else' with no `if'.\n",g_szScriptFileName,g_lineNumber);
+
+            if (C_GetKeyword() == CON_LEFTBRACE)
+            {
+                C_GetNextKeyword();
+                g_numBraces++;
+
+                do
+                    done = C_ParseCommand();
+                while (done == 0);
+            }
+            else C_ParseCommand();
+
+            g_scriptPtr = tscrptr;
+        }
+        return 0;
+
+    case CON_RETURN:
+    case CON_BREAK:
+        if (g_checkingSwitch)
+        {
+            //Bsprintf(g_szBuf,"  * (L%d) case Break statement.\n",g_lineNumber); AddLog(g_szBuf);
+            return 1;
+        }
+        return 0;
+
+    case CON_SWITCH:
+    {
+        ofstype tempoffset;
+
+        //AddLog("Got Switch statement");
+                                                                      //        if (g_checkingSwitch) Bsprintf(g_szBuf,"ERROR::%s %d: g_checkingSwitch=",__FILE__,__LINE__, g_checkingSwitch); AddLog(g_szBuf);
+        g_checkingSwitch++;  // allow nesting (if other things work)
+
+        C_GetNextVar();  // Get The ID of the DEF
+
+        tempoffset = (unsigned)(g_scriptPtr-script);
+
+        *g_scriptPtr++ = 0; // leave spot for end location (for after processing)
+        *g_scriptPtr++ = 0; // count of case statements
+
+        g_caseScriptPtr = g_scriptPtr;        // the first case's pointer.
+        *g_scriptPtr++ = -1; // leave spot for 'default' offset to cases' code (-1 if none)
+
+        temptextptr = textptr;
+        // probably does not allow nesting...
+                                                                              //AddLog("Counting Case Statements...");
+        j = C_CountCaseStatements();
+                                                                      //        initprintf("Done Counting Case Statements for switch %d: found %d.\n", g_checkingSwitch,j);
+        g_scriptPtr += j*2;
+        g_caseCodePtr = g_scriptPtr;
+        C_SkipComments();
+        g_scriptPtr -= j*2; // allocate buffer for the table
+
+        tempscrptr = (instype *)(script+tempoffset);
+                                                                      //        if (g_checkingSwitch>1) Bsprintf(g_szBuf,"ERROR::%s %d: g_checkingSwitch=",__FILE__,__LINE__, g_checkingSwitch);  AddLog(g_szBuf);
+        if (j<0)
+            return 1;
+
+        if (tempscrptr)
+            tempscrptr[1] = j;  // save count of cases
+//        else
+//            Bsprintf(g_szBuf,"ERROR::%s %d",__FILE__,__LINE__); AddLog(g_szBuf);
+
+        while (j--)
+        {
+            // leave room for statements
+            *g_scriptPtr++ = 0; // value check
+            *g_scriptPtr++ = -1; // code offset
+            C_SkipComments();
+        }
+                                                                              //Bsprintf(g_szBuf,"SWITCH1: '%.22s'",textptr); AddLog(g_szBuf);
+        g_numCases = 0;
+        while (C_ParseCommand() == 0)
+        {
+            //Bsprintf(g_szBuf,"SWITCH2: '%.22s'",textptr); AddLog(g_szBuf);
+        }
+
+        tempscrptr = (instype *)(script+tempoffset);
+                                                                              //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr); AddLog(g_szBuf);
+        // done processing switch.  clean up.
+                                                                      //        if (g_checkingSwitch < 1) Bsprintf(g_szBuf,"ERROR::%s %d: g_checkingSwitch=%d",__FILE__,__LINE__, g_checkingSwitch); AddLog(g_szBuf);
+        if (tempscrptr)
+        {
+            int32_t t,n;   // !!!
+            for (i=3; i<3+tempscrptr[1]*2-2; i+=2) // sort them
+            {
+                t = tempscrptr[i]; n=i;
+                for (j=i+2; j<3+tempscrptr[1]*2; j+=2)
+                    if (tempscrptr[j] < t)
+                        t = tempscrptr[j], n=j;
+                if (n != i)
+                {
+                    t = tempscrptr[i];
+                    tempscrptr[i] = tempscrptr[n];
+                    tempscrptr[n] = t;
+
+                    t = tempscrptr[i+1];
+                    tempscrptr[i+1] = tempscrptr[n+1];
+                    tempscrptr[n+1] = t;
+                }
+            }
+//            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
+            tempscrptr[0] = (ofstype)(g_scriptPtr-g_caseCodePtr);    // save 'end' location as offset from code-place
+        }
+                                                                      //        else Bsprintf(g_szBuf,"ERROR::%s %d",__FILE__,__LINE__); AddLog(g_szBuf);
+        g_numCases = 0;
+        g_caseScriptPtr = NULL;
+        g_caseCodePtr = NULL;
+        // decremented in endswitch.  Don't decrement here...
+        //                    g_checkingSwitch--; // allow nesting (maybe if other things work)
+        tempscrptr = NULL;
+                                                                      //        if (g_checkingSwitch) Bsprintf(g_szBuf,"ERROR::%s %d: g_checkingSwitch=%d",__FILE__,__LINE__, g_checkingSwitch); AddLog(g_szBuf);
+        //AddLog("End of Switch statement");
+    }
+    break;
+
+    case CON_CASE:
+    {
+        ofstype tempoffset = 0;
+        //AddLog("Found Case");
+repeatcase:
+        g_scriptPtr--; // don't save in code
+        if (g_checkingSwitch < 1)
+        {
+            g_numCompilerErrors++;
+            C_ReportError(-1);
+            initprintf("%s:%d: error: found `case' statement when not in switch\n", g_szScriptFileName, g_lineNumber);
+            return 1;
+        }
+
+        g_numCases++;
+                                                                              //Bsprintf(g_szBuf,"case1: %.12s",textptr); AddLog(g_szBuf);
+        C_GetNextValue(LABEL_DEFINE);
+        if (*textptr == ':')
+            textptr++;
+                                                                              //Bsprintf(g_szBuf,"case2: %.12s",textptr); AddLog(g_szBuf);
+        j = *(--g_scriptPtr);      // get value
+                                                                              //Bsprintf(g_szBuf,"case: Value of case %d is %d",(int32_t)g_numCases,(int32_t)j); AddLog(g_szBuf);
+        if (g_caseScriptPtr)
+        {
+            for (i=(g_numCases/2)-1; i>=0; i--)
+                if (g_caseScriptPtr[i*2+1] == j)
+                {
+                    g_numCompilerWarnings++;
+                    C_ReportError(WARNING_DUPLICATECASE);
+                    break;
+                }
+            //AddLog("Adding value to script");
+            g_caseScriptPtr[g_numCases++] = j;   // save value
+            g_caseScriptPtr[g_numCases] = (ofstype)(g_scriptPtr - g_caseCodePtr);  // offset from beginning of cases' code
+        }
+                                                                              //Bsprintf(g_szBuf,"case3: %.12s",textptr); AddLog(g_szBuf);
+        j = C_GetKeyword();
+        if (j == CON_CASE)
+        {
+            //AddLog("Found Repeat Case");
+            C_GetNextKeyword();    // eat 'case'
+            goto repeatcase;
+        }
+                                                                              //Bsprintf(g_szBuf,"case4: '%.12s'",textptr); AddLog(g_szBuf);
+        tempoffset = (unsigned)(tempscrptr-script);
+        while (C_ParseCommand() == 0)
+        {
+                                                                                  //Bsprintf(g_szBuf,"case5 '%.25s'",textptr); AddLog(g_szBuf);
+            j = C_GetKeyword();
+            if (j == CON_CASE)
+            {
+                //AddLog("Found Repeat Case");
+                C_GetNextKeyword();    // eat 'case'
+                tempscrptr = (instype *)(script+tempoffset);
+                goto repeatcase;
+            }
+        }
+        tempscrptr = (instype *)(script+tempoffset);
+                                                                              //AddLog("End Case");
+        return 0;
+        //      break;
+    }
+
+    case CON_DEFAULT:
+        g_scriptPtr--;    // don't save
+        if (g_checkingSwitch < 1)
+        {
+            g_numCompilerErrors++;
+            C_ReportError(-1);
+            initprintf("%s:%d: error: found `default' statement when not in switch\n",g_szScriptFileName,g_lineNumber);
+            return 1;
+        }
+        if (g_caseScriptPtr && g_caseScriptPtr[0]!=0)
+        {
+            // duplicate default statement
+            g_numCompilerErrors++;
+            C_ReportError(-1);
+            initprintf("%s:%d: error: multiple `default' statements found in switch\n",g_szScriptFileName,g_lineNumber);
+        }
+        if (g_caseScriptPtr)
+            g_caseScriptPtr[0] = (ofstype)(g_scriptPtr-g_caseCodePtr);   // save offset from cases' code
+                                                                              //Bsprintf(g_szBuf,"default: '%.22s'",textptr); AddLog(g_szBuf);
+        while (C_ParseCommand() == 0)
+        {
+            //Bsprintf(g_szBuf,"defaultParse: '%.22s'",textptr); AddLog(g_szBuf);
+            ;
+        }
+        break;
+
+    case CON_ENDSWITCH:
+        //AddLog("End Switch");
+        g_checkingSwitch--;
+        if (g_checkingSwitch < 0)
+        {
+            g_numCompilerErrors++;
+            C_ReportError(-1);
+            initprintf("%s:%d: error: found `endswitch' without matching `switch'\n",g_szScriptFileName,g_lineNumber);
+        }
+        return 1;      // end of block
+//        break;
+
+    case CON_GETCURRADDRESS:
+        C_GetNextVarType(GAMEVAR_READONLY);
+        return 0;
+    case CON_JUMP:
+        C_GetNextVar();
+        return 0;
+
+    case CON_LEFTBRACE:
+//        if (!(g_currentStateIdx >= 0 || g_parsingEventOfs >= 0))
+//        {
+//            g_numCompilerErrors++;
+//            C_ReportError(ERROR_SYNTAXERROR);
+//        }
+
+        g_numBraces++;
+
+        do
+            done = C_ParseCommand();
+        while (done == 0);
+        return 0;
+
+    case CON_RIGHTBRACE:
+        g_numBraces--;
+
+        // rewrite "{ }" into "nullop"
+        if (*(g_scriptPtr-2) == CON_LEFTBRACE + (IFELSE_MAGIC<<12))
+        {
+//            initprintf("%s:%d: rewriting empty braces '{ }' as 'nullop' from right\n",g_szScriptFileName,g_lineNumber);
+            *(g_scriptPtr-2) = CON_NULLOP + (IFELSE_MAGIC<<12);
+            g_scriptPtr -= 2;
+
+            if (C_GetKeyword() != CON_ELSE && (*(g_scriptPtr-2)&0xFFF) != CON_ELSE)
+                g_ifElseAborted = 1;
+            else g_ifElseAborted = 0;
+
+            j = C_GetKeyword();
+
+            if (g_checkingIfElse && j != CON_ELSE)
+                g_checkingIfElse--;
+
+            return 1;
+        }
+
+        if (g_numBraces < 0)
+        {
+            if (g_checkingSwitch)
+                C_ReportError(ERROR_NOENDSWITCH);
+
+            C_ReportError(-1);
+            initprintf("%s:%d: error: found more `}' than `{'.\n",g_szScriptFileName,g_lineNumber);
+            g_numCompilerErrors++;
+        }
+        if (g_checkingIfElse && j != CON_ELSE)
+            g_checkingIfElse--;
+
+        return 1;
+
+// *** more basic commands
+    case CON_SETSECTOR:
+    case CON_GETSECTOR:
+    case CON_SETWALL:
+    case CON_GETWALL:
+    case CON_SETSPRITE:
+    case CON_GETSPRITE:
+    case CON_SETTSPR:
+    case CON_GETTSPR:
+    {
+        int32_t lLabelID;
+
+        // syntax getsector[<var>].x <VAR>
+        // gets the value of sector[<var>].xxx into <VAR>
+
+        if ((tw==CON_GETTSPR || tw==CON_SETTSPR) && g_currentEvent != EVENT_ANALYZESPRITES)
+        {
+            C_ReportError(-1);
+            initprintf("%s:%d: warning: found `%s' outside of EVENT_ANALYZESPRITES\n",g_szScriptFileName,g_lineNumber,tempbuf);
+            g_numCompilerWarnings++;
+        }
+
+        // now get name of .xxx
+        while ((*textptr != '['))
+        {
+            textptr++;
+        }
+        if (*textptr == '[')
+            textptr++;
+
+        // get the ID of the DEF
+        g_labelsOnly = 1;
+        C_GetNextVar();
+        g_labelsOnly = 0;
+        // now get name of .xxx
+        while (*textptr != '.')
+        {
+            if (*textptr == 0xa)
+                break;
+            if (!*textptr)
+                break;
+
+            textptr++;
+        }
+        if (*textptr!='.')
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_SYNTAXERROR);
+            return 0;
+        }
+        textptr++;
+        /// now pointing at 'xxx'
+        C_GetNextLabelName();
+        //printf("found xxx label of '%s'\n",   label+(g_numLabels*MAXLABELLEN));
+
+        if (tw==CON_GETSECTOR || tw==CON_SETSECTOR)
+            lLabelID = C_GetLabelNameID(SectorLabels, &sectorH, strtolower(tlabel,Bstrlen(tlabel)));
+        else if (tw==CON_GETWALL || tw==CON_SETWALL)
+            lLabelID = C_GetLabelNameID(WallLabels, &wallH, strtolower(tlabel,Bstrlen(tlabel)));
+        else // if (tw==CON_GETSPRITE || tw==CON_SETSPRITE || tw==CON_GETTSPR || tw==CON_SETTSPR)
+            lLabelID = C_GetLabelNameID(SpriteLabels, &spriteH, strtolower(tlabel,Bstrlen(tlabel)));
+
+        if (lLabelID == -1)
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+            return 0;
+        }
+
+        *g_scriptPtr++ = lLabelID;
+
+        // now at target VAR...
+        // get the ID of the DEF
+        if (tw==CON_GETSECTOR || tw==CON_GETWALL || tw==CON_GETSPRITE || tw==CON_GETTSPR)
+            C_GetNextVarType(GAMEVAR_READONLY);
+        else
+            C_GetNextVar();
+        break;
+    }
+
+    case CON_GAMEVAR:
+        // syntax: gamevar <var1> <initial value> <flags>
+        // defines var1 and sets initial value.
+        // flags are used to define usage
+        // (see top of this files for flags)
+        //printf("Got gamedef. Getting Label. '%.20s'\n",textptr);
+
+        if (isdigit(*textptr) || (*textptr == '-'))
+        {
+            C_GetNextLabelName();
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_SYNTAXERROR);
+            C_GetNextValue(LABEL_DEFINE);
+            C_GetNextValue(LABEL_DEFINE);
+            g_scriptPtr -= 3; // we complete the process anyways just to skip past the fucked up section
+            return 0;
+        }
+
+        C_GetNextLabelName();
+        //printf("Got Label '%.20s'\n",textptr);
+        // Check to see it's already defined
+
+        if (hash_find(&keywH, tlabel)>=0)
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_ISAKEYWORD);
+            return 0;
+        }
+
+        C_GetNextValue(LABEL_DEFINE); // get initial value
+        C_GetNextValue(LABEL_DEFINE); // get flags
+        //Bsprintf(g_szBuf,"Adding GameVar='%s', val=%l, flags=%lX",label+(g_numLabels*MAXLABELLEN), *(g_scriptPtr-2), *(g_scriptPtr-1)); AddLog(g_szBuf);
+///        if ((*(g_scriptPtr-1)&GAMEVAR_USER_MASK)==3)
+///        {
+///            g_numCompilerWarnings++;
+///            *(g_scriptPtr-1) ^= GAMEVAR_PERBLOCK;
+///            C_ReportError(WARNING_BADGAMEVAR);
+///        }
+
+        Gv_NewVar(tlabel, *(g_scriptPtr-2),
+                  /* can't define default or secret */
+                  *(g_scriptPtr-1) & ~(GAMEVAR_DEFAULT|GAMEVAR_SECRET));
+
+        //AddLog("Added gamevar");
+        g_scriptPtr -= 3; // no need to save in script...
+        return 0;
+
+// *** arrays
+    case CON_GAMEARRAY:
+        if (isdigit(*textptr) || (*textptr == '-'))
+        {
+            C_GetNextLabelName();
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_SYNTAXERROR);
+            C_GetNextValue(LABEL_DEFINE);
+            C_GetNextValue(LABEL_DEFINE);
+            g_scriptPtr -= 2; // we complete the process anyways just to skip past the fucked up section
+            return 0;
+        }
+
+        C_GetNextLabelName();
+                                                                              //printf("Got Label '%.20s'\n",textptr);
+        // Check to see it's already defined
+        if (hash_find(&keywH, tlabel) >= 0)
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_ISAKEYWORD);
+            return 0;
+        }
+
+        if (hash_find(&gamevarH, tlabel) >= 0)
+        {
+            g_numCompilerWarnings++;
+            C_ReportError(WARNING_NAMEMATCHESVAR);
+        }
+
+        C_GetNextValue(LABEL_DEFINE);
+        Gv_NewArray(tlabel, 0, *(g_scriptPtr-1), GAMEARRAY_NORMAL);
+
+        g_scriptPtr -= 2; // no need to save in script...
+        return 0;
+
+    case CON_COPY:
+        C_GetNextLabelName();
+
+        i = GetGamearrayID(tlabel);
+        if (i >= 0)
+            *g_scriptPtr++ = i;
+        else
+            C_ReportError(ERROR_NOTAGAMEARRAY);
+
+        C_SkipComments();// skip comments and whitespace
+        if (*textptr != '[')
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_GAMEARRAYBNO);
+            return 1;
+        }
+        textptr++;
+        C_GetNextVar();
+        C_SkipComments();// skip comments and whitespace
+        if (*textptr != ']')
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_GAMEARRAYBNC);
+            return 1;
+        }
+        textptr++;
+    case CON_SETARRAY:
+        C_GetNextLabelName();
+
+        i = GetGamearrayID(tlabel);
+        if (i >= 0)
+            *g_scriptPtr++ = i;
+        else
+            C_ReportError(ERROR_NOTAGAMEARRAY);
+
+        C_SkipComments();// skip comments and whitespace
+        if (*textptr != '[')
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_GAMEARRAYBNO);
+            return 1;
+        }
+        textptr++;
+        C_GetNextVar();
+        C_SkipComments();// skip comments and whitespace
+        if (*textptr != ']')
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_GAMEARRAYBNC);
+            return 1;
+        }
+        textptr++;
+        C_GetNextVar();
+        return 0;
+
+    case CON_GETARRAYSIZE:
+    case CON_RESIZEARRAY:
+        C_GetNextLabelName();
+        i = GetGamearrayID(tlabel);
+        if (i > (-1))
+        {
+            *g_scriptPtr++ = i;
+        }
+        else
+            C_ReportError(ERROR_NOTAGAMEARRAY);
+        C_SkipComments();
+        C_GetNextVar();
+        return 0;
+
+#if 0
+    case CON_WRITEARRAYTOFILE:
+    case CON_READARRAYFROMFILE:
+        C_GetNextLabelName();
+        i = GetGamearrayID(tlabel);
+        if (i > (-1))
+        {
+            *g_scriptPtr++ = i;
+        }
+        else
+            C_ReportError(ERROR_NOTAGAMEARRAY);
+        C_GetNextValue(LABEL_DEFINE);
+        return 0;
+#endif
+
+// *** var ops
+    case CON_RANDVAR:
+    case CON_DISPLAYRANDVAR:
+    case CON_SETVAR:
+    case CON_ADDVAR:
+    case CON_SUBVAR:
+    case CON_MULVAR:
+    case CON_DIVVAR:
+    case CON_MODVAR:
+    case CON_ANDVAR:
+    case CON_ORVAR:
+    case CON_XORVAR:
+    case CON_SHIFTVARL:
+    case CON_SHIFTVARR:
+    {
+        instype *inst = g_scriptPtr-1;
+        const char *tptr = textptr;
+        // syntax: [rand|add|set]var    <var1> <const1>
+        // sets var1 to const1
+        // adds const1 to var1 (const1 can be negative...)
+        //printf("Found [add|set]var at line= %d\n",g_lineNumber);
+
+        // get the ID of the DEF
+        C_GetNextVarType(GAMEVAR_READONLY);
+
+        C_GetNextValue(LABEL_DEFINE); // the number to check against...
+
+        if (tw == CON_MULVAR && *(g_scriptPtr-1) == -1)
+        {
+            *inst = CON_INV;
+            g_scriptPtr--;
+            return 0;
+        }
+
+        if (tw == CON_DIVVAR || (tw == CON_MULVAR && *(g_scriptPtr-1) > 0))
+        {
+            int32_t i = *(g_scriptPtr-1);
+            j = klabs(i);
+
+            if (C_IntPow2(j))
+            {
+                *inst = ((tw == CON_DIVVAR) ? CON_SHIFTVARR : CON_SHIFTVARL);
+                *(g_scriptPtr-1) = C_Pow2IntLogBase2(j);
+//                    initprintf("%s:%d: replacing multiply/divide with shift\n",g_szScriptFileName,g_lineNumber);
+
+                if (i == j)
+                    return 0;
+
+                *g_scriptPtr++ = CON_INV + (g_lineNumber<<12);
+                textptr = tptr;
+                C_GetNextVarType(GAMEVAR_READONLY);
+                C_GetNextValue(LABEL_DEFINE);
+                g_scriptPtr--;
+//                    initprintf("%s:%d: adding inversion\n",g_szScriptFileName,g_lineNumber);
+            }
+        }
+    }
+    return 0;
+
+// *** varvar ops
+    case CON_RANDVARVAR:
+    case CON_DISPLAYRANDVARVAR:
+    case CON_SETVARVAR:
+    case CON_ADDVARVAR:
+    case CON_SUBVARVAR:
+    case CON_MULVARVAR:
+    case CON_DIVVARVAR:
+    case CON_MODVARVAR:
+    case CON_ANDVARVAR:
+    case CON_ORVARVAR:
+    case CON_XORVARVAR:
+    {
+        instype *inst = (g_scriptPtr-1);
+        const char *otextptr;
+        int32_t ow, oe;
+
+        C_GetNextVarType(GAMEVAR_READONLY);
+
+        ow = g_numCompilerWarnings;
+        oe = g_numCompilerErrors;
+        otextptr = textptr;
+
+        g_noConstBitwidthWarning = 1;
+        C_GetNextVar();
+        g_noConstBitwidthWarning = 0;
+        if (!g_numCompilerErrors && g_numCompilerWarnings > ow)
+        {
+            g_numCompilerWarnings--;
+            textptr = otextptr;
+            g_scriptPtr--;
+            *inst -= (CON_SETVARVAR - CON_SETVAR);
+            C_GetNextValue(LABEL_DEFINE);
+        }
+        return 0;
+    }
+
+    case CON_SIN:
+    case CON_COS:
+        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVar();
+        return 0;
+
+// *** random
+    case CON_DISPLAYRAND:
+        // syntax: displayrand <var>
+        // gets rand (not game rand) into <var>
+
+        C_GetNextVarType(GAMEVAR_READONLY);
+        break;
+
+// *** other math
+    case CON_INV:
+        C_GetNextVarType(GAMEVAR_READONLY);
+        return 0;
+        
+    case CON_SQRT:
+    {
+        // syntax sqrt <invar> <outvar>
+        // gets the sqrt of invar into outvar
+
+        C_GetNextVar();
+        // target var
+        C_GetNextVarType(GAMEVAR_READONLY);
+        break;
+    }
+
+    case CON_MULSCALE:
+        C_GetManyVars(4);
+        return 0;
+
+    case CON_DIST:
+    case CON_LDIST:
+    case CON_GETANGLE:
+    case CON_GETINCANGLE:
+        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVar();
+        C_GetNextVar();
+        return 0;
+
+    case CON_FOR:  // special-purpose iteration
+    {
+        ofstype offset;
+        instype *tscrptr;
+        int32_t how;
+
+        C_GetNextVarType(GAMEVAR_READONLY|GAMEVAR_SPECIAL);  // only simple vars allowed
+
+        C_GetNextLabelName();
+        how = hash_find(&iterH, tlabel);
+        if (how < 0)
+        {
+            C_ReportError(-1);
+            initprintf("%s:%d: error: unknown iteration type `%s'.\n",g_szScriptFileName,g_lineNumber,tlabel);
+            g_numCompilerErrors++;
+            return 1;
+        }
+        *g_scriptPtr++ = how;
+
+        if (how <= ITER_DRAWNSPRITES) {}
+        else C_GetNextVarType(0);
+
+        offset = g_scriptPtr-script;
+        g_scriptPtr++; //Leave a spot for the location to jump to after completion
+
+        C_ParseCommand();
+
+        tscrptr = (instype *)script+offset;
+        *tscrptr = (g_scriptPtr-script)-offset;  // relative offset
+        return 0;
+    }
+
+// *** if&while var&varvar
+    case CON_IFVARL:
+    case CON_IFVARLE:
+    case CON_IFVARG:
+    case CON_IFVARGE:
+    case CON_IFVARE:
+    case CON_IFVARN:
+    case CON_IFVARAND:
+    case CON_IFVAROR:
+    case CON_IFVARXOR:
+    case CON_IFVAREITHER:
+    case CON_IFVARBOTH:
+    case CON_WHILEVARN:
+    case CON_WHILEVARL:
+// ---
+    case CON_IFVARVARL:
+    case CON_IFVARVARLE:
+    case CON_IFVARVARG:
+    case CON_IFVARVARGE:
+    case CON_IFVARVARE:
+    case CON_IFVARVARN:
+    case CON_IFVARVARAND:
+    case CON_IFVARVAROR:
+    case CON_IFVARVARXOR:
+    case CON_IFVARVAREITHER:
+    case CON_IFVARVARBOTH:
+    case CON_WHILEVARVARN:
+    case CON_WHILEVARVARL:
+// ---
+    case CON_IFRND:
+// vvv if* using current sprite
+    case CON_IFANGDIFFL:
+    case CON_IFSPRITEPAL:
+    case CON_IFACTOR:
+    case CON_IFPDISTL:
+    case CON_IFPDISTG:
+///    case CON_IFGAPZL:
+///    case CON_IFFLOORDISTL:
+///    case CON_IFCEILINGDISTL:
+///    case CON_IFSOUND:
+// ---
+    case CON_IFINSIDE:
+// ---
+    case CON_IFAWAYFROMWALL:
+    case CON_IFCANSEE:
+    case CON_IFONWATER:
+    case CON_IFINWATER:
+    case CON_IFOUTSIDE:
+///    case CON_IFHITSPACE:
+///    case CON_IFINSPACE:
+///    case CON_IFINOUTERSPACE:
+///    case CON_IFCANSEETARGET:
+///    case CON_IFNOSOUNDS:
+    {
+        ofstype offset;
+        ofstype lastScriptOfs = (g_scriptPtr-script-1);
+        instype *tscrptr;
+        g_ifElseAborted = 0;
+
+        if (tw<=CON_WHILEVARL)  // careful! check this against order in m32def.h!
+        {
+            C_GetNextVar();
+            C_GetNextValue(LABEL_DEFINE); // the number to check against...
+        }
+        else if (tw<=CON_WHILEVARVARL)
+        {
+            instype *inst = (g_scriptPtr-1);
+            const char *otextptr;
+            int32_t ow, oe;
+
+            C_GetNextVar();
+
+            ow = g_numCompilerWarnings;
+            oe = g_numCompilerErrors;
+            otextptr = textptr;
+
+            g_noConstBitwidthWarning = 1;
+            C_GetNextVar();
+            g_noConstBitwidthWarning = 0;
+            if (!g_numCompilerErrors && g_numCompilerWarnings > ow)
+            {
+                g_numCompilerWarnings--;
+                textptr = otextptr;
+                g_scriptPtr--;
+                *inst -= (CON_IFVARVARL - CON_IFVARL);
+                C_GetNextValue(LABEL_DEFINE);
+            }
+        }
+        else if (tw<=CON_IFPDISTG)
+///            C_GetNextValue(LABEL_DEFINE);
+            C_GetNextVar();
+        else if (tw<=CON_IFINSIDE)
+            C_GetManyVars(3);
+        // else {}
+
+        if (C_CheckMalformedBranch(lastScriptOfs))
+            return 0;
+
+        offset = (g_scriptPtr-script);
+        g_scriptPtr++; //Leave a spot for the fail location
+
+        C_ParseCommand();
+
+        if (C_CheckEmptyBranch(tw, lastScriptOfs))
+            return 0;
+
+        tscrptr = (instype *)script+offset;
+        *tscrptr = (g_scriptPtr-script)-offset;  // relative offset
+
+        if (tw != CON_WHILEVARN && tw != CON_WHILEVARVARN)
+        {
+            j = C_GetKeyword();
+
+            if (j == CON_ELSE || j == CON_LEFTBRACE)
+                g_checkingIfElse++;
+        }
+
+        return 0;
+    }
+
+// *** BUILD functions
+    case CON_INSERTSPRITE:
+    case CON_DUPSPRITE:
+    case CON_DELETESPRITE:
+        C_GetNextVar();
+        break;
+
+    case CON_LASTWALL:
+        C_GetNextVar();
+        C_GetNextVarType(GAMEVAR_READONLY);
+        break;
+
+    case CON_UPDATESECTOR:
+    case CON_UPDATESECTORZ:
+        C_GetManyVars(2);
+        if (tw==CON_UPDATESECTORZ)
+            C_GetNextVar();
+        C_GetNextVarType(GAMEVAR_READONLY);
+        break;
+
+    case CON_GETZRANGE:
+        C_GetManyVars(4);
+        C_GetManyVarsType(GAMEVAR_READONLY,4);
+        C_GetManyVars(2);
+        break;
+
+    case CON_HITSCAN:
+    case CON_CANSEE:
+        // get the ID of the DEF
+        C_GetManyVars(tw==CON_CANSEE?8:7);
+        C_GetManyVarsType(GAMEVAR_READONLY,tw==CON_CANSEE?1:6);
+        if (tw==CON_HITSCAN) C_GetNextVar();
+        break;
+    case CON_CANSEESPR:
+        C_GetManyVars(2);
+        C_GetNextVarType(GAMEVAR_READONLY);
+        break;
+
+    case CON_NEARTAG:
+    case CON_ROTATEPOINT:
+        C_GetManyVars(5);
+        C_GetManyVarsType(GAMEVAR_READONLY,2);
+        if (tw == CON_NEARTAG)
+        {
+            C_GetManyVarsType(GAMEVAR_READONLY,2);
+            C_GetManyVars(2);
+        }
+        break;
+    case CON_DRAGPOINT:
+        C_GetManyVars(3);
+        return 0;
+
+    case CON_GETFLORZOFSLOPE:
+    case CON_GETCEILZOFSLOPE:
+        C_GetManyVars(3);
+        C_GetNextVarType(GAMEVAR_READONLY);
+        return 0;
+
+    case CON_BSETSPRITE:  // was CON_SETSPRITE
+        C_GetManyVars(4);
+        break;
+
+    case CON_CHANGESPRITESTAT:
+    case CON_CHANGESPRITESECT:
+    case CON_HEADSPRITESTAT:
+    case CON_PREVSPRITESTAT:
+    case CON_NEXTSPRITESTAT:
+    case CON_HEADSPRITESECT:
+    case CON_PREVSPRITESECT:
+    case CON_NEXTSPRITESECT:
+        C_GetManyVars(2);
+        return 0;
+
+    case CON_SECTOROFWALL:
+        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVar();
+        return 0;
+
+
+// *** stuff
+    case CON_ADDLOGVAR:
+        // syntax: addlogvar <var>
+        // prints the line number in the log file.
+        C_GetNextVar();
+        return 0;
+
+    case CON_ADDLOG:
+        // syntax: addlog
+        // prints the line number in the log file.
+        return 0;
+    case CON_DEBUG:
+        C_GetNextValue(LABEL_DEFINE);
+        return 0;
+
+// *** strings
+    case CON_DEFINEQUOTE:
+    case CON_REDEFINEQUOTE:
+        if (tw == CON_DEFINEQUOTE)
+            g_scriptPtr--;        
+
+        C_GetNextValue(LABEL_DEFINE);
+
+        k = *(g_scriptPtr-1);
+
+        if (k<0 || k >= MAXQUOTES)
+        {
+            initprintf("%s:%d: error: quote number out of range (0 to %d).\n",g_szScriptFileName,g_lineNumber,MAXQUOTES-1);
+            g_numCompilerErrors++;
+            k = MAXQUOTES;
+        }
+
+        if (ScriptQuotes[k] == NULL)
+            ScriptQuotes[k] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
+        if (!ScriptQuotes[k])
+        {
+            Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(uint8_t) * MAXQUOTELEN);
+            g_numCompilerErrors++;
+            return 1;
+        }
+
+        if (tw == CON_DEFINEQUOTE)
+            g_scriptPtr--;
+
+
+        while (*textptr == ' ' || *textptr == '\t')
+            textptr++;
+
+        if (tw == CON_REDEFINEQUOTE)
+        {
+            if (ScriptQuoteRedefinitions[g_numQuoteRedefinitions] == NULL)
+                ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
+            if (!ScriptQuoteRedefinitions[g_numQuoteRedefinitions])
+            {
+                Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(uint8_t) * MAXQUOTELEN);
+                g_numCompilerErrors++;
+                return 1;
+            }
+        }
+
+        i = 0;
+        while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+        {
+//            if (*textptr == '%' && *(textptr+1) == 's')
+//            {
+//                initprintf("%s:%d: error: quote text contains string identifier.\n",g_szScriptFileName,g_lineNumber);
+//                g_numCompilerErrors++;
+//                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+//                break;
+//            }
+            if (tw == CON_DEFINEQUOTE)
+                *(ScriptQuotes[k]+i) = *textptr;
+            else
+                *(ScriptQuoteRedefinitions[g_numQuoteRedefinitions]+i) = *textptr;
+            textptr++,i++;
+            if (i >= MAXQUOTELEN-1)
+            {
+                initprintf("%s:%d: warning: truncating quote text to %d characters.\n",g_szScriptFileName,g_lineNumber,MAXQUOTELEN-1);
+                g_numCompilerWarnings++;
+                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                break;
+            }
+        }
+        if (tw == CON_DEFINEQUOTE)
+            *(ScriptQuotes[k]+i) = '\0';
+        else
+        {
+            *(ScriptQuoteRedefinitions[g_numQuoteRedefinitions]+i) = '\0';
+            *g_scriptPtr++ = g_numQuoteRedefinitions;
+            g_numQuoteRedefinitions++;
+        }
+        return 0;
+
+    case CON_QUOTE:
+    case CON_ERRORINS:
+    case CON_PRINTMESSAGE16:
+        C_GetNextVar();
+        return 0;
+    case CON_PRINTMESSAGE256:
+        C_GetManyVars(3);
+        return 0;
+    case CON_PRINTEXT256:
+        C_GetManyVars(6);
+        return 0;
+
+    case CON_QSPRINTF:
+        C_GetManyVars(2);
+
+        j = 0;
+        while (C_GetKeyword() == -1 && j < 32)
+            C_GetNextVar(), j++;
+
+        *g_scriptPtr++ = CON_NULLOP + (g_lineNumber<<12);
+        return 0;
+
+    case CON_QSTRCAT:
+    case CON_QSTRCPY:
+    case CON_QSTRLEN:
+#if 0
+    case CON_QGETSYSSTR:
+        C_GetManyVars(2);
+        return 0;
+#endif
+    case CON_QSTRNCAT:
+        C_GetManyVars(3);
+        return 0;
+    case CON_QSUBSTR:
+        C_GetManyVars(4);
+        return 0;
+
+// *** findnear*
+    case CON_FINDNEARSPRITE:
+    case CON_FINDNEARSPRITE3D:
+    case CON_FINDNEARSPRITEZ:
+    {
+        // syntax findnearactor <type> <maxdist> <getvar>
+        // gets the sprite ID of the nearest actor within max dist
+        // that is of <type> into <getvar>
+        // -1 for none found
+
+        C_GetNextValue(LABEL_DEFINE); // get <type>
+        C_GetNextValue(LABEL_DEFINE); // get maxdist
+
+        if (tw==CON_FINDNEARSPRITEZ)
+            C_GetNextValue(LABEL_DEFINE);
+
+        // target var
+        // get the ID of the DEF
+        C_GetNextVarType(GAMEVAR_READONLY);
+        break;
+    }
+
+    case CON_FINDNEARSPRITEVAR:
+    case CON_FINDNEARSPRITE3DVAR:
+    case CON_FINDNEARSPRITEZVAR:
+    {
+        C_GetNextValue(LABEL_DEFINE); // get <type>
+
+        // get the ID of the DEF
+        C_GetNextVar();
+
+        if (tw==CON_FINDNEARSPRITEZVAR)
+            C_GetNextVar();
+
+        // target var
+        // get the ID of the DEF
+        C_GetNextVarType(GAMEVAR_READONLY);
+        break;
+    }
+
+
+    case CON_GETTICKS:
+        C_GetNextVarType(GAMEVAR_READONLY);
+        return 0;
+
+    case CON_GETTIMEDATE:
+        C_GetManyVarsType(GAMEVAR_READONLY,8);
+        break;
+
+    case CON_SETASPECT:
+        C_GetNextVar();        // get the ID of the DEF
+        C_GetNextVar();        // get the ID of the DEF
+        return 0;
+
+    case CON_SPGETLOTAG:
+    case CON_SPGETHITAG:
+    case CON_SECTGETLOTAG:
+    case CON_SECTGETHITAG:
+    case CON_GETTEXTUREFLOOR:
+    case CON_GETTEXTURECEILING:
+        // no paramaters...
+        return 0;
+
+    case CON_SETI:
+        C_GetNextVar();
+        return 0;
+
+    case CON_SIZEAT:
+        C_GetManyVars(2);
+//        C_GetNextValue(LABEL_DEFINE);
+//        C_GetNextValue(LABEL_DEFINE);
+        break;
+
+///    case CON_ANGOFF:
+///    case CON_SOUND:
+///    case CON_GLOBALSOUND:
+///    case CON_SOUNDONCE:
+///    case CON_STOPSOUND:
+
+    case CON_CSTATOR:
+    case CON_SPRITEPAL:
+    case CON_CACTOR:
+    case CON_CLIPDIST:
+        C_GetNextVar();
+        return 0;
+
+    case CON_CSTAT:
+        C_GetNextValue(LABEL_DEFINE);
+        if (*(g_scriptPtr-1) == 32767)
+        {
+            *(g_scriptPtr-1) = 32768;
+            C_ReportError(-1);
+            initprintf("%s:%d: warning: tried to set cstat 32767, using 32768 instead.\n",g_szScriptFileName,g_lineNumber);
+            g_numCompilerWarnings++;
+        }
+        else if ((*(g_scriptPtr-1) & 32) && (*(g_scriptPtr-1) & 16))
+        {
+            i = *(g_scriptPtr-1);
+            *(g_scriptPtr-1) ^= 48;
+            C_ReportError(-1);
+            initprintf("%s:%d: warning: tried to set cstat %d, using %d instead.\n",g_szScriptFileName,g_lineNumber,i,*(g_scriptPtr-1));
+            g_numCompilerWarnings++;
+        }
+        return 0;
+
+    case CON_ROTATESPRITE16:
+    case CON_ROTATESPRITE:
+        if (g_parsingEventOfs < 0 && g_currentStateIdx < 0)
+        {
+            C_ReportError(ERROR_EVENTONLY);
+            g_numCompilerErrors++;
+        }
+        // syntax:
+        // int32_t x, int32_t y, int32_t z, short a, short tilenum, int8_t shade, char orientation, x1, y1, x2, y2
+        // myospal adds char pal
+        C_GetManyVars(12);        // get the ID of the DEFs
+        break;
+
+    case CON_SETGAMEPALETTE:
+        C_GetNextVar();
+        return 0;
+    }
+    return 0;
+}
+
+/* Anything added with C_AddDefinition() cannot be overwritten in the CONs */
+
+static void C_AddDefinition(const char *lLabel,int32_t lValue, uint8_t lType)
+{
+    Bstrcpy(label+(g_numLabels*MAXLABELLEN), lLabel);
+    hash_add(&labelH, label+(g_numLabels*MAXLABELLEN), g_numLabels);
+    labeltype[g_numLabels] = lType;
+    labelval[g_numLabels++] = lValue;
+    g_numDefaultLabels++;
+}
+
+static void C_AddDefaultDefinitions(void)
+{
+    // events must come first and in correct order
+    C_AddDefinition("EVENT_ENTER3DMODE", EVENT_ENTER3DMODE, LABEL_EVENT);
+    C_AddDefinition("EVENT_ANALYZESPRITES", EVENT_ANALYZESPRITES, LABEL_EVENT);
+    C_AddDefinition("EVENT_INSERTSPRITE2D", EVENT_INSERTSPRITE2D, LABEL_EVENT);
+    C_AddDefinition("EVENT_INSERTSPRITE3D", EVENT_INSERTSPRITE3D, LABEL_EVENT);
+
+    C_AddDefinition("CLIPMASK0", CLIPMASK0, LABEL_DEFINE);
+    C_AddDefinition("CLIPMASK1", CLIPMASK1, LABEL_DEFINE);
+
+    C_AddDefinition("MAXSPRITES", MAXSPRITES, LABEL_DEFINE);
+    C_AddDefinition("MAXSECTORS", MAXSECTORS, LABEL_DEFINE);
+    C_AddDefinition("MAXWALLS", MAXWALLS, LABEL_DEFINE);
+    C_AddDefinition("MAXTILES", MAXTILES, LABEL_DEFINE);
+
+//    C_AddDefinition("STR_MAPFILENAME",STR_MAPFILENAME, LABEL_DEFINE);
+//    C_AddDefinition("STR_VERSION",STR_VERSION, LABEL_DEFINE);
+
+    C_AddDefinition("NO",0, LABEL_DEFINE);
+}
+
+void C_CompilationInfo(void)
+{
+    int32_t j, k=0;
+    initprintf("Compiled code info: (size=%ld*%d bytes)\n",
+               (unsigned)(g_scriptPtr-script), sizeof(instype));
+    initprintf("  %d user labels, %d/%d user variables, %d/%d user arrays\n",
+               g_numLabels-g_numDefaultLabels,
+               g_gameVarCount-g_systemVarCount, MAXGAMEVARS-g_systemVarCount,
+               g_gameArrayCount-g_systemArrayCount, MAXGAMEARRAYS-g_systemArrayCount);
+    for (j=0; j<MAXEVENTS; j++)
+        if (aEventOffsets[j] >= 0)
+            k++;
+    initprintf("  %d states, %d/%d defined events\n", g_stateCount, k,MAXEVENTS);
+
+    for (j=MAXQUOTES-1, k=0; j>=0; j--)
+        if (ScriptQuotes[j])
+            k++;
+    if (k | g_numQuoteRedefinitions)
+        initprintf("  %d/%d quotes, %d quote redefinitions\n",k,MAXQUOTES,g_numQuoteRedefinitions);
+}
+
+void C_Compile(const char *filenameortext, int32_t isfilename)
+{
+    char *mptr = NULL;
+    static char firstime=1;
+    int32_t i,j;
+    int32_t fs,fp;
+    int32_t startcompiletime;
+    instype* oscriptPtr;
+    int32_t ostateCount = g_stateCount;
+
+    if (firstime)
+    {
+        label = Bmalloc(label_allocsize * MAXLABELLEN * sizeof(char));
+        labelval = Bmalloc(label_allocsize * sizeof(int32_t));
+        labeltype = Bmalloc(label_allocsize * sizeof(uint8_t));
+
+        statesinfo = Bmalloc(statesinfo_allocsize * sizeof(statesinfo_t));
+
+        for (i=0; i<MAXEVENTS; i++)
+        {
+            aEventOffsets[i] = -1;
+            aEventEnabled[i] = 0;
+        }
+
+        C_InitHashes();
+        Gv_Init();
+        C_AddDefaultDefinitions();
+
+        script = Bcalloc(g_scriptSize, sizeof(instype));
+                                                                      //        initprintf("script: %d\n",script);
+        if (!script || !label)
+        {
+            initprintf("C_Compile(): ERROR: out of memory!\n");
+            g_numCompilerErrors++;
+            return;
+        }
+
+        if ((sizeof(keyw)/sizeof(keyw[0]))-1 != CON_END)
+            initprintf("INTERNAL WARNING: keyw[] and CON_END don't match!");
+
+        g_scriptPtr = script+1;
+
+        firstime = 0;
+    }
+
+    if (isfilename)
+    {
+        fs = Bstrlen(filenameortext);
+        mptr = Bmalloc(fs+1+4);
+        if (!mptr)
+        {
+            initprintf("C_Compile(): ERROR: out of memory!\n");
+            g_numCompilerErrors++;
+            return;
+        }
+        Bmemcpy(mptr, filenameortext, fs+1);
+
+        fp = kopen4load(mptr, 0 /*g_loadFromGroupOnly*/);
+        if (fp == -1) // JBF: was 0
+        {
+            Bstrcat(&mptr[fs], ".m32");
+            fp = kopen4load(mptr, 0 /*g_loadFromGroupOnly*/);
+            if (fp == -1)
+            {
+                initprintf("M32 file `%s' not found.\n", mptr);
+                Bfree(mptr);
+                //g_loadFromGroupOnly = 1;
+                return;
+            }
+        }
+
+        fs = kfilelength(fp);
+        initprintf("--- Compiling: %s (%d bytes)\n",mptr,fs);
+        Bstrcpy(g_szScriptFileName, mptr);   // JBF 20031130: Store currently compiling file name
+        Bfree(mptr);
+    }
+    else
+    {
+        Bsprintf(g_szScriptFileName, "(console)");
+//        fs = Bstrlen(filenameortext);
+//        initprintf("Compiling: (from console) (%d bytes)\n",fs);
+    }
+
+//    flushlogwindow = 0;
+
+    startcompiletime = getticks();
+
+    if (isfilename)
+    {
+        mptr = (char *)Bmalloc(fs+1);
+        if (!mptr)
+        {
+            initprintf("Failed allocating %d byte CON text buffer.", fs+1);
+            return;
+        }
+
+        mptr[fs] = 0;
+
+        kread(fp, mptr, fs);
+        kclose(fp);
+        textptr = (char *)mptr;
+    }
+    else
+        textptr = filenameortext;
+
+    g_numCompilerWarnings = 0;
+    g_numCompilerErrors = 0;
+    g_lineNumber = 1;
+    g_totalLines = 0;
+
+    oscriptPtr = g_scriptPtr;
+
+    while (C_ParseCommand() == 0);
+
+//    flushlogwindow = 1;
+
+    if (g_numCompilerErrors >= ABORTERRCNT)
+        initprintf("fatal error: too many errors: Aborted\n");
+
+    //*script = g_scriptPtr-script;
+
+    if (mptr)
+        Bfree(mptr);
+
+    if (g_stateCount > ostateCount)
+    {
+        for (i=0; i<g_gameVarCount; i++)
+            if (aGameVars[i].dwFlags & GAMEVAR_PERBLOCK)
+            {
+                if (aGameVars[i].val.plValues)
+                {
+                    aGameVars[i].val.plValues = Brealloc(aGameVars[i].val.plValues, (1+MAXEVENTS+g_stateCount)*sizeof(int32_t));
+                    for (j=ostateCount; j<g_stateCount; j++)
+                        aGameVars[i].val.plValues[1+MAXEVENTS+j] = aGameVars[i].lDefault;
+                }
+                else
+                {
+                    aGameVars[i].val.plValues = Bmalloc((1+MAXEVENTS+g_stateCount)*sizeof(int32_t));
+                    for (j=0; j<(1+MAXEVENTS+g_stateCount); j++)
+                        aGameVars[i].val.plValues[j] = aGameVars[i].lDefault;
+                }
+            }
+    }
+
+    if (g_numCompilerErrors)
+        g_scriptPtr = oscriptPtr;
+    else
+    {
+        g_totalLines += g_lineNumber;
+//        C_SetScriptSize(g_scriptPtr-script+8);
+        if (isfilename)
+        {
+            initprintf("Script compiled in %dms\n", getticks() - startcompiletime);
+            C_CompilationInfo();
+        }
+///        for (i=MAXQUOTES-1; i>=0; i--)
+///            if (ScriptQuotes[i] == NULL)
+///                ScriptQuotes[i] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
+    }
+
+    if (g_numCompilerErrors)
+    {
+        initprintf("--- Found %d errors", g_numCompilerErrors);
+        if (g_numCompilerWarnings)
+            initprintf(", %d warnings.\n", g_numCompilerWarnings);
+        else
+            initprintf(".\n");
+    }
+    else if (g_numCompilerWarnings)
+        initprintf("--- Found %d warnings.\n", g_numCompilerWarnings);
+}
+
+void C_ReportError(int32_t iError)
+{
+    if (Bstrcmp(g_szCurrentBlockName, g_szLastBlockName))
+    {
+        if (g_parsingEventOfs >= 0 || g_currentStateIdx >= 0)
+            initprintf("%s: In %s `%s':\n",g_szScriptFileName,
+                       g_parsingEventOfs >= 0 ? "event":"state", g_szCurrentBlockName);
+        else initprintf("%s: At top level:\n", g_szScriptFileName);
+        Bstrcpy(g_szLastBlockName, g_szCurrentBlockName);
+    }
+    switch (iError)
+    {
+    case ERROR_CLOSEBRACKET:
+        initprintf("%s:%d: error: found more `}' than `{' before `%s'.\n",
+                   g_szScriptFileName, g_lineNumber, tempbuf);
+        break;
+    case ERROR_EVENTONLY:
+        initprintf("%s:%d: error: `%s' only valid during events.\n",
+                   g_szScriptFileName, g_lineNumber, tempbuf);
+        break;
+    case ERROR_EXCEEDSMAXTILES:
+        initprintf("%s:%d: error: `%s' value exceeds MAXTILES.  Maximum is %d.\n",
+                   g_szScriptFileName, g_lineNumber, tempbuf, MAXTILES-1);
+        break;
+    case ERROR_EXPECTEDKEYWORD:
+        initprintf("%s:%d: error: expected a keyword but found `%s'.\n",
+                   g_szScriptFileName, g_lineNumber, tempbuf);
+        break;
+    case ERROR_FOUNDWITHIN:
+        initprintf("%s:%d: error: found `%s' within %s.\n",
+                   g_szScriptFileName, g_lineNumber, tempbuf, (g_parsingEventOfs >= 0)?"an event":"a state");
+        break;
+    case ERROR_ISAKEYWORD:
+        initprintf("%s:%d: error: symbol `%s' is a keyword.\n",
+                   g_szScriptFileName, g_lineNumber, tlabel);
+        break;
+    case ERROR_NOENDSWITCH:
+        initprintf("%s:%d: error: did not find `endswitch' before `%s'.\n",
+                   g_szScriptFileName, g_lineNumber, tlabel);
+        break;
+    case ERROR_NOTAGAMEDEF:
+        initprintf("%s:%d: error: symbol `%s' is not a game definition.\n",
+                   g_szScriptFileName, g_lineNumber, tlabel);
+        break;
+    case ERROR_NOTAGAMEVAR:
+        initprintf("%s:%d: error: symbol `%s' is not a game variable.\n",
+                   g_szScriptFileName, g_lineNumber, tlabel);
+        break;
+    case ERROR_NOTAGAMEARRAY:
+        initprintf("%s:%d: error: symbol `%s' is not a game array.\n",
+                   g_szScriptFileName, g_lineNumber, tlabel);
+        break;
+    case ERROR_GAMEARRAYBNC:
+        initprintf("%s:%d: error: square brackets for index of game array not closed, expected ] found %c\n",
+                   g_szScriptFileName, g_lineNumber, *textptr);
+        break;
+    case ERROR_GAMEARRAYBNO:
+        initprintf("%s:%d: error: square brackets for index of game array not opened, expected [ found %c\n",
+                   g_szScriptFileName, g_lineNumber, *textptr);
+        break;
+    case ERROR_INVALIDARRAYWRITE:
+        initprintf("%s:%d: error: arrays can only be written to using `setarray'\n",
+                   g_szScriptFileName, g_lineNumber);
+        break;
+    case ERROR_EXPECTEDSIMPLEVAR:
+        initprintf("%s:%d: error: expected a simple gamevar or a constant\n",
+                   g_szScriptFileName, g_lineNumber);
+        break;
+    case ERROR_OPENBRACKET:
+        initprintf("%s:%d: error: found more `{' than `}' before `%s'.\n",
+                   g_szScriptFileName, g_lineNumber, tempbuf);
+        break;
+    case ERROR_PARAMUNDEFINED:
+        initprintf("%s:%d: error: parameter `%s' is undefined.\n",
+                   g_szScriptFileName, g_lineNumber, tempbuf);
+        break;
+    case ERROR_SYMBOLNOTRECOGNIZED:
+        initprintf("%s:%d: error: symbol `%s' is not recognized.\n",
+                   g_szScriptFileName, g_lineNumber, tlabel);
+        break;
+    case ERROR_SYNTAXERROR:
+        initprintf("%s:%d: error: syntax error.\n",
+                   g_szScriptFileName, g_lineNumber);
+        break;
+    case ERROR_VARREADONLY:
+        initprintf("%s:%d: error: variable `%s' is read-only.\n",
+                   g_szScriptFileName, g_lineNumber, tlabel);
+        break;
+    case ERROR_VARTYPEMISMATCH:
+        initprintf("%s:%d: error: variable `%s' is of the wrong type.\n",
+                   g_szScriptFileName, g_lineNumber, tlabel);
+        break;
+    case ERROR_LABELINUSE:
+        initprintf("%s:%d: error: label `%s' is already in use by a %s.\n",
+                   g_szScriptFileName, g_lineNumber, tlabel, g_tw==CON_DEFSTATE?"define":"state");
+        break;
+//    case WARNING_BADGAMEVAR:
+//        initprintf("%s:%ld: warning: variable `%s' should be either per-player OR per-actor, not both.\n",
+//                   g_szScriptFileName, g_lineNumber, tlabel);
+//        break;
+    case WARNING_DUPLICATECASE:
+        initprintf("%s:%ld: warning: duplicate case ignored.\n",
+                   g_szScriptFileName, g_lineNumber);
+        break;
+    case WARNING_DUPLICATEDEFINITION:
+        initprintf("%s:%d: warning: duplicate game definition `%s' ignored.\n",
+                   g_szScriptFileName, g_lineNumber, tlabel);
+        break;
+    case WARNING_LABELSONLY:
+        initprintf("%s:%d: warning: expected a label, found a constant.\n",
+                   g_szScriptFileName, g_lineNumber);
+        break;
+    case WARNING_NAMEMATCHESVAR:
+        initprintf("%s:%d: warning: symbol `%s' already used for game variable.\n",
+                   g_szScriptFileName, g_lineNumber, tlabel);
+    case WARNING_CONSTANTBITSIZE:
+        initprintf("%s:%d: warning: constants where gamevars are expected save only 16 bits.\n",
+                   g_szScriptFileName,g_lineNumber);
+        break;
+    }
+}

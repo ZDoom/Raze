@@ -17,6 +17,7 @@
 #include "winlayer.h"
 #endif
 
+#include "m32script.h"
 
 #define TIMERINTSPERSECOND 120
 
@@ -1105,6 +1106,8 @@ void editinput(void)
 
                 updatenumsprites();
                 asksave = 1;
+
+                X_OnEvent(EVENT_INSERTSPRITE3D, i);
             }
 
             keystatus[0x1f] = 0;
@@ -3163,6 +3166,8 @@ SKIP:
                 printmessage16("Sprite inserted.");
                 updatenumsprites();
                 asksave = 1;
+
+                X_OnEvent(EVENT_INSERTSPRITE2D, i);
             }
 
             keystatus[0x1f] = 0;
@@ -4719,6 +4724,8 @@ CANCEL:
     pos.z = oposz;
     searchx = scale(searchx,xdimgame,xdim2d);
     searchy = scale(searchy,ydimgame,ydim2d-STATUS2DSIZ);
+
+    X_OnEvent(EVENT_ENTER3DMODE, -1);
 }
 
 void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y)

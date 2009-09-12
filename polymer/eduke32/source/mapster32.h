@@ -101,10 +101,10 @@ static void SearchSectorsForward();
 static void SearchSectorsBackward();
 static inline void SpriteName(int16_t spritenum, char *lo2);
 static void PrintStatus(char *string,int32_t num,char x,char y,char color);
-static inline void SetBOSS1Palette();
-static inline void SetSLIMEPalette();
-static inline void SetWATERPalette();
-static inline void SetGAMEPalette();
+void SetBOSS1Palette();
+void SetSLIMEPalette();
+void SetWATERPalette();
+void SetGAMEPalette();
 
 extern int32_t grid;
 

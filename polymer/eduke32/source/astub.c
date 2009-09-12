@@ -44,6 +44,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "macros.h"
 #include "fastlz.h"
 
+#include "m32script.h"
+#include "m32def.h"
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -3775,6 +3778,7 @@ void drawtileinfo(char *title,int32_t x,int32_t y,int32_t picnum,int32_t shade,i
     int32_t i,j;
     int32_t scale=65536;
     int32_t x1;
+    int32_t oviewingrange=viewingrange, oyxaspect=yxaspect;
 
     j = xdimgame>640?0:1;
     i = ydimgame>>6;
@@ -3783,7 +3787,10 @@ void drawtileinfo(char *title,int32_t x,int32_t y,int32_t picnum,int32_t shade,i
     if (j)x1/=2;
     x1=(int32_t)(x1*(320./xdimgame));
     scale=(int32_t)(scale/(max(tilesizx[picnum],tilesizy[picnum])/24.));
+
+    setaspect(65536L, (int32_t)divscale16(ydim*320L,xdim*200L));
     rotatesprite((x1+13)<<16,(y+11)<<16,scale,0,picnum,shade,pal,2,0L,0L,xdim-1L,ydim-1L);
+    setaspect(oviewingrange, oyxaspect);
 
     x=(int32_t)(x*(xdimgame/320.));
     y=(int32_t)(y*(ydimgame/200.));
@@ -8839,6 +8846,104 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+// M32 script vvv
+static int32_t osdcmd_include(const osdfuncparm_t *parm)
+{
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+    C_Compile(parm->parms[0], 1);
+    return OSDCMD_OK;
+}
+
+static int32_t osdcmd_scriptinfo(const osdfuncparm_t *parm)
+{
+    UNREFERENCED_PARAMETER(parm);
+    C_CompilationInfo();
+    return OSDCMD_OK;
+}
+
+static int32_t osdcmd_do(const osdfuncparm_t *parm)
+{
+    intptr_t tscrofs;
+    char *tp;
+    int32_t slen;
+
+    if (parm->numparms < 1)
+        return OSDCMD_SHOWHELP;
+
+    tscrofs = (g_scriptPtr-script);
+
+    slen = Bstrlen(parm->raw+2);
+    tp = Bmalloc(slen+2);
+    if (!tp)
+    {
+        initprintf("OUT OF MEMORY!\n");
+        return OSDCMD_OK;
+    }
+
+    Bmemcpy(tp, parm->raw+2, slen);
+    tp[slen] = '\n';
+    tp[slen+1] = '\0';
+
+    C_Compile(tp, 0);
+    Bfree(tp);
+    if (g_numCompilerErrors == 0)
+    {
+        *g_scriptPtr = CON_RETURN + (g_lineNumber<<12);
+        insptr = script + tscrofs;
+        Bmemcpy(&vm, &vm_default, sizeof(vmstate_t));
+        X_DoExecute(0);
+//        asksave = 1; // handled in Access(Sprite|Sector|Wall)
+    }
+    g_scriptPtr = script + tscrofs;
+    return OSDCMD_OK;
+}
+
+static int32_t osdcmd_endisableevent(const osdfuncparm_t *parm)
+{
+    int32_t i, j, enable;
+    char buf[64] = "EVENT_";
+
+    if (parm->numparms < 1)
+        return OSDCMD_SHOWHELP;
+
+    enable = !Bstrcasecmp(parm->name, "enableevent");
+
+    if (parm->numparms == 1)
+    {
+        if (!Bstrcasecmp(parm->parms[0], "all"))
+        {
+            for (i=0; i<MAXEVENTS; i++)
+                aEventEnabled[i] = enable?1:0;
+            return OSDCMD_OK;
+        }
+        else if (!Bstrcasecmp(parm->parms[0], "show"))
+        {
+            for (i=0; i<MAXEVENTS; i++)
+                if (aEventOffsets[i] >= 0)
+                    OSD_Printf("%s: %s\n", label+(i*MAXLABELLEN), aEventEnabled[i]?"on":"off");
+            return OSDCMD_OK;
+        }
+    }
+
+    for (i=0; i<parm->numparms; i++)
+    {
+        if (isdigit(parm->parms[i][0]))
+            j = atoi(parm->parms[i]);
+        else if (!Bstrncmp(parm->parms[i], "EVENT_", 6))
+            j = hash_find(&labelH, parm->parms[i]);
+        else
+        {
+            Bstrncat(buf, parm->parms[i], sizeof(buf)-6-1);
+            j = hash_find(&labelH, parm->parms[i]);
+        }
+
+        if (j>=0 && j<MAXEVENTS)
+            aEventEnabled[j] = enable?1:0;
+    }
+    return OSDCMD_OK;
+}
+
 static int32_t registerosdcommands(void)
 {
     OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
@@ -8866,6 +8971,13 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("pk_quickmapcycling", "pk_quickmapcycling: allows cycling of maps with (Shift-)Ctrl-X", osdcmd_vars_pk);
     OSD_RegisterFunction("testplay_addparam", "testplay_addparam \"string\": set additional parameters for test playing", osdcmd_testplay_addparam);
     OSD_RegisterFunction("showheightindicators", "showheightindicators [012]: toggles height indicators in 2D mode", osdcmd_showheightindicators);
+
+    // M32 script
+    OSD_RegisterFunction("include", "include <filnames...>: compiles one or more M32 script files", osdcmd_include);
+    OSD_RegisterFunction("do", "do (m32 script ...): executes M32 script statements", osdcmd_do);
+    OSD_RegisterFunction("scriptinfo", "scriptinfo: shows information about compiled M32 script", osdcmd_scriptinfo);
+    OSD_RegisterFunction("enableevent", "enableevent <all|show||EVENT_...|(event number)>", osdcmd_endisableevent);
+    OSD_RegisterFunction("disableevent", "disableevent <all|show|EVENT_...|(event number)>", osdcmd_endisableevent);
     return 0;
 }
 #define DUKEOSD
@@ -10187,6 +10299,7 @@ void ExtAnalyzeSprites(void)
         }
     }
 #endif
+
     for (i=0,tspr=&tsprite[0]; i<spritesortcnt; i++,tspr++)
     {
         frames=0;
@@ -10314,6 +10427,8 @@ void ExtAnalyzeSprites(void)
 
         }
     }
+
+    X_OnEvent(EVENT_ANALYZESPRITES, -1);
 }
 
 #define MESSAGEX 3 // (xdimgame>>1)
@@ -10689,28 +10804,28 @@ void faketimerhandler(void)
 
 extern int16_t brightness;
 
-static inline void SetBOSS1Palette()
+void SetBOSS1Palette(void)
 {
     if (acurpalette==3) return;
     acurpalette=3;
     setbrightness(brightness,BOSS1palette,0);
 }
 
-static inline void SetSLIMEPalette()
+void SetSLIMEPalette(void)
 {
     if (acurpalette==2) return;
     acurpalette=2;
     setbrightness(brightness,SLIMEpalette,0);
 }
 
-static inline void SetWATERPalette()
+void SetWATERPalette(void)
 {
     if (acurpalette==1) return;
     acurpalette=1;
     setbrightness(brightness,WATERpalette,0);
 }
 
-static inline void SetGAMEPalette()
+void SetGAMEPalette(void)
 {
     if (acurpalette==0) return;
     acurpalette=0;

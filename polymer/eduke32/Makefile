@@ -125,7 +125,10 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(JMACTOBJ)
 
 EDITOROBJS=$(OBJ)/astub.$o \
-    $(OBJ)/mathutil.$o
+	$(OBJ)/m32def.$o \
+	$(OBJ)/m32exec.$o \
+	$(OBJ)/m32vars.$o \
+	$(OBJ)/mathutil.$o
 
 # PLATFORM SPECIFIC SETTINGS
 
