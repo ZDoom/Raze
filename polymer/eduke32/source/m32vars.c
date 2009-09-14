@@ -217,7 +217,7 @@ int32_t __fastcall Gv_GetVarN(register int32_t id)  // 'N' for "no side-effects"
 
     if (id & (0xFFFFFFFF-(MAXGAMEVARS-1)))
     {
-        OSD_Printf(CON_ERROR "Gv_GetVarN(): invalid var index %d\n",g_errorLineNum,keyw[g_tw],index);
+        OSD_Printf(CON_ERROR "Gv_GetVarN(): invalid var index %d\n",g_errorLineNum,keyw[g_tw],id);
         vm.g_errorFlag = 1;
         return -1;
     }
