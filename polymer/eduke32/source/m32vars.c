@@ -249,8 +249,22 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
     if (id == g_iThisActorID)
         return vm.g_i;
 
-    if ((id & 0x0000FFFF) == MAXGAMEVARS)
-        return ((int16_t)(id>>16));
+    if ((id & 0x0000FFFC) == MAXGAMEVARS)
+    {
+        switch (id&3)
+        {
+        case 0:
+            return ((int16_t)(id>>16));
+        case 1:
+            return constants[(id>>16)&0xffff];
+        case 2:
+            return labelval[(id>>16)&0xffff];
+        default:
+            OSD_Printf(CON_ERROR "Gv_GetVarX() (constant): WTF??\n",g_errorLineNum,keyw[g_tw]);
+            vm.g_errorFlag = 1;
+            return -1;
+        }
+    }
 
     {
         register int32_t negateResult = id&(MAXGAMEVARS<<1);

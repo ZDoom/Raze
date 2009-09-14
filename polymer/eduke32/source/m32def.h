@@ -43,6 +43,8 @@ extern char g_szScriptFileName[BMAX_PATH];
 extern int32_t g_totalLines,g_lineNumber;
 extern int32_t g_numCompilerErrors,g_numCompilerWarnings;
 
+extern int32_t g_didDefineSomething;
+
 extern instype *g_scriptPtr;
 
 void C_Compile(const char *filenameortext, int32_t isfilename);

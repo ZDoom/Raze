@@ -4583,7 +4583,7 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_DELETE]) // ' del
     {
-        keystatus[KEYSC_BS] = 0;
+        keystatus[KEYSC_DELETE] = 0;
         switch (searchstat)
         {
         case 0:
@@ -8866,7 +8866,8 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
 {
     intptr_t tscrofs;
     char *tp;
-    int32_t slen;
+    int32_t i, j, slen;
+    int32_t onumconstants=g_numSavedConstants;
 
     if (parm->numparms < 1)
         return OSDCMD_SHOWHELP;
@@ -8885,17 +8886,34 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
     tp[slen] = '\n';
     tp[slen+1] = '\0';
 
+    g_didDefineSomething = 0;
+
     C_Compile(tp, 0);
     Bfree(tp);
-    if (g_numCompilerErrors == 0)
+
+    if (g_numCompilerErrors)
     {
+//        g_scriptPtr = script + tscrofs;  // handled in C_Compile()
+        return OSDCMD_OK;
+    }
+
+    for (i=0,j=0; i<MAXEVENTS; i++)
+        if (aEventOffsets[i]>=0)
+            j++;
+
+    if (g_didDefineSomething == 0)
+    {
+        g_numSavedConstants = onumconstants;
+
         *g_scriptPtr = CON_RETURN + (g_lineNumber<<12);
+        g_scriptPtr = script + tscrofs;
+
         insptr = script + tscrofs;
         Bmemcpy(&vm, &vm_default, sizeof(vmstate_t));
         X_DoExecute(0);
 //        asksave = 1; // handled in Access(Sprite|Sector|Wall)
     }
-    g_scriptPtr = script + tscrofs;
+
     return OSDCMD_OK;
 }
 

@@ -65,6 +65,9 @@ extern void SetWATERPalette(void);
 extern void SetSLIMEPalette(void);
 extern void SetBOSS1Palette(void);
 
+extern int32_t *constants, constants_allocsize;
+extern int32_t g_numSavedConstants;
+
 extern instype *script ,*insptr;
 extern int32_t *labelval;
 extern uint8_t *labeltype;

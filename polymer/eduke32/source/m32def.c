@@ -31,21 +31,41 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
 static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
 
+////// compiler state vvv
+static const char *textptr;
 int32_t g_totalLines, g_lineNumber;
-static int32_t g_checkingIfElse, g_currentStateIdx = -1;
+int32_t g_numCompilerErrors, g_numCompilerWarnings;
 
-static instype *g_caseScriptPtr = NULL;  // the pointer to the start of the case table in a switch statement
-// first entry is 'default' code.
-static instype *g_caseCodePtr = NULL;  // the pointer to the start of the different cases' code
-static ofstype g_currentStateOfs = -1;  // the offset to the start of the currently parsed states' code
-static int32_t g_numCases = 0;
-static int32_t g_checkingSwitch = 0, g_currentEvent = -1;
-static int32_t g_labelsOnly = 0;
-static int32_t g_numBraces = 0;
+int32_t g_didDefineSomething;
+
+typedef struct
+{
+    int32_t currentStateIdx;
+    ofstype currentStateOfs;  // the offset to the start of the currently parsed states' code
+    int32_t currentEvent;
+    ofstype parsingEventOfs;
+
+    int32_t checkingSwitch;
+    int32_t numCases;
+    instype *caseScriptPtr;  // the pointer to the start of the case table in a switch statement
+                             // first entry is 'default' code.
+    instype *caseCodePtr;  // the pointer to the start of the different cases' code
+    int32_t labelsOnly;
+    int32_t numBraces;
+    int32_t checkingIfElse, ifElseAborted;
+} compilerstate_t;
+
+static compilerstate_t cs;
+static compilerstate_t cs_default = {-1, -1, -1, -1, 0, 0, NULL, NULL, 0, 0, 0, 0};
+////// -------------------
 
 instype *script = NULL;
 instype *g_scriptPtr;
 int32_t g_scriptSize = 65536;
+
+int32_t *constants, constants_allocsize=1024;
+int32_t g_numSavedConstants=0;
+static int32_t g_tooBigConstant=0;
 
 char *label;
 int32_t *labelval;
@@ -76,20 +96,15 @@ int32_t g_numQuoteRedefinitions = 0;
 
 ofstype aEventOffsets[MAXEVENTS];
 static int32_t aEventSizes[MAXEVENTS];
-static ofstype g_parsingEventOfs = -1;
 
 gamevar_t aGameVars[MAXGAMEVARS];
 gamearray_t aGameArrays[MAXGAMEARRAYS];
 int32_t g_gameVarCount=0, g_systemVarCount=0;
 int32_t g_gameArrayCount=0, g_systemArrayCount=0;
 
-static const char *textptr;
-int32_t g_numCompilerErrors, g_numCompilerWarnings;
-static int32_t g_noConstBitwidthWarning=0;
 
 // "magic" number for { and }, overrides line number in compiled code for later detection
 #define IFELSE_MAGIC 31337
-static int32_t g_ifElseAborted;
 
 
 void C_ReportError(int32_t iError);
@@ -509,8 +524,8 @@ static void C_InitHashes()
 static int32_t C_SetScriptSize(int32_t size)
 {
     ofstype oscriptOfs = (unsigned)(g_scriptPtr-script);
-    ofstype ocaseScriptOfs = (unsigned)(g_caseScriptPtr-script);
-    ofstype ocaseCodeOfs = (unsigned)(g_caseCodePtr-script);
+    ofstype ocaseScriptOfs = (unsigned)(cs.caseScriptPtr-script);
+    ofstype ocaseCodeOfs = (unsigned)(cs.caseCodePtr-script);
 
     instype *newscript;
     int32_t osize = g_scriptSize;
@@ -545,10 +560,10 @@ static int32_t C_SetScriptSize(int32_t size)
     g_scriptPtr = (instype *)(script+oscriptOfs);
 //    initprintf("script: %d, \n",script); initprintf("offset: %d\n",(unsigned)(g_scriptPtr-script));
 
-    if (g_caseScriptPtr != NULL)
-        g_caseScriptPtr = (instype *)(script+ocaseScriptOfs);
-    if (g_caseCodePtr != NULL)
-        g_caseCodePtr = (instype *)(script+ocaseCodeOfs);
+    if (cs.caseScriptPtr != NULL)
+        cs.caseScriptPtr = (instype *)(script+ocaseScriptOfs);
+    if (cs.caseCodePtr != NULL)
+        cs.caseCodePtr = (instype *)(script+ocaseCodeOfs);
 
     return 0;
 }
@@ -595,8 +610,8 @@ static int32_t C_SkipComments(void)
 //                    initprintf("%s:%d: debug: EOF in comment!\n",g_szScriptFileName,g_lineNumber);
                 C_ReportError(-1);
                 initprintf("%s:%d: error: found `/*' with no `*/'.\n",g_szScriptFileName,g_lineNumber);
-                g_numBraces = 0;
-                g_currentStateIdx = -1;
+                cs.numBraces = 0;
+                cs.currentStateIdx = -1;
                 g_numCompilerErrors++;
                 break;
             }
@@ -777,12 +792,12 @@ static int32_t C_GetNextKeyword(void)  //Returns its code #
 
 static void C_GetNextVarType(int32_t type)
 {
-    int32_t id=0, flags=0, num;
+    int32_t i, id=0, flags=0, num, indirect=0;
 
     C_SkipComments();
 
     // constant where gamevar expected
-    if ((type==0 || type==GAMEVAR_SPECIAL) && !g_labelsOnly &&
+    if ((type==0 || type==GAMEVAR_SPECIAL) && !cs.labelsOnly &&
         (isdigit(*textptr) || ((*textptr == '-') && isdigit(*(textptr+1)))))
     {
 //        if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
@@ -793,21 +808,44 @@ static void C_GetNextVarType(int32_t type)
         else
             num = atoi(textptr);
 
-        if (type==GAMEVAR_SPECIAL && (int16_t)num < 0)
+        if (type==GAMEVAR_SPECIAL && (num<0 || num>=65536))
         {
             C_ReportError(-1);
-            initprintf("%s:%d: error: negative array index.\n",g_szScriptFileName,g_lineNumber);
+            initprintf("%s:%d: error: array index %d out of bounds. (max: 65535)\n",g_szScriptFileName,g_lineNumber, num);
             g_numCompilerErrors++;
         }
 
-        if (num != (int16_t)num)
+        if (g_numCompilerErrors==0 && type!=GAMEVAR_SPECIAL && num != (int16_t)num)
         {
-            if (!g_noConstBitwidthWarning)
-                C_ReportError(WARNING_CONSTANTBITSIZE);
-            g_numCompilerWarnings++;
+            g_tooBigConstant = 1;
+            indirect = 1;
+
+            for (i=g_numSavedConstants-1; i>=0; i--)
+                if (constants[i] == num)
+                    break;
+
+            if (i<0)
+            {
+                i = g_numSavedConstants;
+                if (i>=constants_allocsize)
+                {
+                    constants_allocsize *= 2;
+                    constants = Brealloc(constants, constants_allocsize * sizeof(constants[0]));
+                    if (!constants)
+                    {
+                        initprintf("C_GetNextVarType(): ERROR: out of memory!\n");
+                        g_numCompilerErrors++;
+                        return;
+                    }
+                }
+
+                constants[i] = num;
+                num = i;
+                g_numSavedConstants++;
+            }
         }
 
-        *g_scriptPtr++ = MAXGAMEVARS | (num<<16);
+        *g_scriptPtr++ = MAXGAMEVARS | (num<<16) | indirect;
 
         while (!ispecial(*textptr) && *textptr != ']') textptr++;
 
@@ -941,7 +979,7 @@ static void C_GetNextVarType(int32_t type)
     id = GetGamevarID(tlabel);
     if (id < 0)   //gamevar not found
     {
-        if (!type && !g_labelsOnly)
+        if (!type && !cs.labelsOnly)
         {
             //try looking for a define instead
             id = hash_find(&labelH, tlabel);
@@ -949,20 +987,24 @@ static void C_GetNextVarType(int32_t type)
             {
 //                if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
 //                    initprintf("%s:%d: debug: accepted defined label `%s' instead of gamevar.\n",g_szScriptFileName,g_lineNumber,label+(id*MAXLABELLEN));
+                num = labelval[id];
 
-                *g_scriptPtr++ = MAXGAMEVARS | (labelval[id]<<16);
-                if (labelval[id] != (int16_t)labelval[id])
+                if (type==GAMEVAR_SPECIAL && (num<0 || num>=65536))
                 {
-                    if (!g_noConstBitwidthWarning)
-                        C_ReportError(WARNING_CONSTANTBITSIZE);
-                    g_numCompilerWarnings++;
+                    C_ReportError(-1);
+                    initprintf("%s:%d: error: label %s=%d not suitable as array index. (max: 65535)\n",g_szScriptFileName,g_lineNumber, label+(id*MAXLABELLEN), num);
+                    g_numCompilerErrors++;                    
+                }
+                else if (num != (int16_t)num)
+                {
+                    g_tooBigConstant = 1;
+                    indirect = 2;
+                    num = id;
                 }
 
+                *g_scriptPtr++ = MAXGAMEVARS | (num<<16) | indirect;
                 return;
             }
-            g_numCompilerErrors++;
-            C_ReportError(ERROR_NOTAGAMEVAR);
-            return;
         }
         g_numCompilerErrors++;
         C_ReportError(ERROR_NOTAGAMEVAR);
@@ -1054,7 +1096,7 @@ static int32_t C_GetNextValue(int32_t type)
         gl = (char *)C_GetLabelType(labeltype[i]);
         C_ReportError(-1);
         initprintf("%s:%d: error: expected %s, found %s.\n",g_szScriptFileName,g_lineNumber,el,gl);
-        initprintf("i=%d, %s!!! lt:%d t:%d\n", i, label+(i*MAXLABELLEN), labeltype[i], type);
+//        initprintf("i=%d, %s!!! lt:%d t:%d\n", i, label+(i*MAXLABELLEN), labeltype[i], type);
         g_numCompilerErrors++;
         Bfree(el);
         Bfree(gl);
@@ -1071,7 +1113,7 @@ static int32_t C_GetNextValue(int32_t type)
         return -1; // error!
     }
 
-    if (isdigit(*textptr) && g_labelsOnly)
+    if (isdigit(*textptr) && cs.labelsOnly)
     {
         C_ReportError(WARNING_LABELSONLY);
         g_numCompilerWarnings++;
@@ -1135,7 +1177,7 @@ static int32_t C_CheckMalformedBranch(ofstype lastScriptOfs)
     case CON_ENDS:
     case CON_ELSE:
         g_scriptPtr = script + lastScriptOfs;
-        g_ifElseAborted = 1;
+        cs.ifElseAborted = 1;
         C_ReportError(-1);
         g_numCompilerWarnings++;
         initprintf("%s:%d: warning: malformed `%s' branch\n", g_szScriptFileName, g_lineNumber,
@@ -1150,14 +1192,14 @@ static int32_t C_CheckEmptyBranch(int32_t tw, ofstype lastScriptOfs)
     // ifrnd actually does something when the condition is executed
     if ((Bstrncmp(keyw[tw], "if", 2) && tw != CON_ELSE) || tw == CON_IFRND)
     {
-        g_ifElseAborted = 0;
+        cs.ifElseAborted = 0;
         return 0;
     }
 
     if ((*(g_scriptPtr) & 0xFFF) != CON_NULLOP || *(g_scriptPtr)>>12 != IFELSE_MAGIC)
-        g_ifElseAborted = 0;
+        cs.ifElseAborted = 0;
 
-    if (g_ifElseAborted)
+    if (cs.ifElseAborted)
     {
         C_ReportError(-1);
         g_numCompilerWarnings++;
@@ -1178,27 +1220,27 @@ static int32_t C_CountCaseStatements()
     const char *temptextptr = textptr;
     int32_t temp_ScriptLineNumber = g_lineNumber;
     ofstype scriptoffset = (unsigned)(g_scriptPtr-script);
-    ofstype caseoffset = (unsigned)(g_caseScriptPtr-script);
+    ofstype caseoffset = (unsigned)(cs.caseScriptPtr-script);
 
-    g_numCases=0;
-    g_caseScriptPtr=NULL;
+    cs.numCases=0;
+    cs.caseScriptPtr=NULL;
     //Bsprintf(g_szBuf,"CSS: %.12s",textptr); AddLog(g_szBuf);
     while (C_ParseCommand() == 0)
     {
         //Bsprintf(g_szBuf,"CSSL: %.20s",textptr); AddLog(g_szBuf);
         ;
     }
-    // since we processed the endswitch, we need to re-increment g_checkingSwitch
-    g_checkingSwitch++;
+    // since we processed the endswitch, we need to re-increment cs.checkingSwitch
+    cs.checkingSwitch++;
 
     textptr = temptextptr;
     g_scriptPtr = (instype *)(script+scriptoffset);
 
     g_lineNumber = temp_ScriptLineNumber;
 
-    lCount = g_numCases;
-    g_numCases = 0;
-    g_caseScriptPtr = (instype *)(script+caseoffset);
+    lCount = cs.numCases;
+    cs.numCases = 0;
+    cs.caseScriptPtr = (instype *)(script+caseoffset);
     return lCount;
 }
 
@@ -1220,7 +1262,7 @@ static int32_t C_ParseCommand(void)
 //    if (g_scriptDebug)
 //        C_ReportError(-1);
 
-///    if (g_checkingSwitch > 0)
+///    if (cs.checkingSwitch > 0)
 ///        Bsprintf(g_szBuf,"PC(): '%.25s'",textptr); AddLog(g_szBuf);
 
     tw = C_GetNextKeyword();
@@ -1243,7 +1285,7 @@ static int32_t C_ParseCommand(void)
             g_numCompilerWarnings++;
             initprintf("%s:%d: warning: `nullop' found without `else'\n",g_szScriptFileName,g_lineNumber);
             g_scriptPtr--;
-            g_ifElseAborted = 1;
+            cs.ifElseAborted = 1;
         }
         return 0;
 
@@ -1353,8 +1395,8 @@ static int32_t C_ParseCommand(void)
             Bstrcpy(g_szScriptFileName, tempbuf);
             temp_ScriptLineNumber = g_lineNumber;
             g_lineNumber = 1;
-            temp_ifelse_check = g_checkingIfElse;
-            g_checkingIfElse = 0;
+            temp_ifelse_check = cs.checkingIfElse;
+            cs.checkingIfElse = 0;
 
             textptr = mptr;
             do done = C_ParseCommand();
@@ -1363,7 +1405,7 @@ static int32_t C_ParseCommand(void)
             Bstrcpy(g_szScriptFileName, parentScriptFileName);
             g_totalLines += g_lineNumber;
             g_lineNumber = temp_ScriptLineNumber;
-            g_checkingIfElse = temp_ifelse_check;
+            cs.checkingIfElse = temp_ifelse_check;
 
             textptr = origtptr;
 
@@ -1373,7 +1415,7 @@ static int32_t C_ParseCommand(void)
 
     case CON_DEFSTATE:
         g_scriptPtr--;
-        if (g_parsingEventOfs < 0  && g_currentStateIdx < 0)
+        if (cs.parsingEventOfs < 0  && cs.currentStateIdx < 0)
         {
             C_GetNextLabelName();
 
@@ -1401,20 +1443,20 @@ static int32_t C_ParseCommand(void)
             j = hash_find(&stateH, tlabel);
             if (j>=0)  // only redefining
             {
-                g_currentStateIdx = j;
-                g_currentStateOfs = (g_scriptPtr-script);
+                cs.currentStateIdx = j;
+                cs.currentStateOfs = (g_scriptPtr-script);
 
                 Bsprintf(g_szCurrentBlockName, "%s", statesinfo[j].name);
             }
             else  // new state definition
             {
-                g_currentStateIdx = j = g_stateCount;
-                g_currentStateOfs = (g_scriptPtr-script);
+                cs.currentStateIdx = j = g_stateCount;
+                cs.currentStateOfs = (g_scriptPtr-script);
 
                 if (g_stateCount >= statesinfo_allocsize)
                 {
                     statesinfo_allocsize *= 2;
-                    statesinfo = Brealloc(statesinfo, statesinfo_allocsize);
+                    statesinfo = Brealloc(statesinfo, statesinfo_allocsize * sizeof(statesinfo[0]));
                     if (!statesinfo)
                     {
                         initprintf("C_ParseCommand(): ERROR: out of memory!\n");
@@ -1436,7 +1478,7 @@ static int32_t C_ParseCommand(void)
         return 1;
 
     case CON_ENDS:
-        if (g_currentStateIdx < 0)
+        if (cs.currentStateIdx < 0)
         {
             C_ReportError(-1);
             initprintf("%s:%d: error: found `ends' without open `state'.\n",g_szScriptFileName,g_lineNumber);
@@ -1445,37 +1487,37 @@ static int32_t C_ParseCommand(void)
         }
         else
         {
-            if (g_numBraces > 0)
+            if (cs.numBraces > 0)
             {
                 C_ReportError(ERROR_OPENBRACKET);
                 g_numCompilerErrors++;
             }
-            if (g_numBraces < 0)
+            if (cs.numBraces < 0)
             {
                 C_ReportError(ERROR_CLOSEBRACKET);
                 g_numCompilerErrors++;
             }
-            if (g_checkingSwitch > 0)
+            if (cs.checkingSwitch > 0)
             {
                 C_ReportError(ERROR_NOENDSWITCH);
                 g_numCompilerErrors++;
 
-                g_checkingSwitch = 0; // can't be checking anymore...
+                cs.checkingSwitch = 0; // can't be checking anymore...
             }
             if (g_numCompilerErrors)
             {
-                g_currentStateOfs = -1;
-                g_currentStateIdx = -1;
+                cs.currentStateOfs = -1;
+                cs.currentStateIdx = -1;
                 Bsprintf(g_szCurrentBlockName,"(none)");
                 return 0;
             }
 
-            j = g_currentStateIdx;
+            j = cs.currentStateIdx;
 
-            if (g_currentStateIdx == g_stateCount)  // we were defining a new state
+            if (cs.currentStateIdx == g_stateCount)  // we were defining a new state
             {
-                statesinfo[j].ofs = g_currentStateOfs;
-                statesinfo[j].codesize = (g_scriptPtr-script) - g_currentStateOfs;
+                statesinfo[j].ofs = cs.currentStateOfs;
+                statesinfo[j].codesize = (g_scriptPtr-script) - cs.currentStateOfs;
 
                 g_stateCount++;
 
@@ -1484,7 +1526,7 @@ static int32_t C_ParseCommand(void)
             else  // we were redefining a state
             {
                 int32_t oofs = statesinfo[j].ofs;
-                int32_t nofs = g_currentStateOfs;
+                int32_t nofs = cs.currentStateOfs;
                 int32_t osize = statesinfo[j].codesize;
                 int32_t nsize = (g_scriptPtr-script) - nofs;
 
@@ -1529,8 +1571,10 @@ static int32_t C_ParseCommand(void)
                 g_scriptPtr -= osize;
             }
 
-            g_currentStateOfs = -1;
-            g_currentStateIdx = -1;
+            g_didDefineSomething = 1;
+
+            cs.currentStateOfs = -1;
+            cs.currentStateIdx = -1;
 
             Bsprintf(g_szCurrentBlockName,"(none)");
         }
@@ -1568,14 +1612,14 @@ static int32_t C_ParseCommand(void)
         return 0;
 
     case CON_ONEVENT:
-        if (g_currentStateIdx >= 0 || g_parsingEventOfs >= 0)
+        if (cs.currentStateIdx >= 0 || cs.parsingEventOfs >= 0)
         {
             C_ReportError(ERROR_FOUNDWITHIN);
             g_numCompilerErrors++;
         }
 
         g_scriptPtr--;
-        g_numBraces = 0;
+        cs.numBraces = 0;
 
         C_SkipComments();
         j = 0;
@@ -1586,15 +1630,15 @@ static int32_t C_ParseCommand(void)
         }
         g_szCurrentBlockName[j] = 0;
 
-        g_labelsOnly = 1;
+        cs.labelsOnly = 1;
         C_GetNextValue(LABEL_EVENT);
-        g_labelsOnly = 0;
+        cs.labelsOnly = 0;
 
         g_scriptPtr--;
         j = *g_scriptPtr;  // event number
 
-        g_currentEvent = j;
-        g_parsingEventOfs = g_scriptPtr-script;
+        cs.currentEvent = j;
+        cs.parsingEventOfs = g_scriptPtr-script;
                                                                               //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, g_parsingEventPtr); AddLog(g_szBuf);
         if (j<0 || j >= MAXEVENTS)
         {
@@ -1603,39 +1647,39 @@ static int32_t C_ParseCommand(void)
             return 0;
         }
 
-        g_checkingIfElse = 0;
+        cs.checkingIfElse = 0;
         return 0;
 
     case CON_ENDEVENT:
-        if (g_parsingEventOfs < 0)
+        if (cs.parsingEventOfs < 0)
         {
             C_ReportError(-1);
             initprintf("%s:%d: error: found `endevent' without open `onevent'.\n",g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
             return 1;
         }
-        if (g_numBraces > 0)
+        if (cs.numBraces > 0)
         {
             C_ReportError(ERROR_OPENBRACKET);
             g_numCompilerErrors++;
         }
-        if (g_numBraces < 0)
+        if (cs.numBraces < 0)
         {
             C_ReportError(ERROR_CLOSEBRACKET);
             g_numCompilerErrors++;
         }
         if (g_numCompilerErrors)
         {
-            g_parsingEventOfs = -1;
-            g_currentEvent = -1;
+            cs.parsingEventOfs = -1;
+            cs.currentEvent = -1;
             Bsprintf(g_szCurrentBlockName,"(none)");
             return 0;
         }
 
-        j = g_currentEvent;
+        j = cs.currentEvent;
         if (aEventOffsets[j] >= 0)  // if event was previously declared, overwrite it
         {
-            int32_t oofs = aEventOffsets[j], nofs = g_parsingEventOfs;
+            int32_t oofs = aEventOffsets[j], nofs = cs.parsingEventOfs;
             int32_t osize = aEventSizes[j], nsize = (g_scriptPtr-script) - nofs;
 
             if (osize == nsize)
@@ -1680,28 +1724,30 @@ static int32_t C_ParseCommand(void)
         }
         else  // event defined for the first time
         {
-            aEventOffsets[j] = g_parsingEventOfs;
-            aEventSizes[j] = (g_scriptPtr-script) - g_parsingEventOfs;
+            aEventOffsets[j] = cs.parsingEventOfs;
+            aEventSizes[j] = (g_scriptPtr-script) - cs.parsingEventOfs;
 
             initprintf("  Defined event `%s' (index %d).\n", g_szCurrentBlockName, j);
         }
 
-        g_parsingEventOfs = -1;
-        g_currentEvent = -1;
+        g_didDefineSomething = 1;
+
+        cs.parsingEventOfs = -1;
+        cs.currentEvent = -1;
         Bsprintf(g_szCurrentBlockName,"(none)");
 
         return 0;
 
 // *** control flow
     case CON_ELSE:
-        if (g_checkingIfElse)
+        if (cs.checkingIfElse)
         {
             ofstype offset;
             ofstype lastScriptOfs = (g_scriptPtr-script) - 1;
             instype *tscrptr;
 
-            g_ifElseAborted = 0;
-            g_checkingIfElse--;
+            cs.ifElseAborted = 0;
+            cs.checkingIfElse--;
 
             if (C_CheckMalformedBranch(lastScriptOfs))
                 return 0;
@@ -1731,7 +1777,7 @@ static int32_t C_ParseCommand(void)
             if (C_GetKeyword() == CON_LEFTBRACE)
             {
                 C_GetNextKeyword();
-                g_numBraces++;
+                cs.numBraces++;
 
                 do
                     done = C_ParseCommand();
@@ -1745,7 +1791,7 @@ static int32_t C_ParseCommand(void)
 
     case CON_RETURN:
     case CON_BREAK:
-        if (g_checkingSwitch)
+        if (cs.checkingSwitch)
         {
             //Bsprintf(g_szBuf,"  * (L%d) case Break statement.\n",g_lineNumber); AddLog(g_szBuf);
             return 1;
@@ -1757,8 +1803,8 @@ static int32_t C_ParseCommand(void)
         ofstype tempoffset;
 
         //AddLog("Got Switch statement");
-                                                                      //        if (g_checkingSwitch) Bsprintf(g_szBuf,"ERROR::%s %d: g_checkingSwitch=",__FILE__,__LINE__, g_checkingSwitch); AddLog(g_szBuf);
-        g_checkingSwitch++;  // allow nesting (if other things work)
+                                                                      //        if (cs.checkingSwitch) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=",__FILE__,__LINE__, cs.checkingSwitch); AddLog(g_szBuf);
+        cs.checkingSwitch++;  // allow nesting (if other things work)
 
         C_GetNextVar();  // Get The ID of the DEF
 
@@ -1767,21 +1813,21 @@ static int32_t C_ParseCommand(void)
         *g_scriptPtr++ = 0; // leave spot for end location (for after processing)
         *g_scriptPtr++ = 0; // count of case statements
 
-        g_caseScriptPtr = g_scriptPtr;        // the first case's pointer.
+        cs.caseScriptPtr = g_scriptPtr;        // the first case's pointer.
         *g_scriptPtr++ = -1; // leave spot for 'default' offset to cases' code (-1 if none)
 
         temptextptr = textptr;
         // probably does not allow nesting...
                                                                               //AddLog("Counting Case Statements...");
         j = C_CountCaseStatements();
-                                                                      //        initprintf("Done Counting Case Statements for switch %d: found %d.\n", g_checkingSwitch,j);
+                                                                      //        initprintf("Done Counting Case Statements for switch %d: found %d.\n", cs.checkingSwitch,j);
         g_scriptPtr += j*2;
-        g_caseCodePtr = g_scriptPtr;
+        cs.caseCodePtr = g_scriptPtr;
         C_SkipComments();
         g_scriptPtr -= j*2; // allocate buffer for the table
 
         tempscrptr = (instype *)(script+tempoffset);
-                                                                      //        if (g_checkingSwitch>1) Bsprintf(g_szBuf,"ERROR::%s %d: g_checkingSwitch=",__FILE__,__LINE__, g_checkingSwitch);  AddLog(g_szBuf);
+                                                                      //        if (cs.checkingSwitch>1) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=",__FILE__,__LINE__, cs.checkingSwitch);  AddLog(g_szBuf);
         if (j<0)
             return 1;
 
@@ -1798,7 +1844,7 @@ static int32_t C_ParseCommand(void)
             C_SkipComments();
         }
                                                                               //Bsprintf(g_szBuf,"SWITCH1: '%.22s'",textptr); AddLog(g_szBuf);
-        g_numCases = 0;
+        cs.numCases = 0;
         while (C_ParseCommand() == 0)
         {
             //Bsprintf(g_szBuf,"SWITCH2: '%.22s'",textptr); AddLog(g_szBuf);
@@ -1807,7 +1853,7 @@ static int32_t C_ParseCommand(void)
         tempscrptr = (instype *)(script+tempoffset);
                                                                               //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr); AddLog(g_szBuf);
         // done processing switch.  clean up.
-                                                                      //        if (g_checkingSwitch < 1) Bsprintf(g_szBuf,"ERROR::%s %d: g_checkingSwitch=%d",__FILE__,__LINE__, g_checkingSwitch); AddLog(g_szBuf);
+                                                                      //        if (cs.checkingSwitch < 1) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=%d",__FILE__,__LINE__, cs.checkingSwitch); AddLog(g_szBuf);
         if (tempscrptr)
         {
             int32_t t,n;   // !!!
@@ -1829,16 +1875,16 @@ static int32_t C_ParseCommand(void)
                 }
             }
 //            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
-            tempscrptr[0] = (ofstype)(g_scriptPtr-g_caseCodePtr);    // save 'end' location as offset from code-place
+            tempscrptr[0] = (ofstype)(g_scriptPtr-cs.caseCodePtr);    // save 'end' location as offset from code-place
         }
                                                                       //        else Bsprintf(g_szBuf,"ERROR::%s %d",__FILE__,__LINE__); AddLog(g_szBuf);
-        g_numCases = 0;
-        g_caseScriptPtr = NULL;
-        g_caseCodePtr = NULL;
+        cs.numCases = 0;
+        cs.caseScriptPtr = NULL;
+        cs.caseCodePtr = NULL;
         // decremented in endswitch.  Don't decrement here...
-        //                    g_checkingSwitch--; // allow nesting (maybe if other things work)
+        //                    cs.checkingSwitch--; // allow nesting (maybe if other things work)
         tempscrptr = NULL;
-                                                                      //        if (g_checkingSwitch) Bsprintf(g_szBuf,"ERROR::%s %d: g_checkingSwitch=%d",__FILE__,__LINE__, g_checkingSwitch); AddLog(g_szBuf);
+                                                                      //        if (cs.checkingSwitch) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=%d",__FILE__,__LINE__, cs.checkingSwitch); AddLog(g_szBuf);
         //AddLog("End of Switch statement");
     }
     break;
@@ -1849,7 +1895,7 @@ static int32_t C_ParseCommand(void)
         //AddLog("Found Case");
 repeatcase:
         g_scriptPtr--; // don't save in code
-        if (g_checkingSwitch < 1)
+        if (cs.checkingSwitch < 1)
         {
             g_numCompilerErrors++;
             C_ReportError(-1);
@@ -1857,26 +1903,26 @@ repeatcase:
             return 1;
         }
 
-        g_numCases++;
+        cs.numCases++;
                                                                               //Bsprintf(g_szBuf,"case1: %.12s",textptr); AddLog(g_szBuf);
         C_GetNextValue(LABEL_DEFINE);
         if (*textptr == ':')
             textptr++;
                                                                               //Bsprintf(g_szBuf,"case2: %.12s",textptr); AddLog(g_szBuf);
         j = *(--g_scriptPtr);      // get value
-                                                                              //Bsprintf(g_szBuf,"case: Value of case %d is %d",(int32_t)g_numCases,(int32_t)j); AddLog(g_szBuf);
-        if (g_caseScriptPtr)
+                                                                              //Bsprintf(g_szBuf,"case: Value of case %d is %d",(int32_t)cs.numCases,(int32_t)j); AddLog(g_szBuf);
+        if (cs.caseScriptPtr)
         {
-            for (i=(g_numCases/2)-1; i>=0; i--)
-                if (g_caseScriptPtr[i*2+1] == j)
+            for (i=(cs.numCases/2)-1; i>=0; i--)
+                if (cs.caseScriptPtr[i*2+1] == j)
                 {
                     g_numCompilerWarnings++;
                     C_ReportError(WARNING_DUPLICATECASE);
                     break;
                 }
             //AddLog("Adding value to script");
-            g_caseScriptPtr[g_numCases++] = j;   // save value
-            g_caseScriptPtr[g_numCases] = (ofstype)(g_scriptPtr - g_caseCodePtr);  // offset from beginning of cases' code
+            cs.caseScriptPtr[cs.numCases++] = j;   // save value
+            cs.caseScriptPtr[cs.numCases] = (ofstype)(g_scriptPtr - cs.caseCodePtr);  // offset from beginning of cases' code
         }
                                                                               //Bsprintf(g_szBuf,"case3: %.12s",textptr); AddLog(g_szBuf);
         j = C_GetKeyword();
@@ -1908,22 +1954,22 @@ repeatcase:
 
     case CON_DEFAULT:
         g_scriptPtr--;    // don't save
-        if (g_checkingSwitch < 1)
+        if (cs.checkingSwitch < 1)
         {
             g_numCompilerErrors++;
             C_ReportError(-1);
             initprintf("%s:%d: error: found `default' statement when not in switch\n",g_szScriptFileName,g_lineNumber);
             return 1;
         }
-        if (g_caseScriptPtr && g_caseScriptPtr[0]!=0)
+        if (cs.caseScriptPtr && cs.caseScriptPtr[0]!=0)
         {
             // duplicate default statement
             g_numCompilerErrors++;
             C_ReportError(-1);
             initprintf("%s:%d: error: multiple `default' statements found in switch\n",g_szScriptFileName,g_lineNumber);
         }
-        if (g_caseScriptPtr)
-            g_caseScriptPtr[0] = (ofstype)(g_scriptPtr-g_caseCodePtr);   // save offset from cases' code
+        if (cs.caseScriptPtr)
+            cs.caseScriptPtr[0] = (ofstype)(g_scriptPtr-cs.caseCodePtr);   // save offset from cases' code
                                                                               //Bsprintf(g_szBuf,"default: '%.22s'",textptr); AddLog(g_szBuf);
         while (C_ParseCommand() == 0)
         {
@@ -1934,8 +1980,8 @@ repeatcase:
 
     case CON_ENDSWITCH:
         //AddLog("End Switch");
-        g_checkingSwitch--;
-        if (g_checkingSwitch < 0)
+        cs.checkingSwitch--;
+        if (cs.checkingSwitch < 0)
         {
             g_numCompilerErrors++;
             C_ReportError(-1);
@@ -1952,13 +1998,13 @@ repeatcase:
         return 0;
 
     case CON_LEFTBRACE:
-//        if (!(g_currentStateIdx >= 0 || g_parsingEventOfs >= 0))
+//        if (!(cs.currentStateIdx >= 0 || cs.parsingEventOfs >= 0))
 //        {
 //            g_numCompilerErrors++;
 //            C_ReportError(ERROR_SYNTAXERROR);
 //        }
 
-        g_numBraces++;
+        cs.numBraces++;
 
         do
             done = C_ParseCommand();
@@ -1966,7 +2012,7 @@ repeatcase:
         return 0;
 
     case CON_RIGHTBRACE:
-        g_numBraces--;
+        cs.numBraces--;
 
         // rewrite "{ }" into "nullop"
         if (*(g_scriptPtr-2) == CON_LEFTBRACE + (IFELSE_MAGIC<<12))
@@ -1976,28 +2022,28 @@ repeatcase:
             g_scriptPtr -= 2;
 
             if (C_GetKeyword() != CON_ELSE && (*(g_scriptPtr-2)&0xFFF) != CON_ELSE)
-                g_ifElseAborted = 1;
-            else g_ifElseAborted = 0;
+                cs.ifElseAborted = 1;
+            else cs.ifElseAborted = 0;
 
             j = C_GetKeyword();
 
-            if (g_checkingIfElse && j != CON_ELSE)
-                g_checkingIfElse--;
+            if (cs.checkingIfElse && j != CON_ELSE)
+                cs.checkingIfElse--;
 
             return 1;
         }
 
-        if (g_numBraces < 0)
+        if (cs.numBraces < 0)
         {
-            if (g_checkingSwitch)
+            if (cs.checkingSwitch)
                 C_ReportError(ERROR_NOENDSWITCH);
 
             C_ReportError(-1);
             initprintf("%s:%d: error: found more `}' than `{'.\n",g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
         }
-        if (g_checkingIfElse && j != CON_ELSE)
-            g_checkingIfElse--;
+        if (cs.checkingIfElse && j != CON_ELSE)
+            cs.checkingIfElse--;
 
         return 1;
 
@@ -2016,7 +2062,7 @@ repeatcase:
         // syntax getsector[<var>].x <VAR>
         // gets the value of sector[<var>].xxx into <VAR>
 
-        if ((tw==CON_GETTSPR || tw==CON_SETTSPR) && g_currentEvent != EVENT_ANALYZESPRITES)
+        if ((tw==CON_GETTSPR || tw==CON_SETTSPR) && cs.currentEvent != EVENT_ANALYZESPRITES)
         {
             C_ReportError(-1);
             initprintf("%s:%d: warning: found `%s' outside of EVENT_ANALYZESPRITES\n",g_szScriptFileName,g_lineNumber,tempbuf);
@@ -2032,9 +2078,9 @@ repeatcase:
             textptr++;
 
         // get the ID of the DEF
-        g_labelsOnly = 1;
+        cs.labelsOnly = 1;
         C_GetNextVar();
-        g_labelsOnly = 0;
+        cs.labelsOnly = 0;
         // now get name of .xxx
         while (*textptr != '.')
         {
@@ -2321,20 +2367,16 @@ repeatcase:
     {
         instype *inst = (g_scriptPtr-1);
         const char *otextptr;
-        int32_t ow, oe;
 
         C_GetNextVarType(GAMEVAR_READONLY);
 
-        ow = g_numCompilerWarnings;
-        oe = g_numCompilerErrors;
         otextptr = textptr;
 
-        g_noConstBitwidthWarning = 1;
+        g_tooBigConstant = 0;
         C_GetNextVar();
-        g_noConstBitwidthWarning = 0;
-        if (!g_numCompilerErrors && g_numCompilerWarnings > ow)
+
+        if (!g_numCompilerErrors && g_tooBigConstant)
         {
-            g_numCompilerWarnings--;
             textptr = otextptr;
             g_scriptPtr--;
             *inst -= (CON_SETVARVAR - CON_SETVAR);
@@ -2475,7 +2517,7 @@ repeatcase:
         ofstype offset;
         ofstype lastScriptOfs = (g_scriptPtr-script-1);
         instype *tscrptr;
-        g_ifElseAborted = 0;
+        cs.ifElseAborted = 0;
 
         if (tw<=CON_WHILEVARL)  // careful! check this against order in m32def.h!
         {
@@ -2486,20 +2528,16 @@ repeatcase:
         {
             instype *inst = (g_scriptPtr-1);
             const char *otextptr;
-            int32_t ow, oe;
 
             C_GetNextVar();
 
-            ow = g_numCompilerWarnings;
-            oe = g_numCompilerErrors;
             otextptr = textptr;
 
-            g_noConstBitwidthWarning = 1;
+            g_tooBigConstant = 0;
             C_GetNextVar();
-            g_noConstBitwidthWarning = 0;
-            if (!g_numCompilerErrors && g_numCompilerWarnings > ow)
+
+            if (!g_numCompilerErrors && g_tooBigConstant)
             {
-                g_numCompilerWarnings--;
                 textptr = otextptr;
                 g_scriptPtr--;
                 *inst -= (CON_IFVARVARL - CON_IFVARL);
@@ -2532,7 +2570,7 @@ repeatcase:
             j = C_GetKeyword();
 
             if (j == CON_ELSE || j == CON_LEFTBRACE)
-                g_checkingIfElse++;
+                cs.checkingIfElse++;
         }
 
         return 0;
@@ -2854,7 +2892,7 @@ repeatcase:
 
     case CON_ROTATESPRITE16:
     case CON_ROTATESPRITE:
-        if (g_parsingEventOfs < 0 && g_currentStateIdx < 0)
+        if (cs.parsingEventOfs < 0 && cs.currentStateIdx < 0)
         {
             C_ReportError(ERROR_EVENTONLY);
             g_numCompilerErrors++;
@@ -2910,8 +2948,10 @@ void C_CompilationInfo(void)
     int32_t j, k=0;
     initprintf("Compiled code info: (size=%ld*%d bytes)\n",
                (unsigned)(g_scriptPtr-script), sizeof(instype));
-    initprintf("  %d user labels, %d/%d user variables, %d/%d user arrays\n",
-               g_numLabels-g_numDefaultLabels,
+    initprintf("  %d/%d user labels, %d/65536 indirect constants,\n",
+               g_numLabels-g_numDefaultLabels, 65536-g_numDefaultLabels,
+               g_numSavedConstants);
+    initprintf("  %d/%d user variables, %d/%d user arrays\n",
                g_gameVarCount-g_systemVarCount, MAXGAMEVARS-g_systemVarCount,
                g_gameArrayCount-g_systemArrayCount, MAXGAMEARRAYS-g_systemArrayCount);
     for (j=0; j<MAXEVENTS; j++)
@@ -2919,11 +2959,11 @@ void C_CompilationInfo(void)
             k++;
     initprintf("  %d states, %d/%d defined events\n", g_stateCount, k,MAXEVENTS);
 
-    for (j=MAXQUOTES-1, k=0; j>=0; j--)
+    for (k=0, j=MAXQUOTES-1; j>=0; j--)
         if (ScriptQuotes[j])
             k++;
-    if (k | g_numQuoteRedefinitions)
-        initprintf("  %d/%d quotes, %d quote redefinitions\n",k,MAXQUOTES,g_numQuoteRedefinitions);
+    if (k || g_numQuoteRedefinitions)
+        initprintf("  %d/%d quotes, %d/%d quote redefinitions\n", k,MAXQUOTES, g_numQuoteRedefinitions,MAXQUOTES);
 }
 
 void C_Compile(const char *filenameortext, int32_t isfilename)
@@ -2942,6 +2982,8 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         labelval = Bmalloc(label_allocsize * sizeof(int32_t));
         labeltype = Bmalloc(label_allocsize * sizeof(uint8_t));
 
+        constants = Bmalloc(constants_allocsize * sizeof(int32_t));
+
         statesinfo = Bmalloc(statesinfo_allocsize * sizeof(statesinfo_t));
 
         for (i=0; i<MAXEVENTS; i++)
@@ -2956,7 +2998,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
 
         script = Bcalloc(g_scriptSize, sizeof(instype));
                                                                       //        initprintf("script: %d\n",script);
-        if (!script || !label)
+        if (!script || !label || !labelval || !labeltype || !constants)
         {
             initprintf("C_Compile(): ERROR: out of memory!\n");
             g_numCompilerErrors++;
@@ -3031,12 +3073,17 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
     else
         textptr = filenameortext;
 
-    g_numCompilerWarnings = 0;
-    g_numCompilerErrors = 0;
+//////
+    g_numCompilerWarnings = g_numCompilerErrors = 0;
+
     g_lineNumber = 1;
     g_totalLines = 0;
+//////
 
     oscriptPtr = g_scriptPtr;
+    g_didDefineSomething = 0;
+
+    Bmemcpy(&cs, &cs_default, sizeof(compilerstate_t));
 
     while (C_ParseCommand() == 0);
 
@@ -3071,7 +3118,10 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
     }
 
     if (g_numCompilerErrors)
-        g_scriptPtr = oscriptPtr;
+    {
+        if (!g_didDefineSomething)
+            g_scriptPtr = oscriptPtr;
+    }
     else
     {
         g_totalLines += g_lineNumber;
@@ -3102,9 +3152,9 @@ void C_ReportError(int32_t iError)
 {
     if (Bstrcmp(g_szCurrentBlockName, g_szLastBlockName))
     {
-        if (g_parsingEventOfs >= 0 || g_currentStateIdx >= 0)
+        if (cs.parsingEventOfs >= 0 || cs.currentStateIdx >= 0)
             initprintf("%s: In %s `%s':\n",g_szScriptFileName,
-                       g_parsingEventOfs >= 0 ? "event":"state", g_szCurrentBlockName);
+                       cs.parsingEventOfs >= 0 ? "event":"state", g_szCurrentBlockName);
         else initprintf("%s: At top level:\n", g_szScriptFileName);
         Bstrcpy(g_szLastBlockName, g_szCurrentBlockName);
     }
@@ -3128,7 +3178,7 @@ void C_ReportError(int32_t iError)
         break;
     case ERROR_FOUNDWITHIN:
         initprintf("%s:%d: error: found `%s' within %s.\n",
-                   g_szScriptFileName, g_lineNumber, tempbuf, (g_parsingEventOfs >= 0)?"an event":"a state");
+                   g_szScriptFileName, g_lineNumber, tempbuf, (cs.parsingEventOfs >= 0)?"an event":"a state");
         break;
     case ERROR_ISAKEYWORD:
         initprintf("%s:%d: error: symbol `%s' is a keyword.\n",

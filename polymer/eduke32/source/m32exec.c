@@ -1791,8 +1791,16 @@ badindex:
                                      aGameVars[(code>>16)&(MAXGAMEVARS-1)].szLabel:"???");
                     }
 
-                    if ((code&0x0000FFFF) == MAXGAMEVARS) // addlogvar for a constant.. why not? :P
-                        Bsprintf(buf, "(constant)");
+                    if ((code&0x0000FFFC) == MAXGAMEVARS) // addlogvar for a constant.. why not? :P
+                    {
+                        switch (code&3)
+                        {
+                        case 0: Bsprintf(buf, "(immediate constant)"); break;
+                        case 1: Bsprintf(buf, "(indirect constant)"); break;
+                        case 2: Bsprintf(buf, "(label constant)"); break;
+                        default: Bsprintf(buf, "(??? constant)"); break;
+                        }
+                    }
                     else if (code&(MAXGAMEVARS<<2))
                         Bsprintf(buf, "(array) %s[%s]", aGameArrays[code&(MAXGAMEARRAYS-1)].szLabel?
                                  aGameArrays[code&(MAXGAMEARRAYS-1)].szLabel:"???", buf2);
