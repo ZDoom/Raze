@@ -9,8 +9,16 @@ gamevar j 0 1
 gamevar davr 65536 0
 gamevar dayx 65536 0
 
+define TQUOTE 3
+
 definequote 0 OK
 definequote 1 DAMN
+
+definequote 2 BU:%d ABS:%d
+definequote TQUOTE write on me!
+
+definequote 4 ASPECT: VR=%d, YX=%d
+definequote 5 KEY:%d
 
 gamearray ar 128
 gamearray parm 8
@@ -38,6 +46,65 @@ endevent
 
 onevent EVENT_ENTER3DMODE
     state setas
+endevent
+
+onevent EVENT_DRAW2DSCREEN
+    set drawlinepat -1
+    for i allsprites
+        ifactor LIZTROOP
+            drawcircle16b sprite[i].x sprite[i].y 256 9
+//    set i totalclock
+//    shiftr i 6
+//    drawcircle16b posx posy 256 i
+//    set j i
+//    add j 8
+//    drawcircle16 halfxdim16 midydim16 12 j
+//    qsprintf 3 2 i j
+//    printmessage16 3
+endevent
+
+onevent EVENT_OVERHEADEDITOR
+
+    for i range 27
+    {
+        ifkey alphakeys[i]
+        {
+			qsprintf TQUOTE 5 i
+			quote TQUOTE
+		}
+    }
+    for i range 10
+//    ife 0 1
+    {
+        ifkey numberkeys[i]
+        {
+            qsprintf TQUOTE 5 i
+            quote TQUOTE
+        }
+    }
+endevent
+
+onevent EVENT_KEYS3D
+    for i range 10
+//    ife 0 1
+    {
+        ifkey numberkeys[i]
+        {
+            qsprintf TQUOTE 5 i
+            quote TQUOTE
+        }
+    }
+
+ifkey KEY_SPACE
+	//    ife 0 1
+    {
+        ifeithershift sub davr 512 else add davr 512
+        ifl davr 32768 set davr 32768
+        ifg davr 256000 set davr 256000
+        setaspect davr yxaspect
+        qsprintf TQUOTE 4 davr yxaspect
+        quote TQUOTE
+    }
 endevent
 
 defstate itertest

@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "m32script.h"
 #include "m32def.h"
 #include "osd.h"
+#include "keys.h"
 
 #define _m32vars_c_
 #include "m32structures.c"
@@ -474,6 +475,22 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
     }
 }
 
+static uint8_t alphakeys[] =
+{
+    KEYSC_SPACE,
+
+    KEYSC_A, KEYSC_B, KEYSC_C, KEYSC_D, KEYSC_E, KEYSC_F, KEYSC_G, KEYSC_H,
+    KEYSC_I, KEYSC_J, KEYSC_K, KEYSC_L, KEYSC_M, KEYSC_N, KEYSC_O, KEYSC_P,
+    KEYSC_Q, KEYSC_R, KEYSC_S, KEYSC_T, KEYSC_U, KEYSC_V, KEYSC_W, KEYSC_X,
+    KEYSC_Y, KEYSC_Z,
+};
+
+static uint8_t numberkeys[] =
+{
+    KEYSC_0, KEYSC_1, KEYSC_2, KEYSC_3, KEYSC_4, KEYSC_5, KEYSC_6, KEYSC_7,
+    KEYSC_8, KEYSC_9,
+};
+
 static void Gv_AddSystemVars(void)
 {
     // only call ONCE
@@ -511,16 +528,10 @@ static void Gv_AddSystemVars(void)
 
     Gv_NewVar("viewingrange",(intptr_t)&viewingrange, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
     Gv_NewVar("yxaspect",(intptr_t)&yxaspect, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
+
 ///    Gv_NewVar("framerate",(intptr_t)&g_currentFrameRate, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
-    Gv_NewVar("CLIPMASK0", CLIPMASK0, GAMEVAR_SYSTEM|GAMEVAR_READONLY);
-    Gv_NewVar("CLIPMASK1", CLIPMASK1, GAMEVAR_SYSTEM|GAMEVAR_READONLY);
-
-    Gv_NewVar("MAXSPRITES",MAXSPRITES, GAMEVAR_SYSTEM|GAMEVAR_READONLY);
-    Gv_NewVar("MAXSECTORS",MAXSECTORS, GAMEVAR_SYSTEM|GAMEVAR_READONLY);
-    Gv_NewVar("MAXWALLS",MAXWALLS, GAMEVAR_SYSTEM|GAMEVAR_READONLY);
-    Gv_NewVar("MAXTILES",MAXTILES, GAMEVAR_SYSTEM|GAMEVAR_READONLY);
-
 ///    Gv_NewVar("display_mirror",(intptr_t)&display_mirror, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR);
+
     Gv_NewVar("randomseed",(intptr_t)&randomseed, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
 
     Gv_NewVar("numwalls",(intptr_t)&numwalls, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_READONLY);
@@ -576,7 +587,14 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("mousxplc",(intptr_t)&mousxplc, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("mousyplc",(intptr_t)&mousyplc, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
 
+    Gv_NewVar("zoom",(intptr_t)&zoom, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("drawlinepat",(intptr_t)&m32_drawlinepat, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("halfxdim16", (intptr_t)&halfxdim16, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("midydim16", (intptr_t)&midydim16, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("ydim16",(intptr_t)&ydim16, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+
     g_systemVarCount = g_gameVarCount;
+
 
     Gv_NewArray("highlight", (void *)highlight, hlcnt_id,
                 GAMEARRAY_READONLY|GAMEARRAY_OFSHORT|GAMEARRAY_VARSIZE);
@@ -598,6 +616,10 @@ static void Gv_AddSystemVars(void)
     Gv_NewArray("show2dsector", (void *)show2dsector, (MAXSECTORS+7)>>3, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
     Gv_NewArray("show2dwall", (void *)show2dwall, (MAXWALLS+7)>>3, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
     Gv_NewArray("show2dsprite", (void *)show2dsprite, (MAXSPRITES+7)>>3, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
+
+    Gv_NewArray("keystatus", (void *)keystatus, 256, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
+    Gv_NewArray("alphakeys", (void *)alphakeys, sizeof(alphakeys), GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
+    Gv_NewArray("numberkeys", (void *)numberkeys, sizeof(numberkeys), GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
 
     g_systemArrayCount = g_gameArrayCount;
 }

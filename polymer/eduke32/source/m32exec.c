@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //#include "osdcmds.h"
 #include "osd.h"
+#include "keys.h"
 
 vmstate_t vm;
 vmstate_t vm_default =
@@ -47,13 +48,14 @@ int32_t g_errorLineNum, g_tw;
 
 uint8_t aEventEnabled[MAXEVENTS];
 
-static int16_t neartagsector, neartagwall, neartagsprite;
-static int32_t neartaghitdist;
+uint32_t m32_drawlinepat=0xffffffff;
 
 instype *insptr;
 int32_t X_DoExecute(int32_t once);
 
 #include "m32structures.c"
+
+extern void message(const char *fmt, ...);
 
 // from sector.c vvv
 static int32_t ldist(spritetype *s1,spritetype *s2)
@@ -225,6 +227,20 @@ static inline void __fastcall X_DoConditional(register int32_t condition)
         vm.g_errorFlag = 1;                                             \
         continue;                                                       \
     }
+
+#define X_ERROR_INVALIDQUOTE(q, array)                                  \
+    if (q<0 || q>=MAXQUOTES)                                            \
+    {                                                                   \
+        OSD_Printf(CON_ERROR "Invalid quote number %d!\n", g_errorLineNum, keyw[g_tw], q); \
+        vm.g_errorFlag = 1;                                             \
+        continue;                                                       \
+    }                                                                   \
+    else if (array[q] == NULL)                                          \
+    {                                                                   \
+        OSD_Printf(CON_ERROR "Null quote %d!\n", g_errorLineNum, keyw[g_tw], q); \
+        vm.g_errorFlag = 1;                                             \
+        continue;                                                       \
+    }                                                                   \
 
 int32_t X_DoExecute(int32_t once)
 {
@@ -1235,6 +1251,36 @@ badindex:
             X_DoConditional(rnd(Gv_GetVarX(*(++insptr))));
             continue;
 
+        case CON_IFKEY:
+            insptr++;
+            {
+                int32_t key=Gv_GetVarX(*insptr);
+                if (key<0 || key >= (int32_t)(sizeof(keystatus)/sizeof(keystatus[0])))
+                {
+                    OSD_Printf(CON_ERROR "Invalid key %d!\n",g_errorLineNum,keyw[g_tw],key);
+                    vm.g_errorFlag = 1;
+                    continue;
+                }
+                X_DoConditional(keystatus[key]);
+
+                if ((key>=KEYSC_1 && key<=KEYSC_ENTER) || (key>=KEYSC_A && key<=KEYSC_BQUOTE)
+                    || (key>=KEYSC_BSLASH && key<=KEYSC_SLASH))
+                    keystatus[key] = 0;
+            }
+            continue;
+
+        case CON_IFEITHERALT:
+            X_DoConditional(keystatus[KEYSC_LALT]||keystatus[KEYSC_RALT]);
+            continue;
+
+        case CON_IFEITHERCTRL:
+            X_DoConditional(keystatus[KEYSC_LCTRL]||keystatus[KEYSC_RCTRL]);
+            continue;
+
+        case CON_IFEITHERSHIFT:
+            X_DoConditional(keystatus[KEYSC_LSHIFT]||keystatus[KEYSC_RSHIFT]);
+            continue;
+
 // vvv CURSPR
         case CON_IFSPRITEPAL:
             insptr++;
@@ -1525,6 +1571,9 @@ badindex:
                 int32_t sectnum=Gv_GetVarX(*insptr++), ang=Gv_GetVarX(*insptr++);
                 int32_t neartagsectorvar=*insptr++, neartagwallvar=*insptr++, neartagspritevar=*insptr++, neartaghitdistvar=*insptr++;
                 int32_t neartagrange=Gv_GetVarX(*insptr++), tagsearch=Gv_GetVarX(*insptr++);
+
+                int16_t neartagsector, neartagwall, neartagsprite;
+                int32_t neartaghitdist;
 
                 X_ERROR_INVALIDSECT(sectnum);
                 neartag(x, y, z, sectnum, ang, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, neartagrange, tagsearch);
@@ -1840,25 +1889,33 @@ badindex:
             insptr++;
             {
                 int32_t q = *insptr++, i = *insptr++;
-                if (ScriptQuotes[q] == NULL || ScriptQuoteRedefinitions[i] == NULL)
-                {
-                    OSD_Printf(CON_ERROR "%s %d null quote\n",g_errorLineNum,keyw[g_tw],q,i);
-                    vm.g_errorFlag = 1;
-                    break;
-                }
+                X_ERROR_INVALIDQUOTE(q, ScriptQuotes);
+                X_ERROR_INVALIDQUOTE(i, ScriptQuoteRedefinitions);
                 Bstrcpy(ScriptQuotes[q],ScriptQuoteRedefinitions[i]);
                 continue;
             }
 
             insptr++;
-
-            if (ScriptQuotes[*insptr] == NULL)
-            {
-                OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],*insptr);
-                insptr++;
-                continue;
-            }
+            X_ERROR_INVALIDQUOTE(*insptr, ScriptQuotes);
             OSD_Printf("%s", ScriptQuotes[*insptr++]);
+            continue;
+
+        case CON_GETNUMBER16:
+        case CON_GETNUMBER256:
+            insptr++;
+            {
+                int32_t var=*insptr++, quote=Gv_GetVarX(*insptr++), max=Gv_GetVarX(*insptr++), sign=ksgn(max)<0?1:0;
+                char buf[60];
+
+                X_ERROR_INVALIDQUOTE(quote, ScriptQuotes);
+                Bmemcpy(buf, ScriptQuotes[quote], sizeof(buf)-1);
+                buf[sizeof(buf)-1]='\0';
+
+                if (tw==CON_GETNUMBER16)
+                    Gv_SetVarX(var, getnumber16(ScriptQuotes[quote], Gv_GetVarX(var), max, sign));
+                else
+                    Gv_SetVarX(var, getnumber256(ScriptQuotes[quote], Gv_GetVarX(var), max, sign));
+            }
             continue;
 
         case CON_QUOTE:
@@ -1866,33 +1923,36 @@ badindex:
         case CON_PRINTMESSAGE16:
         case CON_PRINTMESSAGE256:
         case CON_PRINTEXT256:
+        case CON_PRINTEXT16:
             insptr++;
             {
                 int32_t i=Gv_GetVarX(*insptr++);
                 int32_t x=(tw>=CON_PRINTMESSAGE256)?Gv_GetVarX(*insptr++):0;
                 int32_t y=(tw>=CON_PRINTMESSAGE256)?Gv_GetVarX(*insptr++):0;
-                int32_t col=(tw==CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
-                int32_t backcol=(tw==CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
-                int32_t fontsize=(tw==CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
+                int32_t col=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
+                int32_t backcol=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
+                int32_t fontsize=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
 
                 if (tw==CON_ERRORINS) vm.g_errorFlag = 1;
 
-                if (ScriptQuotes[i] == NULL)
-                {
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],i);
-                    continue;
-                }
+                X_ERROR_INVALIDQUOTE(i, ScriptQuotes);
+
                 if (tw==CON_QUOTE)
-                    OSD_Printf("%s\n", ScriptQuotes[i]);
+                    message("%s", ScriptQuotes[i]);
                 else if (tw==CON_PRINTMESSAGE16)
                     printmessage16("%s", ScriptQuotes[i]);
                 else if (tw==CON_PRINTMESSAGE256)
                     printmessage256(x, y, ScriptQuotes[i]);
-                else
+                else if (tw==CON_PRINTEXT256)
                 {
                     if (col<0 || col>=256) col=0;
-                    if (backcol<0 || backcol>=256) backcol=0;
+                    if (backcol<0 || backcol>=256) backcol=-1;
                     printext256(x, y, col, backcol, ScriptQuotes[i], fontsize);
+                }
+                else if (tw==CON_PRINTEXT16)
+                {
+                    printext16(x, y, editorcolors[col&15], backcol<0 ? -1 : editorcolors[backcol&15],
+                               ScriptQuotes[i], fontsize);
                 }
             }
             continue;
@@ -1902,12 +1962,8 @@ badindex:
             {
                 int32_t i=*insptr++;
                 int32_t j=Gv_GetVarX(*insptr++);
-                if (ScriptQuotes[j] == NULL)
-                {
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],j);
-                    Gv_SetVarX(i, -1);
-                    continue;
-                }
+
+                X_ERROR_INVALIDQUOTE(j, ScriptQuotes);
                 Gv_SetVarX(i, Bstrlen(ScriptQuotes[j]));
                 continue;
             }
@@ -1920,26 +1976,8 @@ badindex:
                 int32_t st = Gv_GetVarX(*insptr++);
                 int32_t ln = Gv_GetVarX(*insptr++);
 
-                if (q1<0 || q1>=MAXQUOTES)
-                {
-                    OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],q1);
-                    continue;
-                }
-                if (ScriptQuotes[q1] == NULL)
-                {
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q1);
-                    continue;
-                }
-                if (q2<0 || q2>=MAXQUOTES)
-                {
-                    OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],q2);
-                    continue;
-                }
-                if (ScriptQuotes[q2] == NULL)
-                {
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q2);
-                    continue;
-                }
+                X_ERROR_INVALIDQUOTE(q1, ScriptQuotes);
+                X_ERROR_INVALIDQUOTE(q2, ScriptQuotes);
 
                 {
                     char *s1 = ScriptQuotes[q1];
@@ -1965,6 +2003,9 @@ badindex:
                 int32_t i = Gv_GetVarX(*insptr++);
                 int32_t j = Gv_GetVarX(*insptr++);
 
+                X_ERROR_INVALIDQUOTE(i, ScriptQuotes);
+                X_ERROR_INVALIDQUOTE(j, ScriptQuotes);
+
                 switch (tw)
                 {
 #if 0
@@ -1988,20 +2029,13 @@ badindex:
                     break;
 #endif
                 case CON_QSTRCAT:
-                    if (ScriptQuotes[i] == NULL || ScriptQuotes[j] == NULL) goto nullquote;
                     Bstrncat(ScriptQuotes[i],ScriptQuotes[j],(MAXQUOTELEN-1)-Bstrlen(ScriptQuotes[i]));
                     break;
                 case CON_QSTRNCAT:
-                    if (ScriptQuotes[i] == NULL || ScriptQuotes[j] == NULL) goto nullquote;
                     Bstrncat(ScriptQuotes[i],ScriptQuotes[j],Gv_GetVarX(*insptr++));
                     break;
                 case CON_QSTRCPY:
-                    if (ScriptQuotes[i] == NULL || ScriptQuotes[j] == NULL) goto nullquote;
                     Bstrcpy(ScriptQuotes[i],ScriptQuotes[j]);
-                    break;
-                default:
-nullquote:
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],ScriptQuotes[i] ? j : i);
                     break;
                 }
                 continue;
@@ -2011,23 +2045,17 @@ nullquote:
             insptr++;
             {
                 int32_t dq = Gv_GetVarX(*insptr++), sq = Gv_GetVarX(*insptr++);
-                if (ScriptQuotes[sq] == NULL || ScriptQuotes[dq] == NULL)
-                {
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],ScriptQuotes[sq] ? dq : sq);
-                    while ((*insptr & 0xFFF) != CON_NULLOP)
-                        /*Gv_GetVarX(*insptr++);*/ {}
 
-                    insptr++; // skip the NOP
-                    continue;
-                }
+                X_ERROR_INVALIDQUOTE(dq, ScriptQuotes);
+                X_ERROR_INVALIDQUOTE(sq, ScriptQuotes);
 
                 {
-                    int32_t arg[32], i=0, j=0, k=0;
+                    int32_t arg[32], numvals=0, i=0, j=0, k=0;
                     int32_t len = Bstrlen(ScriptQuotes[sq]);
-                    char tmpbuf[MAXQUOTELEN];
+                    char tmpbuf[MAXQUOTELEN<<1];
 
-                    while ((*insptr & 0xFFF) != CON_NULLOP && i < 32)
-                        arg[i++] = Gv_GetVarX(*insptr++);
+                    while ((*insptr & 0xFFF) != CON_NULLOP && numvals < 32)
+                        arg[numvals++] = Gv_GetVarX(*insptr++);
                     
                     insptr++; // skip the NOP
 
@@ -2040,6 +2068,9 @@ nullquote:
                         if (ScriptQuotes[sq][k] == '%')
                         {
                             k++;
+
+                            if (i>=numvals) goto dodefault;
+
                             switch (ScriptQuotes[sq][k])
                             {
                             case 'l':
@@ -2067,14 +2098,17 @@ nullquote:
 
                             case 's':
                             {
-                                int32_t ii = Bstrlen(ScriptQuotes[arg[i]]);
-
-                                Bmemcpy(&tmpbuf[j], ScriptQuotes[arg[i]], ii);
-                                j += ii;
+                                if (arg[i]>=0 && arg[i]<MAXQUOTES && ScriptQuotes[arg[i]])
+                                {
+                                    int32_t ii = Bstrlen(ScriptQuotes[arg[i]]);
+                                    Bmemcpy(&tmpbuf[j], ScriptQuotes[arg[i]], ii);
+                                    j += ii;
+                                }
                                 k++;
                             }
                             break;
 
+dodefault:
                             default:
                                 tmpbuf[j++] = ScriptQuotes[sq][k-1];
                                 break;
@@ -2084,7 +2118,8 @@ nullquote:
                     while (k < len && j < MAXQUOTELEN);
 
                     tmpbuf[j] = '\0';
-                    Bstrcpy(ScriptQuotes[dq], tmpbuf);
+                    Bmemcpy(ScriptQuotes[dq], tmpbuf, MAXQUOTELEN);
+                    ScriptQuotes[dq][MAXQUOTELEN-1] = '\0';
                     continue;
                 }
             }
@@ -2298,6 +2333,54 @@ nullquote:
             Gv_SetVarX(g_iTextureID, sector[vm.g_sp->sectnum].ceilingpicnum);
             continue;
 // ^^^
+        case CON_DRAWLINE16:
+        case CON_DRAWLINE16B:
+            insptr++;
+            {
+                int32_t x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++);
+                int32_t x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++);
+                int32_t col=Gv_GetVarX(*insptr++), odrawlinepat=drawlinepat;
+                int32_t xofs=0, yofs=0;
+
+                if (tw==CON_DRAWLINE16B)
+                {
+                    x1 = mulscale14(x1-pos.x,zoom);
+                    y1 = mulscale14(y1-pos.y,zoom);
+                    x2 = mulscale14(x2-pos.x,zoom);
+                    y2 = mulscale14(y2-pos.y,zoom);
+                    xofs = halfxdim16;
+                    yofs = midydim16;
+                }
+
+                drawlinepat = m32_drawlinepat;
+                drawline16(xofs+x1,yofs+y1, xofs+x2,yofs+y2, editorcolors[col&15]);
+                drawlinepat = odrawlinepat;
+                continue;
+            }
+
+        case CON_DRAWCIRCLE16:
+        case CON_DRAWCIRCLE16B:
+            insptr++;
+            {
+                int32_t x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++);
+                int32_t r=Gv_GetVarX(*insptr++);
+                int32_t col=Gv_GetVarX(*insptr++), odrawlinepat=drawlinepat;
+                int32_t xofs=0, yofs=0;
+
+                if (tw==CON_DRAWCIRCLE16B)
+                {
+                    x1 = mulscale14(x1-pos.x,zoom);
+                    y1 = mulscale14(y1-pos.y,zoom);
+                    r = mulscale14(r,zoom);
+                    xofs = halfxdim16;
+                    yofs = midydim16;
+                }
+
+                drawlinepat = m32_drawlinepat;
+                drawcircle16(xofs+x1, yofs+y1, r, editorcolors[col&15]);
+                drawlinepat = odrawlinepat;
+                continue;
+            }
 
         case CON_ROTATESPRITE16:
         case CON_ROTATESPRITE:

@@ -1418,6 +1418,7 @@ void overheadeditor(void)
             }
 
         draw2dscreen(pos.x,pos.y,ang,zoom,grid);
+        X_OnEvent(EVENT_DRAW2DSCREEN, -1);
 
         begindrawing();	//{{{
         if (showtags == 1)
@@ -2265,16 +2266,16 @@ void overheadeditor(void)
                     i = pointhighlight-16384;
                     Bsprintf(buffer,"Sprite (%d) Hi-tag: ",i);
                     sprite[i].hitag = getnumber16(buffer,sprite[i].hitag,65536L,0);
-                    clearmidstatbar16();
-                    showspritedata((int16_t)i);
+//                    clearmidstatbar16();
+//                    showspritedata((int16_t)i);
                 }
                 else if (linehighlight >= 0)
                 {
                     i = linehighlight;
                     Bsprintf(buffer,"Wall (%d) Hi-tag: ",i);
                     wall[i].hitag = getnumber16(buffer,wall[i].hitag,65536L,0);
-                    clearmidstatbar16();
-                    showwalldata((int16_t)i);
+//                    clearmidstatbar16();
+//                    showwalldata((int16_t)i);
                 }
             }
             else
@@ -2284,8 +2285,8 @@ void overheadeditor(void)
                     {
                         Bsprintf(buffer,"Sector (%d) Hi-tag: ",i);
                         sector[i].hitag = getnumber16(buffer,sector[i].hitag,65536L,0);
-                        clearmidstatbar16();
-                        showsectordata((int16_t)i);
+//                        clearmidstatbar16();
+//                        showsectordata((int16_t)i);
                         break;
                     }
             }
@@ -2300,13 +2301,13 @@ void overheadeditor(void)
                 {
                     Bsprintf(buffer,"Sector (%d) Ceilingpal: ",i);
                     sector[i].ceilingpal = getnumber16(buffer,sector[i].ceilingpal,256L,0);
-                    clearmidstatbar16();
-                    showsectordata((int16_t)i);
+//                    clearmidstatbar16();
+//                    showsectordata((int16_t)i);
 
                     Bsprintf(buffer,"Sector (%d) Floorpal: ",i);
                     sector[i].floorpal = getnumber16(buffer,sector[i].floorpal,256L,0);
-                    clearmidstatbar16();
-                    showsectordata((int16_t)i);
+//                    clearmidstatbar16();
+//                    showsectordata((int16_t)i);
 
                     // printmessage16("");
                     break;
@@ -2319,8 +2320,8 @@ void overheadeditor(void)
                 i = pointhighlight-16384;
                 Bsprintf(buffer,"Sprite (%d) Status list: ",i);
                 changespritestat(i,getnumber16(buffer,sprite[i].statnum,65536L,0));
-                clearmidstatbar16();
-                showspritedata((int16_t)i);
+//                clearmidstatbar16();
+//                showspritedata((int16_t)i);
             }
 
             // printmessage16("");
@@ -4229,7 +4230,13 @@ nextmap:
 // ^^^ PK ------------------------------------
 
 CANCEL:
-        if (keystatus[1] && joinsector[0] >= 0) {keystatus[1]=0; joinsector[0]=-1;}
+        if (keystatus[1] && joinsector[0] >= 0)
+        {
+            keystatus[1]=0;
+            joinsector[0]=-1;
+            printmessage16("No sectors joined.");
+        }
+
         if (keystatus[1])
         {
             keystatus[1] = 0;
@@ -4690,6 +4697,8 @@ CANCEL:
             }
             clearkeys();
         }
+
+        X_OnEvent(EVENT_OVERHEADEDITOR, -1);
 
         //nextpage();
     }

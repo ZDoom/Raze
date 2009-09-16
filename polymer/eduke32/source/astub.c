@@ -3921,8 +3921,9 @@ void getnumberptr256(char *namestart, void *num, int32_t bytes, int32_t maxnumbe
         }
         else if (ch == 13)
         {
+            if (danum != oldnum)
+                asksave = 1;
             oldnum = danum;
-            asksave = 1;
             break;
         }
         else if (ch == '-' && sign)  	// negate
@@ -7385,6 +7386,8 @@ static void Keys3d(void)
             }
         }
     }
+
+    X_OnEvent(EVENT_KEYS3D, -1);
 }// end 3d
 
 static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
@@ -7913,36 +7916,32 @@ static void Keys2d(void)
         {
             SearchSectorsBackward();
         }
-        else
-
-            if (wallsprite==1)
+        else if (wallsprite==1)
+        {
+            if (curwallnum>0) curwallnum--;
+            for (i=curwallnum; i>=0; i--)
             {
-                if (curwallnum>0) curwallnum--;
-                for (i=curwallnum; i>=0; i--)
-                {
-                    if (
-                        (wall[i].picnum==wall[curwall].picnum)
-                        &&((search_lotag==0)||
-                           (search_lotag!=0 && search_lotag==wall[i].lotag))
-                        &&((search_hitag==0)||
-                           (search_hitag!=0 && search_hitag==wall[i].hitag))
+                if (
+                    (wall[i].picnum==wall[curwall].picnum)
+                    &&((search_lotag==0)||
+                       (search_lotag!=0 && search_lotag==wall[i].lotag))
+                    &&((search_hitag==0)||
+                       (search_hitag!=0 && search_hitag==wall[i].hitag))
                     )
-                    {
-                        pos.x=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
-                        pos.y=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
-                        printmessage16("< Wall search: found");
-                        //                    curwallnum--;
-                        keystatus[KEYSC_LBRACK]=0;
-                        return;
-                    }
-                    curwallnum--;
+                {
+                    pos.x=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
+                    pos.y=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
+                    printmessage16("< Wall search: found");
+                    //                    curwallnum--;
+                    keystatus[KEYSC_LBRACK]=0;
+                    return;
                 }
-                printmessage16("< Wall search: none found");
+                curwallnum--;
             }
-            else
-
-                if (wallsprite==2)
-                    DoSpriteSearch(-1);
+            printmessage16("< Wall search: none found");
+        }
+        else if (wallsprite==2)
+            DoSpriteSearch(-1);
 #if 0
         {
             if (cursearchspritenum>0) cursearchspritenum--;
@@ -8198,6 +8197,8 @@ static void Keys2d(void)
         printmessage16(tempbuf);
         keystatus[KEYSC_J]=0;
     }
+
+//    X_OnEvent(EVENT_KEYS2D, -1);
 
 }// end key2d
 
@@ -8922,8 +8923,16 @@ static int32_t osdcmd_endisableevent(const osdfuncparm_t *parm)
     int32_t i, j, enable;
     char buf[64] = "EVENT_";
 
+    if (!label) return OSDCMD_OK;
+
     if (parm->numparms < 1)
-        return OSDCMD_SHOWHELP;
+    {
+        OSD_Printf("--- Defined events:\n");
+        for (i=0; i<MAXEVENTS; i++)
+            if (aEventOffsets[i] >= 0)
+                OSD_Printf("%s (%d): %s\n", label+(i*MAXLABELLEN), i, aEventEnabled[i]?"on":"off");
+        return OSDCMD_OK;
+    }
 
     enable = !Bstrcasecmp(parm->name, "enableevent");
 
@@ -8933,13 +8942,6 @@ static int32_t osdcmd_endisableevent(const osdfuncparm_t *parm)
         {
             for (i=0; i<MAXEVENTS; i++)
                 aEventEnabled[i] = enable?1:0;
-            return OSDCMD_OK;
-        }
-        else if (!Bstrcasecmp(parm->parms[0], "show"))
-        {
-            for (i=0; i<MAXEVENTS; i++)
-                if (aEventOffsets[i] >= 0)
-                    OSD_Printf("%s: %s\n", label+(i*MAXLABELLEN), aEventEnabled[i]?"on":"off");
             return OSDCMD_OK;
         }
     }
@@ -8953,7 +8955,7 @@ static int32_t osdcmd_endisableevent(const osdfuncparm_t *parm)
         else
         {
             Bstrncat(buf, parm->parms[i], sizeof(buf)-6-1);
-            j = hash_find(&labelH, parm->parms[i]);
+            j = hash_find(&labelH, buf);
         }
 
         if (j>=0 && j<MAXEVENTS)
@@ -8994,8 +8996,8 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("include", "include <filnames...>: compiles one or more M32 script files", osdcmd_include);
     OSD_RegisterFunction("do", "do (m32 script ...): executes M32 script statements", osdcmd_do);
     OSD_RegisterFunction("scriptinfo", "scriptinfo: shows information about compiled M32 script", osdcmd_scriptinfo);
-    OSD_RegisterFunction("enableevent", "enableevent <all|show||EVENT_...|(event number)>", osdcmd_endisableevent);
-    OSD_RegisterFunction("disableevent", "disableevent <all|show|EVENT_...|(event number)>", osdcmd_endisableevent);
+    OSD_RegisterFunction("enableevent", "enableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
+    OSD_RegisterFunction("disableevent", "disableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
     return 0;
 }
 #define DUKEOSD

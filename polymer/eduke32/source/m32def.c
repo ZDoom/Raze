@@ -26,7 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "m32def.h"
 #include "cache1d.h"
 
-#include "osd.h"
+//#include "osd.h"
+#include "keys.h"
 
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
 static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
@@ -156,7 +157,7 @@ const tokenmap_t altkeyw[] =
     { "mul", CON_MULVARVAR },
     { "div", CON_DIVVARVAR },
     { "mod", CON_MODVARVAR },
-    { "add", CON_ADDVARVAR },
+    { "and", CON_ANDVARVAR },
     { "or", CON_ORVARVAR },
     { "xor", CON_XORVARVAR },
     { "ifl", CON_IFVARVARL },
@@ -281,6 +282,7 @@ const char *keyw[] =
     "whilevarvarn",
     "whilevarvarl",
 
+    "ifkey",
     "ifrnd",
     "ifangdiffl",
     "ifspritepal",
@@ -290,6 +292,9 @@ const char *keyw[] =
 
     "ifinside",
 
+    "ifeitheralt",
+    "ifeitherctrl",
+    "ifeithershift",
     "ifawayfromwall",
     "ifcansee",
     "ifonwater",
@@ -334,6 +339,9 @@ const char *keyw[] =
     "printmessage16",
     "printmessage256",
     "printext256",
+    "printext16",
+    "getnumber16",
+    "getnumber256",
     "qsprintf",
     "qstrcat",
     "qstrcpy",
@@ -369,6 +377,10 @@ const char *keyw[] =
 
 ///    "killit",
 
+    "drawline16",
+    "drawline16b",
+    "drawcircle16",
+    "drawcircle16b",
     "rotatesprite16",
     "rotatesprite",
     "setgamepalette",
@@ -1506,6 +1518,7 @@ static int32_t C_ParseCommand(void)
             }
             if (g_numCompilerErrors)
             {
+                g_scriptPtr = script+cs.currentStateOfs;
                 cs.currentStateOfs = -1;
                 cs.currentStateIdx = -1;
                 Bsprintf(g_szCurrentBlockName,"(none)");
@@ -1670,6 +1683,7 @@ static int32_t C_ParseCommand(void)
         }
         if (g_numCompilerErrors)
         {
+            g_scriptPtr = script+cs.parsingEventOfs;
             cs.parsingEventOfs = -1;
             cs.currentEvent = -1;
             Bsprintf(g_szCurrentBlockName,"(none)");
@@ -2489,6 +2503,7 @@ repeatcase:
     case CON_WHILEVARVARN:
     case CON_WHILEVARVARL:
 // ---
+    case CON_IFKEY:
     case CON_IFRND:
 // vvv if* using current sprite
     case CON_IFANGDIFFL:
@@ -2503,6 +2518,9 @@ repeatcase:
 // ---
     case CON_IFINSIDE:
 // ---
+    case CON_IFEITHERALT:
+    case CON_IFEITHERCTRL:
+    case CON_IFEITHERSHIFT:
     case CON_IFAWAYFROMWALL:
     case CON_IFCANSEE:
     case CON_IFONWATER:
@@ -2517,6 +2535,7 @@ repeatcase:
         ofstype offset;
         ofstype lastScriptOfs = (g_scriptPtr-script-1);
         instype *tscrptr;
+
         cs.ifElseAborted = 0;
 
         if (tw<=CON_WHILEVARL)  // careful! check this against order in m32def.h!
@@ -2757,7 +2776,14 @@ repeatcase:
         C_GetManyVars(3);
         return 0;
     case CON_PRINTEXT256:
+    case CON_PRINTEXT16:
         C_GetManyVars(6);
+        return 0;
+
+    case CON_GETNUMBER16:
+    case CON_GETNUMBER256:
+        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetManyVars(2);
         return 0;
 
     case CON_QSPRINTF:
@@ -2890,6 +2916,18 @@ repeatcase:
         }
         return 0;
 
+    case CON_DRAWLINE16:
+    case CON_DRAWLINE16B:
+    case CON_DRAWCIRCLE16:
+    case CON_DRAWCIRCLE16B:
+        if (cs.parsingEventOfs < 0 && cs.currentStateIdx < 0)
+        {
+            C_ReportError(ERROR_EVENTONLY);
+            g_numCompilerErrors++;
+        }
+        C_GetManyVars((tw==CON_DRAWLINE16||tw==CON_DRAWLINE16B) ? 5 : 4);
+        break;
+
     case CON_ROTATESPRITE16:
     case CON_ROTATESPRITE:
         if (cs.parsingEventOfs < 0 && cs.currentStateIdx < 0)
@@ -2928,6 +2966,10 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("EVENT_ANALYZESPRITES", EVENT_ANALYZESPRITES, LABEL_EVENT);
     C_AddDefinition("EVENT_INSERTSPRITE2D", EVENT_INSERTSPRITE2D, LABEL_EVENT);
     C_AddDefinition("EVENT_INSERTSPRITE3D", EVENT_INSERTSPRITE3D, LABEL_EVENT);
+    C_AddDefinition("EVENT_DRAW2DSCREEN", EVENT_DRAW2DSCREEN, LABEL_EVENT);
+//    C_AddDefinition("EVENT_KEYS2D", EVENT_KEYS2D, LABEL_EVENT);
+    C_AddDefinition("EVENT_KEYS3D", EVENT_KEYS3D, LABEL_EVENT);
+    C_AddDefinition("EVENT_OVERHEADEDITOR", EVENT_OVERHEADEDITOR, LABEL_EVENT);
 
     C_AddDefinition("CLIPMASK0", CLIPMASK0, LABEL_DEFINE);
     C_AddDefinition("CLIPMASK1", CLIPMASK1, LABEL_DEFINE);
@@ -2937,10 +2979,103 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("MAXWALLS", MAXWALLS, LABEL_DEFINE);
     C_AddDefinition("MAXTILES", MAXTILES, LABEL_DEFINE);
 
+// keys
+    C_AddDefinition("KEY_SPACE", KEYSC_SPACE, LABEL_DEFINE);
+
+    C_AddDefinition("KEY_A", KEYSC_A, LABEL_DEFINE);
+    C_AddDefinition("KEY_B", KEYSC_B, LABEL_DEFINE);
+    C_AddDefinition("KEY_C", KEYSC_C, LABEL_DEFINE);
+    C_AddDefinition("KEY_D", KEYSC_D, LABEL_DEFINE);
+    C_AddDefinition("KEY_E", KEYSC_E, LABEL_DEFINE);
+    C_AddDefinition("KEY_F", KEYSC_F, LABEL_DEFINE);
+    C_AddDefinition("KEY_G", KEYSC_G, LABEL_DEFINE);
+    C_AddDefinition("KEY_H", KEYSC_H, LABEL_DEFINE);
+    C_AddDefinition("KEY_I", KEYSC_I, LABEL_DEFINE);
+    C_AddDefinition("KEY_J", KEYSC_J, LABEL_DEFINE);
+    C_AddDefinition("KEY_K", KEYSC_K, LABEL_DEFINE);
+    C_AddDefinition("KEY_L", KEYSC_L, LABEL_DEFINE);
+    C_AddDefinition("KEY_M", KEYSC_M, LABEL_DEFINE);
+    C_AddDefinition("KEY_N", KEYSC_N, LABEL_DEFINE);
+    C_AddDefinition("KEY_O", KEYSC_O, LABEL_DEFINE);
+    C_AddDefinition("KEY_P", KEYSC_P, LABEL_DEFINE);
+    C_AddDefinition("KEY_Q", KEYSC_Q, LABEL_DEFINE);
+    C_AddDefinition("KEY_R", KEYSC_R, LABEL_DEFINE);
+    C_AddDefinition("KEY_S", KEYSC_S, LABEL_DEFINE);
+    C_AddDefinition("KEY_T", KEYSC_T, LABEL_DEFINE);
+    C_AddDefinition("KEY_U", KEYSC_U, LABEL_DEFINE);
+    C_AddDefinition("KEY_V", KEYSC_V, LABEL_DEFINE);
+    C_AddDefinition("KEY_W", KEYSC_W, LABEL_DEFINE);
+    C_AddDefinition("KEY_X", KEYSC_X, LABEL_DEFINE);
+    C_AddDefinition("KEY_Y", KEYSC_Y, LABEL_DEFINE);
+    C_AddDefinition("KEY_Z", KEYSC_Z, LABEL_DEFINE);
+
+    C_AddDefinition("KEY_ENTER", KEYSC_ENTER, LABEL_DEFINE);
+    C_AddDefinition("KEY_BS", KEYSC_BS, LABEL_DEFINE);
+    C_AddDefinition("KEY_TAB", KEYSC_TAB, LABEL_DEFINE);
+
+    C_AddDefinition("KEY_0", KEYSC_0, LABEL_DEFINE);
+    C_AddDefinition("KEY_1", KEYSC_1, LABEL_DEFINE);
+    C_AddDefinition("KEY_2", KEYSC_2, LABEL_DEFINE);
+    C_AddDefinition("KEY_3", KEYSC_3, LABEL_DEFINE);
+    C_AddDefinition("KEY_4", KEYSC_4, LABEL_DEFINE);
+    C_AddDefinition("KEY_5", KEYSC_5, LABEL_DEFINE);
+    C_AddDefinition("KEY_6", KEYSC_6, LABEL_DEFINE);
+    C_AddDefinition("KEY_7", KEYSC_7, LABEL_DEFINE);
+    C_AddDefinition("KEY_8", KEYSC_8, LABEL_DEFINE);
+    C_AddDefinition("KEY_9", KEYSC_9, LABEL_DEFINE);
+
+    C_AddDefinition("KEY_DASH", KEYSC_DASH, LABEL_DEFINE);
+    C_AddDefinition("KEY_EQUAL", KEYSC_EQUAL, LABEL_DEFINE);
+    C_AddDefinition("KEY_LBRACK", KEYSC_LBRACK, LABEL_DEFINE);
+    C_AddDefinition("KEY_RBRACK", KEYSC_RBRACK, LABEL_DEFINE);
+    C_AddDefinition("KEY_SEMI", KEYSC_SEMI, LABEL_DEFINE);
+    C_AddDefinition("KEY_QUOTE", KEYSC_QUOTE, LABEL_DEFINE);
+    C_AddDefinition("KEY_BQUOTE", KEYSC_BQUOTE, LABEL_DEFINE);
+    C_AddDefinition("KEY_BSLASH", KEYSC_BSLASH, LABEL_DEFINE);
+    C_AddDefinition("KEY_COMMA", KEYSC_COMMA, LABEL_DEFINE);
+    C_AddDefinition("KEY_PERIOD", KEYSC_PERIOD, LABEL_DEFINE);
+    C_AddDefinition("KEY_SLASH", KEYSC_SLASH, LABEL_DEFINE);
+
+    C_AddDefinition("KEY_LALT", KEYSC_LALT, LABEL_DEFINE);
+    C_AddDefinition("KEY_LCTRL", KEYSC_LCTRL, LABEL_DEFINE);
+    C_AddDefinition("KEY_LSHIFT", KEYSC_LSHIFT, LABEL_DEFINE);
+    C_AddDefinition("KEY_RALT", KEYSC_RALT, LABEL_DEFINE);
+    C_AddDefinition("KEY_RCTRL", KEYSC_RCTRL, LABEL_DEFINE);
+    C_AddDefinition("KEY_RSHIFT", KEYSC_RSHIFT, LABEL_DEFINE);
+
+    C_AddDefinition("KEY_gDEL", KEYSC_gDEL, LABEL_DEFINE);
+    C_AddDefinition("KEY_gDOWN", KEYSC_gDOWN, LABEL_DEFINE);
+    C_AddDefinition("KEY_gEND", KEYSC_gEND, LABEL_DEFINE);
+    C_AddDefinition("KEY_gHOME", KEYSC_gHOME, LABEL_DEFINE);
+    C_AddDefinition("KEY_gINS", KEYSC_gINS, LABEL_DEFINE);
+    C_AddDefinition("KEY_gKP5", KEYSC_gKP5, LABEL_DEFINE);
+    C_AddDefinition("KEY_gLEFT", KEYSC_gLEFT, LABEL_DEFINE);
+    C_AddDefinition("KEY_gMINUS", KEYSC_gMINUS, LABEL_DEFINE);
+    C_AddDefinition("KEY_gPGDN", KEYSC_gPGDN, LABEL_DEFINE);
+    C_AddDefinition("KEY_gPGUP", KEYSC_gPGUP, LABEL_DEFINE);
+    C_AddDefinition("KEY_gPLUS", KEYSC_gPLUS, LABEL_DEFINE);
+    C_AddDefinition("KEY_gRIGHT", KEYSC_gRIGHT, LABEL_DEFINE);
+    C_AddDefinition("KEY_gSLASH", KEYSC_gSLASH, LABEL_DEFINE);
+    C_AddDefinition("KEY_gSTAR", KEYSC_gSTAR, LABEL_DEFINE);
+    C_AddDefinition("KEY_gUP", KEYSC_gUP, LABEL_DEFINE);
+
+    C_AddDefinition("KEY_HOME", KEYSC_HOME, LABEL_DEFINE);
+    C_AddDefinition("KEY_UP", KEYSC_UP, LABEL_DEFINE);
+    C_AddDefinition("KEY_PGUP", KEYSC_PGUP, LABEL_DEFINE);
+    C_AddDefinition("KEY_LEFT", KEYSC_LEFT, LABEL_DEFINE);
+    C_AddDefinition("KEY_RIGHT", KEYSC_RIGHT, LABEL_DEFINE);
+    C_AddDefinition("KEY_END", KEYSC_END, LABEL_DEFINE);
+    C_AddDefinition("KEY_DOWN", KEYSC_DOWN, LABEL_DEFINE);
+    C_AddDefinition("KEY_PGDN", KEYSC_PGDN, LABEL_DEFINE);
+    C_AddDefinition("KEY_INSERT", KEYSC_INSERT, LABEL_DEFINE);
+    C_AddDefinition("KEY_DELETE", KEYSC_DELETE, LABEL_DEFINE);
+// end keys
+
 //    C_AddDefinition("STR_MAPFILENAME",STR_MAPFILENAME, LABEL_DEFINE);
 //    C_AddDefinition("STR_VERSION",STR_VERSION, LABEL_DEFINE);
 
     C_AddDefinition("NO",0, LABEL_DEFINE);
+    C_AddDefinition("COLOR_WHITE",31, LABEL_DEFINE);
 }
 
 void C_CompilationInfo(void)

@@ -89,6 +89,10 @@ enum GameEvent_t {
     EVENT_ANALYZESPRITES,
     EVENT_INSERTSPRITE2D,
     EVENT_INSERTSPRITE3D,
+    EVENT_DRAW2DSCREEN,  // must be 4
+//    EVENT_KEYS2D,
+    EVENT_KEYS3D,
+    EVENT_OVERHEADEDITOR,
     MAXEVENTS
 };
 
@@ -156,6 +160,7 @@ extern gamearray_t aGameArrays[MAXGAMEARRAYS];
 extern int32_t g_gameVarCount, g_systemVarCount;
 extern int32_t g_gameArrayCount, g_systemArrayCount;
 
+extern uint32_t m32_drawlinepat;
 
 
 extern int32_t g_iReturnVarID;
@@ -164,8 +169,8 @@ extern int32_t g_iHiTagID;          // var ID of "HITAG"
 extern int32_t g_iTextureID;        // var ID of "TEXTURE"
 extern int32_t g_iThisActorID;        // var ID of "I"     ///"THISACTOR"
 
-extern int32_t g_numRealPalettes;
-extern int32_t g_scriptDebug;
+//extern int32_t g_numRealPalettes;
+//extern int32_t g_scriptDebug;
 
 extern int32_t g_numQuoteRedefinitions;
 
@@ -216,5 +221,8 @@ extern int16_t highlight[];
 extern int16_t highlightsector[];
 
 extern int32_t numsprites;
+
+extern int32_t zoom;
+extern int32_t halfxdim16, midydim16;
 
 #endif
