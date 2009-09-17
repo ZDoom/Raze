@@ -81,6 +81,8 @@ static int32_t statesinfo_allocsize = 512;
 static char tempbuf[2048];
 static char tlabel[MAXLABELLEN];
 
+int32_t g_iReturnVar=0;
+int32_t m32_sortvar1, m32_sortvar2;
 int32_t g_iReturnVarID=-1;      // var ID of "RETURN"
 int32_t g_iLoTagID=-1;          // var ID of "LOTAG"
 int32_t g_iHiTagID=-1;          // var ID of "HITAG"
@@ -252,6 +254,7 @@ const char *keyw[] =
     "getangle",
     "getincangle",
 
+    "sort",
     "for",  // *
 
     "ifvarl",
@@ -282,7 +285,8 @@ const char *keyw[] =
     "whilevarvarn",
     "whilevarvarl",
 
-    "ifkey",
+    "ifhitkey",
+    "ifholdkey",
     "ifrnd",
     "ifangdiffl",
     "ifspritepal",
@@ -306,6 +310,7 @@ const char *keyw[] =
     "dupsprite",
     "deletesprite",
     "lastwall",
+    "updatecursectnum",
     "updatesector",
     "updatesectorz",
     "getzrange",
@@ -318,6 +323,7 @@ const char *keyw[] =
     "getceilzofslope",
     "getflorzofslope",
     "bsetsprite",  // *
+    "setfirstwall",
     "changespritestat",
     "changespritesect",
     "headspritestat",
@@ -642,7 +648,7 @@ static int32_t C_SkipComments(void)
 static inline int32_t ispecial(const char c)
 {
     if (c == ' ' || c == 0x0d || c == '(' || c == ')' ||
-            c == ',' || c == ';' || (c == 0x0a && ++g_lineNumber))
+            c == ',' || c == ';' || (c == 0x0a /*&& ++g_lineNumber*/))
         return 1;
 
     return 0;
@@ -687,11 +693,9 @@ static void C_GetNextLabelName(void)
         if (i < MAXLABELLEN-1)
             tlabel[i++] = *(textptr++);
         else
-            i++, textptr++;
+            textptr++;
     }
 
-    if (i >= MAXLABELLEN-1)
-        i = MAXLABELLEN-1;
     tlabel[i] = 0;
 //    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
 //        initprintf("%s:%d: debug: got label `%s'.\n",g_szScriptFileName,g_lineNumber,tlabel);
@@ -919,6 +923,14 @@ static void C_GetNextVarType(int32_t type)
             flags &= ~(MAXGAMEVARS<<2); // not an array
             flags |= (MAXGAMEVARS<<3);
         }
+        else
+        {
+            if ((aGameArrays[id].dwFlags & GAMEARRAY_READONLY) && type&GAMEVAR_READONLY)
+            {
+                C_ReportError(ERROR_ARRAYREADONLY);
+                g_numCompilerErrors++;
+            }
+        }
 
         C_GetNextVarType(GAMEVAR_SPECIAL);  // _SPECIAL signifies that we want only simple vars or a constant
         g_scriptPtr--;
@@ -977,7 +989,7 @@ static void C_GetNextVarType(int32_t type)
             else  // simple gamevar
                 *g_scriptPtr++ = (aridx<<16 | id | (lLabelID<<2) | flags);
         }
-        else
+        else // if (flags & (MAXGAMEVARS<<2))
         {
             if ((aridx & 0x0000FFFF) == MAXGAMEVARS)  // constant
                 *g_scriptPtr++ = (aridx | id | flags);
@@ -1593,6 +1605,32 @@ static int32_t C_ParseCommand(void)
         }
         return 0;
 
+    case CON_SORT:
+        C_GetNextLabelName();
+        i = GetGamearrayID(tlabel);
+        if (i >= 0)
+        {
+            *g_scriptPtr++ = i;
+            if (aGameArrays[i].dwFlags & GAMEARRAY_READONLY)
+            {
+                C_ReportError(ERROR_ARRAYREADONLY);
+                g_numCompilerErrors++;
+            }
+        }
+        else
+        {
+            C_ReportError(ERROR_NOTAGAMEARRAY);
+            g_numCompilerErrors++;
+        }
+        C_SkipComments();
+        C_GetNextVar();  // element count to sort
+
+        if (C_GetKeyword() >= 0)
+        {
+            *g_scriptPtr++ = -1;
+            return 0;
+        }
+        // fall-through
     case CON_STATE:
         C_GetNextLabelName();
 
@@ -1602,7 +1640,6 @@ static int32_t C_ParseCommand(void)
             C_ReportError(ERROR_ISAKEYWORD);
             return 1;
         }
-
         if (hash_find(&gamevarH, tlabel)>=0)
         {
             g_numCompilerWarnings++;
@@ -2230,7 +2267,10 @@ repeatcase:
         if (i >= 0)
             *g_scriptPtr++ = i;
         else
+        {
             C_ReportError(ERROR_NOTAGAMEARRAY);
+            g_numCompilerErrors++;
+        }
 
         C_SkipComments();// skip comments and whitespace
         if (*textptr != '[')
@@ -2254,9 +2294,20 @@ repeatcase:
 
         i = GetGamearrayID(tlabel);
         if (i >= 0)
+        {
             *g_scriptPtr++ = i;
+
+            if (aGameArrays[i].dwFlags & GAMEARRAY_READONLY)
+            {
+                C_ReportError(ERROR_ARRAYREADONLY);
+                g_numCompilerErrors++;
+            }
+        }
         else
+        {
             C_ReportError(ERROR_NOTAGAMEARRAY);
+            g_numCompilerErrors++;
+        }
 
         C_SkipComments();// skip comments and whitespace
         if (*textptr != '[')
@@ -2282,12 +2333,21 @@ repeatcase:
     case CON_RESIZEARRAY:
         C_GetNextLabelName();
         i = GetGamearrayID(tlabel);
-        if (i > (-1))
+        if (i >= 0)
         {
             *g_scriptPtr++ = i;
+            if (tw==CON_RESIZEARRAY && (aGameArrays[i].dwFlags&(GAMEARRAY_TYPEMASK)))
+            {
+                C_ReportError(-1);
+                initprintf("%s:%d: error: can't resize system array `%s'.\n",g_szScriptFileName,g_lineNumber,tlabel);
+                g_numCompilerErrors++;
+            }
         }
         else
+        {
             C_ReportError(ERROR_NOTAGAMEARRAY);
+            g_numCompilerErrors++;
+        }
         C_SkipComments();
         C_GetNextVar();
         return 0;
@@ -2302,7 +2362,10 @@ repeatcase:
             *g_scriptPtr++ = i;
         }
         else
+        {
             C_ReportError(ERROR_NOTAGAMEARRAY);
+            g_numCompilerErrors++;
+        }
         C_GetNextValue(LABEL_DEFINE);
         return 0;
 #endif
@@ -2503,7 +2566,8 @@ repeatcase:
     case CON_WHILEVARVARN:
     case CON_WHILEVARVARL:
 // ---
-    case CON_IFKEY:
+    case CON_IFHITKEY:
+    case CON_IFHOLDKEY:
     case CON_IFRND:
 // vvv if* using current sprite
     case CON_IFANGDIFFL:
@@ -2607,6 +2671,9 @@ repeatcase:
         C_GetNextVarType(GAMEVAR_READONLY);
         break;
 
+    case CON_UPDATECURSECTNUM:
+        return 0;
+
     case CON_UPDATESECTOR:
     case CON_UPDATESECTORZ:
         C_GetManyVars(2);
@@ -2657,6 +2724,7 @@ repeatcase:
         C_GetManyVars(4);
         break;
 
+    case CON_SETFIRSTWALL:
     case CON_CHANGESPRITESTAT:
     case CON_CHANGESPRITESECT:
     case CON_HEADSPRITESTAT:
@@ -2967,7 +3035,7 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("EVENT_INSERTSPRITE2D", EVENT_INSERTSPRITE2D, LABEL_EVENT);
     C_AddDefinition("EVENT_INSERTSPRITE3D", EVENT_INSERTSPRITE3D, LABEL_EVENT);
     C_AddDefinition("EVENT_DRAW2DSCREEN", EVENT_DRAW2DSCREEN, LABEL_EVENT);
-//    C_AddDefinition("EVENT_KEYS2D", EVENT_KEYS2D, LABEL_EVENT);
+    C_AddDefinition("EVENT_KEYS2D", EVENT_KEYS2D, LABEL_EVENT);
     C_AddDefinition("EVENT_KEYS3D", EVENT_KEYS3D, LABEL_EVENT);
     C_AddDefinition("EVENT_OVERHEADEDITOR", EVENT_OVERHEADEDITOR, LABEL_EVENT);
 
@@ -3369,6 +3437,10 @@ void C_ReportError(int32_t iError)
         break;
     case ERROR_VARREADONLY:
         initprintf("%s:%d: error: variable `%s' is read-only.\n",
+                   g_szScriptFileName, g_lineNumber, tlabel);
+        break;
+    case ERROR_ARRAYREADONLY:
+        initprintf("%s:%d: error: array `%s' is read-only.\n",
                    g_szScriptFileName, g_lineNumber, tlabel);
         break;
     case ERROR_VARTYPEMISMATCH:

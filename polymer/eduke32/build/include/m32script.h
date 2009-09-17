@@ -89,8 +89,8 @@ enum GameEvent_t {
     EVENT_ANALYZESPRITES,
     EVENT_INSERTSPRITE2D,
     EVENT_INSERTSPRITE3D,
-    EVENT_DRAW2DSCREEN,  // must be 4
-//    EVENT_KEYS2D,
+    EVENT_DRAW2DSCREEN,
+    EVENT_KEYS2D,
     EVENT_KEYS3D,
     EVENT_OVERHEADEDITOR,
     MAXEVENTS
@@ -163,6 +163,8 @@ extern int32_t g_gameArrayCount, g_systemArrayCount;
 extern uint32_t m32_drawlinepat;
 
 
+extern int32_t g_iReturnVar;
+extern int32_t m32_sortvar1, m32_sortvar2;
 extern int32_t g_iReturnVarID;
 extern int32_t g_iLoTagID;          // var ID of "LOTAG"
 extern int32_t g_iHiTagID;          // var ID of "HITAG"

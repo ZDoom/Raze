@@ -5,9 +5,15 @@ include names.h
 
 gamevar i 0 1  // per-block (top-level, event, or state) variable
 gamevar j 0 1
+gamevar k 0 1
+gamevar l 0 1
+
+gamevar tmp 0 0
 
 gamevar davr 65536 0
 gamevar dayx 65536 0
+
+gamevar drawcol 9 0
 
 define TQUOTE 3
 
@@ -20,16 +26,27 @@ definequote TQUOTE write on me!
 definequote 4 ASPECT: VR=%d, YX=%d
 definequote 5 KEY:%d
 
+definequote 6 time: %d ms
+definequote 7 SPRITES:
+
 gamearray ar 128
 gamearray parm 8
 
 defstate artest
-    for j range 128
+	getarraysize ar tmp
+	resizearray ar 65536
+	getticks parm[2]
+    for j range 65536
         set ar[j] j
     set i 0
-    for j range 128
+    for j range 65536
         add i ar[j]
-    ife i 8128 quote 0 else quote 1
+	getticks parm[3]
+	resizearray ar tmp
+    ife i 2147450880 quote 0 else quote 1
+    sub parm[3] parm[2]
+    qsprintf TQUOTE 6 parm[3]
+    quote TQUOTE
 ends
 
 defstate setas
@@ -39,44 +56,92 @@ defstate setas
     setaspect davr j
 ends
 
-onevent EVENT_ANALYZESPRITES
-    for i drawnsprites
-        ifactor LIZTROOP spritepal 6
-endevent
-
 onevent EVENT_ENTER3DMODE
     state setas
 endevent
 
+onevent EVENT_ANALYZESPRITES
+
+    for i drawnsprites
+	{
+		switch tsprite[i].picnum
+		case LIZTROOP spritepal 1 break
+		case PIGCOP spritepal 2 break
+		case BOSS1 spritepal 6 break
+		endswitch
+	}
+/*
+    for i drawnsprites
+	{
+		ife tsprite[i].picnum LIZTROOP spritepal 1 else
+		ife tsprite[i].picnum PIGCOP spritepal 2 else
+		ife tsprite[i].picnum BOSS1 spritepal 6
+	}
+*/
+endevent
+
+defstate cmp_by_lotag
+	set RETURN sprite[SV2].lotag
+	sub RETURN sprite[SV1].lotag
+ends
+
 onevent EVENT_DRAW2DSCREEN
+	ifl cursectnum 0 return
+
+	getarraysize ar tmp
+	set j 0
+	for i spritesofsector cursectnum
+	{
+		ifge j tmp nullop else
+		ifactor LOCATORS
+		{
+			set ar[j] i
+			add j 1
+		}
+	}
+
+	set tmp j
+	sort ar tmp cmp_by_lotag
+
+	sub tmp 1
+	for i range tmp
+	{
+		set j ar[i]
+		set k i, add k 1, set k ar[k]
+		drawline16b sprite[j].x sprite[j].y sprite[k].x sprite[k].y drawcol
+	}
+/*
     set drawlinepat -1
     for i allsprites
         ifactor LIZTROOP
             drawcircle16b sprite[i].x sprite[i].y 256 9
-//    set i totalclock
-//    shiftr i 6
-//    drawcircle16b posx posy 256 i
-//    set j i
-//    add j 8
-//    drawcircle16 halfxdim16 midydim16 12 j
-//    qsprintf 3 2 i j
-//    printmessage16 3
+*/
+
+/*
+   set i totalclock
+   shiftr i 6
+   drawcircle16b posx posy 256 i
+   set j i
+   add j 8
+   drawcircle16 halfxdim16 midydim16 12 j
+   qsprintf 3 2 i j
+   printmessage16 3
+*/
 endevent
 
 onevent EVENT_OVERHEADEDITOR
-
     for i range 27
     {
-        ifkey alphakeys[i]
+        ifholdkey alphakeys[i]
         {
 			qsprintf TQUOTE 5 i
 			quote TQUOTE
 		}
     }
+
     for i range 10
-//    ife 0 1
     {
-        ifkey numberkeys[i]
+        ifholdkey numberkeys[i]
         {
             qsprintf TQUOTE 5 i
             quote TQUOTE
@@ -88,14 +153,39 @@ onevent EVENT_KEYS3D
     for i range 10
 //    ife 0 1
     {
-        ifkey numberkeys[i]
+        ifholdkey numberkeys[i]
         {
             qsprintf TQUOTE 5 i
             quote TQUOTE
         }
     }
 
-ifkey KEY_SPACE
+    ifhitkey KEY_SPACE
+    {
+        ifn searchstat 3 break
+        ifn sprite[searchwall].picnum SECTOREFFECTOR break
+        set tmp 0
+        ife sprite[searchwall].lotag 7 set tmp 1
+        ife sprite[searchwall].lotag 17 set tmp 1
+        ife tmp 0 break
+
+        for i allsprites
+        {
+            ifn i searchwall, ifactor SECTOREFFECTOR, ife sprite[i].lotag sprite[searchwall].lotag
+            ife sprite[i].hitag sprite[searchwall].hitag
+            {
+                add posx sprite[i].x, sub posx sprite[searchwall].x
+                add posy sprite[i].y, sub posy sprite[searchwall].y
+                add posz sprite[i].z, sub posz sprite[searchwall].z
+
+                updatecursectnum
+
+                break
+            }
+        }
+    }
+
+    ifholdkey KEY_0
 	//    ife 0 1
     {
         ifeithershift sub davr 512 else add davr 512

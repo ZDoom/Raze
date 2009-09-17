@@ -8198,7 +8198,7 @@ static void Keys2d(void)
         keystatus[KEYSC_J]=0;
     }
 
-//    X_OnEvent(EVENT_KEYS2D, -1);
+    X_OnEvent(EVENT_KEYS2D, -1);
 
 }// end key2d
 

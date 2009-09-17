@@ -76,7 +76,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
     {
         g_numCompilerErrors++;
         C_ReportError(-1);
-        initprintf("%s:%d: error: too many arrays!\n",g_szScriptFileName,g_lineNumber);
+        initprintf("%s:%d: error: too many arrays! (max: %d)\n",g_szScriptFileName,g_lineNumber, MAXGAMEARRAYS);
         return 0;
     }
 
@@ -92,7 +92,13 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
     if (i>=0 && !(aGameArrays[i].dwFlags & GAMEARRAY_RESET))
     {
         // found it it's a duplicate in error
-//        g_numCompilerWarnings++;
+
+        if (aGameArrays[i].dwFlags&GAMEARRAY_TYPEMASK)
+        {
+            g_numCompilerWarnings++;
+            C_ReportError(-1);
+            initprintf("%s:%d: warning: didn't redefine system array `%s'.\n",g_szScriptFileName,g_lineNumber,pszLabel);
+        }
 //        C_ReportError(WARNING_DUPLICATEDEFINITION);
         return 0;
     }
@@ -508,7 +514,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("tsprite", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
 
     g_iReturnVarID = g_gameVarCount;
-    Gv_NewVar("RETURN", 0, GAMEVAR_SYSTEM);
+    Gv_NewVar("RETURN", (intptr_t)&g_iReturnVar, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     g_iLoTagID = g_gameVarCount;
     Gv_NewVar("LOTAG", 0, GAMEVAR_SYSTEM);
     g_iHiTagID = g_gameVarCount;
@@ -592,6 +598,10 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("halfxdim16", (intptr_t)&halfxdim16, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("midydim16", (intptr_t)&midydim16, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("ydim16",(intptr_t)&ydim16, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+
+    Gv_NewVar("SV1",(intptr_t)&m32_sortvar1, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+    Gv_NewVar("SV2",(intptr_t)&m32_sortvar2, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+    Gv_NewVar("spritesortcnt",(intptr_t)&spritesortcnt, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
 
     g_systemVarCount = g_gameVarCount;
 

@@ -52,6 +52,7 @@ uint32_t m32_drawlinepat=0xffffffff;
 
 instype *insptr;
 int32_t X_DoExecute(int32_t once);
+static instype *x_sortingstateptr;
 
 #include "m32structures.c"
 
@@ -146,7 +147,10 @@ void X_OnEvent(register int32_t iEventID, register int32_t iActor)
         X_DoExecute(0);
 
         if (vm.g_errorFlag)
+        {
             aEventEnabled[iEventID] = 0;
+            message("ERROR executing %s. Event disabled.", label+(iEventID*MAXLABELLEN));
+        }
 
         // restore old values...
         Bmemcpy(&vm, &vm_backup, sizeof(vmstate_t));
@@ -193,6 +197,20 @@ static inline void __fastcall X_DoConditional(register int32_t condition)
         insptr+=2;
         X_DoExecute(1);
     }
+}
+
+static int32_t X_DoSortDefault(const int32_t *lv, const int32_t *rv)
+{
+    return (*rv - *lv);
+}
+
+static int32_t X_DoSort(const int32_t *lv, const int32_t *rv)
+{
+    m32_sortvar1 = *lv;
+    m32_sortvar2 = *rv;
+    insptr = x_sortingstateptr;
+    X_DoExecute(0);
+    return g_iReturnVar;
 }
 
 #define X_ERROR_INVALIDCI()                                             \
@@ -273,12 +291,13 @@ skip_check:
         case CON_STATE:
         {
             instype *tempscrptr = insptr+2;
-            int32_t stateidx = *(insptr+1), o_g_st = vm.g_st;
+            int32_t stateidx = *(insptr+1), o_g_st = vm.g_st, oret=vm.g_returnFlag;
 
             insptr = script + statesinfo[stateidx].ofs;
             vm.g_st = 1+MAXEVENTS+stateidx;
             X_DoExecute(0);
             vm.g_st = o_g_st;
+            vm.g_returnFlag = oret;
             insptr = tempscrptr;
         }
         continue;
@@ -356,7 +375,7 @@ skip_check:
 //                        //AddLog("No Matching Case: No Default to use");
 //                    }
                 }
-                insptr = (instype *)(script + lEnd);
+                insptr = (instype *)(lCodeInsPtr + lEnd);
                                                                                       //Bsprintf(g_szBuf,"insptr=%d. ",     (int32_t)insptr); AddLog(g_szBuf);
                 //AddLog("Done Processing Switch");
                 continue;
@@ -489,7 +508,8 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(*insptr++,aGameArrays[j].size);
+                Gv_SetVarX(*insptr++, (aGameArrays[j].dwFlags&GAMEARRAY_VARSIZE) ?
+                           Gv_GetVarN(aGameArrays[j].size) : aGameArrays[j].size);
             }
             continue;
 
@@ -498,6 +518,7 @@ skip_check:
             {
                 int32_t j=*insptr++;
                 int32_t asize = Gv_GetVarX(*insptr++);
+
                 if (asize<=0 || asize>65536)
                 {
                     OSD_Printf(CON_ERROR "Invalid array size %d (max: 65536)\n",g_errorLineNum,keyw[g_tw]);
@@ -1043,6 +1064,36 @@ skip_check:
             continue;
         }
 
+        case CON_SORT:
+            insptr++;
+            {
+                int32_t aridx=*insptr++, count=Gv_GetVarX(*insptr++), state=*insptr++;
+                int32_t o_g_st=vm.g_st;
+                instype *end=insptr;
+
+                if (count<=0) continue;
+                if (count > aGameArrays[aridx].size)
+                {
+                    OSD_Printf(CON_ERROR "Count of elements to sort (%d) exceeds array size (%d)!\n",g_errorLineNum,keyw[g_tw],count,aGameArrays[aridx].size);
+                    vm.g_errorFlag = 1;
+                    continue;
+                }
+
+                if (state < 0)
+                {
+                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), (int32_t(*)(const void*,const void*))X_DoSortDefault);
+                }
+                else
+                {
+                    x_sortingstateptr = script + statesinfo[state].ofs;
+                    vm.g_st = 1+MAXEVENTS+state;
+                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), (int32_t(*)(const void*,const void*))X_DoSort);
+                    vm.g_st = o_g_st;
+                    insptr = end;
+                }
+            }
+            continue;
+
         case CON_FOR:  // special-purpose iteration
             insptr++;
             {
@@ -1251,7 +1302,8 @@ badindex:
             X_DoConditional(rnd(Gv_GetVarX(*(++insptr))));
             continue;
 
-        case CON_IFKEY:
+        case CON_IFHITKEY:
+        case CON_IFHOLDKEY:
             insptr++;
             {
                 int32_t key=Gv_GetVarX(*insptr);
@@ -1263,9 +1315,13 @@ badindex:
                 }
                 X_DoConditional(keystatus[key]);
 
-                if ((key>=KEYSC_1 && key<=KEYSC_ENTER) || (key>=KEYSC_A && key<=KEYSC_BQUOTE)
-                    || (key>=KEYSC_BSLASH && key<=KEYSC_SLASH))
-                    keystatus[key] = 0;
+                if (tw==CON_IFHITKEY)
+                {
+                    if (!(key==0 || key==KEYSC_ESC || key==KEYSC_TILDE || key==KEYSC_gENTER ||
+                          key==KEYSC_LALT || key==KEYSC_RALT || key==KEYSC_LCTRL || key==KEYSC_RCTRL ||
+                          key==KEYSC_LSHIFT || key==KEYSC_RSHIFT))
+                        keystatus[key] = 0;
+                }
             }
             continue;
 
@@ -1623,6 +1679,21 @@ badindex:
             }
 
 // CURSPR
+        case CON_SETFIRSTWALL:
+            insptr++;
+            {
+                int32_t sect=Gv_GetVarX(*insptr++), wal=Gv_GetVarX(*insptr++);
+
+                X_ERROR_INVALIDSECT(sect);
+                setfirstwall(sect, wal);
+            }
+            continue;
+
+        case CON_UPDATECURSECTNUM:
+            insptr++;
+            updatesectorz(pos.x, pos.y, pos.z, &cursectnum);
+            continue;
+
         case CON_UPDATESECTOR:
         case CON_UPDATESECTORZ:
             insptr++;
