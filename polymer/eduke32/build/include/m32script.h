@@ -50,6 +50,7 @@ extern int32_t X_DoExecute(int32_t once);
 extern void X_OnEvent(register int32_t iEventID, register int32_t iActor);
 
 extern void X_ScriptInfo(void);
+extern void X_Disasm(ofstype beg, int32_t size);
 extern void C_ReportError(int32_t iError);
 
 extern int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags);
@@ -97,11 +98,13 @@ enum GameEvent_t {
 };
 
 extern ofstype aEventOffsets[MAXEVENTS];
+extern int32_t aEventSizes[MAXEVENTS];
 extern uint8_t aEventEnabled[MAXEVENTS];
 
 
 enum GamevarFlags_t {
     MAXGAMEVARS        = 1024,       // must be a power of two between 256 and 4096, inclusive
+    LOG2MAXGV          = 10,
     MAXVARLABEL        = MAXLABELLEN, //26,
 
     GAMEVAR_PERBLOCK   = 0x00000001, // per-block (state, event, or top-level) variable
@@ -186,6 +189,7 @@ extern int16_t asksave;
 
 extern vec3_t pos;
 extern int16_t ang;
+extern int32_t horiz;
 extern int16_t cursectnum;
 extern int32_t searchx;
 /*

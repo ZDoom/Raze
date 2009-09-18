@@ -66,7 +66,7 @@ int32_t g_scriptSize = 65536;
 
 int32_t *constants, constants_allocsize=1024;
 int32_t g_numSavedConstants=0;
-static int32_t g_tooBigConstant=0;
+static int32_t g_wasConstant=0;
 
 char *label;
 int32_t *labelval;
@@ -98,7 +98,7 @@ char *ScriptQuotes[MAXQUOTES+1], *ScriptQuoteRedefinitions[MAXQUOTES+1];
 int32_t g_numQuoteRedefinitions = 0;
 
 ofstype aEventOffsets[MAXEVENTS];
-static int32_t aEventSizes[MAXEVENTS];
+int32_t aEventSizes[MAXEVENTS];
 
 gamevar_t aGameVars[MAXGAMEVARS];
 gamearray_t aGameArrays[MAXGAMEARRAYS];
@@ -322,6 +322,8 @@ const char *keyw[] =
     "dragpoint",
     "getceilzofslope",
     "getflorzofslope",
+    "alignceilslope",
+    "alignflorslope",
     "bsetsprite",  // *
     "setfirstwall",
     "changespritestat",
@@ -482,6 +484,7 @@ const tokenmap_t iter_tokens[] =
     { "selwalls", ITER_SELWALLS },
     { "drawnsprites", ITER_DRAWNSPRITES },
     { "spritesofsector", ITER_SPRITESOFSECTOR },
+    { "loopofwall", ITER_LOOPOFWALL },
     { "wallsofsector", ITER_WALLSOFSECTOR },
     { "range", ITER_RANGE },
 // vvv alternatives go here vvv
@@ -812,6 +815,8 @@ static void C_GetNextVarType(int32_t type)
 
     C_SkipComments();
 
+    g_wasConstant = 0;
+
     // constant where gamevar expected
     if ((type==0 || type==GAMEVAR_SPECIAL) && !cs.labelsOnly &&
         (isdigit(*textptr) || ((*textptr == '-') && isdigit(*(textptr+1)))))
@@ -833,7 +838,6 @@ static void C_GetNextVarType(int32_t type)
 
         if (g_numCompilerErrors==0 && type!=GAMEVAR_SPECIAL && num != (int16_t)num)
         {
-            g_tooBigConstant = 1;
             indirect = 1;
 
             for (i=g_numSavedConstants-1; i>=0; i--)
@@ -861,6 +865,8 @@ static void C_GetNextVarType(int32_t type)
             }
         }
 
+        if (type!=GAMEVAR_SPECIAL)
+            g_wasConstant = 1;
         *g_scriptPtr++ = MAXGAMEVARS | (num<<16) | indirect;
 
         while (!ispecial(*textptr) && *textptr != ']') textptr++;
@@ -1021,11 +1027,12 @@ static void C_GetNextVarType(int32_t type)
                 }
                 else if (num != (int16_t)num)
                 {
-                    g_tooBigConstant = 1;
                     indirect = 2;
                     num = id;
                 }
 
+                if (type!=GAMEVAR_SPECIAL)
+                    g_wasConstant = 1;
                 *g_scriptPtr++ = MAXGAMEVARS | (num<<16) | indirect;
                 return;
             }
@@ -1547,6 +1554,7 @@ static int32_t C_ParseCommand(void)
                 g_stateCount++;
 
                 initprintf("  Defined state `%s' (index %d).\n", g_szCurrentBlockName, j);
+//                initprintf("    o:%d s:%d\n", statesinfo[j].ofs, statesinfo[j].codesize);
             }
             else  // we were redefining a state
             {
@@ -1557,20 +1565,34 @@ static int32_t C_ParseCommand(void)
 
                 if (nsize == osize)
                 {
-                    int ii, equal=1;
+                    int ii, equal=2, linedif, ow, nw;
 
                     for (ii=0; ii<nsize; ii++)
-                        if (*(script+oofs+ii) != *(script+nofs+ii))
-                        {
-                            equal = 0;
-                            break;
-                        }
-
-                    if (!equal)
                     {
-                        Bmemcpy(script+oofs, script+nofs, nsize*sizeof(instype));
-                        initprintf("  Redefined state `%s' (index %d).\n", g_szCurrentBlockName, j);
+                        ow = *(script+oofs+ii);
+                        nw = *(script+nofs+ii);
+                        if (ow != nw)
+                        {
+                            int32_t ld = (nw>>12) - (ow>>12);
+                            if (equal==2)
+                            {
+                                equal = 1;
+                                linedif = ld;
+                            }
+
+                            if (linedif != ld || ((nw&0xFFF) != (ow&0xFFF)))
+                            {
+                                equal = 0;
+                                break;
+                            }
+                        }
                     }
+
+                    if (equal!=2)
+                        Bmemcpy(script+oofs, script+nofs, nsize*sizeof(instype));
+                    if (equal==0)
+                        initprintf("  Redefined state `%s' (index %d).\n", g_szCurrentBlockName, j);
+//                        initprintf("    oo:%d os:%d, no:%d ns:%d\n", oofs, osize, nofs, nsize);
                 }
                 else
                 {
@@ -1592,6 +1614,7 @@ static int32_t C_ParseCommand(void)
                     statesinfo[j].codesize = nsize;
 
                     initprintf("  Redefined state `%s' (index %d).\n", g_szCurrentBlockName, j);
+//                    initprintf("    oo:%d os:%d, no:%d ns:%d\n", oofs, osize, nofs, nsize);
                 }
                 g_scriptPtr -= osize;
             }
@@ -1735,20 +1758,34 @@ static int32_t C_ParseCommand(void)
 
             if (osize == nsize)
             {
-                    int ii, equal=1;
+                int ii, equal=2, linedif, nw, ow;
 
-                    for (ii=0; ii<nsize; ii++)
-                        if (*(script+oofs+ii) != *(script+nofs+ii))
+                for (ii=0; ii<nsize; ii++)
+                {
+                    ow = *(script+oofs+ii);
+                    nw = *(script+nofs+ii);
+                    if (ow != nw)
+                    {
+                        int32_t ld = (nw>>12) - (ow>>12);
+                        if (equal==2)
+                        {
+                            equal = 1;
+                            linedif = ld;
+                        }
+
+                        if (linedif != ld || ((nw&0xFFF) != (ow&0xFFF)))
                         {
                             equal = 0;
                             break;
                         }
-
-                    if (!equal)
-                    {
-                        Bmemcpy(script+oofs, script+nofs, nsize*sizeof(instype));
-                        initprintf("  Redefined event `%s' (index %d).\n", g_szCurrentBlockName, j);
                     }
+                }
+
+                if (equal!=2)
+                    Bmemcpy(script+oofs, script+nofs, nsize*sizeof(instype));
+                if (equal==0)
+                    initprintf("  Redefined event `%s' (index %d).\n", g_szCurrentBlockName, j);
+//                        initprintf("    oo:%d os:%d, no:%d ns:%d\n", oofs, osize, nofs, nsize);
             }
             else
             {
@@ -1770,6 +1807,7 @@ static int32_t C_ParseCommand(void)
                 aEventSizes[j] = nsize;
 
                 initprintf("  Redefined event `%s' (index %d).\n", g_szCurrentBlockName, j);
+//                initprintf("    oo:%d os:%d, no:%d ns:%d\n", oofs, osize, nofs, nsize);
             }
             g_scriptPtr -= osize;
         }
@@ -1779,6 +1817,7 @@ static int32_t C_ParseCommand(void)
             aEventSizes[j] = (g_scriptPtr-script) - cs.parsingEventOfs;
 
             initprintf("  Defined event `%s' (index %d).\n", g_szCurrentBlockName, j);
+//            initprintf("    o:%d s:%d\n", aEventOffsets[j], aEventSizes[j]);
         }
 
         g_didDefineSomething = 1;
@@ -2449,10 +2488,10 @@ repeatcase:
 
         otextptr = textptr;
 
-        g_tooBigConstant = 0;
+        g_wasConstant = 0;
         C_GetNextVar();
 
-        if (!g_numCompilerErrors && g_tooBigConstant)
+        if (!g_numCompilerErrors && g_wasConstant)
         {
             textptr = otextptr;
             g_scriptPtr--;
@@ -2616,10 +2655,10 @@ repeatcase:
 
             otextptr = textptr;
 
-            g_tooBigConstant = 0;
+            g_wasConstant = 0;
             C_GetNextVar();
 
-            if (!g_numCompilerErrors && g_tooBigConstant)
+            if (!g_numCompilerErrors && g_wasConstant)
             {
                 textptr = otextptr;
                 g_scriptPtr--;
@@ -2720,6 +2759,8 @@ repeatcase:
         C_GetNextVarType(GAMEVAR_READONLY);
         return 0;
 
+    case CON_ALIGNCEILSLOPE:
+    case CON_ALIGNFLORSLOPE:
     case CON_BSETSPRITE:  // was CON_SETSPRITE
         C_GetManyVars(4);
         break;
@@ -2861,7 +2902,7 @@ repeatcase:
         while (C_GetKeyword() == -1 && j < 32)
             C_GetNextVar(), j++;
 
-        *g_scriptPtr++ = CON_NULLOP + (g_lineNumber<<12);
+        *g_scriptPtr++ = -1; //CON_NULLOP + (g_lineNumber<<12);
         return 0;
 
     case CON_QSTRCAT:
@@ -3209,7 +3250,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         }
 
         if ((sizeof(keyw)/sizeof(keyw[0]))-1 != CON_END)
-            initprintf("INTERNAL WARNING: keyw[] and CON_END don't match!");
+            initprintf("INTERNAL WARNING: keyw[] and CON_END don't match!\n");
 
         g_scriptPtr = script+1;
 
@@ -3263,7 +3304,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         mptr = (char *)Bmalloc(fs+1);
         if (!mptr)
         {
-            initprintf("Failed allocating %d byte CON text buffer.", fs+1);
+            initprintf("Failed allocating %d byte CON text buffer.\n", fs+1);
             return;
         }
 
@@ -3331,7 +3372,9 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
 //        C_SetScriptSize(g_scriptPtr-script+8);
         if (isfilename)
         {
-            initprintf("Script compiled in %dms\n", getticks() - startcompiletime);
+            int32_t ct = getticks() - startcompiletime;
+            if (ct > 50)
+                initprintf("Script compiled in %dms\n", ct);
             C_CompilationInfo();
         }
 ///        for (i=MAXQUOTES-1; i>=0; i--)

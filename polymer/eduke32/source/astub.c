@@ -8863,6 +8863,33 @@ static int32_t osdcmd_scriptinfo(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+#if 0
+static int32_t osdcmd_disasm(const osdfuncparm_t *parm)
+{
+    int32_t i;
+
+    if (parm->numparms != 2)
+        return OSDCMD_SHOWHELP;
+
+    if (!isdigit(parm->parms[1][0]))
+        return OSDCMD_SHOWHELP;
+
+    i=atoi(parm->parms[1]);
+
+    if (parm->parms[0][0]=='s')
+    {
+        if (i>=0 && i<g_stateCount)
+            X_Disasm(statesinfo[i].ofs, statesinfo[i].codesize);
+    }
+    else
+    {
+        if (i>=0 && i<MAXEVENTS && aEventOffsets[i]>=0)
+            X_Disasm(aEventOffsets[i], aEventSizes[i]);
+    }
+    return OSDCMD_OK;
+}
+#endif
+
 static int32_t osdcmd_do(const osdfuncparm_t *parm)
 {
     intptr_t tscrofs;
@@ -8998,6 +9025,7 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("scriptinfo", "scriptinfo: shows information about compiled M32 script", osdcmd_scriptinfo);
     OSD_RegisterFunction("enableevent", "enableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
     OSD_RegisterFunction("disableevent", "disableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
+//    OSD_RegisterFunction("disasm", "disasm [s|e] <state or event number>", osdcmd_disasm);
     return 0;
 }
 #define DUKEOSD

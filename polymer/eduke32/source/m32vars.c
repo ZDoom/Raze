@@ -274,7 +274,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
     }
 
     {
-        register int32_t negateResult = id&(MAXGAMEVARS<<1);
+        register int32_t negateResult = (id&(MAXGAMEVARS<<1))>>(LOG2MAXGV+1);
 
         if (id & (0xFFFFFFFF-(MAXGAMEVARS-1)))
         {
@@ -554,6 +554,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("posy",(intptr_t)&pos.y, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("posz",(intptr_t)&pos.z, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("ang",(intptr_t)&ang, GAMEVAR_SHORTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("horiz",(intptr_t)&horiz, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("cursectnum",(intptr_t)&cursectnum, GAMEVAR_READONLY | GAMEVAR_SHORTPTR | GAMEVAR_SYSTEM);
 
     Gv_NewVar("searchx",(intptr_t)&searchx, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);

@@ -88,6 +88,24 @@ static int32_t dist(spritetype *s1,spritetype *s2)
 }
 ///
 
+void X_Disasm(ofstype beg, int32_t size)
+{
+    instype *p;
+
+    if (!script) return;
+    if (beg<0 || beg+size>g_scriptSize) return;
+
+    initprintf("beg=%d, size=%d:  ", beg, size);
+    for (p=script+beg; p<script+beg+size; p++)
+    {
+        if (*p>>12 && (*p&0xFFF)<CON_END)
+            initprintf("%s ", keyw[*p&0xFFF]);
+        else
+            initprintf("%d ", *p);
+    }
+    initprintf("\n");
+}
+
 void X_ScriptInfo(void)
 {
     if (script)
@@ -105,7 +123,7 @@ void X_ScriptInfo(void)
                 if (p==insptr) initprintf(">>");
             }
         initprintf(" \n");
-        if (vm.g_i != MAXSPRITES-1)
+        if (vm.g_i >= 0)
             initprintf("current sprite: %d\n",vm.g_i);
         if (g_tw>=0 && g_tw<CON_END)
             initprintf("g_errorLineNum: %d, g_tw: %s\n",g_errorLineNum,keyw[g_tw]);
@@ -1202,6 +1220,16 @@ skip_check:
                         X_DoExecute(1);
                     }
                     break;
+                case ITER_LOOPOFWALL:
+                    if (parm2 < 0 || parm2 >= numwalls)
+                        goto badindex;
+                    for (ii=parm2, jj=wall[parm2].point2; jj!=ii; jj=wall[jj].point2)
+                    {
+                        Gv_SetVarX(var, jj);
+                        insptr = beg;
+                        X_DoExecute(1);
+                    }
+                    break;
                 case ITER_RANGE:
                     for (jj=0; jj<parm2; jj++)
                     {
@@ -1661,20 +1689,28 @@ badindex:
             insptr++;
             {
                 int32_t sectnum = Gv_GetVarX(*insptr++), x = Gv_GetVarX(*insptr++), y = Gv_GetVarX(*insptr++);
-                if (sectnum<0 || sectnum>=numsectors)
-                {
-                    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
-                    vm.g_errorFlag = 1;
-                    insptr++;
-                    continue;
-                }
+                int32_t var=*insptr++;
 
+                X_ERROR_INVALIDSECT(sectnum);
                 if (tw == CON_GETFLORZOFSLOPE)
-                {
-                    Gv_SetVarX(*insptr++, getflorzofslope(sectnum,x,y));
-                    continue;
-                }
-                Gv_SetVarX(*insptr++, getceilzofslope(sectnum,x,y));
+                    Gv_SetVarX(var, getflorzofslope(sectnum,x,y));
+                else
+                    Gv_SetVarX(var, getceilzofslope(sectnum,x,y));
+                continue;
+            }
+
+        case CON_ALIGNFLORSLOPE:
+        case CON_ALIGNCEILSLOPE:
+            insptr++;
+            {
+                int32_t sectnum = Gv_GetVarX(*insptr++), x = Gv_GetVarX(*insptr++), y = Gv_GetVarX(*insptr++);
+                int32_t z=Gv_GetVarX(*insptr++);
+
+                X_ERROR_INVALIDSECT(sectnum);
+                if (tw == CON_ALIGNFLORSLOPE)
+                    alignflorslope(sectnum, x,y,z);
+                else
+                    alignceilslope(sectnum, x,y,z);
                 continue;
             }
 
@@ -1922,7 +1958,7 @@ badindex:
                         }
                     }
                     else if (code&(MAXGAMEVARS<<2))
-                        Bsprintf(buf, "(array) %s[%s]", aGameArrays[code&(MAXGAMEARRAYS-1)].szLabel?
+                        Bsprintf(buf, "%s[%s]", aGameArrays[code&(MAXGAMEARRAYS-1)].szLabel?
                                  aGameArrays[code&(MAXGAMEARRAYS-1)].szLabel:"???", buf2);
                     else if (code&(MAXGAMEVARS<<3))
                         Bsprintf(buf, "%s[%s].%s", pp1[code&3], buf2, pp2[code&3][(code>>2)&31].name);
@@ -2125,7 +2161,7 @@ badindex:
                     int32_t len = Bstrlen(ScriptQuotes[sq]);
                     char tmpbuf[MAXQUOTELEN<<1];
 
-                    while ((*insptr & 0xFFF) != CON_NULLOP && numvals < 32)
+                    while (*insptr != -1 && numvals < 32)
                         arg[numvals++] = Gv_GetVarX(*insptr++);
                     
                     insptr++; // skip the NOP

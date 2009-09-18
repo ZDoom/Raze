@@ -27,7 +27,9 @@ definequote 4 ASPECT: VR=%d, YX=%d
 definequote 5 KEY:%d
 
 definequote 6 time: %d ms
-definequote 7 SPRITES:
+
+definequote 7 door sector not an island sector!
+definequote 8 door sector has no SE sprite!
 
 gamearray ar 128
 gamearray parm 8
@@ -160,14 +162,69 @@ onevent EVENT_KEYS3D
         }
     }
 
+    ife searchstat 0
+    ifhitkey KEY_SPACE  // SE11 ST23 up:ccw
+    {
+        set k wall[searchwall].nextsector
+        ifl k 0 return
+        ifn sector[k].lotag 23 return
+        set tmp 0
+        for i loopofwall searchwall
+        {
+            ifl wall[i].nextsector 0 set tmp 1 else
+            ifn wall[i].nextsector k set tmp 1
+        }
+// a weaker condition
+//        for i loopofwall wall[searchwall].nextwall
+//        {
+//            ifl wall[i].nextsector 0 set tmp 1 else
+//            ifn wall[i].nextsector searchsector set tmp 1
+//        }
+        ifn tmp 0
+        {
+            quote 7
+            return
+        }
+
+        set l -1
+        for i spritesofsector k
+        {
+            ifactor SECTOREFFECTOR ife sprite[i].lotag 11
+            {
+                set l i
+                ifn sprite[i].ang 512 ifn sprite[i].ang 1024 ifn sprite[i].ang 1536 set l -1
+            }
+        }
+        ifl l 0
+        {
+            quote 8
+            return
+        }
+
+        for tmp wallsofsector k
+        {
+            rotatepoint (sprite[l].x sprite[l].y) (wall[tmp].x wall[tmp].y) sprite[l].ang (i j)
+            dragpoint tmp i j
+        }
+        for tmp spritesofsector k
+        {
+            ifn tmp l
+            {
+                rotatepoint (sprite[l].x sprite[l].y) (sprite[tmp].x sprite[tmp].y) sprite[l].ang (i j)
+                bsetsprite tmp i j sprite[tmp].z
+            }
+        }
+        inv sprite[l].ang
+    }
+
+    ife searchstat 3
     ifhitkey KEY_SPACE
     {
-        ifn searchstat 3 break
-        ifn sprite[searchwall].picnum SECTOREFFECTOR break
+        ifn sprite[searchwall].picnum SECTOREFFECTOR return
         set tmp 0
         ife sprite[searchwall].lotag 7 set tmp 1
         ife sprite[searchwall].lotag 17 set tmp 1
-        ife tmp 0 break
+        ife tmp 0 return
 
         for i allsprites
         {
@@ -180,7 +237,7 @@ onevent EVENT_KEYS3D
 
                 updatecursectnum
 
-                break
+                return
             }
         }
     }
@@ -197,7 +254,7 @@ onevent EVENT_KEYS3D
     }
 endevent
 
-defstate itertest
+defstate replacestuff
     for i spritesofsector searchsector
 //        ife sprite[i].picnum AMMO set sprite[i].picnum BATTERYAMMO
         ifactor parm[0] cactor parm[1]

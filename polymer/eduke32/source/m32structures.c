@@ -163,19 +163,27 @@ static int32_t __fastcall X_AccessSector(int32_t how, int32_t lVar1, int32_t lLa
         case SECTOR_CEILINGZ: sector[i].ceilingz=lValue; break;
         case SECTOR_FLOORZ: sector[i].floorz=lValue; break;
         case SECTOR_CEILINGSTAT:
-            sector[i].ceilingstat = lValue&0x01ff;
+            sector[i].ceilingstat = lValue&0x01fd;
             break;
         case SECTOR_FLOORSTAT:
-            sector[i].floorstat = lValue&0x01ff;
+            sector[i].floorstat = lValue&0x01fd;
             break;
         case SECTOR_CEILINGPICNUM: sector[i].ceilingpicnum=lValue; break;
-        case SECTOR_CEILINGSLOPE: sector[i].ceilingheinum=lValue; break;
+        case SECTOR_CEILINGSLOPE:
+            sector[i].ceilingheinum = lValue;
+            if (lValue) sector[i].ceilingstat |= 2;
+            else sector[i].ceilingstat &= ~2;
+            break;
         case SECTOR_CEILINGSHADE: sector[i].ceilingshade=lValue; break;
         case SECTOR_CEILINGPAL: sector[i].ceilingpal=lValue; break;
         case SECTOR_CEILINGXPANNING: sector[i].ceilingxpanning=lValue; break;
         case SECTOR_CEILINGYPANNING: sector[i].ceilingypanning=lValue; break;
         case SECTOR_FLOORPICNUM: sector[i].floorpicnum=lValue; break;
-        case SECTOR_FLOORSLOPE: sector[i].floorheinum=lValue; break;
+        case SECTOR_FLOORSLOPE:
+            sector[i].floorheinum = lValue;
+            if (lValue) sector[i].floorstat |= 2;
+            else sector[i].floorstat &= ~2;
+            break;
         case SECTOR_FLOORSHADE: sector[i].floorshade=lValue; break;
         case SECTOR_FLOORPAL: sector[i].floorpal=lValue; break;
         case SECTOR_FLOORXPANNING: sector[i].floorxpanning=lValue; break;
