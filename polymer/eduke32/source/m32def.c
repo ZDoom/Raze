@@ -3087,6 +3087,7 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("MAXSECTORS", MAXSECTORS, LABEL_DEFINE);
     C_AddDefinition("MAXWALLS", MAXWALLS, LABEL_DEFINE);
     C_AddDefinition("MAXTILES", MAXTILES, LABEL_DEFINE);
+    C_AddDefinition("MAXSTATUS", MAXSTATUS, LABEL_DEFINE);
 
 // keys
     C_AddDefinition("KEY_SPACE", KEYSC_SPACE, LABEL_DEFINE);

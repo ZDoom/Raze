@@ -1536,7 +1536,7 @@ badindex:
 
                 X_ERROR_INVALIDSPRI(daspritenum);
                 ret = deletesprite(daspritenum);
-                Gv_SetVarX(g_iReturnVarID, ret);
+                g_iReturnVar = ret;
                 if (ret==0)
                     numsprites--;
             }

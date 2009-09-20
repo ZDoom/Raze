@@ -558,7 +558,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("cursectnum",(intptr_t)&cursectnum, GAMEVAR_READONLY | GAMEVAR_SHORTPTR | GAMEVAR_SYSTEM);
 
     Gv_NewVar("searchx",(intptr_t)&searchx, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("searchy",(intptr_t)&searchx, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("searchy",(intptr_t)&searchy, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("searchstat",(intptr_t)&searchstat, GAMEVAR_READONLY | GAMEVAR_SHORTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("searchwall",(intptr_t)&searchwall, GAMEVAR_READONLY | GAMEVAR_SHORTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("searchsector",(intptr_t)&searchsector, GAMEVAR_READONLY | GAMEVAR_SHORTPTR | GAMEVAR_SYSTEM);

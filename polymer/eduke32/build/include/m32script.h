@@ -191,7 +191,7 @@ extern vec3_t pos;
 extern int16_t ang;
 extern int32_t horiz;
 extern int16_t cursectnum;
-extern int32_t searchx;
+extern int32_t searchx, searchy;
 /*
 extern int16_t searchstat;
 extern int16_t searchwall;
