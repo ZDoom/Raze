@@ -3388,6 +3388,8 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 err = 0;
             else if (!Bstrcmp(glinfo.renderer,"Intel 965/963 Graphics Media Accelerator"))
                 err = 0;
+            else if (!Bstrcmp(glinfo.renderer,"Intel Cantiga"))
+                err = 0;
             else err = 1;
         }
 #ifdef POLYMER

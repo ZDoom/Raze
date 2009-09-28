@@ -700,13 +700,13 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
 
             if (id&(MAXGAMEVARS<<3)) // struct shortcut vars
             {
-                register int32_t index=Gv_GetVarX(*insptr++);
+                int32_t index=Gv_GetVarX(*insptr++);
 
                 switch ((id&(MAXGAMEVARS-1)) - g_iSpriteVarID)
                 {
                 case 0: //if (id == g_iSpriteVarID)
                 {
-                    int32_t parm2 = 0, label = *insptr++;
+                    register int32_t parm2 = 0, label = *insptr++;
 
                     /*OSD_Printf("%d %d %d\n",__LINE__,index,label);*/
                     if (ActorLabels[label].flags & LABEL_HASPARM2)
@@ -716,7 +716,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
                 }
                 case 3: //else if (id == g_iPlayerVarID)
                 {
-                    int32_t parm2 = 0, label = *insptr++;
+                    register int32_t parm2 = 0, label = *insptr++;
 
                     if (PlayerLabels[label].flags & LABEL_HASPARM2)
                         parm2 = Gv_GetVarX(*insptr++);

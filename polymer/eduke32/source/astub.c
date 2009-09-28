@@ -512,10 +512,12 @@ void ExtLoadMap(const char *mapname)
     }
     */
     // Presize Sprites
+
+/*
     for (j=numsprites; j>=0; j--)
     {
-        /*        if (tilesizx[sprite[j].picnum]==0 || tilesizy[sprite[j].picnum]==0)
-        sprite[j].picnum=0; */
+        / *        if (tilesizx[sprite[j].picnum]==0 || tilesizy[sprite[j].picnum]==0)
+        sprite[j].picnum=0; * /
 
         if (sprite[j].picnum>=20 && sprite[j].picnum<=59)
         {
@@ -532,6 +534,7 @@ void ExtLoadMap(const char *mapname)
         }
 
     }
+*/
 
     Bstrcpy(levelname,mapname);
     pskyoff[0]=0;

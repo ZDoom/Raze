@@ -302,9 +302,9 @@ static inline int32_t bitrev(int32_t b, int32_t c)
     return(j);
 }
 
-static inline int32_t testflag(int32_t c) { return(0); }
+static inline int32_t testflag(int32_t c) { UNREFERENCED_PARAMETER(c); return(0); }
 
-static inline void cpuid(int32_t a, int32_t *s) {}
+static inline void cpuid(int32_t a, int32_t *s) { UNREFERENCED_PARAMETER(a); UNREFERENCED_PARAMETER(s);}
 
 #endif
 
@@ -1812,7 +1812,7 @@ static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
     int32_t lzcols, dat, blocklen, bitcnt, xoff, transcol, backcol, *lptr;
     intptr_t yoff;
     char numbits, startnumbits, chunkind, ilacefirst;
-    const uint8_t *ptr, *cptr;
+    const uint8_t *ptr, *cptr = NULL;
 
     UNREFERENCED_PARAMETER(kfilelength);
 
@@ -1993,10 +1993,10 @@ static int32_t ktgarend(const char *header, int32_t fleng,
                         intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres,
                         int32_t daglobxoffs, int32_t daglobyoffs)
 {
-    int32_t i, x, y, pi, xi, yi, x0, x1, y0, y1, xsiz, ysiz, rlestat, colbyte, pixbyte;
+    int32_t i = 0, x, y, pi, xi, yi, x0, x1, y0, y1, xsiz, ysiz, rlestat, colbyte, pixbyte;
     intptr_t p;
 
-    const uint8_t *fptr, *cptr, *nptr;
+    const uint8_t *fptr, *cptr = NULL, *nptr;
 
     //Ugly and unreliable identification for .TGA!
     if ((fleng < 19) || (header[1]&0xfe)) return(-1);
@@ -2289,7 +2289,7 @@ static int32_t kpcxrend(const char *buf, int32_t fleng,
 static int32_t kddsrend(const char *buf, int32_t leng,
                         intptr_t frameptr, int32_t bpl, int32_t xdim, int32_t ydim, int32_t xoff, int32_t yoff)
 {
-    int32_t x, y, z, xx, yy, xsiz, ysiz, dxt, al[2], ai, k, v, c0, c1, stride;
+    int32_t x, y, z = 0, xx, yy, xsiz, ysiz, dxt, al[2], ai, k, v, c0, c1, stride;
     intptr_t j;
     uint32_t lut[256], r[4], g[4], b[4], a[8], rr, gg, bb;
     uint8_t *uptr, *wptr;

@@ -1394,7 +1394,7 @@ void overheadeditor(void)
             if (graphicsmode == 2)
                 totalclocklock = totalclock;
 
-            drawmapview(pos.x, pos.y + scale((65536/zoom), ydim, 200), zoom, 1536);
+            drawmapview(pos.x, pos.y + scale((65536/zoom), ydim, 240), zoom, 1536);
             yxaspect = i;
             xyaspect = ii;
         }

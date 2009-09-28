@@ -10962,11 +10962,11 @@ CLEAN_DIRECTORY:
     {
         // ud.last_level is used as a flag here to reset the string to DUKE.RTS after load
         if (WW2GI)
-            ud.last_level = (int32_t)Bstrcpy(ud.rtsname, "WW2GI.RTS");
+            ud.last_level = (Bstrcpy(ud.rtsname, "WW2GI.RTS") == ud.rtsname);
         else if (NAM)
-            ud.last_level = (int32_t)Bstrcpy(ud.rtsname, "NAM.RTS");
+            ud.last_level = (Bstrcpy(ud.rtsname, "NAM.RTS") == ud.rtsname);
         else
-            ud.last_level = (int32_t)Bstrcpy(ud.rtsname, "DUKE.RTS");
+            ud.last_level = (Bstrcpy(ud.rtsname, "DUKE.RTS") == ud.rtsname);
     }
 
     RTS_Init(ud.rtsname);
