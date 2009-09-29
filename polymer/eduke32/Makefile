@@ -55,6 +55,8 @@ JAUDIOLIB=libjfaudiolib.a
 CC=gcc
 CXX=g++
 AS=nasm
+RC=windres
+STRIP=strip
 
 GCC_MAJOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f1)
 GCC_MINOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f2)
@@ -216,7 +218,7 @@ eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLI
 	if $(CC) -o $@ $^ $(LIBS) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
   ifeq (0,$(DEBUGANYWAY))
-	strip eduke32$(EXESUFFIX)
+	$(STRIP) eduke32$(EXESUFFIX)
   endif
 endif
 	
@@ -225,7 +227,7 @@ mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
   ifeq (0,$(DEBUGANYWAY))
-	strip mapster32$(EXESUFFIX)
+	$(STRIP) mapster32$(EXESUFFIX)
   endif
 endif	
 
@@ -234,7 +236,7 @@ duke3d_w32$(EXESUFFIX): $(OBJ)/wrapper.$o
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ -Wl; then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
   ifeq (0,$(DEBUGANYWAY))
-	strip duke3d_w32$(EXESUFFIX)
+	$(STRIP) duke3d_w32$(EXESUFFIX)
   endif
 endif	
 
@@ -290,7 +292,7 @@ $(OBJ)/%.$o: $(SRC)/jmact/%.c
 
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
 	$(COMPILE_STATUS)
-	if windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC) -DPOLYMER=$(POLYMER); then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(RC) -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC) -DPOLYMER=$(POLYMER); then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/util/%.c
 	$(COMPILE_STATUS)

@@ -49,7 +49,7 @@ endif
 # OBJECTS=$(SOURCES:%.c=$(OBJ)/%.o)
 
 $(OBJNAME): $(OBJECTS)
-	ar cr $@ $^
+	$(AR) cr $@ $^
 
 $(OBJECTS): $(OBJ)/%.o: $(SRC)/%.c
 	-mkdir -p $(OBJ)
