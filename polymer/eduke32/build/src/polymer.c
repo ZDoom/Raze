@@ -1467,7 +1467,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     {
         bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prrts[0].fbo);
         bglPushAttrib(GL_VIEWPORT_BIT);
-        bglViewport(0, 0, xdim, ydim);
+        bglViewport(windowx1, yres-(windowy2+1),windowx2-windowx1+1, windowy2-windowy1+1);
 
         bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
