@@ -375,7 +375,18 @@ malloc_getpagesize         default: derive from system includes, or 4096.
   memory from the system in page-size units.  This may be (and
   usually is) a function rather than a constant. This is ignored
   if WIN32, where page size is determined using getSystemInfo during
-  initialization.
+  initialization. This may be several megabytes if ENABLE_LARGE_PAGES
+  is enabled.
+
+ENABLE_LARGE_PAGES         default: NOT defined
+  Causes the system page size to be the value of GetLargePageMinimum()
+  if that function is available (Windows Server 2003/Vista or later).
+  This allows the use of large page entries in the MMU which can
+  significantly improve performance in large working set applications
+  as TLB cache load is reduced by a factor of three. Note that enabling
+  this option is equal to locking the process' memory in current
+  implementations of Windows and requires the SE_LOCK_MEMORY_PRIVILEGE
+  to be held by the process in order to succeed.
 
 USE_DEV_RANDOM             default: 0 (i.e., not used)
   Causes malloc to use /dev/random to initialize secure magic seed for
@@ -405,6 +416,7 @@ LACKS_STDLIB_H                default: NOT defined unless on WIN32
 
 DEFAULT_GRANULARITY        default: page size if MORECORE_CONTIGUOUS,
                                 system_info.dwAllocationGranularity in WIN32,
+                                GetLargePageMinimum() if ENABLE_LARGE_PAGES,
                                 otherwise 64K.
       Also settable using mallopt(M_GRANULARITY, x)
   The unit for allocating and deallocating memory from the system.  On
@@ -417,6 +429,15 @@ DEFAULT_GRANULARITY        default: page size if MORECORE_CONTIGUOUS,
   to either page size or win32 region size.  (Note: In previous
   versions of malloc, the equivalent of this option was called
   "TOP_PAD")
+
+DEFAULT_GRANULARITY_ALIGNED default: undefined (which means page size)
+  Whether to enforce alignment when allocating and deallocating memory
+  from the system i.e. the base address of all allocations will be
+  aligned to DEFAULT_GRANULARITY if it is set. Note that enabling this carries
+  some overhead as multiple calls must now be made when probing for a valid
+  aligned value, however it does greatly ease the checking for whether
+  a given memory pointer was allocated by this allocator rather than
+  some other.
 
 DEFAULT_TRIM_THRESHOLD    default: 2MB
       Also settable using mallopt(M_TRIM_THRESHOLD, x)
@@ -497,6 +518,7 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <tchar.h>
 #define HAVE_MMAP 1
 #define HAVE_MORECORE 0
 #define LACKS_UNISTD_H
@@ -1262,7 +1284,7 @@ int mspace_mallopt(int, int);
 #endif /* MSPACES */
 
 #ifdef __cplusplus
-};  /* end of extern "C" */
+}  /* end of extern "C" */
 #endif /* __cplusplus */
 
 /*
@@ -1277,10 +1299,8 @@ int mspace_mallopt(int, int);
 
 /*------------------------------ internal #includes ---------------------- */
 
-#ifdef WIN32
-#ifndef __GNUC__
+#if defined(WIN32) && defined(_MSC_VER)
 #pragma warning( disable : 4146 ) /* no "unsigned" warnings */
-#endif
 #endif /* WIN32 */
 
 #include <stdio.h>       /* for printing in malloc_stats */
@@ -1516,6 +1536,29 @@ unsigned char _BitScanReverse(unsigned long *index, unsigned long mask);
  ((((size_t)(A) & CHUNK_ALIGN_MASK) == 0)? 0 :\
   ((MALLOC_ALIGNMENT - ((size_t)(A) & CHUNK_ALIGN_MASK)) & CHUNK_ALIGN_MASK))
 
+/*
+  malloc_params holds global properties, including those that can be
+  dynamically set using mallopt. There is a single instance, mparams,
+  initialized in init_mparams. Note that the non-zeroness of "magic"
+  also serves as an initialization flag.
+*/
+
+typedef unsigned int flag_t;           /* The type of various bit flag sets */
+
+struct malloc_params {
+  volatile size_t magic;
+  size_t page_size;
+  size_t granularity;
+  size_t mmap_threshold;
+  size_t trim_threshold;
+  flag_t default_mflags;
+};
+
+static struct malloc_params mparams;
+
+/* Ensure mparams initialized */
+#define ensure_initialization() (void)(mparams.magic != 0 || init_mparams())
+
 /* -------------------------- MMAP preliminaries ------------------------- */
 
 /*
@@ -1532,14 +1575,41 @@ unsigned char _BitScanReverse(unsigned long *index, unsigned long mask);
 #if HAVE_MMAP
 
 #ifndef WIN32
-#define MUNMAP_DEFAULT(a, s)  munmap((a), (s))
-#define MMAP_PROT            (PROT_READ|PROT_WRITE)
 #if !defined(MAP_ANONYMOUS) && defined(MAP_ANON)
 #define MAP_ANONYMOUS        MAP_ANON
 #endif /* MAP_ANON */
+#ifdef DEFAULT_GRANULARITY_ALIGNED
+#define MMAP_IMPL mmap_aligned
+static void* lastAlignedmmap; /* Used as a hint */
+static void* mmap_aligned(void *start, size_t length, int prot, int flags, int fd, off_t offset) {
+  void* baseaddress = 0;
+  void* ptr = 0;
+  if(!start) {
+    baseaddress = lastAlignedmmap;
+    for(;;) {
+      if(baseaddress) flags|=MAP_FIXED;
+      ptr = mmap(baseaddress, length, prot, flags, fd, offset);
+      if(!ptr)
+        baseaddress = (void*)((size_t)baseaddress + mparams.granularity);
+      else if((size_t)ptr & (mparams.granularity - SIZE_T_ONE)) {
+        munmap(ptr, length);
+        baseaddress = (void*)(((size_t)ptr + mparams.granularity) & ~(mparams.granularity - SIZE_T_ONE));
+      }
+      else break;
+    }
+  }
+  else ptr = mmap(start, length, prot, flags, fd, offset);
+  if(ptr) lastAlignedmmap = (void*)((size_t) ptr + mparams.granularity);
+  return ptr;
+}
+#else
+#define MMAP_IMPL mmap
+#endif /* DEFAULT_GRANULARITY_ALIGNED */
+#define MUNMAP_DEFAULT(a, s)  munmap((a), (s))
+#define MMAP_PROT            (PROT_READ|PROT_WRITE)
 #ifdef MAP_ANONYMOUS
 #define MMAP_FLAGS           (MAP_PRIVATE|MAP_ANONYMOUS)
-#define MMAP_DEFAULT(s)       mmap(0, (s), MMAP_PROT, MMAP_FLAGS, -1, 0)
+#define MMAP_DEFAULT(s)       MMAP_IMPL(0, (s), MMAP_PROT, MMAP_FLAGS, -1, 0)
 #else /* MAP_ANONYMOUS */
 /*
    Nearly all versions of mmap support MAP_ANONYMOUS, so the following
@@ -1549,8 +1619,8 @@ unsigned char _BitScanReverse(unsigned long *index, unsigned long mask);
 static int dev_zero_fd = -1; /* Cached file descriptor for /dev/zero. */
 #define MMAP_DEFAULT(s) ((dev_zero_fd < 0) ? \
            (dev_zero_fd = open("/dev/zero", O_RDWR), \
-            mmap(0, (s), MMAP_PROT, MMAP_FLAGS, dev_zero_fd, 0)) : \
-            mmap(0, (s), MMAP_PROT, MMAP_FLAGS, dev_zero_fd, 0))
+            MMAP_IMPL(0, (s), MMAP_PROT, MMAP_FLAGS, dev_zero_fd, 0)) : \
+            MMAP_IMPL(0, (s), MMAP_PROT, MMAP_FLAGS, dev_zero_fd, 0))
 #endif /* MAP_ANONYMOUS */
 
 #define DIRECT_MMAP_DEFAULT(s) MMAP_DEFAULT(s)
@@ -1558,8 +1628,51 @@ static int dev_zero_fd = -1; /* Cached file descriptor for /dev/zero. */
 #else /* WIN32 */
 
 /* Win32 MMAP via VirtualAlloc */
+#ifdef DEFAULT_GRANULARITY_ALIGNED
+static void* lastWin32mmap; /* Used as a hint */
+#endif /* DEFAULT_GRANULARITY_ALIGNED */
+#ifdef ENABLE_LARGE_PAGES
+static int largepagesavailable = 1;
+#endif /* ENABLE_LARGE_PAGES */
 static FORCEINLINE void* win32mmap(size_t size) {
-  void* ptr = VirtualAlloc(0, size, MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
+  void* baseaddress = 0;
+  void* ptr = 0;
+#ifdef ENABLE_LARGE_PAGES
+  /* Note that large pages are *always* allocated on a large page boundary.
+  If however granularity is small then don't waste a kernel call if size
+  isn't around the size of a large page */
+  if(largepagesavailable && size >= 1*1024*1024) {
+    ptr = VirtualAlloc(baseaddress, size, MEM_RESERVE|MEM_COMMIT|MEM_LARGE_PAGES, PAGE_READWRITE);
+    if(!ptr && ERROR_PRIVILEGE_NOT_HELD==GetLastError()) largepagesavailable=0;
+  }
+#endif
+  if(!ptr) {
+#ifdef DEFAULT_GRANULARITY_ALIGNED
+    /* We try to avoid overhead by speculatively reserving at aligned
+    addresses until we succeed */
+    baseaddress = lastWin32mmap;
+    for(;;) {
+      void* reserveaddr = VirtualAlloc(baseaddress, size, MEM_RESERVE, PAGE_READWRITE);
+      if(!reserveaddr)
+        baseaddress = (void*)((size_t)baseaddress + mparams.granularity);
+      else if((size_t)reserveaddr & (mparams.granularity - SIZE_T_ONE)) {
+        VirtualFree(reserveaddr, 0, MEM_RELEASE);
+        baseaddress = (void*)(((size_t)reserveaddr + mparams.granularity) & ~(mparams.granularity - SIZE_T_ONE));
+      }
+      else break;
+    }
+#endif
+    if(!ptr) ptr = VirtualAlloc(baseaddress, size, baseaddress ? MEM_COMMIT : MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
+#if DEBUG
+    if(lastWin32mmap && ptr!=lastWin32mmap) printf("Non-contiguous VirtualAlloc between %p and %p\n", ptr, lastWin32mmap);
+#endif
+#ifdef DEFAULT_GRANULARITY_ALIGNED
+    if(ptr) lastWin32mmap = (void*)((size_t) ptr + mparams.granularity);
+#endif
+  }
+#if DEBUG
+  printf("VirtualAlloc returns %p size %u\n", ptr, size);
+#endif
   return (ptr != 0)? ptr: MFAIL;
 }
 
@@ -1709,7 +1822,7 @@ struct pthread_mlock_t {
   unsigned int c;
   pthread_t threadid;
 };
-#define MLOCK_T struct        pthread_mlock_t
+#define MLOCK_T               struct pthread_mlock_t
 #define CURRENT_THREAD        pthread_self()
 #define INITIAL_LOCK(sl)      ((sl)->threadid = 0, (sl)->l = (sl)->c = 0, 0)
 #define ACQUIRE_LOCK(sl)      pthread_acquire_lock(sl)
@@ -1745,19 +1858,19 @@ static FORCEINLINE int pthread_acquire_lock (MLOCK_T *sl) {
         return 0;
       }
     }
-      if ((++spins & SPINS_PER_YIELD) == 0) {
+    if ((++spins & SPINS_PER_YIELD) == 0) {
 #if defined (__SVR4) && defined (__sun) /* solaris */
-        thr_yield();
+      thr_yield();
 #else
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
-        sched_yield();
+      sched_yield();
 #else  /* no-op yield on unknown systems */
-        ;
+      ;
 #endif /* __linux__ || __FreeBSD__ || __APPLE__ */
 #endif /* solaris */
-      }
     }
   }
+}
 
 static FORCEINLINE void pthread_release_lock (MLOCK_T *sl) {
   volatile unsigned int* lp = &sl->l;
@@ -1777,10 +1890,10 @@ static FORCEINLINE void pthread_release_lock (MLOCK_T *sl) {
 static FORCEINLINE int pthread_try_lock (MLOCK_T *sl) {
   volatile unsigned int* lp = &sl->l;
   if (*lp != 0) {
-      if (sl->threadid == CURRENT_THREAD) {
-        ++sl->c;
-        return 1;
-      }
+    if (sl->threadid == CURRENT_THREAD) {
+      ++sl->c;
+      return 1;
+    }
   }
   else {
     int cmp = 0;
@@ -1823,15 +1936,14 @@ static FORCEINLINE int win32_acquire_lock (MLOCK_T *sl) {
   int spins = 0;
   for (;;) {
     if (sl->l != 0) {
-      if (sl->threadid == (signed)CURRENT_THREAD) {
+      if (sl->threadid == CURRENT_THREAD) {
         ++sl->c;
         return 0;
       }
     }
     else {
       if (!interlockedexchange(&sl->l, 1)) {
-        assert(!sl->1855
-);
+        assert(!sl->threadid);
         sl->threadid = CURRENT_THREAD;
         sl->c = 1;
         return 0;
@@ -1852,11 +1964,11 @@ static FORCEINLINE void win32_release_lock (MLOCK_T *sl) {
 }
 
 static FORCEINLINE int win32_try_lock (MLOCK_T *sl) {
-  if(sl->l != 0) {
-      if (sl->threadid == (signed)CURRENT_THREAD) {
-        ++sl->c;
-        return 1;
-      }
+  if (sl->l != 0) {
+    if (sl->threadid == CURRENT_THREAD) {
+      ++sl->c;
+      return 1;
+    }
   }
   else {
     if (!interlockedexchange(&sl->l, 1)){
@@ -2120,7 +2232,6 @@ typedef struct malloc_chunk* mchunkptr;
 typedef struct malloc_chunk* sbinptr;  /* The type of bins of chunks */
 typedef unsigned int bindex_t;         /* Described below */
 typedef unsigned int binmap_t;         /* Described below */
-typedef unsigned int flag_t;           /* The type of various bit flag sets */
 
 /* ------------------- Chunks sizes and alignments ----------------------- */
 
@@ -2513,10 +2624,10 @@ struct malloc_state {
   size_t     footprint;
   size_t     max_footprint;
   flag_t     mflags;
+  msegment   seg;
 #if USE_LOCKS
   MLOCK_T    mutex;     /* locate lock among fields that rarely change */
 #endif /* USE_LOCKS */
-  msegment   seg;
   void*      extp;      /* Unused but available for extensions */
   size_t     exts;
 };
@@ -2524,27 +2635,6 @@ struct malloc_state {
 typedef struct malloc_state*    mstate;
 
 /* ------------- Global malloc_state and malloc_params ------------------- */
-
-/*
-  malloc_params holds global properties, including those that can be
-  dynamically set using mallopt. There is a single instance, mparams,
-  initialized in init_mparams. Note that the non-zeroness of "magic"
-  also serves as an initialization flag.
-*/
-
-struct malloc_params {
-  volatile size_t magic;
-  size_t page_size;
-  size_t granularity;
-  size_t mmap_threshold;
-  size_t trim_threshold;
-  flag_t default_mflags;
-};
-
-static struct malloc_params mparams;
-
-/* Ensure mparams initialized */
-#define ensure_initialization() (void)(mparams.magic != 0 || init_mparams())
 
 #if !ONLY_MSPACES
 
@@ -2734,7 +2824,7 @@ static size_t traverse_and_check(mstate m);
 /* ---------------------------- Indexing Bins ---------------------------- */
 
 #define is_small(s)         (((s) >> SMALLBIN_SHIFT) < NSMALLBINS)
-#define small_index(s)      ((s)  >> SMALLBIN_SHIFT)
+#define small_index(s)      (bindex_t)((s)  >> SMALLBIN_SHIFT)
 #define small_index2size(i) ((i)  << SMALLBIN_SHIFT)
 #define MIN_SMALL_INDEX     (small_index(MIN_CHUNK_SIZE))
 
@@ -2782,7 +2872,7 @@ static size_t traverse_and_check(mstate m);
     I = NTREEBINS-1;\
   else {\
     unsigned int K;\
-    _BitScanReverse((DWORD *) &K, X);\
+    _BitScanReverse((DWORD *) &K, (DWORD) X);\
     I =  (bindex_t)((K << 1) + ((S >> (K + (TREEBIN_SHIFT-1)) & 1)));\
   }\
 }
@@ -3003,6 +3093,10 @@ static size_t traverse_and_check(mstate m);
 
 /* ---------------------------- setting mparams -------------------------- */
 
+#ifdef ENABLE_LARGE_PAGES
+typedef size_t (WINAPI *GetLargePageMinimum_t)(void);
+#endif
+
 /* Initialize mparams */
 static int init_mparams(void) {
 #ifdef NEED_GLOBAL_LOCK_INIT
@@ -3026,6 +3120,20 @@ static int init_mparams(void) {
       psize = system_info.dwPageSize;
       gsize = ((DEFAULT_GRANULARITY != 0)?
                DEFAULT_GRANULARITY : system_info.dwAllocationGranularity);
+#ifdef ENABLE_LARGE_PAGES
+      { 
+          GetLargePageMinimum_t GetLargePageMinimum_ = (GetLargePageMinimum_t) GetProcAddress(GetModuleHandle(__T("kernel32.dll")), "GetLargePageMinimum");
+          if(GetLargePageMinimum_) {
+              size_t largepagesize = GetLargePageMinimum_();
+              if(largepagesize) {
+                  psize = largepagesize;
+                  gsize = ((DEFAULT_GRANULARITY != 0)?
+                           DEFAULT_GRANULARITY : largepagesize);
+                  if(gsize < largepagesize) gsize = largepagesize;
+              }
+          }
+      }
+#endif
     }
 #endif /* WIN32 */
 
@@ -3076,12 +3184,12 @@ static int init_mparams(void) {
 #ifdef WIN32
         magic = (size_t)(GetTickCount() ^ (size_t)0x55555555U);
 #else
-      magic = (size_t)(time(0) ^ (size_t)0x55555555U);
+        magic = (size_t)(time(0) ^ (size_t)0x55555555U);
 #endif
       magic |= (size_t)8U;    /* ensure nonzero */
       magic &= ~(size_t)7U;   /* improve chances of fault for bad values */
-    mparams.magic = magic;
-  }
+      mparams.magic = magic;
+    }
   }
 
   RELEASE_MALLOC_GLOBAL_LOCK();
@@ -5465,6 +5573,7 @@ int mspace_mallopt(int param_number, int value) {
 
 #endif /* MSPACES */
 
+
 /* -------------------- Alternative MORECORE functions ------------------- */
 
 /*
@@ -5752,5 +5861,4 @@ History:
          structure of old version,  but most details differ.)
 
 */
-
 
