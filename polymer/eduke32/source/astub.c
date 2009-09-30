@@ -102,6 +102,19 @@ static int32_t mouseaction=0, mouseax=0, mouseay=0;
 static int32_t repeatcountx, repeatcounty;
 static int32_t infobox=3; // bit0: current window, bit1: mouse pointer, the variable should be renamed
 
+static char wallshades[MAXWALLS];
+static char sectorshades[MAXSECTORS][2];
+static char spriteshades[MAXSPRITES];
+static char wallpals[MAXWALLS];
+static char sectorpals[MAXSECTORS][2];
+static char spritepals[MAXSPRITES];
+static char wallflag[MAXWALLS];
+#ifdef POLYMER
+static int16_t spritelightid[MAXSPRITES];
+_prlight *spritelightptr[MAXSPRITES];
+#endif
+extern int32_t graphicsmode;
+
 extern int32_t mskip;
 extern int16_t capturecount;
 extern int32_t editorgridextent;	// in engine.c
@@ -5969,6 +5982,14 @@ static void Keys3d(void)
         SetGAMEPalette();
         FX_StopAllSounds();
         S_ClearSoundLocks();
+#ifdef POLYMER
+        for (i=0;i<MAXSPRITES;i++)
+            if (spritelightptr[i] != NULL)
+            {
+                polymer_deletelight(spritelightid[i]);
+                spritelightptr[i] = NULL;
+            }
+#endif
     }
 
     //Stick this in 3D part of ExtCheckKeys
@@ -6003,8 +6024,15 @@ static void Keys3d(void)
     {
         keystatus[KEYSC_X] = 0;
         shadepreview=!shadepreview;
-        if (shadepreview) message("Map shade preview ON");
-        else message("Map shade preview OFF");
+        message("Map shade preview %s",shadepreview?"enabled":"disabled");
+#ifdef POLYMER
+        for (i=0;i<MAXSPRITES;i++)
+            if (spritelightptr[i] != NULL)
+            {
+                polymer_deletelight(spritelightid[i]);
+                spritelightptr[i] = NULL;
+            }
+#endif
     }
 
 
@@ -10035,15 +10063,6 @@ void ExtUnInit(void)
     if (helppage) free(helppage);
 }
 
-static char wallshades[MAXWALLS];
-static char sectorshades[MAXSECTORS][2];
-static char spriteshades[MAXSPRITES];
-static char wallpals[MAXWALLS];
-static char sectorpals[MAXSECTORS][2];
-static char spritepals[MAXSPRITES];
-static char wallflag[MAXWALLS];
-extern int32_t graphicsmode;
-
 void ExtPreCheckKeys(void) // just before drawrooms
 {
     int32_t i = 0, ii;
@@ -10104,6 +10123,147 @@ void ExtPreCheckKeys(void) // just before drawrooms
                         sprite[w].pal = sprite[i].pal;
                         w = nextspritesect[w];
                     }
+                }
+                else if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 49 || sprite[i].lotag == 50))
+                {
+#ifdef POLYMER
+                    if (sprite[i].lotag == 49)
+                    {
+                        if (getrendermode() == 4)
+                        {
+                            if (spritelightptr[i] == NULL)
+                            {
+#pragma pack(push,1)
+                                _prlight mylight;
+#pragma pack(pop)
+                                mylight.sector = SECT;
+                                Bmemcpy(&mylight, &sprite[i], sizeof(vec3_t));
+                                mylight.range = SHT;
+                                mylight.color[0] = sprite[i].xvel;
+                                mylight.color[1] = sprite[i].yvel;
+                                mylight.color[2] = sprite[i].zvel;
+                                mylight.radius = 0;
+                                mylight.angle = SA;
+                                mylight.horiz = SH;
+                                mylight.minshade = sprite[i].xoffset;
+                                mylight.maxshade = sprite[i].yoffset;
+
+                                if (CS & 2)
+                                {
+                                    if (CS & 512)
+                                        mylight.priority = PR_LIGHT_PRIO_LOW;
+                                    else
+                                        mylight.priority = PR_LIGHT_PRIO_HIGH;
+                                }
+                                else
+                                    mylight.priority = PR_LIGHT_PRIO_MAX;
+
+                                spritelightid[i] = polymer_addlight(&mylight);
+                                if (spritelightid[i] >= 0)
+                                    spritelightptr[i] = &prlights[spritelightid[i]];
+                            }
+                            else
+                            {
+                                if (Bmemcmp(&sprite[i], spritelightptr[i], sizeof(vec3_t)))
+                                {
+                                    Bmemcpy(spritelightptr[i], &sprite[i], sizeof(vec3_t));
+                                    spritelightptr[i]->sector = sprite[i].sectnum;
+                                    spritelightptr[i]->flags.invalidate = 1;
+                                }
+                                if (SHT != spritelightptr[i]->range)
+                                {
+                                    spritelightptr[i]->range = SHT;
+                                    spritelightptr[i]->flags.invalidate = 1;
+                                }
+                                if ((sprite[i].xvel != spritelightptr[i]->color[0]) ||
+                                    (sprite[i].yvel != spritelightptr[i]->color[1]) ||
+                                    (sprite[i].zvel != spritelightptr[i]->color[2]))
+                                {
+                                    spritelightptr[i]->color[0] = sprite[i].xvel;
+                                    spritelightptr[i]->color[1] = sprite[i].yvel;
+                                    spritelightptr[i]->color[2] = sprite[i].zvel;
+                                }
+                            }
+                        }
+                    }
+                    if (sprite[i].lotag == 50)
+                    {
+                        if (getrendermode() == 4)
+                        {
+                            if (spritelightptr[i] == NULL)
+                            {
+#pragma pack(push,1)
+                                _prlight mylight;
+#pragma pack(pop)
+
+                                mylight.sector = SECT;
+                                Bmemcpy(&mylight, &sprite[i], sizeof(vec3_t));
+                                mylight.range = SHT;
+                                mylight.color[0] = sprite[i].xvel;
+                                mylight.color[1] = sprite[i].yvel;
+                                mylight.color[2] = sprite[i].zvel;
+                                mylight.radius = (256-(SS+128))<<1;
+                                mylight.faderadius = (int16_t)(mylight.radius * 0.75f);
+                                mylight.angle = SA;
+                                mylight.horiz = SH;
+                                mylight.minshade = sprite[i].xoffset;
+                                mylight.maxshade = sprite[i].yoffset;
+
+                                if (CS & 2)
+                                {
+                                    if (CS & 512)
+                                        mylight.priority = PR_LIGHT_PRIO_LOW;
+                                    else
+                                        mylight.priority = PR_LIGHT_PRIO_HIGH;
+                                }
+                                else
+                                    mylight.priority = PR_LIGHT_PRIO_MAX;
+
+                                spritelightid[i] = polymer_addlight(&mylight);
+                                if (spritelightid[i] >= 0)
+                                    spritelightptr[i] = &prlights[spritelightid[i]];
+                            }
+                            else
+                            {
+                                if (Bmemcmp(&sprite[i], spritelightptr[i], sizeof(vec3_t)))
+                                {
+                                    Bmemcpy(spritelightptr[i], &sprite[i], sizeof(vec3_t));
+                                    spritelightptr[i]->sector = sprite[i].sectnum;
+                                    spritelightptr[i]->flags.invalidate = 1;
+                                }
+                                if (SHT != spritelightptr[i]->range)
+                                {
+                                    spritelightptr[i]->range = SHT;
+                                    spritelightptr[i]->flags.invalidate = 1;
+                                }
+                                if ((sprite[i].xvel != spritelightptr[i]->color[0]) ||
+                                    (sprite[i].yvel != spritelightptr[i]->color[1]) ||
+                                    (sprite[i].zvel != spritelightptr[i]->color[2]))
+                                {
+                                    spritelightptr[i]->color[0] = sprite[i].xvel;
+                                    spritelightptr[i]->color[1] = sprite[i].yvel;
+                                    spritelightptr[i]->color[2] = sprite[i].zvel;
+                                }
+                                if (((256-(SS+128))<<1) != spritelightptr[i]->radius)
+                                {
+                                    spritelightptr[i]->radius = (256-(SS+128))<<1;
+                                    spritelightptr[i]->faderadius = (int16_t)(spritelightptr[i]->radius * 0.75f);
+                                    spritelightptr[i]->flags.invalidate = 1;
+                                }
+                                if (SA != spritelightptr[i]->angle)
+                                {
+                                    spritelightptr[i]->angle = SA;
+                                    spritelightptr[i]->flags.invalidate = 1;
+                                }
+                                if (SH != spritelightptr[i]->horiz)
+                                {
+                                    spritelightptr[i]->horiz = SH;
+                                    spritelightptr[i]->flags.invalidate = 1;
+                                }
+                            }
+                        }
+                    }
+#endif // POLYMER
                 }
         }
         if (floor_over_floor) SE40Code(pos.x,pos.y,pos.z,ang,horiz);
@@ -10746,7 +10906,8 @@ void ExtCheckKeys(void)
         if (sidemode != 1)
         {
             editinput();
-            if (infobox&2)m32_showmouse();
+            if (infobox&2)
+                m32_showmouse();
         }
     }
     else Keys2d();
