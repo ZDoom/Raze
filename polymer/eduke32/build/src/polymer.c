@@ -652,7 +652,7 @@ void                polymer_glinit(void)
     bglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     bglClearStencil(0);
     bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    bglViewport(0, 0, xdim, ydim);
+    bglViewport(windowx1, yres-(windowy2+1),windowx2-windowx1+1, windowy2-windowy1+1);
 
     // texturing
     bglEnable(GL_TEXTURE_2D);
@@ -672,7 +672,10 @@ void                polymer_glinit(void)
 
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
-    bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 0.01f, 100.0f);
+    bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f),
+                    (float)(windowx2-windowx1+1) /
+                    (float)(windowy2-windowy1+1),
+                    0.01f, 100.0f);
 
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
