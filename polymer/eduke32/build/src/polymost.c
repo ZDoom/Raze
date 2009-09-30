@@ -5965,6 +5965,7 @@ void polymost_initosdfuncs(void)
         { "r_pr_maxlightpasses", "r_pr_maxlightpasses: the maximal amount of lights a single object can by affected by", (void*)&r_pr_maxlightpasses, CVAR_INT|CVAR_FUNCPTR, 0, 0, PR_MAXLIGHTS },
         { "r_pr_maxlightpriority", "r_pr_maxlightpriority: lowering that value removes less meaningful lights from the scene", (void*)&pr_maxlightpriority, CVAR_INT, 0, 0, PR_MAXLIGHTPRIORITY },
         { "r_pr_fov", "r_pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_INT, 0, 0, 1023},
+        { "r_pr_customaspect", "r_pr_customaspect: if non-zero, forces the 3D view aspect ratio", (void*)&pr_customaspect, CVAR_FLOAT, 0, 0, 3 },
         { "r_pr_billboardingmode", "r_pr_billboardingmode: face sprite display method. 0: classic mode; 1: polymost mode", (void*)&pr_billboardingmode, CVAR_INT, 0, 0, 1 },
         { "r_pr_verbosity", "r_pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },
         { "r_pr_wireframe", "r_pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_INT | CVAR_NOSAVE, 0, 0, 1 },

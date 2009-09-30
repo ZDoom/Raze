@@ -17,6 +17,7 @@ int32_t         pr_shadowfiltering = 1;
 int32_t         pr_maxlightpasses = 10;
 int32_t         pr_maxlightpriority = PR_MAXLIGHTPRIORITY;
 int32_t         pr_fov = 426;           // appears to be the classic setting.
+float           pr_customaspect = 0.0f;
 int32_t         pr_billboardingmode = 1;
 int32_t         pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
 int32_t         pr_wireframe = 0;
@@ -664,6 +665,8 @@ void                polymer_uninit(void)
 
 void                polymer_glinit(void)
 {
+    float           aspect;
+
     bglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     bglClearStencil(0);
     bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -685,12 +688,15 @@ void                polymer_glinit(void)
     else
         bglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+    if (pr_customaspect != 0.0f)
+        aspect = pr_customaspect;
+    else
+        aspect = (float)(windowx2-windowx1+1) /
+                 (float)(windowy2-windowy1+1);
+
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
-    bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f),
-                    (float)(windowx2-windowx1+1) /
-                    (float)(windowy2-windowy1+1),
-                    0.01f, 100.0f);
+    bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f), aspect, 0.01f, 100.0f);
 
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();

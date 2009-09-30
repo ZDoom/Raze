@@ -40,6 +40,7 @@ extern int32_t      pr_shadowfiltering;
 extern int32_t      pr_maxlightpasses;
 extern int32_t      pr_maxlightpriority;
 extern int32_t      pr_fov;
+extern float        pr_customaspect;
 extern int32_t      pr_billboardingmode;
 extern int32_t      pr_verbosity;
 extern int32_t      pr_wireframe;
