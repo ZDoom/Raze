@@ -3503,6 +3503,14 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
             {
                 glinfo.sm4 = 1;
             }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_occlusion_query"))
+            {
+                glinfo.occlusionqueries = 1;
+            }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_shader_objects"))
+            {
+                glinfo.glsl = 1;
+            }
         }
         Bfree(p);
     }

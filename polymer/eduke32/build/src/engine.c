@@ -7731,7 +7731,10 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     }
 # ifdef POLYMER
     if (rendmode == 4)
-        polymer_init();
+    {
+        if (!polymer_init())
+            rendmode = 3;
+    }
 #endif
 #endif
     qsetmode = 200;
@@ -11944,7 +11947,10 @@ int32_t setrendermode(int32_t renderer)
     else renderer = min(4,max(3,renderer));
 
     if (renderer == 4)
-        polymer_init();
+    {
+        if (!polymer_init())
+            renderer = 3;
+    }
 # else
     else renderer = 3;
 # endif

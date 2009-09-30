@@ -1235,6 +1235,14 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             {
                 glinfo.sm4 = 1;
             }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_occlusion_query"))
+            {
+                glinfo.occlusionqueries = 1;
+            }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_shader_objects"))
+            {
+                glinfo.glsl = 1;
+            }
         }
         Bfree(p);
 

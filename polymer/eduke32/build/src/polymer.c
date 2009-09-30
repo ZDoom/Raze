@@ -590,6 +590,21 @@ int32_t             polymer_init(void)
 
     if (pr_verbosity >= 1) OSD_Printf("Initializing Polymer subsystem...\n");
 
+    if (!glinfo.texnpot ||
+        !glinfo.depthtex ||
+        !glinfo.shadow ||
+        !glinfo.fbos ||
+        !glinfo.rect ||
+        !glinfo.multitex ||
+        !glinfo.vbos ||
+        !glinfo.occlusionqueries ||
+        !glinfo.glsl)
+    {
+        OSD_Printf("PR : Your video card driver/combo doesn't support the necessary features!\n");
+        OSD_Printf("PR : Disabling Polymer...\n");
+        return (0);
+    }
+
     polymer_pool = nedcreatepool(POLYMER_POOL_SIZE, 0);
 
     Bmemset(&prsectors[0], 0, sizeof(prsectors[0]) * MAXSECTORS);

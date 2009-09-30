@@ -24,29 +24,31 @@ char scantoasc[128] =
 #ifdef USE_OPENGL
 struct glinfo glinfo =
 {
-    "Unknown",	// vendor
-    "Unknown",	// renderer
-    "0.0.0",	// version
-    "",		// extensions
+    "Unknown",  // vendor
+    "Unknown",  // renderer
+    "0.0.0",    // version
+    "",         // extensions
 
-    1.0,		// max anisotropy
-    0,		// brga texture format
-    0,		// clamp-to-edge support
-    0,		// texture compression
-    0,		// non-power-of-two textures
-    0,		// multisampling
-    0,		// nvidia multisampling hint
-    0,       // ARBfp
-    0,       // depth textures
-    0,       // shadow comparison
-    0,       // Frame Buffer Objects
-    0,       // rectangle textures
-    0,       // multitexturing
-    0,       // env_combine
-    0,       // Vertex Buffer Objects
-    0,       // VSync support
-    0,       // Shader Model 4 support
-    0,       // GL info dumped
+    1.0,        // max anisotropy
+    0,          // brga texture format
+    0,          // clamp-to-edge support
+    0,          // texture compression
+    0,          // non-power-of-two textures
+    0,          // multisampling
+    0,          // nvidia multisampling hint
+    0,          // ARBfp
+    0,          // depth textures
+    0,          // shadow comparison
+    0,          // Frame Buffer Objects
+    0,          // rectangle textures
+    0,          // multitexturing
+    0,          // env_combine
+    0,          // Vertex Buffer Objects
+    0,          // VSync support
+    0,          // Shader Model 4 support
+    0,          // Occlusion Queries
+    0,          // GLSL
+    0,          // GL info dumped
 };
 #endif
 
@@ -135,7 +137,7 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
 
     initprintf(" Maximum anisotropy:      %.1f%s\n"
                " BGRA textures:           %s\n"
-               " Non-x^2 textures:        %s\n"
+               " Non-power-of-2 textures: %s\n"
                " Texure compression:      %s\n"
                " Clamp-to-edge:           %s\n"
                " Multisampling:           %s\n"
@@ -149,6 +151,8 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
                " env_combine:             %s\n"
                " Vertex Buffer Objects:   %s\n"
                " Shader Model 4:          %s\n"
+               " Occlusion queries:       %s\n"
+               " GLSL:                    %s\n"
                " Extensions:\n",
                glinfo.maxanisotropy, glinfo.maxanisotropy>1.0?"":" (no anisotropic filtering)",
                glinfo.bgra ? "supported": "not supported",
@@ -165,7 +169,9 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
                glinfo.multitex ? "supported": "not supported",
                glinfo.envcombine ? "supported": "not supported",
                glinfo.vbos ? "supported": "not supported",
-               glinfo.sm4 ? "supported": "not supported"
+               glinfo.sm4 ? "supported": "not supported",
+               glinfo.occlusionqueries ? "supported": "not supported",
+               glinfo.glsl ? "supported": "not supported"
               );
 
     s = Bstrdup(glinfo.extensions);

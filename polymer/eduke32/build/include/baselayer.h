@@ -44,13 +44,13 @@ struct glinfo {
     const char *version;
     const char *extensions;
 
-	float maxanisotropy;
-	char bgra;
-	char clamptoedge;
-	char texcompr;
-	char texnpot;
-	char multisample;
-	char nvmultisamplehint;
+    float maxanisotropy;
+    char bgra;
+    char clamptoedge;
+    char texcompr;
+    char texnpot;
+    char multisample;
+    char nvmultisamplehint;
     char arbfp;
     char depthtex;
     char shadow;
@@ -61,6 +61,8 @@ struct glinfo {
     char vbos;
     char vsync;
     char sm4;
+    char occlusionqueries;
+    char glsl;
     char dumped;
 };
 
