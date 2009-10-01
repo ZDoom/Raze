@@ -1,14 +1,15 @@
 #!/bin/bash
 
 # some paths
-top=/home/pgriffais/src/eduke32
-source=$top/polymer/eduke32
-output=/home/pgriffais/src/synthesis/output
+top=/home/plagman/src/eduke32
+source=polymer/eduke32
+output=/var/www/dukeworld.duke4.net/eduke32/synthesis
 make=( make PLATFORM=WINDOWS CC='wine gcc' CXX='wine g++' AS='wine nasm' RC='wine windres' STRIP='wine strip' AR='wine ar' RANLIB='wine ranlib' PRETTY_OUTPUT=0 )
 clean=veryclean
 # the following file paths are relative to $source
 targets=( eduke32.exe mapster32.exe )
-packaged=( eduke32.exe mapster32.exe names.h tiles.cfg buildlic.txt GNU.TXT m32help.hlp ror.map a.m32 )
+bin_packaged=( eduke32.exe mapster32.exe names.h tiles.cfg buildlic.txt GNU.TXT m32help.hlp ror.map a.m32 )
+not_src_packaged=( rsrc/game2.psd rsrc/game3.psd source/jaudiolib/third-party/vorbis.framework/Versions/A/vorbis Apple )
 
 
 # some variables
@@ -46,7 +47,7 @@ fi
 if [ $dobuild ]
 then
     echo "Launching a build..."
-    cd $source
+    cd $top/$source
     # clean the tree
     echo "${make[@]}" $clean
     "${make[@]}" $clean
@@ -71,8 +72,8 @@ then
     # create the output directory
     mkdir $output/$date-$head
     # package the binary snapshot
-    echo zip $output/$date-$head/eduke32_win32_$date-$head.zip ${packaged[@]}
-    zip $output/$date-$head/eduke32_win32_$date-$head.zip ${packaged[@]}
+    echo zip $output/$date-$head/eduke32_win32_$date-$head.zip ${bin_packaged[@]}
+    zip $output/$date-$head/eduke32_win32_$date-$head.zip ${bin_packaged[@]}
     # hack to restore [e]obj/keep.me
     echo svn update -r $head
     svn update -r $head
@@ -81,13 +82,18 @@ then
     echo svn export . $output/$date-$head/eduke32_$date-$head
     # package the source
     cd $output/$date-$head
+    # first remove the unnecessary files
+    for i in "${not_src_packaged[@]}"; do
+        echo rm -r eduke32_$date-$head/$i
+        rm -r eduke32_$date-$head/$i
+    done
     echo tar cvzf eduke32_src_$date-$head.tar.gz eduke32_$date-$head
     tar cvzf eduke32_src_$date-$head.tar.gz eduke32_$date-$head
     rm -r eduke32_$date-$head
     # output the changelog since last snapshot in the output directory
     if [  $lastrevision ]
     then
-        cd $source
+        cd $top/$source
         svn log -r $head:$lastrevision > $output/$date-$head/ChangeLog.txt
     fi
     # hack for our served directory structure
