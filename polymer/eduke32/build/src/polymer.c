@@ -2936,13 +2936,15 @@ static void         polymer_updatewall(int16_t wallnum)
 
     if (sectofwall < 0 || sectofwall > numsectors || wallnum < 0 || wallnum > numwalls)
         return; // yay, corrupt map
+
     sec = &sector[sectofwall];
     if (sec->wallptr > wallnum)
         return; // the map is horribly corrupt
+
     w = prwalls[wallnum];
     s = prsectors[sectofwall];
     invalid = s->invalidid;
-    if (nwallnum >= 0 && nwallnum < MAXWALLS)
+    if (nwallnum >= 0 && nwallnum < numwalls)
     {
         ns = prsectors[wal->nextsector];
         invalid += ns->invalidid;
@@ -2963,7 +2965,7 @@ static void         polymer_updatewall(int16_t wallnum)
     if (picanm[wallpicnum]&192) wallpicnum += animateoffs(wallpicnum,wallnum+16384);
     walloverpicnum = wal->overpicnum;
     if (picanm[walloverpicnum]&192) walloverpicnum += animateoffs(walloverpicnum,wallnum+16384);
-    if (nwallnum >= 0 && nwallnum < MAXWALLS)
+    if (nwallnum >= 0 && nwallnum < numwalls)
     {
         nwallpicnum = wall[nwallnum].picnum;
         if (picanm[nwallpicnum]&192) nwallpicnum += animateoffs(nwallpicnum,wallnum+16384);
@@ -2982,7 +2984,7 @@ static void         polymer_updatewall(int16_t wallnum)
             (wal->yrepeat == w->yrepeat) &&
             (walloverpicnum == w->overpicnum) &&
             (wal->shade == w->shade) &&
-            ((nwallnum == -1) ||
+            ((nwallnum < 0 || nwallnum > numwalls) ||
              ((nwallpicnum == w->nwallpicnum) &&
               (wall[nwallnum].xpanning == w->nwallxpanning) &&
               (wall[nwallnum].ypanning == w->nwallypanning) &&
@@ -3006,7 +3008,7 @@ static void         polymer_updatewall(int16_t wallnum)
         w->yrepeat = wal->yrepeat;
         w->overpicnum = walloverpicnum;
         w->shade = wal->shade;
-        if (nwallnum >= 0 && nwallnum < MAXWALLS)
+        if (nwallnum >= 0 && nwallnum < numwalls)
         {
             w->nwallpicnum = nwallpicnum;
             w->nwallxpanning = wall[nwallnum].xpanning;
