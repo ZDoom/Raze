@@ -47,9 +47,9 @@ if [ $dobuild ]
 then
     echo "Launching a build..."
     cd $source
-#     # clean the tree
-#     echo "${make[@]}" $clean
-#     "${make[@]}" $clean
+    # clean the tree
+    echo "${make[@]}" $clean
+    "${make[@]}" $clean
     # build
     echo "${make[@]}"
     "${make[@]}"
