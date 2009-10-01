@@ -90,6 +90,9 @@ then
         cd $source
         svn log -r $head:$lastrevision > $output/$date-$head/ChangeLog.txt
     fi
+    # hack for our served directory structure
+    chmod -R g+w $output/$date-$head
+    chown -R :dukeworld $output/$date-$head
 else
     echo "Nothing to do."
 fi
