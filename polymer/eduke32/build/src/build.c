@@ -2640,12 +2640,20 @@ SKIP:
                 {
                     newnumwalls = -1;
                     sectorhighlightstat = -1;
-                    updatesector(mousxplc,mousyplc,&cursectorhighlight);
+
+//                    updatesector(mousxplc,mousyplc,&cursectorhighlight);
+                    cursectorhighlight = -1;
+                    for (i=0; i<highlightsectorcnt; i++)
+                        if (inside(mousxplc, mousyplc, highlightsector[i]))
+                        {
+                            cursectorhighlight = highlightsector[i];
+                            break;
+                        }
 
                     if ((cursectorhighlight >= 0) && (cursectorhighlight < numsectors))
                     {
-                        for (i=0; i<highlightsectorcnt; i++)
-                            if (cursectorhighlight == highlightsector[i])
+//                        for (i=0; i<highlightsectorcnt; i++)
+//                            if (cursectorhighlight == highlightsector[i])
                             {
                                 //You clicked inside one of the flashing sectors!
                                 sectorhighlightstat = 1;
@@ -2659,7 +2667,7 @@ SKIP:
                                 }
                                 sectorhighlightx = dax;
                                 sectorhighlighty = day;
-                                break;
+//                                break;
                             }
                     }
                 }
