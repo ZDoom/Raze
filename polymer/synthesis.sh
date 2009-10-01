@@ -88,7 +88,7 @@ then
     if [  $lastrevision ]
     then
         cd $source
-        svn log $head:$lastrevision > $output/$date-$head/ChangeLog.txt
+        svn log -r $head:$lastrevision > $output/$date-$head/ChangeLog.txt
     fi
 else
     echo "Nothing to do."
