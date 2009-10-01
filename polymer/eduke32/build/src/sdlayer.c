@@ -229,7 +229,7 @@ static void attach_debugger_here(void){}
 
 static void sighandler(int signum)
 {
-    if (signum==SIGSEGV)
+//    if (signum==SIGSEGV)
     {
         SDL_WM_GrabInput(SDL_GRAB_OFF);
         SDL_ShowCursor(SDL_ENABLE);
@@ -278,6 +278,8 @@ int32_t initsystem(void)
     }
 
     signal(SIGSEGV, sighandler);
+    signal(SIGABRT, sighandler);
+    signal(SIGFPE, sighandler);
 
     atexit(uninitsystem);
 

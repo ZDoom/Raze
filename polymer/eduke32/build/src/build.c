@@ -2757,19 +2757,30 @@ SKIP:
                             dragpoint(pointhighlight,dax,day);
                         else if ((pointhighlight&0xc000) == 16384)
                         {
-                            daz = ((tilesizy[sprite[pointhighlight&16383].picnum]*sprite[pointhighlight&16383].yrepeat)<<2);
+                            int32_t daspr = pointhighlight&16383;
+                            vec3_t vec, ovec;
+
+                            Bmemcpy(&ovec, (vec3_t *)&sprite[daspr], sizeof(vec3_t));
+                            vec.x = dax;
+                            vec.y = day;
+                            vec.z = sprite[daspr].z;
+                            if (setsprite(daspr, &vec) == -1)
+                                Bmemcpy(&sprite[daspr], &ovec, sizeof(vec3_t));                            
+/*
+                            daz = ((tilesizy[sprite[daspr].picnum]*sprite[daspr].yrepeat)<<2);
 
                             for (i=0; i<numsectors; i++)
                                 if (inside(dax,day,i) == 1)
-                                    if (sprite[pointhighlight&16383].z >= getceilzofslope(i,dax,day))
-                                        if (sprite[pointhighlight&16383].z-daz <= getflorzofslope(i,dax,day))
+                                    if (sprite[daspr].z >= getceilzofslope(i,dax,day))
+                                        if (sprite[daspr].z-daz <= getflorzofslope(i,dax,day))
                                         {
-                                            sprite[pointhighlight&16383].x = dax;
-                                            sprite[pointhighlight&16383].y = day;
-                                            if (sprite[pointhighlight&16383].sectnum != i)
-                                                changespritesect(pointhighlight&16383,(int16_t)i);
+                                            sprite[daspr].x = dax;
+                                            sprite[daspr].y = day;
+                                            if (sprite[daspr].sectnum != i)
+                                                changespritesect(daspr,(int16_t)i);
                                             break;
                                         }
+*/
                         }
                     }
                     asksave = 1;

@@ -11139,7 +11139,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
                     }
                     if (editstatus == 1)
                     {
-                        if ((pointhighlight-16384) > 0 && (j+16384 == pointhighlight || ((sprite[j].x == sprite[pointhighlight-16384].x) && (sprite[j].y == sprite[pointhighlight-16384].y))))
+                        if ((pointhighlight-16384) >= 0 && (j+16384 == pointhighlight || ((sprite[j].x == sprite[pointhighlight-16384].x) && (sprite[j].y == sprite[pointhighlight-16384].y))))
                         {
                             if (totalclock & 32) col += (2<<2);
                         }

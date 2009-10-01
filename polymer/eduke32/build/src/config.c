@@ -152,6 +152,9 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "maxrefreshfreq", val, VL) > 0) maxrefreshfreq = Batoi(val);
 #endif
 #if defined(POLYMOST) && defined(USE_OPENGL)
+    if (readconfig(fp, "usemodels", val, VL) > 0) usemodels = Batoi(val)?1:0;
+    if (readconfig(fp, "usehightile", val, VL) > 0) usehightile = Batoi(val)?1:0;
+
     glusetexcache = glusetexcachecompression = -1;
     if (readconfig(fp, "glusetexcache", val, VL) > 0)
     {
@@ -312,6 +315,8 @@ int32_t writesetup(const char *fn)
              "\n"
 #if defined(POLYMOST) && defined(USE_OPENGL)
              "; OpenGL mode options\n"
+             "usemodels = %d\n"
+             "usehightile = %d\n"
              "glusetexcache = %d\n"
              "glusetexcachecompression = %d\n"
              "gltexfiltermode = %d\n"
@@ -457,6 +462,7 @@ int32_t writesetup(const char *fn)
 #endif
              editorgridextent,
 #if defined(POLYMOST) && defined(USE_OPENGL)
+             usemodels, usehightile,
              glusetexcache, glusetexcachecompression, gltexfiltermode, glanisotropy,
 #endif
 #ifdef RENDERTYPEWIN

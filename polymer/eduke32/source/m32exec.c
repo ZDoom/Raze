@@ -1223,12 +1223,14 @@ skip_check:
                 case ITER_LOOPOFWALL:
                     if (parm2 < 0 || parm2 >= numwalls)
                         goto badindex;
-                    for (ii=parm2, jj=wall[parm2].point2; jj!=ii; jj=wall[jj].point2)
+                    jj = parm2;
+                    do
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;
                         X_DoExecute(1);
-                    }
+                        jj = wall[jj].point2;
+                    } while (jj != parm2);
                     break;
                 case ITER_RANGE:
                     for (jj=0; jj<parm2; jj++)
