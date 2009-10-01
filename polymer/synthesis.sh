@@ -84,6 +84,12 @@ then
     echo tar cvzf eduke32_src_$date-$head.tar.gz eduke32_$date-$head
     tar cvzf eduke32_src_$date-$head.tar.gz eduke32_$date-$head
     rm -r eduke32_$date-$head
+    # output the changelog since last snapshot in the output directory
+    if [  $lastrevision ]
+    then
+        cd $source
+        svn log $head:$lastrevision > $output/$date-$head/ChangeLog.txt
+    fi
 else
     echo "Nothing to do."
 fi
