@@ -3491,6 +3491,7 @@ void G_DisplayRest(int32_t smoothratio)
     int32_t cposx, cposy, cang;
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
+
     // this takes care of fullscreen tint for OpenGL
     if (getrendermode() >= 3)
     {
@@ -5410,6 +5411,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             else if (sp->picnum == BURNING || sp->picnum == BURNING2)
                 sp->xrepeat = sp->yrepeat = 4;
 
+            sp->cstat |= 8192;
+
             if (j >= 0)
             {
                 x = getflorzofslope(sp->sectnum,sp->x,sp->y);
@@ -6641,6 +6644,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         {
         case NATURALLIGHTNING__STATIC:
             t->shade = -127;
+            t->cstat |= 8192;
             break;
         case FEM1__STATIC:
         case FEM2__STATIC:
@@ -7294,6 +7298,7 @@ PALONLY:
                 //g_restorePalette = 1;   // JBF 20040101: why?
             }
             t->shade = -127;
+            t->cstat |= 8192;
             break;
         case FIRE__STATIC:
         case FIRE2__STATIC:
@@ -7302,9 +7307,11 @@ PALONLY:
             if (sprite[s->owner].picnum != TREE1 && sprite[s->owner].picnum != TREE2)
                 t->z = sector[t->sectnum].floorz;
             t->shade = -127;
+            t->cstat |= 8192;
             break;
         case COOLEXPLOSION1__STATIC:
             t->shade = -127;
+            t->cstat |= 8192;
             t->picnum += (s->shade>>1);
             break;
         case PLAYERONWATER__STATIC:

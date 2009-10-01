@@ -920,16 +920,6 @@ void M_DisplayMenus(void)
                         mgametext(d+70,yy,ud.weaponswitch&2?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
                         break;
 
-                    case 7:
-#ifdef RANCID_NETWORKING
-                        // enet network backend doesn't have a packet rate mechanism
-                        mgametext(d+70,yy,"n/a", MENUHIGHLIGHT(io),2+8+16);
-#else
-                        Bsprintf(tempbuf,"%d",packetrate);
-                        mgametext(d+70,yy,tempbuf,MENUHIGHLIGHT(io),2+8+16);
-#endif
-                        break;
-
                     default:
                         break;
                     }
@@ -952,7 +942,7 @@ void M_DisplayMenus(void)
             if (x == -1)
             {
                 ChangeToMenu(20002);
-                probey = 8;
+                probey = 7;
             }
             else if (x >= 0 && x <= 9)
             {
@@ -4552,7 +4542,7 @@ cheat_for_port_credits:
                 break;
                 case 4:
                 {
-                    int32_t rates[] = { 8000, 11025, 16000, 22050, 32000, 44100, 48000 };
+                    int32_t rates[] = { 11025, 16000, 22050, 32000, 44100, 48000 };
                     int32_t j = (sizeof(rates)/sizeof(rates[0]));
 
                     for (i = 0; i<j; i++)

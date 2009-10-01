@@ -2725,7 +2725,7 @@ CHECKINV1:
             p->wantweaponfire = j;
             p->kickback_pic = 0;
         }
-        if ((int32_t)j != -1 && p->last_pissed_time <= (GAMETICSPERSEC*218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
+        if ((int32_t)j != -1 && p->last_pissed_time <= (GAMETICSPERSEC*218) && p->show_empty_weapon == 0 /*&& p->kickback_pic == 0*/ && p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
         {
             //            if(  ( p->weapon_pos == 0 || ( p->holster_weapon && p->weapon_pos == -9 ) ))
             {

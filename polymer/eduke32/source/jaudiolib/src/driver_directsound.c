@@ -342,7 +342,8 @@ int32_t DirectSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t 
         return DSErr_Error;
     }
     
-    bufdesc.dwFlags = DSBCAPS_CTRLPOSITIONNOTIFY |
+    bufdesc.dwFlags = DSBCAPS_LOCSOFTWARE |
+                      DSBCAPS_CTRLPOSITIONNOTIFY |
                       DSBCAPS_GETCURRENTPOSITION2;
     bufdesc.dwBufferBytes = wfex.nBlockAlign * 2048 * 2;
     bufdesc.lpwfxFormat = &wfex;
