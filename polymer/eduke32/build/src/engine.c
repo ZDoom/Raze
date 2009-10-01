@@ -10260,7 +10260,7 @@ int32_t sectorofwall(int16_t theline)
     int32_t i, gap;
 
     if ((theline < 0) || (theline >= numwalls)) return(-1);
-    i = wall[theline].nextwall; if (i >= 0) return(wall[i].nextsector);
+    i = wall[theline].nextwall; if (i >= 0 && i < MAXWALLS) return(wall[i].nextsector);
 
     gap = (numsectors>>1); i = gap;
     while (gap > 1)
@@ -10999,7 +10999,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
         {
             col = 33;
             if ((wal->cstat&1) != 0) col = 5;
-            if (wal->nextwall!=-1&&((wal->cstat^wall[wal->nextwall].cstat)&1)) col = 2;
+            if (wal->nextwall >= 0 && wal->nextwall < MAXWALLS && ((wal->cstat^wall[wal->nextwall].cstat)&1)) col = 2;
             if ((i == linehighlight) || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
                 if (totalclock & 16) col += (2<<2);
         }

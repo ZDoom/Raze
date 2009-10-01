@@ -58,7 +58,6 @@ static BOOL window_class_registered = FALSE;
 static HANDLE instanceflag = NULL;
 
 int32_t    backgroundidle = 1;
-int32_t	   is_vista = 0;
 
 static WORD sysgamma[3][256];
 extern int32_t curbrightness, gammabrightness;
@@ -500,7 +499,6 @@ static void print_os_version(void)
 
         if (osv.dwMajorVersion == 6)
         {
-            is_vista = 1;
             switch (osv.dwMinorVersion)
             {
             case 0:
@@ -508,6 +506,9 @@ static void print_os_version(void)
                 break;
             case 1:
                 ver = "7";
+                break;
+            default:
+                ver = "Unknown Post-2010 Product";
                 break;
             }
             break;
@@ -524,7 +525,6 @@ static void print_os_version(void)
         break;
 
     default:
-        ver = "Unknown";
         initprintf("OS: Unknown OS\n");
         return;
     }

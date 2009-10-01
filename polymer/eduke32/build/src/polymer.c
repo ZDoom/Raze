@@ -2934,7 +2934,7 @@ static void         polymer_updatewall(int16_t wallnum)
     wal = &wall[wallnum];
     nwallnum = wal->nextwall;
 
-    if (sectofwall == -1)
+    if (sectofwall < 0 || sectofwall > numsectors || wallnum < 0 || wallnum > numwalls)
         return; // yay, corrupt map
     sec = &sector[sectofwall];
     if (sec->wallptr > wallnum)
@@ -2942,7 +2942,7 @@ static void         polymer_updatewall(int16_t wallnum)
     w = prwalls[wallnum];
     s = prsectors[sectofwall];
     invalid = s->invalidid;
-    if (nwallnum != -1)
+    if (nwallnum >= 0 && nwallnum < MAXWALLS)
     {
         ns = prsectors[wal->nextsector];
         invalid += ns->invalidid;
@@ -2963,7 +2963,7 @@ static void         polymer_updatewall(int16_t wallnum)
     if (picanm[wallpicnum]&192) wallpicnum += animateoffs(wallpicnum,wallnum+16384);
     walloverpicnum = wal->overpicnum;
     if (picanm[walloverpicnum]&192) walloverpicnum += animateoffs(walloverpicnum,wallnum+16384);
-    if (nwallnum != -1)
+    if (nwallnum >= 0 && nwallnum < MAXWALLS)
     {
         nwallpicnum = wall[nwallnum].picnum;
         if (picanm[nwallpicnum]&192) nwallpicnum += animateoffs(nwallpicnum,wallnum+16384);
@@ -3006,7 +3006,7 @@ static void         polymer_updatewall(int16_t wallnum)
         w->yrepeat = wal->yrepeat;
         w->overpicnum = walloverpicnum;
         w->shade = wal->shade;
-        if (nwallnum != -1)
+        if (nwallnum >= 0 && nwallnum < MAXWALLS)
         {
             w->nwallpicnum = nwallpicnum;
             w->nwallxpanning = wall[nwallnum].xpanning;
@@ -3022,7 +3022,7 @@ static void         polymer_updatewall(int16_t wallnum)
     else
         xref = 0;
 
-    if (wal->nextsector == -1)
+    if (wal->nextsector < 0 || wal->nextsector > numsectors)
     {
         Bmemcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
         Bmemcpy(&w->wall.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
