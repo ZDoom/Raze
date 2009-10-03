@@ -278,12 +278,10 @@ static void MV_Mix
     uint32_t   rate;
     uint32_t   FixedPointBufferSize;
 
-    // cheap fix for a crash under 64-bit linux --\
-    //                                            v
-    if ((voice->length == 0) && ((voice->GetSound == NULL) || (voice->GetSound(voice) != KeepPlaying)))
-    {
+    /* cheap fix for a crash under 64-bit linux --\
+                                                  v */
+    if (voice->length == 0 && (!voice->GetSound || voice->GetSound(voice) != KeepPlaying))
         return;
-    }
 
     length               = MixBufferSize;
     FixedPointBufferSize = voice->FixedPointBufferSize;
@@ -341,7 +339,7 @@ static void MV_Mix
                 return;
             }
 
-            if (length > 0)
+            if (length > (voice->channels - 1))
             {
                 // Get the position of the last sample in the buffer
                 FixedPointBufferSize = voice->RateScale * (length - voice->channels);

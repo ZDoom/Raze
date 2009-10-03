@@ -22,6 +22,8 @@
  * OggVorbis source support for MultiVoc
  */
 
+#ifdef HAVE_VORBIS
+
 #ifdef __APPLE__
 # include <vorbis/vorbisfile.h>
 #else
@@ -31,7 +33,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-// #include <unistd.h>
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif
 #include <errno.h>
 #include "pitch.h"
 #include "multivoc.h"
@@ -44,6 +48,8 @@
 #define max(x,y) ((x) > (y) ? (x) : (y))
 #endif
 
+#define BLOCKSIZE 0x8000
+
 typedef struct {
    void * ptr;
    size_t length;
@@ -51,10 +57,10 @@ typedef struct {
    
    OggVorbis_File vf;
    
-   char block[0x8000];
-   int32_t blockused;
+   char block[BLOCKSIZE];
    int32_t lastbitstream;
 } vorbis_data;
+
 
 static size_t read_vorbis(void * ptr, size_t size, size_t nmemb, void * datasource)
 {
@@ -87,6 +93,7 @@ static size_t read_vorbis(void * ptr, size_t size, size_t nmemb, void * datasour
    return nread;
 }
 
+
 static int32_t seek_vorbis(void * datasource, ogg_int64_t offset, int32_t whence)
 {
    vorbis_data * vorb = (vorbis_data *) datasource;
@@ -98,9 +105,8 @@ static int32_t seek_vorbis(void * datasource, ogg_int64_t offset, int32_t whence
    }
    
    vorb->pos += offset;
-   if ((int32_t)vorb->pos < 0) {
-      vorb->pos = 0;
-   } else if (vorb->pos > vorb->length) {
+
+   if (vorb->pos > vorb->length) {
       vorb->pos = vorb->length;
    }
    
@@ -133,7 +139,7 @@ Function: MV_GetNextVorbisBlock
 Controls playback of OggVorbis data
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextVorbisBlock
+static playbackstatus MV_GetNextVorbisBlock
 (
  VoiceNode *voice
  )
@@ -145,41 +151,29 @@ playbackstatus MV_GetNextVorbisBlock
 
    voice->Playing = TRUE;
    
-   if ( voice->BlockLength > 0 )
-      {
-      voice->position    -= voice->length;
-      voice->sound       += voice->length >> 16;
-      voice->length       = min( voice->BlockLength, 0x8000 );
-      voice->BlockLength -= voice->length;
-      voice->length     <<= 16;
-
-      return( KeepPlaying );
-      }
-
    bytesread = 0;
    do {
-      bytes = ov_read(&vd->vf, vd->block + bytesread, sizeof(vd->block) - bytesread, 0, 2, 1, &bitstream);
-      //fprintf(stderr, "ov_read = %d\n", bytes);
-      if (bytes == OV_HOLE) continue;
-      if (bytes == 0) {
-         if (voice->LoopStart) {
-            err = ov_pcm_seek_page(&vd->vf, 0);
-            if (err != 0) {
-               fprintf(stderr, "MV_GetNextVorbisBlock ov_pcm_seek_page_lap: err %d\n", err);
-            } else {
-               continue;
-            }
-         } else {
-           break;
-	 }
-      } else if (bytes < 0) {
-         fprintf(stderr, "MV_GetNextVorbisBlock ov_read: err %d\n", bytes);
-         voice->Playing = FALSE;
-         return NoMoreData;
-      }
-
-      bytesread += bytes;
-   } while (bytesread < (signed)sizeof(vd->block));
+       bytes = ov_read(&vd->vf, vd->block + bytesread, BLOCKSIZE - bytesread, 0, 2, 1, &bitstream);
+       //fprintf(stderr, "ov_read = %d\n", bytes);
+       if (bytes > 0) { bytesread += bytes; continue; }
+       else if (bytes == OV_HOLE) continue;
+       else if (bytes == 0) {
+           if (voice->LoopStart) {
+               err = ov_pcm_seek_page(&vd->vf, 0);
+               if (err != 0) {
+                   fprintf(stderr, "MV_GetNextVorbisBlock ov_pcm_seek_page_lap: err %d\n", err);
+               } else {
+                   continue;
+               }
+           } else {
+               break;
+           }
+       } else if (bytes < 0) {
+           fprintf(stderr, "MV_GetNextVorbisBlock ov_read: err %d\n", bytes);
+           voice->Playing = FALSE;
+           return NoMoreData;
+       }
+   } while (bytesread < BLOCKSIZE);
 
    if (bytesread == 0) {
       voice->Playing = FALSE;
@@ -190,12 +184,7 @@ playbackstatus MV_GetNextVorbisBlock
       vorbis_info * vi = 0;
       
       vi = ov_info(&vd->vf, -1);
-      if (!vi) {
-         voice->Playing = FALSE;
-         return NoMoreData;
-      }
-      
-      if (vi->channels != 1 && vi->channels != 2) {
+      if (!vi || (vi->channels != 1 && vi->channels != 2)) {
          voice->Playing = FALSE;
          return NoMoreData;
       }
@@ -203,19 +192,17 @@ playbackstatus MV_GetNextVorbisBlock
       voice->channels = vi->channels;
       voice->SamplingRate = vi->rate;
       voice->RateScale    = ( voice->SamplingRate * voice->PitchScale ) / MV_MixRate;
+      voice->FixedPointBufferSize = ( voice->RateScale * MixBufferSize ) - voice->RateScale;
       MV_SetVoiceMixMode( voice );
+      vd->lastbitstream = bitstream;
    }
-   vd->lastbitstream = bitstream;
 
-   vd->blockused = bytesread;
    bytesread /= 2 * voice->channels;
    
    voice->position    = 0;
    voice->sound       = vd->block;
-   voice->BlockLength = bytesread;
-   voice->length      = min( voice->BlockLength, 0x8000 );
-   voice->BlockLength -= voice->length;
-   voice->length     <<= 16;
+   voice->BlockLength = 0;
+   voice->length      = bytesread << 16;
    
    return( KeepPlaying );
 }
@@ -346,7 +333,6 @@ int32_t MV_PlayLoopedVorbis
    vd->ptr = ptr;
    vd->pos = 0;
    vd->length = ptrlength;
-   vd->blockused = 0;
    vd->lastbitstream = -1;
    
    status = ov_open_callbacks((void *) vd, &vd->vf, 0, 0, vorbis_callbacks);
@@ -404,6 +390,8 @@ int32_t MV_PlayLoopedVorbis
    
    voice->SamplingRate = vi->rate;
    voice->RateScale    = ( voice->SamplingRate * voice->PitchScale ) / MV_MixRate;
+   voice->FixedPointBufferSize = ( voice->RateScale * MixBufferSize ) -
+      voice->RateScale;
    MV_SetVoiceMixMode( voice );
 
    MV_SetVoiceVolume( voice, vol, left, right );
@@ -427,3 +415,4 @@ void MV_ReleaseVorbisVoice( VoiceNode * voice )
    voice->extra = 0;
 }
 
+#endif //HAVE_VORBIS
