@@ -31,10 +31,23 @@ definequote 6 time: %d ms
 definequote 7 door sector not an island sector!
 definequote 8 door sector has no SE sprite!
 
+//light sector     x     y     z   range  r   g   b   radi  fade angle  horiz  mins maxs prio tile
+definequote 9 light  %d  %d %d %d  %d  %d %d %d  %d %d %d %d  %d %d  %d 0
+definequote 10 --PRLIGHTS--
+definequote 11 --ENDPRLIGHTS--
+
+definequote 12 RED: 
+definequote 13 GREEN: 
+definequote 14 BLUE: 
+
+definequote 15 x/yoffset: %d %d
+definequote 16 (r/g/b)color: %d %d %d
+
 gamearray ar 128
 gamearray parm 8
 
-defstate artest
+defstate tests
+// array test
 	getarraysize ar tmp
 	resizearray ar 65536
 	getticks parm[2]
@@ -51,6 +64,122 @@ defstate artest
     quote TQUOTE
 ends
 
+// prints out maphack light definitions based on SE lights in map
+defstate printlights
+    print 10
+    for i allsprites ifactor SECTOREFFECTOR ifge sprite[i].lotag 49 ifle sprite[i].lotag 50
+	{
+		set j 128, sub j sprite[i].shade, shiftl j 1
+		set k j, mul k 3, div k 4
+		set l 0
+		ifand sprite[i].cstat 2
+		{
+			ifand sprite[i].cstat 512
+			    set l 4
+			else
+				set l 2
+		}
+		qsprintf TQUOTE 9 sprite[i].sectnum sprite[i].x sprite[i].y sprite[i].z
+		           sprite[i].hitag sprite[i].xvel sprite[i].yvel sprite[i].zvel
+		           j k sprite[i].ang sprite[i].extra sprite[i].xoffset sprite[i].yoffset l
+		print TQUOTE
+	}
+	print 11
+ends
+
+defstate fiddlewithlights
+	ife searchstat 3 ife sprite[searchwall].picnum SECTOREFFECTOR
+	ifge sprite[searchwall].lotag 49 ifle sprite[searchwall].lotag 50
+	{
+		set i searchwall
+
+		// horiz
+		ifeithershift set j 1 else set j 10
+		ifhitkey KEY_gUP add sprite[i].extra j
+		else ifhitkey KEY_gKP5 sub sprite[i].extra j
+		clamp sprite[i].extra -500 500
+
+        // angle
+        set j 128
+        ifeitherctrl set j 4
+        ifeithershift { ifeitherctrl set j 1 else set j 32 }
+		ifhitkey KEY_gLEFT sub sprite[i].ang j
+		else ifhitkey KEY_gRIGHT add sprite[i].ang j
+
+        // range
+		ifeithershift set j 10
+        else ifeitherctrl set j 1000
+        else set j 100
+		ifhitkey KEY_gPGUP add sprite[i].hitag j
+		else ifhitkey KEY_gHOME sub sprite[i].hitag j
+		clamp sprite[i].hitag 0 16000
+
+		// radius
+		ifeitherctrl
+		{
+			ifholdkey KEY_gMINUS add sprite[i].shade 9
+			else ifholdkey KEY_gPLUS sub sprite[i].shade 9
+
+			clamp sprite[i].shade -118 117
+		}
+
+        // min/max shade
+        ifeithershift set j -1 else set j 1
+        ifeitherctrl
+        {
+            ifhitkey KEY_gSLASH
+            {
+                set sprite[i].xoffset 0
+                set sprite[i].yoffset 0
+            }
+        }
+        else
+        {
+            set k 0
+            ifhitkey KEY_gSLASH { add sprite[i].xoffset j, set k 1 }
+            else ifhitkey KEY_gSTAR { add sprite[i].yoffset j, set k 1 }
+
+            ife k 1
+            {
+                qsprintf TQUOTE 15 sprite[i].xoffset sprite[i].yoffset
+                quote TQUOTE
+            }
+        }
+
+		// color
+		ifeitheralt ifhitkey KEY_gEND
+		{
+			getnumber256 sprite[i].xvel 12 255
+			getnumber256 sprite[i].yvel 13 255
+			getnumber256 sprite[i].zvel 14 255
+		}
+		else
+		{
+		    ifeitherctrl set j 1 else set j 10
+		    ifeithershift inv j
+
+            set k 0
+		    ifhitkey KEY_gEND { add sprite[i].xvel j, set k 1 }
+		    ifhitkey KEY_gDOWN { add sprite[i].yvel j, set k 1 }
+		    ifhitkey KEY_gPGDN { add sprite[i].zvel j, set k 1 }
+
+            ife k 1
+            {
+		        clamp sprite[i].xvel 1 255
+		        clamp sprite[i].yvel 1 255
+		        clamp sprite[i].zvel 1 255
+
+                qsprintf TQUOTE 16 sprite[i].xvel sprite[i].yvel sprite[i].zvel
+                quote TQUOTE
+            }
+        }
+	}
+ends
+
+onevent EVENT_PREKEYS3D
+    state fiddlewithlights
+endevent
+
 defstate setas
     set j dayx
     mul j ydim  mul j 8
@@ -63,7 +192,6 @@ onevent EVENT_ENTER3DMODE
 endevent
 
 onevent EVENT_ANALYZESPRITES
-
     for i drawnsprites
 	{
 		switch tsprite[i].picnum
@@ -72,14 +200,6 @@ onevent EVENT_ANALYZESPRITES
 		case BOSS1 spritepal 6 break
 		endswitch
 	}
-/*
-    for i drawnsprites
-	{
-		ife tsprite[i].picnum LIZTROOP spritepal 1 else
-		ife tsprite[i].picnum PIGCOP spritepal 2 else
-		ife tsprite[i].picnum BOSS1 spritepal 6
-	}
-*/
 endevent
 
 defstate cmp_by_lotag
@@ -90,6 +210,7 @@ ends
 onevent EVENT_DRAW2DSCREEN
 	ifl cursectnum 0 return
 
+    // connect LOCATORS in a sector by lines
 	getarraysize ar tmp
 	set j 0
 	for i spritesofsector cursectnum
@@ -162,6 +283,7 @@ onevent EVENT_KEYS3D
         }
     }
 
+    // swinging doors tester -- hit space on a door wall
     ife searchstat 0
     ifhitkey KEY_SPACE  // SE11 ST23 up:ccw
     {
@@ -217,6 +339,7 @@ onevent EVENT_KEYS3D
         inv sprite[l].ang
     }
 
+    // teleporter -- works on SE7 and SE17 (elevator)
     ife searchstat 3
     ifhitkey KEY_SPACE
     {
