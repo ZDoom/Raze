@@ -4504,6 +4504,8 @@ static void Keys3d(void)
         enddrawing();
     }
 
+    X_OnEvent(EVENT_PREKEYS3D, -1);
+
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_V]) // ' V
     {
         keystatus[KEYSC_V] = 0;

@@ -94,6 +94,7 @@ enum GameEvent_t {
     EVENT_KEYS2D,
     EVENT_KEYS3D,
     EVENT_OVERHEADEDITOR,
+    EVENT_PREKEYS3D,
     MAXEVENTS
 };
 

@@ -823,6 +823,17 @@ skip_check:
             continue;
 
 // *** other math
+        case CON_CLAMP:
+            insptr++;
+            {
+                int32_t var=*insptr++, min=Gv_GetVarX(*insptr++), max=Gv_GetVarX(*insptr++);
+                int32_t val=Gv_GetVarX(var);
+
+                if (val<min) Gv_SetVarX(var, min);
+                else if (val>max) Gv_SetVarX(var, max);
+            }
+            continue;
+
         case CON_INV:
             Gv_SetVarX(*(insptr+1), -Gv_GetVarX(*(insptr+1)));
             insptr += 2;
@@ -1334,6 +1345,7 @@ badindex:
 
         case CON_IFHITKEY:
         case CON_IFHOLDKEY:
+        case CON_RESETKEY:
             insptr++;
             {
                 int32_t key=Gv_GetVarX(*insptr);
@@ -1343,9 +1355,13 @@ badindex:
                     vm.g_errorFlag = 1;
                     continue;
                 }
-                X_DoConditional(keystatus[key]);
 
-                if (tw==CON_IFHITKEY)
+                if (tw != CON_RESETKEY)
+                    X_DoConditional(keystatus[key]);
+                else
+                    insptr++;
+
+                if (tw != CON_IFHOLDKEY)
                 {
                     if (!(key==0 || key==KEYSC_ESC || key==KEYSC_TILDE || key==KEYSC_gENTER ||
                           key==KEYSC_LALT || key==KEYSC_RALT || key==KEYSC_LCTRL || key==KEYSC_RCTRL ||
@@ -2027,6 +2043,7 @@ badindex:
             }
             continue;
 
+        case CON_PRINT:
         case CON_QUOTE:
         case CON_ERRORINS:
         case CON_PRINTMESSAGE16:
@@ -2046,6 +2063,8 @@ badindex:
 
                 X_ERROR_INVALIDQUOTE(i, ScriptQuotes);
 
+                if (tw==CON_PRINT)
+                    OSD_Printf("%s\n", ScriptQuotes[i]);
                 if (tw==CON_QUOTE)
                     message("%s", ScriptQuotes[i]);
                 else if (tw==CON_PRINTMESSAGE16)

@@ -308,6 +308,7 @@ enum ScriptKeywords_t
     CON_DISPLAYRAND,
 
 // other math
+    CON_CLAMP,
     CON_INV,
     CON_SQRT,
     CON_MULSCALE,
@@ -382,6 +383,7 @@ enum ScriptKeywords_t
 ///    CON_IFNOSOUNDS,
 
 // BUILD functions
+    CON_RESETKEY,
     CON_INSERTSPRITE,
     CON_DUPSPRITE,
     CON_DELETESPRITE,
@@ -420,6 +422,7 @@ enum ScriptKeywords_t
 // strings
     CON_DEFINEQUOTE,
     CON_REDEFINEQUOTE,
+    CON_PRINT,
     CON_QUOTE,
     CON_ERRORINS,
     CON_PRINTMESSAGE16,

@@ -246,6 +246,7 @@ const char *keyw[] =
 
     "displayrand",
 
+    "clamp",
     "inv",  //  inversion function.. not internal
     "sqrt",
     "mulscale",
@@ -306,6 +307,7 @@ const char *keyw[] =
     "ifoutside",
 
 // BUILD functions
+    "resetkey",
     "insertsprite",
     "dupsprite",
     "deletesprite",
@@ -342,6 +344,7 @@ const char *keyw[] =
 
     "definequote",
     "redefinequote",
+    "print",
     "quote",
     "error",
     "printmessage16",
@@ -2516,10 +2519,15 @@ repeatcase:
         break;
 
 // *** other math
+    case CON_CLAMP:
+        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetManyVars(2);
+        return 0;
+
     case CON_INV:
         C_GetNextVarType(GAMEVAR_READONLY);
         return 0;
-        
+
     case CON_SQRT:
     {
         // syntax sqrt <invar> <outvar>
@@ -2699,6 +2707,7 @@ repeatcase:
     }
 
 // *** BUILD functions
+    case CON_RESETKEY:
     case CON_INSERTSPRITE:
     case CON_DUPSPRITE:
     case CON_DELETESPRITE:
@@ -2876,6 +2885,7 @@ repeatcase:
         }
         return 0;
 
+    case CON_PRINT:
     case CON_QUOTE:
     case CON_ERRORINS:
     case CON_PRINTMESSAGE16:
@@ -3079,6 +3089,7 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("EVENT_KEYS2D", EVENT_KEYS2D, LABEL_EVENT);
     C_AddDefinition("EVENT_KEYS3D", EVENT_KEYS3D, LABEL_EVENT);
     C_AddDefinition("EVENT_OVERHEADEDITOR", EVENT_OVERHEADEDITOR, LABEL_EVENT);
+    C_AddDefinition("EVENT_PREKEYS3D", EVENT_PREKEYS3D, LABEL_EVENT);
 
     C_AddDefinition("CLIPMASK0", CLIPMASK0, LABEL_DEFINE);
     C_AddDefinition("CLIPMASK1", CLIPMASK1, LABEL_DEFINE);
