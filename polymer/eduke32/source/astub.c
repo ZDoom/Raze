@@ -10149,6 +10149,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                 mylight.horiz = SH;
                                 mylight.minshade = sprite[i].xoffset;
                                 mylight.maxshade = sprite[i].yoffset;
+                                mylight.tilenum = 0;
 
                                 if (CS & 2)
                                 {
@@ -10210,6 +10211,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                 mylight.horiz = SH;
                                 mylight.minshade = sprite[i].xoffset;
                                 mylight.maxshade = sprite[i].yoffset;
+                                mylight.tilenum = 0;
 
                                 if (CS & 2)
                                 {

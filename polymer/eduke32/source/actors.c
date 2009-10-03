@@ -667,6 +667,7 @@ inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, i
         ActorExtra[srcsprite].lightmaxrange = mylight.range = range;
 
         mylight.priority = priority;
+        mylight.tilenum = 0;
 
         ActorExtra[srcsprite].lightId = polymer_addlight(&mylight);
         if (ActorExtra[srcsprite].lightId >= 0)
@@ -7579,6 +7580,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     mylight.horiz = SH;
                     mylight.minshade = sprite[i].xoffset;
                     mylight.maxshade = sprite[i].yoffset;
+                    mylight.tilenum = 0;
 
                     if (CS & 2)
                     {
@@ -7641,6 +7643,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     mylight.horiz = SH;
                     mylight.minshade = sprite[i].xoffset;
                     mylight.maxshade = sprite[i].yoffset;
+                    mylight.tilenum = 0;
 
                     if (CS & 2)
                     {
