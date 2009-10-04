@@ -1512,7 +1512,7 @@ static int32_t defsparser(scriptfile *script)
                     char *paltokptr = script->ltextptr, *palend;
                     int32_t pal=-1, i;
                     char *fn = NULL, *tfn = NULL;
-                    double alphacut = -1.0, xscale = 1.0, yscale = 1.0;
+                    double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
                     char flags = 0;
 
                     if (scriptfile_getsymbol(script,&pal)) break;
@@ -1529,6 +1529,10 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&xscale); break;
                         case T_YSCALE:
                             scriptfile_getdouble(script,&yscale); break;
+                        case T_SPECPOWER:
+                            scriptfile_getdouble(script,&specpower); break;
+                        case T_SPECFACTOR:
+                            scriptfile_getdouble(script,&specfactor); break;
                         case T_NOCOMPRESS:
                             flags |= 1; break;
                         case T_NODOWNSIZE:
@@ -1572,7 +1576,7 @@ static int32_t defsparser(scriptfile *script)
                     xscale = 1.0f / xscale;
                     yscale = 1.0f / yscale;
 
-                    hicsetsubsttex(tile,pal,fn,alphacut,xscale,yscale, 1.0f, 1.0f,flags);
+                    hicsetsubsttex(tile,pal,fn,alphacut,xscale,yscale, specpower, specfactor,flags);
                 }
                 break;
                 case T_DETAIL: case T_GLOW: case T_SPECULAR: case T_NORMAL:
