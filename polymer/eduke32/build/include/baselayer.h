@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#define SYSTEM_POOL_SIZE (256 * 1048576)
+#define SYSTEM_POOL_SIZE (64 * 1048576)
 
 extern int32_t _buildargc;
 extern const char **_buildargv;

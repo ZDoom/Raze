@@ -79,32 +79,6 @@ char CheckParm(char *check)
     return 0;
 }
 
-void *SafeMalloc(int32_t size)
-{
-    void *p;
-
-    p = malloc(size);
-    if (!p) Error("SafeMalloc failure for %d bytes",size);
-
-    return p;
-}
-
-void SafeFree(void * ptr)
-{
-    if (!ptr) Error("Tried to deallocate NULL pointer.");
-    free(ptr);
-}
-
-void SafeRealloc(void ** ptr, int32_t newsize)
-{
-    void *p;
-
-    p = realloc(*ptr, newsize);
-    if (!p) Error("SafeRealloc failure for %d bytes",newsize);
-
-    *ptr = p;
-}
-
 int32_t ParseHex(char *hex)
 {
     return strtol(hex, NULL, 16);

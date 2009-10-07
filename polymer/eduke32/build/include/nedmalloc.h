@@ -94,7 +94,7 @@ USE_ALLOCATOR can be one of these settings:
  #if USE_ALLOCATOR==0
   #error Cannot combine using the system allocator with replacing the system allocator
  #endif
- #ifndef WIN32	/* We have a dedidicated patcher for Windows */
+ #ifndef _WIN32	/* We have a dedidicated patcher for Windows */
   #define nedmalloc               malloc
   #define nedcalloc               calloc
   #define nedrealloc              realloc
@@ -107,9 +107,6 @@ USE_ALLOCATOR can be one of these settings:
   #define nedmalloc_footprint     malloc_footprint
   #define nedindependent_calloc   independent_calloc
   #define nedindependent_comalloc independent_comalloc
-  #ifdef _MSC_VER
-   #define nedblksize              _msize
-  #endif
  #endif
 #endif
 
@@ -225,7 +222,7 @@ NEDMALLOCEXTSPEC void   nedpmalloc_stats(nedpool *p) THROWSPEC;
 NEDMALLOCEXTSPEC size_t nedpmalloc_footprint(nedpool *p) THROWSPEC;
 NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void **nedpindependent_calloc(nedpool *p, size_t elemsno, size_t elemsize, void **chunks) THROWSPEC;
 NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void **nedpindependent_comalloc(nedpool *p, size_t elems, size_t *sizes, void **chunks) THROWSPEC;
-
+NEDMALLOCEXTSPEC NEDMALLOCPTRATTR char * nedstrdup(const char *str) THROWSPEC;
 #if defined(__cplusplus)
 }
 #endif

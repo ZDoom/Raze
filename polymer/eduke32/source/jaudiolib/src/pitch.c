@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <math.h>
 #include "pitch.h"
 
-#define MAXDETUNE 100
+#define MAXDETUNE 50
 
 static uint32_t PitchTable[ 12 ][ MAXDETUNE ];
 static int32_t PITCH_Installed = 0;

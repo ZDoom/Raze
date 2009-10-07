@@ -1568,7 +1568,7 @@ static void ReadHelpFile(const char *name)
         return;
     }
 
-    helppage=malloc(IHELP_INITPAGES * sizeof(helppage_t *));
+    helppage=Bmalloc(IHELP_INITPAGES * sizeof(helppage_t *));
     numallocpages=IHELP_INITPAGES;
     if (!helppage) goto HELPFILE_ERROR;
 
@@ -1599,7 +1599,7 @@ static void ReadHelpFile(const char *name)
         {
             if (j >= hp->numlines)
             {
-                hp=realloc(hp, sizeof(helppage_t) + 2*hp->numlines*80);
+                hp=Brealloc(hp, sizeof(helppage_t) + 2*hp->numlines*80);
                 if (!hp) goto HELPFILE_ERROR;
                 hp->numlines *= 2;
             }
@@ -1631,13 +1631,13 @@ static void ReadHelpFile(const char *name)
         }
         while (!newpage(tempbuf) && !Bfeof(fp) && charsread>0);
 
-        hp=realloc(hp, sizeof(helppage_t) + j*80);
+        hp=Brealloc(hp, sizeof(helppage_t) + j*80);
         if (!hp) goto HELPFILE_ERROR;
         hp->numlines=j;
 
         if (i >= numallocpages)
         {
-            helppage = realloc(helppage, 2*numallocpages*sizeof(helppage_t *));
+            helppage = Brealloc(helppage, 2*numallocpages*sizeof(helppage_t *));
             numallocpages *= 2;
             if (!helppage) goto HELPFILE_ERROR;
         }
@@ -1645,7 +1645,7 @@ static void ReadHelpFile(const char *name)
         i++;
     }
 
-    helppage = realloc(helppage, i*sizeof(helppage_t *));
+    helppage = Brealloc(helppage, i*sizeof(helppage_t *));
     if (!helppage) goto HELPFILE_ERROR;
     numhelppages = i;
 
@@ -8372,7 +8372,7 @@ static void AddGamePath(const char *buffer)
 {
     struct strllist *s;
     s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
-    s->str = strdup(buffer);
+    s->str = Bstrdup(buffer);
 
     if (CommandPaths)
     {
@@ -9855,8 +9855,8 @@ int32_t ExtInit(void)
             s = CommandPaths->next;
             addsearchpath(CommandPaths->str);
 
-            free(CommandPaths->str);
-            free(CommandPaths);
+            Bfree(CommandPaths->str);
+            Bfree(CommandPaths);
             CommandPaths = s;
         }
     }
@@ -9939,8 +9939,8 @@ int32_t ExtInit(void)
                     DoAutoload(CommandGrps->str);
             }
 
-            free(CommandGrps->str);
-            free(CommandGrps);
+            Bfree(CommandGrps->str);
+            Bfree(CommandGrps);
             CommandGrps = s;
         }
         pathsearchmode = 0;
@@ -10061,8 +10061,8 @@ void ExtUnInit(void)
         if (s_TileGroups[i].szText != NULL)
             Bfree(s_TileGroups[i].szText);
     }
-    for (i = numhelppages-1; i >= 0; i--) free(helppage[i]);
-    if (helppage) free(helppage);
+    for (i = numhelppages-1; i >= 0; i--) Bfree(helppage[i]);
+    if (helppage) Bfree(helppage);
 }
 
 void ExtPreCheckKeys(void) // just before drawrooms
@@ -10211,7 +10211,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                 mylight.horiz = SH;
                                 mylight.minshade = sprite[i].xoffset;
                                 mylight.maxshade = sprite[i].yoffset;
-                                mylight.tilenum = 0;
+                                mylight.tilenum = OW;
 
                                 if (CS & 2)
                                 {
@@ -10264,6 +10264,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                     spritelightptr[i]->horiz = SH;
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
+                                spritelightptr[i]->tilenum = OW;
                             }
                         }
                     }

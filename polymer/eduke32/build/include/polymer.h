@@ -155,7 +155,7 @@ typedef struct      s_prprogrambit {
 }                   _prprogrambit;
 
 // LIGHTS
-#define             PR_MAXLIGHTS            256
+#define             PR_MAXLIGHTS            1024
 #define             SHADOW_DEPTH_OFFSET     30
 #define             PR_MAXLIGHTPRIORITY     6
 
@@ -290,8 +290,10 @@ typedef struct      s_pranimatespritesinfo {
 }                   _pranimatespritesinfo;
 
 // MEMORY POOL
-#define             POLYMER_POOL_SIZE 67108864
+/*
+#define             POLYMER_POOL_SIZE (128 * 1048576)
 extern nedpool*     polymer_pool;
+*/
 
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void);
@@ -317,7 +319,6 @@ static void         polymer_drawplane(_prplane* plane);
 static inline void  polymer_inb4mirror(GLfloat* buffer, GLfloat* plane);
 static void         polymer_animatesprites(void);
 static void         polymer_freeboard(void);
-static void         polymer_editorselect(void);
 // SECTORS
 static int32_t      polymer_initsector(int16_t sectnum);
 static int32_t      polymer_updatesector(int16_t sectnum);

@@ -46,10 +46,6 @@ void   Error (char *error, ...);
 
 char   CheckParm (char *check);
 
-void   *SafeMalloc (int32_t size);
-int32_t  SafeMallocSize (void * ptr);
-void   SafeFree (void * ptr);
-void   SafeRealloc (void ** ptr, int32_t newsize);
 int32_t  ParseHex (char *hex);
 int32_t  ParseNum (char *str);
 int16_t  MotoShort (int16_t l);

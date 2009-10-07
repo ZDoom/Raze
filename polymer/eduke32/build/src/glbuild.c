@@ -342,7 +342,7 @@ int32_t loadgldriver(const char *driver)
     hGLDLL = LoadLibrary(driver);
     if (!hGLDLL) return -1;
 #endif
-    gldriver = strdup(driver);
+    gldriver = Bstrdup(driver);
 
 #ifdef RENDERTYPEWIN
     bwglCreateContext	= GETPROC("wglCreateContext");
@@ -624,7 +624,7 @@ int32_t unloadgldriver(void)
     if (!hGLDLL) return 0;
 #endif
 
-    free(gldriver);
+    Bfree(gldriver);
     gldriver = NULL;
 
 #ifdef RENDERTYPEWIN
@@ -930,7 +930,7 @@ int32_t loadglulibrary(const char *driver)
     gluhandle = dlopen(driver, RTLD_NOW|RTLD_GLOBAL);
     if (!gluhandle) return -1;
 #endif
-    glulibrary = strdup(driver);
+    glulibrary = Bstrdup(driver);
 
     bgluTessBeginContour = GLUGETPROC("gluTessBeginContour");
     bgluTessBeginPolygon = GLUGETPROC("gluTessBeginPolygon");
@@ -959,7 +959,7 @@ int32_t unloadglulibrary(void)
     if (!hGLUDLL) return 0;
 #endif
 
-    free(glulibrary);
+    Bfree(glulibrary);
     glulibrary = NULL;
 
 #ifdef RENDERTYPEWIN

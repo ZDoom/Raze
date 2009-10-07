@@ -4635,9 +4635,13 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         ActorExtra[i].picnum = PN;
 
+        if (PN == SECTOREFFECTOR && SLT == 50)
+            ActorExtra[i].picnum = OW;
+
         ActorExtra[i].projectile = &SpriteProjectile[i];
 
         OW = ActorExtra[i].owner = i;
+
         ActorExtra[i].floorz = sector[SECT].floorz;
         ActorExtra[i].ceilingz = sector[SECT].ceilingz;
 
@@ -9927,8 +9931,8 @@ static void G_CompileScripts(void)
         char *newlabel;
         intptr_t *newlabelcode;
 
-        newlabel     = (char *)malloc(g_numLabels<<6);
-        newlabelcode = (intptr_t *)malloc(g_numLabels*sizeof(intptr_t));
+        newlabel     = (char *)Bmalloc(g_numLabels<<6);
+        newlabelcode = (intptr_t *)Bmalloc(g_numLabels*sizeof(intptr_t));
 
         if (!newlabel || !newlabelcode)
         {
@@ -10507,8 +10511,8 @@ void app_main(int32_t argc,const char **argv)
             s = CommandPaths->next;
             addsearchpath(CommandPaths->str);
 
-            free(CommandPaths->str);
-            free(CommandPaths);
+            Bfree(CommandPaths->str);
+            Bfree(CommandPaths);
             CommandPaths = s;
         }
     }

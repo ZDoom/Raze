@@ -4415,7 +4415,7 @@ cheat_for_port_credits:
                 "Music",
                 "Music volume",
                 "-",
-                "Sample rate",
+                "Playback sampling rate",
                 "Sample size",
                 "Number of voices",
                 "-",
@@ -4542,7 +4542,7 @@ cheat_for_port_credits:
                 break;
                 case 4:
                 {
-                    int32_t rates[] = { 11025, 16000, 22050, 32000, 44100, 48000 };
+                    int32_t rates[] = { 22050, 24000, 32000, 44100, 48000 };
                     int32_t j = (sizeof(rates)/sizeof(rates[0]));
 
                     for (i = 0; i<j; i++)

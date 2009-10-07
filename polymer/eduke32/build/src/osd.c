@@ -1628,7 +1628,7 @@ int32_t OSD_Dispatch(const char *cmd)
 
         if (wp[0] == '/' && wp[1] == '/') // cheap hack
         {
-            free(workbuf);
+            Bfree(workbuf);
             return -1;
         }
 
@@ -1636,7 +1636,7 @@ int32_t OSD_Dispatch(const char *cmd)
         if (!symb)
         {
             OSD_Printf(OSDTEXT_RED "Error: \"%s\" is not a valid command or cvar\n", wp);
-            free(workbuf);
+            Bfree(workbuf);
             return -1;
         }
 
@@ -1667,7 +1667,7 @@ int32_t OSD_Dispatch(const char *cmd)
     }
     while (wtp && restart);
 
-    free(workbuf);
+    Bfree(workbuf);
 
     return 0;
 }

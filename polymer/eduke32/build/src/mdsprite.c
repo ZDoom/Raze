@@ -19,8 +19,9 @@
 
 voxmodel_t *voxmodels[MAXVOXELS];
 int32_t curextra=MAXTILES;
-nedpool *model_data_pool;
-#define MODEL_POOL_SIZE 20971520
+// nedpool *model_data_pool;
+// #define MODEL_POOL_SIZE 20971520
+#define model_data_pool (nedpool *) 0 // take it out of the system pool
 
 int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
 {
@@ -117,11 +118,13 @@ void freeallmodels()
     }
     freevbos();
 
+/*
     if (model_data_pool)
     {
         neddestroypool(model_data_pool);
         model_data_pool = NULL;
     }
+*/
 }
 
 void clearskins()
@@ -175,8 +178,8 @@ void mdinit()
 {
     memset(hudmem,0,sizeof(hudmem));
     freeallmodels();
-    if (!model_data_pool)
-        model_data_pool = nedcreatepool(MODEL_POOL_SIZE, 0);
+//    if (!model_data_pool)
+//        model_data_pool = nedcreatepool(MODEL_POOL_SIZE, 0);
     mdinited = 1;
 }
 

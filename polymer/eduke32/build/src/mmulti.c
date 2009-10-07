@@ -464,7 +464,7 @@ int32_t initmultiplayersparms(int32_t argc, char **argv)
             else if ((argv[i][1] == 'P') || (argv[i][1] == 'p')) continue;
         }
 
-        st = strdup(argv[i]); if (!st) break;
+        st = Bstrdup(argv[i]); if (!st) break;
         if (isvalidipaddress(st))
         {
             if ((danetmode == 1) && (daindex == myconnectindex)) daindex++;
@@ -496,7 +496,7 @@ int32_t initmultiplayersparms(int32_t argc, char **argv)
             }
             else printf("mmulti: Failed resolving %s\n",argv[i]);
         }
-        free(st);
+        Bfree(st);
     }
     if ((danetmode == 255) && (daindex)) { numplayers = 2; danetmode = 0; } //an IP w/o /n# defaults to /n0
     if ((numplayers >= 2) && (daindex) && (!danetmode)) myconnectindex = 1;

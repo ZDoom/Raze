@@ -864,7 +864,7 @@ static char *read_whole_file(const char *cfgfile)
     }
 
     len = kfilelength(handle);
-    buf = (char *) malloc(len + 2);
+    buf = (char *) Bmalloc(len + 2);
     if (!buf)
     {
         kclose(handle);
@@ -875,7 +875,7 @@ static char *read_whole_file(const char *cfgfile)
     kclose(handle);
     if (rc != len)
     {
-        free(buf);
+        Bfree(buf);
         return(NULL);
     }
 
@@ -1857,7 +1857,7 @@ static int32_t parse_udp_config(int32_t argc, char **argv, gcomtype *gcom)
                 else if ((argv[i][1] == 'P') || (argv[i][1] == 'p')) continue;
             }
 
-            st = strdup(argv[i]);
+            st = Bstrdup(argv[i]);
             if (!st) break;
             if (isvalidipaddress(st))
             {
@@ -1885,7 +1885,7 @@ static int32_t parse_udp_config(int32_t argc, char **argv, gcomtype *gcom)
                 }
                 else initprintf("network: Failed resolving %s\n",argv[i]);
             }
-            free(st);
+            Bfree(st);
         }
         if ((danetmode == 255) && (daindex)) { gcom->numplayers = 2; udpmode = udpmode_client; } //an IP w/o /n# defaults to /n0
         //        if ((numplayers >= 2) && (daindex) && (!danetmode)) myconnectindex = 1;
@@ -1980,7 +1980,7 @@ static int32_t parse_udp_config(int32_t argc, char **argv, gcomtype *gcom)
                 initprintf("bogus token! [%s]\n", tok);
         }
 
-        free(buf);
+        Bfree(buf);
     }
 
     if (open_udp_socket(ip, udpport))
@@ -2012,7 +2012,7 @@ gcomtype *init_network_transport(int32_t argc, char **argv)
 
     srand(time(NULL));
 
-    retval = (gcomtype *)malloc(sizeof(gcomtype));
+    retval = (gcomtype *)Bmalloc(sizeof(gcomtype));
     if (retval != NULL)
     {
         int32_t rc;
@@ -2028,7 +2028,7 @@ gcomtype *init_network_transport(int32_t argc, char **argv)
 
         if (!rc)
         {
-            free(retval);
+            Bfree(retval);
             deinit_network_transport(NULL);
             return(NULL);
         }
@@ -2046,7 +2046,7 @@ void deinit_network_transport(gcomtype *gcom)
     if (gcom != NULL)
     {
         initprintf("  ...freeing gcom structure...\n");
-        free(gcom);
+        Bfree(gcom);
     }
 
     if ((signed)udpsocket != -1)

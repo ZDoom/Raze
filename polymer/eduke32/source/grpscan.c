@@ -73,7 +73,7 @@ static void FreeGroupsCache(void)
     while (grpcache)
     {
         fg = grpcache->next;
-        free(grpcache);
+        Bfree(grpcache);
         grpcache = fg;
     }
 }
@@ -112,14 +112,14 @@ int32_t ScanGroups(void)
             if (findfrompath(sidx->name, &fn)) continue;	// failed to resolve the filename
             if (Bstat(fn, &st))
             {
-                free(fn);
+                Bfree(fn);
                 continue;
             }	// failed to stat the file
-            free(fn);
+            Bfree(fn);
             if (fg->size == st.st_size && fg->mtime == st.st_mtime)
             {
                 grp = (struct grpfile *)Bcalloc(1, sizeof(struct grpfile));
-                grp->name = strdup(sidx->name);
+                grp->name = Bstrdup(sidx->name);
                 grp->crcval = fg->crcval;
                 grp->size = fg->size;
                 grp->next = foundgrps;
@@ -157,7 +157,7 @@ int32_t ScanGroups(void)
             initprintf(" Done\n");
 
             grp = (struct grpfile *)Bcalloc(1, sizeof(struct grpfile));
-            grp->name = strdup(sidx->name);
+            grp->name = Bstrdup(sidx->name);
             grp->crcval = crcval;
             grp->size = st.st_size;
             grp->next = foundgrps;
@@ -187,7 +187,7 @@ int32_t ScanGroups(void)
             {
                 fgg = fg->next;
                 fprintf(fp, "\"%s\" %d %d %d\n", fg->name, fg->size, fg->mtime, fg->crcval);
-                free(fg);
+                Bfree(fg);
                 i++;
             }
             fclose(fp);
@@ -210,8 +210,8 @@ void FreeGroups(void)
     while (foundgrps)
     {
         fg = foundgrps->next;
-        free((char*)foundgrps->name);
-        free(foundgrps);
+        Bfree((char*)foundgrps->name);
+        Bfree(foundgrps);
         foundgrps = fg;
     }
 }

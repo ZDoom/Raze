@@ -572,7 +572,9 @@ int8_t          curskyshade;
 _pranimatespritesinfo asi;
 
 // MEMORY POOL
-nedpool*        polymer_pool = NULL;
+// nedpool*        polymer_pool = NULL;
+
+#define polymer_pool (nedpool *) 0 // take it out of the system pool
 
 void polymer_alt_editorselect(void);
 static int32_t m32_numdrawnsprites = 0;
@@ -606,7 +608,10 @@ int32_t             polymer_init(void)
         return (0);
     }
 
-    polymer_pool = nedcreatepool(POLYMER_POOL_SIZE, 0);
+/*
+    if (!polymer_pool)
+        polymer_pool = nedcreatepool(POLYMER_POOL_SIZE, 0);
+*/
 
     Bmemset(&prsectors[0], 0, sizeof(prsectors[0]) * MAXSECTORS);
     Bmemset(&prwalls[0], 0, sizeof(prwalls[0]) * MAXWALLS);
@@ -659,8 +664,10 @@ int32_t             polymer_init(void)
 void                polymer_uninit(void)
 {
     polymer_freeboard();
+/*
     if (polymer_pool)
         neddestroypool(polymer_pool);
+*/
 }
 
 void                polymer_glinit(void)
@@ -715,6 +722,7 @@ void                polymer_loadboard(void)
     int32_t         i;
 
     polymer_freeboard();
+    nedtrimthreadcache(polymer_pool, 0);
 
     i = 0;
     while (i < numsectors)
@@ -2747,8 +2755,10 @@ finish:
 
 void PR_CALLBACK    polymer_tesserror(GLenum error)
 {
-    // This callback is called by the tesselator whenever it raises an error.
-    if (pr_verbosity >= 1) OSD_Printf("PR : Tesselation error number %i reported : %s.\n", error, bgluErrorString(errno));
+    /* This callback is called by the tesselator whenever it raises an error.
+       GLU_TESS_ERROR6 is the "no error"/"null" error spam in e1l1 and others. */
+
+    if (pr_verbosity >= 1 && error != GLU_TESS_ERROR6) OSD_Printf("PR : Tesselation error number %i reported : %s.\n", error, bgluErrorString(errno));
 }
 
 void PR_CALLBACK    polymer_tessedgeflag(GLenum error)
@@ -2931,15 +2941,13 @@ static void         polymer_updatewall(int16_t wallnum)
 
     // yes, this function is messy and unefficient
     // it also works, bitches
-    wal = &wall[wallnum];
-    nwallnum = wal->nextwall;
+    sec = &sector[sectofwall];
 
-    if (sectofwall < 0 || sectofwall > numsectors || wallnum < 0 || wallnum > numwalls)
+    if (sectofwall < 0 || sectofwall > numsectors || wallnum < 0 || wallnum > numwalls || sec->wallptr > wallnum)
         return; // yay, corrupt map
 
-    sec = &sector[sectofwall];
-    if (sec->wallptr > wallnum)
-        return; // the map is horribly corrupt
+    wal = &wall[wallnum];
+    nwallnum = wal->nextwall;
 
     w = prwalls[wallnum];
     s = prsectors[sectofwall];
@@ -5135,7 +5143,7 @@ static void         polymer_processspotlight(_prlight* light)
 
     // get the texture handle for the lightmap
     light->lightmap = 0;
-    if (light->tilenum)
+    if (light->tilenum > 0)
     {
         if (!waloff[light->tilenum])
             loadtile(light->tilenum);

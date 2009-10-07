@@ -309,7 +309,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
         alt = (int32_t)(fn = MapInfo[sel].alt_musicfn);
         
 
-    testfn = (char *) malloc(strlen(fn) + 5);
+    testfn = (char *) Bmalloc(strlen(fn) + 5);
     strcpy(testfn, fn);
     extension = strrchr(testfn, '.');
 
@@ -324,11 +324,11 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
             fp = kopen4loadfrommod(testfn, 0);
             if (fp >= 0)
             {
-                free(testfn);
+                Bfree(testfn);
                 break;
             }
         }
-        free(testfn);
+        Bfree(testfn);
 
         // just use what we've been given
         fp = kopen4loadfrommod((char *)fn, 0);

@@ -134,6 +134,8 @@ static char key_names[256][24];
 static uint32_t lastKeyDown = 0;
 static uint32_t lastKeyTime = 0;
 
+static OSVERSIONINFO osv;
+
 void (*keypresscallback)(int32_t,int32_t) = 0;
 void (*mousepresscallback)(int32_t,int32_t) = 0;
 void (*joypresscallback)(int32_t,int32_t) = 0;
@@ -274,20 +276,41 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     FILE *fp;
     HDC hdc;
 
-    nedcreatepool(SYSTEM_POOL_SIZE, -1);
-    atexit(neddestroysyspool);
-
-    UNREFERENCED_PARAMETER(lpCmdLine);
-    UNREFERENCED_PARAMETER(nCmdShow);
-
     hInstance = hInst;
 
     if (CheckWinVersion() || hPrevInst)
     {
-        MessageBox(0, "This application must be run under Windows 95/98/Me or Windows 2000/XP or better.",
-                   apptitle, MB_OK|MB_ICONSTOP);
+        MessageBox(0, "This application requires Windows 2000/XP or better to run.",
+            apptitle, MB_OK|MB_ICONSTOP);
         return -1;
     }
+
+    /* Attempt to enable SeLockMemoryPrivilege, Vista/7 only */
+    if (osv.dwMajorVersion == 6)
+    {
+        HANDLE token;
+        if(OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &token))
+        {
+            TOKEN_PRIVILEGES privs;
+            privs.PrivilegeCount = 1;
+            if(LookupPrivilegeValue(NULL, SE_LOCK_MEMORY_NAME, &privs.Privileges[0].Luid))
+            {
+                privs.Privileges[0].Attributes=SE_PRIVILEGE_ENABLED;
+                if(!AdjustTokenPrivileges(token, FALSE, &privs, 0, NULL, NULL) || GetLastError()!=S_OK)
+                {
+                    // failure... no large page support for us
+                }
+            }
+            CloseHandle(token);
+        }
+    }
+
+    nedcreatepool(SYSTEM_POOL_SIZE, -1);
+
+    atexit(neddestroysyspool);
+
+    UNREFERENCED_PARAMETER(lpCmdLine);
+    UNREFERENCED_PARAMETER(nCmdShow);
 
     hdc = GetDC(NULL);
     r = GetDeviceCaps(hdc, BITSPIXEL);
@@ -300,7 +323,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     }
 
     // carve up the commandline into more recognizable pieces
-    argvbuf = strdup(GetCommandLine());
+    argvbuf = Bstrdup(GetCommandLine());
     _buildargc = 0;
     if (argvbuf)
     {
@@ -362,7 +385,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         }
         *wp = 0;
 
-        _buildargv = (const char**)malloc(sizeof(char*)*_buildargc);
+        _buildargv = (const char**)Bmalloc(sizeof(char*)*_buildargc);
         wp = argvbuf;
         for (i=0; i<_buildargc; i++,wp++)
         {
@@ -420,7 +443,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     startwin_close();
     if (instanceflag) CloseHandle(instanceflag);
 
-    if (argvbuf) free(argvbuf);
+    if (argvbuf) Bfree(argvbuf);
 
     return r;
 }
@@ -469,13 +492,9 @@ static int32_t set_windowpos(const osdfuncparm_t *parm)
 
 static void print_os_version(void)
 {
-    OSVERSIONINFO osv;
     const char *ver = NULL;
     // I was going to call this 'windows_9x_is_awful', but I couldn't justify ever setting it to 0
     int32_t awful_windows_9x = 0;
-
-    osv.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osv);
 
     switch (osv.dwPlatformId)
     {
@@ -508,7 +527,7 @@ static void print_os_version(void)
                 ver = "7";
                 break;
             default:
-                ver = "Unknown Post-2010 Product";
+                ver = "";
                 break;
             }
             break;
@@ -525,17 +544,13 @@ static void print_os_version(void)
         break;
 
     default:
-        initprintf("OS: Unknown OS\n");
-        return;
+        ver = "";
+        break;
     }
 
     if (ver != NULL)
-    {
         initprintf("OS: Windows %s (%lu.%lu.%lu) %s\n", ver, osv.dwMajorVersion, osv.dwMinorVersion,
                    awful_windows_9x?osv.dwBuildNumber&0xffff:osv.dwBuildNumber,osv.szCSDVersion);
-//        if (osv.szCSDVersion[0])
-        //          initprintf("  - %s\n", osv.szCSDVersion);
-    }
 }
 
 
@@ -570,7 +585,7 @@ int32_t initsystem(void)
 #if defined(USE_OPENGL) && defined(POLYMOST)
     if (loadgldriver(getenv("BUILD_GLDRV")))
     {
-        initprintf("Failed loading OpenGL driver. GL modes will be unavailable.\n");
+        initprintf("Failure loading OpenGL. GL modes are unavailable.\n");
         nogl = 1;
     }
 #endif
@@ -1507,18 +1522,18 @@ static void UninitDirectInput(void)
 
     if (axisdefs)
     {
-        for (i=joynumaxes-1; i>=0; i--) if (axisdefs[i].name) free((void*)axisdefs[i].name);
-        free(axisdefs); axisdefs = NULL;
+        for (i=joynumaxes-1; i>=0; i--) if (axisdefs[i].name) Bfree((void*)axisdefs[i].name);
+        Bfree(axisdefs); axisdefs = NULL;
     }
     if (buttondefs)
     {
-        for (i=joynumbuttons-1; i>=0; i--) if (buttondefs[i].name) free((void*)buttondefs[i].name);
-        free(buttondefs); buttondefs = NULL;
+        for (i=joynumbuttons-1; i>=0; i--) if (buttondefs[i].name) Bfree((void*)buttondefs[i].name);
+        Bfree(buttondefs); buttondefs = NULL;
     }
     if (hatdefs)
     {
-        for (i=joynumhats-1; i>=0; i--) if (hatdefs[i].name) free((void*)hatdefs[i].name);
-        free(hatdefs); hatdefs = NULL;
+        for (i=joynumhats-1; i>=0; i--) if (hatdefs[i].name) Bfree((void*)hatdefs[i].name);
+        Bfree(hatdefs); hatdefs = NULL;
     }
 
     for (devn = 0; devn < NUM_INPUTS; devn++)
@@ -2650,7 +2665,7 @@ int32_t setpalette(int32_t start, int32_t num)
             }
 
             SetDIBColorTable(hDCSection, start, num, rgb);
-            free(rgb);
+            Bfree(rgb);
         }
 
         if (desktopbpp > 8) return 0;	// only if an 8bit desktop do we do what follows
@@ -3028,7 +3043,7 @@ static void ReleaseDirectDrawSurfaces(void)
     if (lpOffscreen)
     {
 //        initprintf("  - Freeing offscreen buffer\n");
-        free(lpOffscreen);
+        Bfree(lpOffscreen);
         lpOffscreen = NULL;
     }
 }
@@ -3073,7 +3088,7 @@ static int32_t SetupDirectDraw(int32_t width, int32_t height)
     }
 
 //    initprintf("  - Allocating offscreen buffer\n");
-    lpOffscreen = (char *)malloc((width|1)*height);
+    lpOffscreen = (char *)Bmalloc((width|1)*height);
     if (!lpOffscreen)
     {
         ShowErrorBox("Failure allocating offscreen buffer");
@@ -4147,10 +4162,9 @@ static void ShowErrorBox(const char *m)
 //
 static BOOL CheckWinVersion(void)
 {
-    OSVERSIONINFO osv;
-
     ZeroMemory(&osv, sizeof(osv));
     osv.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+
     if (!GetVersionEx(&osv)) return TRUE;
 
     // haha, yeah, like it will work on Win32s

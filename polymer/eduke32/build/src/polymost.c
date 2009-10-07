@@ -297,8 +297,6 @@ pthtyp *gltexcachead[GLTEXCACHEADSIZ];
 
 int32_t drawingskybox = 0;
 
-pthtyp *pichead;
-
 int32_t gloadtile_art(int32_t,int32_t,int32_t,pthtyp*,int32_t);
 int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp*,int32_t,pthtyp*,int32_t,char);
 static int32_t hicprecaching = 0;
@@ -310,11 +308,11 @@ pthtyp * gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
 
     j = (dapicnum&(GLTEXCACHEADSIZ-1));
 
-    if (usehightile) si = hicfindsubst(dapicnum,dapalnum,drawingskybox);
-    else si = NULL;
+    si = usehightile ? hicfindsubst(dapicnum,dapalnum,drawingskybox) : NULL;
+
     if (!si)
     {
-        if (drawingskybox) return NULL;
+        if (drawingskybox || dapalnum >= (MAXPALOOKUPS - RESERVEDPALS)) return NULL;
         goto tryart;
     }
 
@@ -324,9 +322,8 @@ pthtyp * gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
      *    effects are applied to the palette 0 texture if it exists
      */
 
-    pichead=gltexcachead[j]; // for palmaps
     // load a replacement
-    for (pth=pichead; pth; pth=pth->next)
+    for (pth=gltexcachead[j]; pth; pth=pth->next)
     {
         if (pth->picnum == dapicnum &&
                 pth->palnum == si->palnum &&
@@ -350,7 +347,7 @@ pthtyp * gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
     }
 
 
-    pth = (pthtyp *)calloc(1,sizeof(pthtyp));
+    pth = (pthtyp *)Bcalloc(1,sizeof(pthtyp));
     if (!pth) return NULL;
 
     // possibly fetch an already loaded multitexture :_)
@@ -374,7 +371,7 @@ pthtyp * gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
 
     if (gloadtile_hi(dapicnum,dapalnum,drawingskybox,si,dameth,pth,1, (si->palnum>0) ? 0 : hictinting[dapalnum].f))
     {
-        free(pth);
+        Bfree(pth);
         if (drawingskybox) return NULL;
         goto tryart;   // failed, so try for ART
     }
@@ -401,12 +398,12 @@ tryart:
             return(pth);
         }
 
-    pth = (pthtyp *)calloc(1,sizeof(pthtyp));
+    pth = (pthtyp *)Bcalloc(1,sizeof(pthtyp));
     if (!pth) return NULL;
 
     if (gloadtile_art(dapicnum,dapalnum,dameth,pth,1))
     {
-        free(pth);
+        Bfree(pth);
         return NULL;
     }
     pth->next = gltexcachead[j];
@@ -586,10 +583,10 @@ void polymost_glreset()
                 if (pth->flags & 16) // fullbright textures
                 {
                     bglDeleteTextures(1,&pth->ofb->glpic);
-                    free(pth->ofb);
+                    Bfree(pth->ofb);
                 }
                 bglDeleteTextures(1,&pth->glpic);
-                free(pth);
+                Bfree(pth);
                 pth = next;
             }
             gltexcachead[i] = NULL;
@@ -1081,7 +1078,7 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth,
         }
     }
 
-    pic = (coltype *)malloc(xsiz*ysiz*sizeof(coltype));
+    pic = (coltype *)Bmalloc(xsiz*ysiz*sizeof(coltype));
     if (!pic) return 1;
 
     if (!waloff[dapic])
@@ -1173,7 +1170,7 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth,
         bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
     }
 
-    if (pic) free(pic);
+    if (pic) Bfree(pic);
 
     pth->picnum = dapic;
     pth->palnum = dapal;
@@ -1185,7 +1182,7 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth,
     {
         // load the ONLY texture that'll be assembled with the regular one to make the final texture with fullbright pixels
         fullbrightloadingpass = 1;
-        pth->ofb = (pthtyp *)calloc(1,sizeof(pthtyp));
+        pth->ofb = (pthtyp *)Bcalloc(1,sizeof(pthtyp));
         if (!pth->ofb) return 1;
         pth->flags |= (hasfullbright<<4);
         if (gloadtile_art(dapic, dapal, dameth, pth->ofb, 1)) return 1;
@@ -1400,14 +1397,14 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
 
         if (alloclen < miplen)
         {
-            void *picc = realloc(pic, miplen);
+            void *picc = Brealloc(pic, miplen);
             if (!picc) goto failure; else pic = picc;
             alloclen = miplen;
 
-            picc = realloc(packbuf, alloclen+16);
+            picc = Brealloc(packbuf, alloclen+16);
             if (!picc) goto failure; else packbuf = picc;
 
-            picc = realloc(midbuf, miplen);
+            picc = Brealloc(midbuf, miplen);
             if (!picc) goto failure; else midbuf = picc;
         }
 
@@ -1463,9 +1460,9 @@ failure:
     Bmemset(curcacheindex->name,0,sizeof(curcacheindex->name));
 
 success:
-    if (midbuf) free(midbuf);
-    if (pic) free(pic);
-    if (packbuf) free(packbuf);
+    if (midbuf) Bfree(midbuf);
+    if (pic) Bfree(pic);
+    if (packbuf) Bfree(packbuf);
 }
 
 int32_t gloadtile_cached(int32_t fil, texcacheheader *head, int32_t *doalloc, pthtyp *pth,int32_t dapalnum)
@@ -1505,14 +1502,14 @@ int32_t gloadtile_cached(int32_t fil, texcacheheader *head, int32_t *doalloc, pt
 
         if (alloclen < pict.size)
         {
-            void *picc = realloc(pic, pict.size);
+            void *picc = Brealloc(pic, pict.size);
             if (!picc) goto failure; else pic = picc;
             alloclen = pict.size;
 
-            picc = realloc(packbuf, alloclen+16);
+            picc = Brealloc(packbuf, alloclen+16);
             if (!picc) goto failure; else packbuf = picc;
 
-            picc = realloc(midbuf, pict.size);
+            picc = Brealloc(midbuf, pict.size);
             if (!picc) goto failure; else midbuf = picc;
         }
 
@@ -1536,15 +1533,15 @@ int32_t gloadtile_cached(int32_t fil, texcacheheader *head, int32_t *doalloc, pt
 
     }
 
-    if (midbuf) free(midbuf);
-    if (pic) free(pic);
-    if (packbuf) free(packbuf);
+    if (midbuf) Bfree(midbuf);
+    if (pic) Bfree(pic);
+    if (packbuf) Bfree(packbuf);
     return 0;
 failure:
     initprintf("failure!!!\n");
-    if (midbuf) free(midbuf);
-    if (pic) free(pic);
-    if (packbuf) free(packbuf);
+    if (midbuf) Bfree(midbuf);
+    if (pic) Bfree(pic);
+    if (packbuf) Bfree(packbuf);
     return -1;
 }
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
@@ -1600,7 +1597,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         if ((filh = kopen4load(fn, 0)) < 0) return -1;
 
-        picfil = (char *)malloc(picfillen+1); if (!picfil) { kclose(filh); return 1; }
+        picfil = (char *)Bmalloc(picfillen+1); if (!picfil) { kclose(filh); return 1; }
         kread(filh, picfil, picfillen);
         kclose(filh);
 
@@ -1608,7 +1605,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         // xsiz/y = 2^x size of replacement
 
         kpgetdim(picfil,picfillen,&tsizx,&tsizy);
-        if (tsizx == 0 || tsizy == 0) { free(picfil); return -1; }
+        if (tsizx == 0 || tsizy == 0) { Bfree(picfil); return -1; }
         pth->sizx = tsizx;
         pth->sizy = tsizy;
 
@@ -1622,9 +1619,9 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             xsiz = tsizx;
             ysiz = tsizy;
         }
-        pic = (coltype *)calloc(xsiz,ysiz*sizeof(coltype)); if (!pic) { free(picfil); return 1; }
+        pic = (coltype *)Bcalloc(xsiz,ysiz*sizeof(coltype)); if (!pic) { Bfree(picfil); return 1; }
 
-        if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0)) { free(picfil); free(pic); return -2; }
+        if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0)) { Bfree(picfil); Bfree(pic); return -2; }
 
         r=(glinfo.bgra)?hictinting[dapalnum].r:hictinting[dapalnum].b;
         g=hictinting[dapalnum].g;
@@ -1688,7 +1685,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             }
         }
         else texfmt = GL_BGRA;
-        free(picfil); picfil = 0;
+        Bfree(picfil); picfil = 0;
 
         if (tsizx>>r_downsize <= tilesizx[dapic] || tsizy>>r_downsize <= tilesizy[dapic])
             hicr->flags |= 17;
@@ -1739,7 +1736,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
     }
 
-    if (pic) free(pic);
+    if (pic) Bfree(pic);
 
     if (tsizx>>r_downsize <= tilesizx[dapic] || tsizy>>r_downsize <= tilesizy[dapic])
         hicr->flags |= 17;
@@ -2268,7 +2265,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         {
             zbufbpl = bytesperline;
             zbufysiz = ydim;
-            zbufmem = (intptr_t)realloc((void *)zbufmem,zbufbpl*zbufysiz*4);
+            zbufmem = (intptr_t)Brealloc((void *)zbufmem,zbufbpl*zbufysiz*4);
         }
         zbufoff = (int32_t *)(zbufmem-(frameplace<<2));
 #endif
@@ -5415,9 +5412,9 @@ static void tessectrap(float *px, float *py, int32_t *point2, int32_t numpoints)
     if (numpoints+16 > allocpoints) //16 for safety
     {
         allocpoints = numpoints+16;
-        rst = (raster*)realloc(rst,allocpoints*sizeof(raster));
-        slist = (int32_t*)realloc(slist,allocpoints*sizeof(int32_t));
-        npoint2 = (int32_t*)realloc(npoint2,allocpoints*sizeof(int32_t));
+        rst = (raster*)Brealloc(rst,allocpoints*sizeof(raster));
+        slist = (int32_t*)Brealloc(slist,allocpoints*sizeof(int32_t));
+        npoint2 = (int32_t*)Brealloc(npoint2,allocpoints*sizeof(int32_t));
     }
 
     //Remove unnecessary collinear points:
@@ -5744,7 +5741,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
         bglTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,256,128,0,GL_ALPHA,GL_UNSIGNED_BYTE,(GLvoid*)tbuf);
         bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
         bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-        free(tbuf);
+        Bfree(tbuf);
     }
     else bglBindTexture(GL_TEXTURE_2D, polymosttext);
 

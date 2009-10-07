@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 
-#define NewNode(type)  ((type*)SafeMalloc(sizeof(type)))
+#define NewNode(type)  ((type*)Bmalloc(sizeof(type)))
 
 
 #define LL_CreateNewLinkedList(rootnode,type,next,prev) 			\
@@ -103,7 +103,7 @@ extern "C" {
    ((list)->prev == (list))          \
    )
 
-#define LL_Free(list)   SafeFree(list)
+#define LL_Free(list)   Bfree(list)
 #define LL_Reset(list,next,prev)    (list)->next = (list)->prev = (list)
 #define LL_New      LL_CreateNewLinkedList
 #define LL_Remove   LL_RemoveNode

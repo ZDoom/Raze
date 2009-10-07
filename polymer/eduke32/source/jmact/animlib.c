@@ -264,7 +264,7 @@ void ANIM_LoadAnim(char * buffer)
 
     if (!Anim_Started)
     {
-        anim = SafeMalloc(sizeof(anim_t));
+        anim = Bmalloc(sizeof(anim_t));
         Anim_Started = TRUE;
     }
 
@@ -317,7 +317,7 @@ void ANIM_FreeAnim(void)
 {
     if (Anim_Started)
     {
-        SafeFree(anim);
+        Bfree(anim);
         Anim_Started = FALSE;
     }
 }

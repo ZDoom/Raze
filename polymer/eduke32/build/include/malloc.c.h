@@ -502,6 +502,7 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 */
 
 /* Version identifier to allow people to support multiple versions */
+
 #ifndef DLMALLOC_VERSION
 #define DLMALLOC_VERSION 20804
 #endif /* DLMALLOC_VERSION */
@@ -1638,6 +1639,11 @@ static FORCEINLINE void* win32mmap(size_t size) {
   void* baseaddress = 0;
   void* ptr = 0;
 #ifdef ENABLE_LARGE_PAGES
+
+#ifndef MEM_LARGE_PAGES
+    #define MEM_LARGE_PAGES 0x20000000
+#endif
+
   /* Note that large pages are *always* allocated on a large page boundary.
   If however granularity is small then don't waste a kernel call if size
   isn't around the size of a large page */
@@ -3093,7 +3099,7 @@ static size_t traverse_and_check(mstate m);
 
 /* ---------------------------- setting mparams -------------------------- */
 
-#ifdef ENABLE_LARGE_PAGES
+#if defined(ENABLE_LARGE_PAGES) && defined(WIN32)
 typedef size_t (WINAPI *GetLargePageMinimum_t)(void);
 #endif
 
@@ -3122,7 +3128,7 @@ static int init_mparams(void) {
                DEFAULT_GRANULARITY : system_info.dwAllocationGranularity);
 #ifdef ENABLE_LARGE_PAGES
       { 
-          GetLargePageMinimum_t GetLargePageMinimum_ = (GetLargePageMinimum_t) GetProcAddress(GetModuleHandle(__T("kernel32.dll")), "GetLargePageMinimum");
+          GetLargePageMinimum_t GetLargePageMinimum_ = (GetLargePageMinimum_t) GetProcAddress(GetModuleHandle("kernel32.dll"), "GetLargePageMinimum");
           if(GetLargePageMinimum_) {
               size_t largepagesize = GetLargePageMinimum_();
               if(largepagesize) {

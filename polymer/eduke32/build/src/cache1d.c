@@ -278,15 +278,15 @@ int32_t addsearchpath(const char *p)
     }
     if (!(st.st_mode & BS_IFDIR)) return -1;
 
-    srch = (searchpath_t*)malloc(sizeof(searchpath_t));
+    srch = (searchpath_t*)Bmalloc(sizeof(searchpath_t));
     if (!srch) return -1;
 
     srch->next    = searchpathhead;
     srch->pathlen = strlen(p)+1;
-    srch->path    = (char*)malloc(srch->pathlen + 1);
+    srch->path    = (char*)Bmalloc(srch->pathlen + 1);
     if (!srch->path)
     {
-        free(srch);
+        Bfree(srch);
         return -1;
     }
     strcpy(srch->path, p);
@@ -316,13 +316,13 @@ int32_t findfrompath(const char *fn, char **where)
         // test unmolested filename first
         if (access(fn, F_OK) >= 0)
         {
-            *where = strdup(fn);
+            *where = Bstrdup(fn);
             return 0;
         }
     }
 
     for (pfn = (char*)fn; toupperlookup[*pfn] == '/'; pfn++);
-    ffn = strdup(pfn);
+    ffn = Bstrdup(pfn);
     if (!ffn) return -1;
     Bcorrectfilename(ffn,0);	// compress relative paths
 
@@ -330,15 +330,15 @@ int32_t findfrompath(const char *fn, char **where)
     allocsiz += strlen(ffn);
     allocsiz += 1;	// a nul
 
-    pfn = (char *)malloc(allocsiz);
-    if (!pfn) { free(ffn); return -1; }
+    pfn = (char *)Bmalloc(allocsiz);
+    if (!pfn) { Bfree(ffn); return -1; }
 
     strcpy(pfn, "./");
     strcat(pfn, ffn);
     if (access(pfn, F_OK) >= 0)
     {
         *where = pfn;
-        free(ffn);
+        Bfree(ffn);
         return 0;
     }
 
@@ -350,11 +350,11 @@ int32_t findfrompath(const char *fn, char **where)
         if (access(pfn, F_OK) >= 0)
         {
             *where = pfn;
-            free(ffn);
+            Bfree(ffn);
             return 0;
         }
     }
-    free(pfn); free(ffn);
+    Bfree(pfn); Bfree(ffn);
     return -1;
 }
 
@@ -365,7 +365,7 @@ int32_t openfrompath(const char *fn, int32_t flags, int32_t mode)
 
     if (findfrompath(fn, &pfn) < 0) return -1;
     h = Bopen(pfn, flags, mode);
-    free(pfn);
+    Bfree(pfn);
 
     return h;
 }
@@ -461,17 +461,17 @@ int32_t initgroupfile(char *filename)
 
     // check to see if the file passed is a ZIP and pass it on to kplib if it is
     i = Bopen(zfn,BO_BINARY|BO_RDONLY,BS_IREAD);
-    if (i < 0) { free(zfn); return -1; }
+    if (i < 0) { Bfree(zfn); return -1; }
 
     Bread(i, buf, 4);
     if (buf[0] == 0x50 && buf[1] == 0x4B && buf[2] == 0x03 && buf[3] == 0x04)
     {
         Bclose(i);
         j = kzaddstack(zfn);
-        free(zfn);
+        Bfree(zfn);
         return j;
     }
-    free(zfn);
+    Bfree(zfn);
 
     if (numgroupfiles >= MAXGROUPFILES) return(-1);
 
@@ -850,7 +850,7 @@ static int32_t klistaddentry(CACHE1D_FIND_REC **rec, char *name, int32_t type, i
         return 0;
     }
 
-    r = (CACHE1D_FIND_REC *)malloc(sizeof(CACHE1D_FIND_REC)+strlen(name)+1);
+    r = (CACHE1D_FIND_REC *)Bmalloc(sizeof(CACHE1D_FIND_REC)+strlen(name)+1);
     if (!r) return -1;
     r->name = (char*)r + sizeof(CACHE1D_FIND_REC); strcpy(r->name, name);
     r->type = type;
@@ -882,7 +882,7 @@ void klistfree(CACHE1D_FIND_REC *rec)
     while (rec)
     {
         n = rec->next;
-        free(rec);
+        Bfree(rec);
         rec = n;
     }
 }
@@ -895,7 +895,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
     // pathsearchmode == 0: enumerates a path in the virtual filesystem
     // pathsearchmode == 1: enumerates the system filesystem path passed in
 
-    path = strdup(_path);
+    path = Bstrdup(_path);
     if (!path) return NULL;
 
     // we don't need any leading dots and slashes or trailing slashes either
@@ -1079,18 +1079,18 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
             {
                 if (klistaddentry(&rec, drp, CACHE1D_FIND_DRIVE, CACHE1D_SOURCE_DRIVE) < 0)
                 {
-                    free(drives);
+                    Bfree(drives);
                     goto failure;
                 }
             }
-            free(drives);
+            Bfree(drives);
         }
     }
 
-    free(path);
+    Bfree(path);
     return rec;
 failure:
-    free(path);
+    Bfree(path);
     klistfree(rec);
     return NULL;
 }

@@ -761,14 +761,14 @@ int32_t startwin_run(void)
     if (wavedevs)
     {
         struct audioenumdev *d, *e;
-        free(wavedevs->drvs);
+        Bfree(wavedevs->drvs);
         for (e=wavedevs->devs; e; e=d)
         {
             d = e->next;
-            if (e->devs) free(e->devs);
-            free(e);
+            if (e->devs) Bfree(e->devs);
+            Bfree(e);
         }
-        free(wavedevs);
+        Bfree(wavedevs);
     }
 
     return done;

@@ -1673,6 +1673,8 @@ int32_t G_EnterLevel(int32_t g)
     S_ClearSoundLocks();
     FX_SetReverb(0);
 
+    setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP);
+
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
         int32_t volume, level;

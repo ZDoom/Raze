@@ -52,12 +52,12 @@ int32_t Brand(void)
 
 void *Bmalloc(bsize_t size)
 {
-    return malloc(size);
+    return nedmalloc(size);
 }
 
 void Bfree(void *ptr)
 {
-    free(ptr);
+    nedfree(ptr);
 }
 
 int32_t Bopen(const char *pathname, int32_t flags, uint32_t mode)
@@ -155,7 +155,7 @@ bsize_t Bfwrite(const void *ptr, bsize_t size, bsize_t nmemb, BFILE *stream)
 
 char *Bstrdup(const char *s)
 {
-    return strdup(s);
+    return nedstrdup(s);
 }
 
 char *Bstrcpy(char *dest, const char *src)
@@ -355,7 +355,7 @@ char *Bgethomedir(void)
         {
             if (loaded)
                 FreeLibrary(hShell32);
-            return strdup(appdata);
+            return Bstrdup(appdata);
         }
 
     if (loaded)
@@ -374,13 +374,13 @@ char *Bgethomedir(void)
     CFRelease(base);
     if (!str) return NULL;
     s = (char*)CFStringGetCStringPtr(str,CFStringGetSystemEncoding());
-    if (s) s = strdup(s);
+    if (s) s = Bstrdup(s);
     CFRelease(str);
     return s;
 #else
     char *e = getenv("HOME");
     if (!e) return NULL;
-    return strdup(e);
+    return Bstrdup(e);
 #endif
 }
 
@@ -404,7 +404,7 @@ char *Bgetsupportdir(int32_t global)
     CFRelease(base);
     if (!str) return NULL;
     s = (char*)CFStringGetCStringPtr(str,CFStringGetSystemEncoding());
-    if (s) s = strdup(s);
+    if (s) s = Bstrdup(s);
     CFRelease(str);
     return s;
 #endif
@@ -416,7 +416,7 @@ int32_t Bcorrectfilename(char *filename, int32_t removefn)
     char *tokarr[64], *first, *next = NULL, *token;
     int32_t i, ntok = 0, leadslash = 0, trailslash = 0;
 
-    fn = strdup(filename);
+    fn = Bstrdup(filename);
     if (!fn) return -1;
 
     for (first=fn; *first; first++)
@@ -529,7 +529,7 @@ char *Bgetsystemdrives(void)
         number++;
     }
 
-    str = p = (char *)malloc(1 + (3*number));
+    str = p = (char *)Bmalloc(1 + (3*number));
     if (!str) return NULL;
 
     number = 0;
@@ -576,15 +576,15 @@ BDIR* Bopendir(const char *name)
     BDIR_real *dirr;
 #ifdef _MSC_VER
     char *t,*tt;
-    t = (char*)malloc(strlen(name)+1+4);
+    t = (char*)Bmalloc(strlen(name)+1+4);
     if (!t) return NULL;
 #endif
 
-    dirr = (BDIR_real*)malloc(sizeof(BDIR_real) + strlen(name));
+    dirr = (BDIR_real*)Bmalloc(sizeof(BDIR_real) + strlen(name));
     if (!dirr)
     {
 #ifdef _MSC_VER
-        free(t);
+        Bfree(t);
 #endif
         return NULL;
     }
@@ -600,17 +600,17 @@ BDIR* Bopendir(const char *name)
     *(++tt) = 0;
 
     dirr->dir = _findfirst(t,&dirr->fid);
-    free(t);
+    Bfree(t);
     if (dirr->dir == -1)
     {
-        free(dirr);
+        Bfree(dirr);
         return NULL;
     }
 #else
     dirr->dir = opendir(name);
     if (dirr->dir == NULL)
     {
-        free(dirr);
+        Bfree(dirr);
         return NULL;
     }
 #endif
@@ -662,7 +662,7 @@ struct Bdirent*	Breaddir(BDIR *dir)
     dirr->info.size = 0;
     dirr->info.mtime = 0;
 
-    fn = (char *)malloc(strlen(dirr->name) + 1 + dirr->info.namlen + 1);
+    fn = (char *)Bmalloc(strlen(dirr->name) + 1 + dirr->info.namlen + 1);
     if (fn)
     {
         Bsprintf(fn,"%s/%s",dirr->name,dirr->info.name);
@@ -672,7 +672,7 @@ struct Bdirent*	Breaddir(BDIR *dir)
             dirr->info.size = st.st_size;
             dirr->info.mtime = st.st_mtime;
         }
-        free(fn);
+        Bfree(fn);
     }
 
     return &dirr->info;
@@ -687,7 +687,7 @@ int32_t Bclosedir(BDIR *dir)
 #else
     closedir(dirr->dir);
 #endif
-    free(dirr);
+    Bfree(dirr);
 
     return 0;
 }

@@ -57,7 +57,7 @@ int32_t SCRIPT_New(void)
     {
         if (!SC(i))
         {
-            SC(i) = (script_t *)SafeMalloc(sizeof(script_t));
+            SC(i) = (script_t *)Bmalloc(sizeof(script_t));
             if (!SC(i)) return -1;
             memset(SC(i), 0, sizeof(script_t));
             return i;
@@ -81,14 +81,14 @@ void SCRIPT_Delete(int32_t scripthandle)
         {
             s = SCRIPT(scripthandle,script)->nextsection;
             SCRIPT_FreeSection(SCRIPT(scripthandle,script));
-            SafeFree(SCRIPT(scripthandle,script));
+            Bfree(SCRIPT(scripthandle,script));
             SCRIPT(scripthandle,script) = s;
         }
 
-        SafeFree(SCRIPT(scripthandle,script));
+        Bfree(SCRIPT(scripthandle,script));
     }
 
-    SafeFree(SC(scripthandle));
+    Bfree(SC(scripthandle));
     SC(scripthandle) = 0;
 }
 
@@ -102,17 +102,17 @@ void SCRIPT_FreeSection(ScriptSectionType * section)
     while (section->entries->nextentry != section->entries)
     {
         e = section->entries->nextentry;
-        SafeFree(section->entries);
+        Bfree(section->entries);
         section->entries = e;
     }
 
-    SafeFree(section->entries);
-    free(section->name);
+    Bfree(section->entries);
+    Bfree(section->name);
 }
 
 #define AllocSection(s) \
 	{ \
-		(s) = SafeMalloc(sizeof(ScriptSectionType)); \
+		(s) = Bmalloc(sizeof(ScriptSectionType)); \
 		(s)->name = NULL; \
 		(s)->entries = NULL; \
 		(s)->lastline = NULL; \
@@ -121,7 +121,7 @@ void SCRIPT_FreeSection(ScriptSectionType * section)
 	}
 #define AllocEntry(e) \
 	{ \
-		(e) = SafeMalloc(sizeof(ScriptEntryType)); \
+		(e) = Bmalloc(sizeof(ScriptEntryType)); \
 		(e)->name = NULL; \
 		(e)->value = NULL; \
 		(e)->nextentry = (e); \
@@ -155,7 +155,7 @@ ScriptSectionType * SCRIPT_AddSection(int32_t scripthandle, char * sectionname)
     if (s) return s;
 
     AllocSection(s);
-    s->name = strdup(sectionname);
+    s->name = Bstrdup(sectionname);
     if (!SCRIPT(scripthandle,script))
     {
         SCRIPT(scripthandle,script) = s;
@@ -204,7 +204,7 @@ void SCRIPT_AddEntry(int32_t scripthandle, char * sectionname, char * entryname,
     if (!e)
     {
         AllocEntry(e);
-        e->name = strdup(entryname);
+        e->name = Bstrdup(entryname);
         if (!s->entries)
         {
             s->entries = e;
@@ -218,8 +218,8 @@ void SCRIPT_AddEntry(int32_t scripthandle, char * sectionname, char * entryname,
         }
     }
 
-    if (e->value) free(e->value);
-    e->value = strdup(entryvalue);
+    if (e->value) Bfree(e->value);
+    e->value = Bstrdup(entryvalue);
 }
 
 
@@ -441,7 +441,7 @@ int32_t SCRIPT_Load(char * filename)
 
     h = SafeOpenRead(filename, filetype_binary);
     l = SafeFileLength(h)+1;
-    b = (char *)SafeMalloc(l);
+    b = (char *)Bmalloc(l);
     SafeRead(h,b,l-1);
     b[l-1] = '\n';	// JBF 20040111: evil nasty hack to trick my evil nasty parser
     SafeClose(h);
@@ -449,13 +449,13 @@ int32_t SCRIPT_Load(char * filename)
     s = SCRIPT_Init(filename);
     if (s<0)
     {
-        SafeFree(b);
+        Bfree(b);
         return -1;
     }
 
     SCRIPT_ParseBuffer(s,b,l);
 
-    SafeFree(b);
+    Bfree(b);
 
     return s;
 }

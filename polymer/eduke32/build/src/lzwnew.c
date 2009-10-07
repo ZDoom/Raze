@@ -18,11 +18,11 @@ int32_t lzwcompress(char *ucompbuf, int32_t ucompleng, char *compbuf)
 #endif
     char *nodev, *cptr, *eptr;
 
-    nodev = (char *)malloc((ucompleng+256)*sizeof(uint8_t)); if (!nodev) return(0);
-    child = (int32_t *)malloc((ucompleng+256)*sizeof(int32_t)); if (!child) { free(nodev); return(0); }
-    sibly = (int32_t *)malloc((ucompleng+256)*sizeof(int32_t)); if (!sibly) { free(child); free(nodev); return(0); }
+    nodev = (char *)Bmalloc((ucompleng+256)*sizeof(uint8_t)); if (!nodev) return(0);
+    child = (int32_t *)Bmalloc((ucompleng+256)*sizeof(int32_t)); if (!child) { Bfree(nodev); return(0); }
+    sibly = (int32_t *)Bmalloc((ucompleng+256)*sizeof(int32_t)); if (!sibly) { Bfree(child); Bfree(nodev); return(0); }
 #if USENEW
-    sibry = (int32_t *)malloc((ucompleng+256)*sizeof(int32_t)); if (!sibry) { free(sibly); free(child); free(nodev); return(0); }
+    sibry = (int32_t *)Bmalloc((ucompleng+256)*sizeof(int32_t)); if (!sibry) { Bfree(sibly); Bfree(child); Bfree(nodev); return(0); }
 #endif
 
     for (i=255; i>=0; i--) { nodev[i] = i; child[i] = -1; }
@@ -66,10 +66,10 @@ lzwcompbreak2b:
     while ((cptr < eptr) && (bitcnt < (ucompleng<<3)));
 
 #if USENEW
-    free(sibry);
+    Bfree(sibry);
 #endif
-    free(sibly);
-    free(child); free(nodev);
+    Bfree(sibly);
+    Bfree(child); Bfree(nodev);
 
     lptr = (int32_t *)compbuf;
     if (((bitcnt+7)>>3) < ucompleng) { lptr[0] = LSWAPIB(numnodes); return((bitcnt+7)>>3); }
@@ -86,8 +86,8 @@ int32_t lzwuncompress(char *compbuf, int32_t compleng, char *ucompbuf, int32_t u
 
     totnodes = LSWAPIB(((int32_t *)compbuf)[0]); if (totnodes <= 0 || totnodes >= ucompleng+256) return 0;
 
-    prefix = (int32_t *)malloc(totnodes*sizeof(int32_t)); if (!prefix) return 0;
-    suffix = (char *)malloc(totnodes*sizeof(uint8_t)); if (!suffix) { free(prefix); return 0; }
+    prefix = (int32_t *)Bmalloc(totnodes*sizeof(int32_t)); if (!prefix) return 0;
+    suffix = (char *)Bmalloc(totnodes*sizeof(uint8_t)); if (!suffix) { Bfree(prefix); return 0; }
 
     numnodes = 256; bitcnt = (4<<3); nbits = 8; oneupnbits = (1<<8); hmask = ((oneupnbits>>1)-1);
     do
@@ -115,7 +115,7 @@ int32_t lzwuncompress(char *compbuf, int32_t compleng, char *ucompbuf, int32_t u
     while (numnodes < totnodes);
 
 bail:
-    free(suffix); free(prefix);
+    Bfree(suffix); Bfree(prefix);
 
     return (int32_t)ucompbuf-ucomp;
 }

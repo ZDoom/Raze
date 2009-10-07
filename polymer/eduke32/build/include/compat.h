@@ -37,7 +37,7 @@
 
 #define USE_ALLOCATOR 1
 #define REPLACE_SYSTEM_ALLOCATOR 1
-#define USE_MAGIC_HEADERS 1
+#define USE_MAGIC_HEADERS 0
 #include "nedmalloc.h"
 
 #ifndef TRUE
@@ -379,10 +379,10 @@ int32_t		Bclosedir(BDIR *dir);
 #ifdef __compat_h_macrodef__
 # define Brand rand
 # define Balloca alloca
-# define Bmalloc malloc
-# define Bcalloc calloc
-# define Brealloc realloc
-# define Bfree free
+# define Bmalloc nedmalloc
+# define Bcalloc nedcalloc
+# define Brealloc nedrealloc
+# define Bfree nedfree
 # define Bopen open
 # define Bclose close
 # define Bwrite write
@@ -405,11 +405,7 @@ int32_t		Bclosedir(BDIR *dir);
 # define Bfread fread
 # define Bfwrite fwrite
 # define Bfprintf fprintf
-# if defined(_MSC_VER) 
-#  define Bstrdup _strdup
-# else
-#  define Bstrdup strdup
-# endif
+# define Bstrdup nedstrdup
 # define Bstrcpy strcpy
 # define Bstrncpy strncpy
 # define Bstrcmp strcmp

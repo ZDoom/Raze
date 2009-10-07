@@ -1520,9 +1520,9 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
             kfileptr += leng;
             break;
         case 0xda:
-            if ((xdim <= 0) || (ydim <= 0)) { if (dctbuf) free(dctbuf); return(-1); }
+            if ((xdim <= 0) || (ydim <= 0)) { if (dctbuf) Bfree(dctbuf); return(-1); }
 
-            lnumcomponents = (int32_t)(*kfileptr++); if (!lnumcomponents) { if (dctbuf) free(dctbuf); return(-1); }
+            lnumcomponents = (int32_t)(*kfileptr++); if (!lnumcomponents) { if (dctbuf) Bfree(dctbuf); return(-1); }
             if (lnumcomponents > 1) coltype = 2;
             for (z=0; z<lnumcomponents; z++)
             {
@@ -1548,7 +1548,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                     zz += dctx[z]*dcty[z];
                 }
                 z = zz*64*sizeof(int16_t);
-                dctbuf = (int16_t *)malloc(z); if (!dctbuf) return(-1);
+                dctbuf = (int16_t *)Bmalloc(z); if (!dctbuf) return(-1);
                 Bmemset(dctbuf,0,z);
                 for (z=zz=0; z<gnumcomponents; z++) { dctptr[z] = &dctbuf[zz*64]; zz += dctx[z]*dcty[z]; }
             }
@@ -1583,7 +1583,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
 
             if ((max(globxoffs,0) >= xres) || (min(globxoffs+xdim,xres) <= 0) ||
                     (max(globyoffs,0) >= yres) || (min(globyoffs+ydim,yres) <= 0))
-                { if (dctbuf) free(dctbuf); return(0); }
+                { if (dctbuf) Bfree(dctbuf); return(0); }
 
             Alut[0] = (1<<Al); Alut[1] = -Alut[0];
 
@@ -1795,7 +1795,7 @@ kpegrend_break2:;
             kplib_yrbrend_func(x,y,&dct[0][0]);
         }
 
-    free(dctbuf); return(0);
+    Bfree(dctbuf); return(0);
 }
 
 //==============================  KPEGILIB ends ==============================
@@ -2599,14 +2599,14 @@ static int32_t kzcheckhashsiz(int32_t siz)
     if (!kzhashbuf) //Initialize hash table on first call
     {
         Bmemset(kzhashead,-1,sizeof(kzhashead));
-        kzhashbuf = (char *)malloc(KZHASHINITSIZE); if (!kzhashbuf) return(0);
+        kzhashbuf = (char *)Bmalloc(KZHASHINITSIZE); if (!kzhashbuf) return(0);
         kzhashpos = 0; kzlastfnam = -1; kzhashsiz = KZHASHINITSIZE; kzdirnamhead = -1;
     }
     if (kzhashpos+siz > kzhashsiz) //Make sure string fits in kzhashbuf
     {
         i = kzhashsiz; do { i <<= 1; }
         while (kzhashpos+siz > i);
-        kzhashbuf = (char *)realloc(kzhashbuf,i); if (!kzhashbuf) return(0);
+        kzhashbuf = (char *)Brealloc(kzhashbuf,i); if (!kzhashbuf) return(0);
         kzhashsiz = i;
     }
     return(1);
@@ -2647,7 +2647,7 @@ static int32_t kzcheckhash(const char *filnam, char **zipnam, int32_t *fileoffs,
 
 void kzuninit()
 {
-    if (kzhashbuf) { free(kzhashbuf); kzhashbuf = 0; }
+    if (kzhashbuf) { Bfree(kzhashbuf); kzhashbuf = 0; }
     kzhashpos = kzhashsiz = 0; kzdirnamhead = -1;
 }
 
@@ -3282,14 +3282,14 @@ void kpzload(const char *filnam, intptr_t *pic, int32_t *bpl, int32_t *xsiz, int
     (*pic) = 0;
     if (handle < 0) return;
     leng = kfilelength(handle);
-    buf = (char *)malloc(leng); if (!buf) return;
+    buf = (char *)Bmalloc(leng); if (!buf) return;
     kread(handle,buf,leng);
     kclose(handle);
 
     kpgetdim(buf,leng,xsiz,ysiz);
     (*bpl) = ((*xsiz)<<2);
-    (*pic) = (intptr_t)malloc((*ysiz)*(*bpl)); if (!(*pic)) { free(buf); return; }
-    if (kprender(buf,leng,*pic,*bpl,*xsiz,*ysiz,0,0) < 0) { free(buf); free((void *)*pic); (*pic) = 0; return; }
-    free(buf);
+    (*pic) = (intptr_t)Bmalloc((*ysiz)*(*bpl)); if (!(*pic)) { Bfree(buf); return; }
+    if (kprender(buf,leng,*pic,*bpl,*xsiz,*ysiz,0,0) < 0) { Bfree(buf); Bfree((void *)*pic); (*pic) = 0; return; }
+    Bfree(buf);
 }
 //====================== HANDY PICTURE function ends =========================

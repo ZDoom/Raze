@@ -7643,7 +7643,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     mylight.horiz = SH;
                     mylight.minshade = sprite[i].xoffset;
                     mylight.maxshade = sprite[i].yoffset;
-                    mylight.tilenum = 0;
+                    mylight.tilenum = ActorExtra[i].picnum;
 
                     if (CS & 2)
                     {
@@ -7696,6 +7696,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     ActorExtra[i].lightptr->horiz = SH;
                     ActorExtra[i].lightptr->flags.invalidate = 1;
                 }
+                ActorExtra[i].lightptr->tilenum = ActorExtra[i].picnum;
             }
 
             break;

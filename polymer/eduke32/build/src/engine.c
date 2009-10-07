@@ -6643,6 +6643,7 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
     clearbufbyte(&sprite, sizeof(sprite), 0);
     */
 
+    nedtrimthreadcache(0, 0);
 
     initspritelists();
 

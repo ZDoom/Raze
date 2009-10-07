@@ -38,10 +38,16 @@ DEALINGS IN THE SOFTWARE.
 /*#define FULLSANITYCHECKS*/
 #define USE_ALLOCATOR 1
 #define REPLACE_SYSTEM_ALLOCATOR 1
-#define USE_MAGIC_HEADERS 1
+#define USE_MAGIC_HEADERS 0
+#define MAXTHREADSINPOOL 1
+#define FINEGRAINEDBINS 1
+
+#ifndef UNREFERENCED_PARAMETER
+#define UNREFERENCED_PARAMETER(x) x=x
+#endif
 
 #include "nedmalloc.h"
-#ifdef WIN32
+#ifdef _WIN32
  #include <malloc.h>
  #include <stddef.h>
 #endif
@@ -79,6 +85,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 /*#define FORCEINLINE*/
+#define ENABLE_LARGE_PAGES
 #include "malloc.c.h"
 #ifdef NDEBUG               /* Disable assert checking on release builds */
  #undef DEBUG
@@ -97,22 +104,21 @@ DEALINGS IN THE SOFTWARE.
 #endif
 /* The maximum size to be allocated from the thread cache */
 #ifndef THREADCACHEMAX
-#define THREADCACHEMAX 65536
+#define THREADCACHEMAX 32768
 #endif
-#if 1
+#ifdef FINEGRAINEDBINS
 /* The number of cache entries for finer grained bins. This is (topbitpos(THREADCACHEMAX)-4)*2 */
-#define THREADCACHEMAXBINS ((16-4)*2)
+#define THREADCACHEMAXBINS ((15-4)*2)
 #else
 /* The number of cache entries. This is (topbitpos(THREADCACHEMAX)-4) */
-#define THREADCACHEMAXBINS (16-4)
+#define THREADCACHEMAXBINS (15-4)
 #endif
 /* Point at which the free space in a thread cache is garbage collected */
 #ifndef THREADCACHEMAXFREESPACE
-#define THREADCACHEMAXFREESPACE (512*1024*8)
+#define THREADCACHEMAXFREESPACE (512*1024*4)
 #endif
 
-
-#ifdef WIN32
+#ifdef _WIN32
  #define TLSVAR			DWORD
  #define TLSALLOC(k)	(*(k)=TlsAlloc(), TLS_OUT_OF_INDEXES==*(k))
  #define TLSFREE(k)		(!TlsFree(k))
@@ -144,6 +150,7 @@ extern "C" {
 #endif
 #endif
 
+#if USE_ALLOCATOR==0
 static void *unsupported_operation(const char *opname) THROWSPEC
 {
 	fprintf(stderr, "nedmalloc: The operation %s is not supported under this build configuration\n", opname);
@@ -151,10 +158,12 @@ static void *unsupported_operation(const char *opname) THROWSPEC
 	return 0;
 }
 static size_t mspacecounter=(size_t) 0xdeadbeef;
+#endif
 
 static FORCEINLINE void *CallMalloc(void *mspace, size_t size, size_t alignment) THROWSPEC
 {
 	void *ret=0;
+    UNREFERENCED_PARAMETER(alignment);
 #if USE_MAGIC_HEADERS
 	size_t *_ret=0;
 	size+=alignment+3*sizeof(size_t);
@@ -179,6 +188,7 @@ static FORCEINLINE void *CallMalloc(void *mspace, size_t size, size_t alignment)
 static FORCEINLINE void *CallCalloc(void *mspace, size_t no, size_t size, size_t alignment) THROWSPEC
 {
 	void *ret=0;
+    UNREFERENCED_PARAMETER(alignment);
 #if USE_MAGIC_HEADERS
 	size_t *_ret=0;
 	size+=alignment+3*sizeof(size_t);
@@ -279,7 +289,7 @@ size_t nedblksize(void *mem) THROWSPEC
 		size_t *_mem=(size_t *) mem-3;
 		if(_mem[0]==*(size_t *) "NEDMALOC")
 		{
-			mstate mspace=(mstate) _mem[1];
+//			mstate mspace=(mstate) _mem[1];
 			size_t size=_mem[2];
 			return size-3*sizeof(size_t);
 		}
@@ -289,7 +299,7 @@ size_t nedblksize(void *mem) THROWSPEC
 		/* Fail everything */
 		return 0;
 #elif USE_ALLOCATOR==1
-#ifdef WIN32
+#ifdef _MSC_VER
 		__try
 #endif
 		{
@@ -313,7 +323,7 @@ size_t nedblksize(void *mem) THROWSPEC
 			if(ok_magic(fm))
 				return chunksize(p)-overhead_for(p);
 		}
-#ifdef WIN32
+#ifdef _MSC_VER
 		__except(1) { }
 #endif
 #endif
@@ -459,6 +469,7 @@ static void tcfullsanitycheck(threadcache *tc) THROWSPEC
 
 static NOINLINE void RemoveCacheEntries(nedpool *p, threadcache *tc, unsigned int age) THROWSPEC
 {
+    UNREFERENCED_PARAMETER(p);
 #ifdef FULLSANITYCHECKS
 	tcfullsanitycheck(tc);
 #endif
@@ -553,12 +564,13 @@ static void *threadcache_malloc(nedpool *p, threadcache *tc, size_t *size) THROW
 	unsigned int idx=size2binidx(*size);
 	size_t blksize=0;
 	threadcacheblk *blk, **binsptr;
+    UNREFERENCED_PARAMETER(p);
 #ifdef FULLSANITYCHECKS
 	tcfullsanitycheck(tc);
 #endif
 	/* Calculate best fit bin size */
 	bestsize=1<<(idx+4);
-#if 0
+#ifdef FINEGRAINEDBINS
 	/* Finer grained bin fit */
 	idx<<=1;
 	if(*size>bestsize)
@@ -636,6 +648,7 @@ static NOINLINE void ReleaseFreeInCache(nedpool *p, threadcache *tc, int mymspac
 {
 	unsigned int age=THREADCACHEMAXFREESPACE/8192;
 	/*ACQUIRE_LOCK(&p->m[mymspace]->mutex);*/
+    UNREFERENCED_PARAMETER(mymspace);
 	while(age && tc->freeInCache>=THREADCACHEMAXFREESPACE)
 	{
 		RemoveCacheEntries(p, tc, age);
@@ -659,12 +672,12 @@ static void threadcache_free(nedpool *p, threadcache *tc, int mymspace, void *me
 #endif
 	/* Calculate best fit bin size */
 	bestsize=1<<(idx+4);
-#if 0
+#ifdef FINEGRAINEDBINS
 	/* Finer grained bin fit */
 	idx<<=1;
 	if(size>bestsize)
 	{
-		unsigned int biggerbestsize=bestsize+bestsize<<1;
+		unsigned int biggerbestsize=bestsize+(bestsize<<1);
 		if(size>=biggerbestsize)
 		{
 			idx++;
@@ -847,9 +860,9 @@ void neddestroysyspool() THROWSPEC
 	}
 	/* Render syspool unusable */
 	for(n=0; n<THREADCACHEMAXCACHES; n++)
-		p->caches[n]=(threadcache *)(size_t)(sizeof(size_t)>4 ? 0xdeadbeefdeadbeef : 0xdeadbeef);
+		p->caches[n]=(threadcache *)0xdeadbeef;
 	for(n=0; n<MAXTHREADSINPOOL+1; n++)
-		p->m[n]=(mstate)(size_t)(sizeof(size_t)>4 ? 0xdeadbeefdeadbeef : 0xdeadbeef);
+		p->m[n]=(mstate)0xdeadbeef;
 	if(TLSFREE(p->mycache)) abort();
 	RELEASE_LOCK(&p->mutex);
 }
@@ -859,6 +872,7 @@ void nedpsetvalue(nedpool *p, void *v) THROWSPEC
 	if(!p) { p=&syspool; if(!syspool.threads) InitPool(&syspool, 0, -1); }
 	p->uservalue=v;
 }
+
 void *nedgetvalue(nedpool **p, void *mem) THROWSPEC
 {
 	nedpool *np=0;
@@ -1065,7 +1079,7 @@ void   nedpfree(nedpool *p, void *mem) THROWSPEC
 	if(!mem)
 	{	/* You'd be surprised the number of times this happens as so many
 		allocators are non-conformant here */
-		fprintf(stderr, "nedmalloc: WARNING nedpfree() called with zero. This is not portable behaviour!\n");
+//		fprintf(stderr, "nedmalloc: WARNING nedpfree() called with zero. This is not portable behaviour!\n");
 		return;
 	}
 	GetThreadCache(&p, &tc, &mymspace, 0);
@@ -1101,7 +1115,7 @@ NEDMALLOCPTRATTR void * nedpmemalign(nedpool *p, size_t alignment, size_t bytes)
 struct mallinfo nedpmallinfo(nedpool *p) THROWSPEC
 {
 	int n;
-	struct mallinfo ret={0};
+	struct mallinfo ret={0,0,0,0,0,0,0,0,0,0};
 	if(!p) { p=&syspool; if(!syspool.threads) InitPool(&syspool, 0, -1); }
 	for(n=0; p->m[n]; n++)
 	{
@@ -1121,6 +1135,7 @@ struct mallinfo nedpmallinfo(nedpool *p) THROWSPEC
 #endif
 int    nedpmallopt(nedpool *p, int parno, int value) THROWSPEC
 {
+    UNREFERENCED_PARAMETER(p);
 #if USE_ALLOCATOR==1
 	return mspace_mallopt(parno, value);
 #else
@@ -1208,6 +1223,15 @@ NEDMALLOCPTRATTR void **nedpindependent_comalloc(nedpool *p, size_t elems, size_
               ret=mspace_independent_comalloc(m, elems, adjustedsizes, chunks));
 #endif
 	return ret;
+}
+
+// cheap replacement for strdup so we aren't feeding system allocated blocks into nedmalloc
+
+NEDMALLOCPTRATTR char *nedstrdup(const char *str) THROWSPEC
+{
+    int n = strlen(str) + 1;
+    char *dup = nedmalloc(n);
+    return dup ? memcpy(dup, str, n) : NULL;
 }
 
 #if defined(__cplusplus)
