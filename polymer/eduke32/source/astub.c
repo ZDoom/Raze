@@ -10532,7 +10532,11 @@ void ExtAnalyzeSprites(void)
         if (shadepreview && !(tspr->cstat & 16))
         {
             if (sector[tspr->sectnum].ceilingstat&1)
+            {
                 l = sector[tspr->sectnum].ceilingshade;
+                if (sector[tspr->sectnum].ceilingpal != 0 && sector[tspr->sectnum].ceilingpal < num_tables)
+                    tspr->pal=sector[tspr->sectnum].ceilingpal;
+            }
             else
             {
                 l = sector[tspr->sectnum].floorshade;
