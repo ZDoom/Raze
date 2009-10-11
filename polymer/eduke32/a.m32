@@ -24,7 +24,7 @@ definequote 2 BU:%d ABS:%d
 definequote TQUOTE write on me!
 
 definequote 4 ASPECT: VR=%d, YX=%d
-definequote 5 KEY:%d
+definequote 5 ALPHA KEY: %d (SCANCODE: %d)
 
 definequote 6 time: %d ms
 
@@ -44,9 +44,12 @@ definequote 15 x/yoffset: %d %d
 definequote 16 (r/g/b)color: %d %d %d
 definequote 17 PICNUM: 
 
+definequote 18 NUMBER KEY: %d (SCANCODE: %d)
+
 gamearray ar 128
 gamearray parm 8
 
+// various tests of m32-script features
 defstate tests
 // array test
     getarraysize ar tmp
@@ -103,6 +106,7 @@ defstate printlights
     print 11
 ends
 
+// convenient polymer SE light manipulation with keypad keys
 defstate fiddlewithlights
     ife searchstat 3 ife sprite[searchwall].picnum SECTOREFFECTOR
     ifge sprite[searchwall].lotag 49 ifle sprite[searchwall].lotag 50
@@ -199,7 +203,32 @@ defstate fiddlewithlights
     }
 ends
 
+defstate testkeyavail
+    for i range 27
+    {
+        ifholdkey alphakeys[i]
+        {
+            qsprintf TQUOTE 5 i alphakeys[i]
+            quote TQUOTE
+        }
+    }
+
+    for i range 10
+    {
+        ifholdkey numberkeys[i]
+        {
+            qsprintf TQUOTE 18 i numberkeys[i]
+            quote TQUOTE
+        }
+    }
+ends
+
+//onevent EVENT_PREKEYS2D
+//    state testkeyavail
+//endevent
+
 onevent EVENT_PREKEYS3D
+//    state testkeyavail
     state fiddlewithlights
 endevent
 
@@ -278,26 +307,6 @@ onevent EVENT_INSERTSPRITE2D
     {
         add j 1
         set .lotag j
-    }
-endevent
-
-onevent EVENT_PREKEYS2D  // formerly EVENT_OVERHEADEDITOR
-    for i range 27
-    {
-        ifholdkey alphakeys[i]
-        {
-            qsprintf TQUOTE 5 i
-            quote TQUOTE
-        }
-    }
-
-    for i range 10
-    {
-        ifholdkey numberkeys[i]
-        {
-            qsprintf TQUOTE 5 i
-            quote TQUOTE
-        }
     }
 endevent
 

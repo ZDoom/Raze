@@ -1615,6 +1615,7 @@ void overheadeditor(void)
 
         OSD_Draw();
 
+        X_OnEvent(EVENT_PREKEYS2D, -1);
         ExtCheckKeys(); // TX 20050101, it makes more sense to have this here so keys can be overwritten with new functions in bstub.c
 
         // Flip/mirror sector Ed Coolidge
@@ -4717,7 +4718,7 @@ CANCEL:
             clearkeys();
         }
 
-        X_OnEvent(EVENT_OVERHEADEDITOR, -1);
+        X_OnEvent(EVENT_KEYS2D, -1);
 
         //nextpage();
     }

@@ -8230,9 +8230,6 @@ static void Keys2d(void)
         printmessage16(tempbuf);
         keystatus[KEYSC_J]=0;
     }
-
-    X_OnEvent(EVENT_KEYS2D, -1);
-
 }// end key2d
 
 static void InitCustomColors(void)
