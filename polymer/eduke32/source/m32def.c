@@ -876,7 +876,7 @@ static void C_GetNextVarType(int32_t type)
 
         return;
     }
-    else if (*textptr == '-' /* && !isdigit(*(textptr+1))*/)
+    else if (*textptr == '-' && *(textptr+1)!='.' /* && !isdigit(*(textptr+1))*/)
     {
         if (type==0)
         {
@@ -891,6 +891,32 @@ static void C_GetNextVarType(int32_t type)
             C_GetNextLabelName();
             return;
         }
+    }
+    else if (type!=GAMEVAR_SPECIAL && (*textptr == '.' || (*textptr == '-' && *(textptr+1)=='.')))
+    {
+        int32_t lLabelID = -1, aridx=g_iThisActorID;
+
+        flags |= (MAXGAMEVARS<<3);
+        if (*textptr=='-')
+        {
+            flags |= (MAXGAMEVARS<<1);
+            textptr++;
+        }
+        textptr++;
+        /// now pointing at 'xxx'
+        C_GetNextLabelName();
+        lLabelID = C_GetLabelNameID(SpriteLabels, &spriteH, strtolower(tlabel,Bstrlen(tlabel)));
+
+        if (lLabelID == -1)
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+            return;
+        }
+
+        id = g_iSpriteVarID;
+        *g_scriptPtr++ = (aridx<<16 | id | (lLabelID<<2) | flags);
+        return;
     }
 
     C_GetNextLabelName();
@@ -3088,7 +3114,7 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("EVENT_DRAW2DSCREEN", EVENT_DRAW2DSCREEN, LABEL_EVENT);
     C_AddDefinition("EVENT_KEYS2D", EVENT_KEYS2D, LABEL_EVENT);
     C_AddDefinition("EVENT_KEYS3D", EVENT_KEYS3D, LABEL_EVENT);
-    C_AddDefinition("EVENT_OVERHEADEDITOR", EVENT_OVERHEADEDITOR, LABEL_EVENT);
+    C_AddDefinition("EVENT_PREKEYS2D", EVENT_OVERHEADEDITOR, LABEL_EVENT);
     C_AddDefinition("EVENT_PREKEYS3D", EVENT_PREKEYS3D, LABEL_EVENT);
 
     C_AddDefinition("CLIPMASK0", CLIPMASK0, LABEL_DEFINE);
@@ -3163,6 +3189,19 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("KEY_RALT", KEYSC_RALT, LABEL_DEFINE);
     C_AddDefinition("KEY_RCTRL", KEYSC_RCTRL, LABEL_DEFINE);
     C_AddDefinition("KEY_RSHIFT", KEYSC_RSHIFT, LABEL_DEFINE);
+
+// some aliases...
+    C_AddDefinition("KEY_KP7", KEYSC_gHOME, LABEL_DEFINE);
+    C_AddDefinition("KEY_KP8", KEYSC_gUP, LABEL_DEFINE);
+    C_AddDefinition("KEY_KP9", KEYSC_gPGUP, LABEL_DEFINE);
+    C_AddDefinition("KEY_KP4", KEYSC_gLEFT, LABEL_DEFINE);
+    C_AddDefinition("KEY_KP5", KEYSC_gKP5, LABEL_DEFINE);
+    C_AddDefinition("KEY_KP6", KEYSC_gRIGHT, LABEL_DEFINE);
+    C_AddDefinition("KEY_KP1", KEYSC_gEND, LABEL_DEFINE);
+    C_AddDefinition("KEY_KP2", KEYSC_gDOWN, LABEL_DEFINE);
+    C_AddDefinition("KEY_KP3", KEYSC_gPGDN, LABEL_DEFINE);
+    C_AddDefinition("KEY_KP0", KEYSC_gINS, LABEL_DEFINE);
+    C_AddDefinition("KEY_KPCOMMA", KEYSC_gDEL, LABEL_DEFINE);
 
     C_AddDefinition("KEY_gDEL", KEYSC_gDEL, LABEL_DEFINE);
     C_AddDefinition("KEY_gDOWN", KEYSC_gDOWN, LABEL_DEFINE);

@@ -225,7 +225,7 @@ int32_t __fastcall Gv_GetVarN(register int32_t id)  // 'N' for "no side-effects"
     if (id & (0xFFFFFFFF-(MAXGAMEVARS-1)))
     {
         OSD_Printf(CON_ERROR "Gv_GetVarN(): invalid var index %d\n",g_errorLineNum,keyw[g_tw],id);
-        vm.g_errorFlag = 1;
+        vm.flags |= VMFLAG_ERROR;
         return -1;
     }
 
@@ -246,7 +246,7 @@ int32_t __fastcall Gv_GetVarN(register int32_t id)  // 'N' for "no side-effects"
         return *((uint8_t*)aGameVars[id].val.lValue);
     default:
         OSD_Printf(CON_ERROR "Gv_GetVarN(): WTF??\n",g_errorLineNum,keyw[g_tw]);
-        vm.g_errorFlag = 1;
+        vm.flags |= VMFLAG_ERROR;
         return -1;
     }
 }
@@ -268,7 +268,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
             return labelval[(id>>16)&0xffff];
         default:
             OSD_Printf(CON_ERROR "Gv_GetVarX() (constant): WTF??\n",g_errorLineNum,keyw[g_tw]);
-            vm.g_errorFlag = 1;
+            vm.flags |= VMFLAG_ERROR;
             return -1;
         }
     }
@@ -311,7 +311,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
                     return ((((uint8_t *)aGameArrays[id].vals)[index] ^ -negateResult) + negateResult);
                 default:
                     OSD_Printf(CON_ERROR "Gv_GetVarX() (array): WTF??\n",g_errorLineNum,keyw[g_tw]);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     return -1;
                 }
             }
@@ -348,7 +348,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
             if (!negateResult)
             {
                 OSD_Printf(CON_ERROR "Gv_GetVarX(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
-                vm.g_errorFlag = 1;
+                vm.flags |= VMFLAG_ERROR;
                 return -1;
             }
         }
@@ -368,7 +368,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
             return ((*((uint8_t*)aGameVars[id].val.lValue) ^ -negateResult) + negateResult);
         default:
             OSD_Printf(CON_ERROR "Gv_GetVarX(): WTF??\n",g_errorLineNum,keyw[g_tw]);
-            vm.g_errorFlag = 1;
+            vm.flags |= VMFLAG_ERROR;
             return -1;
         }
     }
@@ -396,7 +396,7 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
                 if (index < 0 || index >= siz)
                 {
                     OSD_Printf(CON_ERROR "Gv_SetVarX(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,index);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     return;
                 }
 
@@ -414,7 +414,7 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
                     return;
                 default:
                     OSD_Printf(CON_ERROR "Gv_SetVarX() (array): WTF??\n",g_errorLineNum,keyw[g_tw]);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     return;
                 }
                 return;
@@ -452,7 +452,7 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
             }
 
             OSD_Printf(CON_ERROR "Gv_SetVarX(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
-            vm.g_errorFlag = 1;
+            vm.flags |= VMFLAG_ERROR;
             return;
         }
 
@@ -476,7 +476,7 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
         return;
     default:
         OSD_Printf(CON_ERROR "Gv_SetVarX(): WTF??\n",g_errorLineNum,keyw[g_tw]);
-        vm.g_errorFlag = 1;
+        vm.flags |= VMFLAG_ERROR;
         return;
     }
 }
@@ -611,8 +611,6 @@ static void Gv_AddSystemVars(void)
                 GAMEARRAY_READONLY|GAMEARRAY_OFSHORT|GAMEARRAY_VARSIZE);
     Gv_NewArray("highlightsector", (void *)highlightsector, hlscnt_id,
                 GAMEARRAY_READONLY|GAMEARRAY_OFSHORT|GAMEARRAY_VARSIZE);
-    Gv_NewArray("sintable", (void *)sintable, 2048,
-                GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
 
     Gv_NewArray("hsect", (void *)headspritesect, MAXSECTORS+1, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
     Gv_NewArray("nsect", (void *)prevspritesect, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);

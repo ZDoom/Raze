@@ -87,8 +87,12 @@ typedef struct {
     // or >= MAXEVENTS+1 and < MAXEVENTS+1+g_stateCount (state)
     int32_t g_st;
     spritetype *g_sp;
-    int32_t g_errorFlag, g_returnFlag;
+    uint32_t flags; //g_errorFlag, g_returnFlag;
 } vmstate_t;
+
+#define VMFLAG_RETURN 1
+#define VMFLAG_BREAK 2
+#define VMFLAG_ERROR 4
 
 extern vmstate_t vm;
 extern vmstate_t vm_default;

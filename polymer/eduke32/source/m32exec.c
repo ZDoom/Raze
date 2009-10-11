@@ -40,7 +40,6 @@ vmstate_t vm_default =
     -1,
     0,
     NULL,
-    0,
     0
 };
 
@@ -159,12 +158,12 @@ void X_OnEvent(register int32_t iEventID, register int32_t iActor)
 
         vm.g_st = 1+iEventID;
 
-        vm.g_returnFlag = vm.g_errorFlag = 0;
+        vm.flags = 0;
 
         insptr = script + aEventOffsets[iEventID];
         X_DoExecute(0);
 
-        if (vm.g_errorFlag)
+        if (vm.flags&VMFLAG_ERROR)
         {
             aEventEnabled[iEventID] = 0;
             message("ERROR executing %s. Event disabled.", label+(iEventID*MAXLABELLEN));
@@ -236,7 +235,7 @@ static int32_t X_DoSort(const int32_t *lv, const int32_t *rv)
         (vm.g_st!=0 || searchstat!=3 || (vm.g_i=searchwall, vm.g_sp=&sprite[vm.g_i], 0))) \
     {                                                                   \
         OSD_Printf(CON_ERROR "Current sprite index invalid!\n", g_errorLineNum, keyw[g_tw]); \
-        vm.g_errorFlag = 1;                                             \
+        vm.flags |= VMFLAG_ERROR;                                       \
         continue;                                                       \
     }
 
@@ -244,7 +243,7 @@ static int32_t X_DoSort(const int32_t *lv, const int32_t *rv)
     if (dasprite < 0 || dasprite>=MAXSPRITES)                           \
     {                                                                   \
         OSD_Printf(CON_ERROR "Invalid sprite index %d!\n", g_errorLineNum, keyw[g_tw], dasprite); \
-        vm.g_errorFlag = 1;                                             \
+        vm.flags |= VMFLAG_ERROR;                                       \
         continue;                                                       \
     }
 
@@ -252,7 +251,7 @@ static int32_t X_DoSort(const int32_t *lv, const int32_t *rv)
     if (dasect < 0 || dasect>=numsectors)                               \
     {                                                                   \
         OSD_Printf(CON_ERROR "Invalid sector index %d!\n", g_errorLineNum, keyw[g_tw], dasect); \
-        vm.g_errorFlag = 1;                                             \
+        vm.flags |= VMFLAG_ERROR;                                       \
         continue;                                                       \
     }
 
@@ -260,7 +259,7 @@ static int32_t X_DoSort(const int32_t *lv, const int32_t *rv)
     if (!vm.g_sp && (vm.g_st!=0 || searchstat!=3 || (vm.g_sp=&sprite[searchwall], 0))) \
     {                                                                   \
         OSD_Printf(CON_ERROR "Current sprite invalid!\n", g_errorLineNum, keyw[g_tw]); \
-        vm.g_errorFlag = 1;                                             \
+        vm.flags |= VMFLAG_ERROR;                                       \
         continue;                                                       \
     }
 
@@ -268,13 +267,13 @@ static int32_t X_DoSort(const int32_t *lv, const int32_t *rv)
     if (q<0 || q>=MAXQUOTES)                                            \
     {                                                                   \
         OSD_Printf(CON_ERROR "Invalid quote number %d!\n", g_errorLineNum, keyw[g_tw], q); \
-        vm.g_errorFlag = 1;                                             \
+        vm.flags |= VMFLAG_ERROR;                                       \
         continue;                                                       \
     }                                                                   \
     else if (array[q] == NULL)                                          \
     {                                                                   \
         OSD_Printf(CON_ERROR "Null quote %d!\n", g_errorLineNum, keyw[g_tw], q); \
-        vm.g_errorFlag = 1;                                             \
+        vm.flags |= VMFLAG_ERROR;                                       \
         continue;                                                       \
     }                                                                   \
 
@@ -287,7 +286,7 @@ int32_t X_DoExecute(int32_t once)
 
     while (!once)
     {
-        if (vm.g_errorFlag + vm.g_returnFlag)
+        if (vm.flags)
             return 1;
 
         tw = *insptr;
@@ -309,20 +308,23 @@ skip_check:
         case CON_STATE:
         {
             instype *tempscrptr = insptr+2;
-            int32_t stateidx = *(insptr+1), o_g_st = vm.g_st, oret=vm.g_returnFlag;
+            int32_t stateidx = *(insptr+1), o_g_st = vm.g_st, oret=vm.flags&VMFLAG_RETURN;
 
             insptr = script + statesinfo[stateidx].ofs;
             vm.g_st = 1+MAXEVENTS+stateidx;
             X_DoExecute(0);
             vm.g_st = o_g_st;
-            vm.g_returnFlag = oret;
+            vm.flags &= ~VMFLAG_RETURN;
+            vm.flags |= oret;
             insptr = tempscrptr;
         }
         continue;
 
         case CON_RETURN:
-            vm.g_returnFlag = 1;
+            vm.flags |= VMFLAG_RETURN;
+            return 1;
         case CON_BREAK:
+            vm.flags |= VMFLAG_BREAK;
         case CON_ENDS:
             return 1;
 
@@ -332,6 +334,7 @@ skip_check:
             continue;
 
         case CON_ENDSWITCH:
+            vm.flags &= ~VMFLAG_BREAK;
         case CON_ENDEVENT:
             insptr++;
             return 1;
@@ -414,7 +417,7 @@ skip_check:
                 if (j<0 || j>=(g_scriptPtr-script))
                 {
                     OSD_Printf(CON_ERROR "script index out of bounds (%d)\n", g_errorLineNum, keyw[g_tw], j);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     continue;
                 }
                 insptr = (instype *)(j+script);
@@ -505,19 +508,19 @@ skip_check:
                 if (j<0 || j >= g_gameArrayCount)
                 {
                     OSD_Printf(CON_ERROR "Tried to set invalid array ID (%d)\n", g_errorLineNum, keyw[g_tw], j);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                 }
                 if (aGameArrays[j].dwFlags & GAMEARRAY_READONLY)
                 {
                     OSD_Printf(CON_ERROR "Tried to set on read-only array `%s'\n", g_errorLineNum, keyw[g_tw], aGameArrays[j].szLabel);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                 }
                 if (index >= aGameArrays[j].size || index < 0)
                 {
                     OSD_Printf(CON_ERROR "Array index %d out of bounds\n", g_errorLineNum, keyw[g_tw], index);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                 }
-                if (vm.g_errorFlag) continue;
+                if (vm.flags&VMFLAG_ERROR) continue;
                 ((int32_t *)aGameArrays[j].vals)[index]=value;  // REM: other array types not implemented, since they're read-only
                 continue;
             }
@@ -540,8 +543,8 @@ skip_check:
                 if (asize<=0 || asize>65536)
                 {
                     OSD_Printf(CON_ERROR "Invalid array size %d (max: 65536)\n",g_errorLineNum,keyw[g_tw]);
-                    vm.g_errorFlag = 1;
-                    continue;;
+                    vm.flags |= VMFLAG_ERROR;
+                    continue;
                 }
 
 //                OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);
@@ -550,7 +553,7 @@ skip_check:
                 {
                     aGameArrays[j].size = 0;
                     OSD_Printf(CON_ERROR "Out of memory!\n",g_errorLineNum,keyw[g_tw]);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     return 1;
                 }
                 aGameArrays[j].size = asize;
@@ -570,19 +573,19 @@ skip_check:
                 if (si<0 || si>=g_gameArrayCount)
                 {
                     OSD_Printf(CON_ERROR "Invalid array %d!\n",g_errorLineNum,keyw[g_tw],si);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                 }
                 if (di<0 || di>=g_gameArrayCount)
                 {
                     OSD_Printf(CON_ERROR "Invalid array %d!\n",g_errorLineNum,keyw[g_tw],di);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                 }
                 if (aGameArrays[di].dwFlags & GAMEARRAY_READONLY)
                 {
                     OSD_Printf(CON_ERROR "Array %d is read-only!\n",g_errorLineNum,keyw[g_tw],di);
-                    vm.g_errorFlag = 1;                    
+                    vm.flags |= VMFLAG_ERROR;
                 }
-                if (vm.g_errorFlag) continue;
+                if (vm.flags&VMFLAG_ERROR) continue;
 
                 ssiz = (aGameArrays[si].dwFlags&GAMEARRAY_VARSIZE) ?
                     Gv_GetVarN(aGameArrays[si].size) : aGameArrays[si].size;
@@ -858,14 +861,14 @@ skip_check:
                 if (xvar < 0 || xvar >= MAXSPRITES || sprite[xvar].statnum==MAXSTATUS)
                 {
                     OSD_Printf(CON_ERROR "invalid sprite %d\n",g_errorLineNum,keyw[g_tw],xvar);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                 }
                 if (yvar < 0 || yvar >= MAXSPRITES || sprite[yvar].statnum==MAXSTATUS)
                 {
                     OSD_Printf(CON_ERROR "invalid sprite %d\n",g_errorLineNum,keyw[g_tw],yvar);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                 }
-                if (vm.g_errorFlag) continue;
+                if (vm.flags&VMFLAG_ERROR) continue;
 
                 if (tw==CON_DIST)
                     Gv_SetVarX(distvar, dist(&sprite[xvar],&sprite[yvar]));
@@ -1043,7 +1046,8 @@ skip_check:
                 j = (Gv_GetVarX(*(insptr-1)) != *insptr);
                 X_DoConditional(j);
             }
-            while (j);
+            while (j && !vm.flags);
+            vm.flags &= ~VMFLAG_BREAK;
             continue;
         }
 
@@ -1057,7 +1061,8 @@ skip_check:
                 j = (Gv_GetVarX(*(insptr-1)) < *insptr);
                 X_DoConditional(j);
             }
-            while (j);
+            while (j && !vm.flags);
+            vm.flags &= ~VMFLAG_BREAK;
             continue;
         }
 
@@ -1073,7 +1078,8 @@ skip_check:
                 insptr--;
                 X_DoConditional(j);
             }
-            while (j);
+            while (j && !vm.flags);
+            vm.flags &= ~VMFLAG_BREAK;
             continue;
         }
 
@@ -1089,7 +1095,8 @@ skip_check:
                 insptr--;
                 X_DoConditional(j);
             }
-            while (j);
+            while (j && !vm.flags);
+            vm.flags &= ~VMFLAG_BREAK;
             continue;
         }
 
@@ -1104,7 +1111,7 @@ skip_check:
                 if (count > aGameArrays[aridx].size)
                 {
                     OSD_Printf(CON_ERROR "Count of elements to sort (%d) exceeds array size (%d)!\n",g_errorLineNum,keyw[g_tw],count,aGameArrays[aridx].size);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     continue;
                 }
 
@@ -1133,12 +1140,12 @@ skip_check:
                 spritetype *vm_sp_bak = vm.g_sp;
                 int16_t endwall;
 
-                if (vm.g_errorFlag) continue;
+                if (vm.flags&VMFLAG_ERROR) continue;
 
                 switch (how)
                 {
                 case ITER_ALLSPRITES:
-                    for (jj=0; jj<MAXSPRITES; jj++)
+                    for (jj=0; jj<MAXSPRITES && !vm.flags; jj++)
                     {
                         if (sprite[jj].statnum == MAXSTATUS)
                             continue;
@@ -1150,7 +1157,7 @@ skip_check:
                     }
                     break;
                 case ITER_ALLSECTORS:
-                    for (jj=0; jj<numsectors; jj++)
+                    for (jj=0; jj<numsectors && !vm.flags; jj++)
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;
@@ -1158,7 +1165,7 @@ skip_check:
                     }
                     break;
                 case ITER_ALLWALLS:
-                    for (jj=0; jj<numwalls; jj++)
+                    for (jj=0; jj<numwalls && !vm.flags; jj++)
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;
@@ -1166,7 +1173,7 @@ skip_check:
                     }
                     break;
                 case ITER_SELSPRITES:
-                    for (ii=0; ii<highlightcnt; ii++)
+                    for (ii=0; ii<highlightcnt && !vm.flags; ii++)
                     {
                         jj = highlight[ii];
                         if (jj&0xc000)
@@ -1181,7 +1188,7 @@ skip_check:
                     }
                     break;
                 case ITER_SELSECTORS:
-                    for (ii=0; ii<highlightsectorcnt; ii++)
+                    for (ii=0; ii<highlightsectorcnt && !vm.flags; ii++)
                     {
                         jj=highlightsector[ii];
                         Gv_SetVarX(var, jj);
@@ -1190,7 +1197,7 @@ skip_check:
                     }
                     break;
                 case ITER_SELWALLS:
-                    for (ii=0; ii<highlightcnt; ii++)
+                    for (ii=0; ii<highlightcnt && !vm.flags; ii++)
                     {
                         jj=highlight[ii];
                         if (jj&0xc000)
@@ -1201,7 +1208,7 @@ skip_check:
                     }
                     break;
                 case ITER_DRAWNSPRITES:
-                    for (ii=0; ii<spritesortcnt; ii++)
+                    for (ii=0; ii<spritesortcnt && !vm.flags; ii++)
                     {
                         vm.g_sp = &tsprite[ii];
                         Gv_SetVarX(var, ii);
@@ -1212,7 +1219,7 @@ skip_check:
                 case ITER_SPRITESOFSECTOR:
                     if (parm2 < 0 || parm2 >= MAXSECTORS)
                         goto badindex;
-                    for (jj=headspritesect[parm2]; jj>=0; jj=nextspritesect[jj])
+                    for (jj=headspritesect[parm2]; jj>=0 && !vm.flags; jj=nextspritesect[jj])
                     {
                         Gv_SetVarX(var, jj);
                         vm.g_i = jj;
@@ -1224,7 +1231,8 @@ skip_check:
                 case ITER_WALLSOFSECTOR:
                     if (parm2 < 0 || parm2 >= MAXSECTORS)
                         goto badindex;
-                    for(jj=sector[parm2].wallptr, endwall=jj+sector[parm2].wallnum-1; jj<=endwall; jj++)
+                    for(jj=sector[parm2].wallptr, endwall=jj+sector[parm2].wallnum-1;
+                        jj<=endwall && !vm.flags; jj++)
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;
@@ -1241,10 +1249,10 @@ skip_check:
                         insptr = beg;
                         X_DoExecute(1);
                         jj = wall[jj].point2;
-                    } while (jj != parm2);
+                    } while (jj != parm2 && !vm.flags);
                     break;
                 case ITER_RANGE:
-                    for (jj=0; jj<parm2; jj++)
+                    for (jj=0; jj<parm2 && !vm.flags; jj++)
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;
@@ -1253,16 +1261,17 @@ skip_check:
                     break;
                 default:
                     OSD_Printf(CON_ERROR "Unknown iteration type %d!\n",g_errorLineNum,keyw[g_tw],how);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     continue;
 badindex:
                     OSD_Printf(OSD_ERROR "Line %d, %s %s: index %d out of range!\n",g_errorLineNum,keyw[g_tw],
                                iter_tokens[how], parm2);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     continue;
                 }
                 vm.g_i = vm_i_bak;
                 vm.g_sp = vm_sp_bak;
+                vm.flags &= ~VMFLAG_BREAK;
                 insptr = end;
             }
             continue;
@@ -1352,7 +1361,7 @@ badindex:
                 if (key<0 || key >= (int32_t)(sizeof(keystatus)/sizeof(keystatus[0])))
                 {
                     OSD_Printf(CON_ERROR "Invalid key %d!\n",g_errorLineNum,keyw[g_tw],key);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     continue;
                 }
 
@@ -1463,7 +1472,7 @@ badindex:
                 {
                     OSD_Printf(CON_ERROR "Sector index %d out of range!\n",g_errorLineNum,keyw[g_tw],
                                sectnum);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     continue;
                 }
                 insptr--;
@@ -1503,7 +1512,7 @@ badindex:
                 if (numsprites >= MAXSPRITES)
                 {
                     OSD_Printf(CON_ERROR "Maximum number of sprites reached.\n",g_errorLineNum,keyw[g_tw]);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     continue;
                 }
 
@@ -1522,21 +1531,21 @@ badindex:
                 if (ospritenum<0 || ospritenum>=MAXSPRITES || sprite[ospritenum].statnum==MAXSTATUS)
                 {
                     OSD_Printf(CON_ERROR "Tried to duplicate nonexistent sprite %d\n",g_errorLineNum,keyw[g_tw],ospritenum);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                 }
                 if (numsprites >= MAXSPRITES)
                 {
                     OSD_Printf(CON_ERROR "Maximum number of sprites reached.\n",g_errorLineNum,keyw[g_tw]);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                 }
-                if (vm.g_errorFlag) continue;
+                if (vm.flags&VMFLAG_ERROR) continue;
 
                 nspritenum = insertsprite(sprite[ospritenum].sectnum, sprite[ospritenum].statnum);
 
                 if (nspritenum < 0)
                 {
                     OSD_Printf(CON_ERROR "Internal error.\n",g_errorLineNum,keyw[g_tw]);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     continue;
                 }
 
@@ -1568,7 +1577,7 @@ badindex:
                 if (dapoint<0 || dapoint>=numwalls)
                 {
                     OSD_Printf(CON_ERROR "Invalid wall %d\n",g_errorLineNum,keyw[g_tw],dapoint);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     continue;
                 }
 
@@ -1775,7 +1784,7 @@ badindex:
                 if (j < 0 || j > MAXSTATUS)
                 {
                     OSD_Printf(CON_ERROR "invalid status list %d\n",g_errorLineNum,keyw[g_tw],j);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     continue;
                 }
                 Gv_SetVarX(i,headspritestat[j]);
@@ -1845,15 +1854,15 @@ badindex:
                 if (lVar1<0 || lVar1>=MAXSPRITES || sprite[lVar1].statnum==MAXSTATUS)
                 {
                     OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],lVar1);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                 }
                 if (lVar2<0 || lVar2>=MAXSPRITES || sprite[lVar2].statnum==MAXSTATUS)
                 {
                     OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],lVar2);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                 }
 
-                if (vm.g_errorFlag) res=0;
+                if (vm.flags&VMFLAG_ERROR) res=0;
                 else res=cansee(sprite[lVar1].x,sprite[lVar1].y,sprite[lVar1].z,sprite[lVar1].sectnum,
                                     sprite[lVar2].x,sprite[lVar2].y,sprite[lVar2].z,sprite[lVar2].sectnum);
 
@@ -1873,7 +1882,7 @@ badindex:
                 {
                     OSD_Printf(CON_ERROR "Invalid %s: %d\n", tw==CON_CHANGESPRITESTAT?"statnum":"sector",
                                g_errorLineNum,keyw[g_tw],j);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     continue;
                 }
 
@@ -1898,7 +1907,7 @@ badindex:
                 if (wallnum<0 || wallnum>=numwalls)
                 {
                     OSD_Printf(CON_ERROR "Invalid wall %d\n",g_errorLineNum,keyw[g_tw],wallnum);
-                    vm.g_errorFlag = 1;
+                    vm.flags |= VMFLAG_ERROR;
                     continue;
                 }
                 dragpoint(wallnum,newx,newy);
@@ -2059,7 +2068,7 @@ badindex:
                 int32_t backcol=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
                 int32_t fontsize=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
 
-                if (tw==CON_ERRORINS) vm.g_errorFlag = 1;
+                if (tw==CON_ERRORINS) vm.flags |= VMFLAG_ERROR;
 
                 X_ERROR_INVALIDQUOTE(i, ScriptQuotes);
 
@@ -2545,7 +2554,7 @@ dodefault:
                        "you're using and instructions how to reproduce this error to\n"
                        "helixhorned@gmail.com.\n\n"
                        "Thank you!");
-            vm.g_errorFlag = 1;
+            vm.flags |= VMFLAG_ERROR;
             return 1;
         }
     }
