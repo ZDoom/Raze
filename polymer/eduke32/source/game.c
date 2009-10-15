@@ -11087,6 +11087,9 @@ CLEAN_DIRECTORY:
 
 MAIN_LOOP_RESTART:
 
+    G_GetCrosshairColor();
+    G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
+
     if (ud.warp_on == 0)
     {
         if (ud.multimode > 1 && boardfilename[0] != 0)

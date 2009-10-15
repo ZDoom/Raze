@@ -144,7 +144,7 @@ static const char *C_GetLabelType(int32_t type)
         if (x[0]) Bstrcat(x, " or ");
         Bstrcat(x, LabelTypeText[i]);
     }
-    return strdup(x);
+    return Bstrdup(x);
 }
 
 #define NUMKEYWORDS (int32_t)(sizeof(keyw)/sizeof(keyw[0]))

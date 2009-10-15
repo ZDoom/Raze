@@ -41,6 +41,7 @@ DEALINGS IN THE SOFTWARE.
 #define USE_MAGIC_HEADERS 0
 #define MAXTHREADSINPOOL 1
 #define FINEGRAINEDBINS 1
+#define ENABLE_LARGE_PAGES
 
 #ifndef UNREFERENCED_PARAMETER
 #define UNREFERENCED_PARAMETER(x) x=x
@@ -85,7 +86,6 @@ DEALINGS IN THE SOFTWARE.
 
 
 /*#define FORCEINLINE*/
-#define ENABLE_LARGE_PAGES
 #include "malloc.c.h"
 #ifdef NDEBUG               /* Disable assert checking on release builds */
  #undef DEBUG

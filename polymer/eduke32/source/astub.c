@@ -1314,6 +1314,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
                 case BOSS3:
                 case TANK:
                 case NEWBEAST:
+                case NEWBEASTSTAYPUT:
                 case BOSS4:
 
                     numsprite[sprite[i].picnum]++;
@@ -1422,6 +1423,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
             case BOSS3:
             case TANK:
             case NEWBEAST:
+            case NEWBEASTSTAYPUT:
             case BOSS4:
                 numsprite[sprite[i].hitag]++;
             default:
@@ -10343,7 +10345,8 @@ void ExtPreCheckKeys(void) // just before drawrooms
             case LIZMANSPITTING :
             case LIZMANFEEDING :
             case LIZMANJUMP :
-
+            case NEWBEASTSTAYPUT :
+            case BOSS1STAYPUT :
             {
                 int32_t k;
                 if (frames!=0)
@@ -10593,6 +10596,8 @@ void ExtAnalyzeSprites(void)
         case LIZMANSPITTING :
         case LIZMANFEEDING :
         case LIZMANJUMP :
+        case NEWBEASTSTAYPUT :
+        case BOSS1STAYPUT :
             if (skill!=4)
             {
                 if (tspr->lotag>skill+1)

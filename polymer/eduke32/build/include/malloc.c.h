@@ -1633,7 +1633,7 @@ static int dev_zero_fd = -1; /* Cached file descriptor for /dev/zero. */
 static void* lastWin32mmap; /* Used as a hint */
 #endif /* DEFAULT_GRANULARITY_ALIGNED */
 #ifdef ENABLE_LARGE_PAGES
-static int largepagesavailable = 1;
+int largepagesavailable = 1;
 #endif /* ENABLE_LARGE_PAGES */
 static FORCEINLINE void* win32mmap(size_t size) {
   void* baseaddress = 0;

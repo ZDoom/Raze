@@ -173,7 +173,7 @@ int32_t main(int32_t argc, char *argv[])
     FILE *fp;
 
     nedcreatepool(SYSTEM_POOL_SIZE, -1);
-    atexit(neddestroysyspool);
+//    atexit(neddestroysyspool);
 
     buildkeytranslationtable();
 
