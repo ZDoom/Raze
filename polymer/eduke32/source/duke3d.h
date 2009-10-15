@@ -699,6 +699,7 @@ extern int32_t everyothertime;
 extern int32_t mymaxlag, otherminlag, bufferjitter;
 
 extern int32_t g_numInterpolations, startofdynamicinterpolations;
+extern int32_t g_interpolationLock;
 extern int32_t oldipos[MAXINTERPOLATIONS];
 extern int32_t bakipos[MAXINTERPOLATIONS];
 extern int32_t *curipos[MAXINTERPOLATIONS];

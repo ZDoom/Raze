@@ -66,6 +66,11 @@ void G_DoInterpolations(int32_t smoothratio)       //Stick at beginning of draws
 {
     int32_t i=g_numInterpolations-1, j = 0, odelta, ndelta = 0;
 
+    if (g_interpolationLock++)
+    {
+        return;
+    }
+
     for (; i>=0; i--)
     {
         bakipos[i] = *curipos[i];
@@ -79,6 +84,12 @@ void G_DoInterpolations(int32_t smoothratio)       //Stick at beginning of draws
 inline void G_RestoreInterpolations(void)  //Stick at end of drawscreen
 {
     int32_t i=g_numInterpolations-1;
+
+    if (--g_interpolationLock)
+    {
+        return;
+    }
+
     for (; i>=0; i--) *curipos[i] = bakipos[i];
 }
 

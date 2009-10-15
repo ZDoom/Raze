@@ -172,6 +172,7 @@ int32_t mymaxlag, otherminlag, bufferjitter = 1;
 int16_t g_numClouds,clouds[128],cloudx[128],cloudy[128];
 int32_t cloudtotalclock = 0,totalmemory = 0;
 int32_t g_numInterpolations = 0, startofdynamicinterpolations = 0;
+int32_t g_interpolationLock = 0;
 int32_t oldipos[MAXINTERPOLATIONS];
 int32_t bakipos[MAXINTERPOLATIONS];
 int32_t *curipos[MAXINTERPOLATIONS];
