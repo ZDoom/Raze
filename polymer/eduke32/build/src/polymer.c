@@ -571,11 +571,6 @@ int8_t          curskyshade;
 
 _pranimatespritesinfo asi;
 
-// MEMORY POOL
-// nedpool*        polymer_pool = NULL;
-
-#define polymer_pool (nedpool *) 0 // take it out of the system pool
-
 void polymer_alt_editorselect(void);
 static int32_t m32_numdrawnsprites = 0;
 static struct
@@ -608,11 +603,6 @@ int32_t             polymer_init(void)
         return (0);
     }
 
-/*
-    if (!polymer_pool)
-        polymer_pool = nedcreatepool(POLYMER_POOL_SIZE, 0);
-*/
-
     Bmemset(&prsectors[0], 0, sizeof(prsectors[0]) * MAXSECTORS);
     Bmemset(&prwalls[0], 0, sizeof(prwalls[0]) * MAXWALLS);
 
@@ -629,7 +619,7 @@ int32_t             polymer_init(void)
     skyboxdatavbo = 0;
 
     if (spriteplane.buffer == NULL) {
-        spriteplane.buffer = nedpmalloc(polymer_pool, 4 * sizeof(GLfloat) * 5);
+        spriteplane.buffer = Bmalloc(4 * sizeof(GLfloat) * 5);
         spriteplane.vertcount = 4;
     }
 
@@ -664,10 +654,6 @@ int32_t             polymer_init(void)
 void                polymer_uninit(void)
 {
     polymer_freeboard();
-/*
-    if (polymer_pool)
-        neddestroypool(polymer_pool);
-*/
 }
 
 void                polymer_glinit(void)
@@ -722,7 +708,6 @@ void                polymer_loadboard(void)
     int32_t         i;
 
     polymer_freeboard();
-    nedtrimthreadcache(polymer_pool, 0);
 
     i = 0;
     while (i < numsectors)
@@ -1779,17 +1764,17 @@ static void         polymer_freeboard(void)
     {
         if (prsectors[i])
         {
-            if (prsectors[i]->verts) nedpfree(polymer_pool, prsectors[i]->verts);
-            if (prsectors[i]->floor.buffer) nedpfree(polymer_pool, prsectors[i]->floor.buffer);
-            if (prsectors[i]->ceil.buffer) nedpfree(polymer_pool, prsectors[i]->ceil.buffer);
-            if (prsectors[i]->floor.indices) nedpfree(polymer_pool, prsectors[i]->floor.indices);
-            if (prsectors[i]->ceil.indices) nedpfree(polymer_pool, prsectors[i]->ceil.indices);
+            if (prsectors[i]->verts) Bfree(prsectors[i]->verts);
+            if (prsectors[i]->floor.buffer) Bfree(prsectors[i]->floor.buffer);
+            if (prsectors[i]->ceil.buffer) Bfree(prsectors[i]->ceil.buffer);
+            if (prsectors[i]->floor.indices) Bfree(prsectors[i]->floor.indices);
+            if (prsectors[i]->ceil.indices) Bfree(prsectors[i]->ceil.indices);
             if (prsectors[i]->ceil.vbo) bglDeleteBuffersARB(1, &prsectors[i]->ceil.vbo);
             if (prsectors[i]->ceil.ivbo) bglDeleteBuffersARB(1, &prsectors[i]->ceil.ivbo);
             if (prsectors[i]->floor.vbo) bglDeleteBuffersARB(1, &prsectors[i]->floor.vbo);
             if (prsectors[i]->floor.ivbo) bglDeleteBuffersARB(1, &prsectors[i]->floor.ivbo);
 
-            nedpfree(polymer_pool, prsectors[i]);
+            Bfree(prsectors[i]);
             prsectors[i] = NULL;
         }
 
@@ -1801,16 +1786,16 @@ static void         polymer_freeboard(void)
     {
         if (prwalls[i])
         {
-            if (prwalls[i]->bigportal) nedpfree(polymer_pool, prwalls[i]->bigportal);
-            if (prwalls[i]->mask.buffer) nedpfree(polymer_pool, prwalls[i]->mask.buffer);
-            if (prwalls[i]->cap) nedpfree(polymer_pool, prwalls[i]->cap);
-            if (prwalls[i]->wall.buffer) nedpfree(polymer_pool, prwalls[i]->wall.buffer);
+            if (prwalls[i]->bigportal) Bfree(prwalls[i]->bigportal);
+            if (prwalls[i]->mask.buffer) Bfree(prwalls[i]->mask.buffer);
+            if (prwalls[i]->cap) Bfree(prwalls[i]->cap);
+            if (prwalls[i]->wall.buffer) Bfree(prwalls[i]->wall.buffer);
             if (prwalls[i]->wall.vbo) bglDeleteBuffersARB(1, &prwalls[i]->wall.vbo);
             if (prwalls[i]->over.vbo) bglDeleteBuffersARB(1, &prwalls[i]->over.vbo);
             if (prwalls[i]->mask.vbo) bglDeleteBuffersARB(1, &prwalls[i]->mask.vbo);
             if (prwalls[i]->stuffvbo) bglDeleteBuffersARB(1, &prwalls[i]->stuffvbo);
 
-            nedpfree(polymer_pool, prwalls[i]);
+            Bfree(prwalls[i]);
             prwalls[i] = NULL;
         }
 
@@ -2461,17 +2446,17 @@ static int32_t      polymer_initsector(int16_t sectnum)
     if (pr_verbosity >= 2) OSD_Printf("PR : Initalizing sector %i...\n", sectnum);
 
     sec = &sector[sectnum];
-    s = nedpcalloc(polymer_pool, 1, sizeof(_prsector));
+    s = Bcalloc(1, sizeof(_prsector));
     if (s == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize sector %i : Bmalloc failed.\n", sectnum);
         return (0);
     }
 
-    s->verts = nedpcalloc(polymer_pool, sec->wallnum, sizeof(GLdouble) * 3);
-    s->floor.buffer = nedpcalloc(polymer_pool, sec->wallnum, sizeof(GLfloat) * 5);
+    s->verts = Bcalloc(sec->wallnum, sizeof(GLdouble) * 3);
+    s->floor.buffer = Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
     s->floor.vertcount = sec->wallnum;
-    s->ceil.buffer = nedpcalloc(polymer_pool, sec->wallnum, sizeof(GLfloat) * 5);
+    s->ceil.buffer = Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
     s->ceil.vertcount = sec->wallnum;
     if ((s->verts == NULL) || (s->floor.buffer == NULL) || (s->ceil.buffer == NULL))
     {
@@ -2778,8 +2763,8 @@ void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
     {
         if (pr_verbosity >= 2) OSD_Printf("PR : Indice overflow, extending the indices list... !\n");
         s->indicescount++;
-        s->floor.indices = nedprealloc(polymer_pool, s->floor.indices, s->indicescount * sizeof(GLushort));
-        s->ceil.indices = nedprealloc(polymer_pool, s->ceil.indices, s->indicescount * sizeof(GLushort));
+        s->floor.indices = Brealloc(s->floor.indices, s->indicescount * sizeof(GLushort));
+        s->ceil.indices = Brealloc(s->ceil.indices, s->indicescount * sizeof(GLushort));
     }
     s->ceil.indices[s->curindice] = (intptr_t)vertex;
     s->curindice++;
@@ -2803,8 +2788,8 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
     if (s->floor.indices == NULL)
     {
         s->indicescount = (sec->wallnum - 2) * 3;
-        s->floor.indices = nedpcalloc(polymer_pool, s->indicescount, sizeof(GLushort));
-        s->ceil.indices = nedpcalloc(polymer_pool, s->indicescount, sizeof(GLushort));
+        s->floor.indices = Bcalloc(s->indicescount, sizeof(GLushort));
+        s->ceil.indices = Bcalloc(s->indicescount, sizeof(GLushort));
     }
 
     s->curindice = 0;
@@ -2880,7 +2865,7 @@ static int32_t      polymer_initwall(int16_t wallnum)
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Initalizing wall %i...\n", wallnum);
 
-    w = nedpcalloc(polymer_pool, 1, sizeof(_prwall));
+    w = Bcalloc(1, sizeof(_prwall));
     if (w == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize wall %i : Bmalloc failed.\n", wallnum);
@@ -2888,13 +2873,13 @@ static int32_t      polymer_initwall(int16_t wallnum)
     }
 
     if (w->mask.buffer == NULL) {
-        w->mask.buffer = nedpmalloc(polymer_pool, 4 * sizeof(GLfloat) * 5);
+        w->mask.buffer = Bmalloc(4 * sizeof(GLfloat) * 5);
         w->mask.vertcount = 4;
     }
     if (w->bigportal == NULL)
-        w->bigportal = nedpmalloc(polymer_pool, 4 * sizeof(GLfloat) * 5);
+        w->bigportal = Bmalloc(4 * sizeof(GLfloat) * 5);
     if (w->cap == NULL)
-        w->cap = nedpmalloc(polymer_pool, 4 * sizeof(GLfloat) * 3);
+        w->cap = Bmalloc(4 * sizeof(GLfloat) * 3);
 
     bglGenBuffersARB(1, &w->wall.vbo);
     bglGenBuffersARB(1, &w->over.vbo);
@@ -2965,7 +2950,7 @@ static void         polymer_updatewall(int16_t wallnum)
     }
 
     if (w->wall.buffer == NULL) {
-        w->wall.buffer = nedpmalloc(polymer_pool, 4 * sizeof(GLfloat) * 5);
+        w->wall.buffer = Bmalloc(4 * sizeof(GLfloat) * 5);
         w->wall.vertcount = 4;
     }
 
@@ -3179,7 +3164,7 @@ static void         polymer_updatewall(int16_t wallnum)
         if ((overwall) || (wal->cstat & 16) || (wal->cstat & 32))
         {
             if (w->over.buffer == NULL) {
-                w->over.buffer = nedpmalloc(polymer_pool, 4 * sizeof(GLfloat) * 5);
+                w->over.buffer = Bmalloc(4 * sizeof(GLfloat) * 5);
                 w->over.vertcount = 4;
             }
 
@@ -4218,9 +4203,9 @@ static void         polymer_loadmodelvbos(md3model_t* m)
     int32_t         i;
     md3surf_t       *s;
 
-    m->indices = nedpmalloc(polymer_pool, m->head.numsurfs * sizeof(GLuint));
-    m->texcoords = nedpmalloc(polymer_pool, m->head.numsurfs * sizeof(GLuint));
-    m->geometry = nedpmalloc(polymer_pool, m->head.numsurfs * sizeof(GLuint));
+    m->indices = Bmalloc(m->head.numsurfs * sizeof(GLuint));
+    m->texcoords = Bmalloc(m->head.numsurfs * sizeof(GLuint));
+    m->geometry = Bmalloc(m->head.numsurfs * sizeof(GLuint));
 
     bglGenBuffersARB(m->head.numsurfs, m->indices);
     bglGenBuffersARB(m->head.numsurfs, m->texcoords);
@@ -4901,7 +4886,7 @@ static void         polymer_removelight(int16_t lighti)
         polymer_deleteplanelight(prlights[lighti].planelist->plane, lighti);
         oldhead = prlights[lighti].planelist;
         prlights[lighti].planelist = prlights[lighti].planelist->n;
-        nedpfree(polymer_pool, oldhead);
+        Bfree(oldhead);
     }
     prlights[lighti].planecount = 0;
     prlights[lighti].planelist = NULL;
@@ -4994,7 +4979,7 @@ static void         polymer_addplanelight(_prplane* plane, int16_t lighti)
     plane->lightcount++;
 
     oldhead = prlights[lighti].planelist;
-    prlights[lighti].planelist = nedpmalloc(polymer_pool, sizeof(_prplanelist));
+    prlights[lighti].planelist = Bmalloc(sizeof(_prplanelist));
     prlights[lighti].planelist->n = oldhead;
 
     prlights[lighti].planelist->plane = plane;
@@ -5352,7 +5337,7 @@ static void         polymer_initrendertargets(int32_t count)
 {
     int32_t         i;
 
-    prrts = nedpcalloc(polymer_pool, count, sizeof(_prrt));
+    prrts = Bcalloc(count, sizeof(_prrt));
 
     i = 0;
     while (i < count)
