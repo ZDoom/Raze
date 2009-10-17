@@ -9948,12 +9948,12 @@ int32_t ExtInit(void)
     bpp = 32;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    glusetexcache = glusetexcachecompression = -1;
+    glusetexcache = -1;
 
     initprintf("Using config file '%s'.\n",setupfilename);
     if (loadsetup(setupfilename) < 0) initprintf("Configuration file not found, using defaults.\n"), rv = 1;
 
-    if (glusetexcache == -1 || glusetexcachecompression == -1)
+    if (glusetexcache == -1)
     {
         int32_t i;
 #if 0
@@ -9964,8 +9964,8 @@ int32_t ExtInit(void)
         i = 1;
 #endif
         if (i)
-            glusetexcompr = glusetexcache = glusetexcachecompression = 1;
-        else glusetexcache = glusetexcachecompression = 0;
+            glusetexcompr = 1, glusetexcache = 2;
+        else glusetexcache = 0;
     }
 #endif
 

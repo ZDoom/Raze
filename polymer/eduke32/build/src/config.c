@@ -155,16 +155,10 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "usemodels", val, VL) > 0) usemodels = Batoi(val)?1:0;
     if (readconfig(fp, "usehightile", val, VL) > 0) usehightile = Batoi(val)?1:0;
 
-    glusetexcache = glusetexcachecompression = -1;
+    glusetexcache = -1;
     if (readconfig(fp, "glusetexcache", val, VL) > 0)
     {
-        if (Batoi(val) != 0) glusetexcache = 1;
-        else glusetexcache = 0;
-    }
-    if (readconfig(fp, "glusetexcachecompression", val, VL) > 0)
-    {
-        if (Batoi(val) != 0) glusetexcachecompression = 1;
-        else glusetexcachecompression = 0;
+        glusetexcache = clamp(Batoi(val), 0, 2);
     }
     if (readconfig(fp, "gltexfiltermode", val, VL) > 0)
     {
@@ -318,7 +312,6 @@ int32_t writesetup(const char *fn)
              "usemodels = %d\n"
              "usehightile = %d\n"
              "glusetexcache = %d\n"
-             "glusetexcachecompression = %d\n"
              "gltexfiltermode = %d\n"
              "glanisotropy = %d\n"
              "\n"
@@ -463,7 +456,7 @@ int32_t writesetup(const char *fn)
              editorgridextent,
 #if defined(POLYMOST) && defined(USE_OPENGL)
              usemodels, usehightile,
-             glusetexcache, glusetexcachecompression, gltexfiltermode, glanisotropy,
+             glusetexcache, gltexfiltermode, glanisotropy,
 #endif
 #ifdef RENDERTYPEWIN
              maxrefreshfreq, windowpos, windowx, windowy,

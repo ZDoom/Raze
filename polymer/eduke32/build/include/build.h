@@ -595,7 +595,7 @@ extern int32_t glanisotropy;
 extern int32_t glusetexcompr;
 extern int32_t gltexfiltermode;
 extern int32_t glredbluemode;
-extern int32_t glusetexcache, glusetexcachecompression;
+extern int32_t glusetexcache;
 extern int32_t glmultisample, glnvmultisamplehint;
 extern int32_t glwidescreen, glprojectionhacks;
 extern int32_t gltexmaxsize;

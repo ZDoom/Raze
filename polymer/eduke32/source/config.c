@@ -795,7 +795,6 @@ int32_t CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLTextureQuality", &r_downsize);
         r_downsizevar = r_downsize;
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLUseCompressedTextureCache", &glusetexcache);
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLUseTextureCacheCompression", &glusetexcachecompression);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLUseTextureCompr", &glusetexcompr);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLVBOCount", &r_vbocount);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLVBOs", &r_vbos);
@@ -1104,7 +1103,6 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLTextureMode",gltexfiltermode,FALSE,FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLTextureQuality", r_downsize,FALSE,FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLUseCompressedTextureCache", glusetexcache,FALSE,FALSE);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLUseTextureCacheCompression", glusetexcachecompression,FALSE,FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLUseTextureCompr",glusetexcompr,FALSE,FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLVBOCount", r_vbocount,FALSE,FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLVBOs", r_vbos,FALSE,FALSE);

@@ -10560,7 +10560,7 @@ void app_main(int32_t argc,const char **argv)
     }
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    glusetexcache = glusetexcachecompression = -1;
+    glusetexcache = -1;
 #endif
 
     /*
@@ -10623,7 +10623,7 @@ void app_main(int32_t argc,const char **argv)
 #endif
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    if (glusetexcache == -1 || glusetexcachecompression == -1)
+    if (glusetexcache == -1)
     {
 #if 0
         i=wm_ynbox("Texture Cache",
@@ -10632,8 +10632,8 @@ void app_main(int32_t argc,const char **argv)
 #else
         i = 1;
 #endif
-        if (i) ud.config.useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
-        else glusetexcache = glusetexcachecompression = 0;
+        if (i) ud.config.useprecache = glusetexcompr = 1, glusetexcache = 2;
+        else glusetexcache = 0;
     }
 #endif
 

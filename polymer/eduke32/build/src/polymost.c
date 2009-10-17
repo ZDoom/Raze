@@ -138,8 +138,7 @@ struct glfiltermodes glfiltermodes[numglfiltermodes] =
 int32_t glanisotropy = 1;            // 0 = maximum supported by card
 int32_t glusetexcompr = 1;
 int32_t gltexfiltermode = 2; // GL_NEAREST_MIPMAP_NEAREST
-int32_t glusetexcache = 0;
-int32_t glusetexcachecompression = 1;
+int32_t glusetexcache = 2;
 int32_t glmultisample = 0, glnvmultisamplehint = 0;
 int32_t gltexmaxsize = 0;      // 0 means autodetection on first run
 int32_t gltexmiplevel = 0;		// discards this many mipmap levels
@@ -1300,8 +1299,8 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
     head->flags = B_LITTLE32(head->flags);
     head->quality = B_LITTLE32(head->quality);
 
-    if ((head->flags & 4) && !glusetexcachecompression) goto failure;
-    if (!(head->flags & 4) && glusetexcachecompression) goto failure;
+    if ((head->flags & 4) && glusetexcache != 2) goto failure;
+    if (!(head->flags & 4) && glusetexcache == 2) goto failure;
 
     if (!(head->flags & 8) && head->quality != r_downsize) return -1; // handle nocompress
     if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
@@ -1361,7 +1360,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
 
     Bmemcpy(head->magic, "PMST", 4);   // sizes are set by caller
 
-    if (glusetexcachecompression) head->flags |= 4;
+    if (glusetexcache == 2) head->flags |= 4;
 
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
@@ -5937,8 +5936,7 @@ void polymost_initosdfuncs(void)
         { "r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",(void *)&glredbluemode, CVAR_BOOL, 0, 0, 1 },
         { "r_shadescale","r_shadescale: multiplier for lighting",(void *)&shadescale, CVAR_FLOAT, 0, 0, 10 },
         { "r_swapinterval","r_swapinterval: sets the GL swap interval (VSync)",(void *)&vsync, CVAR_BOOL|CVAR_FUNCPTR, 0, 0, 1 },
-        { "r_texcachecompression","r_texcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",(void *)&glusetexcachecompression, CVAR_BOOL, 0, 0, 1 },
-        { "r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",(void *)&glusetexcache, CVAR_BOOL, 0, 0, 1 },
+        { "r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",(void *)&glusetexcache, CVAR_INT, 0, 0, 2 },
         { "r_texcompr","r_texcompr: enable/disable OpenGL texture compression",(void *)&glusetexcompr, CVAR_BOOL, 0, 0, 1 },
         { "r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", (void *)&glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 0, 16 },
         { "r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",(void *)&gltexmaxsize, CVAR_INT, 0, 0, 4096 },
@@ -6094,7 +6092,7 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     void *writebuf;
 #if (USEKENFILTER == 0)
     uint32_t cleng,j;
-    if (glusetexcachecompression)
+    if (glusetexcache == 2)
     {
 #ifdef USELZF
         cleng = fastlz_compress(pic, miplen, packbuf/*, miplen-1*/);
@@ -6135,7 +6133,7 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
         for (k=0; k<8; k++) *cptr++ = pic[k];
         for (j=stride; (unsigned)j<miplen; j+=stride)
             for (k=0; k<8; k++) *cptr++ = pic[j+k];
-        if (glusetexcachecompression)
+        if (glusetexcache == 2)
         {
 #ifdef USELZF
             j = (miplen/stride)<<3;
@@ -6166,7 +6164,7 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     for (k=0; k<=2; k+=2)
         for (j=0; (unsigned)j<miplen; j+=stride)
             { *(int16_t *)cptr = hicosub(*(int16_t *)(&pic[offs+j+k])); cptr += 2; }
-    if (glusetexcachecompression)
+    if (glusetexcache == 2)
     {
 #ifdef USELZF
         j = (miplen/stride)<<2;
@@ -6202,7 +6200,7 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
         cptr[3] = ((c2[0]>>6)&3) + (((c2[1]>>6)&3)<<2) + (((c2[2]>>6)&3)<<4) + (((c2[3]>>6)&3)<<6);
         cptr += 4;
     }
-    if (glusetexcachecompression)
+    if (glusetexcache == 2)
     {
 #ifdef USELZF
         j = (miplen/stride)<<2;

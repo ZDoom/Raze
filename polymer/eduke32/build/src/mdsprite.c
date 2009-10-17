@@ -573,8 +573,8 @@ int32_t mdloadskin_trytexcache(char *fn, int32_t len, int32_t pal, char effect, 
     head->quality = B_LITTLE32(head->quality);
 
     if (head->quality != r_downsize) goto failure;
-    if ((head->flags & 4) && !glusetexcachecompression) goto failure;
-    if (!(head->flags & 4) && glusetexcachecompression) goto failure;
+    if ((head->flags & 4) && glusetexcache != 2) goto failure;
+    if (!(head->flags & 4) && glusetexcache == 2) goto failure;
     if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
     if (!glinfo.texnpot && (head->flags & 1)) goto failure;
 

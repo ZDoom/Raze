@@ -2401,23 +2401,18 @@ cheat_for_port_credits:
             int32_t io, ii, yy, d=c+160+40, enabled;
             char *opts[] =
             {
-                "Widescreen",
+                "Aspect ratio",
                 "Anisotropic filtering",
                 "Use VSync",
                 "Ambient light level",
                 "-",
                 "Enable hires textures",
                 "Hires texture quality",
-                "Precache hires textures",
-                "GL texture compression",
-                "Cache textures on disk",
-                "Compress disk cache",
+                "Pre-load map textures",
+                "On disk texture cache",
                 "Use detail textures",
-                "Use glow textures",
                 "-",
                 "Use models",
-                "Blend model animations",
-                "Model occlusion checking",
                 NULL
             };
 
@@ -2455,9 +2450,44 @@ cheat_for_port_credits:
                 switch (io)
                 {
                 case 0:
-                    if (x==io) glwidescreen = 1-glwidescreen;
-                    modval(0,1,(int32_t *)&glwidescreen,1,probey==io);
-                    mgametextpal(d,yy, glwidescreen ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
+                    if (getrendermode() == 3)
+                    {
+                        if (x==io) glwidescreen = 1-glwidescreen;
+                        modval(0,1,(int32_t *)&glwidescreen,1,probey==io);
+                        mgametextpal(d,yy, glwidescreen ? "Wide" : "Regular", MENUHIGHLIGHT(io), 0);
+                    }
+#ifdef POLYMER
+                    else
+                    {
+                            float ratios[] = { 0.0, 1.33, 1.66, 1.78, 1.85, 2.35 };
+
+                            int32_t j = (sizeof(ratios)/sizeof(ratios[0]));
+
+                            for (i = 0; i<j; i++)
+                                if (ratios[i] == pr_customaspect)
+                                    break;
+
+                            modval(0,j-1,(int32_t *)&i,1,probey==io);
+                            if (x == io)
+                            {
+                                i++;
+                                if (i >= j)
+                                    i = 0;
+                            }
+                            if (i == j)
+                                Bsprintf(tempbuf,"Custom");
+                            else
+                            {
+                                if (i == 0) Bsprintf(tempbuf,"Auto");
+                                else Bsprintf(tempbuf,"%.2f:1",ratios[i]);
+
+                                if (ratios[i] != pr_customaspect)
+                                    pr_customaspect = ratios[i];
+                            }
+                            mgametextpal(d,yy,tempbuf, MENUHIGHLIGHT(io), 0);
+
+                    }
+#endif
                     break;
                 case 1:
                 {
@@ -2526,51 +2556,29 @@ cheat_for_port_credits:
                     mgametextpal(d,yy, ud.config.useprecache ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 7:
-                    enabled = usehightile;
-                    if (enabled && x==io) glusetexcompr = !glusetexcompr;
-                    if (enabled) modval(0,1,(int32_t *)&glusetexcompr,1,probey==io);
-                    mgametextpal(d,yy, glusetexcompr ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    {
+                        char *s[] = { "Off", "On", "Compress" };
+                        enabled = (glusetexcompr && usehightile);
+                        if (enabled && x==io)
+                        {
+                            glusetexcache++;
+                            if (glusetexcache > 2)
+                                glusetexcache = 0;
+                        }
+                        if (enabled) modval(0,2,(int32_t *)&glusetexcache,1,probey==io);
+                        mgametextpal(d,yy, s[glusetexcache], enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    }
                     break;
                 case 8:
-                    enabled = (glusetexcompr && usehightile);
-                    if (enabled && x==io) glusetexcache = !glusetexcache;
-                    if (enabled) modval(0,1,(int32_t *)&glusetexcache,1,probey==io);
-                    mgametextpal(d,yy, glusetexcache ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
-                    break;
-                case 9:
-                    enabled = (glusetexcompr && usehightile && glusetexcache);
-                    if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
-                    if (enabled) modval(0,1,(int32_t *)&glusetexcachecompression,1,probey==io);
-                    mgametextpal(d,yy, glusetexcachecompression ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
-                    break;
-                case 10:
                     enabled = usehightile;
                     if (enabled && x==io) r_detailmapping = !r_detailmapping;
                     if (enabled) modval(0,1,(int32_t *)&r_detailmapping,1,probey==io);
                     mgametextpal(d,yy, r_detailmapping ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
-                case 11:
-                    enabled = usehightile;
-                    if (enabled && x==io) r_glowmapping = !r_glowmapping;
-                    if (enabled) modval(0,1,(int32_t *)&r_glowmapping,1,probey==io);
-                    mgametextpal(d,yy, r_glowmapping ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
-                    break;
-                case 12:
+                case 9:
                     if (x==io) usemodels = 1-usemodels;
                     modval(0,1,(int32_t *)&usemodels,1,probey==io);
                     mgametextpal(d,yy, usemodels ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
-                    break;
-                case 13:
-                    enabled = usemodels;
-                    if (enabled && x==io) r_animsmoothing = !r_animsmoothing;
-                    if (enabled) modval(0,1,(int32_t *)&r_animsmoothing,1,probey==io);
-                    mgametextpal(d,yy, r_animsmoothing ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
-                    break;
-                case 14:
-                    enabled = usemodels;
-                    if (enabled && x==io) r_modelocclusionchecking = !r_modelocclusionchecking;
-                    if (enabled) modval(0,1,(int32_t *)&r_modelocclusionchecking,1,probey==io);
-                    mgametextpal(d,yy, r_modelocclusionchecking ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 default:
                     break;
@@ -2857,9 +2865,9 @@ cheat_for_port_credits:
                 "Parental lock",
                 "-",
                 "Show inv & pickup messages",
-                "HUD weapon display",
-                "Use alternate HUD",
-                "Use camera view in demos",
+                "Display current weapon",
+                "Upgraded status bar",
+                "Camera view in demos",
                 "-",
                 "DM: Ignore map votes",
                 "DM: Use private messages",
@@ -2932,7 +2940,7 @@ cheat_for_port_credits:
                     }
                     modval(0,2,(int32_t *)&ud.drawweapon,1,probey==io);
                     {
-                        char *s[] = { "Off", "Normal", "Icon only" };
+                        char *s[] = { "Off", "On", "Icon only" };
                         mgametextpal(d,yy, s[ud.drawweapon], MENUHIGHLIGHT(io), 0);
                         break;
                     }
