@@ -6,11 +6,14 @@ source=polymer/eduke32
 output=/var/www/dukeworld.duke4.net/eduke32/synthesis
 make=( make PLATFORM=WINDOWS CC='wine gcc' CXX='wine g++' AS='wine nasm' RC='wine windres' STRIP='wine strip' AR='wine ar' RANLIB='wine ranlib' PRETTY_OUTPUT=0 )
 clean=veryclean
+
 # the following file paths are relative to $source
 targets=( eduke32.exe mapster32.exe )
 bin_packaged=( eduke32.exe mapster32.exe names.h tiles.cfg buildlic.txt GNU.TXT m32help.hlp ror.map a.m32 )
 not_src_packaged=( rsrc/game2.psd rsrc/game3.psd source/jaudiolib/third-party/vorbis.framework/Versions/A/vorbis Apple )
 
+# group that owns the resulting packages
+group=dukeworld
 
 # some variables
 dobuild=
@@ -72,8 +75,8 @@ then
     # create the output directory
     mkdir $output/$date-$head
     # package the binary snapshot
-    echo zip $output/$date-$head/eduke32_win32_$date-$head.zip ${bin_packaged[@]}
-    zip $output/$date-$head/eduke32_win32_$date-$head.zip ${bin_packaged[@]}
+    echo zip -9 $output/$date-$head/eduke32_win32_$date-$head.zip ${bin_packaged[@]}
+    zip -9 $output/$date-$head/eduke32_win32_$date-$head.zip ${bin_packaged[@]}
     # hack to restore [e]obj/keep.me
     echo svn update -r $head
     svn update -r $head
@@ -98,7 +101,7 @@ then
     fi
     # hack for our served directory structure
     chmod -R g+w $output/$date-$head
-    chown -R :dukeworld $output/$date-$head
+    chown -R :$group $output/$date-$head
 else
     echo "Nothing to do."
 fi
