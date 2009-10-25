@@ -1380,6 +1380,8 @@ void OSD_Draw(void)
 //   and write it to the log file
 //
 
+extern int32_t premap_quickenterlevel;
+
 static inline void linefeed(void)
 {
     Bmemmove(osdtext+osdcols, osdtext, TEXTSIZE-osdcols);
@@ -1396,6 +1398,8 @@ void OSD_Printf(const char *fmt, ...)
     va_list va;
 
     if (!osdinited) OSD_Init();
+
+    if (premap_quickenterlevel) return;
 
     va_start(va, fmt);
     Bvsnprintf(tmpstr, 8192, fmt, va);

@@ -3,10 +3,14 @@
 
 include names.h
 
-gamevar i 0 1  // per-block (top-level, event, or state) variable
+// flag 1: per-block (top-level, event, or state) variable
+gamevar i 0 1
 gamevar j 0 1
 gamevar k 0 1
 gamevar l 0 1
+gamevar m 0 1
+gamevar p 0 1
+gamevar q 0 1
 
 gamevar tmp 0 0
 
@@ -243,18 +247,6 @@ onevent EVENT_ENTER3DMODE
     state setas
 endevent
 
-onevent EVENT_ANALYZESPRITES
-    for i drawnsprites
-    {
-        set j tsprite[i].owner
-        switch sprite[j].picnum
-        case LIZTROOP spritepal 1 break
-        case PIGCOP spritepal 2 break
-        case BOSS1 spritepal 6 break
-        endswitch
-    }
-endevent
-
 defstate cmp_by_lotag
     set RETURN sprite[SV2].lotag
     sub RETURN sprite[SV1].lotag
@@ -290,7 +282,7 @@ onevent EVENT_DRAW2DSCREEN
     set drawlinepat -1
     for i allsprites
         ifactor LIZTROOP
-            drawcircle16b sprite[i].x sprite[i].y 256 9
+            drawcircle16b sprite[i].x sprite[i].y 256 drawcol
 */
 endevent
 
@@ -308,6 +300,73 @@ onevent EVENT_INSERTSPRITE2D
         add j 1
         set .lotag j
     }
+endevent
+
+// rotates and duplicates selected sprites around
+// pivot sprite (extra=123, ang:dang, yrepeat<<5:dz (pos. if pal!=0), lo:cnt)
+defstate duprot
+    ifn searchstat 3 return
+    ifn sprite[searchwall].extra 123 return
+    ifl sprite[searchwall].shade 1 return
+    set k searchwall
+
+    for i range sprite[k].shade
+    {
+        for j selsprites, ifn j k
+        {
+            dupsprite j
+            set tmp i, add tmp 1, mul tmp sprite[k].ang
+            rotatepoint sprite[k].x sprite[k].y .x .y tmp (l m)
+            add .ang tmp
+            set tmp i, add tmp 1, mul tmp sprite[k].yrepeat, shiftl tmp 5
+            ife sprite[k].pal 0 inv tmp
+            add tmp .z
+            bsetsprite I l m tmp
+        }
+    }
+ends
+
+// same as above but with tsprite[], as a kind of preview
+defstate tduprot
+    ifn searchstat 3 return
+    ifn sprite[searchwall].extra 123 return
+    ifl sprite[searchwall].shade 1 return
+    set k searchwall
+
+    for i range sprite[k].shade
+    {
+        for j selsprites, ifn j k
+        {
+            set p spritesortcnt
+            tdupsprite j
+            set tmp i, add tmp 1, mul tmp sprite[k].ang
+            rotatepoint sprite[k].x sprite[k].y tsprite[p].x tsprite[p].y tmp (l m)
+            add tsprite[p].ang tmp
+            set tmp i, add tmp 1, mul tmp sprite[k].yrepeat, shiftl tmp 5
+            ife sprite[k].pal 0 inv tmp
+            add tmp tsprite[p].z
+            set tsprite[p].x l
+            set tsprite[p].y m
+            set tsprite[p].z tmp
+            or tsprite[p].cstat 514
+//            bsetsprite I l m tmp
+        }
+    }
+ends
+
+onevent EVENT_ANALYZESPRITES
+    state tduprot
+/*
+    for i drawnsprites
+    {
+        set j tsprite[i].owner
+        switch sprite[j].picnum
+        case LIZTROOP spritepal 1 break
+        case PIGCOP spritepal 2 break
+        case BOSS1 spritepal 6 break
+        endswitch
+    }
+*/
 endevent
 
 onevent EVENT_KEYS3D
@@ -371,25 +430,32 @@ onevent EVENT_KEYS3D
     ife searchstat 3
     ifhitkey KEY_SPACE
     {
-        ifn sprite[searchwall].picnum SECTOREFFECTOR return
-        set tmp 0
-        ife sprite[searchwall].lotag 7 set tmp 1
-        ife sprite[searchwall].lotag 17 set tmp 1
-        ife tmp 0 return
-
-        for i allsprites
+        ife sprite[searchwall].picnum SECTOREFFECTOR
         {
-            ifn i searchwall, ifactor SECTOREFFECTOR, ife sprite[i].lotag sprite[searchwall].lotag
-            ife sprite[i].hitag sprite[searchwall].hitag
+            set tmp 0
+            ife sprite[searchwall].lotag 7 set tmp 1
+            ife sprite[searchwall].lotag 17 set tmp 1
+            ife tmp 0 return
+
+            for i allsprites
             {
-                add posx sprite[i].x, sub posx sprite[searchwall].x
-                add posy sprite[i].y, sub posy sprite[searchwall].y
-                add posz sprite[i].z, sub posz sprite[searchwall].z
+                ifn i searchwall, ifactor SECTOREFFECTOR, ife sprite[i].lotag sprite[searchwall].lotag
+                ife sprite[i].hitag sprite[searchwall].hitag
+                {
+                    add posx sprite[i].x, sub posx sprite[searchwall].x
+                    add posy sprite[i].y, sub posy sprite[searchwall].y
+                    add posz sprite[i].z, sub posz sprite[searchwall].z
 
-                updatecursectnum
+                    updatecursectnum
 
-                return
+                    return
+                }
             }
+        }
+        else ife sprite[searchwall].extra 123
+        {
+            state duprot
+            add sprite[searchwall].extra 1
         }
     }
 

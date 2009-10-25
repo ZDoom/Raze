@@ -1524,6 +1524,7 @@ badindex:
             continue;
 
         case CON_DUPSPRITE:
+        case CON_TDUPSPRITE:
             insptr++;
             {
                 int32_t ospritenum = Gv_GetVarX(*insptr++), nspritenum;
@@ -1533,26 +1534,38 @@ badindex:
                     OSD_Printf(CON_ERROR "Tried to duplicate nonexistent sprite %d\n",g_errorLineNum,keyw[g_tw],ospritenum);
                     vm.flags |= VMFLAG_ERROR;
                 }
-                if (numsprites >= MAXSPRITES)
+                if ((tw==CON_DUPSPRITE && numsprites >= MAXSPRITES) ||
+                    (tw==CON_DUPSPRITE && spritesortcnt >= MAXSPRITESONSCREEN))
                 {
                     OSD_Printf(CON_ERROR "Maximum number of sprites reached.\n",g_errorLineNum,keyw[g_tw]);
                     vm.flags |= VMFLAG_ERROR;
                 }
                 if (vm.flags&VMFLAG_ERROR) continue;
 
-                nspritenum = insertsprite(sprite[ospritenum].sectnum, sprite[ospritenum].statnum);
-
-                if (nspritenum < 0)
+                if (tw==CON_DUPSPRITE)
                 {
-                    OSD_Printf(CON_ERROR "Internal error.\n",g_errorLineNum,keyw[g_tw]);
-                    vm.flags |= VMFLAG_ERROR;
-                    continue;
-                }
+                    nspritenum = insertsprite(sprite[ospritenum].sectnum, sprite[ospritenum].statnum);
 
-                Bmemcpy(&sprite[nspritenum], &sprite[ospritenum], sizeof(spritetype));
-                vm.g_i = nspritenum;
-                vm.g_sp = &sprite[nspritenum];
-                numsprites++;
+                    if (nspritenum < 0)
+                    {
+                        OSD_Printf(CON_ERROR "Internal error.\n",g_errorLineNum,keyw[g_tw]);
+                        vm.flags |= VMFLAG_ERROR;
+                        continue;
+                    }
+
+                    Bmemcpy(&sprite[nspritenum], &sprite[ospritenum], sizeof(spritetype));
+                    vm.g_i = nspritenum;
+                    vm.g_sp = &sprite[nspritenum];
+                    numsprites++;
+                }
+                else
+                {
+                    Bmemcpy(&tsprite[spritesortcnt], &sprite[ospritenum], sizeof(spritetype));
+                    tsprite[spritesortcnt].owner = ospritenum;
+                    vm.g_i = -1;
+                    vm.g_sp = &tsprite[spritesortcnt];
+                    spritesortcnt++;
+                }
             }
             continue;
 

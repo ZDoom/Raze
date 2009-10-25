@@ -1204,10 +1204,15 @@ static inline void prelevel(char g)
     }
 }
 
+int32_t premap_quickenterlevel=0;
+
 void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 {
     DukePlayer_t *p = g_player[0].ps;
     int32_t i;
+
+    if (!premap_quickenterlevel)
+        goto quick;
 
     handleevents();
     Net_GetPackets();
@@ -1250,6 +1255,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
         FX_StopAllSounds();
     }
 
+quick:
     g_showShareware = GAMETICSPERSEC*34;
 
     ud.level_number =   ln;
@@ -1653,7 +1659,6 @@ int32_t G_EnterLevel(int32_t g)
 
 //    flushpackets();
 //    waitforeverybody();
-
     vote_map = vote_episode = voting = -1;
 
     if ((g&MODE_DEMO) != MODE_DEMO) ud.recstat = ud.m_recstat;
@@ -1674,7 +1679,6 @@ int32_t G_EnterLevel(int32_t g)
     FX_SetReverb(0);
 
     setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP);
-
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
         int32_t volume, level;
@@ -1713,11 +1717,15 @@ int32_t G_EnterLevel(int32_t g)
         }
     }
 
-    i = ud.screen_size;
-    ud.screen_size = 0;
-    G_DoLoadScreen(NULL, -1);
-    G_UpdateScreenArea();
-    ud.screen_size = i;
+    if (!premap_quickenterlevel)
+    {
+        i = ud.screen_size;
+        ud.screen_size = 0;
+
+        G_DoLoadScreen(NULL, -1);
+        G_UpdateScreenArea();
+        ud.screen_size = i;
+    }
 
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
@@ -1728,7 +1736,6 @@ int32_t G_EnterLevel(int32_t g)
 
     Bstrcpy(tempbuf,apptitle);
     wm_setapptitle(tempbuf);
-
     if (!VOLUMEONE)
     {
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
@@ -1856,9 +1863,12 @@ int32_t G_EnterLevel(int32_t g)
         }
     }
 
-    g_precacheCount = 0;
-    clearbufbyte(gotpic,sizeof(gotpic),0L);
-    clearbufbyte(precachehightile, sizeof(precachehightile), 0l);
+    if (!premap_quickenterlevel)
+    {
+        g_precacheCount = 0;
+        clearbufbyte(gotpic,sizeof(gotpic),0L);
+        clearbufbyte(precachehightile, sizeof(precachehightile), 0l);
+    }
     //clearbufbyte(ActorExtra,sizeof(ActorExtra),0l); // JBF 20040531: yes? no?
 
     prelevel(g);
@@ -1869,7 +1879,8 @@ int32_t G_EnterLevel(int32_t g)
     cachedebug = 0;
     automapping = 0;
 
-    G_CacheMapData();
+    if (!premap_quickenterlevel)
+        G_CacheMapData();
 
     if (ud.recstat != 2)
     {
@@ -1919,10 +1930,13 @@ int32_t G_EnterLevel(int32_t g)
 
     //g_player[myconnectindex].ps->palette = palette;
     //G_FadePalette(0,0,0,0);
-    P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
+    if (!premap_quickenterlevel)
+    {
+        P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
 
-    P_UpdateScreenPal(g_player[myconnectindex].ps);
-    flushperms();
+        P_UpdateScreenPal(g_player[myconnectindex].ps);
+        flushperms();
+    }
 
     everyothertime = 0;
     g_globalRandom = 0;
@@ -1935,14 +1949,17 @@ int32_t G_EnterLevel(int32_t g)
 
     g_restorePalette = 1;
 
-    Net_WaitForEverybody();
-    mmulti_flushpackets();
+    if (!premap_quickenterlevel)
+    {
+        Net_WaitForEverybody();
+        mmulti_flushpackets();
 
-    G_FadePalette(0,0,0,0);
-    G_UpdateScreenArea();
-    clearview(0L);
-    G_DrawBackground();
-    G_DrawRooms(myconnectindex,65536);
+        G_FadePalette(0,0,0,0);
+        G_UpdateScreenArea();
+        clearview(0L);
+        G_DrawBackground();
+        G_DrawRooms(myconnectindex,65536);
+    }
 
     for (i=0; i<ud.multimode; i++)
         clearbufbyte(&g_player[i].playerquitflag,1,0x01010101);
@@ -1957,9 +1974,9 @@ int32_t G_EnterLevel(int32_t g)
     // variables are set by pointer...
 
     Bmemcpy(&currentboardfilename[0],&boardfilename[0],BMAX_PATH);
-
     X_OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
-    OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
+    if (!premap_quickenterlevel)
+        OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
     return 0;
 }
 

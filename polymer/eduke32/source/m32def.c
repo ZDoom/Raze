@@ -310,6 +310,7 @@ const char *keyw[] =
     "resetkey",
     "insertsprite",
     "dupsprite",
+    "tdupsprite",
     "deletesprite",
     "lastwall",
     "updatecursectnum",
@@ -2183,8 +2184,7 @@ repeatcase:
 
         if ((tw==CON_GETTSPR || tw==CON_SETTSPR) && cs.currentEvent != EVENT_ANALYZESPRITES)
         {
-            C_ReportError(-1);
-            initprintf("%s:%d: warning: found `%s' outside of EVENT_ANALYZESPRITES\n",g_szScriptFileName,g_lineNumber,tempbuf);
+            C_ReportError(WARNING_OUTSIDEDRAWSPRITE);
             g_numCompilerWarnings++;
         }
 
@@ -2733,6 +2733,12 @@ repeatcase:
     }
 
 // *** BUILD functions
+    case CON_TDUPSPRITE:
+        if (cs.currentEvent>=0 && cs.currentEvent != EVENT_ANALYZESPRITES)
+        {
+            C_ReportError(WARNING_OUTSIDEDRAWSPRITE);
+            g_numCompilerWarnings++;
+        }
     case CON_RESETKEY:
     case CON_INSERTSPRITE:
     case CON_DUPSPRITE:
@@ -3567,6 +3573,10 @@ void C_ReportError(int32_t iError)
     case WARNING_CONSTANTBITSIZE:
         initprintf("%s:%d: warning: constants where gamevars are expected save only 16 bits.\n",
                    g_szScriptFileName,g_lineNumber);
+        break;
+    case WARNING_OUTSIDEDRAWSPRITE:
+        initprintf("%s:%d: warning: found `%s' outside of EVENT_ANALYZESPRITES\n",
+                   g_szScriptFileName,g_lineNumber,tempbuf);
         break;
     }
 }
