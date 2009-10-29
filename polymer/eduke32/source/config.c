@@ -662,12 +662,6 @@ int32_t CONFIG_ReadSetup(void)
 
         SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
-#ifndef RANCID_NETWORKING
-        // The packetrate mechanism is specific to the eduke32 networking code
-        SCRIPT_GetNumber(ud.config.scripthandle, "Comm Setup", "Rate",(int32_t *)&packetrate);
-        packetrate = min(max(packetrate,50),1000);
-#endif
-
         SCRIPT_GetNumber(ud.config.scripthandle, "Setup","ConfigVersion",&ud.configversion);
         SCRIPT_GetNumber(ud.config.scripthandle, "Setup","ForceSetup",&ud.config.ForceSetup);
         SCRIPT_GetNumber(ud.config.scripthandle, "Setup","NoAutoLoad",&ud.config.NoAutoLoad);
@@ -1238,12 +1232,6 @@ void CONFIG_WriteSetup(void)
 
     SCRIPT_PutString(ud.config.scripthandle, "Comm Setup","PlayerName",&szPlayerName[0]);
     SCRIPT_PutString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
-
-#ifndef RANCID_NETWORKING
-    // The packetrate mechanism is specific to the eduke32 networking code
-    SCRIPT_PutNumber(ud.config.scripthandle, "Comm Setup", "Rate", packetrate, FALSE, FALSE);
-#endif
-
 
     SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",&duke3dgrp[0]);
 

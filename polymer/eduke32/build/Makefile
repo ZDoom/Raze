@@ -17,7 +17,6 @@ PRETTY_OUTPUT = 1
 #  USE_OPENGL     - enables OpenGL support in Polymost
 #  NOASM          - disables the use of inline assembly pragmas
 #  LINKED_GTK     - enables compile-time linkage to GTK
-#  RANCID_NETWORKING - enable network backend from rancidmeat port
 #
 
 SUPERBUILD ?= 1
@@ -27,7 +26,6 @@ USE_OPENGL ?= 1
 NOASM ?= 0
 LINKED_GTK ?= 0
 BUILD32_ON_64 ?= 0
-RANCID_NETWORKING ?= 0
 
 ifeq (0,$(USE_OPENGL))
 	POLYMER = 0
@@ -145,11 +143,7 @@ ifeq (1,$(POLYMER))
 	ENGINEOBJS+=  $(OBJ)/polymer.$o
 endif
 
-ifneq (0,$(RANCID_NETWORKING))
-	ENGINEOBJS+= $(OBJ)/mmulti_unstable.$o
-else
-	ENGINEOBJS+= $(OBJ)/mmulti.$o
-endif
+ENGINEOBJS+= $(OBJ)/mmulti_unstable.$o
 
 EDITOROBJS=$(OBJ)/build.$o \
 	$(OBJ)/config.$o

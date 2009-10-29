@@ -71,9 +71,6 @@ static int32_t g_noSound = 0;
 static int32_t g_noMusic = 0;
 static char *CommandMap = NULL;
 static char *CommandName = NULL;
-#ifndef RANCID_NETWORKING
-static char *CommandNet = NULL;
-#endif
 static int32_t g_keepAddr = 0;
 int32_t CommandWeaponChoice = 0;
 static struct strllist
@@ -9308,25 +9305,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     i++;
                     continue;
                 }
-#ifndef RANCID_NETWORKING
-                if (!Bstrcasecmp(c+1,"rmnet"))
-                {
-                    if (argc > i+1)
-                    {
-                        g_noSetup = TRUE;
-                        g_networkBroadcastMode = 1;
-                        CommandNet = (char *)argv[i+1];
-                        i++;
-                    }
-                    i++;
-                    continue;
-                }
-#endif
-                if (!Bstrcasecmp(c+1,"net")
-#ifdef RANCID_NETWORKING
-                        || !Bstrcasecmp(c+1,"rmnet")
-#endif
-                   )
+                if (!Bstrcasecmp(c+1,"net") || !Bstrcasecmp(c+1,"rmnet"))
                 {
                     g_noSetup = TRUE;
                     firstnet = i;
@@ -10178,20 +10157,6 @@ static void G_Startup(void)
     for (i=0; i<MAXPLAYERS; i++)
         g_player[i].playerreadyflag = 0;
 
-#ifndef RANCID_NETWORKING
-    if (CommandNet)
-    {
-        setup_rancid_net(CommandNet);
-        if (Bstrlen(rancid_ip_strings[MAXPLAYERS-1]))
-        {
-            initprintf("rmnet: Using %s as sort IP\n",rancid_ip_strings[MAXPLAYERS-1]);
-            initprintf("rmnet: %d players\n",rancid_players);
-        }
-        CommandNet = NULL;
-    }
-#endif
-
-#ifdef RANCID_NETWORKING
     // TODO: split this up in the same fine-grained manner as eduke32 network backend, to
     // allow for event handling
     mmulti_initmultiplayers(netparamcount,netparam);
@@ -10201,22 +10166,6 @@ static void G_Startup(void)
         G_Shutdown();
         return;
     }
-
-#else
-    if (initmultiplayersparms(netparamcount,netparam))
-    {
-        initprintf("Waiting for players...\n");
-        while (initmultiplayerscycle())
-        {
-            handleevents();
-            if (quitevent)
-            {
-                G_Shutdown();
-                return;
-            }
-        }
-    }
-#endif
 
     if (netparam) Bfree(netparam);
     netparam = NULL;
@@ -10637,25 +10586,10 @@ void app_main(int32_t argc,const char **argv)
     glusetexcache = -1;
 #endif
 
-    /*
-    #ifdef _WIN32
-        ud.config.CheckForUpdates = -1;
-    #endif
-    */
-
     i = CONFIG_ReadSetup();
     if (getenv("DUKE3DGRP")) duke3dgrp = getenv("DUKE3DGRP");
 
 #ifdef _WIN32
-    /*
-        if (ud.config.CheckForUpdates == -1)
-        {
-            i=wm_ynbox("Automatic Update Notifications",
-                       "Would you like to check for new versions of EDuke32 at startup?");
-            ud.config.CheckForUpdates = 0;
-            if (i) ud.config.CheckForUpdates = 1;
-        }
-    */
 
 //    initprintf("build %d\n",(uint8_t)atoi(BUILDDATE));
 
@@ -10699,15 +10633,8 @@ void app_main(int32_t argc,const char **argv)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (glusetexcache == -1)
     {
-#if 0
-        i=wm_ynbox("Texture Cache",
-                   "Would you like to enable the on-disk texture cache?\n\n"
-                   "You generally want to say 'yes' here, especially if using the HRP.");
-#else
-        i = 1;
-#endif
-        if (i) ud.config.useprecache = glusetexcompr = 1, glusetexcache = 2;
-        else glusetexcache = 0;
+        ud.config.useprecache = glusetexcompr = 1;
+        glusetexcache = 2;
     }
 #endif
 

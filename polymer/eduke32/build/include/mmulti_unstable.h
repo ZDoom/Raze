@@ -16,7 +16,7 @@ int32_t mmulti_getpacket(int32_t *other, char *bufptr);
 void mmulti_flushpackets(void);
 void mmulti_generic(int32_t other, char *bufptr, int32_t messleng, int32_t command);
 
-extern int32_t natfree;
+extern int32_t natfree, numplayers;
 
 #endif
 

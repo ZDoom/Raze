@@ -383,33 +383,6 @@ static int32_t osdcmd_fileinfo(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-/*
-static int32_t osdcmd_rate(const osdfuncparm_t *parm)
-{
-#ifndef RANCID_NETWORKING
-    int32_t i;
-
-    if (parm->numparms == 0)
-    {
-        OSD_Printf("\"rate\" is \"%d\"\n", packetrate);
-        return OSDCMD_SHOWHELP;
-    }
-    else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-    i = Batol(parm->parms[0]);
-
-    if (i >= 40 && i <= 1000)
-    {
-        packetrate = i;
-        OSD_Printf("rate %d\n", packetrate);
-    }
-    else OSD_Printf("rate: value out of range\n");
-#endif
-    UNREFERENCED_PARAMETER(parm);
-    return OSDCMD_OK;
-}
-*/
-
 static int32_t osdcmd_restartsound(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);

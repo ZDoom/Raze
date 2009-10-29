@@ -27,18 +27,6 @@
 #define PLATFORM_WIN32 1
 #else
 #define PLATFORM_UNIX 1
-
-#include <sys/time.h>
-static int32_t GetTickCount(void)
-{
-    struct timeval tv;
-    int32_t ti;
-    if (gettimeofday(&tv,NULL) < 0) return 0;
-    // tv is sec.usec, GTC gives msec
-    ti = tv.tv_sec * 1000;
-    ti += tv.tv_usec / 1000;
-    return ti;
-}
 #endif
 
 #define UDP_NETWORKING 1
@@ -1001,9 +989,6 @@ static int32_t open_udp_socket(int32_t ip, int32_t port)
 
 typedef struct peergreeting_t
 {
-    char dummy1;   /* so these don't confuse game after load. */
-    char dummy2;   /* so these don't confuse game after load. */
-    char dummy3;   /* so these don't confuse game after load. */
     char header;   /* always HEADER_PEER_GREETING (245). */
     uint16_t id;
 } PacketPeerGreeting;
@@ -1142,6 +1127,7 @@ static int32_t wait_for_other_players(gcomtype *gcom, int32_t myip)
             {
                 initprintf("network: ERROR: Two players have the same random ID!\n");
                 initprintf("network: ERROR: Please restart the game to generate new IDs.\n");
+                quitevent = 1;
                 return(0);
             }
 
@@ -1190,11 +1176,11 @@ static int32_t wait_for_other_players(gcomtype *gcom, int32_t myip)
                 gcom->myconnectindex = i;
         }
 
-        initprintf("network: player #%i at %s:%i\n", i,static_ipstring(ip),allowed_addresses[i].port);
+        initprintf("network: Player #%i at %s:%i\n", i,static_ipstring(ip),allowed_addresses[i].port);
     }
 //    assert(gcom->myconnectindex);
 
-    initprintf("network: We are player #%i\n", gcom->myconnectindex);
+    initprintf("network: Server initialized.\n");
 
     return(1);
 }
@@ -1220,9 +1206,11 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
 
     while (my_id == 0)  /* player number is based on id, low to high. */
     {
-        my_id = (unsigned short)GetTickCount();
-        // my_id = (uint16_t) rand();
+        srand(myip + udpport);
+        my_id = rand() % USHRT_MAX;
     }
+
+    srand(1);
 
     initprintf("network: Using 0x%X as client ID\n", my_id);
 
@@ -1429,12 +1417,11 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
 
     while (my_id == 0)  /* player number is based on id, low to high. */
     {
-        /*        struct timeval tv;
-                gettimeofday(&tv, NULL);
-                my_id = (unsigned short)tv.tv_usec; //HACK */
-        my_id = (uint16_t) rand();
+        srand(myip + udpport);
+        my_id = rand() % USHRT_MAX;
     }
 
+    srand(1);
 
     initprintf("network: Using 0x%X as client ID\n", my_id);
 
@@ -1617,6 +1604,7 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
             {
                 initprintf("network: ERROR: Two players have the same random ID!\n");
                 initprintf("network: ERROR: Please restart the game to generate new IDs.\n");
+                quitevent = 1;
                 return(0);
             }
 
@@ -1665,7 +1653,7 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
                 gcom->myconnectindex = i;
         }
 
-        initprintf("network: player #%i at %s:%i\n", i,static_ipstring(ip),allowed_addresses[i].port);
+        initprintf("network: Player #%i at %s:%i\n", i,static_ipstring(ip),allowed_addresses[i].port);
     }
 //    assert(gcom->myconnectindex);
 

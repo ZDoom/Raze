@@ -738,7 +738,7 @@ void polymost_glinit()
     }
     else rewind(cacheindexptr);
 
-    cachefilehandle = Bopen(TEXCACHEFILE,BO_BINARY|BO_CREAT|BO_APPEND|BO_RDWR,BS_IREAD|BS_IWRITE);
+    cachefilehandle = Bopen(TEXCACHEFILE, BO_BINARY|BO_CREAT|BO_APPEND|BO_RDWR, BS_IREAD|BS_IWRITE);
 
     if (cachefilehandle < 0)
     {
@@ -757,7 +757,9 @@ void polymost_glinit()
     }
 
     curcacheindex = firstcacheindex;
-    initprintf("Cache contains %d bytes of garbage data\n",Blseek(cachefilehandle, 0, BSEEK_END)-i);
+    i = Blseek(cachefilehandle, 0, BSEEK_END)-i;
+    if (i)
+        initprintf("Cache contains %d bytes of garbage data\n",i);
 //    Blseek(cachefilehandle, 0, BSEEK_SET);
 }
 

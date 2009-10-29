@@ -38,7 +38,7 @@
 #include "build.h"
 #include "a.h"
 #include "osd.h"
-#include "mmulti.h"
+#include "mmulti_unstable.h"
 
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE

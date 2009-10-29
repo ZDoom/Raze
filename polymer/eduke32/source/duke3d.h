@@ -39,11 +39,7 @@ extern "C" {
 #include "cache1d.h"
 #include "pragmas.h"
 
-#ifdef RANCID_NETWORKING
 #include "mmulti_unstable.h"
-#else
-#include "mmulti.h"
-#endif
 
 #include "baselayer.h"
 
@@ -636,9 +632,6 @@ extern char g_numVolumes;
 
 extern int32_t g_lastSaveSlot;
 extern int32_t g_restorePalette;
-#ifndef RANCID_NETWORKING
-extern int32_t packetrate;
-#endif
 
 extern int32_t cachecount;
 extern char boardfilename[BMAX_PATH];

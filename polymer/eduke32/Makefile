@@ -18,7 +18,6 @@ USE_OPENGL = 1
 NOASM = 0
 LINKED_GTK = 0
 BUILD32_ON_64 = 0
-RANCID_NETWORKING = 1
 
 # Debugging/Build options
 RELEASE?=1
@@ -242,11 +241,7 @@ endif
 
 include Makefile.deps
 
-ifneq (0,$(RANCID_NETWORKING))
-	duke3d_h+=$(EINC)/mmulti_unstable.h
-else
-	duke3d_h+=$(EINC)/mmulti.h
-endif
+duke3d_h+=$(EINC)/mmulti_unstable.h
 
 .PHONY: enginelib editorlib
 enginelib editorlib:
@@ -257,7 +252,7 @@ endif
 	$(MAKE) -C $(EROOT)/ "OBJ=../$(EOBJ)" \
 		SUPERBUILD=$(SUPERBUILD) POLYMOST=$(POLYMOST) DEBUGANYWAY=$(DEBUGANYWAY)\
 		USE_OPENGL=$(USE_OPENGL) BUILD32_ON_64=$(BUILD32_ON_64) \
-		NOASM=$(NOASM) RELEASE=$(RELEASE) OPTLEVEL=$(OPTLEVEL) RANCID_NETWORKING=$(RANCID_NETWORKING) $@
+		NOASM=$(NOASM) RELEASE=$(RELEASE) OPTLEVEL=$(OPTLEVEL) $@
 ifeq ($(PRETTY_OUTPUT),1)		
 	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)\033[0;35m \033[0m\n"
 endif	
