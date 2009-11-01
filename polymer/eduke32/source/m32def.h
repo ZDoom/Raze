@@ -364,12 +364,12 @@ enum ScriptKeywords_t
     CON_IFANGDIFFL,
     CON_IFSPRITEPAL,
     CON_IFACTOR,
+    CON_IFSOUND,
     CON_IFPDISTL,
     CON_IFPDISTG,
 ///    CON_IFGAPZL,
 ///    CON_IFFLOORDISTL,
 ///    CON_IFCEILINGDISTL,
-///    CON_IFSOUND,
 
     CON_IFINSIDE,
 
@@ -385,7 +385,7 @@ enum ScriptKeywords_t
 ///    CON_IFINSPACE,
 ///    CON_IFINOUTERSPACE,
 ///    CON_IFCANSEETARGET,
-///    CON_IFNOSOUNDS,
+    CON_IFNOSOUNDS,
 
 // BUILD functions
     CON_RESETKEY,
@@ -476,15 +476,16 @@ enum ScriptKeywords_t
 // left to define later/undecided
 
 // sound
+    CON_SOUNDVAR,
+    CON_SOUNDONCEVAR,
+    CON_STOPALLSOUNDS,
+    CON_STOPSOUNDVAR,
+    CON_GLOBALSOUNDVAR,
+    CON_GETSOUNDFLAGS,
 ///    CON_SOUND,
-///    CON_SOUNDVAR,
 ///    CON_SOUNDONCE,
 ///    CON_STOPSOUND,
 ///    CON_GLOBALSOUND,
-///    CON_SOUNDONCEVAR,
-///    CON_STOPALLSOUNDS,
-///    CON_STOPSOUNDVAR,
-///    CON_GLOBALSOUNDVAR,
 
 // drawing
 ///    CON_MYOS,

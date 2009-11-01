@@ -100,6 +100,8 @@ static char *rtsptr;
 extern int32_t numlumps;
 
 static FILE *frecfilep = (FILE *)NULL;
+static int32_t demo_goalreccnt=0, demo_startreccnt=0, demo_oldsoundtoggle, demo_showstats=1;
+static int32_t demo_paused=0;
 
 int32_t g_restorePalette, g_screenCapture;
 static int32_t g_noLogoAnim = 0;
@@ -3766,7 +3768,7 @@ void G_DisplayRest(int32_t smoothratio)
         extern int32_t mdpause;
 
         mdpause = 0;
-        if (ud.pause_on || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2))
+        if (ud.pause_on || (ud.recstat==2 && (demo_paused && demo_goalreccnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2))
             mdpause = 1;
     }
 #endif
@@ -8113,8 +8115,6 @@ static void G_ShowScores(void)
 
 #undef SCORESHEETOFFSET
 
-static int32_t demo_goalreccnt=0, demo_startreccnt=0, demo_oldsoundtoggle, demo_showstats=1;
-
 static void G_HandleLocalKeys(void)
 {
     int32_t i,ch;
@@ -8236,6 +8236,12 @@ static void G_HandleLocalKeys(void)
 
     if (ud.recstat == 2)
     {
+        if (KB_KeyPressed(sc_Space))
+        {
+            KB_ClearKeyDown(sc_Space);
+            demo_paused = !demo_paused;
+        }
+
         if (KB_KeyPressed(sc_Tab))
         {
             KB_ClearKeyDown(sc_Tab);
@@ -8271,11 +8277,11 @@ static void G_HandleLocalKeys(void)
         {
             KB_ClearKeyDown(sc_kpad_6);
             j = ALT_IS_PRESSED ? 30 : 10;
-            demo_goalreccnt = ud.reccnt-(TICRATE/TICSPERFRAME)*ud.multimode*j;
+            demo_goalreccnt = demo_paused ? ud.reccnt-ud.multimode : ud.reccnt-(TICRATE/TICSPERFRAME)*ud.multimode*j;
             demo_oldsoundtoggle = ud.config.SoundToggle;
 
-            j=(demo_startreccnt-ud.reccnt)/(ud.multimode*(TICRATE/TICSPERFRAME));
-            OSD_Printf("  FF %d s from %02d:%02d\n", ALT_IS_PRESSED ? 30 : 10, j/60, j%60);
+//            j=(demo_startreccnt-ud.reccnt)/(ud.multimode*(TICRATE/TICSPERFRAME));
+//            OSD_Printf("  FF %d s from %02d:%02d\n", ALT_IS_PRESSED ? 30 : 10, j/60, j%60);
 
             if (demo_goalreccnt <= 0)
                 demo_goalreccnt = 0;
@@ -8285,16 +8291,17 @@ static void G_HandleLocalKeys(void)
                 FX_StopAllSounds();
                 S_ClearSoundLocks();
             }
+        
         }
         else if (KB_KeyPressed(sc_kpad_4))
         {
             KB_ClearKeyDown(sc_kpad_4);
             j = ALT_IS_PRESSED ? 30 : 10;
-            demo_goalreccnt = ud.reccnt+(TICRATE/(TICRATE/GAMETICSPERSEC))*ud.multimode*j;
+            demo_goalreccnt = demo_paused ? ud.reccnt+ud.multimode : ud.reccnt+(TICRATE/TICSPERFRAME)*ud.multimode*j;
             demo_oldsoundtoggle = ud.config.SoundToggle;
 
-            j=(demo_startreccnt-ud.reccnt)/(ud.multimode*TICRATE/(TICRATE/GAMETICSPERSEC));
-            OSD_Printf("  RW %d s from %02d:%02d\n", ALT_IS_PRESSED ? 30 : 10, j/60, j%60);
+//            j=(demo_startreccnt-ud.reccnt)/(ud.multimode*TICRATE/TICSPERFRAME);
+//            OSD_Printf("  RW %d s from %02d:%02d\n", ALT_IS_PRESSED ? 30 : 10, j/60, j%60);
 
             if (demo_goalreccnt > demo_startreccnt)
                 demo_goalreccnt = demo_startreccnt;
@@ -8304,6 +8311,21 @@ static void G_HandleLocalKeys(void)
             FX_StopAllSounds();
             S_ClearSoundLocks();
         }
+
+#if 0
+// just what is wrong with that?
+        if (KB_KeyPressed(sc_Return) && ud.multimode==1)
+        {
+            KB_ClearKeyDown(sc_Return);
+            ud.reccnt = 0;
+            ud.recstat = 0;
+//            kclose(recfilep);
+            g_player[myconnectindex].ps->gm = MODE_GAME;
+            ready2send=0;
+            screenpeek=myconnectindex;
+            demo_paused=0;
+        }
+#endif
     }
 
     if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED)
@@ -11550,10 +11572,24 @@ RECHECK:
 
     while (ud.reccnt > 0 || foundemo == 0)
     {
-        if (foundemo)
+        if (foundemo && (!demo_paused || demo_goalreccnt!=0))
         {
-            while (totalclock >= (lockclock+TICSPERFRAME) ||
-                   (demo_goalreccnt>0 && demo_goalreccnt<ud.reccnt))
+            if (demo_goalreccnt < 0)
+            {
+                demo_goalreccnt = -demo_goalreccnt;
+
+                if (g_whichDemo > 1)  // load the same demo again and FF from beginning... yay!
+                    g_whichDemo--;
+                foundemo = 0;
+                ud.reccnt = 0;
+                kclose(recfilep);
+                premap_quickenterlevel=1;
+                goto RECHECK;
+            }
+
+            while (totalclock >= (lockclock+TICSPERFRAME)
+                   || (ud.reccnt > (TICRATE/TICSPERFRAME)*2 && ud.pause_on)
+                   || (demo_goalreccnt>0 && demo_goalreccnt<ud.reccnt))
             {
                 if ((i == 0) || (i >= RECSYNCBUFSIZ))
                 {
@@ -11582,22 +11618,9 @@ RECHECK:
 
                 if (demo_goalreccnt > 0)
                 {
-                    if (demo_goalreccnt<ud.reccnt)
+                    if (demo_goalreccnt<ud.reccnt || (ud.reccnt > (TICRATE/TICSPERFRAME)*2 && ud.pause_on))
                         totalclock += TICSPERFRAME;
                 }
-                else if (demo_goalreccnt < 0)
-                {
-                    demo_goalreccnt = -demo_goalreccnt;
-
-                    if (g_whichDemo > 1)  // load the same demo again and FF from beginning... yay!
-                        g_whichDemo--;
-                    foundemo = 0;
-                    ud.reccnt = 0;
-                    kclose(recfilep);
-                    premap_quickenterlevel=1;
-                    goto RECHECK;
-                }
-                
             }
 
             if (demo_goalreccnt > 0 && ud.reccnt<=demo_goalreccnt)
@@ -11606,6 +11629,10 @@ RECHECK:
                 ud.config.SoundToggle = demo_oldsoundtoggle;
                 premap_quickenterlevel = 0;
             }
+        }
+        else if (foundemo && demo_paused && demo_goalreccnt==0)
+        {
+            lockclock = ototalclock = totalclock;
         }
 
         if (foundemo == 0)
@@ -11624,6 +11651,18 @@ RECHECK:
                 j=(demo_startreccnt-ud.reccnt)/(TICRATE/TICSPERFRAME);
                 Bsprintf(buf, "%02d:%02d", j/60, j%60);
                 gametext(18,16,buf,0,2+8+16);
+
+                rotatesprite(60<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,0,0,(xdim*95)/320,ydim-1);
+                rotatesprite(90<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,(xdim*95)/320,0,(xdim*125)/320,ydim-1);
+                rotatesprite(120<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,(xdim*125)/320,0,(xdim*155)/320,ydim-1);
+                rotatesprite(150<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,(xdim*155)/320,0,xdim-1,ydim-1);
+
+                j = (182<<16) - ((((120*ud.reccnt)<<4)/demo_startreccnt)<<12);
+                rotatesprite(j,(16<<16)+(1<<15),32768,0,SLIDEBAR+1,0,0,2+8+16,0,0,xdim-1,ydim-1);
+
+                j=ud.reccnt/(TICRATE/TICSPERFRAME);
+                Bsprintf(buf, "-%02d:%02d%s", j/60, j%60, demo_paused?"   ^15PAUSED":"");
+                gametext(194,16,buf,0,2+8+16);
             }
 
             if (ud.multimode > 1 && g_player[myconnectindex].ps->gm)

@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "m32script.h"
 #include "m32def.h"
 #include "cache1d.h"
+#include "sounds_mapster32.h"
 
 //#include "osd.h"
 #include "keys.h"
@@ -292,6 +293,7 @@ const char *keyw[] =
     "ifangdiffl",
     "ifspritepal",
     "ifactor",
+    "ifsound",
     "ifpdistl",
     "ifpdistg",
 
@@ -305,6 +307,7 @@ const char *keyw[] =
     "ifonwater",
     "ifinwater",
     "ifoutside",
+    "ifnosounds",
 
 // BUILD functions
     "resetkey",
@@ -386,6 +389,13 @@ const char *keyw[] =
     "sectgethitag",
     "gettexturefloor",
     "gettextureceiling",
+
+    "sound", //var
+    "soundonce", //var
+    "stopallsounds",
+    "stopsound", //var
+    "globalsound", //var
+    "getsoundflags",
 
 ///    "killit",
 
@@ -2646,12 +2656,12 @@ repeatcase:
     case CON_IFANGDIFFL:
     case CON_IFSPRITEPAL:
     case CON_IFACTOR:
+    case CON_IFSOUND:
     case CON_IFPDISTL:
     case CON_IFPDISTG:
 ///    case CON_IFGAPZL:
 ///    case CON_IFFLOORDISTL:
 ///    case CON_IFCEILINGDISTL:
-///    case CON_IFSOUND:
 // ---
     case CON_IFINSIDE:
 // ---
@@ -2667,7 +2677,7 @@ repeatcase:
 ///    case CON_IFINSPACE:
 ///    case CON_IFINOUTERSPACE:
 ///    case CON_IFCANSEETARGET:
-///    case CON_IFNOSOUNDS:
+    case CON_IFNOSOUNDS:
     {
         ofstype offset;
         ofstype lastScriptOfs = (g_scriptPtr-script-1);
@@ -3022,6 +3032,7 @@ repeatcase:
     case CON_SECTGETHITAG:
     case CON_GETTEXTUREFLOOR:
     case CON_GETTEXTURECEILING:
+    case CON_STOPALLSOUNDS:
         // no paramaters...
         return 0;
 
@@ -3036,11 +3047,16 @@ repeatcase:
         break;
 
 ///    case CON_ANGOFF:
-///    case CON_SOUND:
-///    case CON_GLOBALSOUND:
-///    case CON_SOUNDONCE:
-///    case CON_STOPSOUND:
 
+    case CON_GETSOUNDFLAGS:
+        C_GetNextVar();
+        C_GetNextVarType(GAMEVAR_READONLY);
+        break;
+
+    case CON_SOUNDVAR:
+    case CON_STOPSOUNDVAR:
+    case CON_SOUNDONCEVAR:
+    case CON_GLOBALSOUNDVAR:
     case CON_CSTATOR:
     case CON_SPRITEPAL:
     case CON_CACTOR:
@@ -3131,6 +3147,7 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("MAXWALLS", MAXWALLS, LABEL_DEFINE);
     C_AddDefinition("MAXTILES", MAXTILES, LABEL_DEFINE);
     C_AddDefinition("MAXSTATUS", MAXSTATUS, LABEL_DEFINE);
+    C_AddDefinition("MAXSOUNDS", MAXSOUNDS, LABEL_DEFINE);
 
 // keys
     C_AddDefinition("KEY_SPACE", KEYSC_SPACE, LABEL_DEFINE);

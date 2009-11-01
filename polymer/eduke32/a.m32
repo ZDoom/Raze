@@ -370,6 +370,26 @@ onevent EVENT_ANALYZESPRITES
 endevent
 
 onevent EVENT_KEYS3D
+    // door sound tester
+    ife searchstat 0
+    ifholdkey KEY_SPACE
+    {
+        set k wall[searchwall].nextsector
+        ifl k 0 set k searchsector
+
+        ife sector[k].lotag 0 return
+
+        for i spritesofsector k
+        {
+            ifactor MUSICANDSFX
+            ifge .lotag 0 ifl .lotag MAXSOUNDS
+            {
+                getsoundflags .lotag m
+                ifand m 1 nullop else soundonce .lotag
+            }
+        }
+    }
+
     // swinging doors tester -- hit space on a door wall
     ife searchstat 0
     ifhitkey KEY_SPACE  // SE11 ST23 up:ccw

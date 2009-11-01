@@ -21,6 +21,9 @@ typedef struct {
     char *definedname;  // new
 } sound_t;
 
+#define MAXSOUNDS 2560
+extern sound_t g_sounds[MAXSOUNDS];
+
 int32_t S_SoundStartup(void);
 void S_SoundShutdown(void);
 int32_t S_PlaySound3D(int32_t, int32_t, const vec3_t*);
@@ -34,7 +37,5 @@ int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
 void S_ClearSoundLocks(void);
 
 #pragma pack(pop)
-
-#define MAXSOUNDS 2560
 
 #endif

@@ -28,6 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "m32script.h"
 #include "m32def.h"
 #include "macros.h"
+#include "sounds_mapster32.h"
+#include "fx_man.h"
 //#include "scriplib.h"
 
 //#include "osdcmds.h"
@@ -2557,6 +2559,89 @@ dodefault:
             case 2: SetSLIMEPalette(); break;
             case 3: SetBOSS1Palette(); break;
             }
+            continue;
+
+// *** sounds
+        case CON_IFSOUND:
+            insptr++;
+            {
+                int32_t j=Gv_GetVarX(*insptr);
+                if (j<0 || j>=MAXSOUNDS)
+                {
+                    OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);
+                    vm.flags |= VMFLAG_ERROR;
+                    insptr++;
+                    continue;
+                }
+                X_DoConditional(S_CheckSoundPlaying(vm.g_i,j));
+            }
+            continue;
+
+        case CON_IFNOSOUNDS:
+        {
+            int32_t j = MAXSOUNDS-1;
+            for (; j>=0; j--)
+                if (g_sounds[j].SoundOwner[0].i == vm.g_i)
+                    break;
+
+            X_DoConditional(j < 0);
+        }
+        continue;
+
+        case CON_GETSOUNDFLAGS:
+            insptr++;
+            {
+                int32_t j=Gv_GetVarX(*insptr++), var=*insptr++;
+                if (j<0 || j>=MAXSOUNDS)
+                {
+                    OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);
+                    vm.flags |= VMFLAG_ERROR;
+                    insptr++;
+                    continue;
+                }
+
+                Gv_SetVarX(var, g_sounds[j].m);
+            }
+            continue;
+
+        case CON_SOUNDVAR:
+        case CON_STOPSOUNDVAR:
+        case CON_SOUNDONCEVAR:
+        case CON_GLOBALSOUNDVAR:
+            insptr++;
+            {
+                int32_t j=Gv_GetVarX(*insptr++);
+
+                if (j<0 || j>=MAXSOUNDS)
+                {
+                    OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);
+                    vm.flags |= VMFLAG_ERROR;
+                    continue;
+                }
+
+                switch (tw)
+                {
+                case CON_SOUNDONCEVAR:
+                    if (!S_CheckSoundPlaying(vm.g_i,j))
+                        A_PlaySound((int16_t)j,vm.g_i);
+                    break;
+                case CON_GLOBALSOUNDVAR:
+                    A_PlaySound((int16_t)j,-1);
+                    break;
+                case CON_STOPSOUNDVAR:
+                    if (S_CheckSoundPlaying(vm.g_i,j))
+                        S_StopSound((int16_t)j);
+                    break;
+                case CON_SOUNDVAR:
+                    A_PlaySound((int16_t)j,vm.g_i);
+                    break;
+                }
+            }
+            continue;
+
+        case CON_STOPALLSOUNDS:
+            insptr++;
+            FX_StopAllSounds();
             continue;
 
         default:

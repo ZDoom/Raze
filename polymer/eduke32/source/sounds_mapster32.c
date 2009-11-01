@@ -48,10 +48,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static char SM32_havesound = 0;
 
-#pragma pack(push,1)
-extern sound_t g_sounds[MAXSOUNDS];
-#pragma pack(pop)
-
 char SoundToggle = 1;
 int32_t NumVoices = 32;
 
