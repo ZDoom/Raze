@@ -88,7 +88,7 @@ static int16_t *dotp1[MAXYDIM], *dotp2[MAXYDIM];
 static int8_t tempbuf[MAXWALLS];
 
 int32_t ebpbak, espbak;
-int32_t slopalookup[16384];    // was 2048
+intptr_t slopalookup[16384];    // was 2048
 #if defined(USE_OPENGL)
 palette_t palookupfog[MAXPALOOKUPS];
 #endif
@@ -453,8 +453,8 @@ char globparaceilclip, globparaflorclip;
 
 int32_t xyaspect, viewingrangerecip;
 
-intptr_t asm1, asm2, asm3, asm4;
-int32_t vplce[4], vince[4], palookupoffse[4], bufplce[4];
+intptr_t asm1, asm2, asm3, asm4,palookupoffse[4];
+int32_t vplce[4], vince[4], bufplce[4];
 char globalxshift, globalyshift;
 int32_t globalxpanning, globalypanning, globalshade;
 int16_t globalpicnum, globalshiftval;
@@ -709,8 +709,8 @@ skipitaddwall:
 //
 static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, int32_t *swal, int32_t *lwal)
 {
-    int32_t x,/* startx,*/ xnice, ynice, fpalookup;
-    intptr_t startx, p;
+    int32_t x,/* startx,*/ xnice, ynice;
+    intptr_t startx, p, fpalookup;
     int32_t y1ve[4], y2ve[4], /* p,*/ tsizx, tsizy;
 #ifndef ENGINE_USING_A_C
     char bad;
@@ -1737,7 +1737,8 @@ static void florscan(int32_t x1, int32_t x2, int32_t sectnum)
 //
 static void wallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, int32_t *swal, int32_t *lwal)
 {
-    int32_t x, xnice, ynice, fpalookup;
+    int32_t x, xnice, ynice;
+    intptr_t fpalookup;
     int32_t y1ve[4], y2ve[4], tsizx, tsizy;
 #ifndef ENGINE_USING_A_C
     char bad;
@@ -2092,9 +2093,10 @@ static inline void ceilspritescan(int32_t x1, int32_t x2)
 #define BITSOFPRECISION 3  //Don't forget to change this in A.ASM also!
 static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
 {
-    int32_t i, j, l, x, y, dx, dy, wx, wy, y1, y2, daz;
+    int32_t i, l, x, y, dx, dy, wx, wy, y1, y2, daz;
     int32_t daslope, dasqr;
-    int32_t shoffs, shinc, m1, m2, *mptr1, *mptr2, *nptr1, *nptr2;
+    int32_t shoffs, shinc, m1, m2;
+    intptr_t *mptr1, *mptr2, *nptr1, *nptr2,j;
     walltype *wal;
     sectortype *sec;
 
@@ -2213,7 +2215,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     //Avoid visibility overflow by crossing horizon
     if (globalzd > 0) m1 += (globalzd>>16); else m1 -= (globalzd>>16);
     m2 = m1+l;
-    mptr1 = (int32_t *)&slopalookup[y1+(shoffs>>15)]; mptr2 = mptr1+1;
+    mptr1 = (intptr_t *)&slopalookup[y1+(shoffs>>15)]; mptr2 = mptr1+1;
 
     for (x=dax1; x<=dax2; x++)
     {
@@ -2221,8 +2223,8 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
         else { y1 = max(umost[x],dplc[x]); y2 = dmost[x]-1; }
         if (y1 <= y2)
         {
-            nptr1 = (int32_t *)&slopalookup[y1+(shoffs>>15)];
-            nptr2 = (int32_t *)&slopalookup[y2+(shoffs>>15)];
+            nptr1 = (intptr_t *)&slopalookup[y1+(shoffs>>15)];
+            nptr2 = (intptr_t *)&slopalookup[y2+(shoffs>>15)];
             while (nptr1 <= mptr1)
             {
                 *mptr1-- = j + (getpalookup((int32_t)mulscale24(krecipasm(m1),globvis),globalshade)<<8);
