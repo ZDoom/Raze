@@ -36,7 +36,7 @@
 #endif
 
 #define USE_ALLOCATOR 1
-#define REPLACE_SYSTEM_ALLOCATOR 0
+// #define REPLACE_SYSTEM_ALLOCATOR
 #define USE_MAGIC_HEADERS 0
 #include "nedmalloc.h"
 

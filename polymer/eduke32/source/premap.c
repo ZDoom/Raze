@@ -453,7 +453,7 @@ void G_CacheMapData(void)
     {
         tloadtile(sector[i].floorpicnum, 0);
         tloadtile(sector[i].ceilingpicnum, 0);
-        if (sector[i].ceilingpicnum == LA)  // JBF 20040509: if( waloff[sector[i].ceilingpicnum] == LA) WTF??!??!?!?
+        if (sector[i].ceilingpicnum == LA)  // JBF 20040509: if( waloff[sector[i].ceilingpicnum] == LA) WTF?!?!?!?
         {
             tloadtile(LA+1, 0);
             tloadtile(LA+2, 0);
@@ -1211,7 +1211,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
     DukePlayer_t *p = g_player[0].ps;
     int32_t i;
 
-    if (!premap_quickenterlevel)
+    if (premap_quickenterlevel)
         goto quick;
 
     handleevents();

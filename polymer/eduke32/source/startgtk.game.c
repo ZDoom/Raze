@@ -1,158 +1,80 @@
-/* NOTE: Glade will generate code for a dialogue box which you should
- * then patch into this file whenever you make a change to the Glade
- * template.
- */
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "dynamicgtk.h"
+#if defined(LINKED_GTK)
+	#include <gtk/gtk.h>
+	#include <gdk-pixbuf/gdk-pixdata.h>
+#else
+	#include "dynamicgtk.h"
+#endif
 
 #include "duke3d.h"
-#include "build.h"
-#include "compat.h"
-#include "baselayer.h"
-
 #include "grpscan.h"
+#include "build.h"
 
 #define TAB_CONFIG 0
 #define TAB_GAME 1
 #define TAB_MESSAGES 2
+#define Polymost 3
+#define Polymer 4
 
 static struct
 {
+	GtkWidget *startwin;
+	GtkWidget *hlayout;
+	GtkWidget *banner;
+	GtkWidget *vlayout;
+    GtkWidget *tabs;
+    GtkWidget *configvlayout;
+    GtkWidget *configtlayout;
+	GtkWidget *displayvlayout;
+	GtkWidget *vmode3dlabel;
+	GtkWidget *vmode3dcombo;
+    GtkWidget *fullscreencheck;
+	GtkWidget *polymercheck;
+	GtkWidget *emptyhlayout;
+    GtkWidget *inputdevlabel;
+	GtkWidget *inputhlayout;
+    GtkWidget *inputmousecheck;
+    GtkWidget *inputjoycheck;
+	GtkWidget *autoloadcheck;
+    GtkWidget *alwaysshowcheck;
+    GtkWidget *configtab;
+    GtkWidget *gamevlayout;
+    GtkWidget *gamelabel;
+    GtkWidget *gamescroll;
+    GtkWidget *gamelist;
+    GtkWidget *gametab;
+    GtkWidget *messagesscroll;
+    GtkWidget *messagestext;
+    GtkWidget *messagestab;
+    GtkWidget *buttons;
+    GtkWidget *cancelbutton;
+    GtkWidget *cancelbuttonalign;
+    GtkWidget *cancelbuttonlayout;
+    GtkWidget *cancelbuttonicon;
+    GtkWidget *cancelbuttonlabel;
+    GtkWidget *startbutton;
+    GtkWidget *startbuttonalign;
+    GtkWidget *startbuttonlayout;
+    GtkWidget *startbuttonicon;
+    GtkWidget *startbuttonlabel;
+} stwidgets;
+	
+static struct
+{
     int32_t fullscreen;
+    int32_t polymer;
     int32_t xdim3d, ydim3d, bpp3d;
     int32_t forcesetup;
+	int32_t autoload;
     int32_t usemouse, usejoy;
     int32_t game;
     int32_t crcval;
     char selectedgrp[BMAX_PATH];
 } settings;
 
-extern int32_t gtkenabled;
-
-static GtkWidget *startwin = NULL;
 static int32_t retval = -1, mode = TAB_MESSAGES;
+extern int32_t gtkenabled;
+static void PopulateForm(int32_t pgs);
 
-// -- SUPPORT FUNCTIONS -------------------------------------------------------
-
-#define GLADE_HOOKUP_OBJECT(component,widget,name) \
-  g_object_set_data_full (G_OBJECT (component), name, \
-    gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)
-
-#define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
-  g_object_set_data (G_OBJECT (component), name, widget)
-
-#define lookup_widget(x,w) \
-	(GtkWidget*) g_object_get_data(G_OBJECT(x), w)
-
-static GdkPixbuf *load_banner(void)
-{
-    extern const GdkPixdata startbanner_pixdata;
-    return gdk_pixbuf_from_pixdata(&startbanner_pixdata, FALSE, NULL);
-}
-
-static void SetPage(int32_t n)
-{
-    if (!gtkenabled || !startwin) return;
-    mode = n;
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(lookup_widget(startwin,"tabs")), n);
-
-    // each control in the config page vertical layout plus the start button should be made (in)sensitive
-    if (n == TAB_CONFIG) n = TRUE; else n = FALSE;
-    gtk_widget_set_sensitive(lookup_widget(startwin,"startbutton"), n);
-    gtk_container_foreach(GTK_CONTAINER(lookup_widget(startwin,"configvlayout")),
-                          (GtkCallback)gtk_widget_set_sensitive, (gpointer)n);
-}
-
-static void on_vmode3dcombo_changed(GtkComboBox *, gpointer);
-static void on_gamelist_selection_changed(GtkTreeSelection *, gpointer);
-static void PopulateForm(int32_t pgs)
-{
-    if (pgs & (1<<TAB_CONFIG))
-    {
-        int32_t mode3d, i;
-        GtkListStore *modes3d;
-        GtkTreeIter iter;
-        GtkComboBox *box3d;
-        char buf[64];
-
-        mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, settings.bpp3d, settings.fullscreen, 1);
-        if (mode3d < 0)
-        {
-            int32_t i, cd[] = { 32, 24, 16, 15, 8, 0 };
-            for (i=0; cd[i];) { if (cd[i] >= settings.bpp3d) i++; else break; }
-            for (; cd[i]; i++)
-            {
-                mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, cd[i], settings.fullscreen, 1);
-                if (mode3d < 0) continue;
-                settings.bpp3d = cd[i];
-                break;
-            }
-        }
-
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lookup_widget(startwin,"fullscreencheck")), settings.fullscreen);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lookup_widget(startwin,"alwaysshowcheck")), settings.forcesetup);
-
-        box3d = GTK_COMBO_BOX(lookup_widget(startwin,"vmode3dcombo"));
-        modes3d = GTK_LIST_STORE(gtk_combo_box_get_model(box3d));
-        gtk_list_store_clear(modes3d);
-
-        for (i=0; i<validmodecnt; i++)
-        {
-            if (validmode[i].fs != settings.fullscreen) continue;
-
-            // all modes get added to the 3D mode list
-            Bsprintf(buf, "%d x %d %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
-            gtk_list_store_append(modes3d, &iter);
-            gtk_list_store_set(modes3d, &iter, 0,buf, 1,i, -1);
-            if (i == mode3d)
-            {
-                g_signal_handlers_block_by_func(box3d, on_vmode3dcombo_changed, NULL);
-                gtk_combo_box_set_active_iter(box3d, &iter);
-                g_signal_handlers_unblock_by_func(box3d, on_vmode3dcombo_changed, NULL);
-            }
-        }
-
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lookup_widget(startwin,"inputmousecheck")), settings.usemouse);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lookup_widget(startwin,"inputjoycheck")), settings.usejoy);
-    }
-
-    if (pgs & (1<<TAB_GAME))
-    {
-        struct grpfile *fg;
-        int32_t i;
-        GtkListStore *list;
-        GtkTreeIter iter;
-        GtkTreeView *gamelist;
-
-        gamelist = GTK_TREE_VIEW(lookup_widget(startwin,"gamelist"));
-        list = GTK_LIST_STORE(gtk_tree_view_get_model(gamelist));
-        gtk_list_store_clear(list);
-
-        for (fg = foundgrps; fg; fg=fg->next)
-        {
-            for (i = 0; i<numgrpfiles; i++)
-                if (fg->crcval == grpfiles[i].crcval) break;
-            if (i == numgrpfiles) continue;	// unrecognised grp file
-
-            gtk_list_store_append(list, &iter);
-            gtk_list_store_set(list, &iter, 0, grpfiles[i].name, 1, fg->name, 2, (gpointer)fg, -1);
-            if (!Bstrcasecmp(fg->name, settings.selectedgrp))
-            {
-                GtkTreeSelection *sel = gtk_tree_view_get_selection(gamelist);
-                g_signal_handlers_block_by_func(sel, on_gamelist_selection_changed, NULL);
-                gtk_tree_selection_select_iter(sel, &iter);
-                g_signal_handlers_unblock_by_func(sel, on_gamelist_selection_changed, NULL);
-            }
-        }
-    }
-}
 
 // -- EVENT CALLBACKS AND CREATION STUFF --------------------------------------
 
@@ -172,14 +94,52 @@ static void on_vmode3dcombo_changed(GtkComboBox *combobox, gpointer user_data)
 static void on_fullscreencheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 {
     UNREFERENCED_PARAMETER(user_data);
-    settings.fullscreen = (gtk_toggle_button_get_active(togglebutton) == TRUE);
+    settings.fullscreen = gtk_toggle_button_get_active(togglebutton);
     PopulateForm(1<<TAB_CONFIG);
+}
+
+static void on_polymercheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
+{
+    UNREFERENCED_PARAMETER(user_data);
+    if (gtk_toggle_button_get_active(togglebutton))
+    {
+    	glrendmode = Polymer;
+    	settings.polymer = TRUE;
+    	if (settings.bpp3d == 8)
+    	{
+			settings.bpp3d = 32;
+    		PopulateForm(1<<TAB_CONFIG);
+    	}
+    }
+    else
+    {
+    	glrendmode = Polymost;
+    	settings.polymer = FALSE;
+    }
+}
+
+static void on_autoloadcheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
+{
+    UNREFERENCED_PARAMETER(user_data);
+    settings.autoload = gtk_toggle_button_get_active(togglebutton);
+}
+
+static void on_inputmousecheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
+{
+    UNREFERENCED_PARAMETER(user_data);
+    settings.usemouse = gtk_toggle_button_get_active(togglebutton);
+}
+
+static void on_inputjoycheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
+{
+    UNREFERENCED_PARAMETER(user_data);
+    settings.usejoy = gtk_toggle_button_get_active(togglebutton);
 }
 
 static void on_alwaysshowcheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 {
     UNREFERENCED_PARAMETER(user_data);
-    settings.forcesetup = (gtk_toggle_button_get_active(togglebutton) == TRUE);
+    settings.forcesetup = gtk_toggle_button_get_active(togglebutton);
 }
 
 static void on_cancelbutton_clicked(GtkButton *button, gpointer user_data)
@@ -196,22 +156,6 @@ static void on_startbutton_clicked(GtkButton *button, gpointer user_data)
     UNREFERENCED_PARAMETER(user_data);
     retval = 1;
     gtk_main_quit();
-}
-
-/* static void on_sounddrvcombo_changed(GtkComboBox *combobox, gpointer user_data)
-{
-} */
-
-static void on_inputmousecheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
-{
-    UNREFERENCED_PARAMETER(user_data);
-    settings.usemouse = (gtk_toggle_button_get_active(togglebutton) == TRUE);
-}
-
-static void on_inputjoycheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
-{
-    UNREFERENCED_PARAMETER(user_data);
-    settings.usejoy = (gtk_toggle_button_get_active(togglebutton) == TRUE);
 }
 
 static void on_gamelist_selection_changed(GtkTreeSelection *selection, gpointer user_data)
@@ -240,6 +184,111 @@ static gboolean on_startwin_delete_event(GtkWidget *widget, GdkEvent *event, gpo
 }
 
 
+// -- SUPPORT FUNCTIONS -------------------------------------------------------
+
+static GdkPixbuf *load_banner(void)
+{
+    extern const GdkPixdata startbanner_pixdata;
+    return gdk_pixbuf_from_pixdata(&startbanner_pixdata, FALSE, NULL);
+}
+
+static void SetPage(int32_t n)
+{
+    if (!gtkenabled || !stwidgets.startwin) return;
+    mode = n;
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(stwidgets.tabs), n);
+
+    // each control in the config page vertical layout plus the start button should be made (in)sensitive
+    if (n == TAB_CONFIG) n = TRUE; else n = FALSE;
+    gtk_widget_set_sensitive(stwidgets.startbutton, n);
+    gtk_container_foreach(GTK_CONTAINER(stwidgets.configvlayout),
+                         (GtkCallback)gtk_widget_set_sensitive,
+                         (gpointer)&n);
+}
+
+static void PopulateForm(int32_t pgs)
+{
+    if (pgs & (1<<TAB_CONFIG))
+    {
+        int32_t mode3d, i;
+        GtkListStore *modes3d;
+        GtkTreeIter iter;
+        GtkComboBox *box3d;
+        char buf[64];
+
+        mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, settings.bpp3d, settings.fullscreen, 1);
+        if (mode3d < 0)
+        {
+            int32_t i, cd[] = { 32, 24, 16, 15, 8, 0 };
+            for (i=0; cd[i];) { if (cd[i] >= settings.bpp3d) i++; else break; }
+            for (; cd[i]; i++)
+            {
+                mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, cd[i], settings.fullscreen, 1);
+                if (mode3d < 0) continue;
+                settings.bpp3d = cd[i];
+                break;
+            }
+        }
+
+        box3d = GTK_COMBO_BOX(stwidgets.vmode3dcombo);
+        modes3d = GTK_LIST_STORE(gtk_combo_box_get_model(box3d));
+        gtk_list_store_clear(modes3d);
+
+        for (i=0; i<validmodecnt; i++)
+        {
+            if (validmode[i].fs != settings.fullscreen) continue;
+
+            // all modes get added to the 3D mode list
+            Bsprintf(buf, "%d x %d %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
+            gtk_list_store_append(modes3d, &iter);
+            gtk_list_store_set(modes3d, &iter, 0,buf, 1,i, -1);
+            if (i == mode3d)
+            {
+                g_signal_handlers_block_by_func(box3d, on_vmode3dcombo_changed, NULL);
+                gtk_combo_box_set_active_iter(box3d, &iter);
+                g_signal_handlers_unblock_by_func(box3d, on_vmode3dcombo_changed, NULL);
+            }
+        }
+        
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.fullscreencheck), settings.fullscreen);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.polymercheck), settings.polymer);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.autoloadcheck), settings.autoload);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.alwaysshowcheck), settings.forcesetup);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.inputmousecheck), settings.usemouse);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.inputjoycheck), settings.usejoy);
+    }
+
+    if (pgs & (1<<TAB_GAME))
+    {
+        struct grpfile *fg;
+        int32_t i;
+        GtkListStore *list;
+        GtkTreeIter iter;
+        GtkTreeView *gamelist;
+
+        gamelist = GTK_TREE_VIEW(stwidgets.gamelist);
+        list = GTK_LIST_STORE(gtk_tree_view_get_model(gamelist));
+        gtk_list_store_clear(list);
+
+        for (fg = foundgrps; fg; fg=fg->next)
+        {
+            for (i = 0; i<numgrpfiles; i++)
+                if (fg->crcval == grpfiles[i].crcval) break;
+            if (i == numgrpfiles) continue;	// unrecognised grp file
+
+            gtk_list_store_append(list, &iter);
+            gtk_list_store_set(list, &iter, 0, grpfiles[i].name, 1, fg->name, 2, (gpointer)fg, -1);
+            if (!Bstrcasecmp(fg->name, settings.selectedgrp))
+            {
+                GtkTreeSelection *sel = gtk_tree_view_get_selection(gamelist);
+                g_signal_handlers_block_by_func(sel, on_gamelist_selection_changed, NULL);
+                gtk_tree_selection_select_iter(sel, &iter);
+                g_signal_handlers_unblock_by_func(sel, on_gamelist_selection_changed, NULL);
+            }
+        }
+    }
+}
+
 static gint name_sorter(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data)
 {
     gchar *as, *bs;
@@ -258,192 +307,118 @@ static gint name_sorter(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpo
 
 static GtkWidget *create_window(void)
 {
-    GtkWidget *startwin;
-    GtkWidget *hlayout;
-    GtkWidget *banner;
-    GtkWidget *vlayout;
-    GtkWidget *tabs;
-    GtkWidget *configvlayout;
-    GtkWidget *configlayout;
-    GtkWidget *fullscreencheck;
-    GtkWidget *vmode3dlabel;
-    GtkWidget *inputdevlabel;
-    /*    GtkWidget *sounddrvlabel;
-        GtkWidget *sounddrvcombo; */
-    GtkWidget *inputmousecheck;
-    GtkWidget *inputjoycheck;
-    GtkWidget *vmode3dcombo;
-    GtkWidget *alwaysshowcheck;
-    GtkWidget *configtab;
-    GtkWidget *gamevlayout;
-    GtkWidget *gamelabel;
-    GtkWidget *gamescroll;
-    GtkWidget *gamelist;
-    GtkWidget *gametab;
-    GtkWidget *messagesscroll;
-    GtkWidget *messagestext;
-    GtkWidget *messagestab;
-    GtkWidget *buttons;
-    GtkWidget *cancelbutton;
-    GtkWidget *cancelbuttonalign;
-    GtkWidget *cancelbuttonlayout;
-    GtkWidget *cancelbuttonicon;
-    GtkWidget *cancelbuttonlabel;
-    GtkWidget *startbutton;
-    GtkWidget *startbuttonalign;
-    GtkWidget *startbuttonlayout;
-    GtkWidget *startbuttonicon;
-    GtkWidget *startbuttonlabel;
-    GtkAccelGroup *accel_group;
-
-    accel_group = gtk_accel_group_new();
-
     // Basic window
-    startwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(startwin), apptitle);	// NOTE: use global app title
-    gtk_window_set_position(GTK_WINDOW(startwin), GTK_WIN_POS_CENTER);
-    gtk_window_set_resizable(GTK_WINDOW(startwin), FALSE);
-    gtk_window_set_type_hint(GTK_WINDOW(startwin), GDK_WINDOW_TYPE_HINT_DIALOG);
+    stwidgets.startwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(stwidgets.startwin), apptitle);	// NOTE: use global app title
+    gtk_window_set_position(GTK_WINDOW(stwidgets.startwin), GTK_WIN_POS_CENTER);
+    gtk_window_set_resizable(GTK_WINDOW(stwidgets.startwin), FALSE);
+    gtk_window_set_type_hint(GTK_WINDOW(stwidgets.startwin), GDK_WINDOW_TYPE_HINT_DIALOG);
 
     // Horizontal layout of banner and controls
-    hlayout = gtk_hbox_new(FALSE, 0);
-    gtk_widget_show(hlayout);
-    gtk_container_add(GTK_CONTAINER(startwin), hlayout);
+    stwidgets.hlayout = gtk_hbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(stwidgets.startwin), stwidgets.hlayout);
 
-    // Banner
+    // banner
     {
         GdkPixbuf *pixbuf = load_banner();
-        banner = gtk_image_new_from_pixbuf(pixbuf);
+        stwidgets.banner = gtk_image_new_from_pixbuf(pixbuf);
         g_object_unref((gpointer)pixbuf);
     }
-    gtk_widget_show(banner);
-    gtk_box_pack_start(GTK_BOX(hlayout), banner, FALSE, FALSE, 0);
-    gtk_misc_set_alignment(GTK_MISC(banner), 0.5, 0);
+    gtk_box_pack_start(GTK_BOX(stwidgets.hlayout), stwidgets.banner, FALSE, FALSE, 0);
+    gtk_misc_set_alignment(GTK_MISC(stwidgets.banner), 0.5, 0);
 
     // Vertical layout of tab control and start+cancel buttons
-    vlayout = gtk_vbox_new(FALSE, 0);
-    gtk_widget_show(vlayout);
-    gtk_box_pack_start(GTK_BOX(hlayout), vlayout, TRUE, TRUE, 0);
+    stwidgets.vlayout = gtk_vbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(stwidgets.hlayout), stwidgets.vlayout, TRUE, TRUE, 0);
 
     // Tab control
-    tabs = gtk_notebook_new();
-    gtk_widget_show(tabs);
-    gtk_box_pack_start(GTK_BOX(vlayout), tabs, TRUE, TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(tabs), 4);
+    stwidgets.tabs = gtk_notebook_new();
+    gtk_box_pack_start(GTK_BOX(stwidgets.vlayout), stwidgets.tabs, TRUE, TRUE, 0);
+    gtk_container_set_border_width(GTK_CONTAINER(stwidgets.tabs), 4);
+	
+	// Vertical layout of config page
+	stwidgets.configvlayout = gtk_vbox_new(FALSE, 12);
+	gtk_container_add (GTK_CONTAINER (stwidgets.tabs), stwidgets.configvlayout);
 
-    // Vertical layout of config page main body
-    configvlayout = gtk_vbox_new(FALSE, 0);
-    gtk_widget_show(configvlayout);
-    gtk_container_add(GTK_CONTAINER(tabs), configvlayout);
-
-    // Fixed-position layout of config page controls
-    configlayout = gtk_fixed_new();
-    gtk_widget_show(configlayout);
-    gtk_box_pack_start(GTK_BOX(configvlayout), configlayout, TRUE, TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(configlayout), 6);
-
-    // Fullscreen checkbox
-    fullscreencheck = gtk_check_button_new_with_mnemonic("_Fullscreen");
-    gtk_widget_show(fullscreencheck);
-    gtk_fixed_put(GTK_FIXED(configlayout), fullscreencheck, 248, 0);
-    gtk_widget_set_size_request(fullscreencheck, 85, 29);
-    gtk_widget_add_accelerator(fullscreencheck, "grab_focus", accel_group,
-                               GDK_F, GDK_MOD1_MASK,
-                               GTK_ACCEL_VISIBLE);
-
-    // 3D video mode LabelText
-    vmode3dlabel = gtk_label_new_with_mnemonic("_Video mode:");
-    gtk_widget_show(vmode3dlabel);
-    gtk_fixed_put(GTK_FIXED(configlayout), vmode3dlabel, 0, 0);
-    gtk_widget_set_size_request(vmode3dlabel, 88, 29);
-    gtk_misc_set_alignment(GTK_MISC(vmode3dlabel), 0, 0.5);
-
-    inputdevlabel = gtk_label_new("Input devices:");
-    gtk_widget_show(inputdevlabel);
-    gtk_fixed_put(GTK_FIXED(configlayout), inputdevlabel, 0, 120);
-    gtk_widget_set_size_request(inputdevlabel, 88, 20);
-    gtk_misc_set_alignment(GTK_MISC(inputdevlabel), 0, 0.5);
-    /*
-        sounddrvlabel = gtk_label_new_with_mnemonic("S_ound driver:");
-        gtk_widget_show(sounddrvlabel);
-        gtk_fixed_put(GTK_FIXED(configlayout), sounddrvlabel, 0, 40);
-        gtk_widget_set_size_request(sounddrvlabel, 88, 29);
-        gtk_misc_set_alignment(GTK_MISC(sounddrvlabel), 0, 0.5);
-
-        sounddrvcombo = gtk_combo_box_new_text();
-        gtk_widget_show(sounddrvcombo);
-        gtk_fixed_put(GTK_FIXED(configlayout), sounddrvcombo, 88, 40);
-        gtk_widget_set_size_request(sounddrvcombo, 31, 30);
-        gtk_widget_add_accelerator(sounddrvcombo, "grab_focus", accel_group,
-                                   GDK_O, GDK_MOD1_MASK,
-                                   GTK_ACCEL_VISIBLE);
-    */
-    inputmousecheck = gtk_check_button_new_with_mnemonic("Mo_use");
-    gtk_widget_show(inputmousecheck);
-    gtk_fixed_put(GTK_FIXED(configlayout), inputmousecheck, 88, 120);
-    gtk_widget_set_size_request(inputmousecheck, 80, 20);
-    gtk_widget_add_accelerator(inputmousecheck, "grab_focus", accel_group,
-                               GDK_U, GDK_MOD1_MASK,
-                               GTK_ACCEL_VISIBLE);
-
-    inputjoycheck = gtk_check_button_new_with_mnemonic("_Joystick");
-    gtk_widget_show(inputjoycheck);
-    gtk_fixed_put(GTK_FIXED(configlayout), inputjoycheck, 168, 120);
-    gtk_widget_set_size_request(inputjoycheck, 80, 20);
-    gtk_widget_add_accelerator(inputjoycheck, "grab_focus", accel_group,
-                               GDK_J, GDK_MOD1_MASK,
-                               GTK_ACCEL_VISIBLE);
-
-    // 3D video mode combo
+    // layout table of config page
+	stwidgets.configtlayout = gtk_table_new(3, 3, FALSE);
+	gtk_box_pack_start(GTK_BOX(stwidgets.configvlayout), stwidgets.configtlayout, TRUE, TRUE, 0);
+	
+	// 3D video mode LabelText
+	stwidgets.vmode3dlabel = gtk_label_new_with_mnemonic("_Video mode:");
+	gtk_misc_set_alignment (GTK_MISC(stwidgets.vmode3dlabel), 0.3, 0);
+	gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dlabel, 0,1, 0,1, GTK_FILL, 0, 4, 6);
+	
+	// 3D video mode combo
     {
         GtkListStore *list = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_INT);
         GtkCellRenderer *cell;
 
-        vmode3dcombo = gtk_combo_box_new_with_model(GTK_TREE_MODEL(list));
+        stwidgets.vmode3dcombo = gtk_combo_box_new_with_model(GTK_TREE_MODEL(list));
         g_object_unref(G_OBJECT(list));
 
         cell = gtk_cell_renderer_text_new();
-        gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(vmode3dcombo), cell, FALSE);
-        gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(vmode3dcombo), cell, "text", 0, NULL);
+        gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(stwidgets.vmode3dcombo), cell, FALSE);
+        gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(stwidgets.vmode3dcombo), cell, "text", 0, NULL);
     }
-    gtk_widget_show(vmode3dcombo);
-    gtk_fixed_put(GTK_FIXED(configlayout), vmode3dcombo, 88, 0);
-    gtk_widget_set_size_request(vmode3dcombo, 150, 29);
-    gtk_widget_add_accelerator(vmode3dcombo, "grab_focus", accel_group,
-                               GDK_V, GDK_MOD1_MASK,
-                               GTK_ACCEL_VISIBLE);
+    gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dcombo, 1,2, 0,1, GTK_EXPAND | GTK_FILL, 0, 4, 6);
 
-    // Always show config checkbox
-    alwaysshowcheck = gtk_check_button_new_with_mnemonic("_Always show configuration on start");
-    gtk_widget_show(alwaysshowcheck);
-    gtk_box_pack_start(GTK_BOX(configvlayout), alwaysshowcheck, FALSE, FALSE, 0);
-    gtk_widget_add_accelerator(alwaysshowcheck, "grab_focus", accel_group,
-                               GDK_A, GDK_MOD1_MASK,
-                               GTK_ACCEL_VISIBLE);
+    // Fullscreen checkbox
+	stwidgets.displayvlayout = gtk_vbox_new(TRUE, 0);
+	gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.displayvlayout, 2,3, 0,1, GTK_FILL, 0, 4, 6);
+	stwidgets.fullscreencheck = gtk_check_button_new_with_mnemonic("_Fullscreen");
+	gtk_box_pack_start(GTK_BOX(stwidgets.displayvlayout), stwidgets.fullscreencheck, FALSE, FALSE, 0);
+	
+	// Polymer checkbox
+    stwidgets.polymercheck = gtk_check_button_new_with_mnemonic("_Polymer");
+	gtk_box_pack_start(GTK_BOX(stwidgets.displayvlayout), stwidgets.polymercheck, FALSE, FALSE, 0);
+	
+	// Empty horizontal layout
+	stwidgets.emptyhlayout = gtk_hbox_new(TRUE, 0);
+	gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.emptyhlayout, 0,1, 2,3, 0, GTK_EXPAND | GTK_FILL, 0, 0);
+
+	// Input devices LabelText
+    stwidgets.inputdevlabel = gtk_label_new("Input devices:");
+	gtk_misc_set_alignment(GTK_MISC(stwidgets.inputdevlabel), 0.3, 0);
+	gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.inputdevlabel, 0,1, 3,4, GTK_FILL, 0, 4, 0);
+	
+	// Input devices checkbox
+	stwidgets.inputhlayout = gtk_hbox_new(FALSE, 4);
+	gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.inputhlayout, 1,2, 3,4, GTK_EXPAND | GTK_FILL, 0, 4, 0);
+	
+    stwidgets.inputmousecheck = gtk_check_button_new_with_mnemonic("Mo_use");
+    stwidgets.inputjoycheck = gtk_check_button_new_with_mnemonic("_Joystick");
+	
+	gtk_box_pack_start (GTK_BOX(stwidgets.inputhlayout), stwidgets.inputmousecheck, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX(stwidgets.inputhlayout), stwidgets.inputjoycheck, FALSE, FALSE, 0);
+
+    // Autoload checkbox
+	stwidgets.autoloadcheck = gtk_check_button_new_with_mnemonic("_Enable \"autoload\" folder");
+	gtk_box_pack_start(GTK_BOX(stwidgets.configvlayout), stwidgets.autoloadcheck, FALSE, FALSE, 0);
+	
+	// Always show config checkbox
+    stwidgets.alwaysshowcheck = gtk_check_button_new_with_mnemonic("_Always show configuration on start");
+	gtk_box_pack_start(GTK_BOX(stwidgets.configvlayout), stwidgets.alwaysshowcheck, FALSE, FALSE, 0);
 
     // Configuration tab
-    configtab = gtk_label_new("Configuration");
-    gtk_widget_show(configtab);
-    gtk_notebook_set_tab_label(GTK_NOTEBOOK(tabs), gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), 0), configtab);
+    stwidgets.configtab = gtk_label_new("Configuration");
+    gtk_notebook_set_tab_label(GTK_NOTEBOOK(stwidgets.tabs), gtk_notebook_get_nth_page(GTK_NOTEBOOK(stwidgets.tabs), 0), stwidgets.configtab);
 
     // Game data layout
-    gamevlayout = gtk_vbox_new(FALSE, 0);
-    gtk_widget_show(gamevlayout);
-    gtk_container_add(GTK_CONTAINER(tabs), gamevlayout);
-    gtk_container_set_border_width(GTK_CONTAINER(gamevlayout), 4);
+    stwidgets.gamevlayout = gtk_vbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(stwidgets.tabs), stwidgets.gamevlayout);
+    gtk_container_set_border_width(GTK_CONTAINER(stwidgets.gamevlayout), 4);
 
     // Game data field LabelText
-    gamelabel = gtk_label_new_with_mnemonic("_Game or addon:");
-    gtk_widget_show(gamelabel);
-    gtk_box_pack_start(GTK_BOX(gamevlayout), gamelabel, FALSE, FALSE, 0);
-    gtk_misc_set_alignment(GTK_MISC(gamelabel), 0, 0.5);
+    stwidgets.gamelabel = gtk_label_new_with_mnemonic("_Game or addon:");
+    gtk_box_pack_start(GTK_BOX(stwidgets.gamevlayout), stwidgets.gamelabel, FALSE, FALSE, 0);
+    gtk_misc_set_alignment(GTK_MISC(stwidgets.gamelabel), 0, 0.5);
 
     // Game data scrollable area
-    gamescroll = gtk_scrolled_window_new(NULL, NULL);
-    gtk_widget_show(gamescroll);
-    gtk_box_pack_start(GTK_BOX(gamevlayout), gamescroll, TRUE, TRUE, 0);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(gamescroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(gamescroll), GTK_SHADOW_IN);
+    stwidgets.gamescroll = gtk_scrolled_window_new(NULL, NULL);
+    gtk_box_pack_start(GTK_BOX(stwidgets.gamevlayout), stwidgets.gamescroll, TRUE, TRUE, 0);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(stwidgets.gamescroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(stwidgets.gamescroll), GTK_SHADOW_IN);
 
     // Game data list
     {
@@ -454,144 +429,117 @@ static GtkWidget *create_window(void)
         gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(list), 0, name_sorter, NULL, NULL);
         gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(list), 0, GTK_SORT_ASCENDING);
 
-        gamelist = gtk_tree_view_new_with_model(GTK_TREE_MODEL(list));
+        stwidgets.gamelist = gtk_tree_view_new_with_model(GTK_TREE_MODEL(list));
         g_object_unref(G_OBJECT(list));
 
         cell = gtk_cell_renderer_text_new();
         col = gtk_tree_view_column_new_with_attributes("Game", cell, "text", 0, NULL);
         gtk_tree_view_column_set_expand(col, TRUE);
-        gtk_tree_view_append_column(GTK_TREE_VIEW(gamelist), col);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(stwidgets.gamelist), col);
         col = gtk_tree_view_column_new_with_attributes("GRP file", cell, "text", 1, NULL);
         gtk_tree_view_column_set_min_width(col, 64);
-        gtk_tree_view_append_column(GTK_TREE_VIEW(gamelist), col);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(stwidgets.gamelist), col);
     }
-    gtk_widget_show(gamelist);
-    gtk_container_add(GTK_CONTAINER(gamescroll), gamelist);
-    gtk_widget_add_accelerator(gamelist, "grab_focus", accel_group,
-                               GDK_G, GDK_MOD1_MASK,
-                               GTK_ACCEL_VISIBLE);
-    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(gamelist), FALSE);
-    gtk_tree_view_set_enable_search(GTK_TREE_VIEW(gamelist), FALSE);
+    gtk_container_add(GTK_CONTAINER(stwidgets.gamescroll), stwidgets.gamelist);
+	
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(stwidgets.gamelist), FALSE);
+    gtk_tree_view_set_enable_search(GTK_TREE_VIEW(stwidgets.gamelist), FALSE);
 
     // Game tab
-    gametab = gtk_label_new("Game");
-    gtk_widget_show(gametab);
-    gtk_notebook_set_tab_label(GTK_NOTEBOOK(tabs), gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), 1), gametab);
+    stwidgets.gametab = gtk_label_new("Game");
+    gtk_notebook_set_tab_label(GTK_NOTEBOOK(stwidgets.tabs), gtk_notebook_get_nth_page(GTK_NOTEBOOK(stwidgets.tabs), 1), stwidgets.gametab);
 
     // Messages scrollable area
-    messagesscroll = gtk_scrolled_window_new(NULL, NULL);
-    gtk_widget_show(messagesscroll);
-    gtk_container_add(GTK_CONTAINER(tabs), messagesscroll);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(messagesscroll), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+    stwidgets.messagesscroll = gtk_scrolled_window_new(NULL, NULL);
+    gtk_container_add(GTK_CONTAINER(stwidgets.tabs), stwidgets.messagesscroll);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(stwidgets.messagesscroll), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 
     // Messages text area
-    messagestext = gtk_text_view_new();
-    gtk_widget_show(messagestext);
-    gtk_container_add(GTK_CONTAINER(messagesscroll), messagestext);
-    gtk_text_view_set_editable(GTK_TEXT_VIEW(messagestext), FALSE);
-    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(messagestext), GTK_WRAP_WORD);
-    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(messagestext), FALSE);
-    gtk_text_view_set_left_margin(GTK_TEXT_VIEW(messagestext), 2);
-    gtk_text_view_set_right_margin(GTK_TEXT_VIEW(messagestext), 2);
+    stwidgets.messagestext = gtk_text_view_new();
+    gtk_container_add(GTK_CONTAINER(stwidgets.messagesscroll), stwidgets.messagestext);
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(stwidgets.messagestext), FALSE);
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(stwidgets.messagestext), GTK_WRAP_WORD);
+    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(stwidgets.messagestext), FALSE);
+    gtk_text_view_set_left_margin(GTK_TEXT_VIEW(stwidgets.messagestext), 2);
+    gtk_text_view_set_right_margin(GTK_TEXT_VIEW(stwidgets.messagestext), 2);
 
     // Messages tab
-    messagestab = gtk_label_new("Messages");
-    gtk_widget_show(messagestab);
-    gtk_notebook_set_tab_label(GTK_NOTEBOOK(tabs), gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), 2), messagestab);
+    stwidgets.messagestab = gtk_label_new("Messages");
+    gtk_notebook_set_tab_label(GTK_NOTEBOOK(stwidgets.tabs), gtk_notebook_get_nth_page(GTK_NOTEBOOK(stwidgets.tabs), 2), stwidgets.messagestab);
 
     // Dialogue box buttons layout
-    buttons = gtk_hbutton_box_new();
-    gtk_widget_show(buttons);
-    gtk_box_pack_start(GTK_BOX(vlayout), buttons, FALSE, TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(buttons), 3);
-    gtk_button_box_set_layout(GTK_BUTTON_BOX(buttons), GTK_BUTTONBOX_END);
+    stwidgets.buttons = gtk_hbutton_box_new();
+    gtk_box_pack_start(GTK_BOX(stwidgets.vlayout), stwidgets.buttons, FALSE, TRUE, 0);
+    gtk_container_set_border_width(GTK_CONTAINER(stwidgets.buttons), 3);
+    gtk_button_box_set_layout(GTK_BUTTON_BOX(stwidgets.buttons), GTK_BUTTONBOX_END);
 
     // Cancel button
-    cancelbutton = gtk_button_new();
-    gtk_widget_show(cancelbutton);
-    gtk_container_add(GTK_CONTAINER(buttons), cancelbutton);
-    GTK_WIDGET_SET_FLAGS(cancelbutton, GTK_CAN_DEFAULT);
-    gtk_widget_add_accelerator(cancelbutton, "grab_focus", accel_group,
-                               GDK_C, GDK_MOD1_MASK,
-                               GTK_ACCEL_VISIBLE);
-    gtk_widget_add_accelerator(cancelbutton, "clicked", accel_group,
-                               GDK_Escape, 0,
-                               GTK_ACCEL_VISIBLE);
+    stwidgets.cancelbutton = gtk_button_new();
+    gtk_container_add(GTK_CONTAINER(stwidgets.buttons), stwidgets.cancelbutton);
+    GTK_WIDGET_SET_FLAGS(stwidgets.cancelbutton, GTK_CAN_DEFAULT);
 
-    cancelbuttonalign = gtk_alignment_new(0.5, 0.5, 0, 0);
-    gtk_widget_show(cancelbuttonalign);
-    gtk_container_add(GTK_CONTAINER(cancelbutton), cancelbuttonalign);
+    stwidgets.cancelbuttonalign = gtk_alignment_new(0.5, 0.5, 0, 0);
+    gtk_container_add(GTK_CONTAINER(stwidgets.cancelbutton), stwidgets.cancelbuttonalign);
 
-    cancelbuttonlayout = gtk_hbox_new(FALSE, 2);
-    gtk_widget_show(cancelbuttonlayout);
-    gtk_container_add(GTK_CONTAINER(cancelbuttonalign), cancelbuttonlayout);
+    stwidgets.cancelbuttonlayout = gtk_hbox_new(FALSE, 2);
+    gtk_container_add(GTK_CONTAINER(stwidgets.cancelbuttonalign), stwidgets.cancelbuttonlayout);
 
-    cancelbuttonicon = gtk_image_new_from_stock("gtk-cancel", GTK_ICON_SIZE_BUTTON);
-    gtk_widget_show(cancelbuttonicon);
-    gtk_box_pack_start(GTK_BOX(cancelbuttonlayout), cancelbuttonicon, FALSE, FALSE, 0);
+    stwidgets.cancelbuttonicon = gtk_image_new_from_stock("gtk-cancel", GTK_ICON_SIZE_BUTTON);
+    gtk_box_pack_start(GTK_BOX(stwidgets.cancelbuttonlayout), stwidgets.cancelbuttonicon, FALSE, FALSE, 0);
 
-    cancelbuttonlabel = gtk_label_new_with_mnemonic("_Cancel");
-    gtk_widget_show(cancelbuttonlabel);
-    gtk_box_pack_start(GTK_BOX(cancelbuttonlayout), cancelbuttonlabel, FALSE, FALSE, 0);
+    stwidgets.cancelbuttonlabel = gtk_label_new_with_mnemonic("_Cancel");
+    gtk_box_pack_start(GTK_BOX(stwidgets.cancelbuttonlayout), stwidgets.cancelbuttonlabel, FALSE, FALSE, 0);
 
     // Start button
-    startbutton = gtk_button_new();
-    gtk_widget_show(startbutton);
-    gtk_container_add(GTK_CONTAINER(buttons), startbutton);
-    GTK_WIDGET_SET_FLAGS(startbutton, GTK_CAN_DEFAULT);
-    gtk_widget_add_accelerator(startbutton, "grab_focus", accel_group,
-                               GDK_S, GDK_MOD1_MASK,
-                               GTK_ACCEL_VISIBLE);
-    gtk_widget_add_accelerator(startbutton, "clicked", accel_group,
-                               GDK_Return, 0,
-                               GTK_ACCEL_VISIBLE);
+    stwidgets.startbutton = gtk_button_new();
+    gtk_container_add(GTK_CONTAINER(stwidgets.buttons), stwidgets.startbutton);
+    GTK_WIDGET_SET_FLAGS(stwidgets.startbutton, GTK_CAN_DEFAULT);
 
-    startbuttonalign = gtk_alignment_new(0.5, 0.5, 0, 0);
-    gtk_widget_show(startbuttonalign);
-    gtk_container_add(GTK_CONTAINER(startbutton), startbuttonalign);
+    stwidgets.startbuttonalign = gtk_alignment_new(0.5, 0.5, 0, 0);
+    gtk_container_add(GTK_CONTAINER(stwidgets.startbutton), stwidgets.startbuttonalign);
 
-    startbuttonlayout = gtk_hbox_new(FALSE, 2);
-    gtk_widget_show(startbuttonlayout);
-    gtk_container_add(GTK_CONTAINER(startbuttonalign), startbuttonlayout);
+    stwidgets.startbuttonlayout = gtk_hbox_new(FALSE, 2);
+    gtk_container_add(GTK_CONTAINER(stwidgets.startbuttonalign), stwidgets.startbuttonlayout);
 
-    startbuttonicon = gtk_image_new_from_stock("gtk-execute", GTK_ICON_SIZE_BUTTON);
-    gtk_widget_show(startbuttonicon);
-    gtk_box_pack_start(GTK_BOX(startbuttonlayout), startbuttonicon, FALSE, FALSE, 0);
+    stwidgets.startbuttonicon = gtk_image_new_from_stock("gtk-execute", GTK_ICON_SIZE_BUTTON);
+    gtk_box_pack_start(GTK_BOX(stwidgets.startbuttonlayout), stwidgets.startbuttonicon, FALSE, FALSE, 0);
 
-    startbuttonlabel = gtk_label_new_with_mnemonic("_Start");
-    gtk_widget_show(startbuttonlabel);
-    gtk_box_pack_start(GTK_BOX(startbuttonlayout), startbuttonlabel, FALSE, FALSE, 0);
+    stwidgets.startbuttonlabel = gtk_label_new_with_mnemonic("_Start");
+    gtk_box_pack_start(GTK_BOX(stwidgets.startbuttonlayout), stwidgets.startbuttonlabel, FALSE, FALSE, 0);
 
     // Wire up the signals
-    g_signal_connect((gpointer) startwin, "delete_event",
+    g_signal_connect((gpointer) stwidgets.startwin, "delete_event",
                      G_CALLBACK(on_startwin_delete_event),
                      NULL);
-    g_signal_connect((gpointer) fullscreencheck, "toggled",
+    g_signal_connect((gpointer) stwidgets.fullscreencheck, "toggled",
                      G_CALLBACK(on_fullscreencheck_toggled),
                      NULL);
-    /*    g_signal_connect((gpointer) sounddrvcombo, "changed",
-                         G_CALLBACK(on_sounddrvcombo_changed),
-                         NULL);*/
-    g_signal_connect((gpointer) inputmousecheck, "toggled",
+    g_signal_connect((gpointer) stwidgets.polymercheck, "toggled",
+                     G_CALLBACK(on_polymercheck_toggled),
+                     NULL);
+    g_signal_connect((gpointer) stwidgets.autoloadcheck, "toggled",
+                     G_CALLBACK(on_autoloadcheck_toggled),
+                     NULL);
+    g_signal_connect((gpointer) stwidgets.inputmousecheck, "toggled",
                      G_CALLBACK(on_inputmousecheck_toggled),
                      NULL);
-    g_signal_connect((gpointer) inputjoycheck, "toggled",
+    g_signal_connect((gpointer) stwidgets.inputjoycheck, "toggled",
                      G_CALLBACK(on_inputjoycheck_toggled),
                      NULL);
-    g_signal_connect((gpointer) vmode3dcombo, "changed",
+    g_signal_connect((gpointer) stwidgets.vmode3dcombo, "changed",
                      G_CALLBACK(on_vmode3dcombo_changed),
                      NULL);
-    g_signal_connect((gpointer) alwaysshowcheck, "toggled",
+    g_signal_connect((gpointer) stwidgets.alwaysshowcheck, "toggled",
                      G_CALLBACK(on_alwaysshowcheck_toggled),
                      NULL);
-    g_signal_connect((gpointer) cancelbutton, "clicked",
+    g_signal_connect((gpointer) stwidgets.cancelbutton, "clicked",
                      G_CALLBACK(on_cancelbutton_clicked),
                      NULL);
-    g_signal_connect((gpointer) startbutton, "clicked",
+    g_signal_connect((gpointer) stwidgets.startbutton, "clicked",
                      G_CALLBACK(on_startbutton_clicked),
                      NULL);
     {
-        GtkTreeSelection *sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(gamelist));
+        GtkTreeSelection *sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(stwidgets.gamelist));
         gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
         g_signal_connect((gpointer) sel, "changed",
                          G_CALLBACK(on_gamelist_selection_changed),
@@ -599,65 +547,25 @@ static GtkWidget *create_window(void)
     }
 
     // Associate labels with their controls
-    gtk_label_set_mnemonic_widget(GTK_LABEL(vmode3dlabel), vmode3dcombo);
-//    gtk_label_set_mnemonic_widget(GTK_LABEL(sounddrvlabel), sounddrvcombo);
-    gtk_label_set_mnemonic_widget(GTK_LABEL(gamelabel), gamelist);
+    gtk_label_set_mnemonic_widget(GTK_LABEL(stwidgets.vmode3dlabel), stwidgets.vmode3dcombo);
+    gtk_label_set_mnemonic_widget(GTK_LABEL(stwidgets.gamelabel), stwidgets.gamelist);
 
-    /* Store pointers to all widgets, for use by lookup_widget(). */
-    GLADE_HOOKUP_OBJECT_NO_REF(startwin, startwin, "startwin");
-    GLADE_HOOKUP_OBJECT(startwin, hlayout, "hlayout");
-    GLADE_HOOKUP_OBJECT(startwin, banner, "banner");
-    GLADE_HOOKUP_OBJECT(startwin, vlayout, "vlayout");
-    GLADE_HOOKUP_OBJECT(startwin, tabs, "tabs");
-    GLADE_HOOKUP_OBJECT(startwin, configvlayout, "configvlayout");
-    GLADE_HOOKUP_OBJECT(startwin, configlayout, "configlayout");
-    GLADE_HOOKUP_OBJECT(startwin, fullscreencheck, "fullscreencheck");
-    GLADE_HOOKUP_OBJECT(startwin, vmode3dlabel, "vmode3dlabel");
-    GLADE_HOOKUP_OBJECT(startwin, inputdevlabel, "inputdevlabel");
-    /*    GLADE_HOOKUP_OBJECT(startwin, sounddrvlabel, "sounddrvlabel");
-        GLADE_HOOKUP_OBJECT(startwin, sounddrvcombo, "sounddrvcombo"); */
-    GLADE_HOOKUP_OBJECT(startwin, inputmousecheck, "inputmousecheck");
-    GLADE_HOOKUP_OBJECT(startwin, inputjoycheck, "inputjoycheck");
-    GLADE_HOOKUP_OBJECT(startwin, vmode3dcombo, "vmode3dcombo");
-    GLADE_HOOKUP_OBJECT(startwin, alwaysshowcheck, "alwaysshowcheck");
-    GLADE_HOOKUP_OBJECT(startwin, configtab, "configtab");
-    GLADE_HOOKUP_OBJECT(startwin, gamevlayout, "gamevlayout");
-    GLADE_HOOKUP_OBJECT(startwin, gamelabel, "gamelabel");
-    GLADE_HOOKUP_OBJECT(startwin, gamescroll, "gamescroll");
-    GLADE_HOOKUP_OBJECT(startwin, gamelist, "gamelist");
-    GLADE_HOOKUP_OBJECT(startwin, gametab, "gametab");
-    GLADE_HOOKUP_OBJECT(startwin, messagesscroll, "messagesscroll");
-    GLADE_HOOKUP_OBJECT(startwin, messagestext, "messagestext");
-    GLADE_HOOKUP_OBJECT(startwin, messagestab, "messagestab");
-    GLADE_HOOKUP_OBJECT(startwin, buttons, "buttons");
-    GLADE_HOOKUP_OBJECT(startwin, cancelbutton, "cancelbutton");
-    GLADE_HOOKUP_OBJECT(startwin, cancelbuttonalign, "cancelbuttonalign");
-    GLADE_HOOKUP_OBJECT(startwin, cancelbuttonlayout, "cancelbuttonlayout");
-    GLADE_HOOKUP_OBJECT(startwin, cancelbuttonicon, "cancelbuttonicon");
-    GLADE_HOOKUP_OBJECT(startwin, cancelbuttonlabel, "cancelbuttonlabel");
-    GLADE_HOOKUP_OBJECT(startwin, startbutton, "startbutton");
-    GLADE_HOOKUP_OBJECT(startwin, startbuttonalign, "startbuttonalign");
-    GLADE_HOOKUP_OBJECT(startwin, startbuttonlayout, "startbuttonlayout");
-    GLADE_HOOKUP_OBJECT(startwin, startbuttonicon, "startbuttonicon");
-    GLADE_HOOKUP_OBJECT(startwin, startbuttonlabel, "startbuttonlabel");
-
-    gtk_window_add_accel_group(GTK_WINDOW(startwin), accel_group);
-
-    return startwin;
+    return stwidgets.startwin;
 }
+
 
 // -- BUILD ENTRY POINTS ------------------------------------------------------
 
 int32_t startwin_open(void)
 {
     if (!gtkenabled) return 0;
-    if (startwin) return 1;
+    if (stwidgets.startwin) return 1;
 
-    startwin = create_window();
-    if (startwin)
+    stwidgets.startwin = create_window();
+    if (stwidgets.startwin)
     {
         SetPage(TAB_MESSAGES);
-        gtk_widget_show(startwin);
+        gtk_widget_show_all(stwidgets.startwin);
         gtk_main_iteration_do(FALSE);
         return 0;
     }
@@ -667,9 +575,9 @@ int32_t startwin_open(void)
 int32_t startwin_close(void)
 {
     if (!gtkenabled) return 0;
-    if (!startwin) return 1;
-    gtk_widget_destroy(startwin);
-    startwin = NULL;
+    if (!stwidgets.startwin) return 1;
+    gtk_widget_destroy(stwidgets.startwin);
+    stwidgets.startwin = NULL;
     return 0;
 }
 
@@ -682,8 +590,8 @@ int32_t startwin_puts(const char *str)
     const char *aptr, *bptr;
 
     if (!gtkenabled || !str) return 0;
-    if (!startwin) return 1;
-    if (!(textview = lookup_widget(startwin, "messagestext"))) return -1;
+    if (!stwidgets.startwin) return 1;
+    if (!(textview = stwidgets.messagestext)) return -1;
     textbuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
 
     gtk_text_buffer_get_end_iter(textbuffer, &enditer);
@@ -729,8 +637,8 @@ int32_t startwin_puts(const char *str)
 int32_t startwin_settitle(const char *title)
 {
     if (!gtkenabled) return 0;
-    if (!startwin) return 1;
-    gtk_window_set_title(GTK_WINDOW(startwin), title);
+    if (!stwidgets.startwin) return 1;
+    gtk_window_set_title(GTK_WINDOW(stwidgets.startwin), title);
     return 0;
 }
 
@@ -738,7 +646,7 @@ int32_t startwin_idle(void *s)
 {
     UNREFERENCED_PARAMETER(s);
     if (!gtkenabled) return 0;
-    //if (!startwin) return 1;
+    //if (!stwidgets.startwin) return 1;
     gtk_main_iteration_do(FALSE);
     return 0;
 }
@@ -748,7 +656,7 @@ extern char *duke3dgrp, *duke3dgrpstring;
 int32_t startwin_run(void)
 {
     if (!gtkenabled) return 1;
-    if (!startwin) return 1;
+    if (!stwidgets.startwin) return 1;
 
     SetPage(TAB_CONFIG);
 
@@ -761,12 +669,19 @@ int32_t startwin_run(void)
     settings.usejoy = ud.config.UseJoystick;
     settings.game = g_gameType;
     Bstrncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
+    if (ud.config.NoAutoLoad) settings.autoload = FALSE;
+    else settings.autoload = TRUE;
+    if (glrendmode == Polymer)
+    {
+    	if (settings.bpp3d == 8) settings.bpp3d = 32;
+    	settings.polymer = TRUE;
+    }
     PopulateForm(-1);
 
     gtk_main();
 
     SetPage(TAB_MESSAGES);
-    if (retval)
+    if (retval) // launch the game with these parameters
     {
         int32_t i;
 
@@ -779,6 +694,8 @@ int32_t startwin_run(void)
         ud.config.UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;
         g_gameType = settings.game;
+        if (settings.autoload) ud.config.NoAutoLoad = FALSE;
+        else ud.config.NoAutoLoad = TRUE;
 
         for (i = 0; i<numgrpfiles; i++) if (settings.crcval == grpfiles[i].crcval) break;
         if (i != numgrpfiles)
@@ -787,4 +704,3 @@ int32_t startwin_run(void)
 
     return retval;
 }
-

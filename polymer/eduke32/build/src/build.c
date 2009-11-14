@@ -1198,7 +1198,7 @@ void overheadeditor(void)
     char buffer[80], *dabuffer, ch;
     int32_t i, j, k, m=0, mousxplc, mousyplc, firstx=0, firsty=0, oposz, col;
     int32_t tempint, tempint1, tempint2, doubvel;
-    int32_t startwall=0, endwall, dax, day, daz, x1, y1, x2, y2, x3, y3, x4, y4;
+    int32_t startwall=0, endwall, dax, day, x1, y1, x2, y2, x3, y3, x4, y4;
     int32_t highlightx1, highlighty1, highlightx2, highlighty2, xvect, yvect;
     int16_t pag, suckwall=0, sucksect, newnumwalls, newnumsectors, split=0, bad;
     int16_t splitsect=0, danumwalls, secondstartwall, joinsector[2], joinsectnum;
@@ -1294,8 +1294,7 @@ void overheadeditor(void)
             }
         }
 
-        if (!graphicsmode)
-            idle();
+        idle();
         OSD_DispatchQueued();
 
         if (totalclock < 120*3)
@@ -1380,240 +1379,243 @@ void overheadeditor(void)
         numwalls = newnumwalls;
         if (numwalls < 0) numwalls = tempint;
 
-        clear2dscreen();
+         if (keystatus[buildkeys[BK_MOVEUP]] || keystatus[buildkeys[BK_MOVEDOWN]] || mousx || mousy || bstatus || (totalclock & 8) == 0)
+         {
+             clear2dscreen();
 
-        if (graphicsmode)
-        {
-            int32_t ii = xyaspect;
+             if (graphicsmode)
+             {
+                 int32_t ii = xyaspect;
 
-            i = yxaspect;
-            Bmemset(show2dsector, 255, sizeof(show2dsector));
-            setview(0, 0, xdim-1, ydim16-1);
-            yxaspect = xyaspect = 65536;
+                 i = yxaspect;
+                 Bmemset(show2dsector, 255, sizeof(show2dsector));
+                 setview(0, 0, xdim-1, ydim16-1);
+                 yxaspect = xyaspect = 65536;
 
-            if (graphicsmode == 2)
-                totalclocklock = totalclock;
+                 if (graphicsmode == 2)
+                     totalclocklock = totalclock;
 
-            drawmapview(pos.x, pos.y + scale((65536/zoom), ydim, 240), zoom, 1536);
-            yxaspect = i;
-            xyaspect = ii;
-        }
+                 drawmapview(pos.x, pos.y + scale((65536/zoom), ydim, 240), zoom, 1536);
+                 yxaspect = i;
+                 xyaspect = ii;
+             }
 
-        draw2dgrid(pos.x,pos.y,ang,zoom,grid);
+             draw2dgrid(pos.x,pos.y,ang,zoom,grid);
 
-        ExtPreCheckKeys();
+             ExtPreCheckKeys();
 
-        x2 = mulscale14(startposx-pos.x,zoom);          //Draw brown arrow (start)
-        y2 = mulscale14(startposy-pos.y,zoom);
-        if (((halfxdim16+x2) >= 2) && ((halfxdim16+x2) <= xdim-3))
-            if (((midydim16+y2) >= 2) && ((midydim16+y2) <= ydim16-3))
-            {
-                x1 = mulscale11(sintable[(startang+2560)&2047],zoom) / 768;
-                y1 = mulscale11(sintable[(startang+2048)&2047],zoom) / 768;
-                begindrawing();	//{{{
-                drawline16((halfxdim16+x2)+x1,(midydim16+y2)+y1,(halfxdim16+x2)-x1,(midydim16+y2)-y1,editorcolors[2]);
-                drawline16((halfxdim16+x2)+x1,(midydim16+y2)+y1,(halfxdim16+x2)+y1,(midydim16+y2)-x1,editorcolors[2]);
-                drawline16((halfxdim16+x2)+x1,(midydim16+y2)+y1,(halfxdim16+x2)-y1,(midydim16+y2)+x1,editorcolors[2]);
-                enddrawing();	//}}}
-            }
+             x2 = mulscale14(startposx-pos.x,zoom);          //Draw brown arrow (start)
+             y2 = mulscale14(startposy-pos.y,zoom);
+             if (((halfxdim16+x2) >= 2) && ((halfxdim16+x2) <= xdim-3))
+                 if (((midydim16+y2) >= 2) && ((midydim16+y2) <= ydim16-3))
+                 {
+                     x1 = mulscale11(sintable[(startang+2560)&2047],zoom) / 768;
+                     y1 = mulscale11(sintable[(startang+2048)&2047],zoom) / 768;
+                     begindrawing();	//{{{
+                     drawline16((halfxdim16+x2)+x1,(midydim16+y2)+y1,(halfxdim16+x2)-x1,(midydim16+y2)-y1,editorcolors[2]);
+                     drawline16((halfxdim16+x2)+x1,(midydim16+y2)+y1,(halfxdim16+x2)+y1,(midydim16+y2)-x1,editorcolors[2]);
+                     drawline16((halfxdim16+x2)+x1,(midydim16+y2)+y1,(halfxdim16+x2)-y1,(midydim16+y2)+x1,editorcolors[2]);
+                     enddrawing();	//}}}
+                 }
 
-        draw2dscreen(pos.x,pos.y,ang,zoom,grid);
-        X_OnEvent(EVENT_DRAW2DSCREEN, -1);
+                 draw2dscreen(pos.x,pos.y,ang,zoom,grid);
+                 X_OnEvent(EVENT_DRAW2DSCREEN, -1);
 
-        begindrawing();	//{{{
-        if (showtags == 1)
-        {
-            if (zoom >= 768)
-                for (i=0; i<numsectors; i++)
-                {
-                    dabuffer = (char *)ExtGetSectorCaption(i);
-                    if (dabuffer[0] != 0)
-                    {
-                        dax = 0;   //Get average point of sector
-                        day = 0;
-                        startwall = sector[i].wallptr;
-                        endwall = startwall + sector[i].wallnum - 1;
-                        for (j=startwall; j<=endwall; j++)
-                        {
-                            dax += wall[j].x;
-                            day += wall[j].y;
-                        }
-                        if (endwall > startwall)
-                        {
-                            dax /= (endwall-startwall+1);
-                            day /= (endwall-startwall+1);
-                        }
+                 begindrawing();	//{{{
+                 if (showtags == 1)
+                 {
+                     if (zoom >= 768)
+                         for (i=0; i<numsectors; i++)
+                         {
+                             dabuffer = (char *)ExtGetSectorCaption(i);
+                             if (dabuffer[0] != 0)
+                             {
+                                 dax = 0;   //Get average point of sector
+                                 day = 0;
+                                 startwall = sector[i].wallptr;
+                                 endwall = startwall + sector[i].wallnum - 1;
+                                 for (j=startwall; j<=endwall; j++)
+                                 {
+                                     dax += wall[j].x;
+                                     day += wall[j].y;
+                                 }
+                                 if (endwall > startwall)
+                                 {
+                                     dax /= (endwall-startwall+1);
+                                     day /= (endwall-startwall+1);
+                                 }
 
-                        dax = mulscale14(dax-pos.x,zoom);
-                        day = mulscale14(day-pos.y,zoom);
+                                 dax = mulscale14(dax-pos.x,zoom);
+                                 day = mulscale14(day-pos.y,zoom);
 
-                        x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
-                        y1 = midydim16+day-4;
-                        x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
-                        y2 = y1 + 7;
-                        if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
-                        {
-                            printext16(x1,y1,editorcolors[0],editorcolors[7],dabuffer,1);
-                            drawline16(x1-1,y1-1,x2-3,y1-1,editorcolors[7]);
-                            drawline16(x1-1,y2+1,x2-3,y2+1,editorcolors[7]);
+                                 x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
+                                 y1 = midydim16+day-4;
+                                 x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
+                                 y2 = y1 + 7;
+                                 if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
+                                 {
+                                     printext16(x1,y1,editorcolors[0],editorcolors[7],dabuffer,1);
+                                     drawline16(x1-1,y1-1,x2-3,y1-1,editorcolors[7]);
+                                     drawline16(x1-1,y2+1,x2-3,y2+1,editorcolors[7]);
 
-                            drawline16(x1-2,y1,x1-2,y2,editorcolors[7]);
-                            drawline16(x2-2,y1,x2-2,y2,editorcolors[7]);
-                            drawline16(x2-3,y1,x2-3,y2,editorcolors[7]);
-                        }
-                    }
-                }
+                                     drawline16(x1-2,y1,x1-2,y2,editorcolors[7]);
+                                     drawline16(x2-2,y1,x2-2,y2,editorcolors[7]);
+                                     drawline16(x2-3,y1,x2-3,y2,editorcolors[7]);
+                                 }
+                             }
+                         }
 
-            x3 = divscale14(-halfxdim16,zoom)+pos.x;
-            y3 = divscale14(-(midydim16-4),zoom)+pos.y;
-            x4 = divscale14(halfxdim16,zoom)+pos.x;
-            y4 = divscale14(ydim16-(midydim16-4),zoom)+pos.y;
+                         x3 = divscale14(-halfxdim16,zoom)+pos.x;
+                         y3 = divscale14(-(midydim16-4),zoom)+pos.y;
+                         x4 = divscale14(halfxdim16,zoom)+pos.x;
+                         y4 = divscale14(ydim16-(midydim16-4),zoom)+pos.y;
 
-            if (newnumwalls >= 0)
-            {
-                for (i=newnumwalls; i>=tempint; i--)
-                    wall[i].cstat |= (1<<14);
-            }
+                         if (newnumwalls >= 0)
+                         {
+                             for (i=newnumwalls; i>=tempint; i--)
+                                 wall[i].cstat |= (1<<14);
+                         }
 
-            i = numwalls-1;
-            if (newnumwalls >= 0) i = newnumwalls-1;
-            for (wal=&wall[i]; i>=0; i--,wal--)
-            {
-                if (zoom < 768 && !(wal->cstat & (1<<14))) continue;
-                //Get average point of wall
-                dax = ((wal->x+wall[wal->point2].x)>>1);
-                day = ((wal->y+wall[wal->point2].y)>>1);
-                if ((dax > x3) && (dax < x4) && (day > y3) && (day < y4))
-                {
-                    dabuffer = (char *)ExtGetWallCaption(i);
-                    if (dabuffer[0] != 0)
-                    {
-                        dax = mulscale14(dax-pos.x,zoom);
-                        day = mulscale14(day-pos.y,zoom);
-                        x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
-                        y1 = midydim16+day-4;
-                        x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
-                        y2 = y1 + 7;
-                        if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
-                        {
-                            printext16(x1,y1,editorcolors[0],editorcolors[31],dabuffer,1);
-                            drawline16(x1-1,y1-1,x2-3,y1-1,editorcolors[31]);
-                            drawline16(x1-1,y2+1,x2-3,y2+1,editorcolors[31]);
+                         i = numwalls-1;
+                         if (newnumwalls >= 0) i = newnumwalls-1;
+                         for (wal=&wall[i]; i>=0; i--,wal--)
+                         {
+                             if (zoom < 768 && !(wal->cstat & (1<<14))) continue;
+                             //Get average point of wall
+                             dax = ((wal->x+wall[wal->point2].x)>>1);
+                             day = ((wal->y+wall[wal->point2].y)>>1);
+                             if ((dax > x3) && (dax < x4) && (day > y3) && (day < y4))
+                             {
+                                 dabuffer = (char *)ExtGetWallCaption(i);
+                                 if (dabuffer[0] != 0)
+                                 {
+                                     dax = mulscale14(dax-pos.x,zoom);
+                                     day = mulscale14(day-pos.y,zoom);
+                                     x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
+                                     y1 = midydim16+day-4;
+                                     x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
+                                     y2 = y1 + 7;
+                                     if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
+                                     {
+                                         printext16(x1,y1,editorcolors[0],editorcolors[31],dabuffer,1);
+                                         drawline16(x1-1,y1-1,x2-3,y1-1,editorcolors[31]);
+                                         drawline16(x1-1,y2+1,x2-3,y2+1,editorcolors[31]);
 
-                            drawline16(x1-2,y1,x1-2,y2,editorcolors[31]);
-                            drawline16(x2-2,y1,x2-2,y2,editorcolors[31]);
-                            drawline16(x2-3,y1,x2-3,y2,editorcolors[31]);
-                        }
-                    }
-                }
-            }
+                                         drawline16(x1-2,y1,x1-2,y2,editorcolors[31]);
+                                         drawline16(x2-2,y1,x2-2,y2,editorcolors[31]);
+                                         drawline16(x2-3,y1,x2-3,y2,editorcolors[31]);
+                                     }
+                                 }
+                             }
+                         }
 
-            i = 0; j = numsprites;
-            if (zoom >= 768)
-                while ((j > 0) && (i < MAXSPRITES))
-                {
-                    if (sprite[i].statnum < MAXSTATUS)
-                    {
-                        dabuffer = (char *)ExtGetSpriteCaption(i);
-                        if (dabuffer[0] != 0)
-                        {
-                            //Get average point of sprite
-                            dax = sprite[i].x;
-                            day = sprite[i].y;
+                         i = 0; j = numsprites;
+                         if (zoom >= 768)
+                             while ((j > 0) && (i < MAXSPRITES))
+                             {
+                                 if (sprite[i].statnum < MAXSTATUS)
+                                 {
+                                     dabuffer = (char *)ExtGetSpriteCaption(i);
+                                     if (dabuffer[0] != 0)
+                                     {
+                                         //Get average point of sprite
+                                         dax = sprite[i].x;
+                                         day = sprite[i].y;
 
-                            dax = mulscale14(dax-pos.x,zoom);
-                            day = mulscale14(day-pos.y,zoom);
-                            x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
-                            y1 = midydim16+day-4;
-                            x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
-                            y2 = y1 + 7;
-                            if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
-                            {
-                                col = 3;
-                                if (spritecol2d[sprite[i].picnum][0])
-                                    col = spritecol2d[sprite[i].picnum][0];
-                                if ((sprite[i].cstat&1) > 0)
-                                {
-                                    col = 5;
-                                    if (spritecol2d[sprite[i].picnum][1])
-                                        col = spritecol2d[sprite[i].picnum][1];
-                                }
+                                         dax = mulscale14(dax-pos.x,zoom);
+                                         day = mulscale14(day-pos.y,zoom);
+                                         x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
+                                         y1 = midydim16+day-4;
+                                         x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
+                                         y2 = y1 + 7;
+                                         if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
+                                         {
+                                             col = 3;
+                                             if (spritecol2d[sprite[i].picnum][0])
+                                                 col = spritecol2d[sprite[i].picnum][0];
+                                             if ((sprite[i].cstat&1) > 0)
+                                             {
+                                                 col = 5;
+                                                 if (spritecol2d[sprite[i].picnum][1])
+                                                     col = spritecol2d[sprite[i].picnum][1];
+                                             }
 
-                                if ((i == pointhighlight-16384) && (totalclock & 32)) col += (2<<2);
+                                             if ((i == pointhighlight-16384) && (totalclock & 32)) col += (2<<2);
 
-                                printext16(x1,y1,editorcolors[0],editorcolors[col],dabuffer,1);
+                                             printext16(x1,y1,editorcolors[0],editorcolors[col],dabuffer,1);
 
-                                drawline16(x1-1,y1-1,x2-3,y1-1,editorcolors[col]);
-                                drawline16(x1-1,y2+1,x2-3,y2+1,editorcolors[col]);
+                                             drawline16(x1-1,y1-1,x2-3,y1-1,editorcolors[col]);
+                                             drawline16(x1-1,y2+1,x2-3,y2+1,editorcolors[col]);
 
-                                drawline16(x1-2,y1,x1-2,y2,editorcolors[col]);
-                                drawline16(x2-2,y1,x2-2,y2,editorcolors[col]);
-                                drawline16(x2-3,y1,x2-3,y2,editorcolors[col]);
-                            }
-                        }
-                        j--;
-                    }
-                    i++;
-                }
-        }
+                                             drawline16(x1-2,y1,x1-2,y2,editorcolors[col]);
+                                             drawline16(x2-2,y1,x2-2,y2,editorcolors[col]);
+                                             drawline16(x2-3,y1,x2-3,y2,editorcolors[col]);
+                                         }
+                                     }
+                                     j--;
+                                 }
+                                 i++;
+                             }
+                 }
 
-        printcoords16(pos.x,pos.y,ang);
+                 printcoords16(pos.x,pos.y,ang);
 
-        numwalls = tempint;
+                 numwalls = tempint;
 
-        if (highlightsectorcnt > 0)
-            for (i=0; i<highlightsectorcnt; i++)
-                fillsector(highlightsector[i],2);
+                 if (highlightsectorcnt > 0)
+                     for (i=0; i<highlightsectorcnt; i++)
+                         fillsector(highlightsector[i],2);
 
-        if (keystatus[0x2a]) // FIXME
-        {
-            drawlinepat = 0x00ff00ff;
-            drawline16(searchx,0,searchx,ydim2d-1,editorcolors[15]);
-            drawline16(0,searchy,xdim2d-1,searchy,editorcolors[15]);
-            drawlinepat = 0xffffffff;
+                 if (keystatus[0x2a]) // FIXME
+                 {
+                     drawlinepat = 0x00ff00ff;
+                     drawline16(searchx,0,searchx,ydim2d-1,editorcolors[15]);
+                     drawline16(0,searchy,xdim2d-1,searchy,editorcolors[15]);
+                     drawlinepat = 0xffffffff;
 
-            Bsprintf(tempbuf,"(%d,%d)",mousxplc,mousyplc);
-            /*
-                        i = (Bstrlen(tempbuf)<<3)+6;
-                        if ((searchx+i) < (xdim2d-1))
-                            i = 0;
-                        else i = (searchx+i)-(xdim2d-1);
-                        if ((searchy+16) < (ydim2d-STATUS2DSIZ2-1))
-                            j = 0;
-                        else j = (searchy+16)-(ydim2d-STATUS2DSIZ2-1);
-                        printext16(searchx+6-i,searchy+6-j,editorcolors[11],-1,tempbuf,0);
-            */
-            _printmessage16(tempbuf);
-        }
-        drawline16(searchx,0,searchx,8,editorcolors[15]);
-        drawline16(0,searchy,8,searchy,editorcolors[15]);
+                     Bsprintf(tempbuf,"(%d,%d)",mousxplc,mousyplc);
+                     /*
+                     i = (Bstrlen(tempbuf)<<3)+6;
+                     if ((searchx+i) < (xdim2d-1))
+                     i = 0;
+                     else i = (searchx+i)-(xdim2d-1);
+                     if ((searchy+16) < (ydim2d-STATUS2DSIZ2-1))
+                     j = 0;
+                     else j = (searchy+16)-(ydim2d-STATUS2DSIZ2-1);
+                     printext16(searchx+6-i,searchy+6-j,editorcolors[11],-1,tempbuf,0);
+                     */
+                     _printmessage16(tempbuf);
+                 }
+                 drawline16(searchx,0,searchx,8,editorcolors[15]);
+                 drawline16(0,searchy,8,searchy,editorcolors[15]);
 
-        col = 15-((gridlock<<1)+gridlock);
-        if (joinsector[0] >= 0)col = 11;
+                 col = 15-((gridlock<<1)+gridlock);
+                 if (joinsector[0] >= 0)col = 11;
 
-        drawline16(searchx,searchy-8,searchx,searchy-1,editorcolors[col]);
-        drawline16(searchx+1,searchy-8,searchx+1,searchy-1,editorcolors[col]);
-        drawline16(searchx,searchy+2,searchx,searchy+9,editorcolors[col]);
-        drawline16(searchx+1,searchy+2,searchx+1,searchy+9,editorcolors[col]);
-        drawline16(searchx-8,searchy,searchx-1,searchy,editorcolors[col]);
-        drawline16(searchx-8,searchy+1,searchx-1,searchy+1,editorcolors[col]);
-        drawline16(searchx+2,searchy,searchx+9,searchy,editorcolors[col]);
-        drawline16(searchx+2,searchy+1,searchx+9,searchy+1,editorcolors[col]);
+                 drawline16(searchx,searchy-8,searchx,searchy-1,editorcolors[col]);
+                 drawline16(searchx+1,searchy-8,searchx+1,searchy-1,editorcolors[col]);
+                 drawline16(searchx,searchy+2,searchx,searchy+9,editorcolors[col]);
+                 drawline16(searchx+1,searchy+2,searchx+1,searchy+9,editorcolors[col]);
+                 drawline16(searchx-8,searchy,searchx-1,searchy,editorcolors[col]);
+                 drawline16(searchx-8,searchy+1,searchx-1,searchy+1,editorcolors[col]);
+                 drawline16(searchx+2,searchy,searchx+9,searchy,editorcolors[col]);
+                 drawline16(searchx+2,searchy+1,searchx+9,searchy+1,editorcolors[col]);
 
-        //Draw the white pixel closest to mouse cursor on linehighlight
-        if (linehighlight>=0)
-        {
-            getclosestpointonwall(mousxplc,mousyplc,(int32_t)linehighlight,&dax,&day);
-            x2 = mulscale14(dax-pos.x,zoom);
-            y2 = mulscale14(day-pos.y,zoom);
-            if (wall[linehighlight].nextsector >= 0)
-                drawline16(halfxdim16+x2,midydim16+y2,halfxdim16+x2,midydim16+y2,editorcolors[15]);
-            else
-                drawline16(halfxdim16+x2,midydim16+y2,halfxdim16+x2,midydim16+y2,editorcolors[5]);
-        }
-        enddrawing();	//}}}
+                 //Draw the white pixel closest to mouse cursor on linehighlight
+                 if (linehighlight>=0)
+                 {
+                     getclosestpointonwall(mousxplc,mousyplc,(int32_t)linehighlight,&dax,&day);
+                     x2 = mulscale14(dax-pos.x,zoom);
+                     y2 = mulscale14(day-pos.y,zoom);
+                     if (wall[linehighlight].nextsector >= 0)
+                         drawline16(halfxdim16+x2,midydim16+y2,halfxdim16+x2,midydim16+y2,editorcolors[15]);
+                     else
+                         drawline16(halfxdim16+x2,midydim16+y2,halfxdim16+x2,midydim16+y2,editorcolors[5]);
+                 }
+                 enddrawing();	//}}}
 
-        OSD_Draw();
+                 OSD_Draw();
+         }
 
         X_OnEvent(EVENT_PREKEYS2D, -1);
         ExtCheckKeys(); // TX 20050101, it makes more sense to have this here so keys can be overwritten with new functions in bstub.c

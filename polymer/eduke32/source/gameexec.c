@@ -874,7 +874,7 @@ skip_check:
             vm.g_t[4] = *(intptr_t *)(vm.g_t[5]);       // Action
             if (vm.g_t[5]) vm.g_t[1] = *(((intptr_t *)vm.g_t[5])+1);       // move
             vm.g_sp->hitag = *(((intptr_t *)vm.g_t[5])+2);    // move flags
-            vm.g_t[0] = vm.g_t[2] = vm.g_t[3] = 0; // count, actioncount... vm.g_t[3] = ???
+            vm.g_t[0] = vm.g_t[2] = vm.g_t[3] = 0; // count, actioncount... vm.g_t[3] = ??
             if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0) // hack
                 continue;
             if (vm.g_sp->hitag&random_angle)
@@ -2255,6 +2255,8 @@ nullquote:
 #if defined(USE_OPENGL) && defined(POLYMOST)
                 int32_t j;
 #endif
+
+                if (g_screenCapture) continue;
 
                 if (x1 > x2) swaplong(&x1,&x2);
                 if (y1 > y2) swaplong(&y1,&y2);
@@ -4670,7 +4672,7 @@ void A_LoadActor(int32_t iActor)
 {
     vm.g_i = iActor;    // Sprite ID
     vm.g_p = -1; // iPlayer;    // Player ID
-    vm.g_x = -1; // lDist;    // ??
+    vm.g_x = -1; // lDist;    // ?
     vm.g_sp = &sprite[vm.g_i];    // Pointer to sprite structure
     vm.g_t = &ActorExtra[vm.g_i].temp_data[0];   // Sprite's 'extra' data
     vm.g_returnFlag = 0;
@@ -4703,7 +4705,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 
     vm.g_i = iActor;    // Sprite ID
     vm.g_p = iPlayer;   // Player ID
-    vm.g_x = lDist;     // ??
+    vm.g_x = lDist;     // ?
     vm.g_sp = &sprite[vm.g_i];    // Pointer to sprite structure
     vm.g_t = &ActorExtra[vm.g_i].temp_data[0];   // Sprite's 'extra' data
     vm.g_returnFlag = 0;

@@ -4831,13 +4831,12 @@ void P_ProcessInput(int32_t snum)
 
         if ((truefdist < PHEIGHT+(8<<8)) && (k == 1 || k == 3))
         {
-            if (p->spritebridge == 0 && p->walking_snd_toggle == 0 && p->on_ground)
+            if (p->walking_snd_toggle == 0 && p->on_ground)
             {
                 switch (psectlotag)
                 {
                 case 0:
-
-                    if (lz >= 0 && (lz&(MAXSPRITES-1))==49152)
+                    if (lz >= 0 && (lz&49152) == 49152)
                         j = sprite[lz&(MAXSPRITES-1)].picnum;
                     else j = sector[psect].floorpicnum;
 
@@ -4850,10 +4849,14 @@ void P_ProcessInput(int32_t snum)
                         break;
                     }
                     break;
+
                 case 1:
-                    if ((krand()&1) == 0)
-                        A_PlaySound(DUKE_ONWATER,pi);
-                    p->walking_snd_toggle = 1;
+                    if (!p->spritebridge)
+                    {
+                        if ((krand()&1) == 0)
+                            A_PlaySound(DUKE_ONWATER,pi);
+                        p->walking_snd_toggle = 1;
+                    }
                     break;
                 }
             }

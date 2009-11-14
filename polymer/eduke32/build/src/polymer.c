@@ -892,9 +892,8 @@ void                polymer_drawmasks(void)
     bglEnable(GL_BLEND);
     bglEnable(GL_POLYGON_OFFSET_FILL);
 
-    while (spritesortcnt)
+    while (--spritesortcnt)
     {
-        spritesortcnt--;
         tspriteptr[spritesortcnt] = &tsprite[spritesortcnt];
         polymer_drawsprite(spritesortcnt);
     }

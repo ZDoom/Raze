@@ -1824,7 +1824,7 @@ static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
     if (kfilebuf[10]&128) { cptr = ptr; ptr += paleng*3; }
     transcol = -1;
     while ((chunkind = *ptr++) == '!')
-    {      //! 0xf9 leng flags ?? ?? transcol
+    {      //! 0xf9 leng flags ? ? transcol
         if (ptr[0] == 0xf9) { if (ptr[2]&1) transcol = (int32_t)(((uint8_t)ptr[5])); }
         ptr++;
         do { i = *ptr++; ptr += i; }

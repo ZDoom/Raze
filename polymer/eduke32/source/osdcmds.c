@@ -1224,8 +1224,15 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
 
             return r;
         }
+        else if (!Bstrcasecmp(parm->name, "skill"))
+        {
+            if (numplayers > 1)
+                return r;
 
+            ud.m_player_skill = ud.player_skill;
 
+            return r;
+        }
     }
 
 #endif
@@ -1289,6 +1296,8 @@ int32_t registerosdcommands(void)
         { "r_maxfps", "r_maxfps: sets a framerate cap",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 0, 1000 },
 
         { "sensitivity","sensitivity <value>: changes the mouse sensitivity", (void*)&CONTROL_MouseSensitivity, CVAR_FLOAT|CVAR_FUNCPTR, 0, 0, 25 },
+
+        { "skill","skill <value>: changes the game skill setting", (void*)&ud.player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOMULTI, 0, 0, 5 },
 
         { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
         { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&ud.config.VoiceToggle, CVAR_INT, 0, 0, 5 },

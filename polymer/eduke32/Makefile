@@ -136,7 +136,7 @@ EDITOROBJS=$(OBJ)/astub.$o \
 ifeq ($(PLATFORM),LINUX)
 	OURCFLAGS	+= -fno-pic
 	NASMFLAGS	+= -f elf
-	LIBS		+= -lvorbisfile -lvorbis -logg 
+	LIBS		+= -lvorbisfile -lvorbis -logg
 endif
 
 ifeq ($(PLATFORM),DARWIN)
@@ -312,4 +312,4 @@ clean:
 	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean
 
 veryclean: clean
-	-rm -f $(EOBJ)/*
+	-rm -f $(EOBJ)/* $(RSRC)/*banner*

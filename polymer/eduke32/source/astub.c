@@ -491,65 +491,9 @@ void ExtLoadMap(const char *mapname)
 {
     int32_t i;
     int32_t sky=0;
-    int32_t j;
 
     getmessageleng = 0;
     getmessagetimeoff = 0;
-
-    // PreCache Wall Tiles
-    /*
-    for(j=0;j<numwalls;j++)
-    if(waloff[wall[j].picnum] == 0)
-    {
-    loadtile(wall[j].picnum);
-    if (bpp != 8)
-    polymost_precache(wall[j].picnum,wall[j].pal,0);
-    }
-
-    for(j=0;j<numsectors;j++)
-    if(waloff[sector[j].floorpicnum] == 0 || waloff[sector[j].ceilingpicnum] == 0)
-    {
-    loadtile(sector[j].floorpicnum);
-    loadtile(sector[j].ceilingpicnum);
-    if (bpp != 8)
-    {
-    polymost_precache(sector[j].floorpicnum,sector[j].floorpal,0);
-    polymost_precache(sector[j].floorpicnum,sector[j].floorpal,0);
-    }
-    }
-
-    for(j=0;j<numsprites;j++)
-    if(waloff[sprite[j].picnum] == 0)
-    {
-    loadtile(sprite[j].picnum);
-    if (bpp != 8)
-    polymost_precache(sprite[j].picnum,sprite[j].pal,1);
-    }
-    */
-    // Presize Sprites
-
-/*
-    for (j=numsprites; j>=0; j--)
-    {
-        / *        if (tilesizx[sprite[j].picnum]==0 || tilesizy[sprite[j].picnum]==0)
-        sprite[j].picnum=0; * /
-
-        if (sprite[j].picnum>=20 && sprite[j].picnum<=59)
-        {
-            if (sprite[j].picnum==26)
-            {
-                sprite[j].xrepeat = 8;
-                sprite[j].yrepeat = 8;
-            }
-            else
-            {
-                sprite[j].xrepeat = 32;
-                sprite[j].yrepeat = 32;
-            }
-        }
-
-    }
-*/
 
     Bstrcpy(levelname,mapname);
     pskyoff[0]=0;
@@ -3165,7 +3109,7 @@ static int32_t m32gettile(int32_t idInitialTile)
     // Start of key handling code //
     ////////////////////////////////
 
-    while ((keystatus[KEYSC_ENTER]|keystatus[KEYSC_ESC]|(bstatus&1)) == 0) // <- Presumably one of these is escape key ???
+    while ((keystatus[KEYSC_ENTER]|keystatus[KEYSC_ESC]|(bstatus&1)) == 0) // <- Presumably one of these is escape key ??
     {
         DrawTiles(iTopLeftTile, (iTile >= localartlookupnum)?localartlookupnum-1:iTile, nXTiles, nYTiles, ZoomToThumbSize[s_Zoom],moffset);
 
@@ -3330,7 +3274,7 @@ static int32_t m32gettile(int32_t idInitialTile)
             iTile = 0;
         }
 
-        if (iTile >= MAXTILES)	// shouldn't this be the count of num tiles ???
+        if (iTile >= MAXTILES)	// shouldn't this be the count of num tiles ??
         {
             iTile = MAXTILES-1;
         }
@@ -8653,8 +8597,6 @@ static int32_t osdcmd_quit(const osdfuncparm_t *parm)
     uninitengine();
 
     exit(0);
-
-    return OSDCMD_OK;
 }
 
 static int32_t osdcmd_editorgridextent(const osdfuncparm_t *parm)

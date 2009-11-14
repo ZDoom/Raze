@@ -704,12 +704,12 @@ int32_t handleevents(void)
 
 inline void idle(void)
 {
-    Sleep(1);
+    Sleep(20);
 }
 
 inline void idle_waitevent(void)
 {
-    Sleep(1);
+    Sleep(20);
 }
 
 
@@ -911,7 +911,10 @@ DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
                  (LPDIDEVICEOBJECTDATA)&didod[0], &dwElements, 0);
 
         if (!dwElements || result != DI_OK)
+        {
+            Sleep(100);
             continue;
+        }
 
         do
         {

@@ -40,7 +40,7 @@ static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
     //  AddLog("Gv_Free");
     for (; i>=0; i--)
     {
-        if (aGameVars[i].dwFlags & (GAMEVAR_USER_MASK) && aGameVars[i].val.plValues)
+        if ((aGameVars[i].dwFlags & GAMEVAR_USER_MASK) && aGameVars[i].val.plValues)
         {
             Bfree(aGameVars[i].val.plValues);
             aGameVars[i].val.plValues=NULL;
@@ -73,7 +73,7 @@ static void Gv_Clear(void)
         aGameVars[i].szLabel=NULL;
         aGameVars[i].dwFlags=0;
 
-        if (aGameVars[i].dwFlags & (GAMEVAR_USER_MASK) && aGameVars[i].val.plValues)
+        if ((aGameVars[i].dwFlags & GAMEVAR_USER_MASK) && aGameVars[i].val.plValues)
         {
             Bfree(aGameVars[i].val.plValues);
             aGameVars[i].val.plValues=NULL;
@@ -292,7 +292,7 @@ void Gv_WriteSave(FILE *fil)
                 }
                 else if (aGameVars[j].dwFlags & GAMEVAR_PERACTOR)
                 {
-                    dfwrite(&MapInfo[i].savedstate->vars[j][0],sizeof(intptr_t) * MAXSPRITES, 1, fil);
+                    dfwrite(&MapInfo[i].savedstate->vars[j][0],sizeof(intptr_t), MAXSPRITES, fil);
                 }
             }
         }
@@ -587,7 +587,7 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
                 case 2: //else if (id == g_iWallVarID)
                     return ((X_AccessWallX(index, *insptr++) ^ -negateResult) + negateResult);
                 default:
-                    OSD_Printf(CON_ERROR "Gv_GetVar(): WTF??\n",g_errorLineNum,keyw[g_tw]);
+                    OSD_Printf(CON_ERROR "Gv_GetVar(): WTF?\n",g_errorLineNum,keyw[g_tw]);
                     return -1;
                 }
             }
@@ -732,7 +732,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
                 case 2: //else if (id == g_iWallVarID)
                     return ((X_AccessWallX(index, *insptr++) ^ -negateResult) + negateResult);
                 default:
-                    OSD_Printf(CON_ERROR "Gv_GetVar(): WTF??\n",g_errorLineNum,keyw[g_tw]);
+                    OSD_Printf(CON_ERROR "Gv_GetVar(): WTF?\n",g_errorLineNum,keyw[g_tw]);
                     return -1;
                 }
             }

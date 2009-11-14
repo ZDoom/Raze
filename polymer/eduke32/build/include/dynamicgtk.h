@@ -140,14 +140,6 @@ void    (*gtk_container_set_border_width)	 (GtkContainer	   *container,
 GType      (*gtk_dialog_get_type) (void) G_GNUC_CONST;
 gint (*gtk_dialog_run)                (GtkDialog *dialog);
 
-	// gtkfixed.h
-GType      (*gtk_fixed_get_type)          (void) G_GNUC_CONST;
-GtkWidget* (*gtk_fixed_new)               (void);
-void       (*gtk_fixed_put)               (GtkFixed       *fixed,
-                                        GtkWidget      *widget,
-                                        gint            x,
-                                        gint            y);
-
 	// gtkhbox.h
 GtkWidget* (*gtk_hbox_new)	     (gboolean homogeneous,
 			      gint spacing);
@@ -224,6 +216,22 @@ void           (*gtk_scrolled_window_set_policy)        (GtkScrolledWindow *scro
 						      GtkPolicyType      vscrollbar_policy);
 void           (*gtk_scrolled_window_set_shadow_type)   (GtkScrolledWindow *scrolled_window,
                                                       GtkShadowType      type);
+	// gtktable.h
+GType	   (*gtk_table_get_type)	      (void) G_GNUC_CONST;
+GtkWidget* (*gtk_table_new)	      (guint		rows,
+				       guint		columns,
+				       gboolean		homogeneous);
+void	   (*gtk_table_attach)	      (GtkTable	       *table,
+				       GtkWidget       *child,
+				       guint		left_attach,
+				       guint		right_attach,
+				       guint		top_attach,
+				       guint		bottom_attach,
+				       GtkAttachOptions xoptions,
+				       GtkAttachOptions yoptions,
+				       guint		xpadding,
+				       guint		ypadding);
+
 
 	// gtktextbuffer.h
 gboolean (*gtk_text_buffer_backspace)          (GtkTextBuffer *buffer,
@@ -245,7 +253,7 @@ void (*gtk_text_buffer_insert)            (GtkTextBuffer *buffer,
 
 	// gtktextiter.h
 	// FIXME: should I put a #if !GTK_CHECK_VERSION(2,6,0)
-	// around these three, or should I not care??
+	// around these three, or should I not care?
 gboolean (*gtk_text_iter_backward_cursor_position)  (GtkTextIter *iter);
 gboolean (*gtk_text_iter_equal)			    (const GtkTextIter *lhs,
 						     const GtkTextIter *rhs);
@@ -352,7 +360,7 @@ void                  (*gtk_widget_set_sensitive)          (GtkWidget    *widget
 void       (*gtk_widget_set_size_request)    (GtkWidget           *widget,
                                            gint                 width,
                                            gint                 height);
-void	   (*gtk_widget_show)		  (GtkWidget	       *widget);
+void	   (*gtk_widget_show_all)		  (GtkWidget	       *widget);
 void	   (*gtk_widget_unref)		  (GtkWidget	       *widget);
 
 	// gtkwindow.h
@@ -451,11 +459,6 @@ void dynamicgtk_uninit(void);
 #define gtk_dialog_get_type dynamicgtksyms.gtk_dialog_get_type
 #define gtk_dialog_run dynamicgtksyms.gtk_dialog_run
 
-// gtkfixed.h
-#define gtk_fixed_get_type dynamicgtksyms.gtk_fixed_get_type
-#define gtk_fixed_new dynamicgtksyms.gtk_fixed_new
-#define gtk_fixed_put dynamicgtksyms.gtk_fixed_put
-
 // gtkhbox.h
 #define gtk_hbox_new dynamicgtksyms.gtk_hbox_new
 
@@ -509,6 +512,11 @@ void dynamicgtk_uninit(void);
 #define gtk_scrolled_window_new dynamicgtksyms.gtk_scrolled_window_new
 #define gtk_scrolled_window_set_policy dynamicgtksyms.gtk_scrolled_window_set_policy
 #define gtk_scrolled_window_set_shadow_type dynamicgtksyms.gtk_scrolled_window_set_shadow_type
+
+// gtktable.h
+#define gtk_table_get_type dynamicgtksyms.gtk_table_get_type
+#define gtk_table_new dynamicgtksyms.gtk_table_new
+#define gtk_table_attach dynamicgtksyms.gtk_table_attach
 
 // gtktextbuffer.h
 #define gtk_text_buffer_backspace dynamicgtksyms.gtk_text_buffer_backspace
@@ -576,7 +584,7 @@ void dynamicgtk_uninit(void);
 #define gtk_widget_ref dynamicgtksyms.gtk_widget_ref
 #define gtk_widget_set_sensitive dynamicgtksyms.gtk_widget_set_sensitive
 #define gtk_widget_set_size_request dynamicgtksyms.gtk_widget_set_size_request
-#define gtk_widget_show dynamicgtksyms.gtk_widget_show
+#define gtk_widget_show_all dynamicgtksyms.gtk_widget_show_all
 #define gtk_widget_unref dynamicgtksyms.gtk_widget_unref
 
 // gtkwindow.h

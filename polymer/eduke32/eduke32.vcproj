@@ -293,14 +293,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\build\src\mmulti.c"
-					>
-				</File>
-				<File
-					RelativePath=".\build\src\mmulti_null.c"
-					>
-				</File>
-				<File
 					RelativePath=".\build\src\mmulti_unstable.c"
 					>
 				</File>

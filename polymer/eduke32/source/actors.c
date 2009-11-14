@@ -100,7 +100,7 @@ inline int32_t G_CheckForSpaceCeiling(int32_t sectnum)
 
 inline int32_t G_CheckForSpaceFloor(int32_t sectnum)
 {
-    return ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0 && ((sector[sectnum].floorpicnum==MOONSKY1)||(sector[sectnum].floorpicnum==BIGORBIT1))?1:0);
+    return ((sector[sectnum].floorstat&1) && sector[sectnum].floorpal == 0 && ((sector[sectnum].floorpicnum==MOONSKY1)||(sector[sectnum].floorpicnum==BIGORBIT1))?1:0);
 }
 
 void A_RadiusDamage(int32_t i, int32_t  r, int32_t  hp1, int32_t  hp2, int32_t  hp3, int32_t  hp4)

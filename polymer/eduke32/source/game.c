@@ -103,7 +103,7 @@ static FILE *frecfilep = (FILE *)NULL;
 static int32_t demo_goalreccnt=0, demo_startreccnt=0, demo_oldsoundtoggle, demo_showstats=1;
 static int32_t demo_paused=0;
 
-int32_t g_restorePalette, g_screenCapture;
+int32_t g_restorePalette = 0, g_screenCapture = 0;
 static int32_t g_noLogoAnim = 0;
 static int32_t g_noLogo = 0;
 static int32_t g_chatPlayer = -1;
@@ -3172,7 +3172,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             if ((spr->cstat&257) != 0) switch (spr->cstat&48)
                 {
                 case 0:
-                    break;
+//                    break;
 
                     ox = sprx-cposx;
                     oy = spry-cposy;
