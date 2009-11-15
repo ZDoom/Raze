@@ -11,6 +11,7 @@
 #include "scriptfile.h"
 #include "cache1d.h"
 #include "kplib.h"
+#include "fastlz.h"
 
 enum
 {
@@ -282,7 +283,7 @@ static int32_t getatoken(scriptfile *sf, tokenlist *tl, int32_t ntokens)
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
 extern int32_t nextvoxid;
 
-extern char faketile[MAXTILES];
+extern int32_t faketilesiz[MAXTILES];
 extern char *faketiledata[MAXTILES];
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
@@ -593,7 +594,7 @@ static int32_t defsparser(scriptfile *script)
         }
         case T_TILEFROMTEXTURE:
         {
-            char *texturetokptr = script->ltextptr, *textureend, *fn, *tfn = NULL;
+            char *texturetokptr = script->ltextptr, *textureend, *fn, *tfn = NULL, *ftd = NULL;
             int32_t tile=-1, token, i;
             int32_t alphacut = 255;
             int32_t xoffset = 0, yoffset = 0;
@@ -662,6 +663,7 @@ static int32_t defsparser(scriptfile *script)
 
                 //            initprintf("got bpl %d xsiz %d ysiz %d\n",bpl,xsiz,ysiz);
 
+                ftd = Bmalloc(xsiz*ysiz);
                 faketiledata[tile] = Bmalloc(xsiz*ysiz);
 
                 for (i=xsiz-1; i>=0; i--)
@@ -669,8 +671,8 @@ static int32_t defsparser(scriptfile *script)
                     for (j=ysiz-1; j>=0; j--)
                     {
                         col = (palette_t *)&picptr[j*xsiz+i];
-                        if (col->f < alphacut) { faketiledata[tile][i*ysiz+j] = 255; continue; }
-                        faketiledata[tile][i*ysiz+j] = getclosestcol(col->b>>2,col->g>>2,col->r>>2);
+                        if (col->f < alphacut) { ftd[i*ysiz+j] = 255; continue; }
+                        ftd[i*ysiz+j] = getclosestcol(col->b>>2,col->g>>2,col->r>>2);
                     }
                     //                initprintf(" %d %d %d %d\n",col->r,col->g,col->b,col->f);
                 }
@@ -679,7 +681,8 @@ static int32_t defsparser(scriptfile *script)
                 {
                     tilesizx[tile] = xsiz;
                     tilesizy[tile] = ysiz;
-                    faketile[tile] = 2;
+
+                    faketilesiz[tile] = fastlz_compress(ftd, xsiz*ysiz, faketiledata[tile]);
 
                     xoffset = clamp(xoffset, -128, 127);
                     picanm[tile] = (picanm[tile]&0xffff00ff)+((xoffset&255)<<8);
@@ -693,6 +696,7 @@ static int32_t defsparser(scriptfile *script)
                 }
 
                 Bfree(picptr);
+                Bfree(ftd);
             }
         }
         break;
@@ -701,7 +705,7 @@ static int32_t defsparser(scriptfile *script)
             int32_t tile, xsiz, ysiz, j, i;
             int32_t *picptr = NULL;
             int32_t bpl;
-            char *fn;
+            char *fn, *ftd = NULL;
             palette_t *col;
 
             if (scriptfile_getsymbol(script,&tile)) break;
@@ -711,6 +715,7 @@ static int32_t defsparser(scriptfile *script)
 
 //            initprintf("got bpl %d xsiz %d ysiz %d\n",bpl,xsiz,ysiz);
 
+            ftd = Bmalloc(xsiz*ysiz);
             faketiledata[tile] = Bmalloc(xsiz*ysiz);
 
             for (i=xsiz-1; i>=0; i--)
@@ -718,8 +723,8 @@ static int32_t defsparser(scriptfile *script)
                 for (j=ysiz-1; j>=0; j--)
                 {
                     col = (palette_t *)&picptr[j*xsiz+i];
-                    if (col->f != 255) { faketiledata[tile][i*ysiz+j] = 255; continue; }
-                    faketiledata[tile][i*ysiz+j] = getclosestcol(col->b>>2,col->g>>2,col->r>>2);
+                    if (col->f != 255) { ftd[i*ysiz+j] = 255; continue; }
+                    ftd[i*ysiz+j] = getclosestcol(col->b>>2,col->g>>2,col->r>>2);
                 }
 //                initprintf(" %d %d %d %d\n",col->r,col->g,col->b,col->f);
             }
@@ -728,7 +733,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 tilesizx[tile] = xsiz;
                 tilesizy[tile] = ysiz;
-                faketile[tile] = 2;
+                faketilesiz[tile] = fastlz_compress(ftd, xsiz*ysiz, faketiledata[tile]);
                 picanm[tile] = 0;
 
                 j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
@@ -738,12 +743,12 @@ static int32_t defsparser(scriptfile *script)
             }
 
             Bfree(picptr);
+            Bfree(ftd);
             break;
         }
         case T_DUMMYTILE:
         {
             int32_t tile, xsiz, ysiz, j;
-            extern char faketile[MAXTILES];
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getsymbol(script,&xsiz)) break;
@@ -753,7 +758,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 tilesizx[tile] = xsiz;
                 tilesizy[tile] = ysiz;
-                faketile[tile] = 1;
+                faketilesiz[tile] = -1;
                 picanm[tile] = 0;
 
                 j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
@@ -767,7 +772,6 @@ static int32_t defsparser(scriptfile *script)
         case T_DUMMYTILERANGE:
         {
             int32_t tile1,tile2,xsiz,ysiz,i,j;
-            extern char faketile[MAXTILES];
 
             if (scriptfile_getnumber(script,&tile1)) break;
             if (scriptfile_getnumber(script,&tile2)) break;
@@ -790,7 +794,7 @@ static int32_t defsparser(scriptfile *script)
                         {
                             tilesizx[i] = xsiz;
                             tilesizy[i] = ysiz;
-                            faketile[i] = 1;
+                            faketilesiz[i] = -1;
                             picanm[i] = 0;
 
                             j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;

@@ -17,6 +17,7 @@
 #include "a.h"
 #include "osd.h"
 #include "crc32.h"
+#include "fastlz.h"
 
 #include "baselayer.h"
 #include "scriptfile.h"
@@ -7925,7 +7926,7 @@ int32_t loadpics(char *filename, int32_t askedsize)
 // loadtile
 //
 char cachedebug = 0;
-char faketile[MAXTILES];
+int32_t faketilesiz[MAXTILES];
 char *faketiledata[MAXTILES];
 int32_t h_xsize[MAXTILES], h_ysize[MAXTILES];
 int8_t h_xoffs[MAXTILES], h_yoffs[MAXTILES];
@@ -7961,12 +7962,12 @@ void loadtile(int16_t tilenume)
         allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
     }
 
-    if (faketile[tilenume])
+    if (faketilesiz[tilenume])
     {
-        if (faketile[tilenume] == 1 || (faketile[tilenume] == 2 && faketiledata[tilenume] == NULL))
+        if (faketilesiz[tilenume] == -1)
             Bmemset((char *)waloff[tilenume],0,dasiz);
-        else if (faketile[tilenume] == 2)
-            Bmemcpy((char *)waloff[tilenume],faketiledata[tilenume],dasiz);
+        else if (faketiledata[tilenume] != NULL)
+            fastlz_decompress(faketiledata[tilenume], faketilesiz[tilenume], (char *)waloff[tilenume], dasiz); 
         faketimerhandler();
         return;
     }
