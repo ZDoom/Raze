@@ -1379,7 +1379,7 @@ void overheadeditor(void)
         numwalls = newnumwalls;
         if (numwalls < 0) numwalls = tempint;
 
-         if (keystatus[buildkeys[BK_MOVEUP]] || keystatus[buildkeys[BK_MOVEDOWN]] || mousx || mousy || bstatus || (totalclock & 8) == 0)
+         if (keystatus[buildkeys[BK_MOVEUP]] || keystatus[buildkeys[BK_MOVEDOWN]] || mousx || mousy || bstatus || (totalclock & 8) == 0 || newnumwalls>=0)
          {
              clear2dscreen();
 
