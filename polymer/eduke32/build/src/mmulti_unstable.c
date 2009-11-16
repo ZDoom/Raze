@@ -170,6 +170,7 @@ int32_t getcrc(char *buffer, int32_t bufleng)
     return(j&65535);
 }
 
+
 void mmulti_initmultiplayers(int32_t argc, char **argv)
 {
     int32_t i;
@@ -581,7 +582,7 @@ void mmulti_generic(int32_t other, char *bufptr, int32_t messleng, int32_t comma
 }
 
 #if PLATFORM_WIN32
-#  include <winsock.h>
+#  include <winsock2.h>
 #  define EWOULDBLOCK WSAEWOULDBLOCK
 #  define ECONNREFUSED WSAECONNRESET
 #  define socklen_t size_t
@@ -625,6 +626,62 @@ void mmulti_generic(int32_t other, char *bufptr, int32_t messleng, int32_t comma
 
 static sockettype udpsocket = -1;
 static uint16_t udpport = BUILD_DEFAULT_UDP_PORT;
+
+int32_t mmulti_getexternaladdress(char *buffer, const char *host, int32_t port)
+{
+    int32_t bytes_sent, i=0, j=0;
+    struct sockaddr_in dest_addr;
+    struct hostent *h;
+    char *req = "GET / HTTP/1.0\r\n\r\n";
+    char *text = "Current IP Address: ";
+    char tempbuf[1024], ipaddr[32];
+    sockettype mysock = -1;
+
+    memset(buffer, 0, sizeof(buffer));
+
+    if ((h=gethostbyname(host)) == NULL)
+        return(0);
+
+    dest_addr.sin_addr.s_addr = ((struct in_addr *)(h->h_addr))->s_addr;
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(port);
+
+    memset(&(dest_addr.sin_zero), '\0', 8);
+
+    mysock = socket(PF_INET, SOCK_STREAM, 0);
+
+    if (mysock == INVALID_SOCKET)
+        return(0);
+
+    if (connect(mysock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR)
+        return(0);
+
+    bytes_sent = send(mysock, req, strlen(req), 0);
+    if (bytes_sent == SOCKET_ERROR)
+        return(0);
+
+    //    initprintf("sent %d bytes\n",bytes_sent);
+    recv(mysock, (char *)&tempbuf, sizeof(tempbuf), 0);
+    closesocket(mysock);
+    j = Bstrlen(text);
+    for (i=Bstrlen(tempbuf);i>0;i--)
+        if (!Bstrncmp(&tempbuf[i], text, j))
+        {
+            i += j;
+            j = 0;
+            while (isdigit(tempbuf[i]) || (tempbuf[i] == '.'))
+            {
+                ipaddr[j] = tempbuf[i];
+                i++, j++;
+            }
+            ipaddr[j++] = '\0';
+            break;
+        }
+        Bmemcpy(buffer,&ipaddr,j);
+        initprintf("network: External interface is %s\n", buffer);
+        return(1);
+}
+
 
 #if PLATFORM_WIN32
 /*
@@ -1199,16 +1256,27 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
     uint32_t resendat;
     int32_t max;
     int32_t remaining;
+    char addrbuf[32];
 
     memset(heard_from, '\0', sizeof(heard_from));
 
     gcom->numplayers = 2;
 
-    while (my_id == 0)  /* player number is based on id, low to high. */
-    {
+    i = mmulti_getexternaladdress(addrbuf, "checkip.dyndns.org", 8245);
+    if (i == 0) i = mmulti_getexternaladdress(addrbuf, "checkip.dyndns.org", 80);
+
+    if (i == 0)
         srand(myip + udpport);
-        my_id = rand() % USHRT_MAX;
+    else
+    {
+        i = inet_addr(addrbuf);
+        if (i != INADDR_NONE)
+            srand(i + myip + udpport);
+        else srand(myip + udpport);
     }
+
+    while (my_id == 0)  /* player number is based on id, low to high. */
+        my_id = rand() % USHRT_MAX;
 
     srand(1);
 
@@ -1398,6 +1466,7 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
     uint32_t resendat;
     int32_t max;
     int32_t remaining;
+    char addrbuf[32];
 
     if (bcast)
     {
@@ -1415,11 +1484,21 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
 
     memset(heard_from, '\0', sizeof(heard_from));
 
-    while (my_id == 0)  /* player number is based on id, low to high. */
-    {
+    i = mmulti_getexternaladdress(addrbuf, "checkip.dyndns.org", 8245);
+    if (i == 0) i = mmulti_getexternaladdress(addrbuf, "checkip.dyndns.org", 80);
+
+    if (i == 0)
         srand(myip + udpport);
-        my_id = rand() % USHRT_MAX;
+    else
+    {
+        i = inet_addr(addrbuf);
+        if (i != INADDR_NONE)
+            srand(i + myip + udpport);
+        else srand(myip + udpport);
     }
+
+    while (my_id == 0)  /* player number is based on id, low to high. */
+        my_id = rand() % USHRT_MAX;
 
     srand(1);
 
