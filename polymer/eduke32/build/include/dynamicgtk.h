@@ -117,12 +117,16 @@ GtkCellRenderer *(*gtk_cell_renderer_text_new)      (void);
 GtkWidget* (*gtk_check_button_new_with_mnemonic) (const gchar *label);
 
 	// gtkcombobox.h
+gint          (*gtk_combo_box_get_active)       (GtkComboBox     *combo_box);
 gboolean      (*gtk_combo_box_get_active_iter)  (GtkComboBox     *combo_box,
                                               GtkTreeIter     *iter);
+gchar        (*gtk_combo_box_get_active_text)  (GtkComboBox     *combo_box);
 GtkTreeModel *(*gtk_combo_box_get_model)        (GtkComboBox     *combo_box);
 GType         (*gtk_combo_box_get_type)         (void) G_GNUC_CONST;
 GtkWidget    *(*gtk_combo_box_new_text)         (void);
 GtkWidget    *(*gtk_combo_box_new_with_model)   (GtkTreeModel    *model);
+void          (*gtk_combo_box_set_active)       (GtkComboBox     *combo_box,
+                                              gint             index_);
 void          (*gtk_combo_box_set_active_iter)  (GtkComboBox     *combo_box,
                                               GtkTreeIter     *iter);
 
@@ -293,8 +297,15 @@ void       (*gtk_toggle_button_set_active)        (GtkToggleButton *toggle_butto
 void              (*gtk_tree_model_get)             (GtkTreeModel *tree_model,
 						  GtkTreeIter  *iter,
 						  ...);
+gboolean          (*gtk_tree_model_get_iter)        (GtkTreeModel *tree_model,
+						  GtkTreeIter  *iter,
+						  GtkTreePath  *path);
+GtkTreePath *     (*gtk_tree_model_get_path)        (GtkTreeModel *tree_model,
+						  GtkTreeIter  *iter);
 GType             (*gtk_tree_model_get_type)        (void) G_GNUC_CONST;
-
+gint        *(*gtk_tree_path_get_indices)      (GtkTreePath       *path);
+GtkTreePath *(*gtk_tree_path_new_from_indices) (gint               first_index,
+					     ...);
     // gtktreeselection.h
 gboolean         (*gtk_tree_selection_get_selected)        (GtkTreeSelection            *selection,
 							 GtkTreeModel               **model,
@@ -442,11 +453,14 @@ void dynamicgtk_uninit(void);
 #define gtk_check_button_new_with_mnemonic dynamicgtksyms.gtk_check_button_new_with_mnemonic
 
 // gtkcombobox.h
+#define gtk_combo_box_get_active dynamicgtksyms.gtk_combo_box_get_active
 #define gtk_combo_box_get_active_iter dynamicgtksyms.gtk_combo_box_get_active_iter
+#define gtk_combo_box_get_active_text dynamicgtksyms.gtk_combo_box_get_active_text
 #define gtk_combo_box_get_model dynamicgtksyms.gtk_combo_box_get_model
 #define gtk_combo_box_get_type dynamicgtksyms.gtk_combo_box_get_type
 #define gtk_combo_box_new_text dynamicgtksyms.gtk_combo_box_new_text
 #define gtk_combo_box_new_with_model dynamicgtksyms.gtk_combo_box_new_with_model
+#define gtk_combo_box_set_active dynamicgtksyms.gtk_combo_box_set_active
 #define gtk_combo_box_set_active_iter dynamicgtksyms.gtk_combo_box_set_active_iter
 
 // gtkcontainer.h
@@ -548,7 +562,11 @@ void dynamicgtk_uninit(void);
 
 // gtktreemodel.h
 #define gtk_tree_model_get dynamicgtksyms.gtk_tree_model_get
+#define gtk_tree_model_get_iter dynamicgtksyms.gtk_tree_model_get_iter
+#define gtk_tree_model_get_path dynamicgtksyms.gtk_tree_model_get_path
 #define gtk_tree_model_get_type dynamicgtksyms.gtk_tree_model_get_type
+#define gtk_tree_path_get_indices dynamicgtksyms.gtk_tree_path_get_indices
+#define gtk_tree_path_new_from_indices dynamicgtksyms.gtk_tree_path_new_from_indices
 
 // gtktreeselection.h
 #define gtk_tree_selection_get_selected dynamicgtksyms.gtk_tree_selection_get_selected

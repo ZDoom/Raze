@@ -283,14 +283,9 @@ static int32_t getatoken(scriptfile *sf, tokenlist *tl, int32_t ntokens)
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
 extern int32_t nextvoxid;
 
-extern int32_t faketilesiz[MAXTILES];
-extern char *faketiledata[MAXTILES];
-
 #if defined(POLYMOST) && defined(USE_OPENGL)
 extern float alphahackarray[MAXTILES];
 #endif
-extern char spritecol2d[MAXTILES][2];
-extern char vgapal16[4*256];
 
 static const char *skyfaces[6] =
 {

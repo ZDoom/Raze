@@ -8,8 +8,10 @@
 #include "build.h"
 #include "editor.h"
 
-#define TAB_CONFIG 0
-#define TAB_MESSAGES 1
+enum {
+	TAB_CONFIG,
+	TAB_MESSAGES,
+};
 
 static struct
 {
@@ -18,7 +20,6 @@ static struct
     GtkWidget *banner;
     GtkWidget *vlayout;
     GtkWidget *tabs;
-    GtkWidget *configvlayout;
     GtkWidget *configtlayout;
     GtkWidget *vmode2dlabel;
     GtkWidget *vmode3dlabel;
@@ -142,7 +143,7 @@ static void SetPage(int32_t n)
     // each control in the config page vertical layout plus the start button should be made (in)sensitive
     if (n == TAB_CONFIG) n = TRUE; else n = FALSE;
     gtk_widget_set_sensitive(stwidgets.startbutton, n);
-    gtk_container_foreach(GTK_CONTAINER(stwidgets.configvlayout),
+    gtk_container_foreach(GTK_CONTAINER(stwidgets.configtlayout),
                          (GtkCallback)gtk_widget_set_sensitive,
                          (gpointer)&n);
 }
@@ -243,13 +244,9 @@ static GtkWidget *create_window(void)
     gtk_box_pack_start(GTK_BOX(stwidgets.vlayout), stwidgets.tabs, TRUE, TRUE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(stwidgets.tabs), 4);
 
-    // Vertical layout of config page
-    stwidgets.configvlayout = gtk_vbox_new(FALSE, 12);
-    gtk_container_add(GTK_CONTAINER(stwidgets.tabs), stwidgets.configvlayout);
-
     // layout table of config page
-	stwidgets.configtlayout = gtk_table_new(3, 3, FALSE);
-	gtk_box_pack_start(GTK_BOX(stwidgets.configvlayout), stwidgets.configtlayout, TRUE, TRUE, 0);
+	stwidgets.configtlayout = gtk_table_new(4, 3, FALSE);
+	gtk_container_add(GTK_CONTAINER(stwidgets.tabs), stwidgets.configtlayout);
 
     // 2D video mode label
     stwidgets.vmode2dlabel = gtk_label_new_with_mnemonic("_2D Video mode:");
@@ -307,7 +304,7 @@ static GtkWidget *create_window(void)
 	
     // Always show config checkbox
     stwidgets.alwaysshowcheck = gtk_check_button_new_with_mnemonic("_Always show configuration on start");
-    gtk_box_pack_start(GTK_BOX(stwidgets.configvlayout), stwidgets.alwaysshowcheck, FALSE, FALSE, 0);
+    gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.alwaysshowcheck, 0,2, 3,4, GTK_FILL, 0, 4, 6);
     gtk_widget_add_accelerator(stwidgets.alwaysshowcheck, "grab_focus", stwidgets.accel_group,
                                GDK_A, GDK_MOD1_MASK,
                                GTK_ACCEL_VISIBLE);

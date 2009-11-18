@@ -265,6 +265,12 @@ EXTERN char gotsector[(MAXSECTORS+7)>>3];
 EXTERN char captureformat;
 EXTERN char editorcolors[256];
 
+EXTERN int32_t faketilesiz[MAXTILES];
+EXTERN char *faketiledata[MAXTILES];
+
+EXTERN char spritecol2d[MAXTILES][2];
+extern char vgapal16[4*256];
+
 extern char vgapalette[5*256];
 extern uint32_t drawlinepat;
 

@@ -118,7 +118,6 @@ void GAME_onshowosd(int32_t shown)
     // most of this is copied from my dummytile stuff in defs.c
     if (!tilesizx[BGTILE] || !tilesizy[BGTILE])
     {
-        extern int32_t faketilesiz[MAXTILES];
         int32_t j;
 
         tilesizx[BGTILE] = BGTILE_SIZEX;

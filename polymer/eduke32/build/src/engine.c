@@ -126,6 +126,12 @@ extern char textfont[2048], smalltextfont[2048];
 static char kensmessage[128];
 char *engineerrstr = "No error";
 
+int32_t showfirstwall=0;
+int32_t showheightindicators=2;
+int32_t circlewall=-1;
+
+char cachedebug = 0;
+
 #if defined(_MSC_VER) && !defined(NOASM)
 
 //
@@ -7925,12 +7931,6 @@ int32_t loadpics(char *filename, int32_t askedsize)
 //
 // loadtile
 //
-char cachedebug = 0;
-int32_t faketilesiz[MAXTILES];
-char *faketiledata[MAXTILES];
-int32_t h_xsize[MAXTILES], h_ysize[MAXTILES];
-int8_t h_xoffs[MAXTILES], h_yoffs[MAXTILES];
-
 void loadtile(int16_t tilenume)
 {
     char *ptr;
@@ -10951,12 +10951,6 @@ void draw2dgrid(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int16
 //
 // draw2dscreen
 //
-
-char spritecol2d[MAXTILES][2];
-int32_t showfirstwall=0;
-int32_t showheightindicators=2;
-int32_t circlewall=-1;
-
 void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int16_t gride)
 {
     walltype *wal;

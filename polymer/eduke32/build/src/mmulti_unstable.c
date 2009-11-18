@@ -609,6 +609,12 @@ void mmulti_generic(int32_t other, char *bufptr, int32_t messleng, int32_t comma
 #  ifndef MSG_ERRQUEUE  /* legacy glibc header workaround... */
 #    define MSG_ERRQUEUE 0x2000
 #  endif
+# ifndef INVALID_SOCKET
+#    define INVALID_SOCKET -1
+# endif
+# ifndef SOCKET_ERROR
+#    define SOCKET_ERROR   -1
+# endif
 #endif
 
 #define SOCKET_SHUTDOWN_BOTH 2
@@ -662,7 +668,7 @@ int32_t mmulti_getexternaladdress(char *buffer, const char *host, int32_t port)
 
     //    initprintf("sent %d bytes\n",bytes_sent);
     recv(mysock, (char *)&tempbuf, sizeof(tempbuf), 0);
-    closesocket(mysock);
+    socketclose(mysock);
     j = Bstrlen(text);
     for (i=Bstrlen(tempbuf);i>0;i--)
         if (!Bstrncmp(&tempbuf[i], text, j))
@@ -1269,7 +1275,7 @@ static int32_t connect_to_server(gcomtype *gcom, int32_t myip)
         srand(myip + udpport);
     else
     {
-        i = inet_addr(addrbuf);
+        uint32_t i = inet_addr(addrbuf);
         if (i != INADDR_NONE)
             srand(i + myip + udpport);
         else srand(myip + udpport);
@@ -1491,7 +1497,7 @@ static int32_t connect_to_everyone(gcomtype *gcom, int32_t myip, int32_t bcast)
         srand(myip + udpport);
     else
     {
-        i = inet_addr(addrbuf);
+        uint32_t i = inet_addr(addrbuf);
         if (i != INADDR_NONE)
             srand(i + myip + udpport);
         else srand(myip + udpport);

@@ -987,34 +987,24 @@ void C_InitHashes()
     inithashnames();
 
     hash_init(&keywH);
-    for (i=NUMKEYWORDS-1; i>=0; i--)
-        hash_add(&keywH,keyw[i],i);
-
     hash_init(&sectorH);
-    for (i=0; SectorLabels[i].lId >=0 ; i++)
-        hash_add(&sectorH,SectorLabels[i].name,i);
     hash_init(&wallH);
-    for (i=0; WallLabels[i].lId >=0 ; i++)
-        hash_add(&wallH,WallLabels[i].name,i);
     hash_init(&userdefH);
-    for (i=0; UserdefsLabels[i].lId >=0 ; i++)
-        hash_add(&userdefH,UserdefsLabels[i].name,i);
-
     hash_init(&projectileH);
-    for (i=0; ProjectileLabels[i].lId >=0 ; i++)
-        hash_add(&projectileH,ProjectileLabels[i].name,i);
     hash_init(&playerH);
-    for (i=0; PlayerLabels[i].lId >=0 ; i++)
-        hash_add(&playerH,PlayerLabels[i].name,i);
     hash_init(&inputH);
-    for (i=0; InputLabels[i].lId >=0 ; i++)
-        hash_add(&inputH,InputLabels[i].name,i);
     hash_init(&actorH);
-    for (i=0; ActorLabels[i].lId >=0 ; i++)
-        hash_add(&actorH,ActorLabels[i].name,i);
     hash_init(&tspriteH);
-    for (i=0; TsprLabels[i].lId >=0 ; i++)
-        hash_add(&tspriteH,TsprLabels[i].name,i);
+
+    for (i=NUMKEYWORDS-1; i>=0; i--) hash_add(&keywH,keyw[i],i);
+    for (i=0; SectorLabels[i].lId; i++) hash_add(&sectorH,SectorLabels[i].name,i);
+    for (i=0; WallLabels[i].lId; i++) hash_add(&wallH,WallLabels[i].name,i);
+    for (i=0; UserdefsLabels[i].lId; i++) hash_add(&userdefH,UserdefsLabels[i].name,i);
+    for (i=0; ProjectileLabels[i].lId; i++) hash_add(&projectileH,ProjectileLabels[i].name,i);
+    for (i=0; PlayerLabels[i].lId; i++) hash_add(&playerH,PlayerLabels[i].name,i);
+    for (i=0; InputLabels[i].lId; i++) hash_add(&inputH,InputLabels[i].name,i);
+    for (i=0; ActorLabels[i].lId; i++) hash_add(&actorH,ActorLabels[i].name,i);
+    for (i=0; TsprLabels[i].lId; i++) hash_add(&tspriteH,TsprLabels[i].name,i);
 }
 
 void C_FreeHashes(void)
@@ -1126,11 +1116,14 @@ static int32_t C_SetScriptSize(int32_t size)
 //    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
     //initprintf("offset: %d\n",(unsigned)(g_scriptPtr-script));
-    if (g_caseScriptPtr != NULL)
+
+    if (g_caseScriptPtr)
         g_caseScriptPtr = (intptr_t *)(script+ocaseScriptPtr);
-    if (g_parsingEventPtr != NULL)
+
+    if (g_parsingEventPtr)
         g_parsingEventPtr = (intptr_t *)(script+oparsingEventPtr);
-    if (g_parsingActorPtr != NULL)
+
+    if (g_parsingActorPtr)
         g_parsingActorPtr = (intptr_t *)(script+oparsingActorPtr);
 
     for (i=MAXSECTORS-1; i>=0; i--)
@@ -1187,57 +1180,62 @@ static int32_t C_SetScriptSize(int32_t size)
 
 static int32_t C_SkipComments(void)
 {
-    char c = *textptr;
-
     do
     {
-        if (c == ' ' || c == '\t' || c == '\r')
-            textptr++;
-        else if (c == '\n')
+        switch (*textptr)
         {
+        case '\n':
             g_lineNumber++;
+        case ' ':
+        case '\t':
+        case '\r':
             textptr++;
-        }
-        else if (c == '/' && textptr[1] == '/')
-        {
-            if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
-                initprintf("%s:%d: debug: got comment.\n",g_szScriptFileName,g_lineNumber);
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-                textptr++;
-        }
-        else if (c == '/' && textptr[1] == '*')
-        {
-            if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
-                initprintf("%s:%d: debug: got start of comment block.\n",g_szScriptFileName,g_lineNumber);
-            while (*textptr && !(textptr[0] == '*' && textptr[1] == '/'))
+            break;
+        case '/':
+            switch (textptr[1])
             {
-                if (*textptr == '\n')
-                    g_lineNumber++;
-                textptr++;
-            }
-            if ((!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1) && (textptr[0] == '*' && textptr[1] == '/'))
-                initprintf("%s:%d: debug: got end of comment block.\n",g_szScriptFileName,g_lineNumber);
-            if (!*textptr)
-            {
-                if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-                    initprintf("%s:%d: debug: EOF in comment!\n",g_szScriptFileName,g_lineNumber);
-                C_ReportError(-1);
-                initprintf("%s:%d: error: found `/*' with no `*/'.\n",g_szScriptFileName,g_lineNumber);
-                g_processingState = g_numBraces = 0;
-                g_parsingActorPtr = 0;
-                g_numCompilerErrors++;
+            case '/': // C++ style comment
+                if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
+                    initprintf("%s:%d: debug: got comment.\n",g_szScriptFileName,g_lineNumber);
+                while (*textptr && *textptr != 0x0a && *textptr != 0x0d)
+                    textptr++;
+                break;
+            case '*': // beginning of a C style comment
+                if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
+                    initprintf("%s:%d: debug: got start of comment block.\n",g_szScriptFileName,g_lineNumber);
+                do
+                {
+                    if (*textptr == '\n')
+                        g_lineNumber++;
+                    textptr++;
+                }
+                while (*textptr && (textptr[0] != '*' || textptr[1] != '/'));
+
+                if (!*textptr)
+                {
+                    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
+                        initprintf("%s:%d: debug: EOF in comment!\n",g_szScriptFileName,g_lineNumber);
+                    C_ReportError(-1);
+                    initprintf("%s:%d: error: found `/*' with no `*/'.\n",g_szScriptFileName,g_lineNumber);
+                    g_parsingActorPtr = (intptr_t *)(g_processingState = g_numBraces = 0);
+                    g_numCompilerErrors++;
+                    break;
+                }
+
+                if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
+                    initprintf("%s:%d: debug: got end of comment block.\n",g_szScriptFileName,g_lineNumber);
+
+                textptr+=2;
                 break;
             }
-            else textptr+=2;
+            break;
+
+        case 0: // EOF
+        default:
+            return ((g_scriptPtr-script) > (g_scriptSize-32)) ? C_SetScriptSize(g_scriptSize<<1) : 0;
         }
-        else break;
     }
-    while ((c = *textptr));
-
-    if ((unsigned)(g_scriptPtr-script) > (unsigned)(g_scriptSize-32))
-        return C_SetScriptSize(g_scriptSize<<1);
-
-    return 0;
+    while (1);
 }
 
 static void C_SetProjectile(int32_t lVar1, int32_t lLabelID, int32_t lVar2)
@@ -1450,14 +1448,6 @@ static void C_GetNextLabelName(void)
 
     C_SkipComments();
 
-    while (isalnum(*textptr) == 0)
-    {
-        if (*textptr == 0x0a) g_lineNumber++;
-        textptr++;
-        if (*textptr == 0)
-            return;
-    }
-
     i = 0;
     while (ispecial(*textptr) == 0 && *textptr!='['&& *textptr!=']' && *textptr!='\t' && *textptr!='\n' && *textptr!='\r')
         label[(g_numLabels<<6)+(i++)] = *(textptr++);
@@ -1496,13 +1486,8 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
 
     C_SkipComments();
 
-    while (isaltok(*textptr) == 0)
-    {
-        if (*textptr == 0x0a) g_lineNumber++;
-        if (*textptr == 0)
-            return -1;
-        textptr++;
-    }
+    if (*textptr == 0) // EOF
+        return -1;
 
     l = 0;
     while (isaltok(*(textptr+l)) && !(*(textptr + l) == '.'))
@@ -1800,13 +1785,8 @@ static int32_t C_GetNextValue(int32_t type)
 
     C_SkipComments();
 
-    while (isaltok(*textptr) == 0)
-    {
-        if (*textptr == 0x0a) g_lineNumber++;
-        textptr++;
-        if (*textptr == 0)
-            return -1; // eof
-    }
+    if (*textptr == 0) // EOF
+        return -1;
 
     l = 0;
     while (isaltok(*(textptr+l)))
@@ -2509,12 +2489,9 @@ static int32_t C_ParseCommand(void)
 
     case CON_INCLUDE:
         g_scriptPtr--;
-        while (isaltok(*textptr) == 0)
-        {
-            if (*textptr == 0x0a) g_lineNumber++;
-            textptr++;
-            if (*textptr == 0) break;
-        }
+
+        C_SkipComments();
+
         j = 0;
         while (isaltok(*textptr))
         {
@@ -2567,6 +2544,9 @@ static int32_t C_ParseCommand(void)
             g_checkingIfElse = 0;
 
             textptr = mptr;
+
+            C_SkipComments();
+
             do done = C_ParseCommand();
             while (!done);
 
@@ -5199,12 +5179,8 @@ repeatcase:
     case CON_SETDEFNAME:
     {
         g_scriptPtr--;
-        while (isaltok(*textptr) == 0)
-        {
-            if (*textptr == 0x0a) g_lineNumber++;
-            textptr++;
-            if (*textptr == 0) break;
-        }
+        C_SkipComments();
+
         j = 0;
         while (isaltok(*textptr))
         {
@@ -5220,12 +5196,8 @@ repeatcase:
     case CON_SETCFGNAME:
     {
         g_scriptPtr--;
-        while (isaltok(*textptr) == 0)
-        {
-            if (*textptr == 0x0a) g_lineNumber++;
-            textptr++;
-            if (*textptr == 0) break;
-        }
+        C_SkipComments();
+
         j = 0;
         while (isaltok(*textptr))
         {

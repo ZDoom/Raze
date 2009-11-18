@@ -89,6 +89,7 @@ static char keytranslation[SDL_NUM_SCANCODES];
 static int32_t buildkeytranslationtable(void);
 
 //static SDL_Surface * loadtarga(const char *fn);		// for loading the icon
+static SDL_Surface * appicon;
 static SDL_Surface * loadappicon(void);
 
 int32_t wm_msgbox(char *name, char *fmt, ...)
@@ -295,16 +296,11 @@ int32_t initsystem(void)
 #endif
 
 #ifndef __APPLE__
-    {
-        SDL_Surface *icon;
-        //icon = loadtarga("icon.tga");
-        icon = loadappicon();
-        if (icon)
-        {
-            SDL_WM_SetIcon(icon, 0);
-            SDL_FreeSurface(icon);
-        }
-    }
+        
+    //icon = loadtarga("icon.tga");
+    appicon = loadappicon();
+    if (appicon)
+        SDL_WM_SetIcon(appicon, 0);
 #endif
 
     if (SDL_VideoDriverName(drvname, 32))
@@ -339,6 +335,9 @@ void uninitsystem(void)
     uninitinput();
     uninitmouse();
     uninittimer();
+
+    if (appicon)
+        SDL_FreeSurface(appicon);
 
     SDL_Quit();
 
@@ -1443,7 +1442,8 @@ int32_t setpalette(int32_t start, int32_t num)
         curpalettefaded[i].f = pal[i].unused = 0;
 
     //return SDL_SetPalette(sdl_surface, SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
-    return SDL_SetColors(sdl_surface, pal, 0, 256);
+    
+    return sdl_surface ? SDL_SetColors(sdl_surface, pal, 0, 256) : 0;
 }
 
 //

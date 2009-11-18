@@ -397,6 +397,22 @@
 					>
 				</File>
 				<File
+					RelativePath=".\source\m32def.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\m32exec.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\m32structures.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\m32vars.c"
+					>
+				</File>
+				<File
 					RelativePath=".\source\mdump.cpp"
 					>
 				</File>
