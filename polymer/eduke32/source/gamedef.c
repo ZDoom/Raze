@@ -997,14 +997,14 @@ void C_InitHashes()
     hash_init(&tspriteH);
 
     for (i=NUMKEYWORDS-1; i>=0; i--) hash_add(&keywH,keyw[i],i);
-    for (i=0; SectorLabels[i].lId; i++) hash_add(&sectorH,SectorLabels[i].name,i);
-    for (i=0; WallLabels[i].lId; i++) hash_add(&wallH,WallLabels[i].name,i);
-    for (i=0; UserdefsLabels[i].lId; i++) hash_add(&userdefH,UserdefsLabels[i].name,i);
-    for (i=0; ProjectileLabels[i].lId; i++) hash_add(&projectileH,ProjectileLabels[i].name,i);
-    for (i=0; PlayerLabels[i].lId; i++) hash_add(&playerH,PlayerLabels[i].name,i);
-    for (i=0; InputLabels[i].lId; i++) hash_add(&inputH,InputLabels[i].name,i);
-    for (i=0; ActorLabels[i].lId; i++) hash_add(&actorH,ActorLabels[i].name,i);
-    for (i=0; TsprLabels[i].lId; i++) hash_add(&tspriteH,TsprLabels[i].name,i);
+    for (i=0; SectorLabels[i].lId >= 0; i++) hash_add(&sectorH,SectorLabels[i].name,i);
+    for (i=0; WallLabels[i].lId >= 0; i++) hash_add(&wallH,WallLabels[i].name,i);
+    for (i=0; UserdefsLabels[i].lId >= 0; i++) hash_add(&userdefH,UserdefsLabels[i].name,i);
+    for (i=0; ProjectileLabels[i].lId >= 0; i++) hash_add(&projectileH,ProjectileLabels[i].name,i);
+    for (i=0; PlayerLabels[i].lId >= 0; i++) hash_add(&playerH,PlayerLabels[i].name,i);
+    for (i=0; InputLabels[i].lId >= 0; i++) hash_add(&inputH,InputLabels[i].name,i);
+    for (i=0; ActorLabels[i].lId >= 0; i++) hash_add(&actorH,ActorLabels[i].name,i);
+    for (i=0; TsprLabels[i].lId >= 0; i++) hash_add(&tspriteH,TsprLabels[i].name,i);
 }
 
 void C_FreeHashes(void)
@@ -1178,6 +1178,17 @@ static int32_t C_SetScriptSize(int32_t size)
     return 0;
 }
 
+static inline int32_t ispecial(const char c)
+{
+    if (c == ' ' || c == 0x0d || c == '(' || c == ')' ||
+        c == ',' || c == ';' || (c == 0x0a && ++g_lineNumber))
+        return 1;
+
+    return 0;
+}
+
+#define C_NextLine() while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++
+
 static int32_t C_SkipComments(void)
 {
     do
@@ -1197,8 +1208,7 @@ static int32_t C_SkipComments(void)
             case '/': // C++ style comment
                 if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
                     initprintf("%s:%d: debug: got comment.\n",g_szScriptFileName,g_lineNumber);
-                while (*textptr && *textptr != 0x0a && *textptr != 0x0d)
-                    textptr++;
+                C_NextLine();
                 break;
             case '*': // beginning of a C style comment
                 if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
@@ -1230,8 +1240,13 @@ static int32_t C_SkipComments(void)
             }
             break;
 
-        case 0: // EOF
         default:
+            if (ispecial(*textptr))
+            {
+                textptr++;
+                break;
+            }
+        case 0: // EOF
             return ((g_scriptPtr-script) > (g_scriptSize-32)) ? C_SetScriptSize(g_scriptSize<<1) : 0;
         }
     }
@@ -1405,15 +1420,6 @@ static int32_t C_CheckEventSync(int32_t iEventID)
 
 #define GetDefID(szGameLabel) hash_find(&gamevarH,szGameLabel)
 #define GetADefID(szGameLabel) hash_find(&arrayH,szGameLabel)
-
-static inline int32_t ispecial(const char c)
-{
-    if (c == ' ' || c == 0x0d || c == '(' || c == ')' ||
-            c == ',' || c == ';' || (c == 0x0a && ++g_lineNumber))
-        return 1;
-
-    return 0;
-}
 
 static inline int32_t isaltok(const char c)
 {
@@ -5021,8 +5027,7 @@ repeatcase:
     case CON_BETANAME:
         g_scriptPtr--;
         j = 0;
-        while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            textptr++;
+        C_NextLine();
         return 0;
 
     case CON_DEFINEVOLUMENAME:
@@ -5031,14 +5036,14 @@ repeatcase:
         C_GetNextValue(LABEL_DEFINE);
         g_scriptPtr--;
         j = *g_scriptPtr;
-        while (*textptr == ' ' || *textptr == '\t') textptr++;
+        C_SkipComments();
 
         if (j < 0 || j > MAXVOLUMES-1)
         {
             initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",
                        g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
-            while (*textptr != 0x0a && *textptr != 0) textptr++;
+            C_NextLine();
             break;
         }
 
@@ -5053,7 +5058,7 @@ repeatcase:
                 initprintf("%s:%d: warning: truncating volume name to %d characters.\n",
                            g_szScriptFileName,g_lineNumber,sizeof(EpisodeNames[j])-1);
                 g_numCompilerWarnings++;
-                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                C_NextLine();
                 break;
             }
         }
@@ -5066,14 +5071,14 @@ repeatcase:
         C_GetNextValue(LABEL_DEFINE);
         g_scriptPtr--;
         j = *g_scriptPtr;
-        while (*textptr == ' ' || *textptr == '\t') textptr++;
+        C_SkipComments();
 
         if (j < 0 || j > NUMGAMEFUNCTIONS-1)
         {
             initprintf("%s:%d: error: function number exceeds number of game functions.\n",
                        g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
-            while (*textptr != 0x0a && *textptr != 0) textptr++;
+            C_NextLine();
             break;
         }
 
@@ -5084,12 +5089,12 @@ repeatcase:
             gamefunctions[j][i] = *textptr;
             keydefaults[j*3][i] = *textptr;
             textptr++,i++;
-            if (*textptr == '/' || *textptr == ' ')
+            if (*textptr != 0x0a && *textptr != 0x0d && ispecial(*textptr))
             {
                 initprintf("%s:%d: warning: invalid character in function name.\n",
                            g_szScriptFileName,g_lineNumber);
                 g_numCompilerWarnings++;
-                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                C_NextLine();
                 break;
             }
             if (i >= MAXGAMEFUNCLEN-1)
@@ -5097,7 +5102,7 @@ repeatcase:
                 initprintf("%s:%d: warning: truncating function name to %d characters.\n",
                            g_szScriptFileName,g_lineNumber,MAXGAMEFUNCLEN);
                 g_numCompilerWarnings++;
-                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                C_NextLine();
                 break;
             }
         }
@@ -5118,14 +5123,14 @@ repeatcase:
         C_GetNextValue(LABEL_DEFINE);
         g_scriptPtr--;
         j = *g_scriptPtr;
-        while (*textptr == ' ' || *textptr == '\t') textptr++;
+        C_SkipComments();
 
         if (j < 0 || j > 4)
         {
             initprintf("%s:%d: error: skill number exceeds maximum skill count.\n",
                        g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
-            while (*textptr != 0x0a && *textptr != 0) textptr++;
+            C_NextLine();
             break;
         }
 
@@ -5140,7 +5145,7 @@ repeatcase:
                 initprintf("%s:%d: warning: truncating skill name to %d characters.\n",
                            g_szScriptFileName,g_lineNumber,sizeof(SkillNames[j])-1);
                 g_numCompilerWarnings++;
-                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                C_NextLine();
                 break;
             }
         }
@@ -5152,7 +5157,7 @@ repeatcase:
         char gamename[32];
         g_scriptPtr--;
 
-        while (*textptr == ' ' || *textptr == '\t') textptr++;
+        C_SkipComments();
 
         i = 0;
 
@@ -5165,7 +5170,7 @@ repeatcase:
                 initprintf("%s:%d: warning: truncating game name to %d characters.\n",
                            g_szScriptFileName,g_lineNumber,sizeof(gamename)-1);
                 g_numCompilerWarnings++;
-                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                C_NextLine();
                 break;
             }
         }
@@ -5274,13 +5279,13 @@ repeatcase:
         g_scriptPtr--;
         GametypeFlags[j] = *g_scriptPtr;
 
-        while (*textptr == ' ' || *textptr == '\t') textptr++;
+        C_SkipComments();
 
         if (j < 0 || j > MAXGAMETYPES-1)
         {
             initprintf("%s:%d: error: gametype number exceeds maximum gametype count.\n",g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
-            while (*textptr != 0x0a && *textptr != 0) textptr++;
+            C_NextLine();
             break;
         }
         g_numGametypes = j+1;
@@ -5296,7 +5301,7 @@ repeatcase:
                 initprintf("%s:%d: warning: truncating gametype name to %d characters.\n",
                            g_szScriptFileName,g_lineNumber,sizeof(GametypeNames[j])-1);
                 g_numCompilerWarnings++;
-                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                C_NextLine();
                 break;
             }
         }
@@ -5311,20 +5316,20 @@ repeatcase:
         C_GetNextValue(LABEL_DEFINE);
         g_scriptPtr--;
         k = *g_scriptPtr;
-        while (*textptr == ' ' || *textptr == '\t') textptr++;
+        C_SkipComments();
 
         if (j < 0 || j > MAXVOLUMES-1)
         {
             initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
-            while (*textptr != 0x0a && *textptr != 0) textptr++;
+            C_NextLine();
             break;
         }
         if (k < 0 || k > MAXLEVELS-1)
         {
             initprintf("%s:%d: error: level number exceeds maximum number of levels per episode.\n",g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
-            while (*textptr != 0x0a && *textptr != 0) textptr++;
+            C_NextLine();
             break;
         }
 
@@ -5357,7 +5362,7 @@ repeatcase:
 
         Bstrcpy(MapInfo[j*MAXLEVELS+k].filename,tempbuf);
 
-        while (*textptr == ' ' || *textptr == '\t') textptr++;
+        C_SkipComments();
 
         MapInfo[j*MAXLEVELS+k].partime =
             (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*GAMETICSPERSEC*60)+
@@ -5384,7 +5389,7 @@ repeatcase:
                 initprintf("%s:%d: warning: truncating level name to %d characters.\n",
                            g_szScriptFileName,g_lineNumber,32);
                 g_numCompilerWarnings++;
-                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                C_NextLine();
                 break;
             }
         }
@@ -5468,7 +5473,7 @@ repeatcase:
             {
                 initprintf("%s:%d: warning: truncating quote text to %d characters.\n",g_szScriptFileName,g_lineNumber,MAXQUOTELEN-1);
                 g_numCompilerWarnings++;
-                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                C_NextLine();
                 break;
             }
         }
@@ -5501,7 +5506,7 @@ repeatcase:
         {
             initprintf("%s:%d: error: cheat redefinition attempts to redefine nonexistent cheat.\n",g_szScriptFileName,g_lineNumber);
             g_numCompilerErrors++;
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+            C_NextLine();
             break;
         }
         g_scriptPtr--;
@@ -5517,7 +5522,7 @@ repeatcase:
                 initprintf("%s:%d: warning: truncating cheat string to %d characters.\n",
                            g_szScriptFileName,g_lineNumber,MAXCHEATLEN,sizeof(CheatStrings[k])-1);
                 g_numCompilerWarnings++;
-                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0 && *textptr != ' ') textptr++;
+                C_NextLine();
                 break;
             }
         }
@@ -5545,10 +5550,25 @@ repeatcase:
             G_GameExit(tempbuf);
         }
 
-        while (*textptr != ' ' || *textptr == '\t')
+        if (*textptr == '\"')
         {
-            g_sounds[k].filename[i] = *textptr;
-            textptr++,i++;
+            textptr++;
+            while (*textptr && *textptr != '\"')
+            {
+                g_sounds[k].filename[i++] = *textptr++;
+                if (i >= BMAX_PATH)
+                {
+                    initprintf("%s:%d: error: sound filename exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,BMAX_PATH);
+                    g_numCompilerErrors++;
+                    C_SkipComments();
+                    break;
+                }
+            }
+            textptr++;
+        }
+        else while (*textptr != ' ' && *textptr != '\t' && *textptr != '\r' && *textptr != '\n')
+        {
+            g_sounds[k].filename[i++] = *textptr++;
             if (i >= BMAX_PATH)
             {
                 initprintf("%s:%d: error: sound filename exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,BMAX_PATH);
