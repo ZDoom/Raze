@@ -1283,14 +1283,6 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
             /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);*/
         }
         else return -1; // didn't find it
-		if (!strcmp(fn, "highres/screen/menu/3281.jpg")) {
-			static int menuoffset = -1;
-			if (offset != menuoffset) {
-				menuoffset = offset;
-			}
-			OSD_Printf("menu tile offset %i\n", offset);
-		}
-
 
         if (Blseek(cachefilehandle, offset, BSEEK_SET) == -1)
         {
@@ -5948,7 +5940,7 @@ void polymost_initosdfuncs(void)
         { "r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",(void *)&glusetexcache, CVAR_INT, 0, 0, 2 },
         { "r_texcompr","r_texcompr: enable/disable OpenGL texture compression",(void *)&glusetexcompr, CVAR_BOOL, 0, 0, 1 },
         { "r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", (void *)&glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 0, 16 },
-        { "r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",(void *)&gltexmaxsize, CVAR_INT, 0, 0, 4096 },
+        { "r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",(void *)&gltexmaxsize, CVAR_INT | CVAR_NOSAVE, 0, 0, 4096 },
         { "r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",(void *)&gltexmiplevel, CVAR_INT, 0, 0, 6 },
         { "r_texturemode", "r_texturemode: changes the texture filtering settings", (void *)&gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 0, 5 },
         { "r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",(void *)&r_vbocount, CVAR_INT, 0, 1, 256 },
