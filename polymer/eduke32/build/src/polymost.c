@@ -756,7 +756,6 @@ void polymost_glinit()
         curcacheindex = curcacheindex->next;
     }
 
-    curcacheindex = firstcacheindex;
     i = Blseek(cachefilehandle, 0, BSEEK_END)-i;
     if (i)
         initprintf("Cache contains %d bytes of garbage data\n",i);
@@ -1284,6 +1283,14 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
             /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);*/
         }
         else return -1; // didn't find it
+		if (!strcmp(fn, "highres/screen/menu/3281.jpg")) {
+			static int menuoffset = -1;
+			if (offset != menuoffset) {
+				menuoffset = offset;
+			}
+			OSD_Printf("menu tile offset %i\n", offset);
+		}
+
 
         if (Blseek(cachefilehandle, offset, BSEEK_SET) == -1)
         {
