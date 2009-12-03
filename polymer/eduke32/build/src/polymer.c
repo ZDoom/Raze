@@ -949,7 +949,7 @@ void                polymer_drawsprite(int32_t snum)
     float           xratio, yratio, ang;
     float           spos[3];
     GLfloat         *inbuffer;
-    uint8_t         curpriority;
+    uint8_t         curpriority, flipu, flipv;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
 
@@ -1027,6 +1027,8 @@ void                polymer_drawsprite(int32_t snum)
 
     inbuffer = vertsprite;
 
+	flipu = flipv = 0;
+
     if (pr_billboardingmode && !((tspr->cstat>>4) & 3))
     {
         // do surgery on the face tspr to make it look like a wall sprite
@@ -1067,7 +1069,7 @@ void                polymer_drawsprite(int32_t snum)
         bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
         if (tspr->cstat & 8) {
             bglRotatef(-180.0, 0.0f, 0.0f, 1.0f);
-            spriteplane.material.diffusescale[0] = -spriteplane.material.diffusescale[0];
+            flipu = !flipu;
         }
         bglTranslatef((float)(-xoff), 1.0f, (float)(yoff));
         bglScalef((float)(xsize), 1.0f, (float)(ysize));
@@ -1081,17 +1083,32 @@ void                polymer_drawsprite(int32_t snum)
     }
 
     if ((tspr->cstat & 4) && (((tspr->cstat>>4) & 3) != 2))
-        spriteplane.material.diffusescale[0] = -spriteplane.material.diffusescale[0];
+        flipu = !flipu;
     if (!(tspr->cstat & 4) && (((tspr->cstat>>4) & 3) == 2))
-        spriteplane.material.diffusescale[0] = -spriteplane.material.diffusescale[0];
+        flipu = !flipu;
 
     if ((tspr->cstat & 8) && (((tspr->cstat>>4) & 3) != 2))
-        spriteplane.material.diffusescale[1] = -spriteplane.material.diffusescale[1];
+        flipv = !flipv;
 
     bglGetFloatv(GL_MODELVIEW_MATRIX, spritemodelview);
     bglPopMatrix();
 
     Bmemcpy(spriteplane.buffer, inbuffer, sizeof(GLfloat) * 4 * 5);
+
+	if (flipu || flipv)
+	{
+		i = 0;
+		while (i < 4)
+		{
+			if (flipu)
+				spriteplane.buffer[(i * 5) + 3] =
+				    (spriteplane.buffer[(i * 5) + 3] - 1.0f) * -1.0f;
+			if (flipv)
+				spriteplane.buffer[(i * 5) + 4] =
+				    (spriteplane.buffer[(i * 5) + 4] - 1.0f) * -1.0f;
+			i++;
+		}
+	}
 
     i = 0;
     while (i < 4)
@@ -4296,7 +4313,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         loadtile(tilenum);
 
     pth = NULL;
-    pth = gltexcache(tilenum, pal, 0);
+	pth = gltexcache(tilenum, pal, (material == &spriteplane.material) ? 4 : 0);
 
     if (pth)
         material->diffusemap = pth->glpic;
