@@ -1322,7 +1322,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
             // if we have a level boundary somewhere in the sector,
             // consider these walls as visportals
-            if (wall[sec->wallptr + i].nextsector == -1)
+            if (wall[sec->wallptr + i].nextsector < 0)
                 doquery = 1;
 
             i--;
@@ -1332,7 +1332,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         i = sec->wallnum-1;
         while (i >= 0)
         {
-            if ((wall[sec->wallptr + i].nextsector != -1) &&
+            if ((wall[sec->wallptr + i].nextsector >= 0) &&
                 (wallvisible(globalposx, globalposy, sec->wallptr + i)) &&
                 (polymer_planeinfrustum(&prwalls[sec->wallptr + i]->mask, frustum)))
             {
@@ -2927,7 +2927,9 @@ static void         polymer_updatewall(int16_t wallnum)
     // it also works, bitches
     sec = &sector[sectofwall];
 
-    if (sectofwall < 0 || sectofwall > numsectors || wallnum < 0 || wallnum > numwalls || sec->wallptr > wallnum)
+    if (sectofwall < 0 || sectofwall > numsectors ||
+		wallnum < 0 || wallnum > numwalls ||
+		sec->wallptr > wallnum || wallnum >= (sec->wallptr + sec->wallnum))
         return; // yay, corrupt map
 
     wal = &wall[wallnum];
@@ -3023,7 +3025,7 @@ static void         polymer_updatewall(int16_t wallnum)
         Bmemcpy(&w->wall.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
         Bmemcpy(&w->wall.buffer[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
-        if (wal->nextsector == -1)
+        if (wal->nextsector < 0)
             curpicnum = wallpicnum;
         else
             curpicnum = walloverpicnum;
@@ -3035,7 +3037,7 @@ static void         polymer_updatewall(int16_t wallnum)
         else
             yref = sec->ceilingz;
 
-        if ((wal->cstat & 32) && (wal->nextsector != -1))
+        if ((wal->cstat & 32) && (wal->nextsector >= 0))
         {
             if ((!(wal->cstat & 2) && (wal->cstat & 4)) || ((wal->cstat & 2) && (wall[nwallnum].cstat & 4)))
                 yref = sec->ceilingz;
@@ -3287,7 +3289,7 @@ static void         polymer_updatewall(int16_t wallnum)
         }
     }
 
-    if (wal->nextsector == -1)
+    if (wal->nextsector < 0)
         Bmemcpy(w->mask.buffer, w->wall.buffer, sizeof(GLfloat) * 4 * 5);
 
     Bmemcpy(w->bigportal, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
@@ -3355,11 +3357,11 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
         polymer_drawplane(&w->over);
     }
 
-    if ((wall[wallnum].cstat & 32) && (wall[wallnum].nextsector != -1))
+    if ((wall[wallnum].cstat & 32) && (wall[wallnum].nextsector >= 0))
         polymer_drawplane(&w->mask);
 
     if ((sector[sectnum].ceilingstat & 1) &&
-            ((wall[wallnum].nextsector == -1) ||
+            ((wall[wallnum].nextsector < 0) ||
              !(sector[wall[wallnum].nextsector].ceilingstat & 1)))
     {
         bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -3535,7 +3537,7 @@ static inline void  polymer_pokesector(int16_t sectnum)
 
     do
     {
-        if ((wal->nextsector != -1) && (!prsectors[wal->nextsector]->flags.uptodate))
+        if ((wal->nextsector >= 0) && (!prsectors[wal->nextsector]->flags.uptodate))
             polymer_updatesector(wal->nextsector);
         if (!prwalls[sec->wallptr + i]->flags.uptodate)
             polymer_updatewall(sec->wallptr + i);
@@ -5216,7 +5218,7 @@ static inline void  polymer_culllight(int16_t lighti)
 
                 polymer_addplanelight(&w->mask, lighti);
 
-                if ((wall[sec->wallptr + i].nextsector != -1) &&
+                if ((wall[sec->wallptr + i].nextsector >= 0) &&
                     (!drawingstate[wall[sec->wallptr + i].nextsector])) {
                     drawingstate[wall[sec->wallptr + i].nextsector] = 1;
                     sectorqueue[back] = wall[sec->wallptr + i].nextsector;
