@@ -10488,7 +10488,7 @@ void app_main(int32_t argc,const char **argv)
 #ifdef _WIN32
     tempbuf[GetModuleFileName(NULL,root,BMAX_PATH)] = 0;
     Bcorrectfilename(root,1);
-    chdir(root);
+    //chdir(root);
 #else
     getcwd(root,BMAX_PATH);
     strcat(root,"/");
