@@ -4366,7 +4366,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
     case WM_CHAR:
         if (((keyasciififoend+1)&(KEYFIFOSIZ-1)) == keyasciififoplc) return 0;
         if ((keyasciififoend - keyasciififoplc) > 0) return 0;
-        if (Btolower(scantoasc[OSD_OSDKey()]) == Btolower((uint8_t)wParam)) return 0;
+        if ((OSD_OSDKey() < 128) && (Btolower(scantoasc[OSD_OSDKey()]) == Btolower((uint8_t)wParam))) return 0;
         if (!OSD_HandleChar((uint8_t)wParam)) return 0;
         keyasciififo[keyasciififoend] = (uint8_t)wParam;
         keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
