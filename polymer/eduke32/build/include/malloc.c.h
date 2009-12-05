@@ -502,7 +502,6 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 */
 
 /* Version identifier to allow people to support multiple versions */
-
 #ifndef DLMALLOC_VERSION
 #define DLMALLOC_VERSION 20804
 #endif /* DLMALLOC_VERSION */
@@ -1543,9 +1542,7 @@ unsigned char _BitScanReverse(unsigned long *index, unsigned long mask);
   initialized in init_mparams. Note that the non-zeroness of "magic"
   also serves as an initialization flag.
 */
-
-typedef unsigned int flag_t;           /* The type of various bit flag sets */
-
+typedef unsigned int flag_t;
 struct malloc_params {
   volatile size_t magic;
   size_t page_size;
@@ -1634,16 +1631,14 @@ static void* lastWin32mmap; /* Used as a hint */
 #endif /* DEFAULT_GRANULARITY_ALIGNED */
 #ifdef ENABLE_LARGE_PAGES
 int largepagesavailable = 1;
+#ifndef MEM_LARGE_PAGES
+    #define MEM_LARGE_PAGES 0x20000000
+#endif
 #endif /* ENABLE_LARGE_PAGES */
 static FORCEINLINE void* win32mmap(size_t size) {
   void* baseaddress = 0;
   void* ptr = 0;
 #ifdef ENABLE_LARGE_PAGES
-
-#ifndef MEM_LARGE_PAGES
-    #define MEM_LARGE_PAGES 0x20000000
-#endif
-
   /* Note that large pages are *always* allocated on a large page boundary.
   If however granularity is small then don't waste a kernel call if size
   isn't around the size of a large page */
@@ -1677,7 +1672,11 @@ static FORCEINLINE void* win32mmap(size_t size) {
 #endif
   }
 #if DEBUG
+#ifdef ENABLE_LARGE_PAGES
+  printf("VirtualAlloc returns %p size %u. LargePagesAvailable=%d\n", ptr, size, largepagesavailable);
+#else
   printf("VirtualAlloc returns %p size %u\n", ptr, size);
+#endif
 #endif
   return (ptr != 0)? ptr: MFAIL;
 }
@@ -1825,6 +1824,7 @@ static FORCEINLINE int win32munmap(void* ptr, size_t size) {
 /* Custom pthread-style spin locks on x86 and x64 for gcc */
 struct pthread_mlock_t {
   volatile unsigned int l;
+  char cachelinepadding[64];
   unsigned int c;
   pthread_t threadid;
 };
@@ -1836,7 +1836,7 @@ struct pthread_mlock_t {
 #define TRY_LOCK(sl)          pthread_try_lock(sl)
 #define SPINS_PER_YIELD       63
 
-static MLOCK_T malloc_global_mutex = { 0, 0, 0};
+static MLOCK_T malloc_global_mutex = { 0, "", 0, 0};
 
 static FORCEINLINE int pthread_acquire_lock (MLOCK_T *sl) {
   int spins = 0;
@@ -1924,6 +1924,7 @@ static FORCEINLINE int pthread_try_lock (MLOCK_T *sl) {
 /* Custom win32-style spin locks on x86 and x64 for MSC */
 struct win32_mlock_t {
   volatile long l;
+  char cachelinepadding[64];
   unsigned int c;
   long threadid;
 };

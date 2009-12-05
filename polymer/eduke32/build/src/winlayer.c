@@ -3405,6 +3405,8 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         {
             if (!Bstrcmp(glinfo.renderer,"Intel 865G"))
                 err = 0;
+            else if (!Bstrcmp(glinfo.renderer,"Intel 915G"))
+                err = 0;
             else if (!Bstrcmp(glinfo.renderer,"Intel 945GM"))
                 err = 0;
             else if (!Bstrcmp(glinfo.renderer,"Intel 965/963 Graphics Media Accelerator"))

@@ -32,8 +32,10 @@ DEALINGS IN THE SOFTWARE.
 
 /* See malloc.c.h for what each function does.
 
-REPLACE_SYSTEM_ALLOCATOR causes nedalloc's functions to be called malloc,
-free etc. instead of nedmalloc, nedfree etc. You may or may not want this.
+REPLACE_SYSTEM_ALLOCATOR on POSIX causes nedalloc's functions to be called
+malloc, free etc. instead of nedmalloc, nedfree etc. You may or may not want
+this. On Windows it causes nedmalloc to patch all loaded DLLs and binaries
+to replace usage of the system allocator.
 
 NO_NED_NAMESPACE prevents the functions from being defined in the nedalloc
 namespace when in C++ (uses the global namespace instead).
@@ -51,31 +53,71 @@ to each block. nedpfree() and nedprealloc() can then automagically know when
 to free a system allocated block. Enabling this typically adds 20-50% to
 application memory usage.
 
-USE_ALLOCATOR can be one of these settings:
+ENABLE_TOLERANT_NEDMALLOC is automatically turned on if REPLACE_SYSTEM_ALLOCATOR
+is set or the Windows DLL is being built. This causes nedmalloc to detect when a
+system allocator block is passed to it and to handle it appropriately. Note that
+without USE_MAGIC_HEADERS there is a very tiny chance that nedmalloc will segfault
+on non-Windows builds (it uses Win32 SEH to trap segfaults on Windows and there
+is no comparable system on POSIX).
+
+USE_ALLOCATOR can be one of these settings (it defaults to 1):
   0: System allocator (nedmalloc now simply acts as a threadcache).
      WARNING: Intended for DEBUG USE ONLY - not all functions work correctly.
   1: dlmalloc
 
+ENABLE_LARGE_PAGES enables support for requesting memory from the system in large
+(typically >=2Mb) pages if the host OS supports this. These occupy just a single
+TLB entry and can significantly improve performance in large working set applications.
+
+ENABLE_FAST_HEAP_DETECTION enables special logic to detect blocks allocated
+by the system heap. This avoids 1.5%-2% overhead when checking for non-nedmalloc
+blocks, but it assumes that the NT and glibc heaps function in a very specific
+fashion which may not hold true across OS upgrades.
 */
 
 #include <stddef.h>   /* for size_t */
 
 #ifndef NEDMALLOCEXTSPEC
  #ifdef NEDMALLOC_DLL_EXPORTS
-  #define NEDMALLOCEXTSPEC extern __declspec(dllexport)
+  #ifdef WIN32
+   #define NEDMALLOCEXTSPEC extern __declspec(dllexport)
+  #elif defined(__GNUC__)
+   #define NEDMALLOCEXTSPEC extern __attribute__ ((visibility("default")))
+  #endif
+  #ifndef ENABLE_TOLERANT_NEDMALLOC
+   #define ENABLE_TOLERANT_NEDMALLOC 1
+  #endif
  #else
   #define NEDMALLOCEXTSPEC extern
  #endif
 #endif
 
+#if __STDC_VERSION__ >= 199901L		/* C99 or better */
+ #define RESTRICT restrict
+#else
+ #if defined(_MSC_VER) && _MSC_VER>=1400
+  #define RESTRICT __restrict
+ #endif
+ #ifdef __GNUC__
+  #define RESTRICT __restrict
+ #endif
+#endif
+#ifndef RESTRICT
+ #define RESTRICT
+#endif
+
 #if defined(_MSC_VER) && _MSC_VER>=1400
  #define NEDMALLOCPTRATTR __declspec(restrict)
+ #define NEDMALLOCNOALIASATTR __declspec(noalias)
 #endif
 #ifdef __GNUC__
  #define NEDMALLOCPTRATTR __attribute__ ((malloc))
 #endif
 #ifndef NEDMALLOCPTRATTR
  #define NEDMALLOCPTRATTR
+#endif
+#ifndef NEDMALLOCNOALIASATTR
+ #define NEDMALLOCNOALIASATTR
 #endif
 
 #ifndef USE_MAGIC_HEADERS
@@ -94,7 +136,10 @@ USE_ALLOCATOR can be one of these settings:
  #if USE_ALLOCATOR==0
   #error Cannot combine using the system allocator with replacing the system allocator
  #endif
- #ifndef _WIN32	/* We have a dedidicated patcher for Windows */
+ #ifndef ENABLE_TOLERANT_NEDMALLOC
+  #define ENABLE_TOLERANT_NEDMALLOC 1
+ #endif
+ #ifndef WIN32	/* We have a dedicated patcher for Windows */
   #define nedmalloc               malloc
   #define nedcalloc               calloc
   #define nedrealloc              realloc
@@ -107,22 +152,29 @@ USE_ALLOCATOR can be one of these settings:
   #define nedmalloc_footprint     malloc_footprint
   #define nedindependent_calloc   independent_calloc
   #define nedindependent_comalloc independent_comalloc
+  #ifdef _MSC_VER
+   #define nedblksize              _msize
+  #endif
  #endif
 #endif
 
-
-#ifndef NO_MALLINFO
- #define NO_MALLINFO 0
-#endif
-
-#if !NO_MALLINFO
 #if defined(__cplusplus)
 extern "C" {
 #endif
-struct mallinfo;
+struct nedmallinfo {
+  size_t arena;    /* non-mmapped space allocated from system */
+  size_t ordblks;  /* number of free chunks */
+  size_t smblks;   /* always 0 */
+  size_t hblks;    /* always 0 */
+  size_t hblkhd;   /* space in mmapped regions */
+  size_t usmblks;  /* maximum total allocated space */
+  size_t fsmblks;  /* always 0 */
+  size_t uordblks; /* total allocated space */
+  size_t fordblks; /* total free space */
+  size_t keepcost; /* releasable (via malloc_trim) space */
+};
 #if defined(__cplusplus)
 }
-#endif
 #endif
 
 #if defined(__cplusplus)
@@ -139,11 +191,11 @@ extern "C" {
 /* These are the global functions */
 
 /* Gets the usable size of an allocated block. Note this will always be bigger than what was
-asked for due to rounding etc. Tries to return zero if this is not a nedmalloc block (though
-one could see a segfault up to 6.25% of the time). On Win32 SEH is used to guarantee that a
-segfault never happens.
+asked for due to rounding etc. Optionally returns 1 in isforeign if the block came from the
+system allocator - note that there is a small (>0.01%) but real chance of segfault on non-Windows
+systems when passing non-nedmalloc blocks if you don't use USE_MAGIC_HEADERS.
 */
-NEDMALLOCEXTSPEC size_t nedblksize(void *mem) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR size_t nedblksize(int *RESTRICT isforeign, void *RESTRICT mem) THROWSPEC;
 
 NEDMALLOCEXTSPEC void nedsetvalue(void *v) THROWSPEC;
 
@@ -152,9 +204,7 @@ NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void * nedcalloc(size_t no, size_t size) THROW
 NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void * nedrealloc(void *mem, size_t size) THROWSPEC;
 NEDMALLOCEXTSPEC void   nedfree(void *mem) THROWSPEC;
 NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void * nedmemalign(size_t alignment, size_t bytes) THROWSPEC;
-#if !NO_MALLINFO
-NEDMALLOCEXTSPEC struct mallinfo nedmallinfo(void) THROWSPEC;
-#endif
+NEDMALLOCEXTSPEC struct nedmallinfo nedmallinfo(void) THROWSPEC;
 NEDMALLOCEXTSPEC int    nedmallopt(int parno, int value) THROWSPEC;
 NEDMALLOCEXTSPEC void*  nedmalloc_internals(size_t *granularity, size_t *magic) THROWSPEC;
 NEDMALLOCEXTSPEC int    nedmalloc_trim(size_t pad) THROWSPEC;
@@ -187,12 +237,20 @@ NEDMALLOCEXTSPEC NEDMALLOCPTRATTR nedpool *nedcreatepool(size_t capacity, int th
 */
 NEDMALLOCEXTSPEC void neddestroypool(nedpool *p) THROWSPEC;
 
+/* Returns a zero terminated snapshot of threadpools existing at the time of call. Call
+nedfree() on the returned list when you are done. Returns zero if there is only the
+system pool in existence.
+*/
+NEDMALLOCEXTSPEC nedpool **nedpoollist() THROWSPEC;
+
 /* Sets a value to be associated with a pool. You can retrieve this value by passing
 any memory block allocated from that pool.
 */
 NEDMALLOCEXTSPEC void nedpsetvalue(nedpool *p, void *v) THROWSPEC;
+
 /* Gets a previously set value using nedpsetvalue() or zero if memory is unknown.
-Optionally can also retrieve pool.
+Optionally can also retrieve pool. You can detect an unknown block by the return
+being zero and *p being unmodifed.
 */
 NEDMALLOCEXTSPEC void *nedgetvalue(nedpool **p, void *mem) THROWSPEC;
 
@@ -208,14 +266,13 @@ system pool.
 */
 NEDMALLOCEXTSPEC void neddisablethreadcache(nedpool *p) THROWSPEC;
 
+
 NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void * nedpmalloc(nedpool *p, size_t size) THROWSPEC;
 NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void * nedpcalloc(nedpool *p, size_t no, size_t size) THROWSPEC;
 NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void * nedprealloc(nedpool *p, void *mem, size_t size) THROWSPEC;
 NEDMALLOCEXTSPEC void   nedpfree(nedpool *p, void *mem) THROWSPEC;
 NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void * nedpmemalign(nedpool *p, size_t alignment, size_t bytes) THROWSPEC;
-#if !NO_MALLINFO
-NEDMALLOCEXTSPEC struct mallinfo nedpmallinfo(nedpool *p) THROWSPEC;
-#endif
+NEDMALLOCEXTSPEC struct nedmallinfo nedpmallinfo(nedpool *p) THROWSPEC;
 NEDMALLOCEXTSPEC int    nedpmallopt(nedpool *p, int parno, int value) THROWSPEC;
 NEDMALLOCEXTSPEC int    nedpmalloc_trim(nedpool *p, size_t pad) THROWSPEC;
 NEDMALLOCEXTSPEC void   nedpmalloc_stats(nedpool *p) THROWSPEC;
@@ -223,6 +280,7 @@ NEDMALLOCEXTSPEC size_t nedpmalloc_footprint(nedpool *p) THROWSPEC;
 NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void **nedpindependent_calloc(nedpool *p, size_t elemsno, size_t elemsize, void **chunks) THROWSPEC;
 NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void **nedpindependent_comalloc(nedpool *p, size_t elems, size_t *sizes, void **chunks) THROWSPEC;
 NEDMALLOCEXTSPEC NEDMALLOCPTRATTR char * nedstrdup(const char *str) THROWSPEC;
+
 #if defined(__cplusplus)
 }
 #endif

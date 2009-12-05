@@ -318,7 +318,10 @@ int32_t DirectSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t 
     
     memset(&bufdesc, 0, sizeof(DSBUFFERDESC));
     bufdesc.dwSize = sizeof(DSBUFFERDESC);
-    bufdesc.dwFlags = DSBCAPS_PRIMARYBUFFER;
+    bufdesc.dwFlags = DSBCAPS_LOCSOFTWARE | 
+                      DSBCAPS_PRIMARYBUFFER | 
+                      DSBCAPS_GETCURRENTPOSITION2 |
+                      DSBCAPS_STICKYFOCUS ;
     
     err = IDirectSound_CreateSoundBuffer(lpds, &bufdesc, &lpdsbprimary, 0);
     if (FAILED( err )) {
@@ -344,8 +347,9 @@ int32_t DirectSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t 
     
     bufdesc.dwFlags = DSBCAPS_LOCSOFTWARE |
                       DSBCAPS_CTRLPOSITIONNOTIFY |
-                      DSBCAPS_GETCURRENTPOSITION2;
-    bufdesc.dwBufferBytes = wfex.nBlockAlign * 2048 * 2;
+                      DSBCAPS_GETCURRENTPOSITION2 |
+                      DSBCAPS_STICKYFOCUS ;
+    bufdesc.dwBufferBytes = wfex.nBlockAlign * 2560 * 2;
     bufdesc.lpwfxFormat = &wfex;
     
     err = IDirectSound_CreateSoundBuffer(lpds, &bufdesc, &lpdsbsec, 0);

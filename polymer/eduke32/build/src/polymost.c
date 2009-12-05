@@ -247,7 +247,7 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
 #define USEKENFILTER 1
 
 #ifdef USELZF
-#	include "fastlz.h"
+#	include "quicklz.h"
 #else
 #	include "lzwnew.h"
 #endif
@@ -4283,8 +4283,8 @@ void polymost_drawrooms()
                 w2d = -w2d;
                 if ((w1d==0 && w2d==0) || (w1d<0 || w2d<0))
                     continue;
-                ptonline[0] = w2[0]+(w2d/(w1d+w2d))*w21[0];
-                ptonline[1] = w2[1]+(w2d/(w1d+w2d))*w21[1];
+                ptonline[0] = (int32_t)(w2[0]+(w2d/(w1d+w2d))*w21[0]);
+                ptonline[1] = (int32_t)(w2[1]+(w2d/(w1d+w2d))*w21[1]);
                 scrp[0] = ptonline[0]-vect.x;
                 scrp[1] = ptonline[1]-vect.y;
                 if (scrv[0]*scrp[0] + scrv[1]*scrp[1] <= 0)
@@ -6096,7 +6096,7 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     if (glusetexcache == 2)
     {
 #ifdef USELZF
-        cleng = fastlz_compress(pic, miplen, packbuf/*, miplen-1*/);
+        cleng = qlz_compress(pic, packbuf, miplen, state_compress);
         if (cleng == 0 || cleng > j-1)
         {
             // failed to compress
@@ -6138,7 +6138,7 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
         {
 #ifdef USELZF
             j = (miplen/stride)<<3;
-            cleng = fastlz_compress(midbuf,j,packbuf/*,j-1*/);
+            cleng = qlz_compress(midbuf,packbuf,j,state_compress);
             if (cleng == 0 || cleng > j-1)
             {
                 cleng = j;
@@ -6169,7 +6169,7 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     {
 #ifdef USELZF
         j = (miplen/stride)<<2;
-        cleng = fastlz_compress(midbuf,j,packbuf/*,j-1*/);
+        cleng = qlz_compress(midbuf,packbuf,j,state_compress);
         if (cleng == 0 || cleng > j-1)
         {
             cleng = j;
@@ -6205,7 +6205,7 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     {
 #ifdef USELZF
         j = (miplen/stride)<<2;
-        cleng = fastlz_compress(midbuf,j,packbuf/*,j-1*/);
+        cleng = qlz_compress(midbuf,packbuf,j,state_compress);
         if (cleng == 0 || cleng > j-1)
         {
             cleng = j;
@@ -6239,7 +6239,7 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
     if (ispacked && cleng < pict->size) inbuf = packbuf; else inbuf = pic;
     if (kread(fil, inbuf, cleng) != cleng) return -1;
     if (ispacked && cleng < pict->size)
-        if (fastlz_decompress(packbuf, cleng, pic, pict->size) == 0) return -1;
+        if (qlz_decompress(packbuf, pic, state_decompress) == 0) return -1;
 #else
     if (ispacked) inbuf = packbuf; else inbuf = pic;
     if (kread(fil, inbuf, cleng) != cleng) return -1;
@@ -6266,7 +6266,7 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
         if (ispacked && cleng < j) inbuf = packbuf; else inbuf = midbuf;
         if (Bread(fil,inbuf,cleng) < cleng) return -1;
         if (ispacked && cleng < j)
-            if (fastlz_decompress(packbuf,cleng,midbuf,j) == 0) return -1;
+            if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
 #else
     if (Bread(fil,inbuf,cleng) < cleng) return -1;
     if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
@@ -6284,7 +6284,7 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
     if (ispacked && cleng < j) inbuf = packbuf; else inbuf = midbuf;
     if (Bread(fil,inbuf,cleng) < cleng) return -1;
     if (ispacked && cleng < j)
-        if (fastlz_decompress(packbuf,cleng,midbuf,j) == 0) return -1;
+        if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
 #else
     if (Bread(fil,inbuf,cleng) < cleng) return -1;
     if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
@@ -6304,7 +6304,7 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
     if (ispacked && cleng < j) inbuf = packbuf; else inbuf = midbuf;
     if (Bread(fil,inbuf,cleng) < cleng) return -1;
     if (ispacked && cleng < j)
-        if (fastlz_decompress(packbuf,cleng,midbuf,j) == 0) return -1;
+        if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
 #else
     if (Bread(fil,inbuf,cleng) < cleng) return -1;
     if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;

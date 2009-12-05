@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "fx_man.h"
 
 #include "macros.h"
-#include "fastlz.h"
+#include "quicklz.h"
 
 #include "m32script.h"
 #include "m32def.h"
@@ -244,8 +244,8 @@ void create_map_snapshot(void)
         else
         {
             mapstate->sectors = (sectortype *)Bcalloc(1, sizeof(sectortype) * numsectors);
-            mapstate->sectsiz = j = fastlz_compress(&sector[0], sizeof(sectortype) * numsectors,
-                                                    &mapstate->sectors[0]/*, sizeof(sectortype) * numsectors*/);
+            mapstate->sectsiz = j = qlz_compress(&sector[0], (char *)&mapstate->sectors[0],
+                sizeof(sectortype) * numsectors, state_compress);
             mapstate->sectors = (sectortype *)Brealloc(mapstate->sectors, j);
             mapstate->sectcrc = tempcrc;
         }
@@ -265,8 +265,8 @@ void create_map_snapshot(void)
             else
             {
                 mapstate->walls = (walltype *)Bcalloc(1, sizeof(walltype) * numwalls);
-                mapstate->wallsiz = j = fastlz_compress(&wall[0], sizeof(walltype) * numwalls,
-                                                        &mapstate->walls[0]/*, sizeof(walltype) * numwalls*/);
+                mapstate->wallsiz = j = qlz_compress(&wall[0], (char *)&mapstate->walls[0],
+                    sizeof(walltype) * numwalls, state_compress);
                 mapstate->walls = (walltype *)Brealloc(mapstate->walls, j);
                 mapstate->wallcrc = tempcrc;
             }
@@ -298,8 +298,8 @@ void create_map_snapshot(void)
                         i++;
                     }
                 }
-                mapstate->spritesiz = j = fastlz_compress(&tspri[0], sizeof(spritetype) * numsprites,
-                                          &mapstate->sprites[0]/*, sizeof(spritetype) * numsprites*/);
+                mapstate->spritesiz = j = qlz_compress(&tspri[0], (char *)&mapstate->sprites[0],
+                    sizeof(spritetype) * numsprites, state_compress);
                 mapstate->sprites = (spritetype *)Brealloc(mapstate->sprites, j);
                 mapstate->spritecrc = tempcrc;
                 Bfree(tspri);
@@ -370,13 +370,13 @@ int32_t map_undoredo(int32_t dir)
 
     if (mapstate->numsectors)
     {
-        fastlz_decompress(&mapstate->sectors[0],  mapstate->sectsiz, &sector[0], sizeof(sectortype) * numsectors);
+        qlz_decompress((const char *)&mapstate->sectors[0],  &sector[0], state_decompress);
 
         if (mapstate->numwalls)
-            fastlz_decompress(&mapstate->walls[0],  mapstate->wallsiz, &wall[0], sizeof(walltype) * numwalls);
+            qlz_decompress((const char *)&mapstate->walls[0],  &wall[0], state_decompress);
 
         if (mapstate->numsprites)
-            fastlz_decompress(&mapstate->sprites[0],  mapstate->spritesiz, &sprite[0], sizeof(spritetype) * numsprites);
+            qlz_decompress((const char *)&mapstate->sprites[0],  &sprite[0], state_decompress);
     }
 
     updatenumsprites();

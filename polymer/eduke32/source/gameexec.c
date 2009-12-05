@@ -39,6 +39,7 @@ vmstate_t vm;
 
 int32_t g_errorLineNum;
 int32_t g_tw;
+extern int32_t ticrandomseed;
 
 static int32_t X_DoExecute(int32_t once);
 
@@ -1824,7 +1825,7 @@ nullquote:
 
                 ud.m_volume_number = ud.volume_number = volnume;
                 ud.m_level_number = ud.level_number = levnume;
-                if (numplayers > 1 && myconnectindex == connecthead)
+                if (numplayers > 1 && net_server)
                     Net_NewGame(volnume,levnume);
                 else
                 {
@@ -2712,7 +2713,7 @@ nullquote:
 
                 g_lastSaveSlot = *insptr++;
 
-                if ((g_movesPerPacket == 4 && connecthead != myconnectindex) || g_lastSaveSlot > 9)
+                if (g_lastSaveSlot > 9)
                     continue;
                 if ((tw == CON_SAVE) || !(ud.savegame[g_lastSaveSlot][0]))
                 {
@@ -4703,6 +4704,9 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 
 //    if (actorscrptr[sprite[iActor].picnum] == 0) return;
 
+    if (net_server || net_client)
+        randomseed = ticrandomseed;
+
     vm.g_i = iActor;    // Sprite ID
     vm.g_p = iPlayer;   // Player ID
     vm.g_x = lDist;     // ?
@@ -4996,9 +5000,15 @@ void G_RestoreMapState(mapstate_t *save)
         {
             if (aGameVars[i].dwFlags & GAMEVAR_NORESET) continue;
             if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
+            {
+                if (!save->vars[i]) continue;
                 Bmemcpy(&aGameVars[i].val.plValues[0],&save->vars[i][0],sizeof(intptr_t) * MAXPLAYERS);
+            }
             else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
+            {
+                if (!save->vars[i]) continue;
                 Bmemcpy(&aGameVars[i].val.plValues[0],&save->vars[i][0],sizeof(intptr_t) * MAXSPRITES);
+            }
             else aGameVars[i].val.lValue = (intptr_t)save->vars[i];
         }
 
@@ -5082,7 +5092,6 @@ void G_RestoreMapState(mapstate_t *save)
         Net_ResetPrediction();
 
         Net_WaitForEverybody();
-        mmulti_flushpackets();
         clearfifo();
         G_ResetTimers();
     }

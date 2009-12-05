@@ -109,10 +109,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\build\include\fastlz.h"
-					>
-				</File>
-				<File
 					RelativePath=".\build\include\glbuild.h"
 					>
 				</File>
@@ -153,10 +149,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\build\include\mmultimsgs.h"
-					>
-				</File>
-				<File
 					RelativePath=".\build\include\nedmalloc.h"
 					>
 				</File>
@@ -182,6 +174,10 @@
 				</File>
 				<File
 					RelativePath=".\build\include\pragmas.h"
+					>
+				</File>
+				<File
+					RelativePath=".\build\include\quicklz.h"
 					>
 				</File>
 				<File
@@ -261,10 +257,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\build\src\fastlz.c"
-					>
-				</File>
-				<File
 					RelativePath=".\build\src\glbuild.c"
 					>
 				</File>
@@ -314,6 +306,10 @@
 				</File>
 				<File
 					RelativePath=".\build\src\pragmas.c"
+					>
+				</File>
+				<File
+					RelativePath=".\build\src\quicklz.c"
 					>
 				</File>
 				<File
@@ -777,6 +773,86 @@
 		<Filter
 			Name="Misc"
 			>
+		</Filter>
+		<Filter
+			Name="enet"
+			>
+			<Filter
+				Name="source"
+				>
+				<File
+					RelativePath=".\source\enet\src\callbacks.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\src\host.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\src\list.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\src\packet.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\src\peer.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\src\protocol.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\src\unix.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\src\win32.c"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="headers"
+				>
+				<File
+					RelativePath=".\source\enet\include\enet\callbacks.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\include\enet\enet.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\include\enet\list.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\include\enet\protocol.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\include\enet\time.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\include\enet\types.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\include\enet\unix.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\include\enet\utility.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\enet\include\enet\win32.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

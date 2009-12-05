@@ -1460,11 +1460,12 @@ void M_DisplayMenus(void)
                     tempbuf[0] = PACKET_LOAD_GAME;
                     tempbuf[1] = g_lastSaveSlot;
                     tempbuf[2] = myconnectindex;
-                    TRAVERSE_CONNECT(x)
-                    {
-                        if (x != myconnectindex) mmulti_sendpacket(x,tempbuf,3);
-                        if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                    }
+
+                    if (net_client)
+                        enet_peer_send(net_peer, 0, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_RELIABLE));
+                    else if (net_server)
+                        enet_host_broadcast(net_server, 0, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_RELIABLE));
+
                     Net_GetPackets();
 
                     G_LoadPlayer(g_lastSaveSlot);
@@ -1789,26 +1790,25 @@ void M_DisplayMenus(void)
 
 cheat_for_port_credits:
             if (g_scriptVersion == 13) l = (-2);
-            mgametext(160,38-l,"GAME PROGRAMMING",0,2+8+16);
+            mgametext(160,38-l,"PROGRAMMING AND PROJECT MANAGEMENT",0,2+8+16);
             p = "Richard \"TerminX\" Gobeille";
             minitext(161-(Bstrlen(p)<<1), 39+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 38+10-l, p, 8, 10+16+128);
 
-            mgametext(160,57-l,"\"JFDUKE3D\" AND \"JFBUILD\" CODE",0,2+8+16);
-            p = "Jonathon \"JonoF\" Fowler";
+            mgametext(160,57-l,"POLYMER RENDERING SYSTEM",0,2+8+16);
+            p = "Pierre-Loup \"Plagman\" Griffais";
             minitext(161-(Bstrlen(p)<<1), 58+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 57+10-l, p, 8, 10+16+128);
 
-            mgametext(160,76-l,"BUILD ENGINE, \"POLYMOST\" RENDERER",0,2+8+16);
-            mgametext(160,76+8-l,"NETWORKING, OTHER CODE",0,2+8+16);
-            p = "Ken \"Awesoken\" Silverman";
-            minitext(161-(Bstrlen(p)<<1), 77+8+10-l, p, 4, 10+16+128);
-            minitext(160-(Bstrlen(p)<<1), 76+8+10-l, p, 8, 10+16+128);
+            mgametext(160,76-l,"ENGINE AND GAME PORTING WORK",0,2+8+16);
+            p = "Jonathon \"JonoF\" Fowler";
+            minitext(161-(Bstrlen(p)<<1), 77+10-l, p, 4, 10+16+128);
+            minitext(160-(Bstrlen(p)<<1), 76+10-l, p, 8, 10+16+128);
 
-            mgametext(160,103-l,"ADDITIONAL RENDERING FEATURES",0,2+8+16);
-            p = "Pierre-Loup \"Plagman\" Griffais";
-            minitext(161-(Bstrlen(p)<<1), 104+10-l, p, 4, 10+16+128);
-            minitext(160-(Bstrlen(p)<<1), 103+10-l, p, 8, 10+16+128);
+            mgametext(160,95-l,"BUILD ENGINE AND POLYMOST RENDERER",0,2+8+16);
+            p = "Ken \"Awesoken\" Silverman";
+            minitext(161-(Bstrlen(p)<<1), 96+10-l, p, 4, 10+16+128);
+            minitext(160-(Bstrlen(p)<<1), 95+10-l, p, 8, 10+16+128);
 
             mgametext(160,122-l,"LICENSE AND OTHER CONTRIBUTORS",0,2+8+16);
             {
@@ -1836,11 +1836,15 @@ cheat_for_port_credits:
                     "Ozkan Sezer",       // SDL/GTK version checking improvements
                     "Peter Green",       // dynamic remapping, custom gametypes
                     "Peter Veenstra",    // port to 64-bit
+                    "Randy Heit",        // random snippets of ZDoom here and there
+                    "Robin Green",       // CON array support
                     "Philipp Kutin",     // Mapster32 improvements
                     "Ryan Gordon",       // icculus.org Duke3D port sound code
                     "Stephen Anthony",   // early 64-bit porting work
                     " ",
-                    "EDuke originally by Matt Saettler",
+                    "EDuke originally by Matt Saettler.",
+                    " ",
+                    "BUILD engine technology available under BUILDLIC.",
                     " ",
                     "--x--",
                     " ",
@@ -1862,9 +1866,6 @@ cheat_for_port_credits:
             p = "Visit www.eduke32.com for news and updates";
             minitext(161-(Bstrlen(p)<<1), 136+10+10+10+10+4-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 135+10+10+10+10+4-l, p, 8, 10+16+128);
-            p = "See wiki.eduke32.com/stuff for new releases";
-            minitext(161-(Bstrlen(p)<<1), 143+10+10+10+10+4-l, p, 4, 10+16+128);
-            minitext(160-(Bstrlen(p)<<1), 142+10+10+10+10+4-l, p, 8, 10+16+128);
         }
         break;
 
@@ -1878,9 +1879,6 @@ cheat_for_port_credits:
         {
             if (ud.multimode > 1 && x == 0 && ud.recstat != 2)
             {
-                if (g_movesPerPacket == 4 && myconnectindex != connecthead)
-                    break;
-
                 last_zero = 0;
                 ChangeToMenu(600);
             }
@@ -1897,8 +1895,6 @@ cheat_for_port_credits:
                     ChangeToMenu(202);
                     break;   // JBF 20031205: was 200
                 case 2:
-                    if (g_movesPerPacket == 4 && connecthead != myconnectindex)
-                        break;
                     ChangeToMenu(300);
                     break;
                 case 3:
@@ -1927,23 +1923,13 @@ cheat_for_port_credits:
             }
         }
 
-        if (g_movesPerPacket == 4)
-        {
-            if (myconnectindex == connecthead)
-                menutext(c,67,MENUHIGHLIGHT(0),PHX(-2),"NEW GAME");
-            else
-                menutext(c,67,MENUHIGHLIGHT(0),1,"NEW GAME");
-        }
-        else
-            menutext(c,67,MENUHIGHLIGHT(0),PHX(-2),"NEW GAME");
+        menutext(c,67,MENUHIGHLIGHT(0),PHX(-2),"NEW GAME");
 
         //    menutext(c,67+16,0,1,"NETWORK GAME");
 
         menutext(c,67+16/*+16*/,MENUHIGHLIGHT(1),PHX(-3),"OPTIONS");
 
-        if (g_movesPerPacket == 4 && connecthead != myconnectindex)
-            menutext(c,67+16+16/*+16*/,MENUHIGHLIGHT(2),1,"LOAD GAME");
-        else menutext(c,67+16+16/*+16*/,MENUHIGHLIGHT(2),PHX(-4),"LOAD GAME");
+        menutext(c,67+16+16/*+16*/,MENUHIGHLIGHT(2),PHX(-4),"LOAD GAME");
 
         if (!VOLUMEALL)
         {
@@ -1971,8 +1957,6 @@ cheat_for_port_credits:
         switch (x)
         {
         case 0:
-            if (g_movesPerPacket == 4 && myconnectindex != connecthead)
-                break;
             if (ud.multimode < 2 || ud.recstat == 2)
                 ChangeToMenu(1500);
             else
@@ -1982,8 +1966,6 @@ cheat_for_port_credits:
             }
             break;
         case 1:
-            if (g_movesPerPacket == 4 && connecthead != myconnectindex)
-                break;
             if (ud.recstat != 2)
             {
                 last_fifty = 1;
@@ -1992,8 +1974,6 @@ cheat_for_port_credits:
             }
             break;
         case 2:
-            if (g_movesPerPacket == 4 && connecthead != myconnectindex)
-                break;
             last_fifty = 2;
             ChangeToMenu(300);
             break;
@@ -2030,18 +2010,9 @@ cheat_for_port_credits:
         if (KB_KeyPressed(sc_Q))
             ChangeToMenu(500);
 
-        if (g_movesPerPacket == 4 && connecthead != myconnectindex)
-        {
-            menutext(c,67                  ,MENUHIGHLIGHT(0),1,"NEW GAME");
-            menutext(c,67+16               ,MENUHIGHLIGHT(1),1,"SAVE GAME");
-            menutext(c,67+16+16            ,MENUHIGHLIGHT(2),1,"LOAD GAME");
-        }
-        else
-        {
-            menutext(c,67                  ,MENUHIGHLIGHT(0),PHX(-2),"NEW GAME");
-            menutext(c,67+16               ,MENUHIGHLIGHT(1),PHX(-3),"SAVE GAME");
-            menutext(c,67+16+16            ,MENUHIGHLIGHT(2),PHX(-4),"LOAD GAME");
-        }
+        menutext(c,67                  ,MENUHIGHLIGHT(0),PHX(-2),"NEW GAME");
+        menutext(c,67+16               ,MENUHIGHLIGHT(1),PHX(-3),"SAVE GAME");
+        menutext(c,67+16+16            ,MENUHIGHLIGHT(2),PHX(-4),"LOAD GAME");
 
         menutext(c,67+16+16+16         ,MENUHIGHLIGHT(3),PHX(-5),"OPTIONS");
         if (!VOLUMEALL)
@@ -5102,11 +5073,11 @@ VOLUME_ALL_40x:
                 tempbuf[0] = PACKET_MAP_VOTE_CANCEL;
                 tempbuf[1] = myconnectindex;
 
-                TRAVERSE_CONNECT(c)
-                {
-                    if (c != myconnectindex) mmulti_sendpacket(c,tempbuf,2);
-                    if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                }
+                if (net_client)
+                    enet_peer_send(net_peer, 0, enet_packet_create(tempbuf, 2, ENET_PACKET_FLAG_RELIABLE));
+                else if (net_server)
+                    enet_host_broadcast(net_server, 0, enet_packet_create(tempbuf, 2, ENET_PACKET_FLAG_RELIABLE));
+
                 voting = -1;
             }
             ChangeToMenu(0);
@@ -5117,9 +5088,9 @@ VOLUME_ALL_40x:
             plrvotes += g_player[i].vote;
             j += g_player[i].gotvote;
         }
-        if (j == numplayers || !g_player[myconnectindex].ps->i || (plrvotes > (numplayers>>1)) || (!g_networkBroadcastMode && myconnectindex == connecthead))
+        if (j == numplayers || !g_player[myconnectindex].ps->i || (plrvotes > (numplayers>>1)) || (net_server))
         {
-            if (plrvotes > (numplayers>>1) || !g_player[myconnectindex].ps->i || (!g_networkBroadcastMode && myconnectindex == connecthead))
+            if (plrvotes > (numplayers>>1) || !g_player[myconnectindex].ps->i || (net_server))
             {
                 if (ud.m_player_skill == 3) ud.m_respawn_monsters = 1;
                 else ud.m_respawn_monsters = 0;
@@ -5138,7 +5109,7 @@ VOLUME_ALL_40x:
 
                 Net_NewGame(ud.m_volume_number,ud.m_level_number);
 
-                if (voting == myconnectindex && !(!g_networkBroadcastMode && myconnectindex == connecthead))
+                if (voting == myconnectindex && !(net_server))
                     G_AddUserQuote("VOTE SUCCEEDED");
 
                 G_NewGame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill+1);
@@ -5159,12 +5130,12 @@ VOLUME_ALL_40x:
                 tempbuf[0] = PACKET_MAP_VOTE_CANCEL;
                 tempbuf[1] = myconnectindex;
                 tempbuf[2] = 1;
+                tempbuf[3] = myconnectindex;
 
-                TRAVERSE_CONNECT(c)
-                {
-                    if (c != myconnectindex) mmulti_sendpacket(c,tempbuf,3);
-                    if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                }
+                if (net_client)
+                    enet_peer_send(net_peer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
+                else if (net_server)
+                    enet_host_broadcast(net_server, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
 
                 Bsprintf(ScriptQuotes[116],"VOTE FAILED");
                 P_DoQuote(116,g_player[myconnectindex].ps);
@@ -5290,7 +5261,7 @@ VOLUME_ALL_40x:
             break;
         case 7:
             // master does whatever it wants
-            if (!g_networkBroadcastMode && myconnectindex == connecthead)
+            if (net_server)
             {
                 ChangeToMenu(603);
                 break;
@@ -5311,12 +5282,12 @@ VOLUME_ALL_40x:
                     tempbuf[1] = myconnectindex;
                     tempbuf[2] = ud.m_volume_number;
                     tempbuf[3] = ud.m_level_number;
+                    tempbuf[4] = myconnectindex;
 
-                    TRAVERSE_CONNECT(c)
-                    {
-                        if (c != myconnectindex) mmulti_sendpacket(c,tempbuf,4);
-                        if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                    }
+                    if (net_client)
+                        enet_peer_send(net_peer, 0, enet_packet_create(tempbuf, 5, ENET_PACKET_FLAG_RELIABLE));
+                    else if (net_server)
+                        enet_host_broadcast(net_server, 0, enet_packet_create(tempbuf, 5, ENET_PACKET_FLAG_RELIABLE));
                 }
                 if ((GametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(GametypeFlags[ud.m_coop] & GAMETYPE_TDM))
                     ud.m_noexits = 0;

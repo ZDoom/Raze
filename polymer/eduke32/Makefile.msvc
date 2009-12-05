@@ -12,6 +12,9 @@ o=obj
 JAUDIOLIBDIR=$(SRC)\jaudiolib
 JAUDIOLIB=libjfaudiolib.lib
 
+ENETDIR=$(SRC)\enet
+ENETLIB=libenet.lib
+
 ENGINELIB=engine.lib
 EDITORLIB=build.lib
 
@@ -37,7 +40,7 @@ AS=ml
 LINK=link /nologo /opt:ref
 MT=mt
 CFLAGS= /MT /J /nologo $(flags_cl)  \
-	/I$(INC) /I$(EINC)\msvc /I$(EINC)\ /I$(SRC)\jmact /I$(JAUDIOLIBDIR)\include /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" \
+	/I$(INC) /I$(EINC)\msvc /I$(EINC)\ /I$(SRC)\jmact /I$(JAUDIOLIBDIR)\include /I$(ENETDIR)\include /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" \
  	/D "_CRT_SECURE_NO_DEPRECATE" /W2 $(ENGINEOPTS) \
  	/I$(DXROOT)\include" /DRENDERTYPEWIN=1
 LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib wsock32.lib comctl32.lib \
@@ -131,7 +134,7 @@ EDITOROBJS=$(OBJ)\astub.$o \
 # TARGETS
 all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) # duke3d_w32$(EXESUFFIX);
 
-eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB)
+eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB) $(ENETDIR)\$(ENETLIB)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $(RSRC)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
@@ -158,17 +161,24 @@ jaudiolib:
 	nmake /f Makefile.msvc
 	cd $(MAKEDIR)
 
+enet:
+	cd $(ENETDIR)
+	nmake /f Makefile.msvc
+	cd $(MAKEDIR)
 
 AlwaysBuild: ;
 $(EOBJ)\$(EDITORLIB): editorlib ;
 $(EOBJ)\$(ENGINELIB): enginelib ;
 $(JAUDIOLIBDIR)\$(JAUDIOLIB): jaudiolib ;
+$(ENETDIR)\$(ENETLIB): enet ;
 
 # PHONIES	
 clean:
 	-del /Q $(OBJ)\* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) duke3d_w32$(EXESUFFIX) \
             *.pdb *.map *.manifest
 	cd $(JAUDIOLIBDIR)
+	nmake /f Makefile.msvc clean
+	cd $(MAKEDIR)\$(ENETDIR)
 	nmake /f Makefile.msvc clean
 	cd $(MAKEDIR)
 	

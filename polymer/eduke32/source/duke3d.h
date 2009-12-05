@@ -47,6 +47,12 @@ extern "C" {
 
 #include "macros.h"
 
+#include "enet/enet.h"
+
+extern ENetHost * net_server;
+extern ENetHost * net_client;
+extern ENetPeer * net_peer;
+
 #define APPNAME "EDuke32"
 #define VERSION " 2.0.0devel"
 // this is checked against http://eduke32.com/VERSION
@@ -83,7 +89,7 @@ extern int32_t g_scriptVersion, g_Shareware, g_gameType;
 
 #define AUTO_AIM_ANGLE          48
 #define RECSYNCBUFSIZ 2520   //2520 is the (LCM of 1-8)*3
-#define MOVEFIFOSIZ 256
+#define MOVEFIFOSIZ 2
 
 #define FOURSLEIGHT (1<<8)
 
@@ -422,9 +428,9 @@ extern int32_t fricxv,fricyv;
 // mywhatever type globals
 
 typedef struct {
-    int32_t posx, posy, posz, horiz, ohoriz, ohorizoff, invdisptime;
-    int32_t bobposx, bobposy, oposx, oposy, oposz, pyoff, opyoff;
-    int32_t posxv, posyv, poszv, last_pissed_time, truefz, truecz;
+    int32_t posx, posy, posz, oposx, oposy, oposz, posxv, posyv, poszv;
+    int32_t bobposx, bobposy, pyoff, opyoff, horiz, ohoriz, ohorizoff, invdisptime;
+    int32_t last_pissed_time, truefz, truecz;
     int32_t player_par, visibility;
     int32_t bobcounter, weapon_sway;
     int32_t pals_time, randomflamex, crack_time;
@@ -485,7 +491,7 @@ typedef struct {
 	char name[32];
 } DukePlayer_t;
 
-extern char tempbuf[2048], packbuf[576], menutextbuf[128];
+extern char tempbuf[2048], packbuf[4096], menutextbuf[128];
 
 extern int32_t g_spriteGravity;
 
@@ -559,9 +565,9 @@ typedef struct {
     void *lightptr;
 #endif
 
-    int8_t filler[16]; // pad struct to 128 bytes
-
     projectile_t *projectile; //4b/8b
+
+    int8_t filler[16]; // pad struct to 128 bytes
 } ActorData_t;
 
 extern ActorData_t ActorExtra[MAXSPRITES];
@@ -638,8 +644,6 @@ extern char boardfilename[BMAX_PATH];
 extern uint8_t waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],animpal[768];
 extern char currentboardfilename[BMAX_PATH];
 extern char cachedebug,g_earthquakeTime;
-// 0: master/slave, 1: peer-to-peer
-extern int32_t g_networkBroadcastMode;
 extern char lumplockbyte[11];
 
 //DUKE3D.H - replace the end "my's" with this
@@ -670,7 +674,6 @@ typedef struct {
 
 extern DukeStatus_t sbar;
 extern int32_t g_cameraDistance, g_cameraClock, g_playerFriction,g_showShareware;
-extern int32_t g_networkBroadcastMode, g_movesPerPacket;
 extern int32_t g_gameQuit;
 
 extern int32_t playerswhenstarted;
@@ -1042,6 +1045,9 @@ typedef struct {
     walltype wall[MAXWALLS];
 } mapstate_t;
 
+extern void G_SaveMapState(mapstate_t *save);
+extern void G_RestoreMapState(mapstate_t *save);
+
 typedef struct {
     int32_t partime, designertime;
     char *name, *filename, *musicfn, *alt_musicfn;
@@ -1088,12 +1094,13 @@ enum DukePacket_t
 {
     PACKET_MASTER_TO_SLAVE,
     PACKET_SLAVE_TO_MASTER,
-    PACKET_BROADCAST,
-    SERVER_GENERATED_BROADCAST,
     PACKET_VERSION,
 
     /* don't change anything above this line */
 
+    PACKET_NUM_PLAYERS,
+    PACKET_PLAYER_INDEX,
+    PACKET_PLAYER_DISCONNECTED,
     PACKET_MESSAGE,
 
     PACKET_NEW_GAME,
@@ -1103,6 +1110,7 @@ enum DukePacket_t
     PACKET_PLAYER_OPTIONS,
     PACKET_PLAYER_NAME,
 
+    PACKET_REQUEST_GAMESTATE,
     PACKET_USER_MAP,
 
     PACKET_MAP_VOTE,

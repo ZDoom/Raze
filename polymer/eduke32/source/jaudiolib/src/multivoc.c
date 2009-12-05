@@ -159,22 +159,18 @@ uint32_t MV_MixPosition;
 int32_t MV_ErrorCode = MV_Ok;
 
 static int32_t lockdepth = 0;
-static int32_t DisableInterrupts(void)
+static void DisableInterrupts(void)
 {
     if (lockdepth++ > 0)
-    {
-        return 0;
-    }
+        return;
     SoundDriver_Lock();
-    return 0;
+    return;
 }
 
-static void RestoreInterrupts(int32_t a)
+static void RestoreInterrupts(void)
 {
     if (--lockdepth > 0)
-    {
         return;
-    }
     SoundDriver_Unlock();
 }
 
@@ -361,12 +357,11 @@ void MV_PlayVoice
 )
 
 {
-    int32_t flags;
 
-    flags = DisableInterrupts();
+    DisableInterrupts();
     LL_SortedInsertion(&VoiceList, voice, prev, next, VoiceNode, priority);
 
-    RestoreInterrupts(flags);
+    RestoreInterrupts();
 }
 
 
@@ -382,15 +377,13 @@ void MV_StopVoice
 )
 
 {
-    int32_t flags;
-
-    flags = DisableInterrupts();
+    DisableInterrupts();
 
     // move the voice from the play list to the free list
     LL_Remove(voice, next, prev);
     LL_Add((VoiceNode*) &VoicePool, voice, next, prev);
 
-    RestoreInterrupts(flags);
+    RestoreInterrupts();
 
     if (voice->wavetype == Vorbis)
     {
@@ -501,49 +494,47 @@ void MV_ServiceVoc
     }
 
     // Play any waiting voices
-    //flags = DisableInterrupts();
+    //DisableInterrupts();
 
-    if (!VoiceList.next)
+    if (!VoiceList.next || (voice = VoiceList.next) == &VoiceList)
         return;
 
-    for (voice = VoiceList.next; voice != &VoiceList; voice = next)
+    do
     {
-        if ( voice->Paused )
-        {
-            next = voice->next;
+        next = voice->next;
+
+        if (voice->Paused)
             continue;
-        }
 
         MV_BufferEmpty[ MV_MixPage ] = FALSE;
 
-//        if (!voice->Paused)
-            MV_MixFunction(voice, MV_MixPage);
-
-        next = voice->next;
+        MV_MixFunction(voice, MV_MixPage);
 
         // Is this voice done?
-        if (!voice->Playing/* && !voice->Paused*/)
+        if (!voice->Playing)
         {
             //JBF: prevent a deadlock caused by MV_StopVoice grabbing the mutex again
             //MV_StopVoice( voice );
             LL_Remove(voice, next, prev);
             LL_Add((VoiceNode*) &VoicePool, voice, next, prev);
 
+            if (voice->wavetype == Vorbis)
+                MV_ReleaseVorbisVoice(voice);
+
             if (MV_CallBackFunc)
-            {
                 MV_CallBackFunc(voice->callbackval);
-            }
         }
     }
+    while ((voice = next) != &VoiceList);
 
-    //RestoreInterrupts(flags);
+    //RestoreInterrupts();
 }
 
 
 /*---------------------------------------------------------------------
    Function: MV_GetNextVOCBlock
 
-   Interperate the information of a VOC format sound file.
+   Interpret the information of a VOC format sound file.
 ---------------------------------------------------------------------*/
 
 playbackstatus MV_GetNextVOCBlock
@@ -585,7 +576,8 @@ playbackstatus MV_GetNextVOCBlock
     packtype = 0;
 
     done = FALSE;
-    while (!done)
+
+    do
     {
         // Stop playing if we get a NULL pointer
         if (ptr == NULL)
@@ -753,6 +745,7 @@ playbackstatus MV_GetNextVOCBlock
 
         lastblocktype = blocktype;
     }
+    while (!done);
 
     if (voice->Playing)
     {
@@ -963,9 +956,8 @@ VoiceNode *MV_GetVoice
 
 {
     VoiceNode *voice;
-    int32_t        flags;
 
-    flags = DisableInterrupts();
+    DisableInterrupts();
 
     for (voice = VoiceList.next; voice != &VoiceList; voice = voice->next)
     {
@@ -975,7 +967,7 @@ VoiceNode *MV_GetVoice
         }
     }
 
-    RestoreInterrupts(flags);
+    RestoreInterrupts();
 
     if (voice == &VoiceList)
     {
@@ -1031,8 +1023,7 @@ int32_t MV_KillAllVoices
 )
 
 {
-    VoiceNode * voice, * next;
-    int32_t     flags;
+    VoiceNode * voice = VoiceList.prev;
 
     if (!MV_Installed)
     {
@@ -1040,19 +1031,25 @@ int32_t MV_KillAllVoices
         return(MV_Error);
     }
 
-    flags = DisableInterrupts();
+    if (&VoiceList == VoiceList.next)
+        return(MV_Ok);
+
+    DisableInterrupts();
 
     // Remove all the voices from the list
-    for (voice = VoiceList.next; voice != &VoiceList; voice = next)
+    while (voice != &VoiceList)
     {
-        next = voice->next;
-        if (voice->priority < MV_MUSIC_PRIORITY)
+        if (voice->priority == MV_MUSIC_PRIORITY)
         {
-            MV_Kill(voice->handle);
+            voice = voice->prev;
+            continue;
         }
+
+        MV_Kill(voice->handle);
+        voice = VoiceList.prev;
     }
 
-    RestoreInterrupts(flags);
+    RestoreInterrupts();
 
     return(MV_Ok);
 }
@@ -1071,7 +1068,6 @@ int32_t MV_Kill
 
 {
     VoiceNode *voice;
-    int32_t        flags;
     uint32_t callbackval;
 
     if (!MV_Installed)
@@ -1080,12 +1076,12 @@ int32_t MV_Kill
         return(MV_Error);
     }
 
-    flags = DisableInterrupts();
+    DisableInterrupts();
 
     voice = MV_GetVoice(handle);
     if (voice == NULL)
     {
-        RestoreInterrupts(flags);
+        RestoreInterrupts();
         MV_SetErrorCode(MV_VoiceNotFound);
         return(MV_Error);
     }
@@ -1094,7 +1090,7 @@ int32_t MV_Kill
 
     MV_StopVoice(voice);
 
-    RestoreInterrupts(flags);
+    RestoreInterrupts();
 
     if (MV_CallBackFunc)
     {
@@ -1119,7 +1115,6 @@ int32_t MV_VoicesPlaying
 {
     VoiceNode   *voice;
     int32_t         NumVoices = 0;
-    int32_t         flags;
 
     if (!MV_Installed)
     {
@@ -1127,14 +1122,14 @@ int32_t MV_VoicesPlaying
         return(0);
     }
 
-    flags = DisableInterrupts();
+    DisableInterrupts();
 
     for (voice = VoiceList.next; voice != &VoiceList; voice = voice->next)
     {
         NumVoices++;
     }
 
-    RestoreInterrupts(flags);
+    RestoreInterrupts();
 
     return(NumVoices);
 }
@@ -1154,15 +1149,13 @@ VoiceNode *MV_AllocVoice
 {
     VoiceNode   *voice;
     VoiceNode   *node;
-    int32_t          flags;
 
-//return( NULL );
     if (MV_Recording)
     {
         return(NULL);
     }
 
-    flags = DisableInterrupts();
+    DisableInterrupts();
 
     // Check if we have any free voices
     if (LL_Empty(&VoicePool, next, prev))
@@ -1187,13 +1180,13 @@ VoiceNode *MV_AllocVoice
     if (LL_Empty(&VoicePool, next, prev))
     {
         // No free voices
-        RestoreInterrupts(flags);
+        RestoreInterrupts();
         return(NULL);
     }
 
     voice = VoicePool.next;
     LL_Remove(voice, next, prev);
-    RestoreInterrupts(flags);
+    RestoreInterrupts();
 
     // Find a free voice handle
     do
@@ -1226,7 +1219,6 @@ int32_t MV_VoiceAvailable
 {
     VoiceNode   *voice;
     VoiceNode   *node;
-    int32_t          flags;
 
     // Check if we have any free voices
     if (!LL_Empty(&VoicePool, next, prev))
@@ -1234,7 +1226,7 @@ int32_t MV_VoiceAvailable
         return(TRUE);
     }
 
-    flags = DisableInterrupts();
+    DisableInterrupts();
 
     // check if we have a higher priority than a voice that is playing.
     voice = VoiceList.next;
@@ -1246,7 +1238,7 @@ int32_t MV_VoiceAvailable
         }
     }
 
-    RestoreInterrupts(flags);
+    RestoreInterrupts();
 
     if ((voice != &VoiceList) && (priority >= voice->priority))
     {
@@ -1411,7 +1403,7 @@ void MV_SetVoiceMixMode
     //int32_t flags;
     int32_t test;
 
-    //flags = DisableInterrupts();
+    //DisableInterrupts();
 
     test = T_DEFAULT;
     if (MV_Bits == 8)
@@ -1608,7 +1600,6 @@ int32_t MV_PauseVoice
 
 {
     VoiceNode *voice;
-    int32_t        flags;
 
     if (!MV_Installed)
     {
@@ -1616,19 +1607,19 @@ int32_t MV_PauseVoice
         return(MV_Error);
     }
 
-    flags = DisableInterrupts();
+    DisableInterrupts();
 
     voice = MV_GetVoice(handle);
     if (voice == NULL)
     {
-        RestoreInterrupts(flags);
+        RestoreInterrupts();
         MV_SetErrorCode(MV_VoiceNotFound);
         return(MV_Warning);
     }
 
     voice->Paused = pause;
 
-    RestoreInterrupts(flags);
+    RestoreInterrupts();
 
     return(MV_Ok);
 }
@@ -1648,7 +1639,6 @@ int32_t MV_EndLooping
 
 {
     VoiceNode *voice;
-    int32_t        flags;
 
     if (!MV_Installed)
     {
@@ -1656,12 +1646,12 @@ int32_t MV_EndLooping
         return(MV_Error);
     }
 
-    flags = DisableInterrupts();
+    DisableInterrupts();
 
     voice = MV_GetVoice(handle);
     if (voice == NULL)
     {
-        RestoreInterrupts(flags);
+        RestoreInterrupts();
         MV_SetErrorCode(MV_VoiceNotFound);
         return(MV_Warning);
     }
@@ -1670,7 +1660,7 @@ int32_t MV_EndLooping
     voice->LoopStart = NULL;
     voice->LoopEnd   = NULL;
 
-    RestoreInterrupts(flags);
+    RestoreInterrupts();
 
     return(MV_Ok);
 }
@@ -1974,13 +1964,12 @@ void MV_StopPlayback
 {
     VoiceNode   *voice;
     VoiceNode   *next;
-    int32_t          flags;
 
     // Stop sound playback
     SoundDriver_StopPlayback();
 
     // Make sure all callbacks are done.
-    flags = DisableInterrupts();
+    DisableInterrupts();
 
     for (voice = VoiceList.next; voice != &VoiceList; voice = next)
     {
@@ -1994,7 +1983,7 @@ void MV_StopPlayback
         }
     }
 
-    RestoreInterrupts(flags);
+    RestoreInterrupts();
 }
 
 

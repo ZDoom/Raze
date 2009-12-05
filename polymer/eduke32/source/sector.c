@@ -190,8 +190,8 @@ int32_t isanearoperator(int32_t lotag)
 
 inline int32_t G_CheckPlayerInSector(int32_t sect)
 {
-    int32_t i = connecthead;
-    for (; i>=0; i=connectpoint2[i])
+    int32_t i;
+    TRAVERSE_CONNECT(i)
         if (sprite[g_player[i].ps->i].sectnum == sect) return i;
     return -1;
 }
@@ -310,7 +310,7 @@ void G_DoSectorAnimations(void)
                         {
                             my.z += v;
                             myvel.z = 0;
-                            myzbak[((movefifoplc-1)&(MOVEFIFOSIZ-1))] = g_player[p].ps->posz;
+                            myzbak[0] = g_player[p].ps->posz;
                         }
                     }
 

@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern int32_t g_numEnvSoundsPlaying;
 extern int32_t g_noEnemies;
+extern int32_t ticrandomseed;
 
 inline void G_UpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
 {
@@ -4832,6 +4833,9 @@ static void G_MoveMisc(void)  // STATNUM 5
             ActorExtra[i].floorz = s->z = getflorzofslope(s->sectnum,s->x,s->y);
         else switch (DynamicTileMap[switchpicnum])
             {
+            case APLAYER__STATIC:
+                s->cstat = 32768;
+                goto BOLT;
             case NEON1__STATIC:
             case NEON2__STATIC:
             case NEON3__STATIC:
@@ -5670,7 +5674,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 m = (s->xvel*sintable[(s->ang+512)&2047])>>14;
                 x = (s->xvel*sintable[s->ang&2047])>>14;
 
-                for (p = connecthead; p >= 0; p=connectpoint2[p])
+                TRAVERSE_CONNECT(p)
                     if (sector[g_player[p].ps->cursectnum].lotag != 2)
                     {
                         if (g_playerSpawnPoints[p].os == s->sectnum)
@@ -5849,7 +5853,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                             }
                         }
 
-                for (p = connecthead; p >= 0; p = connectpoint2[p])
+                TRAVERSE_CONNECT(p)
                 {
                     if (sprite[g_player[p].ps->i].sectnum == s->sectnum)
                     {
@@ -7135,7 +7139,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 fricyv += x<<5;
             }
 
-            for (p = connecthead; p >= 0; p = connectpoint2[p])
+            TRAVERSE_CONNECT(p)
                 if (sprite[g_player[p].ps->i].sectnum == s->sectnum && g_player[p].ps->on_ground)
                     g_player[p].ps->posz += s->zvel;
 

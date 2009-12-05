@@ -22,26 +22,23 @@ char hicfirstinit = 0;
 //
 hicreplctyp * hicfindsubst(int32_t picnum, int32_t palnum, int32_t skybox)
 {
-    hicreplctyp *hr;
-
-    if (!hicfirstinit) return NULL;
-    if ((uint32_t)picnum >= (uint32_t)MAXTILES) return NULL;
+    if (!hicfirstinit || (uint32_t)picnum >= (uint32_t)MAXTILES) return NULL;
 
     do
     {
-        for (hr = hicreplc[picnum]; hr; hr = hr->next)
+        if (skybox)
         {
-            if (hr->palnum == palnum)
-            {
-                if (skybox)
-                {
-                    if (hr->skybox && !hr->skybox->ignore) return hr;
-                }
-                else
-                {
-                    if (!hr->ignore) return hr;
-                }
-            }
+            hicreplctyp *hr = hicreplc[picnum];
+            for (; hr; hr = hr->next)
+                if (hr->palnum == palnum && hr->skybox && !hr->skybox->ignore)
+                    return hr;
+        }
+        else
+        {
+            hicreplctyp *hr = hicreplc[picnum];
+            for (; hr; hr = hr->next)
+                if (hr->palnum == palnum && !hr->ignore)
+                    return hr;
         }
 
         if (!palnum || palnum >= (MAXPALOOKUPS - RESERVEDPALS)) break;

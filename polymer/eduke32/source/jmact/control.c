@@ -50,7 +50,7 @@ static int32_t CONTROL_MouseButtonClicked[MAXMOUSEBUTTONS],      CONTROL_JoyButt
 static uint8_t CONTROL_MouseButtonClickedCount[MAXMOUSEBUTTONS], CONTROL_JoyButtonClickedCount[MAXJOYBUTTONS];
 static int32_t CONTROL_UserInputCleared[3];
 static int32_t(*GetTime)(void);
-static int32_t CONTROL_Started = FALSE;
+int32_t CONTROL_Started = FALSE;
 static int32_t ticrate;
 static int32_t CONTROL_DoubleClickSpeed;
 

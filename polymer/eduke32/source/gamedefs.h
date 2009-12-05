@@ -105,10 +105,6 @@ extern "C" {
 
 #define MAXJOYAXES 8
 
-// Number of GAMEPAD axes
-
-#define MAXGAMEPADAXES 2
-
 // MIN/MAX scale value for controller scales
 
 #define MAXCONTROLSCALEVALUE (1<<19)

@@ -183,6 +183,7 @@ extern int32_t A_IncurDamage(int32_t sn);
 extern void G_MoveWorld(void);
 extern void A_MoveCyclers(void);
 extern void A_MoveDummyPlayers(void);
+extern void P_ResetStatus(int32_t snum);
 
 // game.c
 extern inline void G_SetStatusBarScale(int32_t sc);

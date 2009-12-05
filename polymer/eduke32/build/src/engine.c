@@ -17,7 +17,7 @@
 #include "a.h"
 #include "osd.h"
 #include "crc32.h"
-#include "fastlz.h"
+#include "quicklz.h"
 
 #include "baselayer.h"
 #include "scriptfile.h"
@@ -131,6 +131,9 @@ int32_t showheightindicators=2;
 int32_t circlewall=-1;
 
 char cachedebug = 0;
+
+qlz_state_compress *state_compress = NULL;
+qlz_state_decompress *state_decompress = NULL;
 
 #if defined(_MSC_VER) && !defined(NOASM)
 
@@ -5493,6 +5496,9 @@ int32_t preinitengine(void)
 
     // this shite is to help get around data segment size limits on some platforms
 
+    state_compress = (qlz_state_compress *)Bmalloc(sizeof(qlz_state_compress));
+    state_decompress = (qlz_state_decompress *)Bmalloc(sizeof(qlz_state_decompress));
+
 #ifdef DYNALLOC_ARRAYS
     sector = Bcalloc(MAXSECTORS,sizeof(sectortype));
     wall = Bcalloc(MAXWALLS,sizeof(walltype));
@@ -5657,6 +5663,9 @@ void uninitengine(void)
     if (spritesmooth != NULL)
         Bfree(spritesmooth);
 #endif
+
+    if (state_compress) Bfree(state_compress);
+    if (state_decompress) Bfree(state_decompress);
 }
 
 
@@ -7967,7 +7976,7 @@ void loadtile(int16_t tilenume)
         if (faketilesiz[tilenume] == -1)
             Bmemset((char *)waloff[tilenume],0,dasiz);
         else if (faketiledata[tilenume] != NULL)
-            fastlz_decompress(faketiledata[tilenume], faketilesiz[tilenume], (char *)waloff[tilenume], dasiz); 
+            qlz_decompress(faketiledata[tilenume], (char *)waloff[tilenume], state_decompress); 
         faketimerhandler();
         return;
     }

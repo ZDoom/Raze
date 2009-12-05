@@ -102,7 +102,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
 
     if (numplayers > 1)
     {
-        if (myconnectindex == connecthead && g_networkBroadcastMode == 0)
+        if (net_server)
             Net_NewGame(volume,level);
         else if (voting == -1)
         {
@@ -128,11 +128,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
                 tempbuf[2] = ud.m_volume_number;
                 tempbuf[3] = ud.m_level_number;
 
-                TRAVERSE_CONNECT(i)
-                {
-                    if (i != myconnectindex) mmulti_sendpacket(i,tempbuf,4);
-                    if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                }
+                enet_peer_send(net_peer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
             }
             if ((GametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(GametypeFlags[ud.m_coop] & GAMETYPE_TDM))
                 ud.m_noexits = 0;
@@ -254,7 +250,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
 
     if (numplayers > 1)
     {
-        if (myconnectindex == connecthead && g_networkBroadcastMode == 0)
+        if (net_server)
         {
             Net_SendUserMapName();
             ud.m_volume_number = 0;
@@ -286,11 +282,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
                 tempbuf[2] = ud.m_volume_number;
                 tempbuf[3] = ud.m_level_number;
 
-                TRAVERSE_CONNECT(i)
-                {
-                    if (i != myconnectindex) mmulti_sendpacket(i,tempbuf,4);
-                    if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                }
+                enet_peer_send(net_peer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
             }
             if ((GametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(GametypeFlags[ud.m_coop] & GAMETYPE_TDM))
                 ud.m_noexits = 0;
@@ -1114,9 +1106,6 @@ static int32_t osdcmd_screenshot(const osdfuncparm_t *parm)
     screencapture("duke0000.tga",0);
     return OSDCMD_OK;
 }
-
-extern void G_SaveMapState(mapstate_t *save);
-extern void G_RestoreMapState(mapstate_t *save);
 
 /*
 static int32_t osdcmd_savestate(const osdfuncparm_t *parm)

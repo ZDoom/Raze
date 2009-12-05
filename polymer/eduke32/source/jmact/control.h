@@ -132,6 +132,7 @@ typedef enum
 //
 //***************************************************************************
 
+extern int32_t  CONTROL_Started;
 extern int32_t  CONTROL_MousePresent;
 extern int32_t  CONTROL_JoyPresent;
 extern int32_t  CONTROL_MouseEnabled;

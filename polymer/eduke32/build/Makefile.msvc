@@ -72,7 +72,7 @@ ENGINEOBJS= \
 	$(OBJ)\smalltextfont.$o \
 	$(OBJ)\glbuild.$o \
 	$(OBJ)\kplib.$o \
-	$(OBJ)\fastlz.$o \
+	$(OBJ)\quicklz.$o \
 	$(OBJ)\lzwnew.$o \
 	$(OBJ)\md4.$o \
 	$(OBJ)\mmulti_unstable.$o \

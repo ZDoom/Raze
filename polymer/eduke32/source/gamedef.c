@@ -5358,8 +5358,6 @@ repeatcase:
         else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[j*MAXLEVELS+k].filename))
             MapInfo[j*MAXLEVELS+k].filename = Brealloc(MapInfo[j*MAXLEVELS+k].filename,(Bstrlen(tempbuf)+1));
 
-        /*         initprintf("level file name string len: %d\n",Bstrlen(tempbuf)); */
-
         Bstrcpy(MapInfo[j*MAXLEVELS+k].filename,tempbuf);
 
         C_SkipComments();
@@ -5581,19 +5579,15 @@ repeatcase:
 
         C_GetNextValue(LABEL_DEFINE);
         g_sounds[k].ps = *(g_scriptPtr-1);
-        g_scriptPtr--;
         C_GetNextValue(LABEL_DEFINE);
         g_sounds[k].pe = *(g_scriptPtr-1);
-        g_scriptPtr--;
         C_GetNextValue(LABEL_DEFINE);
         g_sounds[k].pr = *(g_scriptPtr-1);
-        g_scriptPtr--;
         C_GetNextValue(LABEL_DEFINE);
         g_sounds[k].m = *(g_scriptPtr-1);
-        g_scriptPtr--;
         C_GetNextValue(LABEL_DEFINE);
         g_sounds[k].vo = *(g_scriptPtr-1);
-        g_scriptPtr--;
+        g_scriptPtr -= 5;
 
         if (k > g_maxSoundPos)
             g_maxSoundPos = k;
@@ -5627,8 +5621,7 @@ repeatcase:
             *(g_scriptPtr++) = CON_ENDEVENT;
             previous_event = NULL;
         }
-        g_parsingEventPtr = 0;
-        g_parsingActorPtr = 0;
+        g_parsingEventPtr = g_parsingActorPtr = 0;
         g_currentEvent = -1;
         Bsprintf(g_szCurrentBlockName,"(none)");
         return 0;

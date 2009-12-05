@@ -11,7 +11,7 @@
 #include "scriptfile.h"
 #include "cache1d.h"
 #include "kplib.h"
-#include "fastlz.h"
+#include "quicklz.h"
 
 enum
 {
@@ -677,7 +677,7 @@ static int32_t defsparser(scriptfile *script)
                     tilesizx[tile] = xsiz;
                     tilesizy[tile] = ysiz;
 
-                    faketilesiz[tile] = fastlz_compress(ftd, xsiz*ysiz, faketiledata[tile]);
+                    faketilesiz[tile] = qlz_compress(ftd, faketiledata[tile], xsiz*ysiz, state_compress);
 
                     xoffset = clamp(xoffset, -128, 127);
                     picanm[tile] = (picanm[tile]&0xffff00ff)+((xoffset&255)<<8);
@@ -728,7 +728,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 tilesizx[tile] = xsiz;
                 tilesizy[tile] = ysiz;
-                faketilesiz[tile] = fastlz_compress(ftd, xsiz*ysiz, faketiledata[tile]);
+                faketilesiz[tile] = qlz_compress(ftd, faketiledata[tile], xsiz*ysiz, state_compress);
                 picanm[tile] = 0;
 
                 j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;

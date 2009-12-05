@@ -51,6 +51,9 @@ endif
 JAUDIOLIBDIR=$(SRC)/jaudiolib
 JAUDIOLIB=libjfaudiolib.a
 
+ENETDIR=$(SRC)/enet
+ENETLIB=libenet.a
+
 CC=gcc
 CXX=g++
 AS=nasm
@@ -73,7 +76,7 @@ endif
 
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
-	-I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(JAUDIOLIBDIR)/include -D_FORTIFY_SOURCE=2 \
+	-I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(JAUDIOLIBDIR)/include -I$(ENETDIR)/include -D_FORTIFY_SOURCE=2 \
 	-fjump-tables -fno-stack-protector
 #        -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
@@ -168,6 +171,7 @@ ifeq ($(PLATFORM),WINDOWS)
 	GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o $(OBJ)/music.$o $(OBJ)/midi.$o $(OBJ)/mpu401.$o
 	EDITOROBJS+= $(OBJ)/buildres.$o
     JAUDIOLIB=libjfaudiolib_win32.a
+    ENETLIB=libenet_win32.a
 else
     ifeq ($(RENDERTYPE),SDL)
     	ifeq (0,$(SDL_FRAMEWORK))
@@ -198,7 +202,7 @@ OURCXXFLAGS+= $(BUILDCFLAGS)
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:
 endif
-.PHONY: clean all engine $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
+.PHONY: clean all engine $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB)
 
 # TARGETS
 
@@ -212,7 +216,7 @@ all:
 notice:
 	$(BUILD_STARTED)
 	
-eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
+eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB)
 	$(LINK_STATUS)
 	if $(CC) -o $@ $^ $(LIBS) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
@@ -221,7 +225,7 @@ ifeq (1,$(RELEASE))
   endif
 endif
 	
-mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
+mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB)
 	$(LINK_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
@@ -268,6 +272,16 @@ ifeq ($(PRETTY_OUTPUT),1)
 	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)\033[0;35m \033[0m\n"
 endif	
 
+$(ENETDIR)/$(ENETLIB):
+ifeq ($(PRETTY_OUTPUT),1)	
+	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)/$(ENETDIR)\033[0;35m \033[0m\n"
+endif	
+	$(MAKE) -C $(ENETDIR) PRETTY_OUTPUT=$(PRETTY_OUTPUT) EROOT=$(EROOT) RELEASE=$(RELEASE) OPTLEVEL=$(OPTLEVEL) 
+ifeq ($(PRETTY_OUTPUT),1)		
+	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)\033[0;35m \033[0m\n"
+endif	
+
+
 # RULES
 $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(COMPILE_STATUS)
@@ -309,7 +323,7 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 # PHONIES	
 
 clean:
-	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean
+	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
 
 veryclean: clean
 	-rm -f $(EOBJ)/* $(RSRC)/*banner*

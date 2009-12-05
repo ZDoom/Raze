@@ -621,7 +621,7 @@ void P_RandomSpawnPoint(int32_t snum)
     p->cursectnum = g_playerSpawnPoints[i].os;
 }
 
-static void P_ResetStatus(int32_t snum)
+void P_ResetStatus(int32_t snum)
 {
     DukePlayer_t *p = g_player[snum].ps;
 
@@ -1304,20 +1304,6 @@ quick:
 
     display_mirror =        0;
 
-    if (ud.multimode > 1)
-    {
-        if (numplayers < 2)
-        {
-            connecthead = 0;
-            for (i=0; i<MAXPLAYERS; i++) connectpoint2[i] = i+1;
-            connectpoint2[ud.multimode-1] = -1;
-        }
-    }
-    else
-    {
-        connecthead = 0;
-        connectpoint2[0] = -1;
-    }
     X_OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek, -1);
 }
 
@@ -1333,7 +1319,7 @@ static void resetpspritevars(char g)
                    APLAYER,0,0,0,g_player[0].ps->ang,0,0,0,10);
 
     if (ud.recstat != 2)
-        for (i=0; i<ud.multimode; i++)
+        TRAVERSE_CONNECT(i)
         {
             aimmode[i] = g_player[i].ps->aim_mode;
             autoaim[i] = g_player[i].ps->auto_aim;
@@ -1362,11 +1348,11 @@ static void resetpspritevars(char g)
 
     P_ResetStatus(0);
 
-    for (i=1; i<ud.multimode; i++)
+    TRAVERSE_CONNECT(i)
         Bmemcpy(g_player[i].ps,g_player[0].ps,sizeof(DukePlayer_t));
 
     if (ud.recstat != 2)
-        for (i=0; i<ud.multimode; i++)
+        TRAVERSE_CONNECT(i)
         {
             g_player[i].ps->aim_mode = aimmode[i];
             g_player[i].ps->auto_aim = autoaim[i];
@@ -1396,7 +1382,7 @@ static void resetpspritevars(char g)
     circ = 2048/ud.multimode;
 
     g_whichPalForPlayer = 9;
-    j = connecthead;
+    j = 0;
     i = headspritestat[STAT_PLAYER];
     while (i >= 0)
     {
@@ -1419,73 +1405,76 @@ static void resetpspritevars(char g)
         g_playerSpawnPoints[(uint8_t)g_numPlayerSprites].os = s->sectnum;
 
         g_numPlayerSprites++;
-        if (j >= 0)
+
+        if (j < MAXPLAYERS)
         {
             s->owner = i;
             s->shade = 0;
             s->xrepeat = 42;
             s->yrepeat = 36;
-            s->cstat = 1+256;
+            s->cstat = j < numplayers ? 1+256 : 32768;
             s->xoffset = 0;
             s->clipdist = 64;
 
-            if ((g&MODE_EOL) != MODE_EOL || g_player[j].ps->last_extra == 0)
+//            if (j < playerswhenstarted)
             {
-                g_player[j].ps->last_extra = g_player[j].ps->max_player_health;
-                s->extra = g_player[j].ps->max_player_health;
-                g_player[j].ps->runspeed = g_playerFriction;
-            }
-            else s->extra = g_player[j].ps->last_extra;
-
-            s->yvel = j;
-
-            if (!g_player[j].pcolor && ud.multimode > 1 && !(GametypeFlags[ud.coop] & GAMETYPE_TDM))
-            {
-                if (s->pal == 0)
+                if ((g&MODE_EOL) != MODE_EOL || g_player[j].ps->last_extra == 0)
                 {
-                    int32_t k = 0;
+                    g_player[j].ps->last_extra = g_player[j].ps->max_player_health;
+                    s->extra = g_player[j].ps->max_player_health;
+                    g_player[j].ps->runspeed = g_playerFriction;
+                }
+                else s->extra = g_player[j].ps->last_extra;
 
-                    for (; k<ud.multimode; k++)
+                s->yvel = j;
+
+                if (!g_player[j].pcolor && ud.multimode > 1 && !(GametypeFlags[ud.coop] & GAMETYPE_TDM))
+                {
+                    if (s->pal == 0)
                     {
-                        if (g_whichPalForPlayer == g_player[k].ps->palookup)
+                        int32_t k = 0;
+
+                        for (; k<ud.multimode; k++)
                         {
-                            g_whichPalForPlayer++;
-                            if (g_whichPalForPlayer >= 17)
-                                g_whichPalForPlayer = 9;
-                            k=0;
+                            if (g_whichPalForPlayer == g_player[k].ps->palookup)
+                            {
+                                g_whichPalForPlayer++;
+                                if (g_whichPalForPlayer >= 17)
+                                    g_whichPalForPlayer = 9;
+                                k=0;
+                            }
                         }
+                        g_player[j].pcolor = s->pal = g_player[j].ps->palookup = g_whichPalForPlayer++;
+                        if (g_whichPalForPlayer >= 17)
+                            g_whichPalForPlayer = 9;
                     }
-                    g_player[j].pcolor = s->pal = g_player[j].ps->palookup = g_whichPalForPlayer++;
-                    if (g_whichPalForPlayer >= 17)
-                        g_whichPalForPlayer = 9;
+                    else g_player[j].pcolor = g_player[j].ps->palookup = s->pal;
                 }
-                else g_player[j].pcolor = g_player[j].ps->palookup = s->pal;
-            }
-            else
-            {
-                int32_t k = g_player[j].pcolor;
-
-                if (GametypeFlags[ud.coop] & GAMETYPE_TDM)
+                else
                 {
-                    k = G_GetTeamPalette(g_player[j].pteam);
-                    g_player[j].ps->team = g_player[j].pteam;
+                    int32_t k = g_player[j].pcolor;
+
+                    if (GametypeFlags[ud.coop] & GAMETYPE_TDM)
+                    {
+                        k = G_GetTeamPalette(g_player[j].pteam);
+                        g_player[j].ps->team = g_player[j].pteam;
+                    }
+                    s->pal = g_player[j].ps->palookup = k;
                 }
-                s->pal = g_player[j].ps->palookup = k;
+
+                g_player[j].ps->i = i;
+                g_player[j].ps->frag_ps = j;
+                ActorExtra[i].owner = i;
+
+                ActorExtra[i].bposx = g_player[j].ps->bobposx = g_player[j].ps->oposx = g_player[j].ps->posx =        s->x;
+                ActorExtra[i].bposy = g_player[j].ps->bobposy = g_player[j].ps->oposy = g_player[j].ps->posy =        s->y;
+                ActorExtra[i].bposz = g_player[j].ps->oposz = g_player[j].ps->posz =        s->z;
+                g_player[j].ps->oang  = g_player[j].ps->ang  =        s->ang;
+
+                updatesector(s->x,s->y,&g_player[j].ps->cursectnum);
             }
 
-            g_player[j].ps->i = i;
-            g_player[j].ps->frag_ps = j;
-            ActorExtra[i].owner = i;
-
-            ActorExtra[i].bposx = g_player[j].ps->bobposx = g_player[j].ps->oposx = g_player[j].ps->posx =        s->x;
-            ActorExtra[i].bposy = g_player[j].ps->bobposy = g_player[j].ps->oposy = g_player[j].ps->posy =        s->y;
-            ActorExtra[i].bposz = g_player[j].ps->oposz = g_player[j].ps->posz =        s->z;
-            g_player[j].ps->oang  = g_player[j].ps->ang  =        s->ang;
-
-            updatesector(s->x,s->y,&g_player[j].ps->cursectnum);
-
-            j = connectpoint2[j];
-
+            j++;
         }
         else deletesprite(i);
         i = nexti;
@@ -1518,20 +1507,15 @@ void G_ResetTimers(void)
 
 void Net_WaitForEverybody(void)
 {
-    int32_t i;
+    int32_t server_ready = g_player[0].playerreadyflag;
 
-    if (numplayers < 2) return;
+    if (numplayers < 2 || net_server) return;
+
     packbuf[0] = PACKET_PLAYER_READY;
+    packbuf[1] = myconnectindex;
 
-    g_player[myconnectindex].playerreadyflag++;
-
-    // if we're a peer or slave, not a master
-    if ((g_networkBroadcastMode == 1) || (!g_networkBroadcastMode && (myconnectindex != connecthead)))
-        TRAVERSE_CONNECT(i)
-    {
-        if (i != myconnectindex) mmulti_sendpacket(i,packbuf,1);
-        if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-    }
+    if (net_client)
+        enet_peer_send(net_peer, 0, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
 
     if (ud.multimode > 1)
     {
@@ -1543,7 +1527,7 @@ void Net_WaitForEverybody(void)
         if (PLUTOPAK)   // JBF 20030804
             rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
 
-        gametext(160,190,"WAITING FOR PLAYERS",14,2);
+        gametext(160,190,"WAITING FOR SERVER",14,2);
         nextpage();
     }
 
@@ -1551,28 +1535,11 @@ void Net_WaitForEverybody(void)
     {
         if (quitevent || keystatus[1]) G_GameExit("");
 
+        handleevents();
         Net_GetPackets();
 
-        TRAVERSE_CONNECT(i)
+        if (g_player[0].playerreadyflag > server_ready)
         {
-            if (g_player[i].playerreadyflag < g_player[myconnectindex].playerreadyflag) break;
-            if ((!g_networkBroadcastMode) && (myconnectindex != connecthead))
-            {
-                // we're a slave
-                i = -1; break;
-            }
-            //slaves in M/S mode only wait for master
-        }
-        if (i < 0)
-        {
-            // master sends ready packet once it hears from all slaves
-            if (!g_networkBroadcastMode && myconnectindex == connecthead)
-                TRAVERSE_CONNECT(i)
-            {
-                packbuf[0] = PACKET_PLAYER_READY;
-                if (i != myconnectindex) mmulti_sendpacket(i,packbuf,1);
-            }
-
             P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);
             return;
         }
@@ -1580,8 +1547,6 @@ void Net_WaitForEverybody(void)
 }
 
 extern int32_t jump_input;
-extern char g_szfirstSyncMsg[MAXSYNCBYTES][60];
-extern int32_t g_foundSyncError;
 
 void clearfifo(void)
 {
@@ -1590,8 +1555,6 @@ void clearfifo(void)
     syncvaltail = 0L;
     syncvaltottail = 0L;
     memset(&syncstat, 0, sizeof(syncstat));
-    memset(&g_szfirstSyncMsg, 0, sizeof(g_szfirstSyncMsg));
-    g_foundSyncError = 0;
     bufferjitter = 1;
     mymaxlag = otherminlag = 0;
     jump_input = 0;
@@ -1952,7 +1915,7 @@ int32_t G_EnterLevel(int32_t g)
     if (!premap_quickenterlevel)
     {
         Net_WaitForEverybody();
-        mmulti_flushpackets();
+//        mmulti_flushpackets();
 
         G_FadePalette(0,0,0,0);
         G_UpdateScreenArea();
@@ -1961,8 +1924,6 @@ int32_t G_EnterLevel(int32_t g)
         G_DrawRooms(myconnectindex,65536);
     }
 
-    for (i=0; i<ud.multimode; i++)
-        clearbufbyte(&g_player[i].playerquitflag,1,0x01010101);
     g_player[myconnectindex].ps->over_shoulder_on = 0;
 
     clearfrags();

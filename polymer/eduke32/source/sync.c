@@ -386,7 +386,7 @@ void Net_GetSyncData(char *packbuf, int32_t packbufleng, int32_t *j, int32_t oth
 
     while (1)
     {
-        for (i = connectpoint2[connecthead]; i >= 0; i = connectpoint2[i])
+        TRAVERSE_CONNECT(i)
         {
             for (sb = 0; sb < g_numSyncBytes; sb++)
             {

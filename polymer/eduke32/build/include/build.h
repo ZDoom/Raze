@@ -40,7 +40,7 @@ extern "C" {
 #define MAXSPRITESONSCREEN 4096
 #define MAXUNIQHUDID 256 //Extra slots so HUD models can store animation state without messing game sprites
 
-#define RESERVEDPALS 2 // don't forget to increment this when adding reserved pals
+#define RESERVEDPALS 4 // don't forget to increment this when adding reserved pals
 #define DETAILPAL   (MAXPALOOKUPS - 1)
 #define GLOWPAL     (MAXPALOOKUPS - 2)
 #define SPECULARPAL (MAXPALOOKUPS - 3)

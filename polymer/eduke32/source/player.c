@@ -3317,9 +3317,11 @@ void getinput(int32_t snum)
         return;
     }
 
-    if (numplayers > 1)
-        daang = myang;
-    else daang = p->ang;
+/*
+        if (numplayers > 1)
+            daang = myang;
+        else*/
+     daang = p->ang;
 
     momx = mulscale9(vel,sintable[(daang+2560)&2047]);
     momy = mulscale9(vel,sintable[(daang+2048)&2047]);
@@ -4142,14 +4144,6 @@ void P_ProcessInput(int32_t snum)
                         G_AddUserQuote(tempbuf);
                     }
                 }
-
-                if (myconnectindex == connecthead)
-                {
-                    Bsprintf(tempbuf,"frag %d killed %d\n",p->frag_ps+1,snum+1);
-                    sendscore(tempbuf);
-                    //                    printf(tempbuf);
-                }
-
                 p->frag_ps = snum;
                 pus = NUMPAGES;
             }

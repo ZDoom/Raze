@@ -4290,109 +4290,84 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
 static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade)
 {
     pthtyp*         pth;
-    pthtyp*         detailpth;
-    pthtyp*         glowpth;
-
+ 
     polymer_getscratchmaterial(material);
-
-    // PR_BIT_NORMAL_MAP
-    if (hicfindsubst(tilenum, NORMALPAL, 0))
-    {
-        glowpth = NULL;
-        glowpth = gltexcache(tilenum, NORMALPAL, 0);
-
-        if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == NORMALPAL)) {
-            material->normalmap = glowpth->glpic;
-            material->normalbias[0] = glowpth->hicr->specpower;
-            material->normalbias[1] = glowpth->hicr->specfactor;
-        }
-    }
-
+ 
     // PR_BIT_DIFFUSE_MAP
     if (!waloff[tilenum])
         loadtile(tilenum);
-
-    pth = NULL;
-	pth = gltexcache(tilenum, pal, (material == &spriteplane.material) ? 4 : 0);
-
-    if (pth)
+ 
+    if ((pth = gltexcache(tilenum, pal, (material == &spriteplane.material) ? 4 : 0)))
+    {
         material->diffusemap = pth->glpic;
-
-    if (pth->hicr)
-    {
-        material->diffusescale[0] = pth->hicr->xscale;
-        material->diffusescale[1] = pth->hicr->yscale;
-    }
-
-    // PR_BIT_DIFFUSE_DETAIL_MAP
-    if (hicfindsubst(tilenum, DETAILPAL, 0))
-    {
-        detailpth = NULL;
-        detailpth = gltexcache(tilenum, DETAILPAL, 0);
-
-        if (detailpth && detailpth->hicr && (detailpth->hicr->palnum == DETAILPAL))
+ 
+        if (pth->hicr)
         {
-            material->detailmap = detailpth->glpic;
-
-            material->detailscale[0] = detailpth->hicr->xscale;
-            material->detailscale[1] = detailpth->hicr->yscale;
+            material->diffusescale[0] = pth->hicr->xscale;
+            material->diffusescale[1] = pth->hicr->yscale;
+ 
+            // PR_BIT_SPECULAR_MATERIAL
+            if (pth->hicr->specpower != 1.0f)
+                material->specmaterial[0] = pth->hicr->specpower;
+            material->specmaterial[1] = pth->hicr->specfactor;
         }
-    }
-
-    // PR_BIT_DIFFUSE_MODULATION
-    material->diffusemodulation[0] =
+ 
+        // PR_BIT_DIFFUSE_MODULATION
+        material->diffusemodulation[0] =
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
             ((float)(numpalookups-min(max(shade*shadescale,0),numpalookups)))/((float)numpalookups);
+ 
+        if (pth->flags & 2)
+        {
+            if (pth->palnum != pal)
+            {
+                material->diffusemodulation[0] *= (float)hictinting[pal].r / 255.0;
+                material->diffusemodulation[1] *= (float)hictinting[pal].g / 255.0;
+                material->diffusemodulation[2] *= (float)hictinting[pal].b / 255.0;
+            }
 
-    if (pth && (pth->flags & 2))
-    {
-        if (pth->palnum != pal)
-        {
-            material->diffusemodulation[0] *= (float)hictinting[pal].r / 255.0;
-            material->diffusemodulation[1] *= (float)hictinting[pal].g / 255.0;
-            material->diffusemodulation[2] *= (float)hictinting[pal].b / 255.0;
+            // fullscreen tint on global palette change... this is used for nightvision and underwater tinting
+            // if ((hictinting[MAXPALOOKUPS-1].r + hictinting[MAXPALOOKUPS-1].g + hictinting[MAXPALOOKUPS-1].b) != 0x2FD)
+            if (((uint32_t)hictinting[MAXPALOOKUPS-1].r & 0xFFFFFF00) != 0xFFFFFF00)
+            {
+                material->diffusemodulation[0] *= hictinting[MAXPALOOKUPS-1].r / 255.0;
+                material->diffusemodulation[1] *= hictinting[MAXPALOOKUPS-1].g / 255.0;
+                material->diffusemodulation[2] *= hictinting[MAXPALOOKUPS-1].b / 255.0;
+            }
         }
-        // fullscreen tint on global palette change
-        if (hictinting[MAXPALOOKUPS-1].r != 255 ||
-            hictinting[MAXPALOOKUPS-1].g != 255 ||
-            hictinting[MAXPALOOKUPS-1].b != 255)
-        {
-            material->diffusemodulation[0] *= hictinting[MAXPALOOKUPS-1].r / 255.0;
-            material->diffusemodulation[1] *= hictinting[MAXPALOOKUPS-1].g / 255.0;
-            material->diffusemodulation[2] *= hictinting[MAXPALOOKUPS-1].b / 255.0;
-        }
+ 
+        // PR_BIT_GLOW_MAP
+        if (r_fullbrights && pth->flags & 16)
+            material->glowmap = pth->ofb->glpic;
     }
-
+ 
+    // PR_BIT_DIFFUSE_DETAIL_MAP
+    if (hicfindsubst(tilenum, DETAILPAL, 0) && (pth = gltexcache(tilenum, DETAILPAL, 0)) && 
+        pth->hicr && (pth->hicr->palnum == DETAILPAL))
+    {
+        material->detailmap = pth->glpic;
+        material->detailscale[0] = pth->hicr->xscale;
+        material->detailscale[1] = pth->hicr->yscale;
+    }
+ 
+     // PR_BIT_GLOW_MAP
+    if (hicfindsubst(tilenum, GLOWPAL, 0) && (pth = gltexcache(tilenum, GLOWPAL, 0)) && 
+        pth->hicr && (pth->hicr->palnum == GLOWPAL))
+        material->glowmap = pth->glpic;
+ 
     // PR_BIT_SPECULAR_MAP
-    if (hicfindsubst(tilenum, SPECULARPAL, 0))
+    if (hicfindsubst(tilenum, SPECULARPAL, 0) && (pth = gltexcache(tilenum, SPECULARPAL, 0)) && 
+        pth->hicr && (pth->hicr->palnum == SPECULARPAL))
+        material->specmap = pth->glpic;
+
+    // PR_BIT_NORMAL_MAP
+    if (hicfindsubst(tilenum, NORMALPAL, 0) && (pth = gltexcache(tilenum, NORMALPAL, 0)) && 
+        pth->hicr && (pth->hicr->palnum == NORMALPAL))
     {
-        glowpth = NULL;
-        glowpth = gltexcache(tilenum, SPECULARPAL, 0);
-
-        if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == SPECULARPAL))
-            material->specmap = glowpth->glpic;
-    }
-
-    // PR_BIT_SPECULAR_MATERIAL
-    if (pth->hicr)
-    {
-        if (pth->hicr->specpower != 1.0f)
-            material->specmaterial[0] = pth->hicr->specpower;
-        material->specmaterial[1] = pth->hicr->specfactor;
-    }
-
-    // PR_BIT_GLOW_MAP
-    if (r_fullbrights && pth && pth->flags & 16)
-        material->glowmap = pth->ofb->glpic;
-
-    if (hicfindsubst(tilenum, GLOWPAL, 0))
-    {
-        glowpth = NULL;
-        glowpth = gltexcache(tilenum, GLOWPAL, 0);
-
-        if (glowpth && glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
-            material->glowmap = glowpth->glpic;
+        material->normalmap = pth->glpic;
+        material->normalbias[0] = pth->hicr->specpower;
+        material->normalbias[1] = pth->hicr->specfactor;
     }
 }
 

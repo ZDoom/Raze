@@ -49,7 +49,7 @@ int16_t cyclers[MAXCYCLERS][6],g_numCyclers;
 
 char *ScriptQuotes[MAXQUOTES], *ScriptQuoteRedefinitions[MAXQUOTES];
 
-char tempbuf[2048], packbuf[576], menutextbuf[128], buf[1024];
+char tempbuf[2048], packbuf[4096], menutextbuf[128], buf[1024];
 
 int16_t camsprite;
 int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
@@ -163,7 +163,7 @@ int32_t myhorizbak[MOVEFIFOSIZ],g_playerFriction = 0xcc00, g_showShareware;
 int16_t myangbak[MOVEFIFOSIZ];
 char szPlayerName[32];
 int32_t g_damageCameras,g_freezerSelfDamage=0,g_tripbombLaserMode=0;
-int32_t g_networkBroadcastMode = 255, g_movesPerPacket = 1,g_gameQuit = 0,everyothertime;
+int32_t g_gameQuit = 0,everyothertime;
 int32_t g_numFreezeBounces=3,g_rpgBlastRadius,g_pipebombBlastRadius,g_tripbombBlastRadius,
                            g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
 DukeStatus_t sbar;
@@ -185,7 +185,6 @@ projectile_t ProjectileData[MAXTILES], DefaultProjectileData[MAXTILES], SpritePr
 
 char CheatKeys[2] = { sc_D, sc_N };
 char setupfilename[BMAX_PATH]= SETUPFILENAME;
-// char datetimestring[] = ""__DATE__" "__TIME__"";
 
 int32_t g_doQuickSave = 0;
 uint32_t g_moveThingsCount = 0;

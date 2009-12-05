@@ -89,7 +89,7 @@ static char keytranslation[SDL_NUM_SCANCODES];
 static int32_t buildkeytranslationtable(void);
 
 //static SDL_Surface * loadtarga(const char *fn);		// for loading the icon
-static SDL_Surface * appicon;
+static SDL_Surface * appicon = NULL;
 static SDL_Surface * loadappicon(void);
 
 int32_t wm_msgbox(char *name, char *fmt, ...)
@@ -337,7 +337,10 @@ void uninitsystem(void)
     uninittimer();
 
     if (appicon)
+    {
         SDL_FreeSurface(appicon);
+        appicon = NULL;
+    }
 
     SDL_Quit();
 
