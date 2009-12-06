@@ -8576,7 +8576,7 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
 #ifdef _WIN32
     tempbuf[GetModuleFileName(NULL,tempbuf,BMAX_PATH)] = 0;
     Bcorrectfilename(tempbuf,1);
-    chdir(tempbuf);
+    //chdir(tempbuf);
 #endif
 
     OSD_SetLogFile("mapster32.log");
