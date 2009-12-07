@@ -2072,7 +2072,9 @@ attributes:
 
     if ((!s->flags.empty) && (!s->flags.invalidtex) &&
             (sec->floorshade == s->floorshade) &&
+            (sec->ceilingshade == s->ceilingshade) &&
             (sec->floorpal == s->floorpal) &&
+            (sec->ceilingpal == s->ceilingpal) &&
             (floorpicnum == s->floorpicnum) &&
             (ceilingpicnum == s->ceilingpicnum))
         goto finish;
@@ -2083,7 +2085,9 @@ attributes:
     s->flags.invalidtex = 0;
 
     s->floorshade = sec->floorshade;
+    s->ceilingshade = sec->ceilingshade;
     s->floorpal = sec->floorpal;
+    s->ceilingpal = sec->ceilingpal;
     s->floorpicnum = floorpicnum;
     s->ceilingpicnum = ceilingpicnum;
 
