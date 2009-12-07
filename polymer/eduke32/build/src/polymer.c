@@ -2561,11 +2561,8 @@ static void         polymer_updatewall(int16_t wallnum)
             }
 
             if (underwall)
-            {
                 w->underover |= 1;
-                if ((sec->floorstat & 1) && (nsec->floorstat & 1))
-                    w->underover |= 4;
-            }
+
             Bmemcpy(w->mask.buffer, &w->wall.buffer[15], sizeof(GLfloat) * 5);
             Bmemcpy(&w->mask.buffer[5], &w->wall.buffer[10], sizeof(GLfloat) * 5);
         }
@@ -2647,11 +2644,8 @@ static void         polymer_updatewall(int16_t wallnum)
             }
 
             if (overwall)
-            {
                 w->underover |= 2;
-                if ((sec->ceilingstat & 1) && (nsec->ceilingstat & 1))
-                    w->underover |= 8;
-            }
+
             Bmemcpy(&w->mask.buffer[10], &w->over.buffer[5], sizeof(GLfloat) * 5);
             Bmemcpy(&w->mask.buffer[15], &w->over.buffer[0], sizeof(GLfloat) * 5);
 
@@ -2755,6 +2749,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
     walltype        *wal;
     _prwall         *w;
     GLubyte         oldcolor[4];
+    int32_t         parallaxedfloor = 0, parallaxedceiling = 0;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing wall %i...\n", wallnum);
 
@@ -2762,11 +2757,19 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
     wal = &wall[wallnum];
     w = prwalls[wallnum];
 
+    if ((sec->floorstat & 1) && (wal->nextsector >= 0) &&
+        (sector[wal->nextsector].floorstat & 1))
+        parallaxedfloor = 1;
+
+    if ((sec->ceilingstat & 1) && (wal->nextsector >= 0) &&
+        (sector[wal->nextsector].ceilingstat & 1))
+        parallaxedceiling = 1;
+
     fogcalc(wal->shade,sec->visibility,sec->floorpal);
     bglFogf(GL_FOG_DENSITY,fogresult);
     bglFogfv(GL_FOG_COLOR,fogcol);
 
-    if ((w->underover & 1) && (!(w->underover & 4) || (searchit == 2)))
+    if ((w->underover & 1) && (!parallaxedfloor || (searchit == 2)))
     {
         if (searchit == 2) {
             int16_t pickwallnum;
@@ -2791,7 +2794,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
             memcpy(w->wall.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
     }
 
-    if ((w->underover & 2) && (!(w->underover & 8) || (searchit == 2)))
+    if ((w->underover & 2) && (!parallaxedceiling || (searchit == 2)))
     {
         if (searchit == 2) {
             memcpy(oldcolor, w->over.material.diffusemodulation, sizeof(GLubyte) * 4);
@@ -2824,9 +2827,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
             memcpy(w->mask.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
     }
 
-    if (!searchit && (sector[sectnum].ceilingstat & 1) &&
-            ((wall[wallnum].nextsector < 0) ||
-             !(sector[wall[wallnum].nextsector].ceilingstat & 1)))
+    if (!searchit && ((wall[wallnum].nextsector < 0) || parallaxedceiling))
     {
         bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
