@@ -4,7 +4,6 @@
 #define POLYMER_C
 #include "polymer.h"
 #include "engine_priv.h"
-#include <float.h>
 
 // CVARS
 int32_t         pr_lighting = 1;
@@ -541,6 +540,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
 _prprograminfo  prprograms[1 << PR_BIT_COUNT];
 
 int32_t         overridematerial;
+int32_t         globaloldoverridematerial;
 
 // RENDER TARGETS
 _prrt           *prrts;
@@ -571,15 +571,7 @@ int8_t          curskyshade;
 
 _pranimatespritesinfo asi;
 
-void polymer_alt_editorselect(void);
-static int32_t m32_numdrawnsprites = 0;
-static struct
-{
-    GLfloat verts[4*3];
-    GLfloat plane[4];
-    int16_t owner;
-    int8_t type; // 0: planar sprite, 1: model sprite
-} m32_drawnsprites[MAXSPRITESONSCREEN];
+int32_t         polymersearching;
 
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void)
@@ -645,9 +637,12 @@ int32_t             polymer_init(void)
 
     overridematerial = 0xFFFFFFFF;
 
+    polymersearching = FALSE;
+
     polymer_initrendertargets(pr_shadowcount + 1);
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete.\n");
+
     return (1);
 }
 
@@ -756,8 +751,6 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     horizang = (float)(-getangle(128, dahoriz-100)) / (2048.0f / 360.0f);
     tiltang = (gtang * 90.0f);
 
-//    if (searchit == 2) polymer_editorselect();
-
     pos[0] = (float)daposy;
     pos[1] = -(float)(daposz) / 16.0f;
     pos[2] = -(float)daposx;
@@ -835,6 +828,17 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
         i--;
     }
 
+    if (searchit == 2 && !polymersearching)
+    {
+        globaloldoverridematerial = overridematerial;
+        overridematerial = prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
+        polymersearching = TRUE;
+    }
+    if (!searchit && polymersearching) {
+        overridematerial = globaloldoverridematerial;
+        polymersearching = FALSE;
+    }
+
     getzsofslope(dacursectnum, daposx, daposy, &cursectceilz, &cursectflorz);
 
     // external view (editor)
@@ -903,6 +907,35 @@ void                polymer_drawmasks(void)
     bglDisable(GL_ALPHA_TEST);
 }
 
+void                polymer_editorpick(void)
+{
+    GLubyte         picked[3];
+    int16_t         num;
+
+    bglReadPixels(searchx, ydim - searchy, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, picked);
+
+    num = *(int16_t *)(&picked[1]);
+
+    searchstat = picked[0];
+
+    switch (searchstat) {
+    case 0: // wall
+    case 4: // 1-way/masked wall
+        searchbottomwall = searchwall = num;
+        break;
+    case 1: // floor
+    case 2: // ceiling
+        searchsector = num;
+        break;
+    case 3:
+        // sprite
+        searchwall = num;
+        break;
+    }
+
+    searchit = 0;
+}
+
 void                polymer_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, char dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
     UNREFERENCED_PARAMETER(sx);
@@ -924,6 +957,7 @@ void                polymer_drawmaskwall(int32_t damaskwallcnt)
     sectortype      *sec;
     walltype        *wal;
     _prwall         *w;
+    GLubyte         oldcolor[4];
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Masked wall %i...\n", damaskwallcnt);
 
@@ -937,7 +971,19 @@ void                polymer_drawmaskwall(int32_t damaskwallcnt)
 
     bglEnable(GL_CULL_FACE);
 
+    if (searchit == 2) {
+        memcpy(oldcolor, w->mask.material.diffusemodulation, sizeof(GLubyte) * 4);
+
+        w->mask.material.diffusemodulation[0] = 0x04;
+        w->mask.material.diffusemodulation[1] = ((GLubyte *)(&maskwall[damaskwallcnt]))[0];
+        w->mask.material.diffusemodulation[2] = ((GLubyte *)(&maskwall[damaskwallcnt]))[1];
+        w->mask.material.diffusemodulation[3] = 0xFF;
+    }
+
     polymer_drawplane(&w->mask);
+
+    if (searchit == 2)
+        memcpy(w->mask.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
 
     bglDisable(GL_CULL_FACE);
 }
@@ -980,12 +1026,20 @@ void                polymer_drawsprite(int32_t snum)
     if (tspr->cstat & 2)
     {
         if (tspr->cstat & 512)
-            spriteplane.material.diffusemodulation[3] = 0.33f;
+            spriteplane.material.diffusemodulation[3] = 0x55;
         else
-            spriteplane.material.diffusemodulation[3] = 0.66f;
+            spriteplane.material.diffusemodulation[3] = 0xAA;
     }
 
     spriteplane.material.diffusemodulation[3] *=  (1.0f - spriteext[tspr->owner].alpha);
+
+    if (searchit == 2)
+    {
+        spriteplane.material.diffusemodulation[0] = 0x03;
+        spriteplane.material.diffusemodulation[1] = ((GLubyte *)(&tspr->owner))[0];
+        spriteplane.material.diffusemodulation[2] = ((GLubyte *)(&tspr->owner))[1];
+        spriteplane.material.diffusemodulation[3] = 0xFF;
+    }
 
     if (((tspr->cstat>>4) & 3) == 0)
         xratio = (float)(tspr->xrepeat) * 0.20f; // 32 / 160
@@ -1027,7 +1081,7 @@ void                polymer_drawsprite(int32_t snum)
 
     inbuffer = vertsprite;
 
-	flipu = flipv = 0;
+    flipu = flipv = 0;
 
     if (pr_billboardingmode && !((tspr->cstat>>4) & 3))
     {
@@ -1095,20 +1149,20 @@ void                polymer_drawsprite(int32_t snum)
 
     Bmemcpy(spriteplane.buffer, inbuffer, sizeof(GLfloat) * 4 * 5);
 
-	if (flipu || flipv)
-	{
-		i = 0;
-		while (i < 4)
-		{
-			if (flipu)
-				spriteplane.buffer[(i * 5) + 3] =
-				    (spriteplane.buffer[(i * 5) + 3] - 1.0f) * -1.0f;
-			if (flipv)
-				spriteplane.buffer[(i * 5) + 4] =
-				    (spriteplane.buffer[(i * 5) + 4] - 1.0f) * -1.0f;
-			i++;
-		}
-	}
+    if (flipu || flipv)
+    {
+        i = 0;
+        while (i < 4)
+        {
+            if (flipu)
+                spriteplane.buffer[(i * 5) + 3] =
+                    (spriteplane.buffer[(i * 5) + 3] - 1.0f) * -1.0f;
+            if (flipv)
+                spriteplane.buffer[(i * 5) + 4] =
+                    (spriteplane.buffer[(i * 5) + 4] - 1.0f) * -1.0f;
+            i++;
+        }
+    }
 
     i = 0;
     while (i < 4)
@@ -1118,21 +1172,6 @@ void                polymer_drawsprite(int32_t snum)
     }
 
     polymer_computeplane(&spriteplane);
-
-    if (searchit==2)
-    {
-        if (m32_numdrawnsprites<MAXSPRITESONSCREEN)
-        {
-            Bmemcpy(&m32_drawnsprites[m32_numdrawnsprites].verts[0], &spriteplane.buffer[0], 3*sizeof(GLfloat));
-            Bmemcpy(&m32_drawnsprites[m32_numdrawnsprites].verts[3], &spriteplane.buffer[5], 3*sizeof(GLfloat));
-            Bmemcpy(&m32_drawnsprites[m32_numdrawnsprites].verts[6], &spriteplane.buffer[10], 3*sizeof(GLfloat));
-            Bmemcpy(&m32_drawnsprites[m32_numdrawnsprites].verts[9], &spriteplane.buffer[15], 3*sizeof(GLfloat));
-            Bmemcpy(&m32_drawnsprites[m32_numdrawnsprites].plane, spriteplane.plane, 4*sizeof(GLfloat));
-            m32_drawnsprites[m32_numdrawnsprites].owner = (tspr->owner&(MAXSPRITES-1));
-            m32_drawnsprites[m32_numdrawnsprites].type = 0;
-            m32_numdrawnsprites++;
-        }
-    }
 
     spriteplane.lightcount = 0;
 
@@ -1599,40 +1638,6 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     return;
 }
 
-#ifdef M32_SHOWDEBUG
-#define QNUM 128
-GLfloat qverts[QNUM*3];
-GLfloat qcolors[QNUM*3];
-int qvertcount = 0;
-
-static void polymer_m32_debug()
-{
-    // debug code for new Mapster32 mouse aim
-    if (qvertcount > 0)
-    {
-        int ii;
-        bglPushAttrib(GL_ENABLE_BIT);
-        bglDisable(GL_TEXTURE_2D);
-        bglDisable(GL_DEPTH_TEST);
-        bglBegin(GL_LINE_LOOP);
-        for (ii=0; ii<qvertcount; ii++)
-        {
-            if (qverts[3*ii]==0 && qverts[3*ii+1]==0 && qverts[3*ii+2]==0)
-            {
-                bglEnd();
-                bglBegin(GL_LINE_LOOP);
-                continue;
-            }   
-            bglColor4f(qcolors[(3*ii)+0],qcolors[(3*ii)+1],qcolors[(3*ii)+2],1.0);
-            bglVertex3f(qverts[(3*ii)+0],qverts[(3*ii)+1],qverts[(3*ii)+2]);
-        }
-        qvertcount=0;
-        bglEnd();
-        bglPopAttrib();
-    }
-}
-#endif
-
 static void         polymer_drawplane(_prplane* plane)
 {
     int32_t         materialbits;
@@ -1817,640 +1822,6 @@ static void         polymer_freeboard(void)
 
         i++;
     }
-}
-
-#if 0
-static void         polymer_editorselect(void)
-{
-//        int32_t     i, n;
-        double      ox, oy, oz, ox2, oy2, oz2, r;
-
-        //Polymost supports true look up/down :) Here, we convert horizon to angle.
-        //gchang&gshang are cos&sin of this angle (respectively)
-        ghalfx = (double)halfxdimen; grhalfxdown10 = 1.0/(((double)ghalfx)*1024);
-        ghoriz = (double)globalhoriz;
-
-        gvisibility = ((float)globalvisibility)*FOGSCALE;
-
-        //global cos/sin height angle
-        r = (double)((ydimen>>1)-ghoriz);
-        gshang = r/sqrt(r*r+ghalfx*ghalfx);
-        gchang = sqrt(1.0-gshang*gshang);
-        ghoriz = (double)(ydimen>>1);
-
-        //global cos/sin tilt angle
-        gctang = cos(gtang);
-        gstang = sin(gtang);
-        if (fabs(gstang) < .001) //This hack avoids nasty precision bugs in domost()
-        { gstang = 0; if (gctang > 0) gctang = 1.0; else gctang = -1.0; }
-
-        if (searchit == 2)
-        {
-            int32_t vx, vy, vz;
-            int32_t cz, fz;
-            hitdata_t hitinfo;
-            vec3_t vect;
-
-            ox2 = searchx-ghalfx; oy2 = searchy-ghoriz; oz2 = ghalfx;
-
-            //Tilt rotation
-            ox = ox2*gctang + oy2*gstang;
-            oy = oy2*gctang - ox2*gstang;
-            oz = oz2;
-
-            //Up/down rotation
-            ox2 = oz*gchang - oy*gshang;
-            oy2 = ox;
-            oz2 = oy*gchang + oz*gshang;
-
-            //Standard Left/right rotation
-            vx = (int32_t)(ox2*((float)cosglobalang) - oy2*((float)singlobalang));
-            vy = (int32_t)(ox2*((float)singlobalang) + oy2*((float)cosglobalang));
-            vz = (int32_t)(oz2*16384.0);
-
-            vect.x = globalposx;
-            vect.y = globalposy;
-            vect.z = globalposz;
-
-            hitallsprites = 1;
-            hitscan((const vec3_t *)&vect,globalcursectnum, //Start position
-                vx>>12,vy>>12,vz>>8,&hitinfo,0xffff0030);
-            getzsofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
-            hitallsprites = 0;
-
-            searchsector = hitinfo.hitsect;
-            if (hitinfo.pos.z<cz) searchstat = 1; else if (hitinfo.pos.z>fz) searchstat = 2; else if (hitinfo.hitwall >= 0)
-            {
-                searchbottomwall = searchwall = hitinfo.hitwall; searchstat = 0;
-                if (wall[hitinfo.hitwall].nextwall >= 0)
-                {
-                    int32_t cz, fz;
-                    getzsofslope(wall[hitinfo.hitwall].nextsector,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
-                    if (hitinfo.pos.z > fz)
-                    {
-                        if (wall[hitinfo.hitwall].cstat&2) //'2' bottoms of walls
-                            searchbottomwall = wall[hitinfo.hitwall].nextwall;
-                    }
-                    else if ((hitinfo.pos.z > cz) && (wall[hitinfo.hitwall].cstat&(16+32))) //masking or 1-way
-                        searchstat = 4;
-                }
-            }
-            else if (hitinfo.hitsprite >= 0) { searchwall = hitinfo.hitsprite; searchstat = 3; }
-            else
-            {
-                int32_t cz, fz;
-                getzsofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
-                if ((hitinfo.pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
-                //if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
-            }
-            searchit = 0;
-        }
-}
-#endif // 0
-
-
-// vvv --- improved editor aiming
-static inline GLfloat dot2f(GLfloat *v1, GLfloat *v2)
-{
-    return v1[0]*v2[0] + v1[1]*v2[1];
-}
-static inline GLfloat dot3f(GLfloat *v1, GLfloat *v2)
-{
-    return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
-}
-static inline void relvec2f(GLfloat *v1, GLfloat *v2, GLfloat *out)
-{
-    out[0] = v2[0]-v1[0];
-    out[1] = v2[1]-v1[1];
-}
-static inline void relvec3f(GLfloat *v1, GLfloat *v2, GLfloat *out)
-{
-    out[0] = v2[0]-v1[0];
-    out[1] = v2[1]-v1[1];
-    out[2] = v2[2]-v1[2];
-}
-static inline void addvec3f(GLfloat *v1, GLfloat *v2, GLfloat *out)
-{
-    out[0] = v1[0]+v2[0];
-    out[1] = v1[1]+v2[1];
-    out[2] = v1[2]+v2[2];
-}
-static void cross3f(GLfloat* va, GLfloat* vb, GLfloat* out)
-{
-    GLfloat out0 = va[1]*vb[2] - va[2]*vb[1];
-    GLfloat out1 = va[2]*vb[0] - va[0]*vb[2];
-    GLfloat out2 = va[0]*vb[1] - va[1]*vb[0];
-    out[0]=out0, out[1]=out1, out[2]=out2;
-}
-
-#ifdef M32_SHOWDEBUG
-char m32_debugstr[64][128];
-int32_t m32_numdebuglines=0;
-#endif
-
-void polymer_alt_editorselect(void)
-{
-    int i,j;
-
-    GLdouble model[16];
-    GLdouble proj[16];
-    GLint view[4];
-
-    GLdouble x,y,z;
-    GLdouble scrx,scry,scrz;
-    GLfloat scr[3], scrv[3];
-    GLfloat dadepth;
-
-    int8_t bestwhat = -1;
-    int16_t bestsec = -1;
-    int16_t bestbottomwall = -1, bestwall = -1;
-    GLfloat bestdist = FLT_MAX;
-
-#ifdef M32_SHOWDEBUG
-    GLfloat col1[3]={1.0,0.0,0.0};
-    GLfloat col2[3]={0.0,1.0,0.0};
-    GLfloat col3[3]={0.0,0.0,1.0};
-    GLfloat col4[3]={0.0,1.0,1.0};
-    GLfloat dummyvert[3] = {0,0,0};
-    qvertcount=0;
-#endif
-
-    bglGetDoublev(GL_MODELVIEW_MATRIX, model);
-    bglGetDoublev(GL_PROJECTION_MATRIX, proj);
-    bglGetIntegerv(GL_VIEWPORT, view);
-
-    bglReadPixels(searchx, ydimen-searchy, 1,1, GL_DEPTH_COMPONENT, GL_FLOAT, &dadepth);
-    bgluUnProject(searchx, ydimen-searchy, dadepth,  model, proj, view,  &x, &y, &z);
-    bgluUnProject(searchx, ydimen-searchy, 0.0,  model, proj, view,  &scrx, &scry, &scrz);
-
-#ifdef M32_SHOWDEBUG
-    if (m32_numdebuglines < 64)
-        Bsprintf(m32_debugstr[m32_numdebuglines++], "x=%.02f, y=%.02f, z/16=%.02f (BUILD)", -z, x, -y);
-#endif
-
-    scr[0]=scrx, scr[1]=scry, scr[2]=scrz;
-
-    scrv[0] = x-scrx;
-    scrv[1] = y-scry;
-    scrv[2] = z-scrz;
-
-    for (i=0; i<numwalls; i++)
-    {
-        _prwall *w = prwalls[i];
-        walltype *wal = &wall[i];
-
-        if (!w->flags.uptodate)
-            continue;
-
-        {
-            int8_t what;
-
-            GLfloat *pl = NULL;
-            GLfloat nnormsq, nnorm, npl[3];
-            GLfloat t, svcoeff, dist;
-
-            j = 0;
-            do
-            {
-                if (j==0 && (w->underover&1))
-                    pl = w->wall.plane;
-                else if (j==1 && (w->underover&2))
-                    pl = w->over.plane;
-                else if (j==2 && ((wal->cstat&16) || (wal->cstat&32)))
-                    pl = w->mask.plane;
-                j++;
-            }
-            while (j<3 && (!pl || dot3f(pl,pl)==0.0));
-
-            if (!pl || (nnormsq = dot3f(pl,pl))==0.0)
-                continue;
-
-            nnorm = sqrt(nnormsq);
-            npl[0]=pl[0]/nnorm;
-            npl[1]=pl[1]/nnorm;
-            npl[2]=pl[2]/nnorm;
-
-            t = dot3f(pl,scrv);
-            if (t==0)
-                continue;
-
-            svcoeff = -(dot3f(pl,scr)+pl[3])/t;
-            if (svcoeff < 0)
-                continue;
-
-            dist = svcoeff * sqrt(dot3f(scrv,scrv));
-            if (dist > bestdist)
-                continue;
-
-            for (what=(wal->nextsector>=0?2:0); what>=0; what--)
-            {
-                GLfloat v1[3], v2[3], v3[3], v4[3], v12[3], v34[3], v1p_r[3], v3p_r[3];
-                GLfloat v23[3], v41[3], v2p_r[3], v4p_r[3];
-                GLfloat tp[3];
-                _prplane *pp;
-
-                tp[0] = scrx + svcoeff*scrv[0];
-                tp[1] = scry + svcoeff*scrv[1];
-                tp[2] = scrz + svcoeff*scrv[2];
-
-                pp=&w->wall;
-                if (what==0)
-                {
-                    if (!(w->underover&1))
-                        continue;
-                }
-                else if (what==1)
-                {    
-                    if (!(w->underover&2))
-                        continue;
-                    pp=&w->over;
-                }
-                else if (what==2)
-                {
-                    if (!(wal->cstat&16) && !(wal->cstat&32))
-                        continue;
-                    pp=&w->mask;
-                }
-
-                if (-t<0 && !(what==2 && (wal->cstat&16)))
-                    goto nextwall;
-                    
-                Bmemcpy(v1, &pp->buffer[0], 3*sizeof(GLfloat));
-                Bmemcpy(v2, &pp->buffer[5], 3*sizeof(GLfloat));
-                Bmemcpy(v3, &pp->buffer[10], 3*sizeof(GLfloat));
-                Bmemcpy(v4, &pp->buffer[15], 3*sizeof(GLfloat));
-                relvec3f(v1,v2, v12);
-                relvec3f(v3,v4, v34);
-                relvec3f(v1,tp, v1p_r);
-                relvec3f(v3,tp, v3p_r);
-                cross3f(npl,v1p_r, v1p_r);
-                cross3f(npl,v3p_r, v3p_r);
-
-                relvec3f(v2,v3, v23);
-                relvec3f(v4,v1, v41);
-
-                relvec3f(v2,tp, v2p_r);
-                relvec3f(v4,tp, v4p_r);
-                cross3f(npl,v2p_r, v2p_r);
-                cross3f(npl,v4p_r, v4p_r);
-
-                if (dot3f(v12,v12)>0.25 && dot3f(v34,v34)>0.25
-                    && (v23[1]<0 || dot3f(v23,v23)<=0.25 || dot3f(v23,v2p_r) <= 0)
-                    && (dot3f(v41,v41)<=0.25 || dot3f(v41,v4p_r) <= 0)
-                    && dot3f(v12,v1p_r) <= 0 && dot3f(v34,v3p_r) <= 0)
-                {
-                    bestwhat = (what==2)?4:0;
-                    bestbottomwall = bestwall = i;
-                    if (what==0 && (wal->cstat&2))
-                        bestbottomwall = wal->nextwall;
-                    bestdist = dist;
-#ifdef M32_SHOWDEBUG
-                    if (m32_numdebuglines<64)
-                    {
-                        Bsprintf(m32_debugstr[m32_numdebuglines++], "what=wall %d, dist=%.02f, sec=%d",
-                                 bestwall, bestdist, bestsec);
-                    }
-                    if (qvertcount<QNUM-4)
-                    {
-                        Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
-                        Bmemcpy(&qverts[3*qvertcount++],v1, 3*sizeof(GLfloat));
-                        Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col2));
-                        Bmemcpy(&qverts[3*qvertcount++],v2, 3*sizeof(GLfloat));
-                        Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col3));
-                        Bmemcpy(&qverts[3*qvertcount++],v3, 3*sizeof(GLfloat));
-                        Bmemcpy(&qcolors[3*qvertcount],col4,sizeof(col4));
-                        Bmemcpy(&qverts[3*qvertcount++],v4, 3*sizeof(GLfloat));
-
-                        Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
-                    }
-#endif
-                }
-            }
-        }
-nextwall:;
-    }
-
-    for (i=0; i<numsectors; i++)
-    {
-        _prsector *s = prsectors[i];
-        sectortype *sec = &sector[i];
-        _prplane *cfp;
-        int8_t what = 1;
-
-        if (!s->flags.uptodate)
-            continue;
-
-        for (what=1; what<=2; what++)
-        {
-            GLfloat *pl;
-            GLfloat t, svcoeff, dist, p[2];
-
-            if (what==1)
-                cfp = &s->ceil;
-            else
-                cfp = &s->floor;
-
-            pl = cfp->plane;
-
-            t = dot3f(pl,scrv);
-            if (-t<=0)
-                continue;
-
-            svcoeff = -(dot3f(pl,scr)+pl[3])/t;
-            if (svcoeff < 0)
-                continue;
-
-            dist = svcoeff * sqrt(dot3f(scrv,scrv));
-            if (dist > bestdist)
-                continue;
-
-            // point on plane (x and z)
-            p[0] = scrx + svcoeff*scrv[0];
-            p[1] = scrz + svcoeff*scrv[2];
-
-            // implementation using a loop over all triangles
-            for (j=0; j<s->indicescount; j+=3)
-            {
-                GLushort idx[3] = {cfp->indices[j], cfp->indices[j+1], cfp->indices[j+2]};
-                GLfloat v1[2] = {cfp->buffer[(idx[0]*5)], cfp->buffer[(idx[0]*5)+2]};
-                GLfloat v2[2] = {cfp->buffer[(idx[1]*5)], cfp->buffer[(idx[1]*5)+2]};
-                GLfloat v3[2] = {cfp->buffer[(idx[2]*5)], cfp->buffer[(idx[2]*5)+2]};
-                GLfloat v12[2] = {v2[0]-v1[0], v2[1]-v1[1]};
-                GLfloat v23[2] = {v3[0]-v2[0], v3[1]-v2[1]};
-                GLfloat v31[2] = {v1[0]-v3[0], v1[1]-v3[1]};
-                int rotsign = (what==1)?-1:1;
-                GLfloat v1p_r[2] = {rotsign*(p[1]-v1[1]), -rotsign*(p[0]-v1[0])};
-                GLfloat v2p_r[2] = {rotsign*(p[1]-v2[1]), -rotsign*(p[0]-v2[0])};
-                GLfloat v3p_r[2] = {rotsign*(p[1]-v3[1]), -rotsign*(p[0]-v3[0])};
-
-                if (dot2f(v12,v12)>0.25 && dot2f(v23,v23)>0.25 && dot2f(v31,v31)>0.25
-                    && dot2f(v12,v1p_r) < 0 && dot2f(v23,v2p_r) < 0 && dot2f(v31,v3p_r) < 0)
-                {
-                    bestwhat = what;
-                    bestsec = i;
-                    bestdist = dist;
-#ifdef M32_SHOWDEBUG
-                    if (qvertcount<QNUM-3)
-                    {
-                        Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
-                        qverts[(3*qvertcount)+0] = v1[0];
-                        qverts[(3*qvertcount)+1] = cfp->buffer[(idx[0]*5+1)];
-                        qverts[(3*qvertcount)+2] = v1[1];
-                        qvertcount++;
-
-                        Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col1));
-                        qverts[(3*qvertcount)+0] = v2[0];
-                        qverts[(3*qvertcount)+1] = cfp->buffer[(idx[1]*5+1)];
-                        qverts[(3*qvertcount)+2] = v2[1];
-                        qvertcount++;
-
-                        Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col1));
-                        qverts[(3*qvertcount)+0] = v3[0];
-                        qverts[(3*qvertcount)+1] = cfp->buffer[(idx[2]*5+1)];
-                        qverts[(3*qvertcount)+2] = v3[1];
-                        qvertcount++;
-
-                        Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
-                    }
-#endif
-                    goto nextsector;
-                }
-            }  // loop over triangles
-            /*
-            // implementation using inside() (less precise)
-            if (inside(-p[1],p[0],i))
-            {
-            bestwhat = what;
-            bestsec = i;
-            bestdist = dist;
-            }
-            */
-nextsector:
-            if (bestsec==i)
-            {
-                int16_t k, bestk=0;
-                GLfloat bestwdistsq = FLT_MAX, wdistsq;
-                GLfloat w1[2], w2[2], w21[2], pw1[2], pw2[2];
-                GLfloat ptonline[2];
-                GLfloat scrvxz[2]={scrv[0],scrv[2]};
-                GLfloat scrvxznorm, scrvxzn[2], scrpxz[2];
-                GLfloat w1d, w2d;
-                walltype *wal = &wall[sec->wallptr];
-                for (k=0; k<sec->wallnum; k++)
-                {
-                    w1[1] = -(float)wal[k].x;
-                    w1[0] = (float)wal[k].y;
-                    w2[1] = -(float)wall[wal[k].point2].x;
-                    w2[0] = (float)wall[wal[k].point2].y;
-
-                    scrvxznorm = sqrt(dot2f(scrvxz,scrvxz));
-                    scrvxzn[0] = scrvxz[1]/scrvxznorm;
-                    scrvxzn[1] = -scrvxz[0]/scrvxznorm;
-
-                    relvec2f(p,w1, pw1);
-                    relvec2f(p,w2, pw2);
-                    relvec2f(w2,w1, w21);
-                    w1d = dot2f(scrvxzn,pw1);
-                    w2d = dot2f(scrvxzn,pw2);
-                    w2d = -w2d;
-                    if (w1d <= 0 || w2d <= 0)
-                        continue;
-                    ptonline[0] = w2[0]+(w2d/(w1d+w2d))*w21[0];
-                    ptonline[1] = w2[1]+(w2d/(w1d+w2d))*w21[1];
-                    relvec2f(p,ptonline, scrpxz);
-                    if (dot2f(scrvxz,scrpxz)<0)
-                        continue;
-                    wdistsq = dot2f(scrpxz,scrpxz);
-                    if (wdistsq < bestwdistsq)
-                    {
-                        bestk = k;
-                        bestwdistsq = wdistsq;
-                    }
-                }
-                bestwall = sec->wallptr+bestk;
-#ifdef M32_SHOWDEBUG
-                if (m32_numdebuglines<64)
-                    Bsprintf(m32_debugstr[m32_numdebuglines++], "what=sec %d, dist=%.02f, wall=%d", bestsec, bestdist, bestwall);
-#endif
-            }  // determine searchwall
-        } // ceiling or floor
-    } // loop over sectors
-
-    for (i=0; i<m32_numdrawnsprites; i++)
-    {
-        if (m32_drawnsprites[i].type == 0)
-        {
-            GLfloat *pl = m32_drawnsprites[i].plane;
-            GLfloat t, svcoeff, dist;
-            int16_t sn = m32_drawnsprites[i].owner;
-
-            t = dot3f(pl,scrv);
-            if (t==0 || ((sprite[sn].cstat&64) && -t<0))
-                continue;
-
-            svcoeff = -(dot3f(pl,scr)+pl[3])/t;
-            if (svcoeff < 0)
-                continue;
-
-            dist = svcoeff * sqrt(dot3f(scrv,scrv));
-            if (dist > bestdist+1.01)
-                continue;
-
-            {
-                GLfloat *v = m32_drawnsprites[i].verts;
-                GLfloat v12_r[3], v23_r[3], v34_r[3], v41_r[3];
-                GLfloat v1p[3], v2p[3], v3p[3], v4p[3];
-                GLfloat tp[3];
-
-                tp[0] = scrx + svcoeff*scrv[0];
-                tp[1] = scry + svcoeff*scrv[1];
-                tp[2] = scrz + svcoeff*scrv[2];
-
-                relvec3f(&v[3*3],&v[0*3], v12_r);
-                relvec3f(&v[0*3],&v[1*3], v23_r);
-                relvec3f(&v[1*3],&v[2*3], v34_r);
-                relvec3f(&v[2*3],&v[3*3], v41_r);
-                relvec3f(&v[0*3],tp, v1p);
-                relvec3f(&v[1*3],tp, v2p);
-                relvec3f(&v[2*3],tp, v3p);
-                relvec3f(&v[3*3],tp, v4p);
-                if (dot3f(v1p,v12_r)<=0 && dot3f(v2p,v23_r)<=0
-                    && dot3f(v3p,v34_r)<=0 && dot3f(v4p,v41_r)<=0)
-                {
-                    bestwhat = 3;
-                    bestdist = dist;
-                    bestwall = m32_drawnsprites[i].owner;
-#ifdef M32_SHOWDEBUG
-                    if (m32_numdebuglines<64)
-                    {
-                        Bsprintf(m32_debugstr[m32_numdebuglines++], "what=spr %d, dist=%.02f",
-                                 bestwall, bestdist);
-                    }
-                    if (qvertcount<QNUM-4)
-                    {
-                        Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
-                        Bmemcpy(&qcolors[3*(qvertcount+1)],col2,sizeof(col1));
-                        Bmemcpy(&qcolors[3*(qvertcount+2)],col3,sizeof(col1));
-                        Bmemcpy(&qcolors[3*(qvertcount+3)],col4,sizeof(col1));
-                        Bmemcpy(&qverts[3*qvertcount],v, 3*4*sizeof(GLfloat));
-                        qvertcount += 4;
-                        Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
-                    }
-#endif
-                }
-            }
-        }
-        else if (m32_drawnsprites[i].type == 1)
-        {
-            GLfloat pl[4], nnorm;
-            GLfloat *verts = m32_drawnsprites[i].verts;
-            GLfloat t, svcoeff, dist;
-
-            for (j=1; j<=3; j++)
-            {
-                relvec3f(&verts[0], &verts[3*j], pl);
-                nnorm = sqrt(dot3f(pl,pl));
-                if (nnorm == 0)
-                    continue;
-                pl[0]/=nnorm, pl[1]/=nnorm, pl[2]/=nnorm;
-
-                t = dot3f(pl,scrv);
-                if (t == 0)
-                    continue;
-
-                if (-t > 0)
-                    pl[3] = -dot3f(pl, &verts[3*j]);
-                else
-                    pl[3] = -dot3f(pl, &verts[0]);
-
-                svcoeff = -(dot3f(pl,scr)+pl[3])/t;
-                if (svcoeff < 0)
-                    continue;
-
-                dist = svcoeff * sqrt(dot3f(scrv,scrv));
-                if (dist > bestdist)
-                    continue;
-
-                {
-                    GLfloat vrel[3*2];
-                    GLfloat v[3*4];
-                    GLfloat v1p[3], v2p[3], v3p[3], v4p[3];
-                    GLfloat tp[3];
-                    int k, l=0;
-
-                    for (k=1; k<=3; k++)
-                    {
-                        if (k==j)
-                            continue;
-                        relvec3f(&verts[0], &verts[3*k], &vrel[3*l]);
-                        l++;
-                    }
-
-                    if (-t > 0)
-                        Bmemcpy(&v[0], &verts[3*j], 3*sizeof(GLfloat));
-                    else
-                        Bmemcpy(&v[0], &verts[0], 3*sizeof(GLfloat));
-
-                    addvec3f(&v[3*0], &vrel[3*0], &v[3*1]);
-                    addvec3f(&v[3*1], &vrel[3*1], &v[3*2]);
-                    relvec3f(&vrel[0], &v[3*2], &v[3*3]);
-
-                    tp[0] = scrx + svcoeff*scrv[0];
-                    tp[1] = scry + svcoeff*scrv[1];
-                    tp[2] = scrz + svcoeff*scrv[2];
-
-                    relvec3f(&v[0*3],tp, v1p);
-                    relvec3f(&v[1*3],tp, v2p);
-                    relvec3f(&v[2*3],tp, v3p);
-                    relvec3f(&v[3*3],tp, v4p);
-
-                    if (dot3f(&vrel[3*1], v1p)>0 && dot3f(&vrel[3*1], v3p)<0
-                        && dot3f(&vrel[0], v2p)<0 && dot3f(&vrel[0], v4p)>0)
-                    {
-                        bestwhat = 3;
-                        bestdist = dist;
-                        bestwall = m32_drawnsprites[i].owner;
-#ifdef M32_SHOWDEBUG
-                        if (m32_numdebuglines<64)
-                        {
-                            Bsprintf(m32_debugstr[m32_numdebuglines++], "what=spr %d (model), dist=%.02f",
-                                     bestwall, bestdist);
-                        }
-                        if (qvertcount<QNUM-4)
-                        {
-                            Bmemcpy(&qcolors[3*qvertcount],col1,sizeof(col1));
-                            Bmemcpy(&qverts[3*qvertcount++],&v[0],3*sizeof(GLfloat));
-                            Bmemcpy(&qcolors[3*qvertcount],col2,sizeof(col1));
-                            Bmemcpy(&qverts[3*qvertcount++],&v[3],3*sizeof(GLfloat));
-                            Bmemcpy(&qcolors[3*qvertcount],col3,sizeof(col1));
-                            Bmemcpy(&qverts[3*qvertcount++],&v[6],3*sizeof(GLfloat));
-                            Bmemcpy(&qcolors[3*qvertcount],col4,sizeof(col1));
-                            Bmemcpy(&qverts[3*qvertcount++],&v[9],3*sizeof(GLfloat));
-                            Bmemcpy(&qverts[3*qvertcount++],dummyvert, 3*sizeof(GLfloat));
-                        }
-#endif
-                    }
-                }
-            }
-        }
-    }
-    m32_numdrawnsprites = 0;
-
-    if (bestwhat >= 0)
-    {
-        searchstat = bestwhat;
-        searchwall = bestwall;
-        searchbottomwall = bestbottomwall;
-        if (searchstat==0 || searchstat==4)
-            searchsector = sectorofwall(searchwall);
-        else
-            searchsector = bestsec;
-        searchit = 0;
-    }
-
-#ifdef M32_SHOWDEBUG
-    polymer_m32_debug();
-#endif
 }
 
 // SECTORS
@@ -2851,6 +2222,7 @@ static void         polymer_drawsector(int16_t sectnum)
 {
     sectortype      *sec;
     _prsector*      s;
+    GLubyte         oldcolor[4];
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing sector %i...\n", sectnum);
 
@@ -2861,15 +2233,39 @@ static void         polymer_drawsector(int16_t sectnum)
     bglFogf(GL_FOG_DENSITY,fogresult);
     bglFogfv(GL_FOG_COLOR,fogcol);
 
-    if (!(sec->floorstat & 1))
+    if (!(sec->floorstat & 1) || (searchit == 2)) {
+        if (searchit == 2) {
+            memcpy(oldcolor, s->floor.material.diffusemodulation, sizeof(GLubyte) * 4);
+
+            s->floor.material.diffusemodulation[0] = 0x02;
+            s->floor.material.diffusemodulation[1] = ((GLubyte *)(&sectnum))[0];
+            s->floor.material.diffusemodulation[2] = ((GLubyte *)(&sectnum))[1];
+            s->floor.material.diffusemodulation[3] = 0xFF;
+        }
         polymer_drawplane(&s->floor);
+
+        if (searchit == 2)
+            memcpy(s->floor.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
+    }
 
     fogcalc(sec->ceilingshade,sec->visibility,sec->ceilingpal);
     bglFogf(GL_FOG_DENSITY,fogresult);
     bglFogfv(GL_FOG_COLOR,fogcol);
 
-    if (!(sec->ceilingstat & 1))
+    if (!(sec->ceilingstat & 1) || (searchit == 2)) {
+        if (searchit == 2) {
+            memcpy(oldcolor, s->ceil.material.diffusemodulation, sizeof(GLubyte) * 4);
+
+            s->ceil.material.diffusemodulation[0] = 0x01;
+            s->ceil.material.diffusemodulation[1] = ((GLubyte *)(&sectnum))[0];
+            s->ceil.material.diffusemodulation[2] = ((GLubyte *)(&sectnum))[1];
+            s->ceil.material.diffusemodulation[3] = 0xFF;
+        }
         polymer_drawplane(&s->ceil);
+
+        if (searchit == 2)
+            memcpy(s->ceil.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
+    }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing sector %i...\n", sectnum);
 }
@@ -2945,8 +2341,8 @@ static void         polymer_updatewall(int16_t wallnum)
     sec = &sector[sectofwall];
 
     if (sectofwall < 0 || sectofwall > numsectors ||
-		wallnum < 0 || wallnum > numwalls ||
-		sec->wallptr > wallnum || wallnum >= (sec->wallptr + sec->wallnum))
+        wallnum < 0 || wallnum > numwalls ||
+        sec->wallptr > wallnum || wallnum >= (sec->wallptr + sec->wallnum))
         return; // yay, corrupt map
 
     wal = &wall[wallnum];
@@ -3205,12 +2601,13 @@ static void         polymer_updatewall(int16_t wallnum)
             {
                 // mask
                 polymer_getbuildmaterial(&w->mask.material, walloverpicnum, wal->pal, wal->shade);
+
                 if (wal->cstat & 128)
                 {
                     if (wal->cstat & 512)
-                        w->mask.material.diffusemodulation[3] = 0.33f;
+                        w->mask.material.diffusemodulation[3] = 0x55;
                     else
-                        w->mask.material.diffusemodulation[3] = 0.66f;
+                        w->mask.material.diffusemodulation[3] = 0xAA;
                 }
             }
 
@@ -3353,6 +2750,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
     sectortype      *sec;
     walltype        *wal;
     _prwall         *w;
+    GLubyte         oldcolor[4];
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing wall %i...\n", wallnum);
 
@@ -3364,20 +2762,65 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
     bglFogf(GL_FOG_DENSITY,fogresult);
     bglFogfv(GL_FOG_COLOR,fogcol);
 
-    if ((w->underover & 1) && !(w->underover & 4))
+    if ((w->underover & 1) && (!(w->underover & 4) || (searchit == 2)))
     {
+        if (searchit == 2) {
+            int16_t pickwallnum;
+
+            memcpy(oldcolor, w->wall.material.diffusemodulation, sizeof(GLubyte) * 4);
+
+            pickwallnum = wallnum;
+            // if the bottom of the walls are inverted
+            // we're going to hit the nextwall instead
+            if (wall[wallnum].cstat & 2)
+                pickwallnum = wall[wallnum].nextwall;
+
+            w->wall.material.diffusemodulation[0] = 0x00;
+            w->wall.material.diffusemodulation[1] = ((GLubyte *)(&pickwallnum))[0];
+            w->wall.material.diffusemodulation[2] = ((GLubyte *)(&pickwallnum))[1];
+            w->wall.material.diffusemodulation[3] = 0xFF;
+        }
+
         polymer_drawplane(&w->wall);
+
+        if (searchit == 2)
+            memcpy(w->wall.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
     }
 
-    if ((w->underover & 2) && !(w->underover & 8))
+    if ((w->underover & 2) && (!(w->underover & 8) || (searchit == 2)))
     {
+        if (searchit == 2) {
+            memcpy(oldcolor, w->over.material.diffusemodulation, sizeof(GLubyte) * 4);
+
+            w->over.material.diffusemodulation[0] = 0x00;
+            w->over.material.diffusemodulation[1] = ((GLubyte *)(&wallnum))[0];
+            w->over.material.diffusemodulation[2] = ((GLubyte *)(&wallnum))[1];
+            w->over.material.diffusemodulation[3] = 0xFF;
+        }
+
         polymer_drawplane(&w->over);
+
+        if (searchit == 2)
+            memcpy(w->over.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
     }
 
-    if ((wall[wallnum].cstat & 32) && (wall[wallnum].nextsector >= 0))
+    if ((wall[wallnum].cstat & 32) && (wall[wallnum].nextsector >= 0)) {
+        if (searchit == 2) {
+            memcpy(oldcolor, w->mask.material.diffusemodulation, sizeof(GLubyte) * 4);
+
+            w->mask.material.diffusemodulation[0] = 0x04;
+            w->mask.material.diffusemodulation[1] = ((GLubyte *)(&wallnum))[0];
+            w->mask.material.diffusemodulation[2] = ((GLubyte *)(&wallnum))[1];
+            w->mask.material.diffusemodulation[3] = 0xFF;
+        }
+
         polymer_drawplane(&w->mask);
 
-    if ((sector[sectnum].ceilingstat & 1) &&
+        if (searchit == 2)
+            memcpy(w->mask.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
+    }
+
+    if (!searchit && (sector[sectnum].ceilingstat & 1) &&
             ((wall[wallnum].nextsector < 0) ||
              !(sector[wall[wallnum].nextsector].ceilingstat & 1)))
     {
@@ -3853,7 +3296,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     float           ang;
     float           scale;
     int32_t         surfi, i, j;
-    GLfloat*        color;
+    GLubyte*        color;
     int32_t         materialbits;
     float           sradius, lradius;
     int16_t         modellights[PR_MAXLIGHTS];
@@ -3961,36 +3404,12 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 //     bglEnd();
 //     bglEnable(GL_TEXTURE_2D);
 
-    if (searchit == 2)
-    {
-        if (m32_numdrawnsprites < MAXSPRITESONSCREEN)
-        {
-            point3d *mi = &m->head.frames[m->cframe].min;
-            point3d *ma = &m->head.frames[m->cframe].max;
-            float fverts[3*4] = {mi->x,mi->y,mi->z, ma->x,mi->y,mi->z, 
-                                 mi->x,ma->y,mi->z, mi->x,mi->y,ma->z};
-            float tfverts[3*4];
-            GLfloat gtfverts[3*4];
-            int i;
-
-            for (i=0; i<4; i++)
-                polymer_transformpoint(&fverts[i*3], &tfverts[i*3], spritemodelview);
-            for (i=0; i<12; i++)
-                gtfverts[i] = tfverts[i];
-
-            Bmemcpy(m32_drawnsprites[m32_numdrawnsprites].verts, gtfverts, 12*sizeof(GLfloat));
-            m32_drawnsprites[m32_numdrawnsprites].type = 1;
-            m32_drawnsprites[m32_numdrawnsprites].owner = (tspr->owner&(MAXSPRITES-1));
-            m32_numdrawnsprites++;
-        }
-    }
-
     polymer_getscratchmaterial(&mdspritematerial);
 
     color = mdspritematerial.diffusemodulation;
 
     color[0] = color[1] = color[2] =
-        ((float)(numpalookups-min(max((tspr->shade*shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups);
+        ((float)(numpalookups-min(max((tspr->shade*shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups) * 0xFF;
 
     if (!(hictinting[tspr->pal].f&4))
     {
@@ -4016,15 +3435,24 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     if (tspr->cstat & 2)
     {
         if (!(tspr->cstat&512))
-            color[3] = 0.66f;
+            color[3] = 0xAA;
         else
-            color[3] = 0.33f;
+            color[3] = 0x55;
     } else
-        color[3] = 1.0f;
+        color[3] = 0xFF;
 
     color[3] *=  (1.0f - spriteext[tspr->owner].alpha);
 
+    // XXX fix that
     if (tspr->cstat & 16384) color[3] = 0.0f;
+
+    if (searchit == 2)
+    {
+        color[0] = 0x03;
+        color[1] = ((GLubyte *)(&tspr->owner))[0];
+        color[2] = ((GLubyte *)(&tspr->owner))[1];
+        color[3] = 0xFF;
+    }
 
     if (pr_gpusmoothing)
         mdspritematerial.frameprogress = m->interpol;
@@ -4213,7 +3641,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
     bglPopMatrix();
 
-    globalnoeffect=0;
+    globalnoeffect = 0;
 }
 
 static void         polymer_loadmodelvbos(md3model_t* m)
@@ -4273,7 +3701,7 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     material->diffusemodulation[0] =
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
-            material->diffusemodulation[3] = 1.0f;
+            material->diffusemodulation[3] = 0xFF;
     // PR_BIT_SPECULAR_MAP
     material->specmap = 0;
     // PR_BIT_SPECULAR_MATERIAL
@@ -4316,7 +3744,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         material->diffusemodulation[0] =
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
-            ((float)(numpalookups-min(max(shade*shadescale,0),numpalookups)))/((float)numpalookups);
+            ((float)(numpalookups-min(max(shade*shadescale,0),numpalookups)))/((float)numpalookups) * 0xFF;
  
         if (pth->flags & 2)
         {
@@ -4544,10 +3972,10 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     // PR_BIT_DIFFUSE_MODULATION
     if (programbits & prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit)
     {
-            bglColor4f(material.diffusemodulation[0],
-                       material.diffusemodulation[1],
-                       material.diffusemodulation[2],
-                       material.diffusemodulation[3]);
+            bglColor4ub(material.diffusemodulation[0],
+                        material.diffusemodulation[1],
+                        material.diffusemodulation[2],
+                        material.diffusemodulation[3]);
     }
 
     // PR_BIT_SPECULAR_MAP

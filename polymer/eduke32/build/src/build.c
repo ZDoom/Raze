@@ -512,11 +512,12 @@ CANCEL:
 #endif
         drawmasks();
 #ifdef POLYMER
-        if (rendmode == 4)
+        if (rendmode == 4 && searchit == 2)
         {
-            extern void polymer_alt_editorselect(void);
-            if (searchit==2)
-                polymer_alt_editorselect();
+            polymer_editorpick();
+            drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
+            ExtAnalyzeSprites();
+            drawmasks();
         }
 #endif
 

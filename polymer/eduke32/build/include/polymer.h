@@ -94,7 +94,7 @@ typedef struct      s_prmaterial {
     GLuint          detailmap;
     GLfloat         detailscale[2];
     // PR_BIT_DIFFUSE_MODULATION
-    GLfloat         diffusemodulation[4];
+    GLubyte         diffusemodulation[4];
     // PR_BIT_SPECULAR_MAP
     GLuint          specmap;
     // PR_BIT_SPECULAR_MATERIAL
@@ -289,12 +289,6 @@ typedef struct      s_pranimatespritesinfo {
     int32_t         x, y, a, smoothratio;
 }                   _pranimatespritesinfo;
 
-// MEMORY POOL
-/*
-#define             POLYMER_POOL_SIZE (128 * 1048576)
-extern nedpool*     polymer_pool;
-*/
-
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void);
 void                polymer_uninit(void);
@@ -302,6 +296,7 @@ void                polymer_glinit(void);
 void                polymer_loadboard(void);
 void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum);
 void                polymer_drawmasks(void);
+void                polymer_editorpick(void);
 void                polymer_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, char dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 void                polymer_drawmaskwall(int32_t damaskwallcnt);
 void                polymer_drawsprite(int32_t snum);
