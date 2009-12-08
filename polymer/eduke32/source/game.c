@@ -3964,7 +3964,9 @@ void G_DisplayRest(int32_t smoothratio)
         }
         else
         {
-            *(uint32_t *)&hictinting[MAXPALOOKUPS-1].r = 0xFFFFFFFF;
+            hictinting[MAXPALOOKUPS-1].r = 255;
+            hictinting[MAXPALOOKUPS-1].g = 255;
+            hictinting[MAXPALOOKUPS-1].b = 255;
         }
     }
 #endif /* USE_OPENGL && POLYMOST */
