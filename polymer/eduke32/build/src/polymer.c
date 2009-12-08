@@ -3448,9 +3448,6 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
     color[3] *=  (1.0f - spriteext[tspr->owner].alpha);
 
-    // XXX fix that
-    if (tspr->cstat & 16384) color[3] = 0.0f;
-
     if (searchit == 2)
     {
         color[0] = 0x03;
