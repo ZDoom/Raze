@@ -2835,7 +2835,9 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
             memcpy(w->mask.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
     }
 
-    if (!searchit && ((wall[wallnum].nextsector < 0) || parallaxedceiling))
+    if (!searchit && (sector[sectnum].ceilingstat & 1) &&
+        ((wall[wallnum].nextsector < 0) ||
+        !(sector[wall[wallnum].nextsector].ceilingstat & 1)))
     {
         bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
