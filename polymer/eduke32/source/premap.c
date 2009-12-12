@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 #include "osd.h"
+#include "gamedef.h"
 
 #ifdef RENDERTYPEWIN
 #define WIN32_LEAN_AND_MEAN
@@ -619,6 +620,74 @@ void P_RandomSpawnPoint(int32_t snum)
     p->oposz = p->posz = g_playerSpawnPoints[i].oz;
     p->ang = g_playerSpawnPoints[i].oa;
     p->cursectnum = g_playerSpawnPoints[i].os;
+    sprite[p->i].cstat = 1+256;
+}
+
+void P_ResetPlayer(int32_t snum)
+{
+    vec3_t tmpvect;
+    spritetype *sp = &sprite[g_player[snum].ps->i];
+
+    tmpvect.x = g_player[snum].ps->posx;
+    tmpvect.y = g_player[snum].ps->posy;
+    tmpvect.z = g_player[snum].ps->posz+PHEIGHT;
+    P_RandomSpawnPoint(snum);
+    sp->x = ActorExtra[g_player[snum].ps->i].bposx = g_player[snum].ps->bobposx = g_player[snum].ps->oposx = g_player[snum].ps->posx;
+    sp->y = ActorExtra[g_player[snum].ps->i].bposy = g_player[snum].ps->bobposy = g_player[snum].ps->oposy =g_player[snum].ps->posy;
+    sp->z = ActorExtra[g_player[snum].ps->i].bposy = g_player[snum].ps->oposz =g_player[snum].ps->posz;
+    updatesector(g_player[snum].ps->posx,g_player[snum].ps->posy,&g_player[snum].ps->cursectnum);
+    setsprite(g_player[snum].ps->i,&tmpvect);
+    sp->cstat = 257;
+
+    sp->shade = -12;
+    sp->clipdist = 64;
+    sp->xrepeat = 42;
+    sp->yrepeat = 36;
+    sp->owner = g_player[snum].ps->i;
+    sp->xoffset = 0;
+    sp->pal = g_player[snum].ps->palookup;
+
+    g_player[snum].ps->last_extra = sp->extra = g_player[snum].ps->max_player_health;
+    g_player[snum].ps->wantweaponfire = -1;
+    g_player[snum].ps->horiz = 100;
+    g_player[snum].ps->on_crane = -1;
+    g_player[snum].ps->frag_ps = snum;
+    g_player[snum].ps->horizoff = 0;
+    g_player[snum].ps->opyoff = 0;
+    g_player[snum].ps->wackedbyactor = -1;
+    g_player[snum].ps->shield_amount = g_startArmorAmount;
+    g_player[snum].ps->dead_flag = 0;
+    g_player[snum].ps->pals_time = 0;
+    g_player[snum].ps->footprintcount = 0;
+    g_player[snum].ps->weapreccnt = 0;
+    g_player[snum].ps->fta = 0;
+    g_player[snum].ps->ftq = 0;
+    g_player[snum].ps->posxv = g_player[snum].ps->posyv = 0;
+    g_player[snum].ps->rotscrnang = 0;
+    g_player[snum].ps->runspeed = g_playerFriction;
+    g_player[snum].ps->falling_counter = 0;
+
+    ActorExtra[g_player[snum].ps->i].extra = -1;
+    ActorExtra[g_player[snum].ps->i].owner = g_player[snum].ps->i;
+
+    ActorExtra[g_player[snum].ps->i].cgg = 0;
+    ActorExtra[g_player[snum].ps->i].movflag = 0;
+    ActorExtra[g_player[snum].ps->i].tempang = 0;
+    ActorExtra[g_player[snum].ps->i].actorstayput = -1;
+    ActorExtra[g_player[snum].ps->i].dispicnum = 0;
+    ActorExtra[g_player[snum].ps->i].owner = g_player[snum].ps->i;
+
+    ActorExtra[g_player[snum].ps->i].temp_data[4] = 0;
+
+    P_ResetInventory(snum);
+    P_ResetWeapons(snum);
+
+    g_player[snum].ps->reloading = 0;
+
+    g_player[snum].ps->movement_lock = 0;
+
+    if (apScriptGameEvent[EVENT_RESETPLAYER])
+        X_OnEvent(EVENT_RESETPLAYER, g_player[snum].ps->i, snum, -1);
 }
 
 void P_ResetStatus(int32_t snum)

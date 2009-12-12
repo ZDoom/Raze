@@ -2770,68 +2770,22 @@ nullquote:
             }
             else
             {
-                vec3_t tmpvect;
+                if (vm.g_p == myconnectindex)
+                {
+                    g_cameraDistance = 0;
+                    g_cameraClock = totalclock;
+                }
 
-                tmpvect.x = g_player[vm.g_p].ps->posx;
-                tmpvect.y = g_player[vm.g_p].ps->posy;
-                tmpvect.z = g_player[vm.g_p].ps->posz+PHEIGHT;
-                P_RandomSpawnPoint(vm.g_p);
-                vm.g_sp->x = ActorExtra[vm.g_i].bposx = g_player[vm.g_p].ps->bobposx = g_player[vm.g_p].ps->oposx = g_player[vm.g_p].ps->posx;
-                vm.g_sp->y = ActorExtra[vm.g_i].bposy = g_player[vm.g_p].ps->bobposy = g_player[vm.g_p].ps->oposy =g_player[vm.g_p].ps->posy;
-                vm.g_sp->z = ActorExtra[vm.g_i].bposy = g_player[vm.g_p].ps->oposz =g_player[vm.g_p].ps->posz;
-                updatesector(g_player[vm.g_p].ps->posx,g_player[vm.g_p].ps->posy,&g_player[vm.g_p].ps->cursectnum);
-                setsprite(g_player[vm.g_p].ps->i,&tmpvect);
-                vm.g_sp->cstat = 257;
+                if (net_server)
+                {
+                    P_ResetPlayer(vm.g_p);
 
-                vm.g_sp->shade = -12;
-                vm.g_sp->clipdist = 64;
-                vm.g_sp->xrepeat = 42;
-                vm.g_sp->yrepeat = 36;
-                vm.g_sp->owner = vm.g_i;
-                vm.g_sp->xoffset = 0;
-                vm.g_sp->pal = g_player[vm.g_p].ps->palookup;
+                    packbuf[0] = PACKET_PLAYER_SPAWN;
+                    packbuf[1] = vm.g_p;
+                    packbuf[2] = 0;
 
-                g_player[vm.g_p].ps->last_extra = vm.g_sp->extra = g_player[vm.g_p].ps->max_player_health;
-                g_player[vm.g_p].ps->wantweaponfire = -1;
-                g_player[vm.g_p].ps->horiz = 100;
-                g_player[vm.g_p].ps->on_crane = -1;
-                g_player[vm.g_p].ps->frag_ps = vm.g_p;
-                g_player[vm.g_p].ps->horizoff = 0;
-                g_player[vm.g_p].ps->opyoff = 0;
-                g_player[vm.g_p].ps->wackedbyactor = -1;
-                g_player[vm.g_p].ps->shield_amount = g_startArmorAmount;
-                g_player[vm.g_p].ps->dead_flag = 0;
-                g_player[vm.g_p].ps->pals_time = 0;
-                g_player[vm.g_p].ps->footprintcount = 0;
-                g_player[vm.g_p].ps->weapreccnt = 0;
-                g_player[vm.g_p].ps->fta = 0;
-                g_player[vm.g_p].ps->ftq = 0;
-                g_player[vm.g_p].ps->posxv = g_player[vm.g_p].ps->posyv = 0;
-                g_player[vm.g_p].ps->rotscrnang = 0;
-                g_player[vm.g_p].ps->runspeed = g_playerFriction;
-                g_player[vm.g_p].ps->falling_counter = 0;
-
-                ActorExtra[vm.g_i].extra = -1;
-                ActorExtra[vm.g_i].owner = vm.g_i;
-
-                ActorExtra[vm.g_i].cgg = 0;
-                ActorExtra[vm.g_i].movflag = 0;
-                ActorExtra[vm.g_i].tempang = 0;
-                ActorExtra[vm.g_i].actorstayput = -1;
-                ActorExtra[vm.g_i].dispicnum = 0;
-                ActorExtra[vm.g_i].owner = g_player[vm.g_p].ps->i;
-
-                P_ResetInventory(vm.g_p);
-                P_ResetWeapons(vm.g_p);
-
-                g_player[vm.g_p].ps->reloading = 0;
-
-                g_player[vm.g_p].ps->movement_lock = 0;
-
-                if (apScriptGameEvent[EVENT_RESETPLAYER])
-                    X_OnEvent(EVENT_RESETPLAYER, g_player[vm.g_p].ps->i, vm.g_p, -1);
-                g_cameraDistance = 0;
-                g_cameraClock = totalclock;
+                    enet_host_broadcast(net_server, 0 , enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
+                }
             }
             P_UpdateScreenPal(g_player[vm.g_p].ps);
             //AddLog("EOF: resetplayer");

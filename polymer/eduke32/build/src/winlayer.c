@@ -3403,7 +3403,9 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         else if (!Bstrcmp(glinfo.vendor,"3Dfx Interactive Inc.")) err = 1;
         else if (!Bstrcmp(glinfo.vendor,"Intel"))
         {
-            if (!Bstrcmp(glinfo.renderer,"Intel 865G"))
+            if (!Bstrcmp(glinfo.renderer,"Intel 845G"))
+                err = 0;
+            else if (!Bstrcmp(glinfo.renderer,"Intel 865G"))
                 err = 0;
             else if (!Bstrcmp(glinfo.renderer,"Intel 915G"))
                 err = 0;

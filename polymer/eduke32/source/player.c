@@ -187,7 +187,7 @@ int32_t A_GetHitscanRange(int32_t i)
     int32_t zoff = 0;
     hitdata_t hitinfo;
 
-    if (PN == APLAYER) zoff = (40<<8);
+    if (PN == APLAYER) zoff = PHEIGHT;
 
     SZ -= zoff;
     hitscan((const vec3_t *)&sprite[i],SECT,

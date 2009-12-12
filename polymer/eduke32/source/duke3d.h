@@ -832,6 +832,7 @@ enum GamevarFlags_t {
     GAMEVAR_CHARPTR    = 0x00010000, // plValues is a pointer to a char
     GAMEVAR_NORESET    = 0x00020000, // var values are not reset when restoring map state
     GAMEVAR_SPECIAL    = 0x00040000, // flag for structure member shortcut vars
+    GAMEVAR_NOMULTI    = 0x00080000, // don't attach to multiplayer packets
 };
 
 enum GamearrayFlags_t {
@@ -1094,31 +1095,32 @@ enum DukePacket_t
 {
     PACKET_MASTER_TO_SLAVE,
     PACKET_SLAVE_TO_MASTER,
-    PACKET_VERSION,
-
-    /* don't change anything above this line */
 
     PACKET_NUM_PLAYERS,
     PACKET_PLAYER_INDEX,
     PACKET_PLAYER_DISCONNECTED,
-    PACKET_MESSAGE,
-
+    PACKET_PLAYER_SPAWN,
+    PACKET_REQUEST_GAMESTATE,
     PACKET_NEW_GAME,
+    PACKET_LOAD_GAME,
+
+    // any packet with an ID higher than PACKET_BROADCAST is rebroadcast by server
+    // this is so hacked clients can't create fake server packets and get the server
+    // to send them to everyone
+
+    PACKET_BROADCAST,
     PACKET_RTS,
-    PACKET_MENU_LEVEL_QUIT,
     PACKET_WEAPON_CHOICE,
     PACKET_PLAYER_OPTIONS,
     PACKET_PLAYER_NAME,
-
-    PACKET_REQUEST_GAMESTATE,
+    PACKET_VERSION,
+    PACKET_MESSAGE,
     PACKET_USER_MAP,
 
     PACKET_MAP_VOTE,
     PACKET_MAP_VOTE_INITIATE,
     PACKET_MAP_VOTE_CANCEL,
 
-    PACKET_LOAD_GAME,
-    PACKET_NULL_PACKET,
     PACKET_PLAYER_READY,
     PACKET_QUIT = 255 // should match mmulti I think
 };
