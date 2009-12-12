@@ -1038,7 +1038,7 @@ process:
                 {
                     Bmemcpy(&i, &packbuf[j], sizeof(int16_t));
                     j += sizeof(int16_t);
-                    Bmemcpy(&sector[i], &packbuf[j], sizeof(walltype));
+                    Bmemcpy(&wall[i], &packbuf[j], sizeof(walltype));
                     j += sizeof(walltype);
                 }
             }
