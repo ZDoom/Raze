@@ -132,7 +132,7 @@ ENGINEOBJS+= \
 	$(OBJ)/osd.$o \
 	$(OBJ)/pragmas.$o \
 	$(OBJ)/scriptfile.$o \
-        $(OBJ)/nedmalloc.$o
+    $(OBJ)/nedmalloc.$o
 
 ifeq (1,$(USE_OPENGL))
 	ENGINEOBJS+=  $(OBJ)/mdsprite.$o
@@ -230,19 +230,19 @@ $(OBJ)/$(EDITORLIB): $(EDITOROBJS)
 pragmacheck$(EXESUFFIX): $(OBJ)/pragmacheck.$o $(OBJ)/pragmas.$o
 	$(CC) $(subst -Dmain=app_main,,$(OURCFLAGS)) -o $@ $^
 	
-kextract$(EXESUFFIX): $(OBJ)/kextract.$o $(OBJ)/compat.$o
+kextract$(EXESUFFIX): $(OBJ)/kextract.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
 	$(CC) -o $@ $^
-kgroup$(EXESUFFIX): $(OBJ)/kgroup.$o $(OBJ)/compat.$o
+kgroup$(EXESUFFIX): $(OBJ)/kgroup.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
 	$(CC) -o $@ $^
-transpal$(EXESUFFIX): $(OBJ)/transpal.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o
+transpal$(EXESUFFIX): $(OBJ)/transpal.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
 	$(CC) -o $@ $^
-wad2art$(EXESUFFIX): $(OBJ)/wad2art.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o
+wad2art$(EXESUFFIX): $(OBJ)/wad2art.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
 	$(CC) -o $@ $^
-wad2map$(EXESUFFIX): $(OBJ)/wad2map.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o
+wad2map$(EXESUFFIX): $(OBJ)/wad2map.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
 	$(CC) -o $@ $^
 generateicon$(EXESUFFIX): $(OBJ)/generateicon.$o $(OBJ)/kplib.$o
 	$(CC) -o $@ $^
-cacheinfo$(EXESUFFIX): $(OBJ)/cacheinfo.$o $(OBJ)/compat.$o
+cacheinfo$(EXESUFFIX): $(OBJ)/cacheinfo.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
 	$(CC) -o $@ $^
 enumdisplay$(EXESUFFIX): src/misc/enumdisplay.c
 	$(CC) -g -Os -o $@ $^ -I$(DXROOT)/include -lgdi32

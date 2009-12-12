@@ -80,8 +80,8 @@ ENGINEOBJS= \
 	$(OBJ)\pragmas.$o \
 	$(OBJ)\scriptfile.$o \
 	$(OBJ)\winlayer.$o \
-        $(OBJ)\polymer.$o \
-        $(OBJ)\nedmalloc.$o
+    $(OBJ)\polymer.$o \
+    $(OBJ)\nedmalloc.$o
 
 EDITOROBJS=$(OBJ)\build.$o \
 	$(OBJ)\startwin.editor.$o \
@@ -127,23 +127,23 @@ $(OBJ)\$(EDITORLIB): $(EDITOROBJS)
 	lib $(flags_lib) /out:$@ /nologo $**
 
 # the tools
-kextract$(EXESUFFIX): $(OBJ)\kextract.$o $(OBJ)\compat.$o
+kextract$(EXESUFFIX): $(OBJ)\kextract.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $@.manifest -outputresource:$@
 	
-kgroup$(EXESUFFIX): $(OBJ)\kgroup.$o $(OBJ)\compat.$o
+kgroup$(EXESUFFIX): $(OBJ)\kgroup.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-transpal$(EXESUFFIX): $(OBJ)\transpal.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o
+transpal$(EXESUFFIX): $(OBJ)\transpal.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-wad2map$(EXESUFFIX): $(OBJ)\wad2map.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o
+wad2map$(EXESUFFIX): $(OBJ)\wad2map.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-wad2art$(EXESUFFIX): $(OBJ)\wad2art.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o
+wad2art$(EXESUFFIX): $(OBJ)\wad2art.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $@.manifest -outputresource:$@
 
