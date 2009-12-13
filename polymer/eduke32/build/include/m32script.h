@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define _m32script_h_
 
 #include "compat.h"
+#include "baselayer.h"
 #include "build.h"
 #include "editor.h"
 

@@ -958,8 +958,11 @@ process:
                 l = packbuf[j++];
                 while (l--)
                 {
-                    int16_t i, sect, statnum, osect, ostatnum, jj, lightid = -1, opicnum;
+                    int16_t i, sect, statnum, osect, ostatnum, jj, opicnum;
+#ifdef POLYMER
+                    int16_t lightid = -1;
                     _prlight *mylight = NULL;
+#endif
 
                     Bmemcpy(&i, &packbuf[j], sizeof(int16_t));
                     j += sizeof(int16_t);
@@ -989,8 +992,10 @@ process:
                         sprite[i].statnum = ostatnum;
                         if (sect != osect) changespritesect(i, sect);
                         if (statnum != ostatnum) changespritestat(i, statnum);
+#ifdef POLYMER
                         mylight = ActorExtra[i].lightptr;
                         lightid = ActorExtra[i].lightId;
+#endif
                     }
 
                     j += sizeof(spritetype);
@@ -1002,8 +1007,10 @@ process:
                     j += sizeof(ActorData_t)-sizeof(ActorExtra[0].filler)-sizeof(ActorExtra[0].projectile)-sizeof(ActorExtra[0].lightptr);
 
                     ActorExtra[i].projectile = &SpriteProjectile[i];
+#ifdef POLYMER
                     ActorExtra[i].lightptr = mylight;
                     ActorExtra[i].lightId = lightid;
+#endif
 
                     if (packbuf[jj] & 1) T2 += (intptr_t)&script[0];
                     if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];

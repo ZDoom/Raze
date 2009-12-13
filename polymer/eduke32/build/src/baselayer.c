@@ -255,12 +255,10 @@ int32_t baselayer_init(void)
 #endif
                          ,
                          osdfunc_setrendermode);
-
-#ifdef DEBUGGINGAIDS
-    OSD_RegisterFunction("hicsetpalettetint","hicsetpalettetint: sets palette tinting values",osdcmd_hicsetpalettetint);
-#endif
-
 #ifdef USE_OPENGL
+# ifdef DEBUGGINGAIDS
+    OSD_RegisterFunction("hicsetpalettetint","hicsetpalettetint: sets palette tinting values",osdcmd_hicsetpalettetint);
+# endif
     OSD_RegisterFunction("glinfo","glinfo: shows OpenGL information about the current OpenGL mode",osdcmd_glinfo);
 #endif
     polymost_initosdfuncs();

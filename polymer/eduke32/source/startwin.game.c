@@ -698,7 +698,9 @@ int32_t startwin_run(void)
 
     settings.flags = 0;
     if (ud.config.ScreenMode) settings.flags |= 1;
+#ifdef POLYMER
     if (glrendmode == 4) settings.flags |= 2;
+#endif
     if (ud.config.NoAutoLoad) settings.flags |= 4;
     settings.xdim = ud.config.ScreenWidth;
     settings.ydim = ud.config.ScreenHeight;
@@ -736,8 +738,10 @@ int32_t startwin_run(void)
         int32_t i;
 
         ud.config.ScreenMode = (settings.flags&1);
+#ifdef POLYMER
         if (settings.flags & 2) glrendmode = 4;
         else glrendmode = 3;
+#endif
         if (settings.flags & 4) ud.config.NoAutoLoad = 1;
         else ud.config.NoAutoLoad = 0;
         ud.config.ScreenWidth = settings.xdim;
