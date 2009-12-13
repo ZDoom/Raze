@@ -2467,9 +2467,10 @@ static void         polymer_updatewall(int16_t wallnum)
             ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
             if (ypancoef < tilesizy[curpicnum])
                 ypancoef *= 2;
+            curypanning = wal->ypanning;
             if (curypanning > 256 - (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef))
                 curypanning -= (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef);
-            ypancoef *= (float)(wal->ypanning) / (256.0f * (float)(tilesizy[curpicnum]));
+            ypancoef *= (float)(curypanning) / (256.0f * (float)(tilesizy[curpicnum]));
         }
         else
             ypancoef = 0;
@@ -2626,9 +2627,10 @@ static void         polymer_updatewall(int16_t wallnum)
                 ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
                 if (ypancoef < tilesizy[curpicnum])
                     ypancoef *= 2;
+                curypanning = wal->ypanning;
                 if (curypanning > 256 - (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef))
                     curypanning -= (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef);
-                ypancoef *= (float)(wal->ypanning) / (256.0f * (float)(tilesizy[curpicnum]));
+                ypancoef *= (float)(curypanning) / (256.0f * (float)(tilesizy[curpicnum]));
             }
             else
                 ypancoef = 0;
@@ -2678,9 +2680,10 @@ static void         polymer_updatewall(int16_t wallnum)
                     ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
                     if (ypancoef < tilesizy[curpicnum])
                         ypancoef *= 2;
+                    curypanning = wal->ypanning;
                     if (curypanning > 256 - (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef))
                         curypanning -= (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef);
-                    ypancoef *= (float)(wal->ypanning) / (256.0f * (float)(tilesizy[curpicnum]));
+                    ypancoef *= (float)(curypanning) / (256.0f * (float)(tilesizy[curpicnum]));
                 }
                 else
                     ypancoef = 0;
