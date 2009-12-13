@@ -1034,18 +1034,22 @@ process:
                 l = packbuf[j++];
                 while (l--)
                 {
-                    Bmemcpy(&i, &packbuf[j], sizeof(int16_t));
+                    int16_t secid;
+
+                    Bmemcpy(&secid, &packbuf[j], sizeof(int16_t));
                     j += sizeof(int16_t);
-                    Bmemcpy(&sector[i], &packbuf[j], sizeof(sectortype));
+                    Bmemcpy(&sector[secid], &packbuf[j], sizeof(sectortype));
                     j += sizeof(sectortype);
                 }
 
                 l = packbuf[j++];
                 while (l--)
                 {
-                    Bmemcpy(&i, &packbuf[j], sizeof(int16_t));
+                    int16_t wallid;
+
+                    Bmemcpy(&wallid, &packbuf[j], sizeof(int16_t));
                     j += sizeof(int16_t);
-                    Bmemcpy(&wall[i], &packbuf[j], sizeof(walltype));
+                    Bmemcpy(&wall[wallid], &packbuf[j], sizeof(walltype));
                     j += sizeof(walltype);
                 }
             }
@@ -1919,6 +1923,7 @@ void faketimerhandler(void)
                 if (k > 4) break;
             }
             packbuf[zj] = k;
+            k = 0;
 
             packbuf[(zj = j++)] = 0;
             for (i = numsectors-1; i >= 0; i--)
@@ -1941,6 +1946,7 @@ void faketimerhandler(void)
                 if (k > 6) break;
             }
             packbuf[zj] = k;
+            k = 0;
 
             packbuf[(zj = j++)] = 0;
             for (i = numwalls-1; i >= 0; i--)
