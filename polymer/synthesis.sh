@@ -9,7 +9,7 @@ clean=veryclean
 
 # the following file paths are relative to $source
 targets=( eduke32.exe mapster32.exe )
-bin_packaged=( eduke32.exe mapster32.exe names.h tiles.cfg buildlic.txt GNU.TXT m32help.hlp ror.map a.m32 )
+bin_packaged=( eduke32.exe mapster32.exe duke3d.def.sample enhance.con.sample SEHELP.HLP STHELP.HLP m32script_ex.map names.h tiles.cfg buildlic.txt GNU.TXT m32help.hlp ror.map a.m32 )
 not_src_packaged=( rsrc/game2.psd rsrc/game3.psd source/jaudiolib/third-party/vorbis.framework/Versions/A/vorbis Apple )
 
 # group that owns the resulting packages
