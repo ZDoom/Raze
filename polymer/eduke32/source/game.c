@@ -54,6 +54,8 @@ ENetHost * net_client = NULL;
 ENetPeer * net_peer = NULL;
 int32_t net_port = 23513;
 int32_t g_netDisconnect = 0;
+int32_t net_lists[] = { STAT_PROJECTILE, STAT_STANDABLE, STAT_ACTIVATOR, STAT_TRANSPORT, STAT_EFFECTOR, STAT_ACTOR, STAT_ZOMBIEACTOR };
+char g_networkPassword[32];
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -691,7 +693,7 @@ void Net_Disconnect(void)
 
 int32_t quittimer = 0;
 
-void Net_SendQuit(void)
+void G_GameQuit(void)
 {
     if (g_gameQuit == 0 && (numplayers > 1))
     {
@@ -711,8 +713,7 @@ static void Net_SendWeaponChoice(void)
     int32_t i,l;
 
     buf[0] = PACKET_WEAPON_CHOICE;
-    buf[1] = myconnectindex;
-    l = 2;
+    l = 1;
 
     for (i=0; i<10; i++)
     {
@@ -729,17 +730,14 @@ static void Net_SendWeaponChoice(void)
 
 static void Net_SendVersion(void)
 {
-    if (numplayers < 2) return;
+    if (!net_server) return;
 
     buf[0] = PACKET_VERSION;
     buf[1] = BYTEVERSION;
     buf[2] = (uint8_t)atoi(s_buildDate);
     buf[3] = myconnectindex;
 
-    if (net_client)
-        enet_peer_send(net_peer, 0, enet_packet_create(&buf[0], 4, ENET_PACKET_FLAG_RELIABLE));
-    else if (net_server)
-        enet_host_broadcast(net_server, 0, enet_packet_create(&buf[0], 4, ENET_PACKET_FLAG_RELIABLE));
+    enet_host_broadcast(net_server, 0, enet_packet_create(&buf[0], 4, ENET_PACKET_FLAG_RELIABLE));
 }
 
 static void Net_SendPlayerOptions(void)
@@ -747,8 +745,7 @@ static void Net_SendPlayerOptions(void)
     int32_t l;
 
     buf[0] = PACKET_PLAYER_OPTIONS;
-    buf[1] = myconnectindex;
-    l = 2;
+    l = 1;
 
     //null terminated player name to send
     //    for (i=0;szPlayerName[i];i++) buf[l++] = Btoupper(szPlayerName[i]);
@@ -779,8 +776,7 @@ void Net_SendPlayerName(void)
     if (numplayers < 2) return;
 
     buf[0] = PACKET_PLAYER_NAME;
-    buf[1] = myconnectindex;
-    l = 2;
+    l = 1;
 
     //null terminated player name to send
     for (i=0; szPlayerName[i]; i++) buf[l++] = Btoupper(szPlayerName[i]);
@@ -845,6 +841,143 @@ static mapstate_t *g_multiMapState = NULL;
 static int32_t spritecrc[MAXSPRITES], lastupdate[MAXSPRITES], sectcrc[MAXSECTORS], lastsectupdate[MAXSECTORS];
 static int32_t wallcrc[MAXWALLS], lastwallupdate[MAXWALLS];
 static int32_t peractorvals[MAXGAMEVARS][MAXSPRITES], perplayervals[MAXGAMEVARS][MAXPLAYERS];
+
+static void Net_SendChallenge(void)
+{
+    int32_t i, l;
+
+    if (!net_peer) return;
+
+    buf[0] = PACKET_AUTH;
+    l = 1;
+
+    for (i=0; g_networkPassword[i]; i++) buf[l++] = g_networkPassword[i];
+    buf[l++] = 0;
+
+    buf[l++] = myconnectindex;
+
+    enet_peer_send(net_peer, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
+}
+
+void P_Disconnected(int32_t i)
+{
+    g_player[i].playerquitflag = 0;
+
+    Bsprintf(buf,"%s^00 is history!",g_player[i].user_name);
+    G_AddUserQuote(buf);
+
+    if (g_player[myconnectindex].ps->gm & MODE_GAME)
+    {
+        if (screenpeek == i)
+        {
+            screenpeek = 0;
+            if (screenpeek < 0) screenpeek = 0;
+        }
+
+        if (numplayers == 2)
+            S_PlaySound(GENERIC_AMBIENCE17);
+
+        pub = NUMPAGES;
+        pus = NUMPAGES;
+        G_UpdateScreenArea();
+
+        P_QuickKill(g_player[i].ps);
+
+        if (voting == i)
+        {
+            for (i=0; i<MAXPLAYERS; i++)
+            {
+                g_player[i].vote = 0;
+                g_player[i].gotvote = 0;
+            }
+            voting = -1;
+        }
+
+        Bstrcpy(ScriptQuotes[116],buf);
+        g_player[myconnectindex].ps->ftq = 116, g_player[myconnectindex].ps->fta = 180;
+    }
+}
+
+void Net_SyncPlayer(ENetEvent * event)
+{
+    int32_t i, j;
+
+    TRAVERSE_CONNECT(i)
+        if (!g_player[i].playerquitflag)
+            break;
+
+    // no slots empty from players quitting, so open a new one
+    if (i == -1)
+        i = playerswhenstarted++;
+    event->peer->data = (void *)i;
+
+    clearbufbyte(&g_player[i].playerquitflag,1,0x01010101);
+    g_player[i].movefifoend = 1;
+
+    for (j=0; j<playerswhenstarted-1; j++) connectpoint2[j] = j+1;
+    connectpoint2[playerswhenstarted-1] = -1;
+
+    numplayers++;
+    ud.multimode++;
+
+    TRAVERSE_CONNECT(j)
+    {
+        if (!g_player[j].ps) g_player[j].ps = (DukePlayer_t *) Bcalloc(1, sizeof(DukePlayer_t));
+        if (!g_player[j].sync) g_player[j].sync = (input_t *) Bcalloc(1, sizeof(input_t));
+    }
+
+    packbuf[0] = PACKET_NUM_PLAYERS;
+    packbuf[1] = numplayers;
+    packbuf[2] = playerswhenstarted;
+    packbuf[3] = ud.multimode;
+    packbuf[4] = i;
+    packbuf[5] = myconnectindex;
+    enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, 6, ENET_PACKET_FLAG_RELIABLE));
+
+    packbuf[0] = PACKET_PLAYER_INDEX;
+    packbuf[1] = i;
+    packbuf[2] = myconnectindex;
+    enet_peer_send(event->peer, 0, enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
+
+    Net_SendPlayerName();
+    Net_SendPlayerOptions();
+    Net_SendWeaponChoice();
+    Net_SendUserMapName();
+
+    if (g_player[0].ps->gm & MODE_GAME)
+    {
+        if (g_multiMapState == NULL) g_multiMapState = Bcalloc(1, sizeof(mapstate_t));
+        if (g_multiMapState)
+        {
+            char * buf = Bmalloc(sizeof(mapstate_t)<<1);
+
+            j = g_player[i].ps->i;
+            Bmemcpy(g_player[i].ps, g_player[0].ps, sizeof(DukePlayer_t));
+            g_player[i].ps->i = j;
+            changespritestat(j, STAT_PLAYER);
+            P_ResetStatus(i);
+            P_ResetWeapons(i);
+            P_ResetInventory(i);
+
+            g_player[i].ps->last_extra = g_player[i].ps->max_player_health;
+            sprite[g_player[i].ps->i].extra = g_player[i].ps->max_player_health;
+            sprite[g_player[i].ps->i].cstat = 1+256;
+            g_player[i].ps->runspeed = g_playerFriction;
+
+            G_SaveMapState(g_multiMapState);
+            j = qlz_compress((char *)g_multiMapState, buf, sizeof(mapstate_t), state_compress);
+            while (j > 1024)
+            {
+                enet_peer_send(event->peer, 1, enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, 1024, ENET_PACKET_FLAG_RELIABLE));
+                j -= 1024;
+            }
+            enet_peer_send(event->peer, 1, enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, j, ENET_PACKET_FLAG_RELIABLE));
+            Bfree(buf);
+            Bfree(g_multiMapState);
+            g_multiMapState = NULL;
+        }
+    }
+}
 
 void Net_ParsePacket(ENetEvent * event)
 {
@@ -939,7 +1072,7 @@ process:
 
                 {
                     int16_t i = g_player[l].ps->i, jj = j++;
-                    int32_t oa = T5-(intptr_t)&script[0];
+                    int32_t oa = (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)&script[g_scriptSize]) ? T5-(intptr_t)&script[0] : T5;
 
                     Bmemcpy(&T5, &packbuf[j], sizeof(T5));
                     j += sizeof(T5);
@@ -1155,7 +1288,7 @@ process:
 
             {
                 int16_t i = g_player[other].ps->i, jj = j++;
-                int32_t oa = T5-(intptr_t)&script[0];
+                int32_t oa = (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)&script[g_scriptSize]) ? T5-(intptr_t)&script[0] : T5;
 
                 Bmemcpy(&T5, &packbuf[j], sizeof(T5));
                 j += sizeof(T5);
@@ -1163,6 +1296,7 @@ process:
                 if (oa != T5) T3 = T4 = 0;
                 if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];
             }
+
             Bfree(packbuf);
             break;
 
@@ -1235,9 +1369,23 @@ process:
                         g_netDisconnect = 1;
                         return;
                     }
+                    Net_SendChallenge();
                 }
-                else if (net_server)
-                    Net_SendVersion();
+                break;
+
+            case PACKET_AUTH:
+                for (i=1; i < packbufleng; i++)
+                    tempbuf[i-1] = packbuf[i];
+                tempbuf[i-1] = 0;
+                i++;
+
+                if (!Bstrcmp(tempbuf, g_networkPassword))
+                    Net_SyncPlayer(event);
+                else
+                {
+                    enet_peer_disconnect(event->peer, 1);
+                    initprintf("Bad password: %s\n", tempbuf);
+                }
                 break;
 
             case PACKET_NUM_PLAYERS:
@@ -1258,7 +1406,6 @@ process:
                 // myconnectindex is 0 until we get PACKET_PLAYER_INDEX
                 if (net_client && myconnectindex != 0)
                 {
-                    Net_SendVersion();
                     Net_SendPlayerName();
                     Net_SendPlayerOptions();
                     Net_SendWeaponChoice();
@@ -1272,7 +1419,6 @@ process:
 
                 clearbufbyte(&g_player[myconnectindex].playerquitflag,1,0x01010101);
 
-                Net_SendVersion();
                 Net_SendPlayerName();
                 Net_SendPlayerOptions();
                 Net_SendWeaponChoice();
@@ -1282,7 +1428,9 @@ process:
             case PACKET_PLAYER_DISCONNECTED:
                 numplayers--;
                 ud.multimode--;
-                g_player[packbuf[1]].playerquitflag = 0;
+
+                P_Disconnected(packbuf[1]);
+
                 break;
 
             case PACKET_PLAYER_SPAWN:
@@ -1296,8 +1444,7 @@ process:
                 break;
 
             case PACKET_PLAYER_OPTIONS:
-                other = packbuf[1];
-                i = 2;
+                i = 1;
 
                 g_player[other].ps->aim_mode = packbuf[i++];
                 g_player[other].ps->auto_aim = packbuf[i++];
@@ -1308,19 +1455,15 @@ process:
                 break;
 
             case PACKET_PLAYER_NAME:
-                other = packbuf[1];
-
-                for (i=2; packbuf[i]; i++)
-                    g_player[other].user_name[i-2] = packbuf[i];
-                g_player[other].user_name[i-2] = 0;
+                for (i=1; packbuf[i]; i++)
+                    g_player[other].user_name[i-1] = packbuf[i];
+                g_player[other].user_name[i-1] = 0;
                 i++;
 
                 break;
 
             case PACKET_WEAPON_CHOICE:
-                other = packbuf[1];
-
-                i = 2;
+                i = 1;
 
                 j = i; //This used to be Duke packet #9... now concatenated with Duke packet #6
                 for (; i-j<10; i++) g_player[other].wchoice[i-j] = packbuf[i];
@@ -1459,8 +1602,6 @@ process:
 
 void Net_GetPackets(void)
 {
-    int32_t i, j;
-
     sampletimer();
     MUSIC_Update();
 
@@ -1488,82 +1629,7 @@ void Net_GetPackets(void)
                     event.peer -> address.host,
                     event.peer -> address.port);
 
-                TRAVERSE_CONNECT(i)
-                    if (!g_player[i].playerquitflag)
-                        break;
-
-                // no slots empty from players quitting, so open a new one
-                if (i == -1)
-                    i = playerswhenstarted++;
-                event.peer->data = (void *)i;
-
-                clearbufbyte(&g_player[i].playerquitflag,1,0x01010101);
-                g_player[i].movefifoend = 1;
-
-                for (j=0; j<playerswhenstarted-1; j++) connectpoint2[j] = j+1;
-                connectpoint2[playerswhenstarted-1] = -1;
-
-                numplayers++;
-                ud.multimode++;
-
-                TRAVERSE_CONNECT(j)
-                {
-                    if (!g_player[j].ps) g_player[j].ps = (DukePlayer_t *) Bcalloc(1, sizeof(DukePlayer_t));
-                    if (!g_player[j].sync) g_player[j].sync = (input_t *) Bcalloc(1, sizeof(input_t));
-                }
-
-                packbuf[0] = PACKET_NUM_PLAYERS;
-                packbuf[1] = numplayers;
-                packbuf[2] = playerswhenstarted;
-                packbuf[3] = ud.multimode;
-                packbuf[4] = i;
-                packbuf[5] = myconnectindex;
-                enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, 6, ENET_PACKET_FLAG_RELIABLE));
-
-                packbuf[0] = PACKET_PLAYER_INDEX;
-                packbuf[1] = i;
-                packbuf[2] = myconnectindex;
-                enet_peer_send(event.peer, 0, enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
-
                 Net_SendVersion();
-                Net_SendPlayerName();
-                Net_SendPlayerOptions();
-                Net_SendWeaponChoice();
-                Net_SendUserMapName();
-
-                if (g_player[0].ps->gm & MODE_GAME)
-                {
-                    if (g_multiMapState == NULL) g_multiMapState = Bcalloc(1, sizeof(mapstate_t));
-                    if (g_multiMapState)
-                    {
-                        char * buf = Bmalloc(sizeof(mapstate_t)<<1);
-
-                        j = g_player[i].ps->i;
-                        Bmemcpy(g_player[i].ps, g_player[0].ps, sizeof(DukePlayer_t));
-                        g_player[i].ps->i = j;
-                        changespritestat(j, STAT_PLAYER);
-                        P_ResetStatus(i);
-                        P_ResetWeapons(i);
-                        P_ResetInventory(i);
-
-                        g_player[i].ps->last_extra = g_player[i].ps->max_player_health;
-                        sprite[g_player[i].ps->i].extra = g_player[i].ps->max_player_health;
-                        sprite[g_player[i].ps->i].cstat = 1+256;
-                        g_player[i].ps->runspeed = g_playerFriction;
-
-                        G_SaveMapState(g_multiMapState);
-                        j = qlz_compress((char *)g_multiMapState, buf, sizeof(mapstate_t), state_compress);
-                        while (j > 1024)
-                        {
-                            enet_peer_send(event.peer, 1, enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, 1024, ENET_PACKET_FLAG_RELIABLE));
-                            j -= 1024;
-                        }
-                        enet_peer_send(event.peer, 1, enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, j, ENET_PACKET_FLAG_RELIABLE));
-                        Bfree(buf);
-                        Bfree(g_multiMapState);
-                        g_multiMapState = NULL;
-                    }
-                }
                 break;
             case ENET_EVENT_TYPE_RECEIVE:
 /*
@@ -1587,16 +1653,17 @@ void Net_GetPackets(void)
                 lastpackettime = totalclock;
                 break;
             case ENET_EVENT_TYPE_DISCONNECT:
-                g_player[(int32_t)event.peer->data].playerquitflag = 0;
                 numplayers--;
                 ud.multimode--;
 
+                P_Disconnected((intptr_t)event.peer->data);
+
                 packbuf[0] = PACKET_PLAYER_DISCONNECTED;
-                packbuf[1] = (int32_t)event.peer->data;
+                packbuf[1] = (intptr_t)event.peer->data;
                 packbuf[2] = myconnectindex;
                 enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
 
-                initprintf ("Player %d disconnected.\n", event.peer -> data);
+                initprintf ("%s disconnected.\n", g_player[(intptr_t)event.peer->data].user_name);
                 event.peer->data = NULL;
                 break;
             default:
@@ -1672,12 +1739,8 @@ void Net_GetPackets(void)
                 lastpackettime = totalclock;
                 break;
             case ENET_EVENT_TYPE_DISCONNECT:
-                numplayers = ud.multimode = playerswhenstarted = 1;
-                event.peer -> data = NULL;
-                enet_host_destroy(net_client);
-                net_client = NULL;
-                G_BackToMenu();
-                initprintf ("Disconnected.\n");
+                g_netDisconnect = 1;
+                initprintf (event.data == 1? "Bad password.\n" : "Disconnected.\n");
                 return;
             default:
                 break;
@@ -1937,13 +2000,12 @@ void faketimerhandler(void)
         k = 0;
 
         {
-            int32_t lists[] = { STAT_PROJECTILE, STAT_STANDABLE, STAT_ACTIVATOR, STAT_TRANSPORT, STAT_EFFECTOR, STAT_ACTOR, STAT_ZOMBIEACTOR };
             int32_t zz, zj;
 
             packbuf[(zj = j++)] = 0;
 
-            for (zz = 0; (unsigned)zz < (sizeof(lists)/sizeof(lists[0])); zz++)
-            TRAVERSE_SPRITE_STAT(headspritestat[lists[zz]], i, nexti)
+            for (zz = 0; (unsigned)zz < (sizeof(net_lists)/sizeof(net_lists[0])); zz++)
+            TRAVERSE_SPRITE_STAT(headspritestat[net_lists[zz]], i, nexti)
             {
                 if (totalclock > (lastupdate[i] + (TICSPERFRAME * 6)))
                 {
@@ -3164,17 +3226,19 @@ static void G_PrintFPS(void)
         int32_t x = (xdim <= 640);
         if (ud.tickrate)
         {
-            int32_t chars = Bsprintf(tempbuf, "%2u ms (%3u fps)", howlong, LastCount);
+            int32_t chars = Bsprintf(tempbuf, "%d ms (%3u fps)", howlong, LastCount);
 
             printext256(windowx2-(chars<<(3-x))+1,windowy1+2,0,-1,tempbuf,x);
             printext256(windowx2-(chars<<(3-x)),windowy1+1,
                         (LastCount < LOW_FPS) ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
 
             // lag meter
-            if (numplayers > 1 && (totalclock - lastpackettime) > 1)
+            if (net_peer)
             {
-                for (howlong = (totalclock - lastpackettime); howlong>0 && howlong<(xdim>>2); howlong--)
-                    printext256(4L*howlong,0,COLOR_WHITE,-1,".",0);
+                chars = Bsprintf(tempbuf, "%d +- %d ms", net_peer->roundTripTime, net_peer->roundTripTimeVariance);
+
+                printext256(windowx2-(chars<<(3-x))+1,windowy1+10+2,0,-1,tempbuf,x);
+                printext256(windowx2-(chars<<(3-x)),windowy1+10+1,net_peer->roundTripTime > 200 ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
             }
         }
 
@@ -3434,34 +3498,6 @@ extern int32_t g_doQuickSave;
 void G_GameExit(const char *t)
 {
     if (*t != 0) g_player[myconnectindex].ps->palette = (uint8_t *) &palette[0];
-
-/*
-    if (numplayers > 1)
-    {
-        int32_t i, j, oldtotalclock;
-
-        ready2send = 0;
-
-        for (j=MAXPLAYERS-1; j>=0; j--)
-        {
-            oldtotalclock = totalclock;
-
-            while (totalclock < oldtotalclock+TICSPERFRAME)
-            {
-                handleevents();
-                Net_GetPackets();
-            }
-            if (KB_KeyPressed(sc_Escape)) return;
-
-            packbuf[0] = PACKET_NULL_PACKET;
-
-            if (net_client)
-                enet_peer_send(net_peer, 0, enet_packet_create(packbuf, 1, ENET_PACKET_FLAG_RELIABLE));
-            else if (net_server)
-                enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, 1, ENET_PACKET_FLAG_RELIABLE));
-        }
-    }
-*/
 
     if (ud.recstat == 1) G_CloseDemoWrite();
     else if (ud.recstat == 2)
@@ -5309,6 +5345,9 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         i = A_InsertSprite(sprite[j].sectnum,sprite[j].x,sprite[j].y,sprite[j].z
                            ,pn,0,0,0,0,0,0,j,0);
         ActorExtra[i].picnum = sprite[j].picnum;
+
+        // spawning is technically not allowed to fail in BUILD
+        // we just hide whatever the client spawns because the server will send it anyway
     }
     else
     {
@@ -5331,12 +5370,10 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         ActorExtra[i].actorstayput = ActorExtra[i].lightId = ActorExtra[i].extra = -1;
 
-//        sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
-
         if (PN != SPEAKER && PN != LETTER && PN != DUCK && PN != TARGET && PN != TRIPBOMB && PN != VIEWSCREEN && PN != VIEWSCREEN2 && (CS&48))
             if (!(PN >= CRACK1 && PN <= CRACK4))
             {
-                if (SS == 127) return i;
+                if (SS == 127) goto SPAWN_END;
                 if (A_CheckSwitchTile(i) == 1 && (CS&16))
                 {
                     if (PN != ACCESSSWITCH && PN != ACCESSSWITCH2 && sprite[i].pal)
@@ -5346,13 +5383,13 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                             sprite[i].xrepeat = sprite[i].yrepeat = 0;
                             SLT = SHT = 0;
                             sprite[i].cstat = 32768;
-                            return i;
+                            goto SPAWN_END;
                         }
                     }
                     CS |= 257;
                     if (sprite[i].pal && PN != ACCESSSWITCH && PN != ACCESSSWITCH2)
                         sprite[i].pal = 0;
-                    return i;
+                    goto SPAWN_END;
                 }
 
                 if (SHT)
@@ -5360,7 +5397,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     changespritestat(i,12);
                     CS |=  257;
                     SH = g_impactDamage;
-                    return i;
+                    goto SPAWN_END;
                 }
             }
 
@@ -6450,7 +6487,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 {
                     sp->xrepeat = sp->yrepeat = 0;
                     changespritestat(i,5);
-                    return i;
+                    goto SPAWN_END;
                 }
                 g_player[myconnectindex].ps->max_actors_killed++;
                 ActorExtra[i].temp_data[5] = 0;
@@ -6663,7 +6700,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 T5 = sector[sect].floorz == SZ;
                 sp->cstat = 0;
                 changespritestat(i,9);
-                return i;
+                goto SPAWN_END;
             case 1:
                 sp->owner = -1;
                 T1 = 1;
@@ -7178,6 +7215,17 @@ SPAWN_END:
         X_OnEvent(EVENT_SPAWN,i, pl, p);
     }
 
+    if (net_client && j >= 0)
+    {
+        int32_t zz;
+        for (zz = 0; (unsigned)zz < (sizeof(net_lists)/sizeof(net_lists[0])); zz++)
+            if (sprite[i].statnum == net_lists[zz])
+            {
+                ActorExtra[i].flags |= SPRITE_NULL;
+                break;
+            }
+    }
+
     return i;
 }
 
@@ -7230,6 +7278,12 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         t = &tsprite[j];
         i = t->owner;
         s = &sprite[t->owner];
+
+        if (A_CheckSpriteFlags(i, SPRITE_NULL))
+        {
+            t->xrepeat = t->yrepeat = 0;
+            continue;
+        }
 
         //greenslime can't be handled through the dynamictostatic system due to addition on constant
         if ((t->picnum >= GREENSLIME)&&(t->picnum <= GREENSLIME+7))
@@ -10923,7 +10977,7 @@ void app_crashhandler(void)
 {
     G_CloseDemoWrite();
     X_ScriptInfo();
-    Net_SendQuit();
+    G_GameQuit();
 }
 #endif
 
@@ -11432,19 +11486,6 @@ CLEAN_DIRECTORY:
         initprintf("Definitions file '%s' loaded.\n",duke3ddef);
         loaddefinitions_game(duke3ddef, FALSE);
     }
-
-/*
-        if (numplayers > 1)
-        {
-            Net_SendVersion();
-            Net_SendPlayerName();
-            Net_SendPlayerOptions();
-            Net_SendWeaponChoice();
-            Net_SendUserMapName();
-            Net_GetPackets();
-            Net_WaitForEverybody();
-        }
-        else*/
 
     if (numplayers == 1 && boardfilename[0] != 0)
     {
@@ -12403,39 +12444,6 @@ static int32_t G_DoMoveThings(void)
         G_CloseDemoWrite();
 
         g_player[i].playerquitflag = 0;
-
-        if (screenpeek == i)
-        {
-            screenpeek = 0;
-            if (screenpeek < 0) screenpeek = 0;
-        }
-
-        if (numplayers == 2)
-            S_PlaySound(GENERIC_AMBIENCE17);
-
-        pub = NUMPAGES;
-        pus = NUMPAGES;
-        G_UpdateScreenArea();
-
-        P_QuickKill(g_player[i].ps);
-        deletesprite(g_player[i].ps->i);
-
-        Bsprintf(buf,"%s^00 is history!",g_player[i].user_name);
-
-        G_AddUserQuote(buf);
-        Bstrcpy(ScriptQuotes[116],buf);
-
-        if (voting == i)
-        {
-            for (i=0; i<MAXPLAYERS; i++)
-            {
-                g_player[i].vote = 0;
-                g_player[i].gotvote = 0;
-            }
-            voting = -1;
-        }
-
-        g_player[myconnectindex].ps->ftq = 116, g_player[myconnectindex].ps->fta = 180;
     }
 
     g_moveThingsCount++;

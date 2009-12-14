@@ -4968,7 +4968,7 @@ VOLUME_ALL_40x:
         {
             KB_FlushKeyboardQueue();
 
-            Net_SendQuit();
+            G_GameQuit();
         }
 
         x = M_Probe(186,124,0,1);

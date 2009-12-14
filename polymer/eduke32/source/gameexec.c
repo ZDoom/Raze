@@ -4654,9 +4654,11 @@ void A_LoadActor(int32_t iActor)
 
 void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 {
-//    int32_t temp, temp2;
-
-//    if (actorscrptr[sprite[iActor].picnum] == 0) return;
+    if (net_client && A_CheckSpriteFlags(iActor, SPRITE_NULL))
+    {
+        deletesprite(iActor);
+        return;
+    }
 
     if (net_server || net_client)
         randomseed = ticrandomseed;

@@ -245,7 +245,7 @@ extern int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
 extern void G_UpdatePlayerFromMenu(void);
 extern void Net_SendPlayerName(void);
 extern void Net_SendUserMapName(void);
-extern void Net_SendQuit(void);
+extern void G_GameQuit(void);
 
 extern void G_AddUserQuote(const char *daquote);
 extern void Net_NewGame(int32_t volume, int32_t level);

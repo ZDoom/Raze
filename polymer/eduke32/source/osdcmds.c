@@ -43,7 +43,7 @@ extern uint32_t g_frameDelay;
 static inline int32_t osdcmd_quit(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
-    Net_SendQuit();
+    G_GameQuit();
     return OSDCMD_OK;
 }
 
@@ -1165,6 +1165,20 @@ static int32_t osdcmd_connect(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int32_t osdcmd_password(const osdfuncparm_t *parm)
+{
+    extern char g_networkPassword[32];
+
+    if (parm->numparms < 1)
+    {
+        Bmemset(g_networkPassword, 0, sizeof(g_networkPassword));
+        return OSDCMD_OK;
+    }
+    Bstrncpy(g_networkPassword, (char *)(parm->raw) + 9, sizeof(g_networkPassword)-1);
+
+    return OSDCMD_OK;
+}
+
 static int32_t osdcmd_cvar_set_multi(const osdfuncparm_t *parm)
 {
     int32_t r = osdcmd_cvar_set(parm);
@@ -1374,6 +1388,8 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
+
+    OSD_RegisterFunction("password","password: sets multiplayer game password", osdcmd_password);
 
     OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
     OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);

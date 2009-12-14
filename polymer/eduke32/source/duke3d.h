@@ -877,6 +877,7 @@ enum SpriteFlags_t {
     SPRITE_NOEVENTCODE  = 128,
     SPRITE_NOLIGHT      = 256,
     SPRITE_USEACTIVATOR = 512,
+    SPRITE_NULL         = 1024, // null sprite in multiplayer
 };
 
 extern int16_t SpriteCacheList[MAXTILES][3];
@@ -1105,6 +1106,7 @@ enum DukePacket_t
     PACKET_NEW_GAME,
     PACKET_LOAD_GAME,
     PACKET_VERSION,
+    PACKET_AUTH,
 
     // any packet with an ID higher than PACKET_BROADCAST is rebroadcast by server
     // this is so hacked clients can't create fake server packets and get the server
