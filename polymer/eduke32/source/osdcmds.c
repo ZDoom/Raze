@@ -1149,8 +1149,9 @@ static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
 
 static int32_t osdcmd_disconnect(const osdfuncparm_t *parm)
 {
+    extern int32_t g_netDisconnect;
     UNREFERENCED_PARAMETER(parm);
-    Net_Disconnect();
+    g_netDisconnect = 1;
     return OSDCMD_OK;
 }
 

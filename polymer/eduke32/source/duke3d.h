@@ -1104,6 +1104,7 @@ enum DukePacket_t
     PACKET_REQUEST_GAMESTATE,
     PACKET_NEW_GAME,
     PACKET_LOAD_GAME,
+    PACKET_VERSION,
 
     // any packet with an ID higher than PACKET_BROADCAST is rebroadcast by server
     // this is so hacked clients can't create fake server packets and get the server
@@ -1114,7 +1115,6 @@ enum DukePacket_t
     PACKET_WEAPON_CHOICE,
     PACKET_PLAYER_OPTIONS,
     PACKET_PLAYER_NAME,
-    PACKET_VERSION,
     PACKET_MESSAGE,
     PACKET_USER_MAP,
 
@@ -1123,7 +1123,7 @@ enum DukePacket_t
     PACKET_MAP_VOTE_CANCEL,
 
     PACKET_PLAYER_READY,
-    PACKET_QUIT = 255 // should match mmulti I think
+    PACKET_QUIT = 255
 };
 
 #pragma pack(pop)

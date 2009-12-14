@@ -53,6 +53,7 @@ ENetHost * net_server = NULL;
 ENetHost * net_client = NULL;
 ENetPeer * net_peer = NULL;
 int32_t net_port = 23513;
+int32_t g_netDisconnect = 0;
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -696,8 +697,7 @@ void Net_SendQuit(void)
     {
         g_gameQuit = 1;
         quittimer = totalclock+120;
-        Net_Disconnect();
-        G_GameExit(" ");
+        g_netDisconnect = 1;
     }
     else if (numplayers < 2)
         G_GameExit(" ");
@@ -732,8 +732,8 @@ static void Net_SendVersion(void)
     if (numplayers < 2) return;
 
     buf[0] = PACKET_VERSION;
-    buf[1] = (uint8_t)atoi(s_buildDate);
-    buf[2] = BYTEVERSION;
+    buf[1] = BYTEVERSION;
+    buf[2] = (uint8_t)atoi(s_buildDate);
     buf[3] = myconnectindex;
 
     if (net_client)
@@ -1224,16 +1224,20 @@ process:
                 break;
 
             case PACKET_VERSION:
-                if (packbuf[1] != (uint8_t)atoi(s_buildDate))
+                if (net_client)
                 {
-                    initprintf("Player %d has version %d, expecting %d\n",other,packbuf[1],(uint8_t)atoi(s_buildDate));
-                    G_GameExit("You cannot play with different versions of EDuke32!");
+                    if (packbuf[1] != BYTEVERSION || packbuf[2] != (uint8_t)atoi(s_buildDate))
+                    {
+                        Bsprintf(tempbuf, "Server protocol is version %d.%d, expecting %d.%d\n",
+                            packbuf[1], packbuf[2], BYTEVERSION, (uint8_t)atoi(s_buildDate));
+                        initprintf(tempbuf);
+                        initprintf("Version mismatch!  You cannot play Duke with different versions!\n");
+                        g_netDisconnect = 1;
+                        return;
+                    }
                 }
-                if (packbuf[2] != BYTEVERSION)
-                {
-                    initprintf("Player %d has version %d, expecting %d\n",other,packbuf[2],BYTEVERSION);
-                    G_GameExit("You cannot play Duke with different versions!");
-                }
+                else if (net_server)
+                    Net_SendVersion();
                 break;
 
             case PACKET_NUM_PLAYERS:
@@ -1462,6 +1466,15 @@ void Net_GetPackets(void)
 
     G_HandleSpecialKeys();
 
+    if (g_netDisconnect)
+    {
+        Net_Disconnect();
+        g_netDisconnect = 0;
+
+        if (g_gameQuit)
+            G_GameExit(" ");
+    }
+
     if (net_server)
     {
         ENetEvent event;
@@ -1643,12 +1656,14 @@ void Net_GetPackets(void)
                         else
                         {
                             initprintf("Invalid map state from server!\n");
-                            Net_Disconnect();
+                            g_netDisconnect = 1;
+                            return;
                         }
                     }
                     else
                     {
                         initprintf("Error allocating memory!\n");
+                        g_netDisconnect = 1;
                         return;
                     }
                 }

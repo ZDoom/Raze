@@ -3826,17 +3826,6 @@ void P_FragPlayer(int32_t snum)
 
     randomseed = ticrandomseed;
 
-    if (net_server)
-    {
-        packbuf[0] = PACKET_FRAG;
-        packbuf[1] = snum;
-        packbuf[2] = p->frag_ps;
-        packbuf[3] = ActorExtra[p->i].picnum;
-        packbuf[4] = myconnectindex;
-
-        enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, 5, ENET_PACKET_FLAG_RELIABLE));
-    }
-
     if (s->pal != 1)
     {
         p->pals[0] = 63;
@@ -3855,6 +3844,17 @@ void P_FragPlayer(int32_t snum)
         p->dead_flag = (512-((krand()&1)<<10)+(krand()&255)-512)&2047;
         if (p->dead_flag == 0)
             p->dead_flag++;
+
+        if (net_server)
+        {
+            packbuf[0] = PACKET_FRAG;
+            packbuf[1] = snum;
+            packbuf[2] = p->frag_ps;
+            packbuf[3] = ActorExtra[p->i].picnum;
+            packbuf[4] = myconnectindex;
+
+            enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, 5, ENET_PACKET_FLAG_RELIABLE));
+        }
     }
 
     p->jetpack_on = 0;
