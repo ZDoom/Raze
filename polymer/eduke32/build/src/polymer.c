@@ -846,6 +846,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
             (daposz > cursectflorz) ||
             (daposz < cursectceilz))
     {
+        curmodelviewmatrix = rootmodelviewmatrix;
         i = numsectors-1;
         while (i >= 0)
         {
