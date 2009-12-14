@@ -580,6 +580,50 @@ void G_HandleSpecialKeys(void)
     }
 }
 
+void Net_Connect(const char * srvaddr)
+{
+    ENetAddress address;
+    ENetEvent event;
+    char * addrstr = NULL;
+
+    Net_Disconnect();
+
+    net_client = enet_host_create (NULL, 1, 0, 0);
+
+    if (net_client == NULL)
+    {
+        initprintf ("An error occurred while trying to create an ENet client host.\n");
+        return;
+    }
+
+    addrstr = strtok((char *)srvaddr,":");
+    enet_address_set_host (&address, addrstr);
+    address.port = atoi((addrstr = strtok(NULL,":")) == NULL ? "23513" : addrstr);
+
+    // use 2 channels for easy packet sorting at a lower level than the game later
+    net_peer = enet_host_connect (net_client, &address, 2);    
+
+    if (net_peer == NULL)
+    {
+        initprintf ("No available peers for initiating an ENet connection.\n");
+        return;
+    }
+
+    /* Wait up to 5 seconds for the connection attempt to succeed. */
+    if (enet_host_service (net_client, & event, 5000) > 0 &&
+        event.type == ENET_EVENT_TYPE_CONNECT)
+        initprintf("Connection to %s:%d succeeded.\n",(char *)srvaddr,address.port);
+    else
+    {
+        /* Either the 5 seconds are up or a disconnect event was */
+        /* received. Reset the peer in the event the 5 seconds   */
+        /* had run out without any significant event.            */
+        enet_peer_reset (net_peer);
+        Net_Disconnect();
+        initprintf("Connection to %s:%d failed.\n",(char *)srvaddr,address.port);
+    }
+}
+
 void Net_Disconnect(void)
 {
     if (net_client)
@@ -596,11 +640,14 @@ void Net_Disconnect(void)
             case ENET_EVENT_TYPE_CONNECT:
             case ENET_EVENT_TYPE_NONE:
             case ENET_EVENT_TYPE_RECEIVE:
+                if (event.packet)
                 enet_packet_destroy (event.packet);
                 break;
 
             case ENET_EVENT_TYPE_DISCONNECT:
-                G_GameExit(" ");
+                numplayers = playerswhenstarted = ud.multimode = 1;
+                myconnectindex = screenpeek = 0;
+                G_BackToMenu();
                 break;
             }
         }
@@ -685,15 +732,14 @@ static void Net_SendVersion(void)
     if (numplayers < 2) return;
 
     buf[0] = PACKET_VERSION;
-    buf[1] = myconnectindex;
-    buf[2] = (uint8_t)atoi(s_buildDate);
-    buf[3] = BYTEVERSION;
-    buf[4] = myconnectindex;
+    buf[1] = (uint8_t)atoi(s_buildDate);
+    buf[2] = BYTEVERSION;
+    buf[3] = myconnectindex;
 
     if (net_client)
-        enet_peer_send(net_peer, 0, enet_packet_create(&buf[0], 5, ENET_PACKET_FLAG_RELIABLE));
+        enet_peer_send(net_peer, 0, enet_packet_create(&buf[0], 4, ENET_PACKET_FLAG_RELIABLE));
     else if (net_server)
-        enet_host_broadcast(net_server, 0, enet_packet_create(&buf[0], 5, ENET_PACKET_FLAG_RELIABLE));
+        enet_host_broadcast(net_server, 0, enet_packet_create(&buf[0], 4, ENET_PACKET_FLAG_RELIABLE));
 }
 
 static void Net_SendPlayerOptions(void)
@@ -804,7 +850,7 @@ void Net_ParsePacket(ENetEvent * event)
 {
     uint8_t * packbuf = event->packet->data;
     int32_t packbufleng = event->packet->dataLength;
-    int32_t i, j, l;
+    int16_t i, j, l;
     int32_t other = packbuf[--packbufleng];
     input_t *nsyn;
 
@@ -825,6 +871,7 @@ void Net_ParsePacket(ENetEvent * event)
 
             Bmemcpy(&ticrandomseed, &packbuf[j], sizeof(ticrandomseed));
             j += sizeof(ticrandomseed);
+            ud.pause_on = packbuf[j++];
 
             TRAVERSE_CONNECT(i)
             {
@@ -885,6 +932,8 @@ process:
                 j += sizeof(int16_t);
                 Bmemcpy(&g_player[i].ps->last_extra, &packbuf[j], sizeof(int16_t));
                 j += sizeof(int16_t);
+                Bmemcpy(g_player[i].frags, &packbuf[j], sizeof(g_player[i].frags));
+                j += sizeof(g_player[i].frags);
 
                 l = i;
 
@@ -933,6 +982,7 @@ process:
             }
 
             {
+/*
                 int16_t ahead, zhead, phead;
 
                 Bmemcpy(&ahead, &packbuf[j], sizeof(int16_t));
@@ -948,10 +998,11 @@ process:
                     deletesprite(ahead);
 
                 if (zhead != -1 && sprite[zhead].statnum != STAT_ACTOR && sprite[zhead].statnum != STAT_ZOMBIEACTOR)
-                    deletesprite(ahead);
+                    deletesprite(zhead);
 
                 if (phead != -1 && sprite[phead].statnum != STAT_PROJECTILE)
-                    deletesprite(ahead);
+                    deletesprite(phead);
+*/
 
                 // sprite updates tacked on to the end of the packet
 
@@ -972,33 +1023,46 @@ process:
                     opicnum = sprite[i].picnum;
 
                     Bmemcpy(&sprite[i], &packbuf[j], sizeof(spritetype));
+                    j += sizeof(spritetype);
 
-                    if (sprite[i].picnum != opicnum)
+                    sect = sprite[i].sectnum;
+                    statnum = sprite[i].statnum;
+
+                    sprite[i].sectnum = osect;
+                    sprite[i].statnum = ostatnum;
+
+                    // doesn't exist on the client yet
+                    if (ostatnum == MAXSTATUS || osect == MAXSECTORS)
                     {
-                        sect = sprite[i].sectnum;
-                        statnum = sprite[i].statnum;
-
-                        sprite[i].sectnum = osect;
-                        sprite[i].statnum = ostatnum;
-
-                        deletesprite(i);
-                        insertsprite(sect, statnum);
+                        int16_t sprs[MAXSPRITES], j = 0;
+                        while ((sprs[j++] = insertsprite(sect, statnum)) != i);
+                        if (j != 1)
+                        {
+                            j--;
+                            while (--j) deletesprite(sprs[j]);
+                            deletesprite(sprs[0]);
+                        }
                     }
                     else
                     {
-                        sect = sprite[i].sectnum;
-                        statnum = sprite[i].statnum;
-                        sprite[i].sectnum = osect;
-                        sprite[i].statnum = ostatnum;
                         if (sect != osect) changespritesect(i, sect);
                         if (statnum != ostatnum) changespritestat(i, statnum);
+                    }
 #ifdef POLYMER
+                    if (sprite[i].picnum == opicnum)
+                    {
                         mylight = ActorExtra[i].lightptr;
                         lightid = ActorExtra[i].lightId;
-#endif
                     }
+                    else if (getrendermode() == 4 && ActorExtra[i].lightptr != NULL)
+                    {
+                        polymer_deletelight(ActorExtra[i].lightId);
+                        ActorExtra[i].lightId = -1;
+                        ActorExtra[i].lightptr = NULL;
+                    }
+#endif
 
-                    j += sizeof(spritetype);
+                    /*initprintf("updating sprite %d (%d)\n",i,sprite[i].picnum);*/
 
                     jj = j++;
 
@@ -1160,14 +1224,14 @@ process:
                 break;
 
             case PACKET_VERSION:
-                if (packbuf[2] != (uint8_t)atoi(s_buildDate))
+                if (packbuf[1] != (uint8_t)atoi(s_buildDate))
                 {
-                    initprintf("Player %d has version %d, expecting %d\n",packbuf[2],(uint8_t)atoi(s_buildDate));
+                    initprintf("Player %d has version %d, expecting %d\n",other,packbuf[1],(uint8_t)atoi(s_buildDate));
                     G_GameExit("You cannot play with different versions of EDuke32!");
                 }
-                if (packbuf[3] != BYTEVERSION)
+                if (packbuf[2] != BYTEVERSION)
                 {
-                    initprintf("Player %d has version %d, expecting %d\n",packbuf[3],BYTEVERSION);
+                    initprintf("Player %d has version %d, expecting %d\n",other,packbuf[2],BYTEVERSION);
                     G_GameExit("You cannot play Duke with different versions!");
                 }
                 break;
@@ -1177,21 +1241,24 @@ process:
                 playerswhenstarted = packbuf[2];
                 ud.multimode = packbuf[3];
                 if (packbuf[4]) // ID of new player
+                {
                     clearbufbyte(&g_player[packbuf[4]].playerquitflag,1,0x01010101);
                 
-                for (i=1; i<playerswhenstarted; i++)
-                {
-                    if (!g_player[i].ps) g_player[i].ps = (DukePlayer_t *) Bcalloc(1,sizeof(DukePlayer_t));
-                    if (!g_player[i].sync) g_player[i].sync = (input_t *) Bcalloc(1,sizeof(input_t));
+                    if (!g_player[packbuf[4]].ps) g_player[packbuf[4]].ps = (DukePlayer_t *) Bcalloc(1,sizeof(DukePlayer_t));
+                    if (!g_player[packbuf[4]].sync) g_player[packbuf[4]].sync = (input_t *) Bcalloc(1,sizeof(input_t));
                 }
 
                 for (i=0; i<playerswhenstarted-1; i++) connectpoint2[i] = i+1;
                 connectpoint2[playerswhenstarted-1] = -1;
 
-                Net_SendVersion();
-                Net_SendPlayerName();
-                Net_SendPlayerOptions();
-                Net_SendWeaponChoice();
+                // myconnectindex is 0 until we get PACKET_PLAYER_INDEX
+                if (net_client && myconnectindex != 0)
+                {
+                    Net_SendVersion();
+                    Net_SendPlayerName();
+                    Net_SendPlayerOptions();
+                    Net_SendWeaponChoice();
+                }
 
                 break;
 
@@ -1216,6 +1283,12 @@ process:
 
             case PACKET_PLAYER_SPAWN:
                 P_ResetPlayer(packbuf[1]);
+                break;
+
+            case PACKET_FRAG:
+                g_player[packbuf[1]].ps->frag_ps = packbuf[2];
+                ActorExtra[g_player[packbuf[1]].ps->i].picnum = packbuf[3];
+                P_FragPlayer(packbuf[1]);
                 break;
 
             case PACKET_PLAYER_OPTIONS:
@@ -1527,12 +1600,12 @@ void Net_GetPackets(void)
             switch (event.type)
             {
             case ENET_EVENT_TYPE_RECEIVE:
-
+/*
                 initprintf ("A packet of length %u was received from player %d on channel %u.\n",
                     event.packet -> dataLength,
                     event.peer -> data,
                     event.channelID);
-
+*/
                 // channelID 1 is the map state transfer from the server
                 if (event.channelID == 1)
                 {
@@ -1708,6 +1781,7 @@ void faketimerhandler(void)
         ticrandomseed = randomseed;
         Bmemcpy(&packbuf[j], &ticrandomseed, sizeof(ticrandomseed));
         j += sizeof(ticrandomseed);
+        packbuf[j++] = ud.pause_on;
 
         nsyn = (input_t *)&inputfifo[0][0];
         
@@ -1753,6 +1827,8 @@ void faketimerhandler(void)
             j += sizeof(int16_t);
             Bmemcpy(&packbuf[j], &g_player[i].ps->last_extra, sizeof(int16_t));
             j += sizeof(int16_t);
+            Bmemcpy(&packbuf[j], g_player[i].frags, sizeof(g_player[i].frags));
+            j += sizeof(g_player[i].frags);
 
             l = i;
 
@@ -1832,6 +1908,7 @@ void faketimerhandler(void)
             }
         }
 
+/*
         Bmemcpy(&packbuf[j], &headspritestat[STAT_ACTOR], sizeof(int16_t));
         j += sizeof(int16_t);
 
@@ -1840,14 +1917,15 @@ void faketimerhandler(void)
 
         Bmemcpy(&packbuf[j], &headspritestat[STAT_PROJECTILE], sizeof(int16_t));
         j += sizeof(int16_t);
+*/
 
         k = 0;
 
         {
-            int32_t lists[] = { STAT_STANDABLE, STAT_EFFECTOR, STAT_ACTOR, STAT_ZOMBIEACTOR, STAT_PROJECTILE }, zz;
-            int32_t zj = j++;
+            int32_t lists[] = { STAT_PROJECTILE, STAT_STANDABLE, STAT_ACTIVATOR, STAT_TRANSPORT, STAT_EFFECTOR, STAT_ACTOR, STAT_ZOMBIEACTOR };
+            int32_t zz, zj;
 
-            packbuf[zj] = 0;
+            packbuf[(zj = j++)] = 0;
 
             for (zz = 0; (unsigned)zz < (sizeof(lists)/sizeof(lists[0])); zz++)
             TRAVERSE_SPRITE_STAT(headspritestat[lists[zz]], i, nexti)
@@ -1856,10 +1934,11 @@ void faketimerhandler(void)
                 {
                     l = crc32once((uint8_t *)&sprite[i], sizeof(spritetype));
 
-                    if (spritecrc[i] != l)
+                    if (!lastupdate[i] || spritecrc[i] != l)
                     {
                         int32_t jj = 0;
 
+                        /*initprintf("updating sprite %d (%d)\n",i,sprite[i].picnum);*/
                         spritecrc[i] = l;
                         lastupdate[i] = totalclock;
                         Bmemcpy(&packbuf[j], &i, sizeof(int16_t));
@@ -1969,7 +2048,7 @@ void faketimerhandler(void)
                 if (k > 6) break;
             }
             packbuf[zj] = k;
-
+            j++;
         }
 
         {
@@ -5188,6 +5267,8 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     clearbufbyte(&spritesmooth[i], sizeof(spritesmooth_t), 0);
 
     A_ResetVars(i);
+
+    lastupdate[i] = 0;
 
     if (apScriptGameEvent[EVENT_EGS])
     {
@@ -9922,49 +10003,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        ENetAddress address;
-                        ENetEvent event;
-                        char * addrstr = NULL;
-
-                        Net_Disconnect();
-
-                        net_client = enet_host_create (NULL, 1, 0, 0);
-
-                        if (net_client == NULL)
-                        {
-                            initprintf ("An error occurred while trying to create an ENet client host.\n");
-                            i += 2;
-                            continue;
-                        }
-
-                        addrstr = strtok((char *)argv[i+1],":");
-                        enet_address_set_host (&address, addrstr);
-                        address.port = atoi((addrstr = strtok(NULL,":")) == NULL ? "23513" : addrstr);
-
-                        // use 2 channels for easy packet sorting at a lower level than the game later
-                        net_peer = enet_host_connect (net_client, &address, 2);    
-
-                        if (net_peer == NULL)
-                        {
-                            initprintf ("No available peers for initiating an ENet connection.\n");
-                            i += 2;
-                            continue;
-                        }
-
-                        /* Wait up to 5 seconds for the connection attempt to succeed. */
-                        if (enet_host_service (net_client, & event, 5000) > 0 &&
-                            event.type == ENET_EVENT_TYPE_CONNECT)
-                            initprintf("Connection to %s:%d succeeded.\n",(char *)argv[i+1],address.port);
-                        else
-                        {
-                            /* Either the 5 seconds are up or a disconnect event was */
-                            /* received. Reset the peer in the event the 5 seconds   */
-                            /* had run out without any significant event.            */
-                            enet_peer_reset (net_peer);
-                            Net_Disconnect();
-                            initprintf("Connection to %s:%d failed.\n",(char *)argv[i+1],address.port);
-                        }
-
+                        Net_Connect((char *)argv[i+1]);
                         i++;
                     }
                     i++;
@@ -10878,6 +10917,7 @@ void app_main(int32_t argc,const char **argv)
     int32_t i = 0, j;
     char cwd[BMAX_PATH];
 //    extern char datetimestring[];
+    ENetCallbacks callbacks = { Bmalloc, Bfree, NULL };
 
 #ifdef RENDERTYPEWIN
     if (argc > 1)
@@ -10896,7 +10936,7 @@ void app_main(int32_t argc,const char **argv)
     }
 #endif
 
-    if (enet_initialize () != 0)
+    if (enet_initialize_with_callbacks(ENET_VERSION, &callbacks) != 0)
         initprintf("An error occurred while initializing ENet.\n");
     else atexit (enet_deinitialize);
 

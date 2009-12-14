@@ -145,18 +145,7 @@ void S_MusicStartup(void)
             MUSIC_SetVolume(ud.config.MusicVolume);
         }
         
-                initprintf("Couldn't find selected sound card, or, error w/ sound card itself.\n");
-/*
-                S_SoundShutdown();
-                uninittimer();
-                uninitengine();
-                CONTROL_Shutdown();
-                CONFIG_WriteSetup();
-                KB_Shutdown();
-                uninitgroupfile();
-                //unlink("duke3d.tmp");
-                exit(-1);
-        */
+        initprintf("S_MusicStartup(): failed initializing\n");
     }
 }
 

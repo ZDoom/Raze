@@ -185,6 +185,7 @@ extern void A_MoveCyclers(void);
 extern void A_MoveDummyPlayers(void);
 extern void P_ResetStatus(int32_t snum);
 extern void P_ResetPlayer(int32_t snum);
+extern void P_FragPlayer(int32_t snum);
 
 // game.c
 extern inline void G_SetStatusBarScale(int32_t sc);
@@ -248,6 +249,8 @@ extern void Net_SendQuit(void);
 
 extern void G_AddUserQuote(const char *daquote);
 extern void Net_NewGame(int32_t volume, int32_t level);
+extern void Net_Disconnect(void);
+extern void Net_Connect(const char * srvaddr);
 
 extern int32_t SpriteFlags[MAXTILES];
 

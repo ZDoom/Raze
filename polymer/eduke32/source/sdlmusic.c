@@ -121,17 +121,19 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
     else
     {
         char *s[] = { "/etc/timidity.cfg", "/etc/timidity/timidity.cfg", "/etc/timidity/freepats.cfg" };
-        FILE *fp;
-        uint32_t i;
+        FILE *fp = NULL;
+        int32_t i;
 
-        for (i = 0; i < sizeof(s)/sizeof(s[0]); i++)
+        for (i = (sizeof(s)/sizeof(s[0]))-1; i>=0; i--)
         {
-            fp = fopen(s[i], "r");
+            fp = Bfopen(s[i], "r");
             if (fp == NULL)
             {
-                if (i == sizeof(s)/sizeof(s[0]))
+                if (i == 0)
                 {
-                    initprintf("Error opening %s, %s or %s\n",s[0],s[1],s[2]);
+                    initprintf("Error: couldn't open any of the following files:\n");
+                    for (i = (sizeof(s)/sizeof(s[0]))-1; i>=0; i--)
+                        initprintf("%s\n",s[i]);
                     return(MUSIC_Error);
                 }
                 continue;

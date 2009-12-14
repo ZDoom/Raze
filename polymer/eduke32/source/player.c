@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "osd.h"
 #include "gamedef.h"
+#include "enet/enet.h"
 
 int32_t g_currentweapon;
 int32_t g_gun_pos;
@@ -40,7 +41,7 @@ int32_t g_weapon_xoffset;
 int32_t turnheldtime; //MED
 int32_t lastcontroltime; //MED
 
-extern int32_t g_levelTextTime;
+extern int32_t g_levelTextTime, ticrandomseed;
 
 int32_t g_numObituaries = 0;
 int32_t g_numSelfObituaries = 0;
@@ -1048,6 +1049,8 @@ DOSKIPBULLETHOLE:
                 l = j;
             else l = -1;
 
+            if (numplayers > 1 && net_client) return -1;
+
             /*                        j = A_InsertSprite(sect,
             sx+(sintable[(348+sa+512)&2047]/448),
             sy+(sintable[(sa+348)&2047]/448),
@@ -1695,6 +1698,9 @@ SKIPBULLETHOLE:
             if (p >= 0 && j >= 0)
                 l = j;
             else l = -1;
+
+            if (numplayers > 1 && net_client) return -1;
+
             if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
             j = A_InsertSprite(sect,
                                srcvect.x+(sintable[(348+sa+512)&2047]/448),
@@ -3813,6 +3819,115 @@ int32_t P_FindOtherPlayer(int32_t p,int32_t *d)
     return closest_player;
 }
 
+void P_FragPlayer(int32_t snum)
+{
+    DukePlayer_t *p = g_player[snum].ps;
+    spritetype *s = &sprite[p->i];
+
+    randomseed = ticrandomseed;
+
+    if (net_server)
+    {
+        packbuf[0] = PACKET_FRAG;
+        packbuf[1] = snum;
+        packbuf[2] = p->frag_ps;
+        packbuf[3] = ActorExtra[p->i].picnum;
+        packbuf[4] = myconnectindex;
+
+        enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, 5, ENET_PACKET_FLAG_RELIABLE));
+    }
+
+    if (s->pal != 1)
+    {
+        p->pals[0] = 63;
+        p->pals[1] = 0;
+        p->pals[2] = 0;
+        p->pals_time = 63;
+        p->posz -= (16<<8);
+        s->z -= (16<<8);
+    }
+
+    if (ud.recstat == 1 && ud.multimode < 2)
+        G_CloseDemoWrite();
+
+    if (s->pal != 1)
+    {
+        p->dead_flag = (512-((krand()&1)<<10)+(krand()&255)-512)&2047;
+        if (p->dead_flag == 0)
+            p->dead_flag++;
+    }
+
+    p->jetpack_on = 0;
+    p->holoduke_on = -1;
+
+    S_StopEnvSound(DUKE_JETPACK_IDLE,p->i);
+    if (p->scream_voice >= FX_Ok)
+    {
+        FX_StopSound(p->scream_voice);
+        //                S_TestSoundCallback(DUKE_SCREAM);
+        p->scream_voice = -1;
+    }
+
+    if (s->pal != 1 && (s->cstat&32768) == 0) s->cstat = 0;
+
+    if (ud.multimode > 1 && (s->pal != 1 || (s->cstat&32768)))
+    {
+        if (p->frag_ps != snum)
+        {
+            if (GTFLAGS(GAMETYPE_TDM) && g_player[p->frag_ps].ps->team == g_player[snum].ps->team)
+                g_player[p->frag_ps].ps->fraggedself++;
+            else
+            {
+                g_player[p->frag_ps].ps->frag++;
+                g_player[p->frag_ps].frags[snum]++;
+            }
+
+            if (snum == screenpeek)
+            {
+                Bsprintf(ScriptQuotes[115],"KILLED BY %s",&g_player[p->frag_ps].user_name[0]);
+                P_DoQuote(115,p);
+            }
+            else
+            {
+                Bsprintf(ScriptQuotes[116],"KILLED %s",&g_player[snum].user_name[0]);
+                P_DoQuote(116,g_player[p->frag_ps].ps);
+            }
+
+            if (ud.obituaries)
+            {
+                Bsprintf(tempbuf,ScriptQuotes[FIRST_OBITUARY_QUOTE+(krand()%g_numObituaries)],
+                    &g_player[p->frag_ps].user_name[0],
+                    &g_player[snum].user_name[0]);
+                G_AddUserQuote(tempbuf);
+            }
+            else krand();
+        }
+        else
+        {
+            if (ActorExtra[p->i].picnum != APLAYERTOP)
+            {
+                p->fraggedself++;
+                if (A_CheckEnemyTile(sprite[p->wackedbyactor].picnum))
+                    Bsprintf(tempbuf,ScriptQuotes[FIRST_OBITUARY_QUOTE+(krand()%g_numObituaries)],"A monster",&g_player[snum].user_name[0]);
+                else if (ActorExtra[p->i].picnum == NUKEBUTTON)
+                    Bsprintf(tempbuf,"^02%s^02 tried to leave",&g_player[snum].user_name[0]);
+                else
+                {
+                    // random suicide death string
+                    Bsprintf(tempbuf,ScriptQuotes[FIRST_SUICIDE_QUOTE+(krand()%g_numSelfObituaries)],&g_player[snum].user_name[0]);
+                }
+            }
+            else Bsprintf(tempbuf,"^02%s^02 switched to team %d",&g_player[snum].user_name[0],p->team+1);
+
+            if (ud.obituaries)
+                G_AddUserQuote(tempbuf);
+        }
+        p->frag_ps = snum;
+        pus = NUMPAGES;
+    }
+}
+
+
 void P_ProcessInput(int32_t snum)
 {
     int32_t j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y, shrunk;
@@ -4014,27 +4129,6 @@ void P_ProcessInput(int32_t snum)
             return;
         }
     }
-    /*
-        if(p->select_dir)
-        {
-            if(psectlotag != 15 || (sb_snum&(1<<31)) )
-                p->select_dir = 0;
-            else
-            {
-                if(g_player[snum].sync->fvel > 127)
-                {
-                    p->select_dir = 0;
-                    G_ActivateWarpElevators(pi,-1);
-                }
-                else if(g_player[snum].sync->fvel <= -127)
-                {
-                    p->select_dir = 0;
-                    G_ActivateWarpElevators(pi,1);
-                }
-                return;
-            }
-        }
-      */
 
     if (p->pals_time >= 0)
         p->pals_time--;
@@ -4055,100 +4149,9 @@ void P_ProcessInput(int32_t snum)
 
     if (s->extra <= 0)
     {
-        if (p->dead_flag == 0)
-        {
-            if (s->pal != 1)
-            {
-                p->pals[0] = 63;
-                p->pals[1] = 0;
-                p->pals[2] = 0;
-                p->pals_time = 63;
-                p->posz -= (16<<8);
-                s->z -= (16<<8);
-            }
-
-            if (ud.recstat == 1 && ud.multimode < 2)
-                G_CloseDemoWrite();
-
-            if (s->pal != 1)
-            {
-                p->dead_flag = (512-((krand()&1)<<10)+(krand()&255)-512)&2047;
-                if (p->dead_flag == 0)
-                    p->dead_flag++;
-            }
-
-            p->jetpack_on = 0;
-            p->holoduke_on = -1;
-
-            S_StopEnvSound(DUKE_JETPACK_IDLE,p->i);
-            if (p->scream_voice >= FX_Ok)
-            {
-                FX_StopSound(p->scream_voice);
-//                S_TestSoundCallback(DUKE_SCREAM);
-                p->scream_voice = -1;
-            }
-
-            if (s->pal != 1 && (s->cstat&32768) == 0) s->cstat = 0;
-
-            if (ud.multimode > 1 && (s->pal != 1 || (s->cstat&32768)))
-            {
-                if (p->frag_ps != snum)
-                {
-                    if (GTFLAGS(GAMETYPE_TDM) && g_player[p->frag_ps].ps->team == g_player[snum].ps->team)
-                        g_player[p->frag_ps].ps->fraggedself++;
-                    else
-                    {
-                        g_player[p->frag_ps].ps->frag++;
-                        g_player[p->frag_ps].frags[snum]++;
-                    }
-
-                    if (snum == screenpeek)
-                    {
-                        Bsprintf(ScriptQuotes[115],"KILLED BY %s",&g_player[p->frag_ps].user_name[0]);
-                        P_DoQuote(115,p);
-                    }
-                    else
-                    {
-                        Bsprintf(ScriptQuotes[116],"KILLED %s",&g_player[snum].user_name[0]);
-                        P_DoQuote(116,g_player[p->frag_ps].ps);
-                    }
-
-                    if (ud.obituaries)
-                    {
-                        Bsprintf(tempbuf,ScriptQuotes[FIRST_OBITUARY_QUOTE+(krand()%g_numObituaries)],
-                                 &g_player[p->frag_ps].user_name[0],
-                                 &g_player[snum].user_name[0]);
-                        G_AddUserQuote(tempbuf);
-                    }
-                    else krand();
-                }
-                else
-                {
-                    if (ActorExtra[p->i].picnum != APLAYERTOP)
-                    {
-                        p->fraggedself++;
-                        if (A_CheckEnemyTile(sprite[p->wackedbyactor].picnum))
-                            Bsprintf(tempbuf,ScriptQuotes[FIRST_OBITUARY_QUOTE+(krand()%g_numObituaries)],"A monster",&g_player[snum].user_name[0]);
-                        else if (ActorExtra[p->i].picnum == NUKEBUTTON)
-                            Bsprintf(tempbuf,"^02%s^02 tried to leave",&g_player[snum].user_name[0]);
-                        else
-                        {
-                            // random suicide death string
-                            Bsprintf(tempbuf,ScriptQuotes[FIRST_SUICIDE_QUOTE+(krand()%g_numSelfObituaries)],&g_player[snum].user_name[0]);
-                        }
-                    }
-                    else Bsprintf(tempbuf,"^02%s^02 switched to team %d",&g_player[snum].user_name[0],p->team+1);
-
-                    if (ud.obituaries)
-                    {
-                        G_AddUserQuote(tempbuf);
-                    }
-                }
-                p->frag_ps = snum;
-                pus = NUMPAGES;
-            }
-        }
-
+        if ((numplayers < 2 || net_server) && p->dead_flag == 0)
+            P_FragPlayer(snum);
+            
         if (psectlotag == 2)
         {
             if (p->on_warping_sector == 0)
@@ -4251,15 +4254,6 @@ void P_ProcessInput(int32_t snum)
         goto HORIZONLY;
 
     j = ksgn(g_player[snum].sync->avel);
-    /*
-    if( j && ud.screen_tilting == 2)
-    {
-        k = 4;
-        if(sb_snum&(1<<5)) k <<= 2;
-        p->rotscrnang -= k*j;
-        p->look_ang += k*j;
-    }
-    */
 
     if (s->xvel < 32 || p->on_ground == 0 || p->bobcounter == 1024)
     {
@@ -5435,49 +5429,52 @@ SHOOTINCODE:
 
                 p->ammo_amount[p->curr_weapon]--;
 
-                if (p->on_ground && TEST_SYNC_KEY(sb_snum, SK_CROUCH))
+                if (numplayers < 2 || net_server)
                 {
-                    k = 15;
-                    i = ((p->horiz+p->horizoff-100)*20);
-                }
-                else
-                {
-                    k = 140;
-                    i = -512-((p->horiz+p->horizoff-100)*20);
-                }
+                    if (p->on_ground && TEST_SYNC_KEY(sb_snum, SK_CROUCH))
+                    {
+                        k = 15;
+                        i = ((p->horiz+p->horizoff-100)*20);
+                    }
+                    else
+                    {
+                        k = 140;
+                        i = -512-((p->horiz+p->horizoff-100)*20);
+                    }
 
-                j = A_InsertSprite(p->cursectnum,
-                                   p->posx+(sintable[(p->ang+512)&2047]>>6),
-                                   p->posy+(sintable[p->ang&2047]>>6),
-                                   p->posz,aplWeaponShoots[p->curr_weapon][snum],-16,9,9,
-                                   p->ang,(k+(p->hbomb_hold_delay<<5)),i,pi,1);
+                    j = A_InsertSprite(p->cursectnum,
+                        p->posx+(sintable[(p->ang+512)&2047]>>6),
+                        p->posy+(sintable[p->ang&2047]>>6),
+                        p->posz,aplWeaponShoots[p->curr_weapon][snum],-16,9,9,
+                        p->ang,(k+(p->hbomb_hold_delay<<5)),i,pi,1);
 
-                lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
+                    lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
 
-                if (lPipeBombControl & PIPEBOMB_TIMER)
-                {
-                    int32_t lGrenadeLifetime=Gv_GetVarByLabel("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
-                    int32_t lGrenadeLifetimeVar=Gv_GetVarByLabel("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
-                    ActorExtra[j].temp_data[7]=lGrenadeLifetime
-                                               + mulscale(krand(),lGrenadeLifetimeVar, 14)
-                                               - lGrenadeLifetimeVar;
-                    ActorExtra[j].temp_data[6]=1;
-                }
-                else
-                    ActorExtra[j].temp_data[6]=2;
+                    if (lPipeBombControl & PIPEBOMB_TIMER)
+                    {
+                        int32_t lGrenadeLifetime=Gv_GetVarByLabel("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
+                        int32_t lGrenadeLifetimeVar=Gv_GetVarByLabel("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
+                        ActorExtra[j].temp_data[7]=lGrenadeLifetime
+                            + mulscale(krand(),lGrenadeLifetimeVar, 14)
+                            - lGrenadeLifetimeVar;
+                        ActorExtra[j].temp_data[6]=1;
+                    }
+                    else
+                        ActorExtra[j].temp_data[6]=2;
 
-                if (k == 15)
-                {
-                    sprite[j].yvel = 3;
-                    sprite[j].z += (8<<8);
-                }
+                    if (k == 15)
+                    {
+                        sprite[j].yvel = 3;
+                        sprite[j].z += (8<<8);
+                    }
 
-                k = A_GetHitscanRange(pi);
-                if (k < 512)
-                {
-                    sprite[j].ang += 1024;
-                    sprite[j].zvel /= 3;
-                    sprite[j].xvel /= 3;
+                    k = A_GetHitscanRange(pi);
+                    if (k < 512)
+                    {
+                        sprite[j].ang += 1024;
+                        sprite[j].zvel /= 3;
+                        sprite[j].xvel /= 3;
+                    }
                 }
                 p->hbomb_on = 1;
             }

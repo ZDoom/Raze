@@ -1147,6 +1147,23 @@ static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int32_t osdcmd_disconnect(const osdfuncparm_t *parm)
+{
+    UNREFERENCED_PARAMETER(parm);
+    Net_Disconnect();
+    return OSDCMD_OK;
+}
+
+static int32_t osdcmd_connect(const osdfuncparm_t *parm)
+{
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
+    Net_Connect(parm->parms[0]);
+    G_BackToMenu();
+    return OSDCMD_OK;
+}
+
 static int32_t osdcmd_cvar_set_multi(const osdfuncparm_t *parm)
 {
     int32_t r = osdcmd_cvar_set(parm);
@@ -1325,6 +1342,9 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("bind","bind <key> <string>: associates a keypress with a string of console input. Type \"bind showkeys\" for a list of keys and \"listsymbols\" for a list of valid console commands.", osdcmd_bind);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
+
+    OSD_RegisterFunction("connect","connect: connects to a multiplayer game", osdcmd_connect);
+    OSD_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
 
     OSD_RegisterFunction("echo","echo [text]: echoes text to the console", osdcmd_echo);
     OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
