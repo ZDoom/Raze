@@ -238,7 +238,8 @@ enum DukeInventory_t {
     GET_HEATS,
     GET_DUMMY2,
     GET_FIRSTAID,
-    GET_BOOTS
+    GET_BOOTS,
+    GET_MAX
 };
 
 enum DukeWeapon_t {
@@ -429,7 +430,7 @@ extern int32_t fricxv,fricyv;
 
 typedef struct {
     int32_t posx, posy, posz, oposx, oposy, oposz, posxv, posyv, poszv;
-    int32_t bobposx, bobposy, pyoff, opyoff, horiz, ohoriz, ohorizoff, invdisptime;
+    int32_t bobposx, bobposy, pyoff, opyoff, invdisptime;
     int32_t last_pissed_time, truefz, truecz;
     int32_t player_par, visibility;
     int32_t bobcounter, weapon_sway;
@@ -451,26 +452,25 @@ typedef struct {
     int16_t sbs, sound_pitch;
 
     int16_t ang, oang, angvel, cursectnum, look_ang, last_extra, subweapon;
-    int16_t ammo_amount[MAX_WEAPONS], wackedbyactor, frag, fraggedself;
+    int16_t ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX], wackedbyactor, frag, fraggedself;
 
-    int16_t curr_weapon, last_weapon, tipincs, horizoff, wantweaponfire;
-    int16_t holoduke_amount, newowner, hurt_delay, hbomb_hold_delay;
+    int16_t curr_weapon, last_weapon, tipincs, horiz, horizoff, ohoriz, ohorizoff, wantweaponfire;
+    int16_t newowner, hurt_delay, hbomb_hold_delay;
     int16_t jumping_counter, airleft, knee_incs, access_incs;
     int16_t fta, ftq, access_wallnum, access_spritenum;
-    int16_t kickback_pic, got_access, weapon_ang, firstaid_amount;
+    int16_t kickback_pic, got_access, weapon_ang;
     int16_t somethingonplayer, on_crane, i, one_parallax_sectnum;
     int16_t over_shoulder_on, random_club_frame, fist_incs;
     int16_t one_eighty_count, cheat_phase;
     int16_t dummyplayersprite, extra_extra8, quick_kick, last_quick_kick;
-    int16_t heat_amount, actorsqu, timebeforeexit, customexitsound;
+    int16_t actorsqu, timebeforeexit, customexitsound;
 
     int16_t weaprecs[16], weapreccnt;
 
 
     int16_t orotscrnang, rotscrnang, dead_flag, show_empty_weapon;   // JBF 20031220: added orotscrnang
-    int16_t scuba_amount, jetpack_amount, steroids_amount, shield_amount;
     int16_t holoduke_on, pycount, weapon_pos, frag_ps;
-    int16_t transporter_hold, last_full_weapon, footprintshade, boot_amount;
+    int16_t transporter_hold, last_full_weapon, footprintshade;
 
     char aim_mode, auto_aim, weaponswitch;
 
@@ -663,9 +663,7 @@ extern int16_t BlimpSpawnSprites[15];
 
 #pragma pack(pop)
 typedef struct {
-    int16_t got_access, last_extra, shield_amount, curr_weapon, holoduke_on;
-    int16_t firstaid_amount, steroids_amount, holoduke_amount, jetpack_amount;
-    int16_t heat_amount, scuba_amount, boot_amount;
+    int16_t got_access, last_extra, inv_amount[GET_MAX], curr_weapon, holoduke_on;
     int16_t last_weapon, weapon_pos, kickback_pic;
     int16_t ammo_amount[MAX_WEAPONS], frag[MAXPLAYERS];
     char inven_icon, jetpack_on, heat_on, gotweapon[MAX_WEAPONS];
@@ -1062,7 +1060,8 @@ typedef struct {
     DukePlayer_t *ps;
     input_t *sync;
 
-    int32_t movefifoend, syncvalhead, myminlag;
+    int32_t movefifoend, syncvalhead;
+    int16_t ping, filler;
     int32_t pcolor, pteam, frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
     char vote, gotvote, playerreadyflag, playerquitflag;

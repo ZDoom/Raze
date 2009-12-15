@@ -1294,7 +1294,7 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
 //    initprintf("Loading cached tex: %s\n", cachefn);
 
     if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader)) goto failure;
-    if (Bmemcmp(head->magic, "PMST", 4)) goto failure;
+    if (Bmemcmp(head->magic, TEXCACHEMAGIC, 4)) goto failure;
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
@@ -1359,7 +1359,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
     offset = Blseek(cachefilehandle, 0, BSEEK_CUR);
     OSD_Printf("Caching %s, offset 0x%x\n", cachefn, offset);
 
-    Bmemcpy(head->magic, "PMST", 4);   // sizes are set by caller
+    Bmemcpy(head->magic, TEXCACHEMAGIC, 4);   // sizes are set by caller
 
     if (glusetexcache == 2) head->flags |= 4;
 

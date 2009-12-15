@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osdfuncs.h"
 #include <ctype.h>
 #include <limits.h>
+#include "enet/enet.h"
 
 extern int32_t voting, g_doQuickSave;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
@@ -727,7 +728,7 @@ static int32_t osdcmd_give(const osdfuncparm_t *parm)
     }
     else if (!Bstrcasecmp(parm->parms[0], "armor"))
     {
-        g_player[myconnectindex].ps->shield_amount = 100;
+        g_player[myconnectindex].ps->inv_amount[GET_SHIELD] = 100;
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "keys"))
@@ -1179,6 +1180,32 @@ static int32_t osdcmd_password(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int32_t osdcmd_listplayers(const osdfuncparm_t *parm)
+{
+    ENetPeer * currentPeer;
+
+    if (parm->numparms != 0)
+        return OSDCMD_SHOWHELP;
+
+    if (!net_server)
+    {
+        initprintf("You are not the server.\n");
+        return OSDCMD_OK;
+    }
+
+    for (currentPeer = net_server -> peers;
+        currentPeer < & net_server -> peers [net_server -> peerCount];
+        ++ currentPeer)
+    {
+        if (currentPeer -> state != ENET_PEER_STATE_CONNECTED)
+            continue;
+
+        initprintf("%d %s\n", currentPeer, g_player[(intptr_t)currentPeer->data].user_name);
+    }
+
+    return OSDCMD_OK;
+}
+
 static int32_t osdcmd_cvar_set_multi(const osdfuncparm_t *parm)
 {
     int32_t r = osdcmd_cvar_set(parm);
@@ -1385,6 +1412,8 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
     OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
+
+    OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
 
     OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);

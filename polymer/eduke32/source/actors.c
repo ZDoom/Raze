@@ -1072,7 +1072,7 @@ static void G_MovePlayers(void)
                 {
                     s->extra = p->max_player_health;
                     s->cstat = 257;
-                    p->jetpack_amount =     1599;
+                    p->inv_amount[GET_JETPACK] =     1599;
                 }
 
 
@@ -5175,8 +5175,8 @@ static void G_MoveMisc(void)  // STATNUM 5
                 {
                     if (s->pal == 0 && (krand()&255) < 16 && s->picnum != PUKE)
                     {
-                        if (g_player[p].ps->boot_amount > 0)
-                            g_player[p].ps->boot_amount--;
+                        if (g_player[p].ps->inv_amount[GET_BOOTS] > 0)
+                            g_player[p].ps->inv_amount[GET_BOOTS]--;
                         else
                         {
                             if (!A_CheckSoundPlaying(g_player[p].ps->i,DUKE_LONGTERM_PAIN))

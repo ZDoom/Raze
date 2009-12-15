@@ -57,6 +57,13 @@ int32_t g_netDisconnect = 0;
 int32_t net_lists[] = { STAT_PROJECTILE, STAT_STANDABLE, STAT_ACTIVATOR, STAT_TRANSPORT, STAT_EFFECTOR, STAT_ACTOR, STAT_ZOMBIEACTOR };
 char g_networkPassword[32];
 
+enum NetDisconnect_t
+{
+    DISC_BAD_PASSWORD = 1,
+    DISC_KICKED,
+    DISC_BANNED
+};
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -67,9 +74,6 @@ extern int32_t G_GetVersionFromWebsite(char *buffer);
 static int32_t usecwd = 0;
 #endif /* _WIN32 */
 int32_t g_scriptSanityChecks = 1;
-
-#define IDFSIZE 479985668
-#define IDFILENAME "DUKE3D.IDF"
 
 #define TIMERUPDATESIZ 32
 
@@ -536,8 +540,6 @@ void G_AddUserQuote(const char *daquote)
     pub = NUMPAGES;
 }
 
-int32_t lastpackettime = 0;
-
 void G_HandleSpecialKeys(void)
 {
     // we need CONTROL_GetInput in order to pick up joystick button presses
@@ -844,15 +846,17 @@ static int32_t peractorvals[MAXGAMEVARS][MAXSPRITES], perplayervals[MAXGAMEVARS]
 
 static void Net_SendChallenge(void)
 {
-    int32_t i, l;
+    int32_t l;
+    uint32_t crc;
 
     if (!net_peer) return;
 
+    crc = crc32once((uint8_t *)g_networkPassword, Bstrlen(g_networkPassword));
+
     buf[0] = PACKET_AUTH;
     l = 1;
-
-    for (i=0; g_networkPassword[i]; i++) buf[l++] = g_networkPassword[i];
-    buf[l++] = 0;
+    Bmemcpy(&buf[l], &crc, sizeof(int32_t));
+    l += sizeof(int32_t);
 
     buf[l++] = myconnectindex;
 
@@ -861,10 +865,15 @@ static void Net_SendChallenge(void)
 
 void P_Disconnected(int32_t i)
 {
+    if (i == 0) return;
+
     g_player[i].playerquitflag = 0;
 
     Bsprintf(buf,"%s^00 is history!",g_player[i].user_name);
     G_AddUserQuote(buf);
+
+    if (numplayers == 1)
+        S_PlaySound(GENERIC_AMBIENCE17);
 
     if (g_player[myconnectindex].ps->gm & MODE_GAME)
     {
@@ -873,9 +882,6 @@ void P_Disconnected(int32_t i)
             screenpeek = 0;
             if (screenpeek < 0) screenpeek = 0;
         }
-
-        if (numplayers == 2)
-            S_PlaySound(GENERIC_AMBIENCE17);
 
         pub = NUMPAGES;
         pus = NUMPAGES;
@@ -901,6 +907,8 @@ void P_Disconnected(int32_t i)
 void Net_SyncPlayer(ENetEvent * event)
 {
     int32_t i, j;
+
+    S_PlaySound(DUKE_GETWEAPON2);
 
     TRAVERSE_CONNECT(i)
         if (!g_player[i].playerquitflag)
@@ -953,8 +961,10 @@ void Net_SyncPlayer(ENetEvent * event)
 
             j = g_player[i].ps->i;
             Bmemcpy(g_player[i].ps, g_player[0].ps, sizeof(DukePlayer_t));
+
             g_player[i].ps->i = j;
             changespritestat(j, STAT_PLAYER);
+
             P_ResetStatus(i);
             P_ResetWeapons(i);
             P_ResetInventory(i);
@@ -1015,7 +1025,7 @@ void Net_ParsePacket(ENetEvent * event)
 
                 if (i == myconnectindex && !g_player[i].ps->dead_flag)
                 {
-                    j += sizeof(input_t)-sizeof(loc.filler)+(sizeof(vec3_t)*3) + sizeof(int16_t)*2;
+                    j += sizeof(input_t)-sizeof(loc.filler)+(sizeof(vec3_t)*3) + sizeof(int16_t)*6;
                     goto process;
                 }
 
@@ -1035,6 +1045,8 @@ void Net_ParsePacket(ENetEvent * event)
                 Bmemcpy(&g_player[i].ps->ang, &packbuf[j], sizeof(int16_t) * 2);
                 Bmemcpy(&sprite[g_player[i].ps->i].ang, &packbuf[j], sizeof(int16_t));
                 j += sizeof(int16_t) * 2;
+                Bmemcpy(&g_player[i].ps->horiz, &packbuf[j], sizeof(int16_t) * 4);
+                j += sizeof(int16_t) * 4;
 
 process:
                 Bmemcpy(&sprite[g_player[i].ps->i].extra, &packbuf[j], sizeof(int16_t));
@@ -1042,8 +1054,6 @@ process:
                 Bmemcpy(&sprite[g_player[i].ps->i].cstat, &packbuf[j], sizeof(int16_t));
                 j += sizeof(int16_t);
                 Bmemcpy(&g_player[i].ps->kickback_pic, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
-                Bmemcpy(&g_player[i].ps->shield_amount, &packbuf[j], sizeof(int16_t));
                 j += sizeof(int16_t);
                 Bmemcpy(&ActorExtra[g_player[i].ps->i].owner, &packbuf[j], sizeof(int16_t));
                 j += sizeof(int16_t);
@@ -1053,13 +1063,20 @@ process:
                 j += sizeof(g_player[i].ps->gotweapon);
                 Bmemcpy(&g_player[i].ps->curr_weapon, &packbuf[j], sizeof(int16_t));
                 j += sizeof(int16_t);
+
                 Bmemcpy(&g_player[i].ps->ammo_amount[0], &packbuf[j], sizeof(g_player[i].ps->ammo_amount));
                 j += sizeof(g_player[i].ps->ammo_amount);
+
+                Bmemcpy(&g_player[i].ps->inv_amount[0], &packbuf[j], sizeof(g_player[i].ps->inv_amount));
+                j += sizeof(g_player[i].ps->inv_amount);
+
                 Bmemcpy(&g_player[i].ps->last_weapon, &packbuf[j], sizeof(int16_t));
                 j += sizeof(int16_t);
                 Bmemcpy(&g_player[i].ps->wantweaponfire, &packbuf[j], sizeof(int16_t));
                 j += sizeof(int16_t);
                 Bmemcpy(&g_player[i].ps->frag_ps, &packbuf[j], sizeof(int16_t));
+                j += sizeof(int16_t);
+                Bmemcpy(&g_player[i].ps->frag, &packbuf[j], sizeof(int16_t));
                 j += sizeof(int16_t);
                 Bmemcpy(&g_player[i].ps->fraggedself, &packbuf[j], sizeof(int16_t));
                 j += sizeof(int16_t);
@@ -1067,6 +1084,9 @@ process:
                 j += sizeof(int16_t);
                 Bmemcpy(g_player[i].frags, &packbuf[j], sizeof(g_player[i].frags));
                 j += sizeof(g_player[i].frags);
+                Bmemcpy(&g_player[i].ping, &packbuf[j], sizeof(int16_t));
+                j += sizeof(int16_t);
+                sprite[g_player[i].ps->i].pal = packbuf[j++];
 
                 l = i;
 
@@ -1285,6 +1305,8 @@ process:
             Bmemcpy(&g_player[other].ps->ang, &packbuf[j], sizeof(int16_t) * 2);
             Bmemcpy(&sprite[g_player[other].ps->i].ang, &packbuf[j], sizeof(int16_t));
             j += sizeof(int16_t) * 2;
+            Bmemcpy(&g_player[other].ps->horiz, &packbuf[j], sizeof(int16_t) * 4);
+            j += sizeof(int16_t) * 4;
 
             {
                 int16_t i = g_player[other].ps->i, jj = j++;
@@ -1301,7 +1323,7 @@ process:
             break;
 
         case PACKET_PLAYER_READY:
-            if (net_server)
+            if (net_server && g_player[myconnectindex].ps->gm & MODE_GAME)
             {
                 packbuf[0] = PACKET_PLAYER_READY;
                 packbuf[1] = myconnectindex;
@@ -1374,17 +1396,18 @@ process:
                 break;
 
             case PACKET_AUTH:
-                for (i=1; i < packbufleng; i++)
-                    tempbuf[i-1] = packbuf[i];
-                tempbuf[i-1] = 0;
-                i++;
-
-                if (!Bstrcmp(tempbuf, g_networkPassword))
-                    Net_SyncPlayer(event);
-                else
+                if (net_server)
                 {
-                    enet_peer_disconnect(event->peer, 1);
-                    initprintf("Bad password: %s\n", tempbuf);
+                    uint32_t crc;
+                    Bmemcpy(&crc, &packbuf[1], sizeof(int32_t));
+
+                    if (crc == crc32once((uint8_t *)g_networkPassword, Bstrlen(g_networkPassword)))
+                        Net_SyncPlayer(event);
+                    else
+                    {
+                        enet_peer_disconnect(event->peer, DISC_BAD_PASSWORD);
+                        initprintf("Bad password from client.\n");
+                    }
                 }
                 break;
 
@@ -1402,6 +1425,8 @@ process:
 
                 for (i=0; i<playerswhenstarted-1; i++) connectpoint2[i] = i+1;
                 connectpoint2[playerswhenstarted-1] = -1;
+
+                S_PlaySound(DUKE_GETWEAPON2);
 
                 // myconnectindex is 0 until we get PACKET_PLAYER_INDEX
                 if (net_client && myconnectindex != 0)
@@ -1650,7 +1675,9 @@ void Net_GetPackets(void)
                     event.peer->state = ENET_PEER_STATE_CONNECTED;
                 }
                 else enet_packet_destroy(event.packet);
-                lastpackettime = totalclock;
+
+                g_player[(intptr_t)event.peer->data].ping = (event.peer->lastRoundTripTime + event.peer->roundTripTime)/2;
+
                 break;
             case ENET_EVENT_TYPE_DISCONNECT:
                 numplayers--;
@@ -1736,12 +1763,24 @@ void Net_GetPackets(void)
                 }
                 else Net_ParsePacket(&event);
                 enet_packet_destroy (event.packet);
-                lastpackettime = totalclock;
                 break;
             case ENET_EVENT_TYPE_DISCONNECT:
                 g_netDisconnect = 1;
-                initprintf (event.data == 1? "Bad password.\n" : "Disconnected.\n");
-                return;
+                switch (event.data)
+                {
+                case DISC_BAD_PASSWORD:
+                    initprintf("Bad password.\n");
+                    return;
+                case DISC_KICKED:
+                    initprintf("Kicked from server.\n");
+                    return;
+                case DISC_BANNED:
+                    initprintf("Banned from server.\n");
+                    return;
+                default:
+                    initprintf("Disconnected.\n");
+                    return;
+                }
             default:
                 break;
             }
@@ -1814,6 +1853,8 @@ void faketimerhandler(void)
         j += sizeof(vec3_t) * 3;
         Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->ang, sizeof(int16_t) * 2);
         j += sizeof(int16_t) * 2;
+        Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->horiz, sizeof(int16_t) * 4);
+        j += sizeof(int16_t) * 4;
 
         i = g_player[myconnectindex].ps->i;
 
@@ -1877,13 +1918,13 @@ void faketimerhandler(void)
             j += sizeof(vec3_t) * 3;
             Bmemcpy(&packbuf[j], &g_player[i].ps->ang, sizeof(int16_t) * 2);
             j += sizeof(int16_t) * 2;
+            Bmemcpy(&packbuf[j], &g_player[i].ps->horiz, sizeof(int16_t) * 4);
+            j += sizeof(int16_t) * 4;
             Bmemcpy(&packbuf[j], &sprite[g_player[i].ps->i].extra, sizeof(int16_t));
             j += sizeof(int16_t);
             Bmemcpy(&packbuf[j], &sprite[g_player[i].ps->i].cstat, sizeof(int16_t));
             j += sizeof(int16_t);
             Bmemcpy(&packbuf[j], &g_player[i].ps->kickback_pic, sizeof(int16_t));
-            j += sizeof(int16_t);
-            Bmemcpy(&packbuf[j], &g_player[i].ps->shield_amount, sizeof(int16_t));
             j += sizeof(int16_t);
             Bmemcpy(&packbuf[j], &ActorExtra[g_player[i].ps->i].owner, sizeof(int16_t));
             j += sizeof(int16_t);
@@ -1895,11 +1936,15 @@ void faketimerhandler(void)
             j += sizeof(int16_t);
             Bmemcpy(&packbuf[j], &g_player[i].ps->ammo_amount[0], sizeof(g_player[i].ps->ammo_amount));
             j += sizeof(g_player[i].ps->ammo_amount);
+            Bmemcpy(&packbuf[j], &g_player[i].ps->inv_amount[0], sizeof(g_player[i].ps->inv_amount));
+            j += sizeof(g_player[i].ps->inv_amount);
             Bmemcpy(&packbuf[j], &g_player[i].ps->last_weapon, sizeof(int16_t));
             j += sizeof(int16_t);
             Bmemcpy(&packbuf[j], &g_player[i].ps->wantweaponfire, sizeof(int16_t));
             j += sizeof(int16_t);
             Bmemcpy(&packbuf[j], &g_player[i].ps->frag_ps, sizeof(int16_t));
+            j += sizeof(int16_t);
+            Bmemcpy(&packbuf[j], &g_player[i].ps->frag, sizeof(int16_t));
             j += sizeof(int16_t);
             Bmemcpy(&packbuf[j], &g_player[i].ps->fraggedself, sizeof(int16_t));
             j += sizeof(int16_t);
@@ -1907,6 +1952,9 @@ void faketimerhandler(void)
             j += sizeof(int16_t);
             Bmemcpy(&packbuf[j], g_player[i].frags, sizeof(g_player[i].frags));
             j += sizeof(g_player[i].frags);
+            Bmemcpy(&packbuf[j], &g_player[i].ping, sizeof(int16_t));
+            j += sizeof(int16_t);
+            packbuf[j++] = sprite[g_player[i].ps->i].pal;
 
             l = i;
 
@@ -2533,19 +2581,19 @@ static void G_DrawInventory(DukePlayer_t *p)
 {
     int32_t n, j = 0, xoff = 0, y;
 
-    n = (p->jetpack_amount > 0)<<3;
+    n = (p->inv_amount[GET_JETPACK] > 0)<<3;
     if (n&8) j++;
-    n |= (p->scuba_amount > 0)<<5;
+    n |= (p->inv_amount[GET_SCUBA] > 0)<<5;
     if (n&32) j++;
-    n |= (p->steroids_amount > 0)<<1;
+    n |= (p->inv_amount[GET_STEROIDS] > 0)<<1;
     if (n&2) j++;
-    n |= (p->holoduke_amount > 0)<<2;
+    n |= (p->inv_amount[GET_HOLODUKE] > 0)<<2;
     if (n&4) j++;
-    n |= (p->firstaid_amount > 0);
+    n |= (p->inv_amount[GET_FIRSTAID] > 0);
     if (n&1) j++;
-    n |= (p->heat_amount > 0)<<4;
+    n |= (p->inv_amount[GET_HEATS] > 0)<<4;
     if (n&16) j++;
-    n |= (p->boot_amount > 0)<<6;
+    n |= (p->inv_amount[GET_BOOTS] > 0)<<6;
     if (n&64) j++;
 
     xoff = 160-(j*11);
@@ -2701,7 +2749,7 @@ static void G_DrawStatusBar(int32_t snum)
 
             {
                 int32_t lAmount=Gv_GetVarByLabel("PLR_MORALE",-1, p->i, snum);
-                if (lAmount == -1) lAmount = p->shield_amount;
+                if (lAmount == -1) lAmount = p->inv_amount[GET_SHIELD];
                 G_DrawAltDigiNum(105,-(200-22),lAmount,-16,10+16);
             }
 
@@ -2774,28 +2822,28 @@ static void G_DrawStatusBar(int32_t snum)
                 switch (p->inven_icon)
                 {
                 case 1:
-                    i = p->firstaid_amount;
+                    i = p->inv_amount[GET_FIRSTAID];
                     break;
                 case 2:
-                    i = ((p->steroids_amount+3)>>2);
+                    i = ((p->inv_amount[GET_STEROIDS]+3)>>2);
                     break;
                 case 3:
-                    i = ((p->holoduke_amount+15)/24);
+                    i = ((p->inv_amount[GET_HOLODUKE]+15)/24);
                     j = p->holoduke_on;
                     break;
                 case 4:
-                    i = ((p->jetpack_amount+15)>>4);
+                    i = ((p->inv_amount[GET_JETPACK]+15)>>4);
                     j = p->jetpack_on;
                     break;
                 case 5:
-                    i = p->heat_amount/12;
+                    i = p->inv_amount[GET_HEATS]/12;
                     j = p->heat_on;
                     break;
                 case 6:
-                    i = ((p->scuba_amount+63)>>6);
+                    i = ((p->inv_amount[GET_SCUBA]+63)>>6);
                     break;
                 case 7:
-                    i = (p->boot_amount>>1);
+                    i = (p->inv_amount[GET_BOOTS]>>1);
                     break;
                 }
                 G_DrawInvNum(-(284-30-o),200-6-3,(uint8_t)i,0,10+permbit);
@@ -2873,28 +2921,28 @@ static void G_DrawStatusBar(int32_t snum)
             switch (p->inven_icon)
             {
             case 1:
-                i = p->firstaid_amount;
+                i = p->inv_amount[GET_FIRSTAID];
                 break;
             case 2:
-                i = ((p->steroids_amount+3)>>2);
+                i = ((p->inv_amount[GET_STEROIDS]+3)>>2);
                 break;
             case 3:
-                i = ((p->holoduke_amount+15)/24);
+                i = ((p->inv_amount[GET_HOLODUKE]+15)/24);
                 j = p->holoduke_on;
                 break;
             case 4:
-                i = ((p->jetpack_amount+15)>>4);
+                i = ((p->inv_amount[GET_JETPACK]+15)>>4);
                 j = p->jetpack_on;
                 break;
             case 5:
-                i = p->heat_amount/12;
+                i = p->inv_amount[GET_HEATS]/12;
                 j = p->heat_on;
                 break;
             case 6:
-                i = ((p->scuba_amount+63)>>6);
+                i = ((p->inv_amount[GET_SCUBA]+63)>>6);
                 break;
             case 7:
-                i = (p->boot_amount>>1);
+                i = (p->inv_amount[GET_BOOTS]>>1);
                 break;
             }
             G_DrawInvNum(284-30-o,200-6,(uint8_t)i,0,10+permbit);
@@ -2935,18 +2983,18 @@ static void G_DrawStatusBar(int32_t snum)
         int32_t lAmount=Gv_GetVarByLabel("PLR_MORALE",-1, p->i, snum);
         if (lAmount == -1)
         {
-            if (sbar.shield_amount != p->shield_amount)
+            if (sbar.inv_amount[GET_SHIELD] != p->inv_amount[GET_SHIELD])
             {
-                sbar.shield_amount = p->shield_amount;
+                sbar.inv_amount[GET_SHIELD] = p->inv_amount[GET_SHIELD];
                 u |= 2;
             }
 
         }
         else
         {
-            if (sbar.shield_amount != lAmount)
+            if (sbar.inv_amount[GET_SHIELD] != lAmount)
             {
-                sbar.shield_amount = lAmount;
+                sbar.inv_amount[GET_SHIELD] = lAmount;
                 u |= 2;
             }
 
@@ -2997,39 +3045,39 @@ static void G_DrawStatusBar(int32_t snum)
         sbar.heat_on = p->heat_on;
         u |= (4096+8192);
     }
-    if (sbar.firstaid_amount != p->firstaid_amount)
+    if (sbar.inv_amount[GET_FIRSTAID] != p->inv_amount[GET_FIRSTAID])
     {
-        sbar.firstaid_amount = p->firstaid_amount;
+        sbar.inv_amount[GET_FIRSTAID] = p->inv_amount[GET_FIRSTAID];
         u |= 8192;
     }
-    if (sbar.steroids_amount != p->steroids_amount)
+    if (sbar.inv_amount[GET_STEROIDS] != p->inv_amount[GET_STEROIDS])
     {
-        sbar.steroids_amount = p->steroids_amount;
+        sbar.inv_amount[GET_STEROIDS] = p->inv_amount[GET_STEROIDS];
         u |= 8192;
     }
-    if (sbar.holoduke_amount != p->holoduke_amount)
+    if (sbar.inv_amount[GET_HOLODUKE] != p->inv_amount[GET_HOLODUKE])
     {
-        sbar.holoduke_amount = p->holoduke_amount;
+        sbar.inv_amount[GET_HOLODUKE] = p->inv_amount[GET_HOLODUKE];
         u |= 8192;
     }
-    if (sbar.jetpack_amount != p->jetpack_amount)
+    if (sbar.inv_amount[GET_JETPACK] != p->inv_amount[GET_JETPACK])
     {
-        sbar.jetpack_amount = p->jetpack_amount;
+        sbar.inv_amount[GET_JETPACK] = p->inv_amount[GET_JETPACK];
         u |= 8192;
     }
-    if (sbar.heat_amount != p->heat_amount)
+    if (sbar.inv_amount[GET_HEATS] != p->inv_amount[GET_HEATS])
     {
-        sbar.heat_amount = p->heat_amount;
+        sbar.inv_amount[GET_HEATS] = p->inv_amount[GET_HEATS];
         u |= 8192;
     }
-    if (sbar.scuba_amount != p->scuba_amount)
+    if (sbar.inv_amount[GET_SCUBA] != p->inv_amount[GET_SCUBA])
     {
-        sbar.scuba_amount = p->scuba_amount;
+        sbar.inv_amount[GET_SCUBA] = p->inv_amount[GET_SCUBA];
         u |= 8192;
     }
-    if (sbar.boot_amount != p->boot_amount)
+    if (sbar.inv_amount[GET_BOOTS] != p->inv_amount[GET_BOOTS])
     {
-        sbar.boot_amount = p->boot_amount;
+        sbar.inv_amount[GET_BOOTS] = p->inv_amount[GET_BOOTS];
         u |= 8192;
     }
     if (u == 0) return;
@@ -3090,7 +3138,7 @@ static void G_DrawStatusBar(int32_t snum)
         int32_t lAmount=Gv_GetVarByLabel("PLR_MORALE",-1, p->i, snum);
         if (u != -1) G_PatchStatusBar(52,SBY+17,75,SBY+17+11);
         if (lAmount == -1)
-            G_DrawDigiNum(64,SBY+17,p->shield_amount,-16,10+16);
+            G_DrawDigiNum(64,SBY+17,p->inv_amount[GET_SHIELD],-16,10+16);
         else
             G_DrawDigiNum(64,SBY+17,lAmount,-16,10+16);
     }
@@ -3179,25 +3227,25 @@ static void G_DrawStatusBar(int32_t snum)
                 switch (p->inven_icon)
                 {
                 case 1:
-                    i = p->firstaid_amount;
+                    i = p->inv_amount[GET_FIRSTAID];
                     break;
                 case 2:
-                    i = ((p->steroids_amount+3)>>2);
+                    i = ((p->inv_amount[GET_STEROIDS]+3)>>2);
                     break;
                 case 3:
-                    i = ((p->holoduke_amount+15)/24);
+                    i = ((p->inv_amount[GET_HOLODUKE]+15)/24);
                     break;
                 case 4:
-                    i = ((p->jetpack_amount+15)>>4);
+                    i = ((p->inv_amount[GET_JETPACK]+15)>>4);
                     break;
                 case 5:
-                    i = p->heat_amount/12;
+                    i = p->inv_amount[GET_HEATS]/12;
                     break;
                 case 6:
-                    i = ((p->scuba_amount+63)>>6);
+                    i = ((p->inv_amount[GET_SCUBA]+63)>>6);
                     break;
                 case 7:
-                    i = (p->boot_amount>>1);
+                    i = (p->inv_amount[GET_BOOTS]>>1);
                     break;
                 }
                 G_DrawInvNum(284-30-o,SBY+28,(uint8_t)i,0,10+permbit);
@@ -3235,10 +3283,11 @@ static void G_PrintFPS(void)
             // lag meter
             if (net_peer)
             {
-                chars = Bsprintf(tempbuf, "%d +- %d ms", net_peer->roundTripTime, net_peer->roundTripTimeVariance);
+                chars = Bsprintf(tempbuf, "%d +- %d ms", (net_peer->lastRoundTripTime + net_peer->roundTripTime)/2, 
+                    (net_peer->lastRoundTripTimeVariance + net_peer->roundTripTimeVariance)/2);
 
                 printext256(windowx2-(chars<<(3-x))+1,windowy1+10+2,0,-1,tempbuf,x);
-                printext256(windowx2-(chars<<(3-x)),windowy1+10+1,net_peer->roundTripTime > 200 ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
+                printext256(windowx2-(chars<<(3-x)),windowy1+10+1,net_peer->lastRoundTripTime > 200 ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
             }
         }
 
@@ -7946,7 +7995,7 @@ PALONLY:
                 t->cstat |= 4;
         }
 
-        if (g_player[screenpeek].ps->heat_amount > 0 && g_player[screenpeek].ps->heat_on &&
+        if (g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&
                 (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
         {
             t->pal = 6;
@@ -8246,7 +8295,7 @@ void G_CheatGetInv(void)
     X_OnEvent(EVENT_CHEATGETSTEROIDS, g_player[myconnectindex].ps->i, myconnectindex, -1);
     if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
-        g_player[myconnectindex].ps->steroids_amount =
+        g_player[myconnectindex].ps->inv_amount[GET_STEROIDS] =
             aGameVars[g_iReturnVarID].val.lValue;
     }
 
@@ -8254,7 +8303,7 @@ void G_CheatGetInv(void)
     X_OnEvent(EVENT_CHEATGETHEAT, g_player[myconnectindex].ps->i, myconnectindex, -1);
     if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
-        g_player[myconnectindex].ps->heat_amount     =
+        g_player[myconnectindex].ps->inv_amount[GET_HEATS]     =
             aGameVars[g_iReturnVarID].val.lValue;
     }
 
@@ -8262,7 +8311,7 @@ void G_CheatGetInv(void)
     X_OnEvent(EVENT_CHEATGETBOOT, g_player[myconnectindex].ps->i, myconnectindex, -1);
     if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
-        g_player[myconnectindex].ps->boot_amount          =
+        g_player[myconnectindex].ps->inv_amount[GET_BOOTS]          =
             aGameVars[g_iReturnVarID].val.lValue;
     }
 
@@ -8270,7 +8319,7 @@ void G_CheatGetInv(void)
     X_OnEvent(EVENT_CHEATGETSHIELD, g_player[myconnectindex].ps->i, myconnectindex, -1);
     if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
-        g_player[myconnectindex].ps->shield_amount =
+        g_player[myconnectindex].ps->inv_amount[GET_SHIELD] =
             aGameVars[g_iReturnVarID].val.lValue;
     }
 
@@ -8278,7 +8327,7 @@ void G_CheatGetInv(void)
     X_OnEvent(EVENT_CHEATGETSCUBA, g_player[myconnectindex].ps->i, myconnectindex, -1);
     if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
-        g_player[myconnectindex].ps->scuba_amount =
+        g_player[myconnectindex].ps->inv_amount[GET_SCUBA] =
             aGameVars[g_iReturnVarID].val.lValue;
     }
 
@@ -8286,7 +8335,7 @@ void G_CheatGetInv(void)
     X_OnEvent(EVENT_CHEATGETHOLODUKE, g_player[myconnectindex].ps->i, myconnectindex, -1);
     if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
-        g_player[myconnectindex].ps->holoduke_amount =
+        g_player[myconnectindex].ps->inv_amount[GET_HOLODUKE] =
             aGameVars[g_iReturnVarID].val.lValue;
     }
 
@@ -8294,7 +8343,7 @@ void G_CheatGetInv(void)
     X_OnEvent(EVENT_CHEATGETJETPACK, g_player[myconnectindex].ps->i, myconnectindex, -1);
     if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
-        g_player[myconnectindex].ps->jetpack_amount =
+        g_player[myconnectindex].ps->inv_amount[GET_JETPACK] =
             aGameVars[g_iReturnVarID].val.lValue;
     }
 
@@ -8302,7 +8351,7 @@ void G_CheatGetInv(void)
     X_OnEvent(EVENT_CHEATGETFIRSTAID, g_player[myconnectindex].ps->i, myconnectindex, -1);
     if (aGameVars[g_iReturnVarID].val.lValue >=0)
     {
-        g_player[myconnectindex].ps->firstaid_amount =
+        g_player[myconnectindex].ps->inv_amount[GET_FIRSTAID] =
             aGameVars[g_iReturnVarID].val.lValue;
     }
 }
@@ -8709,8 +8758,8 @@ FOUNDCHEAT:
                     return;
 
                 case CHEAT_HYPER:
-                    g_player[myconnectindex].ps->steroids_amount = 399;
-                    g_player[myconnectindex].ps->heat_amount = 1200;
+                    g_player[myconnectindex].ps->inv_amount[GET_STEROIDS] = 399;
+                    g_player[myconnectindex].ps->inv_amount[GET_HEATS] = 1200;
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     P_DoQuote(37,g_player[myconnectindex].ps);
                     KB_FlushKeyBoardQueue();
@@ -8781,78 +8830,36 @@ FOUNDCHEAT:
 
 static void G_ShowScores(void)
 {
-    int32_t t, i, y,xfragtotal,yfragtotal;
+    int32_t t, i;
 
     if (playerswhenstarted > 1 && (GametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
-        /*
-                rotatesprite(160<<16,34<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10,0,0,xdim-1,ydim-1);
-                if (PLUTOPAK)   // JBF 20030804
-                    rotatesprite((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8,0,0,xdim-1,ydim-1);
-        */
         gametext(160,SCORESHEETOFFSET+58+2,"MULTIPLAYER TOTALS",0,2+8+16);
         gametext(160,SCORESHEETOFFSET+58+10,MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name,0,2+8+16);
 
-//        gametext(160,165,"PRESS ANY KEY TO CONTINUE",0,2+8+16);
-
         t = 0;
-        minitext(23,SCORESHEETOFFSET+80,"   NAME                                           KILLS",8,2+8+16+128);
-        for (i=playerswhenstarted-1; i>=0; i--)
-        {
-            Bsprintf(tempbuf,"%-4d",i+1);
-            minitext(92+(i*23),SCORESHEETOFFSET+80,tempbuf,3,2+8+16+128);
-        }
+        minitext(70,SCORESHEETOFFSET+80,"NAME",8,2+8+16+128);
+        minitext(170,SCORESHEETOFFSET+80,"FRAGS",8,2+8+16+128);
+        minitext(200,SCORESHEETOFFSET+80,"DEATHS",8,2+8+16+128);
+        minitext(235,SCORESHEETOFFSET+80,"PING",8,2+8+16+128);
 
         for (i=playerswhenstarted-1; i>=0; i--)
         {
-            xfragtotal = 0;
-            Bsprintf(tempbuf,"%d",i+1);
+            if (!g_player[i].playerquitflag) continue;
 
-            minitext(30,SCORESHEETOFFSET+90+t,tempbuf,0,2+8+16+128);
-            minitext(38,SCORESHEETOFFSET+90+t,g_player[i].user_name,g_player[i].ps->palookup,2+8+16+128);
+            minitext(70,SCORESHEETOFFSET+90+t,g_player[i].user_name,g_player[i].ps->palookup,2+8+16+128);
 
-            for (y=playerswhenstarted-1; y>=0; y--)
-            {
-                if (i == y)
-                {
-                    Bsprintf(tempbuf,"%-4d",g_player[y].ps->fraggedself);
-                    minitext(92+(y*23),SCORESHEETOFFSET+90+t,tempbuf,2,2+8+16+128);
-                    xfragtotal -= g_player[y].ps->fraggedself;
-                }
-                else
-                {
-                    Bsprintf(tempbuf,"%-4d",g_player[i].frags[y]);
-                    minitext(92+(y*23),SCORESHEETOFFSET+90+t,tempbuf,0,2+8+16+128);
-                    xfragtotal += g_player[i].frags[y];
-                }
+            Bsprintf(tempbuf,"%-4d",g_player[i].ps->frag);
+            minitext(170,SCORESHEETOFFSET+90+t,tempbuf,2,2+8+16+128);
 
-                if (net_server)
-                {
-                    Bsprintf(tempbuf,"stats %d killed %d %d\n",i+1,y+1,g_player[i].frags[y]);
-                    sendscore(tempbuf);
-                }
-            }
+            Bsprintf(tempbuf,"%-4d", g_player[i].frags[i] + g_player[i].ps->fraggedself);
+            minitext(200,SCORESHEETOFFSET+90+t,tempbuf,2,2+8+16+128);
 
-            Bsprintf(tempbuf,"%-4d",xfragtotal);
-            minitext(101+(8*23),SCORESHEETOFFSET+90+t,tempbuf,2,2+8+16+128);
+            Bsprintf(tempbuf,"%-4d",g_player[i].ping);
+            minitext(235,SCORESHEETOFFSET+90+t,tempbuf,2,2+8+16+128);
 
             t += 7;
         }
-
-        for (y=playerswhenstarted-1; y>=0; y--)
-        {
-            yfragtotal = 0;
-            for (i=playerswhenstarted-1; i>=0; i--)
-            {
-                if (i == y)
-                    yfragtotal += g_player[i].ps->fraggedself;
-                yfragtotal += g_player[i].frags[y];
-            }
-            Bsprintf(tempbuf,"%-4d",yfragtotal);
-            minitext(92+(y*23),SCORESHEETOFFSET+96+(8*7),tempbuf,2,2+8+16+128);
-        }
-
-        minitext(45,SCORESHEETOFFSET+96+(8*7),"DEATHS",8,2+8+16+128);
     }
 }
 
@@ -10564,8 +10571,6 @@ static void G_DisplayLogo(void)
         MOUSE_ClearButton(LEFT_MOUSE);
     }
 
-    Net_WaitForEverybody();
-
     flushperms();
     clearview(0L);
     nextpage();
@@ -11642,8 +11647,6 @@ MAIN_LOOP_RESTART:
                 ud.m_respawn_monsters = 1;
             else ud.m_respawn_monsters = 0;
 
-            Net_WaitForEverybody();
-
             TRAVERSE_CONNECT(i)
             {
                 P_ResetWeapons(i);
@@ -11653,6 +11656,8 @@ MAIN_LOOP_RESTART:
             G_NewGame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
 
             if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
+
+            Net_WaitForEverybody();
         }
         else G_DisplayLogo();
 
@@ -11718,7 +11723,6 @@ MAIN_LOOP_RESTART:
             if (g_player[myconnectindex].ps->gm&MODE_EOL)
             {
                 G_CloseDemoWrite();
-                Net_WaitForEverybody();
 
                 ready2send = 0;
 
@@ -11751,13 +11755,13 @@ MAIN_LOOP_RESTART:
             }
             ud.display_bonus_screen = 1;
             ready2send = 0;
-            Net_WaitForEverybody();
             if (numplayers > 1) g_player[myconnectindex].ps->gm = MODE_GAME;
             if (G_EnterLevel(g_player[myconnectindex].ps->gm))
             {
                 G_BackToMenu();
                 goto MAIN_LOOP_RESTART;
             }
+            Net_WaitForEverybody();
             continue;
         }
 

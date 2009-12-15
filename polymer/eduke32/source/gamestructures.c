@@ -1317,7 +1317,7 @@ static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLab
     case PLAYER_WANTWEAPONFIRE:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->wantweaponfire, vm.g_i, vm.g_p); return;
     case PLAYER_HOLODUKE_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->holoduke_amount, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_HOLODUKE], vm.g_i, vm.g_p); return;
     case PLAYER_NEWOWNER:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->newowner, vm.g_i, vm.g_p); return;
     case PLAYER_HURT_DELAY:
@@ -1347,7 +1347,7 @@ static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLab
     case PLAYER_WEAPON_ANG:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_ang, vm.g_i, vm.g_p); return;
     case PLAYER_FIRSTAID_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->firstaid_amount, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_FIRSTAID], vm.g_i, vm.g_p); return;
     case PLAYER_SOMETHINGONPLAYER:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->somethingonplayer, vm.g_i, vm.g_p); return;
     case PLAYER_ON_CRANE:
@@ -1373,7 +1373,7 @@ static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLab
     case PLAYER_QUICK_KICK:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->quick_kick, vm.g_i, vm.g_p); return;
     case PLAYER_HEAT_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->heat_amount, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_HEATS], vm.g_i, vm.g_p); return;
     case PLAYER_ACTORSQU:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->actorsqu, vm.g_i, vm.g_p); return;
     case PLAYER_TIMEBEFOREEXIT:
@@ -1393,13 +1393,13 @@ static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLab
     case PLAYER_SHOW_EMPTY_WEAPON:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->show_empty_weapon, vm.g_i, vm.g_p); return;
     case PLAYER_SCUBA_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->scuba_amount, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_SCUBA], vm.g_i, vm.g_p); return;
     case PLAYER_JETPACK_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->jetpack_amount, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_JETPACK], vm.g_i, vm.g_p); return;
     case PLAYER_STEROIDS_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->steroids_amount, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_STEROIDS], vm.g_i, vm.g_p); return;
     case PLAYER_SHIELD_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->shield_amount, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_SHIELD], vm.g_i, vm.g_p); return;
     case PLAYER_HOLODUKE_ON:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->holoduke_on, vm.g_i, vm.g_p); return;
     case PLAYER_PYCOUNT:
@@ -1415,7 +1415,7 @@ static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLab
     case PLAYER_FOOTPRINTSHADE:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->footprintshade, vm.g_i, vm.g_p); return;
     case PLAYER_BOOT_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->boot_amount, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_BOOTS], vm.g_i, vm.g_p); return;
     case PLAYER_SCREAM_VOICE:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->scream_voice, vm.g_i, vm.g_p); return;
     case PLAYER_GM:
@@ -1641,7 +1641,7 @@ static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar
     case PLAYER_WANTWEAPONFIRE:
         g_player[iPlayer].ps->wantweaponfire=lVar1; return;
     case PLAYER_HOLODUKE_AMOUNT:
-        g_player[iPlayer].ps->holoduke_amount=lVar1; return;
+        g_player[iPlayer].ps->inv_amount[GET_HOLODUKE]=lVar1; return;
     case PLAYER_NEWOWNER:
         g_player[iPlayer].ps->newowner=lVar1; return;
     case PLAYER_HURT_DELAY:
@@ -1671,7 +1671,7 @@ static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar
     case PLAYER_WEAPON_ANG:
         g_player[iPlayer].ps->weapon_ang=lVar1; return;
     case PLAYER_FIRSTAID_AMOUNT:
-        g_player[iPlayer].ps->firstaid_amount=lVar1; return;
+        g_player[iPlayer].ps->inv_amount[GET_FIRSTAID]=lVar1; return;
     case PLAYER_SOMETHINGONPLAYER:
         g_player[iPlayer].ps->somethingonplayer=lVar1; return;
     case PLAYER_ON_CRANE:
@@ -1697,7 +1697,7 @@ static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar
     case PLAYER_QUICK_KICK:
         g_player[iPlayer].ps->quick_kick=lVar1; return;
     case PLAYER_HEAT_AMOUNT:
-        g_player[iPlayer].ps->heat_amount=lVar1; return;
+        g_player[iPlayer].ps->inv_amount[GET_HEATS]=lVar1; return;
     case PLAYER_ACTORSQU:
         g_player[iPlayer].ps->actorsqu=lVar1; return;
     case PLAYER_TIMEBEFOREEXIT:
@@ -1717,13 +1717,13 @@ static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar
     case PLAYER_SHOW_EMPTY_WEAPON:
         g_player[iPlayer].ps->show_empty_weapon=lVar1; return;
     case PLAYER_SCUBA_AMOUNT:
-        g_player[iPlayer].ps->scuba_amount=lVar1; return;
+        g_player[iPlayer].ps->inv_amount[GET_SCUBA]=lVar1; return;
     case PLAYER_JETPACK_AMOUNT:
-        g_player[iPlayer].ps->jetpack_amount=lVar1; return;
+        g_player[iPlayer].ps->inv_amount[GET_JETPACK]=lVar1; return;
     case PLAYER_STEROIDS_AMOUNT:
-        g_player[iPlayer].ps->steroids_amount=lVar1; return;
+        g_player[iPlayer].ps->inv_amount[GET_STEROIDS]=lVar1; return;
     case PLAYER_SHIELD_AMOUNT:
-        g_player[iPlayer].ps->shield_amount=lVar1; return;
+        g_player[iPlayer].ps->inv_amount[GET_SHIELD]=lVar1; return;
     case PLAYER_HOLODUKE_ON:
         g_player[iPlayer].ps->holoduke_on=lVar1; return;
     case PLAYER_PYCOUNT:
@@ -1739,7 +1739,7 @@ static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar
     case PLAYER_FOOTPRINTSHADE:
         g_player[iPlayer].ps->footprintshade=lVar1; return;
     case PLAYER_BOOT_AMOUNT:
-        g_player[iPlayer].ps->boot_amount=lVar1; return;
+        g_player[iPlayer].ps->inv_amount[GET_BOOTS]=lVar1; return;
     case PLAYER_SCREAM_VOICE:
         g_player[iPlayer].ps->scream_voice=lVar1; return;
     case PLAYER_GM:
@@ -3549,7 +3549,7 @@ static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int
     case PLAYER_WANTWEAPONFIRE:
         return g_player[iPlayer].ps->wantweaponfire;
     case PLAYER_HOLODUKE_AMOUNT:
-        return g_player[iPlayer].ps->holoduke_amount;
+        return g_player[iPlayer].ps->inv_amount[GET_HOLODUKE];
     case PLAYER_NEWOWNER:
         return g_player[iPlayer].ps->newowner;
     case PLAYER_HURT_DELAY:
@@ -3579,7 +3579,7 @@ static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int
     case PLAYER_WEAPON_ANG:
         return g_player[iPlayer].ps->weapon_ang;
     case PLAYER_FIRSTAID_AMOUNT:
-        return g_player[iPlayer].ps->firstaid_amount;
+        return g_player[iPlayer].ps->inv_amount[GET_FIRSTAID];
     case PLAYER_SOMETHINGONPLAYER:
         return g_player[iPlayer].ps->somethingonplayer;
     case PLAYER_ON_CRANE:
@@ -3605,7 +3605,7 @@ static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int
     case PLAYER_QUICK_KICK:
         return g_player[iPlayer].ps->quick_kick;
     case PLAYER_HEAT_AMOUNT:
-        return g_player[iPlayer].ps->heat_amount;
+        return g_player[iPlayer].ps->inv_amount[GET_HEATS];
     case PLAYER_ACTORSQU:
         return g_player[iPlayer].ps->actorsqu;
     case PLAYER_TIMEBEFOREEXIT:
@@ -3625,13 +3625,13 @@ static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int
     case PLAYER_SHOW_EMPTY_WEAPON:
         return g_player[iPlayer].ps->show_empty_weapon;
     case PLAYER_SCUBA_AMOUNT:
-        return g_player[iPlayer].ps->scuba_amount;
+        return g_player[iPlayer].ps->inv_amount[GET_SCUBA];
     case PLAYER_JETPACK_AMOUNT:
-        return g_player[iPlayer].ps->jetpack_amount;
+        return g_player[iPlayer].ps->inv_amount[GET_JETPACK];
     case PLAYER_STEROIDS_AMOUNT:
-        return g_player[iPlayer].ps->steroids_amount;
+        return g_player[iPlayer].ps->inv_amount[GET_STEROIDS];
     case PLAYER_SHIELD_AMOUNT:
-        return g_player[iPlayer].ps->shield_amount;
+        return g_player[iPlayer].ps->inv_amount[GET_SHIELD];
     case PLAYER_HOLODUKE_ON:
         return g_player[iPlayer].ps->holoduke_on;
     case PLAYER_PYCOUNT:
@@ -3647,7 +3647,7 @@ static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int
     case PLAYER_FOOTPRINTSHADE:
         return g_player[iPlayer].ps->footprintshade;
     case PLAYER_BOOT_AMOUNT:
-        return g_player[iPlayer].ps->boot_amount;
+        return g_player[iPlayer].ps->inv_amount[GET_BOOTS];
     case PLAYER_SCREAM_VOICE:
         return g_player[iPlayer].ps->scream_voice;
     case PLAYER_GM:

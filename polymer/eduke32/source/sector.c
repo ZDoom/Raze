@@ -2565,7 +2565,7 @@ void G_HandleSharedKeys(int32_t snum)
             aGameVars[g_iReturnVarID].val.lValue = 0;
             X_OnEvent(EVENT_USENIGHTVISION,g_player[snum].ps->i,snum, -1);
             if (aGameVars[g_iReturnVarID].val.lValue == 0
-                    &&  p->heat_amount > 0)
+                    &&  p->inv_amount[GET_HEATS] > 0)
             {
                 p->heat_on = !p->heat_on;
                 P_UpdateScreenPal(p);
@@ -2581,13 +2581,13 @@ void G_HandleSharedKeys(int32_t snum)
             X_OnEvent(EVENT_USESTEROIDS,g_player[snum].ps->i,snum, -1);
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
-                if (p->steroids_amount == 400)
+                if (p->inv_amount[GET_STEROIDS] == 400)
                 {
-                    p->steroids_amount--;
+                    p->inv_amount[GET_STEROIDS]--;
                     A_PlaySound(DUKE_TAKEPILLS,p->i);
                     P_DoQuote(12,p);
                 }
-                if (p->steroids_amount > 0)
+                if (p->inv_amount[GET_STEROIDS] > 0)
                     p->inven_icon = 2;
             }
             return;		// is there significance to returning?
@@ -2617,44 +2617,44 @@ CHECKINV1:
                     switch (dainv)
                     {
                     case 4:
-                        if (p->jetpack_amount > 0 && i > 1)
+                        if (p->inv_amount[GET_JETPACK] > 0 && i > 1)
                             break;
                         if (k) dainv++;
                         else dainv--;
                         goto CHECKINV1;
                     case 6:
-                        if (p->scuba_amount > 0 && i > 1)
+                        if (p->inv_amount[GET_SCUBA] > 0 && i > 1)
                             break;
                         if (k) dainv++;
                         else dainv--;
                         goto CHECKINV1;
                     case 2:
-                        if (p->steroids_amount > 0 && i > 1)
+                        if (p->inv_amount[GET_STEROIDS] > 0 && i > 1)
                             break;
                         if (k) dainv++;
                         else dainv--;
                         goto CHECKINV1;
                     case 3:
-                        if (p->holoduke_amount > 0 && i > 1)
+                        if (p->inv_amount[GET_HOLODUKE] > 0 && i > 1)
                             break;
                         if (k) dainv++;
                         else dainv--;
                         goto CHECKINV1;
                     case 0:
                     case 1:
-                        if (p->firstaid_amount > 0 && i > 1)
+                        if (p->inv_amount[GET_FIRSTAID] > 0 && i > 1)
                             break;
                         if (k) dainv = 2;
                         else dainv = 7;
                         goto CHECKINV1;
                     case 5:
-                        if (p->heat_amount > 0 && i > 1)
+                        if (p->inv_amount[GET_HEATS] > 0 && i > 1)
                             break;
                         if (k) dainv++;
                         else dainv--;
                         goto CHECKINV1;
                     case 7:
-                        if (p->boot_amount > 0 && i > 1)
+                        if (p->inv_amount[GET_BOOTS] > 0 && i > 1)
                             break;
                         if (k) dainv = 1;
                         else dainv = 6;
@@ -2682,7 +2682,7 @@ CHECKINV1:
                 {
                     p->inven_icon = dainv;
 
-                    if (dainv || p->firstaid_amount)
+                    if (dainv || p->inv_amount[GET_FIRSTAID])
                     {
                         static const int32_t i[8] = { 3, 90, 91, 88, 101, 89, 6, 0 };
                         P_DoQuote(i[dainv-1], p);
@@ -2886,7 +2886,7 @@ CHECKINV1:
                 X_OnEvent(EVENT_HOLODUKEON,g_player[snum].ps->i,snum, -1);
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    if (p->holoduke_amount > 0)
+                    if (p->inv_amount[GET_HOLODUKE] > 0)
                     {
                         p->inven_icon = 3;
 
@@ -2923,20 +2923,20 @@ CHECKINV1:
             X_OnEvent(EVENT_USEMEDKIT,g_player[snum].ps->i,snum, -1);
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
-                if (p->firstaid_amount > 0 && sprite[p->i].extra < p->max_player_health)
+                if (p->inv_amount[GET_FIRSTAID] > 0 && sprite[p->i].extra < p->max_player_health)
                 {
                     j = p->max_player_health-sprite[p->i].extra;
 
-                    if ((uint32_t)p->firstaid_amount > j)
+                    if ((uint32_t)p->inv_amount[GET_FIRSTAID] > j)
                     {
-                        p->firstaid_amount -= j;
+                        p->inv_amount[GET_FIRSTAID] -= j;
                         sprite[p->i].extra = p->max_player_health;
                         p->inven_icon = 1;
                     }
                     else
                     {
-                        sprite[p->i].extra += p->firstaid_amount;
-                        p->firstaid_amount = 0;
+                        sprite[p->i].extra += p->inv_amount[GET_FIRSTAID];
+                        p->inv_amount[GET_FIRSTAID] = 0;
                         P_SelectNextInvItem(p);
                     }
                     A_PlaySound(DUKE_USEMEDKIT,p->i);
@@ -2950,7 +2950,7 @@ CHECKINV1:
             X_OnEvent(EVENT_USEJETPACK,g_player[snum].ps->i,snum, -1);
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
-                if (p->jetpack_amount > 0)
+                if (p->inv_amount[GET_JETPACK] > 0)
                 {
                     p->jetpack_on = !p->jetpack_on;
                     if (p->jetpack_on)

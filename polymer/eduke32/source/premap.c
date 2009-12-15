@@ -655,7 +655,7 @@ void P_ResetPlayer(int32_t snum)
     g_player[snum].ps->horizoff = 0;
     g_player[snum].ps->opyoff = 0;
     g_player[snum].ps->wackedbyactor = -1;
-    g_player[snum].ps->shield_amount = g_startArmorAmount;
+    g_player[snum].ps->inv_amount[GET_SHIELD] = g_startArmorAmount;
     g_player[snum].ps->dead_flag = 0;
     g_player[snum].ps->pals_time = 0;
     g_player[snum].ps->footprintcount = 0;
@@ -750,9 +750,9 @@ void P_ResetStatus(int32_t snum)
     p->sbs          = 0;
     p->palette = (uint8_t *) &palette[0];
 
-    if (p->steroids_amount < 400)
+    if (p->inv_amount[GET_STEROIDS] < 400)
     {
-        p->steroids_amount = 0;
+        p->inv_amount[GET_STEROIDS] = 0;
         p->inven_icon = 0;
     }
     p->heat_on =            0;
@@ -827,19 +827,15 @@ void P_ResetInventory(int32_t snum)
 {
     DukePlayer_t *p = g_player[snum].ps;
 
+    Bmemset(p->inv_amount, 0, sizeof(p->inv_amount));
+
     p->inven_icon       = 0;
-    p->boot_amount = 0;
     p->scuba_on =           0;
-    p->scuba_amount =         0;
-    p->heat_amount        = 0;
     p->heat_on = 0;
     p->jetpack_on =         0;
-    p->jetpack_amount =       0;
-    p->shield_amount =      g_startArmorAmount;
     p->holoduke_on = -1;
-    p->holoduke_amount =    0;
-    p->firstaid_amount = 0;
-    p->steroids_amount = 0;
+
+    p->inv_amount[GET_SHIELD] =      g_startArmorAmount;
     p->inven_icon = 0;
     X_OnEvent(EVENT_RESETINVENTORY, p->i, snum, -1);
 }
@@ -1297,7 +1293,6 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 
     g_skillSoundID = -1;
 
-    Net_WaitForEverybody();
     ready2send = 0;
 
     if (ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && (ud.coop&GAMETYPE_SCORESHEET))
@@ -1401,24 +1396,16 @@ static void resetpspritevars(char g)
                     tsbar[i].gotweapon[j] = g_player[i].ps->gotweapon[j];
                 }
 
-                tsbar[i].shield_amount = g_player[i].ps->shield_amount;
+                Bmemcpy(tsbar[i].inv_amount, g_player[i].ps->inv_amount, sizeof(tsbar[i].inv_amount));
                 tsbar[i].curr_weapon = g_player[i].ps->curr_weapon;
                 tsbar[i].inven_icon = g_player[i].ps->inven_icon;
-
-                tsbar[i].firstaid_amount = g_player[i].ps->firstaid_amount;
-                tsbar[i].steroids_amount = g_player[i].ps->steroids_amount;
-                tsbar[i].holoduke_amount = g_player[i].ps->holoduke_amount;
-                tsbar[i].jetpack_amount = g_player[i].ps->jetpack_amount;
-                tsbar[i].heat_amount = g_player[i].ps->heat_amount;
-                tsbar[i].scuba_amount = g_player[i].ps->scuba_amount;
-                tsbar[i].boot_amount = g_player[i].ps->boot_amount;
             }
         }
 
     P_ResetStatus(0);
 
     TRAVERSE_CONNECT(i)
-        Bmemcpy(g_player[i].ps,g_player[0].ps,sizeof(DukePlayer_t));
+        if (i) Bmemcpy(g_player[i].ps,g_player[0].ps,sizeof(DukePlayer_t));
 
     if (ud.recstat != 2)
         TRAVERSE_CONNECT(i)
@@ -1433,17 +1420,9 @@ static void resetpspritevars(char g)
                     g_player[i].ps->ammo_amount[j] = tsbar[i].ammo_amount[j];
                     g_player[i].ps->gotweapon[j] = tsbar[i].gotweapon[j];
                 }
-                g_player[i].ps->shield_amount = tsbar[i].shield_amount;
                 g_player[i].ps->curr_weapon = tsbar[i].curr_weapon;
                 g_player[i].ps->inven_icon = tsbar[i].inven_icon;
-
-                g_player[i].ps->firstaid_amount = tsbar[i].firstaid_amount;
-                g_player[i].ps->steroids_amount= tsbar[i].steroids_amount;
-                g_player[i].ps->holoduke_amount = tsbar[i].holoduke_amount;
-                g_player[i].ps->jetpack_amount = tsbar[i].jetpack_amount;
-                g_player[i].ps->heat_amount = tsbar[i].heat_amount;
-                g_player[i].ps->scuba_amount= tsbar[i].scuba_amount;
-                g_player[i].ps->boot_amount = tsbar[i].boot_amount;
+                Bmemcpy(g_player[i].ps->inv_amount, tsbar[i].inv_amount, sizeof(tsbar[i].inv_amount));
             }
         }
 
@@ -1580,12 +1559,6 @@ void Net_WaitForEverybody(void)
 
     if (numplayers < 2 || net_server) return;
 
-    packbuf[0] = PACKET_PLAYER_READY;
-    packbuf[1] = myconnectindex;
-
-    if (net_client)
-        enet_peer_send(net_peer, 0, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
-
     if (ud.multimode > 1)
     {
         P_SetGamePalette(g_player[myconnectindex].ps, titlepal, 11);
@@ -1603,6 +1576,12 @@ void Net_WaitForEverybody(void)
     while (1)
     {
         if (quitevent || keystatus[1]) G_GameExit("");
+
+        packbuf[0] = PACKET_PLAYER_READY;
+        packbuf[1] = myconnectindex;
+
+        if (net_peer)
+            enet_peer_send(net_peer, 0, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
 
         handleevents();
         Net_GetPackets();
@@ -1642,7 +1621,6 @@ void clearfifo(void)
             Bmemset(g_player[i].sync,0,sizeof(input_t));
         Bmemset(&g_player[i].movefifoend,0,sizeof(g_player[i].movefifoend));
         Bmemset(&g_player[i].syncvalhead,0,sizeof(g_player[i].syncvalhead));
-        Bmemset(&g_player[i].myminlag,0,sizeof(g_player[i].myminlag));
         g_player[i].vote = 0;
         g_player[i].gotvote = 0;
     }

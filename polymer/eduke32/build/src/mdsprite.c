@@ -565,7 +565,7 @@ int32_t mdloadskin_trytexcache(char *fn, int32_t len, int32_t pal, char effect, 
 //    initprintf("Loading cached skin: %s\n", cachefn);
 
     if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader)) goto failure;
-    if (memcmp(head->magic, "PMST", 4)) goto failure;
+    if (memcmp(head->magic, TEXCACHEMAGIC, 4)) goto failure;
 
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);

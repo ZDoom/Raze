@@ -80,17 +80,17 @@ static void P_IncurDamage(DukePlayer_t *p)
         {
             p->extra_extra8 = 0;
 
-            if (p->shield_amount > 0)
+            if (p->inv_amount[GET_SHIELD] > 0)
             {
                 shield_damage =  damage * (20 + (krand()%30)) / 100;
                 damage -= shield_damage;
 
-                p->shield_amount += shield_damage;
+                p->inv_amount[GET_SHIELD] += shield_damage;
 
-                if (p->shield_amount < 0)
+                if (p->inv_amount[GET_SHIELD] < 0)
                 {
-                    damage += p->shield_amount;
-                    p->shield_amount = 0;
+                    damage += p->inv_amount[GET_SHIELD];
+                    p->inv_amount[GET_SHIELD] = 0;
                 }
             }
 
@@ -605,7 +605,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                         if (ProjectileData[atwith].sound >= 0) A_PlaySound(ProjectileData[atwith].sound,j);
                     }
 
-                    if (p >= 0 && g_player[p].ps->steroids_amount > 0 && g_player[p].ps->steroids_amount < 400)
+                    if (p >= 0 && g_player[p].ps->inv_amount[GET_STEROIDS] > 0 && g_player[p].ps->inv_amount[GET_STEROIDS] < 400)
                         sprite[j].extra += (g_player[p].ps->max_player_health>>2);
 
                     if (hitinfo.hitsprite >= 0 && sprite[hitinfo.hitsprite].picnum != ACCESSSWITCH && sprite[hitinfo.hitsprite].picnum != ACCESSSWITCH2)
@@ -1202,7 +1202,7 @@ DOSKIPBULLETHOLE:
                         ActorExtra[k].temp_data[8] = hitinfo.hitsprite;
                     }
 
-                    if (p >= 0 && g_player[p].ps->steroids_amount > 0 && g_player[p].ps->steroids_amount < 400)
+                    if (p >= 0 && g_player[p].ps->inv_amount[GET_STEROIDS] > 0 && g_player[p].ps->inv_amount[GET_STEROIDS] < 400)
                         sprite[j].extra += (g_player[p].ps->max_player_health>>2);
 
                     if (hitinfo.hitsprite >= 0 && sprite[hitinfo.hitsprite].picnum != ACCESSSWITCH && sprite[hitinfo.hitsprite].picnum != ACCESSSWITCH2)
@@ -3385,20 +3385,20 @@ static int32_t P_DoCounters(DukePlayer_t *p)
         }
     }
 
-    if (p->steroids_amount > 0 && p->steroids_amount < 400)
+    if (p->inv_amount[GET_STEROIDS] > 0 && p->inv_amount[GET_STEROIDS] < 400)
     {
-        p->steroids_amount--;
-        if (p->steroids_amount == 0)
+        p->inv_amount[GET_STEROIDS]--;
+        if (p->inv_amount[GET_STEROIDS] == 0)
             P_SelectNextInvItem(p);
-        if (!(p->steroids_amount&7))
+        if (!(p->inv_amount[GET_STEROIDS]&7))
             if (snum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
                 A_PlaySound(DUKE_HARTBEAT,p->i);
     }
 
-    if (p->heat_on && p->heat_amount > 0)
+    if (p->heat_on && p->inv_amount[GET_HEATS] > 0)
     {
-        p->heat_amount--;
-        if (p->heat_amount == 0)
+        p->inv_amount[GET_HEATS]--;
+        if (p->inv_amount[GET_HEATS] == 0)
         {
             p->heat_on = 0;
             P_SelectNextInvItem(p);
@@ -3409,8 +3409,8 @@ static int32_t P_DoCounters(DukePlayer_t *p)
 
     if (p->holoduke_on >= 0)
     {
-        p->holoduke_amount--;
-        if (p->holoduke_amount <= 0)
+        p->inv_amount[GET_HOLODUKE]--;
+        if (p->inv_amount[GET_HOLODUKE] <= 0)
         {
             A_PlaySound(TELEPORTER,p->i);
             p->holoduke_on = -1;
@@ -3418,10 +3418,10 @@ static int32_t P_DoCounters(DukePlayer_t *p)
         }
     }
 
-    if (p->jetpack_on && p->jetpack_amount > 0)
+    if (p->jetpack_on && p->inv_amount[GET_JETPACK] > 0)
     {
-        p->jetpack_amount--;
-        if (p->jetpack_amount <= 0)
+        p->inv_amount[GET_JETPACK]--;
+        if (p->inv_amount[GET_JETPACK] <= 0)
         {
             p->jetpack_on = 0;
             P_SelectNextInvItem(p);
@@ -3492,7 +3492,7 @@ static int32_t P_DoCounters(DukePlayer_t *p)
 
     if (p->cursectnum >= 0 && p->scuba_on == 0 && sector[p->cursectnum].lotag == 2)
     {
-        if (p->scuba_amount > 0)
+        if (p->inv_amount[GET_SCUBA] > 0)
         {
             p->scuba_on = 1;
             p->inven_icon = 6;
@@ -3510,10 +3510,10 @@ static int32_t P_DoCounters(DukePlayer_t *p)
             }
         }
     }
-    else if (p->scuba_amount > 0 && p->scuba_on)
+    else if (p->inv_amount[GET_SCUBA] > 0 && p->scuba_on)
     {
-        p->scuba_amount--;
-        if (p->scuba_amount == 0)
+        p->inv_amount[GET_SCUBA]--;
+        if (p->inv_amount[GET_SCUBA] == 0)
         {
             p->scuba_on = 0;
             P_SelectNextInvItem(p);
@@ -3638,19 +3638,19 @@ void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
 
 void P_SelectNextInvItem(DukePlayer_t *p)
 {
-    if (p->firstaid_amount > 0)
+    if (p->inv_amount[GET_FIRSTAID] > 0)
         p->inven_icon = 1;
-    else if (p->steroids_amount > 0)
+    else if (p->inv_amount[GET_STEROIDS] > 0)
         p->inven_icon = 2;
-    else if (p->holoduke_amount > 0)
+    else if (p->inv_amount[GET_HOLODUKE] > 0)
         p->inven_icon = 3;
-    else if (p->jetpack_amount > 0)
+    else if (p->inv_amount[GET_JETPACK] > 0)
         p->inven_icon = 4;
-    else if (p->heat_amount > 0)
+    else if (p->inv_amount[GET_HEATS] > 0)
         p->inven_icon = 5;
-    else if (p->scuba_amount > 0)
+    else if (p->inv_amount[GET_SCUBA] > 0)
         p->inven_icon = 6;
-    else if (p->boot_amount > 0)
+    else if (p->inv_amount[GET_BOOTS] > 0)
         p->inven_icon = 7;
     else p->inven_icon = 0;
 }
@@ -3834,13 +3834,7 @@ void P_FragPlayer(int32_t snum)
         p->pals_time = 63;
         p->posz -= (16<<8);
         s->z -= (16<<8);
-    }
 
-    if (ud.recstat == 1 && ud.multimode < 2)
-        G_CloseDemoWrite();
-
-    if (s->pal != 1)
-    {
         p->dead_flag = (512-((krand()&1)<<10)+(krand()&255)-512)&2047;
         if (p->dead_flag == 0)
             p->dead_flag++;
@@ -3880,6 +3874,7 @@ void P_FragPlayer(int32_t snum)
             {
                 g_player[p->frag_ps].ps->frag++;
                 g_player[p->frag_ps].frags[snum]++;
+                g_player[snum].frags[snum]++; // deaths
             }
 
             if (snum == screenpeek)
@@ -4042,7 +4037,7 @@ void P_ProcessInput(int32_t snum)
     else
     {
         s->extra = 0;
-        p->shield_amount = 0;
+        p->inv_amount[GET_SHIELD] = 0;
     }
 
     p->last_extra = s->extra;
@@ -4149,6 +4144,9 @@ void P_ProcessInput(int32_t snum)
 
     if (s->extra <= 0)
     {
+        if (ud.recstat == 1 && ud.multimode < 2)
+            G_CloseDemoWrite();
+
         if ((numplayers < 2 || net_server) && p->dead_flag == 0)
             P_FragPlayer(snum);
             
@@ -4703,11 +4701,11 @@ void P_ProcessInput(int32_t snum)
 
         if (j == PURPLELAVA || sector[s->sectnum].ceilingpicnum == PURPLELAVA)
         {
-            if (p->boot_amount > 0)
+            if (p->inv_amount[GET_BOOTS] > 0)
             {
-                p->boot_amount--;
+                p->inv_amount[GET_BOOTS]--;
                 p->inven_icon = 7;
-                if (p->boot_amount <= 0)
+                if (p->inv_amount[GET_BOOTS] <= 0)
                     P_SelectNextInvItem(p);
             }
             else
@@ -4731,7 +4729,7 @@ void P_ProcessInput(int32_t snum)
             case HURTRAIL__STATIC:
                 if (rnd(32))
                 {
-                    if (p->boot_amount > 0)
+                    if (p->inv_amount[GET_BOOTS] > 0)
                         k = 1;
                     else
                     {
@@ -4750,7 +4748,7 @@ void P_ProcessInput(int32_t snum)
             case FLOORSLIME__STATIC:
                 if (rnd(16))
                 {
-                    if (p->boot_amount > 0)
+                    if (p->inv_amount[GET_BOOTS] > 0)
                         k = 1;
                     else
                     {
@@ -4767,7 +4765,7 @@ void P_ProcessInput(int32_t snum)
             case FLOORPLASMA__STATIC:
                 if (rnd(32))
                 {
-                    if (p->boot_amount > 0)
+                    if (p->inv_amount[GET_BOOTS] > 0)
                         k = 1;
                     else
                     {
@@ -4787,8 +4785,8 @@ void P_ProcessInput(int32_t snum)
         if (k)
         {
             P_DoQuote(75,p);
-            p->boot_amount -= 2;
-            if (p->boot_amount <= 0)
+            p->inv_amount[GET_BOOTS] -= 2;
+            if (p->inv_amount[GET_BOOTS] <= 0)
                 P_SelectNextInvItem(p);
         }
     }
@@ -4852,7 +4850,7 @@ void P_ProcessInput(int32_t snum)
         else if (p->walking_snd_toggle > 0)
             p->walking_snd_toggle--;
 
-        if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
+        if (p->jetpack_on == 0 && p->inv_amount[GET_STEROIDS] > 0 && p->inv_amount[GET_STEROIDS] < 400)
             doubvel <<= 1;
 
         p->posxv += ((g_player[snum].sync->fvel*doubvel)<<6);
@@ -5743,33 +5741,33 @@ int32_t getspritescore(int32_t snum, int32_t dapicnum)
         if (sprite[g_player[snum].ps->i].extra < g_player[snum].ps->max_player_health) return(30);
         return(1);
     case FIRSTAID__STATIC:
-        if (g_player[snum].ps->firstaid_amount < g_player[snum].ps->max_player_health) return(100);
+        if (g_player[snum].ps->inv_amount[GET_FIRSTAID] < g_player[snum].ps->max_player_health) return(100);
         return(1);
     case SHIELD__STATIC:
-        if (g_player[snum].ps->shield_amount < g_player[snum].ps->max_shield_amount) return(50);
+        if (g_player[snum].ps->inv_amount[GET_SHIELD] < g_player[snum].ps->max_shield_amount) return(50);
         return(1);
     case STEROIDS__STATIC:
-        if (g_player[snum].ps->steroids_amount < 400) return(30);
+        if (g_player[snum].ps->inv_amount[GET_STEROIDS] < 400) return(30);
         return(1);
     case AIRTANK__STATIC:
-        if (g_player[snum].ps->scuba_amount < 6400) return(30);
+        if (g_player[snum].ps->inv_amount[GET_SCUBA] < 6400) return(30);
         return(1);
     case JETPACK__STATIC:
-        if (g_player[snum].ps->jetpack_amount < 1600) return(100);
+        if (g_player[snum].ps->inv_amount[GET_JETPACK] < 1600) return(100);
         return(1);
     case HEATSENSOR__STATIC:
-        if (g_player[snum].ps->heat_amount < 1200) return(5);
+        if (g_player[snum].ps->inv_amount[GET_HEATS] < 1200) return(5);
         return(1);
     case ACCESSCARD__STATIC:
         return(1);
     case BOOTS__STATIC:
-        if (g_player[snum].ps->boot_amount < 200) return(15);
+        if (g_player[snum].ps->inv_amount[GET_BOOTS] < 200) return(15);
         return(1);
     case ATOMICHEALTH__STATIC:
         if (sprite[g_player[snum].ps->i].extra < g_player[snum].ps->max_player_health<<1) return(50);
         return(1);
     case HOLODUKE__STATIC:
-        if (g_player[snum].ps->holoduke_amount < 2400) return(5);
+        if (g_player[snum].ps->inv_amount[GET_HOLODUKE] < 2400) return(5);
         return(1);
     case MUSICANDSFX__STATIC:
         return(1);
@@ -5867,7 +5865,7 @@ void computergetinput(int32_t snum, input_t *syn)
     z2 = sprite[g_player[goalplayer[snum]].ps->i].z;
 
     if (p->dead_flag) syn->bits |= BIT(SK_OPEN);
-    if ((p->firstaid_amount > 0) && (p->last_extra < 100))
+    if ((p->inv_amount[GET_FIRSTAID] > 0) && (p->last_extra < 100))
         syn->bits |= BIT(SK_MEDKIT);
 
     for (j=headspritestat[STAT_PROJECTILE]; j>=0; j=nextspritestat[j])
