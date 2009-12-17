@@ -1102,7 +1102,6 @@ enum DukePacket_t
     PACKET_PLAYER_SPAWN,
     PACKET_FRAG,
     PACKET_REQUEST_GAMESTATE,
-    PACKET_NEW_GAME,
     PACKET_LOAD_GAME,
     PACKET_VERSION,
     PACKET_AUTH,
@@ -1112,10 +1111,9 @@ enum DukePacket_t
     // to send them to everyone
 
     PACKET_BROADCAST,
+    PACKET_NEW_GAME,
     PACKET_RTS,
-    PACKET_WEAPON_CHOICE,
-    PACKET_PLAYER_OPTIONS,
-    PACKET_PLAYER_NAME,
+    PACKET_CLIENT_INFO,
     PACKET_MESSAGE,
     PACKET_USER_MAP,
 
@@ -1125,6 +1123,13 @@ enum DukePacket_t
 
     PACKET_PLAYER_READY,
     PACKET_QUIT = 255
+};
+
+enum NetDisconnect_t
+{
+    DISC_BAD_PASSWORD = 1,
+    DISC_KICKED,
+    DISC_BANNED
 };
 
 #pragma pack(pop)

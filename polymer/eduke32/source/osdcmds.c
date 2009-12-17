@@ -810,7 +810,7 @@ static int32_t osdcmd_name(const osdfuncparm_t *parm)
 
     OSD_Printf("name %s\n",szPlayerName);
 
-    Net_SendPlayerName();
+    Net_SendClientInfo();
 
     return OSDCMD_OK;
 }
@@ -1183,6 +1183,7 @@ static int32_t osdcmd_password(const osdfuncparm_t *parm)
 static int32_t osdcmd_listplayers(const osdfuncparm_t *parm)
 {
     ENetPeer * currentPeer;
+    char ipaddr[32];
 
     if (parm->numparms != 0)
         return OSDCMD_SHOWHELP;
@@ -1200,9 +1201,87 @@ static int32_t osdcmd_listplayers(const osdfuncparm_t *parm)
         if (currentPeer -> state != ENET_PEER_STATE_CONNECTED)
             continue;
 
-        initprintf("%d %s\n", currentPeer, g_player[(intptr_t)currentPeer->data].user_name);
+        enet_address_get_host_ip(&currentPeer->address, ipaddr, sizeof(ipaddr));
+        initprintf("%x %s %s\n", currentPeer->address.host, ipaddr,
+            g_player[(intptr_t)currentPeer->data].user_name);
     }
 
+    return OSDCMD_OK;
+}
+
+static int32_t osdcmd_kick(const osdfuncparm_t *parm)
+{
+    ENetPeer * currentPeer;
+    uint32_t hexaddr;
+
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
+    if (!net_server)
+    {
+        initprintf("You are not the server.\n");
+        return OSDCMD_OK;
+    }
+
+    for (currentPeer = net_server -> peers;
+        currentPeer < & net_server -> peers [net_server -> peerCount];
+        ++ currentPeer)
+    {
+        if (currentPeer -> state != ENET_PEER_STATE_CONNECTED)
+            continue;
+
+        sscanf (parm->parms[0],"%" PRIxPTR "", &hexaddr);
+
+        if (currentPeer->address.host == hexaddr)
+        {
+            initprintf("Kicking %x (%s)\n", currentPeer->address.host,
+                g_player[(intptr_t)currentPeer->data].user_name);
+            enet_peer_disconnect (currentPeer, DISC_KICKED);
+            return OSDCMD_OK;
+        }
+    }
+
+    initprintf("Player %s not found!\n", parm->parms[0]);
+    return OSDCMD_OK;
+}
+
+static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
+{
+    ENetPeer * currentPeer;
+    uint32_t hexaddr;
+
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
+    if (!net_server)
+    {
+        initprintf("You are not the server.\n");
+        return OSDCMD_OK;
+    }
+
+    for (currentPeer = net_server -> peers;
+        currentPeer < & net_server -> peers [net_server -> peerCount];
+        ++ currentPeer)
+    {
+        if (currentPeer -> state != ENET_PEER_STATE_CONNECTED)
+            continue;
+
+        sscanf (parm->parms[0],"%" PRIxPTR "", &hexaddr);
+
+        if (currentPeer->address.host == hexaddr)
+        {
+            char ipaddr[32];
+
+            enet_address_get_host_ip(&currentPeer->address, ipaddr, sizeof(ipaddr));
+            initprintf("Host %s is now banned.\n", ipaddr);
+            initprintf("Kicking %x (%s)\n", currentPeer->address.host,
+                g_player[(intptr_t)currentPeer->data].user_name);
+            enet_peer_disconnect (currentPeer, DISC_BANNED);
+            return OSDCMD_OK;
+        }
+    }
+
+    initprintf("Player %s not found!\n", parm->parms[0]);
     return OSDCMD_OK;
 }
 
@@ -1412,6 +1491,9 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
     OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
+
+    OSD_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
+    OSD_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
 
     OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
 

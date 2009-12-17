@@ -57,13 +57,6 @@ int32_t g_netDisconnect = 0;
 int32_t net_lists[] = { STAT_PROJECTILE, STAT_STANDABLE, STAT_ACTIVATOR, STAT_TRANSPORT, STAT_EFFECTOR, STAT_ACTOR, STAT_ZOMBIEACTOR };
 char g_networkPassword[32];
 
-enum NetDisconnect_t
-{
-    DISC_BAD_PASSWORD = 1,
-    DISC_KICKED,
-    DISC_BANNED
-};
-
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -710,27 +703,7 @@ void G_GameQuit(void)
         G_GameExit("Timed out.");
 }
 
-static void Net_SendWeaponChoice(void)
-{
-    int32_t i,l;
-
-    buf[0] = PACKET_WEAPON_CHOICE;
-    l = 1;
-
-    for (i=0; i<10; i++)
-    {
-        g_player[myconnectindex].wchoice[i] = g_player[0].wchoice[i];
-        buf[l++] = (uint8_t)g_player[0].wchoice[i];
-    }
-
-    buf[l++] = myconnectindex;
-    if (net_client)
-        enet_peer_send(net_peer, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
-    else if (net_server)
-        enet_host_broadcast(net_server, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
-}
-
-static void Net_SendVersion(void)
+static void Net_SendVersion(ENetPeer * client)
 {
     if (!net_server) return;
 
@@ -739,36 +712,10 @@ static void Net_SendVersion(void)
     buf[2] = (uint8_t)atoi(s_buildDate);
     buf[3] = myconnectindex;
 
-    enet_host_broadcast(net_server, 0, enet_packet_create(&buf[0], 4, ENET_PACKET_FLAG_RELIABLE));
+    enet_peer_send(client, 0, enet_packet_create(&buf[0], 4, ENET_PACKET_FLAG_RELIABLE));
 }
 
-static void Net_SendPlayerOptions(void)
-{
-    int32_t l;
-
-    buf[0] = PACKET_PLAYER_OPTIONS;
-    l = 1;
-
-    //null terminated player name to send
-    //    for (i=0;szPlayerName[i];i++) buf[l++] = Btoupper(szPlayerName[i]);
-    //    buf[l++] = 0;
-
-    buf[l++] = g_player[myconnectindex].ps->aim_mode = ud.mouseaiming;
-    buf[l++] = g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
-    buf[l++] = g_player[myconnectindex].ps->weaponswitch = ud.weaponswitch;
-    buf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
-
-    buf[l++] = g_player[myconnectindex].pteam = ud.team;
-
-    buf[l++] = myconnectindex;
-
-    if (net_client)
-        enet_peer_send(net_peer, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
-    else if (net_server)
-        enet_host_broadcast(net_server, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
-}
-
-void Net_SendPlayerName(void)
+void Net_SendClientInfo(void)
 {
     int32_t i,l;
 
@@ -777,12 +724,25 @@ void Net_SendPlayerName(void)
 
     if (numplayers < 2) return;
 
-    buf[0] = PACKET_PLAYER_NAME;
+    buf[0] = PACKET_CLIENT_INFO;
     l = 1;
 
     //null terminated player name to send
     for (i=0; szPlayerName[i]; i++) buf[l++] = Btoupper(szPlayerName[i]);
     buf[l++] = 0;
+
+    buf[l++] = g_player[myconnectindex].ps->aim_mode = ud.mouseaiming;
+    buf[l++] = g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
+    buf[l++] = g_player[myconnectindex].ps->weaponswitch = ud.weaponswitch;
+    buf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
+
+    buf[l++] = g_player[myconnectindex].pteam = ud.team;
+
+    for (i=0; i<10; i++)
+    {
+        g_player[myconnectindex].wchoice[i] = g_player[0].wchoice[i];
+        buf[l++] = (uint8_t)g_player[0].wchoice[i];
+    }
 
     buf[l++] = myconnectindex;
 
@@ -794,27 +754,26 @@ void Net_SendPlayerName(void)
 
 void Net_SendUserMapName(void)
 {
-    if (numplayers > 1)
-    {
-        int32_t j;
+    int32_t j;
 
-        packbuf[0] = PACKET_USER_MAP;
-        packbuf[1] = 0;
+    if (numplayers < 2)
+        return;
 
-        Bcorrectfilename(boardfilename,0);
+    packbuf[0] = PACKET_USER_MAP;
+    packbuf[1] = 0;
 
-        j = Bstrlen(boardfilename);
-        boardfilename[j++] = 0;
-        Bstrcat(packbuf+1,boardfilename);
+    Bcorrectfilename(boardfilename,0);
 
-        packbuf[j++] = myconnectindex;
+    j = Bstrlen(boardfilename);
+    boardfilename[j++] = 0;
+    Bstrcat(packbuf+1,boardfilename);
 
-        if (net_client)
-            enet_peer_send(net_peer, 0, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
-        else if (net_server)
-            enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
+    packbuf[j++] = myconnectindex;
 
-    }
+    if (net_client)
+        enet_peer_send(net_peer, 0, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
+    else if (net_server)
+        enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
 }
 
 void Net_NewGame(int32_t volume, int32_t level)
@@ -947,9 +906,7 @@ void Net_SyncPlayer(ENetEvent * event)
     packbuf[2] = myconnectindex;
     enet_peer_send(event->peer, 0, enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
 
-    Net_SendPlayerName();
-    Net_SendPlayerOptions();
-    Net_SendWeaponChoice();
+    Net_SendClientInfo();
     Net_SendUserMapName();
 
     if (g_player[0].ps->gm & MODE_GAME)
@@ -1020,12 +977,14 @@ void Net_ParsePacket(ENetEvent * event)
             {
                 if (g_player[i].playerquitflag == 0) continue;
 
-                Bmemcpy(&g_player[i].ps->dead_flag, &packbuf[j], sizeof(int16_t));
+                g_player[i].ps->dead_flag = *(int16_t *)&packbuf[j];
                 j += sizeof(int16_t);
 
                 if (i == myconnectindex && !g_player[i].ps->dead_flag)
                 {
-                    j += sizeof(input_t)-sizeof(loc.filler)+(sizeof(vec3_t)*3) + sizeof(int16_t)*6;
+                    j += (sizeof(input_t) - sizeof(loc.filler)) +
+                        (sizeof(vec3_t) * 3) + // position
+                        (sizeof(int16_t) * 6); // ang and horiz
                     goto process;
                 }
 
@@ -1042,27 +1001,18 @@ void Net_ParsePacket(ENetEvent * event)
                 Bmemcpy(&sprite[g_player[i].ps->i], &packbuf[j], sizeof(vec3_t));
                 sprite[g_player[i].ps->i].z += PHEIGHT;
                 j += sizeof(vec3_t) * 3;
+
                 Bmemcpy(&g_player[i].ps->ang, &packbuf[j], sizeof(int16_t) * 2);
-                Bmemcpy(&sprite[g_player[i].ps->i].ang, &packbuf[j], sizeof(int16_t));
+                sprite[g_player[i].ps->i].ang = *(int16_t *)&packbuf[j];
                 j += sizeof(int16_t) * 2;
+
                 Bmemcpy(&g_player[i].ps->horiz, &packbuf[j], sizeof(int16_t) * 4);
                 j += sizeof(int16_t) * 4;
 
 process:
-                Bmemcpy(&sprite[g_player[i].ps->i].extra, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
-                Bmemcpy(&sprite[g_player[i].ps->i].cstat, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
-                Bmemcpy(&g_player[i].ps->kickback_pic, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
-                Bmemcpy(&ActorExtra[g_player[i].ps->i].owner, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
-                Bmemcpy(&ActorExtra[g_player[i].ps->i].picnum, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
+
                 Bmemcpy(&g_player[i].ps->gotweapon[0], &packbuf[j], sizeof(g_player[i].ps->gotweapon));
                 j += sizeof(g_player[i].ps->gotweapon);
-                Bmemcpy(&g_player[i].ps->curr_weapon, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
 
                 Bmemcpy(&g_player[i].ps->ammo_amount[0], &packbuf[j], sizeof(g_player[i].ps->ammo_amount));
                 j += sizeof(g_player[i].ps->ammo_amount);
@@ -1070,22 +1020,41 @@ process:
                 Bmemcpy(&g_player[i].ps->inv_amount[0], &packbuf[j], sizeof(g_player[i].ps->inv_amount));
                 j += sizeof(g_player[i].ps->inv_amount);
 
-                Bmemcpy(&g_player[i].ps->last_weapon, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
-                Bmemcpy(&g_player[i].ps->wantweaponfire, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
-                Bmemcpy(&g_player[i].ps->frag_ps, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
-                Bmemcpy(&g_player[i].ps->frag, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
-                Bmemcpy(&g_player[i].ps->fraggedself, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
-                Bmemcpy(&g_player[i].ps->last_extra, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
                 Bmemcpy(g_player[i].frags, &packbuf[j], sizeof(g_player[i].frags));
                 j += sizeof(g_player[i].frags);
-                Bmemcpy(&g_player[i].ping, &packbuf[j], sizeof(int16_t));
+
+                sprite[g_player[i].ps->i].extra = *(int16_t *)&packbuf[j];
                 j += sizeof(int16_t);
+
+                sprite[g_player[i].ps->i].cstat = *(int16_t *)&packbuf[j];
+                j += sizeof(int16_t);
+
+                g_player[i].ps->kickback_pic = *(int16_t *)&packbuf[j];
+                j += sizeof(int16_t);
+
+                ActorExtra[g_player[i].ps->i].owner = *(int16_t *)&packbuf[j];
+                j += sizeof(int16_t);
+
+                ActorExtra[g_player[i].ps->i].picnum = *(int16_t *)&packbuf[j];
+                j += sizeof(int16_t);
+
+                g_player[i].ps->curr_weapon = (int8_t)packbuf[j++];
+                g_player[i].ps->last_weapon = (int8_t)packbuf[j++];
+                g_player[i].ps->wantweaponfire = (int8_t)packbuf[j++];
+                g_player[i].ps->frag_ps = (int8_t)packbuf[j++];
+
+                g_player[i].ps->frag = *(int16_t *)&packbuf[j];
+                j += sizeof(int16_t);
+
+                g_player[i].ps->fraggedself = *(int16_t *)&packbuf[j];
+                j += sizeof(int16_t);
+
+                g_player[i].ps->last_extra = *(int16_t *)&packbuf[j];
+                j += sizeof(int16_t);
+
+                g_player[i].ping = *(int16_t *)&packbuf[j];
+                j += sizeof(int16_t);
+
                 sprite[g_player[i].ps->i].pal = packbuf[j++];
 
                 l = i;
@@ -1135,29 +1104,7 @@ process:
             }
 
             {
-/*
-                int16_t ahead, zhead, phead;
-
-                Bmemcpy(&ahead, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
-
-                Bmemcpy(&zhead, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
-
-                Bmemcpy(&phead, &packbuf[j], sizeof(int16_t));
-                j += sizeof(int16_t);
-
-                if (ahead != -1 && sprite[ahead].statnum != STAT_ACTOR && sprite[ahead].statnum != STAT_ZOMBIEACTOR)
-                    deletesprite(ahead);
-
-                if (zhead != -1 && sprite[zhead].statnum != STAT_ACTOR && sprite[zhead].statnum != STAT_ZOMBIEACTOR)
-                    deletesprite(zhead);
-
-                if (phead != -1 && sprite[phead].statnum != STAT_PROJECTILE)
-                    deletesprite(phead);
-*/
-
-                // sprite updates tacked on to the end of the packet
+                // sprite/sector/wall updates tacked on to the end of the packet
 
                 l = packbuf[j++];
                 while (l--)
@@ -1187,14 +1134,10 @@ process:
                     // doesn't exist on the client yet
                     if (ostatnum == MAXSTATUS || osect == MAXSECTORS)
                     {
-                        int16_t sprs[MAXSPRITES], j = 0;
-                        while ((sprs[j++] = insertsprite(sect, statnum)) != i);
-                        if (j != 1)
-                        {
-                            j--;
-                            while (--j) deletesprite(sprs[j]);
-                            deletesprite(sprs[0]);
-                        }
+                        int16_t sprs[MAXSPRITES], z = 0;
+                        while ((sprs[z++] = insertsprite(sect, statnum)) != i);
+                        z--;
+                        while (z--) deletesprite(sprs[z]);
                     }
                     else
                     {
@@ -1430,11 +1373,7 @@ process:
 
                 // myconnectindex is 0 until we get PACKET_PLAYER_INDEX
                 if (net_client && myconnectindex != 0)
-                {
-                    Net_SendPlayerName();
-                    Net_SendPlayerOptions();
-                    Net_SendWeaponChoice();
-                }
+                    Net_SendClientInfo();
 
                 break;
 
@@ -1444,9 +1383,7 @@ process:
 
                 clearbufbyte(&g_player[myconnectindex].playerquitflag,1,0x01010101);
 
-                Net_SendPlayerName();
-                Net_SendPlayerOptions();
-                Net_SendWeaponChoice();
+                Net_SendClientInfo();
 
                 break;
 
@@ -1468,8 +1405,11 @@ process:
                 P_FragPlayer(packbuf[1]);
                 break;
 
-            case PACKET_PLAYER_OPTIONS:
-                i = 1;
+            case PACKET_CLIENT_INFO:
+                for (i=1; packbuf[i]; i++)
+                    g_player[other].user_name[i-1] = packbuf[i];
+                g_player[other].user_name[i-1] = 0;
+                i++;
 
                 g_player[other].ps->aim_mode = packbuf[i++];
                 g_player[other].ps->auto_aim = packbuf[i++];
@@ -1477,23 +1417,11 @@ process:
                 g_player[other].ps->palookup = g_player[other].pcolor = packbuf[i++];
                 g_player[other].pteam = packbuf[i++];
 
-                break;
-
-            case PACKET_PLAYER_NAME:
-                for (i=1; packbuf[i]; i++)
-                    g_player[other].user_name[i-1] = packbuf[i];
-                g_player[other].user_name[i-1] = 0;
-                i++;
-
-                break;
-
-            case PACKET_WEAPON_CHOICE:
-                i = 1;
-
-                j = i; //This used to be Duke packet #9... now concatenated with Duke packet #6
+                j = i;
                 for (; i-j<10; i++) g_player[other].wchoice[i-j] = packbuf[i];
 
                 break;
+
 
             case PACKET_RTS:
                 if (numlumps == 0) break;
@@ -1645,16 +1573,20 @@ void Net_GetPackets(void)
     {
         ENetEvent event;
 
-        while (enet_host_service (net_server, & event, 0) > 0)
+        while (enet_host_service (net_server, & event, 1) > 0)
         {
             switch (event.type)
             {
             case ENET_EVENT_TYPE_CONNECT:
-                initprintf ("A new client connected from %x:%u.\n", 
-                    event.peer -> address.host,
-                    event.peer -> address.port);
+                {
+                    char ipaddr[32];
 
-                Net_SendVersion();
+                    enet_address_get_host_ip(&event.peer->address, ipaddr, sizeof(ipaddr));
+
+                    initprintf ("A new client connected from %s:%u.\n", 
+                        ipaddr, event.peer -> address.port);
+                }
+                Net_SendVersion(event.peer);
                 break;
             case ENET_EVENT_TYPE_RECEIVE:
 /*
@@ -1702,7 +1634,7 @@ void Net_GetPackets(void)
     {
         ENetEvent event;
 
-        while (enet_host_service (net_client, & event, 0) > 0)
+        while (enet_host_service (net_client, & event, 1) > 0)
         {
             switch (event.type)
             {
@@ -1762,6 +1694,7 @@ void Net_GetPackets(void)
                     }
                 }
                 else Net_ParsePacket(&event);
+
                 enet_packet_destroy (event.packet);
                 break;
             case ENET_EVENT_TYPE_DISCONNECT:
@@ -1910,50 +1843,65 @@ void faketimerhandler(void)
 
             Bmemcpy(&osyn[i], &nsyn[i], sizeof(input_t));
 
-            Bmemcpy(&packbuf[j], &g_player[i].ps->dead_flag, sizeof(int16_t));
+            *(int16_t *)&packbuf[j] = g_player[i].ps->dead_flag;
             j += sizeof(int16_t);
+
             Bmemcpy(&packbuf[j], &nsyn[i], sizeof(input_t));
             j += sizeof(input_t)-sizeof(loc.filler);
+
             Bmemcpy(&packbuf[j], &g_player[i].ps->posx, sizeof(vec3_t) * 3);
             j += sizeof(vec3_t) * 3;
+
             Bmemcpy(&packbuf[j], &g_player[i].ps->ang, sizeof(int16_t) * 2);
             j += sizeof(int16_t) * 2;
+
             Bmemcpy(&packbuf[j], &g_player[i].ps->horiz, sizeof(int16_t) * 4);
             j += sizeof(int16_t) * 4;
-            Bmemcpy(&packbuf[j], &sprite[g_player[i].ps->i].extra, sizeof(int16_t));
-            j += sizeof(int16_t);
-            Bmemcpy(&packbuf[j], &sprite[g_player[i].ps->i].cstat, sizeof(int16_t));
-            j += sizeof(int16_t);
-            Bmemcpy(&packbuf[j], &g_player[i].ps->kickback_pic, sizeof(int16_t));
-            j += sizeof(int16_t);
-            Bmemcpy(&packbuf[j], &ActorExtra[g_player[i].ps->i].owner, sizeof(int16_t));
-            j += sizeof(int16_t);
-            Bmemcpy(&packbuf[j], &ActorExtra[g_player[i].ps->i].picnum, sizeof(int16_t));
-            j += sizeof(int16_t);
+
             Bmemcpy(&packbuf[j], &g_player[i].ps->gotweapon[0], sizeof(g_player[i].ps->gotweapon));
             j += sizeof(g_player[i].ps->gotweapon);
-            Bmemcpy(&packbuf[j], &g_player[i].ps->curr_weapon, sizeof(int16_t));
-            j += sizeof(int16_t);
+
             Bmemcpy(&packbuf[j], &g_player[i].ps->ammo_amount[0], sizeof(g_player[i].ps->ammo_amount));
             j += sizeof(g_player[i].ps->ammo_amount);
+
             Bmemcpy(&packbuf[j], &g_player[i].ps->inv_amount[0], sizeof(g_player[i].ps->inv_amount));
             j += sizeof(g_player[i].ps->inv_amount);
-            Bmemcpy(&packbuf[j], &g_player[i].ps->last_weapon, sizeof(int16_t));
-            j += sizeof(int16_t);
-            Bmemcpy(&packbuf[j], &g_player[i].ps->wantweaponfire, sizeof(int16_t));
-            j += sizeof(int16_t);
-            Bmemcpy(&packbuf[j], &g_player[i].ps->frag_ps, sizeof(int16_t));
-            j += sizeof(int16_t);
-            Bmemcpy(&packbuf[j], &g_player[i].ps->frag, sizeof(int16_t));
-            j += sizeof(int16_t);
-            Bmemcpy(&packbuf[j], &g_player[i].ps->fraggedself, sizeof(int16_t));
-            j += sizeof(int16_t);
-            Bmemcpy(&packbuf[j], &g_player[i].ps->last_extra, sizeof(int16_t));
-            j += sizeof(int16_t);
+
             Bmemcpy(&packbuf[j], g_player[i].frags, sizeof(g_player[i].frags));
             j += sizeof(g_player[i].frags);
-            Bmemcpy(&packbuf[j], &g_player[i].ping, sizeof(int16_t));
+
+            *(int16_t *)&packbuf[j] = sprite[g_player[i].ps->i].extra;
             j += sizeof(int16_t);
+
+            *(int16_t *)&packbuf[j] = sprite[g_player[i].ps->i].cstat;
+            j += sizeof(int16_t);
+
+            *(int16_t *)&packbuf[j] = g_player[i].ps->kickback_pic;
+            j += sizeof(int16_t);
+
+            *(int16_t *)&packbuf[j] = ActorExtra[g_player[i].ps->i].owner;
+            j += sizeof(int16_t);
+
+            *(int16_t *)&packbuf[j] = ActorExtra[g_player[i].ps->i].picnum;
+            j += sizeof(int16_t);
+
+            packbuf[j++] = (uint8_t) g_player[i].ps->curr_weapon;
+            packbuf[j++] = (uint8_t) g_player[i].ps->last_weapon;
+            packbuf[j++] = (uint8_t) g_player[i].ps->wantweaponfire;
+            packbuf[j++] = (uint8_t) g_player[i].ps->frag_ps;
+
+            *(int16_t *)&packbuf[j] = g_player[i].ps->frag;
+            j += sizeof(int16_t);
+
+            *(int16_t *)&packbuf[j] = g_player[i].ps->fraggedself;
+            j += sizeof(int16_t);
+
+            *(int16_t *)&packbuf[j] = g_player[i].ps->last_extra;
+            j += sizeof(int16_t);
+
+            *(int16_t *)&packbuf[j] = g_player[i].ping;
+            j += sizeof(int16_t);
+
             packbuf[j++] = sprite[g_player[i].ps->i].pal;
 
             l = i;
@@ -2033,17 +1981,6 @@ void faketimerhandler(void)
                 j += sizeof(int16_t);
             }
         }
-
-/*
-        Bmemcpy(&packbuf[j], &headspritestat[STAT_ACTOR], sizeof(int16_t));
-        j += sizeof(int16_t);
-
-        Bmemcpy(&packbuf[j], &headspritestat[STAT_ZOMBIEACTOR], sizeof(int16_t));
-        j += sizeof(int16_t);
-
-        Bmemcpy(&packbuf[j], &headspritestat[STAT_PROJECTILE], sizeof(int16_t));
-        j += sizeof(int16_t);
-*/
 
         k = 0;
 
@@ -10085,6 +10022,16 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     i++;
                     continue;
                 }
+                if (!Bstrcasecmp(c+1,"password"))
+                {
+                    if (argc > i+1)
+                    {
+                        Bstrncpy(g_networkPassword, (char *)argv[i+1], sizeof(g_networkPassword)-1);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"name"))
                 {
                     if (argc > i+1)
@@ -10945,7 +10892,7 @@ void G_UpdatePlayerFromMenu(void)
 
     if (numplayers > 1)
     {
-        Net_SendPlayerOptions();
+        Net_SendClientInfo();
         if (sprite[g_player[myconnectindex].ps->i].picnum == APLAYER && sprite[g_player[myconnectindex].ps->i].pal != 1)
             sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].pcolor;
     }

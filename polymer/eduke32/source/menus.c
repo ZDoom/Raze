@@ -854,7 +854,7 @@ void M_DisplayMenus(void)
                         if (buf[0] && Bstrcmp(szPlayerName,buf))
                         {
                             Bstrcpy(szPlayerName,buf);
-                            Net_SendPlayerName();
+                            Net_SendClientInfo();
                         }
                         // send name update
                     }
