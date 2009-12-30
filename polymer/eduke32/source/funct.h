@@ -89,7 +89,7 @@ extern void P_ResetWeapons(int32_t snum);
 extern void P_ResetInventory(int32_t snum);
 extern void G_NewGame(int32_t vn,int32_t ln,int32_t sk);
 extern void G_ResetTimers(void);
-extern void Net_WaitForEverybody(void);
+extern void Net_WaitForServer(void);
 extern void clearfifo(void);
 extern void Net_ResetPrediction(void);
 extern int32_t  G_EnterLevel(int32_t g);

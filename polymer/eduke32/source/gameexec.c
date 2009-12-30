@@ -238,7 +238,7 @@ int32_t A_FurthestVisiblePoint(int32_t iActor,spritetype *ts,int32_t *dax,int32_
         spritetype *s = &sprite[iActor];
         hitdata_t hitinfo;
 
-        if (ud.multimode < 2 && ud.player_skill < 3)
+        if ((!net_server && ud.multimode < 2) && ud.player_skill < 3)
             angincs = 2048/2;
         else angincs = 2048/(1+(krand()&1));
 
@@ -613,7 +613,7 @@ static void X_Move(void)
             }
             else if (vm.g_sp->picnum != DRONE && vm.g_sp->picnum != SHARK && vm.g_sp->picnum != COMMANDER)
             {
-                if (ActorExtra[vm.g_i].bposz != vm.g_sp->z || (ud.multimode < 2 && ud.player_skill < 2))
+                if (ActorExtra[vm.g_i].bposz != vm.g_sp->z || ((!net_server && ud.multimode < 2) && ud.player_skill < 2))
                 {
                     if ((vm.g_t[0]&1) || g_player[vm.g_p].ps->actorsqu == vm.g_i) return;
                     else daxvel <<= 1;
@@ -919,7 +919,7 @@ skip_check:
         case CON_IFGOTWEAPONCE:
             insptr++;
 
-            if ((GametypeFlags[ud.coop]&GAMETYPE_WEAPSTAY) && ud.multimode > 1)
+            if ((GametypeFlags[ud.coop]&GAMETYPE_WEAPSTAY) && (net_server || ud.multimode > 1))
             {
                 if (*insptr == 0)
                 {
@@ -977,7 +977,7 @@ skip_check:
         case CON_PKICK:
             insptr++;
 
-            if (ud.multimode > 1 && vm.g_sp->picnum == APLAYER)
+            if ((net_server || ud.multimode > 1) && vm.g_sp->picnum == APLAYER)
             {
                 if (g_player[otherp].ps->quick_kick == 0)
                     g_player[otherp].ps->quick_kick = 14;
@@ -2280,7 +2280,7 @@ nullquote:
                 setview(x1,y1,x2,y2);
 
 #if 0
-                if (!ud.pause_on && ((ud.show_help == 0 && ud.multimode < 2 && !(g_player[myconnectindex].ps->gm&MODE_MENU)) || ud.multimode > 1 || ud.recstat == 2))
+                if (!ud.pause_on && ((ud.show_help == 0 && (!net_server && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm&MODE_MENU)) || (net_server || ud.multimode > 1) || ud.recstat == 2))
                     smoothratio = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
 #endif
                 G_DoInterpolations(smoothratio);
@@ -2734,7 +2734,7 @@ nullquote:
                 g_screenCapture = 1;
                 G_DrawRooms(myconnectindex,65536);
                 g_screenCapture = 0;
-                if (ud.multimode > 1)
+                if ((net_server || ud.multimode > 1))
                     G_SavePlayer(-1-(g_lastSaveSlot));
                 else G_SavePlayer(g_lastSaveSlot);
 
@@ -2757,7 +2757,7 @@ nullquote:
             insptr++;
 
             //AddLog("resetplayer");
-            if (ud.multimode < 2)
+            if ((!net_server && ud.multimode < 2))
             {
                 if (g_lastSaveSlot >= 0 && ud.recstat != 2)
                 {
@@ -2938,7 +2938,7 @@ nullquote:
                 j = 1;
             else if ((l&65536L))
             {
-                if (vm.g_sp->picnum == APLAYER && ud.multimode > 1)
+                if (vm.g_sp->picnum == APLAYER && (net_server || ud.multimode > 1))
                     j = G_GetAngleDelta(g_player[otherp].ps->ang,getangle(g_player[vm.g_p].ps->posx-g_player[otherp].ps->posx,g_player[vm.g_p].ps->posy-g_player[otherp].ps->posy));
                 else
                     j = G_GetAngleDelta(g_player[vm.g_p].ps->ang,getangle(vm.g_sp->x-g_player[vm.g_p].ps->posx,vm.g_sp->y-g_player[vm.g_p].ps->posy));
@@ -3030,7 +3030,7 @@ nullquote:
             continue;
 
         case CON_IFMULTIPLAYER:
-            X_DoConditional(ud.multimode > 1);
+            X_DoConditional((net_server || ud.multimode > 1));
             continue;
 
         case CON_OPERATE:

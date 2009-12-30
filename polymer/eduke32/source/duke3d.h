@@ -547,17 +547,17 @@ typedef struct {
 // spriteinterpolate sprpos[MAXSPRITES];
 
 typedef struct {
-    int32_t bposx,bposy,bposz,flags; //16b
-    int32_t floorz,ceilingz,lastvx,lastvy; //16b
-    int32_t lasttransport; //4b
-
-    int16_t timetosleep, shootzvel; //4b
-
     intptr_t temp_data[10]; // 40b/80b sometimes used to hold pointers to con code
 
     int16_t picnum,ang,extra,owner; //8b
-    int16_t movflag,tempang,actorstayput,dispicnum; //8b
+    int16_t movflag,tempang,timetosleep; //6b
+
+    int32_t flags, bposx,bposy,bposz; //16b
+    int32_t floorz,ceilingz,lastvx,lastvy; //16b
+    int32_t lasttransport; //4b
+
     int16_t lightId, lightcount, lightmaxrange, cgg; //8b
+    int16_t actorstayput, dispicnum, shootzvel; // 6b
 
 #ifdef POLYMER
     _prlight *lightptr; //4b/8b
@@ -569,6 +569,16 @@ typedef struct {
 
     int8_t filler[16]; // pad struct to 128 bytes
 } ActorData_t;
+
+// this struct needs to match the beginning of ActorData_t above
+typedef struct {
+    intptr_t temp_data[10]; // 40b/80b sometimes used to hold pointers to con code
+
+    int16_t picnum,ang,extra,owner; //8b
+    int16_t movflag,tempang,timetosleep; // 6b
+
+    int32_t flags; // 4b
+} NetActorData_t;
 
 extern ActorData_t ActorExtra[MAXSPRITES];
 
@@ -1105,6 +1115,7 @@ enum DukePacket_t
     PACKET_LOAD_GAME,
     PACKET_VERSION,
     PACKET_AUTH,
+    PACKET_PLAYER_READY,
 
     // any packet with an ID higher than PACKET_BROADCAST is rebroadcast by server
     // this is so hacked clients can't create fake server packets and get the server
@@ -1120,9 +1131,6 @@ enum DukePacket_t
     PACKET_MAP_VOTE,
     PACKET_MAP_VOTE_INITIATE,
     PACKET_MAP_VOTE_CANCEL,
-
-    PACKET_PLAYER_READY,
-    PACKET_QUIT = 255
 };
 
 enum NetDisconnect_t

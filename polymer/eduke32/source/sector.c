@@ -226,7 +226,7 @@ int32_t dist(spritetype *s1,spritetype *s2)
 
 int32_t __fastcall A_FindPlayer(spritetype *s, int32_t *d)
 {
-    if (ud.multimode < 2)
+    if ((!net_server && ud.multimode < 2))
     {
         *d = klabs(g_player[myconnectindex].ps->oposx-s->x) + klabs(g_player[myconnectindex].ps->oposy-s->y) + ((klabs(g_player[myconnectindex].ps->oposz-s->z+(28<<8)))>>4);
         return myconnectindex;
@@ -3230,7 +3230,7 @@ void P_CheckSectors(int32_t snum)
                 if (j >= 0 && wall[j].overpicnum == 0)
                     if (ActorExtra[neartagsprite].temp_data[0] == 0)
                     {
-                        if (ud.noexits && ud.multimode > 1)
+                        if (ud.noexits && (net_server || ud.multimode > 1))
                         {
                             // NUKEBUTTON frags the player
                             ActorExtra[p->i].picnum = NUKEBUTTON;

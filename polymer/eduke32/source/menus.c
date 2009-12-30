@@ -626,7 +626,7 @@ void M_DisplayMenus(void)
         x = M_Probe(186,124,0,1);
         if (x >= -1)
         {
-            if (ud.multimode < 2 && ud.recstat != 2)
+            if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
@@ -1274,7 +1274,7 @@ void M_DisplayMenus(void)
             KB_ClearKeyDown(sc_Escape);
 
             g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-            if (ud.multimode < 2 && ud.recstat != 2)
+            if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
@@ -1287,7 +1287,7 @@ void M_DisplayMenus(void)
             KB_ClearKeysDown();
             FX_StopAllSounds();
 
-            if (ud.multimode > 1)
+            if ((net_server || ud.multimode > 1))
             {
                 G_LoadPlayer(-1-g_lastSaveSlot);
                 g_player[myconnectindex].ps->gm = MODE_GAME;
@@ -1442,13 +1442,13 @@ void M_DisplayMenus(void)
 
             KB_FlushKeyboardQueue();
             KB_ClearKeysDown();
-            if (ud.multimode < 2 && ud.recstat != 2)
+            if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
             }
 
-            if (ud.multimode > 1)
+            if ((net_server || ud.multimode > 1))
             {
                 if (g_player[myconnectindex].ps->gm&MODE_GAME)
                 {
@@ -1493,7 +1493,7 @@ void M_DisplayMenus(void)
             if (g_player[myconnectindex].ps->gm&MODE_GAME)
             {
                 g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-                if (ud.multimode < 2 && ud.recstat != 2)
+                if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
                 {
                     ready2send = 1;
                     totalclock = ototalclock;
@@ -1519,7 +1519,7 @@ void M_DisplayMenus(void)
         {
             KB_ClearKeyDown(sc_N);
             KB_ClearKeyDown(sc_Escape);
-            if (ud.multimode < 2 && ud.recstat != 2)
+            if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
@@ -1877,7 +1877,7 @@ cheat_for_port_credits:
         x = M_Probe(c,67,16,6);
         if (x >= 0)
         {
-            if (ud.multimode > 1 && x == 0 && ud.recstat != 2)
+            if ((net_server || ud.multimode > 1) && x == 0 && ud.recstat != 2)
             {
                 last_zero = 0;
                 ChangeToMenu(600);
@@ -1916,7 +1916,7 @@ cheat_for_port_credits:
         if (x == -1 && (g_player[myconnectindex].ps->gm&MODE_GAME || ud.recstat == 2))
         {
             g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-            if (ud.multimode < 2 && ud.recstat != 2)
+            if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
@@ -1957,7 +1957,7 @@ cheat_for_port_credits:
         switch (x)
         {
         case 0:
-            if (ud.multimode < 2 || ud.recstat == 2)
+            if ((!net_server && ud.multimode < 2) || ud.recstat == 2)
                 ChangeToMenu(1500);
             else
             {
@@ -1987,7 +1987,7 @@ cheat_for_port_credits:
             ChangeToMenu(400);
             break;
         case 5:
-            if (numplayers < 2)
+            if (numplayers < 2 && !net_server)
             {
                 last_fifty = 5;
                 ChangeToMenu(501);
@@ -1999,7 +1999,7 @@ cheat_for_port_credits:
             break;
         case -1:
             g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-            if (ud.multimode < 2 && ud.recstat != 2)
+            if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
@@ -2023,7 +2023,7 @@ cheat_for_port_credits:
         {
             menutext(c,67+16+16+16+16      ,MENUHIGHLIGHT(4),PHX(-6)," HELP");
         }
-        if (numplayers > 1)
+        if (net_server || numplayers > 1)
             menutext(c,67+16+16+16+16+16   ,MENUHIGHLIGHT(5),1,"QUIT TO TITLE");
         else menutext(c,67+16+16+16+16+16   ,MENUHIGHLIGHT(5),PHX(-7),"QUIT TO TITLE");
         menutext(c,67+16+16+16+16+16+16,MENUHIGHLIGHT(6),PHX(-8),"QUIT GAME");
@@ -2266,7 +2266,7 @@ cheat_for_port_credits:
         {
             clearfilenames();
             boardfilename[0] = 0;
-            if (ud.multimode > 1)
+            if ((net_server || ud.multimode > 1))
             {
                 Net_SendUserMapName();
                 ChangeToMenu(600);
@@ -2291,7 +2291,7 @@ cheat_for_port_credits:
                 strcat(boardfilename, findfileshigh->name);
                 ud.m_volume_number = 0;
                 ud.m_level_number = 7;
-                if (ud.multimode > 1)
+                if ((net_server || ud.multimode > 1))
                 {
                     Net_SendUserMapName();
                     ChangeToMenu(600);
@@ -2578,7 +2578,7 @@ cheat_for_port_credits:
             if (g_player[myconnectindex].ps->gm&MODE_GAME && g_currentMenu == 232)
             {
                 g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-                if (ud.multimode < 2  && ud.recstat != 2)
+                if ((!net_server && ud.multimode < 2)  && ud.recstat != 2)
                 {
                     ready2send = 1;
                     totalclock = ototalclock;
@@ -3391,7 +3391,7 @@ cheat_for_port_credits:
             menutext(c+168,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"OFF":"ON");
             modval(0,1,(int32_t *)&ud.detail,1,probey==5);
             menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),PHX(-6),"AMBIENT LIGHT");
-            _bar(0,c+185,50+62+16+16+16,&i,128,x==6,MENUHIGHLIGHT(6),numplayers>1,128,4096);
+            _bar(0,c+185,50+62+16+16+16,&i,128,x==6,MENUHIGHLIGHT(6),net_server || numplayers>1,128,4096);
             Bsprintf(tempbuf,"%.2f",r_ambientlight);
             mgametextpal(c+185+9,50+62+16+16+16+4, tempbuf, MENUHIGHLIGHT(6), 0);
 
@@ -4431,7 +4431,7 @@ cheat_for_port_credits:
                 if (g_player[myconnectindex].ps->gm&MODE_GAME && g_currentMenu == 701)
                 {
                     g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-                    if (ud.multimode < 2  && ud.recstat != 2)
+                    if ((!net_server && ud.multimode < 2)  && ud.recstat != 2)
                     {
                         ready2send = 1;
                         totalclock = ototalclock;
@@ -4484,7 +4484,7 @@ cheat_for_port_credits:
                 }
                 break;
                 case 2:
-                    if (ud.config.MusicDevice >= 0 && (numplayers < 2 || ud.config.MusicToggle))
+                    if (ud.config.MusicDevice >= 0 && ud.config.MusicToggle)
                     {
                         i = ud.config.MusicToggle;
                         modval(0,1,(int32_t *)&ud.config.MusicToggle,1,probey==io);
@@ -4689,7 +4689,7 @@ cheat_for_port_credits:
             {
                 //        ReadSaveGameHeaders();
                 g_player[myconnectindex].ps->gm = MODE_GAME;
-                if (ud.multimode < 2  && ud.recstat != 2)
+                if ((!net_server && ud.multimode < 2)  && ud.recstat != 2)
                 {
                     ready2send = 1;
                     totalclock = ototalclock;
@@ -4706,13 +4706,13 @@ cheat_for_port_credits:
                 }
                 else
                 {
-                    if (ud.multimode > 1)
+                    if ((net_server || ud.multimode > 1))
                         G_SavePlayer(-1-(g_currentMenu-360));
                     else G_SavePlayer(g_currentMenu-360);
                     g_lastSaveSlot = g_currentMenu-360;
                     g_player[myconnectindex].ps->gm = MODE_GAME;
 
-                    if (ud.multimode < 2  && ud.recstat != 2)
+                    if ((!net_server && ud.multimode < 2)  && ud.recstat != 2)
                     {
                         ready2send = 1;
                         totalclock = ototalclock;
@@ -4786,7 +4786,7 @@ cheat_for_port_credits:
             else
                 g_player[myconnectindex].ps->gm = MODE_GAME;
 
-            if (ud.multimode < 2 && ud.recstat != 2)
+            if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
@@ -4988,7 +4988,7 @@ VOLUME_ALL_40x:
                 else if (!(g_player[myconnectindex].ps->gm & MODE_GAME || ud.recstat == 2))
                     ChangeToMenu(0);
                 else g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-                if (ud.multimode < 2  && ud.recstat != 2)
+                if ((!net_server && ud.multimode < 2)  && ud.recstat != 2)
                 {
                     ready2send = 1;
                     totalclock = ototalclock;
@@ -5016,7 +5016,7 @@ VOLUME_ALL_40x:
         if (x == -1 || KB_KeyPressed(sc_N) || RMB)
         {
             g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-            if (ud.multimode < 2  && ud.recstat != 2)
+            if ((!net_server && ud.multimode < 2)  && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;

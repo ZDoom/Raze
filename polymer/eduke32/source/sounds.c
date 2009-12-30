@@ -453,7 +453,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
     if (g_sounds[num].m&4)
     {
-        if (ud.multimode > 1 && PN == APLAYER && sprite[i].yvel != screenpeek) // other player sound
+        if ((net_server || ud.multimode > 1) && PN == APLAYER && sprite[i].yvel != screenpeek) // other player sound
         {
             if (!(ud.config.VoiceToggle&4))
                 return -1;

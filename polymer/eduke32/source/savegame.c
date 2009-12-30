@@ -201,7 +201,7 @@ int32_t G_LoadPlayer(int32_t spot)
         nextpage();
     }
 
-    Net_WaitForEverybody();
+    Net_WaitForServer();
 
     FX_StopAllSounds();
     S_ClearSoundLocks();
@@ -584,7 +584,7 @@ int32_t G_LoadPlayer(int32_t spot)
 
     mmulti_flushpackets();
     clearfifo();
-    Net_WaitForEverybody();
+    Net_WaitForServer();
 
     G_ResetTimers();
 
@@ -635,7 +635,7 @@ int32_t G_SavePlayer(int32_t spot)
         return -1;
     }
 
-    Net_WaitForEverybody();
+    Net_WaitForServer();
 
     if (multiflag == 2 && multiwho != myconnectindex)
     {
@@ -909,7 +909,7 @@ int32_t G_SavePlayer(int32_t spot)
 
     fclose(fil);
 
-    if (ud.multimode < 2)
+    if ((!net_server && ud.multimode < 2))
     {
         strcpy(ScriptQuotes[122],"GAME SAVED");
         P_DoQuote(122,g_player[myconnectindex].ps);
@@ -917,7 +917,7 @@ int32_t G_SavePlayer(int32_t spot)
 
     ready2send = 1;
 
-    Net_WaitForEverybody();
+    Net_WaitForServer();
 
     ototalclock = totalclock;
 

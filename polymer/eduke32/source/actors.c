@@ -501,7 +501,7 @@ void A_DeleteSprite(int32_t s)
 
 void A_AddToDeleteQueue(int32_t i)
 {
-    if (g_spriteDeleteQueueSize == 0)
+    if (net_peer || g_spriteDeleteQueueSize == 0)
     {
         deletesprite(i);
         return;
@@ -1044,7 +1044,7 @@ static void G_MovePlayers(void)
             }
             else
             {
-                if (ud.multimode > 1)
+                if (net_server || (net_server || ud.multimode > 1))
                     otherp = P_FindOtherPlayer(s->yvel,&otherx);
                 else
                 {
@@ -1055,7 +1055,7 @@ static void G_MovePlayers(void)
                 if (actorscrptr[sprite[i].picnum])
                     A_Execute(i,s->yvel,otherx);
 
-                if (ud.multimode > 1)
+                if (net_server || (net_server || ud.multimode > 1))
                     if (sprite[g_player[otherp].ps->i].extra > 0)
                     {
                         if (s->yrepeat > 32 && sprite[g_player[otherp].ps->i].yrepeat < 32)
@@ -3743,7 +3743,7 @@ static void G_MoveActors(void)
                 gamelightcount++;
 #endif // POLYMER
 
-            if (ud.multimode < 2)
+            if (!net_server && (!net_server && ud.multimode < 2))
             {
                 if (g_noEnemies == 1)
                 {
@@ -3946,7 +3946,7 @@ static void G_MoveActors(void)
             //        case GREENSLIME+7:
 
             // #ifndef VOLUMEONE
-            if (ud.multimode < 2)
+            if (net_server && (!net_server && ud.multimode < 2))
             {
                 if (g_noEnemies == 1)
                 {
@@ -4770,7 +4770,7 @@ DETONATEB:
             goto BOLT;
         }
 
-        if (ud.multimode < 2 && A_CheckEnemySprite(s))
+        if (!net_server && (!net_server && ud.multimode < 2) && A_CheckEnemySprite(s))
         {
             if (g_noEnemies == 1)
             {
@@ -5695,7 +5695,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
                             g_player[p].ps->ang += q;
 
-                            if (numplayers > 1)
+                            if (net_server || numplayers > 1)
                             {
                                 g_player[p].ps->oposx = g_player[p].ps->posx;
                                 g_player[p].ps->oposy = g_player[p].ps->posy;
@@ -5722,7 +5722,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
                         sprite[j].ang+=q;
 
-                        if (numplayers > 1)
+                        if (net_server || numplayers > 1)
                         {
                             ActorExtra[j].bposx = sprite[j].x;
                             ActorExtra[j].bposy = sprite[j].y;
@@ -5860,7 +5860,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                         g_player[p].ps->posx += l;
                         g_player[p].ps->posy += x;
 
-                        if (numplayers > 1)
+                        if (net_server || numplayers > 1)
                         {
                             g_player[p].ps->oposx = g_player[p].ps->posx;
                             g_player[p].ps->oposy = g_player[p].ps->posy;
@@ -5882,7 +5882,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 {
                     if (sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
                     {
-                        if (numplayers < 2)
+                        if (numplayers < 2 && !net_server)
                         {
                             ActorExtra[j].bposx = sprite[j].x;
                             ActorExtra[j].bposy = sprite[j].y;
@@ -5891,7 +5891,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                         sprite[j].x += l;
                         sprite[j].y += x;
 
-                        if (numplayers > 1)
+                        if (net_server || numplayers > 1)
                         {
                             ActorExtra[j].bposx = sprite[j].x;
                             ActorExtra[j].bposy = sprite[j].y;
@@ -6571,12 +6571,12 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 if (sprite[j].statnum == STAT_PLAYER && sprite[j].owner >= 0)
                 {
                     p = sprite[j].yvel;
-                    if (numplayers < 2)
+                    if (numplayers < 2 && !net_server)
                         g_player[p].ps->oposz = g_player[p].ps->posz;
                     g_player[p].ps->posz += q;
                     g_player[p].ps->truefz += q;
                     g_player[p].ps->truecz += q;
-                    if (numplayers > 1)
+                    if (net_server || numplayers > 1)
                         g_player[p].ps->oposz = g_player[p].ps->posz;
                 }
                 if (sprite[j].statnum != STAT_EFFECTOR)

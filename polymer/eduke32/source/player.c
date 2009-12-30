@@ -3051,8 +3051,7 @@ void getinput(int32_t snum)
     int32_t momx = 0,momy = 0;
     DukePlayer_t *p = g_player[snum].ps;
 
-    if ((p->gm&MODE_MENU) || (p->gm&MODE_TYPE) || (ud.pause_on && !KB_KeyPressed(sc_Pause)) || (numplayers > 1 && totalclock < 10))
-        // HACK: kill getinput() for the first 10 tics of a new map in multi
+    if ((p->gm&MODE_MENU) || (p->gm&MODE_TYPE) || (ud.pause_on && !KB_KeyPressed(sc_Pause)))
     {
         if (!(p->gm&MODE_MENU))
             CONTROL_GetInput(&info[0]);
@@ -3864,7 +3863,7 @@ void P_FragPlayer(int32_t snum)
 
     if (s->pal != 1 && (s->cstat&32768) == 0) s->cstat = 0;
 
-    if (ud.multimode > 1 && (s->pal != 1 || (s->cstat&32768)))
+    if ((net_server || ud.multimode > 1) && (s->pal != 1 || (s->cstat&32768)))
     {
         if (p->frag_ps != snum)
         {
@@ -4144,7 +4143,7 @@ void P_ProcessInput(int32_t snum)
 
     if (s->extra <= 0)
     {
-        if (ud.recstat == 1 && ud.multimode < 2)
+        if (ud.recstat == 1 && (!net_server && ud.multimode < 2))
             G_CloseDemoWrite();
 
         if ((numplayers < 2 || net_server) && p->dead_flag == 0)
