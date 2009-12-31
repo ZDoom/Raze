@@ -922,14 +922,17 @@ void                polymer_editorpick(void)
     switch (searchstat) {
     case 0: // wall
     case 4: // 1-way/masked wall
+        searchsector = sectorofwall(num);
         searchbottomwall = searchwall = num;
         break;
     case 1: // floor
     case 2: // ceiling
         searchsector = num;
+        searchwall = sector[num].wallptr;
         break;
     case 3:
         // sprite
+        searchsector = sprite[num].sectnum;
         searchwall = num;
         break;
     }
