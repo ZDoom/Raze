@@ -3843,6 +3843,15 @@ void getnumberptr256(char *namestart, void *num, int32_t bytes, int32_t maxnumbe
         ExtAnalyzeSprites();
 #endif
         drawmasks();
+#ifdef POLYMER
+        if (rendmode == 4 && searchit == 2)
+        {
+            polymer_editorpick();
+            drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
+            ExtAnalyzeSprites();
+            drawmasks();
+        }
+#endif
 
         ch = bgetchar();
 
@@ -4112,6 +4121,15 @@ ENDFOR1:
         ExtAnalyzeSprites();
 #endif
         drawmasks();
+#ifdef POLYMER
+        if (rendmode == 4 && searchit == 2)
+        {
+            polymer_editorpick();
+            drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
+            ExtAnalyzeSprites();
+            drawmasks();
+        }
+#endif
 
         ch = bgetchar();
 

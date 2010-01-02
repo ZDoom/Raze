@@ -5340,6 +5340,15 @@ int32_t _getnumber256(char *namestart, int32_t num, int32_t maxnumber, char sign
         ExtAnalyzeSprites();
 #endif
         drawmasks();
+#ifdef POLYMER
+        if (rendmode == 4 && searchit == 2)
+        {
+            polymer_editorpick();
+            drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
+            ExtAnalyzeSprites();
+            drawmasks();
+        }
+#endif
 
         ch = bgetchar();
 
