@@ -1937,6 +1937,14 @@ badindex:
             }
             continue;
 
+        case CON_FIXREPEATS:
+            insptr++;
+            {
+                extern void fixrepeats(int16_t i);
+                fixrepeats(Gv_GetVarX(*insptr++));
+            }
+            continue;
+
 // *** stuff
         case CON_GETTIMEDATE:
             insptr++;

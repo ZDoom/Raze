@@ -419,6 +419,7 @@ enum ScriptKeywords_t
     CON_PREVSPRITESECT,
     CON_NEXTSPRITESECT,
     CON_SECTOROFWALL,
+    CON_FIXREPEATS,
 
 // stuff
     CON_ADDLOGVAR,

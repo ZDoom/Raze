@@ -247,7 +247,7 @@ onevent EVENT_ENTER3DMODE
     state setas
 endevent
 
-defstate cmp_by_lotag
+defstate cmp_by_lotag  // comparator subroutine for sorting
     set RETURN sprite[SV2].lotag
     sub RETURN sprite[SV1].lotag
 ends
@@ -495,4 +495,25 @@ defstate replacestuff
     for i spritesofsector searchsector
 //        ife sprite[i].picnum AMMO set sprite[i].picnum BATTERYAMMO
         ifactor parm[0] cactor parm[1]
+ends
+
+defstate convlights  // convert (0,0,0) lights to (255,255,255)-ones
+	for i allsprites ifactor 1 ifge .lotag 49 ifle .lotag 50 ife .xvel 0 ife .yvel 0 ife .zvel 0
+        { set .xvel 255 set .yvel 255 set .zvel 255 }
+ends
+
+defstate resetallws  // reset all sprites and walls to default repeat/panning
+    for i allsprites
+	{
+		set .xrepeat 64
+        set .yrepeat 64
+	}
+    for i allwalls
+	{
+		set wall[i].cstat 0
+		set wall[i].xpanning 0
+		set wall[i].ypanning 0
+		set wall[i].yrepeat 8
+		fixrepeats i
+	}
 ends

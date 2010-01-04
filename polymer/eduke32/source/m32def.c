@@ -341,6 +341,7 @@ const char *keyw[] =
     "prevspritesect",
     "nextspritesect",
     "sectorofwall",
+    "fixrepeats",
 
     "addlogvar",
     "addlog",
@@ -2833,6 +2834,9 @@ repeatcase:
         C_GetNextVar();
         return 0;
 
+    case CON_FIXREPEATS:
+        C_GetNextVar();
+        return 0;
 
 // *** stuff
     case CON_ADDLOGVAR:
