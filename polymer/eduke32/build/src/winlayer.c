@@ -2082,6 +2082,11 @@ int32_t gettimerfreq(void)
 //  VIDEO
 //=================================================================================================
 
+// DWM stuff
+static HMODULE              hDWMApiDLL        = NULL;
+static BOOL                 bDWMApiInited     = FALSE;
+HRESULT(WINAPI *aDwmEnableComposition)(UINT);
+
 // DirectDraw objects
 static HMODULE              hDDrawDLL      = NULL;
 static LPDIRECTDRAW         lpDD           = NULL;
@@ -2133,6 +2138,28 @@ static char system_colours_saved = 0, bw_colours_set = 0;
 
 static int32_t setgammaramp(WORD gt[3][256]);
 static int32_t getgammaramp(WORD gt[3][256]);
+
+static void ToggleDesktopComposition(BOOL compEnable)
+{
+    if (!bDWMApiInited)
+    {
+        hDWMApiDLL = LoadLibrary("DWMAPI.DLL");
+        if (hDWMApiDLL)
+        {
+            aDwmEnableComposition = (void *)GetProcAddress(hDWMApiDLL, "DwmEnableComposition");
+        }
+        bDWMApiInited = TRUE;
+    }
+
+    if (aDwmEnableComposition)
+    {
+        aDwmEnableComposition(compEnable);
+        if (!silentvideomodeswitch)
+        {
+            initprintf("%s desktop composition.\n", (compEnable) ? "Enabling" : "Disabling");
+        }
+    }
+}
 
 //
 // checkvideomode() -- makes sure the video mode passed is legal
@@ -2230,6 +2257,8 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         setgammaramp(sysgamma);
         gammabrightness = 0;
     }
+
+    ToggleDesktopComposition(c < 16);
 
     if (!silentvideomodeswitch)
         initprintf("Setting video mode %dx%d (%d-bit %s)\n",
