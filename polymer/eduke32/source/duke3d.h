@@ -280,12 +280,12 @@ typedef struct {
     int16_t i;
 } SOUNDOWNER;
 
-#define SOUNDMAX 8
+#define MAXSOUNDINSTANCES 8
 
 typedef struct {
     int32_t  length, num, soundsiz; // 12b
     char *filename, *ptr, *filename1; // 12b/24b
-    SOUNDOWNER SoundOwner[SOUNDMAX]; // 32b
+    SOUNDOWNER SoundOwner[MAXSOUNDINSTANCES]; // 32b
     int16_t ps,pe,vo; // 6b
     char pr,m; // 2b
 } sound_t;
@@ -534,17 +534,6 @@ typedef struct {
     int8_t shade, xrepeat, yrepeat, pal; // 4b
     int8_t velmult, filler; // 2b
 } projectile_t;
-
-// extern char gotz;
-
-typedef struct {
-/*    int32_t x;
-    int32_t y;
-    int32_t z; */
-    int16_t ang, oldang, angdir, angdif;
-} spriteinterpolate;
-
-// spriteinterpolate sprpos[MAXSPRITES];
 
 typedef struct {
     intptr_t temp_data[10]; // 40b/80b sometimes used to hold pointers to con code

@@ -794,6 +794,8 @@ void P_ResetStatus(int32_t snum)
 
     p->movement_lock     = 0;
 
+    p->frag_ps          = snum;
+
     P_UpdateScreenPal(p);
     X_OnEvent(EVENT_RESETPLAYER, p->i, snum, -1);
 }

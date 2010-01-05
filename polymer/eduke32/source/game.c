@@ -968,8 +968,8 @@ void Net_ParseServerPacket(ENetEvent * event)
             packbuf = Bcalloc(1, packbufleng+1);
             packbufleng = qlz_decompress((char *)&event->packet->data[1], (char *)(packbuf), state_decompress);
 
-            Bmemcpy(&ticrandomseed, &packbuf[j], sizeof(ticrandomseed));
-            j += sizeof(ticrandomseed);
+            ticrandomseed = *(int32_t *)&packbuf[j];
+            j += sizeof(int32_t);
             ud.pause_on = packbuf[j++];
 
             TRAVERSE_CONNECT(i)
@@ -982,7 +982,7 @@ void Net_ParseServerPacket(ENetEvent * event)
                 if (i == myconnectindex && !g_player[i].ps->dead_flag)
                 { 
                     j += (sizeof(input_t) - sizeof(loc.filler)) +
-                        (sizeof(vec3_t) * 2) + // position and velocity
+                        (sizeof(vec3_t) * 3) + // position and velocity
                         (sizeof(int16_t) * 3); // ang and horiz
                     goto process;
                 }
@@ -996,23 +996,22 @@ void Net_ParseServerPacket(ENetEvent * event)
                 if (TEST_SYNC_KEY(nsyn[i].bits,SK_GAMEQUIT)) g_player[i].playerquitflag = 0;
                 g_player[i].movefifoend++;
 
-                Bmemcpy(&g_player[i].ps->oposx, &g_player[i].ps->posx, sizeof(vec3_t));
+//                Bmemcpy(&g_player[i].ps->oposx, &g_player[i].ps->posx, sizeof(vec3_t));
 
-                Bmemcpy(&g_player[i].ps->posx, &packbuf[j], sizeof(vec3_t));
+                Bmemcpy(&g_player[i].ps->posx, &packbuf[j], sizeof(vec3_t) * 2);
                 updatesectorz(g_player[i].ps->posx, g_player[i].ps->posy, g_player[i].ps->posz,
                     &g_player[i].ps->cursectnum);
                 changespritesect(g_player[i].ps->i, g_player[i].ps->cursectnum);
                 Bmemcpy(&sprite[g_player[i].ps->i], &packbuf[j], sizeof(vec3_t));
                 sprite[g_player[i].ps->i].z += PHEIGHT;
-                j += sizeof(vec3_t);
+                j += sizeof(vec3_t) * 2;
 
                 Bmemcpy(&g_player[i].ps->posxv, &packbuf[j], sizeof(vec3_t));
                 j += sizeof(vec3_t);
 
 
-                Bmemcpy(&g_player[i].ps->oang, &g_player[i].ps->ang, sizeof(int16_t));
-                Bmemcpy(&g_player[i].ps->ang, &packbuf[j], sizeof(int16_t));
-                sprite[g_player[i].ps->i].ang = *(int16_t *)&packbuf[j];
+                g_player[i].ps->oang = g_player[i].ps->ang;
+                g_player[i].ps->ang = sprite[g_player[i].ps->i].ang = *(int16_t *)&packbuf[j];
                 j += sizeof(int16_t);
 
                 Bmemcpy(&g_player[i].ps->ohoriz, &g_player[i].ps->horiz, sizeof(int16_t) * 2);
@@ -1505,14 +1504,14 @@ void Net_ParseClientPacket(ENetEvent * event)
                 break;
             }
 
-            Bmemcpy(&g_player[other].ps->oposx, &g_player[other].ps->posx, sizeof(vec3_t));
-            Bmemcpy(&g_player[other].ps->posx, &packbuf[j], sizeof(vec3_t));
+//            Bmemcpy(&g_player[other].ps->oposx, &g_player[other].ps->posx, sizeof(vec3_t));
+            Bmemcpy(&g_player[other].ps->posx, &packbuf[j], sizeof(vec3_t) * 2);
             updatesectorz(g_player[other].ps->posx, g_player[other].ps->posy, g_player[other].ps->posz, 
                 &g_player[other].ps->cursectnum);
             Bmemcpy(&sprite[g_player[other].ps->i], &packbuf[j], sizeof(vec3_t));
             sprite[g_player[other].ps->i].z += PHEIGHT;
             changespritesect(g_player[other].ps->i, g_player[other].ps->cursectnum);
-            j += sizeof(vec3_t);
+            j += sizeof(vec3_t) * 2;
 
             Bmemcpy(&g_player[other].ps->posxv, &packbuf[j], sizeof(vec3_t));
             j += sizeof(vec3_t);
@@ -1839,12 +1838,12 @@ void Net_GetPackets(void)
             switch (event.type)
             {
             case ENET_EVENT_TYPE_RECEIVE:
-/*
+
                 initprintf ("A packet of length %u was received from player %d on channel %u.\n",
                     event.packet -> dataLength,
                     event.peer -> data,
                     event.channelID);
-*/
+
                 // channelID 1 is the map state transfer from the server
                 if (event.channelID == 1)
                 {
@@ -1899,6 +1898,9 @@ void Net_GetPackets(void)
                 break;
             case ENET_EVENT_TYPE_DISCONNECT:
                 g_netDisconnect = 1;
+                numplayers = playerswhenstarted = ud.multimode = 1;
+                myconnectindex = screenpeek = 0;
+                G_BackToMenu();
                 switch (event.data)
                 {
                 case DISC_BAD_PASSWORD:
@@ -1921,10 +1923,321 @@ void Net_GetPackets(void)
     }
 }
 
+void Net_UpdateClients(void)
+{
+    input_t * osyn = (input_t *)&inputfifo[1][0];
+    input_t * nsyn = (input_t *)&inputfifo[0][0];
+    int16_t i, nexti, k = 0, l;
+    int32_t j;
+
+    if (!net_server || numplayers < 2)
+    {
+        if (net_server)
+            Bmemcpy(&osyn[0], &nsyn[0], sizeof(input_t));
+        return;
+    }
+
+    packbuf[0] = PACKET_MASTER_TO_SLAVE;
+    j = 1;
+
+    ticrandomseed = randomseed;
+    *(int32_t *)&packbuf[j] = ticrandomseed;
+    j += sizeof(int32_t);
+    packbuf[j++] = ud.pause_on;
+
+    TRAVERSE_CONNECT(i)
+    {
+        if (g_player[i].playerquitflag == 0) continue;
+
+        Bmemcpy(&osyn[i], &nsyn[i], sizeof(input_t));
+
+        *(int16_t *)&packbuf[j] = g_player[i].ps->dead_flag;
+        j += sizeof(int16_t);
+
+        Bmemcpy(&packbuf[j], &nsyn[i], sizeof(input_t)-sizeof(loc.filler));
+        j += sizeof(input_t)-sizeof(loc.filler);
+
+        Bmemcpy(&packbuf[j], &g_player[i].ps->posx, sizeof(vec3_t) * 2);
+        j += sizeof(vec3_t) * 2;
+
+        Bmemcpy(&packbuf[j], &g_player[i].ps->posxv, sizeof(vec3_t));
+        j += sizeof(vec3_t);
+
+        *(int16_t *)&packbuf[j] = g_player[i].ps->ang;
+        j += sizeof(int16_t);
+
+        Bmemcpy(&packbuf[j], &g_player[i].ps->horiz, sizeof(int16_t) * 2);
+        j += sizeof(int16_t) * 2;
+
+        Bmemcpy(&packbuf[j], &g_player[i].ps->gotweapon[0], sizeof(g_player[i].ps->gotweapon));
+        j += sizeof(g_player[i].ps->gotweapon);
+
+        Bmemcpy(&packbuf[j], &g_player[i].ps->ammo_amount[0], sizeof(g_player[i].ps->ammo_amount));
+        j += sizeof(g_player[i].ps->ammo_amount);
+
+        Bmemcpy(&packbuf[j], &g_player[i].ps->inv_amount[0], sizeof(g_player[i].ps->inv_amount));
+        j += sizeof(g_player[i].ps->inv_amount);
+
+        Bmemcpy(&packbuf[j], g_player[i].frags, sizeof(g_player[i].frags));
+        j += sizeof(g_player[i].frags);
+
+        *(int16_t *)&packbuf[j] = sprite[g_player[i].ps->i].extra;
+        j += sizeof(int16_t);
+
+        *(int16_t *)&packbuf[j] = sprite[g_player[i].ps->i].cstat;
+        j += sizeof(int16_t);
+
+        *(int16_t *)&packbuf[j] = g_player[i].ps->kickback_pic;
+        j += sizeof(int16_t);
+
+        *(int16_t *)&packbuf[j] = ActorExtra[g_player[i].ps->i].owner;
+        j += sizeof(int16_t);
+
+        *(int16_t *)&packbuf[j] = ActorExtra[g_player[i].ps->i].picnum;
+        j += sizeof(int16_t);
+
+        packbuf[j++] = (uint8_t) g_player[i].ps->curr_weapon;
+        packbuf[j++] = (uint8_t) g_player[i].ps->last_weapon;
+        packbuf[j++] = (uint8_t) g_player[i].ps->wantweaponfire;
+        packbuf[j++] = (uint8_t) g_player[i].ps->frag_ps;
+
+        *(int16_t *)&packbuf[j] = g_player[i].ps->frag;
+        j += sizeof(int16_t);
+
+        *(int16_t *)&packbuf[j] = g_player[i].ps->fraggedself;
+        j += sizeof(int16_t);
+
+        *(int16_t *)&packbuf[j] = g_player[i].ps->last_extra;
+        j += sizeof(int16_t);
+
+        *(int16_t *)&packbuf[j] = g_player[i].ping;
+        j += sizeof(int16_t);
+
+        packbuf[j++] = sprite[g_player[i].ps->i].pal;
+
+        l = i;
+
+        {
+            int32_t jj, oa;
+
+            i = g_player[l].ps->i;
+
+            packbuf[(jj = j++)] = 0;
+
+            if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
+            {
+                packbuf[jj] |= 2;
+                T5 -= (intptr_t)&script[0];
+            }
+
+            oa = T5;
+
+            Bmemcpy(&packbuf[j], &T5, sizeof(T5));
+            j += sizeof(T5);
+
+            if (oa != T5) T3 = T4 = 0;
+
+            if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];
+        }
+
+        i = l;
+        {
+            int16_t ii=g_gameVarCount-1, kk = 0;
+
+            for (; ii>=0; ii--)
+            {
+                if ((aGameVars[ii].dwFlags & (GAMEVAR_PERACTOR|GAMEVAR_NOMULTI)) == GAMEVAR_PERACTOR && aGameVars[ii].val.plValues)
+                {
+                    if (peractorvals[ii][i] != aGameVars[ii].val.plValues[i])
+                    {
+                        peractorvals[ii][i] = aGameVars[ii].val.plValues[i];
+
+                        *(int16_t *)&packbuf[j] = ii;
+                        j += sizeof(int16_t);
+                        *(int32_t *)&packbuf[j] = aGameVars[ii].val.plValues[i];
+                        j += sizeof(int32_t);
+                        kk++;
+                    }
+                }
+                if (kk > 64) break;
+            }
+            *(int16_t *)&packbuf[j] = MAXGAMEVARS;
+            j += sizeof(int16_t);
+        }
+        i = l;
+
+        {
+            int16_t ii=g_gameVarCount-1, kk = 0;
+
+            for (; ii>=0; ii--)
+            {
+                if ((aGameVars[ii].dwFlags & (GAMEVAR_PERPLAYER|GAMEVAR_NOMULTI)) == GAMEVAR_PERPLAYER && aGameVars[ii].val.plValues)
+                {
+                    if (perplayervals[ii][i] != aGameVars[ii].val.plValues[i])
+                    {
+                        perplayervals[ii][i] = aGameVars[ii].val.plValues[i];
+
+                        *(int16_t *)&packbuf[j] = ii;
+                        j += sizeof(int16_t);
+                        *(int32_t *)&packbuf[j] = aGameVars[ii].val.plValues[i];
+                        j += sizeof(int32_t);
+                        kk++;
+                    }
+                }
+                if (kk > 64) break;
+            }
+            *(int16_t *)&packbuf[j] = MAXGAMEVARS;
+            j += sizeof(int16_t);
+        }
+    }
+
+    k = 0;
+
+    {
+        int32_t zz, zj;
+
+        packbuf[(zj = j++)] = 0;
+
+        for (zz = 0; (unsigned)zz < (sizeof(net_lists)/sizeof(net_lists[0])); zz++)
+            TRAVERSE_SPRITE_STAT(headspritestat[net_lists[zz]], i, nexti)
+        {
+            if (totalclock > (lastupdate[i] + TICRATE))
+            {
+                l = crc32once((uint8_t *)&sprite[i], sizeof(spritetype));
+
+                if (!lastupdate[i] || spritecrc[i] != l)
+                {
+                    int32_t jj = 0;
+
+                    /*initprintf("updating sprite %d (%d)\n",i,sprite[i].picnum);*/
+                    spritecrc[i] = l;
+                    lastupdate[i] = totalclock;
+                    *(int16_t *)&packbuf[j] = i;
+                    j += sizeof(int16_t);
+                    Bmemcpy(&packbuf[j], &sprite[i], sizeof(spritetype));
+                    j += sizeof(spritetype);
+
+                    packbuf[(jj = j++)] = 0;
+
+                    if (T2 >= (intptr_t)&script[0] && T2 < (intptr_t)(&script[g_scriptSize]))
+                    {
+                        packbuf[jj] |= 1;
+                        T2 -= (intptr_t)&script[0];
+                    }
+                    if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
+                    {
+                        packbuf[jj] |= 2;
+                        T5 -= (intptr_t)&script[0];
+                    }
+                    if (T6 >= (intptr_t)&script[0] && T6 < (intptr_t)(&script[g_scriptSize]))
+                    {
+                        packbuf[jj] |= 4;
+                        T6 -= (intptr_t)&script[0];
+                    }
+                    Bmemcpy(&packbuf[j], &ActorExtra[i], sizeof(NetActorData_t));
+                    j += sizeof(NetActorData_t);
+
+                    if (packbuf[jj] & 1) T2 += (intptr_t)&script[0];
+                    if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];
+                    if (packbuf[jj] & 4) T6 += (intptr_t)&script[0];
+
+                    {
+                        int16_t ii=g_gameVarCount-1, kk = 0;
+
+                        for (; ii>=0; ii--)
+                        {
+                            if ((aGameVars[ii].dwFlags & GAMEVAR_PERACTOR) && aGameVars[ii].val.plValues)
+                            {
+                                if (peractorvals[ii][i] != aGameVars[ii].val.plValues[i])
+                                {
+                                    peractorvals[ii][i] = aGameVars[ii].val.plValues[i];
+
+                                    *(int16_t *)&packbuf[j] = ii;
+                                    j += sizeof(int16_t);
+                                    *(int32_t *)&packbuf[j] = aGameVars[ii].val.plValues[i];
+                                    j += sizeof(int32_t);
+                                    kk++;
+                                }
+                            }
+                            if (kk > 64) break;
+                        }
+                        *(int16_t *)&packbuf[j] = MAXGAMEVARS;
+                        j += sizeof(int16_t);
+                    }
+
+                    k++;
+                }
+            }
+            if (k > 8) break;
+        }
+        packbuf[zj] = k;
+        k = 0;
+
+        packbuf[(zj = j++)] = 0;
+        for (i = numsectors-1; i >= 0; i--)
+        {
+            if (totalclock > (lastsectupdate[i] + TICRATE))
+            {
+                l = crc32once((uint8_t *)&sector[i], sizeof(sectortype));
+
+                if (sectcrc[i] != l)
+                {
+                    sectcrc[i] = l;
+                    lastsectupdate[i] = totalclock;
+                    *(int16_t *)&packbuf[j] = i;
+                    j += sizeof(int16_t);
+                    Bmemcpy(&packbuf[j], &sector[i], sizeof(sectortype));
+                    j += sizeof(sectortype);
+                    k++;
+                }
+            }
+            if (k > 6) break;
+        }
+        packbuf[zj] = k;
+        k = 0;
+
+        packbuf[(zj = j++)] = 0;
+        for (i = numwalls-1; i >= 0; i--)
+        {
+            if (totalclock > (lastwallupdate[i] + TICRATE))
+            {
+                l = crc32once((uint8_t *)&wall[i], sizeof(walltype));
+
+                if (wallcrc[i] != l)
+                {
+                    wallcrc[i] = l;
+                    lastwallupdate[i] = totalclock;
+                    *(int16_t *)&packbuf[j] = i;
+                    j += sizeof(int16_t);
+                    Bmemcpy(&packbuf[j], &wall[i], sizeof(walltype));
+                    j += sizeof(walltype);
+                    k++;
+                }
+            }
+            if (k > 6) break;
+        }
+        packbuf[zj] = k;
+        j++;
+    }
+
+    {
+        char buf[4096];
+
+        j = qlz_compress((char *)(packbuf)+1, (char *)buf, j, state_compress);
+        Bmemcpy((char *)(packbuf)+1, (char *)buf, j);
+        j++;
+    }
+
+    packbuf[j++] = myconnectindex;
+
+    enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, j, 0));
+
+    movefifosendplc++;
+}
+
 void faketimerhandler(void)
 {
-    int32_t i, j;
-    //    short who;
+    int32_t i;
     input_t *nsyn;
 
     if (qe == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && KB_KeyPressed(sc_Delete))
@@ -1969,369 +2282,6 @@ void faketimerhandler(void)
                 //clearbufbyte(&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t),0L);
                 computergetinput(i,&inputfifo[0][i]);
             }
-    }
-
-    if (net_client)   //Slave
-    {
-        int32_t jj = 0;
-
-        packbuf[0] = PACKET_SLAVE_TO_MASTER;
-        j = 1;
-
-        nsyn = (input_t *)&inputfifo[0][myconnectindex];
-
-        Bmemcpy(&packbuf[j], &nsyn[0], sizeof(input_t));
-        j += sizeof(input_t)-sizeof(loc.filler);
-        Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->posx, sizeof(vec3_t));
-        j += sizeof(vec3_t);
-        Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->posxv, sizeof(vec3_t));
-        j += sizeof(vec3_t);
-
-        *(int16_t *)&packbuf[j] = g_player[myconnectindex].ps->ang;
-        j += sizeof(int16_t);
-
-        Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->horiz, sizeof(int16_t) * 2);
-        j += sizeof(int16_t) * 2;
-
-        i = g_player[myconnectindex].ps->i;
-
-        packbuf[(jj = j++)] = 0;
-
-        if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
-        {
-            packbuf[jj] |= 2;
-            T5 -= (intptr_t)&script[0];
-        }
-
-        Bmemcpy(&packbuf[j], &T5, sizeof(T5));
-        j += sizeof(T5);
-
-        if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];
-
-        {
-            char buf[1024];
-
-            j = qlz_compress((char *)(packbuf)+1, (char *)buf, j, state_compress);
-            Bmemcpy((char *)(packbuf)+1, (char *)buf, j);
-            j++;
-        }
-
-        packbuf[j++] = myconnectindex;
-
-        enet_peer_send(net_peer, 1, enet_packet_create(packbuf, j, 0));
-
-        movefifosendplc++;
-
-        return;
-    }
-
-    if (net_server)
-    {
-        input_t * osyn = (input_t *)&inputfifo[1][0];
-        int16_t i, nexti, k = 0, l;
-
-        //MASTER -> SLAVE packet
-        packbuf[0] = PACKET_MASTER_TO_SLAVE;
-        j = 1;
-
-        ticrandomseed = randomseed;
-        Bmemcpy(&packbuf[j], &ticrandomseed, sizeof(ticrandomseed));
-        j += sizeof(ticrandomseed);
-        packbuf[j++] = ud.pause_on;
-
-        nsyn = (input_t *)&inputfifo[0][0];
-        
-        TRAVERSE_CONNECT(i)
-        {
-            if (g_player[i].playerquitflag == 0) continue;
-
-            Bmemcpy(&osyn[i], &nsyn[i], sizeof(input_t));
-
-            *(int16_t *)&packbuf[j] = g_player[i].ps->dead_flag;
-            j += sizeof(int16_t);
-
-            Bmemcpy(&packbuf[j], &nsyn[i], sizeof(input_t)-sizeof(loc.filler));
-            j += sizeof(input_t)-sizeof(loc.filler);
-
-            Bmemcpy(&packbuf[j], &g_player[i].ps->posx, sizeof(vec3_t));
-            j += sizeof(vec3_t);
-
-            Bmemcpy(&packbuf[j], &g_player[i].ps->posxv, sizeof(vec3_t));
-            j += sizeof(vec3_t);
-
-            *(int16_t *)&packbuf[j] = g_player[i].ps->ang;
-            j += sizeof(int16_t);
-
-            Bmemcpy(&packbuf[j], &g_player[i].ps->horiz, sizeof(int16_t) * 2);
-            j += sizeof(int16_t) * 2;
-
-            Bmemcpy(&packbuf[j], &g_player[i].ps->gotweapon[0], sizeof(g_player[i].ps->gotweapon));
-            j += sizeof(g_player[i].ps->gotweapon);
-
-            Bmemcpy(&packbuf[j], &g_player[i].ps->ammo_amount[0], sizeof(g_player[i].ps->ammo_amount));
-            j += sizeof(g_player[i].ps->ammo_amount);
-
-            Bmemcpy(&packbuf[j], &g_player[i].ps->inv_amount[0], sizeof(g_player[i].ps->inv_amount));
-            j += sizeof(g_player[i].ps->inv_amount);
-
-            Bmemcpy(&packbuf[j], g_player[i].frags, sizeof(g_player[i].frags));
-            j += sizeof(g_player[i].frags);
-
-            *(int16_t *)&packbuf[j] = sprite[g_player[i].ps->i].extra;
-            j += sizeof(int16_t);
-
-            *(int16_t *)&packbuf[j] = sprite[g_player[i].ps->i].cstat;
-            j += sizeof(int16_t);
-
-            *(int16_t *)&packbuf[j] = g_player[i].ps->kickback_pic;
-            j += sizeof(int16_t);
-
-            *(int16_t *)&packbuf[j] = ActorExtra[g_player[i].ps->i].owner;
-            j += sizeof(int16_t);
-
-            *(int16_t *)&packbuf[j] = ActorExtra[g_player[i].ps->i].picnum;
-            j += sizeof(int16_t);
-
-            packbuf[j++] = (uint8_t) g_player[i].ps->curr_weapon;
-            packbuf[j++] = (uint8_t) g_player[i].ps->last_weapon;
-            packbuf[j++] = (uint8_t) g_player[i].ps->wantweaponfire;
-            packbuf[j++] = (uint8_t) g_player[i].ps->frag_ps;
-
-            *(int16_t *)&packbuf[j] = g_player[i].ps->frag;
-            j += sizeof(int16_t);
-
-            *(int16_t *)&packbuf[j] = g_player[i].ps->fraggedself;
-            j += sizeof(int16_t);
-
-            *(int16_t *)&packbuf[j] = g_player[i].ps->last_extra;
-            j += sizeof(int16_t);
-
-            *(int16_t *)&packbuf[j] = g_player[i].ping;
-            j += sizeof(int16_t);
-
-            packbuf[j++] = sprite[g_player[i].ps->i].pal;
-
-            l = i;
-
-            {
-                int32_t jj, oa;
-
-                i = g_player[l].ps->i;
-
-                packbuf[(jj = j++)] = 0;
-
-                if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
-                {
-                    packbuf[jj] |= 2;
-                    T5 -= (intptr_t)&script[0];
-                }
-
-                oa = T5;
-
-                Bmemcpy(&packbuf[j], &T5, sizeof(T5));
-                j += sizeof(T5);
-
-                if (oa != T5) T3 = T4 = 0;
-
-                if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];
-            }
-
-            i = l;
-            {
-                int16_t ii=g_gameVarCount-1, kk = 0;
-
-                for (; ii>=0; ii--)
-                {
-                    if ((aGameVars[ii].dwFlags & (GAMEVAR_PERACTOR|GAMEVAR_NOMULTI)) == GAMEVAR_PERACTOR && aGameVars[ii].val.plValues)
-                    {
-                        if (peractorvals[ii][i] != aGameVars[ii].val.plValues[i])
-                        {
-                            peractorvals[ii][i] = aGameVars[ii].val.plValues[i];
-
-                            Bmemcpy(&packbuf[j], &ii, sizeof(int16_t));
-                            j += sizeof(int16_t);
-                            Bmemcpy(&packbuf[j], &aGameVars[ii].val.plValues[i], sizeof(int32_t));
-                            j += sizeof(int32_t);
-                            kk++;
-                        }
-                    }
-                    if (kk > 64) break;
-                }
-                ii = MAXGAMEVARS;
-                Bmemcpy(&packbuf[j], &ii, sizeof(int16_t));
-                j += sizeof(int16_t);
-            }
-            i = l;
-
-            {
-                int16_t ii=g_gameVarCount-1, kk = 0;
-
-                for (; ii>=0; ii--)
-                {
-                    if ((aGameVars[ii].dwFlags & (GAMEVAR_PERPLAYER|GAMEVAR_NOMULTI)) == GAMEVAR_PERPLAYER && aGameVars[ii].val.plValues)
-                    {
-                        if (perplayervals[ii][i] != aGameVars[ii].val.plValues[i])
-                        {
-                            perplayervals[ii][i] = aGameVars[ii].val.plValues[i];
-
-                            Bmemcpy(&packbuf[j], &ii, sizeof(int16_t));
-                            j += sizeof(int16_t);
-                            Bmemcpy(&packbuf[j], &aGameVars[ii].val.plValues[i], sizeof(int32_t));
-                            j += sizeof(int32_t);
-                            kk++;
-                        }
-                    }
-                    if (kk > 64) break;
-                }
-                ii = MAXGAMEVARS;
-                Bmemcpy(&packbuf[j], &ii, sizeof(int16_t));
-                j += sizeof(int16_t);
-            }
-        }
-
-        k = 0;
-
-        {
-            int32_t zz, zj;
-
-            packbuf[(zj = j++)] = 0;
-
-            for (zz = 0; (unsigned)zz < (sizeof(net_lists)/sizeof(net_lists[0])); zz++)
-            TRAVERSE_SPRITE_STAT(headspritestat[net_lists[zz]], i, nexti)
-            {
-                if (totalclock > (lastupdate[i] + (TICSPERFRAME * 6)))
-                {
-                    l = crc32once((uint8_t *)&sprite[i], sizeof(spritetype));
-
-                    if (!lastupdate[i] || spritecrc[i] != l)
-                    {
-                        int32_t jj = 0;
-
-                        /*initprintf("updating sprite %d (%d)\n",i,sprite[i].picnum);*/
-                        spritecrc[i] = l;
-                        lastupdate[i] = totalclock;
-                        Bmemcpy(&packbuf[j], &i, sizeof(int16_t));
-                        j += sizeof(int16_t);
-                        Bmemcpy(&packbuf[j], &sprite[i], sizeof(spritetype));
-                        j += sizeof(spritetype);
-
-                        packbuf[(jj = j++)] = 0;
-
-                        if (T2 >= (intptr_t)&script[0] && T2 < (intptr_t)(&script[g_scriptSize]))
-                        {
-                            packbuf[jj] |= 1;
-                            T2 -= (intptr_t)&script[0];
-                        }
-                        if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
-                        {
-                            packbuf[jj] |= 2;
-                            T5 -= (intptr_t)&script[0];
-                        }
-                        if (T6 >= (intptr_t)&script[0] && T6 < (intptr_t)(&script[g_scriptSize]))
-                        {
-                            packbuf[jj] |= 4;
-                            T6 -= (intptr_t)&script[0];
-                        }
-                        Bmemcpy(&packbuf[j], &ActorExtra[i], sizeof(NetActorData_t));
-                        j += sizeof(NetActorData_t);
-
-                        if (packbuf[jj] & 1) T2 += (intptr_t)&script[0];
-                        if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];
-                        if (packbuf[jj] & 4) T6 += (intptr_t)&script[0];
-
-                        {
-                            int16_t ii=g_gameVarCount-1, kk = 0;
-
-                            for (; ii>=0; ii--)
-                            {
-                                if ((aGameVars[ii].dwFlags & GAMEVAR_PERACTOR) && aGameVars[ii].val.plValues)
-                                {
-                                    if (peractorvals[ii][i] != aGameVars[ii].val.plValues[i])
-                                    {
-                                        peractorvals[ii][i] = aGameVars[ii].val.plValues[i];
-
-                                        Bmemcpy(&packbuf[j], &ii, sizeof(int16_t));
-                                        j += sizeof(int16_t);
-                                        Bmemcpy(&packbuf[j], &aGameVars[ii].val.plValues[i], sizeof(int32_t));
-                                        j += sizeof(int32_t);
-                                        kk++;
-                                    }
-                                }
-                                if (kk > 64) break;
-                            }
-                            ii = MAXGAMEVARS;
-                            Bmemcpy(&packbuf[j], &ii, sizeof(int16_t));
-                            j += sizeof(int16_t);
-                        }
-
-                        k++;
-                    }
-                }
-                if (k > 4) break;
-            }
-            packbuf[zj] = k;
-            k = 0;
-
-            packbuf[(zj = j++)] = 0;
-            for (i = numsectors-1; i >= 0; i--)
-            {
-                if (totalclock > (lastsectupdate[i] + (TICSPERFRAME * 12)))
-                {
-                    l = crc32once((uint8_t *)&sector[i], sizeof(sectortype));
-
-                    if (sectcrc[i] != l)
-                    {
-                        sectcrc[i] = l;
-                        lastsectupdate[i] = totalclock;
-                        Bmemcpy(&packbuf[j], &i, sizeof(int16_t));
-                        j += sizeof(int16_t);
-                        Bmemcpy(&packbuf[j], &sector[i], sizeof(sectortype));
-                        j += sizeof(sectortype);
-                        k++;
-                    }
-                }
-                if (k > 6) break;
-            }
-            packbuf[zj] = k;
-            k = 0;
-
-            packbuf[(zj = j++)] = 0;
-            for (i = numwalls-1; i >= 0; i--)
-            {
-                if (totalclock > (lastwallupdate[i] + (TICSPERFRAME * 12)))
-                {
-                    l = crc32once((uint8_t *)&wall[i], sizeof(walltype));
-
-                    if (wallcrc[i] != l)
-                    {
-                        wallcrc[i] = l;
-                        lastwallupdate[i] = totalclock;
-                        Bmemcpy(&packbuf[j], &i, sizeof(int16_t));
-                        j += sizeof(int16_t);
-                        Bmemcpy(&packbuf[j], &wall[i], sizeof(walltype));
-                        j += sizeof(walltype);
-                        k++;
-                    }
-                }
-                if (k > 6) break;
-            }
-            packbuf[zj] = k;
-            j++;
-        }
-
-        {
-            char buf[4096];
-
-            j = qlz_compress((char *)(packbuf)+1, (char *)buf, j, state_compress);
-            Bmemcpy((char *)(packbuf)+1, (char *)buf, j);
-            j++;
-        }
-
-        packbuf[j++] = myconnectindex;
-
-        enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, j, 0));
-
-        movefifosendplc++;
     }
 }
 
@@ -12656,6 +12606,60 @@ static int32_t G_DoMoveThings(void)
     {
         G_AnimateWalls();
         A_MoveCyclers();
+        Net_UpdateClients();
+    }
+
+    if (net_client)   //Slave
+    {
+        int32_t jj = 0;
+        input_t *nsyn = (input_t *)&inputfifo[0][myconnectindex];
+
+        packbuf[0] = PACKET_SLAVE_TO_MASTER;
+        j = 1;
+
+        Bmemcpy(&packbuf[j], &nsyn[0], sizeof(input_t) - sizeof(loc.filler));
+        j += sizeof(input_t) - sizeof(loc.filler);
+
+        Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->posx, sizeof(vec3_t) * 2);
+        j += sizeof(vec3_t) * 2;
+
+        Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->posxv, sizeof(vec3_t));
+        j += sizeof(vec3_t);
+
+        *(int16_t *)&packbuf[j] = g_player[myconnectindex].ps->ang;
+        j += sizeof(int16_t);
+
+        Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->horiz, sizeof(int16_t) * 2);
+        j += sizeof(int16_t) * 2;
+
+        i = g_player[myconnectindex].ps->i;
+
+        packbuf[(jj = j++)] = 0;
+
+        if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
+        {
+            packbuf[jj] |= 2;
+            T5 -= (intptr_t)&script[0];
+        }
+
+        Bmemcpy(&packbuf[j], &T5, sizeof(T5));
+        j += sizeof(T5);
+
+        if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];
+
+        {
+            char buf[1024];
+
+            j = qlz_compress((char *)(packbuf)+1, (char *)buf, j, state_compress);
+            Bmemcpy((char *)(packbuf)+1, (char *)buf, j);
+            j++;
+        }
+
+        packbuf[j++] = myconnectindex;
+
+        enet_peer_send(net_peer, 1, enet_packet_create(packbuf, j, 0));
+
+        movefifosendplc++;
     }
 
     return 0;
