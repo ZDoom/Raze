@@ -4484,7 +4484,7 @@ cheat_for_port_credits:
                 }
                 break;
                 case 2:
-                    if (ud.config.MusicDevice >= 0 && ud.config.MusicToggle)
+                    if (ud.config.MusicDevice >= 0)
                     {
                         i = ud.config.MusicToggle;
                         modval(0,1,(int32_t *)&ud.config.MusicToggle,1,probey==io);
