@@ -768,35 +768,44 @@ void S_Pan3D(void)
 
 void S_TestSoundCallback(uint32_t num)
 {
-    if ((int32_t)num == MUSIC_ID)
-        return;
+    int32_t tempi,tempj,tempk;
 
-    if ((int32_t)num < 0)
+    if ((int32_t) num == MUSIC_ID)
     {
-        if (lumplockbyte[-(int32_t)num] >= 200)
+        return;
+    }
+
+    if((int32_t)num < 0)
+    {
+        if(lumplockbyte[-(int32_t)num] >= 200)
             lumplockbyte[-(int32_t)num]--;
         return;
     }
 
+    tempk = g_sounds[num].num;
+
+    if (tempk > 0)
     {
-        int32_t j = 0;
-
-        while (j < g_sounds[num].num)
-        {
-            if (!FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
+        if ((g_sounds[num].m&16) == 0)
+            for (tempj=0; tempj<tempk; tempj++)
             {
-                int32_t i = g_sounds[num].SoundOwner[j].i;
-
-                g_sounds[num].num--;
-                //            OSD_Printf("removing sound %d from spr %d\n",num,i);
-                if (sprite[i].picnum == MUSICANDSFX && sector[sprite[i].sectnum].lotag < 3 && sprite[i].lotag < 999)
-                    ActorExtra[i].temp_data[0] = 0;
-                Bmemmove(&g_sounds[num].SoundOwner[j], &g_sounds[num].SoundOwner[j+1], sizeof(SOUNDOWNER) * (SOUNDMAX-j-1));
-                break;
+                tempi = g_sounds[num].SoundOwner[tempj].i;
+                if (sprite[tempi].picnum == MUSICANDSFX && sector[sprite[tempi].sectnum].lotag < 3 && sprite[tempi].lotag < 999)
+                {
+                    ActorExtra[tempi].temp_data[0] = 0;
+                    if ((tempj + 1) < tempk)
+                    {
+                        g_sounds[num].SoundOwner[tempj].voice = g_sounds[num].SoundOwner[tempk-1].voice;
+                        g_sounds[num].SoundOwner[tempj].i     = g_sounds[num].SoundOwner[tempk-1].i;
+                    }
+                    break;
+                }
             }
-            j++;
-        }
+
+        g_sounds[num].num--;
+        g_sounds[num].SoundOwner[tempk-1].i = -1;
     }
+
     g_soundlocks[num]--;
 }
 
