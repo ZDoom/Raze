@@ -65,6 +65,9 @@ static void fillData(int32_t chan, void *ptr, int32_t remaining, void *udata)
 
     UNREFERENCED_PARAMETER(chan);
     UNREFERENCED_PARAMETER(udata);
+    
+    if (!MixBuffer || !MixCallBack)
+      return;
 
     SDL_LockMutex(EffectFence);
 
