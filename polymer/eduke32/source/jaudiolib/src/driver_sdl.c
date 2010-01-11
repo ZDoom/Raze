@@ -25,6 +25,7 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
+#include <SDL/SDL_thread.h>
 #include "driver_sdl.h"
 
 #ifndef UNREFERENCED_PARAMETER
@@ -54,7 +55,8 @@ static void ( *MixCallBack )( void ) = 0;
 
 static Mix_Chunk *DummyChunk = NULL;
 static uint8_t *DummyBuffer = NULL;
-// static int32_t InterruptsDisabled = 0;
+static int32_t InterruptsDisabled = 0;
+static SDL_mutex *EffectFence;
 
 static void fillData(int32_t chan, void *ptr, int32_t remaining, void *udata)
 {
@@ -63,6 +65,8 @@ static void fillData(int32_t chan, void *ptr, int32_t remaining, void *udata)
 
     UNREFERENCED_PARAMETER(chan);
     UNREFERENCED_PARAMETER(udata);
+
+    SDL_LockMutex(EffectFence);
 
 	while (remaining > 0) {
 		if (MixBufferUsed == MixBufferSize) {
@@ -90,6 +94,8 @@ static void fillData(int32_t chan, void *ptr, int32_t remaining, void *udata)
 			remaining -= len;
 		}
 	}
+
+    SDL_UnlockMutex(EffectFence);
 }
 
 
@@ -165,6 +171,8 @@ int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t *sampleb
 
     //Mix_SetPostMix(fillData, NULL);
 
+    EffectFence = SDL_CreateMutex();
+
     // channel 0 and 1 are actual sounds
     // dummy channel 2 runs our fillData() callback as an effect
     Mix_RegisterEffect(2, fillData, NULL, NULL);
@@ -200,6 +208,9 @@ void SDLDrv_PCM_Shutdown(void)
     }
 
     Mix_CloseAudio();
+
+    SDL_DestroyMutex(EffectFence);
+
     Initialised = 0;
 }
 
@@ -245,21 +256,17 @@ void SDLDrv_PCM_StopPlayback(void)
 
 void SDLDrv_PCM_Lock(void)
 {
-/*
         if (InterruptsDisabled++)
             return;
     
-        SDL_LockAudio();*/
-    
+        SDL_LockMutex(EffectFence);
 }
 
 void SDLDrv_PCM_Unlock(void)
 {
-/*
         if (--InterruptsDisabled)
             return;
     
-        SDL_UnlockAudio();*/
-    
+        SDL_UnlockMutex(EffectFence);
 }
 
