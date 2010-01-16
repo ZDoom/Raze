@@ -42,12 +42,6 @@
 
 #include "engine_priv.h"
 
-void *kmalloc(bsize_t size) { return(Bmalloc(size)); }
-#define kkmalloc kmalloc
-
-void kfree(void *buffer) { Bfree(buffer); }
-#define kkfree kfree
-
 #ifdef SUPERBUILD
 void loadvoxel(int32_t voxindex) { voxindex=0; }
 int32_t tiletovox[MAXTILES];
@@ -102,6 +96,10 @@ int32_t lastageclock;
 int32_t tilefileoffs[MAXTILES];
 
 int32_t artsize = 0, cachesize = 0;
+
+// unlikely to occur, but .art files with less than 256 tiles are certainly possible
+// this would be 60 (MAXTILES/256) if we just assumed there were 256 tiles per .art as in Duke
+char *artptrs[256];
 
 static int16_t radarang2[MAXXDIM];
 static uint16_t sqrtable[4096], shlookup[4096+256];
@@ -5127,9 +5125,9 @@ static void loadpalette(void)
     kread(fil,palette,768);
     kread(fil,&numpalookups,2); numpalookups = B_LITTLE16(numpalookups);
 
-    if ((palookup[0] = (char *)kkmalloc(numpalookups<<8)) == NULL)
+    if ((palookup[0] = (char *)Bmalloc(numpalookups<<8)) == NULL)
         allocache((intptr_t*)&palookup[0],numpalookups<<8,&permanentlock);
-    if ((transluc = (char *)kkmalloc(65536L)) == NULL)
+    if ((transluc = (char *)Bmalloc(65536L)) == NULL)
         allocache((intptr_t*)&transluc,65536,&permanentlock);
 
     globalpalwritten = palookup[0]; globalpal = 0;
@@ -5148,7 +5146,7 @@ static void loadpalette(void)
 
 
 //
-// getclosestcol (internal)
+// getclosestcol
 //
 int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
 {
@@ -5637,17 +5635,29 @@ void uninitengine(void)
     uninitsystem();
     if (artfil != -1) kclose(artfil);
 
-    if (transluc != NULL) { kkfree(transluc); transluc = NULL; }
-    if (pic != NULL) { kkfree(pic); pic = NULL; }
+    i=(sizeof(artptrs)/sizeof(intptr_t))-1;
+
+    // this leaves a bunch of invalid pointers in waloff... fixme?
+    for(; i>=0; i--)
+    {
+        if (artptrs[i])
+        {
+            Bfree(artptrs[i]);
+            artptrs[i] = NULL;
+        }
+    }
+
+    if (transluc != NULL) { Bfree(transluc); transluc = NULL; }
+    if (pic != NULL) { Bfree(pic); pic = NULL; }
     if (lookups != NULL)
     {
-        if (lookupsalloctype == 0) kkfree((void *)lookups);
+        if (lookupsalloctype == 0) Bfree((void *)lookups);
         //if (lookupsalloctype == 1) suckcache(lookups);  //Cache already gone
         lookups = NULL;
     }
 
     for (i=0; i<MAXPALOOKUPS; i++)
-        if (palookup[i] != NULL) { kkfree(palookup[i]); palookup[i] = NULL; }
+        if (palookup[i] != NULL) { Bfree(palookup[i]); palookup[i] = NULL; }
 
 #ifdef DYNALLOC_ARRAYS
     if (sector != NULL)
@@ -7714,12 +7724,12 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 
     if (lookups != NULL)
     {
-        if (lookupsalloctype == 0) kkfree((void *)lookups);
+        if (lookupsalloctype == 0) Bfree((void *)lookups);
         if (lookupsalloctype == 1) suckcache(lookups);
         lookups = NULL;
     }
     lookupsalloctype = 0;
-    if ((lookups = (intptr_t *)kkmalloc(j<<1)) == NULL)
+    if ((lookups = (intptr_t *)Bmalloc(j<<1)) == NULL)
     {
         allocache((intptr_t *)&lookups,j<<1,&permanentlock);
         lookupsalloctype = 1;
@@ -7839,7 +7849,6 @@ void nextpage(void)
     numframes++;
 }
 
-
 //
 // loadpics
 //
@@ -7897,6 +7906,14 @@ int32_t loadpics(char *filename, int32_t askedsize)
                 offscount += dasiz;
                 artsize += ((dasiz+15)&0xfffffff0);
             }
+
+            if (filegrp[fil] == 254) // from zip
+            {
+                i = kfilelength(fil);
+                artptrs[numtilefiles] = Brealloc(artptrs[numtilefiles], i);
+                klseek(fil, 0, BSEEK_SET);
+                kread(fil, artptrs[numtilefiles], i);
+            }
             kclose(fil);
         }
         numtilefiles++;
@@ -7912,7 +7929,7 @@ int32_t loadpics(char *filename, int32_t askedsize)
         cachesize = (Bgetsysmemsize()/100)*60;
     else
         cachesize = askedsize;
-    while ((pic = kkmalloc(cachesize)) == NULL)
+    while ((pic = Bmalloc(cachesize)) == NULL)
     {
         cachesize -= 65536L;
         if (cachesize < 65536) return(-1);
@@ -7942,14 +7959,19 @@ int32_t loadpics(char *filename, int32_t askedsize)
 //
 void loadtile(int16_t tilenume)
 {
-    char *ptr;
     int32_t i, dasiz;
 
     if ((unsigned)tilenume >= (unsigned)MAXTILES) return;
-    dasiz = tilesizx[tilenume]*tilesizy[tilenume];
-    if (dasiz <= 0) return;
+    if ((dasiz = tilesizx[tilenume]*tilesizy[tilenume]) <= 0) return;
 
-    i = tilefilenum[tilenume];
+    if (artptrs[(i = tilefilenum[tilenume])]) // from zip
+    {
+        waloff[tilenume] = (intptr_t)(artptrs[i] + tilefileoffs[tilenume]);
+        faketimerhandler();
+        // OSD_Printf("loaded tile %d from zip\n", tilenume);
+        return;
+    }
+
     if (i != artfilnum)
     {
         if (artfil != -1) kclose(artfil);
@@ -7965,20 +7987,28 @@ void loadtile(int16_t tilenume)
 
     if (cachedebug) printOSD("Tile:%d\n",tilenume);
 
-    if (waloff[tilenume] == 0)
-    {
-        walock[tilenume] = 199;
-        allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
-    }
-
+    // dummy tiles for highres replacements and tilefromtexture definitions
     if (faketilesiz[tilenume])
     {
         if (faketilesiz[tilenume] == -1)
             Bmemset((char *)waloff[tilenume],0,dasiz);
         else if (faketiledata[tilenume] != NULL)
-            qlz_decompress(faketiledata[tilenume], (char *)waloff[tilenume], state_decompress); 
+        {
+            walock[tilenume] = 255; // permanent tile
+            allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
+            qlz_decompress(faketiledata[tilenume], (char *)waloff[tilenume], state_decompress);
+            Bfree(faketiledata[tilenume]);
+            faketiledata[tilenume] = NULL;
+        }
+
         faketimerhandler();
         return;
+    }
+
+    if (waloff[tilenume] == 0)
+    {
+        walock[tilenume] = 199;
+        allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
     }
 
     if (artfilplc != tilefileoffs[tilenume])
@@ -7986,8 +8016,8 @@ void loadtile(int16_t tilenume)
         klseek(artfil,tilefileoffs[tilenume]-artfilplc,BSEEK_CUR);
         faketimerhandler();
     }
-    ptr = (char *)waloff[tilenume];
-    kread(artfil,ptr,dasiz);
+
+    kread(artfil, (char *)waloff[tilenume], dasiz);
     faketimerhandler();
     artfilplc = tilefileoffs[tilenume]+dasiz;
 }
@@ -9819,7 +9849,7 @@ void makepalookup(int32_t palnum, char *remapbuf, int8_t r, int8_t g, int8_t b, 
     if (palookup[palnum] == NULL)
     {
         //Allocate palookup buffer
-        if ((palookup[palnum] = (char *)kkmalloc(numpalookups<<8)) == NULL)
+        if ((palookup[palnum] = (char *)Bmalloc(numpalookups<<8)) == NULL)
             allocache((intptr_t*)&palookup[palnum],numpalookups<<8,&permanentlock);
     }
 
@@ -10187,26 +10217,36 @@ void setviewback(void)
 //
 // squarerotatetile
 //
+#ifdef __GNUC__
+#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#if (GCC_VERSION >= 40400)
+#pragma GCC optimize("0")
+#endif
+#endif
 void squarerotatetile(int16_t tilenume)
 {
-    int32_t i, j, k, xsiz, ysiz;
-    char *ptr1, *ptr2;
-
-    xsiz = tilesizx[tilenume]; ysiz = tilesizy[tilenume];
+    int32_t siz;
 
     //supports square tiles only for rotation part
-    if (xsiz == ysiz)
+    if ((siz = tilesizx[tilenume]) == tilesizy[tilenume])
     {
-        k = (xsiz<<1);
-        for (i=xsiz-1; i>=0; i--)
+        int32_t i = siz-1;
+
+        for (; i>=0; i--)
         {
-            ptr1 = (char *)(waloff[tilenume]+i*(xsiz+1)); ptr2 = ptr1;
-            if ((i&1) != 0) { ptr1--; ptr2 -= xsiz; swapchar(ptr1,ptr2); }
-            for (j=(i>>1)-1; j>=0; j--)
-                { ptr1 -= 2; ptr2 -= k; swapchar2(ptr1,ptr2,xsiz); }
+            int32_t j=(i>>1)-1;
+            char *ptr1 = (char *)(waloff[tilenume]+i*(siz+1)), *ptr2 = ptr1;
+            if (i&1) swapchar(--ptr1, (ptr2 -= siz));
+            for (; j>=0; j--) swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
         }
     }
 }
+#ifdef __GNUC__
+#if (GCC_VERSION >= 40400)
+#pragma GCC reset_options
+#endif
+#undef GCC_VERSION
+#endif
 
 
 //
@@ -11693,7 +11733,7 @@ int32_t screencapture_tga(char *filename, char inverseit)
     // targa renders bottom to top, from left to right
     if (inverseit && qsetmode != 200)
     {
-        inversebuf = (char *)kmalloc(bytesperline);
+        inversebuf = (char *)Bmalloc(bytesperline);
         if (inversebuf)
         {
             for (i=ydim-1; i>=0; i--)
@@ -11702,7 +11742,7 @@ int32_t screencapture_tga(char *filename, char inverseit)
                 for (j=0; j < (bytesperline>>2); j++)((int32_t *)inversebuf)[j] ^= 0x0f0f0f0fL;
                 Bfwrite(inversebuf, xdim, 1, fil);
             }
-            kfree(inversebuf);
+            Bfree(inversebuf);
         }
     }
     else
@@ -11712,7 +11752,7 @@ int32_t screencapture_tga(char *filename, char inverseit)
         {
             char c;
             // 24bit
-            inversebuf = (char *)kmalloc(xdim*ydim*3);
+            inversebuf = (char *)Bmalloc(xdim*ydim*3);
             if (inversebuf)
             {
                 bglReadPixels(0,0,xdim,ydim,GL_RGB,GL_UNSIGNED_BYTE,inversebuf);
@@ -11724,7 +11764,7 @@ int32_t screencapture_tga(char *filename, char inverseit)
                     inversebuf[i+2] = c;
                 }
                 Bfwrite(inversebuf, xdim*ydim, 3, fil);
-                kfree(inversebuf);
+                Bfree(inversebuf);
             }
         }
         else
@@ -11867,7 +11907,7 @@ int32_t screencapture_pcx(char *filename, char inverseit)
     // targa renders bottom to top, from left to right
     if (inverseit && qsetmode != 200)
     {
-        inversebuf = (char *)kmalloc(bytesperline);
+        inversebuf = (char *)Bmalloc(bytesperline);
         if (inversebuf)
         {
             for (i=0; i<ydim; i++)
@@ -11876,7 +11916,7 @@ int32_t screencapture_pcx(char *filename, char inverseit)
                 for (j=0; j < (bytesperline>>2); j++)((int32_t *)inversebuf)[j] ^= 0x0f0f0f0fL;
                 writepcxline(inversebuf, xdim, 1, fil);
             }
-            kfree(inversebuf);
+            Bfree(inversebuf);
         }
     }
     else
@@ -11885,7 +11925,7 @@ int32_t screencapture_pcx(char *filename, char inverseit)
         if (rendmode >= 3 && qsetmode == 200)
         {
             // 24bit
-            inversebuf = (char *)kmalloc(xdim*ydim*3);
+            inversebuf = (char *)Bmalloc(xdim*ydim*3);
             if (inversebuf)
             {
                 bglReadPixels(0,0,xdim,ydim,GL_RGB,GL_UNSIGNED_BYTE,inversebuf);
@@ -11895,7 +11935,7 @@ int32_t screencapture_pcx(char *filename, char inverseit)
                     writepcxline(inversebuf+i*xdim*3+1, xdim, 3, fil);
                     writepcxline(inversebuf+i*xdim*3+2, xdim, 3, fil);
                 }
-                kfree(inversebuf);
+                Bfree(inversebuf);
             }
         }
         else

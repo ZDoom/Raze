@@ -492,8 +492,7 @@ void uninitinput(void)
 
 const char *getkeyname(int32_t num)
 {
-    if ((unsigned)num >= 256) return NULL;
-    return key_names[num];
+    return ((unsigned)num >= 256) ? NULL : key_names[num];
 }
 
 const char *getjoyname(int32_t what, int32_t num)
@@ -527,11 +526,14 @@ const char *getjoyname(int32_t what, int32_t num)
 //
 char bgetchar(void)
 {
-    char c;
-    if (keyasciififoplc == keyasciififoend) return 0;
-    c = keyasciififo[keyasciififoplc];
-    keyasciififoplc = ((keyasciififoplc+1)&(KEYFIFOSIZ-1));
-    return c;
+    if (keyasciififoplc == keyasciififoend)
+        return 0;
+
+    {
+        char c = keyasciififo[keyasciififoplc];
+        keyasciififoplc = ((keyasciififoplc+1)&(KEYFIFOSIZ-1));
+        return c;
+    }
 }
 
 int32_t bkbhit(void)

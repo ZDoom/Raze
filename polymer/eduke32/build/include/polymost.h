@@ -14,6 +14,7 @@ extern char cullmodel[MAXSPRITES];
 extern int32_t cullcheckcnt;
 
 #define PI 3.14159265358979323
+extern char TEXCACHEFILE[BMAX_PATH];
 
 typedef struct { char r, g, b, a; } coltype;
 

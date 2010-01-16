@@ -277,9 +277,12 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     FILE *fp;
     HDC hdc;
 
+    UNREFERENCED_PARAMETER(lpCmdLine);
+    UNREFERENCED_PARAMETER(nCmdShow);
+
     hInstance = hInst;
 
-    if (CheckWinVersion() || hPrevInst)
+    if (!CheckWinVersion() || hPrevInst)
     {
         MessageBox(0, "This application requires Windows 2000 or better to run.",
                    apptitle, MB_OK|MB_ICONSTOP);
@@ -312,9 +315,6 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     nedcreatepool(SYSTEM_POOL_SIZE, -1);
 
 //    atexit(neddestroysyspool);
-
-    UNREFERENCED_PARAMETER(lpCmdLine);
-    UNREFERENCED_PARAMETER(nCmdShow);
 
     hdc = GetDC(NULL);
     r = GetDeviceCaps(hdc, BITSPIXEL);
@@ -1609,8 +1609,7 @@ static void GetKeyNames(void)
 
 const char *getkeyname(int32_t num)
 {
-    if ((unsigned)num >= 256) return NULL;
-    return key_names[num];
+    return ((unsigned)num >= 256) ? NULL : key_names[num];
 }
 
 const char *getjoyname(int32_t what, int32_t num)
@@ -1618,17 +1617,11 @@ const char *getjoyname(int32_t what, int32_t num)
     switch (what)
     {
     case 0:	// axis
-        if ((unsigned)num > (unsigned)joynumaxes) return NULL;
-        return (char *)axisdefs[num].name;
-
+        return ((unsigned)num > (unsigned)joynumaxes) ? NULL : (char *)axisdefs[num].name;
     case 1: // button
-        if ((unsigned)num > (unsigned)joynumbuttons) return NULL;
-        return (char *)buttondefs[num].name;
-
+        return ((unsigned)num > (unsigned)joynumbuttons) ? NULL : (char *)buttondefs[num].name;
     case 2: // hat
-        if ((unsigned)num > (unsigned)joynumhats) return NULL;
-        return (char *)hatdefs[num].name;
-
+        return ((unsigned)num > (unsigned)joynumhats) ? NULL : (char *)hatdefs[num].name;
     default:
         return NULL;
     }
@@ -4210,17 +4203,18 @@ static inline BOOL CheckWinVersion(void)
     ZeroMemory(&osv, sizeof(osv));
     osv.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 
-    if (!GetVersionEx(&osv)) return TRUE;
+    // we don't like anything older than Windows 2000, but the BUILD_WIN9X
+    // variable allows attempting to run on 9x (for masochists and sodomites)
 
-    // we don't like anything older than Windows 2000
-    else if (osv.dwMajorVersion >= 5) return FALSE;
+    if (!GetVersionEx(&osv)) return FALSE;
 
-    // BUILD_WIN9X variable allows attempting to run on 9x, for masochists and sodomites
-    else if (Bgetenv("BUILD_WIN9X") != NULL && osv.dwMajorVersion == 4 &&
+    if (osv.dwMajorVersion >= 5) return TRUE;
+
+    if (Bgetenv("BUILD_WIN9X") != NULL && osv.dwMajorVersion == 4 &&
              osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
-        return FALSE;
+        return TRUE;
 
-    else return TRUE;
+    return FALSE;
 }
 
 

@@ -9,6 +9,11 @@
 extern "C" {
 #endif
 
+#define MAXGROUPFILES 8     //Warning: Fix groupfil if this is changed
+#define MAXOPENFILES 64     //Warning: Fix filehan if this is changed
+
+extern char filegrp[MAXOPENFILES];
+
 void	initcache(intptr_t dacachestart, int32_t dacachesize);
 void	allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr);
 void	suckcache(intptr_t *suckptr);

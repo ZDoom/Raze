@@ -15,6 +15,7 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #define _WIN32_IE 0x0400
+#define _WIN32_WINNT 0x0500
 #include <windows.h>
 #include <shlobj.h>
 #include <direct.h>
@@ -26,6 +27,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 // #include <sys/stat.h>
+#include <limits.h>
 
 #ifdef __APPLE__
 #if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_3
@@ -41,7 +43,7 @@
 #endif
 
 #include "compat.h"
-
+#include "baselayer.h"
 
 #ifndef __compat_h_macrodef__
 
@@ -774,17 +776,41 @@ char *Bstrupr(char *s)
 
 
 //
-// getsysmemsize() -- gets the amount of system memory in the machine
+// Bgetsysmemsize() -- gets the amount of system memory in the machine
 //
 uint32_t Bgetsysmemsize(void)
 {
 #ifdef _WIN32
-    MEMORYSTATUS memst;
-    GlobalMemoryStatus(&memst);
-    return (uint32_t)memst.dwTotalPhys;
+    uint32_t siz = UINT_MAX;
+    HMODULE lib = LoadLibrary("KERNEL32.DLL");
+    
+    if (lib)
+    {
+        WINBASEAPI BOOL WINAPI (*aGlobalMemoryStatusEx)(LPMEMORYSTATUSEX) =
+            (void *)GetProcAddress(lib, "GlobalMemoryStatusEx");
+
+        if (aGlobalMemoryStatusEx)
+        {
+            //WinNT
+            MEMORYSTATUSEX memst;
+            memst.dwLength = sizeof(MEMORYSTATUSEX);
+            if (aGlobalMemoryStatusEx(&memst))
+                siz = (uint32_t)min(UINT_MAX, memst.ullTotalPhys);
+        }
+        else
+        {
+            // Yeah, there's enough Win9x hatred here that a perfectly good workaround 
+            // has been replaced by an error message.  Oh well, we don't support 9x anyway.
+            initprintf("Bgetsysmemsize(): error determining system memory size!\n");
+        }
+
+        FreeLibrary(lib);
+    }
+
+    return siz;
 #elif (defined(_SC_PAGE_SIZE) || defined(_SC_PAGESIZE)) && defined(_SC_PHYS_PAGES)
-    uint32_t siz = 0x7fffffff;
-    int32_t scpagesiz, scphyspages;
+    uint32_t siz = UINT_MAX;
+    int64_t scpagesiz, scphyspages;
 
 #ifdef _SC_PAGE_SIZE
     scpagesiz = sysconf(_SC_PAGE_SIZE);
@@ -793,14 +819,14 @@ uint32_t Bgetsysmemsize(void)
 #endif
     scphyspages = sysconf(_SC_PHYS_PAGES);
     if (scpagesiz >= 0 && scphyspages >= 0)
-        siz = (uint32_t)min(longlong(0x7fffffff), (int64_t)scpagesiz * (int64_t)scphyspages);
+        siz = (uint32_t)min(UINT_MAX, (int64_t)scpagesiz * (int64_t)scphyspages);
 
     //initprintf("Bgetsysmemsize(): %d pages of %d bytes, %d bytes of system memory\n",
     //		scphyspages, scpagesiz, siz);
 
     return siz;
 #else
-    return 0x7fffffff;
+    return UINT_MAX;
 #endif
 }
 

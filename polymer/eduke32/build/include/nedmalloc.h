@@ -48,6 +48,10 @@ nedmalloc.dll.
 USE_LOCKS can be 2 if you want to define your own MLOCK_T, INITIAL_LOCK,
 ACQUIRE_LOCK, RELEASE_LOCK, TRY_LOCK, IS_LOCKED and NULL_LOCK_INITIALIZER.
 
+NEDMALLOC_DEBUG can be defined to cause DEBUG to be set differently for nedmalloc
+than for the rest of the build. Remember to set NDEBUG to disable all assertion
+checking too.
+
 USE_MAGIC_HEADERS causes nedalloc to allocate an extra three sizeof(size_t)
 to each block. nedpfree() and nedprealloc() can then automagically know when
 to free a system allocated block. Enabling this typically adds 20-50% to
@@ -197,21 +201,21 @@ systems when passing non-nedmalloc blocks if you don't use USE_MAGIC_HEADERS.
 */
 NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR size_t nedblksize(int *RESTRICT isforeign, void *RESTRICT mem) THROWSPEC;
 
-NEDMALLOCEXTSPEC void nedsetvalue(void *v) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR void nedsetvalue(void *v) THROWSPEC;
 
-NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void * nedmalloc(size_t size) THROWSPEC;
-NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void * nedcalloc(size_t no, size_t size) THROWSPEC;
-NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void * nedrealloc(void *mem, size_t size) THROWSPEC;
-NEDMALLOCEXTSPEC void   nedfree(void *mem) THROWSPEC;
-NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void * nedmemalign(size_t alignment, size_t bytes) THROWSPEC;
-NEDMALLOCEXTSPEC struct nedmallinfo nedmallinfo(void) THROWSPEC;
-NEDMALLOCEXTSPEC int    nedmallopt(int parno, int value) THROWSPEC;
-NEDMALLOCEXTSPEC void*  nedmalloc_internals(size_t *granularity, size_t *magic) THROWSPEC;
-NEDMALLOCEXTSPEC int    nedmalloc_trim(size_t pad) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR NEDMALLOCPTRATTR void * nedmalloc(size_t size) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR NEDMALLOCPTRATTR void * nedcalloc(size_t no, size_t size) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR NEDMALLOCPTRATTR void * nedrealloc(void *mem, size_t size) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR void   nedfree(void *mem) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR NEDMALLOCPTRATTR void * nedmemalign(size_t alignment, size_t bytes) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR struct nedmallinfo nedmallinfo(void) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR int    nedmallopt(int parno, int value) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR void*  nedmalloc_internals(size_t *granularity, size_t *magic) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR int    nedmalloc_trim(size_t pad) THROWSPEC;
 NEDMALLOCEXTSPEC void   nedmalloc_stats(void) THROWSPEC;
-NEDMALLOCEXTSPEC size_t nedmalloc_footprint(void) THROWSPEC;
-NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void **nedindependent_calloc(size_t elemsno, size_t elemsize, void **chunks) THROWSPEC;
-NEDMALLOCEXTSPEC NEDMALLOCPTRATTR void **nedindependent_comalloc(size_t elems, size_t *sizes, void **chunks) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR size_t nedmalloc_footprint(void) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR NEDMALLOCPTRATTR void **nedindependent_calloc(size_t elemsno, size_t elemsize, void **chunks) THROWSPEC;
+NEDMALLOCEXTSPEC NEDMALLOCNOALIASATTR NEDMALLOCPTRATTR void **nedindependent_comalloc(size_t elems, size_t *sizes, void **chunks) THROWSPEC;
 
 /* Destroys the system memory pool used by the functions above.
 Useful for when you have nedmalloc in a DLL you're about to unload.

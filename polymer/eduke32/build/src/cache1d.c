@@ -72,9 +72,6 @@ static int32_t lockrecip[200];
 
 static char toupperlookup[256];
 
-extern void *kmalloc(size_t);
-extern void kfree(void *);
-
 static void reportandexit(char *errormessage);
 
 extern char pow2char[8];
@@ -398,10 +395,6 @@ BFILE* fopenfrompath(const char *fn, const char *mode)
     return h;
 }
 
-
-#define MAXGROUPFILES 8     //Warning: Fix groupfil if this is changed
-#define MAXOPENFILES 64     //Warning: Fix filehan if this is changed
-
 static char toupperlookup[256] =
 {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,
@@ -429,7 +422,7 @@ static int32_t groupfilpos[MAXGROUPFILES];
 static char *gfilelist[MAXGROUPFILES];
 static int32_t *gfileoffs[MAXGROUPFILES];
 
-static char filegrp[MAXOPENFILES];
+char filegrp[MAXOPENFILES];
 static int32_t filepos[MAXOPENFILES];
 static intptr_t filehan[MAXOPENFILES] =
 {
@@ -495,9 +488,9 @@ int32_t initgroupfile(char *filename)
         }
         gnumfiles[numgroupfiles] = B_LITTLE32(*((int32_t *)&buf[12]));
 
-        if ((gfilelist[numgroupfiles] = (char *)kmalloc(gnumfiles[numgroupfiles]<<4)) == 0)
+        if ((gfilelist[numgroupfiles] = (char *)Bmalloc(gnumfiles[numgroupfiles]<<4)) == 0)
             { Bprintf("Not enough memory for file grouping system\n"); exit(0); }
-        if ((gfileoffs[numgroupfiles] = (int32_t *)kmalloc((gnumfiles[numgroupfiles]+1)<<2)) == 0)
+        if ((gfileoffs[numgroupfiles] = (int32_t *)Bmalloc((gnumfiles[numgroupfiles]+1)<<2)) == 0)
             { Bprintf("Not enough memory for file grouping system\n"); exit(0); }
 
         Bread(groupfil[numgroupfiles],gfilelist[numgroupfiles],gnumfiles[numgroupfiles]<<4);
@@ -523,8 +516,8 @@ void uninitsinglegroupfile(int32_t grphandle)
     for (i=numgroupfiles-1; i>=0; i--)
         if (groupfil[i] != -1 && groupfil[i] == grphandle)
         {
-            kfree(gfilelist[i]);
-            kfree(gfileoffs[i]);
+            Bfree(gfilelist[i]);
+            Bfree(gfileoffs[i]);
             Bclose(groupfil[i]);
             groupfil[i] = -1;
             grpnum = i;
@@ -567,8 +560,8 @@ void uninitgroupfile(void)
     for (i=numgroupfiles-1; i>=0; i--)
         if (groupfil[i] != -1)
         {
-            kfree(gfilelist[i]);
-            kfree(gfileoffs[i]);
+            Bfree(gfilelist[i]);
+            Bfree(gfileoffs[i]);
             Bclose(groupfil[i]);
             groupfil[i] = -1;
         }
