@@ -481,10 +481,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\sync.c"
-					>
-				</File>
-				<File
 					RelativePath=".\source\winbits.c"
 					>
 				</File>

@@ -41,7 +41,7 @@ int16_t SpriteCacheList[MAXTILES][3];
 static uint8_t precachehightile[2][MAXTILES>>3];
 static int32_t  g_precacheCount;
 
-extern char *duke3dgrpstring;
+extern char *g_gameNamePtr;
 extern int32_t g_levelTextTime;
 
 static void tloadtile(int32_t tilenume, int32_t type)
@@ -160,7 +160,7 @@ static void G_CacheSpriteNum(int32_t i)
         break;
     case APLAYER__STATIC:
         maxc = 0;
-        if ((net_server || ud.multimode > 1))
+        if ((g_netServer || ud.multimode > 1))
         {
             maxc = 5;
             for (j = 1420; j < 1420+106; j++) tloadtile(j,1);
@@ -228,7 +228,7 @@ static void G_PrecacheSprites(void)
                 tloadtile(j,1);
     }
     tloadtile(BOTTOMSTATUSBAR,1);
-    if ((net_server || ud.multimode > 1))
+    if ((g_netServer || ud.multimode > 1))
         tloadtile(FRAGBAR,1);
 
     tloadtile(VIEWSCREEN,1);
@@ -559,7 +559,7 @@ void G_UpdateScreenArea(void)
 
     y1 = ss;
     y2 = 200;
-    if (ud.screen_size > 0 && (GametypeFlags[ud.coop]&GAMETYPE_FRAGBAR) && (net_server || ud.multimode > 1))
+    if (ud.screen_size > 0 && (GametypeFlags[ud.coop]&GAMETYPE_FRAGBAR) && (g_netServer || ud.multimode > 1))
     {
         j = 0;
         TRAVERSE_CONNECT(i)
@@ -594,7 +594,7 @@ void P_RandomSpawnPoint(int32_t snum)
     int32_t i=snum,j,k;
     uint32_t dist,pdist = -1;
 
-    if ((net_server || ud.multimode > 1) && !(GametypeFlags[ud.coop] & GAMETYPE_FIXEDRESPAWN))
+    if ((g_netServer || ud.multimode > 1) && !(GametypeFlags[ud.coop] & GAMETYPE_FIXEDRESPAWN))
     {
         i = krand()%g_numPlayerSprites;
         if (GametypeFlags[ud.coop] & GAMETYPE_TDMSPAWN)
@@ -740,7 +740,7 @@ void P_ResetStatus(int32_t snum)
     p->rapid_fire_hold  = 0;
     p->toggle_key_flag  = 0;
     p->access_spritenum = -1;
-    if ((net_server || ud.multimode > 1) && (GametypeFlags[ud.coop] & GAMETYPE_ACCESSATSTART))
+    if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop] & GAMETYPE_ACCESSATSTART))
         p->got_access = 7;
     else p->got_access      = 0;
     p->random_club_frame= 0;
@@ -887,7 +887,7 @@ static void resetprestat(int32_t snum,int32_t g)
     g_numInterpolations = 0;
     startofdynamicinterpolations = 0;
 
-    if (((g&MODE_EOL) != MODE_EOL && numplayers < 2 && !net_server) || (!(GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && numplayers > 1))
+    if (((g&MODE_EOL) != MODE_EOL && numplayers < 2 && !g_netServer) || (!(GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && numplayers > 1))
     {
         P_ResetWeapons(snum);
         P_ResetInventory(snum);
@@ -1297,10 +1297,10 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 
     ready2send = 0;
 
-    if (ud.m_recstat != 2 && ud.last_level >= 0 && (net_server || ud.multimode > 1) && (ud.coop&GAMETYPE_SCORESHEET))
+    if (ud.m_recstat != 2 && ud.last_level >= 0 && (g_netServer || ud.multimode > 1) && (ud.coop&GAMETYPE_SCORESHEET))
         G_BonusScreen(1);
 
-    if (ln == 0 && vn == 3 && (!net_server && ud.multimode < 2) && ud.lockout == 0)
+    if (ln == 0 && vn == 3 && (!g_netServer && ud.multimode < 2) && ud.lockout == 0)
     {
         S_PlayMusic(&EnvMusicFilename[1][0],MAXVOLUMES*MAXLEVELS+1);
 
@@ -1390,7 +1390,7 @@ static void resetpspritevars(char g)
             aimmode[i] = g_player[i].ps->aim_mode;
             autoaim[i] = g_player[i].ps->auto_aim;
             weaponswitch[i] = g_player[i].ps->weaponswitch;
-            if ((net_server || ud.multimode > 1) && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
+            if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
             {
                 for (j=0; j<MAX_WEAPONS; j++)
                 {
@@ -1415,7 +1415,7 @@ static void resetpspritevars(char g)
             g_player[i].ps->aim_mode = aimmode[i];
             g_player[i].ps->auto_aim = autoaim[i];
             g_player[i].ps->weaponswitch = weaponswitch[i];
-            if ((net_server || ud.multimode > 1) && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
+            if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
             {
                 for (j=0; j<MAX_WEAPONS; j++)
                 {
@@ -1478,7 +1478,7 @@ static void resetpspritevars(char g)
 
                 s->yvel = j;
 
-                if (!g_player[j].pcolor && (net_server || ud.multimode > 1) && !(GametypeFlags[ud.coop] & GAMETYPE_TDM))
+                if (!g_player[j].pcolor && (g_netServer || ud.multimode > 1) && !(GametypeFlags[ud.coop] & GAMETYPE_TDM))
                 {
                     if (s->pal == 0)
                     {
@@ -1559,9 +1559,9 @@ void Net_WaitForServer(void)
 {
     int32_t server_ready = g_player[0].playerreadyflag;
 
-    if (numplayers < 2 || net_server) return;
+    if (numplayers < 2 || g_netServer) return;
 
-    if ((net_server || ud.multimode > 1))
+    if ((g_netServer || ud.multimode > 1))
     {
         P_SetGamePalette(g_player[myconnectindex].ps, titlepal, 11);
         rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
@@ -1582,8 +1582,8 @@ void Net_WaitForServer(void)
         packbuf[0] = PACKET_PLAYER_READY;
         packbuf[1] = myconnectindex;
 
-        if (net_peer)
-            enet_peer_send(net_peer, 0, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
+        if (g_netClientPeer)
+            enet_peer_send(g_netClientPeer, 0, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
 
         handleevents();
         Net_GetPackets();
@@ -1742,9 +1742,9 @@ int32_t G_EnterLevel(int32_t g)
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
         Bstrcpy(levname, boardfilename);
-        Bsprintf(apptitle,"%s - %s - " APPNAME,levname,duke3dgrpstring);
+        Bsprintf(apptitle,"%s - %s - " APPNAME,levname,g_gameNamePtr);
     }
-    else Bsprintf(apptitle,"%s - %s - " APPNAME,MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name,duke3dgrpstring);
+    else Bsprintf(apptitle,"%s - %s - " APPNAME,MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name,g_gameNamePtr);
 
     Bstrcpy(tempbuf,apptitle);
     wm_setapptitle(tempbuf);

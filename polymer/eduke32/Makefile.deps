@@ -1,7 +1,7 @@
 duke3d_h=$(EINC)/build.h $(EINC)/polymer.h $(EINC)/pragmas.h $(EINC)/compat.h $(EINC)/cache1d.h $(EINC)/baselayer.h $(SRC)/jmact/file_lib.h $(SRC)/jmact/util_lib.h $(SRC)/jmact/keyboard.h $(SRC)/jmact/control.h $(INC)/gamedefs.h $(INC)/function.h $(INC)/config.h $(INC)/sounds.h $(INC)/rts.h $(INC)/_rts.h $(INC)/soundefs.h $(JAUDIOLIBDIR)/include/fx_man.h $(JAUDIOLIBDIR)/include/music.h $(INC)/namesdyn.h $(INC)/funct.h $(INC)/duke3d.h
 gamedef_h=$(SRC)/gamedef.h
 
-$(OBJ)/game.$o: $(SRC)/game.c $(SRC)/sync.c $(SRC)/jmact/scriplib.h $(duke3d_h) $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h
+$(OBJ)/game.$o: $(SRC)/game.c $(SRC)/jmact/scriplib.h $(duke3d_h) $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h
 $(OBJ)/actors.$o: $(SRC)/actors.c $(duke3d_h)
 $(OBJ)/anim.$o: $(SRC)/anim.c $(duke3d_h) $(SRC)/jmact/animlib.h
 $(OBJ)/gamedef.$o: $(SRC)/gamedef.c $(duke3d_h) $(gamedef_h)

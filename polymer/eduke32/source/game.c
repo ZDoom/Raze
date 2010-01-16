@@ -49,14 +49,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "enet/enet.h"
 #include "quicklz.h"
 
-ENetHost * net_server = NULL;
-ENetHost * net_client = NULL;
-ENetPeer * net_peer = NULL;
-int32_t net_port = 23513;
-int32_t g_netDisconnect = 0;
-int32_t net_lists[] = { STAT_PROJECTILE, STAT_STANDABLE, STAT_ACTIVATOR, STAT_TRANSPORT, STAT_EFFECTOR, STAT_ACTOR, STAT_ZOMBIEACTOR, STAT_MISC };
-char g_networkPassword[32];
-
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -66,10 +58,21 @@ extern int32_t G_GetVersionFromWebsite(char *buffer);
 #else
 static int32_t usecwd = 0;
 #endif /* _WIN32 */
+
+ENetHost * g_netServer = NULL;
+ENetHost * g_netClient = NULL;
+ENetPeer * g_netClientPeer = NULL;
+int32_t g_netPort = 23513;
+int32_t g_netDisconnect = 0;
+int8_t g_netStatnums[] = { STAT_PROJECTILE, STAT_STANDABLE, STAT_ACTIVATOR, STAT_TRANSPORT,
+                           STAT_EFFECTOR, STAT_ACTOR, STAT_ZOMBIEACTOR, STAT_MISC };
+char g_netPassword[32];
+int32_t g_quitDeadline = 0;
+
 int32_t g_scriptSanityChecks = 1;
 
 int32_t g_cameraDistance = 0, g_cameraClock = 0;
-static int32_t qe;
+static int32_t g_quickExit;
 static int32_t g_commandSetup = 0;
 int32_t g_noSetup = 0;
 static int32_t g_noAutoLoad = 0;
@@ -77,7 +80,7 @@ static int32_t g_noSound = 0;
 static int32_t g_noMusic = 0;
 static char *CommandMap = NULL;
 static char *CommandName = NULL;
-int32_t CommandWeaponChoice = 0;
+int32_t g_forceWeaponChoice = 0;
 static struct strllist
 {
     struct strllist *next;
@@ -86,44 +89,39 @@ static struct strllist
 *CommandPaths = NULL, *CommandGrps = NULL;
 
 char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
-char root[BMAX_PATH];
+
+static char g_rootDir[BMAX_PATH];
+char g_modDir[BMAX_PATH] = "/";
+
 uint8_t waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768], animpal[768];
 static char firstdemofile[80] = { '\0' };
-static int32_t userconfiles = 0;
+static int32_t g_skipDefaultCons = 0;
 
 int32_t voting = -1;
 int32_t vote_map = -1, vote_episode = -1;
 
-int32_t recfilep,totalreccnt;
-int32_t debug_on = 0,g_noEnemies = 0;
-static char *rtsptr;
+static int32_t g_Debug = 0;
 
-//extern char syncstate;
 extern int32_t numlumps;
 
-static FILE *frecfilep = (FILE *)NULL;
-static int32_t demo_goalreccnt=0, demo_startreccnt=0, demo_oldsoundtoggle, demo_showstats=1;
-static int32_t demo_paused=0;
+static FILE *g_demo_filePtr = (FILE *)NULL;
+static int32_t g_demo_goalCnt=0, g_demo_startCnt=0, g_demo_soundToggle, g_demo_showStats=1;
+static int32_t g_demo_paused=0;
+static int32_t g_demo_recFilePtr, g_demo_totalCnt;
 
-int32_t g_restorePalette = 0, g_screenCapture = 0;
+int32_t g_restorePalette = 0, g_screenCapture = 0, g_noEnemies = 0;
 static int32_t g_noLogoAnim = 0;
 static int32_t g_noLogo = 0;
 static int32_t g_chatPlayer = -1;
 
 char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 static char defaultduke3ddef[BMAX_PATH] = "duke3d.def";
-static char defaultconfilename[BMAX_PATH] = {"EDUKE.CON"};
+static char defaultconfilename[BMAX_PATH] = { "EDUKE.CON" };
 
-char *duke3dgrp = defaultduke3dgrp;
-char *duke3ddef = defaultduke3ddef;
-static char *confilename = defaultconfilename;
-
-char *duke3dgrpstring = NULL;
-char mod_dir[BMAX_PATH] = "/";
-
-#if defined(POLYMOST)
-extern char TEXCACHEFILE[BMAX_PATH];
-#endif
+char *g_grpNamePtr = defaultduke3dgrp;
+char *g_defNamePtr = defaultduke3ddef;
+char *g_scriptNamePtr = defaultconfilename;
+char *g_gameNamePtr = NULL;
 
 extern int32_t lastvisinc;
 
@@ -180,7 +178,7 @@ int32_t kopen4loadfrommod(char *filename, char searchfirst)
     static char fn[BMAX_PATH];
     int32_t r;
 
-    Bsprintf(fn,"%s/%s",mod_dir,filename);
+    Bsprintf(fn,"%s/%s",g_modDir,filename);
     r = kopen4load(fn,searchfirst);
     if (r < 0)
         r = kopen4load(filename,searchfirst);
@@ -567,9 +565,9 @@ void G_HandleSpecialKeys(void)
     if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
         OSD_DispatchQueued();
 
-    if (qe == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && (KB_KeyPressed(sc_Delete)||KB_KeyPressed(sc_End)))
+    if (g_quickExit == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && (KB_KeyPressed(sc_Delete)||KB_KeyPressed(sc_End)))
     {
-        qe = 1;
+        g_quickExit = 1;
         G_GameExit("Quick Exit.");
     }
 }
@@ -582,9 +580,9 @@ void Net_Connect(const char * srvaddr)
 
     Net_Disconnect();
 
-    net_client = enet_host_create (NULL, 1, 0, 0);
+    g_netClient = enet_host_create (NULL, 1, 0, 0);
 
-    if (net_client == NULL)
+    if (g_netClient == NULL)
     {
         initprintf ("An error occurred while trying to create an ENet client host.\n");
         return;
@@ -595,16 +593,16 @@ void Net_Connect(const char * srvaddr)
     address.port = atoi((addrstr = strtok(NULL, ":")) == NULL ? "23513" : addrstr);
 
     // use 2 channels for easy packet sorting at a lower level than the game later
-    net_peer = enet_host_connect (net_client, &address, 2);    
+    g_netClientPeer = enet_host_connect (g_netClient, &address, 2);    
 
-    if (net_peer == NULL)
+    if (g_netClientPeer == NULL)
     {
         initprintf ("No available peers for initiating an ENet connection.\n");
         return;
     }
 
     /* Wait up to 5 seconds for the connection attempt to succeed. */
-    if (enet_host_service (net_client, & event, 5000) > 0 &&
+    if (enet_host_service (g_netClient, & event, 5000) > 0 &&
         event.type == ENET_EVENT_TYPE_CONNECT)
         initprintf("Connection to %s:%d succeeded.\n", (char *)srvaddr, address.port);
     else
@@ -612,7 +610,7 @@ void Net_Connect(const char * srvaddr)
         /* Either the 5 seconds are up or a disconnect event was */
         /* received. Reset the peer in the event the 5 seconds   */
         /* had run out without any significant event.            */
-        enet_peer_reset (net_peer);
+        enet_peer_reset (g_netClientPeer);
         Net_Disconnect();
         initprintf("Connection to %s:%d failed.\n",(char *)srvaddr,address.port);
     }
@@ -620,14 +618,14 @@ void Net_Connect(const char * srvaddr)
 
 void Net_Disconnect(void)
 {
-    if (net_client)
+    if (g_netClient)
     {
         ENetEvent event;
 
-        if (net_peer)
-            enet_peer_disconnect(net_peer, 0);
+        if (g_netClientPeer)
+            enet_peer_disconnect_later(g_netClientPeer, 0);
 
-        while (enet_host_service (net_client, & event, 3000) > 0)
+        while (enet_host_service (g_netClient, & event, 3000) > 0)
         {
             switch (event.type)
             {
@@ -646,25 +644,25 @@ void Net_Disconnect(void)
             }
         }
 
-        enet_peer_reset(net_peer);
-        net_peer = NULL;
-        enet_host_destroy(net_client);
-        net_client = NULL;
+        enet_peer_reset(g_netClientPeer);
+        g_netClientPeer = NULL;
+        enet_host_destroy(g_netClient);
+        g_netClient = NULL;
     }
 
-    if (net_server)
+    if (g_netServer)
     {
         ENetPeer * currentPeer;
         ENetEvent event;
 
-        for (currentPeer = net_server -> peers;
-            currentPeer < & net_server -> peers [net_server -> peerCount];
+        for (currentPeer = g_netServer -> peers;
+            currentPeer < & g_netServer -> peers [g_netServer -> peerCount];
             ++ currentPeer)
         {
-            enet_peer_disconnect (currentPeer, 0);
+            enet_peer_disconnect_later (currentPeer, 0);
         }
 
-        while (enet_host_service (net_server, & event, 3000) > 0)
+        while (enet_host_service (g_netServer, & event, 3000) > 0)
         {
             switch (event.type)
             {
@@ -677,12 +675,10 @@ void Net_Disconnect(void)
                 break;
             }
         }
-        enet_host_destroy(net_server);
-        net_server = NULL;
+        enet_host_destroy(g_netServer);
+        g_netServer = NULL;
     }
 }
-
-int32_t quittimer = 0;
 
 void G_GameQuit(void)
 {
@@ -692,17 +688,17 @@ void G_GameQuit(void)
     if (g_gameQuit == 0)
     {
         g_gameQuit = 1;
-        quittimer = totalclock+120;
+        g_quitDeadline = totalclock+120;
         g_netDisconnect = 1;
     }
 
-    if ((totalclock > quittimer) && (g_gameQuit == 1))
+    if ((totalclock > g_quitDeadline) && (g_gameQuit == 1))
         G_GameExit("Timed out.");
 }
 
 static void Net_SendVersion(ENetPeer * client)
 {
-    if (!net_server) return;
+    if (!g_netServer) return;
 
     buf[0] = PACKET_VERSION;
     buf[1] = BYTEVERSION;
@@ -743,10 +739,10 @@ void Net_SendClientInfo(void)
 
     buf[l++] = myconnectindex;
 
-    if (net_client)
-        enet_peer_send(net_peer, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
-    else if (net_server)
-        enet_host_broadcast(net_server, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
+    if (g_netClient)
+        enet_peer_send(g_netClientPeer, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
+    else if (g_netServer)
+        enet_host_broadcast(g_netServer, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
 }
 
 void Net_SendUserMapName(void)
@@ -767,10 +763,10 @@ void Net_SendUserMapName(void)
 
     packbuf[j++] = myconnectindex;
 
-    if (net_client)
-        enet_peer_send(net_peer, 0, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
-    else if (net_server)
-        enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
+    if (g_netClient)
+        enet_peer_send(g_netClientPeer, 0, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
+    else if (g_netServer)
+        enet_host_broadcast(g_netServer, 0, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
 }
 
 void Net_NewGame(int32_t volume, int32_t level)
@@ -789,10 +785,10 @@ void Net_NewGame(int32_t volume, int32_t level)
     packbuf[11] = ud.m_noexits;
     packbuf[12] = myconnectindex;
 
-    if (net_client)
-        enet_peer_send(net_peer, 0, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
-    else if (net_server)
-        enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
+    if (g_netClient)
+        enet_peer_send(g_netClientPeer, 0, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
+    else if (g_netServer)
+        enet_host_broadcast(g_netServer, 0, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
 }
 
 static mapstate_t *g_multiMapState = NULL;
@@ -805,9 +801,9 @@ static void Net_SendChallenge(void)
     int32_t l;
     uint32_t crc;
 
-    if (!net_peer) return;
+    if (!g_netClientPeer) return;
 
-    crc = crc32once((uint8_t *)g_networkPassword, Bstrlen(g_networkPassword));
+    crc = crc32once((uint8_t *)g_netPassword, Bstrlen(g_netPassword));
 
     buf[0] = PACKET_AUTH;
     l = 1;
@@ -816,7 +812,7 @@ static void Net_SendChallenge(void)
 
     buf[l++] = myconnectindex;
 
-    enet_peer_send(net_peer, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
+    enet_peer_send(g_netClientPeer, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
 }
 
 void P_Disconnected(int32_t i)
@@ -899,7 +895,7 @@ void Net_SyncPlayer(ENetEvent * event)
     packbuf[3] = ud.multimode;
     packbuf[4] = i;
     packbuf[5] = myconnectindex;
-    enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, 6, ENET_PACKET_FLAG_RELIABLE));
+    enet_host_broadcast(g_netServer, 0, enet_packet_create(packbuf, 6, ENET_PACKET_FLAG_RELIABLE));
 
     packbuf[0] = PACKET_PLAYER_INDEX;
     packbuf[1] = i;
@@ -1353,8 +1349,7 @@ process:
 
                 if (ud.config.SoundToggle == 0 || ud.lockout == 1 || ud.config.FXDevice < 0 || !(ud.config.VoiceToggle & 4))
                     break;
-                rtsptr = (char *)RTS_GetSound(packbuf[1]-1);
-                FX_PlayAuto3D(rtsptr,RTS_SoundLength(packbuf[1]-1),0,0,0,255,-packbuf[1]);
+                FX_PlayAuto3D((char *)RTS_GetSound(packbuf[1]-1),RTS_SoundLength(packbuf[1]-1),0,0,0,255,-packbuf[1]);
                 g_RTSPlaying = 7;
 
                 break;
@@ -1440,7 +1435,7 @@ process:
                 break;
 
             case PACKET_REQUEST_GAMESTATE:
-                if (net_server && g_player[0].ps->gm & MODE_GAME)
+                if (g_netServer && g_player[0].ps->gm & MODE_GAME)
                 {
                     packbuf[0] = PACKET_NEW_GAME;
                     packbuf[1] = ud.level_number;
@@ -1525,6 +1520,7 @@ void Net_ParseClientPacket(ENetEvent * event)
             Bmemcpy(&g_player[other].ps->horiz, &packbuf[j], sizeof(int16_t) * 2);
             j += sizeof(int16_t) * 2;
 
+/*
             {
                 int16_t i = g_player[other].ps->i, jj = j++;
                 int32_t oa = (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)&script[g_scriptSize]) ? T5-(intptr_t)&script[0] : T5;
@@ -1535,6 +1531,7 @@ void Net_ParseClientPacket(ENetEvent * event)
                 if (oa != T5) T3 = T4 = 0;
                 if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];
             }
+*/
 
             Bfree(packbuf);
             break;
@@ -1557,8 +1554,7 @@ void Net_ParseClientPacket(ENetEvent * event)
             G_AddUserQuote(recbuf);
             S_PlaySound(EXITMENUSOUND);
 
-            pus = NUMPAGES;
-            pub = NUMPAGES;
+            pus = pub = NUMPAGES;
 
             break;
 
@@ -1595,11 +1591,11 @@ void Net_ParseClientPacket(ENetEvent * event)
             {
                 uint32_t crc = *(uint32_t *)&packbuf[1];
 
-                if (crc == crc32once((uint8_t *)g_networkPassword, Bstrlen(g_networkPassword)))
+                if (crc == crc32once((uint8_t *)g_netPassword, Bstrlen(g_netPassword)))
                     Net_SyncPlayer(event);
                 else
                 {
-                    enet_peer_disconnect(event->peer, DISC_BAD_PASSWORD);
+                    enet_peer_disconnect_later(event->peer, DISC_BAD_PASSWORD);
                     initprintf("Bad password from client.\n");
                 }
             }
@@ -1627,8 +1623,7 @@ void Net_ParseClientPacket(ENetEvent * event)
 
             if (ud.config.SoundToggle == 0 || ud.lockout == 1 || ud.config.FXDevice < 0 || !(ud.config.VoiceToggle & 4))
                 break;
-            rtsptr = (char *)RTS_GetSound(packbuf[1]-1);
-            FX_PlayAuto3D(rtsptr,RTS_SoundLength(packbuf[1]-1),0,0,0,255,-packbuf[1]);
+            FX_PlayAuto3D((char *)RTS_GetSound(packbuf[1]-1),RTS_SoundLength(packbuf[1]-1),0,0,0,255,-packbuf[1]);
             g_RTSPlaying = 7;
 
             break;
@@ -1714,7 +1709,7 @@ void Net_ParseClientPacket(ENetEvent * event)
             break;
 
         case PACKET_REQUEST_GAMESTATE:
-            if (net_server && g_player[0].ps->gm & MODE_GAME)
+            if (g_netServer && g_player[0].ps->gm & MODE_GAME)
             {
                 packbuf[0] = PACKET_NEW_GAME;
                 packbuf[1] = ud.level_number;
@@ -1762,15 +1757,15 @@ void Net_GetPackets(void)
         return;
     }
 
-    if (net_server)
+    if (g_netServer)
     {
         ENetEvent event;
 
         // pull events from the wire into the packet queue without dispatching them, once per Net_GetPackets() call
-        enet_host_service (net_server, NULL, 0);
+        enet_host_service (g_netServer, NULL, 0);
 
         // dispatch any pending events from the local packet queue
-        while (enet_host_check_events (net_server, &event) > 0)
+        while (enet_host_check_events (g_netServer, &event) > 0)
         {
             switch (event.type)
             {
@@ -1800,7 +1795,7 @@ void Net_GetPackets(void)
                 if (event.channelID == 0 && event.packet->data[0] > PACKET_BROADCAST)
                 {
                     event.peer->state = ENET_PEER_STATE_DISCONNECTED;
-                    enet_host_broadcast(net_server, 0, event.packet);
+                    enet_host_broadcast(g_netServer, 0, event.packet);
                     event.peer->state = ENET_PEER_STATE_CONNECTED;
                 }
                 else enet_packet_destroy(event.packet);
@@ -1817,7 +1812,7 @@ void Net_GetPackets(void)
                 packbuf[0] = PACKET_PLAYER_DISCONNECTED;
                 packbuf[1] = (intptr_t)event.peer->data;
                 packbuf[2] = myconnectindex;
-                enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
+                enet_host_broadcast(g_netServer, 0, enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
 
                 initprintf ("%s disconnected.\n", g_player[(intptr_t)event.peer->data].user_name);
                 event.peer->data = NULL;
@@ -1827,13 +1822,13 @@ void Net_GetPackets(void)
             }
         }
     }
-    else if (net_client)
+    else if (g_netClient)
     {
         ENetEvent event;
 
-        enet_host_service (net_client, NULL, 0);
+        enet_host_service (g_netClient, NULL, 0);
 
-        while (enet_host_check_events (net_client, &event) > 0)
+        while (enet_host_check_events (g_netClient, &event) > 0)
         {
             switch (event.type)
             {
@@ -1876,7 +1871,7 @@ void Net_GetPackets(void)
 
                             packbuf[0] = PACKET_REQUEST_GAMESTATE;
                             packbuf[1] = myconnectindex;
-                            enet_peer_send(net_peer, 0, enet_packet_create(&packbuf[0], 2, ENET_PACKET_FLAG_RELIABLE));
+                            enet_peer_send(g_netClientPeer, 0, enet_packet_create(&packbuf[0], 2, ENET_PACKET_FLAG_RELIABLE));
                         }
                         else
                         {
@@ -1930,9 +1925,9 @@ void Net_UpdateClients(void)
     int16_t i, nexti, k = 0, l;
     int32_t j;
 
-    if (!net_server || numplayers < 2)
+    if (!g_netServer || numplayers < 2)
     {
-        if (net_server)
+        if (g_netServer)
             Bmemcpy(&osyn[0], &nsyn[0], sizeof(input_t));
         return;
     }
@@ -2098,8 +2093,8 @@ void Net_UpdateClients(void)
 
         packbuf[(zj = j++)] = 0;
 
-        for (zz = 0; (unsigned)zz < (sizeof(net_lists)/sizeof(net_lists[0])); zz++)
-            TRAVERSE_SPRITE_STAT(headspritestat[net_lists[zz]], i, nexti)
+        for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])); zz++)
+            TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti)
         {
             if (totalclock > (lastupdate[i] + TICRATE))
             {
@@ -2230,7 +2225,7 @@ void Net_UpdateClients(void)
 
     packbuf[j++] = myconnectindex;
 
-    enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, j, 0));
+    enet_host_broadcast(g_netServer, 0, enet_packet_create(packbuf, j, 0));
 
     movefifosendplc++;
 }
@@ -2240,9 +2235,9 @@ void faketimerhandler(void)
     int32_t i;
     input_t *nsyn;
 
-    if (qe == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && KB_KeyPressed(sc_Delete))
+    if (g_quickExit == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && KB_KeyPressed(sc_Delete))
     {
-        qe = 1;
+        g_quickExit = 1;
         G_GameExit("Quick Exit.");
     }
 
@@ -2275,7 +2270,7 @@ void faketimerhandler(void)
 
     if (numplayers < 2)
     {
-        if ((net_server || ud.multimode > 1) && ud.playerai)
+        if ((g_netServer || ud.multimode > 1) && ud.playerai)
             TRAVERSE_CONNECT(i)
             if (i != myconnectindex)
             {
@@ -2779,7 +2774,7 @@ static void G_DrawStatusBar(int32_t snum)
 
     if (getrendermode() >= 3) pus = NUMPAGES;   // JBF 20040101: always redraw in GL
 
-    if ((net_server || (net_server || ud.multimode > 1)) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
+    if ((g_netServer || (g_netServer || ud.multimode > 1)) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
     {
         if (pus)
         {
@@ -3196,10 +3191,10 @@ static void G_DrawStatusBar(int32_t snum)
     if (u == -1)
     {
         G_PatchStatusBar(0,0,320,200);
-        if ((net_server || (net_server || ud.multimode > 1)) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
+        if ((g_netServer || (g_netServer || ud.multimode > 1)) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
             rotatesprite(sbarx(277+1),sbary(SBY+7-1),sbarsc(65536L),0,KILLSICON,0,0,10+16,0,0,xdim-1,ydim-1);
     }
-    if ((net_server || (net_server || ud.multimode > 1)) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
+    if ((g_netServer || (g_netServer || ud.multimode > 1)) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
     {
         if (u&32768)
         {
@@ -3374,13 +3369,13 @@ static void G_PrintFPS(void)
                         (LastCount < LOW_FPS) ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
 
             // lag meter
-            if (net_peer)
+            if (g_netClientPeer)
             {
-                chars = Bsprintf(tempbuf, "%d +- %d ms", (net_peer->lastRoundTripTime + net_peer->roundTripTime)/2, 
-                    (net_peer->lastRoundTripTimeVariance + net_peer->roundTripTimeVariance)/2);
+                chars = Bsprintf(tempbuf, "%d +- %d ms", (g_netClientPeer->lastRoundTripTime + g_netClientPeer->roundTripTime)/2, 
+                    (g_netClientPeer->lastRoundTripTimeVariance + g_netClientPeer->roundTripTimeVariance)/2);
 
                 printext256(windowx2-(chars<<(3-x))+1,windowy1+10+2,0,-1,tempbuf,x);
-                printext256(windowx2-(chars<<(3-x)),windowy1+10+1,net_peer->lastRoundTripTime > 200 ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
+                printext256(windowx2-(chars<<(3-x)),windowy1+10+1,g_netClientPeer->lastRoundTripTime > 200 ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
             }
         }
 
@@ -3403,7 +3398,7 @@ static void G_PrintCoords(int32_t snum)
     {
         if (ud.multimode > 4)
             y = 32;
-        else if (net_server || (net_server || ud.multimode > 1))
+        else if (g_netServer || (g_netServer || ud.multimode > 1))
             y = 24;
     }
     Bsprintf(tempbuf,"XYZ= (%d,%d,%d)",g_player[snum].ps->posx,g_player[snum].ps->posy,g_player[snum].ps->posz);
@@ -3430,7 +3425,7 @@ static void G_PrintGameQuotes(void)
     int32_t i, j, k, l;
 
     k = 1;
-    if (GTFLAGS(GAMETYPE_FRAGBAR) && ud.screen_size > 0 && (net_server || (net_server || ud.multimode > 1)))
+    if (GTFLAGS(GAMETYPE_FRAGBAR) && ud.screen_size > 0 && (g_netServer || (g_netServer || ud.multimode > 1)))
     {
         j = 0;
         k += 8;
@@ -3507,7 +3502,7 @@ static void G_PrintGameQuotes(void)
     {
         k = 140;//quotebot-8-4;
     }
-    else if (GTFLAGS(GAMETYPE_FRAGBAR) && ud.screen_size > 0 && (net_server || ud.multimode > 1))
+    else if (GTFLAGS(GAMETYPE_FRAGBAR) && ud.screen_size > 0 && (g_netServer || ud.multimode > 1))
     {
         j = 0;
         k = 8;
@@ -3644,10 +3639,10 @@ void G_GameExit(const char *t)
     if (ud.recstat == 1) G_CloseDemoWrite();
     else if (ud.recstat == 2)
     {
-        if (frecfilep) fclose(frecfilep);
+        if (g_demo_filePtr) fclose(g_demo_filePtr);
     } // JBF: fixes crash on demo playback
 
-    if (!qe)
+    if (!g_quickExit)
     {
         if (playerswhenstarted > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *t == ' ')
         {
@@ -3809,8 +3804,8 @@ static void Net_EnterMessage(void)
                 tempbuf[1] = 255;
                 tempbuf[j+2] = myconnectindex;
                 j++;
-                if (net_server) enet_host_broadcast(net_server, 0, enet_packet_create(tempbuf, j+2, ENET_PACKET_FLAG_UNSEQUENCED));
-                else if (net_client) enet_peer_send(net_peer, 0, enet_packet_create(tempbuf, j+2, ENET_PACKET_FLAG_UNSEQUENCED));
+                if (g_netServer) enet_host_broadcast(g_netServer, 0, enet_packet_create(tempbuf, j+2, ENET_PACKET_FLAG_UNSEQUENCED));
+                else if (g_netClient) enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, j+2, ENET_PACKET_FLAG_UNSEQUENCED));
                 G_AddUserQuote(recbuf);
                 quotebot += 8;
                 l = G_GameTextLen(USERQUOTE_LEFTOFFSET,stripcolorcodes(tempbuf,recbuf));
@@ -4420,7 +4415,7 @@ void G_DisplayRest(int32_t smoothratio)
             KB_ClearKeyDown(sc_Escape);
             MOUSE_ClearButton(RIGHT_MOUSE);
             ud.show_help = 0;
-            if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
+            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
@@ -4561,7 +4556,7 @@ void G_DisplayRest(int32_t smoothratio)
         {
             KB_ClearKeyDown(sc_Escape);
             g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-            if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
+            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
@@ -4583,7 +4578,7 @@ void G_DisplayRest(int32_t smoothratio)
 
             g_player[myconnectindex].ps->gm |= MODE_MENU;
 
-            if ((!net_server && ud.multimode < 2) && ud.recstat != 2) ready2send = 0;
+            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2) ready2send = 0;
 
             if (g_player[myconnectindex].ps->gm&MODE_GAME) ChangeToMenu(50);
             else ChangeToMenu(0);
@@ -4627,7 +4622,7 @@ void G_DisplayRest(int32_t smoothratio)
         extern int32_t mdpause;
 
         mdpause = 0;
-        if (ud.pause_on || (ud.recstat==2 && (demo_paused && demo_goalreccnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2))
+        if (ud.pause_on || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2))
             mdpause = 1;
     }
 #endif
@@ -4661,7 +4656,7 @@ void G_DisplayRest(int32_t smoothratio)
                 );
         gametext_z(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(21),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
-        if (ud.player_skill > 3 || ((net_server || ud.multimode > 1) && !GTFLAGS(GAMETYPE_PLAYERSFRIENDLY)))
+        if (ud.player_skill > 3 || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_PLAYERSFRIENDLY)))
             Bsprintf(tempbuf,"K:^15%d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY))?g_player[myconnectindex].ps->frag-g_player[myconnectindex].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
         else
         {
@@ -4785,7 +4780,7 @@ void G_DrawBackground(void)
         //else
         if (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR)
         {
-            if ((net_server || ud.multimode > 1)) y1 += scale(ydim,8,200);
+            if ((g_netServer || ud.multimode > 1)) y1 += scale(ydim,8,200);
             if (ud.multimode > 4) y1 += scale(ydim,8,200);
         }
     }
@@ -4862,7 +4857,7 @@ void G_DrawBackground(void)
         y = 0;
         if (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR)
         {
-            if ((net_server || ud.multimode > 1)) y += 8;
+            if ((g_netServer || ud.multimode > 1)) y += 8;
             if (ud.multimode > 4) y += 8;
         }
 
@@ -5522,7 +5517,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 {
                     if (PN != ACCESSSWITCH && PN != ACCESSSWITCH2 && sprite[i].pal)
                     {
-                        if (((!net_server && ud.multimode < 2)) || ((net_server || ud.multimode > 1) && !GTFLAGS(GAMETYPE_DMSWITCHES)))
+                        if (((!g_netServer && ud.multimode < 2)) || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_DMSWITCHES)))
                         {
                             sprite[i].xrepeat = sprite[i].yrepeat = 0;
                             SLT = SHT = 0;
@@ -5580,7 +5575,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (g_damageCameras) sp->cstat = 257;
             else sp->cstat = 0;
         }
-        if ((!net_server && ud.multimode < 2) && sp->pal != 0)
+        if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
         {
             sp->xrepeat = sp->yrepeat = 0;
             changespritestat(i,5);
@@ -5999,7 +5994,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case DUKETAG__STATIC:
         case SIGN1__STATIC:
         case SIGN2__STATIC:
-            if ((!net_server && ud.multimode < 2) && sp->pal)
+            if ((!g_netServer && ud.multimode < 2) && sp->pal)
             {
                 sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
@@ -6234,7 +6229,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case RESPAWN__STATIC:
             sp->extra = 66-13;
         case MUSICANDSFX__STATIC:
-            if ((!net_server && ud.multimode < 2) && sp->pal == 1)
+            if ((!g_netServer && ud.multimode < 2) && sp->pal == 1)
             {
                 sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
@@ -6308,7 +6303,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case APLAYER__STATIC:
             sp->xrepeat = sp->yrepeat = 0;
             sp->cstat = 32768;
-            if ((!net_server && ud.multimode < 2) || ((GametypeFlags[ud.coop] & GAMETYPE_COOPSPAWN)/GAMETYPE_COOPSPAWN) != sp->lotag)
+            if ((!g_netServer && ud.multimode < 2) || ((GametypeFlags[ud.coop] & GAMETYPE_COOPSPAWN)/GAMETYPE_COOPSPAWN) != sp->lotag)
                 changespritestat(i,STAT_MISC);
             else
                 changespritestat(i,STAT_PLAYER);
@@ -6409,7 +6404,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             T3 = sector[sect].floorz;
             if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
                 sector[sect].floorz = sp->z;
-            if (sp->pal && (net_server || ud.multimode > 1))
+            if (sp->pal && (g_netServer || ud.multimode > 1))
             {
                 sp->xrepeat=sp->yrepeat=0;
                 changespritestat(i,5);
@@ -6649,7 +6644,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (sp->picnum == REACTOR || sp->picnum == REACTOR2)
                 sp->extra = g_impactDamage;
 
-            if ((!net_server && ud.multimode < 2) && sp->pal != 0)
+            if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
             {
                 sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
@@ -6707,7 +6702,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->cstat = 0;
             }
 
-            if (((!net_server && ud.multimode < 2) && sp->pal != 0) || (sp->lotag > ud.player_skill))
+            if (((!g_netServer && ud.multimode < 2) && sp->pal != 0) || (sp->lotag > ud.player_skill))
             {
                 sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
@@ -6721,7 +6716,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (sp->picnum == ATOMICHEALTH)
                 sp->cstat |= 128;
 
-            if ((net_server || ud.multimode > 1) && !GTFLAGS(GAMETYPE_ACCESSCARDSPRITES) && sp->picnum == ACCESSCARD)
+            if ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_ACCESSCARDSPRITES) && sp->picnum == ACCESSCARD)
             {
                 sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
@@ -6957,7 +6952,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 j = nextsectorneighborz(sect,sector[sect].ceilingz,1,1);
                 T5 = sector[j].floorz;
 
-                if (numplayers < 2 && !net_server)
+                if (numplayers < 2 && !g_netServer)
                 {
                     G_SetInterpolation(&sector[sect].floorz);
                     G_SetInterpolation(&sector[sect].ceilingz);
@@ -7242,7 +7237,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 if (j == -1) j = SUBWAY;
                 ActorExtra[i].lastvx = j;
             case 30:
-                if (net_server || numplayers > 1) break;
+                if (g_netServer || numplayers > 1) break;
             case 0:
             case 1:
             case 5:
@@ -7288,7 +7283,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->extra = 1;
             }
 
-            if ((!net_server && ud.multimode < 2) && sp->pal != 0)
+            if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
             {
                 sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
@@ -7359,11 +7354,11 @@ SPAWN_END:
         X_OnEvent(EVENT_SPAWN,i, pl, p);
     }
 
-    if (net_client && j >= 0)
+    if (g_netClient && j >= 0)
     {
         int32_t zz;
-        for (zz = 0; (unsigned)zz < (sizeof(net_lists)/sizeof(net_lists[0])); zz++)
-            if (sprite[i].statnum == net_lists[zz])
+        for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])); zz++)
+            if (sprite[i].statnum == g_netStatnums[zz])
             {
                 ActorExtra[i].flags |= SPRITE_NULL;
                 break;
@@ -7817,7 +7812,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                     t->cstat |= 2;
             }
 
-            if ((net_server || ud.multimode > 1) && (display_mirror || screenpeek != p || s->owner == -1))
+            if ((g_netServer || ud.multimode > 1) && (display_mirror || screenpeek != p || s->owner == -1))
             {
                 if (ud.showweapons && sprite[g_player[p].ps->i].extra > 0 && g_player[p].ps->curr_weapon > 0)
                 {
@@ -7914,7 +7909,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
             if (ud.camerasprite == -1 && g_player[p].ps->newowner == -1)
                 if (s->owner >= 0 && display_mirror == 0 && g_player[p].ps->over_shoulder_on == 0)
-                    if ((!net_server && ud.multimode < 2) || ((net_server || ud.multimode > 1) && p == screenpeek))
+                    if ((!g_netServer && ud.multimode < 2) || ((g_netServer || ud.multimode > 1) && p == screenpeek))
                     {
                         if (getrendermode() == 4)
                             t->cstat |= 16384;
@@ -8557,7 +8552,7 @@ FOUNDCHEAT:
                     return;
 
                 case CHEAT_DEBUG:
-                    debug_on = 1-debug_on;
+                    g_Debug = 1-g_Debug;
                     KB_FlushKeyBoardQueue();
                     g_player[myconnectindex].ps->cheat_phase = 0;
 
@@ -8741,7 +8736,7 @@ FOUNDCHEAT:
                         i = Bstrlen(CheatStrings[k])-1;
                         ud.m_player_skill = ud.player_skill = cheatbuf[i] - '1';
                     }
-                    if (numplayers > 1 && net_server)
+                    if (numplayers > 1 && g_netServer)
                         Net_NewGame(ud.m_volume_number,ud.m_level_number);
                     else g_player[myconnectindex].ps->gm |= MODE_RESTART;
 
@@ -8982,10 +8977,10 @@ static void G_HandleLocalKeys(void)
             tempbuf[2] = (KB_UnBoundKeyPressed(sc_F1) || ud.autovote ? ud.autovote-1 : 0);
             tempbuf[3] = myconnectindex;
 
-            if (net_client)
-                enet_peer_send(net_peer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
-            else if (net_server)
-                enet_host_broadcast(net_server, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
+            if (g_netClient)
+                enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
+            else if (g_netServer)
+                enet_host_broadcast(g_netServer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
 
 
             G_AddUserQuote("VOTE CAST");
@@ -9054,7 +9049,7 @@ static void G_HandleLocalKeys(void)
         g_restorePalette = 1;
     }
 
-    if ((net_server || ud.multimode > 1) && BUTTON(gamefunc_Show_Opponents_Weapon))
+    if ((g_netServer || ud.multimode > 1) && BUTTON(gamefunc_Show_Opponents_Weapon))
     {
         CONTROL_ClearButton(gamefunc_Show_Opponents_Weapon);
         ud.config.ShowOpponentWeapons = ud.showweapons = 1-ud.showweapons;
@@ -9086,13 +9081,13 @@ static void G_HandleLocalKeys(void)
         if (KB_KeyPressed(sc_Space))
         {
             KB_ClearKeyDown(sc_Space);
-            demo_paused = !demo_paused;
+            g_demo_paused = !g_demo_paused;
         }
 
         if (KB_KeyPressed(sc_Tab))
         {
             KB_ClearKeyDown(sc_Tab);
-            demo_showstats = !demo_showstats;
+            g_demo_showStats = !g_demo_showStats;
         }
 
         if (KB_KeyPressed(sc_kpad_Plus))
@@ -9124,14 +9119,14 @@ static void G_HandleLocalKeys(void)
         {
             KB_ClearKeyDown(sc_kpad_6);
             j = ALT_IS_PRESSED ? 30 : 10;
-            demo_goalreccnt = demo_paused ? ud.reccnt-ud.multimode : ud.reccnt-(TICRATE/TICSPERFRAME)*ud.multimode*j;
-            demo_oldsoundtoggle = ud.config.SoundToggle;
+            g_demo_goalCnt = g_demo_paused ? ud.reccnt-ud.multimode : ud.reccnt-(TICRATE/TICSPERFRAME)*ud.multimode*j;
+            g_demo_soundToggle = ud.config.SoundToggle;
 
-//            j=(demo_startreccnt-ud.reccnt)/(ud.multimode*(TICRATE/TICSPERFRAME));
+//            j=(g_demo_startCnt-ud.reccnt)/(ud.multimode*(TICRATE/TICSPERFRAME));
 //            OSD_Printf("  FF %d s from %02d:%02d\n", ALT_IS_PRESSED ? 30 : 10, j/60, j%60);
 
-            if (demo_goalreccnt <= 0)
-                demo_goalreccnt = 0;
+            if (g_demo_goalCnt <= 0)
+                g_demo_goalCnt = 0;
             else
             {
                 ud.config.SoundToggle = 0;
@@ -9144,16 +9139,16 @@ static void G_HandleLocalKeys(void)
         {
             KB_ClearKeyDown(sc_kpad_4);
             j = ALT_IS_PRESSED ? 30 : 10;
-            demo_goalreccnt = demo_paused ? ud.reccnt+ud.multimode : ud.reccnt+(TICRATE/TICSPERFRAME)*ud.multimode*j;
-            demo_oldsoundtoggle = ud.config.SoundToggle;
+            g_demo_goalCnt = g_demo_paused ? ud.reccnt+ud.multimode : ud.reccnt+(TICRATE/TICSPERFRAME)*ud.multimode*j;
+            g_demo_soundToggle = ud.config.SoundToggle;
 
-//            j=(demo_startreccnt-ud.reccnt)/(ud.multimode*TICRATE/TICSPERFRAME);
+//            j=(g_demo_startCnt-ud.reccnt)/(ud.multimode*TICRATE/TICSPERFRAME);
 //            OSD_Printf("  RW %d s from %02d:%02d\n", ALT_IS_PRESSED ? 30 : 10, j/60, j%60);
 
-            if (demo_goalreccnt > demo_startreccnt)
-                demo_goalreccnt = demo_startreccnt;
+            if (g_demo_goalCnt > g_demo_startCnt)
+                g_demo_goalCnt = g_demo_startCnt;
 
-            demo_goalreccnt = -demo_goalreccnt;
+            g_demo_goalCnt = -g_demo_goalCnt;
             ud.config.SoundToggle = 0;
             FX_StopAllSounds();
             S_ClearSoundLocks();
@@ -9228,10 +9223,10 @@ static void G_HandleLocalKeys(void)
 
                 tempbuf[i++] = myconnectindex;
 
-                if (net_client)
-                    enet_peer_send(net_peer, 0, enet_packet_create(tempbuf, i, ENET_PACKET_FLAG_UNSEQUENCED));
-                else if (net_server)
-                    enet_host_broadcast(net_server, 0, enet_packet_create(tempbuf, i, ENET_PACKET_FLAG_UNSEQUENCED));
+                if (g_netClient)
+                    enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, i, ENET_PACKET_FLAG_UNSEQUENCED));
+                else if (g_netServer)
+                    enet_host_broadcast(g_netServer, 0, enet_packet_create(tempbuf, i, ENET_PACKET_FLAG_UNSEQUENCED));
 
                 pus = NUMPAGES;
                 pub = NUMPAGES;
@@ -9243,21 +9238,20 @@ static void G_HandleLocalKeys(void)
             if (ud.lockout == 0)
                 if (ud.config.SoundToggle && ALT_IS_PRESSED && (RTS_NumSounds() > 0) && g_RTSPlaying == 0 && (ud.config.VoiceToggle & 1))
                 {
-                    rtsptr = (char *)RTS_GetSound(i-1);
-                    FX_PlayAuto3D(rtsptr,RTS_SoundLength(i-1),0,0,0,255,-i);
+                    FX_PlayAuto3D((char *)RTS_GetSound(i-1),RTS_SoundLength(i-1),0,0,0,255,-i);
 
                     g_RTSPlaying = 7;
 
-                    if ((net_server || ud.multimode > 1))
+                    if ((g_netServer || ud.multimode > 1))
                     {
                         tempbuf[0] = PACKET_RTS;
                         tempbuf[1] = i;
                         tempbuf[2] = myconnectindex;
 
-                        if (net_client)
-                            enet_peer_send(net_peer, 0, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_UNSEQUENCED));
-                        else if (net_server)
-                            enet_host_broadcast(net_server, 0, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_UNSEQUENCED));
+                        if (g_netClient)
+                            enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_UNSEQUENCED));
+                        else if (g_netServer)
+                            enet_host_broadcast(g_netServer, 0, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_UNSEQUENCED));
                     }
 
                     pus = NUMPAGES;
@@ -9271,7 +9265,7 @@ static void G_HandleLocalKeys(void)
     if (!ALT_IS_PRESSED && !SHIFTS_IS_PRESSED)
     {
 
-        if ((net_server || ud.multimode > 1) && BUTTON(gamefunc_SendMessage))
+        if ((g_netServer || ud.multimode > 1) && BUTTON(gamefunc_SendMessage))
         {
             KB_FlushKeyboardQueue();
             CONTROL_ClearButton(gamefunc_SendMessage);
@@ -9292,13 +9286,13 @@ static void G_HandleLocalKeys(void)
             if (ud.show_help > 2)
             {
                 ud.show_help = 0;
-                if ((!net_server && ud.multimode < 2) && ud.recstat != 2) ready2send = 1;
+                if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2) ready2send = 1;
                 G_UpdateScreenArea();
             }
             else
             {
                 setview(0,0,xdim-1,ydim-1);
-                if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
+                if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
                 {
                     ready2send = 0;
                     totalclock = ototalclock;
@@ -9329,7 +9323,7 @@ FAKE_F2:
                 //                setview(0,0,xdim-1,ydim-1);
                 g_player[myconnectindex].ps->gm |= MODE_MENU;
 
-                if ((!net_server && ud.multimode < 2))
+                if ((!g_netServer && ud.multimode < 2))
                 {
                     ready2send = 0;
                     totalclock = ototalclock;
@@ -9348,7 +9342,7 @@ FAKE_F3:
 
                 //                setview(0,0,xdim-1,ydim-1);
                 g_player[myconnectindex].ps->gm |= MODE_MENU;
-                if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
+                if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
                 {
                     ready2send = 0;
                     totalclock = ototalclock;
@@ -9364,7 +9358,7 @@ FAKE_F3:
             S_ClearSoundLocks();
 
             g_player[myconnectindex].ps->gm |= MODE_MENU;
-            if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
+            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 0;
                 totalclock = ototalclock;
@@ -9396,7 +9390,7 @@ FAKE_F3:
                 /*                inputloc = Bstrlen(&ud.savegame[g_lastSaveSlot][0]);
                                 g_currentMenu = 360+g_lastSaveSlot;
                                 probey = g_lastSaveSlot; */
-                if ((net_server || ud.multimode > 1))
+                if ((g_netServer || ud.multimode > 1))
                     G_SavePlayer(-1-(g_lastSaveSlot));
                 else G_SavePlayer(g_lastSaveSlot);
             }
@@ -9456,7 +9450,7 @@ FAKE_F3:
                 KB_ClearKeysDown();
                 FX_StopAllSounds();
 
-                if ((net_server || ud.multimode > 1))
+                if ((g_netServer || ud.multimode > 1))
                 {
                     G_LoadPlayer(-1-g_lastSaveSlot);
                     g_player[myconnectindex].ps->gm = MODE_GAME;
@@ -9477,7 +9471,7 @@ FAKE_F3:
             FX_StopAllSounds();
             S_ClearSoundLocks();
             g_player[myconnectindex].ps->gm |= MODE_MENU;
-            if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
+            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 0;
                 totalclock = ototalclock;
@@ -9560,7 +9554,7 @@ FAKE_F3:
         FX_StopAllSounds();
         S_ClearSoundLocks();
         g_player[myconnectindex].ps->gm |= MODE_MENU;
-        if ((!net_server && ud.multimode < 2) && ud.recstat != 2)
+        if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
         {
             ready2send = 0;
             totalclock = ototalclock;
@@ -10075,7 +10069,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        Bstrcpy(mod_dir,argv[i+1]);
+                        Bstrcpy(g_modDir,argv[i+1]);
                         G_AddPath(argv[i+1]);
                         i++;
                     }
@@ -10144,7 +10138,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        net_port = atoi(argv[i+1]);
+                        g_netPort = atoi(argv[i+1]);
                         i++;
                     }
                     i++;
@@ -10159,11 +10153,11 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     /* enet_address_set_host (& address, "x.x.x.x"); */
 
                     address.host = ENET_HOST_ANY;
-                    address.port = net_port;
+                    address.port = g_netPort;
 
-                    net_server = enet_host_create (&address, MAXPLAYERS, 0, 0);
+                    g_netServer = enet_host_create (&address, MAXPLAYERS, 0, 0);
 
-                    if (net_server == NULL)
+                    if (g_netServer == NULL)
                         initprintf("An error occurred while trying to create an ENet server host.\n");
 
                     g_noSetup = g_noLogo = TRUE;
@@ -10185,7 +10179,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        Bstrncpy(g_networkPassword, (char *)argv[i+1], sizeof(g_networkPassword)-1);
+                        Bstrncpy(g_netPassword, (char *)argv[i+1], sizeof(g_netPassword)-1);
                         i++;
                     }
                     i++;
@@ -10325,8 +10319,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     c++;
                     if (*c)
                     {
-                        duke3ddef = c;
-                        initprintf("Using DEF file: %s.\n",duke3ddef);
+                        g_defNamePtr = c;
+                        initprintf("Using DEF file: %s.\n",g_defNamePtr);
                     }
                     break;
                 case 'j':
@@ -10409,7 +10403,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     initprintf("Respawn on.\n");
                     break;
                 case 'u':
-                    CommandWeaponChoice = 1;
+                    g_forceWeaponChoice = 1;
                     c++;
                     j = 0;
                     if (*c)
@@ -10458,9 +10452,9 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     c++;
                     if (*c)
                     {
-                        confilename = c;
-                        userconfiles = 1;
-                        initprintf("Using CON file '%s'.\n",confilename);
+                        g_scriptNamePtr = c;
+                        g_skipDefaultCons = 1;
+                        initprintf("Using CON file '%s'.\n",g_scriptNamePtr);
                     }
                     break;
                 case '0':
@@ -10500,15 +10494,15 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     }
                     if (!Bstrcasecmp(k,".con"))
                     {
-                        confilename = (char *)argv[i++];
-                        userconfiles = 1;
-                        initprintf("Using CON file '%s'.\n",confilename);
+                        g_scriptNamePtr = (char *)argv[i++];
+                        g_skipDefaultCons = 1;
+                        initprintf("Using CON file '%s'.\n",g_scriptNamePtr);
                         continue;
                     }
                     if (!Bstrcasecmp(k,".def"))
                     {
-                        duke3ddef = (char *)argv[i++];
-                        initprintf("Using DEF file: %s.\n",duke3ddef);
+                        g_defNamePtr = (char *)argv[i++];
+                        initprintf("Using DEF file: %s.\n",g_defNamePtr);
                         continue;
                     }
                 }
@@ -10535,13 +10529,13 @@ static void G_DisplayLogo(void)
     flushperms();
     nextpage();
 
-    Bsprintf(tempbuf,"%s - " APPNAME,duke3dgrpstring);
+    Bsprintf(tempbuf,"%s - " APPNAME,g_gameNamePtr);
     wm_setapptitle(tempbuf);
 
     S_StopMusic();
     FX_StopAllSounds(); // JBF 20031228
     S_ClearSoundLocks();  // JBF 20031228
-    if ((!net_server && ud.multimode < 2) && (logoflags & LOGO_ENABLED) && !g_noLogo)
+    if ((!g_netServer && ud.multimode < 2) && (logoflags & LOGO_ENABLED) && !g_noLogo)
     {
         if (VOLUMEALL && (logoflags & LOGO_PLAYANIM))
         {
@@ -10785,31 +10779,31 @@ static void G_CompileScripts(void)
     labelcode = (intptr_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
     labeltype = (intptr_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
 
-    Bcorrectfilename(confilename,0);
+    Bcorrectfilename(g_scriptNamePtr,0);
     // if we compile for a V7 engine wall[] should be used for label names since it's bigger
     pathsearchmode = 1;
-    if (userconfiles == 0)
+    if (g_skipDefaultCons == 0)
     {
-        i = kopen4loadfrommod(confilename,0);
+        i = kopen4loadfrommod(g_scriptNamePtr,0);
         if (i!=-1)
             kclose(i);
-        else Bsprintf(confilename,"GAME.CON");
+        else Bsprintf(g_scriptNamePtr,"GAME.CON");
     }
-    C_Compile(confilename);
+    C_Compile(g_scriptNamePtr);
 
     if (g_loadFromGroupOnly)
     {
-        if (userconfiles == 0)
+        if (g_skipDefaultCons == 0)
         {
             i = kopen4loadfrommod("EDUKE.CON",1);
             if (i!=-1)
             {
-                Bsprintf(confilename,"EDUKE.CON");
+                Bsprintf(g_scriptNamePtr,"EDUKE.CON");
                 kclose(i);
             }
-            else Bsprintf(confilename,"GAME.CON");
+            else Bsprintf(g_scriptNamePtr,"GAME.CON");
         }
-        C_Compile(confilename);
+        C_Compile(g_scriptNamePtr);
     }
 
     if ((uint32_t)g_numLabels > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
@@ -10929,7 +10923,7 @@ static void G_Startup(void)
 
     G_InitDynamicTiles();
 
-    if ((net_server || ud.multimode > 1)) G_CheckGametype();
+    if ((g_netServer || ud.multimode > 1)) G_CheckGametype();
 
     if (g_noSound) ud.config.SoundToggle = 0;
     if (g_noMusic) ud.config.MusicToggle = 0;
@@ -11011,10 +11005,10 @@ static void G_Startup(void)
     {
         char cwd[BMAX_PATH];
 
-        if (getcwd(cwd,BMAX_PATH) && mod_dir[0] != '/')
+        if (getcwd(cwd,BMAX_PATH) && g_modDir[0] != '/')
         {
-            chdir(mod_dir);
-//            initprintf("root '%s'\nmod '%s'\ncwd '%s'\n",root,mod_dir,cwd);
+            chdir(g_modDir);
+//            initprintf("g_rootDir '%s'\nmod '%s'\ncwd '%s'\n",g_rootDir,mod_dir,cwd);
             if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
             {
                 chdir(cwd);
@@ -11079,7 +11073,7 @@ void G_BackToMenu(void)
     g_player[myconnectindex].ps->gm = MODE_MENU;
     ChangeToMenu(0);
     KB_FlushKeyboardQueue();
-    Bsprintf(tempbuf,APPNAME " - %s",duke3dgrpstring);
+    Bsprintf(tempbuf,APPNAME " - %s",g_gameNamePtr);
     wm_setapptitle(tempbuf);
 }
 
@@ -11125,12 +11119,12 @@ void app_main(int32_t argc,const char **argv)
 #endif
 
 #ifdef _WIN32
-    tempbuf[GetModuleFileName(NULL,root,BMAX_PATH)] = 0;
-    Bcorrectfilename(root,1);
-    //chdir(root);
+    tempbuf[GetModuleFileName(NULL,g_rootDir,BMAX_PATH)] = 0;
+    Bcorrectfilename(g_rootDir,1);
+    //chdir(g_rootDir);
 #else
-    getcwd(root,BMAX_PATH);
-    strcat(root,"/");
+    getcwd(g_rootDir,BMAX_PATH);
+    strcat(g_rootDir,"/");
 #endif
 
     OSD_SetLogFile("eduke32.log");
@@ -11246,7 +11240,7 @@ void app_main(int32_t argc,const char **argv)
 #endif
 
     i = CONFIG_ReadSetup();
-    if (getenv("DUKE3DGRP")) duke3dgrp = getenv("DUKE3DGRP");
+    if (getenv("DUKE3DGRP")) g_grpNamePtr = getenv("DUKE3DGRP");
 
 #ifdef _WIN32
 
@@ -11322,7 +11316,7 @@ void app_main(int32_t argc,const char **argv)
             if (!Bstrcasecmp(fg->name, defaultduke3dgrp))
             {
                 g_gameType = grpfiles[i].game;
-                duke3dgrpstring = (char *)grpfiles[i].name;
+                g_gameNamePtr = (char *)grpfiles[i].name;
                 break;
             }
         }
@@ -11330,9 +11324,9 @@ void app_main(int32_t argc,const char **argv)
         {
             Bstrcpy(defaultduke3dgrp, first->name);
             g_gameType = first->game;
-            duke3dgrpstring = (char *)grpfiles[0].name;
+            g_gameNamePtr = (char *)grpfiles[0].name;
         }
-        else if (!fg) duke3dgrpstring = "Unknown GRP";
+        else if (!fg) g_gameNamePtr = "Unknown GRP";
     }
 
 #if (defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2))
@@ -11369,18 +11363,18 @@ void app_main(int32_t argc,const char **argv)
         Bsprintf(GametypeNames[2],"GRUNTMATCH (NO SPAWN)");
     }
 
-    if (mod_dir[0] != '/')
+    if (g_modDir[0] != '/')
     {
         char cwd[BMAX_PATH];
 
-        Bstrcat(root,mod_dir);
-        addsearchpath(root);
+        Bstrcat(g_rootDir,g_modDir);
+        addsearchpath(g_rootDir);
 //        addsearchpath(mod_dir);
 
         if (getcwd(cwd,BMAX_PATH))
         {
-            Bsprintf(cwd,"%s/%s",cwd,mod_dir);
-            if (!Bstrcmp(root, cwd))
+            Bsprintf(cwd,"%s/%s",cwd,g_modDir);
+            if (!Bstrcmp(g_rootDir, cwd))
             {
                 if (addsearchpath(cwd) == -2)
                     if (Bmkdir(cwd,S_IRWXU) == 0) addsearchpath(cwd);
@@ -11388,7 +11382,7 @@ void app_main(int32_t argc,const char **argv)
         }
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        Bsprintf(tempbuf,"%s/%s",mod_dir,TEXCACHEFILE);
+        Bsprintf(tempbuf,"%s/%s",g_modDir,TEXCACHEFILE);
         Bstrcpy(TEXCACHEFILE,tempbuf);
 #endif
     }
@@ -11399,8 +11393,8 @@ void app_main(int32_t argc,const char **argv)
         struct stat st;
         char dir[BMAX_PATH];
 
-        if (mod_dir[0] != '/')
-            Bsprintf(dir,"%s/",mod_dir);
+        if (g_modDir[0] != '/')
+            Bsprintf(dir,"%s/",g_modDir);
         else dir[0] = '\0';
 
         Bsprintf(tempbuf,"%stexcache",dir);
@@ -11473,12 +11467,12 @@ CLEAN_DIRECTORY:
     }
 #endif
 
-    i = initgroupfile(duke3dgrp);
+    i = initgroupfile(g_grpNamePtr);
 
     if (i == -1)
-        initprintf("Warning: could not find main group file '%s'!\n",duke3dgrp);
+        initprintf("Warning: could not find main group file '%s'!\n",g_grpNamePtr);
     else
-        initprintf("Using group file '%s' as main group file.\n", duke3dgrp);
+        initprintf("Using group file '%s' as main group file.\n", g_grpNamePtr);
 
     if (!g_noAutoLoad && !ud.config.NoAutoLoad)
     {
@@ -11497,20 +11491,20 @@ CLEAN_DIRECTORY:
         }
 
         if (i != -1)
-            G_DoAutoload(duke3dgrp);
+            G_DoAutoload(g_grpNamePtr);
     }
 
-    if (mod_dir[0] != '/')
+    if (g_modDir[0] != '/')
     {
         int32_t ii;
 
         for (ii=0; ii<NUMAUTOLOADMASKS; ii++)
         {
-            Bsprintf(tempbuf,"%s/",mod_dir);
+            Bsprintf(tempbuf,"%s/",g_modDir);
             getfilenames(tempbuf,autoloadmasks[ii]);
             while (findfiles)
             {
-                Bsprintf(tempbuf,"%s/%s",mod_dir,findfiles->name);
+                Bsprintf(tempbuf,"%s/%s",g_modDir,findfiles->name);
                 initprintf("Using group file '%s'.\n",tempbuf);
                 initgroupfile(tempbuf);
                 findfiles = findfiles->next;
@@ -11519,7 +11513,7 @@ CLEAN_DIRECTORY:
     }
 
     flushlogwindow = 0;
-    loaddefinitions_game(duke3ddef, TRUE);
+    loaddefinitions_game(g_defNamePtr, TRUE);
 //    flushlogwindow = 1;
 
     {
@@ -11555,7 +11549,7 @@ CLEAN_DIRECTORY:
 
     // gotta set the proper title after we compile the CONs if this is the full version
 
-    Bsprintf(tempbuf,"%s - " APPNAME,duke3dgrpstring);
+    Bsprintf(tempbuf,"%s - " APPNAME,g_gameNamePtr);
     wm_setapptitle(tempbuf);
 
     if (g_scriptDebug)
@@ -11592,10 +11586,10 @@ CLEAN_DIRECTORY:
 
     if (quitevent) return;
 
-    if (!loaddefinitionsfile(duke3ddef))
+    if (!loaddefinitionsfile(g_defNamePtr))
     {
-        initprintf("Definitions file '%s' loaded.\n",duke3ddef);
-        loaddefinitions_game(duke3ddef, FALSE);
+        initprintf("Definitions file '%s' loaded.\n",g_defNamePtr);
+        loaddefinitions_game(g_defNamePtr, FALSE);
     }
 
     if (numplayers == 1 && boardfilename[0] != 0)
@@ -11607,7 +11601,7 @@ CLEAN_DIRECTORY:
 
     // getnames();
 
-    if ((net_server || ud.multimode > 1))
+    if ((g_netServer || ud.multimode > 1))
     {
         if (ud.warp_on == 0)
         {
@@ -11718,7 +11712,7 @@ CLEAN_DIRECTORY:
     S_SoundStartup();
 //    loadtmb();
 
-    if (ud.warp_on > 1 && (!net_server && ud.multimode < 2))
+    if (ud.warp_on > 1 && (!g_netServer && ud.multimode < 2))
     {
         clearview(0L);
         //g_player[myconnectindex].ps->palette = palette;
@@ -11744,7 +11738,7 @@ MAIN_LOOP_RESTART:
 
     if (ud.warp_on == 0)
     {
-        if ((net_server || ud.multimode > 1) && boardfilename[0] != 0)
+        if ((g_netServer || ud.multimode > 1) && boardfilename[0] != 0)
         {
             ud.m_level_number = 7;
             ud.m_volume_number = 0;
@@ -11817,7 +11811,7 @@ MAIN_LOOP_RESTART:
 
         OSD_DispatchQueued();
 
-        if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (net_server || ud.multimode > 1)) &&
+        if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
                 (g_player[myconnectindex].ps->gm&MODE_GAME) && G_MoveLoop())
             continue;
 
@@ -11843,7 +11837,7 @@ MAIN_LOOP_RESTART:
                 if (ud.eog)
                 {
                     ud.eog = 0;
-                    if ((!net_server && ud.multimode < 2))
+                    if ((!g_netServer && ud.multimode < 2))
                     {
                         if (!VOLUMEALL)
                             G_DoOrderScreen();
@@ -11874,7 +11868,7 @@ MAIN_LOOP_RESTART:
         G_DoCheats();
         G_HandleLocalKeys();
 
-        if ((ud.show_help == 0 && (!net_server && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm&MODE_MENU)) || (net_server || ud.multimode > 1) || ud.recstat == 2)
+        if ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm&MODE_MENU)) || (g_netServer || ud.multimode > 1) || ud.recstat == 2)
             i = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
         else
             i = 65536;
@@ -11885,7 +11879,7 @@ MAIN_LOOP_RESTART:
             G_UpdateScreenArea();
         }
 
-        if (net_client && g_multiMapState)
+        if (g_netClient && g_multiMapState)
         {
             for (i=g_gameVarCount-1; i>=0; i--)
             {
@@ -11928,7 +11922,7 @@ MAIN_LOOP_RESTART:
 
                 if (BUTTON(gamefunc_Show_DukeMatch_Scores)) G_ShowScores();
 
-                if (debug_on) G_ShowCacheLocks();
+                if (g_Debug) G_ShowCacheLocks();
 
                 if (VOLUMEONE)
                 {
@@ -11970,12 +11964,12 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
 
     if (g_whichDemo == 1 && firstdemofile[0] != 0)
     {
-        if ((recfilep = kopen4loadfrommod(firstdemofile,g_loadFromGroupOnly)) == -1) return(0);
+        if ((g_demo_recFilePtr = kopen4loadfrommod(firstdemofile,g_loadFromGroupOnly)) == -1) return(0);
     }
-    else if ((recfilep = kopen4loadfrommod(d,g_loadFromGroupOnly)) == -1) return(0);
+    else if ((g_demo_recFilePtr = kopen4loadfrommod(d,g_loadFromGroupOnly)) == -1) return(0);
 
-    if (kread(recfilep,&ud.reccnt,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-    if (kread(recfilep,&ver,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,&ud.reccnt,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,&ver,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
 
     if (ver != BYTEVERSION /*&& ver != 116 && ver != 117*/)
     {
@@ -11984,7 +11978,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
         else if (ver == BYTEVERSION_JF+1) initprintf("Demo %s is for Atomic edition.\n", d);
         else if (ver == BYTEVERSION_JF+2) initprintf("Demo %s is for Shareware version.\n", d);
 //        else OSD_Printf("Demo %s is of an incompatible version (%d).\n", d, ver);
-        kclose(recfilep);
+        kclose(g_demo_recFilePtr);
         ud.reccnt=0;
         demo_version = 0;
         return 0;
@@ -11995,31 +11989,31 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
         OSD_Printf("Demo %s is of version %d.\n", d, ver);
     }
 
-    if (kread(recfilep,(char *)&ud.volume_number,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(char *)&ud.volume_number,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
     OSD_Printf("ud.volume_number: %d\n",ud.volume_number);
-    if (kread(recfilep,(char *)&ud.level_number,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(char *)&ud.level_number,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
     OSD_Printf("ud.level_number: %d\n",ud.level_number);
-    if (kread(recfilep,(char *)&ud.player_skill,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(char *)&ud.player_skill,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
     OSD_Printf("ud.player_skill: %d\n",ud.player_skill);
-    if (kread(recfilep,(char *)&ud.m_coop,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(char *)&ud.m_coop,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
     OSD_Printf("ud.m_coop: %d\n",ud.m_coop);
-    if (kread(recfilep,(char *)&ud.m_ffire,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(char *)&ud.m_ffire,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
     OSD_Printf("ud.m_ffire: %d\n",ud.m_ffire);
-    if (kread(recfilep,(int16_t *)&ud.multimode,sizeof(int16_t)) != sizeof(int16_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(int16_t *)&ud.multimode,sizeof(int16_t)) != sizeof(int16_t)) goto corrupt;
     OSD_Printf("ud.multimode: %d\n",ud.multimode);
-    if (kread(recfilep,(int16_t *)&ud.m_monsters_off,sizeof(int16_t)) != sizeof(int16_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(int16_t *)&ud.m_monsters_off,sizeof(int16_t)) != sizeof(int16_t)) goto corrupt;
     OSD_Printf("ud.m_monsters_off: %d\n",ud.m_monsters_off);
-    if (kread(recfilep,(int32_t *)&ud.m_respawn_monsters,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(int32_t *)&ud.m_respawn_monsters,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
     OSD_Printf("ud.m_respawn_monsters: %d\n",ud.m_respawn_monsters);
-    if (kread(recfilep,(int32_t *)&ud.m_respawn_items,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(int32_t *)&ud.m_respawn_items,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
     OSD_Printf("ud.m_respawn_items: %d\n",ud.m_respawn_items);
-    if (kread(recfilep,(int32_t *)&ud.m_respawn_inventory,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(int32_t *)&ud.m_respawn_inventory,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
     OSD_Printf("ud.m_respawn_inventory: %d\n",ud.m_respawn_inventory);
-    if (kread(recfilep,(int32_t *)&ud.playerai,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(int32_t *)&ud.playerai,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
     OSD_Printf("ud.playerai: %d\n",ud.playerai);
-    if (kread(recfilep,(int32_t *)&i,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(int32_t *)&i,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
 
-    if (kread(recfilep,(char *)boardfilename,sizeof(boardfilename)) != sizeof(boardfilename)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(char *)boardfilename,sizeof(boardfilename)) != sizeof(boardfilename)) goto corrupt;
 
     if (boardfilename[0] != 0)
     {
@@ -12027,7 +12021,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
         ud.m_volume_number = 0;
     }
 
-    if (kread(recfilep,(int32_t *)&ud.m_noexits,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
+    if (kread(g_demo_recFilePtr,(int32_t *)&ud.m_noexits,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
 
     for (i=0; i<ud.multimode; i++)
     {
@@ -12036,19 +12030,19 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
         if (!g_player[i].sync)
             g_player[i].sync = (input_t *) Bcalloc(1,sizeof(input_t));
 
-        if (kread(recfilep,(char *)g_player[i].user_name,sizeof(g_player[i].user_name)) != sizeof(g_player[i].user_name)) goto corrupt;
+        if (kread(g_demo_recFilePtr,(char *)g_player[i].user_name,sizeof(g_player[i].user_name)) != sizeof(g_player[i].user_name)) goto corrupt;
         OSD_Printf("ud.user_name: %s\n",g_player[i].user_name);
-        if (kread(recfilep,(int32_t *)&g_player[i].ps->aim_mode,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-        if (kread(recfilep,(int32_t *)&g_player[i].ps->auto_aim,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;  // JBF 20031126
-        if (kread(recfilep,(int32_t *)&g_player[i].ps->weaponswitch,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-        if (kread(recfilep,(int32_t *)&g_player[i].pcolor,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
+        if (kread(g_demo_recFilePtr,(int32_t *)&g_player[i].ps->aim_mode,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
+        if (kread(g_demo_recFilePtr,(int32_t *)&g_player[i].ps->auto_aim,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;  // JBF 20031126
+        if (kread(g_demo_recFilePtr,(int32_t *)&g_player[i].ps->weaponswitch,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
+        if (kread(g_demo_recFilePtr,(int32_t *)&g_player[i].pcolor,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
         g_player[i].ps->palookup = g_player[i].pcolor;
-        if (kread(recfilep,(int32_t *)&g_player[i].pteam,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
+        if (kread(g_demo_recFilePtr,(int32_t *)&g_player[i].pteam,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
         g_player[i].ps->team = g_player[i].pteam;
     }
     i = ud.reccnt/((TICRATE/TICSPERFRAME)*ud.multimode);
     OSD_Printf("demo duration: %d min %d sec\n", i/60, i%60);
-    demo_startreccnt = ud.reccnt;
+    g_demo_startCnt = ud.reccnt;
 
     ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
     ud.clipping = ud.scrollmode = ud.overhead_on = ud.pause_on = 0;
@@ -12058,7 +12052,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
 corrupt:
     OSD_Printf(OSD_ERROR "Demo %d header is corrupt.\n",g_whichDemo);
     ud.reccnt = 0;
-    kclose(recfilep);
+    kclose(g_demo_recFilePtr);
     return 0;
 }
 
@@ -12069,7 +12063,7 @@ void G_OpenDemoWrite(void)
     char ver;
     int16_t i;
 
-    if (ud.recstat == 2) kclose(recfilep);
+    if (ud.recstat == 2) kclose(g_demo_recFilePtr);
 
     ver = BYTEVERSION;
 
@@ -12077,40 +12071,40 @@ void G_OpenDemoWrite(void)
     {
         if (demonum == 10000) return;
         Bsprintf(d, "demo%d.dmo", demonum++);
-        frecfilep = fopen(d, "rb");
-        if (frecfilep == NULL) break;
-        Bfclose(frecfilep);
+        g_demo_filePtr = fopen(d, "rb");
+        if (g_demo_filePtr == NULL) break;
+        Bfclose(g_demo_filePtr);
     }
 
-    if ((frecfilep = fopen(d,"wb")) == NULL) return;
-    fwrite(&dummylong,sizeof(dummylong),1,frecfilep);
-    fwrite(&ver,sizeof(uint8_t),1,frecfilep);
-    fwrite((char *)&ud.volume_number,sizeof(uint8_t),1,frecfilep);
-    fwrite((char *)&ud.level_number,sizeof(uint8_t),1,frecfilep);
-    fwrite((char *)&ud.player_skill,sizeof(uint8_t),1,frecfilep);
-    fwrite((char *)&ud.m_coop,sizeof(uint8_t),1,frecfilep);
-    fwrite((char *)&ud.m_ffire,sizeof(uint8_t),1,frecfilep);
-    fwrite((int16_t *)&ud.multimode,sizeof(int16_t),1,frecfilep);
-    fwrite((int16_t *)&ud.m_monsters_off,sizeof(int16_t),1,frecfilep);
-    fwrite((int32_t *)&ud.m_respawn_monsters,sizeof(int32_t),1,frecfilep);
-    fwrite((int32_t *)&ud.m_respawn_items,sizeof(int32_t),1,frecfilep);
-    fwrite((int32_t *)&ud.m_respawn_inventory,sizeof(int32_t),1,frecfilep);
-    fwrite((int32_t *)&ud.playerai,sizeof(int32_t),1,frecfilep);
-    fwrite((int32_t *)&ud.auto_run,sizeof(int32_t),1,frecfilep);
-    fwrite((char *)boardfilename,sizeof(boardfilename),1,frecfilep);
-    fwrite((int32_t *)&ud.m_noexits,sizeof(int32_t),1,frecfilep);
+    if ((g_demo_filePtr = fopen(d,"wb")) == NULL) return;
+    fwrite(&dummylong,sizeof(dummylong),1,g_demo_filePtr);
+    fwrite(&ver,sizeof(uint8_t),1,g_demo_filePtr);
+    fwrite((char *)&ud.volume_number,sizeof(uint8_t),1,g_demo_filePtr);
+    fwrite((char *)&ud.level_number,sizeof(uint8_t),1,g_demo_filePtr);
+    fwrite((char *)&ud.player_skill,sizeof(uint8_t),1,g_demo_filePtr);
+    fwrite((char *)&ud.m_coop,sizeof(uint8_t),1,g_demo_filePtr);
+    fwrite((char *)&ud.m_ffire,sizeof(uint8_t),1,g_demo_filePtr);
+    fwrite((int16_t *)&ud.multimode,sizeof(int16_t),1,g_demo_filePtr);
+    fwrite((int16_t *)&ud.m_monsters_off,sizeof(int16_t),1,g_demo_filePtr);
+    fwrite((int32_t *)&ud.m_respawn_monsters,sizeof(int32_t),1,g_demo_filePtr);
+    fwrite((int32_t *)&ud.m_respawn_items,sizeof(int32_t),1,g_demo_filePtr);
+    fwrite((int32_t *)&ud.m_respawn_inventory,sizeof(int32_t),1,g_demo_filePtr);
+    fwrite((int32_t *)&ud.playerai,sizeof(int32_t),1,g_demo_filePtr);
+    fwrite((int32_t *)&ud.auto_run,sizeof(int32_t),1,g_demo_filePtr);
+    fwrite((char *)boardfilename,sizeof(boardfilename),1,g_demo_filePtr);
+    fwrite((int32_t *)&ud.m_noexits,sizeof(int32_t),1,g_demo_filePtr);
 
     for (i=0; i<ud.multimode; i++)
     {
-        fwrite((char *)&g_player[i].user_name,sizeof(g_player[i].user_name),1,frecfilep);
-        fwrite((int32_t *)&g_player[i].ps->aim_mode,sizeof(int32_t),1,frecfilep);
-        fwrite((int32_t *)&g_player[i].ps->auto_aim,sizeof(int32_t),1,frecfilep);       // JBF 20031126
-        fwrite(&g_player[i].ps->weaponswitch,sizeof(int32_t),1,frecfilep);
-        fwrite(&g_player[i].pcolor,sizeof(int32_t),1,frecfilep);
-        fwrite(&g_player[i].pteam,sizeof(int32_t),1,frecfilep);
+        fwrite((char *)&g_player[i].user_name,sizeof(g_player[i].user_name),1,g_demo_filePtr);
+        fwrite((int32_t *)&g_player[i].ps->aim_mode,sizeof(int32_t),1,g_demo_filePtr);
+        fwrite((int32_t *)&g_player[i].ps->auto_aim,sizeof(int32_t),1,g_demo_filePtr);       // JBF 20031126
+        fwrite(&g_player[i].ps->weaponswitch,sizeof(int32_t),1,g_demo_filePtr);
+        fwrite(&g_player[i].pcolor,sizeof(int32_t),1,g_demo_filePtr);
+        fwrite(&g_player[i].pteam,sizeof(int32_t),1,g_demo_filePtr);
     }
 
-    totalreccnt = 0;
+    g_demo_totalCnt = 0;
     ud.reccnt = 0;
 }
 
@@ -12122,10 +12116,10 @@ static void G_DemoRecord(void)
     {
         copybufbyte(g_player[i].sync,&recsync[ud.reccnt],sizeof(input_t));
         ud.reccnt++;
-        totalreccnt++;
+        g_demo_totalCnt++;
         if (ud.reccnt >= RECSYNCBUFSIZ)
         {
-            dfwrite(recsync,sizeof(input_t)*ud.multimode,ud.reccnt/ud.multimode,frecfilep);
+            dfwrite(recsync,sizeof(input_t)*ud.multimode,ud.reccnt/ud.multimode,g_demo_filePtr);
             ud.reccnt = 0;
         }
     }
@@ -12137,20 +12131,19 @@ void G_CloseDemoWrite(void)
     {
         if (ud.reccnt > 0)
         {
-            dfwrite(recsync,sizeof(input_t)*ud.multimode,ud.reccnt/ud.multimode,frecfilep);
+            dfwrite(recsync,sizeof(input_t)*ud.multimode,ud.reccnt/ud.multimode,g_demo_filePtr);
 
-            fseek(frecfilep,SEEK_SET,0L);
-            fwrite(&totalreccnt,sizeof(int32_t),1,frecfilep);
+            fseek(g_demo_filePtr,SEEK_SET,0L);
+            fwrite(&g_demo_totalCnt,sizeof(int32_t),1,g_demo_filePtr);
             ud.recstat = ud.m_recstat = 0;
         }
-        fclose(frecfilep);
+        fclose(g_demo_filePtr);
     }
 }
 
 static int32_t g_whichDemo = 1;
 extern int32_t premap_quickenterlevel;
 
-// extern int32_t syncs[];
 static int32_t G_PlaybackDemo(void)
 {
     int32_t i,j,k,l;
@@ -12167,7 +12160,7 @@ RECHECK:
     pus = NUMPAGES;
 
     flushperms();
-    if ((!net_server && ud.multimode < 2)) foundemo = G_OpenDemoRead(g_whichDemo);
+    if ((!g_netServer && ud.multimode < 2)) foundemo = G_OpenDemoRead(g_whichDemo);
     if (foundemo == 0)
     {
         if (g_whichDemo > 1)
@@ -12213,35 +12206,35 @@ RECHECK:
 
     while (ud.reccnt > 0 || foundemo == 0)
     {
-        if (foundemo && (!demo_paused || demo_goalreccnt!=0))
+        if (foundemo && (!g_demo_paused || g_demo_goalCnt!=0))
         {
-            if (demo_goalreccnt < 0)
+            if (g_demo_goalCnt < 0)
             {
-                demo_goalreccnt = -demo_goalreccnt;
+                g_demo_goalCnt = -g_demo_goalCnt;
 
                 if (g_whichDemo > 1)  // load the same demo again and FF from beginning... yay!
                     g_whichDemo--;
                 foundemo = 0;
                 ud.reccnt = 0;
-                kclose(recfilep);
+                kclose(g_demo_recFilePtr);
                 premap_quickenterlevel=1;
                 goto RECHECK;
             }
 
             while (totalclock >= (lockclock+TICSPERFRAME)
                    || (ud.reccnt > (TICRATE/TICSPERFRAME)*2 && ud.pause_on)
-                   || (demo_goalreccnt>0 && demo_goalreccnt<ud.reccnt))
+                   || (g_demo_goalCnt>0 && g_demo_goalCnt<ud.reccnt))
             {
                 if ((i == 0) || (i >= RECSYNCBUFSIZ))
                 {
                     i = 0;
                     l = min(ud.reccnt,RECSYNCBUFSIZ);
-                    if (kdfread(recsync,sizeof(input_t)*ud.multimode,l/ud.multimode,recfilep) != l/ud.multimode)
+                    if (kdfread(recsync,sizeof(input_t)*ud.multimode,l/ud.multimode,g_demo_recFilePtr) != l/ud.multimode)
                     {
                         OSD_Printf(OSD_ERROR "Demo %d is corrupt.\n", g_whichDemo-1);
                         foundemo = 0;
                         ud.reccnt = 0;
-                        kclose(recfilep);
+                        kclose(g_demo_recFilePtr);
                         g_player[myconnectindex].ps->gm |= MODE_MENU;
                         goto RECHECK;
                     }
@@ -12257,21 +12250,21 @@ RECHECK:
                 G_DoMoveThings();
                 ototalclock += TICSPERFRAME;
 
-                if (demo_goalreccnt > 0)
+                if (g_demo_goalCnt > 0)
                 {
-                    if (demo_goalreccnt<ud.reccnt || (ud.reccnt > (TICRATE/TICSPERFRAME)*2 && ud.pause_on))
+                    if (g_demo_goalCnt<ud.reccnt || (ud.reccnt > (TICRATE/TICSPERFRAME)*2 && ud.pause_on))
                         totalclock += TICSPERFRAME;
                 }
             }
 
-            if (demo_goalreccnt > 0 && ud.reccnt<=demo_goalreccnt)
+            if (g_demo_goalCnt > 0 && ud.reccnt<=g_demo_goalCnt)
             {
-                demo_goalreccnt = 0;
-                ud.config.SoundToggle = demo_oldsoundtoggle;
+                g_demo_goalCnt = 0;
+                ud.config.SoundToggle = g_demo_soundToggle;
                 premap_quickenterlevel = 0;
             }
         }
-        else if (foundemo && demo_paused && demo_goalreccnt==0)
+        else if (foundemo && g_demo_paused && g_demo_goalCnt==0)
         {
             lockclock = ototalclock = totalclock;
         }
@@ -12287,9 +12280,9 @@ RECHECK:
             G_DrawRooms(screenpeek,j);
             G_DisplayRest(j);
 
-            if (demo_showstats && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+            if (g_demo_showStats && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
             {
-                j=(demo_startreccnt-ud.reccnt)/(TICRATE/TICSPERFRAME);
+                j=(g_demo_startCnt-ud.reccnt)/(TICRATE/TICSPERFRAME);
                 Bsprintf(buf, "%02d:%02d", j/60, j%60);
                 gametext(18,16,buf,0,2+8+16);
 
@@ -12298,15 +12291,15 @@ RECHECK:
                 rotatesprite(120<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,(xdim*125)/320,0,(xdim*155)/320,ydim-1);
                 rotatesprite(150<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,(xdim*155)/320,0,xdim-1,ydim-1);
 
-                j = (182<<16) - ((((120*ud.reccnt)<<4)/demo_startreccnt)<<12);
+                j = (182<<16) - ((((120*ud.reccnt)<<4)/g_demo_startCnt)<<12);
                 rotatesprite(j,(16<<16)+(1<<15),32768,0,SLIDEBAR+1,0,0,2+8+16,0,0,xdim-1,ydim-1);
 
                 j=ud.reccnt/(TICRATE/TICSPERFRAME);
-                Bsprintf(buf, "-%02d:%02d%s", j/60, j%60, demo_paused?"   ^15PAUSED":"");
+                Bsprintf(buf, "-%02d:%02d%s", j/60, j%60, g_demo_paused?"   ^15PAUSED":"");
                 gametext(194,16,buf,0,2+8+16);
             }
 
-            if ((net_server || ud.multimode > 1) && g_player[myconnectindex].ps->gm)
+            if ((g_netServer || ud.multimode > 1) && g_player[myconnectindex].ps->gm)
                 Net_GetPackets();
 
             if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
@@ -12336,7 +12329,7 @@ RECHECK:
         {
             if (ud.recstat != 2)
                 M_DisplayMenus();
-            if ((net_server || ud.multimode > 1)  && g_currentMenu != 20003 && g_currentMenu != 20005 && g_currentMenu != 210)
+            if ((g_netServer || ud.multimode > 1)  && g_currentMenu != 20003 && g_currentMenu != 20005 && g_currentMenu != 210)
             {
                 ControlInfo noshareinfo;
                 CONTROL_GetInput(&noshareinfo);
@@ -12371,12 +12364,12 @@ RECHECK:
         if (g_player[myconnectindex].ps->gm==MODE_END || g_player[myconnectindex].ps->gm==MODE_GAME)
         {
             if (foundemo)
-                kclose(recfilep);
+                kclose(g_demo_recFilePtr);
             return 0;
         }
     }
     ud.multimode = numplayers;  // fixes 2 infinite loops after watching demo
-    kclose(recfilep);
+    kclose(g_demo_recFilePtr);
 
 #if 0
     {
@@ -12487,7 +12480,7 @@ static int32_t G_DoMoveThings(void)
             if (!user_quote_time[i]) pub = NUMPAGES;
         }
 
-    if (ud.idplayers && (net_server || ud.multimode > 1))
+    if (ud.idplayers && (g_netServer || ud.multimode > 1))
     {
         hitdata_t hitinfo;
 
@@ -12532,11 +12525,11 @@ static int32_t G_DoMoveThings(void)
 
     everyothertime++;
 
-    if (net_server || net_client)
+    if (g_netServer || g_netClient)
         randomseed = ticrandomseed;
 
     TRAVERSE_CONNECT(i)
-        copybufbyte(&inputfifo[(net_server && myconnectindex == i) ? 1 : 0][i],g_player[i].sync,sizeof(input_t));
+        copybufbyte(&inputfifo[(g_netServer && myconnectindex == i) ? 1 : 0][i],g_player[i].sync,sizeof(input_t));
 
     movefifoplc++;
 
@@ -12609,9 +12602,8 @@ static int32_t G_DoMoveThings(void)
         Net_UpdateClients();
     }
 
-    if (net_client)   //Slave
+    if (g_netClient)   //Slave
     {
-        int32_t jj = 0;
         input_t *nsyn = (input_t *)&inputfifo[0][myconnectindex];
 
         packbuf[0] = PACKET_SLAVE_TO_MASTER;
@@ -12634,18 +12626,24 @@ static int32_t G_DoMoveThings(void)
 
         i = g_player[myconnectindex].ps->i;
 
-        packbuf[(jj = j++)] = 0;
 
-        if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
+/*
         {
-            packbuf[jj] |= 2;
-            T5 -= (intptr_t)&script[0];
+            int32_t j;
+            packbuf[(jj = j++)] = 0;
+
+            if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
+            {
+                packbuf[jj] |= 2;
+                T5 -= (intptr_t)&script[0];
+            }
+
+            Bmemcpy(&packbuf[j], &T5, sizeof(T5));
+            j += sizeof(T5);
+
+            if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];
         }
-
-        Bmemcpy(&packbuf[j], &T5, sizeof(T5));
-        j += sizeof(T5);
-
-        if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];
+*/
 
         {
             char buf[1024];
@@ -12657,7 +12655,7 @@ static int32_t G_DoMoveThings(void)
 
         packbuf[j++] = myconnectindex;
 
-        enet_peer_send(net_peer, 1, enet_packet_create(packbuf, j, 0));
+        enet_peer_send(g_netClientPeer, 1, enet_packet_create(packbuf, j, 0));
 
         movefifosendplc++;
     }
@@ -12739,7 +12737,7 @@ void G_BonusScreen(int32_t bonusonly)
         350, 380,VICTORY1+8,86,59
     };
 
-    Bsprintf(tempbuf,"%s - " APPNAME,duke3dgrpstring);
+    Bsprintf(tempbuf,"%s - " APPNAME,g_gameNamePtr);
     wm_setapptitle(tempbuf);
 
     if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0])
@@ -13095,7 +13093,7 @@ FRAGBONUS:
                     xfragtotal += g_player[i].frags[y];
                 }
 
-                if (net_server)
+                if (g_netServer)
                 {
                     Bsprintf(tempbuf,"stats %d killed %d %d\n",i+1,y+1,g_player[i].frags[y]);
                     sendscore(tempbuf);
@@ -13139,12 +13137,12 @@ FRAGBONUS:
             }
         }
 
-        if (bonusonly || (net_server || ud.multimode > 1)) return;
+        if (bonusonly || (g_netServer || ud.multimode > 1)) return;
 
         fadepal(0,0,0, 0,64,7);
     }
 
-    if (bonusonly || (net_server || ud.multimode > 1)) return;
+    if (bonusonly || (g_netServer || ud.multimode > 1)) return;
 
     switch (ud.volume_number)
     {

@@ -60,7 +60,7 @@ static int32_t floor_over_floor;
 // static char *startwin_labeltext = "Starting Mapster32...";
 static char setupfilename[BMAX_PATH]= "mapster32.cfg";
 static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
-static char *duke3dgrp = defaultduke3dgrp;
+static char *g_grpNamePtr = defaultduke3dgrp;
 static int32_t fixmapbeforesaving = 1;
 static int32_t lastsave = -180*60;
 static int32_t NoAutoLoad = 0;
@@ -8458,14 +8458,14 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 }
                 if (!Bstrcasecmp(c+1,"nam"))
                 {
-                    strcpy(duke3dgrp, "nam.grp");
+                    strcpy(g_grpNamePtr, "nam.grp");
                     COPYARG(i);
                     i++;
                     continue;
                 }
                 if (!Bstrcasecmp(c+1,"ww2gi"))
                 {
-                    strcpy(duke3dgrp, "ww2gi.grp");
+                    strcpy(g_grpNamePtr, "ww2gi.grp");
                     COPYARG(i);
                     i++;
                     continue;
@@ -9857,11 +9857,11 @@ int32_t ExtInit(void)
     // JBF 20031220: Because it's annoying renaming GRP files whenever I want to test different game data
     if (getenv("DUKE3DGRP"))
     {
-        duke3dgrp = getenv("DUKE3DGRP");
-        initprintf("Using %s as main GRP file\n", duke3dgrp);
+        g_grpNamePtr = getenv("DUKE3DGRP");
+        initprintf("Using %s as main GRP file\n", g_grpNamePtr);
     }
 
-    i = initgroupfile(duke3dgrp);
+    i = initgroupfile(g_grpNamePtr);
 
     if (!NoAutoLoad)
     {
@@ -9873,7 +9873,7 @@ int32_t ExtInit(void)
         while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
 
         if (i != -1)
-            DoAutoload(duke3dgrp);
+            DoAutoload(g_grpNamePtr);
     }
 
     if (getenv("DUKE3DDEF"))

@@ -238,7 +238,7 @@ int32_t A_FurthestVisiblePoint(int32_t iActor,spritetype *ts,int32_t *dax,int32_
         spritetype *s = &sprite[iActor];
         hitdata_t hitinfo;
 
-        if ((!net_server && ud.multimode < 2) && ud.player_skill < 3)
+        if ((!g_netServer && ud.multimode < 2) && ud.player_skill < 3)
             angincs = 2048/2;
         else angincs = 2048/(1+(krand()&1));
 
@@ -613,7 +613,7 @@ static void X_Move(void)
             }
             else if (vm.g_sp->picnum != DRONE && vm.g_sp->picnum != SHARK && vm.g_sp->picnum != COMMANDER)
             {
-                if (ActorExtra[vm.g_i].bposz != vm.g_sp->z || ((!net_server && ud.multimode < 2) && ud.player_skill < 2))
+                if (ActorExtra[vm.g_i].bposz != vm.g_sp->z || ((!g_netServer && ud.multimode < 2) && ud.player_skill < 2))
                 {
                     if ((vm.g_t[0]&1) || g_player[vm.g_p].ps->actorsqu == vm.g_i) return;
                     else daxvel <<= 1;
@@ -919,7 +919,7 @@ skip_check:
         case CON_IFGOTWEAPONCE:
             insptr++;
 
-            if ((GametypeFlags[ud.coop]&GAMETYPE_WEAPSTAY) && (net_server || ud.multimode > 1))
+            if ((GametypeFlags[ud.coop]&GAMETYPE_WEAPSTAY) && (g_netServer || ud.multimode > 1))
             {
                 if (*insptr == 0)
                 {
@@ -977,7 +977,7 @@ skip_check:
         case CON_PKICK:
             insptr++;
 
-            if ((net_server || ud.multimode > 1) && vm.g_sp->picnum == APLAYER)
+            if ((g_netServer || ud.multimode > 1) && vm.g_sp->picnum == APLAYER)
             {
                 if (g_player[otherp].ps->quick_kick == 0)
                     g_player[otherp].ps->quick_kick = 14;
@@ -1747,8 +1747,16 @@ skip_check:
                     Bstrcpy(ScriptQuotes[i],ScriptQuotes[j]);
                     break;
                 case CON_CHANGESPRITESECT:
-                    if ((i<0 || i>=MAXSPRITES) /* && g_scriptSanityChecks */) {OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],i); break;}
-                    if ((j<0 || j>=numsectors) /* && g_scriptSanityChecks */) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],j); break;}
+                    if ((i<0 || i>=MAXSPRITES) /* && g_scriptSanityChecks */)
+                    {
+                        OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],i);
+                        break;
+                    }
+                    if ((j<0 || j>=numsectors) /* && g_scriptSanityChecks */)
+                    {
+                        OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],j);
+                        break;
+                    }
                     changespritesect(i,j);
                     break;
                 default:
@@ -1825,7 +1833,7 @@ nullquote:
 
                 ud.m_volume_number = ud.volume_number = volnume;
                 ud.m_level_number = ud.level_number = levnume;
-                if (numplayers > 1 && net_server)
+                if (numplayers > 1 && g_netServer)
                     Net_NewGame(volnume,levnume);
                 else
                 {
@@ -2734,7 +2742,7 @@ nullquote:
                 g_screenCapture = 1;
                 G_DrawRooms(myconnectindex,65536);
                 g_screenCapture = 0;
-                if ((net_server || ud.multimode > 1))
+                if ((g_netServer || ud.multimode > 1))
                     G_SavePlayer(-1-(g_lastSaveSlot));
                 else G_SavePlayer(g_lastSaveSlot);
 
@@ -2757,7 +2765,7 @@ nullquote:
             insptr++;
 
             //AddLog("resetplayer");
-            if ((!net_server && ud.multimode < 2))
+            if ((!g_netServer && ud.multimode < 2))
             {
                 if (g_lastSaveSlot >= 0 && ud.recstat != 2)
                 {
@@ -2776,7 +2784,7 @@ nullquote:
                     g_cameraClock = totalclock;
                 }
 
-                if (net_server)
+                if (g_netServer)
                 {
                     P_ResetPlayer(vm.g_p);
 
@@ -2784,7 +2792,7 @@ nullquote:
                     packbuf[1] = vm.g_p;
                     packbuf[2] = 0;
 
-                    enet_host_broadcast(net_server, 0 , enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
+                    enet_host_broadcast(g_netServer, 0 , enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
                 }
             }
             P_UpdateScreenPal(g_player[vm.g_p].ps);
@@ -2938,7 +2946,7 @@ nullquote:
                 j = 1;
             else if ((l&65536L))
             {
-                if (vm.g_sp->picnum == APLAYER && (net_server || ud.multimode > 1))
+                if (vm.g_sp->picnum == APLAYER && (g_netServer || ud.multimode > 1))
                     j = G_GetAngleDelta(g_player[otherp].ps->ang,getangle(g_player[vm.g_p].ps->posx-g_player[otherp].ps->posx,g_player[vm.g_p].ps->posy-g_player[otherp].ps->posy));
                 else
                     j = G_GetAngleDelta(g_player[vm.g_p].ps->ang,getangle(vm.g_sp->x-g_player[vm.g_p].ps->posx,vm.g_sp->y-g_player[vm.g_p].ps->posy));
@@ -3030,7 +3038,7 @@ nullquote:
             continue;
 
         case CON_IFMULTIPLAYER:
-            X_DoConditional((net_server || ud.multimode > 1));
+            X_DoConditional((g_netServer || ud.multimode > 1));
             continue;
 
         case CON_OPERATE:
@@ -3855,8 +3863,8 @@ nullquote:
                     {
                         FILE *fil;
                         char temp[BMAX_PATH];
-                        if (mod_dir[0] != '/')
-                            Bsprintf(temp,"%s/%s",mod_dir,ScriptQuotes[q]);
+                        if (g_modDir[0] != '/')
+                            Bsprintf(temp,"%s/%s",g_modDir,ScriptQuotes[q]);
                         else Bsprintf(temp,"%s",ScriptQuotes[q]);
                         if ((fil = fopen(temp,"wb")) == 0) continue;
 
@@ -4654,13 +4662,13 @@ void A_LoadActor(int32_t iActor)
 
 void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 {
-    if (net_client && A_CheckSpriteFlags(iActor, SPRITE_NULL))
+    if (g_netClient && A_CheckSpriteFlags(iActor, SPRITE_NULL))
     {
         deletesprite(iActor);
         return;
     }
 
-    if (net_server || net_client)
+    if (g_netServer || g_netClient)
         randomseed = ticrandomseed;
 
     vm.g_i = iActor;    // Sprite ID

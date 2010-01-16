@@ -710,8 +710,8 @@ int32_t startwin_run(void)
     settings.usejoy = ud.config.UseJoystick;
     settings.game = g_gameType;
 //    settings.crcval = 0;
-    Bstrncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
-    settings.gamedir = mod_dir;
+    Bstrncpy(settings.selectedgrp, g_grpNamePtr, BMAX_PATH);
+    settings.gamedir = g_modDir;
     PopulateForm(-1);
 
     while (done < 0)
@@ -750,16 +750,16 @@ int32_t startwin_run(void)
         ud.config.ForceSetup = settings.forcesetup;
         ud.config.UseMouse = settings.usemouse;
         ud.config.UseJoystick = settings.usejoy;
-        duke3dgrp = settings.selectedgrp;
+        g_grpNamePtr = settings.selectedgrp;
         g_gameType = settings.game;
 
         if (g_noSetup == 0 && settings.gamedir != NULL)
-            Bstrcpy(mod_dir,settings.gamedir);
-        else Bsprintf(mod_dir,"/");
+            Bstrcpy(g_modDir,settings.gamedir);
+        else Bsprintf(g_modDir,"/");
 
         for (i = 0; i<numgrpfiles; i++) if (settings.crcval == grpfiles[i].crcval) break;
         if (i != numgrpfiles)
-            duke3dgrpstring = (char *)grpfiles[i].name;
+            g_gameNamePtr = (char *)grpfiles[i].name;
     }
 
     if (wavedevs)

@@ -657,8 +657,8 @@ int32_t G_SavePlayer(int32_t spot)
 
     {
         char temp[BMAX_PATH];
-        if (mod_dir[0] != '/')
-            Bsprintf(temp,"%s/%s",mod_dir,fnptr);
+        if (g_modDir[0] != '/')
+            Bsprintf(temp,"%s/%s",g_modDir,fnptr);
         else Bsprintf(temp,"%s",fnptr);
         if ((fil = fopen(temp,"wb")) == 0) return(-1);
     }
@@ -909,7 +909,7 @@ int32_t G_SavePlayer(int32_t spot)
 
     fclose(fil);
 
-    if ((!net_server && ud.multimode < 2))
+    if ((!g_netServer && ud.multimode < 2))
     {
         strcpy(ScriptQuotes[122],"GAME SAVED");
         P_DoQuote(122,g_player[myconnectindex].ps);

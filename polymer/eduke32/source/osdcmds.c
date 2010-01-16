@@ -103,7 +103,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
 
     if (numplayers > 1)
     {
-        if (net_server)
+        if (g_netServer)
             Net_NewGame(volume,level);
         else if (voting == -1)
         {
@@ -129,7 +129,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
                 tempbuf[2] = ud.m_volume_number;
                 tempbuf[3] = ud.m_level_number;
 
-                enet_peer_send(net_peer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
+                enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
             }
             if ((GametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(GametypeFlags[ud.m_coop] & GAMETYPE_TDM))
                 ud.m_noexits = 0;
@@ -251,7 +251,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
 
     if (numplayers > 1)
     {
-        if (net_server)
+        if (g_netServer)
         {
             Net_SendUserMapName();
             ud.m_volume_number = 0;
@@ -283,7 +283,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
                 tempbuf[2] = ud.m_volume_number;
                 tempbuf[3] = ud.m_level_number;
 
-                enet_peer_send(net_peer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
+                enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
             }
             if ((GametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(GametypeFlags[ud.m_coop] & GAMETYPE_TDM))
                 ud.m_noexits = 0;
@@ -1168,14 +1168,14 @@ static int32_t osdcmd_connect(const osdfuncparm_t *parm)
 
 static int32_t osdcmd_password(const osdfuncparm_t *parm)
 {
-    extern char g_networkPassword[32];
+    extern char g_netPassword[32];
 
     if (parm->numparms < 1)
     {
-        Bmemset(g_networkPassword, 0, sizeof(g_networkPassword));
+        Bmemset(g_netPassword, 0, sizeof(g_netPassword));
         return OSDCMD_OK;
     }
-    Bstrncpy(g_networkPassword, (char *)(parm->raw) + 9, sizeof(g_networkPassword)-1);
+    Bstrncpy(g_netPassword, (char *)(parm->raw) + 9, sizeof(g_netPassword)-1);
 
     return OSDCMD_OK;
 }
@@ -1188,14 +1188,14 @@ static int32_t osdcmd_listplayers(const osdfuncparm_t *parm)
     if (parm->numparms != 0)
         return OSDCMD_SHOWHELP;
 
-    if (!net_server)
+    if (!g_netServer)
     {
         initprintf("You are not the server.\n");
         return OSDCMD_OK;
     }
 
-    for (currentPeer = net_server -> peers;
-        currentPeer < & net_server -> peers [net_server -> peerCount];
+    for (currentPeer = g_netServer -> peers;
+        currentPeer < & g_netServer -> peers [g_netServer -> peerCount];
         ++ currentPeer)
     {
         if (currentPeer -> state != ENET_PEER_STATE_CONNECTED)
@@ -1217,14 +1217,14 @@ static int32_t osdcmd_kick(const osdfuncparm_t *parm)
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
 
-    if (!net_server)
+    if (!g_netServer)
     {
         initprintf("You are not the server.\n");
         return OSDCMD_OK;
     }
 
-    for (currentPeer = net_server -> peers;
-        currentPeer < & net_server -> peers [net_server -> peerCount];
+    for (currentPeer = g_netServer -> peers;
+        currentPeer < & g_netServer -> peers [g_netServer -> peerCount];
         ++ currentPeer)
     {
         if (currentPeer -> state != ENET_PEER_STATE_CONNECTED)
@@ -1253,14 +1253,14 @@ static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
 
-    if (!net_server)
+    if (!g_netServer)
     {
         initprintf("You are not the server.\n");
         return OSDCMD_OK;
     }
 
-    for (currentPeer = net_server -> peers;
-        currentPeer < & net_server -> peers [net_server -> peerCount];
+    for (currentPeer = g_netServer -> peers;
+        currentPeer < & g_netServer -> peers [g_netServer -> peerCount];
         ++ currentPeer)
     {
         if (currentPeer -> state != ENET_PEER_STATE_CONNECTED)

@@ -49,9 +49,9 @@ extern "C" {
 
 #include "enet/enet.h"
 
-extern ENetHost * net_server;
-extern ENetHost * net_client;
-extern ENetPeer * net_peer;
+extern ENetHost * g_netServer;
+extern ENetHost * g_netClient;
+extern ENetPeer * g_netClientPeer;
 
 #define APPNAME "EDuke32"
 #define VERSION " 2.0.0devel"
@@ -1082,8 +1082,8 @@ typedef struct {
 extern keydef_t ConsoleKeys[];
 extern char *ConsoleButtons[];
 
-extern char *duke3dgrp, *duke3dgrpstring;
-extern char mod_dir[BMAX_PATH];
+extern char *g_grpNamePtr, *g_gameNamePtr;
+extern char g_modDir[BMAX_PATH];
 
 extern hashtable_t gamevarH;
 extern hashtable_t arrayH;

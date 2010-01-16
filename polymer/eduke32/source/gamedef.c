@@ -106,8 +106,8 @@ extern int32_t qsetmode;
 char *textptr;
 int32_t g_numCompilerErrors,g_numCompilerWarnings;
 
-extern char *duke3dgrpstring;
-extern char *duke3ddef;
+extern char *g_gameNamePtr;
+extern char *g_defNamePtr;
 
 extern int32_t g_maxSoundPos;
 
@@ -5175,8 +5175,8 @@ repeatcase:
             }
         }
         gamename[i] = '\0';
-        duke3dgrpstring = Bstrdup(gamename);
-        Bsprintf(tempbuf,"%s - " APPNAME,duke3dgrpstring);
+        g_gameNamePtr = Bstrdup(gamename);
+        Bsprintf(tempbuf,"%s - " APPNAME,g_gameNamePtr);
         wm_setapptitle(tempbuf);
     }
     return 0;
@@ -5193,8 +5193,8 @@ repeatcase:
             j++;
         }
         tempbuf[j] = '\0';
-        duke3ddef = Bstrdup(tempbuf);
-        initprintf("Using DEF file: %s.\n",duke3ddef);
+        g_defNamePtr = Bstrdup(tempbuf);
+        initprintf("Using DEF file: %s.\n",g_defNamePtr);
     }
     return 0;
 
@@ -5221,16 +5221,16 @@ repeatcase:
             int32_t glrm = glrendmode;
 #endif
 
-            if (stat(mod_dir, &st) < 0)
+            if (stat(g_modDir, &st) < 0)
             {
                 if (errno == ENOENT)     // path doesn't exist
                 {
-                    if (Bmkdir(mod_dir, S_IRWXU) < 0)
+                    if (Bmkdir(g_modDir, S_IRWXU) < 0)
                     {
-                        OSD_Printf("Failed to create configuration file directory %s\n", mod_dir);
+                        OSD_Printf("Failed to create configuration file directory %s\n", g_modDir);
                         return 0;
                     }
-                    else OSD_Printf("Created configuration file directory %s\n", mod_dir);
+                    else OSD_Printf("Created configuration file directory %s\n", g_modDir);
                 }
                 else
                 {
@@ -5246,8 +5246,8 @@ repeatcase:
 
             Bstrcpy(temp,tempbuf);
             CONFIG_WriteSetup();
-            if (mod_dir[0] != '/')
-                Bsprintf(setupfilename,"%s/",mod_dir);
+            if (g_modDir[0] != '/')
+                Bsprintf(setupfilename,"%s/",g_modDir);
             else setupfilename[0] = 0;
             Bstrcat(setupfilename,temp);
 
@@ -6007,7 +6007,7 @@ void C_Compile(const char *filenam)
                 "version of Duke Nukem 3D: Atomic Edition immediately for only $5.99 through our partnership with GOG.com.\n\n"
                 "Not a typo; it's less than 6 bucks.  Get Duke now?\n\n"
                 "(Clicking yes will bring you to our web store)",
-                duke3dgrp,duke3dgrp);
+                g_grpNamePtr,g_grpNamePtr);
 
             if (wm_ynbox("Important - Duke Nukem 3D not found - EDuke32",tempbuf))
             {
@@ -6030,7 +6030,7 @@ void C_Compile(const char *filenam)
             Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of '%s' or other compatible data is needed to run EDuke32.\n"
                      "You can find '%s' in the 'DN3DINST' or 'ATOMINST' directory on your Duke Nukem 3D installation CD-ROM.\n\n"
                      "EDuke32 will now close.",
-                     duke3dgrp,duke3dgrp);
+                     g_grpNamePtr,g_grpNamePtr);
             G_GameExit(tempbuf);
 #endif
         }

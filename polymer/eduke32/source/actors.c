@@ -501,7 +501,7 @@ void A_DeleteSprite(int32_t s)
 
 void A_AddToDeleteQueue(int32_t i)
 {
-    if (net_peer || g_spriteDeleteQueueSize == 0)
+    if (g_netClientPeer || g_spriteDeleteQueueSize == 0)
     {
         deletesprite(i);
         return;
@@ -626,7 +626,7 @@ void Sect_ClearInterpolation(int32_t i)
     }
 }
 
-static void ms(int32_t i)
+static void A_MoveSector(int32_t i)
 {
     //T1,T2 and T3 are used for all the sector moving stuff!!!
 
@@ -1044,7 +1044,7 @@ static void G_MovePlayers(void)
             }
             else
             {
-                if (net_server || (net_server || ud.multimode > 1))
+                if (g_netServer || (g_netServer || ud.multimode > 1))
                     otherp = P_FindOtherPlayer(s->yvel,&otherx);
                 else
                 {
@@ -1055,7 +1055,7 @@ static void G_MovePlayers(void)
                 if (actorscrptr[sprite[i].picnum])
                     A_Execute(i,s->yvel,otherx);
 
-                if (net_server || (net_server || ud.multimode > 1))
+                if (g_netServer || (g_netServer || ud.multimode > 1))
                     if (sprite[g_player[otherp].ps->i].extra > 0)
                     {
                         if (s->yrepeat > 32 && sprite[g_player[otherp].ps->i].yrepeat < 32)
@@ -3743,7 +3743,7 @@ static void G_MoveActors(void)
                 gamelightcount++;
 #endif // POLYMER
 
-            if (!net_server && (!net_server && ud.multimode < 2))
+            if (!g_netServer && (!g_netServer && ud.multimode < 2))
             {
                 if (g_noEnemies == 1)
                 {
@@ -3946,7 +3946,7 @@ static void G_MoveActors(void)
             //        case GREENSLIME+7:
 
             // #ifndef VOLUMEONE
-            if (net_server && (!net_server && ud.multimode < 2))
+            if (g_netServer && (!g_netServer && ud.multimode < 2))
             {
                 if (g_noEnemies == 1)
                 {
@@ -4770,7 +4770,7 @@ DETONATEB:
             goto BOLT;
         }
 
-        if (!net_server && (!net_server && ud.multimode < 2) && A_CheckEnemySprite(s))
+        if (!g_netServer && (!g_netServer && ud.multimode < 2) && A_CheckEnemySprite(s))
         {
             if (g_noEnemies == 1)
             {
@@ -5530,7 +5530,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
             }
 
-            ms(i);
+            A_MoveSector(i);
         }
 
         break;
@@ -5695,7 +5695,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
                             g_player[p].ps->ang += q;
 
-                            if (net_server || numplayers > 1)
+                            if (g_netServer || numplayers > 1)
                             {
                                 g_player[p].ps->oposx = g_player[p].ps->posx;
                                 g_player[p].ps->oposy = g_player[p].ps->posy;
@@ -5722,7 +5722,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
 
                         sprite[j].ang+=q;
 
-                        if (net_server || numplayers > 1)
+                        if (g_netServer || numplayers > 1)
                         {
                             ActorExtra[j].bposx = sprite[j].x;
                             ActorExtra[j].bposy = sprite[j].y;
@@ -5731,7 +5731,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     j = nextspritesect[j];
                 }
 
-                ms(i);
+                A_MoveSector(i);
                 setsprite(i,(vec3_t *)s);
 
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
@@ -5860,7 +5860,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                         g_player[p].ps->posx += l;
                         g_player[p].ps->posy += x;
 
-                        if (net_server || numplayers > 1)
+                        if (g_netServer || numplayers > 1)
                         {
                             g_player[p].ps->oposx = g_player[p].ps->posx;
                             g_player[p].ps->oposy = g_player[p].ps->posy;
@@ -5882,7 +5882,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 {
                     if (sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
                     {
-                        if (numplayers < 2 && !net_server)
+                        if (numplayers < 2 && !g_netServer)
                         {
                             ActorExtra[j].bposx = sprite[j].x;
                             ActorExtra[j].bposy = sprite[j].y;
@@ -5891,7 +5891,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                         sprite[j].x += l;
                         sprite[j].y += x;
 
-                        if (net_server || numplayers > 1)
+                        if (g_netServer || numplayers > 1)
                         {
                             ActorExtra[j].bposx = sprite[j].x;
                             ActorExtra[j].bposy = sprite[j].y;
@@ -5900,7 +5900,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     j = nextspritesect[j];
                 }
 
-                ms(i);
+                A_MoveSector(i);
                 setsprite(i,(vec3_t *)s);
 
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
@@ -6014,7 +6014,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     }
                     j = nextj;
                 }
-                ms(i);
+                A_MoveSector(i);
                 setsprite(i,(vec3_t *)s);
             }
             break;
@@ -6194,7 +6194,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
             s->z += s->zvel;
             sc->ceilingz += s->zvel;
             sector[t[0]].ceilingz += s->zvel;
-            ms(i);
+            A_MoveSector(i);
             setsprite(i,(vec3_t *)s);
             break;
 
@@ -6334,7 +6334,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                             k = (SP>>3)*t[3];
                             t[2]-=k;
                             t[4]-=k;
-                            ms(i);
+                            A_MoveSector(i);
                             setsprite(i,(vec3_t *)s);
                             goto BOLT;
                         }
@@ -6345,14 +6345,14 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 k = (SP>>3)*t[3];
                 t[2]+=k;
                 t[4]+=k;
-                ms(i);
+                A_MoveSector(i);
                 setsprite(i,(vec3_t *)s);
 
                 if (t[4] <= -511 || t[4] >= 512)
                 {
                     t[4] = 0;
                     t[2] &= 0xffffff00;
-                    ms(i);
+                    A_MoveSector(i);
                     setsprite(i,(vec3_t *)s);
                     break;
                 }
@@ -6518,7 +6518,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     t[3]--;
                 }
 
-                ms(i);
+                A_MoveSector(i);
                 setsprite(i,(vec3_t *)s);
             }
             break;
@@ -6553,7 +6553,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
             if (s->shade) sc->ceilingz+=1024;
             else sc->ceilingz-=512;
 
-            ms(i);
+            A_MoveSector(i);
             setsprite(i,(vec3_t *)s);
 
             break;
@@ -6571,12 +6571,12 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 if (sprite[j].statnum == STAT_PLAYER && sprite[j].owner >= 0)
                 {
                     p = sprite[j].yvel;
-                    if (numplayers < 2 && !net_server)
+                    if (numplayers < 2 && !g_netServer)
                         g_player[p].ps->oposz = g_player[p].ps->posz;
                     g_player[p].ps->posz += q;
                     g_player[p].ps->truefz += q;
                     g_player[p].ps->truecz += q;
-                    if (net_server || numplayers > 1)
+                    if (g_netServer || numplayers > 1)
                         g_player[p].ps->oposz = g_player[p].ps->posz;
                 }
                 if (sprite[j].statnum != STAT_EFFECTOR)
@@ -7143,7 +7143,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 if (sprite[g_player[p].ps->i].sectnum == s->sectnum && g_player[p].ps->on_ground)
                     g_player[p].ps->posz += s->zvel;
 
-            ms(i);
+            A_MoveSector(i);
             setsprite(i,(vec3_t *)s);
 
             break;

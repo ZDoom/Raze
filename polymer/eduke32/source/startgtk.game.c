@@ -826,10 +826,10 @@ int32_t startwin_run(void)
     settings.fullscreen = ud.config.ScreenMode;
     settings.usemouse = ud.config.UseMouse;
     settings.usejoy = ud.config.UseJoystick;
-    settings.custommoddir = mod_dir;
+    settings.custommoddir = g_modDir;
     settings.forcesetup = ud.config.ForceSetup;
     settings.game = g_gameType;
-    Bstrncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
+    Bstrncpy(settings.selectedgrp, g_grpNamePtr, BMAX_PATH);
     if (ud.config.NoAutoLoad) settings.autoload = FALSE;
     else settings.autoload = TRUE;
     if (glrendmode == RDR_POLYMER)
@@ -853,18 +853,18 @@ int32_t startwin_run(void)
         ud.config.UseMouse = settings.usemouse;
         ud.config.UseJoystick = settings.usejoy;
         ud.config.ForceSetup = settings.forcesetup;
-        duke3dgrp = settings.selectedgrp;
+        g_grpNamePtr = settings.selectedgrp;
         g_gameType = settings.game;
         if (settings.custommoddir != NULL)
-            Bstrcpy(mod_dir, settings.custommoddir);
-        else Bsprintf(mod_dir, "/");
+            Bstrcpy(g_modDir, settings.custommoddir);
+        else Bsprintf(g_modDir, "/");
         
         if (settings.autoload) ud.config.NoAutoLoad = FALSE;
         else ud.config.NoAutoLoad = TRUE;
 
         for (i = 0; i<numgrpfiles; i++) if (settings.crcval == grpfiles[i].crcval) break;
         if (i != numgrpfiles)
-            duke3dgrpstring = (char *)grpfiles[i].name;
+            g_gameNamePtr = (char *)grpfiles[i].name;
     }
 
     return retval;

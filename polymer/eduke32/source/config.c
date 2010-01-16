@@ -599,11 +599,11 @@ void CONFIG_SetupJoystick(void)
 =
 ===================
 */
-extern char *duke3dgrp;
+extern char *g_grpNamePtr;
 extern void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
 extern palette_t CrosshairColors;
 extern palette_t DefaultCrosshairColors;
-extern char mod_dir[BMAX_PATH];
+extern char g_modDir[BMAX_PATH];
 extern int32_t r_maxfps;
 extern int32_t g_noSetup;
 
@@ -611,7 +611,7 @@ int32_t CONFIG_ReadSetup(void)
 {
     int32_t dummy, i = 0;
     char commmacro[] = "CommbatMacro# ";
-    extern int32_t CommandWeaponChoice;
+    extern int32_t g_forceWeaponChoice;
     char tempbuf[1024];
 
     CONTROL_ClearAssignments();
@@ -667,17 +667,17 @@ int32_t CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Setup","NoAutoLoad",&ud.config.NoAutoLoad);
 
 // #ifdef _WIN32
-        if (g_noSetup == 0 && mod_dir[0] == '/')
+        if (g_noSetup == 0 && g_modDir[0] == '/')
         {
             struct stat st;
-            SCRIPT_GetString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
+            SCRIPT_GetString(ud.config.scripthandle, "Setup","ModDir",&g_modDir[0]);
 
-            if (stat(mod_dir, &st))
+            if (stat(g_modDir, &st))
             {
                 if ((st.st_mode & S_IFDIR) != S_IFDIR)
                 {
                     initprintf("Invalid mod dir in cfg!\n");
-                    Bsprintf(mod_dir,"/");
+                    Bsprintf(g_modDir,"/");
                 }
             }
         }
@@ -686,7 +686,7 @@ int32_t CONFIG_ReadSetup(void)
         {
             extern char defaultduke3dgrp[BMAX_PATH];
             if (!Bstrcmp(defaultduke3dgrp,"duke3d.grp"))
-                SCRIPT_GetString(ud.config.scripthandle, "Setup","SelectedGRP",&duke3dgrp[0]);
+                SCRIPT_GetString(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr[0]);
         }
 
         {
@@ -880,7 +880,7 @@ int32_t CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "WeaponSway",&ud.weaponsway);
 
         // weapon choices are defaulted in G_CheckCommandLine, which may override them
-        if (!CommandWeaponChoice)
+        if (!g_forceWeaponChoice)
             for (i=0; i<10; i++)
             {
                 Bsprintf(buf,"WeaponChoice%d",i);
@@ -1233,11 +1233,11 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutString(ud.config.scripthandle, "Comm Setup","PlayerName",&szPlayerName[0]);
     SCRIPT_PutString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
-    SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",&duke3dgrp[0]);
+    SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr[0]);
 
 // #ifdef _WIN32
     if (g_noSetup == 0)
-        SCRIPT_PutString(ud.config.scripthandle, "Setup","ModDir",&mod_dir[0]);
+        SCRIPT_PutString(ud.config.scripthandle, "Setup","ModDir",&g_modDir[0]);
 // #endif
 
     {

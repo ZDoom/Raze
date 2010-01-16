@@ -1049,7 +1049,7 @@ DOSKIPBULLETHOLE:
                 l = j;
             else l = -1;
 
-            if (numplayers > 1 && net_client) return -1;
+            if (numplayers > 1 && g_netClient) return -1;
 
             /*                        j = A_InsertSprite(sect,
             sx+(sintable[(348+sa+512)&2047]/448),
@@ -1699,7 +1699,7 @@ SKIPBULLETHOLE:
                 l = j;
             else l = -1;
 
-            if (numplayers > 1 && net_client) return -1;
+            if (numplayers > 1 && g_netClient) return -1;
 
             if (ActorExtra[i].shootzvel) zvel = ActorExtra[i].shootzvel;
             j = A_InsertSprite(sect,
@@ -3838,7 +3838,7 @@ void P_FragPlayer(int32_t snum)
         if (p->dead_flag == 0)
             p->dead_flag++;
 
-        if (net_server)
+        if (g_netServer)
         {
             packbuf[0] = PACKET_FRAG;
             packbuf[1] = snum;
@@ -3846,7 +3846,7 @@ void P_FragPlayer(int32_t snum)
             packbuf[3] = ActorExtra[p->i].picnum;
             packbuf[4] = myconnectindex;
 
-            enet_host_broadcast(net_server, 0, enet_packet_create(packbuf, 5, ENET_PACKET_FLAG_RELIABLE));
+            enet_host_broadcast(g_netServer, 0, enet_packet_create(packbuf, 5, ENET_PACKET_FLAG_RELIABLE));
         }
     }
 
@@ -3863,7 +3863,7 @@ void P_FragPlayer(int32_t snum)
 
     if (s->pal != 1 && (s->cstat&32768) == 0) s->cstat = 0;
 
-    if ((net_server || ud.multimode > 1) && (s->pal != 1 || (s->cstat&32768)))
+    if ((g_netServer || ud.multimode > 1) && (s->pal != 1 || (s->cstat&32768)))
     {
         if (p->frag_ps != snum)
         {
@@ -4143,10 +4143,10 @@ void P_ProcessInput(int32_t snum)
 
     if (s->extra <= 0)
     {
-        if (ud.recstat == 1 && (!net_server && ud.multimode < 2))
+        if (ud.recstat == 1 && (!g_netServer && ud.multimode < 2))
             G_CloseDemoWrite();
 
-        if ((numplayers < 2 || net_server) && p->dead_flag == 0)
+        if ((numplayers < 2 || g_netServer) && p->dead_flag == 0)
             P_FragPlayer(snum);
             
         if (psectlotag == 2)
@@ -5426,7 +5426,7 @@ SHOOTINCODE:
 
                 p->ammo_amount[p->curr_weapon]--;
 
-                if (numplayers < 2 || net_server)
+                if (numplayers < 2 || g_netServer)
                 {
                     if (p->on_ground && TEST_SYNC_KEY(sb_snum, SK_CROUCH))
                     {
