@@ -786,7 +786,7 @@ uint32_t Bgetsysmemsize(void)
     
     if (lib)
     {
-        WINBASEAPI BOOL WINAPI (*aGlobalMemoryStatusEx)(LPMEMORYSTATUSEX) =
+         BOOL (WINAPI *aGlobalMemoryStatusEx)(LPMEMORYSTATUSEX) =
             (void *)GetProcAddress(lib, "GlobalMemoryStatusEx");
 
         if (aGlobalMemoryStatusEx)
