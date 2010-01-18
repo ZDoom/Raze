@@ -43,7 +43,7 @@ CFLAGS= /MT /J /nologo $(flags_cl)  \
 	/I$(INC) /I$(EINC)\msvc /I$(EINC)\ /I$(SRC)\jmact /I$(JAUDIOLIBDIR)\include /I$(ENETDIR)\include /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" \
  	/D "_CRT_SECURE_NO_DEPRECATE" /W2 $(ENGINEOPTS) \
  	/I$(DXROOT)\include" /DRENDERTYPEWIN=1
-LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib wsock32.lib comctl32.lib \
+LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib ws2_32.lib comctl32.lib \
         /NODEFAULTLIB:glu32.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:msvcrtd.lib
 
 LIBS=vorbisfile_static.lib vorbis_static.lib ogg_static.lib dsound.lib advapi32.lib $(LIBS)

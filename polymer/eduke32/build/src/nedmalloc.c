@@ -50,8 +50,8 @@ DEALINGS IN THE SOFTWARE.
 /*#define FULLSANITYCHECKS*/
 /* If link time code generation is on, don't force or prevent inlining */
 #if defined(_MSC_VER) && defined(NEDMALLOC_DLL_EXPORTS)
-#define FORCEINLINE
-#define NOINLINE
+// #define FORCEINLINE
+// #define NOINLINE
 #endif
 
 #include "nedmalloc.h"
@@ -68,7 +68,19 @@ DEALINGS IN THE SOFTWARE.
  #define USE_LOCKS 1
 #endif
 #define FOOTERS 1           /* Need to enable footers so frees lock the right mspace */
-#ifndef NEDMALLOC_DEBUG #if defined(DEBUG) || defined(_DEBUG)  #define NEDMALLOC_DEBUG 1 #else  #define NEDMALLOC_DEBUG 0 #endif#endif/* We need to consistently define DEBUG=0|1, _DEBUG and NDEBUG for dlmalloc */#undef DEBUG#undef _DEBUG#if NEDMALLOC_DEBUG#define _DEBUG#else
+#ifndef NEDMALLOC_DEBUG
+ #if defined(DEBUG) || defined(_DEBUG)
+  #define NEDMALLOC_DEBUG 1
+ #else
+  #define NEDMALLOC_DEBUG 0
+ #endif
+#endif
+/* We need to consistently define DEBUG=0|1, _DEBUG and NDEBUG for dlmalloc */
+#undef DEBUG
+#undef _DEBUG
+#if NEDMALLOC_DEBUG
+#define _DEBUG
+#else
  #define DEBUG 0
 #endif
 #ifdef NDEBUG               /* Disable assert checking on release builds */
@@ -84,8 +96,19 @@ DEALINGS IN THE SOFTWARE.
 #endif
 /*#define USE_SPIN_LOCKS 0*/
 
-#include "malloc.c.h" #ifdef NDEBUG               /* Disable assert checking on release builds */  #undef DEBUG#elif !NEDMALLOC_DEBUG #ifdef __GNUC__  #warning DEBUG is defined so allocator will run with assert checking! Define NDEBUG to run at full speed. #elif defined(_MSC_VER)  #pragma message(__FILE__ ": WARNING: DEBUG is defined so allocator will run with assert checking! Define NDEBUG to run at full speed.") #endif#endif
-/* The maximum concurrent threads in a pool possible */#ifndef MAXTHREADSINPOOL
+#include "malloc.c.h"
+ #ifdef NDEBUG               /* Disable assert checking on release builds */
+  #undef DEBUG
+#elif !NEDMALLOC_DEBUG
+ #ifdef __GNUC__
+  #warning DEBUG is defined so allocator will run with assert checking! Define NDEBUG to run at full speed.
+ #elif defined(_MSC_VER)
+  #pragma message(__FILE__ ": WARNING: DEBUG is defined so allocator will run with assert checking! Define NDEBUG to run at full speed.")
+ #endif
+#endif
+
+/* The maximum concurrent threads in a pool possible */
+#ifndef MAXTHREADSINPOOL
 #define MAXTHREADSINPOOL 16
 #endif
 /* The maximum number of threadcaches which can be allocated */
@@ -155,7 +178,32 @@ static void *RESTRICT leastusedaddress;
 static size_t largestusedblock;
 #endif
 
-static FORCEINLINE void *CallMalloc(void *RESTRICT mspace, size_t size, size_t alignment) THROWSPEC{    void *RESTRICT ret=0;    size_t _alignment=alignment;#if USE_MAGIC_HEADERS    size_t *_ret=0;    size+=alignment+3*sizeof(size_t);    _alignment=0;#endif#if USE_ALLOCATOR==0    ret=_alignment ? #ifdef _MSC_VER        /* This is the MSVCRT equivalent */        _aligned_malloc(size, _alignment)#elif defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)        /* This is the glibc/ptmalloc2/dlmalloc/BSD libc equivalent.  */        memalign(_alignment, size)#else#error Cannot aligned allocate with the memory allocator of an unknown system!#endif        : malloc(size);#elif USE_ALLOCATOR==1    ret=_alignment ? mspace_memalign((mstate) mspace, _alignment, size) : mspace_malloc((mstate) mspace, size);#ifndef ENABLE_FAST_HEAP_DETECTION    if(ret)	{
+static FORCEINLINE void *CallMalloc(void *RESTRICT mspace, size_t size, size_t alignment) THROWSPEC
+{
+    void *RESTRICT ret=0;
+    size_t _alignment=alignment;
+#if USE_MAGIC_HEADERS
+    size_t *_ret=0;
+    size+=alignment+3*sizeof(size_t);
+    _alignment=0;
+#endif
+#if USE_ALLOCATOR==0
+    ret=_alignment ? 
+#ifdef WIN32
+        /* This is the MSVCRT equivalent */
+        _aligned_malloc(size, _alignment)
+#elif defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
+        /* This is the glibc/ptmalloc2/dlmalloc/BSD libc equivalent.  */
+        memalign(_alignment, size)
+#else
+#error Cannot aligned allocate with the memory allocator of an unknown system!
+#endif
+        : malloc(size);
+#elif USE_ALLOCATOR==1
+    ret=_alignment ? mspace_memalign((mstate) mspace, _alignment, size) : mspace_malloc((mstate) mspace, size);
+#ifndef ENABLE_FAST_HEAP_DETECTION
+    if(ret)
+	{
 		size_t truesize=chunksize(mem2chunk(ret));
 		if(!leastusedaddress || (void *)((mstate) mspace)->least_addr<leastusedaddress) leastusedaddress=(void *)((mstate) mspace)->least_addr;
 		if(!largestusedblock || truesize>largestusedblock) largestusedblock=(truesize+mparams.page_size) & ~(mparams.page_size-1);

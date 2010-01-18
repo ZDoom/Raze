@@ -6589,6 +6589,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             }
 
             globalpicnum = spr->picnum;
+            globalpal = spr->pal; // GL needs this, software doesn't
             if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
             setgotpic(globalpicnum);
             if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) continue;
