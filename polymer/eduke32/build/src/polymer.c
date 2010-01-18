@@ -2867,7 +2867,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing wall %i...\n", wallnum);
 }
 
-#define INDICE(n) ((p->indices) ? (p->indices[i+n]*5) : ((i+n)*5))
+#define INDICE(n) ((p->indices) ? (p->indices[(i+n)%p->indicescount]*5) : (((i+n)%p->vertcount)*5))
 
 // HSR
 static void         polymer_computeplane(_prplane* p)
@@ -2909,8 +2909,7 @@ static void         polymer_computeplane(_prplane* p)
         norm = plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2];
 
         // hack to work around a precision issue with slopes
-        if ((norm >= 15000) ||
-            (((p->indices) ? p->indices[i+2] : i+2) >= p->vertcount))
+        if (norm >= 15000)
         {
             // normalize the normal/plane equation and calculate its plane norm
             norm = -sqrt(norm);
@@ -2979,9 +2978,10 @@ static void         polymer_computeplane(_prplane* p)
 
             break;
         }
-        i+= 1;
+        i+= (p->indices) ? 3 : 1;
     }
-    while ((i + 2) < p->indicescount);
+    while ((p->indices && i < p->indicescount) || 
+          (!p->indices && i < p->vertcount));
 }
 
 static inline void  polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out)
