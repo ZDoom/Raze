@@ -143,8 +143,6 @@ ifeq (1,$(POLYMER))
 	ENGINEOBJS+=  $(OBJ)/polymer.$o
 endif
 
-ENGINEOBJS+= $(OBJ)/mmulti_unstable.$o
-
 EDITOROBJS=$(OBJ)/build.$o \
 	$(OBJ)/config.$o
 

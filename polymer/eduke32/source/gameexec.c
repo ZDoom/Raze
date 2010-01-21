@@ -2792,7 +2792,7 @@ nullquote:
                     packbuf[1] = vm.g_p;
                     packbuf[2] = 0;
 
-                    enet_host_broadcast(g_netServer, 0 , enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
+                    enet_host_broadcast(g_netServer, CHAN_GAMESTATE , enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
                 }
             }
             P_UpdateScreenPal(g_player[vm.g_p].ps);

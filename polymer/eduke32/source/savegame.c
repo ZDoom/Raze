@@ -582,7 +582,6 @@ int32_t G_LoadPlayer(int32_t spot)
 
     ready2send = 1;
 
-    mmulti_flushpackets();
     clearfifo();
     Net_WaitForServer();
 

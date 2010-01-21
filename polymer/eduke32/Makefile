@@ -245,8 +245,6 @@ endif
 
 include Makefile.deps
 
-duke3d_h+=$(EINC)/mmulti_unstable.h
-
 .PHONY: enginelib editorlib
 enginelib editorlib:
 	-mkdir -p $(EOBJ)

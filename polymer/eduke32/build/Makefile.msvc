@@ -75,7 +75,6 @@ ENGINEOBJS= \
 	$(OBJ)\quicklz.$o \
 	$(OBJ)\lzwnew.$o \
 	$(OBJ)\md4.$o \
-	$(OBJ)\mmulti_unstable.$o \
 	$(OBJ)\osd.$o \
 	$(OBJ)\pragmas.$o \
 	$(OBJ)\scriptfile.$o \

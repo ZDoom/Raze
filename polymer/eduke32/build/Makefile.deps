@@ -20,7 +20,6 @@ $(OBJ)/kplib.$o: $(SRC)/kplib.c $(INC)/compat.h
 $(OBJ)/quicklz.$o: $(SRC)/quicklz.c $(INC)/quicklz.h
 $(OBJ)/lzwnew.$o: $(SRC)/lzwnew.c
 $(OBJ)/md4.$o: $(SRC)/md4.c $(INC)/md4.h $(INC)/compat.h
-$(OBJ)/mmulti_unstable.$o: $(SRC)/mmulti_unstable.c $(INC)/mmulti_unstable.h
 $(OBJ)/osd.$o: $(SRC)/osd.c $(INC)/build.h $(INC)/osd.h $(INC)/compat.h $(INC)/baselayer.h
 $(OBJ)/pragmas.$o: $(SRC)/pragmas.c $(INC)/compat.h
 $(OBJ)/scriptfile.$o: $(SRC)/scriptfile.c $(INC)/scriptfile.h $(INC)/cache1d.h $(INC)/compat.h

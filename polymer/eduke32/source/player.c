@@ -3846,7 +3846,7 @@ void P_FragPlayer(int32_t snum)
             packbuf[3] = ActorExtra[p->i].picnum;
             packbuf[4] = myconnectindex;
 
-            enet_host_broadcast(g_netServer, 0, enet_packet_create(packbuf, 5, ENET_PACKET_FLAG_RELIABLE));
+            enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, 5, ENET_PACKET_FLAG_RELIABLE));
         }
     }
 

@@ -38,7 +38,6 @@
 #include "build.h"
 #include "a.h"
 #include "osd.h"
-#include "mmulti_unstable.h"
 
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE
@@ -911,10 +910,7 @@ DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
                  (LPDIDEVICEOBJECTDATA)&didod[0], &dwElements, 0);
 
         if (!dwElements || result != DI_OK)
-        {
-            Sleep(100);
             continue;
-        }
 
         do
         {
@@ -4206,7 +4202,7 @@ static inline BOOL CheckWinVersion(void)
     // we don't like anything older than Windows 2000, but the BUILD_WIN9X
     // variable allows attempting to run on 9x (for masochists and sodomites)
 
-    if (!GetVersionEx(&osv)) return FALSE;
+    if (!GetVersionEx((LPOSVERSIONINFOA)&osv)) return FALSE;
 
     if (osv.dwMajorVersion >= 5) return TRUE;
 

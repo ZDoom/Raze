@@ -301,6 +301,9 @@ extern char noclip;
 
 EXTERN int32_t editorzrange[2];
 
+EXTERN int32_t myconnectindex, numplayers;
+EXTERN int32_t connecthead, connectpoint2[MAXPLAYERS];
+
 static inline int32_t getrendermode(void)
 {
 #ifndef POLYMOST

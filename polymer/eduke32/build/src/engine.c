@@ -7908,6 +7908,7 @@ int32_t loadpics(char *filename, int32_t askedsize)
                 artsize += ((dasiz+15)&0xfffffff0);
             }
 
+#ifdef WITHKPLIB
             if (filegrp[fil] == 254) // from zip
             {
                 i = kfilelength(fil);
@@ -7915,6 +7916,7 @@ int32_t loadpics(char *filename, int32_t askedsize)
                 klseek(fil, 0, BSEEK_SET);
                 kread(fil, artptrs[numtilefiles], i);
             }
+#endif
             kclose(fil);
         }
         numtilefiles++;
@@ -7965,6 +7967,7 @@ void loadtile(int16_t tilenume)
     if ((unsigned)tilenume >= (unsigned)MAXTILES) return;
     if ((dasiz = tilesizx[tilenume]*tilesizy[tilenume]) <= 0) return;
 
+#ifdef WITHKPLIB
     if (artptrs[(i = tilefilenum[tilenume])]) // from zip
     {
         waloff[tilenume] = (intptr_t)(artptrs[i] + tilefileoffs[tilenume]);
@@ -7972,6 +7975,7 @@ void loadtile(int16_t tilenume)
         // OSD_Printf("loaded tile %d from zip\n", tilenume);
         return;
     }
+#endif
 
     if (i != artfilnum)
     {
@@ -7992,7 +7996,11 @@ void loadtile(int16_t tilenume)
     if (faketilesiz[tilenume])
     {
         if (faketilesiz[tilenume] == -1)
+        {
+            walock[tilenume] = 255; // permanent tile
+            allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
             Bmemset((char *)waloff[tilenume],0,dasiz);
+        }
         else if (faketiledata[tilenume] != NULL)
         {
             walock[tilenume] = 255; // permanent tile

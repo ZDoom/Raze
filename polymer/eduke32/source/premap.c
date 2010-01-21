@@ -1583,7 +1583,7 @@ void Net_WaitForServer(void)
         packbuf[1] = myconnectindex;
 
         if (g_netClientPeer)
-            enet_peer_send(g_netClientPeer, 0, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
+            enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
 
         handleevents();
         Net_GetPackets();

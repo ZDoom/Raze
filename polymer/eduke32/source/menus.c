@@ -1462,9 +1462,9 @@ void M_DisplayMenus(void)
                     tempbuf[2] = myconnectindex;
 
                     if (g_netClient)
-                        enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_RELIABLE));
+                        enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_RELIABLE));
                     else if (g_netServer)
-                        enet_host_broadcast(g_netServer, 0, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_RELIABLE));
+                        enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_RELIABLE));
 
                     Net_GetPackets();
 
@@ -5074,9 +5074,9 @@ VOLUME_ALL_40x:
                 tempbuf[1] = myconnectindex;
 
                 if (g_netClient)
-                    enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, 2, ENET_PACKET_FLAG_RELIABLE));
+                    enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 2, ENET_PACKET_FLAG_RELIABLE));
                 else if (g_netServer)
-                    enet_host_broadcast(g_netServer, 0, enet_packet_create(tempbuf, 2, ENET_PACKET_FLAG_RELIABLE));
+                    enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 2, ENET_PACKET_FLAG_RELIABLE));
 
                 voting = -1;
             }
@@ -5133,9 +5133,9 @@ VOLUME_ALL_40x:
                 tempbuf[3] = myconnectindex;
 
                 if (g_netClient)
-                    enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
+                    enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
                 else if (g_netServer)
-                    enet_host_broadcast(g_netServer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
+                    enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
 
                 Bsprintf(ScriptQuotes[116],"VOTE FAILED");
                 P_DoQuote(116,g_player[myconnectindex].ps);
@@ -5285,9 +5285,9 @@ VOLUME_ALL_40x:
                     tempbuf[4] = myconnectindex;
 
                     if (g_netClient)
-                        enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, 5, ENET_PACKET_FLAG_RELIABLE));
+                        enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 5, ENET_PACKET_FLAG_RELIABLE));
                     else if (g_netServer)
-                        enet_host_broadcast(g_netServer, 0, enet_packet_create(tempbuf, 5, ENET_PACKET_FLAG_RELIABLE));
+                        enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 5, ENET_PACKET_FLAG_RELIABLE));
                 }
                 if ((GametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(GametypeFlags[ud.m_coop] & GAMETYPE_TDM))
                     ud.m_noexits = 0;

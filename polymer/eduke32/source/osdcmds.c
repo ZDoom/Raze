@@ -129,7 +129,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
                 tempbuf[2] = ud.m_volume_number;
                 tempbuf[3] = ud.m_level_number;
 
-                enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
+                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
             }
             if ((GametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(GametypeFlags[ud.m_coop] & GAMETYPE_TDM))
                 ud.m_noexits = 0;
@@ -283,7 +283,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
                 tempbuf[2] = ud.m_volume_number;
                 tempbuf[3] = ud.m_level_number;
 
-                enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
+                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
             }
             if ((GametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(GametypeFlags[ud.m_coop] & GAMETYPE_TDM))
                 ud.m_noexits = 0;

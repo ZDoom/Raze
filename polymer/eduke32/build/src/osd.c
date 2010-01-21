@@ -8,7 +8,6 @@
 #include "baselayer.h"
 #include "cache1d.h"
 #include "pragmas.h"
-#include "mmulti_unstable.h"
 
 symbol_t *symbols = NULL;
 static symbol_t *addnewsymbol(const char *name);

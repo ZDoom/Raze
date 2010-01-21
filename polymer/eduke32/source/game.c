@@ -593,7 +593,7 @@ void Net_Connect(const char * srvaddr)
     address.port = atoi((addrstr = strtok(NULL, ":")) == NULL ? "23513" : addrstr);
 
     // use 2 channels for easy packet sorting at a lower level than the game later
-    g_netClientPeer = enet_host_connect (g_netClient, &address, 2);    
+    g_netClientPeer = enet_host_connect (g_netClient, &address, CHAN_MAX);    
 
     if (g_netClientPeer == NULL)
     {
@@ -705,7 +705,7 @@ static void Net_SendVersion(ENetPeer * client)
     buf[2] = (uint8_t)atoi(s_buildDate);
     buf[3] = myconnectindex;
 
-    enet_peer_send(client, 0, enet_packet_create(&buf[0], 4, ENET_PACKET_FLAG_RELIABLE));
+    enet_peer_send(client, CHAN_GAMESTATE, enet_packet_create(&buf[0], 4, ENET_PACKET_FLAG_RELIABLE));
 }
 
 void Net_SendClientInfo(void)
@@ -740,9 +740,9 @@ void Net_SendClientInfo(void)
     buf[l++] = myconnectindex;
 
     if (g_netClient)
-        enet_peer_send(g_netClientPeer, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
+        enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
     else if (g_netServer)
-        enet_host_broadcast(g_netServer, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
+        enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
 }
 
 void Net_SendUserMapName(void)
@@ -764,9 +764,9 @@ void Net_SendUserMapName(void)
     packbuf[j++] = myconnectindex;
 
     if (g_netClient)
-        enet_peer_send(g_netClientPeer, 0, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
+        enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
     else if (g_netServer)
-        enet_host_broadcast(g_netServer, 0, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
+        enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
 }
 
 void Net_NewGame(int32_t volume, int32_t level)
@@ -786,9 +786,9 @@ void Net_NewGame(int32_t volume, int32_t level)
     packbuf[12] = myconnectindex;
 
     if (g_netClient)
-        enet_peer_send(g_netClientPeer, 0, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
+        enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
     else if (g_netServer)
-        enet_host_broadcast(g_netServer, 0, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
+        enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
 }
 
 static mapstate_t *g_multiMapState = NULL;
@@ -812,7 +812,7 @@ static void Net_SendChallenge(void)
 
     buf[l++] = myconnectindex;
 
-    enet_peer_send(g_netClientPeer, 0, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
+    enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
 }
 
 void P_Disconnected(int32_t i)
@@ -895,12 +895,12 @@ void Net_SyncPlayer(ENetEvent * event)
     packbuf[3] = ud.multimode;
     packbuf[4] = i;
     packbuf[5] = myconnectindex;
-    enet_host_broadcast(g_netServer, 0, enet_packet_create(packbuf, 6, ENET_PACKET_FLAG_RELIABLE));
+    enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, 6, ENET_PACKET_FLAG_RELIABLE));
 
     packbuf[0] = PACKET_PLAYER_INDEX;
     packbuf[1] = i;
     packbuf[2] = myconnectindex;
-    enet_peer_send(event->peer, 0, enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
+    enet_peer_send(event->peer, CHAN_GAMESTATE, enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
 
     Net_SendClientInfo();
     Net_SendUserMapName();
@@ -931,10 +931,10 @@ void Net_SyncPlayer(ENetEvent * event)
             j = qlz_compress((char *)g_multiMapState, buf, sizeof(mapstate_t), state_compress);
             while (j > 1024)
             {
-                enet_peer_send(event->peer, 1, enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, 1024, ENET_PACKET_FLAG_RELIABLE));
+                enet_peer_send(event->peer, CHAN_SYNC, enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, 1024, ENET_PACKET_FLAG_RELIABLE));
                 j -= 1024;
             }
-            enet_peer_send(event->peer, 1, enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, j, ENET_PACKET_FLAG_RELIABLE));
+            enet_peer_send(event->peer, CHAN_SYNC, enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, j, ENET_PACKET_FLAG_RELIABLE));
             Bfree(buf);
             Bfree(g_multiMapState);
             g_multiMapState = NULL;
@@ -1451,7 +1451,7 @@ process:
                     packbuf[11] = ud.noexits;
                     packbuf[12] = myconnectindex;
 
-                    enet_peer_send(event->peer, 0, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
+                    enet_peer_send(event->peer, CHAN_GAMESTATE, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
 
                     // a player connecting is a good time to mark everything as needing to be updated
                     Bmemset(spritecrc, 0, sizeof(spritecrc));
@@ -1541,7 +1541,7 @@ void Net_ParseClientPacket(ENetEvent * event)
             {
                 packbuf[0] = PACKET_PLAYER_READY;
                 packbuf[1] = myconnectindex;
-                enet_peer_send(event->peer, 0, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
+                enet_peer_send(event->peer, CHAN_GAMESTATE, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
             }
             g_player[other].playerreadyflag++;
             return;
@@ -1725,7 +1725,7 @@ void Net_ParseClientPacket(ENetEvent * event)
                 packbuf[11] = ud.noexits;
                 packbuf[12] = myconnectindex;
 
-                enet_peer_send(event->peer, 0, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
+                enet_peer_send(event->peer, CHAN_GAMESTATE, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
 
                 // a player connecting is a good time to mark everything as needing to be updated
                 Bmemset(spritecrc, 0, sizeof(spritecrc));
@@ -1791,11 +1791,10 @@ void Net_GetPackets(void)
                 Net_ParseClientPacket(&event);
                 // broadcast takes care of enet_packet_destroy itself
                 // we set the state to disconnected so enet_host_broadcast doesn't send the player back his own packets
-                // SLAVE_TO_MASTER packets are channelID 1, so they aren't broadcast anywhere
-                if (event.channelID == 0 && event.packet->data[0] > PACKET_BROADCAST)
+                if ((event.channelID == CHAN_GAMESTATE && event.packet->data[0] > PACKET_BROADCAST) || event.channelID == CHAN_CHAT)
                 {
                     event.peer->state = ENET_PEER_STATE_DISCONNECTED;
-                    enet_host_broadcast(g_netServer, 0, event.packet);
+                    enet_host_broadcast(g_netServer, event.channelID, event.packet);
                     event.peer->state = ENET_PEER_STATE_CONNECTED;
                 }
                 else enet_packet_destroy(event.packet);
@@ -1812,7 +1811,7 @@ void Net_GetPackets(void)
                 packbuf[0] = PACKET_PLAYER_DISCONNECTED;
                 packbuf[1] = (intptr_t)event.peer->data;
                 packbuf[2] = myconnectindex;
-                enet_host_broadcast(g_netServer, 0, enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
+                enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
 
                 initprintf ("%s disconnected.\n", g_player[(intptr_t)event.peer->data].user_name);
                 event.peer->data = NULL;
@@ -1839,8 +1838,8 @@ void Net_GetPackets(void)
                     event.peer -> data,
                     event.channelID);
 
-                // channelID 1 is the map state transfer from the server
-                if (event.channelID == 1)
+                // mapstate transfer from the server... all packets but the last are exactly 1 kB
+                if (event.channelID == CHAN_SYNC)
                 {
                     static int32_t datasiz = 0;
                     static char * buf = NULL;
@@ -1871,7 +1870,7 @@ void Net_GetPackets(void)
 
                             packbuf[0] = PACKET_REQUEST_GAMESTATE;
                             packbuf[1] = myconnectindex;
-                            enet_peer_send(g_netClientPeer, 0, enet_packet_create(&packbuf[0], 2, ENET_PACKET_FLAG_RELIABLE));
+                            enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&packbuf[0], 2, ENET_PACKET_FLAG_RELIABLE));
                         }
                         else
                         {
@@ -2225,7 +2224,7 @@ void Net_UpdateClients(void)
 
     packbuf[j++] = myconnectindex;
 
-    enet_host_broadcast(g_netServer, 0, enet_packet_create(packbuf, j, 0));
+    enet_host_broadcast(g_netServer, CHAN_MOVE, enet_packet_create(packbuf, j, 0));
 
     movefifosendplc++;
 }
@@ -3804,8 +3803,8 @@ static void Net_EnterMessage(void)
                 tempbuf[1] = 255;
                 tempbuf[j+2] = myconnectindex;
                 j++;
-                if (g_netServer) enet_host_broadcast(g_netServer, 0, enet_packet_create(tempbuf, j+2, ENET_PACKET_FLAG_UNSEQUENCED));
-                else if (g_netClient) enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, j+2, ENET_PACKET_FLAG_UNSEQUENCED));
+                if (g_netServer) enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(tempbuf, j+2, 0));
+                else if (g_netClient) enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(tempbuf, j+2, 0));
                 G_AddUserQuote(recbuf);
                 quotebot += 8;
                 l = G_GameTextLen(USERQUOTE_LEFTOFFSET,stripcolorcodes(tempbuf,recbuf));
@@ -8978,9 +8977,9 @@ static void G_HandleLocalKeys(void)
             tempbuf[3] = myconnectindex;
 
             if (g_netClient)
-                enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
+                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
             else if (g_netServer)
-                enet_host_broadcast(g_netServer, 0, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
+                enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
 
 
             G_AddUserQuote("VOTE CAST");
@@ -9224,9 +9223,9 @@ static void G_HandleLocalKeys(void)
                 tempbuf[i++] = myconnectindex;
 
                 if (g_netClient)
-                    enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, i, ENET_PACKET_FLAG_UNSEQUENCED));
+                    enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(tempbuf, i, 0));
                 else if (g_netServer)
-                    enet_host_broadcast(g_netServer, 0, enet_packet_create(tempbuf, i, ENET_PACKET_FLAG_UNSEQUENCED));
+                    enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(tempbuf, i, 0));
 
                 pus = NUMPAGES;
                 pub = NUMPAGES;
@@ -9249,9 +9248,9 @@ static void G_HandleLocalKeys(void)
                         tempbuf[2] = myconnectindex;
 
                         if (g_netClient)
-                            enet_peer_send(g_netClientPeer, 0, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_UNSEQUENCED));
+                            enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(tempbuf, 3, 0));
                         else if (g_netServer)
-                            enet_host_broadcast(g_netServer, 0, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_UNSEQUENCED));
+                            enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(tempbuf, 3, 0));
                     }
 
                     pus = NUMPAGES;
@@ -12655,7 +12654,7 @@ static int32_t G_DoMoveThings(void)
 
         packbuf[j++] = myconnectindex;
 
-        enet_peer_send(g_netClientPeer, 1, enet_packet_create(packbuf, j, 0));
+        enet_peer_send(g_netClientPeer, CHAN_MOVE, enet_packet_create(packbuf, j, 0));
 
         movefifosendplc++;
     }

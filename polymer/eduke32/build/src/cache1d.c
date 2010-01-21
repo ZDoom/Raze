@@ -5,8 +5,6 @@
 // This file has been modified from Ken Silverman's original release
 // by Jonathon Fowler (jonof@edgenetwk.com)
 
-#define WITHKPLIB
-
 #include "compat.h"
 #include "cache1d.h"
 #include "pragmas.h"
@@ -212,18 +210,17 @@ void suckcache(intptr_t *suckptr)
 
 void agecache(void)
 {
-    int32_t cnt;
-    char ch;
+    int32_t cnt = (cacnum>>4);
 
     if (agecount >= cacnum) agecount = cacnum-1;
-    if (agecount < 0) return;
-    for (cnt=(cacnum>>4); cnt>=0; cnt--)
+    if (agecount < 0 || !cnt) return;
+    for (; cnt>=0; cnt--)
     {
-        ch = (*cac[agecount].lock);
-        if (((ch-2)&255) < 198)
-            (*cac[agecount].lock) = ch-1;
+        if ((((*cac[agecount].lock)-2)&255) < 198)
+            (*cac[agecount].lock)--;
 
-        agecount--; if (agecount < 0) agecount = cacnum-1;
+        agecount--;
+        if (agecount < 0) agecount = cacnum-1;
     }
 }
 
@@ -577,11 +574,10 @@ void uninitgroupfile(void)
 
 int32_t kopen4load(char *filename, char searchfirst)
 {
-    int32_t  j, k, fil, newhandle;
+    int32_t  j, k, fil, newhandle = MAXOPENFILES-1;
     char bad, *gfileptr;
     intptr_t i;
 
-    newhandle = MAXOPENFILES-1;
     while (filehan[newhandle] != -1)
     {
         newhandle--;
@@ -592,14 +588,13 @@ int32_t kopen4load(char *filename, char searchfirst)
         }
     }
 
-    if (searchfirst == 0)
-        if ((fil = openfrompath(filename,BO_BINARY|BO_RDONLY,S_IREAD)) >= 0)
-        {
-            filegrp[newhandle] = 255;
-            filehan[newhandle] = fil;
-            filepos[newhandle] = 0;
-            return(newhandle);
-        }
+    if (searchfirst == 0 && (fil = openfrompath(filename,BO_BINARY|BO_RDONLY,S_IREAD)) >= 0)
+    {
+        filegrp[newhandle] = 255;
+        filehan[newhandle] = fil;
+        filepos[newhandle] = 0;
+        return(newhandle);
+    }
 
     for (; toupperlookup[*filename] == '/'; filename++);
 
@@ -638,7 +633,7 @@ int32_t kopen4load(char *filename, char searchfirst)
                 }
                 if (bad) continue;
                 if (j<13 && gfileptr[j]) continue;   // JBF: because e1l1.map might exist before e1l1
-                if (j==13 && filename[j]) continue;   // JBF: int32_t file name
+                if (j==13 && filename[j]) continue;   // JBF: long file name
 
                 filegrp[newhandle] = k;
                 filehan[newhandle] = i;
@@ -652,10 +647,10 @@ int32_t kopen4load(char *filename, char searchfirst)
 
 int32_t kread(int32_t handle, void *buffer, int32_t leng)
 {
-    int32_t i, filenum, groupnum;
+    int32_t i;
+    int32_t filenum = filehan[handle];
+    int32_t groupnum = filegrp[handle];
 
-    filenum = filehan[handle];
-    groupnum = filegrp[handle];
     if (groupnum == 255) return(Bread(filenum,buffer,leng));
 #ifdef WITHKPLIB
     else if (groupnum == 254)

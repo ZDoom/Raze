@@ -39,8 +39,6 @@ extern "C" {
 #include "cache1d.h"
 #include "pragmas.h"
 
-#include "mmulti_unstable.h"
-
 #include "baselayer.h"
 
 #include "function.h"
@@ -52,6 +50,16 @@ extern "C" {
 extern ENetHost * g_netServer;
 extern ENetHost * g_netClient;
 extern ENetPeer * g_netClientPeer;
+
+enum netchan_t
+{
+    CHAN_MOVE,      // unreliable movement packets
+    CHAN_GAMESTATE, // gamestate changes... frags, respawns, player names, etc
+    CHAN_SYNC,      // client join sync packets
+    CHAN_CHAT,      // chat and RTS
+    CHAN_MISC,      // whatever else
+    CHAN_MAX
+};
 
 #define APPNAME "EDuke32"
 #define VERSION " 2.0.0devel"

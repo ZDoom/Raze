@@ -49,6 +49,8 @@
 #define FALSE 0
 #endif
 
+#define WITHKPLIB
+
 // Define this to rewrite all 'B' versions to library functions. This
 // is for platforms which give us a standard sort of C library so we
 // link directly. Platforms like PalmOS which don't have a standard C
