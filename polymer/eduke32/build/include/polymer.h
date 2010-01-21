@@ -209,9 +209,7 @@ typedef struct      s_prplane {
     int32_t         vertcount;
     GLuint          vbo;
     // attributes
-    GLfloat         t[3];
-    GLfloat         b[3];
-    GLfloat         n[3];
+    GLfloat         tbn[9];
     GLfloat         plane[4];
     _prmaterial     material;
     // elements
@@ -330,6 +328,8 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum);
 static void         polymer_computeplane(_prplane* p);
 static inline void  polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out);
 static inline void  polymer_transformpoint(float* inpos, float* pos, float* matrix);
+static inline void  polymer_invertmatrix(float* m, float* out);
+static inline void  polymer_normalize(float* vec);
 static inline void  polymer_pokesector(int16_t sectnum);
 static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projection, float* frustum);
 static inline int32_t polymer_planeinfrustum(_prplane *plane, float* frustum);

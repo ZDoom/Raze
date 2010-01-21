@@ -216,7 +216,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "varying vec3 tangentSpaceEyeVec;\n"
         "\n",
         // vert_prog
-        "  TBN = transpose(mat3(T, B, N));\n"
+        "  TBN = mat3(T, B, N);\n"
         "  tangentSpaceEyeVec = eyePosition - vec3(curVertex);\n"
         "  tangentSpaceEyeVec = TBN * tangentSpaceEyeVec;\n"
         "\n"
@@ -1706,9 +1706,9 @@ static void         polymer_drawplane(_prplane* plane)
 
         if (materialbits & prprogrambits[PR_BIT_NORMAL_MAP].bit)
         {
-            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_T, plane->t);
-            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_B, plane->b);
-            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_N, plane->plane);
+            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_T, &plane->tbn[0]);
+            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_B, &plane->tbn[3]);
+            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_N, &plane->tbn[6]);
         }
 
         if (plane->indices)
@@ -2875,18 +2875,12 @@ static void         polymer_computeplane(_prplane* p)
     GLfloat         vec1[5], vec2[5], norm, r;// BxN[3], NxT[3], TxB[3];
     int32_t         i;
     GLfloat*        buffer;
-    GLfloat*        t;
-    GLfloat*        b;
-    GLfloat*        n;
     GLfloat*        plane;
 
     if (p->indices && (p->indicescount < 3))
         return; // corrupt sector (E3L4, I'm looking at you)
 
     buffer = p->buffer;
-    t = p->t;
-    b = p->b;
-    n = p->n;
     plane = p->plane;
 
     i = 0;
@@ -2911,6 +2905,8 @@ static void         polymer_computeplane(_prplane* p)
         // hack to work around a precision issue with slopes
         if (norm >= 15000)
         {
+            float tangent[9];
+
             // normalize the normal/plane equation and calculate its plane norm
             norm = -sqrt(norm);
             norm = 1.0 / norm;
@@ -2923,58 +2919,25 @@ static void         polymer_computeplane(_prplane* p)
             r = 1.0 / (vec1[3] * vec2[4] - vec2[3] * vec1[4]);
 
             // tangent
-            t[0] = (vec2[4] * vec1[0] - vec1[4] * vec2[0]) * r;
-            t[1] = (vec2[4] * vec1[1] - vec1[4] * vec2[1]) * r;
-            t[2] = (vec2[4] * vec1[2] - vec1[4] * vec2[2]) * r;
+            tangent[0] = (vec2[4] * vec1[0] - vec1[4] * vec2[0]) * r;
+            tangent[1] = (vec2[4] * vec1[1] - vec1[4] * vec2[1]) * r;
+            tangent[2] = (vec2[4] * vec1[2] - vec1[4] * vec2[2]) * r;
+
+            polymer_normalize(&tangent[0]);
 
             // bitangent
-            b[0] = (vec1[3] * vec2[0] - vec2[3] * vec1[0]) * r;
-            b[1] = (vec1[3] * vec2[1] - vec2[3] * vec1[1]) * r;
-            b[2] = (vec1[3] * vec2[2] - vec2[3] * vec1[2]) * r;
+            tangent[3] = (vec1[3] * vec2[0] - vec2[3] * vec1[0]) * r;
+            tangent[4] = (vec1[3] * vec2[1] - vec2[3] * vec1[1]) * r;
+            tangent[5] = (vec1[3] * vec2[2] - vec2[3] * vec1[2]) * r;
 
-//             // invert T, B and N
-//             r = 1.0f / ((t[0] * b[1] * plane[2] - t[2] * b[1] * plane[0]) +
-//                         (b[0] * plane[1] * t[2] - b[2] * plane[1] * t[0]) +
-//                         (plane[0] * t[1] * b[2] - plane[2] * t[1] * b[0]));
-// 
-//             polymer_crossproduct(b, plane, BxN);
-//             polymer_crossproduct(plane, t, NxT);
-//             polymer_crossproduct(t, b,     TxB);
-// 
-//             // GLSL matrix constructors are in column-major order
-//             t[0] = BxN[0] * r;
-//             t[1] = -NxT[0] * r;
-//             t[2] = TxB[0] * r;
-// 
-//             b[0] = -BxN[1] * r;
-//             b[1] = NxT[1] * r;
-//             b[2] = -TxB[1] * r;
-// 
-//             n[0] = BxN[2] * r;
-//             n[1] = -NxT[2] * r;
-//             n[2] = TxB[2] * r;
+            polymer_normalize(&tangent[3]);
 
-            // normalize T, B and N
-            norm = t[0] * t[0] + t[1] * t[1] + t[2] * t[2];
-            norm = sqrt(norm);
-            norm = 1.0 / norm;
-            t[0] *= norm;
-            t[1] *= norm;
-            t[2] *= norm;
+            // normal
+            tangent[6] = plane[0];
+            tangent[7] = plane[1];
+            tangent[8] = plane[2];
 
-            norm = b[0] * b[0] + b[1] * b[1] + b[2] * b[2];
-            norm = sqrt(norm);
-            norm = 1.0 / norm;
-            b[0] *= norm;
-            b[1] *= norm;
-            b[2] *= norm;
-
-            norm = n[0] * n[0] + n[1] * n[1] + n[2] * n[2];
-            norm = sqrt(norm);
-            norm = 1.0 / norm;
-            n[0] *= norm;
-            n[1] *= norm;
-            n[2] *= norm;
+            polymer_invertmatrix(tangent, p->tbn);
 
             break;
         }
@@ -3005,6 +2968,42 @@ static inline void  polymer_transformpoint(float* inpos, float* pos, float* matr
              inpos[1] * matrix[6] +
              inpos[2] * matrix[10] +
                       + matrix[14];
+}
+
+static inline void  polymer_invertmatrix(float* m, float* out)
+{
+    float det;
+
+    det  = m[0] * (m[4]*m[8] - m[5] * m[7]);
+    det -= m[1] * (m[3]*m[8] - m[5] * m[6]);
+    det += m[2] * (m[3]*m[7] - m[4] * m[6]);
+
+    det = 1.0f / det;
+
+    out[0] = det * (m[4] * m[8] - m[5] * m[7]);
+    out[3] = det * (m[5] * m[6] - m[3] * m[8]);
+    out[6] = det * (m[3] * m[7] - m[1] * m[6]);
+
+    out[1] = det * (m[2] * m[7] - m[1] * m[8]);
+    out[4] = det * (m[0] * m[8] - m[2] * m[6]);
+    out[7] = det * (m[1] * m[6] - m[0] * m[7]);
+
+    out[2] = det * (m[1] * m[5] - m[2] * m[4]);
+    out[5] = det * (m[2] * m[3] - m[0] * m[5]);
+    out[8] = det * (m[0] * m[4] - m[1] * m[3]);
+}
+
+static inline void  polymer_normalize(float* vec)
+{
+    double norm;
+
+    norm = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2];
+
+    norm = sqrt(norm);
+    norm = 1.0 / norm;
+    vec[0] *= norm;
+    vec[1] *= norm;
+    vec[2] *= norm;
 }
 
 static inline void  polymer_pokesector(int16_t sectnum)
