@@ -109,7 +109,6 @@ Pan MV_PanTable[ MV_NumPanPositions ][ 255 + 1 ];
 int32_t MV_Installed   = FALSE;
 static int32_t MV_TotalVolume = MV_MaxTotalVolume;
 static int32_t MV_MaxVoices   = 1;
-static int32_t MV_Recording;
 
 static int32_t MV_BufferSize = MixBufferSize;
 static int32_t MV_BufferLength;
@@ -142,7 +141,6 @@ static int32_t MV_MixPage      = 0;
 static int32_t MV_VoiceHandle  = MV_MinVoiceHandle;
 
 static void (*MV_CallBackFunc)(uint32_t) = NULL;
-static void (*MV_RecordFunc)(char *ptr, int32_t length) = NULL;
 static void (*MV_MixFunction)(VoiceNode *voice, int32_t buffer);
 
 int32_t MV_MaxVolume = 255;
@@ -239,10 +237,6 @@ const char *MV_ErrorString
 
     case MV_InvalidMixMode :
         ErrorString = "Invalid mix mode request in Multivoc.";
-        break;
-
-    case MV_NullRecordFunction :
-        ErrorString = "Null record function passed to MV_StartRecording.";
         break;
 
     default :
@@ -915,35 +909,6 @@ playbackstatus MV_GetNextWAVBlock
 
 
 /*---------------------------------------------------------------------
-   Function: MV_ServiceRecord
-
-   Starts recording of the waiting buffer.
----------------------------------------------------------------------*/
-
-/*
-static void MV_ServiceRecord
-(
-    void
-)
-
-{
-    if (MV_RecordFunc)
-    {
-        MV_RecordFunc(MV_MixBuffer[ 0 ] + MV_MixPage * MixBufferSize,
-                      MixBufferSize);
-    }
-
-    // Toggle which buffer we'll mix next
-    MV_MixPage++;
-    if (MV_MixPage >= NumberOfBuffers)
-    {
-        MV_MixPage = 0;
-    }
-}
-*/
-
-
-/*---------------------------------------------------------------------
    Function: MV_GetVoice
 
    Locates the voice with the specified handle.
@@ -1149,11 +1114,6 @@ VoiceNode *MV_AllocVoice
 {
     VoiceNode   *voice;
     VoiceNode   *node;
-
-    if (MV_Recording)
-    {
-        return(NULL);
-    }
 
     DisableInterrupts();
 
@@ -1988,39 +1948,6 @@ void MV_StopPlayback
 
 
 /*---------------------------------------------------------------------
-   Function: MV_StartRecording
-
-   Starts the sound recording engine.
----------------------------------------------------------------------*/
-
-int32_t MV_StartRecording
-(
-    int32_t MixRate,
-    void (*function)(char *ptr, int32_t length)
-)
-
-{
-    MV_SetErrorCode(MV_UnsupportedCard);
-    return(MV_Error);
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MV_StopRecord
-
-   Stops the sound record engine.
----------------------------------------------------------------------*/
-
-void MV_StopRecord
-(
-    void
-)
-
-{
-}
-
-
-/*---------------------------------------------------------------------
    Function: MV_StartDemandFeedPlayback
 
    Plays a digitized sound from a user controlled buffering system.
@@ -2839,8 +2766,6 @@ int32_t MV_Init
 
     MV_Installed    = TRUE;
     MV_CallBackFunc = NULL;
-    MV_RecordFunc   = NULL;
-    MV_Recording    = FALSE;
     MV_ReverbLevel  = 0;
     MV_ReverbTable  = NULL;
 
@@ -2901,12 +2826,6 @@ int32_t MV_Shutdown
     MV_KillAllVoices();
 
     MV_Installed = FALSE;
-
-    // Stop the sound recording engine
-    if (MV_Recording)
-    {
-        MV_StopRecord();
-    }
 
     // Stop the sound playback engine
     MV_StopPlayback();

@@ -36,6 +36,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "multivoc.h"
 #include "fx_man.h"
 
+#ifdef __POWERPC__
+static inline uint16_t SWAP16(uint16_t s)
+{
+    return (s >> 8) | (s << 8);
+}
+
+static inline uint32_t SWAP32(uint32_t s)
+{
+    return (s >> 24) | (s << 24) | ((s&0xff00) << 8) | ((s & 0xff0000) >> 8);
+}
+
+#define LITTLE16 SWAP16
+#define LITTLE32 SWAP32
+#else
+#define LITTLE16
+#define LITTLE32
+#endif
+
 #define TRUE  ( 1 == 1 )
 #define FALSE ( !TRUE )
 
@@ -931,43 +949,6 @@ int32_t FX_StartDemandFeedPlayback
 
 
 /*---------------------------------------------------------------------
-   Function: FX_StartRecording
-
-   Starts the sound recording engine.
----------------------------------------------------------------------*/
-
-int32_t FX_StartRecording
-(
-    int32_t MixRate,
-    void (*function)(char *ptr, int32_t length)
-)
-
-{
-    int32_t status;
-
-    FX_SetErrorCode(FX_InvalidCard);
-    status = FX_Warning;
-
-    return(status);
-}
-
-
-/*---------------------------------------------------------------------
-   Function: FX_StopRecord
-
-   Stops the sound record engine.
----------------------------------------------------------------------*/
-
-void FX_StopRecord
-(
-    void
-)
-
-{
-}
-
-
-/*---------------------------------------------------------------------
    Function: FX_PlayAuto
 
    Play a sound, autodetecting the format.
@@ -1017,22 +998,22 @@ int32_t FX_PlayLoopedAuto(char *ptr, uint32_t length, int32_t loopstart, int32_t
                       uint32_t callbackval)
 {
     int32_t handle = -1;
-
+	printf("FX_PlayLoopedAuto %X\n",*(int32_t *)ptr);
     switch (*(int32_t *)ptr)
     {
-    case 'C'+('r'<<8)+('e'<<16)+('a'<<24):
+    case LITTLE32('C'+('r'<<8)+('e'<<16)+('a'<<24)):
         handle = MV_PlayLoopedVOC(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
         break;
-    case 'R'+('I'<<8)+('F'<<16)+('F'<<24):
+    case LITTLE32('R'+('I'<<8)+('F'<<16)+('F'<<24)):
         handle = MV_PlayLoopedWAV(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
         break;
-    case 'O'+('g'<<8)+('g'<<16)+('S'<<24):
+    case LITTLE32('O'+('g'<<8)+('g'<<16)+('S'<<24)):
         handle = MV_PlayLoopedVorbis(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
         break;
     default:
         switch (*(int32_t *)(ptr + 8))
         {
-        case 'W'+('A'<<8)+('V'<<16)+('E'<<24):
+        case LITTLE32('W'+('A'<<8)+('V'<<16)+('E'<<24)):
             handle = MV_PlayLoopedWAV(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
             break;
         }
@@ -1061,19 +1042,19 @@ int32_t FX_PlayAuto3D(char *ptr, uint32_t length, int32_t pitchoffset, int32_t a
 
     switch (*(int32_t *)ptr)
     {
-    case 'C'+('r'<<8)+('e'<<16)+('a'<<24): // Crea
+    case LITTLE32('C'+('r'<<8)+('e'<<16)+('a'<<24)): // Crea
         handle = MV_PlayVOC3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
         break;
-    case 'R'+('I'<<8)+('F'<<16)+('F'<<24): // RIFF
+    case LITTLE32('R'+('I'<<8)+('F'<<16)+('F'<<24)): // RIFF
         handle = MV_PlayWAV3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
         break;
-    case 'O'+('g'<<8)+('g'<<16)+('S'<<24): // OggS
+    case LITTLE32('O'+('g'<<8)+('g'<<16)+('S'<<24)): // OggS
         handle = MV_PlayVorbis3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
         break;
     default:
         switch (*(int32_t *)(ptr + 8))
         {
-        case 'W'+('A'<<8)+('V'<<16)+('E'<<24): // WAVE
+        case LITTLE32('W'+('A'<<8)+('V'<<16)+('E'<<24)): // WAVE
             handle = MV_PlayWAV3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
             break;
         }

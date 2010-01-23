@@ -245,7 +245,7 @@ void create_map_snapshot(void)
         {
             mapstate->sectors = (sectortype *)Bcalloc(1, sizeof(sectortype) * numsectors);
             mapstate->sectsiz = j = qlz_compress(&sector[0], (char *)&mapstate->sectors[0],
-                sizeof(sectortype) * numsectors, state_compress);
+                                                 sizeof(sectortype) * numsectors, state_compress);
             mapstate->sectors = (sectortype *)Brealloc(mapstate->sectors, j);
             mapstate->sectcrc = tempcrc;
         }
@@ -266,7 +266,7 @@ void create_map_snapshot(void)
             {
                 mapstate->walls = (walltype *)Bcalloc(1, sizeof(walltype) * numwalls);
                 mapstate->wallsiz = j = qlz_compress(&wall[0], (char *)&mapstate->walls[0],
-                    sizeof(walltype) * numwalls, state_compress);
+                                                     sizeof(walltype) * numwalls, state_compress);
                 mapstate->walls = (walltype *)Brealloc(mapstate->walls, j);
                 mapstate->wallcrc = tempcrc;
             }
@@ -299,7 +299,7 @@ void create_map_snapshot(void)
                     }
                 }
                 mapstate->spritesiz = j = qlz_compress(&tspri[0], (char *)&mapstate->sprites[0],
-                    sizeof(spritetype) * numsprites, state_compress);
+                                                       sizeof(spritetype) * numsprites, state_compress);
                 mapstate->sprites = (spritetype *)Brealloc(mapstate->sprites, j);
                 mapstate->spritecrc = tempcrc;
                 Bfree(tspri);
@@ -5951,7 +5951,7 @@ static void Keys3d(void)
         FX_StopAllSounds();
         S_ClearSoundLocks();
 #ifdef POLYMER
-        for (i=0;i<MAXSPRITES;i++)
+        for (i=0; i<MAXSPRITES; i++)
             if (spritelightptr[i] != NULL)
             {
                 polymer_deletelight(spritelightid[i]);
@@ -5994,7 +5994,7 @@ static void Keys3d(void)
         shadepreview=!shadepreview;
         message("Map shade preview %s",shadepreview?"enabled":"disabled");
 #ifdef POLYMER
-        for (i=0;i<MAXSPRITES;i++)
+        for (i=0; i<MAXSPRITES; i++)
             if (spritelightptr[i] != NULL)
             {
                 polymer_deletelight(spritelightid[i]);
@@ -7926,7 +7926,7 @@ static void Keys2d(void)
                        (search_lotag!=0 && search_lotag==wall[i].lotag))
                     &&((search_hitag==0)||
                        (search_hitag!=0 && search_hitag==wall[i].hitag))
-                    )
+                )
                 {
                     pos.x=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
                     pos.y=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
@@ -10140,8 +10140,8 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
                                 if ((sprite[i].xvel != spritelightptr[i]->color[0]) ||
-                                    (sprite[i].yvel != spritelightptr[i]->color[1]) ||
-                                    (sprite[i].zvel != spritelightptr[i]->color[2]))
+                                        (sprite[i].yvel != spritelightptr[i]->color[1]) ||
+                                        (sprite[i].zvel != spritelightptr[i]->color[2]))
                                 {
                                     spritelightptr[i]->color[0] = sprite[i].xvel;
                                     spritelightptr[i]->color[1] = sprite[i].yvel;
@@ -10202,8 +10202,8 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
                                 if ((sprite[i].xvel != spritelightptr[i]->color[0]) ||
-                                    (sprite[i].yvel != spritelightptr[i]->color[1]) ||
-                                    (sprite[i].zvel != spritelightptr[i]->color[2]))
+                                        (sprite[i].yvel != spritelightptr[i]->color[1]) ||
+                                        (sprite[i].zvel != spritelightptr[i]->color[2]))
                                 {
                                     spritelightptr[i]->color[0] = sprite[i].xvel;
                                     spritelightptr[i]->color[1] = sprite[i].yvel;

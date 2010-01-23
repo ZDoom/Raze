@@ -402,7 +402,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
     if ((daz > ActorExtra[spritenum].ceilingz) && (daz <= ActorExtra[spritenum].floorz)/*
          &&
                 (osectnum == dasectnum || cansee(oldx, oldy, spr->z - bg, osectnum, spr->x, spr->y, daz - bg, dasectnum))*/
-        )
+       )
         spr->z = daz;
     else if (retval == 0) retval = 16384+dasectnum;
 
@@ -458,9 +458,10 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 
 inline int32_t A_SetSprite(int32_t i,uint32_t cliptype)
 {
-    vec3_t davect = { (sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
-                      (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14, 
-                       sprite[i].zvel };
+    vec3_t davect = {(sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
+                     (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14,
+                     sprite[i].zvel
+                    };
     return (A_MoveSprite(i,&davect,cliptype)==0);
 }
 
@@ -3355,7 +3356,7 @@ static void G_MoveTransports(void)
                                 if (onfloorz)
                                 {
                                     if (sprite[j].statnum == STAT_PROJECTILE ||
-                                        (G_CheckPlayerInSector(sect) == -1 && G_CheckPlayerInSector(sprite[OW].sectnum)  == -1))
+                                            (G_CheckPlayerInSector(sect) == -1 && G_CheckPlayerInSector(sprite[OW].sectnum)  == -1))
                                     {
                                         sprite[j].x += (sprite[OW].x-SX);
                                         sprite[j].y += (sprite[OW].y-SY);
@@ -5675,38 +5676,38 @@ static void G_MoveEffectors(void)   //STATNUM 3
                 x = (s->xvel*sintable[s->ang&2047])>>14;
 
                 TRAVERSE_CONNECT(p)
-                    if (sector[g_player[p].ps->cursectnum].lotag != 2)
+                if (sector[g_player[p].ps->cursectnum].lotag != 2)
+                {
+                    if (g_playerSpawnPoints[p].os == s->sectnum)
                     {
-                        if (g_playerSpawnPoints[p].os == s->sectnum)
+                        g_playerSpawnPoints[p].ox += m;
+                        g_playerSpawnPoints[p].oy += x;
+                    }
+
+                    if (s->sectnum == sprite[g_player[p].ps->i].sectnum)
+                    {
+                        rotatepoint(s->x,s->y,g_player[p].ps->posx,g_player[p].ps->posy,q,&g_player[p].ps->posx,&g_player[p].ps->posy);
+
+                        g_player[p].ps->posx += m;
+                        g_player[p].ps->posy += x;
+
+                        g_player[p].ps->bobposx += m;
+                        g_player[p].ps->bobposy += x;
+
+                        g_player[p].ps->ang += q;
+
+                        if (g_netServer || numplayers > 1)
                         {
-                            g_playerSpawnPoints[p].ox += m;
-                            g_playerSpawnPoints[p].oy += x;
+                            g_player[p].ps->oposx = g_player[p].ps->posx;
+                            g_player[p].ps->oposy = g_player[p].ps->posy;
                         }
-
-                        if (s->sectnum == sprite[g_player[p].ps->i].sectnum)
+                        if (sprite[g_player[p].ps->i].extra <= 0)
                         {
-                            rotatepoint(s->x,s->y,g_player[p].ps->posx,g_player[p].ps->posy,q,&g_player[p].ps->posx,&g_player[p].ps->posy);
-
-                            g_player[p].ps->posx += m;
-                            g_player[p].ps->posy += x;
-
-                            g_player[p].ps->bobposx += m;
-                            g_player[p].ps->bobposy += x;
-
-                            g_player[p].ps->ang += q;
-
-                            if (g_netServer || numplayers > 1)
-                            {
-                                g_player[p].ps->oposx = g_player[p].ps->posx;
-                                g_player[p].ps->oposy = g_player[p].ps->posy;
-                            }
-                            if (sprite[g_player[p].ps->i].extra <= 0)
-                            {
-                                sprite[g_player[p].ps->i].x = g_player[p].ps->posx;
-                                sprite[g_player[p].ps->i].y = g_player[p].ps->posy;
-                            }
+                            sprite[g_player[p].ps->i].x = g_player[p].ps->posx;
+                            sprite[g_player[p].ps->i].y = g_player[p].ps->posy;
                         }
                     }
+                }
                 j = headspritesect[s->sectnum];
                 while (j >= 0)
                 {
@@ -5758,7 +5759,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     {
                         l = nextspritesect[j];
                         if (sprite[j].statnum == STAT_ACTOR && A_CheckEnemySprite(&sprite[j]) &&
-                            sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+                                sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
                         {
                             k = sprite[j].sectnum;
                             updatesector(sprite[j].x,sprite[j].y,&k);
@@ -5931,7 +5932,7 @@ static void G_MoveEffectors(void)   //STATNUM 3
                     {
                         l = nextspritesect[j];
                         if (sprite[j].statnum == STAT_ACTOR && A_CheckEnemySprite(&sprite[j]) &&
-                            sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+                                sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
                         {
                             //                    if(sprite[j].sectnum != s->sectnum)
                             {
@@ -7140,8 +7141,8 @@ static void G_MoveEffectors(void)   //STATNUM 3
             }
 
             TRAVERSE_CONNECT(p)
-                if (sprite[g_player[p].ps->i].sectnum == s->sectnum && g_player[p].ps->on_ground)
-                    g_player[p].ps->posz += s->zvel;
+            if (sprite[g_player[p].ps->i].sectnum == s->sectnum && g_player[p].ps->on_ground)
+                g_player[p].ps->posz += s->zvel;
 
             A_MoveSector(i);
             setsprite(i,(vec3_t *)s);

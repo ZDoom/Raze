@@ -2639,7 +2639,7 @@ static int32_t kzcheckhash(const char *filnam, char **zipnam, int32_t *fileoffs,
             (*zipnam) = &kzhashbuf[*(int32_t *)&kzhashbuf[i+8]];
             (*fileoffs) = *(int32_t *)&kzhashbuf[i+12];
             (*fileleng) = *(int32_t *)&kzhashbuf[i+16];
-            (*iscomp) = kzhashbuf[i+20];
+            (*iscomp) = *(int32_t *)&kzhashbuf[i+20];
             return(1);
         }
     return(0);

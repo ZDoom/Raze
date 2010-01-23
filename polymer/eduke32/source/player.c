@@ -3322,11 +3322,11 @@ void getinput(int32_t snum)
         return;
     }
 
-/*
-        if (numplayers > 1)
-            daang = myang;
-        else*/
-     daang = p->ang;
+    /*
+            if (numplayers > 1)
+                daang = myang;
+            else*/
+    daang = p->ang;
 
     momx = mulscale9(vel,sintable[(daang+2560)&2047]);
     momy = mulscale9(vel,sintable[(daang+2048)&2047]);
@@ -3890,8 +3890,8 @@ void P_FragPlayer(int32_t snum)
             if (ud.obituaries)
             {
                 Bsprintf(tempbuf,ScriptQuotes[FIRST_OBITUARY_QUOTE+(krand()%g_numObituaries)],
-                    &g_player[p->frag_ps].user_name[0],
-                    &g_player[snum].user_name[0]);
+                         &g_player[p->frag_ps].user_name[0],
+                         &g_player[snum].user_name[0]);
                 G_AddUserQuote(tempbuf);
             }
             else krand();
@@ -4148,7 +4148,7 @@ void P_ProcessInput(int32_t snum)
 
         if ((numplayers < 2 || g_netServer) && p->dead_flag == 0)
             P_FragPlayer(snum);
-            
+
         if (psectlotag == 2)
         {
             if (p->on_warping_sector == 0)
@@ -5440,10 +5440,10 @@ SHOOTINCODE:
                     }
 
                     j = A_InsertSprite(p->cursectnum,
-                        p->posx+(sintable[(p->ang+512)&2047]>>6),
-                        p->posy+(sintable[p->ang&2047]>>6),
-                        p->posz,aplWeaponShoots[p->curr_weapon][snum],-16,9,9,
-                        p->ang,(k+(p->hbomb_hold_delay<<5)),i,pi,1);
+                                       p->posx+(sintable[(p->ang+512)&2047]>>6),
+                                       p->posy+(sintable[p->ang&2047]>>6),
+                                       p->posz,aplWeaponShoots[p->curr_weapon][snum],-16,9,9,
+                                       p->ang,(k+(p->hbomb_hold_delay<<5)),i,pi,1);
 
                     lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
 
@@ -5452,8 +5452,8 @@ SHOOTINCODE:
                         int32_t lGrenadeLifetime=Gv_GetVarByLabel("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
                         int32_t lGrenadeLifetimeVar=Gv_GetVarByLabel("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
                         ActorExtra[j].temp_data[7]=lGrenadeLifetime
-                            + mulscale(krand(),lGrenadeLifetimeVar, 14)
-                            - lGrenadeLifetimeVar;
+                                                   + mulscale(krand(),lGrenadeLifetimeVar, 14)
+                                                   - lGrenadeLifetimeVar;
                         ActorExtra[j].temp_data[6]=1;
                     }
                     else

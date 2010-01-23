@@ -144,7 +144,7 @@ void S_MusicStartup(void)
         {
             MUSIC_SetVolume(ud.config.MusicVolume);
         }
-        
+
         initprintf("S_MusicStartup(): failed initializing\n");
     }
 }
@@ -296,7 +296,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
 
     if (MapInfo[sel].alt_musicfn != NULL)
         alt = (int32_t)(fn = MapInfo[sel].alt_musicfn);
-        
+
 
     testfn = (char *) Bmalloc(strlen(fn) + 5);
     strcpy(testfn, fn);
@@ -356,8 +356,8 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     else
     {
         if ((MusicVoice = FX_PlayLoopedAuto(MusicPtr, MusicLen, 0, 0, 0, ud.config.MusicVolume,
-            ud.config.MusicVolume, ud.config.MusicVolume,
-            FX_MUSIC_PRIORITY, MUSIC_ID)) >= FX_Ok)
+                                            ud.config.MusicVolume, ud.config.MusicVolume,
+                                            FX_MUSIC_PRIORITY, MUSIC_ID)) >= FX_Ok)
             MusicIsWaveform = 1;
     }
     return (alt != 0);
@@ -567,12 +567,12 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             if (g_sounds[num].num > 0) return -1;
 
             voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
-                pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,(num * MAXSOUNDINSTANCES) + l);
+                                      pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,(num * MAXSOUNDINSTANCES) + l);
         }
         else
         {
             voice = FX_PlayAuto3D(g_sounds[ num ].ptr, g_sounds[num].soundsiz, pitch,sndang>>4,sndist>>6, g_sounds[num].pr,
-                (num * MAXSOUNDINSTANCES) + l);
+                                  (num * MAXSOUNDINSTANCES) + l);
         }
 
         if (voice >= FX_Ok)
@@ -733,7 +733,7 @@ void S_Pan3D(void)
                 k--;
                 continue;
             }
-            
+
             Bmemcpy(&s, &sprite[i], sizeof(vec3_t));
 
             if (PN == APLAYER && sprite[i].yvel == screenpeek)

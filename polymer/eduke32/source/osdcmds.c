@@ -1195,15 +1195,15 @@ static int32_t osdcmd_listplayers(const osdfuncparm_t *parm)
     }
 
     for (currentPeer = g_netServer -> peers;
-        currentPeer < & g_netServer -> peers [g_netServer -> peerCount];
-        ++ currentPeer)
+            currentPeer < & g_netServer -> peers [g_netServer -> peerCount];
+            ++ currentPeer)
     {
         if (currentPeer -> state != ENET_PEER_STATE_CONNECTED)
             continue;
 
         enet_address_get_host_ip(&currentPeer->address, ipaddr, sizeof(ipaddr));
         initprintf("%x %s %s\n", currentPeer->address.host, ipaddr,
-            g_player[(intptr_t)currentPeer->data].user_name);
+                   g_player[(intptr_t)currentPeer->data].user_name);
     }
 
     return OSDCMD_OK;
@@ -1224,19 +1224,19 @@ static int32_t osdcmd_kick(const osdfuncparm_t *parm)
     }
 
     for (currentPeer = g_netServer -> peers;
-        currentPeer < & g_netServer -> peers [g_netServer -> peerCount];
-        ++ currentPeer)
+            currentPeer < & g_netServer -> peers [g_netServer -> peerCount];
+            ++ currentPeer)
     {
         if (currentPeer -> state != ENET_PEER_STATE_CONNECTED)
             continue;
 
-        sscanf (parm->parms[0],"%" PRIxPTR "", &hexaddr);
+        sscanf(parm->parms[0],"%" PRIxPTR "", &hexaddr);
 
         if (currentPeer->address.host == hexaddr)
         {
             initprintf("Kicking %x (%s)\n", currentPeer->address.host,
-                g_player[(intptr_t)currentPeer->data].user_name);
-            enet_peer_disconnect (currentPeer, DISC_KICKED);
+                       g_player[(intptr_t)currentPeer->data].user_name);
+            enet_peer_disconnect(currentPeer, DISC_KICKED);
             return OSDCMD_OK;
         }
     }
@@ -1260,13 +1260,13 @@ static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
     }
 
     for (currentPeer = g_netServer -> peers;
-        currentPeer < & g_netServer -> peers [g_netServer -> peerCount];
-        ++ currentPeer)
+            currentPeer < & g_netServer -> peers [g_netServer -> peerCount];
+            ++ currentPeer)
     {
         if (currentPeer -> state != ENET_PEER_STATE_CONNECTED)
             continue;
 
-        sscanf (parm->parms[0],"%" PRIxPTR "", &hexaddr);
+        sscanf(parm->parms[0],"%" PRIxPTR "", &hexaddr);
 
         if (currentPeer->address.host == hexaddr)
         {
@@ -1275,8 +1275,8 @@ static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
             enet_address_get_host_ip(&currentPeer->address, ipaddr, sizeof(ipaddr));
             initprintf("Host %s is now banned.\n", ipaddr);
             initprintf("Kicking %x (%s)\n", currentPeer->address.host,
-                g_player[(intptr_t)currentPeer->data].user_name);
-            enet_peer_disconnect (currentPeer, DISC_BANNED);
+                       g_player[(intptr_t)currentPeer->data].user_name);
+            enet_peer_disconnect(currentPeer, DISC_BANNED);
             return OSDCMD_OK;
         }
     }

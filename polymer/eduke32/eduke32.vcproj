@@ -145,10 +145,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\build\include\mmulti_unstable.h"
-					>
-				</File>
-				<File
 					RelativePath=".\build\include\nedmalloc.h"
 					>
 				</File>
@@ -282,10 +278,6 @@
 				</File>
 				<File
 					RelativePath=".\build\src\mdsprite.c"
-					>
-				</File>
-				<File
-					RelativePath=".\build\src\mmulti_unstable.c"
 					>
 				</File>
 				<File

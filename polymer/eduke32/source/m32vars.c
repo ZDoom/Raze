@@ -108,7 +108,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
         g_numCompilerErrors++;
         C_ReportError(-1);
         initprintf("%s:%d: error: invalid array size %d. Must be between 1 and 65536\n",g_szScriptFileName,g_lineNumber,(int32_t)asize);
-        return 0;        
+        return 0;
     }
 
     i = g_gameArrayCount;
@@ -376,85 +376,85 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
 
 void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
 {
-        if (id & (0xFFFFFFFF-(MAXGAMEVARS-1)))
+    if (id & (0xFFFFFFFF-(MAXGAMEVARS-1)))
+    {
+        if (id&(MAXGAMEVARS<<2)) // array
         {
-            if (id&(MAXGAMEVARS<<2)) // array
+            register int32_t index;
+            int32_t siz;
+
+            index = (id>>16)&0xffff;
+            if (!(id&MAXGAMEVARS))
+                index = Gv_GetVarN(index);
+
+            id &= (MAXGAMEARRAYS-1);
+
+            if (aGameArrays[id].dwFlags & GAMEARRAY_VARSIZE)
+                siz = Gv_GetVarN(aGameArrays[id].size);
+            else siz = aGameArrays[id].size;
+
+            if (index < 0 || index >= siz)
             {
-                register int32_t index;
-                int32_t siz;
-
-                index = (id>>16)&0xffff;
-                if (!(id&MAXGAMEVARS))
-                    index = Gv_GetVarN(index);
-
-                id &= (MAXGAMEARRAYS-1);
-
-                if (aGameArrays[id].dwFlags & GAMEARRAY_VARSIZE)
-                    siz = Gv_GetVarN(aGameArrays[id].size);
-                else siz = aGameArrays[id].size;
-
-                if (index < 0 || index >= siz)
-                {
-                    OSD_Printf(CON_ERROR "Gv_SetVarX(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,index);
-                    vm.flags |= VMFLAG_ERROR;
-                    return;
-                }
-
-                switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPEMASK)
-                {
-                case 0:
-                case GAMEARRAY_OFINT:
-                    ((int32_t *)aGameArrays[id].vals)[index] = lValue;
-                    return;
-                case GAMEARRAY_OFSHORT:
-                    ((int16_t *)aGameArrays[id].vals)[index] = (int16_t)lValue;
-                    return;
-                case GAMEARRAY_OFCHAR:
-                    ((uint8_t *)aGameArrays[id].vals)[index] = (uint8_t)lValue;
-                    return;
-                default:
-                    OSD_Printf(CON_ERROR "Gv_SetVarX() (array): WTF??\n",g_errorLineNum,keyw[g_tw]);
-                    vm.flags |= VMFLAG_ERROR;
-                    return;
-                }
+                OSD_Printf(CON_ERROR "Gv_SetVarX(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,index);
+                vm.flags |= VMFLAG_ERROR;
                 return;
             }
 
-            if (id&(MAXGAMEVARS<<3)) // struct shortcut vars
+            switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPEMASK)
             {
-                register int32_t index, memberid;
+            case 0:
+            case GAMEARRAY_OFINT:
+                ((int32_t *)aGameArrays[id].vals)[index] = lValue;
+                return;
+            case GAMEARRAY_OFSHORT:
+                ((int16_t *)aGameArrays[id].vals)[index] = (int16_t)lValue;
+                return;
+            case GAMEARRAY_OFCHAR:
+                ((uint8_t *)aGameArrays[id].vals)[index] = (uint8_t)lValue;
+                return;
+            default:
+                OSD_Printf(CON_ERROR "Gv_SetVarX() (array): WTF??\n",g_errorLineNum,keyw[g_tw]);
+                vm.flags |= VMFLAG_ERROR;
+                return;
+            }
+            return;
+        }
 
-                index = (id>>16)&0x7fff;
-                if (!(id&MAXGAMEVARS))
-                    index = Gv_GetVarN(index);
+        if (id&(MAXGAMEVARS<<3)) // struct shortcut vars
+        {
+            register int32_t index, memberid;
 
-                memberid = (id>>2)&31;
+            index = (id>>16)&0x7fff;
+            if (!(id&MAXGAMEVARS))
+                index = Gv_GetVarN(index);
 
-                switch (id&3)
-                {
-                case 0: //if (id == g_iSpriteVarID)
-                    X_AccessSprite(1, index, memberid, lValue);
-                    return;
-                case 1: //else if (id == g_iSectorVarID)
+            memberid = (id>>2)&31;
+
+            switch (id&3)
+            {
+            case 0: //if (id == g_iSpriteVarID)
+                X_AccessSprite(1, index, memberid, lValue);
+                return;
+            case 1: //else if (id == g_iSectorVarID)
 //                    if (index == vm.g_i) index = sprite[vm.g_i].sectnum;
-                    X_AccessSector(1, index, memberid, lValue);
-                    return;
-                case 2: //else if (id == g_iWallVarID)
-                    X_AccessWall(1, index, memberid, lValue);
-                    return;
-                case 3:
-                    X_AccessTsprite(1, index, memberid, lValue);
-                    return;
+                X_AccessSector(1, index, memberid, lValue);
+                return;
+            case 2: //else if (id == g_iWallVarID)
+                X_AccessWall(1, index, memberid, lValue);
+                return;
+            case 3:
+                X_AccessTsprite(1, index, memberid, lValue);
+                return;
 //                default:
 //                    OSD_Printf(CON_ERROR "Gv_SetVarX(): WTF??\n",g_errorLineNum,keyw[g_tw]);
 //                    return;
-                }
             }
-
-            OSD_Printf(CON_ERROR "Gv_SetVarX(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
-            vm.flags |= VMFLAG_ERROR;
-            return;
         }
+
+        OSD_Printf(CON_ERROR "Gv_SetVarX(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
+        vm.flags |= VMFLAG_ERROR;
+        return;
+    }
 
     switch (aGameVars[id].dwFlags &
             (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
@@ -589,7 +589,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("startposy",(intptr_t)&startposy, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("startposz",(intptr_t)&startposz, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("startang",(intptr_t)&startang, GAMEVAR_READONLY | GAMEVAR_SHORTPTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("startsectnum",(intptr_t)&startsectnum, GAMEVAR_READONLY | GAMEVAR_SHORTPTR | GAMEVAR_SYSTEM);    
+    Gv_NewVar("startsectnum",(intptr_t)&startsectnum, GAMEVAR_READONLY | GAMEVAR_SHORTPTR | GAMEVAR_SYSTEM);
 
     Gv_NewVar("mousxplc",(intptr_t)&mousxplc, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("mousyplc",(intptr_t)&mousyplc, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);

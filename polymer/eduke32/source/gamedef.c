@@ -1181,7 +1181,7 @@ static int32_t C_SetScriptSize(int32_t size)
 static inline int32_t ispecial(const char c)
 {
     if (c == ' ' || c == 0x0d || c == '(' || c == ')' ||
-        c == ',' || c == ';' || (c == 0x0a && ++g_lineNumber))
+            c == ',' || c == ';' || (c == 0x0a && ++g_lineNumber))
         return 1;
 
     return 0;
@@ -4006,7 +4006,7 @@ static int32_t C_ParseCommand(void)
             C_ReportError(ERROR_NOTAGAMEARRAY);
             return 1;
         }
-            
+
         C_SkipComments();// skip comments and whitespace
         if (*textptr != '[')
         {
@@ -5565,16 +5565,16 @@ repeatcase:
             textptr++;
         }
         else while (*textptr != ' ' && *textptr != '\t' && *textptr != '\r' && *textptr != '\n')
-        {
-            g_sounds[k].filename[i++] = *textptr++;
-            if (i >= BMAX_PATH)
             {
-                initprintf("%s:%d: error: sound filename exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,BMAX_PATH);
-                g_numCompilerErrors++;
-                C_SkipComments();
-                break;
+                g_sounds[k].filename[i++] = *textptr++;
+                if (i >= BMAX_PATH)
+                {
+                    initprintf("%s:%d: error: sound filename exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,BMAX_PATH);
+                    g_numCompilerErrors++;
+                    C_SkipComments();
+                    break;
+                }
             }
-        }
         g_sounds[k].filename[i] = '\0';
 
         C_GetNextValue(LABEL_DEFINE);
@@ -6002,12 +6002,12 @@ void C_Compile(const char *filenam)
         {
 #ifdef WIN32
             Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of '%s' or other compatible data is needed to run EDuke32.\n\n"
-                "You can find '%s' in the 'DN3DINST' or 'ATOMINST' directory on your Duke Nukem 3D installation CD.\n\n"
-                "If you don't already own a copy of Duke or haven't seen your disc in years, don't worry -- you can download the full, registered "
-                "version of Duke Nukem 3D: Atomic Edition immediately for only $5.99 through our partnership with GOG.com.\n\n"
-                "Not a typo; it's less than 6 bucks.  Get Duke now?\n\n"
-                "(Clicking yes will bring you to our web store)",
-                g_grpNamePtr,g_grpNamePtr);
+                     "You can find '%s' in the 'DN3DINST' or 'ATOMINST' directory on your Duke Nukem 3D installation CD.\n\n"
+                     "If you don't already own a copy of Duke or haven't seen your disc in years, don't worry -- you can download the full, registered "
+                     "version of Duke Nukem 3D: Atomic Edition immediately for only $5.99 through our partnership with GOG.com.\n\n"
+                     "Not a typo; it's less than 6 bucks.  Get Duke now?\n\n"
+                     "(Clicking yes will bring you to our web store)",
+                     g_grpNamePtr,g_grpNamePtr);
 
             if (wm_ynbox("Important - Duke Nukem 3D not found - EDuke32",tempbuf))
             {

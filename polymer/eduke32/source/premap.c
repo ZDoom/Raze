@@ -1386,47 +1386,47 @@ static void resetpspritevars(char g)
 
     if (ud.recstat != 2)
         TRAVERSE_CONNECT(i)
+    {
+        aimmode[i] = g_player[i].ps->aim_mode;
+        autoaim[i] = g_player[i].ps->auto_aim;
+        weaponswitch[i] = g_player[i].ps->weaponswitch;
+        if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
         {
-            aimmode[i] = g_player[i].ps->aim_mode;
-            autoaim[i] = g_player[i].ps->auto_aim;
-            weaponswitch[i] = g_player[i].ps->weaponswitch;
-            if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
+            for (j=0; j<MAX_WEAPONS; j++)
             {
-                for (j=0; j<MAX_WEAPONS; j++)
-                {
-                    tsbar[i].ammo_amount[j] = g_player[i].ps->ammo_amount[j];
-                    tsbar[i].gotweapon[j] = g_player[i].ps->gotweapon[j];
-                }
-
-                Bmemcpy(tsbar[i].inv_amount, g_player[i].ps->inv_amount, sizeof(tsbar[i].inv_amount));
-                tsbar[i].curr_weapon = g_player[i].ps->curr_weapon;
-                tsbar[i].inven_icon = g_player[i].ps->inven_icon;
+                tsbar[i].ammo_amount[j] = g_player[i].ps->ammo_amount[j];
+                tsbar[i].gotweapon[j] = g_player[i].ps->gotweapon[j];
             }
+
+            Bmemcpy(tsbar[i].inv_amount, g_player[i].ps->inv_amount, sizeof(tsbar[i].inv_amount));
+            tsbar[i].curr_weapon = g_player[i].ps->curr_weapon;
+            tsbar[i].inven_icon = g_player[i].ps->inven_icon;
         }
+    }
 
     P_ResetStatus(0);
 
     TRAVERSE_CONNECT(i)
-        if (i) Bmemcpy(g_player[i].ps,g_player[0].ps,sizeof(DukePlayer_t));
+    if (i) Bmemcpy(g_player[i].ps,g_player[0].ps,sizeof(DukePlayer_t));
 
     if (ud.recstat != 2)
         TRAVERSE_CONNECT(i)
+    {
+        g_player[i].ps->aim_mode = aimmode[i];
+        g_player[i].ps->auto_aim = autoaim[i];
+        g_player[i].ps->weaponswitch = weaponswitch[i];
+        if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
         {
-            g_player[i].ps->aim_mode = aimmode[i];
-            g_player[i].ps->auto_aim = autoaim[i];
-            g_player[i].ps->weaponswitch = weaponswitch[i];
-            if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
+            for (j=0; j<MAX_WEAPONS; j++)
             {
-                for (j=0; j<MAX_WEAPONS; j++)
-                {
-                    g_player[i].ps->ammo_amount[j] = tsbar[i].ammo_amount[j];
-                    g_player[i].ps->gotweapon[j] = tsbar[i].gotweapon[j];
-                }
-                g_player[i].ps->curr_weapon = tsbar[i].curr_weapon;
-                g_player[i].ps->inven_icon = tsbar[i].inven_icon;
-                Bmemcpy(g_player[i].ps->inv_amount, tsbar[i].inv_amount, sizeof(tsbar[i].inv_amount));
+                g_player[i].ps->ammo_amount[j] = tsbar[i].ammo_amount[j];
+                g_player[i].ps->gotweapon[j] = tsbar[i].gotweapon[j];
             }
+            g_player[i].ps->curr_weapon = tsbar[i].curr_weapon;
+            g_player[i].ps->inven_icon = tsbar[i].inven_icon;
+            Bmemcpy(g_player[i].ps->inv_amount, tsbar[i].inv_amount, sizeof(tsbar[i].inv_amount));
         }
+    }
 
     g_numPlayerSprites = 0;
     circ = 2048/ud.multimode;

@@ -50,7 +50,7 @@ typedef struct
     int32_t checkingSwitch;
     int32_t numCases;
     instype *caseScriptPtr;  // the pointer to the start of the case table in a switch statement
-                             // first entry is 'default' code.
+    // first entry is 'default' code.
     instype *caseCodePtr;  // the pointer to the start of the different cases' code
     int32_t labelsOnly;
     int32_t numBraces;
@@ -206,8 +206,8 @@ const char *keyw[] =
     "getsector",
     "setwall",
     "getwall",
-    "setsprite", 
-    "getsprite", 
+    "setsprite",
+    "getsprite",
     "gettspr",
     "settspr",
 
@@ -834,7 +834,7 @@ static void C_GetNextVarType(int32_t type)
 
     // constant where gamevar expected
     if ((type==0 || type==GAMEVAR_SPECIAL) && !cs.labelsOnly &&
-        (isdigit(*textptr) || ((*textptr == '-') && isdigit(*(textptr+1)))))
+            (isdigit(*textptr) || ((*textptr == '-') && isdigit(*(textptr+1)))))
     {
 //        if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
 //            initprintf("%s:%d: debug: accepted constant %d in place of gamevar.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
@@ -1016,14 +1016,14 @@ static void C_GetNextVarType(int32_t type)
             textptr++;
             /// now pointing at 'xxx'
             C_GetNextLabelName();
-                                                                                  /*initprintf("found xxx label of '%s'\n",   label+(g_numLabels*MAXLABELLEN));*/
+            /*initprintf("found xxx label of '%s'\n",   label+(g_numLabels*MAXLABELLEN));*/
             if (id == g_iSpriteVarID || id==3)
                 lLabelID = C_GetLabelNameID(SpriteLabels, &spriteH, strtolower(tlabel,Bstrlen(tlabel)));
             else if (id == g_iSectorVarID)
                 lLabelID = C_GetLabelNameID(SectorLabels, &sectorH, strtolower(tlabel,Bstrlen(tlabel)));
             else if (id == g_iWallVarID)
                 lLabelID = C_GetLabelNameID(WallLabels, &wallH, strtolower(tlabel,Bstrlen(tlabel)));
-                                                                                  //printf("LabelID is %d\n",lLabelID);
+            //printf("LabelID is %d\n",lLabelID);
             if (lLabelID == -1)
             {
                 g_numCompilerErrors++;
@@ -1064,7 +1064,7 @@ static void C_GetNextVarType(int32_t type)
                 {
                     C_ReportError(-1);
                     initprintf("%s:%d: error: label %s=%d not suitable as array index. (max: 65535)\n",g_szScriptFileName,g_lineNumber, label+(id*MAXLABELLEN), num);
-                    g_numCompilerErrors++;                    
+                    g_numCompilerErrors++;
                 }
                 else if (num != (int16_t)num)
                 {
@@ -1718,7 +1718,7 @@ static int32_t C_ParseCommand(void)
             *g_scriptPtr++ = j;
             return 0;
         }
-        
+
         C_ReportError(-1);
         initprintf("%s:%d: error: state `%s' not found.\n",g_szScriptFileName,g_lineNumber,tlabel);
         g_numCompilerErrors++;
@@ -1753,7 +1753,7 @@ static int32_t C_ParseCommand(void)
 
         cs.currentEvent = j;
         cs.parsingEventOfs = g_scriptPtr-script;
-                                                                              //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, g_parsingEventPtr); AddLog(g_szBuf);
+        //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, g_parsingEventPtr); AddLog(g_szBuf);
         if (j<0 || j >= MAXEVENTS)
         {
             initprintf("%s:%d: error: invalid event ID.\n",g_szScriptFileName,g_lineNumber);
@@ -1892,7 +1892,7 @@ static int32_t C_ParseCommand(void)
                 return 0;
 
             tscrptr = (instype *)script+offset;
-            *tscrptr = (ofstype) (g_scriptPtr-script)-offset;  // relative offset
+            *tscrptr = (ofstype)(g_scriptPtr-script)-offset;   // relative offset
         }
         else
         {
@@ -1934,7 +1934,7 @@ static int32_t C_ParseCommand(void)
         ofstype tempoffset;
 
         //AddLog("Got Switch statement");
-                                                                      //        if (cs.checkingSwitch) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=",__FILE__,__LINE__, cs.checkingSwitch); AddLog(g_szBuf);
+        //        if (cs.checkingSwitch) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=",__FILE__,__LINE__, cs.checkingSwitch); AddLog(g_szBuf);
         cs.checkingSwitch++;  // allow nesting (if other things work)
 
         C_GetNextVar();  // Get The ID of the DEF
@@ -1949,16 +1949,16 @@ static int32_t C_ParseCommand(void)
 
         temptextptr = textptr;
         // probably does not allow nesting...
-                                                                              //AddLog("Counting Case Statements...");
+        //AddLog("Counting Case Statements...");
         j = C_CountCaseStatements();
-                                                                      //        initprintf("Done Counting Case Statements for switch %d: found %d.\n", cs.checkingSwitch,j);
+        //        initprintf("Done Counting Case Statements for switch %d: found %d.\n", cs.checkingSwitch,j);
         g_scriptPtr += j*2;
         cs.caseCodePtr = g_scriptPtr;
         C_SkipComments();
         g_scriptPtr -= j*2; // allocate buffer for the table
 
         tempscrptr = (instype *)(script+tempoffset);
-                                                                      //        if (cs.checkingSwitch>1) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=",__FILE__,__LINE__, cs.checkingSwitch);  AddLog(g_szBuf);
+        //        if (cs.checkingSwitch>1) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=",__FILE__,__LINE__, cs.checkingSwitch);  AddLog(g_szBuf);
         if (j<0)
             return 1;
 
@@ -1974,7 +1974,7 @@ static int32_t C_ParseCommand(void)
             *g_scriptPtr++ = -1; // code offset
             C_SkipComments();
         }
-                                                                              //Bsprintf(g_szBuf,"SWITCH1: '%.22s'",textptr); AddLog(g_szBuf);
+        //Bsprintf(g_szBuf,"SWITCH1: '%.22s'",textptr); AddLog(g_szBuf);
         cs.numCases = 0;
         while (C_ParseCommand() == 0)
         {
@@ -1982,9 +1982,9 @@ static int32_t C_ParseCommand(void)
         }
 
         tempscrptr = (instype *)(script+tempoffset);
-                                                                              //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr); AddLog(g_szBuf);
+        //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr); AddLog(g_szBuf);
         // done processing switch.  clean up.
-                                                                      //        if (cs.checkingSwitch < 1) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=%d",__FILE__,__LINE__, cs.checkingSwitch); AddLog(g_szBuf);
+        //        if (cs.checkingSwitch < 1) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=%d",__FILE__,__LINE__, cs.checkingSwitch); AddLog(g_szBuf);
         if (tempscrptr)
         {
             int32_t t,n;   // !!!
@@ -2008,14 +2008,14 @@ static int32_t C_ParseCommand(void)
 //            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
             tempscrptr[0] = (ofstype)(g_scriptPtr-cs.caseCodePtr);    // save 'end' location as offset from code-place
         }
-                                                                      //        else Bsprintf(g_szBuf,"ERROR::%s %d",__FILE__,__LINE__); AddLog(g_szBuf);
+        //        else Bsprintf(g_szBuf,"ERROR::%s %d",__FILE__,__LINE__); AddLog(g_szBuf);
         cs.numCases = 0;
         cs.caseScriptPtr = NULL;
         cs.caseCodePtr = NULL;
         // decremented in endswitch.  Don't decrement here...
         //                    cs.checkingSwitch--; // allow nesting (maybe if other things work)
         tempscrptr = NULL;
-                                                                      //        if (cs.checkingSwitch) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=%d",__FILE__,__LINE__, cs.checkingSwitch); AddLog(g_szBuf);
+        //        if (cs.checkingSwitch) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=%d",__FILE__,__LINE__, cs.checkingSwitch); AddLog(g_szBuf);
         //AddLog("End of Switch statement");
     }
     break;
@@ -2035,13 +2035,13 @@ repeatcase:
         }
 
         cs.numCases++;
-                                                                              //Bsprintf(g_szBuf,"case1: %.12s",textptr); AddLog(g_szBuf);
+        //Bsprintf(g_szBuf,"case1: %.12s",textptr); AddLog(g_szBuf);
         C_GetNextValue(LABEL_DEFINE);
         if (*textptr == ':')
             textptr++;
-                                                                              //Bsprintf(g_szBuf,"case2: %.12s",textptr); AddLog(g_szBuf);
+        //Bsprintf(g_szBuf,"case2: %.12s",textptr); AddLog(g_szBuf);
         j = *(--g_scriptPtr);      // get value
-                                                                              //Bsprintf(g_szBuf,"case: Value of case %d is %d",(int32_t)cs.numCases,(int32_t)j); AddLog(g_szBuf);
+        //Bsprintf(g_szBuf,"case: Value of case %d is %d",(int32_t)cs.numCases,(int32_t)j); AddLog(g_szBuf);
         if (cs.caseScriptPtr)
         {
             for (i=(cs.numCases/2)-1; i>=0; i--)
@@ -2055,7 +2055,7 @@ repeatcase:
             cs.caseScriptPtr[cs.numCases++] = j;   // save value
             cs.caseScriptPtr[cs.numCases] = (ofstype)(g_scriptPtr - cs.caseCodePtr);  // offset from beginning of cases' code
         }
-                                                                              //Bsprintf(g_szBuf,"case3: %.12s",textptr); AddLog(g_szBuf);
+        //Bsprintf(g_szBuf,"case3: %.12s",textptr); AddLog(g_szBuf);
         j = C_GetKeyword();
         if (j == CON_CASE)
         {
@@ -2063,11 +2063,11 @@ repeatcase:
             C_GetNextKeyword();    // eat 'case'
             goto repeatcase;
         }
-                                                                              //Bsprintf(g_szBuf,"case4: '%.12s'",textptr); AddLog(g_szBuf);
+        //Bsprintf(g_szBuf,"case4: '%.12s'",textptr); AddLog(g_szBuf);
         tempoffset = (unsigned)(tempscrptr-script);
         while (C_ParseCommand() == 0)
         {
-                                                                                  //Bsprintf(g_szBuf,"case5 '%.25s'",textptr); AddLog(g_szBuf);
+            //Bsprintf(g_szBuf,"case5 '%.25s'",textptr); AddLog(g_szBuf);
             j = C_GetKeyword();
             if (j == CON_CASE)
             {
@@ -2078,7 +2078,7 @@ repeatcase:
             }
         }
         tempscrptr = (instype *)(script+tempoffset);
-                                                                              //AddLog("End Case");
+        //AddLog("End Case");
         return 0;
         //      break;
     }
@@ -2101,7 +2101,7 @@ repeatcase:
         }
         if (cs.caseScriptPtr)
             cs.caseScriptPtr[0] = (ofstype)(g_scriptPtr-cs.caseCodePtr);   // save offset from cases' code
-                                                                              //Bsprintf(g_szBuf,"default: '%.22s'",textptr); AddLog(g_szBuf);
+        //Bsprintf(g_szBuf,"default: '%.22s'",textptr); AddLog(g_szBuf);
         while (C_ParseCommand() == 0)
         {
             //Bsprintf(g_szBuf,"defaultParse: '%.22s'",textptr); AddLog(g_szBuf);
@@ -2318,7 +2318,7 @@ repeatcase:
         }
 
         C_GetNextLabelName();
-                                                                              //printf("Got Label '%.20s'\n",textptr);
+        //printf("Got Label '%.20s'\n",textptr);
         // Check to see it's already defined
         if (hash_find(&keywH, tlabel) >= 0)
         {
@@ -2857,7 +2857,7 @@ repeatcase:
     case CON_DEFINEQUOTE:
     case CON_REDEFINEQUOTE:
         if (tw == CON_DEFINEQUOTE)
-            g_scriptPtr--;        
+            g_scriptPtr--;
 
         C_GetNextValue(LABEL_DEFINE);
 
@@ -3319,7 +3319,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         C_AddDefaultDefinitions();
 
         script = Bcalloc(g_scriptSize, sizeof(instype));
-                                                                      //        initprintf("script: %d\n",script);
+        //        initprintf("script: %d\n",script);
         if (!script || !label || !labelval || !labeltype || !constants)
         {
             initprintf("C_Compile(): ERROR: out of memory!\n");

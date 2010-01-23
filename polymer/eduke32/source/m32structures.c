@@ -132,7 +132,7 @@ static int32_t __fastcall X_AccessSector(int32_t how, int32_t lVar1, int32_t lLa
 {
     int32_t lValue;
     int32_t i = (how&ACCESS_USEVARS) ? sprite[vm.g_i].sectnum : lVar1;
-    
+
     if ((how&ACCESS_USEVARS) && lVar1 != g_iThisActorID)
         i = Gv_GetVarX(lVar1);
 
@@ -344,14 +344,14 @@ static int32_t __fastcall X_AccessSprite(int32_t how, int32_t lVar1, int32_t lLa
 
         return lValue;
     }
-  badactor:
+badactor:
 //    OSD_Printf(CON_ERROR "tried to set %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",g_errorLineNum,keyw[g_tw],
 //               SpriteLabels[lLabelID].name,i,vm.g_i,vm.g_sp->picnum,
 //               (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
     OSD_Printf(CON_ERROR "tried to set %s on invalid target sprite (%d)\n",g_errorLineNum,keyw[g_tw],
                SpriteLabels[lLabelID].name,i);
     return -1;
-  readonly:
+readonly:
     OSD_Printf(CON_ERROR "Sprite structure member `%s' is read-only.\n",g_errorLineNum,keyw[g_tw],SpriteLabels[lLabelID].name);
     return -1;
 }

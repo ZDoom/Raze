@@ -56,9 +56,8 @@ DEALINGS IN THE SOFTWARE.
 // #define NOINLINE
 #endif
 
-
 #include "nedmalloc.h"
-#if defined(WIN32)
+#if defined(_WIN32)
  #include <malloc.h>
 #endif
 #ifdef __linux__

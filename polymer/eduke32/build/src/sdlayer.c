@@ -1147,6 +1147,14 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 initprintf("Enabling ATI R520 polygon offset workaround.\n");
             } else
                 pr_ati_nodepthoffset = 0;
+#ifdef __APPLE__
+			//See bug description at http://lists.apple.com/archives/mac-opengl/2005/Oct/msg00169.html
+            if (!Bstrncmp(glinfo.renderer,"ATI Radeon 9600", 15)) {
+                pr_ati_textureformat_one = 1;
+                initprintf("Enabling ATI Radeon 9600 texture format workaround.\n");
+            } else
+                pr_ati_textureformat_one = 0;
+#endif
         } else
             pr_ati_fboworkaround = 0;
 #endif
@@ -1530,19 +1538,23 @@ static SDL_Surface * loadappicon(void)
 // handleevents() -- process the SDL message queue
 //   returns !0 if there was an important event worth checking (like quitting)
 //
+
+static inline void SetKey(int32_t key, int32_t state)
+{
+    keystatus[remap[key]] = state;
+
+    if (state) 
+    {
+        keyfifo[keyfifoend] = remap[key];
+        keyfifo[(keyfifoend+1)&(KEYFIFOSIZ-1)] = state;
+        keyfifoend = ((keyfifoend+2)&(KEYFIFOSIZ-1));
+    }
+}
+
 int32_t handleevents(void)
 {
     int32_t code, rv=0, j;
     SDL_Event ev;
-
-#define SetKey(key,state) { \
-        keystatus[remap[key]] = state; \
-		if (state) { \
-        keyfifo[keyfifoend] = remap[key]; \
-	keyfifo[(keyfifoend+1)&(KEYFIFOSIZ-1)] = state; \
-	keyfifoend = ((keyfifoend+2)&(KEYFIFOSIZ-1)); \
-		} \
-}
 
     while (SDL_PollEvent(&ev))
     {
@@ -2087,7 +2099,7 @@ static int32_t buildkeytranslationtable(void)
 #if defined _WIN32
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
-#elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__
+#elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __APPLE__
 # include <sys/mman.h>
 #endif
 
@@ -2102,7 +2114,7 @@ void makeasmwriteable(void)
         initprint("Error making code writeable\n");
         return;
     }
-# elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__
+# elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __APPLE__
     int32_t pagesize;
     size_t dep_begin_page;
     pagesize = sysconf(_SC_PAGE_SIZE);

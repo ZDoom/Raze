@@ -123,7 +123,7 @@ void CALLBACK MPU_MIDICallback(HMIDIOUT handle, UINT uMsg, DWORD dwInstance, DWO
     {
     case MOM_DONE:
         midiOutUnprepareHeader((HMIDIOUT)handle, (MIDIHDR*)dwParam1, sizeof(MIDIHDR));
-        for (i=0;i<NUMBUFFERS;i++)
+        for (i=0; i<NUMBUFFERS; i++)
         {
             if (dwParam1 == (uint32_t)&bufferheaders[i])
             {
@@ -272,7 +272,7 @@ int32_t MPU_Init
 {
     int32_t i;
 
-    for (i=0;i<NUMBUFFERS;i++) eventcnt[i]=0;
+    for (i=0; i<NUMBUFFERS; i++) eventcnt[i]=0;
 
     mididevice = addr;
 

@@ -192,7 +192,7 @@ inline int32_t G_CheckPlayerInSector(int32_t sect)
 {
     int32_t i;
     TRAVERSE_CONNECT(i)
-        if (sprite[g_player[i].ps->i].sectnum == sect) return i;
+    if (sprite[g_player[i].ps->i].sectnum == sect) return i;
     return -1;
 }
 
@@ -3048,7 +3048,7 @@ void P_CheckSectors(int32_t snum)
             return;
         case -1:
             TRAVERSE_CONNECT(i)
-                g_player[i].ps->gm = MODE_EOL;
+            g_player[i].ps->gm = MODE_EOL;
             sector[p->cursectnum].lotag = 0;
             if (ud.from_bonus)
             {

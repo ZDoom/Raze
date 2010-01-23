@@ -1050,6 +1050,20 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
         {
             m->glcmds[i] = B_LITTLE32(m->glcmds[i]);
         }
+	for (i = head.numtris-1; i>=0; i--)
+	{
+		m->tris[i].v[0] = B_LITTLE16(m->tris[i].v[0]);
+		m->tris[i].v[1] = B_LITTLE16(m->tris[i].v[1]);
+		m->tris[i].v[2] = B_LITTLE16(m->tris[i].v[2]);
+		m->tris[i].u[0] = B_LITTLE16(m->tris[i].u[0]);
+		m->tris[i].u[1] = B_LITTLE16(m->tris[i].u[1]);
+		m->tris[i].u[2] = B_LITTLE16(m->tris[i].u[2]);
+	}
+	for(i = head.numuv-1; i>=0; i--)
+	{
+		m->uv[i].u = B_LITTLE16(m->uv[i].u);
+		m->uv[i].v = B_LITTLE16(m->uv[i].v);
+	}
     }
 #endif
 

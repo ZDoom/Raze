@@ -107,7 +107,5 @@ int32_t FX_StopAllSounds( void );
 int32_t FX_StartDemandFeedPlayback( void ( *function )( char **ptr, uint32_t *length ),
        int32_t rate, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
        int32_t priority, uint32_t callbackval );
-int32_t  FX_StartRecording( int32_t MixRate, void ( *function )( char *ptr, int32_t length ) );
-void FX_StopRecord( void );
 
 #endif

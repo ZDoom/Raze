@@ -788,13 +788,16 @@ static struct _joydevicedefn *thisjoydef = NULL, joyfeatures[] =
 #undef featurecount
 
 // I don't see any pressing need to store the key-up events yet
-#define SetKey(key,state) { \
-        keystatus[remap[key]] = state; \
-		if (state) { \
-        keyfifo[keyfifoend] = remap[key]; \
-	keyfifo[(keyfifoend+1)&(KEYFIFOSIZ-1)] = state; \
-	keyfifoend = ((keyfifoend+2)&(KEYFIFOSIZ-1)); \
-		} \
+static inline void SetKey(int32_t key, int32_t state)
+{
+    keystatus[remap[key]] = state;
+
+    if (state) 
+    {
+        keyfifo[keyfifoend] = remap[key];
+        keyfifo[(keyfifoend+1)&(KEYFIFOSIZ-1)] = state;
+        keyfifoend = ((keyfifoend+2)&(KEYFIFOSIZ-1));
+    }
 }
 
 char map_dik_code(int32_t scanCode)
@@ -883,7 +886,7 @@ void setkeypresscallback(void (*callback)(int32_t, int32_t)) { keypresscallback 
 void setmousepresscallback(void (*callback)(int32_t, int32_t)) { mousepresscallback = callback; }
 void setjoypresscallback(void (*callback)(int32_t, int32_t)) { joypresscallback = callback; }
 
-#define DINPUT_EVENTS 4
+#define DINPUT_EVENTS 16
 
 DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
 {
@@ -909,11 +912,13 @@ DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
         result = IDirectInputDevice7_GetDeviceData(lpDID[MOUSE], sizeof(DIDEVICEOBJECTDATA),
                  (LPDIDEVICEOBJECTDATA)&didod[0], &dwElements, 0);
 
-        if (!dwElements || result != DI_OK)
+        if (!dwElements || (result != DI_OK && result != DI_BUFFEROVERFLOW))
             continue;
 
         do
         {
+            int32_t bit = 1<<(didod[dwElements-1].dwOfs - DIMOFS_BUTTON0);
+
             switch (didod[dwElements-1].dwOfs)
             {
             case DIMOFS_X:
@@ -941,74 +946,21 @@ DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
             }
             break;
 
-            case DIMOFS_BUTTON0:
-            {
-                if (didod[dwElements-1].dwData & 0x80) mouseb |= 1;
-                else mouseb &= ~1;
-                if (mousepresscallback)
-                    mousepresscallback(1, mouseb & 1);
-            }
-            break;
-            case DIMOFS_BUTTON1:
-            {
-                if (didod[dwElements-1].dwData & 0x80) mouseb |= 2;
-                else mouseb &= ~2;
-                if (mousepresscallback)
-                    mousepresscallback(2, mouseb & 2);
-            }
-            break;
-            case DIMOFS_BUTTON2:
-            {
-                if (didod[dwElements-1].dwData & 0x80) mouseb |= 4;
-                else mouseb &= ~4;
-                if (mousepresscallback)
-                    mousepresscallback(3, mouseb & 4);
-            }
-            break;
-            case DIMOFS_BUTTON3:
-            {
-                if (didod[dwElements-1].dwData & 0x80) mouseb |= 8;
-                else mouseb &= ~8;
-                if (mousepresscallback)
-                    mousepresscallback(4, mouseb & 8);
-            }
-            break;
             case DIMOFS_BUTTON4:
-            {
-                OSD_Printf("got button4\n");
-                if (didod[dwElements-1].dwData & 0x80) mouseb |= 64;
-                else mouseb &= ~64;
-                if (mousepresscallback)
-                    mousepresscallback(7, mouseb & 64);
-            }
-            break;
             case DIMOFS_BUTTON5:
-            {
-                OSD_Printf("got button5\n");
-                if (didod[dwElements-1].dwData & 0x80) mouseb |= 128;
-                else mouseb &= ~128;
-                if (mousepresscallback)
-                    mousepresscallback(8, mouseb & 128);
-            }
-            break;
             case DIMOFS_BUTTON6:
-            {
-                OSD_Printf("got button6\n");
-                if (didod[dwElements-1].dwData & 0x80) mouseb |= 256;
-                else mouseb &= ~256;
-                if (mousepresscallback)
-                    mousepresscallback(9, mouseb & 256);
-            }
-            break;
             case DIMOFS_BUTTON7:
-            {
-                OSD_Printf("got button7\n");
-                if (didod[dwElements-1].dwData & 0x80) mouseb |= 512;
-                else mouseb &= ~512;
+                didod[dwElements-1].dwOfs += 2; // skip mousewheel buttons
+                bit = 1<<(didod[dwElements-1].dwOfs - DIMOFS_BUTTON0);
+            case DIMOFS_BUTTON0:
+            case DIMOFS_BUTTON1:
+            case DIMOFS_BUTTON2:
+            case DIMOFS_BUTTON3:
+                if (didod[dwElements-1].dwData & 0x80) mouseb |= bit;
+                else mouseb &= ~bit;
                 if (mousepresscallback)
-                    mousepresscallback(10, mouseb & 512);
-            }
-            break;
+                    mousepresscallback(didod[dwElements-1].dwOfs - DIMOFS_BUTTON0 + 1, mouseb & bit);
+                break;
             }
         }
         while (--dwElements);

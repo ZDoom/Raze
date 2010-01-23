@@ -278,7 +278,7 @@ static int32_t X_DoSort(const int32_t *lv, const int32_t *rv)
         vm.flags |= VMFLAG_ERROR;                                       \
         continue;                                                       \
     }                                                                   \
-
+ 
 int32_t X_DoExecute(int32_t once)
 {
     register int32_t tw = *insptr;
@@ -358,15 +358,15 @@ skip_check:
 
                 insptr += lCases*2;
                 lCodeInsPtr = insptr;
-                                                                                      //Bsprintf(g_szBuf,"lEnd= %d *lpDefault=%d",lEnd,*lpDefault); AddLog(g_szBuf);
-                                                                                      //Bsprintf(g_szBuf,"Checking %d cases for %d",lCases, lValue); AddLog(g_szBuf);
+                //Bsprintf(g_szBuf,"lEnd= %d *lpDefault=%d",lEnd,*lpDefault); AddLog(g_szBuf);
+                //Bsprintf(g_szBuf,"Checking %d cases for %d",lCases, lValue); AddLog(g_szBuf);
                 left = 0;
                 right = lCases-1;
                 while (!bMatched)
                 {
-                                                                                          //Bsprintf(g_szBuf,"Checking #%d Value= %d",lCheckCase, lpCases[lCheckCase*2]); AddLog(g_szBuf);
+                    //Bsprintf(g_szBuf,"Checking #%d Value= %d",lCheckCase, lpCases[lCheckCase*2]); AddLog(g_szBuf);
                     lCheckCase=(left+right)/2;
-                                                                                          //                initprintf("(%2d..%2d..%2d) [%2d..%2d..%2d]==%2d\n",left,lCheckCase,right,lpCases[left*2],lpCases[lCheckCase*2],lpCases[right*2],lValue);
+                    //                initprintf("(%2d..%2d..%2d) [%2d..%2d..%2d]==%2d\n",left,lCheckCase,right,lpCases[left*2],lpCases[lCheckCase*2],lpCases[right*2],lValue);
                     if (lpCases[lCheckCase*2] > lValue)
                         right = lCheckCase-1;
                     else if (lpCases[lCheckCase*2] < lValue)
@@ -374,10 +374,10 @@ skip_check:
                     else if (lpCases[lCheckCase*2] == lValue)
                     {
                         //AddLog("Found Case Match");
-                                                                                              //Bsprintf(g_szBuf,"insptr=%d. lCheckCase=%d, offset=%d, &script[0]=%d", (int32_t)insptr,(int32_t)lCheckCase,lpCases[lCheckCase*2+1],(int32_t)&script[0]); AddLog(g_szBuf);
+                        //Bsprintf(g_szBuf,"insptr=%d. lCheckCase=%d, offset=%d, &script[0]=%d", (int32_t)insptr,(int32_t)lCheckCase,lpCases[lCheckCase*2+1],(int32_t)&script[0]); AddLog(g_szBuf);
                         // fake a 2-d Array
                         insptr = lCodeInsPtr + lpCases[lCheckCase*2+1];
-                                                                                              //Bsprintf(g_szBuf,"insptr=%d. ",     (int32_t)insptr); AddLog(g_szBuf);
+                        //Bsprintf(g_szBuf,"insptr=%d. ",     (int32_t)insptr); AddLog(g_szBuf);
                         X_DoExecute(0);
                         //AddLog("Done Executing Case");
                         bMatched=1;
@@ -399,7 +399,7 @@ skip_check:
 //                    }
                 }
                 insptr = (instype *)(lCodeInsPtr + lEnd);
-                                                                                      //Bsprintf(g_szBuf,"insptr=%d. ",     (int32_t)insptr); AddLog(g_szBuf);
+                //Bsprintf(g_szBuf,"insptr=%d. ",     (int32_t)insptr); AddLog(g_szBuf);
                 //AddLog("Done Processing Switch");
                 continue;
             }
@@ -478,7 +478,7 @@ skip_check:
                 continue;
             }
 #if 0
-       case CON_SETSPRITE:
+        case CON_SETSPRITE:
             insptr++;
             {
                 // syntax [gs]etsprite[<var>].x <VAR>
@@ -590,9 +590,9 @@ skip_check:
                 if (vm.flags&VMFLAG_ERROR) continue;
 
                 ssiz = (aGameArrays[si].dwFlags&GAMEARRAY_VARSIZE) ?
-                    Gv_GetVarN(aGameArrays[si].size) : aGameArrays[si].size;
+                       Gv_GetVarN(aGameArrays[si].size) : aGameArrays[si].size;
                 dsiz = (aGameArrays[di].dwFlags&GAMEARRAY_VARSIZE) ?
-                    Gv_GetVarN(aGameArrays[si].size) : aGameArrays[di].size;
+                       Gv_GetVarN(aGameArrays[si].size) : aGameArrays[di].size;
 
                 if (sidx > ssiz || didx > dsiz) continue;
                 if ((sidx+numelts) > ssiz) numelts = ssiz-sidx;
@@ -1233,8 +1233,8 @@ skip_check:
                 case ITER_WALLSOFSECTOR:
                     if (parm2 < 0 || parm2 >= MAXSECTORS)
                         goto badindex;
-                    for(jj=sector[parm2].wallptr, endwall=jj+sector[parm2].wallnum-1;
-                        jj<=endwall && !vm.flags; jj++)
+                    for (jj=sector[parm2].wallptr, endwall=jj+sector[parm2].wallnum-1;
+                            jj<=endwall && !vm.flags; jj++)
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;
@@ -1251,7 +1251,8 @@ skip_check:
                         insptr = beg;
                         X_DoExecute(1);
                         jj = wall[jj].point2;
-                    } while (jj != parm2 && !vm.flags);
+                    }
+                    while (jj != parm2 && !vm.flags);
                     break;
                 case ITER_RANGE:
                     for (jj=0; jj<parm2 && !vm.flags; jj++)
@@ -1375,8 +1376,8 @@ badindex:
                 if (tw != CON_IFHOLDKEY)
                 {
                     if (!(key==0 || key==KEYSC_ESC || key==KEYSC_TILDE || key==KEYSC_gENTER ||
-                          key==KEYSC_LALT || key==KEYSC_RALT || key==KEYSC_LCTRL || key==KEYSC_RCTRL ||
-                          key==KEYSC_LSHIFT || key==KEYSC_RSHIFT))
+                            key==KEYSC_LALT || key==KEYSC_RALT || key==KEYSC_LCTRL || key==KEYSC_RCTRL ||
+                            key==KEYSC_LSHIFT || key==KEYSC_RSHIFT))
                         keystatus[key] = 0;
                 }
             }
@@ -1443,7 +1444,7 @@ badindex:
 
             X_ERROR_INVALIDSP();
             j = cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z/*-((krand()&41)<<8)*/,vm.g_sp->sectnum,
-                               pos.x, pos.y, pos.z /*-((krand()&41)<<8)*/, cursectnum);
+                       pos.x, pos.y, pos.z /*-((krand()&41)<<8)*/, cursectnum);
             X_DoConditional(j);
         }
         continue;
@@ -1537,7 +1538,7 @@ badindex:
                     vm.flags |= VMFLAG_ERROR;
                 }
                 if ((tw==CON_DUPSPRITE && numsprites >= MAXSPRITES) ||
-                    (tw==CON_DUPSPRITE && spritesortcnt >= MAXSPRITESONSCREEN))
+                        (tw==CON_DUPSPRITE && spritesortcnt >= MAXSPRITESONSCREEN))
                 {
                     OSD_Printf(CON_ERROR "Maximum number of sprites reached.\n",g_errorLineNum,keyw[g_tw]);
                     vm.flags |= VMFLAG_ERROR;
@@ -2216,7 +2217,7 @@ badindex:
 
                     while (*insptr != -1 && numvals < 32)
                         arg[numvals++] = Gv_GetVarX(*insptr++);
-                    
+
                     insptr++; // skip the NOP
 
                     i = 0;
@@ -2299,7 +2300,7 @@ dodefault:
                 // <type> <maxdist(varid)> <varid>
                 int32_t lType=*insptr++;
                 int32_t lMaxDist = (tw==CON_FINDNEARSPRITE || tw==CON_FINDNEARSPRITE3D)?
-                    *insptr++ : Gv_GetVarX(*insptr++);
+                                   *insptr++ : Gv_GetVarX(*insptr++);
                 int32_t lVarID=*insptr++;
                 int32_t lFound=-1, j, k = MAXSTATUS-1;
 

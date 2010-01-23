@@ -24,7 +24,11 @@
 
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_mixer.h>
+#if defined(SDL_FRAMEWORK)
+# include <SDL_mixer/SDL_mixer.h>
+#else
+# include <SDL/SDL_mixer.h>
+#endif
 #include <SDL/SDL_thread.h>
 #include "driver_sdl.h"
 

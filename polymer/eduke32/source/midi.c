@@ -48,7 +48,7 @@ static const int32_t _MIDI_CommandLengths[ NUM_MIDI_CHANNELS ] =
     0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 1, 2, 0
 };
 
-static int32_t (*_MIDI_RerouteFunctions[ NUM_MIDI_CHANNELS ]) ( int32_t event, int32_t c1, int32_t c2 );
+static int32_t (*_MIDI_RerouteFunctions[ NUM_MIDI_CHANNELS ])(int32_t event, int32_t c1, int32_t c2);
 
 static track *_MIDI_TrackPtr = NULL;
 static int32_t    _MIDI_TrackMemSize;
@@ -62,12 +62,12 @@ static int32_t  _MIDI_Division;
 static int32_t  _MIDI_Tick    = 0;
 static int32_t  _MIDI_Beat    = 1;
 static int32_t  _MIDI_Measure = 1;
-static unsigned _MIDI_Time;
+static uint32_t _MIDI_Time;
 static int32_t  _MIDI_BeatsPerMeasure;
 static int32_t  _MIDI_TicksPerBeat;
 static int32_t  _MIDI_TimeBase;
 static int32_t _MIDI_FPSecondsPerTick;
-static unsigned _MIDI_TotalTime;
+static uint32_t _MIDI_TotalTime;
 static int32_t  _MIDI_TotalTicks;
 static int32_t  _MIDI_TotalBeats;
 static int32_t  _MIDI_TotalMeasures;

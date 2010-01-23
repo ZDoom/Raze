@@ -2430,32 +2430,32 @@ cheat_for_port_credits:
 #ifdef POLYMER
                     else
                     {
-                            float ratios[] = { 0.0, 1.33, 1.66, 1.78, 1.85, 2.35 };
+                        float ratios[] = { 0.0, 1.33, 1.66, 1.78, 1.85, 2.35 };
 
-                            int32_t j = (sizeof(ratios)/sizeof(ratios[0]));
+                        int32_t j = (sizeof(ratios)/sizeof(ratios[0]));
 
-                            for (i = 0; i<j; i++)
-                                if (ratios[i] == pr_customaspect)
-                                    break;
+                        for (i = 0; i<j; i++)
+                            if (ratios[i] == pr_customaspect)
+                                break;
 
-                            modval(0,j-1,(int32_t *)&i,1,probey==io);
-                            if (x == io)
-                            {
-                                i++;
-                                if (i >= j)
-                                    i = 0;
-                            }
-                            if (i == j)
-                                Bsprintf(tempbuf,"Custom");
-                            else
-                            {
-                                if (i == 0) Bsprintf(tempbuf,"Auto");
-                                else Bsprintf(tempbuf,"%.2f:1",ratios[i]);
+                        modval(0,j-1,(int32_t *)&i,1,probey==io);
+                        if (x == io)
+                        {
+                            i++;
+                            if (i >= j)
+                                i = 0;
+                        }
+                        if (i == j)
+                            Bsprintf(tempbuf,"Custom");
+                        else
+                        {
+                            if (i == 0) Bsprintf(tempbuf,"Auto");
+                            else Bsprintf(tempbuf,"%.2f:1",ratios[i]);
 
-                                if (ratios[i] != pr_customaspect)
-                                    pr_customaspect = ratios[i];
-                            }
-                            mgametextpal(d,yy,tempbuf, MENUHIGHLIGHT(io), 0);
+                            if (ratios[i] != pr_customaspect)
+                                pr_customaspect = ratios[i];
+                        }
+                        mgametextpal(d,yy,tempbuf, MENUHIGHLIGHT(io), 0);
 
                     }
 #endif
@@ -2527,19 +2527,19 @@ cheat_for_port_credits:
                     mgametextpal(d,yy, ud.config.useprecache ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 7:
+                {
+                    char *s[] = { "Off", "On", "Compress" };
+                    enabled = (glusetexcompr && usehightile);
+                    if (enabled && x==io)
                     {
-                        char *s[] = { "Off", "On", "Compress" };
-                        enabled = (glusetexcompr && usehightile);
-                        if (enabled && x==io)
-                        {
-                            glusetexcache++;
-                            if (glusetexcache > 2)
-                                glusetexcache = 0;
-                        }
-                        if (enabled) modval(0,2,(int32_t *)&glusetexcache,1,probey==io);
-                        mgametextpal(d,yy, s[glusetexcache], enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                        glusetexcache++;
+                        if (glusetexcache > 2)
+                            glusetexcache = 0;
                     }
-                    break;
+                    if (enabled) modval(0,2,(int32_t *)&glusetexcache,1,probey==io);
+                    mgametextpal(d,yy, s[glusetexcache], enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                }
+                break;
                 case 8:
                     enabled = usehightile;
                     if (enabled && x==io) r_detailmapping = !r_detailmapping;

@@ -82,6 +82,7 @@ Low priority:
 #include "engine_priv.h"
 #include "hightile.h"
 #include "polymost.h"
+#include "polymer.h"
 #include "scriptfile.h"
 #include "cache1d.h"
 #include "kplib.h"
@@ -1378,6 +1379,9 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
         if (gi != GL_TRUE) goto failure;   // an uncompressed mipmap
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, (GLint *)&gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
+#ifdef __APPLE__
+		if(pr_ati_textureformat_one && gi == 1 ) gi = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+#endif
         pict.format = B_LITTLE32(gi);
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_WIDTH, (GLint *)&gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
@@ -1523,7 +1527,7 @@ int32_t gloadtile_cached(int32_t fil, texcacheheader *head, int32_t *doalloc, pt
             GLint format;
             bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &format);
             if (bglGetError() != GL_NO_ERROR) goto failure;
-            format = B_LITTLE32(format);
+//            format = B_LITTLE32(format);
             if (pict.format != format)
             {
                 OSD_Printf("invalid texture cache file format %d %d\n",pict.format, format);
@@ -6234,15 +6238,15 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
     void *inbuf;
 #if (USEKENFILTER == 0)
     uint32_t cleng;
-    if (kread(fil, &cleng, sizeof(uint32_t)) != sizeof(uint32_t)) return -1; cleng = B_LITTLE32(cleng);
+    if (Bread(fil, &cleng, sizeof(uint32_t)) != sizeof(uint32_t)) return -1; cleng = B_LITTLE32(cleng);
 #ifdef USELZF
     if (ispacked && cleng < pict->size) inbuf = packbuf; else inbuf = pic;
-    if (kread(fil, inbuf, cleng) != cleng) return -1;
+    if (Bread(fil, inbuf, cleng) != cleng) return -1;
     if (ispacked && cleng < pict->size)
         if (qlz_decompress(packbuf, pic, state_decompress) == 0) return -1;
 #else
     if (ispacked) inbuf = packbuf; else inbuf = pic;
-    if (kread(fil, inbuf, cleng) != cleng) return -1;
+    if (Bread(fil, inbuf, cleng) != cleng) return -1;
     if (ispacked && lzwuncompress(packbuf, cleng, pic, pict->size) != pict->size) return -1;
 #endif
 #else
