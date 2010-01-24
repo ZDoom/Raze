@@ -97,11 +97,18 @@ static void Gv_Clear(void)
     return;
 }
 
-int32_t Gv_ReadSave(int32_t fil)
+int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
 {
     int32_t i, j;
     intptr_t l;
     char savedstate[MAXVOLUMES*MAXLEVELS];
+    char tbuf[12];
+
+    if (newbehav)
+    {
+        if (kread(fil, tbuf, 12)!=12) goto corrupt;
+        if (Bmemcmp(tbuf, "BEG: EDuke32", 12)) { OSD_Printf("BEG ERR\n"); return 2; }
+    }
 
     Bmemset(&savedstate,0,sizeof(savedstate));
 
@@ -197,10 +204,18 @@ int32_t Gv_ReadSave(int32_t fil)
         }
     }
 
-    if (kdfread(&l,sizeof(l),1,fil) != 1) goto corrupt;
-    if (kdfread(g_szBuf,l,1,fil) != 1) goto corrupt;
-    g_szBuf[l]=0;
-    OSD_Printf("%s\n",g_szBuf);
+    if (!newbehav)
+    {
+        if (kdfread(&l,sizeof(l),1,fil) != 1) goto corrupt;
+        if (kdfread(g_szBuf,l,1,fil) != 1) goto corrupt;
+        g_szBuf[l]=0;
+        OSD_Printf("%s\n",g_szBuf);
+    }
+    else
+    {
+        if (kread(fil, tbuf, 12)!=12) goto corrupt;
+        if (Bmemcmp(tbuf, "EOF: EDuke32", 12)) { OSD_Printf("EOF ERR\n"); return 2; }
+    }
 
 #if 0
     {
@@ -220,7 +235,7 @@ corrupt:
     return(1);
 }
 
-void Gv_WriteSave(FILE *fil)
+void Gv_WriteSave(FILE *fil, int32_t newbehav)
 {
     int32_t i, j;
     intptr_t l;
@@ -229,6 +244,9 @@ void Gv_WriteSave(FILE *fil)
     Bmemset(&savedstate,0,sizeof(savedstate));
 
     //   AddLog("Saving Game Vars to File");
+    if (newbehav)
+        fwrite("BEG: EDuke32", 12, 1, fil);
+
     dfwrite(&g_gameVarCount,sizeof(g_gameVarCount),1,fil);
 
     for (i=0; i<g_gameVarCount; i++)
@@ -297,10 +315,15 @@ void Gv_WriteSave(FILE *fil)
             }
         }
 
-    Bsprintf(g_szBuf,"EOF: EDuke32");
-    l=Bstrlen(g_szBuf);
-    dfwrite(&l,sizeof(l),1,fil);
-    dfwrite(g_szBuf,l,1,fil);
+    if (!newbehav)
+    {
+        Bsprintf(g_szBuf,"EOF: EDuke32");
+        l=Bstrlen(g_szBuf);
+        dfwrite(&l,sizeof(l),1,fil);
+        dfwrite(g_szBuf,l,1,fil);
+    }
+    else
+        fwrite("EOF: EDuke32", 12, 1, fil);
 }
 
 void Gv_DumpValues(void)

@@ -25,6 +25,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gamedef.h"
 #include "compat.h"
 
+#if KRANDDEBUG
+# define ACTOR_INLINE
+# define ACTOR_STATIC
+#else
+# define ACTOR_INLINE inline
+# define ACTOR_STATIC static
+#endif
+
+
 #define KILLIT(KX) {deletesprite(KX);goto BOLT;}
 
 extern int32_t g_numEnvSoundsPlaying;
@@ -456,7 +465,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
     return(retval);
 }
 
-inline int32_t A_SetSprite(int32_t i,uint32_t cliptype)
+ACTOR_INLINE int32_t A_SetSprite(int32_t i,uint32_t cliptype)
 {
     vec3_t davect = {(sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
                      (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14,
@@ -724,7 +733,7 @@ inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, i
 }
 
 // sleeping monsters, etc
-static void G_MoveZombieActors(void)
+ACTOR_STATIC void G_MoveZombieActors(void)
 {
     int32_t x, px, py, sx, sy;
     int32_t i = headspritestat[STAT_ZOMBIEACTOR], j, p, nexti;
@@ -1020,7 +1029,7 @@ BOLT:
 
 int32_t otherp;
 
-static void G_MovePlayers(void)
+ACTOR_STATIC void G_MovePlayers(void)
 {
     int32_t i = headspritestat[STAT_PLAYER], nexti;
     int32_t otherx;
@@ -1153,7 +1162,7 @@ BOLT:
     }
 }
 
-static void G_MoveFX(void)
+ACTOR_STATIC void G_MoveFX(void)
 {
     int32_t i = headspritestat[STAT_FX], j, nexti, p;
     int32_t x, ht;
@@ -1253,7 +1262,7 @@ BOLT:
     }
 }
 
-static void G_MoveFallers(void)
+ACTOR_STATIC void G_MoveFallers(void)
 {
     int32_t i = headspritestat[STAT_FALLER], nexti, sect, j;
     spritetype *s;
@@ -1351,7 +1360,7 @@ BOLT:
     }
 }
 
-static void G_MoveStandables(void)
+ACTOR_STATIC void G_MoveStandables(void)
 {
     int32_t i = headspritestat[STAT_STANDABLE], j, k, nexti, nextj, p=0, sect, switchpicnum;
     int32_t l=0, x;
@@ -2312,7 +2321,7 @@ BOLT:
     }
 }
 
-static void A_DoProjectileBounce(int32_t i)
+ACTOR_STATIC void A_DoProjectileBounce(int32_t i)
 {
     int32_t dax, day, daz = 4096;
     spritetype *s = &sprite[i];
@@ -2349,7 +2358,7 @@ static void A_DoProjectileBounce(int32_t i)
     s->ang = getangle(xvect,yvect);
 }
 
-static void G_MoveWeapons(void)
+ACTOR_STATIC void G_MoveWeapons(void)
 {
     int32_t i = headspritestat[STAT_PROJECTILE], j=0, k, f, nexti, p, q;
     vec3_t davect;
@@ -3092,7 +3101,7 @@ BOLT:
     }
 }
 
-static void G_MoveTransports(void)
+ACTOR_STATIC void G_MoveTransports(void)
 {
     int32_t warpspriteto;
     int32_t i = headspritestat[STAT_TRANSPORT], j, k, l, p, sect, sectlotag, nexti, nextj;
@@ -3447,7 +3456,7 @@ static int16_t A_FindLocator(int32_t n,int32_t sn)
     return -1;
 }
 
-static void G_MoveActors(void)
+ACTOR_STATIC void G_MoveActors(void)
 {
     int32_t x, m, l;
     intptr_t *t;
@@ -4796,7 +4805,7 @@ BOLT:
 
 }
 
-static void G_MoveMisc(void)  // STATNUM 5
+ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
 {
     int16_t i, j, nexti, sect, p;
     int32_t l, x;
@@ -5359,7 +5368,7 @@ BOLT:
     }
 }
 
-static void G_MoveEffectors(void)   //STATNUM 3
+ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 {
     int32_t q=0,  m, x, st, j;
     intptr_t *t,l;

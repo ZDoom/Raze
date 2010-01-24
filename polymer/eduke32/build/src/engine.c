@@ -9500,6 +9500,58 @@ void getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus)
 }
 
 
+#if KRANDDEBUG
+# include <execinfo.h>
+# define KRD_MAXCALLS 262144
+# define KRD_DEPTH 8
+static int krd_numcalls=0;
+static int krd_randomseed[KRD_MAXCALLS];
+static int krd_totalclock[KRD_MAXCALLS];
+static void *krd_fromwhere[KRD_MAXCALLS][KRD_DEPTH];
+static int32_t krd_enabled=0;
+
+void krd_enable()
+{
+    krd_enabled = 1;
+}
+
+int32_t krd_print(const char *filename)
+{
+    FILE *krd_fp = fopen(filename, "w");
+    int i, j, k, ototalclk=0;
+
+    krd_enabled = 0;
+    if (!krd_fp) { printf("KRANDDEBUG: Couldn't open file!"); return 1; }
+
+    for (i=0; i<krd_numcalls; i++)
+    {
+        k = (ototalclk != krd_totalclock[i]);
+        if (k)
+        {
+            ototalclk = krd_totalclock[i];
+            fprintf(krd_fp, "#%d:", ototalclk);
+        }
+
+        fprintf(krd_fp, " %08x:", krd_randomseed[i]);
+
+        for (j=1;; j++)  // skip self entry
+        {
+            if (j>=KRD_DEPTH || krd_fromwhere[i][j]==NULL)
+            {
+                fprintf(krd_fp, "\n");
+                break;
+            }
+            fprintf(krd_fp, " [%p]", krd_fromwhere[i][j]);
+        }
+    }
+
+    krd_numcalls = 0;
+
+    fclose(krd_fp);
+    return 0;
+}
+#endif
+
 //
 // krand
 //
@@ -9507,6 +9559,20 @@ int32_t krand(void)
 {
 //    randomseed = (randomseed*27584621)+1;
     randomseed = (randomseed * 1664525ul) + 221297ul;
+
+#if KRANDDEBUG
+    if (krd_enabled)
+        if (krd_numcalls < KRD_MAXCALLS)
+        {
+            int32_t i;
+            krd_randomseed[krd_numcalls] = randomseed;
+            krd_totalclock[krd_numcalls] = totalclock;
+            for (i=backtrace(krd_fromwhere[krd_numcalls],KRD_DEPTH); i<KRD_DEPTH; i++)
+                krd_fromwhere[krd_numcalls][i] = NULL;
+            krd_numcalls++;
+        }
+#endif
+
     return(((uint32_t)randomseed)>>16);
 }
 

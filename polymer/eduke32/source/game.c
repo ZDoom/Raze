@@ -49,6 +49,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "enet/enet.h"
 #include "quicklz.h"
 
+#if KRANDDEBUG
+# define GAME_INLINE
+# define GAME_STATIC
+#else
+# define GAME_INLINE inline
+# define GAME_STATIC static
+#endif
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -106,9 +114,17 @@ static int32_t g_Debug = 0;
 extern int32_t numlumps;
 
 static FILE *g_demo_filePtr = (FILE *)NULL;
-static int32_t g_demo_goalCnt=0, g_demo_startCnt=0, g_demo_soundToggle, g_demo_showStats=1;
-static int32_t g_demo_paused=0;
-static int32_t g_demo_recFilePtr, g_demo_totalCnt;
+static int32_t g_demo_cnt, g_demo_goalCnt=0, g_demo_totalCnt, g_demo_soundToggle;
+static int32_t g_demo_paused=0, g_demo_rewind=0, g_demo_showStats=1;
+static int32_t g_demo_recFilePtr;
+
+static int32_t demo_hasdiffs, demorec_diffs=1, demorec_difftics = 2*(TICRATE/TICSPERFRAME);
+int32_t demoplay_diffs=1, demorec_diffs_cvar=1, demorec_force_cvar=0;
+int32_t demorec_difftics_cvar = 2*(TICRATE/TICSPERFRAME);
+int32_t demorec_diffcompress_cvar=1;
+int32_t demorec_synccompress_cvar=1;
+int32_t demorec_seeds_cvar=1, demoplay_showsync=1;
+static int32_t demo_synccompress=1, demorec_seeds=1, demo_hasseeds;
 
 int32_t g_restorePalette = 0, g_screenCapture = 0, g_noEnemies = 0;
 static int32_t g_noLogoAnim = 0;
@@ -144,10 +160,10 @@ static int32_t nonsharedtimer;
 int32_t ticrandomseed;
 
 static void G_DrawCameraText(int16_t i);
-static inline int32_t G_MoveLoop(void);
+GAME_STATIC GAME_INLINE int32_t G_MoveLoop(void);
 static void G_DoOrderScreen(void);
-static int32_t G_DoMoveThings(void);
-static int32_t G_PlaybackDemo(void);
+GAME_STATIC int32_t G_DoMoveThings(void);
+GAME_STATIC int32_t G_PlaybackDemo(void);
 
 static char recbuf[180];
 
@@ -8450,7 +8466,7 @@ void G_CheatGetInv(void)
 
 int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
 
-static void G_DoCheats(void)
+GAME_STATIC void G_DoCheats(void)
 {
     int32_t ch, i, j, k=0, weapon;
     static int32_t z=0;
@@ -8957,7 +8973,19 @@ static void G_ShowScores(void)
 
 #undef SCORESHEETOFFSET
 
-static void G_HandleLocalKeys(void)
+
+static void demo_preparewarp()
+{
+    if (!g_demo_paused)
+    {
+        g_demo_soundToggle = ud.config.SoundToggle;
+        ud.config.SoundToggle = 0;
+    }
+    FX_StopAllSounds();
+    S_ClearSoundLocks();
+}
+
+GAME_STATIC void G_HandleLocalKeys(void)
 {
     int32_t i,ch;
     int32_t j;
@@ -9078,12 +9106,35 @@ static void G_HandleLocalKeys(void)
         P_DoQuote(83+ud.scrollmode,g_player[myconnectindex].ps);
     }
 
+    if (KB_UnBoundKeyPressed(sc_ScrollLock))
+    {
+        KB_ClearKeyDown(sc_ScrollLock);
+
+        switch (ud.recstat)
+        {
+        case 0:
+            G_OpenDemoWrite();
+            break;
+        case 1:
+            G_CloseDemoWrite();
+            break;
+        }
+    }
+
     if (ud.recstat == 2)
     {
         if (KB_KeyPressed(sc_Space))
         {
             KB_ClearKeyDown(sc_Space);
+
             g_demo_paused = !g_demo_paused;
+            g_demo_rewind = 0;
+
+            if (g_demo_paused)
+            {
+                FX_StopAllSounds();
+                S_ClearSoundLocks();
+            }
         }
 
         if (KB_KeyPressed(sc_Tab))
@@ -9092,6 +9143,7 @@ static void G_HandleLocalKeys(void)
             g_demo_showStats = !g_demo_showStats;
         }
 
+#if 0
         if (KB_KeyPressed(sc_kpad_Plus))
         {
             if (g_timerTicsPerSecond != 240)
@@ -9116,44 +9168,31 @@ static void G_HandleLocalKeys(void)
             inittimer(120);
             g_timerTicsPerSecond = 120;
         }
+#endif
 
         if (KB_KeyPressed(sc_kpad_6))
         {
             KB_ClearKeyDown(sc_kpad_6);
-            j = ALT_IS_PRESSED ? 30 : 10;
-            g_demo_goalCnt = g_demo_paused ? ud.reccnt-ud.multimode : ud.reccnt-(TICRATE/TICSPERFRAME)*ud.multimode*j;
-            g_demo_soundToggle = ud.config.SoundToggle;
+            j = (15<<ALT_IS_PRESSED)<<(2*SHIFTS_IS_PRESSED);
+            g_demo_goalCnt = g_demo_paused ? g_demo_cnt+1 : g_demo_cnt+(TICRATE/TICSPERFRAME)*j;
+            g_demo_rewind = 0;
 
-//            j=(g_demo_startCnt-ud.reccnt)/(ud.multimode*(TICRATE/TICSPERFRAME));
-//            OSD_Printf("  FF %d s from %02d:%02d\n", ALT_IS_PRESSED ? 30 : 10, j/60, j%60);
-
-            if (g_demo_goalCnt <= 0)
+            if (g_demo_goalCnt > g_demo_totalCnt)
                 g_demo_goalCnt = 0;
             else
-            {
-                ud.config.SoundToggle = 0;
-                FX_StopAllSounds();
-                S_ClearSoundLocks();
-            }
-
+                demo_preparewarp();
         }
         else if (KB_KeyPressed(sc_kpad_4))
         {
             KB_ClearKeyDown(sc_kpad_4);
-            j = ALT_IS_PRESSED ? 30 : 10;
-            g_demo_goalCnt = g_demo_paused ? ud.reccnt+ud.multimode : ud.reccnt+(TICRATE/TICSPERFRAME)*ud.multimode*j;
-            g_demo_soundToggle = ud.config.SoundToggle;
+            j = (15<<ALT_IS_PRESSED)<<(2*SHIFTS_IS_PRESSED);
+            g_demo_goalCnt = g_demo_paused ? g_demo_cnt-1 : g_demo_cnt-(TICRATE/TICSPERFRAME)*j;
+            g_demo_rewind = 1;
 
-//            j=(g_demo_startCnt-ud.reccnt)/(ud.multimode*TICRATE/TICSPERFRAME);
-//            OSD_Printf("  RW %d s from %02d:%02d\n", ALT_IS_PRESSED ? 30 : 10, j/60, j%60);
+            if (g_demo_goalCnt <= 0)
+                g_demo_goalCnt = 1;
 
-            if (g_demo_goalCnt > g_demo_startCnt)
-                g_demo_goalCnt = g_demo_startCnt;
-
-            g_demo_goalCnt = -g_demo_goalCnt;
-            ud.config.SoundToggle = 0;
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
+            demo_preparewarp();
         }
 
 #if 0
@@ -9163,11 +9202,11 @@ static void G_HandleLocalKeys(void)
             KB_ClearKeyDown(sc_Return);
             ud.reccnt = 0;
             ud.recstat = 0;
-//            kclose(recfilep);
+            kclose(g_demo_recFilePtr);
             g_player[myconnectindex].ps->gm = MODE_GAME;
-            ready2send=0;
+//            ready2send=0;
             screenpeek=myconnectindex;
-            demo_paused=0;
+//            g_demo_paused=0;
         }
 #endif
     }
@@ -11947,22 +11986,19 @@ MAIN_LOOP_RESTART:
     G_GameExit(" ");
 }
 
-static int32_t demo_version;
+extern int32_t sv_loadsnapshot(int32_t fil, int32_t *ret_hasdiffs, int32_t *ret_demoticcnt, int32_t *ret_synccompress);
 
-static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
+GAME_STATIC int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
 {
-    char d[13];
-    char ver;
+    char d[14];
     int32_t i;
 
-    Bstrcpy(d, "demo_.dmo");
+    Bstrcpy(d, "edemo_.edm");
 
     if (g_whichDemo == 10)
-        d[4] = 'x';
+        d[5] = 'x';
     else
-        d[4] = '0' + g_whichDemo;
-
-    ud.reccnt = 0;
+        d[5] = '0' + g_whichDemo;
 
     if (g_whichDemo == 1 && firstdemofile[0] != 0)
     {
@@ -11970,191 +12006,256 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     }
     else if ((g_demo_recFilePtr = kopen4loadfrommod(d,g_loadFromGroupOnly)) == -1) return(0);
 
-    if (kread(g_demo_recFilePtr,&ud.reccnt,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-    if (kread(g_demo_recFilePtr,&ver,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
-
-    if (ver != BYTEVERSION /*&& ver != 116 && ver != 117*/)
+    i=sv_loadsnapshot(g_demo_recFilePtr, &demo_hasdiffs, &g_demo_totalCnt, &demo_synccompress);
+    if (i==0)
     {
-        /* old demo playback */
-        if (ver == BYTEVERSION_JF)   initprintf("Demo %s is for Regular edition.\n", d);
-        else if (ver == BYTEVERSION_JF+1) initprintf("Demo %s is for Atomic edition.\n", d);
-        else if (ver == BYTEVERSION_JF+2) initprintf("Demo %s is for Shareware version.\n", d);
-//        else OSD_Printf("Demo %s is of an incompatible version (%d).\n", d, ver);
-        kclose(g_demo_recFilePtr);
-        ud.reccnt=0;
-        demo_version = 0;
-        return 0;
+        demo_hasseeds = demo_synccompress&2;
+        demo_synccompress &= 1;
+
+        i = g_demo_totalCnt/(TICRATE/TICSPERFRAME);
+        OSD_Printf("demo duration: %d min %d sec\n", i/60, i%60);
+
+        g_demo_cnt=1;
+        ud.reccnt = 0;
+
+        ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
+        ud.clipping = ud.scrollmode = ud.overhead_on = ud.pause_on = 0;
+
+//        G_NewGame(ud.volume_number,ud.level_number,ud.player_skill);
+//        G_ResetTimers();
+        totalclock = ototalclock = lockclock = 0;
+
+        return 1;
     }
     else
     {
-        demo_version = ver;
-        OSD_Printf("Demo %s is of version %d.\n", d, ver);
+        OSD_Printf(OSD_ERROR "There were errors opening demo %d (code: %d).\n", g_whichDemo, i);
+        kclose(g_demo_recFilePtr);
+        return 0;
     }
-
-    if (kread(g_demo_recFilePtr,(char *)&ud.volume_number,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
-    OSD_Printf("ud.volume_number: %d\n",ud.volume_number);
-    if (kread(g_demo_recFilePtr,(char *)&ud.level_number,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
-    OSD_Printf("ud.level_number: %d\n",ud.level_number);
-    if (kread(g_demo_recFilePtr,(char *)&ud.player_skill,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
-    OSD_Printf("ud.player_skill: %d\n",ud.player_skill);
-    if (kread(g_demo_recFilePtr,(char *)&ud.m_coop,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
-    OSD_Printf("ud.m_coop: %d\n",ud.m_coop);
-    if (kread(g_demo_recFilePtr,(char *)&ud.m_ffire,sizeof(uint8_t)) != sizeof(uint8_t)) goto corrupt;
-    OSD_Printf("ud.m_ffire: %d\n",ud.m_ffire);
-    if (kread(g_demo_recFilePtr,(int16_t *)&ud.multimode,sizeof(int16_t)) != sizeof(int16_t)) goto corrupt;
-    OSD_Printf("ud.multimode: %d\n",ud.multimode);
-    if (kread(g_demo_recFilePtr,(int16_t *)&ud.m_monsters_off,sizeof(int16_t)) != sizeof(int16_t)) goto corrupt;
-    OSD_Printf("ud.m_monsters_off: %d\n",ud.m_monsters_off);
-    if (kread(g_demo_recFilePtr,(int32_t *)&ud.m_respawn_monsters,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-    OSD_Printf("ud.m_respawn_monsters: %d\n",ud.m_respawn_monsters);
-    if (kread(g_demo_recFilePtr,(int32_t *)&ud.m_respawn_items,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-    OSD_Printf("ud.m_respawn_items: %d\n",ud.m_respawn_items);
-    if (kread(g_demo_recFilePtr,(int32_t *)&ud.m_respawn_inventory,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-    OSD_Printf("ud.m_respawn_inventory: %d\n",ud.m_respawn_inventory);
-    if (kread(g_demo_recFilePtr,(int32_t *)&ud.playerai,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-    OSD_Printf("ud.playerai: %d\n",ud.playerai);
-    if (kread(g_demo_recFilePtr,(int32_t *)&i,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-
-    if (kread(g_demo_recFilePtr,(char *)boardfilename,sizeof(boardfilename)) != sizeof(boardfilename)) goto corrupt;
-
-    if (boardfilename[0] != 0)
-    {
-        ud.m_level_number = 7;
-        ud.m_volume_number = 0;
-    }
-
-    if (kread(g_demo_recFilePtr,(int32_t *)&ud.m_noexits,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-
-    for (i=0; i<ud.multimode; i++)
-    {
-        if (!g_player[i].ps)
-            g_player[i].ps = (DukePlayer_t *) Bcalloc(1,sizeof(DukePlayer_t));
-        if (!g_player[i].sync)
-            g_player[i].sync = (input_t *) Bcalloc(1,sizeof(input_t));
-
-        if (kread(g_demo_recFilePtr,(char *)g_player[i].user_name,sizeof(g_player[i].user_name)) != sizeof(g_player[i].user_name)) goto corrupt;
-        OSD_Printf("ud.user_name: %s\n",g_player[i].user_name);
-        if (kread(g_demo_recFilePtr,(int32_t *)&g_player[i].ps->aim_mode,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-        if (kread(g_demo_recFilePtr,(int32_t *)&g_player[i].ps->auto_aim,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;  // JBF 20031126
-        if (kread(g_demo_recFilePtr,(int32_t *)&g_player[i].ps->weaponswitch,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-        if (kread(g_demo_recFilePtr,(int32_t *)&g_player[i].pcolor,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-        g_player[i].ps->palookup = g_player[i].pcolor;
-        if (kread(g_demo_recFilePtr,(int32_t *)&g_player[i].pteam,sizeof(int32_t)) != sizeof(int32_t)) goto corrupt;
-        g_player[i].ps->team = g_player[i].pteam;
-    }
-    i = ud.reccnt/((TICRATE/TICSPERFRAME)*ud.multimode);
-    OSD_Printf("demo duration: %d min %d sec\n", i/60, i%60);
-    g_demo_startCnt = ud.reccnt;
-
-    ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
-    ud.clipping = ud.scrollmode = ud.overhead_on = ud.pause_on = 0;
-
-    G_NewGame(ud.volume_number,ud.level_number,ud.player_skill);
-    return(1);
+#if 0
 corrupt:
     OSD_Printf(OSD_ERROR "Demo %d header is corrupt.\n",g_whichDemo);
     ud.reccnt = 0;
     kclose(g_demo_recFilePtr);
     return 0;
+#endif
 }
+
+#if KRANDDEBUG
+extern int32_t krd_enable();
+extern int32_t krd_print(const char *filename);
+#endif
 
 void G_OpenDemoWrite(void)
 {
-    char d[13];
-    int32_t dummylong = 0, demonum=1;
-    char ver;
-    int16_t i;
+    char d[14];
+    int32_t i, demonum=1;
+    extern int32_t sv_saveandmakesnapshot(FILE* fil, int32_t recdiffs, int32_t diffcompress, int32_t synccompress);
 
     if (ud.recstat == 2) kclose(g_demo_recFilePtr);
 
-    ver = BYTEVERSION;
+    if ((g_player[myconnectindex].ps->gm&MODE_GAME) && g_player[myconnectindex].ps->dead_flag)
+    {
+        Bstrcpy(ScriptQuotes[122], "CANNOT START DEMO RECORDING WHEN DEAD!");
+        P_DoQuote(122, g_player[myconnectindex].ps);
+        ud.recstat = 0;
+        return;
+    }
+
+    if (demorec_diffs_cvar && !demorec_force_cvar)
+        for (i=1; i<g_scriptSize; i++)
+        {
+            intptr_t w=script[i];
+            if ((w&0x0fff)==CON_RESIZEARRAY && (w>>12) && i<g_scriptSize-2 &&
+                script[i+1]>=0 && script[i+1]<g_gameArrayCount)
+            {
+                OSD_Printf("\nThe CON code possibly contains a RESIZEARRAY command.\n");
+                OSD_Printf("Gamearrays that change their size during the game are unsupported by\n");
+                OSD_Printf("the demo recording system. If you are sure that the code doesn't\n");
+                OSD_Printf("contain a RESIZEARRAY command, you can force recording with the\n");
+                OSD_Printf("`demorec_force' cvar. Alternatively, you can disable diff recording\n");
+                OSD_Printf("with the `demorec_diffs' cvar.\n\n");
+                Bstrcpy(ScriptQuotes[122], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
+                P_DoQuote(122, g_player[myconnectindex].ps);
+                ud.recstat = 0;
+                return;
+            }
+        }
 
     while (1)
     {
         if (demonum == 10000) return;
-        Bsprintf(d, "demo%d.dmo", demonum++);
+        Bsprintf(d, "edemo%d.edm", demonum++);
         g_demo_filePtr = fopen(d, "rb");
         if (g_demo_filePtr == NULL) break;
         Bfclose(g_demo_filePtr);
     }
 
     if ((g_demo_filePtr = fopen(d,"wb")) == NULL) return;
-    fwrite(&dummylong,sizeof(dummylong),1,g_demo_filePtr);
-    fwrite(&ver,sizeof(uint8_t),1,g_demo_filePtr);
-    fwrite((char *)&ud.volume_number,sizeof(uint8_t),1,g_demo_filePtr);
-    fwrite((char *)&ud.level_number,sizeof(uint8_t),1,g_demo_filePtr);
-    fwrite((char *)&ud.player_skill,sizeof(uint8_t),1,g_demo_filePtr);
-    fwrite((char *)&ud.m_coop,sizeof(uint8_t),1,g_demo_filePtr);
-    fwrite((char *)&ud.m_ffire,sizeof(uint8_t),1,g_demo_filePtr);
-    fwrite((int16_t *)&ud.multimode,sizeof(int16_t),1,g_demo_filePtr);
-    fwrite((int16_t *)&ud.m_monsters_off,sizeof(int16_t),1,g_demo_filePtr);
-    fwrite((int32_t *)&ud.m_respawn_monsters,sizeof(int32_t),1,g_demo_filePtr);
-    fwrite((int32_t *)&ud.m_respawn_items,sizeof(int32_t),1,g_demo_filePtr);
-    fwrite((int32_t *)&ud.m_respawn_inventory,sizeof(int32_t),1,g_demo_filePtr);
-    fwrite((int32_t *)&ud.playerai,sizeof(int32_t),1,g_demo_filePtr);
-    fwrite((int32_t *)&ud.auto_run,sizeof(int32_t),1,g_demo_filePtr);
-    fwrite((char *)boardfilename,sizeof(boardfilename),1,g_demo_filePtr);
-    fwrite((int32_t *)&ud.m_noexits,sizeof(int32_t),1,g_demo_filePtr);
 
-    for (i=0; i<ud.multimode; i++)
+    i=sv_saveandmakesnapshot(g_demo_filePtr, demorec_diffs_cvar, demorec_diffcompress_cvar,
+                             demorec_synccompress_cvar|(demorec_seeds_cvar<<1));
+    if (i)
     {
-        fwrite((char *)&g_player[i].user_name,sizeof(g_player[i].user_name),1,g_demo_filePtr);
-        fwrite((int32_t *)&g_player[i].ps->aim_mode,sizeof(int32_t),1,g_demo_filePtr);
-        fwrite((int32_t *)&g_player[i].ps->auto_aim,sizeof(int32_t),1,g_demo_filePtr);       // JBF 20031126
-        fwrite(&g_player[i].ps->weaponswitch,sizeof(int32_t),1,g_demo_filePtr);
-        fwrite(&g_player[i].pcolor,sizeof(int32_t),1,g_demo_filePtr);
-        fwrite(&g_player[i].pteam,sizeof(int32_t),1,g_demo_filePtr);
+        Bstrcpy(ScriptQuotes[122], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
+        P_DoQuote(122, g_player[myconnectindex].ps);
+        Bfclose(g_demo_filePtr), g_demo_filePtr=NULL;
+        ud.recstat = 0;
+        return;
     }
+    demorec_seeds = demorec_seeds_cvar;
+    demorec_diffs = demorec_diffs_cvar;
+    demo_synccompress = demorec_synccompress_cvar;
+    demorec_difftics = demorec_difftics_cvar;
 
-    g_demo_totalCnt = 0;
+    Bstrcpy(ScriptQuotes[122], "DEMO RECORDING STARTED");
+    P_DoQuote(122, g_player[myconnectindex].ps);
+
+    ud.reccnt = 0;
+    ud.recstat = 1;  //
+
+#if KRANDDEBUG
+    krd_enable();
+#endif
+
+    g_demo_cnt = 1;
+}
+
+
+static uint8_t g_demo_seedbuf[RECSYNCBUFSIZ];
+
+static void dowritesync()
+{
+    int16_t tmpreccnt;
+
+    fwrite("sYnC", 4, 1, g_demo_filePtr);
+    tmpreccnt = (int16_t)ud.reccnt;
+    fwrite(&tmpreccnt, sizeof(int16_t), 1, g_demo_filePtr);
+    if (demorec_seeds)
+        fwrite(g_demo_seedbuf, 1, ud.reccnt, g_demo_filePtr);
+
+    if (demo_synccompress)
+        dfwrite(recsync, sizeof(input_t), ud.reccnt, g_demo_filePtr);
+    else //if (demo_synccompress==0)
+        fwrite(recsync, sizeof(input_t), ud.reccnt, g_demo_filePtr);
     ud.reccnt = 0;
 }
 
 static void G_DemoRecord(void)
 {
     int16_t i;
+    extern uint32_t sv_writediff(FILE *fil);
+
+    g_demo_cnt++;
+
+    if (demorec_diffs && (g_demo_cnt%demorec_difftics == 1))
+    {
+        sv_writediff(g_demo_filePtr);
+        demorec_difftics = demorec_difftics_cvar;
+    }
+
+    if (demorec_seeds)
+        g_demo_seedbuf[ud.reccnt] = (uint8_t)(randomseed>>24);
 
     TRAVERSE_CONNECT(i)
     {
-        copybufbyte(g_player[i].sync,&recsync[ud.reccnt],sizeof(input_t));
+        Bmemcpy(&recsync[ud.reccnt], g_player[i].sync, sizeof(input_t));
         ud.reccnt++;
-        g_demo_totalCnt++;
-        if (ud.reccnt >= RECSYNCBUFSIZ)
-        {
-            dfwrite(recsync,sizeof(input_t)*ud.multimode,ud.reccnt/ud.multimode,g_demo_filePtr);
-            ud.reccnt = 0;
-        }
     }
+
+    if (ud.reccnt > RECSYNCBUFSIZ-MAXPLAYERS || (demorec_diffs && (g_demo_cnt%demorec_difftics == 0)))
+        dowritesync();
 }
 
 void G_CloseDemoWrite(void)
 {
+    extern void sv_freemem();
+
     if (ud.recstat == 1)
     {
         if (ud.reccnt > 0)
-        {
-            dfwrite(recsync,sizeof(input_t)*ud.multimode,ud.reccnt/ud.multimode,g_demo_filePtr);
+            dowritesync();
 
-            fseek(g_demo_filePtr,SEEK_SET,0L);
-            fwrite(&g_demo_totalCnt,sizeof(int32_t),1,g_demo_filePtr);
-            ud.recstat = ud.m_recstat = 0;
-        }
+        fwrite("EnD!", 4, 1, g_demo_filePtr);
+
+        if (fseek(g_demo_filePtr, 20, SEEK_SET))
+            perror("G_CloseDemoWrite: fseek");
+        else
+            fwrite(&g_demo_cnt, sizeof(g_demo_cnt), 1, g_demo_filePtr);
+
+        ud.recstat = ud.m_recstat = 0;
         fclose(g_demo_filePtr);
+
+        sv_freemem();
+
+        Bstrcpy(ScriptQuotes[122], "DEMO RECORDING STOPPED");
+        P_DoQuote(122, g_player[myconnectindex].ps);
     }
+#if KRANDDEBUG
+    krd_print("krandrec.log");
+#endif
 }
 
 static int32_t g_whichDemo = 1;
-extern int32_t premap_quickenterlevel;
+extern int32_t sv_updatestate(int32_t frominit);
 
-static int32_t G_PlaybackDemo(void)
+static void dorestoremodes(int32_t menu)
 {
-    int32_t i,j,k,l;
-    int32_t foundemo = 0;
+    if (menu) g_player[myconnectindex].ps->gm |= MODE_MENU;
+    else g_player[myconnectindex].ps->gm &= ~MODE_MENU;
+    g_player[myconnectindex].ps->gm &= ~MODE_GAME;
+    g_player[myconnectindex].ps->gm |= MODE_DEMO;
+}
+
+static int32_t doupdatestate(int32_t frominit)
+{
+    int32_t j,k;
+    j = g_player[myconnectindex].ps->gm&MODE_MENU;
+    k = sv_updatestate(frominit);
+//                            tmpdifftime = g_demo_cnt+12;
+    dorestoremodes(j);
+    if (k) OSD_Printf("sv_updatestate() returned %d.\n", k);
+    return k;
+}
+
+#define CORRUPT(code) do { corruptcode=code; goto corrupt; } while(0)
+
+#define DOREADSYNC(code) do \
+{ \
+    uint16_t si; \
+    int32_t i; \
+    if (kread(g_demo_recFilePtr, &si, sizeof(uint16_t)) != (int32_t)sizeof(uint16_t)) CORRUPT(code); \
+    i = si; \
+    if (demo_hasseeds) \
+    { \
+        if (kread(g_demo_recFilePtr, g_demo_seedbuf, i) != i) CORRUPT(code); \
+    } \
+    if (demo_synccompress) \
+    { \
+        if (kdfread(recsync, sizeof(input_t), i, g_demo_recFilePtr) != i) CORRUPT(code+1); \
+    } \
+    else \
+        if (kread(g_demo_recFilePtr, recsync, sizeof(input_t)*i) != (int32_t)sizeof(input_t)*i) CORRUPT(code+2); \
+    ud.reccnt = i; \
+} while (0)
+
+
+GAME_STATIC int32_t G_PlaybackDemo(void)
+{
+    int32_t bigi, j, k, initsyncofs, lastsyncofs, lastsynctic, lastsyncclock;
+    int32_t foundemo = 0, corruptcode, outofsync=0;
     static int32_t in_menu = 0;
+//    static int32_t tmpdifftime=0;
 
     if (ready2send) return 0;
 
 RECHECK:
+
+#if KRANDDEBUG
+    if (foundemo)
+        krd_print("krandplay.log");
+#endif
 
     in_menu = g_player[myconnectindex].ps->gm&MODE_MENU;
 
@@ -12168,7 +12269,6 @@ RECHECK:
         if (g_whichDemo > 1)
         {
             g_whichDemo = 1;
-            premap_quickenterlevel=0;
             goto RECHECK;
         }
         fadepal(0,0,0, 0,63,7);
@@ -12186,89 +12286,200 @@ RECHECK:
         g_whichDemo++;
         if (g_whichDemo == 10) g_whichDemo = 1;
 
-        if (G_EnterLevel(MODE_DEMO)) ud.recstat = foundemo = 0;
+        g_player[myconnectindex].ps->gm &= ~MODE_GAME;
+        g_player[myconnectindex].ps->gm |= MODE_DEMO;
+
+//        if (G_EnterLevel(MODE_DEMO))
+//        {
+//            OSD_Printf("G_PlaybackDemo: G_EnterLevel\n");
+//            ud.recstat = foundemo = 0;
+//        }
+//
+        lastsyncofs = ktell(g_demo_recFilePtr);
+        initsyncofs = lastsyncofs;
+        lastsynctic = g_demo_cnt;
+        lastsyncclock = totalclock;
+        outofsync = 0;
+#if KRANDDEBUG
+        krd_enable();
+#endif
     }
 
-    if (!premap_quickenterlevel)
+    if (foundemo == 0 || in_menu || KB_KeyWaiting() || numplayers > 1)
     {
-        if (foundemo == 0 || in_menu || KB_KeyWaiting() || numplayers > 1)
-        {
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
-            g_player[myconnectindex].ps->gm |= MODE_MENU;
-        }
+        FX_StopAllSounds();
+        S_ClearSoundLocks();
+        g_player[myconnectindex].ps->gm |= MODE_MENU;
     }
 
     ready2send = 0;
-    i = 0;
+    bigi = 0;
 
     KB_FlushKeyboardQueue();
 
-    k = 0;
-
-    while (ud.reccnt > 0 || foundemo == 0)
+//    OSD_Printf("ticcnt=%d, total=%d\n", g_demo_cnt, g_demo_totalCnt);
+    while (g_demo_cnt < g_demo_totalCnt || foundemo==0)
     {
-        if (foundemo && (!g_demo_paused || g_demo_goalCnt!=0))
+        if (foundemo && (!g_demo_paused || g_demo_goalCnt))
         {
-            if (g_demo_goalCnt < 0)
+            static int32_t t1=0;
+            if (t1==0 && g_demo_goalCnt)
+                t1=getticks();
+                
+            if (g_demo_goalCnt>0 && g_demo_goalCnt < g_demo_cnt)  // rewind
             {
-                g_demo_goalCnt = -g_demo_goalCnt;
+                k = g_player[myconnectindex].ps->gm&MODE_MENU;
+                if (g_demo_goalCnt > lastsynctic)
+                {
+                    if (doupdatestate(0)==0)
+                    {
+                        g_demo_cnt = lastsynctic;
+                        klseek(g_demo_recFilePtr, lastsyncofs, SEEK_SET);
+                        ud.reccnt = 0;
 
-                if (g_whichDemo > 1)  // load the same demo again and FF from beginning... yay!
-                    g_whichDemo--;
-                foundemo = 0;
-                ud.reccnt = 0;
-                kclose(g_demo_recFilePtr);
-                premap_quickenterlevel=1;
-                goto RECHECK;
+                        totalclock = ototalclock = lockclock = lastsyncclock;
+                    }
+                    else CORRUPT(-1);
+                }
+                else
+                {
+//loadfrombeg:
+//                    j = sv_loadsnapshot(g_demo_recFilePtr, &g_demo_totalCnt);
+                    j = doupdatestate(1);
+                    if (!j)
+                    {
+                        klseek(g_demo_recFilePtr, initsyncofs, SEEK_SET);
+                        g_levelTextTime = 0;
+
+                        g_demo_cnt = 1;
+                        ud.reccnt = 0;
+
+                        ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
+                        ud.clipping = ud.scrollmode = ud.overhead_on = ud.pause_on = 0;
+
+                        totalclock = ototalclock = lockclock = 0;
+                    }
+                    else CORRUPT(0);
+                }
+                dorestoremodes(k);
             }
 
             while (totalclock >= (lockclock+TICSPERFRAME)
-                    || (ud.reccnt > (TICRATE/TICSPERFRAME)*2 && ud.pause_on)
-                    || (g_demo_goalCnt>0 && g_demo_goalCnt<ud.reccnt))
+//                   || (ud.reccnt > (TICRATE/TICSPERFRAME)*2 && ud.pause_on)
+                   || (g_demo_goalCnt>0 && g_demo_cnt<g_demo_goalCnt))
             {
-                if ((i == 0) || (i >= RECSYNCBUFSIZ))
+                if (ud.reccnt<=0)
                 {
-                    i = 0;
-                    l = min(ud.reccnt,RECSYNCBUFSIZ);
-                    if (kdfread(recsync,sizeof(input_t)*ud.multimode,l/ud.multimode,g_demo_recFilePtr) != l/ud.multimode)
+                    char tmpbuf[4];
+
+                    if (ud.reccnt<0)
                     {
-                        OSD_Printf(OSD_ERROR "Demo %d is corrupt.\n", g_whichDemo-1);
+                        OSD_Printf("G_PlaybackDemo: ud.reccnt<0!\n");
+                        CORRUPT(1);
+                    }
+
+                    bigi = 0;
+//reread:
+                    if (kread(g_demo_recFilePtr, tmpbuf, 4) != 4) CORRUPT(2);
+
+                    if (Bmemcmp(tmpbuf, "sYnC", 4)==0)
+                        DOREADSYNC(3);
+                    else if (demo_hasdiffs && Bmemcmp(tmpbuf, "dIfF", 4)==0)
+                    {
+                        extern int32_t sv_readdiff(int32_t fil);
+
+                        k=sv_readdiff(g_demo_recFilePtr);
+                        if (k)
+                        {
+                            OSD_Printf("sv_readdiff() returned %d.\n", k);
+                            CORRUPT(6);
+                        }
+                        else
+                        {
+                            lastsyncofs = ktell(g_demo_recFilePtr);
+                            lastsynctic = g_demo_cnt;
+                            lastsyncclock = totalclock;
+                            if (kread(g_demo_recFilePtr, tmpbuf, 4) != 4) CORRUPT(7);
+                            if (Bmemcmp(tmpbuf, "sYnC", 4)) CORRUPT(8);
+                            DOREADSYNC(9);
+
+                            if ((g_demo_goalCnt==0 && demoplay_diffs) ||
+                                (g_demo_goalCnt>0 && ud.reccnt/ud.multimode >= g_demo_goalCnt-g_demo_cnt))
+                            {
+                                doupdatestate(0);
+                            }
+                        }
+                    }
+                    else if (Bmemcmp(tmpbuf, "EnD!", 4)==0)
+                        goto nextdemo;
+                    else CORRUPT(12);
+
+                    if (demo_hasseeds)
+                        outofsync = (uint16_t)(randomseed>>24) != g_demo_seedbuf[bigi];
+
+                    if (0)
+                    {
+corrupt:
+                        OSD_Printf(OSD_ERROR "Demo %d is corrupt (code %d).\n", g_whichDemo-1, corruptcode);
+nextdemo:
                         foundemo = 0;
                         ud.reccnt = 0;
                         kclose(g_demo_recFilePtr);
                         g_player[myconnectindex].ps->gm |= MODE_MENU;
+                        if (g_demo_goalCnt>0)
+                        {
+                            g_demo_goalCnt=0;
+                            ud.config.SoundToggle = g_demo_soundToggle;
+                        }
                         goto RECHECK;
                     }
                 }
 
                 TRAVERSE_CONNECT(j)
                 {
-                    copybufbyte(&recsync[i],&inputfifo[0][j],sizeof(input_t));
+                    copybufbyte(&recsync[bigi], &inputfifo[0][j], sizeof(input_t));
                     g_player[j].movefifoend++;
-                    i++;
+                    bigi++;
                     ud.reccnt--;
                 }
-                G_DoMoveThings();
+                g_demo_cnt++;
+
+                if (!g_demo_paused)
+                {
+                    // assumption that ud.multimode doesn't change in a demo may not be true
+                    // sometime in the future                    v v v v v v v v v
+                    if (g_demo_goalCnt==0 || !demo_hasdiffs || ud.reccnt/ud.multimode>=g_demo_goalCnt-g_demo_cnt)
+                        G_DoMoveThings();  // increases lockclock by TICSPERFRAME
+                    else
+                        lockclock += TICSPERFRAME;
+                }
+                else
+                {
+                    k = ud.config.SoundToggle;
+                    ud.config.SoundToggle = 0;
+                    G_DoMoveThings();
+                    ud.config.SoundToggle = k;
+                }
+
                 ototalclock += TICSPERFRAME;
 
                 if (g_demo_goalCnt > 0)
                 {
-                    if (g_demo_goalCnt<ud.reccnt || (ud.reccnt > (TICRATE/TICSPERFRAME)*2 && ud.pause_on))
-                        totalclock += TICSPERFRAME;
+                    totalclock += TICSPERFRAME;
+
+//                    OSD_Printf("t:%d, l+T:%d; cnt:%d, goal:%d%s", totalclock, (lockclock+TICSPERFRAME),
+//                               g_demo_cnt, g_demo_goalCnt, g_demo_cnt>=g_demo_goalCnt?" ":"\n");
+                    if (g_demo_cnt>=g_demo_goalCnt)
+                    {
+                        g_demo_goalCnt = 0;
+                        ud.config.SoundToggle = g_demo_soundToggle;
+                    }
                 }
             }
-
-            if (g_demo_goalCnt > 0 && ud.reccnt<=g_demo_goalCnt)
-            {
-                g_demo_goalCnt = 0;
-                ud.config.SoundToggle = g_demo_soundToggle;
-                premap_quickenterlevel = 0;
-            }
         }
-        else if (foundemo && g_demo_paused && g_demo_goalCnt==0)
+        else if (foundemo && g_demo_paused)
         {
-            lockclock = ototalclock = totalclock;
+            totalclock = lockclock;
         }
 
         if (foundemo == 0)
@@ -12278,27 +12489,45 @@ RECHECK:
             G_HandleLocalKeys();
 
 //            j = min(max((totalclock-lockclock)*(65536/TICSPERFRAME),0),65536);
+
             j = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
+            if (g_demo_paused && g_demo_rewind)
+                j = 65536-j;
+
             G_DrawRooms(screenpeek,j);
             G_DisplayRest(j);
 
-            if (g_demo_showStats && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+            if ((g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
             {
-                j=(g_demo_startCnt-ud.reccnt)/(TICRATE/TICSPERFRAME);
-                Bsprintf(buf, "%02d:%02d", j/60, j%60);
-                gametext(18,16,buf,0,2+8+16);
+                if (demoplay_showsync && outofsync)
+                    gametext(160,100,"OUT OF SYNC",0,2+8+16);
 
-                rotatesprite(60<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,0,0,(xdim*95)/320,ydim-1);
-                rotatesprite(90<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,(xdim*95)/320,0,(xdim*125)/320,ydim-1);
-                rotatesprite(120<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,(xdim*125)/320,0,(xdim*155)/320,ydim-1);
-                rotatesprite(150<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,(xdim*155)/320,0,xdim-1,ydim-1);
+                if (g_demo_showStats)
+                {
+//                    if (g_demo_cnt<tmpdifftime)
+//                        gametext(160,100,"DIFF",0,2+8+16);
+//                    {
+//                        char buf[32];
+//                        Bsprintf(buf, "RC:%4d  TC:%5d", ud.reccnt, g_demo_cnt);
+//                        gametext(160,100,buf,0,2+8+16);
+//                    }
 
-                j = (182<<16) - ((((120*ud.reccnt)<<4)/g_demo_startCnt)<<12);
-                rotatesprite(j,(16<<16)+(1<<15),32768,0,SLIDEBAR+1,0,0,2+8+16,0,0,xdim-1,ydim-1);
+                    j=g_demo_cnt/(TICRATE/TICSPERFRAME);
+                    Bsprintf(buf, "%02d:%02d", j/60, j%60);
+                    gametext(18,16,buf,0,2+8+16);
 
-                j=ud.reccnt/(TICRATE/TICSPERFRAME);
-                Bsprintf(buf, "-%02d:%02d%s", j/60, j%60, g_demo_paused?"   ^15PAUSED":"");
-                gametext(194,16,buf,0,2+8+16);
+                    rotatesprite(60<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,0,0,(xdim*95)/320,ydim-1);
+                    rotatesprite(90<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,(xdim*95)/320,0,(xdim*125)/320,ydim-1);
+                    rotatesprite(120<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,(xdim*125)/320,0,(xdim*155)/320,ydim-1);
+                    rotatesprite(150<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16,(xdim*155)/320,0,xdim-1,ydim-1);
+
+                    j = (182<<16) - ((((120*(g_demo_totalCnt-g_demo_cnt))<<4)/g_demo_totalCnt)<<12);
+                    rotatesprite(j,(16<<16)+(1<<15),32768,0,SLIDEBAR+1,0,0,2+8+16,0,0,xdim-1,ydim-1);
+
+                    j=(g_demo_totalCnt-g_demo_cnt)/(TICRATE/TICSPERFRAME);
+                    Bsprintf(buf, "-%02d:%02d%s", j/60, j%60, g_demo_paused?"   ^15PAUSED":"");
+                    gametext(194,16,buf,0,2+8+16);
+                }
             }
 
             if ((g_netServer || ud.multimode > 1) && g_player[myconnectindex].ps->gm)
@@ -12388,10 +12617,13 @@ RECHECK:
 #endif
 
     if (g_player[myconnectindex].ps->gm&MODE_MENU) goto RECHECK;
+#if KRANDDEBUG
+    krd_print("krandplay.log");
+#endif
     return 1;
 }
 
-static inline int32_t G_MoveLoop()
+GAME_STATIC GAME_INLINE int32_t G_MoveLoop()
 {
     /*
         if (numplayers > 1)
@@ -12412,7 +12644,7 @@ static inline int32_t G_MoveLoop()
     return 0;
 }
 
-static int32_t G_DoMoveThings(void)
+GAME_STATIC int32_t G_DoMoveThings(void)
 {
     int32_t i, j;
 //    char ch;

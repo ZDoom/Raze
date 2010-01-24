@@ -78,8 +78,6 @@ static int16_t g_definedsndnum[MAXSOUNDS];  // maps parse order index to g_sound
 static int16_t g_sndnum[MAXSOUNDS];  // maps current order index to g_sounds index
 int32_t g_numsounds = 0;
 
-int32_t premap_quickenterlevel=0;
-
 #if !defined(_WIN32)
 static int32_t usecwd = 0;
 #endif

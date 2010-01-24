@@ -32,6 +32,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osdcmds.h"
 #include "osd.h"
 
+#if KRANDDEBUG
+# define GAMEEXEC_INLINE
+# define GAMEEXEC_STATIC
+#else
+# define GAMEEXEC_INLINE inline
+# define GAMEEXEC_STATIC static
+#endif
+
 void G_RestoreMapState(mapstate_t *save);
 void G_SaveMapState(mapstate_t *save);
 
@@ -41,7 +49,7 @@ int32_t g_errorLineNum;
 int32_t g_tw;
 extern int32_t ticrandomseed;
 
-static int32_t X_DoExecute(int32_t once);
+GAMEEXEC_STATIC int32_t X_DoExecute(int32_t once);
 
 #include "gamestructures.c"
 
@@ -151,7 +159,7 @@ static int32_t A_CheckSquished(int32_t i, int32_t p)
     return 0;
 }
 
-static inline void P_ForceAngle(DukePlayer_t *p)
+GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *p)
 {
     int32_t n = 128-(krand()&255);
 
@@ -161,7 +169,7 @@ static inline void P_ForceAngle(DukePlayer_t *p)
     p->rotscrnang = n>>1;
 }
 
-static int32_t A_Dodge(spritetype *s)
+GAMEEXEC_STATIC int32_t A_Dodge(spritetype *s)
 {
     int32_t bx,by,bxvect,byvect,d,i;
     int32_t mx = s->x, my = s->y;
@@ -382,7 +390,7 @@ int32_t G_GetAngleDelta(int32_t a,int32_t na)
     return (na-a);
 }
 
-static inline void X_AlterAng(int32_t a)
+GAMEEXEC_STATIC GAMEEXEC_INLINE void X_AlterAng(int32_t a)
 {
     intptr_t *moveptr = (intptr_t *)vm.g_t[1];
     int32_t ticselapsed = (vm.g_t[0])&31;
@@ -448,7 +456,7 @@ static inline void X_AlterAng(int32_t a)
     }
 }
 
-static void X_Move(void)
+GAMEEXEC_STATIC void X_Move(void)
 {
     int32_t l;
     intptr_t *moveptr;
@@ -647,7 +655,7 @@ static void X_Move(void)
     }
 }
 
-static inline void __fastcall X_DoConditional(register int32_t condition)
+GAMEEXEC_STATIC GAMEEXEC_INLINE void __fastcall X_DoConditional(register int32_t condition)
 {
     if (condition)
     {
@@ -666,7 +674,7 @@ static inline void __fastcall X_DoConditional(register int32_t condition)
     }
 }
 
-static int32_t X_DoExecute(int32_t once)
+GAMEEXEC_STATIC int32_t X_DoExecute(int32_t once)
 {
     register int32_t tw = *insptr;
 
@@ -4774,6 +4782,23 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
         ActorExtra[vm.g_i].timetosleep--;
     else if (ActorExtra[vm.g_i].timetosleep == 1)
         changespritestat(vm.g_i,STAT_ZOMBIEACTOR);
+}
+
+void G_FreeMapState2(mapstate_t *save)
+{
+    int i;
+    for (i=g_gameVarCount-1; i>=0; i--)
+    {
+        if (aGameVars[i].dwFlags & GAMEVAR_NORESET) continue;
+        if (aGameVars[i].dwFlags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR))
+        {
+            if (save->vars[i])
+            {
+                Bfree(save->vars[i]);
+                save->vars[i]=0;
+            }
+        }
+    }
 }
 
 void G_SaveMapState(mapstate_t *save)

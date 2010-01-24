@@ -22,9 +22,14 @@ BUILD32_ON_64 = 0
 # Debugging/Build options
 RELEASE?=1
 DEBUGANYWAY?=0
+KRANDDEBUG?=0
 NOSOUND?=0
 OPTLEVEL?=2
 PROFILER?=0
+
+ifneq (0,$(KRANDDEBUG))
+    RELEASE=0
+endif
 
 # Build locations
 SRC=source
@@ -42,6 +47,10 @@ ifneq (0,$(RELEASE))
 else
 	# Debugging enabled
   debug=-ggdb -O0 -DDEBUGGINGAIDS
+  ifneq (0,$(KRANDDEBUG))
+    debug+=-fno-inline -fno-inline-functions -fno-inline-functions-called-once
+    debug+=-DKRANDDEBUG=1
+  endif
 endif
 
 ifneq (0,$(DEBUGANYWAY))
@@ -199,6 +208,11 @@ EDITOROBJS+= $(OBJ)/sounds_mapster32.$o
 OURCFLAGS+= $(BUILDCFLAGS)
 OURCXXFLAGS+= $(BUILDCFLAGS)
 
+MISCLINKOPTS=
+ifneq (0,$(KRANDDEBUG))
+  MISCLINKOPTS=-Wl,-Map=$@.memmap
+endif
+
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:
 endif
@@ -215,16 +229,16 @@ all:
 
 notice:
 	$(BUILD_STARTED)
-	
+
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB)
 	$(LINK_STATUS)
-	if $(CC) -o $@ $^ $(LIBS) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(CC) -o $@ $^ $(LIBS) $(STDCPPLIB) $(MISCLINKOPTS); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
   ifeq (0,$(DEBUGANYWAY))
 	$(STRIP) eduke32$(EXESUFFIX)
   endif
 endif
-	
+
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB)
 	$(LINK_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
@@ -252,13 +266,13 @@ ifeq ($(PRETTY_OUTPUT),1)
 	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)/$(EROOT)\033[0;35m \033[0m\n"
 endif	
 	$(MAKE) -C $(EROOT)/ "OBJ=../$(EOBJ)" \
-		SUPERBUILD=$(SUPERBUILD) POLYMOST=$(POLYMOST) DEBUGANYWAY=$(DEBUGANYWAY)\
+		SUPERBUILD=$(SUPERBUILD) POLYMOST=$(POLYMOST) DEBUGANYWAY=$(DEBUGANYWAY) KRANDDEBUG=$(KRANDDEBUG)\
 		USE_OPENGL=$(USE_OPENGL) BUILD32_ON_64=$(BUILD32_ON_64) \
 		NOASM=$(NOASM) RELEASE=$(RELEASE) OPTLEVEL=$(OPTLEVEL) $@
 ifeq ($(PRETTY_OUTPUT),1)		
 	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)\033[0;35m \033[0m\n"
 endif	
-	
+
 $(EOBJ)/$(ENGINELIB): enginelib
 $(EOBJ)/$(EDITORLIB): editorlib
 $(JAUDIOLIBDIR)/$(JAUDIOLIB):
@@ -304,11 +318,11 @@ $(OBJ)/%.$o: $(SRC)/misc/%.rc
 $(OBJ)/%.$o: $(SRC)/util/%.c
 	$(COMPILE_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
- 
+
 $(OBJ)/%.$o: $(RSRC)/%.c
 	$(COMPILE_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
- 
+
 $(OBJ)/game_banner.$o: $(RSRC)/game_banner.c
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
 $(RSRC)/game_banner.c: $(RSRC)/game.bmp

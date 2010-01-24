@@ -294,6 +294,7 @@ typedef struct      s_pranimatespritesinfo {
 int32_t             polymer_init(void);
 void                polymer_uninit(void);
 void                polymer_glinit(void);
+void                polymer_resetlights(void);
 void                polymer_loadboard(void);
 void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum);
 void                polymer_drawmasks(void);
@@ -355,7 +356,7 @@ static void         polymer_compileprogram(int32_t programbits);
 // LIGHTS
 static void         polymer_removelight(int16_t lighti);
 static void         polymer_updatelights(void);
-static void         polymer_resetlights(void);
+//static void         polymer_resetlights(void);
 static inline void  polymer_resetplanelights(_prplane* plane);
 static void         polymer_addplanelight(_prplane* plane, int16_t lighti);
 static inline void  polymer_deleteplanelight(_prplane* plane, int16_t lighti);

@@ -38,8 +38,13 @@ endif
 #
 RELEASE?=1
 DEBUGANYWAY?=0
+KRANDDEBUG?=0
 EFENCE?=0
 OPTLEVEL	?= 2
+
+ifneq (0,$(KRANDDEBUG))
+    RELEASE=0
+endif
 
 # SDK locations for Windows - adjust to match your setup
 #
@@ -69,6 +74,9 @@ ifneq ($(RELEASE),0)
 else
   # Debugging enabled
   debug=-ggdb -O0 -DDEBUGGINGAIDS -DNOSDLPARACHUTE
+  ifneq (0,$(KRANDDEBUG))
+    debug+=-DKRANDDEBUG=1
+  endif
 endif
 
 ifneq (0,$(DEBUGANYWAY))

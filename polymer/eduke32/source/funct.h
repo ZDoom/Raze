@@ -222,8 +222,8 @@ extern void Gv_DumpValues(void);
 extern void Gv_ResetSystemDefaults(void);
 extern void Gv_InitWeaponPointers(void);
 extern void Gv_Init(void);
-extern void Gv_WriteSave(FILE *fil);
-extern int32_t Gv_ReadSave(int32_t fil);
+extern void Gv_WriteSave(FILE *fil, int32_t newbehav);
+extern int32_t Gv_ReadSave(int32_t fil, int32_t newbehav);
 
 extern int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, register int32_t iPlayer);
 extern void __fastcall Gv_SetVar(register int32_t id, register int32_t lValue, register int32_t iActor, register int32_t iPlayer);

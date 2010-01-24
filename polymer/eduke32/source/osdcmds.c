@@ -40,6 +40,8 @@ extern int32_t althud_numbertile, althud_numberpal, althud_shadows, althud_flash
 extern int32_t hud_showmapname;
 extern int32_t r_maxfps;
 extern uint32_t g_frameDelay;
+extern int32_t demorec_diffs_cvar, demorec_force_cvar, demorec_seeds_cvar, demoplay_diffs, demoplay_showsync;
+extern int32_t demorec_difftics_cvar, demorec_diffcompress_cvar, demorec_synccompress_cvar;
 
 static inline int32_t osdcmd_quit(const osdfuncparm_t *parm)
 {
@@ -1439,6 +1441,14 @@ int32_t registerosdcommands(void)
         { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void*)&vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 0, 10 },
         { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",(void*)&vid_brightness, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 0, 10 },
 
+        { "demorec_diffs","demorec_diffs: enable/disable diff recording in demos",(void*)&demorec_diffs_cvar, CVAR_BOOL, 0, 0, 1 },
+        { "demorec_force","demorec_force: enable/disable forced demo recording",(void*)&demorec_force_cvar, CVAR_BOOL|CVAR_NOSAVE, 0, 0, 1 },
+        { "demorec_difftics","demorec_difftics <number>: sets game tic interval after which a diff is recorded",(void*)&demorec_difftics_cvar, CVAR_INT, 0, 2, 60*(TICRATE/TICSPERFRAME) },
+        { "demorec_diffcompress","demorec_diffcompress <number>: Compression method for diffs. (0: none, 1: KSLZW)",(void*)&demorec_diffcompress_cvar, CVAR_INT, 0, 0, 1 },
+        { "demorec_synccompress","demorec_synccompress <number>: Compression method for input. (0: none, 1: KSLZW)",(void*)&demorec_synccompress_cvar, CVAR_INT, 0, 0, 1 },
+        { "demorec_seeds","demorec_seeds: enable/disable recording of random seed for later sync checking",(void*)&demorec_seeds_cvar, CVAR_BOOL, 0, 0, 1 },
+        { "demoplay_diffs","demoplay_diffs: enable/disable application of diffs in demo playback",(void*)&demoplay_diffs, CVAR_BOOL, 0, 0, 1 },
+        { "demoplay_showsync","demoplay_showsync: enable/disable display of sync status",(void*)&demoplay_showsync, CVAR_BOOL, 0, 0, 1 },
     };
 
     osdcmd_cheatsinfo_stat.cheatnum = -1;

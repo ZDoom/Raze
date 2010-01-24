@@ -606,6 +606,8 @@ extern palette_t DefaultCrosshairColors;
 extern char g_modDir[BMAX_PATH];
 extern int32_t r_maxfps;
 extern int32_t g_noSetup;
+extern int32_t demorec_diffs_cvar, demoplay_diffs;
+extern int32_t demorec_difftics_cvar, demorec_diffcompress_cvar, demorec_synccompress_cvar;
 
 int32_t CONFIG_ReadSetup(void)
 {
@@ -879,6 +881,19 @@ int32_t CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "WeaponScale",&ud.weaponscale);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "WeaponSway",&ud.weaponsway);
 
+        {
+            SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "DemoRecDiffs",&demorec_diffs_cvar);
+            SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "DemoRecDiffTics",&demorec_difftics_cvar);
+            SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "DemoRecDiffCompress",&demorec_diffcompress_cvar);
+            SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "DemoRecSyncCompress",&demorec_synccompress_cvar);
+            SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "DemoPlayDiffs",&demoplay_diffs);
+            demorec_diffs_cvar = !!demorec_diffs_cvar;
+            demorec_difftics_cvar = min(max(2, demorec_difftics_cvar), 60*(TICRATE/TICSPERFRAME));
+            demorec_diffcompress_cvar = min(max(0, demorec_diffcompress_cvar), 1);
+            demorec_synccompress_cvar = min(max(0, demorec_synccompress_cvar), 1);
+            demoplay_diffs = !!demoplay_diffs;
+        }
+
         // weapon choices are defaulted in G_CheckCommandLine, which may override them
         if (!g_forceWeaponChoice)
             for (i=0; i<10; i++)
@@ -1070,6 +1085,12 @@ void CONFIG_WriteSetup(void)
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "WeaponScale",ud.weaponscale,FALSE,FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "WeaponSway",ud.weaponsway,FALSE,FALSE);
+
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DemoRecDiffs",demorec_diffs_cvar,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DemoRecDiffTics",demorec_difftics_cvar,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DemoRecDiffCompress",demorec_diffcompress_cvar,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DemoRecSyncCompress",demorec_synccompress_cvar,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DemoPlayDiffs",demoplay_diffs,FALSE,FALSE);
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup","ConfigVersion",BYTEVERSION_JF,FALSE,FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ForceSetup",ud.config.ForceSetup,FALSE,FALSE);
