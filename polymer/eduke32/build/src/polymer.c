@@ -547,6 +547,7 @@ _prrt           *prrts;
 
 // CONTROL
 GLfloat         spritemodelview[16];
+GLfloat         mdspritespace[4][4];
 GLfloat         rootmodelviewmatrix[16];
 GLfloat         *curmodelviewmatrix;
 GLfloat         rootskymodelviewmatrix[16];
@@ -1706,9 +1707,9 @@ static void         polymer_drawplane(_prplane* plane)
 
         if (materialbits & prprogrambits[PR_BIT_NORMAL_MAP].bit)
         {
-            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_T, &plane->tbn[0]);
-            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_B, &plane->tbn[3]);
-            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_N, &plane->tbn[6]);
+            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_T, &plane->tbn[0][0]);
+            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_B, &plane->tbn[1][0]);
+            bglVertexAttrib3fvARB(prprograms[materialbits].attrib_N, &plane->tbn[2][0]);
         }
 
         if (plane->indices)
@@ -2905,7 +2906,8 @@ static void         polymer_computeplane(_prplane* p)
         // hack to work around a precision issue with slopes
         if (norm >= 15000)
         {
-            float tangent[9];
+            float tangent[3][3];
+            double det;
 
             // normalize the normal/plane equation and calculate its plane norm
             norm = -sqrt(norm);
@@ -2919,25 +2921,25 @@ static void         polymer_computeplane(_prplane* p)
             r = 1.0 / (vec1[3] * vec2[4] - vec2[3] * vec1[4]);
 
             // tangent
-            tangent[0] = (vec2[4] * vec1[0] - vec1[4] * vec2[0]) * r;
-            tangent[1] = (vec2[4] * vec1[1] - vec1[4] * vec2[1]) * r;
-            tangent[2] = (vec2[4] * vec1[2] - vec1[4] * vec2[2]) * r;
+            tangent[0][0] = (vec2[4] * vec1[0] - vec1[4] * vec2[0]) * r;
+            tangent[0][1] = (vec2[4] * vec1[1] - vec1[4] * vec2[1]) * r;
+            tangent[0][2] = (vec2[4] * vec1[2] - vec1[4] * vec2[2]) * r;
 
-            polymer_normalize(&tangent[0]);
+            polymer_normalize(&tangent[0][0]);
 
             // bitangent
-            tangent[3] = (vec1[3] * vec2[0] - vec2[3] * vec1[0]) * r;
-            tangent[4] = (vec1[3] * vec2[1] - vec2[3] * vec1[1]) * r;
-            tangent[5] = (vec1[3] * vec2[2] - vec2[3] * vec1[2]) * r;
+            tangent[1][0] = (vec1[3] * vec2[0] - vec2[3] * vec1[0]) * r;
+            tangent[1][1] = (vec1[3] * vec2[1] - vec2[3] * vec1[1]) * r;
+            tangent[1][2] = (vec1[3] * vec2[2] - vec2[3] * vec1[2]) * r;
 
-            polymer_normalize(&tangent[3]);
+            polymer_normalize(&tangent[1][0]);
 
             // normal
-            tangent[6] = plane[0];
-            tangent[7] = plane[1];
-            tangent[8] = plane[2];
+            tangent[2][0] = plane[0];
+            tangent[2][1] = plane[1];
+            tangent[2][2] = plane[2];
 
-            polymer_invertmatrix(tangent, p->tbn);
+            INVERT_3X3(p->tbn, det, tangent);
 
             break;
         }
@@ -2968,29 +2970,6 @@ static inline void  polymer_transformpoint(float* inpos, float* pos, float* matr
              inpos[1] * matrix[6] +
              inpos[2] * matrix[10] +
                       + matrix[14];
-}
-
-static inline void  polymer_invertmatrix(float* m, float* out)
-{
-    float det;
-
-    det  = m[0] * (m[4]*m[8] - m[5] * m[7]);
-    det -= m[1] * (m[3]*m[8] - m[5] * m[6]);
-    det += m[2] * (m[3]*m[7] - m[4] * m[6]);
-
-    det = 1.0f / det;
-
-    out[0] = det * (m[4] * m[8] - m[5] * m[7]);
-    out[3] = det * (m[5] * m[6] - m[3] * m[8]);
-    out[6] = det * (m[3] * m[7] - m[1] * m[6]);
-
-    out[1] = det * (m[2] * m[7] - m[1] * m[8]);
-    out[4] = det * (m[0] * m[8] - m[2] * m[6]);
-    out[7] = det * (m[1] * m[6] - m[0] * m[7]);
-
-    out[2] = det * (m[1] * m[5] - m[2] * m[4]);
-    out[5] = det * (m[2] * m[3] - m[0] * m[5]);
-    out[8] = det * (m[0] * m[4] - m[1] * m[3]);
 }
 
 static inline void  polymer_normalize(float* vec)
@@ -3313,9 +3292,10 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     float           *v0, *v1;
     md3surf_t       *s;
     char            lpal;
-    float           spos[3], tspos[3], lpos[3], tlpos[3], vec[3];
+    float           spos[3], tspos[3], lpos[3], tlpos[3], vec[3], mat[4][4];
     float           ang;
     float           scale;
+    double          det;
     int32_t         surfi, i, j;
     GLubyte*        color;
     int32_t         materialbits;
@@ -3397,6 +3377,10 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     bglPopMatrix();
     bglPushMatrix();
     bglMultMatrixf(spritemodelview);
+
+    // invert this matrix to get the polymer -> mdsprite space
+    memcpy(mat, spritemodelview, sizeof(float) * 16);
+    INVERT_4X4(mdspritespace, det, mat);
 
     // debug code for drawing the model bounding sphere
 //     bglDisable(GL_TEXTURE_2D);
@@ -3545,8 +3529,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     for (surfi=0;surfi<m->head.numsurfs;surfi++)
     {
         s = &m->head.surfs[surfi];
-        v0 = &s->geometry[m->cframe*s->numverts*6];
-        v1 = &s->geometry[m->nframe*s->numverts*6];
+        v0 = &s->geometry[m->cframe*s->numverts*15];
+        v1 = &s->geometry[m->nframe*s->numverts*15];
 
         // debug code for drawing model normals
 //         bglDisable(GL_TEXTURE_2D);
@@ -3585,6 +3569,20 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                     mdspritematerial.detailscale[0] = mdspritematerial.detailscale[1] = sk->param;
         }
 
+        if (!(tspr->cstat&1024))
+        {
+            mdspritematerial.normalmap =
+                    mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,NORMALPAL,surfi);
+
+            for (sk = m->skinmap; sk; sk = sk->next)
+                if ((int32_t)sk->palette == NORMALPAL &&
+                    sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum &&
+                    sk->surfnum == surfi) {
+                    mdspritematerial.normalbias[0] = sk->specpower;
+                    mdspritematerial.normalbias[1] = sk->specfactor;
+                }
+        }
+
         for (sk = m->skinmap; sk; sk = sk->next)
             if ((int32_t)sk->palette == tspr->pal &&
                  sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum &&
@@ -3609,13 +3607,13 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             bglTexCoordPointer(2, GL_FLOAT, 0, 0);
 
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->geometry[surfi]);
-            bglVertexPointer(3, GL_FLOAT, sizeof(float) * 6, (GLfloat*)(m->cframe * s->numverts * sizeof(float) * 6));
-            bglNormalPointer(GL_FLOAT, sizeof(float) * 6, (GLfloat*)(m->cframe * s->numverts * sizeof(float) * 6) + 3);
+            bglVertexPointer(3, GL_FLOAT, sizeof(float) * 15, (GLfloat*)(m->cframe * s->numverts * sizeof(float) * 15));
+            bglNormalPointer(GL_FLOAT, sizeof(float) * 15, (GLfloat*)(m->cframe * s->numverts * sizeof(float) * 15) + 3);
 
-            if (pr_gpusmoothing)
-            {
-                mdspritematerial.nextframedata = (GLfloat*)(m->nframe * s->numverts * sizeof(float) * 6);
-                mdspritematerial.nextframedatastride = sizeof(float) * 6;
+            mdspritematerial.tbn = (GLfloat*)(m->cframe * s->numverts * sizeof(float) * 15) + 6;
+
+            if (pr_gpusmoothing) {
+                mdspritematerial.nextframedata = (GLfloat*)(m->nframe * s->numverts * sizeof(float) * 15);
             }
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[surfi]);
@@ -3634,14 +3632,14 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         }
         else
         {
-            bglVertexPointer(3, GL_FLOAT, sizeof(float) * 6, v0);
-            bglNormalPointer(GL_FLOAT, sizeof(float) * 6, v0 + 3);
+            bglVertexPointer(3, GL_FLOAT, sizeof(float) * 15, v0);
+            bglNormalPointer(GL_FLOAT, sizeof(float) * 15, v0 + 3);
             bglTexCoordPointer(2, GL_FLOAT, 0, s->uv);
 
-            if (pr_gpusmoothing)
-            {
+            mdspritematerial.tbn = v0 + 6;
+
+            if (pr_gpusmoothing) {
                 mdspritematerial.nextframedata = (GLfloat*)(v1);
-                mdspritematerial.nextframedatastride = sizeof(float) * 6;
             }
 
             curlight = 0;
@@ -3689,7 +3687,7 @@ static void         polymer_loadmodelvbos(md3model_t* m)
         bglBufferDataARB(GL_ARRAY_BUFFER_ARB, s->numverts * sizeof(md3uv_t), s->uv, modelvbousage);
 
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->geometry[i]);
-        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, s->numframes * s->numverts * sizeof(float) * 6, s->geometry, modelvbousage);
+        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, s->numframes * s->numverts * sizeof(float) * (15), s->geometry, modelvbousage);
 
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
         i++;
@@ -3705,10 +3703,10 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     // PR_BIT_ANIM_INTERPOLATION
     material->frameprogress = 0.0f;
     material->nextframedata = NULL;
-    material->nextframedatastride = 0;
     // PR_BIT_NORMAL_MAP
     material->normalmap = 0;
     material->normalbias[0] = material->normalbias[1] = 0.0f;
+    material->tbn = NULL;
     // PR_BIT_DIFFUSE_MAP
     material->diffusemap = 0;
     material->diffusescale[0] = material->diffusescale[1] = 1.0f;
@@ -3827,7 +3825,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     // --------- bit validation
 
     // PR_BIT_ANIM_INTERPOLATION
-    if (material.nextframedatastride)
+    if (material.nextframedata)
         programbits |= prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit;
 
     // PR_BIT_LIGHTING_PASS
@@ -3909,12 +3907,12 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
             bglEnableVertexAttribArrayARB(prprograms[programbits].attrib_nextFrameNormal);
         bglVertexAttribPointerARB(prprograms[programbits].attrib_nextFrameData,
                                   3, GL_FLOAT, GL_FALSE,
-                                  material.nextframedatastride,
+                                  sizeof(float) * 15,
                                   material.nextframedata);
         if (prprograms[programbits].attrib_nextFrameNormal != -1)
             bglVertexAttribPointerARB(prprograms[programbits].attrib_nextFrameNormal,
                                       3, GL_FLOAT, GL_FALSE,
-                                      material.nextframedatastride,
+                                      sizeof(float) * 15,
                                       material.nextframedata + 3);
 
         bglUniform1fARB(prprograms[programbits].uniform_frameProgress, material.frameprogress);
@@ -3939,7 +3937,12 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
         bglBindTexture(GL_TEXTURE_2D, material.normalmap);
 
-        bglUniform3fvARB(prprograms[programbits].uniform_eyePosition, 1, pos);
+        if (material.mdspritespace == GL_TRUE) {
+            float mdspritespacepos[3];
+            polymer_transformpoint(pos, mdspritespacepos, (float *)mdspritespace);
+            bglUniform3fvARB(prprograms[programbits].uniform_eyePosition, 1, mdspritespacepos);
+        } else
+            bglUniform3fvARB(prprograms[programbits].uniform_eyePosition, 1, pos);
         bglUniform1iARB(prprograms[programbits].uniform_normalMap, texunit);
         if (pr_overrideparallax) {
             bias[0] = pr_parallaxscale;
@@ -3947,6 +3950,25 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
             bglUniform2fvARB(prprograms[programbits].uniform_normalBias, 1, bias);
         } else
             bglUniform2fvARB(prprograms[programbits].uniform_normalBias, 1, material.normalbias);
+
+        if (material.tbn) {
+            bglEnableVertexAttribArrayARB(prprograms[programbits].attrib_T);
+            bglEnableVertexAttribArrayARB(prprograms[programbits].attrib_B);
+            bglEnableVertexAttribArrayARB(prprograms[programbits].attrib_N);
+
+            bglVertexAttribPointerARB(prprograms[programbits].attrib_T,
+                                      3, GL_FLOAT, GL_FALSE,
+                                      sizeof(float) * 15,
+                                      material.tbn);
+            bglVertexAttribPointerARB(prprograms[programbits].attrib_B,
+                                      3, GL_FLOAT, GL_FALSE,
+                                      sizeof(float) * 15,
+                                      material.tbn + 3);
+            bglVertexAttribPointerARB(prprograms[programbits].attrib_N,
+                                      3, GL_FLOAT, GL_FALSE,
+                                      sizeof(float) * 15,
+                                      material.tbn + 6);
+        }
 
         texunit++;
     }
@@ -4128,7 +4150,13 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
 
         bglLightfv(GL_LIGHT0, GL_AMBIENT, pos);
         bglLightfv(GL_LIGHT0, GL_DIFFUSE, color);
-        bglLightfv(GL_LIGHT0, GL_SPECULAR, inpos);
+        if (material.mdspritespace == GL_TRUE) {
+            float mdspritespacepos[3];
+            polymer_transformpoint(inpos, mdspritespacepos, (float *)mdspritespace);
+            bglLightfv(GL_LIGHT0, GL_SPECULAR, mdspritespacepos);
+        } else {
+            bglLightfv(GL_LIGHT0, GL_SPECULAR, inpos);
+        }
         bglLightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, &range[1]);
     }
 
@@ -4154,6 +4182,14 @@ static void         polymer_unbindmaterial(int32_t programbits)
     {
         bglDisable(GL_BLEND);
         bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    // PR_BIT_NORMAL_MAP
+    if (programbits & prprogrambits[PR_BIT_NORMAL_MAP].bit)
+    {
+        bglDisableVertexAttribArrayARB(prprograms[programbits].attrib_T);
+        bglDisableVertexAttribArrayARB(prprograms[programbits].attrib_B);
+        bglDisableVertexAttribArrayARB(prprograms[programbits].attrib_N);
     }
 
     bglUseProgramObjectARB(0);

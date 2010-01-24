@@ -86,10 +86,10 @@ typedef struct      s_prmaterial {
     // PR_BIT_ANIM_INTERPOLATION
     GLfloat         frameprogress;
     GLfloat*        nextframedata;
-    GLsizei         nextframedatastride;
     // PR_BIT_NORMAL_MAP
     GLuint          normalmap;
     GLfloat         normalbias[2];
+    GLfloat*        tbn;
     // PR_BIT_DIFFUSE_MAP
     GLuint          diffusemap;
     GLfloat         diffusescale[2];
@@ -212,7 +212,7 @@ typedef struct      s_prplane {
     int32_t         vertcount;
     GLuint          vbo;
     // attributes
-    GLfloat         tbn[9];
+    GLfloat         tbn[3][3];
     GLfloat         plane[4];
     _prmaterial     material;
     // elements
@@ -331,7 +331,6 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum);
 static void         polymer_computeplane(_prplane* p);
 static inline void  polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out);
 static inline void  polymer_transformpoint(float* inpos, float* pos, float* matrix);
-static inline void  polymer_invertmatrix(float* m, float* out);
 static inline void  polymer_normalize(float* vec);
 static inline void  polymer_pokesector(int16_t sectnum);
 static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projection, float* frustum);
@@ -368,6 +367,138 @@ static inline void  polymer_culllight(int16_t lighti);
 static void         polymer_prepareshadows(void);
 // RENDER TARGETS
 static void         polymer_initrendertargets(int32_t count);
+
+// the following from gle/vvector.h
+
+/* ========================================================== */
+/* determinant of matrix
+ *
+ * Computes determinant of matrix m, returning d
+ */
+
+#define DETERMINANT_3X3(d,m)                    \
+{                                \
+   d = m[0][0] * (m[1][1]*m[2][2] - m[1][2] * m[2][1]);        \
+   d -= m[0][1] * (m[1][0]*m[2][2] - m[1][2] * m[2][0]);    \
+   d += m[0][2] * (m[1][0]*m[2][1] - m[1][1] * m[2][0]);    \
+}
+
+/* ========================================================== */
+/* i,j,th cofactor of a 4x4 matrix
+ *
+ */
+
+#define COFACTOR_4X4_IJ(fac,m,i,j)                 \
+{                                \
+   int ii[4], jj[4], k;                        \
+                                \
+   /* compute which row, columnt to skip */            \
+   for (k=0; k<i; k++) ii[k] = k;                \
+   for (k=i; k<3; k++) ii[k] = k+1;                \
+   for (k=0; k<j; k++) jj[k] = k;                \
+   for (k=j; k<3; k++) jj[k] = k+1;                \
+                                \
+   (fac) = m[ii[0]][jj[0]] * (m[ii[1]][jj[1]]*m[ii[2]][jj[2]]     \
+                            - m[ii[1]][jj[2]]*m[ii[2]][jj[1]]); \
+   (fac) -= m[ii[0]][jj[1]] * (m[ii[1]][jj[0]]*m[ii[2]][jj[2]]    \
+                             - m[ii[1]][jj[2]]*m[ii[2]][jj[0]]);\
+   (fac) += m[ii[0]][jj[2]] * (m[ii[1]][jj[0]]*m[ii[2]][jj[1]]    \
+                             - m[ii[1]][jj[1]]*m[ii[2]][jj[0]]);\
+                                \
+   /* compute sign */                        \
+   k = i+j;                            \
+   if ( k != (k/2)*2) {                        \
+      (fac) = -(fac);                        \
+   }                                \
+}
+
+/* ========================================================== */
+/* determinant of matrix
+ *
+ * Computes determinant of matrix m, returning d
+ */
+
+#define DETERMINANT_4X4(d,m)                    \
+{                                \
+   double cofac;                        \
+   COFACTOR_4X4_IJ (cofac, m, 0, 0);                \
+   d = m[0][0] * cofac;                        \
+   COFACTOR_4X4_IJ (cofac, m, 0, 1);                \
+   d += m[0][1] * cofac;                    \
+   COFACTOR_4X4_IJ (cofac, m, 0, 2);                \
+   d += m[0][2] * cofac;                    \
+   COFACTOR_4X4_IJ (cofac, m, 0, 3);                \
+   d += m[0][3] * cofac;                    \
+}
+
+/* ========================================================== */
+/* compute adjoint of matrix and scale
+ *
+ * Computes adjoint of matrix m, scales it by s, returning a
+ */
+
+#define SCALE_ADJOINT_3X3(a,s,m)                \
+{                                \
+   a[0][0] = (s) * (m[1][1] * m[2][2] - m[1][2] * m[2][1]);    \
+   a[1][0] = (s) * (m[1][2] * m[2][0] - m[1][0] * m[2][2]);    \
+   a[2][0] = (s) * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);    \
+                                \
+   a[0][1] = (s) * (m[0][2] * m[2][1] - m[0][1] * m[2][2]);    \
+   a[1][1] = (s) * (m[0][0] * m[2][2] - m[0][2] * m[2][0]);    \
+   a[2][1] = (s) * (m[0][1] * m[2][0] - m[0][0] * m[2][1]);    \
+                                \
+   a[0][2] = (s) * (m[0][1] * m[1][2] - m[0][2] * m[1][1]);    \
+   a[1][2] = (s) * (m[0][2] * m[1][0] - m[0][0] * m[1][2]);    \
+   a[2][2] = (s) * (m[0][0] * m[1][1] - m[0][1] * m[1][0]);    \
+}
+
+/* ========================================================== */
+/* compute adjoint of matrix and scale
+ *
+ * Computes adjoint of matrix m, scales it by s, returning a
+ */
+
+#define SCALE_ADJOINT_4X4(a,s,m)                \
+{                                \
+   int i,j;                            \
+                                \
+   for (i=0; i<4; i++) {                    \
+      for (j=0; j<4; j++) {                    \
+         COFACTOR_4X4_IJ (a[j][i], m, i, j);            \
+         a[j][i] *= s;                        \
+      }                                \
+   }                                \
+}
+
+/* ========================================================== */
+/* inverse of matrix 
+ *
+ * Compute inverse of matrix a, returning determinant m and 
+ * inverse b
+ */
+
+#define INVERT_3X3(b,det,a)            \
+{                        \
+   double tmp;                    \
+   DETERMINANT_3X3 (det, a);            \
+   tmp = 1.0 / (det);                \
+   SCALE_ADJOINT_3X3 (b, tmp, a);        \
+}
+
+/* ========================================================== */
+/* inverse of matrix 
+ *
+ * Compute inverse of matrix a, returning determinant m and 
+ * inverse b
+ */
+
+#define INVERT_4X4(b,det,a)            \
+{                        \
+   double tmp;                    \
+   DETERMINANT_4X4 (det, a);            \
+   tmp = 1.0 / (det);                \
+   SCALE_ADJOINT_4X4 (b, tmp, a);        \
+}
 
 # endif // !POLYMER_C
 

@@ -1437,11 +1437,50 @@ static md3model_t *md3load(int32_t fil)
     return(m);
 }
 
+static inline void  invertmatrix(float* m, float* out)
+{
+    float det;
+
+    det  = m[0] * (m[4]*m[8] - m[5] * m[7]);
+    det -= m[1] * (m[3]*m[8] - m[5] * m[6]);
+    det += m[2] * (m[3]*m[7] - m[4] * m[6]);
+
+    det = 1.0f / det;
+
+    out[0] = det * (m[4] * m[8] - m[5] * m[7]);
+    out[3] = det * (m[5] * m[6] - m[3] * m[8]);
+    out[6] = det * (m[3] * m[7] - m[1] * m[6]);
+
+    out[1] = det * (m[2] * m[7] - m[1] * m[8]);
+    out[4] = det * (m[0] * m[8] - m[2] * m[6]);
+    out[7] = det * (m[1] * m[6] - m[0] * m[7]);
+
+    out[2] = det * (m[1] * m[5] - m[2] * m[4]);
+    out[5] = det * (m[2] * m[3] - m[0] * m[5]);
+    out[8] = det * (m[0] * m[4] - m[1] * m[3]);
+}
+
+static inline void  normalize(float* vec)
+{
+    double norm;
+
+    norm = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2];
+
+    norm = sqrt(norm);
+    norm = 1.0 / norm;
+    vec[0] *= norm;
+    vec[1] *= norm;
+    vec[2] *= norm;
+}
+
 static void     md3postload(md3model_t* m)
 {
-    int         framei, surfi, verti;
+    int         framei, surfi, verti, trii, i;
+    md3surf_t   *s;
+    md3frame_t  *frame;
     md3xyzn_t   *frameverts;
-    float       dist, lat, lng, vec[3];
+    int         *numtris;
+    float       dist, lat, lng, vec1[5], vec2[5], mat[9], r;
 
     // apparently we can't trust loaded models bounding box/sphere information,
     // so let's compute it ourselves
@@ -1450,15 +1489,17 @@ static void     md3postload(md3model_t* m)
 
     while (framei < m->head.numframes)
     {
-        m->head.frames[framei].min.x    = 0.0f;
-        m->head.frames[framei].min.y    = 0.0f;
-        m->head.frames[framei].min.z    = 0.0f;
+        frame = &m->head.frames[framei];
 
-        m->head.frames[framei].max.x    = 0.0f;
-        m->head.frames[framei].max.y    = 0.0f;
-        m->head.frames[framei].max.z    = 0.0f;
+        frame->min.x    = 0.0f;
+        frame->min.y    = 0.0f;
+        frame->min.z    = 0.0f;
 
-        m->head.frames[framei].r        = 0.0f;
+        frame->max.x    = 0.0f;
+        frame->max.y    = 0.0f;
+        frame->max.z    = 0.0f;
+
+        frame->r        = 0.0f;
 
         surfi = 0;
         while (surfi < m->head.numsurfs)
@@ -1470,30 +1511,30 @@ static void     md3postload(md3model_t* m)
             {
                 if (!verti && !surfi)
                 {
-                    m->head.frames[framei].min.x    = frameverts[verti].x;
-                    m->head.frames[framei].min.y    = frameverts[verti].y;
-                    m->head.frames[framei].min.z    = frameverts[verti].z;
+                    frame->min.x    = frameverts[verti].x;
+                    frame->min.y    = frameverts[verti].y;
+                    frame->min.z    = frameverts[verti].z;
 
-                    m->head.frames[framei].max.x    = frameverts[verti].x;
-                    m->head.frames[framei].max.y    = frameverts[verti].y;
-                    m->head.frames[framei].max.z    = frameverts[verti].z;
+                    frame->max.x    = frameverts[verti].x;
+                    frame->max.y    = frameverts[verti].y;
+                    frame->max.z    = frameverts[verti].z;
                 }
                 else
                 {
-                    if (m->head.frames[framei].min.x > frameverts[verti].x)
-                        m->head.frames[framei].min.x = frameverts[verti].x;
-                    if (m->head.frames[framei].max.x < frameverts[verti].x)
-                        m->head.frames[framei].max.x = frameverts[verti].x;
+                    if (frame->min.x > frameverts[verti].x)
+                        frame->min.x = frameverts[verti].x;
+                    if (frame->max.x < frameverts[verti].x)
+                        frame->max.x = frameverts[verti].x;
 
-                    if (m->head.frames[framei].min.y > frameverts[verti].y)
-                        m->head.frames[framei].min.y = frameverts[verti].y;
-                    if (m->head.frames[framei].max.y < frameverts[verti].y)
-                        m->head.frames[framei].max.y = frameverts[verti].y;
+                    if (frame->min.y > frameverts[verti].y)
+                        frame->min.y = frameverts[verti].y;
+                    if (frame->max.y < frameverts[verti].y)
+                        frame->max.y = frameverts[verti].y;
 
-                    if (m->head.frames[framei].min.z > frameverts[verti].z)
-                        m->head.frames[framei].min.z = frameverts[verti].z;
-                    if (m->head.frames[framei].max.z < frameverts[verti].z)
-                        m->head.frames[framei].max.z = frameverts[verti].z;
+                    if (frame->min.z > frameverts[verti].z)
+                        frame->min.z = frameverts[verti].z;
+                    if (frame->max.z < frameverts[verti].z)
+                        frame->max.z = frameverts[verti].z;
                 }
 
                 verti++;
@@ -1501,9 +1542,9 @@ static void     md3postload(md3model_t* m)
             surfi++;
         }
 
-        m->head.frames[framei].cen.x = (m->head.frames[framei].min.x + m->head.frames[framei].max.x) / 2.0f;
-        m->head.frames[framei].cen.y = (m->head.frames[framei].min.y + m->head.frames[framei].max.y) / 2.0f;
-        m->head.frames[framei].cen.z = (m->head.frames[framei].min.z + m->head.frames[framei].max.z) / 2.0f;
+        frame->cen.x = (frame->min.x + frame->max.x) / 2.0f;
+        frame->cen.y = (frame->min.y + frame->max.y) / 2.0f;
+        frame->cen.z = (frame->min.z + frame->max.z) / 2.0f;
 
         surfi = 0;
         while (surfi < m->head.numsurfs)
@@ -1513,21 +1554,21 @@ static void     md3postload(md3model_t* m)
             verti = 0;
             while (verti < m->head.surfs[surfi].numverts)
             {
-                vec[0] = frameverts[verti].x - m->head.frames[framei].cen.x;
-                vec[1] = frameverts[verti].y - m->head.frames[framei].cen.y;
-                vec[2] = frameverts[verti].z - m->head.frames[framei].cen.z;
+                vec1[0] = frameverts[verti].x - frame->cen.x;
+                vec1[1] = frameverts[verti].y - frame->cen.y;
+                vec1[2] = frameverts[verti].z - frame->cen.z;
 
-                dist = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2];
+                dist = vec1[0] * vec1[0] + vec1[1] * vec1[1] + vec1[2] * vec1[2];
 
-                if (dist > m->head.frames[framei].r)
-                    m->head.frames[framei].r = dist;
+                if (dist > frame->r)
+                    frame->r = dist;
 
                 verti++;
             }
             surfi++;
         }
 
-        m->head.frames[framei].r = sqrt(m->head.frames[framei].r);
+        frame->r = sqrt(frame->r);
 
         framei++;
     }
@@ -1537,29 +1578,117 @@ static void     md3postload(md3model_t* m)
     surfi = 0;
     while (surfi < m->head.numsurfs)
     {
-        m->head.surfs[surfi].geometry = nedpmalloc(model_data_pool, m->head.numframes * m->head.surfs[surfi].numverts * sizeof(float) * 6);
+        s = &m->head.surfs[surfi];
+
+        s->geometry = nedpcalloc(model_data_pool, m->head.numframes * s->numverts * sizeof(float), 15);
+
+        numtris = nedpcalloc(model_data_pool, s->numverts, sizeof(int));
 
         verti = 0;
-        while (verti < (m->head.numframes * m->head.surfs[surfi].numverts))
+        while (verti < (m->head.numframes * s->numverts))
         {
-            m->head.surfs[surfi].geometry[(verti * 6) + 0] = m->head.surfs[surfi].xyzn[verti].x;
-            m->head.surfs[surfi].geometry[(verti * 6) + 1] = m->head.surfs[surfi].xyzn[verti].y;
-            m->head.surfs[surfi].geometry[(verti * 6) + 2] = m->head.surfs[surfi].xyzn[verti].z;
+            s->geometry[(verti * 15) + 0] = s->xyzn[verti].x;
+            s->geometry[(verti * 15) + 1] = s->xyzn[verti].y;
+            s->geometry[(verti * 15) + 2] = s->xyzn[verti].z;
 
             // normal extraction from packed spherical coordinates
             // FIXME: swapping lat and lng because of npherno's compiler
-            lat = m->head.surfs[surfi].xyzn[verti].nlng * (2 * PI) / 255.0f;
-            lng = m->head.surfs[surfi].xyzn[verti].nlat * (2 * PI) / 255.0f;
+            lat = s->xyzn[verti].nlng * (2 * PI) / 255.0f;
+            lng = s->xyzn[verti].nlat * (2 * PI) / 255.0f;
 
-            m->head.surfs[surfi].geometry[(verti * 6) + 3] = cos(lat) * sin(lng);
-            m->head.surfs[surfi].geometry[(verti * 6) + 4] = sin(lat) * sin(lng);
-            m->head.surfs[surfi].geometry[(verti * 6) + 5] = cos(lng);
+            s->geometry[(verti * 15) + 3] = cos(lat) * sin(lng);
+            s->geometry[(verti * 15) + 4] = sin(lat) * sin(lng);
+            s->geometry[(verti * 15) + 5] = cos(lng);
 
             verti++;
         }
+
+        trii = 0;
+        while (trii < s->numtris)
+        {
+            // let the vertices know they're being referenced by a triangle
+            numtris[s->tris[trii].i[0]]++;
+            numtris[s->tris[trii].i[1]]++;
+            numtris[s->tris[trii].i[2]]++;
+
+            framei = 0;
+            while (framei < m->head.numframes)
+            {
+                vec1[0] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 0] - 
+                          s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[0] * 15) + 0];
+                vec1[1] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 1] - 
+                          s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[0] * 15) + 1];
+                vec1[2] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 2] - 
+                          s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[0] * 15) + 2];
+                vec1[3] = s->uv[s->tris[trii].i[1]].u - s->uv[s->tris[trii].i[0]].u;
+                vec1[4] = s->uv[s->tris[trii].i[1]].v - s->uv[s->tris[trii].i[0]].v;
+
+                vec2[0] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 0] - 
+                          s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 0];
+                vec2[1] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 1] - 
+                          s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 1];
+                vec2[2] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 2] - 
+                          s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 2];
+                vec2[3] = s->uv[s->tris[trii].i[2]].u - s->uv[s->tris[trii].i[1]].u;
+                vec2[4] = s->uv[s->tris[trii].i[2]].v - s->uv[s->tris[trii].i[1]].v;
+
+                r = 1.0 / (vec1[3] * vec2[4] - vec2[3] * vec1[4]);
+
+                // tangent
+                mat[0] = (vec2[4] * vec1[0] - vec1[4] * vec2[0]) * r;
+                mat[1] = (vec2[4] * vec1[1] - vec1[4] * vec2[1]) * r;
+                mat[2] = (vec2[4] * vec1[2] - vec1[4] * vec2[2]) * r;
+
+                normalize(&mat[0]);
+
+                // bitangent
+                mat[3] = (vec1[3] * vec2[0] - vec2[3] * vec1[0]) * r;
+                mat[4] = (vec1[3] * vec2[1] - vec2[3] * vec1[1]) * r;
+                mat[5] = (vec1[3] * vec2[2] - vec2[3] * vec1[2]) * r;
+
+                normalize(&mat[3]);
+
+                // T and B are shared for the three vertices in that triangle
+                i = 0;
+                while (i < 6)
+                {
+                    s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[0] * 15) + 6 + i] += mat[i];
+                    s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 6 + i] += mat[i];
+                    s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 6 + i] += mat[i];
+                    i++;
+                }
+
+                framei++;
+            }
+
+            trii++;
+        }
+
+        // now that we accumulated the TBNs, average and invert them for each vertex
+        verti = 0;
+        while (verti < (m->head.numframes * s->numverts))
+        {
+            i = 6;
+            while (i < 12)
+            {
+                s->geometry[(verti * 15) + i] /= numtris[verti % s->numverts];
+                i++;
+            }
+            // copy N over
+            s->geometry[(verti * 15) + 12] = s->geometry[(verti * 15) + 3];
+            s->geometry[(verti * 15) + 13] = s->geometry[(verti * 15) + 4];
+            s->geometry[(verti * 15) + 14] = s->geometry[(verti * 15) + 5];
+
+            invertmatrix(&s->geometry[(verti * 15) + 6], mat);
+            memcpy(&s->geometry[(verti * 15) + 6], mat, sizeof(float) * 9);
+
+            verti++;
+        }
+
+        nedpfree(model_data_pool, numtris);
+
         surfi++;
     }
-
 }
 
 static int32_t md3draw(md3model_t *m, spritetype *tspr)
