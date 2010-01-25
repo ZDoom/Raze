@@ -1355,10 +1355,180 @@ static uint32_t calcsz(const dataspec_t *spec)
     return dasiz;
 }
 
-static const dataspec_t svgm_udnetw[];
-static const dataspec_t svgm_secwsp[];
-static const dataspec_t svgm_script[];
-static const dataspec_t svgm_anmisc[];
+static void sv_postudload();
+static void sv_prespriteextsave();
+static void sv_postspriteext();
+static void sv_calcbitptrsize();
+static void sv_prescriptsave_once();
+static void sv_postscript_once();
+static void sv_preactordatasave();
+static void sv_postactordata();
+static void sv_preanimateptrsave();
+static void sv_postanimateptr();
+static void sv_prequote();
+static void sv_quotesave();
+static void sv_quoteload();
+static void sv_prequoteredef();
+static void sv_quoteredefsave();
+static void sv_quoteredefload();
+static void sv_postquoteredef();
+static void sv_restsave();
+static void sv_restload();
+
+#define SVARDATALEN \
+    ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
+      +sizeof(g_player[0].frags)+sizeof(DukePlayer_t))*MAXPLAYERS + sizeof(_prlight)*PR_MAXLIGHTS + sizeof(lightcount))
+
+static uint8_t savegame_bitmap[MAXSPRITES>>3][3];
+static uint32_t savegame_bitptrsize;
+static uint8_t savegame_quotedef[MAXQUOTES>>3];
+static char (*savegame_quotes)[MAXQUOTELEN];
+static char (*savegame_quoteredefs)[MAXQUOTELEN];
+static uint8_t savegame_restdata[SVARDATALEN];
+
+static const dataspec_t svgm_udnetw[] =
+{
+    { DS_STRING, "blK:udnt", 0, 1 },
+    { 0, &ud.multimode, sizeof(ud.multimode), 1 },
+    { 0, &g_numPlayerSprites, sizeof(g_numPlayerSprites), 1 },
+    { 0, &g_playerSpawnPoints, sizeof(g_playerSpawnPoints), 1 },
+
+    { DS_NOCHK, &ud.volume_number, sizeof(ud.volume_number), 1 },
+    { DS_NOCHK, &ud.level_number, sizeof(ud.level_number), 1 },
+    { DS_NOCHK, &ud.player_skill, sizeof(ud.player_skill), 1 },
+
+    { DS_NOCHK, &ud.from_bonus, sizeof(ud.from_bonus), 1 },
+    { DS_NOCHK, &ud.secretlevel, sizeof(ud.secretlevel), 1 },
+    { DS_NOCHK, &ud.respawn_monsters, sizeof(ud.respawn_monsters), 1 },
+    { DS_NOCHK, &ud.respawn_items, sizeof(ud.respawn_items), 1 },
+    { DS_NOCHK, &ud.respawn_inventory, sizeof(ud.respawn_inventory), 1 },
+    { 0, &ud.god, sizeof(ud.god), 1 },
+    { 0, &ud.auto_run, sizeof(ud.auto_run), 1 },
+//    { DS_NOCHK, &ud.crosshair, sizeof(ud.crosshair), 1 },
+    { DS_NOCHK, &ud.monsters_off, sizeof(ud.monsters_off), 1 },
+    { DS_NOCHK, &ud.last_level, sizeof(ud.last_level), 1 },
+    { 0, &ud.eog, sizeof(ud.eog), 1 },
+    { DS_NOCHK, &ud.coop, sizeof(ud.coop), 1 },
+    { DS_NOCHK, &ud.marker, sizeof(ud.marker), 1 },
+    { DS_NOCHK, &ud.ffire, sizeof(ud.ffire), 1 },
+    { DS_NOCHK, &ud.noexits, sizeof(ud.noexits), 1 },
+    { DS_NOCHK, &ud.playerai, sizeof(ud.playerai), 1 },
+    { DS_NOCHK, &currentboardfilename[0], BMAX_PATH, 1 },
+    { DS_LOADFN, (void *)&sv_postudload, 0, 1 },
+    { 0, &connecthead, sizeof(connecthead), 1 },
+    { 0, connectpoint2, sizeof(connectpoint2), 1 },
+    { 0, &randomseed, sizeof(randomseed), 1 },
+    { 0, &g_globalRandom, sizeof(g_globalRandom), 1 },
+//    { 0, &lockclock_dummy, sizeof(lockclock), 1 },
+    { DS_END, 0, 0, 0 }
+};
+
+static const dataspec_t svgm_secwsp[] =
+{
+    { DS_STRING, "blK:swsp", 0, 1 },
+    { DS_NOCHK, &numwalls, sizeof(numwalls), 1 },
+    { DS_DYNAMIC|DS_CNT(numwalls), &wall, sizeof(walltype), (intptr_t)&numwalls },
+    { DS_NOCHK, &numsectors, sizeof(numsectors), 1 },
+    { DS_DYNAMIC|DS_CNT(numsectors), &sector, sizeof(sectortype), (intptr_t)&numsectors },
+    { DS_DYNAMIC, &sprite, sizeof(spritetype), MAXSPRITES },
+    { 0, &headspritesect[0], sizeof(headspritesect[0]), MAXSECTORS+1 },
+    { 0, &prevspritesect[0], sizeof(prevspritesect[0]), MAXSPRITES },
+    { 0, &nextspritesect[0], sizeof(nextspritesect[0]), MAXSPRITES },
+    { 0, &headspritestat[0], sizeof(headspritestat[0]), MAXSTATUS+1 },
+    { 0, &prevspritestat[0], sizeof(prevspritestat[0]), MAXSPRITES },
+    { 0, &nextspritestat[0], sizeof(nextspritestat[0]), MAXSPRITES },
+#if defined(POLYMOST) && defined(USE_OPENGL)
+    { DS_SAVEFN, (void *)&sv_prespriteextsave, 0, 1 },
+#endif
+    { DS_DYNAMIC, &spriteext, sizeof(spriteext_t), MAXSPRITES },
+#if defined(POLYMOST) && defined(USE_OPENGL)
+    { DS_SAVEFN|DS_LOADFN, (void *)&sv_postspriteext, 0, 1 },
+#endif
+    { DS_NOCHK, &SpriteFlags[0], sizeof(SpriteFlags[0]), MAXTILES },
+    { DS_NOCHK, &SpriteCacheList[0], sizeof(SpriteCacheList[0]), MAXTILES },
+    { 0, &DynamicTileMap[0], sizeof(DynamicTileMap[0]), MAXTILES },  // NOCHK?
+    { DS_NOCHK, &ActorType[0], sizeof(uint8_t), MAXTILES },
+    { DS_NOCHK, &g_numCyclers, sizeof(g_numCyclers), 1 },
+    { DS_CNT(g_numCyclers), &cyclers[0][0], sizeof(cyclers[0]), (intptr_t)&g_numCyclers },
+    { DS_NOCHK, &g_numAnimWalls, sizeof(g_numAnimWalls), 1 },
+    { DS_CNT(g_numAnimWalls), &animwall, sizeof(animwall[0]), (intptr_t)&g_numAnimWalls },
+    { DS_NOCHK, &g_mirrorCount, sizeof(g_mirrorCount), 1 },
+    { DS_NOCHK, &g_mirrorWall[0], sizeof(g_mirrorWall[0]), sizeof(g_mirrorWall)/sizeof(g_mirrorWall[0]) },
+    { DS_NOCHK, &g_mirrorSector[0], sizeof(g_mirrorSector[0]), sizeof(g_mirrorSector)/sizeof(g_mirrorSector[0]) },
+// projectiles
+    { 0, &SpriteProjectile[0], sizeof(projectile_t), MAXSPRITES },
+    { 0, &ProjectileData[0], sizeof(projectile_t), MAXTILES },
+    { DS_NOCHK, &DefaultProjectileData[0], sizeof(projectile_t), MAXTILES },
+    { 0, &everyothertime, sizeof(everyothertime), 1 },
+    { DS_END, 0, 0, 0 }
+};
+
+static const dataspec_t svgm_script[] =
+{
+    { DS_STRING, "blK:scri", 0, 1 },
+    { DS_NOCHK, &g_scriptSize, sizeof(g_scriptSize), 1 },
+    { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_calcbitptrsize, 0, 1 },
+    { DS_DYNAMIC|DS_CNT(savegame_bitptrsize)|DS_NOCHK, &bitptr, sizeof(bitptr[0]), (intptr_t)&savegame_bitptrsize },
+
+    { DS_SAVEFN|DS_NOCHK, (void *)&sv_prescriptsave_once, 0, 1 },
+    { DS_NOCHK, &actorscrptr[0], sizeof(actorscrptr[0]), MAXTILES },
+    { DS_DYNAMIC|DS_CNT(g_scriptSize)|DS_NOCHK, &script, sizeof(script[0]), (intptr_t)&g_scriptSize },
+    { DS_NOCHK, &actorLoadEventScrptr[0], sizeof(actorLoadEventScrptr[0]), MAXTILES },
+//    { DS_NOCHK, &apScriptGameEvent[0], sizeof(apScriptGameEvent[0]), MAXGAMEEVENTS },
+    { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_postscript_once, 0, 1 },
+
+    { DS_SAVEFN, (void *)&sv_preactordatasave, 0, 1 },
+    { 0, &savegame_bitmap, sizeof(savegame_bitmap), 1 },
+    { 0, &ActorExtra[0], sizeof(ActorData_t), MAXSPRITES },
+    { DS_SAVEFN|DS_LOADFN, (void *)&sv_postactordata, 0, 1 },
+
+    { DS_END, 0, 0, 0 }
+};
+
+static const dataspec_t svgm_anmisc[] =
+{
+    { DS_STRING, "blK:anms", 0, 1 },
+    { 0, &g_animateCount, sizeof(g_animateCount), 1 },
+    { 0, &animatesect[0], sizeof(animatesect[0]), MAXANIMATES },
+    { 0, &animategoal[0], sizeof(animategoal[0]), MAXANIMATES },
+    { 0, &animatevel[0], sizeof(animatevel[0]), MAXANIMATES },
+    { DS_SAVEFN, (void *)&sv_preanimateptrsave, 0, 1 },
+    { 0, &animateptr[0], sizeof(animateptr[0]), MAXANIMATES },
+    { DS_SAVEFN|DS_LOADFN , (void *)&sv_postanimateptr, 0, 1 },
+    { 0, &camsprite, sizeof(camsprite), 1 },
+    { 0, &msx[0], sizeof(msx[0]), sizeof(msx)/sizeof(msx[0]) },
+    { 0, &msy[0], sizeof(msy[0]), sizeof(msy)/sizeof(msy[0]) },
+    { 0, &show2dsector[0], sizeof(uint8_t), MAXSECTORS>>3 },
+    { DS_NOCHK, &g_numClouds, sizeof(g_numClouds), 1 },
+    { 0, &clouds[0], sizeof(clouds), 1 },
+    { 0, &cloudx[0], sizeof(cloudx), 1 },
+    { 0, &cloudy[0], sizeof(cloudy), 1 },
+    { DS_NOCHK, &parallaxyscale, sizeof(parallaxyscale), 1 },
+    { 0, &pskybits, sizeof(pskybits), 1 },
+    { 0, &pskyoff[0], sizeof(pskyoff[0]), MAXPSKYTILES },
+    { 0, &g_earthquakeTime, sizeof(g_earthquakeTime), 1 },
+
+    { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)sv_prequote, 0, 1 },
+    { DS_SAVEFN, (void *)&sv_quotesave, 0, 1 },
+    { DS_NOCHK, &savegame_quotedef, sizeof(savegame_quotedef), 1 },  // quotes can change during runtime, but new quote numbers cannot be allocated
+    { DS_DYNAMIC, &savegame_quotes, MAXQUOTELEN, MAXQUOTES },
+    { DS_LOADFN, (void *)&sv_quoteload, 0, 1 },
+
+    { DS_NOCHK, &g_numQuoteRedefinitions, sizeof(g_numQuoteRedefinitions), 1 },
+    { DS_NOCHK|DS_SAVEFN|DS_LOADFN, (void *)&sv_prequoteredef, 0, 1 },
+    { DS_NOCHK|DS_SAVEFN, (void *)&sv_quoteredefsave, 0, 1 },  // quote redefinitions replace quotes at runtime, but cannot be changed after CON compilation
+    { DS_NOCHK|DS_DYNAMIC|DS_CNT(g_numQuoteRedefinitions), &savegame_quoteredefs, MAXQUOTELEN, (intptr_t)&g_numQuoteRedefinitions },
+    { DS_NOCHK|DS_LOADFN, (void *)&sv_quoteredefload, 0, 1 },
+    { DS_NOCHK|DS_SAVEFN|DS_LOADFN, (void *)&sv_postquoteredef, 0, 1 },
+
+    { DS_SAVEFN, (void *)&sv_restsave, 0, 1 },
+    { 0, savegame_restdata, 1, sizeof(savegame_restdata) },  // sz/cnt swapped for kdfread
+    { DS_LOADFN, (void *)&sv_restload, 0, 1 },
+
+    { DS_STRING, "savegame_end", 0, 1 },
+    { DS_END, 0, 0, 0 }
+};
+
 static dataspec_t *svgm_vars=NULL;
 static uint8_t *dosaveplayer2(int32_t spot, FILE *fil, uint8_t *mem);
 static int32_t doloadplayer2(int32_t spot, int32_t fil, uint8_t **memptr);
@@ -1654,42 +1824,7 @@ static void sv_postudload()
     ud.m_noexits = ud.noexits;
 }
 //static int32_t lockclock_dummy;
-static const dataspec_t svgm_udnetw[] =
-{
-    { DS_STRING, "blK:udnt", 0, 1 },
-    { 0, &ud.multimode, sizeof(ud.multimode), 1 },
-    { 0, &g_numPlayerSprites, sizeof(g_numPlayerSprites), 1 },
-    { 0, &g_playerSpawnPoints, sizeof(g_playerSpawnPoints), 1 },
 
-    { DS_NOCHK, &ud.volume_number, sizeof(ud.volume_number), 1 },
-    { DS_NOCHK, &ud.level_number, sizeof(ud.level_number), 1 },
-    { DS_NOCHK, &ud.player_skill, sizeof(ud.player_skill), 1 },
-
-    { DS_NOCHK, &ud.from_bonus, sizeof(ud.from_bonus), 1 },
-    { DS_NOCHK, &ud.secretlevel, sizeof(ud.secretlevel), 1 },
-    { DS_NOCHK, &ud.respawn_monsters, sizeof(ud.respawn_monsters), 1 },
-    { DS_NOCHK, &ud.respawn_items, sizeof(ud.respawn_items), 1 },
-    { DS_NOCHK, &ud.respawn_inventory, sizeof(ud.respawn_inventory), 1 },
-    { 0, &ud.god, sizeof(ud.god), 1 },
-    { 0, &ud.auto_run, sizeof(ud.auto_run), 1 },
-//    { DS_NOCHK, &ud.crosshair, sizeof(ud.crosshair), 1 },
-    { DS_NOCHK, &ud.monsters_off, sizeof(ud.monsters_off), 1 },
-    { DS_NOCHK, &ud.last_level, sizeof(ud.last_level), 1 },
-    { 0, &ud.eog, sizeof(ud.eog), 1 },
-    { DS_NOCHK, &ud.coop, sizeof(ud.coop), 1 },
-    { DS_NOCHK, &ud.marker, sizeof(ud.marker), 1 },
-    { DS_NOCHK, &ud.ffire, sizeof(ud.ffire), 1 },
-    { DS_NOCHK, &ud.noexits, sizeof(ud.noexits), 1 },
-    { DS_NOCHK, &ud.playerai, sizeof(ud.playerai), 1 },
-    { DS_NOCHK, &currentboardfilename[0], BMAX_PATH, 1 },
-    { DS_LOADFN, (void *)&sv_postudload, 0, 1 },
-    { 0, &connecthead, sizeof(connecthead), 1 },
-    { 0, connectpoint2, sizeof(connectpoint2), 1 },
-    { 0, &randomseed, sizeof(randomseed), 1 },
-    { 0, &g_globalRandom, sizeof(g_globalRandom), 1 },
-//    { 0, &lockclock_dummy, sizeof(lockclock), 1 },
-    { DS_END, 0, 0, 0 }
-};
 
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
@@ -1712,49 +1847,6 @@ static void sv_postspriteext()
             spriteext[i].mdanimtims += mdtims;
 }
 #endif
-static const dataspec_t svgm_secwsp[] =
-{
-    { DS_STRING, "blK:swsp", 0, 1 },
-    { DS_NOCHK, &numwalls, sizeof(numwalls), 1 },
-    { DS_DYNAMIC|DS_CNT(numwalls), &wall, sizeof(walltype), (intptr_t)&numwalls },
-    { DS_NOCHK, &numsectors, sizeof(numsectors), 1 },
-    { DS_DYNAMIC|DS_CNT(numsectors), &sector, sizeof(sectortype), (intptr_t)&numsectors },
-    { DS_DYNAMIC, &sprite, sizeof(spritetype), MAXSPRITES },
-    { 0, &headspritesect[0], sizeof(headspritesect[0]), MAXSECTORS+1 },
-    { 0, &prevspritesect[0], sizeof(prevspritesect[0]), MAXSPRITES },
-    { 0, &nextspritesect[0], sizeof(nextspritesect[0]), MAXSPRITES },
-    { 0, &headspritestat[0], sizeof(headspritestat[0]), MAXSTATUS+1 },
-    { 0, &prevspritestat[0], sizeof(prevspritestat[0]), MAXSPRITES },
-    { 0, &nextspritestat[0], sizeof(nextspritestat[0]), MAXSPRITES },
-#if defined(POLYMOST) && defined(USE_OPENGL)
-    { DS_SAVEFN, (void *)&sv_prespriteextsave, 0, 1 },
-#endif
-    { DS_DYNAMIC, &spriteext, sizeof(spriteext_t), MAXSPRITES },
-#if defined(POLYMOST) && defined(USE_OPENGL)
-    { DS_SAVEFN|DS_LOADFN, (void *)&sv_postspriteext, 0, 1 },
-#endif
-    { DS_NOCHK, &SpriteFlags[0], sizeof(SpriteFlags[0]), MAXTILES },
-    { DS_NOCHK, &SpriteCacheList[0], sizeof(SpriteCacheList[0]), MAXTILES },
-    { 0, &DynamicTileMap[0], sizeof(DynamicTileMap[0]), MAXTILES },  // NOCHK?
-    { DS_NOCHK, &ActorType[0], sizeof(uint8_t), MAXTILES },
-    { DS_NOCHK, &g_numCyclers, sizeof(g_numCyclers), 1 },
-    { DS_CNT(g_numCyclers), &cyclers[0][0], sizeof(cyclers[0]), (intptr_t)&g_numCyclers },
-    { DS_NOCHK, &g_numAnimWalls, sizeof(g_numAnimWalls), 1 },
-    { DS_CNT(g_numAnimWalls), &animwall, sizeof(animwall[0]), (intptr_t)&g_numAnimWalls },
-    { DS_NOCHK, &g_mirrorCount, sizeof(g_mirrorCount), 1 },
-    { DS_NOCHK, &g_mirrorWall[0], sizeof(g_mirrorWall[0]), sizeof(g_mirrorWall)/sizeof(g_mirrorWall[0]) },
-    { DS_NOCHK, &g_mirrorSector[0], sizeof(g_mirrorSector[0]), sizeof(g_mirrorSector)/sizeof(g_mirrorSector[0]) },
-// projectiles
-    { 0, &SpriteProjectile[0], sizeof(projectile_t), MAXSPRITES },
-    { 0, &ProjectileData[0], sizeof(projectile_t), MAXTILES },
-    { DS_NOCHK, &DefaultProjectileData[0], sizeof(projectile_t), MAXTILES },
-    { 0, &everyothertime, sizeof(everyothertime), 1 },
-    { DS_END, 0, 0, 0 }
-};
-
-
-static uint8_t savegame_bitmap[MAXSPRITES>>3][3];
-static uint32_t savegame_bitptrsize;
 
 static void sv_calcbitptrsize()
 {
@@ -1825,37 +1917,6 @@ static void sv_postactordata()
         if (savegame_bitmap[i>>3][2]&(1<<(i&7))) T6 += j;
     }
 }
-static const dataspec_t svgm_script[] =
-{
-    { DS_STRING, "blK:scri", 0, 1 },
-    { DS_NOCHK, &g_scriptSize, sizeof(g_scriptSize), 1 },
-    { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_calcbitptrsize, 0, 1 },
-    { DS_DYNAMIC|DS_CNT(savegame_bitptrsize)|DS_NOCHK, &bitptr, sizeof(bitptr[0]), (intptr_t)&savegame_bitptrsize },
-
-    { DS_SAVEFN|DS_NOCHK, (void *)&sv_prescriptsave_once, 0, 1 },
-    { DS_NOCHK, &actorscrptr[0], sizeof(actorscrptr[0]), MAXTILES },
-    { DS_DYNAMIC|DS_CNT(g_scriptSize)|DS_NOCHK, &script, sizeof(script[0]), (intptr_t)&g_scriptSize },
-    { DS_NOCHK, &actorLoadEventScrptr[0], sizeof(actorLoadEventScrptr[0]), MAXTILES },
-//    { DS_NOCHK, &apScriptGameEvent[0], sizeof(apScriptGameEvent[0]), MAXGAMEEVENTS },
-    { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_postscript_once, 0, 1 },
-
-    { DS_SAVEFN, (void *)&sv_preactordatasave, 0, 1 },
-    { 0, &savegame_bitmap, sizeof(savegame_bitmap), 1 },
-    { 0, &ActorExtra[0], sizeof(ActorData_t), MAXSPRITES },
-    { DS_SAVEFN|DS_LOADFN, (void *)&sv_postactordata, 0, 1 },
-
-    { DS_END, 0, 0, 0 }
-};
-
-
-static uint8_t savegame_quotedef[MAXQUOTES>>3];
-static char (*savegame_quotes)[MAXQUOTELEN];
-static char (*savegame_quoteredefs)[MAXQUOTELEN];
-
-#define SVARDATALEN \
-    ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
-      +sizeof(g_player[0].frags)+sizeof(DukePlayer_t))*MAXPLAYERS + sizeof(_prlight)*PR_MAXLIGHTS + sizeof(lightcount))
-static uint8_t savegame_restdata[SVARDATALEN];
 
 static void sv_preanimateptrsave()
 {
@@ -1980,50 +2041,6 @@ static void sv_restload()
 #endif
     #undef CPDAT
 }
-static const dataspec_t svgm_anmisc[] =
-{
-    { DS_STRING, "blK:anms", 0, 1 },
-    { 0, &g_animateCount, sizeof(g_animateCount), 1 },
-    { 0, &animatesect[0], sizeof(animatesect[0]), MAXANIMATES },
-    { 0, &animategoal[0], sizeof(animategoal[0]), MAXANIMATES },
-    { 0, &animatevel[0], sizeof(animatevel[0]), MAXANIMATES },
-    { DS_SAVEFN, (void *)&sv_preanimateptrsave, 0, 1 },
-    { 0, &animateptr[0], sizeof(animateptr[0]), MAXANIMATES },
-    { DS_SAVEFN|DS_LOADFN , (void *)&sv_postanimateptr, 0, 1 },
-    { 0, &camsprite, sizeof(camsprite), 1 },
-    { 0, &msx[0], sizeof(msx[0]), sizeof(msx)/sizeof(msx[0]) },
-    { 0, &msy[0], sizeof(msy[0]), sizeof(msy)/sizeof(msy[0]) },
-    { 0, &show2dsector[0], sizeof(uint8_t), MAXSECTORS>>3 },
-    { DS_NOCHK, &g_numClouds, sizeof(g_numClouds), 1 },
-    { 0, &clouds[0], sizeof(clouds), 1 },
-    { 0, &cloudx[0], sizeof(cloudx), 1 },
-    { 0, &cloudy[0], sizeof(cloudy), 1 },
-    { DS_NOCHK, &parallaxyscale, sizeof(parallaxyscale), 1 },
-    { 0, &pskybits, sizeof(pskybits), 1 },
-    { 0, &pskyoff[0], sizeof(pskyoff[0]), MAXPSKYTILES },
-    { 0, &g_earthquakeTime, sizeof(g_earthquakeTime), 1 },
-
-    { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)sv_prequote, 0, 1 },
-    { DS_SAVEFN, (void *)&sv_quotesave, 0, 1 },
-    { DS_NOCHK, &savegame_quotedef, sizeof(savegame_quotedef), 1 },  // quotes can change during runtime, but new quote numbers cannot be allocated
-    { DS_DYNAMIC, &savegame_quotes, MAXQUOTELEN, MAXQUOTES },
-    { DS_LOADFN, (void *)&sv_quoteload, 0, 1 },
-
-    { DS_NOCHK, &g_numQuoteRedefinitions, sizeof(g_numQuoteRedefinitions), 1 },
-    { DS_NOCHK|DS_SAVEFN|DS_LOADFN, (void *)&sv_prequoteredef, 0, 1 },
-    { DS_NOCHK|DS_SAVEFN, (void *)&sv_quoteredefsave, 0, 1 },  // quote redefinitions replace quotes at runtime, but cannot be changed after CON compilation
-    { DS_NOCHK|DS_DYNAMIC|DS_CNT(g_numQuoteRedefinitions), &savegame_quoteredefs, MAXQUOTELEN, (intptr_t)&g_numQuoteRedefinitions },
-    { DS_NOCHK|DS_LOADFN, (void *)&sv_quoteredefload, 0, 1 },
-    { DS_NOCHK|DS_SAVEFN|DS_LOADFN, (void *)&sv_postquoteredef, 0, 1 },
-
-    { DS_SAVEFN, (void *)&sv_restsave, 0, 1 },
-    { 0, savegame_restdata, 1, sizeof(savegame_restdata) },  // sz/cnt swapped for kdfread
-    { DS_LOADFN, (void *)&sv_restload, 0, 1 },
-
-    { DS_STRING, "savegame_end", 0, 1 },
-    { DS_END, 0, 0, 0 }
-};
-
 
 #define SAVEWR(ptr, sz, cnt) do { if (fil) dfwrite(ptr,sz,cnt,fil); } while (0)
 #define SAVEWRU(ptr, sz, cnt) do { if (fil) fwrite(ptr,sz,cnt,fil); } while (0)
@@ -2053,10 +2070,10 @@ static uint8_t *dosaveplayer2(int32_t spot, FILE *fil, uint8_t *mem)
     {
         char buf[19];
         const time_t t=time(NULL);
-        struct tm st;
+        struct tm *st;
         Bsprintf(buf, "Eduke32 demo");
-        if (t>=0 && localtime_r(&t, &st)==&st)
-            Bsprintf(buf, "Edemo32 %04d%02d%02d", st.tm_year+1900, st.tm_mon+1, st.tm_mday);
+        if (t>=0 && (st = localtime(&t)))
+            Bsprintf(buf, "Edemo32 %04d%02d%02d", st->tm_year+1900, st->tm_mon+1, st->tm_mday);
         SAVEWRU(&buf, 19, 1);
         SAVEWRU("\0", 1, 1);  // demos don't save screenshot
     }
@@ -2253,8 +2270,10 @@ static void postloadplayer2()
     G_ResetTimers();
 
 #ifdef POLYMER
-    if (getrendermode() == 4)
+    if (getrendermode() == 4) {
+        polymer_loadboard();
         polymer_resetlights();
+    }
 #elif 0
     if (getrendermode() == 4)
     {

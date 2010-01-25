@@ -699,6 +699,55 @@ void                polymer_glinit(void)
     bglCullFace(GL_BACK);
 }
 
+void                polymer_resetlights(void)
+{
+    int32_t         i;
+    _prsector       *s;
+    _prwall         *w;
+
+    i = 0;
+    while (i < numsectors)
+    {
+        s = prsectors[i];
+
+        if (!s) {
+            i++;
+            continue;
+        }
+
+        polymer_resetplanelights(&s->floor);
+        polymer_resetplanelights(&s->ceil);
+
+        i++;
+    }
+
+    i = 0;
+    while (i < numwalls)
+    {
+        w = prwalls[i];
+
+        if (!w) {
+            i++;
+            continue;
+        }
+
+        polymer_resetplanelights(&w->wall);
+        polymer_resetplanelights(&w->over);
+        polymer_resetplanelights(&w->mask);
+
+        i++;
+    }
+
+    i = 0;
+    while (i < PR_MAXLIGHTS)
+    {
+        prlights[i].flags.active = 0;
+        i++;
+    }
+
+    lightcount = 0;
+}
+
 void                polymer_loadboard(void)
 {
     int32_t         i;
@@ -4388,45 +4437,6 @@ static void         polymer_updatelights(void)
             prlights[i].rtindex = -1;
         i++;
     }
-}
-
-static void         polymer_resetlights(void)
-{
-    int32_t         i;
-    _prsector       *s;
-    _prwall         *w;
-
-    i = 0;
-    while (i < numsectors)
-    {
-        s = prsectors[i];
-
-        polymer_resetplanelights(&s->floor);
-        polymer_resetplanelights(&s->ceil);
-
-        i++;
-    }
-
-    i = 0;
-    while (i < numwalls)
-    {
-        w = prwalls[i];
-
-        polymer_resetplanelights(&w->wall);
-        polymer_resetplanelights(&w->over);
-        polymer_resetplanelights(&w->mask);
-
-        i++;
-    }
-
-    i = 0;
-    while (i < PR_MAXLIGHTS)
-    {
-        prlights[i].flags.active = 0;
-        i++;
-    }
-
-    lightcount = 0;
 }
 
 static inline void  polymer_resetplanelights(_prplane* plane)
