@@ -889,7 +889,7 @@ void Net_SyncPlayer(ENetEvent * event)
     // no slots empty from players quitting, so open a new one
     if (i == -1)
         i = playerswhenstarted++;
-    event->peer->data = (void *)i;
+    event->peer->data = (void *) ((intptr_t) i);
 
     clearbufbyte(&g_player[i].playerquitflag,1,0x01010101);
     g_player[i].movefifoend = 1;

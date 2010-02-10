@@ -1227,7 +1227,7 @@ static int32_t C_SkipComments(void)
                         initprintf("%s:%d: debug: EOF in comment!\n",g_szScriptFileName,g_lineNumber);
                     C_ReportError(-1);
                     initprintf("%s:%d: error: found `/*' with no `*/'.\n",g_szScriptFileName,g_lineNumber);
-                    g_parsingActorPtr = (intptr_t *)(g_processingState = g_numBraces = 0);
+                    g_parsingActorPtr = 0;g_processingState = g_numBraces = 0;
                     g_numCompilerErrors++;
                     break;
                 }

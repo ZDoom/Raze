@@ -289,13 +289,13 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     char *ofn = (char *)fn;
     int32_t fp;
     char * testfn, * extension;
-    int32_t alt = 0;
+    const char* alt = 0;
 
     if (ud.config.MusicToggle == 0) return 0;
     if (ud.config.MusicDevice < 0) return 0;
 
     if (MapInfo[sel].alt_musicfn != NULL)
-        alt = (int32_t)(fn = MapInfo[sel].alt_musicfn);
+        alt = fn = MapInfo[sel].alt_musicfn;
 
 
     testfn = (char *) Bmalloc(strlen(fn) + 5);
