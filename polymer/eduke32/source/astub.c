@@ -93,12 +93,18 @@ static struct strllist
 #define eitherCTRL  (keystatus[KEYSC_LCTRL]| keystatus[KEYSC_RCTRL])
 #define eitherSHIFT (keystatus[KEYSC_LSHIFT]|keystatus[KEYSC_RSHIFT])
 
+#define SEARCH_WALL 0
+#define SEARCH_CEILING 1
+#define SEARCH_FLOOR 2
+#define SEARCH_SPRITE 3
+#define SEARCH_MASKWALL 4
+
 static char *type2str[]={"Wall","Sector","Sector","Sprite","Wall"};
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
 static int32_t numdirs=0, numfiles=0;
 static int32_t currentlist=0;
-static int32_t mouseaction=0, mouseax=0, mouseay=0;
+static int32_t tsign, mouseaction=0, mouseax=0, mouseay=0;
 static int32_t repeatcountx, repeatcounty;
 static int32_t infobox=3; // bit0: current window, bit1: mouse pointer, the variable should be renamed
 
@@ -2979,15 +2985,15 @@ static int32_t m32gettile(int32_t idInitialTile)
 
     switch (searchstat)
     {
-    case 0 :
+    case SEARCH_WALL:
         for (i = 0; i < numwalls; i++)
         {
             localartfreq[ wall[i].picnum ]++;
         }
         break;
 
-    case 1 :
-    case 2 :
+    case SEARCH_CEILING:
+    case SEARCH_FLOOR:
         for (i = 0; i < numsectors; i++)
         {
             localartfreq[ sector[i].ceilingpicnum ]++;
@@ -2995,7 +3001,7 @@ static int32_t m32gettile(int32_t idInitialTile)
         }
         break;
 
-    case 3 :
+    case SEARCH_SPRITE:
         for (i=0; i<MAXSPRITES; i++)
         {
             if (sprite[i].statnum < MAXSTATUS)
@@ -3005,7 +3011,7 @@ static int32_t m32gettile(int32_t idInitialTile)
         }
         break;
 
-    case 4 :
+    case SEARCH_MASKWALL:
         for (i = 0; i < numwalls; i++)
         {
             localartfreq[ wall[i].overpicnum ]++;
@@ -3966,13 +3972,15 @@ static void DoSpriteOrnament(int32_t i)
     }
 }
 
+#if 0
 int64_t ldistsqr(spritetype *s1,spritetype *s2)
 {
     return (((int64_t)(s2->x - s1->x))*((int64_t)(s2->x - s1->x)) +
             ((int64_t)(s2->y - s1->y))*((int64_t)(s2->y - s1->y)));
 }
+#endif
 
-void rendertext(int16_t startspr)
+static void TextEntryMode(int16_t startspr)
 {
     char ch, buffer[80], doingspace=0;
     int16_t daang = 0, t, alphidx, basetile, linebegspr, curspr, cursor;
@@ -4323,7 +4331,7 @@ static void Keys3d(void)
 
     if (usedcount && !helpon)
     {
-        if (searchstat!=3)
+        if (searchstat!=SEARCH_SPRITE)
         {
             count=0;
             for (i=0; i<numwalls; i++)
@@ -4338,7 +4346,7 @@ static void Keys3d(void)
             }
         }
 
-        if (searchstat==3)
+        if (searchstat==SEARCH_SPRITE)
         {
             count=0;
             statnum=0;
@@ -4366,11 +4374,11 @@ static void Keys3d(void)
             height2=sector[searchsector].floorz-sector[searchsector].ceilingz;
             switch (searchstat)
             {
-            case 0:
-            case 4:
-                w = (searchstat==0)?searchbottomwall:searchwall;
+            case SEARCH_WALL:
+            case SEARCH_MASKWALL:
+                w = (searchstat==SEARCH_WALL)?searchbottomwall:searchwall;
                 drawtileinfo("Current",WIND1X,WIND1Y,
-                             searchstat==0 ? wall[w].picnum : wall[w].overpicnum,
+                             searchstat==SEARCH_WALL ? wall[w].picnum : wall[w].overpicnum,
                              wall[w].shade,
                              wall[w].pal,wall[searchwall].cstat,wall[searchwall].lotag,
                              wall[searchwall].hitag,wall[searchwall].extra);
@@ -4397,7 +4405,7 @@ static void Keys3d(void)
                 else
                     Bsprintf(lines[num++],"Height:%d, Length:%d",height2,dist);
                 break;
-            case 1:
+            case SEARCH_CEILING:
                 drawtileinfo("Current",WIND1X,WIND1Y,sector[searchsector].ceilingpicnum,sector[searchsector].ceilingshade,
                              sector[searchsector].ceilingpal,sector[searchsector].ceilingstat,
                              sector[searchsector].lotag,sector[searchsector].hitag,sector[searchsector].extra);
@@ -4411,7 +4419,7 @@ static void Keys3d(void)
                 Bsprintf(lines[num++],"^251Sector %d^31 ceiling, Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
                 Bsprintf(lines[num++],"Height: %d, Visibility:%d",height2,sector[searchsector].visibility);
                 break;
-            case 2:
+            case SEARCH_FLOOR:
                 drawtileinfo("Current",WIND1X,WIND1Y,sector[searchsector].floorpicnum,sector[searchsector].floorshade,
                              sector[searchsector].floorpal,sector[searchsector].floorstat,
                              sector[searchsector].lotag,sector[searchsector].hitag,sector[searchsector].extra);
@@ -4425,7 +4433,7 @@ static void Keys3d(void)
                 Bsprintf(lines[num++],"^251Sector %d^31 floor, Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
                 Bsprintf(lines[num++],"Height:%d, Visibility:%d",height2,sector[searchsector].visibility);
                 break;
-            case 3:
+            case SEARCH_SPRITE:
                 drawtileinfo("Current",WIND1X,WIND1Y,sprite[searchwall].picnum,sprite[searchwall].shade,
                              sprite[searchwall].pal,sprite[searchwall].cstat,sprite[searchwall].lotag,
                              sprite[searchwall].hitag,sprite[searchwall].extra);
@@ -4475,8 +4483,8 @@ static void Keys3d(void)
         keystatus[KEYSC_V] = 0;
         switch (searchstat)
         {
-        case 1:
-        case 2:
+        case SEARCH_CEILING:
+        case SEARCH_FLOOR:
             getnumberptr256("Sector visibility: ",&sector[searchsector].visibility,sizeof(sector[searchsector].visibility),256L,0,NULL);
             break;
         }
@@ -4508,18 +4516,18 @@ static void Keys3d(void)
     if (keystatus[KEYSC_V])  //V
     {
         int32_t oldtile;
-        if (searchstat == 0) tempint = wall[searchbottomwall].picnum;
-        if (searchstat == 1) tempint = sector[searchsector].ceilingpicnum;
-        if (searchstat == 2) tempint = sector[searchsector].floorpicnum;
-        if (searchstat == 3) tempint = sprite[searchwall].picnum;
-        if (searchstat == 4) tempint = wall[searchwall].overpicnum;
+        if (searchstat == SEARCH_WALL) tempint = wall[searchbottomwall].picnum;
+        if (searchstat == SEARCH_CEILING) tempint = sector[searchsector].ceilingpicnum;
+        if (searchstat == SEARCH_FLOOR) tempint = sector[searchsector].floorpicnum;
+        if (searchstat == SEARCH_SPRITE) tempint = sprite[searchwall].picnum;
+        if (searchstat == SEARCH_MASKWALL) tempint = wall[searchwall].overpicnum;
         oldtile = tempint;
         tempint = m32gettile(tempint);
-        if (searchstat == 0) wall[searchbottomwall].picnum = tempint;
-        if (searchstat == 1) sector[searchsector].ceilingpicnum = tempint;
-        if (searchstat == 2) sector[searchsector].floorpicnum = tempint;
-        if (searchstat == 3) sprite[searchwall].picnum = tempint;
-        if (searchstat == 4)
+        if (searchstat == SEARCH_WALL) wall[searchbottomwall].picnum = tempint;
+        if (searchstat == SEARCH_CEILING) sector[searchsector].ceilingpicnum = tempint;
+        if (searchstat == SEARCH_FLOOR) sector[searchsector].floorpicnum = tempint;
+        if (searchstat == SEARCH_SPRITE) sprite[searchwall].picnum = tempint;
+        if (searchstat == SEARCH_MASKWALL)
         {
             wall[searchwall].overpicnum = tempint;
             if (wall[searchwall].nextwall >= 0)
@@ -4569,13 +4577,13 @@ static void Keys3d(void)
         keystatus[KEYSC_DELETE] = 0;
         switch (searchstat)
         {
-        case 0:
-        case 4:
+        case SEARCH_WALL:
+        case SEARCH_MASKWALL:
             wall[searchwall].cstat = 0;
             message("Wall %d cstat = 0",searchwall);
             break;
             //            case 1: case 2: sector[searchsector].cstat = 0; break;
-        case 3:
+        case SEARCH_SPRITE:
             sprite[searchwall].cstat = 0;
             message("Sprite %d cstat = 0",searchwall);
             break;
@@ -4678,7 +4686,7 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_DELETE])
     {
-        if (searchstat == 3)
+        if (searchstat == SEARCH_SPRITE)
         {
             deletesprite(searchwall);
             updatenumsprites();
@@ -4706,17 +4714,17 @@ static void Keys3d(void)
         message("Automatic sector tag help %s",autosecthelp?"enabled":"disabled");
     }
 
-    if ((searchstat == 3) && (sprite[searchwall].picnum==SECTOREFFECTOR))
+    if ((searchstat == SEARCH_SPRITE) && (sprite[searchwall].picnum==SECTOREFFECTOR))
         if (autospritehelp && helpon==0) Show3dText("sehelp.hlp");
 
-    if (searchstat == 1 || searchstat == 2)
+    if (searchstat == SEARCH_CEILING || searchstat == SEARCH_FLOOR)
         if (autosecthelp && helpon==0) Show3dText("sthelp.hlp");
 
 
 
     if (keystatus[KEYSC_COMMA]) // , Search & fix panning to the left (3D)
     {
-        if (searchstat == 3)
+        if (searchstat == SEARCH_SPRITE)
         {
             i = searchwall;
             if (eitherSHIFT)
@@ -4731,13 +4739,13 @@ static void Keys3d(void)
     }
     if (keystatus[KEYSC_PERIOD]) // . Search & fix panning to the right (3D)
     {
-        if ((searchstat == 0) || (searchstat == 4))
+        if ((searchstat == SEARCH_WALL) || (searchstat == SEARCH_MASKWALL))
         {
             AutoAlignWalls((int32_t)searchwall,0L);
             message("Wall %d autoalign",searchwall);
             keystatus[KEYSC_PERIOD] = 0;
         }
-        if (searchstat == 3)
+        if (searchstat == SEARCH_SPRITE)
         {
             i = searchwall;
             if (eitherSHIFT)
@@ -4757,7 +4765,7 @@ static void Keys3d(void)
         noclip = 1;
         switch (searchstat)
         {
-        case 1:
+        case SEARCH_CEILING:
             getnumberptr256("Sector ceilingz: ",&sector[searchsector].ceilingz,sizeof(sector[searchsector].ceilingz),8388608,1,NULL);
             if (!(sector[searchsector].ceilingstat&2))
             {
@@ -4766,7 +4774,7 @@ static void Keys3d(void)
             }
             getnumberptr256("Sector ceiling slope: ",&sector[searchsector].ceilingheinum,sizeof(sector[searchsector].ceilingheinum),65536,1,NULL);
             break;
-        case 2:
+        case SEARCH_FLOOR:
             getnumberptr256("Sector floorz: ",&sector[searchsector].floorz,sizeof(sector[searchsector].floorz),8388608,1,NULL);
             if (!(sector[searchsector].floorstat&2))
             {
@@ -4775,7 +4783,7 @@ static void Keys3d(void)
             }
             getnumberptr256("Sector floor slope: ",&sector[searchsector].floorheinum,sizeof(sector[searchsector].floorheinum),65536,1,NULL);
             break;
-        case 3:
+        case SEARCH_SPRITE:
             getnumberptr256("Sprite x: ",&sprite[searchwall].x,sizeof(sprite[searchwall].x),131072,1,NULL);
             getnumberptr256("Sprite y: ",&sprite[searchwall].y,sizeof(sprite[searchwall].y),131072,1,NULL);
             getnumberptr256("Sprite z: ",&sprite[searchwall].z,sizeof(sprite[searchwall].z),8388608,1,NULL);
@@ -4816,17 +4824,17 @@ static void Keys3d(void)
     {
         switch (searchstat)
         {
-        case 0:
-        case 4:
+        case SEARCH_WALL:
+        case SEARCH_MASKWALL:
             strcpy(buffer,"Wall extra: ");
             wall[searchwall].extra = getnumber256(buffer,(int32_t)wall[searchwall].extra,65536L,1);
             break;
-        case 1:
-        case 2:
+        case SEARCH_CEILING:
+        case SEARCH_FLOOR:
             strcpy(buffer,"Sector extra: ");
             sector[searchsector].extra = getnumber256(buffer,(int32_t)sector[searchsector].extra,65536L,1);
             break;
-        case 3:
+        case SEARCH_SPRITE:
             //            strcpy(buffer,"Sprite extra: ");
             //            sprite[searchwall].extra = getnumber256(buffer,(int32_t)sprite[searchwall].extra,65536L,1);
             getnumberptr256("Sprite extra: ",&sprite[searchwall].extra,sizeof(sprite[searchwall].extra),1024,1,NULL);
@@ -4838,7 +4846,7 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_1])  // 1 (make 1-way wall)
     {
-        if (searchstat != 3)
+        if (searchstat != SEARCH_SPRITE)
         {
             wall[searchwall].cstat ^= 32;
             Bsprintf(getmessage,"Wall %d one side masking bit %s",searchwall,wall[searchwall].cstat&32?"ON":"OFF");
@@ -4865,7 +4873,7 @@ static void Keys3d(void)
     }
     if (keystatus[KEYSC_2])  // 2 (bottom wall swapping)
     {
-        if (searchstat != 3)
+        if (searchstat != SEARCH_SPRITE)
         {
             wall[searchwall].cstat ^= 2;
             Bsprintf(getmessage,"Wall %d bottom texture swap bit %s",searchwall,wall[searchwall].cstat&2?"ON":"OFF");
@@ -4876,15 +4884,15 @@ static void Keys3d(void)
     }
     if (keystatus[KEYSC_O])  // O (top/bottom orientation - for doors)
     {
-        if ((searchstat == 0) || (searchstat == 4))
+        if ((searchstat == SEARCH_WALL) || (searchstat == SEARCH_MASKWALL))
         {
-            int16_t w = (searchstat==0)?searchbottomwall:searchwall;
+            int16_t w = (searchstat==SEARCH_WALL)?searchbottomwall:searchwall;
             wall[w].cstat ^= 4;
             Bsprintf(getmessage,"Wall %d %s orientation",w,wall[w].cstat&4?"bottom":"top");
             message(getmessage);
             asksave = 1;
         }
-        if (searchstat == 3)   // O (ornament onto wall) (2D)
+        if (searchstat == SEARCH_SPRITE)   // O (ornament onto wall) (2D)
         {
             asksave = 1;
             i = searchwall;
@@ -4897,7 +4905,7 @@ static void Keys3d(void)
     }
     if (keystatus[KEYSC_M])  // M (masking walls)
     {
-        if (searchstat != 3)
+        if (searchstat != SEARCH_SPRITE)
         {
             i = wall[searchwall].nextwall;
             tempint = eitherSHIFT;
@@ -4939,20 +4947,17 @@ static void Keys3d(void)
         {
             switch (searchstat)
             {
-            case 0:
-            case 4:
+            case SEARCH_WALL:
+            case SEARCH_MASKWALL:
                 strcpy(buffer,"Wall hitag: ");
                 wall[searchwall].hitag = getnumber256(buffer,(int32_t)wall[searchwall].hitag,65536L,0);
                 break;
-            case 1:
+            case SEARCH_CEILING:
+            case SEARCH_FLOOR:
                 strcpy(buffer,"Sector hitag: ");
                 sector[searchsector].hitag = getnumber256(buffer,(int32_t)sector[searchsector].hitag,65536L,0);
                 break;
-            case 2:
-                strcpy(buffer,"Sector hitag: ");
-                sector[searchsector].hitag = getnumber256(buffer,(int32_t)sector[searchsector].hitag,65536L,0);
-                break;
-            case 3:
+            case SEARCH_SPRITE:
                 strcpy(buffer,"Sprite hitag: ");
                 // sprite[searchwall].hitag = getnumber256(buffer,(int32_t)sprite[searchwall].hitag,65536L,0);
                 getnumberptr256(buffer,&sprite[searchwall].hitag,sizeof(sprite[searchwall].hitag),INT16_MAX,1,NULL);
@@ -4963,7 +4968,7 @@ static void Keys3d(void)
         else
         {
 
-            if (searchstat == 3)
+            if (searchstat == SEARCH_SPRITE)
             {
                 sprite[searchwall].cstat ^= 256;
                 Bsprintf(getmessage,"Sprite %d hitscan sensitivity bit %s",searchwall,sprite[searchwall].cstat&256?"ON":"OFF");
@@ -5003,113 +5008,27 @@ static void Keys3d(void)
         //        {
         //            mlook = 2;
         //        }
+        tsign = 0;
         if (bstatus&32 || keystatus[KEYSC_gMINUS])  // -
-        {
-            keystatus[KEYSC_gMINUS]=0;
-            mouseb &= ~32;
-            bstatus &= ~32;
-            if (eitherALT)  //ALT
-            {
-                if (eitherCTRL)  //CTRL
-                {
-                    if (visibility < 16384) visibility += visibility;
-                    Bsprintf(getmessage,"Global visibility %d",visibility);
-                    message(getmessage);
-                }
-                else
-                {
-                    k=eitherSHIFT?1:16;
-
-                    if (highlightsectorcnt >= 0)
-                        for (i=0; i<highlightsectorcnt; i++)
-                            if (highlightsector[i] == searchsector)
-                            {
-                                while (k > 0)
-                                {
-                                    for (i=0; i<highlightsectorcnt; i++)
-                                    {
-                                        sector[highlightsector[i]].visibility++;
-                                        if (sector[highlightsector[i]].visibility == 240)
-                                            sector[highlightsector[i]].visibility = 239;
-                                    }
-                                    k--;
-                                }
-                                break;
-                            }
-                    while (k > 0)
-                    {
-                        sector[searchsector].visibility++;
-                        if (sector[searchsector].visibility == 240)
-                            sector[searchsector].visibility = 239;
-                        k--;
-                    }
-                    Bsprintf(getmessage,"Sector %d visibility %d",searchsector,sector[searchsector].visibility);
-                    message(getmessage);
-                    asksave = 1;
-                }
-            }
-            else
-            {
-                k = 0;
-                if (highlightsectorcnt >= 0)
-                {
-                    for (i=0; i<highlightsectorcnt; i++)
-                        if (highlightsector[i] == searchsector)
-                        {
-                            k = 1;
-                            break;
-                        }
-                }
-
-                if (k == 0)
-                {
-                    int32_t shade=-1, i=-1;
-                    if (searchstat == 0) shade=++wall[i=searchbottomwall].shade;
-                    if (searchstat == 1) shade=++sector[i=searchsector].ceilingshade;
-                    if (searchstat == 2) shade=++sector[i=searchsector].floorshade;
-                    if (searchstat == 3) shade=++sprite[i=searchwall].shade;
-                    if (searchstat == 4) shade=++wall[i=searchwall].shade;
-                    if (i!=-1)
-                    {
-                        Bsprintf(getmessage,"%s %d shade %d",type2str[searchstat],i,shade);
-                        message(getmessage);
-                    }
-                }
-                else
-                {
-                    for (i=0; i<highlightsectorcnt; i++)
-                    {
-                        dasector = highlightsector[i];
-
-                        sector[dasector].ceilingshade++;        //sector shade
-                        sector[dasector].floorshade++;
-
-                        startwall = sector[dasector].wallptr;   //wall shade
-                        endwall = startwall + sector[dasector].wallnum - 1;
-                        for (j=startwall; j<=endwall; j++)
-                            wall[j].shade++;
-
-                        j = headspritesect[dasector];           //sprite shade
-                        while (j != -1)
-                        {
-                            sprite[j].shade++;
-                            j = nextspritesect[j];
-                        }
-                    }
-                }
-                asksave = 1;
-            }
-        }
+            tsign = 1;
         if (bstatus&16 || keystatus[KEYSC_gPLUS])  // +
+            tsign = -1;
+
+        if (tsign)
         {
-            keystatus[KEYSC_gPLUS]=0;
-            mouseb &= ~16;
-            bstatus &= ~16;
+            keystatus[KEYSC_gMINUS] = keystatus[KEYSC_gPLUS] = 0;
+            mouseb &= ~(16|32);
+            bstatus &= ~(16|32);
             if (eitherALT)  //ALT
             {
                 if (eitherCTRL)  //CTRL
                 {
-                    if (visibility > 32) visibility >>= 1;
+                    if (tsign==1)
+                    {
+                        if (visibility < 16384) visibility += visibility;
+                    }
+                    else
+                        if (visibility > 32) visibility >>= 1;
                     Bsprintf(getmessage,"Global visibility %d",visibility);
                     message(getmessage);
                 }
@@ -5125,9 +5044,15 @@ static void Keys3d(void)
                                 {
                                     for (i=0; i<highlightsectorcnt; i++)
                                     {
-                                        sector[highlightsector[i]].visibility--;
-                                        if (sector[highlightsector[i]].visibility == 239)
-                                            sector[highlightsector[i]].visibility = 240;
+                                        sector[highlightsector[i]].visibility += tsign;
+                                        if (tsign==1)
+                                        {
+                                            if (sector[highlightsector[i]].visibility == 240)
+                                                sector[highlightsector[i]].visibility = 239;
+                                        }
+                                        else
+                                            if (sector[highlightsector[i]].visibility == 239)
+                                                sector[highlightsector[i]].visibility = 240;
                                     }
                                     k--;
                                 }
@@ -5135,9 +5060,15 @@ static void Keys3d(void)
                             }
                     while (k > 0)
                     {
-                        sector[searchsector].visibility--;
-                        if (sector[searchsector].visibility == 239)
-                            sector[searchsector].visibility = 240;
+                        sector[searchsector].visibility += tsign;
+                        if (tsign==1)
+                        {
+                            if (sector[searchsector].visibility == 240)
+                                sector[searchsector].visibility = 239;
+                        }
+                        else
+                            if (sector[searchsector].visibility == 239)
+                                sector[searchsector].visibility = 240;
                         k--;
                     }
                     Bsprintf(getmessage,"Sector %d visibility %d",searchsector,sector[searchsector].visibility);
@@ -5161,11 +5092,11 @@ static void Keys3d(void)
                 if (k == 0)
                 {
                     int32_t shade=-1, i=-1;
-                    if (searchstat == 0) shade=--wall[i=searchbottomwall].shade;
-                    if (searchstat == 1) shade=--sector[i=searchsector].ceilingshade;
-                    if (searchstat == 2) shade=--sector[i=searchsector].floorshade;
-                    if (searchstat == 3) shade=--sprite[i=searchwall].shade;
-                    if (searchstat == 4) shade=--wall[i=searchwall].shade;
+                    if (searchstat == SEARCH_WALL) shade = (wall[i=searchbottomwall].shade += tsign);
+                    if (searchstat == SEARCH_CEILING) shade = (sector[i=searchsector].ceilingshade += tsign);
+                    if (searchstat == SEARCH_FLOOR) shade = (sector[i=searchsector].floorshade += tsign);
+                    if (searchstat == SEARCH_SPRITE) shade = (sprite[i=searchwall].shade += tsign);
+                    if (searchstat == SEARCH_MASKWALL) shade = (wall[i=searchwall].shade += tsign);
                     if (i!=-1)
                     {
                         Bsprintf(getmessage,"%s %d shade %d",type2str[searchstat],i,shade);
@@ -5178,18 +5109,18 @@ static void Keys3d(void)
                     {
                         dasector = highlightsector[i];
 
-                        sector[dasector].ceilingshade--;        //sector shade
-                        sector[dasector].floorshade--;
+                        sector[dasector].ceilingshade += tsign;        //sector shade
+                        sector[dasector].floorshade += tsign;
 
                         startwall = sector[dasector].wallptr;   //wall shade
                         endwall = startwall + sector[dasector].wallnum - 1;
                         for (j=startwall; j<=endwall; j++)
-                            wall[j].shade--;
+                            wall[j].shade += tsign;
 
                         j = headspritesect[dasector];           //sprite shade
                         while (j != -1)
                         {
-                            sprite[j].shade--;
+                            sprite[j].shade += tsign;
                             j = nextspritesect[j];
                         }
                     }
@@ -5201,12 +5132,11 @@ static void Keys3d(void)
 
     //    if ((keystatus[KEYSC_DASH]|keystatus[KEYSC_EQUAL]|((bstatus&(16|32)) && !(bstatus&2))) > 0) // mousewheel, -, and +, cycle picnum
     if (keystatus[KEYSC_DASH] | keystatus[KEYSC_EQUAL] | (bstatus&(16|32) && (bstatus&1) && !(bstatus&2)))  // PK: lmb only & mousewheel, -, and +, cycle picnum
-
     {
         j = i = (keystatus[KEYSC_EQUAL] || (bstatus&16))?1:-1;
         switch (searchstat)
         {
-        case 0:
+        case SEARCH_WALL:
             while (!tilesizx[wall[searchwall].picnum]||!tilesizy[wall[searchwall].picnum]||j)
             {
                 if (wall[searchwall].picnum+i >= MAXTILES) wall[searchwall].picnum = 0;
@@ -5215,7 +5145,7 @@ static void Keys3d(void)
                 j = 0;
             }
             break;
-        case 1:
+        case SEARCH_CEILING:
             while (!tilesizx[sector[searchsector].ceilingpicnum]||!tilesizy[sector[searchsector].ceilingpicnum]||j)
             {
                 if (sector[searchsector].ceilingpicnum+i >= MAXTILES) sector[searchsector].ceilingpicnum = 0;
@@ -5224,7 +5154,7 @@ static void Keys3d(void)
                 j = 0;
             }
             break;
-        case 2:
+        case SEARCH_FLOOR:
             while (!tilesizx[sector[searchsector].floorpicnum]||!tilesizy[sector[searchsector].floorpicnum]||j)
             {
                 if (sector[searchsector].floorpicnum+i >= MAXTILES) sector[searchsector].floorpicnum = 0;
@@ -5233,7 +5163,7 @@ static void Keys3d(void)
                 j = 0;
             }
             break;
-        case 3:
+        case SEARCH_SPRITE:
             while (!tilesizx[sprite[searchwall].picnum]||!tilesizy[sprite[searchwall].picnum]||j)
             {
                 if (sprite[searchwall].picnum+i >= MAXTILES) sprite[searchwall].picnum = 0;
@@ -5242,7 +5172,7 @@ static void Keys3d(void)
                 j = 0;
             }
             break;
-        case 4:
+        case SEARCH_MASKWALL:
             while (!tilesizx[wall[searchwall].overpicnum]||!tilesizy[wall[searchwall].overpicnum]||j)
             {
                 if (wall[searchwall].overpicnum+i >= MAXTILES) wall[searchwall].overpicnum = 0;
@@ -5259,14 +5189,14 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_E])  // E (expand)
     {
-        if (searchstat == 1)
+        if (searchstat == SEARCH_CEILING)
         {
             sector[searchsector].ceilingstat ^= 8;
             Bsprintf(getmessage,"Sector %d ceiling texture expansion bit %s",searchsector,sector[searchsector].ceilingstat&8?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
-        if (searchstat == 2)
+        if (searchstat == SEARCH_FLOOR)
         {
             sector[searchsector].floorstat ^= 8;
             Bsprintf(getmessage,"Sector %d floor texture expansion bit %s",searchsector,sector[searchsector].floorstat&8?"ON":"OFF");
@@ -5277,34 +5207,29 @@ static void Keys3d(void)
     }
     if (keystatus[KEYSC_R])  // R (relative alignment, rotation)
     {
-
         if (keystatus[KEYSC_QUOTE]) // FRAMERATE TOGGLE
         {
-
             framerateon = !framerateon;
             if (framerateon) message("Show framerate ON");
             else message("Show framerate OFF");
-
         }
-
         else
-
         {
-            if (searchstat == 1)
+            if (searchstat == SEARCH_CEILING)
             {
                 sector[searchsector].ceilingstat ^= 64;
                 Bsprintf(getmessage,"Sector %d ceiling texture relativity bit %s",searchsector,sector[searchsector].ceilingstat&64?"ON":"OFF");
                 message(getmessage);
                 asksave = 1;
             }
-            if (searchstat == 2)
+            if (searchstat == SEARCH_FLOOR)
             {
                 sector[searchsector].floorstat ^= 64;
                 Bsprintf(getmessage,"Sector %d floor texture relativity bit %s",searchsector,sector[searchsector].floorstat&64?"ON":"OFF"); //PK (was ceiling in string)
                 message(getmessage);
                 asksave = 1;
             }
-            if (searchstat == 3)
+            if (searchstat == SEARCH_SPRITE)
             {
                 i = sprite[searchwall].cstat;
                 if ((i&48) < 32) i += 16;
@@ -5329,7 +5254,7 @@ static void Keys3d(void)
         keystatus[KEYSC_F] = 0;
         if (eitherALT)  //ALT-F (relative alignmment flip)
         {
-            if (searchstat != 3)
+            if (searchstat != SEARCH_SPRITE)
             {
                 setfirstwall(searchsector,searchwall);
                 Bsprintf(getmessage,"Sector %d first wall",searchsector);
@@ -5339,7 +5264,7 @@ static void Keys3d(void)
         }
         else
         {
-            if ((searchstat == 0) || (searchstat == 4))
+            if ((searchstat == SEARCH_WALL) || (searchstat == SEARCH_MASKWALL))
             {
                 i = wall[searchbottomwall].cstat;
                 i = ((i>>3)&1)+((i>>7)&2);    //3-x,8-y
@@ -5365,7 +5290,7 @@ static void Keys3d(void)
                 wall[searchbottomwall].cstat |= i;
                 asksave = 1;
             }
-            if (searchstat == 1)         //8-way ceiling flipping (bits 2,4,5)
+            if (searchstat == SEARCH_CEILING)         //8-way ceiling flipping (bits 2,4,5)
             {
                 i = sector[searchsector].ceilingstat;
                 i = (i&0x4)+((i>>4)&3);
@@ -5441,7 +5366,7 @@ static void Keys3d(void)
                 sector[searchsector].floorstat |= i;
                 asksave = 1;
             }
-            if (searchstat == 3)
+            if (searchstat == SEARCH_SPRITE)
             {
                 i = sprite[searchwall].cstat;
                 if (((i&48) == 32) && ((i&64) == 0))
@@ -5487,16 +5412,22 @@ static void Keys3d(void)
     else
         updownunits = 1024;
     mouseaction=0;
-    if (eitherALT && bstatus&1)
+    if (eitherALT && (bstatus&1))
     {
         mousex=0; mskip=1;
-        if (mousey<0)
+        if (mousey!=0)
         {
             updownunits=klabs(mousey*128);
             mouseaction=1;
         }
     }
-    if (keystatus[KEYSC_PGUP] || mouseaction || ((bstatus&2) && (bstatus&16 && !(bstatus&1)))) // PK: PGUP, rmb only & mwheel
+
+    tsign = 0;
+    if (keystatus[KEYSC_PGUP] || (mouseaction && mousey<0) || ((bstatus&2) && (bstatus&16) && !(bstatus&1))) // PK: PGUP, rmb only & mwheel
+        tsign = -1;
+    if (keystatus[KEYSC_PGDN] || (mouseaction && mousey>0) || ((bstatus&2) && (bstatus&32) && !(bstatus&1))) // PK: PGDN, rmb only & mwheel
+        tsign = 1;
+    if (tsign)
     {
         k = 0;
         if (highlightsectorcnt >= 0)
@@ -5504,97 +5435,70 @@ static void Keys3d(void)
             for (i=0; i<highlightsectorcnt; i++)
                 if (highlightsector[i] == searchsector)
                 {
-                    k = 1;
+                    k = highlightsectorcnt;
                     break;
                 }
         }
 
-        if ((searchstat == 0) || (searchstat == 1))
+        if ((searchstat == SEARCH_WALL) || (searchstat == SEARCH_CEILING))
         {
-            if (k == 0)
+            int16_t sect = k ? highlightsector[0] :
+                ((searchstat==SEARCH_WALL && eitherSHIFT && wall[searchwall].nextsector>=0) ? wall[searchwall].nextsector : searchsector);
+
+            for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
             {
-                i = headspritesect[searchsector];
+                i = headspritesect[sect];
                 while (i != -1)
                 {
-                    tempint = getceilzofslope(searchsector,sprite[i].x,sprite[i].y);
+                    tempint = getceilzofslope(sect,sprite[i].x,sprite[i].y);
                     tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
                     if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
                     if (sprite[i].z == tempint)
-                        sprite[i].z -= updownunits << (eitherCTRL<<1);   // JBF 20031128
+                        sprite[i].z += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
                     i = nextspritesect[i];
                 }
-                sector[searchsector].ceilingz -= updownunits << (eitherCTRL<<1); // JBF 20031128
-                Bsprintf(getmessage,"Sector %d ceilingz = %d",searchsector,sector[searchsector].ceilingz);
+                sector[sect].ceilingz += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
+                Bsprintf(getmessage,"Sector %d ceilingz = %d",sect,sector[sect].ceilingz);
                 message(getmessage);
-
-            }
-            else
-            {
-                for (j=0; j<highlightsectorcnt; j++)
-                {
-                    i = headspritesect[highlightsector[j]];
-                    while (i != -1)
-                    {
-                        tempint = getceilzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
-                        tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
-                        if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                        if (sprite[i].z == tempint)
-                            sprite[i].z -= updownunits << (eitherCTRL<<1);   // JBF 20031128
-                        i = nextspritesect[i];
-                    }
-                    sector[highlightsector[j]].ceilingz -= updownunits << (eitherCTRL<<1);   // JBF 20031128
-                    Bsprintf(getmessage,"Sector %d ceilingz = %d",*highlightsector,sector[highlightsector[j]].ceilingz);
-                    message(getmessage);
-
-                }
             }
         }
-        if (searchstat == 2)
+        else if (searchstat == SEARCH_FLOOR)
         {
-            if (k == 0)
+            int16_t sect = k ? highlightsector[0] : searchsector;
+
+            for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
             {
-                i = headspritesect[searchsector];
+                i = headspritesect[sect];
                 while (i != -1)
                 {
-                    tempint = getflorzofslope(searchsector,sprite[i].x,sprite[i].y);
+                    tempint = getflorzofslope(sect,sprite[i].x,sprite[i].y);
                     if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
                     if (sprite[i].z == tempint)
-                        sprite[i].z -= updownunits << (eitherCTRL<<1);   // JBF 20031128
+                        sprite[i].z += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
                     i = nextspritesect[i];
                 }
-                sector[searchsector].floorz -= updownunits << (eitherCTRL<<1);   // JBF 20031128
-                Bsprintf(getmessage,"Sector %d floorz = %d",searchsector,sector[searchsector].floorz);
+                sector[sect].floorz += tsign * (updownunits << (eitherCTRL<<1)); // JBF 20031128
+                Bsprintf(getmessage,"Sector %d floorz = %d",sect,sector[sect].floorz);
                 message(getmessage);
-
             }
-            else
-            {
-                for (j=0; j<highlightsectorcnt; j++)
-                {
-                    i = headspritesect[highlightsector[j]];
-                    while (i != -1)
-                    {
-                        tempint = getflorzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
-                        if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                        if (sprite[i].z == tempint)
-                            sprite[i].z -= updownunits << (eitherCTRL<<1);   // JBF 20031128
-                        i = nextspritesect[i];
-                    }
-                    sector[highlightsector[j]].floorz -= updownunits << (eitherCTRL<<1); // JBF 20031128
-                    Bsprintf(getmessage,"Sector %d floorz = %d",*highlightsector,sector[highlightsector[j]].floorz);
-                    message(getmessage);
-
-                }
-            }
-
         }
+
         if (sector[searchsector].floorz < sector[searchsector].ceilingz)
-            sector[searchsector].floorz = sector[searchsector].ceilingz;
-        if (searchstat == 3)
         {
-            if (eitherCTRL && !eitherALT)  //CTRL - put sprite on ceiling
+            if (tsign==-1)
+                sector[searchsector].floorz = sector[searchsector].ceilingz;
+            else
+                sector[searchsector].ceilingz = sector[searchsector].floorz;
+        }
+
+        if (searchstat == SEARCH_SPRITE)
+        {
+            if (eitherCTRL && !eitherALT)  //CTRL - put sprite on ceiling/floor
             {
-                sprite[searchwall].z = spriteonceilingz(searchwall);
+                if (tsign==-1)
+                    sprite[searchwall].z = spriteonceilingz(searchwall);
+                else
+                    sprite[searchwall].z = spriteongroundz(searchwall);
             }
             else
             {
@@ -5609,7 +5513,7 @@ static void Keys3d(void)
 
                 if (k == 0)
                 {
-                    sprite[searchwall].z -= updownunits << ((eitherCTRL && mouseaction)*3);
+                    sprite[searchwall].z += tsign * (updownunits << ((eitherCTRL && mouseaction)*3));
                     if (!spnoclip)sprite[searchwall].z = max(sprite[searchwall].z,spriteonceilingz(searchwall));
                     Bsprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
                     message(getmessage);
@@ -5620,165 +5524,23 @@ static void Keys3d(void)
                     for (i=0; i<highlightcnt; i++)
                         if ((highlight[i]&0xc000) == 16384)
                         {
-                            sprite[highlight[i]&16383].z -= updownunits;
-                            if (!spnoclip)sprite[highlight[i]&16383].z = max(sprite[highlight[i]&16383].z,spriteonceilingz(highlight[i]&16383));
+                            sprite[highlight[i]&16383].z += tsign * updownunits;
+                            if (!spnoclip)
+                            {
+                                if (tsign==-1)
+                                    sprite[highlight[i]&16383].z = max(sprite[highlight[i]&16383].z,spriteonceilingz(highlight[i]&16383));
+                                else
+                                    sprite[highlight[i]&16383].z = min(sprite[highlight[i]&16383].z,spriteongroundz(highlight[i]&16383));
+                            }
                         }
                     Bsprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
                     message(getmessage);
-
                 }
             }
         }
         asksave = 1;
-        keystatus[KEYSC_PGUP] = 0;
-        mouseb &= ~16;
-    }
-
-    mouseaction=0;
-    if (eitherALT && bstatus&1)
-    {
-        mousex=0; mskip=1;
-        if (mousey>0)
-        {
-            updownunits=klabs(mousey*128);
-            mouseaction=1;
-        }
-    }
-    if (keystatus[KEYSC_PGDN] || mouseaction || ((bstatus&2) && (bstatus&32) && !(bstatus&1))) // PK: PGDN, rmb only & mwheel
-    {
-        k = 0;
-        if (highlightsectorcnt >= 0)
-        {
-            for (i=0; i<highlightsectorcnt; i++)
-                if (highlightsector[i] == searchsector)
-                {
-                    k = 1;
-                    break;
-                }
-        }
-
-        if ((searchstat == 0) || (searchstat == 1))
-        {
-            if (k == 0)
-            {
-                i = headspritesect[searchsector];
-                while (i != -1)
-                {
-                    tempint = getceilzofslope(searchsector,sprite[i].x,sprite[i].y);
-                    if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                    tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
-                    if (sprite[i].z == tempint)
-                        sprite[i].z += updownunits << (eitherCTRL<<1);   // JBF 20031128
-                    i = nextspritesect[i];
-                }
-                sector[searchsector].ceilingz += updownunits << (eitherCTRL<<1); // JBF 20031128
-                Bsprintf(getmessage,"Sector %d ceilingz = %d",searchsector,sector[searchsector].ceilingz);
-                message(getmessage);
-
-            }
-            else
-            {
-                for (j=0; j<highlightsectorcnt; j++)
-                {
-                    i = headspritesect[highlightsector[j]];
-                    while (i != -1)
-                    {
-                        tempint = getceilzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
-                        if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                        tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
-                        if (sprite[i].z == tempint)
-                            sprite[i].z += updownunits << (eitherCTRL<<1);   // JBF 20031128
-                        i = nextspritesect[i];
-                    }
-                    sector[highlightsector[j]].ceilingz += updownunits << (eitherCTRL<<1);   // JBF 20031128
-                    Bsprintf(getmessage,"Sector %d ceilingz = %d",*highlightsector,sector[highlightsector[j]].ceilingz);
-                    message(getmessage);
-
-                }
-            }
-        }
-        if (searchstat == 2)
-        {
-            if (k == 0)
-            {
-                i = headspritesect[searchsector];
-                while (i != -1)
-                {
-                    tempint = getflorzofslope(searchsector,sprite[i].x,sprite[i].y);
-                    if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                    if (sprite[i].z == tempint)
-                        sprite[i].z += updownunits << (eitherCTRL<<1);   // JBF 20031128
-                    i = nextspritesect[i];
-                }
-                sector[searchsector].floorz += updownunits << (eitherCTRL<<1);   // JBF 20031128
-                Bsprintf(getmessage,"Sector %d floorz = %d",searchsector,sector[searchsector].floorz);
-                message(getmessage);
-
-            }
-            else
-            {
-                for (j=0; j<highlightsectorcnt; j++)
-                {
-                    i = headspritesect[highlightsector[j]];
-                    while (i != -1)
-                    {
-                        tempint = getflorzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
-                        if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                        if (sprite[i].z == tempint)
-                            sprite[i].z += updownunits << (eitherCTRL<<1);   // JBF 20031128
-                        i = nextspritesect[i];
-                    }
-                    sector[highlightsector[j]].floorz += updownunits << (eitherCTRL<<1); // JBF 20031128
-                    Bsprintf(getmessage,"Sector %d floorz = %d",*highlightsector,sector[highlightsector[j]].floorz);
-                    message(getmessage);
-
-                }
-            }
-        }
-        if (sector[searchsector].ceilingz > sector[searchsector].floorz)
-            sector[searchsector].ceilingz = sector[searchsector].floorz;
-        if (searchstat == 3)
-        {
-            if (eitherCTRL && !eitherALT)  //CTRL - put sprite on ground
-            {
-                sprite[searchwall].z = spriteongroundz(searchwall);
-            }
-            else
-            {
-                k = 0;
-                if (highlightcnt >= 0)
-                    for (i=0; i<highlightcnt; i++)
-                        if (highlight[i] == searchwall+16384)
-                        {
-                            k = 1;
-                            break;
-                        }
-
-                if (k == 0)
-                {
-                    sprite[searchwall].z += updownunits << ((eitherCTRL && mouseaction)*3);
-                    if (!spnoclip)sprite[searchwall].z = min(sprite[searchwall].z,spriteongroundz(searchwall));
-                    Bsprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
-                    message(getmessage);
-
-                }
-                else
-                {
-                    for (i=0; i<highlightcnt; i++)
-                        if ((highlight[i]&0xc000) == 16384)
-                        {
-                            sprite[highlight[i]&16383].z += updownunits;
-                            if (!spnoclip)sprite[highlight[i]&16383].z = min(sprite[highlight[i]&16383].z,spriteongroundz(highlight[i]&16383));
-                        }
-                    Bsprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
-                    message(getmessage);
-
-                }
-            }
-        }
-        asksave = 1;
-        keystatus[KEYSC_PGDN] = 0;
-        mouseb &= ~32;
+        keystatus[KEYSC_PGUP] = keystatus[KEYSC_PGDN] = 0;
+        mouseb &= ~(16|32);
     }
 
     /* end Mapster32 */
@@ -5837,8 +5599,8 @@ static void Keys3d(void)
         Bsprintf(tempbuf,"LOCK");
         switch (searchstat)
         {
-        case 0:
-        case 4:
+        case SEARCH_WALL:
+        case SEARCH_MASKWALL:
             if (eitherALT)
                 Bsprintf(tempbuf,"CEILING Z %s", eitherCTRL?"512":"");
             else if (eitherSHIFT)
@@ -5846,16 +5608,16 @@ static void Keys3d(void)
             else if (eitherCTRL)
                 Bsprintf(tempbuf,"SCALE");
             break;
-        case 1:
-        case 2:
+        case SEARCH_CEILING:
+        case SEARCH_FLOOR:
             if (eitherALT)
-                Bsprintf(tempbuf,"%s Z %s", searchstat==1?"CEILING":"FLOOR", eitherCTRL?"512":"");
+                Bsprintf(tempbuf,"%s Z %s", searchstat==SEARCH_CEILING?"CEILING":"FLOOR", eitherCTRL?"512":"");
             else if (eitherSHIFT)
                 Bsprintf(tempbuf,"PAN");
             else if (eitherCTRL)
                 Bsprintf(tempbuf,"SLOPE");
             break;
-        case 3:
+        case SEARCH_SPRITE:
             if (eitherALT)
                 Bsprintf(tempbuf,"MOVE Z %s", eitherCTRL?"1024":"");
             else if (eitherSHIFT)
@@ -6033,8 +5795,8 @@ static void Keys3d(void)
         keystatus[KEYSC_C] = 0;
         switch (searchstat)
         {
-        case 0:
-        case 4:
+        case SEARCH_WALL:
+        case SEARCH_MASKWALL:
             for (i=0; i<MAXWALLS; i++)
             {
                 if (wall[i].picnum==temppicnum)
@@ -6043,16 +5805,16 @@ static void Keys3d(void)
             message("Walls with picnum %d have shade of %d",temppicnum,tempshade);
             asksave=1;
             break;
-        case 1:
-        case 2:
+        case SEARCH_CEILING:
+        case SEARCH_FLOOR:
             for (i=0; i<MAXSECTORS; i++)
             {
-                if (searchstat==1)
+                if (searchstat==SEARCH_CEILING)
                     if (sector[i].ceilingpicnum==temppicnum)
                     {
                         sector[i].ceilingshade=tempshade;
                     }
-                if (searchstat==2)
+                if (searchstat==SEARCH_FLOOR)
                     if (sector[i].floorpicnum==temppicnum)
                     {
                         sector[i].floorshade=tempshade;
@@ -6061,7 +5823,7 @@ static void Keys3d(void)
             message("Sectors with picnum %d have shade of %d",temppicnum,tempshade);
             asksave=1;
             break;
-        case 3:
+        case SEARCH_SPRITE:
             for (i=0; i<MAXSPRITES; i++)
             {
                 if (sprite[i].picnum==temppicnum)
@@ -6080,17 +5842,17 @@ static void Keys3d(void)
         keystatus[KEYSC_T] = 0;
         switch (searchstat)
         {
-        case 0:
-        case 4:
+        case SEARCH_WALL:
+        case SEARCH_MASKWALL:
             wall[searchwall].lotag =
                 getnumber256("Wall lotag: ",wall[searchwall].lotag,65536L,0);
             break;
-        case 1:
-        case 2:
+        case SEARCH_CEILING:
+        case SEARCH_FLOOR:
             sector[searchsector].lotag =
                 _getnumber256("Sector lotag: ",sector[searchsector].lotag,65536L,0,(void *)ExtGetSectorType);
             break;
-        case 3:
+        case SEARCH_SPRITE:
             if (sprite[searchwall].picnum == SECTOREFFECTOR)
                 sprite[searchwall].lotag =
                     _getnumber256("Sprite lotag: ",sprite[searchwall].lotag,65536L,0,(void *)SectorEffectorTagText);
@@ -6117,17 +5879,17 @@ static void Keys3d(void)
         keystatus[KEYSC_H] = 0;
         switch (searchstat)
         {
-        case 0:
-        case 4:
+        case SEARCH_WALL:
+        case SEARCH_MASKWALL:
             wall[searchwall].hitag =
                 getnumber256("Wall hitag: ",wall[searchwall].hitag,65536L,0);
             break;
-        case 1:
-        case 2:
+        case SEARCH_CEILING:
+        case SEARCH_FLOOR:
             sector[searchsector].hitag =
                 getnumber256("Sector hitag: ",sector[searchsector].hitag,65536L,0);
             break;
-        case 3:
+        case SEARCH_SPRITE:
             sprite[searchwall].hitag =
                 getnumber256("Sprite hitag: ",sprite[searchwall].hitag,65536L,0);
             break;
@@ -6139,17 +5901,17 @@ static void Keys3d(void)
         keystatus[KEYSC_S] = 0;
         switch (searchstat)
         {
-        case 0:
-        case 4:
+        case SEARCH_WALL:
+        case SEARCH_MASKWALL:
             getnumberptr256("Wall shade: ",&wall[searchbottomwall].shade,sizeof(wall[searchbottomwall].shade),128L,1,NULL);
             break;
-        case 1:
+        case SEARCH_CEILING:
             getnumberptr256("Ceiling shade: ",&sector[searchsector].ceilingshade,sizeof(sector[searchsector].ceilingshade),128L,1,NULL);
             break;
-        case 2:
+        case SEARCH_FLOOR:
             getnumberptr256("Floor shade: ",&sector[searchsector].floorshade,sizeof(sector[searchsector].floorshade),128L,1,NULL);
             break;
-        case 3:
+        case SEARCH_SPRITE:
             getnumberptr256("Sprite shade: ",&sprite[searchwall].shade,sizeof(sprite[searchwall].shade),128L,1,NULL);
             break;
         }
@@ -6206,19 +5968,19 @@ static void Keys3d(void)
     {
         switch (searchstat)
         {
-        case 0:
+        case SEARCH_WALL:
             getnumberptr256("Wall picnum: ",&wall[searchbottomwall].picnum,sizeof(wall[searchbottomwall].picnum),MAXTILES-1,0,NULL);
             break;
-        case 1:
+        case SEARCH_CEILING:
             getnumberptr256("Sector ceiling picnum: ",&sector[searchsector].ceilingpicnum,sizeof(sector[searchsector].ceilingpicnum),MAXTILES-1,0,NULL);
             break;
-        case 2:
+        case SEARCH_FLOOR:
             getnumberptr256("Sector floor picnum: ",&sector[searchsector].floorpicnum,sizeof(sector[searchsector].floorpicnum),MAXTILES-1,0,NULL);
             break;
-        case 3:
+        case SEARCH_SPRITE:
             getnumberptr256("Sprite picnum: ",&sprite[searchwall].picnum,sizeof(sprite[searchwall].picnum),MAXTILES-1,0,NULL);
             break;
-        case 4:
+        case SEARCH_MASKWALL:
             getnumberptr256("Masked wall picnum: ",&wall[searchwall].overpicnum,sizeof(wall[searchwall].overpicnum),MAXTILES-1,0,NULL);
             break;
         }
@@ -6228,7 +5990,7 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_B])  // B (clip Blocking xor) (3D)
     {
-        if (searchstat == 3)
+        if (searchstat == SEARCH_SPRITE)
         {
             sprite[searchwall].cstat ^= 1;
             //                                sprite[searchwall].cstat &= ~256;
@@ -6255,7 +6017,7 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_T])  // T (transluscence for sprites/masked walls)
     {
-        if (searchstat == 1)   //Set masked/transluscent ceilings/floors
+        if (searchstat == SEARCH_CEILING)   //Set masked/transluscent ceilings/floors
         {
             i = (sector[searchsector].ceilingstat&(128+256));
             sector[searchsector].ceilingstat &= ~(128+256);
@@ -6276,7 +6038,7 @@ static void Keys3d(void)
             }
             asksave = 1;
         }
-        if (searchstat == 2)
+        if (searchstat == SEARCH_FLOOR)
         {
             i = (sector[searchsector].floorstat&(128+256));
             sector[searchsector].floorstat &= ~(128+256);
@@ -6302,20 +6064,17 @@ static void Keys3d(void)
         {
             switch (searchstat)
             {
-            case 0:
-            case 4:
+            case SEARCH_WALL:
+            case SEARCH_MASKWALL:
                 strcpy(buffer,"Wall lotag: ");
                 wall[searchwall].lotag = getnumber256(buffer,(int32_t)wall[searchwall].lotag,65536L,0);
                 break;
-            case 1:
+            case SEARCH_CEILING:
+            case SEARCH_FLOOR:
                 strcpy(buffer,"Sector lotag: ");
                 sector[searchsector].lotag = getnumber256(buffer,(int32_t)sector[searchsector].lotag,65536L,0);
                 break;
-            case 2:
-                strcpy(buffer,"Sector lotag: ");
-                sector[searchsector].lotag = getnumber256(buffer,(int32_t)sector[searchsector].lotag,65536L,0);
-                break;
-            case 3:
+            case SEARCH_SPRITE:
                 strcpy(buffer,"Sprite lotag: ");
                 sprite[searchwall].lotag = getnumber256(buffer,(int32_t)sprite[searchwall].lotag,65536L,0);
                 break;
@@ -6323,12 +6082,12 @@ static void Keys3d(void)
         }
         else if (eitherCTRL)
         {
-            if (searchstat == 3)
-                rendertext(searchwall);
+            if (searchstat == SEARCH_SPRITE)
+                TextEntryMode(searchwall);
         }
         else
         {
-            if (searchstat == 3)
+            if (searchstat == SEARCH_SPRITE)
             {
                 if ((sprite[searchwall].cstat&2) == 0)
                     sprite[searchwall].cstat |= 2;
@@ -6338,7 +6097,7 @@ static void Keys3d(void)
                     sprite[searchwall].cstat &= ~(2+512);
                 asksave = 1;
             }
-            if (searchstat == 4)
+            if (searchstat == SEARCH_MASKWALL)
             {
                 if ((wall[searchwall].cstat&128) == 0)
                     wall[searchwall].cstat |= 128;
@@ -6363,19 +6122,19 @@ static void Keys3d(void)
         message("Pasted picnum only");
         switch (searchstat)
         {
-        case 0 :
+        case SEARCH_WALL:
             wall[searchbottomwall].picnum = temppicnum;
             break;
-        case 1 :
+        case SEARCH_CEILING:
             sector[searchsector].ceilingpicnum = temppicnum;
             break;
-        case 2 :
+        case SEARCH_FLOOR:
             sector[searchsector].floorpicnum = temppicnum;
             break;
-        case 3 :
+        case SEARCH_SPRITE:
             sprite[searchwall].picnum = temppicnum;
             break;
-        case 4 :
+        case SEARCH_MASKWALL:
             wall[searchwall].overpicnum = temppicnum;
             break;
         }
@@ -6386,51 +6145,56 @@ static void Keys3d(void)
     if (keystatus[KEYSC_RSHIFT]) i = 8;
     if (keystatus[KEYSC_LSHIFT]) i = 1;
     mouseaction=0;
-    if (eitherCTRL && !eitherSHIFT && bstatus&1 && (searchstat == 1 || searchstat == 2))
+    if (eitherCTRL && !eitherSHIFT && (bstatus&1) && (searchstat == SEARCH_CEILING || searchstat == SEARCH_FLOOR))
     {
         mousex=0; mskip=1;
-        if (mousey<0)
+        if (mousey)
         {
             i=klabs(mousey*2);
             mouseaction=1;
         }
     }
 
-    if (keystatus[KEYSC_LBRACK] || mouseaction)  // [
+    tsign = 0;
+    if (keystatus[KEYSC_LBRACK] || (mouseaction && mousey<0))  // [
+        tsign = -1;
+    if (keystatus[KEYSC_RBRACK] || (mouseaction && mousey>0))  // ]
+        tsign = 1;
+
+    if (tsign)
     {
-        keystatus[KEYSC_LBRACK] = 0;
+        keystatus[KEYSC_LBRACK] = keystatus[KEYSC_RBRACK] = 0;
         if (eitherALT)
         {
             i = wall[searchwall].nextsector;
             if (i >= 0 && !mouseaction)
-                switch (searchstat)
+            {
+                if (searchstat==SEARCH_CEILING || (tsign < 0 && (searchstat==SEARCH_WALL || searchstat==SEARCH_MASKWALL)))
                 {
-                case 0:
-                case 1:
-                case 4:
                     alignceilslope(searchsector,wall[searchwall].x,wall[searchwall].y,getceilzofslope(i,wall[searchwall].x,wall[searchwall].y));
                     message("Sector %d align ceiling to wall %d",searchsector,searchwall);
-                    break;
-                case 2:
+                }
+                if (searchstat==SEARCH_FLOOR || (tsign > 0 && (searchstat==SEARCH_WALL || searchstat==SEARCH_MASKWALL)))
+                {
                     alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
                     message("Sector %d align floor to wall %d",searchsector,searchwall);
-                    break;
                 }
+            }   
         }
         else
         {
-            if (searchstat == 1)
+            if (searchstat == SEARCH_CEILING)
             {
                 if (!(sector[searchsector].ceilingstat&2))
                     sector[searchsector].ceilingheinum = 0;
-                sector[searchsector].ceilingheinum = max(sector[searchsector].ceilingheinum-i,-32768);
+                sector[searchsector].ceilingheinum = min(max(-32768, sector[searchsector].ceilingheinum + tsign*i), 32767);
                 message("Sector %d ceiling slope = %d",searchsector,sector[searchsector].ceilingheinum);
             }
-            if (searchstat == 2)
+            if (searchstat == SEARCH_FLOOR)
             {
                 if (!(sector[searchsector].floorstat&2))
                     sector[searchsector].floorheinum = 0;
-                sector[searchsector].floorheinum = max(sector[searchsector].floorheinum-i,-32768);
+                sector[searchsector].floorheinum = min(max(-32768, sector[searchsector].floorheinum + tsign*i), 32767);
                 message("Sector %d floor slope = %d",searchsector,sector[searchsector].floorheinum);
             }
         }
@@ -6447,77 +6211,13 @@ static void Keys3d(void)
         asksave = 1;
     }
 
-    i = 512;
-    if (keystatus[KEYSC_RSHIFT]) i = 8;
-    if (keystatus[KEYSC_LSHIFT]) i = 1;
-    mouseaction=0;
-    if (eitherCTRL && !eitherSHIFT && bstatus&1 && (searchstat == 1 || searchstat == 2))
-    {
-        mousex=0; mskip=1;
-        if (mousey>0)
-        {
-            i=klabs(mousey*2);
-            mouseaction=1;
-        }
-    }
-    if (keystatus[KEYSC_RBRACK] || mouseaction)  // ]
-    {
-        keystatus[KEYSC_RBRACK] = 0;
-        if (eitherALT)
-        {
-            i = wall[searchwall].nextsector;
-            if (i >= 0 && !mouseaction)
-                switch (searchstat)
-                {
-                case 1:
-                    alignceilslope(searchsector,wall[searchwall].x,wall[searchwall].y,getceilzofslope(i,wall[searchwall].x,wall[searchwall].y));
-                    message("Sector %d align ceiling to wall %d",searchsector,searchwall);
-                    break;
-                case 0:
-                case 2:
-                case 4:
-                    alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
-                    message("Sector %d align floor to wall %d",searchsector,searchwall);
-                    break;
-                }
-        }
-        else
-        {
-            if (searchstat == 1)
-            {
-                if (!(sector[searchsector].ceilingstat&2))
-                    sector[searchsector].ceilingheinum = 0;
-                sector[searchsector].ceilingheinum = min(sector[searchsector].ceilingheinum+i,32767);
-                message("Sector %d ceiling slope = %d",searchsector,sector[searchsector].ceilingheinum);
-            }
-            if (searchstat == 2)
-            {
-                if (!(sector[searchsector].floorstat&2))
-                    sector[searchsector].floorheinum = 0;
-                sector[searchsector].floorheinum = min(sector[searchsector].floorheinum+i,32767);
-                message("Sector %d floor slope = %d",searchsector,sector[searchsector].floorheinum);
-            }
-        }
-
-        if (sector[searchsector].ceilingheinum == 0)
-            sector[searchsector].ceilingstat &= ~2;
-        else
-            sector[searchsector].ceilingstat |= 2;
-
-        if (sector[searchsector].floorheinum == 0)
-            sector[searchsector].floorstat &= ~2;
-        else
-            sector[searchsector].floorstat |= 2;
-
-        asksave = 1;
-    }
 
     if (bstatus&1 && eitherSHIFT) mskip=1;
-    if (bstatus&1 && eitherSHIFT && (searchstat == 1 || searchstat == 2) && (mousex|mousey))
+    if (bstatus&1 && eitherSHIFT && (searchstat == SEARCH_CEILING || searchstat == SEARCH_FLOOR) && (mousex|mousey))
     {
         int32_t fw,x1,y1,x2,y2,stat,ma,a=0;
 
-        stat=(searchstat==2)?sector[searchsector].floorstat:sector[searchsector].ceilingstat;
+        stat=(searchstat==SEARCH_FLOOR)?sector[searchsector].floorstat:sector[searchsector].ceilingstat;
         if (stat&64) // align to first wall
         {
             fw=sector[searchsector].wallptr;
@@ -6565,7 +6265,7 @@ static void Keys3d(void)
             if (x1||y1)
             {
                 mouseax=0; mouseay=0;
-                if (searchstat==1)
+                if (searchstat==SEARCH_CEILING)
                 {
                     changedir=1; if (x1<0) {changedir=-1; x1*=-1;}
                     while (x1--)sector[searchsector].ceilingxpanning = changechar(sector[searchsector].ceilingxpanning,changedir,0,0);
@@ -6594,7 +6294,7 @@ static void Keys3d(void)
     updownunits=1;
     mouseaction=0;
 
-    if (bstatus&1 && searchstat != 1 && searchstat != 2)
+    if (bstatus&1 && searchstat != SEARCH_CEILING && searchstat != SEARCH_FLOOR)
     {
         if (eitherSHIFT)
         {
@@ -6614,7 +6314,7 @@ static void Keys3d(void)
             {
                 mouseaction=2;
                 repeatpanalign=0;
-                if (searchstat==3)
+                if (searchstat==SEARCH_SPRITE)
                 {
                     updownunits=klabs(mouseax+=mousex)/4;
                     if (updownunits)mouseax=0;
@@ -6636,7 +6336,7 @@ static void Keys3d(void)
             if (keystatus[KEYSC_gLEFT]  || mousex>0) changedir = -1;
             if (keystatus[KEYSC_gRIGHT] || mousex<0) changedir = 1;
 
-            if ((searchstat == 0) || (searchstat == 4))
+            if ((searchstat == SEARCH_WALL) || (searchstat == SEARCH_MASKWALL))
             {
                 if (repeatpanalign == 0)
                 {
@@ -6645,7 +6345,7 @@ static void Keys3d(void)
                 }
                 else
                 {
-                    int16_t w = (searchstat==0)?searchbottomwall:searchwall;
+                    int16_t w = (searchstat==SEARCH_WALL)?searchbottomwall:searchwall;
                     if (mouseaction)
                     {
                         i=wall[w].cstat;
@@ -6657,9 +6357,9 @@ static void Keys3d(void)
                     message("Wall %d panning: %d, %d",w,wall[w].xpanning,wall[w].ypanning);
                 }
             }
-            if ((searchstat == 1) || (searchstat == 2))
+            if ((searchstat == SEARCH_CEILING) || (searchstat == SEARCH_FLOOR))
             {
-                if (searchstat == 1)
+                if (searchstat == SEARCH_CEILING)
                 {
                     while (updownunits--)sector[searchsector].ceilingxpanning = changechar(sector[searchsector].ceilingxpanning,changedir,smooshyalign,0);
                     message("Sector %d ceiling panning: %d, %d",searchsector,sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
@@ -6670,7 +6370,7 @@ static void Keys3d(void)
                     message("Sector %d floor panning: %d, %d",searchsector,sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
                 }
             }
-            if (searchstat == 3)
+            if (searchstat == SEARCH_SPRITE)
             {
                 static int32_t sumxvect=0, sumyvect=0;
 
@@ -6733,7 +6433,7 @@ static void Keys3d(void)
 
     updownunits=1;
     mouseaction=0;
-    if (bstatus&1 && searchstat != 1 && searchstat != 2)
+    if (bstatus&1 && searchstat != SEARCH_CEILING && searchstat != SEARCH_FLOOR)
     {
         if (eitherSHIFT)
         {
@@ -6742,7 +6442,7 @@ static void Keys3d(void)
             {
                 mouseaction=1;
                 updownunits=klabs(mousey);
-                if (searchstat != 3)
+                if (searchstat != SEARCH_SPRITE)
                 {
                     updownunits=klabs((int32_t)(mousey*128./tilesizy[wall[searchwall].picnum]));
                 }
@@ -6755,7 +6455,7 @@ static void Keys3d(void)
             {
                 mouseaction=2;
                 repeatpanalign=0;
-                if (searchstat==3)
+                if (searchstat==SEARCH_SPRITE)
                 {
                     updownunits=klabs(mouseay+=mousey)/4;
                     if (updownunits)mouseay=0;
@@ -6777,7 +6477,7 @@ static void Keys3d(void)
             if (keystatus[KEYSC_gUP]   || mousey>0) changedir = -1;
             if (keystatus[KEYSC_gDOWN] || mousey<0) changedir = 1;
 
-            if ((searchstat == 0) || (searchstat == 4))
+            if ((searchstat == SEARCH_WALL) || (searchstat == SEARCH_MASKWALL))
             {
                 if (repeatpanalign == 0)
                 {
@@ -6787,7 +6487,7 @@ static void Keys3d(void)
                 }
                 else
                 {
-                    int16_t w = (searchstat==0)?searchbottomwall:searchwall;
+                    int16_t w = (searchstat==SEARCH_WALL)?searchbottomwall:searchwall;
                     if (mouseaction && eitherCTRL)
                         updownunits *= 8;
                     while (updownunits--)
@@ -6795,9 +6495,9 @@ static void Keys3d(void)
                     message("Wall %d panning: %d, %d",w,wall[w].xpanning,wall[w].ypanning);
                 }
             }
-            if ((searchstat == 1) || (searchstat == 2))
+            if ((searchstat == SEARCH_CEILING) || (searchstat == SEARCH_FLOOR))
             {
-                if (searchstat == 1)
+                if (searchstat == SEARCH_CEILING)
                 {
                     while (updownunits--)
                         sector[searchsector].ceilingypanning = changechar(sector[searchsector].ceilingypanning,changedir,smooshyalign,0);
@@ -6810,7 +6510,7 @@ static void Keys3d(void)
                     message("Sector %d floor panning: %d, %d",searchsector,sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
                 }
             }
-            if (searchstat == 3)
+            if (searchstat == SEARCH_SPRITE)
             {
                 static int32_t sumxvect=0, sumyvect=0;
 
@@ -6894,7 +6594,7 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_TAB])  //TAB
     {
-        if (searchstat == 0)
+        if (searchstat == SEARCH_WALL)
         {
             temppicnum = wall[searchbottomwall].picnum;
             tempshade = wall[searchbottomwall].shade;
@@ -6906,7 +6606,7 @@ static void Keys3d(void)
             temphitag = wall[searchbottomwall].hitag;
             tempextra = wall[searchbottomwall].extra;
         }
-        if (searchstat == 1)
+        if (searchstat == SEARCH_CEILING)
         {
             temppicnum = sector[searchsector].ceilingpicnum;
             tempshade = sector[searchsector].ceilingshade;
@@ -6919,7 +6619,7 @@ static void Keys3d(void)
             temphitag = sector[searchsector].hitag;
             tempextra = sector[searchsector].extra;
         }
-        if (searchstat == 2)
+        if (searchstat == SEARCH_FLOOR)
         {
             temppicnum = sector[searchsector].floorpicnum;
             tempshade = sector[searchsector].floorshade;
@@ -6932,7 +6632,7 @@ static void Keys3d(void)
             temphitag = sector[searchsector].hitag;
             tempextra = sector[searchsector].extra;
         }
-        if (searchstat == 3)
+        if (searchstat == SEARCH_SPRITE)
         {
             temppicnum = sprite[searchwall].picnum;
             tempshade = sprite[searchwall].shade;
@@ -6947,7 +6647,7 @@ static void Keys3d(void)
             tempyvel = sprite[searchwall].yvel;
             tempzvel = sprite[searchwall].zvel;
         }
-        if (searchstat == 4)
+        if (searchstat == SEARCH_MASKWALL)
         {
             temppicnum = wall[searchwall].overpicnum;
             tempshade = wall[searchwall].shade;
@@ -6970,7 +6670,7 @@ static void Keys3d(void)
         int32_t dashade[2];
         if (eitherSHIFT)
         {
-            if (((searchstat == 0) || (searchstat == 4)) && eitherCTRL)  //Ctrl-shift Enter (auto-shade)
+            if (((searchstat == SEARCH_WALL) || (searchstat == SEARCH_MASKWALL)) && eitherCTRL)  //Ctrl-shift Enter (auto-shade)
             {
                 dashade[0] = 127;
                 dashade[1] = -128;
@@ -7001,29 +6701,29 @@ static void Keys3d(void)
             }
             else if (somethingintab < 255)
             {
-                if (searchstat == 0)
+                if (searchstat == SEARCH_WALL)
                 {
                     wall[searchbottomwall].shade = tempshade;
                     wall[searchbottomwall].pal = temppal;
                 }
-                if (searchstat == 1)
+                if (searchstat == SEARCH_CEILING)
                 {
                     sector[searchsector].ceilingshade = tempshade, sector[searchsector].ceilingpal = temppal;
                     if ((somethingintab == 1) || (somethingintab == 2))
                         sector[searchsector].visibility = tempvis;
                 }
-                if (searchstat == 2)
+                if (searchstat == SEARCH_FLOOR)
                 {
                     sector[searchsector].floorshade = tempshade, sector[searchsector].floorpal = temppal;
                     if ((somethingintab == 1) || (somethingintab == 2))
                         sector[searchsector].visibility = tempvis;
                 }
-                if (searchstat == 3) sprite[searchwall].shade = tempshade, sprite[searchwall].pal = temppal;
-                if (searchstat == 4) wall[searchwall].shade = tempshade, wall[searchwall].pal = temppal;
+                if (searchstat == SEARCH_SPRITE) sprite[searchwall].shade = tempshade, sprite[searchwall].pal = temppal;
+                if (searchstat == SEARCH_MASKWALL) wall[searchwall].shade = tempshade, wall[searchwall].pal = temppal;
                 message("Pasted shading+pal");
             }
         }
-        else if (((searchstat == 0) || (searchstat == 4)) && eitherCTRL && (somethingintab < 255))  //Either ctrl key
+        else if (((searchstat == SEARCH_WALL) || (searchstat == SEARCH_MASKWALL)) && eitherCTRL && (somethingintab < 255))  //Either ctrl key
         {
             i = searchwall;
             do
@@ -7043,10 +6743,10 @@ static void Keys3d(void)
             while (i != searchwall);
             message("Pasted picnum+shading+pal");
         }
-        else if (((searchstat == 1) || (searchstat == 2)) && eitherCTRL && (somethingintab < 255))  //Either ctrl key
+        else if (((searchstat == SEARCH_CEILING) || (searchstat == SEARCH_FLOOR)) && eitherCTRL && (somethingintab < 255))  //Either ctrl key
         {
             clearbuf(&pskysearch[0],(int32_t)((numsectors+3)>>2),0L);
-            if (searchstat == 1)
+            if (searchstat == SEARCH_CEILING)
             {
                 i = searchsector;
                 if ((sector[i].ceilingstat&1) > 0)
@@ -7081,7 +6781,7 @@ static void Keys3d(void)
                             i = j;
                 }
             }
-            if (searchstat == 2)
+            if (searchstat == SEARCH_FLOOR)
             {
                 i = searchsector;
                 if ((sector[i].floorstat&1) > 0)
@@ -7120,7 +6820,7 @@ static void Keys3d(void)
         }
         else if (somethingintab < 255)
         {
-            if (searchstat == 0)
+            if (searchstat == SEARCH_WALL)
             {
                 wall[searchbottomwall].picnum = temppicnum;
                 wall[searchbottomwall].shade = tempshade;
@@ -7136,7 +6836,7 @@ static void Keys3d(void)
                 }
                 fixrepeats(searchwall);
             }
-            if (searchstat == 1)
+            if (searchstat == SEARCH_CEILING)
             {
                 sector[searchsector].ceilingpicnum = temppicnum;
                 sector[searchsector].ceilingshade = tempshade;
@@ -7152,7 +6852,7 @@ static void Keys3d(void)
                     sector[searchsector].extra = tempextra;
                 }
             }
-            if (searchstat == 2)
+            if (searchstat == SEARCH_FLOOR)
             {
                 sector[searchsector].floorpicnum = temppicnum;
                 sector[searchsector].floorshade = tempshade;
@@ -7168,7 +6868,7 @@ static void Keys3d(void)
                     sector[searchsector].extra = tempextra;
                 }
             }
-            if (searchstat == 3)
+            if (searchstat == SEARCH_SPRITE)
             {
                 sprite[searchwall].picnum = temppicnum;
                 if ((tilesizx[temppicnum] <= 0) || (tilesizy[temppicnum] <= 0))
@@ -7199,7 +6899,7 @@ static void Keys3d(void)
                     sprite[searchwall].zvel = tempzvel;
                 }
             }
-            if (searchstat == 4)
+            if (searchstat == SEARCH_MASKWALL)
             {
                 wall[searchwall].overpicnum = temppicnum;
                 if (wall[searchwall].nextwall >= 0)
@@ -7232,28 +6932,28 @@ static void Keys3d(void)
             {
                 switch (searchstat)
                 {
-                case 0:
+                case SEARCH_WALL:
                     j = wall[searchbottomwall].picnum;
                     for (i=0; i<numwalls; i++)
                         if (wall[i].picnum == j) wall[i].picnum = temppicnum;
                     break;
-                case 1:
+                case SEARCH_CEILING:
                     j = sector[searchsector].ceilingpicnum;
                     for (i=0; i<numsectors; i++)
                         if (sector[i].ceilingpicnum == j) sector[i].ceilingpicnum = temppicnum;
                     break;
-                case 2:
+                case SEARCH_FLOOR:
                     j = sector[searchsector].floorpicnum;
                     for (i=0; i<numsectors; i++)
                         if (sector[i].floorpicnum == j) sector[i].floorpicnum = temppicnum;
                     break;
-                case 3:
+                case SEARCH_SPRITE:
                     j = sprite[searchwall].picnum;
                     for (i=0; i<MAXSPRITES; i++)
                         if (sprite[i].statnum < MAXSTATUS)
                             if (sprite[i].picnum == j) sprite[i].picnum = temppicnum;
                     break;
-                case 4:
+                case SEARCH_MASKWALL:
                     j = wall[searchwall].overpicnum;
                     for (i=0; i<numwalls; i++)
                         if (wall[i].overpicnum == j) wall[i].overpicnum = temppicnum;
@@ -7265,7 +6965,7 @@ static void Keys3d(void)
         }
         else	//C
         {
-            if (searchstat == 3)
+            if (searchstat == SEARCH_SPRITE)
             {
                 sprite[searchwall].cstat ^= 128;
                 message("Sprite %d center bit %s",searchwall,(sprite[searchwall].cstat&128)?"ON":"OFF");
@@ -7276,9 +6976,9 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_SLASH])  // /?     Reset panning&repeat to 0
     {
-        if ((searchstat == 0) || (searchstat == 4))
+        if ((searchstat == SEARCH_WALL) || (searchstat == SEARCH_MASKWALL))
         {
-            int16_t w = (searchstat==0)?searchbottomwall:searchwall;
+            int16_t w = (searchstat==SEARCH_WALL)?searchbottomwall:searchwall;
             wall[w].xpanning = 0;
             wall[w].ypanning = 0;
             wall[w].xrepeat = 8;
@@ -7286,21 +6986,21 @@ static void Keys3d(void)
             wall[w].cstat = 0;
             fixrepeats((int16_t)searchwall);
         }
-        if (searchstat == 1)
+        if (searchstat == SEARCH_CEILING)
         {
             sector[searchsector].ceilingxpanning = 0;
             sector[searchsector].ceilingypanning = 0;
             sector[searchsector].ceilingstat &= ~2;
             sector[searchsector].ceilingheinum = 0;
         }
-        if (searchstat == 2)
+        if (searchstat == SEARCH_FLOOR)
         {
             sector[searchsector].floorxpanning = 0;
             sector[searchsector].floorypanning = 0;
             sector[searchsector].floorstat &= ~2;
             sector[searchsector].floorheinum = 0;
         }
-        if (searchstat == 3)
+        if (searchstat == SEARCH_SPRITE)
         {
             if (eitherSHIFT)
             {
@@ -7331,23 +7031,23 @@ static void Keys3d(void)
         {
             switch (searchstat)
             {
-            case 0:
+            case SEARCH_WALL:
                 Bstrcpy(buffer,"Wall pal: ");
                 getnumberptr256(buffer,&wall[searchbottomwall].pal,sizeof(wall[searchbottomwall].pal),256L,0,NULL);
                 break;
-            case 4:
+            case SEARCH_MASKWALL:
                 Bstrcpy(buffer,"Wall pal: ");
                 getnumberptr256(buffer,&wall[searchwall].pal,sizeof(wall[searchwall].pal),256L,0,NULL);
                 break;
-            case 1:
+            case SEARCH_CEILING:
                 Bstrcpy(buffer,"Ceiling pal: ");
                 getnumberptr256(buffer,&sector[searchsector].ceilingpal,sizeof(sector[searchsector].ceilingpal),256L,0,NULL);
                 break;
-            case 2:
+            case SEARCH_FLOOR:
                 Bstrcpy(buffer,"Floor pal: ");
                 getnumberptr256(buffer,&sector[searchsector].floorpal,sizeof(sector[searchsector].floorpal),256L,0,NULL);
                 break;
-            case 3:
+            case SEARCH_SPRITE:
                 Bstrcpy(buffer,"Sprite pal: ");
                 getnumberptr256(buffer,&sprite[searchwall].pal,sizeof(sprite[searchwall].pal),256L,0,NULL);
                 break;
@@ -7355,13 +7055,13 @@ static void Keys3d(void)
         }
         else
         {
-            if ((searchstat == 0) || (searchstat == 1) || (searchstat == 4))
+            if ((searchstat == SEARCH_WALL) || (searchstat == SEARCH_CEILING) || (searchstat == SEARCH_MASKWALL))
             {
                 sector[searchsector].ceilingstat ^= 1;
                 message("Sector %d ceiling parallax bit %s",searchsector,sector[searchsector].ceilingstat&1?"ON":"OFF");
                 asksave = 1;
             }
-            else if (searchstat == 2)
+            else if (searchstat == SEARCH_FLOOR)
             {
                 sector[searchsector].floorstat ^= 1;
                 message("Sector %d floor parallax bit %s",searchsector,sector[searchsector].floorstat&1?"ON":"OFF");
@@ -7376,7 +7076,7 @@ static void Keys3d(void)
         keystatus[KEYSC_D] = 0;
         if (eitherALT)
         {
-            if (searchstat == 3)
+            if (searchstat == SEARCH_SPRITE)
             {
                 Bstrcpy(buffer,"Sprite clipdist: ");
                 sprite[searchwall].clipdist = getnumber256(buffer,sprite[searchwall].clipdist,256L,0);
@@ -10040,9 +9740,9 @@ void ExtPreCheckKeys(void) // just before drawrooms
             for (i=numsprites-1; i>=0; i--)
                 if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || sprite[i].lotag == 3))
                 {
-                    int32_t w;
-                    int32_t start_wall = sector[sprite[i].sectnum].wallptr;
-                    int32_t end_wall = start_wall + sector[sprite[i].sectnum].wallnum;
+                    int32_t w, isec=sprite[i].sectnum;
+                    int32_t start_wall = sector[isec].wallptr;
+                    int32_t end_wall = start_wall + sector[isec].wallnum;
 
                     for (w = start_wall; w < end_wall; w++)
                     {
@@ -10066,15 +9766,15 @@ void ExtPreCheckKeys(void) // just before drawrooms
                         }
                         } */
                     }
-                    sectorshades[sprite[i].sectnum][0] = sector[sprite[i].sectnum].floorshade;
-                    sectorshades[sprite[i].sectnum][1] = sector[sprite[i].sectnum].ceilingshade;
-                    sector[sprite[i].sectnum].floorshade = sprite[i].shade;
-                    sector[sprite[i].sectnum].ceilingshade = sprite[i].shade;
-                    sectorpals[sprite[i].sectnum][0] = sector[sprite[i].sectnum].floorpal;
-                    sectorpals[sprite[i].sectnum][1] = sector[sprite[i].sectnum].ceilingpal;
-                    sector[sprite[i].sectnum].floorpal = sprite[i].pal;
-                    sector[sprite[i].sectnum].ceilingpal = sprite[i].pal;
-                    w = headspritesect[sprite[i].sectnum];
+                    sectorshades[isec][0] = sector[isec].floorshade;
+                    sectorshades[isec][1] = sector[isec].ceilingshade;
+                    sector[isec].floorshade = sprite[i].shade;
+                    sector[isec].ceilingshade = sprite[i].shade;
+                    sectorpals[isec][0] = sector[isec].floorpal;
+                    sectorpals[isec][1] = sector[isec].ceilingpal;
+                    sector[isec].floorpal = sprite[i].pal;
+                    sector[isec].ceilingpal = sprite[i].pal;
+                    w = headspritesect[isec];
                     while (w >= 0)
                     {
                         if (w == i) { w = nextspritesect[w]; continue; }
@@ -10828,9 +10528,9 @@ void ExtCheckKeys(void)
             for (i=numsprites-1; i>=0; i--)
                 if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || sprite[i].lotag == 3))
                 {
-                    int32_t w;
-                    int32_t start_wall = sector[sprite[i].sectnum].wallptr;
-                    int32_t end_wall = start_wall + sector[sprite[i].sectnum].wallnum;
+                    int32_t w, isec=sprite[i].sectnum;
+                    int32_t start_wall = sector[isec].wallptr;
+                    int32_t end_wall = start_wall + sector[isec].wallnum;
 
                     for (w = start_wall; w < end_wall; w++)
                     {
@@ -10850,12 +10550,12 @@ void ExtCheckKeys(void)
                         }
                         } */
                     }
-                    sector[sprite[i].sectnum].floorshade = sectorshades[sprite[i].sectnum][0];
-                    sector[sprite[i].sectnum].ceilingshade = sectorshades[sprite[i].sectnum][1];
-                    sector[sprite[i].sectnum].floorpal = sectorpals[sprite[i].sectnum][0];
-                    sector[sprite[i].sectnum].ceilingpal = sectorpals[sprite[i].sectnum][1];
+                    sector[isec].floorshade = sectorshades[isec][0];
+                    sector[isec].ceilingshade = sectorshades[isec][1];
+                    sector[isec].floorpal = sectorpals[isec][0];
+                    sector[isec].ceilingpal = sectorpals[isec][1];
 
-                    w = headspritesect[sprite[i].sectnum];
+                    w = headspritesect[isec];
                     while (w >= 0)
                     {
                         if (w == i) { w = nextspritesect[w]; continue; }

@@ -9200,8 +9200,7 @@ GAME_STATIC void G_HandleLocalKeys(void)
         if (KB_KeyPressed(sc_Return) && ud.multimode==1)
         {
             KB_ClearKeyDown(sc_Return);
-            ud.reccnt = 0;
-            ud.recstat = 0;
+            g_demo_cnt = g_demo_goalCnt = ud.reccnt = ud.pause_on = ud.recstat = ud.m_recstat = 0;
             kclose(g_demo_recFilePtr);
             g_player[myconnectindex].ps->gm = MODE_GAME;
 //            ready2send=0;
@@ -12019,7 +12018,7 @@ GAME_STATIC int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
         ud.reccnt = 0;
 
         ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
-        ud.clipping = ud.scrollmode = ud.overhead_on = ud.pause_on = 0;
+        ud.clipping = ud.scrollmode = ud.overhead_on = 0; //= ud.pause_on = 0;
 
 //        G_NewGame(ud.volume_number,ud.level_number,ud.player_skill);
 //        G_ResetTimers();
@@ -12043,7 +12042,7 @@ corrupt:
 }
 
 #if KRANDDEBUG
-extern int32_t krd_enable();
+extern void krd_enable(int32_t which);
 extern int32_t krd_print(const char *filename);
 #endif
 
@@ -12059,16 +12058,15 @@ void G_OpenDemoWrite(void)
     {
         Bstrcpy(ScriptQuotes[122], "CANNOT START DEMO RECORDING WHEN DEAD!");
         P_DoQuote(122, g_player[myconnectindex].ps);
-        ud.recstat = 0;
+        ud.recstat = ud.m_recstat = 0;
         return;
     }
 
     if (demorec_diffs_cvar && !demorec_force_cvar)
-        for (i=1; i<g_scriptSize; i++)
+        for (i=1; i<g_scriptSize-2; i++)
         {
             intptr_t w=script[i];
-            if ((w&0x0fff)==CON_RESIZEARRAY && (w>>12) && i<g_scriptSize-2 &&
-                script[i+1]>=0 && script[i+1]<g_gameArrayCount)
+            if ((w&0x0fff)==CON_RESIZEARRAY && (w>>12) && script[i+1]>=0 && script[i+1]<g_gameArrayCount)
             {
                 OSD_Printf("\nThe CON code possibly contains a RESIZEARRAY command.\n");
                 OSD_Printf("Gamearrays that change their size during the game are unsupported by\n");
@@ -12078,7 +12076,7 @@ void G_OpenDemoWrite(void)
                 OSD_Printf("with the `demorec_diffs' cvar.\n\n");
                 Bstrcpy(ScriptQuotes[122], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
                 P_DoQuote(122, g_player[myconnectindex].ps);
-                ud.recstat = 0;
+                ud.recstat = ud.m_recstat = 0;
                 return;
             }
         }
@@ -12101,7 +12099,7 @@ void G_OpenDemoWrite(void)
         Bstrcpy(ScriptQuotes[122], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
         P_DoQuote(122, g_player[myconnectindex].ps);
         Bfclose(g_demo_filePtr), g_demo_filePtr=NULL;
-        ud.recstat = 0;
+        ud.recstat = ud.m_recstat = 0;
         return;
     }
     demorec_seeds = demorec_seeds_cvar;
@@ -12113,10 +12111,10 @@ void G_OpenDemoWrite(void)
     P_DoQuote(122, g_player[myconnectindex].ps);
 
     ud.reccnt = 0;
-    ud.recstat = 1;  //
+    ud.recstat = ud.m_recstat = 1;  //
 
 #if KRANDDEBUG
-    krd_enable();
+    krd_enable(1);
 #endif
 
     g_demo_cnt = 1;
@@ -12301,7 +12299,7 @@ RECHECK:
         lastsyncclock = totalclock;
         outofsync = 0;
 #if KRANDDEBUG
-        krd_enable();
+        krd_enable(2);
 #endif
     }
 
@@ -12322,10 +12320,6 @@ RECHECK:
     {
         if (foundemo && (!g_demo_paused || g_demo_goalCnt))
         {
-            static int32_t t1=0;
-            if (t1==0 && g_demo_goalCnt)
-                t1=getticks();
-                
             if (g_demo_goalCnt>0 && g_demo_goalCnt < g_demo_cnt)  // rewind
             {
                 k = g_player[myconnectindex].ps->gm&MODE_MENU;
@@ -12354,8 +12348,8 @@ RECHECK:
                         g_demo_cnt = 1;
                         ud.reccnt = 0;
 
-                        ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
-                        ud.clipping = ud.scrollmode = ud.overhead_on = ud.pause_on = 0;
+//                        ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
+//                        ud.clipping = ud.scrollmode = ud.overhead_on = ud.pause_on = 0;
 
                         totalclock = ototalclock = lockclock = 0;
                     }
@@ -12414,9 +12408,6 @@ RECHECK:
                         goto nextdemo;
                     else CORRUPT(12);
 
-                    if (demo_hasseeds)
-                        outofsync = (uint16_t)(randomseed>>24) != g_demo_seedbuf[bigi];
-
                     if (0)
                     {
 corrupt:
@@ -12434,6 +12425,9 @@ nextdemo:
                         goto RECHECK;
                     }
                 }
+
+                if (demo_hasseeds)
+                    outofsync = (uint8_t)(randomseed>>24) != g_demo_seedbuf[bigi];
 
                 TRAVERSE_CONNECT(j)
                 {
@@ -12595,7 +12589,12 @@ nextdemo:
         if (g_player[myconnectindex].ps->gm==MODE_END || g_player[myconnectindex].ps->gm==MODE_GAME)
         {
             if (foundemo)
+            {
+#if KRANDDEBUG
+                krd_print("krandplay.log");
+#endif
                 kclose(g_demo_recFilePtr);
+            }
             return 0;
         }
     }
@@ -12618,7 +12617,8 @@ nextdemo:
 
     if (g_player[myconnectindex].ps->gm&MODE_MENU) goto RECHECK;
 #if KRANDDEBUG
-    krd_print("krandplay.log");
+    if (foundemo)
+        krd_print("krandplay.log");
 #endif
     return 1;
 }
@@ -12702,7 +12702,7 @@ GAME_STATIC int32_t G_DoMoveThings(void)
     ud.camerasprite = -1;
     lockclock += TICSPERFRAME;
 
-    if (g_earthquakeTime > 0) g_earthquakeTime--;
+    //if (g_earthquakeTime > 0) g_earthquakeTime--;  moved lower so it is restored correctly by diffs
     if (g_RTSPlaying > 0) g_RTSPlaying--;
 
     for (i=0; i<MAXUSERQUOTES; i++)
@@ -12757,7 +12757,7 @@ GAME_STATIC int32_t G_DoMoveThings(void)
         }
     }
 
-    everyothertime++;
+//    everyothertime++;   moved lower so it is restored correctly by diffs
 
     if (g_netServer || g_netClient)
         randomseed = ticrandomseed;
@@ -12786,6 +12786,9 @@ GAME_STATIC int32_t G_DoMoveThings(void)
     g_moveThingsCount++;
 
     if (ud.recstat == 1) G_DemoRecord();
+
+    everyothertime++;
+    if (g_earthquakeTime > 0) g_earthquakeTime--;
 
 #ifdef POLYMER
     if (ud.pause_on == 0)

@@ -117,7 +117,11 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
     external_midi = (command != NULL && command[0] != 0);
 
     if (external_midi)
-        Mix_SetMusicCMD(command);
+    {
+        initprintf("Setting music command to `%s'.\n", command);
+        if (Mix_SetMusicCMD(command)==-1)
+            perror("Mix_SetMusicCMD");
+    }
     else
     {
         char *s[] = { "/etc/timidity.cfg", "/etc/timidity/timidity.cfg", "/etc/timidity/freepats.cfg" };
@@ -253,11 +257,30 @@ int32_t MUSIC_StopSong(void)
 // void MUSIC_PlayMusic(char *_filename)
 int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
 {
+    static char *tempfn = "/tmp/eduke32-music.mid";
+    FILE *fp;
+
     MUSIC_StopSong();
-    music_musicchunk = Mix_LoadMUS_RW(SDL_RWFromMem((char *) song, g_musicSize));
+
+    if (external_midi)
+    {
+        fp = Bfopen(tempfn, "wb");
+        if (fp)
+        {
+            fwrite(song, 1, g_musicSize, fp);
+            Bfclose(fp);
+            music_musicchunk = Mix_LoadMUS(tempfn);
+            if (!music_musicchunk)
+                initprintf("Mix_LoadMUS: %s\n", Mix_GetError());
+        }
+        else initprintf("MUSIC_PlaySong: fopen: %s\n", strerror(errno));
+    }
+    else
+        music_musicchunk = Mix_LoadMUS_RW(SDL_RWFromMem((char *) song, g_musicSize));
 
     if (music_musicchunk != NULL)
-        Mix_PlayMusic(music_musicchunk, (loopflag == MUSIC_LoopSong)?-1:0);
+        if (Mix_PlayMusic(music_musicchunk, (loopflag == MUSIC_LoopSong)?-1:0) == -1)
+            initprintf("Mix_PlayMusic: %s\n", Mix_GetError());
 
     return MUSIC_Ok;
 }

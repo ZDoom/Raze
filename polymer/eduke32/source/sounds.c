@@ -329,7 +329,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
 
     if (fp < 0)
     {
-        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open '%s' for playback!",fn);
+        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open '%s' for playback!\n",fn);
         return 0;
     }
 

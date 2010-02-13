@@ -2807,7 +2807,7 @@ cheat_for_port_credits:
                     }
                     if ((g_player[myconnectindex].ps->gm&MODE_GAME) && ud.m_recstat != 1)
                         enabled = 0;
-                    mgametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && g_player[myconnectindex].ps->gm&MODE_GAME)?"Running":"On"):"Off",enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE,enabled?0:1);
+                    mgametextpal(d,yy,ud.m_recstat?((enabled && g_player[myconnectindex].ps->gm&MODE_GAME)?"Running":"On"):"Off",enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE,enabled?0:1);
                     break;
                 case 12:
                     if (x==io) ChangeToMenu(201);

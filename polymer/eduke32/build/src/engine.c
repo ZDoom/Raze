@@ -9504,53 +9504,49 @@ void getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus)
 # include <execinfo.h>
 # define KRD_MAXCALLS 262144
 # define KRD_DEPTH 8
-static int krd_numcalls=0;
-static int krd_randomseed[KRD_MAXCALLS];
-static int krd_totalclock[KRD_MAXCALLS];
+static int32_t krd_numcalls=0;
 static void *krd_fromwhere[KRD_MAXCALLS][KRD_DEPTH];
 static int32_t krd_enabled=0;
 
-void krd_enable()
+void krd_enable(int which)  // 0: disable, 1: rec, 2: play
 {
-    krd_enabled = 1;
+    krd_enabled = which;
+
+    if (which)
+        Bmemset(krd_fromwhere, 0, sizeof(krd_fromwhere));
 }
 
 int32_t krd_print(const char *filename)
 {
-    FILE *krd_fp = fopen(filename, "w");
-    int i, j, k, ototalclk=0;
+    FILE *fp;
+    int32_t i, j;
 
+    if (!krd_enabled) return 1;
     krd_enabled = 0;
-    if (!krd_fp) { printf("KRANDDEBUG: Couldn't open file!"); return 1; }
+
+    fp = fopen(filename, "wb");
+    if (!fp) { OSD_Printf("krd_print (2): fopen"); return 1; }
 
     for (i=0; i<krd_numcalls; i++)
     {
-        k = (ototalclk != krd_totalclock[i]);
-        if (k)
-        {
-            ototalclk = krd_totalclock[i];
-            fprintf(krd_fp, "#%d:", ototalclk);
-        }
-
-        fprintf(krd_fp, " %08x:", krd_randomseed[i]);
-
         for (j=1;; j++)  // skip self entry
         {
             if (j>=KRD_DEPTH || krd_fromwhere[i][j]==NULL)
             {
-                fprintf(krd_fp, "\n");
+                fprintf(fp, "\n");
                 break;
             }
-            fprintf(krd_fp, " [%p]", krd_fromwhere[i][j]);
+            fprintf(fp, " [%p]", krd_fromwhere[i][j]);
         }
     }
 
     krd_numcalls = 0;
 
-    fclose(krd_fp);
+    fclose(fp);
     return 0;
 }
-#endif
+#endif  // KRANDDEBUG
+
 
 //
 // krand
@@ -9564,11 +9560,7 @@ int32_t krand(void)
     if (krd_enabled)
         if (krd_numcalls < KRD_MAXCALLS)
         {
-            int32_t i;
-            krd_randomseed[krd_numcalls] = randomseed;
-            krd_totalclock[krd_numcalls] = totalclock;
-            for (i=backtrace(krd_fromwhere[krd_numcalls],KRD_DEPTH); i<KRD_DEPTH; i++)
-                krd_fromwhere[krd_numcalls][i] = NULL;
+            backtrace(krd_fromwhere[krd_numcalls], KRD_DEPTH);
             krd_numcalls++;
         }
 #endif

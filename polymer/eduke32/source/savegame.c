@@ -935,7 +935,7 @@ typedef struct dataspec_
 } dataspec_t;
 
 #define SV_MAJOR_VER 0
-#define SV_MINOR_VER 1
+#define SV_MINOR_VER 2
 #define SV_DEFAULTCOMPRTHRES 8
 static uint8_t savegame_diffcompress;  // 0:none, 1:Ken's LZW in cache1d.c
 static uint8_t savegame_comprthres;
@@ -966,7 +966,7 @@ static int32_t ds_getcnt(const dataspec_t *sp)
     }
 }
 
-static void ds_get(const dataspec_t *sp, void **ptr, int32_t *cnt)
+static void ds_get(const dataspec_t *sp, const void **ptr, int32_t *cnt)
 {
     *cnt = ds_getcnt(sp);
 
@@ -1067,7 +1067,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
             continue;
         }
 
-        ds_get(sp, &ptr, &cnt);
+        ds_get(sp, (const void **)&ptr, &cnt);
         if (cnt < 0) { OSD_Printf("rsd: cnt<0... wtf?\n"); return -1; }
 
         if (fil>=0)
@@ -1360,6 +1360,7 @@ static void sv_prespriteextsave();
 static void sv_postspriteext();
 static void sv_calcbitptrsize();
 static void sv_prescriptsave_once();
+static void sv_prescriptload_once();
 static void sv_postscript_once();
 static void sv_preactordatasave();
 static void sv_postactordata();
@@ -1413,6 +1414,7 @@ static const dataspec_t svgm_udnetw[] =
     { DS_NOCHK, &ud.ffire, sizeof(ud.ffire), 1 },
     { DS_NOCHK, &ud.noexits, sizeof(ud.noexits), 1 },
     { DS_NOCHK, &ud.playerai, sizeof(ud.playerai), 1 },
+    { 0, &ud.pause_on, sizeof(ud.pause_on), 1 },
     { DS_NOCHK, &currentboardfilename[0], BMAX_PATH, 1 },
     { DS_LOADFN, (void *)&sv_postudload, 0, 1 },
     { 0, &connecthead, sizeof(connecthead), 1 },
@@ -1472,6 +1474,7 @@ static const dataspec_t svgm_script[] =
 
     { DS_SAVEFN|DS_NOCHK, (void *)&sv_prescriptsave_once, 0, 1 },
     { DS_NOCHK, &actorscrptr[0], sizeof(actorscrptr[0]), MAXTILES },
+    { DS_LOADFN|DS_NOCHK, (void *)&sv_prescriptload_once, 0, 1 },
     { DS_DYNAMIC|DS_CNT(g_scriptSize)|DS_NOCHK, &script, sizeof(script[0]), (intptr_t)&g_scriptSize },
     { DS_NOCHK, &actorLoadEventScrptr[0], sizeof(actorLoadEventScrptr[0]), MAXTILES },
 //    { DS_NOCHK, &apScriptGameEvent[0], sizeof(apScriptGameEvent[0]), MAXGAMEEVENTS },
@@ -1498,6 +1501,9 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &camsprite, sizeof(camsprite), 1 },
     { 0, &msx[0], sizeof(msx[0]), sizeof(msx)/sizeof(msx[0]) },
     { 0, &msy[0], sizeof(msy[0]), sizeof(msy)/sizeof(msy[0]) },
+    { 0, &g_spriteDeleteQueuePos, sizeof(g_spriteDeleteQueuePos), 1 },
+    { DS_NOCHK, &g_spriteDeleteQueueSize, sizeof(g_spriteDeleteQueueSize), 1 },
+    { DS_CNT(g_spriteDeleteQueueSize), &SpriteDeletionQueue[0], sizeof(int16_t), (intptr_t)&g_spriteDeleteQueueSize },
     { 0, &show2dsector[0], sizeof(uint8_t), MAXSECTORS>>3 },
     { DS_NOCHK, &g_numClouds, sizeof(g_numClouds), 1 },
     { 0, &clouds[0], sizeof(clouds), 1 },
@@ -1543,7 +1549,7 @@ static uint8_t *svdiff;
 
 #include "gamedef.h"
 
-#define SV_SKIPMASK (GAMEVAR_SYSTEM|GAMEVAR_READONLY|GAMEVAR_INTPTR|    \
+#define SV_SKIPMASK (/*GAMEVAR_SYSTEM|*/GAMEVAR_READONLY|GAMEVAR_INTPTR|    \
                      GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR /*|GAMEVAR_NORESET*/ |GAMEVAR_SPECIAL)
 // setup gamevar data spec for snapshotting and diffing... gamevars must be loaded when called
 static void sv_makevarspec()
@@ -1811,6 +1817,7 @@ int32_t sv_readdiff(int32_t fil)
 static void sv_postudload()
 {
     Bmemcpy(&boardfilename[0], &currentboardfilename[0], BMAX_PATH);
+#if 0
     ud.m_level_number = ud.level_number;
     ud.m_volume_number = ud.volume_number;
     ud.m_player_skill = ud.player_skill;
@@ -1822,10 +1829,9 @@ static void sv_postudload()
     ud.m_marker = ud.marker;
     ud.m_ffire = ud.ffire;
     ud.m_noexits = ud.noexits;
+#endif
 }
 //static int32_t lockclock_dummy;
-
-
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
 static void sv_prespriteextsave()
@@ -1864,6 +1870,12 @@ static void sv_prescriptsave_once()
     for (i=0; i<MAXTILES; i++)
         if (actorLoadEventScrptr[i])
             actorLoadEventScrptr[i] = (intptr_t *)(actorLoadEventScrptr[i]-&script[0]);
+}
+static void sv_prescriptload_once()
+{
+    if (script)
+        Bfree(script);
+    script = Bmalloc(g_scriptSize * sizeof(script[0]));
 }
 static void sv_postscript_once()
 {
@@ -2107,7 +2119,7 @@ static int32_t doloadplayer2(int32_t spot, int32_t fil, uint8_t **memptr)
     if (spot >= 0 && ud.multimode!=numplayers)
         return 2;
 
-    if (numplayers > 1)
+    if (spot<0 || numplayers > 1)
     {
         if (LOADRDU(&tbuf, 19, 1)) return -3;
     }
