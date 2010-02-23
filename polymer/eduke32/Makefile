@@ -198,8 +198,6 @@ else
 
     	GAMEOBJS+= $(OBJ)/game_icon.$o $(OBJ)/sdlmusic.$o
     	EDITOROBJS+= $(OBJ)/build_icon.$o
-    else
-        GAMEOBJS+= $(OBJ)/audiolib_musicstub.$o
     endif
 endif
 
@@ -245,15 +243,6 @@ mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $
 ifeq (1,$(RELEASE))	
   ifeq (0,$(DEBUGANYWAY))
 	$(STRIP) mapster32$(EXESUFFIX)
-  endif
-endif	
-
-duke3d_w32$(EXESUFFIX): $(OBJ)/wrapper.$o
-	$(LINK_STATUS)
-	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ -Wl; then $(LINK_OK); else $(LINK_FAILED); fi
-ifeq (1,$(RELEASE))	
-  ifeq (0,$(DEBUGANYWAY))
-	$(STRIP) duke3d_w32$(EXESUFFIX)
   endif
 endif	
 

@@ -142,10 +142,6 @@ mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB) $
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $(RSRC)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
-duke3d_w32$(EXESUFFIX): $(OBJ)/wrapper.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
-	$(MT) -manifest $@.manifest -outputresource:$@
-	
 !include Makefile.deps
 
 enginelib editorlib: AlwaysBuild

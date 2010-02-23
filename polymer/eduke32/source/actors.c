@@ -1238,7 +1238,7 @@ ACTOR_STATIC void G_MoveFX(void)
                     }
                     if (x >= ht && T1 == 1)
                     {
-                        T1 = 0;
+                        // T1 = 0;
                         S_StopEnvSound(s->lotag,i);
                     }
                 }
@@ -6798,9 +6798,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         {
                             q = sprite[sprite[j].owner].sectnum;
                             sector[sprite[j].sectnum].floorpal = sector[sprite[j].sectnum].ceilingpal =
-                                                                     sector[q].floorpal;
+                                    sector[q].floorpal;
                             sector[sprite[j].sectnum].floorshade = sector[sprite[j].sectnum].ceilingshade =
-                                                                       sector[q].floorshade;
+                                    sector[q].floorshade;
 
                             ActorExtra[sprite[j].owner].temp_data[0] = 2;
                         }
@@ -6826,11 +6826,11 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             {
                                 q = sprite[l].sectnum;
                                 sector[q].floorshade =
-                                    sector[q].ceilingshade =
-                                        sprite[sprite[l].owner].shade;
+                                sector[q].ceilingshade =
+                                sprite[sprite[l].owner].shade;
                                 sector[q].floorpal =
-                                    sector[q].ceilingpal =
-                                        sprite[sprite[l].owner].pal;
+                                sector[q].ceilingpal =
+                                sprite[sprite[l].owner].pal;
                             }
                             break;
 

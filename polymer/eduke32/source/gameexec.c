@@ -1615,7 +1615,7 @@ skip_check:
             insptr++;
             {
                 int32_t i = Gv_GetVarX(*insptr++),
-                            f=Gv_GetVarX(*insptr++);
+                        f=Gv_GetVarX(*insptr++);
                 int32_t j=Gv_GetVarX(*insptr++);
                 if ((i<0 || i>=MAXQUOTES) /* && g_scriptSanityChecks */)
                     OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],i);

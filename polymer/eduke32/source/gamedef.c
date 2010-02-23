@@ -39,7 +39,7 @@ char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compilin
 static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
 
 int32_t g_totalLines,g_lineNumber;
-static int32_t g_checkingIfElse,g_processingState;
+static int32_t g_checkingIfElse, g_processingState, g_lastKeyword = -1;
 char g_szBuf[1024];
 
 intptr_t *g_caseScriptPtr=NULL;      // the pointer to the start of the case table in a switch statement
@@ -1993,7 +1993,7 @@ static int32_t C_CountCaseStatements()
 
 static int32_t C_ParseCommand(void)
 {
-    int32_t i, j=0, k=0, done, tw;
+    int32_t i, j=0, k=0, done, tw, otw = g_lastKeyword;
     char *temptextptr;
     intptr_t *tempscrptr = NULL;
 
@@ -2015,7 +2015,7 @@ static int32_t C_ParseCommand(void)
         //Bsprintf(g_szBuf,"PC(): '%.25s'",textptr);
         //AddLog(g_szBuf);
     }
-    tw = C_GetNextKeyword();
+    g_lastKeyword = tw = C_GetNextKeyword();
     //    Bsprintf(tempbuf,"%s",keyw[tw]);
     //    AddLog(tempbuf);
 
@@ -4677,8 +4677,7 @@ repeatcase:
         //Bsprintf(g_szBuf,"case3: %.12s",textptr);
         //AddLog(g_szBuf);
 
-        j = C_GetKeyword();
-        if (j == CON_CASE)
+        if (C_GetKeyword() == CON_CASE)
         {
             //AddLog("Found Repeat Case");
             C_GetNextKeyword();    // eat 'case'
@@ -4691,8 +4690,7 @@ repeatcase:
         {
             //Bsprintf(g_szBuf,"case5 '%.25s'",textptr);
             //AddLog(g_szBuf);
-            j = C_GetKeyword();
-            if (j == CON_CASE)
+            if (C_GetKeyword() == CON_CASE)
             {
                 //AddLog("Found Repeat Case");
                 C_GetNextKeyword();    // eat 'case'
@@ -5651,6 +5649,13 @@ repeatcase:
     case CON_BREAK:
         if (g_checkingSwitch)
         {
+            if (otw == CON_BREAK)
+            {
+                C_ReportError(-1);
+                initprintf("%s:%d: error: duplicate `break'.\n",g_szScriptFileName, g_lineNumber);
+                g_numCompilerErrors++;
+            }
+
             //Bsprintf(g_szBuf,"  * (L%d) case Break statement.\n",g_lineNumber);
             //AddLog(g_szBuf);
             return 1;

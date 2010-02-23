@@ -67,6 +67,12 @@ extern int32_t G_GetVersionFromWebsite(char *buffer);
 static int32_t usecwd = 0;
 #endif /* _WIN32 */
 
+/* 
+this should be lower than the MTU size by at least the size of the UDP and ENet headers
+or else fragmentation will occur
+*/
+#define SYNCPACKETSIZE 1408
+
 ENetHost * g_netServer = NULL;
 ENetHost * g_netClient = NULL;
 ENetPeer * g_netClientPeer = NULL;
@@ -318,6 +324,7 @@ void P_SetGamePalette(DukePlayer_t *player, uint8_t *pal, int32_t set)
     player->palette = pal;
 }
 
+// FIXME: this function sucks.
 int32_t gametext_z(int32_t small, int32_t starttile, int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t orientation,int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t z)
 {
     int32_t ac,newx,oldx=x;
@@ -609,7 +616,6 @@ void Net_Connect(const char * srvaddr)
     enet_address_set_host(&address, addrstr);
     address.port = atoi((addrstr = strtok(NULL, ":")) == NULL ? "23513" : addrstr);
 
-    // use 2 channels for easy packet sorting at a lower level than the game later
     g_netClientPeer = enet_host_connect(g_netClient, &address, CHAN_MAX);
 
     if (g_netClientPeer == NULL)
@@ -786,6 +792,7 @@ void Net_SendUserMapName(void)
         enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
 }
 
+// FIXME: change all of the game starting support code to be fully server controlled
 void Net_NewGame(int32_t volume, int32_t level)
 {
     packbuf[0] = PACKET_NEW_GAME;
@@ -813,18 +820,16 @@ static int32_t spritecrc[MAXSPRITES], lastupdate[MAXSPRITES], sectcrc[MAXSECTORS
 static int32_t wallcrc[MAXWALLS], lastwallupdate[MAXWALLS];
 static int32_t peractorvals[MAXGAMEVARS][MAXSPRITES], perplayervals[MAXGAMEVARS][MAXPLAYERS];
 
+// sends a simple crc32 of the current password, verified by the server before the connection can continue
 static void Net_SendChallenge(void)
 {
-    int32_t l;
-    uint32_t crc;
+    int32_t l = 1;
+    uint32_t crc = crc32once((uint8_t *)g_netPassword, Bstrlen(g_netPassword));
 
     if (!g_netClientPeer) return;
 
-    crc = crc32once((uint8_t *)g_netPassword, Bstrlen(g_netPassword));
-
     buf[0] = PACKET_AUTH;
-    l = 1;
-    *(uint32_t *)&buf[l] = crc;
+    *(uint32_t *)&buf[1] = crc;
     l += sizeof(int32_t);
 
     buf[l++] = myconnectindex;
@@ -872,10 +877,12 @@ void P_Disconnected(int32_t i)
         }
 
         Bstrcpy(ScriptQuotes[116],buf);
-        g_player[myconnectindex].ps->ftq = 116, g_player[myconnectindex].ps->fta = 180;
+        g_player[myconnectindex].ps->ftq = 116;
+        g_player[myconnectindex].ps->fta = 180;
     }
 }
 
+// sync a connecting player up with the current game state
 void Net_SyncPlayer(ENetEvent * event)
 {
     int32_t i, j;
@@ -886,10 +893,8 @@ void Net_SyncPlayer(ENetEvent * event)
     if (!g_player[i].playerquitflag)
         break;
 
-    // no slots empty from players quitting, so open a new one
-    if (i == -1)
-        i = playerswhenstarted++;
-    event->peer->data = (void *) ((intptr_t) i);
+    // open a new slot if necessary
+    event->peer->data = (void *)((intptr_t) (i = (i == -1 ? playerswhenstarted++ : i)));
 
     clearbufbyte(&g_player[i].playerquitflag,1,0x01010101);
     g_player[i].movefifoend = 1;
@@ -946,12 +951,17 @@ void Net_SyncPlayer(ENetEvent * event)
 
             G_SaveMapState(g_multiMapState);
             j = qlz_compress((char *)g_multiMapState, buf, sizeof(mapstate_t), state_compress);
-            while (j > 1024)
+
+            // all of these packets are SYNCPACKETSIZE
+            while (j >= SYNCPACKETSIZE)
             {
-                enet_peer_send(event->peer, CHAN_SYNC, enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, 1024, ENET_PACKET_FLAG_RELIABLE));
-                j -= 1024;
+                enet_peer_send(event->peer, CHAN_SYNC,
+                    enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, SYNCPACKETSIZE, ENET_PACKET_FLAG_RELIABLE));
+                j -= SYNCPACKETSIZE;
             }
-            enet_peer_send(event->peer, CHAN_SYNC, enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, j, ENET_PACKET_FLAG_RELIABLE));
+            // ...except for this one.  A non-SYNCPACKETSIZE packet on CHAN_SYNC doubles as the signal that the transfer is done.
+            enet_peer_send(event->peer, CHAN_SYNC,
+                enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, j, ENET_PACKET_FLAG_RELIABLE));
             Bfree(buf);
             Bfree(g_multiMapState);
             g_multiMapState = NULL;
@@ -1231,22 +1241,17 @@ process:
         }
 
         Bfree(packbuf);
-        //            movefifosendplc++;
 
         break;
-        g_player[other].playerreadyflag++;
-        return;
 
     case PACKET_MESSAGE:
-        //slaves in M/S mode only send to master
-        Bstrcpy(recbuf,(char *)packbuf+2);
+        Bstrncpy(recbuf, (char *)packbuf+2, packbufleng-2);
         recbuf[packbufleng-2] = 0;
 
         G_AddUserQuote(recbuf);
         S_PlaySound(EXITMENUSOUND);
 
-        pus = NUMPAGES;
-        pub = NUMPAGES;
+        pus = pub = NUMPAGES;
 
         break;
 
@@ -1564,8 +1569,7 @@ void Net_ParseClientPacket(ENetEvent * event)
         return;
 
     case PACKET_MESSAGE:
-        //slaves in M/S mode only send to master
-        Bstrcpy(recbuf,(char *)packbuf+2);
+        Bstrncpy(recbuf, (char *)packbuf+2, packbufleng-2);
         recbuf[packbufleng-2] = 0;
 
         G_AddUserQuote(recbuf);
@@ -1630,8 +1634,7 @@ void Net_ParseClientPacket(ENetEvent * event)
         g_player[other].ps->palookup = g_player[other].pcolor = packbuf[i++];
         g_player[other].pteam = packbuf[i++];
 
-        j = i;
-        for (; i-j<10; i++) g_player[other].wchoice[i-j] = packbuf[i];
+        for (j=i; i-j<10; i++) g_player[other].wchoice[i-j] = packbuf[i];
 
         break;
 
@@ -1855,7 +1858,7 @@ void Net_GetPackets(void)
                            event.peer -> data,
                            event.channelID);
 
-                // mapstate transfer from the server... all packets but the last are exactly 1 kB
+                // mapstate transfer from the server... all packets but the last are SYNCPACKETSIZE
                 if (event.channelID == CHAN_SYNC)
                 {
                     static int32_t datasiz = 0;
@@ -1871,10 +1874,10 @@ void Net_GetPackets(void)
                         buf = Bcalloc(1, sizeof(mapstate_t)<<1);
                     }
 
-                    if (buf && event.packet->dataLength == 1024)
+                    if (buf && event.packet->dataLength == SYNCPACKETSIZE)
                     {
                         Bmemcpy((char *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
-                        datasiz += 1024;
+                        datasiz += SYNCPACKETSIZE;
                     }
                     // last packet of mapstate sequence
                     else if (buf)
@@ -2116,7 +2119,8 @@ void Net_UpdateClients(void)
             {
                 l = crc32once((uint8_t *)&sprite[i], sizeof(spritetype));
 
-                if (!lastupdate[i] || spritecrc[i] != l)
+                // only send STAT_MISC sprites at spawn time and let the client handle it from there
+                if (!lastupdate[i] || (spritecrc[i] != l && sprite[i].statnum != STAT_MISC))
                 {
                     int32_t jj = 0;
 

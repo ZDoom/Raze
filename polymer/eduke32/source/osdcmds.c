@@ -418,7 +418,7 @@ static int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
 static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 {
     int32_t newbpp = ud.config.ScreenBPP, newwidth = ud.config.ScreenWidth,
-                     newheight = ud.config.ScreenHeight, newfs = ud.config.ScreenMode;
+            newheight = ud.config.ScreenHeight, newfs = ud.config.ScreenMode;
     if (parm->numparms < 1 || parm->numparms > 4) return OSDCMD_SHOWHELP;
 
     switch (parm->numparms)

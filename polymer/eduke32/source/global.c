@@ -165,7 +165,7 @@ char szPlayerName[32];
 int32_t g_damageCameras,g_freezerSelfDamage=0,g_tripbombLaserMode=0;
 int32_t g_gameQuit = 0,everyothertime;
 int32_t g_numFreezeBounces=3,g_rpgBlastRadius,g_pipebombBlastRadius,g_tripbombBlastRadius,
-                           g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
+        g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
 DukeStatus_t sbar;
 
 int32_t mymaxlag, otherminlag, bufferjitter = 1;

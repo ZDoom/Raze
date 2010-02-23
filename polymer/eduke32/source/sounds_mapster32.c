@@ -55,7 +55,7 @@ int32_t backflag,g_numEnvSoundsPlaying;
 
 void MUSIC_Update(void) {}  // needed when linking
 
-void S_TestSoundCallback(uint32_t);
+void S_Callback(uint32_t);
 extern void initprintf(const char *f, ...);
 
 /*
@@ -91,7 +91,7 @@ int32_t S_SoundStartup(void)
     {
         FX_SetVolume(FXVolume);
         FX_SetReverseStereo(ReverseStereo);
-        status = FX_SetCallBack(S_TestSoundCallback);
+        status = FX_SetCallBack(S_Callback);
     }
 
     if (status != FX_Ok)
@@ -360,7 +360,7 @@ void S_StopSound(int32_t num)
         if (g_sounds[num].num > 0)
         {
             FX_StopSound(g_sounds[num].SoundOwner[g_sounds[num].num-1].voice);
-            S_TestSoundCallback(num);
+            S_Callback(num);
         }
 }
 
@@ -444,7 +444,7 @@ void S_Pan3D(void)
         }
 }
 
-void S_TestSoundCallback(uint32_t num)
+void S_Callback(uint32_t num)
 {
     int32_t i,j,k;
 

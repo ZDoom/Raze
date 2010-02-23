@@ -959,7 +959,7 @@ static int32_t ds_getcnt(const dataspec_t *sp)
 {
     switch (sp->flags&DS_CNTMASK)
     {
-    case 0: return sp->cnt;           
+    case 0: return sp->cnt;
     case DS_CNT16: return *((int16_t *)sp->cnt);
     case DS_CNT32: return *((int32_t *)sp->cnt);
     default: return -1;
@@ -1007,7 +1007,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
         if (fil)
         {
             if (((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=(int32_t)savegame_comprthres)
-                || (sp->flags&DS_CMP))
+                    || (sp->flags&DS_CMP))
                 fwrite(ptr, sp->size, cnt, fil);
             else
                 dfwrite((void *)ptr, sp->size, cnt, fil);
@@ -1090,7 +1090,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
                 OSD_Printf("rsd: %s: read %d, expected %d!\n",
                            ((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=(int32_t)savegame_comprthres)?
                            "UNCOMP":"COMPR", i, j);
-            
+
                 if (i==-1)
                     perror("read");
 //            *(int32_t *)0 = 1;
@@ -1119,7 +1119,7 @@ static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, ui
     uint8_t *retdiff = *diffvar;
 
     // Hail to the C preprocessor, baby!
-    #define CPSINGLEVAL(Datbits) \
+#define CPSINGLEVAL(Datbits) \
         if (VAL(Datbits, ptr) != VAL(Datbits, dump))  \
         {                                             \
             VAL(Datbits, retdiff) = VAL(Datbits, dump) = VAL(Datbits, ptr); \
@@ -1135,7 +1135,7 @@ static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, ui
         case 1: CPSINGLEVAL(8); return;
         }
 
-    #define CPELTS(Idxbits, Datbits) do \
+#define CPELTS(Idxbits, Datbits) do \
     {                                         \
         for (i=0; i<nelts; i++)               \
         {                                     \
@@ -1154,7 +1154,7 @@ static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, ui
         retdiff += BYTES(Idxbits);            \
     } while (0)
 
-    #define CPDATA(Datbits) do \
+#define CPDATA(Datbits) do \
     { \
         const UINT(Datbits) *p=ptr;  \
         UINT(Datbits) *op=dump;      \
@@ -1179,16 +1179,16 @@ static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, ui
     *diffvar = retdiff;
     return;
 
-    #undef CPELTS
-    #undef CPSINGLEVAL
-    #undef CPDATA
+#undef CPELTS
+#undef CPSINGLEVAL
+#undef CPDATA
 }
 
 // get the number of elements to be monitored for changes
 static int32_t getnumvar(const dataspec_t *spec)
 {
     int32_t n=0;
-    for (;spec->flags!=DS_END; spec++)
+    for (; spec->flags!=DS_END; spec++)
         n += (spec->flags&(DS_STRING|DS_CMP|DS_NOCHK|DS_SAVEFN|DS_LOADFN) ? 0 : 1);
     return n;
 }
@@ -1266,7 +1266,7 @@ static int32_t applydiff(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **di
         }
 
 // ----------
-        #define CPSINGLEVAL(Datbits) \
+#define CPSINGLEVAL(Datbits) \
             VAL(Datbits, dumptr) = VAL(Datbits, diffptr); \
             diffptr += BYTES(Datbits); \
             dumptr += BYTES(Datbits)
@@ -1282,7 +1282,7 @@ static int32_t applydiff(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **di
             }
         }
 
-        #define CPELTS(Idxbits, Datbits) do \
+#define CPELTS(Idxbits, Datbits) do \
         {                                    \
             UINT(Idxbits) idx;               \
             goto readidx_##Idxbits##_##Datbits; \
@@ -1296,7 +1296,7 @@ readidx_##Idxbits##_##Datbits:               \
             } while ((int##Idxbits##_t)idx != -1);  \
         } while (0)
 
-        #define CPDATA(Datbits) do \
+#define CPDATA(Datbits) do \
         {                             \
             uint32_t nelts=(sp->size*cnt)/BYTES(Datbits); \
             if (nelts>65536)          \
@@ -1318,9 +1318,9 @@ readidx_##Idxbits##_##Datbits:               \
         dumptr += sp->size*cnt;
 // ----------
 
-        #undef CPELTS
-        #undef CPSINGLEVAL
-        #undef CPDATA
+#undef CPELTS
+#undef CPSINGLEVAL
+#undef CPDATA
     }
 
     *diffvar = diffptr;
@@ -1383,8 +1383,8 @@ static void sv_restload();
 static uint8_t savegame_bitmap[MAXSPRITES>>3][3];
 static uint32_t savegame_bitptrsize;
 static uint8_t savegame_quotedef[MAXQUOTES>>3];
-static char (*savegame_quotes)[MAXQUOTELEN];
-static char (*savegame_quoteredefs)[MAXQUOTELEN];
+static char(*savegame_quotes)[MAXQUOTELEN];
+static char(*savegame_quoteredefs)[MAXQUOTELEN];
 static uint8_t savegame_restdata[SVARDATALEN];
 
 static const dataspec_t svgm_udnetw[] =
@@ -1776,16 +1776,16 @@ uint32_t sv_writediff(FILE *fil)
 int32_t sv_readdiff(int32_t fil)
 {
     uint8_t *p=svsnapshot, *d=svdiff, i=0; //, tbuf[4];
-	int32_t diffsiz;
+    int32_t diffsiz;
 
 #if 0  // handled by the caller
-	if (kread(fil, tbuf, 4)!=4)
-		return -1;
-	if (Bmemcmp(tbuf, "dIfF", 4))
-		return 4;
+    if (kread(fil, tbuf, 4)!=4)
+        return -1;
+    if (Bmemcmp(tbuf, "dIfF", 4))
+        return 4;
 #endif
-	if (kread(fil, &diffsiz, sizeof(uint32_t))!=sizeof(uint32_t))
-		return -1;
+    if (kread(fil, &diffsiz, sizeof(uint32_t))!=sizeof(uint32_t))
+        return -1;
     if (savegame_diffcompress)
     {
         if (kdfread(svdiff, 1, diffsiz, fil) != diffsiz)  // cnt and sz swapped
@@ -1797,20 +1797,20 @@ int32_t sv_readdiff(int32_t fil)
             return -2;
     }
 
-	if (applydiff(svgm_udnetw, &p, &d)) return -3;
-	if (applydiff(svgm_secwsp, &p, &d)) return -4;
-	if (applydiff(svgm_script, &p, &d)) return -5;
-	if (applydiff(svgm_anmisc, &p, &d)) return -6;
-	if (applydiff(svgm_vars, &p, &d)) return -7;
+    if (applydiff(svgm_udnetw, &p, &d)) return -3;
+    if (applydiff(svgm_secwsp, &p, &d)) return -4;
+    if (applydiff(svgm_script, &p, &d)) return -5;
+    if (applydiff(svgm_anmisc, &p, &d)) return -6;
+    if (applydiff(svgm_vars, &p, &d)) return -7;
 
-	if (p!=svsnapshot+svsnapsiz)
-		i|=1;
-	if (d!=svdiff+diffsiz)
-		i|=2;
-	if (i)
-		OSD_Printf("sv_readdiff: p=%p, svsnapshot+svsnapsiz=%p; d=%p, svdiff+diffsiz=%p",
-				   p, svsnapshot+svsnapsiz, d, svdiff+diffsiz);
-	return i;
+    if (p!=svsnapshot+svsnapsiz)
+        i|=1;
+    if (d!=svdiff+diffsiz)
+        i|=2;
+    if (i)
+        OSD_Printf("sv_readdiff: p=%p, svsnapshot+svsnapsiz=%p; d=%p, svdiff+diffsiz=%p",
+                   p, svsnapshot+svsnapsiz, d, svdiff+diffsiz);
+    return i;
 }
 
 // SVGM data description
@@ -1913,8 +1913,8 @@ static void sv_postactordata()
     intptr_t j=(intptr_t)&script[0];
 
 #if POLYMER
-        if (getrendermode() == 4)
-            polymer_resetlights();
+    if (getrendermode() == 4)
+        polymer_resetlights();
 #endif
 
     for (i=0; i<MAXSPRITES; i++)
@@ -2005,7 +2005,7 @@ static void sv_restsave()
 
     Bmemset(&dummy_ps, 0, sizeof(DukePlayer_t));
 
-    #define CPDAT(ptr,sz) Bmemcpy(mem, ptr, sz), mem+=sz
+#define CPDAT(ptr,sz) Bmemcpy(mem, ptr, sz), mem+=sz
     for (i=0; i<MAXPLAYERS; i++)
     {
         CPDAT(g_player[i].user_name, 32);
@@ -2026,7 +2026,7 @@ static void sv_restsave()
     }
 #endif
     Bmemset(mem, 0, (savegame_restdata+SVARDATALEN)-mem);
-    #undef CPDAT
+#undef CPDAT
 }
 static void sv_restload()
 {
@@ -2034,7 +2034,7 @@ static void sv_restload()
     uint8_t *mem = savegame_restdata;
     DukePlayer_t dummy_ps;
 
-    #define CPDAT(ptr,sz) Bmemcpy(ptr, mem, sz), mem+=sz
+#define CPDAT(ptr,sz) Bmemcpy(ptr, mem, sz), mem+=sz
     for (i=0; i<MAXPLAYERS; i++)
     {
         CPDAT(g_player[i].user_name, 32);
@@ -2051,7 +2051,7 @@ static void sv_restload()
     for (i=0; i<lightcount; i++)
         CPDAT(&prlights[i], sizeof(_prlight));
 #endif
-    #undef CPDAT
+#undef CPDAT
 }
 
 #define SAVEWR(ptr, sz, cnt) do { if (fil) dfwrite(ptr,sz,cnt,fil); } while (0)
@@ -2123,8 +2123,7 @@ static int32_t doloadplayer2(int32_t spot, int32_t fil, uint8_t **memptr)
     {
         if (LOADRDU(&tbuf, 19, 1)) return -3;
     }
-    else
-        if (LOADRDU(&ud.savegame[spot][0], 19, 1)) return -3;
+    else if (LOADRDU(&ud.savegame[spot][0], 19, 1)) return -3;
 
     if (LOADRDU(tbuf, 1, 1)) return -3;
     if (tbuf[0])
@@ -2282,7 +2281,8 @@ static void postloadplayer2()
     G_ResetTimers();
 
 #ifdef POLYMER
-    if (getrendermode() == 4) {
+    if (getrendermode() == 4)
+    {
         polymer_loadboard();
         polymer_resetlights();
     }

@@ -1259,7 +1259,7 @@ static BOOL CALLBACK InitDirectInput_enum(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRe
     break;
     default:
 //        d = "OTHER"; break;
-        return DIENUM_STOP;
+        return DIENUM_CONTINUE;
     }
 
     initprintf("    * %s: %s\n", d, lpddi->tszProductName);

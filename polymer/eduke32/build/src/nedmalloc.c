@@ -60,7 +60,7 @@ DEALINGS IN THE SOFTWARE.
 #if defined(_WIN32)
  #include <malloc.h>
 #endif
-#ifdef __linux__
+#if defined(__linux__) || defined(__FreeBSD__)
 /* Sadly we can't include <malloc.h> as it causes a redefinition error */
 extern size_t malloc_usable_size(void *);
 #endif
@@ -215,10 +215,10 @@ size_t (*sysblksize)(void *)=
 #ifdef WIN32
 	/* This is the MSVCRT equivalent */
 	_msize;
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 	/* This is the glibc/ptmalloc2/dlmalloc equivalent.  */
 	malloc_usable_size;
-#elif defined(__FreeBSD__) || defined(__APPLE__)
+#elif defined(__APPLE__)
 	/* This is the BSD libc equivalent.  */
 	malloc_size;
 #else

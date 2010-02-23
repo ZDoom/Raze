@@ -3829,8 +3829,9 @@ cheat_for_port_credits:
         else if (function == 2)
         {
             static char *directions[] =
-                { "UP", "RIGHT", "DOWN", "LEFT"
-                };
+            {
+                "UP", "RIGHT", "DOWN", "LEFT"
+            };
             if (whichkey < 2*joynumbuttons)
                 Bsprintf(tempbuf,"TO %s%s", (whichkey&1)?"DOUBLE-CLICKED ":"", getjoyname(1,whichkey>>1));
             else
@@ -4094,8 +4095,9 @@ cheat_for_port_credits:
             else
             {
                 static char *directions[] =
-                    { "Up", "Right", "Down", "Left"
-                    };
+                {
+                    "Up", "Right", "Down", "Left"
+                };
                 Bsprintf(tempbuf, "Hat %s", directions[(l+m)-2*joynumbuttons]);
                 x = ud.config.JoystickFunctions[joynumbuttons + ((l+m)-2*joynumbuttons)][0];
             }

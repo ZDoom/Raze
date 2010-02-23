@@ -3553,7 +3553,7 @@ int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATI
 void P_DropWeapon(DukePlayer_t *p)
 {
     int32_t snum = sprite[p->i].yvel,
-                   cw = aplWeaponWorksLike[p->curr_weapon][snum];
+            cw = aplWeaponWorksLike[p->curr_weapon][snum];
 
     if (cw < 1 || cw >= MAX_WEAPONS) return;
 
