@@ -3373,15 +3373,9 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         else if (!Bstrcmp(glinfo.vendor,"3Dfx Interactive Inc.")) err = 1;
         else if (!Bstrcmp(glinfo.vendor,"Intel"))
         {
-            if (!Bstrcmp(glinfo.renderer,"Intel 845G"))
+            if (!Bstrncmp(glinfo.renderer,"Intel 8", 7)) // 845G and 865G confirmed to work
                 err = 0;
-            else if (!Bstrcmp(glinfo.renderer,"Intel 865G"))
-                err = 0;
-            else if (!Bstrcmp(glinfo.renderer,"Intel 915G"))
-                err = 0;
-            else if (!Bstrcmp(glinfo.renderer,"Intel 945GM"))
-                err = 0;
-            else if (!Bstrcmp(glinfo.renderer,"Intel 965/963 Graphics Media Accelerator"))
+            else if (!Bstrncmp(glinfo.renderer,"Intel 9", 7)) // 915G, 945GM, 965/963 GMA confirmed to work
                 err = 0;
             else if (!Bstrcmp(glinfo.renderer,"Intel Cantiga"))
                 err = 0;
@@ -3389,26 +3383,32 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 err = 0;
             else err = 1;
         }
-#ifdef POLYMER
         else
         {
             if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
             {
+#ifdef POLYMER
                 pr_ati_fboworkaround = 1;
                 initprintf("Enabling ATI FBO color attachment workaround.\n");
-
+#endif
                 if (!Bstrncmp(glinfo.renderer,"Radeon X1", 9))
                 {
+                    r_vbos = 0;
+#ifdef POLYMER
                     pr_ati_nodepthoffset = 1;
                     initprintf("Enabling ATI R520 polygon offset workaround.\n");
+#endif
                 }
+#ifdef POLYMER
                 else
                     pr_ati_nodepthoffset = 0;
+#endif
             }
+#ifdef POLYMER
             else
                 pr_ati_fboworkaround = 0;
-        }
 #endif
+        }
         if (!forcegl && err)
         {
             OSD_Printf("Unsupported OpenGL driver detected. GL modes will be unavailable. Use -forcegl to override.\n");
