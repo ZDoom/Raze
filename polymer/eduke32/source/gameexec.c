@@ -2367,6 +2367,13 @@ nullquote:
                 int32_t x2=Gv_GetVarX(*insptr++),  y2=Gv_GetVarX(*insptr++);
 
                 if (tw == CON_ROTATESPRITE && !(orientation & 256)) {x<<=16; y<<=16;}
+
+                if (x < (-160)<<16 || x >= (480<<16) || y < (-100)<<16 || y >= (300<<16))
+                {
+                    OSD_Printf(CON_ERROR "invalid coordinates: %d, %d\n",g_errorLineNum, keyw[g_tw], x, y);
+                    continue;
+                }
+
                 rotatesprite(x,y,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
                 continue;
             }
