@@ -32,7 +32,7 @@ struct dynitem
 {
     char *s;
     int32_t *v;
-    int16_t vstat;
+    const int16_t vstat;
     int16_t val;
 };
 hashtable_t dynnamesH = {512, NULL};

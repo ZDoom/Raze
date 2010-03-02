@@ -1282,7 +1282,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 
     if (g_skillSoundID >= 0 && ud.config.FXDevice >= 0 && ud.config.SoundToggle)
     {
-        while (S_CheckSoundPlaying(-1,g_skillSoundID))
+        while (S_CheckSoundPlaying(-1, g_skillSoundID))
         {
             handleevents();
             Net_GetPackets();

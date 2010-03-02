@@ -2408,7 +2408,7 @@ nullquote:
                         }
                         if (tw == CON_GAMETEXTZ)
                             z = Gv_GetVarX(*insptr++);
-                        gametext_z(0,tilenum,x>>1,y,ScriptQuotes[q],shade,pal,orientation,x1,y1,x2,y2,z);
+                        G_PrintGameText(0,tilenum,x>>1,y,ScriptQuotes[q],shade,pal,orientation,x1,y1,x2,y2,z);
                         continue;
                     }
                     if (tw == CON_DIGITALNUMBERZ)

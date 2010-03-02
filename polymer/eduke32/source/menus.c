@@ -56,8 +56,8 @@ extern int32_t voting;
 
 #define USERMAPENTRYLENGTH 25
 
-#define mgametext(x,y,t,s,dabits) gametext_z(2,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536)
-#define mgametextpal(x,y,t,s,p) gametext_z(2,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536)
+#define mgametext(x,y,t,s,dabits) G_PrintGameText(2,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536)
+#define mgametextpal(x,y,t,s,p) G_PrintGameText(2,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536)
 
 void ChangeToMenu(int32_t cm)
 {

@@ -4639,15 +4639,18 @@ static int32_t C_ParseCommand(void)
     {
         intptr_t tempoffset = 0;
         //AddLog("Found Case");
-repeatcase:
-        g_scriptPtr--; // don't save in code
-        if (g_checkingSwitch<1)
+
+        if (g_checkingSwitch < 1)
         {
             g_numCompilerErrors++;
             C_ReportError(-1);
             initprintf("%s:%d: error: found `case' statement when not in switch\n",g_szScriptFileName,g_lineNumber);
+            g_scriptPtr--;
             return 1;
         }
+
+repeatcase:
+        g_scriptPtr--; // don't save in code
         g_numCases++;
         //Bsprintf(g_szBuf,"case1: %.12s",textptr);
         //AddLog(g_szBuf);
@@ -4657,7 +4660,7 @@ repeatcase:
         //Bsprintf(g_szBuf,"case2: %.12s",textptr);
         //AddLog(g_szBuf);
 
-        j=*(--g_scriptPtr);      // get value
+        j= *(--g_scriptPtr);      // get value
         //Bsprintf(g_szBuf,"case: Value of case %d is %d",(int32_t)g_numCases,(int32_t)j);
         //AddLog(g_szBuf);
         if (g_caseScriptPtr)
@@ -4686,6 +4689,7 @@ repeatcase:
         //Bsprintf(g_szBuf,"case4: '%.12s'",textptr);
         //AddLog(g_szBuf);
         tempoffset = (unsigned)(tempscrptr-script);
+
         while (C_ParseCommand() == 0)
         {
             //Bsprintf(g_szBuf,"case5 '%.25s'",textptr);

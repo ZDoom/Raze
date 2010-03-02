@@ -310,89 +310,93 @@ static void G_PatchStatusBar(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 
 void P_SetGamePalette(DukePlayer_t *player, uint8_t *pal, int32_t set)
 {
+    if (!(pal == palette || pal == waterpal || pal == slimepal || pal == drealms || pal == titlepal || pal == endingpal || pal == animpal))
+        pal = palette;
+
     if (player != g_player[screenpeek].ps)
     {
-        // another head
         player->palette = pal;
         return;
     }
 
-    if (!(pal == palette || pal == waterpal || pal == slimepal || pal == drealms || pal == titlepal || pal == endingpal || pal == animpal))
-        pal = palette;
-
-    setbrightness(ud.brightness>>2, pal, set);
-    player->palette = pal;
+    setbrightness(ud.brightness>>2, (player->palette = pal), set);
 }
 
-// FIXME: this function sucks.
-int32_t gametext_z(int32_t small, int32_t starttile, int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t orientation,int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t z)
+int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const char *t,
+                        int32_t s,  int32_t p,    int32_t o,
+                        int32_t x1, int32_t y1,   int32_t x2, int32_t y2, int32_t z)
 {
-    int32_t ac,newx,oldx=x;
+    int32_t ac;
     char centre;
-    char *oldt;
-    int32_t squishtext = ((small&2)!=0);
-//    int32_t ht = usehightile;
-    int32_t shift = 16, widthx = 320, ox, oy;
-    int32_t origy = y;
-
-    if (orientation & 256)
-    {
-        widthx = 320<<16;
-        shift = 0;
-    }
-    centre = (x == (widthx>>1));
-    newx = 0;
-    oldt = (char *)t;
+    int32_t squishtext = ((f&2) != 0);
+    int32_t shift = 16, widthx = 320;
+    int32_t ox, oy, origx = x, origy = y;
 
     if (t == NULL)
         return -1;
 
-    if (centre)
+    if (o & 256)
     {
+        widthx = 320<<16;
+        shift = 0;
+    }
+
+    if ((centre = (x == (widthx>>1))))
+    {
+        const char *oldt = t;
+        int32_t newx = 0;
+
         do
         {
-            if (*t == '^' && isdigit(*(t+1)))
-            {
-                t++;
-                if (isdigit(*t)) t++;
-                continue;
-            }
+            int32_t i;
+
             if (*t == 32)
             {
-                if (small&8)
-                    newx+=(8-squishtext)*z/65536;
-                else
-                    newx+=(5-squishtext)*z/65536;
+                newx += ((((f & 8) ? 8 : 5) - squishtext) * z)>>16;
                 continue;
             }
-            else ac = *t - '!' + starttile;
 
-            if (ac < starttile || ac > (starttile + 93)) break;
+            if (*t == '^' && isdigit(*(t+1)))
+            {
+                t += 1 + isdigit(*(t+2));
+                continue;
+            }
+
+            ac = *t - '!' + tile;
+
+            if (ac < tile || ac > (tile + 93)) break;
+
+            newx += i = ((((f & 8) ? 8 : tilesizx[ac]) - squishtext) * z)>>16;
 
             if (*t >= '0' && *t <= '9')
-                newx += (8)*z/65536;
-            else
-            {
-                if (small&8)
-                    newx += (8-squishtext)*z/65536;
-                else newx += (tilesizx[ac]-squishtext)*z/65536;
-            }
+                newx -= i - ((8 * z)>>16);
         }
         while (*(++t));
 
         t = oldt;
-        if (small&4)
-            x = (xres>>1)-textsc(newx>>1);
-        else x = (widthx>>1)-((orientation & 256)?newx<<15:newx>>1);
+
+        x = (f & 4) ?
+            (xres>>1)-textsc(newx>>1) :
+        (widthx>>1)-((o & 256)?newx<<15:newx>>1);
     }
-//    usehightile = (ht && r_downsize < 2);
-    ox=x;
-    oy=y;
+
+    ox = x;
+    oy = y;
+
     do
     {
+        int32_t i;
+
+        if (*t == 32)
+        {
+            x += ((((f & 8) ? 8 : 5) - squishtext) * z)>>16;
+            continue;
+        }
+
         if (*t == '^' && isdigit(*(t+1)))
         {
             char smallbuf[4];
+
             if (!isdigit(*(++t+1)))
             {
                 smallbuf[0] = *(t);
@@ -400,61 +404,48 @@ int32_t gametext_z(int32_t small, int32_t starttile, int32_t x,int32_t y,const c
                 p = atoi(smallbuf);
                 continue;
             }
+
             smallbuf[0] = *(t++);
             smallbuf[1] = *(t);
             smallbuf[2] = '\0';
             p = atoi(smallbuf);
             continue;
         }
-        if (*t == 32)
-        {
-            if (small&8)
-                x+=(8-squishtext)*z/65536;
-            else
-                x+=(5-squishtext)*z/65536;
-            continue;
-        }
-        else ac = *t - '!' + starttile;
 
-        if (ac < starttile || ac > (starttile + 93))
+        ac = *t - '!' + tile;
+
+        if (ac < tile || ac > (tile + 93))
             break;
 
-        if (orientation&256)
+        if (o&256)
         {
-            x+=(x-ox)<<16;
-            y+=(y-oy)<<16;
-            ox=x; oy=y;
+            ox = x += (x-ox)<<16;
+            oy = y += (y-oy)<<16;
         }
 
-        if (small&4)
-        {
-            rotatesprite(textsc(x<<shift),(origy<<shift)+textsc((y-origy)<<shift),textsc(z),0,ac,s,p,(8|16|(orientation&1)|(orientation&32)),x1,y1,x2,y2);
-        }
-        else
-        {
-            rotatesprite(x<<shift,(y<<shift),z,0,ac,s,p,(small&1)?(8|16|(orientation&1)|(orientation&32)):(2|orientation),x1,y1,x2,y2);
-        }
+        if (f&4)
+            rotatesprite(textsc(x<<shift),(origy<<shift)+textsc((y-origy)<<shift),textsc(z),
+            0,ac,s,p,(8|16|(o&1)|(o&32)),x1,y1,x2,y2);
+        else if (f&1)
+            rotatesprite(x<<shift,(y<<shift),z,0,ac,s,p,(8|16|(o&1)|(o&32)),x1,y1,x2,y2);
+        else rotatesprite(x<<shift,(y<<shift),z,0,ac,s,p,(2|o),x1,y1,x2,y2);
+
+        x += i = (f & 8) ?
+            ((8 - squishtext) * z)>>16 :
+        ((tilesizx[ac] - squishtext) * z)>>16;
 
         if ((*t >= '0' && *t <= '9'))
-            x += (8)*z/65536;
-        else if (small&8)
-            x += (8-squishtext)*z/65536;//(tilesizx[ac]>>small);
-        else x += (tilesizx[ac]-squishtext)*z/65536;//(tilesizx[ac]>>small);
+            x -= i - ((8 * z)>>16);
 
-        if ((orientation&256) == 0) //  wrapping long strings doesn't work for precise coordinates due to overflow
+        if ((o&256) == 0) //  wrapping long strings doesn't work for precise coordinates due to overflow
         {
-            if (small&4)
-            {
-                if (textsc(x) > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
-                    oldt = (char *)t, x = oldx, y+=8*z/65536;
-            }
-            else if (x > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
-                oldt = (char *)t, x = oldx, y+=8*z/65536;
+            if (((f&4) ? textsc(x) : x) > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
+                x = origx, y += (8 * z)>>16;
         }
     }
     while (*(++t));
-//    usehightile = ht;
-    return (x);
+
+    return x;
 }
 
 int32_t G_GameTextLen(int32_t x,const char *t)
@@ -487,8 +478,8 @@ int32_t G_GameTextLen(int32_t x,const char *t)
 static inline int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits)
 {
 //    if (xdim < 640 || ydim < 480)
-    //      return(gametext_z(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
-    return(gametext_z(4,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
+    //      return(G_PrintGameText(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
+    return(G_PrintGameText(4,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
 }
 
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb)
@@ -1853,16 +1844,18 @@ void Net_GetPackets(void)
             {
             case ENET_EVENT_TYPE_RECEIVE:
 
+/*
                 initprintf("A packet of length %u was received from player %d on channel %u.\n",
                            event.packet -> dataLength,
                            event.peer -> data,
                            event.channelID);
+*/
 
                 // mapstate transfer from the server... all packets but the last are SYNCPACKETSIZE
                 if (event.channelID == CHAN_SYNC)
                 {
                     static int32_t datasiz = 0;
-                    static char * buf = NULL;
+                    static uint8_t * buf = NULL;
 
                     if (buf == NULL)
                     {
@@ -1876,17 +1869,17 @@ void Net_GetPackets(void)
 
                     if (buf && event.packet->dataLength == SYNCPACKETSIZE)
                     {
-                        Bmemcpy((char *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
+                        Bmemcpy((uint8_t *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
                         datasiz += SYNCPACKETSIZE;
                     }
                     // last packet of mapstate sequence
                     else if (buf)
                     {
-                        Bmemcpy((char *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
+                        Bmemcpy((uint8_t *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
                         datasiz = 0;
-                        if (qlz_size_decompressed(buf) == sizeof(mapstate_t))
+                        if (qlz_size_decompressed((const char *)buf) == sizeof(mapstate_t))
                         {
-                            qlz_decompress(buf, g_multiMapState, state_decompress);
+                            qlz_decompress((const char *)buf, g_multiMapState, state_decompress);
 
                             packbuf[0] = PACKET_REQUEST_GAMESTATE;
                             packbuf[1] = myconnectindex;
@@ -2625,7 +2618,7 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
     for (k=i-1; k>=0; k--)
     {
         p = starttile+*(b+k)-'0';
-        j += (tilesizx[p]+1)*z/65536;
+        j += (tilesizx[p]+1*z)>>16;
     }
     if (cs&256) j<<=16;
     c = x-(j>>1);
@@ -2637,7 +2630,7 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
         rotatesprite((c+j)<<shift,y<<shift,z,0,p,s,pal,2|cs,x1,y1,x2,y2);
         /*        rotatesprite((c+j)<<16,y<<16,65536L,0,p,s,pal,cs,0,0,xdim-1,ydim-1);
                 rotatesprite(x<<16,y<<16,32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);*/
-        j += ((tilesizx[p]+1)*z/65536)<<((cs&256)?16:0);
+        j += ((tilesizx[p]+1*z)>>((cs&256)?0:16));
     }
 }
 
@@ -4674,7 +4667,7 @@ void G_DisplayRest(int32_t smoothratio)
                  (g_player[myconnectindex].ps->player_par/GAMETICSPERSEC)%60,
                  ((g_player[myconnectindex].ps->player_par%GAMETICSPERSEC)*38)/10
                 );
-        gametext_z(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(21),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+        G_PrintGameText(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(21),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
         if (ud.player_skill > 3 || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_PLAYERSFRIENDLY)))
             Bsprintf(tempbuf,"K:^15%d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY))?g_player[myconnectindex].ps->frag-g_player[myconnectindex].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
@@ -4689,12 +4682,12 @@ void G_DisplayRest(int32_t smoothratio)
                          g_player[myconnectindex].ps->max_actors_killed>g_player[myconnectindex].ps->actors_killed?
                          g_player[myconnectindex].ps->max_actors_killed:g_player[myconnectindex].ps->actors_killed);
         }
-        gametext_z(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(14),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+        G_PrintGameText(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(14),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
         if (g_player[myconnectindex].ps->secret_rooms == g_player[myconnectindex].ps->max_secret_rooms)
             Bsprintf(tempbuf,"S:%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
         else Bsprintf(tempbuf,"S:^15%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
-        gametext_z(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(7),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+        G_PrintGameText(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(7),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
     }
 
     if (g_player[myconnectindex].ps->gm&MODE_TYPE)
@@ -7162,8 +7155,6 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     }
                     if (j == -1)
                     {
-//                        Bsprintf(tempbuf,"Found lonely Sector Effector (lotag 0) at (%d,%d)\n",sp->x,sp->y);
-//                        G_GameExit(tempbuf);
                         OSD_Printf(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",sp->x,sp->y);
                         changespritestat(i, STAT_ACTOR);
                         if (apScriptGameEvent[EVENT_SPAWN])
@@ -7446,10 +7437,8 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
             continue;
         }
 
-        //greenslime can't be handled through the dynamictostatic system due to addition on constant
-        if ((t->picnum >= GREENSLIME)&&(t->picnum <= GREENSLIME+7))
-            {}
-        else switch (DynamicTileMap[t->picnum])
+        if (t->picnum < GREENSLIME || t->picnum > GREENSLIME+7)
+        switch (DynamicTileMap[t->picnum])
             {
             case BLOODPOOL__STATIC:
             case PUKE__STATIC:
@@ -7598,15 +7587,6 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         case TOUGHGAL__STATIC:
         case TAMPON__STATIC:
         case XXXSTACY__STATIC:
-            if (ud.lockout)
-            {
-                t->xrepeat = t->yrepeat = 0;
-                continue;
-            }
-        }
-        switch (s->picnum)
-        {
-
         case 4946:
         case 4947:
         case 693:
@@ -7707,10 +7687,8 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                 else
                 {
                     t->ang = getangle(x-t->x,y-t->y);
-                    t->x = sprite[s->owner].x;
-                    t->y = sprite[s->owner].y;
-                    t->x += sintable[(t->ang+512)&2047]>>10;
-                    t->y += sintable[t->ang&2047]>>10;
+                    t->x = sprite[s->owner].x + (sintable[(t->ang+512)&2047]>>10);
+                    t->y = sprite[s->owner].y + (sintable[t->ang&2047]>>10);
                 }
             }
             break;
@@ -8484,7 +8462,7 @@ GAME_STATIC void G_DoCheats(void)
         consolecheat = 1;
     }
 
-    if ((g_player[myconnectindex].ps->gm&MODE_TYPE) || (g_player[myconnectindex].ps->gm&MODE_MENU))
+    if (g_player[myconnectindex].ps->gm & (MODE_TYPE|MODE_MENU))
         return;
 
     if (VOLUMEONE && !z)
@@ -9574,23 +9552,7 @@ FAKE_F3:
         g_restorePalette = 1;
         G_UpdateScreenArea();
     }
-    /*
-        if (KB_UnBoundKeyPressed(sc_F11))
-        {
-            KB_ClearKeyDown(sc_F11);
-            ud.brightness+=8;
-            if (SHIFTS_IS_PRESSED) ud.brightness-=16;
 
-            if (ud.brightness > (7<<3))
-                ud.brightness = 0;
-            else if (ud.brightness < 0)
-                ud.brightness = (7<<3);
-
-            setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
-            if (ud.brightness < 40) P_DoQuote(29 + (ud.brightness>>3) ,g_player[myconnectindex].ps);
-            else if (ud.brightness < 80) P_DoQuote(96 + (ud.brightness>>3) - 5,g_player[myconnectindex].ps);
-        }
-    */
     if (KB_UnBoundKeyPressed(sc_F11))
     {
         KB_ClearKeyDown(sc_F11);
@@ -9805,7 +9767,7 @@ static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
     int32_t tokn;
     char *cmdtokptr;
 
-    tokenlist tokens[] =
+    static tokenlist tokens[] =
     {
         { "include",         T_INCLUDE          },
         { "#include",        T_INCLUDE          },
@@ -9816,7 +9778,7 @@ static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
         { "sound",           T_SOUND            },
     };
 
-    tokenlist sound_musictokens[] =
+    static tokenlist sound_musictokens[] =
     {
         { "id",   T_ID  },
         { "file", T_FILE },
@@ -10269,20 +10231,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     continue;
                 }
 #endif
-                /*
-                                if (!Bstrcasecmp(c+1,"unstable"))
-                                {
-                                    initprintf("WARNING WARNING WARNING WARNING\n"
-                                               "EDuke32's runtime script error detection has been disabled via "
-                                               "the '-unstable' command line parameter.  Bug reports from this "
-                                               "mode are NOT welcome and you should expect crashes in certain "
-                                               "mods.  Please run EDuke32 without '-unstable' before sending "
-                                               "any bug reports.\n");
-                                    g_scriptSanityChecks = 0;
-                                    i++;
-                                    continue;
-                                }
-                */
                 if (!Bstrcasecmp(c+1,"cachesize"))
                 {
                     if (argc > i+1)
