@@ -886,13 +886,10 @@ void setkeypresscallback(void (*callback)(int32_t, int32_t)) { keypresscallback 
 void setmousepresscallback(void (*callback)(int32_t, int32_t)) { mousepresscallback = callback; }
 void setjoypresscallback(void (*callback)(int32_t, int32_t)) { joypresscallback = callback; }
 
-#define DINPUT_EVENTS 16
-
 DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
 {
-    int32_t result;
-    DIDEVICEOBJECTDATA didod[DINPUT_EVENTS];
-    DWORD dwElements;
+    int32_t i;
+    DIMOUSESTATE2 mousestate;
 
     UNREFERENCED_PARAMETER(lpThreadParameter);
 
@@ -907,63 +904,46 @@ DWORD WINAPI ProcessMouse(LPVOID lpThreadParameter)
         if ((WaitForSingleObject(inputevt[MOUSE], INFINITE)) != WAIT_OBJECT_0)
             continue;
 
-        dwElements = DINPUT_EVENTS;
+        if (IDirectInputDevice7_GetDeviceState(lpDID[MOUSE], sizeof(DIMOUSESTATE2),
+                 (LPDIMOUSESTATE2)&mousestate) != DI_OK)
+                 continue;
 
-        result = IDirectInputDevice7_GetDeviceData(lpDID[MOUSE], sizeof(DIDEVICEOBJECTDATA),
-                 (LPDIDEVICEOBJECTDATA)&didod[0], &dwElements, 0);
+        mousex += (int16_t)mousestate.lX;
+        mousey += (int16_t)mousestate.lY;
 
-        if (!dwElements || (result != DI_OK && result != DI_BUFFEROVERFLOW))
-            continue;
-
-        do
+        if (mousestate.lZ > 0)   	// wheel up
         {
-            int32_t bit = 1<<(didod[dwElements-1].dwOfs - DIMOFS_BUTTON0);
-
-            switch (didod[dwElements-1].dwOfs)
-            {
-            case DIMOFS_X:
-                mousex += (int16_t)didod[dwElements-1].dwData;
-                break;
-            case DIMOFS_Y:
-                mousey += (int16_t)didod[dwElements-1].dwData;
-                break;
-            case DIMOFS_Z:
-            {
-                if ((int32_t)didod[dwElements-1].dwData > 0)   	// wheel up
-                {
-                    if (mousewheel[0] > 0 && mousepresscallback) mousepresscallback(5,0);
-                    mousewheel[0] = getticks();
-                    mouseb |= 16;
-                    if (mousepresscallback) mousepresscallback(5, 1);
-                }
-                else if ((int32_t)didod[dwElements-1].dwData < 0)  	// wheel down
-                {
-                    if (mousewheel[1] > 0 && mousepresscallback) mousepresscallback(6,0);
-                    mousewheel[1] = getticks();
-                    mouseb |= 32;
-                    if (mousepresscallback) mousepresscallback(6, 1);
-                }
-            }
-            break;
-
-            case DIMOFS_BUTTON4:
-            case DIMOFS_BUTTON5:
-            case DIMOFS_BUTTON6:
-            case DIMOFS_BUTTON7:
-                didod[dwElements-1].dwOfs += 2; // skip mousewheel buttons
-                bit = 1<<(didod[dwElements-1].dwOfs - DIMOFS_BUTTON0);
-            case DIMOFS_BUTTON0:
-            case DIMOFS_BUTTON1:
-            case DIMOFS_BUTTON2:
-            case DIMOFS_BUTTON3:
-                if (didod[dwElements-1].dwData & 0x80) mouseb |= bit;
-                else mouseb &= ~bit;
-                if (mousepresscallback)
-                    mousepresscallback(didod[dwElements-1].dwOfs - DIMOFS_BUTTON0 + 1, mouseb & bit);
-                break;
-            }
+            if (mousewheel[0] > 0 && mousepresscallback) mousepresscallback(5,0);
+            mousewheel[0] = getticks();
+            mouseb |= 16;
+            if (mousepresscallback) mousepresscallback(5, 1);
         }
-        while (--dwElements);
+        else if (mousestate.lZ < 0)  	// wheel down
+        {
+            if (mousewheel[1] > 0 && mousepresscallback) mousepresscallback(6,0);
+            mousewheel[1] = getticks();
+            mouseb |= 32;
+            if (mousepresscallback) mousepresscallback(6, 1);
+        }
+
+        for (i=0; i<4; i++)
+        {
+            if (mousestate.rgbButtons[i] & 0x80) mouseb |= 1<<i;
+            else mouseb &= ~(1<<i);
+
+            if (mousepresscallback)
+                mousepresscallback(i, mouseb & (1<<i));
+        }
+
+        // wheel up and down are sent to the game as buttons 5 and 6, so we offset these
+        for (i=4; i<8; i++)
+        {
+            if (mousestate.rgbButtons[i] & 0x80) mouseb |= 1<<(i+2);
+            else mouseb &= ~(1<<(i+2));
+
+            if (mousepresscallback)
+                mousepresscallback(i, mouseb & (1<<(i+2)));
+        }
     }
     return 0;
 }
@@ -3409,6 +3389,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 pr_ati_fboworkaround = 0;
 #endif
         }
+
         if (!forcegl && err)
         {
             OSD_Printf("Unsupported OpenGL driver detected. GL modes will be unavailable. Use -forcegl to override.\n");
