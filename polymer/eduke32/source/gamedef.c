@@ -1546,6 +1546,7 @@ static void C_GetNextVarType(int32_t type)
     int32_t i=0,f=0;
 
     C_SkipComments();
+
     if (!type && !g_labelsOnly && (isdigit(*textptr) || ((*textptr == '-') && (isdigit(*(textptr+1))))))
     {
         if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
@@ -1580,6 +1581,8 @@ static void C_GetNextVarType(int32_t type)
             C_GetNextLabelName();
             return;
         }
+
+        textptr++;
     }
     C_GetNextLabelName();
 
@@ -4709,6 +4712,12 @@ repeatcase:
     }
     case CON_DEFAULT:
         g_scriptPtr--;    // don't save
+
+        C_SkipComments();
+
+        if (*textptr == ':')
+            textptr++;
+
         if (g_checkingSwitch<1)
         {
             g_numCompilerErrors++;
