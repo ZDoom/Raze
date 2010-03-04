@@ -4355,9 +4355,9 @@ void P_ProcessInput(int32_t snum)
         if (p->posz > (fz-(15<<8)))
             p->posz += ((fz-(15<<8))-p->posz)>>1;
 
-        if ((psectlotag != 2 || cz != sector[p->cursectnum].ceilingz) && p->posz < (cz+(4<<8)))
+        if (p->posz < cz)
         {
-            p->posz = cz+(4<<8);
+            p->posz = cz;
             p->poszv = 0;
         }
 
