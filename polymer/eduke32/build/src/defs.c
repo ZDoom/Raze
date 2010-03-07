@@ -176,8 +176,8 @@ static tokenlist modelskintokens[] =
     { "intensity",     T_PARAM      },
     { "scale",         T_PARAM      },
     { "detailscale",   T_PARAM      },
-    { "specpower",     T_SPECPOWER  },
-    { "specfactor",    T_SPECFACTOR },
+    { "specpower",     T_SPECPOWER  }, { "parallaxscale", T_SPECPOWER },
+    { "specfactor",    T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
 };
 
 static tokenlist modelhudtokens[] =
