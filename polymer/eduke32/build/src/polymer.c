@@ -1,4 +1,5 @@
 // blah
+
 #ifdef POLYMOST
 
 #define POLYMER_C
@@ -2792,7 +2793,8 @@ static void         polymer_updatewall(int16_t wallnum)
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->wall.vbo);
         bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, w->wall.buffer);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->over.vbo);
-        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, w->over.buffer);
+        if (w->over.buffer)
+            bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, w->over.buffer);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->mask.vbo);
         bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, w->mask.buffer);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
@@ -3616,6 +3618,12 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                     sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum &&
                     sk->surfnum == surfi)
                     mdspritematerial.detailscale[0] = mdspritematerial.detailscale[1] = sk->param;
+        }
+
+        if (!(tspr->cstat&1024))
+        {
+            mdspritematerial.specmap =
+                    mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,SPECULARPAL,surfi);
         }
 
         if (!(tspr->cstat&1024))
