@@ -1561,6 +1561,10 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     int32_t cachefil = -1;
     texcacheheader cachead;
 
+    static coltype *lastpic = NULL;
+    static char *lastfn = NULL;
+    static int32_t lastsize = 0;
+
     if (!hicr) return -1;
     if (facen > 0)
     {
@@ -1625,7 +1629,39 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         }
         pic = (coltype *)Bcalloc(xsiz,ysiz*sizeof(coltype)); if (!pic) { Bfree(picfil); return 1; }
 
-        if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0)) { Bfree(picfil); Bfree(pic); return -2; }
+        if (lastpic && lastfn && !Bstrcmp(lastfn,fn))
+        {
+//            if (hicprecaching) OSD_Printf("use  %4d: p%-3d m%d e%d\n", dapic, dapalnum, dameth, effect);
+            Bmemcpy(pic, lastpic, xsiz*ysiz*sizeof(coltype));
+        }
+        else
+        {
+//            if (hicprecaching) OSD_Printf("rend %4d: p%-3d m%d e%d: `%s'\n", dapic, dapalnum, dameth, effect, fn);
+            if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0)) { Bfree(picfil); Bfree(pic); return -2; }
+
+            if (hicprecaching)
+            {
+                lastfn = fn;  // careful...
+                if (!lastpic)
+                {
+                    lastpic = Bmalloc(xsiz*ysiz*sizeof(coltype));
+                    lastsize = xsiz*ysiz;
+                }
+                else if (lastsize < xsiz*ysiz)
+                {
+                    Bfree(lastpic);
+                    lastpic = Bmalloc(xsiz*ysiz*sizeof(coltype));
+                }
+                if (lastpic)
+                    Bmemcpy(lastpic, pic, xsiz*ysiz*sizeof(coltype));
+            }
+            else if (lastpic)
+            {
+                Bfree(lastpic); lastpic=NULL;
+                lastfn = NULL;
+                lastsize = 0;
+            }
+        }
 
         r=(glinfo.bgra)?hictinting[dapalnum].r:hictinting[dapalnum].b;
         g=hictinting[dapalnum].g;
@@ -6016,7 +6052,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     gltexcache(dapicnum, dapalnum, (datype & 1) << 2);
     hicprecaching = 0;
 
-    if (datype == 0) return;
+    if (datype == 0 || !usemodels) return;
 
     mid = md_tilehasmodel(dapicnum,dapalnum);
     if (mid < 0 || models[mid]->mdnum < 2) return;

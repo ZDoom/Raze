@@ -274,7 +274,7 @@ static void G_PrecacheSprites(void)
     for (i=SHRINKSPARK; i<SHRINKSPARK+4; i++) tloadtile(i,1);
     for (i=GROWSPARK; i<GROWSPARK+4; i++) tloadtile(i,1);
     for (i=SHRINKEREXPLOSION; i<SHRINKEREXPLOSION+4; i++) tloadtile(i,1);
-    for (i=MORTER; i<MORTER+4; i++) tloadtile(i,4);
+    for (i=MORTER; i<MORTER+4; i++) tloadtile(i,1);
     for (i=0; i<=60; i++) tloadtile(i,1);
 }
 
@@ -487,15 +487,26 @@ void G_CacheMapData(void)
 #if defined(POLYMOST) && defined(USE_OPENGL)
             if (ud.config.useprecache)
             {
-                int32_t k;
+                int32_t k,type;
 
-                if (precachehightile[0][i>>3] & pow2char[i&7])
-                    for (k=0; k<MAXPALOOKUPS && !KB_KeyPressed(sc_Space); k++)
-                        polymost_precache(i,k,0);
+                for (type=0; type<=1; type++)
+                    if (precachehightile[type][i>>3] & pow2char[i&7])
+                    {
+                        for (k=0; k<MAXPALOOKUPS-RESERVEDPALS && !KB_KeyPressed(sc_Space); k++)
+                            polymost_precache(i,k,type);
+                        if (r_detailmapping && !KB_KeyPressed(sc_Space))
+                            polymost_precache(i,DETAILPAL,type);
+                        if (r_glowmapping && !KB_KeyPressed(sc_Space))
+                            polymost_precache(i,GLOWPAL,type);
 
-                if (precachehightile[1][i>>3] & pow2char[i&7])
-                    for (k=0; k<MAXPALOOKUPS && !KB_KeyPressed(sc_Space); k++)
-                        polymost_precache(i,k,1);
+                        if (rendmode==4)
+                        {
+                            if (pr_specularmapping && !KB_KeyPressed(sc_Space))
+                                polymost_precache(i,SPECULARPAL,type);
+                            if (pr_normalmapping && !KB_KeyPressed(sc_Space))
+                                polymost_precache(i,NORMALPAL,type);
+                        }
+                    }
             }
 #endif
             j++;
