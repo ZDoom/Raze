@@ -4837,7 +4837,7 @@ static void Keys3d(void)
         case SEARCH_SPRITE:
             //            strcpy(buffer,"Sprite extra: ");
             //            sprite[searchwall].extra = getnumber256(buffer,(int32_t)sprite[searchwall].extra,65536L,1);
-            getnumberptr256("Sprite extra: ",&sprite[searchwall].extra,sizeof(sprite[searchwall].extra),1024,1,NULL);
+            getnumberptr256("Sprite extra: ",&sprite[searchwall].extra,sizeof(sprite[searchwall].extra),65536,1,NULL);
             break;
         }
         asksave = 1;
@@ -8539,6 +8539,44 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+#ifdef POLYMOST
+static int32_t osdcmd_tint(const osdfuncparm_t *parm)
+{
+    int32_t i;
+    palette_t *p;
+
+    if (parm->numparms==1)
+    {
+        i = atoi(parm->parms[0]);
+        if (i>=0 && i<MAXPALOOKUPS-RESERVEDPALS)
+        {
+            p = &hictinting[i];
+            OSD_Printf("pal %d: r=%d g=%d b=%d f=%d\n", i, p->r, p->g, p->b, p->f);
+        }
+    }
+    else if (parm->numparms==0)
+    {
+        OSD_Printf("Hightile tintings:\n");
+        for (i=0,p=&hictinting[0]; i<MAXPALOOKUPS-RESERVEDPALS; i++,p++)
+            if (*(int32_t *)&hictinting[i] != B_LITTLE32(0x00ffffff))
+                OSD_Printf("pal %d: rgb %3d %3d %3d  f %d\n", i, p->r, p->g, p->b, p->f);
+    }
+    else if (parm->numparms>=2)
+    {
+        i = atoi(parm->parms[0]);
+        if (i<0 || i>=MAXPALOOKUPS-RESERVEDPALS)
+            return OSDCMD_SHOWHELP;
+
+        p = &hictinting[i];
+        p->r = atoi(parm->parms[1]);
+        p->g = (parm->numparms>=3) ? atoi(parm->parms[2]) : 255;
+        p->b = (parm->numparms>=4) ? atoi(parm->parms[3]) : 255;
+        p->f = (parm->numparms>=5) ? atoi(parm->parms[4])&HICEFFECTMASK : 0;
+    }
+    return OSDCMD_OK;
+}
+#endif
+
 // M32 script vvv
 static int32_t osdcmd_include(const osdfuncparm_t *parm)
 {
@@ -8710,6 +8748,9 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("pk_quickmapcycling", "pk_quickmapcycling: allows cycling of maps with (Shift-)Ctrl-X", osdcmd_vars_pk);
     OSD_RegisterFunction("testplay_addparam", "testplay_addparam \"string\": set additional parameters for test playing", osdcmd_testplay_addparam);
     OSD_RegisterFunction("showheightindicators", "showheightindicators [012]: toggles height indicators in 2D mode", osdcmd_showheightindicators);
+#ifdef POLYMOST
+    OSD_RegisterFunction("tint", "tint <pal> <r> <g> <b> <flags>: queries or sets hightile tinting", osdcmd_tint);
+#endif
 
     // M32 script
     OSD_RegisterFunction("include", "include <filnames...>: compiles one or more M32 script files", osdcmd_include);
