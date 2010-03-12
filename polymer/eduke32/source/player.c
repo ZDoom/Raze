@@ -64,7 +64,7 @@ void P_UpdateScreenPal(DukePlayer_t *p)
 
 static void P_IncurDamage(DukePlayer_t *p)
 {
-    int32_t damage = 0L, shield_damage = 0L;
+    int32_t damage;
 
     aGameVars[g_iReturnVarID].val.lValue = 0;
     if (apScriptGameEvent[EVENT_INCURDAMAGE])
@@ -82,7 +82,7 @@ static void P_IncurDamage(DukePlayer_t *p)
 
             if (p->inv_amount[GET_SHIELD] > 0)
             {
-                shield_damage =  damage * (20 + (krand()%30)) / 100;
+                int32_t shield_damage =  damage * (20 + (krand()%30)) / 100;
                 damage -= shield_damage;
 
                 p->inv_amount[GET_SHIELD] += shield_damage;
@@ -178,25 +178,24 @@ static void A_HitscanProjTrail(const vec3_t *sv, const vec3_t *dv, int32_t ang, 
         getzsofslope(sect,srcvect.x,srcvect.y,&n,&j);
         if (srcvect.z > j || srcvect.z < n)
             break;
-        j = A_InsertSprite(sect,srcvect.x,srcvect.y,srcvect.z,ProjectileData[atwith].trail,-32,ProjectileData[atwith].txrepeat,ProjectileData[atwith].tyrepeat,ang,0,0,g_player[0].ps->i,0);
+        j = A_InsertSprite(sect,srcvect.x,srcvect.y,srcvect.z,ProjectileData[atwith].trail,-32,
+            ProjectileData[atwith].txrepeat,ProjectileData[atwith].tyrepeat,ang,0,0,g_player[0].ps->i,0);
         changespritestat(j,1);
     }
 }
 
 int32_t A_GetHitscanRange(int32_t i)
 {
-    int32_t zoff = 0;
+    int32_t zoff = (PN == APLAYER) ? PHEIGHT : 0;
     hitdata_t hitinfo;
-
-    if (PN == APLAYER) zoff = PHEIGHT;
 
     SZ -= zoff;
     hitscan((const vec3_t *)&sprite[i],SECT,
             sintable[(SA+512)&2047],
             sintable[SA&2047],
             0,&hitinfo,CLIPMASK1);
-
     SZ += zoff;
+
     return (FindDistance2D(hitinfo.pos.x-SX,hitinfo.pos.y-SY));
 }
 
@@ -204,7 +203,7 @@ static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
 {
     int32_t gotshrinker,gotfreezer;
     int32_t i, j, a, k, cans;
-    static int32_t aimstats[] = {10,13,1,2};
+    static int32_t aimstats[] = { 10, 13, 1, 2 };
     int32_t dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
     int32_t xv, yv;
 
@@ -262,7 +261,8 @@ static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
                     {
                         if (PN == APLAYER &&
                                 //                        ud.ffire == 0 &&
-                                (GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) || (GTFLAGS(GAMETYPE_TDM) && g_player[sprite[i].yvel].ps->team == g_player[s->yvel].ps->team)) &&
+                                (GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) || (GTFLAGS(GAMETYPE_TDM) &&
+                                g_player[sprite[i].yvel].ps->team == g_player[s->yvel].ps->team)) &&
                                 s->picnum == APLAYER &&
                                 s != &sprite[i])
                             continue;
@@ -366,28 +366,6 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
             s-> y -= y;
         }
 
-        /*
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>4);
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>4);
-
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
-
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = (s->ang+1024)&2047;
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
-
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = 255;
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = 80;
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = 0;
-
-                    gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX_GAME;
-
-                    if (gamelightcount < PR_MAXLIGHTS)
-                        gamelightcount++;
-        */
         break;
         }
 #endif // POLYMER
@@ -408,29 +386,6 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
             ActorExtra[i].lightcount = 2;
             s-> x -= x;
             s-> y -= y;
-
-            /*
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(s->ang+512)&2047])>>4);
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(s->ang)&2047])>>4);
-
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
-
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = (s->ang+1024)&2047;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
-
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = ProjectileData[atwith].flashcolor&255;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = (ProjectileData[atwith].flashcolor>>8)&255;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = (ProjectileData[atwith].flashcolor>>16)&255;
-
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX_GAME;
-
-                        if (gamelightcount < PR_MAXLIGHTS)
-                            gamelightcount++;
-            */
         }
 #endif // POLYMER
 
@@ -504,23 +459,6 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                     {
                                         if (ProjectileData[atwith].decal >= 0)
                                         {
-                                            /*
-                                            k = A_Spawn(i,ProjectileData[atwith].decal);
-                                            sprite[k].xvel = -12;
-                                            sprite[k].ang = getangle(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,
-                                            wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y)+512;
-                                            sprite[k].x = hitinfo.pos.x;
-                                            sprite[k].y = hitinfo.pos.y;
-                                            sprite[k].z = hitinfo.pos.z;
-                                            sprite[k].cstat |= (krand()&4);
-                                            sprite[k].xrepeat = ProjectileData[atwith].xrepeat;
-                                            sprite[k].yrepeat = ProjectileData[atwith].yrepeat;
-                                            sprite[k].cstat = 16+(krand()&12);
-                                            A_SetSprite(k,CLIPMASK0);
-                                            setsprite(k,sprite[k].x,sprite[k].y,sprite[k].z);
-                                            A_AddToDeleteQueue(k);
-                                            */
-
                                             if (!(SpriteFlags[ProjectileData[atwith].decal] & SPRITE_DECAL))
                                                 SpriteFlags[ProjectileData[atwith].decal] |= SPRITE_DECAL;
 
@@ -974,11 +912,8 @@ DOSKIPBULLETHOLE:
                     A_DamageWall(k,hitinfo.hitwall,&hitinfo.pos,atwith);
             }
 
-            if ((krand()&255) < 4)
-                if (ProjectileData[atwith].isound >= 0)
-                {
-                    S_PlaySound3D(ProjectileData[atwith].isound,k,&hitinfo.pos);
-                }
+            if ((krand()&255) < 4 && ProjectileData[atwith].isound >= 0)
+                S_PlaySound3D(ProjectileData[atwith].isound,k,&hitinfo.pos);
 
             return -1;
         }
@@ -2007,7 +1942,7 @@ SKIPBULLETHOLE:
     return -1;
 }
 
-static void P_DisplaySpitAnim(int32_t snum)
+static void P_DisplaySpit(int32_t snum)
 {
     int32_t i, a, x, y, z;
 
@@ -2026,7 +1961,7 @@ static void P_DisplaySpitAnim(int32_t snum)
     }
 }
 
-static int32_t P_DisplayFistAnim(int32_t gs,int32_t snum)
+static int32_t P_DisplayFist(int32_t gs,int32_t snum)
 {
     int32_t looking_arc,fisti,fistpal;
     int32_t fistzoom, fistz;
@@ -2119,7 +2054,7 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     }
 }
 
-static int32_t P_DisplayKneeAnim(int32_t gs,int32_t snum)
+static int32_t P_DisplayKnee(int32_t gs,int32_t snum)
 {
     static int8_t knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
     int32_t looking_arc, pal = g_player[snum].ps->palookup;
@@ -2144,7 +2079,7 @@ static int32_t P_DisplayKneeAnim(int32_t gs,int32_t snum)
     return 1;
 }
 
-static int32_t P_DisplayKnuckleAnim(int32_t gs,int32_t snum)
+static int32_t P_DisplayKnuckles(int32_t gs,int32_t snum)
 {
     static int8_t knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
     int32_t looking_arc, pal = 0;
@@ -2172,6 +2107,7 @@ void P_FireWeapon(DukePlayer_t *p)
     int32_t i, snum = sprite[p->i].yvel;
 
     aGameVars[g_iReturnVarID].val.lValue = 0;
+
     if (apScriptGameEvent[EVENT_DOFIRE])
         X_OnEvent(EVENT_DOFIRE, p->i, snum, -1);
 
@@ -2179,19 +2115,18 @@ void P_FireWeapon(DukePlayer_t *p)
     {
         if (p->weapon_pos != 0) return;
 
-        if (aplWeaponWorksLike[p->curr_weapon][snum]!=KNEE_WEAPON)
+        if (aplWeaponWorksLike[p->curr_weapon][snum] != KNEE_WEAPON)
             p->ammo_amount[p->curr_weapon]--;
 
         if (aplWeaponFireSound[p->curr_weapon][snum])
-        {
             A_PlaySound(aplWeaponFireSound[p->curr_weapon][snum],p->i);
-        }
 
         Gv_SetVar(g_iWeaponVarID,p->curr_weapon,p->i,snum);
         Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
 //        OSD_Printf("doing %d %d %d\n",aplWeaponShoots[p->curr_weapon][snum],p->curr_weapon,snum);
         A_Shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
-        for (i=1; i<aplWeaponShotsPerBurst[p->curr_weapon][snum]; i++)
+
+        for (i=aplWeaponShotsPerBurst[p->curr_weapon][snum]-1; i > 0; i--)
         {
             if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FIREEVERYOTHER)
             {
@@ -2200,7 +2135,8 @@ void P_FireWeapon(DukePlayer_t *p)
             }
             else
             {
-                if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_AMMOPERSHOT)
+                if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_AMMOPERSHOT &&
+                    aplWeaponWorksLike[p->curr_weapon][snum] != KNEE_WEAPON)
                 {
                     if (p->ammo_amount[p->curr_weapon] > 0)
                         p->ammo_amount[p->curr_weapon]--;
@@ -2222,41 +2158,10 @@ void P_FireWeapon(DukePlayer_t *p)
             ActorExtra[p->i].lightcount = 2;
             s->x -= x;
             s->y -= y;
-            /*
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x+((sintable[(p->ang+512)&2047])>>4);
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y+((sintable[(p->ang)&2047])>>4);
-
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z-PHEIGHT;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
-
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = (s->ang+1024)&2047;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
-
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = aplWeaponFlashColor[p->curr_weapon][snum]&255;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = (aplWeaponFlashColor[p->curr_weapon][snum]>>8)&255;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = (aplWeaponFlashColor[p->curr_weapon][snum]>>16)&255;;
-
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX_GAME;
-
-                        if (gamelightcount < PR_MAXLIGHTS)
-                            gamelightcount++;
-            */
 #endif // POLYMER
             lastvisinc = totalclock+32;
             p->visibility = 0;
         }
-
-        /*        if( //!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_CHECKATRELOAD) &&
-                    aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]
-                    && p->ammo_amount[p->curr_weapon] > 0
-                    && (aplWeaponClip[p->curr_weapon][snum])
-                    && ((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0))
-                {
-                    p->kickback_pic=aplWeaponTotalTime[p->curr_weapon][snum];
-                } */
     }
 }
 
@@ -2282,7 +2187,7 @@ void P_DoWeaponSpawn(DukePlayer_t *p)
 
 }
 
-void P_DisplayScubaMask(int32_t snum)
+void P_DisplayScuba(int32_t snum)
 {
     int32_t p;
 
@@ -2299,7 +2204,7 @@ void P_DisplayScubaMask(int32_t snum)
     }
 }
 
-static int32_t P_DisplayTipAnim(int32_t gs,int32_t snum)
+static int32_t P_DisplayTip(int32_t gs,int32_t snum)
 {
     int32_t p,looking_arc;
     static int16_t tip_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
@@ -2325,7 +2230,7 @@ static int32_t P_DisplayTipAnim(int32_t gs,int32_t snum)
     return 1;
 }
 
-static int32_t P_DisplayAccessAnim(int32_t gs,int32_t snum)
+static int32_t P_DisplayAccess(int32_t gs,int32_t snum)
 {
     static int16_t access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
     int32_t looking_arc;
@@ -2367,10 +2272,10 @@ void P_DisplayWeapon(int32_t snum)
     gs = sprite[p->i].shade;
     if (gs > 24) gs = 24;
 
-    if (p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0) || P_DisplayFistAnim(gs,snum) || P_DisplayKnuckleAnim(gs,snum) || P_DisplayTipAnim(gs,snum) || P_DisplayAccessAnim(gs,snum))
+    if (p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0) || P_DisplayFist(gs,snum) || P_DisplayKnuckles(gs,snum) || P_DisplayTip(gs,snum) || P_DisplayAccess(gs,snum))
         return;
 
-    P_DisplayKneeAnim(gs,snum);
+    P_DisplayKnee(gs,snum);
 
     gun_pos = 80-(p->weapon_pos*p->weapon_pos);
 
@@ -3023,7 +2928,7 @@ void P_DisplayWeapon(int32_t snum)
 
             }
     }
-    P_DisplaySpitAnim(snum);
+    P_DisplaySpit(snum);
 
 }
 
@@ -3961,8 +3866,7 @@ void P_ProcessInput(int32_t snum)
     }
 
     psectlotag = sector[psect].lotag;
-    p->spritebridge = 0;
-    p->sbs = 0;
+    p->spritebridge = p->sbs = 0;
 
     shrunk = (s->yrepeat < 32);
     getzrange((vec3_t *)p,psect,&cz,&hz,&fz,&lz,163L,CLIPMASK0);
@@ -3972,7 +3876,6 @@ void P_ProcessInput(int32_t snum)
 
     truefdist = klabs(p->posz-j);
 
-    /* wtf is this supposed to do? */
     if ((lz&49152) == 16384 && psectlotag == 1 && truefdist > PHEIGHT+(16<<8))
         psectlotag = 0;
 
@@ -3982,6 +3885,7 @@ void P_ProcessInput(int32_t snum)
     p->ohoriz = p->horiz;
     p->ohorizoff = p->horizoff;
 
+    // calculates automatic view angle for playing without a mouse
     if (p->aim_mode == 0 && p->on_ground && psectlotag != 2 && (sector[psect].floorstat&2))
     {
         x = p->posx+(sintable[(p->ang+512)&2047]>>5);
@@ -4025,14 +3929,15 @@ void P_ProcessInput(int32_t snum)
         }
         else if (A_CheckEnemySprite(&sprite[j]) && sprite[j].xrepeat > 24 && klabs(s->z-sprite[j].z) < (84<<8))
         {
+            // I think this is what makes the player slide off enemies... might be a good sprite flag to add later
             j = getangle(sprite[j].x-p->posx,sprite[j].y-p->posy);
             p->posxv -= sintable[(j+512)&2047]<<4;
             p->posyv -= sintable[j&2047]<<4;
         }
     }
 
-
-    if (s->extra > 0) P_IncurDamage(p);
+    if (s->extra > 0)
+        P_IncurDamage(p);
     else
     {
         s->extra = 0;
@@ -4046,8 +3951,10 @@ void P_ProcessInput(int32_t snum)
 
     if (p->fist_incs)
     {
-        // the fist puching the end-of-level thing...
+        // the fist punching NUKEBUTTON
+
         p->fist_incs++;
+
         if (p->fist_incs == 28)
         {
             if (ud.recstat == 1) G_CloseDemoWrite();
@@ -4057,20 +3964,21 @@ void P_ProcessInput(int32_t snum)
             p->pals[2] = 64;
             p->pals_time = 48;
         }
+
         if (p->fist_incs > 42)
         {
             if (p->buttonpalette && ud.from_bonus == 0)
             {
                 ud.from_bonus = ud.level_number+1;
-                if (ud.secretlevel > 0 && ud.secretlevel < MAXLEVELS) ud.level_number = ud.secretlevel-1;
+                if (ud.secretlevel > 0 && ud.secretlevel < MAXLEVELS)
+                    ud.level_number = ud.secretlevel-1;
                 ud.m_level_number = ud.level_number;
             }
             else
             {
                 if (ud.from_bonus)
                 {
-                    ud.level_number = ud.from_bonus;
-                    ud.m_level_number = ud.level_number;
+                    ud.m_level_number = ud.level_number = ud.from_bonus;
                     ud.from_bonus = 0;
                 }
                 else
@@ -4084,8 +3992,10 @@ void P_ProcessInput(int32_t snum)
                     ud.m_level_number = ud.level_number;
                 }
             }
+
             TRAVERSE_CONNECT(i)
-            g_player[i].ps->gm = MODE_EOL;
+                g_player[i].ps->gm = MODE_EOL;
+
             p->fist_incs = 0;
 
             return;
@@ -4167,9 +4077,7 @@ void P_ProcessInput(int32_t snum)
             //                        p->bobcounter += 32;
         }
 
-        p->oposx = p->posx;
-        p->oposy = p->posy;
-        p->oposz = p->posz;
+        Bmemcpy(&p->oposx, &p->posx, sizeof(vec3_t));
         p->oang = p->ang;
         p->opyoff = p->pyoff;
 
@@ -4194,6 +4102,7 @@ void P_ProcessInput(int32_t snum)
         if (p->transporter_hold == 0 && p->on_warping_sector)
             p->transporter_hold = 2;
     }
+
     if (p->transporter_hold < 0)
         p->transporter_hold++;
 
@@ -4262,9 +4171,10 @@ void P_ProcessInput(int32_t snum)
     }
     else p->weapon_sway = p->bobcounter;
 
-    s->xvel =
-        ksqrt((p->posx-p->bobposx)*(p->posx-p->bobposx)+(p->posy-p->bobposy)*(p->posy-p->bobposy));
-    if (p->on_ground) p->bobcounter += sprite[p->i].xvel>>1;
+    s->xvel = ksqrt((p->posx-p->bobposx)*(p->posx-p->bobposx)+(p->posy-p->bobposy)*(p->posy-p->bobposy));
+
+    if (p->on_ground)
+        p->bobcounter += sprite[p->i].xvel>>1;
 
     if (ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS))
     {
@@ -4855,7 +4765,8 @@ void P_ProcessInput(int32_t snum)
         p->posxv += ((g_player[snum].sync->fvel*doubvel)<<6);
         p->posyv += ((g_player[snum].sync->svel*doubvel)<<6);
 
-        if ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON && *kb > 10 && p->on_ground) || (p->on_ground && TEST_SYNC_KEY(sb_snum, SK_CROUCH)))
+        if (p->on_ground && (aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON ||
+            TEST_SYNC_KEY(sb_snum, SK_CROUCH)))
         {
             p->posxv = mulscale(p->posxv,p->runspeed-0x2000,16);
             p->posyv = mulscale(p->posyv,p->runspeed-0x2000,16);
@@ -4896,21 +4807,16 @@ HORIZONLY:
 
     if (ud.clipping)
     {
-        j = 0;
         p->posx += p->posxv>>14;
         p->posy += p->posyv>>14;
         updatesector(p->posx,p->posy,&p->cursectnum);
         changespritesect(pi,p->cursectnum);
     }
-    else
-        j = clipmove((vec3_t *)p,&p->cursectnum,
-                     p->posxv,p->posyv,164L,(4L<<8),i,CLIPMASK0);
+    else if ((j = clipmove((vec3_t *)p,&p->cursectnum, p->posxv,p->posyv,164L,(4L<<8),i,CLIPMASK0)))
+        P_CheckTouchDamage(p, j);
 
     if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
         p->posz += 32<<8;
-
-    if (j)
-        P_CheckTouchDamage(p,j);
 
     if (p->jetpack_on == 0)
     {
@@ -4960,11 +4866,9 @@ HORIZONLY:
         changespritesect(pi,p->cursectnum);
 
     if (ud.clipping == 0)
-        j = (pushmove((vec3_t *)p,&p->cursectnum,164L,(4L<<8),(4L<<8),CLIPMASK0) < 0 && A_GetFurthestAngle(pi,8) < 512);
-    else j = 0;
-
-    if (ud.clipping == 0)
     {
+        j = (pushmove((vec3_t *)p,&p->cursectnum,164L,(4L<<8),(4L<<8),CLIPMASK0) < 0 && A_GetFurthestAngle(pi,8) < 512);
+
         if (klabs(ActorExtra[pi].floorz-ActorExtra[pi].ceilingz) < (48<<8) || j)
         {
             if (!(sector[s->sectnum].lotag&0x8000) && (isanunderoperator(sector[s->sectnum].lotag) ||
@@ -4980,7 +4884,6 @@ HORIZONLY:
             activatebysector(psect,pi);
     }
 
-    // center_view
     i = 0;
     if (TEST_SYNC_KEY(sb_snum, SK_CENTER_VIEW) || p->hard_landing)
     {
@@ -4994,21 +4897,19 @@ HORIZONLY:
 
     if (TEST_SYNC_KEY(sb_snum, SK_LOOK_UP))
     {
-        // look_up
         aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_LOOKUP,pi,snum, -1);
         if (aGameVars[g_iReturnVarID].val.lValue == 0)
         {
             p->return_to_center = 9;
-            if (TEST_SYNC_KEY(sb_snum, SK_RUN)) p->horiz += 12;     // running
+            if (TEST_SYNC_KEY(sb_snum, SK_RUN)) p->horiz += 12;
             p->horiz += 12;
             i++;
         }
     }
 
-    else if (TEST_SYNC_KEY(sb_snum, SK_LOOK_DOWN))
+    if (TEST_SYNC_KEY(sb_snum, SK_LOOK_DOWN))
     {
-        // look_down
         aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_LOOKDOWN,pi,snum, -1);
         if (aGameVars[g_iReturnVarID].val.lValue == 0)
@@ -5020,33 +4921,30 @@ HORIZONLY:
         }
     }
 
-    else if (TEST_SYNC_KEY(sb_snum, SK_AIM_UP))
+    if (TEST_SYNC_KEY(sb_snum, SK_AIM_UP))
     {
-        // aim_up
         aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_AIMUP,pi,snum, -1);
         if (aGameVars[g_iReturnVarID].val.lValue == 0)
         {
-            // running
             if (TEST_SYNC_KEY(sb_snum, SK_RUN)) p->horiz += 6;
             p->horiz += 6;
             i++;
         }
     }
 
-    else if (TEST_SYNC_KEY(sb_snum, SK_AIM_DOWN))
+    if (TEST_SYNC_KEY(sb_snum, SK_AIM_DOWN))
     {
-        // aim_down
         aGameVars[g_iReturnVarID].val.lValue = 0;
         X_OnEvent(EVENT_AIMDOWN,pi,snum, -1);
         if (aGameVars[g_iReturnVarID].val.lValue == 0)
         {
-            // running
             if (TEST_SYNC_KEY(sb_snum, SK_RUN)) p->horiz -= 6;
             p->horiz -= 6;
             i++;
         }
     }
+
     if (p->return_to_center > 0)
         if (TEST_SYNC_KEY(sb_snum, SK_LOOK_UP) == 0 && TEST_SYNC_KEY(sb_snum, SK_LOOK_DOWN) == 0)
         {
@@ -5096,13 +4994,16 @@ HORIZONLY:
         {
             p->knee_incs = 0;
             p->holster_weapon = 0;
+
             if (p->weapon_pos < 0)
                 p->weapon_pos = -p->weapon_pos;
+
             if (p->actorsqu >= 0 && dist(&sprite[pi],&sprite[p->actorsqu]) < 1400 && sprite[p->actorsqu].statnum != MAXSTATUS)
             {
                 A_DoGuts(p->actorsqu,JIBS6,7);
                 A_Spawn(p->actorsqu,BLOODPOOL);
                 A_PlaySound(SQUISHED,p->actorsqu);
+
                 switch (DynamicTileMap[sprite[p->actorsqu].picnum])
                 {
                 case FEM1__STATIC:
@@ -5121,19 +5022,16 @@ HORIZONLY:
                     if (sprite[p->actorsqu].yvel)
                         G_OperateRespawns(sprite[p->actorsqu].yvel);
                     break;
-                }
-
-                if (sprite[p->actorsqu].picnum == APLAYER)
-                {
+                case APLAYER__STATIC:
                     P_QuickKill(g_player[sprite[p->actorsqu].yvel].ps);
                     g_player[sprite[p->actorsqu].yvel].ps->frag_ps = snum;
-                }
-                else if (A_CheckEnemySprite(&sprite[p->actorsqu]))
-                {
+                    break;
+                default:
+                    if (A_CheckEnemySprite(&sprite[p->actorsqu]))
+                        p->actors_killed++;
                     deletesprite(p->actorsqu);
-                    p->actors_killed++;
+                    break;
                 }
-                else deletesprite(p->actorsqu);
             }
             p->actorsqu = -1;
         }
@@ -5143,23 +5041,23 @@ HORIZONLY:
 
     if (P_DoCounters(p)) return;
 
-    if (p->weapon_pos != 0)
+    switch (p->weapon_pos)
     {
-        if (p->weapon_pos == -9)
+    case -9:
+        if (p->last_weapon >= 0)
         {
-            if (p->last_weapon >= 0)
-            {
-                p->weapon_pos = 10;
-                //                if(p->curr_weapon == KNEE_WEAPON) *kb = 1;
-                p->last_weapon = -1;
-            }
-            else if (p->holster_weapon == 0)
-                p->weapon_pos = 10;
+            p->weapon_pos = 10;
+            p->last_weapon = -1;
         }
-        else p->weapon_pos--;
+        else if (p->holster_weapon == 0)
+            p->weapon_pos = 10;
+        break;
+    case 0:
+        break;
+    default:
+        p->weapon_pos--;
+        break;
     }
-
-    // HACKS
 
 SHOOTINCODE:
     if (TEST_SYNC_KEY(sb_snum, SK_HOLSTER))   // 'Holster Weapon
@@ -5170,7 +5068,7 @@ SHOOTINCODE:
         X_OnEvent(EVENT_HOLSTER, pi, snum, -1);
         if (aGameVars[g_iReturnVarID].val.lValue == 0)
         {
-            if (p->curr_weapon > KNEE_WEAPON)
+            if (*aplWeaponWorksLike[p->curr_weapon] != KNEE_WEAPON)
             {
                 if (p->holster_weapon == 0 && p->weapon_pos == 0)
                 {
@@ -5237,10 +5135,9 @@ SHOOTINCODE:
                     P_CheckWeapon(p);
                 }
             }
+
             if (ActorExtra[p->i].temp_data[7] != 0)
-            {
                 A_Shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
-            }
         }
     }
 
@@ -5249,6 +5146,7 @@ SHOOTINCODE:
         if (TEST_SYNC_KEY(sb_snum, SK_FIRE)) return;
         p->rapid_fire_hold = 0;
     }
+
     if (shrunk || p->tipincs || p->access_incs)
         sb_snum &= ~BIT(SK_FIRE);
     else if (shrunk == 0 && (sb_snum&(1<<2)) && (*kb) == 0 && p->fist_incs == 0 &&
@@ -5270,47 +5168,40 @@ SHOOTINCODE:
             aGameVars[g_iReturnVarID].val.lValue = 0;
             Gv_SetVar(g_iWeaponVarID,p->curr_weapon,pi,snum);
             Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum],pi,snum);
-            X_OnEvent(EVENT_FIRE, pi, snum, -1);
+
+            if (apScriptGameEvent[EVENT_FIRE])
+                X_OnEvent(EVENT_FIRE, pi, snum, -1);
+
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
+                if (apScriptGameEvent[EVENT_FIREWEAPON]) // this event is deprecated
+                    X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
+
                 switch (aplWeaponWorksLike[p->curr_weapon][snum])
                 {
                 case HANDBOMB_WEAPON:
-                    if (apScriptGameEvent[EVENT_FIREWEAPON])
-                        X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
-
                     p->hbomb_hold_delay = 0;
                     if (p->ammo_amount[p->curr_weapon] > 0)
                     {
                         (*kb)=1;
                         if (aplWeaponInitialSound[p->curr_weapon][snum])
-                        {
                             A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-                        }
                     }
                     break;
 
                 case HANDREMOTE_WEAPON:
-                    if (apScriptGameEvent[EVENT_FIREWEAPON])
-                        X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
                     p->hbomb_hold_delay = 0;
                     (*kb) = 1;
                     if (aplWeaponInitialSound[p->curr_weapon][snum])
-                    {
                         A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-                    }
                     break;
 
                 case SHOTGUN_WEAPON:
-                    if (apScriptGameEvent[EVENT_FIREWEAPON])
-                        X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
                     if (p->ammo_amount[p->curr_weapon] > 0 && p->random_club_frame == 0)
                     {
                         (*kb)=1;
                         if (aplWeaponInitialSound[p->curr_weapon][snum])
-                        {
                             A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-                        }
                     }
                     break;
 
@@ -5368,42 +5259,30 @@ SHOOTINCODE:
                 case GROW_WEAPON:
                 case FREEZE_WEAPON:
                 case RPG_WEAPON:
-                    if (apScriptGameEvent[EVENT_FIREWEAPON])
-                        X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
                     if (p->ammo_amount[p->curr_weapon] > 0)
                     {
                         (*kb) = 1;
                         if (aplWeaponInitialSound[p->curr_weapon][snum])
-                        {
                             A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-                        }
                     }
                     break;
 
                 case DEVISTATOR_WEAPON:
-                    if (apScriptGameEvent[EVENT_FIREWEAPON])
-                        X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
                     if (p->ammo_amount[p->curr_weapon] > 0)
                     {
                         (*kb) = 1;
                         p->hbomb_hold_delay = !p->hbomb_hold_delay;
                         if (aplWeaponInitialSound[p->curr_weapon][snum])
-                        {
                             A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-                        }
                     }
                     break;
 
                 case KNEE_WEAPON:
-                    if (apScriptGameEvent[EVENT_FIREWEAPON])
-                        X_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1);
                     if (p->quick_kick == 0)
                     {
                         (*kb) = 1;
                         if (aplWeaponInitialSound[p->curr_weapon][snum])
-                        {
                             A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-                        }
                     }
                     break;
                 }
@@ -5419,8 +5298,8 @@ SHOOTINCODE:
                 p->rapid_fire_hold = 1;
                 return;
             }
-            (*kb)++;
-            if ((*kb)==aplWeaponHoldDelay[p->curr_weapon][snum])
+
+            if (++(*kb) == aplWeaponHoldDelay[p->curr_weapon][snum])
             {
                 int32_t lPipeBombControl;
 
@@ -5449,15 +5328,14 @@ SHOOTINCODE:
 
                     if (lPipeBombControl & PIPEBOMB_TIMER)
                     {
-                        int32_t lGrenadeLifetime=Gv_GetVarByLabel("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
-                        int32_t lGrenadeLifetimeVar=Gv_GetVarByLabel("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
-                        ActorExtra[j].temp_data[7]=lGrenadeLifetime
-                                                   + mulscale(krand(),lGrenadeLifetimeVar, 14)
-                                                   - lGrenadeLifetimeVar;
+                        int32_t lv=Gv_GetVarByLabel("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
+
+                        ActorExtra[j].temp_data[7]= Gv_GetVarByLabel("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum)
+                                                   + mulscale(krand(),lv, 14)
+                                                   - lv;
                         ActorExtra[j].temp_data[6]=1;
                     }
-                    else
-                        ActorExtra[j].temp_data[6]=2;
+                    else ActorExtra[j].temp_data[6]=2;
 
                     if (k == 15)
                     {
@@ -5465,49 +5343,38 @@ SHOOTINCODE:
                         sprite[j].z += (8<<8);
                     }
 
-                    k = A_GetHitscanRange(pi);
-                    if (k < 512)
+                    if (A_GetHitscanRange(pi) < 512)
                     {
                         sprite[j].ang += 1024;
                         sprite[j].zvel /= 3;
                         sprite[j].xvel /= 3;
                     }
                 }
+
                 p->hbomb_on = 1;
             }
             else if ((*kb) < aplWeaponHoldDelay[p->curr_weapon][snum] && TEST_SYNC_KEY(sb_snum, SK_FIRE))
-            {
                 p->hbomb_hold_delay++;
-            }
             else if ((*kb) > aplWeaponTotalTime[p->curr_weapon][snum])
             {
-                int32_t lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
-
                 (*kb) = 0;
+                p->weapon_pos = 10;
 
-                if (lPipeBombControl == PIPEBOMB_REMOTE)
+                if (Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum) == PIPEBOMB_REMOTE)
                 {
                     p->curr_weapon = HANDREMOTE_WEAPON;
                     p->last_weapon = -1;
-                    p->weapon_pos = 10;
                 }
-                else
-                {
-                    p->weapon_pos = 10;
-                    P_CheckWeapon(p);
-                }
+                else P_CheckWeapon(p);
             }
         }
         else if (aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON)
         {
-            (*kb)++;
-
-            if ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])
+            if (++(*kb) == aplWeaponFireDelay[p->curr_weapon][snum])
             {
                 if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_BOMB_TRIGGER)
-                {
                     p->hbomb_on = 0;
-                }
+
                 if (aplWeaponShoots[p->curr_weapon][snum] != 0)
                 {
                     if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_NOVISIBLE))
@@ -5523,12 +5390,11 @@ SHOOTINCODE:
 
             if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
             {
-                int32_t lPipeBombControl=Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
                 (*kb) = 0;
-                if ((p->ammo_amount[HANDBOMB_WEAPON] > 0) && lPipeBombControl == PIPEBOMB_REMOTE)
+                if ((p->ammo_amount[HANDBOMB_WEAPON] > 0) &&
+                    Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum) == PIPEBOMB_REMOTE)
                     P_AddWeapon(p,HANDBOMB_WEAPON);
-                else
-                    P_CheckWeapon(p);
+                else P_CheckWeapon(p);
             }
         }
         else
@@ -5586,8 +5452,11 @@ SHOOTINCODE:
                             if (aplWeaponReloadSound1[p->curr_weapon][snum])
                                 A_PlaySound(aplWeaponReloadSound1[p->curr_weapon][snum],pi);
                         }
-                        else if (((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i/3)) && !(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_RELOAD_TIMING)) ||
-                                 ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - i+4) && (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_RELOAD_TIMING)))
+                        else if (((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i/3)) && 
+                            !(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_RELOAD_TIMING)) ||
+
+                                 ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - i+4) &&
+                                 (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_RELOAD_TIMING)))
                         {
                             if (aplWeaponReloadSound2[p->curr_weapon][snum])
                                 A_PlaySound(aplWeaponReloadSound2[p->curr_weapon][snum],pi);
@@ -5654,7 +5523,7 @@ SHOOTINCODE:
                         }
                         if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_RESET &&
                                 (*kb) > aplWeaponTotalTime[p->curr_weapon][snum]-aplWeaponHoldDelay[p->curr_weapon][snum] &&
-                                ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
+                                ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON) || p->ammo_amount[p->curr_weapon] > 0))
                         {
                             if (TEST_SYNC_KEY(sb_snum, SK_FIRE)) *kb = 1;
                             else *kb = 0;

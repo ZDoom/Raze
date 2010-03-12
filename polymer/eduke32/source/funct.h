@@ -99,7 +99,7 @@ extern void P_QuickKill(DukePlayer_t *p);
 extern int32_t A_GetHitscanRange(int32_t i);
 extern int32_t A_CheckHitSprite(int32_t i,short *hitsp);
 extern int32_t A_Shoot(int32_t i,int32_t atwith);
-extern void P_DisplayScubaMask(int32_t snum);
+extern void P_DisplayScuba(int32_t snum);
 extern void P_DisplayWeapon(int32_t snum);
 extern void getinput(int32_t snum);
 extern void P_DropWeapon(DukePlayer_t *p);

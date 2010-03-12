@@ -2618,7 +2618,7 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
     for (k=i-1; k>=0; k--)
     {
         p = starttile+*(b+k)-'0';
-        j += (tilesizx[p]+1)*(z>>16);
+        j += (1+tilesizx[p]*z)>>16;
     }
     if (cs&256) j<<=16;
     c = x-(j>>1);
@@ -2628,7 +2628,7 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
     {
         p = starttile+*(b+k)-'0';
         rotatesprite((c+j)<<shift,y<<shift,z,0,p,s,pal,2|cs,x1,y1,x2,y2);
-        j += ((tilesizx[p]+1) * (z>>((cs&256)?0:16)));
+        j += ((1+tilesizx[p]*z)>>((cs&256)?0:16));
     }
 }
 
@@ -4464,7 +4464,7 @@ void G_DisplayRest(int32_t smoothratio)
             {
                 P_DisplayWeapon(screenpeek);
                 if (pp->over_shoulder_on == 0)
-                    P_DisplayScubaMask(screenpeek);
+                    P_DisplayScuba(screenpeek);
             }
             G_MoveClouds();
         }
@@ -9573,6 +9573,7 @@ static void G_ShowParameterHelp(void)
               "Files can be *.grp/zip/con/def\n"
               "\n"
               "-cfg [file.cfg]\tUse an alternate configuration file\n"
+              "-connect [host]\tConnect to a multiplayer game\n"
               "-c#\t\tUse MP mode #, 1 = Dukematch, 2 = Coop, 3 = Dukematch(no spawn)\n"
               "-d[file.dmo]\tPlay a demo\n"
               "-g[file.grp]\tUse an extra group file\n"
@@ -9584,6 +9585,7 @@ static void G_ShowParameterHelp(void)
               "-nam/-ww2gi\tRun in NAM or WW2GI-compatible mode\n"
               "-r\t\tRecord demo\n"
               "-s#\t\tSet skill level (1-4)\n"
+              "-server\t\tStart a multiplayer game for other players to join\n"
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
               "-setup/nosetup\tEnables/disables startup window\n"
 #endif
@@ -10137,6 +10139,15 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     g_noAutoLoad = 1;
                     i++;
                     continue;
+                }
+                if (!Bstrcasecmp(c+1,"net"))
+                {
+                    G_GameExit("EDuke32 no longer supports legacy networking.\n\n"
+                        "If using YANG or other launchers that only support legacy netplay, download an older build of EDuke32. "
+                        "Otherwise, run the following:\n\n"
+                        "eduke32 -server\n\n"
+                        "Other clients can then connect by typing \"connect [host]\" in the console.\n\n"
+                        "EDuke32 will now close.");
                 }
                 if (!Bstrcasecmp(c+1,"port"))
                 {
@@ -11149,14 +11160,15 @@ void app_main(int32_t argc,const char **argv)
 
     ud.multimode = 1;
 
+    // this needs to happen before G_CheckCommandLine because G_GameExit accesses g_player[0]
+    g_player[0].ps = (DukePlayer_t *) Bcalloc(1, sizeof(DukePlayer_t));
+    g_player[0].sync = (input_t *) Bcalloc(1, sizeof(input_t));
+
     G_CheckCommandLine(argc,argv);
 
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
     if (forcegl) initprintf("GL driver blacklist disabled.\n");
 #endif
-
-    g_player[0].ps = (DukePlayer_t *) Bcalloc(1, sizeof(DukePlayer_t));
-    g_player[0].sync = (input_t *) Bcalloc(1, sizeof(input_t));
 
     if (getcwd(cwd,BMAX_PATH))
     {
