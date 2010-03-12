@@ -4765,8 +4765,8 @@ void P_ProcessInput(int32_t snum)
         p->posxv += ((g_player[snum].sync->fvel*doubvel)<<6);
         p->posyv += ((g_player[snum].sync->svel*doubvel)<<6);
 
-        if (p->on_ground && (aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON ||
-            TEST_SYNC_KEY(sb_snum, SK_CROUCH)))
+        if (p->on_ground && (TEST_SYNC_KEY(sb_snum, SK_CROUCH) ||
+            (*kb > 10 && aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON)))
         {
             p->posxv = mulscale(p->posxv,p->runspeed-0x2000,16);
             p->posyv = mulscale(p->posyv,p->runspeed-0x2000,16);
