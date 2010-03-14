@@ -1181,7 +1181,7 @@ static int32_t C_SetScriptSize(int32_t size)
 static inline int32_t ispecial(const char c)
 {
     if (c == ' ' || c == 0x0d || c == '(' || c == ')' ||
-            c == ',' || c == ';' || (c == 0x0a && ++g_lineNumber))
+            c == ',' || c == ';' || (c == 0x0a /*&& ++g_lineNumber*/))
         return 1;
 
     return 0;
