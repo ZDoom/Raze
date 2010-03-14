@@ -88,15 +88,16 @@ typedef struct
 
 #pragma pack(pop)
 
+#define IMAGEBUFFERSIZE 0x10000
 typedef struct
    {
    uint16_t framecount;          // current frame of anim
    lpfileheader lpheader;           // file header will be loaded into this structure
    lp_descriptor LpArray[256]; // arrays of large page structs used to find frames
    uint16_t curlpnum;               // initialize to an invalid Large page number
-   lp_descriptor curlp;        // header of large page currently in memory
-   uint16_t thepage[0x8000];     // buffer where current large page is loaded
-   uint8_t imagebuffer[0x10000]; // buffer where anim frame is decoded
+   lp_descriptor * curlp;        // header of large page currently in memory
+   uint16_t * thepage;     // buffer where current large page is loaded
+   uint8_t imagebuffer[IMAGEBUFFERSIZE]; // buffer where anim frame is decoded
    uint8_t * buffer;
    uint8_t pal[768];
    int32_t  currentframe;

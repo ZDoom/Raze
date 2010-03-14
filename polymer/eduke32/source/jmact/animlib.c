@@ -87,9 +87,8 @@ uint16_t findpage(uint16_t framenumber)
 //
 //****************************************************************************
 
-void loadpage(uint16_t pagenumber, uint16_t *pagepointer)
+void loadpage(uint16_t pagenumber, uint16_t **pagepointer)
 {
-    int32_t size;
     uint8_t * buffer;
 
     CheckAnimStarted("loadpage");
@@ -97,20 +96,12 @@ void loadpage(uint16_t pagenumber, uint16_t *pagepointer)
     if (anim->curlpnum != pagenumber)
     {
         anim->curlpnum = pagenumber;
-        buffer += 0xb00 + (pagenumber*0x10000);
-        size = sizeof(lp_descriptor);
-        /*
-        Bmemcpy(&anim->curlp,buffer,size);
+        buffer += 0xb00 + (pagenumber*IMAGEBUFFERSIZE);
+        anim->curlp = &anim->LpArray[pagenumber];
 
-        // JBF: why didn't this get read from the LpArray[] table?
-        anim->curlp.baseRecord = B_LITTLE16(anim->curlp.baseRecord);
-        anim->curlp.nRecords   = B_LITTLE16(anim->curlp.nRecords);
-        anim->curlp.nBytes     = B_LITTLE16(anim->curlp.nBytes);
-         */
-        Bmemcpy(&anim->curlp, &anim->LpArray[pagenumber], size);
+        buffer += sizeof(lp_descriptor) + sizeof(uint16_t);
 
-        buffer += size + sizeof(uint16_t);
-        Bmemcpy(pagepointer,buffer,anim->curlp.nBytes+(anim->curlp.nRecords*2));
+        *pagepointer = (uint16_t *)buffer;
     }
 }
 
@@ -214,23 +205,18 @@ void renderframe(uint16_t framenumber, uint16_t *pagepointer)
     uint8_t *ppointer;
 
     CheckAnimStarted("renderframe");
-    destframe = framenumber - anim->curlp.baseRecord;
+    destframe = framenumber - anim->curlp->baseRecord;
 
     for (i = 0; i < destframe; i++)
-    {
         offset += B_LITTLE16(pagepointer[i]);
-    }
+
     ppointer = (uint8_t *)pagepointer;
 
-    ppointer+=anim->curlp.nRecords*2+offset;
+    ppointer+=anim->curlp->nRecords*2+offset;
     if (ppointer[1])
-    {
         ppointer += (4 + B_LITTLE16(((uint16_t *)ppointer)[1]) + (B_LITTLE16(((uint16_t *)ppointer)[1]) & 1));
-    }
     else
-    {
         ppointer+=4;
-    }
 
     CPlayRunSkipDump((uint8_t *)ppointer, (uint8_t *)anim->imagebuffer);
 }
@@ -246,7 +232,7 @@ void renderframe(uint16_t framenumber, uint16_t *pagepointer)
 void drawframe(uint16_t framenumber)
 {
     CheckAnimStarted("drawframe");
-    loadpage(findpage(framenumber), anim->thepage);
+    loadpage(findpage(framenumber), &anim->thepage);
     renderframe(framenumber, anim->thepage);
 }
 
