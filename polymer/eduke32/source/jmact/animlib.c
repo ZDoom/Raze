@@ -246,7 +246,6 @@ void drawframe(uint16_t framenumber)
 void ANIM_LoadAnim(char * buffer)
 {
     uint16_t i;
-    int32_t size;
 
     if (!Anim_Started)
     {
@@ -257,8 +256,7 @@ void ANIM_LoadAnim(char * buffer)
     anim->buffer = (uint8_t *)buffer;
     anim->curlpnum = 0xffff;
     anim->currentframe = -1;
-    size = sizeof(lpfileheader);
-    Bmemcpy(&anim->lpheader, buffer, size);
+    Bmemcpy(&anim->lpheader, buffer, sizeof(lpfileheader));
 
     anim->lpheader.id              = B_LITTLE32(anim->lpheader.id);
     anim->lpheader.maxLps          = B_LITTLE16(anim->lpheader.maxLps);
@@ -272,20 +270,20 @@ void ANIM_LoadAnim(char * buffer)
     anim->lpheader.nFrames         = B_LITTLE32(anim->lpheader.nFrames);
     anim->lpheader.framesPerSecond = B_LITTLE16(anim->lpheader.framesPerSecond);
 
-    buffer += size+128;
+    buffer += sizeof(lpfileheader)+128;
     // load the color palette
     for (i = 0; i < 768; i += 3)
     {
-        anim->pal[i+2] = *buffer++;
-        anim->pal[i+1] = *buffer++;
-        anim->pal[i] = *buffer++;
+        anim->pal[i+2] = (*buffer++)>>2;
+        anim->pal[i+1] = (*buffer++)>>2;
+        anim->pal[i] = (*buffer++)>>2;
         buffer++;
     }
     // read in large page descriptors
-    size = sizeof(anim->LpArray);
-    Bmemcpy(&anim->LpArray,buffer,size);
+    
+    Bmemcpy(&anim->LpArray, buffer,sizeof(anim->LpArray));
 
-    for (i = 0; i < size/sizeof(lp_descriptor); i++)
+    for (i = 0; i < sizeof(anim->LpArray)/sizeof(lp_descriptor); i++)
     {
         anim->LpArray[i].baseRecord = B_LITTLE16(anim->LpArray[i].baseRecord);
         anim->LpArray[i].nRecords   = B_LITTLE16(anim->LpArray[i].nRecords);

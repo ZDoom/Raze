@@ -203,8 +203,7 @@ void endanimvol43(int32_t fr)
 void G_PlayAnim(const char *fn,char t)
 {
     char *animbuf;
-    uint8_t *palptr;
-    int32_t i, j, length=0, numframes=0;
+    int32_t i, length=0, numframes=0;
 #if defined(POLYMOST) && defined(USE_OPENGL)
     int32_t ogltexfiltermode=gltexfiltermode;
 #endif
@@ -239,14 +238,7 @@ void G_PlayAnim(const char *fn,char t)
     ANIM_LoadAnim(animbuf);
     numframes = ANIM_NumFrames();
 
-    palptr = ANIM_GetPalette();
-    for (i=0; i<256; i++)
-    {
-        j = i*3;
-        animpal[j+0] = (palptr[j+0]>>2);
-        animpal[j+1] = (palptr[j+1]>>2);
-        animpal[j+2] = (palptr[j+2]>>2);
-    }
+    animpal = ANIM_GetPalette();
 
     //setpalette(0L,256L,tempbuf);
     //setbrightness(ud.brightness>>2,tempbuf,2);

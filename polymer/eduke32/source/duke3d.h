@@ -648,7 +648,7 @@ extern int32_t g_restorePalette;
 
 extern int32_t cachecount;
 extern char boardfilename[BMAX_PATH];
-extern uint8_t waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],animpal[768];
+extern uint8_t waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],*animpal;
 extern char currentboardfilename[BMAX_PATH];
 extern char cachedebug,g_earthquakeTime;
 extern char lumplockbyte[11];

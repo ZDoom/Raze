@@ -108,7 +108,7 @@ char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
 static char g_rootDir[BMAX_PATH];
 char g_modDir[BMAX_PATH] = "/";
 
-uint8_t waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768], animpal[768];
+uint8_t waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768], *animpal;
 static char firstdemofile[80] = { '\0' };
 static int32_t g_skipDefaultCons = 0;
 
