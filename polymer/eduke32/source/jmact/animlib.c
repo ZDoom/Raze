@@ -55,6 +55,7 @@ static void CheckAnimStarted(char * funcname)
     if (!Anim_Started)
         Error("ANIMLIB_%s: Anim has not been initialized\n",funcname);
 }
+
 //****************************************************************************
 //
 //      findpage ()
@@ -64,18 +65,19 @@ static void CheckAnimStarted(char * funcname)
 
 uint16_t findpage(uint16_t framenumber)
 {
-    uint16_t i;
+    // curlpnum is initialized to 0xffff, obviously
+    uint16_t i = (uint16_t)(anim->curlpnum & ~0xffff);
 
     CheckAnimStarted("findpage");
-    for (i=0; i<anim->lpheader.nLps; i++)
-    {
-        if
-        (
-            anim->LpArray[i].baseRecord <= framenumber &&
-            anim->LpArray[i].baseRecord + anim->LpArray[i].nRecords > framenumber
-        )
+
+    if (framenumber < anim->currentframe)
+        i = 0;
+
+    for (; i<anim->lpheader.nLps; i++)
+        if (anim->LpArray[i].baseRecord <= framenumber &&
+                anim->LpArray[i].baseRecord + anim->LpArray[i].nRecords > framenumber)
             return(i);
-    }
+
     return(i);
 }
 
@@ -89,105 +91,95 @@ uint16_t findpage(uint16_t framenumber)
 
 void loadpage(uint16_t pagenumber, uint16_t **pagepointer)
 {
-    uint8_t * buffer;
-
     CheckAnimStarted("loadpage");
-    buffer = anim->buffer;
-    if (anim->curlpnum != pagenumber)
-    {
-        anim->curlpnum = pagenumber;
-        buffer += 0xb00 + (pagenumber*IMAGEBUFFERSIZE);
-        anim->curlp = &anim->LpArray[pagenumber];
 
-        buffer += sizeof(lp_descriptor) + sizeof(uint16_t);
+    if (anim->curlpnum == pagenumber)
+        return;
 
-        *pagepointer = (uint16_t *)buffer;
-    }
+    anim->curlp = &anim->LpArray[(anim->curlpnum = pagenumber)];
+    *pagepointer = (uint16_t *)(anim->buffer + 0xb00 + (pagenumber*IMAGEBUFFERSIZE) +
+                                sizeof(lp_descriptor) + sizeof(uint16_t));
 }
 
 
 //****************************************************************************
 //
 //      CPlayRunSkipDump ()
-//      - This version of the decompressor is here for portability to non PC's
+//      - I found this less obfuscated version of the anm decompressor around,
+//        says it's (c) 1998 "Jari Komppa aka Sol/Trauma".  This code is
+//        public domain and has been modified a bit by me.
+//
+//      - As a side note, it looks like this format came about in 1989 and
+//        never went anywhere after that, and appears to have been the format
+//        used by Electronic Arts' DeluxePaint Animation, which never made it
+//        past version 1.0.
 //
 //****************************************************************************
 
-void CPlayRunSkipDump(uint8_t *srcP, uint8_t *dstP)
+static void CPlayRunSkipDump(uint8_t * srcP, uint8_t * dstP)
 {
-    int8_t cnt;
-    uint16_t wordCnt;
-    uint8_t pixel;
-
-
-nextOp:
-    cnt = (int8_t) *srcP++;
-    if (cnt > 0)
-        goto dump;
-    if (cnt == 0)
-        goto run;
-    cnt -= 0x80;
-    if (cnt == 0)
-        goto longOp;
-    /* shortSkip */
-    dstP += cnt;                    /* adding 7-bit count to 32-bit pointer */
-    goto nextOp;
-dump:
     do
     {
-        *dstP++ = *srcP++;
+        int32_t color, count=*srcP++;
+
+        if (count==0)
+        {
+            /* Short RLE */
+            count=*srcP;
+            color=*(srcP+1);
+            srcP += 2;
+            Bmemset(dstP,color,count);
+            dstP+=count;
+        }
+        else if ((count&0x80) == 0)
+        {
+            /* Short copy */
+            Bmemcpy(dstP,srcP,count);
+            dstP+=count;
+            srcP+=count;
+        }
+        else
+        {
+            /* long op or short skip */
+            count &= ~0x80;
+
+            if (count > 0) /* short skip */
+                dstP+=count;
+            else
+            {
+                /* long op */
+                count = *srcP+((*(srcP+1))<<8);
+                srcP += 2;
+
+                if (count==0) /* stop sign */
+                    return;
+
+                if ((count&0x8000) == 0) /* long skip */
+                    dstP+=count;
+                else
+                {
+                    count &= ~0x8000;
+
+                    if ((count&0x4000) == 0)
+                    {
+                        /* long copy */
+                        Bmemcpy(dstP,srcP,count);
+                        dstP+=count;
+                        srcP+=count;
+                        continue;
+                    }
+
+                    /* and finally, long RLE. */
+                    count &= ~0x4000;
+                    color=*srcP++;
+                    Bmemset(dstP,color,count);
+                    dstP+=count;
+                }
+            }
+        }
     }
-    while (--cnt);
-    goto nextOp;
-run:
-    wordCnt = (uint8_t)*srcP++;                /* 8-bit unsigned count */
-    pixel = *srcP++;
-    do
-    {
-        *dstP++ = pixel;
-    }
-    while (--wordCnt);
-
-    goto nextOp;
-longOp:
-    wordCnt = B_LITTLE16(*((uint16_t *)srcP));
-    srcP += sizeof(uint16_t);
-    if ((int16_t)wordCnt <= 0)
-        goto notLongSkip;       /* Do SIGNED test. */
-
-    /* longSkip. */
-    dstP += wordCnt;
-    goto nextOp;
-
-notLongSkip:
-    if (wordCnt == 0)
-        goto stop;
-    wordCnt -= 0x8000;              /* Remove sign bit. */
-    if (wordCnt >= 0x4000)
-        goto longRun;
-
-    /* longDump. */
-    do
-    {
-        *dstP++ = *srcP++;
-    }
-    while (--wordCnt);
-    goto nextOp;
-
-longRun:
-    wordCnt -= 0x4000;              /* Clear "longRun" bit. */
-    pixel = *srcP++;
-    do
-    {
-        *dstP++ = pixel;
-    }
-    while (--wordCnt);
-    goto nextOp;
-
-stop:   /* all done */
-    ;
+    while (1);
 }
-
 
 
 //****************************************************************************
@@ -280,7 +272,7 @@ void ANIM_LoadAnim(char * buffer)
         buffer++;
     }
     // read in large page descriptors
-    
+
     Bmemcpy(&anim->LpArray, buffer,sizeof(anim->LpArray));
 
     for (i = 0; i < sizeof(anim->LpArray)/sizeof(lp_descriptor); i++)
