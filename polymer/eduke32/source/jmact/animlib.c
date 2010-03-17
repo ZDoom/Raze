@@ -32,67 +32,97 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 
 //****************************************************************************
 //
-// GLOBALS
-//
-//****************************************************************************
-
-//****************************************************************************
-//
 // LOCALS
 //
 //****************************************************************************
-static anim_t * anim=NULL;
-static int32_t Anim_Started = FALSE;
 
-//****************************************************************************
-//
-//      CheckAnimStarted ()
-//
-//****************************************************************************
+# pragma pack(push,1)
 
-static void CheckAnimStarted(char * funcname)
+/* structure declarations for deluxe animate large page files, doesn't
+   need to be in the header because there are no exposed functions
+   that use any of this directly */
+
+typedef struct lpfileheaderstruct{    uint32_t id;              /* 4 uint8_tacter ID == "LPF " */    uint16_t maxLps;          /* max # largePages allowed. 256 FOR NOW.   */    uint16_t nLps;            /* # largePages in this file. */    uint32_t nRecords;        /* # records in this file.  65534 is current limit + ring */    uint16_t maxRecsPerLp;    /* # records permitted in an lp. 256 FOR NOW.   */    uint16_t lpfTableOffset;  /* Absolute Seek position of lpfTable.  1280 FOR NOW. */    uint32_t contentType;     /* 4 character ID == "ANIM" */    uint16_t width;           /* Width of screen in pixels. */    uint16_t height;          /* Height of screen in pixels. */    uint8_t variant;          /* 0==ANIM. */    uint8_t version;          /* 0==frame rate in 18/sec, 1= 70/sec */    uint8_t hasLastDelta;     /* 1==Last record is a delta from last-to-first frame. */    uint8_t lastDeltaValid;   /* 0==Ignore ring frame. */    uint8_t pixelType;        /* 0==256 color. */    uint8_t CompressionType;  /* 1==(RunSkipDump) Only one used FOR NOW. */    uint8_t otherRecsPerFrm;  /* 0 FOR NOW. */    uint8_t bitmaptype;       /* 1==320x200, 256-color.  Only one implemented so far. */    uint8_t recordTypes[32];  /* Not yet implemented. */    uint32_t nFrames;         /* Number of actual frames in the file, includes ring frame. */    uint16_t framesPerSecond; /* Number of frames to play per second. */    uint16_t pad2[29];        /* 58 bytes of filler to round up to 128 bytes total. */}
+lpfileheader;                 /* (comments from original source) */
+
+// this is the format of a large page structure
+typedef struct
 {
-    if (!Anim_Started)
-        Error("ANIMLIB_%s: Anim has not been initialized\n",funcname);
-}
+    uint16_t baseRecord;   // Number of first record in this large page.
+    uint16_t nRecords;        // Number of records in lp.
+    // bit 15 of "nRecords" == "has continuation from previous lp".
+    // bit 14 of "nRecords" == "final record continues on next lp".
+    uint16_t nBytes;                  // Total number of bytes of contents, excluding header.
+} lp_descriptor;
+
+#pragma pack(pop)
+
+#define IMAGEBUFFERSIZE 0x10000
+
+typedef struct
+{
+    uint16_t framecount;          // current frame of anim
+    lpfileheader * lpheader;           // file header will be loaded into this structure
+    lp_descriptor * LpArray; // arrays of large page structs used to find frames
+    uint16_t curlpnum;               // initialize to an invalid Large page number
+    lp_descriptor * curlp;        // header of large page currently in memory
+    uint16_t * thepage;     // buffer where current large page is loaded
+    uint8_t imagebuffer[IMAGEBUFFERSIZE]; // buffer where anim frame is decoded
+    uint8_t * buffer;
+    uint8_t pal[768];
+    int32_t  currentframe;
+} anim_t;
+
+static anim_t * anim = NULL;
 
 //****************************************************************************
 //
 //      findpage ()
-//              - given a frame number return the large page number it resides in
+//              - return the large page number a given frame resides in
 //
 //****************************************************************************
 
-uint16_t findpage(uint16_t framenumber)
+static inline uint16_t findpage(uint16_t framenumber)
 {
     // curlpnum is initialized to 0xffff, obviously
     uint16_t i = (uint16_t)(anim->curlpnum & ~0xffff);
-
-    CheckAnimStarted("findpage");
+    int32_t j = 0;
 
     if (framenumber < anim->currentframe)
-        i = 0;
+        i = 0, j++;
 
-    for (; i<anim->lpheader.nLps; i++)
-        if (anim->LpArray[i].baseRecord <= framenumber &&
+    // this scans the last used page and higher first and then scans the
+    // previously accessed pages afterwards if it doesn't find anything
+    do 
+    {
+        for (; i<anim->lpheader->nLps; i++)
+            if (anim->LpArray[i].baseRecord <= framenumber &&
                 anim->LpArray[i].baseRecord + anim->LpArray[i].nRecords > framenumber)
-            return(i);
+                return i;
 
-    return(i);
+        if (!j && i == anim->lpheader->nLps)
+        {
+            // handle out of order pages... I don't think any Duke .ANM files
+            // have them, but they're part of the file spec
+            i = 0, j++;
+            continue;
+        }
+    }
+    while (0);
+    
+    return i;
 }
 
 
 //****************************************************************************
 //
 //      loadpage ()
-//      - seek out and load in the large page specified
+//      - seek out and set pointers to the large page specified
 //
 //****************************************************************************
 
-void loadpage(uint16_t pagenumber, uint16_t **pagepointer)
+static inline void loadpage(uint16_t pagenumber, uint16_t **pagepointer)
 {
-    CheckAnimStarted("loadpage");
-
     if (anim->curlpnum == pagenumber)
         return;
 
@@ -104,10 +134,10 @@ void loadpage(uint16_t pagenumber, uint16_t **pagepointer)
 
 //****************************************************************************
 //
-//      CPlayRunSkipDump ()
-//      - I found this less obfuscated version of the anm decompressor around,
-//        says it's (c) 1998 "Jari Komppa aka Sol/Trauma".  This code is
-//        public domain and has been modified a bit by me.
+//      decodeframe ()
+//      - I found this less obfuscated version of the .ANM "decompressor",
+//        (c) 1998 "Jari Komppa aka Sol/Trauma".  This code is public domain
+//        but has been mostly rewritten by me.
 //
 //      - As a side note, it looks like this format came about in 1989 and
 //        never went anywhere after that, and appears to have been the format
@@ -116,67 +146,50 @@ void loadpage(uint16_t pagenumber, uint16_t **pagepointer)
 //
 //****************************************************************************
 
-static void CPlayRunSkipDump(uint8_t * srcP, uint8_t * dstP)
+static void decodeframe(uint8_t * srcP, uint8_t * dstP)
 {
     do
     {
-        int32_t color, count=*srcP++;
+        int32_t count=*srcP++;
 
-        if (count==0)
+        if (!count) /* Short RLE */
         {
-            /* Short RLE */
-            count=*srcP;
-            color=*(srcP+1);
-            srcP += 2;
-            Bmemset(dstP,color,count);
-            dstP+=count;
+            int32_t color = *(srcP+1);
+            count = *(uint8_t *)((srcP += sizeof(int16_t)) - sizeof(int16_t));
+            Bmemset((dstP += count) - count, color, count);
+            continue;
         }
-        else if ((count&0x80) == 0)
+        else if ((count & 0x80) == 0) /* Short copy */
         {
-            /* Short copy */
-            Bmemcpy(dstP,srcP,count);
-            dstP+=count;
-            srcP+=count;
+            Bmemcpy((dstP += count) - count, (srcP += count) - count, count);
+            continue;
         }
-        else
+        else if ((count &= ~0x80) > 0) /* short skip */
         {
-            /* long op or short skip */
-            count &= ~0x80;
-
-            if (count > 0) /* short skip */
-                dstP+=count;
-            else
-            {
-                /* long op */
-                count = *srcP+((*(srcP+1))<<8);
-                srcP += 2;
-
-                if (count==0) /* stop sign */
-                    return;
-
-                if ((count&0x8000) == 0) /* long skip */
-                    dstP+=count;
-                else
-                {
-                    count &= ~0x8000;
-
-                    if ((count&0x4000) == 0)
-                    {
-                        /* long copy */
-                        Bmemcpy(dstP,srcP,count);
-                        dstP+=count;
-                        srcP+=count;
-                        continue;
-                    }
-
-                    /* and finally, long RLE. */
-                    count &= ~0x4000;
-                    color=*srcP++;
-                    Bmemset(dstP,color,count);
-                    dstP+=count;
-                }
-            }
+            dstP += count;
+            continue;
         }
+
+        /* long op */
+        count = B_LITTLE16(*((uint16_t *)((srcP += sizeof(int16_t)) - sizeof(int16_t))));
+
+        if (!count) /* stop sign */
+            return;
+        else if ((count & 0x8000) == 0) /* long skip */
+        {
+            dstP += count;
+            continue;
+        }
+        else if ((count &= ~0x8000) & 0x4000) /* long RLE */
+        {
+            int32_t color = *srcP++;
+            count &= ~0x4000;
+            Bmemset((dstP += count) - count, color, count);
+            continue;
+        }
+
+        /* long copy */
+        Bmemcpy((dstP += count) - count, (srcP += count) - count, count);
     }
     while (1);
 }
@@ -189,28 +202,20 @@ static void CPlayRunSkipDump(uint8_t * srcP, uint8_t * dstP)
 //
 //****************************************************************************
 
-void renderframe(uint16_t framenumber, uint16_t *pagepointer)
+static void renderframe(uint16_t framenumber, uint16_t *pagepointer)
 {
-    uint16_t offset=0;
-    uint16_t i;
-    uint16_t destframe;
     uint8_t *ppointer;
+    uint16_t offset = 0;
+    uint16_t frame = framenumber - anim->curlp->baseRecord;
 
-    CheckAnimStarted("renderframe");
-    destframe = framenumber - anim->curlp->baseRecord;
+    while (frame--) offset += B_LITTLE16(pagepointer[frame]);
 
-    for (i = 0; i < destframe; i++)
-        offset += B_LITTLE16(pagepointer[i]);
+    ppointer = (uint8_t *)(pagepointer) + anim->curlp->nRecords*2 + offset + 4;
 
-    ppointer = (uint8_t *)pagepointer;
+    if ((ppointer-4)[1])
+        ppointer += B_LITTLE16(((uint16_t *)(ppointer-4))[1]) + (B_LITTLE16(((uint16_t *)(ppointer-4))[1]) & 1);
 
-    ppointer+=anim->curlp->nRecords*2+offset;
-    if (ppointer[1])
-        ppointer += (4 + B_LITTLE16(((uint16_t *)ppointer)[1]) + (B_LITTLE16(((uint16_t *)ppointer)[1]) & 1));
-    else
-        ppointer+=4;
-
-    CPlayRunSkipDump((uint8_t *)ppointer, (uint8_t *)anim->imagebuffer);
+    decodeframe((uint8_t *)ppointer, (uint8_t *)anim->imagebuffer);
 }
 
 
@@ -221,48 +226,39 @@ void renderframe(uint16_t framenumber, uint16_t *pagepointer)
 //
 //****************************************************************************
 
-void drawframe(uint16_t framenumber)
+static inline void drawframe(uint16_t framenumber)
 {
-    CheckAnimStarted("drawframe");
     loadpage(findpage(framenumber), &anim->thepage);
     renderframe(framenumber, anim->thepage);
 }
 
 
-//****************************************************************************
-//
-//      ANIM_LoadAnim ()
-//
-//****************************************************************************
-
 void ANIM_LoadAnim(char * buffer)
 {
     uint16_t i;
 
-    if (!Anim_Started)
-    {
-        anim = Bmalloc(sizeof(anim_t));
-        Anim_Started = TRUE;
-    }
+    anim = Brealloc(anim, sizeof(anim_t));
 
-    anim->buffer = (uint8_t *)buffer;
     anim->curlpnum = 0xffff;
     anim->currentframe = -1;
-    Bmemcpy(&anim->lpheader, buffer, sizeof(lpfileheader));
 
-    anim->lpheader.id              = B_LITTLE32(anim->lpheader.id);
-    anim->lpheader.maxLps          = B_LITTLE16(anim->lpheader.maxLps);
-    anim->lpheader.nLps            = B_LITTLE16(anim->lpheader.nLps);
-    anim->lpheader.nRecords        = B_LITTLE32(anim->lpheader.nRecords);
-    anim->lpheader.maxRecsPerLp    = B_LITTLE16(anim->lpheader.maxRecsPerLp);
-    anim->lpheader.lpfTableOffset  = B_LITTLE16(anim->lpheader.lpfTableOffset);
-    anim->lpheader.contentType     = B_LITTLE32(anim->lpheader.contentType);
-    anim->lpheader.width           = B_LITTLE16(anim->lpheader.width);
-    anim->lpheader.height          = B_LITTLE16(anim->lpheader.height);
-    anim->lpheader.nFrames         = B_LITTLE32(anim->lpheader.nFrames);
-    anim->lpheader.framesPerSecond = B_LITTLE16(anim->lpheader.framesPerSecond);
+    // this just modifies the data in-place instead of copying it elsewhere now
+    anim->lpheader = (lpfileheader *)(anim->buffer = (uint8_t *)buffer);
+
+    anim->lpheader->id              = B_LITTLE32(anim->lpheader->id);
+    anim->lpheader->maxLps          = B_LITTLE16(anim->lpheader->maxLps);
+    anim->lpheader->nLps            = B_LITTLE16(anim->lpheader->nLps);
+    anim->lpheader->nRecords        = B_LITTLE32(anim->lpheader->nRecords);
+    anim->lpheader->maxRecsPerLp    = B_LITTLE16(anim->lpheader->maxRecsPerLp);
+    anim->lpheader->lpfTableOffset  = B_LITTLE16(anim->lpheader->lpfTableOffset);
+    anim->lpheader->contentType     = B_LITTLE32(anim->lpheader->contentType);
+    anim->lpheader->width           = B_LITTLE16(anim->lpheader->width);
+    anim->lpheader->height          = B_LITTLE16(anim->lpheader->height);
+    anim->lpheader->nFrames         = B_LITTLE32(anim->lpheader->nFrames);
+    anim->lpheader->framesPerSecond = B_LITTLE16(anim->lpheader->framesPerSecond);
 
     buffer += sizeof(lpfileheader)+128;
+
     // load the color palette
     for (i = 0; i < 768; i += 3)
     {
@@ -271,11 +267,13 @@ void ANIM_LoadAnim(char * buffer)
         anim->pal[i] = (*buffer++)>>2;
         buffer++;
     }
-    // read in large page descriptors
 
-    Bmemcpy(&anim->LpArray, buffer,sizeof(anim->LpArray));
+    // set up large page descriptors
+    anim->LpArray = (lp_descriptor *)buffer;
 
-    for (i = 0; i < sizeof(anim->LpArray)/sizeof(lp_descriptor); i++)
+    // theoretically we should be able to play files with more than 256 frames now
+    // assuming the utilities to create them can make them that way
+    for (i = anim->lpheader->nLps-1; i != 0; i--)
     {
         anim->LpArray[i].baseRecord = B_LITTLE16(anim->LpArray[i].baseRecord);
         anim->LpArray[i].nRecords   = B_LITTLE16(anim->LpArray[i].nRecords);
@@ -283,66 +281,40 @@ void ANIM_LoadAnim(char * buffer)
     }
 }
 
-//****************************************************************************
-//
-//      ANIM_FreeAnim ()
-//
-//****************************************************************************
 
 void ANIM_FreeAnim(void)
 {
-    if (Anim_Started)
+    if (anim != NULL)
     {
         Bfree(anim);
-        Anim_Started = FALSE;
+        anim = NULL;
     }
 }
 
-//****************************************************************************
-//
-//      ANIM_NumFrames ()
-//
-//****************************************************************************
 
 int32_t ANIM_NumFrames(void)
 {
-    CheckAnimStarted("NumFrames");
-    return anim->lpheader.nRecords;
+    return anim->lpheader->nRecords;
 }
 
-//****************************************************************************
-//
-//      ANIM_DrawFrame ()
-//
-//****************************************************************************
 
 uint8_t * ANIM_DrawFrame(int32_t framenumber)
 {
-    int32_t cnt;
+    int32_t cnt = anim->currentframe;
 
-    CheckAnimStarted("DrawFrame");
-    if ((anim->currentframe != -1) && (anim->currentframe<=framenumber))
-    {
-        for (cnt = anim->currentframe; cnt < framenumber; cnt++)
-            drawframe(cnt);
-    }
-    else
-    {
-        for (cnt = 0; cnt < framenumber; cnt++)
-            drawframe(cnt);
-    }
+    // handle first play and looping or rewinding
+    if (cnt < 0 || cnt > framenumber)
+        cnt = 0;
+
+    do drawframe(cnt++);
+    while (cnt < framenumber);
+    
     anim->currentframe = framenumber;
     return anim->imagebuffer;
 }
 
-//****************************************************************************
-//
-//      ANIM_GetPalette ()
-//
-//****************************************************************************
 
 uint8_t * ANIM_GetPalette(void)
 {
-    CheckAnimStarted("GetPalette");
     return anim->pal;
 }
