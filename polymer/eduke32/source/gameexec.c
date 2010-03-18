@@ -3866,26 +3866,31 @@ nullquote:
 
                         if (asize > 0)
                         {
-                            OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);
-                            aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, sizeof(int) * asize);
-                            aGameArrays[j].size = asize;
+                            OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
+                                aGameArrays[j].szLabel, aGameArrays[j].size, asize / sizeof(int32_t));
+                            aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, asize);
+                            aGameArrays[j].size = asize / sizeof(int32_t);
+                            kread(fil, aGameArrays[j].plValues, asize);
                         }
 
-                        kread(fil,aGameArrays[j].plValues,sizeof(int) * asize);
                         kclose(fil);
+                        continue;
                     }
-                    else
+
                     {
                         FILE *fil;
                         char temp[BMAX_PATH];
+
                         if (g_modDir[0] != '/')
                             Bsprintf(temp,"%s/%s",g_modDir,ScriptQuotes[q]);
                         else Bsprintf(temp,"%s",ScriptQuotes[q]);
+
                         if ((fil = fopen(temp,"wb")) == 0) continue;
 
                         fwrite(aGameArrays[j].plValues,1,sizeof(int) * aGameArrays[j].size,fil);
                         fclose(fil);
                     }
+
                     continue;
                 }
             }
@@ -3903,6 +3908,7 @@ nullquote:
             {
                 int32_t j=*insptr++;
                 int32_t asize = Gv_GetVarX(*insptr++);
+
                 if (asize > 0)
                 {
                     OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);
