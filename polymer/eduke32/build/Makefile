@@ -111,7 +111,7 @@ OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-fjump-tables -fno-stack-protector
 #    -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
-LIBS=
+LIBS=-pthread
 ASFLAGS=-s #-g
 EXESUFFIX=
 
@@ -237,23 +237,23 @@ pragmacheck$(EXESUFFIX): $(OBJ)/pragmacheck.$o $(OBJ)/pragmas.$o
 	$(CC) $(subst -Dmain=app_main,,$(OURCFLAGS)) -o $@ $^
 	
 kextract$(EXESUFFIX): $(OBJ)/kextract.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(LIBS)
 kgroup$(EXESUFFIX): $(OBJ)/kgroup.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(LIBS)
 transpal$(EXESUFFIX): $(OBJ)/transpal.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(LIBS)
 wad2art$(EXESUFFIX): $(OBJ)/wad2art.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(LIBS)
 wad2map$(EXESUFFIX): $(OBJ)/wad2map.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(LIBS)
 generateicon$(EXESUFFIX): $(OBJ)/generateicon.$o $(OBJ)/kplib.$o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(LIBS)
 cacheinfo$(EXESUFFIX): $(OBJ)/cacheinfo.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(LIBS)
 enumdisplay$(EXESUFFIX): src/misc/enumdisplay.c
-	$(CC) -g -Os -o $@ $^ -I$(DXROOT)/include -lgdi32
+	$(CC) -g -Os -o $@ $^ $(LIBS) -I$(DXROOT)/include -lgdi32
 mapdump$(EXESUFFIX): $(OBJ)/mapdump.$o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(LIBS)
 
 # DEPENDENCIES
 include Makefile.deps
