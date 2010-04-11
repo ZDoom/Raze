@@ -112,7 +112,7 @@ extern int16_t searchsector, searchwall, searchstat;     //search output
 int32_t osearchx, osearchy;                               //old search input
 
 extern int16_t pointhighlight, linehighlight, highlightcnt;
-int32_t grid = 3, gridlock = 1, showtags = 1;
+int32_t grid = 3, autogrid = 0, gridlock = 1, showtags = 1;
 int32_t zoom = 768, gettilezoom = 1;
 int32_t lastpm16time = 0;
 

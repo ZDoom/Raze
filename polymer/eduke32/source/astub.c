@@ -7733,8 +7733,6 @@ static void Keys2d(void)
     }
 
     {
-        static int32_t autogrid = 0;
-
         if (keystatus[KEYSC_G])  // G (grid on/off)
         {
             if (autogrid)
@@ -7749,17 +7747,8 @@ static void Keys2d(void)
                 grid += eitherSHIFT?-1:1;
                 if (grid == -1 || grid == 9)
                 {
-                    switch (grid)
-                    {
-                    case -1:
-                        autogrid = 1;
-                        grid = 8;
-                        break;
-                    case 9:
-                        autogrid = 1;
-                        grid = 0;
-                        break;
-                    }
+                    autogrid = 1;
+                    grid = 0;
                 }
             }
             if (autogrid) Bsprintf(tempbuf,"Grid size: 9 (autosize)");

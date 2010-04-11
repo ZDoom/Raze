@@ -106,7 +106,7 @@ void SetSLIMEPalette();
 void SetWATERPalette();
 void SetGAMEPalette();
 
-extern int32_t grid;
+extern int32_t grid, autogrid;
 
 static void EditSpriteData(int16_t spritenum);
 static void EditWallData(int16_t wallnum);

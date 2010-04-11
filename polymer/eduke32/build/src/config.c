@@ -64,7 +64,8 @@ extern char keys[NUMBUILDKEYS];
 extern char remap[256];
 extern int32_t remapinit;
 extern double msens;
-extern int32_t editorgridextent;
+extern int32_t editorgridextent, grid, autogrid;
+static int32_t default_grid=3;
 extern int32_t showheightindicators;
 extern int32_t graphicsmode;
 extern int32_t AmbienceToggle;
@@ -139,6 +140,13 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "bpp", val, VL) > 0) bppgame = Batoi(val);
     if (readconfig(fp, "vsync", val, VL) > 0) vsync = Batoi(val)?1:0;
     if (readconfig(fp, "editorgridextent", val, VL) > 0) editorgridextent = max(min(524288,Batoi(val)),65536);
+    if (readconfig(fp, "grid", val, VL) > 0)
+    {
+        grid = Batoi(val);
+        default_grid = grid;
+        autogrid = (grid==9);
+        grid = min(max(0, grid), 8);
+    }
 #ifdef POLYMER
     if (readconfig(fp, "rendmode", val, VL) > 0) { i = Batoi(val); glrendmode = i; }
 #endif
@@ -306,6 +314,8 @@ int32_t writesetup(const char *fn)
 #endif
              "; Grid limits\n"
              "editorgridextent = %d\n"
+             "; Startup grid size (0-8, 9 is automatic)\n"
+             "grid = %d\n"
              "\n"
 #if defined(POLYMOST) && defined(USE_OPENGL)
              "; OpenGL mode options\n"
@@ -453,7 +463,7 @@ int32_t writesetup(const char *fn)
 #ifdef POLYMER
              glrendmode,
 #endif
-             editorgridextent,
+             editorgridextent, min(max(0, default_grid), 9),
 #if defined(POLYMOST) && defined(USE_OPENGL)
              usemodels, usehightile,
              glusetexcache, gltexfiltermode, glanisotropy,
