@@ -517,3 +517,82 @@ defstate resetallws  // reset all sprites and walls to default repeat/panning
 		fixrepeats i
 	}
 ends
+
+defstate jumptosec  // (tmp)
+    for i allsectors
+    {   
+        ife i tmp
+        {
+            set j sector[i].wallptr
+            set posx wall[j].x
+            set posy wall[j].y
+        }
+    }   
+ends
+
+// Map corruption checker
+definequote 19 PANIC!!! SECTOR OR WALL LIMIT EXCEEDED!!!
+definequote 20 SECTOR[%d].WALLPTR=%d out of range: numwalls=%d!!!
+definequote 21 SECTOR[%d].WALLPTR=%d inconsistent, expected %d!!!
+definequote 22 SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d!!!
+definequote 23 WALL[%d].POINT2=%d out of range: sector[%d].wallptr=%d, endwall=%d!!!
+definequote 24 WALL[%d].NEXTWALL=%d out of range: numwalls=%d!!!
+definequote 25 WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d!!!
+
+gamevar ewall 0 0
+gamevar endwall 0 0
+
+defstate corruptchk
+    ifle numsectors MAXSECTORS ifle numwalls MAXWALLS nullop else
+    { quote 19 printmessage16 19 return }
+    set ewall 0  // expected wall index
+    for i allsectors
+    {
+        set k 1
+        ifge sector[i].wallptr 0 ifl sector[i].wallptr numwalls nullop else
+        {
+            qsprintf TQUOTE 20 i sector[i].wallptr numwalls
+            quote TQUOTE printmessage16 TQUOTE
+            set k 0
+        }
+        ifn ewall sector[i].wallptr
+        {
+			qsprintf TQUOTE 21 i sector[i].wallptr ewall
+            quote TQUOTE printmessage16 TQUOTE
+            set ewall sector[i].wallptr
+        }
+        add ewall sector[i].wallnum
+
+        set endwall sector[i].wallptr  add endwall sector[i].wallnum
+        ifg endwall numwalls
+        {
+            qsprintf TQUOTE 22 i endwall numwalls
+            quote TQUOTE printmessage16 TQUOTE
+            set k 0
+        }
+
+        ifn k 0
+        {
+			for j wallsofsector i
+			{
+				ifge wall[j].point2 sector[i].wallptr  ifl wall[i].point2 endwall nullop else
+                {
+                    qsprintf TQUOTE 23 j wall[j].point2 i sector[i].wallptr endwall
+				    quote TQUOTE printmessage16 TQUOTE
+                }
+
+                ifge wall[i].nextwall numwalls
+				{
+					qsprintf TQUOTE 24 j wall[j].nextwall numwalls
+				    quote TQUOTE printmessage16 TQUOTE
+				}
+
+                ifge wall[i].nextsector numsectors
+				{
+					qsprintf TQUOTE 25 j wall[j].nextsector numsectors
+				    quote TQUOTE printmessage16 TQUOTE
+				}
+			}
+        }
+    }
+ends

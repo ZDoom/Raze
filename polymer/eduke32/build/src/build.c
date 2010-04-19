@@ -1194,6 +1194,8 @@ char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck)
     return(dachar);
 }
 
+static int32_t newnumwalls=-1;
+
 void overheadeditor(void)
 {
     char buffer[80], *dabuffer, ch;
@@ -1201,7 +1203,7 @@ void overheadeditor(void)
     int32_t tempint, tempint1, tempint2, doubvel;
     int32_t startwall=0, endwall, dax, day, x1, y1, x2, y2, x3, y3, x4, y4;
     int32_t highlightx1, highlighty1, highlightx2, highlighty2, xvect, yvect;
-    int16_t pag, suckwall=0, sucksect, newnumwalls, newnumsectors, split=0, bad;
+    int16_t pag, suckwall=0, sucksect, /*newnumwalls,*/ newnumsectors, split=0, bad;
     int16_t splitsect=0, danumwalls, secondstartwall, joinsector[2], joinsectnum;
     int16_t splitstartwall=0, splitendwall, loopnum;
     int32_t mousx, mousy, bstatus;
@@ -3348,9 +3350,16 @@ SKIP:
             }
         }
 
-        if (bad > 0)  //Space
+        if (bad > 0 && (max(numwalls,newnumwalls) > MAXWALLS - (newnumwalls < numwalls)))
         {
-            if ((newnumwalls < numwalls) && (numwalls < MAXWALLS-1))
+            if (newnumwalls < numwalls)
+                printmessage16("Can't start sector drawing: wall limit reached.");
+            else
+                printmessage16("Inserting another point would exceed wall limit.");
+        }
+        else if (bad > 0)  //Space
+        {
+            if ((newnumwalls < numwalls) /*&& (numwalls < MAXWALLS-1)*/)
             {
                 firstx = mousxplc, firsty = mousyplc;  //Make first point
                 newnumwalls = numwalls;
@@ -3581,6 +3590,7 @@ SKIP:
                     //split sector
                     startwall = sector[splitsect].wallptr;
                     endwall = startwall + sector[splitsect].wallnum - 1;
+//                    OSD_Printf("numwalls: %d, newnumwalls: %d\n", numwalls, newnumwalls);
                     for (k=startwall; k<=endwall; k++)
                         if (wall[k].x == wall[newnumwalls-1].x)
                             if (wall[k].y == wall[newnumwalls-1].y)
@@ -3588,6 +3598,16 @@ SKIP:
                                 bad = 0;
                                 if (loopnumofsector(splitsect,splitstartwall) != loopnumofsector(splitsect,(int16_t)k))
                                     bad = 1;
+
+                                if (numwalls+2*(newnumwalls-numwalls-1) > MAXWALLS)
+                                {
+                                    if (bad==0)
+                                        printmessage16("Splitting sector would exceed wall limit.");
+                                    else
+                                        printmessage16("Joining sector loops would exceed wall limit.");
+                                    newnumwalls--;
+                                    break;
+                                }
 
                                 if (bad == 0)
                                 {
@@ -3954,13 +3974,13 @@ SKIP:
                 if (newnumwalls > numwalls)
                 {
                     newnumwalls--;
-                    asksave = 1;
+//                    asksave = 1;
                     keystatus[0x0e] = 0;
                 }
                 if (newnumwalls == numwalls)
                 {
                     newnumwalls = -1;
-                    asksave = 1;
+//                    asksave = 1;
                     keystatus[0x0e] = 0;
                 }
             }
@@ -4105,6 +4125,7 @@ SKIP:
             else if (linehighlight >= 0)
             {
                 int32_t wallsdrawn = newnumwalls-numwalls;
+                int32_t wallis2sided = (wall[linehighlight].nextwall>=0);
 
                 if (newnumwalls != -1)
                 {
@@ -4113,44 +4134,49 @@ SKIP:
                 }
                 else wallsdrawn = -1;
 
-                getclosestpointonwall(mousxplc,mousyplc,(int32_t)linehighlight,&dax,&day);
-                adjustmark(&dax,&day,newnumwalls);
-                insertpoint(linehighlight,dax,day);
-                printmessage16("Point inserted.");
-
-                j = 0;
-                //Check to see if point was inserted over another point
-                for (i=numwalls-1; i>=0; i--)  //delete points
-                    if (wall[i].x == wall[wall[i].point2].x)
-                        if (wall[i].y == wall[wall[i].point2].y)
-                        {
-                            deletepoint((int16_t)i);
-                            j++;
-                        }
-                for (i=0; i<numwalls; i++)     //make new red lines?
+                if (max(numwalls,newnumwalls) >= MAXWALLS-wallis2sided)
+                    printmessage16("Inserting point would exceed wall limit.");
+                else
                 {
-                    if ((wall[i].x == dax) && (wall[i].y == day))
+                    getclosestpointonwall(mousxplc,mousyplc,(int32_t)linehighlight,&dax,&day);
+                    adjustmark(&dax,&day,newnumwalls);
+                    insertpoint(linehighlight,dax,day);
+                    printmessage16("Point inserted.");
+
+                    j = 0;
+                    //Check to see if point was inserted over another point
+                    for (i=numwalls-1; i>=0; i--)  //delete points
+                        if (wall[i].x == wall[wall[i].point2].x)
+                            if (wall[i].y == wall[wall[i].point2].y)
+                            {
+                                deletepoint((int16_t)i);
+                                j++;
+                            }
+                    for (i=0; i<numwalls; i++)     //make new red lines?
                     {
-                        checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
-                        fixrepeats((int16_t)i);
+                        if ((wall[i].x == dax) && (wall[i].y == day))
+                        {
+                            checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
+                            fixrepeats((int16_t)i);
+                        }
+                        else if ((wall[wall[i].point2].x == dax) && (wall[wall[i].point2].y == day))
+                        {
+                            checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
+                            fixrepeats((int16_t)i);
+                        }
                     }
-                    else if ((wall[wall[i].point2].x == dax) && (wall[wall[i].point2].y == day))
-                    {
-                        checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
-                        fixrepeats((int16_t)i);
-                    }
+                    //if (j != 0)
+                    //{
+                    //   dax = ((wall[linehighlight].x + wall[wall[linehighlight].point2].x)>>1);
+                    //   day = ((wall[linehighlight].y + wall[wall[linehighlight].point2].y)>>1);
+                    //   if ((dax != wall[linehighlight].x) || (day != wall[linehighlight].y))
+                    //      if ((dax != wall[wall[linehighlight].point2].x) || (day != wall[wall[linehighlight].point2].y))
+                    //      {
+                    //         insertpoint(linehighlight,dax,day);
+                    //         printmessage16("Point inserted at midpoint.");
+                    //      }
+                    //}
                 }
-                //if (j != 0)
-                //{
-                //   dax = ((wall[linehighlight].x + wall[wall[linehighlight].point2].x)>>1);
-                //   day = ((wall[linehighlight].y + wall[wall[linehighlight].point2].y)>>1);
-                //   if ((dax != wall[linehighlight].x) || (day != wall[linehighlight].y))
-                //      if ((dax != wall[wall[linehighlight].point2].x) || (day != wall[wall[linehighlight].point2].y))
-                //      {
-                //         insertpoint(linehighlight,dax,day);
-                //         printmessage16("Point inserted at midpoint.");
-                //      }
-                //}
 
                 if (wallsdrawn != -1)
                 {
@@ -5125,6 +5151,15 @@ int32_t movewalls(int32_t start, int32_t offs)
 int32_t checksectorpointer(int16_t i, int16_t sectnum)
 {
     int32_t j, k, startwall, endwall, x1, y1, x2, y2;
+
+    char buf[128];
+    if (i<0 || i>=max(numwalls,newnumwalls))
+    {
+        Bsprintf(buf, "WARN: checksectorpointer called with i=%d but (new)numwalls=%d", i, max(numwalls,newnumwalls));
+        OSD_Printf("%s\n", buf);
+        printmessage16(buf);
+        return 0;
+    }
 
     x1 = wall[i].x;
     y1 = wall[i].y;
