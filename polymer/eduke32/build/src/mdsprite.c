@@ -1473,7 +1473,7 @@ static inline void  normalize(float* vec)
     vec[2] *= norm;
 }
 
-static void     md3postload(md3model_t* m)
+static int      md3postload(md3model_t* m)
 {
     int         framei, surfi, verti, trii, i;
     md3surf_t   *s;
@@ -1607,6 +1607,14 @@ static void     md3postload(md3model_t* m)
         while (trii < s->numtris)
         {
             // let the vertices know they're being referenced by a triangle
+            if (s->tris[trii].i[0] >= s->numverts || s->tris[trii].i[0] < 0 ||
+                s->tris[trii].i[1] >= s->numverts || s->tris[trii].i[1] < 0 ||
+                s->tris[trii].i[2] >= s->numverts || s->tris[trii].i[2] < 0) {
+                // corrupt model
+                nedpfree(model_data_pool, numtris);
+                OSD_Printf("Triangle index out of bounds!\n");
+                return 0;
+            }
             numtris[s->tris[trii].i[0]]++;
             numtris[s->tris[trii].i[1]]++;
             numtris[s->tris[trii].i[2]]++;
@@ -1689,6 +1697,8 @@ static void     md3postload(md3model_t* m)
 
         surfi++;
     }
+
+    return 1;
 }
 
 static int32_t md3draw(md3model_t *m, spritetype *tspr)
@@ -3103,16 +3113,18 @@ mdmodel_t *mdload(const char *filnam)
     case 0x32504449:
 //        initprintf("Warning: model '%s' is version IDP2; wanted version IDP3\n",filnam);
         vm = (mdmodel_t*)md2load(fil,filnam);
-        md3postload((md3model_t*)vm);
         break; //IDP2
     case 0x33504449:
         vm = (mdmodel_t*)md3load(fil);
-        md3postload((md3model_t*)vm);
         break; //IDP3
     default:
         vm = (mdmodel_t*)0; break;
     }
     kclose(fil);
+    if (vm && !md3postload((md3model_t*)vm)) {
+        mdfree(vm);
+        vm = (mdmodel_t*)0;
+    }
     return(vm);
 }
 
