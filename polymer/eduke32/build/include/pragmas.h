@@ -1067,7 +1067,7 @@ void copybufreverse(void *S, void *D, int32_t c);
 	   __asm__ __volatile__ ("addl %%ebx, %%esi; movw (%%eax), %%cx; movb (%%ebx), %%dl; " \
 				"movb %%cl, (%%ebx); movb (%%esi), %%dh; movb %%ch, (%%esi); " \
 				"movw %%dx, (%%eax)" \
-		: : "a" (__a), "b" (__b), "S" (__S) : "ecx", "edx", "memory", "cc"); \
+		: "=S" (__S) : "a" (__a), "b" (__b), "S" (__S) : "ecx", "edx", "memory", "cc"); \
 	 0; })
 
 
