@@ -24,14 +24,12 @@ flags_cl= /Od /Zi
 flags_link=/DEBUG
 !else
 # release options
-flags_cl=/Ox /GL /arch:SSE
+flags_cl=/O2 /GL /arch:SSE /MP
 flags_link=/RELEASE /LTCG
 !endif
 
 
-DXROOT="U:\SDKs\Microsoft DirectX SDK (April 2007)
-MSSDKROOT="N:\Program Files\Microsoft Visual Studio 9.0\VC
-PLATFORMSDK="N:\Program Files\Microsoft Visual Studio 9.0\VC\PlatformSDK
+DXROOT="C:\Program Files\Microsoft DirectX SDK (February 2010)"
 
 ENGINEOPTS=/DSUPERBUILD /DPOLYMOST /DUSE_OPENGL /DPOLYMER
 
@@ -40,10 +38,10 @@ AS=ml
 LINK=link /nologo /opt:ref
 MT=mt
 CFLAGS= /MT /J /nologo $(flags_cl)  \
-	/I$(INC) /I$(EINC)\msvc /I$(EINC)\ /I$(SRC)\jmact /I$(JAUDIOLIBDIR)\include /I$(ENETDIR)\include /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" \
+	/I$(INC) /I$(EINC)\msvc /I$(EINC)\ /I$(SRC)\jmact /I$(JAUDIOLIBDIR)\include /I$(ENETDIR)\include \
  	/D "_CRT_SECURE_NO_DEPRECATE" /W2 $(ENGINEOPTS) \
- 	/I$(DXROOT)\include" /DRENDERTYPEWIN=1
-LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib ws2_32.lib comctl32.lib \
+ 	/I$(DXROOT)\include /DRENDERTYPEWIN=1
+LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib dxguid.lib comctl32.lib \
         /NODEFAULTLIB:glu32.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:msvcrtd.lib
 
 LIBS=vorbisfile_static.lib vorbis_static.lib ogg_static.lib dsound.lib advapi32.lib $(LIBS)
@@ -128,18 +126,18 @@ EDITOROBJS=$(OBJ)\astub.$o \
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
 {$(SRC)\misc}.rc{$(OBJ)\}.res:
-	$(RC) /i$(EINC)\ /i$(SRC)\ /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" /DPOLYMER /fo$@ /r $<
+	$(RC) /i$(EINC)\ /i$(SRC)\ /DPOLYMER /fo$@ /r $<
 
 
 # TARGETS
 all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) # duke3d_w32$(EXESUFFIX);
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB) $(ENETDIR)\$(ENETLIB)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86 $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $(RSRC)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86 $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $(RSRC)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 !include Makefile.deps

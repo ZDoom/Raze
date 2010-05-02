@@ -9,6 +9,7 @@
 #include "cache1d.h"
 #include "pragmas.h"
 #include "baselayer.h"
+#include "mutex.h"
 
 #ifdef WITHKPLIB
 #include "kplib.h"
@@ -59,6 +60,7 @@ static intptr_t kzipopen(char *filnam)
 
 #define MAXCACHEOBJECTS 9216
 
+mutex_t cachemutex;
 static int32_t cachesize = 0;
 int32_t cachecount = 0;
 char zerochar = 0;
@@ -99,6 +101,7 @@ void initcache(intptr_t dacachestart, int32_t dacachesize)
     cac[0].lock = &zerochar;
     cacnum = 1;
 
+    mutex_init(&cachemutex);
     initprintf("Initialized %.1fM cache\n", (float)(dacachesize/1024.f/1024.f));
 }
 
@@ -186,8 +189,10 @@ void suckcache(intptr_t *suckptr)
 {
     int32_t i;
 
+    while(mutex_lock(&cachemutex));
     //Can't exit early, because invalid pointer might be same even though lock = 0
     for (i=0; i<cacnum; i++)
+    {
         if ((intptr_t)(*cac[i].hand) == (intptr_t)suckptr)
         {
             if (*cac[i].lock) *cac[i].hand = 0;
@@ -206,6 +211,9 @@ void suckcache(intptr_t *suckptr)
                 cacnum--; copybuf(&cac[i+1],&cac[i],(cacnum-i)*sizeof(cactype));
             }
         }
+
+    }
+    mutex_unlock(&cachemutex);
 }
 
 void agecache(void)
@@ -214,6 +222,7 @@ void agecache(void)
 
     if (agecount >= cacnum) agecount = cacnum-1;
     if (agecount < 0 || !cnt) return;
+    while(mutex_lock(&cachemutex));
     for (; cnt>=0; cnt--)
     {
         if ((((*cac[agecount].lock)-2)&255) < 198)
@@ -222,6 +231,7 @@ void agecache(void)
         agecount--;
         if (agecount < 0) agecount = cacnum-1;
     }
+    mutex_unlock(&cachemutex);
 }
 
 static void reportandexit(char *errormessage)

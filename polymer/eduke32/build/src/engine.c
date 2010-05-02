@@ -7805,7 +7805,7 @@ void nextpage(void)
                                per->dashade,per->dapalnum,per->dastat,
                                per->cx1,per->cy1,per->cx2,per->cy2,per->uniqid);
         }
-        enddrawing();   //}}}
+        enddrawing();   //}}}                                      
 
         OSD_Draw();
         showframe(0);
@@ -10039,7 +10039,7 @@ void setbrightness(char dabrightness, uint8_t *dapal, char noapply)
 //
 void setpalettefade(char r, char g, char b, char offset)
 {
-    int32_t i,k;
+    int32_t i;
     palette_t p;
 
     palfadergb.r = min(63,r) << 2;
@@ -10047,7 +10047,6 @@ void setpalettefade(char r, char g, char b, char offset)
     palfadergb.b = min(63,b) << 2;
     palfadedelta = min(63,offset) << 2;
 
-    k = 0;
     for (i=0; i<256; i++)
     {
         if (gammabrightness) p = curpalette[i];

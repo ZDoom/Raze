@@ -3,8 +3,7 @@
 
 SOURCEFILES=GNU.TXT buildlic.txt \
 	   Makefile Makefile.deps Makefile.msvc Makefile.watcom MakeDistributions \
-	   makemsc.bat makew.bat ChangeLog.html duke3d.def.sample \
-	   SEHELP.HLP STHELP.HLP ChangeLog enhance.con.sample names.h
+	   duke3d.def.sample SEHELP.HLP STHELP.HLP enhance.con.sample names.h
 
 BINARYFILES=mapster32.exe eduke32.exe GNU.TXT buildlic.txt \
            ChangeLog.html setup.exe duke3d.def.sample SEHELP.HLP STHELP.HLP \

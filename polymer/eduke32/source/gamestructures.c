@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // I got a 3-4 fps gain by inlining these...
 
 #ifndef _gamevars_c_
-static void __fastcall X_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2)
+static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
 
@@ -911,7 +911,7 @@ static void __fastcall X_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t l
     }
 }
 
-static void __fastcall X_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0,proj=vm.g_i;
 
@@ -920,7 +920,7 @@ static void __fastcall X_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int
 
     if ((proj < 0 || proj >= MAXSPRITES) /* && g_scriptSanityChecks */)
     {
-        //        OSD_Printf("X_AccessActiveProjectile(): invalid projectile (%d)\n",proj);
+        //        OSD_Printf("VM_AccessActiveProjectile(): invalid projectile (%d)\n",proj);
         OSD_Printf(CON_ERROR "tried to %s %s on invalid target projectile (%d) %d %d from %s\n",g_errorLineNum,keyw[g_tw],
                    iSet?"set":"get",ProjectileLabels[lLabelID].name,proj,vm.g_i,vm.g_sp->picnum,
                    (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
@@ -1199,7 +1199,7 @@ static void __fastcall X_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int
     }
 }
 
-static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLabelID, register int32_t lVar2, int32_t lParm2)
+static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLabelID, register int32_t lVar2, int32_t lParm2)
 {
     register int32_t iPlayer=vm.g_p;
 
@@ -1229,11 +1229,11 @@ static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLab
     case PLAYER_LOOGCNT:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->loogcnt, vm.g_i, vm.g_p); return;
     case PLAYER_POSX:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posx, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->pos.x, vm.g_i, vm.g_p); return;
     case PLAYER_POSY:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posy, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->pos.y, vm.g_i, vm.g_p); return;
     case PLAYER_POSZ:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posz, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->pos.z, vm.g_i, vm.g_p); return;
     case PLAYER_HORIZ:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->horiz, vm.g_i, vm.g_p); return;
     case PLAYER_OHORIZ:
@@ -1247,21 +1247,21 @@ static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLab
     case PLAYER_BOBPOSY:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->bobposy, vm.g_i, vm.g_p); return;
     case PLAYER_OPOSX:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->oposx, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->opos.x, vm.g_i, vm.g_p); return;
     case PLAYER_OPOSY:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->oposy, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->opos.y, vm.g_i, vm.g_p); return;
     case PLAYER_OPOSZ:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->oposz, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->opos.z, vm.g_i, vm.g_p); return;
     case PLAYER_PYOFF:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->pyoff, vm.g_i, vm.g_p); return;
     case PLAYER_OPYOFF:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->opyoff, vm.g_i, vm.g_p); return;
     case PLAYER_POSXV:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posxv, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->posvel.x, vm.g_i, vm.g_p); return;
     case PLAYER_POSYV:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posyv, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->posvel.y, vm.g_i, vm.g_p); return;
     case PLAYER_POSZV:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->poszv, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->posvel.z, vm.g_i, vm.g_p); return;
     case PLAYER_LAST_PISSED_TIME:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->last_pissed_time, vm.g_i, vm.g_p); return;
     case PLAYER_TRUEFZ:
@@ -1277,7 +1277,7 @@ static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLab
     case PLAYER_WEAPON_SWAY:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_sway, vm.g_i, vm.g_p); return;
     case PLAYER_PALS_TIME:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->pals_time, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->pals.f, vm.g_i, vm.g_p); return;
     case PLAYER_RANDOMFLAMEX:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->randomflamex, vm.g_i, vm.g_p); return;
     case PLAYER_CRACK_TIME:
@@ -1381,7 +1381,7 @@ static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLab
     case PLAYER_CUSTOMEXITSOUND:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->customexitsound, vm.g_i, vm.g_p); return;
     case PLAYER_WEAPRECS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->weaprecs[15], vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->weaprecs[lParm2], vm.g_i, vm.g_p); return;
     case PLAYER_WEAPRECCNT:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->weapreccnt, vm.g_i, vm.g_p); return;
     case PLAYER_INTERFACE_TOGGLE_FLAG:
@@ -1453,7 +1453,7 @@ static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLab
     case PLAYER_FALLING_COUNTER:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->falling_counter, vm.g_i, vm.g_p); return;
     case PLAYER_GOTWEAPON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->gotweapon[lParm2], vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->gotweapon & (1<<lParm2), vm.g_i, vm.g_p); return;
     case PLAYER_REFRESH_INVENTORY:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->refresh_inventory, vm.g_i, vm.g_p); return;
     case PLAYER_TOGGLE_KEY_FLAG:
@@ -1471,7 +1471,16 @@ static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLab
     case PLAYER_SECRET_ROOMS:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->secret_rooms, vm.g_i, vm.g_p); return;
     case PLAYER_PALS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->pals[lParm2], vm.g_i, vm.g_p); return;
+        switch (lParm2)
+        {
+        case 0:
+            Gv_SetVar(lVar2, g_player[iPlayer].ps->pals.r, vm.g_i, vm.g_p); return;
+        case 1:
+            Gv_SetVar(lVar2, g_player[iPlayer].ps->pals.g, vm.g_i, vm.g_p); return;
+        case 2:
+            Gv_SetVar(lVar2, g_player[iPlayer].ps->pals.b, vm.g_i, vm.g_p); return;
+        }
+        return;
     case PLAYER_MAX_ACTORS_KILLED:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->max_actors_killed, vm.g_i, vm.g_p); return;
     case PLAYER_ACTORS_KILLED:
@@ -1509,7 +1518,7 @@ static void __fastcall X_GetPlayer(register int32_t lVar1, register int32_t lLab
     }
 
 badplayer:
-    //        OSD_Printf("X_AccessPlayer(): invalid target player (%d) %d\n",iPlayer,vm.g_i);
+    //        OSD_Printf("VM_AccessPlayer(): invalid target player (%d) %d\n",iPlayer,vm.g_i);
     OSD_Printf(CON_ERROR "tried to get %s on invalid target player (%d) from spr %d gv %s\n",g_errorLineNum,keyw[g_tw],
                PlayerLabels[lLabelID].name,iPlayer,vm.g_i,
                (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
@@ -1521,7 +1530,7 @@ badpos:
     return;
 }
 
-static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
+static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
 {
     register int32_t iPlayer=vm.g_p;
 
@@ -1553,11 +1562,11 @@ static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar
     case PLAYER_LOOGCNT:
         g_player[iPlayer].ps->loogcnt=lVar1; return;
     case PLAYER_POSX:
-        g_player[iPlayer].ps->posx=lVar1; return;
+        g_player[iPlayer].ps->pos.x=lVar1; return;
     case PLAYER_POSY:
-        g_player[iPlayer].ps->posy=lVar1; return;
+        g_player[iPlayer].ps->pos.y=lVar1; return;
     case PLAYER_POSZ:
-        g_player[iPlayer].ps->posz=lVar1; return;
+        g_player[iPlayer].ps->pos.z=lVar1; return;
     case PLAYER_HORIZ:
         g_player[iPlayer].ps->horiz=lVar1; return;
     case PLAYER_OHORIZ:
@@ -1571,21 +1580,21 @@ static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar
     case PLAYER_BOBPOSY:
         g_player[iPlayer].ps->bobposy=lVar1; return;
     case PLAYER_OPOSX:
-        g_player[iPlayer].ps->oposx=lVar1; return;
+        g_player[iPlayer].ps->opos.x=lVar1; return;
     case PLAYER_OPOSY:
-        g_player[iPlayer].ps->oposy=lVar1; return;
+        g_player[iPlayer].ps->opos.y=lVar1; return;
     case PLAYER_OPOSZ:
-        g_player[iPlayer].ps->oposz=lVar1; return;
+        g_player[iPlayer].ps->opos.z=lVar1; return;
     case PLAYER_PYOFF:
         g_player[iPlayer].ps->pyoff=lVar1; return;
     case PLAYER_OPYOFF:
         g_player[iPlayer].ps->opyoff=lVar1; return;
     case PLAYER_POSXV:
-        g_player[iPlayer].ps->posxv=lVar1; return;
+        g_player[iPlayer].ps->posvel.x=lVar1; return;
     case PLAYER_POSYV:
-        g_player[iPlayer].ps->posyv=lVar1; return;
+        g_player[iPlayer].ps->posvel.y=lVar1; return;
     case PLAYER_POSZV:
-        g_player[iPlayer].ps->poszv=lVar1; return;
+        g_player[iPlayer].ps->posvel.z=lVar1; return;
     case PLAYER_LAST_PISSED_TIME:
         g_player[iPlayer].ps->last_pissed_time=lVar1; return;
     case PLAYER_TRUEFZ:
@@ -1601,7 +1610,7 @@ static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar
     case PLAYER_WEAPON_SWAY:
         g_player[iPlayer].ps->weapon_sway=lVar1; return;
     case PLAYER_PALS_TIME:
-        g_player[iPlayer].ps->pals_time=lVar1; return;
+        g_player[iPlayer].ps->pals.f=lVar1; return;
     case PLAYER_RANDOMFLAMEX:
         g_player[iPlayer].ps->randomflamex=lVar1; return;
     case PLAYER_CRACK_TIME:
@@ -1705,7 +1714,7 @@ static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar
     case PLAYER_CUSTOMEXITSOUND:
         g_player[iPlayer].ps->customexitsound=lVar1; return;
     case PLAYER_WEAPRECS:
-        g_player[iPlayer].ps->weaprecs[15]=lVar1; return;
+        g_player[iPlayer].ps->weaprecs[lParm2]=lVar1; return;
     case PLAYER_WEAPRECCNT:
         g_player[iPlayer].ps->weapreccnt=lVar1; return;
     case PLAYER_INTERFACE_TOGGLE_FLAG:
@@ -1781,7 +1790,14 @@ static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar
     case PLAYER_FALLING_COUNTER:
         g_player[iPlayer].ps->falling_counter=lVar1; return;
     case PLAYER_GOTWEAPON:
-        g_player[iPlayer].ps->gotweapon[lParm2]=lVar1; return;
+        if (lVar1)
+        {
+            g_player[iPlayer].ps->gotweapon |= (1<<lParm2);
+            return;
+        }
+
+        g_player[iPlayer].ps->gotweapon &= ~(1<<lParm2);
+        return;
     case PLAYER_REFRESH_INVENTORY:
         g_player[iPlayer].ps->refresh_inventory=lVar1; return;
     case PLAYER_TOGGLE_KEY_FLAG:
@@ -1799,7 +1815,16 @@ static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar
     case PLAYER_SECRET_ROOMS:
         g_player[iPlayer].ps->secret_rooms=lVar1; return;
     case PLAYER_PALS:
-        g_player[iPlayer].ps->pals[lParm2]=lVar1; return;
+        switch (lParm2)
+        {
+        case 0:
+            g_player[iPlayer].ps->pals.r = lVar1; return;
+        case 1:
+            g_player[iPlayer].ps->pals.g = lVar1; return;
+        case 2:
+            g_player[iPlayer].ps->pals.b = lVar1; return;
+        }
+        return;
     case PLAYER_MAX_ACTORS_KILLED:
         g_player[iPlayer].ps->max_actors_killed=lVar1; return;
     case PLAYER_ACTORS_KILLED:
@@ -1837,7 +1862,7 @@ static void __fastcall X_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar
     }
 
 badplayer:
-    //        OSD_Printf("X_AccessPlayer(): invalid target player (%d) %d\n",iPlayer,vm.g_i);
+    //        OSD_Printf("VM_AccessPlayer(): invalid target player (%d) %d\n",iPlayer,vm.g_i);
     OSD_Printf(CON_ERROR "tried to set %s on invalid target player (%d) from spr %d gv %s\n",g_errorLineNum,keyw[g_tw],
                PlayerLabels[lLabelID].name,iPlayer,vm.g_i,
                (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
@@ -1851,7 +1876,7 @@ badpos:
     return;
 }
 
-static void __fastcall X_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static void __fastcall VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
     int32_t iPlayer=vm.g_p;
@@ -1930,7 +1955,7 @@ badplayer:
     return;
 }
 
-static void __fastcall X_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
     int32_t iWall = Gv_GetVar(lVar1, vm.g_i, vm.g_p);
@@ -2105,7 +2130,7 @@ badwall:
     return;
 }
 
-static void __fastcall X_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
     int32_t iSector=sprite[vm.g_i].sectnum;
@@ -2338,7 +2363,7 @@ badsector:
     return;
 }
 
-static void __fastcall X_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
+static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
 {
     register int32_t iActor=vm.g_i;
 
@@ -2448,75 +2473,75 @@ static void __fastcall X_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVar
         return;
 
     case ACTOR_HTCGG:
-        ActorExtra[iActor].cgg=lVar1;
+        actor[iActor].cgg=lVar1;
         return;
 
     case ACTOR_HTPICNUM :
-        ActorExtra[iActor].picnum=lVar1;
+        actor[iActor].picnum=lVar1;
         return;
 
     case ACTOR_HTANG:
-        ActorExtra[iActor].ang=lVar1;
+        actor[iActor].ang=lVar1;
         return;
 
     case ACTOR_HTEXTRA:
-        ActorExtra[iActor].extra=lVar1;
+        actor[iActor].extra=lVar1;
         return;
 
     case ACTOR_HTOWNER:
-        ActorExtra[iActor].owner=lVar1;
+        actor[iActor].owner=lVar1;
         return;
 
     case ACTOR_HTMOVFLAG:
-        ActorExtra[iActor].movflag=lVar1;
+        actor[iActor].movflag=lVar1;
         return;
 
     case ACTOR_HTTEMPANG:
-        ActorExtra[iActor].tempang=lVar1;
+        actor[iActor].tempang=lVar1;
         return;
 
     case ACTOR_HTACTORSTAYPUT:
-        ActorExtra[iActor].actorstayput=lVar1;
+        actor[iActor].actorstayput=lVar1;
         return;
 
     case ACTOR_HTDISPICNUM:
-        ActorExtra[iActor].dispicnum=lVar1;
+        actor[iActor].dispicnum=lVar1;
         return;
 
     case ACTOR_HTTIMETOSLEEP:
-        ActorExtra[iActor].timetosleep=lVar1;
+        actor[iActor].timetosleep=lVar1;
         return;
 
     case ACTOR_HTFLOORZ:
-        ActorExtra[iActor].floorz=lVar1;
+        actor[iActor].floorz=lVar1;
         return;
 
     case ACTOR_HTCEILINGZ:
-        ActorExtra[iActor].ceilingz=lVar1;
+        actor[iActor].ceilingz=lVar1;
         return;
 
     case ACTOR_HTLASTVX:
-        ActorExtra[iActor].lastvx=lVar1;
+        actor[iActor].lastvx=lVar1;
         return;
 
     case ACTOR_HTLASTVY:
-        ActorExtra[iActor].lastvy=lVar1;
+        actor[iActor].lastvy=lVar1;
         return;
 
     case ACTOR_HTBPOSX:
-        ActorExtra[iActor].bposx=lVar1;
+        actor[iActor].bposx=lVar1;
         return;
 
     case ACTOR_HTBPOSY:
-        ActorExtra[iActor].bposy=lVar1;
+        actor[iActor].bposy=lVar1;
         return;
 
     case ACTOR_HTBPOSZ:
-        ActorExtra[iActor].bposz=lVar1;
+        actor[iActor].bposz=lVar1;
         return;
 
     case ACTOR_HTG_T:
-        ActorExtra[iActor].temp_data[lParm2]=lVar1;
+        actor[iActor].t_data[lParm2]=lVar1;
         return;
 
     case ACTOR_ANGOFF:
@@ -2556,7 +2581,7 @@ static void __fastcall X_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVar
         return;
 
     case ACTOR_HTFLAGS:
-        ActorExtra[iActor].flags=lVar1;
+        actor[iActor].flags=lVar1;
         return;
 
     case ACTOR_ALPHA:
@@ -2582,7 +2607,7 @@ badpos:
 }
 
 
-static void __fastcall X_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
+static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
 {
     register int32_t iActor=vm.g_i;
 
@@ -2690,75 +2715,75 @@ static void __fastcall X_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVar
         return;
 
     case ACTOR_HTCGG:
-        Gv_SetVar(lVar2, ActorExtra[iActor].cgg, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, actor[iActor].cgg, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTPICNUM :
-        Gv_SetVar(lVar2, ActorExtra[iActor].picnum, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, actor[iActor].picnum, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTANG:
-        Gv_SetVar(lVar2, ActorExtra[iActor].ang, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, actor[iActor].ang, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTEXTRA:
-        Gv_SetVar(lVar2,ActorExtra[iActor].extra, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].extra, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTOWNER:
-        Gv_SetVar(lVar2,ActorExtra[iActor].owner, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].owner, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTMOVFLAG:
-        Gv_SetVar(lVar2,ActorExtra[iActor].movflag, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].movflag, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTTEMPANG:
-        Gv_SetVar(lVar2,ActorExtra[iActor].tempang, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].tempang, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTACTORSTAYPUT:
-        Gv_SetVar(lVar2,ActorExtra[iActor].actorstayput, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].actorstayput, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTDISPICNUM:
-        Gv_SetVar(lVar2,ActorExtra[iActor].dispicnum, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].dispicnum, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTTIMETOSLEEP:
-        Gv_SetVar(lVar2,ActorExtra[iActor].timetosleep, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].timetosleep, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTFLOORZ:
-        Gv_SetVar(lVar2,ActorExtra[iActor].floorz, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].floorz, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTCEILINGZ:
-        Gv_SetVar(lVar2,ActorExtra[iActor].ceilingz, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].ceilingz, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTLASTVX:
-        Gv_SetVar(lVar2,ActorExtra[iActor].lastvx, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].lastvx, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTLASTVY:
-        Gv_SetVar(lVar2,ActorExtra[iActor].lastvy, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].lastvy, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTBPOSX:
-        Gv_SetVar(lVar2,ActorExtra[iActor].bposx, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].bposx, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTBPOSY:
-        Gv_SetVar(lVar2,ActorExtra[iActor].bposy, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].bposy, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTBPOSZ:
-        Gv_SetVar(lVar2,ActorExtra[iActor].bposz, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].bposz, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_HTG_T:
-        Gv_SetVar(lVar2, ActorExtra[iActor].temp_data[lParm2], vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2, actor[iActor].t_data[lParm2], vm.g_i, vm.g_p);
         return;
 
     case ACTOR_ANGOFF:
@@ -2798,7 +2823,7 @@ static void __fastcall X_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVar
         return;
 
     case ACTOR_HTFLAGS:
-        Gv_SetVar(lVar2,ActorExtra[iActor].flags, vm.g_i, vm.g_p);
+        Gv_SetVar(lVar2,actor[iActor].flags, vm.g_i, vm.g_p);
         return;
 
     case ACTOR_ALPHA:
@@ -2824,7 +2849,7 @@ badpos:
 }
 
 
-static void __fastcall X_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
     int32_t iActor=vm.g_i;
@@ -3066,7 +3091,7 @@ badtspr:
     return;
 }
 
-static void __fastcall X_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
 
@@ -3340,7 +3365,7 @@ badtile:
     return;
 }
 #else
-static int32_t __fastcall X_AccessSpriteX(int32_t iActor, int32_t lLabelID, int32_t lParm2)
+static int32_t __fastcall VM_AccessSpriteX(int32_t iActor, int32_t lLabelID, int32_t lParm2)
 {
     if ((ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
         goto badpos;
@@ -3370,24 +3395,24 @@ static int32_t __fastcall X_AccessSpriteX(int32_t iActor, int32_t lLabelID, int3
     case ACTOR_LOTAG: return sprite[iActor].lotag;
     case ACTOR_HITAG: return sprite[iActor].hitag;
     case ACTOR_EXTRA: return sprite[iActor].extra;
-    case ACTOR_HTCGG: return ActorExtra[iActor].cgg;
-    case ACTOR_HTPICNUM : return ActorExtra[iActor].picnum;
-    case ACTOR_HTANG: return ActorExtra[iActor].ang;
-    case ACTOR_HTEXTRA: return ActorExtra[iActor].extra;
-    case ACTOR_HTOWNER: return ActorExtra[iActor].owner;
-    case ACTOR_HTMOVFLAG: return ActorExtra[iActor].movflag;
-    case ACTOR_HTTEMPANG: return ActorExtra[iActor].tempang;
-    case ACTOR_HTACTORSTAYPUT: return ActorExtra[iActor].actorstayput;
-    case ACTOR_HTDISPICNUM: return ActorExtra[iActor].dispicnum;
-    case ACTOR_HTTIMETOSLEEP: return ActorExtra[iActor].timetosleep;
-    case ACTOR_HTFLOORZ: return ActorExtra[iActor].floorz;
-    case ACTOR_HTCEILINGZ: return ActorExtra[iActor].ceilingz;
-    case ACTOR_HTLASTVX: return ActorExtra[iActor].lastvx;
-    case ACTOR_HTLASTVY: return ActorExtra[iActor].lastvy;
-    case ACTOR_HTBPOSX: return ActorExtra[iActor].bposx;
-    case ACTOR_HTBPOSY: return ActorExtra[iActor].bposy;
-    case ACTOR_HTBPOSZ: return ActorExtra[iActor].bposz;
-    case ACTOR_HTG_T: return ActorExtra[iActor].temp_data[lParm2];
+    case ACTOR_HTCGG: return actor[iActor].cgg;
+    case ACTOR_HTPICNUM : return actor[iActor].picnum;
+    case ACTOR_HTANG: return actor[iActor].ang;
+    case ACTOR_HTEXTRA: return actor[iActor].extra;
+    case ACTOR_HTOWNER: return actor[iActor].owner;
+    case ACTOR_HTMOVFLAG: return actor[iActor].movflag;
+    case ACTOR_HTTEMPANG: return actor[iActor].tempang;
+    case ACTOR_HTACTORSTAYPUT: return actor[iActor].actorstayput;
+    case ACTOR_HTDISPICNUM: return actor[iActor].dispicnum;
+    case ACTOR_HTTIMETOSLEEP: return actor[iActor].timetosleep;
+    case ACTOR_HTFLOORZ: return actor[iActor].floorz;
+    case ACTOR_HTCEILINGZ: return actor[iActor].ceilingz;
+    case ACTOR_HTLASTVX: return actor[iActor].lastvx;
+    case ACTOR_HTLASTVY: return actor[iActor].lastvy;
+    case ACTOR_HTBPOSX: return actor[iActor].bposx;
+    case ACTOR_HTBPOSY: return actor[iActor].bposy;
+    case ACTOR_HTBPOSZ: return actor[iActor].bposz;
+    case ACTOR_HTG_T: return actor[iActor].t_data[lParm2];
     case ACTOR_ANGOFF: return spriteext[iActor].angoff;
     case ACTOR_PITCH: return spriteext[iActor].pitch;
     case ACTOR_ROLL: return spriteext[iActor].roll;
@@ -3397,7 +3422,7 @@ static int32_t __fastcall X_AccessSpriteX(int32_t iActor, int32_t lLabelID, int3
     case ACTOR_MDFLAGS: return spriteext[iActor].flags;
     case ACTOR_XPANNING: return spriteext[iActor].xpanning;
     case ACTOR_YPANNING: return spriteext[iActor].ypanning;
-    case ACTOR_HTFLAGS: return ActorExtra[iActor].flags;
+    case ACTOR_HTFLAGS: return actor[iActor].flags;
     case ACTOR_ALPHA: return (uint8_t)(spriteext[iActor].alpha*255.0f);
     default: return -1;
     }
@@ -3408,7 +3433,7 @@ badpos:
     return -1;
 }
 
-static int32_t __fastcall X_AccessSectorX(int32_t iSector, int32_t lLabelID)
+static int32_t __fastcall VM_AccessSectorX(int32_t iSector, int32_t lLabelID)
 {
     switch (lLabelID)
     {
@@ -3439,7 +3464,7 @@ static int32_t __fastcall X_AccessSectorX(int32_t iSector, int32_t lLabelID)
     }
 }
 
-static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int32_t lParm2)
+static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int32_t lParm2)
 {
     if ((PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
         goto badpos;
@@ -3461,11 +3486,11 @@ static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int
     case PLAYER_LOOGCNT:
         return g_player[iPlayer].ps->loogcnt;
     case PLAYER_POSX:
-        return g_player[iPlayer].ps->posx;
+        return g_player[iPlayer].ps->pos.x;
     case PLAYER_POSY:
-        return g_player[iPlayer].ps->posy;
+        return g_player[iPlayer].ps->pos.y;
     case PLAYER_POSZ:
-        return g_player[iPlayer].ps->posz;
+        return g_player[iPlayer].ps->pos.z;
     case PLAYER_HORIZ:
         return g_player[iPlayer].ps->horiz;
     case PLAYER_OHORIZ:
@@ -3479,21 +3504,21 @@ static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int
     case PLAYER_BOBPOSY:
         return g_player[iPlayer].ps->bobposy;
     case PLAYER_OPOSX:
-        return g_player[iPlayer].ps->oposx;
+        return g_player[iPlayer].ps->opos.x;
     case PLAYER_OPOSY:
-        return g_player[iPlayer].ps->oposy;
+        return g_player[iPlayer].ps->opos.y;
     case PLAYER_OPOSZ:
-        return g_player[iPlayer].ps->oposz;
+        return g_player[iPlayer].ps->opos.z;
     case PLAYER_PYOFF:
         return g_player[iPlayer].ps->pyoff;
     case PLAYER_OPYOFF:
         return g_player[iPlayer].ps->opyoff;
     case PLAYER_POSXV:
-        return g_player[iPlayer].ps->posxv;
+        return g_player[iPlayer].ps->posvel.x;
     case PLAYER_POSYV:
-        return g_player[iPlayer].ps->posyv;
+        return g_player[iPlayer].ps->posvel.y;
     case PLAYER_POSZV:
-        return g_player[iPlayer].ps->poszv;
+        return g_player[iPlayer].ps->posvel.z;
     case PLAYER_LAST_PISSED_TIME:
         return g_player[iPlayer].ps->last_pissed_time;
     case PLAYER_TRUEFZ:
@@ -3509,7 +3534,7 @@ static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int
     case PLAYER_WEAPON_SWAY:
         return g_player[iPlayer].ps->weapon_sway;
     case PLAYER_PALS_TIME:
-        return g_player[iPlayer].ps->pals_time;
+        return g_player[iPlayer].ps->pals.f;
     case PLAYER_RANDOMFLAMEX:
         return g_player[iPlayer].ps->randomflamex;
     case PLAYER_CRACK_TIME:
@@ -3613,7 +3638,7 @@ static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int
     case PLAYER_CUSTOMEXITSOUND:
         return g_player[iPlayer].ps->customexitsound;
     case PLAYER_WEAPRECS:
-        return g_player[iPlayer].ps->weaprecs[15];
+        return g_player[iPlayer].ps->weaprecs[lParm2];
     case PLAYER_WEAPRECCNT:
         return g_player[iPlayer].ps->weapreccnt;
     case PLAYER_INTERFACE_TOGGLE_FLAG:
@@ -3685,7 +3710,7 @@ static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int
     case PLAYER_FALLING_COUNTER:
         return g_player[iPlayer].ps->falling_counter;
     case PLAYER_GOTWEAPON:
-        return g_player[iPlayer].ps->gotweapon[lParm2];
+        return g_player[iPlayer].ps->gotweapon & (1<<lParm2);
     case PLAYER_REFRESH_INVENTORY:
         return g_player[iPlayer].ps->refresh_inventory;
     case PLAYER_TOGGLE_KEY_FLAG:
@@ -3703,7 +3728,16 @@ static int32_t __fastcall X_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int
     case PLAYER_SECRET_ROOMS:
         return g_player[iPlayer].ps->secret_rooms;
     case PLAYER_PALS:
-        return g_player[iPlayer].ps->pals[lParm2];
+        switch (lParm2)
+        {
+        case 0:
+            return g_player[iPlayer].ps->pals.r;
+        case 1:
+            return g_player[iPlayer].ps->pals.g;
+        case 2:
+            return g_player[iPlayer].ps->pals.b;
+        }
+        return -1;
     case PLAYER_MAX_ACTORS_KILLED:
         return g_player[iPlayer].ps->max_actors_killed;
     case PLAYER_ACTORS_KILLED:
@@ -3744,7 +3778,7 @@ badpos:
     return -1;
 }
 
-static int32_t __fastcall X_AccessWallX(int32_t iWall, int32_t lLabelID)
+static int32_t __fastcall VM_AccessWallX(int32_t iWall, int32_t lLabelID)
 {
     switch (lLabelID)
     {

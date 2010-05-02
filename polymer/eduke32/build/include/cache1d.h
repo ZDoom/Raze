@@ -4,6 +4,7 @@
 #define __cache1d_h__
 
 #include "compat.h"
+#include "mutex.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,6 +20,7 @@ void	allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr);
 void	suckcache(intptr_t *suckptr);
 void	agecache(void);
 
+mutex_t cachemutex;
 extern int32_t pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)
 int32_t     addsearchpath(const char *p);
 int32_t		findfrompath(const char *fn, char **where);

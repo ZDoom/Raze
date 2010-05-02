@@ -84,25 +84,30 @@ extern const memberlabel_t InputLabels[];
 extern const memberlabel_t TsprLabels[];
 
 /*
-extern void X_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2);
-extern void X_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
-extern void X_AccessPlayer(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2);
-extern void X_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
-extern void X_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
-extern void X_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
-extern void X_AccessSprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2);
-extern void X_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
-extern void X_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
+extern void VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2);
+extern void VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
+extern void VM_AccessPlayer(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2);
+extern void VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
+extern void VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
+extern void VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
+extern void VM_AccessSprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2);
+extern void VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
+extern void VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
 */
 
 #define CON_ERROR OSD_ERROR "Line %d, %s: "
+
+enum vmflags_t {
+    VM_RETURN       = 0x00000001,
+    VM_KILL         = 0x00000002,
+    VM_NOEXECUTE    = 0x00000004,
+};
 
 typedef struct {
     int32_t g_i, g_p, g_x;
     intptr_t *g_t;
     spritetype *g_sp;
-    int32_t g_killitFlag, g_returnFlag;
-    int32_t filler;
+    int32_t g_flags;
 } vmstate_t;
 
 extern vmstate_t vm;

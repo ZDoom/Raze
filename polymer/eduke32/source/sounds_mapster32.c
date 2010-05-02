@@ -381,7 +381,7 @@ void S_StopEnvSound(int32_t num,int32_t i)
         }
 }
 
-void S_Pan3D(void)
+void S_Update(void)
 {
     int32_t sndist, sx, sy, sz, cx, cy, cz;
     int32_t sndang,ca,j,k,i,cs;

@@ -317,7 +317,7 @@ int32_t G_LoadPlayer(int32_t spot)
     scriptptrs = Brealloc(scriptptrs, MAXSPRITES * sizeof(scriptptrs));
 
     if (kdfread(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
-    if (kdfread(&ActorExtra[0],sizeof(ActorData_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+    if (kdfread(&actor[0],sizeof(ActorData_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
     for (i=0; i<MAXSPRITES; i++)
     {
@@ -325,7 +325,7 @@ int32_t G_LoadPlayer(int32_t spot)
         if (scriptptrs[i]&1) T2 += j;
         if (scriptptrs[i]&2) T5 += j;
         if (scriptptrs[i]&4) T6 += j;
-        ActorExtra[i].projectile = &SpriteProjectile[i];
+        actor[i].projectile = &SpriteProjectile[i];
     }
 
     if (kdfread(&lockclock,sizeof(lockclock),1,fil) != 1) goto corrupt;
@@ -595,11 +595,11 @@ int32_t G_LoadPlayer(int32_t spot)
         polymer_loadboard();
         while (i < MAXSPRITES)
         {
-            if (ActorExtra[i].lightptr)
+            if (actor[i].lightptr)
             {
-                polymer_deletelight(ActorExtra[i].lightId);
-                ActorExtra[i].lightptr = NULL;
-                ActorExtra[i].lightId = -1;
+                polymer_deletelight(actor[i].lightId);
+                actor[i].lightptr = NULL;
+                actor[i].lightId = -1;
             }
             i++;
         }
@@ -823,7 +823,7 @@ int32_t G_SavePlayer(int32_t spot)
     }
 
     dfwrite(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil);
-    dfwrite(&ActorExtra[0],sizeof(ActorData_t),MAXSPRITES,fil);
+    dfwrite(&actor[0],sizeof(ActorData_t),MAXSPRITES,fil);
 
     for (i=0; i<MAXSPRITES; i++)
     {
@@ -1482,7 +1482,7 @@ static const dataspec_t svgm_script[] =
 
     { DS_SAVEFN, (void *)&sv_preactordatasave, 0, 1 },
     { 0, &savegame_bitmap, sizeof(savegame_bitmap), 1 },
-    { 0, &ActorExtra[0], sizeof(ActorData_t), MAXSPRITES },
+    { 0, &actor[0], sizeof(ActorData_t), MAXSPRITES },
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postactordata, 0, 1 },
 
     { DS_END, 0, 0, 0 }
@@ -1898,8 +1898,8 @@ static void sv_preactordatasave()
     Bmemset(savegame_bitmap, 0, sizeof(savegame_bitmap));
     for (i=0; i<MAXSPRITES; i++)
     {
-//        ActorExtra[i].lightptr = NULL;
-//        ActorExtra[i].lightId = -1;
+//        Actor[i].lightptr = NULL;
+//        Actor[i].lightId = -1;
 
         if (sprite[i].statnum==MAXSTATUS || actorscrptr[PN]==NULL) continue;
         if (T2 >= j && T2 < k) savegame_bitmap[i>>3][0] |= 1<<(i&7), T2 -= j;
@@ -1919,9 +1919,9 @@ static void sv_postactordata()
 
     for (i=0; i<MAXSPRITES; i++)
     {
-//        ActorExtra[i].lightptr = NULL;
-//        ActorExtra[i].lightId = -1;
-        ActorExtra[i].projectile = &SpriteProjectile[i];
+//        Actor[i].lightptr = NULL;
+//        Actor[i].lightId = -1;
+        actor[i].projectile = &SpriteProjectile[i];
 
         if (sprite[i].statnum==MAXSTATUS || actorscrptr[PN]==NULL) continue;
         if (savegame_bitmap[i>>3][0]&(1<<(i&7))) T2 += j;
@@ -2294,11 +2294,11 @@ static void postloadplayer2()
         polymer_loadboard();
         while (i < MAXSPRITES)
         {
-            if (ActorExtra[i].lightptr)
+            if (actor[i].lightptr)
             {
-                polymer_deletelight(ActorExtra[i].lightId);
-                ActorExtra[i].lightptr = NULL;
-                ActorExtra[i].lightId = -1;
+                polymer_deletelight(actor[i].lightId);
+                actor[i].lightptr = NULL;
+                actor[i].lightId = -1;
             }
             i++;
         }

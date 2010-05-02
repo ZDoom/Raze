@@ -63,8 +63,8 @@ static void Gv_Clear(void)
         aGameArrays[i].dwFlags |= GAMEARRAY_RESET;
     }
     g_gameVarCount = g_gameArrayCount = 0;
-    hash_init(&gamevarH);
-    hash_init(&arrayH);
+    hash_init(&h_gamevars);
+    hash_init(&h_arrays);
     return;
 }
 
@@ -88,7 +88,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
         return 0;
     }
 
-    i = hash_find(&arrayH, pszLabel);
+    i = hash_find(&h_arrays, pszLabel);
     if (i>=0 && !(aGameArrays[i].dwFlags & GAMEARRAY_RESET))
     {
         // found it it's a duplicate in error
@@ -127,7 +127,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
     aGameArrays[i].dwFlags = dwFlags & ~GAMEARRAY_RESET;
 
     g_gameArrayCount++;
-    hash_replace(&arrayH, aGameArrays[i].szLabel, i);
+    hash_replace(&h_arrays, aGameArrays[i].szLabel, i);
     return 1;
 }
 
@@ -154,7 +154,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         return 0;
     }
 
-    i = hash_find(&gamevarH,pszLabel);
+    i = hash_find(&h_gamevars,pszLabel);
 
     if (i >= 0 && !(aGameVars[i].dwFlags & GAMEVAR_RESET))
     {
@@ -202,7 +202,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     if (i == g_gameVarCount)
     {
         // we're adding a new one.
-        hash_add(&gamevarH, aGameVars[i].szLabel, g_gameVarCount++);
+        hash_add(&h_gamevars, aGameVars[i].szLabel, g_gameVarCount++);
     }
 
     if (aGameVars[i].dwFlags & GAMEVAR_PERBLOCK)
@@ -329,14 +329,14 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
                 switch (id&3)
                 {
                 case 0: //if (id == g_iSpriteVarID)
-                    return ((X_AccessSprite(0, index, memberid, 0) ^ -negateResult) + negateResult);
+                    return ((VM_AccessSprite(0, index, memberid, 0) ^ -negateResult) + negateResult);
                 case 1: //else if (id == g_iSectorVarID)
 //                    if (index == vm.g_i) index = sprite[vm.g_i].sectnum;
-                    return ((X_AccessSector(0, index, memberid, 0) ^ -negateResult) + negateResult);
+                    return ((VM_AccessSector(0, index, memberid, 0) ^ -negateResult) + negateResult);
                 case 2: //else if (id == g_iWallVarID)
-                    return ((X_AccessWall(0, index, memberid, 0) ^ -negateResult) + negateResult);
+                    return ((VM_AccessWall(0, index, memberid, 0) ^ -negateResult) + negateResult);
                 case 3:
-                    return ((X_AccessTsprite(0, index, memberid, 0) ^ -negateResult) + negateResult);
+                    return ((VM_AccessTsprite(0, index, memberid, 0) ^ -negateResult) + negateResult);
 //                default:
 //                    OSD_Printf(CON_ERROR "Gv_GetVarX() (special): WTF??\n",g_errorLineNum,keyw[g_tw]);
 //                    return -1;
@@ -433,17 +433,17 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
             switch (id&3)
             {
             case 0: //if (id == g_iSpriteVarID)
-                X_AccessSprite(1, index, memberid, lValue);
+                VM_AccessSprite(1, index, memberid, lValue);
                 return;
             case 1: //else if (id == g_iSectorVarID)
 //                    if (index == vm.g_i) index = sprite[vm.g_i].sectnum;
-                X_AccessSector(1, index, memberid, lValue);
+                VM_AccessSector(1, index, memberid, lValue);
                 return;
             case 2: //else if (id == g_iWallVarID)
-                X_AccessWall(1, index, memberid, lValue);
+                VM_AccessWall(1, index, memberid, lValue);
                 return;
             case 3:
-                X_AccessTsprite(1, index, memberid, lValue);
+                VM_AccessTsprite(1, index, memberid, lValue);
                 return;
 //                default:
 //                    OSD_Printf(CON_ERROR "Gv_SetVarX(): WTF??\n",g_errorLineNum,keyw[g_tw]);

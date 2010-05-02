@@ -38,6 +38,7 @@
 #include "build.h"
 #include "a.h"
 #include "osd.h"
+#include "rawinput.h"
 
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE
@@ -85,7 +86,7 @@ static BOOL InitDirectInput(void);
 static void UninitDirectInput(void);
 static void GetKeyNames(void);
 static void AcquireInputDevices(char acquire, int8_t device);
-static inline void ProcessInputDevices(void);
+static inline void DI_ProcessDevices(void);
 static int32_t SetupDirectDraw(int32_t width, int32_t height);
 static void UninitDIB(void);
 static int32_t SetupDIB(int32_t width, int32_t height);
@@ -95,9 +96,6 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp);
 static BOOL RegisterWindowClass(void);
 static BOOL CreateAppWindow(int32_t modenum);
 static void DestroyAppWindow(void);
-static void SaveSystemColours(void);
-static void SetBWSystemColours(void);
-static void RestoreSystemColours(void);
 
 // video
 static int32_t desktopxdim=0,desktopydim=0,desktopbpp=0,modesetusing=-1;
@@ -118,8 +116,8 @@ int32_t vsync=0;
 char inputdevices=0;
 char quitevent=0, appactive=1, realfs=0, regrabmouse=0;
 volatile int32_t mousex=0, mousey=0, mouseb=0;
-static uint32_t mousewheel[2] = { 0,0 };
-#define MouseWheelFakePressTime (50)	// getticks() is a 1000Hz timer, and the button press is faked for 100ms
+uint32_t mousewheel[2] = { 0,0 };
+
 int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;
 char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
 
@@ -130,8 +128,6 @@ char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
 char remap[256];
 int32_t remapinit=0;
 static char key_names[256][24];
-static uint32_t lastKeyDown = 0;
-static uint32_t lastKeyTime = 0;
 
 static OSVERSIONINFOEX osv;
 extern int32_t largepagesavailable;
@@ -283,14 +279,14 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 
     if (!CheckWinVersion() || hPrevInst)
     {
-        MessageBox(0, "This application requires Windows 2000 or better to run.",
+        MessageBox(0, "This application requires Windows XP or better to run.",
                    apptitle, MB_OK|MB_ICONSTOP);
         return -1;
     }
 
     /* Attempt to enable SeLockMemoryPrivilege, 2003/Vista/7 only */
     if (Bgetenv("BUILD_NOLARGEPAGES") == NULL &&
-            (osv.dwMajorVersion == 6 || (osv.dwMajorVersion == 5 && osv.dwMinorVersion == 2)))
+            (osv.dwMajorVersion >= 6 || (osv.dwMajorVersion == 5 && osv.dwMinorVersion == 2)))
     {
         HANDLE token;
         if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &token))
@@ -504,9 +500,6 @@ static void print_os_version(void)
         {
             switch (osv.dwMinorVersion)
             {
-            case 0:
-                ver = "2000";
-                break;
             case 1:
                 ver = "XP";
                 break;
@@ -530,14 +523,6 @@ static void print_os_version(void)
             }
             break;
         }
-        break;
-
-    case VER_PLATFORM_WIN32_WINDOWS:
-        if (osv.dwMinorVersion < 10)
-            ver = "95";
-        else if (osv.dwMinorVersion < 90)
-            ver = "98";
-        else ver = "Me";
         break;
     }
 
@@ -564,10 +549,6 @@ int32_t initsystem(void)
     desktopxdim = desktopmode.dmPelsWidth;
     desktopydim = desktopmode.dmPelsHeight;
     desktopbpp  = desktopmode.dmBitsPerPel;
-
-    if (desktopbpp <= 8)
-        // save the system colours
-        SaveSystemColours();
 
     memset(curpalette, 0, sizeof(palette_t) * 256);
 
@@ -681,6 +662,9 @@ int32_t handleevents(void)
 
     //if (frameplace && fullscreen) printf("Offscreen buffer is locked!\n");
 
+    RI_PollDevices();
+    DI_ProcessDevices();
+
     while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
     {
         if (msg.message == WM_QUIT)
@@ -692,8 +676,6 @@ int32_t handleevents(void)
         DispatchMessage(&msg);
     }
 
-    ProcessInputDevices();
-
     if (!appactive || quitevent) rv = -1;
 
     sampletimer();
@@ -701,38 +683,27 @@ int32_t handleevents(void)
     return rv;
 }
 
-inline void idle(void)
-{
-    Sleep(20);
-}
-
-inline void idle_waitevent(void)
-{
-    Sleep(20);
-}
-
-
 //-------------------------------------------------------------------------------------------------
-//  INPUT (MOUSE/KEYBOARD/JOYSTICK?)
+//  DINPUT (JOYSTICK)
 //=================================================================================================
 
-#define KEYBOARD	0
-#define MOUSE		1
-#define JOYSTICK	2
-#define NUM_INPUTS	3
+#define JOYSTICK	0
+#define NUM_INPUTS	1
 
 static HMODULE               hDInputDLL    = NULL;
 static LPDIRECTINPUT7A        lpDI          = NULL;
-static LPDIRECTINPUTDEVICE7A lpDID[NUM_INPUTS] =  { NULL, NULL, NULL };
+static LPDIRECTINPUTDEVICE7A lpDID[NUM_INPUTS] =  { NULL };
 static BOOL                  bDInputInited = FALSE;
-#define INPUT_BUFFER_SIZE	256
+#define INPUT_BUFFER_SIZE	32
 static GUID                  guidDevs[NUM_INPUTS];
 
-static char devacquired[NUM_INPUTS] = { 0,0,0 };
-static HANDLE inputevt[NUM_INPUTS] = {0,0,0};
+static char devacquired[NUM_INPUTS];
+static HANDLE inputevt[NUM_INPUTS];
 static int32_t joyblast=0;
-static char volatile moustat = 0, mousegrab = 0;
-HANDLE  mousethread;
+volatile uint8_t moustat = 0, mousegrab = 0;
+
+static uint32_t idevnums[NUM_INPUTS], numdevs = 0;
+static HANDLE waithnds[NUM_INPUTS];
 
 static struct
 {
@@ -741,8 +712,6 @@ static struct
     const DIDATAFORMAT *df;
 } devicedef[NUM_INPUTS] =
 {
-    { "keyboard", &lpDID[KEYBOARD], &c_dfDIKeyboard },
-    { "mouse",    &lpDID[MOUSE],    &c_dfDIMouse2 },
     { "joystick", &lpDID[JOYSTICK], &c_dfDIJoystick }
 };
 static struct _joydef
@@ -751,44 +720,9 @@ static struct _joydef
     uint32_t ofs;	// directinput 'dwOfs' value
 } *axisdefs = NULL, *buttondefs = NULL, *hatdefs = NULL;
 
-struct _joydevicefeature
-{
-    uint32_t ofs;
-    const char *name;
-};
-struct _joydevicedefn
-{
-    uint32_t devid;	// is the value of DIDEVICEINSTANCE.guidProduct.Data1
-    int32_t nfeatures;
-    struct _joydevicefeature *features;
-};
-
-// This is to give more realistic names to the buttons, axes, etc on a controller than
-// those the driver reports. Curse inconsistency.
-struct _joydevicefeature joyfeatures_C20A046D[] =  	// Logitech WingMan RumblePad USB
-{
-    { 0,  "Left Stick X" }, { 4,  "Left Stick Y" }, { 8,  "Right Stick X" },
-    { 20, "Right Stick Y" }, { 24, "Throttle" },
-};
-struct _joydevicefeature joyfeatures_C218046D[] =  	// Logitech RumblePad 2 USB
-{
-    { 0,  "Left Stick X" }, { 4,  "Left Stick Y" }, { 8,  "Right Stick X" },
-    { 20, "Right Stick Y" }, { 32, "D-Pad" }, { 48, "Button 1" },
-    { 49, "Button 2" }, { 50, "Button 3" }, { 51, "Button 4" },
-    { 52, "Button 5" }, { 53, "Button 6" }, { 54, "Button 7" },
-    { 55, "Button 8" }, { 56, "Button 9" }, { 57, "Button 10" },
-    { 58, "Left Stick Press" }, { 59, "Right Stick Press" },
-};
-#define featurecount(x) (sizeof(x)/sizeof(struct _joydevicefeature))
-static struct _joydevicedefn *thisjoydef = NULL, joyfeatures[] =
-{
-    { 0xC20A046D, featurecount(joyfeatures_C20A046D), joyfeatures_C20A046D },	// Logitech WingMan RumblePad USB
-    { 0xC218046D, featurecount(joyfeatures_C218046D), joyfeatures_C218046D },	// Logitech RumblePad 2 USB
-};
-#undef featurecount
 
 // I don't see any pressing need to store the key-up events yet
-static inline void SetKey(int32_t key, int32_t state)
+inline void SetKey(int32_t key, int32_t state)
 {
     keystatus[remap[key]] = state;
 
@@ -822,9 +756,10 @@ int32_t initinput(void)
     keyfifoplc = keyfifoend = 0;
     keyasciififoplc = keyasciififoend = 0;
 
-    inputdevices = 0;
+    inputdevices = 1|2;
     joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
 
+    // 00000409 is "American English"
     {
         char layoutname[KL_NAMELENGTH];
         GetKeyboardLayoutName(layoutname);
@@ -837,8 +772,8 @@ int32_t initinput(void)
         }
     }
 
-    if (InitDirectInput())
-        return -1;
+    GetKeyNames();
+    InitDirectInput();
 
     return 0;
 }
@@ -855,7 +790,7 @@ void uninitinput(void)
 
 
 //
-// bgetchar, bkbhit, bflushchars -- character-based input functions
+// bgetchar, bflushchars -- character-based input functions
 //
 char bgetchar(void)
 {
@@ -865,11 +800,6 @@ char bgetchar(void)
     keyasciififoplc = ((keyasciififoplc+1)&(KEYFIFOSIZ-1));
     //OSD_Printf("bgetchar %d, %d-%d\n",c,keyasciififoplc,keyasciififoend);
     return c;
-}
-
-int32_t bkbhit(void)
-{
-    return (keyasciififoplc != keyasciififoend);
 }
 
 void bflushchars(void)
@@ -886,80 +816,28 @@ void setkeypresscallback(void (*callback)(int32_t, int32_t)) { keypresscallback 
 void setmousepresscallback(void (*callback)(int32_t, int32_t)) { mousepresscallback = callback; }
 void setjoypresscallback(void (*callback)(int32_t, int32_t)) { joypresscallback = callback; }
 
-//
-// initmouse() -- init mouse input
-//
-int32_t initmouse(void)
+inline void idle_waitevent(void)
 {
-    DWORD   threadid;
+    int32_t i = 10;
 
-    if (moustat) return 0;
+    do
+    {
+        MSG msg;
 
-//    initprintf("Initializing mouse... ");
-
-    moustat=1;
-
-    // grab input
-    grabmouse(1);
-
-    return 0;
+        if (PeekMessage(&msg, 0, WM_INPUT, WM_INPUT, PM_QS_INPUT))
+        {
+            RI_PollDevices();
+            return;
+        }
+        Sleep(10);
+    }
+    while (--i);
 }
 
-
-//
-// uninitmouse() -- uninit mouse input
-//
-void uninitmouse(void)
+inline void idle(void)
 {
-    if (!moustat) return;
-
-    grabmouse(0);
-    moustat=mousegrab=0;
-    SetEvent(inputevt[MOUSE]);
-    if (WaitForSingleObject(mousethread, 300) != WAIT_OBJECT_0)
-//        initprintf("DirectInput: Mouse thread has exited\n");
-//    else
-        initprintf("DirectInput: Mouse thread failed to exit!\n");
+    idle_waitevent();
 }
-
-
-//
-// grabmouse() -- show/hide mouse cursor
-//
-void grabmouse(char a)
-{
-    if (!moustat) return;
-
-    mousegrab = a;
-    AcquireInputDevices(a,MOUSE);	// only release or grab the mouse
-
-    mousex = 0;
-    mousey = 0;
-    mouseb = 0;
-}
-
-
-//
-// readmousexy() -- return mouse motion information
-//
-void readmousexy(int32_t *x, int32_t *y)
-{
-    if (!moustat || !devacquired[MOUSE] || !mousegrab) { *x = *y = 0; return; }
-    *x = mousex;
-    *y = mousey;
-    mousex = mousey = 0;
-}
-
-
-//
-// readmousebstatus() -- return mouse button information
-//
-void readmousebstatus(int32_t *b)
-{
-    if (!moustat || !devacquired[MOUSE] || !mousegrab) *b = 0;
-    else *b = mouseb;
-}
-
 
 //
 // setjoydeadzone() -- sets the dead and saturation zones for the joystick
@@ -1071,10 +949,6 @@ void releaseallbuttons(void)
         if (mouseb & 8) mousepresscallback(4, 0);
         if (mousewheel[0]>0) mousepresscallback(5,0);
         if (mousewheel[1]>0) mousepresscallback(6,0);
-        if (mouseb & 64) mousepresscallback(7, 0);
-        if (mouseb & 128) mousepresscallback(8, 0);
-        if (mouseb & 256) mousepresscallback(9, 0);
-        if (mouseb & 512) mousepresscallback(10, 0);
     }
     mousewheel[0]=mousewheel[1]=0;
     mouseb = 0;
@@ -1095,7 +969,6 @@ void releaseallbuttons(void)
         if (keypresscallback) keypresscallback(i, 0);
         //}
     }
-    lastKeyDown = lastKeyTime = 0;
 }
 
 
@@ -1114,67 +987,22 @@ static BOOL CALLBACK InitDirectInput_enum(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRe
 
     switch (lpddi->dwDevType&0xff)
     {
-    case DIDEVTYPE_KEYBOARD:
-        inputdevices |= (1<<KEYBOARD);
-        d = "KEYBOARD";
-        COPYGUID(guidDevs[KEYBOARD],lpddi->guidInstance);
-        break;
-    case DIDEVTYPE_MOUSE:
-        inputdevices |= (1<<MOUSE);
-        d = "MOUSE";
-        COPYGUID(guidDevs[MOUSE],lpddi->guidInstance);
-        break;
     case DIDEVTYPE_JOYSTICK:
     {
         int32_t i;
-        inputdevices |= (1<<JOYSTICK);
+        inputdevices |= (1<<(JOYSTICK+2));
         joyisgamepad = ((lpddi->dwDevType & (DIDEVTYPEJOYSTICK_GAMEPAD<<8)) != 0);
         d = joyisgamepad ? "GAMEPAD" : "JOYSTICK";
         COPYGUID(guidDevs[JOYSTICK],lpddi->guidInstance);
-
-        thisjoydef = NULL;
-        for (i=0; i<(int32_t)(sizeof(joyfeatures)/sizeof(joyfeatures[0])); i++)
-        {
-            if (lpddi->guidProduct.Data1 == joyfeatures[i].devid)
-            {
-                thisjoydef = &joyfeatures[i];
-                break;
-            }
-        }
-
-        // Outputs the GUID of the joystick to the console
-        /*
-        initprintf("GUID = {%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}\n",
-        		lpddi->guidProduct.Data1,
-        		lpddi->guidProduct.Data2, lpddi->guidProduct.Data3,
-        		lpddi->guidProduct.Data4[0], lpddi->guidProduct.Data4[1],
-        		lpddi->guidProduct.Data4[2], lpddi->guidProduct.Data4[3],
-        		lpddi->guidProduct.Data4[4], lpddi->guidProduct.Data4[5],
-        		lpddi->guidProduct.Data4[6], lpddi->guidProduct.Data4[7]
-        	);
-        */
     }
     break;
     default:
-//        d = "OTHER"; break;
         return DIENUM_CONTINUE;
     }
 
     initprintf("    * %s: %s\n", d, lpddi->tszProductName);
 
     return DIENUM_CONTINUE;
-}
-
-static const char *joyfindnameforofs(int32_t ofs)
-{
-    int32_t i;
-    if (!thisjoydef) return NULL;
-    for (i=0; i<thisjoydef->nfeatures; i++)
-    {
-        if (ofs == (int32_t)thisjoydef->features[i].ofs)
-            return Bstrdup(thisjoydef->features[i].name);
-    }
-    return NULL;
 }
 
 static BOOL CALLBACK InitDirectInput_enumobjects(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
@@ -1185,9 +1013,7 @@ static BOOL CALLBACK InitDirectInput_enumobjects(LPCDIDEVICEOBJECTINSTANCE lpddo
     {
         //initprintf(" Axis: %s (dwOfs=%d)\n", lpddoi->tszName, lpddoi->dwOfs);
 
-        axisdefs[ typecounts[0] ].name = joyfindnameforofs(lpddoi->dwOfs);
-        if (!axisdefs[ typecounts[0] ].name)
-            axisdefs[ typecounts[0] ].name = Bstrdup(lpddoi->tszName);
+        axisdefs[ typecounts[0] ].name = Bstrdup(lpddoi->tszName);
         axisdefs[ typecounts[0] ].ofs = lpddoi->dwOfs;
 
         typecounts[0]++;
@@ -1196,9 +1022,7 @@ static BOOL CALLBACK InitDirectInput_enumobjects(LPCDIDEVICEOBJECTINSTANCE lpddo
     {
         //initprintf(" Button: %s (dwOfs=%d)\n", lpddoi->tszName, lpddoi->dwOfs);
 
-        buttondefs[ typecounts[1] ].name = joyfindnameforofs(lpddoi->dwOfs);
-        if (!buttondefs[ typecounts[1] ].name)
-            buttondefs[ typecounts[1] ].name = Bstrdup(lpddoi->tszName);
+        buttondefs[ typecounts[1] ].name = Bstrdup(lpddoi->tszName);
         buttondefs[ typecounts[1] ].ofs = lpddoi->dwOfs;
 
         typecounts[1]++;
@@ -1207,9 +1031,7 @@ static BOOL CALLBACK InitDirectInput_enumobjects(LPCDIDEVICEOBJECTINSTANCE lpddo
     {
         //initprintf(" POV: %s (dwOfs=%d)\n", lpddoi->tszName, lpddoi->dwOfs);
 
-        hatdefs[ typecounts[2] ].name = joyfindnameforofs(lpddoi->dwOfs);
-        if (!hatdefs[ typecounts[2] ].name)
-            hatdefs[ typecounts[2] ].name = Bstrdup(lpddoi->tszName);
+        hatdefs[ typecounts[2] ].name = Bstrdup(lpddoi->tszName);
         hatdefs[ typecounts[2] ].ofs = lpddoi->dwOfs;
 
         typecounts[2]++;
@@ -1219,9 +1041,9 @@ static BOOL CALLBACK InitDirectInput_enumobjects(LPCDIDEVICEOBJECTINSTANCE lpddo
 }
 
 #define HorribleDInputDeath( x, y ) \
-	ShowDInputErrorBox(x,y); \
-	UninitDirectInput(); \
-	return TRUE
+    ShowDInputErrorBox(x,y); \
+    UninitDirectInput(); \
+    return TRUE
 
 static BOOL InitDirectInput(void)
 {
@@ -1261,14 +1083,16 @@ static BOOL InitDirectInput(void)
     else if (result != DI_OK) initprintf("    Created DirectInput object with warning: %s\n",GetDInputError(result));
 
     // enumerate devices to make us look fancy
-    initprintf("  - Enumerating attached input devices\n");
-    inputdevices = 0;
+    initprintf("  - Enumerating attached game controllers\n");
+    inputdevices = 1|2;
     result = IDirectInput7_EnumDevices(lpDI, 0, InitDirectInput_enum, NULL, DIEDFL_ATTACHEDONLY);
-    if FAILED(result) { HorribleDInputDeath("Failed enumerating attached input devices", result); }
-    else if (result != DI_OK) initprintf("    Enumerated input devices with warning: %s\n",GetDInputError(result));
-    if (!(inputdevices & (1<<KEYBOARD)))
+    if FAILED(result) { HorribleDInputDeath("Failed enumerating attached game controllers", result); }
+    else if (result != DI_OK) initprintf("    Enumerated game controllers with warning: %s\n",GetDInputError(result));
+
+    if (inputdevices == (1|2))
     {
-        ShowErrorBox("No keyboard detected!");
+        initprintf("  - No game controllers found\n");
+        bDInputInited = TRUE;
         UninitDirectInput();
         return TRUE;
     }
@@ -1278,7 +1102,7 @@ static BOOL InitDirectInput(void)
     // ***
     for (devn = 0; devn < NUM_INPUTS; devn++)
     {
-        if ((inputdevices & (1<<devn)) == 0) continue;
+        if ((inputdevices & (1<<(devn+2))) == 0) continue;
         *devicedef[devn].did = NULL;
 
 //        initprintf("  - Creating %s device\n", devicedef[devn].name);
@@ -1329,13 +1153,13 @@ static BOOL InitDirectInput(void)
             memset(&didc, 0, sizeof(didc));
             didc.dwSize = sizeof(didc);
             result = IDirectInputDevice7_GetCapabilities(dev2, &didc);
-            if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting joystick capabilities", result); }
-            else if (result != DI_OK) initprintf("    Fetched joystick capabilities with warning: %s\n",GetDInputError(result));
+            if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting controller capabilities", result); }
+            else if (result != DI_OK) initprintf("    Fetched controller capabilities with warning: %s\n",GetDInputError(result));
 
             joynumaxes    = (uint8_t)didc.dwAxes;
             joynumbuttons = min(32,(uint8_t)didc.dwButtons);
             joynumhats    = (uint8_t)didc.dwPOVs;
-            initprintf("Joystick has %d axes, %d buttons, and %d hat(s).\n",joynumaxes,joynumbuttons,joynumhats);
+            initprintf("Controller has %d axes, %d buttons, and %d hat(s).\n",joynumaxes,joynumbuttons,joynumhats);
 
             axisdefs = (struct _joydef *)Bcalloc(didc.dwAxes, sizeof(struct _joydef));
             buttondefs = (struct _joydef *)Bcalloc(didc.dwButtons, sizeof(struct _joydef));
@@ -1345,14 +1169,13 @@ static BOOL InitDirectInput(void)
             joyhat = (int32_t *)Bcalloc(didc.dwPOVs, sizeof(int32_t));
 
             result = IDirectInputDevice7_EnumObjects(dev2, InitDirectInput_enumobjects, (LPVOID)typecounts, DIDFT_ALL);
-            if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting joystick features", result); }
-            else if (result != DI_OK) initprintf("    Fetched joystick features with warning: %s\n",GetDInputError(result));
+            if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting controller features", result); }
+            else if (result != DI_OK) initprintf("    Fetched controller features with warning: %s\n",GetDInputError(result));
         }
 
         *devicedef[devn].did = dev2;
     }
 
-    GetKeyNames();
     memset(devacquired, 0, sizeof(devacquired));
 
     bDInputInited = TRUE;
@@ -1392,8 +1215,6 @@ static void UninitDirectInput(void)
     {
         if (*devicedef[devn].did)
         {
-//            initprintf("  - Releasing %s device\n", devicedef[devn].name);
-
             if (devn != JOYSTICK) IDirectInputDevice7_SetEventNotification(*devicedef[devn].did, NULL);
 
             IDirectInputDevice7_Release(*devicedef[devn].did);
@@ -1408,14 +1229,12 @@ static void UninitDirectInput(void)
 
     if (lpDI)
     {
-//        initprintf("  - Releasing DirectInput object\n");
         IDirectInput7_Release(lpDI);
         lpDI = NULL;
     }
 
     if (hDInputDLL)
     {
-//        initprintf("  - Unloading DINPUT.DLL\n");
         FreeLibrary(hDInputDLL);
         hDInputDLL = NULL;
     }
@@ -1430,26 +1249,16 @@ static void UninitDirectInput(void)
 static void GetKeyNames(void)
 {
     int32_t i;
-    DIDEVICEOBJECTINSTANCE key;
     HRESULT res;
     char tbuf[MAX_PATH];
 
     memset(key_names,0,sizeof(key_names));
+
     for (i=0; i<256; i++)
     {
-        ZeroMemory(&key,sizeof(key));
-        key.dwSize = sizeof(DIDEVICEOBJECTINSTANCE);
-
-        res = IDirectInputDevice7_GetObjectInfo(*devicedef[KEYBOARD].did, &key, i, DIPH_BYOFFSET);
-        if (FAILED(res)) continue;
-
-        CharToOem(key.tszName, tbuf);
-        Bstrncpy((char *)key_names[i], tbuf, sizeof(key_names[i])-1);
-
         tbuf[0] = 0;
         GetKeyNameText((i>128?(i+128):i)<<16, tbuf, sizeof(key_names[i])-1);
-//        initprintf("%d %15s  %15s\n",i,key_names[i],tbuf);
-        if (*tbuf)Bstrncpy(&key_names[i][0], tbuf, sizeof(key_names[i])-1);
+        Bstrncpy(&key_names[i][0], tbuf, sizeof(key_names[i])-1);
     }
 }
 
@@ -1492,12 +1301,10 @@ static void AcquireInputDevices(char acquire, int8_t device)
         {
             if (! *devicedef[i].did) continue;
             if (device != -1 && i != device) continue;	// don't touch other devices if only the mouse is wanted
-            else if (!mousegrab && i == MOUSE) continue;	// don't grab the mouse if we don't want it grabbed
 
             IDirectInputDevice7_Unacquire(*devicedef[i].did);
 
-            if (i == MOUSE /*&& fullscreen*/) flags = DISCL_FOREGROUND|DISCL_EXCLUSIVE;
-            else flags = DISCL_FOREGROUND|DISCL_NONEXCLUSIVE;
+            flags = DISCL_FOREGROUND|DISCL_NONEXCLUSIVE;
 
             result = IDirectInputDevice7_SetCooperativeLevel(*devicedef[i].did, hWindow, flags);
             if (FAILED(result))
@@ -1534,17 +1341,14 @@ static void AcquireInputDevices(char acquire, int8_t device)
 //
 // ProcessInputDevices() -- processes the input devices
 //
-static inline void ProcessInputDevices(void)
+static inline void DI_ProcessDevices(void)
 {
-    DWORD i;
+    DWORD i, dwElements = INPUT_BUFFER_SIZE, ev = 0;
     HRESULT result;
-
     DIDEVICEOBJECTDATA didod[INPUT_BUFFER_SIZE];
-    DWORD dwElements = INPUT_BUFFER_SIZE;
-    DWORD ev;
     uint32_t t,u;
-    uint32_t idevnums[NUM_INPUTS], numdevs = 0;
-    HANDLE waithnds[NUM_INPUTS];
+
+    numdevs = 0;
 
     for (t = 0; t < NUM_INPUTS; t++)
     {
@@ -1573,134 +1377,16 @@ static inline void ProcessInputDevices(void)
         }
     }
 
-    t = getticks();
-
-    // do this here because we only want the wheel to signal once, but hold the state for a moment
-    if (mousegrab)
-    {
-        if (mousewheel[0] > 0 && t - mousewheel[0] > MouseWheelFakePressTime)
-        {
-            if (mousepresscallback) mousepresscallback(5,0);
-            mousewheel[0] = 0; mouseb &= ~16;
-        }
-        if (mousewheel[1] > 0 && t - mousewheel[1] > MouseWheelFakePressTime)
-        {
-            if (mousepresscallback) mousepresscallback(6,0);
-            mousewheel[1] = 0; mouseb &= ~32;
-        }
-    }
-
     if (numdevs == 0) return;	// nothing to do
 
     // use event objects so that we can quickly get indication of when data is ready
     // to be read and input events processed
     ev = MsgWaitForMultipleObjects(numdevs, waithnds, FALSE, 0, 0);
-    if (/*(ev >= WAIT_OBJECT_0) &&*/ (ev < (WAIT_OBJECT_0+numdevs)))
+
+    if ((ev >= WAIT_OBJECT_0) && (ev < (WAIT_OBJECT_0+numdevs)))
     {
         switch (idevnums[ev - WAIT_OBJECT_0])
         {
-        case MOUSE:
-            if (moustat)
-            {
-                dwElements = INPUT_BUFFER_SIZE;
-
-                result = IDirectInputDevice7_GetDeviceData(lpDID[MOUSE], sizeof(DIDEVICEOBJECTDATA),
-                    (LPDIDEVICEOBJECTDATA)&didod[0], &dwElements, 0);
-
-                if (!dwElements || (result != DI_OK && result != DI_BUFFEROVERFLOW))
-                    break;
-
-                do
-                {
-                    int32_t bit = 1<<(didod[dwElements-1].dwOfs - DIMOFS_BUTTON0);
-
-                    switch (didod[dwElements-1].dwOfs)
-                    {
-                    case DIMOFS_X:
-                        mousex += (int16_t)didod[dwElements-1].dwData;
-                        break;
-                    case DIMOFS_Y:
-                        mousey += (int16_t)didod[dwElements-1].dwData;
-                        break;
-                    case DIMOFS_Z:
-                        {
-                            if ((int32_t)didod[dwElements-1].dwData > 0)   	// wheel up
-                            {
-                                if (mousewheel[0] > 0 && mousepresscallback) mousepresscallback(5,0);
-                                mousewheel[0] = getticks();
-                                mouseb |= 16;
-                                if (mousepresscallback) mousepresscallback(5, 1);
-                            }
-                            else if ((int32_t)didod[dwElements-1].dwData < 0)  	// wheel down
-                            {
-                                if (mousewheel[1] > 0 && mousepresscallback) mousepresscallback(6,0);
-                                mousewheel[1] = getticks();
-                                mouseb |= 32;
-                                if (mousepresscallback) mousepresscallback(6, 1);
-                            }
-                        }
-                        break;
-
-                    case DIMOFS_BUTTON4:
-                    case DIMOFS_BUTTON5:
-                    case DIMOFS_BUTTON6:
-                    case DIMOFS_BUTTON7:
-                        didod[dwElements-1].dwOfs += 2; // skip mousewheel buttons
-                        bit = 1<<(didod[dwElements-1].dwOfs - DIMOFS_BUTTON0);
-                    case DIMOFS_BUTTON0:
-                    case DIMOFS_BUTTON1:
-                    case DIMOFS_BUTTON2:
-                    case DIMOFS_BUTTON3:
-                        if (didod[dwElements-1].dwData & 0x80) mouseb |= bit;
-                        else mouseb &= ~bit;
-                        if (mousepresscallback)
-                            mousepresscallback(didod[dwElements-1].dwOfs - DIMOFS_BUTTON0 + 1, mouseb & bit);
-                        break;
-                    }
-                }
-                while (--dwElements);
-            }
-            break;
-
-        case KEYBOARD:		// keyboard
-            if (!lpDID[KEYBOARD]) break;
-            result = IDirectInputDevice7_GetDeviceData(lpDID[KEYBOARD], sizeof(DIDEVICEOBJECTDATA),
-                     (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
-            if (result == DI_OK)
-            {
-                DWORD k, numlockon = FALSE;
-
-                numlockon = (GetKeyState(VK_NUMLOCK) & 1);
-
-                // process the key events
-                for (i=0; i<dwElements; i++)
-                {
-                    k = didod[i].dwOfs;
-
-                    if (k == DIK_PAUSE) continue;	// fucking pause
-
-                    //if (IsDebuggerPresent() && k == DIK_F12) continue;
-
-                    // hook in the osd
-                    if (OSD_HandleScanCode(k, (didod[i].dwData & 0x80)) != 0)
-                    {
-                        SetKey(k, (didod[i].dwData & 0x80) == 0x80);
-
-                        if (keypresscallback)
-                            keypresscallback(k, (didod[i].dwData & 0x80) == 0x80);
-                    }
-
-                    if (((lastKeyDown & 0x7fffffffl) == k) && !(didod[i].dwData & 0x80))
-                        lastKeyDown = 0;
-                    else if (didod[i].dwData & 0x80)
-                    {
-                        lastKeyDown = k;
-                        lastKeyTime = t;
-                    }
-                }
-            }
-            break;
-
         case JOYSTICK:		// joystick
             if (!lpDID[JOYSTICK]) break;
             result = IDirectInputDevice7_GetDeviceData(lpDID[JOYSTICK], sizeof(DIDEVICEOBJECTDATA),
@@ -1740,36 +1426,8 @@ static inline void ProcessInputDevices(void)
                         break;
                     }
                 }
-
-                /*
-                OSD_Printf("axes:");
-                for (i=0;i<joynumaxes;i++) OSD_Printf(" %d", joyaxis[i]);
-                OSD_Printf(" - buttons: %x - hats:", joyb);
-                for (i=0;i<joynumhats;i++) OSD_Printf(" %d", joyhat[i]);
-                OSD_Printf("\n");
-                */
             }
             break;
-        }
-    }
-
-    // key repeat
-    // this is like this because the period of t is 1000ms
-    if (lastKeyDown > 0)
-    {
-        u = (1000 + t - lastKeyTime)%1000;
-        if ((u >= 250) && !(lastKeyDown&0x80000000l))
-        {
-            if (OSD_HandleScanCode(lastKeyDown, 1) != 0)
-                SetKey(lastKeyDown, 1);
-            lastKeyDown |= 0x80000000l;
-            lastKeyTime = t;
-        }
-        else if ((u >= 30) && (lastKeyDown&0x80000000l))
-        {
-            if (OSD_HandleScanCode(lastKeyDown&(0x7fffffffl), 1) != 0)
-                SetKey(lastKeyDown&(0x7fffffffl), 1);
-            lastKeyTime = t;
         }
     }
 }
@@ -2192,15 +1850,15 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 // getvalidmodes() -- figure out what video modes are available
 //
 #define ADDMODE(x,y,c,f,n) if (validmodecnt<MAXVALIDMODES) { \
-	validmode[validmodecnt].xdim=x; \
-	validmode[validmodecnt].ydim=y; \
-	validmode[validmodecnt].bpp=c; \
-	validmode[validmodecnt].fs=f; \
-	validmode[validmodecnt].extra=n; \
-	validmodecnt++; \
+    validmode[validmodecnt].xdim=x; \
+    validmode[validmodecnt].ydim=y; \
+    validmode[validmodecnt].bpp=c; \
+    validmode[validmodecnt].fs=f; \
+    validmode[validmodecnt].extra=n; \
+    validmodecnt++; \
     }
 /*	initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed"); \
-	} */
+    } */
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
@@ -2370,8 +2028,6 @@ void resetvideomode(void)
 //
 void begindrawing(void)
 {
-    int32_t i,j;
-
     if (bpp > 8)
     {
         if (offscreenrendering) return;
@@ -2387,16 +2043,11 @@ void begindrawing(void)
 
     if (offscreenrendering) return;
 
-    if (!fullscreen)
-    {
-        frameplace = (intptr_t)lpPixels;
-    }
-    else
-    {
-        frameplace = (intptr_t)lpOffscreen;
-    }
+    frameplace = fullscreen ? (intptr_t)lpOffscreen : (intptr_t)lpPixels;
 
     if (!modechange) return;
+
+    modechange=0;
 
     if (!fullscreen)
     {
@@ -2410,9 +2061,11 @@ void begindrawing(void)
     imageSize = bytesperline*yres;
     setvlinebpl(bytesperline);
 
-    j = 0;
-    for (i=0; i<=ydim; i++) ylookup[i] = j, j += bytesperline;
-    modechange=0;
+    {
+        int32_t i = 0, j = 0;
+        for (; i<=ydim; i++)
+            ylookup[i] = j, j += bytesperline;
+    }
 }
 
 
@@ -2483,7 +2136,7 @@ void showframe(int32_t w)
     }
 #endif
 
-    w = 1;	// wait regardless. ken thinks it's better to do so.
+//    w = 1;	// wait regardless. ken thinks it's better to do so.
 
     if (offscreenrendering) return;
 
@@ -2496,68 +2149,63 @@ void showframe(int32_t w)
     if (!fullscreen)
     {
         BitBlt(hDC, 0, 0, xres, yres, hDCSection, 0, 0, SRCCOPY);
+        return;
     }
-    else
+
+    if (!w && (IDirectDrawSurface_GetBltStatus(lpDDSBack, DDGBS_CANBLT) == DDERR_WASSTILLDRAWING ||
+            IDirectDrawSurface_GetFlipStatus(lpDDSPrimary, DDGFS_CANFLIP) == DDERR_WASSTILLDRAWING))
+            return;
+
+    // lock the backbuffer surface
+    Bmemset(&ddsd, 0, sizeof(ddsd));
+    ddsd.dwSize = sizeof(ddsd);
+
+    result = IDirectDrawSurface_Lock(lpDDSBack, NULL, &ddsd, DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK | DDLOCK_WAIT, NULL);
+
+    if (result == DDERR_SURFACELOST)
     {
-        if (!w)
-        {
-            if ((result = IDirectDrawSurface_GetBltStatus(lpDDSBack, DDGBS_CANBLT)) == DDERR_WASSTILLDRAWING)
-                return;
+        if (!appactive)
+            return;	// not in a position to restore display anyway
 
-            if ((result = IDirectDrawSurface_GetFlipStatus(lpDDSPrimary, DDGFS_CANFLIP)) == DDERR_WASSTILLDRAWING)
-                return;
-        }
-
-        // lock the backbuffer surface
-        memset(&ddsd, 0, sizeof(ddsd));
-        ddsd.dwSize = sizeof(ddsd);
-
+        IDirectDrawSurface_Restore(lpDDSPrimary);
         result = IDirectDrawSurface_Lock(lpDDSBack, NULL, &ddsd, DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK | DDLOCK_WAIT, NULL);
-        if (result == DDERR_SURFACELOST)
-        {
-            if (!appactive)
-                return;	// not in a position to restore display anyway
+    }
+    if (result != DD_OK)
+    {
+        if (result != DDERR_WASSTILLDRAWING)
+            initprintf("Failed locking back-buffer surface: %s\n", GetDDrawError(result));
+        return;
+    }
 
-            IDirectDrawSurface_Restore(lpDDSPrimary);
-            result = IDirectDrawSurface_Lock(lpDDSBack, NULL, &ddsd, DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK | DDLOCK_WAIT, NULL);
-        }
-        if (result != DD_OK)
-        {
-            if (result != DDERR_WASSTILLDRAWING)
-                initprintf("Failed locking back-buffer surface: %s\n", GetDDrawError(result));
-            return;
-        }
+    // copy each scanline
+    p = (char *)ddsd.lpSurface;
+    q = (char *)lpOffscreen;
+    j = xres >> 2;
 
-        // copy each scanline
-        p = (char *)ddsd.lpSurface;
-        q = (char *)lpOffscreen;
-        j = xres >> 2;
+    for (i=0; i<yres; i++, p+=ddsd.lPitch, q+=bytesperline)
+        copybuf(q,p,j);
 
-        for (i=0; i<yres; i++, p+=ddsd.lPitch, q+=bytesperline)
-            copybuf(q,p,j);
+    // unlock the backbuffer surface
+    result = IDirectDrawSurface_Unlock(lpDDSBack, NULL);
+    if (result != DD_OK)
+    {
+        initprintf("Failed unlocking back-buffer surface: %s\n", GetDDrawError(result));
+        return;
+    }
 
-        // unlock the backbuffer surface
-        result = IDirectDrawSurface_Unlock(lpDDSBack, NULL);
-        if (result != DD_OK)
-        {
-            initprintf("Failed unlocking back-buffer surface: %s\n", GetDDrawError(result));
-            return;
-        }
-
-        // flip the chain
+    // flip the chain
+    result = IDirectDrawSurface_Flip(lpDDSPrimary, NULL, w?DDFLIP_WAIT:0);
+    if (result == DDERR_SURFACELOST)
+    {
+        if (!appactive)
+            return;	// not in a position to restore display anyway
+        IDirectDrawSurface_Restore(lpDDSPrimary);
         result = IDirectDrawSurface_Flip(lpDDSPrimary, NULL, w?DDFLIP_WAIT:0);
-        if (result == DDERR_SURFACELOST)
-        {
-            if (!appactive)
-                return;	// not in a position to restore display anyway
-            IDirectDrawSurface_Restore(lpDDSPrimary);
-            result = IDirectDrawSurface_Flip(lpDDSPrimary, NULL, w?DDFLIP_WAIT:0);
-        }
-        if (result != DD_OK)
-        {
-            if (result != DDERR_WASSTILLDRAWING)
-                initprintf("IDirectDrawSurface_Flip(): %s\n", GetDDrawError(result));
-        }
+    }
+    if (result != DD_OK)
+    {
+        if (result != DDERR_WASSTILLDRAWING)
+            initprintf("IDirectDrawSurface_Flip(): %s\n", GetDDrawError(result));
     }
 }
 
@@ -2581,80 +2229,13 @@ int32_t setpalette(int32_t start, int32_t num)
         PALETTEENTRY palPalEntry[256];
     } lpal;
 
-//    copybufbyte(curpalettefaded, lpal.palPalEntry, 256);
+    if (bpp > 8) return 0;	// no palette in opengl
+
     Bmemcpy(lpal.palPalEntry, curpalettefaded, sizeof(lpal.palPalEntry));
     for (i=start, n=num-1; n>0; i++, n--)
         curpalettefaded[i].f = lpal.palPalEntry[i].peFlags = PC_NOCOLLAPSE;
 
-    if (bpp > 8) return 0;	// no palette in opengl
-
-    if (!fullscreen)
-    {
-        if (num > 0)
-        {
-            rgb = (RGBQUAD *)Bmalloc(sizeof(RGBQUAD)*num);
-            for (i=start, n=0; n<num; i++, n++)
-            {
-                rgb[n].rgbBlue = lpal.palPalEntry[i].peBlue;
-                rgb[n].rgbGreen = lpal.palPalEntry[i].peGreen;
-                rgb[n].rgbRed = lpal.palPalEntry[i].peRed;
-                rgb[n].rgbReserved = 0;
-            }
-
-            SetDIBColorTable(hDCSection, start, num, rgb);
-            Bfree(rgb);
-        }
-
-        if (desktopbpp > 8) return 0;	// only if an 8bit desktop do we do what follows
-
-        // set 0 and 255 to black and white
-        lpal.palVersion = 0x300;
-        lpal.palNumEntries = 256;
-        lpal.palPalEntry[0].peBlue = 0;
-        lpal.palPalEntry[0].peGreen = 0;
-        lpal.palPalEntry[0].peRed = 0;
-        lpal.palPalEntry[0].peFlags = 0;
-        lpal.palPalEntry[255].peBlue = 255;
-        lpal.palPalEntry[255].peGreen = 255;
-        lpal.palPalEntry[255].peRed = 255;
-        lpal.palPalEntry[255].peFlags = 0;
-
-        if (SetSystemPaletteUse(hDC, SYSPAL_NOSTATIC) == SYSPAL_ERROR)
-        {
-            initprintf("Problem setting system palette use.\n");
-            return -1;
-        }
-
-        if (hPalette)
-        {
-            if (num == 0) { start = 0; num = 256; }		// refreshing the palette only
-            SetPaletteEntries(hPalette, start, num, lpal.palPalEntry+start);
-        }
-        else
-        {
-            hPalette = CreatePalette((LOGPALETTE *)lpal.palPalEntry);
-            if (!hPalette)
-            {
-                initprintf("Problem creating palette.\n");
-                return -1;
-            }
-        }
-
-        if (SelectPalette(hDC, hPalette, FALSE) == NULL)
-        {
-            initprintf("Problem selecting palette.\n");
-            return -1;
-        }
-
-        if (RealizePalette(hDC) == GDI_ERROR)
-        {
-            initprintf("Failure realizing palette.\n");
-            return -1;
-        }
-
-        SetBWSystemColours();
-    }
-    else
+    if (fullscreen)
     {
         if (!lpDDPalette) return -1;
         result = IDirectDrawPalette_SetEntries(lpDDPalette, 0, 0, 256, (LPPALETTEENTRY)lpal.palPalEntry);
@@ -2663,6 +2244,23 @@ int32_t setpalette(int32_t start, int32_t num)
             initprintf("Palette set failed: %s\n", GetDDrawError(result));
             return -1;
         }
+
+        return 0;
+    }
+
+    if (num > 0)
+    {
+        rgb = (RGBQUAD *)Bmalloc(sizeof(RGBQUAD)*num);
+        for (i=start, n=0; n<num; i++, n++)
+        {
+            rgb[n].rgbBlue = lpal.palPalEntry[i].peBlue;
+            rgb[n].rgbGreen = lpal.palPalEntry[i].peGreen;
+            rgb[n].rgbRed = lpal.palPalEntry[i].peRed;
+            rgb[n].rgbReserved = 0;
+        }
+
+        SetDIBColorTable(hDCSection, start, num, rgb);
+        Bfree(rgb);
     }
 
     return 0;
@@ -2674,16 +2272,16 @@ int32_t setpalette(int32_t start, int32_t num)
 /*
 int32_t getpalette(int32_t start, int32_t num, char *dapal)
 {
-	int32_t i;
+    int32_t i;
 
-	for (i=num; i>0; i--, start++) {
-		dapal[0] = curpalette[start].b >> 2;
-		dapal[1] = curpalette[start].g >> 2;
-		dapal[2] = curpalette[start].r >> 2;
-		dapal += 4;
-	}
+    for (i=num; i>0; i--, start++) {
+        dapal[0] = curpalette[start].b >> 2;
+        dapal[1] = curpalette[start].g >> 2;
+        dapal[2] = curpalette[start].r >> 2;
+        dapal += 4;
+    }
 
-	return 0;
+    return 0;
 }*/
 
 
@@ -3062,9 +2660,6 @@ static int32_t SetupDirectDraw(int32_t width, int32_t height)
 //
 static void UninitDIB(void)
 {
-    if (desktopbpp <= 8)
-        RestoreSystemColours();
-
     if (hPalette)
     {
         DeleteObject(hPalette);
@@ -3418,13 +3013,6 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 // support non-power-of-two texture sizes
                 glinfo.texnpot = 1;
             }
-            else if (!Bstrcmp((char *)p2, "WGL_3DFX_gamma_control"))
-            {
-                // 3dfx cards have issues with fog
-                nofog = 1;
-                if (!(warnonce&1)) initprintf("3dfx card detected: OpenGL fog disabled\n");
-                warnonce |= 1;
-            }
             else if (!Bstrcmp((char *)p2, "GL_ARB_fragment_program"))
             {
                 glinfo.arbfp = 1;
@@ -3525,12 +3113,12 @@ static BOOL CreateAppWindow(int32_t modenum)
         if (bpp > 8)
         {
 #if defined(USE_OPENGL) && defined(POLYMOST)
-            ReleaseOpenGL();	// release opengl
+            ReleaseOpenGL();
 #endif
         }
         else
         {
-            ReleaseDirectDrawSurfaces();	// releases directdraw surfaces
+            ReleaseDirectDrawSurfaces();
         }
 
         if (!fs && fullscreen)
@@ -3565,7 +3153,7 @@ static BOOL CreateAppWindow(int32_t modenum)
     {
         hWindow = CreateWindowEx(
                       stylebitsex,
-                      "buildapp",
+                      WindowClass,
                       apptitle,
                       stylebits,
                       CW_USEDEFAULT,
@@ -3632,19 +3220,11 @@ static BOOL CreateAppWindow(int32_t modenum)
 #if defined(USE_OPENGL) && defined(POLYMOST)
             // yes, start up opengl
             if (SetupOpenGL(width,height,bitspp))
-            {
                 return TRUE;
-            }
 #endif
         }
-        else
-        {
-            // no, use DIB section
-            if (SetupDIB(width,height))
-            {
-                return TRUE;
-            }
-        }
+        else if (SetupDIB(width,height)) // use DIB section
+            return TRUE;
 
         modesetusing = -1;
     }
@@ -3782,57 +3362,6 @@ static void DestroyAppWindow(void)
         DestroyWindow(hWindow);
         hWindow = NULL;
     }
-}
-
-
-//
-// SaveSystemColours() -- save the Windows-reserved colours
-//
-static void SaveSystemColours(void)
-{
-    int32_t i;
-
-    if (system_colours_saved) return;
-
-    for (i=0; i<NUM_SYS_COLOURS; i++)
-        syscolours[i] = GetSysColor(syscolouridx[i]);
-
-    system_colours_saved = 1;
-}
-
-
-//
-// SetBWSystemColours() -- set system colours to a black-and-white scheme
-//
-static void SetBWSystemColours(void)
-{
-#define WHI RGB(255,255,255)
-#define BLA RGB(0,0,0)
-    static COLORREF syscoloursbw[NUM_SYS_COLOURS] =
-    {
-        WHI, BLA, BLA, WHI, WHI, WHI, WHI, BLA, BLA, WHI,
-        WHI, WHI, WHI, BLA, WHI, WHI, BLA, BLA, BLA, BLA,
-        BLA, BLA, WHI, BLA, WHI
-    };
-#undef WHI
-#undef BLA
-    if (!system_colours_saved || bw_colours_set) return;
-
-    SetSysColors(NUM_SYS_COLOURS, syscolouridx, syscoloursbw);
-    bw_colours_set = 1;
-}
-
-
-//
-// RestoreSystemColours() -- restore the Windows-reserved colours
-//
-static void RestoreSystemColours(void)
-{
-    if (!system_colours_saved || !bw_colours_set) return;
-
-    SetSystemPaletteUse(hDC, SYSPAL_STATIC);
-    SetSysColors(NUM_SYS_COLOURS, syscolouridx, syscolours);
-    bw_colours_set = 0;
 }
 
 
@@ -4113,16 +3642,12 @@ static inline BOOL CheckWinVersion(void)
     ZeroMemory(&osv, sizeof(osv));
     osv.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 
-    // we don't like anything older than Windows 2000, but the BUILD_WIN9X
-    // variable allows attempting to run on 9x (for masochists and sodomites)
+    // we don't like anything older than Windows XP
 
     if (!GetVersionEx((LPOSVERSIONINFOA)&osv)) return FALSE;
 
-    if (osv.dwMajorVersion >= 5) return TRUE;
-
-    if (Bgetenv("BUILD_WIN9X") != NULL && osv.dwMajorVersion == 4 &&
-             osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
-        return TRUE;
+    if (osv.dwMajorVersion >= 6) return TRUE;
+    if (osv.dwMajorVersion == 5 && osv.dwMinorVersion >= 1) return TRUE;
 
     return FALSE;
 }
@@ -4201,21 +3726,6 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         break;
     }
     case WM_ACTIVATE:
-        if (desktopbpp <= 8)
-        {
-            if (appactive)
-            {
-                setpalette(0,0);
-                SetBWSystemColours();
-                //					initprintf("Resetting palette.\n");
-            }
-            else
-            {
-                RestoreSystemColours();
-                //					initprintf("Resetting system colours.\n");
-            }
-        }
-
         if (appactive)
         {
             SetForegroundWindow(hWindow);

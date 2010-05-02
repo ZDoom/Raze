@@ -556,12 +556,12 @@ static int32_t osdcmd_setvar(const osdfuncparm_t *parm)
 
     strcpy(varname,parm->parms[1]);
     varval = Batol(varname);
-    i = hash_find(&gamevarH,varname);
+    i = hash_find(&h_gamevars,varname);
     if (i >= 0)
         varval=Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex);
 
     strcpy(varname,parm->parms[0]);
-    i = hash_find(&gamevarH,varname);
+    i = hash_find(&h_gamevars,varname);
     if (i >= 0)
         Gv_SetVar(i, varval, g_player[myconnectindex].ps->i, myconnectindex);
     return OSDCMD_OK;
@@ -581,7 +581,7 @@ static int32_t osdcmd_addlogvar(const osdfuncparm_t *parm)
     }
 
     strcpy(varname,parm->parms[0]);
-    i = hash_find(&gamevarH,varname);
+    i = hash_find(&h_gamevars,varname);
     if (i >= 0)
         OSD_Printf("%s = %d\n", varname, Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex));
     return OSDCMD_OK;
@@ -610,12 +610,12 @@ static int32_t osdcmd_setactorvar(const osdfuncparm_t *parm)
     varval = Batol(parm->parms[2]);
     strcpy(varname,parm->parms[2]);
     varval = Batol(varname);
-    i = hash_find(&gamevarH,varname);
+    i = hash_find(&h_gamevars,varname);
     if (i >= 0)
         varval=Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex);
 
     strcpy(varname,parm->parms[1]);
-    i = hash_find(&gamevarH,varname);
+    i = hash_find(&h_gamevars,varname);
     if (i >= 0)
         Gv_SetVar(i, varval, ID, -1);
     return OSDCMD_OK;
@@ -776,11 +776,11 @@ void onvideomodechange(int32_t newmode)
 
         while (i < MAXSPRITES)
         {
-            if (ActorExtra[i].lightptr)
+            if (actor[i].lightptr)
             {
-                polymer_deletelight(ActorExtra[i].lightId);
-                ActorExtra[i].lightptr = NULL;
-                ActorExtra[i].lightId = -1;
+                polymer_deletelight(actor[i].lightId);
+                actor[i].lightptr = NULL;
+                actor[i].lightId = -1;
             }
             i++;
         }
@@ -804,7 +804,7 @@ static int32_t osdcmd_name(const osdfuncparm_t *parm)
 
     Bstrcpy(tempbuf,parm->parms[0]);
 
-    while (Bstrlen(stripcolorcodes(namebuf,tempbuf)) > 10)
+    while (Bstrlen(OSD_StripColors(namebuf,tempbuf)) > 10)
         tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
     Bstrncpy(szPlayerName,tempbuf,sizeof(szPlayerName)-1);
@@ -1037,8 +1037,12 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
     Bstrncpy(KeyBindings[ConsoleKeys[i].id].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
 
     KeyBindings[ConsoleKeys[i].id].key=ConsoleKeys[i].name;
+
+    CONTROL_MapKey(CONFIG_FunctionNameToNum(tempbuf), ConsoleKeys[i].id, 0);
+
     if (!OSD_ParsingScript())
         OSD_Printf("%s\n",parm->raw);
+
     return OSDCMD_OK;
 }
 
@@ -1374,91 +1378,110 @@ int32_t registerosdcommands(void)
 
     cvar_t cvars_game[] =
     {
-        { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_BOOL, 0, 0, 1 },
+        { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_BOOL, 0, 1 },
 
-        { "hud_althud", "hud_althud: enable/disable alternate mini-hud", (void*)&ud.althud, CVAR_BOOL, 0, 0, 1 },
-        { "hud_messagetime", "hud_messagetime: length of time to display multiplayer chat messages", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
-        { "hud_numbertile", "hud_numbertile: first tile in alt hud number set", (void*)&althud_numbertile, CVAR_INT, 0, 0, MAXTILES-10 },
-        { "hud_numberpal", "hud_numberpal: pal for alt hud numbers", (void*)&althud_numberpal, CVAR_INT, 0, 0, MAXPALOOKUPS },
-        { "hud_shadows", "hud_shadows: enable/disable althud shadows", (void*)&althud_shadows, CVAR_BOOL, 0, 0, 1 },
-        { "hud_flashing", "hud_flashing: enable/disable althud flashing", (void*)&althud_flashing, CVAR_BOOL, 0, 0, 1 },
-        { "hud_glowingquotes", "hud_glowingquotes: enable/disable \"glowing\" quote text", (void*)&hud_glowingquotes, CVAR_BOOL, 0, 0, 1 },
-        { "hud_scale","hud_scale: changes the hud scale", (void*)&ud.statusbarscale, CVAR_INT|CVAR_FUNCPTR, 0, 10, 100 },
-        { "hud_showmapname", "hud_showmapname: enable/disable map name display on load", (void*)&hud_showmapname, CVAR_BOOL, 0, 0, 1 },
-        { "hud_stats", "hud_stats: enable/disable level statistics display", (void*)&ud.levelstats, CVAR_BOOL, 0, 0, 1 },
-        { "hud_textscale", "hud_textscale: sets multiplayer chat message size", (void*)&ud.textscale, CVAR_INT, 0, 100, 400 },
-        { "hud_weaponscale","hud_weaponscale: changes the weapon scale", (void*)&ud.weaponscale, CVAR_INT, 0, 10, 100 },
+        { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&ud.config.AutoAim, CVAR_INT|CVAR_MULTI, 0, 2 },
+        { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 1 },
+        { "cl_autovote", "cl_autovote: enable/disable automatic voting", (void*)&ud.autovote, CVAR_INT, 0, 2 },
 
-        { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&ud.config.AutoAim, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
-        { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
-        { "cl_autovote", "cl_autovote: enable/disable automatic voting", (void*)&ud.autovote, CVAR_INT, 0, 0, 2 },
+        { "cl_obituaries", "cl_obituaries: enable/disable multiplayer death messages", (void*)&ud.obituaries, CVAR_BOOL, 0, 1 },
+        { "cl_democams", "cl_democams: enable/disable demo playback cameras", (void*)&ud.democams, CVAR_BOOL, 0, 1 },
 
-        { "cl_obituaries", "cl_obituaries: enable/disable multiplayer death messages", (void*)&ud.obituaries, CVAR_BOOL, 0, 0, 1 },
-        { "cl_democams", "cl_democams: enable/disable demo playback cameras", (void*)&ud.democams, CVAR_BOOL, 0, 0, 1 },
+        { "cl_idplayers", "cl_idplayers: enable/disable name display when aiming at opponents", (void*)&ud.idplayers, CVAR_BOOL, 0, 1 },
 
-        { "cl_idplayers", "cl_idplayers: enable/disable name display when aiming at opponents", (void*)&ud.idplayers, CVAR_BOOL, 0, 0, 1 },
+        { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 1 },
 
-        { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
+        { "cl_viewbob", "cl_viewbob: enable/disable player head bobbing", (void*)&ud.viewbob, CVAR_BOOL, 0, 1 },
 
-        { "cl_viewbob", "cl_viewbob: enable/disable player head bobbing", (void*)&ud.viewbob, CVAR_BOOL, 0, 0, 1 },
+        { "cl_weaponsway", "cl_weaponsway: enable/disable player weapon swaying", (void*)&ud.weaponsway, CVAR_BOOL, 0, 1 },
+        { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|CVAR_MULTI, 0, 3 },
+        { "cl_angleinterpolation", "cl_angleinterpolation: enable/disable angle interpolation", (void*)&ud.angleinterpolation, CVAR_INT, 0, 256 },
 
-        { "cl_weaponsway", "cl_weaponsway: enable/disable player weapon swaying", (void*)&ud.weaponsway, CVAR_BOOL, 0, 0, 1 },
-        { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|CVAR_MULTI, 0, 0, 3 },
-        { "cl_angleinterpolation", "cl_angleinterpolation: enable/disable angle interpolation", (void*)&ud.angleinterpolation, CVAR_INT, 0, 0, 256 },
+        { "crosshairscale","crosshairscale: changes the crosshair scale", (void*)&ud.crosshairscale, CVAR_INT, 10, 100 },
 
-        { "crosshairscale","crosshairscale: changes the crosshair scale", (void*)&ud.crosshairscale, CVAR_INT, 0, 10, 100 },
+        { "demorec_diffs","demorec_diffs: enable/disable diff recording in demos",(void*)&demorec_diffs_cvar, CVAR_BOOL, 0, 1 },
+        { "demorec_force","demorec_force: enable/disable forced demo recording",(void*)&demorec_force_cvar, CVAR_BOOL|CVAR_NOSAVE, 0, 1 },
+        { "demorec_difftics","demorec_difftics <number>: sets game tic interval after which a diff is recorded",
+            (void*)&demorec_difftics_cvar, CVAR_INT, 2, 60*(TICRATE/TICSPERFRAME) },
+        { "demorec_diffcompress","demorec_diffcompress <number>: Compression method for diffs. (0: none, 1: KSLZW)",(void*)&demorec_diffcompress_cvar, CVAR_INT, 0, 1 },
+        { "demorec_synccompress","demorec_synccompress <number>: Compression method for input. (0: none, 1: KSLZW)",(void*)&demorec_synccompress_cvar, CVAR_INT, 0, 1 },
+        { "demorec_seeds","demorec_seeds: enable/disable recording of random seed for later sync checking",(void*)&demorec_seeds_cvar, CVAR_BOOL, 0, 1 },
+        { "demoplay_diffs","demoplay_diffs: enable/disable application of diffs in demo playback",(void*)&demoplay_diffs, CVAR_BOOL, 0, 1 },
+        { "demoplay_showsync","demoplay_showsync: enable/disable display of sync status",(void*)&demoplay_showsync, CVAR_BOOL, 0, 1 },
 
-        { "in_joystick","in_joystick: enables input from the joystick if it is present",(void*)&ud.config.UseJoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 0, 1 },
-        { "in_mouse","in_mouse: enables input from the mouse if it is present",(void*)&ud.config.UseMouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 0, 1 },
+        { "hud_althud", "hud_althud: enable/disable alternate mini-hud", (void*)&ud.althud, CVAR_BOOL, 0, 1 },
+        { "hud_messagetime", "hud_messagetime: length of time to display multiplayer chat messages", (void*)&ud.msgdisptime, CVAR_INT, 0, 3600 },
+        { "hud_numbertile", "hud_numbertile: first tile in alt hud number set", (void*)&althud_numbertile, CVAR_INT, 0, MAXTILES-10 },
+        { "hud_numberpal", "hud_numberpal: pal for alt hud numbers", (void*)&althud_numberpal, CVAR_INT, 0, MAXPALOOKUPS },
+        { "hud_shadows", "hud_shadows: enable/disable althud shadows", (void*)&althud_shadows, CVAR_BOOL, 0, 1 },
+        { "hud_flashing", "hud_flashing: enable/disable althud flashing", (void*)&althud_flashing, CVAR_BOOL, 0, 1 },
+        { "hud_glowingquotes", "hud_glowingquotes: enable/disable \"glowing\" quote text", (void*)&hud_glowingquotes, CVAR_BOOL, 0, 1 },
+        { "hud_scale","hud_scale: changes the hud scale", (void*)&ud.statusbarscale, CVAR_INT|CVAR_FUNCPTR, 10, 100 },
+        { "hud_showmapname", "hud_showmapname: enable/disable map name display on load", (void*)&hud_showmapname, CVAR_BOOL, 0, 1 },
+        { "hud_stats", "hud_stats: enable/disable level statistics display", (void*)&ud.levelstats, CVAR_BOOL, 0, 1 },
+        { "hud_textscale", "hud_textscale: sets multiplayer chat message size", (void*)&ud.textscale, CVAR_INT, 100, 400 },
+        { "hud_weaponscale","hud_weaponscale: changes the weapon scale", (void*)&ud.weaponscale, CVAR_INT, 10, 100 },
 
-        { "in_mousebias", "in_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time", (void*)&ud.config.MouseBias, CVAR_INT, 0, 0, 32 },
-        { "in_mousedeadzone", "in_mousedeadzone: amount of mouse movement to filter out", (void*)&ud.config.MouseDeadZone, CVAR_INT, 0, 0, 512 },
-        { "in_mousesmoothing", "in_mousesmoothing: enable/disable mouse input smoothing", (void*)&ud.config.SmoothInput, CVAR_BOOL, 0, 0, 1 },
+        { "in_joystick","in_joystick: enables input from the joystick if it is present",(void*)&ud.config.UseJoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
+        { "in_mouse","in_mouse: enables input from the mouse if it is present",(void*)&ud.config.UseMouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 
-        { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
-        { "osdhightile", "osdhightile: enable/disable hires art replacements for console text", (void*)&osdhightile, CVAR_BOOL, 0, 0, 1 },
-        { "r_showfps", "r_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_INT, 0, 0, 2 },
-        { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void*)&ud.shadows, CVAR_BOOL, 0, 0, 1 },
-        { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 0, 1 },
+        { "in_mousebias", "in_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time",
+            (void*)&ud.config.MouseBias, CVAR_INT, 0, 32 },
+        { "in_mousedeadzone", "in_mousedeadzone: amount of mouse movement to filter out", (void*)&ud.config.MouseDeadZone, CVAR_INT, 0, 512 },
+        { "in_mousesmoothing", "in_mousesmoothing: enable/disable mouse input smoothing", (void*)&ud.config.SmoothInput, CVAR_BOOL, 0, 1 },
 
-        { "r_ambientlight", "r_ambientlight: sets the global map light level",(void*)&r_ambientlight, CVAR_FLOAT|CVAR_FUNCPTR, 0, 0, 10 },
-        { "r_maxfps", "r_maxfps: sets a framerate cap",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 0, 1000 },
+        { "mus_enabled", "mus_enabled: enables/disables music", (void*)&ud.config.MusicToggle, CVAR_BOOL, 0, 1 },
+        { "mus_volume", "mus_musvolume: controls volume of midi music", (void*)&ud.config.MusicVolume, CVAR_INT, 0, 255 },
 
-        { "sensitivity","sensitivity <value>: changes the mouse sensitivity", (void*)&CONTROL_MouseSensitivity, CVAR_FLOAT|CVAR_FUNCPTR, 0, 0, 25 },
+        { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 2 },
+        { "osdhightile", "osdhightile: enable/disable hires art replacements for console text", (void*)&osdhightile, CVAR_BOOL, 0, 1 },
+        { "r_showfps", "r_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_INT, 0, 2 },
+        { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void*)&ud.shadows, CVAR_BOOL, 0, 1 },
+        { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 1 },
 
-        { "skill","skill <value>: changes the game skill setting", (void*)&ud.player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOMULTI, 0, 0, 5 },
+        { "r_ambientlight", "r_ambientlight: sets the global map light level",(void*)&r_ambientlight, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
+        { "r_maxfps", "r_maxfps: sets a framerate cap",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 1000 },
 
-        { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
-        { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&ud.config.VoiceToggle, CVAR_INT, 0, 0, 5 },
-        { "snd_fxvolume", "snd_fxvolume: volume of sound effects", (void*)&ud.config.FXVolume, CVAR_INT, 0, 0, 255 },
-        { "snd_mixrate", "snd_mixrate: sound mixing rate", (void*)&ud.config.MixRate, CVAR_INT, 0, 0, 48000 },
-        { "snd_musvolume", "snd_musvolume: volume of midi music", (void*)&ud.config.MusicVolume, CVAR_INT, 0, 0, 255 },
-        { "snd_numbits", "snd_numbits: sound bits", (void*)&ud.config.NumBits, CVAR_INT, 0, 8, 16 },
-        { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&ud.config.NumChannels, CVAR_INT, 0, 0, 2 },
-        { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&ud.config.NumVoices, CVAR_INT, 0, 0, 96 },
-        { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&ud.config.ReverseStereo, CVAR_BOOL, 0, 0, 16 },
-        { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",(void*)&vid_gamma, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 0, 10 },
-        { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void*)&vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 0, 10 },
-        { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",(void*)&vid_brightness, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 0, 10 },
+        { "sensitivity","sensitivity <value>: changes the mouse sensitivity", (void*)&CONTROL_MouseSensitivity, CVAR_FLOAT|CVAR_FUNCPTR, 0, 25 },
 
-        { "demorec_diffs","demorec_diffs: enable/disable diff recording in demos",(void*)&demorec_diffs_cvar, CVAR_BOOL, 0, 0, 1 },
-        { "demorec_force","demorec_force: enable/disable forced demo recording",(void*)&demorec_force_cvar, CVAR_BOOL|CVAR_NOSAVE, 0, 0, 1 },
-        { "demorec_difftics","demorec_difftics <number>: sets game tic interval after which a diff is recorded",(void*)&demorec_difftics_cvar, CVAR_INT, 0, 2, 60*(TICRATE/TICSPERFRAME) },
-        { "demorec_diffcompress","demorec_diffcompress <number>: Compression method for diffs. (0: none, 1: KSLZW)",(void*)&demorec_diffcompress_cvar, CVAR_INT, 0, 0, 1 },
-        { "demorec_synccompress","demorec_synccompress <number>: Compression method for input. (0: none, 1: KSLZW)",(void*)&demorec_synccompress_cvar, CVAR_INT, 0, 0, 1 },
-        { "demorec_seeds","demorec_seeds: enable/disable recording of random seed for later sync checking",(void*)&demorec_seeds_cvar, CVAR_BOOL, 0, 0, 1 },
-        { "demoplay_diffs","demoplay_diffs: enable/disable application of diffs in demo playback",(void*)&demoplay_diffs, CVAR_BOOL, 0, 0, 1 },
-        { "demoplay_showsync","demoplay_showsync: enable/disable display of sync status",(void*)&demoplay_showsync, CVAR_BOOL, 0, 0, 1 },
+        { "skill","skill <value>: changes the game skill setting", (void*)&ud.player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOMULTI, 0, 5 },
+
+        { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 1 },
+        { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&ud.config.VoiceToggle, CVAR_INT, 0, 5 },
+        { "snd_enabled", "snd_enabled: enables/disables sound effects", (void*)&ud.config.SoundToggle, CVAR_BOOL, 0, 1 },
+        { "snd_fxvolume", "snd_fxvolume: volume of sound effects", (void*)&ud.config.FXVolume, CVAR_INT, 0, 255 },
+        { "snd_mixrate", "snd_mixrate: sound mixing rate", (void*)&ud.config.MixRate, CVAR_INT, 0, 48000 },
+        { "snd_numbits", "snd_numbits: sound bits", (void*)&ud.config.NumBits, CVAR_INT, 8, 16 },
+        { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&ud.config.NumChannels, CVAR_INT, 0, 2 },
+        { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&ud.config.NumVoices, CVAR_INT, 0, 96 },
+        { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&ud.config.ReverseStereo, CVAR_BOOL, 0, 16 },
+
+        { "team","team <value>: change team in multiplayer", (void*)&ud.team, CVAR_INT|CVAR_FUNCPTR|CVAR_MULTI, 0, 3 },
+
+        { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",(void*)&vid_gamma, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
+        { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void*)&vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
+        { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",(void*)&vid_brightness, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
     };
 
     osdcmd_cheatsinfo_stat.cheatnum = -1;
 
     for (i=0; i<sizeof(cvars_game)/sizeof(cvars_game[0]); i++)
     {
-        OSD_RegisterCvar(&cvars_game[i]);
-        if (cvars_game[i].type & CVAR_FUNCPTR) OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set_game);
-        else if (cvars_game[i].type & CVAR_MULTI) OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set_multi);
-        else OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set);
+        if (OSD_RegisterCvar(&cvars_game[i]))
+            continue;
+
+        switch (cvars_game[i].type & (CVAR_FUNCPTR|CVAR_MULTI))
+        {
+        case CVAR_FUNCPTR:
+            OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set_game);
+            break;
+        case CVAR_MULTI:
+            OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set_multi);
+            break;
+        default:
+            OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set);
+            break;
+        }
     }
 
     if (VOLUMEONE)

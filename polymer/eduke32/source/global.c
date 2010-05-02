@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 #include "duke3d.h"
 
-const char *s_buildDate = "20100311";
+const char *s_buildDate = "20100427";
 char *MusicPtr = NULL;
 int32_t g_musicSize;
 
@@ -35,7 +35,7 @@ int32_t neartaghitdist,lockclock,g_startArmorAmount;
 int32_t g_spriteGravity=176;
 
 // int32_t temp_data[MAXSPRITES][6];
-ActorData_t ActorExtra[MAXSPRITES];
+ActorData_t actor[MAXSPRITES];
 
 int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos,g_spriteDeleteQueueSize=64;
 animwalltype animwall[MAXANIMWALLS];
@@ -98,7 +98,7 @@ int32_t syncvaltail, syncvaltottail;
 
 input_t loc;
 input_t recsync[RECSYNCBUFSIZ];
-int32_t avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;
+input_t avg;
 
 int32_t movefifosendplc;
 

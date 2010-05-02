@@ -38,7 +38,7 @@ extern void (*baselayer_onvideomodechange)(int32_t);
 #ifdef USE_OPENGL
 extern int32_t osdcmd_glinfo(const osdfuncparm_t *parm);
 
-struct glinfo {
+struct glinfo_t {
     const char *vendor;
     const char *renderer;
     const char *version;
@@ -66,7 +66,7 @@ struct glinfo {
     char dumped;
 };
 
-extern struct glinfo glinfo;
+extern struct glinfo_t glinfo;
 extern void setvsync(int32_t sync);
 #endif
 
@@ -113,7 +113,8 @@ const char *getjoyname(int32_t what, int32_t num); // what: 0=axis, 1=button, 2=
 char *strtolower(char *str, int32_t len);
 
 char bgetchar(void);
-int32_t bkbhit(void);
+#define bkbhit() (keyasciififoplc != keyasciififoend)
+
 void bflushchars(void);
 
 int32_t initmouse(void);

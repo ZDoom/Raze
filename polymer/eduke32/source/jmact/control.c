@@ -757,88 +757,88 @@ void CONTROL_ButtonFunctionState(int32_t *p1)
 /*
 void CONTROL_GetUserInput( UserInput *info )
 {
-	ControlInfo ci;
+    ControlInfo ci;
 
-	CONTROL_PollDevices( &ci );
+    CONTROL_PollDevices( &ci );
 
-	info->dir = dir_None;
+    info->dir = dir_None;
 
-	// checks if CONTROL_UserInputDelay is too far in the future due to clock skew?
-	if (GetTime() + ((ticrate * USERINPUTDELAY) / 1000) < CONTROL_UserInputDelay)
-		CONTROL_UserInputDelay = -1;
+    // checks if CONTROL_UserInputDelay is too far in the future due to clock skew?
+    if (GetTime() + ((ticrate * USERINPUTDELAY) / 1000) < CONTROL_UserInputDelay)
+        CONTROL_UserInputDelay = -1;
 
-	if (GetTime() >= CONTROL_UserInputDelay) {
-		if (CONTROL_MouseAxes[1].digital == -1)
-			info->dir = dir_North;
-		else if (CONTROL_MouseAxes[1].digital == 1)
-			info->dir = dir_South;
-		else if (CONTROL_MouseAxes[0].digital == -1)
-			info->dir = dir_West;
-		else if (CONTROL_MouseAxes[0].digital == 1)
-			info->dir = dir_East;
+    if (GetTime() >= CONTROL_UserInputDelay) {
+        if (CONTROL_MouseAxes[1].digital == -1)
+            info->dir = dir_North;
+        else if (CONTROL_MouseAxes[1].digital == 1)
+            info->dir = dir_South;
+        else if (CONTROL_MouseAxes[0].digital == -1)
+            info->dir = dir_West;
+        else if (CONTROL_MouseAxes[0].digital == 1)
+            info->dir = dir_East;
 
-		if (CONTROL_JoyAxes[1].digital == -1)
-			info->dir = dir_North;
-		else if (CONTROL_JoyAxes[1].digital == 1)
-			info->dir = dir_South;
-		else if (CONTROL_JoyAxes[0].digital == -1)
-			info->dir = dir_West;
-		else if (CONTROL_JoyAxes[0].digital == 1)
-			info->dir = dir_East;
-	}
+        if (CONTROL_JoyAxes[1].digital == -1)
+            info->dir = dir_North;
+        else if (CONTROL_JoyAxes[1].digital == 1)
+            info->dir = dir_South;
+        else if (CONTROL_JoyAxes[0].digital == -1)
+            info->dir = dir_West;
+        else if (CONTROL_JoyAxes[0].digital == 1)
+            info->dir = dir_East;
+    }
 
-	info->button0 = CONTROL_MouseButtonState[0] | CONTROL_JoyButtonState[0];
-	info->button1 = CONTROL_MouseButtonState[1] | CONTROL_JoyButtonState[1];
+    info->button0 = CONTROL_MouseButtonState[0] | CONTROL_JoyButtonState[0];
+    info->button1 = CONTROL_MouseButtonState[1] | CONTROL_JoyButtonState[1];
 
-	if (KB_KeyDown[sc_kpad_8] || KB_KeyDown[sc_UpArrow])
-		info->dir = dir_North;
-	else if (KB_KeyDown[sc_kpad_2] || KB_KeyDown[sc_DownArrow])
-		info->dir = dir_South;
-	else if (KB_KeyDown[sc_kpad_4] || KB_KeyDown[sc_LeftArrow])
-		info->dir = dir_West;
-	else if (KB_KeyDown[sc_kpad_6] || KB_KeyDown[sc_RightArrow])
-		info->dir = dir_East;
+    if (KB_KeyDown[sc_kpad_8] || KB_KeyDown[sc_UpArrow])
+        info->dir = dir_North;
+    else if (KB_KeyDown[sc_kpad_2] || KB_KeyDown[sc_DownArrow])
+        info->dir = dir_South;
+    else if (KB_KeyDown[sc_kpad_4] || KB_KeyDown[sc_LeftArrow])
+        info->dir = dir_West;
+    else if (KB_KeyDown[sc_kpad_6] || KB_KeyDown[sc_RightArrow])
+        info->dir = dir_East;
 
-	if (KB_KeyDown[BUTTON0_SCAN_1] || KB_KeyDown[BUTTON0_SCAN_2] || KB_KeyDown[BUTTON0_SCAN_3])
-		info->button0 = 1;
-	if (KB_KeyDown[BUTTON1_SCAN])
-		info->button1 = 1;
+    if (KB_KeyDown[BUTTON0_SCAN_1] || KB_KeyDown[BUTTON0_SCAN_2] || KB_KeyDown[BUTTON0_SCAN_3])
+        info->button0 = 1;
+    if (KB_KeyDown[BUTTON1_SCAN])
+        info->button1 = 1;
 
-	if (CONTROL_UserInputCleared[1]) {
-		if (!info->button0)
-			CONTROL_UserInputCleared[1] = false;
-		else
-			info->button0 = false;
-	}
-	if (CONTROL_UserInputCleared[2]) {
-		if (!info->button1)
-			CONTROL_UserInputCleared[2] = false;
-		else
-			info->button1 = false;
-	}
+    if (CONTROL_UserInputCleared[1]) {
+        if (!info->button0)
+            CONTROL_UserInputCleared[1] = false;
+        else
+            info->button0 = false;
+    }
+    if (CONTROL_UserInputCleared[2]) {
+        if (!info->button1)
+            CONTROL_UserInputCleared[2] = false;
+        else
+            info->button1 = false;
+    }
 }
 
 void CONTROL_ClearUserInput( UserInput *info )
 {
-	switch (info->dir) {
-		case dir_North:
-		case dir_South:
-		case dir_East:
-		case dir_West:
-			CONTROL_UserInputCleared[0] = true;
-			CONTROL_UserInputDelay = GetTime() + ((ticrate * USERINPUTDELAY) / 1000);
-			switch (info->dir) {
-				case dir_North: KB_KeyDown[sc_UpArrow]    = KB_KeyDown[sc_kpad_8] = 0; break;
-				case dir_South: KB_KeyDown[sc_DownArrow]  = KB_KeyDown[sc_kpad_2] = 0; break;
-				case dir_East:  KB_KeyDown[sc_LeftArrow]  = KB_KeyDown[sc_kpad_4] = 0; break;
-				case dir_West:  KB_KeyDown[sc_RightArrow] = KB_KeyDown[sc_kpad_6] = 0; break;
-				default: break;
-			}
-			break;
-		default: break;
-	}
-	if (info->button0) CONTROL_UserInputCleared[1] = true;
-	if (info->button1) CONTROL_UserInputCleared[2] = true;
+    switch (info->dir) {
+        case dir_North:
+        case dir_South:
+        case dir_East:
+        case dir_West:
+            CONTROL_UserInputCleared[0] = true;
+            CONTROL_UserInputDelay = GetTime() + ((ticrate * USERINPUTDELAY) / 1000);
+            switch (info->dir) {
+                case dir_North: KB_KeyDown[sc_UpArrow]    = KB_KeyDown[sc_kpad_8] = 0; break;
+                case dir_South: KB_KeyDown[sc_DownArrow]  = KB_KeyDown[sc_kpad_2] = 0; break;
+                case dir_East:  KB_KeyDown[sc_LeftArrow]  = KB_KeyDown[sc_kpad_4] = 0; break;
+                case dir_West:  KB_KeyDown[sc_RightArrow] = KB_KeyDown[sc_kpad_6] = 0; break;
+                default: break;
+            }
+            break;
+        default: break;
+    }
+    if (info->button0) CONTROL_UserInputCleared[1] = true;
+    if (info->button1) CONTROL_UserInputCleared[2] = true;
 }
 */
 void CONTROL_ClearButton(int32_t whichbutton)

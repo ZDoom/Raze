@@ -3,7 +3,7 @@
 ; See the included license file "BUILDLIC.TXT" for license info.
 
 .586P
-.8087
+;.8087
 ;include mmx.inc       ;Include this if using < WATCOM 11.0 WASM
 
 ;Warning: IN THIS FILE, ALL SEGMENTS ARE REMOVED.  THIS MEANS THAT DS:[]

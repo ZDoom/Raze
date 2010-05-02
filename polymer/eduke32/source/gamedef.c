@@ -165,7 +165,7 @@ const char *keyw[] =
     "strength",                 // 11 sets health
     "break",                    // 12 stops processing
     "shoot",                    // 13 shoots a projectile
-    "palfrom",                  // 14 used for player screen shading effect, sets p->pals_time and p->pals[0-2]
+    "palfrom",                  // 14 used for player screen shading effect, sets p->pals
     "sound",                    // 15 plays a sound that was defined with definesound
     "fall",                     // 16 causes actor to fall to sector floor height
     "state",                    // 17 begins defining a state if used outside a state or actor, otherwise calls a state
@@ -741,7 +741,7 @@ const memberlabel_t PlayerLabels[]=
     { "actorsqu", PLAYER_ACTORSQU, 0, 0 },
     { "timebeforeexit", PLAYER_TIMEBEFOREEXIT, 0, 0 },
     { "customexitsound", PLAYER_CUSTOMEXITSOUND, 0, 0 },
-    { "weaprecs[16]", PLAYER_WEAPRECS, 0, 0 },
+    { "weaprecs", PLAYER_WEAPRECS, LABEL_HASPARM2, MAX_WEAPONS },
     { "weapreccnt", PLAYER_WEAPRECCNT, 0, 0 },
     { "interface_toggle_flag", PLAYER_INTERFACE_TOGGLE_FLAG, 0, 0 },
     { "rotscrnang", PLAYER_ROTSCRNANG, 0, 0 },
@@ -959,10 +959,10 @@ const memberlabel_t InputLabels[]=
 char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 #define BITPTR_POINTER 1
 
-hashtable_t gamevarH    = { MAXGAMEVARS>>1, NULL };
-hashtable_t arrayH      = { MAXGAMEARRAYS>>1, NULL };
-hashtable_t labelH      = { 11264>>1, NULL };
-hashtable_t keywH       = { CON_END>>1, NULL };
+hashtable_t h_gamevars    = { MAXGAMEVARS>>1, NULL };
+hashtable_t h_arrays      = { MAXGAMEARRAYS>>1, NULL };
+hashtable_t h_labels      = { 11264>>1, NULL };
+hashtable_t h_keywords       = { CON_END>>1, NULL };
 
 hashtable_t sectorH     = { SECTOR_END>>1, NULL };
 hashtable_t wallH       = { WALL_END>>1, NULL };
@@ -981,12 +981,12 @@ void C_InitHashes()
 {
     int32_t i;
 
-    hash_init(&gamevarH);
-    hash_init(&arrayH);
-    hash_init(&labelH);
+    hash_init(&h_gamevars);
+    hash_init(&h_arrays);
+    hash_init(&h_labels);
     inithashnames();
 
-    hash_init(&keywH);
+    hash_init(&h_keywords);
     hash_init(&sectorH);
     hash_init(&wallH);
     hash_init(&userdefH);
@@ -996,7 +996,7 @@ void C_InitHashes()
     hash_init(&actorH);
     hash_init(&tspriteH);
 
-    for (i=NUMKEYWORDS-1; i>=0; i--) hash_add(&keywH,keyw[i],i);
+    for (i=NUMKEYWORDS-1; i>=0; i--) hash_add(&h_keywords,keyw[i],i);
     for (i=0; SectorLabels[i].lId >= 0; i++) hash_add(&sectorH,SectorLabels[i].name,i);
     for (i=0; WallLabels[i].lId >= 0; i++) hash_add(&wallH,WallLabels[i].name,i);
     for (i=0; UserdefsLabels[i].lId >= 0; i++) hash_add(&userdefH,UserdefsLabels[i].name,i);
@@ -1009,9 +1009,9 @@ void C_InitHashes()
 
 void C_FreeHashes(void)
 {
-    hash_free(&gamevarH);
-    hash_free(&arrayH);
-    hash_free(&labelH);
+    hash_free(&h_gamevars);
+    hash_free(&h_arrays);
+    hash_free(&h_labels);
 }
 
 // "magic" number for { and }, overrides line number in compiled code for later detection
@@ -1418,8 +1418,8 @@ static int32_t C_CheckEventSync(int32_t iEventID)
     return 1;
 }
 
-#define GetDefID(szGameLabel) hash_find(&gamevarH,szGameLabel)
-#define GetADefID(szGameLabel) hash_find(&arrayH,szGameLabel)
+#define GetDefID(szGameLabel) hash_find(&h_gamevars,szGameLabel)
+#define GetADefID(szGameLabel) hash_find(&h_arrays,szGameLabel)
 
 static inline int32_t isaltok(const char c)
 {
@@ -1483,7 +1483,7 @@ static int32_t C_GetKeyword(void)
     while (isaltok(*temptextptr))
         tempbuf[i++] = *(temptextptr++);
     tempbuf[i] = 0;
-    return hash_find(&keywH,tempbuf);
+    return hash_find(&h_keywords,tempbuf);
 }
 
 static int32_t C_GetNextKeyword(void) //Returns its code #
@@ -1508,7 +1508,7 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
     }
     tempbuf[l] = 0;
 
-    i = hash_find(&keywH,tempbuf);
+    i = hash_find(&h_keywords,tempbuf);
     if (i>=0)
     {
         if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
@@ -1586,7 +1586,7 @@ static void C_GetNextVarType(int32_t type)
     }
     C_GetNextLabelName();
 
-    if (!g_skipKeywordCheck && hash_find(&keywH,label+(g_numLabels<<6))>=0)
+    if (!g_skipKeywordCheck && hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_ISAKEYWORD);
@@ -1726,7 +1726,7 @@ static void C_GetNextVarType(int32_t type)
         {
             //try looking for a define instead
             Bstrcpy(tempbuf,label+(g_numLabels<<6));
-            i = hash_find(&labelH,tempbuf);
+            i = hash_find(&h_labels,tempbuf);
             if (i>=0)
             {
                 if (labeltype[i] & LABEL_DEFINE)
@@ -1805,14 +1805,14 @@ static int32_t C_GetNextValue(int32_t type)
     }
     tempbuf[l] = 0;
 
-    if (!g_skipKeywordCheck && hash_find(&keywH,tempbuf /*label+(g_numLabels<<6)*/)>=0)
+    if (!g_skipKeywordCheck && hash_find(&h_keywords,tempbuf /*label+(g_numLabels<<6)*/)>=0)
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_ISAKEYWORD);
         textptr+=l;
     }
 
-    i = hash_find(&labelH,tempbuf);
+    i = hash_find(&h_labels,tempbuf);
     if (i>=0)
     {
         char *el,*gl;
@@ -2040,28 +2040,28 @@ static int32_t C_ParseCommand(void)
 
             g_processingState = 1;
             Bsprintf(g_szCurrentBlockName,"%s",label+(g_numLabels<<6));
-            hash_add(&labelH,label+(g_numLabels<<6),g_numLabels);
+            hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels);
             g_numLabels++;
             return 0;
         }
 
         C_GetNextLabelName();
 
-        if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
+        if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
             return 0;
         }
 
-        i = hash_find(&gamevarH,label+(g_numLabels<<6));
+        i = hash_find(&h_gamevars,label+(g_numLabels<<6));
         if (i>=0)
         {
             g_numCompilerWarnings++;
             C_ReportError(WARNING_NAMEMATCHESVAR);
         }
 
-        j = hash_find(&labelH,label+(g_numLabels<<6));
+        j = hash_find(&h_labels,label+(g_numLabels<<6));
         if (j>=0)
         {
             if (labeltype[j] & LABEL_STATE)
@@ -2226,7 +2226,7 @@ static int32_t C_ParseCommand(void)
         //printf("Got Label '%.20s'\n",textptr);
         // Check to see it's already defined
 
-        if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
+        if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
@@ -2271,14 +2271,14 @@ static int32_t C_ParseCommand(void)
         //printf("Got Label '%.20s'\n",textptr);
         // Check to see it's already defined
 
-        if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
+        if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
             return 0;
         }
 
-        i = hash_find(&gamevarH,label+(g_numLabels<<6));
+        i = hash_find(&h_gamevars,label+(g_numLabels<<6));
         if (i>=0)
         {
             g_numCompilerWarnings++;
@@ -2299,21 +2299,21 @@ static int32_t C_ParseCommand(void)
         //printf("Got label. '%.20s'\n",textptr);
         // Check to see it's already defined
 
-        if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
+        if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
             return 0;
         }
 
-        i = hash_find(&gamevarH,label+(g_numLabels<<6));
+        i = hash_find(&h_gamevars,label+(g_numLabels<<6));
         if (i>=0)
         {
             g_numCompilerWarnings++;
             C_ReportError(WARNING_NAMEMATCHESVAR);
         }
 
-        i = hash_find(&labelH,label+(g_numLabels<<6));
+        i = hash_find(&h_labels,label+(g_numLabels<<6));
         if (i>=0)
         {
             /*            if (i >= g_numDefaultLabels)
@@ -2329,7 +2329,7 @@ static int32_t C_ParseCommand(void)
         if (i == -1)
         {
             //              printf("Defining Definition '%s' to be '%d'\n",label+(g_numLabels<<6),*(g_scriptPtr-1));
-            hash_add(&labelH,label+(g_numLabels<<6),g_numLabels);
+            hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels);
             labeltype[g_numLabels] = LABEL_DEFINE;
             labelcode[g_numLabels++] = *(g_scriptPtr-1);
             if (*(g_scriptPtr-1) >= 0 && *(g_scriptPtr-1) < MAXTILES && g_dynamicTileMapping)
@@ -2392,20 +2392,20 @@ static int32_t C_ParseCommand(void)
             C_GetNextLabelName();
             // Check to see it's already defined
 
-            if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
+            if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_ISAKEYWORD);
                 return 0;
             }
 
-            if (hash_find(&gamevarH,label+(g_numLabels<<6))>=0)
+            if (hash_find(&h_gamevars,label+(g_numLabels<<6))>=0)
             {
                 g_numCompilerWarnings++;
                 C_ReportError(WARNING_NAMEMATCHESVAR);
             }
 
-            if ((i = hash_find(&labelH,label+(g_numLabels<<6))) >= 0)
+            if ((i = hash_find(&h_labels,label+(g_numLabels<<6))) >= 0)
             {
                 g_numCompilerWarnings++;
                 initprintf("%s:%d: warning: duplicate move `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
@@ -2413,7 +2413,7 @@ static int32_t C_ParseCommand(void)
 
             if (i == -1)
             {
-                hash_add(&labelH,label+(g_numLabels<<6),g_numLabels);
+                hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels);
                 labeltype[g_numLabels] = LABEL_MOVE;
                 labelcode[g_numLabels++] = (intptr_t) g_scriptPtr;
             }
@@ -2585,21 +2585,21 @@ static int32_t C_ParseCommand(void)
             g_scriptPtr--;
             C_GetNextLabelName();
 
-            if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
+            if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_ISAKEYWORD);
                 return 0;
             }
 
-            i = hash_find(&gamevarH,label+(g_numLabels<<6));
+            i = hash_find(&h_gamevars,label+(g_numLabels<<6));
             if (i>=0)
             {
                 g_numCompilerWarnings++;
                 C_ReportError(WARNING_NAMEMATCHESVAR);
             }
 
-            i = hash_find(&labelH,label+(g_numLabels<<6));
+            i = hash_find(&h_labels,label+(g_numLabels<<6));
             if (i>=0)
             {
                 g_numCompilerWarnings++;
@@ -2609,7 +2609,7 @@ static int32_t C_ParseCommand(void)
             if (i == -1)
             {
                 labeltype[g_numLabels] = LABEL_AI;
-                hash_add(&labelH,label+(g_numLabels<<6),g_numLabels);
+                hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels);
                 labelcode[g_numLabels++] = (intptr_t) g_scriptPtr;
             }
 
@@ -2666,21 +2666,21 @@ static int32_t C_ParseCommand(void)
             C_GetNextLabelName();
             // Check to see it's already defined
 
-            if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
+            if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_ISAKEYWORD);
                 return 0;
             }
 
-            i = hash_find(&gamevarH,label+(g_numLabels<<6));
+            i = hash_find(&h_gamevars,label+(g_numLabels<<6));
             if (i>=0)
             {
                 g_numCompilerWarnings++;
                 C_ReportError(WARNING_NAMEMATCHESVAR);
             }
 
-            i = hash_find(&labelH,label+(g_numLabels<<6));
+            i = hash_find(&h_labels,label+(g_numLabels<<6));
             if (i>=0)
             {
                 g_numCompilerWarnings++;
@@ -2691,7 +2691,7 @@ static int32_t C_ParseCommand(void)
             {
                 labeltype[g_numLabels] = LABEL_ACTION;
                 labelcode[g_numLabels] = (intptr_t) g_scriptPtr;
-                hash_add(&labelH,label+(g_numLabels<<6),g_numLabels);
+                hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels);
                 g_numLabels++;
             }
 
@@ -3578,7 +3578,7 @@ static int32_t C_ParseCommand(void)
         //printf("found label of '%s'\n",   label+(g_numLabels<<6));
 
         // Check to see if it's a keyword
-        if (hash_find(&keywH,label+(g_numLabels<<6))>=0)
+        if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
@@ -3658,9 +3658,8 @@ static int32_t C_ParseCommand(void)
 
         // now get name of .xxx
         while ((*textptr != '['))
-        {
             textptr++;
-        }
+
         if (*textptr == '[')
             textptr++;
 
@@ -3669,6 +3668,7 @@ static int32_t C_ParseCommand(void)
         C_GetNextVar();
         g_labelsOnly = 0;
         // now get name of .xxx
+
         while (*textptr != '.')
         {
             if (*textptr == 0xa)
@@ -3678,7 +3678,8 @@ static int32_t C_ParseCommand(void)
 
             textptr++;
         }
-        if (*textptr!='.')
+
+        if (*textptr != '.')
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_SYNTAXERROR);
@@ -3686,6 +3687,7 @@ static int32_t C_ParseCommand(void)
         }
         textptr++;
         /// now pointing at 'xxx'
+
         C_GetNextLabelName();
         //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
 
@@ -3708,10 +3710,6 @@ static int32_t C_ParseCommand(void)
             // get parm2
             // get the ID of the DEF
             C_GetNextVar();
-        }
-        else
-        {
-            //printf("Member does not have Parm2\n");
         }
 
         // now at target VAR...
@@ -4033,17 +4031,16 @@ static int32_t C_ParseCommand(void)
     case CON_RESIZEARRAY:
         C_GetNextLabelName();
         i=GetADefID(label+(g_numLabels<<6));
-        if (i > (-1))
-        {
-            bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-            *g_scriptPtr++=i;
-        }
-        else
+        if (i < 0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_NOTAGAMEARRAY);
             return 1;
         }
+
+        bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
+        *g_scriptPtr++=i;
+
         C_SkipComments();
         C_GetNextVar();
         return 0;
@@ -5119,10 +5116,10 @@ repeatcase:
         }
         gamefunctions[j][i] = '\0';
         keydefaults[j*3][i] = '\0';
-        hash_add(&gamefuncH,gamefunctions[j],j);
+        hash_add(&h_gamefuncs,gamefunctions[j],j);
         {
             char *str = strtolower(Bstrdup(gamefunctions[j]),Bstrlen(gamefunctions[j]));
-            hash_add(&gamefuncH,str,j);
+            hash_add(&h_gamefuncs,str,j);
             Bfree(str);
         }
 
@@ -5374,15 +5371,15 @@ repeatcase:
         C_SkipComments();
 
         MapInfo[j*MAXLEVELS+k].partime =
-            (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*GAMETICSPERSEC*60)+
-            (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*GAMETICSPERSEC);
+            (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
+            (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
         textptr += 5;
         while (*textptr == ' '  || *textptr == '\t') textptr++;
 
         MapInfo[j*MAXLEVELS+k].designertime =
-            (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*GAMETICSPERSEC*60)+
-            (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*GAMETICSPERSEC);
+            (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
+            (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
         textptr += 5;
         while (*textptr == ' '  || *textptr == '\t') textptr++;
@@ -5826,7 +5823,7 @@ static void C_AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
 {
     Bstrcpy(label+(g_numLabels<<6),lLabel);
     labeltype[g_numLabels] = lType;
-    hash_add(&labelH,label+(g_numLabels<<6),g_numLabels);
+    hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels);
     labelcode[g_numLabels++] = lValue;
     g_numDefaultLabels++;
 }
@@ -6157,7 +6154,7 @@ void C_Compile(const char *filenam)
     {
         int32_t j=0, k=0;
 
-        hash_free(&keywH);
+        hash_free(&h_keywords);
         freehashnames();
 
         hash_free(&sectorH);

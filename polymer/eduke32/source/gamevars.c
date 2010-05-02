@@ -54,8 +54,8 @@ static void Gv_Free(void) /* called from Gv_ReadSave() and Gv_ResetVars() */
         aGameArrays[i].bReset=1;
     }
     g_gameVarCount=g_gameArrayCount=0;
-    hash_init(&gamevarH);
-    hash_init(&arrayH);
+    hash_init(&h_gamevars);
+    hash_init(&h_arrays);
     return;
 }
 
@@ -92,8 +92,8 @@ static void Gv_Clear(void)
         aGameArrays[i].bReset=1;
     }
     g_gameVarCount=g_gameArrayCount=0;
-    hash_init(&gamevarH);
-    hash_init(&arrayH);
+    hash_init(&h_gamevars);
+    hash_init(&h_arrays);
     return;
 }
 
@@ -125,7 +125,7 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         if (kdfread(&(aGameVars[i]),sizeof(gamevar_t),1,fil) != 1) goto corrupt;
         aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(uint8_t));
         if (kdfread(aGameVars[i].szLabel,sizeof(uint8_t) * MAXVARLABEL, 1, fil) != 1) goto corrupt;
-        hash_replace(&gamevarH,aGameVars[i].szLabel,i);
+        hash_replace(&h_gamevars,aGameVars[i].szLabel,i);
 
         if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
         {
@@ -153,7 +153,7 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         if (kdfread(&(aGameArrays[i]),sizeof(gamearray_t),1,fil) != 1) goto corrupt;
         aGameArrays[i].szLabel=Bcalloc(MAXARRAYLABEL,sizeof(uint8_t));
         if (kdfread(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil) != 1) goto corrupt;
-        hash_replace(&arrayH,aGameArrays[i].szLabel,i);
+        hash_replace(&h_arrays,aGameArrays[i].szLabel,i);
 
         aGameArrays[i].plValues=Bcalloc(aGameArrays[i].size,sizeof(intptr_t));
         if (kdfread(aGameArrays[i].plValues,sizeof(intptr_t) * aGameArrays[i].size, 1, fil) < 1) goto corrupt;
@@ -408,7 +408,7 @@ int32_t Gv_NewArray(const char *pszLabel, int32_t asize)
         initprintf("%s:%d: error: array name `%s' exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,pszLabel, MAXARRAYLABEL);
         return 0;
     }
-    i = hash_find(&arrayH,pszLabel);
+    i = hash_find(&h_arrays,pszLabel);
     if (i >=0 && !aGameArrays[i].bReset)
     {
         // found it it's a duplicate in error
@@ -427,7 +427,7 @@ int32_t Gv_NewArray(const char *pszLabel, int32_t asize)
     aGameArrays[i].size=asize;
     aGameArrays[i].bReset=0;
     g_gameArrayCount++;
-    hash_replace(&arrayH,aGameArrays[i].szLabel,i);
+    hash_replace(&h_arrays,aGameArrays[i].szLabel,i);
     return 1;
 }
 
@@ -454,7 +454,7 @@ int32_t Gv_NewVar(const char *pszLabel, int32_t lValue, uint32_t dwFlags)
         return 0;
     }
 
-    i = hash_find(&gamevarH,pszLabel);
+    i = hash_find(&h_gamevars,pszLabel);
 
     if (i >= 0 && !(aGameVars[i].dwFlags & GAMEVAR_RESET))
     {
@@ -504,7 +504,7 @@ int32_t Gv_NewVar(const char *pszLabel, int32_t lValue, uint32_t dwFlags)
     if (i == g_gameVarCount)
     {
         // we're adding a new one.
-        hash_add(&gamevarH, aGameVars[i].szLabel, g_gameVarCount++);
+        hash_add(&h_gamevars, aGameVars[i].szLabel, g_gameVarCount++);
     }
 
     if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
@@ -539,7 +539,7 @@ void __fastcall A_ResetVars(register int32_t iActor)
 
 static int32_t Gv_GetVarIndex(const char *szGameLabel)
 {
-    int32_t i = hash_find(&gamevarH,szGameLabel);
+    int32_t i = hash_find(&h_gamevars,szGameLabel);
     if (i == -1)
     {
         OSD_Printf(OSD_ERROR "Gv_GetVarDataPtr(): INTERNAL ERROR: couldn't find gamevar %s!\n",szGameLabel);
@@ -590,7 +590,7 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
                     if (ActorLabels[label].flags & LABEL_HASPARM2)
                         parm2 = Gv_GetVar(*insptr++, iActor, iPlayer);
 
-                    return ((X_AccessSpriteX(index, label, parm2) ^ -negateResult) + negateResult);
+                    return ((VM_AccessSpriteX(index, label, parm2) ^ -negateResult) + negateResult);
                 }
                 case 3: //else if (id == g_iPlayerVarID)
                 {
@@ -600,15 +600,15 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
                         parm2 = Gv_GetVar(*insptr++, iActor, iPlayer);
 
                     if (index == vm.g_i) index = vm.g_p;
-                    return ((X_AccessPlayerX(index, label, parm2) ^ -negateResult) + negateResult);
+                    return ((VM_AccessPlayerX(index, label, parm2) ^ -negateResult) + negateResult);
                 }
                 case 4: //else if (id == g_iActorVarID)
                     return ((Gv_GetVar(*insptr++, index, iPlayer) ^ -negateResult) + negateResult);
                 case 1: //else if (id == g_iSectorVarID)
                     if (index == vm.g_i) index = sprite[vm.g_i].sectnum;
-                    return ((X_AccessSectorX(index, *insptr++) ^ -negateResult) + negateResult);
+                    return ((VM_AccessSectorX(index, *insptr++) ^ -negateResult) + negateResult);
                 case 2: //else if (id == g_iWallVarID)
-                    return ((X_AccessWallX(index, *insptr++) ^ -negateResult) + negateResult);
+                    return ((VM_AccessWallX(index, *insptr++) ^ -negateResult) + negateResult);
                 default:
                     OSD_Printf(CON_ERROR "Gv_GetVar(): WTF?\n",g_errorLineNum,keyw[g_tw]);
                     return -1;
@@ -735,7 +735,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
                     if (ActorLabels[label].flags & LABEL_HASPARM2)
                         parm2 = Gv_GetVarX(*insptr++);
 
-                    return ((X_AccessSpriteX(index, label, parm2) ^ -negateResult) + negateResult);
+                    return ((VM_AccessSpriteX(index, label, parm2) ^ -negateResult) + negateResult);
                 }
                 case 3: //else if (id == g_iPlayerVarID)
                 {
@@ -745,15 +745,15 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
                         parm2 = Gv_GetVarX(*insptr++);
 
                     if (index == vm.g_i) index = vm.g_p;
-                    return ((X_AccessPlayerX(index, label, parm2) ^ -negateResult) + negateResult);
+                    return ((VM_AccessPlayerX(index, label, parm2) ^ -negateResult) + negateResult);
                 }
                 case 4: //else if (id == g_iActorVarID)
                     return ((Gv_GetVar(*insptr++, index, vm.g_p) ^ -negateResult) + negateResult);
                 case 1: //else if (id == g_iSectorVarID)
                     if (index == vm.g_i) index = sprite[vm.g_i].sectnum;
-                    return ((X_AccessSectorX(index, *insptr++) ^ -negateResult) + negateResult);
+                    return ((VM_AccessSectorX(index, *insptr++) ^ -negateResult) + negateResult);
                 case 2: //else if (id == g_iWallVarID)
-                    return ((X_AccessWallX(index, *insptr++) ^ -negateResult) + negateResult);
+                    return ((VM_AccessWallX(index, *insptr++) ^ -negateResult) + negateResult);
                 default:
                     OSD_Printf(CON_ERROR "Gv_GetVar(): WTF?\n",g_errorLineNum,keyw[g_tw]);
                     return -1;
@@ -816,7 +816,7 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
 
 int32_t Gv_GetVarByLabel(const char *szGameLabel, int32_t lDefault, int32_t iActor, int32_t iPlayer)
 {
-    int32_t i = hash_find(&gamevarH,szGameLabel);
+    int32_t i = hash_find(&h_gamevars,szGameLabel);
 
     if (i < 0)
         return lDefault;
@@ -826,7 +826,7 @@ int32_t Gv_GetVarByLabel(const char *szGameLabel, int32_t lDefault, int32_t iAct
 
 static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 {
-    int32_t i = hash_find(&gamevarH,szGameLabel);
+    int32_t i = hash_find(&h_gamevars,szGameLabel);
 
     if (i < 0)
         return NULL;

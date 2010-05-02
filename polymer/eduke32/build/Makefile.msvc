@@ -19,9 +19,6 @@ asm=masm
 ENGINELIB=engine.lib
 EDITORLIB=build.lib
 
-DXROOT="U:\SDKs\Microsoft DirectX SDK (April 2007)
-MSSDKROOT="N:\Program Files\Microsoft Visual Studio 9.0\VC
-PLATFORMSDK="N:\Program Files\Microsoft Visual Studio 9.0\VC\PlatformSDK
 # ENETROOT=$(SRC)\enet
 
 # /D these to enable certain features of the port's compile process
@@ -37,7 +34,7 @@ flags_link=/DEBUG
 flags_lib=
 !else
 # release options
-flags_cl=/Ox /GL /arch:SSE
+flags_cl=/O2 /GL /arch:SSE /MP
 flags_link=/RELEASE /LTCG
 flags_lib=/LTCG
 !endif
@@ -46,7 +43,7 @@ CC=cl
 AS=ml
 RC=rc
 LINK=link /opt:ref /nologo
-CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" /I$(DXROOT)\include" # /I$(ENETROOT)\include"
+CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(INC) # /I$(ENETROOT)\include"
 ASFLAGS=/nologo /coff /c
 EXESUFFIX=.exe
 !ifdef DEBUG
@@ -80,14 +77,16 @@ ENGINEOBJS= \
 	$(OBJ)\scriptfile.$o \
 	$(OBJ)\winlayer.$o \
     $(OBJ)\polymer.$o \
-    $(OBJ)\nedmalloc.$o
+    $(OBJ)\nedmalloc.$o \
+    $(OBJ)\mutex.$o \
+    $(OBJ)\rawinput.$o
 
 EDITOROBJS=$(OBJ)\build.$o \
 	$(OBJ)\startwin.editor.$o \
 	$(OBJ)\config.$o
 
 RENDERTYPE=WIN
-LIBS=$(LIBS) user32.lib gdi32.lib shell32.lib dxguid.lib wsock32.lib comctl32.lib
+LIBS=$(LIBS) user32.lib gdi32.lib shell32.lib wsock32.lib comctl32.lib dxguid.lib
 CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1 /D "_CRT_SECURE_NO_DEPRECATE" /W2
 
 # RULES
@@ -127,23 +126,23 @@ $(OBJ)\$(EDITORLIB): $(EDITOROBJS)
 
 # the tools
 kextract$(EXESUFFIX): $(OBJ)\kextract.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $@.manifest -outputresource:$@
 	
 kgroup$(EXESUFFIX): $(OBJ)\kgroup.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $@.manifest -outputresource:$@
 
 transpal$(EXESUFFIX): $(OBJ)\transpal.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $@.manifest -outputresource:$@
 
 wad2map$(EXESUFFIX): $(OBJ)\wad2map.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $@.manifest -outputresource:$@
 
 wad2art$(EXESUFFIX): $(OBJ)\wad2art.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib\x86" /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) 
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS) 
 	$(MT) -manifest $@.manifest -outputresource:$@
 
 # DEPENDENCIES

@@ -550,7 +550,7 @@ int32_t mdloadskin_trytexcache(char *fn, int32_t len, int32_t pal, char effect, 
                 }
                 while (cacheindexptr->next);
                 */
-        i = hash_find(&cacheH,cachefn);
+        i = hash_find(&h_texcache,cachefn);
         if (i != -1)
         {
             texcacheindex *cacheindexptr = cacheptrs[i];

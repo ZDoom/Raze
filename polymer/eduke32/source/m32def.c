@@ -511,11 +511,11 @@ const tokenmap_t iter_tokens[] =
 };
 
 
-hashtable_t gamevarH = { MAXGAMEVARS>>1, NULL };
-hashtable_t arrayH   = { MAXGAMEARRAYS>>1, NULL };
-hashtable_t labelH   = { 11262>>1, NULL };
-hashtable_t stateH   = { 1264>>1, NULL };
-hashtable_t keywH    = { CON_END>>1, NULL };
+hashtable_t h_gamevars = { MAXGAMEVARS>>1, NULL };
+hashtable_t h_arrays   = { MAXGAMEARRAYS>>1, NULL };
+hashtable_t h_labels   = { 11262>>1, NULL };
+hashtable_t h_states   = { 1264>>1, NULL };
+hashtable_t h_keywords    = { CON_END>>1, NULL };
 hashtable_t iterH    = { ITER_END, NULL };
 
 hashtable_t sectorH  = { SECTOR_END>>1, NULL };
@@ -527,16 +527,16 @@ static void C_InitHashes()
 {
     int32_t i;
 
-    hash_init(&gamevarH);
-    hash_init(&arrayH);
-    hash_init(&labelH);
-    hash_init(&stateH);
+    hash_init(&h_gamevars);
+    hash_init(&h_arrays);
+    hash_init(&h_labels);
+    hash_init(&h_states);
 
-    hash_init(&keywH);
+    hash_init(&h_keywords);
     for (i=NUMKEYWORDS-1; i>=0; i--)
-        hash_add(&keywH, keyw[i], i);
+        hash_add(&h_keywords, keyw[i], i);
     for (i=0; i<NUMALTKEYWORDS; i++)
-        hash_add(&keywH, altkeyw[i].token, altkeyw[i].val);
+        hash_add(&h_keywords, altkeyw[i].token, altkeyw[i].val);
 
     hash_init(&sectorH);
     for (i=0; SectorLabels[i].lId >=0; i++)
@@ -759,7 +759,7 @@ static int32_t C_GetKeyword(void)
     while (isaltok(*temptextptr))
         tempbuf[i++] = *(temptextptr++);
     tempbuf[i] = 0;
-    return hash_find(&keywH, tempbuf);
+    return hash_find(&h_keywords, tempbuf);
 }
 
 static int32_t C_GetNextKeyword(void)  //Returns its code #
@@ -789,7 +789,7 @@ static int32_t C_GetNextKeyword(void)  //Returns its code #
     }
     tempbuf[l] = 0;
 
-    i = hash_find(&keywH, tempbuf);
+    i = hash_find(&h_keywords, tempbuf);
     if (i>=0)
     {
         if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
@@ -821,8 +821,8 @@ static int32_t C_GetNextKeyword(void)  //Returns its code #
     return -1;
 }
 
-#define GetGamevarID(szGameLabel) hash_find(&gamevarH, szGameLabel)
-#define GetGamearrayID(szGameLabel) hash_find(&arrayH, szGameLabel)
+#define GetGamevarID(szGameLabel) hash_find(&h_gamevars, szGameLabel)
+#define GetGamearrayID(szGameLabel) hash_find(&h_arrays, szGameLabel)
 
 static void C_GetNextVarType(int32_t type)
 {
@@ -932,7 +932,7 @@ static void C_GetNextVarType(int32_t type)
     }
 
     C_GetNextLabelName();
-    if (hash_find(&keywH, tlabel)>=0)
+    if (hash_find(&h_keywords, tlabel)>=0)
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_ISAKEYWORD);
@@ -1053,7 +1053,7 @@ static void C_GetNextVarType(int32_t type)
         if (!type && !cs.labelsOnly)
         {
             //try looking for a define instead
-            id = hash_find(&labelH, tlabel);
+            id = hash_find(&h_labels, tlabel);
             if (id>=0 && labeltype[id]==LABEL_DEFINE)
             {
 //                if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
@@ -1135,14 +1135,14 @@ static int32_t C_GetNextValue(int32_t type)
     }
     tempbuf[l] = 0;
 
-    if (hash_find(&keywH, tempbuf)>=0)
+    if (hash_find(&h_keywords, tempbuf)>=0)
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_ISAKEYWORD);
         textptr+=l;
     }
 
-    i = hash_find(&labelH, tempbuf);
+    i = hash_find(&h_labels, tempbuf);
     if (i >= 0)
     {
         char *el,*gl;
@@ -1365,7 +1365,7 @@ static int32_t C_ParseCommand(void)
     {
         C_GetNextLabelName();
 
-        if (hash_find(&keywH, tlabel) >= 0)
+        if (hash_find(&h_keywords, tlabel) >= 0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
@@ -1373,14 +1373,14 @@ static int32_t C_ParseCommand(void)
         }
 
         // Check to see it's already defined
-        i = hash_find(&gamevarH, tlabel);
+        i = hash_find(&h_gamevars, tlabel);
         if (i>=0)
         {
             g_numCompilerWarnings++;
             C_ReportError(WARNING_NAMEMATCHESVAR);
         }
 
-        if (hash_find(&stateH, tlabel) >= 0)
+        if (hash_find(&h_states, tlabel) >= 0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_LABELINUSE);
@@ -1389,13 +1389,13 @@ static int32_t C_ParseCommand(void)
 
         C_GetNextValue(LABEL_DEFINE);
 
-        i = hash_find(&labelH, tlabel);
+        i = hash_find(&h_labels, tlabel);
         if (i == -1)
         {
             // printf("Defining Definition '%s' to be '%d'\n",label+(g_numLabels*MAXLABELLEN),*(g_scriptPtr-1));
 //            Bmemcpy(label+(g_numLabels*MAXLABELLEN), tlabel, MAXLABELLEN);
             C_CopyLabel();
-            hash_add(&labelH, label+(g_numLabels*MAXLABELLEN), g_numLabels);
+            hash_add(&h_labels, label+(g_numLabels*MAXLABELLEN), g_numLabels);
             labeltype[g_numLabels] = LABEL_DEFINE;
             labelval[g_numLabels++] = *(g_scriptPtr-1);
         }
@@ -1491,20 +1491,20 @@ static int32_t C_ParseCommand(void)
         {
             C_GetNextLabelName();
 
-            if (hash_find(&keywH, tlabel)>=0)
+            if (hash_find(&h_keywords, tlabel)>=0)
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_ISAKEYWORD);
                 return 1;
             }
 
-            if (hash_find(&gamevarH, tlabel)>=0)
+            if (hash_find(&h_gamevars, tlabel)>=0)
             {
                 g_numCompilerWarnings++;
                 C_ReportError(WARNING_NAMEMATCHESVAR);
             }
 
-            j = hash_find(&labelH, tlabel);
+            j = hash_find(&h_labels, tlabel);
             if (j>=0)
             {
                 g_numCompilerErrors++;
@@ -1512,7 +1512,7 @@ static int32_t C_ParseCommand(void)
                 return 1;
             }
 
-            j = hash_find(&stateH, tlabel);
+            j = hash_find(&h_states, tlabel);
             if (j>=0)  // only redefining
             {
                 cs.currentStateIdx = j;
@@ -1539,7 +1539,7 @@ static int32_t C_ParseCommand(void)
 
                 Bmemcpy(statesinfo[j].name, tlabel, MAXLABELLEN);
                 Bsprintf(g_szCurrentBlockName, "%s", tlabel);
-                hash_add(&stateH, tlabel, j);
+                hash_add(&h_states, tlabel, j);
             }
 
             return 0;
@@ -1698,19 +1698,19 @@ static int32_t C_ParseCommand(void)
     case CON_STATE:
         C_GetNextLabelName();
 
-        if (hash_find(&keywH, tlabel)>=0)
+        if (hash_find(&h_keywords, tlabel)>=0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
             return 1;
         }
-        if (hash_find(&gamevarH, tlabel)>=0)
+        if (hash_find(&h_gamevars, tlabel)>=0)
         {
             g_numCompilerWarnings++;
             C_ReportError(WARNING_NAMEMATCHESVAR);
         }
 
-        j = hash_find(&stateH, tlabel);
+        j = hash_find(&h_states, tlabel);
         if (j>=0)
         {
 //            if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
@@ -2279,7 +2279,7 @@ repeatcase:
         //printf("Got Label '%.20s'\n",textptr);
         // Check to see it's already defined
 
-        if (hash_find(&keywH, tlabel)>=0)
+        if (hash_find(&h_keywords, tlabel)>=0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
@@ -2320,14 +2320,14 @@ repeatcase:
         C_GetNextLabelName();
         //printf("Got Label '%.20s'\n",textptr);
         // Check to see it's already defined
-        if (hash_find(&keywH, tlabel) >= 0)
+        if (hash_find(&h_keywords, tlabel) >= 0)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_ISAKEYWORD);
             return 0;
         }
 
-        if (hash_find(&gamevarH, tlabel) >= 0)
+        if (hash_find(&h_gamevars, tlabel) >= 0)
         {
             g_numCompilerWarnings++;
             C_ReportError(WARNING_NAMEMATCHESVAR);
@@ -3124,7 +3124,7 @@ repeatcase:
 static void C_AddDefinition(const char *lLabel,int32_t lValue, uint8_t lType)
 {
     Bstrcpy(label+(g_numLabels*MAXLABELLEN), lLabel);
-    hash_add(&labelH, label+(g_numLabels*MAXLABELLEN), g_numLabels);
+    hash_add(&h_labels, label+(g_numLabels*MAXLABELLEN), g_numLabels);
     labeltype[g_numLabels] = lType;
     labelval[g_numLabels++] = lValue;
     g_numDefaultLabels++;

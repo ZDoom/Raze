@@ -1937,7 +1937,7 @@ struct win32_mlock_t {
 #define TRY_LOCK(sl)          win32_try_lock(sl)
 #define SPINS_PER_YIELD       63
 
-static MLOCK_T malloc_global_mutex = { 0, 0, 0};
+static MLOCK_T malloc_global_mutex = { 0, "", 0, 0};
 
 static FORCEINLINE int win32_acquire_lock (MLOCK_T *sl) {
   int spins = 0;

@@ -337,22 +337,23 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
 
     if (ud.recstat != 2)
     {
+                /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
+        aGameVars[g_iReturnVarID].val.lValue = LOADSCREEN;
+        VM_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
+        j = aGameVars[g_iReturnVarID].val.lValue;
+
         if (!statustext)
         {
             //g_player[myconnectindex].ps->palette = palette;
             P_SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
-            fadepal(0,0,0, 0,64,7);
             i = ud.screen_size;
             ud.screen_size = 0;
             G_UpdateScreenArea();
             clearview(0L);
         }
 
-        /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
-        aGameVars[g_iReturnVarID].val.lValue = LOADSCREEN;
-        X_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
-        j = aGameVars[g_iReturnVarID].val.lValue;
         rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
+
         if (j > MAXTILES-1)
         {
             nextpage();
@@ -371,6 +372,8 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
         }
 
         if (statustext) gametext(160,180,statustext,0,2+8+16);
+
+        if (percent != -1)
         {
             int32_t ii = scale(scale(xdim-1,288,320),percent,100);
             rotatesprite(31<<16,145<<16,65536,0,929,15,0,2+8+16,0,0,ii,ydim-1);
@@ -378,13 +381,12 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
             rotatesprite(30<<16,144<<16,65536,0,929,0,0,2+8+16,0,0,ii,ydim-1);
             rotatesprite(158<<16,144<<16,65536,0,929,0,0,2+8+16,0,0,ii,ydim-1);
         }
-        X_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
+
+        VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
         nextpage();
 
         if (!statustext)
         {
-            fadepal(0,0,0, 63,0,-7);
-
             KB_FlushKeyboardQueue();
             ud.screen_size = i;
         }
@@ -400,7 +402,7 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
         }
         /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
         aGameVars[g_iReturnVarID].val.lValue = LOADSCREEN;
-        X_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
+        VM_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
         j = aGameVars[g_iReturnVarID].val.lValue;
         rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
         if (j > MAXTILES-1)
@@ -410,7 +412,7 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
         }
         menutext(160,105,0,0,"LOADING...");
         if (statustext) gametext(160,180,statustext,0,2+8+16);
-        X_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
+        VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
         nextpage();
     }
 }
@@ -588,9 +590,7 @@ void G_UpdateScreenArea(void)
     y1 = scale(y1,ydim,200);
     y2 = scale(y2,ydim,200);
 
-    if (getrendermode() >= 3)
-        setview(x1,y1,x2-1,y2);
-    else setview(x1,y1,x2-1,y2-1);
+    setview(x1,y1,x2-1,y2-(getrendermode() >= 3));
 
     G_GetCrosshairColor();
     G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
@@ -616,7 +616,7 @@ void P_RandomSpawnPoint(int32_t snum)
                 {
                     for (k=0; k<g_numPlayerSprites; k++)
                     {
-                        dist = FindDistance2D(g_player[j].ps->posx-g_playerSpawnPoints[k].ox,g_player[j].ps->posy-g_playerSpawnPoints[k].oy);
+                        dist = FindDistance2D(g_player[j].ps->pos.x-g_playerSpawnPoints[k].ox,g_player[j].ps->pos.y-g_playerSpawnPoints[k].oy);
                         if (dist < pdist)
                             i = k, pdist = dist;
                     }
@@ -626,9 +626,9 @@ void P_RandomSpawnPoint(int32_t snum)
         }
     }
 
-    p->bobposx = p->oposx = p->posx = g_playerSpawnPoints[i].ox;
-    p->bobposy = p->oposy = p->posy = g_playerSpawnPoints[i].oy;
-    p->oposz = p->posz = g_playerSpawnPoints[i].oz;
+    p->bobposx = p->opos.x = p->pos.x = g_playerSpawnPoints[i].ox;
+    p->bobposy = p->opos.y = p->pos.y = g_playerSpawnPoints[i].oy;
+    p->opos.z = p->pos.z = g_playerSpawnPoints[i].oz;
     p->ang = g_playerSpawnPoints[i].oa;
     p->cursectnum = g_playerSpawnPoints[i].os;
     sprite[p->i].cstat = 1+256;
@@ -639,14 +639,14 @@ void P_ResetPlayer(int32_t snum)
     vec3_t tmpvect;
     spritetype *sp = &sprite[g_player[snum].ps->i];
 
-    tmpvect.x = g_player[snum].ps->posx;
-    tmpvect.y = g_player[snum].ps->posy;
-    tmpvect.z = g_player[snum].ps->posz+PHEIGHT;
+    tmpvect.x = g_player[snum].ps->pos.x;
+    tmpvect.y = g_player[snum].ps->pos.y;
+    tmpvect.z = g_player[snum].ps->pos.z+PHEIGHT;
     P_RandomSpawnPoint(snum);
-    sp->x = ActorExtra[g_player[snum].ps->i].bposx = g_player[snum].ps->bobposx = g_player[snum].ps->oposx = g_player[snum].ps->posx;
-    sp->y = ActorExtra[g_player[snum].ps->i].bposy = g_player[snum].ps->bobposy = g_player[snum].ps->oposy =g_player[snum].ps->posy;
-    sp->z = ActorExtra[g_player[snum].ps->i].bposy = g_player[snum].ps->oposz =g_player[snum].ps->posz;
-    updatesector(g_player[snum].ps->posx,g_player[snum].ps->posy,&g_player[snum].ps->cursectnum);
+    sp->x = actor[g_player[snum].ps->i].bposx = g_player[snum].ps->bobposx = g_player[snum].ps->opos.x = g_player[snum].ps->pos.x;
+    sp->y = actor[g_player[snum].ps->i].bposy = g_player[snum].ps->bobposy = g_player[snum].ps->opos.y =g_player[snum].ps->pos.y;
+    sp->z = actor[g_player[snum].ps->i].bposy = g_player[snum].ps->opos.z =g_player[snum].ps->pos.z;
+    updatesector(g_player[snum].ps->pos.x,g_player[snum].ps->pos.y,&g_player[snum].ps->cursectnum);
     setsprite(g_player[snum].ps->i,&tmpvect);
     sp->cstat = 257;
 
@@ -668,27 +668,27 @@ void P_ResetPlayer(int32_t snum)
     g_player[snum].ps->wackedbyactor = -1;
     g_player[snum].ps->inv_amount[GET_SHIELD] = g_startArmorAmount;
     g_player[snum].ps->dead_flag = 0;
-    g_player[snum].ps->pals_time = 0;
+    g_player[snum].ps->pals.f = 0;
     g_player[snum].ps->footprintcount = 0;
     g_player[snum].ps->weapreccnt = 0;
     g_player[snum].ps->fta = 0;
     g_player[snum].ps->ftq = 0;
-    g_player[snum].ps->posxv = g_player[snum].ps->posyv = 0;
+    g_player[snum].ps->posvel.x = g_player[snum].ps->posvel.y = 0;
     g_player[snum].ps->rotscrnang = 0;
     g_player[snum].ps->runspeed = g_playerFriction;
     g_player[snum].ps->falling_counter = 0;
 
-    ActorExtra[g_player[snum].ps->i].extra = -1;
-    ActorExtra[g_player[snum].ps->i].owner = g_player[snum].ps->i;
+    actor[g_player[snum].ps->i].extra = -1;
+    actor[g_player[snum].ps->i].owner = g_player[snum].ps->i;
 
-    ActorExtra[g_player[snum].ps->i].cgg = 0;
-    ActorExtra[g_player[snum].ps->i].movflag = 0;
-    ActorExtra[g_player[snum].ps->i].tempang = 0;
-    ActorExtra[g_player[snum].ps->i].actorstayput = -1;
-    ActorExtra[g_player[snum].ps->i].dispicnum = 0;
-    ActorExtra[g_player[snum].ps->i].owner = g_player[snum].ps->i;
+    actor[g_player[snum].ps->i].cgg = 0;
+    actor[g_player[snum].ps->i].movflag = 0;
+    actor[g_player[snum].ps->i].tempang = 0;
+    actor[g_player[snum].ps->i].actorstayput = -1;
+    actor[g_player[snum].ps->i].dispicnum = 0;
+    actor[g_player[snum].ps->i].owner = g_player[snum].ps->i;
 
-    ActorExtra[g_player[snum].ps->i].temp_data[4] = 0;
+    actor[g_player[snum].ps->i].t_data[4] = 0;
 
     P_ResetInventory(snum);
     P_ResetWeapons(snum);
@@ -698,7 +698,7 @@ void P_ResetPlayer(int32_t snum)
     g_player[snum].ps->movement_lock = 0;
 
     if (apScriptGameEvent[EVENT_RESETPLAYER])
-        X_OnEvent(EVENT_RESETPLAYER, g_player[snum].ps->i, snum, -1);
+        VM_OnEvent(EVENT_RESETPLAYER, g_player[snum].ps->i, snum, -1);
 }
 
 void P_ResetStatus(int32_t snum)
@@ -777,9 +777,9 @@ void P_ResetStatus(int32_t snum)
     p->newowner          =-1;
     p->jumping_counter   = 0;
     p->hard_landing      = 0;
-    p->posxv             = 0;
-    p->posyv             = 0;
-    p->poszv             = 0;
+    p->posvel.x             = 0;
+    p->posvel.y             = 0;
+    p->posvel.z             = 0;
     fricxv            = 0;
     fricyv            = 0;
     p->somethingonplayer =-1;
@@ -808,7 +808,7 @@ void P_ResetStatus(int32_t snum)
     p->frag_ps          = snum;
 
     P_UpdateScreenPal(p);
-    X_OnEvent(EVENT_RESETPLAYER, p->i, snum, -1);
+    VM_OnEvent(EVENT_RESETPLAYER, p->i, snum, -1);
 }
 
 void P_ResetWeapons(int32_t snum)
@@ -817,23 +817,19 @@ void P_ResetWeapons(int32_t snum)
     DukePlayer_t *p = g_player[snum].ps;
 
     for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
-        p->gotweapon[weapon] = 0;
-    for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
         p->ammo_amount[weapon] = 0;
 
     p->weapon_pos = 6;
     p->kickback_pic = 5;
     p->curr_weapon = PISTOL_WEAPON;
-    p->gotweapon[PISTOL_WEAPON] = 1;
-    p->gotweapon[KNEE_WEAPON] = 1;
+    p->gotweapon = ((1<<PISTOL_WEAPON) | (1<<KNEE_WEAPON) | (1<<HANDREMOTE_WEAPON));
     p->ammo_amount[PISTOL_WEAPON] = min(p->max_ammo_amount[PISTOL_WEAPON], 48);
-    p->gotweapon[HANDREMOTE_WEAPON] = 1;
     p->last_weapon = -1;
 
     p->show_empty_weapon= 0;
     p->last_pissed_time = 0;
     p->holster_weapon = 0;
-    X_OnEvent(EVENT_RESETWEAPONS, p->i, snum, -1);
+    VM_OnEvent(EVENT_RESETWEAPONS, p->i, snum, -1);
 }
 
 void P_ResetInventory(int32_t snum)
@@ -850,7 +846,7 @@ void P_ResetInventory(int32_t snum)
 
     p->inv_amount[GET_SHIELD] =      g_startArmorAmount;
     p->inven_icon = 0;
-    X_OnEvent(EVENT_RESETINVENTORY, p->i, snum, -1);
+    VM_OnEvent(EVENT_RESETINVENTORY, p->i, snum, -1);
 }
 
 static void resetprestat(int32_t snum,int32_t g)
@@ -863,7 +859,7 @@ static void resetprestat(int32_t snum,int32_t g)
 
     p->hbomb_on          = 0;
     p->cheat_phase       = 0;
-    p->pals_time         = 0;
+    p->pals.f         = 0;
     p->toggle_key_flag   = 0;
     p->secret_rooms      = 0;
     p->max_secret_rooms  = 0;
@@ -898,7 +894,8 @@ static void resetprestat(int32_t snum,int32_t g)
     g_numInterpolations = 0;
     startofdynamicinterpolations = 0;
 
-    if (((g&MODE_EOL) != MODE_EOL && numplayers < 2 && !g_netServer) || (!(GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && numplayers > 1))
+    if (((g&MODE_EOL) != MODE_EOL && numplayers < 2 && !g_netServer) ||
+        (!(GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && numplayers > 1))
     {
         P_ResetWeapons(snum);
         P_ResetInventory(snum);
@@ -916,9 +913,7 @@ static void resetprestat(int32_t snum,int32_t g)
 
 static inline void G_SetupBackdrop(int16_t sky)
 {
-    int16_t i;
-
-    for (i=0; i<MAXPSKYTILES; i++) pskyoff[i]=0;
+    Bmemset(pskyoff, 0, sizeof(pskyoff[0]) * MAXPSKYTILES);
 
     if (parallaxyscale != 65536L)
         parallaxyscale = 32768;
@@ -1022,7 +1017,7 @@ static inline void prelevel(char g)
         nexti = nextspritestat[i];
         A_ResetVars(i);
         A_LoadActor(i);
-        X_OnEvent(EVENT_LOADACTOR, i, -1, -1);
+        VM_OnEvent(EVENT_LOADACTOR, i, -1, -1);
         if (sprite[i].lotag == -1 && (sprite[i].cstat&16))
         {
             g_player[0].ps->exitx = SX;
@@ -1117,7 +1112,7 @@ static inline void prelevel(char g)
                 while (j >= 0)
                 {
                     if (sprite[j].lotag == 12 && sprite[j].hitag == SLT)
-                        ActorExtra[j].temp_data[0] = 1;
+                        actor[j].t_data[0] = 1;
                     j = nextspritestat[j];
                 }
             }
@@ -1363,20 +1358,20 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
             if (aplWeaponWorksLike[i][0]==PISTOL_WEAPON)
             {
                 p->curr_weapon = i;
-                p->gotweapon[i] = 1;
+                p->gotweapon |= (1<<i);
                 p->ammo_amount[i] = min(p->max_ammo_amount[i], 48);
             }
             else if (aplWeaponWorksLike[i][0]==KNEE_WEAPON)
-                p->gotweapon[i] = 1;
+                p->gotweapon |= (1<<i);
             else if (aplWeaponWorksLike[i][0]==HANDREMOTE_WEAPON)
-                p->gotweapon[i] = 1;
+                p->gotweapon |= (1<<i);
         }
         p->last_weapon = -1;
     }
 
     display_mirror =        0;
 
-    X_OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek, -1);
+    VM_OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek, -1);
 }
 
 static void resetpspritevars(char g)
@@ -1387,7 +1382,7 @@ static void resetpspritevars(char g)
     uint8_t aimmode[MAXPLAYERS],autoaim[MAXPLAYERS],weaponswitch[MAXPLAYERS];
     DukeStatus_t tsbar[MAXPLAYERS];
 
-    A_InsertSprite(g_player[0].ps->cursectnum,g_player[0].ps->posx,g_player[0].ps->posy,g_player[0].ps->posz,
+    A_InsertSprite(g_player[0].ps->cursectnum,g_player[0].ps->pos.x,g_player[0].ps->pos.y,g_player[0].ps->pos.z,
                    APLAYER,0,0,0,g_player[0].ps->ang,0,0,0,10);
 
     if (ud.recstat != 2)
@@ -1399,11 +1394,9 @@ static void resetpspritevars(char g)
         if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
         {
             for (j=0; j<MAX_WEAPONS; j++)
-            {
                 tsbar[i].ammo_amount[j] = g_player[i].ps->ammo_amount[j];
-                tsbar[i].gotweapon[j] = g_player[i].ps->gotweapon[j];
-            }
 
+            tsbar[i].gotweapon = g_player[i].ps->gotweapon;
             Bmemcpy(tsbar[i].inv_amount, g_player[i].ps->inv_amount, sizeof(tsbar[i].inv_amount));
             tsbar[i].curr_weapon = g_player[i].ps->curr_weapon;
             tsbar[i].inven_icon = g_player[i].ps->inven_icon;
@@ -1424,10 +1417,9 @@ static void resetpspritevars(char g)
         if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
         {
             for (j=0; j<MAX_WEAPONS; j++)
-            {
                 g_player[i].ps->ammo_amount[j] = tsbar[i].ammo_amount[j];
-                g_player[i].ps->gotweapon[j] = tsbar[i].gotweapon[j];
-            }
+
+            g_player[i].ps->gotweapon = tsbar[i].gotweapon;
             g_player[i].ps->curr_weapon = tsbar[i].curr_weapon;
             g_player[i].ps->inven_icon = tsbar[i].inven_icon;
             Bmemcpy(g_player[i].ps->inv_amount, tsbar[i].inv_amount, sizeof(tsbar[i].inv_amount));
@@ -1447,12 +1439,6 @@ static void resetpspritevars(char g)
 
         if (g_numPlayerSprites == MAXPLAYERS)
             G_GameExit("\nToo many player sprites (max 16.)");
-
-        /*        if (g_numPlayerSprites == 0)
-                {
-                    firstx = g_player[0].ps->posx;
-                    firsty = g_player[0].ps->posy;
-                }*/
 
         g_playerSpawnPoints[(uint8_t)g_numPlayerSprites].ox = s->x;
         g_playerSpawnPoints[(uint8_t)g_numPlayerSprites].oy = s->y;
@@ -1520,11 +1506,11 @@ static void resetpspritevars(char g)
 
                 g_player[j].ps->i = i;
                 g_player[j].ps->frag_ps = j;
-                ActorExtra[i].owner = i;
+                actor[i].owner = i;
 
-                ActorExtra[i].bposx = g_player[j].ps->bobposx = g_player[j].ps->oposx = g_player[j].ps->posx =        s->x;
-                ActorExtra[i].bposy = g_player[j].ps->bobposy = g_player[j].ps->oposy = g_player[j].ps->posy =        s->y;
-                ActorExtra[i].bposz = g_player[j].ps->oposz = g_player[j].ps->posz =        s->z;
+                actor[i].bposx = g_player[j].ps->bobposx = g_player[j].ps->opos.x = g_player[j].ps->pos.x =        s->x;
+                actor[i].bposy = g_player[j].ps->bobposy = g_player[j].ps->opos.y = g_player[j].ps->pos.y =        s->y;
+                actor[i].bposz = g_player[j].ps->opos.z = g_player[j].ps->pos.z =        s->z;
                 g_player[j].ps->oang  = g_player[j].ps->ang  =        s->ang;
 
                 updatesector(s->x,s->y,&g_player[j].ps->cursectnum);
@@ -1616,7 +1602,7 @@ void clearfifo(void)
     jump_input = 0;
 
     movefifoplc = movefifosendplc = predictfifoplc = 0;
-    avgfvel = avgsvel = avgavel = avghorz = avgbits = avgextbits = 0;
+    avg.fvel = avg.svel = avg.avel = avg.horz = avg.bits = avg.extbits = 0;
     otherminlag = mymaxlag = 0;
 
     clearbufbyte(&loc,sizeof(input_t),0L);
@@ -1668,6 +1654,36 @@ int32_t G_FindLevelForFilename(const char *fn)
         }
     }
     return MAXLEVELS*MAXVOLUMES;
+}
+
+void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step)
+{
+    if (step > 0)
+    {
+        for (; start < end; start += step)
+        {
+            if (KB_KeyPressed(sc_Space))
+            {
+                KB_ClearKeyDown(sc_Space);
+                return;
+            }
+            G_FadePalette(r,g,b,start);
+            flushperms();
+            G_DoLoadScreen(" ", -1);
+
+        }
+    }
+    else for (; start >= end; start += step)
+    {
+        if (KB_KeyPressed(sc_Space))
+        {
+            KB_ClearKeyDown(sc_Space);
+            return;
+        }
+        G_FadePalette(r,g,b,start);
+        flushperms();
+        G_DoLoadScreen(" ", -1);
+    }
 }
 
 int32_t G_EnterLevel(int32_t g)
@@ -1755,7 +1771,8 @@ int32_t G_EnterLevel(int32_t g)
     {
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
         {
-            if (loadboard(boardfilename,0,&g_player[0].ps->posx, &g_player[0].ps->posy, &g_player[0].ps->posz, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
+            if (loadboard(boardfilename,0,&g_player[0].ps->pos.x, &g_player[0].ps->pos.y,
+                &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
             {
                 OSD_Printf(OSD_ERROR "Map '%s' not found!\n",boardfilename);
                 //G_GameExit(tempbuf);
@@ -1825,7 +1842,8 @@ int32_t G_EnterLevel(int32_t g)
                 }
             }
         }
-        else if (loadboard(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,0,&g_player[0].ps->posx, &g_player[0].ps->posy, &g_player[0].ps->posz, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
+        else if (loadboard(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,0,&g_player[0].ps->pos.x,
+            &g_player[0].ps->pos.y, &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
         {
             OSD_Printf(OSD_ERROR "Map %s not found!\n",MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
             //G_GameExit(tempbuf);
@@ -1856,7 +1874,8 @@ int32_t G_EnterLevel(int32_t g)
         levname[i] = 255;
         levname[i+1] = 0;
 
-        if (loadboard(levname,1,&g_player[0].ps->posx, &g_player[0].ps->posy, &g_player[0].ps->posz, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
+        if (loadboard(levname,1,&g_player[0].ps->pos.x, &g_player[0].ps->pos.y,
+            &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
         {
             OSD_Printf(OSD_ERROR "Map '%s' not found!\n",MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
             //G_GameExit(tempbuf);
@@ -1882,7 +1901,7 @@ int32_t G_EnterLevel(int32_t g)
     clearbufbyte(gotpic,sizeof(gotpic),0L);
     clearbufbyte(precachehightile, sizeof(precachehightile), 0l);
 
-    //clearbufbyte(ActorExtra,sizeof(ActorExtra),0l); // JBF 20040531: yes? no?
+    //clearbufbyte(Actor,sizeof(Actor),0l); // JBF 20040531: yes? no?
 
     prelevel(g);
 
@@ -1892,7 +1911,9 @@ int32_t G_EnterLevel(int32_t g)
     cachedebug = 0;
     automapping = 0;
 
+    G_FadeLoad(0,0,0, 63, 0, -7);
     G_CacheMapData();
+    G_FadeLoad(0,0,0, 0 ,64, 7);
 
     if (ud.recstat != 2)
     {
@@ -1929,7 +1950,7 @@ int32_t G_EnterLevel(int32_t g)
     case FLOORPLASMA__STATIC:
         P_ResetWeapons(i);
         P_ResetInventory(i);
-        g_player[i].ps->gotweapon[PISTOL_WEAPON] = 0;
+        g_player[i].ps->gotweapon &= ~(1<<PISTOL_WEAPON);
         g_player[i].ps->ammo_amount[PISTOL_WEAPON] = 0;
         g_player[i].ps->curr_weapon = KNEE_WEAPON;
         g_player[i].ps->kickback_pic = 0;
@@ -1978,8 +1999,9 @@ int32_t G_EnterLevel(int32_t g)
     // variables are set by pointer...
 
     Bmemcpy(&currentboardfilename[0],&boardfilename[0],BMAX_PATH);
-    X_OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
-    OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
+    VM_OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
+    OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,
+        MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
     return 0;
 }
 

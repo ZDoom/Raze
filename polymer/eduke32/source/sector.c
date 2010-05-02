@@ -99,14 +99,14 @@ int32_t G_CheckActivatorMotion(int32_t lotag)
                     {
                     case 11:
                     case 30:
-                        if (ActorExtra[j].temp_data[4])
+                        if (actor[j].t_data[4])
                             return(1);
                         break;
                     case 20:
                     case 31:
                     case 32:
                     case 18:
-                        if (ActorExtra[j].temp_data[0])
+                        if (actor[j].t_data[0])
                             return(1);
                         break;
                     }
@@ -228,7 +228,7 @@ int32_t __fastcall A_FindPlayer(spritetype *s, int32_t *d)
 {
     if ((!g_netServer && ud.multimode < 2))
     {
-        *d = klabs(g_player[myconnectindex].ps->oposx-s->x) + klabs(g_player[myconnectindex].ps->oposy-s->y) + ((klabs(g_player[myconnectindex].ps->oposz-s->z+(28<<8)))>>4);
+        *d = klabs(g_player[myconnectindex].ps->opos.x-s->x) + klabs(g_player[myconnectindex].ps->opos.y-s->y) + ((klabs(g_player[myconnectindex].ps->opos.z-s->z+(28<<8)))>>4);
         return myconnectindex;
     }
 
@@ -238,7 +238,7 @@ int32_t __fastcall A_FindPlayer(spritetype *s, int32_t *d)
 
         TRAVERSE_CONNECT(j)
         {
-            x = klabs(g_player[j].ps->oposx-s->x) + klabs(g_player[j].ps->oposy-s->y) + ((klabs(g_player[j].ps->oposz-s->z+(28<<8)))>>4);
+            x = klabs(g_player[j].ps->opos.x-s->x) + klabs(g_player[j].ps->opos.y-s->y) + ((klabs(g_player[j].ps->opos.z-s->z+(28<<8)))>>4);
             if (x < closest && sprite[g_player[j].ps->i].extra > 0)
             {
                 closest_player = j;
@@ -271,7 +271,7 @@ void G_DoSectorAnimations(void)
             if (animateptr[i] == &sector[animatesect[i]].floorz)
                 for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
                     if (sprite[j].statnum != 3)
-                        ActorExtra[j].bposz = sprite[j].z;
+                        actor[j].bposz = sprite[j].z;
 
             g_animateCount--;
             animateptr[i] = animateptr[g_animateCount];
@@ -301,25 +301,25 @@ void G_DoSectorAnimations(void)
         {
             TRAVERSE_CONNECT(p)
             if (g_player[p].ps->cursectnum == dasect)
-                if ((sector[dasect].floorz-g_player[p].ps->posz) < (64<<8))
+                if ((sector[dasect].floorz-g_player[p].ps->pos.z) < (64<<8))
                     if (sprite[g_player[p].ps->i].owner >= 0)
                     {
-                        g_player[p].ps->posz += v;
-                        g_player[p].ps->poszv = 0;
+                        g_player[p].ps->pos.z += v;
+                        g_player[p].ps->posvel.z = 0;
                         if (p == myconnectindex)
                         {
                             my.z += v;
                             myvel.z = 0;
-                            myzbak[0] = g_player[p].ps->posz;
+                            myzbak[0] = g_player[p].ps->pos.z;
                         }
                     }
 
             for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
                 if (sprite[j].statnum != 3)
                 {
-                    ActorExtra[j].bposz = sprite[j].z;
+                    actor[j].bposz = sprite[j].z;
                     sprite[j].z += v;
-                    ActorExtra[j].floorz = sector[dasect].floorz+v;
+                    actor[j].floorz = sector[dasect].floorz+v;
                 }
         }
 
@@ -488,7 +488,7 @@ int32_t G_ActivateWarpElevators(int32_t s,int32_t d) //Parm = sectoreffectornum
     {
         if (SLT == 17)
             if (SHT == sprite[s].hitag)
-                if ((klabs(sector[sn].floorz-ActorExtra[s].temp_data[2]) > SP) ||
+                if ((klabs(sector[sn].floorz-actor[s].t_data[2]) > SP) ||
                         (sector[SECT].hitag == (sector[sn].hitag-d)))
                     break;
         i = nextspritestat[i];
@@ -532,8 +532,8 @@ void G_OperateSectors(int32_t sn,int32_t ii)
 
     case 30:
         j = sector[sn].hitag;
-        if (ActorExtra[j].tempang == 0 ||
-                ActorExtra[j].tempang == 256)
+        if (actor[j].tempang == 0 ||
+                actor[j].tempang == 256)
             A_CallSound(sn,ii);
         if (sprite[j].extra == 1)
             sprite[j].extra = 3;
@@ -543,8 +543,8 @@ void G_OperateSectors(int32_t sn,int32_t ii)
     case 31:
 
         j = sector[sn].hitag;
-        if (ActorExtra[j].temp_data[4] == 0)
-            ActorExtra[j].temp_data[4] = 1;
+        if (actor[j].t_data[4] == 0)
+            actor[j].t_data[4] = 1;
 
         A_CallSound(sn,ii);
         break;
@@ -925,8 +925,8 @@ REDODOOR:
 
                 sector[sn].lotag ^= 0x8000;
                 if (sector[sn].lotag&0x8000) //OPENING
-                    ActorExtra[j].temp_data[0] = 1;
-                else ActorExtra[j].temp_data[0] = 2;
+                    actor[j].t_data[0] = 1;
+                else actor[j].t_data[0] = 2;
                 A_CallSound(sn,ii);
                 break;
             }
@@ -951,9 +951,9 @@ REDODOOR:
         l = headspritestat[STAT_EFFECTOR];
         while (l >= 0)
         {
-            if ((sprite[l].lotag&0xff)==21 && !ActorExtra[l].temp_data[0] &&
+            if ((sprite[l].lotag&0xff)==21 && !actor[l].t_data[0] &&
                     (sprite[l].hitag) == j)
-                ActorExtra[l].temp_data[0] = 1;
+                actor[l].t_data[0] = 1;
             l = nextspritestat[l];
         }
         A_CallSound(sn,ii);
@@ -1057,7 +1057,7 @@ void G_OperateActivators(int32_t low,int32_t snum)
                             case 31:
                             case 32:
                             case 18:
-                                ActorExtra[j].temp_data[0] = 1-ActorExtra[j].temp_data[0];
+                                actor[j].t_data[0] = 1-actor[j].t_data[0];
                                 A_CallSound(SECT,j);
                                 break;
                             }
@@ -1127,8 +1127,8 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
 
     if (switchtype == 1) // A wall sprite
     {
-        if (ActorExtra[w].lasttransport == totalclock) return 0;
-        ActorExtra[w].lasttransport = totalclock;
+        if (actor[w].lasttransport == totalclock) return 0;
+        actor[w].lasttransport = totalclock;
         lotag = sprite[w].lotag;
         if (lotag == 0) return 0;
         hitag = sprite[w].hitag;
@@ -1147,7 +1147,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
         // sx = wall[w].x;
         // sy = wall[w].y;
         Bmemcpy(&davector, &wall[w], sizeof(int32_t) * 2);
-        davector.z = g_player[snum].ps->posz;
+        davector.z = g_player[snum].ps->pos.z;
         picnum = wall[w].picnum;
         switchpal = wall[w].pal;
     }
@@ -1529,16 +1529,16 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
                 {
                 case 12:
                     sector[sprite[x].sectnum].floorpal = 0;
-                    ActorExtra[x].temp_data[0]++;
-                    if (ActorExtra[x].temp_data[0] == 2)
-                        ActorExtra[x].temp_data[0]++;
+                    actor[x].t_data[0]++;
+                    if (actor[x].t_data[0] == 2)
+                        actor[x].t_data[0]++;
 
                     break;
                 case 24:
                 case 34:
                 case 25:
-                    ActorExtra[x].temp_data[4] = !ActorExtra[x].temp_data[4];
-                    if (ActorExtra[x].temp_data[4])
+                    actor[x].t_data[4] = !actor[x].t_data[4];
+                    if (actor[x].t_data[4])
                         P_DoQuote(15,g_player[snum].ps);
                     else P_DoQuote(2,g_player[snum].ps);
                     break;
@@ -1912,7 +1912,7 @@ int32_t Sect_DamageCeiling(int32_t sn)
                     while (j >= 0)
                     {
                         if (sprite[j].hitag == SHT)
-                            ActorExtra[j].temp_data[3] = 1;
+                            actor[j].t_data[3] = 1;
                         j = nextspritestat[j];
                     }
                     break;
@@ -2160,9 +2160,9 @@ void A_DamageObject(int32_t i,int32_t sn)
 
     case FORCESPHERE__STATIC:
         sprite[i].xrepeat = 0;
-        ActorExtra[OW].temp_data[0] = 32;
-        ActorExtra[OW].temp_data[1] = !ActorExtra[OW].temp_data[1];
-        ActorExtra[OW].temp_data[2] ++;
+        actor[OW].t_data[0] = 32;
+        actor[OW].t_data[1] = !actor[OW].t_data[1];
+        actor[OW].t_data[2] ++;
         A_Spawn(i,EXPLOSION2);
         break;
 
@@ -2365,7 +2365,7 @@ void A_DamageObject(int32_t i,int32_t sn)
                 if (sprite[i].statnum == STAT_ZOMBIEACTOR)
                 {
                     changespritestat(i, STAT_ACTOR);
-                    ActorExtra[i].timetosleep = SLEEPTIME;
+                    actor[i].timetosleep = SLEEPTIME;
                 }
                 if ((RX < 24 || PN == SHARK) && sprite[sn].picnum == SHRINKSPARK) return;
             }
@@ -2375,10 +2375,10 @@ void A_DamageObject(int32_t i,int32_t sn)
                 if (sprite[sn].picnum == FREEZEBLAST && ((PN == APLAYER && sprite[i].pal == 1) || (g_freezerSelfDamage == 0 && sprite[sn].owner == i)))
                     return;
 
-                ActorExtra[i].picnum = sprite[sn].picnum;
-                ActorExtra[i].extra += sprite[sn].extra;
-                ActorExtra[i].ang = sprite[sn].ang;
-                ActorExtra[i].owner = sprite[sn].owner;
+                actor[i].picnum = sprite[sn].picnum;
+                actor[i].extra += sprite[sn].extra;
+                actor[i].ang = sprite[sn].ang;
+                actor[i].owner = sprite[sn].owner;
             }
 
             if (sprite[i].statnum == STAT_PLAYER)
@@ -2387,12 +2387,12 @@ void A_DamageObject(int32_t i,int32_t sn)
                 if (g_player[p].ps->newowner >= 0)
                 {
                     g_player[p].ps->newowner = -1;
-                    g_player[p].ps->posx = g_player[p].ps->oposx;
-                    g_player[p].ps->posy = g_player[p].ps->oposy;
-                    g_player[p].ps->posz = g_player[p].ps->oposz;
+                    g_player[p].ps->pos.x = g_player[p].ps->opos.x;
+                    g_player[p].ps->pos.y = g_player[p].ps->opos.y;
+                    g_player[p].ps->pos.z = g_player[p].ps->opos.z;
                     g_player[p].ps->ang = g_player[p].ps->oang;
 
-                    updatesector(g_player[p].ps->posx,g_player[p].ps->posy,&g_player[p].ps->cursectnum);
+                    updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&g_player[p].ps->cursectnum);
                     P_UpdateScreenPal(g_player[p].ps);
 
                     j = headspritestat[STAT_ACTOR];
@@ -2406,7 +2406,7 @@ void A_DamageObject(int32_t i,int32_t sn)
                 if (RX < 24 && sprite[sn].picnum == SHRINKSPARK)
                     return;
 
-                if (sprite[ActorExtra[i].owner].picnum != APLAYER)
+                if (sprite[actor[i].owner].picnum != APLAYER)
                     if (ud.player_skill >= 3)
                         sprite[sn].extra += (sprite[sn].extra>>1);
             }
@@ -2490,7 +2490,7 @@ void G_HandleSharedKeys(int32_t snum)
         if (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0)
         {
             aGameVars[g_iReturnVarID].val.lValue = 0;
-            X_OnEvent(EVENT_QUICKKICK,g_player[snum].ps->i,snum, -1);
+            VM_OnEvent(EVENT_QUICKKICK,g_player[snum].ps->i,snum, -1);
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 p->quick_kick = 14;
@@ -2536,7 +2536,7 @@ void G_HandleSharedKeys(int32_t snum)
         if (TEST_SYNC_KEY(sb_snum, SK_INVENTORY) && p->newowner == -1)	// inventory button generates event for selected item
         {
             aGameVars[g_iReturnVarID].val.lValue = 0;
-            X_OnEvent(EVENT_INVENTORY,g_player[snum].ps->i,snum, -1);
+            VM_OnEvent(EVENT_INVENTORY,g_player[snum].ps->i,snum, -1);
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 switch (p->inven_icon)
@@ -2563,7 +2563,7 @@ void G_HandleSharedKeys(int32_t snum)
         if (TEST_SYNC_KEY(sb_snum, SK_NIGHTVISION))
         {
             aGameVars[g_iReturnVarID].val.lValue = 0;
-            X_OnEvent(EVENT_USENIGHTVISION,g_player[snum].ps->i,snum, -1);
+            VM_OnEvent(EVENT_USENIGHTVISION,g_player[snum].ps->i,snum, -1);
             if (aGameVars[g_iReturnVarID].val.lValue == 0
                     &&  p->inv_amount[GET_HEATS] > 0)
             {
@@ -2578,7 +2578,7 @@ void G_HandleSharedKeys(int32_t snum)
         if (TEST_SYNC_KEY(sb_snum, SK_STEROIDS))
         {
             aGameVars[g_iReturnVarID].val.lValue = 0;
-            X_OnEvent(EVENT_USESTEROIDS,g_player[snum].ps->i,snum, -1);
+            VM_OnEvent(EVENT_USESTEROIDS,g_player[snum].ps->i,snum, -1);
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 if (p->inv_amount[GET_STEROIDS] == 400)
@@ -2667,14 +2667,14 @@ CHECKINV1:
                 {
                     /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
                     aGameVars[g_iReturnVarID].val.lValue = dainv;
-                    X_OnEvent(EVENT_INVENTORYLEFT,g_player[snum].ps->i,snum, -1);
+                    VM_OnEvent(EVENT_INVENTORYLEFT,g_player[snum].ps->i,snum, -1);
                     dainv=aGameVars[g_iReturnVarID].val.lValue;
                 }
                 else if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT))   // Inventory_Right
                 {
                     /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
                     aGameVars[g_iReturnVarID].val.lValue = dainv;
-                    X_OnEvent(EVENT_INVENTORYRIGHT,g_player[snum].ps->i,snum, -1);
+                    VM_OnEvent(EVENT_INVENTORYRIGHT,g_player[snum].ps->i,snum, -1);
                     dainv=aGameVars[g_iReturnVarID].val.lValue;
                 }
 
@@ -2696,23 +2696,14 @@ CHECKINV1:
 
         switch (j)
         {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-            X_OnEvent(EVENT_WEAPKEY1+j,p->i,snum, -1);
+        default:
+            VM_OnEvent(EVENT_WEAPKEY1+j,p->i,snum, -1);
             break;
         case 10:
-            X_OnEvent(EVENT_PREVIOUSWEAPON,p->i,snum, -1);
+            VM_OnEvent(EVENT_PREVIOUSWEAPON,p->i,snum, -1);
             break;
         case 11:
-            X_OnEvent(EVENT_NEXTWEAPON,p->i,snum, -1);
+            VM_OnEvent(EVENT_NEXTWEAPON,p->i,snum, -1);
             break;
         }
 
@@ -2754,7 +2745,7 @@ CHECKINV1:
                         if (k == -1) k = 9;
                         else if (k == 10) k = 0;
 
-                        if (p->gotweapon[k] && p->ammo_amount[k] > 0)
+                        if ((p->gotweapon && (1<<k)) && p->ammo_amount[k] > 0)
                         {
                             if (PLUTOPAK)   // JBF 20040116: so we don't select grower with v1.3d
                                 if (k == SHRINKER_WEAPON && (p->subweapon&(1<<GROW_WEAPON)))
@@ -2763,14 +2754,16 @@ CHECKINV1:
                             break;
                         }
                         else    // JBF: grower with no ammo, but shrinker with ammo, switch to shrink
-                            if (PLUTOPAK && k == GROW_WEAPON && p->ammo_amount[GROW_WEAPON] == 0 && p->gotweapon[SHRINKER_WEAPON] && p->ammo_amount[SHRINKER_WEAPON] > 0)   // JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
+                            if (PLUTOPAK && k == GROW_WEAPON && p->ammo_amount[GROW_WEAPON] == 0 &&
+                                (p->gotweapon & (1<<SHRINKER_WEAPON)) && p->ammo_amount[SHRINKER_WEAPON] > 0)   // JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
                             {
                                 j = SHRINKER_WEAPON;
                                 p->subweapon &= ~(1<<GROW_WEAPON);
                                 break;
                             }
                             else    // JBF: shrinker with no ammo, but grower with ammo, switch to grow
-                                if (PLUTOPAK && k == SHRINKER_WEAPON && p->ammo_amount[SHRINKER_WEAPON] == 0 && p->gotweapon[SHRINKER_WEAPON] && p->ammo_amount[GROW_WEAPON] > 0)   // JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
+                                if (PLUTOPAK && k == SHRINKER_WEAPON && p->ammo_amount[SHRINKER_WEAPON] == 0 &&
+                                    (p->gotweapon & (1<<SHRINKER_WEAPON)) && p->ammo_amount[GROW_WEAPON] > 0)   // JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
                                 {
                                     j = GROW_WEAPON;
                                     p->subweapon |= (1<<GROW_WEAPON);
@@ -2789,7 +2782,7 @@ CHECKINV1:
                 Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum],p->i,snum);
                 Gv_SetVar(g_iWeaponVarID,j, p->i, snum);
                 aGameVars[g_iReturnVarID].val.lValue = j;
-                X_OnEvent(EVENT_SELECTWEAPON,p->i,snum, -1);
+                VM_OnEvent(EVENT_SELECTWEAPON,p->i,snum, -1);
                 j = aGameVars[g_iReturnVarID].val.lValue;
                 if ((int32_t)j != -1 && j <= MAX_WEAPONS)
                 {
@@ -2800,7 +2793,7 @@ CHECKINV1:
                         {
                             if (sprite[k].picnum == HEAVYHBOMB && sprite[k].owner == p->i)
                             {
-                                p->gotweapon[HANDBOMB_WEAPON] = 1;
+                                p->gotweapon |= (1<<HANDBOMB_WEAPON);
                                 j = HANDREMOTE_WEAPON;
                                 break;
                             }
@@ -2841,7 +2834,7 @@ CHECKINV1:
                         sb_snum |= BIT(SK_HOLSTER);
                         p->weapon_pos = -9;
                     }
-                    else if ((int32_t)j >= 0 && p->gotweapon[j] && (uint32_t)p->curr_weapon != j)
+                    else if ((int32_t)j >= 0 && (p->gotweapon & (1<<j)) && (uint32_t)p->curr_weapon != j)
                         switch (j)
                         {
                         case PISTOL_WEAPON:
@@ -2870,7 +2863,7 @@ CHECKINV1:
                             break;
                         case HANDBOMB_WEAPON:
                         case TRIPBOMB_WEAPON:
-                            if (p->ammo_amount[j] > 0 && p->gotweapon[j])
+                            if (p->ammo_amount[j] > 0 && (p->gotweapon & (1<<j)))
                                 P_AddWeapon(p, j);
                             break;
                         }
@@ -2883,7 +2876,7 @@ CHECKINV1:
             if (p->holoduke_on == -1)
             {
                 aGameVars[g_iReturnVarID].val.lValue = 0;
-                X_OnEvent(EVENT_HOLODUKEON,g_player[snum].ps->i,snum, -1);
+                VM_OnEvent(EVENT_HOLODUKEON,g_player[snum].ps->i,snum, -1);
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     if (p->inv_amount[GET_HOLODUKE] > 0)
@@ -2892,8 +2885,8 @@ CHECKINV1:
 
                         if (p->cursectnum > -1)
                         {
-                            p->holoduke_on = i = A_InsertSprite(p->cursectnum,p->posx,p->posy,
-                                                                p->posz+(30<<8),APLAYER,-64,0,0,p->ang,0,0,-1,10);
+                            p->holoduke_on = i = A_InsertSprite(p->cursectnum,p->pos.x,p->pos.y,
+                                                                p->pos.z+(30<<8),APLAYER,-64,0,0,p->ang,0,0,-1,10);
                             T4 = T5 = 0;
                             SP = snum;
                             sprite[i].extra = 0;
@@ -2907,7 +2900,7 @@ CHECKINV1:
             else
             {
                 aGameVars[g_iReturnVarID].val.lValue = 0;
-                X_OnEvent(EVENT_HOLODUKEOFF,g_player[snum].ps->i,snum, -1);
+                VM_OnEvent(EVENT_HOLODUKEOFF,g_player[snum].ps->i,snum, -1);
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     A_PlaySound(TELEPORTER,p->holoduke_on);
@@ -2920,7 +2913,7 @@ CHECKINV1:
         if (TEST_SYNC_KEY(sb_snum, SK_MEDKIT))
         {
             aGameVars[g_iReturnVarID].val.lValue = 0;
-            X_OnEvent(EVENT_USEMEDKIT,g_player[snum].ps->i,snum, -1);
+            VM_OnEvent(EVENT_USEMEDKIT,g_player[snum].ps->i,snum, -1);
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 if (p->inv_amount[GET_FIRSTAID] > 0 && sprite[p->i].extra < p->max_player_health)
@@ -2947,7 +2940,7 @@ CHECKINV1:
         if (TEST_SYNC_KEY(sb_snum, SK_JETPACK) && p->newowner == -1)
         {
             aGameVars[g_iReturnVarID].val.lValue = 0;
-            X_OnEvent(EVENT_USEJETPACK,g_player[snum].ps->i,snum, -1);
+            VM_OnEvent(EVENT_USEJETPACK,g_player[snum].ps->i,snum, -1);
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 if (p->inv_amount[GET_JETPACK] > 0)
@@ -2970,7 +2963,7 @@ CHECKINV1:
                     else
                     {
                         p->hard_landing = 0;
-                        p->poszv = 0;
+                        p->posvel.z = 0;
                         A_PlaySound(DUKE_JETPACK_OFF,p->i);
                         S_StopEnvSound(DUKE_JETPACK_IDLE,p->i);
                         S_StopEnvSound(DUKE_JETPACK_ON,p->i);
@@ -2984,7 +2977,7 @@ CHECKINV1:
         if (TEST_SYNC_KEY(sb_snum, SK_TURNAROUND) && p->one_eighty_count == 0)
         {
             aGameVars[g_iReturnVarID].val.lValue = 0;
-            X_OnEvent(EVENT_TURNAROUND,p->i,snum, -1);
+            VM_OnEvent(EVENT_TURNAROUND,p->i,snum, -1);
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 p->one_eighty_count = -1024;
@@ -3027,7 +3020,7 @@ static int32_t hitawall(DukePlayer_t *p,int16_t *hitw)
 
     *hitw = hitinfo.hitwall;
 
-    return (FindDistance2D(hitinfo.pos.x-p->posx,hitinfo.pos.y-p->posy));
+    return (FindDistance2D(hitinfo.pos.x-p->pos.x,hitinfo.pos.y-p->pos.y));
 }
 
 
@@ -3087,7 +3080,7 @@ void P_CheckSectors(int32_t snum)
     if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_OPEN))
     {
         aGameVars[g_iReturnVarID].val.lValue = 0;
-        X_OnEvent(EVENT_USE, p->i, snum, -1);
+        VM_OnEvent(EVENT_USE, p->i, snum, -1);
         if (aGameVars[g_iReturnVarID].val.lValue != 0)
             g_player[snum].sync->bits &= ~BIT(SK_OPEN);
     }
@@ -3141,17 +3134,17 @@ void P_CheckSectors(int32_t snum)
             }
 
         if (p->newowner >= 0)
-            neartag(p->oposx,p->oposy,p->oposz,sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,1);
+            neartag(p->opos.x,p->opos.y,p->opos.z,sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,1);
         else
         {
-            neartag(p->posx,p->posy,p->posz,sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,1);
+            neartag(p->pos.x,p->pos.y,p->pos.z,sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,1);
             if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
-                neartag(p->posx,p->posy,p->posz+(8<<8),sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,1);
+                neartag(p->pos.x,p->pos.y,p->pos.z+(8<<8),sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,1);
             if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
-                neartag(p->posx,p->posy,p->posz+(16<<8),sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,1);
+                neartag(p->pos.x,p->pos.y,p->pos.z+(16<<8),sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,1);
             if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
             {
-                neartag(p->posx,p->posy,p->posz+(16<<8),sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,3);
+                neartag(p->pos.x,p->pos.y,p->pos.z+(16<<8),sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,3);
                 if (neartagsprite >= 0)
                 {
                     switch (DynamicTileMap[sprite[neartagsprite].picnum])
@@ -3228,30 +3221,28 @@ void P_CheckSectors(int32_t snum)
             case NUKEBUTTON__STATIC:
                 hitawall(p,&j);
                 if (j >= 0 && wall[j].overpicnum == 0)
-                    if (ActorExtra[neartagsprite].temp_data[0] == 0)
+                    if (actor[neartagsprite].t_data[0] == 0)
                     {
                         if (ud.noexits && (g_netServer || ud.multimode > 1))
                         {
                             // NUKEBUTTON frags the player
-                            ActorExtra[p->i].picnum = NUKEBUTTON;
-                            ActorExtra[p->i].extra = 250;
+                            actor[p->i].picnum = NUKEBUTTON;
+                            actor[p->i].extra = 250;
                         }
                         else
                         {
-                            ActorExtra[neartagsprite].temp_data[0] = 1;
+                            actor[neartagsprite].t_data[0] = 1;
                             sprite[neartagsprite].owner = p->i;
-                            p->buttonpalette = sprite[neartagsprite].pal;
-                            if (p->buttonpalette)
-                                ud.secretlevel = sprite[neartagsprite].lotag;
-                            else ud.secretlevel = 0;
+                            ud.secretlevel =
+                                (p->buttonpalette = sprite[neartagsprite].pal) ? sprite[neartagsprite].lotag : 0;
                         }
                     }
                 return;
 
             case WATERFOUNTAIN__STATIC:
-                if (ActorExtra[neartagsprite].temp_data[0] != 1)
+                if (actor[neartagsprite].t_data[0] != 1)
                 {
-                    ActorExtra[neartagsprite].temp_data[0] = 1;
+                    actor[neartagsprite].t_data[0] = 1;
                     sprite[neartagsprite].owner = p->i;
 
                     if (sprite[p->i].extra < p->max_player_health)
@@ -3265,10 +3256,10 @@ void P_CheckSectors(int32_t snum)
             case PLUG__STATIC:
                 A_PlaySound(SHORT_CIRCUIT,p->i);
                 sprite[p->i].extra -= 2+(krand()&3);
-                p->pals[0] = 48;
-                p->pals[1] = 48;
-                p->pals[2] = 64;
-                p->pals_time = 32;
+                p->pals.r = 48;
+                p->pals.g = 48;
+                p->pals.b = 64;
+                p->pals.f = 32;
                 break;
 
             case VIEWSCREEN__STATIC:
@@ -3304,11 +3295,11 @@ CLEARCAMERAS:
 
             if (i < 0)
             {
-                Bmemcpy(p, &p->oposx, sizeof(vec3_t));
+                Bmemcpy(p, &p->opos.x, sizeof(vec3_t));
                 p->ang = p->oang;
                 p->newowner = -1;
 
-                updatesector(p->posx,p->posy,&p->cursectnum);
+                updatesector(p->pos.x,p->pos.y,&p->cursectnum);
                 P_UpdateScreenPal(p);
 
 

@@ -35,7 +35,7 @@ struct dynitem
     const int16_t vstat;
     int16_t val;
 };
-hashtable_t dynnamesH = {512, NULL};
+hashtable_t h_names = {512, NULL};
 
 struct dynitem list[]=
 {
@@ -1525,21 +1525,21 @@ void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue)
     if (lValue >= MAXTILES || !szLabel)
         return;
 
-    i = hash_find(&dynnamesH,szLabel);
+    i = hash_find(&h_names,szLabel);
     if (i>=0) *(list[i].v)=lValue;
 }
 
 void inithashnames()
 {
     int32_t i;
-    hash_init(&dynnamesH);
+    hash_init(&h_names);
     for (i=0; list[i].val; i++)
-        hash_add(&dynnamesH,list[i].s,i);
+        hash_add(&h_names,list[i].s,i);
 }
 
 void freehashnames()
 {
-    hash_free(&dynnamesH);
+    hash_free(&h_names);
 }
 
 void G_InitDynamicTiles(void)
@@ -1549,6 +1549,7 @@ void G_InitDynamicTiles(void)
     while (list[i].val)
     {
         DynamicTileMap[list[i].val]=list[i].vstat;
+        *(list[i].v) = list[i].vstat;
         i++;
     }
 

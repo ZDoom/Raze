@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define ACCESS_SPRITEEXT 4
 
 
-static int32_t __fastcall X_AccessWall(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue;
     int32_t i = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar1) : lVar1;
@@ -128,7 +128,7 @@ readonly:
 }
 
 // how: bitfield: 1=set? 2=vars?
-static int32_t __fastcall X_AccessSector(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue;
     int32_t i = (how&ACCESS_USEVARS) ? sprite[vm.g_i].sectnum : lVar1;
@@ -245,7 +245,7 @@ readonly:
 }
 
 // how: bitfield: 1=set? 2=vars?
-static int32_t __fastcall X_AccessSprite(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue;
     register int32_t i = (how&ACCESS_USEVARS) ? vm.g_i : lVar1;
@@ -357,7 +357,7 @@ readonly:
 }
 
 // how: bitfield: 1=set? 2=vars? 4=use spriteext[].tspr? (otherwise use tsprite[])
-static int32_t __fastcall X_AccessTsprite(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue;
     int32_t i = (how&ACCESS_USEVARS) ? vm.g_i : lVar1;

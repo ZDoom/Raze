@@ -80,6 +80,9 @@ ifeq (4,$(GCC_MAJOR))
 #        debug += -finline-small-functions -fpredictive-commoning
       endif
     endif
+    ifeq (5,$(GCC_MINOR))
+        debug += -flto
+    endif
   endif
 endif
 
@@ -89,7 +92,7 @@ OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-fjump-tables -fno-stack-protector
 #        -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
-LIBS=-lm
+LIBS=-lm -ldl -pthread
 
 NASMFLAGS	= -s
 EXESUFFIX=

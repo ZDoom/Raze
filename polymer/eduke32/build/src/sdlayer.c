@@ -522,7 +522,7 @@ const char *getjoyname(int32_t what, int32_t num)
 }
 
 //
-// bgetchar, bkbhit, bflushchars -- character-based input functions
+// bgetchar, bflushchars -- character-based input functions
 //
 char bgetchar(void)
 {
@@ -534,11 +534,6 @@ char bgetchar(void)
         keyasciififoplc = ((keyasciififoplc+1)&(KEYFIFOSIZ-1));
         return c;
     }
-}
-
-int32_t bkbhit(void)
-{
-    return (keyasciififoplc != keyasciififoend);
 }
 
 void bflushchars(void)
@@ -806,18 +801,18 @@ void getvalidmodes(void)
 //    initprintf("Detecting video modes:\n");
 
 #define ADDMODE(x,y,c,f) if (validmodecnt<MAXVALIDMODES) { \
-	int32_t mn; \
-	for(mn=0;mn<validmodecnt;mn++) \
-		if (validmode[mn].xdim==x && validmode[mn].ydim==y && \
-		    validmode[mn].bpp==c  && validmode[mn].fs==f) break; \
-	if (mn==validmodecnt) { \
-		validmode[validmodecnt].xdim=x; \
-		validmode[validmodecnt].ydim=y; \
-		validmode[validmodecnt].bpp=c; \
-		validmode[validmodecnt].fs=f; \
-		validmodecnt++; \
-		/*initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed");*/ \
-	} \
+    int32_t mn; \
+    for(mn=0;mn<validmodecnt;mn++) \
+        if (validmode[mn].xdim==x && validmode[mn].ydim==y && \
+            validmode[mn].bpp==c  && validmode[mn].fs==f) break; \
+    if (mn==validmodecnt) { \
+        validmode[validmodecnt].xdim=x; \
+        validmode[validmodecnt].ydim=y; \
+        validmode[validmodecnt].bpp=c; \
+        validmode[validmodecnt].fs=f; \
+        validmodecnt++; \
+        /*initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed");*/ \
+    } \
 }
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
@@ -1148,7 +1143,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             } else
                 pr_ati_nodepthoffset = 0;
 #ifdef __APPLE__
-			//See bug description at http://lists.apple.com/archives/mac-opengl/2005/Oct/msg00169.html
+            //See bug description at http://lists.apple.com/archives/mac-opengl/2005/Oct/msg00169.html
             if (!Bstrncmp(glinfo.renderer,"ATI Radeon 9600", 15)) {
                 pr_ati_textureformat_one = 1;
                 initprintf("Enabling ATI Radeon 9600 texture format workaround.\n");
@@ -1465,20 +1460,20 @@ int32_t setpalette(int32_t start, int32_t num)
 /*
 int32_t getpalette(int32_t start, int32_t num, char *dapal)
 {
-	int32_t i;
-	SDL_Palette *pal;
+    int32_t i;
+    SDL_Palette *pal;
 
-	// we shouldn't need to lock the surface to get the palette
-	pal = sdl_surface->format->palette;
+    // we shouldn't need to lock the surface to get the palette
+    pal = sdl_surface->format->palette;
 
-	for (i=num; i>0; i--, start++) {
-		dapal[0] = pal->colors[start].b >> 2;
-		dapal[1] = pal->colors[start].g >> 2;
-		dapal[2] = pal->colors[start].r >> 2;
-		dapal += 4;
-	}
+    for (i=num; i>0; i--, start++) {
+        dapal[0] = pal->colors[start].b >> 2;
+        dapal[1] = pal->colors[start].g >> 2;
+        dapal[2] = pal->colors[start].r >> 2;
+        dapal += 4;
+    }
 
-	return 1;
+    return 1;
 }
 */
 

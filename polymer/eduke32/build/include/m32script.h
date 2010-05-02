@@ -46,11 +46,11 @@ extern int32_t g_numQuoteRedefinitions;
 //extern int16_t neartagsector, neartagwall, neartagsprite;
 //extern int32_t neartaghitdist;
 
-extern int32_t X_DoExecute(int32_t once);
-extern void X_OnEvent(register int32_t iEventID, register int32_t iActor);
+extern int32_t VM_Execute(int32_t once);
+extern void VM_OnEvent(register int32_t iEventID, register int32_t iActor);
 
-extern void X_ScriptInfo(void);
-extern void X_Disasm(ofstype beg, int32_t size);
+extern void VM_ScriptInfo(void);
+extern void VM_Disasm(ofstype beg, int32_t size);
 extern void C_ReportError(int32_t iError);
 
 extern int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags);
@@ -77,12 +77,12 @@ extern int32_t g_scriptSize;
 extern char *label;
 //extern int32_t label_allocsize;
 
-extern hashtable_t labelH;
+extern hashtable_t h_labels;
 
 #define MAXLABELLEN 32
 
 //extern uint8_t waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],animpal[768];
-//extern char currentboardfilename[BMAX_PATH];
+//extern char currentboardfilename[BMAVM_PATH];
 
 
 enum GameEvent_t {
@@ -180,10 +180,10 @@ extern int32_t g_iThisActorID;        // var ID of "I"     ///"THISACTOR"
 
 extern int32_t g_numQuoteRedefinitions;
 
-extern hashtable_t gamevarH;
-extern hashtable_t arrayH;
-extern hashtable_t keywH;
-extern hashtable_t gamefuncH;
+extern hashtable_t h_gamevars;
+extern hashtable_t h_arrays;
+extern hashtable_t h_keywords;
+extern hashtable_t h_gamefuncs;
 
 
 extern int16_t asksave;

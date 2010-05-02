@@ -450,9 +450,13 @@ static NEDMALLOCNOALIASATTR mstate nedblkmstate(void *RESTRICT mem) THROWSPEC
 		}
 #else
 #ifdef WIN32
-		__try
+#ifdef _MSC_VER
+        __try
+#elif defined(__MINGW32__)
+        __try1
 #endif
-		{
+#endif
+        {
 			/* We try to return zero here if it isn't one of our own blocks, however
 			the current block annotation scheme used by dlmalloc makes it impossible
 			to be absolutely sure of avoiding a segfault.
@@ -493,7 +497,11 @@ static NEDMALLOCNOALIASATTR mstate nedblkmstate(void *RESTRICT mem) THROWSPEC
 			}
 		}
 #ifdef WIN32
-		__except(1) { }
+#ifdef _MSC_VER
+        __except(1) { }
+#elif defined(__MINGW32__)
+        __except1(1) { }
+#endif
 #endif
 #endif
 #endif

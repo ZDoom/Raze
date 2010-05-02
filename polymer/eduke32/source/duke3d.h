@@ -125,20 +125,10 @@ extern int32_t g_scriptVersion, g_Shareware, g_gameType;
 
 #define TICRATE (120)
 #define GAMETICSPERSEC 26
-#define TICSPERFRAME (TICRATE/GAMETICSPERSEC)
-
-// #define GC (TICSPERFRAME*44)
+#define TICSPERFRAME 4 // this used to be TICRATE/GAMETICSPERSEC which was 4.615~ truncated to 4 by integer division
+#define REALGAMETICSPERSEC 30
 
 #define MAXSOUNDS 2560
-
-/*
-#pragma aux sgn =\
-        "add ebx, ebx",\
-        "sbb eax, eax",\
-        "cmp eax, ebx",\
-        "adc eax, 0",\
-        parm [ebx]\
-*/
 
 #define STAT_DEFAULT        0
 #define STAT_ACTOR          1
@@ -162,14 +152,13 @@ extern int32_t g_scriptVersion, g_Shareware, g_gameType;
 #define    PHEIGHT (38<<8)
 
 enum GameMode_t {
-    MODE_MENU       = 1,
-    MODE_DEMO       = 2,
-    MODE_GAME       = 4,
-    MODE_EOL        = 8,
-    MODE_TYPE       = 16,
-    MODE_RESTART    = 32,
-    MODE_SENDTOWHOM = 64,
-    MODE_END        = 128
+    MODE_MENU       = 0x00000001,
+    MODE_DEMO       = 0x00000002,
+    MODE_GAME       = 0x00000004,
+    MODE_EOL        = 0x00000008,
+    MODE_TYPE       = 0x00000010,
+    MODE_RESTART    = 0x00000020,
+    MODE_SENDTOWHOM = 0x00000040,
 };
 
 #define MAXANIMWALLS 512
@@ -302,7 +291,7 @@ extern volatile char g_soundlocks[MAXSOUNDS];
 extern sound_t g_sounds[MAXSOUNDS];
 
 typedef struct {
-    int32_t wallnum, tag;
+    int16_t wallnum, tag;
 } animwalltype;
 
 extern animwalltype animwall[MAXANIMWALLS];
@@ -437,66 +426,64 @@ extern int32_t fricxv,fricyv;
 // mywhatever type globals
 
 typedef struct {
-    int32_t posx, posy, posz, oposx, oposy, oposz, posxv, posyv, poszv;
-    int32_t bobposx, bobposy, pyoff, opyoff, invdisptime;
-    int32_t last_pissed_time, truefz, truecz;
-    int32_t player_par, visibility;
-    int32_t bobcounter, weapon_sway;
-    int32_t pals_time, randomflamex, crack_time;
-    int32_t zoom, exitx, exity;
+    vec3_t pos, opos, posvel;
+    int32_t bobposx, bobposy;
+    int32_t truefz, truecz, player_par;
+    int32_t randomflamex, exitx, exity;
+    int32_t runspeed, max_player_health, max_shield_amount;
 
     uint32_t interface_toggle_flag;
 
-    int32_t max_secret_rooms, secret_rooms, max_actors_killed, actors_killed;
-    int32_t runspeed, movement_lock, team;
-    int32_t max_player_health, max_shield_amount, max_ammo_amount[MAX_WEAPONS];
-
-    int32_t scream_voice;
-
-    int32_t loogiex[64], loogiey[64], numloogs, loogcnt;
-
     uint8_t *palette;
 
-    int16_t sbs, sound_pitch;
+    uint16_t max_actors_killed, actors_killed;
+    uint16_t gotweapon, zoom;
+
+    int16_t loogiex[64], loogiey[64], sbs, sound_pitch;
 
     int16_t ang, oang, angvel, cursectnum, look_ang, last_extra, subweapon;
-    int16_t ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX], wackedbyactor, frag, fraggedself;
+    int16_t max_ammo_amount[MAX_WEAPONS], ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX];
+    int16_t wackedbyactor, pyoff, opyoff;
 
-    int16_t curr_weapon, last_weapon, tipincs, horiz, horizoff, ohoriz, ohorizoff, wantweaponfire;
-    int16_t newowner, hurt_delay, hbomb_hold_delay;
-    int16_t jumping_counter, airleft, knee_incs, access_incs;
+    int16_t horiz, horizoff, ohoriz, ohorizoff;
+    int16_t newowner, jumping_counter, airleft;
     int16_t fta, ftq, access_wallnum, access_spritenum;
-    int16_t kickback_pic, got_access, weapon_ang;
+    int16_t got_access, weapon_ang, visibility;
     int16_t somethingonplayer, on_crane, i, one_parallax_sectnum;
-    int16_t over_shoulder_on, random_club_frame, fist_incs;
-    int16_t one_eighty_count, cheat_phase;
-    int16_t dummyplayersprite, extra_extra8, quick_kick, last_quick_kick;
-    int16_t actorsqu, timebeforeexit, customexitsound;
+    int16_t random_club_frame, one_eighty_count;
+    int16_t dummyplayersprite, extra_extra8;
+    int16_t actorsqu, timebeforeexit, customexitsound, last_pissed_time;
 
-    int16_t weaprecs[16], weapreccnt;
+    int16_t weaprecs[MAX_WEAPONS], weapon_sway, crack_time, bobcounter;
 
+    int16_t orotscrnang, rotscrnang, dead_flag;   // JBF 20031220: added orotscrnang
+    int16_t holoduke_on, pycount;
 
-    int16_t orotscrnang, rotscrnang, dead_flag, show_empty_weapon;   // JBF 20031220: added orotscrnang
-    int16_t holoduke_on, pycount, weapon_pos, frag_ps;
-    int16_t transporter_hold, last_full_weapon, footprintshade;
+    uint8_t max_secret_rooms, secret_rooms;
+    uint8_t frag, fraggedself, quick_kick, last_quick_kick;
+    uint8_t return_to_center, reloading, weapreccnt;
+    uint8_t aim_mode, auto_aim, weaponswitch, movement_lock, team;
+    uint8_t tipincs, hbomb_hold_delay, frag_ps, kickback_pic;
 
-    char aim_mode, auto_aim, weaponswitch;
+    uint8_t gm, on_warping_sector, footprintcount, hurt_delay;
+    uint8_t hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
+    uint8_t inven_icon, buttonpalette, over_shoulder_on, show_empty_weapon;
 
-    char gm, on_warping_sector, footprintcount;
-    char hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
-    char inven_icon, buttonpalette;
+    uint8_t jetpack_on, spritebridge, lastrandomspot;
+    uint8_t scuba_on, footprintpal, heat_on, invdisptime;
 
-    char jetpack_on, spritebridge, lastrandomspot;
-    char scuba_on, footprintpal, heat_on;
+    uint8_t holster_weapon, falling_counter, footprintshade;
+    uint8_t refresh_inventory, last_full_weapon;
 
-    char  holster_weapon, falling_counter;
-    char  gotweapon[MAX_WEAPONS], refresh_inventory;
+    uint8_t toggle_key_flag, knuckle_incs, knee_incs, access_incs;
+    uint8_t walking_snd_toggle, palookup, hard_landing, fist_incs;
 
-    char toggle_key_flag, knuckle_incs; // , select_dir;
-    char walking_snd_toggle, palookup, hard_landing;
-    char /*fire_flag, */pals[3];
-    char return_to_center, reloading;
-	char name[32];
+    int8_t numloogs, loogcnt, scream_voice, transporter_hold;
+    int8_t last_weapon, cheat_phase, weapon_pos, wantweaponfire, curr_weapon;
+
+    palette_t pals;
+
+    char name[32];
 } DukePlayer_t;
 
 extern char tempbuf[2048], packbuf[4096], menutextbuf[128];
@@ -518,7 +505,7 @@ extern char buf[1024]; //My own generic input buffer
 extern char *ScriptQuotes[MAXQUOTES],*ScriptQuoteRedefinitions[MAXQUOTES];
 extern char ready2send;
 
-void X_ScriptInfo(void);
+void VM_ScriptInfo(void);
 extern intptr_t *script,*insptr,*labelcode,*labeltype;
 extern int32_t g_numLabels,g_numDefaultLabels;
 extern int32_t g_scriptSize;
@@ -532,19 +519,22 @@ extern char EnvMusicFilename[MAXVOLUMES+1][BMAX_PATH];
 extern int16_t camsprite;
 
 typedef struct {
-    int32_t workslike, extra, cstat, extra_rand; // 16b
+    int32_t workslike, cstat; // 8b
     int32_t hitradius, range, flashcolor; // 12b
     int16_t spawns, sound, isound, vel; // 8b
     int16_t decal, trail, tnum, drop; // 8b
-    int16_t clipdist, offset, bounces, bsound; // 8b
+    int16_t offset, bounces, bsound; // 6b
     int16_t toffset; // 2b
+    int16_t extra, extra_rand; // 4b
     int8_t sxrepeat, syrepeat, txrepeat, tyrepeat; // 4b
     int8_t shade, xrepeat, yrepeat, pal; // 4b
-    int8_t velmult, filler; // 2b
+    int8_t velmult; // 1b
+    uint8_t clipdist; // 1b
+    int8_t filler[6]; // 6b
 } projectile_t;
 
 typedef struct {
-    intptr_t temp_data[10]; // 40b/80b sometimes used to hold pointers to con code
+    intptr_t t_data[10]; // 40b/80b sometimes used to hold pointers to con code
 
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; //6b
@@ -569,7 +559,7 @@ typedef struct {
 
 // this struct needs to match the beginning of ActorData_t above
 typedef struct {
-    intptr_t temp_data[10]; // 40b/80b sometimes used to hold pointers to con code
+    intptr_t t_data[10]; // 40b/80b sometimes used to hold pointers to con code
 
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; // 6b
@@ -577,11 +567,11 @@ typedef struct {
     int32_t flags; // 4b
 } NetActorData_t;
 
-extern ActorData_t ActorExtra[MAXSPRITES];
+extern ActorData_t actor[MAXSPRITES];
 
 extern input_t loc;
 extern input_t recsync[RECSYNCBUFSIZ];
-extern int32_t avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;
+extern input_t avg;
 
 extern int32_t numplayers, myconnectindex;
 extern int32_t connecthead, connectpoint2[MAXPLAYERS];   //Player linked list variables (indeces, not connection numbers)
@@ -599,7 +589,6 @@ extern int32_t ototalclock;
 extern int32_t *animateptr[MAXANIMATES];
 extern int32_t animategoal[MAXANIMATES];
 extern int32_t animatevel[MAXANIMATES];
-// extern int32_t oanimateval[MAXANIMATES];
 extern int16_t neartagsector, neartagwall, neartagsprite;
 extern int32_t neartaghitdist;
 extern int16_t animatesect[MAXANIMATES];
@@ -673,7 +662,8 @@ typedef struct {
     int16_t got_access, last_extra, inv_amount[GET_MAX], curr_weapon, holoduke_on;
     int16_t last_weapon, weapon_pos, kickback_pic;
     int16_t ammo_amount[MAX_WEAPONS], frag[MAXPLAYERS];
-    char inven_icon, jetpack_on, heat_on, gotweapon[MAX_WEAPONS];
+    uint16_t gotweapon;
+    char inven_icon, jetpack_on, heat_on;
 } DukeStatus_t;
 #pragma pack(push,1)
 
@@ -723,6 +713,7 @@ extern uint32_t g_moveThingsCount;
 #define TILE_ANIM     (MAXTILES-4)
 #define TILE_VIEWSCR  (MAXTILES-5)
 
+// the order of these can't be changed or else compatibility with EDuke 2.0 mods will break
 enum GameEvent_t {
     EVENT_INIT,
     EVENT_ENTERLEVEL,
@@ -872,17 +863,17 @@ extern int32_t g_gameArrayCount;
 extern int32_t SpriteFlags[MAXTILES];
 
 enum SpriteFlags_t {
-    SPRITE_SHADOW       = 1,
-    SPRITE_NVG          = 2,
-    SPRITE_NOSHADE      = 4,
-    SPRITE_PROJECTILE   = 8,
-    SPRITE_DECAL        = 16,
-    SPRITE_BADGUY       = 32,
-    SPRITE_NOPAL        = 64,
-    SPRITE_NOEVENTCODE  = 128,
-    SPRITE_NOLIGHT      = 256,
-    SPRITE_USEACTIVATOR = 512,
-    SPRITE_NULL         = 1024, // null sprite in multiplayer
+    SPRITE_SHADOW       = 0x00000001,
+    SPRITE_NVG          = 0x00000002,
+    SPRITE_NOSHADE      = 0x00000004,
+    SPRITE_PROJECTILE   = 0x00000008,
+    SPRITE_DECAL        = 0x00000010,
+    SPRITE_BADGUY       = 0x00000020,
+    SPRITE_NOPAL        = 0x00000040,
+    SPRITE_NOEVENTCODE  = 0x00000080,
+    SPRITE_NOLIGHT      = 0x00000100,
+    SPRITE_USEACTIVATOR = 0x00000200,
+    SPRITE_NULL         = 0x00000400, // null sprite in multiplayer
 };
 
 extern int16_t SpriteCacheList[MAXTILES][3];
@@ -894,8 +885,8 @@ extern int32_t g_iZRangeVarID;
 extern int32_t g_iAngRangeVarID;
 extern int32_t g_iAimAngleVarID;
 extern int32_t g_iLoTagID;          // var ID of "LOTAG"
-extern int32_t g_iHiTagID;          // ver ID of "HITAG"
-extern int32_t g_iTextureID;        // ver ID of "TEXTURE"
+extern int32_t g_iHiTagID;          // var ID of "HITAG"
+extern int32_t g_iTextureID;        // var ID of "TEXTURE"
 
 extern char g_bEnhanced;    // are we 'enhanced' (more minerals, etc)
 
@@ -927,56 +918,56 @@ extern intptr_t *aplWeaponFlashColor[MAX_WEAPONS];      // Color for polymer muz
 extern int32_t g_timerTicsPerSecond;
 
 enum WeaponFlags_t {
-    WEAPON_HOLSTER_CLEARS_CLIP = 1,     // 'holstering' clears the current clip
-    WEAPON_GLOWS               = 2,     // weapon 'glows' (shrinker and grower)
-    WEAPON_AUTOMATIC           = 4,     // automatic fire (continues while 'fire' is held down
-    WEAPON_FIREEVERYOTHER      = 8,     // during 'hold time' fire every frame
-    WEAPON_FIREEVERYTHIRD      = 16,    // during 'hold time' fire every third frame
-    WEAPON_RANDOMRESTART       = 32,    // restart for automatic is 'randomized' by RND 3
-    WEAPON_AMMOPERSHOT         = 64,    // uses ammo for each shot (for automatic)
-    WEAPON_BOMB_TRIGGER        = 128,   // weapon is the 'bomb' trigger
-    WEAPON_NOVISIBLE           = 256,   // weapon use does not cause user to become 'visible'
-    WEAPON_THROWIT             = 512,   // weapon 'throws' the 'shoots' item...
-    WEAPON_CHECKATRELOAD       = 1024,  // check weapon availability at 'reload' time
-    WEAPON_STANDSTILL          = 2048,  // player stops jumping before actual fire (like tripbomb in duke)
-    WEAPON_SPAWNTYPE1          = 0,     // just spawn
-    WEAPON_SPAWNTYPE2          = 4096,  // spawn like shotgun shells
-    WEAPON_SPAWNTYPE3          = 8192,  // spawn like chaingun shells
-    WEAPON_SEMIAUTO            = 16384, // cancel button press after each shot
-    WEAPON_RELOAD_TIMING       = 32768, // special casing for pistol reload sounds
-    WEAPON_RESET               = 65536  // cycle weapon back to frame 1 if fire is held, 0 if not
+    WEAPON_SPAWNTYPE1          = 0x00000000, // just spawn
+    WEAPON_HOLSTER_CLEARS_CLIP = 0x00000001, // 'holstering' clears the current clip
+    WEAPON_GLOWS               = 0x00000002, // weapon 'glows' (shrinker and grower)
+    WEAPON_AUTOMATIC           = 0x00000004, // automatic fire (continues while 'fire' is held down
+    WEAPON_FIREEVERYOTHER      = 0x00000008, // during 'hold time' fire every frame
+    WEAPON_FIREEVERYTHIRD      = 0x00000010, // during 'hold time' fire every third frame
+    WEAPON_RANDOMRESTART       = 0x00000020, // restart for automatic is 'randomized' by RND 3
+    WEAPON_AMMOPERSHOT         = 0x00000040, // uses ammo for each shot (for automatic)
+    WEAPON_BOMB_TRIGGER        = 0x00000080, // weapon is the 'bomb' trigger
+    WEAPON_NOVISIBLE           = 0x00000100, // weapon use does not cause user to become 'visible'
+    WEAPON_THROWIT             = 0x00000200, // weapon 'throws' the 'shoots' item...
+    WEAPON_CHECKATRELOAD       = 0x00000400, // check weapon availability at 'reload' time
+    WEAPON_STANDSTILL          = 0x00000800, // player stops jumping before actual fire (like tripbomb in duke)
+    WEAPON_SPAWNTYPE2          = 0x00001000, // spawn like shotgun shells
+    WEAPON_SPAWNTYPE3          = 0x00002000, // spawn like chaingun shells
+    WEAPON_SEMIAUTO            = 0x00004000, // cancel button press after each shot
+    WEAPON_RELOAD_TIMING       = 0x00008000, // special casing for pistol reload sounds
+    WEAPON_RESET               = 0x00010000  // cycle weapon back to frame 1 if fire is held, 0 if not
 };
 
-#define TRIPBOMB_TRIPWIRE           1
-#define TRIPBOMB_TIMER              2
+#define TRIPBOMB_TRIPWIRE           0x00000001
+#define TRIPBOMB_TIMER              0x00000002
 
-#define PIPEBOMB_REMOTE             1
-#define PIPEBOMB_TIMER              2
+#define PIPEBOMB_REMOTE             0x00000001
+#define PIPEBOMB_TIMER              0x00000002
 
 // custom projectiles
 
 enum ProjectileFlags_t {
-    PROJECTILE_HITSCAN             = 1,
-    PROJECTILE_RPG                 = 2,
-    PROJECTILE_BOUNCESOFFWALLS     = 4,
-    PROJECTILE_BOUNCESOFFMIRRORS   = 8,
-    PROJECTILE_KNEE                = 16,
-    PROJECTILE_WATERBUBBLES        = 32,
-    PROJECTILE_TIMED               = 64,
-    PROJECTILE_BOUNCESOFFSPRITES   = 128,
-    PROJECTILE_SPIT                = 256,
-    PROJECTILE_COOLEXPLOSION1      = 512,
-    PROJECTILE_BLOOD               = 1024,
-    PROJECTILE_LOSESVELOCITY       = 2048,
-    PROJECTILE_NOAIM               = 4096,
-    PROJECTILE_RANDDECALSIZE       = 8192,
-    PROJECTILE_EXPLODEONTIMER      = 16384,
-    PROJECTILE_RPG_IMPACT          = 32768,
-    PROJECTILE_RADIUS_PICNUM       = 65536,
-    PROJECTILE_ACCURATE_AUTOAIM    = 131072,
-    PROJECTILE_FORCEIMPACT         = 262144,
-    PROJECTILE_REALCLIPDIST        = 524288,
-    PROJECTILE_ACCURATE            = 1048576,
+    PROJECTILE_HITSCAN             = 0x00000001,
+    PROJECTILE_RPG                 = 0x00000002,
+    PROJECTILE_BOUNCESOFFWALLS     = 0x00000004,
+    PROJECTILE_BOUNCESOFFMIRRORS   = 0x00000008,
+    PROJECTILE_KNEE                = 0x00000010,
+    PROJECTILE_WATERBUBBLES        = 0x00000020,
+    PROJECTILE_TIMED               = 0x00000040,
+    PROJECTILE_BOUNCESOFFSPRITES   = 0x00000080,
+    PROJECTILE_SPIT                = 0x00000100,
+    PROJECTILE_COOLEXPLOSION1      = 0x00000200,
+    PROJECTILE_BLOOD               = 0x00000400,
+    PROJECTILE_LOSESVELOCITY       = 0x00000800,
+    PROJECTILE_NOAIM               = 0x00001000,
+    PROJECTILE_RANDDECALSIZE       = 0x00002000,
+    PROJECTILE_EXPLODEONTIMER      = 0x00004000,
+    PROJECTILE_RPG_IMPACT          = 0x00008000,
+    PROJECTILE_RADIUS_PICNUM       = 0x00010000,
+    PROJECTILE_ACCURATE_AUTOAIM    = 0x00020000,
+    PROJECTILE_FORCEIMPACT         = 0x00040000,
+    PROJECTILE_REALCLIPDIST        = 0x00080000,
+    PROJECTILE_ACCURATE            = 0x00100000,
 };
 
 extern projectile_t ProjectileData[MAXTILES], DefaultProjectileData[MAXTILES], SpriteProjectile[MAXSPRITES];
@@ -984,16 +975,16 @@ extern projectile_t ProjectileData[MAXTILES], DefaultProjectileData[MAXTILES], S
 // logo control
 
 enum LogoFlags_t {
-    LOGO_ENABLED           = 1,
-    LOGO_PLAYANIM          = 2,
-    LOGO_PLAYMUSIC         = 4,
-    LOGO_3DRSCREEN         = 8,
-    LOGO_TITLESCREEN       = 16,
-    LOGO_DUKENUKEM         = 32,
-    LOGO_THREEDEE          = 64,
-    LOGO_PLUTOPAKSPRITE    = 128,
-    LOGO_SHAREWARESCREENS  = 256,
-    LOGO_TENSCREEN         = 512
+    LOGO_ENABLED           = 0x00000001,
+    LOGO_PLAYANIM          = 0x00000002,
+    LOGO_PLAYMUSIC         = 0x00000004,
+    LOGO_3DRSCREEN         = 0x00000008,
+    LOGO_TITLESCREEN       = 0x00000010,
+    LOGO_DUKENUKEM         = 0x00000020,
+    LOGO_THREEDEE          = 0x00000040,
+    LOGO_PLUTOPAKSPRITE    = 0x00000080,
+    LOGO_SHAREWARESCREENS  = 0x00000100,
+    LOGO_TENSCREEN         = 0x00000200
 };
 
 extern int32_t g_numRealPalettes;
@@ -1043,7 +1034,7 @@ typedef struct {
     uint8_t scriptptrs[MAXSPRITES];
     uint8_t show2dsector[(MAXSECTORS+7)>>3];
 
-    ActorData_t ActorExtra[MAXSPRITES];
+    ActorData_t actor[MAXSPRITES];
     PlayerSpawn_t g_playerSpawnPoints[MAXPLAYERS];
     animwalltype animwall[MAXANIMWALLS];
     sectortype sector[MAXSECTORS];
@@ -1069,7 +1060,8 @@ typedef struct {
 
     int32_t movefifoend, syncvalhead;
     int16_t ping, filler;
-    int32_t pcolor, pteam, frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
+    int32_t pcolor, pteam;
+    uint8_t frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
     char vote, gotvote, playerreadyflag, playerquitflag;
     char user_name[32];
@@ -1093,10 +1085,10 @@ extern char *ConsoleButtons[];
 extern char *g_grpNamePtr, *g_gameNamePtr;
 extern char g_modDir[BMAX_PATH];
 
-extern hashtable_t gamevarH;
-extern hashtable_t arrayH;
-extern hashtable_t keywH;
-extern hashtable_t gamefuncH;
+extern hashtable_t h_gamevars;
+extern hashtable_t h_arrays;
+extern hashtable_t h_keywords;
+extern hashtable_t h_gamefuncs;
 
 enum DukePacket_t
 {
@@ -1115,8 +1107,10 @@ enum DukePacket_t
     PACKET_PLAYER_READY,
 
     // any packet with an ID higher than PACKET_BROADCAST is rebroadcast by server
-    // this is so hacked clients can't create fake server packets and get the server
-    // to send them to everyone
+    // so hacked clients can't create fake server packets and get the server to
+    // send them to everyone
+    // newer versions of the netcode also make this determination based on which
+    // channel the packet was broadcast on
 
     PACKET_BROADCAST,
     PACKET_NEW_GAME,

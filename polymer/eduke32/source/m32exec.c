@@ -52,7 +52,7 @@ uint8_t aEventEnabled[MAXEVENTS];
 uint32_t m32_drawlinepat=0xffffffff;
 
 instype *insptr;
-int32_t X_DoExecute(int32_t once);
+int32_t VM_Execute(int32_t once);
 static instype *x_sortingstateptr;
 
 #include "m32structures.c"
@@ -107,7 +107,7 @@ void X_Disasm(ofstype beg, int32_t size)
     initprintf("\n");
 }
 
-void X_ScriptInfo(void)
+void VM_ScriptInfo(void)
 {
     if (script)
     {
@@ -133,7 +133,7 @@ void X_ScriptInfo(void)
     }
 }
 
-void X_OnEvent(register int32_t iEventID, register int32_t iActor)
+void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
 {
     if (iEventID < 0 || iEventID >= MAXEVENTS)
     {
@@ -163,7 +163,7 @@ void X_OnEvent(register int32_t iEventID, register int32_t iActor)
         vm.flags = 0;
 
         insptr = script + aEventOffsets[iEventID];
-        X_DoExecute(0);
+        VM_Execute(0);
 
         if (vm.flags&VMFLAG_ERROR)
         {
@@ -197,13 +197,13 @@ static int32_t G_GetAngleDelta(int32_t a,int32_t na)
     return (na-a);
 }
 
-static inline void __fastcall X_DoConditional(register int32_t condition)
+static inline void __fastcall VM_DoConditional(register int32_t condition)
 {
     if (condition)
     {
         // skip 'else' pointer.. and...
         insptr+=2;
-        X_DoExecute(1);
+        VM_Execute(1);
         return;
     }
 
@@ -214,7 +214,7 @@ static inline void __fastcall X_DoConditional(register int32_t condition)
         // else...
         // skip 'else' and...
         insptr+=2;
-        X_DoExecute(1);
+        VM_Execute(1);
     }
 }
 
@@ -228,7 +228,7 @@ static int32_t X_DoSort(const int32_t *lv, const int32_t *rv)
     m32_sortvar1 = *lv;
     m32_sortvar2 = *rv;
     insptr = x_sortingstateptr;
-    X_DoExecute(0);
+    VM_Execute(0);
     return g_iReturnVar;
 }
 
@@ -279,7 +279,7 @@ static int32_t X_DoSort(const int32_t *lv, const int32_t *rv)
         continue;                                                       \
     }                                                                   \
  
-int32_t X_DoExecute(int32_t once)
+int32_t VM_Execute(int32_t once)
 {
     register int32_t tw = *insptr;
 
@@ -314,7 +314,7 @@ skip_check:
 
             insptr = script + statesinfo[stateidx].ofs;
             vm.g_st = 1+MAXEVENTS+stateidx;
-            X_DoExecute(0);
+            VM_Execute(0);
             vm.g_st = o_g_st;
             vm.flags &= ~VMFLAG_RETURN;
             vm.flags |= oret;
@@ -378,7 +378,7 @@ skip_check:
                         // fake a 2-d Array
                         insptr = lCodeInsPtr + lpCases[lCheckCase*2+1];
                         //Bsprintf(g_szBuf,"insptr=%d. ",     (int32_t)insptr); AddLog(g_szBuf);
-                        X_DoExecute(0);
+                        VM_Execute(0);
                         //AddLog("Done Executing Case");
                         bMatched=1;
                     }
@@ -391,7 +391,7 @@ skip_check:
                     {
                         //AddLog("No Matching Case: Using Default");
                         insptr = lCodeInsPtr + *lpDefault;
-                        X_DoExecute(0);
+                        VM_Execute(0);
                     }
 //                    else
 //                    {
@@ -431,7 +431,7 @@ skip_check:
             return 1;
         case CON_LEFTBRACE:
             insptr++;
-            X_DoExecute(0);
+            VM_Execute(0);
             continue;
 
 // *** more basic commands
@@ -443,7 +443,7 @@ skip_check:
                 // <varid> <xxxid> <varid>
                 int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
 
-                X_AccessSector((tw==CON_SETSECTOR)|2, lVar1, lLabelID, lVar2);
+                VM_AccessSector((tw==CON_SETSECTOR)|2, lVar1, lLabelID, lVar2);
                 continue;
             }
         case CON_SETWALL:
@@ -453,7 +453,7 @@ skip_check:
                 // syntax [gs]etwall[<var>].x <VAR>
                 // <varid> <xxxid> <varid>
                 int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
-                X_AccessWall((tw==CON_SETWALL)|2, lVar1, lLabelID, lVar2);
+                VM_AccessWall((tw==CON_SETWALL)|2, lVar1, lLabelID, lVar2);
                 continue;
             }
         case CON_SETSPRITE:
@@ -463,7 +463,7 @@ skip_check:
                 // syntax [gs]etsprite[<var>].x <VAR>
                 // <varid> <xxxid> <varid>
                 int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
-                X_AccessSprite((tw==CON_SETSPRITE)|2, lVar1, lLabelID, lVar2);
+                VM_AccessSprite((tw==CON_SETSPRITE)|2, lVar1, lLabelID, lVar2);
                 continue;
             }
 
@@ -474,7 +474,7 @@ skip_check:
                 // syntax [gs]ettspr[<var>].x <VAR>
                 // <varid> <xxxid> <varid>
                 int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
-                X_AccessTsprite((tw==CON_SETTSPR)|2|4, lVar1, lLabelID, lVar2);
+                VM_AccessTsprite((tw==CON_SETTSPR)|2|4, lVar1, lLabelID, lVar2);
                 continue;
             }
 #if 0
@@ -484,7 +484,7 @@ skip_check:
                 // syntax [gs]etsprite[<var>].x <VAR>
                 // <varid> <xxxid> <varid>
                 int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
-                X_SetSprite(lVar1, lLabelID, lVar2);
+                VM_SetSprite(lVar1, lLabelID, lVar2);
                 continue;
             }
 
@@ -494,7 +494,7 @@ skip_check:
                 // syntax [gs]etsprite[<var>].x <VAR>
                 // <varid> <xxxid> <varid>
                 int32_t lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
-                X_GetSprite(lVar1, lLabelID, lVar2);
+                VM_GetSprite(lVar1, lLabelID, lVar2);
                 continue;
             }
 #endif
@@ -918,7 +918,7 @@ skip_check:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j &= Gv_GetVarX(*insptr++);
                 insptr--;
-                X_DoConditional(j);
+                VM_DoConditional(j);
             }
             continue;
 
@@ -928,7 +928,7 @@ skip_check:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j |= Gv_GetVarX(*insptr++);
                 insptr--;
-                X_DoConditional(j);
+                VM_DoConditional(j);
             }
             continue;
 
@@ -938,7 +938,7 @@ skip_check:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j ^= Gv_GetVarX(*insptr++);
                 insptr--;
-                X_DoConditional(j);
+                VM_DoConditional(j);
             }
             continue;
 
@@ -948,7 +948,7 @@ skip_check:
                 int32_t j = Gv_GetVarX(*insptr++);
                 int32_t l = Gv_GetVarX(*insptr++);
                 insptr--;
-                X_DoConditional(j || l);
+                VM_DoConditional(j || l);
             }
             continue;
 
@@ -958,7 +958,7 @@ skip_check:
                 int32_t j = Gv_GetVarX(*insptr++);
                 int32_t l = Gv_GetVarX(*insptr++);
                 insptr--;
-                X_DoConditional(j && l);
+                VM_DoConditional(j && l);
             }
             continue;
 
@@ -968,7 +968,7 @@ skip_check:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j = (j != Gv_GetVarX(*insptr++));
                 insptr--;
-                X_DoConditional(j);
+                VM_DoConditional(j);
             }
             continue;
 
@@ -978,7 +978,7 @@ skip_check:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j = (j == Gv_GetVarX(*insptr++));
                 insptr--;
-                X_DoConditional(j);
+                VM_DoConditional(j);
             }
             continue;
 
@@ -988,7 +988,7 @@ skip_check:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j = (j > Gv_GetVarX(*insptr++));
                 insptr--;
-                X_DoConditional(j);
+                VM_DoConditional(j);
             }
             continue;
 
@@ -998,7 +998,7 @@ skip_check:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j = (j >= Gv_GetVarX(*insptr++));
                 insptr--;
-                X_DoConditional(j);
+                VM_DoConditional(j);
             }
             continue;
 
@@ -1008,7 +1008,7 @@ skip_check:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j = (j < Gv_GetVarX(*insptr++));
                 insptr--;
-                X_DoConditional(j);
+                VM_DoConditional(j);
             }
             continue;
 
@@ -1018,7 +1018,7 @@ skip_check:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j = (j <= Gv_GetVarX(*insptr++));
                 insptr--;
-                X_DoConditional(j);
+                VM_DoConditional(j);
             }
             continue;
 
@@ -1026,7 +1026,7 @@ skip_check:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                X_DoConditional(j == *insptr);
+                VM_DoConditional(j == *insptr);
             }
             continue;
 
@@ -1034,7 +1034,7 @@ skip_check:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                X_DoConditional(j != *insptr);
+                VM_DoConditional(j != *insptr);
             }
             continue;
 
@@ -1046,7 +1046,7 @@ skip_check:
             {
                 insptr=savedinsptr;
                 j = (Gv_GetVarX(*(insptr-1)) != *insptr);
-                X_DoConditional(j);
+                VM_DoConditional(j);
             }
             while (j && !vm.flags);
             vm.flags &= ~VMFLAG_BREAK;
@@ -1061,7 +1061,7 @@ skip_check:
             {
                 insptr=savedinsptr;
                 j = (Gv_GetVarX(*(insptr-1)) < *insptr);
-                X_DoConditional(j);
+                VM_DoConditional(j);
             }
             while (j && !vm.flags);
             vm.flags &= ~VMFLAG_BREAK;
@@ -1078,7 +1078,7 @@ skip_check:
                 j = Gv_GetVarX(*(insptr-1));
                 j = (j != Gv_GetVarX(*insptr++));
                 insptr--;
-                X_DoConditional(j);
+                VM_DoConditional(j);
             }
             while (j && !vm.flags);
             vm.flags &= ~VMFLAG_BREAK;
@@ -1095,7 +1095,7 @@ skip_check:
                 j = Gv_GetVarX(*(insptr-1));
                 j = (j < Gv_GetVarX(*insptr++));
                 insptr--;
-                X_DoConditional(j);
+                VM_DoConditional(j);
             }
             while (j && !vm.flags);
             vm.flags &= ~VMFLAG_BREAK;
@@ -1155,7 +1155,7 @@ skip_check:
                         vm.g_i = jj;
                         vm.g_sp = &sprite[jj];
                         insptr = beg;
-                        X_DoExecute(1);
+                        VM_Execute(1);
                     }
                     break;
                 case ITER_ALLSECTORS:
@@ -1163,7 +1163,7 @@ skip_check:
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;
-                        X_DoExecute(1);
+                        VM_Execute(1);
                     }
                     break;
                 case ITER_ALLWALLS:
@@ -1171,7 +1171,7 @@ skip_check:
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;
-                        X_DoExecute(1);
+                        VM_Execute(1);
                     }
                     break;
                 case ITER_SELSPRITES:
@@ -1185,7 +1185,7 @@ skip_check:
                             vm.g_i = jj;
                             vm.g_sp = &sprite[jj];
                             insptr = beg;
-                            X_DoExecute(1);
+                            VM_Execute(1);
                         }
                     }
                     break;
@@ -1195,7 +1195,7 @@ skip_check:
                         jj=highlightsector[ii];
                         Gv_SetVarX(var, jj);
                         insptr = beg;
-                        X_DoExecute(1);
+                        VM_Execute(1);
                     }
                     break;
                 case ITER_SELWALLS:
@@ -1206,7 +1206,7 @@ skip_check:
                             continue;
                         Gv_SetVarX(var, jj);
                         insptr = beg;
-                        X_DoExecute(1);
+                        VM_Execute(1);
                     }
                     break;
                 case ITER_DRAWNSPRITES:
@@ -1215,7 +1215,7 @@ skip_check:
                         vm.g_sp = &tsprite[ii];
                         Gv_SetVarX(var, ii);
                         insptr = beg;
-                        X_DoExecute(1);
+                        VM_Execute(1);
                     }
                     break;
                 case ITER_SPRITESOFSECTOR:
@@ -1227,7 +1227,7 @@ skip_check:
                         vm.g_i = jj;
                         vm.g_sp = &sprite[jj];
                         insptr = beg;
-                        X_DoExecute(1);
+                        VM_Execute(1);
                     }
                     break;
                 case ITER_WALLSOFSECTOR:
@@ -1238,7 +1238,7 @@ skip_check:
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;
-                        X_DoExecute(1);
+                        VM_Execute(1);
                     }
                     break;
                 case ITER_LOOPOFWALL:
@@ -1249,7 +1249,7 @@ skip_check:
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;
-                        X_DoExecute(1);
+                        VM_Execute(1);
                         jj = wall[jj].point2;
                     }
                     while (jj != parm2 && !vm.flags);
@@ -1259,7 +1259,7 @@ skip_check:
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;
-                        X_DoExecute(1);
+                        VM_Execute(1);
                     }
                     break;
                 default:
@@ -1283,7 +1283,7 @@ badindex:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                X_DoConditional(j & *insptr);
+                VM_DoConditional(j & *insptr);
             }
             continue;
 
@@ -1291,7 +1291,7 @@ badindex:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                X_DoConditional(j | *insptr);
+                VM_DoConditional(j | *insptr);
             }
             continue;
 
@@ -1299,7 +1299,7 @@ badindex:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                X_DoConditional(j ^ *insptr);
+                VM_DoConditional(j ^ *insptr);
             }
             continue;
 
@@ -1307,7 +1307,7 @@ badindex:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                X_DoConditional(j || *insptr);
+                VM_DoConditional(j || *insptr);
             }
             continue;
 
@@ -1315,7 +1315,7 @@ badindex:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                X_DoConditional(j && *insptr);
+                VM_DoConditional(j && *insptr);
             }
             continue;
 
@@ -1323,7 +1323,7 @@ badindex:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                X_DoConditional(j > *insptr);
+                VM_DoConditional(j > *insptr);
             }
             continue;
 
@@ -1331,7 +1331,7 @@ badindex:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                X_DoConditional(j >= *insptr);
+                VM_DoConditional(j >= *insptr);
             }
             continue;
 
@@ -1339,7 +1339,7 @@ badindex:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                X_DoConditional(j < *insptr);
+                VM_DoConditional(j < *insptr);
             }
             continue;
 
@@ -1347,12 +1347,12 @@ badindex:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                X_DoConditional(j <= *insptr);
+                VM_DoConditional(j <= *insptr);
             }
             continue;
 
         case CON_IFRND:
-            X_DoConditional(rnd(Gv_GetVarX(*(++insptr))));
+            VM_DoConditional(rnd(Gv_GetVarX(*(++insptr))));
             continue;
 
         case CON_IFHITKEY:
@@ -1369,7 +1369,7 @@ badindex:
                 }
 
                 if (tw != CON_RESETKEY)
-                    X_DoConditional(keystatus[key]);
+                    VM_DoConditional(keystatus[key]);
                 else
                     insptr++;
 
@@ -1384,22 +1384,22 @@ badindex:
             continue;
 
         case CON_IFEITHERALT:
-            X_DoConditional(keystatus[KEYSC_LALT]||keystatus[KEYSC_RALT]);
+            VM_DoConditional(keystatus[KEYSC_LALT]||keystatus[KEYSC_RALT]);
             continue;
 
         case CON_IFEITHERCTRL:
-            X_DoConditional(keystatus[KEYSC_LCTRL]||keystatus[KEYSC_RCTRL]);
+            VM_DoConditional(keystatus[KEYSC_LCTRL]||keystatus[KEYSC_RCTRL]);
             continue;
 
         case CON_IFEITHERSHIFT:
-            X_DoConditional(keystatus[KEYSC_LSHIFT]||keystatus[KEYSC_RSHIFT]);
+            VM_DoConditional(keystatus[KEYSC_LSHIFT]||keystatus[KEYSC_RSHIFT]);
             continue;
 
 // vvv CURSPR
         case CON_IFSPRITEPAL:
             insptr++;
             X_ERROR_INVALIDSP();
-            X_DoConditional(vm.g_sp->pal == Gv_GetVarX(*insptr));
+            VM_DoConditional(vm.g_sp->pal == Gv_GetVarX(*insptr));
             continue;
 
         case CON_IFANGDIFFL:
@@ -1408,7 +1408,7 @@ badindex:
                 int32_t j;
                 X_ERROR_INVALIDSP();
                 j = klabs(G_GetAngleDelta(ang, vm.g_sp->ang));
-                X_DoConditional(j <= Gv_GetVarX(*insptr));
+                VM_DoConditional(j <= Gv_GetVarX(*insptr));
             }
             continue;
 
@@ -1434,7 +1434,7 @@ badindex:
                     }
                 }
             }
-            X_DoConditional(j);
+            VM_DoConditional(j);
         }
         continue;
 
@@ -1445,24 +1445,24 @@ badindex:
             X_ERROR_INVALIDSP();
             j = cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z/*-((krand()&41)<<8)*/,vm.g_sp->sectnum,
                        pos.x, pos.y, pos.z /*-((krand()&41)<<8)*/, cursectnum);
-            X_DoConditional(j);
+            VM_DoConditional(j);
         }
         continue;
 
         case CON_IFONWATER:
             X_ERROR_INVALIDSP();
-            X_DoConditional(sector[vm.g_sp->sectnum].lotag == 1 && klabs(vm.g_sp->z-sector[vm.g_sp->sectnum].floorz) < (32<<8));
+            VM_DoConditional(sector[vm.g_sp->sectnum].lotag == 1 && klabs(vm.g_sp->z-sector[vm.g_sp->sectnum].floorz) < (32<<8));
             continue;
 
         case CON_IFINWATER:
             X_ERROR_INVALIDSP();
-            X_DoConditional(sector[vm.g_sp->sectnum].lotag == 2);
+            VM_DoConditional(sector[vm.g_sp->sectnum].lotag == 2);
             continue;
 
         case CON_IFACTOR:
             insptr++;
             X_ERROR_INVALIDSP();
-            X_DoConditional(vm.g_sp->picnum == Gv_GetVarX(*insptr));
+            VM_DoConditional(vm.g_sp->picnum == Gv_GetVarX(*insptr));
             continue;
 
         case CON_IFINSIDE:
@@ -1479,20 +1479,20 @@ badindex:
                     continue;
                 }
                 insptr--;
-                X_DoConditional(res);
+                VM_DoConditional(res);
             }
             continue;
 
         case CON_IFOUTSIDE:
             X_ERROR_INVALIDSP();
-            X_DoConditional(sector[vm.g_sp->sectnum].ceilingstat&1);
+            VM_DoConditional(sector[vm.g_sp->sectnum].ceilingstat&1);
             continue;
 
         case CON_IFPDISTL:
             insptr++;
             {
                 X_ERROR_INVALIDSP();
-                X_DoConditional(dist((spritetype *)&pos, vm.g_sp) < Gv_GetVarX(*insptr));
+                VM_DoConditional(dist((spritetype *)&pos, vm.g_sp) < Gv_GetVarX(*insptr));
             }
             continue;
 
@@ -1500,7 +1500,7 @@ badindex:
             insptr++;
             {
                 X_ERROR_INVALIDSP();
-                X_DoConditional(dist((spritetype *)&pos, vm.g_sp) > Gv_GetVarX(*insptr));
+                VM_DoConditional(dist((spritetype *)&pos, vm.g_sp) > Gv_GetVarX(*insptr));
             }
             continue;
 // ^^^
@@ -2582,7 +2582,7 @@ dodefault:
                     insptr++;
                     continue;
                 }
-                X_DoConditional(S_CheckSoundPlaying(vm.g_i,j));
+                VM_DoConditional(S_CheckSoundPlaying(vm.g_i,j));
             }
             continue;
 
@@ -2593,7 +2593,7 @@ dodefault:
                 if (g_sounds[j].SoundOwner[0].i == vm.g_i)
                     break;
 
-            X_DoConditional(j < 0);
+            VM_DoConditional(j < 0);
         }
         continue;
 
@@ -2654,7 +2654,7 @@ dodefault:
             continue;
 
         default:
-            X_ScriptInfo();
+            VM_ScriptInfo();
 
             OSD_Printf("\nAn error has occurred in the Mapster32 virtual machine.\n\n"
                        "Please e-mail the file mapster32.log along with every M32 file\n"

@@ -102,6 +102,9 @@ ifeq (4,$(GCC_MAJOR))
 #        debug += -finline-small-functions -fpredictive-commoning
       endif
     endif
+    ifeq (5,$(GCC_MINOR))
+	debug += -flto
+    endif
   endif
 endif
 
@@ -111,7 +114,7 @@ OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-fjump-tables -fno-stack-protector
 #    -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
-LIBS=-pthread
+LIBS=-pthread -ldl
 ASFLAGS=-s #-g
 EXESUFFIX=
 
@@ -140,7 +143,8 @@ ENGINEOBJS+= \
 	$(OBJ)/osd.$o \
 	$(OBJ)/pragmas.$o \
 	$(OBJ)/scriptfile.$o \
-    $(OBJ)/nedmalloc.$o
+    $(OBJ)/nedmalloc.$o \
+    $(OBJ)/mutex.$o
 
 ifeq (1,$(USE_OPENGL))
 	ENGINEOBJS+=  $(OBJ)/mdsprite.$o
@@ -202,7 +206,7 @@ ifeq ($(RENDERTYPE),SDL)
 	endif
 endif
 ifeq ($(RENDERTYPE),WIN)
-	ENGINEOBJS+= $(OBJ)/winlayer.$o
+	ENGINEOBJS+= $(OBJ)/winlayer.$o $(OBJ)/rawinput.$o
 	EDITOROBJS+= $(OBJ)/startwin.editor.$o
 endif
 

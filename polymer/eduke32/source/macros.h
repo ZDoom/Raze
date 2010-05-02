@@ -171,13 +171,13 @@
 #define SHT  sprite[i].hitag
 #define SECT sprite[i].sectnum
 
-#define T1  ActorExtra[i].temp_data[0]
-#define T2  ActorExtra[i].temp_data[1]
-#define T3  ActorExtra[i].temp_data[2]
-#define T4  ActorExtra[i].temp_data[3]
-#define T5  ActorExtra[i].temp_data[4]
-#define T6  ActorExtra[i].temp_data[5]
-#define T7  ActorExtra[i].temp_data[6]
-#define T8  ActorExtra[i].temp_data[7]
-#define T9  ActorExtra[i].temp_data[8]
+#define T1  actor[i].t_data[0]
+#define T2  actor[i].t_data[1]
+#define T3  actor[i].t_data[2]
+#define T4  actor[i].t_data[3]
+#define T5  actor[i].t_data[4]
+#define T6  actor[i].t_data[5]
+#define T7  actor[i].t_data[6]
+#define T8  actor[i].t_data[7]
+#define T9  actor[i].t_data[8]
 

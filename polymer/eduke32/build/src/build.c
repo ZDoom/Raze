@@ -1108,7 +1108,7 @@ void editinput(void)
                 updatenumsprites();
                 asksave = 1;
 
-                X_OnEvent(EVENT_INSERTSPRITE3D, i);
+                VM_OnEvent(EVENT_INSERTSPRITE3D, i);
             }
 
             keystatus[0x1f] = 0;
@@ -1288,6 +1288,9 @@ void overheadeditor(void)
     keystatus[buildkeys[BK_MODE2D_3D]] = 0;
     while ((keystatus[buildkeys[BK_MODE2D_3D]]>>1) == 0)
     {
+        if ((keystatus[buildkeys[BK_MOVEUP]] || (bstatus&(16|32)) || keystatus[buildkeys[BK_MOVEDOWN]]) == 0)
+            idle_waitevent();
+
         if (handleevents())
         {
             if (quitevent)
@@ -1297,11 +1300,10 @@ void overheadeditor(void)
             }
         }
 
-        idle();
         OSD_DispatchQueued();
 
         if (totalclock < 120*3)
-            printmessage16("Based on BUILD by Ken Silverman.");
+            printmessage16("Uses BUILD technology by Ken Silverman.");
         else if (totalclock < 120*6)
         {
             printmessage16("Press F1 for help.  This is a test release; always keep backups of your maps.");
@@ -1319,6 +1321,7 @@ void overheadeditor(void)
         }
         searchx += mousx;
         searchy += mousy;
+
         if (searchx < 8) searchx = 8;
         if (searchx > xdim-8-1) searchx = xdim-8-1;
         if (searchy < 8) searchy = 8;
@@ -1422,7 +1425,7 @@ void overheadeditor(void)
                  }
 
                  draw2dscreen(pos.x,pos.y,ang,zoom,grid);
-                 X_OnEvent(EVENT_DRAW2DSCREEN, -1);
+                 VM_OnEvent(EVENT_DRAW2DSCREEN, -1);
 
                  begindrawing();	//{{{
                  if (showtags == 1)
@@ -1620,7 +1623,7 @@ void overheadeditor(void)
                  OSD_Draw();
          }
 
-        X_OnEvent(EVENT_PREKEYS2D, -1);
+        VM_OnEvent(EVENT_PREKEYS2D, -1);
         ExtCheckKeys(); // TX 20050101, it makes more sense to have this here so keys can be overwritten with new functions in bstub.c
 
         // Flip/mirror sector Ed Coolidge
@@ -2864,7 +2867,7 @@ SKIP:
 
         if ((keystatus[buildkeys[BK_MOVEUP]] || (bstatus&16)) && (zoom < 65536))
         {
-            zoom += synctics*(zoom>>4);
+            zoom += (synctics>>1)*(zoom>>3);
             if (zoom < 24) zoom += 2;
             if (bstatus&16 && (keystatus[0x38] || keystatus[0xb8]))
             {
@@ -2878,7 +2881,7 @@ SKIP:
         }
         if ((keystatus[buildkeys[BK_MOVEDOWN]] || (bstatus&32)) && (zoom > 8))
         {
-            zoom -= synctics*(zoom>>4);
+            zoom -= (synctics>>1)*(zoom>>3);
             if (bstatus&32 && (keystatus[0x38] || keystatus[0xb8]))
             {
                 searchx = halfxdim16;
@@ -3193,7 +3196,7 @@ SKIP:
                 updatenumsprites();
                 asksave = 1;
 
-                X_OnEvent(EVENT_INSERTSPRITE2D, i);
+                VM_OnEvent(EVENT_INSERTSPRITE2D, i);
             }
 
             keystatus[0x1f] = 0;
@@ -4747,7 +4750,7 @@ CANCEL:
             clearkeys();
         }
 
-        X_OnEvent(EVENT_KEYS2D, -1);
+        VM_OnEvent(EVENT_KEYS2D, -1);
 
         //nextpage();
     }
@@ -4783,7 +4786,7 @@ CANCEL:
     searchx = scale(searchx,xdimgame,xdim2d);
     searchy = scale(searchy,ydimgame,ydim2d-STATUS2DSIZ);
 
-    X_OnEvent(EVENT_ENTER3DMODE, -1);
+    VM_OnEvent(EVENT_ENTER3DMODE, -1);
 }
 
 void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y)
@@ -6142,27 +6145,15 @@ void showsectordata(int16_t sectnum)
     int32_t mode = (sectnum & 16384);
     int32_t color = mode?whitecol:editorcolors[11];
 
-    if (mode)
-    {
-        int32_t i;
-
-        row = 2;
-        begindrawing();
-        col = whitecol - 21;
-        for (i=ydim-(row*96)-STATUS2DSIZ+16; i<ydim-STATUS2DSIZ2-8; i++)
-        {
-            //        drawline256(0, i<<12, xdim<<12, i<<12, col);
-            clearbufbyte((char *)(frameplace + (i*bytesperline) + 4), 192, ((int32_t)col<<24)|((int32_t)col<<16)|((int32_t)col<<8)|col);
-            if (col > 0) col--;
-        }
-        enddrawing();
-        col = 1;
-    }
     sectnum &= ~16384;
 
-    Bsprintf(snotbuf,"^10Sector %d",sectnum);
     if (mode)
-        Bstrcat(snotbuf," ^O(F7 to edit)");
+    {
+        _printmessage16("^10Sector %d ^O(F7 to edit)",sectnum);
+        return;
+    }
+
+    Bsprintf(snotbuf,"^10Sector %d",sectnum);
     printext16(8,ydim-(row*96)-STATUS2DSIZ+32,color,-1,snotbuf,0);
     Bsprintf(snotbuf,"Firstwall: %d",sector[sectnum].wallptr);
     printext16(8,ydim-(row*96)-STATUS2DSIZ+48,color,-1,snotbuf,0);
@@ -6181,9 +6172,7 @@ void showsectordata(int16_t sectnum)
     Bsprintf(snotbuf,"Pixel height: %d",(sector[sectnum].floorz-sector[sectnum].ceilingz)>>8);
     printext16(8,ydim-(row*96)-STATUS2DSIZ+104,color,-1,snotbuf,0);
 
-    if (mode)
-        row--;
-    else col++;
+    col++;
 
     printext16(8+((col-1)*200),ydim-(row*96)-STATUS2DSIZ+32,color,-1,"^10CEILING:^O",0);
     Bsprintf(snotbuf,"Flags (hex): %x",sector[sectnum].ceilingstat);
@@ -6201,9 +6190,7 @@ void showsectordata(int16_t sectnum)
     Bsprintf(snotbuf,"Palookup number: %d",sector[sectnum].ceilingpal);
     printext16(8+((col-1)*200),ydim-(row*96)-STATUS2DSIZ+96,color,-1,snotbuf,0);
 
-    if (mode)
-        row--;
-    else col++;
+    col++;
 
     printext16(8+((col-1)*200),ydim-STATUS2DSIZ+32,color,-1,"^10FLOOR:^O",0);
     Bsprintf(snotbuf,"Flags (hex): %x",sector[sectnum].floorstat);
@@ -6230,27 +6217,15 @@ void showwalldata(int16_t wallnum)
     int32_t mode = (wallnum & 16384);
     int32_t color = mode?whitecol:editorcolors[11];
 
-    if (mode)
-    {
-        int32_t i;
-
-        row = 2;
-        begindrawing();
-        col = whitecol - 21;
-        for (i=ydim-(row*80)-STATUS2DSIZ+16; i<ydim-STATUS2DSIZ2-8; i++)
-        {
-            //        drawline256(0, i<<12, xdim<<12, i<<12, col);
-            clearbufbyte((char *)(frameplace + (i*bytesperline) + 4), 192, ((int32_t)col<<24)|((int32_t)col<<16)|((int32_t)col<<8)|col);
-            if (col > 0) col--;
-        }
-        enddrawing();
-        col = 1;
-    }
-
     wallnum &= ~16384;
 
+    if (mode)
+    {
+        _printmessage16("^10Wall %d ^O(F8 to edit)",wallnum);
+        return;
+    }
+
     Bsprintf(snotbuf,"^10Wall %d",wallnum);
-    if (mode) Bstrcat(snotbuf," ^O(F8 to edit)");
     printext16(8,ydim-(row*80)-STATUS2DSIZ+32,color,-1,snotbuf,0);
     Bsprintf(snotbuf,"X-coordinate: %d",wall[wallnum].x);
     printext16(8,ydim-(row*80)-STATUS2DSIZ+48,color,-1,snotbuf,0);
@@ -6266,9 +6241,7 @@ void showwalldata(int16_t wallnum)
     Bsprintf(snotbuf,"     (0x%x), (0x%x)",wall[wallnum].hitag,wall[wallnum].lotag);
     printext16(8,ydim-(row*80)-STATUS2DSIZ+96,color,-1,snotbuf,0);
 
-    if (mode)
-        row--;
-    else col++;
+    col++;
 
     Bsprintf(snotbuf,"^10%s^O",names[wall[wallnum].picnum]);
     printext16(8+((col-1)*200),ydim-(row*80)-STATUS2DSIZ+32,color,-1,snotbuf,0);
@@ -6287,9 +6260,7 @@ void showwalldata(int16_t wallnum)
     Bsprintf(snotbuf,"OverTile number: %d",wall[wallnum].overpicnum);
     printext16(8+((col-1)*200),ydim-(row*80)-STATUS2DSIZ+96,color,-1,snotbuf,0);
 
-    if (mode)
-        row--;
-    else col++;
+    col++;
 
     Bsprintf(snotbuf,"nextsector: %d",wall[wallnum].nextsector);
     printext16(8+((col-1)*200),ydim-STATUS2DSIZ+48-(mode?16:0),color,-1,snotbuf,0);
@@ -6320,26 +6291,15 @@ void showspritedata(int16_t spritenum)
     int32_t mode = (spritenum & 16384);
     int32_t color = mode?whitecol:editorcolors[11];
 
-    if (mode)
-    {
-        int32_t i;
-
-        row = 2;
-        begindrawing();
-        col = whitecol - 21;
-        for (i=ydim-(row*80)-STATUS2DSIZ+16; i<ydim-STATUS2DSIZ2-8; i++)
-        {
-            //        drawline256(0, i<<12, xdim<<12, i<<12, col);
-            clearbufbyte((char *)(frameplace + (i*bytesperline) + 4), 224, ((int32_t)col<<24)|((int32_t)col<<16)|((int32_t)col<<8)|col);
-            if (col > 0) col--;
-        }
-        enddrawing();
-        col = 1;
-    }
     spritenum &= ~16384;
 
+    if (mode)
+    {
+        _printmessage16("^10Sprite %d ^O(F8 to edit)",spritenum);
+        return;
+    }
+
     Bsprintf(snotbuf,"^10Sprite %d",spritenum);
-    if (mode) Bstrcat(snotbuf," ^O(F8 to edit)");
     printext16(8,ydim-(row*80)-STATUS2DSIZ+32,color,-1,snotbuf,0);
     Bsprintf(snotbuf,"X-coordinate: %d",sprite[spritenum].x);
     printext16(8,ydim-(row*80)-STATUS2DSIZ+48,color,-1,snotbuf,0);
@@ -6358,9 +6318,7 @@ void showspritedata(int16_t spritenum)
     Bsprintf(snotbuf,"     (0x%x), (0x%x)",sprite[spritenum].hitag,sprite[spritenum].lotag);
     printext16(8,ydim-(row*80)-STATUS2DSIZ+104,color,-1,snotbuf,0);
 
-    if (mode)
-        row--;
-    else col++;
+    col++;
 
     Bsprintf(snotbuf,"^10%s^O",names[sprite[spritenum].picnum]);
     printext16(8+((col-1)*200),ydim-(row*72)-STATUS2DSIZ+32,color,-1,snotbuf,0);
@@ -6377,9 +6335,7 @@ void showspritedata(int16_t spritenum)
     Bsprintf(snotbuf,"Tile number: %d",sprite[spritenum].picnum);
     printext16(8+((col-1)*200),ydim-(row*72)-STATUS2DSIZ+88,color,-1,snotbuf,0);
 
-    if (mode)
-        row--;
-    else col++;
+    col++;
 
     Bsprintf(snotbuf,"Angle (2048 degrees): %d",sprite[spritenum].ang);
     printext16(8+((col-1)*200),ydim-STATUS2DSIZ+48,color,-1,snotbuf,0);

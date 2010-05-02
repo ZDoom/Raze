@@ -8,6 +8,7 @@
 #include "baselayer.h"
 #include "cache1d.h"
 #include "pragmas.h"
+#include "scancodes.h"
 
 symbol_t *symbols = NULL;
 static symbol_t *addnewsymbol(const char *name);
@@ -32,13 +33,15 @@ static void _internal_clearbackground(int32_t,int32_t);
 static int32_t _internal_gettime(void);
 static void _internal_onshowosd(int32_t);
 
+static uint32_t osdflags = 0;
+
 // history display
 static char osdtext[TEXTSIZE];
 static char osdfmt[TEXTSIZE];
-static char osdversionstring[32];
-static int32_t  osdversionstringlen;
-static int32_t  osdversionstringshade;
-static int32_t  osdversionstringpal;
+static char osdver[32];
+static int32_t  osdverlen;
+static int32_t  osdvershade;
+static int32_t  osdverpal;
 static int32_t  osdpos=0;           // position next character will be written at
 static int32_t  osdlines=1;         // # lines of text in the buffer
 static int32_t  osdrows=20;         // # lines of the buffer that are visible
@@ -47,25 +50,18 @@ static int32_t  osdscroll=0;
 static int32_t  osdcols=60;         // width of onscreen display in text columns
 static int32_t  osdmaxrows=20;      // maximum number of lines which can fit on the screen
 static int32_t  osdmaxlines=TEXTSIZE/60;    // maximum lines which can fit in the buffer
-static char osdvisible=0;       // onscreen display visible?
-static char osdinput=0;         // capture input?
 static int32_t  osdhead=0;          // topmost visible line number
 static BFILE *osdlog=NULL;      // log filehandle
-static char osdinited=0;        // text buffer initialized?
-static int32_t  osdkey=0x29;                // tilde shows the osd
+static int32_t  osdkey=sc_Tilde;
 static int32_t  keytime=0;
 static int32_t osdscrtime = 0;
 
 // command prompt editing
 #define EDITLENGTH 511
-static int32_t  osdovertype=0;      // insert (0) or overtype (1)
 static char osdeditbuf[EDITLENGTH+1];   // editing buffer
 static char osdedittmp[EDITLENGTH+1];   // editing buffer temporary workspace
 static int32_t  osdeditlen=0;       // length of characters in edit buffer
 static int32_t  osdeditcursor=0;        // position of cursor in edit buffer
-static int32_t  osdeditshift=0;     // shift state
-static int32_t  osdeditcontrol=0;       // control state
-static int32_t  osdeditcaps=0;      // capslock
 static int32_t  osdeditwinstart=0;
 static int32_t  osdeditwinend=60-1-3;
 #define editlinewidth (osdcols-1-3)
@@ -105,7 +101,7 @@ static int32_t  osdcursorpal=0; */
 
 static symbol_t *osdsymbptrs[MAXSYMBOLS];
 static int32_t osdnumsymbols = 0;
-static hashtable_t osdsymbolsH      = { MAXSYMBOLS<<1, NULL };
+static hashtable_t h_osd      = { MAXSYMBOLS<<1, NULL };
 
 // application callbacks
 static void (*drawosdchar)(int32_t, int32_t, char, int32_t, int32_t) = _internal_drawosdchar;
@@ -125,27 +121,24 @@ static int32_t (*_getrowheight)(int32_t) = _internal_getrowheight;
 
 static cvar_t *cvars = NULL;
 static uint32_t osdnumcvars = 0;
-static hashtable_t osdcvarsH      = { MAXSYMBOLS<<1, NULL };
-
-// color code format is as follows:
-// ^## sets a color, where ## is the palette number
-// ^S# sets a shade, range is 0-7 equiv to shades 0-14
-// ^O resets formatting to defaults
+static hashtable_t h_cvars      = { MAXSYMBOLS<<1, NULL };
 
 int32_t OSD_RegisterCvar(const cvar_t *cvar)
 {
     const char *cp;
 
-    if (!osdinited) OSD_Init();
+    if ((osdflags & OSD_INITIALIZED) == 0)
+        OSD_Init();
 
-    if (!cvar->name)
+    if (!cvar->name || !cvar->name[0])
     {
-        OSD_Printf("OSD_RegisterCvar(): may not register a cvar with a null name\n");
+        OSD_Printf("OSD_RegisterCvar(): can't register cvar with null name\n");
         return -1;
     }
-    if (!cvar->name[0])
+
+    if (!cvar->var)
     {
-        OSD_Printf("OSD_RegisterCvar(): may not register a cvar with no name\n");
+        OSD_Printf("OSD_RegisterCvar(): can't register null cvar\n");
         return -1;
     }
 
@@ -167,22 +160,21 @@ int32_t OSD_RegisterCvar(const cvar_t *cvar)
         }
     }
 
-    if (!cvar->var)
-    {
-        OSD_Printf("OSD_RegisterCvar(): may not register a null cvar\n");
-        return -1;
-    }
-
     cvars = Brealloc(cvars, (osdnumcvars + 1) * sizeof(cvar_t));
-    hash_add(&osdcvarsH, cvar->name, osdnumcvars);
+    hash_add(&h_cvars, cvar->name, osdnumcvars);
     Bmemcpy(&cvars[osdnumcvars++], cvar, sizeof(cvar_t));
 
     return 0;
 }
 
-const char *stripcolorcodes(char *out, const char *in)
+// color code format is as follows:
+// ^## sets a color, where ## is the palette number
+// ^S# sets a shade, range is 0-7 equiv to shades 0-14
+// ^O resets formatting to defaults
+
+const char * OSD_StripColors(char *out, const char *in)
 {
-    char *ptr = out;
+    const char *ptr = out;
 
     do
     {
@@ -203,12 +195,12 @@ const char *stripcolorcodes(char *out, const char *in)
             in += 2;
             continue;
         }
-        *(out++) = *(in++);
+        *(out++) = *in;
     }
-    while (*in);
+    while (*(++in));
 
     *out = '\0';
-    return(ptr);
+    return (ptr);
 }
 
 int32_t OSD_Exec(const char *szScript)
@@ -221,7 +213,7 @@ int32_t OSD_Exec(const char *szScript)
 
         OSD_Printf("Executing \"%s\"\n", szScript);
         osdexecscript++;
-        while (fgets(line ,sizeof(line)-1, fp) != NULL)
+        while (fgets(line, sizeof(line)-1, fp) != NULL)
             OSD_Dispatch(strtok(line,"\r\n"));
         osdexecscript--;
         fclose(fp);
@@ -240,17 +232,17 @@ int32_t OSD_OSDKey(void)
     return osdkey;
 }
 
-char *OSD_GetTextPtr(void)
+char * OSD_GetTextPtr(void)
 {
     return (&osdtext[0]);
 }
 
-char *OSD_GetFmtPtr(void)
+char * OSD_GetFmtPtr(void)
 {
     return (&osdfmt[0]);
 }
 
-char *OSD_GetFmt(char *ptr)
+char * OSD_GetFmt(char *ptr)
 {
     return (ptr - &osdtext[0] + &osdfmt[0]);
 }
@@ -308,7 +300,6 @@ static int32_t _internal_osdfunc_exec(const osdfuncparm_t *parm)
 
 static void _internal_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
 {
-    int32_t i,j,k;
     char st[2] = { 0,0 };
 
     UNREFERENCED_PARAMETER(shade);
@@ -316,23 +307,11 @@ static void _internal_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, 
 
     st[0] = ch;
 
-    if (white<0)
-    {
-        // find the palette index closest to white
-        k=0;
-        for (i=0; i<256; i++)
-        {
-            j = ((int32_t)curpalette[i].r)+((int32_t)curpalette[i].g)+((int32_t)curpalette[i].b);
-            if (j > k) { k = j; white = i; }
-        }
-    }
-
     printext256(4+(x<<3),4+(y<<3), white, -1, st, 0);
 }
 
 static void _internal_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade, int32_t pal)
 {
-    int32_t i,j,k;
     char st[1024];
 
     UNREFERENCED_PARAMETER(shade);
@@ -342,8 +321,25 @@ static void _internal_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, in
     Bmemcpy(st,ch,len);
     st[len]=0;
 
-    if (white<0)
+    printext256(4+(x<<3),4+(y<<3), white, -1, st, 0);
+}
+
+static void _internal_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress)
+{
+    char st[2] = { '_',0 };
+
+    UNREFERENCED_PARAMETER(lastkeypress);
+
+    if (type) st[0] = '#';
+
+    if (white > -1)
     {
+        printext256(4+(x<<3),4+(y<<3)+2, white, -1, st, 0);
+        return;
+    }
+
+    {
+        int32_t i, j, k;
         // find the palette index closest to white
         k=0;
         for (i=0; i<256; i++)
@@ -353,30 +349,6 @@ static void _internal_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, in
         }
     }
 
-    printext256(4+(x<<3),4+(y<<3), white, -1, st, 0);
-}
-
-static void _internal_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress)
-{
-    int32_t i,j,k;
-    char st[2] = { '_',0 };
-
-    UNREFERENCED_PARAMETER(lastkeypress);
-
-    if (type) st[0] = '#';
-
-    if (white<0)
-    {
-        // find the palette index closest to white
-        k=0;
-        for (i=0; i<256; i++)
-        {
-            j = ((int32_t)palette[i*3])+((int32_t)palette[i*3+1])+((int32_t)palette[i*3+2]);
-            if (j > k) { k = j; white = i; }
-        }
-    }
-
-    printext256(4+(x<<3),4+(y<<3)+2, white, -1, st, 0);
 }
 
 static int32_t _internal_getcolumnwidth(int32_t w)
@@ -416,7 +388,7 @@ static int32_t _internal_osdfunc_alias(const osdfuncparm_t *parm)
         int32_t j = 0;
         OSD_Printf("Alias listing:\n");
         for (i=symbols; i!=NULL; i=i->next)
-            if (i->func == (void *)OSD_ALIAS)
+            if (i->func == OSD_ALIAS)
             {
                 j++;
                 OSD_Printf("     %s \"%s\"\n", i->name, i->help);
@@ -432,12 +404,12 @@ static int32_t _internal_osdfunc_alias(const osdfuncparm_t *parm)
         {
             if (parm->numparms < 2)
             {
-                if (i->func == (void *)OSD_ALIAS)
+                if (i->func == OSD_ALIAS)
                     OSD_Printf("alias %s \"%s\"\n", i->name, i->help);
                 else OSD_Printf("%s is a function, not an alias\n",i->name);
                 return OSDCMD_OK;
             }
-            if (i->func != (void *)OSD_ALIAS && i->func != (void *)OSD_UNALIASED)
+            if (i->func != OSD_ALIAS && i->func != OSD_UNALIASED)
             {
                 OSD_Printf("Cannot override function \"%s\" with alias\n",i->name);
                 return OSDCMD_OK;
@@ -445,7 +417,7 @@ static int32_t _internal_osdfunc_alias(const osdfuncparm_t *parm)
         }
     }
 
-    OSD_RegisterFunction(Bstrdup(parm->parms[0]),Bstrdup(parm->parms[1]),(void *)OSD_ALIAS);
+    OSD_RegisterFunction(Bstrdup(parm->parms[0]),Bstrdup(parm->parms[1]),OSD_ALIAS);
     if (!osdexecscript)
         OSD_Printf("%s\n",parm->raw);
     return OSDCMD_OK;
@@ -464,10 +436,10 @@ static int32_t _internal_osdfunc_unalias(const osdfuncparm_t *parm)
         {
             if (parm->numparms < 2)
             {
-                if (i->func == (void *)OSD_ALIAS)
+                if (i->func == OSD_ALIAS)
                 {
                     OSD_Printf("Removed alias %s (\"%s\")\n", i->name, i->help);
-                    i->func = (void *)OSD_UNALIASED;
+                    i->func = OSD_UNALIASED;
                 }
                 else OSD_Printf("Invalid alias %s\n",i->name);
                 return OSDCMD_OK;
@@ -486,7 +458,7 @@ static int32_t _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
     UNREFERENCED_PARAMETER(parm);
 
     for (i=symbols; i!=NULL; i=i->next)
-        if (i->func != (void *)OSD_UNALIASED)
+        if (i->func != OSD_UNALIASED)
             maxwidth = max((unsigned)maxwidth,Bstrlen(i->name));
 
     if (maxwidth > 0)
@@ -496,7 +468,7 @@ static int32_t _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
         OSD_Printf(OSDTEXT_RED "Symbol listing:\n");
         for (i=symbols; i!=NULL; i=i->next)
         {
-            if (i->func != (void *)OSD_UNALIASED)
+            if (i->func != OSD_UNALIASED)
             {
                 OSD_Printf("%-*s",maxwidth,i->name);
                 x += maxwidth;
@@ -562,8 +534,8 @@ void OSD_Cleanup(void)
 {
     symbol_t *s;
 
-    hash_free(&osdsymbolsH);
-    hash_free(&osdcvarsH);
+    hash_free(&h_osd);
+    hash_free(&h_cvars);
 
     for (; symbols; symbols=s)
     {
@@ -580,7 +552,7 @@ void OSD_Cleanup(void)
         cvars = NULL;
     }
 
-    osdinited=0;
+    osdflags &= ~OSD_INITIALIZED;
 }
 
 
@@ -613,32 +585,35 @@ void OSD_Init(void)
     uint32_t i;
     cvar_t cvars_osd[] =
     {
-        { "osdeditpal","osdeditpal: sets the palette of the OSD input text",(void *)&osdeditpal, CVAR_INT, 0, 0, MAXPALOOKUPS-1 },
-        { "osdpromptpal","osdpromptpal: sets the palette of the OSD prompt",(void *)&osdpromptpal, CVAR_INT, 0, 0, MAXPALOOKUPS-1 },
-        { "osdtextpal","osdtextpal: sets the palette of the OSD text",(void *)&osdtextpal, CVAR_INT, 0, 0, MAXPALOOKUPS-1 },
-        { "osdeditshade","osdeditshade: sets the shade of the OSD input text",(void *)&osdeditshade, CVAR_INT, 0, 0, 7 },
-        { "osdtextshade","osdtextshade: sets the shade of the OSD text",(void *)&osdtextshade, CVAR_INT, 0, 0, 7 },
-        { "osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",(void *)&osdpromptshade, CVAR_INT, 0, -128, 127 },
-        { "osdrows","osdrows: sets the number of visible lines of the OSD",(void *)&osdrows, CVAR_INT|CVAR_FUNCPTR, 0, 0, MAXPALOOKUPS-1 },
-        { "osdtextmode","osdtextmode: set OSD text mode (0:graphical, 1:fast)",(void *)&osdtextmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 0, 1 },
-        { "logcutoff","logcutoff: sets the maximal line count of the log file",(void *)&logcutoff, CVAR_INT, 0, 0, 262144 },
+        { "osdeditpal","osdeditpal: sets the palette of the OSD input text",(void *)&osdeditpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
+        { "osdpromptpal","osdpromptpal: sets the palette of the OSD prompt",(void *)&osdpromptpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
+        { "osdtextpal","osdtextpal: sets the palette of the OSD text",(void *)&osdtextpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
+        { "osdeditshade","osdeditshade: sets the shade of the OSD input text",(void *)&osdeditshade, CVAR_INT, 0, 7 },
+        { "osdtextshade","osdtextshade: sets the shade of the OSD text",(void *)&osdtextshade, CVAR_INT, 0, 7 },
+        { "osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",(void *)&osdpromptshade, CVAR_INT, -128, 127 },
+        { "osdrows","osdrows: sets the number of visible lines of the OSD",(void *)&osdrows, CVAR_INT|CVAR_FUNCPTR, 0, MAXPALOOKUPS-1 },
+        { "osdtextmode","osdtextmode: set OSD text mode (0:graphical, 1:fast)",(void *)&osdtextmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
+        { "logcutoff","logcutoff: sets the maximal line count of the log file",(void *)&logcutoff, CVAR_INT, 0, 262144 },
     };
 
-    Bmemset(osdtext, 32, TEXTSIZE);
+    Bmemset(osdtext, asc_Space, TEXTSIZE);
     Bmemset(osdfmt, osdtextpal+(osdtextshade<<5), TEXTSIZE);
     Bmemset(osdsymbptrs, 0, sizeof(osdsymbptrs));
 
     osdnumsymbols = osdnumcvars = 0;
-    osdlines = osdinited = 1;
+    osdlines = 1;
+    osdflags |= OSD_INITIALIZED;
 
-    hash_init(&osdsymbolsH);
-    hash_init(&osdcvarsH);
+    hash_init(&h_osd);
+    hash_init(&h_cvars);
 
     for (i=0; i<sizeof(cvars_osd)/sizeof(cvars_osd[0]); i++)
     {
-        OSD_RegisterCvar(&cvars_osd[i]);
-        if (cvars_osd[i].type & CVAR_FUNCPTR) OSD_RegisterFunction(cvars_osd[i].name, cvars_osd[i].helpstr, osdcmd_cvar_set_osd);
-        else OSD_RegisterFunction(cvars_osd[i].name, cvars_osd[i].helpstr, osdcmd_cvar_set);
+        if (OSD_RegisterCvar(&cvars_osd[i]))
+            continue;
+
+        OSD_RegisterFunction(cvars_osd[i].name, cvars_osd[i].helpstr,
+            cvars_osd[i].type & CVAR_FUNCPTR ? osdcmd_cvar_set_osd : osdcmd_cvar_set);
     }
 
     OSD_RegisterFunction("alias","alias: creates an alias for calling multiple commands",_internal_osdfunc_alias);
@@ -646,8 +621,8 @@ void OSD_Init(void)
     OSD_RegisterFunction("exec","exec <scriptfile>: executes a script", _internal_osdfunc_exec);
     OSD_RegisterFunction("help","help: displays help for the specified cvar or command; \"listsymbols\" to show all commands",_internal_osdfunc_help);
     OSD_RegisterFunction("history","history: displays the console command history",_internal_osdfunc_history);
-    OSD_RegisterFunction("listsymbols","listsymbols: lists all the recognized symbols",_internal_osdfunc_listsymbols);
-    OSD_RegisterFunction("unalias","unalias: removes an alias created with \"alias\"",_internal_osdfunc_unalias);
+    OSD_RegisterFunction("listsymbols","listsymbols: lists all registered functions and cvars",_internal_osdfunc_listsymbols);
+    OSD_RegisterFunction("unalias","unalias: removes a command alias",_internal_osdfunc_unalias);
 
     atexit(OSD_Cleanup);
 }
@@ -739,32 +714,33 @@ static int32_t OSD_FindDiffPoint(const char *str1, const char *str2)
     return i;
 }
 
-//
-// OSD_HandleKey() -- Handles keyboard input when capturing input.
-//  Returns 0 if the key was handled internally, or the scancode if it should
-//  be passed on to the game.
-//
-
 static void OSD_HistoryPrev(void)
 {
     if (osdhistorypos >= osdhistorysize-1) return;
 
     osdhistorypos++;
     Bmemcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
-    osdeditlen = osdeditcursor = 0;
-    while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
+
+    osdeditcursor = 0;
+    while (osdeditbuf[osdeditcursor]) osdeditcursor++;
+    osdeditlen = osdeditcursor;
+
     if (osdeditcursor<osdeditwinstart)
     {
         osdeditwinend = osdeditcursor;
         osdeditwinstart = osdeditwinend-editlinewidth;
 
         if (osdeditwinstart<0)
-            osdeditwinend-=osdeditwinstart,
-                           osdeditwinstart=0;
+        {
+            osdeditwinend-=osdeditwinstart;
+            osdeditwinstart=0;
+        }
     }
     else if (osdeditcursor>=osdeditwinend)
-        osdeditwinstart+=(osdeditcursor-osdeditwinend),
-                         osdeditwinend+=(osdeditcursor-osdeditwinend);
+    {
+        osdeditwinstart+=(osdeditcursor-osdeditwinend);
+        osdeditwinend+=(osdeditcursor-osdeditwinend);
+    }
 }
 
 static void OSD_HistoryNext(void)
@@ -783,21 +759,34 @@ static void OSD_HistoryNext(void)
 
     osdhistorypos--;
     Bmemcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
-    osdeditlen = osdeditcursor = 0;
-    while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
+
+    osdeditcursor = 0;
+    while (osdeditbuf[osdeditcursor]) osdeditcursor++;
+    osdeditlen = osdeditcursor;
+
     if (osdeditcursor<osdeditwinstart)
     {
         osdeditwinend = osdeditcursor;
         osdeditwinstart = osdeditwinend-editlinewidth;
 
         if (osdeditwinstart<0)
-            osdeditwinend-=osdeditwinstart,
-                           osdeditwinstart=0;
+        {
+            osdeditwinend-=osdeditwinstart;
+            osdeditwinstart=0;
+        }
     }
     else if (osdeditcursor>=osdeditwinend)
-        osdeditwinstart+=(osdeditcursor-osdeditwinend),
-                         osdeditwinend+=(osdeditcursor-osdeditwinend);
+    {
+        osdeditwinstart+=(osdeditcursor-osdeditwinend);
+        osdeditwinend+=(osdeditcursor-osdeditwinend);
+    }
 }
+
+//
+// OSD_HandleKey() -- Handles keyboard input when capturing input.
+//  Returns 0 if the key was handled internally, or the scancode if it should
+//  be passed on to the game.
+//
 
 int32_t OSD_HandleChar(char ch)
 {
@@ -805,21 +794,23 @@ int32_t OSD_HandleChar(char ch)
     symbol_t *tabc = NULL;
     static symbol_t *lastmatch = NULL;
 
-    if (!osdinited || !osdinput) return ch;
+    if ((osdflags & (OSD_INITIALIZED|OSD_CAPTURE)) != (OSD_INITIALIZED|OSD_CAPTURE))
+        return ch;
 
-    if (ch != 9) lastmatch = NULL;      // tab
-    if (ch == 1)    // control a. jump to beginning of line
+    if (ch != 9)    // tab
+        lastmatch = NULL;
+
+    switch (ch)
     {
+    case 1:    // control a. jump to beginning of line
         osdeditcursor=0;
         osdeditwinstart=0;
         osdeditwinend=editlinewidth;
-    }
-    else if (ch == 2)   // control b, move one character left
-    {
+        return 0;
+    case 2:   // control b, move one character left
         if (osdeditcursor > 0) osdeditcursor--;
-    }
-    else if (ch == 3)   // control c
-    {
+        return 0;
+    case 3:   // control c
         osdeditbuf[osdeditlen] = 0;
         OSD_Printf("%s\n",osdeditbuf);
         osdeditlen=0;
@@ -827,9 +818,8 @@ int32_t OSD_HandleChar(char ch)
         osdeditwinstart=0;
         osdeditwinend=editlinewidth;
         osdeditbuf[0] = 0;
-    }
-    else if (ch == 5)   // control e, jump to end of line
-    {
+        return 0;
+    case 5:   // control e, jump to end of line
         osdeditcursor = osdeditlen;
         osdeditwinend = osdeditcursor;
         osdeditwinstart = osdeditwinend-editlinewidth;
@@ -838,15 +828,14 @@ int32_t OSD_HandleChar(char ch)
             osdeditwinstart=0;
             osdeditwinend = editlinewidth;
         }
-    }
-    else if (ch == 6)   // control f, move one character right
-    {
+        return 0;
+    case 6:   // control f, move one character right
         if (osdeditcursor < osdeditlen) osdeditcursor++;
-    }
-    else if (ch == 8 || ch == 127)      // control h, backspace
-    {
+        return 0;
+    case 8:
+    case 127:      // control h, backspace
         if (!osdeditcursor || !osdeditlen) return 0;
-        if (!osdovertype)
+        if ((osdflags & OSD_OVERTYPE) == 0)
         {
             if (osdeditcursor < osdeditlen)
                 Bmemmove(osdeditbuf+osdeditcursor-1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
@@ -854,105 +843,103 @@ int32_t OSD_HandleChar(char ch)
         }
         osdeditcursor--;
         if (osdeditcursor<osdeditwinstart) osdeditwinstart--,osdeditwinend--;
-    }
-    else if (ch == 9)   // tab
-    {
-        int32_t commonsize = 512;
-
-        if (!lastmatch)
+        return 0;
+    case 9:   // tab
         {
-            for (i=osdeditcursor; i>0; i--) if (osdeditbuf[i-1] == ' ') break;
-            for (j=0; osdeditbuf[i] != ' ' && i < osdeditlen; j++,i++)
-                osdedittmp[j] = osdeditbuf[i];
-            osdedittmp[j] = 0;
+            int32_t commonsize = 512;
 
-            if (j > 0)
+            if (!lastmatch)
             {
-                tabc = findsymbol(osdedittmp, NULL);
+                for (i=osdeditcursor; i>0; i--) if (osdeditbuf[i-1] == ' ') break;
+                for (j=0; osdeditbuf[i] != ' ' && i < osdeditlen; j++,i++)
+                    osdedittmp[j] = osdeditbuf[i];
+                osdedittmp[j] = 0;
 
-                if (tabc && tabc->next && findsymbol(osdedittmp, tabc->next))
+                if (j > 0)
                 {
-                    symbol_t *symb=tabc;
-                    int32_t maxwidth = 0, x = 0, num = 0, diffpt;
+                    tabc = findsymbol(osdedittmp, NULL);
 
-                    while (symb && symb != lastmatch)
+                    if (tabc && tabc->next && findsymbol(osdedittmp, tabc->next))
                     {
-                        num++;
+                        symbol_t *symb=tabc;
+                        int32_t maxwidth = 0, x = 0, num = 0, diffpt;
 
-                        if (lastmatch)
+                        while (symb && symb != lastmatch)
                         {
-                            diffpt = OSD_FindDiffPoint(symb->name,lastmatch->name);
-                            if (diffpt < commonsize)
-                                commonsize = diffpt;
-                        }
+                            num++;
 
-                        maxwidth = max((unsigned)maxwidth,Bstrlen(symb->name));
-                        lastmatch = symb;
-                        if (!lastmatch->next) break;
-                        symb=findsymbol(osdedittmp, lastmatch->next);
-                    }
-                    OSD_Printf(OSDTEXT_RED "Found %d possible completions for '%s':\n",num,osdedittmp);
-                    maxwidth += 3;
-                    symb = tabc;
-                    OSD_Printf("  ");
-                    while (symb && (symb != lastmatch))
-                    {
-                        tabc = lastmatch = symb;
-                        OSD_Printf("%-*s",maxwidth,symb->name);
-                        if (!lastmatch->next) break;
-                        symb=findsymbol(osdedittmp, lastmatch->next);
-                        x += maxwidth;
-                        if (x > (osdcols - maxwidth))
-                        {
-                            x = 0;
-                            OSD_Printf("\n");
-                            if (symb && (symb != lastmatch))
-                                OSD_Printf("  ");
+                            if (lastmatch)
+                            {
+                                diffpt = OSD_FindDiffPoint(symb->name,lastmatch->name);
+                                if (diffpt < commonsize)
+                                    commonsize = diffpt;
+                            }
+
+                            maxwidth = max((unsigned)maxwidth,Bstrlen(symb->name));
+                            lastmatch = symb;
+                            if (!lastmatch->next) break;
+                            symb=findsymbol(osdedittmp, lastmatch->next);
                         }
+                        OSD_Printf(OSDTEXT_RED "Found %d possible completions for '%s':\n",num,osdedittmp);
+                        maxwidth += 3;
+                        symb = tabc;
+                        OSD_Printf("  ");
+                        while (symb && (symb != lastmatch))
+                        {
+                            tabc = lastmatch = symb;
+                            OSD_Printf("%-*s",maxwidth,symb->name);
+                            if (!lastmatch->next) break;
+                            symb=findsymbol(osdedittmp, lastmatch->next);
+                            x += maxwidth;
+                            if (x > (osdcols - maxwidth))
+                            {
+                                x = 0;
+                                OSD_Printf("\n");
+                                if (symb && (symb != lastmatch))
+                                    OSD_Printf("  ");
+                            }
+                        }
+                        if (x) OSD_Printf("\n");
+                        OSD_Printf(OSDTEXT_RED "Press TAB again to cycle through matches\n");
                     }
-                    if (x) OSD_Printf("\n");
-                    OSD_Printf(OSDTEXT_RED "Press TAB again to cycle through matches\n");
                 }
             }
-        }
-        else
-        {
-            tabc = findsymbol(osdedittmp, lastmatch->next);
-            if (!tabc && lastmatch)
-                tabc = findsymbol(osdedittmp, NULL);    // wrap */
-        }
-
-        if (tabc)
-        {
-            for (i=osdeditcursor; i>0; i--) if (osdeditbuf[i-1] == ' ') break;
-            osdeditlen = i;
-            for (j=0; tabc->name[j] && osdeditlen <= EDITLENGTH
-                    && (osdeditlen < commonsize); i++,j++,osdeditlen++)
-                osdeditbuf[i] = tabc->name[j];
-            osdeditcursor = osdeditlen;
-            osdeditwinend = osdeditcursor;
-            osdeditwinstart = osdeditwinend-editlinewidth;
-            if (osdeditwinstart<0)
+            else
             {
-                osdeditwinstart=0;
-                osdeditwinend = editlinewidth;
+                tabc = findsymbol(osdedittmp, lastmatch->next);
+                if (!tabc && lastmatch)
+                    tabc = findsymbol(osdedittmp, NULL);    // wrap */
             }
 
-            lastmatch = tabc;
+            if (tabc)
+            {
+                for (i=osdeditcursor; i>0; i--) if (osdeditbuf[i-1] == ' ') break;
+                osdeditlen = i;
+                for (j=0; tabc->name[j] && osdeditlen <= EDITLENGTH
+                    && (osdeditlen < commonsize); i++,j++,osdeditlen++)
+                    osdeditbuf[i] = tabc->name[j];
+                osdeditcursor = osdeditlen;
+                osdeditwinend = osdeditcursor;
+                osdeditwinstart = osdeditwinend-editlinewidth;
+                if (osdeditwinstart<0)
+                {
+                    osdeditwinstart=0;
+                    osdeditwinend = editlinewidth;
+                }
+
+                lastmatch = tabc;
+            }
         }
-    }
-    else if (ch == 11)      // control k, delete all to end of line
-    {
+        return 0;
+    case 11:      // control k, delete all to end of line
         Bmemset(osdeditbuf+osdeditcursor,0,sizeof(osdeditbuf)-osdeditcursor);
-    }
-    else if (ch == 12)      // control l, clear screen
-    {
+        return 0;
+    case 12:      // control l, clear screen
         Bmemset(osdtext,0,sizeof(osdtext));
         Bmemset(osdfmt,osdtextpal+(osdtextshade<<5),sizeof(osdfmt));
         osdlines = 1;
-    }
-    else if (ch == 13)      // control m, enter
-    {
+        return 0;
+    case 13:      // control m, enter
         if (osdeditlen>0)
         {
             osdeditbuf[osdeditlen] = 0;
@@ -964,7 +951,7 @@ int32_t OSD_HandleChar(char ch)
                 osdhistorytotal++;
                 if (osdexeccount == HISTORYDEPTH)
                     OSD_Printf("Command Buffer Warning: Failed queueing command "
-                               "for execution. Buffer full.\n");
+                    "for execution. Buffer full.\n");
                 else
                     osdexeccount++;
             }
@@ -972,7 +959,7 @@ int32_t OSD_HandleChar(char ch)
             {
                 if (osdexeccount == HISTORYDEPTH)
                     OSD_Printf("Command Buffer Warning: Failed queueing command "
-                               "for execution. Buffer full.\n");
+                    "for execution. Buffer full.\n");
                 else
                     osdexeccount++;
             }
@@ -983,20 +970,14 @@ int32_t OSD_HandleChar(char ch)
         osdeditcursor=0;
         osdeditwinstart=0;
         osdeditwinend=editlinewidth;
-    }
-    else if (ch == 14)      // control n, next (ie. down arrow)
-    {
+        return 0;
+    case 14:      // control n, next (ie. down arrow)
         OSD_HistoryNext();
-    }
-    else if (ch == 16)      // control p, previous (ie. up arrow)
-    {
+        return 0;
+    case 16:      // control p, previous (ie. up arrow)
         OSD_HistoryPrev();
-    }
-    else if (ch == 20)      // control t, swap previous two chars
-    {
-    }
-    else if (ch == 21)      // control u, delete all to beginning
-    {
+        return 0;
+    case 21:      // control u, delete all to beginning
         if (osdeditcursor>0 && osdeditlen)
         {
             if (osdeditcursor<osdeditlen)
@@ -1006,14 +987,13 @@ int32_t OSD_HandleChar(char ch)
             osdeditwinstart = 0;
             osdeditwinend = editlinewidth;
         }
-    }
-    else if (ch == 23)      // control w, delete one word back
-    {
+        return 0;
+    case 23:      // control w, delete one word back
         if (osdeditcursor>0 && osdeditlen>0)
         {
             i=osdeditcursor;
-            while (i>0 && osdeditbuf[i-1]==32) i--;
-            while (i>0 && osdeditbuf[i-1]!=32) i--;
+            while (i>0 && osdeditbuf[i-1]==asc_Space) i--;
+            while (i>0 && osdeditbuf[i-1]!=asc_Space) i--;
             if (osdeditcursor<osdeditlen)
                 Bmemmove(osdeditbuf+i, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
             osdeditlen -= (osdeditcursor-i);
@@ -1024,33 +1004,35 @@ int32_t OSD_HandleChar(char ch)
                 osdeditwinend=osdeditwinstart+editlinewidth;
             }
         }
-    }
-    else if (ch >= 32)      // text char
-    {
-        if (!osdovertype && osdeditlen == EDITLENGTH)   // buffer full, can't insert another char
-            return 0;
-
-        if (!osdovertype)
+        return 0;
+    default:
+        if (ch >= asc_Space)      // text char
         {
-            if (osdeditcursor < osdeditlen)
-                Bmemmove(osdeditbuf+osdeditcursor+1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
-            osdeditlen++;
-        }
-        else
-        {
-            if (osdeditcursor == osdeditlen)
+            if ((osdflags & OSD_OVERTYPE) == 0)
+            {
+                if (osdeditlen == EDITLENGTH) // buffer full, can't insert another char
+                    return 0;
+                if (osdeditcursor < osdeditlen)
+                    Bmemmove(osdeditbuf+osdeditcursor+1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
                 osdeditlen++;
+            }
+            else if (osdeditcursor == osdeditlen)
+                osdeditlen++;
+
+            osdeditbuf[osdeditcursor++] = ch;
+
+            if (osdeditcursor > osdeditwinend)
+                osdeditwinstart++, osdeditwinend++;
         }
-        osdeditbuf[osdeditcursor] = ch;
-        osdeditcursor++;
-        if (osdeditcursor>osdeditwinend) osdeditwinstart++,osdeditwinend++;
+        return 0;
     }
     return 0;
 }
 
 int32_t OSD_HandleScanCode(int32_t sc, int32_t press)
 {
-    if (!osdinited) return sc;
+    if ((osdflags & OSD_INITIALIZED) == 0)
+        return sc;
 
     if (sc == osdkey)
     {
@@ -1065,64 +1047,52 @@ int32_t OSD_HandleScanCode(int32_t sc, int32_t press)
             OSD_CaptureInput(osdscroll == 1);
             osdscrtime = getticks();
         }
-        return 0;//sc;
+        return 0;
     }
-    else if (!osdinput)
-    {
+    else if ((osdflags & OSD_CAPTURE) == 0)
         return sc;
-    }
 
     if (!press)
     {
-        if (sc == 42 || sc == 54) // shift
-            osdeditshift = 0;
-        if (sc == 29 || sc == 157)  // control
-            osdeditcontrol = 0;
-        return 0;//sc;
+        if (sc == sc_LeftShift || sc == sc_RightShift)
+            osdflags &= ~OSD_SHIFT;
+        if (sc == sc_LeftControl || sc == sc_RightControl)
+            osdflags &= ~OSD_CTRL;
+        return 0;
     }
 
     keytime = gettime();
 
-    if (sc == 15)       // tab
+    switch (sc)
     {
-    }
-    else if (sc == 1)       // escape
-    {
+    case sc_Escape:
         //        OSD_ShowDisplay(0);
         osdscroll = -1;
-        osdrowscur += osdscroll;
+        osdrowscur--;
         OSD_CaptureInput(0);
         osdscrtime = getticks();
-    }
-    else if (sc == 201)     // page up
-    {
+        break;
+    case sc_PgUp:
         if (osdhead < osdlines-1)
             osdhead++;
-    }
-    else if (sc == 209)     // page down
-    {
+        break;
+    case sc_PgDn:
         if (osdhead > 0)
             osdhead--;
-    }
-    else if (sc == 199)     // home
-    {
-        if (osdeditcontrol)
-        {
+        break;
+    case sc_Home:
+        if (osdflags & OSD_CTRL)
             osdhead = osdlines-1;
-        }
         else
         {
             osdeditcursor = 0;
             osdeditwinstart = osdeditcursor;
             osdeditwinend = osdeditwinstart+editlinewidth;
         }
-    }
-    else if (sc == 207)     // end
-    {
-        if (osdeditcontrol)
-        {
+        break;
+    case sc_End:
+        if (osdflags & OSD_CTRL)
             osdhead = 0;
-        }
         else
         {
             osdeditcursor = osdeditlen;
@@ -1134,90 +1104,87 @@ int32_t OSD_HandleScanCode(int32_t sc, int32_t press)
                 osdeditwinend = editlinewidth;
             }
         }
-    }
-    else if (sc == 210)     // insert
-    {
-        osdovertype ^= 1;
-    }
-    else if (sc == 203)     // left
-    {
+        break;
+    case sc_Insert:
+        osdflags = (osdflags & ~OSD_OVERTYPE) | (-((osdflags & OSD_OVERTYPE) == 0) & OSD_OVERTYPE);
+        break;
+    case sc_LeftArrow:
         if (osdeditcursor>0)
         {
-            if (osdeditcontrol)
+            if (osdflags & OSD_CTRL)
             {
                 while (osdeditcursor>0)
                 {
-                    if (osdeditbuf[osdeditcursor-1] != 32) break;
+                    if (osdeditbuf[osdeditcursor-1] != asc_Space)
+                        break;
                     osdeditcursor--;
                 }
                 while (osdeditcursor>0)
                 {
-                    if (osdeditbuf[osdeditcursor-1] == 32) break;
+                    if (osdeditbuf[osdeditcursor-1] == asc_Space)
+                        break;
                     osdeditcursor--;
                 }
             }
             else osdeditcursor--;
         }
         if (osdeditcursor<osdeditwinstart)
-            osdeditwinend-=(osdeditwinstart-osdeditcursor),
-                           osdeditwinstart-=(osdeditwinstart-osdeditcursor);
-    }
-    else if (sc == 205)     // right
-    {
+        {
+            osdeditwinend-=(osdeditwinstart-osdeditcursor);
+            osdeditwinstart-=(osdeditwinstart-osdeditcursor);
+        }
+        break;
+    case sc_RightArrow:
         if (osdeditcursor<osdeditlen)
         {
-            if (osdeditcontrol)
+            if (osdflags & OSD_CTRL)
             {
                 while (osdeditcursor<osdeditlen)
                 {
-                    if (osdeditbuf[osdeditcursor] == 32) break;
+                    if (osdeditbuf[osdeditcursor] == asc_Space)
+                        break;
                     osdeditcursor++;
                 }
                 while (osdeditcursor<osdeditlen)
                 {
-                    if (osdeditbuf[osdeditcursor] != 32) break;
+                    if (osdeditbuf[osdeditcursor] != asc_Space)
+                        break;
                     osdeditcursor++;
                 }
             }
             else osdeditcursor++;
         }
         if (osdeditcursor>=osdeditwinend)
-            osdeditwinstart+=(osdeditcursor-osdeditwinend),
-                             osdeditwinend+=(osdeditcursor-osdeditwinend);
-    }
-    else if (sc == 200)     // up
-    {
+        {
+            osdeditwinstart+=(osdeditcursor-osdeditwinend);
+            osdeditwinend+=(osdeditcursor-osdeditwinend);
+        }
+        break;
+    case sc_UpArrow:
         OSD_HistoryPrev();
-    }
-    else if (sc == 208)     // down
-    {
+        break;
+    case sc_DownArrow:
         OSD_HistoryNext();
-    }
-    else if (sc == 42 || sc == 54)      // shift
-    {
-        osdeditshift = 1;
-    }
-    else if (sc == 29 || sc == 157)     // control
-    {
-        osdeditcontrol = 1;
-    }
-    else if (sc == 58)      // capslock
-    {
-        osdeditcaps ^= 1;
-    }
-    else if (sc == 28 || sc == 156)     // enter
-    {
-    }
-    else if (sc == 14)          // backspace
-    {
-    }
-    else if (sc == 211)     // delete
-    {
-        if (osdeditcursor == osdeditlen || !osdeditlen) return 0;
-        if (osdeditcursor <= osdeditlen-1) Bmemmove(osdeditbuf+osdeditcursor, osdeditbuf+osdeditcursor+1, osdeditlen-osdeditcursor-1);
+        break;
+    case sc_LeftShift:
+    case sc_RightShift:
+        osdflags |= OSD_SHIFT;
+        break;
+    case sc_LeftControl:
+    case sc_RightControl:
+        osdflags |= OSD_CTRL;
+        break;
+    case sc_CapsLock:
+        osdflags = (osdflags & ~OSD_CAPS) | (-((osdflags & OSD_CAPS) == 0) & OSD_CAPS);
+        break;
+    case sc_Delete:
+        if (osdeditcursor == osdeditlen || !osdeditlen)
+            return 0;
+        if (osdeditcursor <= osdeditlen-1)
+            Bmemmove(osdeditbuf+osdeditcursor, osdeditbuf+osdeditcursor+1, osdeditlen-osdeditcursor-1);
         osdeditlen--;
+        break;
     }
-
     return 0;
 }
 
@@ -1240,7 +1207,7 @@ void OSD_ResizeDisplay(int32_t w, int32_t h)
     j = min(newmaxlines, osdmaxlines);
     k = min(newcols, osdcols);
 
-    memset(newtext, 32, TEXTSIZE);
+    Bmemset(newtext, asc_Space, TEXTSIZE);
     for (i=j-1; i>=0; i--)
     {
         Bmemcpy(newtext+newcols*i, osdtext+osdcols*i, k);
@@ -1268,23 +1235,25 @@ void OSD_ResizeDisplay(int32_t w, int32_t h)
 //
 void OSD_CaptureInput(int32_t cap)
 {
-    osdinput = (cap != 0);
-    osdeditcontrol = 0;
-    osdeditshift = 0;
+    osdflags = (osdflags & ~(OSD_CAPTURE|OSD_CTRL|OSD_SHIFT)) | (-cap & OSD_CAPTURE);
 
-    grabmouse(osdinput == 0);
-    onshowosd(osdinput);
-    if (osdinput) releaseallbuttons();
+    grabmouse(cap == 0);
+    onshowosd(cap);
+
+    if (cap)
+        releaseallbuttons();
+
     bflushchars();
 }
+
 
 //
 // OSD_ShowDisplay() -- Shows or hides the onscreen display
 //
 void OSD_ShowDisplay(int32_t onf)
 {
-    osdvisible = (onf != 0);
-    OSD_CaptureInput(osdvisible);
+    osdflags = (osdflags & ~OSD_DRAW) | (-onf & OSD_DRAW);
+    OSD_CaptureInput(onf);
 }
 
 
@@ -1297,10 +1266,11 @@ void OSD_Draw(void)
     uint32_t topoffs;
     int32_t row, lines, x, len;
 
-    if (!osdinited) return;
+    if ((osdflags & OSD_INITIALIZED) == 0)
+        return;
 
     if (osdrowscur == 0)
-        OSD_ShowDisplay(osdvisible ^ 1);
+        OSD_ShowDisplay(osdflags & OSD_DRAW ? 0 : 1);
 
     if (osdrowscur == osdrows)
         osdscroll = 0;
@@ -1333,7 +1303,7 @@ void OSD_Draw(void)
         osdscrtime = getticks();
     }
 
-    if (!osdvisible || !osdrowscur) return;
+    if ((osdflags & OSD_DRAW) == 0 || !osdrowscur) return;
 
     topoffs = osdhead * osdcols;
     row = osdrowscur-1;
@@ -1343,8 +1313,8 @@ void OSD_Draw(void)
 
     clearbackground(osdcols,osdrowscur+1);
 
-    if (osdversionstring[0])
-        drawosdstr(osdcols-osdversionstringlen,osdrowscur,osdversionstring,osdversionstringlen,(sintable[(totalclock<<4)&2047]>>11),osdversionstringpal);
+    if (osdver[0])
+        drawosdstr(osdcols-osdverlen,osdrowscur,osdver,osdverlen,(sintable[(totalclock<<4)&2047]>>11),osdverpal);
 
     for (; lines>0; lines--, row--)
     {
@@ -1353,13 +1323,13 @@ void OSD_Draw(void)
     }
 
     {
-        int32_t offset = (osdeditcaps && osdeditshift && osdhead > 0);
+        int32_t offset = ((osdflags & (OSD_CAPS|OSD_SHIFT)) == (OSD_CAPS|OSD_SHIFT) && osdhead > 0);
         int32_t shade = osdpromptshade?osdpromptshade:(sintable[(totalclock<<4)&2047]>>11);
 
         if (osdhead == osdlines-1) drawosdchar(0,osdrowscur,'~',shade,osdpromptpal);
         else if (osdhead > 0) drawosdchar(0,osdrowscur,'^',shade,osdpromptpal);
-        if (osdeditcaps) drawosdchar(0+(osdhead > 0),osdrowscur,'C',shade,osdpromptpal);
-        if (osdeditshift) drawosdchar(1+(osdeditcaps && osdhead > 0),osdrowscur,'H',shade,osdpromptpal);
+        if (osdflags & OSD_CAPS) drawosdchar(0+(osdhead > 0),osdrowscur,'C',shade,osdpromptpal);
+        if (osdflags & OSD_SHIFT) drawosdchar(1+(osdflags & OSD_CAPS && osdhead > 0),osdrowscur,'H',shade,osdpromptpal);
 
         drawosdchar(2+offset,osdrowscur,'>',shade,osdpromptpal);
 
@@ -1367,7 +1337,7 @@ void OSD_Draw(void)
         for (x=len-1; x>=0; x--)
             drawosdchar(3+x+offset,osdrowscur,osdeditbuf[osdeditwinstart+x],osdeditshade<<1,osdeditpal);
 
-        drawosdcursor(3+osdeditcursor-osdeditwinstart+offset,osdrowscur,osdovertype,keytime);
+        drawosdcursor(3+osdeditcursor-osdeditwinstart+offset,osdrowscur,osdflags & OSD_OVERTYPE,keytime);
     }
 
     enddrawing();
@@ -1379,10 +1349,10 @@ void OSD_Draw(void)
 //   and write it to the log file
 //
 
-static inline void linefeed(void)
+static inline void OSD_LineFeed(void)
 {
     Bmemmove(osdtext+osdcols, osdtext, TEXTSIZE-osdcols);
-    Bmemset(osdtext, 32, osdcols);
+    Bmemset(osdtext, asc_Space, osdcols);
     Bmemmove(osdfmt+osdcols, osdfmt, TEXTSIZE-osdcols);
     Bmemset(osdfmt, osdtextpal, osdcols);
     if (osdlines < osdmaxlines) osdlines++;
@@ -1394,7 +1364,8 @@ void OSD_Printf(const char *fmt, ...)
     char *chp, p=osdtextpal, s=osdtextshade;
     va_list va;
 
-    if (!osdinited) OSD_Init();
+    if ((osdflags & OSD_INITIALIZED) == 0)
+        OSD_Init();
 
     va_start(va, fmt);
     Bvsnprintf(tmpstr, 8192, fmt, va);
@@ -1415,7 +1386,7 @@ void OSD_Printf(const char *fmt, ...)
         if (osdlog&&(!logcutoff||linecnt<logcutoff))
         {
             chp = Bstrdup(tmpstr);
-            Bfputs(stripcolorcodes(chp,tmpstr), osdlog);
+            Bfputs(OSD_StripColors(chp,tmpstr), osdlog);
             Bfree(chp);
         }
     }
@@ -1432,7 +1403,7 @@ void OSD_Printf(const char *fmt, ...)
         {
             osdpos=0;
             linecnt++;
-            linefeed();
+            OSD_LineFeed();
             continue;
         }
         if (*chp == '\r')
@@ -1478,7 +1449,7 @@ void OSD_Printf(const char *fmt, ...)
         if (osdpos == osdcols)
         {
             osdpos = 0;
-            linefeed();
+            OSD_LineFeed();
         }
     }
     while (*(++chp));
@@ -1648,9 +1619,9 @@ int32_t OSD_Dispatch(const char *cmd)
         ofp.numparms = numparms;
         ofp.parms    = (const char **)parms;
         ofp.raw      = cmd;
-        if (symb->func == (void *)OSD_ALIAS)
+        if (symb->func == OSD_ALIAS)
             OSD_Dispatch(symb->help);
-        else if (symb->func != (void *)OSD_UNALIASED)
+        else if (symb->func != OSD_UNALIASED)
         {
             switch (symb->func(&ofp))
             {
@@ -1680,7 +1651,8 @@ int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)
     symbol_t *symb;
     const char *cp;
 
-    if (!osdinited) OSD_Init();
+    if ((osdflags & OSD_INITIALIZED) == 0)
+        OSD_Init();
 
     if (!name)
     {
@@ -1721,7 +1693,7 @@ int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)
     symb = findexactsymbol(name);
     if (symb) // allow this now for reusing an alias name
     {
-        if (symb->func != (void *)OSD_ALIAS && symb->func != (void *)OSD_UNALIASED)
+        if (symb->func != OSD_ALIAS && symb->func != OSD_UNALIASED)
         {
             OSD_Printf("OSD_RegisterFunction(): \"%s\" is already defined\n", name);
             return -1;
@@ -1749,14 +1721,12 @@ int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)
 //
 // OSD_SetVersionString()
 //
-void OSD_SetVersionString(const char *version, int32_t shade, int32_t pal)
+void OSD_SetVersion(const char *version, int32_t shade, int32_t pal)
 {
-//    if (!osdinited) OSD_Init();
-
-    Bstrcpy(osdversionstring,version);
-    osdversionstringlen = Bstrlen(osdversionstring);
-    osdversionstringshade = shade;
-    osdversionstringpal = pal;
+    Bstrcpy(osdver,version);
+    osdverlen = Bstrlen(osdver);
+    osdvershade = shade;
+    osdverpal = pal;
 }
 
 //
@@ -1767,7 +1737,6 @@ void OSD_SetVersionString(const char *version, int32_t shade, int32_t pal)
 static symbol_t *addnewsymbol(const char *name)
 {
     symbol_t *newsymb, *s, *t;
-    char *lname;
 
     if (osdnumsymbols >= MAXSYMBOLS) return NULL;
     newsymb = (symbol_t *)Bmalloc(sizeof(symbol_t));
@@ -1800,10 +1769,10 @@ static symbol_t *addnewsymbol(const char *name)
             newsymb->next = t;
         }
     }
-    hash_add(&osdsymbolsH, name, osdnumsymbols);
-    lname = strtolower(Bstrdup(name),Bstrlen(name));
-    hash_add(&osdsymbolsH, lname, osdnumsymbols);
-    Bfree(lname);
+    hash_add(&h_osd, name, osdnumsymbols);
+    name = strtolower(Bstrdup(name), Bstrlen(name));
+    hash_add(&h_osd, name, osdnumsymbols);
+    Bfree((void *)name);
     osdsymbptrs[osdnumsymbols++] = newsymb;
     return newsymb;
 }
@@ -1818,7 +1787,7 @@ static symbol_t *findsymbol(const char *name, symbol_t *startingat)
     if (!startingat) return NULL;
 
     for (; startingat; startingat=startingat->next)
-        if (startingat->func != (void *)OSD_UNALIASED && !Bstrncasecmp(name, startingat->name, Bstrlen(name))) return startingat;
+        if (startingat->func != OSD_UNALIASED && !Bstrncasecmp(name, startingat->name, Bstrlen(name))) return startingat;
 
     return NULL;
 }
@@ -1832,10 +1801,10 @@ static symbol_t *findexactsymbol(const char *name)
     char *lname = Bstrdup(name);
     if (!symbols) return NULL;
 
-    i = hash_find(&osdsymbolsH,lname);
+    i = hash_find(&h_osd,lname);
     if (i > -1)
     {
-//        if ((symbol_t *)osdsymbptrs[i]->func == (void *)OSD_UNALIASED)
+//        if ((symbol_t *)osdsymbptrs[i]->func == OSD_UNALIASED)
 //            return NULL;
         Bfree(lname);
         return osdsymbptrs[i];
@@ -1843,7 +1812,7 @@ static symbol_t *findexactsymbol(const char *name)
 
     // try it again
     lname = strtolower(lname, Bstrlen(name));
-    i = hash_find(&osdsymbolsH,lname);
+    i = hash_find(&h_osd,lname);
     Bfree(lname);
 
     if (i > -1)
@@ -1856,8 +1825,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
     int32_t showval = (parm->numparms == 0);
     int32_t i;
 
-    i = hash_find(&osdcvarsH, parm->name);
-
+    i = hash_find(&h_cvars, parm->name);
 
     if (i < 0)
         for (i = osdnumcvars-1; i >= 0; i--)
@@ -1948,8 +1916,8 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
                 return OSDCMD_OK;
             }
 
-            Bstrncpy((char*)cvars[i].var, parm->parms[0], cvars[i].extra-1);
-            ((char*)cvars[i].var)[cvars[i].extra-1] = 0;
+            Bstrncpy((char*)cvars[i].var, parm->parms[0], cvars[i].max-1);
+            ((char*)cvars[i].var)[cvars[i].max-1] = 0;
             if (!OSD_ParsingScript())
                 OSD_Printf("%s %s",cvars[i].name,(char*)cvars[i].var);
         }
@@ -1969,30 +1937,30 @@ void OSD_WriteCvars(FILE *fp)
 {
     uint32_t i;
 
-    if (fp)
+    if (!fp)
+        return;
+
+    for (i=0; i<osdnumcvars; i++)
     {
-        for (i=0; i<osdnumcvars; i++)
+        if (!(cvars[i].type & CVAR_NOSAVE))
+            switch (cvars[i].type&(CVAR_FLOAT|CVAR_DOUBLE|CVAR_INT|CVAR_UINT|CVAR_BOOL|CVAR_STRING))
         {
-            if (!(cvars[i].type & CVAR_NOSAVE))
-                switch (cvars[i].type&(CVAR_FLOAT|CVAR_DOUBLE|CVAR_INT|CVAR_UINT|CVAR_BOOL|CVAR_STRING))
-                {
-                case CVAR_FLOAT:
-                    fprintf(fp,"%s \"%f\"\n",cvars[i].name,*(float*)cvars[i].var);
-                    break;
-                case CVAR_DOUBLE:
-                    fprintf(fp,"%s \"%f\"\n",cvars[i].name,*(double*)cvars[i].var);
-                    break;
-                case CVAR_INT:
-                case CVAR_UINT:
-                case CVAR_BOOL:
-                    fprintf(fp,"%s \"%d\"\n",cvars[i].name,*(int32_t *)cvars[i].var);
-                    break;
-                case CVAR_STRING:
-                    fprintf(fp,"%s \"%s\"\n",cvars[i].name,(char*)cvars[i].var);
-                    break;
-                default:
-                    break;
-                }
+            case CVAR_FLOAT:
+                fprintf(fp,"%s \"%f\"\n",cvars[i].name,*(float*)cvars[i].var);
+                break;
+            case CVAR_DOUBLE:
+                fprintf(fp,"%s \"%f\"\n",cvars[i].name,*(double*)cvars[i].var);
+                break;
+            case CVAR_INT:
+            case CVAR_UINT:
+            case CVAR_BOOL:
+                fprintf(fp,"%s \"%d\"\n",cvars[i].name,*(int32_t *)cvars[i].var);
+                break;
+            case CVAR_STRING:
+                fprintf(fp,"%s \"%s\"\n",cvars[i].name,(char*)cvars[i].var);
+                break;
+            default:
+                break;
         }
     }
 }

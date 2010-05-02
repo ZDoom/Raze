@@ -41,7 +41,7 @@ extern int32_t S_PlaySound(int32_t num);
 extern int32_t A_PlaySound(uint32_t num,int32_t i);
 extern void S_StopSound(int32_t num);
 extern void S_StopEnvSound(int32_t num,int32_t i);
-extern void S_Pan3D(void);
+extern void S_Update(void);
 extern void S_Callback(uint32_t num);
 extern void S_ClearSoundLocks(void);
 extern int32_t A_CallSound(int32_t sn,int32_t whatsprite);
@@ -110,7 +110,7 @@ extern void ChangeToMenu(int32_t cm);
 extern int32_t G_LoadPlayer(int32_t spot);
 extern int32_t G_SavePlayer(int32_t spot);
 extern int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits);
-#define menutext(x,y,s,p,t) menutext_(x,y,s,p,(char *)stripcolorcodes(menutextbuf,t),10+16)
+#define menutext(x,y,s,p,t) menutext_(x,y,s,p,(char *)OSD_StripColors(menutextbuf,t),10+16)
 extern void M_DisplayMenus(void);
 extern void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e);
 extern void G_PlayAnim(const char *fn,char);
@@ -238,7 +238,7 @@ extern void C_ReportError(int32_t iError);
 
 extern void onvideomodechange(int32_t newmode);
 
-extern void X_OnEvent(register int32_t iEventID, register int32_t sActor, register int32_t sPlayer, register int32_t lDist);
+extern void VM_OnEvent(register int32_t iEventID, register int32_t sActor, register int32_t sPlayer, register int32_t lDist);
 
 extern int32_t A_CheckSoundPlaying(int32_t i, int32_t num);
 extern int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
@@ -254,7 +254,7 @@ extern void Net_Connect(const char * srvaddr);
 
 extern int32_t SpriteFlags[MAXTILES];
 
-#define A_CheckSpriteFlags(iActor, iType) (((SpriteFlags[sprite[iActor].picnum]^ActorExtra[iActor].flags) & iType) != 0)
+#define A_CheckSpriteFlags(iActor, iType) (((SpriteFlags[sprite[iActor].picnum]^actor[iActor].flags) & iType) != 0)
 #define A_CheckSpriteTileFlags(iPicnum, iType) ((SpriteFlags[iPicnum] & iType) != 0)
 
 static inline int32_t G_GetTeamPalette(int32_t team)

@@ -22,7 +22,7 @@ char scantoasc[128] =
 };
 
 #ifdef USE_OPENGL
-struct glinfo glinfo =
+struct glinfo_t glinfo =
 {
     "Unknown",  // vendor
     "Unknown",  // renderer
@@ -230,17 +230,19 @@ int32_t baselayer_init(void)
     cvar_t cvars_engine[] =
     {
 #ifdef SUPERBUILD
-        { "r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",(void *)&novoxmips, CVAR_BOOL, 0, 0, 1 },
-        { "r_voxels","r_voxels: enable/disable automatic sprite->voxel rendering",(void *)&usevoxels, CVAR_BOOL, 0, 0, 1 },
-        { "r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars, CVAR_FUNCPTR, 0, 0, 0 },
+        { "r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",(void *)&novoxmips, CVAR_BOOL, 0, 1 },
+        { "r_voxels","r_voxels: enable/disable automatic sprite->voxel rendering",(void *)&usevoxels, CVAR_BOOL, 0, 1 },
+        { "r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars, CVAR_FUNCPTR, 0, 0 },
 #endif
     };
 
     for (i=0; i<sizeof(cvars_engine)/sizeof(cvars_engine[0]); i++)
     {
-        OSD_RegisterCvar(&cvars_engine[i]);
-        if (cvars_engine[i].type == CVAR_FUNCPTR) OSD_RegisterFunction(cvars_engine[i].name, cvars_engine[i].helpstr, cvars_engine[i].var);
-        else OSD_RegisterFunction(cvars_engine[i].name, cvars_engine[i].helpstr, osdcmd_cvar_set);
+        if (OSD_RegisterCvar(&cvars_engine[i]))
+            continue;
+
+        OSD_RegisterFunction(cvars_engine[i].name, cvars_engine[i].helpstr,
+            cvars_engine[i].type == CVAR_FUNCPTR ? cvars_engine[i].var : osdcmd_cvar_set);
     }
 
 #ifdef POLYMOST

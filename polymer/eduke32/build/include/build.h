@@ -158,8 +158,7 @@ typedef struct
 typedef struct {
     uint32_t mdanimtims;
     int16_t mdanimcur;
-    int16_t angoff;
-    int16_t pitch, roll;
+    int16_t angoff, pitch, roll;
     int32_t xoff, yoff, zoff;
     uint8_t flags;
     uint8_t xpanning, ypanning;

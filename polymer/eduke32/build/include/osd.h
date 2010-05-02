@@ -24,20 +24,20 @@ typedef struct _symbol
 
 symbol_t *symbols;
 
-const char *stripcolorcodes(char *out, const char *in);
+const char *OSD_StripColors(char *out, const char *in);
 
-enum cvartypes
+enum cvartype_t
 {
-    CVAR_FLOAT = 1,
-    CVAR_INT = 2,
-    CVAR_UINT = 4,
-    CVAR_BOOL = 8,
-    CVAR_STRING = 16,
-    CVAR_DOUBLE = 32,
-    CVAR_NOMULTI = 128,
-    CVAR_MULTI = 256,
-    CVAR_NOSAVE = 512,
-    CVAR_FUNCPTR = 1024,
+    CVAR_FLOAT   = 0x00000001,
+    CVAR_INT     = 0x00000002,
+    CVAR_UINT    = 0x00000004,
+    CVAR_BOOL    = 0x00000008,
+    CVAR_STRING  = 0x00000010,
+    CVAR_DOUBLE  = 0x00000020,
+    CVAR_NOMULTI = 0x00000040,
+    CVAR_MULTI   = 0x00000080,
+    CVAR_NOSAVE  = 0x00000100,
+    CVAR_FUNCPTR = 0x00000200,
 };
 
 typedef struct
@@ -45,15 +45,24 @@ typedef struct
     char *name;
     char *helpstr;
     void *var;
-    int32_t type;       // 0 = integer, 1 = unsigned integer, 2 = boolean, 3 = string, |128 = not in multiplayer, |256 = update multi
-    int32_t extra;      // for string, is the length
+    int32_t type;       // see cvartype_t
     int32_t min;
-    int32_t max;
+    int32_t max; // for string, is the length
 } cvar_t;
 
+enum osdflags_t 
+{
+    OSD_INITIALIZED = 0x00000001,
+    OSD_DRAW        = 0x00000002,
+    OSD_CAPTURE     = 0x00000004,
+    OSD_OVERTYPE    = 0x00000008,
+    OSD_SHIFT       = 0x00000010,
+    OSD_CTRL        = 0x00000020,
+    OSD_CAPS        = 0x00000040
+};
 
-#define OSD_ALIAS 1337
-#define OSD_UNALIASED 1338
+#define OSD_ALIAS     (void *)0x1337
+#define OSD_UNALIASED (void *)0xDEAD
 
 #define OSDCMD_OK	0
 #define OSDCMD_SHOWHELP 1
@@ -112,7 +121,7 @@ void OSD_ResizeDisplay(int32_t w,int32_t h);
 void OSD_CaptureInput(int32_t cap);
 
 // sets the console version string
-void OSD_SetVersionString(const char *version, int32_t shade, int32_t pal);
+void OSD_SetVersion(const char *version, int32_t shade, int32_t pal);
 
 // shows or hides the onscreen display
 void OSD_ShowDisplay(int32_t onf);
@@ -143,19 +152,19 @@ void OSD_WriteCvars(FILE *fp);
 // these correspond to the Duke palettes, so they shouldn't really be here
 // ...but I don't care
 
-#define OSDTEXT_BLUE "^00"
-#define OSDTEXT_GOLD "^07"
-#define OSDTEXT_DARKRED "^10"
-#define OSDTEXT_GREEN "^11"
-#define OSDTEXT_GRAY "^12"
-#define OSDTEXT_DARKGRAY "^13"
+#define OSDTEXT_BLUE      "^00"
+#define OSDTEXT_GOLD      "^07"
+#define OSDTEXT_DARKRED   "^10"
+#define OSDTEXT_GREEN     "^11"
+#define OSDTEXT_GRAY      "^12"
+#define OSDTEXT_DARKGRAY  "^13"
 #define OSDTEXT_DARKGREEN "^14"
-#define OSDTEXT_BROWN "^15"
-#define OSDTEXT_DARKBLUE "^16"
-#define OSDTEXT_RED "^21"
-#define OSDTEXT_YELLOW "^23"
+#define OSDTEXT_BROWN     "^15"
+#define OSDTEXT_DARKBLUE  "^16"
+#define OSDTEXT_RED       "^21"
+#define OSDTEXT_YELLOW    "^23"
 
-#define OSDTEXT_BRIGHT "^S0"
+#define OSDTEXT_BRIGHT    "^S0"
 
 #define OSD_ERROR OSDTEXT_DARKRED OSDTEXT_BRIGHT
 #define TEXTSIZE 32768

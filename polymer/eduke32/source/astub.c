@@ -4326,7 +4326,7 @@ static void Keys3d(void)
     if (g_numsounds > 0 && AmbienceToggle)
     {
         M32_MoveFX();
-        S_Pan3D();
+        S_Update();
     }
 
     if (usedcount && !helpon)
@@ -4476,7 +4476,7 @@ static void Keys3d(void)
         enddrawing();
     }
 
-    X_OnEvent(EVENT_PREKEYS3D, -1);
+    VM_OnEvent(EVENT_PREKEYS3D, -1);
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_V]) // ' V
     {
@@ -7084,7 +7084,7 @@ static void Keys3d(void)
         }
     }
 
-    X_OnEvent(EVENT_KEYS3D, -1);
+    VM_OnEvent(EVENT_KEYS3D, -1);
 }// end 3d
 
 static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
@@ -7237,7 +7237,7 @@ static void Keys2d(void)
     if (keystatus[KEYSC_TAB])  //TAB
     {
         if (cursectornum >= 0)
-            showsectordata((int16_t)i+16384);
+            showsectordata((int16_t)i);
     }
     else if (!(keystatus[KEYSC_F5]|keystatus[KEYSC_F6]|keystatus[KEYSC_F7]|keystatus[KEYSC_F8]))
     {
@@ -7252,7 +7252,7 @@ static void Keys2d(void)
         olinehighlight = linehighlight;
         ocursectornum = cursectornum;
 
-        if (counter >= 40)
+        if (counter >= 40 && totalclock >= 120*6)
         {
             if (pointhighlight >= 16384)
             {
@@ -7329,7 +7329,7 @@ static void Keys2d(void)
         keystatus[0x14] = 0;
         if (keystatus[0x1d]|keystatus[0x9d])  //Ctrl-T
         {
-            extern int16_t showtags;
+            extern int32_t showtags;
 
             showtags ^= 1;
             if (showtags == 0)
@@ -8276,7 +8276,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 
 int32_t ExtPreInit(int32_t argc,const char **argv)
 {
-    wm_setapptitle("Mapster32"VERSION BUILDDATE);
+    wm_setapptitle("Mapster32");
 
 #ifdef _WIN32
     tempbuf[GetModuleFileName(NULL,tempbuf,BMAX_PATH)] = 0;
@@ -8285,7 +8285,7 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
 #endif
 
     OSD_SetLogFile("mapster32.log");
-    OSD_SetVersionString("Mapster32"VERSION,0,2);
+    OSD_SetVersion("Mapster32"VERSION,0,2);
     initprintf("Mapster32"VERSION BUILDDATE"\n");
     //    initprintf("Copyright (c) 2008 EDuke32 team\n");
 
@@ -8657,7 +8657,7 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
 
         insptr = script + tscrofs;
         Bmemcpy(&vm, &vm_default, sizeof(vmstate_t));
-        X_DoExecute(0);
+        VM_Execute(0);
 //        asksave = 1; // handled in Access(Sprite|Sector|Wall)
     }
 
@@ -8697,11 +8697,11 @@ static int32_t osdcmd_endisableevent(const osdfuncparm_t *parm)
         if (isdigit(parm->parms[i][0]))
             j = atoi(parm->parms[i]);
         else if (!Bstrncmp(parm->parms[i], "EVENT_", 6))
-            j = hash_find(&labelH, parm->parms[i]);
+            j = hash_find(&h_labels, parm->parms[i]);
         else
         {
             Bstrncat(buf, parm->parms[i], sizeof(buf)-6-1);
-            j = hash_find(&labelH, buf);
+            j = hash_find(&h_labels, buf);
         }
 
         if (j>=0 && j<MAXEVENTS)
@@ -10340,7 +10340,7 @@ void ExtAnalyzeSprites(void)
         }
     }
 
-    X_OnEvent(EVENT_ANALYZESPRITES, -1);
+    VM_OnEvent(EVENT_ANALYZESPRITES, -1);
 }
 
 #define MESSAGEX 3 // (xdimgame>>1)

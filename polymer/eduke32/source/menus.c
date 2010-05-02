@@ -562,7 +562,7 @@ void M_DisplayMenus(void)
         return;
     }
     if (apScriptGameEvent[EVENT_DISPLAYMENU])
-        X_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, -1);
+        VM_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, -1);
 
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
     g_player[myconnectindex].ps->fta = 0;
@@ -837,11 +837,11 @@ void M_DisplayMenus(void)
             }
             else
             {
-                // because stripcolorcodes needs a valid target and tempbuf is used in G_EnterText()
+                // because OSD_StripColors needs a valid target and tempbuf is used in G_EnterText()
                 char dummybuf[64];
                 x = G_EnterText(d-50,37,buf,30,0);
 
-                while (Bstrlen(stripcolorcodes(dummybuf,buf)) > 10)
+                while (Bstrlen(OSD_StripColors(dummybuf,buf)) > 10)
                 {
                     buf[Bstrlen(buf)-1] = '\0';
                     inputloc--;
@@ -2962,7 +2962,7 @@ cheat_for_port_credits:
                     int32_t osdmode = OSD_GetTextMode();
                     if (x==io) osdmode = !osdmode;
                     modval(0,1,(int32_t *)&osdmode,1,probey==io);
-                    mgametextpal(d,yy, osdmode? "Plain" : "Sprites", MENUHIGHLIGHT(io), 0);
+                    mgametextpal(d,yy, osdmode? "Monochrome" : "Sprites", MENUHIGHLIGHT(io), 0);
                     if (OSD_GetTextMode() != osdmode)
                         OSD_SetTextMode(osdmode);
                     break;
@@ -5370,7 +5370,7 @@ VOLUME_ALL_40x:
         break;
     }
     if (apScriptGameEvent[EVENT_DISPLAYMENUREST])
-        X_OnEvent(EVENT_DISPLAYMENUREST, g_player[myconnectindex].ps->i, myconnectindex, -1);
+        VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[myconnectindex].ps->i, myconnectindex, -1);
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU)
     {
