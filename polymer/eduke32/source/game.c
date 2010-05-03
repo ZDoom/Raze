@@ -11178,7 +11178,7 @@ void app_main(int32_t argc,const char **argv)
     Bstrcpy(tempbuf, APPNAME);
     wm_setapptitle(tempbuf);
 
-    initprintf("%s\n",apptitle);
+    initprintf(HEAD2 " %s\n", s_buildDate);
 //    initprintf("Compiled %s\n",datetimestring);
 //    initprintf("Copyright (c) 1996, 2003 3D Realms Entertainment\n");
 //    initprintf("Copyright (c) 2008 EDuke32 team and contributors\n");
