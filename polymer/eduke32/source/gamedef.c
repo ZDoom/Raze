@@ -5662,12 +5662,11 @@ repeatcase:
             if (otw == CON_BREAK)
             {
                 C_ReportError(-1);
-                initprintf("%s:%d: error: duplicate `break'.\n",g_szScriptFileName, g_lineNumber);
-                g_numCompilerErrors++;
+                initprintf("%s:%d: warning: duplicate `break'.\n",g_szScriptFileName, g_lineNumber);
+                g_numCompilerWarnings++;
+                g_scriptPtr--;
+                return 0;
             }
-
-            //Bsprintf(g_szBuf,"  * (L%d) case Break statement.\n",g_lineNumber);
-            //AddLog(g_szBuf);
             return 1;
         }
         return 0;
