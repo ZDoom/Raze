@@ -14,11 +14,16 @@ static int8_t MWheel = 0;
 
 extern volatile uint8_t moustat, mousegrab;
 extern uint32_t mousewheel[2];
+extern void SetKey(int32_t key, int32_t state);
 
 #define MASK_DOWN (1<<(i<<1))
 #define MASK_UP (MASK_DOWN<<1)
 
 #define MouseWheelFakePressTime 50
+
+#ifndef GET_RAWINPUT_CODE_WPARAM
+#define GET_RAWINPUT_CODE_WPARAM(wParam)    ((wParam) & 0xff)
+#endif
 
 void RI_ProcessMouse(const RAWMOUSE* rmouse)
 {

@@ -114,7 +114,7 @@ OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-fjump-tables -fno-stack-protector
 #    -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
-LIBS=-pthread -ldl
+LIBS=
 ASFLAGS=-s #-g
 EXESUFFIX=
 
@@ -124,6 +124,11 @@ ENGINEOBJS=
 ifeq (0,$(NOASM))
   ENGINEOBJS+= $(OBJ)/a.$o
 endif
+
+ifneq ($(PLATFORM),WINDOWS)
+    LIBS+= -ldl -pthread
+endif
+
 
 ENGINEOBJS+= \
 	$(OBJ)/a-c.$o \

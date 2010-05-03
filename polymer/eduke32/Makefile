@@ -92,23 +92,24 @@ OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-fjump-tables -fno-stack-protector
 #        -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
 OURCXXFLAGS=-fno-exceptions -fno-rtti
-LIBS=-lm -ldl -pthread
+LIBS=-lm
 
 NASMFLAGS	= -s
 EXESUFFIX=
 
 include $(EROOT)/Makefile.shared
 
-    ifeq ($(PLATFORM),WINDOWS)
-	    OBJ=obj_win
-	    EOBJ=eobj_win
-    else
-        ifeq (1,$(PROFILER))
-	  LIBS+= -lprofiler
-        endif
-    	OBJ=obj
-    	EOBJ=eobj
+ifeq ($(PLATFORM),WINDOWS)
+    OBJ=obj_win
+    EOBJ=eobj_win
+else
+    LIBS+= -ldl -pthread
+    ifeq (1,$(PROFILER))
+        LIBS+= -lprofiler
     endif
+  	OBJ=obj
+   	EOBJ=eobj
+endif
 
 JMACTOBJ=$(OBJ)/util_lib.$o \
 	$(OBJ)/file_lib.$o \
