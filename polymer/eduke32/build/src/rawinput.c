@@ -102,13 +102,25 @@ void RI_ProcessKeyboard(const RAWKEYBOARD* rkbd)
     case VK_MENU:
         if (rkbd->Flags & RI_KEY_E0) VKey = VK_RMENU, key = sc_RightAlt; break;
     case VK_UP:
-        key = sc_UpArrow; break;
+    case VK_NUMPAD8:
+        if (rkbd->Flags & RI_KEY_E0) VKey = VK_UP, key = sc_UpArrow;
+        else VKey = VK_NUMPAD8, key = sc_kpad_8;
+        break;
     case VK_DOWN:
-        key = sc_DownArrow; break;
+    case VK_NUMPAD2:
+        if (rkbd->Flags & RI_KEY_E0) VKey = VK_DOWN, key = sc_DownArrow;
+        else VKey = VK_NUMPAD2, key = sc_kpad_2;
+        break;
     case VK_LEFT:
-        key = sc_LeftArrow; break;
+    case VK_NUMPAD4:
+        if (rkbd->Flags & RI_KEY_E0) VKey = VK_LEFT, key = sc_LeftArrow;
+        else VKey = VK_NUMPAD4, key = sc_kpad_4;
+        break;
     case VK_RIGHT:
-        key = sc_RightArrow; break;
+    case VK_NUMPAD6:
+        if (rkbd->Flags & RI_KEY_E0) VKey = VK_RIGHT, key = sc_RightArrow;
+        else VKey = VK_NUMPAD6, key = sc_kpad_6;
+        break;
     case VK_INSERT:
         key = sc_Insert; break;
     case VK_HOME:
@@ -121,6 +133,8 @@ void RI_ProcessKeyboard(const RAWKEYBOARD* rkbd)
         key = sc_PgUp; break;
     case VK_NEXT:
         key = sc_PgDn; break;
+    case VK_RETURN:
+        if (rkbd->Flags & RI_KEY_E0) key = sc_kpad_Enter; break;
     }
 
     KeyboardState[VKey] &= 0xfe;
