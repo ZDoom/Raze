@@ -5962,26 +5962,31 @@ static void C_AddDefaultDefinitions(void)
 static void C_InitProjectiles(void)
 {
     int32_t i;
-    struct
+
+    typedef struct
     {
-        int32_t workslike, extra, cstat, extra_rand; // 16b
+        int32_t workslike, cstat; // 8b
         int32_t hitradius, range, flashcolor; // 12b
         int16_t spawns, sound, isound, vel; // 8b
         int16_t decal, trail, tnum, drop; // 8b
-        int16_t clipdist, offset, bounces, bsound; // 8b
+        int16_t offset, bounces, bsound; // 6b
         int16_t toffset; // 2b
+        int16_t extra, extra_rand; // 4b
         int8_t sxrepeat, syrepeat, txrepeat, tyrepeat; // 4b
         int8_t shade, xrepeat, yrepeat, pal; // 4b
-        int8_t velmult, filler; // 2b
-    } DefaultProjectile =
+        int8_t velmult; // 1b
+        uint8_t clipdist; // 1b
+        int8_t filler[6]; // 6b
+    } defaultprojectile_t;
+    
+    defaultprojectile_t DefaultProjectile = 
     {
-        1, 100, -1, -1, 2048, 0, 0,
-        SMALLSMOKE, -1, -1, 600, BULLETHOLE, -1, 0, 0, 32, 448, g_numFreezeBounces, PIPEBOMB_BOUNCE, 1,
-        -1, -1, -1, -1, -96, 18, 18, 0, 1, 0
+        1, -1, 2048, 0, 0, SMALLSMOKE, -1, -1, 600, BULLETHOLE, -1, 0, 0, 448, g_numFreezeBounces, PIPEBOMB_BOUNCE, 1,
+        100, -1, -1, -1, -1, -1, -96, 18, 18, 0, 1, 32
     };
 
     // this will only happen if I forget to update this function...
-    if (sizeof(projectile_t) != sizeof(DefaultProjectile))
+    if (sizeof(projectile_t) != sizeof(DefaultProjectile) || offsetof(projectile_t, filler) != offsetof(defaultprojectile_t, filler))
         G_GameExit("ERROR: C_InitProjectiles(): projectile_t mismatch!");
 
     for (i=MAXTILES-1; i>=0; i--)

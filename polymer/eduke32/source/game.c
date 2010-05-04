@@ -11837,7 +11837,7 @@ MAIN_LOOP_RESTART:
     do //main loop
     {
         static uint32_t nextrender = 0;
-        uint32_t j, next = 0;
+        uint32_t j;
 
         if (handleevents() && quitevent)
         {
@@ -11846,43 +11846,10 @@ MAIN_LOOP_RESTART:
             quitevent = 0;
         }
 
-        while (!(g_player[myconnectindex].ps->gm&MODE_MENU) && ready2send && totalclock >= ototalclock+TICSPERFRAME)
-            faketimerhandler();
-
-        if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
-            (g_player[myconnectindex].ps->gm&MODE_GAME) && g_player[myconnectindex].movefifoend-movefifoplc > 0 && ud.pause_on == 0)
-            P_ProcessInput(myconnectindex);
-
         if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || !getrendermode()))
         {
             ud.statusbarmode = 0;
             G_UpdateScreenArea();
-        }
-
-        j = getticks();
-
-        if (r_maxfps == 0 || j >= nextrender)
-        {
-            if (j > nextrender+g_frameDelay)
-                nextrender = j;
-
-            nextrender += g_frameDelay;
-
-            if ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm&MODE_MENU)) || (g_netServer || ud.multimode > 1) || ud.recstat == 2)
-                i = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
-            else
-                i = 65536;
-
-            G_DrawRooms(screenpeek,i);
-
-            if (getrendermode() >= 3)
-                G_DrawBackground();
-
-            G_DisplayRest(i);
-
-            S_Update();
-
-            next = 1;
         }
 
         MUSIC_Update();
@@ -11923,11 +11890,37 @@ MAIN_LOOP_RESTART:
             g_multiMapState = NULL;
         }
 
-        if (next)
+        j = getticks();
+
+        if (r_maxfps == 0 || j >= nextrender)
+        {
+            if (j > nextrender+g_frameDelay)
+                nextrender = j;
+
+            nextrender += g_frameDelay;
+
+            if ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm&MODE_MENU)) || (g_netServer || ud.multimode > 1) || ud.recstat == 2)
+                i = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
+            else
+                i = 65536;
+
+            G_DrawRooms(screenpeek,i);
+
+            if (getrendermode() >= 3)
+                G_DrawBackground();
+
+            G_DisplayRest(i);
+
+            S_Update();
+
             nextpage();
+        }
 
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)
             goto MAIN_LOOP_RESTART;
+
+        while (!(g_player[myconnectindex].ps->gm&MODE_MENU) && ready2send && totalclock >= ototalclock+TICSPERFRAME)
+            faketimerhandler();
     }
     while (1);
 
@@ -12773,8 +12766,7 @@ GAME_STATIC int32_t G_DoMoveThings(void)
 
         if (ud.pause_on == 0)
         {
-            if (i != myconnectindex)
-                P_ProcessInput(i);
+            P_ProcessInput(i);
             P_CheckSectors(i);
         }
     }

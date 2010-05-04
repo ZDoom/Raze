@@ -2516,6 +2516,7 @@ cheat_for_port_credits:
                         resetvideomode();
                         if (setgamemode(fullscreen,xdim,ydim,bpp))
                             OSD_Printf("restartvid: Reset failed...\n");
+                        r_downsizevar = r_downsize;
                         return;
                     }
                     break;
