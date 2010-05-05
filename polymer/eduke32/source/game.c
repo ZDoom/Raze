@@ -71,16 +71,16 @@ static int32_t usecwd = 0;
 this should be lower than the MTU size by at least the size of the UDP and ENet headers
 or else fragmentation will occur
 */
-#define SYNCPACKETSIZE 1408
+#define SYNCPACKETSIZE 1366
 
 ENetHost * g_netServer = NULL;
 ENetHost * g_netClient = NULL;
 ENetPeer * g_netClientPeer = NULL;
 int32_t g_netPort = 23513;
 int32_t g_netDisconnect = 0;
+// sprites of these statnums are synced to clients by the server
 int8_t g_netStatnums[] = { STAT_PROJECTILE, STAT_STANDABLE, STAT_ACTIVATOR, STAT_TRANSPORT,
-                           STAT_EFFECTOR, STAT_ACTOR, STAT_ZOMBIEACTOR, STAT_MISC
-                         };
+                           STAT_EFFECTOR, STAT_ACTOR, STAT_ZOMBIEACTOR, STAT_MISC };
 char g_netPassword[32];
 int32_t g_quitDeadline = 0;
 
@@ -8345,7 +8345,7 @@ char CheatStrings[][MAXCHEATLEN] =
     "sfm",          // 26
 };
 
-enum cheats
+enum cheatindex_t
 {
     CHEAT_CORNHOLIO,
     CHEAT_STUFF,
@@ -11836,46 +11836,41 @@ MAIN_LOOP_RESTART:
 
     do //main loop
     {
-        static uint32_t nextrender = 0;
+        static uint32_t nextrender = 0, next = 0;
         uint32_t j;
-
-        if (handleevents() && quitevent)
-        {
-            // JBF
-            KB_KeyDown[sc_Escape] = 1;
-            quitevent = 0;
-        }
-
-        if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || !getrendermode()))
-        {
-            ud.statusbarmode = 0;
-            G_UpdateScreenArea();
-        }
-
-        MUSIC_Update();
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         bindsenabled = g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO);
 
-        OSD_DispatchQueued();
+        // menus now call handleevents() from probe_()
+        while (!(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO)) && ready2send && totalclock >= ototalclock+TICSPERFRAME)
+        {
+            if (handleevents() && quitevent)
+            {
+                // JBF
+                KB_KeyDown[sc_Escape] = 1;
+                quitevent = 0;
+            }
+
+            OSD_DispatchQueued();
+            G_HandleLocalKeys();
+            faketimerhandler();
+        }
 
         if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
                 (g_player[myconnectindex].ps->gm&MODE_GAME) && G_MoveLoop())
             continue;
 
+        G_DoCheats();
+
         if (g_player[myconnectindex].ps->gm & (MODE_EOL|MODE_RESTART))
         {
             switch (G_EndOfLevel())
             {
-            case 1:
-                continue;
-            case 2:
-                goto MAIN_LOOP_RESTART;
+            case 1: continue;
+            case 2: goto MAIN_LOOP_RESTART;
             }
         }
-
-        G_DoCheats();
-        G_HandleLocalKeys();
 
         if (g_netClient && g_multiMapState)
         {
@@ -11888,6 +11883,18 @@ MAIN_LOOP_RESTART:
             G_RestoreMapState(g_multiMapState);
             Bfree(g_multiMapState);
             g_multiMapState = NULL;
+        }
+
+        if (next)
+        {
+            if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || !getrendermode()))
+            {
+                ud.statusbarmode = 0;
+                G_UpdateScreenArea();
+            }
+
+            next--;
+            nextpage();
         }
 
         j = getticks();
@@ -11905,22 +11912,16 @@ MAIN_LOOP_RESTART:
                 i = 65536;
 
             G_DrawRooms(screenpeek,i);
-
+            G_DisplayRest(i);
             if (getrendermode() >= 3)
                 G_DrawBackground();
-
-            G_DisplayRest(i);
-
             S_Update();
 
-            nextpage();
+            next++;
         }
 
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)
             goto MAIN_LOOP_RESTART;
-
-        while (!(g_player[myconnectindex].ps->gm&MODE_MENU) && ready2send && totalclock >= ototalclock+TICSPERFRAME)
-            faketimerhandler();
     }
     while (1);
 
@@ -12567,81 +12568,17 @@ nextdemo:
 
 GAME_STATIC GAME_INLINE int32_t G_MoveLoop()
 {
-    /*
-        if (numplayers > 1)
-            Net_DoPrediction();
-    */
-
     Net_GetPackets();
 
     while (g_player[myconnectindex].movefifoend-movefifoplc > 0)
-    {
-        /*
-                TRAVERSE_CONNECT(i)
-                if (movefifoplc == g_player[i].movefifoend) break;
-                if (i != ud.multimode) break;
-        */
         if (G_DoMoveThings()) return 1;
-    }
+
     return 0;
 }
 
 GAME_STATIC int32_t G_DoMoveThings(void)
 {
     int32_t i, j;
-//    char ch;
-
-/*
-    TRAVERSE_CONNECT(i)
-    if (TEST_SYNC_KEY(g_player[i].sync->bits, SK_MULTIFLAG))
-    {
-        multiflag = 2;
-        multiwhat = (g_player[i].sync->bits>>(SK_MULTIFLAG+1))&1;
-        multipos = (unsigned)(g_player[i].sync->bits>>(SK_MULTIFLAG+2))&15;
-        multiwho = i;
-
-        if (multiwhat)
-        {
-            G_SavePlayer(multipos);
-            multiflag = 0;
-
-            if (multiwho != myconnectindex)
-            {
-                Bsprintf(ScriptQuotes[122],"%s^00 SAVED A MULTIPLAYER GAME",&g_player[multiwho].user_name[0]);
-                P_DoQuote(122,g_player[myconnectindex].ps);
-            }
-            else
-            {
-                Bstrcpy(ScriptQuotes[122],"MULTIPLAYER GAME SAVED");
-                P_DoQuote(122,g_player[myconnectindex].ps);
-            }
-            break;
-        }
-        else
-        {
-            //            waitforeverybody();
-
-            j = G_LoadPlayer(multipos);
-
-            multiflag = 0;
-
-            if (j == 0)
-            {
-                if (multiwho != myconnectindex)
-                {
-                    Bsprintf(ScriptQuotes[122],"%s^00 LOADED A MULTIPLAYER GAME",&g_player[multiwho].user_name[0]);
-                    P_DoQuote(122,g_player[myconnectindex].ps);
-                }
-                else
-                {
-                    Bstrcpy(ScriptQuotes[122],"MULTIPLAYER GAME LOADED");
-                    P_DoQuote(122,g_player[myconnectindex].ps);
-                }
-                return 1;
-            }
-        }
-    }
-*/
 
     ud.camerasprite = -1;
     lockclock += TICSPERFRAME;
@@ -12806,25 +12743,6 @@ GAME_STATIC int32_t G_DoMoveThings(void)
         j += sizeof(int16_t) * 2;
 
         i = g_player[myconnectindex].ps->i;
-
-
-        /*
-                {
-                    int32_t j;
-                    packbuf[(jj = j++)] = 0;
-
-                    if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
-                    {
-                        packbuf[jj] |= 2;
-                        T5 -= (intptr_t)&script[0];
-                    }
-
-                    Bmemcpy(&packbuf[j], &T5, sizeof(T5));
-                    j += sizeof(T5);
-
-                    if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];
-                }
-        */
 
         {
             char buf[1024];

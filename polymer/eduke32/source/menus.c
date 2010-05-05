@@ -109,11 +109,11 @@ static int32_t probe_(int32_t type,int32_t x,int32_t y,int32_t i,int32_t n)
 {
     int16_t centre;
 
-    {
-        CONTROL_GetInput(&minfo);
-        mi += (minfo.dpitch+minfo.dz);
-        mii += minfo.dyaw;
-    }
+    handleevents();
+
+    CONTROL_GetInput(&minfo);
+    mi += (minfo.dpitch+minfo.dz);
+    mii += minfo.dyaw;
 
     if (x == (320>>1))
         centre = 320>>2;

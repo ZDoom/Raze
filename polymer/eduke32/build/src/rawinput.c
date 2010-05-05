@@ -7,9 +7,7 @@
 #include "build.h"
 
 static BOOL init_done = 0;
-static uint8_t KeyboardState[256] = {0};
-static uint8_t MouseState0[5] = {0};
-static uint8_t MouseState1[5] = {0};
+static uint8_t KeyboardState[256] = {0}; // VKeys
 static int8_t MWheel = 0;
 
 extern volatile uint8_t moustat, mousegrab;
@@ -18,14 +16,12 @@ extern void SetKey(int32_t key, int32_t state);
 
 #define MASK_DOWN (1<<(i<<1))
 #define MASK_UP (MASK_DOWN<<1)
-
 #define MouseWheelFakePressTime 50
-
 #ifndef GET_RAWINPUT_CODE_WPARAM
-#define GET_RAWINPUT_CODE_WPARAM(wParam)    ((wParam) & 0xff)
+    #define GET_RAWINPUT_CODE_WPARAM(wParam)    ((wParam) & 0xff)
 #endif
 
-void RI_ProcessMouse(const RAWMOUSE* rmouse)
+static inline void RI_ProcessMouse(const RAWMOUSE* rmouse)
 {
     int32_t i, mask;
 
@@ -48,20 +44,16 @@ void RI_ProcessMouse(const RAWMOUSE* rmouse)
 
     for (i = 0, mask = 1; i < 4; i++)
     {
-        MouseState1[i] = MouseState0[i];
-
         if (rmouse->usButtonFlags & mask) // button down
         {
-            MouseState1[i] = 1;
             if (mousepresscallback)
-                mousepresscallback(i, MouseState1[i]);
+                mousepresscallback(i, 1);
             mouseb |= 1<<i;
         }
         else if (rmouse->usButtonFlags & (mask<<1)) // button up
         {
-            MouseState1[i] = 0;
             if (mousepresscallback)
-                mousepresscallback(i, MouseState1[i]);
+                mousepresscallback(i, 0);
             mouseb &= ~(1<<i);
         }
         mask <<= 2;
@@ -85,10 +77,9 @@ void RI_ProcessMouse(const RAWMOUSE* rmouse)
     }
 }
 
-void RI_ProcessKeyboard(const RAWKEYBOARD* rkbd)
+static inline void RI_ProcessKeyboard(const RAWKEYBOARD* rkbd)
 {
-    uint8_t key = rkbd->MakeCode;
-    uint8_t VKey = rkbd->VKey;
+    uint8_t key = rkbd->MakeCode, VKey = rkbd->VKey;
 
     // for some reason rkbd->MakeCode is wrong for these 
     // even though rkbd->VKey is right...
@@ -104,23 +95,19 @@ void RI_ProcessKeyboard(const RAWKEYBOARD* rkbd)
     case VK_UP:
     case VK_NUMPAD8:
         if (rkbd->Flags & RI_KEY_E0) VKey = VK_UP, key = sc_UpArrow;
-        else VKey = VK_NUMPAD8, key = sc_kpad_8;
-        break;
+        else VKey = VK_NUMPAD8, key = sc_kpad_8; break;
     case VK_DOWN:
     case VK_NUMPAD2:
         if (rkbd->Flags & RI_KEY_E0) VKey = VK_DOWN, key = sc_DownArrow;
-        else VKey = VK_NUMPAD2, key = sc_kpad_2;
-        break;
+        else VKey = VK_NUMPAD2, key = sc_kpad_2; break;
     case VK_LEFT:
     case VK_NUMPAD4:
         if (rkbd->Flags & RI_KEY_E0) VKey = VK_LEFT, key = sc_LeftArrow;
-        else VKey = VK_NUMPAD4, key = sc_kpad_4;
-        break;
+        else VKey = VK_NUMPAD4, key = sc_kpad_4; break;
     case VK_RIGHT:
     case VK_NUMPAD6:
         if (rkbd->Flags & RI_KEY_E0) VKey = VK_RIGHT, key = sc_RightArrow;
-        else VKey = VK_NUMPAD6, key = sc_kpad_6;
-        break;
+        else VKey = VK_NUMPAD6, key = sc_kpad_6; break;
     case VK_INSERT:
         key = sc_Insert; break;
     case VK_HOME:
@@ -169,11 +156,6 @@ int32_t RI_CaptureInput(int32_t grab, HWND target)
     return (RegisterRawInputDevices(raw, 2, sizeof(raw[0])) == FALSE);
 }
 
-uint8_t RI_MouseState(uint8_t Button)
-{
-    return ((MouseState0[Button-1] << 1) | MouseState1[Button-1]) & 0x03;
-}
-
 void RI_PollDevices()
 {
     int32_t i;
@@ -189,8 +171,6 @@ void RI_PollDevices()
 
     for (i = 0; i < 256; i++)
         KeyboardState[i] = (KeyboardState[i] << 1) | (1 & KeyboardState[i]);
-
-    Bmemcpy(MouseState0, MouseState1, sizeof(MouseState0));
 
     MWheel = 0;
 
@@ -257,14 +237,12 @@ void grabmouse(char a)
     if (!mousegrab || !d)
     {
         GetCursorPos(&pos);
-        d = 1;
+        d++;
     }
 
     ShowCursor(a == 0);
     RI_CaptureInput(a, (HWND)win_gethwnd());
     SetCursorPos(pos.x, pos.y);
-
-    mousex = mousey = mouseb = 0;
 }
 
 void readmousexy(int32_t *x, int32_t *y)

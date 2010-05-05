@@ -55,21 +55,28 @@ GAMEEXEC_STATIC int32_t VM_Execute(int32_t once);
 
 void VM_ScriptInfo(void)
 {
-    if (script)
+    intptr_t *p;
+
+    if (!script)
+        return;
+
+    if (insptr)
     {
-        intptr_t *p;
-        if (insptr)
-            for (p=insptr-20; p<insptr+20; p++)
-            {
-                if (*p>>12&&(*p&0xFFF)<CON_END)
-                    initprintf("\n%5d: %5d %s ",p-script,*p>>12,keyw[*p&0xFFF]);
-                else
-                    initprintf(" %d",*p);
-            }
-        if (vm.g_i)
-            initprintf("current actor: %d (%d)\n",vm.g_i,vm.g_sp->picnum);
-        initprintf("g_errorLineNum: %d, g_tw: %d\n",g_errorLineNum,g_tw);
+        for (p=insptr-20; p<insptr+20; p++)
+        {
+            if (*p>>12&&(*p&0xFFF)<CON_END)
+                initprintf("\n%5d: %5d %s ",p-script,*p>>12,keyw[*p&0xFFF]);
+            else
+                initprintf(" %d",*p);
+        }
+
+        initprintf("\n");
     }
+
+    if (vm.g_i)
+        initprintf("current actor: %d (%d)\n",vm.g_i,vm.g_sp->picnum);
+
+    initprintf("g_errorLineNum: %d, g_tw: %d\n",g_errorLineNum,g_tw);
 }
 
 void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int32_t iPlayer, register int32_t lDist)
@@ -101,11 +108,8 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int
             deletesprite(vm.g_i);
         }
 
-        // restore old values...
         Bmemcpy(&vm, &vm_backup, sizeof(vmstate_t));
         insptr=oinsptr;
-
-        //AddLog("End of Execution");
     }
 }
 
@@ -114,10 +118,7 @@ static int32_t VM_CheckSquished(void)
     sectortype *sc = &sector[vm.g_sp->sectnum];
     int32_t squishme = 0;
 
-    if (vm.g_sp->picnum == APLAYER && ud.clipping)
-        return 0;
-
-    if (sc->lotag == 23)
+    if ((vm.g_sp->picnum == APLAYER && ud.clipping) || sc->lotag == 23)
         return 0;
 
     squishme = (sc->floorz - sc->ceilingz < (12<<8)); // && (sc->lotag&32768) == 0;
@@ -128,7 +129,7 @@ static int32_t VM_CheckSquished(void)
     if (!squishme)
         return 0;
 
-    P_DoQuote(10,g_player[vm.g_p].ps);
+    P_DoQuote(10, g_player[vm.g_p].ps);
 
     if (A_CheckEnemySprite(vm.g_sp)) vm.g_sp->xvel = 0;
 
@@ -164,7 +165,7 @@ GAMEEXEC_STATIC int32_t A_Dodge(spritetype *s)
 
     for (i=headspritestat[STAT_PROJECTILE]; i>=0; i=nextspritestat[i]) //weapons list
     {
-        if (OW == i || SECT != s->sectnum)
+        if (OW == i/* || SECT != s->sectnum*/)
             continue;
 
         bx = SX-mx;
