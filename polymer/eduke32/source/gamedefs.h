@@ -117,13 +117,9 @@ extern "C" {
 
 #define BASECONTROLSCALEVALUE (1<<16)
 
-// MAX mouse sensitivity scale
-
-#define MAXMOUSESENSITIVITY (1<<17)
-
 // DEFAULT mouse sensitivity scale
 
-#define DEFAULTMOUSESENSITIVITY 18
+#define DEFAULTMOUSESENSITIVITY 7
 
 enum
    {

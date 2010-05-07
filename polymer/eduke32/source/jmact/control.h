@@ -153,17 +153,13 @@ void CONTROL_MapButton
         int32_t whichfunction,
         int32_t whichbutton,
         int32_t doubleclicked,
-	controldevice device
+    controldevice device
         );
 void CONTROL_DefineFlag( int32_t which, int32_t toggle );
 int32_t CONTROL_FlagActive( int32_t which );
 void CONTROL_ClearAssignments( void );
-void CONTROL_GetUserInput( UserInput *info );
 void CONTROL_GetInput( ControlInfo *info );
 void CONTROL_ClearButton( int32_t whichbutton );
-void CONTROL_ClearUserInput( UserInput *info );
-void CONTROL_WaitRelease( void );
-void CONTROL_Ack( void );
 float CONTROL_MouseSensitivity;
 int32_t CONTROL_Startup
    (

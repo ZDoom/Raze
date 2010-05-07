@@ -1654,14 +1654,15 @@ int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)
     if ((osdflags & OSD_INITIALIZED) == 0)
         OSD_Init();
 
-    if (!name)
+    if (!name || !name[0])
     {
-        OSD_Printf("OSD_RegisterFunction(): may not register a function with a null name\n");
+        OSD_Printf("OSD_RegisterFunction(): can't register function with null name\n");
         return -1;
     }
-    if (!name[0])
+
+    if (!func)
     {
-        OSD_Printf("OSD_RegisterFunction(): may not register a function with no name\n");
+        OSD_Printf("OSD_RegisterFunction(): can't register null function\n");
         return -1;
     }
 
@@ -1684,13 +1685,9 @@ int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)
     }
 
     if (!help) help = "(no description for this function)";
-    if (!func)
-    {
-        OSD_Printf("OSD_RegisterFunction(): may not register a null function\n");
-        return -1;
-    }
 
     symb = findexactsymbol(name);
+
     if (symb) // allow this now for reusing an alias name
     {
         if (symb->func != OSD_ALIAS && symb->func != OSD_UNALIASED)
@@ -1705,6 +1702,7 @@ int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)
     }
 
     symb = addnewsymbol(name);
+
     if (!symb)
     {
         OSD_Printf("OSD_RegisterFunction(): Failed registering function \"%s\"\n", name);

@@ -1026,6 +1026,8 @@ void CONFIG_WriteBinds(void) // save binds and aliases to <cfgname>_settings.cfg
         fprintf(fp,"// these settings take precedence over your main cfg file\n");
         fprintf(fp,"// do not modify if you lack common sense\n");
 
+        fprintf(fp,"unbindall\n");
+
         for (i=0; i<MAXBOUNDKEYS; i++)
             if (KeyBindings[i].cmd[0] && KeyBindings[i].key)
                 fprintf(fp,"bind \"%s\"%s \"%s\"\n",KeyBindings[i].key,KeyBindings[i].repeat?"":" norepeat",KeyBindings[i].cmd);

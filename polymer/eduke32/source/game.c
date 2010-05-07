@@ -45,6 +45,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "crc32.h"
 #include "util_lib.h"
 #include "hightile.h"
+#include "control.h"
 
 #include "enet/enet.h"
 #include "quicklz.h"
@@ -96,6 +97,7 @@ static int32_t g_noMusic = 0;
 static char *CommandMap = NULL;
 static char *CommandName = NULL;
 int32_t g_forceWeaponChoice = 0;
+
 static struct strllist
 {
     struct strllist *next;
@@ -549,7 +551,7 @@ void G_HandleSpecialKeys(void)
         CONTROL_GetInput(&noshareinfo);
     }
 
-    CONTROL_ProcessBinds();
+//    CONTROL_ProcessBinds();
 
     if (ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
@@ -2240,7 +2242,6 @@ void Net_UpdateClients(void)
 void faketimerhandler(void)
 {
     int32_t i;
-    input_t *nsyn;
 
     if (g_quickExit == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && KB_KeyPressed(sc_Delete))
     {
@@ -2256,35 +2257,7 @@ void faketimerhandler(void)
 
     Net_GetPackets();
 
-    getinput(myconnectindex);
-
-    avg.fvel += loc.fvel;
-    avg.svel += loc.svel;
-    avg.avel += loc.avel;
-    avg.horz += loc.horz;
-    avg.bits |= loc.bits;
-    avg.extbits |= loc.extbits;
-
-    nsyn = &inputfifo[0][myconnectindex];
-    nsyn[0].fvel = avg.fvel;
-    nsyn[0].svel = avg.svel;
-    nsyn[0].avel = avg.avel;
-    nsyn[0].horz = avg.horz;
-    nsyn[0].bits = avg.bits;
-    nsyn[0].extbits = avg.extbits;
-    avg.fvel = avg.svel = avg.avel = avg.horz = avg.bits = avg.extbits = 0;
     g_player[myconnectindex].movefifoend++;
-
-    if (numplayers < 2)
-    {
-        if ((g_netServer || ud.multimode > 1) && ud.playerai)
-            TRAVERSE_CONNECT(i)
-            if (i != myconnectindex)
-            {
-                //clearbufbyte(&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t),0L);
-                computergetinput(i,&inputfifo[0][i]);
-            }
-    }
 }
 
 extern int32_t cacnum;
@@ -2701,22 +2674,22 @@ static void G_DrawInventory(DukePlayer_t *p)
         {
             switch (n&(1<<j))
             {
-            case   1:
+            case 1:
                 rotatesprite(xoff<<16,y<<16,65536L,0,FIRSTAID_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
                 break;
-            case   2:
+            case 2:
                 rotatesprite((xoff+1)<<16,y<<16,65536L,0,STEROIDS_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
                 break;
-            case   4:
+            case 4:
                 rotatesprite((xoff+2)<<16,y<<16,65536L,0,HOLODUKE_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
                 break;
-            case   8:
+            case 8:
                 rotatesprite(xoff<<16,y<<16,65536L,0,JETPACK_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
                 break;
-            case  16:
+            case 16:
                 rotatesprite(xoff<<16,y<<16,65536L,0,HEAT_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
                 break;
-            case  32:
+            case 32:
                 rotatesprite(xoff<<16,y<<16,65536L,0,AIRTANK_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
                 break;
             case 64:
@@ -2763,12 +2736,6 @@ static void G_DrawStatusBar(int32_t snum)
     int32_t permbit = 0;
 
     if (ss < 4) return;
-
-/*
-    if (g_player[snum].ps->gm&MODE_MENU)
-        if ((g_currentMenu >= 400  && g_currentMenu <= 405))
-            return;
-*/
 
     if (getrendermode() >= 3) pus = NUMPAGES;   // JBF 20040101: always redraw in GL
 
@@ -8929,7 +8896,7 @@ GAME_STATIC void G_HandleLocalKeys(void)
     int32_t i,ch;
     int32_t j;
 
-    CONTROL_ProcessBinds();
+//    CONTROL_ProcessBinds();
 
     if (ud.recstat == 2)
     {
@@ -10489,7 +10456,7 @@ static void G_DisplayLogo(void)
     flushperms();
     nextpage();
 
-    Bsprintf(tempbuf,"%s - " APPNAME,g_gameNamePtr);
+    Bsprintf(tempbuf, "%s - " APPNAME, g_gameNamePtr);
     wm_setapptitle(tempbuf);
 
     S_StopMusic();
@@ -10532,8 +10499,9 @@ static void G_DisplayLogo(void)
                 nextpage();
                 fadepaltile(0,0,0, 63,0,-7,DREALMS);
                 totalclock = 0;
-                while (totalclock < (120*7) && !KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE)
+                while (totalclock < (120*7) && !KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE  && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
                 {
+                    rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
                     handleevents();
                     Net_GetPackets();
                     if (g_restorePalette)
@@ -10541,6 +10509,7 @@ static void G_DisplayLogo(void)
                         P_SetGamePalette(g_player[myconnectindex].ps,g_player[myconnectindex].ps->palette,0);
                         g_restorePalette = 0;
                     }
+                    nextpage();
                 }
                 fadepaltile(0,0,0, 0,64,7,DREALMS);
             }
@@ -10579,6 +10548,7 @@ static void G_DisplayLogo(void)
                         rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
                 }
                 else soundanm = 1;
+
                 if (logoflags & LOGO_THREEDEE)
                 {
                     if (totalclock > 220 && totalclock < (220+30))
@@ -10596,6 +10566,7 @@ static void G_DisplayLogo(void)
                         rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
                 }
                 else soundanm = 2;
+
                 if (PLUTOPAK && (logoflags & LOGO_PLUTOPAKSPRITE))
                 {
                     // JBF 20030804
@@ -10618,6 +10589,7 @@ static void G_DisplayLogo(void)
                         rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
                     }
                 }
+
                 VM_OnEvent(EVENT_LOGO, -1, screenpeek, -1);
                 handleevents();
                 Net_GetPackets();
@@ -11058,7 +11030,7 @@ void G_BackToMenu(void)
     g_player[myconnectindex].ps->gm = MODE_MENU;
     ChangeToMenu(0);
     KB_FlushKeyboardQueue();
-    Bsprintf(tempbuf,APPNAME " - %s",g_gameNamePtr);
+    Bsprintf(tempbuf, "%s - " APPNAME, g_gameNamePtr);
     wm_setapptitle(tempbuf);
 }
 
@@ -11586,7 +11558,7 @@ CLEAN_DIRECTORY:
 
     // gotta set the proper title after we compile the CONs if this is the full version
 
-    Bsprintf(tempbuf,"%s - " APPNAME,g_gameNamePtr);
+    Bsprintf(tempbuf, "%s - " APPNAME, g_gameNamePtr);
     wm_setapptitle(tempbuf);
 
     if (g_scriptDebug)
@@ -11839,22 +11811,41 @@ MAIN_LOOP_RESTART:
         static uint32_t nextrender = 0, next = 0;
         uint32_t j;
 
+        if (handleevents() && quitevent)
+        {
+            KB_KeyDown[sc_Escape] = 1;
+            quitevent = 0;
+        }
+        
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         bindsenabled = g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO);
 
-        // menus now call handleevents() from probe_()
-        while (!(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO)) && ready2send && totalclock >= ototalclock+TICSPERFRAME)
-        {
-            if (handleevents() && quitevent)
-            {
-                // JBF
-                KB_KeyDown[sc_Escape] = 1;
-                quitevent = 0;
-            }
+        CONTROL_ProcessBinds();
+        OSD_DispatchQueued();
 
-            OSD_DispatchQueued();
-            G_HandleLocalKeys();
+        if (!(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO)) && totalclock >= ototalclock+TICSPERFRAME)
+        {
             faketimerhandler();
+            getinput(myconnectindex);
+            G_HandleLocalKeys();
+
+            avg.fvel += loc.fvel;
+            avg.svel += loc.svel;
+            avg.avel += loc.avel;
+            avg.horz += loc.horz;
+            avg.bits |= loc.bits;
+            avg.extbits |= loc.extbits;
+
+            Bmemcpy(&inputfifo[0][myconnectindex], &avg, sizeof(input_t));
+            Bmemset(&avg, 0, sizeof(input_t));
+
+            if ((g_netServer || ud.multimode > 1) && ud.playerai)
+                TRAVERSE_CONNECT(i)
+                if (i != myconnectindex)
+                {
+                    //clearbufbyte(&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t),0L);
+                    computergetinput(i,&inputfifo[0][i]);
+                }
         }
 
         if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
@@ -11871,8 +11862,7 @@ MAIN_LOOP_RESTART:
             case 2: goto MAIN_LOOP_RESTART;
             }
         }
-
-        if (g_netClient && g_multiMapState)
+        else if (g_netClient && g_multiMapState)
         {
             for (i=g_gameVarCount-1; i>=0; i--)
             {
@@ -11887,13 +11877,12 @@ MAIN_LOOP_RESTART:
 
         if (next)
         {
+            next--;
             if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || !getrendermode()))
             {
                 ud.statusbarmode = 0;
                 G_UpdateScreenArea();
             }
-
-            next--;
             nextpage();
         }
 
@@ -11906,7 +11895,8 @@ MAIN_LOOP_RESTART:
 
             nextrender += g_frameDelay;
 
-            if ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm&MODE_MENU)) || (g_netServer || ud.multimode > 1) || ud.recstat == 2)
+            if ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm&MODE_MENU)) ||
+                (g_netServer || ud.multimode > 1) || ud.recstat == 2)
                 i = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
             else
                 i = 65536;
@@ -12836,7 +12826,7 @@ void G_BonusScreen(int32_t bonusonly)
         350, 380,VICTORY1+8,86,59
     };
 
-    Bsprintf(tempbuf,"%s - " APPNAME,g_gameNamePtr);
+    Bsprintf(tempbuf, "%s - " APPNAME, g_gameNamePtr);
     wm_setapptitle(tempbuf);
 
     if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0])

@@ -754,93 +754,7 @@ void CONTROL_ButtonFunctionState(int32_t *p1)
         while (i--);
     }
 }
-/*
-void CONTROL_GetUserInput( UserInput *info )
-{
-    ControlInfo ci;
 
-    CONTROL_PollDevices( &ci );
-
-    info->dir = dir_None;
-
-    // checks if CONTROL_UserInputDelay is too far in the future due to clock skew?
-    if (GetTime() + ((ticrate * USERINPUTDELAY) / 1000) < CONTROL_UserInputDelay)
-        CONTROL_UserInputDelay = -1;
-
-    if (GetTime() >= CONTROL_UserInputDelay) {
-        if (CONTROL_MouseAxes[1].digital == -1)
-            info->dir = dir_North;
-        else if (CONTROL_MouseAxes[1].digital == 1)
-            info->dir = dir_South;
-        else if (CONTROL_MouseAxes[0].digital == -1)
-            info->dir = dir_West;
-        else if (CONTROL_MouseAxes[0].digital == 1)
-            info->dir = dir_East;
-
-        if (CONTROL_JoyAxes[1].digital == -1)
-            info->dir = dir_North;
-        else if (CONTROL_JoyAxes[1].digital == 1)
-            info->dir = dir_South;
-        else if (CONTROL_JoyAxes[0].digital == -1)
-            info->dir = dir_West;
-        else if (CONTROL_JoyAxes[0].digital == 1)
-            info->dir = dir_East;
-    }
-
-    info->button0 = CONTROL_MouseButtonState[0] | CONTROL_JoyButtonState[0];
-    info->button1 = CONTROL_MouseButtonState[1] | CONTROL_JoyButtonState[1];
-
-    if (KB_KeyDown[sc_kpad_8] || KB_KeyDown[sc_UpArrow])
-        info->dir = dir_North;
-    else if (KB_KeyDown[sc_kpad_2] || KB_KeyDown[sc_DownArrow])
-        info->dir = dir_South;
-    else if (KB_KeyDown[sc_kpad_4] || KB_KeyDown[sc_LeftArrow])
-        info->dir = dir_West;
-    else if (KB_KeyDown[sc_kpad_6] || KB_KeyDown[sc_RightArrow])
-        info->dir = dir_East;
-
-    if (KB_KeyDown[BUTTON0_SCAN_1] || KB_KeyDown[BUTTON0_SCAN_2] || KB_KeyDown[BUTTON0_SCAN_3])
-        info->button0 = 1;
-    if (KB_KeyDown[BUTTON1_SCAN])
-        info->button1 = 1;
-
-    if (CONTROL_UserInputCleared[1]) {
-        if (!info->button0)
-            CONTROL_UserInputCleared[1] = false;
-        else
-            info->button0 = false;
-    }
-    if (CONTROL_UserInputCleared[2]) {
-        if (!info->button1)
-            CONTROL_UserInputCleared[2] = false;
-        else
-            info->button1 = false;
-    }
-}
-
-void CONTROL_ClearUserInput( UserInput *info )
-{
-    switch (info->dir) {
-        case dir_North:
-        case dir_South:
-        case dir_East:
-        case dir_West:
-            CONTROL_UserInputCleared[0] = true;
-            CONTROL_UserInputDelay = GetTime() + ((ticrate * USERINPUTDELAY) / 1000);
-            switch (info->dir) {
-                case dir_North: KB_KeyDown[sc_UpArrow]    = KB_KeyDown[sc_kpad_8] = 0; break;
-                case dir_South: KB_KeyDown[sc_DownArrow]  = KB_KeyDown[sc_kpad_2] = 0; break;
-                case dir_East:  KB_KeyDown[sc_LeftArrow]  = KB_KeyDown[sc_kpad_4] = 0; break;
-                case dir_West:  KB_KeyDown[sc_RightArrow] = KB_KeyDown[sc_kpad_6] = 0; break;
-                default: break;
-            }
-            break;
-        default: break;
-    }
-    if (info->button0) CONTROL_UserInputCleared[1] = true;
-    if (info->button1) CONTROL_UserInputCleared[2] = true;
-}
-*/
 void CONTROL_ClearButton(int32_t whichbutton)
 {
     if (CONTROL_CheckRange(whichbutton)) return;
@@ -848,38 +762,32 @@ void CONTROL_ClearButton(int32_t whichbutton)
     CONTROL_Flags[whichbutton].cleared = TRUE;
 }
 
-inline void CONTROL_ProcessBinds(void)
+void CONTROL_ProcessBinds(void)
 {
+    int32_t i=MAXBOUNDKEYS-1;
+
     if (!bindsenabled)
         return;
 
+    do
     {
-        int32_t i=MAXBOUNDKEYS-1;
-
-        do
+        if (KeyBindings[i].cmd[0])
         {
-            if (KeyBindings[i].cmd[0] && KB_KeyPressed(i))
+            if (KB_KeyPressed(i) && (KeyBindings[i].repeat || (KeyBindings[i].laststate == 0)))
             {
-                if (KeyBindings[i].repeat || (KeyBindings[i].laststate == 0))
-                    OSD_Dispatch(KeyBindings[i].cmd);
+                OSD_Dispatch(KeyBindings[i].cmd);
+                KeyBindings[i].laststate = KB_KeyPressed(i);
             }
-            KeyBindings[i].laststate = KB_KeyPressed(i);
+            else KeyBindings[i].laststate = KB_KeyPressed(i);
         }
-        while (--i);
     }
-
-    if (KeyBindings[0].cmd[0] && KB_KeyPressed(0))
-    {
-        if (KeyBindings[0].repeat || (KeyBindings[0].laststate == 0))
-            OSD_Dispatch(KeyBindings[0].cmd);
-    }
-    KeyBindings[0].laststate = KB_KeyPressed(0);
+    while (i--);
 }
-
 
 void CONTROL_GetInput(ControlInfo *info)
 {
     int32_t periphs[CONTROL_NUM_FLAGS];
+    int32_t i = CONTROL_NUM_FLAGS-1;
 
     CONTROL_PollDevices(info);
 
@@ -890,34 +798,16 @@ void CONTROL_GetInput(ControlInfo *info)
     CONTROL_ButtonHeldState = CONTROL_ButtonState;
     CONTROL_ButtonState = 0;
 
-    CONTROL_ProcessBinds();
-
+    do
     {
-        int32_t i = CONTROL_NUM_FLAGS-1;
+        CONTROL_SetFlag(i, CONTROL_KeyboardFunctionPressed(i) | periphs[i] | extinput[i]);
 
-        do
-        {
-            CONTROL_SetFlag(i, CONTROL_KeyboardFunctionPressed(i) | periphs[i] | extinput[i]);
-
-            if (CONTROL_Flags[i].cleared == FALSE) BUTTONSET(i, CONTROL_Flags[i].active);
-            else if (CONTROL_Flags[i].active == FALSE) CONTROL_Flags[i].cleared = 0;
-        }
-        while (--i);
-
-        CONTROL_SetFlag(0, CONTROL_KeyboardFunctionPressed(0) | periphs[0] | extinput[0]);
-        if (CONTROL_Flags[0].cleared == FALSE) BUTTONSET(0, CONTROL_Flags[0].active);
-        else if (CONTROL_Flags[0].active == FALSE) CONTROL_Flags[0].cleared = 0;
+        if (CONTROL_Flags[i].cleared == FALSE) BUTTONSET(i, CONTROL_Flags[i].active);
+        else if (CONTROL_Flags[i].active == FALSE) CONTROL_Flags[i].cleared = 0;
     }
+    while (i--);
 
     memset(extinput, 0, sizeof(extinput));
-}
-
-void CONTROL_WaitRelease(void)
-{
-}
-
-void CONTROL_Ack(void)
-{
 }
 
 int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ticspersecond)

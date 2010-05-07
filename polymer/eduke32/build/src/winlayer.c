@@ -86,7 +86,7 @@ static BOOL InitDirectInput(void);
 static void UninitDirectInput(void);
 static void GetKeyNames(void);
 static void AcquireInputDevices(char acquire, int8_t device);
-static inline void DI_ProcessDevices(void);
+static inline void DI_PollJoysticks(void);
 static int32_t SetupDirectDraw(int32_t width, int32_t height);
 static void UninitDIB(void);
 static int32_t SetupDIB(int32_t width, int32_t height);
@@ -96,6 +96,8 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp);
 static BOOL RegisterWindowClass(void);
 static BOOL CreateAppWindow(int32_t modenum);
 static void DestroyAppWindow(void);
+
+static BOOL bDInputInited = FALSE;
 
 // video
 static int32_t desktopxdim=0,desktopydim=0,desktopbpp=0,modesetusing=-1;
@@ -663,7 +665,9 @@ int32_t handleevents(void)
     //if (frameplace && fullscreen) printf("Offscreen buffer is locked!\n");
 
     RI_PollDevices();
-    DI_ProcessDevices();
+
+    if (bDInputInited)
+        DI_PollJoysticks();
 
     while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
     {
@@ -693,7 +697,6 @@ int32_t handleevents(void)
 static HMODULE               hDInputDLL    = NULL;
 static LPDIRECTINPUT7A        lpDI          = NULL;
 static LPDIRECTINPUTDEVICE7A lpDID[NUM_INPUTS] =  { NULL };
-static BOOL                  bDInputInited = FALSE;
 #define INPUT_BUFFER_SIZE	32
 static GUID                  guidDevs[NUM_INPUTS];
 
@@ -1341,7 +1344,7 @@ static void AcquireInputDevices(char acquire, int8_t device)
 //
 // ProcessInputDevices() -- processes the input devices
 //
-static inline void DI_ProcessDevices(void)
+static inline void DI_PollJoysticks(void)
 {
     DWORD i, dwElements = INPUT_BUFFER_SIZE, ev = 0;
     HRESULT result;
@@ -1355,6 +1358,7 @@ static inline void DI_ProcessDevices(void)
         if (*devicedef[t].did)
         {
             result = IDirectInputDevice7_Poll(*devicedef[t].did);
+
             if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
             {
                 if (SUCCEEDED(IDirectInputDevice7_Acquire(*devicedef[t].did)))
@@ -1362,10 +1366,7 @@ static inline void DI_ProcessDevices(void)
                     devacquired[t] = 1;
                     IDirectInputDevice7_Poll(*devicedef[t].did);
                 }
-                else
-                {
-                    devacquired[t] = 0;
-                }
+                else devacquired[t] = 0;
             }
 
             if (devacquired[t])
@@ -1383,52 +1384,53 @@ static inline void DI_ProcessDevices(void)
     // to be read and input events processed
     ev = MsgWaitForMultipleObjects(numdevs, waithnds, FALSE, 0, 0);
 
-    if ((ev >= WAIT_OBJECT_0) && (ev < (WAIT_OBJECT_0+numdevs)))
+    if (ev < WAIT_OBJECT_0 || ev > WAIT_OBJECT_0+numdevs)
+        return;
+
+    switch (idevnums[ev - WAIT_OBJECT_0])
     {
-        switch (idevnums[ev - WAIT_OBJECT_0])
+    case JOYSTICK:
+        if (!lpDID[JOYSTICK]) break;
+
+        result = IDirectInputDevice7_GetDeviceData(lpDID[JOYSTICK], sizeof(DIDEVICEOBJECTDATA),
+            (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
+
+        if (result != DI_OK || !dwElements) break;
+
+        for (i=dwElements-1; i>=0; i--)
         {
-        case JOYSTICK:		// joystick
-            if (!lpDID[JOYSTICK]) break;
-            result = IDirectInputDevice7_GetDeviceData(lpDID[JOYSTICK], sizeof(DIDEVICEOBJECTDATA),
-                     (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
-            if (result == DI_OK)
+            int32_t j;
+
+            // check axes
+            for (j=0; j<joynumaxes; j++)
             {
-                int32_t j;
-
-                for (i=0; i<dwElements; i++)
-                {
-                    // check axes
-                    for (j=0; j<joynumaxes; j++)
-                    {
-                        if (axisdefs[j].ofs != didod[i].dwOfs) continue;
-                        joyaxis[j] = didod[i].dwData - 32767;
-                        break;
-                    }
-                    if (j<joynumaxes) continue;
-
-                    // check buttons
-                    for (j=0; j<joynumbuttons; j++)
-                    {
-                        if (buttondefs[j].ofs != didod[i].dwOfs) continue;
-                        if (didod[i].dwData & 0x80) joyb |= (1<<j);
-                        else joyb &= ~(1<<j);
-                        if (joypresscallback)
-                            joypresscallback(j+1, (didod[i].dwData & 0x80)==0x80);
-                        break;
-                    }
-                    if (j<joynumbuttons) continue;
-
-                    // check hats
-                    for (j=0; j<joynumhats; j++)
-                    {
-                        if (hatdefs[j].ofs != didod[i].dwOfs) continue;
-                        joyhat[j] = didod[i].dwData;
-                        break;
-                    }
-                }
+                if (axisdefs[j].ofs != didod[i].dwOfs) continue;
+                joyaxis[j] = didod[i].dwData - 32767;
+                break;
             }
-            break;
+            if (j<joynumaxes) continue;
+
+            // check buttons
+            for (j=0; j<joynumbuttons; j++)
+            {
+                if (buttondefs[j].ofs != didod[i].dwOfs) continue;
+                if (didod[i].dwData & 0x80) joyb |= (1<<j);
+                else joyb &= ~(1<<j);
+                if (joypresscallback)
+                    joypresscallback(j+1, (didod[i].dwData & 0x80)==0x80);
+                break;
+            }
+            if (j<joynumbuttons) continue;
+
+            // check hats
+            for (j=0; j<joynumhats; j++)
+            {
+                if (hatdefs[j].ofs != didod[i].dwOfs) continue;
+                joyhat[j] = didod[i].dwData;
+                break;
+            }
         }
+        break;
     }
 }
 
@@ -3792,37 +3794,6 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
     }
     case WM_CLOSE:
         quitevent = 1;
-        return 0;
-
-    case WM_KEYDOWN:
-    case WM_KEYUP:
-        // pause sucks. I read that apparently it doesn't work the same everwhere
-        // with DirectInput but it does with Windows messages. Oh well.
-        if (wParam == VK_PAUSE && (lParam & 0x80000000l))
-        {
-            SetKey(0x59, 1);
-
-            if (keypresscallback)
-                keypresscallback(0x59, 1);
-        }
-        break;
-
-        // JBF 20040115: Alt-F4 upsets us, so drop all system keys on their asses
-    case WM_SYSKEYDOWN:
-    case WM_SYSKEYUP:
-        return 0;
-
-    case WM_CHAR:
-        if (((keyasciififoend+1)&(KEYFIFOSIZ-1)) == keyasciififoplc) return 0;
-        if ((keyasciififoend - keyasciififoplc) > 0) return 0;
-        if ((OSD_OSDKey() < 128) && (Btolower(scantoasc[OSD_OSDKey()]) == Btolower((uint8_t)wParam))) return 0;
-        if (!OSD_HandleChar((uint8_t)wParam)) return 0;
-        keyasciififo[keyasciififoend] = (uint8_t)wParam;
-        keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
-        //OSD_Printf("WM_CHAR %d, %d-%d\n",wParam,keyasciififoplc,keyasciififoend);
-        return 0;
-
-    case WM_HOTKEY:
         return 0;
 
     case WM_ENTERMENULOOP:

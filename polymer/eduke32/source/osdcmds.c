@@ -1038,7 +1038,18 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 
     KeyBindings[ConsoleKeys[i].id].key=ConsoleKeys[i].name;
 
-    CONTROL_MapKey(CONFIG_FunctionNameToNum(tempbuf), ConsoleKeys[i].id, 0);
+    // populate the keyboard config menu based on the bind
+    if (!Bstrncasecmp(tempbuf, "gamefunc_", 9))
+    {
+        j = CONFIG_FunctionNameToNum(tempbuf+9);
+
+        if (j != -1)
+        {
+            ud.config.KeyboardKeys[j][1] = ud.config.KeyboardKeys[j][0];
+            ud.config.KeyboardKeys[j][0] = ConsoleKeys[i].id;
+            CONTROL_MapKey(j, ConsoleKeys[i].id, ud.config.KeyboardKeys[j][0]);
+        }
+    }
 
     if (!OSD_ParsingScript())
         OSD_Printf("%s\n",parm->raw);
@@ -1055,10 +1066,20 @@ static int32_t osdcmd_unbindall(const osdfuncparm_t *parm)
     for (i=0; i<MAXBOUNDKEYS; i++)
         if (KeyBindings[i].cmd[0])
             KeyBindings[i].cmd[0] = 0;
+
     for (i=0; i<MAXMOUSEBUTTONS; i++)
         if (MouseBindings[i].cmd[0])
             MouseBindings[i].cmd[0] = 0;
-    OSD_Printf("unbound all keys\n");
+
+    for (i=0; i<NUMGAMEFUNCTIONS; i++)
+    {
+        ud.config.KeyboardKeys[i][0] = ud.config.KeyboardKeys[i][1] = 0xff;
+        CONTROL_MapKey(i, ud.config.KeyboardKeys[i][0], ud.config.KeyboardKeys[i][1]);
+    }
+
+    if (!OSD_ParsingScript())
+        OSD_Printf("unbound all controls\n");
+
     return OSDCMD_OK;
 }
 
@@ -1067,24 +1088,33 @@ static int32_t osdcmd_unbind(const osdfuncparm_t *parm)
     int32_t i;
 
     if (parm->numparms < 1) return OSDCMD_SHOWHELP;
+
     for (i=0; ConsoleKeys[i].name; i++)
         if (!Bstrcasecmp(parm->parms[0],ConsoleKeys[i].name))
             break;
+
     if (!ConsoleKeys[i].name)
     {
         for (i=0; i<MAXMOUSEBUTTONS; i++)
             if (!Bstrcasecmp(parm->parms[0],ConsoleButtons[i]))
                 break;
+
         if (i >= MAXMOUSEBUTTONS)
             return OSDCMD_SHOWHELP;
+
         MouseBindings[i].repeat = 0;
         MouseBindings[i].cmd[0] = 0;
+
         OSD_Printf("unbound %s\n",ConsoleButtons[i]);
+
         return OSDCMD_OK;
     }
+
     KeyBindings[ConsoleKeys[i].id].repeat = 0;
     KeyBindings[ConsoleKeys[i].id].cmd[0] = 0;
+
     OSD_Printf("unbound key %s\n",ConsoleKeys[i].name);
+
     return OSDCMD_OK;
 }
 
@@ -1131,7 +1161,6 @@ static int32_t osdcmd_restorestate(const osdfuncparm_t *parm)
         G_RestoreMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
     return OSDCMD_OK;
 }
-*/
 
 static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
 {
@@ -1153,6 +1182,7 @@ static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
     OSD_Printf("%s\n",parm->raw);
     return OSDCMD_OK;
 }
+*/
 
 static int32_t osdcmd_disconnect(const osdfuncparm_t *parm)
 {
@@ -1273,6 +1303,8 @@ static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
             continue;
 
         sscanf(parm->parms[0],"%" PRIxPTR "", &hexaddr);
+        
+        // TODO: implement banning logic
 
         if (currentPeer->address.host == hexaddr)
         {
@@ -1303,72 +1335,69 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
 {
     int32_t r = osdcmd_cvar_set(parm);
 
-#ifdef USE_OPENGL
-    if (r == OSDCMD_OK)
+    if (r != OSDCMD_OK) return r;
+
+    if (!Bstrcasecmp(parm->name, "r_maxfps"))
     {
-        if (!Bstrcasecmp(parm->name, "r_maxfps"))
-        {
-            if (r_maxfps) g_frameDelay = (1000/r_maxfps);
-            else g_frameDelay = 0;
+        if (r_maxfps) g_frameDelay = (1000/r_maxfps);
+        else g_frameDelay = 0;
 
+        return r;
+    }
+    else if (!Bstrcasecmp(parm->name, "r_ambientlight"))
+    {
+        r_ambientlightrecip = 1.f/r_ambientlight;
+
+        return r;
+    }
+    else if (!Bstrcasecmp(parm->name, "in_mouse"))
+    {
+        CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
+
+        return r;
+    }
+    else if (!Bstrcasecmp(parm->name, "in_joystick"))
+    {
+        CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
+
+        return r;
+    }
+    else if (!Bstrcasecmp(parm->name, "vid_gamma"))
+    {
+        ud.brightness = (int32_t)(min(max((float)((vid_gamma-1.0)*10.0),0),15));
+        ud.brightness <<= 2;
+        setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+
+        return r;
+    }
+    else if (!Bstrcasecmp(parm->name, "vid_brightness"))
+    {
+        setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+
+        return r;
+    }
+    else if (!Bstrcasecmp(parm->name, "vid_contrast"))
+    {
+        setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+
+        return r;
+    }
+    else if (!Bstrcasecmp(parm->name, "hud_scale"))
+    {
+        G_UpdateScreenArea();
+
+        return r;
+    }
+    else if (!Bstrcasecmp(parm->name, "skill"))
+    {
+        if (numplayers > 1)
             return r;
-        }
-        else if (!Bstrcasecmp(parm->name, "r_ambientlight"))
-        {
-            r_ambientlightrecip = 1.f/r_ambientlight;
 
-            return r;
-        }
-        else if (!Bstrcasecmp(parm->name, "in_mouse"))
-        {
-            CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
+        ud.m_player_skill = ud.player_skill;
 
-            return r;
-        }
-        else if (!Bstrcasecmp(parm->name, "in_joystick"))
-        {
-            CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
-
-            return r;
-        }
-        else if (!Bstrcasecmp(parm->name, "vid_gamma"))
-        {
-            ud.brightness = (int32_t)(min(max((float)((vid_gamma-1.0)*10.0),0),15));
-            ud.brightness <<= 2;
-            setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
-
-            return r;
-        }
-        else if (!Bstrcasecmp(parm->name, "vid_brightness"))
-        {
-            setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
-
-            return r;
-        }
-        else if (!Bstrcasecmp(parm->name, "vid_contrast"))
-        {
-            setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
-
-            return r;
-        }
-        else if (!Bstrcasecmp(parm->name, "hud_scale"))
-        {
-            G_UpdateScreenArea();
-
-            return r;
-        }
-        else if (!Bstrcasecmp(parm->name, "skill"))
-        {
-            if (numplayers > 1)
-                return r;
-
-            ud.m_player_skill = ud.player_skill;
-
-            return r;
-        }
+        return r;
     }
 
-#endif
     return r;
 }
 
@@ -1523,7 +1552,7 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
 
     OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
-    OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
+//    OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
 
     OSD_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
     OSD_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);

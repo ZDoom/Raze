@@ -2939,7 +2939,6 @@ void P_DisplayWeapon(int32_t snum)
             }
     }
     P_DisplaySpit(snum);
-
 }
 
 #define TURBOTURNTIME (TICRATE/8) // 7
@@ -2966,7 +2965,7 @@ void getinput(int32_t snum)
     int32_t momx = 0,momy = 0;
     DukePlayer_t *p = g_player[snum].ps;
 
-    if ((p->gm&MODE_MENU) || (p->gm&MODE_TYPE) || (ud.pause_on && !KB_KeyPressed(sc_Pause)))
+    if ((p->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !KB_KeyPressed(sc_Pause)))
     {
         if (!(p->gm&MODE_MENU))
             CONTROL_GetInput(&info[0]);

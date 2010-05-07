@@ -6,7 +6,7 @@
 #include "scancodes.h"
 #include "build.h"
 
-static BOOL init_done = 0;
+static BOOL rawinput_started = 0;
 static uint8_t KeyboardState[256] = {0}; // VKeys
 static int8_t MWheel = 0;
 
@@ -80,6 +80,7 @@ static inline void RI_ProcessMouse(const RAWMOUSE* rmouse)
 static inline void RI_ProcessKeyboard(const RAWKEYBOARD* rkbd)
 {
     uint8_t key = rkbd->MakeCode, VKey = rkbd->VKey;
+    uint8_t buf[2], i;
 
     // for some reason rkbd->MakeCode is wrong for these 
     // even though rkbd->VKey is right...
@@ -122,18 +123,36 @@ static inline void RI_ProcessKeyboard(const RAWKEYBOARD* rkbd)
         key = sc_PgDn; break;
     case VK_RETURN:
         if (rkbd->Flags & RI_KEY_E0) key = sc_kpad_Enter; break;
-    }
+    case VK_PAUSE:
+        KeyboardState[VKey] = 1 - (rkbd->Flags & RI_KEY_BREAK);
+        if (rkbd->Flags & RI_KEY_BREAK) return;
 
-    KeyboardState[VKey] &= 0xfe;
-    KeyboardState[VKey] |= 1 - (rkbd->Flags & RI_KEY_BREAK);
-
-    if (OSD_HandleScanCode(key, (rkbd->Flags & RI_KEY_BREAK) == 0))
-    {
-        SetKey(key, (rkbd->Flags & RI_KEY_BREAK) == 0);
+        SetKey(sc_Pause, 1);
 
         if (keypresscallback)
-            keypresscallback(key, (rkbd->Flags & RI_KEY_BREAK) == 0);
+            keypresscallback(sc_Pause, 1);
+        return;
     }
+
+    KeyboardState[VKey] = 1 - (rkbd->Flags & RI_KEY_BREAK);
+
+    if (OSD_HandleScanCode(key, KeyboardState[VKey] != 0))
+    {
+        SetKey(key, KeyboardState[VKey] != 0);
+
+        if (keypresscallback)
+            keypresscallback(key, KeyboardState[VKey] != 0);
+    }
+
+    if (rkbd->Flags & RI_KEY_BREAK) return;
+    if (((keyasciififoend+1)&(KEYFIFOSIZ-1)) == keyasciififoplc) return;
+    if ((keyasciififoend - keyasciififoplc) > 0) return;
+    if (ToAscii(VKey, key, &KeyboardState[0], (LPWORD)&buf[0], 0) != 1) return;
+    if ((OSD_OSDKey() < 128) && (Btolower(scantoasc[OSD_OSDKey()]) == Btolower(buf[0]))) return;
+    if (OSD_HandleChar(buf[0]) == 0) return;
+
+    keyasciififo[keyasciififoend] = buf[0];
+    keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
 }
 
 // keyboard is always captured regardless of what we tell this function
@@ -148,8 +167,8 @@ int32_t RI_CaptureInput(int32_t grab, HWND target)
 
     raw[1].usUsagePage = 0x01;
     raw[1].usUsage = 0x06;
-    raw[1].dwFlags = 0;
-    raw[1].hwndTarget = NULL;
+    raw[1].dwFlags = RIDEV_NOLEGACY;
+    raw[1].hwndTarget = target;
 
     mousegrab = grab;
 
@@ -161,16 +180,16 @@ void RI_PollDevices()
     int32_t i;
     MSG msg;
 
-    if (!init_done)
+    if (!rawinput_started)
     {
         if (RI_CaptureInput(1, (HWND)win_gethwnd()))
             return;
-
-        init_done = 1;
+        rawinput_started = 1;
     }
 
+    // snapshot the whole keyboard state so we can translate key presses into ascii later
     for (i = 0; i < 256; i++)
-        KeyboardState[i] = (KeyboardState[i] << 1) | (1 & KeyboardState[i]);
+        KeyboardState[i] = GetAsyncKeyState(i) >> 8;
 
     MWheel = 0;
 

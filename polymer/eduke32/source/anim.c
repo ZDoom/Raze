@@ -237,7 +237,6 @@ void G_PlayAnim(const char *fn,char t)
 
     ANIM_LoadAnim(animbuf);
     numframes = ANIM_NumFrames();
-
     animpal = ANIM_GetPalette();
 
     //setpalette(0L,256L,tempbuf);
@@ -251,28 +250,35 @@ void G_PlayAnim(const char *fn,char t)
 
     ototalclock = totalclock + 10;
 
-    frametime = totalclock;
-
     for (i=1; i<numframes; i++)
     {
-        if ((i > 4) && (totalclock > frametime + 60))
+        if (i > 4 && totalclock > frametime + 60)
         {
             OSD_Printf("WARNING: slowdown in %s, skipping playback\n",fn);
             goto ENDOFANIMLOOP;
         }
+
         frametime = totalclock;
+
+        waloff[TILE_ANIM] = (intptr_t)ANIM_DrawFrame(i);
+        invalidatetile(TILE_ANIM, 0, 1<<4);  // JBF 20031228
+
         while (totalclock < ototalclock)
         {
-            if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE)
-                goto ENDOFANIMLOOP;
             handleevents();
             Net_GetPackets();
+
+            if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE)
+                goto ENDOFANIMLOOP;
+
             if (g_restorePalette == 1)
             {
                 P_SetGamePalette(g_player[myconnectindex].ps,animpal,0);
                 g_restorePalette = 0;
             }
-            idle();
+
+            rotatesprite(0<<16,0<<16,65536L,512,TILE_ANIM,0,0,2+4+8+16+64, 0,0,xdim-1,ydim-1);
+            nextpage();
         }
 
         if (t == 10) ototalclock += 14;
@@ -285,11 +291,6 @@ void G_PlayAnim(const char *fn,char t)
         else if (ud.volume_number == 1) ototalclock += 18;
         else                           ototalclock += 10;
 
-        waloff[TILE_ANIM] = (intptr_t)ANIM_DrawFrame(i);
-        invalidatetile(TILE_ANIM, 0, 1<<4);  // JBF 20031228
-        rotatesprite(0<<16,0<<16,65536L,512,TILE_ANIM,0,0,2+4+8+16+64, 0,0,xdim-1,ydim-1);
-        nextpage();
-
         if (t == 8) endanimvol41(i);
         else if (t == 10) endanimvol42(i);
         else if (t == 11) endanimvol43(i);
@@ -301,7 +302,6 @@ void G_PlayAnim(const char *fn,char t)
     }
 
 ENDOFANIMLOOP:
-
 #if defined(POLYMOST) && defined(USE_OPENGL)
     gltexfiltermode = ogltexfiltermode;
     gltexapplyprops();
