@@ -25,7 +25,7 @@ static inline void RI_ProcessMouse(const RAWMOUSE* rmouse)
 {
     int32_t i, mask;
 
-    if (!mousegrab)
+    if (!mousegrab || !appactive)
         return;
 
     mousex += rmouse->lLastX;
@@ -211,7 +211,7 @@ void RI_PollDevices()
         DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
     }
 
-    if (mousegrab)
+    if (mousegrab && appactive)
     {
         // center the cursor in the window
         POINT pt = { xdim>>1, ydim>>1 };

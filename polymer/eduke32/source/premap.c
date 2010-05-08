@@ -1588,18 +1588,17 @@ void Net_WaitForServer(void)
     }
 }
 
-extern int32_t jump_input;
-
 void clearfifo(void)
 {
     int32_t i = 0;
+    extern int32_t jump_timer;
 
     syncvaltail = 0L;
     syncvaltottail = 0L;
     memset(&syncstat, 0, sizeof(syncstat));
     bufferjitter = 1;
     mymaxlag = otherminlag = 0;
-    jump_input = 0;
+    jump_timer = 0;
 
     movefifoplc = movefifosendplc = predictfifoplc = 0;
     avg.fvel = avg.svel = avg.avel = avg.horz = avg.bits = avg.extbits = 0;

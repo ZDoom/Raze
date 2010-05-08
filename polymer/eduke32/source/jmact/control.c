@@ -800,7 +800,7 @@ void CONTROL_GetInput(ControlInfo *info)
 
     do
     {
-        CONTROL_SetFlag(i, CONTROL_KeyboardFunctionPressed(i) | periphs[i] | extinput[i]);
+        CONTROL_SetFlag(i, /*CONTROL_KeyboardFunctionPressed(i) | */periphs[i] | extinput[i]);
 
         if (CONTROL_Flags[i].cleared == FALSE) BUTTONSET(i, CONTROL_Flags[i].active);
         else if (CONTROL_Flags[i].active == FALSE) CONTROL_Flags[i].cleared = 0;

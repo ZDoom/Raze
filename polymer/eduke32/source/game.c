@@ -11817,15 +11817,16 @@ MAIN_LOOP_RESTART:
             quitevent = 0;
         }
         
+        sampletimer();
+
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         bindsenabled = g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO);
 
-        CONTROL_ProcessBinds();
         OSD_DispatchQueued();
 
         if (!(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO)) && totalclock >= ototalclock+TICSPERFRAME)
         {
-            faketimerhandler();
+            CONTROL_ProcessBinds();
             getinput(myconnectindex);
             G_HandleLocalKeys();
 
@@ -11839,13 +11840,20 @@ MAIN_LOOP_RESTART:
             Bmemcpy(&inputfifo[0][myconnectindex], &avg, sizeof(input_t));
             Bmemset(&avg, 0, sizeof(input_t));
 
-            if ((g_netServer || ud.multimode > 1) && ud.playerai)
+/*
+            if (ud.playerai && (g_netServer || ud.multimode > 1))
+            {
                 TRAVERSE_CONNECT(i)
-                if (i != myconnectindex)
-                {
-                    //clearbufbyte(&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t),0L);
-                    computergetinput(i,&inputfifo[0][i]);
-                }
+                    if (i != myconnectindex)
+                    {
+                        //clearbufbyte(&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t),0L);
+                        computergetinput(i,&inputfifo[0][i]);
+                    }
+            }
+*/
+
+            do faketimerhandler();
+            while (!(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO)) && totalclock >= ototalclock+TICSPERFRAME);
         }
 
         if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&

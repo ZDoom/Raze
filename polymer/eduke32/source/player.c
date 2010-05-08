@@ -2952,7 +2952,7 @@ void P_DisplayWeapon(int32_t snum)
 
 int32_t g_myAimMode = 0, g_myAimStat = 0, g_oldAimStat = 0;
 int32_t mouseyaxismode = -1;
-int32_t jump_input = 0;
+int32_t jump_timer = 0;
 
 void getinput(int32_t snum)
 {
@@ -2969,14 +2969,13 @@ void getinput(int32_t snum)
     {
         if (!(p->gm&MODE_MENU))
             CONTROL_GetInput(&info[0]);
-        memset(&info[1], 0, sizeof(info[1]));
-        loc.fvel = vel = 0;
-        loc.svel = svel = 0;
-        loc.avel = angvel = 0;
-        loc.horz = horiz = 0;
+
+        Bmemset(&info[1], 0, sizeof(input_t));
+        Bmemset(&loc, 0, sizeof(input_t));
         loc.bits = (((int32_t)g_gameQuit)<<SK_GAMEQUIT);
         loc.extbits = (g_player[snum].pteam != g_player[snum].ps->team)<<6;
         loc.extbits |= (1<<7);
+
         return;
     }
 
@@ -2993,16 +2992,13 @@ void getinput(int32_t snum)
         }
     }
 
-    {
-        int32_t i;
-        if (g_myAimMode) i = analog_lookingupanddown;
-        else i = ud.config.MouseAnalogueAxes[1];
+    if (g_myAimMode) j = analog_lookingupanddown;
+    else j = ud.config.MouseAnalogueAxes[1];
 
-        if (i != mouseyaxismode)
-        {
-            CONTROL_MapAnalogAxis(1, i, controldevice_mouse);
-            mouseyaxismode = i;
-        }
+    if (j != mouseyaxismode)
+    {
+        CONTROL_MapAnalogAxis(1, j, controldevice_mouse);
+        mouseyaxismode = j;
     }
 
     CONTROL_GetInput(&info[0]);
@@ -3055,9 +3051,9 @@ void getinput(int32_t snum)
     }
 
     if (BUTTON(gamefunc_Jump) && p->on_ground)
-        jump_input = 4;
+        jump_timer = 4;
 
-    loc.bits = (jump_input > 0 || BUTTON(gamefunc_Jump))<<SK_JUMP;   //BUTTON(gamefunc_Jump);
+    loc.bits = (jump_timer > 0 || BUTTON(gamefunc_Jump))<<SK_JUMP;
     loc.bits |=   BUTTON(gamefunc_Crouch)<<SK_CROUCH;
     loc.bits |=   BUTTON(gamefunc_Fire)<<SK_FIRE;
     loc.bits |=   BUTTON(gamefunc_Aim_Up)<<SK_AIM_UP;
@@ -3070,8 +3066,8 @@ void getinput(int32_t snum)
     if (aplWeaponFlags[g_player[snum].ps->curr_weapon][snum] & WEAPON_SEMIAUTO && BUTTON(gamefunc_Fire))
         CONTROL_ClearButton(gamefunc_Fire);
 
-    if (jump_input > 0)
-        jump_input--;
+    if (jump_timer > 0)
+        jump_timer--;
 
     j=0;
 
@@ -3236,10 +3232,6 @@ void getinput(int32_t snum)
         return;
     }
 
-    /*
-            if (numplayers > 1)
-                daang = myang;
-            else*/
     daang = p->ang;
 
     momx = mulscale9(vel,sintable[(daang+2560)&2047]);
