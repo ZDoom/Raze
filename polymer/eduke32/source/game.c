@@ -2241,23 +2241,6 @@ void Net_UpdateClients(void)
 
 void faketimerhandler(void)
 {
-    int32_t i;
-
-    if (g_quickExit == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && KB_KeyPressed(sc_Delete))
-    {
-        g_quickExit = 1;
-        G_GameExit("Quick Exit.");
-    }
-
-    sampletimer();
-    MUSIC_Update();
-
-    if ((totalclock < ototalclock+TICSPERFRAME) || (ready2send == 0)) return;
-    ototalclock += TICSPERFRAME;
-
-    Net_GetPackets();
-
-    g_player[myconnectindex].movefifoend++;
 }
 
 extern int32_t cacnum;
@@ -11808,7 +11791,7 @@ MAIN_LOOP_RESTART:
 
     do //main loop
     {
-        static uint32_t nextrender = 0, next = 0;
+        static uint32_t nextrender = 0, framewaiting = 0;
         uint32_t j;
 
         if (handleevents() && quitevent)
@@ -11818,6 +11801,8 @@ MAIN_LOOP_RESTART:
         }
         
         sampletimer();
+        MUSIC_Update();
+        Net_GetPackets();
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         bindsenabled = g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO);
@@ -11852,7 +11837,14 @@ MAIN_LOOP_RESTART:
             }
 */
 
-            do faketimerhandler();
+            do 
+            {
+                sampletimer();
+
+                if ((totalclock < ototalclock+TICSPERFRAME) || (ready2send == 0)) return;
+                ototalclock += TICSPERFRAME;
+                g_player[myconnectindex].movefifoend++;
+            }
             while (!(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO)) && totalclock >= ototalclock+TICSPERFRAME);
         }
 
@@ -11883,9 +11875,9 @@ MAIN_LOOP_RESTART:
             g_multiMapState = NULL;
         }
 
-        if (next)
+        if (framewaiting)
         {
-            next--;
+            framewaiting--;
             if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || !getrendermode()))
             {
                 ud.statusbarmode = 0;
@@ -11915,7 +11907,7 @@ MAIN_LOOP_RESTART:
                 G_DrawBackground();
             S_Update();
 
-            next++;
+            framewaiting++;
         }
 
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)

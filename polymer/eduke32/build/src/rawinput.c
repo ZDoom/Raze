@@ -80,7 +80,7 @@ static inline void RI_ProcessMouse(const RAWMOUSE* rmouse)
 static inline void RI_ProcessKeyboard(const RAWKEYBOARD* rkbd)
 {
     uint8_t key = rkbd->MakeCode, VKey = rkbd->VKey;
-    uint8_t buf[2], i;
+    uint8_t buf[2];
 
     // for some reason rkbd->MakeCode is wrong for these 
     // even though rkbd->VKey is right...

@@ -81,7 +81,7 @@ ifeq (4,$(GCC_MAJOR))
       endif
     endif
     ifeq (5,$(GCC_MINOR))
-        debug += -flto
+#        debug += -flto
     endif
   endif
 endif

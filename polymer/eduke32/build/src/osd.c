@@ -1469,9 +1469,7 @@ void OSD_DispatchQueued(void)
     osdexeccount=0;
 
     for (; cmd>=0; cmd--)
-    {
         OSD_Dispatch((const char *)osdhistorybuf[cmd]);
-    }
 }
 
 
@@ -1576,36 +1574,30 @@ static char *strtoken(char *s, char **ptrptr, int32_t *restart)
 int32_t OSD_Dispatch(const char *cmd)
 {
     char *workbuf, *wp, *wtp, *state;
-    char *parms[MAXPARMS];
-    int32_t  numparms, restart = 0;
-    osdfuncparm_t ofp;
-    symbol_t *symb;
-    //int32_t i;
+    int32_t restart = 0;
 
     workbuf = state = Bstrdup(cmd);
     if (!workbuf) return -1;
 
     do
     {
-        numparms = 0;
+        int32_t numparms = 0;
+        symbol_t *symb;
+        osdfuncparm_t ofp;
+        char *parms[MAXPARMS];
+
         Bmemset(parms, 0, sizeof(parms));
-        wp = strtoken(state, &wtp, &restart);
-        if (!wp)
+
+        if ((wp = strtoken(state, &wtp, &restart)) == NULL)
         {
             state = wtp;
             continue;
         }
 
-        if (wp[0] == '/' && wp[1] == '/') // cheap hack
+        if ((symb = findexactsymbol(wp)) == NULL)
         {
-            Bfree(workbuf);
-            return -1;
-        }
-
-        symb = findexactsymbol(wp);
-        if (!symb)
-        {
-            OSD_Printf(OSDTEXT_RED "Error: \"%s\" is not a valid command or cvar\n", wp);
+            if (wp[0] != '/' || wp[1] != '/') // cheap hack for comments in cfgs
+                OSD_Printf(OSDTEXT_RED "\"%s\" is not a valid command or cvar\n", wp);
             Bfree(workbuf);
             return -1;
         }
@@ -1619,10 +1611,14 @@ int32_t OSD_Dispatch(const char *cmd)
         ofp.numparms = numparms;
         ofp.parms    = (const char **)parms;
         ofp.raw      = cmd;
-        if (symb->func == OSD_ALIAS)
-            OSD_Dispatch(symb->help);
-        else if (symb->func != OSD_UNALIASED)
+
+        switch((intptr_t)symb->func)
         {
+        case (intptr_t)OSD_ALIAS:
+            OSD_Dispatch(symb->help);
+        case (intptr_t)OSD_UNALIASED:
+            break;
+        default:
             switch (symb->func(&ofp))
             {
             case OSDCMD_OK:
@@ -1631,6 +1627,7 @@ int32_t OSD_Dispatch(const char *cmd)
                 OSD_Printf("%s\n", symb->help);
                 break;
             }
+            break;
         }
 
         state = wtp;

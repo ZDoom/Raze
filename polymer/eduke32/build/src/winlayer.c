@@ -1606,12 +1606,12 @@ inline void sampletimer(void)
     if (!timerfreq) return;
 
     QueryPerformanceCounter((LARGE_INTEGER*)&i);
-    n = (int32_t)(i*timerticspersec / timerfreq) - timerlastsample;
-    if (n>0)
-    {
-        totalclock += n;
-        timerlastsample += n;
-    }
+    n = (int32_t)((i*timerticspersec / timerfreq) - timerlastsample);
+
+    if (n <= 0) return;
+
+    totalclock += n;
+    timerlastsample += n;
 
     if (usertimercallback) for (; n>0; n--) usertimercallback();
 }

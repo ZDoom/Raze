@@ -1453,7 +1453,7 @@ static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLa
     case PLAYER_FALLING_COUNTER:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->falling_counter, vm.g_i, vm.g_p); return;
     case PLAYER_GOTWEAPON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->gotweapon & (1<<lParm2), vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, (g_player[iPlayer].ps->gotweapon & (1<<lParm2)) != 0, vm.g_i, vm.g_p); return;
     case PLAYER_REFRESH_INVENTORY:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->refresh_inventory, vm.g_i, vm.g_p); return;
     case PLAYER_TOGGLE_KEY_FLAG:
@@ -3710,7 +3710,7 @@ static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, in
     case PLAYER_FALLING_COUNTER:
         return g_player[iPlayer].ps->falling_counter;
     case PLAYER_GOTWEAPON:
-        return g_player[iPlayer].ps->gotweapon & (1<<lParm2);
+        return (g_player[iPlayer].ps->gotweapon & (1<<lParm2)) != 0;
     case PLAYER_REFRESH_INVENTORY:
         return g_player[iPlayer].ps->refresh_inventory;
     case PLAYER_TOGGLE_KEY_FLAG:
