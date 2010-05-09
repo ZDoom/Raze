@@ -992,7 +992,6 @@ static BOOL CALLBACK InitDirectInput_enum(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRe
     {
     case DIDEVTYPE_JOYSTICK:
     {
-        int32_t i;
         inputdevices |= (1<<(JOYSTICK+2));
         joyisgamepad = ((lpddi->dwDevType & (DIDEVTYPEJOYSTICK_GAMEPAD<<8)) != 0);
         d = joyisgamepad ? "GAMEPAD" : "JOYSTICK";
@@ -1252,7 +1251,6 @@ static void UninitDirectInput(void)
 static void GetKeyNames(void)
 {
     int32_t i;
-    HRESULT res;
     char tbuf[MAX_PATH];
 
     memset(key_names,0,sizeof(key_names));
@@ -1346,10 +1344,11 @@ static void AcquireInputDevices(char acquire, int8_t device)
 //
 static inline void DI_PollJoysticks(void)
 {
-    DWORD i, dwElements = INPUT_BUFFER_SIZE, ev = 0;
+    DWORD dwElements = INPUT_BUFFER_SIZE;
     HRESULT result;
     DIDEVICEOBJECTDATA didod[INPUT_BUFFER_SIZE];
-    uint32_t t,u;
+    uint32_t t;
+    int32_t i, ev;
 
     numdevs = 0;
 
@@ -1384,7 +1383,7 @@ static inline void DI_PollJoysticks(void)
     // to be read and input events processed
     ev = MsgWaitForMultipleObjects(numdevs, waithnds, FALSE, 0, 0);
 
-    if (ev < WAIT_OBJECT_0 || ev > WAIT_OBJECT_0+numdevs)
+    if (ev < WAIT_OBJECT_0 || ev > (int32_t)(WAIT_OBJECT_0+numdevs))
         return;
 
     switch (idevnums[ev - WAIT_OBJECT_0])
@@ -1665,38 +1664,6 @@ static HDC      hDCSection  = NULL;
 static HBITMAP  hDIBSection = NULL;
 static HPALETTE hPalette    = NULL;
 static VOID    *lpPixels    = NULL;
-
-#define NUM_SYS_COLOURS	25
-static int32_t syscolouridx[NUM_SYS_COLOURS] =
-{
-    COLOR_SCROLLBAR,		// 1
-    COLOR_BACKGROUND,
-    COLOR_ACTIVECAPTION,
-    COLOR_INACTIVECAPTION,
-    COLOR_MENU,
-    COLOR_WINDOW,
-    COLOR_WINDOWFRAME,
-    COLOR_MENUTEXT,
-    COLOR_WINDOWTEXT,
-    COLOR_CAPTIONTEXT,		// 10
-    COLOR_ACTIVEBORDER,
-    COLOR_INACTIVEBORDER,
-    COLOR_APPWORKSPACE,
-    COLOR_HIGHLIGHT,
-    COLOR_HIGHLIGHTTEXT,
-    COLOR_BTNFACE,
-    COLOR_BTNSHADOW,
-    COLOR_GRAYTEXT,
-    COLOR_BTNTEXT,
-    COLOR_INACTIVECAPTIONTEXT,	// 20
-    COLOR_BTNHIGHLIGHT,
-    COLOR_3DDKSHADOW,
-    COLOR_3DLIGHT,
-    COLOR_INFOTEXT,
-    COLOR_INFOBK			// 25
-};
-static DWORD syscolours[NUM_SYS_COLOURS];
-static char system_colours_saved = 0, bw_colours_set = 0;
 
 static int32_t setgammaramp(WORD gt[3][256]);
 static int32_t getgammaramp(WORD gt[3][256]);
@@ -2843,7 +2810,6 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
     GLuint PixelFormat;
     int32_t minidriver;
     int32_t err;
-    static int32_t warnonce = 0;
     pfd.cColorBits = bitspp;
 
     hGLWindow = CreateWindow(
@@ -3724,9 +3690,12 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
             SetForegroundWindow(hWindow);
             SetFocus(hWindow);
         }
+
+        Bmemset(keystatus, 0, sizeof(keystatus));
         AcquireInputDevices(appactive,-1);
         break;
     }
+
     case WM_ACTIVATE:
         if (appactive)
         {
@@ -3734,6 +3703,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
             SetFocus(hWindow);
         }
 
+        Bmemset(keystatus, 0, sizeof(keystatus));
         AcquireInputDevices(appactive,-1);
         break;
 

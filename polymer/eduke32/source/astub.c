@@ -8349,54 +8349,6 @@ static int32_t osdcmd_initgroupfile(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_echo(const osdfuncparm_t *parm)
-{
-    int32_t i;
-    for (i = 0; i < parm->numparms; i++)
-    {
-        if (i > 0) OSD_Printf(" ");
-        OSD_Printf("%s", parm->parms[i]);
-    }
-    OSD_Printf("\n");
-
-    return OSDCMD_OK;
-}
-
-static int32_t osdcmd_fileinfo(const osdfuncparm_t *parm)
-{
-    uint32_t crc, length;
-    int32_t i,j;
-    char buf[256];
-
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-    if ((i = kopen4load((char *)parm->parms[0],0)) < 0)
-    {
-        OSD_Printf("fileinfo: File \"%s\" not found.\n", parm->parms[0]);
-        return OSDCMD_OK;
-    }
-
-    length = kfilelength(i);
-
-    crc32init(&crc);
-    do
-    {
-        j = kread(i,buf,256);
-        crc32block(&crc,(uint8_t *)buf,j);
-    }
-    while (j == 256);
-    crc32finish(&crc);
-
-    kclose(i);
-
-    OSD_Printf("fileinfo: %s\n"
-               "  File size: %d\n"
-               "  CRC-32:    %08X\n",
-               parm->parms[0], length, crc);
-
-    return OSDCMD_OK;
-}
-
 static int32_t osdcmd_sensitivity(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1)
@@ -8714,10 +8666,7 @@ static int32_t registerosdcommands(void)
 {
     OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
 
-    OSD_RegisterFunction("echo","echo [text]: echoes text to the console", osdcmd_echo);
     OSD_RegisterFunction("editorgridextent","editorgridextent: sets the size of the 2D mode editing grid",osdcmd_editorgridextent);
-
-    OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
 
     OSD_RegisterFunction("gamma","gamma <value>: changes brightness", osdcmd_gamma);
 

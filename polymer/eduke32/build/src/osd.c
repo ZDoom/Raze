@@ -9,6 +9,7 @@
 #include "cache1d.h"
 #include "pragmas.h"
 #include "scancodes.h"
+#include "crc32.h"
 
 symbol_t *symbols = NULL;
 static symbol_t *addnewsymbol(const char *name);
@@ -295,6 +296,54 @@ static int32_t _internal_osdfunc_exec(const osdfuncparm_t *parm)
         OSD_Printf(OSD_ERROR "exec: file \"%s\" not found.\n", fn);
         return OSDCMD_OK;
     }
+    return OSDCMD_OK;
+}
+
+static int32_t _internal_osdfunc_echo(const osdfuncparm_t *parm)
+{
+    int32_t i;
+    for (i = 0; i < parm->numparms; i++)
+    {
+        if (i > 0) OSD_Printf(" ");
+        OSD_Printf("%s", parm->parms[i]);
+    }
+    OSD_Printf("\n");
+
+    return OSDCMD_OK;
+}
+
+static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
+{
+    uint32_t crc, length;
+    int32_t i,j;
+    char buf[256];
+
+    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    if ((i = kopen4load((char *)parm->parms[0],0)) < 0)
+    {
+        OSD_Printf("fileinfo: File \"%s\" not found.\n", parm->parms[0]);
+        return OSDCMD_OK;
+    }
+
+    length = kfilelength(i);
+
+    crc32init(&crc);
+    do
+    {
+        j = kread(i,buf,256);
+        crc32block(&crc,(uint8_t *)buf,j);
+    }
+    while (j == 256);
+    crc32finish(&crc);
+
+    kclose(i);
+
+    OSD_Printf("fileinfo: %s\n"
+        "  File size: %d\n"
+        "  CRC-32:    %08X\n",
+        parm->parms[0], length, crc);
+
     return OSDCMD_OK;
 }
 
@@ -590,7 +639,7 @@ void OSD_Init(void)
         { "osdtextpal","osdtextpal: sets the palette of the OSD text",(void *)&osdtextpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
         { "osdeditshade","osdeditshade: sets the shade of the OSD input text",(void *)&osdeditshade, CVAR_INT, 0, 7 },
         { "osdtextshade","osdtextshade: sets the shade of the OSD text",(void *)&osdtextshade, CVAR_INT, 0, 7 },
-        { "osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",(void *)&osdpromptshade, CVAR_INT, -128, 127 },
+        { "osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",(void *)&osdpromptshade, CVAR_INT, INT8_MIN, INT8_MAX },
         { "osdrows","osdrows: sets the number of visible lines of the OSD",(void *)&osdrows, CVAR_INT|CVAR_FUNCPTR, 0, MAXPALOOKUPS-1 },
         { "osdtextmode","osdtextmode: set OSD text mode (0:graphical, 1:fast)",(void *)&osdtextmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "logcutoff","logcutoff: sets the maximal line count of the log file",(void *)&logcutoff, CVAR_INT, 0, 262144 },
@@ -618,10 +667,12 @@ void OSD_Init(void)
 
     OSD_RegisterFunction("alias","alias: creates an alias for calling multiple commands",_internal_osdfunc_alias);
     OSD_RegisterFunction("clear","clear: clears the console text buffer",_internal_osdfunc_clear);
+    OSD_RegisterFunction("echo","echo [text]: echoes text to the console", _internal_osdfunc_echo);
     OSD_RegisterFunction("exec","exec <scriptfile>: executes a script", _internal_osdfunc_exec);
+    OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", _internal_osdfunc_fileinfo);
     OSD_RegisterFunction("help","help: displays help for the specified cvar or command; \"listsymbols\" to show all commands",_internal_osdfunc_help);
     OSD_RegisterFunction("history","history: displays the console command history",_internal_osdfunc_history);
-    OSD_RegisterFunction("listsymbols","listsymbols: lists all registered functions and cvars",_internal_osdfunc_listsymbols);
+    OSD_RegisterFunction("listsymbols","listsymbols: lists all registered functions, cvars and aliases",_internal_osdfunc_listsymbols);
     OSD_RegisterFunction("unalias","unalias: removes a command alias",_internal_osdfunc_unalias);
 
     atexit(OSD_Cleanup);

@@ -8292,7 +8292,7 @@ char CheatStrings[][MAXCHEATLEN] =
     "keys",         // 23
     "debug",        // 24
     "<RESERVED>",   // 25
-    "sfm",          // 26
+    "cgs",          // 26
 };
 
 enum cheatindex_t
@@ -8323,7 +8323,7 @@ enum cheatindex_t
     CHEAT_KEYS,
     CHEAT_DEBUG,
     CHEAT_RESERVED3,
-    CHEAT_SCREAMFORME,
+    CHEAT_COMEGETSOME,
 };
 
 void G_CheatGetInv(void)
@@ -8567,7 +8567,7 @@ FOUNDCHEAT:
                     KB_FlushKeyBoardQueue();
                     return;
 
-                case CHEAT_SCREAMFORME:
+                case CHEAT_COMEGETSOME:
                     ud.god = 1-ud.god;
 
                     if (ud.god)
@@ -8586,7 +8586,8 @@ FOUNDCHEAT:
                         sprite[g_player[myconnectindex].ps->i].hitag = 0;
                         sprite[g_player[myconnectindex].ps->i].lotag = 0;
                         sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].ps->palookup;
-                        Bstrcpy(ScriptQuotes[122],"Scream for me, Long Beach!");
+                        Bstrcpy(ScriptQuotes[122],"COME GET SOME!");
+                        S_PlaySound(DUKE_GETWEAPON2);
                         P_DoQuote(122,g_player[myconnectindex].ps);
                         G_CheatGetInv();
                         for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
@@ -11803,6 +11804,7 @@ MAIN_LOOP_RESTART:
         sampletimer();
         MUSIC_Update();
         Net_GetPackets();
+        G_HandleLocalKeys();
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         bindsenabled = g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO);
@@ -11813,7 +11815,6 @@ MAIN_LOOP_RESTART:
         {
             CONTROL_ProcessBinds();
             getinput(myconnectindex);
-            G_HandleLocalKeys();
 
             avg.fvel += loc.fvel;
             avg.svel += loc.svel;
@@ -11841,7 +11842,7 @@ MAIN_LOOP_RESTART:
             {
                 sampletimer();
 
-                if ((totalclock < ototalclock+TICSPERFRAME) || (ready2send == 0)) return;
+                if ((totalclock < ototalclock+TICSPERFRAME) || (ready2send == 0)) break;
                 ototalclock += TICSPERFRAME;
                 g_player[myconnectindex].movefifoend++;
             }

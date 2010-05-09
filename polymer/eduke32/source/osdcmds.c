@@ -26,7 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osdcmds.h"
 #include "baselayer.h"
 #include "duke3d.h"
-#include "crc32.h"
 #include "osd.h"
 #include "osdfuncs.h"
 #include <ctype.h>
@@ -42,24 +41,12 @@ extern int32_t r_maxfps;
 extern uint32_t g_frameDelay;
 extern int32_t demorec_diffs_cvar, demorec_force_cvar, demorec_seeds_cvar, demoplay_diffs, demoplay_showsync;
 extern int32_t demorec_difftics_cvar, demorec_diffcompress_cvar, demorec_synccompress_cvar;
+extern void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
 
 static inline int32_t osdcmd_quit(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
     G_GameQuit();
-    return OSDCMD_OK;
-}
-
-static int32_t osdcmd_echo(const osdfuncparm_t *parm)
-{
-    int32_t i;
-    for (i = 0; i < parm->numparms; i++)
-    {
-        if (i > 0) OSD_Printf(" ");
-        OSD_Printf("%s", parm->parms[i]);
-    }
-    OSD_Printf("\n");
-
     return OSDCMD_OK;
 }
 
@@ -339,41 +326,6 @@ static int32_t osdcmd_noclip(const osdfuncparm_t *parm)
     {
         OSD_Printf("noclip: Not in a single-player game.\n");
     }
-
-    return OSDCMD_OK;
-}
-
-static int32_t osdcmd_fileinfo(const osdfuncparm_t *parm)
-{
-    uint32_t crc, length;
-    int32_t i,j;
-    char buf[256];
-
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-    if ((i = kopen4loadfrommod((char *)parm->parms[0],0)) < 0)
-    {
-        OSD_Printf("fileinfo: File \"%s\" not found.\n", parm->parms[0]);
-        return OSDCMD_OK;
-    }
-
-    length = kfilelength(i);
-
-    crc32init(&crc);
-    do
-    {
-        j = kread(i,buf,256);
-        crc32block(&crc,(uint8_t *)buf,j);
-    }
-    while (j == 256);
-    crc32finish(&crc);
-
-    kclose(i);
-
-    OSD_Printf("fileinfo: %s\n"
-               "  File size: %d\n"
-               "  CRC-32:    %08X\n",
-               parm->parms[0], length, crc);
 
     return OSDCMD_OK;
 }
@@ -1323,14 +1275,6 @@ static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_cvar_set_multi(const osdfuncparm_t *parm)
-{
-    int32_t r = osdcmd_cvar_set(parm);
-    G_UpdatePlayerFromMenu();
-
-    return r;
-}
-
 static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
 {
     int32_t r = osdcmd_cvar_set(parm);
@@ -1397,6 +1341,24 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
 
         return r;
     }
+    else if (!Bstrcasecmp(parm->name, "color"))
+    {
+        G_CheckPlayerColor((int32_t *)&ud.color,-1);
+        g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
+
+        return r;
+    }
+
+    return r;
+}
+
+static int32_t osdcmd_cvar_set_multi(const osdfuncparm_t *parm)
+{
+    int32_t r = osdcmd_cvar_set_game(parm);
+
+    if (r != OSDCMD_OK) return r;
+
+    G_UpdatePlayerFromMenu();
 
     return r;
 }
@@ -1426,7 +1388,9 @@ int32_t registerosdcommands(void)
         { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|CVAR_MULTI, 0, 3 },
         { "cl_angleinterpolation", "cl_angleinterpolation: enable/disable angle interpolation", (void*)&ud.angleinterpolation, CVAR_INT, 0, 256 },
 
-        { "crosshairscale","crosshairscale: changes the crosshair scale", (void*)&ud.crosshairscale, CVAR_INT, 10, 100 },
+        { "color", "color: changes player palette", (void*)&ud.color, CVAR_INT|CVAR_MULTI, 0, g_numRealPalettes },
+
+        { "crosshairscale","crosshairscale: changes the size of the crosshair", (void*)&ud.crosshairscale, CVAR_INT, 10, 100 },
 
         { "demorec_diffs","demorec_diffs: enable/disable diff recording in demos",(void*)&demorec_diffs_cvar, CVAR_BOOL, 0, 1 },
         { "demorec_force","demorec_force: enable/disable forced demo recording",(void*)&demorec_force_cvar, CVAR_BOOL|CVAR_NOSAVE, 0, 1 },
@@ -1454,16 +1418,20 @@ int32_t registerosdcommands(void)
         { "in_joystick","in_joystick: enables input from the joystick if it is present",(void*)&ud.config.UseJoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "in_mouse","in_mouse: enables input from the mouse if it is present",(void*)&ud.config.UseMouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 
+        { "in_aimmode", "in_aimmode: 0:toggle, 1:hold to aim", (void*)&ud.mouseaiming, CVAR_BOOL, 0, 1 },
         { "in_mousebias", "in_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time",
             (void*)&ud.config.MouseBias, CVAR_INT, 0, 32 },
         { "in_mousedeadzone", "in_mousedeadzone: amount of mouse movement to filter out", (void*)&ud.config.MouseDeadZone, CVAR_INT, 0, 512 },
+        { "in_mouseflip", "in_mouseflip: invert vertical mouse movement", (void*)&ud.mouseflip, CVAR_BOOL, 0, 1 },
+        { "in_mousemode", "in_mousemode: like pressing U.", (void*)&g_myAimMode, CVAR_BOOL, 0, 1 },
         { "in_mousesmoothing", "in_mousesmoothing: enable/disable mouse input smoothing", (void*)&ud.config.SmoothInput, CVAR_BOOL, 0, 1 },
 
         { "mus_enabled", "mus_enabled: enables/disables music", (void*)&ud.config.MusicToggle, CVAR_BOOL, 0, 1 },
         { "mus_volume", "mus_musvolume: controls volume of midi music", (void*)&ud.config.MusicVolume, CVAR_INT, 0, 255 },
 
-        { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 2 },
         { "osdhightile", "osdhightile: enable/disable hires art replacements for console text", (void*)&osdhightile, CVAR_BOOL, 0, 1 },
+
+        { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 2 },
         { "r_showfps", "r_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_INT, 0, 2 },
         { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void*)&ud.shadows, CVAR_BOOL, 0, 1 },
         { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 1 },
@@ -1485,7 +1453,7 @@ int32_t registerosdcommands(void)
         { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&ud.config.NumVoices, CVAR_INT, 0, 96 },
         { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&ud.config.ReverseStereo, CVAR_BOOL, 0, 16 },
 
-        { "team","team <value>: change team in multiplayer", (void*)&ud.team, CVAR_INT|CVAR_FUNCPTR|CVAR_MULTI, 0, 3 },
+        { "team","team <value>: change team in multiplayer", (void*)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
 
         { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",(void*)&vid_gamma, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
         { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void*)&vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
@@ -1505,6 +1473,7 @@ int32_t registerosdcommands(void)
             OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set_game);
             break;
         case CVAR_MULTI:
+        case CVAR_FUNCPTR|CVAR_MULTI:
             OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set_multi);
             break;
         default:
@@ -1529,9 +1498,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("connect","connect: connects to a multiplayer game", osdcmd_connect);
     OSD_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
 
-    OSD_RegisterFunction("echo","echo [text]: echoes text to the console", osdcmd_echo);
-    OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
-
     for (i=0; i<NUMGAMEFUNCTIONS; i++)
     {
         char *t;
@@ -1547,7 +1513,6 @@ int32_t registerosdcommands(void)
         OSD_RegisterFunction(t,Bstrdup(tempbuf),osdcmd_button);
     }
 
-//    OSD_RegisterFunction("setbrightness","setbrightness <value>: changes brightness (obsolete)", osdcmd_setbrightness);
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
 
@@ -1569,7 +1534,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
     OSD_RegisterFunction("exit","exit: exits the game immediately", osdcmd_quit);
 
-//    OSD_RegisterFunction("rate","rate: sets the multiplayer packet send rate, in packets/sec",osdcmd_rate);
     OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
     OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
 
