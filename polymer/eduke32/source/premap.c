@@ -590,7 +590,7 @@ void G_UpdateScreenArea(void)
     y1 = scale(y1,ydim,200);
     y2 = scale(y2,ydim,200);
 
-    setview(x1,y1,x2-1,y2-(getrendermode() >= 3));
+    setview(x1,y1,x2-1,y2-(getrendermode() < 3));
 
     G_GetCrosshairColor();
     G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
