@@ -1214,6 +1214,7 @@ void overheadeditor(void)
     walltype *wal;
     int32_t prefixarg = 0;
     hitdata_t hitinfo;
+    int32_t resetsynctics = 0;
 
     //qsetmode640480();
     qsetmodeany(xdim2d,ydim2d);
@@ -1288,8 +1289,14 @@ void overheadeditor(void)
     keystatus[buildkeys[BK_MODE2D_3D]] = 0;
     while ((keystatus[buildkeys[BK_MODE2D_3D]]>>1) == 0)
     {
-        if ((keystatus[buildkeys[BK_MOVEUP]] || (bstatus&(16|32)) || keystatus[buildkeys[BK_MOVEDOWN]]) == 0)
-            idle_waitevent();
+        {
+            if ((keystatus[buildkeys[BK_MOVEUP]] || (bstatus/*&(16|32)*/) || keystatus[buildkeys[BK_MOVEDOWN]]) == 0)
+            {
+                idle_waitevent();
+                // have synctics reset to 0 after we've slept to avoid zooming out to the max instantly
+                resetsynctics = 1;
+            }
+        }
 
         if (handleevents())
         {
@@ -1298,6 +1305,13 @@ void overheadeditor(void)
                 keystatus[1] = 1;
                 quitevent = 0;
             }
+        }
+
+        if (resetsynctics)
+        {
+            resetsynctics = 0;
+            lockclock = totalclock;
+            synctics = 0;
         }
 
         OSD_DispatchQueued();
@@ -2867,7 +2881,7 @@ SKIP:
 
         if ((keystatus[buildkeys[BK_MOVEUP]] || (bstatus&16)) && (zoom < 65536))
         {
-            zoom += (synctics>>1)*(zoom>>3);
+            zoom += synctics*(zoom>>4);
             if (zoom < 24) zoom += 2;
             if (bstatus&16 && (keystatus[0x38] || keystatus[0xb8]))
             {
@@ -2881,7 +2895,7 @@ SKIP:
         }
         if ((keystatus[buildkeys[BK_MOVEDOWN]] || (bstatus&32)) && (zoom > 8))
         {
-            zoom -= (synctics>>1)*(zoom>>3);
+            zoom -= synctics*(zoom>>4);
             if (bstatus&32 && (keystatus[0x38] || keystatus[0xb8]))
             {
                 searchx = halfxdim16;
@@ -6688,6 +6702,7 @@ void test_map(int32_t mode)
 #endif
         printmessage16("Game process exited");
         initmouse();
+        Bmemset(keystatus, 0, sizeof(keystatus));
 
         Bfree(fullparam);
     }
