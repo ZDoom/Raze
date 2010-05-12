@@ -4386,7 +4386,7 @@ static void Keys3d(void)
                 dax = wall[searchwall].x-wall[wall[searchwall].point2].x;
                 day = wall[searchwall].y-wall[wall[searchwall].point2].y;
                 dist = ksqrt(dax*dax+day*day);
-                if (wall[searchwall].nextsector!=-1)
+                if (wall[searchwall].nextsector >= 0 && wall[searchwall].nextsector < numsectors)
                 {
                     int32_t nextsect=wall[searchwall].nextsector;
                     height1=sector[searchsector].floorz-sector[nextsect].floorz;
