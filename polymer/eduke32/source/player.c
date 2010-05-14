@@ -5274,18 +5274,22 @@ void P_ProcessInput(int32_t snum)
 
         j = 0;
 
-        if (shrunk)
-            j = (p->runspeed>>1)+(p->runspeed>>2);
-        else if (psectlotag == 2)
+        if (psectlotag == 2)
             j = 0x1400;
         else if (p->on_ground && (TEST_SYNC_KEY(sb_snum, SK_CROUCH) || (*kb > 10 && aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON)))
             j = 0x2000;
 
-        p->posvel.x = mulscale(p->posvel.x,p->runspeed-j,16);
-        p->posvel.y = mulscale(p->posvel.y,p->runspeed-j,16);
+        p->posvel.x = mulscale16(p->posvel.x,p->runspeed-j);
+        p->posvel.y = mulscale16(p->posvel.y,p->runspeed-j);
 
         if (klabs(p->posvel.x) < 2048 && klabs(p->posvel.y) < 2048)
             p->posvel.x = p->posvel.y = 0;
+
+        if (shrunk)
+        {
+            p->posvel.x = mulscale16(p->posvel.x,p->runspeed-(p->runspeed>>1)+(p->runspeed>>2));
+            p->posvel.y = mulscale16(p->posvel.y,p->runspeed-(p->runspeed>>1)+(p->runspeed>>2));
+        }
     }
 
 HORIZONLY:
