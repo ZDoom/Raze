@@ -25,7 +25,7 @@ CFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
     -fjump-tables -fno-stack-protector
 
-CPPFLAGS=-Iinclude -Isrc -DHAVE_VORBIS
+CPPFLAGS=-Iinclude -Isrc
 
 OBJECTS=$(OBJ)/callbacks.o \
 	$(OBJ)/host.o \
