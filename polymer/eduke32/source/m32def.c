@@ -917,7 +917,7 @@ static void C_GetNextVarType(int32_t type)
         textptr++;
         /// now pointing at 'xxx'
         C_GetNextLabelName();
-        lLabelID = C_GetLabelNameID(SpriteLabels, &spriteH, strtolower(tlabel,Bstrlen(tlabel)));
+        lLabelID = C_GetLabelNameID(SpriteLabels, &spriteH, Bstrtolower(tlabel));
 
         if (lLabelID == -1)
         {
@@ -1018,11 +1018,11 @@ static void C_GetNextVarType(int32_t type)
             C_GetNextLabelName();
             /*initprintf("found xxx label of '%s'\n",   label+(g_numLabels*MAXLABELLEN));*/
             if (id == g_iSpriteVarID || id==3)
-                lLabelID = C_GetLabelNameID(SpriteLabels, &spriteH, strtolower(tlabel,Bstrlen(tlabel)));
+                lLabelID = C_GetLabelNameID(SpriteLabels, &spriteH, Bstrtolower(tlabel));
             else if (id == g_iSectorVarID)
-                lLabelID = C_GetLabelNameID(SectorLabels, &sectorH, strtolower(tlabel,Bstrlen(tlabel)));
+                lLabelID = C_GetLabelNameID(SectorLabels, &sectorH, Bstrtolower(tlabel));
             else if (id == g_iWallVarID)
-                lLabelID = C_GetLabelNameID(WallLabels, &wallH, strtolower(tlabel,Bstrlen(tlabel)));
+                lLabelID = C_GetLabelNameID(WallLabels, &wallH, Bstrtolower(tlabel));
             //printf("LabelID is %d\n",lLabelID);
             if (lLabelID == -1)
             {
@@ -2233,11 +2233,11 @@ repeatcase:
         //printf("found xxx label of '%s'\n",   label+(g_numLabels*MAXLABELLEN));
 
         if (tw==CON_GETSECTOR || tw==CON_SETSECTOR)
-            lLabelID = C_GetLabelNameID(SectorLabels, &sectorH, strtolower(tlabel,Bstrlen(tlabel)));
+            lLabelID = C_GetLabelNameID(SectorLabels, &sectorH, Bstrtolower(tlabel));
         else if (tw==CON_GETWALL || tw==CON_SETWALL)
-            lLabelID = C_GetLabelNameID(WallLabels, &wallH, strtolower(tlabel,Bstrlen(tlabel)));
+            lLabelID = C_GetLabelNameID(WallLabels, &wallH, Bstrtolower(tlabel));
         else // if (tw==CON_GETSPRITE || tw==CON_SETSPRITE || tw==CON_GETTSPR || tw==CON_SETTSPR)
-            lLabelID = C_GetLabelNameID(SpriteLabels, &spriteH, strtolower(tlabel,Bstrlen(tlabel)));
+            lLabelID = C_GetLabelNameID(SpriteLabels, &spriteH, Bstrtolower(tlabel));
 
         if (lLabelID == -1)
         {

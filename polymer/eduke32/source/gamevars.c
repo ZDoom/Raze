@@ -682,15 +682,18 @@ void __fastcall Gv_SetVar(register int32_t id, register int32_t lValue, register
     }
 
 badvarid:
-    OSD_Printf(CON_ERROR "Gv_SetVar(): tried to set invalid gamevar ID (%d) from sprite %d (%d), player %d\n",g_errorLineNum,keyw[g_tw],id,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
+    OSD_Printf(CON_ERROR "Gv_SetVar(): tried to set invalid gamevar ID (%d) from sprite %d (%d), player %d\n",
+        g_errorLineNum,keyw[g_tw],id,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
     return;
 
 badplayer:
-    OSD_Printf(CON_ERROR "Gv_SetVar(): invalid player (%d) for per-player gamevar %s from sprite %d, player %d\n",g_errorLineNum,keyw[g_tw],iPlayer,aGameVars[id].szLabel,vm.g_i,vm.g_p);
+    OSD_Printf(CON_ERROR "Gv_SetVar(): invalid player (%d) for per-player gamevar %s from sprite %d, player %d\n",
+        g_errorLineNum,keyw[g_tw],iPlayer,aGameVars[id].szLabel,vm.g_i,vm.g_p);
     return;
 
 badactor:
-    OSD_Printf(CON_ERROR "Gv_SetVar(): invalid sprite (%d) for per-actor gamevar %s from sprite %d (%d), player %d\n",g_errorLineNum,keyw[g_tw],iActor,aGameVars[id].szLabel,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
+    OSD_Printf(CON_ERROR "Gv_SetVar(): invalid sprite (%d) for per-actor gamevar %s from sprite %d (%d), player %d\n",
+        g_errorLineNum,keyw[g_tw],iActor,aGameVars[id].szLabel,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
     return;
 }
 

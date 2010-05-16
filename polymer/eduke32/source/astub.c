@@ -9589,7 +9589,9 @@ int32_t ExtInit(void)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     glusetexcache = -1;
 
-    initprintf("Using config file '%s'.\n",setupfilename);
+    if (Bstrcmp(setupfilename, "mapster32.cfg"))
+        initprintf("Using config file '%s'.\n",setupfilename);
+
     if (loadsetup(setupfilename) < 0) initprintf("Configuration file not found, using defaults.\n"), rv = 1;
 
     if (glusetexcache == -1)

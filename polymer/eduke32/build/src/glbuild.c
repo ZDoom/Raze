@@ -334,13 +334,11 @@ int32_t loadgldriver(const char *driver)
 #endif
     }
 
-    initprintf("Loading %s\n",driver);
-
 #if defined RENDERTYPESDL
-    if (SDL_GL_LoadLibrary(driver)) return -1;
+    if (SDL_GL_LoadLibrary(driver)) goto fail;
 #elif defined _WIN32
     hGLDLL = LoadLibrary(driver);
-    if (!hGLDLL) return -1;
+    if (!hGLDLL) goto fail;
 #endif
     gldriver = Bstrdup(driver);
 
@@ -471,6 +469,10 @@ int32_t loadgldriver(const char *driver)
 
     if (err) unloadgldriver();
     return err;
+
+fail:
+    initprintf("Failed loading \"%s\"\n",driver);
+    return -1;
 }
 
 int32_t loadglextensions(void)
@@ -921,14 +923,12 @@ int32_t loadglulibrary(const char *driver)
 #endif
     }
 
-    initprintf("Loading %s\n",driver);
-
 #if defined _WIN32
     hGLUDLL = LoadLibrary(driver);
-    if (!hGLUDLL) return -1;
+    if (!hGLUDLL) goto fail;
 #else
     gluhandle = dlopen(driver, RTLD_NOW|RTLD_GLOBAL);
-    if (!gluhandle) return -1;
+    if (!gluhandle) goto fail;
 #endif
     glulibrary = Bstrdup(driver);
 
@@ -951,6 +951,10 @@ int32_t loadglulibrary(const char *driver)
 
     if (err) unloadglulibrary();
     return err;
+
+fail:
+    initprintf("Failed loading \"%s\"\n",driver);
+    return -1;
 }
 
 int32_t unloadglulibrary(void)

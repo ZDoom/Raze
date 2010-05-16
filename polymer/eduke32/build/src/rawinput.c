@@ -80,7 +80,6 @@ static inline void RI_ProcessMouse(const RAWMOUSE* rmouse)
 static inline void RI_ProcessKeyboard(const RAWKEYBOARD* rkbd)
 {
     uint8_t key = rkbd->MakeCode, VKey = rkbd->VKey;
-    uint8_t buf[2];
 
     // for some reason rkbd->MakeCode is wrong for these 
     // even though rkbd->VKey is right...
@@ -147,16 +146,21 @@ static inline void RI_ProcessKeyboard(const RAWKEYBOARD* rkbd)
     if (rkbd->Flags & RI_KEY_BREAK) return;
     if (((keyasciififoend+1)&(KEYFIFOSIZ-1)) == keyasciififoplc) return;
     if ((keyasciififoend - keyasciififoplc) > 0) return;
-    if (ToAscii(VKey, key, &KeyboardState[0], (LPWORD)&buf[0], 0) != 1) return;
-    if ((OSD_OSDKey() < 128) && (Btolower(scantoasc[OSD_OSDKey()]) == Btolower(buf[0]))) return;
-    if (OSD_HandleChar(buf[0]) == 0) return;
 
-    keyasciififo[keyasciififoend] = buf[0];
-    keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
+    {
+        uint8_t buf[2];
+
+        if (ToAscii(VKey, key, &KeyboardState[0], (LPWORD)&buf[0], 0) != 1) return;
+        if ((OSD_OSDKey() < 128) && (Btolower(scantoasc[OSD_OSDKey()]) == Btolower(buf[0]))) return;
+        if (OSD_HandleChar(buf[0]) == 0) return;
+
+        keyasciififo[keyasciififoend] = buf[0];
+        keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
+    }
 }
 
 // keyboard is always captured regardless of what we tell this function
-int32_t RI_CaptureInput(int32_t grab, HWND target)
+BOOL RI_CaptureInput(BOOL grab, HWND target)
 {
     RAWINPUTDEVICE raw[2];
 
@@ -175,7 +179,25 @@ int32_t RI_CaptureInput(int32_t grab, HWND target)
     return (RegisterRawInputDevices(raw, 2, sizeof(raw[0])) == FALSE);
 }
 
-void RI_PollDevices()
+void RI_ProcessMessage(MSG *msg)
+{
+    if (GET_RAWINPUT_CODE_WPARAM(msg->wParam) == RIM_INPUT)
+    {
+        UINT dwSize = sizeof(RAWINPUT);
+        RAWINPUT raw;
+
+        GetRawInputData((HRAWINPUT)msg->lParam, RID_INPUT, &raw, &dwSize, sizeof(RAWINPUTHEADER));
+
+        if (raw.header.dwType == RIM_TYPEKEYBOARD)
+            RI_ProcessKeyboard(&raw.data.keyboard);
+        else if (raw.header.dwType == RIM_TYPEMOUSE)
+            RI_ProcessMouse(&raw.data.mouse);
+    }
+
+    DefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam);
+}
+
+void RI_PollDevices(BOOL loop)
 {
     int32_t i;
     MSG msg;
@@ -193,23 +215,8 @@ void RI_PollDevices()
 
     MWheel = 0;
 
-    while (PeekMessage(&msg, 0, WM_INPUT, WM_INPUT, PM_REMOVE | PM_QS_INPUT))
-    {
-        if (GET_RAWINPUT_CODE_WPARAM(msg.wParam) == RIM_INPUT)
-        {
-            UINT dwSize = sizeof(RAWINPUT);
-            RAWINPUT raw;
-
-            GetRawInputData((HRAWINPUT)msg.lParam, RID_INPUT, &raw, &dwSize, sizeof(RAWINPUTHEADER));
-
-            if (raw.header.dwType == RIM_TYPEKEYBOARD)
-                RI_ProcessKeyboard(&raw.data.keyboard);
-            else if (raw.header.dwType == RIM_TYPEMOUSE)
-                RI_ProcessMouse(&raw.data.mouse);
-        }
-
-        DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
-    }
+    while (loop && PeekMessage(&msg, 0, WM_INPUT, WM_INPUT, PM_REMOVE | PM_QS_INPUT))
+        RI_ProcessMessage(&msg);
 
     if (mousegrab && appactive)
     {

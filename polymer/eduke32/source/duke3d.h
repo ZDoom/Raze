@@ -124,7 +124,7 @@ extern int32_t g_scriptVersion, g_Shareware, g_gameType;
 #include "namesdyn.h"
 
 #define TICRATE (120)
-#define GAMETICSPERSEC 26
+#define GAMETICSPERSEC 26 // used as a constant to satisfy all of the calculations written with ticrate = 26 in mind
 #define TICSPERFRAME 4 // this used to be TICRATE/GAMETICSPERSEC which was 4.615~ truncated to 4 by integer division
 #define REALGAMETICSPERSEC 30
 

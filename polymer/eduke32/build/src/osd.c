@@ -1816,7 +1816,7 @@ static symbol_t *addnewsymbol(const char *name)
         }
     }
     hash_add(&h_osd, name, osdnumsymbols);
-    name = strtolower(Bstrdup(name), Bstrlen(name));
+    name = Bstrtolower(Bstrdup(name));
     hash_add(&h_osd, name, osdnumsymbols);
     Bfree((void *)name);
     osdsymbptrs[osdnumsymbols++] = newsymb;
@@ -1857,7 +1857,7 @@ static symbol_t *findexactsymbol(const char *name)
     }
 
     // try it again
-    lname = strtolower(lname, Bstrlen(name));
+    Bstrtolower(lname);
     i = hash_find(&h_osd,lname);
     Bfree(lname);
 

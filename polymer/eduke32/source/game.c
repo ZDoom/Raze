@@ -4884,7 +4884,7 @@ int32_t drawing_ror = 0;
 
 void G_SE40(int32_t smoothratio)
 {
-    if (getrendermode() != 4 && ror_sprite != -1)
+    if (ror_sprite != -1)
     {
         int32_t x, y, z;
         int16_t sect;
@@ -4955,6 +4955,11 @@ void G_SE40(int32_t smoothratio)
                     }
                 }
             }
+
+#ifdef POLYMER
+            if (getrendermode() == 4)
+                polymer_setanimatesprites(G_DoSpriteAnimations, ud.camera.x, ud.camera.y, ud.cameraang, smoothratio);
+#endif
 
             drawrooms(sprite[sprite2].x + x, sprite[sprite2].y + y,
                       z + renderz, ud.cameraang, ud.camerahoriz, sect);
@@ -5040,7 +5045,6 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
     ud.camerasect = p->cursectnum;
 
     G_DoInterpolations(smoothratio);
-
     G_AnimateCamSprite();
 
     if (ud.camerasprite >= 0)
@@ -5053,15 +5057,17 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         ud.cameraang = actor[ud.camerasprite].tempang+
                        mulscale16((int32_t)(((s->ang+1024-actor[ud.camerasprite].tempang)&2047)-1024),smoothratio);
 
+        G_SE40(smoothratio);
+
 #ifdef POLYMER
         if (getrendermode() == 4)
             polymer_setanimatesprites(G_DoSpriteAnimations, s->x, s->y, ud.cameraang, smoothratio);
 #endif
 
-        G_SE40(smoothratio);
-
         drawrooms(s->x,s->y,s->z-(4<<8),ud.cameraang,s->yvel,s->sectnum);
+
         G_DoSpriteAnimations(s->x,s->y,ud.cameraang,smoothratio);
+
         drawmasks();
     }
     else
@@ -5231,13 +5237,12 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
         }
 
+        G_SE40(smoothratio);
+
 #ifdef POLYMER
         if (getrendermode() == 4)
-        {
             polymer_setanimatesprites(G_DoSpriteAnimations, ud.camera.x,ud.camera.y,ud.cameraang,smoothratio);
-        }
 #endif
-        G_SE40(smoothratio);
 
         drawrooms(ud.camera.x,ud.camera.y,ud.camera.z,ud.cameraang,ud.camerahoriz,ud.camerasect);
 
@@ -5273,6 +5278,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         }
 
         G_DoSpriteAnimations(ud.camera.x,ud.camera.y,ud.cameraang,smoothratio);
+
         drawing_ror = 0;
         drawmasks();
 
@@ -11083,7 +11089,7 @@ void app_main(int32_t argc,const char **argv)
     int32_t i = 0, j;
     char cwd[BMAX_PATH];
 //    extern char datetimestring[];
-    ENetCallbacks callbacks = { Bmalloc, Bfree, NULL };
+    ENetCallbacks callbacks = { Bmalloc, Bfree, NULL, NULL };
 
 #ifdef RENDERTYPEWIN
     if (argc > 1)
@@ -11222,7 +11228,7 @@ void app_main(int32_t argc,const char **argv)
     hash_init(&h_gamefuncs);
     for (i=NUMGAMEFUNCTIONS-1; i>=0; i--)
     {
-        char *str = strtolower(Bstrdup(gamefunctions[i]),Bstrlen(gamefunctions[i]));
+        char *str = Bstrtolower(Bstrdup(gamefunctions[i]));
         hash_add(&h_gamefuncs,gamefunctions[i],i);
         hash_add(&h_gamefuncs,str,i);
         Bfree(str);
@@ -11291,7 +11297,8 @@ void app_main(int32_t argc,const char **argv)
         exit(1);
     }
 
-    initprintf("Using config file '%s'.\n",setupfilename);
+    if (Bstrcmp(setupfilename, SETUPFILENAME))
+        initprintf("Using config file '%s'.\n",setupfilename);
 
     ScanGroups();
     {
@@ -11465,7 +11472,7 @@ CLEAN_DIRECTORY:
     if (i == -1)
         initprintf("Warning: could not find main group file '%s'!\n",g_grpNamePtr);
     else
-        initprintf("Using group file '%s' as main group file.\n", g_grpNamePtr);
+        initprintf("Using '%s' as main group file.\n", g_grpNamePtr);
 
     if (!g_noAutoLoad && !ud.config.NoAutoLoad)
     {

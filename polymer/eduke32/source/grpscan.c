@@ -93,7 +93,7 @@ int32_t ScanGroups(void)
         return 0;
     }
 
-    initprintf("Scanning for GRP files...\n");
+    initprintf("Scanning for game data...\n");
 
     LoadGroupsCache();
 
@@ -196,9 +196,12 @@ int32_t ScanGroups(void)
             Bfree(buf);
         return 0;
     }
-    initprintf("Found no recognized GRP files!\n");
+
+    initprintf("Found no recognized game data!\n");
+
     if (buf)
         Bfree(buf);
+
     return 0;
 }
 

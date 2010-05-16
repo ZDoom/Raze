@@ -61,7 +61,7 @@ int32_t CONFIG_FunctionNameToNum(char * func)
 
     if (i < 0)
     {
-        char *str = strtolower(Bstrdup(func),Bstrlen(func));
+        char *str = Bstrtolower(Bstrdup(func));
         i = hash_find(&h_gamefuncs,str);
         Bfree(str);
 

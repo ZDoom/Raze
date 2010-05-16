@@ -790,7 +790,7 @@ void P_ResetStatus(int32_t snum)
 
     if ((aplWeaponWorksLike[p->curr_weapon][snum] == PISTOL_WEAPON) &&
             (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]))
-        p->kickback_pic  = aplWeaponTotalTime[p->curr_weapon][snum]+1;
+        p->kickback_pic  = aplWeaponTotalTime[p->curr_weapon][snum];
     else p->kickback_pic = 0;
 
     p->weapon_pos        = 6;
@@ -820,8 +820,8 @@ void P_ResetWeapons(int32_t snum)
         p->ammo_amount[weapon] = 0;
 
     p->weapon_pos = 6;
-    p->kickback_pic = 5;
     p->curr_weapon = PISTOL_WEAPON;
+    p->kickback_pic = aplWeaponTotalTime[p->curr_weapon][snum];
     p->gotweapon = ((1<<PISTOL_WEAPON) | (1<<KNEE_WEAPON) | (1<<HANDREMOTE_WEAPON));
     p->ammo_amount[PISTOL_WEAPON] = min(p->max_ammo_amount[PISTOL_WEAPON], 48);
     p->last_weapon = -1;
@@ -867,7 +867,12 @@ static void resetprestat(int32_t snum,int32_t g)
     p->max_actors_killed = 0;
     p->lastrandomspot = 0;
     p->weapon_pos = 6;
-    p->kickback_pic = 5;
+
+    if ((aplWeaponWorksLike[p->curr_weapon][snum] == PISTOL_WEAPON) &&
+        (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]))
+        p->kickback_pic  = aplWeaponTotalTime[p->curr_weapon][snum];
+    else p->kickback_pic = 0;
+
     p->last_weapon = -1;
     p->weapreccnt = 0;
     p->interface_toggle_flag = 0;

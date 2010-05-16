@@ -52,16 +52,23 @@ struct glinfo_t glinfo =
 };
 #endif
 
-char *strtolower(char *str, int32_t len)
+char *Bstrtolower(char *str)
 {
-    int32_t i = 0;
-    if (len <= 0) return str;
-    do
+    if (!str) return NULL;
+
     {
-        *(str+i) = Btolower(*(str+i));
-        i++;
+        int32_t i = 0, len = Bstrlen(str);
+
+        if (len <= 0) return str;
+
+        do
+        {
+            *(str+i) = Btolower(*(str+i));
+            i++;
+        }
+        while (--len);
     }
-    while (--len);
+
     return str;
 }
 

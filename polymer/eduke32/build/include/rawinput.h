@@ -3,8 +3,9 @@
 
 #include "compat.h"
 
-void RI_PollDevices();
-int32_t RI_CaptureInput(int32_t grab, HWND target);
+void RI_PollDevices(BOOL loop);
+void RI_ProcessMessage(MSG *msg);
+BOOL RI_CaptureInput(BOOL grab, HWND target);
 
 #ifndef VK_LBUTTON
 #define VK_LBUTTON        0x01

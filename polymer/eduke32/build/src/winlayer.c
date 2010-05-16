@@ -491,7 +491,7 @@ static int32_t set_windowpos(const osdfuncparm_t *parm)
 // initsystem() -- init systems
 //
 
-static void print_os_version(void)
+static void printsysversion(void)
 {
     const char *ver = "";
 
@@ -528,7 +528,7 @@ static void print_os_version(void)
         break;
     }
 
-    initprintf("OS: Windows %s (%lu.%lu.%lu) %s\n", ver, osv.dwMajorVersion, osv.dwMinorVersion,
+    initprintf("Running under Windows %s (build %lu.%lu.%lu) %s\n", ver, osv.dwMajorVersion, osv.dwMinorVersion,
                osv.dwPlatformId == VER_PLATFORM_WIN32_NT ? osv.dwBuildNumber : osv.dwBuildNumber&0xffff,
                osv.szCSDVersion);
 
@@ -559,7 +559,7 @@ int32_t initsystem(void)
     frameplace=0;
     lockcount=0;
 
-    print_os_version();
+    printsysversion();
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
     if (loadgldriver(getenv("BUILD_GLDRV")))
@@ -664,7 +664,7 @@ int32_t handleevents(void)
 
     //if (frameplace && fullscreen) printf("Offscreen buffer is locked!\n");
 
-    RI_PollDevices();
+    RI_PollDevices(TRUE);
 
     if (bDInputInited)
         DI_PollJoysticks();
@@ -675,6 +675,13 @@ int32_t handleevents(void)
             quitevent = 1;
 
         if (startwin_idle((void*)&msg) > 0) continue;
+
+        if (msg.message == WM_INPUT)
+        {
+            RI_PollDevices(FALSE);
+            RI_ProcessMessage(&msg);
+            continue;
+        }
 
         TranslateMessage(&msg);
         DispatchMessage(&msg);
@@ -829,9 +836,10 @@ inline void idle_waitevent(void)
 
         if (PeekMessage(&msg, 0, WM_INPUT, WM_INPUT, PM_QS_INPUT))
         {
-            RI_PollDevices();
+            RI_PollDevices(TRUE);
             return;
         }
+
         Sleep(10);
     }
     while (--i);

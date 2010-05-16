@@ -110,7 +110,7 @@ void setmousepresscallback(void (*callback)(int32_t,int32_t));
 void setjoypresscallback(void (*callback)(int32_t,int32_t));
 const char *getkeyname(int32_t num);
 const char *getjoyname(int32_t what, int32_t num); // what: 0=axis, 1=button, 2=hat
-char *strtolower(char *str, int32_t len);
+char *Bstrtolower(char *str);
 
 char bgetchar(void);
 #define bkbhit() (keyasciififoplc != keyasciififoend)

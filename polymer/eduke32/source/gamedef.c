@@ -1663,13 +1663,13 @@ static void C_GetNextVarType(int32_t type)
             /*initprintf("found xxx label of '%s'\n",   label+(g_numLabels<<6));*/
 
             if (i == g_iSpriteVarID)
-                lLabelID=C_GetLabelNameOffset(&actorH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+                lLabelID=C_GetLabelNameOffset(&actorH,Bstrtolower(label+(g_numLabels<<6)));
             else if (i == g_iSectorVarID)
-                lLabelID=C_GetLabelNameOffset(&sectorH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+                lLabelID=C_GetLabelNameOffset(&sectorH,Bstrtolower(label+(g_numLabels<<6)));
             else if (i == g_iWallVarID)
-                lLabelID=C_GetLabelNameOffset(&wallH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+                lLabelID=C_GetLabelNameOffset(&wallH,Bstrtolower(label+(g_numLabels<<6)));
             else if (i == g_iPlayerVarID)
-                lLabelID=C_GetLabelNameOffset(&playerH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+                lLabelID=C_GetLabelNameOffset(&playerH,Bstrtolower(label+(g_numLabels<<6)));
             else if (i == g_iActorVarID)
                 lLabelID=GetDefID(label+(g_numLabels<<6));
 
@@ -2174,7 +2174,7 @@ static int32_t C_ParseCommand(void)
         C_GetNextLabelName();
         //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
 
-        lLabelID=C_GetLabelNameOffset(&projectileH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+        lLabelID=C_GetLabelNameOffset(&projectileH,Bstrtolower(label+(g_numLabels<<6)));
         //printf("LabelID is %d\n",lLabelID);
         if (lLabelID == -1)
         {
@@ -3153,7 +3153,7 @@ static int32_t C_ParseCommand(void)
         C_GetNextLabelName();
         //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
 
-        lLabelID=C_GetLabelNameID(SectorLabels,&sectorH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+        lLabelID=C_GetLabelNameID(SectorLabels,&sectorH,Bstrtolower(label+(g_numLabels<<6)));
 
         if (lLabelID == -1)
         {
@@ -3288,7 +3288,7 @@ static int32_t C_ParseCommand(void)
         C_GetNextLabelName();
         //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
 
-        lLabelID=C_GetLabelNameID(WallLabels,&wallH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+        lLabelID=C_GetLabelNameID(WallLabels,&wallH,Bstrtolower(label+(g_numLabels<<6)));
 
         if (lLabelID == -1)
         {
@@ -3355,7 +3355,7 @@ static int32_t C_ParseCommand(void)
         C_GetNextLabelName();
         //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
 
-        lLabelID=C_GetLabelNameOffset(&playerH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+        lLabelID=C_GetLabelNameOffset(&playerH,Bstrtolower(label+(g_numLabels<<6)));
         //printf("LabelID is %d\n",lLabelID);
         if (lLabelID == -1)
         {
@@ -3436,7 +3436,7 @@ static int32_t C_ParseCommand(void)
         C_GetNextLabelName();
         //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
 
-        lLabelID=C_GetLabelNameOffset(&inputH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+        lLabelID=C_GetLabelNameOffset(&inputH,Bstrtolower(label+(g_numLabels<<6)));
         //printf("LabelID is %d\n",lLabelID);
         if (lLabelID == -1)
         {
@@ -3487,7 +3487,7 @@ static int32_t C_ParseCommand(void)
         C_GetNextLabelName();
         //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
 
-        lLabelID=C_GetLabelNameID(UserdefsLabels,&userdefH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+        lLabelID=C_GetLabelNameID(UserdefsLabels,&userdefH,Bstrtolower(label+(g_numLabels<<6)));
 
         if (lLabelID == -1)
         {
@@ -3691,7 +3691,7 @@ static int32_t C_ParseCommand(void)
         C_GetNextLabelName();
         //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
 
-        lLabelID=C_GetLabelNameOffset(&actorH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+        lLabelID=C_GetLabelNameOffset(&actorH,Bstrtolower(label+(g_numLabels<<6)));
         //printf("LabelID is %d\n",lLabelID);
         if (lLabelID == -1)
         {
@@ -3770,7 +3770,7 @@ static int32_t C_ParseCommand(void)
         C_GetNextLabelName();
         //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
 
-        lLabelID=C_GetLabelNameOffset(&tspriteH,strtolower(label+(g_numLabels<<6),Bstrlen(label+(g_numLabels<<6))));
+        lLabelID=C_GetLabelNameOffset(&tspriteH,Bstrtolower(label+(g_numLabels<<6)));
         //printf("LabelID is %d\n",lLabelID);
         if (lLabelID == -1)
         {
@@ -5118,7 +5118,7 @@ repeatcase:
         keydefaults[j*3][i] = '\0';
         hash_add(&h_gamefuncs,gamefunctions[j],j);
         {
-            char *str = strtolower(Bstrdup(gamefunctions[j]),Bstrlen(gamefunctions[j]));
+            char *str = Bstrtolower(Bstrdup(gamefunctions[j]));
             hash_add(&h_gamefuncs,str,j);
             Bfree(str);
         }
@@ -5976,7 +5976,6 @@ static void C_InitProjectiles(void)
         int8_t shade, xrepeat, yrepeat, pal; // 4b
         int8_t velmult; // 1b
         uint8_t clipdist; // 1b
-        int8_t filler[6]; // 6b
     } defaultprojectile_t;
     
     defaultprojectile_t DefaultProjectile = 
@@ -5986,7 +5985,7 @@ static void C_InitProjectiles(void)
     };
 
     // this will only happen if I forget to update this function...
-    if (sizeof(projectile_t) != sizeof(DefaultProjectile) || offsetof(projectile_t, filler) != offsetof(defaultprojectile_t, filler))
+    if (offsetof(projectile_t, filler) != sizeof(DefaultProjectile))
         G_GameExit("ERROR: C_InitProjectiles(): projectile_t mismatch!");
 
     for (i=MAXTILES-1; i>=0; i--)

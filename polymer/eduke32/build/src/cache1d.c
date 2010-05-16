@@ -323,6 +323,26 @@ int32_t findfrompath(const char *fn, char **where)
             *where = Bstrdup(fn);
             return 0;
         }
+        else
+        {
+            char *tfn = Bstrtolower(Bstrdup(fn));
+
+            if (access(tfn, F_OK) >= 0)
+            {
+                *where = tfn;
+                return 0;
+            }
+
+            Bstrupr(tfn);
+
+            if (access(tfn, F_OK) >= 0)
+            {
+                *where = tfn;
+                return 0;
+            }
+
+            Bfree(tfn);
+        }
     }
 
     for (pfn = (char*)fn; toupperlookup[*pfn] == '/'; pfn++);
@@ -348,6 +368,8 @@ int32_t findfrompath(const char *fn, char **where)
 
     for (sp = searchpathhead; sp; sp = sp->next)
     {
+        char *tfn = Bstrdup(ffn);
+
         strcpy(pfn, sp->path);
         strcat(pfn, ffn);
         //initprintf("Trying %s\n", pfn);
@@ -355,8 +377,35 @@ int32_t findfrompath(const char *fn, char **where)
         {
             *where = pfn;
             Bfree(ffn);
+            Bfree(tfn);
             return 0;
         }
+
+        //Check with all lowercase
+        strcpy(pfn, sp->path);
+        Bstrtolower(tfn);
+        strcat(pfn, tfn);
+        if (access(pfn, F_OK) >= 0)
+        {
+            *where = pfn;
+            Bfree(ffn);
+            Bfree(tfn);
+            return 0;
+        }
+
+        //Check again with uppercase
+        strcpy(pfn, sp->path);
+        Bstrupr(tfn);
+        strcat(pfn, tfn);
+        if (access(pfn, F_OK) >= 0)
+        {
+            *where = pfn;
+            Bfree(ffn);
+            Bfree(tfn);
+            return 0;
+        }
+
+        Bfree(tfn);
     }
     Bfree(pfn); Bfree(ffn);
     return -1;
