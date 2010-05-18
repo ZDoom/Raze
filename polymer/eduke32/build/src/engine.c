@@ -11468,7 +11468,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
 //
 // printext16
 //
-int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char *name, char fontsize)
+int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize)
 {
     int32_t stx, i, x, y, charxsiz, ocol = col, obackcol = backcol;
     char *fontptr, *letptr, *ptr;
@@ -11573,7 +11573,7 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, cha
 //
 // printext256
 //
-void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char *name, char fontsize)
+void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize)
 {
     int32_t stx, i, x, y, charxsiz;
     char *fontptr, *letptr, *ptr;

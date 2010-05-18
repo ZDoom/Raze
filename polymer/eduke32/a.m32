@@ -12,6 +12,10 @@ gamevar m 0 1
 gamevar p 0 1
 gamevar q 0 1
 
+gamevar gi 0 0
+gamevar gj 0 0
+gamevar gk 0 0
+
 gamevar tmp 0 0
 
 gamevar davr 65536 0
@@ -50,6 +54,17 @@ definequote 17 PICNUM:
 
 definequote 18 NUMBER KEY: %d (SCANCODE: %d)
 
+// Corruption checker
+definequote 19 PANIC!!! SECTOR OR WALL LIMIT EXCEEDED!!!
+definequote 20 SECTOR[%d].WALLPTR=%d out of range: numwalls=%d!!!
+definequote 21 SECTOR[%d].WALLPTR=%d inconsistent, expected %d!!!
+definequote 22 SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d!!!
+definequote 23 WALL[%d].POINT2=%d out of range: sector[%d].wallptr=%d, endwall=%d!!!
+definequote 24 WALL[%d].NEXTWALL=%d out of range: numwalls=%d!!!
+definequote 25 WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d!!!
+
+definequote 26 FLOAT ACCESS TEST
+
 gamearray ar 128
 gamearray parm 8
 
@@ -78,6 +93,16 @@ defstate tests
         ife i 5 break
     }
     ife i 5 quote 0 else quote 1
+
+    quote 26
+    set tmp pr_parallaxscale
+
+    set gi tmp set gj tmp set gk tmp
+    al gi al gj al gk
+    ftoi gi 20 ftoi gj 200 ftoi gk 2000
+    al gi al gj al gk
+    mul gk 2
+    itof gk 2000
 ends
 
 // prints out maphack light definitions based on SE lights in map
@@ -112,10 +137,30 @@ ends
 
 // convenient polymer SE light manipulation with keypad keys
 defstate fiddlewithlights
+    ifn searchstat 0 ifn searchstat 4 nullop
+    else
+    {
+        // polymer override parallaxscale
+        set j 0
+        ifhitkey KEY_KP8 set j 1
+        ifhitkey KEY_KP5 set j -1
+        ifeithershift nullop else mul j 10
+
+        ifn j 0
+        {
+            set k pr_parallaxscale  // also available: ~bias, specularfactor, ~power
+            ftoi k 2000000  // must convert to scaled integer
+            add k j
+            itof k 2000000 // convert back
+            set pr_parallaxscale k
+        }
+
+    }
+
     ife searchstat 3 ife sprite[searchwall].picnum SECTOREFFECTOR
     ifge sprite[searchwall].lotag 49 ifle sprite[searchwall].lotag 50
     {
-        set i searchwall, seti i
+        set i searchwall, seti i  // set current sprite = targeted sprite
 
         // horiz
         ifeithershift set j 1 else set j 10
@@ -531,13 +576,6 @@ defstate jumptosec  // (tmp)
 ends
 
 // Map corruption checker
-definequote 19 PANIC!!! SECTOR OR WALL LIMIT EXCEEDED!!!
-definequote 20 SECTOR[%d].WALLPTR=%d out of range: numwalls=%d!!!
-definequote 21 SECTOR[%d].WALLPTR=%d inconsistent, expected %d!!!
-definequote 22 SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d!!!
-definequote 23 WALL[%d].POINT2=%d out of range: sector[%d].wallptr=%d, endwall=%d!!!
-definequote 24 WALL[%d].NEXTWALL=%d out of range: numwalls=%d!!!
-definequote 25 WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d!!!
 
 gamevar ewall 0 0
 gamevar endwall 0 0

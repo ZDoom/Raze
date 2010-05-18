@@ -90,11 +90,14 @@ int32_t writesetup(const char *fn);	// from config.c
 void editinput(void);
 void clearmidstatbar16(void);
 
-int32_t _getnumber256(char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t));
+int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t));
 #define getnumber256(namestart, num, maxnumber, sign) _getnumber256(namestart, num, maxnumber, sign, NULL)
-int32_t _getnumber16(char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t));
+int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t));
 #define getnumber16(namestart, num, maxnumber, sign) _getnumber16(namestart, num, maxnumber, sign, NULL)
-void printmessage256(int32_t x, int32_t y, char *name);
+void printmessage256(int32_t x, int32_t y, const char *name);
+
+// like snprintf, but pads the output buffer with 'fill' at the end
+int32_t snfillprintf(char *outbuf, size_t bufsiz, int32_t fill, const char *fmt, ...);
 void _printmessage16(const char *fmt, ...);
 
 extern int32_t lastpm16time;
@@ -114,6 +117,18 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point);
 #endif
 
 void test_map(int32_t mode);
+
+
+#define NEXTWALL(i) (wall[wall[i].nextwall])
+#define POINT2(i) (wall[wall[i].point2])
+#define SPRITESEC(j) (sector[sprite[j].sectnum])
+
+static inline int32_t wallength(int16_t i)
+{
+    int32_t dax = POINT2(i).x - wall[i].x;
+    int32_t day = POINT2(i).y - wall[i].y;
+    return ksqrt(dax*dax + day*day);
+}
 
 #ifdef __cplusplus
 }

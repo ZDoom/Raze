@@ -415,6 +415,10 @@ OTHER VARIABLES:
 ***************************************************************************/
 
 typedef struct {
+    int32_t x, y;
+} vec2_t;
+
+typedef struct {
     int32_t x, y, z;
 } vec3_t;
 
@@ -463,8 +467,8 @@ void   clearallviews(int32_t dacol);
 void   drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
 void   rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, char dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 void   drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
-int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char *name, char fontsize);
-void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char *name, char fontsize);
+int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize);
+void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize);
 
 int32_t   clipmove(vec3_t *vect, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype);
 int32_t   clipinsidebox(int32_t x, int32_t y, int16_t wallnum, int32_t walldist);
@@ -494,13 +498,13 @@ EXTERN int16_t radarang[1280];
 static inline int32_t getangle(int32_t xvect, int32_t yvect)
 {
     if ((xvect|yvect) == 0) return(0);
-    if (xvect == 0) return(512+((yvect<0)<<10));
-    if (yvect == 0) return(((xvect<0)<<10));
-    if (xvect == yvect) return(256+((xvect<0)<<10));
-    if (xvect == -yvect) return(768+((xvect>0)<<10));
+    if (xvect == 0) return 512+((yvect<0)<<10);
+    if (yvect == 0) return ((xvect<0)<<10);
+    if (xvect == yvect) return 256+((xvect<0)<<10);
+    if (xvect == -yvect) return 768+((xvect>0)<<10);
     if (klabs(xvect) > klabs(yvect))
-        return(((radarang[640+scale(160,yvect,xvect)]>>6)+((xvect<0)<<10))&2047);
-    return(((radarang[640-scale(160,xvect,yvect)]>>6)+512+((yvect<0)<<10))&2047);
+        return ((radarang[640+scale(160,yvect,xvect)]>>6)+((xvect<0)<<10))&2047;
+    return ((radarang[640-scale(160,xvect,yvect)]>>6)+512+((yvect<0)<<10))&2047;
 }
 
 void   rotatepoint(int32_t xpivot, int32_t ypivot, int32_t x, int32_t y, int16_t daang, int32_t *x2, int32_t *y2);

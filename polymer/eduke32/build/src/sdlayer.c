@@ -16,6 +16,11 @@
 #include "build.h"
 #include "osd.h"
 
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
+// for SDL_WaitEventTimeout defined below
+#include <SDL/SDL_events.h>
+#endif
+
 #ifdef USE_OPENGL
 # include "glbuild.h"
 #endif
@@ -31,6 +36,10 @@ int32_t startwin_puts(const char *s) { s=s; return 0; }
 int32_t startwin_idle(void *s) { s=s; return 0; }
 int32_t startwin_settitle(const char *s) { s=s; return 0; }
 #endif
+
+/// These can be useful for debugging sometimes...
+//#define SDL_WM_GrabInput(x) SDL_WM_GrabInput(SDL_GRAB_OFF)
+//#define SDL_ShowCursor(x) SDL_ShowCursor(SDL_ENABLE)
 
 #define SURFACE_FLAGS	(SDL_SWSURFACE|SDL_HWPALETTE|SDL_HWACCEL)
 
@@ -232,6 +241,7 @@ static void attach_debugger_here(void){}
 
 static void sighandler(int signum)
 {
+    UNREFERENCED_PARAMETER(signum);
 //    if (signum==SIGSEGV)
     {
         SDL_WM_GrabInput(SDL_GRAB_OFF);
@@ -607,6 +617,9 @@ void grabmouse(char a)
 void readmousexy(int32_t *x, int32_t *y)
 {
     if (!mouseacquired || !appactive || !moustat) { *x = *y = 0; return; }
+
+//    if (mousex|mousey)printf("r:%d,%d\n",mousex,mousey); ///
+
     *x = mousex;
     *y = mousey;
     mousex = mousey = 0;
@@ -1566,6 +1579,8 @@ int32_t handleevents(void)
 
                 if (code != scantoasc[OSD_OSDKey()] && ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
                 {
+//                    printf("got char %d\n",code);
+                    
                     if (OSD_HandleChar(code))
                     {
                         keyasciififo[keyasciififoend] = code;
@@ -1579,7 +1594,7 @@ int32_t handleevents(void)
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.scancode];
-//            initprintf("got key %d, %d\n",ev.key.keysym.scancode,code);
+//            printf("got key %d, %d\n",ev.key.keysym.scancode,code);
 
             // hook in the osd
             if (OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN)) == 0)
@@ -1645,7 +1660,9 @@ int32_t handleevents(void)
                         }
                         break;
                         */
-#else
+#warning "Using SDL 1.3"
+#else  // SDL 1.3 ^^^ | vvv SDL 1.2
+#warning "Using SDL 1.2"
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.sym];
@@ -1654,6 +1671,8 @@ int32_t handleevents(void)
                     (ev.key.keysym.unicode & 0xff80) == 0 &&
                     ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
             {
+//                if (ev.type==SDL_KEYDOWN)
+//                    printf("got char %d\n",ev.key.keysym.unicode & 0x7f);
                 if (OSD_HandleChar(ev.key.keysym.unicode & 0x7f))
                 {
                     keyasciififo[keyasciififoend] = ev.key.keysym.unicode & 0x7f;
@@ -1662,6 +1681,8 @@ int32_t handleevents(void)
             }
 
             // hook in the osd
+//            if (ev.type==SDL_KEYDOWN)
+//                printf("got key %d\n",code);
             if (OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN)) == 0)
                 break;
 
@@ -1808,6 +1829,8 @@ int32_t handleevents(void)
         }
     }
 
+//        if (mousex|mousey) printf("%d,%d\n",mousex,mousey); ///
+
     sampletimer();
 
     if (moustat)
@@ -1839,6 +1862,43 @@ inline void idle(void)
 inline void idle_waitevent(void)
 {
     SDL_WaitEvent(NULL);
+}
+
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
+// from SDL HG, modified
+static int32_t SDL_WaitEventTimeout(SDL_Event * event, int32_t timeout)
+{
+    uint32_t expiration = 0;
+
+    if (timeout > 0)
+        expiration = SDL_GetTicks() + timeout;
+
+    for (;;) {
+        SDL_PumpEvents();
+        switch (SDL_PeepEvents(event, 1, SDL_GETEVENT, ~0)) { //SDL_FIRSTEVENT, SDL_LASTEVENT)) {
+        case -1:
+            return 0;
+        case 1:
+            return 1;
+        case 0:
+            if (timeout == 0) {
+                /* Polling and no events, just return */
+                return 0;
+            }
+            if (timeout > 0 && ((int32_t) (SDL_GetTicks() - expiration) >= 0)) {
+                /* Timeout expired and no events */
+                return 0;
+            }
+            SDL_Delay(10);
+            break;
+        }
+    }
+}
+#endif
+
+inline void idle_waitevent_timeout(int32_t timeout)
+{
+    SDL_WaitEventTimeout(NULL, timeout);
 }
 
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
@@ -1975,7 +2035,7 @@ static int32_t buildkeytranslationtable(void)
 
     return 0;
 }
-#else // SDL 1.3
+#else // if SDL 1.3
 static int32_t buildkeytranslationtable(void)
 {
     memset(keytranslation,0,sizeof(keytranslation));

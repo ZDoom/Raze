@@ -51,8 +51,8 @@ extern int16_t searchbottomwall;
 static int32_t ototalclock = 0;
 
 #define NUMOPTIONS 9
-
 char option[NUMOPTIONS] = {0,0,0,0,0,0,1,0,0};
+
 uint8_t keys[NUMBUILDKEYS] =
 {
 	0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
@@ -72,35 +72,38 @@ extern int32_t lastpm16time, synctics;
 extern int32_t halfxdim16, midydim16, zoom;
 extern void fixrepeats(int16_t i);
 
-char autospritehelp=0,autosecthelp=0;
-int16_t MinRate=24, MinD=3;
-int32_t xoldtimerhandler, lastmessagetime=-1;
+static char autospritehelp=0,autosecthelp=0;
+//int16_t MinRate=24, MinD=3;
+//int32_t xoldtimerhandler;
+static int32_t lastmessagetime=-1;
 
-char tempbuf[1024]; //1024
-int32_t numsprite[MAXSPRITES];
-int32_t multisprite[MAXSPRITES];
-char lo[64];
-char levelname[255];
-int16_t curwall=0,curwallnum=0;
-int16_t cursearchsprite=0,cursearchspritenum=0,cursector_lotag=0,cursectornum=0;
-int16_t search_lotag=0,search_hitag=0;
-char wallsprite=0;
-char helpon=0;
+static char tempbuf[1024];
+static int32_t numsprite[MAXSPRITES], multisprite[MAXSPRITES];
+static char lo[64];
+static char levelname[255];
+static int16_t curwall=0, curwallnum=0;
+static int16_t /*cursearchsprite=0,*/ cursearchspritenum=0, cursector_lotag=0, cursectornum=0;
+static int16_t search_lotag=0,search_hitag=0;
+static char wallsprite=0;
+static char helpon=0;
 //static char onwater=0;
-uint8_t onnames=4, usedcount=1;
-int16_t cursprite;
-int32_t mousxplc, mousyplc, ppointhighlight;
-int32_t counter=0;
-uint8_t nosprites=0,purpleon=0,skill=4;
-uint8_t framerateon=1,shadepreview=0,sidemode=0;
-int32_t autosave=180;
-extern int32_t vel, svel, hvel, angvel;
-int32_t xvel, yvel, timoff;
+static uint8_t onnames=4, usedcount=1;
+static int16_t cursprite;
+int32_t mousxplc, mousyplc;
+static int32_t ppointhighlight;
+//static int32_t counter=0;
+static uint8_t nosprites=0,purpleon=0,skill=4;
+static uint8_t framerateon=1,shadepreview=0,sidemode=0;
+static int32_t xvel, yvel, timoff;
 
-static void SearchSectorsForward();
-static void SearchSectorsBackward();
+int32_t autosave=180;
+static int32_t autosavetimer;
+
+extern int32_t vel, svel, hvel, angvel;
+
+static void SearchSectors(int32_t dir);
 static inline void SpriteName(int16_t spritenum, char *lo2);
-static void PrintStatus(char *string,int32_t num,char x,char y,char color);
+static void PrintStatus(const char *string,int32_t num,char x,char y,char color);
 void SetBOSS1Palette();
 void SetSLIMEPalette();
 void SetWATERPalette();
@@ -113,32 +116,33 @@ static void EditWallData(int16_t wallnum);
 static void EditSectorData(int16_t sectnum);
 static void FuncMenu(void);
 
-uint8_t GAMEpalette[768], WATERpalette[768], SLIMEpalette[768], TITLEpalette[768];
-uint8_t REALMSpalette[768], BOSS1palette[768];
+static uint8_t GAMEpalette[768], WATERpalette[768], SLIMEpalette[768], TITLEpalette[768];
+static uint8_t REALMSpalette[768], BOSS1palette[768];
 
-char num_tables;
+static char num_tables;
 
-int32_t updownunits=1024;
+static int32_t updownunits=1024;
+
 extern int16_t highlightsector[MAXSECTORS], highlightsectorcnt;
 extern int16_t highlight[MAXWALLS];
 extern int16_t pointhighlight, linehighlight, highlightcnt;
 extern int16_t asksave;
 
-char getmessage[162], getmessageleng;
-int32_t getmessagetimeoff, charsperline;
+static char getmessage[162], getmessageleng;
+static int32_t getmessagetimeoff; //, charsperline;
+
 extern int32_t startposx, startposy, startposz;
 extern int16_t startang, startsectnum;
 
-int32_t autosavetimer;
 extern int32_t numsprites;
 extern int32_t showfirstwall;
 extern char spritecol2d[MAXTILES][2];
 extern char custom2dcolors;
 
-int32_t intro=0;
+//int32_t intro=0;
 extern int32_t ydim16, halfxdim16, midydim16, zoom;
 extern intptr_t frameplace;
-extern char pow2char[8];
+//extern char pow2char[8];
 
 static int32_t acurpalette=0;
 
@@ -149,47 +153,44 @@ extern int32_t checksectorpointer(int16_t i, int16_t sectnum);
 
 extern double msens;
 
-void ContextHelp(int16_t spritenum);
-void ResetKeys();
+//void ContextHelp(int16_t spritenum);
+//void ResetKeys();
 
 extern void fixspritesectors(void);
- #define KEY_PRESSED(sc) KB_KeyPressed((sc))
+//#define KEY_PRESSED(sc) KB_KeyPressed((sc))
 
 // This table defines the various zoom levels, the numbers being the pixel width
 //   and height of the sprite when plotted on the screen. Probably zooms in too far
 //   for some, but I'm a blind old git :-(
 
 #define FUCKING_GOOD_EYESIGHT 16
-
 static const int32_t ZoomToThumbSize[] =
 {
 	FUCKING_GOOD_EYESIGHT, 32, 64, 128, 192, 256, 384, 512
-} ;
+};
 
 #define NUM_ZOOMS (sizeof(ZoomToThumbSize)/sizeof(ZoomToThumbSize[0]))
-
 #define INITIAL_ZOOM 2
 
 typedef struct
 {
-	int32_t *pIds ;	// ptr to list of tile Ids
-	int32_t  nIds ;		// num of tile ids
-	char *szText ;		// description to present to user.
-	char  key1 ;		// key1 and key2 are two alternative keypresses used to
-	char  key2 ;		//    select tile set. Bodge to do eary upper/lower case handling
-    char  color1;       // 2d sprite color 1
-    char  color2;       // 2d sprite color 2
+	int32_t *pIds;  // ptr to list of tile Ids
+	int32_t  nIds;  // num of tile ids
+	char *szText;   // description to present to user.
+	char  key1;     // key1 and key2 are two alternative keypresses used to
+	char  key2;     //    select tile set. Bodge to do eary upper/lower case handling
+    char  color1;   // 2d sprite color 1
+    char  color2;   // 2d sprite color 2
 } TileGroup;
 
 #define MAX_TILE_GROUPS 32
 #define MAX_TILE_GROUP_ENTRIES 1024
 
-TileGroup s_TileGroups[MAX_TILE_GROUPS];
-
-int32_t tilegroupItems;
-int32_t tilegroupActors;
-
+static TileGroup s_TileGroups[MAX_TILE_GROUPS];
+static int32_t tilegroupItems;
+static int32_t tilegroupActors;
 static uint32_t tile_groups = 0;
+
 
 #define NUMPRINTABLES 94
 #define MAX_ALPHABETS 32
@@ -201,7 +202,7 @@ typedef struct
     int8_t yofs[NUMPRINTABLES];
 } alphabet_t;
 
-alphabet_t alphabets[MAX_ALPHABETS];
+static alphabet_t alphabets[MAX_ALPHABETS];
 static int32_t numalphabets = 0;
 
 #define FIRST_USER_ART_TILE 3584
@@ -216,8 +217,8 @@ extern int16_t localartlookup[MAXTILES], localartlookupnum;
 extern int32_t lockclock;
 extern void clearkeys(void);
 
-int32_t gs_sprite[3][7];
-char gs_spritewhat[3][7];
-int16_t gs_cursprite=-1;
+static int32_t gs_sprite[3][7];
+static char gs_spritewhat[3][7];
+static int16_t gs_cursprite=-1;
 
 int32_t g_musicSize=0;

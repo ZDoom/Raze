@@ -247,6 +247,8 @@ const char *keyw[] =
 
     "displayrand",
 
+    "itof",
+    "ftoi",
     "clamp",
     "inv",  //  inversion function.. not internal
     "sqrt",
@@ -2554,6 +2556,21 @@ repeatcase:
 
         C_GetNextVarType(GAMEVAR_READONLY);
         break;
+
+// *** float access: convert float to int and back
+    case CON_ITOF:
+    case CON_FTOI:
+        // syntax: itof <<var>> SCALE
+        //         ftoi <<var>> SCALE
+        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextValue(LABEL_DEFINE);
+
+        if (*(g_scriptPtr-1)<=0)
+        {
+            initprintf("%s:%d: error: scale value in integer/float conversion must be greater zero.\n",g_szScriptFileName,g_lineNumber);
+            g_numCompilerErrors++;
+        }
+        return 0;
 
 // *** other math
     case CON_CLAMP:

@@ -253,6 +253,11 @@ int32_t OSD_GetCols(void)
     return osdcols;
 }
 
+int32_t OSD_IsMoving(void)
+{
+    return (osdrowscur!=-1 && osdrowscur!=osdrows);
+}
+
 int32_t OSD_GetTextMode(void)
 {
     return osdtextmode;
@@ -884,7 +889,7 @@ int32_t OSD_HandleChar(char ch)
         if (osdeditcursor < osdeditlen) osdeditcursor++;
         return 0;
     case 8:
-    case 127:      // control h, backspace
+//    case 127:      // control h, backspace
         if (!osdeditcursor || !osdeditlen) return 0;
         if ((osdflags & OSD_OVERTYPE) == 0)
         {
@@ -894,6 +899,7 @@ int32_t OSD_HandleChar(char ch)
         }
         osdeditcursor--;
         if (osdeditcursor<osdeditwinstart) osdeditwinstart--,osdeditwinend--;
+    case 127:  // handled in OSD_HandleScanCode (delete)
         return 0;
     case 9:   // tab
         {

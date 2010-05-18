@@ -5705,7 +5705,7 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
 #endif
 }
 
-int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char *name, char fontsize)
+int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize)
 {
 #ifndef USE_OPENGL
     return -1;

@@ -89,6 +89,7 @@ static int32_t dist(spritetype *s1,spritetype *s2)
 }
 ///
 
+#if 0
 void X_Disasm(ofstype beg, int32_t size)
 {
     instype *p;
@@ -106,6 +107,7 @@ void X_Disasm(ofstype beg, int32_t size)
     }
     initprintf("\n");
 }
+#endif
 
 void VM_ScriptInfo(void)
 {
@@ -828,6 +830,28 @@ skip_check:
             continue;
 
 // *** other math
+        case CON_FTOI:
+            insptr++;
+            {
+                int32_t bits=Gv_GetVarX(*insptr), scale=*(insptr+1);
+                double fval=(double)(*((float*)&bits));
+
+                Gv_SetVarX(*insptr, (int32_t)((fval/scale)*2e9));
+            }
+            insptr += 2;
+            continue;
+
+        case CON_ITOF:
+            insptr++;
+            {
+                int32_t scaled=Gv_GetVarX(*insptr), scale=*(insptr+1);
+                float fval = (float)((((double)scaled)*scale)/2e9);
+
+                Gv_SetVarX(*insptr, *((int32_t *)&fval));
+            }
+            insptr += 2;
+            continue;
+
         case CON_CLAMP:
             insptr++;
             {

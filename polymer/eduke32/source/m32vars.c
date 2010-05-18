@@ -26,6 +26,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "m32def.h"
 #include "osd.h"
 #include "keys.h"
+#ifdef POLYMER
+#include "polymer.h"
+#endif
 
 #define _m32vars_c_
 #include "m32structures.c"
@@ -159,7 +162,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     if (i >= 0 && !(aGameVars[i].dwFlags & GAMEVAR_RESET))
     {
         // found it...
-        if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+        if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR|GAMEVAR_FLOATPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
         {
             C_ReportError(-1);
             initprintf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
@@ -232,12 +235,13 @@ int32_t __fastcall Gv_GetVarN(register int32_t id)  // 'N' for "no side-effects"
     id &= (MAXGAMEVARS-1);
 
     switch (aGameVars[id].dwFlags &
-            (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+            (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_FLOATPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
     {
     case 0:
         return aGameVars[id].val.lValue;
     case GAMEVAR_PERBLOCK:
         return aGameVars[id].val.plValues[vm.g_st];
+    case GAMEVAR_FLOATPTR:
     case GAMEVAR_INTPTR:
         return *((int32_t*)aGameVars[id].val.lValue);
     case GAMEVAR_SHORTPTR:
@@ -354,12 +358,18 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
         }
 
         switch (aGameVars[id].dwFlags &
-                (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+                (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_FLOATPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
         {
         case 0:
             return ((aGameVars[id].val.lValue ^ -negateResult) + negateResult);
         case GAMEVAR_PERBLOCK:
             return ((aGameVars[id].val.plValues[vm.g_st] ^ -negateResult) + negateResult);
+        case GAMEVAR_FLOATPTR:
+            if (negateResult)
+            {
+                float fval = -(*(float*)aGameVars[id].val.lValue);
+                return *(int32_t *)&fval;
+            }
         case GAMEVAR_INTPTR:
             return ((*((int32_t*)aGameVars[id].val.lValue) ^ -negateResult) + negateResult);
         case GAMEVAR_SHORTPTR:
@@ -457,7 +467,7 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
     }
 
     switch (aGameVars[id].dwFlags &
-            (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+            (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_FLOATPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
     {
     case 0:
         aGameVars[id].val.lValue=lValue;
@@ -465,6 +475,17 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
     case GAMEVAR_PERBLOCK:
         aGameVars[id].val.plValues[vm.g_st] = lValue;
         return;
+    case GAMEVAR_FLOATPTR:
+    {
+        int32_t ival = lValue;
+        float fval = *(float *)&ival;
+        if (fval!=fval || fval<-3.3e38 || fval > 3.3e38)
+        {
+            OSD_Printf(CON_ERROR "Gv_SetVarX(): tried to set float var to NaN or infinity\n",g_errorLineNum,keyw[g_tw]);
+            vm.flags |= VMFLAG_ERROR;
+            return;
+        }
+    }
     case GAMEVAR_INTPTR:
         *((int32_t*)aGameVars[id].val.lValue)=(int32_t)lValue;
         return;
@@ -603,6 +624,15 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("SV1",(intptr_t)&m32_sortvar1, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
     Gv_NewVar("SV2",(intptr_t)&m32_sortvar2, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
     Gv_NewVar("spritesortcnt",(intptr_t)&spritesortcnt, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+
+#ifdef POLYMER
+    Gv_NewVar("pr_overrideparallax",(intptr_t)&pr_overrideparallax, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("pr_parallaxscale",(intptr_t)&pr_parallaxscale, GAMEVAR_FLOATPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("pr_parallaxbias",(intptr_t)&pr_parallaxbias, GAMEVAR_FLOATPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("pr_overridespecular",(intptr_t)&pr_overridespecular, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("pr_specularpower",(intptr_t)&pr_specularpower, GAMEVAR_FLOATPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("pr_specularfactor",(intptr_t)&pr_specularfactor, GAMEVAR_FLOATPTR | GAMEVAR_SYSTEM);
+#endif
 
     g_systemVarCount = g_gameVarCount;
 

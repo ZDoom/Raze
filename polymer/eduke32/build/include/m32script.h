@@ -118,7 +118,7 @@ enum GamevarFlags_t {
     GAMEVAR_SYSTEM     = 0x00000800, // cannot change mode flags...(only default value)
     GAMEVAR_READONLY   = 0x00001000, // values are read-only (no setvar allowed)
     GAMEVAR_INTPTR     = 0x00002000, // plValues is a pointer to an int32_t
-
+    GAMEVAR_FLOATPTR   = 0x00004000, // plValues is a pointer to a float
     GAMEVAR_SHORTPTR   = 0x00008000, // plValues is a pointer to a short
     GAMEVAR_CHARPTR    = 0x00010000, // plValues is a pointer to a char
 //    GAMEVAR_NORESET    = 0x00020000, // var values are not reset when restoring map state

@@ -313,6 +313,8 @@ enum ScriptKeywords_t
     CON_DISPLAYRAND,
 
 // other math
+    CON_ITOF,
+    CON_FTOI,
     CON_CLAMP,
     CON_INV,
     CON_SQRT,

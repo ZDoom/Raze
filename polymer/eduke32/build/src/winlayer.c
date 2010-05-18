@@ -861,6 +861,11 @@ inline void idle_waitevent(void)
     while (--i);
 }
 
+inline void idle_waitevent_timeout(int32_t timeout)
+{
+    idle_waitevent();
+}
+
 inline void idle(void)
 {
     idle_waitevent();

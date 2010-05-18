@@ -49,7 +49,7 @@ void polymost_glreset(void);
 void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth);
 void gltexinvalidateall(void);
 void gltexinvalidate8(void);
-int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, char *name, char fontsize);
+int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize);
 
 extern float curpolygonoffset;
 

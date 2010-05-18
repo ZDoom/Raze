@@ -59,7 +59,7 @@ extern int16_t brightness;
 extern int32_t vsync;
 extern char game_executable[BMAX_PATH];
 extern int32_t fullscreen;
-extern char option[8];
+extern char option[9];
 extern char keys[NUMBUILDKEYS];
 extern char remap[256];
 extern int32_t remapinit;

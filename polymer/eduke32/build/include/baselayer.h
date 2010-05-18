@@ -98,6 +98,7 @@ void debugprintf(const char *,...);
 int32_t handleevents(void);
 extern inline void idle(void);
 extern inline void idle_waitevent(void);
+extern inline void idle_waitevent_timeout(int32_t timeout);
 
 typedef void (*KeyPressCallback)(int32_t,int32_t);
 typedef void (*MousePressCallback)(int32_t,int32_t);

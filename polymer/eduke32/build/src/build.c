@@ -67,7 +67,7 @@ uint8_t buildkeys[NUMBUILDKEYS] =
 
 vec3_t pos;
 int32_t horiz = 100;
-int32_t mousexsurp = 0, mouseysurp = 0;
+static int32_t mousexsurp = 0, mouseysurp = 0;
 int16_t ang, cursectnum;
 int32_t hvel;
 
@@ -148,8 +148,9 @@ static int32_t currentlist=0;
 
 static int32_t fillist[640];
 
-int32_t mousx, mousy;
+static int32_t mousx, mousy;
 int16_t prefixtiles[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
 /*
 static char scantoasc[128] =
 {
@@ -174,6 +175,13 @@ static char scantoascwithshift[128] =
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
 */
+
+#define eitherALT   (keystatus[0x38]|keystatus[0xb8])
+#define eitherCTRL  (keystatus[0x1d]|keystatus[0x9d])
+#define eitherSHIFT (keystatus[0x2a]|keystatus[0x36])
+
+#define DOWN_BK(BuildKey) (keystatus[buildkeys[BK_##BuildKey]])
+
 int32_t pk_turnaccel=16;
 int32_t pk_turndecel=12;
 int32_t pk_uedaccel=3;
@@ -181,17 +189,18 @@ int32_t pk_uedaccel=3;
 char lastpm16buf[156];
 
 char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck);
-int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls);
-int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls);
+static int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls);
+static void locktogrid(int32_t *dax, int32_t *day);
+static int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls);
 void keytimerstuff(void);
-int32_t clockdir(int16_t wallstart);
-void flipwalls(int16_t numwalls, int16_t newnumwalls);
-void insertpoint(int16_t linehighlight, int32_t dax, int32_t day);
-void deletepoint(int16_t point);
-int32_t deletesector(int16_t sucksect);
+static int32_t clockdir(int16_t wallstart);
+static void flipwalls(int16_t numwalls, int16_t newnumwalls);
+static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day);
+static void deletepoint(int16_t point);
+static int32_t deletesector(int16_t sucksect);
 int32_t checksectorpointer(int16_t i, int16_t sectnum);
 void fixrepeats(int16_t i);
-int16_t loopinside(int32_t x, int32_t y, int16_t startwall);
+static int16_t loopinside(int32_t x, int32_t y, int16_t startwall);
 int32_t fillsector(int16_t sectnum, char fillcolor);
 int16_t whitelinescan(int16_t dalinehighlight);
 void printcoords16(int32_t posxe, int32_t posye, int16_t ange);
@@ -201,28 +210,33 @@ void showwalldata(int16_t wallnum);
 void showspritedata(int16_t spritenum);
 int32_t drawtilescreen(int32_t pictopleft, int32_t picbox);
 void overheadeditor(void);
-int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line);
+static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line);
 void fixspritesectors(void);
-int32_t movewalls(int32_t start, int32_t offs);
+static int32_t movewalls(int32_t start, int32_t offs);
 int32_t loadnames(void);
 void updatenumsprites(void);
-void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny);
-void initcrc(void);
+static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny);
+static void initcrc(void);
 void AutoAlignWalls(int32_t nWall0, int32_t ply);
 int32_t gettile(int32_t tilenum);
 
-int32_t menuselect(void);
+static int32_t menuselect(void);
+static int32_t menuselect_pk(int32_t); //PK
 
-int32_t menuselect_pk(int32_t); //PK
-
-int32_t getfilenames(char *path, char *kind);
-void clearfilenames(void);
+static int32_t getfilenames(const char *path, const char *kind);
+static void clearfilenames(void);
 void loadmhk();
 extern int32_t map_revision;
 extern int32_t map_undoredo(int32_t dir);
 extern void map_undoredo_free(void);
 
-void clearkeys(void) { memset(keystatus,0,sizeof(keystatus)); }
+void clearkeys(void) { Bmemset(keystatus,0,sizeof(keystatus)); }
+
+static inline void bclamp(int32_t *x, int32_t mi, int32_t ma)
+{
+    if (*x>ma) *x=ma;
+    if (*x<mi) *x=mi;
+}
 
 static int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
 {
@@ -291,7 +305,12 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 
     if (setgamemode(newfullscreen,newx,newy,newbpp))
         OSD_Printf("vidmode: Mode change failed!\n");
-    xdimgame = newx; ydimgame = newy; bppgame = newbpp; fullscreen = newfullscreen;
+
+    xdimgame = newx;
+    ydimgame = newy;
+    bppgame = newbpp;
+    fullscreen = newfullscreen;
+
     return OSDCMD_OK;
 }
 
@@ -304,7 +323,7 @@ extern char *defsfilename;	// set in bstub.c
 extern char m32_debugstr[64][128];
 extern int32_t m32_numdebuglines;
 
-void M32_drawdebug(void)
+static void M32_drawdebug(void)
 {
     int i;
     int x=4, y=8;
@@ -357,8 +376,8 @@ int32_t app_main(int32_t argc, const char **argv)
     {
         if (argv[i][0] == '-')
         {
-            if (!strcmp(argv[i], "-setup")) cmdsetup = 1;
-            else if (!strcmp(argv[i], "-help") || !strcmp(argv[i], "--help") || !strcmp(argv[i], "-?"))
+            if (!Bstrcmp(argv[i], "-setup")) cmdsetup = 1;
+            else if (!Bstrcmp(argv[i], "-help") || !Bstrcmp(argv[i], "--help") || !Bstrcmp(argv[i], "-?"))
             {
                 char *s =
                     "Mapster32\n"
@@ -416,7 +435,8 @@ int32_t app_main(int32_t argc, const char **argv)
     Bstrcpy(kensig,"Uses BUILD technology by Ken Silverman");
     initcrc();
 
-    if (!loaddefinitionsfile(defsfilename)) initprintf("Definitions file loaded.\n");
+    if (!loaddefinitionsfile(defsfilename))
+        initprintf("Definitions file loaded.\n");
 
     k = 0;
     for (i=0; i<256; i++)
@@ -593,7 +613,7 @@ CANCEL:
                 {
                     // virtual filesystem mode can't save to directories so drop the file into
                     // the current directory
-                    f = strrchr(boardfilename, '/');
+                    f = Bstrrchr(boardfilename, '/');
                     if (!f) f = boardfilename; else f++;
                 }
                 saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
@@ -619,6 +639,7 @@ CANCEL:
     Bprintf("%s\n",kensig);
     return(0);
 }
+
 /*
 void showmouse(void)
 {
@@ -633,15 +654,17 @@ void showmouse(void)
     }
 }*/
 
-int32_t mhk=0;
+static int32_t mhk=0;
 void loadmhk()
 {
     char *p; char levname[BMAX_PATH];
 
-    if (!mhk)return;
-    strcpy(levname, boardfilename);
+    if (!mhk)
+        return;
+    Bstrcpy(levname, boardfilename);
     p = Bstrrchr(levname,'.');
-    if (!p) strcat(levname,".mhk");
+    if (!p)
+        Bstrcat(levname,".mhk");
     else
     {
         p[1]='m';
@@ -649,7 +672,9 @@ void loadmhk()
         p[3]='k';
         p[4]=0;
     }
-    if (!loadmaphack(levname))initprintf("Loaded map hack file '%s'\n",levname); else mhk=2;
+    if (!loadmaphack(levname))
+        initprintf("Loaded map hack file '%s'\n",levname);
+    else mhk=2;
 }
 
 void editinput(void)
@@ -674,7 +699,7 @@ void editinput(void)
         }
         if (keystatus[88] > 0)   //F12
         {
-            screencapture("captxxxx.tga",keystatus[0x2a]|keystatus[0x36]);
+            screencapture("captxxxx.tga",eitherSHIFT);
             keystatus[88] = 0;
     	}*/
 
@@ -786,10 +811,9 @@ void editinput(void)
             //              horiz--;
             //        if (mousx && !(mousx/2))
             //          ang++;
-            if (horiz > 299)
-                horiz = 299;
-            if (horiz < -99)
-                horiz = -99;
+            
+            bclamp(&horiz, -99, 299);
+
             if (mlook == 1)
             {
                 searchx = xdim>>1;
@@ -804,10 +828,9 @@ void editinput(void)
             osearchy = searchy;
             searchx += mousx;
             searchy += mousy;
-            if (searchx < 12) searchx = 12;
-            if (searchy < 12) searchy = 12;
-            if (searchx > xdim-13) searchx = xdim-13;
-            if (searchy > ydim-13) searchy = ydim-13;
+
+            bclamp(&searchx, 12, xdim-13);
+            bclamp(&searchy, 12, ydim-13);
         }
     }
 
@@ -820,48 +843,52 @@ void editinput(void)
 //    if (keystatus[0x43] > 0) ang--;
 //    if (keystatus[0x44] > 0) ang++;
 
-    if (keystatus[0x43])
+    if (keystatus[0x43])  // F9
     {
         mhk=1;
         loadmhk();
         keystatus[0x43] = 0;
     }
-    if (keystatus[0x44])
+    if (keystatus[0x44])  // F10
     {
-        memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-        memset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
+        Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
+        Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
         mhk=0;
         initprintf("Maphacks disabled\n");
         keystatus[0x44] = 0;
     }
+
     begindrawing();     //{{{
-    if (mhk)printext256(0,16,whitecol,0,(mhk==1)?"Maphacks ON":"Maphacks ON (not found)",0);
+    if (mhk)
+        printext256(0,16,whitecol,0,(mhk==1)?"Maphacks ON":"Maphacks ON (not found)",0);
     enddrawing();       //}}}
 
     if (angvel != 0)          //ang += angvel * constant
     {
         //ENGINE calculates angvel for you
         doubvel = synctics;
-        if (keystatus[buildkeys[BK_RUN]])  //Lt. shift makes turn velocity 50% faster
+        if (DOWN_BK(RUN))  //Lt. shift makes turn velocity 50% faster
             doubvel += (synctics>>1);
         ang += ((angvel*doubvel)>>4);
         ang = (ang+2048)&2047;
     }
     if ((vel|svel) != 0)
     {
-        doubvel = synctics;
-        if (keystatus[buildkeys[BK_RUN]])     //Lt. shift doubles forward velocity
-            doubvel += synctics;
-        xvect = 0, yvect = 0;
+        //Lt. shift doubles forward velocity
+        doubvel = (1+(DOWN_BK(RUN)))*synctics;
+
+        xvect = 0;
+        yvect = 0;
+
         if (vel != 0)
         {
-            xvect += ((vel*doubvel*(int32_t)sintable[(ang+2560)&2047])>>3);
-            yvect += ((vel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3);
+            xvect += (vel*doubvel*(int32_t)sintable[(ang+2560)&2047])>>3;
+            yvect += (vel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3;
         }
         if (svel != 0)
         {
-            xvect += ((svel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3);
-            yvect += ((svel*doubvel*(int32_t)sintable[(ang+1536)&2047])>>3);
+            xvect += (svel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3;
+            yvect += (svel*doubvel*(int32_t)sintable[(ang+1536)&2047])>>3;
         }
         if (noclip)
         {
@@ -871,6 +898,7 @@ void editinput(void)
         }
         else clipmove(&pos,&cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK0);
     }
+
     getzrange(&pos,cursectnum,&hiz,&hihit,&loz,&lohit,128L,CLIPMASK0);
 
     /*    if (keystatus[0x3a] > 0)
@@ -883,33 +911,30 @@ void editinput(void)
 
     if (zmode == 0)
     {
-        goalz = loz-(kensplayerheight<<8);   //playerheight pixels above floor
-        if (goalz < hiz+(16<<8))   //ceiling&floor too close
-            goalz = ((loz+hiz)>>1);
+        goalz = loz-(kensplayerheight<<8);  //playerheight pixels above floor
+        if (goalz < hiz+(16<<8))  //ceiling&floor too close
+            goalz = (loz+hiz)>>1;
         goalz += mousz;
-        if (keystatus[buildkeys[BK_MOVEUP]])							//A (stand high)
+
+        if (DOWN_BK(MOVEUP))  //A (stand high)
         {
-            /*
-                        if (keystatus[0x1d]|keystatus[0x9d])
-                            horiz = max(-100,horiz-((keystatus[buildkeys[BK_RUN]]+1)*synctics*2));
-                        else
-            */
+            /* if (eitherCTRL)
+               horiz = max(-100,horiz-((DOWN_BK(RUN)+1)*synctics*2));
+               else */
             {
                 goalz -= (16<<8);
-                if (keystatus[buildkeys[BK_RUN]])    //Either shift key
+                if (DOWN_BK(RUN))  //Either shift key
                     goalz -= (24<<8);
             }
         }
-        if (keystatus[buildkeys[BK_MOVEDOWN]])  						  //Z (stand low)
+        if (DOWN_BK(MOVEDOWN))  //Z (stand low)
         {
-            /*
-                        if (keystatus[0x1d]|keystatus[0x9d])
-                            horiz = min(300,horiz+((keystatus[buildkeys[BK_RUN]]+1)*synctics*2));
-                        else
-            */
+            /* if (eitherCTRL)
+               horiz = min(300,horiz+((DOWN_BK(RUN)+1)*synctics*2));
+               else */
             {
                 goalz += (12<<8);
-                if (keystatus[buildkeys[BK_RUN]])    //Either shift key
+                if (DOWN_BK(RUN))  //Either shift key
                     goalz += (12<<8);
             }
         }
@@ -927,11 +952,11 @@ void editinput(void)
     else
     {
         goalz = pos.z;
-        if (keystatus[buildkeys[BK_MOVEUP]])							//A
+        if (DOWN_BK(MOVEUP))  //A
         {
-            if (keystatus[0x1d]|keystatus[0x9d])
+            if (eitherCTRL)
             {
-                horiz = max(-100,horiz-((keystatus[buildkeys[BK_RUN]]+1)*synctics*2));
+                horiz = max(-100,horiz-((DOWN_BK(RUN)+1)*synctics*2));
             }
             else
             {
@@ -940,15 +965,15 @@ void editinput(void)
                 else
                 {
                     zlock += (4<<8);
-                    keystatus[buildkeys[BK_MOVEUP]] = 0;
+                    DOWN_BK(MOVEUP) = 0;
                 }
             }
         }
-        if (keystatus[buildkeys[BK_MOVEDOWN]])  						  //Z (stand low)
+        if (DOWN_BK(MOVEDOWN))  //Z (stand low)
         {
-            if (keystatus[0x1d]|keystatus[0x9d])
+            if (eitherCTRL)
             {
-                horiz = min(300,horiz+((keystatus[buildkeys[BK_RUN]]+1)*synctics*2));
+                horiz = min(300,horiz+((DOWN_BK(RUN)+1)*synctics*2));
             }
             else
             {
@@ -957,26 +982,25 @@ void editinput(void)
                 else if (zlock > 0)
                 {
                     zlock -= (4<<8);
-                    keystatus[buildkeys[BK_MOVEDOWN]] = 0;
+                    DOWN_BK(MOVEDOWN) = 0;
                 }
             }
         }
 
         if (!noclip)
-        {
-            if (goalz < hiz+(4<<8)) goalz = hiz+(4<<8);
-            if (goalz > loz-(4<<8)) goalz = loz-(4<<8);
-        }
+            bclamp(&goalz, hiz+(4<<8), loz-(4<<8));
+
         if (zmode == 1) goalz = loz-zlock;
-        if (!noclip && (goalz < hiz+(4<<8))) goalz = ((loz+hiz)>>1);  //ceiling&floor too close
+        if (!noclip && (goalz < hiz+(4<<8)))
+            goalz = ((loz+hiz)>>1);  //ceiling&floor too close
         if (zmode == 1) pos.z = goalz;
 
         if (goalz != pos.z)
         {
-            //if (pos.z < goalz) hvel += (32<<keystatus[buildkeys[BK_RUN]]);
-            //if (pos.z > goalz) hvel -= (32<<keystatus[buildkeys[BK_RUN]]);
-            if (pos.z < goalz) hvel = ((synctics* 192)<<keystatus[buildkeys[BK_RUN]]);
-            if (pos.z > goalz) hvel = ((synctics*-192)<<keystatus[buildkeys[BK_RUN]]);
+            //if (pos.z < goalz) hvel += (32<<DOWN_BK(RUN));
+            //if (pos.z > goalz) hvel -= (32<<DOWN_BK(RUN));
+            if (pos.z < goalz) hvel = ((synctics* 192)<<DOWN_BK(RUN));
+            if (pos.z > goalz) hvel = ((synctics*-192)<<DOWN_BK(RUN));
 
             pos.z += hvel;
 
@@ -1002,7 +1026,7 @@ void editinput(void)
             day = divscale14(searchx-(xdim>>1),xdim>>1);
             rotatepoint(0,0,dax,day,ang,&dax,&day);
 
-            hitscan((const vec3_t *)&pos,cursectnum,               //Start position
+            hitscan((const vec3_t *)&pos,cursectnum,              //Start position
                     dax,day,(scale(searchy,200,ydim)-horiz)*2000, //vector of 3D ang
                     &hitinfo,CLIPMASK1);
 
@@ -1010,17 +1034,12 @@ void editinput(void)
             {
                 dax = hitinfo.pos.x;
                 day = hitinfo.pos.y;
-                if ((gridlock > 0) && (grid > 0))
+                if (gridlock && grid > 0)
                 {
-                    if ((searchstat == 0) || (searchstat == 4))
-                    {
+                    if (searchstat == 0 || searchstat == 4)
                         hitinfo.pos.z = (hitinfo.pos.z&0xfffffc00);
-                    }
                     else
-                    {
-                        dax = ((dax+(1024>>grid))&(0xffffffff<<(11-grid)));
-                        day = ((day+(1024>>grid))&(0xffffffff<<(11-grid)));
-                    }
+                        locktogrid(&dax, &day);
                 }
 
                 i = insertsprite(hitinfo.hitsect,0);
@@ -1038,15 +1057,15 @@ void editinput(void)
                 sprite[i].hitag = 0;
                 sprite[i].extra = -1;
 
-                for (k=0; k<MAXTILES; k++)
-                    localartfreq[k] = 0;
+                Bmemset(localartfreq, 0, sizeof(localartfreq));
                 for (k=0; k<MAXSPRITES; k++)
-                    if (sprite[k].statnum < MAXSTATUS)
-                        localartfreq[sprite[k].picnum]++;
+                    localartfreq[sprite[k].picnum] += (sprite[k].statnum < MAXSTATUS);
+
                 j = 0;
                 for (k=0; k<MAXTILES; k++)
                     if (localartfreq[k] > localartfreq[j])
                         j = k;
+
                 if (localartfreq[j] > 0)
                     sprite[i].picnum = j;
                 else
@@ -1066,12 +1085,11 @@ void editinput(void)
                             }
                         sprite[i].picnum = j;
                     }
+
                     sprite[i].shade = tempshade;
                     sprite[i].pal = temppal;
-                    sprite[i].xrepeat = tempxrepeat;
-                    sprite[i].yrepeat = tempyrepeat;
-                    if (sprite[i].xrepeat < 1) sprite[i].xrepeat = 1;
-                    if (sprite[i].yrepeat < 1) sprite[i].yrepeat = 1;
+                    sprite[i].xrepeat = max(tempxrepeat, 1);
+                    sprite[i].yrepeat = max(tempyrepeat, 1);
                     sprite[i].cstat = tempcstat;
                 }
 
@@ -1085,12 +1103,12 @@ void editinput(void)
                                           getceilzofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y)+j),
                                       getflorzofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y)-j);
 
-                if ((searchstat == 0) || (searchstat == 4))
+                if (searchstat == 0 || searchstat == 4)
                 {
                     sprite[i].cstat = (sprite[i].cstat&~48)|(16+64);
                     if (hitinfo.hitwall >= 0)
-                        sprite[i].ang = ((getangle(wall[wall[hitinfo.hitwall].point2].x-wall[hitinfo.hitwall].x,
-                                                   wall[wall[hitinfo.hitwall].point2].y-wall[hitinfo.hitwall].y)+512)&2047);
+                        sprite[i].ang = ((getangle(POINT2(hitinfo.hitwall).x-wall[hitinfo.hitwall].x,
+                                                   POINT2(hitinfo.hitwall).y-wall[hitinfo.hitwall].y)+512)&2047);
 
                     //Make sure sprite's in right sector
                     if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
@@ -1101,9 +1119,7 @@ void editinput(void)
                     }
                 }
                 else
-                {
-                    if (tilesizy[sprite[i].picnum] >= 32) sprite[i].cstat |= 1;
-                }
+                    sprite[i].cstat |= (tilesizy[sprite[i].picnum]>=32);
 
                 updatenumsprites();
                 asksave = 1;
@@ -1159,10 +1175,10 @@ void editinput(void)
     if (keystatus[buildkeys[BK_MODE2D_3D]])  // Enter
     {
         double gamma = vid_gamma;
+        keystatus[buildkeys[BK_MODE2D_3D]] = 0;
         vid_gamma = 1.0;
         setbrightness(0,palette,0);
         overheadeditor();
-        keystatus[buildkeys[BK_MODE2D_3D]] = 0;
         vid_gamma = gamma;
         setbrightness(brightness,palette,0);
     }
@@ -1194,7 +1210,44 @@ char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck)
     return(dachar);
 }
 
+
+////////////////////// OVERHEADEDITOR //////////////////////
+
 static int32_t newnumwalls=-1;
+
+static void ovh_whiteoutgrab()
+{
+    int32_t i, j, k, startwall, endwall;
+
+    //White out all bordering lines of grab that are
+    //not highlighted on both sides
+    for (i=highlightsectorcnt-1; i>=0; i--)
+    {
+        startwall = sector[highlightsector[i]].wallptr;
+        endwall = startwall + sector[highlightsector[i]].wallnum;
+        for (j=startwall; j<endwall; j++)
+        {
+            if (wall[j].nextwall >= 0)
+            {
+                for (k=highlightsectorcnt-1; k>=0; k--)
+                    if (highlightsector[k] == wall[j].nextsector)
+                        break;
+                if (k < 0)
+                {
+                    NEXTWALL(j).nextwall = -1;
+                    NEXTWALL(j).nextsector = -1;
+                    wall[j].nextwall = -1;
+                    wall[j].nextsector = -1;
+                }
+            }
+        }
+    }
+}
+
+static inline void drawline16base(int32_t bx, int32_t by, int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
+{
+    drawline16(bx+x1, by+y1, bx+x2, by+y2, col);
+}
 
 void overheadeditor(void)
 {
@@ -1214,7 +1267,8 @@ void overheadeditor(void)
     walltype *wal;
     int32_t prefixarg = 0;
     hitdata_t hitinfo;
-    int32_t resetsynctics = 0;
+    int32_t resetsynctics = 0, lasttick=getticks();
+    int32_t tsign;
 
     //qsetmode640480();
     qsetmodeany(xdim2d,ydim2d);
@@ -1251,34 +1305,10 @@ void overheadeditor(void)
     cursectorhighlight = -1;
     lastpm16time = -1;
 
-    //White out all bordering lines of grab that are
-    //not highlighted on both sides
-    for (i=highlightsectorcnt-1; i>=0; i--)
-    {
-        startwall = sector[highlightsector[i]].wallptr;
-        endwall = startwall + sector[highlightsector[i]].wallnum;
-        for (j=startwall; j<endwall; j++)
-        {
-            if (wall[j].nextwall >= 0)
-            {
-                for (k=highlightsectorcnt-1; k>=0; k--)
-                    if (highlightsector[k] == wall[j].nextsector)
-                        break;
-                if (k < 0)
-                {
-                    wall[wall[j].nextwall].nextwall = -1;
-                    wall[wall[j].nextwall].nextsector = -1;
-                    wall[j].nextwall = -1;
-                    wall[j].nextsector = -1;
-                }
-            }
-        }
-    }
+    ovh_whiteoutgrab();
 
-    for (i=0; i<(MAXWALLS>>3); i++)  //Clear all highlights
-        show2dwall[i] = 0;
-    for (i=0; i<(MAXSPRITES>>3); i++)
-        show2dsprite[i] = 0;
+    Bmemset(show2dwall, 0, sizeof(show2dwall));  //Clear all highlights
+    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
 
     sectorhighlightstat = -1;
     newnumwalls = -1;
@@ -1286,17 +1316,18 @@ void overheadeditor(void)
     circlewall = -1;
     circlepoints = 7;
     bstatus = 0;
-    keystatus[buildkeys[BK_MODE2D_3D]] = 0;
+
     while ((keystatus[buildkeys[BK_MODE2D_3D]]>>1) == 0)
     {
+        if (!((vel|angvel|svel) //DOWN_BK(MOVEFORWARD) || DOWN_BK(MOVEBACKWARD) || DOWN_BK(TURNLEFT) || DOWN_BK(TURNRIGHT)
+              || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || bstatus || OSD_IsMoving()))
         {
-            if ((keystatus[buildkeys[BK_MOVEUP]] || (bstatus/*&(16|32)*/) || keystatus[buildkeys[BK_MOVEDOWN]]) == 0)
-            {
-                idle_waitevent();
-                // have synctics reset to 0 after we've slept to avoid zooming out to the max instantly
-                resetsynctics = 1;
-            }
+            // wait for event, timeout after 200 ms - (last loop time)
+            idle_waitevent_timeout(200 - min(getticks()-lasttick, 200));
+            // have synctics reset to 0 after we've slept to avoid zooming out to the max instantly
+            resetsynctics = 1;
         }
+        lasttick = getticks();
 
         if (handleevents())
         {
@@ -1336,10 +1367,8 @@ void overheadeditor(void)
         searchx += mousx;
         searchy += mousy;
 
-        if (searchx < 8) searchx = 8;
-        if (searchx > xdim-8-1) searchx = xdim-8-1;
-        if (searchy < 8) searchy = 8;
-        if (searchy > ydim-8-1) searchy = ydim-8-1;
+        bclamp(&searchx, 8, xdim-8-1);
+        bclamp(&searchy, 8, ydim-8-1);
 
         /*      if (keystatus[0x3b] > 0) pos.x--, keystatus[0x3b] = 0;
         		if (keystatus[0x3c] > 0) pos.x++, keystatus[0x3c] = 0;
@@ -1347,11 +1376,12 @@ void overheadeditor(void)
         		if (keystatus[0x3e] > 0) pos.y++, keystatus[0x3e] = 0;
         		if (keystatus[0x43] > 0) ang--, keystatus[0x43] = 0;
                 if (keystatus[0x44] > 0) ang++, keystatus[0x44] = 0; */
+
         if (angvel != 0)          //ang += angvel * constant
         {
             //ENGINE calculates angvel for you
             doubvel = synctics;
-            if (keystatus[buildkeys[BK_RUN]])  //Lt. shift makes turn velocity 50% faster
+            if (DOWN_BK(RUN))  //Lt. shift makes turn velocity 50% faster
                 doubvel += (synctics>>1);
             ang += ((angvel*doubvel)>>4);
             ang = (ang+2048)&2047;
@@ -1359,18 +1389,18 @@ void overheadeditor(void)
         if ((vel|svel) != 0)
         {
             doubvel = synctics;
-            if (keystatus[buildkeys[BK_RUN]])     //Lt. shift doubles forward velocity
+            if (DOWN_BK(RUN))     //Lt. shift doubles forward velocity
                 doubvel += synctics;
             xvect = 0, yvect = 0;
             if (vel != 0)
             {
-                xvect += ((vel*doubvel*(int32_t)sintable[(ang+2560)&2047])>>3);
-                yvect += ((vel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3);
+                xvect += (vel*doubvel*(int32_t)sintable[(ang+2560)&2047])>>3;
+                yvect += (vel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3;
             }
             if (svel != 0)
             {
-                xvect += ((svel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3);
-                yvect += ((svel*doubvel*(int32_t)sintable[(ang+1536)&2047])>>3);
+                xvect += (svel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3;
+                yvect += (svel*doubvel*(int32_t)sintable[(ang+1536)&2047])>>3;
             }
             if (noclip)
             {
@@ -1399,255 +1429,273 @@ void overheadeditor(void)
         numwalls = newnumwalls;
         if (numwalls < 0) numwalls = tempint;
 
-         if (keystatus[buildkeys[BK_MOVEUP]] || keystatus[buildkeys[BK_MOVEDOWN]] || mousx || mousy || bstatus || (totalclock & 8) == 0 || newnumwalls>=0)
-         {
-             clear2dscreen();
+        if (DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || mousx || mousy || bstatus || (totalclock & 8) == 0 || newnumwalls>=0)
+        {
+            clear2dscreen();
 
-             if (graphicsmode)
-             {
-                 int32_t ii = xyaspect;
+            if (graphicsmode)
+            {
+                int32_t ii = xyaspect;
 
-                 i = yxaspect;
-                 Bmemset(show2dsector, 255, sizeof(show2dsector));
-                 setview(0, 0, xdim-1, ydim16-1);
-                 yxaspect = xyaspect = 65536;
+                i = yxaspect;
+                Bmemset(show2dsector, 255, sizeof(show2dsector));
+                setview(0, 0, xdim-1, ydim16-1);
+                yxaspect = xyaspect = 65536;
 
-                 if (graphicsmode == 2)
-                     totalclocklock = totalclock;
+                if (graphicsmode == 2)
+                    totalclocklock = totalclock;
 
-                 drawmapview(pos.x, pos.y + scale((65536/zoom), ydim, 240), zoom, 1536);
-                 yxaspect = i;
-                 xyaspect = ii;
-             }
+                drawmapview(pos.x, pos.y + scale((65536/zoom), ydim, 240), zoom, 1536);
+                yxaspect = i;
+                xyaspect = ii;
+            }
 
-             draw2dgrid(pos.x,pos.y,ang,zoom,grid);
+            draw2dgrid(pos.x,pos.y,ang,zoom,grid);
 
-             ExtPreCheckKeys();
+            ExtPreCheckKeys();
 
-             x2 = mulscale14(startposx-pos.x,zoom);          //Draw brown arrow (start)
-             y2 = mulscale14(startposy-pos.y,zoom);
-             if (((halfxdim16+x2) >= 2) && ((halfxdim16+x2) <= xdim-3))
-                 if (((midydim16+y2) >= 2) && ((midydim16+y2) <= ydim16-3))
-                 {
-                     x1 = mulscale11(sintable[(startang+2560)&2047],zoom) / 768;
-                     y1 = mulscale11(sintable[(startang+2048)&2047],zoom) / 768;
-                     begindrawing();	//{{{
-                     drawline16((halfxdim16+x2)+x1,(midydim16+y2)+y1,(halfxdim16+x2)-x1,(midydim16+y2)-y1,editorcolors[2]);
-                     drawline16((halfxdim16+x2)+x1,(midydim16+y2)+y1,(halfxdim16+x2)+y1,(midydim16+y2)-x1,editorcolors[2]);
-                     drawline16((halfxdim16+x2)+x1,(midydim16+y2)+y1,(halfxdim16+x2)-y1,(midydim16+y2)+x1,editorcolors[2]);
-                     enddrawing();	//}}}
-                 }
+            {
+                int32_t cx, cy;
 
-                 draw2dscreen(pos.x,pos.y,ang,zoom,grid);
-                 VM_OnEvent(EVENT_DRAW2DSCREEN, -1);
+                x2 = mulscale14(startposx-pos.x,zoom);          //Draw brown arrow (start)
+                y2 = mulscale14(startposy-pos.y,zoom);
+                cx = halfxdim16+x2;
+                cy = midydim16+y2;
+                if ((cx >= 2 && cx <= xdim-3) && (cy >= 2 && cy <= ydim16-3))
+                {
+                    x1 = mulscale11(sintable[(startang+2560)&2047],zoom) / 768;
+                    y1 = mulscale11(sintable[(startang+2048)&2047],zoom) / 768;
+                    begindrawing();	//{{{
+                    drawline16base(cx,cy, x1,y1, -x1,-y1, editorcolors[2]);
+                    drawline16base(cx,cy, x1,y1, +y1,-x1, editorcolors[2]);
+                    drawline16base(cx,cy, x1,y1, -y1,+x1, editorcolors[2]);
+                    enddrawing();	//}}}
+                }
+            }
 
-                 begindrawing();	//{{{
-                 if (showtags == 1)
-                 {
-                     if (zoom >= 768)
-                         for (i=0; i<numsectors; i++)
-                         {
-                             dabuffer = (char *)ExtGetSectorCaption(i);
-                             if (dabuffer[0] != 0)
-                             {
-                                 dax = 0;   //Get average point of sector
-                                 day = 0;
-                                 startwall = sector[i].wallptr;
-                                 endwall = startwall + sector[i].wallnum - 1;
-                                 for (j=startwall; j<=endwall; j++)
-                                 {
-                                     dax += wall[j].x;
-                                     day += wall[j].y;
-                                 }
-                                 if (endwall > startwall)
-                                 {
-                                     dax /= (endwall-startwall+1);
-                                     day /= (endwall-startwall+1);
-                                 }
+            draw2dscreen(pos.x,pos.y,ang,zoom,grid);
+            VM_OnEvent(EVENT_DRAW2DSCREEN, -1);
 
-                                 dax = mulscale14(dax-pos.x,zoom);
-                                 day = mulscale14(day-pos.y,zoom);
+            begindrawing();	//{{{
+            if (showtags == 1)
+            {
+                if (zoom >= 768)
+                {
+                    for (i=0; i<numsectors; i++)
+                    {
+                        dabuffer = (char *)ExtGetSectorCaption(i);
+                        if (dabuffer[0] != 0)
+                        {
+                            dax = 0;   //Get average point of sector
+                            day = 0;
+                            startwall = sector[i].wallptr;
+                            endwall = startwall + sector[i].wallnum - 1;
+                            for (j=startwall; j<=endwall; j++)
+                            {
+                                dax += wall[j].x;
+                                day += wall[j].y;
+                            }
+                            if (endwall > startwall)
+                            {
+                                dax /= (endwall-startwall+1);
+                                day /= (endwall-startwall+1);
+                            }
 
-                                 x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
-                                 y1 = midydim16+day-4;
-                                 x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
-                                 y2 = y1 + 7;
-                                 if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
-                                 {
-                                     printext16(x1,y1,editorcolors[0],editorcolors[7],dabuffer,1);
-                                     drawline16(x1-1,y1-1,x2-3,y1-1,editorcolors[7]);
-                                     drawline16(x1-1,y2+1,x2-3,y2+1,editorcolors[7]);
+                            dax = mulscale14(dax-pos.x,zoom);
+                            day = mulscale14(day-pos.y,zoom);
 
-                                     drawline16(x1-2,y1,x1-2,y2,editorcolors[7]);
-                                     drawline16(x2-2,y1,x2-2,y2,editorcolors[7]);
-                                     drawline16(x2-3,y1,x2-3,y2,editorcolors[7]);
-                                 }
-                             }
-                         }
+                            x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
+                            y1 = midydim16+day-4;
+                            x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
+                            y2 = y1 + 7;
+                            if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
+                            {
+                                printext16(x1,y1,editorcolors[0],editorcolors[7],dabuffer,1);
+                                drawline16(x1-1,y1-1, x2-3,y1-1, editorcolors[7]);
+                                drawline16(x1-1,y2+1, x2-3,y2+1, editorcolors[7]);
 
-                         x3 = divscale14(-halfxdim16,zoom)+pos.x;
-                         y3 = divscale14(-(midydim16-4),zoom)+pos.y;
-                         x4 = divscale14(halfxdim16,zoom)+pos.x;
-                         y4 = divscale14(ydim16-(midydim16-4),zoom)+pos.y;
+                                drawline16(x1-2,y1, x1-2,y2, editorcolors[7]);
+                                drawline16(x2-2,y1, x2-2,y2, editorcolors[7]);
+                                drawline16(x2-3,y1, x2-3,y2, editorcolors[7]);
+                            }
+                        }
+                    }
+                }
 
-                         if (newnumwalls >= 0)
-                         {
-                             for (i=newnumwalls; i>=tempint; i--)
-                                 wall[i].cstat |= (1<<14);
-                         }
+                x3 = divscale14(-halfxdim16,zoom)+pos.x;
+                y3 = divscale14(-(midydim16-4),zoom)+pos.y;
+                x4 = divscale14(halfxdim16,zoom)+pos.x;
+                y4 = divscale14(ydim16-(midydim16-4),zoom)+pos.y;
 
-                         i = numwalls-1;
-                         if (newnumwalls >= 0) i = newnumwalls-1;
-                         for (wal=&wall[i]; i>=0; i--,wal--)
-                         {
-                             if (zoom < 768 && !(wal->cstat & (1<<14))) continue;
-                             //Get average point of wall
-                             dax = ((wal->x+wall[wal->point2].x)>>1);
-                             day = ((wal->y+wall[wal->point2].y)>>1);
-                             if ((dax > x3) && (dax < x4) && (day > y3) && (day < y4))
-                             {
-                                 dabuffer = (char *)ExtGetWallCaption(i);
-                                 if (dabuffer[0] != 0)
-                                 {
-                                     dax = mulscale14(dax-pos.x,zoom);
-                                     day = mulscale14(day-pos.y,zoom);
-                                     x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
-                                     y1 = midydim16+day-4;
-                                     x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
-                                     y2 = y1 + 7;
-                                     if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
-                                     {
-                                         printext16(x1,y1,editorcolors[0],editorcolors[31],dabuffer,1);
-                                         drawline16(x1-1,y1-1,x2-3,y1-1,editorcolors[31]);
-                                         drawline16(x1-1,y2+1,x2-3,y2+1,editorcolors[31]);
+                if (newnumwalls >= 0)
+                {
+                    for (i=newnumwalls; i>=tempint; i--)
+                        wall[i].cstat |= (1<<14);
+                }
 
-                                         drawline16(x1-2,y1,x1-2,y2,editorcolors[31]);
-                                         drawline16(x2-2,y1,x2-2,y2,editorcolors[31]);
-                                         drawline16(x2-3,y1,x2-3,y2,editorcolors[31]);
-                                     }
-                                 }
-                             }
-                         }
+                i = numwalls-1;
+                if (newnumwalls >= 0)
+                    i = newnumwalls-1;
+                for (wal=&wall[i]; i>=0; i--,wal--)
+                {
+                    if (zoom < 768 && !(wal->cstat & (1<<14))) continue;
+                    //Get average point of wall
+                    dax = (wal->x+wall[wal->point2].x)>>1;
+                    day = (wal->y+wall[wal->point2].y)>>1;
+                    if ((dax > x3) && (dax < x4) && (day > y3) && (day < y4))
+                    {
+                        dabuffer = (char *)ExtGetWallCaption(i);
+                        if (dabuffer[0] != 0)
+                        {
+                            dax = mulscale14(dax-pos.x,zoom);
+                            day = mulscale14(day-pos.y,zoom);
+                            x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
+                            y1 = midydim16+day-4;
+                            x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
+                            y2 = y1 + 7;
 
-                         i = 0; j = numsprites;
-                         if (zoom >= 768)
-                             while ((j > 0) && (i < MAXSPRITES))
-                             {
-                                 if (sprite[i].statnum < MAXSTATUS)
-                                 {
-                                     dabuffer = (char *)ExtGetSpriteCaption(i);
-                                     if (dabuffer[0] != 0)
-                                     {
-                                         //Get average point of sprite
-                                         dax = sprite[i].x;
-                                         day = sprite[i].y;
+                            if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
+                            {
+                                printext16(x1,y1,editorcolors[0],editorcolors[31],dabuffer,1);
+                                drawline16(x1-1,y1-1, x2-3,y1-1, editorcolors[31]);
+                                drawline16(x1-1,y2+1, x2-3,y2+1, editorcolors[31]);
 
-                                         dax = mulscale14(dax-pos.x,zoom);
-                                         day = mulscale14(day-pos.y,zoom);
-                                         x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
-                                         y1 = midydim16+day-4;
-                                         x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
-                                         y2 = y1 + 7;
-                                         if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
-                                         {
-                                             col = 3;
-                                             if (spritecol2d[sprite[i].picnum][0])
-                                                 col = spritecol2d[sprite[i].picnum][0];
-                                             if ((sprite[i].cstat&1) > 0)
-                                             {
-                                                 col = 5;
-                                                 if (spritecol2d[sprite[i].picnum][1])
-                                                     col = spritecol2d[sprite[i].picnum][1];
-                                             }
+                                drawline16(x1-2,y1, x1-2,y2, editorcolors[31]);
+                                drawline16(x2-2,y1, x2-2,y2, editorcolors[31]);
+                                drawline16(x2-3,y1, x2-3,y2, editorcolors[31]);
+                            }
+                        }
+                    }
+                }
 
-                                             if ((i == pointhighlight-16384) && (totalclock & 32)) col += (2<<2);
+                i = 0; j = numsprites;
+                if (zoom >= 768)
+                    while (j > 0 && i < MAXSPRITES)
+                    {
+                        if (sprite[i].statnum < MAXSTATUS)
+                        {
+                            dabuffer = (char *)ExtGetSpriteCaption(i);
+                            if (dabuffer[0] != 0)
+                            {
+                                //Get average point of sprite
+                                dax = sprite[i].x;
+                                day = sprite[i].y;
 
-                                             printext16(x1,y1,editorcolors[0],editorcolors[col],dabuffer,1);
+                                dax = mulscale14(dax-pos.x,zoom);
+                                day = mulscale14(day-pos.y,zoom);
+                                x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
+                                y1 = midydim16+day-4;
+                                x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
+                                y2 = y1 + 7;
 
-                                             drawline16(x1-1,y1-1,x2-3,y1-1,editorcolors[col]);
-                                             drawline16(x1-1,y2+1,x2-3,y2+1,editorcolors[col]);
+                                if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
+                                {
+                                    col = 3;
+                                    if (spritecol2d[sprite[i].picnum][0])
+                                        col = spritecol2d[sprite[i].picnum][0];
+                                    if ((sprite[i].cstat&1) > 0)
+                                    {
+                                        col = 5;
+                                        if (spritecol2d[sprite[i].picnum][1])
+                                            col = spritecol2d[sprite[i].picnum][1];
+                                    }
 
-                                             drawline16(x1-2,y1,x1-2,y2,editorcolors[col]);
-                                             drawline16(x2-2,y1,x2-2,y2,editorcolors[col]);
-                                             drawline16(x2-3,y1,x2-3,y2,editorcolors[col]);
-                                         }
-                                     }
-                                     j--;
-                                 }
-                                 i++;
-                             }
-                 }
+                                    if ((i == pointhighlight-16384) && (totalclock & 32))
+                                        col += (2<<2);
 
-                 printcoords16(pos.x,pos.y,ang);
+                                    printext16(x1,y1,editorcolors[0],editorcolors[col],dabuffer,1);
 
-                 numwalls = tempint;
+                                    drawline16(x1-1,y1-1, x2-3,y1-1, editorcolors[col]);
+                                    drawline16(x1-1,y2+1, x2-3,y2+1, editorcolors[col]);
 
-                 if (highlightsectorcnt > 0)
-                     for (i=0; i<highlightsectorcnt; i++)
-                         fillsector(highlightsector[i],2);
+                                    drawline16(x1-2,y1, x1-2,y2, editorcolors[col]);
+                                    drawline16(x2-2,y1, x2-2,y2, editorcolors[col]);
+                                    drawline16(x2-3,y1, x2-3,y2, editorcolors[col]);
+                                }
+                            }
+                            j--;
+                        }
+                        i++;
+                    }
+            }
 
-                 if (keystatus[0x2a]) // FIXME
-                 {
-                     drawlinepat = 0x00ff00ff;
-                     drawline16(searchx,0,searchx,ydim2d-1,editorcolors[15]);
-                     drawline16(0,searchy,xdim2d-1,searchy,editorcolors[15]);
-                     drawlinepat = 0xffffffff;
+            printcoords16(pos.x,pos.y,ang);
 
-                     Bsprintf(tempbuf,"(%d,%d)",mousxplc,mousyplc);
-                     /*
-                     i = (Bstrlen(tempbuf)<<3)+6;
-                     if ((searchx+i) < (xdim2d-1))
-                     i = 0;
-                     else i = (searchx+i)-(xdim2d-1);
-                     if ((searchy+16) < (ydim2d-STATUS2DSIZ2-1))
-                     j = 0;
-                     else j = (searchy+16)-(ydim2d-STATUS2DSIZ2-1);
-                     printext16(searchx+6-i,searchy+6-j,editorcolors[11],-1,tempbuf,0);
-                     */
-                     _printmessage16(tempbuf);
-                 }
-                 drawline16(searchx,0,searchx,8,editorcolors[15]);
-                 drawline16(0,searchy,8,searchy,editorcolors[15]);
+            numwalls = tempint;
 
-                 col = 15-((gridlock<<1)+gridlock);
-                 if (joinsector[0] >= 0)col = 11;
+            if (highlightsectorcnt > 0)
+                for (i=0; i<highlightsectorcnt; i++)
+                    fillsector(highlightsector[i],2);
 
-                 drawline16(searchx,searchy-8,searchx,searchy-1,editorcolors[col]);
-                 drawline16(searchx+1,searchy-8,searchx+1,searchy-1,editorcolors[col]);
-                 drawline16(searchx,searchy+2,searchx,searchy+9,editorcolors[col]);
-                 drawline16(searchx+1,searchy+2,searchx+1,searchy+9,editorcolors[col]);
-                 drawline16(searchx-8,searchy,searchx-1,searchy,editorcolors[col]);
-                 drawline16(searchx-8,searchy+1,searchx-1,searchy+1,editorcolors[col]);
-                 drawline16(searchx+2,searchy,searchx+9,searchy,editorcolors[col]);
-                 drawline16(searchx+2,searchy+1,searchx+9,searchy+1,editorcolors[col]);
+            if (keystatus[0x2a]) // FIXME
+            {
+                drawlinepat = 0x00ff00ff;
+                drawline16(searchx,0, searchx,ydim2d-1, editorcolors[15]);
+                drawline16(0,searchy, xdim2d-1,searchy, editorcolors[15]);
+                drawlinepat = 0xffffffff;
 
-                 //Draw the white pixel closest to mouse cursor on linehighlight
-                 if (linehighlight>=0)
-                 {
-                     getclosestpointonwall(mousxplc,mousyplc,(int32_t)linehighlight,&dax,&day);
-                     x2 = mulscale14(dax-pos.x,zoom);
-                     y2 = mulscale14(day-pos.y,zoom);
-                     if (wall[linehighlight].nextsector >= 0)
-                         drawline16(halfxdim16+x2,midydim16+y2,halfxdim16+x2,midydim16+y2,editorcolors[15]);
-                     else
-                         drawline16(halfxdim16+x2,midydim16+y2,halfxdim16+x2,midydim16+y2,editorcolors[5]);
-                 }
-                 enddrawing();	//}}}
+                Bsprintf(tempbuf,"(%d,%d)",mousxplc,mousyplc);
+                /*
+                  i = (Bstrlen(tempbuf)<<3)+6;
+                  if ((searchx+i) < (xdim2d-1))
+                  i = 0;
+                  else i = (searchx+i)-(xdim2d-1);
+                  if ((searchy+16) < (ydim2d-STATUS2DSIZ2-1))
+                  j = 0;
+                  else j = (searchy+16)-(ydim2d-STATUS2DSIZ2-1);
+                  printext16(searchx+6-i,searchy+6-j,editorcolors[11],-1,tempbuf,0);
+                */
+                _printmessage16(tempbuf);
+            }
+            drawline16(searchx,0, searchx,8, editorcolors[15]);
+            drawline16(0,searchy, 8,searchy, editorcolors[15]);
 
-                 OSD_Draw();
-         }
+            col = 15-((gridlock<<1)+gridlock);
+            if (joinsector[0] >= 0)
+                col = 11;
+
+            drawline16base(searchx,searchy, +0,-8, +0,-1, editorcolors[col]);
+            drawline16base(searchx,searchy, +1,-8, +1,-1, editorcolors[col]);
+            drawline16base(searchx,searchy, +0,+2, +0,+9, editorcolors[col]);
+            drawline16base(searchx,searchy, +1,+2, +1,+9, editorcolors[col]);
+            drawline16base(searchx,searchy, -8,+0, -1,+0, editorcolors[col]);
+            drawline16base(searchx,searchy, -8,+1, -1,+1, editorcolors[col]);
+            drawline16base(searchx,searchy, +2,+0, +9,+0, editorcolors[col]);
+            drawline16base(searchx,searchy, +2,+1, +9,+1, editorcolors[col]);
+
+            //Draw the white pixel closest to mouse cursor on linehighlight
+            if (linehighlight>=0)
+            {
+                getclosestpointonwall(mousxplc,mousyplc,(int32_t)linehighlight,&dax,&day);
+                x2 = mulscale14(dax-pos.x,zoom);
+                y2 = mulscale14(day-pos.y,zoom);
+
+                if (wall[linehighlight].nextsector >= 0)
+                    drawline16base(halfxdim16+x2,midydim16+y2, 0,0, 0,0, editorcolors[15]);
+                else
+                    drawline16base(halfxdim16+x2,midydim16+y2, 0,0, 0,0, editorcolors[5]);
+            }
+            enddrawing();	//}}}
+
+            OSD_Draw();
+        }
 
         VM_OnEvent(EVENT_PREKEYS2D, -1);
         ExtCheckKeys(); // TX 20050101, it makes more sense to have this here so keys can be overwritten with new functions in bstub.c
 
         // Flip/mirror sector Ed Coolidge
-        if (keystatus[0x2d])  // X (2D)
+        if (keystatus[0x2d] || keystatus[0x15])  // X or Y (2D)
         {
+            int32_t about_x=keystatus[0x2d];
+
+            keystatus[0x2d] = keystatus[0x15] = 0;
+
             if (highlightsectorcnt > 0)
             {
                 k = 0;
                 dax = 0;
                 day = 0;
+
                 for (i=0; i<highlightsectorcnt; i++)
                 {
                     startwall = sector[highlightsector[i]].wallptr;
@@ -1665,20 +1713,16 @@ void overheadeditor(void)
                     day /= k;
                 }
 
-                k = (keystatus[0x38]|keystatus[0xb8]); //ALT-X mirror sector in x
+                k = eitherALT;  //ALT-X/Y mirror sector in x/y
 
-                if ((gridlock > 0) && (grid > 0))
-                {
-                    dax = ((dax+(1024>>grid))&(0xffffffff<<(11-grid)));
-                    day = ((day+(1024>>grid))&(0xffffffff<<(11-grid)));
+                if (gridlock && grid > 0)
+                    locktogrid(&dax, &day);
                     //          dax = ((dax+(GRIDMAX>>grid))&(0xffffffff-(GRIDMAX>>(grid-1))+1));
                     //          day = ((day+(GRIDMAX>>grid))&(0xffffffff-(GRIDMAX>>(grid-1))+1));
-                }
 
                 for (i=0; i<highlightsectorcnt; i++)
                 {
-                    int32_t startofloop;
-                    int32_t endofloop;
+                    int32_t startofloop, endofloop;
                     int32_t numtoswap = -1;
                     int32_t w=0;
                     walltype tempwall;
@@ -1694,26 +1738,42 @@ void overheadeditor(void)
                                         sector[highlightsector[i]].floorstat ^= 0x10;
                                     }
                     */
+
                     //save position of wall at start of loop
                     x3 = wall[startofloop].x;
                     y3 = wall[startofloop].y;
+
                     for (j=startwall; j<=endwall; j++)
                     {
                         //fix position of walls
-                        wall[j].x = dax-wall[wall[j].point2].x+dax; //flip wall.x about dax
-                        wall[j].y = wall[wall[j].point2].y;
+                        if (about_x)
+                        {
+                            wall[j].x = dax-POINT2(j).x+dax; //flip wall.x about dax
+                            wall[j].y = POINT2(j).y;
+                        }
+                        else
+                        {
+                            wall[j].x = POINT2(j).x;
+                            wall[j].y = day-POINT2(j).y+day; //flip wall.y about day
+                        }
 
                         if (k != 0)
-                        {
-                            //mirror walls about dax
-                            wall[j].cstat ^= 8;
-                        }
+                            wall[j].cstat ^= 8;  //mirror walls about dax/day
 
                         if (wall[j].point2==startofloop) //check if j is end of loop
                         {
                             endofloop = j;
-                            wall[endofloop].x = dax-x3+dax; //flip wall.x about dax
-                            wall[endofloop].y = y3;
+                            if (about_x)
+                            {
+                                wall[endofloop].x = dax-x3+dax; //flip wall.x about dax
+                                wall[endofloop].y = y3;
+                            }
+                            else
+                            {
+                                wall[endofloop].x = x3;
+                                wall[endofloop].y = day-y3+day; //flip wall.y about dax
+                            }
+
                             //correct order of walls in loop to maintain player space (right-hand rule)
                             numtoswap = (endofloop-startofloop)>>1;
                             for (w=1; w<=numtoswap; w++)
@@ -1725,9 +1785,7 @@ void overheadeditor(void)
 
                             //make point2 point to next wall in loop
                             for (w=startofloop; w<endofloop; w++)
-                            {
                                 wall[w].point2 = w+1;
-                            }
                             wall[endofloop].point2 = startofloop;
 
                             startofloop = endofloop+1; //set first wall of next loop
@@ -1740,143 +1798,26 @@ void overheadeditor(void)
                     j = headspritesect[highlightsector[i]];
                     while (j != -1)
                     {
-                        x3 = sprite[j].x;
-                        sprite[j].x = dax-x3+dax; //flip sprite.x about dax
-                        sprite[j].ang = ((1024+2048-sprite[j].ang)&2047); //flip ang about 512
-                        if (k != 0)
+                        if (about_x)
                         {
-                            //don't mirror monsters
-                            if ((sprite[j].cstat & 0x30) != 0)
-                            {
-                                //mirror sprites about day
-                                sprite[j].cstat ^= 4;
-                            }
+                            x3 = sprite[j].x;
+                            sprite[j].x = dax-x3+dax; //flip sprite.x about dax
+                            sprite[j].ang = (1024+2048-sprite[j].ang)&2047; //flip ang about 512
                         }
+                        else
+                        {
+                            y3 = sprite[j].y;
+                            sprite[j].y = day-y3+day; //flip sprite.y about day
+                            sprite[j].ang = (2048-sprite[j].ang)&2047; //flip ang about 512
+                        }
+
+                        if (k && (sprite[j].cstat & 0x30))
+                            sprite[j].cstat ^= 4;  // mirror sprites about dax/day (don't mirror monsters)
 
                         j = nextspritesect[j];
                     }
                 }
-                /*if (k == 0)*/
-                keystatus[0x2d] = 0;
-                printmessage16("Selected sector(s) flipped");
-                asksave = 1;
-            }
-        }
-        if (keystatus[0x15])  // Y (2D)
-        {
-            if (highlightsectorcnt > 0)
-            {
-                k = 0;
-                dax = 0;
-                day = 0;
-                for (i=0; i<highlightsectorcnt; i++)
-                {
-                    startwall = sector[highlightsector[i]].wallptr;
-                    endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                    for (j=startwall; j<=endwall; j++)
-                    {
-                        dax += wall[j].x;
-                        day += wall[j].y;
-                        k++;
-                    }
-                }
-                if (k > 0)
-                {
-                    dax /= k;
-                    day /= k;
-                }
 
-                k = (keystatus[0x38]|keystatus[0xb8]); //ALT-Y mirror sectors in y
-
-                if ((gridlock > 0) && (grid > 0))
-                {
-                    dax = ((dax+(1024>>grid))&(0xffffffff<<(11-grid)));
-                    day = ((day+(1024>>grid))&(0xffffffff<<(11-grid)));
-                    //          dax = ((dax+(GRIDMAX>>grid))&(0xffffffff-(GRIDMAX>>(grid-1))+1));
-                    //          day = ((day+(GRIDMAX>>grid))&(0xffffffff-(GRIDMAX>>(grid-1))+1));
-                }
-
-                for (i=0; i<highlightsectorcnt; i++)
-                {
-                    int32_t startofloop;
-                    int32_t endofloop;
-                    int32_t numtoswap = -1;
-                    int32_t w=0;
-                    walltype tempwall;
-
-                    startofloop = startwall = sector[highlightsector[i]].wallptr;
-                    endofloop = endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                    /*
-                                        if (k != 0)
-                                        {
-                                           //mirror sector textures
-                                        sector[highlightsector[i]].ceilingstat ^= 0x10;
-                                        sector[highlightsector[i]].floorstat ^= 0x10;
-                                    }
-                    */
-                    //save position of wall at start of loop
-                    x3 = wall[startofloop].x;
-                    y3 = wall[startofloop].y;
-                    for (j=startwall; j<=endwall; j++)
-                    {
-                        //fix position of walls
-                        wall[j].x = wall[wall[j].point2].x;
-                        wall[j].y = day-wall[wall[j].point2].y+day; //flip wall.y about day
-                        if (k != 0)
-                        {
-                            //mirror walls about day
-                            wall[j].cstat ^= 8;
-                        }
-
-                        if (wall[j].point2==startofloop) //check if j is end of loop
-                        {
-                            endofloop = j;
-                            wall[endofloop].x = x3;
-                            wall[endofloop].y = day-y3+day; //flip wall.y about dax
-                            //correct order of walls in loop to maintain player space (right-hand rule)
-                            numtoswap = (endofloop-startofloop)>>1;
-                            for (w=1; w<=numtoswap; w++)
-                            {
-                                Bmemcpy(&tempwall,&wall[startofloop+w],sizeof(walltype));
-                                Bmemcpy(&wall[startofloop+w],&wall[endofloop-w+1],sizeof(walltype));
-                                Bmemcpy(&wall[endofloop-w+1],&tempwall,sizeof(walltype));
-                            }
-
-                            //make point2 point to next wall in loop
-                            for (w=startofloop; w<endofloop; w++)
-                            {
-                                wall[w].point2 = w+1;
-                            }
-                            wall[endofloop].point2 = startofloop;
-
-                            startofloop = endofloop+1; //set first wall of next loop
-                            //save position of wall at start of loop
-                            x3 = wall[startofloop].x;
-                            y3 = wall[startofloop].y;
-                        }
-                    }
-
-                    j = headspritesect[highlightsector[i]];
-                    while (j != -1)
-                    {
-                        y3 = sprite[j].y;
-                        sprite[j].y = day-y3+day; //flip sprite.y about day
-                        sprite[j].ang = ((2048-sprite[j].ang)&2047); //flip ang about 512
-                        if (k != 0)
-                        {
-                            //don't mirror monsters
-                            if ((sprite[j].cstat & 0x30) != 0)
-                            {
-                                //mirror sprites about day
-                                sprite[j].cstat ^= 4;
-                            }
-                        }
-
-                        j = nextspritesect[j];
-                    }
-                }
-                /*if (k == 0)*/
-                keystatus[0x15] = 0;
                 printmessage16("Selected sector(s) flipped");
                 asksave = 1;
             }
@@ -1893,7 +1834,7 @@ void overheadeditor(void)
             draw2dscreen(pos.x,pos.y,ang,zoom,grid);
             */
 
-            screencapture("captxxxx.tga",keystatus[0x2a]|keystatus[0x36]);
+            screencapture("captxxxx.tga", eitherSHIFT);
 
             /*
             ydim16 = j;
@@ -1919,10 +1860,10 @@ void overheadeditor(void)
             {
                 wall[linehighlight].cstat ^= 1;
                 wall[linehighlight].cstat &= ~64;
-                if ((wall[linehighlight].nextwall >= 0) && ((keystatus[0x2a]|keystatus[0x36]) == 0))
+                if ((wall[linehighlight].nextwall >= 0) && !eitherSHIFT)
                 {
-                    wall[wall[linehighlight].nextwall].cstat &= ~(1+64);
-                    wall[wall[linehighlight].nextwall].cstat |= (wall[linehighlight].cstat&1);
+                    NEXTWALL(linehighlight).cstat &= ~(1+64);
+                    NEXTWALL(linehighlight).cstat |= (wall[linehighlight].cstat&1);
                 }
                 asksave = 1;
             }
@@ -1931,7 +1872,7 @@ void overheadeditor(void)
         if (keystatus[0x21])  //F (F alone does nothing in 2D right now)
         {
             keystatus[0x21] = 0;
-            if (keystatus[0x38]|keystatus[0xb8])  //ALT-F (relative alignmment flip)
+            if (eitherALT)  //ALT-F (relative alignmment flip)
             {
                 linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight);
                 if (linehighlight >= 0)
@@ -1953,7 +1894,7 @@ void overheadeditor(void)
 
                 hitscan((const vec3_t *)&sprite[i],sprite[i].sectnum,
                         sintable[(sprite[i].ang+2560+1024)&2047],
-                        sintable[(sprite[i].ang+2048+1024)&2047],
+                        sintable[(sprite[i].ang+1024)&2047],
                         0,&hitinfo,CLIPMASK1);
 
                 sprite[i].x = hitinfo.pos.x;
@@ -1961,7 +1902,8 @@ void overheadeditor(void)
                 sprite[i].z = hitinfo.pos.z;
                 changespritesect(i,hitinfo.hitsect);
                 if (hitinfo.hitwall >= 0)
-                    sprite[i].ang = ((getangle(wall[wall[hitinfo.hitwall].point2].x-wall[hitinfo.hitwall].x,wall[wall[hitinfo.hitwall].point2].y-wall[hitinfo.hitwall].y)+512)&2047);
+                    sprite[i].ang = (getangle(POINT2(hitinfo.hitwall).x - wall[hitinfo.hitwall].x,
+                                              POINT2(hitinfo.hitwall).y - wall[hitinfo.hitwall].y)+512)&2047;
 
                 //Make sure sprite's in right sector
                 if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
@@ -1973,7 +1915,14 @@ void overheadeditor(void)
             }
         }
 
-        if (keystatus[0x33] || (bstatus&1 && bstatus&32))  // , (2D)
+
+        tsign = 0;
+        if (keystatus[0x33] || (bstatus&33)==33)  // , (2D)
+            tsign = +1;
+        if (keystatus[0x34] || (bstatus&17)==17)  // . (2D)
+            tsign = -1;
+
+        if (tsign)
         {
             if (highlightsectorcnt > 0)
             {
@@ -1997,15 +1946,12 @@ void overheadeditor(void)
                     day /= k;
                 }
 
-                k = (keystatus[0x2a]|keystatus[0x36]);
+                k = eitherSHIFT;
 
                 if (k == 0)
                 {
-                    if ((gridlock > 0) && (grid > 0))
-                    {
-                        dax = ((dax+(1024>>grid))&(0xffffffff<<(11-grid)));
-                        day = ((day+(1024>>grid))&(0xffffffff<<(11-grid)));
-                    }
+                    if (gridlock && grid > 0)
+                        locktogrid(&dax, &day);
                 }
 
                 for (i=0; i<highlightsectorcnt; i++)
@@ -2018,13 +1964,11 @@ void overheadeditor(void)
                         {
                             x3 = wall[j].x;
                             y3 = wall[j].y;
-                            wall[j].x = dax+day-y3;
-                            wall[j].y = day+x3-dax;
+                            wall[j].x = dax + tsign*(day-y3);
+                            wall[j].y = day + tsign*(x3-dax);
                         }
                         else
-                        {
-                            rotatepoint(dax,day,wall[j].x,wall[j].y,1,&wall[j].x,&wall[j].y);
-                        }
+                            rotatepoint(dax,day, wall[j].x,wall[j].y, tsign&2047, &wall[j].x,&wall[j].y);
                     }
 
                     j = headspritesect[highlightsector[i]];
@@ -2034,22 +1978,22 @@ void overheadeditor(void)
                         {
                             x3 = sprite[j].x;
                             y3 = sprite[j].y;
-                            sprite[j].x = dax+day-y3;
-                            sprite[j].y = day+x3-dax;
-                            sprite[j].ang = ((sprite[j].ang+512)&2047);
+                            sprite[j].x = dax + tsign*(day-y3);
+                            sprite[j].y = day + tsign*(x3-dax);
+                            sprite[j].ang = ((sprite[j].ang+tsign*512)&2047);
                         }
                         else
                         {
-                            rotatepoint(dax,day,sprite[j].x,sprite[j].y,1,&sprite[j].x,&sprite[j].y);
-                            sprite[j].ang = ((sprite[j].ang+1)&2047);
+                            rotatepoint(dax,day, sprite[j].x,sprite[j].y, tsign&2048, &sprite[j].x,&sprite[j].y);
+                            sprite[j].ang = ((sprite[j].ang+tsign)&2047);
                         }
 
                         j = nextspritesect[j];
                     }
                 }
-                if (k == 0) keystatus[0x33] = 0;
-                mouseb &= ~32;
-                bstatus &= ~32;
+                if (k == 0) keystatus[0x33] = keystatus[0x34] = 0;
+                mouseb &= ~(16|32);
+                bstatus &= ~(16|32);
                 asksave = 1;
             }
             else
@@ -2057,121 +2001,23 @@ void overheadeditor(void)
                 if (pointhighlight >= 16384)
                 {
                     i = pointhighlight-16384;
-                    if (keystatus[0x2a]|keystatus[0x36])
-                        sprite[i].ang = ((sprite[i].ang+2048-1)&2047);
+                    if (eitherSHIFT)
+                        sprite[i].ang = ((sprite[i].ang-tsign)&2047);
                     else
                     {
-                        sprite[i].ang = ((sprite[i].ang+2048-128)&2047);
-                        keystatus[0x33] = 0;
+                        sprite[i].ang = ((sprite[i].ang-128*tsign)&2047);
+                        keystatus[0x33] = keystatus[0x34] = 0;
                     }
 
-                    mouseb &= ~32;
-                    bstatus &= ~32;
+                    mouseb &= ~(16|32);
+                    bstatus &= ~(16|32);
 
 //                    clearmidstatbar16();
 //                    showspritedata((int16_t)pointhighlight-16384);
                 }
             }
         }
-        if (keystatus[0x34] || (bstatus&1 && bstatus&16))  // .  (2D)
-        {
-            if (highlightsectorcnt > 0)
-            {
-                k = 0;
-                dax = 0;
-                day = 0;
-                for (i=0; i<highlightsectorcnt; i++)
-                {
-                    startwall = sector[highlightsector[i]].wallptr;
-                    endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                    for (j=startwall; j<=endwall; j++)
-                    {
-                        dax += wall[j].x;
-                        day += wall[j].y;
-                        k++;
-                    }
-                }
-                if (k > 0)
-                {
-                    dax /= k;
-                    day /= k;
-                }
 
-                k = (keystatus[0x2a]|keystatus[0x36]);
-
-                if (k == 0)
-                {
-                    if ((gridlock > 0) && (grid > 0))
-                    {
-                        dax = ((dax+(1024>>grid))&(0xffffffff<<(11-grid)));
-                        day = ((day+(1024>>grid))&(0xffffffff<<(11-grid)));
-                    }
-                }
-
-                for (i=0; i<highlightsectorcnt; i++)
-                {
-                    startwall = sector[highlightsector[i]].wallptr;
-                    endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                    for (j=startwall; j<=endwall; j++)
-                    {
-                        if (k == 0)
-                        {
-                            x3 = wall[j].x;
-                            y3 = wall[j].y;
-                            wall[j].x = dax+y3-day;
-                            wall[j].y = day+dax-x3;
-                        }
-                        else
-                        {
-                            rotatepoint(dax,day,wall[j].x,wall[j].y,2047,&wall[j].x,&wall[j].y);
-                        }
-                    }
-
-                    j = headspritesect[highlightsector[i]];
-                    while (j != -1)
-                    {
-                        if (k == 0)
-                        {
-                            x3 = sprite[j].x;
-                            y3 = sprite[j].y;
-                            sprite[j].x = dax+y3-day;
-                            sprite[j].y = day+dax-x3;
-                            sprite[j].ang = ((sprite[j].ang+1536)&2047);
-                        }
-                        else
-                        {
-                            rotatepoint(dax,day,sprite[j].x,sprite[j].y,2047,&sprite[j].x,&sprite[j].y);
-                            sprite[j].ang = ((sprite[j].ang+2047)&2047);
-                        }
-
-                        j = nextspritesect[j];
-                    }
-                }
-                if (k == 0) keystatus[0x34] = 0;
-                mouseb &= ~16;
-                bstatus &= ~16;
-                asksave = 1;
-            }
-            else
-            {
-                if (pointhighlight >= 16384)
-                {
-                    i = pointhighlight-16384;
-                    if (keystatus[0x2a]|keystatus[0x36])
-                        sprite[i].ang = ((sprite[i].ang+2048+1)&2047);
-                    else
-                    {
-                        sprite[i].ang = ((sprite[i].ang+2048+128)&2047);
-                        keystatus[0x34] = 0;
-                    }
-
-                    mouseb &= ~16;
-                    bstatus &= ~16;
-//                    clearmidstatbar16();
-//                    showspritedata((int16_t)pointhighlight-16384);
-                }
-            }
-        }
         if (keystatus[0x46])  //Scroll lock (set starting position)
         {
             startposx = pos.x;
@@ -2186,15 +2032,10 @@ void overheadeditor(void)
         if (keystatus[0x3f])  //F5
         {
 //            keystatus[0x3f] = 0;
-
-//            for (i=0; i<numsectors; i++)
-//                if (inside(mousxplc,mousyplc,i) == 1)
-            {
-                ydim16 = STATUS2DSIZ;
-                ExtShowSectorData((int16_t)0/*i*/);
-                ydim16 = ydim-STATUS2DSIZ2;
-//                    break;
-            }
+            
+            ydim16 = STATUS2DSIZ;
+            ExtShowSectorData((int16_t)0);
+            ydim16 = ydim-STATUS2DSIZ2;
         }
         if (keystatus[0x40])  //F6
         {
@@ -2261,7 +2102,7 @@ void overheadeditor(void)
         if (keystatus[0x23])  //H (Hi 16 bits of tag)
         {
             keystatus[0x23] = 0;
-            if (keystatus[0x1d]|keystatus[0x9d])  //Ctrl-H
+            if (eitherCTRL)  //Ctrl-H
             {
                 pointhighlight = getpointhighlight(mousxplc, mousyplc, pointhighlight);
                 linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight);
@@ -2274,31 +2115,27 @@ void overheadeditor(void)
                 else if (linehighlight >= 0)
                 {
                     wall[linehighlight].cstat ^= 64;
-                    if ((wall[linehighlight].nextwall >= 0) && ((keystatus[0x2a]|keystatus[0x36]) == 0))
+                    if ((wall[linehighlight].nextwall >= 0) && !eitherSHIFT)
                     {
-                        wall[wall[linehighlight].nextwall].cstat &= ~64;
-                        wall[wall[linehighlight].nextwall].cstat |= (wall[linehighlight].cstat&64);
+                        NEXTWALL(linehighlight).cstat &= ~64;
+                        NEXTWALL(linehighlight).cstat |= (wall[linehighlight].cstat&64);
                     }
                     asksave = 1;
                 }
             }
-            else if (keystatus[0x38]|keystatus[0xb8])  //ALT
+            else if (eitherALT)  //ALT
             {
                 if (pointhighlight >= 16384)
                 {
                     i = pointhighlight-16384;
                     Bsprintf(buffer,"Sprite (%d) Hi-tag: ",i);
                     sprite[i].hitag = getnumber16(buffer,sprite[i].hitag,65536L,0);
-//                    clearmidstatbar16();
-//                    showspritedata((int16_t)i);
                 }
                 else if (linehighlight >= 0)
                 {
                     i = linehighlight;
                     Bsprintf(buffer,"Wall (%d) Hi-tag: ",i);
                     wall[i].hitag = getnumber16(buffer,wall[i].hitag,65536L,0);
-//                    clearmidstatbar16();
-//                    showwalldata((int16_t)i);
                 }
             }
             else
@@ -2308,8 +2145,6 @@ void overheadeditor(void)
                     {
                         Bsprintf(buffer,"Sector (%d) Hi-tag: ",i);
                         sector[i].hitag = getnumber16(buffer,sector[i].hitag,65536L,0);
-//                        clearmidstatbar16();
-//                        showsectordata((int16_t)i);
                         break;
                     }
             }
@@ -2324,20 +2159,16 @@ void overheadeditor(void)
                 {
                     Bsprintf(buffer,"Sector (%d) Ceilingpal: ",i);
                     sector[i].ceilingpal = getnumber16(buffer,sector[i].ceilingpal,256L,0);
-//                    clearmidstatbar16();
-//                    showsectordata((int16_t)i);
 
                     Bsprintf(buffer,"Sector (%d) Floorpal: ",i);
                     sector[i].floorpal = getnumber16(buffer,sector[i].floorpal,256L,0);
-//                    clearmidstatbar16();
-//                    showsectordata((int16_t)i);
-
-                    // printmessage16("");
                     break;
                 }
         }
         if (keystatus[0x12])  // E (status list)
         {
+            keystatus[0x12] = 0;
+
             if (pointhighlight >= 16384)
             {
                 i = pointhighlight-16384;
@@ -2346,10 +2177,7 @@ void overheadeditor(void)
 //                clearmidstatbar16();
 //                showspritedata((int16_t)i);
             }
-
             // printmessage16("");
-
-            keystatus[0x12] = 0;
         }
 
         if (highlightsectorcnt < 0)
@@ -2360,41 +2188,36 @@ void overheadeditor(void)
                 {
                     highlightx2 = searchx, highlighty2 = searchy;
                     ydim16 = ydim-STATUS2DSIZ2;
-                    drawline16(highlightx2,highlighty1,highlightx1,highlighty1,editorcolors[5]);
-                    drawline16(highlightx2,highlighty2,highlightx1,highlighty2,editorcolors[5]);
-                    drawline16(highlightx1,highlighty2,highlightx1,highlighty1,editorcolors[5]);
-                    drawline16(highlightx2,highlighty2,highlightx2,highlighty1,editorcolors[5]);
+                    drawline16(highlightx2,highlighty1, highlightx1,highlighty1, editorcolors[5]);
+                    drawline16(highlightx2,highlighty2, highlightx1,highlighty2, editorcolors[5]);
+                    drawline16(highlightx1,highlighty2, highlightx1,highlighty1, editorcolors[5]);
+                    drawline16(highlightx2,highlighty2, highlightx2,highlighty1, editorcolors[5]);
                 }
-                if (highlightcnt != 0)
+                else
                 {
+                    highlightcnt = 0;
                     highlightx1 = searchx;
                     highlighty1 = searchy;
                     highlightx2 = searchx;
                     highlighty2 = searchx;
-                    highlightcnt = 0;
 
-                    for (i=0; i<(MAXWALLS>>3); i++)  //Clear all highlights
-                        show2dwall[i] = 0;
-                    for (i=0; i<(MAXSPRITES>>3); i++)
-                        show2dsprite[i] = 0;
+                    Bmemset(show2dwall, 0, sizeof(show2dwall));
+                    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
                 }
             }
             else
             {
                 if (highlightcnt == 0)
                 {
-                    getpoint(highlightx1,highlighty1,&highlightx1,&highlighty1);
-                    getpoint(highlightx2,highlighty2,&highlightx2,&highlighty2);
-                    if (highlightx1 > highlightx2)
-                    {
-                        tempint = highlightx1; highlightx1 = highlightx2; highlightx2 = tempint;
-                    }
-                    if (highlighty1 > highlighty2)
-                    {
-                        tempint = highlighty1; highlighty1 = highlighty2; highlighty2 = tempint;
-                    }
+                    getpoint(highlightx1,highlighty1, &highlightx1,&highlighty1);
+                    getpoint(highlightx2,highlighty2, &highlightx2,&highlighty2);
 
-                    if (keystatus[0x1d]|keystatus[0x9d])
+                    if (highlightx1 > highlightx2)
+                        swaplong(&highlightx1, &highlightx2);
+                    if (highlighty1 > highlighty2)
+                        swaplong(&highlighty1, &highlighty2);
+
+                    if (eitherCTRL)
                     {
                         if ((linehighlight >= 0) && (linehighlight < MAXWALLS))
                         {
@@ -2405,13 +2228,11 @@ void overheadeditor(void)
                                 show2dwall[i>>3] |= (1<<(i&7));
 
                                 for (j=0; j<numwalls; j++)
-                                    if (wall[j].x == wall[i].x)
-                                        if (wall[j].y == wall[i].y)
-                                            if (i != j)
-                                            {
-                                                highlight[highlightcnt++] = j;
-                                                show2dwall[j>>3] |= (1<<(j&7));
-                                            }
+                                    if (j!=i && wall[j].x==wall[i].x && wall[j].y==wall[i].y)
+                                    {
+                                        highlight[highlightcnt++] = j;
+                                        show2dwall[j>>3] |= (1<<(j&7));
+                                    }
 
                                 i = wall[i].point2;
                             }
@@ -2421,16 +2242,16 @@ void overheadeditor(void)
                     else
                     {
                         for (i=0; i<numwalls; i++)
-                            if ((wall[i].x >= highlightx1) && (wall[i].x <= highlightx2))
-                                if ((wall[i].y >= highlighty1) && (wall[i].y <= highlighty2))
+                            if (wall[i].x >= highlightx1 && wall[i].x <= highlightx2)
+                                if (wall[i].y >= highlighty1 && wall[i].y <= highlighty2)
                                 {
                                     highlight[highlightcnt++] = i;
                                     show2dwall[i>>3] |= (1<<(i&7));
                                 }
                         for (i=0; i<MAXSPRITES; i++)
                             if (sprite[i].statnum < MAXSTATUS)
-                                if ((sprite[i].x >= highlightx1) && (sprite[i].x <= highlightx2))
-                                    if ((sprite[i].y >= highlighty1) && (sprite[i].y <= highlighty2))
+                                if (sprite[i].x >= highlightx1 && sprite[i].x <= highlightx2)
+                                    if (sprite[i].y >= highlighty1 && sprite[i].y <= highlighty2)
                                     {
                                         highlight[highlightcnt++] = i+16384;
                                         show2dsprite[i>>3] |= (1<<(i&7));
@@ -2451,10 +2272,10 @@ void overheadeditor(void)
                     highlightx2 = searchx, highlighty2 = searchy;
                     ydim16 = ydim-STATUS2DSIZ2;
                     begindrawing();	//{{{
-                    drawline16(highlightx2,highlighty1,highlightx1,highlighty1,editorcolors[10]);
-                    drawline16(highlightx2,highlighty2,highlightx1,highlighty2,editorcolors[10]);
-                    drawline16(highlightx1,highlighty2,highlightx1,highlighty1,editorcolors[10]);
-                    drawline16(highlightx2,highlighty2,highlightx2,highlighty1,editorcolors[10]);
+                    drawline16(highlightx2,highlighty1, highlightx1,highlighty1, editorcolors[10]);
+                    drawline16(highlightx2,highlighty2, highlightx1,highlighty2, editorcolors[10]);
+                    drawline16(highlightx1,highlighty2, highlightx1,highlighty1, editorcolors[10]);
+                    drawline16(highlightx2,highlighty2, highlightx2,highlighty1, editorcolors[10]);
                     enddrawing();	//}}}
                 }
                 if (highlightsectorcnt != 0)
@@ -2481,16 +2302,13 @@ void overheadeditor(void)
             {
                 if (highlightsectorcnt == 0)
                 {
-                    getpoint(highlightx1,highlighty1,&highlightx1,&highlighty1);
-                    getpoint(highlightx2,highlighty2,&highlightx2,&highlighty2);
+                    getpoint(highlightx1,highlighty1, &highlightx1,&highlighty1);
+                    getpoint(highlightx2,highlighty2, &highlightx2,&highlighty2);
+
                     if (highlightx1 > highlightx2)
-                    {
-                        tempint = highlightx1; highlightx1 = highlightx2; highlightx2 = tempint;
-                    }
+                        swaplong(&highlightx1, &highlightx2);
                     if (highlighty1 > highlighty2)
-                    {
-                        tempint = highlighty1; highlighty1 = highlighty2; highlighty2 = tempint;
-                    }
+                        swaplong(&highlighty1, &highlighty2);
 
                     for (i=0; i<numsectors; i++)
                     {
@@ -2511,37 +2329,14 @@ void overheadeditor(void)
                     if (highlightsectorcnt <= 0)
                         highlightsectorcnt = -1;
 
-                    //White out all bordering lines of grab that are
-                    //not highlighted on both sides
-                    for (i=highlightsectorcnt-1; i>=0; i--)
-                    {
-                        startwall = sector[highlightsector[i]].wallptr;
-                        endwall = startwall + sector[highlightsector[i]].wallnum;
-                        for (j=startwall; j<endwall; j++)
-                        {
-                            if (wall[j].nextwall >= 0)
-                            {
-                                for (k=highlightsectorcnt-1; k>=0; k--)
-                                    if (highlightsector[k] == wall[j].nextsector)
-                                        break;
-                                if (k < 0)
-                                {
-                                    wall[wall[j].nextwall].nextwall = -1;
-                                    wall[wall[j].nextwall].nextsector = -1;
-                                    wall[j].nextwall = -1;
-                                    wall[j].nextsector = -1;
-                                }
-                            }
-                        }
-                    }
-
+                    ovh_whiteoutgrab();
                 }
             }
         }
 
-        if (((bstatus&1) < (oldmousebstatus&1)) && (highlightsectorcnt < 0))  //after dragging
+        if (((bstatus&1) < (oldmousebstatus&1)) && highlightsectorcnt < 0)  //after dragging
         {
-            int32_t wallsdrawn = newnumwalls-numwalls;
+            int32_t wallsdrawn = newnumwalls-numwalls, runi;
 
             if (newnumwalls != -1)
             {
@@ -2583,8 +2378,8 @@ void overheadeditor(void)
 
                 tempint = ((tilesizy[sprite[j].picnum]*sprite[j].yrepeat)<<2);
 
-                sprite[j].z = max(sprite[j].z,getceilzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y)+tempint);
-                sprite[j].z = min(sprite[j].z,getflorzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y));
+                sprite[j].z = max(sprite[j].z, getceilzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y)+tempint);
+                sprite[j].z = min(sprite[j].z, getflorzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y));
             }
 
             if ((pointhighlight&0xc000) == 0)
@@ -2598,46 +2393,39 @@ void overheadeditor(void)
                 day = sprite[pointhighlight&16383].y;
             }
 
-            for (i=numwalls-1; i>=0; i--)  //delete points
-            {
-                if (wall[i].x == wall[wall[i].point2].x)
-                    if (wall[i].y == wall[wall[i].point2].y)
+            for (runi=0; runi<2; runi++)
+                for (i=numwalls-1; i>=0; i--)  //delete points
+                {
+                    if (wall[i].x == POINT2(i).x && wall[i].y == POINT2(i).y)
                         if (sector[sectorofwall((int16_t)i)].wallnum > 3)
                             if (sector[sectorofwall(wall[i].point2)].wallnum > 3)
-                                if (!(wall[i].nextwall == -1 ||
-                                        (sector[sectorofwall(wall[i].nextwall)].wallnum > 3 &&
-                                         sector[sectorofwall(wall[wall[i].nextwall].point2)].wallnum > 3)))
+                            {
+                                int32_t b = (wall[i].nextwall == -1 ||
+                                             (sector[sectorofwall(wall[i].nextwall)].wallnum > 3 &&
+                                              sector[sectorofwall(NEXTWALL(i).point2)].wallnum > 3));
+                                if (runi==0 && !b)
                                 {
                                     printmessage16("Invalid operation, delete or join sector instead.");
                                     goto SKIP;
                                 }
-            }
-
-            for (i=numwalls-1; i>=0; i--)  //delete points
-            {
-                if (wall[i].x == wall[wall[i].point2].x)
-                    if (wall[i].y == wall[wall[i].point2].y)
-                        if (sector[sectorofwall((int16_t)i)].wallnum > 3)
-                            if (sector[sectorofwall(wall[i].point2)].wallnum > 3)
-                                if (wall[i].nextwall == -1 ||
-                                        (sector[sectorofwall(wall[i].nextwall)].wallnum > 3 &&
-                                         sector[sectorofwall(wall[wall[i].nextwall].point2)].wallnum > 3))
+                                else if (runi==1 && b)
                                 {
                                     deletepoint((int16_t)i);
                                     printmessage16("Point deleted.");
                                     asksave = 1;
                                 }
-            }
+                            }
+                }
 
             for (i=0; i<numwalls; i++)     //make new red lines?
             {
-                if ((wall[i].x == dax) && (wall[i].y == day))
+                if (wall[i].x == dax && wall[i].y == day)
                 {
                     checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
                     fixrepeats((int16_t)i);
                     asksave = 1;
                 }
-                else if ((wall[wall[i].point2].x == dax) && (wall[wall[i].point2].y == day))
+                else if (POINT2(i).x == dax && POINT2(i).y == day)
                 {
                     checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
                     fixrepeats((int16_t)i);
@@ -2647,7 +2435,7 @@ void overheadeditor(void)
 
             if (wallsdrawn != -1)
             {
-                Bmemcpy(&wall[numwalls],&wall[MAXWALLS-wallsdrawn],sizeof(walltype) * wallsdrawn);
+                Bmemcpy(&wall[numwalls],&wall[MAXWALLS-wallsdrawn], sizeof(walltype)*wallsdrawn);
                 newnumwalls = numwalls + wallsdrawn;
                 for (i=numwalls; i<newnumwalls; i++)
                     wall[i].point2 = i+1;
@@ -2677,32 +2465,27 @@ SKIP:
                     {
 //                        for (i=0; i<highlightsectorcnt; i++)
 //                            if (cursectorhighlight == highlightsector[i])
-                            {
-                                //You clicked inside one of the flashing sectors!
-                                sectorhighlightstat = 1;
+                        {
+                            //You clicked inside one of the flashing sectors!
+                            sectorhighlightstat = 1;
 
-                                dax = mousxplc;
-                                day = mousyplc;
-                                if ((gridlock > 0) && (grid > 0))
-                                {
-                                    dax = ((dax+(1024>>grid))&(0xffffffff<<(11-grid)));
-                                    day = ((day+(1024>>grid))&(0xffffffff<<(11-grid)));
-                                }
-                                sectorhighlightx = dax;
-                                sectorhighlighty = day;
+                            dax = mousxplc;
+                            day = mousyplc;
+                            if (gridlock && grid > 0)
+                                locktogrid(&dax, &day);
+
+                            sectorhighlightx = dax;
+                            sectorhighlighty = day;
 //                                break;
-                            }
+                        }
                     }
                 }
                 else if (sectorhighlightstat == 1)
                 {
                     dax = mousxplc;
                     day = mousyplc;
-                    if ((gridlock > 0) && (grid > 0))
-                    {
-                        dax = ((dax+(1024>>grid))&(0xffffffff<<(11-grid)));
-                        day = ((day+(1024>>grid))&(0xffffffff<<(11-grid)));
-                    }
+                    if (gridlock && grid > 0)
+                        locktogrid(&dax, &day);
 
                     dax -= sectorhighlightx;
                     day -= sectorhighlighty;
@@ -2744,11 +2527,8 @@ SKIP:
                 {
                     dax = mousxplc;
                     day = mousyplc;
-                    if ((gridlock > 0) && (grid > 0))
-                    {
-                        dax = ((dax+(1024>>grid))&(0xffffffff<<(11-grid)));
-                        day = ((day+(1024>>grid))&(0xffffffff<<(11-grid)));
-                    }
+                    if (gridlock && grid > 0)
+                        locktogrid(&dax, &day);
 
                     j = 1;
                     if (highlightcnt > 0)
@@ -2826,7 +2606,7 @@ SKIP:
 
         if ((bstatus&6) > 0)
         {
-            if (keystatus[0x1d]|keystatus[0x9d])
+            if (eitherCTRL)
             {
                 int16_t cursectornum;
 
@@ -2842,13 +2622,9 @@ SKIP:
                         ExtEditSpriteData((int16_t)i);
                     }
                     else if ((linehighlight >= 0) && (bstatus&1 || sectorofwall(linehighlight) == cursectornum))
-                    {
                         ExtEditWallData((int16_t)linehighlight);
-                    }
                     else if (cursectornum >= 0)
-                    {
                         ExtEditSectorData((int16_t)cursectornum);
-                    }
                 }
 
                 bstatus &= ~6;
@@ -2862,7 +2638,7 @@ SKIP:
             }
         }
 
-        if (circlewall != -1 && (keystatus[0x4a] || (bstatus&32 && !(keystatus[0x1d]|keystatus[0x9d]))))  // -
+        if (circlewall != -1 && (keystatus[0x4a] || ((bstatus&32) && !eitherCTRL)))  // -
         {
             if (circlepoints > 1)
                 circlepoints--;
@@ -2870,7 +2646,7 @@ SKIP:
             mouseb &= ~32;
             bstatus &= ~32;
         }
-        if (circlewall != -1 && (keystatus[0x4e] || (bstatus&16 && !(keystatus[0x1d]|keystatus[0x9d]))))  // +
+        if (circlewall != -1 && (keystatus[0x4e] || ((bstatus&16) && !eitherCTRL)))  // +
         {
             if (circlepoints < 63)
                 circlepoints++;
@@ -2879,11 +2655,11 @@ SKIP:
             bstatus &= ~16;
         }
 
-        if ((keystatus[buildkeys[BK_MOVEUP]] || (bstatus&16)) && (zoom < 65536))
+        if ((DOWN_BK(MOVEUP) || (bstatus&16)) && zoom < 65536)
         {
             zoom += synctics*(zoom>>4);
             if (zoom < 24) zoom += 2;
-            if (bstatus&16 && (keystatus[0x38] || keystatus[0xb8]))
+            if ((bstatus&16) && eitherALT)
             {
                 searchx = halfxdim16;
                 searchy = midydim16;
@@ -2893,10 +2669,10 @@ SKIP:
             if (zoom > 65536) zoom = 65536;
             _printmessage16("Zoom: %d",zoom);
         }
-        if ((keystatus[buildkeys[BK_MOVEDOWN]] || (bstatus&32)) && (zoom > 8))
+        if ((DOWN_BK(MOVEDOWN) || (bstatus&32)) && zoom > 8)
         {
             zoom -= synctics*(zoom>>4);
-            if (bstatus&32 && (keystatus[0x38] || keystatus[0xb8]))
+            if ((bstatus&32) && eitherALT)
             {
                 searchx = halfxdim16;
                 searchy = midydim16;
@@ -2909,17 +2685,15 @@ SKIP:
 
         if (keystatus[0x22])  // G (grid on/off)
         {
+            keystatus[0x22] = 0;
             grid++;
             if (grid == 7) grid = 0;
-            keystatus[0x22] = 0;
         }
         if (keystatus[0x26])  // L (grid lock)
         {
-            gridlock = 1-gridlock, keystatus[0x26] = 0;
-            if (gridlock == 0)
-                printmessage16("Grid locking off");
-            else
-                printmessage16("Grid locking on");
+            keystatus[0x26] = 0;
+            gridlock = !gridlock;
+            printmessage16("Grid locking %s", gridlock?"on":"off");
         }
 
         if (keystatus[0x24])  // J (join sectors)
@@ -2948,12 +2722,8 @@ SKIP:
                             while (keystatus[1] == 0)
                             {
                                 if (handleevents())
-                                {
-                                    if (quitevent)
-                                    {
-                                        quitevent = 0;
-                                    }
-                                }
+                                    quitevent = 0;
+
                                 idle();
 
                                 ch = bgetchar();
@@ -3010,7 +2780,7 @@ SKIP:
                                 i = wall[i].point2;
                                 if (wall[i].nextsector == joinsector[1-joinsectnum])
                                 {
-                                    i = wall[wall[i].nextwall].point2;
+                                    i = NEXTWALL(i).point2;
                                     joinsectnum = 1 - joinsectnum;
                                 }
                             }
@@ -3043,8 +2813,8 @@ SKIP:
                         {
                             if (wall[i].nextwall >= 0)
                             {
-                                wall[wall[i].nextwall].nextwall = i;
-                                wall[wall[i].nextwall].nextsector = numsectors-1;
+                                NEXTWALL(i).nextwall = i;
+                                NEXTWALL(i).nextsector = numsectors-1;
                             }
                         }
 
@@ -3070,9 +2840,8 @@ SKIP:
                     }
                 }
                 else
-                {
                     printmessage16("No sectors joined.");
-                }
+
                 joinsector[0] = -1;
             }
             else
@@ -3097,9 +2866,9 @@ SKIP:
                 break;
             }
 
-        if ((keystatus[0x38]||keystatus[0xb8])&&keystatus[0x1f]) //ALT-S
+        if (eitherALT && keystatus[0x1f]) //ALT-S
         {
-            if ((linehighlight >= 0) && (wall[linehighlight].nextwall == -1))
+            if (linehighlight >= 0 && wall[linehighlight].nextwall == -1)
             {
                 if ((newnumwalls = whitelinescan(linehighlight)) < numwalls)
                 {
@@ -3109,8 +2878,8 @@ SKIP:
                 {
                     for (i=numwalls; i<newnumwalls; i++)
                     {
-                        wall[wall[i].nextwall].nextwall = i;
-                        wall[wall[i].nextwall].nextsector = numsectors;
+                        NEXTWALL(i).nextwall = i;
+                        NEXTWALL(i).nextsector = numsectors;
                     }
                     numwalls = newnumwalls;
                     newnumwalls = -1;
@@ -3134,11 +2903,8 @@ SKIP:
             {
                 dax = mousxplc;
                 day = mousyplc;
-                if ((gridlock > 0) && (grid > 0))
-                {
-                    dax = ((dax+(1024>>grid))&(0xffffffff<<(11-grid)));
-                    day = ((day+(1024>>grid))&(0xffffffff<<(11-grid)));
-                }
+                if (gridlock && grid > 0)
+                    locktogrid(&dax, &day);
 
                 i = insertsprite(sucksect,0);
                 sprite[i].x = dax, sprite[i].y = day;
@@ -3159,15 +2925,15 @@ SKIP:
                 if ((sprite[i].cstat&128) != 0)
                     sprite[i].z -= ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
 
-                for (k=0; k<MAXTILES; k++)
-                    localartfreq[k] = 0;
+                Bmemset(localartfreq, 0, sizeof(localartfreq));
                 for (k=0; k<MAXSPRITES; k++)
-                    if (sprite[k].statnum < MAXSTATUS)
-                        localartfreq[sprite[k].picnum]++;
+                    localartfreq[sprite[k].picnum] += (sprite[k].statnum < MAXSTATUS);
+
                 j = 0;
                 for (k=0; k<MAXTILES; k++)
                     if (localartfreq[k] > localartfreq[j])
                         j = k;
+
                 if (localartfreq[j] > 0)
                     sprite[i].picnum = j;
                 else
@@ -3183,11 +2949,11 @@ SKIP:
                 else if (somethingintab == 3)
                 {
                     sprite[i].picnum = temppicnum;
-                    if ((tilesizx[temppicnum] <= 0) || (tilesizy[temppicnum] <= 0))
+                    if (tilesizx[temppicnum] <= 0 || tilesizy[temppicnum] <= 0)
                     {
                         j = 0;
                         for (k=0; k<MAXTILES; k++)
-                            if ((tilesizx[k] > 0) && (tilesizy[k] > 0))
+                            if (tilesizx[k] > 0 && tilesizy[k] > 0)
                             {
                                 j = k;
                                 break;
@@ -3196,10 +2962,8 @@ SKIP:
                     }
                     sprite[i].shade = tempshade;
                     sprite[i].pal = temppal;
-                    sprite[i].xrepeat = tempxrepeat;
-                    sprite[i].yrepeat = tempyrepeat;
-                    if (sprite[i].xrepeat < 1) sprite[i].xrepeat = 1;
-                    if (sprite[i].yrepeat < 1) sprite[i].yrepeat = 1;
+                    sprite[i].xrepeat = max(tempxrepeat, 1);
+                    sprite[i].yrepeat = max(tempyrepeat, 1);
                     sprite[i].cstat = tempcstat;
                 }
 
@@ -3233,6 +2997,7 @@ SKIP:
                 {
                     startwall = sector[highlightsector[i]].wallptr;
                     endwall = startwall+sector[highlightsector[i]].wallnum-1;
+
                     for (j=startwall; j<=endwall; j++)
                     {
                         if (wall[j].nextwall >= 0)
@@ -3286,24 +3051,25 @@ SKIP:
         {
             x1 = wall[circlewall].x;
             y1 = wall[circlewall].y;
-            x2 = wall[wall[circlewall].point2].x;
-            y2 = wall[wall[circlewall].point2].y;
+            x2 = POINT2(circlewall).x;
+            y2 = POINT2(circlewall).y;
             x3 = mousxplc;
             y3 = mousyplc;
             adjustmark(&x3,&y3,newnumwalls);
-            tempint1 = dmulscale4(x3-x2,x1-x3,y1-y3,y3-y2);
-            tempint2 = dmulscale4(y1-y2,x1-x3,y1-y3,x2-x1);
+            tempint1 = dmulscale4(x3-x2,x1-x3, y1-y3,y3-y2);
+            tempint2 = dmulscale4(y1-y2,x1-x3, y1-y3,x2-x1);
+
             if (tempint2 != 0)
             {
-                int32_t pointsize = 2;
+                int32_t ps = 2;  // pointsize
 
-                centerx = (((x1+x2) + scale(y1-y2,tempint1,tempint2))>>1);
-                centery = (((y1+y2) + scale(x2-x1,tempint1,tempint2))>>1);
+                centerx = ((x1+x2) + scale(y1-y2,tempint1,tempint2))>>1;
+                centery = ((y1+y2) + scale(x2-x1,tempint1,tempint2))>>1;
 
                 dax = mulscale14(centerx-pos.x,zoom);
                 day = mulscale14(centery-pos.y,zoom);
-                drawline16(halfxdim16+dax-2,midydim16+day-2,halfxdim16+dax+2,midydim16+day+2,editorcolors[14]);
-                drawline16(halfxdim16+dax-2,midydim16+day+2,halfxdim16+dax+2,midydim16+day-2,editorcolors[14]);
+                drawline16base(halfxdim16+dax,midydim16+day, -2,-2, +2,+2, editorcolors[14]);
+                drawline16base(halfxdim16+dax,midydim16+day, -2,+2, +2,-2, editorcolors[14]);
 
                 circleang1 = getangle(x1-centerx,y1-centery);
                 circleang2 = getangle(x2-centerx,y2-centery);
@@ -3316,33 +3082,28 @@ SKIP:
                     k = -((circleang1-circleang2)&2047);
                 }
 
-                circlerad = (ksqrt(dmulscale4(centerx-x1,centerx-x1,centery-y1,centery-y1))<<2);
+                circlerad = ksqrt(dmulscale4(centerx-x1,centerx-x1, centery-y1,centery-y1))<<2;
 
                 for (i=circlepoints; i>0; i--)
                 {
-                    j = ((circleang1 + scale(i,k,circlepoints+1))&2047);
-                    dax = centerx+mulscale14(sintable[(j+512)&2047],circlerad);
-                    day = centery+mulscale14(sintable[j],circlerad);
+                    j = (circleang1 + scale(i,k,circlepoints+1))&2047;
+                    dax = centerx + mulscale14(sintable[(j+512)&2047],circlerad);
+                    day = centery + mulscale14(sintable[j],circlerad);
 
-                    if (dax <= -editorgridextent) dax = -editorgridextent;
-                    if (dax >= editorgridextent) dax = editorgridextent;
-                    if (day <= -editorgridextent) day = -editorgridextent;
-                    if (day >= editorgridextent) day = editorgridextent;
+                    bclamp(&dax, -editorgridextent, editorgridextent);
+                    bclamp(&day, -editorgridextent, editorgridextent);
 
                     if (bad > 0)
                     {
-                        m = 0;
-                        if (wall[circlewall].nextwall >= 0)
-                            if (wall[circlewall].nextwall < circlewall) m = 1;
                         insertpoint(circlewall,dax,day);
-                        circlewall += m;
+                        circlewall += (wall[circlewall].nextwall >= 0 && wall[circlewall].nextwall < circlewall);
                     }
                     dax = mulscale14(dax-pos.x,zoom);
                     day = mulscale14(day-pos.y,zoom);
-                    drawline16(halfxdim16+dax-pointsize,midydim16+day-pointsize,halfxdim16+dax+pointsize,midydim16+day-pointsize,editorcolors[14]);
-                    drawline16(halfxdim16+dax+pointsize,midydim16+day-pointsize,halfxdim16+dax+pointsize,midydim16+day+pointsize,editorcolors[14]);
-                    drawline16(halfxdim16+dax+pointsize,midydim16+day+pointsize,halfxdim16+dax-pointsize,midydim16+day+pointsize,editorcolors[14]);
-                    drawline16(halfxdim16+dax-pointsize,midydim16+day+pointsize,halfxdim16+dax-pointsize,midydim16+day-pointsize,editorcolors[14]);
+                    drawline16base(halfxdim16+dax,midydim16+day, -ps,-ps, +ps,-ps, editorcolors[14]);
+                    drawline16base(halfxdim16+dax,midydim16+day, +ps,-ps, +ps,+ps, editorcolors[14]);
+                    drawline16base(halfxdim16+dax,midydim16+day, +ps,+ps, -ps,+ps, editorcolors[14]);
+                    drawline16base(halfxdim16+dax,midydim16+day, -ps,+ps, -ps,-ps, editorcolors[14]);
 //                    drawcircle16(halfxdim16+dax, midydim16+day, 3, 14);
                 }
                 if (bad > 0)
@@ -3412,8 +3173,9 @@ SKIP:
                         //check if starting to split a sector
                         if (newnumwalls == numwalls+1)
                         {
-                            dax = ((wall[numwalls].x+mousxplc)>>1);
-                            day = ((wall[numwalls].y+mousyplc)>>1);
+                            dax = (wall[numwalls].x+mousxplc)>>1;
+                            day = (wall[numwalls].y+mousyplc)>>1;
+
                             for (i=0; i<numsectors; i++)
                                 if (inside(dax,day,i) == 1)
                                 {
@@ -3428,9 +3190,10 @@ SKIP:
                                                 m = k;
                                                 break;
                                             }
+
                                     if (m >= 0)
-                                        if ((wall[wall[k].point2].x != mousxplc) || (wall[wall[k].point2].y != mousyplc))
-                                            if ((wall[lastwall((int16_t)k)].x != mousxplc) || (wall[lastwall((int16_t)k)].y != mousyplc))
+                                        if (POINT2(k).x != mousxplc || POINT2(k).y != mousyplc)
+                                            if (wall[lastwall(k)].x != mousxplc || wall[lastwall(k)].y != mousyplc)
                                             {
                                                 split = 1;
                                                 splitsect = i;
@@ -3448,11 +3211,11 @@ SKIP:
                         {
                             if (wall[i].nextwall >= 0)
                             {
-                                if ((wall[i].x == mousxplc) && (wall[i].y == mousyplc))
-                                    if ((wall[wall[i].point2].x == wall[newnumwalls-1].x) && (wall[wall[i].point2].y == wall[newnumwalls-1].y))
+                                if (wall[i].x == mousxplc && wall[i].y == mousyplc)
+                                    if (POINT2(i).x == wall[newnumwalls-1].x && POINT2(i).y == wall[newnumwalls-1].y)
                                         bad = 1;
-                                if ((wall[i].x == wall[newnumwalls-1].x) && (wall[i].y == wall[newnumwalls-1].y))
-                                    if ((wall[wall[i].point2].x == mousxplc) && (wall[wall[i].point2].y == mousyplc))
+                                if (wall[i].x == wall[newnumwalls-1].x && wall[i].y == wall[newnumwalls-1].y)
+                                    if (POINT2(i).x == mousxplc && POINT2(i).y == mousyplc)
                                         bad = 1;
                             }
                         }
@@ -3609,271 +3372,68 @@ SKIP:
                     endwall = startwall + sector[splitsect].wallnum - 1;
 //                    OSD_Printf("numwalls: %d, newnumwalls: %d\n", numwalls, newnumwalls);
                     for (k=startwall; k<=endwall; k++)
-                        if (wall[k].x == wall[newnumwalls-1].x)
-                            if (wall[k].y == wall[newnumwalls-1].y)
+                        if (wall[k].x == wall[newnumwalls-1].x && wall[k].y == wall[newnumwalls-1].y)
+                        {
+                            bad = 0;
+                            if (loopnumofsector(splitsect,splitstartwall) != loopnumofsector(splitsect,(int16_t)k))
+                                bad = 1;
+
+                            if (numwalls+2*(newnumwalls-numwalls-1) > MAXWALLS)
                             {
-                                bad = 0;
-                                if (loopnumofsector(splitsect,splitstartwall) != loopnumofsector(splitsect,(int16_t)k))
-                                    bad = 1;
-
-                                if (numwalls+2*(newnumwalls-numwalls-1) > MAXWALLS)
-                                {
-                                    if (bad==0)
-                                        printmessage16("Splitting sector would exceed wall limit.");
-                                    else
-                                        printmessage16("Joining sector loops would exceed wall limit.");
-                                    newnumwalls--;
-                                    break;
-                                }
-
-                                if (bad == 0)
-                                {
-                                    //SPLIT IT!
-                                    //Split splitsect given: startwall,
-                                    //   new points: numwalls to newnumwalls-2
-
-                                    splitendwall = k;
-                                    newnumwalls--;  //first fix up the new walls
-                                    for (i=numwalls; i<newnumwalls; i++)
-                                    {
-                                        wall[i].cstat = wall[startwall].cstat;
-                                        wall[i].shade = wall[startwall].shade;
-                                        wall[i].yrepeat = wall[startwall].yrepeat;
-                                        fixrepeats((int16_t)i);
-                                        wall[i].picnum = wall[startwall].picnum;
-                                        wall[i].overpicnum = wall[startwall].overpicnum;
-
-                                        wall[i].nextwall = -1;
-                                        wall[i].nextsector = -1;
-                                        wall[i].point2 = i+1;
-                                    }
-
-                                    danumwalls = newnumwalls;  //where to add more walls
-                                    m = splitendwall;          //copy rest of loop next
-                                    while (m != splitstartwall)
-                                    {
-                                        Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
-                                        wall[danumwalls].point2 = danumwalls+1;
-                                        danumwalls++;
-                                        m = wall[m].point2;
-                                    }
-                                    wall[danumwalls-1].point2 = numwalls;
-
-                                    //Add other loops for 1st sector
-                                    loopnum = loopnumofsector(splitsect,splitstartwall);
-                                    i = loopnum;
-                                    for (j=startwall; j<=endwall; j++)
-                                    {
-                                        k = loopnumofsector(splitsect,(int16_t)j);
-                                        if ((k != i) && (k != loopnum))
-                                        {
-                                            i = k;
-                                            if (loopinside(wall[j].x,wall[j].y,numwalls) == 1)
-                                            {
-                                                m = j;          //copy loop
-                                                k = danumwalls;
-                                                do
-                                                {
-                                                    Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
-                                                    wall[danumwalls].point2 = danumwalls+1;
-                                                    danumwalls++;
-                                                    m = wall[m].point2;
-                                                }
-                                                while (m != j);
-                                                wall[danumwalls-1].point2 = k;
-                                            }
-                                        }
-                                    }
-
-                                    secondstartwall = danumwalls;
-                                    //copy split points for other sector backwards
-                                    for (j=newnumwalls; j>numwalls; j--)
-                                    {
-                                        Bmemcpy(&wall[danumwalls],&wall[j],sizeof(walltype));
-                                        wall[danumwalls].nextwall = -1;
-                                        wall[danumwalls].nextsector = -1;
-                                        wall[danumwalls].point2 = danumwalls+1;
-                                        danumwalls++;
-                                    }
-                                    m = splitstartwall;     //copy rest of loop next
-                                    while (m != splitendwall)
-                                    {
-                                        Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
-                                        wall[danumwalls].point2 = danumwalls+1;
-                                        danumwalls++;
-                                        m = wall[m].point2;
-                                    }
-                                    wall[danumwalls-1].point2 = secondstartwall;
-
-                                    //Add other loops for 2nd sector
-                                    loopnum = loopnumofsector(splitsect,splitstartwall);
-                                    i = loopnum;
-                                    for (j=startwall; j<=endwall; j++)
-                                    {
-                                        k = loopnumofsector(splitsect,(int16_t)j);
-                                        if ((k != i) && (k != loopnum))
-                                        {
-                                            i = k;
-                                            if (loopinside(wall[j].x,wall[j].y,secondstartwall) == 1)
-                                            {
-                                                m = j;          //copy loop
-                                                k = danumwalls;
-                                                do
-                                                {
-                                                    Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
-                                                    wall[danumwalls].point2 = danumwalls+1;
-                                                    danumwalls++;
-                                                    m = wall[m].point2;
-                                                }
-                                                while (m != j);
-                                                wall[danumwalls-1].point2 = k;
-                                            }
-                                        }
-                                    }
-
-                                    //fix all next pointers on old sector line
-                                    for (j=numwalls; j<danumwalls; j++)
-                                    {
-                                        if (wall[j].nextwall >= 0)
-                                        {
-                                            wall[wall[j].nextwall].nextwall = j;
-                                            if (j < secondstartwall)
-                                                wall[wall[j].nextwall].nextsector = numsectors;
-                                            else
-                                                wall[wall[j].nextwall].nextsector = numsectors+1;
-                                        }
-                                    }
-                                    //set all next pointers on split
-                                    for (j=numwalls; j<newnumwalls; j++)
-                                    {
-                                        m = secondstartwall+(newnumwalls-1-j);
-                                        wall[j].nextwall = m;
-                                        wall[j].nextsector = numsectors+1;
-                                        wall[m].nextwall = j;
-                                        wall[m].nextsector = numsectors;
-                                    }
-                                    //copy sector attributes & fix wall pointers
-                                    Bmemcpy(&sector[numsectors],&sector[splitsect],sizeof(sectortype));
-                                    Bmemcpy(&sector[numsectors+1],&sector[splitsect],sizeof(sectortype));
-                                    sector[numsectors].wallptr = numwalls;
-                                    sector[numsectors].wallnum = secondstartwall-numwalls;
-                                    sector[numsectors+1].wallptr = secondstartwall;
-                                    sector[numsectors+1].wallnum = danumwalls-secondstartwall;
-
-                                    //fix sprites
-                                    j = headspritesect[splitsect];
-                                    while (j != -1)
-                                    {
-                                        k = nextspritesect[j];
-                                        if (loopinside(sprite[j].x,sprite[j].y,numwalls) == 1)
-                                            changespritesect(j,numsectors);
-                                        //else if (loopinside(sprite[j].x,sprite[j].y,secondstartwall) == 1)
-                                        else  //Make sure no sprites get left out & deleted!
-                                            changespritesect(j,numsectors+1);
-                                        j = k;
-                                    }
-
-                                    numsectors+=2;
-
-                                    //Back of number of walls of new sector for later
-                                    k = danumwalls-numwalls;
-
-                                    //clear out old sector's next pointers for clean deletesector
-                                    numwalls = danumwalls;
-                                    for (j=startwall; j<=endwall; j++)
-                                    {
-                                        wall[j].nextwall = -1;
-                                        wall[j].nextsector = -1;
-                                    }
-                                    deletesector(splitsect);
-
-                                    //Check pointers
-                                    for (j=numwalls-k; j<numwalls; j++)
-                                    {
-                                        if (wall[j].nextwall >= 0)
-                                            checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                                        checksectorpointer((int16_t)j,sectorofwall((int16_t)j));
-                                    }
-
-                                    //k now safe to use as temp
-
-                                    for (m=numsectors-2; m<numsectors; m++)
-                                    {
-                                        j = headspritesect[m];
-                                        while (j != -1)
-                                        {
-                                            k = nextspritesect[j];
-                                            setsprite(j,(vec3_t *)&sprite[j]);
-                                            j = k;
-                                        }
-                                    }
-
-                                    newnumwalls = -1;
-                                    printmessage16("Sector split.");
-                                    break;
-                                }
+                                if (bad==0)
+                                    printmessage16("Splitting sector would exceed wall limit.");
                                 else
+                                    printmessage16("Joining sector loops would exceed wall limit.");
+                                newnumwalls--;
+                                break;
+                            }
+
+                            if (bad == 0)
+                            {
+                                //SPLIT IT!
+                                //Split splitsect given: startwall,
+                                //   new points: numwalls to newnumwalls-2
+
+                                splitendwall = k;
+                                newnumwalls--;  //first fix up the new walls
+                                for (i=numwalls; i<newnumwalls; i++)
                                 {
-                                    //Sector split - actually loop joining
+                                    wall[i].cstat = wall[startwall].cstat;
+                                    wall[i].shade = wall[startwall].shade;
+                                    wall[i].yrepeat = wall[startwall].yrepeat;
+                                    fixrepeats((int16_t)i);
+                                    wall[i].picnum = wall[startwall].picnum;
+                                    wall[i].overpicnum = wall[startwall].overpicnum;
 
-                                    splitendwall = k;
-                                    newnumwalls--;  //first fix up the new walls
-                                    for (i=numwalls; i<newnumwalls; i++)
+                                    wall[i].nextwall = -1;
+                                    wall[i].nextsector = -1;
+                                    wall[i].point2 = i+1;
+                                }
+
+                                danumwalls = newnumwalls;  //where to add more walls
+                                m = splitendwall;          //copy rest of loop next
+                                while (m != splitstartwall)
+                                {
+                                    Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
+                                    wall[danumwalls].point2 = danumwalls+1;
+                                    danumwalls++;
+                                    m = wall[m].point2;
+                                }
+                                wall[danumwalls-1].point2 = numwalls;
+
+                                //Add other loops for 1st sector
+                                loopnum = loopnumofsector(splitsect,splitstartwall);
+                                i = loopnum;
+                                for (j=startwall; j<=endwall; j++)
+                                {
+                                    k = loopnumofsector(splitsect,(int16_t)j);
+                                    if ((k != i) && (k != loopnum))
                                     {
-                                        wall[i].cstat = wall[startwall].cstat;
-                                        wall[i].shade = wall[startwall].shade;
-                                        wall[i].yrepeat = wall[startwall].yrepeat;
-                                        fixrepeats((int16_t)i);
-                                        wall[i].picnum = wall[startwall].picnum;
-                                        wall[i].overpicnum = wall[startwall].overpicnum;
-
-                                        wall[i].nextwall = -1;
-                                        wall[i].nextsector = -1;
-                                        wall[i].point2 = i+1;
-                                    }
-
-                                    danumwalls = newnumwalls;  //where to add more walls
-                                    m = splitendwall;          //copy rest of loop next
-                                    do
-                                    {
-                                        Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
-                                        wall[danumwalls].point2 = danumwalls+1;
-                                        danumwalls++;
-                                        m = wall[m].point2;
-                                    }
-                                    while (m != splitendwall);
-
-                                    //copy split points for other sector backwards
-                                    for (j=newnumwalls; j>numwalls; j--)
-                                    {
-                                        Bmemcpy(&wall[danumwalls],&wall[j],sizeof(walltype));
-                                        wall[danumwalls].nextwall = -1;
-                                        wall[danumwalls].nextsector = -1;
-                                        wall[danumwalls].point2 = danumwalls+1;
-                                        danumwalls++;
-                                    }
-
-                                    m = splitstartwall;     //copy rest of loop next
-                                    do
-                                    {
-                                        Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
-                                        wall[danumwalls].point2 = danumwalls+1;
-                                        danumwalls++;
-                                        m = wall[m].point2;
-                                    }
-                                    while (m != splitstartwall);
-                                    wall[danumwalls-1].point2 = numwalls;
-
-                                    //Add other loops to sector
-                                    loopnum = loopnumofsector(splitsect,splitstartwall);
-                                    i = loopnum;
-                                    for (j=startwall; j<=endwall; j++)
-                                    {
-                                        k = loopnumofsector(splitsect,(int16_t)j);
-                                        if ((k != i) && (k != loopnumofsector(splitsect,splitstartwall)) && (k != loopnumofsector(splitsect,splitendwall)))
+                                        i = k;
+                                        if (loopinside(wall[j].x,wall[j].y,numwalls) == 1)
                                         {
-                                            i = k;
-                                            m = j; k = danumwalls;     //copy loop
+                                            m = j;          //copy loop
+                                            k = danumwalls;
                                             do
                                             {
                                                 Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
@@ -3885,58 +3445,260 @@ SKIP:
                                             wall[danumwalls-1].point2 = k;
                                         }
                                     }
+                                }
 
-                                    //fix all next pointers on old sector line
-                                    for (j=numwalls; j<danumwalls; j++)
+                                secondstartwall = danumwalls;
+                                //copy split points for other sector backwards
+                                for (j=newnumwalls; j>numwalls; j--)
+                                {
+                                    Bmemcpy(&wall[danumwalls],&wall[j],sizeof(walltype));
+                                    wall[danumwalls].nextwall = -1;
+                                    wall[danumwalls].nextsector = -1;
+                                    wall[danumwalls].point2 = danumwalls+1;
+                                    danumwalls++;
+                                }
+                                m = splitstartwall;     //copy rest of loop next
+                                while (m != splitendwall)
+                                {
+                                    Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
+                                    wall[danumwalls].point2 = danumwalls+1;
+                                    danumwalls++;
+                                    m = wall[m].point2;
+                                }
+                                wall[danumwalls-1].point2 = secondstartwall;
+
+                                //Add other loops for 2nd sector
+                                loopnum = loopnumofsector(splitsect,splitstartwall);
+                                i = loopnum;
+                                for (j=startwall; j<=endwall; j++)
+                                {
+                                    k = loopnumofsector(splitsect,(int16_t)j);
+                                    if ((k != i) && (k != loopnum))
                                     {
-                                        if (wall[j].nextwall >= 0)
+                                        i = k;
+                                        if (loopinside(wall[j].x,wall[j].y,secondstartwall) == 1)
                                         {
-                                            wall[wall[j].nextwall].nextwall = j;
-                                            wall[wall[j].nextwall].nextsector = numsectors;
+                                            m = j;          //copy loop
+                                            k = danumwalls;
+                                            do
+                                            {
+                                                Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
+                                                wall[danumwalls].point2 = danumwalls+1;
+                                                danumwalls++;
+                                                m = wall[m].point2;
+                                            }
+                                            while (m != j);
+                                            wall[danumwalls-1].point2 = k;
                                         }
                                     }
+                                }
 
-                                    //copy sector attributes & fix wall pointers
-                                    Bmemcpy(&sector[numsectors],&sector[splitsect],sizeof(sectortype));
-                                    sector[numsectors].wallptr = numwalls;
-                                    sector[numsectors].wallnum = danumwalls-numwalls;
+                                //fix all next pointers on old sector line
+                                for (j=numwalls; j<danumwalls; j++)
+                                {
+                                    if (wall[j].nextwall >= 0)
+                                    {
+                                        NEXTWALL(j).nextwall = j;
+                                        if (j < secondstartwall)
+                                            NEXTWALL(j).nextsector = numsectors;
+                                        else
+                                            NEXTWALL(j).nextsector = numsectors+1;
+                                    }
+                                }
+                                //set all next pointers on split
+                                for (j=numwalls; j<newnumwalls; j++)
+                                {
+                                    m = secondstartwall+(newnumwalls-1-j);
+                                    wall[j].nextwall = m;
+                                    wall[j].nextsector = numsectors+1;
+                                    wall[m].nextwall = j;
+                                    wall[m].nextsector = numsectors;
+                                }
+                                //copy sector attributes & fix wall pointers
+                                Bmemcpy(&sector[numsectors],&sector[splitsect],sizeof(sectortype));
+                                Bmemcpy(&sector[numsectors+1],&sector[splitsect],sizeof(sectortype));
+                                sector[numsectors].wallptr = numwalls;
+                                sector[numsectors].wallnum = secondstartwall-numwalls;
+                                sector[numsectors+1].wallptr = secondstartwall;
+                                sector[numsectors+1].wallnum = danumwalls-secondstartwall;
 
-                                    //fix sprites
-                                    j = headspritesect[splitsect];
+                                //fix sprites
+                                j = headspritesect[splitsect];
+                                while (j != -1)
+                                {
+                                    k = nextspritesect[j];
+                                    if (loopinside(sprite[j].x,sprite[j].y,numwalls) == 1)
+                                        changespritesect(j,numsectors);
+                                    //else if (loopinside(sprite[j].x,sprite[j].y,secondstartwall) == 1)
+                                    else  //Make sure no sprites get left out & deleted!
+                                        changespritesect(j,numsectors+1);
+                                    j = k;
+                                }
+
+                                numsectors+=2;
+
+                                //Back of number of walls of new sector for later
+                                k = danumwalls-numwalls;
+
+                                //clear out old sector's next pointers for clean deletesector
+                                numwalls = danumwalls;
+                                for (j=startwall; j<=endwall; j++)
+                                {
+                                    wall[j].nextwall = -1;
+                                    wall[j].nextsector = -1;
+                                }
+                                deletesector(splitsect);
+
+                                //Check pointers
+                                for (j=numwalls-k; j<numwalls; j++)
+                                {
+                                    if (wall[j].nextwall >= 0)
+                                        checksectorpointer(wall[j].nextwall,wall[j].nextsector);
+                                    checksectorpointer((int16_t)j,sectorofwall((int16_t)j));
+                                }
+
+                                //k now safe to use as temp
+
+                                for (m=numsectors-2; m<numsectors; m++)
+                                {
+                                    j = headspritesect[m];
                                     while (j != -1)
                                     {
                                         k = nextspritesect[j];
-                                        changespritesect(j,numsectors);
+                                        setsprite(j,(vec3_t *)&sprite[j]);
                                         j = k;
                                     }
-
-                                    numsectors++;
-
-                                    //Back of number of walls of new sector for later
-                                    k = danumwalls-numwalls;
-
-                                    //clear out old sector's next pointers for clean deletesector
-                                    numwalls = danumwalls;
-                                    for (j=startwall; j<=endwall; j++)
-                                    {
-                                        wall[j].nextwall = -1;
-                                        wall[j].nextsector = -1;
-                                    }
-                                    deletesector(splitsect);
-
-                                    //Check pointers
-                                    for (j=numwalls-k; j<numwalls; j++)
-                                    {
-                                        if (wall[j].nextwall >= 0)
-                                            checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                                        checksectorpointer((int16_t)j,numsectors-1);
-                                    }
-
-                                    newnumwalls = -1;
-                                    printmessage16("Loops joined.");
-                                    break;
                                 }
+
+                                newnumwalls = -1;
+                                printmessage16("Sector split.");
+                                break;
                             }
+                            else
+                            {
+                                //Sector split - actually loop joining
+
+                                splitendwall = k;
+                                newnumwalls--;  //first fix up the new walls
+                                for (i=numwalls; i<newnumwalls; i++)
+                                {
+                                    wall[i].cstat = wall[startwall].cstat;
+                                    wall[i].shade = wall[startwall].shade;
+                                    wall[i].yrepeat = wall[startwall].yrepeat;
+                                    fixrepeats((int16_t)i);
+                                    wall[i].picnum = wall[startwall].picnum;
+                                    wall[i].overpicnum = wall[startwall].overpicnum;
+
+                                    wall[i].nextwall = -1;
+                                    wall[i].nextsector = -1;
+                                    wall[i].point2 = i+1;
+                                }
+
+                                danumwalls = newnumwalls;  //where to add more walls
+                                m = splitendwall;          //copy rest of loop next
+                                do
+                                {
+                                    Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
+                                    wall[danumwalls].point2 = danumwalls+1;
+                                    danumwalls++;
+                                    m = wall[m].point2;
+                                }
+                                while (m != splitendwall);
+
+                                //copy split points for other sector backwards
+                                for (j=newnumwalls; j>numwalls; j--)
+                                {
+                                    Bmemcpy(&wall[danumwalls],&wall[j],sizeof(walltype));
+                                    wall[danumwalls].nextwall = -1;
+                                    wall[danumwalls].nextsector = -1;
+                                    wall[danumwalls].point2 = danumwalls+1;
+                                    danumwalls++;
+                                }
+
+                                m = splitstartwall;     //copy rest of loop next
+                                do
+                                {
+                                    Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
+                                    wall[danumwalls].point2 = danumwalls+1;
+                                    danumwalls++;
+                                    m = wall[m].point2;
+                                }
+                                while (m != splitstartwall);
+                                wall[danumwalls-1].point2 = numwalls;
+
+                                //Add other loops to sector
+                                loopnum = loopnumofsector(splitsect,splitstartwall);
+                                i = loopnum;
+                                for (j=startwall; j<=endwall; j++)
+                                {
+                                    k = loopnumofsector(splitsect,(int16_t)j);
+                                    if ((k != i) && (k != loopnumofsector(splitsect,splitstartwall)) && (k != loopnumofsector(splitsect,splitendwall)))
+                                    {
+                                        i = k;
+                                        m = j; k = danumwalls;     //copy loop
+                                        do
+                                        {
+                                            Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
+                                            wall[danumwalls].point2 = danumwalls+1;
+                                            danumwalls++;
+                                            m = wall[m].point2;
+                                        }
+                                        while (m != j);
+                                        wall[danumwalls-1].point2 = k;
+                                    }
+                                }
+
+                                //fix all next pointers on old sector line
+                                for (j=numwalls; j<danumwalls; j++)
+                                {
+                                    if (wall[j].nextwall >= 0)
+                                    {
+                                        NEXTWALL(j).nextwall = j;
+                                        NEXTWALL(j).nextsector = numsectors;
+                                    }
+                                }
+
+                                //copy sector attributes & fix wall pointers
+                                Bmemcpy(&sector[numsectors],&sector[splitsect],sizeof(sectortype));
+                                sector[numsectors].wallptr = numwalls;
+                                sector[numsectors].wallnum = danumwalls-numwalls;
+
+                                //fix sprites
+                                j = headspritesect[splitsect];
+                                while (j != -1)
+                                {
+                                    k = nextspritesect[j];
+                                    changespritesect(j,numsectors);
+                                    j = k;
+                                }
+
+                                numsectors++;
+
+                                //Back of number of walls of new sector for later
+                                k = danumwalls-numwalls;
+
+                                //clear out old sector's next pointers for clean deletesector
+                                numwalls = danumwalls;
+                                for (j=startwall; j<=endwall; j++)
+                                {
+                                    wall[j].nextwall = -1;
+                                    wall[j].nextsector = -1;
+                                }
+                                deletesector(splitsect);
+
+                                //Check pointers
+                                for (j=numwalls-k; j<numwalls; j++)
+                                {
+                                    if (wall[j].nextwall >= 0)
+                                        checksectorpointer(wall[j].nextwall,wall[j].nextsector);
+                                    checksectorpointer((int16_t)j,numsectors-1);
+                                }
+
+                                newnumwalls = -1;
+                                printmessage16("Loops joined.");
+                                break;
+                            }
+                        }
                 }
             }
         }
@@ -3986,42 +3748,27 @@ SKIP:
 
         if (keystatus[0x0e]) //Backspace
         {
+            keystatus[0x0e] = 0;
+
             if (newnumwalls >= numwalls)
             {
                 if (newnumwalls > numwalls)
-                {
                     newnumwalls--;
-//                    asksave = 1;
-                    keystatus[0x0e] = 0;
-                }
-                if (newnumwalls == numwalls)
-                {
+                else
                     newnumwalls = -1;
-//                    asksave = 1;
-                    keystatus[0x0e] = 0;
-                }
             }
             else
             {
-                if (keystatus[buildkeys[BK_RUN]] || keystatus[0x36])
-                {
-                    if (--graphicsmode < 0)
-                        graphicsmode = 2;
-                }
-                else
-                {
-                    if (++graphicsmode > 2)
-                        graphicsmode = 0;
-                }
+                graphicsmode += (1-2*(DOWN_BK(RUN) || keystatus[0x36]))+3;
+                graphicsmode %= 3;
                 printmessage16("2D mode textures %s",
                                (graphicsmode == 2)?"enabled w/ animation":graphicsmode?"enabled":"disabled");
-                keystatus[0x0e] = 0;
             }
+            
         }
 
-        if (keystatus[0xd3] && (keystatus[0x1d]||keystatus[0x9d]) && (numwalls >= 0))
+        if (keystatus[0xd3] && eitherCTRL && (numwalls >= 0))  //sector delete
         {
-            //sector delete
             keystatus[0xd3] = 0;
 
             sucksect = -1;
@@ -4163,20 +3910,14 @@ SKIP:
                     j = 0;
                     //Check to see if point was inserted over another point
                     for (i=numwalls-1; i>=0; i--)  //delete points
-                        if (wall[i].x == wall[wall[i].point2].x)
-                            if (wall[i].y == wall[wall[i].point2].y)
-                            {
-                                deletepoint((int16_t)i);
-                                j++;
-                            }
+                        if (wall[i].x == POINT2(i).x && wall[i].y == POINT2(i).y)
+                        {
+                            deletepoint((int16_t)i);
+                            j++;
+                        }
                     for (i=0; i<numwalls; i++)     //make new red lines?
                     {
-                        if ((wall[i].x == dax) && (wall[i].y == day))
-                        {
-                            checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
-                            fixrepeats((int16_t)i);
-                        }
-                        else if ((wall[wall[i].point2].x == dax) && (wall[wall[i].point2].y == day))
+                        if ((wall[i].x == dax && wall[i].y == day) || (POINT2(i).x == dax && POINT2(i).y == day))
                         {
                             checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
                             fixrepeats((int16_t)i);
@@ -4184,10 +3925,10 @@ SKIP:
                     }
                     //if (j != 0)
                     //{
-                    //   dax = ((wall[linehighlight].x + wall[wall[linehighlight].point2].x)>>1);
-                    //   day = ((wall[linehighlight].y + wall[wall[linehighlight].point2].y)>>1);
+                    //   dax = ((wall[linehighlight].x + POINT2(linehighlight).x)>>1);
+                    //   day = ((wall[linehighlight].y + POINT2(linehighlight).y)>>1);
                     //   if ((dax != wall[linehighlight].x) || (day != wall[linehighlight].y))
-                    //      if ((dax != wall[wall[linehighlight].point2].x) || (day != wall[wall[linehighlight].point2].y))
+                    //      if ((dax != POINT2(linehighlight).x) || (day != POINT2(linehighlight).y))
                     //      {
                     //         insertpoint(linehighlight,dax,day);
                     //         printmessage16("Point inserted at midpoint.");
@@ -4197,7 +3938,7 @@ SKIP:
 
                 if (wallsdrawn != -1)
                 {
-                    Bmemcpy(&wall[numwalls],&wall[MAXWALLS-wallsdrawn],sizeof(walltype) * wallsdrawn);
+                    Bmemcpy(&wall[numwalls],&wall[MAXWALLS-wallsdrawn], sizeof(walltype)*wallsdrawn);
                     newnumwalls = numwalls + wallsdrawn;
                     for (i=numwalls; i<newnumwalls; i++)
                         wall[i].point2 = i+1;
@@ -4234,13 +3975,13 @@ SKIP:
 // vvv PK ------------------------------------ (LShift) Ctrl-X: (prev) next map
 // this is copied from 'L' (load map), but without copying the highlighted sectors
 
-        if (quickmapcycling && (keystatus[0x2d] > 0))   //X
+        if (quickmapcycling && keystatus[0x2d])   //X
         {
-            if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //Ctrl
+            if (eitherCTRL)  //Ctrl
             {
 nextmap:
 //				bad = 0;
-                i = menuselect_pk(keystatus[0x2a]>0 ? 0:1); // Left Shift: prev map
+                i = menuselect_pk(keystatus[0x2a] ? 0:1); // Left Shift: prev map
                 if (i < 0)
                 {
                     if (i == -2)
@@ -4338,12 +4079,8 @@ CANCEL:
                     while (keystatus[1] == 0)
                     {
                         if (handleevents())
-                        {
-                            if (quitevent)
-                            {
-                                quitevent = 0;
-                            }
-                        }
+                            quitevent = 0;
+
                         idle();
 
                         ch = bgetchar();
@@ -4353,10 +4090,9 @@ CANCEL:
                             highlightsectorcnt = -1;
                             highlightcnt = -1;
 
-                            for (i=0; i<(MAXWALLS>>3); i++)  //Clear all highlights
-                                show2dwall[i] = 0;
-                            for (i=0; i<(MAXSPRITES>>3); i++)
-                                show2dsprite[i] = 0;
+                            //Clear all highlights
+                            Bmemset(show2dwall, 0, sizeof(show2dwall));
+                            Bmemset(show2dsprite, 0, sizeof(show2dsprite));
 
                             for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
                             for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
@@ -4575,9 +4311,8 @@ CANCEL:
                         showframe(1);
 
                         if (handleevents())
-                        {
-                            if (quitevent) quitevent = 0;
-                        }
+                            quitevent = 0;
+
                         idle();
 
                         ch = bgetchar();
@@ -4625,7 +4360,7 @@ CANCEL:
                         {
                             // virtual filesystem mode can't save to directories so drop the file into
                             // the current directory
-                            f = strrchr(selectedboardfilename, '/');
+                            f = Bstrrchr(selectedboardfilename, '/');
                             if (!f) f = selectedboardfilename; else f++;
                         }
                         Bsprintf(buffer,"Saving to %s...",f);
@@ -4656,7 +4391,7 @@ CANCEL:
                     {
                         // virtual filesystem mode can't save to directories so drop the file into
                         // the current directory
-                        f = strrchr(boardfilename, '/');
+                        f = Bstrrchr(boardfilename, '/');
                         if (!f) f = boardfilename; else f++;
                     }
                     ExtPreSaveMap();
@@ -4724,7 +4459,7 @@ CANCEL:
                                     {
                                         // virtual filesystem mode can't save to directories so drop the file into
                                         // the current directory
-                                        f = strrchr(boardfilename, '/');
+                                        f = Bstrrchr(boardfilename, '/');
                                         if (!f) f = boardfilename; else f++;
                                     }
                                     saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
@@ -4753,9 +4488,7 @@ CANCEL:
                             exit(0);
                         }
                         else if (ch == 'n' || ch == 'N' || ch == 13 || ch == ' ')
-                        {
                             break;
-                        }
                     }
                     // printmessage16("");
                     showframe(1);
@@ -4805,28 +4538,25 @@ CANCEL:
 
 void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y)
 {
-    if (pos.x <= -editorgridextent) pos.x = -editorgridextent;
-    if (pos.x >= editorgridextent) pos.x = editorgridextent;
-    if (pos.y <= -editorgridextent) pos.y = -editorgridextent;
-    if (pos.y >= editorgridextent) pos.y = editorgridextent;
+    bclamp(&pos.x, -editorgridextent, editorgridextent);
+    bclamp(&pos.y, -editorgridextent, editorgridextent);
 
     *x = pos.x + divscale14(searchxe-halfxdim16,zoom);
     *y = pos.y + divscale14(searchye-midydim16,zoom);
 
-    if (*x <= -editorgridextent) *x = -editorgridextent;
-    if (*x >= editorgridextent) *x = editorgridextent;
-    if (*y <= -editorgridextent) *y = -editorgridextent;
-    if (*y >= editorgridextent) *y = editorgridextent;
+    bclamp(x, -editorgridextent, editorgridextent);
+    bclamp(y, -editorgridextent, editorgridextent);
 }
 
-int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
+static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
 {
     int32_t i, dst, dist, closest, x1, y1, x2, y2, nx, ny;
 
     if (numwalls == 0)
         return(-1);
 
-    if (mouseb & 1) return line;
+    if (mouseb & 1)
+        return line;
 
     dist = 1024;
     closest = -1;
@@ -4846,8 +4576,8 @@ int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
         //if red line, allow highlighting of both sides
         x1 = wall[closest].x;
         y1 = wall[closest].y;
-        x2 = wall[wall[closest].point2].x;
-        y2 = wall[wall[closest].point2].y;
+        x2 = POINT2(closest).x;
+        y2 = POINT2(closest).y;
         if (dmulscale32(xplc-x1,y2-y1,-(x2-x1),yplc-y1) >= 0)
             closest = wall[closest].nextwall;
     }
@@ -4862,7 +4592,8 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
     if (numwalls == 0)
         return(-1);
 
-    if (mouseb & 1) return point;
+    if (mouseb & 1)
+        return point;
 
     if (grid < 1)
         dist = 0;
@@ -4886,7 +4617,13 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
     return(closest);
 }
 
-int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls)
+static void locktogrid(int32_t *dax, int32_t *day)
+{
+    *dax = ((*dax+(1024>>grid))&(0xffffffff<<(11-grid)));
+    *day = ((*day+(1024>>grid))&(0xffffffff<<(11-grid)));
+}
+
+static int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls)
 {
     int32_t i, dst, dist, dax, day, pointlockdist;
 
@@ -4894,12 +4631,13 @@ int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls)
         danumwalls = numwalls;
 
     pointlockdist = 0;
-    if ((grid > 0) && (gridlock > 0))
+    if (grid > 0 && gridlock)
         pointlockdist = (128>>grid);
 
     dist = pointlockdist;
     dax = *xplc;
     day = *yplc;
+
     for (i=0; i<danumwalls; i++)
     {
         dst = klabs((*xplc)-wall[i].x) + klabs((*yplc)-wall[i].y);
@@ -4911,41 +4649,39 @@ int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls)
         }
     }
     if (dist == pointlockdist)
-        if ((gridlock > 0) && (grid > 0))
-        {
-            dax = ((dax+(1024>>grid))&(0xffffffff<<(11-grid)));
-            day = ((day+(1024>>grid))&(0xffffffff<<(11-grid)));
-        }
+        if (gridlock && grid > 0)
+            locktogrid(&dax, &day);
 
     *xplc = dax;
     *yplc = day;
     return(0);
 }
 
-int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls)
+static int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls)
 {
     int32_t i, x1, y1, x2, y2;
 
     if (danumwalls < 0)
         danumwalls = numwalls;
+
     for (i=0; i<danumwalls; i++)    // Check if a point should be inserted
     {
         x1 = wall[i].x;
         y1 = wall[i].y;
-        x2 = wall[wall[i].point2].x;
-        y2 = wall[wall[i].point2].y;
+        x2 = POINT2(i).x;
+        y2 = POINT2(i).y;
 
-        if ((x1 != dax) || (y1 != day))
-            if ((x2 != dax) || (y2 != day))
-                if (((x1 <= dax) && (dax <= x2)) || ((x2 <= dax) && (dax <= x1)))
-                    if (((y1 <= day) && (day <= y2)) || ((y2 <= day) && (day <= y1)))
-                        if ((dax-x1)*(y2-y1) == (day-y1)*(x2-x1))
-                            return(1);          //insertpoint((short)i,dax,day);
+        if ((x1 != dax || y1 != day) && (x2 != dax || y2 != day))
+            if ((x1 <= dax && dax <= x2) || (x2 <= dax && dax <= x1))
+                if ((y1 <= day && day <= y2) || (y2 <= day && day <= y1))
+                    if ((dax-x1)*(y2-y1) == (day-y1)*(x2-x1))
+                        return(1);          //insertpoint((short)i,dax,day);
     }
+
     return(0);
 }
 
-int32_t clockdir(int16_t wallstart)   //Returns: 0 is CW, 1 is CCW
+static int32_t clockdir(int16_t wallstart)   //Returns: 0 is CW, 1 is CCW
 {
     int16_t i, themin;
     int32_t minx, tempint, x0, x1, x2, y0, y1, y2;
@@ -4956,9 +4692,9 @@ int32_t clockdir(int16_t wallstart)   //Returns: 0 is CW, 1 is CCW
     do
     {
         i++;
-        if (wall[wall[i].point2].x < minx)
+        if (POINT2(i).x < minx)
         {
-            minx = wall[wall[i].point2].x;
+            minx = POINT2(i).x;
             themin = i;
         }
     }
@@ -4966,13 +4702,13 @@ int32_t clockdir(int16_t wallstart)   //Returns: 0 is CW, 1 is CCW
 
     x0 = wall[themin].x;
     y0 = wall[themin].y;
-    x1 = wall[wall[themin].point2].x;
-    y1 = wall[wall[themin].point2].y;
-    x2 = wall[wall[wall[themin].point2].point2].x;
-    y2 = wall[wall[wall[themin].point2].point2].y;
+    x1 = POINT2(themin).x;
+    y1 = POINT2(themin).y;
+    x2 = POINT2(wall[themin].point2).x;
+    y2 = POINT2(wall[themin].point2).y;
 
-    if ((y1 >= y2) && (y1 <= y0)) return(0);
-    if ((y1 >= y0) && (y1 <= y2)) return(1);
+    if (y1 >= y2 && y1 <= y0) return(0);
+    if (y1 >= y0 && y1 <= y2) return(1);
 
     tempint = (x0-x1)*(y2-y1) - (x2-x1)*(y0-y1);
     if (tempint < 0)
@@ -4981,7 +4717,7 @@ int32_t clockdir(int16_t wallstart)   //Returns: 0 is CW, 1 is CCW
         return(1);
 }
 
-void flipwalls(int16_t numwalls, int16_t newnumwalls)
+static void flipwalls(int16_t numwalls, int16_t newnumwalls)
 {
     int32_t i, j, nume, tempint;
 
@@ -4995,7 +4731,7 @@ void flipwalls(int16_t numwalls, int16_t newnumwalls)
     }
 }
 
-void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
+static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
 {
     int16_t sucksect;
     int32_t i, j, k;
@@ -5043,7 +4779,7 @@ void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
     }
 }
 
-void deletepoint(int16_t point)
+static void deletepoint(int16_t point)
 {
     int32_t i, j, k, sucksect;
 
@@ -5059,20 +4795,20 @@ void deletepoint(int16_t point)
 
     if (wall[j].nextwall >= 0)
     {
-        wall[wall[j].nextwall].nextwall = -1;
-        wall[wall[j].nextwall].nextsector = -1;
+        NEXTWALL(j).nextwall = -1;
+        NEXTWALL(j).nextsector = -1;
     }
     if (wall[point].nextwall >= 0)
     {
-        wall[wall[point].nextwall].nextwall = -1;
-        wall[wall[point].nextwall].nextsector = -1;
+        NEXTWALL(point).nextwall = -1;
+        NEXTWALL(point).nextsector = -1;
     }
     movewalls((int32_t)point,-1L);
 
     checksectorpointer((int16_t)j,(int16_t)sucksect);
 }
 
-int32_t deletesector(int16_t sucksect)
+static int32_t deletesector(int16_t sucksect)
 {
     int32_t i, j, k, nextk, startwall, endwall;
 
@@ -5103,13 +4839,15 @@ int32_t deletesector(int16_t sucksect)
     for (i=startwall; i<=endwall; i++)
         if (wall[i].nextwall != -1)
         {
-            wall[wall[i].nextwall].nextwall = -1;
-            wall[wall[i].nextwall].nextsector = -1;
+            NEXTWALL(i).nextwall = -1;
+            NEXTWALL(i).nextsector = -1;
         }
+
     movewalls(startwall,-j);
     for (i=0; i<numwalls; i++)
         if (wall[i].nextwall >= startwall)
             wall[i].nextsector--;
+
     return(0);
 }
 
@@ -5126,9 +4864,10 @@ void fixspritesectors(void)
         {
             dax = sprite[i].x;
             day = sprite[i].y;
+
             if (inside(dax,day,sprite[i].sectnum) != 1)
             {
-                daz = ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
+                daz = (tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2;
 
                 for (j=0; j<numsectors; j++)
                     if (inside(dax,day,(int16_t)j) == 1)
@@ -5142,7 +4881,7 @@ void fixspritesectors(void)
         }
 }
 
-int32_t movewalls(int32_t start, int32_t offs)
+static int32_t movewalls(int32_t start, int32_t offs)
 {
     int32_t i;
 
@@ -5180,14 +4919,14 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
 
     x1 = wall[i].x;
     y1 = wall[i].y;
-    x2 = wall[wall[i].point2].x;
-    y2 = wall[wall[i].point2].y;
+    x2 = POINT2(i).x;
+    y2 = POINT2(i).y;
 
     if (wall[i].nextwall >= 0)          //Check for early exit
     {
         k = wall[i].nextwall;
-        if ((wall[k].x == x2) && (wall[k].y == y2))
-            if ((wall[wall[k].point2].x == x1) && (wall[wall[k].point2].y == y1))
+        if (wall[k].x == x2 && wall[k].y == y2)
+            if (POINT2(k).x == x1 && POINT2(k).y == y1)
                 return(0);
     }
 
@@ -5199,8 +4938,8 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
         endwall = startwall + sector[j].wallnum - 1;
         for (k=startwall; k<=endwall; k++)
         {
-            if ((wall[k].x == x2) && (wall[k].y == y2))
-                if ((wall[wall[k].point2].x == x1) && (wall[wall[k].point2].y == y1))
+            if (wall[k].x == x2 && wall[k].y == y2)
+                if (POINT2(k).x == x1 && POINT2(k).y == y1)
                     if (j != sectnum)
                     {
                         wall[i].nextsector = j;
@@ -5215,13 +4954,10 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
 
 void fixrepeats(int16_t i)
 {
-    int32_t dax, day, dist;
+    int32_t dist = wallength(i);
+    int32_t day = wall[i].yrepeat;
 
-    dax = wall[wall[i].point2].x-wall[i].x;
-    day = wall[wall[i].point2].y-wall[i].y;
-    dist = ksqrt(dax*dax+day*day);
-    dax = wall[i].xrepeat; day = wall[i].yrepeat;
-    wall[i].xrepeat = (uint8_t)min(max(mulscale10(dist,day),1),255);
+    wall[i].xrepeat = clamp(mulscale10(dist,day), 1, 255);
 }
 
 
@@ -5229,22 +4965,23 @@ int32_t overridepm16y = -1;
 
 void clearmidstatbar16(void)
 {
+    int32_t x = overridepm16y<0 ? STATUS2DSIZ : overridepm16y;
+
     begindrawing();
     ydim16 = ydim;
+
     //  clearbuf((char *)(frameplace + (bytesperline*(ydim-STATUS2DSIZ+25L))),(bytesperline*(STATUS2DSIZ-1-(25<<1))) >> 2, 0x08080808l);
-    if (overridepm16y < 0)
-        clearbuf((char *)(frameplace + (bytesperline*(ydim-STATUS2DSIZ+25L))),(bytesperline*(STATUS2DSIZ+2-(25<<1))) >> 2, 0x00000000l);
-    else
-        clearbuf((char *)(frameplace + (bytesperline*(ydim-overridepm16y+25L))),(bytesperline*(overridepm16y+2-(25<<1))) >> 2, 0x00000000l);
+    clearbuf((char *)(frameplace + (bytesperline*(ydim-x+25L))), (bytesperline*(STATUS2DSIZ+2-(25<<1))) >> 2, 0x00000000l);
+
     /*
         drawline16(0,ydim-STATUS2DSIZ,0,ydim-1,editorcolors[7]);
-        drawline16(xdim-1,ydim-STATUS2DSIZ,xdim-1,ydim-1,editorcolors[7]);
+        drawline16base(xdim,ydim, -1,-STATUS2DSIZ, -1,-1, editorcolors[7]);
     */
     ydim16 = ydim-STATUS2DSIZ2;
     enddrawing();
 }
 
-void clearministatbar16(void)
+static void clearministatbar16(void)
 {
     int32_t i, col = whitecol - 21;
     char tempbuf[32];
@@ -5261,41 +4998,47 @@ void clearministatbar16(void)
     clearbufbyte((char *)(frameplace + (i*bytesperline)), (ydim-i)*(bytesperline), 0);
 
     Bsprintf(tempbuf, "Mapster32" VERSION);
-    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-3,ydim2d-STATUS2DSIZ2+10L,editorcolors[4],-1,tempbuf,0);
-    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-2,ydim2d-STATUS2DSIZ2+9L,editorcolors[12],-1,tempbuf,0);
+    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-3,ydim2d-STATUS2DSIZ2+10L, editorcolors[4],-1,tempbuf,0);
+    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-2,ydim2d-STATUS2DSIZ2+9L, editorcolors[12],-1,tempbuf,0);
 
     enddrawing();
 }
 
-int16_t loopinside(int32_t x, int32_t y, int16_t startwall)
+static int16_t loopinside(int32_t x, int32_t y, int16_t startwall)
 {
-    int32_t x1, y1, x2, y2, tempint;
+    int32_t x1, y1, x2, y2;
     int16_t i, cnt;
 
     cnt = clockdir(startwall);
     i = startwall;
     do
     {
-        x1 = wall[i].x; x2 = wall[wall[i].point2].x;
-        if ((x1 >= x) || (x2 >= x))
+        x1 = wall[i].x;
+        x2 = POINT2(i).x;
+
+        if (x1 >= x || x2 >= x)
         {
-            y1 = wall[i].y; y2 = wall[wall[i].point2].y;
+            y1 = wall[i].y;
+            y2 = POINT2(i).y;
+
             if (y1 > y2)
             {
-                tempint = x1, x1 = x2, x2 = tempint;
-                tempint = y1, y1 = y2, y2 = tempint;
+                swaplong(&x1, &x2);
+                swaplong(&y1, &y2);
             }
-            if ((y1 <= y) && (y2 > y))
+            if (y1 <= y && y2 > y)
                 if (x1*(y-y2)+x2*(y1-y) <= x*(y1-y2))
                     cnt ^= 1;
         }
         i = wall[i].point2;
     }
     while (i != startwall);
+
     return(cnt);
 }
 
-int32_t numloopsofsector(int16_t sectnum)
+#if 0
+static int32_t numloopsofsector(int16_t sectnum)
 {
     int32_t i, numloops, startwall, endwall;
 
@@ -5306,8 +5049,9 @@ int32_t numloopsofsector(int16_t sectnum)
         if (wall[i].point2 < i) numloops++;
     return(numloops);
 }
+#endif
 
-int32_t _getnumber16(char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t))
+int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t))
 {
     char buffer[80], ch;
     int32_t n, danum, oldnum;
@@ -5372,7 +5116,7 @@ int32_t _getnumber16(char *namestart, int32_t num, int32_t maxnumber, char sign,
     return(oldnum);
 }
 
-int32_t _getnumber256(char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t))
+int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t))
 {
     char buffer[80], ch;
     int32_t n, danum, oldnum;
@@ -5383,9 +5127,7 @@ int32_t _getnumber256(char *namestart, int32_t num, int32_t maxnumber, char sign
     while (keystatus[0x1] == 0)
     {
         if (handleevents())
-        {
-            if (quitevent) quitevent = 0;
-        }
+            quitevent = 0;
 
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
 #ifdef SUPERBUILD
@@ -5460,7 +5202,7 @@ int32_t _getnumber256(char *namestart, int32_t num, int32_t maxnumber, char sign
     return(oldnum);
 }
 
-void clearfilenames(void)
+static void clearfilenames(void)
 {
     klistfree(finddirs);
     klistfree(findfiles);
@@ -5468,7 +5210,7 @@ void clearfilenames(void)
     numfiles = numdirs = 0;
 }
 
-int32_t getfilenames(char *path, char *kind)
+static int32_t getfilenames(const char *path, const char *kind)
 {
     CACHE1D_FIND_REC *r;
 
@@ -5489,8 +5231,8 @@ int32_t getfilenames(char *path, char *kind)
 // vvv PK ------------------------------------
 // copied off menuselect
 
-const char *g_oldpath=NULL;
-int32_t menuselect_pk(int32_t direction) // 20080104: jump to next (direction!=0) or prev (direction==0) file
+static const char *g_oldpath=NULL;
+static int32_t menuselect_pk(int32_t direction) // 20080104: jump to next (direction!=0) or prev (direction==0) file
 {
     const char *chptr;
 
@@ -5504,7 +5246,7 @@ int32_t menuselect_pk(int32_t direction) // 20080104: jump to next (direction!=0
 
     getfilenames(selectedboardfilename, "*.map");
 
-    chptr = strrchr(boardfilename,'/'); // PK
+    chptr = Bstrrchr(boardfilename,'/'); // PK
     if (!chptr) chptr=boardfilename; else chptr++;
     for (; findfileshigh; findfileshigh=findfileshigh->next)
     {
@@ -5515,11 +5257,13 @@ int32_t menuselect_pk(int32_t direction) // 20080104: jump to next (direction!=0
 
     if (direction)
     {
-        if (findfileshigh->next) findfileshigh=findfileshigh->next;
+        if (findfileshigh->next)
+            findfileshigh=findfileshigh->next;
     }
     else
     {
-        if (findfileshigh->prev) findfileshigh=findfileshigh->prev;
+        if (findfileshigh->prev)
+            findfileshigh=findfileshigh->prev;
     }
 
     Bstrcat(selectedboardfilename, findfileshigh->name);
@@ -5528,7 +5272,7 @@ int32_t menuselect_pk(int32_t direction) // 20080104: jump to next (direction!=0
 }
 // ^^^ PK ------------------------------------
 
-int32_t menuselect(void)
+static int32_t menuselect(void)
 {
     int32_t listsize = (ydim16-32)/9;
     int32_t i;
@@ -5548,7 +5292,7 @@ int32_t menuselect(void)
     getfilenames(selectedboardfilename, "*.map");
 
     // PK 20080103: start with last selected map
-    chptr = strrchr(boardfilename,'/');
+    chptr = Bstrrchr(boardfilename,'/');
     if (!chptr) chptr=boardfilename; else chptr++;
     for (; findfileshigh; findfileshigh=findfileshigh->next)
     {
@@ -5568,18 +5312,16 @@ int32_t menuselect(void)
         clearbuf((char *)frameplace, (bytesperline*ydim16) >> 2, 0l);
 
         if (pathsearchmode)
-        {
-            strcpy(buffer,"Local filesystem mode; press F for game filesystem.");
-        }
+            Bstrcpy(buffer,"Local filesystem mode; press F for game filesystem.");
         else
-        {
             Bsprintf(buffer,"Game filesystem %smode; press F for local filesystem or G for %s.",
                      grponlymode?"GRP-only ":"", grponlymode?"all files":"GRP contents only");
-        }
-        printext16(halfxdim16-(8*strlen(buffer)/2), 4, editorcolors[12],editorcolors[0],buffer,0);
+
+        printext16(halfxdim16-(8*Bstrlen(buffer)/2), 4, editorcolors[12],editorcolors[0],buffer,0);
 
         Bsnprintf(buffer,sizeof(buffer)-1,"(%d dirs, %d files) %s",numdirs,numfiles,selectedboardfilename);
         buffer[sizeof(buffer)-1] = 0;
+
         printext16(8,ydim16-8-1,editorcolors[8],editorcolors[0],buffer,0);
 
         if (finddirshigh)
@@ -5595,7 +5337,7 @@ int32_t menuselect(void)
                 int32_t c = (dir->type == CACHE1D_FIND_DIR ? 2 : 3); //PK
                 memset(buffer,0,sizeof(buffer));
                 Bstrncpy(buffer,dir->name,25);
-                if (strlen(buffer) == 25)
+                if (Bstrlen(buffer) == 25)
                     buffer[21] = buffer[22] = buffer[23] = '.', buffer[24] = 0;
                 if (dir == finddirshigh)
                 {
@@ -5644,14 +5386,14 @@ int32_t menuselect(void)
         while (ch == 0)
         {
             if (handleevents())
-            {
                 if (quitevent)
                 {
                     keystatus[1] = 1;
                     quitevent = 0;
                 }
-            }
+
             idle();
+
             ch = bgetchar();
             {
                 // JBF 20040208: seek to first name matching pressed character
@@ -5720,10 +5462,11 @@ int32_t menuselect(void)
             pathsearchmode = 1-pathsearchmode;
             if (pathsearchmode)
             {
-                strcpy(selectedboardfilename, "");
+                Bstrcpy(selectedboardfilename, "");
                 Bcanonicalisefilename(selectedboardfilename, 0);
             }
-            else strcpy(selectedboardfilename, "/");
+            else Bstrcpy(selectedboardfilename, "/");
+
             getfilenames(selectedboardfilename, "*.map");
             Bstrcpy(oldpath,selectedboardfilename);
         }
@@ -5745,35 +5488,37 @@ int32_t menuselect(void)
         {
             if (currentlist == 0)
             {
-                if (finddirshigh && finddirshigh->prev) finddirshigh = finddirshigh->prev;
+                if (finddirshigh && finddirshigh->prev)
+                    finddirshigh = finddirshigh->prev;
             }
             else
             {
-                if (findfileshigh && findfileshigh->prev) findfileshigh = findfileshigh->prev;
+                if (findfileshigh && findfileshigh->prev)
+                    findfileshigh = findfileshigh->prev;
             }
         }
         else if (keystatus[0xd0] /*(ch == 77) || (ch == 80)*/)
         {
             if (currentlist == 0)
             {
-                if (finddirshigh && finddirshigh->next) finddirshigh = finddirshigh->next;
+                if (finddirshigh && finddirshigh->next)
+                    finddirshigh = finddirshigh->next;
             }
             else
             {
-                if (findfileshigh && findfileshigh->next) findfileshigh = findfileshigh->next;
+                if (findfileshigh && findfileshigh->next)
+                    findfileshigh = findfileshigh->next;
             }
         }
         else if ((ch == 13) && (currentlist == 0))
         {
             if (finddirshigh->type == CACHE1D_FIND_DRIVE)
-            {
-                strcpy(selectedboardfilename, finddirshigh->name);
-            }
+                Bstrcpy(selectedboardfilename, finddirshigh->name);
             else
-            {
-                strcat(selectedboardfilename, finddirshigh->name);
-            }
-            strcat(selectedboardfilename, "/");
+                Bstrcat(selectedboardfilename, finddirshigh->name);
+
+            Bstrcat(selectedboardfilename, "/");
+
             if (pathsearchmode)
                 Bcanonicalisefilename(selectedboardfilename, 1);
             else
@@ -5814,20 +5559,23 @@ int32_t fillsector(int16_t sectnum, char fillcolor)
     uborder = 0; dborder = ydim16;
 
     if (sectnum == -1)
-        return(0);
+        return 0;
+
     miny = dborder-1;
     maxy = uborder;
+
     startwall = sector[sectnum].wallptr;
     endwall = startwall + sector[sectnum].wallnum - 1;
     for (z=startwall; z<=endwall; z++)
     {
         y1 = (((wall[z].y-pos.y)*zoom)>>14)+midydim16;
-        y2 = (((wall[wall[z].point2].y-pos.y)*zoom)>>14)+midydim16;
+        y2 = (((POINT2(z).y-pos.y)*zoom)>>14)+midydim16;
         if (y1 < miny) miny = y1;
         if (y2 < miny) miny = y2;
         if (y1 > maxy) maxy = y1;
         if (y2 > maxy) maxy = y2;
     }
+
     if (miny < uborder) miny = uborder;
     if (maxy >= dborder) maxy = dborder-1;
 
@@ -5838,8 +5586,8 @@ int32_t fillsector(int16_t sectnum, char fillcolor)
         fillist[0] = lborder; fillcnt = 1;
         for (z=startwall; z<=endwall; z++)
         {
-            x1 = wall[z].x; x2 = wall[wall[z].point2].x;
-            y1 = wall[z].y; y2 = wall[wall[z].point2].y;
+            x1 = wall[z].x; x2 = POINT2(z).x;
+            y1 = wall[z].y; y2 = POINT2(z).y;
             if (y1 > y2)
             {
                 tempint = x1; x1 = x2; x2 = tempint;
@@ -5860,15 +5608,18 @@ int32_t fillsector(int16_t sectnum, char fillcolor)
                 for (zz=0; zz<z; zz++)
                     if (fillist[z] < fillist[zz])
                     {
-                        tempint = fillist[z]; fillist[z] = fillist[zz]; fillist[zz] = tempint;
+                        tempint = fillist[z];
+                        fillist[z] = fillist[zz];
+                        fillist[zz] = tempint;
                     }
 
             for (z=(fillcnt&1); z<fillcnt-1; z+=2)
             {
-                if (fillist[z] > rborder) break;
+                if (fillist[z] > rborder)
+                    break;
                 if (fillist[z+1] > rborder)
                     fillist[z+1] = rborder;
-                drawline16(fillist[z],sy,fillist[z+1],sy,editorcolors[fillcolor]);
+                drawline16(fillist[z],sy, fillist[z+1],sy, editorcolors[fillcolor]);
             }
         }
     }
@@ -5885,6 +5636,7 @@ int16_t whitelinescan(int16_t dalinehighlight)
     Bmemcpy(&sector[numsectors],&sector[sucksect],sizeof(sectortype));
     sector[numsectors].wallptr = numwalls;
     sector[numsectors].wallnum = 0;
+
     i = dalinehighlight;
     newnumwalls = numwalls;
     do
@@ -5895,13 +5647,12 @@ int16_t whitelinescan(int16_t dalinehighlight)
             j = wall[j].point2;
             for (k=0; k<numwalls; k++)
             {
-                if (wall[wall[k].point2].x == wall[j].x)
-                    if (wall[wall[k].point2].y == wall[j].y)
-                        if (wall[k].nextwall == -1)
-                        {
-                            j = k;
-                            break;
-                        }
+                if (POINT2(k).x == wall[j].x && POINT2(k).y == wall[j].y)
+                    if (wall[k].nextwall == -1)
+                    {
+                        j = k;
+                        break;
+                    }
             }
         }
 
@@ -6094,8 +5845,7 @@ void updatenumsprites(void)
 
     numsprites = 0;
     for (i=0; i<MAXSPRITES; i++)
-        if (sprite[i].statnum < MAXSTATUS)
-            numsprites++;
+        numsprites += (sprite[i].statnum < MAXSTATUS);
 }
 
 void copysector(int16_t soursector, int16_t destsector, int16_t deststartwall, char copystat)
@@ -6225,7 +5975,7 @@ void showsectordata(int16_t sectnum)
 
 void showwalldata(int16_t wallnum)
 {
-    int32_t dax, day, dist;
+    int32_t dax;
     char snotbuf[80];
     int32_t col = 1, row = 0;
     int32_t mode = (wallnum & 16384);
@@ -6284,13 +6034,9 @@ void showwalldata(int16_t wallnum)
     Bsprintf(snotbuf,"Extra: %d",wall[wallnum].extra);
     printext16(8+((col-1)*200),ydim-STATUS2DSIZ+72-(mode?16:0),color,-1,snotbuf,0);
 
-    dax = wall[wallnum].x-wall[wall[wallnum].point2].x;
-    day = wall[wallnum].y-wall[wall[wallnum].point2].y;
-    dist = ksqrt(dax*dax+day*day);
-
     // TX 20050102 I'm not sure what unit dist<<4 is supposed to be, but dist itself is correct in terms of game coordinates as one would expect
 
-    Bsprintf(snotbuf,"Wall length: %d",dist);
+    Bsprintf(snotbuf, "Wall length: %d", wallength(wallnum));
     printext16(8+((col-1)*200),ydim-STATUS2DSIZ+96-(mode?16:0),color,-1,snotbuf,0);
 
     dax = (int32_t)sectorofwall(wallnum);
@@ -6367,36 +6113,54 @@ void showspritedata(int16_t spritenum)
     printext16(8+((col-1)*200),ydim-STATUS2DSIZ+96,color,-1,snotbuf,0);
 }
 
+// gets called once per totalclock increment since last call (at least in sdlayer.c)
 void keytimerstuff(void)
 {
-    static int32_t ltotalclock=0;
-    if (totalclock == ltotalclock) return;
-    ltotalclock=totalclock;
+//    static int32_t ltotalclock=0;
+//    int32_t fac=1; //(totalclock-ltotalclock);
 
-    if (keystatus[buildkeys[BK_STRAFE]] == 0)
+//    if (fac==0) return;
+//    ltotalclock=totalclock;
+
+    if (DOWN_BK(STRAFE) == 0)
     {
-        // PK: With GCC and Polymost, keyboard turning lags
-        if (keystatus[buildkeys[BK_TURNLEFT]]) angvel = max(angvel-pk_turnaccel /* 16 */,-128);
-        if (keystatus[buildkeys[BK_TURNRIGHT]]) angvel = min(angvel+pk_turnaccel /* 16 */,127);
+        if (DOWN_BK(TURNLEFT)) angvel = max(angvel-pk_turnaccel, -128);
+        if (DOWN_BK(TURNRIGHT)) angvel = min(angvel+pk_turnaccel, 127);
     }
     else
     {
-        if (keystatus[buildkeys[BK_TURNLEFT]]) svel = min(svel+16,255); // svel and vel aren't even chars...
-        if (keystatus[buildkeys[BK_TURNRIGHT]]) svel = max(svel-16,-256);
+        if (DOWN_BK(TURNLEFT)) svel = min(svel+16, 255); // svel and vel aren't even chars...
+        if (DOWN_BK(TURNRIGHT)) svel = max(svel-16, -256);
     }
-    if (keystatus[buildkeys[BK_MOVEFORWARD]])  vel = min(vel+16,255);
-    if (keystatus[buildkeys[BK_MOVEBACKWARD]]) vel = max(vel-16,-256);
-    /*  if (keystatus[buildkeys[BK_STRAFELEFT]])  svel = min(svel+8,127);
-    	if (keystatus[buildkeys[BK_STRAFERIGHT]]) svel = max(svel-8,-128); */
+    if (DOWN_BK(MOVEFORWARD))  vel = min(vel+16, 255);
+    if (DOWN_BK(MOVEBACKWARD)) vel = max(vel-16, -256);
+    /*  if (DOWN_BK(STRAFELEFT))  svel = min(svel+8, 127);
+    	if (DOWN_BK(STRAFERIGHT)) svel = max(svel-8, -128); */
 
-    if (angvel < 0) angvel = min(angvel+pk_turndecel /*12*/,0);
-    if (angvel > 0) angvel = max(angvel-pk_turndecel /*12*/,0);
-    if (svel < 0) svel = min(svel+6,0);
-    if (svel > 0) svel = max(svel-6,0);
-    if (vel < 0) vel = min(vel+6,0);
-    if (vel > 0) vel = max(vel-6,0);
+    if (angvel < 0) angvel = min(angvel+pk_turndecel, 0);
+    if (angvel > 0) angvel = max(angvel-pk_turndecel, 0);
+    if (svel < 0) svel = min(svel+6, 0);
+    if (svel > 0) svel = max(svel-6, 0);
+    if (vel < 0) vel = min(vel+6, 0);
+    if (vel > 0) vel = max(vel-6, 0);
     /*    if(mlook)
             pos.z -= (horiz-101)*(vel/40); */
+}
+
+int32_t snfillprintf(char *outbuf, size_t bufsiz, int32_t fill, const char *fmt, ...)
+{
+    char tmpstr[256];
+    int32_t nwritten, ofs;
+    va_list va;
+
+    va_start(va, fmt);
+    nwritten = Bvsnprintf(tmpstr, bufsiz, fmt, va);
+    va_end(va);
+
+    ofs = min(nwritten, (signed)bufsiz-1);
+    Bmemset(outbuf, fill, bufsiz-ofs);
+    
+    return ofs;
 }
 
 void _printmessage16(const char *fmt, ...)
@@ -6411,7 +6175,7 @@ void _printmessage16(const char *fmt, ...)
     va_end(va);
 
     i = 0;
-    while ((tmpstr[i] != 0) && (i < 146))
+    while (tmpstr[i] && i < 146)
     {
         snotbuf[i] = tmpstr[i];
         i++;
@@ -6426,17 +6190,17 @@ void _printmessage16(const char *fmt, ...)
 //    ybase = (overridepm16y >= 0) ? ydim-overridepm16y : ydim-STATUS2DSIZ+128-8;
     ybase = ydim-STATUS2DSIZ+128-8;
 
-    printext16(/*(overridepm16y >= 0) ? 200L-24 :*/ 8, ybase+8L, whitecol, -1, snotbuf, 0);
+    printext16(/*(overridepm16y >= 0) ? 200L-24 :*/ 8, ybase+8, whitecol, -1, snotbuf, 0);
     enddrawing();
 }
 
-void printmessage256(int32_t x, int32_t y, char *name)
+void printmessage256(int32_t x, int32_t y, const char *name)
 {
-    char snotbuf[64];
+    char snotbuf[80];
     int32_t i;
 
     i = 0;
-    while ((name[i] != 0) && (i < 62))
+    while (name[i] && i < 62)
     {
         snotbuf[i] = name[i];
         i++;
@@ -6452,14 +6216,14 @@ void printmessage256(int32_t x, int32_t y, char *name)
 }
 
 //Find closest point (*dax, *day) on wall (dawall) to (x, y)
-void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny)
+static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny)
 {
     walltype *wal;
     int64_t i, j, dx, dy;
 
     wal = &wall[dawall];
-    dx = wall[wal->point2].x-wal->x;
-    dy = wall[wal->point2].y-wal->y;
+    dx = wall[wal->point2].x - wal->x;
+    dy = wall[wal->point2].y - wal->y;
     i = dx*(x-wal->x) + dy*(y-wal->y);
     if (i <= 0) { *nx = wal->x; *ny = wal->y; return; }
     j = dx*dx+dy*dy;
@@ -6469,7 +6233,7 @@ void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, in
     *ny = wal->y + ((dy*i)>>30);
 }
 
-void initcrc(void)
+static void initcrc(void)
 {
     int32_t i, j, k, a;
 
@@ -6490,7 +6254,7 @@ void initcrc(void)
 
 static char visited[MAXWALLS];
 
-int32_t GetWallZPeg(int32_t nWall)
+static int32_t GetWallZPeg(int32_t nWall)
 {
     int32_t z=0, nSector, nNextSector;
 
@@ -6518,7 +6282,7 @@ int32_t GetWallZPeg(int32_t nWall)
     return(z);
 }
 
-void AlignWalls(int32_t nWall0, int32_t z0, int32_t nWall1, int32_t z1, int32_t nTile)
+static void AlignWalls(int32_t nWall0, int32_t z0, int32_t nWall1, int32_t z1, int32_t nTile)
 {
     int32_t n;
 
@@ -6573,7 +6337,7 @@ void AutoAlignWalls(int32_t nWall0, int32_t ply)
             else
             {
                 //ignore two sided walls that have no visible face
-                nSector = wall[wall[nWall1].nextwall].nextsector;
+                nSector = NEXTWALL(nWall1).nextsector;
                 if (getceilzofslope((int16_t)nSector,wall[nWall1].x,wall[nWall1].y) <
                         getceilzofslope((int16_t)nNextSector,wall[nWall1].x,wall[nWall1].y))
                     visible = 1;
@@ -6603,7 +6367,7 @@ void AutoAlignWalls(int32_t nWall0, int32_t ply)
         }
 
         if (wall[nWall1].nextwall < 0) break;
-        nWall1 = wall[wall[nWall1].nextwall].point2;
+        nWall1 = NEXTWALL(nWall1).point2;
     }
 }
 
@@ -6649,7 +6413,7 @@ void test_map(int32_t mode)
         }
 
         if (current_cwd[0] != '\0') // Temporarily changing back,
-            chdir(current_cwd);       // after checking if file exists.
+            chdir(current_cwd);     // after checking if file exists.
 
         if (testplay_addparam)
             slen = Bstrlen(testplay_addparam);
@@ -6674,7 +6438,9 @@ void test_map(int32_t mode)
             saveboard("autosave.map",&startposx,&startposy,&startposz,&startang,&startsectnum);
         else
             saveboard("autosave.map",&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
+
         _printmessage16("Board saved to AUTOSAVE.MAP. Starting the game...");
+
         showframe(1);
         uninitmouse();
 #ifdef _WIN32
@@ -6702,11 +6468,10 @@ void test_map(int32_t mode)
 #endif
         printmessage16("Game process exited");
         initmouse();
-        Bmemset(keystatus, 0, sizeof(keystatus));
+        clearkeys();
 
         Bfree(fullparam);
     }
     else
         printmessage16("Position must be in valid player space to test map!");
-
 }

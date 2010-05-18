@@ -80,6 +80,7 @@ char *OSD_GetTextPtr(void);
 char *OSD_GetFmtPtr(void);
 
 int32_t OSD_GetCols(void);
+int32_t OSD_IsMoving(void);
 
 // initializes things
 void OSD_Init(void);
