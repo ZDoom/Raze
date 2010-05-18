@@ -54,12 +54,20 @@ int32_t Brand(void)
 
 void *Bmalloc(bsize_t size)
 {
+#ifdef NEDMALLOC
     return nedmalloc(size);
+#else
+    return malloc(size);
+#endif
 }
 
 void Bfree(void *ptr)
 {
+#ifdef NEDMALLOC
     nedfree(ptr);
+#else
+    free(ptr);
+#endif
 }
 
 int32_t Bopen(const char *pathname, int32_t flags, uint32_t mode)
@@ -157,7 +165,11 @@ bsize_t Bfwrite(const void *ptr, bsize_t size, bsize_t nmemb, BFILE *stream)
 
 char *Bstrdup(const char *s)
 {
+#ifdef NEDMALLOC
     return nedstrdup(s);
+#else
+    return strdup(s);
+#endif
 }
 
 char *Bstrcpy(char *dest, const char *src)

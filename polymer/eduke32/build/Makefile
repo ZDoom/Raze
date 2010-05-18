@@ -26,6 +26,7 @@ USE_OPENGL ?= 1
 NOASM ?= 0
 LINKED_GTK ?= 0
 BUILD32_ON_64 ?= 0
+NEDMALLOC ?= 1
 
 ifeq (0,$(USE_OPENGL))
 	POLYMER = 0
@@ -148,8 +149,7 @@ ENGINEOBJS+= \
 	$(OBJ)/osd.$o \
 	$(OBJ)/pragmas.$o \
 	$(OBJ)/scriptfile.$o \
-    $(OBJ)/nedmalloc.$o \
-    $(OBJ)/mutex.$o
+	$(OBJ)/mutex.$o
 
 ifeq (1,$(USE_OPENGL))
 	ENGINEOBJS+=  $(OBJ)/mdsprite.$o
@@ -158,6 +158,10 @@ endif
 
 ifeq (1,$(POLYMER))
 	ENGINEOBJS+=  $(OBJ)/polymer.$o
+endif
+
+ifeq (1,$(NEDMALLOC))
+	ENGINEOBJS+=  $(OBJ)/nedmalloc.$o
 endif
 
 EDITOROBJS=$(OBJ)/build.$o \

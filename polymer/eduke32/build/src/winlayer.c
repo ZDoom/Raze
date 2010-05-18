@@ -39,6 +39,7 @@
 #include "a.h"
 #include "osd.h"
 #include "rawinput.h"
+#include "nedmalloc.h"
 
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE
@@ -85,7 +86,7 @@ static void ReleaseDirectDrawSurfaces(void);
 static BOOL InitDirectInput(void);
 static void UninitDirectInput(void);
 static void GetKeyNames(void);
-static void AcquireInputDevices(char acquire, int8_t device);
+static void AcquireInputDevices(char acquire);
 static inline void DI_PollJoysticks(void);
 static int32_t SetupDirectDraw(int32_t width, int32_t height);
 static void UninitDIB(void);
@@ -132,7 +133,11 @@ int32_t remapinit=0;
 static char key_names[256][24];
 
 static OSVERSIONINFOEX osv;
+#ifdef NEDMALLOC
 extern int32_t largepagesavailable;
+#else
+static HMODULE nedhandle = NULL;
+#endif
 
 void (*keypresscallback)(int32_t,int32_t) = 0;
 void (*mousepresscallback)(int32_t,int32_t) = 0;
@@ -286,6 +291,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         return -1;
     }
 
+#ifdef NEDMALLOC
     /* Attempt to enable SeLockMemoryPrivilege, 2003/Vista/7 only */
     if (Bgetenv("BUILD_NOLARGEPAGES") == NULL &&
             (osv.dwMajorVersion >= 6 || (osv.dwMajorVersion == 5 && osv.dwMinorVersion == 2)))
@@ -310,8 +316,16 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     }
 
     nedcreatepool(SYSTEM_POOL_SIZE, -1);
+    //    atexit(neddestroysyspool);
+#else
+    if ((nedhandle = LoadLibrary("nedmalloc.dll")))
+    {
+        nedpool *(WINAPI *nedcreatepool)(size_t, int);
 
-//    atexit(neddestroysyspool);
+        if ((nedcreatepool = (void *)GetProcAddress(nedhandle, "nedcreatepool")))
+            nedcreatepool(SYSTEM_POOL_SIZE, -1);
+    }
+#endif
 
     hdc = GetDC(NULL);
     r = GetDeviceCaps(hdc, BITSPIXEL);
@@ -430,7 +444,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
                MB_OK|MB_ICONINFORMATION);
 #endif
 
-//    atexit(uninitsystem);
+    //    atexit(uninitsystem);
 
     instanceflag = CreateSemaphore(NULL, 1,1, WindowClass);
 
@@ -528,12 +542,19 @@ static void printsysversion(void)
         break;
     }
 
-    initprintf("Running under Windows %s (build %lu.%lu.%lu) %s\n", ver, osv.dwMajorVersion, osv.dwMinorVersion,
+    initprintf("Running under Windows %s (build %lu.%lu.%lu) %s", ver, osv.dwMajorVersion, osv.dwMinorVersion,
                osv.dwPlatformId == VER_PLATFORM_WIN32_NT ? osv.dwBuildNumber : osv.dwBuildNumber&0xffff,
                osv.szCSDVersion);
 
+#ifdef NEDMALLOC
+    initprintf("\n");
+
     if (largepagesavailable)
         initprintf("Large page support available\n");
+#else
+    if (nedhandle) initprintf("with nedmalloc\n");
+#endif
+
 }
 
 
@@ -541,7 +562,7 @@ int32_t initsystem(void)
 {
     DEVMODE desktopmode;
 
-//    initprintf("Initializing Windows DirectX/GDI system interface\n");
+    //    initprintf("Initializing Windows DirectX/GDI system interface\n");
 
     // get the desktop dimensions before anything changes them
     ZeroMemory(&desktopmode, sizeof(DEVMODE));
@@ -595,6 +616,10 @@ void uninitsystem(void)
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
     unloadgldriver();
+#endif
+
+#ifndef NEDMALLOC
+    if (nedhandle) FreeLibrary(nedhandle), nedhandle = NULL;
 #endif
 }
 
@@ -671,17 +696,19 @@ int32_t handleevents(void)
 
     while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
     {
-        if (msg.message == WM_QUIT)
-            quitevent = 1;
-
-        if (startwin_idle((void*)&msg) > 0) continue;
-
-        if (msg.message == WM_INPUT)
+        switch (msg.message)
         {
-            RI_PollDevices(FALSE);
+        case WM_QUIT:
+            quitevent = 1;
+            continue;
+        case WM_INPUT:
+            // this call to RI_PollDevices() probably isn't necessary
+            // RI_PollDevices(FALSE);
             RI_ProcessMessage(&msg);
             continue;
         }
+
+        if (startwin_idle((void*)&msg) > 0) continue;
 
         TranslateMessage(&msg);
         DispatchMessage(&msg);
@@ -699,31 +726,25 @@ int32_t handleevents(void)
 //=================================================================================================
 
 #define JOYSTICK	0
-#define NUM_INPUTS	1
 
 static HMODULE               hDInputDLL    = NULL;
 static LPDIRECTINPUT7A        lpDI          = NULL;
-static LPDIRECTINPUTDEVICE7A lpDID[NUM_INPUTS] =  { NULL };
+static LPDIRECTINPUTDEVICE7A lpDID = NULL;
 #define INPUT_BUFFER_SIZE	32
-static GUID                  guidDevs[NUM_INPUTS];
+static GUID                  guidDevs;
 
-static char devacquired[NUM_INPUTS];
-static HANDLE inputevt[NUM_INPUTS];
+static char di_devacquired;
+static HANDLE di_inputevt;
 static int32_t joyblast=0;
 volatile uint8_t moustat = 0, mousegrab = 0;
-
-static uint32_t idevnums[NUM_INPUTS], numdevs = 0;
-static HANDLE waithnds[NUM_INPUTS];
 
 static struct
 {
     char *name;
     LPDIRECTINPUTDEVICE7A *did;
     const DIDATAFORMAT *df;
-} devicedef[NUM_INPUTS] =
-{
-    { "joystick", &lpDID[JOYSTICK], &c_dfDIJoystick }
-};
+} devicedef = { "joystick", &lpDID, &c_dfDIJoystick };
+
 static struct _joydef
 {
     const char *name;
@@ -736,19 +757,12 @@ inline void SetKey(int32_t key, int32_t state)
 {
     keystatus[remap[key]] = state;
 
-    if (state) 
+    if (state)
     {
         keyfifo[keyfifoend] = remap[key];
         keyfifo[(keyfifoend+1)&(KEYFIFOSIZ-1)] = state;
         keyfifoend = ((keyfifoend+2)&(KEYFIFOSIZ-1));
     }
-}
-
-char map_dik_code(int32_t scanCode)
-{
-    // ugly table for remapping out of range DIK_ entries will go here
-    // if I can't figure out the layout problem
-    return scanCode;
 }
 
 //
@@ -757,29 +771,31 @@ char map_dik_code(int32_t scanCode)
 int32_t initinput(void)
 {
     int32_t i;
+    char layoutname[KL_NAMELENGTH];
+
     moustat=0;
     memset(keystatus, 0, sizeof(keystatus));
+
     if (!remapinit)
         for (i=0; i<256; i++)
-            remap[i]=map_dik_code(i);
+            remap[i]=i;
+
     remapinit=1;
     keyfifoplc = keyfifoend = 0;
     keyasciififoplc = keyasciififoend = 0;
 
     inputdevices = 1|2;
-    joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
+    joyisgamepad = joynumaxes = joynumbuttons = joynumhats=0;
 
     // 00000409 is "American English"
+
+    GetKeyboardLayoutName(layoutname);
+    if (Bstrcmp(layoutname, "00000409"))
     {
-        char layoutname[KL_NAMELENGTH];
+        initprintf("Switching kb layout from %s ",layoutname);
+        LoadKeyboardLayout("00000409", KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
         GetKeyboardLayoutName(layoutname);
-        if (Bstrcmp(layoutname, "00000409"))
-        {
-            initprintf("Switching kb layout from %s ",layoutname);
-            LoadKeyboardLayout("00000409", KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
-            GetKeyboardLayoutName(layoutname);
-            initprintf("to %s\n",layoutname);
-        }
+        initprintf("to %s\n",layoutname);
     }
 
     GetKeyNames();
@@ -858,7 +874,7 @@ void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
     DIPROPDWORD dipdw;
     HRESULT result;
 
-    if (!lpDID[JOYSTICK]) return;
+    if (!lpDID) return;
 
     if (dead > 10000) dead = 10000;
     if (satur > 10000) satur = 10000;
@@ -880,8 +896,8 @@ void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
     }
     dipdw.dwData = dead;
 
-    result = IDirectInputDevice7_SetProperty(lpDID[JOYSTICK], DIPROP_DEADZONE, &dipdw.diph);
-    if FAILED(result)
+    result = IDirectInputDevice7_SetProperty(lpDID, DIPROP_DEADZONE, &dipdw.diph);
+    if (FAILED(result))
     {
         //ShowDInputErrorBox("Failed setting joystick dead zone", result);
         initprintf("Failed setting joystick dead zone: %s\n", GetDInputError(result));
@@ -890,8 +906,8 @@ void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
 
     dipdw.dwData = satur;
 
-    result = IDirectInputDevice7_SetProperty(lpDID[JOYSTICK], DIPROP_SATURATION, &dipdw.diph);
-    if FAILED(result)
+    result = IDirectInputDevice7_SetProperty(lpDID, DIPROP_SATURATION, &dipdw.diph);
+    if (FAILED(result))
     {
         //ShowDInputErrorBox("Failed setting joystick saturation point", result);
         initprintf("Failed setting joystick saturation point: %s\n", GetDInputError(result));
@@ -909,7 +925,7 @@ void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur)
     HRESULT result;
 
     if (!dead || !satur) return;
-    if (!lpDID[JOYSTICK]) { *dead = *satur = 0; return; }
+    if (!lpDID) { *dead = *satur = 0; return; }
     if (axis >= joynumaxes) { *dead = *satur = 0; return; }
 
     memset(&dipdw, 0, sizeof(dipdw));
@@ -926,8 +942,8 @@ void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur)
         dipdw.diph.dwHow = DIPH_BYOFFSET;
     }
 
-    result = IDirectInputDevice7_GetProperty(lpDID[JOYSTICK], DIPROP_DEADZONE, &dipdw.diph);
-    if FAILED(result)
+    result = IDirectInputDevice7_GetProperty(lpDID, DIPROP_DEADZONE, &dipdw.diph);
+    if (FAILED(result))
     {
         //ShowDInputErrorBox("Failed getting joystick dead zone", result);
         initprintf("Failed getting joystick dead zone: %s\n", GetDInputError(result));
@@ -936,8 +952,8 @@ void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur)
 
     *dead = dipdw.dwData;
 
-    result = IDirectInputDevice7_GetProperty(lpDID[JOYSTICK], DIPROP_SATURATION, &dipdw.diph);
-    if FAILED(result)
+    result = IDirectInputDevice7_GetProperty(lpDID, DIPROP_SATURATION, &dipdw.diph);
+    if (FAILED(result))
     {
         //ShowDInputErrorBox("Failed getting joystick saturation point", result);
         initprintf("Failed getting joystick saturation point: %s\n", GetDInputError(result));
@@ -994,21 +1010,13 @@ static BOOL CALLBACK InitDirectInput_enum(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRe
 
     UNREFERENCED_PARAMETER(pvRef);
 
-#define COPYGUID(d,s) Bmemcpy(&d,&s,sizeof(GUID))
-
-    switch (lpddi->dwDevType&0xff)
-    {
-    case DIDEVTYPE_JOYSTICK:
-    {
-        inputdevices |= (1<<(JOYSTICK+2));
-        joyisgamepad = ((lpddi->dwDevType & (DIDEVTYPEJOYSTICK_GAMEPAD<<8)) != 0);
-        d = joyisgamepad ? "GAMEPAD" : "JOYSTICK";
-        COPYGUID(guidDevs[JOYSTICK],lpddi->guidInstance);
-    }
-    break;
-    default:
+    if ((lpddi->dwDevType&0xff) != DIDEVTYPE_JOYSTICK)
         return DIENUM_CONTINUE;
-    }
+
+    inputdevices |= 4;
+    joyisgamepad = ((lpddi->dwDevType & (DIDEVTYPEJOYSTICK_GAMEPAD<<8)) != 0);
+    d = joyisgamepad ? "GAMEPAD" : "JOYSTICK";
+    Bmemcpy(&guidDevs, &lpddi->guidInstance, sizeof(GUID));
 
     initprintf("    * %s: %s\n", d, lpddi->tszProductName);
 
@@ -1064,16 +1072,13 @@ static BOOL InitDirectInput(void)
     LPDIRECTINPUTDEVICE7A dev2;
     DIDEVCAPS didc;
 
-    int32_t devn;
-
     if (bDInputInited) return FALSE;
 
     initprintf("Initializing DirectInput...\n");
 
-    // load up the DirectInput DLL
     if (!hDInputDLL)
     {
-//        initprintf("  - Loading DINPUT.DLL\n");
+        //        initprintf("  - Loading DINPUT.DLL\n");
         hDInputDLL = LoadLibrary("DINPUT.DLL");
         if (!hDInputDLL)
         {
@@ -1082,21 +1087,17 @@ static BOOL InitDirectInput(void)
         }
     }
 
-    // get the pointer to DirectInputCreate
     aDirectInputCreateA = (void *)GetProcAddress(hDInputDLL, "DirectInputCreateA");
     if (!aDirectInputCreateA) ShowErrorBox("Error fetching DirectInputCreateA()");
 
-    // create a new DirectInput object
-//    initprintf("  - Creating DirectInput object\n");
     result = aDirectInputCreateA(hInstance, DIRECTINPUT_VERSION, &lpDI, NULL);
-    if FAILED(result) { HorribleDInputDeath("DirectInputCreateA() failed", result); }
+    if (FAILED(result)) { HorribleDInputDeath("DirectInputCreateA() failed", result); }
     else if (result != DI_OK) initprintf("    Created DirectInput object with warning: %s\n",GetDInputError(result));
 
-    // enumerate devices to make us look fancy
     initprintf("  - Enumerating attached game controllers\n");
     inputdevices = 1|2;
     result = IDirectInput7_EnumDevices(lpDI, 0, InitDirectInput_enum, NULL, DIEDFL_ATTACHEDONLY);
-    if FAILED(result) { HorribleDInputDeath("Failed enumerating attached game controllers", result); }
+    if (FAILED(result)) { HorribleDInputDeath("Failed enumerating attached game controllers", result); }
     else if (result != DI_OK) initprintf("    Enumerated game controllers with warning: %s\n",GetDInputError(result));
 
     if (inputdevices == (1|2))
@@ -1107,86 +1108,78 @@ static BOOL InitDirectInput(void)
         return TRUE;
     }
 
-    // ***
-    // create the devices
-    // ***
-    for (devn = 0; devn < NUM_INPUTS; devn++)
+    *devicedef.did = NULL;
+
+    //        initprintf("  - Creating %s device\n", devicedef.name);
+    result = IDirectInput7_CreateDeviceEx(lpDI, &guidDevs, &IID_IDirectInputDevice7, (void *)&dev, NULL);
+    if (FAILED(result)) { HorribleDInputDeath("Failed creating device", result); }
+    else if (result != DI_OK) initprintf("    Created device with warning: %s\n",GetDInputError(result));
+
+    result = IDirectInputDevice7_QueryInterface(dev, &IID_IDirectInputDevice7, (LPVOID *)&dev2);
+    IDirectInputDevice7_Release(dev);
+    if (FAILED(result)) { HorribleDInputDeath("Failed querying DirectInput7 interface for device", result); }
+    else if (result != DI_OK) initprintf("    Queried IDirectInputDevice7 interface with warning: %s\n",GetDInputError(result));
+
+    result = IDirectInputDevice7_SetDataFormat(dev2, devicedef.df);
+    if (FAILED(result)) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed setting data format", result); }
+    else if (result != DI_OK) initprintf("    Set data format with warning: %s\n",GetDInputError(result));
+
+    di_inputevt = CreateEvent(NULL, FALSE, FALSE, NULL);
+    if (di_inputevt == NULL)
     {
-        if ((inputdevices & (1<<(devn+2))) == 0) continue;
-        *devicedef[devn].did = NULL;
-
-//        initprintf("  - Creating %s device\n", devicedef[devn].name);
-        result = IDirectInput7_CreateDeviceEx(lpDI, &guidDevs[devn], &IID_IDirectInputDevice7, (void *)&dev, NULL);
-        if FAILED(result) { HorribleDInputDeath("Failed creating device", result); }
-        else if (result != DI_OK) initprintf("    Created device with warning: %s\n",GetDInputError(result));
-
-        result = IDirectInputDevice7_QueryInterface(dev, &IID_IDirectInputDevice7, (LPVOID *)&dev2);
-        IDirectInputDevice7_Release(dev);
-        if FAILED(result) { HorribleDInputDeath("Failed querying DirectInput7 interface for device", result); }
-        else if (result != DI_OK) initprintf("    Queried IDirectInputDevice7 interface with warning: %s\n",GetDInputError(result));
-
-        result = IDirectInputDevice7_SetDataFormat(dev2, devicedef[devn].df);
-        if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed setting data format", result); }
-        else if (result != DI_OK) initprintf("    Set data format with warning: %s\n",GetDInputError(result));
-
-        inputevt[devn] = CreateEvent(NULL, FALSE, FALSE, NULL);
-        if (inputevt[devn] == NULL)
-        {
-            IDirectInputDevice7_Release(dev2);
-            ShowErrorBox("Couldn't create event object");
-            UninitDirectInput();
-            return TRUE;
-        }
-
-        result = IDirectInputDevice7_SetEventNotification(dev2, inputevt[devn]);
-        if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed setting event object", result); }
-        else if (result != DI_OK) initprintf("    Set event object with warning: %s\n",GetDInputError(result));
-
-        IDirectInputDevice7_Unacquire(dev2);
-
-        memset(&dipdw, 0, sizeof(dipdw));
-        dipdw.diph.dwSize = sizeof(DIPROPDWORD);
-        dipdw.diph.dwHeaderSize = sizeof(DIPROPHEADER);
-        dipdw.diph.dwObj = 0;
-        dipdw.diph.dwHow = DIPH_DEVICE;
-        dipdw.dwData = INPUT_BUFFER_SIZE;
-
-        result = IDirectInputDevice7_SetProperty(dev2, DIPROP_BUFFERSIZE, &dipdw.diph);
-        if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed setting buffering", result); }
-        else if (result != DI_OK) initprintf("    Set buffering with warning: %s\n",GetDInputError(result));
-
-        // set up device
-        if (devn == JOYSTICK)
-        {
-            int32_t typecounts[3] = {0,0,0};
-
-            memset(&didc, 0, sizeof(didc));
-            didc.dwSize = sizeof(didc);
-            result = IDirectInputDevice7_GetCapabilities(dev2, &didc);
-            if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting controller capabilities", result); }
-            else if (result != DI_OK) initprintf("    Fetched controller capabilities with warning: %s\n",GetDInputError(result));
-
-            joynumaxes    = (uint8_t)didc.dwAxes;
-            joynumbuttons = min(32,(uint8_t)didc.dwButtons);
-            joynumhats    = (uint8_t)didc.dwPOVs;
-            initprintf("Controller has %d axes, %d buttons, and %d hat(s).\n",joynumaxes,joynumbuttons,joynumhats);
-
-            axisdefs = (struct _joydef *)Bcalloc(didc.dwAxes, sizeof(struct _joydef));
-            buttondefs = (struct _joydef *)Bcalloc(didc.dwButtons, sizeof(struct _joydef));
-            hatdefs = (struct _joydef *)Bcalloc(didc.dwPOVs, sizeof(struct _joydef));
-
-            joyaxis = (int32_t *)Bcalloc(didc.dwAxes, sizeof(int32_t));
-            joyhat = (int32_t *)Bcalloc(didc.dwPOVs, sizeof(int32_t));
-
-            result = IDirectInputDevice7_EnumObjects(dev2, InitDirectInput_enumobjects, (LPVOID)typecounts, DIDFT_ALL);
-            if FAILED(result) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting controller features", result); }
-            else if (result != DI_OK) initprintf("    Fetched controller features with warning: %s\n",GetDInputError(result));
-        }
-
-        *devicedef[devn].did = dev2;
+        IDirectInputDevice7_Release(dev2);
+        ShowErrorBox("Couldn't create event object");
+        UninitDirectInput();
+        return TRUE;
     }
 
-    memset(devacquired, 0, sizeof(devacquired));
+    result = IDirectInputDevice7_SetEventNotification(dev2, di_inputevt);
+    if (FAILED(result)) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed setting event object", result); }
+    else if (result != DI_OK) initprintf("    Set event object with warning: %s\n",GetDInputError(result));
+
+    IDirectInputDevice7_Unacquire(dev2);
+
+    memset(&dipdw, 0, sizeof(dipdw));
+    dipdw.diph.dwSize = sizeof(DIPROPDWORD);
+    dipdw.diph.dwHeaderSize = sizeof(DIPROPHEADER);
+    dipdw.diph.dwObj = 0;
+    dipdw.diph.dwHow = DIPH_DEVICE;
+    dipdw.dwData = INPUT_BUFFER_SIZE;
+
+    result = IDirectInputDevice7_SetProperty(dev2, DIPROP_BUFFERSIZE, &dipdw.diph);
+    if (FAILED(result)) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed setting buffering", result); }
+    else if (result != DI_OK) initprintf("    Set buffering with warning: %s\n",GetDInputError(result));
+
+    // set up device
+    {
+        int32_t typecounts[3] = {0,0,0};
+
+        memset(&didc, 0, sizeof(didc));
+        didc.dwSize = sizeof(didc);
+        result = IDirectInputDevice7_GetCapabilities(dev2, &didc);
+        if (FAILED(result)) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting controller capabilities", result); }
+        else if (result != DI_OK) initprintf("    Fetched controller capabilities with warning: %s\n",GetDInputError(result));
+
+        joynumaxes    = (uint8_t)didc.dwAxes;
+        joynumbuttons = min(32,(uint8_t)didc.dwButtons);
+        joynumhats    = (uint8_t)didc.dwPOVs;
+        initprintf("Controller has %d axes, %d buttons, and %d hat(s).\n",joynumaxes,joynumbuttons,joynumhats);
+
+        axisdefs = (struct _joydef *)Bcalloc(didc.dwAxes, sizeof(struct _joydef));
+        buttondefs = (struct _joydef *)Bcalloc(didc.dwButtons, sizeof(struct _joydef));
+        hatdefs = (struct _joydef *)Bcalloc(didc.dwPOVs, sizeof(struct _joydef));
+
+        joyaxis = (int32_t *)Bcalloc(didc.dwAxes, sizeof(int32_t));
+        joyhat = (int32_t *)Bcalloc(didc.dwPOVs, sizeof(int32_t));
+
+        result = IDirectInputDevice7_EnumObjects(dev2, InitDirectInput_enumobjects, (LPVOID)typecounts, DIDFT_ALL);
+        if (FAILED(result)) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting controller features", result); }
+        else if (result != DI_OK) initprintf("    Fetched controller features with warning: %s\n",GetDInputError(result));
+    }
+
+    *devicedef.did = dev2;
+
+    di_devacquired = 0;
 
     bDInputInited = TRUE;
     return FALSE;
@@ -1198,12 +1191,11 @@ static BOOL InitDirectInput(void)
 //
 static void UninitDirectInput(void)
 {
-    int32_t devn;
     int32_t i;
 
     if (bDInputInited) initprintf("Uninitializing DirectInput...\n");
 
-    AcquireInputDevices(0,-1);
+    AcquireInputDevices(0);
 
     if (axisdefs)
     {
@@ -1221,20 +1213,15 @@ static void UninitDirectInput(void)
         Bfree(hatdefs); hatdefs = NULL;
     }
 
-    for (devn = 0; devn < NUM_INPUTS; devn++)
+    if (*devicedef.did)
     {
-        if (*devicedef[devn].did)
-        {
-            if (devn != JOYSTICK) IDirectInputDevice7_SetEventNotification(*devicedef[devn].did, NULL);
-
-            IDirectInputDevice7_Release(*devicedef[devn].did);
-            *devicedef[devn].did = NULL;
-        }
-        if (inputevt[devn])
-        {
-            CloseHandle(inputevt[devn]);
-            inputevt[devn] = NULL;
-        }
+        IDirectInputDevice7_Release(*devicedef.did);
+        *devicedef.did = NULL;
+    }
+    if (di_inputevt)
+    {
+        CloseHandle(di_inputevt);
+        di_inputevt = NULL;
     }
 
     if (lpDI)
@@ -1294,57 +1281,49 @@ const char *getjoyname(int32_t what, int32_t num)
 //
 // AcquireInputDevices() -- (un)acquires the input devices
 //
-static void AcquireInputDevices(char acquire, int8_t device)
+static void AcquireInputDevices(char acquire)
 {
     DWORD flags;
     HRESULT result;
-    int32_t i;
 
     if (!bDInputInited) return;
     if (!hWindow) return;
 
     if (acquire)
     {
-//  	  if (!appactive) return;     // why acquire when inactive?
-        for (i=0; i<NUM_INPUTS; i++)
-        {
-            if (! *devicedef[i].did) continue;
-            if (device != -1 && i != device) continue;	// don't touch other devices if only the mouse is wanted
+        //  	  if (!appactive) return;     // why acquire when inactive?
 
-            IDirectInputDevice7_Unacquire(*devicedef[i].did);
+        if (! *devicedef.did) return;
 
-            flags = DISCL_FOREGROUND|DISCL_NONEXCLUSIVE;
+        IDirectInputDevice7_Unacquire(*devicedef.did);
 
-            result = IDirectInputDevice7_SetCooperativeLevel(*devicedef[i].did, hWindow, flags);
-            if (FAILED(result))
-                initprintf("IDirectInputDevice7_SetCooperativeLevel(%s): %s\n",
-                           devicedef[i].name, GetDInputError(result));
+        flags = DISCL_FOREGROUND|DISCL_NONEXCLUSIVE;
 
-            if (SUCCEEDED(IDirectInputDevice7_Acquire(*devicedef[i].did)))
-                devacquired[i] = 1;
-            else
-                devacquired[i] = 0;
-        }
+        result = IDirectInputDevice7_SetCooperativeLevel(*devicedef.did, hWindow, flags);
+        if (FAILED(result))
+            initprintf("IDirectInputDevice7_SetCooperativeLevel(%s): %s\n",
+                       devicedef.name, GetDInputError(result));
+
+        if (SUCCEEDED(IDirectInputDevice7_Acquire(*devicedef.did)))
+            di_devacquired = 1;
+        else
+            di_devacquired = 0;
+
+        return;
     }
-    else
-    {
-        releaseallbuttons();
 
-        for (i=0; i<NUM_INPUTS; i++)
-        {
-            if (! *devicedef[i].did) continue;
-            if (device != -1 && i != device) continue;	// don't touch other devices if only the mouse is wanted
+    di_devacquired = 0;
 
-            IDirectInputDevice7_Unacquire(*devicedef[i].did);
+    releaseallbuttons();
 
-            result = IDirectInputDevice7_SetCooperativeLevel(*devicedef[i].did, hWindow, DISCL_FOREGROUND|DISCL_NONEXCLUSIVE);
-            if (FAILED(result))
-                initprintf("IDirectInputDevice7_SetCooperativeLevel(%s): %s\n",
-                           devicedef[i].name, GetDInputError(result));
+    if (! *devicedef.did) return;
 
-            devacquired[i] = 0;
-        }
-    }
+    IDirectInputDevice7_Unacquire(*devicedef.did);
+
+    result = IDirectInputDevice7_SetCooperativeLevel(*devicedef.did, hWindow, DISCL_FOREGROUND|DISCL_NONEXCLUSIVE);
+    if (FAILED(result))
+        initprintf("IDirectInputDevice7_SetCooperativeLevel(%s): %s\n",
+                   devicedef.name, GetDInputError(result));
 }
 
 //
@@ -1355,89 +1334,70 @@ static inline void DI_PollJoysticks(void)
     DWORD dwElements = INPUT_BUFFER_SIZE;
     HRESULT result;
     DIDEVICEOBJECTDATA didod[INPUT_BUFFER_SIZE];
-    uint32_t t;
     int32_t i, ev;
 
-    numdevs = 0;
-
-    for (t = 0; t < NUM_INPUTS; t++)
+    if (*devicedef.did)
     {
-        if (*devicedef[t].did)
-        {
-            result = IDirectInputDevice7_Poll(*devicedef[t].did);
+        result = IDirectInputDevice7_Poll(*devicedef.did);
 
-            if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
+        if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
+        {
+            if (SUCCEEDED(IDirectInputDevice7_Acquire(*devicedef.did)))
             {
-                if (SUCCEEDED(IDirectInputDevice7_Acquire(*devicedef[t].did)))
+                di_devacquired = 1;
+                IDirectInputDevice7_Poll(*devicedef.did);
+            }
+            else di_devacquired = 0;
+        }
+
+        if (di_devacquired)
+        {
+            // use event objects so that we can quickly get indication of when data is ready
+            // to be read and input events processed
+            ev = WaitForSingleObject(di_inputevt, 0);
+
+            if (ev != WAIT_OBJECT_0 || !lpDID)
+                return;
+
+            result = IDirectInputDevice7_GetDeviceData(lpDID, sizeof(DIDEVICEOBJECTDATA),
+                     (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
+
+            if (result != DI_OK || !dwElements) return;
+
+            for (i=dwElements-1; i>=0; i--)
+            {
+                int32_t j;
+
+                // check axes
+                for (j=0; j<joynumaxes; j++)
                 {
-                    devacquired[t] = 1;
-                    IDirectInputDevice7_Poll(*devicedef[t].did);
+                    if (axisdefs[j].ofs != didod[i].dwOfs) continue;
+                    joyaxis[j] = didod[i].dwData - 32767;
+                    break;
                 }
-                else devacquired[t] = 0;
-            }
+                if (j<joynumaxes) continue;
 
-            if (devacquired[t])
-            {
-                waithnds[numdevs] = inputevt[t];
-                idevnums[numdevs] = t;
-                numdevs++;
-            }
-        }
-    }
+                // check buttons
+                for (j=0; j<joynumbuttons; j++)
+                {
+                    if (buttondefs[j].ofs != didod[i].dwOfs) continue;
+                    if (didod[i].dwData & 0x80) joyb |= (1<<j);
+                    else joyb &= ~(1<<j);
+                    if (joypresscallback)
+                        joypresscallback(j+1, (didod[i].dwData & 0x80)==0x80);
+                    break;
+                }
+                if (j<joynumbuttons) continue;
 
-    if (numdevs == 0) return;	// nothing to do
-
-    // use event objects so that we can quickly get indication of when data is ready
-    // to be read and input events processed
-    ev = MsgWaitForMultipleObjects(numdevs, waithnds, FALSE, 0, 0);
-
-    if (ev < WAIT_OBJECT_0 || ev > (int32_t)(WAIT_OBJECT_0+numdevs))
-        return;
-
-    switch (idevnums[ev - WAIT_OBJECT_0])
-    {
-    case JOYSTICK:
-        if (!lpDID[JOYSTICK]) break;
-
-        result = IDirectInputDevice7_GetDeviceData(lpDID[JOYSTICK], sizeof(DIDEVICEOBJECTDATA),
-            (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
-
-        if (result != DI_OK || !dwElements) break;
-
-        for (i=dwElements-1; i>=0; i--)
-        {
-            int32_t j;
-
-            // check axes
-            for (j=0; j<joynumaxes; j++)
-            {
-                if (axisdefs[j].ofs != didod[i].dwOfs) continue;
-                joyaxis[j] = didod[i].dwData - 32767;
-                break;
-            }
-            if (j<joynumaxes) continue;
-
-            // check buttons
-            for (j=0; j<joynumbuttons; j++)
-            {
-                if (buttondefs[j].ofs != didod[i].dwOfs) continue;
-                if (didod[i].dwData & 0x80) joyb |= (1<<j);
-                else joyb &= ~(1<<j);
-                if (joypresscallback)
-                    joypresscallback(j+1, (didod[i].dwData & 0x80)==0x80);
-                break;
-            }
-            if (j<joynumbuttons) continue;
-
-            // check hats
-            for (j=0; j<joynumhats; j++)
-            {
-                if (hatdefs[j].ofs != didod[i].dwOfs) continue;
-                joyhat[j] = didod[i].dwData;
-                break;
+                // check hats
+                for (j=0; j<joynumhats; j++)
+                {
+                    if (hatdefs[j].ofs != didod[i].dwOfs) continue;
+                    joyhat[j] = didod[i].dwData;
+                    break;
+                }
             }
         }
-        break;
     }
 }
 
@@ -1571,7 +1531,7 @@ int32_t inittimer(int32_t tickspersecond)
 
     if (timerfreq) return 0;	// already installed
 
-//    initprintf("Initializing timer\n");
+    //    initprintf("Initializing timer\n");
 
     // OpenWatcom seems to want us to query the value into a local variable
     // instead of the global 'timerfreq' or else it gets pissed with an
@@ -1713,7 +1673,7 @@ int32_t checkvideomode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t fo
     if (*y < 200) *y = 200;
     if (*x > MAXXDIM) *x = MAXXDIM;
     if (*y > MAXYDIM) *y = MAXYDIM;
-//    *x &= 0xfffffff8l;
+    //    *x &= 0xfffffff8l;
 
     for (i=0; i<validmodecnt; i++)
     {
@@ -1767,7 +1727,7 @@ static HWND hGLWindow = NULL;
 
 int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 {
-    char i,inp[NUM_INPUTS];
+    char inp;
     int32_t modenum;
 
     if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) && !videomodereset)
@@ -1786,8 +1746,8 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         customfs   = fs;
     }
 
-    for (i=0; i<NUM_INPUTS; i++) inp[i] = devacquired[i];
-    AcquireInputDevices(0,-1);
+    inp = di_devacquired;
+    AcquireInputDevices(0);
 
     if (hWindow && gammabrightness)
     {
@@ -1805,7 +1765,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
     if (!gammabrightness)
     {
-//        float f = 1.0 + ((float)curbrightness / 10.0);
+        //        float f = 1.0 + ((float)curbrightness / 10.0);
         if (getgammaramp(sysgamma) >= 0) gammabrightness = 1;
         if (gammabrightness && setgamma() < 0) gammabrightness = 0;
     }
@@ -1813,7 +1773,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 #if defined(USE_OPENGL) && defined(POLYMOST)
     if (hGLWindow && glinfo.vsync) bwglSwapIntervalEXT(vsync);
 #endif
-    for (i=0; i<NUM_INPUTS; i++) if (inp[i]) AcquireInputDevices(1,i);
+    if (inp) AcquireInputDevices(1);
     modechange=1;
     videomodereset = 0;
     OSD_ResizeDisplay(xres,yres);
@@ -1833,9 +1793,9 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     validmode[validmodecnt].fs=f; \
     validmode[validmodecnt].extra=n; \
     validmodecnt++; \
-    }
+}
 /*	initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed"); \
-    } */
+} */
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
@@ -1946,7 +1906,7 @@ void getvalidmodes(void)
     if (modeschecked) return;
 
     validmodecnt=0;
-//    initprintf("Detecting video modes:\n");
+    //    initprintf("Detecting video modes:\n");
 
     if (bDDrawInited)
     {
@@ -2113,7 +2073,7 @@ void showframe(int32_t w)
     }
 #endif
 
-//    w = 1;	// wait regardless. ken thinks it's better to do so.
+    //    w = 1;	// wait regardless. ken thinks it's better to do so.
 
     if (offscreenrendering) return;
 
@@ -2130,8 +2090,8 @@ void showframe(int32_t w)
     }
 
     if (!w && (IDirectDrawSurface_GetBltStatus(lpDDSBack, DDGBS_CANBLT) == DDERR_WASSTILLDRAWING ||
-            IDirectDrawSurface_GetFlipStatus(lpDDSPrimary, DDGFS_CANFLIP) == DDERR_WASSTILLDRAWING))
-            return;
+               IDirectDrawSurface_GetFlipStatus(lpDDSPrimary, DDGFS_CANFLIP) == DDERR_WASSTILLDRAWING))
+        return;
 
     // lock the backbuffer surface
     Bmemset(&ddsd, 0, sizeof(ddsd));
@@ -2249,16 +2209,16 @@ int32_t setpalette(int32_t start, int32_t num)
 /*
 int32_t getpalette(int32_t start, int32_t num, char *dapal)
 {
-    int32_t i;
+int32_t i;
 
-    for (i=num; i>0; i--, start++) {
-        dapal[0] = curpalette[start].b >> 2;
-        dapal[1] = curpalette[start].g >> 2;
-        dapal[2] = curpalette[start].r >> 2;
-        dapal += 4;
-    }
+for (i=num; i>0; i--, start++) {
+dapal[0] = curpalette[start].b >> 2;
+dapal[1] = curpalette[start].g >> 2;
+dapal[2] = curpalette[start].r >> 2;
+dapal += 4;
+}
 
-    return 0;
+return 0;
 }*/
 
 
@@ -2287,7 +2247,7 @@ static int32_t setgammaramp(WORD gt[3][256])
         hr = IDirectDrawSurface_QueryInterface(lpDDSPrimary, &IID_IDirectDrawGammaControl, (LPVOID)&gam);
         if (hr != DD_OK)
         {
-//            ShowDDrawErrorBox("Error querying gamma control", hr);
+            //            ShowDDrawErrorBox("Error querying gamma control", hr);
             initprintf("Error querying gamma control: %s\n",GetDDrawError(hr));
             return -1;
         }
@@ -2297,7 +2257,7 @@ static int32_t setgammaramp(WORD gt[3][256])
         {
             IDirectDrawGammaControl_Release(gam);
             initprintf("Error setting gamma ramp: %s\n",GetDDrawError(hr));
-//            ShowDDrawErrorBox("Error setting gamma ramp", hr);
+            //            ShowDDrawErrorBox("Error setting gamma ramp", hr);
             return -1;
         }
 
@@ -2383,7 +2343,7 @@ static BOOL WINAPI InitDirectDraw_enum(GUID *lpGUID, LPSTR lpDesc, LPSTR lpName,
     UNREFERENCED_PARAMETER(lpName);
     UNREFERENCED_PARAMETER(lpContext);
     UNREFERENCED_PARAMETER(lpDesc);
-//    initprintf("    * %s\n", lpDesc);
+    //    initprintf("    * %s\n", lpDesc);
     return 1;
 }
 
@@ -2401,7 +2361,7 @@ static BOOL InitDirectDraw(void)
     // load up the DirectDraw DLL
     if (!hDDrawDLL)
     {
-//        initprintf("  - Loading DDRAW.DLL\n");
+        //        initprintf("  - Loading DDRAW.DLL\n");
         hDDrawDLL = LoadLibrary("DDRAW.DLL");
         if (!hDDrawDLL)
         {
@@ -2420,7 +2380,7 @@ static BOOL InitDirectDraw(void)
     }
 
     // enumerate the devices to make us look fancy
-//    initprintf("  - Enumerating display devices\n");
+    //    initprintf("  - Enumerating display devices\n");
     aDirectDrawEnumerate(InitDirectDraw_enum, NULL);
 
     // get the pointer to DirectDrawCreate
@@ -2433,7 +2393,7 @@ static BOOL InitDirectDraw(void)
     }
 
     // create a new DirectDraw object
-//    initprintf("  - Creating DirectDraw object\n");
+    //    initprintf("  - Creating DirectDraw object\n");
     result = aDirectDrawCreate(NULL, &lpDD, NULL);
     if (result != DD_OK)
     {
@@ -2443,7 +2403,7 @@ static BOOL InitDirectDraw(void)
     }
 
     // fetch capabilities
-//    initprintf("  - Checking capabilities\n");
+    //    initprintf("  - Checking capabilities\n");
     ddcaps.dwSize = sizeof(DDCAPS);
     result = IDirectDraw_GetCaps(lpDD, &ddcaps, NULL);
     if (result != DD_OK)
@@ -2475,14 +2435,14 @@ static void UninitDirectDraw(void)
 
     if (lpDD)
     {
-//        initprintf("  - Releasing DirectDraw object\n");
+        //        initprintf("  - Releasing DirectDraw object\n");
         IDirectDraw_Release(lpDD);
         lpDD = NULL;
     }
 
     if (hDDrawDLL)
     {
-//        initprintf("  - Unloading DDRAW.DLL\n");
+        //        initprintf("  - Unloading DDRAW.DLL\n");
         FreeLibrary(hDDrawDLL);
         hDDrawDLL = NULL;
     }
@@ -2533,28 +2493,28 @@ static void ReleaseDirectDrawSurfaces(void)
 {
     if (lpDDPalette)
     {
-//        initprintf("  - Releasing palette\n");
+        //        initprintf("  - Releasing palette\n");
         IDirectDrawPalette_Release(lpDDPalette);
         lpDDPalette = NULL;
     }
 
     if (lpDDSBack)
     {
-//        initprintf("  - Releasing back-buffer surface\n");
+        //        initprintf("  - Releasing back-buffer surface\n");
         IDirectDrawSurface_Release(lpDDSBack);
         lpDDSBack = NULL;
     }
 
     if (lpDDSPrimary)
     {
-//        initprintf("  - Releasing primary surface\n");
+        //        initprintf("  - Releasing primary surface\n");
         IDirectDrawSurface_Release(lpDDSPrimary);
         lpDDSPrimary = NULL;
     }
 
     if (lpOffscreen)
     {
-//        initprintf("  - Freeing offscreen buffer\n");
+        //        initprintf("  - Freeing offscreen buffer\n");
         Bfree(lpOffscreen);
         lpOffscreen = NULL;
     }
@@ -2577,7 +2537,7 @@ static int32_t SetupDirectDraw(int32_t width, int32_t height)
     ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
     ddsd.dwBackBufferCount = 2;	// triple-buffer
 
-//    initprintf("  - Creating primary surface\n");
+    //    initprintf("  - Creating primary surface\n");
     result = IDirectDraw_CreateSurface(lpDD, &ddsd, &lpDDSPrimary, NULL);
     if (result != DD_OK)
     {
@@ -2590,7 +2550,7 @@ static int32_t SetupDirectDraw(int32_t width, int32_t height)
     ddsd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER;
     numpages = 1;	// KJS 20031225
 
-//    initprintf("  - Getting back buffer\n");
+    //    initprintf("  - Getting back buffer\n");
     result = IDirectDrawSurface_GetAttachedSurface(lpDDSPrimary, &ddsd.ddsCaps, &lpDDSBack);
     if (result != DD_OK)
     {
@@ -2599,7 +2559,7 @@ static int32_t SetupDirectDraw(int32_t width, int32_t height)
         return TRUE;
     }
 
-//    initprintf("  - Allocating offscreen buffer\n");
+    //    initprintf("  - Allocating offscreen buffer\n");
     lpOffscreen = (char *)Bmalloc((width|1)*height);
     if (!lpOffscreen)
     {
@@ -2609,7 +2569,7 @@ static int32_t SetupDirectDraw(int32_t width, int32_t height)
     }
 
     // attach a palette to the primary surface
-//    initprintf("  - Creating palette\n");
+    //    initprintf("  - Creating palette\n");
     for (i=0; i<256; i++)
         curpalettefaded[i].f = PC_NOCOLLAPSE;
     result = IDirectDraw_CreatePalette(lpDD, DDPCAPS_8BIT | DDPCAPS_ALLOW256, (LPPALETTEENTRY)curpalettefaded, &lpDDPalette, NULL);
@@ -3635,8 +3595,8 @@ static inline BOOL CheckWinVersion(void)
 static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     /*    RECT rect;
-        POINT pt;
-        HRESULT result; */
+    POINT pt;
+    HRESULT result; */
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (hWnd == hGLWindow) return DefWindowProc(hWnd,uMsg,wParam,lParam);
@@ -3700,7 +3660,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         }
 
         Bmemset(keystatus, 0, sizeof(keystatus));
-        AcquireInputDevices(appactive,-1);
+        AcquireInputDevices(appactive);
         break;
     }
 
@@ -3712,13 +3672,13 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         }
 
         Bmemset(keystatus, 0, sizeof(keystatus));
-        AcquireInputDevices(appactive,-1);
+        AcquireInputDevices(appactive);
         break;
 
     case WM_SIZE:
         if (wParam == SIZE_MAXHIDE || wParam == SIZE_MINIMIZED) appactive = 0;
         else appactive = 1;
-        AcquireInputDevices(appactive,-1);
+        AcquireInputDevices(appactive);
         break;
 
     case WM_PALETTECHANGED:
@@ -3758,8 +3718,8 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         return TRUE;
 
     case WM_MOVE:
-//        windowx = LOWORD(lParam);
-//        windowy = HIWORD(lParam);
+        //        windowx = LOWORD(lParam);
+        //        windowy = HIWORD(lParam);
         return 0;
 
     case WM_MOVING:
@@ -3776,11 +3736,11 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
     case WM_ENTERMENULOOP:
     case WM_ENTERSIZEMOVE:
-        AcquireInputDevices(0,-1);
+        AcquireInputDevices(0);
         return 0;
     case WM_EXITMENULOOP:
     case WM_EXITSIZEMOVE:
-        AcquireInputDevices(1,-1);
+        AcquireInputDevices(1);
         return 0;
 
     case WM_DESTROY:
@@ -3814,7 +3774,7 @@ static BOOL RegisterWindowClass(void)
     wcx.cbWndExtra	= 0;
     wcx.hInstance	= hInstance;
     wcx.hIcon	= LoadImage(hInstance, MAKEINTRESOURCE(100), IMAGE_ICON,
-                          GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), LR_DEFAULTCOLOR);
+                            GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), LR_DEFAULTCOLOR);
     wcx.hCursor	= LoadCursor(NULL, IDC_ARROW);
     wcx.hbrBackground = (HBRUSH)COLOR_GRAYTEXT;
     wcx.lpszMenuName = NULL;

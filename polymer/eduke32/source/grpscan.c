@@ -93,7 +93,7 @@ int32_t ScanGroups(void)
         return 0;
     }
 
-    initprintf("Scanning for game data...\n");
+    initprintf("Searching for game data...\n");
 
     LoadGroupsCache();
 

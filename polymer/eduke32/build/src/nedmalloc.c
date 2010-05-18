@@ -36,15 +36,6 @@ DEALINGS IN THE SOFTWARE.
 #pragma warning(disable:4706)	/* assignment within conditional expression */
 #endif
 
-#define USE_ALLOCATOR 1
-#define USE_MAGIC_HEADERS 1
-#define MAXTHREADSINPOOL 1
-#define FINEGRAINEDBINS 1
-#define ENABLE_LARGE_PAGES 1
-#define ENABLE_FAST_HEAP_DETECTION 1
-#define NDEBUG 1
-#define THREADCACHEMAX 32768
-#define THREADCACHEMAXBINS ((15-4)*2)
 /*#define ENABLE_TOLERANT_NEDMALLOC 1*/
 /*#define ENABLE_FAST_HEAP_DETECTION 1*/
 /*#define NEDMALLOC_DEBUG 1*/

@@ -247,16 +247,8 @@ int32_t loadsetup(const char *fn)
 
     if (readconfig(fp, "parlock", val, VL) > 0) ParentalLock = Batoi(val);
 
-#ifdef _WIN32
-    {
-        extern char map_dik_code(int32_t);
-        for (i=0; i<256; i++)
-            remap[i]=map_dik_code(i);
-    }
-#else
     for (i=0; i<256; i++)
         remap[i]=i;
-#endif
 
     remapinit=1;
     if (readconfig(fp, "remap", val, VL) > 0)

@@ -81,7 +81,7 @@ void freevbos()
             {
                 //            OSD_Printf("freeing model %d vbo\n",i);
                 bglDeleteBuffersARB(m->head.numsurfs, m->vbos);
-                nedpfree(model_data_pool, m->vbos);
+                Bfree(m->vbos);
                 m->vbos = NULL;
             }
         }
@@ -101,7 +101,7 @@ void freeallmodels()
     if (models)
     {
         for (i=0; i<nextmodelid; i++) mdfree(models[i]);
-        nedpfree(model_data_pool, models); models = NULL;
+        Bfree(models); models = NULL;
         nummodelsalloced = 0;
         nextmodelid = 0;
     }
@@ -111,7 +111,7 @@ void freeallmodels()
 
     if (vertlist)
     {
-        nedpfree(model_data_pool, vertlist);
+        Bfree(vertlist);
         vertlist = NULL;
         allocmodelverts = maxmodelverts = 0;
         allocmodeltris = maxmodeltris = 0;
@@ -191,7 +191,7 @@ int32_t md_loadmodel(const char *fn)
 
     if (nextmodelid >= nummodelsalloced)
     {
-        ml = (mdmodel_t **)nedprealloc(model_data_pool, models,(nummodelsalloced+MODELALLOCGROUP)*sizeof(void*)); if (!ml) return(-1);
+        ml = (mdmodel_t **)Brealloc(models,(nummodelsalloced+MODELALLOCGROUP)*sizeof(void*)); if (!ml) return(-1);
         models = ml; nummodelsalloced += MODELALLOCGROUP;
     }
 
@@ -310,7 +310,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
     ma.fpssc = fpssc;
     ma.flags = flags;
 
-    map = (mdanim_t*)nedpcalloc(model_data_pool, 1,sizeof(mdanim_t));
+    map = (mdanim_t*)Bcalloc(1,sizeof(mdanim_t));
     if (!map) return(-4);
     Bmemcpy(map, &ma, sizeof(ma));
 
@@ -340,13 +340,13 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
         if (sk->palette == (uint8_t)palnum && skinnum == sk->skinnum && surfnum == sk->surfnum) break;
     if (!sk)
     {
-        sk = (mdskinmap_t *)nedpcalloc(model_data_pool, 1,sizeof(mdskinmap_t));
+        sk = (mdskinmap_t *)Bcalloc(1,sizeof(mdskinmap_t));
         if (!sk) return -4;
 
         if (!skl) m->skinmap = sk;
         else skl->next = sk;
     }
-    else if (sk->fn) nedpfree(model_data_pool, sk->fn);
+    else if (sk->fn) Bfree(sk->fn);
 
     sk->palette = (uint8_t)palnum;
     sk->skinnum = skinnum;
@@ -354,7 +354,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     sk->param = param;
     sk->specpower = specpower;
     sk->specfactor = specfactor;
-    sk->fn = (char *)nedpmalloc(model_data_pool, strlen(skinfn)+1);
+    sk->fn = (char *)malloc(strlen(skinfn)+1);
     if (!sk->fn) return(-4);
     strcpy(sk->fn, skinfn);
 
@@ -418,14 +418,14 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
     int32_t r, g, b;
 
     picfillen = kfilelength(filh);
-    picfil = (char *)nedpmalloc(model_data_pool, picfillen+1); if (!picfil) { return -1; }
+    picfil = (char *)malloc(picfillen+1); if (!picfil) { return -1; }
     kread(filh, picfil, picfillen);
 
     // tsizx/y = replacement texture's natural size
     // xsiz/y = 2^x size of replacement
 
     kpgetdim(picfil,picfillen,&tsizx,&tsizy);
-    if (tsizx == 0 || tsizy == 0) { nedpfree(model_data_pool, picfil); return -1; }
+    if (tsizx == 0 || tsizy == 0) { Bfree(picfil); return -1; }
 
     if (!glinfo.texnpot)
     {
@@ -438,13 +438,13 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
         ysiz = tsizy;
     }
     *osizx = tsizx; *osizy = tsizy;
-    pic = (coltype *)nedpmalloc(model_data_pool, xsiz*ysiz*sizeof(coltype));
-    if (!pic) { nedpfree(model_data_pool, picfil); return -1; }
+    pic = (coltype *)malloc(xsiz*ysiz*sizeof(coltype));
+    if (!pic) { Bfree(picfil); return -1; }
     memset(pic,0,xsiz*ysiz*sizeof(coltype));
 
     if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0))
-        { nedpfree(model_data_pool, picfil); nedpfree(model_data_pool, pic); return -1; }
-    nedpfree(model_data_pool, picfil);
+        { Bfree(picfil); Bfree(pic); return -1; }
+    Bfree(picfil);
 
     cptr = &britable[gammabrightness ? 0 : curbrightness][0];
     r=(glinfo.bgra)?hictinting[pal].b:hictinting[pal].r;
@@ -621,14 +621,14 @@ static int32_t mdloadskin_cached(int32_t fil, texcacheheader *head, int32_t *doa
 
         if (alloclen < pict.size)
         {
-            void *picc = nedprealloc(model_data_pool, pic, pict.size);
+            void *picc = Brealloc(pic, pict.size);
             if (!picc) goto failure; else pic = picc;
             alloclen = pict.size;
 
-            picc = nedprealloc(model_data_pool, packbuf, alloclen+16);
+            picc = Brealloc(packbuf, alloclen+16);
             if (!picc) goto failure; else packbuf = picc;
 
-            picc = nedprealloc(model_data_pool, midbuf, pict.size);
+            picc = Brealloc(midbuf, pict.size);
             if (!picc) goto failure; else midbuf = picc;
         }
 
@@ -639,14 +639,14 @@ static int32_t mdloadskin_cached(int32_t fil, texcacheheader *head, int32_t *doa
         if (bglGetError() != GL_NO_ERROR) goto failure;
     }
 
-    if (midbuf) nedpfree(model_data_pool, midbuf);
-    if (pic) nedpfree(model_data_pool, pic);
-    if (packbuf) nedpfree(model_data_pool, packbuf);
+    if (midbuf) Bfree(midbuf);
+    if (pic) Bfree(pic);
+    if (packbuf) Bfree(packbuf);
     return 0;
 failure:
-    if (midbuf) nedpfree(model_data_pool, midbuf);
-    if (pic) nedpfree(model_data_pool, pic);
-    if (packbuf) nedpfree(model_data_pool, packbuf);
+    if (midbuf) Bfree(midbuf);
+    if (pic) Bfree(pic);
+    if (packbuf) Bfree(packbuf);
     return -1;
 }
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
@@ -770,7 +770,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         else if (!hasalpha) intexfmt = GL_RGB;
         if (glinfo.bgra) texfmt = GL_BGRA;
         uploadtexture((doalloc&1), xsiz, ysiz, intexfmt, texfmt, (coltype*)fptr, xsiz, ysiz, 0|8192);
-        nedpfree(model_data_pool, (void*)fptr);
+        Bfree((void*)fptr);
     }
 
     if (!m->skinloaded)
@@ -965,7 +965,7 @@ static void mdloadvbos(md3model_t *m)
 {
     int32_t     i;
 
-    m->vbos = nedpmalloc(model_data_pool, m->head.numsurfs * sizeof(GLuint));
+    m->vbos = malloc(m->head.numsurfs * sizeof(GLuint));
     bglGenBuffersARB(m->head.numsurfs, m->vbos);
 
     i = 0;
@@ -989,7 +989,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     char st[BMAX_PATH];
     int32_t i, j, k;
 
-    m = (md2model_t *)nedpcalloc(model_data_pool, 1,sizeof(md2model_t)); if (!m) return(0);
+    m = (md2model_t *)Bcalloc(1,sizeof(md2model_t)); if (!m) return(0);
     m->mdnum = 2; m->scale = .01f;
 
     kread(fil,(char *)&head,sizeof(md2head_t));
@@ -1003,7 +1003,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     head.ofsframes = B_LITTLE32(head.ofsframes);   head.ofsglcmds = B_LITTLE32(head.ofsglcmds);
     head.ofseof = B_LITTLE32(head.ofseof);
 
-    if ((head.id != 0x32504449) || (head.vers != 8)) { nedpfree(model_data_pool, m); return(0); } //"IDP2"
+    if ((head.id != 0x32504449) || (head.vers != 8)) { Bfree(m); return(0); } //"IDP2"
 
     m->numskins = head.numskins;
     m->numframes = head.numframes;
@@ -1011,26 +1011,26 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m->numglcmds = head.numglcmds;
     m->framebytes = head.framebytes;
 
-    m->frames = (char *)nedpcalloc(model_data_pool, m->numframes,m->framebytes); if (!m->frames) { nedpfree(model_data_pool, m); return(0); }
-    m->glcmds = (int32_t *)nedpcalloc(model_data_pool, m->numglcmds,sizeof(int32_t)); if (!m->glcmds) { nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
-    m->tris = (md2tri_t *)nedpcalloc(model_data_pool, head.numtris, sizeof(md2tri_t)); if (!m->tris) { nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
-    m->uv = (md2uv_t *)nedpcalloc(model_data_pool, head.numuv, sizeof(md2uv_t)); if (!m->uv) { nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
+    m->frames = (char *)Bcalloc(m->numframes,m->framebytes); if (!m->frames) { Bfree(m); return(0); }
+    m->glcmds = (int32_t *)Bcalloc(m->numglcmds,sizeof(int32_t)); if (!m->glcmds) { Bfree(m->frames); Bfree(m); return(0); }
+    m->tris = (md2tri_t *)Bcalloc(head.numtris, sizeof(md2tri_t)); if (!m->tris) { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    m->uv = (md2uv_t *)Bcalloc(head.numuv, sizeof(md2uv_t)); if (!m->uv) { Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
 
     klseek(fil,head.ofsframes,SEEK_SET);
     if (kread(fil,(char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
-        { nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
+        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
 
     klseek(fil,head.ofsglcmds,SEEK_SET);
     if (kread(fil,(char *)m->glcmds,m->numglcmds*sizeof(int32_t)) != (int32_t)(m->numglcmds*sizeof(int32_t)))
-        { nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
+        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
 
     klseek(fil,head.ofstris,SEEK_SET);
     if (kread(fil,(char *)m->tris,head.numtris*sizeof(md2tri_t)) != (int32_t)(head.numtris*sizeof(md2tri_t)))
-        { nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
+        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
 
     klseek(fil,head.ofsuv,SEEK_SET);
     if (kread(fil,(char *)m->uv,head.numuv*sizeof(md2uv_t)) != (int32_t)(head.numuv*sizeof(md2uv_t)))
-        { nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
+        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
 
 #if B_BIG_ENDIAN != 0
     {
@@ -1072,16 +1072,16 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
         if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
     if (i<0) i=0;
     st[i] = 0;
-    m->basepath = (char *)nedpmalloc(model_data_pool, i+1); if (!m->basepath) { nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
+    m->basepath = (char *)malloc(i+1); if (!m->basepath) { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
     strcpy(m->basepath, st);
 
-    m->skinfn = (char *)nedpcalloc(model_data_pool, m->numskins,64); if (!m->skinfn) { nedpfree(model_data_pool, m->basepath); nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
+    m->skinfn = (char *)Bcalloc(m->numskins,64); if (!m->skinfn) { Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
     klseek(fil,head.ofsskins,SEEK_SET);
     if (kread(fil,m->skinfn,64*m->numskins) != 64*m->numskins)
-        { nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
+        { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
 
-    m->texid = (GLuint *)nedpcalloc(model_data_pool, m->numskins, sizeof(GLuint) * (HICEFFECTMASK+1));
-    if (!m->texid) { nedpfree(model_data_pool, m->skinfn); nedpfree(model_data_pool, m->basepath); nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
+    m->texid = (GLuint *)Bcalloc(m->numskins, sizeof(GLuint) * (HICEFFECTMASK+1));
+    if (!m->texid) { Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
 
     maxmodelverts = max(maxmodelverts, m->numverts);
     maxmodeltris = max(maxmodeltris, head.numtris);
@@ -1090,7 +1090,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
 
     // the MD2 is now loaded internally - let's begin the MD3 conversion process
     //OSD_Printf("Beginning md3 conversion.\n");
-    m3 = (md3model_t *)nedpcalloc(model_data_pool, 1, sizeof(md3model_t)); if (!m3) { nedpfree(model_data_pool, m->skinfn); nedpfree(model_data_pool, m->basepath); nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
+    m3 = (md3model_t *)Bcalloc(1, sizeof(md3model_t)); if (!m3) { Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
     m3->mdnum = 3; m3->texid = 0; m3->scale = m->scale;
     m3->head.id = 0x33504449; m3->head.vers = 15;
     // this changes the conversion code to do real MD2->MD3 conversion
@@ -1104,8 +1104,8 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m3->numskins = m3->head.numskins;
     m3->numframes = m3->head.numframes;
 
-    m3->head.frames = (md3frame_t *)nedpcalloc(model_data_pool, m3->head.numframes, sizeof(md3frame_t)); if (!m3->head.frames) { nedpfree(model_data_pool, m3); nedpfree(model_data_pool, m->skinfn); nedpfree(model_data_pool, m->basepath); nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
-    m3->muladdframes = (point3d *)nedpcalloc(model_data_pool, m->numframes * 2, sizeof(point3d));
+    m3->head.frames = (md3frame_t *)Bcalloc(m3->head.numframes, sizeof(md3frame_t)); if (!m3->head.frames) { Bfree(m3); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    m3->muladdframes = (point3d *)Bcalloc(m->numframes * 2, sizeof(point3d));
 
     f = (md2frame_t *)(m->frames);
 
@@ -1123,7 +1123,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
 
     m3->head.tags = NULL;
 
-    m3->head.surfs = (md3surf_t *)nedpcalloc(model_data_pool, 1, sizeof(md3surf_t)); if (!m3->head.surfs) { nedpfree(model_data_pool, m3->head.frames); nedpfree(model_data_pool, m3); nedpfree(model_data_pool, m->skinfn); nedpfree(model_data_pool, m->basepath); nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
+    m3->head.surfs = (md3surf_t *)Bcalloc(1, sizeof(md3surf_t)); if (!m3->head.surfs) { Bfree(m3->head.frames); Bfree(m3); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
     s = m3->head.surfs;
 
     // model converting
@@ -1140,9 +1140,9 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
 
     s->shaders = NULL;
 
-    s->tris = (md3tri_t *)nedpcalloc(model_data_pool, head.numtris, sizeof(md3tri_t)); if (!s->tris) { nedpfree(model_data_pool, s); nedpfree(model_data_pool, m3->head.frames); nedpfree(model_data_pool, m3); nedpfree(model_data_pool, m->skinfn); nedpfree(model_data_pool, m->basepath); nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
-    s->uv = (md3uv_t *)nedpcalloc(model_data_pool, s->numverts, sizeof(md3uv_t)); if (!s->uv) { nedpfree(model_data_pool, s->tris); nedpfree(model_data_pool, s); nedpfree(model_data_pool, m3->head.frames); nedpfree(model_data_pool, m3); nedpfree(model_data_pool, m->skinfn); nedpfree(model_data_pool, m->basepath); nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
-    s->xyzn = (md3xyzn_t *)nedpcalloc(model_data_pool, s->numverts * m->numframes, sizeof(md3xyzn_t)); if (!s->xyzn) { nedpfree(model_data_pool, s->uv); nedpfree(model_data_pool, s->tris); nedpfree(model_data_pool, s); nedpfree(model_data_pool, m3->head.frames); nedpfree(model_data_pool, m3); nedpfree(model_data_pool, m->skinfn); nedpfree(model_data_pool, m->basepath); nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m); return(0); }
+    s->tris = (md3tri_t *)Bcalloc(head.numtris, sizeof(md3tri_t)); if (!s->tris) { Bfree(s); Bfree(m3->head.frames); Bfree(m3); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    s->uv = (md3uv_t *)Bcalloc(s->numverts, sizeof(md3uv_t)); if (!s->uv) { Bfree(s->tris); Bfree(s); Bfree(m3->head.frames); Bfree(m3); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    s->xyzn = (md3xyzn_t *)Bcalloc(s->numverts * m->numframes, sizeof(md3xyzn_t)); if (!s->xyzn) { Bfree(s->uv); Bfree(s->tris); Bfree(s); Bfree(m3->head.frames); Bfree(m3); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
 
     //memoryusage += (s->numverts * m->numframes * sizeof(md3xyzn_t));
     //OSD_Printf("Current model geometry memory usage : %i.\n", memoryusage);
@@ -1196,28 +1196,28 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     {
         mdskinmap_t *sk;
 
-        sk = (mdskinmap_t *)nedpcalloc(model_data_pool, 1,sizeof(mdskinmap_t));
+        sk = (mdskinmap_t *)Bcalloc(1,sizeof(mdskinmap_t));
         sk->palette = 0;
         sk->skinnum = 0;
         sk->surfnum = 0;
 
         if (m->numskins > 0)
         {
-            sk->fn = (char *)nedpmalloc(model_data_pool, strlen(m->basepath)+strlen(m->skinfn)+1);
+            sk->fn = (char *)malloc(strlen(m->basepath)+strlen(m->skinfn)+1);
             strcpy(sk->fn, m->basepath);
             strcat(sk->fn, m->skinfn);
         }
         m3->skinmap = sk;
     }
 
-    m3->indexes = nedpmalloc(model_data_pool, sizeof(uint16_t) * s->numtris);
-    m3->vindexes = nedpmalloc(model_data_pool, sizeof(uint16_t) * s->numtris * 3);
-    m3->maxdepths = nedpmalloc(model_data_pool, sizeof(float) * s->numtris);
+    m3->indexes = malloc(sizeof(uint16_t) * s->numtris);
+    m3->vindexes = malloc(sizeof(uint16_t) * s->numtris * 3);
+    m3->maxdepths = malloc(sizeof(float) * s->numtris);
 
     m3->vbos = NULL;
 
     // die MD2 ! DIE !
-    nedpfree(model_data_pool, m->texid); nedpfree(model_data_pool, m->skinfn); nedpfree(model_data_pool, m->basepath); nedpfree(model_data_pool, m->uv); nedpfree(model_data_pool, m->tris); nedpfree(model_data_pool, m->glcmds); nedpfree(model_data_pool, m->frames); nedpfree(model_data_pool, m);
+    Bfree(m->texid); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m);
 
     return((md2model_t *)m3);
 }
@@ -1278,7 +1278,7 @@ static md3model_t *md3load(int32_t fil)
     md3model_t *m;
     md3surf_t *s;
 
-    m = (md3model_t *)nedpcalloc(model_data_pool, 1,sizeof(md3model_t)); if (!m) return(0);
+    m = (md3model_t *)Bcalloc(1,sizeof(md3model_t)); if (!m) return(0);
     m->mdnum = 3; m->texid = 0; m->scale = .01f;
 
     m->muladdframes = NULL;
@@ -1291,7 +1291,7 @@ static md3model_t *md3load(int32_t fil)
     m->head.ofstags = B_LITTLE32(m->head.ofstags); m->head.ofssurfs = B_LITTLE32(m->head.ofssurfs);
     m->head.eof = B_LITTLE32(m->head.eof);
 
-    if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { nedpfree(model_data_pool, m); return(0); } //"IDP3"
+    if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { Bfree(m); return(0); } //"IDP3"
 
     m->numskins = m->head.numskins; //<- dead code?
     m->numframes = m->head.numframes;
@@ -1299,19 +1299,19 @@ static md3model_t *md3load(int32_t fil)
     ofsurf = m->head.ofssurfs;
 
     klseek(fil,m->head.ofsframes,SEEK_SET); i = m->head.numframes*sizeof(md3frame_t);
-    m->head.frames = (md3frame_t *)nedpmalloc(model_data_pool, i); if (!m->head.frames) { nedpfree(model_data_pool, m); return(0); }
+    m->head.frames = (md3frame_t *)malloc(i); if (!m->head.frames) { Bfree(m); return(0); }
     kread(fil,m->head.frames,i);
 
     if (m->head.numtags == 0) m->head.tags = NULL;
     else
     {
         klseek(fil,m->head.ofstags,SEEK_SET); i = m->head.numtags*sizeof(md3tag_t);
-        m->head.tags = (md3tag_t *)nedpmalloc(model_data_pool, i); if (!m->head.tags) { nedpfree(model_data_pool, m->head.frames); nedpfree(model_data_pool, m); return(0); }
+        m->head.tags = (md3tag_t *)malloc(i); if (!m->head.tags) { Bfree(m->head.frames); Bfree(m); return(0); }
         kread(fil,m->head.tags,i);
     }
 
     klseek(fil,m->head.ofssurfs,SEEK_SET); i = m->head.numsurfs*sizeof(md3surf_t);
-    m->head.surfs = (md3surf_t *)nedpmalloc(model_data_pool, i); if (!m->head.surfs) { if (m->head.tags) nedpfree(model_data_pool, m->head.tags); nedpfree(model_data_pool, m->head.frames); nedpfree(model_data_pool, m); return(0); }
+    m->head.surfs = (md3surf_t *)malloc(i); if (!m->head.surfs) { if (m->head.tags) Bfree(m->head.tags); Bfree(m->head.frames); Bfree(m); return(0); }
 
 #if B_BIG_ENDIAN != 0
     {
@@ -1355,11 +1355,11 @@ static md3model_t *md3load(int32_t fil)
         //OSD_Printf("Current model geometry memory usage : %i.\n", memoryusage);
 
 
-        s->tris = (md3tri_t *)nedpmalloc(model_data_pool, leng[0]+leng[1]+leng[2]+leng[3]);
+        s->tris = (md3tri_t *)malloc(leng[0]+leng[1]+leng[2]+leng[3]);
         if (!s->tris)
         {
-            for (surfi--; surfi>=0; surfi--) nedpfree(model_data_pool, m->head.surfs[surfi].tris);
-            if (m->head.tags) nedpfree(model_data_pool, m->head.tags); nedpfree(model_data_pool, m->head.frames); nedpfree(model_data_pool, m); return(0);
+            for (surfi--; surfi>=0; surfi--) Bfree(m->head.surfs[surfi].tris);
+            if (m->head.tags) Bfree(m->head.tags); Bfree(m->head.frames); Bfree(m); return(0);
         }
         s->shaders = (md3shader_t *)(((intptr_t)s->tris)+leng[0]);
         s->uv      = (md3uv_t     *)(((intptr_t)s->shaders)+leng[1]);
@@ -1428,9 +1428,9 @@ static md3model_t *md3load(int32_t fil)
     }
 #endif
 
-    m->indexes = nedpmalloc(model_data_pool, sizeof(uint16_t) * maxtrispersurf);
-    m->vindexes = nedpmalloc(model_data_pool, sizeof(uint16_t) * maxtrispersurf * 3);
-    m->maxdepths = nedpmalloc(model_data_pool, sizeof(float) * maxtrispersurf);
+    m->indexes = malloc(sizeof(uint16_t) * maxtrispersurf);
+    m->vindexes = malloc(sizeof(uint16_t) * maxtrispersurf * 3);
+    m->maxdepths = malloc(sizeof(float) * maxtrispersurf);
 
     m->vbos = NULL;
 
@@ -1580,9 +1580,9 @@ static int      md3postload(md3model_t* m)
     {
         s = &m->head.surfs[surfi];
 
-        s->geometry = nedpcalloc(model_data_pool, m->head.numframes * s->numverts * sizeof(float), 15);
+        s->geometry = Bcalloc(m->head.numframes * s->numverts * sizeof(float), 15);
 
-        numtris = nedpcalloc(model_data_pool, s->numverts, sizeof(int));
+        numtris = Bcalloc(s->numverts, sizeof(int));
 
         verti = 0;
         while (verti < (m->head.numframes * s->numverts))
@@ -1611,7 +1611,7 @@ static int      md3postload(md3model_t* m)
                 s->tris[trii].i[1] >= s->numverts || s->tris[trii].i[1] < 0 ||
                 s->tris[trii].i[2] >= s->numverts || s->tris[trii].i[2] < 0) {
                 // corrupt model
-                nedpfree(model_data_pool, numtris);
+                Bfree(numtris);
                 OSD_Printf("Triangle index out of bounds!\n");
                 return 0;
             }
@@ -1693,7 +1693,7 @@ static int      md3postload(md3model_t* m)
             verti++;
         }
 
-        nedpfree(model_data_pool, numtris);
+        Bfree(numtris);
 
         surfi++;
     }
@@ -2232,13 +2232,13 @@ static void md3free(md3model_t *m)
     for (anim=m->animations; anim; anim=nanim)
     {
         nanim = anim->next;
-        nedpfree(model_data_pool, anim);
+        Bfree(anim);
     }
     for (sk=m->skinmap; sk; sk=nsk)
     {
         nsk = sk->next;
-        nedpfree(model_data_pool, sk->fn);
-        nedpfree(model_data_pool, sk);
+        Bfree(sk->fn);
+        Bfree(sk);
     }
 
     if (m->head.surfs)
@@ -2246,35 +2246,35 @@ static void md3free(md3model_t *m)
         for (surfi=m->head.numsurfs-1; surfi>=0; surfi--)
         {
             s = &m->head.surfs[surfi];
-            if (s->tris) nedpfree(model_data_pool, s->tris);
+            if (s->tris) Bfree(s->tris);
             if (m->head.flags == 1337)
             {
-                if (s->shaders) nedpfree(model_data_pool, s->shaders);
-                if (s->uv) nedpfree(model_data_pool, s->uv);
-                if (s->xyzn) nedpfree(model_data_pool, s->xyzn);
+                if (s->shaders) Bfree(s->shaders);
+                if (s->uv) Bfree(s->uv);
+                if (s->xyzn) Bfree(s->xyzn);
             }
         }
-        nedpfree(model_data_pool, m->head.surfs);
+        Bfree(m->head.surfs);
     }
-    if (m->head.tags) nedpfree(model_data_pool, m->head.tags);
-    if (m->head.frames) nedpfree(model_data_pool, m->head.frames);
+    if (m->head.tags) Bfree(m->head.tags);
+    if (m->head.frames) Bfree(m->head.frames);
 
-    if (m->texid) nedpfree(model_data_pool, m->texid);
+    if (m->texid) Bfree(m->texid);
 
-    if (m->muladdframes) nedpfree(model_data_pool, m->muladdframes);
+    if (m->muladdframes) Bfree(m->muladdframes);
 
-    if (m->indexes) nedpfree(model_data_pool, m->indexes);
-    if (m->vindexes) nedpfree(model_data_pool, m->vindexes);
-    if (m->maxdepths) nedpfree(model_data_pool, m->maxdepths);
+    if (m->indexes) Bfree(m->indexes);
+    if (m->vindexes) Bfree(m->vindexes);
+    if (m->maxdepths) Bfree(m->maxdepths);
 
     if (m->vbos)
     {
         bglDeleteBuffersARB(m->head.numsurfs, m->vbos);
-        nedpfree(model_data_pool, m->vbos);
+        Bfree(m->vbos);
         m->vbos = NULL;
     }
 
-    nedpfree(model_data_pool, m);
+    Bfree(m);
 }
 
 //---------------------------------------- MD3 LIBRARY ENDS ----------------------------------------
@@ -2301,7 +2301,7 @@ uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
     int32_t i;
 
     pic = (coltype *)picbuf; //Correct for GL's RGB order; also apply gamma here..
-    pic2 = (coltype *)nedpmalloc(model_data_pool, xsiz*ysiz*sizeof(int32_t)); if (!pic2) return((unsigned)-1);
+    pic2 = (coltype *)malloc(xsiz*ysiz*sizeof(int32_t)); if (!pic2) return((unsigned)-1);
     cptr = (char*)&britable[gammabrightness ? 0 : curbrightness][0];
     if (!is8bit)
     {
@@ -2330,7 +2330,7 @@ uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     bglTexImage2D(GL_TEXTURE_2D,0,4,xsiz,ysiz,0,GL_RGBA,GL_UNSIGNED_BYTE,(char *)pic2);
-    nedpfree(model_data_pool, pic2);
+    Bfree(pic2);
     return(rtexid);
 }
 
@@ -2344,7 +2344,7 @@ static int32_t getvox(int32_t x, int32_t y, int32_t z)
 
 static void putvox(int32_t x, int32_t y, int32_t z, int32_t col)
 {
-    if (vnum >= vmax) { vmax = max(vmax<<1,4096); vcol = (voxcol_t *)nedprealloc(model_data_pool, vcol,vmax*sizeof(voxcol_t)); }
+    if (vnum >= vmax) { vmax = max(vmax<<1,4096); vcol = (voxcol_t *)Brealloc(vcol,vmax*sizeof(voxcol_t)); }
 
     z += x*yzsiz + y*zsiz;
     vcol[vnum].p = z; z = ((z*214013)&vcolhashsizm1);
@@ -2552,7 +2552,7 @@ static voxmodel_t *vox2poly()
     int32_t i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy,*bx0, *by0;
     void (*daquad)(int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
 
-    gvox = (voxmodel_t *)nedpmalloc(model_data_pool, sizeof(voxmodel_t)); if (!gvox) return(0);
+    gvox = (voxmodel_t *)malloc(sizeof(voxmodel_t)); if (!gvox) return(0);
     memset(gvox,0,sizeof(voxmodel_t));
 
     //x is largest dimension, y is 2nd largest dimension
@@ -2560,7 +2560,7 @@ static voxmodel_t *vox2poly()
     if ((x < y) && (x < z)) x = z; else if (y < z) y = z;
     if (x < y) { z = x; x = y; y = z; }
     shcntp = x; i = x*y*sizeof(int32_t);
-    shcntmal = (int32_t *)nedpmalloc(model_data_pool, i); if (!shcntmal) { nedpfree(model_data_pool, gvox); return(0); }
+    shcntmal = (int32_t *)malloc(i); if (!shcntmal) { Bfree(gvox); return(0); }
     memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
     gmaxx = gmaxy = garea = 0;
 
@@ -2568,7 +2568,7 @@ static voxmodel_t *vox2poly()
     for (i=0; i<7; i++) gvox->qfacind[i] = -1;
 
     i = ((max(ysiz,zsiz)+1)<<2);
-    bx0 = (int32_t *)nedpmalloc(model_data_pool, i<<1); if (!bx0) { nedpfree(model_data_pool, gvox); return(0); }
+    bx0 = (int32_t *)malloc(i<<1); if (!bx0) { Bfree(gvox); return(0); }
     by0 = (int32_t *)(((intptr_t)bx0)+i);
 
     for (cnt=0; cnt<2; cnt++)
@@ -2614,8 +2614,8 @@ static voxmodel_t *vox2poly()
 
         if (!cnt)
         {
-            shp = (spoint2d *)nedpmalloc(model_data_pool, gvox->qcnt*sizeof(spoint2d));
-            if (!shp) { nedpfree(model_data_pool, bx0); nedpfree(model_data_pool, gvox); return(0); }
+            shp = (spoint2d *)malloc(gvox->qcnt*sizeof(spoint2d));
+            if (!shp) { Bfree(bx0); Bfree(gvox); return(0); }
 
             sc = 0;
             for (y=gmaxy; y; y--)
@@ -2636,7 +2636,7 @@ skindidntfit:
             mytexo5 = (gvox->mytexx>>5);
 
             i = (((gvox->mytexx*gvox->mytexy+31)>>5)<<2);
-            zbit = (int32_t *)nedpmalloc(model_data_pool, i); if (!zbit) { nedpfree(model_data_pool, bx0); nedpfree(model_data_pool, gvox); nedpfree(model_data_pool, shp); return(0); }
+            zbit = (int32_t *)malloc(i); if (!zbit) { Bfree(bx0); Bfree(gvox); Bfree(shp); return(0); }
             memset(zbit,0,i);
 
             v = gvox->mytexx*gvox->mytexy;
@@ -2655,7 +2655,7 @@ skindidntfit:
                     i--;
                     if (i < 0) //Time-out! Very slow if this happens... but at least it still works :P
                     {
-                        nedpfree(model_data_pool, zbit);
+                        Bfree(zbit);
 
                         //Re-generate shp[].x/y (box sizes) from shcnt (now head indices) for next pass :/
                         j = 0;
@@ -2678,14 +2678,14 @@ skindidntfit:
                 shp[z].x = x0; shp[z].y = y0; //Overwrite size with top-left location
             }
 
-            gvox->quad = (voxrect_t *)nedpmalloc(model_data_pool, gvox->qcnt*sizeof(voxrect_t));
-            if (!gvox->quad) { nedpfree(model_data_pool, zbit); nedpfree(model_data_pool, shp); nedpfree(model_data_pool, bx0); nedpfree(model_data_pool, gvox); return(0); }
+            gvox->quad = (voxrect_t *)malloc(gvox->qcnt*sizeof(voxrect_t));
+            if (!gvox->quad) { Bfree(zbit); Bfree(shp); Bfree(bx0); Bfree(gvox); return(0); }
 
-            gvox->mytex = (int32_t *)nedpmalloc(model_data_pool, gvox->mytexx*gvox->mytexy*sizeof(int32_t));
-            if (!gvox->mytex) { nedpfree(model_data_pool, gvox->quad); nedpfree(model_data_pool, zbit); nedpfree(model_data_pool, shp); nedpfree(model_data_pool, bx0); nedpfree(model_data_pool, gvox); return(0); }
+            gvox->mytex = (int32_t *)malloc(gvox->mytexx*gvox->mytexy*sizeof(int32_t));
+            if (!gvox->mytex) { Bfree(gvox->quad); Bfree(zbit); Bfree(shp); Bfree(bx0); Bfree(gvox); return(0); }
         }
     }
-    nedpfree(model_data_pool, shp); nedpfree(model_data_pool, zbit); nedpfree(model_data_pool, bx0);
+    Bfree(shp); Bfree(zbit); Bfree(bx0);
     return(gvox);
 }
 
@@ -2708,14 +2708,14 @@ static int32_t loadvox(const char *filnam)
     pal[255] = -1;
 
     vcolhashsizm1 = 8192-1;
-    vcolhashead = (int32_t *)nedpmalloc(model_data_pool, (vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { kclose(fil); return(-1); }
+    vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int32_t *)nedpmalloc(model_data_pool, i); if (!vbit) { kclose(fil); return(-1); }
+    vbit = (int32_t *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
     memset(vbit,0,i);
 
-    tbuf = (char *)nedpmalloc(model_data_pool, zsiz*sizeof(uint8_t)); if (!tbuf) { kclose(fil); return(-1); }
+    tbuf = (char *)malloc(zsiz*sizeof(uint8_t)); if (!tbuf) { kclose(fil); return(-1); }
 
     klseek(fil,12,SEEK_SET);
     for (x=0; x<xsiz; x++)
@@ -2747,7 +2747,7 @@ static int32_t loadvox(const char *filnam)
             }
         }
 
-    nedpfree(model_data_pool, tbuf); kclose(fil); return(0);
+    Bfree(tbuf); kclose(fil); return(0);
 }
 
 static int32_t loadkvx(const char *filnam)
@@ -2767,7 +2767,7 @@ static int32_t loadkvx(const char *filnam)
     klseek(fil,(xsiz+1)<<2,SEEK_CUR);
     ysizp1 = ysiz+1;
     i = xsiz*ysizp1*sizeof(int16_t);
-    xyoffs = (uint16_t *)nedpmalloc(model_data_pool, i); if (!xyoffs) { kclose(fil); return(-1); }
+    xyoffs = (uint16_t *)malloc(i); if (!xyoffs) { kclose(fil); return(-1); }
     kread(fil,xyoffs,i); for (i=i/sizeof(int16_t)-1; i>=0; i--) xyoffs[i] = B_LITTLE16(xyoffs[i]);
 
     klseek(fil,-768,SEEK_END);
@@ -2775,17 +2775,17 @@ static int32_t loadkvx(const char *filnam)
         { kread(fil,c,3); pal[i] = B_LITTLE32((((int32_t)c[0])<<18)+(((int32_t)c[1])<<10)+(((int32_t)c[2])<<2)+(i<<24)); }
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int32_t *)nedpmalloc(model_data_pool, i); if (!vbit) { nedpfree(model_data_pool, xyoffs); kclose(fil); return(-1); }
+    vbit = (int32_t *)malloc(i); if (!vbit) { Bfree(xyoffs); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
     for (vcolhashsizm1=4096; vcolhashsizm1<(mip1leng>>1); vcolhashsizm1<<=1); vcolhashsizm1--; //approx to numvoxs!
-    vcolhashead = (int32_t *)nedpmalloc(model_data_pool, (vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { nedpfree(model_data_pool, xyoffs); kclose(fil); return(-1); }
+    vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { Bfree(xyoffs); kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     klseek(fil,28+((xsiz+1)<<2)+((ysizp1*xsiz)<<1),SEEK_SET);
 
     i = kfilelength(fil)-ktell(fil);
-    tbuf = (char *)nedpmalloc(model_data_pool, i); if (!tbuf) { nedpfree(model_data_pool, xyoffs); kclose(fil); return(-1); }
+    tbuf = (char *)malloc(i); if (!tbuf) { Bfree(xyoffs); kclose(fil); return(-1); }
     kread(fil,tbuf,i); kclose(fil);
 
     cptr = tbuf;
@@ -2804,7 +2804,7 @@ static int32_t loadkvx(const char *filnam)
             }
         }
 
-    nedpfree(model_data_pool, tbuf); nedpfree(model_data_pool, xyoffs); return(0);
+    Bfree(tbuf); Bfree(xyoffs); return(0);
 }
 
 static int32_t loadkv6(const char *filnam)
@@ -2823,7 +2823,7 @@ static int32_t loadkv6(const char *filnam)
     kread(fil,&i,4);       zpiv = (float)(B_LITTLE32(i));
     kread(fil,&numvoxs,4); numvoxs = B_LITTLE32(numvoxs);
 
-    ylen = (uint16_t *)nedpmalloc(model_data_pool, xsiz*ysiz*sizeof(int16_t));
+    ylen = (uint16_t *)malloc(xsiz*ysiz*sizeof(int16_t));
     if (!ylen) { kclose(fil); return(-1); }
 
     klseek(fil,32+(numvoxs<<3)+(xsiz<<2),SEEK_SET);
@@ -2831,11 +2831,11 @@ static int32_t loadkv6(const char *filnam)
     klseek(fil,32,SEEK_SET);
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int32_t *)nedpmalloc(model_data_pool, i); if (!vbit) { nedpfree(model_data_pool, ylen); kclose(fil); return(-1); }
+    vbit = (int32_t *)malloc(i); if (!vbit) { Bfree(ylen); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
     for (vcolhashsizm1=4096; vcolhashsizm1<numvoxs; vcolhashsizm1<<=1); vcolhashsizm1--;
-    vcolhashead = (int32_t *)nedpmalloc(model_data_pool, (vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { nedpfree(model_data_pool, ylen); kclose(fil); return(-1); }
+    vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { Bfree(ylen); kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     for (x=0; x<xsiz; x++)
@@ -2852,7 +2852,7 @@ static int32_t loadkv6(const char *filnam)
                 z1 = z0+1;
             }
         }
-    nedpfree(model_data_pool, ylen); kclose(fil); return(0);
+    Bfree(ylen); kclose(fil); return(0);
 }
 
 #if 0
@@ -2874,16 +2874,16 @@ static int32_t loadvxl(const char *filnam)
     zpiv = ((float)zsiz)*.5;
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int32_t *)nedpmalloc(model_data_pool, i); if (!vbit) { kclose(fil); return(-1); }
+    vbit = (int32_t *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
     memset(vbit,-1,i);
 
     vcolhashsizm1 = 1048576-1;
-    vcolhashead = (int32_t *)nedpmalloc(model_data_pool, (vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { kclose(fil); return(-1); }
+    vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     //Allocate huge buffer and load rest of file into it...
     i = kfilelength(fil)-ktell(fil);
-    vbuf = (char *)nedpmalloc(model_data_pool, i); if (!vbuf) { kclose(fil); return(-1); }
+    vbuf = (char *)malloc(i); if (!vbuf) { kclose(fil); return(-1); }
     kread(fil,vbuf,i);
     kclose(fil);
 
@@ -2901,17 +2901,17 @@ static int32_t loadvxl(const char *filnam)
             }
             v += ((((int32_t)v[2])-((int32_t)v[1])+2)<<2);
         }
-    nedpfree(model_data_pool, vbuf); return(0);
+    Bfree(vbuf); return(0);
 }
 #endif
 
 void voxfree(voxmodel_t *m)
 {
     if (!m) return;
-    if (m->mytex) nedpfree(model_data_pool, m->mytex);
-    if (m->quad) nedpfree(model_data_pool, m->quad);
-    if (m->texid) nedpfree(model_data_pool, m->texid);
-    nedpfree(model_data_pool, m);
+    if (m->mytex) Bfree(m->mytex);
+    if (m->quad) Bfree(m->quad);
+    if (m->texid) Bfree(m->texid);
+    Bfree(m);
 }
 
 voxmodel_t *voxload(const char *filnam)
@@ -2934,13 +2934,13 @@ voxmodel_t *voxload(const char *filnam)
         vm->xpiv = xpiv; vm->ypiv = ypiv; vm->zpiv = zpiv;
         vm->is8bit = is8bit;
 
-        vm->texid = (uint32_t *)nedpcalloc(model_data_pool, MAXPALOOKUPS,sizeof(uint32_t));
+        vm->texid = (uint32_t *)Bcalloc(MAXPALOOKUPS,sizeof(uint32_t));
         if (!vm->texid) { voxfree(vm); vm = 0; }
     }
-    if (shcntmal) { nedpfree(model_data_pool, shcntmal); shcntmal = 0; }
-    if (vbit) { nedpfree(model_data_pool, vbit); vbit = 0; }
-    if (vcol) { nedpfree(model_data_pool, vcol); vcol = 0; vnum = 0; vmax = 0; }
-    if (vcolhashead) { nedpfree(model_data_pool, vcolhashead); vcolhashead = 0; }
+    if (shcntmal) { Bfree(shcntmal); shcntmal = 0; }
+    if (vbit) { Bfree(vbit); vbit = 0; }
+    if (vcol) { Bfree(vcol); vcol = 0; vnum = 0; vmax = 0; }
+    if (vcolhashead) { Bfree(vcolhashead); vcolhashead = 0; }
     return(vm);
 }
 
@@ -3135,8 +3135,8 @@ int32_t mddraw(spritetype *tspr)
 
     if (r_vbos && (r_vbocount > allocvbos))
     {
-        indexvbos = nedprealloc(model_data_pool, indexvbos, sizeof(GLuint) * r_vbocount);
-        vertvbos = nedprealloc(model_data_pool, vertvbos, sizeof(GLuint) * r_vbocount);
+        indexvbos = Brealloc(indexvbos, sizeof(GLuint) * r_vbocount);
+        vertvbos = Brealloc(vertvbos, sizeof(GLuint) * r_vbocount);
 
         bglGenBuffersARB(r_vbocount - allocvbos, &(indexvbos[allocvbos]));
         bglGenBuffersARB(r_vbocount - allocvbos, &(vertvbos[allocvbos]));
@@ -3159,7 +3159,7 @@ int32_t mddraw(spritetype *tspr)
 
     if (maxmodelverts > allocmodelverts)
     {
-        point3d *vl = (point3d *)nedprealloc(model_data_pool, vertlist,sizeof(point3d)*maxmodelverts);
+        point3d *vl = (point3d *)Brealloc(vertlist,sizeof(point3d)*maxmodelverts);
         if (!vl) { OSD_Printf("ERROR: Not enough memory to allocate %d vertices!\n",maxmodelverts); return 0; }
         vertlist = vl;
         allocmodelverts = maxmodelverts;

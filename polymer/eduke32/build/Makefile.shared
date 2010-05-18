@@ -187,6 +187,10 @@ ifneq (0,$(POLYMER))
  endif
 endif
 
+ifneq (0,$(NEDMALLOC))
+  BUILDCFLAGS+= -DNEDMALLOC
+endif
+
 ifeq ($(PRETTY_OUTPUT),1)
 BUILD_STARTED = printf "\033[K\033[1;36mBuild started using \"$(CC) $(OURCFLAGS)\"\033[0m\n"
 BUILD_FINISHED = printf "\033[K\033[1;36mBuild successful:\033[0m\n"

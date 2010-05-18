@@ -18,6 +18,7 @@ USE_OPENGL = 1
 NOASM = 0
 LINKED_GTK = 0
 BUILD32_ON_64 = 0
+NEDMALLOC = 1
 
 # Debugging/Build options
 RELEASE?=1

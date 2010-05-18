@@ -9,7 +9,7 @@ OBJ=obj.msc
 !endif
 INC=include\ #
 !ifndef CFLAGS
-CFLAGS=/DSUPERBUILD /DPOLYMOST /DUSE_OPENGL /DKSFORBUILD /DPOLYMER
+CFLAGS=/DSUPERBUILD /DPOLYMOST /DUSE_OPENGL /DKSFORBUILD /DPOLYMER # /DNEDMALLOC
 !endif
 
 o=obj
@@ -76,10 +76,10 @@ ENGINEOBJS= \
 	$(OBJ)\pragmas.$o \
 	$(OBJ)\scriptfile.$o \
 	$(OBJ)\winlayer.$o \
-    $(OBJ)\polymer.$o \
-    $(OBJ)\nedmalloc.$o \
-    $(OBJ)\mutex.$o \
-    $(OBJ)\rawinput.$o
+	$(OBJ)\polymer.$o \
+	$(OBJ)\mutex.$o \
+	$(OBJ)\rawinput.$o \
+#	$(OBJ)\nedmalloc.$o
 
 EDITOROBJS=$(OBJ)\build.$o \
 	$(OBJ)\startwin.editor.$o \

@@ -81,6 +81,16 @@ fashion which may not hold true across OS upgrades.
 
 #include <stddef.h>   /* for size_t */
 
+#define USE_ALLOCATOR 1
+#define USE_MAGIC_HEADERS 1
+#define MAXTHREADSINPOOL 2
+#define FINEGRAINEDBINS 1
+#define ENABLE_LARGE_PAGES 1
+#define ENABLE_FAST_HEAP_DETECTION 1
+#define NDEBUG 1
+#define THREADCACHEMAX 4194304
+#define THREADCACHEMAXBINS ((22-4)*2)
+
 #ifndef NEDMALLOCEXTSPEC
  #ifdef NEDMALLOC_DLL_EXPORTS
   #ifdef WIN32

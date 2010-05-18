@@ -9492,7 +9492,7 @@ static void G_ShowParameterHelp(void)
               "-connect [host]\tConnect to a multiplayer game\n"
               "-c#\t\tUse MP mode #, 1 = Dukematch, 2 = Coop, 3 = Dukematch(no spawn)\n"
               "-d[file.dmo]\tPlay a demo\n"
-              "-g[file.grp]\tUse an extra group file\n"
+              "-g[file.grp]\tUse additional game data\n"
               "-h[file.def]\tUse an alternate def\n"
               "-j[dir]\t\tAdds a directory to EDuke32's search list\n"
               "-l#\t\tWarp to level #, see -v\n"
@@ -9595,7 +9595,7 @@ static void G_DoAutoload(const char *fn)
         while (findfiles)
         {
             Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name);
-            initprintf("Using group file '%s'.\n",tempbuf);
+            initprintf("Using file '%s' as game data.\n",tempbuf);
             initgroupfile(tempbuf);
             findfiles = findfiles->next;
         }
@@ -9716,10 +9716,10 @@ static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
                 int32_t j = initgroupfile(fn);
 
                 if (j == -1)
-                    initprintf("Could not find group file '%s'.\n",fn);
+                    initprintf("Could not find file '%s'.\n",fn);
                 else
                 {
-                    initprintf("Using group file '%s'.\n",fn);
+                    initprintf("Using file '%s' as game data.\n",fn);
                     if (!g_noAutoLoad && !ud.config.NoAutoLoad)
                         G_DoAutoload(fn);
                 }
@@ -11470,9 +11470,9 @@ CLEAN_DIRECTORY:
     i = initgroupfile(g_grpNamePtr);
 
     if (i == -1)
-        initprintf("Warning: could not find main group file '%s'!\n",g_grpNamePtr);
+        initprintf("Warning: could not find main data file '%s'!\n",g_grpNamePtr);
     else
-        initprintf("Using '%s' as main group file.\n", g_grpNamePtr);
+        initprintf("Using '%s' as main game data file.\n", g_grpNamePtr);
 
     if (!g_noAutoLoad && !ud.config.NoAutoLoad)
     {
@@ -11484,7 +11484,7 @@ CLEAN_DIRECTORY:
             while (findfiles)
             {
                 Bsprintf(tempbuf,"autoload/%s",findfiles->name);
-                initprintf("Using group file '%s'.\n",tempbuf);
+                initprintf("Using file '%s' as game data.\n",tempbuf);
                 initgroupfile(tempbuf);
                 findfiles = findfiles->next;
             }
@@ -11505,7 +11505,7 @@ CLEAN_DIRECTORY:
             while (findfiles)
             {
                 Bsprintf(tempbuf,"%s/%s",g_modDir,findfiles->name);
-                initprintf("Using group file '%s'.\n",tempbuf);
+                initprintf("Using file '%s' as game data.\n",tempbuf);
                 initgroupfile(tempbuf);
                 findfiles = findfiles->next;
             }
@@ -11524,11 +11524,11 @@ CLEAN_DIRECTORY:
         {
             s = CommandGrps->next;
             j = initgroupfile(CommandGrps->str);
-            if (j == -1) initprintf("Could not find group file '%s'.\n",CommandGrps->str);
+            if (j == -1) initprintf("Could not find file '%s'.\n",CommandGrps->str);
             else
             {
                 g_groupFileHandle = j;
-                initprintf("Using group file '%s'.\n",CommandGrps->str);
+                initprintf("Using file '%s' as game data.\n",CommandGrps->str);
                 if (!g_noAutoLoad && !ud.config.NoAutoLoad)
                     G_DoAutoload(CommandGrps->str);
             }
