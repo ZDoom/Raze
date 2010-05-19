@@ -342,7 +342,6 @@ typedef struct {
     struct {
         int32_t UseJoystick;
         int32_t UseMouse;
-        int32_t RunMode;
         int32_t AutoAim;
         int32_t ShowOpponentWeapons;
         int32_t MouseDeadZone,MouseBias;

@@ -1004,7 +1004,7 @@ void Net_ParseServerPacket(ENetEvent * event)
 
             if (i == myconnectindex && !g_player[i].ps->dead_flag)
             {
-                j += (sizeof(input_t) - sizeof(loc.filler)) +
+                j += offsetof(input_t, filler) +
                      (sizeof(vec3_t) * 3) + // position and velocity
                      (sizeof(int16_t) * 3); // ang and horiz
                 goto process;
@@ -1014,7 +1014,7 @@ void Net_ParseServerPacket(ENetEvent * event)
 
             Bmemcpy(&nsyn[i], &packbuf[j], sizeof(input_t));
 
-            j += sizeof(input_t)-sizeof(loc.filler);
+            j += offsetof(input_t, filler);
 
             if (TEST_SYNC_KEY(nsyn[i].bits,SK_GAMEQUIT)) g_player[i].playerquitflag = 0;
             g_player[i].movefifoend++;
@@ -1206,7 +1206,8 @@ process:
 
                     if (var_id == MAXGAMEVARS) break;
 
-                    aGameVars[var_id].val.plValues[i] = *(int32_t *)&packbuf[j];
+                    if (aGameVars[var_id].val.plValues)
+                        aGameVars[var_id].val.plValues[i] = *(int32_t *)&packbuf[j];
                     j += sizeof(int32_t);
                 }
                 while (1);
@@ -1503,7 +1504,7 @@ void Net_ParseClientPacket(ENetEvent * event)
 
         Bmemcpy(&nsyn[other], &packbuf[j], sizeof(input_t));
 
-        j += sizeof(input_t)-sizeof(loc.filler);
+        j += offsetof(input_t, filler);
 
         g_player[other].movefifoend++;
 
@@ -1957,13 +1958,13 @@ void Net_UpdateClients(void)
     {
         if (g_player[i].playerquitflag == 0) continue;
 
-        Bmemcpy(&osyn[i], &nsyn[i], sizeof(input_t));
+        Bmemcpy(&osyn[i], &nsyn[i], offsetof(input_t, filler));
 
         *(int16_t *)&packbuf[j] = g_player[i].ps->dead_flag;
         j += sizeof(int16_t);
 
-        Bmemcpy(&packbuf[j], &nsyn[i], sizeof(input_t)-sizeof(loc.filler));
-        j += sizeof(input_t)-sizeof(loc.filler);
+        Bmemcpy(&packbuf[j], &nsyn[i], offsetof(input_t, filler));
+        j += offsetof(input_t, filler);
 
         Bmemcpy(&packbuf[j], &g_player[i].ps->pos.x, sizeof(vec3_t) * 2);
         j += sizeof(vec3_t) * 2;
@@ -2041,11 +2042,11 @@ void Net_UpdateClients(void)
             if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];
         }
 
-        i = l;
+        /*i = l;*/
         {
             int16_t ii=g_gameVarCount-1, kk = 0;
 
-            for (; ii>=0; ii--)
+            for (; ii>=0 && kk <= 64; ii--)
             {
                 if ((aGameVars[ii].dwFlags & (GAMEVAR_PERACTOR|GAMEVAR_NOMULTI)) == GAMEVAR_PERACTOR && aGameVars[ii].val.plValues)
                 {
@@ -2060,7 +2061,6 @@ void Net_UpdateClients(void)
                         kk++;
                     }
                 }
-                if (kk > 64) break;
             }
             *(int16_t *)&packbuf[j] = MAXGAMEVARS;
             j += sizeof(int16_t);
@@ -2070,7 +2070,7 @@ void Net_UpdateClients(void)
         {
             int16_t ii=g_gameVarCount-1, kk = 0;
 
-            for (; ii>=0; ii--)
+            for (; ii>=0 && kk <= 64; ii--)
             {
                 if ((aGameVars[ii].dwFlags & (GAMEVAR_PERPLAYER|GAMEVAR_NOMULTI)) == GAMEVAR_PERPLAYER && aGameVars[ii].val.plValues)
                 {
@@ -2085,7 +2085,6 @@ void Net_UpdateClients(void)
                         kk++;
                     }
                 }
-                if (kk > 64) break;
             }
             *(int16_t *)&packbuf[j] = MAXGAMEVARS;
             j += sizeof(int16_t);
@@ -2099,17 +2098,17 @@ void Net_UpdateClients(void)
 
         packbuf[(zj = j++)] = 0;
 
-        for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])); zz++)
+        for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])) && k <= 8; zz++)
             TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti)
         {
-            if (totalclock > (lastupdate[i] + TICRATE))
+            // only send STAT_MISC sprites at spawn time and let the client handle it from there
+            if (totalclock > (lastupdate[i] + TICRATE) && (!lastupdate[i] || sprite[i].statnum != STAT_MISC))
             {
                 l = crc32once((uint8_t *)&sprite[i], sizeof(spritetype));
 
-                // only send STAT_MISC sprites at spawn time and let the client handle it from there
-                if (!lastupdate[i] || (spritecrc[i] != l && sprite[i].statnum != STAT_MISC))
+                if (!lastupdate[i] || spritecrc[i] != l)
                 {
-                    int32_t jj = 0;
+                    int32_t jj;
 
                     /*initprintf("updating sprite %d (%d)\n",i,sprite[i].picnum);*/
                     spritecrc[i] = l;
@@ -2126,16 +2125,19 @@ void Net_UpdateClients(void)
                         packbuf[jj] |= 1;
                         T2 -= (intptr_t)&script[0];
                     }
+
                     if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
                     {
                         packbuf[jj] |= 2;
                         T5 -= (intptr_t)&script[0];
                     }
+
                     if (T6 >= (intptr_t)&script[0] && T6 < (intptr_t)(&script[g_scriptSize]))
                     {
                         packbuf[jj] |= 4;
                         T6 -= (intptr_t)&script[0];
                     }
+
                     Bmemcpy(&packbuf[j], &actor[i], sizeof(NetActorData_t));
                     j += sizeof(NetActorData_t);
 
@@ -2146,7 +2148,7 @@ void Net_UpdateClients(void)
                     {
                         int16_t ii=g_gameVarCount-1, kk = 0;
 
-                        for (; ii>=0; ii--)
+                        for (; ii>=0 && kk <= 64; ii--)
                         {
                             if ((aGameVars[ii].dwFlags & GAMEVAR_PERACTOR) && aGameVars[ii].val.plValues)
                             {
@@ -2161,7 +2163,6 @@ void Net_UpdateClients(void)
                                     kk++;
                                 }
                             }
-                            if (kk > 64) break;
                         }
                         *(int16_t *)&packbuf[j] = MAXGAMEVARS;
                         j += sizeof(int16_t);
@@ -2170,14 +2171,13 @@ void Net_UpdateClients(void)
                     k++;
                 }
             }
-            if (k > 8) break;
         }
+
         packbuf[zj] = k;
         k = 0;
 
-
         packbuf[(zj = j++)] = 0;
-        for (i = numsectors-1; i >= 0; i--)
+        for (i = numsectors-1; i >= 0 && k <= 6; i--)
         {
             if (totalclock > (lastsectupdate[i] + TICRATE))
             {
@@ -2194,13 +2194,12 @@ void Net_UpdateClients(void)
                     k++;
                 }
             }
-            if (k > 6) break;
         }
         packbuf[zj] = k;
         k = 0;
 
         packbuf[(zj = j++)] = 0;
-        for (i = numwalls-1; i >= 0; i--)
+        for (i = numwalls-1; i >= 0 && k <= 6; i--)
         {
             if (totalclock > (lastwallupdate[i] + TICRATE))
             {
@@ -2217,7 +2216,6 @@ void Net_UpdateClients(void)
                     k++;
                 }
             }
-            if (k > 6) break;
         }
         packbuf[zj] = k;
 
@@ -9445,7 +9443,6 @@ FAKE_F3:
     {
         CONTROL_ClearButton(gamefunc_AutoRun);
         ud.auto_run = 1-ud.auto_run;
-        ud.config.RunMode = ud.auto_run;
         P_DoQuote(85+ud.auto_run,g_player[myconnectindex].ps);
     }
 
@@ -11779,7 +11776,6 @@ MAIN_LOOP_RESTART:
     }
     else G_UpdateScreenArea();
 
-    ud.auto_run = ud.config.RunMode;
     ud.showweapons = ud.config.ShowOpponentWeapons;
     g_player[myconnectindex].ps->aim_mode = ud.mouseaiming;
     g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
@@ -12725,8 +12721,8 @@ GAME_STATIC int32_t G_DoMoveThings(void)
         packbuf[0] = PACKET_SLAVE_TO_MASTER;
         j = 1;
 
-        Bmemcpy(&packbuf[j], &nsyn[0], sizeof(input_t) - sizeof(loc.filler));
-        j += sizeof(input_t) - sizeof(loc.filler);
+        Bmemcpy(&packbuf[j], &nsyn[0], offsetof(input_t, filler));
+        j += offsetof(input_t, filler);
 
         Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->pos.x, sizeof(vec3_t) * 2);
         j += sizeof(vec3_t) * 2;

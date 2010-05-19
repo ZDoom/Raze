@@ -5492,21 +5492,45 @@ int32_t preinitengine(void)
 
     makeasmwriteable();
 
-    // this shite is to help get around data segment size limits on some platforms
-
-    state_compress = (qlz_state_compress *)Bmalloc(sizeof(qlz_state_compress));
-    state_decompress = (qlz_state_decompress *)Bmalloc(sizeof(qlz_state_decompress));
-
 #ifdef DYNALLOC_ARRAYS
-    sector = Bcalloc(MAXSECTORS,sizeof(sectortype));
-    wall = Bcalloc(MAXWALLS,sizeof(walltype));
-    sprite = Bcalloc(MAXSPRITES,sizeof(spritetype));
-    tsprite = Bcalloc(MAXSPRITESONSCREEN,sizeof(spritetype));
-    spriteext = Bcalloc(MAXSPRITES+MAXUNIQHUDID,sizeof(spriteext_t));
-    spritesmooth = Bcalloc(MAXSPRITES+MAXUNIQHUDID,sizeof(spritesmooth_t));
+    {
+        size_t i, size = 0;
+        int8_t *ptr;
 
-    if (!sector || !wall || !sprite || !tsprite || !spriteext || !spritesmooth)
-        return 1;
+        // allocate everything at once...  why not?  entries can just be added to this table
+        // to allocate future arrays without further intervention
+        struct
+        {
+            void **ptr;
+            size_t size;
+        }
+        dynarray[] =
+        {
+            { (void **)&sector,           sizeof(sectortype)     * MAXSECTORS                },
+            { (void **)&wall,             sizeof(walltype)       * MAXWALLS                  },
+            { (void **)&sprite,           sizeof(spritetype)     * MAXSPRITES                },
+            { (void **)&tsprite,          sizeof(spritetype)     * MAXSPRITESONSCREEN        },
+            { (void **)&spriteext,        sizeof(spriteext_t)    * (MAXSPRITES+MAXUNIQHUDID) },
+            { (void **)&spritesmooth,     sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID) },
+            { (void **)&state_compress,   sizeof(qlz_state_compress)                         },
+            { (void **)&state_decompress, sizeof(qlz_state_decompress)                       }
+        };
+
+        for (i=0;i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
+            size += dynarray[i].size;
+      
+        if ((ptr = (int8_t *)Bcalloc(1, size)) == NULL)
+            return 1;
+
+        size = 0;
+
+        for (i=0;i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
+        {
+            *dynarray[i].ptr = ptr + size;
+            size += dynarray[i].size;
+        }
+    }
+
 #else
     sector = sector_s;
     wall = wall_s;
@@ -5514,6 +5538,8 @@ int32_t preinitengine(void)
     tsprite = tsprite_s;
     spriteext = spriteext_s;
     spritesmooth = spritesmooth_s;
+    state_compress = (qlz_state_compress *) Bmalloc(sizeof(qlz_state_compress) + sizeof(qlz_state_decompress));
+    state_decompress = (qlz_state_decompress *) ((int8_t *)(state_compress) + sizeof(qlz_state_compress));
 #endif
 
     if ((e = Bgetenv("BUILD_NOP6")) != NULL)
@@ -5632,7 +5658,6 @@ void uninitengine(void)
             Bfclose(cacheindexptr); */
 #endif
 
-    uninitsystem();
     if (artfil != -1) kclose(artfil);
 
     i=(sizeof(artptrs)/sizeof(intptr_t))-1;
@@ -5662,20 +5687,11 @@ void uninitengine(void)
 #ifdef DYNALLOC_ARRAYS
     if (sector != NULL)
         Bfree(sector);
-    if (wall != NULL)
-        Bfree(wall);
-    if (sprite != NULL)
-        Bfree(sprite);
-    if (tsprite != NULL)
-        Bfree(tsprite);
-    if (spriteext != NULL)
-        Bfree(spriteext);
-    if (spritesmooth != NULL)
-        Bfree(spritesmooth);
+#else
+    if (state_compress) Bfree(state_compress);
 #endif
 
-    if (state_compress) Bfree(state_compress);
-    if (state_decompress) Bfree(state_decompress);
+    uninitsystem();
 }
 
 

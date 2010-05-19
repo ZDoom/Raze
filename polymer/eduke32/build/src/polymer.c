@@ -775,7 +775,7 @@ void                polymer_loadboard(void)
 
     polymer_resetlights();
 
-    if (pr_verbosity >= 1) OSD_Printf("PR : Board loaded.\n");
+    if (pr_verbosity >= 1 && numsectors) OSD_Printf("PR : Board loaded.\n");
 }
 
 void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum)
@@ -4318,7 +4318,7 @@ static void         polymer_compileprogram(int32_t programbits)
 
     prprograms[programbits].handle = program;
 
-    if (pr_verbosity >= 1) OSD_Printf("PR : Compiling GPU program with bits %i...\n", programbits);
+    if (pr_verbosity >= 2) OSD_Printf("PR : Compiling GPU program with bits %i...\n", programbits);
     if (!linkstatus) {
         OSD_Printf("PR : Failed to compile GPU program with bits %i!\n", programbits);
         if (pr_verbosity >= 1) OSD_Printf("PR : Compilation log:\n%s\n", infobuffer);

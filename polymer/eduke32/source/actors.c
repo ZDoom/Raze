@@ -8002,7 +8002,8 @@ void G_MoveWorld(void)
                         {
                             int32_t x, y;
 
-                            if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                            if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) || 
+                                !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
                             {
                                 if (actor[i].lightptr != NULL)
                                 {
@@ -8029,11 +8030,13 @@ void G_MoveWorld(void)
                         switch (DynamicTileMap[sprite[i].picnum])
                         {
                         case ATOMICHEALTH__STATIC:
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2 * 3, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
                             break;
 
                         case FIRE__STATIC:
                         case FIRE2__STATIC:
+                        case BURNING__STATIC:
+                        case BURNING2__STATIC:
                             /*
                             if (Actor[i].floorz - Actor[i].ceilingz < 128) break;
                             if (s->z > Actor[i].floorz+2048) break;
@@ -8041,18 +8044,9 @@ void G_MoveWorld(void)
                             G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
                             break;
 
-                        case BURNING__STATIC:
-                        case BURNING2__STATIC:
-                            /*
-                            if (Actor[i].floorz - Actor[i].ceilingz < 128) break;
-                            if (s->z > Actor[i].floorz + 2048) break;
-                            */
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
-                            break;
-
                         case OOZFILTER__STATIC:
                             if (s->xrepeat > 4)
-                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 6144, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 4096, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
                             break;
                         case FLOORFLAME__STATIC:
                         case FIREBARREL__STATIC:
@@ -8062,25 +8056,58 @@ void G_MoveWorld(void)
 
                         case EXPLOSION2__STATIC:
                             if (!actor[i].lightcount)
+                            {
+                                int32_t x = ((sintable[(s->ang+512)&2047])>>6);
+                                int32_t y = ((sintable[(s->ang)&2047])>>6);
+
+                                s->x -= x;
+                                s->y -= y;
+
                                 G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 255+(95<<8),
                                                s->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
+
+                                s->x += x;
+                                s->y += y;
+                            }
                             break;
                         case FORCERIPPLE__STATIC:
-                            //                    case TRANSPORTERSTAR__STATIC:
                         case TRANSPORTERBEAM__STATIC:
                             G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
                             break;
+                        case GROWSPARK__STATIC:
+                            {
+                                int32_t x = ((sintable[(s->ang+512)&2047])>>6);
+                                int32_t y = ((sintable[(s->ang)&2047])>>6);
+
+                                s->x -= x;
+                                s->y -= y;
+
+                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+
+                                s->x += x;
+                                s->y += y;
+                            }
+                            break;
                         case SHRINKEREXPLOSION__STATIC:
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                            {
+                                int32_t x = ((sintable[(s->ang+512)&2047])>>6);
+                                int32_t y = ((sintable[(s->ang)&2047])>>6);
+
+                                s->x -= x;
+                                s->y -= y;
+
+                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+
+                                s->x += x;
+                                s->y += y;
+                            }
                             break;
                         case FREEZEBLAST__STATIC:
                             G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
                             break;
-
                         case COOLEXPLOSION1__STATIC:
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<3, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<2, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
                             break;
-
                         case SHRINKSPARK__STATIC:
                             G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
                             break;
@@ -8088,9 +8115,22 @@ void G_MoveWorld(void)
                             G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
                             break;
                         case RPG__STATIC:
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 128 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
                             break;
+                        case SHOTSPARK1__STATIC:
+                            {
+                                int32_t x = ((sintable[(s->ang+512)&2047])>>7);
+                                int32_t y = ((sintable[(s->ang)&2047])>>7);
 
+                                s->x -= x;
+                                s->y -= y;
+
+                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 16 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+
+                                s->x += x;
+                                s->y += y;
+                            }
+                            break;
                         case DIPSWITCH__STATIC:
                         case DIPSWITCH2__STATIC:
                         case DIPSWITCH3__STATIC:
@@ -8126,7 +8166,7 @@ void G_MoveWorld(void)
                             s->x += x;
                             s->y += y;
 
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 255+(48<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 768, 255+(48<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
                             s->x -= x;
                             s->y -= y;
                         }

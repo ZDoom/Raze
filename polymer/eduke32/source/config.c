@@ -216,7 +216,7 @@ void CONFIG_SetDefaults(void)
     ud.config.NumChannels = 2;
     ud.config.NumVoices = 32;
     ud.config.ReverseStereo = 0;
-    ud.config.RunMode = ud.auto_run = 1;
+    ud.auto_run = 1;
     ud.config.ShowOpponentWeapons = 0;
     ud.config.SmoothInput = 1;
     ud.config.SoundToggle = 1;

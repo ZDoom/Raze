@@ -98,8 +98,6 @@ static BOOL RegisterWindowClass(void);
 static BOOL CreateAppWindow(int32_t modenum);
 static void DestroyAppWindow(void);
 
-static BOOL bDInputInited = FALSE;
-
 // video
 static int32_t desktopxdim=0,desktopydim=0,desktopbpp=0,modesetusing=-1;
 int32_t xres=-1, yres=-1, fullscreen=0, bpp=0, bytesperline=0, imageSize=0;
@@ -143,6 +141,36 @@ void (*keypresscallback)(int32_t,int32_t) = 0;
 void (*mousepresscallback)(int32_t,int32_t) = 0;
 void (*joypresscallback)(int32_t,int32_t) = 0;
 
+
+//-------------------------------------------------------------------------------------------------
+//  DINPUT (JOYSTICK)
+//=================================================================================================
+
+#define JOYSTICK	0
+
+static HMODULE               hDInputDLL    = NULL;
+static LPDIRECTINPUT7A        lpDI          = NULL;
+static LPDIRECTINPUTDEVICE7A lpDID = NULL;
+#define INPUT_BUFFER_SIZE	32
+static GUID                  guidDevs;
+
+static char di_devacquired;
+static HANDLE di_inputevt;
+static int32_t joyblast=0;
+volatile uint8_t moustat = 0, mousegrab = 0;
+
+static struct
+{
+    char *name;
+    LPDIRECTINPUTDEVICE7A *did;
+    const DIDATAFORMAT *df;
+} devicedef = { "joystick", &lpDID, &c_dfDIJoystick };
+
+static struct _joydef
+{
+    const char *name;
+    uint32_t ofs;	// directinput 'dwOfs' value
+} *axisdefs = NULL, *buttondefs = NULL, *hatdefs = NULL;
 
 
 
@@ -542,9 +570,8 @@ static void printsysversion(void)
         break;
     }
 
-    initprintf("Running under Windows %s (build %lu.%lu.%lu) %s", ver, osv.dwMajorVersion, osv.dwMinorVersion,
-               osv.dwPlatformId == VER_PLATFORM_WIN32_NT ? osv.dwBuildNumber : osv.dwBuildNumber&0xffff,
-               osv.szCSDVersion);
+    initprintf("Windows %s (build %lu.%lu.%lu) %s", ver,
+        osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber, osv.szCSDVersion);
 
 #ifdef NEDMALLOC
     initprintf("\n");
@@ -552,7 +579,7 @@ static void printsysversion(void)
     if (largepagesavailable)
         initprintf("Large page support available\n");
 #else
-    if (nedhandle) initprintf("with nedmalloc\n");
+    initprintf(nedhandle ? "w/ nedmalloc.dll\n" : "\n");
 #endif
 
 }
@@ -691,7 +718,7 @@ int32_t handleevents(void)
 
     RI_PollDevices(TRUE);
 
-    if (bDInputInited)
+    if (hDInputDLL)
         DI_PollJoysticks();
 
     while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -720,36 +747,6 @@ int32_t handleevents(void)
 
     return rv;
 }
-
-//-------------------------------------------------------------------------------------------------
-//  DINPUT (JOYSTICK)
-//=================================================================================================
-
-#define JOYSTICK	0
-
-static HMODULE               hDInputDLL    = NULL;
-static LPDIRECTINPUT7A        lpDI          = NULL;
-static LPDIRECTINPUTDEVICE7A lpDID = NULL;
-#define INPUT_BUFFER_SIZE	32
-static GUID                  guidDevs;
-
-static char di_devacquired;
-static HANDLE di_inputevt;
-static int32_t joyblast=0;
-volatile uint8_t moustat = 0, mousegrab = 0;
-
-static struct
-{
-    char *name;
-    LPDIRECTINPUTDEVICE7A *did;
-    const DIDATAFORMAT *df;
-} devicedef = { "joystick", &lpDID, &c_dfDIJoystick };
-
-static struct _joydef
-{
-    const char *name;
-    uint32_t ofs;	// directinput 'dwOfs' value
-} *axisdefs = NULL, *buttondefs = NULL, *hatdefs = NULL;
 
 
 // I don't see any pressing need to store the key-up events yet
@@ -842,9 +839,10 @@ void setkeypresscallback(void (*callback)(int32_t, int32_t)) { keypresscallback 
 void setmousepresscallback(void (*callback)(int32_t, int32_t)) { mousepresscallback = callback; }
 void setjoypresscallback(void (*callback)(int32_t, int32_t)) { joypresscallback = callback; }
 
-inline void idle_waitevent(void)
+inline void idle_waitevent_timeout(uint32_t timeout)
 {
-    int32_t i = 10;
+    // timeout becomes a completion deadline
+    timeout += getticks();
 
     do
     {
@@ -858,12 +856,12 @@ inline void idle_waitevent(void)
 
         Sleep(10);
     }
-    while (--i);
+    while (timeout > (getticks() + 10));
 }
 
-inline void idle_waitevent_timeout(int32_t timeout)
+inline void idle_waitevent(void)
 {
-    idle_waitevent();
+    idle_waitevent_timeout(100);
 }
 
 inline void idle(void)
@@ -1077,7 +1075,7 @@ static BOOL InitDirectInput(void)
     LPDIRECTINPUTDEVICE7A dev2;
     DIDEVCAPS didc;
 
-    if (bDInputInited) return FALSE;
+    if (hDInputDLL) return FALSE;
 
     initprintf("Initializing DirectInput...\n");
 
@@ -1108,7 +1106,6 @@ static BOOL InitDirectInput(void)
     if (inputdevices == (1|2))
     {
         initprintf("  - No game controllers found\n");
-        bDInputInited = TRUE;
         UninitDirectInput();
         return TRUE;
     }
@@ -1186,7 +1183,6 @@ static BOOL InitDirectInput(void)
 
     di_devacquired = 0;
 
-    bDInputInited = TRUE;
     return FALSE;
 }
 
@@ -1198,7 +1194,7 @@ static void UninitDirectInput(void)
 {
     int32_t i;
 
-    if (bDInputInited) initprintf("Uninitializing DirectInput...\n");
+    if (hDInputDLL) initprintf("Uninitializing DirectInput...\n");
 
     AcquireInputDevices(0);
 
@@ -1240,8 +1236,6 @@ static void UninitDirectInput(void)
         FreeLibrary(hDInputDLL);
         hDInputDLL = NULL;
     }
-
-    bDInputInited = FALSE;
 }
 
 
@@ -1291,7 +1285,7 @@ static void AcquireInputDevices(char acquire)
     DWORD flags;
     HRESULT result;
 
-    if (!bDInputInited) return;
+    if (!hDInputDLL) return;
     if (!hWindow) return;
 
     if (acquire)
@@ -1616,11 +1610,6 @@ int32_t gettimerfreq(void)
 //  VIDEO
 //=================================================================================================
 
-// DWM stuff
-static HMODULE              hDWMApiDLL        = NULL;
-static BOOL                 bDWMApiInited     = FALSE;
-HRESULT(WINAPI *aDwmEnableComposition)(UINT);
-
 // DirectDraw objects
 static HMODULE              hDDrawDLL      = NULL;
 static LPDIRECTDRAW         lpDD           = NULL;
@@ -1643,23 +1632,17 @@ static int32_t getgammaramp(WORD gt[3][256]);
 
 static void ToggleDesktopComposition(BOOL compEnable)
 {
-    if (!bDWMApiInited)
-    {
-        hDWMApiDLL = LoadLibrary("DWMAPI.DLL");
-        if (hDWMApiDLL)
-        {
-            aDwmEnableComposition = (void *)GetProcAddress(hDWMApiDLL, "DwmEnableComposition");
-        }
-        bDWMApiInited = TRUE;
-    }
+    static HMODULE              hDWMApiDLL        = NULL;
+    static HRESULT(WINAPI *aDwmEnableComposition)(UINT);
+
+    if (!hDWMApiDLL && (hDWMApiDLL = LoadLibrary("DWMAPI.DLL")))
+        aDwmEnableComposition = (void *)GetProcAddress(hDWMApiDLL, "DwmEnableComposition");
 
     if (aDwmEnableComposition)
     {
         aDwmEnableComposition(compEnable);
         if (!silentvideomodeswitch)
-        {
-            initprintf("%s desktop composition.\n", (compEnable) ? "Enabling" : "Disabling");
-        }
+            initprintf("%sabling desktop composition...\n", (compEnable) ? "En" : "Dis");
     }
 }
 
@@ -1760,7 +1743,8 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         gammabrightness = 0;
     }
 
-    ToggleDesktopComposition(c < 16);
+    if (osv.dwMajorVersion >= 6)
+        ToggleDesktopComposition(c < 16);
 
     if (!silentvideomodeswitch)
         initprintf("Setting video mode %dx%d (%d-bit %s)\n",

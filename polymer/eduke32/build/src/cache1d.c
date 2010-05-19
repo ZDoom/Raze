@@ -301,7 +301,7 @@ int32_t addsearchpath(const char *p)
 
     Bcorrectfilename(srch->path,0);
 
-    initprintf("addsearchpath(): Added %s\n", srch->path);
+    initprintf("Using %s for game data\n", srch->path);
 
     return 0;
 }

@@ -6382,18 +6382,30 @@ static void Keys2d(void)
     else if (!(keystatus[KEYSC_F5]|keystatus[KEYSC_F6]|keystatus[KEYSC_F7]|keystatus[KEYSC_F8]))
     {
         static int32_t counter = 0;
+        static int32_t omx = 0, omy = 0;
+/*
         static int32_t opointhighlight, olinehighlight, ocursectornum;
 
         if (pointhighlight == opointhighlight && linehighlight == olinehighlight && cursectornum == ocursectornum)
-            counter++;
-        else
-            counter = 0;
+*/
+        if (omx == mousxplc && omy == mousyplc)
+        {
+            if (counter < 6)
+                counter++;
+        }
+        else if (counter > 0)
+            counter--;
+        
+        omx = mousxplc;
+        omy = mousyplc;
 
+/*
         opointhighlight = pointhighlight;
         olinehighlight = linehighlight;
         ocursectornum = cursectornum;
+*/
 
-        if (counter >= 40  && totalclock >= 120*6)
+        if (counter >= 2 && totalclock >= 120*6)
         {
             if (pointhighlight >= 16384)
             {

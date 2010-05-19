@@ -1896,7 +1896,7 @@ static int32_t SDL_WaitEventTimeout(SDL_Event * event, int32_t timeout)
 }
 #endif
 
-inline void idle_waitevent_timeout(int32_t timeout)
+inline void idle_waitevent_timeout(uint32_t timeout)
 {
     SDL_WaitEventTimeout(NULL, timeout);
 }

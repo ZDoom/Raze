@@ -6155,7 +6155,7 @@ void C_Compile(const char *filenam)
     }
     else
     {
-        int32_t j=0, k=0;
+        int32_t j=0, k=0, l=0;
 
         hash_free(&h_keywords);
         freehashnames();
@@ -6174,12 +6174,9 @@ void C_Compile(const char *filenam)
 
         C_SetScriptSize(g_scriptPtr-script+8);
 
-        initprintf("Script compiled in %dms\n", getticks() - startcompiletime);
+        initprintf("Script compiled in %dms, %ld*%db, version %s\n", getticks() - startcompiletime,
+            (unsigned)(g_scriptPtr-script), sizeof(intptr_t), (g_scriptVersion == 14?"1.4+":"1.3D"));
 
-        initprintf("Compiled code size: %ld*%d bytes, version %s\n",
-                   (unsigned)(g_scriptPtr-script), sizeof(intptr_t), (g_scriptVersion == 14?"1.4+":"1.3D"));
-
-        initprintf("Pointer bitmap size: %ld bytes\n",(g_scriptSize+7)>>3);
         initprintf("%ld/%ld labels, %d/%d variables\n", g_numLabels,
                    min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
                        MAXSPRITES * sizeof(spritetype)/(1<<6)),
@@ -6188,18 +6185,19 @@ void C_Compile(const char *filenam)
         for (i=MAXQUOTES-1; i>=0; i--)
             if (ScriptQuotes[i])
                 j++;
-
-        initprintf("%ld/%d quotes, %d quote redefinitions\n",j,MAXQUOTES,g_numQuoteRedefinitions);
-
-        j = 0;
         for (i=MAXGAMEEVENTS-1; i>=0; i--)
             if (apScriptGameEvent[i])
-                j++;
+                k++;
         for (i=MAXTILES-1; i>=0; i--)
             if (actorscrptr[i])
-                k++;
+                l++;
 
-        initprintf("%ld/%d event definitions, %ld defined actors\n",j,MAXEVENTS,k);
+        if (j) initprintf("%ld quotes, ", j);
+        if (g_numQuoteRedefinitions) initprintf("%d strings, ", g_numQuoteRedefinitions);
+        if (k) initprintf("%ld events, ", k);
+        if (l) initprintf("%ld actors", l);
+
+        initprintf("\n");
 
         for (i=127; i>=0; i--)
             if (ScriptQuotes[i] == NULL)

@@ -1267,7 +1267,7 @@ void overheadeditor(void)
     walltype *wal;
     int32_t prefixarg = 0;
     hitdata_t hitinfo;
-    int32_t resetsynctics = 0, lasttick=getticks();
+    int32_t resetsynctics = 0, lasttick=getticks(), waitdelay=totalclock, lastdraw=getticks();
     int32_t tsign;
 
     //qsetmode640480();
@@ -1322,11 +1322,16 @@ void overheadeditor(void)
         if (!((vel|angvel|svel) //DOWN_BK(MOVEFORWARD) || DOWN_BK(MOVEBACKWARD) || DOWN_BK(TURNLEFT) || DOWN_BK(TURNRIGHT)
               || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || bstatus || OSD_IsMoving()))
         {
-            // wait for event, timeout after 200 ms - (last loop time)
-            idle_waitevent_timeout(200 - min(getticks()-lasttick, 200));
-            // have synctics reset to 0 after we've slept to avoid zooming out to the max instantly
-            resetsynctics = 1;
+            if (totalclock > waitdelay)
+            {
+                // wait for event, timeout after 200 ms - (last loop time)
+                idle_waitevent_timeout(200 - min(getticks()-lasttick, 200));
+                // have synctics reset to 0 after we've slept to avoid zooming out to the max instantly
+                resetsynctics = 1;
+            }
         }
+        else waitdelay = totalclock + 30; // should be 250 ms
+
         lasttick = getticks();
 
         if (handleevents())
@@ -1429,8 +1434,11 @@ void overheadeditor(void)
         numwalls = newnumwalls;
         if (numwalls < 0) numwalls = tempint;
 
-        if (DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || mousx || mousy || bstatus || (totalclock & 8) == 0 || newnumwalls>=0)
+        if ((getticks() - lastdraw) >= 5 || (vel|angvel|svel) || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || mousx || mousy || bstatus ||
+            newnumwalls>=0 || OSD_IsMoving())
         {
+            lastdraw = getticks();
+
             clear2dscreen();
 
             if (graphicsmode)
