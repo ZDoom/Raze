@@ -354,7 +354,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     sk->param = param;
     sk->specpower = specpower;
     sk->specfactor = specfactor;
-    sk->fn = (char *)malloc(strlen(skinfn)+1);
+    sk->fn = (char *)Bmalloc(strlen(skinfn)+1);
     if (!sk->fn) return(-4);
     strcpy(sk->fn, skinfn);
 
@@ -418,7 +418,7 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
     int32_t r, g, b;
 
     picfillen = kfilelength(filh);
-    picfil = (char *)malloc(picfillen+1); if (!picfil) { return -1; }
+    picfil = (char *)Bmalloc(picfillen+1); if (!picfil) { return -1; }
     kread(filh, picfil, picfillen);
 
     // tsizx/y = replacement texture's natural size
@@ -438,7 +438,7 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
         ysiz = tsizy;
     }
     *osizx = tsizx; *osizy = tsizy;
-    pic = (coltype *)malloc(xsiz*ysiz*sizeof(coltype));
+    pic = (coltype *)Bmalloc(xsiz*ysiz*sizeof(coltype));
     if (!pic) { Bfree(picfil); return -1; }
     memset(pic,0,xsiz*ysiz*sizeof(coltype));
 
@@ -965,7 +965,7 @@ static void mdloadvbos(md3model_t *m)
 {
     int32_t     i;
 
-    m->vbos = malloc(m->head.numsurfs * sizeof(GLuint));
+    m->vbos = Bmalloc(m->head.numsurfs * sizeof(GLuint));
     bglGenBuffersARB(m->head.numsurfs, m->vbos);
 
     i = 0;
@@ -1072,7 +1072,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
         if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
     if (i<0) i=0;
     st[i] = 0;
-    m->basepath = (char *)malloc(i+1); if (!m->basepath) { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    m->basepath = (char *)Bmalloc(i+1); if (!m->basepath) { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
     strcpy(m->basepath, st);
 
     m->skinfn = (char *)Bcalloc(m->numskins,64); if (!m->skinfn) { Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
@@ -1203,16 +1203,16 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
 
         if (m->numskins > 0)
         {
-            sk->fn = (char *)malloc(strlen(m->basepath)+strlen(m->skinfn)+1);
+            sk->fn = (char *)Bmalloc(strlen(m->basepath)+strlen(m->skinfn)+1);
             strcpy(sk->fn, m->basepath);
             strcat(sk->fn, m->skinfn);
         }
         m3->skinmap = sk;
     }
 
-    m3->indexes = malloc(sizeof(uint16_t) * s->numtris);
-    m3->vindexes = malloc(sizeof(uint16_t) * s->numtris * 3);
-    m3->maxdepths = malloc(sizeof(float) * s->numtris);
+    m3->indexes = Bmalloc(sizeof(uint16_t) * s->numtris);
+    m3->vindexes = Bmalloc(sizeof(uint16_t) * s->numtris * 3);
+    m3->maxdepths = Bmalloc(sizeof(float) * s->numtris);
 
     m3->vbos = NULL;
 
@@ -1299,19 +1299,19 @@ static md3model_t *md3load(int32_t fil)
     ofsurf = m->head.ofssurfs;
 
     klseek(fil,m->head.ofsframes,SEEK_SET); i = m->head.numframes*sizeof(md3frame_t);
-    m->head.frames = (md3frame_t *)malloc(i); if (!m->head.frames) { Bfree(m); return(0); }
+    m->head.frames = (md3frame_t *)Bmalloc(i); if (!m->head.frames) { Bfree(m); return(0); }
     kread(fil,m->head.frames,i);
 
     if (m->head.numtags == 0) m->head.tags = NULL;
     else
     {
         klseek(fil,m->head.ofstags,SEEK_SET); i = m->head.numtags*sizeof(md3tag_t);
-        m->head.tags = (md3tag_t *)malloc(i); if (!m->head.tags) { Bfree(m->head.frames); Bfree(m); return(0); }
+        m->head.tags = (md3tag_t *)Bmalloc(i); if (!m->head.tags) { Bfree(m->head.frames); Bfree(m); return(0); }
         kread(fil,m->head.tags,i);
     }
 
     klseek(fil,m->head.ofssurfs,SEEK_SET); i = m->head.numsurfs*sizeof(md3surf_t);
-    m->head.surfs = (md3surf_t *)malloc(i); if (!m->head.surfs) { if (m->head.tags) Bfree(m->head.tags); Bfree(m->head.frames); Bfree(m); return(0); }
+    m->head.surfs = (md3surf_t *)Bmalloc(i); if (!m->head.surfs) { if (m->head.tags) Bfree(m->head.tags); Bfree(m->head.frames); Bfree(m); return(0); }
 
 #if B_BIG_ENDIAN != 0
     {
@@ -1355,7 +1355,7 @@ static md3model_t *md3load(int32_t fil)
         //OSD_Printf("Current model geometry memory usage : %i.\n", memoryusage);
 
 
-        s->tris = (md3tri_t *)malloc(leng[0]+leng[1]+leng[2]+leng[3]);
+        s->tris = (md3tri_t *)Bmalloc(leng[0]+leng[1]+leng[2]+leng[3]);
         if (!s->tris)
         {
             for (surfi--; surfi>=0; surfi--) Bfree(m->head.surfs[surfi].tris);
@@ -1428,9 +1428,9 @@ static md3model_t *md3load(int32_t fil)
     }
 #endif
 
-    m->indexes = malloc(sizeof(uint16_t) * maxtrispersurf);
-    m->vindexes = malloc(sizeof(uint16_t) * maxtrispersurf * 3);
-    m->maxdepths = malloc(sizeof(float) * maxtrispersurf);
+    m->indexes = Bmalloc(sizeof(uint16_t) * maxtrispersurf);
+    m->vindexes = Bmalloc(sizeof(uint16_t) * maxtrispersurf * 3);
+    m->maxdepths = Bmalloc(sizeof(float) * maxtrispersurf);
 
     m->vbos = NULL;
 
@@ -2301,7 +2301,7 @@ uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
     int32_t i;
 
     pic = (coltype *)picbuf; //Correct for GL's RGB order; also apply gamma here..
-    pic2 = (coltype *)malloc(xsiz*ysiz*sizeof(int32_t)); if (!pic2) return((unsigned)-1);
+    pic2 = (coltype *)Bmalloc(xsiz*ysiz*sizeof(int32_t)); if (!pic2) return((unsigned)-1);
     cptr = (char*)&britable[gammabrightness ? 0 : curbrightness][0];
     if (!is8bit)
     {
@@ -2552,7 +2552,7 @@ static voxmodel_t *vox2poly()
     int32_t i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy,*bx0, *by0;
     void (*daquad)(int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
 
-    gvox = (voxmodel_t *)malloc(sizeof(voxmodel_t)); if (!gvox) return(0);
+    gvox = (voxmodel_t *)Bmalloc(sizeof(voxmodel_t)); if (!gvox) return(0);
     memset(gvox,0,sizeof(voxmodel_t));
 
     //x is largest dimension, y is 2nd largest dimension
@@ -2560,7 +2560,7 @@ static voxmodel_t *vox2poly()
     if ((x < y) && (x < z)) x = z; else if (y < z) y = z;
     if (x < y) { z = x; x = y; y = z; }
     shcntp = x; i = x*y*sizeof(int32_t);
-    shcntmal = (int32_t *)malloc(i); if (!shcntmal) { Bfree(gvox); return(0); }
+    shcntmal = (int32_t *)Bmalloc(i); if (!shcntmal) { Bfree(gvox); return(0); }
     memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
     gmaxx = gmaxy = garea = 0;
 
@@ -2568,7 +2568,7 @@ static voxmodel_t *vox2poly()
     for (i=0; i<7; i++) gvox->qfacind[i] = -1;
 
     i = ((max(ysiz,zsiz)+1)<<2);
-    bx0 = (int32_t *)malloc(i<<1); if (!bx0) { Bfree(gvox); return(0); }
+    bx0 = (int32_t *)Bmalloc(i<<1); if (!bx0) { Bfree(gvox); return(0); }
     by0 = (int32_t *)(((intptr_t)bx0)+i);
 
     for (cnt=0; cnt<2; cnt++)
@@ -2614,7 +2614,7 @@ static voxmodel_t *vox2poly()
 
         if (!cnt)
         {
-            shp = (spoint2d *)malloc(gvox->qcnt*sizeof(spoint2d));
+            shp = (spoint2d *)Bmalloc(gvox->qcnt*sizeof(spoint2d));
             if (!shp) { Bfree(bx0); Bfree(gvox); return(0); }
 
             sc = 0;
@@ -2636,7 +2636,7 @@ skindidntfit:
             mytexo5 = (gvox->mytexx>>5);
 
             i = (((gvox->mytexx*gvox->mytexy+31)>>5)<<2);
-            zbit = (int32_t *)malloc(i); if (!zbit) { Bfree(bx0); Bfree(gvox); Bfree(shp); return(0); }
+            zbit = (int32_t *)Bmalloc(i); if (!zbit) { Bfree(bx0); Bfree(gvox); Bfree(shp); return(0); }
             memset(zbit,0,i);
 
             v = gvox->mytexx*gvox->mytexy;
@@ -2678,10 +2678,10 @@ skindidntfit:
                 shp[z].x = x0; shp[z].y = y0; //Overwrite size with top-left location
             }
 
-            gvox->quad = (voxrect_t *)malloc(gvox->qcnt*sizeof(voxrect_t));
+            gvox->quad = (voxrect_t *)Bmalloc(gvox->qcnt*sizeof(voxrect_t));
             if (!gvox->quad) { Bfree(zbit); Bfree(shp); Bfree(bx0); Bfree(gvox); return(0); }
 
-            gvox->mytex = (int32_t *)malloc(gvox->mytexx*gvox->mytexy*sizeof(int32_t));
+            gvox->mytex = (int32_t *)Bmalloc(gvox->mytexx*gvox->mytexy*sizeof(int32_t));
             if (!gvox->mytex) { Bfree(gvox->quad); Bfree(zbit); Bfree(shp); Bfree(bx0); Bfree(gvox); return(0); }
         }
     }
@@ -2708,14 +2708,14 @@ static int32_t loadvox(const char *filnam)
     pal[255] = -1;
 
     vcolhashsizm1 = 8192-1;
-    vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { kclose(fil); return(-1); }
+    vcolhashead = (int32_t *)Bmalloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int32_t *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
+    vbit = (int32_t *)Bmalloc(i); if (!vbit) { kclose(fil); return(-1); }
     memset(vbit,0,i);
 
-    tbuf = (char *)malloc(zsiz*sizeof(uint8_t)); if (!tbuf) { kclose(fil); return(-1); }
+    tbuf = (char *)Bmalloc(zsiz*sizeof(uint8_t)); if (!tbuf) { kclose(fil); return(-1); }
 
     klseek(fil,12,SEEK_SET);
     for (x=0; x<xsiz; x++)
@@ -2767,7 +2767,7 @@ static int32_t loadkvx(const char *filnam)
     klseek(fil,(xsiz+1)<<2,SEEK_CUR);
     ysizp1 = ysiz+1;
     i = xsiz*ysizp1*sizeof(int16_t);
-    xyoffs = (uint16_t *)malloc(i); if (!xyoffs) { kclose(fil); return(-1); }
+    xyoffs = (uint16_t *)Bmalloc(i); if (!xyoffs) { kclose(fil); return(-1); }
     kread(fil,xyoffs,i); for (i=i/sizeof(int16_t)-1; i>=0; i--) xyoffs[i] = B_LITTLE16(xyoffs[i]);
 
     klseek(fil,-768,SEEK_END);
@@ -2775,17 +2775,17 @@ static int32_t loadkvx(const char *filnam)
         { kread(fil,c,3); pal[i] = B_LITTLE32((((int32_t)c[0])<<18)+(((int32_t)c[1])<<10)+(((int32_t)c[2])<<2)+(i<<24)); }
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int32_t *)malloc(i); if (!vbit) { Bfree(xyoffs); kclose(fil); return(-1); }
+    vbit = (int32_t *)Bmalloc(i); if (!vbit) { Bfree(xyoffs); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
     for (vcolhashsizm1=4096; vcolhashsizm1<(mip1leng>>1); vcolhashsizm1<<=1); vcolhashsizm1--; //approx to numvoxs!
-    vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { Bfree(xyoffs); kclose(fil); return(-1); }
+    vcolhashead = (int32_t *)Bmalloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { Bfree(xyoffs); kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     klseek(fil,28+((xsiz+1)<<2)+((ysizp1*xsiz)<<1),SEEK_SET);
 
     i = kfilelength(fil)-ktell(fil);
-    tbuf = (char *)malloc(i); if (!tbuf) { Bfree(xyoffs); kclose(fil); return(-1); }
+    tbuf = (char *)Bmalloc(i); if (!tbuf) { Bfree(xyoffs); kclose(fil); return(-1); }
     kread(fil,tbuf,i); kclose(fil);
 
     cptr = tbuf;
@@ -2823,7 +2823,7 @@ static int32_t loadkv6(const char *filnam)
     kread(fil,&i,4);       zpiv = (float)(B_LITTLE32(i));
     kread(fil,&numvoxs,4); numvoxs = B_LITTLE32(numvoxs);
 
-    ylen = (uint16_t *)malloc(xsiz*ysiz*sizeof(int16_t));
+    ylen = (uint16_t *)Bmalloc(xsiz*ysiz*sizeof(int16_t));
     if (!ylen) { kclose(fil); return(-1); }
 
     klseek(fil,32+(numvoxs<<3)+(xsiz<<2),SEEK_SET);
@@ -2831,11 +2831,11 @@ static int32_t loadkv6(const char *filnam)
     klseek(fil,32,SEEK_SET);
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int32_t *)malloc(i); if (!vbit) { Bfree(ylen); kclose(fil); return(-1); }
+    vbit = (int32_t *)Bmalloc(i); if (!vbit) { Bfree(ylen); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
     for (vcolhashsizm1=4096; vcolhashsizm1<numvoxs; vcolhashsizm1<<=1); vcolhashsizm1--;
-    vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { Bfree(ylen); kclose(fil); return(-1); }
+    vcolhashead = (int32_t *)Bmalloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { Bfree(ylen); kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     for (x=0; x<xsiz; x++)
@@ -2874,16 +2874,16 @@ static int32_t loadvxl(const char *filnam)
     zpiv = ((float)zsiz)*.5;
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (int32_t *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
+    vbit = (int32_t *)Bmalloc(i); if (!vbit) { kclose(fil); return(-1); }
     memset(vbit,-1,i);
 
     vcolhashsizm1 = 1048576-1;
-    vcolhashead = (int32_t *)malloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { kclose(fil); return(-1); }
+    vcolhashead = (int32_t *)Bmalloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
     //Allocate huge buffer and load rest of file into it...
     i = kfilelength(fil)-ktell(fil);
-    vbuf = (char *)malloc(i); if (!vbuf) { kclose(fil); return(-1); }
+    vbuf = (char *)Bmalloc(i); if (!vbuf) { kclose(fil); return(-1); }
     kread(fil,vbuf,i);
     kclose(fil);
 
